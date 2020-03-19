@@ -1,0 +1,341 @@
+QA output created by 1347
+=== std out
+
+
+ATOP - shard        2020/03/19  15:05:16        --------------        1s elapsed
+PRC | sys    0.00s | user   0.00s | #proc    326 | #zombie    0 | no  procacct |
+CPU | sys       0% | user      0% | irq       0% | idle      0% | wait      0% |
+CPL | avg1   -1.00 | avg5   -1.00 | avg15  -1.00 | csw        0 | intr       0 |
+MEM | tot    15.3G | free    0.0M | cache   0.0M | buff    0.0M | slab    0.0M |
+SWP | tot     0.0M | free    0.0M |              | vmcom   0.0M | vmlim   0.0M |
+                   *** system and process activity since boot ***
+    PID    PPID RUID     RGID       STDATE    STTIME  EXC S  CPU CMD            
+      1       0 root     root     2020/03/06 14:47:50   -    0% systemd        
+      2       1 root     root     2020/03/06 14:47:50   -    0% kthreadd       
+      3       2 root     root     2020/03/06 14:47:50   -    0% rcu_gp         
+      4       2 root     root     2020/03/06 14:47:50   -    0% rcu_par_gp     
+      6       2 root     root     2020/03/06 14:47:50   -    0% kworker/0:0H-e 
+      9       2 root     root     2020/03/06 14:47:50   -    0% mm_percpu_wq   
+     10       2 root     root     2020/03/06 14:47:50   -    0% ksoftirqd/0    
+     11       2 root     root     2020/03/06 14:47:50   -    0% rcu_sched      
+     12       2 root     root     2020/03/06 14:47:50   -    0% migration/0    
+     13       2 root     root     2020/03/06 14:47:50   -    0% cpuhp/0        
+     14       2 root     root     2020/03/06 14:47:50   -    0% cpuhp/1        
+     15       2 root     root     2020/03/06 14:47:50   -    0% migration/1    
+     16       2 root     root     2020/03/06 14:47:50   -    0% ksoftirqd/1    
+     18       2 root     root     2020/03/06 14:47:50   -    0% kworker/1:0H-k 
+     19       2 root     root     2020/03/06 14:47:50   -    0% cpuhp/2        
+     20       2 root     root     2020/03/06 14:47:50   -    0% migration/2    
+     21       2 root     root     2020/03/06 14:47:50   -    0% ksoftirqd/2    
+     23       2 root     root     2020/03/06 14:47:50   -    0% kworker/2:0H-e 
+     24       2 root     root     2020/03/06 14:47:50   -    0% cpuhp/3        
+     25       2 root     root     2020/03/06 14:47:50   -    0% migration/3    
+     26       2 root     root     2020/03/06 14:47:50   -    0% ksoftirqd/3    
+     28       2 root     root     2020/03/06 14:47:50   -    0% kworker/3:0H-e 
+     29       2 root     root     2020/03/06 14:47:50   -    0% cpuhp/4        
+     30       2 root     root     2020/03/06 14:47:50   -    0% migration/4    
+     31       2 root     root     2020/03/06 14:47:50   -    0% ksoftirqd/4    
+     33       2 root     root     2020/03/06 14:47:50   -    0% kworker/4:0H-k 
+     34       2 root     root     2020/03/06 14:47:50   -    0% cpuhp/5        
+     35       2 root     root     2020/03/06 14:47:50   -    0% migration/5    
+     36       2 root     root     2020/03/06 14:47:50   -    0% ksoftirqd/5    
+     38       2 root     root     2020/03/06 14:47:50   -    0% kworker/5:0H-k 
+     39       2 root     root     2020/03/06 14:47:50   -    0% cpuhp/6        
+     40       2 root     root     2020/03/06 14:47:50   -    0% migration/6    
+     41       2 root     root     2020/03/06 14:47:50   -    0% ksoftirqd/6    
+     43       2 root     root     2020/03/06 14:47:50   -    0% kworker/6:0H-k 
+     44       2 root     root     2020/03/06 14:47:50   -    0% cpuhp/7        
+     45       2 root     root     2020/03/06 14:47:50   -    0% migration/7    
+     46       2 root     root     2020/03/06 14:47:50   -    0% ksoftirqd/7    
+     48       2 root     root     2020/03/06 14:47:50   -    0% kworker/7:0H-k 
+     49       2 root     root     2020/03/06 14:47:50   -    0% kdevtmpfs      
+     50       2 root     root     2020/03/06 14:47:50   -    0% netns          
+     51       2 root     root     2020/03/06 14:47:50   -    0% rcu_tasks_kthr 
+     52       2 root     root     2020/03/06 14:47:50   -    0% kauditd        
+     53       2 root     root     2020/03/06 14:47:50   -    0% oom_reaper     
+     54       2 root     root     2020/03/06 14:47:50   -    0% writeback      
+     55       2 root     root     2020/03/06 14:47:50   -    0% kcompactd0     
+     56       2 root     root     2020/03/06 14:47:50   -    0% ksmd           
+     57       2 root     root     2020/03/06 14:47:50   -    0% khugepaged     
+     86       2 root     root     2020/03/06 14:47:50   -    0% cryptd         
+    168       2 root     root     2020/03/06 14:47:50   -    0% kintegrityd    
+    169       2 root     root     2020/03/06 14:47:50   -    0% kblockd        
+    170       2 root     root     2020/03/06 14:47:50   -    0% blkcg_punt_bio 
+    171       2 root     root     2020/03/06 14:47:50   -    0% tpm_dev_wq     
+    173       2 root     root     2020/03/06 14:47:50   -    0% ata_sff        
+    174       2 root     root     2020/03/06 14:47:50   -    0% md             
+    175       2 root     root     2020/03/06 14:47:50   -    0% edac-poller    
+    177       2 root     root     2020/03/06 14:47:50   -    0% devfreq_wq     
+    178       2 root     root     2020/03/06 14:47:50   -    0% watchdogd      
+    179       2 root     root     2020/03/06 14:47:50   -    0% kswapd0        
+    182       2 root     root     2020/03/06 14:47:50   -    0% kthrotld       
+    185       2 root     root     2020/03/06 14:47:50   -    0% acpi_thermal_p 
+    186       2 root     root     2020/03/06 14:47:50   -    0% scsi_eh_0      
+    187       2 root     root     2020/03/06 14:47:50   -    0% scsi_tmf_0     
+    188       2 root     root     2020/03/06 14:47:50   -    0% scsi_eh_1      
+    189       2 root     root     2020/03/06 14:47:50   -    0% scsi_tmf_1     
+    190       2 root     root     2020/03/06 14:47:50   -    0% scsi_eh_2      
+    191       2 root     root     2020/03/06 14:47:50   -    0% scsi_tmf_2     
+    192       2 root     root     2020/03/06 14:47:50   -    0% scsi_eh_3      
+    193       2 root     root     2020/03/06 14:47:50   -    0% scsi_tmf_3     
+    194       2 root     root     2020/03/06 14:47:50   -    0% scsi_eh_4      
+    195       2 root     root     2020/03/06 14:47:50   -    0% scsi_tmf_4     
+    196       2 root     root     2020/03/06 14:47:50   -    0% scsi_eh_5      
+    197       2 root     root     2020/03/06 14:47:50   -    0% scsi_tmf_5     
+    204       2 root     root     2020/03/06 14:47:50   -    0% dm_bufio_cache 
+    205       2 root     root     2020/03/06 14:47:51   -    0% ipv6_addrconf  
+    212       2 root     root     2020/03/06 14:47:51   -    0% kstrp          
+    291       2 root     root     2020/03/06 14:47:51   -    0% kworker/6:1H-k 
+    293       2 root     root     2020/03/06 14:47:51   -    0% kworker/7:1H-k 
+    465       2 root     root     2020/03/06 14:47:51   -    0% sdhci          
+    466       2 root     root     2020/03/06 14:47:51   -    0% irq/34-mmc0    
+    499       2 root     root     2020/03/06 14:47:52   -    0% kworker/3:1H-e 
+    501       2 root     root     2020/03/06 14:47:52   -    0% nvkm-disp      
+    503       2 root     root     2020/03/06 14:47:53   -    0% ttm_swap       
+    506       2 root     root     2020/03/06 14:47:53   -    0% kworker/2:1H-k 
+    519       2 root     root     2020/03/06 14:47:54   -    0% kworker/0:1H-k 
+    554       2 root     root     2020/03/06 14:47:57   -    0% kworker/1:1H-k 
+    555       2 root     root     2020/03/06 14:47:57   -    0% kdmflush       
+    562       2 root     root     2020/03/06 14:47:57   -    0% kdmflush       
+    578       2 root     root     2020/03/06 14:47:57   -    0% jbd2/dm-0-8    
+    579       2 root     root     2020/03/06 14:47:57   -    0% ext4-rsv-conve 
+    589       2 root     root     2020/03/06 14:47:57   -    0% kworker/4:1H-k 
+    656       2 root     root     2020/03/06 14:47:58   -    0% kworker/5:1H-e 
+    675       1 root     root     2020/03/06 14:47:58   -    0% systemd-journa 
+    700       1 root     root     2020/03/06 14:47:58   -    0% systemd-udevd  
+    740       2 root     root     2020/03/06 14:47:59   -    0% irq/37-mei_me  
+    743       2 root     root     2020/03/06 14:47:59   -    0% ktpacpid       
+    759       2 root     root     2020/03/06 14:47:59   -    0% cfg80211       
+    777       2 root     root     2020/03/06 14:47:59   -    0% irq/40-iwlwifi 
+    778       2 root     root     2020/03/06 14:47:59   -    0% kdmflush       
+    848       2 root     root     2020/03/06 14:48:00   -    0% irq/41-rmi4_sm 
+    880       2 root     root     2020/03/06 14:48:01   -    0% jbd2/sda1-8    
+    881       2 root     root     2020/03/06 14:48:01   -    0% ext4-rsv-conve 
+    882       2 root     root     2020/03/06 14:48:01   -    0% jbd2/dm-2-8    
+    883       2 root     root     2020/03/06 14:48:01   -    0% ext4-rsv-conve 
+    906       1 root     root     2020/03/06 14:48:02   -    0% auditd         
+    908     906 root     root     2020/03/06 14:48:02   -    0% sedispatch     
+    911       2 root     root     2020/03/06 14:48:02   -    0% rpciod         
+    912       2 root     root     2020/03/06 14:48:02   -    0% xprtiod        
+    937       1 root     root     2020/03/06 14:48:02   -    0% ModemManager   
+    938       1 avahi    avahi    2020/03/06 14:48:02   -    0% avahi-daemon   
+    939       1 root     root     2020/03/06 14:48:02   -    0% bluetoothd     
+    940       1 root     root     2020/03/06 14:48:02   -    0% firewalld      
+    947       1 root     root     2020/03/06 14:48:02   -    0% mcelog         
+    954       1 root     root     2020/03/06 14:48:02   -    0% rngd           
+    955       1 rtkit    rtkit    2020/03/06 14:48:02   -    0% rtkit-daemon   
+    957       1 root     root     2020/03/06 14:48:02   -    0% smartd         
+    959       1 root     root     2020/03/06 14:48:02   -    0% switcheroo-con 
+    961       1 root     root     2020/03/06 14:48:02   -    0% systemd-machin 
+    971       1 dbus     dbus     2020/03/06 14:48:02   -    0% dbus-broker-la 
+    983       1 root     root     2020/03/06 14:48:02   -    0% gssproxy       
+    986       1 root     root     2020/03/06 14:48:02   -    0% abrtd          
+    996       1 chrony   chrony   2020/03/06 14:48:02   -    0% chronyd        
+   1000     971 dbus     dbus     2020/03/06 14:48:02   -    0% dbus-broker    
+   1005     938 avahi    avahi    2020/03/06 14:48:02   -    0% avahi-daemon   
+   1006       1 root     root     2020/03/06 14:48:02   -    0% alsactl        
+   1054       1 root     root     2020/03/06 14:48:03   -    0% accounts-daemo 
+   1061       1 polkitd  polkitd  2020/03/06 14:48:03   -    0% polkitd        
+   1096       1 root     root     2020/03/06 14:48:03   -    0% NetworkManager 
+   1097       1 root     root     2020/03/06 14:48:03   -    0% systemd-logind 
+   1132       1 root     root     2020/03/06 14:48:03   -    0% cupsd          
+   1150       1 root     root     2020/03/06 14:48:03   -    0% atd            
+   1152       1 root     root     2020/03/06 14:48:03   -    0% crond          
+   1153       1 root     root     2020/03/06 14:48:03   -    0% gdm            
+   1187       1 root     root     2020/03/06 14:48:03   -    0% abrt-dump-jour 
+   1188       1 root     root     2020/03/06 14:48:03   -    0% abrt-dump-jour 
+   1189       1 root     root     2020/03/06 14:48:03   -    0% abrt-dump-jour 
+   1309       1 nathans  nathans  2020/03/06 14:48:04   -    0% systemd        
+   1310       1 pcpqa    pcpqa    2020/03/06 14:48:04   -    0% systemd        
+   1333       1 root     root     2020/03/06 14:48:04   -    0% wpa_supplicant 
+   1348    1310 pcpqa    pcpqa    2020/03/06 14:48:04   -    0% (sd-pam        
+   1351    1309 nathans  nathans  2020/03/06 14:48:04   -    0% (sd-pam        
+   2153       1 dnsmasq  dnsmasq  2020/03/06 14:48:04   -    0% dnsmasq        
+   2154    2153 root     root     2020/03/06 14:48:04   -    0% dnsmasq        
+   2360       1 dnsmasq  dnsmasq  2020/03/06 14:48:05   -    0% dnsmasq        
+   2361    2360 root     root     2020/03/06 14:48:05   -    0% dnsmasq        
+   6741       1 root     root     2020/03/06 14:48:08   -    0% upowerd        
+   6966       1 redis    redis    2020/03/06 14:48:10   -    0% redis-server   
+   7003       1 grafana  grafana  2020/03/06 14:48:10   -    0% grafana-server 
+   7031       1 colord   colord   2020/03/06 14:48:10   -    0% colord         
+  14518    1153 root     nathans  2020/03/06 14:50:27   -    0% gdm-session-wo 
+  14537       1 nathans  nathans  2020/03/06 14:50:31   -    0% gnome-keyring- 
+  14554   14518 nathans  nathans  2020/03/06 14:50:33   -    0% gdm-wayland-se 
+  14556    1309 nathans  nathans  2020/03/06 14:50:33   -    0% dbus-broker-la 
+  14557   14556 nathans  nathans  2020/03/06 14:50:33   -    0% dbus-broker    
+  14559   14554 nathans  nathans  2020/03/06 14:50:33   -    0% gnome-session- 
+  14608    1309 nathans  nathans  2020/03/06 14:50:33   -    0% gnome-session- 
+  14609    1309 nathans  nathans  2020/03/06 14:50:33   -    0% pulseaudio     
+  14611    1309 nathans  nathans  2020/03/06 14:50:33   -    0% gnome-session- 
+  14625    1309 nathans  nathans  2020/03/06 14:50:33   -    0% gnome-shell    
+  14709   14625 nathans  nathans  2020/03/06 14:50:34   -    0% Xwayland       
+  14746    1309 nathans  nathans  2020/03/06 14:50:34   -    0% at-spi-bus-lau 
+  14752   14746 nathans  nathans  2020/03/06 14:50:34   -    0% dbus-broker-la 
+  14753   14752 nathans  nathans  2020/03/06 14:50:34   -    0% dbus-broker    
+  14809    1309 nathans  nathans  2020/03/06 14:50:34   -    0% gvfsd          
+  14814    1309 nathans  nathans  2020/03/06 14:50:34   -    0% gvfsd-fuse     
+  14845    1309 nathans  nathans  2020/03/06 14:50:35   -    0% xdg-permission 
+  14851    1309 nathans  nathans  2020/03/06 14:50:35   -    0% gnome-shell-ca 
+  14855    1309 nathans  nathans  2020/03/06 14:50:35   -    0% evolution-sour 
+  14857       2 root     root     2020/03/06 14:50:35   -    0% krfcommd       
+  14865       1 geoclue  geoclue  2020/03/06 14:50:35   -    0% geoclue        
+  14876    1309 nathans  nathans  2020/03/06 14:50:35   -    0% gvfs-udisks2-v 
+  14879       1 root     root     2020/03/06 14:50:35   -    0% udisksd        
+  14886    1309 nathans  nathans  2020/03/06 14:50:35   -    0% goa-daemon     
+  14890    1309 nathans  nathans  2020/03/06 14:50:35   -    0% dconf-service  
+  14893    1309 nathans  nathans  2020/03/06 14:50:35   -    0% gvfsd-metadata 
+  14902    1309 nathans  nathans  2020/03/06 14:50:35   -    0% goa-identity-s 
+  14919    1309 nathans  nathans  2020/03/06 14:50:35   -    0% gvfs-gphoto2-v 
+  14923    1309 nathans  nathans  2020/03/06 14:50:35   -    0% gvfs-mtp-volum 
+  14927    1309 nathans  nathans  2020/03/06 14:50:35   -    0% gvfs-goa-volum 
+  14931    1309 nathans  nathans  2020/03/06 14:50:35   -    0% gvfs-afc-volum 
+  14937    1309 nathans  nathans  2020/03/06 14:50:35   -    0% evolution-cale 
+  14940   14625 nathans  nathans  2020/03/06 14:50:35   -    0% ibus-daemon    
+  14945   14940 nathans  nathans  2020/03/06 14:50:35   -    0% ibus-dconf     
+  14946   14940 nathans  nathans  2020/03/06 14:50:35   -    0% ibus-extension 
+  14948    1309 nathans  nathans  2020/03/06 14:50:35   -    0% ibus-x11       
+  14950    1309 nathans  nathans  2020/03/06 14:50:35   -    0% ibus-portal    
+  14968    1309 nathans  nathans  2020/03/06 14:50:35   -    0% at-spi2-regist 
+  14976    1309 nathans  nathans  2020/03/06 14:50:35   -    0% gsd-a11y-setti 
+  14977    1309 nathans  nathans  2020/03/06 14:50:35   -    0% gsd-color      
+  14978    1309 nathans  nathans  2020/03/06 14:50:35   -    0% gsd-datetime   
+  14982    1309 nathans  nathans  2020/03/06 14:50:35   -    0% gsd-housekeepi 
+  14987    1309 nathans  nathans  2020/03/06 14:50:35   -    0% gsd-keyboard   
+  14992    1309 nathans  nathans  2020/03/06 14:50:35   -    0% gsd-media-keys 
+  14994    1309 nathans  nathans  2020/03/06 14:50:35   -    0% gsd-power      
+  14999   14611 nathans  nathans  2020/03/06 14:50:35   -    0% gnome-software 
+  15000    1309 nathans  nathans  2020/03/06 14:50:35   -    0% gsd-print-noti 
+  15002    1309 nathans  nathans  2020/03/06 14:50:35   -    0% gsd-rfkill     
+  15003   14611 nathans  nathans  2020/03/06 14:50:35   -    0% gsd-disk-utili 
+  15004    1309 nathans  nathans  2020/03/06 14:50:35   -    0% gsd-screensave 
+  15009    1309 nathans  nathans  2020/03/06 14:50:35   -    0% gsd-sharing    
+  15014   14611 nathans  nathans  2020/03/06 14:50:35   -    0% evolution-alar 
+  15023   14611 nathans  nathans  2020/03/06 14:50:35   -    0% tracker-miner- 
+  15028    1309 nathans  nathans  2020/03/06 14:50:35   -    0% gsd-smartcard  
+  15033    1309 nathans  nathans  2020/03/06 14:50:35   -    0% gsd-sound      
+  15035    1309 nathans  nathans  2020/03/06 14:50:35   -    0% gsd-wacom      
+  15038    1309 nathans  nathans  2020/03/06 14:50:35   -    0% gsd-wwan       
+  15043    1309 nathans  nathans  2020/03/06 14:50:35   -    0% gsd-xsettings  
+  15093   14940 nathans  nathans  2020/03/06 14:50:36   -    0% ibus-engine-si 
+  15104    1309 nathans  nathans  2020/03/06 14:50:36   -    0% abrt-applet    
+  15107    1309 nathans  nathans  2020/03/06 14:50:36   -    0% evolution-addr 
+  15164    1309 nathans  nathans  2020/03/06 14:50:36   -    0% gsd-printer    
+  15268       1 root     root     2020/03/06 14:50:36   -    0% abrt-dbus      
+ 214877       1 root     root     2020/03/09 12:02:14   -    0% nm-openvpn-ser 
+ 214901  214877 nm-openv nm-openv 2020/03/09 12:02:23   -    0% openvpn        
+ 214956   14625 nathans  nathans  2020/03/09 12:02:39   -    0% hexchat        
+ 214983    1309 nathans  nathans  2020/03/09 12:02:44   -    0% gnome-terminal 
+ 215031  214983 nathans  nathans  2020/03/09 12:02:47   -    0% bash           
+ 215080  215031 nathans  nathans  2020/03/09 12:03:04   -    0% slack          
+ 215089  215080 nathans  nathans  2020/03/09 12:03:04   -    0% slack          
+ 215091  215089 nathans  nathans  2020/03/09 12:03:04   -    0% slack          
+ 215120  215080 nathans  nathans  2020/03/09 12:03:04   -    0% slack          
+ 215129  215080 nathans  nathans  2020/03/09 12:03:05   -    0% slack          
+ 215264  214983 nathans  nathans  2020/03/09 12:03:24   -    0% bash           
+ 215381  214983 nathans  nathans  2020/03/09 12:05:08   -    0% bash           
+ 215434   14625 nathans  nathans  2020/03/09 12:05:20   -    0% firefox        
+ 215543  215434 nathans  nathans  2020/03/09 12:05:21   -    0% Web Content    
+ 215596  215434 nathans  nathans  2020/03/09 12:05:21   -    0% WebExtensions  
+ 230329   14518 root     nathans  2020/03/09 15:58:24   -    0% gdm-session-wo 
+ 231071    1309 nathans  nathans  2020/03/09 16:12:08   -    0% sd_dummy       
+ 231075    1309 nathans  nathans  2020/03/09 16:12:08   -    0% sd_espeak-ng   
+ 231082    1309 nathans  nathans  2020/03/09 16:12:08   -    0% sd_generic     
+ 231085    1309 nathans  nathans  2020/03/09 16:12:08   -    0% sd_generic     
+ 231088    1309 nathans  nathans  2020/03/09 16:12:08   -    0% speech-dispatc 
+ 231217  215434 nathans  nathans  2020/03/09 16:15:21   -    0% Web Content    
+ 231409   14537 nathans  nathans  2020/03/09 16:18:01   -    0% ssh-agent      
+ 232603  215434 nathans  nathans  2020/03/09 16:29:11   -    0% RDD Process    
+ 232922  215434 nathans  nathans  2020/03/09 16:35:21   -    0% Web Content    
+ 233198  215434 nathans  nathans  2020/03/09 16:41:02   -    0% Web Content    
+ 233386  215434 nathans  nathans  2020/03/09 16:46:36   -    0% Web Content    
+ 234883    1309 nathans  nathans  2020/03/09 17:09:05   -    0% gconfd-2       
+ 289839  215434 nathans  nathans  2020/03/10 06:41:54   -    0% Web Content    
+ 291591  214983 nathans  nathans  2020/03/10 06:58:29   -    0% bash           
+ 291919  214983 nathans  nathans  2020/03/10 07:04:29   -    0% bash           
+ 292265    1309 root     root     2020/03/10 07:07:18   -    0% dbus-launch    
+ 292266    1309 root     root     2020/03/10 07:07:18   -    0% dbus-daemon    
+ 292269    1309 root     root     2020/03/10 07:07:18   -    0% at-spi-bus-lau 
+ 292274  292269 root     root     2020/03/10 07:07:18   -    0% dbus-broker-la 
+ 292275  292274 root     root     2020/03/10 07:07:18   -    0% dbus-broker    
+ 292371       1 mysql    mysql    2020/03/10 07:07:25   -    0% mysqld         
+ 292451       1 root     root     2020/03/10 07:07:28   -    0% sssd           
+ 292452  292451 root     root     2020/03/10 07:07:28   -    0% sssd_be        
+ 292453  292451 root     root     2020/03/10 07:07:28   -    0% sssd_nss       
+ 310645   14809 nathans  nathans  2020/03/10 10:44:24   -    0% gvfsd-trash    
+ 310657   14809 nathans  nathans  2020/03/10 10:44:24   -    0% gvfsd-network  
+ 310676   14809 nathans  nathans  2020/03/10 10:44:27   -    0% gvfsd-dnssd    
+ 319270   14809 nathans  nathans  2020/03/10 13:02:41   -    0% gvfsd-http     
+ 913558  215434 nathans  nathans  2020/03/11 08:05:19   -    0% Web Content    
+ 916066  215434 nathans  nathans  2020/03/11 08:53:58   -    0% Web Content    
+1020377  215264 nathans  nathans  2020/03/11 15:33:44   -    0% vim            
+1572542   14518 root     nathans  2020/03/11 19:50:04   -    0% gdm-session-wo 
+1698377       1 root     root     2020/03/13 04:16:44   -    0% sshd           
+1743163  214983 nathans  nathans  2020/03/13 13:50:30   -    0% bash           
+1804016  215080 nathans  nathans  2020/03/14 05:02:10   -    0% slack          
+2245243  215031 nathans  nathans  2020/03/18 07:32:39   -    0% chrome         
+2245254 2245243 nathans  nathans  2020/03/18 07:32:39   -    0% cat            
+2245255 2245243 nathans  nathans  2020/03/18 07:32:39   -    0% cat            
+2245258 2245243 nathans  nathans  2020/03/18 07:32:39   -    0% chrome         
+2245259 2245258 nathans  nathans  2020/03/18 07:32:39   -    0% nacl_helper    
+2245262 2245258 nathans  nathans  2020/03/18 07:32:39   -    0% chrome         
+2245282 2245243 nathans  nathans  2020/03/18 07:32:39   -    0% chrome         
+2245293 2245243 nathans  nathans  2020/03/18 07:32:39   -    0% chrome         
+2245318 2245262 nathans  nathans  2020/03/18 07:32:40   -    0% chrome         
+2245336 2245262 nathans  nathans  2020/03/18 07:32:40   -    0% chrome         
+2245345 2245262 nathans  nathans  2020/03/18 07:32:40   -    0% chrome         
+2245483 2245262 nathans  nathans  2020/03/18 07:32:41   -    0% chrome         
+2263860 2245262 nathans  nathans  2020/03/18 12:00:09   -    0% chrome         
+2563735       1 pcp      pcp      2020/03/19 11:54:20   -    0% pmproxy        
+3089119       2 root     root     2020/03/19 14:06:06   -    0% kworker/2:2-ev 
+3089135       2 root     root     2020/03/19 14:06:38   -    0% kworker/u17:1- 
+3096585       1 pcp      pcp      2020/03/19 14:08:25   -    0% pmcd           
+3096590 3096585 root     root     2020/03/19 14:08:25   -    0% pmdaroot       
+3096591 3096590 nathans  nathans  2020/03/19 14:08:25   -    0% pmdaproc       
+3096592 3096590 root     root     2020/03/19 14:08:25   -    0% pmdaxfs        
+3096593 3096590 pcp      pcp      2020/03/19 14:08:25   -    0% pmdaredis      
+3096594 3096590 pcp      pcp      2020/03/19 14:08:25   -    0% pmdasample     
+3096595 3096590 root     root     2020/03/19 14:08:25   -    0% pmdalinux      
+3096596 3096590 root     root     2020/03/19 14:08:25   -    0% python3        
+3096600 3096590 root     root     2020/03/19 14:08:25   -    0% pmdakvm        
+3096601 3096590 pcp      pcp      2020/03/19 14:08:25   -    0% pmdaperfevent  
+3096603 3096590 root     root     2020/03/19 14:08:25   -    0% pmdadm         
+3096604 3096590 root     root     2020/03/19 14:08:25   -    0% python3        
+3096608 3096590 pcp      pcp      2020/03/19 14:08:26   -    0% pmdasimple     
+3102549       1 pcp      pcp      2020/03/19 14:08:32   -    0% pmlogger       
+3108564       1 pcp      pcp      2020/03/19 14:08:41   -    0% pmlogger       
+3111579       2 root     root     2020/03/19 14:11:08   -    0% kworker/5:0-ev 
+3111608       2 root     root     2020/03/19 14:12:13   -    0% kworker/u17:2- 
+3112135       2 root     root     2020/03/19 14:16:48   -    0% kworker/u16:0- 
+3112497       2 root     root     2020/03/19 14:21:30   -    0% kworker/6:1-ev 
+3113582       2 root     root     2020/03/19 14:28:22   -    0% kworker/7:1-ev 
+3113658       2 root     root     2020/03/19 14:29:44   -    0% kworker/1:2-mm 
+3114179       2 root     root     2020/03/19 14:36:06   -    0% kworker/2:1-ev 
+3114328       2 root     root     2020/03/19 14:39:53   -    0% kworker/u16:1- 
+3114341       2 root     root     2020/03/19 14:40:13   -    0% kworker/4:3-ev 
+3114400       2 root     root     2020/03/19 14:41:06   -    0% kworker/0:0-ev 
+3114638       2 root     root     2020/03/19 14:44:02   -    0% kworker/5:1    
+3114804       2 root     root     2020/03/19 14:47:24   -    0% kworker/3:1-ev 
+3114806       2 root     root     2020/03/19 14:47:29   -    0% kworker/u16:4- 
+3115027       2 root     root     2020/03/19 14:50:08   -    0% kworker/7:0-kd 
+3131976       2 root     root     2020/03/19 14:52:15   -    0% kworker/1:1-ev 
+3138833 1743163 nathans  nathans  2020/03/19 14:53:58   -    0% vim            
+3199753       2 root     root     2020/03/19 14:55:15   -    0% kworker/6:0-ev 
+3236121       2 root     root     2020/03/19 14:56:06   -    0% kworker/0:1-ev 
+3264040       2 root     root     2020/03/19 14:56:29   -    0% kworker/4:1-mm 
+3294897       2 root     root     2020/03/19 14:59:22   -    0% kworker/u16:3- 
+3296070       2 root     root     2020/03/19 15:00:03   -    0% kworker/3:0-ev 
+3297366       2 root     root     2020/03/19 15:00:38   -    0% kworker/2:0-ev 
+3297424       2 root     root     2020/03/19 15:01:05   -    0% kworker/5:2-mm 
+3297431  214983 nathans  nathans  2020/03/19 15:01:16   -    0% bash           
+3297575       2 root     root     2020/03/19 15:02:00   -    0% kworker/4:0-ev 
+3297624       2 root     root     2020/03/19 15:03:04   -    0% kworker/1:0    
+3297625       2 root     root     2020/03/19 15:03:04   -    0% kworker/u17:0  
+3297665    1309 nathans  nathans  2020/03/19 15:04:52   -    0% tracker-store  
+3297675  215381 nathans  nathans  2020/03/19 15:04:56   -    0% mk.atop-boot   
+3298106 3297675 nathans  nathans  2020/03/19 15:05:14   -    0% pmlogger       
+3298115 3297675 nathans  nathans  2020/03/19 15:05:15   -    0% pmsleep        
+3298100    6966 redis    redis    2020/03/19 15:05:13   -    0% redis-server   
+3298109       1 root     root     2020/03/06 14:47:50   -    0%                
+=== std err
+=== done
+
