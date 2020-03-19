@@ -315,6 +315,7 @@ usr/share/man/man3/pmSeriesSetMetricRegistry.3.gz
 usr/share/man/man3/pmSeriesSetSlots.3.gz
 usr/share/man/man3/pmSeriesSources.3.gz
 usr/share/man/man3/pmSeriesValues.3.gz
+usr/share/man/man3/__pmServerNotifyServiceManagerReady.3.gz
 usr/share/man/man3/pmsetdebug.3.gz
 usr/share/man/man3/pmSetDebug.3.gz
 usr/share/man/man3/__pmSetDebugBits.3.gz
