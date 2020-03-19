@@ -691,7 +691,7 @@ static pmdaMetric metrictab[] = {
 /* kernel.all.boottime */
     { NULL,
       { PMDA_PMID(CLUSTER_STAT,17), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_DISCRETE,
-      PMDA_PMUNITS(0,0,0,0,0,0) }, },
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0) }, },
 
 /* kernel.all.cpu.user */
     { NULL, 
