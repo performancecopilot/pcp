@@ -28,6 +28,11 @@ LIBPCP_CFLAGS += -D_POSIX_PTHREAD_SEMANTICS
 LIBPCP_LDLIBS += $(PLDLIBS)
 endif
 
+ifeq "$(ENABLE_SYSTEMD)" "true"
+LIBPCP_LDLIBS += $(SYSTEMD_LIBS)
+LIBPCP_CFLAGS += $(SYSTEMD_CFLAGS) -DHAVE_SYSTEMD
+endif
+
 ifeq "$(LIB_FOR_BASENAME)" "-lpcp"
 # don't need to be linked to myself in this case!
 LIB_FOR_BASENAME =

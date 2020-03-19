@@ -1137,6 +1137,7 @@ typedef struct {
     int series;		/* Time series tracing */
     int	libweb;		/* Trace services from libpcp_web */
     int	alloc;		/* Miscellaneous alloc/free operations */
+    int	services;	/* Services and daemons */
     int	appl3;		/* Application-specific flag 3 */
     int	appl4;		/* Application-specific flag 4 */
     int	appl5;		/* Application-specific flag 5 */
