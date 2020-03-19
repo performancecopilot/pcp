@@ -688,6 +688,11 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_STAT,16), KERNEL_ULONG, PM_INDOM_NULL, PM_SEM_INSTANT, 
       PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
+/* kernel.all.boottime */
+    { NULL,
+      { PMDA_PMID(CLUSTER_STAT,17), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
 /* kernel.all.cpu.user */
     { NULL, 
       { PMDA_PMID(CLUSTER_STAT,20), KERNEL_UTYPE, PM_INDOM_NULL, PM_SEM_COUNTER,
@@ -6576,6 +6581,9 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 	case 16: /* kernel.all.blocked */
 	    _pm_assign_ulong(atom, proc_stat.procs_blocked);
+	    break;
+	case 17: /* kernel.all.boottime */
+	    atom->ll = proc_stat.btime;
 	    break;
 
 	case 20: /* kernel.all.cpu.user */

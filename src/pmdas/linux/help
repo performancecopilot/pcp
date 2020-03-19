@@ -775,6 +775,7 @@ e.g. mirroring the results from existing performance tools:
 @ kernel.all.sysfork fork rate metric from /proc/stat
 @ kernel.all.running number of currently running processes from /proc/stat
 @ kernel.all.blocked number of currently blocked processes from /proc/stat
+@ kernel.all.boottime boot time from /proc/stat
 @ kernel.all.intr interrupt count metric from /proc/stat
 The value is the first value from the intr field in /proc/stat,
 which is a counter of the total number of interrupts processed.

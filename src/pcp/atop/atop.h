@@ -119,6 +119,8 @@ extern int		netbadness;
 extern int		pagbadness;
 extern int		almostcrit;
 
+extern long long	system_boottime;
+
 /*
 ** bit-values for supportflags
 */
