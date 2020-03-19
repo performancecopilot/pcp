@@ -185,5 +185,12 @@ else
     echo "s/?{libuv1-dev}, //" >>$tmp.sed
 fi
 
+if $ENABLE_SYSTEMD
+then
+    echo "s/?{libsystemd-dev}, /libsystemd-dev, /" >>$tmp.sed
+else
+    echo "s/?{libsystemd-dev}, //" >>$tmp.sed
+fi
+
 echo "s/ $//" >>$tmp.sed
 sed -f $tmp.sed <control.master
