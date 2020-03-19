@@ -21,7 +21,7 @@ grep '^Maybe-Requires:' pcp.spec \
 | uniq \
 | while read pkg
 do
-    if rpm -q "$pkg" >/dev/null
+    if rpm -q --whatprovides "$pkg" >/dev/null
     then
 	$verbose && echo "Requires: $pkg"
 	echo "/^Maybe-Requires: $pkg\$/s/Maybe-Requires:/Requires:/" >>$tmp.sed
