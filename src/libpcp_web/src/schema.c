@@ -1353,6 +1353,8 @@ redisAsyncContext *c, redisReply *reply, const sds cmd, void *arg)
 {
     redisSlotsBaton	*baton = (redisSlotsBaton *)arg;
     unsigned int	server_version = 0;
+    size_t		l;
+    char		*endnum;
     int			sts;
     sds			msg;
 
@@ -1363,13 +1365,11 @@ redisAsyncContext *c, redisReply *reply, const sds cmd, void *arg)
 	return;
 	
     if (!reply) {
-	/* This situation should not happen, since we can always get server info from redis*/
+	/* This situation should not happen, since we can always get server info from redis */
 	infofmt(msg, "no redis version reply");
 	batoninfo(baton, PMLOG_ERROR, msg);
     } else if (reply->type == REDIS_REPLY_STRING) {
-	int		l = 0;
-	char		*endnum;
-	while (l < reply->len) {
+	for (l = 0; l < reply->len; l++) {
 	    if (strncmp("redis_version:", reply->str+l, sizeof("redis_version:")-1) == 0) {
 		l += sizeof("redis_version:")-1;
 	    	server_version = (unsigned int)strtol(reply->str+l, &endnum, 10);
@@ -1383,13 +1383,17 @@ redisAsyncContext *c, redisReply *reply, const sds cmd, void *arg)
 	    	}
 	    	break;
 	    }
-	    ++l;
+	    /* move to the end of this line within the reply string */
+	    while (++l < reply->len) {
+		if (reply->str[l] == '\n' || reply->str[l] == '\0')
+		    break;
+	    }
 	}
     } else if (reply->type == REDIS_REPLY_ERROR) {
 	if (sts < 0) {
 	    infofmt(msg, "redis server version check error: %s", reply->str);
 	    batoninfo(baton, PMLOG_REQUEST, msg);
-        }
+	}
     } else {
 	infofmt(msg, "unexpected redis server version reply type (%s)", redis_reply_type(reply));
 	batoninfo(baton, PMLOG_ERROR, msg);
