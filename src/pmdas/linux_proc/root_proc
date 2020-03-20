@@ -436,6 +436,7 @@ proc {
     schedstat		PROC:*:*
     fd			PROC:*:*
     namespaces		PROC:*:*
+    smaps		PROC:*:*
     control
 }
 
@@ -448,6 +449,7 @@ hotproc {
     schedstat		PROC:*:*
     fd			PROC:*:*
     namespaces		PROC:*:*
+    smaps		PROC:*:*
     control
     total
     predicate

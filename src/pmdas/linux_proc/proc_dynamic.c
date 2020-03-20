@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Red Hat.
+ * Copyright (c) 2015,2020 Red Hat.
  * Copyright (c) 2014-2015 Martins Innus.  All Rights Reserved.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -38,6 +38,7 @@ enum {
     DYNPROC_GROUP_IO,
     DYNPROC_GROUP_SCHEDSTAT,
     DYNPROC_GROUP_NAMESPACE,
+    DYNPROC_GROUP_SMAPS,
 
     NUM_DYNPROC_GROUPS
 };
@@ -50,7 +51,7 @@ enum {
 };
 
 /*
- * Map proc cluster id's to new hotproc varients that don't conflict
+ * Map proc cluster ID's to new hotproc variants that don't conflict
  */
 
 static int proc_hotproc_cluster_list[][2] = {
@@ -63,6 +64,7 @@ static int proc_hotproc_cluster_list[][2] = {
 	{ CLUSTER_PID_IO,	    CLUSTER_HOTPROC_PID_IO },
 	{ CLUSTER_PID_FD,	    CLUSTER_HOTPROC_PID_FD },
 	{ CLUSTER_PID_OOM_SCORE,    CLUSTER_HOTPROC_PID_OOM_SCORE },
+	{ CLUSTER_PID_SMAPS,	    CLUSTER_HOTPROC_PID_SMAPS },
 };
 
 
@@ -218,6 +220,29 @@ static dynproc_metric_t schedstat_metrics[] = {
 	{ .name = "pcount",	.cluster = CLUSTER_PID_SCHEDSTAT,	.item=2 },
 };
 
+static dynproc_metric_t smaps_metrics[] = {
+	{ .name = "rss",	.cluster = CLUSTER_PID_SMAPS,	.item = PROC_PID_SMAPS_RSS },
+	{ .name = "pss",	.cluster = CLUSTER_PID_SMAPS,	.item = PROC_PID_SMAPS_PSS },
+	{ .name = "pss_anon",	.cluster = CLUSTER_PID_SMAPS,	.item = PROC_PID_SMAPS_PSS_ANON },
+	{ .name = "pss_file",	.cluster = CLUSTER_PID_SMAPS,	.item = PROC_PID_SMAPS_PSS_FILE },
+	{ .name = "pss_shmem",	.cluster = CLUSTER_PID_SMAPS,	.item = PROC_PID_SMAPS_PSS_SHMEM },
+	{ .name = "shared_clean",	.cluster = CLUSTER_PID_SMAPS,	.item = PROC_PID_SMAPS_SHARED_CLEAN },
+	{ .name = "shared_dirty",	.cluster = CLUSTER_PID_SMAPS,	.item = PROC_PID_SMAPS_SHARED_DIRTY },
+	{ .name = "private_clean",	.cluster = CLUSTER_PID_SMAPS,	.item = PROC_PID_SMAPS_PRIVATE_CLEAN },
+	{ .name = "private_dirty",	.cluster = CLUSTER_PID_SMAPS,	.item = PROC_PID_SMAPS_PRIVATE_DIRTY },
+	{ .name = "referenced",	.cluster = CLUSTER_PID_SMAPS,	.item = PROC_PID_SMAPS_REFERENCED },
+	{ .name = "anonymous",	.cluster = CLUSTER_PID_SMAPS,	.item = PROC_PID_SMAPS_ANONYMOUS },
+	{ .name = "lazyfree",	.cluster = CLUSTER_PID_SMAPS,	.item = PROC_PID_SMAPS_LAZYFREE },
+	{ .name = "anonhugepages",	.cluster = CLUSTER_PID_SMAPS,	.item = PROC_PID_SMAPS_ANONHUGEPAGES },
+	{ .name = "shmempmdmapped",	.cluster = CLUSTER_PID_SMAPS,	.item = PROC_PID_SMAPS_SHMEMPMDMAPPED },
+	{ .name = "filepmdmapped",	.cluster = CLUSTER_PID_SMAPS,	.item = PROC_PID_SMAPS_FILEPMDMAPPED },
+	{ .name = "shared_hugetlb",	.cluster = CLUSTER_PID_SMAPS,	.item = PROC_PID_SMAPS_SHARED_HUGETLB },
+	{ .name = "private_hugetlb", 	.cluster = CLUSTER_PID_SMAPS,	.item = PROC_PID_SMAPS_PRIVATE_HUGETLB },
+	{ .name = "swap",	.cluster = CLUSTER_PID_SMAPS,	.item = PROC_PID_SMAPS_SWAP },
+	{ .name = "swappss",	.cluster = CLUSTER_PID_SMAPS,	.item = PROC_PID_SMAPS_SWAPPSS },
+	{ .name = "locked",	.cluster = CLUSTER_PID_SMAPS,	.item = PROC_PID_SMAPS_LOCKED },
+};
+
 static dynproc_group_t dynproc_groups[] = {
 	[DYNPROC_GROUP_PSINFO]    = { .name = "psinfo",	    .metrics = psinfo_metrics,	    .nmetrics = sizeof(psinfo_metrics)/sizeof(dynproc_metric_t)},
 	[DYNPROC_GROUP_ID]	  = { .name = "id",	    .metrics = id_metrics,	    .nmetrics = sizeof(id_metrics)/sizeof(dynproc_metric_t)},
@@ -226,6 +251,7 @@ static dynproc_group_t dynproc_groups[] = {
 	[DYNPROC_GROUP_FD]	  = { .name = "fd",	    .metrics = fd_metrics,	    .nmetrics = sizeof(fd_metrics)/sizeof(dynproc_metric_t)},
 	[DYNPROC_GROUP_SCHEDSTAT] = { .name = "schedstat",  .metrics = schedstat_metrics,   .nmetrics = sizeof(schedstat_metrics)/sizeof(dynproc_metric_t) },
 	[DYNPROC_GROUP_NAMESPACE] = { .name = "namespaces", .metrics = namespace_metrics,   .nmetrics = sizeof(namespace_metrics)/sizeof(dynproc_metric_t) },
+	[DYNPROC_GROUP_SMAPS]     = { .name = "smaps",	    .metrics = smaps_metrics,	    .nmetrics = sizeof(smaps_metrics)/sizeof(dynproc_metric_t)},
 };
 
 /*
