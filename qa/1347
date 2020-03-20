@@ -1,6 +1,7 @@
 #!/usr/bin/sh
 # PCP QA Test No. 1347
-# Exercise kernel.all.boottime and -v option to pcp-atop(1).
+# Exercise kernel.all.boottime and -v option to pcp-atop(1),
+# as well as other optional output from pcp-atop.
 #
 # Copyright (c) 2020 Red Hat.  All Rights Reserved.
 #
@@ -26,15 +27,26 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+_logs()
+{
+    echo "=== std out"
+    cat $tmp.out
+    echo "=== std err"
+    cat $tmp.err
+    echo "=== done"
+    echo
+}
+
 # real QA test starts here
 pcp_options="pcp -z --origin=+1.1 --archive $here/archives/pcp-atop-boot"
-$pcp_options atop -v 2 3 >$tmp.out 2>$tmp.err
 
-echo "=== std out"
-cat $tmp.out
-echo "=== std err"
-cat $tmp.err
-echo "=== done" && echo
+echo "=== -v option:"
+$pcp_options atop -v 2 3 >$tmp.out 2>$tmp.err
+_logs
+
+echo "=== -m option:"
+$pcp_options atop -R -m 2 3 >$tmp.out 2>$tmp.err
+_logs
 
 status=0
 exit

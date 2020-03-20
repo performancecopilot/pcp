@@ -1,5 +1,5 @@
 /*
-** Copyright (C) 2015-2017,2019 Red Hat.
+** Copyright (C) 2015-2017,2019-2020 Red Hat.
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -34,7 +34,10 @@ update_task(struct tstat *task, int pid, char *name, pmResult *rp, pmDesc *dp)
 	task->gen.isproc = 1;		/* thread/process marker */
 
 	/* accumulate Pss from smaps (optional, relatively expensive) */
-	task->mem.pmem = (unsigned long long)-1LL;
+	if (!calcpss)
+	    task->mem.pmem = (unsigned long long)-1;
+	else
+	    task->mem.pmem = extract_ucount_t_inst(rp, dp, TASK_MEM_PMEM, pid);
 
 	/* /proc/pid/cgroup */
 	extract_string_inst(rp, dp, TASK_GEN_CONTAINER, &task->gen.container[0],
@@ -124,6 +127,7 @@ unsigned long
 photoproc(struct tstat **tasks, unsigned int *taskslen)
 {
 	static int	setup;
+	static pmID	pssid;
 	static pmID	pmids[TASK_NMETRICS];
 	static pmDesc	descs[TASK_NMETRICS];
 	pmResult	*result;
@@ -137,8 +141,14 @@ photoproc(struct tstat **tasks, unsigned int *taskslen)
 			for (i = 0; i < TASK_NMETRICS; i++)
 				procmetrics[i] += 3;	/* skip "hot" */
 		setup_metrics(procmetrics, pmids, descs, TASK_NMETRICS);
+		pssid = pmids[TASK_MEM_PMEM];
 		setup = 1;
 	}
+
+	if (!calcpss)
+		pmids[TASK_MEM_PMEM] = PM_ID_NULL;
+	else
+		pmids[TASK_MEM_PMEM] = pssid;
 
 	fetch_metrics("task", TASK_NMETRICS, pmids, &result);
 
