@@ -572,15 +572,15 @@ setalarm2(int sec, int usec)
 	setalarm(&interval);
 }
 
-static void
-setup_step_mode(pmOptions *opts, int forward)
+void
+setup_step_mode(int forward)
 {
 	const int SECONDS_IN_24_DAYS = 2073600;
 
 	if (forward)
-		curtime = opts->start;
+		curtime = start;
 	else
-		curtime = opts->origin;
+		curtime = origin;
 
 	if (!rawreadflag)
 		fetchmode = PM_MODE_LIVE;
@@ -610,16 +610,16 @@ setup_origin(pmOptions *opts)
 {
 	int		sts = 0;
 
+	start = opts->start;
 	curtime = origin = opts->origin;
+
+	if (opts->interval.tv_sec || opts->interval.tv_usec)
+		interval = opts->interval;
 
 	/* initial archive mode, position and delta */
 	if (opts->context == PM_CONTEXT_ARCHIVE)
 	{
-		if (opts->interval.tv_sec || opts->interval.tv_usec)
-			interval = opts->interval;
-
-		setup_step_mode(opts, 1);
-
+		setup_step_mode(1);
 		if ((sts = pmSetMode(fetchmode, &curtime, fetchstep)) < 0)
 		{
 			pmprintf(
@@ -765,7 +765,7 @@ setup_globals(pmOptions *opts)
 		hinv_nrintf = 1;
 
 	pmFreeResult(result);
-	setup_step_mode(opts, 0);
+	setup_step_mode(0);
 }
 
 /*

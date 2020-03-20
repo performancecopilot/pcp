@@ -76,6 +76,7 @@ struct sysname {
 */
 extern struct sysname	sysname;
 extern int              nodenamelen;
+extern struct timeval	start;
 extern struct timeval	origin;
 extern struct timeval   pretime;
 extern struct timeval   curtime;
@@ -198,6 +199,7 @@ void		show_pcp_usage(struct pmOptions *);
 void		engine(void);
 
 char 		*abstime(char *);
+void		setup_step_mode(int);
 void		setup_globals(struct pmOptions *);
 void		setup_process(void);
 void		setup_metrics(char **, unsigned int *, struct pmDesc *, int);

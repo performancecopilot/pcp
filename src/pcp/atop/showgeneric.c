@@ -8,7 +8,7 @@
 ** figures.
 **
 ** Copyright (C) 2000-2010 Gerlof Langeveld
-** Copyright (C) 2015-2019 Red Hat.
+** Copyright (C) 2015-2020 Red Hat.
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -97,7 +97,7 @@ int	startoffset;
 ** print the deviation-counters on process- and system-level
 */
 char
-generic_samp(double curtime, double nsecs,
+generic_samp(double sampletime, double nsecs,
            struct devtstat *devtstat, struct sstat *sstat,
            int nexit, unsigned int noverflow, int flag)
 {
@@ -251,8 +251,8 @@ generic_samp(double curtime, double nsecs,
         	/*
         	** print general headerlines
         	*/
-        	convdate(curtime, format1, sizeof(format1)-1); /* ascii date */
-        	convtime(curtime, format2, sizeof(format2)-1); /* ascii time */
+        	convdate(sampletime, format1, sizeof(format1)-1); /* ascii date */
+        	convtime(sampletime, format2, sizeof(format2)-1); /* ascii time */
 
 		if (screen)
 			attron(A_REVERSE);
@@ -1224,15 +1224,6 @@ generic_samp(double curtime, double nsecs,
 			   ** change interval timeout
 			   */
 			   case MINTERVAL:
-				/* TODO: this is possible using PMAPI ... (pmSetMode); */
-				/* but, need different sampling vs reporting intervals */
-				if (rawreadflag)
-				{
-					statmsg = "Not yet possible when viewing "
-					          "raw file!";
-					beep();
-					break;
-				}
 
 				setalarm2(0, 0);	/* stop the clock */
 
@@ -1245,6 +1236,8 @@ generic_samp(double curtime, double nsecs,
 				{
 					if (!paused)
 						setalarm2(3, 0); /*  set short timer */
+					origin = curtime;
+					setup_step_mode(0);
 				}
 				else
 				{
