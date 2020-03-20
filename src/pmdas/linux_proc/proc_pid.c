@@ -1762,7 +1762,7 @@ fetch_proc_pid_smaps(int id, proc_pid_t *proc_pid, int *sts)
 		    ep->smaps_lines.referenced = strsep(&curline, "\n");
 		else if (strncmp(curline, "Anonymous:", 10) == 0)
 		    ep->smaps_lines.anonymous = strsep(&curline, "\n");
-		else if (strncmp(curline, "LazyFree:", 10) == 0)
+		else if (strncmp(curline, "LazyFree:", 9) == 0)
 		    ep->smaps_lines.lazyfree = strsep(&curline, "\n");
 		else if (strncmp(curline, "AnonHugePages:", 14) == 0)
 		    ep->smaps_lines.anonhugepages = strsep(&curline, "\n");
