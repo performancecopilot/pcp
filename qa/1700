@@ -42,10 +42,15 @@ EOF
 
 echo "=== start bpftrace script ==="
 ./src/store_and_fetch bpftrace.control.register "// name: testscript
-tracepoint:raw_syscalls:sys_enter { @ = count(); @scalar = 2; }" | pmjson | _filter_json
+tracepoint:syscalls:sys_enter_openat { @ = count(); @scalar = 2; }" | pmjson | _filter_json
+_pmdabpftrace_wait_for_value bpftrace.scripts.testscript.probes 2
+
+echo "=== generating openat() syscall activity ==="
+_pmdabpftrace_generate_openat_syscall_activity &
+echo "wait 2 seconds to capture syscall activity..."
+pmsleep 2
 
 echo "=== check metadata metrics ==="
-_pmdabpftrace_wait_for_value bpftrace.scripts.testscript.data.root
 pminfo -dfmtT bpftrace.scripts.testscript.status
 pminfo -dfmtT bpftrace.scripts.testscript.pid | _value_filter_nonzero
 pminfo -dfmtT bpftrace.scripts.testscript.exit_code

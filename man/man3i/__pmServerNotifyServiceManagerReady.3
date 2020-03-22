@@ -1,0 +1,91 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2020 Red Hat.  All Rights Reserved.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
+.TH PMSERVERNOTIFYSERVICEMANAGERREADY 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3__pmServerNotifyServiceManagerReady\f1,
+\f3__pmServerNotifyServiceManagerStopping\f1 \- notify service start and stop
+.SH "C SYNOPSIS"
+.ft 3
+#include "pmapi.h"
+.br
+#include "libpcp.h"
+.sp
+int __pmServerNotifyServiceManagerReady(pid_t \fImainpid\fP);
+.br
+int __pmServerNotifyServiceManagerStopping(pid_t \fImainpid\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH CAVEAT
+This documentation is intended for internal Performance Co-Pilot
+(PCP) developer use.
+.PP
+These interfaces are not part of the PCP APIs that are guaranteed to
+remain fixed across releases, and they may not work, or may provide
+different semantics at some point in the future.
+.SH DESCRIPTION
+.PP
+Within the libraries and applications of the Performance Co-Pilot
+(PCP) these routines provide a convenient and portable interface
+to service manager APIs, such as
+.BR sd_notify (3).
+.PP
+PCP service daemons should call
+.B __pmServerNotifyServiceManagerReady
+immediately prior to entering their main loop,
+regardless of whether or not they have forked or daemonised.
+This will notify the service manager (if any, depending on the platform)
+that the daemon service has started,
+and that the main process to be tracked is
+.BR mainpid .
+.PP
+Similarly when shutting down, service daemons should call
+.B __pmServerNotifyServiceManagerStopping
+to notify the service manager (if any) that the tracked process of the service
+has returned from it's main loop and is about to shut down.
+.PP
+These routines are intended to be portable and thus no conditional code should be needed
+for any service daemon on any platform.
+.SH DIAGNOSTICS
+These functions will print diagnostics to the
+.B stderr
+stream if
+.B pmDebugOptions.services
+is set.
+.SH RETURN CODE
+If successful,
+.B __pmServerNotifyServiceManagerReady
+returns a positive integer that depends on the platform service manager.
+In the case of
+.BR systemd (1),
+the return code is from
+.BR sd_notify (3).
+If the platform supports
+.BR systemd (1)
+but the
+.B NOTIFY_SOCKET
+environment variable is not set (as may be the case if the server program
+is started manually rather than by
+.BR systemd (1)),
+the return code will be
+.B PM_ERR_GENERIC
+which will normally be ignored but a diagnostic will be printed
+if
+.B pmDebugOptions.services
+is set.
+On platforms that have no service manager, the return code will be
+.BR PM_ERR_NYI .
+For backward compatibility on these platforms, the return code should be ignored.

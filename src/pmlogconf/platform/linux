@@ -8,4 +8,5 @@ delta	once
 	network.interface.speed
 	network.interface.duplex
 	network.interface.inet_addr
+	kernel.all.boottime
 

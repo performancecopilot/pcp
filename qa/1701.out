@@ -8,8 +8,8 @@ Updating the PMCD control file, and notifying PMCD ...
 Check bpftrace metrics have appeared ... 7 metrics and 6 values
 
 === start bpftrace script ===
+found metric bpftrace.scripts.UUID.data.h with matching value .*
 === check metrics ===
-found metric bpftrace.scripts.UUID.data.h matching "value .*"
 
 bpftrace.scripts.UUID.data.h PMID: 151.100.10 [@h variable of bpftrace script]
     Data Type: 64-bit unsigned int  InDom: 151.100010 0x25c186aa

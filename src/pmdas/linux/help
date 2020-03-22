@@ -3,7 +3,7 @@
 # Portions Copyright (c) International Business Machines Corp., 2002
 # Portions Copyright (c) 2007-2009 Aconex.  All Rights Reserved.
 # Portions Copyright (c) 2016-2017 Fujitsu.
-# Portions Copyright (c) 2013-2019 Red Hat.
+# Portions Copyright (c) 2013-2020 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -251,6 +251,33 @@ Count of write requests that were merged with an already queued write request.
 @ disk.dev.capacity per-disk physical device capacity
 Total space presented by each block device, from /proc/partitions.
 
+@ disk.dev.discard per-disk discard operations
+Cumulative number of disk discard operations since system boot time.
+@ disk.dev.blkdiscard per-disk block discard operations
+Cumulative number of disk block discard operations since system boot time.
+@ disk.dev.discard_bytes per-disk count of bytes discard'ed
+@ disk.dev.discard_merge per-disk count of merged discard requests
+Count of discard requests that were merged with an already queued discard
+request.
+@ disk.dev.discard_rawactive per-disk raw count of discard response time
+For each completed discard on each disk the response time (queue time plus
+service time) in milliseconds is added to the associated instance of
+this metric.
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.dev.d_await = delta(disk.dev.discard_rawactive) / delta(disk.dev.discard)
+
+@ disk.dev.flush per-disk flush operations
+@ disk.dev.flush_rawactive per-disk raw count of flush response time
+For each completed flush on each disk the response time (queue time plus
+service time) in milliseconds is added to the associated instance of
+this metric.
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.dev.f_await = delta(disk.dev.flush_rawactive) / delta(disk.dev.flush)
+
 @ disk.dm.read per-device-mapper device read operations
 @ disk.dm.write per-device-mapper device write operations
 @ disk.dm.total per-device-mapper device total (read+write) operations
@@ -322,6 +349,43 @@ e.g. mirroring the results from existing performance tools:
 
 @ disk.dm.capacity per-device-mapper physical device capacity
 Total space presented by each device mapper device, from /proc/partitions.
+
+@ disk.dm.discard per-device-mapper device discard operations
+@ disk.dm.blkdiscard per-device-mapper device block discard operations
+@ disk.dm.discard_bytes per-device-mapper device count of discard bytes
+@ disk.dm.discard_merge per-device-mapper device count of merged discard requests
+@ disk.dm.discard_rawactive per-device-mapper raw count of discard response time
+For each completed discard on each device-mapper device the response time
+(queue time plus service time) in milliseconds is added to the associated
+instance of this metric.
+
+When converted to a normalized rate, the value represents the time
+average of the number of outstanding discards for a device-mapper device.
+When divided by the number of completed discards for a device-mapper device
+(disk.dm.discards), the value represents the stochastic average of the
+discard response (or wait) time for that device.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.dm.d_await = delta(disk.dm.discard_rawactive) / delta(disk.dm.discard)
+
+@ disk.dm.flush per-device-mapper device flush operations
+@ disk.dm.flush_rawactive per-device-mapper raw count of flush response time
+For each completed flush on each device-mapper device the response time
+(queue time plus service time) in milliseconds is added to the associated
+instance of this metric.
+
+When converted to a normalized rate, the value represents the time
+average of the number of outstanding flushes for a device-mapper device.
+When divided by the number of completed flushes for a device-mapper device
+(disk.dm.flush), the value represents the stochastic average of the flush
+response (or wait) time for that device.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.dm.f_await = delta(disk.dm.flush_rawactive) / delta(disk.dm.flush)
 
 @ hinv.map.dmname per-device-mapper device persistent name mapping to dm-[0-9]*
 
@@ -397,6 +461,43 @@ e.g. mirroring the results from existing performance tools:
 @ disk.md.status per-multi-device "mdadm --test --detail <device>" return code
 @ disk.md.capacity per-multi-device device capacity
 Total space presented by each multi-device device, from /proc/partitions.
+
+@ disk.md.discard per-multi-device device discard operations
+@ disk.md.blkdiscard per-multi-device device block discard operations
+@ disk.md.discard_bytes per-multi-device device count of discard bytes
+@ disk.md.discard_merge per-multi-device device count of merged discard requests
+@ disk.md.discard_rawactive per-multi-device raw count of discard response time
+For each completed discard on each multi-device device the response time
+(queue time plus service time) in milliseconds is added to the associated
+instance of this metric.
+
+When converted to a normalized rate, the value represents the time
+average of the number of outstanding discards for a multi-device device.
+When divided by the number of completed discards for a multi-device device
+(disk.md.discards), the value represents the stochastic average of the
+discard response (or wait) time for that device.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.md.d_await = delta(disk.md.discard_rawactive) / delta(disk.md.discard)
+
+@ disk.md.flush per-multi-device device flush operations
+@ disk.md.flush_rawactive per-multi-device raw count of flush response time
+For each completed flush on each multi-device device the response time
+(queue time plus service time) in milliseconds is added to the associated
+instance of this metric.
+
+When converted to a normalized rate, the value represents the time
+average of the number of outstanding flushes for a multi-device device.
+When divided by the number of completed flushes for a multi-device device
+(disk.md.flush), the value represents the stochastic average of the flush
+response (or wait) time for that device.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.md.f_await = delta(disk.md.flush_rawactive) / delta(disk.md.flush)
 
 @ hinv.map.mdname per-multi-device device persistent name mapping to md[0-9]*
 
@@ -483,6 +584,44 @@ boot time (subject to counter wrap), summed over all disk devices.
 @ disk.all.read_bytes count of bytes read for all disk devices
 @ disk.all.write_bytes count of bytes written for all disk devices
 @ disk.all.total_bytes total count of bytes read and written for all disk devices
+
+@ disk.all.discard total discard operations, summed for all disks
+@ disk.all.blkdiscard block discard operations, summed for all disks
+@ disk.all.discard_bytes count of discard bytes for all disk devices
+@ disk.all.discard_merge total count of merged discard requests, summed for all disks
+Total count of discard requests that were merged with an already queued
+discard request.
+
+@ disk.all.discard_rawactive raw count of discard response time, summed for all disks
+For each discard on every disk the response time (queue time plus
+service time) in milliseconds is added to this metric.
+
+When converted to a normalized rate, the value represents the time average
+of the number of outstanding discards across all disks.  When divided
+by the number of completed discards for all disks (disk.all.discard), the
+value represents the stochastic average of the discard response (or wait)
+time across all disks.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.all.d_await = delta(disk.all.discard_rawactive) / delta(disk.all.discard)
+
+@ disk.all.flush total flush operations, summed for all disks
+@ disk.all.flush_rawactive raw count of flush response time, summed for all disks
+For each flush on every disk the response time (queue time plus
+service time) in milliseconds is added to this metric.
+
+When converted to a normalized rate, the value represents the time average
+of the number of outstanding flushes across all disks.  When divided
+by the number of completed flushes for all disks (disk.all.flush), the
+value represents the stochastic average of the flush response (or wait)
+time across all disks.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.all.f_await = delta(disk.all.flush_rawactive) / delta(disk.all.flush)
 
 @ disk.partitions.read read operations metric for storage partitions
 Cumulative number of disk read operations since system boot time
@@ -589,6 +728,45 @@ the I/O response (or wait) time for that disk partition.
 @ disk.partitions.capacity per-disk-partition capacity
 Total space presented by each disk partition, from /proc/partitions.
 
+@ disk.partitions.discard discard operations count for storage partitions
+@ disk.partitions.blkdiscard block discard operations count for storage partitions
+@ disk.partitions.discard_bytes number of discard bytes for storage partitions
+@ disk.partitions.discard_merge per-disk-partition count of merged discard requests
+@ disk.partitions.discard_rawactive per-disk-partition raw count of discard response time
+For each completed discard on each disk partition the response time
+(queue time plus service time) in milliseconds is added to the associated
+instance of this metric.
+
+When converted to a normalized rate, the value represents the time average
+of the number of outstanding discards for a disk partition.  When divided by
+the number of completed discards for a disk partition (disk.partitions.discard),
+the value represents the stochastic average of the discard response (or wait)
+time for that disk partition.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.partitions.d_await = delta(disk.partitions.discard_rawactive) /
+                             delta(disk.partitions.discard)
+
+@ disk.partitions.flush flush operations metric for storage partitions
+@ disk.partitions.flush_rawactive per-disk-partition raw count of flush response time
+For each completed flush on each disk partition the response time
+(queue time plus service time) in milliseconds is added to the associated
+instance of this metric.
+
+When converted to a normalized rate, the value represents the time average
+of the number of outstanding flushes for a disk partition.  When divided by
+the number of completed flushes for a disk partition (disk.partitions.flush),
+the value represents the stochastic average of the flush response (or wait)
+time for that disk partition.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.partitions.f_await = delta(disk.partitions.flush_rawactive) /
+                             delta(disk.partitions.flush)
+
 @ swap.pagesin pages read from swap devices due to demand for physical memory
 @ swap.pagesout pages written to swap devices due to demand for physical memory
 @ swap.in number of swap in operations
@@ -597,6 +775,7 @@ Total space presented by each disk partition, from /proc/partitions.
 @ kernel.all.sysfork fork rate metric from /proc/stat
 @ kernel.all.running number of currently running processes from /proc/stat
 @ kernel.all.blocked number of currently blocked processes from /proc/stat
+@ kernel.all.boottime boot time from /proc/stat
 @ kernel.all.intr interrupt count metric from /proc/stat
 The value is the first value from the intr field in /proc/stat,
 which is a counter of the total number of interrupts processed.

@@ -73,7 +73,7 @@ require {
 	class capability net_raw; # pmda.netcheck
 	class sock_file { getattr write }; #RHBZ1633211, RHBZ1449671
 	class tcp_socket { name_bind name_connect };
-	class udp_socket { name_bind name_connect };
+	class udp_socket { name_bind };
 	class shm { unix_read associate getattr read };
 	class filesystem mount;
 	class blk_file { ioctl open read };

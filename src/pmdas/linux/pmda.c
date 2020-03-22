@@ -573,6 +573,41 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_STAT,87), PM_TYPE_U64, DISK_INDOM, PM_SEM_DISCRETE, 
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
+/* disk.dev.discard */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,88), KERNEL_ULONG, DISK_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* disk.dev.blkdiscard */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,89), KERNEL_ULONG, DISK_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* disk.dev.discard_bytes */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,90), KERNEL_ULONG, DISK_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* disk.dev.discard_merge */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,91), KERNEL_ULONG, DISK_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* disk.dev.discard_rawactive */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,92), PM_TYPE_U32, DISK_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* disk.dev.flush */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,93), KERNEL_ULONG, DISK_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* disk.dev.flush_rawactive */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,94), PM_TYPE_U32, DISK_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
 /* disk.all.avactive */
     { NULL, 
       { PMDA_PMID(CLUSTER_STAT,44), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
@@ -652,6 +687,11 @@ static pmdaMetric metrictab[] = {
     { NULL, 
       { PMDA_PMID(CLUSTER_STAT,16), KERNEL_ULONG, PM_INDOM_NULL, PM_SEM_INSTANT, 
       PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/* kernel.all.boottime */
+    { NULL,
+      { PMDA_PMID(CLUSTER_STAT,17), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0) }, },
 
 /* kernel.all.cpu.user */
     { NULL, 
@@ -2165,6 +2205,41 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_PARTITIONS,16), PM_TYPE_U64, PARTITIONS_INDOM, PM_SEM_DISCRETE,
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
+/* disk.partitions.discard */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_PARTITIONS,17), KERNEL_ULONG, PARTITIONS_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* disk.partitions.blkdiscard */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_PARTITIONS,18), KERNEL_ULONG, PARTITIONS_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* disk.partitions.discard_bytes */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_PARTITIONS,19), KERNEL_ULONG, PARTITIONS_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* disk.partitions.discard_merge */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_PARTITIONS,20), KERNEL_ULONG, PARTITIONS_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* disk.partitions.discard_rawactive */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_PARTITIONS,21), PM_TYPE_U32, PARTITIONS_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* disk.partitions.flush */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_PARTITIONS,22), KERNEL_ULONG, PARTITIONS_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* disk.partitions.flush_rawactive */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_PARTITIONS,23), PM_TYPE_U32, PARTITIONS_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
 /* disk.dev.read_bytes */
     { NULL, 
       { PMDA_PMID(CLUSTER_STAT,38), KERNEL_ULONG, DISK_INDOM, PM_SEM_COUNTER, 
@@ -2194,6 +2269,41 @@ static pmdaMetric metrictab[] = {
     { NULL, 
       { PMDA_PMID(CLUSTER_STAT,43), KERNEL_ULONG, PM_INDOM_NULL, PM_SEM_COUNTER, 
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* disk.all.discard */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,96), KERNEL_ULONG, DISK_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* disk.all.blkdiscard */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,97), KERNEL_ULONG, DISK_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* disk.all.discard_bytes */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,98), KERNEL_ULONG, DISK_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* disk.all.discard_merge */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,99), KERNEL_ULONG, DISK_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* disk.all.discard_rawactive */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,100), PM_TYPE_U32, DISK_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* disk.all.flush */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,101), KERNEL_ULONG, DISK_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* disk.all.flush_rawactive */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,102), PM_TYPE_U32, DISK_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
 
 /*
  * kernel_uname cluster
@@ -5459,6 +5569,34 @@ static pmdaMetric metrictab[] = {
     { NULL, { PMDA_PMID(CLUSTER_DM,17), PM_TYPE_U64, DM_INDOM,
       PM_SEM_DISCRETE, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
+    /* disk.dm.discard */
+    { NULL, { PMDA_PMID(CLUSTER_DM,18), KERNEL_ULONG, DM_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* disk.dm.blkdiscard */
+    { NULL, { PMDA_PMID(CLUSTER_DM,19), KERNEL_ULONG, DM_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* disk.dm.discard_bytes */
+    { NULL, { PMDA_PMID(CLUSTER_DM,20), KERNEL_ULONG, DM_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+    /* disk.dm.discard_merge */
+    { NULL, { PMDA_PMID(CLUSTER_DM,21), KERNEL_ULONG, DM_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* disk.dm.discard_rawactive */
+    { NULL, { PMDA_PMID(CLUSTER_DM,22), PM_TYPE_U32, DM_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+    /* disk.dm.flush */
+    { NULL, { PMDA_PMID(CLUSTER_DM,23), KERNEL_ULONG, DM_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* disk.dm.flush_rawactive */
+    { NULL, { PMDA_PMID(CLUSTER_DM,24), PM_TYPE_U32, DM_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
 /*
  * disk.md cluster
  */
@@ -5537,6 +5675,34 @@ static pmdaMetric metrictab[] = {
     /* disk.md.capacity */
     { NULL, { PMDA_PMID(CLUSTER_MD,17), PM_TYPE_U64, MD_INDOM,
       PM_SEM_DISCRETE, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+    /* disk.md.discard */
+    { NULL, { PMDA_PMID(CLUSTER_MD,18), KERNEL_ULONG, MD_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* disk.md.blkdiscard */
+    { NULL, { PMDA_PMID(CLUSTER_MD,19), KERNEL_ULONG, MD_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* disk.md.discard_bytes */
+    { NULL, { PMDA_PMID(CLUSTER_MD,20), KERNEL_ULONG, MD_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+    /* disk.md.discard_merge */
+    { NULL, { PMDA_PMID(CLUSTER_MD,21), KERNEL_ULONG, MD_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* disk.md.discard_rawactive */
+    { NULL, { PMDA_PMID(CLUSTER_MD,22), PM_TYPE_U32, MD_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+    /* disk.md.flush */
+    { NULL, { PMDA_PMID(CLUSTER_MD,23), KERNEL_ULONG, MD_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* disk.md.flush_rawactive */
+    { NULL, { PMDA_PMID(CLUSTER_MD,24), PM_TYPE_U32, MD_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
 
 /*
  * network.softnet cluster
@@ -6415,6 +6581,9 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 	case 16: /* kernel.all.blocked */
 	    _pm_assign_ulong(atom, proc_stat.procs_blocked);
+	    break;
+	case 17: /* kernel.all.boottime */
+	    atom->ll = proc_stat.btime;
 	    break;
 
 	case 20: /* kernel.all.cpu.user */

@@ -7,7 +7,7 @@
 ** Include-file describing miscellaneous constants and function-prototypes.
 **
 ** Copyright (C) 1996-2014 Gerlof Langeveld
-** Copyright (C) 2015-2019 Red Hat.
+** Copyright (C) 2015-2020 Red Hat.
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -34,6 +34,7 @@
 #define	OVFORMAT	9
 
 typedef	long long	count_t;
+typedef	unsigned long long	ucount_t;
 
 struct pmDesc;
 struct pmResult;
@@ -75,6 +76,7 @@ struct sysname {
 */
 extern struct sysname	sysname;
 extern int              nodenamelen;
+extern struct timeval	start;
 extern struct timeval	origin;
 extern struct timeval   pretime;
 extern struct timeval   curtime;
@@ -118,6 +120,8 @@ extern int		dskbadness;
 extern int		netbadness;
 extern int		pagbadness;
 extern int		almostcrit;
+
+extern long long	system_boottime;
 
 /*
 ** bit-values for supportflags
@@ -195,6 +199,7 @@ void		show_pcp_usage(struct pmOptions *);
 void		engine(void);
 
 char 		*abstime(char *);
+void		setup_step_mode(int);
 void		setup_globals(struct pmOptions *);
 void		setup_process(void);
 void		setup_metrics(char **, unsigned int *, struct pmDesc *, int);
@@ -211,6 +216,7 @@ int		extract_integer_index(struct pmResult *, struct pmDesc *, int, int);
 count_t		extract_count_t(struct pmResult *, struct pmDesc *, int);
 count_t		extract_count_t_inst(struct pmResult *, struct pmDesc *, int, int);
 count_t		extract_count_t_index(struct pmResult *, struct pmDesc *, int, int);
+ucount_t	extract_ucount_t_inst(struct pmResult *, struct pmDesc *, int, int);
 char *		extract_string(struct pmResult *, struct pmDesc *, int, char *, int);
 char *		extract_string_inst(struct pmResult *, struct pmDesc *, int, char *, int, int);
 char *		extract_string_index(struct pmResult *, struct pmDesc *, int, char *, int, int);

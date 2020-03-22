@@ -7,6 +7,9 @@ disk.all.avactive
 disk.all.aveq
     value 532716500
 
+disk.all.blkdiscard
+    inst [N or "sda"] value 0
+
 disk.all.blkread
     value 95048962
 
@@ -15,6 +18,24 @@ disk.all.blktotal
 
 disk.all.blkwrite
     value 178999432
+
+disk.all.discard
+    inst [N or "sda"] value 0
+
+disk.all.discard_bytes
+    inst [N or "sda"] value 0
+
+disk.all.discard_merge
+    inst [N or "sda"] value 0
+
+disk.all.discard_rawactive
+    inst [N or "sda"] value 0
+
+disk.all.flush
+    inst [N or "sda"] value 0
+
+disk.all.flush_rawactive
+    inst [N or "sda"] value 0
 
 disk.all.read
     value 1132105
@@ -55,6 +76,9 @@ disk.dev.avactive
 disk.dev.aveq
     inst [N or "sda"] value 532716500
 
+disk.dev.blkdiscard
+    inst [N or "sda"] value 0
+
 disk.dev.blkread
     inst [N or "sda"] value 95048962
 
@@ -66,6 +90,24 @@ disk.dev.blkwrite
 
 disk.dev.capacity
 No value(s) available!
+
+disk.dev.discard
+    inst [N or "sda"] value 0
+
+disk.dev.discard_bytes
+    inst [N or "sda"] value 0
+
+disk.dev.discard_merge
+    inst [N or "sda"] value 0
+
+disk.dev.discard_rawactive
+    inst [N or "sda"] value 0
+
+disk.dev.flush
+    inst [N or "sda"] value 0
+
+disk.dev.flush_rawactive
+    inst [N or "sda"] value 0
 
 disk.dev.read
     inst [N or "sda"] value 1132105
@@ -109,6 +151,9 @@ disk.dm.avactive
 disk.dm.aveq
     inst [N or "docker-8:7-1974438-pool"] value 16196
 
+disk.dm.blkdiscard
+    inst [N or "docker-8:7-1974438-pool"] value 0
+
 disk.dm.blkread
     inst [N or "docker-8:7-1974438-pool"] value 125544
 
@@ -120,6 +165,24 @@ disk.dm.blkwrite
 
 disk.dm.capacity
 No value(s) available!
+
+disk.dm.discard
+    inst [N or "docker-8:7-1974438-pool"] value 0
+
+disk.dm.discard_bytes
+    inst [N or "docker-8:7-1974438-pool"] value 0
+
+disk.dm.discard_merge
+    inst [N or "docker-8:7-1974438-pool"] value 0
+
+disk.dm.discard_rawactive
+    inst [N or "docker-8:7-1974438-pool"] value 0
+
+disk.dm.flush
+    inst [N or "docker-8:7-1974438-pool"] value 0
+
+disk.dm.flush_rawactive
+    inst [N or "docker-8:7-1974438-pool"] value 0
 
 disk.dm.read
     inst [N or "docker-8:7-1974438-pool"] value 5454
@@ -160,6 +223,9 @@ No value(s) available!
 disk.md.aveq
 No value(s) available!
 
+disk.md.blkdiscard
+No value(s) available!
+
 disk.md.blkread
 No value(s) available!
 
@@ -170,6 +236,24 @@ disk.md.blkwrite
 No value(s) available!
 
 disk.md.capacity
+No value(s) available!
+
+disk.md.discard
+No value(s) available!
+
+disk.md.discard_bytes
+No value(s) available!
+
+disk.md.discard_merge
+No value(s) available!
+
+disk.md.discard_rawactive
+No value(s) available!
+
+disk.md.flush
+No value(s) available!
+
+disk.md.flush_rawactive
 No value(s) available!
 
 disk.md.read
@@ -232,6 +316,18 @@ disk.partitions.aveq
     inst [N or "sda8"] value 18229
     inst [N or "sda9"] value 9383713
 
+disk.partitions.blkdiscard
+    inst [N or "sda1"] value 0
+    inst [N or "sda10"] value 0
+    inst [N or "sda2"] value 0
+    inst [N or "sda3"] value 0
+    inst [N or "sda4"] value 0
+    inst [N or "sda5"] value 0
+    inst [N or "sda6"] value 0
+    inst [N or "sda7"] value 0
+    inst [N or "sda8"] value 0
+    inst [N or "sda9"] value 0
+
 disk.partitions.blkread
     inst [N or "sda1"] value 142016
     inst [N or "sda10"] value 140872
@@ -270,6 +366,78 @@ disk.partitions.blkwrite
 
 disk.partitions.capacity
 No value(s) available!
+
+disk.partitions.discard
+    inst [N or "sda1"] value 0
+    inst [N or "sda10"] value 0
+    inst [N or "sda2"] value 0
+    inst [N or "sda3"] value 0
+    inst [N or "sda4"] value 0
+    inst [N or "sda5"] value 0
+    inst [N or "sda6"] value 0
+    inst [N or "sda7"] value 0
+    inst [N or "sda8"] value 0
+    inst [N or "sda9"] value 0
+
+disk.partitions.discard_bytes
+    inst [N or "sda1"] value 0
+    inst [N or "sda10"] value 0
+    inst [N or "sda2"] value 0
+    inst [N or "sda3"] value 0
+    inst [N or "sda4"] value 0
+    inst [N or "sda5"] value 0
+    inst [N or "sda6"] value 0
+    inst [N or "sda7"] value 0
+    inst [N or "sda8"] value 0
+    inst [N or "sda9"] value 0
+
+disk.partitions.discard_merge
+    inst [N or "sda1"] value 0
+    inst [N or "sda10"] value 0
+    inst [N or "sda2"] value 0
+    inst [N or "sda3"] value 0
+    inst [N or "sda4"] value 0
+    inst [N or "sda5"] value 0
+    inst [N or "sda6"] value 0
+    inst [N or "sda7"] value 0
+    inst [N or "sda8"] value 0
+    inst [N or "sda9"] value 0
+
+disk.partitions.discard_rawactive
+    inst [N or "sda1"] value 0
+    inst [N or "sda10"] value 0
+    inst [N or "sda2"] value 0
+    inst [N or "sda3"] value 0
+    inst [N or "sda4"] value 0
+    inst [N or "sda5"] value 0
+    inst [N or "sda6"] value 0
+    inst [N or "sda7"] value 0
+    inst [N or "sda8"] value 0
+    inst [N or "sda9"] value 0
+
+disk.partitions.flush
+    inst [N or "sda1"] value 0
+    inst [N or "sda10"] value 0
+    inst [N or "sda2"] value 0
+    inst [N or "sda3"] value 0
+    inst [N or "sda4"] value 0
+    inst [N or "sda5"] value 0
+    inst [N or "sda6"] value 0
+    inst [N or "sda7"] value 0
+    inst [N or "sda8"] value 0
+    inst [N or "sda9"] value 0
+
+disk.partitions.flush_rawactive
+    inst [N or "sda1"] value 0
+    inst [N or "sda10"] value 0
+    inst [N or "sda2"] value 0
+    inst [N or "sda3"] value 0
+    inst [N or "sda4"] value 0
+    inst [N or "sda5"] value 0
+    inst [N or "sda6"] value 0
+    inst [N or "sda7"] value 0
+    inst [N or "sda8"] value 0
+    inst [N or "sda9"] value 0
 
 disk.partitions.read
     inst [N or "sda1"] value 8457
@@ -419,6 +587,9 @@ disk.all.avactive
 disk.all.aveq
     value 532718191
 
+disk.all.blkdiscard
+    inst [N or "sda"] value 0
+
 disk.all.blkread
     value 95561506
 
@@ -427,6 +598,24 @@ disk.all.blktotal
 
 disk.all.blkwrite
     value 178999688
+
+disk.all.discard
+    inst [N or "sda"] value 0
+
+disk.all.discard_bytes
+    inst [N or "sda"] value 0
+
+disk.all.discard_merge
+    inst [N or "sda"] value 0
+
+disk.all.discard_rawactive
+    inst [N or "sda"] value 0
+
+disk.all.flush
+    inst [N or "sda"] value 0
+
+disk.all.flush_rawactive
+    inst [N or "sda"] value 0
 
 disk.all.read
     value 1132650
@@ -469,6 +658,10 @@ disk.dev.aveq
     inst [N or "cciss/c12d11"] value 1691
     inst [N or "sda"] value 532716500
 
+disk.dev.blkdiscard
+    inst [N or "cciss/c12d11"] value 0
+    inst [N or "sda"] value 0
+
 disk.dev.blkread
     inst [N or "cciss/c12d11"] value 512544
     inst [N or "sda"] value 95048962
@@ -483,6 +676,30 @@ disk.dev.blkwrite
 
 disk.dev.capacity
 No value(s) available!
+
+disk.dev.discard
+    inst [N or "cciss/c12d11"] value 0
+    inst [N or "sda"] value 0
+
+disk.dev.discard_bytes
+    inst [N or "cciss/c12d11"] value 0
+    inst [N or "sda"] value 0
+
+disk.dev.discard_merge
+    inst [N or "cciss/c12d11"] value 0
+    inst [N or "sda"] value 0
+
+disk.dev.discard_rawactive
+    inst [N or "cciss/c12d11"] value 0
+    inst [N or "sda"] value 0
+
+disk.dev.flush
+    inst [N or "cciss/c12d11"] value 0
+    inst [N or "sda"] value 0
+
+disk.dev.flush_rawactive
+    inst [N or "cciss/c12d11"] value 0
+    inst [N or "sda"] value 0
 
 disk.dev.read
     inst [N or "cciss/c12d11"] value 545
@@ -538,6 +755,9 @@ disk.dm.avactive
 disk.dm.aveq
     inst [N or "docker-8:7-1974438-pool"] value 16196
 
+disk.dm.blkdiscard
+    inst [N or "docker-8:7-1974438-pool"] value 0
+
 disk.dm.blkread
     inst [N or "docker-8:7-1974438-pool"] value 125544
 
@@ -549,6 +769,24 @@ disk.dm.blkwrite
 
 disk.dm.capacity
 No value(s) available!
+
+disk.dm.discard
+    inst [N or "docker-8:7-1974438-pool"] value 0
+
+disk.dm.discard_bytes
+    inst [N or "docker-8:7-1974438-pool"] value 0
+
+disk.dm.discard_merge
+    inst [N or "docker-8:7-1974438-pool"] value 0
+
+disk.dm.discard_rawactive
+    inst [N or "docker-8:7-1974438-pool"] value 0
+
+disk.dm.flush
+    inst [N or "docker-8:7-1974438-pool"] value 0
+
+disk.dm.flush_rawactive
+    inst [N or "docker-8:7-1974438-pool"] value 0
 
 disk.dm.read
     inst [N or "docker-8:7-1974438-pool"] value 5454
@@ -589,6 +827,9 @@ No value(s) available!
 disk.md.aveq
 No value(s) available!
 
+disk.md.blkdiscard
+No value(s) available!
+
 disk.md.blkread
 No value(s) available!
 
@@ -599,6 +840,24 @@ disk.md.blkwrite
 No value(s) available!
 
 disk.md.capacity
+No value(s) available!
+
+disk.md.discard
+No value(s) available!
+
+disk.md.discard_bytes
+No value(s) available!
+
+disk.md.discard_merge
+No value(s) available!
+
+disk.md.discard_rawactive
+No value(s) available!
+
+disk.md.flush
+No value(s) available!
+
+disk.md.flush_rawactive
 No value(s) available!
 
 disk.md.read
@@ -643,6 +902,9 @@ No value(s) available!
 disk.partitions.aveq
 No value(s) available!
 
+disk.partitions.blkdiscard
+No value(s) available!
+
 disk.partitions.blkread
 No value(s) available!
 
@@ -653,6 +915,24 @@ disk.partitions.blkwrite
 No value(s) available!
 
 disk.partitions.capacity
+No value(s) available!
+
+disk.partitions.discard
+No value(s) available!
+
+disk.partitions.discard_bytes
+No value(s) available!
+
+disk.partitions.discard_merge
+No value(s) available!
+
+disk.partitions.discard_rawactive
+No value(s) available!
+
+disk.partitions.flush
+No value(s) available!
+
+disk.partitions.flush_rawactive
 No value(s) available!
 
 disk.partitions.read
@@ -704,6 +984,9 @@ disk.all.avactive
 disk.all.aveq
     value 2137007
 
+disk.all.blkdiscard
+    inst [N or "sda"] value 0
+
 disk.all.blkread
     value 933248
 
@@ -712,6 +995,24 @@ disk.all.blktotal
 
 disk.all.blkwrite
     value 582524
+
+disk.all.discard
+    inst [N or "sda"] value 0
+
+disk.all.discard_bytes
+    inst [N or "sda"] value 0
+
+disk.all.discard_merge
+    inst [N or "sda"] value 0
+
+disk.all.discard_rawactive
+    inst [N or "sda"] value 0
+
+disk.all.flush
+    inst [N or "sda"] value 0
+
+disk.all.flush_rawactive
+    inst [N or "sda"] value 0
 
 disk.all.read
     value 16281
@@ -808,6 +1109,37 @@ disk.dev.aveq
     inst [N or "sdw"] value 6
     inst [N or "sdx"] value 12
 
+disk.dev.blkdiscard
+    inst [N or "cciss/c0d0"] value 0
+    inst [N or "cciss/c0d1"] value 0
+    inst [N or "cciss/c0d2"] value 0
+    inst [N or "cciss/c0d3"] value 0
+    inst [N or "cciss/c1d0"] value 0
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
+    inst [N or "sdc"] value 0
+    inst [N or "sdd"] value 0
+    inst [N or "sde"] value 0
+    inst [N or "sdf"] value 0
+    inst [N or "sdg"] value 0
+    inst [N or "sdh"] value 0
+    inst [N or "sdi"] value 0
+    inst [N or "sdj"] value 0
+    inst [N or "sdk"] value 0
+    inst [N or "sdl"] value 0
+    inst [N or "sdm"] value 0
+    inst [N or "sdn"] value 0
+    inst [N or "sdo"] value 0
+    inst [N or "sdp"] value 0
+    inst [N or "sdq"] value 0
+    inst [N or "sdr"] value 0
+    inst [N or "sds"] value 0
+    inst [N or "sdt"] value 0
+    inst [N or "sdu"] value 0
+    inst [N or "sdv"] value 0
+    inst [N or "sdw"] value 0
+    inst [N or "sdx"] value 0
+
 disk.dev.blkread
     inst [N or "cciss/c0d0"] value 4744
     inst [N or "cciss/c0d1"] value 1716
@@ -903,6 +1235,192 @@ disk.dev.blkwrite
 
 disk.dev.capacity
 No value(s) available!
+
+disk.dev.discard
+    inst [N or "cciss/c0d0"] value 0
+    inst [N or "cciss/c0d1"] value 0
+    inst [N or "cciss/c0d2"] value 0
+    inst [N or "cciss/c0d3"] value 0
+    inst [N or "cciss/c1d0"] value 0
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
+    inst [N or "sdc"] value 0
+    inst [N or "sdd"] value 0
+    inst [N or "sde"] value 0
+    inst [N or "sdf"] value 0
+    inst [N or "sdg"] value 0
+    inst [N or "sdh"] value 0
+    inst [N or "sdi"] value 0
+    inst [N or "sdj"] value 0
+    inst [N or "sdk"] value 0
+    inst [N or "sdl"] value 0
+    inst [N or "sdm"] value 0
+    inst [N or "sdn"] value 0
+    inst [N or "sdo"] value 0
+    inst [N or "sdp"] value 0
+    inst [N or "sdq"] value 0
+    inst [N or "sdr"] value 0
+    inst [N or "sds"] value 0
+    inst [N or "sdt"] value 0
+    inst [N or "sdu"] value 0
+    inst [N or "sdv"] value 0
+    inst [N or "sdw"] value 0
+    inst [N or "sdx"] value 0
+
+disk.dev.discard_bytes
+    inst [N or "cciss/c0d0"] value 0
+    inst [N or "cciss/c0d1"] value 0
+    inst [N or "cciss/c0d2"] value 0
+    inst [N or "cciss/c0d3"] value 0
+    inst [N or "cciss/c1d0"] value 0
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
+    inst [N or "sdc"] value 0
+    inst [N or "sdd"] value 0
+    inst [N or "sde"] value 0
+    inst [N or "sdf"] value 0
+    inst [N or "sdg"] value 0
+    inst [N or "sdh"] value 0
+    inst [N or "sdi"] value 0
+    inst [N or "sdj"] value 0
+    inst [N or "sdk"] value 0
+    inst [N or "sdl"] value 0
+    inst [N or "sdm"] value 0
+    inst [N or "sdn"] value 0
+    inst [N or "sdo"] value 0
+    inst [N or "sdp"] value 0
+    inst [N or "sdq"] value 0
+    inst [N or "sdr"] value 0
+    inst [N or "sds"] value 0
+    inst [N or "sdt"] value 0
+    inst [N or "sdu"] value 0
+    inst [N or "sdv"] value 0
+    inst [N or "sdw"] value 0
+    inst [N or "sdx"] value 0
+
+disk.dev.discard_merge
+    inst [N or "cciss/c0d0"] value 0
+    inst [N or "cciss/c0d1"] value 0
+    inst [N or "cciss/c0d2"] value 0
+    inst [N or "cciss/c0d3"] value 0
+    inst [N or "cciss/c1d0"] value 0
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
+    inst [N or "sdc"] value 0
+    inst [N or "sdd"] value 0
+    inst [N or "sde"] value 0
+    inst [N or "sdf"] value 0
+    inst [N or "sdg"] value 0
+    inst [N or "sdh"] value 0
+    inst [N or "sdi"] value 0
+    inst [N or "sdj"] value 0
+    inst [N or "sdk"] value 0
+    inst [N or "sdl"] value 0
+    inst [N or "sdm"] value 0
+    inst [N or "sdn"] value 0
+    inst [N or "sdo"] value 0
+    inst [N or "sdp"] value 0
+    inst [N or "sdq"] value 0
+    inst [N or "sdr"] value 0
+    inst [N or "sds"] value 0
+    inst [N or "sdt"] value 0
+    inst [N or "sdu"] value 0
+    inst [N or "sdv"] value 0
+    inst [N or "sdw"] value 0
+    inst [N or "sdx"] value 0
+
+disk.dev.discard_rawactive
+    inst [N or "cciss/c0d0"] value 0
+    inst [N or "cciss/c0d1"] value 0
+    inst [N or "cciss/c0d2"] value 0
+    inst [N or "cciss/c0d3"] value 0
+    inst [N or "cciss/c1d0"] value 0
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
+    inst [N or "sdc"] value 0
+    inst [N or "sdd"] value 0
+    inst [N or "sde"] value 0
+    inst [N or "sdf"] value 0
+    inst [N or "sdg"] value 0
+    inst [N or "sdh"] value 0
+    inst [N or "sdi"] value 0
+    inst [N or "sdj"] value 0
+    inst [N or "sdk"] value 0
+    inst [N or "sdl"] value 0
+    inst [N or "sdm"] value 0
+    inst [N or "sdn"] value 0
+    inst [N or "sdo"] value 0
+    inst [N or "sdp"] value 0
+    inst [N or "sdq"] value 0
+    inst [N or "sdr"] value 0
+    inst [N or "sds"] value 0
+    inst [N or "sdt"] value 0
+    inst [N or "sdu"] value 0
+    inst [N or "sdv"] value 0
+    inst [N or "sdw"] value 0
+    inst [N or "sdx"] value 0
+
+disk.dev.flush
+    inst [N or "cciss/c0d0"] value 0
+    inst [N or "cciss/c0d1"] value 0
+    inst [N or "cciss/c0d2"] value 0
+    inst [N or "cciss/c0d3"] value 0
+    inst [N or "cciss/c1d0"] value 0
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
+    inst [N or "sdc"] value 0
+    inst [N or "sdd"] value 0
+    inst [N or "sde"] value 0
+    inst [N or "sdf"] value 0
+    inst [N or "sdg"] value 0
+    inst [N or "sdh"] value 0
+    inst [N or "sdi"] value 0
+    inst [N or "sdj"] value 0
+    inst [N or "sdk"] value 0
+    inst [N or "sdl"] value 0
+    inst [N or "sdm"] value 0
+    inst [N or "sdn"] value 0
+    inst [N or "sdo"] value 0
+    inst [N or "sdp"] value 0
+    inst [N or "sdq"] value 0
+    inst [N or "sdr"] value 0
+    inst [N or "sds"] value 0
+    inst [N or "sdt"] value 0
+    inst [N or "sdu"] value 0
+    inst [N or "sdv"] value 0
+    inst [N or "sdw"] value 0
+    inst [N or "sdx"] value 0
+
+disk.dev.flush_rawactive
+    inst [N or "cciss/c0d0"] value 0
+    inst [N or "cciss/c0d1"] value 0
+    inst [N or "cciss/c0d2"] value 0
+    inst [N or "cciss/c0d3"] value 0
+    inst [N or "cciss/c1d0"] value 0
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
+    inst [N or "sdc"] value 0
+    inst [N or "sdd"] value 0
+    inst [N or "sde"] value 0
+    inst [N or "sdf"] value 0
+    inst [N or "sdg"] value 0
+    inst [N or "sdh"] value 0
+    inst [N or "sdi"] value 0
+    inst [N or "sdj"] value 0
+    inst [N or "sdk"] value 0
+    inst [N or "sdl"] value 0
+    inst [N or "sdm"] value 0
+    inst [N or "sdn"] value 0
+    inst [N or "sdo"] value 0
+    inst [N or "sdp"] value 0
+    inst [N or "sdq"] value 0
+    inst [N or "sdr"] value 0
+    inst [N or "sds"] value 0
+    inst [N or "sdt"] value 0
+    inst [N or "sdu"] value 0
+    inst [N or "sdv"] value 0
+    inst [N or "sdw"] value 0
+    inst [N or "sdx"] value 0
 
 disk.dev.read
     inst [N or "cciss/c0d0"] value 177
@@ -1282,6 +1800,9 @@ No value(s) available!
 disk.dm.aveq
 No value(s) available!
 
+disk.dm.blkdiscard
+No value(s) available!
+
 disk.dm.blkread
 No value(s) available!
 
@@ -1292,6 +1813,24 @@ disk.dm.blkwrite
 No value(s) available!
 
 disk.dm.capacity
+No value(s) available!
+
+disk.dm.discard
+No value(s) available!
+
+disk.dm.discard_bytes
+No value(s) available!
+
+disk.dm.discard_merge
+No value(s) available!
+
+disk.dm.discard_rawactive
+No value(s) available!
+
+disk.dm.flush
+No value(s) available!
+
+disk.dm.flush_rawactive
 No value(s) available!
 
 disk.dm.read
@@ -1333,6 +1872,9 @@ disk.md.avactive
 disk.md.aveq
     inst [N or "md0"] value 0
 
+disk.md.blkdiscard
+    inst [N or "md0"] value 0
+
 disk.md.blkread
     inst [N or "md0"] value 0
 
@@ -1344,6 +1886,24 @@ disk.md.blkwrite
 
 disk.md.capacity
 No value(s) available!
+
+disk.md.discard
+    inst [N or "md0"] value 0
+
+disk.md.discard_bytes
+    inst [N or "md0"] value 0
+
+disk.md.discard_merge
+    inst [N or "md0"] value 0
+
+disk.md.discard_rawactive
+    inst [N or "md0"] value 0
+
+disk.md.flush
+    inst [N or "md0"] value 0
+
+disk.md.flush_rawactive
+    inst [N or "md0"] value 0
 
 disk.md.read
     inst [N or "md0"] value 0
@@ -1441,6 +2001,36 @@ disk.partitions.aveq
     inst [N or "sds1"] value 33
     inst [N or "sdx1"] value 8
 
+disk.partitions.blkdiscard
+    inst [N or "cciss/c0d0p1"] value 0
+    inst [N or "cciss/c0d0p2"] value 0
+    inst [N or "cciss/c0d0p3"] value 0
+    inst [N or "cciss/c0d0p4"] value 0
+    inst [N or "cciss/c0d1p1"] value 0
+    inst [N or "cciss/c0d3p1"] value 0
+    inst [N or "cciss/c0d3p2"] value 0
+    inst [N or "cciss/c0d3p3"] value 0
+    inst [N or "sda1"] value 0
+    inst [N or "sda2"] value 0
+    inst [N or "sdb1"] value 0
+    inst [N or "sdb2"] value 0
+    inst [N or "sde1"] value 0
+    inst [N or "sdf1"] value 0
+    inst [N or "sdf5"] value 0
+    inst [N or "sdf6"] value 0
+    inst [N or "sdf7"] value 0
+    inst [N or "sdg1"] value 0
+    inst [N or "sdh1"] value 0
+    inst [N or "sdm1"] value 0
+    inst [N or "sdp1"] value 0
+    inst [N or "sdq1"] value 0
+    inst [N or "sdq5"] value 0
+    inst [N or "sdq6"] value 0
+    inst [N or "sdq7"] value 0
+    inst [N or "sdr1"] value 0
+    inst [N or "sds1"] value 0
+    inst [N or "sdx1"] value 0
+
 disk.partitions.blkread
     inst [N or "cciss/c0d0p1"] value 896
     inst [N or "cciss/c0d0p2"] value 896
@@ -1533,6 +2123,186 @@ disk.partitions.blkwrite
 
 disk.partitions.capacity
 No value(s) available!
+
+disk.partitions.discard
+    inst [N or "cciss/c0d0p1"] value 0
+    inst [N or "cciss/c0d0p2"] value 0
+    inst [N or "cciss/c0d0p3"] value 0
+    inst [N or "cciss/c0d0p4"] value 0
+    inst [N or "cciss/c0d1p1"] value 0
+    inst [N or "cciss/c0d3p1"] value 0
+    inst [N or "cciss/c0d3p2"] value 0
+    inst [N or "cciss/c0d3p3"] value 0
+    inst [N or "sda1"] value 0
+    inst [N or "sda2"] value 0
+    inst [N or "sdb1"] value 0
+    inst [N or "sdb2"] value 0
+    inst [N or "sde1"] value 0
+    inst [N or "sdf1"] value 0
+    inst [N or "sdf5"] value 0
+    inst [N or "sdf6"] value 0
+    inst [N or "sdf7"] value 0
+    inst [N or "sdg1"] value 0
+    inst [N or "sdh1"] value 0
+    inst [N or "sdm1"] value 0
+    inst [N or "sdp1"] value 0
+    inst [N or "sdq1"] value 0
+    inst [N or "sdq5"] value 0
+    inst [N or "sdq6"] value 0
+    inst [N or "sdq7"] value 0
+    inst [N or "sdr1"] value 0
+    inst [N or "sds1"] value 0
+    inst [N or "sdx1"] value 0
+
+disk.partitions.discard_bytes
+    inst [N or "cciss/c0d0p1"] value 0
+    inst [N or "cciss/c0d0p2"] value 0
+    inst [N or "cciss/c0d0p3"] value 0
+    inst [N or "cciss/c0d0p4"] value 0
+    inst [N or "cciss/c0d1p1"] value 0
+    inst [N or "cciss/c0d3p1"] value 0
+    inst [N or "cciss/c0d3p2"] value 0
+    inst [N or "cciss/c0d3p3"] value 0
+    inst [N or "sda1"] value 0
+    inst [N or "sda2"] value 0
+    inst [N or "sdb1"] value 0
+    inst [N or "sdb2"] value 0
+    inst [N or "sde1"] value 0
+    inst [N or "sdf1"] value 0
+    inst [N or "sdf5"] value 0
+    inst [N or "sdf6"] value 0
+    inst [N or "sdf7"] value 0
+    inst [N or "sdg1"] value 0
+    inst [N or "sdh1"] value 0
+    inst [N or "sdm1"] value 0
+    inst [N or "sdp1"] value 0
+    inst [N or "sdq1"] value 0
+    inst [N or "sdq5"] value 0
+    inst [N or "sdq6"] value 0
+    inst [N or "sdq7"] value 0
+    inst [N or "sdr1"] value 0
+    inst [N or "sds1"] value 0
+    inst [N or "sdx1"] value 0
+
+disk.partitions.discard_merge
+    inst [N or "cciss/c0d0p1"] value 0
+    inst [N or "cciss/c0d0p2"] value 0
+    inst [N or "cciss/c0d0p3"] value 0
+    inst [N or "cciss/c0d0p4"] value 0
+    inst [N or "cciss/c0d1p1"] value 0
+    inst [N or "cciss/c0d3p1"] value 0
+    inst [N or "cciss/c0d3p2"] value 0
+    inst [N or "cciss/c0d3p3"] value 0
+    inst [N or "sda1"] value 0
+    inst [N or "sda2"] value 0
+    inst [N or "sdb1"] value 0
+    inst [N or "sdb2"] value 0
+    inst [N or "sde1"] value 0
+    inst [N or "sdf1"] value 0
+    inst [N or "sdf5"] value 0
+    inst [N or "sdf6"] value 0
+    inst [N or "sdf7"] value 0
+    inst [N or "sdg1"] value 0
+    inst [N or "sdh1"] value 0
+    inst [N or "sdm1"] value 0
+    inst [N or "sdp1"] value 0
+    inst [N or "sdq1"] value 0
+    inst [N or "sdq5"] value 0
+    inst [N or "sdq6"] value 0
+    inst [N or "sdq7"] value 0
+    inst [N or "sdr1"] value 0
+    inst [N or "sds1"] value 0
+    inst [N or "sdx1"] value 0
+
+disk.partitions.discard_rawactive
+    inst [N or "cciss/c0d0p1"] value 0
+    inst [N or "cciss/c0d0p2"] value 0
+    inst [N or "cciss/c0d0p3"] value 0
+    inst [N or "cciss/c0d0p4"] value 0
+    inst [N or "cciss/c0d1p1"] value 0
+    inst [N or "cciss/c0d3p1"] value 0
+    inst [N or "cciss/c0d3p2"] value 0
+    inst [N or "cciss/c0d3p3"] value 0
+    inst [N or "sda1"] value 0
+    inst [N or "sda2"] value 0
+    inst [N or "sdb1"] value 0
+    inst [N or "sdb2"] value 0
+    inst [N or "sde1"] value 0
+    inst [N or "sdf1"] value 0
+    inst [N or "sdf5"] value 0
+    inst [N or "sdf6"] value 0
+    inst [N or "sdf7"] value 0
+    inst [N or "sdg1"] value 0
+    inst [N or "sdh1"] value 0
+    inst [N or "sdm1"] value 0
+    inst [N or "sdp1"] value 0
+    inst [N or "sdq1"] value 0
+    inst [N or "sdq5"] value 0
+    inst [N or "sdq6"] value 0
+    inst [N or "sdq7"] value 0
+    inst [N or "sdr1"] value 0
+    inst [N or "sds1"] value 0
+    inst [N or "sdx1"] value 0
+
+disk.partitions.flush
+    inst [N or "cciss/c0d0p1"] value 0
+    inst [N or "cciss/c0d0p2"] value 0
+    inst [N or "cciss/c0d0p3"] value 0
+    inst [N or "cciss/c0d0p4"] value 0
+    inst [N or "cciss/c0d1p1"] value 0
+    inst [N or "cciss/c0d3p1"] value 0
+    inst [N or "cciss/c0d3p2"] value 0
+    inst [N or "cciss/c0d3p3"] value 0
+    inst [N or "sda1"] value 0
+    inst [N or "sda2"] value 0
+    inst [N or "sdb1"] value 0
+    inst [N or "sdb2"] value 0
+    inst [N or "sde1"] value 0
+    inst [N or "sdf1"] value 0
+    inst [N or "sdf5"] value 0
+    inst [N or "sdf6"] value 0
+    inst [N or "sdf7"] value 0
+    inst [N or "sdg1"] value 0
+    inst [N or "sdh1"] value 0
+    inst [N or "sdm1"] value 0
+    inst [N or "sdp1"] value 0
+    inst [N or "sdq1"] value 0
+    inst [N or "sdq5"] value 0
+    inst [N or "sdq6"] value 0
+    inst [N or "sdq7"] value 0
+    inst [N or "sdr1"] value 0
+    inst [N or "sds1"] value 0
+    inst [N or "sdx1"] value 0
+
+disk.partitions.flush_rawactive
+    inst [N or "cciss/c0d0p1"] value 0
+    inst [N or "cciss/c0d0p2"] value 0
+    inst [N or "cciss/c0d0p3"] value 0
+    inst [N or "cciss/c0d0p4"] value 0
+    inst [N or "cciss/c0d1p1"] value 0
+    inst [N or "cciss/c0d3p1"] value 0
+    inst [N or "cciss/c0d3p2"] value 0
+    inst [N or "cciss/c0d3p3"] value 0
+    inst [N or "sda1"] value 0
+    inst [N or "sda2"] value 0
+    inst [N or "sdb1"] value 0
+    inst [N or "sdb2"] value 0
+    inst [N or "sde1"] value 0
+    inst [N or "sdf1"] value 0
+    inst [N or "sdf5"] value 0
+    inst [N or "sdf6"] value 0
+    inst [N or "sdf7"] value 0
+    inst [N or "sdg1"] value 0
+    inst [N or "sdh1"] value 0
+    inst [N or "sdm1"] value 0
+    inst [N or "sdp1"] value 0
+    inst [N or "sdq1"] value 0
+    inst [N or "sdq5"] value 0
+    inst [N or "sdq6"] value 0
+    inst [N or "sdq7"] value 0
+    inst [N or "sdr1"] value 0
+    inst [N or "sds1"] value 0
+    inst [N or "sdx1"] value 0
 
 disk.partitions.read
     inst [N or "cciss/c0d0p1"] value 34
@@ -1880,6 +2650,9 @@ disk.all.avactive
 disk.all.aveq
     value 1165433000
 
+disk.all.blkdiscard
+    inst [N or "sda"] value 0
+
 disk.all.blkread
     value 180097924
 
@@ -1888,6 +2661,24 @@ disk.all.blktotal
 
 disk.all.blkwrite
     value 457998864
+
+disk.all.discard
+    inst [N or "sda"] value 0
+
+disk.all.discard_bytes
+    inst [N or "sda"] value 0
+
+disk.all.discard_merge
+    inst [N or "sda"] value 0
+
+disk.all.discard_rawactive
+    inst [N or "sda"] value 0
+
+disk.all.flush
+    inst [N or "sda"] value 0
+
+disk.all.flush_rawactive
+    inst [N or "sda"] value 0
 
 disk.all.read
     value 3264210
@@ -1930,6 +2721,10 @@ disk.dev.aveq
     inst [N or "sda"] value 532716500
     inst [N or "sdb"] value 632716500
 
+disk.dev.blkdiscard
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
+
 disk.dev.blkread
     inst [N or "sda"] value 95048962
     inst [N or "sdb"] value 85048962
@@ -1944,6 +2739,30 @@ disk.dev.blkwrite
 
 disk.dev.capacity
 No value(s) available!
+
+disk.dev.discard
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
+
+disk.dev.discard_bytes
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
+
+disk.dev.discard_merge
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
+
+disk.dev.discard_rawactive
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
+
+disk.dev.flush
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
+
+disk.dev.flush_rawactive
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
 
 disk.dev.read
     inst [N or "sda"] value 1132105
@@ -1999,6 +2818,9 @@ No value(s) available!
 disk.dm.aveq
 No value(s) available!
 
+disk.dm.blkdiscard
+No value(s) available!
+
 disk.dm.blkread
 No value(s) available!
 
@@ -2009,6 +2831,24 @@ disk.dm.blkwrite
 No value(s) available!
 
 disk.dm.capacity
+No value(s) available!
+
+disk.dm.discard
+No value(s) available!
+
+disk.dm.discard_bytes
+No value(s) available!
+
+disk.dm.discard_merge
+No value(s) available!
+
+disk.dm.discard_rawactive
+No value(s) available!
+
+disk.dm.flush
+No value(s) available!
+
+disk.dm.flush_rawactive
 No value(s) available!
 
 disk.dm.read
@@ -2052,6 +2892,10 @@ disk.md.aveq
     inst [N or "home"] value 26196
     inst [N or "md0"] value 16196
 
+disk.md.blkdiscard
+    inst [N or "home"] value 0
+    inst [N or "md0"] value 0
+
 disk.md.blkread
     inst [N or "home"] value 225544
     inst [N or "md0"] value 125544
@@ -2066,6 +2910,30 @@ disk.md.blkwrite
 
 disk.md.capacity
 No value(s) available!
+
+disk.md.discard
+    inst [N or "home"] value 0
+    inst [N or "md0"] value 0
+
+disk.md.discard_bytes
+    inst [N or "home"] value 0
+    inst [N or "md0"] value 0
+
+disk.md.discard_merge
+    inst [N or "home"] value 0
+    inst [N or "md0"] value 0
+
+disk.md.discard_rawactive
+    inst [N or "home"] value 0
+    inst [N or "md0"] value 0
+
+disk.md.flush
+    inst [N or "home"] value 0
+    inst [N or "md0"] value 0
+
+disk.md.flush_rawactive
+    inst [N or "home"] value 0
+    inst [N or "md0"] value 0
 
 disk.md.read
     inst [N or "home"] value 6454
@@ -2121,6 +2989,9 @@ No value(s) available!
 disk.partitions.aveq
 No value(s) available!
 
+disk.partitions.blkdiscard
+No value(s) available!
+
 disk.partitions.blkread
 No value(s) available!
 
@@ -2131,6 +3002,24 @@ disk.partitions.blkwrite
 No value(s) available!
 
 disk.partitions.capacity
+No value(s) available!
+
+disk.partitions.discard
+No value(s) available!
+
+disk.partitions.discard_bytes
+No value(s) available!
+
+disk.partitions.discard_merge
+No value(s) available!
+
+disk.partitions.discard_rawactive
+No value(s) available!
+
+disk.partitions.flush
+No value(s) available!
+
+disk.partitions.flush_rawactive
 No value(s) available!
 
 disk.partitions.read
@@ -2183,6 +3072,9 @@ disk.all.avactive
 disk.all.aveq
     value 3669184
 
+disk.all.blkdiscard
+    inst [N or "vda"] value 0
+
 disk.all.blkread
     value 12340603
 
@@ -2191,6 +3083,24 @@ disk.all.blktotal
 
 disk.all.blkwrite
     value 3184590
+
+disk.all.discard
+    inst [N or "vda"] value 0
+
+disk.all.discard_bytes
+    inst [N or "vda"] value 0
+
+disk.all.discard_merge
+    inst [N or "vda"] value 0
+
+disk.all.discard_rawactive
+    inst [N or "vda"] value 0
+
+disk.all.flush
+    inst [N or "vda"] value 0
+
+disk.all.flush_rawactive
+    inst [N or "vda"] value 0
 
 disk.all.read
     value 710617
@@ -2237,6 +3147,12 @@ disk.dev.aveq
     inst [N or "vda"] value 1559358
     inst [N or "vdb"] value 561199
 
+disk.dev.blkdiscard
+    inst [N or "rbd0"] value 0
+    inst [N or "rbd1"] value 0
+    inst [N or "vda"] value 0
+    inst [N or "vdb"] value 0
+
 disk.dev.blkread
     inst [N or "rbd0"] value 4293386
     inst [N or "rbd1"] value 10992
@@ -2257,6 +3173,42 @@ disk.dev.blkwrite
 
 disk.dev.capacity
 No value(s) available!
+
+disk.dev.discard
+    inst [N or "rbd0"] value 0
+    inst [N or "rbd1"] value 0
+    inst [N or "vda"] value 0
+    inst [N or "vdb"] value 0
+
+disk.dev.discard_bytes
+    inst [N or "rbd0"] value 0
+    inst [N or "rbd1"] value 0
+    inst [N or "vda"] value 0
+    inst [N or "vdb"] value 0
+
+disk.dev.discard_merge
+    inst [N or "rbd0"] value 0
+    inst [N or "rbd1"] value 0
+    inst [N or "vda"] value 0
+    inst [N or "vdb"] value 0
+
+disk.dev.discard_rawactive
+    inst [N or "rbd0"] value 0
+    inst [N or "rbd1"] value 0
+    inst [N or "vda"] value 0
+    inst [N or "vdb"] value 0
+
+disk.dev.flush
+    inst [N or "rbd0"] value 0
+    inst [N or "rbd1"] value 0
+    inst [N or "vda"] value 0
+    inst [N or "vdb"] value 0
+
+disk.dev.flush_rawactive
+    inst [N or "rbd0"] value 0
+    inst [N or "rbd1"] value 0
+    inst [N or "vda"] value 0
+    inst [N or "vdb"] value 0
 
 disk.dev.read
     inst [N or "rbd0"] value 536206
@@ -2336,6 +3288,9 @@ No value(s) available!
 disk.dm.aveq
 No value(s) available!
 
+disk.dm.blkdiscard
+No value(s) available!
+
 disk.dm.blkread
 No value(s) available!
 
@@ -2346,6 +3301,24 @@ disk.dm.blkwrite
 No value(s) available!
 
 disk.dm.capacity
+No value(s) available!
+
+disk.dm.discard
+No value(s) available!
+
+disk.dm.discard_bytes
+No value(s) available!
+
+disk.dm.discard_merge
+No value(s) available!
+
+disk.dm.discard_rawactive
+No value(s) available!
+
+disk.dm.flush
+No value(s) available!
+
+disk.dm.flush_rawactive
 No value(s) available!
 
 disk.dm.read
@@ -2387,6 +3360,9 @@ No value(s) available!
 disk.md.aveq
 No value(s) available!
 
+disk.md.blkdiscard
+No value(s) available!
+
 disk.md.blkread
 No value(s) available!
 
@@ -2397,6 +3373,24 @@ disk.md.blkwrite
 No value(s) available!
 
 disk.md.capacity
+No value(s) available!
+
+disk.md.discard
+No value(s) available!
+
+disk.md.discard_bytes
+No value(s) available!
+
+disk.md.discard_merge
+No value(s) available!
+
+disk.md.discard_rawactive
+No value(s) available!
+
+disk.md.flush
+No value(s) available!
+
+disk.md.flush_rawactive
 No value(s) available!
 
 disk.md.read
@@ -2449,6 +3443,13 @@ disk.partitions.aveq
     inst [N or "vdb1"] value 512115
     inst [N or "vdb2"] value 46610
 
+disk.partitions.blkdiscard
+    inst [N or "rbd0p1"] value 0
+    inst [N or "vda1"] value 0
+    inst [N or "vda2"] value 0
+    inst [N or "vdb1"] value 0
+    inst [N or "vdb2"] value 0
+
 disk.partitions.blkread
     inst [N or "rbd0p1"] value 4283258
     inst [N or "vda1"] value 55696
@@ -2472,6 +3473,48 @@ disk.partitions.blkwrite
 
 disk.partitions.capacity
 No value(s) available!
+
+disk.partitions.discard
+    inst [N or "rbd0p1"] value 0
+    inst [N or "vda1"] value 0
+    inst [N or "vda2"] value 0
+    inst [N or "vdb1"] value 0
+    inst [N or "vdb2"] value 0
+
+disk.partitions.discard_bytes
+    inst [N or "rbd0p1"] value 0
+    inst [N or "vda1"] value 0
+    inst [N or "vda2"] value 0
+    inst [N or "vdb1"] value 0
+    inst [N or "vdb2"] value 0
+
+disk.partitions.discard_merge
+    inst [N or "rbd0p1"] value 0
+    inst [N or "vda1"] value 0
+    inst [N or "vda2"] value 0
+    inst [N or "vdb1"] value 0
+    inst [N or "vdb2"] value 0
+
+disk.partitions.discard_rawactive
+    inst [N or "rbd0p1"] value 0
+    inst [N or "vda1"] value 0
+    inst [N or "vda2"] value 0
+    inst [N or "vdb1"] value 0
+    inst [N or "vdb2"] value 0
+
+disk.partitions.flush
+    inst [N or "rbd0p1"] value 0
+    inst [N or "vda1"] value 0
+    inst [N or "vda2"] value 0
+    inst [N or "vdb1"] value 0
+    inst [N or "vdb2"] value 0
+
+disk.partitions.flush_rawactive
+    inst [N or "rbd0p1"] value 0
+    inst [N or "vda1"] value 0
+    inst [N or "vda2"] value 0
+    inst [N or "vdb1"] value 0
+    inst [N or "vdb2"] value 0
 
 disk.partitions.read
     inst [N or "rbd0p1"] value 535156
@@ -2566,6 +3609,9 @@ disk.all.avactive
 disk.all.aveq
     value 69598188
 
+disk.all.blkdiscard
+    inst [N or "sda"] value 0
+
 disk.all.blkread
     value 108318902
 
@@ -2574,6 +3620,24 @@ disk.all.blktotal
 
 disk.all.blkwrite
     value 126878242
+
+disk.all.discard
+    inst [N or "sda"] value 0
+
+disk.all.discard_bytes
+    inst [N or "sda"] value 0
+
+disk.all.discard_merge
+    inst [N or "sda"] value 0
+
+disk.all.discard_rawactive
+    inst [N or "sda"] value 0
+
+disk.all.flush
+    inst [N or "sda"] value 0
+
+disk.all.flush_rawactive
+    inst [N or "sda"] value 0
 
 disk.all.read
     value 16505440
@@ -2648,6 +3712,26 @@ disk.dev.aveq
     inst [N or "sda"] value 13586540
     inst [N or "sdb"] value 55891420
 
+disk.dev.blkdiscard
+    inst [N or "nbd0"] value 0
+    inst [N or "nbd1"] value 0
+    inst [N or "nbd10"] value 0
+    inst [N or "nbd11"] value 0
+    inst [N or "nbd12"] value 0
+    inst [N or "nbd13"] value 0
+    inst [N or "nbd14"] value 0
+    inst [N or "nbd15"] value 0
+    inst [N or "nbd2"] value 0
+    inst [N or "nbd3"] value 0
+    inst [N or "nbd4"] value 0
+    inst [N or "nbd5"] value 0
+    inst [N or "nbd6"] value 0
+    inst [N or "nbd7"] value 0
+    inst [N or "nbd8"] value 0
+    inst [N or "nbd9"] value 0
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
+
 disk.dev.blkread
     inst [N or "nbd0"] value 0
     inst [N or "nbd1"] value 0
@@ -2710,6 +3794,126 @@ disk.dev.blkwrite
 
 disk.dev.capacity
 No value(s) available!
+
+disk.dev.discard
+    inst [N or "nbd0"] value 0
+    inst [N or "nbd1"] value 0
+    inst [N or "nbd10"] value 0
+    inst [N or "nbd11"] value 0
+    inst [N or "nbd12"] value 0
+    inst [N or "nbd13"] value 0
+    inst [N or "nbd14"] value 0
+    inst [N or "nbd15"] value 0
+    inst [N or "nbd2"] value 0
+    inst [N or "nbd3"] value 0
+    inst [N or "nbd4"] value 0
+    inst [N or "nbd5"] value 0
+    inst [N or "nbd6"] value 0
+    inst [N or "nbd7"] value 0
+    inst [N or "nbd8"] value 0
+    inst [N or "nbd9"] value 0
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
+
+disk.dev.discard_bytes
+    inst [N or "nbd0"] value 0
+    inst [N or "nbd1"] value 0
+    inst [N or "nbd10"] value 0
+    inst [N or "nbd11"] value 0
+    inst [N or "nbd12"] value 0
+    inst [N or "nbd13"] value 0
+    inst [N or "nbd14"] value 0
+    inst [N or "nbd15"] value 0
+    inst [N or "nbd2"] value 0
+    inst [N or "nbd3"] value 0
+    inst [N or "nbd4"] value 0
+    inst [N or "nbd5"] value 0
+    inst [N or "nbd6"] value 0
+    inst [N or "nbd7"] value 0
+    inst [N or "nbd8"] value 0
+    inst [N or "nbd9"] value 0
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
+
+disk.dev.discard_merge
+    inst [N or "nbd0"] value 0
+    inst [N or "nbd1"] value 0
+    inst [N or "nbd10"] value 0
+    inst [N or "nbd11"] value 0
+    inst [N or "nbd12"] value 0
+    inst [N or "nbd13"] value 0
+    inst [N or "nbd14"] value 0
+    inst [N or "nbd15"] value 0
+    inst [N or "nbd2"] value 0
+    inst [N or "nbd3"] value 0
+    inst [N or "nbd4"] value 0
+    inst [N or "nbd5"] value 0
+    inst [N or "nbd6"] value 0
+    inst [N or "nbd7"] value 0
+    inst [N or "nbd8"] value 0
+    inst [N or "nbd9"] value 0
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
+
+disk.dev.discard_rawactive
+    inst [N or "nbd0"] value 0
+    inst [N or "nbd1"] value 0
+    inst [N or "nbd10"] value 0
+    inst [N or "nbd11"] value 0
+    inst [N or "nbd12"] value 0
+    inst [N or "nbd13"] value 0
+    inst [N or "nbd14"] value 0
+    inst [N or "nbd15"] value 0
+    inst [N or "nbd2"] value 0
+    inst [N or "nbd3"] value 0
+    inst [N or "nbd4"] value 0
+    inst [N or "nbd5"] value 0
+    inst [N or "nbd6"] value 0
+    inst [N or "nbd7"] value 0
+    inst [N or "nbd8"] value 0
+    inst [N or "nbd9"] value 0
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
+
+disk.dev.flush
+    inst [N or "nbd0"] value 0
+    inst [N or "nbd1"] value 0
+    inst [N or "nbd10"] value 0
+    inst [N or "nbd11"] value 0
+    inst [N or "nbd12"] value 0
+    inst [N or "nbd13"] value 0
+    inst [N or "nbd14"] value 0
+    inst [N or "nbd15"] value 0
+    inst [N or "nbd2"] value 0
+    inst [N or "nbd3"] value 0
+    inst [N or "nbd4"] value 0
+    inst [N or "nbd5"] value 0
+    inst [N or "nbd6"] value 0
+    inst [N or "nbd7"] value 0
+    inst [N or "nbd8"] value 0
+    inst [N or "nbd9"] value 0
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
+
+disk.dev.flush_rawactive
+    inst [N or "nbd0"] value 0
+    inst [N or "nbd1"] value 0
+    inst [N or "nbd10"] value 0
+    inst [N or "nbd11"] value 0
+    inst [N or "nbd12"] value 0
+    inst [N or "nbd13"] value 0
+    inst [N or "nbd14"] value 0
+    inst [N or "nbd15"] value 0
+    inst [N or "nbd2"] value 0
+    inst [N or "nbd3"] value 0
+    inst [N or "nbd4"] value 0
+    inst [N or "nbd5"] value 0
+    inst [N or "nbd6"] value 0
+    inst [N or "nbd7"] value 0
+    inst [N or "nbd8"] value 0
+    inst [N or "nbd9"] value 0
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
 
 disk.dev.read
     inst [N or "nbd0"] value 0
@@ -2957,6 +4161,9 @@ No value(s) available!
 disk.dm.aveq
 No value(s) available!
 
+disk.dm.blkdiscard
+No value(s) available!
+
 disk.dm.blkread
 No value(s) available!
 
@@ -2967,6 +4174,24 @@ disk.dm.blkwrite
 No value(s) available!
 
 disk.dm.capacity
+No value(s) available!
+
+disk.dm.discard
+No value(s) available!
+
+disk.dm.discard_bytes
+No value(s) available!
+
+disk.dm.discard_merge
+No value(s) available!
+
+disk.dm.discard_rawactive
+No value(s) available!
+
+disk.dm.flush
+No value(s) available!
+
+disk.dm.flush_rawactive
 No value(s) available!
 
 disk.dm.read
@@ -3008,6 +4233,9 @@ No value(s) available!
 disk.md.aveq
 No value(s) available!
 
+disk.md.blkdiscard
+No value(s) available!
+
 disk.md.blkread
 No value(s) available!
 
@@ -3018,6 +4246,24 @@ disk.md.blkwrite
 No value(s) available!
 
 disk.md.capacity
+No value(s) available!
+
+disk.md.discard
+No value(s) available!
+
+disk.md.discard_bytes
+No value(s) available!
+
+disk.md.discard_merge
+No value(s) available!
+
+disk.md.discard_rawactive
+No value(s) available!
+
+disk.md.flush
+No value(s) available!
+
+disk.md.flush_rawactive
 No value(s) available!
 
 disk.md.read
@@ -3070,6 +4316,13 @@ disk.partitions.aveq
     inst [N or "sda2"] value 328
     inst [N or "sda3"] value 13593772
 
+disk.partitions.blkdiscard
+    inst [N or "nbd11p1"] value 0
+    inst [N or "nbd11p2"] value 0
+    inst [N or "sda1"] value 0
+    inst [N or "sda2"] value 0
+    inst [N or "sda3"] value 0
+
 disk.partitions.blkread
     inst [N or "nbd11p1"] value 7868930
     inst [N or "nbd11p2"] value 0
@@ -3093,6 +4346,48 @@ disk.partitions.blkwrite
 
 disk.partitions.capacity
 No value(s) available!
+
+disk.partitions.discard
+    inst [N or "nbd11p1"] value 0
+    inst [N or "nbd11p2"] value 0
+    inst [N or "sda1"] value 0
+    inst [N or "sda2"] value 0
+    inst [N or "sda3"] value 0
+
+disk.partitions.discard_bytes
+    inst [N or "nbd11p1"] value 0
+    inst [N or "nbd11p2"] value 0
+    inst [N or "sda1"] value 0
+    inst [N or "sda2"] value 0
+    inst [N or "sda3"] value 0
+
+disk.partitions.discard_merge
+    inst [N or "nbd11p1"] value 0
+    inst [N or "nbd11p2"] value 0
+    inst [N or "sda1"] value 0
+    inst [N or "sda2"] value 0
+    inst [N or "sda3"] value 0
+
+disk.partitions.discard_rawactive
+    inst [N or "nbd11p1"] value 0
+    inst [N or "nbd11p2"] value 0
+    inst [N or "sda1"] value 0
+    inst [N or "sda2"] value 0
+    inst [N or "sda3"] value 0
+
+disk.partitions.flush
+    inst [N or "nbd11p1"] value 0
+    inst [N or "nbd11p2"] value 0
+    inst [N or "sda1"] value 0
+    inst [N or "sda2"] value 0
+    inst [N or "sda3"] value 0
+
+disk.partitions.flush_rawactive
+    inst [N or "nbd11p1"] value 0
+    inst [N or "nbd11p2"] value 0
+    inst [N or "sda1"] value 0
+    inst [N or "sda2"] value 0
+    inst [N or "sda3"] value 0
 
 disk.partitions.read
     inst [N or "nbd11p1"] value 32634

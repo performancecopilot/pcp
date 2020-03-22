@@ -1048,10 +1048,16 @@ main(int argc, char *argv[])
     __pmServerDumpRequestPorts(stderr);
     fflush(stderr);
 
+    /* notify service manager, if any, we are ready */
+    __pmServerNotifyServiceManagerReady(pmcd_pid);
+
     /* all the work is done here */
     ClientLoop();
 
+    /* inform service manager and shutdown cleanly */
+    __pmServerNotifyServiceManagerStopping(pmcd_pid);
     Shutdown();
+
     exit(0);
 }
 

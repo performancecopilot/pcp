@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014,2018-2019 Red Hat.
+ * Copyright (c) 2013-2014,2018-2020 Red Hat.
  * Copyright (c) 2005,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -29,6 +29,7 @@
 #define CLUSTER_PID_STATUS	24 /* /proc/<pid>/status */
 #define CLUSTER_PID_SCHEDSTAT	31 /* /proc/<pid>/schedstat */
 #define CLUSTER_PID_IO		32 /* /proc/<pid>/io */
+#define CLUSTER_PID_SMAPS	33 /* /proc/<pid>/smaps_rollup */
 #define CLUSTER_CGROUP_SUBSYS	37 /* /proc/cgroups control group subsystems */
 #define CLUSTER_CGROUP_MOUNTS	38 /* /proc/mounts active control groups */
 #define CLUSTER_CPUSET_GROUPS	39 /* cpuset control groups */
@@ -46,6 +47,7 @@
 #define CLUSTER_HOTPROC_PID_STATUS      56 /* /proc/<pid>/status */
 #define CLUSTER_HOTPROC_PID_SCHEDSTAT   57 /* /proc/<pid>/schedstat */
 #define CLUSTER_HOTPROC_PID_IO          58 /* /proc/<pid>/io */
+#define CLUSTER_HOTPROC_PID_SMAPS       34 /* /proc/<pid>/smaps_rollup */
 #define CLUSTER_HOTPROC_PID_FD          59 /* /proc/<pid>/fd */
 #define CLUSTER_HOTPROC_GLOBAL		60 /* overall hotproc stats and controls*/
 #define CLUSTER_HOTPROC_PRED      	61 /* derived hotproc metrics */

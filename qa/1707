@@ -28,11 +28,16 @@ EOF
 echo "=== start bpftrace script ==="
 pmstore bpftrace.control.register "// name: testscript
 // custom-output-block
-tracepoint:raw_syscalls:sys_enter { @ = count(); @scalar = 2; }
+tracepoint:syscalls:sys_enter_openat { @ = count(); @scalar = 2; }
 interval:s:1 { print(@scalar); }"
+_pmdabpftrace_wait_for_value bpftrace.scripts.testscript.probes 2
+
+echo "=== generating openat() syscall activity ==="
+_pmdabpftrace_generate_openat_syscall_activity &
+echo "wait 2 seconds to capture syscall activity..."
+pmsleep 2
 
 echo "=== check metadata metrics ==="
-_pmdabpftrace_wait_for_value bpftrace.scripts.testscript.data.scalar
 pminfo -dfmtT bpftrace.scripts.testscript.data.scalar
 
 echo "=== we disabled default output block, therefore we should get output only for @scalar ==="

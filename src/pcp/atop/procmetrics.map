@@ -47,6 +47,9 @@ procmetrics {
 	hotproc.io.write_bytes			TASK_DSK_WSZ
 	hotproc.io.cancelled_write_bytes	TASK_DSK_CWSZ
 
+	# /proc/pid/smaps_rollup
+	hotproc.smaps.pss			TASK_MEM_PMEM
+
 	# getpwuid
 	hotproc.id.uid_nm			TASK_GEN_RUIDNM
 	hotproc.id.euid_nm			TASK_GEN_EUIDNM

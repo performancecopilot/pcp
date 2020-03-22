@@ -663,6 +663,11 @@ proc.schedstat.cpu_time
     Semantics: counter  Units: nanosec
 Error: Metric not supported by this version of monitored application
 
+proc.smaps.anonhugepages
+    Data Type: 64-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: instant  Units: Kbyte
+No value(s) available!
+
 == done
 
 == Extracting subtrees for later use - procpid-3.19.0-root-002.tgz
@@ -1380,6 +1385,11 @@ proc.schedstat.cpu_time
     Semantics: counter  Units: nanosec
 Error: Metric not supported by this version of monitored application
 
+proc.smaps.anonhugepages
+    Data Type: 64-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: instant  Units: Kbyte
+No value(s) available!
+
 == done
 
 == Extracting subtrees for later use - procpid-3.2.0-root-003.tgz
@@ -1923,6 +1933,11 @@ proc.schedstat.cpu_time
     Semantics: counter  Units: nanosec
 Error: Metric not supported by this version of monitored application
 
+proc.smaps.anonhugepages
+    Data Type: 64-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: instant  Units: Kbyte
+No value(s) available!
+
 == done
 
 == Extracting subtrees for later use - procpid-4.14.5-root-005.tgz
@@ -1986,6 +2001,11 @@ proc.schedstat.cpu_time
     inst [N or "026287 /usr/libexec/docker/docker-containerd-shim-current"] value 1895075
     inst [N or "026304 /bin/prometheus"] value 83549863
 
+proc.smaps.anonhugepages
+    Data Type: 64-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: instant  Units: Kbyte
+No value(s) available!
+
 == done
 
 == Extracting subtrees for later use - procpid-4.18.13-root-006.tgz
@@ -2046,6 +2066,11 @@ proc.schedstat.cpu_time
     inst [N or "000001 /usr/lib/systemd/systemd"] value 99029042031
     inst [N or "025731 podman"] value 34770300
     inst [N or "025951 /bin/prometheus"] value 75849550
+
+proc.smaps.anonhugepages
+    Data Type: 64-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: instant  Units: Kbyte
+No value(s) available!
 
 == done
 
@@ -2421,6 +2446,82 @@ proc.schedstat.cpu_time
     inst [N or "016080 /usr/lib64/firefox/firefox"] value 593054
     inst [N or "020520 /usr/lib64/firefox/firefox"] value 30133907
     inst [N or "020521 /usr/lib64/firefox/firefox"] value 28852203
+
+proc.smaps.anonhugepages
+    Data Type: 64-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: instant  Units: Kbyte
+No value(s) available!
+
+== done
+
+== Extracting subtrees for later use - procpid-5.5.7-root-007.tgz
+== Checking namespace and metric numbering - procpid-5.5.7-root-007.tgz
+== Checking metric descriptors and a fetch - procpid-5.5.7-root-007.tgz
+
+proc.control.all.threads
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 0
+
+proc.fd.count
+    Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: instant  Units: count
+Error: Metric not supported by this version of monitored application
+
+proc.id.egid
+    Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: discrete  Units: none
+    inst [N or "000001 /usr/lib/systemd/systemd"] value 0
+    inst [N or "001309 /usr/lib/systemd/systemd"] value 1000
+    inst [N or "214983 /usr/libexec/gnome-terminal-server"] value 1000
+    inst [N or "291591 bash"] value 1000
+
+proc.io.cancelled_write_bytes
+    Data Type: 64-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: counter  Units: byte
+    inst [N or "000001 /usr/lib/systemd/systemd"] value 764829696
+    inst [N or "001309 /usr/lib/systemd/systemd"] value 2904064
+    inst [N or "214983 /usr/libexec/gnome-terminal-server"] value 516972544
+    inst [N or "291591 bash"] value 633061376
+
+proc.memory.datrss
+    Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: instant  Units: Kbyte
+    inst [N or "000001 /usr/lib/systemd/systemd"] value 24124
+    inst [N or "001309 /usr/lib/systemd/systemd"] value 1912
+    inst [N or "214983 /usr/libexec/gnome-terminal-server"] value 171816
+    inst [N or "291591 bash"] value 4480
+
+proc.namespaces.envid
+    Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: discrete  Units: none
+Error: Metric not supported by this version of monitored application
+
+proc.psinfo.blocked
+    Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: discrete  Units: none
+    inst [N or "000001 /usr/lib/systemd/systemd"] value 671173123
+    inst [N or "001309 /usr/lib/systemd/systemd"] value 671173123
+    inst [N or "214983 /usr/libexec/gnome-terminal-server"] value 0
+    inst [N or "291591 bash"] value 0
+
+proc.runq.blocked
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+    value 0
+
+proc.schedstat.cpu_time
+    Data Type: 64-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: counter  Units: nanosec
+    inst [N or "000001 /usr/lib/systemd/systemd"] value 246292020523
+    inst [N or "001309 /usr/lib/systemd/systemd"] value 2591535635
+    inst [N or "214983 /usr/libexec/gnome-terminal-server"] value 1540766930612
+    inst [N or "291591 bash"] value 686360821
+
+proc.smaps.anonhugepages
+    Data Type: 64-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: instant  Units: Kbyte
+No value(s) available!
 
 == done
 

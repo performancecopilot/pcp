@@ -23,7 +23,7 @@ _cleanup()
     $sudo rm -rf $tmp $tmp.*
 }
 
-status=1	# failure is the default!
+status=0	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
@@ -31,9 +31,8 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 cp /dev/null $seq.full
 pminfo sample | grep -v bad | while read m; do
     echo >>$seq.full; echo '### ' $m ' ###' >>$seq.full
-    src/labelsets.py $m >>$seq.full || break
+    src/labelsets.py $m >>$seq.full || { status=1; break; }
 done
-status=$?
 
 if [ $status -eq 0 ]; then echo passed, see $seq.full.ok; else echo failed, see $seq.full; fi
 exit

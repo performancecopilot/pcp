@@ -53,6 +53,8 @@
       "type": "shell",
       "execute_command": "sudo {{ .Vars }} '{{ .Path }}'",
       "scripts": [
+        "hosts/rhel8/install_epel.sh",
+        "hosts/rhel8/install_libuv.sh",
         "common/redhat/provision_dnf.sh",
         "common/linux/deprovision.sh"
       ]

@@ -39,6 +39,8 @@ _filter()
 	-e '/^proc\.schedstat\.pcount: Metric not supported/d' \
 	-e '/^proc\.schedstat\..*: No value(s) available/d' \
 	-e '/^proc\.namespaces\..*: Metric not supported/d' \
+	-e '/^proc\.smaps\..*: Metric not supported/d' \
+	-e '/^proc\.smaps\..*: No value(s) available/d' \
 	-e '/^proc\.psinfo\.cgroups: No data available/d' \
 	-e '/pmdaFetch: Fetch callback error from metric PMID 3\.11\.0\[.*]: No data available/d' \
 	-e '/proc\.psinfo\.tty_pgrp: No value(s) available/d' \

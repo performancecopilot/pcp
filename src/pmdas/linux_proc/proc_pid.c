@@ -1,7 +1,7 @@
 /*
  * Linux proc/<pid>/{stat,statm,status,...} Clusters
  *
- * Copyright (c) 2013-2019 Red Hat.
+ * Copyright (c) 2013-2020 Red Hat.
  * Copyright (c) 2000,2004,2006 Silicon Graphics, Inc.  All Rights Reserved.
  * Copyright (c) 2010 Aconex.  All Rights Reserved.
  * 
@@ -874,7 +874,6 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids)
 			}
 		    }
 		    /* Remove NULL terminators from cmdline string array */
-		    /* Suggested by Mike Mason <mmlnx@us.ibm.com> */
 		    while (buf+numlen < p) {
 			if (*p == '\0') *p = ' ';
 			p--;
@@ -995,6 +994,8 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids)
 		    free(ep->statm_buf);
 		if (ep->maps_buf != NULL)
 		    free(ep->maps_buf);
+		if (ep->smaps_buf != NULL)
+		    free(ep->smaps_buf);
 		if (ep->schedstat_buf != NULL)
 		    free(ep->schedstat_buf);
 		if (ep->io_buf != NULL)
@@ -1208,7 +1209,7 @@ read_proc_entry(int fd, int *lenp, char **bufp)
 	/* invalid read */
 	if (n < 0)
 	    sts = maperr();
-    	else if (n == 0) {
+	else if (n == 0) {
 	    sts = -ENODATA;
 	    if (pmDebugOptions.libpmda && pmDebugOptions.desperate)
 		fprintf(stderr, "read_proc_entry: fd=%d: no data\n", fd);
@@ -1551,7 +1552,6 @@ fetch_proc_pid_statm(int id, proc_pid_t *proc_pid, int *sts)
 /*
  * fetch a proc/<pid>/maps entry for pid
  * WARNING: This can be very large!  Only ask for it if you really need it.
- * Added by Mike Mason <mmlnx@us.ibm.com>
  */
 proc_pid_entry_t *
 fetch_proc_pid_maps(int id, proc_pid_t *proc_pid, int *sts)
@@ -1695,6 +1695,104 @@ fetch_proc_pid_io(int id, proc_pid_t *proc_pid, int *sts)
 		}
 	    }
 	    ep->flags |= PROC_PID_FLAG_IO_FETCHED;
+	}
+    }
+
+    return (*sts < 0) ? NULL : ep;
+}
+
+/*
+ * fetch a proc/<pid>/smaps_rollup entry for pid
+ */
+proc_pid_entry_t *
+fetch_proc_pid_smaps(int id, proc_pid_t *proc_pid, int *sts)
+{
+    __pmHashNode	*node = __pmHashSearch(id, &proc_pid->pidhash);
+    proc_pid_entry_t	*ep = node ? (proc_pid_entry_t *)node->data : NULL;
+
+    *sts = 0;
+    if (!ep)
+	return NULL;
+
+    if (!(ep->flags & PROC_PID_FLAG_SMAPS_FETCHED)) {
+	int	fd;
+	char	*curline;
+
+	if (ep->smaps_buflen > 0)
+	    ep->smaps_buf[0] = '\0';
+	if ((fd = proc_open("smaps_rollup", ep)) < 0)
+	    *sts = maperr();
+	else {
+	    *sts = read_proc_entry(fd, &ep->smaps_buflen, &ep->smaps_buf);
+	    close(fd);
+	}
+
+	if (*sts == 0) {
+	    /* assign pointers to individual lines in buffer */
+	    curline = ep->smaps_buf;
+	    /*
+	     * expecting 
+	     * Rss:                1860 kB
+	     * Pss:                 354 kB
+	     * Pss_Anon:             92 kB
+	     * Pss_File:            262 kB
+             * [...]
+	     * Locked:                0 kB
+	     */
+	    while (curline) {
+		if (strncmp(curline, "Rss:", 4) == 0)
+		    ep->smaps_lines.rss = strsep(&curline, "\n");
+		else if (strncmp(curline, "Pss:", 4) == 0)
+		    ep->smaps_lines.pss = strsep(&curline, "\n");
+		else if (strncmp(curline, "Pss_Anon:", 9) == 0)
+		    ep->smaps_lines.pss_anon = strsep(&curline, "\n");
+		else if (strncmp(curline, "Pss_File:", 9) == 0)
+		    ep->smaps_lines.pss_file = strsep(&curline, "\n");
+		else if (strncmp(curline, "Pss_Shmem:", 10) == 0)
+		    ep->smaps_lines.pss_shmem = strsep(&curline, "\n");
+		else if (strncmp(curline, "Shared_Clean:", 13) == 0)
+		    ep->smaps_lines.shared_clean = strsep(&curline, "\n");
+		else if (strncmp(curline, "Shared_Dirty:", 13) == 0)
+		    ep->smaps_lines.shared_dirty = strsep(&curline, "\n");
+		else if (strncmp(curline, "Private_Clean:", 14) == 0)
+		    ep->smaps_lines.private_clean = strsep(&curline, "\n");
+		else if (strncmp(curline, "Private_Dirty:", 14) == 0)
+		    ep->smaps_lines.private_dirty = strsep(&curline, "\n");
+		else if (strncmp(curline, "Referenced:", 11) == 0)
+		    ep->smaps_lines.referenced = strsep(&curline, "\n");
+		else if (strncmp(curline, "Anonymous:", 10) == 0)
+		    ep->smaps_lines.anonymous = strsep(&curline, "\n");
+		else if (strncmp(curline, "LazyFree:", 9) == 0)
+		    ep->smaps_lines.lazyfree = strsep(&curline, "\n");
+		else if (strncmp(curline, "AnonHugePages:", 14) == 0)
+		    ep->smaps_lines.anonhugepages = strsep(&curline, "\n");
+		else if (strncmp(curline, "ShmemPmdMapped:", 15) == 0)
+		    ep->smaps_lines.shmempmdmapped = strsep(&curline, "\n");
+		else if (strncmp(curline, "FilePmdMapped:", 14) == 0)
+		    ep->smaps_lines.filepmdmapped = strsep(&curline, "\n");
+		else if (strncmp(curline, "Shared_Hugetlb:", 15) == 0)
+		    ep->smaps_lines.shared_hugetlb = strsep(&curline, "\n");
+		else if (strncmp(curline, "Private_Hugetlb:", 16) == 0)
+		    ep->smaps_lines.private_hugetlb = strsep(&curline, "\n");
+		else if (strncmp(curline, "Swap:", 5) == 0)
+		    ep->smaps_lines.swap = strsep(&curline, "\n");
+		else if (strncmp(curline, "SwapPss:", 8) == 0)
+		    ep->smaps_lines.swappss = strsep(&curline, "\n");
+		else if (strncmp(curline, "Locked:", 7) == 0)
+		    ep->smaps_lines.locked = strsep(&curline, "\n");
+		else {
+		    if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
+			char	*p;
+			fprintf(stderr, "fetch_proc_pid_smaps: skip ");
+			for (p = curline; *p && *p != '\n'; p++)
+			    fputc(*p, stderr);
+			fputc('\n', stderr);
+		    }
+		    curline = index(curline, '\n');
+		    if (curline != NULL) curline++;
+		}
+	    }
+	    ep->flags |= PROC_PID_FLAG_SMAPS_FETCHED;
 	}
     }
 

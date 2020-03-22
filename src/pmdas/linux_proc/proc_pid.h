@@ -1,7 +1,7 @@
 /*
  * Linux /proc/<pid>/... Clusters
  *
- * Copyright (c) 2013-2015,2018 Red Hat.
+ * Copyright (c) 2013-2015,2018-2020 Red Hat.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -195,6 +195,32 @@ enum {
     PROC_PID_OOM_SCORE = 0,
 };
 
+/*
+ * metrics in /proc/<pid>/smaps_rollup
+ */
+enum {
+    PROC_PID_SMAPS_RSS = 0,
+    PROC_PID_SMAPS_PSS,
+    PROC_PID_SMAPS_PSS_ANON,
+    PROC_PID_SMAPS_PSS_FILE,
+    PROC_PID_SMAPS_PSS_SHMEM,
+    PROC_PID_SMAPS_SHARED_CLEAN,
+    PROC_PID_SMAPS_SHARED_DIRTY,
+    PROC_PID_SMAPS_PRIVATE_CLEAN,
+    PROC_PID_SMAPS_PRIVATE_DIRTY,
+    PROC_PID_SMAPS_REFERENCED,
+    PROC_PID_SMAPS_ANONYMOUS,
+    PROC_PID_SMAPS_LAZYFREE,
+    PROC_PID_SMAPS_ANONHUGEPAGES,
+    PROC_PID_SMAPS_SHMEMPMDMAPPED,
+    PROC_PID_SMAPS_FILEPMDMAPPED,
+    PROC_PID_SMAPS_SHARED_HUGETLB,
+    PROC_PID_SMAPS_PRIVATE_HUGETLB,
+    PROC_PID_SMAPS_SWAP,
+    PROC_PID_SMAPS_SWAPPSS,
+    PROC_PID_SMAPS_LOCKED,
+};
+
 typedef struct {	/* /proc/<pid>/status */
     char *ngid;
     char *tgid;
@@ -237,6 +263,29 @@ typedef struct {	/* /proc/<pid>/io */
     char *cancel;
 } io_lines_t;
 
+typedef struct {	/* /proc/<pid>/smaps_rollup */
+    char *rss;
+    char *pss;
+    char *pss_anon;
+    char *pss_file;
+    char *pss_shmem;
+    char *shared_clean;
+    char *shared_dirty;
+    char *private_clean;
+    char *private_dirty;
+    char *referenced;
+    char *anonymous;
+    char *lazyfree;
+    char *anonhugepages;
+    char *shmempmdmapped;
+    char *filepmdmapped;
+    char *shared_hugetlb;
+    char *private_hugetlb;
+    char *swap;
+    char *swappss;
+    char *locked;
+} smaps_lines_t;
+
 enum {
     PROC_PID_FLAG_VALID			= 1<<0,
     PROC_PID_FLAG_STAT_FETCHED		= 1<<1,
@@ -251,6 +300,7 @@ enum {
     PROC_PID_FLAG_LABEL_FETCHED		= 1<<10,
     PROC_PID_FLAG_ENVIRON_FETCHED	= 1<<11,
     PROC_PID_FLAG_OOM_SCORE_FETCHED	= 1<<12,
+    PROC_PID_FLAG_SMAPS_FETCHED		= 1<<13,
 };
 
 typedef struct {
@@ -305,6 +355,11 @@ typedef struct {
 
     /* /proc/<pid>/oom_score cluster */
     uint32_t		oom_score;
+
+    /* /proc/<pid>/smaps_rollup cluster */
+    int			smaps_buflen;
+    char		*smaps_buf;
+    smaps_lines_t	smaps_lines;
 } proc_pid_entry_t;
 
 typedef struct {
@@ -348,6 +403,9 @@ extern proc_pid_entry_t *fetch_proc_pid_statm(int, proc_pid_t *, int *);
 
 /* fetch a proc/<pid>/status entry for pid */
 extern proc_pid_entry_t *fetch_proc_pid_status(int, proc_pid_t *, int *);
+
+/* fetch a proc/<pid>/smaps_rollup entry for pid */
+extern proc_pid_entry_t *fetch_proc_pid_smaps(int, proc_pid_t *, int *);
 
 /* fetch a proc/<pid>/maps entry for pid */
 extern proc_pid_entry_t *fetch_proc_pid_maps(int, proc_pid_t *, int *);

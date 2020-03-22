@@ -26,11 +26,7 @@ rule	per_cpu.system
 busy percent or more, and the ratio of system time to busy time
 exceeded threshold percent.  Only applies to multi-processor
 systems, for single-processor systems refer to the cpu.system
-rule.
-For Origin 200 and Origin 2000 systems, use the command
-    $ pminfo -f hinv.map.cpu
-to discover the abbreviated PCP names of the installed CPUs and
-their corresponding full names in the /hw file system.";
+rule.";
 
 string	rule
 	default	= "Some CPU busy executing in system mode"

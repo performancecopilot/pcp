@@ -13,8 +13,8 @@ kretprobe:vfs_read
 {
     @bytes = hist(retval);
 }"
+found metric bpftrace.scripts.testscript.data.bytes with matching value .*
 === check metrics ===
-found metric bpftrace.scripts.testscript.data.bytes matching "value .*"
 OK
 === stop bpftrace script ===
 bpftrace.control.stop old value="{}" new value="{"success": "true"}"
@@ -22,7 +22,7 @@ bpftrace.control.stop old value="{}" new value="{"success": "true"}"
 OK
 === start script again ===
 bpftrace.control.start old value="{}" new value="{"success": "true"}"
-found metric bpftrace.scripts.testscript.data.bytes matching "value .*"
+found metric bpftrace.scripts.testscript.data.bytes with matching value .*
 === verify current bpftrace PID is different than last PID ===
 Success: Second PID is different than first PID.
 === deregister bpftrace script ===

@@ -8,7 +8,7 @@
 ** time-of-day, the cpu-time consumption and the memory-occupation. 
 **
 ** Copyright (C) 2000-2010 Gerlof Langeveld
-** Copyright (C) 2015-2019 Red Hat.
+** Copyright (C) 2015-2020 Red Hat.
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -572,15 +572,15 @@ setalarm2(int sec, int usec)
 	setalarm(&interval);
 }
 
-static void
-setup_step_mode(pmOptions *opts, int forward)
+void
+setup_step_mode(int forward)
 {
 	const int SECONDS_IN_24_DAYS = 2073600;
 
 	if (forward)
-		curtime = opts->start;
+		curtime = start;
 	else
-		curtime = opts->origin;
+		curtime = origin;
 
 	if (!rawreadflag)
 		fetchmode = PM_MODE_LIVE;
@@ -610,16 +610,16 @@ setup_origin(pmOptions *opts)
 {
 	int		sts = 0;
 
+	start = opts->start;
 	curtime = origin = opts->origin;
+
+	if (opts->interval.tv_sec || opts->interval.tv_usec)
+		interval = opts->interval;
 
 	/* initial archive mode, position and delta */
 	if (opts->context == PM_CONTEXT_ARCHIVE)
 	{
-		if (opts->interval.tv_sec || opts->interval.tv_usec)
-			interval = opts->interval;
-
-		setup_step_mode(opts, 1);
-
+		setup_step_mode(1);
 		if ((sts = pmSetMode(fetchmode, &curtime, fetchstep)) < 0)
 		{
 			pmprintf(
@@ -765,7 +765,7 @@ setup_globals(pmOptions *opts)
 		hinv_nrintf = 1;
 
 	pmFreeResult(result);
-	setup_step_mode(opts, 0);
+	setup_step_mode(0);
 }
 
 /*
@@ -835,6 +835,26 @@ int
 present_metric_value(pmResult *result, int value)
 {
 	return (result->vset[value]->numval <= 0);
+}
+
+unsigned long long
+extract_ucount_t_inst(pmResult *result, pmDesc *descs, int value, int inst)
+{
+	pmAtomValue atom = { 0 };
+	pmValueSet *values = result->vset[value];
+	int i;
+
+	for (i = 0; i < values->numval; i++)
+	{
+		if (values->vlist[i].inst != inst)
+			continue;
+		pmExtractValue(values->valfmt, &values->vlist[i],
+			descs[value].type, &atom, PM_TYPE_U64);
+		break;
+	}
+	if (values->numval <= 0 || i == values->numval)
+		return (unsigned long long)-1;
+	return atom.ull;
 }
 
 count_t

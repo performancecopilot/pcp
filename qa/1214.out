@@ -1,0 +1,5 @@
+QA output created by 1214
+
+== testing pmseries query to redis directly
+
+== testing pmseries query to redis via pmproxy

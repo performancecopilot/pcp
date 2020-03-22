@@ -34,7 +34,7 @@ _cleanup()
 {
     _change_config pmlogger on
     _service pcp restart >/dev/null 2>&1
-    _restore_auto_restart pmcd
+    _restore_auto_restart pmlogger
     _wait_for_pmcd
     _wait_for_pmlogger
     rm -f $tmp.*

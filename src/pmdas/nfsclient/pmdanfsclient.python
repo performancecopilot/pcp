@@ -67,7 +67,7 @@ V41_OPS = [	# ops ADDED in v4.1
 
 V42_OPS = [	# ops ADDED in v4.2
 'seek', 'allocate', 'deallocate', 'fsid_present', 'layoutstats', 'clone',
-'copy']
+'copy', 'offload_cancel', 'lookupp', 'layouterror']
 
 
 class NFSOPTIONS(Structure):
@@ -214,6 +214,9 @@ class NFSEXPORT(Structure):
         ('bad_xids', c_uint),
         ('req_u', c_ulonglong),
         ('backlog_u', c_ulonglong),
+        ('sending_u', c_ulonglong),
+        ('pending_u', c_ulonglong),
+        ('max_slots', CTYPES_ULONG),
         ('read_chunks', CTYPES_ULONG),
         ('write_chunks', CTYPES_ULONG),
         ('reply_chunks', CTYPES_ULONG),
@@ -224,6 +227,13 @@ class NFSEXPORT(Structure):
         ('hardway', CTYPES_ULONG),
         ('failed_marshal', CTYPES_ULONG),
         ('bad_reply', CTYPES_ULONG),
+        ('nomsg_call', CTYPES_ULONG),
+        ('mrs_recycled', CTYPES_ULONG),
+        ('mrs_orphaned', CTYPES_ULONG),
+        ('mrs_allocated', CTYPES_ULONG),
+        ('local_inv_needed', CTYPES_ULONG),
+        ('empty_sendctxq', CTYPES_ULONG),
+        ('reply_waits', CTYPES_ULONG),
     ]
     def __init__(self):
         """ Set any non-zero default values for the per-mount fields """
@@ -569,6 +579,9 @@ class NFSCLIENTPMDA(PMDA):
                         client.xprt.bad_xids = self.longs(values[8])
                         client.xprt.req_u = self.longs(values[9])
                         client.xprt.backlog_u = self.longs(values[10])
+                        client.xprt.maxslots = self.longs(values[11])
+                        client.xprt.sending_u = self.longs(values[12])
+                        client.xprt.pending_u = self.longs(values[13])
                     elif xprt_prot == 'udp':
                         client.xprt.srcport = values[1]
                         client.xprt.bind_count = self.longs(values[2])
@@ -577,6 +590,9 @@ class NFSCLIENTPMDA(PMDA):
                         client.xprt.bad_xids = self.longs(values[5])
                         client.xprt.req_u =  self.longs(values[6])
                         client.xprt.backlog_u = self.longs(values[7])
+                        client.xprt.maxslots = self.longs(values[8])
+                        client.xprt.sending_u = self.longs(values[9])
+                        client.xprt.pending_u = self.longs(values[10])
                     elif xprt_prot == 'rdma':
                         client.xprt.srcport = values[1]
                         client.xprt.bind_count = self.longs(values[2])
@@ -598,6 +614,13 @@ class NFSCLIENTPMDA(PMDA):
                         client.xprt.hardway = self.longs(values[18])
                         client.xprt.failed_marshal = self.longs(values[19])
                         client.xprt.bad_reply = self.longs(values[20])
+                        client.xprt.nomsg_call = self.longs(values[21])
+                        client.xprt.mrs_recycled = self.longs(values[22])
+                        client.xprt.mrs_orphaned = self.longs(values[23])
+                        client.xprt.mrs_allocated = self.longs(values[24])
+                        client.xprt.local_inv_needed = self.longs(values[25])
+                        client.xprt.empty_sendctxq = self.longs(values[26])
+                        client.xprt.reply_waits = self.longs(values[27])
                     else:
                         continue
 
@@ -1288,6 +1311,56 @@ class NFSCLIENTPMDA(PMDA):
                 pmdaMetric(self.pmid(7,20), PMDA_ULONG,
                 self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
                 '', '')
+
+        self.add_metric(name + '.xprt.max_slots',
+                pmdaMetric(self.pmid(7,21), PMDA_ULONG,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                'max rpc_slots used', '')
+
+        self.add_metric(name + '.xprt.sending_u',
+                pmdaMetric(self.pmid(7,22), c_api.PM_TYPE_U64,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                'send q utilization', '')
+
+        self.add_metric(name + '.xprt.pending_u',
+                pmdaMetric(self.pmid(7,23), c_api.PM_TYPE_U64,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                'pend q utilization', '')
+
+        self.add_metric(name + '.xprt.nomsg_call',
+                pmdaMetric(self.pmid(7,24), PMDA_ULONG,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                'no msg count', '')
+
+        self.add_metric(name + '.xprt.mrs_recycled',
+                pmdaMetric(self.pmid(7,25), PMDA_ULONG,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                'RDMA MRs Recycled', '')
+
+        self.add_metric(name + '.xprt.mrs_orphaned',
+                pmdaMetric(self.pmid(7,26), PMDA_ULONG,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                'RDMA MRs Orphaned', '')
+
+        self.add_metric(name + '.xprt.mrs_allocated',
+                pmdaMetric(self.pmid(7,27), PMDA_ULONG,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                'RMDA MRs Allocated', '')
+
+        self.add_metric(name + '.xprt.local_inv_needed',
+                pmdaMetric(self.pmid(7,28), PMDA_ULONG,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                'RDMA LOCAL_INV requests', '')
+
+        self.add_metric(name + '.xprt.empty_sendctxq',
+                pmdaMetric(self.pmid(7,29), PMDA_ULONG,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                'RDMA Send Queue empty', '')
+
+        self.add_metric(name + '.xprt.reply_waits',
+                pmdaMetric(self.pmid(7,30), PMDA_ULONG,
+                self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                'RDMA reply waits for send', '')
 
 # ops - cluster 8
 #

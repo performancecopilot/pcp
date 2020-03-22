@@ -307,6 +307,7 @@ main(int argc, char *argv[])
     int		env_warn = 0;
     int		timeseries;
     char	*envstr;
+    pid_t	mainpid;
 
     umask(022);
     pmGetUsername(&username);
@@ -349,6 +350,7 @@ main(int argc, char *argv[])
 
     if (run_daemon)
 	__pmServerStart(argc, argv, 1);
+    mainpid = getpid();
 
     /* Open non-blocking request ports for client connections */
     if ((info = server->openports(sockpath, sizeof(sockpath), maxpending)) == NULL)
@@ -375,7 +377,7 @@ main(int argc, char *argv[])
         __pmSecureServerCertificateSetup(certdb, dbpassfile, cert_nickname) < 0)
 	DontStart();
 
-    fprintf(stderr, "pmproxy: PID = %" FMT_PID, (pid_t)getpid());
+    fprintf(stderr, "pmproxy: PID = %" FMT_PID, mainpid);
     fprintf(stderr, ", PDU version = %u", PDU_VERSION);
 #ifdef HAVE_GETUID
     fprintf(stderr, ", user = %s (%d)\n", username, getuid());
@@ -383,8 +385,14 @@ main(int argc, char *argv[])
     server->dumpports(stderr, info);
     fflush(stderr);
 
+    /* notify service manager, if any, we are ready */
+    __pmServerNotifyServiceManagerReady(mainpid);
+
     /* Loop processing client connections and server responses */
     server->loop(info);
+
+    /* inform service manager and shutdown cleanly */
+    __pmServerNotifyServiceManagerStopping(mainpid);
     Shutdown();
     exit(0);
 }

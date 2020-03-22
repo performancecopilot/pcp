@@ -49,6 +49,7 @@
       "execute_command": "sudo {{ .Vars }} '{{ .Path }}'",
       "scripts": [
         "hosts/rhel6/remove_dstat.sh",
+        "hosts/rhel6/install_epel.sh",
         "common/redhat/provision_yum.sh",
         "common/linux/deprovision.sh"
       ]

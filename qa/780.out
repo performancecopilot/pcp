@@ -1,5 +1,6 @@
 QA output created by 780
 
+Access-Control-Allow-Headers: Accept, Accept-Language, Content-Language, Content-Type
 Access-Control-Allow-Origin: *
 Content-Length: SIZE
 Content-Type: application/json

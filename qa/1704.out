@@ -10,8 +10,8 @@ Check bpftrace metrics have appeared ... 7 metrics and 6 values
 === start bpftrace script ===
 bpftrace.control.register old value="{}" new value="// name: testscript
 tracepoint:syscalls:sys_enter_kill /args->pid == PID/ { @signals[args->sig] = count(); }"
+found metric bpftrace.scripts.testscript.probes with matching value 2
 === check metrics ===
-found metric bpftrace.scripts.testscript.probes matching "value 2"
 
 bpftrace.scripts.testscript.data.signals PMID: 151.100.10 [@signals variable of bpftrace script]
     Data Type: 64-bit unsigned int  InDom: 151.100010 0x25c186aa

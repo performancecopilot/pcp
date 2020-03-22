@@ -47,6 +47,7 @@ _cleanup()
 	_needclean=false
     fi
     $sudo rm -f $tmp.*
+    _restore_auto_restart pmcd
     exit $status
 }
 

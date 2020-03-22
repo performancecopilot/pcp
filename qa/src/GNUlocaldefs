@@ -49,7 +49,7 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	unpickargs.c hanoi.c progname.c countmark.c \
 	indom2int.c pmid2int.c scanmeta.c traverse_return_codes.c \
 	timeshift.c checkstructs.c bcc_profile.c sha1int2ext.c \
-	getdomainname.c profilecrash.c store_and_fetch.c
+	getdomainname.c profilecrash.c store_and_fetch.c test_service_notify.c
 
 ifeq ($(shell test -f ../localconfig && echo 1), 1)
 include ../localconfig
@@ -146,7 +146,8 @@ PYTHONFILES = \
 	test_webcontainers.python test_webprocesses.python \
 	test_pmfg.python pmproxy_load_test.python \
 	mergelabels.python mergelabelsets.python \
-	bcc_version_check.python sort_xml.python labelsets.python
+	bcc_version_check.python sort_xml.python labelsets.python \
+	labelsets_memleak.python
 # not installed:
 PYFILES = $(shell echo $(PYTHONFILES) | sed -e 's/\.python/.py/g')
 LDIRT += $(PYFILES)

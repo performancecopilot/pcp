@@ -270,7 +270,7 @@ pmDiscoverArchives(const char *dir, pmDiscoverModule *module, void *arg)
 
     if ((dirp = opendir(dir)) == NULL) {
 	if (pmDebugOptions.discovery)
-	    fprintf(stderr, "pmDiscoverArchives: opendir %s failed %s: err %d\n", dir, path, errno);
+	    fprintf(stderr, "pmDiscoverArchives: opendir %s failed: err %d\n", dir, errno);
 	return -ESRCH;
     }
 

@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2000,2004,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
- * Portions Copyright (c) International Business Machines Corp., 2002
- * Portions Copyright (c) 2007-2009 Aconex.  All Rights Reserved.
- * Portions Copyright (c) 2013-2019 Red Hat.
+ * Copyright (c) 2000,2004,2007-2008 SGI. All Rights Reserved.
+ * Copyright (c) 2002 International Business Machines Corp.
+ * Copyright (c) 2007-2009 Aconex.  All Rights Reserved.
+ * Copyright (c) 2013-2020 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -93,6 +93,7 @@ kernel.all {
     sysfork		60:0:14
     running		60:0:15
     blocked		60:0:16
+    boottime		60:0:17
     hz			60:0:48
     uptime		60:26:0
     idletime		60:26:1
@@ -360,6 +361,13 @@ disk.dev {
     aveq		60:0:47
     scheduler		60:0:59
     capacity		60:0:87
+    discard		60:0:88
+    blkdiscard		60:0:89
+    discard_bytes	60:0:90
+    discard_merge	60:0:91
+    discard_rawactive	60:0:92
+    flush		60:0:93
+    flush_rawactive	60:0:94
 }
 
 disk.all {
@@ -379,6 +387,13 @@ disk.all {
     write_rawactive	60:0:75
     total_rawactive	60:0:80
     aveq		60:0:45
+    discard		60:0:96
+    blkdiscard		60:0:97
+    discard_bytes	60:0:98
+    discard_merge	60:0:99
+    discard_rawactive	60:0:100
+    flush		60:0:101
+    flush_rawactive	60:0:102
 }
 
 disk.dm {
@@ -399,6 +414,13 @@ disk.dm {
     write_rawactive	60:54:15
     total_rawactive	60:54:16
     capacity		60:54:17
+    discard		60:54:18
+    blkdiscard		60:54:19
+    discard_bytes	60:54:20
+    discard_merge	60:54:21
+    discard_rawactive	60:54:22
+    flush		60:54:23
+    flush_rawactive	60:54:24
 }
 
 disk.md {
@@ -420,6 +442,13 @@ disk.md {
     total_rawactive	60:59:16
     status		60:60:0
     capacity		60:59:17
+    discard		60:59:18
+    blkdiscard		60:59:19
+    discard_bytes	60:59:20
+    discard_merge	60:59:21
+    discard_rawactive	60:59:22
+    flush		60:59:23
+    flush_rawactive	60:59:24
 }
 
 disk.partitions {
@@ -440,6 +469,13 @@ disk.partitions {
     write_rawactive     60:10:14
     total_rawactive	60:10:15
     capacity		60:10:16
+    discard		60:10:17
+    blkdiscard		60:10:18
+    discard_bytes	60:10:19
+    discard_merge	60:10:20
+    discard_rawactive	60:10:21
+    flush		60:10:22
+    flush_rawactive	60:10:23
 }
 
 mem {
@@ -453,6 +489,7 @@ mem {
     zoneinfo
     ksm
 }
+
 mem.ksm {
     full_scans		60:69:0
     merge_across_nodes	60:69:1

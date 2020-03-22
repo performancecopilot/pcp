@@ -353,6 +353,7 @@ slackpkg?	/usr/include/sasl/sasl.h	[cyrus-sasl (build optional)]
 pacman?	/usr/include/sasl/sasl.h	[core/libsasl (build optional)]
 brew?	sasl.h				[N/A (build optional)]
 # -- systemd API
+dpkg?	/usr/include/systemd/sd-daemon.h	[libsystemd-dev (build optional)]
 rpm?	/usr/include/systemd/sd-daemon.h	[systemd-devel (build optional)]
 urpmi?	/usr/include/systemd/sd-daemon.h	[lib64systemd-daemon-devel (build optional)]
 emerge?	sd-daemon.h				[N/A (build optional)]

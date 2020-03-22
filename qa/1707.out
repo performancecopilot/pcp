@@ -10,10 +10,12 @@ Check bpftrace metrics have appeared ... 7 metrics and 6 values
 === start bpftrace script ===
 bpftrace.control.register old value="{}" new value="// name: testscript
 // custom-output-block
-tracepoint:raw_syscalls:sys_enter { @ = count(); @scalar = 2; }
+tracepoint:syscalls:sys_enter_openat { @ = count(); @scalar = 2; }
 interval:s:1 { print(@scalar); }"
+found metric bpftrace.scripts.testscript.probes with matching value 2
+=== generating openat() syscall activity ===
+wait 2 seconds to capture syscall activity...
 === check metadata metrics ===
-found metric bpftrace.scripts.testscript.data.scalar matching "value .*"
 
 bpftrace.scripts.testscript.data.scalar PMID: 151.100.11 [@scalar variable of bpftrace script]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff

@@ -12,7 +12,7 @@
 ** visualized for the user.
 ** 
 ** Copyright (C) 2000-2018 Gerlof Langeveld
-** Copyright (C) 2015-2019 Red Hat.
+** Copyright (C) 2015-2020 Red Hat.
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -128,6 +128,7 @@
 */
 struct sysname	sysname;
 int		nodenamelen;
+struct timeval	start;
 struct timeval	origin;
 struct timeval	pretime;	/* timing info				*/
 struct timeval	curtime;	/* timing info				*/
@@ -164,6 +165,7 @@ char		**argvp;
 int		fetchmode;
 int		fetchstep;
 
+long long	system_boottime;
 
 struct visualize vis = {generic_samp, generic_error,
 			generic_end,  generic_usage,
@@ -587,7 +589,8 @@ engine(void)
 			if ((*vis.next)() < 0)
 				cleanstop(1);
 			goto reset;
-               }
+		}
+		system_boottime = cursstat->cpu.btime;
 
 		/*
 		** take a snapshot of the current task-level statistics 

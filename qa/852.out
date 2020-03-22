@@ -2074,3 +2074,27 @@ proc.psinfo.psargs
     inst [N or "016080 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
     inst [N or "020520 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
     inst [N or "020521 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+
+== Fetching per-thread proc.psinfo.rss metric - procpid-5.5.7-root-007.tgz
+
+proc.psinfo.rss
+    inst [N or "000001 /usr/lib/systemd/systemd"] value 10540
+    inst [N or "001309 /usr/lib/systemd/systemd"] value 5024
+    inst [N or "214983 /usr/libexec/gnome-terminal-server"] value 170972
+    inst [N or "291591 bash"] value 4640
+
+== Fetching per-thread proc.psinfo.pid metric - procpid-5.5.7-root-007.tgz
+
+proc.psinfo.pid
+    inst [N or "000001 /usr/lib/systemd/systemd"] value 1
+    inst [N or "001309 /usr/lib/systemd/systemd"] value 1309
+    inst [N or "214983 /usr/libexec/gnome-terminal-server"] value 214983
+    inst [N or "291591 bash"] value 291591
+
+== Fetching per-thread proc.psinfo.psargs metric - procpid-5.5.7-root-007.tgz
+
+proc.psinfo.psargs
+    inst [N or "000001 /usr/lib/systemd/systemd"] value "/usr/lib/systemd/systemd --switched-root --system --deserialize 29"
+    inst [N or "001309 /usr/lib/systemd/systemd"] value "/usr/lib/systemd/systemd --user"
+    inst [N or "214983 /usr/libexec/gnome-terminal-server"] value "/usr/libexec/gnome-terminal-server"
+    inst [N or "291591 bash"] value "bash"

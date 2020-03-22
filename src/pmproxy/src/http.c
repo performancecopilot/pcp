@@ -260,7 +260,8 @@ http_response_header(struct client *client, unsigned int length, http_code sts, 
     header = sdscatfmt(sdsempty(),
 		"HTTP/%u.%u %u %s\r\n"
 		"Connection: Keep-Alive\r\n"
-		"Access-Control-Allow-Origin: *\r\n",
+		"Access-Control-Allow-Origin: *\r\n"
+		"Access-Control-Allow-Headers: Accept, Accept-Language, Content-Language, Content-Type\r\n",
 		parser->http_major, parser->http_minor,
 		sts, http_status_mapping(sts));
 

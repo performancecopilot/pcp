@@ -27,7 +27,7 @@ Usage: pmevent [options] metricname
 pmevent: pmSpecLocalPMDA failed: bad op in spec
 Usage: pmevent [options] metricname
 === -s 456bar ===
-pmevent: -s requires numeric argument
+pmevent: -s requires a positive numeric argument
 Usage: pmevent [options] metricname
 === -t 10foobars ===
 pmevent: -t argument not in pmParseInterval(3) format:
