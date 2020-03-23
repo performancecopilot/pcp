@@ -1,0 +1,39 @@
+#!/bin/sh
+# PCP QA Test No. 1162
+# Syntax and semantic checking of command line arguments for find-filter
+#
+# Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+for args in '' ctime 'ctime x' 'mtime +' 'ctime -x' 'mtime -123x' \
+    'ctime +456:' 'mtime +7:-1' 'ctime -10:24' 'mtime +42:x' \
+    'ctime +42:12:' 'ctime -42:12:-1' 'mtime +13:00:60' 'mtime -13:23:x' \
+    'ctime -0:0:0x'
+do
+    echo
+    echo "=== args $args ==="
+    $PCP_BINADM_DIR/find-filter $args
+done
+
+# success, all done
+status=0
+exit
