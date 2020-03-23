@@ -128,6 +128,9 @@ getopt
 # pmlogger_* scripts (but not pmlogger)
 logutil
 
+# find-filter (used in pmlogger_daily)
+find-filter
+
 # pmie_* scripts (but not pmie)
 pmieutil
 
@@ -1107,6 +1110,7 @@ BAD
 706 libpcp local
 707 python libpcp local sanity
 708 python pmimport local
+709:retired pmcollect
 710 python pmimport local pmdumplog
 711 pmimport pmlogsummary perl local
 712 context libpcp pmcd secure local kernel
@@ -1206,6 +1210,7 @@ BAD
 806 pmstore pminfo pmie pmval pmprobe dbpmda local
 807 pcp local
 808 pmlogger local logutil
+809:retired pmcollect
 810 iostat archive multi-archive local pmlogextract pcp python
 811 pmlogger pmcpp local kernel
 812 pmlogextract local pmdumplog
@@ -1246,6 +1251,7 @@ BAD
 847 containers local
 848 pmcd secure local kernel
 849 pmie local
+850:retired pmcollect
 851 iostat local pcp python kernel
 852 pmda.proc local
 853 pmcpp local kernel
@@ -1520,7 +1526,7 @@ BAD
 1122 pmie local
 1123 pmchart local kernel
 1124 pmda.bcc local python
-1125 pmda.bcc local python
+1125:retired pmcollect
 1126 pmda.bcc local python
 1127 pmda.bcc local python
 1128 pmie local
@@ -1557,8 +1563,10 @@ BAD
 1159 pmlogger local pmdumplog kernel
 1160 pmda.netcheck local python
 1161 pmda.netcheck local python
+1162 find-filter local
 1163 pmlogrewrite local
 1164 pmda.linux local valgrind
+1165 pmda.bcc local python
 1166 libpcp local
 1167 pmdumplog labels archive local pmrep python kernel
 1168 pmrep pmda.bcc local python
@@ -1582,6 +1590,7 @@ BAD
 1186 pmie local
 1187 python pcp dstat local
 1188 pmda.dm local valgrind
+1189 find-filter local
 1191 pmda.openmetrics local python
 1192 containers local
 1193 pmlogrewrite labels help pmdumplog local
@@ -1616,6 +1625,7 @@ BAD
 1255 libpcp local kernel
 1257 libpcp python local
 1258 pmda.linux local valgrind
+1264:retired pmcollect
 1265 pmda.linux local valgrind
 1266 atop pcp local
 1267 pmlogrewrite labels help pmdumplog local
