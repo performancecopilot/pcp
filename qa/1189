@@ -1,0 +1,59 @@
+#!/bin/sh
+# PCP QA Test No. 1189
+# real test cases for find-filter
+#
+# Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+mkdir $tmp
+
+# real QA test starts here
+echo "empty input test ..."
+$PCP_BINADM_DIR/find-filter mtime -0 </dev/null
+
+cd $tmp
+cat <<End-of-File  | while read delta name
+0S	00:00:00
+2M	00:00:02
+1H	00:01:00
+2H30M	00:02:30
+1d	01:00:00
+3d	03:00:00
+End-of-File
+do
+    touch -t `pmdate -$delta %y%m%d%H%M.%S` $name.ago
+done
+
+ls * >$tmp.all
+
+for stamp in -0 -1:12 -0:2 -0:0:3 +0 +1:12 +0:2 +0:0:3
+do
+    echo | tee -a $here/$seq.full
+    echo "predicate: mtime $stamp ..." | tee -a $here/$seq.full
+    $PCP_BINADM_DIR/find-filter mtime $stamp <$tmp.all >$tmp.tmp
+    cat $tmp.tmp >>$here/$seq.full
+    echo "Excluded	Included"
+    comm -1 $tmp.tmp $tmp.all \
+    | sed -e 's/^	/		/'
+done
+
+# success, all done
+status=0
+exit

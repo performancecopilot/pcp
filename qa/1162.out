@@ -1,0 +1,64 @@
+QA output created by 1162
+
+=== args  ===
+Usage: find-filter [options] <predicate>
+options:
+  -v                 verbose
+
+<predicate> is one of the following:
+  ctime <timespec>   filter on a file's ctime
+  mtime <timespec>   filter on a file's mtime
+and <timespec> is one of the following:
+  +D[:H[:M]]         file's time is > specified days, hours and minutes ago
+  -D[:H[:M]]         file's time is <= specified days, hours and minutes ago
+
+=== args ctime ===
+Usage: find-filter [options] <predicate>
+options:
+  -v                 verbose
+
+<predicate> is one of the following:
+  ctime <timespec>   filter on a file's ctime
+  mtime <timespec>   filter on a file's mtime
+and <timespec> is one of the following:
+  +D[:H[:M]]         file's time is > specified days, hours and minutes ago
+  -D[:H[:M]]         file's time is <= specified days, hours and minutes ago
+
+=== args ctime x ===
+find-filter: Error: expect '+' or '-' to start timespec, not 'x' in "x"
+
+=== args mtime + ===
+find-filter: Error: missing number of days in timespec "+"
+
+=== args ctime -x ===
+find-filter: Error: expect number of days not 'x' after - in timespec"-x"
+
+=== args mtime -123x ===
+find-filter: Error: expect ':' not 'x' after days in timespec "-123x"
+
+=== args ctime +456: ===
+find-filter: Error: missing number of hours in timespec "+456:"
+
+=== args mtime +7:-1 ===
+find-filter: Error: number of hours '-1' is invalid in timespec "+7:-1"
+
+=== args ctime -10:24 ===
+find-filter: Error: number of hours '24' is invalid in timespec "-10:24"
+
+=== args mtime +42:x ===
+find-filter: Error: expect number of hours not 'x' in timespec "+42:x"
+
+=== args ctime +42:12: ===
+find-filter: Error: missing number of minutes in timespec "+42:12:"
+
+=== args ctime -42:12:-1 ===
+find-filter: Error: number of minutes '-1' is invalid in timespec "-42:12:-1"
+
+=== args mtime +13:00:60 ===
+find-filter: Error: number of minutes '60' is invalid in timespec "+13:00:60"
+
+=== args mtime -13:23:x ===
+find-filter: Error: expect number of minutes not 'x' in timespec "-13:23:x"
+
+=== args ctime -0:0:0x ===
+find-filter: Error: extra text after days, hours and minutes in timespec "-0:0:0x"
