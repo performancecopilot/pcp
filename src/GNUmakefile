@@ -116,6 +116,7 @@ OTHER_SUBDIRS = \
 	derived \
 	selinux \
 	zeroconf \
+	find-filter \
 	#
 
 SUBDIRS = \
