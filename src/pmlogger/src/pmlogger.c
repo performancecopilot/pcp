@@ -949,13 +949,16 @@ main(int argc, char **argv)
 
 	/* base name for archive is here ... */
 	if (strchr(argv[opts.optind], '%') == NULL) {
+	    /* no meta chars - go with what we have been given */
 	    if ((archBase = strdup(argv[opts.optind])) == NULL) {
 		pmNoMem("main", strlen(argv[opts.optind])+1, PM_FATAL_ERR);
 		/* NOTREACHED */
 	    }
 	} else {
 	    /*
-	     * strftime(3) meta char substitution
+	     * strftime(3) meta char substitution. If the archive base
+	     * name already exists after subsitution (if any), then 
+	     * we'll fail later on, just as pmlogger has always done.
 	     */
 	    need = strlen(argv[opts.optind]) + 256;
 	    if ((archBase = (char *)malloc(need)) == NULL) {
@@ -963,19 +966,27 @@ main(int argc, char **argv)
 		/* NOTREACHED */
 	    }
 	    time(&now);
-	    for (;;) {
+	    for (i=0; i < 2; i++) { /* limit of 2 retries */
+		int changed = 0;
 		char archindex[MAXPATHLEN];
 
 		arch_tm = localtime(&now);
 		strftime(archBase, need, argv[opts.optind], arch_tm);
+		if (strcmp(archBase, argv[opts.optind]) != 0)
+		    changed = 1;
 		snprintf(archindex, sizeof(archindex), "%s.index", archBase);
 		if (access(archindex, F_OK) != 0)
 		    break; /* archive doesn't already exist, all good */
 		else if (note && strncmp(note, "reexec", 6) != 0)
 		    break; /* archive already exists and we're NOT using -m reexec */
+		else if (!changed) {
+		    /* archive already exists and strftime didn't change it */
+		    break;
+		}
 		/*
-		 * "reexec" semantics - format spec is: %Y%0m%0d.%0H.%0M
-		 * just skip to the next minute and try again!
+		 * "reexec" semantics - format spec should be: %Y%0m%0d.%0H.%0M
+		 * Just skip to the start of the next minute for the archive base
+		 * name and try again! (better to start recording than to sleep)
 		 */
 		now += 60 - arch_tm->tm_sec;
 	    }
@@ -984,14 +995,17 @@ main(int argc, char **argv)
 	    fprintf(stderr, "archBase after strftime substitutions = \"%s\"\n", archBase);
 
 	/*
-	 * Munge archive name in argv[argc-1] after substitutions.
-	 * Note: using %Y%0m%0d.%0H.%0M ensures archBase is shorter.
+	 * Munge archive base name in argv[argc-1] after substitutions.
+	 * Note: using %Y%0m%0d.%0H.%0M ensures new archBase is shorter.
 	 */
 	i = strlen(archBase);
 	j = strlen(argv[argc-1]);
 	if (i <= j) {
 	    memcpy(argv[argc-1], archBase, i);
 	    memset(argv[argc-1] + i, 0, j-i);
+	} else {
+	    if (pmDebugOptions.services)
+		fprintf(stderr, "Warning, archBase \"%s\" is longer than argv template \"%s\"\n", archBase, argv[argc-1]);
 	}
     }
 
