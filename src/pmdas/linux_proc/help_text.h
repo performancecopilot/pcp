@@ -137,7 +137,7 @@ help_text_t  help_text[] = {
 { .name = "smaps.shared_dirty",   .shorthelp = "Shared_Dirty mappings size from /proc/<pid>/smaps_rollup", .longhelp = "" },
 { .name = "smaps.private_clean",   .shorthelp = "Private_Clean mappings size from /proc/<pid>/smaps_rollup", .longhelp = "" },
 { .name = "smaps.private_dirty",   .shorthelp = "Private_Dirty mappings size from /proc/<pid>/smaps_rollup", .longhelp = "" },
-{ .name = "smaps.referenced",   .shorthelp = "Referenced mappings size from /proc/<pid>/smaps_rollup", .longhelp = "Referenced indicates the amount of memory currently marked as referenced or accessed." },
+{ .name = "smaps.referenced",   .shorthelp = "Referenced mappings size from /proc/<pid>/smaps_rollup", .longhelp = "Referenced indicates the amount of memory currently marked as referenced\nor accessed." },
 { .name = "smaps.anonymous",   .shorthelp = "Anonymous mappings size from /proc/<pid>/smaps_rollup", .longhelp = "Anonymous shows the amount of memory that does not belong to any file.\nEven a mapping associated with a file may contain anonymous pages: when MAP_PRIVATE\nand a page is modified, the file page is replaced by a private anonymous copy." },
 { .name = "smaps.lazyfree",   .shorthelp = "LazyFree mappings size from /proc/<pid>/smaps_rollup", .longhelp = "LazyFree shows the amount of memory which is marked by madvise(MADV_FREE).\nThe memory isn't freed immediately with madvise(), rather it's freed in memory\npressure if the memory is clean.\n" },
 { .name = "smaps.anonhugepages",   .shorthelp = "AnonHugePages mappings size from /proc/<pid>/smaps_rollup", .longhelp = "AnonHugePages shows the amount of memory backed by transparent hugepages." },
