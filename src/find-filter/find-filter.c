@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
  */
-#include <pcp/pmapi.h>
+#include "pmapi.h"
 
 static void
 usage(void) {
