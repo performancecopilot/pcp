@@ -1,8 +1,8 @@
 #!/bin/sh
 # PCP QA Test No. 1896
-# test 
+# test pmlogger SIGUSR2/reexec handling and strftime substitution
 #
-# Copyright (c) 2020 [who are you?].  All Rights Reserved.
+# Copyright (c) 2020 Red Hat.  All Rights Reserved.
 #
 
 seq=`basename $0`
@@ -24,15 +24,28 @@ _cleanup()
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
+mkdir -p $tmp
+PMLOGGER=$PCP_BIN_DIR/pmlogger
 
-# real QA test starts here
+echo == checking strftime archive name substitution | tee -a $seq.full
+[ `pmdate %S` -gt 55 ] && sleep 6
+base=`pmdate qa-$seq-%Y%0m%0d.%0H.%0M`
+$PMLOGGER -s10 -t 1s -c config.default -l $tmp/pmlogger.log $tmp/$base 2>$tmp/$seq.err &
+pid=$!; sleep 5; $sudo kill -TERM $pid
+echo === log === >>$seq.full; cat $tmp/pmlogger.log >>$seq.full
+echo === err === >>$seq.full; cat $tmp/$seq.err >>$seq.full
+[ ! -f $tmp/$base.index ] && echo FAILED, expected $tmp/$base.index && exit
 
-# if error
-exit
-
-# optional stuff if your test has verbose output to help resolve problems
-#echo
-#echo "If failure, check $seq.full"
+echo == checking SIGUSR2 starts a new log | tee -a $seq.full
+[ `pmdate %S` -gt 55 ] && sleep 6
+base=`pmdate qa-$seq-%Y%0m%0d.%0H.%0M`
+newbase=`pmdate +1M qa-$seq-%Y%0m%0d.%0H.%0M`
+$PMLOGGER -s10 -t 1s -c config.default -l $tmp/pmlogger.log $tmp/qa-$seq-%Y%0m%0d.%0H.%0M 2>$tmp/$seq.err &
+pid=$!; sleep 5; $sudo kill -USR2 $pid; sleep 5
+echo === log === >>$seq.full; cat $tmp/pmlogger.log >>$seq.full
+echo === err === >>$seq.full; cat $tmp/$seq.err >>$seq.full
+[ ! -f $tmp/$base.index ] && echo FAILED, expected to find $tmp/$base.index && exit
+[ ! -f $tmp/$newbase.index ] && echo FAILED, expected to find $tmp/$newbase.index && exit
 
 # success, all done
 status=0

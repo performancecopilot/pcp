@@ -425,7 +425,7 @@ option above.
 When
 .B pmlogger
 receives a
-.B SIGUSR1
+.B SIGUSR2
 signal, the current archive log is closed, and
 a new archive is opened.
 For this to succeed, the original
@@ -491,9 +491,9 @@ instance was started under the control of
 .BR pmlogger_check (1),
 (\fB\-m pmlogger_check\fP)
 or was re-exec'd (see
-.BR execve (2))
+.BR execvp (3))
 due to a
-.B SIGUSR1
+.B SIGUSR2
 signal being recieved as described above (\fB\-m reexec\fP).
 .P
 The
@@ -1054,7 +1054,7 @@ configuration file, as described in \fBpcp.conf\fP(5).
 .BR pmlc (1),
 .BR pmlogger_check (1),
 .BR systemctl (1),
-.BR execve (2),
+.BR execvp (3),
 .BR pmSpecLocalPMDA (3),
 .BR strftime (3),
 .BR pcp.conf (5),

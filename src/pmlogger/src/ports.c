@@ -172,9 +172,9 @@ sigpipe_handler(int sig)
 }
 
 static void
-sigusr1_handler(int sig)
+sigusr2_handler(int sig)
 {
-    __pmSetSignalHandler(SIGUSR1, sigusr1_handler);
+    __pmSetSignalHandler(SIGUSR2, sigusr2_handler);
     log_switch_flag = 1;
     sig_code = sig; /* triggers break from main loop so we can re-exec */
 }
@@ -209,8 +209,8 @@ static sig_map_t	sig_handler[] = {
 #endif
     { SIGTERM,	sigterm_handler },	/* Exit   Terminated */
 #ifndef IS_MINGW
-    { SIGUSR1,	sigusr1_handler },	/* reexec User Signal 1 */
-    { SIGUSR2,	sigexit_handler },	/* Exit   User Signal 2 */
+    { SIGUSR1,	sigterm_handler },	/* Exit User Signal 1 */
+    { SIGUSR2,	sigusr2_handler },	/* reexec User Signal 2 */
     { SIGCHLD,	SIG_IGN },		/* NOP    Child stopped or terminated */
 #ifdef SIGPWR
     { SIGPWR,	SIG_DFL },		/* Ignore Power Fail/Restart */
