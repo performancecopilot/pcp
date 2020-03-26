@@ -174,10 +174,9 @@ sigpipe_handler(int sig)
 static void
 sigusr1_handler(int sig)
 {
-    /*
-     * no-op now that all archive write I/O is unbuffered
-     */
     __pmSetSignalHandler(SIGUSR1, sigusr1_handler);
+    log_switch_flag = 1;
+    sig_code = sig; /* triggers break from main loop so we can re-exec */
 }
 #endif
 
@@ -210,7 +209,7 @@ static sig_map_t	sig_handler[] = {
 #endif
     { SIGTERM,	sigterm_handler },	/* Exit   Terminated */
 #ifndef IS_MINGW
-    { SIGUSR1,	sigusr1_handler },	/* NOP    User Signal 1 - [was fflush(3)] */
+    { SIGUSR1,	sigusr1_handler },	/* reexec User Signal 1 */
     { SIGUSR2,	sigexit_handler },	/* Exit   User Signal 2 */
     { SIGCHLD,	SIG_IGN },		/* NOP    Child stopped or terminated */
 #ifdef SIGPWR
@@ -648,9 +647,9 @@ init_ports(void)
 	}
 
 	/*
-	 * If the symlink still exists then there really is another primary logger running
+	 * If we have not reexec'd and the symlink still exists, then there really is another primary logger running
 	 */
-	if (access(linkfile, F_OK) == 0) {
+	if (!pmlogger_reexec && access(linkfile, F_OK) == 0) {
 	    /* configuration error - only one primary pmlogger should be configured */
 	    if (pid == -1)
 		fprintf(stderr, "%s: ERROR: there is already a primary pmlogger running, pid <unknown> linkfile=%s\n",

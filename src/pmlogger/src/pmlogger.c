@@ -33,6 +33,9 @@ int		vol_samples_counter;     /* Counts samples - reset for new vol*/
 int		vol_switch_afid = -1;    /* afid of event for vol switch */
 int		vol_switch_flag;         /* sighup received - switch vol now */
 int		vol_switch_alarm;	 /* vol_switch_callback() called */
+int		log_switch_flag;         /* set when SIGUSR1 received - re-exec */
+int		argc_saved;		 /* saved for execv when switching logs */
+char		**argv_saved;		 /* saved for re-exec when switching logs */
 int		run_done_alarm;		 /* run_done_callback() called */
 int		log_alarm;	 	 /* log_callback() called */
 int		parse_done;
@@ -44,6 +47,7 @@ char		*pmcd_host_label;
 int		host_context = PM_CONTEXT_HOST;	 /* pmcd / local context mode */
 int		archive_version = PM_LOG_VERS02; /* Type of archive to create */
 int		linger = 0;		/* linger with no tasks/events */
+int		pmlogger_reexec = 0;	/* set when PMLOGGER_REEXEC is set in the environment */
 int		rflag;			/* report sizes */
 int		Cflag;			/* parse config and exit */
 struct timeval	epoch;
@@ -67,9 +71,9 @@ static int	sep;
 void
 run_done(int sts, char *msg)
 {
-    int	lsts;
+    int	i, lsts;
 
-    if (pmDebugOptions.log && pmDebugOptions.desperate) {
+    if (pmDebugOptions.services || (pmDebugOptions.log && pmDebugOptions.desperate)) {
 	fprintf(stderr, "run_done(%d, %s) last_log_offset=%d last_stamp=",
 		sts, msg, last_log_offset);
 	pmPrintStamp(stderr, &last_stamp);
@@ -81,9 +85,9 @@ run_done(int sts, char *msg)
 	    pmErrStr(lsts));
 
     if (msg != NULL)
-    	fprintf(stderr, "pmlogger: %s, exiting\n", msg);
+    	fprintf(stderr, "pmlogger: %s, %s\n", msg, log_switch_flag ? "reexec" : "exiting");
     else
-    	fprintf(stderr, "pmlogger: End of run time, exiting\n");
+    	fprintf(stderr, "pmlogger: End of run time, %s\n", log_switch_flag ? "reexec" : "exiting");
 
     /*
      * write the last last temporal index entry with the time stamp
@@ -100,6 +104,34 @@ run_done(int sts, char *msg)
 	__pmFseek(archctl.ac_mfp, last_log_offset, SEEK_SET);
 	__pmLogPutIndex(&archctl, &tmp);
     }
+
+    /*
+     * close the archive
+     */
+    __pmFclose(archctl.ac_mfp);
+    __pmFclose(archctl.ac_log->l_tifp);
+    __pmFclose(archctl.ac_log->l_mdfp);
+
+    if (log_switch_flag) {
+    	/*
+	 * re-exec using original args
+	 */
+	if (pmDebugOptions.services) {
+	    fprintf(stderr, "run_done: reexec %s", argv_saved[0]);
+	    for (i=1; i < argc_saved; i++)
+	    	fprintf(stderr, " %s", argv_saved[i]);
+	    fprintf(stderr, "\n");
+	}
+
+	/* this tells the next pmlogger it has been re-exec'd */
+	putenv("PMLOGGER_REEXEC=1");
+
+	execv(argv_saved[0], argv_saved);
+	perror("Error: execv returned unexpectedly");
+    }
+
+    /* notify service manager, if any, we are stopping */
+    __pmServerNotifyServiceManagerStopping(getpid());
 
     exit(sts);
 }
@@ -540,7 +572,7 @@ static pmLongOptions longopts[] = {
 };
 
 static pmOptions opts = {
-    .short_options = "c:CD:h:H:l:K:Lm:n:op:Prs:T:t:uU:v:V:x:y?",
+    .short_options = "c:CD:fh:H:l:K:Lm:n:op:Prs:T:t:uU:v:V:x:y?",
     .long_options = longopts,
     .short_usage = "[options] archive",
 };
@@ -594,6 +626,34 @@ do_pmcpp(char *configfile)
     return f;
 }
 
+/*
+ * Save original args for re-exec on SIGUSR1. Final arg is the
+ * archive name, which may contain strftime(3) meta chars.
+ */
+static void
+save_args(int argc, char **argv)
+{
+    int i;
+
+    /*
+     * saved argv needs room for the sentinal NULL that
+     * terminates the argv array passed to execv(2).
+     */
+    argc_saved = argc;
+    argv_saved = (char **)malloc((argc + 1) * sizeof(char *));
+    if (argv_saved == NULL) {
+    	pmNoMem("save_args", argc * sizeof(char *), PM_FATAL_ERR);
+	/* NOTREACHED */
+    }
+    for (i=0; i < argc; i++) {
+    	if ((argv_saved[i] = strdup(argv[i])) == NULL) {
+	    pmNoMem("save_args", strlen(argv[i]) + 1, PM_FATAL_ERR);
+	    /* NOTREACHED */
+	}
+    }
+    argv_saved[argc] = NULL; /* needed by execv(2) */
+}
+
 int
 main(int argc, char **argv)
 {
@@ -606,7 +666,7 @@ main(int argc, char **argv)
     char		*logfile = "pmlogger.log";
 				    /* default log (not archive) file name */
     char		*endnum;
-    int			i;
+    int			i, j;
     task_t		*tp;
     optcost_t		ocp;
     __pmFdSet		readyfds;
@@ -619,6 +679,7 @@ main(int argc, char **argv)
     int			exit_code = 0;
     char		*exit_msg;
 
+    save_args(argc, argv);
     pmGetUsername(&username);
     sep = pmPathSeparator();
     if ((endnum = getenv("PMLOGGER_INTERVAL")) != NULL)
@@ -692,8 +753,9 @@ main(int argc, char **argv)
 
 	case 'm':		/* note for port map file */
 	    note = opts.optarg;
-	    isdaemon = ((strcmp(note, "pmlogger_check") == 0) ||
-			(strcmp(note, "pmlogger_daily") == 0));
+	    isdaemon = ((strncmp(note, "pmlogger_check", 14) == 0) ||
+			(strncmp(note, "pmlogger_daily", 14) == 0) ||
+			(strncmp(note, "reexec", 6) == 0));
 	    break;
 
 	case 'n':		/* alternative name space file */
@@ -847,6 +909,16 @@ main(int argc, char **argv)
 	exit(1);
     }
 
+    if (getenv("PMLOGGER_REEXEC") != NULL) {
+	/*
+	 * We have been re-exec'd. See run_done(). This flag indicates
+	 * not to daemonize, do not notify the service manager, do not
+	 * create the PID file and do not create or bind to any sockets.
+	 * All this was already done by the pmlogger that exec'd us.
+	 */
+	pmlogger_reexec = 1;
+    }
+
     if (rsc_fd != -1 && note == NULL) {
 	/* add default note to indicate running with -x */
 	static char	xnote[10];
@@ -859,17 +931,81 @@ main(int argc, char **argv)
 	pmSetProcessIdentity(username);
 
     if (Cflag == 0) {
-	pmOpenLog("pmlogger", logfile, stderr, &sts);
-	if (sts != 1) {
-	    fprintf(stderr, "%s: Warning: log file (%s) creation failed\n", pmGetProgname(), logfile);
-	    /* continue on ... writing to stderr */
+	int need;
+	time_t now;
+	struct tm *arch_tm;
+
+	/* only open a new log if we are NOT reexec'd */
+	if (pmlogger_reexec) {
+	    if (pmDebugOptions.services)
+		fprintf(stderr, "existing pmlogger.log remains open after re-exec\n");
+	} else {
+	    pmOpenLog("pmlogger", logfile, stderr, &sts);
+	    if (sts != 1) {
+		fprintf(stderr, "%s: Warning: log file (%s) creation failed\n", pmGetProgname(), logfile);
+		/* continue on ... writing to stderr */
+	    }
 	}
 
 	/* base name for archive is here ... */
-	archBase = strdup(argv[opts.optind]);
-	if (archBase == NULL) {
-	    pmNoMem("main", strlen(argv[opts.optind])+1, PM_FATAL_ERR);
-	    /* NOTREACHED */
+	if (strchr(argv[opts.optind], '%') == NULL) {
+	    /* no meta chars - go with what we have been given */
+	    if ((archBase = strdup(argv[opts.optind])) == NULL) {
+		pmNoMem("main", strlen(argv[opts.optind])+1, PM_FATAL_ERR);
+		/* NOTREACHED */
+	    }
+	} else {
+	    /*
+	     * strftime(3) meta char substitution. If the archive base
+	     * name already exists after subsitution (if any), then 
+	     * we'll fail later on, just as pmlogger has always done.
+	     */
+	    need = strlen(argv[opts.optind]) + 256;
+	    if ((archBase = (char *)malloc(need)) == NULL) {
+		pmNoMem("main", need, PM_FATAL_ERR);
+		/* NOTREACHED */
+	    }
+	    time(&now);
+	    for (i=0; i < 2; i++) { /* limit of 2 retries */
+		int changed = 0;
+		char archindex[MAXPATHLEN];
+
+		arch_tm = localtime(&now);
+		strftime(archBase, need, argv[opts.optind], arch_tm);
+		if (strcmp(archBase, argv[opts.optind]) != 0)
+		    changed = 1;
+		snprintf(archindex, sizeof(archindex), "%s.index", archBase);
+		if (access(archindex, F_OK) != 0)
+		    break; /* archive doesn't already exist, all good */
+		else if (note && strncmp(note, "reexec", 6) != 0)
+		    break; /* archive already exists and we're NOT using -m reexec */
+		else if (!changed) {
+		    /* archive already exists and strftime didn't change it */
+		    break;
+		}
+		/*
+		 * "reexec" semantics - format spec should be: %Y%0m%0d.%0H.%0M
+		 * Just skip to the start of the next minute for the archive base
+		 * name and try again! (better to start recording than to sleep)
+		 */
+		now += 60 - arch_tm->tm_sec;
+	    }
+	}
+	if (pmDebugOptions.services)
+	    fprintf(stderr, "archBase after strftime substitutions = \"%s\"\n", archBase);
+
+	/*
+	 * Munge archive base name in argv[argc-1] after substitutions.
+	 * Note: using %Y%0m%0d.%0H.%0M ensures new archBase is shorter.
+	 */
+	i = strlen(archBase);
+	j = strlen(argv[argc-1]);
+	if (i <= j) {
+	    memcpy(argv[argc-1], archBase, i);
+	    memset(argv[argc-1] + i, 0, j-i);
+	} else {
+	    if (pmDebugOptions.services)
+		fprintf(stderr, "Warning, archBase \"%s\" is longer than argv template \"%s\"\n", archBase, argv[argc-1]);
 	}
     }
 
@@ -1071,7 +1207,7 @@ main(int argc, char **argv)
 	__pmServerCreatePIDFile(pmGetProgname(), 0);
     }
 
-    /* set up control port */
+    /* set up control ports and signal handlers */
     init_ports();
     __pmFD_ZERO(&fds);
     for (i = 0; i < CFD_NUM; ++i) {
@@ -1094,6 +1230,11 @@ main(int argc, char **argv)
 
     parse_done = 1;	/* enable callback processing */
     __pmAFunblock();
+
+    if (!pmlogger_reexec) {
+	/* notify service manager, if any, we are ready */
+	__pmServerNotifyServiceManagerReady(getpid());
+    }
 
     for ( ; ; ) {
 	int		nready;
