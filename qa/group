@@ -1743,4 +1743,5 @@ BAD
 1718 pmda.statsd local
 1719 pmda.statsd local
 1720 pmda.statsd local
+1896:reserved pmlogger logutil pmlc local
 4751 libpcp threads valgrind local pcp
