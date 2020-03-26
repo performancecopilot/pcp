@@ -126,8 +126,8 @@ run_done(int sts, char *msg)
 	/* this tells the next pmlogger it has been re-exec'd */
 	putenv("PMLOGGER_REEXEC=1");
 
-	execv(argv_saved[0], argv_saved);
-	perror("Error: execv returned unexpectedly");
+	execvp(argv_saved[0], argv_saved);
+	perror("Error: execvp returned unexpectedly");
     }
 
     /* notify service manager, if any, we are stopping */
