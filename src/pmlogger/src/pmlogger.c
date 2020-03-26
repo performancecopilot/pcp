@@ -33,7 +33,7 @@ int		vol_samples_counter;     /* Counts samples - reset for new vol*/
 int		vol_switch_afid = -1;    /* afid of event for vol switch */
 int		vol_switch_flag;         /* sighup received - switch vol now */
 int		vol_switch_alarm;	 /* vol_switch_callback() called */
-int		log_switch_flag;         /* set when SIGUSR1 received - re-exec */
+int		log_switch_flag;         /* set when SIGUSR2 received - re-exec */
 int		argc_saved;		 /* saved for execv when switching logs */
 char		**argv_saved;		 /* saved for re-exec when switching logs */
 int		run_done_alarm;		 /* run_done_callback() called */
@@ -627,7 +627,7 @@ do_pmcpp(char *configfile)
 }
 
 /*
- * Save original args for re-exec on SIGUSR1. Final arg is the
+ * Save original args for re-exec on SIGUSR2. Final arg is the
  * archive name, which may contain strftime(3) meta chars.
  */
 static void

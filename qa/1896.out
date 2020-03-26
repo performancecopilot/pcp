@@ -1,3 +1,3 @@
 QA output created by 1896
 == checking strftime archive name substitution
-== checking SIGUSR1 starts a new log
+== checking SIGUSR2 starts a new log

@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 1896
-# test pmlogger SIGUSR1/reexec handling and strftime substitution
+# test pmlogger SIGUSR2/reexec handling and strftime substitution
 #
 # Copyright (c) 2020 Red Hat.  All Rights Reserved.
 #
@@ -36,12 +36,12 @@ echo === log === >>$seq.full; cat $tmp/pmlogger.log >>$seq.full
 echo === err === >>$seq.full; cat $tmp/$seq.err >>$seq.full
 [ ! -f $tmp/$base.index ] && echo FAILED, expected $tmp/$base.index && exit
 
-echo == checking SIGUSR1 starts a new log | tee -a $seq.full
+echo == checking SIGUSR2 starts a new log | tee -a $seq.full
 [ `pmdate %S` -gt 55 ] && sleep 6
 base=`pmdate qa-$seq-%Y%0m%0d.%0H.%0M`
 newbase=`pmdate +1M qa-$seq-%Y%0m%0d.%0H.%0M`
 $PMLOGGER -s10 -t 1s -c config.default -l $tmp/pmlogger.log $tmp/qa-$seq-%Y%0m%0d.%0H.%0M 2>$tmp/$seq.err &
-pid=$!; sleep 5; $sudo kill -USR1 $pid; sleep 5
+pid=$!; sleep 5; $sudo kill -USR2 $pid; sleep 5
 echo === log === >>$seq.full; cat $tmp/pmlogger.log >>$seq.full
 echo === err === >>$seq.full; cat $tmp/$seq.err >>$seq.full
 [ ! -f $tmp/$base.index ] && echo FAILED, expected to find $tmp/$base.index && exit
