@@ -116,12 +116,13 @@ run_done(int sts, char *msg)
     	/*
 	 * re-exec using original args
 	 */
-	if (pmDebugOptions.services) {
-	    fprintf(stderr, "run_done: reexec %s", argv_saved[0]);
-	    for (i=1; i < argc_saved; i++)
-	    	fprintf(stderr, " %s", argv_saved[i]);
-	    fprintf(stderr, "\n");
-	}
+	fprintf(stderr, "\n=== pmlogger: reexec cmdlne:");
+	for (i=0; i < argc_saved; i++)
+	    fprintf(stderr, " %s", argv_saved[i]);
+	fprintf(stderr, "\n");
+
+	/* close/remove all control fds and sockets */
+	cleanup();
 
 	/* this tells the next pmlogger it has been re-exec'd */
 	putenv("PMLOGGER_REEXEC=1");
@@ -633,25 +634,58 @@ do_pmcpp(char *configfile)
 static void
 save_args(int argc, char **argv)
 {
-    int i;
+    int i, mflag = -1;
 
     /*
      * saved argv needs room for the sentinal NULL that
-     * terminates the argv array passed to execv(2).
+     * terminates the argv array passed to execv(2) and
+     * also to insert -m reexec (if -m is not present).
      */
     argc_saved = argc;
-    argv_saved = (char **)malloc((argc + 1) * sizeof(char *));
+    argv_saved = (char **)malloc((argc + 3) * sizeof(char *));
     if (argv_saved == NULL) {
     	pmNoMem("save_args", argc * sizeof(char *), PM_FATAL_ERR);
 	/* NOTREACHED */
     }
     for (i=0; i < argc; i++) {
+	if (strncmp(argv[i], "-m", 2) == 0)
+	    mflag = i;
     	if ((argv_saved[i] = strdup(argv[i])) == NULL) {
 	    pmNoMem("save_args", strlen(argv[i]) + 1, PM_FATAL_ERR);
 	    /* NOTREACHED */
 	}
     }
-    argv_saved[argc] = NULL; /* needed by execv(2) */
+
+    /*
+     * Replace "-m *" with "-m reexec"
+     * note: this may be one or two args
+     */
+    if (mflag > 0) {
+	if (strlen(argv_saved[mflag]) > 2) {
+	    /* remove one arg, e.g. -mpmlogger_check */
+	    free(argv_saved[mflag]);
+	    for (i=mflag; i < argc_saved; i++)
+	    	argv_saved[i] = argv_saved[i+1];
+	    argc_saved -= 1;
+	}
+	else {
+	    /* remove two args, e.g. -m pmlogger_check */
+	    free(argv_saved[mflag]);
+	    free(argv_saved[mflag+1]);
+	    for (i=mflag; i < argc_saved; i++)
+	    	argv_saved[i] = argv_saved[i+2];
+	    argc_saved -= 2;
+	}
+    }
+
+    /* insert -mreexec (as one arg) */
+    argv_saved[argc_saved] = argv_saved[argc_saved-1]; /* archive base name */
+    if ((argv_saved[argc_saved-1] = strdup("-mreexec")) == NULL) {
+	pmNoMem("save_args", strlen("-mreexec") + 1, PM_FATAL_ERR);
+	/* NOTREACHED */
+    }
+    argc_saved++;
+    argv_saved[argc_saved] = NULL; /* sentinal for execvp(3) */
 }
 
 int
@@ -966,27 +1000,23 @@ main(int argc, char **argv)
 		/* NOTREACHED */
 	    }
 	    time(&now);
-	    for (i=0; i < 2; i++) { /* limit of 2 retries */
-		int changed = 0;
+	    for (i=0; i < 3; i++) { /* limit of 3 retries */
 		char archindex[MAXPATHLEN];
 
 		arch_tm = localtime(&now);
-		strftime(archBase, need, argv[opts.optind], arch_tm);
-		if (strcmp(archBase, argv[opts.optind]) != 0)
-		    changed = 1;
+		if (strftime(archBase, need, argv[opts.optind], arch_tm) == 0) {
+		    fprintf(stderr, "Warning: strftime failed on \"%s\"\n", argv[opts.optind]);
+		    strncpy(archBase, argv[opts.optind], need);
+		    break; /* no point retrying */
+		}
 		snprintf(archindex, sizeof(archindex), "%s.index", archBase);
 		if (access(archindex, F_OK) != 0)
 		    break; /* archive doesn't already exist, all good */
-		else if (note && strncmp(note, "reexec", 6) != 0)
-		    break; /* archive already exists and we're NOT using -m reexec */
-		else if (!changed) {
-		    /* archive already exists and strftime didn't change it */
-		    break;
-		}
 		/*
-		 * "reexec" semantics - format spec should be: %Y%0m%0d.%0H.%0M
-		 * Just skip to the start of the next minute for the archive base
-		 * name and try again! (better to start recording than to sleep)
+		 * Likely we've received more than one signal in the same minute.
+		 * "reexec" semantics for new archive base name - the format spec
+		 * must contain at least %M or %0M. We skip to the start of the next
+		 * minute and try again! (better to start recording than to sleep)
 		 */
 		now += 60 - arch_tm->tm_sec;
 	    }
@@ -996,7 +1026,7 @@ main(int argc, char **argv)
 
 	/*
 	 * Munge archive base name in argv[argc-1] after substitutions.
-	 * Note: using %Y%0m%0d.%0H.%0M ensures new archBase is shorter.
+	 * Note: %Y%m%d.%0H.%0M ensures new archBase length is same or shorter.
 	 */
 	i = strlen(archBase);
 	j = strlen(argv[argc-1]);

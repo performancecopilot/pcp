@@ -194,6 +194,9 @@ extern int		sig_code;
 /* event record handling */
 extern int do_events(pmValueSet *);
 
+/* cleanup control fds and sockets etc prior to reexec or exit */
+extern void cleanup(void);
+
 /* QA testing and error injection support ... see do_request() */
 extern int	qa_case;
 #define QA_OFF		100

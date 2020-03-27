@@ -12,8 +12,7 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
-
-# test for-some-thing || _notrun No support for some-thing
+. ./common.secure
 
 _cleanup()
 {
@@ -26,26 +25,34 @@ $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 mkdir -p $tmp
 PMLOGGER=$PCP_BIN_DIR/pmlogger
+spec=qa-$seq-%Y%m%d.%0H.%0M
 
 echo == checking strftime archive name substitution | tee -a $seq.full
 [ `pmdate %S` -gt 55 ] && sleep 6
-base=`pmdate qa-$seq-%Y%0m%0d.%0H.%0M`
-$PMLOGGER -s10 -t 1s -c config.default -l $tmp/pmlogger.log $tmp/$base 2>$tmp/$seq.err &
-pid=$!; sleep 5; $sudo kill -TERM $pid
+base=`pmdate $spec`
+$PMLOGGER -s10 -t 1s -c config.default -l $tmp/pmlogger.log $tmp/$spec 2>$tmp/$seq.err &
+pid=$!; sleep 5; kill -TERM $pid
 echo === log === >>$seq.full; cat $tmp/pmlogger.log >>$seq.full
 echo === err === >>$seq.full; cat $tmp/$seq.err >>$seq.full
 [ ! -f $tmp/$base.index ] && echo FAILED, expected $tmp/$base.index && exit
 
-echo == checking SIGUSR2 starts a new log | tee -a $seq.full
+echo == checking SIGUSR2 starts a new log as non-root user | tee -a $seq.full
 [ `pmdate %S` -gt 55 ] && sleep 6
-base=`pmdate qa-$seq-%Y%0m%0d.%0H.%0M`
-newbase=`pmdate +1M qa-$seq-%Y%0m%0d.%0H.%0M`
-$PMLOGGER -s10 -t 1s -c config.default -l $tmp/pmlogger.log $tmp/qa-$seq-%Y%0m%0d.%0H.%0M 2>$tmp/$seq.err &
-pid=$!; sleep 5; $sudo kill -USR2 $pid; sleep 5
+base=`pmdate $spec`
+newbase=`pmdate +1M $spec`
+$PMLOGGER -U$username -s30 -t 1s -c config.default -l $tmp/pmlogger.log $tmp/$spec 2>$tmp/$seq.err &
+pid=$!; sleep 5; 
+$sudo -u $username kill -USR2 $pid; sleep 5
 echo === log === >>$seq.full; cat $tmp/pmlogger.log >>$seq.full
 echo === err === >>$seq.full; cat $tmp/$seq.err >>$seq.full
 [ ! -f $tmp/$base.index ] && echo FAILED, expected to find $tmp/$base.index && exit
 [ ! -f $tmp/$newbase.index ] && echo FAILED, expected to find $tmp/$newbase.index && exit
+
+echo == check pmlc can connect to pmlogger after reexec
+(echo status | pmlc $pid >>$seq.full) || echo pmlc failed to connect to pid $pid
+
+# kill it off
+$sudo -u $username kill -TERM $pid
 
 # success, all done
 status=0
