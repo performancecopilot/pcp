@@ -688,6 +688,52 @@ save_args(int argc, char **argv)
     argv_saved[argc_saved] = NULL; /* sentinal for execvp(3) */
 }
 
+static void
+updateLatestFolio(const char *host, const char *base)
+{
+    FILE *fp;
+    time_t now;
+    char date[24];
+    char dir[MAXPATHLEN];
+    char *logdir = pmGetConfig("PCP_ARCHIVE_DIR");
+    char thishost[MAXHOSTNAMELEN];
+
+    /*
+     * Only write the "Latest" folio if we're a pmlogger service daemon,
+     * i.e. pmlogger current dir is below $PCP_ARCHIVE_DIR
+     */
+    getcwd(dir, sizeof(dir));
+    if (strncmp(dir, logdir, strlen(logdir)) != 0) {
+	if (pmDebugOptions.services)
+	    fprintf(stderr, "Info: not creating \"Latest\" archive folio for host %s: %s", host, strerror(errno));
+    	return;
+    }
+
+    gethostname(thishost, MAXHOSTNAMELEN);
+    thishost[MAXHOSTNAMELEN-1] = '\0';
+
+    if ((fp = fopen("Latest", "w")) == NULL) {
+    	fprintf(stderr, "Warning: failed to create \"Latest\" archive folio for host %s: %s", host, strerror(errno));
+	return;
+    }
+    time(&now);
+    ctime_r(&now, date);
+
+    fprintf(fp,
+	"PCPFolio\n"
+	"Version: 1\n"
+	"# use pmafm(1) to process this PCP archive folio\n"
+	"#\n"
+	"Created: on %s at %s"
+	"Creator: pmlogger\n"
+	"%-15s %-23s %s\n"
+	"%-15s %-23s %s\n",
+	    thishost, date,
+	    "#", "Host", "Basename",
+	    "Archive:", host, base);
+    fclose(fp);
+}
+
 int
 main(int argc, char **argv)
 {
@@ -1260,6 +1306,10 @@ main(int argc, char **argv)
 
     parse_done = 1;	/* enable callback processing */
     __pmAFunblock();
+
+    /* create the Latest folio */
+    if (isdaemon)
+	updateLatestFolio(pmcd_host, archBase);
 
     if (!pmlogger_reexec) {
 	/* notify service manager, if any, we are ready */
