@@ -79,7 +79,7 @@ get_pid_from_symlink(const char *linkfile, pid_t *pidp)
     return -1;
 }
 
-static void
+void
 cleanup(void)
 {
     /*

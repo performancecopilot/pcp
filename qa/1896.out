@@ -1,3 +1,4 @@
 QA output created by 1896
 == checking strftime archive name substitution
-== checking SIGUSR2 starts a new log
+== checking SIGUSR2 starts a new log as non-root user
+== check pmlc can connect to pmlogger after reexec
