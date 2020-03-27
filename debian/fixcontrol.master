@@ -96,6 +96,22 @@ else
     echo "s/?{python-psycopg2}, //" >>$tmp.sed
 fi
 
+# PMDA_SYSTEMD is only true if we have libsystemd, but HAVE_SYSTEMD
+# may be true when we're using systemd even if libsystemd is not
+# installed ... so use the former to enable the libsystemd-dev in
+# the Build-Depends: clause
+# Note: that the HAVE_SYSTEMD_SD_DAEMON_H macro that is used to
+# guard the use of libsystemd from libpcp is not available here, but
+# the semantics of HAVE_SYSTEMD_SD_DAEMON_H and PMDA_SYSTEMD are
+# close enought to being the same!
+#
+if $PMDA_SYSTEMD
+then
+    echo "s/?{libsystemd-dev}, /libsystemd-dev, /" >>$tmp.sed
+else
+    echo "s/?{libsystemd-dev}, //" >>$tmp.sed
+fi
+
 if $ENABLE_PYTHON2
 then
     echo "s/?{python-all}, /python-all, /" >>$tmp.sed
@@ -183,13 +199,6 @@ then
     echo "s/?{libuv1-dev}, /libuv1-dev, /" >>$tmp.sed
 else
     echo "s/?{libuv1-dev}, //" >>$tmp.sed
-fi
-
-if $ENABLE_SYSTEMD
-then
-    echo "s/?{libsystemd-dev}, /libsystemd-dev, /" >>$tmp.sed
-else
-    echo "s/?{libsystemd-dev}, //" >>$tmp.sed
 fi
 
 echo "s/ $//" >>$tmp.sed
