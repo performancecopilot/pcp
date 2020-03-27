@@ -173,7 +173,7 @@ state == 1		{ for (i = 1; i <= NF; i++) print $i >"'$tmp.out.1'" }
 state == 2		{ print >"'$tmp.out.2'" }'
 [ -f $tmp.out.0 ] && cat $tmp.out.0
 [ -f $tmp.out.1 ] && LC_COLLATE=POSIX sort $tmp.out.1
-[ -f $tmp.out.0 ] && cat $tmp.out.2
+[ -f $tmp.out.2 ] && cat $tmp.out.2
 
 echo "out.0 ..." >>$seq.full
 [ -f $tmp.out.0 ] && cat $tmp.out.0 >>$seq.full
