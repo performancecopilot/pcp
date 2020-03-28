@@ -18,6 +18,7 @@
 #include "qwt_text_label.h"
 #include "qwt_math.h"
 #include <qpainter.h>
+#include <qpainterpath.h>
 #include <qpaintengine.h>
 #include <qtransform.h>
 #include <qprinter.h>
