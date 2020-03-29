@@ -3,25 +3,19 @@ pmlogger_check #1
 PMLOGGER.CHECK [TMP/control:LINE]
 Warning: creating directory (TMP/A) for PCP archive files
 Restarting pmlogger for host "LOCALHOST" [dots] [process PID]  done
-Latest folio created for DATE.TIME
 PMLOGGER.CHECK [TMP/control:LINE]
 Warning: creating directory (TMP/B) for PCP archive files
 Restarting pmlogger for host "LOCALHOST" [dots] [process PID]  done
-Latest folio created for DATE.TIME
 PMLOGGER.CHECK [TMP/control:LINE]
 Warning: creating directory (TMP/C) for PCP archive files
 Restarting pmlogger for host "LOCALHOST" [dots] [process PID]  done
-Latest folio created for DATE.TIME
 1 archives in TMP/A
 1 archives in TMP/B
 1 archives in TMP/C
 pmlogger_check #2
 Restarting pmlogger for host "LOCALHOST" [dots] [process PID]  done
-Latest folio created for DATE.TIME
 Restarting pmlogger for host "LOCALHOST" [dots] [process PID]  done
-Latest folio created for DATE.TIME
 Restarting pmlogger for host "LOCALHOST" [dots] [process PID]  done
-Latest folio created for DATE.TIME
 2 archives in TMP/A
 2 archives in TMP/B
 2 archives in TMP/C
