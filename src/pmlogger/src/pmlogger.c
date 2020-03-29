@@ -746,7 +746,7 @@ main(int argc, char **argv)
     char		*logfile = "pmlogger.log";
 				    /* default log (not archive) file name */
     char		*endnum;
-    int			i, j;
+    int			i;
     task_t		*tp;
     optcost_t		ocp;
     __pmFdSet		readyfds;
@@ -1005,7 +1005,6 @@ main(int argc, char **argv)
 	pmSetProcessIdentity(username);
 
     if (Cflag == 0) {
-	int need;
 	time_t now;
 	struct tm *arch_tm;
 
@@ -1030,40 +1029,43 @@ main(int argc, char **argv)
 	    }
 	} else {
 	    /*
-	     * strftime(3) meta char substitution. If the archive base
-	     * name already exists after subsitution (if any), then 
-	     * we'll fail later on, just as pmlogger has always done.
+	     * strftime(3) meta char substitution.
 	     */
-	    need = strlen(argv[opts.optind]) + 256;
-	    if ((archBase = (char *)malloc(need)) == NULL) {
-		pmNoMem("main", need, PM_FATAL_ERR);
+	    char archindex[MAXPATHLEN];
+	    if ((archBase = malloc(MAXPATHLEN+1)) == NULL) {
+		pmNoMem("main", MAXPATHLEN+1, PM_FATAL_ERR);
 		/* NOTREACHED */
 	    }
 	    time(&now);
-	    for (i=0; i < 3; i++) { /* limit of 3 retries */
-		char archindex[MAXPATHLEN];
-
-		arch_tm = localtime(&now);
-		if (strftime(archBase, need, argv[opts.optind], arch_tm) == 0) {
-		    fprintf(stderr, "Warning: strftime failed on \"%s\"\n", argv[opts.optind]);
-		    strncpy(archBase, argv[opts.optind], need);
-		    break; /* no point retrying */
-		}
-		snprintf(archindex, sizeof(archindex), "%s.index", archBase);
-		if (access(archindex, F_OK) != 0)
+	    arch_tm = localtime(&now);
+	    if (strftime(archBase, MAXPATHLEN, argv[opts.optind], arch_tm) == 0) {
+		fprintf(stderr, "Error: strftime failed on \"%s\"\n", argv[opts.optind]);
+		exit(1);
+	    }
+	    /*
+	     * If we reexec quickly then archBase will be the same
+	     * as the previous iteration, and if this happens use a
+	     * -NN suffix to make archBase different.
+	     */
+	    for (i = -1; i < 99; i++) { /* limit of 100 retries */
+		if (i == -1)
+		    snprintf(archindex, sizeof(archindex), "%s.index", archBase);
+		else
+		    snprintf(archindex, sizeof(archindex), "%s-%02d.index", archBase, i);
+		if (access(archindex, F_OK) != 0) {
+		    if (i != -1) {
+			snprintf(archindex, sizeof(archindex), "%s-%02d", archBase, i);
+			memcpy(archBase, archindex, strlen(archindex)+1);
+		    }
+			
 		    break; /* archive doesn't already exist, all good */
-		/*
-		 * Likely we've received more than one signal in the same minute.
-		 * "reexec" semantics for new archive base name - the format spec
-		 * must contain at least %M or %0M. We skip to the start of the next
-		 * minute and try again! (better to start recording than to sleep)
-		 */
-		now += 60 - arch_tm->tm_sec;
+		}
 	    }
 	}
 	if (pmDebugOptions.services)
 	    fprintf(stderr, "archBase after strftime substitutions = \"%s\"\n", archBase);
 
+#if 0
 	/*
 	 * Munge archive base name in argv[argc-1] after substitutions.
 	 * Note: %Y%m%d.%0H.%0M ensures new archBase length is same or shorter.
@@ -1077,6 +1079,7 @@ main(int argc, char **argv)
 	    if (pmDebugOptions.services)
 		fprintf(stderr, "Warning, archBase \"%s\" is longer than argv template \"%s\"\n", archBase, argv[argc-1]);
 	}
+#endif
     }
 
     /* initialise access control */
