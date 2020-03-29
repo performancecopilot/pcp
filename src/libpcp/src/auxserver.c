@@ -1180,8 +1180,13 @@ __pmServerNotifySystemd(const char *msg)
 #endif
     }
     else {
-	/* we were not launched by systemd */
-	pmNotifyErr(LOG_WARNING, "__pmServerNotifySystemd: NOTIFY_SOCKET not set, not launched by systemd");
+	/*
+	 * we were not launched by systemd ... this is sort of expected,
+	 * e.g. pmlogger launched by record mode, stand alone logging or
+	 * (especially) the QA suite
+	 */
+	if (pmDebugOptions.services)
+	    pmNotifyErr(LOG_WARNING, "__pmServerNotifySystemd: NOTIFY_SOCKET not set, not launched by systemd");
 	sts = PM_ERR_GENERIC;
     }
     /* negative return indicates error */
