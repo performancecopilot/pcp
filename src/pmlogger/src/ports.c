@@ -469,16 +469,16 @@ GetPorts(char *file)
 
 	/* then the full pathname to the archive base */
 	/* THREADSAFE - no locks acquired in __pmNativePath() */
-	archBase = __pmNativePath(archBase);
-	if (__pmAbsolutePath(archBase))
-	    fprintf(mapstream, "%s\n", archBase);
+	archName = __pmNativePath(archName);
+	if (__pmAbsolutePath(archName))
+	    fprintf(mapstream, "%s\n", archName);
 	else {
 	    char		path[MAXPATHLEN];
 
 	    if (getcwd(path, MAXPATHLEN) == NULL)
 		fprintf(mapstream, "\n");
 	    else
-		fprintf(mapstream, "%s%c%s\n", path, pmPathSeparator(), archBase);
+		fprintf(mapstream, "%s%c%s\n", path, pmPathSeparator(), archName);
 	}
 
 	/* and finally, the annotation from -m or -x */
