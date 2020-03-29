@@ -1,4 +1,4 @@
-#!/usr/bin/sh
+#!/bin/sh
 # PCP QA Test No. 1347
 # Exercise kernel.all.boottime and -v option to pcp-atop(1),
 # as well as other optional output from pcp-atop.
