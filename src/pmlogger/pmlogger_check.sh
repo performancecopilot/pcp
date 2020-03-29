@@ -786,8 +786,6 @@ END				{ print m }'`
 
 	if [ -z "$pid" -a $START_PMLOGGER = true ]
 	then
-	    rm -f Latest
-
 	    if [ "X$primary" = Xy ]
 	    then
 		envs=`grep ^PMLOGGER "$PMLOGGERENVS" 2>/dev/null`
@@ -875,20 +873,6 @@ END				{ print m }'`
 
 	    # wait for pmlogger to get started, and check on its health
 	    _check_logger $pid
-
-	    # the archive folio Latest is for the most recent archive in
-	    # this directory
-	    #
-	    mylogname=`ls *.0 2>/dev/null | tail -1 | sed -e 's/\.0$//'`
-	    if [ -z "$mylogname" ]
-	    then
-		echo "$prog: Error: archive file $LOGNAME missing"
-	    elif [ -f "$mylogname.0" ] 
-	    then
-		$VERBOSE && echo "Latest folio created for $mylogname"
-		mkaf $mylogname.0 >Latest 2>/dev/null
-		chown $PCP_USER:$PCP_GROUP Latest >/dev/null 2>&1
-	    fi
 
 	    # if SaveLogs exists in the same directory that the archive
 	    # is being created, save pmlogger log file there as well
