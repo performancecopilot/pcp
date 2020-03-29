@@ -885,8 +885,11 @@ END				{ print m }'`
 	    # the archive folio Latest is for the most recent archive in
 	    # this directory
 	    #
-	    mylogname=`ls *.0 | tail -1 | sed -e 's/\.0$//'`
-	    if [ -f "$mylogname.0" ] 
+	    mylogname=`ls *.0 2>/dev/null | tail -1 | sed -e 's/\.0$//'`
+	    if [ -z "$mylogname" ]
+	    then
+		echo "$prog: Error: archive file $LOGNAME missing"
+	    elif [ -f "$mylogname.0" ] 
 	    then
 		$VERBOSE && echo "Latest folio created for $mylogname"
 		mkaf $mylogname.0 >Latest 2>/dev/null
