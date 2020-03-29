@@ -48,8 +48,8 @@ cleanup()
 
     if $_chkconfig_pmlogger_on
     then
-	[ -f $tmp.control ] && \
-	    $sudo cp $tmp.control $PCP_PMLOGGERCONTROL_PATH
+	[ -f $PCP_PMLOGGERCONTROL_PATH.$seq ] && \
+	    $sudo mv $PCP_PMLOGGERCONTROL_PATH.$seq $PCP_PMLOGGERCONTROL_PATH
 	_service pcp restart 2>&1 | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
@@ -73,7 +73,7 @@ $unix_domain_sockets && target="unix:"
 
 # disable all pmloggers ...
 _chkconfig_pmlogger_on=true
-$sudo cp $PCP_PMLOGGERCONTROL_PATH $tmp.control
+$sudo cp $PCP_PMLOGGERCONTROL_PATH $PCP_PMLOGGERCONTROL_PATH.$seq
 cat <<End-of-File >$tmp.tmp
 # Installed by PCP QA test $seq on `date`
 # the goal here is to have a controlled primary logger that does
