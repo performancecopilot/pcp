@@ -1064,22 +1064,6 @@ main(int argc, char **argv)
 	}
 	if (pmDebugOptions.services)
 	    fprintf(stderr, "archBase after strftime substitutions = \"%s\"\n", archBase);
-
-#if 0
-	/*
-	 * Munge archive base name in argv[argc-1] after substitutions.
-	 * Note: %Y%m%d.%0H.%0M ensures new archBase length is same or shorter.
-	 */
-	i = strlen(archBase);
-	j = strlen(argv[argc-1]);
-	if (i <= j) {
-	    memcpy(argv[argc-1], archBase, i);
-	    memset(argv[argc-1] + i, 0, j-i);
-	} else {
-	    if (pmDebugOptions.services)
-		fprintf(stderr, "Warning, archBase \"%s\" is longer than argv template \"%s\"\n", archBase, argv[argc-1]);
-	}
-#endif
     }
 
     /* initialise access control */

@@ -804,14 +804,8 @@ END				{ print m }'`
 	    fi
 
 	    # each new log started is named yyyymmdd.hh.mm
-	    # Note: the code in pmlogger depends on the length of LOGNAME
-	    #       below to be at least as long as the result after expansion
-	    #       with strftime() ... the two 0's provide the additional 2
-	    #       characters to accommodate %Y -> 4 characters, e.g.
-	    #       %Y%m%d.%0H.%0M becomes
-	    #       20200327.15.38
 	    #
-	    LOGNAME=%Y%m%d.%0H.%0M
+	    LOGNAME=%Y%m%d.%H.%M
 
 	    # We used to handle duplicates/aliases here (happens when
 	    # pmlogger is restarted within a minute and LOGNAME expands
