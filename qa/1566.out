@@ -5,4 +5,4 @@ Note the warning about "NOTIFY_SOCKET not set" is expected due to -Dservices
 test_service_notify: foreground=1 host=local:
 Log for test_service_notify on HOST started DATE
 
-[DATE] test_service_notify(PID) Warning: __pmServerNotifySystemd: NOTIFY_SOCKET not set, not launched by systemd
+[DATE] test_service_notify(PID) Warning: __pmServerNotifySystemd: NOTIFY_SOCKET not set: not launched by systemd, or service unit is not using Type=notify
