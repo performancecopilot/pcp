@@ -646,6 +646,9 @@
 /* Define to 1 if you have the <ws2tcpip.h> header file. */
 #undef HAVE_WS2TCPIP_H
 
+/* Define to 1 if you have the <systemd/sd-daemon.h> header file. */
+#undef HAVE_SYSTEMD_SD_DAEMON_H
+
 /* 3-arg zfs_iter_snapshots */
 #undef HAVE_ZFS_ITER_SNAPSHOTS_3ARG
 

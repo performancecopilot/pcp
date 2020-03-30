@@ -12,7 +12,7 @@
 #    Directory	full pathname to directory where archive logs are
 #		to be maintained ... note all scripts "cd" to here as
 #		a first step
-#    Args	optional additional arguments to pmlogger and/or pmnewlog
+#    Args	optional additional arguments to pmlogger
 #
 # All files below "${PCP_PMLOGGERCONTROL_PATH}.d" are appended to this
 # file before evaluation, if any exist.
