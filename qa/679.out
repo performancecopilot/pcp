@@ -12,6 +12,7 @@ pmlogger_daily: Info: pmlogrewrite all archives in TMP/oldsem0
 + PCP_BINADM_DIR/pmlogger_rewrite  -c TMP/oldsem0/pmlogrewrite -V TMP/oldsem0
 Error: no pmlogger instance running for host "localhost"
 ... logging for host "localhost" unchanged
+Warning: skipping log rotation because we don't know which pmlogger to signal
 + pmlogrewrite -iq  -c TMP/oldsem0/pmlogrewrite 20011005.00.10
 + pmlogrewrite -iq  -c TMP/oldsem0/pmlogrewrite 20011005.08.00
 + pmlogrewrite -iq  -c TMP/oldsem0/pmlogrewrite 20011005.16.00
@@ -25,6 +26,7 @@ pmlogger_daily: Info: pmlogrewrite all archives in TMP/oldsem1
 + PCP_BINADM_DIR/pmlogger_rewrite  -c TMP/oldsem1/pmlogrewrite -V TMP/oldsem1
 Error: no pmlogger instance running for host "localhost"
 ... logging for host "localhost" unchanged
+Warning: skipping log rotation because we don't know which pmlogger to signal
 + pmlogrewrite -iq  -c TMP/oldsem1/pmlogrewrite 20011005.00.10
 + pmlogrewrite -iq  -c TMP/oldsem1/pmlogrewrite 20011005.12.00
 + pmlogger_merge -N -V -f 20011005.00.10 20011005.12.00 20011005
@@ -37,6 +39,7 @@ pmlogger_daily: Info: pmlogrewrite all archives in TMP/oldsem2
 + PCP_BINADM_DIR/pmlogger_rewrite  -c TMP/oldsem2/pmlogrewrite -V TMP/oldsem2
 Error: no pmlogger instance running for host "localhost"
 ... logging for host "localhost" unchanged
+Warning: skipping log rotation because we don't know which pmlogger to signal
 + pmlogrewrite -iq  -c TMP/oldsem2/pmlogrewrite 20011005.00.10
 + pmlogmv -N -V 20011005.00.10 20011005
 + cd TMP/newsem0
@@ -48,6 +51,7 @@ pmlogger_daily: Info: pmlogrewrite all archives in TMP/newsem0
 + PCP_BINADM_DIR/pmlogger_rewrite -c $PCP_VAR_DIR/config/pmlogrewrite -V TMP/newsem0
 Error: no pmlogger instance running for host "localhost"
 ... logging for host "localhost" unchanged
+Warning: skipping log rotation because we don't know which pmlogger to signal
 + pmlogrewrite -iq -c $PCP_VAR_DIR/config/pmlogrewrite 20011005.00.10
 + pmlogrewrite -iq -c $PCP_VAR_DIR/config/pmlogrewrite 20011005.06.00
 + pmlogrewrite -iq -c $PCP_VAR_DIR/config/pmlogrewrite 20011005.12.00
@@ -64,6 +68,7 @@ pmlogger_daily: Info: pmlogrewrite all archives in TMP/newsem1
 + PCP_BINADM_DIR/pmlogger_rewrite -c $PCP_VAR_DIR/config/pmlogrewrite -V TMP/newsem1
 Error: no pmlogger instance running for host "localhost"
 ... logging for host "localhost" unchanged
+Warning: skipping log rotation because we don't know which pmlogger to signal
 + pmlogrewrite -iq -c $PCP_VAR_DIR/config/pmlogrewrite 20011005.00.10
 + pmlogrewrite -iq -c $PCP_VAR_DIR/config/pmlogrewrite 20011005.06.00
 + pmlogrewrite -iq -c $PCP_VAR_DIR/config/pmlogrewrite 20011005.18.00
@@ -77,6 +82,7 @@ pmlogger_daily: Info: pmlogrewrite all archives in TMP/empty
 + PCP_BINADM_DIR/pmlogger_rewrite -c $PCP_VAR_DIR/config/pmlogrewrite -V TMP/empty
 Error: no pmlogger instance running for host "localhost"
 ... logging for host "localhost" unchanged
+Warning: skipping log rotation because we don't know which pmlogger to signal
 pmlogger_daily: Warning: no archives found to merge
 oldsem0/20011002:
     Semantics: instant  Units: none
@@ -173,6 +179,7 @@ newsem1/20011008:
 pmlogger_daily: Info: pmlogrewrite all archives in TMP/oldsem0
 Error: no pmlogger instance running for host "localhost"
 ... logging for host "localhost" unchanged
+Warning: skipping log rotation because we don't know which pmlogger to signal
 Input archives to be merged:
 	20011005.00.10
 	20011005.08.00
@@ -188,6 +195,7 @@ Removing input archive files ......... done
 pmlogger_daily: Info: pmlogrewrite all archives in TMP/oldsem1
 Error: no pmlogger instance running for host "localhost"
 ... logging for host "localhost" unchanged
+Warning: skipping log rotation because we don't know which pmlogger to signal
 Input archives to be merged:
 	20011005.00.10
 	20011005.12.00
@@ -202,6 +210,7 @@ Removing input archive files ...... done
 pmlogger_daily: Info: pmlogrewrite all archives in TMP/oldsem2
 Error: no pmlogger instance running for host "localhost"
 ... logging for host "localhost" unchanged
+Warning: skipping log rotation because we don't know which pmlogger to signal
 link 20011005.00.10.0 -> 20011005.0
 link 20011005.00.10.index -> 20011005.index
 link 20011005.00.10.meta -> 20011005.meta
@@ -214,6 +223,7 @@ remove 20011005.00.10.meta
 pmlogger_daily: Info: pmlogrewrite all archives in TMP/newsem0
 Error: no pmlogger instance running for host "localhost"
 ... logging for host "localhost" unchanged
+Warning: skipping log rotation because we don't know which pmlogger to signal
 Input archives to be merged:
 	20011005.00.10
 	20011005.06.00
@@ -232,6 +242,7 @@ Removing input archive files .................. done
 pmlogger_daily: Info: pmlogrewrite all archives in TMP/newsem1
 Error: no pmlogger instance running for host "localhost"
 ... logging for host "localhost" unchanged
+Warning: skipping log rotation because we don't know which pmlogger to signal
 Input archives to be merged:
 	20011005.00.10
 	20011005.06.00
@@ -248,6 +259,7 @@ pmlogger_daily: Info: pmlogrewrite all archives in TMP/empty
 Warning: no PCP archives found
 Error: no pmlogger instance running for host "localhost"
 ... logging for host "localhost" unchanged
+Warning: skipping log rotation because we don't know which pmlogger to signal
 pmlogger_daily: Warning: no archives found to merge
 oldsem0/20011002:
     Semantics: discrete  Units: none
@@ -310,16 +322,22 @@ newsem1/20011008:
 +++ .NeedRewrite +++
 Error: no pmlogger instance running for host "localhost"
 ... logging for host "localhost" unchanged
+Warning: skipping log rotation because we don't know which pmlogger to signal
 Error: no pmlogger instance running for host "localhost"
 ... logging for host "localhost" unchanged
+Warning: skipping log rotation because we don't know which pmlogger to signal
 Error: no pmlogger instance running for host "localhost"
 ... logging for host "localhost" unchanged
+Warning: skipping log rotation because we don't know which pmlogger to signal
 Error: no pmlogger instance running for host "localhost"
 ... logging for host "localhost" unchanged
+Warning: skipping log rotation because we don't know which pmlogger to signal
 Error: no pmlogger instance running for host "localhost"
 ... logging for host "localhost" unchanged
+Warning: skipping log rotation because we don't know which pmlogger to signal
 Error: no pmlogger instance running for host "localhost"
 ... logging for host "localhost" unchanged
+Warning: skipping log rotation because we don't know which pmlogger to signal
 .NeedRewrite removed as expected
 oldsem0/20011002:
     Semantics: discrete  Units: none
