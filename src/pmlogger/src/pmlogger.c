@@ -719,12 +719,6 @@ main(int argc, char **argv)
     if ((endnum = getenv("PMLOGGER_INTERVAL")) != NULL)
 	delta.tv_sec = atoi(endnum);
 
-    /*
-     * Warning:
-     *		If any of the pmlogger options change, make sure the
-     *		corresponding changes are made to pmnewlog when pmlogger
-     *		options are passed through from the control file
-     */
     while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
 	switch (c) {
 

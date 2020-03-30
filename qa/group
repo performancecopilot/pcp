@@ -145,7 +145,7 @@ pmlogextract
 # log reduction app
 pmlogreduce
 # log rotation script
-pmnewlog
+#retired# pmnewlog
 # log move script
 pmlogmv
 # log summary app
@@ -584,9 +584,9 @@ BAD
 180 archive pmval local
 181 pmval archive pmval local
 182 pmlc pmlogger local
-183 local pmlc pmnewlog
-184 logutil remote sanity pmdumplog pmnewlog
-185 local pmnewlog
+183:retired local pmlc pmnewlog
+184:retired logutil remote sanity pmdumplog pmnewlog
+185:retired local pmnewlog
 186 local pmlogextract
 187 pmcd pmlogger #327288 remote
 188 libpcp local
@@ -901,7 +901,7 @@ BAD
 497 pmlogconf local
 498 event pmda local
 499 pmlogrewrite local timezone pmdumplog kernel
-500 local #636417 pmnewlog
+500:retired local #636417 pmnewlog
 501 pmie local kernel
 502 pmlogrewrite local pmdumplog kernel
 503 logutil pmlogrewrite local pmlogextract pmdumplog

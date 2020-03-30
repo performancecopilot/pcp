@@ -19,7 +19,7 @@
 #if defined(HAVE_GETPEERUCRED)
 #include <ucred.h>
 #endif
-#ifdef HAVE_SYSTEMD
+#ifdef HAVE_SYSTEMD_SD_DAEMON_H
 #include <systemd/sd-daemon.h>
 #endif
 
@@ -1163,16 +1163,25 @@ __pmServerNotifySystemd(const char *msg)
     int sts = 0;
 
     if ((notify_socket = getenv("NOTIFY_SOCKET")) != NULL) {
+#ifdef HAVE_SYSTEMD_SD_DAEMON_H
     	sts = sd_notify(0, msg);
 	if (pmDebugOptions.services) {
 	    fprintf(stderr, "__pmServerNotifySystemd: NOTIFY_SOCKET=\"%s\" msg=\"%s\" sts=%d\n",
 	    	notify_socket, msg, sts);
 	}
+#else
+	pmNotifyErr(LOG_WARNING, "__pmServerNotifySystemd: NOTIFY_SOCKET=\"%s\" msg=\"%s\": cannot call sd_notify()\n",
+	    	notify_socket, msg);
+	/*
+	 * no really useful error number is available for this situation ...
+	 * PM_ERR_GENERIC is to simply flag failure
+	 */
+	sts = PM_ERR_GENERIC;
+#endif
     }
     else {
 	/* we were not launched by systemd */
-	if (pmDebugOptions.services)
-	    pmNotifyErr(LOG_WARNING, "__pmServerNotifySystemd: NOTIFY_SOCKET not set, not launched by systemd");
+	pmNotifyErr(LOG_WARNING, "__pmServerNotifySystemd: NOTIFY_SOCKET not set, not launched by systemd");
 	sts = PM_ERR_GENERIC;
     }
     /* negative return indicates error */
