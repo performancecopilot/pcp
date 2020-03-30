@@ -176,7 +176,9 @@ _filter_pmlogger_log()
         -e '/^\(Log for pmlogger on\) [^ ][^ ]*/s//\1 HOST/' \
 	-e '/^Starting logger/s/host ".*/host "HOST"/' \
 	-e '/^Archive basename: /s/:.*/: ARCHIVE/' \
-	-e '/^pmlc request/s/ from .*:/ from HOST:/'
+	-e '/^pmlc request/s/ from .*:/ from HOST:/' \
+	-e '/^__pmLogCreate(/s/([^,]*,/(HOST,/' \
+    # end
 }
 
 # pmie log file
