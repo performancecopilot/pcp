@@ -1150,49 +1150,137 @@ __pmServerStart(int argc, char **argv, int flags)
 }
 #endif
 
+/*
+ * Portable sd_notify(). Some platforms use systemd but do not
+ * readily have the devel headers/libs needed to call sd_notify,
+ * so on those platforms send to a UNIX domain socket directly.
+ * Returns negative on failure or >= 0 on success.
+ */
+static int
+__pm_sd_notify(int clear, const char *notify_socket, const char *msg)
+{
+    int sts = 0;
+    int fd = -1;
+
+    if (notify_socket == NULL) {
+    	/* no-op - warning issued by caller */
+	return 0;
+    }
+
+#ifdef HAVE_SYSTEMD
+#ifdef HAVE_SYSTEMD_SD_DAEMON_H
+    /* use the devel library call and return it's status */
+    sts = sd_notify(clear, msg);
+    goto out;
+#else
+
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
+    /* send the message via a UNIX domain socket */
+    {
+	struct sockaddr_un su = { 0 };
+	struct iovec iov = { 0 };
+	struct msghdr hdr = { 0 };
+	int sendto_flags = 0;
+
+	if (pmDebugOptions.services)
+	    pmNotifyErr(LOG_WARNING, "__pm_sd_notify: using AF_UNIX socket for notification\n");
+
+	if ((strchr("@/", notify_socket[0])) == NULL || strlen(notify_socket) < 2) {
+	    pmNotifyErr(LOG_ERR, "__pm_sd_notify: invalid notify_socket=\"%s\"\n", notify_socket);
+	    sts = PM_ERR_GENERIC;
+	    goto out;
+	}
+
+	if ((fd = socket(AF_UNIX, SOCK_DGRAM, 0)) == -1) {
+	    pmNotifyErr(LOG_ERR, "__pm_sd_notify: failed to create AF_UNIX socket: %s\n", strerror(errno));
+	    sts = PM_ERR_GENERIC;
+	    goto out;
+	}
+
+	su.sun_family = AF_UNIX;
+	strncpy(su.sun_path, notify_socket, sizeof(su.sun_path)-1);
+	su.sun_path[sizeof(su.sun_path)-1] = '\0';
+
+	if (notify_socket[0] == '@')
+	    su.sun_path[0] = '\0';
+
+	iov.iov_base = msg;
+	iov.iov_len = strlen(msg);
+
+	hdr.msg_name = &su;
+	hdr.msg_namelen = offsetof(struct sockaddr_un, sun_path) + strlen(notify_socket);
+	hdr.msg_iov = &iov;
+	hdr.msg_iovlen = 1;
+
+	if (clear)
+	    unsetenv("NOTIFY_SOCKET");
+	sendto_flags |= MSG_NOSIGNAL; /* no sigpipes etc */
+	if (sendmsg(fd, &hdr, sendto_flags) < 0) {
+	    /* FAILED to send */
+	    pmNotifyErr(LOG_ERR, "Error __pm_sd_notify: sendmsg \"%s\" failed: %s\n", msg, strerror(errno));
+	    sts = PM_ERR_GENERIC;
+	    goto out;
+	}
+    }
+#else
+    pmNotifyErr(LOG_ERR, "Warning __pm_sd_notify: failed, no sd_notify() or AF_UNIX sockets on this platform\n");
+    sts = PM_ERR_NYI;
+#endif /* HAVE_STRUCT_SOCKADDR_UN */
+#endif /* HAVE_SYSTEMD_SD_DAEMON_H */
+#endif /* HAVE_SYSTEMD */
+
+out:
+    if (fd >= 0)
+    	close(fd);
+    return sts;
+}
+
+
 #ifdef HAVE_SYSTEMD
 /*
- * Notify service manager of status. On platforms using systemd,
- * ${NOTIFY_SOCKET} will be set in the environment for daemon service
- * units using type=notify. See sd_notify(3) for applicable messages.
+ * Notify the service manager of status. On platforms using systemd
+ * AND the service unit is using Type=notify, then ${NOTIFY_SOCKET} will
+ * be set in the environment and this call will notify the service manager
+ * via that socket that the service is either READY or STOPPING, and provide
+ * the pid of the main daemon process so that systemd can track it.
+ * See sd_notify(3) for more details.
+ *
+ * On systemd platforms that are NOT using Type=notify, and on non-systemd
+ * platforms, these calls do nothing. i.e. On platforms using systemd that
+ * are NOT using Type=notify (e.g. if the service unit is Type=forking)
+ * then ${NOTIFY_SOCKET} will NOT be set in the environment and calls to
+ * __pmServerNotifySystemd() will do nothing (it's a cheap no-op that avoids
+ * messy conditional code in the caller).  The same is true on non-systemd
+ * platforms - these functions can safely be called unconditionally and
+ * they will simply return PM_ERR_NYI, which can (and should be) ignored on
+ * those non-systemd platforms.
  */
 static int
 __pmServerNotifySystemd(const char *msg)
 {
-    const char *notify_socket;
+    const char *notify_socket = getenv("NOTIFY_SOCKET"); /* may be NULL */
     int sts = 0;
 
-    if ((notify_socket = getenv("NOTIFY_SOCKET")) != NULL) {
-#ifdef HAVE_SYSTEMD_SD_DAEMON_H
-    	sts = sd_notify(0, msg);
-	if (pmDebugOptions.services) {
-	    fprintf(stderr, "__pmServerNotifySystemd: NOTIFY_SOCKET=\"%s\" msg=\"%s\" sts=%d\n",
-	    	notify_socket, msg, sts);
-	}
-#else
-	pmNotifyErr(LOG_WARNING, "__pmServerNotifySystemd: NOTIFY_SOCKET=\"%s\" msg=\"%s\": cannot call sd_notify()\n",
-	    	notify_socket, msg);
-	/*
-	 * no really useful error number is available for this situation ...
-	 * PM_ERR_GENERIC is to simply flag failure
-	 */
-	sts = PM_ERR_GENERIC;
-#endif
-    }
-    else {
+    if (notify_socket) {
+	sts = __pm_sd_notify(1, notify_socket, msg);
+	if (pmDebugOptions.services)
+	    pmNotifyErr(LOG_WARNING, "__pmServerNotifySystemd: NOTIFY_SOCKET=\"%s\" msg=\"%s\" sts=%d\n",
+		    notify_socket, msg, sts);
+    } else {
 	/*
 	 * we were not launched by systemd ... this is sort of expected,
 	 * e.g. pmlogger launched by record mode, stand alone logging or
 	 * (especially) the QA suite
 	 */
-	if (pmDebugOptions.services)
-	    pmNotifyErr(LOG_WARNING, "__pmServerNotifySystemd: NOTIFY_SOCKET not set, not launched by systemd");
+    	if (pmDebugOptions.services)
+	    pmNotifyErr(LOG_WARNING, "__pmServerNotifySystemd: NOTIFY_SOCKET not set:"
+	    	    " not launched by systemd, or service unit is not using Type=notify");
 	sts = PM_ERR_GENERIC;
     }
     /* negative return indicates error */
     return sts;
 }
-#endif
+#endif /* HAVE_SYSTEMD */
 
 int
 __pmServerNotifyServiceManagerReady(pid_t pid)
