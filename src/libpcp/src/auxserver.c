@@ -1150,6 +1150,7 @@ __pmServerStart(int argc, char **argv, int flags)
 }
 #endif
 
+#ifdef HAVE_SYSTEMD
 /*
  * Portable sd_notify(). Some platforms use systemd but do not
  * readily have the devel headers/libs needed to call sd_notify,
@@ -1167,7 +1168,6 @@ __pm_sd_notify(int clear, const char *notify_socket, const char *msg)
 	return 0;
     }
 
-#ifdef HAVE_SYSTEMD
 #ifdef HAVE_SYSTEMD_SD_DAEMON_H
     /* use the devel library call and return it's status */
     sts = sd_notify(clear, msg);
@@ -1204,7 +1204,7 @@ __pm_sd_notify(int clear, const char *notify_socket, const char *msg)
 	if (notify_socket[0] == '@')
 	    su.sun_path[0] = '\0';
 
-	iov.iov_base = msg;
+	iov.iov_base = (char *)msg;
 	iov.iov_len = strlen(msg);
 
 	hdr.msg_name = &su;
@@ -1227,13 +1227,13 @@ __pm_sd_notify(int clear, const char *notify_socket, const char *msg)
     sts = PM_ERR_NYI;
 #endif /* HAVE_STRUCT_SOCKADDR_UN */
 #endif /* HAVE_SYSTEMD_SD_DAEMON_H */
-#endif /* HAVE_SYSTEMD */
 
 out:
     if (fd >= 0)
     	close(fd);
     return sts;
 }
+#endif /* HAVE_SYSTEMD */
 
 
 #ifdef HAVE_SYSTEMD
