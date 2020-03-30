@@ -336,7 +336,7 @@ generic_samp(double sampletime, double nsecs,
 			move(curline, 0);
 
 			limitedlines();
-			
+
 			curline = prisyst(sstat, curline, nsecs, avgval,
 					fixedhead,  &syssel, &autoorder,
 					maxcpulines, maxdsklines, maxmddlines,
@@ -448,7 +448,7 @@ generic_samp(double sampletime, double nsecs,
 			** one entry per user (list has worst-case size)
 			*/
 			tucumlist = calloc(sizeof(struct tstat),    nproc);
-			ucumlist  = malloc(sizeof(struct tstat *) * nproc);
+			ucumlist  = calloc(sizeof(struct tstat *),  nproc);
 
 			ptrverify(tucumlist,
 			        "Malloc failed for %d ucum procs\n", nproc);
@@ -491,7 +491,7 @@ generic_samp(double sampletime, double nsecs,
 			** one entry per program (list has worst-case size)
 			*/
 			tpcumlist = calloc(sizeof(struct tstat),    nproc);
-			pcumlist  = malloc(sizeof(struct tstat *) * nproc);
+			pcumlist  = calloc(sizeof(struct tstat *),  nproc);
 
 			ptrverify(tpcumlist,
 			        "Malloc failed for %d pcum procs\n", nproc);
@@ -534,7 +534,7 @@ generic_samp(double sampletime, double nsecs,
 			** one entry per user (list has worst-case size)
 			*/
 			tccumlist = calloc(sizeof(struct tstat),    nproc);
-			ccumlist  = malloc(sizeof(struct tstat *) * nproc);
+			ccumlist  = calloc(sizeof(struct tstat *),  nproc);
 
 			ptrverify(tccumlist,
 			        "Malloc failed for %d ccum procs\n", nproc);
@@ -590,7 +590,7 @@ generic_samp(double sampletime, double nsecs,
 			if (sellist)	// remove previous list if needed
 				free(sellist);
 
-			sellist = malloc(sizeof(struct tstat *) * ncurlist);
+			sellist = calloc(sizeof(struct tstat *), ncurlist);
 
 			ptrverify(sellist,
 			       "Malloc failed for %d select ptrs\n", ncurlist);
@@ -672,8 +672,8 @@ generic_samp(double sampletime, double nsecs,
 					if (tsklist)
 						free(tsklist);	// remove current
 
-					tsklist = malloc(sizeof(struct tstat *)
-								    * ntotal);
+					tsklist = calloc(sizeof(struct tstat *),
+								    ntotal);
 
 					ptrverify(tsklist,
 				             "Malloc failed for %d taskptrs\n",
