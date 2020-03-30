@@ -141,14 +141,14 @@ do_logue(int type)
 	     * the full pathname to the base of the archive, cloned
 	     * from GetPort() in ports.c
 	     */
-	    if (__pmAbsolutePath(archBase))
-		atom.cp = archBase;
+	    if (__pmAbsolutePath(archName))
+		atom.cp = archName;
 	    else {
 		if (getcwd(path, MAXPATHLEN) == NULL)
-		    atom.cp = archBase;
+		    atom.cp = archName;
 		else {
 		    strcat(path, "/");
-		    strcat(path, archBase);
+		    strcat(path, archName);
 		    atom.cp = path;
 		}
 	    }

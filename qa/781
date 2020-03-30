@@ -33,7 +33,7 @@ _filter()
 	-e "s,$tmp,LOGDIR,g" \
 	-e 's,/privateLOGDIR,LOGDIR,g' \
 	-e "s,$host,HOSTNAME,g" \
-	-e "s,%Y%m%d.%0H.%0M,ARCHIVE,g" \
+	-e "s,%Y%m%d.%H.%M,ARCHIVE,g" \
 	-e "s@$PCP_BINADM_DIR\/@@" \
 	-e '/^+ date-and-timestamp/s/stamp .*/stamp .../' \
 	-e '/^+ ln /d' \

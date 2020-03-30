@@ -60,7 +60,7 @@ When
 is run as a service (see
 .BR pmlogger_daily (1)),
 the standard archive base name template is
-.BR %Y%0m%0d.%0H.%0M .
+.BR %Y%m%d.%H.%M .
 .PP
 The
 .B \-V
@@ -434,7 +434,7 @@ argument must include
 .BR strftime (3)
 meta characters
 (e.g.
-.BR %Y%0m%0d.%0H.%0M ),
+.BR %Y%m%d.%H.%M ),
 otherwise
 .B pmlogger
 will exit because the archive files will already exit and

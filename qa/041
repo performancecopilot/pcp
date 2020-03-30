@@ -107,10 +107,7 @@ rm -f $tmp.out $tmp.err
 _expect "connection refused"
 pminfo -f sample.long.million 2>&1 | _filter
 
-# Note: need to use $PCP_RC_DIR/* here, not _service pcp so that
-# systemd (if running) does not get to see the pmcd exit status
-#
-( $sudo $PCP_RC_DIR/pmcd restart; $sudo $PCP_RC_DIR/pmlogger restart ) >$tmp.one 2>&1
+( _service pmcd restart; _service pmlogger restart ) >$tmp.one 2>&1
 _wait_for_pmcd
 _wait_for_pmlogger
 
