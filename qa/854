@@ -24,6 +24,7 @@ _cleanup()
     then
 	:
     else
+	$sudo rm -f $LOGGING_DIR/$LOCALHOST/$seq.log
 	echo "Restore pmcd.conf and restart PMCD ..."
 	if [ -f $tmp.pmcd.conf ]
 	then
@@ -83,12 +84,20 @@ log mandatory on 500 msec { sample.dynamic.meta.metric }' \
 # log a few samples
 sleep 2
 
+# check, to be sure !
+#
+echo 'connect primary
+query sample.dynamic.meta.metric
+' \
+| pmlc >>$seq.full
+
 # killing off pmlogger (as expected) may start another pmlogger instance
 # thanks to systemd, so remember the current archive and the current log
 #
 archive=$LOGGING_DIR/$LOCALHOST/`pmafm $LOGGING_DIR/$LOCALHOST/Latest list | sed -n -e '/ 1]/s/.* //p'`
 echo "archive=$archive" >>$seq.full
-ln -s $LOGGING_DIR/$LOCALHOST/pmlogger.log $tmp.log
+$sudo rm -f $LOGGING_DIR/$LOCALHOST/$seq.log
+$sudo ln $LOGGING_DIR/$LOCALHOST/pmlogger.log $LOGGING_DIR/$LOCALHOST/$seq.log
 
 echo "archive contents before pmda simple restart..."
 echo "expect no <mark> record"
@@ -133,7 +142,7 @@ echo "---------------------------------------------------------------"
 # the re-check of the configured metrics failed and that it stopped.
 echo >>$seq.full
 echo "pmlogger log ..." >>$seq.full
-cat $tmp.log | tee -a $seq.full | \
+cat $LOGGING_DIR/$LOCALHOST/$seq.log | tee -a $seq.full | \
 grep \
  -e 'Semantics of metric "sample.dynamic.meta.metric" have changed from discrete to instant' \
  -e 'One or more configured metrics have changed after pmcd state change. Exiting'

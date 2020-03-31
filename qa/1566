@@ -16,12 +16,19 @@ echo "QA output created by $seq"
 
 # [ -n "$PCP_SYSTEMDUNIT_DIR" ] || _notrun "PCP_SYSTEMUNIT_DIR not set, no systemd"
 
+# handle multiple possible messages ...
+# [DATE] test_service_notify(PID) Warning: __pmServerNotifySystemd: NOTIFY_SOCKET not set: not launched by systemd, or service unit is not using Type=notify
+# [DATE] test_service_notify(PID) Warning: __pmServerNotifyServiceManagerReady: no service manager on this platform
+#
 _filter_log()
 {
     sed -e 's/started .*$/started DATE/' \
 	-e 's/^\[.*\]/[DATE]/' \
         -e 's/([0-9]*)/(PID)/' \
-	-e 's/on .* started/on HOST started/'
+	-e 's/on .* started/on HOST started/' \
+	-e 's/__pmServerNotifySystemd: NOTIFY_SOCKET not set: not launched by systemd, or service unit is not using Type=notify/__pmServerNotify... EXPECTED/' \
+	-e 's/__pmServerNotifyServiceManagerReady: no service manager on this platform/__pmServerNotify... EXPECTED/' \
+    # end
 }
 
 _cleanup()
