@@ -894,6 +894,7 @@ _filter_torture_api()
 	-e '/^    pdns /d' \
 	-e '/^    p76 /d' \
 	-e '/^    process /d' \
+	-e '/^    quota /d' \
 	-e '/^    roomtemp /d' \
 	-e '/^    rpm /d' \
 	-e '/^    rsyslog /d' \
@@ -910,6 +911,7 @@ _filter_torture_api()
 	-e '/^    vfs /d' \
 	-e '/^    vmware /d' \
 	-e '/^    waitio /d' \
+	-e '/^    xfs /d' \
 	-e '/^    xvm /d' \
     # end
 }
