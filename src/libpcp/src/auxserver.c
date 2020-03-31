@@ -1171,6 +1171,9 @@ __pm_sd_notify(int clear, const char *notify_socket, const char *msg)
 #ifdef HAVE_SYSTEMD_SD_DAEMON_H
     /* use the devel library call and return it's status */
     sts = sd_notify(clear, msg);
+    if (pmDebugOptions.services)
+	pmNotifyErr(LOG_INFO, "__pm_sd_notify: using libsystemd:sd_notify(). NOTIFY_SOCKET=\"%s\". msg=\"%s\" sts=%d\n", 
+		notify_socket, msg, sts);
     goto out;
 #else
 
