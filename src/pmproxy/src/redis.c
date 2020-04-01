@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2018-2019 Red Hat.
- * Copyright (c) 2018 Challa Venkata Naga Prajwal <cvnprajwal at gmail dot com>
+ * Copyright (c) 2018-2020 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -34,7 +33,7 @@ static sds
 redisfmt(redisReply *reply)
 {
     sds			c, command = sdsempty();
-    int			i;
+    int			i, p;
 
     if (reply == NULL)
 	return command;
@@ -43,18 +42,30 @@ redisfmt(redisReply *reply)
     case REDIS_REPLY_STRING:
 	return sdscatfmt(command, "$%U\r\n%s\r\n", reply->len, reply->str);
     case REDIS_REPLY_ARRAY:
+    case REDIS_REPLY_MAP:
+    case REDIS_REPLY_SET:
 	c = sdsempty();
 	for (i = 0; i < reply->elements; i++)
 	    c = sdscat(c, redisfmt(reply->element[i]));
-	command = sdscatfmt(command, "*%u\r\n%S", reply->elements, c);
+	if (reply->type == REDIS_REPLY_ARRAY)
+	    p = '*';
+	else if (reply->type == REDIS_REPLY_MAP)
+	    p = '%';
+	else /* (reply->type == REDIS_REPLY_SET) */
+	    p = '~';
+	command = sdscatfmt(command, "%c%u\r\n%S", p, reply->elements, c);
 	sdsfree(c);
 	return command;
     case REDIS_REPLY_INTEGER:
 	return sdscatfmt(command, ":%I\r\n", reply->integer);
+    case REDIS_REPLY_DOUBLE:
+	return sdscatfmt(command, ",%s\r\n", reply->str);
     case REDIS_REPLY_STATUS:
 	return sdscatfmt(command, "+%s\r\n", reply->str);
     case REDIS_REPLY_ERROR:
 	return sdscatfmt(command, "-%s\r\n", reply->str);
+    case REDIS_REPLY_BOOL:
+	return sdscatfmt(command, "#%c\r\n", reply->integer ? 't' : 'f');
     case REDIS_REPLY_NIL:
     default:
 	break;

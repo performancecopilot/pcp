@@ -394,8 +394,12 @@ client_protocol(int key)
     case '-':	/* RESP error */
     case '+':	/* RESP status */
     case ':':	/* RESP integer */
+    case ',':	/* RESP double */
     case '$':	/* RESP string */
     case '*':	/* RESP array */
+    case '#':	/* RESP bool */
+    case '%':	/* RESP map */
+    case '~':	/* RESP set */
 	return STREAM_REDIS;
     case 0x14:	/* TLS ChangeCipherSpec */
     case 0x15:	/* TLS Alert */
