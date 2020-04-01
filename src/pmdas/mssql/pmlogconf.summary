@@ -1,0 +1,19 @@
+ident	SQL Server summary information
+probe	mssql.access_methods.full_scans values ? include : exclude
+	mssql.access_methods.full_scans
+	mssql.general.user_connections
+	mssql.general.logical_connections
+	mssql.buffer_manager
+	mssql.memory_manager
+	mssql.plan_cache
+	mssql.locks
+	mssql.latches.latch_waits
+	mssql.latches.total_latch_wait_time
+	mssql.latches.raw_average_latch_wait_time
+	mssql.latches.raw_average_latch_wait_time_base
+	mssql.sql_statistics
+	mssql.databases.transactions
+	mssql.databases.data_file_size
+	mssql.databases.log_file_size
+	mssql.databases.log_file_used_size
+	mssql.databases.active_transactions
