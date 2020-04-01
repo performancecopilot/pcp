@@ -1265,7 +1265,7 @@ __pmServerNotifySystemd(const char *msg)
     int sts = 0;
 
     if (notify_socket) {
-	sts = __pm_sd_notify(1, notify_socket, msg);
+	sts = __pm_sd_notify(0, notify_socket, msg);
 	if (pmDebugOptions.services)
 	    pmNotifyErr(LOG_WARNING, "__pmServerNotifySystemd: NOTIFY_SOCKET=\"%s\" msg=\"%s\" sts=%d\n",
 		    notify_socket, msg, sts);
