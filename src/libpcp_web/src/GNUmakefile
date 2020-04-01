@@ -22,7 +22,7 @@ CFILES = jsmn.c http_client.c http_parser.c sds.c siphash.c \
 HFILES = jsmn.h http_client.h http_parser.h sdsalloc.h zmalloc.h \
 	 query.h schema.h load.h crc16.h sha1.h util.h slots.h \
 	 redis.h net.h dict.h ini.h maps.h batons.h encoding.h \
-	 discover.h private.h libuv.h sslio.h
+	 discover.h private.h libuv.h
 YFILES = query_parser.y
 XFILES = jsmn.c jsmn.h http_parser.c http_parser.h crc16.c crc16.h \
 	 sha1.c sha1.h sds.c siphash.c dict.c dict.h ini.c ini.h
@@ -44,7 +44,7 @@ CFILES += nodiscover.c nowebgroup.c
 endif
 
 ifeq "$(HAVE_OPENSSL)" "true"
-CFILES += sslio.c
+CFILES += ssl.c
 LCFLAGS += $(LIBOPENSSLCFLAGS) -DHAVE_OPENSSL=1
 LLDLIBS += $(LIB_FOR_OPENSSL)
 endif

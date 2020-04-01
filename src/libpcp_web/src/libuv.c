@@ -108,8 +108,10 @@ redisLibuvCleanup(void *privdata)
 {
     redisLibuvEvents	*p = (redisLibuvEvents *)privdata;
 
-    p->context = NULL; /* indicates the context might no longer exist */
-    uv_close((uv_handle_t *)&p->handle, on_close);
+    if (p) {
+	p->context = NULL; /* indicates the context might no longer exist */
+	uv_close((uv_handle_t *)&p->handle, on_close);
+    }
 }
 
 static int

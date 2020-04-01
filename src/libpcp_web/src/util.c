@@ -77,13 +77,13 @@ zmalloc(size_t size)
 }
 
 void *
-zcalloc(size_t size)
+zcalloc(size_t elem, size_t size)
 {
     void	*p;
 
-    p = calloc(1, size);
+    p = calloc(elem, size);
     if (UNLIKELY(p == NULL))
-	oom_handler(size);
+	oom_handler(elem * size);
     return p;
 }
 

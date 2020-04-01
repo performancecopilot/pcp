@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Red Hat.
+ * Copyright (c) 2017-2020 Red Hat.
  * Copyright (c) 2009-2011, Salvatore Sanfilippo <antirez at gmail dot com>
  * Copyright (c) 2009-2014, Pieter Noordhuis <pcnoordhuis at gmail dot com>
  *
@@ -37,6 +37,11 @@
 #include <stdint.h>
 #include <sys/time.h>
 
+struct dict;
+struct ssl_st;
+struct redisContext;
+struct redisAsyncContext;
+
 #define REDIS_ERR -1
 #define REDIS_OK   0
 
@@ -50,6 +55,7 @@
 #define REDIS_ERR_EOF		3 /* End of file */
 #define REDIS_ERR_PROTOCOL	4 /* Protocol error */
 #define REDIS_ERR_OOM		5 /* Out of memory */
+#define REDIS_ERR_TIMEOUT	6 /* Timed out */
 #define REDIS_ERR_OTHER		2 /* Everything else... */
 
 /*
@@ -69,6 +75,14 @@ typedef enum redisReplyType {
     REDIS_REPLY_NIL		= 4,
     REDIS_REPLY_STATUS		= 5,
     REDIS_REPLY_ERROR		= 6,
+    REDIS_REPLY_DOUBLE		= 7,
+    REDIS_REPLY_BOOL		= 8,
+    REDIS_REPLY_VERB		= 9,
+    REDIS_REPLY_MAP		= 9,
+    REDIS_REPLY_SET		= 10,
+    REDIS_REPLY_ATTR		= 11,
+    REDIS_REPLY_PUSH		= 12,
+    REDIS_REPLY_BIGNUM		= 13,
     REDIS_REPLY_UNKNOWN		= -1
 } redisReplyType;
 
@@ -87,7 +101,9 @@ typedef struct redisReplyObjectFunctions {
     void *(*createString)(const redisReadTask*, char*, size_t);
     void *(*createArray)(const redisReadTask*, int);
     void *(*createInteger)(const redisReadTask*, long long);
+    void *(*createDouble)(const redisReadTask*, double, char*, size_t);
     void *(*createNil)(const redisReadTask*);
+    void *(*createBool)(const redisReadTask*, int);
     void (*freeObject)(void*);
 } redisReplyObjectFunctions;
 
@@ -164,6 +180,7 @@ int redisReaderGetReply(redisReader *r, void **reply);
 typedef struct redisReply {
     enum redisReplyType	type;       /* REDIS_REPLY_* type of this response */
     long long		integer;    /* value for type REDIS_REPLY_INTEGER */
+    double		dval;       /* value for type REDIS_REPLY_DOUBLE */
     size_t		len;        /* length of string */
     char		*str;       /* used for both REDIS_REPLY_{ERROR,STRING} */
     size_t		elements;   /* elements count for REDIS_REPLY_ARRAY */
@@ -178,10 +195,18 @@ extern const char *redis_reply_type(redisReply *);
 
 enum redisConnectionType {
     REDIS_CONN_TCP,
-    REDIS_CONN_UNIX
+    REDIS_CONN_UNIX,
+    REDIS_CONN_USERFD
 };
 
-struct redisSsl;
+#define REDIS_OPT_NONBLOCK	0x01
+#define REDIS_OPT_REUSEADDR	0x02
+
+/**
+ * Don't automatically free the async object on a connection failure,
+ * or other implicit conditions. Only free on an explicit call to disconnect() or free()
+ */
+#define REDIS_OPT_NOAUTOFREE	0x04
 
 /* In Unix systems a file descriptor is a regular signed int, with -1
  * representing an invalid descriptor. In Windows it is a SOCKET
@@ -199,8 +224,44 @@ typedef unsigned long redisFD;      /* SOCKET = 32-bit UINT_PTR */
 #define REDIS_INVALID_FD ((redisFD)(~0)) /* INVALID_SOCKET */
 #endif
 
+typedef struct redisOptions {
+    int			type;		/* the type of connection to use. */
+    int			options;	/* bit field of REDIS_OPT_xxx */
+    const struct timeval *timeout;	/* timeout value. NULL for no timeout */
+    union {
+        /** use this field for TCP/IP connections */
+        struct {
+            const char	*source_addr;
+            const char	*ip;
+            int		port;
+        } tcp;
+        /** use this field for Unix domain sockets */
+        const char	*unix_socket;
+        /** use this field for an already-open file descriptor */
+        redisFD		fd;
+    } endpoint;
+} redisOptions;
+
+#define REDIS_OPTIONS_SET_TCP(opts, ip_, port_) \
+    (opts)->type = REDIS_CONN_TCP; \
+    (opts)->endpoint.tcp.ip = ip_; \
+    (opts)->endpoint.tcp.port = port_;
+
+#define REDIS_OPTIONS_SET_UNIX(opts, path) \
+    (opts)->type = REDIS_CONN_UNIX;        \
+    (opts)->endpoint.unix_socket = path;
+
+typedef struct redisContextFuncs {
+    void (*free_privdata)(void *);
+    void (*async_read)(struct redisAsyncContext *);
+    void (*async_write)(struct redisAsyncContext *);
+    int (*read)(struct redisContext *, char *, size_t);
+    int (*write)(struct redisContext *);
+} redisContextFuncs;
+
 /* Context for a connection to Redis */
 typedef struct redisContext {
+    const redisContextFuncs *funcs;
     int			err;
     char		errstr[128]; /* string representation of error */
     int			fd;
@@ -222,14 +283,15 @@ typedef struct redisContext {
     } unix_sock;
 
     /* For non-blocking connect */
-    struct sockaddr *saddr;
-    size_t addrlen;
+    struct sockaddr	*saddr;
+    size_t		addrlen;
 
-    /* For SSL communication */
-    struct redisSsl *ssl;
+    /* Additional private data for extensions like SSL */
+    void		*privdata;
 } redisContext;
 
 /* figure out and reduce this this set of functions - async */
+extern redisContext *redisConnectWithOptions(const redisOptions *);
 extern redisContext *redisConnect(const char *, int);
 extern redisContext *redisConnectWithTimeout(const char *, int, const struct timeval);
 extern redisContext *redisConnectNonBlock(const char *, int);
@@ -239,6 +301,7 @@ extern redisContext *redisConnectBindNonBlockWithReuse(const char *, int, const 
 extern redisContext *redisConnectUnix(const char *);
 extern redisContext *redisConnectUnixWithTimeout(const char *, const struct timeval);
 extern redisContext *redisConnectUnixNonBlock(const char *);
+extern redisContext *redisConnectFd(redisFD);
 
 /*
  * Secure the connection using SSL.
@@ -246,6 +309,10 @@ extern redisContext *redisConnectUnixNonBlock(const char *);
  */
 extern int redisSecureConnection(redisContext *,
 		const char *, const char *, const char *, const char *);
+/**
+ * Initiate SSL/TLS negotiation on a provided context.
+ */
+extern int redisInitiateSSL(redisContext *, struct ssl_st *);
 
 /*
  * Reconnect the given context using the saved information.
@@ -275,9 +342,6 @@ extern void __redisSetError(redisContext *, int, const char *);
  */
 extern int redisGetReply(redisContext *, void **);
 extern int redisGetReplyFromReader(redisContext *, void **);
-
-struct redisAsyncContext;
-struct dict;
 
 typedef void (redisAsyncCallBack)(struct redisAsyncContext *,
 				  struct redisReply *, const sds, void *);
@@ -318,6 +382,7 @@ typedef struct redisAsyncContext {
         void (*addWrite)(void *);
         void (*delWrite)(void *);
         void (*cleanup)(void *);
+	void (*scheduleTimer)(void *, struct timeval);
     } ev;
 
     /* Called when either the connection is terminated due to an error or per
@@ -345,17 +410,39 @@ extern redisAsyncContext *redisAsyncConnectUnix(const char *);
 extern int redisAsyncSetConnectCallBack(redisAsyncContext *, redisConnectCallBack *);
 extern int redisAsyncSetDisconnectCallBack(redisAsyncContext *, redisDisconnectCallBack *);
 extern int redisAsyncEnableKeepAlive(redisAsyncContext *);
+extern void redisAsyncSetTimeout(redisAsyncContext *, struct timeval);
 extern void redisAsyncDisconnect(redisAsyncContext *);
 extern void redisAsyncFree(redisAsyncContext *);
 
 /* Handle read/write events */
 extern void redisAsyncHandleRead(redisAsyncContext *);
 extern void redisAsyncHandleWrite(redisAsyncContext *);
-
-/*
- * Command function for an async context.
- * Write the command to the output buffer and register the provided callback.
- */
 extern int redisAsyncFormattedCommand(redisAsyncContext *, redisAsyncCallBack *, const sds, void *);
+
+#define REDIS_EV_ADD_READ(ctx) do { \
+        refreshTimeout(ctx); if ((ctx)->ev.addRead) (ctx)->ev.addRead((ctx)->ev.data); \
+    } while(0)
+#define REDIS_EV_DEL_READ(ctx) do { \
+        if ((ctx)->ev.delRead) (ctx)->ev.delRead((ctx)->ev.data); \
+    } while(0)
+#define REDIS_EV_ADD_WRITE(ctx) do { \
+        refreshTimeout(ctx); if ((ctx)->ev.addWrite) (ctx)->ev.addWrite((ctx)->ev.data); \
+    } while(0)
+#define REDIS_EV_DEL_WRITE(ctx) do { \
+        if ((ctx)->ev.delWrite) (ctx)->ev.delWrite((ctx)->ev.data); \
+    } while(0)
+#define REDIS_EV_CLEANUP(ctx) do { \
+        if ((ctx)->ev.cleanup) { (ctx)->ev.cleanup((ctx)->ev.data); (ctx)->ev.data = NULL; } \
+    } while(0);
+
+static inline void refreshTimeout(redisAsyncContext *ctx) {
+    if (ctx->c.timeout && ctx->ev.scheduleTimer &&
+        (ctx->c.timeout->tv_sec || ctx->c.timeout->tv_usec)) {
+        ctx->ev.scheduleTimer(ctx->ev.data, *ctx->c.timeout);
+    }
+}
+
+extern void __redisAsyncDisconnect(redisAsyncContext *);
+extern void redisProcessCallBacks(redisAsyncContext *);
 
 #endif /* SERIES_REDIS_H */
