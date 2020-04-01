@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Red Hat.
+ * Copyright (c) 2017-2018,2020 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,7 +17,7 @@
 #include <sys/types.h>
 
 extern void *zmalloc(size_t);
-extern void *zcalloc(size_t);
+extern void *zcalloc(size_t, size_t);
 extern void zfree(void *);
 
 #endif /* ZMALLOC_H */

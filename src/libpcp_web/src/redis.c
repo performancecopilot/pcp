@@ -31,28 +31,14 @@
  */
 #include <assert.h>
 #include <ctype.h>
+#include <math.h>
+
+#include "zmalloc.h"
 #include "pmapi.h"
 #include "redis.h"
-#include "sslio.h"
 #include "dict.h"
 #include "net.h"
 #include "sds.h"
-
-#define REDIS_EV_ADD_READ(ctx) do { \
-        if ((ctx)->ev.addRead) (ctx)->ev.addRead((ctx)->ev.data); \
-    } while(0)
-#define REDIS_EV_DEL_READ(ctx) do { \
-        if ((ctx)->ev.delRead) (ctx)->ev.delRead((ctx)->ev.data); \
-    } while(0)
-#define REDIS_EV_ADD_WRITE(ctx) do { \
-        if ((ctx)->ev.addWrite) (ctx)->ev.addWrite((ctx)->ev.data); \
-    } while(0)
-#define REDIS_EV_DEL_WRITE(ctx) do { \
-        if ((ctx)->ev.delWrite) (ctx)->ev.delWrite((ctx)->ev.data); \
-    } while(0)
-#define REDIS_EV_CLEANUP(ctx) do { \
-        if ((ctx)->ev.cleanup) (ctx)->ev.cleanup((ctx)->ev.data); \
-    } while(0);
 
 const char *
 redis_reply_type(redisReply *reply)
@@ -192,36 +178,81 @@ seekNewline(char *s, size_t len)
 }
 
 /*
- * Read a long long value starting at *s, under the assumption that it will
- * be terminated by \r\n . Ambiguously returns -1 for unexpected input.
+ * Convert a string into a long long. Returns REDIS_OK if the string could be
+ * parsed into a (non-overflowing) long long, REDIS_ERR otherwise. The value
+ * will be set to the parsed value when appropriate.
+ *
+ * Note that this function demands that the string strictly represents
+ * a long long: no spaces or other characters before or after the string
+ * representing the number are accepted, nor zeroes at the start if not
+ * for the string "0" representing the zero number.
+ *
+ * Because of its strictness, it is safe to use this function to check if
+ * you can convert a string into a long long, and obtain back the string
+ * from the number without any loss in the string representation.
  */
-static long long
-readLongLong(char *s)
+static int
+string2ll(const char *s, size_t slen, long long *value)
 {
-    long long		v = 0;
-    int			dec, mult = 1;
-    char		c;
+    const char		*p = s;
+    size_t		plen = 0;
+    int			negative = 0;
+    unsigned long long	v;
 
-    if (*s == '-') {
-        mult = -1;
-        s++;
-    } else if (*s == '+') {
-        mult = 1;
-        s++;
+    if (plen == slen)
+        return REDIS_ERR;
+
+    /* Special case: first and only digit is 0. */
+    if (slen == 1 && p[0] == '0') {
+        if (value != NULL) *value = 0;
+        return REDIS_OK;
     }
 
-    while ((c = *(s++)) != '\r') {
-        dec = c - '0';
-        if (dec >= 0 && dec < 10) {
-            v *= 10;
-            v += dec;
-        } else {
-            /* Should not happen... */
-            return -1;
-        }
+    if (p[0] == '-') {
+        negative = 1;
+        p++; plen++;
+
+        /* Abort on only a negative sign. */
+        if (plen == slen)
+            return REDIS_ERR;
+    }
+    /* First digit should be 1-9, otherwise the string should just be 0. */
+    if (p[0] >= '1' && p[0] <= '9') {
+        v = p[0]-'0';
+        p++; plen++;
+    } else if (p[0] == '0' && slen == 1) {
+        *value = 0;
+        return REDIS_OK;
+    } else {
+        return REDIS_ERR;
     }
 
-    return mult*v;
+    while (plen < slen && p[0] >= '0' && p[0] <= '9') {
+        if (v > (ULLONG_MAX / 10)) /* Overflow. */
+            return REDIS_ERR;
+        v *= 10;
+
+        if (v > (ULLONG_MAX - (p[0]-'0'))) /* Overflow. */
+            return REDIS_ERR;
+        v += p[0]-'0';
+
+        p++; plen++;
+    }
+
+    /* Return if not all bytes were used. */
+    if (plen < slen)
+        return REDIS_ERR;
+
+    if (negative) {
+        if (v > ((unsigned long long)(-(LLONG_MIN+1))+1)) /* Overflow. */
+            return REDIS_ERR;
+        if (value != NULL) *value = -v;
+    } else {
+        if (v > LLONG_MAX) /* Overflow. */
+            return REDIS_ERR;
+        if (value != NULL) *value = v;
+    }
+    return REDIS_OK;
 }
 
 static char *
@@ -256,7 +287,9 @@ moveToNextTask(redisReader *r)
 
         cur = &(r->rstack[r->ridx]);
         prv = &(r->rstack[r->ridx-1]);
-        assert(prv->type == REDIS_REPLY_ARRAY);
+        assert(prv->type == REDIS_REPLY_ARRAY ||
+               prv->type == REDIS_REPLY_MAP ||
+               prv->type == REDIS_REPLY_SET);
         if (cur->idx == prv->elements-1) {
             r->ridx--;
         } else {
@@ -280,10 +313,59 @@ processLineItem(redisReader *r)
 
     if ((p = readLine(r, &len)) != NULL) {
         if (cur->type == REDIS_REPLY_INTEGER) {
-            if (r->fn && r->fn->createInteger)
-                obj = r->fn->createInteger(cur, readLongLong(p));
-            else
+            if (r->fn && r->fn->createInteger) {
+                long long v;
+                if (string2ll(p, len, &v) == REDIS_ERR) {
+                    __redisReaderSetError(r, REDIS_ERR_PROTOCOL,
+                            "Bad integer value");
+                    return REDIS_ERR;
+                }
+                obj = r->fn->createInteger(cur, v);
+	    } else {
                 obj = (void*)REDIS_REPLY_INTEGER;
+	    }
+        } else if (cur->type == REDIS_REPLY_DOUBLE) {
+            if (r->fn && r->fn->createDouble) {
+                char buf[326], *eptr;
+                double d;
+
+                if ((size_t)len >= sizeof(buf)) {
+                    __redisReaderSetError(r, REDIS_ERR_PROTOCOL,
+                            "Double value is too large");
+                    return REDIS_ERR;
+                }
+
+                memcpy(buf,p,len);
+                buf[len] = '\0';
+
+                if (strcasecmp(buf, ",inf") == 0) {
+                    d = INFINITY; /* Positive infinite. */
+                } else if (strcasecmp(buf, ",-inf") == 0) {
+                    d = -INFINITY; /* Negative infinite. */
+                } else {
+                    d = strtod((char*)buf, &eptr);
+                    if (buf[0] == '\0' || eptr[0] != '\0' || isnan(d)) {
+                        __redisReaderSetError(r, REDIS_ERR_PROTOCOL,
+                                "Bad double value");
+                        return REDIS_ERR;
+                    }
+                }
+                obj = r->fn->createDouble(cur, d, buf, len);
+            } else {
+                obj = (void*)REDIS_REPLY_DOUBLE;
+            }
+        } else if (cur->type == REDIS_REPLY_NIL) {
+            if (r->fn && r->fn->createNil)
+                obj = r->fn->createNil(cur);
+            else
+                obj = (void*)REDIS_REPLY_NIL;
+        } else if (cur->type == REDIS_REPLY_BOOL) {
+            int bval = p[0] == 't' || p[0] == 'T';
+
+            if (r->fn && r->fn->createBool)
+                obj = r->fn->createBool(cur, bval);
+            else
+                obj = (void*)REDIS_REPLY_BOOL;
         } else {
             /* Type will be error or status. */
             if (r->fn && r->fn->createString)
@@ -313,7 +395,7 @@ processBulkItem(redisReader *r)
     redisReadTask	*cur = &(r->rstack[r->ridx]);
     void		*obj = NULL;
     char		*p, *s;
-    long		len;
+    long long		len;
     unsigned long	bytelen;
     int			success = 0;
 
@@ -322,9 +404,20 @@ processBulkItem(redisReader *r)
     if (s != NULL) {
         p = r->buf + r->pos;
         bytelen = s - (r->buf + r->pos) + 2; /* include \r\n */
-        len = readLongLong(p);
 
-        if (len < 0) {
+        if (string2ll(p, bytelen - 2, &len) == REDIS_ERR) {
+            __redisReaderSetError(r, REDIS_ERR_PROTOCOL,
+                    "Bad bulk string length");
+            return REDIS_ERR;
+        }
+
+        if (len < -1 || (LLONG_MAX > SIZE_MAX && len > (long long)SIZE_MAX)) {
+            __redisReaderSetError(r, REDIS_ERR_PROTOCOL,
+                    "Bulk string length out of range");
+            return REDIS_ERR;
+        }
+
+        if (len == -1) {
             /* The nil object can always be created. */
             if (r->fn && r->fn->createNil)
                 obj = r->fn->createNil(cur);
@@ -363,14 +456,15 @@ processBulkItem(redisReader *r)
     return REDIS_ERR;
 }
 
+/* Process the array, map and set types. */
 static int
-processMultiBulkItem(redisReader *r)
+processAggregateItem(redisReader *r)
 {
     redisReadTask	*cur = &(r->rstack[r->ridx]);
     void		*obj;
     char		*p;
-    long		elements;
-    int			root = 0;
+    long long		elements;
+    int			root = 0, len;
 
     /* Set error for nested multi bulks with depth > 7 */
     if (r->ridx == 8) {
@@ -379,9 +473,20 @@ processMultiBulkItem(redisReader *r)
         return REDIS_ERR;
     }
 
-    if ((p = readLine(r, NULL)) != NULL) {
-        elements = readLongLong(p);
+    if ((p = readLine(r, &len)) != NULL) {
+        if (string2ll(p, len, &elements) == REDIS_ERR) {
+            __redisReaderSetError(r, REDIS_ERR_PROTOCOL,
+                    "Bad multi-bulk length");
+            return REDIS_ERR;
+        }
+
         root = (r->ridx == 0);
+
+        if (elements < -1 || (LLONG_MAX > SIZE_MAX && elements > SIZE_MAX)) {
+            __redisReaderSetError(r, REDIS_ERR_PROTOCOL,
+                    "Multi-bulk length out of range");
+            return REDIS_ERR;
+        }
 
         if (elements == -1) {
             if (r->fn && r->fn->createNil)
@@ -396,10 +501,12 @@ processMultiBulkItem(redisReader *r)
 
             moveToNextTask(r);
         } else {
+            if (cur->type == REDIS_REPLY_MAP) elements *= 2;
+
             if (r->fn && r->fn->createArray)
-                obj = r->fn->createArray(cur,elements);
+                obj = r->fn->createArray(cur, elements);
             else
-                obj = (void *)REDIS_REPLY_ARRAY;
+                obj = (void *)(long)cur->type;
 
             if (obj == NULL) {
                 __redisReaderSetErrorOOM(r);
@@ -450,11 +557,26 @@ processItem(redisReader *r)
             case ':':
                 cur->type = REDIS_REPLY_INTEGER;
                 break;
+            case ',':
+                cur->type = REDIS_REPLY_DOUBLE;
+                break;
+            case '_':
+                cur->type = REDIS_REPLY_NIL;
+                break;
             case '$':
                 cur->type = REDIS_REPLY_STRING;
                 break;
             case '*':
                 cur->type = REDIS_REPLY_ARRAY;
+                break;
+            case '%':
+                cur->type = REDIS_REPLY_MAP;
+                break;
+            case '~':
+                cur->type = REDIS_REPLY_SET;
+                break;
+            case '#':
+                cur->type = REDIS_REPLY_BOOL;
                 break;
             default:
                 __redisReaderSetErrorProtocolByte(r, *p);
@@ -471,11 +593,16 @@ processItem(redisReader *r)
     case REDIS_REPLY_ERROR:
     case REDIS_REPLY_STATUS:
     case REDIS_REPLY_INTEGER:
+    case REDIS_REPLY_DOUBLE:
+    case REDIS_REPLY_NIL:
+    case REDIS_REPLY_BOOL:
         return processLineItem(r);
     case REDIS_REPLY_STRING:
         return processBulkItem(r);
     case REDIS_REPLY_ARRAY:
-        return processMultiBulkItem(r);
+    case REDIS_REPLY_MAP:
+    case REDIS_REPLY_SET:
+        return processAggregateItem(r);
     default:
         assert(NULL);
         return REDIS_ERR; /* Avoid warning. */
@@ -492,11 +619,12 @@ redisReaderCreateWithFunctions(redisReplyObjectFunctions *fn)
 
     r->fn = fn;
     r->buf = sdsempty();
+    r->maxbuf = REDIS_READER_MAX_BUF;
     if (r->buf == NULL) {
         free(r);
         return NULL;
     }
-    r->maxbuf = REDIS_READER_MAX_BUF;
+
     r->ridx = -1;
     return r;
 }
@@ -504,10 +632,13 @@ redisReaderCreateWithFunctions(redisReplyObjectFunctions *fn)
 void
 redisReaderFree(redisReader *r)
 {
+    if (r == NULL)
+        return;
     if (r->reply != NULL && r->fn && r->fn->freeObject)
         r->fn->freeObject(r->reply);
     if (r->buf != NULL)
         sdsfree(r->buf);
+    r->buf = NULL;
     free(r);
 }
 
@@ -582,15 +713,18 @@ redisReaderGetReply(redisReader *r, void **reply)
     /* Discard part of the buffer when we've consumed at least 1k, to avoid
      * doing unnecessary calls to memmove() in sds.c. */
     if (r->pos >= 1024) {
-        sdsrange(r->buf,r->pos,-1);
+        sdsrange(r->buf, r->pos, -1);
         r->pos = 0;
         r->len = sdslen(r->buf);
     }
 
     /* Emit a reply when there is one. */
     if (r->ridx == -1) {
-        if (reply != NULL)
+        if (reply != NULL) {
             *reply = r->reply;
+        } else if (r->reply != NULL && r->fn && r->fn->freeObject) {
+            r->fn->freeObject(r->reply);
+        }
         r->reply = NULL;
     }
     return REDIS_OK;
@@ -600,7 +734,9 @@ static redisReply *createReplyObject(enum redisReplyType);
 static void *createStringObject(const redisReadTask *, char *, size_t);
 static void *createArrayObject(const redisReadTask *, int);
 static void *createIntegerObject(const redisReadTask *, long long);
+static void *createDoubleObject(const redisReadTask *, double, char *, size_t);
 static void *createNilObject(const redisReadTask *);
+static void *createBoolObject(const redisReadTask *, int);
 
 /* Default set of functions to build the reply. Keep in mind that such a
  * function returning NULL is interpreted as OOM. */
@@ -608,9 +744,12 @@ static redisReplyObjectFunctions defaultFunctions = {
     createStringObject,
     createArrayObject,
     createIntegerObject,
+    createDoubleObject,
     createNilObject,
+    createBoolObject,
     freeReplyObject
 };
+static redisContextFuncs redisContextDefaultFuncs;
 
 static redisReply *
 createReplyObject(enum redisReplyType type)
@@ -622,6 +761,7 @@ createReplyObject(enum redisReplyType type)
     return reply;
 }
 
+/* Free a reply object */
 void
 freeReplyObject(void *r)
 {
@@ -633,6 +773,8 @@ freeReplyObject(void *r)
 
     switch (reply->type) {
     case REDIS_REPLY_ARRAY:
+    case REDIS_REPLY_MAP:
+    case REDIS_REPLY_SET:
         if (reply->element != NULL) {
             for (j = 0; j < reply->elements; j++)
                 if (reply->element[j] != NULL)
@@ -644,15 +786,15 @@ freeReplyObject(void *r)
     case REDIS_REPLY_ERROR:
     case REDIS_REPLY_STATUS:
     case REDIS_REPLY_STRING:
+    case REDIS_REPLY_DOUBLE:
         if (reply->str != NULL)
             free(reply->str);
         break;
 
     case REDIS_REPLY_INTEGER:
     default:
-        break;
+        break; /* Nothing to free */
     }
-
     free(reply);
 }
 
@@ -682,7 +824,9 @@ createStringObject(const redisReadTask *task, char *str, size_t len)
 
     if (task->parent) {
         parent = task->parent->obj;
-        assert(parent->type == REDIS_REPLY_ARRAY);
+        assert(parent->type == REDIS_REPLY_ARRAY ||
+               parent->type == REDIS_REPLY_MAP ||
+               parent->type == REDIS_REPLY_SET);
         parent->element[task->idx] = reply;
     }
     return reply;
@@ -693,7 +837,7 @@ createArrayObject(const redisReadTask *task, int elements)
 {
     redisReply		*reply, *parent;
 
-    if ((reply = createReplyObject(REDIS_REPLY_ARRAY)) == NULL)
+    if ((reply = createReplyObject(task->type)) == NULL)
         return NULL;
 
     if (elements > 0) {
@@ -708,7 +852,9 @@ createArrayObject(const redisReadTask *task, int elements)
 
     if (task->parent) {
         parent = task->parent->obj;
-        assert(parent->type == REDIS_REPLY_ARRAY);
+        assert(parent->type == REDIS_REPLY_ARRAY ||
+               parent->type == REDIS_REPLY_MAP ||
+               parent->type == REDIS_REPLY_SET);
         parent->element[task->idx] = reply;
     }
     return reply;
@@ -726,10 +872,46 @@ createIntegerObject(const redisReadTask *task, long long value)
 
     if (task->parent) {
         parent = task->parent->obj;
-        assert(parent->type == REDIS_REPLY_ARRAY);
+        assert(parent->type == REDIS_REPLY_ARRAY ||
+               parent->type == REDIS_REPLY_MAP ||
+               parent->type == REDIS_REPLY_SET);
         parent->element[task->idx] = reply;
     }
     return reply;
+}
+
+static void *
+createDoubleObject(const redisReadTask *task, double value, char *str, size_t len)
+{
+    redisReply		*reply, *parent;
+
+    if ((reply = createReplyObject(REDIS_REPLY_DOUBLE)) == NULL)
+        return NULL;
+
+    reply->dval = value;
+    if ((reply->str = malloc(len + 1)) == NULL) {
+        freeReplyObject(reply);
+        return NULL;
+    }
+
+    /* The double reply also has the original protocol string representing a
+     * double as a null terminated string. This way the caller does not need
+     * to format back for string conversion, especially since Redis does efforts
+     * to make the string more human readable avoiding the calssical double
+     * decimal string conversion artifacts.
+     */
+    memcpy(reply->str, str, len);
+    reply->str[len] = '\0';
+
+    if (task->parent) {
+        parent = task->parent->obj;
+        assert(parent->type == REDIS_REPLY_ARRAY ||
+               parent->type == REDIS_REPLY_MAP ||
+               parent->type == REDIS_REPLY_SET);
+        parent->element[task->idx] = reply;
+    }
+    return reply;
+
 }
 
 static void *
@@ -742,7 +924,29 @@ createNilObject(const redisReadTask *task)
 
     if (task->parent) {
         parent = task->parent->obj;
-        assert(parent->type == REDIS_REPLY_ARRAY);
+        assert(parent->type == REDIS_REPLY_ARRAY ||
+               parent->type == REDIS_REPLY_MAP ||
+               parent->type == REDIS_REPLY_SET);
+        parent->element[task->idx] = reply;
+    }
+    return reply;
+}
+
+static void *
+createBoolObject(const redisReadTask *task, int bval)
+{
+    redisReply		*reply, *parent;
+
+    if ((reply = createReplyObject(REDIS_REPLY_BOOL)) == NULL)
+        return NULL;
+
+    reply->integer = bval != 0;
+
+    if (task->parent) {
+        parent = task->parent->obj;
+        assert(parent->type == REDIS_REPLY_ARRAY ||
+               parent->type == REDIS_REPLY_MAP ||
+               parent->type == REDIS_REPLY_SET);
         parent->element[task->idx] = reply;
     }
     return reply;
@@ -773,19 +977,23 @@ redisReaderCreate(void)
 }
 
 static redisContext *
-redisContextInit(void)
+redisContextInit(const redisOptions *options)
 {
     redisContext		*c;
 
     if ((c = calloc(1, sizeof(redisContext))) == NULL)
         return NULL;
 
+    c->funcs = &redisContextDefaultFuncs;
     c->obuf = sdsempty();
     c->reader = redisReaderCreate();
+    c->fd = REDIS_INVALID_FD;
+
     if (c->obuf == NULL || c->reader == NULL) {
         redisFree(c);
         return NULL;
     }
+    (void)options; /* options are used in other functions */
     return c;
 }
 
@@ -809,10 +1017,19 @@ redisFree(redisContext *c)
         free(c->timeout);
     if (c->saddr)
         free(c->saddr);
-    if (c->ssl)
-        redisFreeSsl(c->ssl);
+    if (c->funcs->free_privdata)
+        c->funcs->free_privdata(c->privdata);
     memset(c, 0, sizeof(*c));
     free(c);
+}
+
+redisFD redisFreeKeepFd(redisContext *c)
+{
+    redisFD		fd = c->fd;
+
+    c->fd = REDIS_INVALID_FD;
+    redisFree(c);
+    return fd;
 }
 
 int
@@ -821,8 +1038,12 @@ redisReconnect(redisContext *c)
     c->err = 0;
     memset(c->errstr, '\0', strlen(c->errstr));
 
-    if (c->fd > 0)
-        close(c->fd);
+    if (c->privdata && c->funcs->free_privdata) {
+        c->funcs->free_privdata(c->privdata);
+        c->privdata = NULL;
+    }
+
+    redisNetClose(c);
 
     sdsfree(c->obuf);
     redisReaderFree(c->reader);
@@ -837,8 +1058,41 @@ redisReconnect(redisContext *c)
         return redisContextConnectUnix(c, c->unix_sock.path, c->timeout);
     /* Something bad happened here and shouldn't have. */
     /* There isn't enough information in the context to reconnect. */
-    __redisSetError(c,REDIS_ERR_OTHER,"Not enough information to reconnect");
+    __redisSetError(c, REDIS_ERR_OTHER, "Not enough information to reconnect");
     return REDIS_ERR;
+}
+
+redisContext *
+redisConnectWithOptions(const redisOptions *options)
+{
+    redisContext	*c = redisContextInit(options);
+
+    if (c == NULL)
+        return NULL;
+    if (!(options->options & REDIS_OPT_NONBLOCK))
+        c->flags |= REDIS_BLOCK;
+    if (options->options & REDIS_OPT_REUSEADDR)
+        c->flags |= REDIS_REUSEADDR;
+    if (options->options & REDIS_OPT_NOAUTOFREE)
+        c->flags |= REDIS_NO_AUTO_FREE;
+
+    if (options->type == REDIS_CONN_TCP)
+        redisContextConnectBindTcp(c, options->endpoint.tcp.ip,
+                                   options->endpoint.tcp.port, options->timeout,
+                                   options->endpoint.tcp.source_addr);
+    else if (options->type == REDIS_CONN_UNIX)
+        redisContextConnectUnix(c, options->endpoint.unix_socket,
+                                options->timeout);
+    else if (options->type == REDIS_CONN_USERFD) {
+        c->fd = options->endpoint.fd;
+        c->flags |= REDIS_CONNECTED;
+    }
+    else
+        return NULL;
+
+    if (options->timeout != NULL && (c->flags & REDIS_BLOCK) && c->fd != REDIS_INVALID_FD)
+        redisContextSetTimeout(c, *options->timeout);
+    return c;
 }
 
 /*
@@ -849,108 +1103,92 @@ redisReconnect(redisContext *c)
 redisContext *
 redisConnect(const char *ip, int port)
 {
-    redisContext	*c;
+    redisOptions	options = {0};
 
-    if ((c = redisContextInit()) == NULL)
-        return NULL;
-    c->flags |= REDIS_BLOCK;
-    redisContextConnectTcp(c, ip, port, NULL);
-    return c;
+    REDIS_OPTIONS_SET_TCP(&options, ip, port);
+    return redisConnectWithOptions(&options);
 }
 
 redisContext *
 redisConnectWithTimeout(const char *ip, int port, const struct timeval tv)
 {
-    redisContext	*c;
+    redisOptions	options = {0};
 
-    if ((c = redisContextInit()) == NULL)
-        return NULL;
-    c->flags |= REDIS_BLOCK;
-    redisContextConnectTcp(c, ip, port, &tv);
-    return c;
+    REDIS_OPTIONS_SET_TCP(&options, ip, port);
+    options.timeout = &tv;
+    return redisConnectWithOptions(&options);
 }
 
 redisContext *
 redisConnectNonBlock(const char *ip, int port)
 {
-    redisContext	*c;
+    redisOptions	options = {0};
 
-    if ((c = redisContextInit()) == NULL)
-        return NULL;
-    c->flags &= ~REDIS_BLOCK;
-    redisContextConnectTcp(c, ip, port, NULL);
-    return c;
+    REDIS_OPTIONS_SET_TCP(&options, ip, port);
+    options.options |= REDIS_OPT_NONBLOCK;
+    return redisConnectWithOptions(&options);
 }
 
 redisContext *
 redisConnectBindNonBlock(const char *ip, int port, const char *source_addr)
 {
-    redisContext	*c;
+    redisOptions	options = {0};
 
-    if ((c = redisContextInit()) == NULL)
-        return NULL;
-    c->flags &= ~REDIS_BLOCK;
-    redisContextConnectBindTcp(c, ip, port, NULL, source_addr);
-    return c;
+    REDIS_OPTIONS_SET_TCP(&options, ip, port);
+    options.endpoint.tcp.source_addr = source_addr;
+    options.options |= REDIS_OPT_NONBLOCK;
+    return redisConnectWithOptions(&options);
 }
 
 redisContext *
 redisConnectBindNonBlockWithReuse(const char *ip, int port, const char *source_addr)
 {
-    redisContext	*c;
+    redisOptions	options = {0};
 
-    if ((c = redisContextInit()) == NULL)
-        return NULL;
-    c->flags &= ~REDIS_BLOCK;
-    c->flags |= REDIS_REUSEADDR;
-    redisContextConnectBindTcp(c, ip, port, NULL, source_addr);
-    return c;
+    REDIS_OPTIONS_SET_TCP(&options, ip, port);
+    options.endpoint.tcp.source_addr = source_addr;
+    options.options |= REDIS_OPT_NONBLOCK|REDIS_OPT_REUSEADDR;
+    return redisConnectWithOptions(&options);
 }
 
 redisContext *
 redisConnectUnix(const char *path)
 {
-    redisContext	*c;
+    redisOptions	options = {0};
 
-    if ((c = redisContextInit()) == NULL)
-        return NULL;
-    c->flags |= REDIS_BLOCK;
-    redisContextConnectUnix(c, path, NULL);
-    return c;
+    REDIS_OPTIONS_SET_UNIX(&options, path);
+    return redisConnectWithOptions(&options);
 }
 
 redisContext *
 redisConnectUnixWithTimeout(const char *path, const struct timeval tv)
 {
-    redisContext	*c;
+    redisOptions	options = {0};
 
-    if ((c = redisContextInit()) == NULL)
-        return NULL;
-    c->flags |= REDIS_BLOCK;
-    redisContextConnectUnix(c, path, &tv);
-    return c;
+    REDIS_OPTIONS_SET_UNIX(&options, path);
+    options.timeout = &tv;
+    return redisConnectWithOptions(&options);
 }
 
 redisContext *
 redisConnectUnixNonBlock(const char *path)
 {
-    redisContext	*c;
+    redisOptions	options = {0};
 
-    if ((c = redisContextInit()) == NULL)
-        return NULL;
-    c->flags &= ~REDIS_BLOCK;
-    redisContextConnectUnix(c, path, NULL);
-    return c;
+    REDIS_OPTIONS_SET_UNIX(&options, path);
+    options.options |= REDIS_OPT_NONBLOCK;
+    return redisConnectWithOptions(&options);
 }
 
-int
-redisSecureConnection(redisContext *c, const char *caPath,
-	const char *certPath, const char *keyPath, const char *servername)
+redisContext *
+redisConnectFd(redisFD fd)
 {
-    return redisSslCreate(c, caPath, certPath, keyPath, servername);
-}
+    redisOptions	options = {0};
 
-/* Set read/write timeout on a blocking socket. */
+    options.type = REDIS_CONN_USERFD;
+    options.endpoint.fd = fd;
+    return redisConnectWithOptions(&options);
+}
 
 /* Set read/write timeout on a blocking socket. */
 int
@@ -987,8 +1225,7 @@ redisBufferRead(redisContext *c)
     if (c->err)
         return REDIS_ERR;
 
-    nread = c->flags & REDIS_SSL ?
-        redisSslRead(c, buf, sizeof(buf)) : redisNetRead(c, buf, sizeof(buf));
+    nread = c->funcs->read(c, buf, sizeof(buf));
     if (nread > 0) {
         if (redisReaderFeed(c->reader, buf, nread) != REDIS_OK) {
             __redisSetError(c, c->reader->err, c->reader->errstr);
@@ -1013,14 +1250,12 @@ redisBufferRead(redisContext *c)
 int
 redisBufferWrite(redisContext *c, int *done)
 {
-    int			nwritten;
-
     /* Return early when the context has seen an error. */
     if (c->err)
         return REDIS_ERR;
 
     if (sdslen(c->obuf) > 0) {
-        nwritten = (c->flags & REDIS_SSL) ? redisSslWrite(c) : redisNetWrite(c);
+        int nwritten = c->funcs->write(c);
         if (nwritten < 0) {
             return REDIS_ERR;
         } else if (nwritten > 0) {
@@ -1078,9 +1313,12 @@ redisGetReply(redisContext *c, void **reply)
         } while (aux == NULL);
     }
 
-    /* Set reply object */
-    if (reply != NULL)
+    /* Set reply or free it if we were passed NULL */
+    if (reply != NULL) {
         *reply = aux;
+    } else {
+        freeReplyObject(aux);
+    }
     return REDIS_OK;
 }
 
@@ -1110,7 +1348,7 @@ callbackHash(const void *key)
 static void *
 callbackValDup(void *privdata, const void *src)
 {
-    redisCallBack	*dup = malloc(sizeof(*dup));
+    redisCallBack	*dup = zmalloc(sizeof(*dup));
 
     (void)privdata;
     memcpy(dup, src, sizeof(*dup));
@@ -1199,12 +1437,14 @@ __redisAsyncCopyError(redisAsyncContext *ac)
 }
 
 redisAsyncContext *
-redisAsyncConnect(const char *ip, int port)
+redisAsyncConnectWithOptions(const redisOptions *options)
 {
+    redisOptions	myOptions = *options;
     redisContext	*c;
     redisAsyncContext	*ac;
 
-    c = redisConnectNonBlock(ip, port);
+    myOptions.options |= REDIS_OPT_NONBLOCK;
+    c = redisConnectWithOptions(&myOptions);
     if (c == NULL)
         return NULL;
 
@@ -1219,41 +1459,42 @@ redisAsyncConnect(const char *ip, int port)
 }
 
 redisAsyncContext *
+redisAsyncConnect(const char *ip, int port)
+{
+    redisOptions	options = {0};
+
+    REDIS_OPTIONS_SET_TCP(&options, ip, port);
+    return redisAsyncConnectWithOptions(&options);
+}
+
+redisAsyncContext *
 redisAsyncConnectBind(const char *ip, int port, const char *source_addr)
 {
-    redisContext	*c = redisConnectBindNonBlock(ip, port, source_addr);
-    redisAsyncContext	*ac = redisAsyncInitialize(c);
+    redisOptions	options = {0};
 
-    __redisAsyncCopyError(ac);
-    return ac;
+    REDIS_OPTIONS_SET_TCP(&options, ip, port);
+    options.endpoint.tcp.source_addr = source_addr;
+    return redisAsyncConnectWithOptions(&options);
 }
 
 redisAsyncContext *
 redisAsyncConnectBindWithReuse(const char *ip, int port, const char *source_addr)
 {
-    redisContext	*c = redisConnectBindNonBlockWithReuse(ip, port, source_addr);
-    redisAsyncContext	*ac = redisAsyncInitialize(c);
+    redisOptions	options = {0};
 
-    __redisAsyncCopyError(ac);
-    return ac;
+    REDIS_OPTIONS_SET_TCP(&options, ip, port);
+    options.options |= REDIS_OPT_REUSEADDR;
+    options.endpoint.tcp.source_addr = source_addr;
+    return redisAsyncConnectWithOptions(&options);
 }
 
 redisAsyncContext *
 redisAsyncConnectUnix(const char *path)
 {
-    redisContext	*c;
-    redisAsyncContext	*ac;
+    redisOptions	options = {0};
 
-    if ((c = redisConnectUnixNonBlock(path)) == NULL)
-        return NULL;
-
-    if ((ac = redisAsyncInitialize(c)) == NULL) {
-        redisFree(c);
-        return NULL;
-    }
-
-    __redisAsyncCopyError(ac);
-    return ac;
+    REDIS_OPTIONS_SET_UNIX(&options, path);
+    return redisAsyncConnectWithOptions(&options);
 }
 
 int
@@ -1382,11 +1623,6 @@ __redisAsyncFree(redisAsyncContext *ac)
         }
     }
 
-#if 0	/* TODO: see async on_close in libuv.c */
-    /* Free event lib data */
-    if (ac->ev.data)
-        free(ac->ev.data);
-#endif
     /* Cleanup self */
     redisFree(c);
 }
@@ -1408,7 +1644,7 @@ redisAsyncFree(redisAsyncContext *ac)
 }
 
 /* Helper function to make the disconnect happen and clean up. */
-static void
+void
 __redisAsyncDisconnect(redisAsyncContext *ac)
 {
     redisContext	*c = &(ac->c);
@@ -1426,6 +1662,10 @@ __redisAsyncDisconnect(redisAsyncContext *ac)
          * callbacks cannot call new commands. */
         c->flags |= REDIS_DISCONNECTING;
     }
+
+    /* cleanup event library on disconnect.
+     * this is safe to call multiple times */
+    REDIS_EV_CLEANUP(ac);
 
     /* For non-clean disconnects, __redisAsyncFree() will execute pending
      * callbacks with a NULL-reply. */
@@ -1634,77 +1874,18 @@ __redisAsyncHandleConnect(redisAsyncContext *ac)
     }
 }
 
-/**
- * Handle SSL when socket becomes available for reading. This also handles
- * read-while-write and write-while-read.
- *
- * These functions will not work properly unless `HIREDIS_SSL` is defined
- * (however, they will compile)
- */
-static void
-asyncSslRead(redisAsyncContext *ac)
+void
+redisAsyncRead(redisAsyncContext *ac)
 {
-    int			sts, done;
-    redisSsl		*ssl = ac->c.ssl;
-    redisContext	*c = &ac->c;
+    redisContext	*c = &(ac->c);
 
-    ssl->wantRead = 0;
-
-    if (ssl->pendingWrite) {
-        /* This is probably just a write event */
-        ssl->pendingWrite = 0;
-        done = 0;
-        sts = redisBufferWrite(c, &done);
-        if (sts == REDIS_ERR) {
-            __redisAsyncDisconnect(ac);
-            return;
-        } else if (!done) {
-            REDIS_EV_ADD_WRITE(ac);
-        }
-    }
-
-    sts = redisBufferRead(c);
-    if (sts == REDIS_ERR) {
+    if (redisBufferRead(c) == REDIS_ERR) {
         __redisAsyncDisconnect(ac);
     } else {
+        /* Always re-schedule reads */
         REDIS_EV_ADD_READ(ac);
         redisProcessCallBacks(ac);
     }
-}
-
-/**
- * Handle SSL when socket becomes available for writing
- */
-static void
-asyncSslWrite(redisAsyncContext *ac)
-{
-    int			sts, done = 0;
-    redisSsl		*ssl = ac->c.ssl;
-    redisContext	*c = &ac->c;
-
-    ssl->pendingWrite = 0;
-    sts = redisBufferWrite(c, &done);
-    if (sts == REDIS_ERR) {
-        __redisAsyncDisconnect(ac);
-        return;
-    }
-
-    if (!done) {
-        if (ssl->wantRead) {
-            /* Need to read-before-write */
-            ssl->pendingWrite = 1;
-            REDIS_EV_DEL_WRITE(ac);
-        } else {
-            /* No extra reads needed, just need to write more */
-            REDIS_EV_ADD_WRITE(ac);
-        }
-    } else {
-        /* Already done! */
-        REDIS_EV_DEL_WRITE(ac);
-    }
-
-    /* Always reschedule a read */
-    REDIS_EV_ADD_READ(ac);
 }
 
 /*
@@ -1725,39 +1906,14 @@ redisAsyncHandleRead(redisAsyncContext *ac)
             return;
     }
 
-    if (c->flags & REDIS_SSL) {
-        asyncSslRead(ac);
-        return;
-    }
-
-    if (redisBufferRead(c) == REDIS_ERR) {
-        __redisAsyncDisconnect(ac);
-    } else {
-        /* Always re-schedule reads */
-        REDIS_EV_ADD_READ(ac);
-        redisProcessCallBacks(ac);
-    }
+    c->funcs->async_read(ac);
 }
 
 void
-redisAsyncHandleWrite(redisAsyncContext *ac)
+redisAsyncWrite(redisAsyncContext *ac)
 {
     redisContext	*c = &(ac->c);
     int			done = 0;
-
-    if (!(c->flags & REDIS_CONNECTED)) {
-        /* Abort connect was not successful. */
-        if (__redisAsyncHandleConnect(ac) != REDIS_OK)
-            return;
-        /* Try again later when the context is still not connected. */
-        if (!(c->flags & REDIS_CONNECTED))
-            return;
-    }
-
-    if (c->flags & REDIS_SSL) {
-        asyncSslWrite(ac);
-        return;
-    }
 
     if (redisBufferWrite(c, &done) == REDIS_ERR) {
         __redisAsyncDisconnect(ac);
@@ -1771,6 +1927,53 @@ redisAsyncHandleWrite(redisAsyncContext *ac)
         /* Always schedule reads after writes */
         REDIS_EV_ADD_READ(ac);
     }
+}
+
+void
+redisAsyncHandleWrite(redisAsyncContext *ac)
+{
+    redisContext	*c = &(ac->c);
+
+    if (!(c->flags & REDIS_CONNECTED)) {
+        /* Abort connect was not successful. */
+        if (__redisAsyncHandleConnect(ac) != REDIS_OK)
+            return;
+        /* Try again later when the context is still not connected. */
+        if (!(c->flags & REDIS_CONNECTED))
+            return;
+    }
+
+    c->funcs->async_write(ac);
+}
+
+void
+redisAsyncHandleTimeout(redisAsyncContext *ac)
+{
+    redisContext	*c = &(ac->c);
+    redisCallBack	cb;
+
+    if ((c->flags & REDIS_CONNECTED) && ac->replies.head == NULL) {
+        /* Nothing to do - just an idle timeout */
+        return;
+    }
+
+    if (!c->err) {
+        __redisSetError(c, REDIS_ERR_TIMEOUT, "Timeout");
+    }
+
+    if (!(c->flags & REDIS_CONNECTED) && ac->onConnect) {
+        ac->onConnect(ac, REDIS_ERR);
+    }
+
+    while (__redisShiftCallBack(&ac->replies, &cb) == REDIS_OK) {
+        __redisRunCallBack(ac, &cb, NULL);
+    }
+
+    /**
+     * TODO: Don't automatically sever the connection,
+     * rather, allow to ignore <x> responses before the queue is clear
+     */
+    __redisAsyncDisconnect(ac);
 }
 
 /*
@@ -1897,3 +2100,38 @@ redisAsyncFormattedCommand(redisAsyncContext *ac, redisAsyncCallBack *func,
 {
     return __redisAsyncCommand(ac, func, command, privdata);
 }
+
+void
+redisAsyncSetTimeout(redisAsyncContext *ac, struct timeval tv)
+{
+    if (!ac->c.timeout)
+        ac->c.timeout = zcalloc(1, sizeof(tv));
+
+    if (tv.tv_sec == ac->c.timeout->tv_sec &&
+        tv.tv_usec == ac->c.timeout->tv_usec)
+        return;
+
+    *ac->c.timeout = tv;
+}
+
+static redisContextFuncs redisContextDefaultFuncs = {
+    .free_privdata = NULL,
+    .async_read = redisAsyncRead,
+    .async_write = redisAsyncWrite,
+    .read = redisNetRead,
+    .write = redisNetWrite
+};
+
+#if !defined(HAVE_OPENSSL)
+int redisSecureConnection(redisContext *c, const char *a, const char *b,
+                          const char *d, const char *e)
+{
+    (void)a; (void)b; (void)c; (void)d; (void)e;
+    return REDIS_ERR;
+}
+int redisInitiateSSL(redisContext *c, struct ssl_st *s)
+{
+    (void)c; (void)s;
+    return REDIS_ERR;
+}
+#endif
