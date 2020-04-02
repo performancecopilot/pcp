@@ -6,3 +6,7 @@ test_service_notify: foreground=1 host=local:
 Log for test_service_notify on HOST started DATE
 
 [DATE] test_service_notify(PID) Warning: __pmServerNotify... EXPECTED
+caught signal 15
+[DATE] test_service_notify(PID) Warning: __pmServerNotify... EXPECTED
+
+Log finished DATE
