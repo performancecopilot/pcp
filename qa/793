@@ -85,6 +85,43 @@ _setup()
     export qatmp
 }
 
+_check_loggers()
+{
+    # Need to make sure all the pmloggers have really started ...
+    # wait (up to 30 secs) for each
+    #
+    for x in A B C
+    do
+	z=0
+	rm -f $tmp.found
+	while [ "$z" -lt 30 ]
+	do
+	    pid=`grep -l $qatmp/$x $PCP_TMP_DIR/pmlogger/[0-9]* | sed -e 's/.*pmlogger.//'`
+	    if [ -n "$pid" ]
+	    then
+		echo "Found pid $pid for $qatmp/$x after $z iterations" >>$here/$seq.full
+		echo "status" | pmlc $pid >>$here/$seq.full
+		touch $tmp.found
+		break
+	    fi
+	    z=`expr $z + 1`
+	    sleep 1
+	done
+	if [ ! -f $tmp.found ]
+	then
+	    echo "Arrgh ... pmlogger_* failed to keep pmlogger running for $qatmp/$x" | tee -a $here/$seq.full
+	    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mlogger' >>$here/$seq.full
+	    for state in $PCP_TMP_DIR/pmlogger/[0-9]*
+	    do
+		echo "=== $state ==="
+		cat $state
+	    done
+	    echo "See $seq.full for details"
+	    exit
+	fi
+    done
+}
+
 cat >$tmp.config <<End-of-File
 log mandatory on 1 sec {
     hinv.ndisk
@@ -112,6 +149,7 @@ End-of-File
 echo "pmlogger_check #1" | tee -a $here/$seq.full
 $sudo $PCP_BINADM_DIR/pmlogger_check -V -c $tmp/control -l $tmp/log
 [ -s $tmp/log ] && $sudo cat $tmp/log | tee -a $here/$seq.full | _filter
+_check_loggers
 for x in A B C
 do
     ls -l $tmp/$x >>$here/$seq.full
@@ -124,6 +162,7 @@ _stop_loggers >/dev/null 2>&1
 echo "pmlogger_check #2" | tee -a $here/$seq.full
 $sudo $PCP_BINADM_DIR/pmlogger_check -V -c $tmp/control -l $tmp/log
 [ -s $tmp/log ] && $sudo cat $tmp/log | tee -a $here/$seq.full | _filter
+_check_loggers
 for x in A B C
 do
     ls -l $tmp/$x >>$here/$seq.full
@@ -137,6 +176,7 @@ echo
 echo "pmlogger_daily"
 $sudo $PCP_BINADM_DIR/pmlogger_daily -V -x never -c $tmp/control -l $tmp/log
 [ -s $tmp/log ] && $sudo cat $tmp/log | tee -a $here/$seq.full | _filter
+_check_loggers
 for x in A B C
 do
     ls -l $tmp/$x >>$here/$seq.full
