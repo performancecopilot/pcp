@@ -31,7 +31,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 # fix 'em up, e.g.
 # 938       1 avahi    avahi    2020/03/06 14:48:02   -    0% avahi-daemon   
 # becomes
-# 938       1 user-1   group-3  2020/03/06 14:48:02   -    0% avahi-daemon   
+# 938       1 user-1   group-N  2020/03/06 14:48:02   -    0% avahi-daemon   
 # for all the non-root cases
 # output format is driven by header line
 #     PID    PPID RUID     RGID       STDATE    STTIME  EXC S  CPU CMD            
@@ -39,13 +39,15 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 #       1       0 root     root     2020/03/06 14:47:50   -    0% systemd        $
 #
 # Notes:
+# - group assignments are not always the same, so use group-N (literally)
+#   instead of group-1, group-2, ...
 # - S field appears to be always empty, so no matching $N field
 # - CMD may contain multiple words separated y a single space
 #
 _filter_uid_gid()
 {
     $PCP_AWK_PROG '
-BEGIN		{ user = 0; group = 0 }
+BEGIN		{ user = 0 }
 state == 0	{ print
 		  if ($3 == "RUID") state = 1
 		  next
@@ -55,7 +57,7 @@ state == 2	{ print; next }
 $3 != "root"	{ if (uidmap[$3] == "") { uidmap[$3] = "user-" user; user++ }
 		  $3 = uidmap[$3]
 		}
-$4 != "root"	{ if (gidmap[$4] == "") { gidmap[$4] = "group-" group; group++ }
+$4 != "root"	{ if (gidmap[$4] == "") { gidmap[$4] = "group-N" }
 		  $4 = gidmap[$4]
 		}
 		{ printf "%7d %7d %-8.8s %-8.8s %10s %7s %3s    %s", $1, $2, $3, $4, $5, $6, $7, $8
