@@ -76,7 +76,7 @@ _cleanup()
 
 _setup()
 {
-    _service pmlogger stop
+    _service pmlogger stop | _filter_pcp_stop
     _stop_loggers >/dev/null 2>&1
     cd
     rm -rf $tmp
