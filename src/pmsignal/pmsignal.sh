@@ -23,7 +23,7 @@ status=1
 tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
 trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
 prog=`basename $0`
-sigs="HUP USR1 TERM KILL"
+sigs="HUP USR1 USR2 TERM KILL"
 
 cat > $tmp/usage << EOF
 # Usage: [options] PID ... | name ...
