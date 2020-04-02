@@ -356,7 +356,7 @@ $2 == '"$pid"' { print; exit(0) }'
     done
     if [ ! -f $tmp.found ]
     then
-	echo "Arrgh ... see pmlogger restart" | tee -a $here/$seq.full
+	echo "Arrgh ... pmlogger_check failed to restart pmloggers" | tee -a $here/$seq.full
 	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mlogger' >>$here/$seq.full
 	for state in $PCP_TMP_DIR/pmlogger/[0-9]*
 	do
