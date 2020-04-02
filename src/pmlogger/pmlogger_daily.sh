@@ -181,6 +181,7 @@ RFLAG=false
 REWRITEALL=false
 MFLAG=false
 FORCE=false
+KILL=pmsignal
 
 ARGS=`pmgetopt --progname=$prog --config=$tmp/usage -- "$@"`
 [ $? != 0 ] && exit 1
@@ -715,7 +716,7 @@ _get_non_primary_logger_pid()
 	    $PCP_ECHO_PROG $PCP_ECHO_N "... try $log host=$_host arch=$_arch: ""$PCP_ECHO_C"
 	fi
 	# throw away stderr in case $log has been removed by now
-	match=`sed -e '3s/\/[0-9][0-9][0-9][0-9][0-9.]*$//' $log 2>/dev/null | \
+	match=`sed -e '3s@/[^/]*$@@' $log 2>/dev/null | \
 	$PCP_AWK_PROG '
 BEGIN				{ m = 0 }
 NR == 3 && $0 == "'$dir'"	{ m = 2; next }
@@ -1028,6 +1029,15 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    fi
 	else
 	    pid=`_get_non_primary_logger_pid`
+	    if $VERY_VERBOSE
+	    then
+		if [ -z "$pid" ]
+		then
+		    $VERY_VERBOSE && echo "No non-primary pmlogger process(es) found"
+		else
+		    $VERY_VERBOSE && echo "non-primary pmlogger process(es) $pid identified, OK"
+		fi
+	    fi
 	fi
 
 	if [ -z "$pid" ]
@@ -1045,9 +1055,9 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    #
 	    if $SHOWME
 	    then
-		echo "+ kill -USR2 $pid"
+		echo "+ $KILL -s USR2 $pid"
 	    else
-		kill -USR2 "$pid"
+		$KILL -s USR2 "$pid"
 	    fi
 	fi
 
