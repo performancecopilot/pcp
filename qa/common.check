@@ -839,6 +839,11 @@ End-of-File
 _wait_pmlogger_end()
 {
     #debug# set -x
+    if [ -z "$1" ]
+    then
+	echo "Usage botch: _wait_pmlogger_end() needs pid arg"
+	exit
+    fi
     _pid=$1
 
     _i=0
