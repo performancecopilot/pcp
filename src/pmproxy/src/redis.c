@@ -33,7 +33,7 @@ static sds
 redisfmt(redisReply *reply)
 {
     sds			c, command = sdsempty();
-    int			i, p;
+    int			i;
 
     if (reply == NULL)
 	return command;
@@ -48,12 +48,11 @@ redisfmt(redisReply *reply)
 	for (i = 0; i < reply->elements; i++)
 	    c = sdscat(c, redisfmt(reply->element[i]));
 	if (reply->type == REDIS_REPLY_ARRAY)
-	    p = '*';
+	    command = sdscatfmt(command, "*%u\r\n%S", reply->elements, c);
 	else if (reply->type == REDIS_REPLY_MAP)
-	    p = '%';
+	    command = sdscatfmt(command, "%%%u\r\n%S", reply->elements, c);
 	else /* (reply->type == REDIS_REPLY_SET) */
-	    p = '~';
-	command = sdscatfmt(command, "%c%u\r\n%S", p, reply->elements, c);
+	    command = sdscatfmt(command, "~%u\r\n%S", reply->elements, c);
 	sdsfree(c);
 	return command;
     case REDIS_REPLY_INTEGER:
