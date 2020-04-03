@@ -4,4 +4,4 @@ kill -TERM PMCDPID
 === program mode
 kill -TERM PMCDPID
 === list of signals
-HUP USR1 TERM KILL
+HUP USR1 USR2 TERM KILL
