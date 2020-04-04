@@ -671,7 +671,8 @@ _wait_for_pmlogger()
     # 20 seconds default seems like a reasonable max time to get going
     _maxdelay=20
 
-    case $# in
+    case $#
+    in
 	0)
 	    _pid="-P"
 	    _sudo="$sudo -u pcp"
@@ -1044,33 +1045,50 @@ p
 #
 _wait_for_pmproxy()
 {
-    __port=$1
+    case $#
+    in
+	0)
+	    _port=44322
+	    _logfile="$PCP_ARCHIVE_DIR/pmproxy/pmproxy.log" 
+	    ;;
+	1)
+	    _port="$1"
+	    _logfile="$PCP_ARCHIVE_DIR/pmproxy/pmproxy.log" 
+	    ;;
+	2)
+	    _port="$1"
+	    _logfile="$2"
+	    ;;
+	*)
+	    echo "_wait_for_pmproxy(): wrong number of arguments"
+	    status=1
+	    exit $status
+	    ;;
+    esac
 
-    [ -z "$__port" ] && __port=44322
+    # 20 seconds default seems like a reasonable max time to get going
+    _maxdelay=20
 
-    count=0
-    while ! $PCP_BINADM_DIR/telnet-probe -c localhost $__port
+    _count=0
+    while ! $PCP_BINADM_DIR/telnet-probe -c localhost $_port
     do
-	count=`expr $count + 1`
-	if [ $count -ge 20 ]
+	_count=`expr $_count + 1`
+	if [ $_count -ge $_maxdelay ]
 	then
-	    echo "pmproxy failed to start on port $__port"
+	    echo "pmproxy failed to start on port $_port after $_maxdelay seconds"
 	    echo "likely looking processes ..."
 	    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mproxy'
-	    if [ -n "$2" ]
+	    if [ -f "$_logfile" ]
 	    then
-		if [ -f "$2" ]
-		then
-		    echo "pmproxy logfile ($2) ..."
-		    cat "$2"
-		else
-		    echo "pmproxy logfile ($2) not created"
-		fi
+		echo "pmproxy logfile ($_logfile) ..."
+		cat "$_logfile"
+	    else
+		echo "pmproxy logfile ($_logfile) not created"
 	    fi
 	    status=1
 	    exit
 	fi
-	pmsleep 0.1
+	sleep 1
     done
 }
 
