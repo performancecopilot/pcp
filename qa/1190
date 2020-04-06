@@ -1,0 +1,254 @@
+#!/bin/sh
+# PCP QA Test No. 1190
+# Paranoid PCP setup checkout ... really a guard before running QA,
+# but this accumulates the knowledge for QA catostrophic failures
+# that follow Murhy's Law #2: Law #1 was optimistic
+#
+# Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+
+check=false
+if [ $# -ge 1 -a "$1" = "--check" ]
+then
+    check=true
+    # if 2nd arg present then use this as $seq ... we're being called from
+    # check.callback more than likely
+    #
+    [ $# -ge 2 -a "$2" != "" ] && seq="$2"
+fi
+
+$check || echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# Usage: _check_file <realpath> <unexpanded_path_or_prefix>
+# e.g. _check_file "$PCP_TMP_DIR/mmv" '$PCP_TMP_DIR/'
+#
+_check_file()
+{
+    # don't expect "QA" or "qa" from lines like
+    # Installed by PCP QA test $seq on `date`
+    #
+    # First, make sure we can read the file ...
+    #
+    if [ -r "$1" ]
+    then
+	grep -i QA "$1" >$tmp.out
+    else
+	$sudo grep -i QA "$1" >$tmp.out
+    fi
+    # some of these are indeed expected and OK, so handle the exceptions
+    # here ...
+    #
+    case "$1"
+    in
+	/etc/hosts)
+	    sed <$tmp.out >$tmp.tmp \
+		-e '/bogus entries for PCP QA, added by qa.src.fixhosts/d' \
+		-e '/pcpqa-.*\.sgi\.com/d' \
+	    # end
+	    mv $tmp.tmp $tmp.out
+	    ;;
+	"$PCP_PMCDOPTIONS_PATH")
+	    # Need to cocommodate old-style and new-style here
+	    #
+	    sed <$tmp.out >$tmp.tmp \
+		-e '/^# added by PCP QA/d' \
+		-e '/^# Installed by PCP QA common on /d' \
+	    # end
+	    mv $tmp.tmp $tmp.out
+	    ;;
+	"$PCP_VAR_DIR/config/pmda/"*)
+	    # nothing to see inside these indom files
+	    #
+	    rm -f $tmp.out
+	    ;;
+    esac
+    if [ -s $tmp.out ]
+    then
+	if $check
+	then
+	    echo "$1 ... BAD (QA text found)"
+	else
+	    orig=`echo "$1" | sed -e "s@^$2@"'$2@'`
+	    echo "$orig ... BAD (QA text found)"
+	fi
+	cat $tmp.out | sed -e 's/^/  /'
+	status=1
+    else
+	if $check
+	then
+	    :
+	else
+	    orig=`echo "$1" | sed -e "s@^$2@"'$2@'`
+	    echo "$orig ... OK"
+	fi
+    fi
+    # expect no $1.<seq> files (these are salted away by
+    # _save_config() in QA tests)
+    #
+    rm -f $tmp.out
+    for file in "$1".[0-9]*
+    do
+	case "$file"
+	in
+	    "$1".'[0-9]*')
+		continue
+		;;
+	    *)
+		echo "$file" >>$tmp.out
+		;;
+	esac
+    done
+    if [ -s $tmp.out ]
+    then
+	echo "$1.<seq> ... BAD"
+	cat $tmp.out | fmt | sed -e 's/^/  /'
+    fi
+}
+
+# real QA test starts here
+
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mcd ' >$tmp.out
+n=`grep -v PID <$tmp.out | wc -l | sed -e 's/ //g'`
+if [ "$n" -eq 1 ]
+then
+    $check || echo "Count of pmcd's ... OK"
+else
+    echo "Count of pmcd's ... BAD ($n not 1)"
+    cat $tmp.out | sed -e 's/^/  /'
+    status=1
+fi
+
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mlogger .*-P ' >$tmp.out
+n=`grep -v PID <$tmp.out | wc -l | sed -e 's/ //g'`
+if [ "$n" -eq 1 ]
+then
+    $check || echo "Count of primary pmlogger's ... OK"
+else
+    echo "Count of primary pmlogger's ... BAD ($n not 1)"
+    cat $tmp.out | sed -e 's/^/  /'
+    status=1
+fi
+
+pminfo -f pmcd.agent.status | sed -e '/^ *$/d' >$tmp.out
+n=`grep '^ *inst .* value [1-9]' <$tmp.out | wc -l | sed -e 's/ //g'`
+if [ "$n" -eq 0 ]
+then
+    $check || echo "Failed PMDAs ... OK"
+else
+    echo "Failed PMDAs ... ($n not 0)"
+    cat $tmp.out | sed -e 's/^/  /'
+    status=1
+fi
+
+pminfo -b 1 -v `pminfo | sed -e 's/\..*//' | sort | uniq` \
+| grep 'No PMCD agent for domain' >$tmp.out
+n=`wc -l <$tmp.out | sed -e 's/ //g'`
+if [ "$n" -eq 0 ]
+then
+    $check || echo "PMNS names w/out a PMDA ... OK"
+else
+    echo "PMNS names w/out a PMDA ... BAD ($n not 0)"
+    cat $tmp.out | sed -e 's/^/  /'
+    status=1
+fi
+
+pminfo -v | grep 'illegal metric identifier' \
+| grep -v 'sample.*\.bad\.unknown' >$tmp.out
+n=`wc -l <$tmp.out | sed -e 's/ //g'`
+if [ "$n" -eq 0 ]
+then
+    $check || echo "Bad PMIDs in PMDA (other than sample) ... OK"
+else
+    echo "Bad PMIDs in PMDA (other than sample) ... BAD ($n not 0)"
+    cat $tmp.out | sed -e 's/^/  /'
+    status=1
+fi
+
+# The list below initially comes from grepping for _save_config across
+# all the QA infrastructure scripts and QA tests.
+#
+# It is expected to be added to over time as new whacko failure modes
+# are diagnosed.
+#
+for arg in \
+    /etc/hosts \
+    /etc/zabbix/zbxpcp-derived-metrics.conf \
+    '$HOME'/.pki/nssdb \
+    '$PCP_ETC_DIR/pcp/labels' \
+    '$PCP_ETC_DIR/pcp/pmlogger' \
+    '$PCP_PMCDCONF_PATH' \
+    '$PCP_PMCDCONF_PATH.access' \
+    '$PCP_PMCDOPTIONS_PATH' \
+    '$PCP_PMDAS_DIR/bind2/bind2.conf' \
+    '$PCP_PMDAS_DIR/json/config.json' \
+    '$PCP_PMDAS_DIR/nutcracker/nutcracker.conf' \
+    '$PCP_PMDAS_DIR/openmetrics/config.d' \
+    '$PCP_PMDAS_DIR/pipe/pipe.conf' \
+    '$PCP_PMDAS_DIR/postgresql/pmdapostgresql.conf' \
+    '$PCP_PMDAS_DIR/redis/redis.conf' \
+    '$PCP_PMDAS_DIR/sample/dynamic.indom' \
+    '$PCP_PMDAS_DIR/simple/simple.conf' \
+    '$PCP_PMIECONTROL_PATH' \
+    '$PCP_PMLOGGERCONTROL_PATH' \
+    '$PCP_PMLOGGERCONTROL_PATH.d' \
+    '$PCP_PMPROXYOPTIONS_PATH' \
+    '$PCP_SASLCONF_DIR/pmcd.conf' \
+    '$PCP_SYSCONF_DIR/labels' \
+    '$PCP_SYSCONF_DIR/pipe.conf.d' \
+    '$PCP_SYSCONF_DIR/pmproxy' \
+    '$PCP_SYSCONF_DIR/pmseries' \
+    '$PCP_SYSCONFIG_DIR/pmcd' \
+    '$PCP_SYSCONFIG_DIR/pmlogger' \
+    '$PCP_SYSCONFIG_DIR/pmproxy' \
+    '$PCP_SYSTEMDUNIT_DIR/pm'*'.service' \
+    '$PCP_SYSTEMDUNIT_DIR/pm'*'.timer' \
+    '$PCP_TMP_DIR/bash' \
+    '$PCP_TMP_DIR/mmv' \
+    '$PCP_TMP_DIR/pmproxy' \
+    '$PCP_VAR_DIR/config/cisco/cisco.conf' \
+    '$PCP_VAR_DIR/config/logger/logger.conf' \
+    '$PCP_VAR_DIR/config/pmda' \
+    '$PCP_VAR_DIR/config/pmlogger/config.default' \
+    '$PCP_VAR_DIR/pmns/root' \
+    '$PCP_PMDAS_DIR/linux/bandwidth.conf' \
+
+do
+    conf="$arg"
+    if [ -z "$conf" ]
+    then
+	echo "empty var!"
+    elif [ -f "$conf" ]
+    then
+	_check_file "$conf" '$arg'
+    elif [ -d "$conf" ]
+    then
+	find "$conf" -type f \
+	| while read file
+	do
+	    _check_file "$file" '$arg'
+	done
+    else
+	$check || echo "$conf ... OK"
+    fi
+done
+
+# success, all done
+status=0
+exit
