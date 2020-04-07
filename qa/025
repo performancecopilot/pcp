@@ -22,10 +22,23 @@ _cleanup()
     _restore_auto_restart pmcd
 }
 
+use_systemd=''
+if [ -f $PCP_INC_DIR/builddefs ]
+then
+    ENABLE_SYSTEMD=false
+    eval `sed -n <$PCP_INC_DIR/builddefs -e '/ENABLE_SYSTEMD/s/ //gp'`
+    if $ENABLE_SYSTEMD
+    then
+	use_systemd='-s'
+	echo "Using systemd." >>$seq.full
+    fi
+fi
+
 # real QA test starts here
-$sudo src/pmcdgone 2>&1 \
+$sudo src/pmcdgone $use_systemd 2>&1 \
 | tee $seq.full \
 | sed \
+    -e '/^+ /d' \
     -e '/__pmGetPDU: fd=3 BINARY hdr: Broken pipe/d' \
     -e '/pmLookupDesc:/s/Connection reset by peer/IPC protocol failure/' \
     -e '/pmReconnectContext:/s/Operation/Connection/' \

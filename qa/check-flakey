@@ -1,0 +1,193 @@
+#!/bin/sh
+#
+# Rerun test(s) and see if failure is reproducible
+#
+# Assumes you have one or more QA test failures, and hence
+# the .out.bad file (this is the 1st run), and check-flakey will
+# rerun the test (the 2nd run) and compare the results to see
+# if this looks like a hard (deterministic) failure, or the
+# result of some flakiness in the QA test.
+#
+
+tmp=/var/tmp/$$
+trap "[ -f $tmp.kenj ] && ( echo "" ; cat $tmp.kenj ); rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+# This is the record that Ken uses in the QA Farm to try and track
+# flakey test failures:
+# <seq> <state> <failing QA hostname> <today's date>
+# where the <state> is a 2 character code constructed as follows:
+# - 1st char for 1st run: X (test failed) or C (callback failed)
+# - 2nd char for 2nd run: X (test failed the same way as 1st run),
+#   C (callback failed), Y (test failed differently and not C) or
+#   P (passed)
+#
+rm -f $tmp.kenj
+_output_for_kenj()
+{
+    if [ "$USER" = "kenj" ]
+    then
+	printf "%4d %s%s %s %s\n" $seq $s1 $s2 `hostname -s` `date '+%Y-%m-%d'` >>$tmp.kenj
+    fi
+}
+
+# state lists (of <seq> numbers)
+#
+xp=""
+xx=""
+xc=""
+xy=""
+cp=""
+cx=""
+cc=""
+cy=""
+
+if [ $# -eq 0 ]
+then
+    list=`echo *.out.bad \
+	  | sed -e 's/.out.bad//g' \
+	  | tr ' ' '\012' \
+	  | sort -n \
+	  | tr '\012' ' '`
+
+    if [ "$list" = "* " ]
+    then
+	echo "Nothing failed, bozo!"
+	exit 1
+    fi
+    set -- $list
+fi
+
+for seq
+do
+    if [ ! -f $seq.out.bad ]
+    then
+	echo "$seq: no .out.bad file, so nothing to compare!"
+	continue
+    fi
+    if grep 'badness detected by check.callback' $seq.out.bad >/dev/null
+    then
+	s1='C'
+    else
+	s1='X'
+    fi
+    cp $seq.out.bad $tmp.ref
+    xpect=0
+    if [ -f check.time ]
+    then
+	xpect=`sed -n <check.time -e "/^$seq /s/.* //p"`
+    fi
+    if [ -n "$xpect" ]
+    then
+	echo "$seq: checking (duration approx $xpect secs) ..."
+    else
+	echo "$seq: checking (duration unknown, test has never passed here?) ..."
+    fi
+    ./check -l $seq >/dev/null 2>&1
+    if [ -f $seq.out.bad ]
+    then
+	# failed again
+	#
+	if cmp $seq.out.bad $tmp.ref >/dev/null
+	then
+	    s2='X'
+	    echo "$seq: same failure, really bad not flakey"
+	else
+	    if grep 'badness detected by check.callback' $seq.out.bad >/dev/null
+	    then
+		s2='C'
+	    else
+		s2='Y'
+	    fi
+	    echo "$seq: different failure"
+	    _output_for_kenj
+	fi
+    else
+	# passed, so flakey ...
+	#
+	s2='P'
+	echo "$seq: passed this time"
+	_output_for_kenj
+    fi
+
+    case "$s1$s2"
+    in
+	XP)
+	    if [ -z "$xp" ]
+	    then
+		xp="$seq"
+	    else
+		xp="$xp $seq"
+	    fi
+	    ;;
+	XX)
+	    if [ -z "$xx" ]
+	    then
+		xx="$seq"
+	    else
+		xx="$xx $seq"
+	    fi
+	    ;;
+	XC)
+	    if [ -z "$xc" ]
+	    then
+		xc="$seq"
+	    else
+		xc="$xc $seq"
+	    fi
+	    ;;
+	XY)
+	    if [ -z "$xy" ]
+	    then
+		xy="$seq"
+	    else
+		xy="$xy $seq"
+	    fi
+	    ;;
+	CP)
+	    if [ -z "$cp" ]
+	    then
+		cp="$seq"
+	    else
+		cp="$cp $seq"
+	    fi
+	    ;;
+	CX)
+	    if [ -z "$cx" ]
+	    then
+		cx="$seq"
+	    else
+		cx="$cx $seq"
+	    fi
+	    ;;
+	CC)
+	    if [ -z "$cc" ]
+	    then
+		cc="$seq"
+	    else
+		cc="$cc $seq"
+	    fi
+	    ;;
+	CY)
+	    if [ -z "$cy" ]
+	    then
+		cy="$seq"
+	    else
+		cy="$cy $seq"
+	    fi
+	    ;;
+    esac
+
+done
+
+echo
+echo "Summary:"
+[ -n "$xp" ] && echo "Flakey (failed then passed): $xp"
+[ -n "$xx" ] && echo "Solid Failures: $xx"
+[ -n "$xc" ] && echo "Flakey (failed then callback check): $xc"
+[ -n "$xy" ] && echo "Flakey (different failures): $xy"
+[ -n "$cp" ] && echo "Flakey (callback check then passed): $cp"
+[ -n "$cx" ] && echo "Solid Callback Failures: $cx"
+[ -n "$cc" ] && echo "Flakey (callback check then different callback check): $cc"
+[ -n "$cy" ] && echo "Flakey (callback check then failed): $cy"
+
+exit

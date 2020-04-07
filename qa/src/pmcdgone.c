@@ -38,6 +38,15 @@ _ConnectLogger(void)
 	printf("Cannot connect to primary pmlogger on \"localhost\": %s\n", pmErrStr(n));
 	exit(1);
     }
+    else {
+	/*
+	 * Lines starting "+ " are debug from pmcdgone, and get syphoned
+	 * off to the .full file in qa/025
+	 */
+	system(". $PCP_DIR/etc/pcp.env; ( ls -l $PCP_TMP_DIR/pmlogger/primary; cat $PCP_TMP_DIR/pmlogger/primary ) | sed -e 's/^/+ /' >&2");
+	fprintf(stderr, "+ __pmConnectLogger: returns pid=%d port=%d\n", pid, port);
+    }
+
     ctlport = n;
 }
 
@@ -239,13 +248,14 @@ main(int argc, char **argv)
     int		ctx0;
     int		ctx1;
     int		c;
+    int		use_systemd = 0;
     int		errflag = 0;
     char	*binadm = pmGetConfig("PCP_BINADM_DIR");
     char	path[MAXPATHLEN];
 
     pmSetProgname(argv[0]);
 
-    while ((c = getopt(argc, argv, "D:")) != EOF) {
+    while ((c = getopt(argc, argv, "D:s")) != EOF) {
 	switch (c) {
 	case 'D':	/* debug options */
 	    sts = pmSetDebug(optarg);
@@ -254,6 +264,10 @@ main(int argc, char **argv)
 		    pmGetProgname(), optarg);
 		errflag++;
 	    }
+	    break;
+
+	case 's':	/* have systemd, use systemctl */
+	    use_systemd = 1;
 	    break;
 
 	case '?':
@@ -268,7 +282,8 @@ main(int argc, char **argv)
 "Usage: %s options ...\n\
 \n\
 Options:\n\
-  -D debugspec		set PCP debugging options\n",
+  -D debugspec		set PCP debugging options\n\
+  -s                    use systemctl to control pmcd\n",
 		pmGetProgname());
 	exit(1);
     }
@@ -325,9 +340,12 @@ Options:\n\
     err += exer(numpmid, pmidlist, 0);
 
     fprintf(stderr, "Kill off pmcd ...\n");
-    sts = system(". $PCP_DIR/etc/pcp.env; $PCP_RC_DIR/pmcd stop");
+    if (use_systemd)
+	sts = system("systemctl stop pmcd");
+    else
+	sts = system(". $PCP_DIR/etc/pcp.env; $PCP_RC_DIR/pmcd stop");
     if (sts != 0)
-	fprintf(stderr, "Warning: pmcd stop script returns %d\n", sts);
+	fprintf(stderr, "Warning: pmcd stop returns %d\n", sts);
     sleep(10);
     _text = _indom_text = 0;
     __pmCloseSocket(ctlport);
@@ -352,7 +370,7 @@ Options:\n\
     }
 
     /*
-     * tricky part begins ...
+     * tricky part begins (easier if using systemd) ...
      * 1. get rid of the archive folio to avoid timestamp clashes with last
      *    created folio
      * 2. re-start pmcd
@@ -361,27 +379,40 @@ Options:\n\
      * 5. connect to pmlogger
      */
     fprintf(stderr, "Restart pmcd ...\n");
-    sts = system(". $PCP_DIR/etc/pcp.env; path_opt=''; if [ $PCP_PLATFORM = linux ]; then path_opt=pmlogger/; fi; pmafm $PCP_LOG_DIR/$path_opt`hostname`/Latest remove 2>/dev/null | sh");
-    if (sts != 0)
-	fprintf(stderr, "Warning: folio removal script %d\n", sts);
     __pmCloseSocket(ctlport);
-    sts = system(". $PCP_DIR/etc/pcp.env; $PCP_RC_DIR/pmcd start");
+    if (use_systemd) {
+	sts = system("systemctl restart pmcd");
+    }
+    else {
+	sts = system(". $PCP_DIR/etc/pcp.env; path_opt=''; if [ $PCP_PLATFORM = linux ]; then path_opt=pmlogger/; fi; pmafm $PCP_LOG_DIR/$path_opt`hostname`/Latest remove 2>/dev/null | sh");
+	if (sts != 0)
+	    fprintf(stderr, "Warning: folio removal returns %d\n", sts);
+	sts = system(". $PCP_DIR/etc/pcp.env; $PCP_RC_DIR/pmcd start");
+    }
     if (sts != 0)
-	fprintf(stderr, "Warning: pmcd start script returns %d\n", sts);
+	fprintf(stderr, "Warning: pmcd start returns %d\n", sts);
 
     pmsprintf(path, sizeof(path), "%s/pmcd_wait", binadm);
     if(access(path, X_OK) == 0) {
         sts = system(". $PCP_DIR/etc/pcp.env; [ -x $PCP_BINADM_DIR/pmcd_wait ] && $PCP_BINADM_DIR/pmcd_wait");
 	if (sts != 0)
-	    fprintf(stderr, "Warning: pmcd_wait script returns %d\n", sts);
+	    fprintf(stderr, "Warning: pmcd_wait returns %d\n", sts);
     }
-    sts = system(". $PCP_DIR/etc/pcp.env; $PCP_RC_DIR/pmlogger start");
+    if (use_systemd)
+	sts = system("systemctl restart pmlogger");
+    else
+	sts = system(". $PCP_DIR/etc/pcp.env; $PCP_RC_DIR/pmlogger restart");
     if (sts != 0)
-	fprintf(stderr, "Warning: pmlogger start script returns %d\n", sts);
+	fprintf(stderr, "Warning: pmlogger restart returns %d\n", sts);
 
     sts = system(". $PCP_DIR/etc/pcp.env; ( cat common.check; echo _wait_for_pmlogger -P $PCP_LOG_DIR/pmlogger/`hostname`/pmlogger.log ) | sh");
     if (sts != 0)
-	fprintf(stderr, "Warning: _wait_for_pmlogger script returns %d\n", sts);
+	fprintf(stderr, "Warning: _wait_for_pmlogger returns %d\n", sts);
+    /*
+     * avoid race here, give pmlogger a chance to clean up after pmlc
+     * is done using the control port in _wait_for_pmlogger
+     */
+    sleep(3);
     _ConnectLogger();
 
     err += exer(numpmid, pmidlist, 1);

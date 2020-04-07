@@ -25,6 +25,7 @@ _filter()
 # real QA test starts here
 service=pmproxy
 avahi_service
+_wait_for_pmproxy
 sleep 5
 avahi_verify 2>&1 \
 | _filter

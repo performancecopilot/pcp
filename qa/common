@@ -213,7 +213,7 @@ _havelogger()
 		cp $PCP_PMLOGGERCONTROL_PATH.d/local $tmp.tmp
 		cat >>$tmp.tmp <<'End-of-File'
 
-# added by PCP QA
+# Installed by PCP QA common on `date`
 LOCALHOSTNAME	y   n	PCP_ARCHIVE_DIR/LOCALHOSTNAME	-c config.default
 End-of-File
 		$sudo cp $tmp.tmp $PCP_PMLOGGERCONTROL_PATH.d/local
@@ -295,7 +295,7 @@ _havepmcdtrace()
 	sed <$PCPQA_PMCDOPTIONS >$tmp.tmp -e '/^-T/s/^/#/'
 	cat >>$tmp.tmp <<'End-of-File'
 
-# added by PCP QA
+# Installed by PCP QA common on `date`
 -T 3
 End-of-File
 	$sudo cp $tmp.tmp $PCPQA_PMCDOPTIONS

@@ -209,6 +209,17 @@ then
     $abort && status=1
 fi
 
+# More pmcd/pmda/pmns checks and check for config files not returned
+# to their pre-QA state
+#
+./1190 --check $1 >$tmp.out
+if [ -s $tmp.out ]
+then
+    echo "check.callback: fail: see below!"
+    cat $tmp.out
+    $abort && status=1
+fi
+
 # Check audit log for any Security Enhanced Linux access denials
 # related to PCP ...
 #
