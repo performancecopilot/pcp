@@ -1372,8 +1372,8 @@ redisAsyncContext *c, redisReply *reply, const sds cmd, void *arg)
 	for (l = 0; l < reply->len; l++) {
 	    if (strncmp("redis_version:", reply->str+l, sizeof("redis_version:")-1) == 0) {
 		l += sizeof("redis_version:")-1;
-	    	server_version = (unsigned int)strtol(reply->str+l, &endnum, 10);
-	    	if (*endnum != '.' || server_version < 0) {
+	    	server_version = (unsigned int)strtoul(reply->str+l, &endnum, 10);
+	    	if (*endnum != '.') {
 		    infofmt(msg, "redis server version parse error");
 		    batoninfo(baton, PMLOG_ERROR, msg);
 	    	} else if (server_version < SERVER_VERSION) {
