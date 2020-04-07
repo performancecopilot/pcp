@@ -694,7 +694,7 @@ updateLatestFolio(const char *host, const char *base)
 {
     FILE *fp;
     time_t now;
-    char date[24];
+    char date[26];
     char dir[MAXPATHLEN];
     char *logdir = pmGetConfig("PCP_ARCHIVE_DIR");
     char thishost[MAXHOSTNAMELEN];
