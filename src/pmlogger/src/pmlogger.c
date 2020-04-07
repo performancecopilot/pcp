@@ -40,7 +40,8 @@ int		run_done_alarm;		 /* run_done_callback() called */
 int		log_alarm;	 	 /* log_callback() called */
 int		parse_done;
 int		primary;		/* Non-zero for primary pmlogger */
-char	    	*archBase;		/* base name for log files */
+char	    	*archBase;		/* template base name for archive */
+char		*archName;		/* real base name for archive */
 char		*pmcd_host;
 char		*pmcd_host_conn;
 char		*pmcd_host_label;
@@ -688,6 +689,56 @@ save_args(int argc, char **argv)
     argv_saved[argc_saved] = NULL; /* sentinal for execvp(3) */
 }
 
+static void
+updateLatestFolio(const char *host, const char *base)
+{
+    FILE *fp;
+    time_t now;
+    char date[24];
+    char dir[MAXPATHLEN];
+    char *logdir = pmGetConfig("PCP_ARCHIVE_DIR");
+    char thishost[MAXHOSTNAMELEN];
+
+    /*
+     * Only write the "Latest" folio if we're a pmlogger service daemon,
+     * i.e. pmlogger current dir is below $PCP_ARCHIVE_DIR
+     */
+    if (getcwd(dir, sizeof(dir)) == NULL) {
+	if (pmDebugOptions.services)
+	    fprintf(stderr, "Info: updateLatestFolio: getcwd() failed for host %s: %s", host, strerror(errno));
+	return;
+    }
+    if (strncmp(dir, logdir, strlen(logdir)) != 0) {
+	if (pmDebugOptions.services)
+	    fprintf(stderr, "Info: not creating \"Latest\" archive folio for host %s: %s", host, strerror(errno));
+    	return;
+    }
+
+    gethostname(thishost, MAXHOSTNAMELEN);
+    thishost[MAXHOSTNAMELEN-1] = '\0';
+
+    if ((fp = fopen("Latest", "w")) == NULL) {
+    	fprintf(stderr, "Warning: failed to create \"Latest\" archive folio for host %s: %s", host, strerror(errno));
+	return;
+    }
+    time(&now);
+    ctime_r(&now, date);
+
+    fprintf(fp,
+	"PCPFolio\n"
+	"Version: 1\n"
+	"# use pmafm(1) to process this PCP archive folio\n"
+	"#\n"
+	"Created: on %s at %s"
+	"Creator: pmlogger\n"
+	"%-15s %-23s %s\n"
+	"%-15s %-23s %s\n",
+	    thishost, date,
+	    "#", "Host", "Basename",
+	    "Archive:", host, base);
+    fclose(fp);
+}
+
 int
 main(int argc, char **argv)
 {
@@ -700,7 +751,9 @@ main(int argc, char **argv)
     char		*logfile = "pmlogger.log";
 				    /* default log (not archive) file name */
     char		*endnum;
-    int			i, j;
+    int			i;
+    int			suff;		/* for -NN */
+    int			make_uniq = 0;	/* set if -NN suffix regime is in play */
     task_t		*tp;
     optcost_t		ocp;
     __pmFdSet		readyfds;
@@ -712,6 +765,9 @@ main(int argc, char **argv)
     pid_t               target_pid = 0;
     int			exit_code = 0;
     char		*exit_msg;
+    char		*name = "pmcd.timezone";
+    pmID		pmid;
+    pmResult		*resp;
 
     save_args(argc, argv);
     pmGetUsername(&username);
@@ -719,12 +775,6 @@ main(int argc, char **argv)
     if ((endnum = getenv("PMLOGGER_INTERVAL")) != NULL)
 	delta.tv_sec = atoi(endnum);
 
-    /*
-     * Warning:
-     *		If any of the pmlogger options change, make sure the
-     *		corresponding changes are made to pmnewlog when pmlogger
-     *		options are passed through from the control file
-     */
     while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
 	switch (c) {
 
@@ -965,10 +1015,6 @@ main(int argc, char **argv)
 	pmSetProcessIdentity(username);
 
     if (Cflag == 0) {
-	int need;
-	time_t now;
-	struct tm *arch_tm;
-
 	/* only open a new log if we are NOT reexec'd */
 	if (pmlogger_reexec) {
 	    if (pmDebugOptions.services)
@@ -980,62 +1026,40 @@ main(int argc, char **argv)
 		/* continue on ... writing to stderr */
 	    }
 	}
+    }
 
+    if (Cflag == 0) {
 	/* base name for archive is here ... */
+	if ((archName = malloc(MAXPATHLEN+1)) == NULL) {
+	    pmNoMem("main: archName", strlen(argv[opts.optind])+1, PM_FATAL_ERR);
+	    /* NOTREACHED */
+	}
 	if (strchr(argv[opts.optind], '%') == NULL) {
 	    /* no meta chars - go with what we have been given */
 	    if ((archBase = strdup(argv[opts.optind])) == NULL) {
-		pmNoMem("main", strlen(argv[opts.optind])+1, PM_FATAL_ERR);
+		pmNoMem("main: strdup archBase", strlen(argv[opts.optind])+1, PM_FATAL_ERR);
 		/* NOTREACHED */
 	    }
 	} else {
 	    /*
-	     * strftime(3) meta char substitution. If the archive base
-	     * name already exists after subsitution (if any), then 
-	     * we'll fail later on, just as pmlogger has always done.
+	     * strftime(3) meta char substitution.
 	     */
-	    need = strlen(argv[opts.optind]) + 256;
-	    if ((archBase = (char *)malloc(need)) == NULL) {
-		pmNoMem("main", need, PM_FATAL_ERR);
+	    time_t	now;
+	    struct tm	*arch_tm;
+
+	    if ((archBase = malloc(MAXPATHLEN+1)) == NULL) {
+		pmNoMem("main malloc archBase", MAXPATHLEN+1, PM_FATAL_ERR);
 		/* NOTREACHED */
 	    }
 	    time(&now);
-	    for (i=0; i < 3; i++) { /* limit of 3 retries */
-		char archindex[MAXPATHLEN];
-
-		arch_tm = localtime(&now);
-		if (strftime(archBase, need, argv[opts.optind], arch_tm) == 0) {
-		    fprintf(stderr, "Warning: strftime failed on \"%s\"\n", argv[opts.optind]);
-		    strncpy(archBase, argv[opts.optind], need);
-		    break; /* no point retrying */
-		}
-		snprintf(archindex, sizeof(archindex), "%s.index", archBase);
-		if (access(archindex, F_OK) != 0)
-		    break; /* archive doesn't already exist, all good */
-		/*
-		 * Likely we've received more than one signal in the same minute.
-		 * "reexec" semantics for new archive base name - the format spec
-		 * must contain at least %M or %0M. We skip to the start of the next
-		 * minute and try again! (better to start recording than to sleep)
-		 */
-		now += 60 - arch_tm->tm_sec;
+	    arch_tm = localtime(&now);
+	    if (strftime(archBase, MAXPATHLEN, argv[opts.optind], arch_tm) == 0) {
+		fprintf(stderr, "Error: strftime failed on \"%s\"\n", argv[opts.optind]);
+		exit(1);
 	    }
-	}
-	if (pmDebugOptions.services)
-	    fprintf(stderr, "archBase after strftime substitutions = \"%s\"\n", archBase);
-
-	/*
-	 * Munge archive base name in argv[argc-1] after substitutions.
-	 * Note: %Y%m%d.%0H.%0M ensures new archBase length is same or shorter.
-	 */
-	i = strlen(archBase);
-	j = strlen(argv[argc-1]);
-	if (i <= j) {
-	    memcpy(argv[argc-1], archBase, i);
-	    memset(argv[argc-1] + i, 0, j-i);
-	} else {
 	    if (pmDebugOptions.services)
-		fprintf(stderr, "Warning, archBase \"%s\" is longer than argv template \"%s\"\n", archBase, argv[argc-1]);
+		fprintf(stderr, "archBase after strftime substitutions: \"%s\"\n", archBase);
+	    make_uniq = 1;
 	}
     }
 
@@ -1160,41 +1184,60 @@ main(int argc, char **argv)
     }
 
     archctl.ac_log = &logctl;
-    if ((sts = __pmLogCreate(pmcd_host, archBase, archive_version, &archctl)) < 0) {
-	fprintf(stderr, "__pmLogCreate: %s\n", pmErrStr(sts));
+
+    /*
+     * If we reexec quickly then archBase will be the same as the
+     * previous iteration, and if this happens use a -NN suffix to make
+     * archName different, ... but only if make_uniq is set
+     */
+    for (suff = -1; suff < 99; suff++) { /* limit of 100 retries */
+	if (suff == -1)
+	    memcpy(archName, archBase, strlen(archBase)+1);
+	else
+	    snprintf(archName, MAXPATHLEN, "%s-%02d", archBase, suff);
+
+	if ((sts = __pmLogCreate(pmcd_host, archName, archive_version, &archctl)) < 0) {
+	    if (make_uniq)
+		continue;	/* try the next -NN */
+	    /* otherwise this is fatal */
+	    break;
+	}
+	/* success */
+	if (pmDebugOptions.services)
+	    fprintf(stderr, "archName after __pmLogCreate: \"%s\"\n", archName);
+	break;
+    }
+    if (sts < 0) {
+	fprintf(stderr, "__pmLogCreate(%s, %s, ...): %s\n", pmcd_host, archName, pmErrStr(sts));
 	exit(1);
     }
-    else {
-	/*
-	 * try and establish $TZ from the remote PMCD ...
-	 * Note the label record has been set up, but not written yet
-	 */
-	char		*name = "pmcd.timezone";
-	pmID		pmid;
-	pmResult	*resp;
 
-	pmtimevalNow(&epoch);
-	sts = pmUseContext(ctx);
+    /*
+     * try and establish $TZ from the remote PMCD ...
+     * Note the label record has been set up, but not written yet
+     */
 
-	if (sts >= 0)
-	    sts = pmLookupName(1, &name, &pmid);
-	if (sts >= 0)
-	    sts = pmFetch(1, &pmid, &resp);
-	if (sts >= 0) {
-	    if (resp->vset[0]->numval > 0) { /* pmcd.timezone present */
-		strcpy(logctl.l_label.ill_tz, resp->vset[0]->vlist[0].value.pval->vbuf);
-		/* prefer to use remote time to avoid clock drift problems */
-		epoch = resp->timestamp;		/* struct assignment */
-		if (! use_localtime)
-		    pmNewZone(logctl.l_label.ill_tz);
-	    }
-	    else if (pmDebugOptions.log) {
-		fprintf(stderr,
-			"main: Could not get timezone from host %s\n",
-			pmcd_host);
-	    }
-	    pmFreeResult(resp);
+    pmtimevalNow(&epoch);
+    sts = pmUseContext(ctx);
+
+    if (sts >= 0)
+	sts = pmLookupName(1, &name, &pmid);
+    if (sts >= 0)
+	sts = pmFetch(1, &pmid, &resp);
+    if (sts >= 0) {
+	if (resp->vset[0]->numval > 0) { /* pmcd.timezone present */
+	    strcpy(logctl.l_label.ill_tz, resp->vset[0]->vlist[0].value.pval->vbuf);
+	    /* prefer to use remote time to avoid clock drift problems */
+	    epoch = resp->timestamp;		/* struct assignment */
+	    if (! use_localtime)
+		pmNewZone(logctl.l_label.ill_tz);
 	}
+	else if (pmDebugOptions.log) {
+	    fprintf(stderr,
+		    "main: Could not get timezone from host %s\n",
+		    pmcd_host);
+	}
+	pmFreeResult(resp);
     }
 
     /* do ParseTimeWindow stuff for -T */
@@ -1227,7 +1270,7 @@ main(int argc, char **argv)
         last_stamp = res_end;
     }
 
-    fprintf(stderr, "Archive basename: %s\n", archBase);
+    fprintf(stderr, "Archive basename: %s\n", archName);
 
     if (isdaemon) {
 #ifndef IS_MINGW
@@ -1260,6 +1303,11 @@ main(int argc, char **argv)
 
     parse_done = 1;	/* enable callback processing */
     __pmAFunblock();
+
+    /* create the Latest folio */
+    if (isdaemon) {
+	updateLatestFolio(pmcd_host, archName);
+    }
 
     if (!pmlogger_reexec) {
 	/* notify service manager, if any, we are ready */
@@ -1497,7 +1545,7 @@ newvolume(int vol_switch_type)
                                    vol_switch_callback);
     }
 
-    if ((newfp = __pmLogNewFile(archBase, nextvol)) != NULL) {
+    if ((newfp = __pmLogNewFile(archName, nextvol)) != NULL) {
 	if (logctl.l_state == PM_LOG_STATE_NEW) {
 	    /*
 	     * nothing has been logged as yet, force out the label records

@@ -1,4 +1,4 @@
-#!/usr/bin/sh
+#!/bin/sh
 # PCP QA Test No. 1347
 # Exercise kernel.all.boottime and -v option to pcp-atop(1),
 # as well as other optional output from pcp-atop.
@@ -27,6 +27,46 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+# uid -> username and gid -> groupname mappings are not invariant, so
+# fix 'em up, e.g.
+# 938       1 avahi    avahi    2020/03/06 14:48:02   -    0% avahi-daemon   
+# becomes
+# 938       1 user-1   group-N  2020/03/06 14:48:02   -    0% avahi-daemon   
+# for all the non-root cases
+# output format is driven by header line
+#     PID    PPID RUID     RGID       STDATE    STTIME  EXC S  CPU CMD            
+# 1234567 1234567 12345678 12345678 1234/67/90 12:45:67 123   123 123456789012345
+#       1       0 root     root     2020/03/06 14:47:50   -    0% systemd        $
+#
+# Notes:
+# - group assignments are not always the same, so use group-N (literally)
+#   instead of group-1, group-2, ...
+# - S field appears to be always empty, so no matching $N field
+# - CMD may contain multiple words separated y a single space
+#
+_filter_uid_gid()
+{
+    $PCP_AWK_PROG '
+BEGIN		{ user = 0 }
+state == 0	{ print
+		  if ($3 == "RUID") state = 1
+		  next
+		}
+state == 1	{ if ($1 == "===") state = 2 }
+state == 2	{ print; next }
+$3 != "root"	{ if (uidmap[$3] == "") { uidmap[$3] = "user-" user; user++ }
+		  $3 = uidmap[$3]
+		}
+$4 != "root"	{ if (gidmap[$4] == "") { gidmap[$4] = "group-N" }
+		  $4 = gidmap[$4]
+		}
+		{ printf "%7d %7d %-8.8s %-8.8s %10s %7s %3s    %s", $1, $2, $3, $4, $5, $6, $7, $8
+		  last = $9
+		  for (i = 10; i <= NF; i++) last = last " " $i
+		  printf " %-15.15s\n", last
+		}'
+}
+
 _logs()
 {
     echo "=== std out"
@@ -42,7 +82,7 @@ pcp_options="pcp -z --origin=+1.1 --archive $here/archives/pcp-atop-boot"
 
 echo "=== -v option:"
 $pcp_options atop -v 2 3 >$tmp.out 2>$tmp.err
-_logs
+_logs | _filter_uid_gid
 
 echo "=== -m option:"
 $pcp_options atop -R -m 2 3 >$tmp.out 2>$tmp.err

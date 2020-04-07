@@ -281,7 +281,7 @@ Slackware
     27 June 2016: 14.1
     # which packages are installed
     $ ls /var/log/packages | sed -e 's/-[0-9].*//'
-    # package search recipe (name and info or description)
+    # package search recipe (name only)
     $ sudo slackpkg search <info-pattern>
     # which package installs a file/directory
     $ sudo slackpkg file-search <filename-pattern>

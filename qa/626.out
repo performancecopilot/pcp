@@ -1,5 +1,5 @@
 QA output created by 626
-Warning: skipping pmnewlog because we don't know which pmlogger to stop
+Warning: skipping log rotation because we don't know which pmlogger to signal
 
 diffs ... expect 20180311 and 20180312 archives to be merged
 3c3

@@ -1362,13 +1362,30 @@ __pmAccAddClient(__pmSockAddr *hostid, unsigned int *denyOpsResult)
 	return PM_ERR_THREAD;
 
     *denyOpsResult = 0;			/* deny nothing == allow all */
-    if (nhosts == 0)			/* No access controls => allow all */
+    if (nhosts == 0) {			/* No access controls => allow all */
+	if (pmDebugOptions.access) {
+	    char	*hoststr;
+	    hoststr = __pmSockAddrToString(hostid);
+	    fprintf(stderr, "__pmAccAddClient(%s, %d): no access controls, allow all\n",
+		hoststr, *denyOpsResult);
+	    free(hoststr);
+	}
 	return 0;
+    }
 
     /* There could be more than one address associated with this host.*/
     clientIds = getClientIds(hostid, &sts);
-    if (clientIds == NULL)
+    if (clientIds == NULL) {
+	if (pmDebugOptions.access) {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    char	*hoststr;
+	    hoststr = __pmSockAddrToString(hostid);
+	    fprintf(stderr, "__pmAccAddClient(%s, %d): getClientIds failed: %s\n",
+		hoststr, *denyOpsResult, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	    free(hoststr);
+	}
 	return sts;
+    }
 
     /* Accumulate permissions for each client address. */
     for (clientIx = 0; clientIds[clientIx] != NULL; ++clientIx) {
@@ -1393,6 +1410,13 @@ __pmAccAddClient(__pmSockAddr *hostid, unsigned int *denyOpsResult)
 	/* If no operations are allowed, disallow connection */
 	if (*denyOpsResult == all_ops) {
 	    freeClientIds(clientIds);
+	    if (pmDebugOptions.access) {
+		char	*hoststr;
+		hoststr = __pmSockAddrToString(hostid);
+		fprintf(stderr, "__pmAccAddClient(%s, %d): all_ops=%d: denied\n",
+		    hoststr, *denyOpsResult, all_ops);
+		free(hoststr);
+	    }
 	    return PM_ERR_PERMISSION;
 	}
 
@@ -1402,6 +1426,13 @@ __pmAccAddClient(__pmSockAddr *hostid, unsigned int *denyOpsResult)
 
 	    *denyOpsResult = all_ops;
 	    freeClientIds(clientIds);
+	    if (pmDebugOptions.access) {
+		char	*hoststr;
+		hoststr = __pmSockAddrToString(hostid);
+		fprintf(stderr, "__pmAccAddClient(%s, %d): cons=%d >= max=%d: denied\n",
+		    hoststr, *denyOpsResult, lastmatch->curcons, lastmatch->maxcons);
+		free(hoststr);
+	    }
 	    return PM_ERR_CONNLIMIT;
 	}
 
@@ -1425,6 +1456,13 @@ __pmAccAddClient(__pmSockAddr *hostid, unsigned int *denyOpsResult)
     }
 
     freeClientIds(clientIds);
+    if (pmDebugOptions.access) {
+	char	*hoststr;
+	hoststr = __pmSockAddrToString(hostid);
+	fprintf(stderr, "__pmAccAddClient(%s, %d): success\n",
+	    hoststr, *denyOpsResult);
+	free(hoststr);
+    }
     return 0;
 }
 

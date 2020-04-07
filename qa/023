@@ -42,6 +42,7 @@ _filter_log()
     _filter_pmcd_log <./pmcd.log \
     | sed \
 	-e '/^DATA: from client/d' \
+	-e '/__pmServerNotifySystemd: NOTIFY_SOCKET/d' \
 	-e 's/Cannot open 000000660066: No such file or directory//' \
 	-e 's/^$//' \
 	-e '/^00[08]:/d' \

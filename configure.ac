@@ -756,6 +756,7 @@ AC_SUBST(enable_avahi)
 
 dnl Check for systemd services
 enable_systemd=false
+AC_MSG_CHECKING([if systemd should be used])
 AS_IF([test "x$do_systemd" != "xno"], [
     enable_systemd=true
 
@@ -771,7 +772,21 @@ AS_IF([test "x$do_systemd" != "xno"], [
 	enable_systemd=false
     fi
 ])
+if $enable_systemd
+then
+    AC_MSG_RESULT(yes)
+else
+    AC_MSG_RESULT(no)
+fi
 AC_SUBST(enable_systemd)
+
+if $enable_systemd
+then
+    dnl sd_notify() is needed in __pmServerNotifySystemd(), but only if systemd
+    dnl is being used
+    AC_CHECK_HEADERS([systemd/sd-daemon.h], [have_sd_daemon=true], [have_sd_daemon=false])
+    $have_sd_daemon || echo WARNING: using systemd, but header systemd/sd-daemon.h not installed
+fi
 
 dnl NB: No AC_PREFIX_DEFAULT is needed, as the default configure invocation
 dnl targets a build for non-system directories such as /usr/local.
@@ -788,7 +803,7 @@ AC_SUBST(PACKAGE_BUILD)
 if test -z "$PACKAGE_BUILD_DATE" ; then
     # use SOURCE_DATE_EPOCH for a deterministic builddate (reproducible builds)
     PACKAGE_BUILD_DATE=`date --utc --date="@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y-%m-%d`
-    [ $? -eq 0 ] || PACKAGE_BUILD_DATE=`date +%Y-%m-%d`
+    test $? -eq 0 || PACKAGE_BUILD_DATE=`date +%Y-%m-%d`
 fi
 AC_SUBST(PACKAGE_BUILD_DATE)
 

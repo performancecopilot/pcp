@@ -67,3 +67,66 @@
    fun:main
 }
 
+# Seen in qa/720 on vm02 (OpenSuSE Leap 15.0) ... not our code at all
+#
+# Conditional jump or move depends on uninitialised value(s)
+# at 0x4C34330: bcmp (in /usr/lib64/valgrind/vgpreload_memcheck-amd64-linux.so)
+# by 0x8EF108A: ??? (in /usr/lib64/libcrypto.so.1.1)
+# by 0x8EF0235: FIPS_selftest (in /usr/lib64/libcrypto.so.1.1)
+# by 0x8EEB09C: ??? (in /usr/lib64/libcrypto.so.1.1)
+# by 0x8EFEFE0: FIPS_mode_set (in /usr/lib64/libcrypto.so.1.1)
+# by 0x8E0416A: ??? (in /usr/lib64/libcrypto.so.1.1)
+# by 0x400FBF9: call_init.part.0 (in /lib64/ld-2.26.so)
+# by 0x400FD05: _dl_init (in /lib64/ld-2.26.so)
+# by 0x4014488: dl_open_worker (in /lib64/ld-2.26.so)
+# by 0x5232F83: _dl_catch_error (in /lib64/libc-2.26.so)
+# by 0x4013C08: _dl_open (in /lib64/ld-2.26.so)
+# by 0x6CDEF95: dlopen_doit (in /lib64/libdl-2.26.so)
+{
+   libcrypto botch #1
+   Memcheck:Cond
+   fun:bcmp
+   obj:/usr/lib64/libcrypto.so.1.1
+   fun:FIPS_selftest
+   obj:/usr/lib64/libcrypto.so.1.1
+   fun:FIPS_mode_set
+   obj:/usr/lib64/libcrypto.so.1.1
+   fun:call_init.part.0
+   fun:_dl_init
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+}
+
+# and this one also (same test and platform)
+#
+# Conditional jump or move depends on uninitialised value(s)
+# at 0x8EEB0A1: ??? (in /usr/lib64/libcrypto.so.1.1)
+# by 0x8EFEFE0: FIPS_mode_set (in /usr/lib64/libcrypto.so.1.1)
+# by 0x8E0416A: ??? (in /usr/lib64/libcrypto.so.1.1)
+# by 0x400FBF9: call_init.part.0 (in /lib64/ld-2.26.so)
+# by 0x400FD05: _dl_init (in /lib64/ld-2.26.so)
+# by 0x4014488: dl_open_worker (in /lib64/ld-2.26.so)
+# by 0x5232F83: _dl_catch_error (in /lib64/libc-2.26.so)
+# by 0x4013C08: _dl_open (in /lib64/ld-2.26.so)
+# by 0x6CDEF95: dlopen_doit (in /lib64/libdl-2.26.so)
+# by 0x5232F83: _dl_catch_error (in /lib64/libc-2.26.so)
+# by 0x6CDF664: _dlerror_run (in /lib64/libdl-2.26.so)
+# by 0x6CDF020: dlopen@@GLIBC_2.2.5 (in /lib64/libdl-2.26.so)
+{
+   libcrypto botch #2
+   Memcheck:Cond
+   obj:/usr/lib64/libcrypto.so.1.1
+   fun:FIPS_mode_set
+   obj:/usr/lib64/libcrypto.so.1.1
+   fun:call_init.part.0
+   fun:_dl_init
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.2.5
+}

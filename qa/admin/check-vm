@@ -607,7 +607,13 @@ do
 	    case "$pkgtype"
 	    in
 		dpkg)
-		    dpkg-query -W -f '${package}\n'
+		    # just ones like
+		    # xterm install ok installed
+		    # and skip ones like
+		    # zfsutils-linux deinstall ok config-files
+		    #
+		    dpkg-query -W -f '${package} ${status}\n' \
+		    | sed -n -e '/ installed$/s/ .*//p'
 		    ;;
 
 		rpm)

@@ -37,7 +37,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _stop_auto_restart pmlogger
 _service pmlogger stop | _filter_pcp_stop
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep 'PID|[p]mlogger' >>$here/$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mlogger' >>$here/$seq.full
 
 _filter()
 {
@@ -251,10 +251,10 @@ do
     echo >>$here/$seq.full
     echo "=== test $i ===" >>$here/$seq.full
     echo "--- before _setup() ---" >>$here/$seq.full
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep 'PID|[p]mlogger' >>$here/$seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mlogger' >>$here/$seq.full
     _setup
     echo "--- after _setup() ---" >>$here/$seq.full
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep 'PID|[p]mlogger' >>$here/$seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mlogger' >>$here/$seq.full
     
     # create the control file from master
     _extract_control $i > $logdir/control
@@ -298,7 +298,7 @@ do
 	echo "Arrgh ... failed to find just one pmlogger to kill ... see $seq.full"
 	echo "" >>$here/$seq.full
 	echo "Arrgh ... failed to find just one pmlogger to kill ..." >>$here/$seq.full
-	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep 'PID|[p]mlogger' >>$here/$seq.full
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mlogger' >>$here/$seq.full
 	echo "$log contents ..." >>$here/$seq.full
 	ls -l $log >>$here/$seq.full
 	for ctl in $PCP_TMP_DIR/pmlogger/[0-9]*
@@ -321,6 +321,7 @@ NR == 1	{ print
 	  next
 	}
 $2 == '"$pid"' { print; exit(0) }'
+    echo "status" | pmlc $pid >>$here/$seq.full
     echo "+++ $PCP_TMP_DIR/pmlogger/$pid +++" >>$here/$seq.full
     cat $PCP_TMP_DIR/pmlogger/$pid >>$here/$seq.full
     $signal -s TERM $pid
@@ -332,6 +333,38 @@ $2 == '"$pid"' { print; exit(0) }'
 	| tee -a $here/$seq.full \
 	| sed -e '/^... try /d' \
 	| _filter
+    fi
+
+    # Need to avoid race here.  Next iteration might try to start this
+    # one again ... wait (up to 30 secs) for most recently started
+    # pmlogger to get going ...
+    #
+    x=0
+    rm -f $tmp.found
+    while [ "$x" -lt 30 ]
+    do
+	pid=`grep -l $log $PCP_TMP_DIR/pmlogger/[0-9]* | sed -e 's/.*pmlogger.//'`
+	if [ -n "$pid" ]
+	then
+	    echo "Found pid $pid after $x iterations" >>$here/$seq.full
+	    echo "status" | pmlc $pid >>$here/$seq.full
+	    touch $tmp.found
+	    break
+	fi
+	x=`expr $x + 1`
+	sleep 1
+    done
+    if [ ! -f $tmp.found ]
+    then
+	echo "Arrgh ... pmlogger_check failed to restart pmloggers" | tee -a $here/$seq.full
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mlogger' >>$here/$seq.full
+	for state in $PCP_TMP_DIR/pmlogger/[0-9]*
+	do
+	    echo "=== $state ==="
+	    cat $state
+	done
+	echo "See $seq.full for details"
+	exit
     fi
 
 done

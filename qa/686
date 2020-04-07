@@ -28,7 +28,7 @@ _filter()
 	-e '/^.[rwx-][rwx-][rwx-]/s/.* 20/<ls output> 20/' \
 	-e "s/$TODAY/TODAY/g" \
 	-e "s/$YESTERDAY/YESTERDAY/g" \
-	-e '/Warning: skipping pmnewlog because we don/d' \
+	-e '/Warning: skipping log rotation because we don/d' \
 	
 	# -e '/^+ date-and-timestamp/s/stamp .*/stamp .../' \
 	# -e '/^pmlogger_daily:.*\.control:[0-9]]$/d' \

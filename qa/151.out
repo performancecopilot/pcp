@@ -72,7 +72,7 @@ PMLOGGER.DAILY: [TMP/control:2]
 Error: no pmlogger instance running for host "HOST"
 ... logging for host "HOST" unchanged
 PMLOGGER.DAILY: [TMP/control:2]
-Warning: skipping pmnewlog because we don't know which pmlogger to stop
+Warning: skipping log rotation because we don't know which pmlogger to signal
 Archive files older than 4 days being removed ...
 TODAY-5.0
 TODAY-5.index
