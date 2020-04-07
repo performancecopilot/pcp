@@ -10,7 +10,7 @@ pmlogger_daily: [TMP.control:3]
 Error: no pmlogger instance running for host "one.somewhere"
 ... logging for host "one.somewhere" unchanged
 pmlogger_daily: [TMP.control:3]
-Warning: skipping pmnewlog because we don't know which pmlogger to stop
+Warning: skipping log rotation because we don't know which pmlogger to signal
 + pmlogrewrite -iq -c $PCP_VAR_DIR/config/pmlogrewrite PAST.00.10
 + pmlogmv -V -N PAST.00.10 PAST
 + cd TMP.two
@@ -22,7 +22,7 @@ pmlogger_daily: [TMP.control:4]
 Error: no pmlogger instance running for host "two.somewhere"
 ... logging for host "two.somewhere" unchanged
 pmlogger_daily: [TMP.control:4]
-Warning: skipping pmnewlog because we don't know which pmlogger to stop
+Warning: skipping log rotation because we don't know which pmlogger to signal
 + pmlogrewrite -iq -c $PCP_VAR_DIR/config/pmlogrewrite PAST.00.10
 + pmlogrewrite -iq -c $PCP_VAR_DIR/config/pmlogrewrite PAST.13.13
 + pmlogger_merge -V -N -f PAST.00.10 PAST.13.13 PAST
@@ -39,7 +39,7 @@ pmlogger_daily: [TMP.control:3]
 Error: no pmlogger instance running for host "one.somewhere"
 ... logging for host "one.somewhere" unchanged
 pmlogger_daily: [TMP.control:3]
-Warning: skipping pmnewlog because we don't know which pmlogger to stop
+Warning: skipping log rotation because we don't know which pmlogger to signal
 + cd TMP.two
 
 === daily maintenance of PCP archives for host two.somewhere ===
@@ -49,4 +49,4 @@ pmlogger_daily: [TMP.control:4]
 Error: no pmlogger instance running for host "two.somewhere"
 ... logging for host "two.somewhere" unchanged
 pmlogger_daily: [TMP.control:4]
-Warning: skipping pmnewlog because we don't know which pmlogger to stop
+Warning: skipping log rotation because we don't know which pmlogger to signal

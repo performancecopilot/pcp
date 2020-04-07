@@ -181,6 +181,7 @@ RFLAG=false
 REWRITEALL=false
 MFLAG=false
 FORCE=false
+KILL=pmsignal
 
 ARGS=`pmgetopt --progname=$prog --config=$tmp/usage -- "$@"`
 [ $? != 0 ] && exit 1
@@ -453,11 +454,6 @@ then
     exit
 fi
 
-# each new archive log started by pmnewlog or pmlogger_check is named
-# yyyymmdd.hh.mm
-#
-LOGNAME=`date "+%Y%m%d.%H.%M"`
-
 _error()
 {
     echo "$prog: [$filename:$line]"
@@ -720,7 +716,7 @@ _get_non_primary_logger_pid()
 	    $PCP_ECHO_PROG $PCP_ECHO_N "... try $log host=$_host arch=$_arch: ""$PCP_ECHO_C"
 	fi
 	# throw away stderr in case $log has been removed by now
-	match=`sed -e '3s/\/[0-9][0-9][0-9][0-9][0-9.]*$//' $log 2>/dev/null | \
+	match=`sed -e '3s@/[^/]*$@@' $log 2>/dev/null | \
 	$PCP_AWK_PROG '
 BEGIN				{ m = 0 }
 NR == 3 && $0 == "'$dir'"	{ m = 2; next }
@@ -1033,6 +1029,15 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    fi
 	else
 	    pid=`_get_non_primary_logger_pid`
+	    if $VERY_VERBOSE
+	    then
+		if [ -z "$pid" ]
+		then
+		    $VERY_VERBOSE && echo "No non-primary pmlogger process(es) found"
+		else
+		    $VERY_VERBOSE && echo "non-primary pmlogger process(es) $pid identified, OK"
+		fi
+	    fi
 	fi
 
 	if [ -z "$pid" ]
@@ -1043,60 +1048,16 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    else
 		_warning "no pmlogger instance running for host \"$host\""
 	    fi
-	    _warning "skipping pmnewlog because we don't know which pmlogger to stop"
+	    _warning "skipping log rotation because we don't know which pmlogger to signal"
 	elif ! $COMPRESSONLY
 	then
-	    # execute pmnewlog to "roll the archive logs"
+	    # send pmlogger a SIGUSR2 to "roll the archive logs"
 	    #
-	    [ X"$primary" != Xy ] && args="-p $pid $args"
-	    # else: -P is already the default
-	    [ X"$socks" = Xy ] && args="-s $args"
-	    args="$args -m pmlogger_daily"
-	    $SHOWME && echo "+ pmnewlog$MYARGS $args $LOGNAME"
-	    pid=''
-	    if pmnewlog$MYARGS $args $LOGNAME
+	    if $SHOWME
 	    then
-		:
+		echo "+ $KILL -s USR2 $pid"
 	    else
-		_error "problems executing pmnewlog for host \"$host\""
-	    fi
-	    # determine pid for (hopefully new) pmlogger instance for this
-	    # control line
-	    if [ X"$primary" = Xy ]
-	    then
-		if test -e "$PCP_TMP_DIR/pmlogger/primary"
-		then
-		    _host=`sed -n 2p <"$PCP_TMP_DIR/pmlogger/primary"`
-		    _arch=`sed -n 3p <"$PCP_TMP_DIR/pmlogger/primary"`
-		    $VERY_VERBOSE && echo "... try new $PCP_TMP_DIR/pmlogger/primary: host=$_host arch=$_arch"
-		    pid=`_get_primary_logger_pid`
-		fi
-		if [ -z "$pid" ]
-		then
-		    if $VERY_VERBOSE
-		    then
-			echo "new primary pmlogger process PID not found"
-			ls -l "$PCP_TMP_DIR/pmlogger"
-			$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mlogger'
-		    fi
-		elif _get_pids_by_name pmlogger | grep "^$pid\$" >/dev/null
-		then
-		    $VERY_VERBOSE && echo "new primary pmlogger process $pid identified, OK"
-		else
-		    $VERY_VERBOSE && echo "new primary pmlogger process $pid not running"
-		    pid=''
-		fi
-	    else
-		pid=`_get_non_primary_logger_pid`
-		if [ -z "$pid" ]
-		then
-		    if $VERY_VERBOSE
-		    then
-			echo "new non-primary pmlogger process PID not found"
-			ls -l "$PCP_TMP_DIR/pmlogger"
-			$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mlogger'
-		    fi
-		fi
+		$KILL -s USR2 "$pid"
 	    fi
 	fi
 

@@ -673,8 +673,13 @@ CheckNewClient(__pmFdSet * fdset, int rfd, int family)
     ClientInfo	*cp;
 
     if (__pmFD_ISSET(rfd, fdset)) {
-	if ((cp = AcceptNewClient(rfd)) == NULL)
+	if ((cp = AcceptNewClient(rfd)) == NULL) {
+	    if (pmDebugOptions.access) {
+		fprintf(stderr, "CheckNewClient: AcceptNewClient(%d) failed: %s\n",
+		    rfd, pmErrStr(-oserror()));
+	    }
 	    return;	/* Accept failed and no client added */
+	}
 
 	sts = __pmAccAddClient(cp->addr, &cp->denyOps);
 #if defined(HAVE_STRUCT_SOCKADDR_UN)

@@ -16,12 +16,23 @@ echo "QA output created by $seq"
 
 # [ -n "$PCP_SYSTEMDUNIT_DIR" ] || _notrun "PCP_SYSTEMUNIT_DIR not set, no systemd"
 
+# handle multiple possible messages ...
+# ... __pmServerNotifySystemd: NOTIFY_SOCKET not set: not launched by systemd, or service unit is not using Type=notify
+# ... __pmServerNotifyServiceManagerReady: no service manager on this platform
+# ... __pmServerNotifyServiceManagerStopping: no service manager on this platform
+#
+#
 _filter_log()
 {
-    sed -e 's/started .*$/started DATE/' \
-	-e 's/^\[.*\]/[DATE]/' \
+    sed \
+	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9] [0-9][0-9][0-9][0-9]$/DATE/' \
+	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/DATE/' \
         -e 's/([0-9]*)/(PID)/' \
-	-e 's/on .* started/on HOST started/'
+	-e 's/on .* started/on HOST started/' \
+	-e 's/__pmServerNotifySystemd: NOTIFY_SOCKET not set: not launched by systemd, or service unit is not using Type=notify/__pmServerNotify... EXPECTED/' \
+	-e 's/__pmServerNotifyServiceManagerReady: no service manager on this platform/__pmServerNotify... EXPECTED/' \
+	-e 's/__pmServerNotifyServiceManagerStopping: no service manager on this platform/__pmServerNotify... EXPECTED/' \
+    # end
 }
 
 _cleanup()
@@ -41,7 +52,18 @@ command=$here/src/test_service_notify
 echo;echo === test for service manager notices on non-systemd platform
 echo 'Note the warning about "NOTIFY_SOCKET not set" is expected due to -Dservices'
 $sudo src/test_service_notify -Dservices -f -l $tmp/test_service_notify.log & >/dev/null 2>&1
-pid=$!; sleep 1; $sudo kill -TERM $pid; sleep 1
+pid=$!
+# need test_service_notify  to get started ...
+#
+for x in 1 2 3 4 5
+do
+    sleep 1
+    [ -f $tmp/test_service_notify.log ] && break
+done
+$sudo $PCP_BINADM_DIR/pmsignal -a -s TERM test_service_notify
+# need test_service_notify to get signal and shut up shop ...
+#
+wait
 _filter_log < $tmp/test_service_notify.log; rm -f $tmp/test_service_notify.log
 
 # TODO additional systemd tests coming (using a test-systemd.unit)

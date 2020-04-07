@@ -176,7 +176,9 @@ _filter_pmlogger_log()
         -e '/^\(Log for pmlogger on\) [^ ][^ ]*/s//\1 HOST/' \
 	-e '/^Starting logger/s/host ".*/host "HOST"/' \
 	-e '/^Archive basename: /s/:.*/: ARCHIVE/' \
-	-e '/^pmlc request/s/ from .*:/ from HOST:/'
+	-e '/^pmlc request/s/ from .*:/ from HOST:/' \
+	-e '/^__pmLogCreate(/s/([^,]*,/(HOST,/' \
+    # end
 }
 
 # pmie log file
@@ -894,6 +896,7 @@ _filter_torture_api()
 	-e '/^    pdns /d' \
 	-e '/^    p76 /d' \
 	-e '/^    process /d' \
+	-e '/^    quota /d' \
 	-e '/^    roomtemp /d' \
 	-e '/^    rpm /d' \
 	-e '/^    rsyslog /d' \
@@ -910,6 +913,7 @@ _filter_torture_api()
 	-e '/^    vfs /d' \
 	-e '/^    vmware /d' \
 	-e '/^    waitio /d' \
+	-e '/^    xfs /d' \
 	-e '/^    xvm /d' \
     # end
 }

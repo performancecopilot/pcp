@@ -19,6 +19,8 @@ $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; _cleanup; exit \$status" 0 1 2 3 15
 signal=$PCP_BINADM_DIR/pmsignal
 
+_stop_auto_restart pmlogger
+
 _filter()
 {
     sed \
@@ -41,7 +43,6 @@ _filter()
 s/\[[0-9][0-9]*/[PID/
 s/from host .*/from host .../
 }' \
-	-e '/Latest folio created/s/ [0-9][0-9][0-9][0-9][01][0-9][0-3][0-9]\.[0-5][0-9]\.[0-5][0-9]/ DATE.TIME/' \
 	-e '/pmlogger -m/s/ [0-9][0-9][0-9][0-9][01][0-9][0-3][0-9]\.[0-5][0-9]\.[0-5][0-9]/ DATE.TIME/' \
 	-e '/^pcp /s/ .*/ .../' \
 	-e '/^PMCD host /s/host .*/host .../' \
@@ -67,18 +68,58 @@ _cleanup()
     cd # get out of tmp directory so we can delete it
     $sudo rm -rf $tmp
 
-    $sudo $PCP_BINADM_DIR/pmlogger_check
+    _service pmlogger restart 2>&1 \
+    | _filter_pcp_start \
     _wait_for_pmlogger
+    _restore_auto_restart pmlogger
 }
 
 _setup()
 {
+    _service pmlogger stop | _filter_pcp_stop
     _stop_loggers >/dev/null 2>&1
     cd
     rm -rf $tmp
     mkdir $tmp
     qatmp=$tmp
     export qatmp
+}
+
+_check_loggers()
+{
+    # Need to make sure all the pmloggers have really started ...
+    # wait (up to 30 secs) for each
+    #
+    for x in A B C
+    do
+	z=0
+	rm -f $tmp.found
+	while [ "$z" -lt 30 ]
+	do
+	    pid=`grep -l $qatmp/$x $PCP_TMP_DIR/pmlogger/[0-9]* | sed -e 's/.*pmlogger.//'`
+	    if [ -n "$pid" ]
+	    then
+		echo "Found pid $pid for $qatmp/$x after $z iterations" >>$here/$seq.full
+		echo "status" | pmlc $pid >>$here/$seq.full
+		touch $tmp.found
+		break
+	    fi
+	    z=`expr $z + 1`
+	    sleep 1
+	done
+	if [ ! -f $tmp.found ]
+	then
+	    echo "Arrgh ... pmlogger_* failed to keep pmlogger running for $qatmp/$x" | tee -a $here/$seq.full
+	    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mlogger' >>$here/$seq.full
+	    for state in $PCP_TMP_DIR/pmlogger/[0-9]*
+	    do
+		echo "=== $state ==="
+		cat $state
+	    done
+	    echo "See $seq.full for details"
+	    exit
+	fi
+    done
 }
 
 cat >$tmp.config <<End-of-File
@@ -108,9 +149,10 @@ End-of-File
 echo "pmlogger_check #1" | tee -a $here/$seq.full
 $sudo $PCP_BINADM_DIR/pmlogger_check -V -c $tmp/control -l $tmp/log
 [ -s $tmp/log ] && $sudo cat $tmp/log | tee -a $here/$seq.full | _filter
+_check_loggers
 for x in A B C
 do
-    ls $tmp/$x >>$here/$seq.full
+    ls -l $tmp/$x >>$here/$seq.full
     echo `ls $tmp/$x | grep "\.meta" | wc -l | sed -e 's/ //g'` archives in TMP/$x
 done
 
@@ -120,19 +162,24 @@ _stop_loggers >/dev/null 2>&1
 echo "pmlogger_check #2" | tee -a $here/$seq.full
 $sudo $PCP_BINADM_DIR/pmlogger_check -V -c $tmp/control -l $tmp/log
 [ -s $tmp/log ] && $sudo cat $tmp/log | tee -a $here/$seq.full | _filter
+_check_loggers
 for x in A B C
 do
-    ls $tmp/$x >>$here/$seq.full
+    ls -l $tmp/$x >>$here/$seq.full
     echo `ls $tmp/$x | grep "\.meta" | wc -l | sed -e 's/ //g'` archives in TMP/$x
 done
+
+echo "pmlogger processes ..." >>$here/$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mlogger' >>$here/$seq.full
 
 echo
 echo "pmlogger_daily"
 $sudo $PCP_BINADM_DIR/pmlogger_daily -V -x never -c $tmp/control -l $tmp/log
 [ -s $tmp/log ] && $sudo cat $tmp/log | tee -a $here/$seq.full | _filter
+_check_loggers
 for x in A B C
 do
-    ls $tmp/$x >>$here/$seq.full
+    ls -l $tmp/$x >>$here/$seq.full
     echo `ls $tmp/$x | grep "\.meta" | wc -l | sed -e 's/ //g'` archives in TMP/$x
 done
 

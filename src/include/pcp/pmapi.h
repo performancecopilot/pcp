@@ -1141,6 +1141,7 @@ typedef struct {
     int	appl3;		/* Application-specific flag 3 */
     int	appl4;		/* Application-specific flag 4 */
     int	appl5;		/* Application-specific flag 5 */
+    int access;		/* Access controls */
 } pmdebugoptions_t;
 
 PCP_DATA extern pmdebugoptions_t	pmDebugOptions;

@@ -25,28 +25,60 @@ $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 mkdir -p $tmp
 PMLOGGER=$PCP_BIN_DIR/pmlogger
-spec=qa-$seq-%Y%m%d.%0H.%0M
+spec=qa-$seq-%Y%m%d.%H.%M
 
 echo == checking strftime archive name substitution | tee -a $seq.full
-[ `pmdate %S` -gt 55 ] && sleep 6
 base=`pmdate $spec`
+nextbase=`pmdate +1M $spec`
 $PMLOGGER -s10 -t 1s -c config.default -l $tmp/pmlogger.log $tmp/$spec 2>$tmp/$seq.err &
 pid=$!; sleep 5; kill -TERM $pid
 echo === log === >>$seq.full; cat $tmp/pmlogger.log >>$seq.full
 echo === err === >>$seq.full; cat $tmp/$seq.err >>$seq.full
-[ ! -f $tmp/$base.index ] && echo FAILED, expected $tmp/$base.index && exit
+if [ -f $tmp/$base.index ]
+then
+    echo "found base: `ls -l $tmp/$base.index`" >>$seq.full
+elif [ -f $nextbase.index ]
+then
+    echo "found nextbase: `ls -l $tmp/$nextbase.index`" >>$seq.full
+else
+    echo "FAILED, expected $base.index or $nextbase.index" | tee -a $seq.full
+    ls -l $tmp >>$seq.full
+    exit
+fi
 
 echo == checking SIGUSR2 starts a new log as non-root user | tee -a $seq.full
-[ `pmdate %S` -gt 55 ] && sleep 6
 base=`pmdate $spec`
-newbase=`pmdate +1M $spec`
+nextbase=`pmdate +1M $spec`
 $PMLOGGER -U$username -s30 -t 1s -c config.default -l $tmp/pmlogger.log $tmp/$spec 2>$tmp/$seq.err &
 pid=$!; sleep 5; 
 $sudo -u $username kill -USR2 $pid; sleep 5
 echo === log === >>$seq.full; cat $tmp/pmlogger.log >>$seq.full
 echo === err === >>$seq.full; cat $tmp/$seq.err >>$seq.full
-[ ! -f $tmp/$base.index ] && echo FAILED, expected to find $tmp/$base.index && exit
-[ ! -f $tmp/$newbase.index ] && echo FAILED, expected to find $tmp/$newbase.index && exit
+if [ -f $tmp/$base.index ]
+then
+    echo "found 1st base: `ls -l $tmp/$base.index`" >>$seq.full
+elif [ -f $nextbase.index ]
+then
+    echo "found 1st nextbase: `ls -l $tmp/$nextbase.index`" >>$seq.full
+else
+    echo "FAILED, expected to find 1st $base.index or $nextbase.index" | tee -a $seq.full
+    ls -l $tmp >>$seq.full
+    exit
+fi
+if [ -f $tmp/$base-00.index ]
+then
+    echo "found 2nd base: `ls -l $tmp/$base-00.index`" >>$seq.full
+elif [ -f $nextbase.index ]
+then
+    echo "found 2nd nextbase: `ls -l $tmp/$nextbase.index`" >>$seq.full
+elif [ -f $nextbase-00.index ]
+then
+    echo "found 2nd nextbase: `ls -l $tmp/$nextbase-00.index`" >>$seq.full
+else
+    echo "FAILED, expected to find 2nd $base-00.index or $nextbase.index or $nextbase-00.index" | tee -a $seq.full
+    ls -l $tmp >>$seq.full
+    exit
+fi
 
 echo == check pmlc can connect to pmlogger after reexec
 (echo status | pmlc $pid >>$seq.full) || echo pmlc failed to connect to pid $pid

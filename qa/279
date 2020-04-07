@@ -57,11 +57,22 @@ skip == 0	{ print }
 	-e "s;$PCP_PMCDCONF_PATH;\$PCP_PMCDCONF_PATH;g" \
     | _filter_pcp_start \
     | _filter_pmcd_log \
+    | _filter_pmcd \
     | sed \
 	-e '/^Job for pmcd.service failed/d' \
 	-e '/^See "systemctl  *status pmcd.service"/d' \
 	-e '/^pmcd.service: /d' \
 	-e '/^Job failed. See system journal/d' \
+    # end
+}
+
+# This line may or may not appear ...
+# $PCP_RC_DIR/pmcd: pmcd not running
+#
+_filter_pmcd()
+{
+    sed \
+	-e '/^$PCP_RC_DIR\/pmcd: pmcd not running/d' \
     # end
 }
 
@@ -122,7 +133,7 @@ echo "=== initial pmcd.conf ===" >>$seq.full
 cat $tmp.conf >>$seq.full
 echo "=== ===" >>$seq.full
 $sudo cp $tmp.conf $PCP_PMCDCONF_PATH
-_service pcp restart 2>&1 | _filter_pcp_start
+_service pcp restart 2>&1 | _filter_pcp_start | _filter_pmcd
 _wait_for_pmcd
 _wait_for_pmlogger
 

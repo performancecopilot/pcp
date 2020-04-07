@@ -219,6 +219,7 @@ stripmark
 sum16
 tabort
 template
+test_service_notify
 t_fetch
 timeshift
 torture_api

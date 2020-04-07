@@ -955,6 +955,7 @@ infodir
 docdir
 oldincludedir
 includedir
+runstatedir
 localstatedir
 sharedstatedir
 sysconfdir
@@ -1102,6 +1103,7 @@ datadir='${datarootdir}'
 sysconfdir='${prefix}/etc'
 sharedstatedir='${prefix}/com'
 localstatedir='${prefix}/var'
+runstatedir='${localstatedir}/run'
 includedir='${prefix}/include'
 oldincludedir='/usr/include'
 docdir='${datarootdir}/doc/${PACKAGE}'
@@ -1354,6 +1356,15 @@ do
   | -silent | --silent | --silen | --sile | --sil)
     silent=yes ;;
 
+  -runstatedir | --runstatedir | --runstatedi | --runstated \
+  | --runstate | --runstat | --runsta | --runst | --runs \
+  | --run | --ru | --r)
+    ac_prev=runstatedir ;;
+  -runstatedir=* | --runstatedir=* | --runstatedi=* | --runstated=* \
+  | --runstate=* | --runstat=* | --runsta=* | --runst=* | --runs=* \
+  | --run=* | --ru=* | --r=*)
+    runstatedir=$ac_optarg ;;
+
   -sbindir | --sbindir | --sbindi | --sbind | --sbin | --sbi | --sb)
     ac_prev=sbindir ;;
   -sbindir=* | --sbindir=* | --sbindi=* | --sbind=* | --sbin=* \
@@ -1491,7 +1502,7 @@ fi
 for ac_var in	exec_prefix prefix bindir sbindir libexecdir datarootdir \
 		datadir sysconfdir sharedstatedir localstatedir includedir \
 		oldincludedir docdir infodir htmldir dvidir pdfdir psdir \
-		libdir localedir mandir
+		libdir localedir mandir runstatedir
 do
   eval ac_val=\$$ac_var
   # Remove trailing slashes.
@@ -1644,6 +1655,7 @@ Fine tuning of the installation directories:
   --sysconfdir=DIR        read-only single-machine data [PREFIX/etc]
   --sharedstatedir=DIR    modifiable architecture-independent data [PREFIX/com]
   --localstatedir=DIR     modifiable single-machine data [PREFIX/var]
+  --runstatedir=DIR       modifiable per-process data [LOCALSTATEDIR/run]
   --libdir=DIR            object code libraries [EPREFIX/lib]
   --includedir=DIR        C header files [PREFIX/include]
   --oldincludedir=DIR     C header files for non-gcc [/usr/include]
@@ -5766,6 +5778,8 @@ fi
 
 
 enable_systemd=false
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if systemd should be used" >&5
+$as_echo_n "checking if systemd should be used... " >&6; }
 if test "x$do_systemd" != "xno"; then :
 
     enable_systemd=true
@@ -5806,7 +5820,34 @@ fi
     fi
 
 fi
+if $enable_systemd
+then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+else
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
 
+
+if $enable_systemd
+then
+            for ac_header in systemd/sd-daemon.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "systemd/sd-daemon.h" "ac_cv_header_systemd_sd_daemon_h" "$ac_includes_default"
+if test "x$ac_cv_header_systemd_sd_daemon_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_SYSTEMD_SD_DAEMON_H 1
+_ACEOF
+ have_sd_daemon=true
+else
+  have_sd_daemon=false
+fi
+
+done
+
+    $have_sd_daemon || echo WARNING: using systemd, but header systemd/sd-daemon.h not installed
+fi
 
 
 . ./VERSION.pcp
@@ -5820,7 +5861,7 @@ PACKAGE_VERSION=${PACKAGE_MAJOR}.${PACKAGE_MINOR}.${PACKAGE_REVISION}
 if test -z "$PACKAGE_BUILD_DATE" ; then
     # use SOURCE_DATE_EPOCH for a deterministic builddate (reproducible builds)
     PACKAGE_BUILD_DATE=`date --utc --date="@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y-%m-%d`
-     $? -eq 0  || PACKAGE_BUILD_DATE=`date +%Y-%m-%d`
+    test $? -eq 0 || PACKAGE_BUILD_DATE=`date +%Y-%m-%d`
 fi
 
 

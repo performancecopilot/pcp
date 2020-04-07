@@ -762,7 +762,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		    $PCP_ECHO_PROG $PCP_ECHO_N "... try $log host=$_host arch=$_arch: ""$PCP_ECHO_C"
 		fi
 		# throw away stderr in case $log has been removed by now
-		match=`sed -e '3s/\/[0-9][0-9][0-9][0-9][0-9.]*$//' $log 2>/dev/null | \
+		match=`sed -e '3s@/[^/]*$@@' $log 2>/dev/null | \
 		$PCP_AWK_PROG '
 BEGIN				{ m = 0 }
 NR == 3 && $0 == "'$dir'"	{ m = 2; next }
@@ -786,8 +786,6 @@ END				{ print m }'`
 
 	if [ -z "$pid" -a $START_PMLOGGER = true ]
 	then
-	    rm -f Latest
-
 	    if [ "X$primary" = Xy ]
 	    then
 		envs=`grep ^PMLOGGER "$PMLOGGERENVS" 2>/dev/null`
@@ -805,39 +803,13 @@ END				{ print m }'`
 
 	    # each new log started is named yyyymmdd.hh.mm
 	    #
-	    LOGNAME=`date "+%Y%m%d.%H.%M"`
+	    LOGNAME=%Y%m%d.%H.%M
 
-	    # handle duplicates/aliases (happens when pmlogger is restarted
-	    # within a minute and LOGNAME is the same)
+	    # We used to handle duplicates/aliases here (happens when
+	    # pmlogger is restarted within a minute and LOGNAME expands
+	    # to the same string ... this is now magically handled by
+	    # pmlogger, so do nothing.
 	    #
-	    suff=''
-	    for file in $LOGNAME.*
-	    do
-		[ "$file" = "$LOGNAME"'.*' ] && continue
-		# we have a clash! ... find a new -number suffix for the
-		# existing files ... we are going to keep $LOGNAME for the
-		# new pmlogger below
-		#
-		if [ -z "$suff" ]
-		then
-		    for xx in 0 1 2 3 4 5 6 7 8 9
-		    do
-			for yy in 0 1 2 3 4 5 6 7 8 9
-			do
-			    [ "`echo $LOGNAME-${xx}${yy}.*`" != "$LOGNAME-${xx}${yy}.*" ] && continue
-			    suff=${xx}${yy}
-			    break
-			done
-			[ ! -z "$suff" ] && break
-		    done
-		    if [ -z "$suff" ]
-		    then
-	    		_error "unable to break duplicate clash for archive basename $LOGNAME"
-		    fi
-		    $VERBOSE && echo "Duplicate archive basename ... rename $LOGNAME.* files to $LOGNAME-$suff.*"
-		fi
-		eval $MV -f $file `echo $file | sed -e "s/$LOGNAME/&-$suff/"`
-	    done
 
 	    configfile=`_get_configfile $args`
 	    if [ ! -z "$configfile" ]
@@ -902,36 +874,15 @@ END				{ print m }'`
 	    # wait for pmlogger to get started, and check on its health
 	    _check_logger $pid
 
-	    # the archive folio Latest is for the most recent archive in
-	    # this directory
-	    #
-	    if [ -f $LOGNAME.0 ] 
-	    then
-		$VERBOSE && echo "Latest folio created for $LOGNAME"
-		mkaf $LOGNAME.0 >Latest 2>/dev/null
-		chown $PCP_USER:$PCP_GROUP Latest >/dev/null 2>&1
-	    else
-		touch $tmp/err
-		logdir=`dirname $LOGNAME`
-		if $TERSE
-		then
-		    echo "$prog: Error: archive file `cd $logdir; $PWDCMND`/$LOGNAME.0 missing"
-		else
-		    echo "$prog: Error: archive file $LOGNAME.0 missing"
-		    echo "Directory (`cd $logdir; $PWDCMND`) contents:"
-		    LC_TIME=POSIX ls -la $logdir
-		fi
-	    fi
-
 	    # if SaveLogs exists in the same directory that the archive
 	    # is being created, save pmlogger log file there as well
 	    #
-	    dirname=`dirname $LOGNAME`
+	    dirname=`dirname $mylogname.0`
 	    if [ -d $dirname/SaveLogs ]
 	    then
-		if [ ! -f $dirname/SaveLogs/$LOGNAME.log ]
+		if [ ! -f $dirname/SaveLogs/$mylogname.log ]
 		then
-		    $LN $logfile $dirname/SaveLogs/$LOGNAME.log
+		    $LN $logfile $dirname/SaveLogs/$mylogname.log
 		fi
 	    fi
 

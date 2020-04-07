@@ -33,7 +33,7 @@ main(int argc, char **argv)
     struct timeval	stamp;			/* time in past */
     double		stamp_f;		/* stamp as real number */
     int			pred = PRED_NONE;
-    int			sign;
+    int			sign = 0;		/* pander to gcc on NetBSD */
     int			tmp;
     int			verbose = 0;
     char		*p;
@@ -186,10 +186,10 @@ main(int argc, char **argv)
 		    check.tv_usec = sbuf.st_ctime.tv_usec;
 #elif defined(HAVE_ST_MTIME_WITH_SPEC)
 		    check.tv_sec = sbuf.st_ctimespec.tv_sec;
-		    check.tv_usec = sbuf.st_ctimespec.tv_usec;
+		    check.tv_usec = sbuf.st_ctimespec.tv_nsec / 1000;
 #elif defined(HAVE_STAT_TIMESTRUC) || defined(HAVE_STAT_TIMESPEC) || defined(HAVE_STAT_TIMESPEC_T)
 		    check.tv_sec = sbuf.st_ctim.tv_sec;
-		    check.tv_usec = sbuf.st_ctim.tv_nsec / 1000000;
+		    check.tv_usec = sbuf.st_ctim.tv_nsec / 1000;
 #else
 !bozo!
 #endif

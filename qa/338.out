@@ -5,7 +5,7 @@ PMLOGGER.DAILY: [TMP.control:2]
 Error: no pmlogger instance running for host "HOST"
 ... logging for host "HOST" unchanged
 PMLOGGER.DAILY: [TMP.control:2]
-Warning: skipping pmnewlog because we don't know which pmlogger to stop
+Warning: skipping log rotation because we don't know which pmlogger to signal
 NOW-2.00.02.0
 NOW-2.00.02.index
 NOW-2.00.02.meta
@@ -33,7 +33,7 @@ PMLOGGER.DAILY: [TMP.control:2]
 Error: no pmlogger instance running for host "HOST"
 ... logging for host "HOST" unchanged
 PMLOGGER.DAILY: [TMP.control:2]
-Warning: skipping pmnewlog because we don't know which pmlogger to stop
+Warning: skipping log rotation because we don't know which pmlogger to signal
 NOW-2.00.02.0
 NOW-2.00.02.index
 NOW-2.00.02.meta
@@ -55,7 +55,7 @@ PMLOGGER.DAILY: [TMP.control:2]
 Error: no pmlogger instance running for host "HOST"
 ... logging for host "HOST" unchanged
 PMLOGGER.DAILY: [TMP.control:2]
-Warning: skipping pmnewlog because we don't know which pmlogger to stop
+Warning: skipping log rotation because we don't know which pmlogger to signal
 PMLOGGER.DAILY: Warning: output archive (YESTERDAY) already exists
 [TMP.control:2] ... skip log merging and compressing for host "HOST"
 NOW-2.00.02.0
@@ -85,7 +85,7 @@ PMLOGGER.DAILY: [TMP.control:2]
 Error: no pmlogger instance running for host "HOST"
 ... logging for host "HOST" unchanged
 PMLOGGER.DAILY: [TMP.control:2]
-Warning: skipping pmnewlog because we don't know which pmlogger to stop
+Warning: skipping log rotation because we don't know which pmlogger to signal
 Archive files older than 3 days being removed ...
     NOW-5.00.02.0 NOW-5.00.02.index NOW-5.00.02.meta
     NOW-5.00.04.0 NOW-5.00.04.index NOW-5.00.04.meta
@@ -129,7 +129,7 @@ PMLOGGER.DAILY: [TMP.control:2]
 Error: no pmlogger instance running for host "HOST"
 ... logging for host "HOST" unchanged
 PMLOGGER.DAILY: [TMP.control:2]
-Warning: skipping pmnewlog because we don't know which pmlogger to stop
+Warning: skipping log rotation because we don't know which pmlogger to signal
 Archive files older than 2 days being removed ...
     NOW-3.00.02.0 NOW-3.00.02.index NOW-3.00.02.meta
     NOW-3.00.04.0 NOW-3.00.04.index NOW-3.00.04.meta
@@ -158,7 +158,7 @@ PMLOGGER.DAILY: [TMP.control:2]
 Error: no pmlogger instance running for host "HOST"
 ... logging for host "HOST" unchanged
 PMLOGGER.DAILY: [TMP.control:2]
-Warning: skipping pmnewlog because we don't know which pmlogger to stop
+Warning: skipping log rotation because we don't know which pmlogger to signal
 PMLOGGER.DAILY: Warning: output archive (YESTERDAY) already exists
 [TMP.control:2] ... skip log merging and compressing for host "HOST"
 NOW-2.00.02.0
