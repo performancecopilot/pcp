@@ -113,7 +113,11 @@ class ProcessManager():
         else:
             script.state.exit_code = await process.wait()
             script.state.status = Status.Stopped if script.state.exit_code == 0 else Status.Error
-        self.logger.info(f"script: stopped {script}")
+
+        if script.state.status == Status.Error:
+            self.logger.info(f"script: stopped {script} due to error: {script.state.error.rstrip()}")
+        else:
+            self.logger.info(f"script: stopped {script}")
 
     async def start_bpftrace(self, script: Script, script_tasks: ScriptTasks):
         """starts a bpftrace process. *does not wait until its finished*"""

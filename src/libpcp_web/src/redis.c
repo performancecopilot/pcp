@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, Red Hat.
+ * Copyright (c) 2017-2020, Red Hat.
  * Copyright (c) 2009-2011, Salvatore Sanfilippo <antirez at gmail dot com>
  * Copyright (c) 2010-2014, Pieter Noordhuis <pcnoordhuis at gmail dot com>
  *
@@ -1530,7 +1530,7 @@ __redisPushCallBack(redisCallBackList *list, redisCallBack *source)
     redisCallBack	*cb;
 
     /* Copy callback from stack to heap */
-    if ((cb = malloc(sizeof(*cb))) == NULL)
+    if ((cb = zcalloc(1, sizeof(*cb))) == NULL)
         return REDIS_ERR_OOM;
 
     if (source != NULL) {
@@ -2008,7 +2008,7 @@ __redisAsyncCommand(redisAsyncContext *ac, redisAsyncCallBack *func,
                const sds cmd, void *privdata)
 {
     redisContext	*c = &(ac->c);
-    redisCallBack	cb;
+    redisCallBack	cb = {0};
     struct dict		*cbdict;
     dictEntry		*de;
     redisCallBack	*existcb;

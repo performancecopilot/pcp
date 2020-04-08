@@ -22,6 +22,8 @@ _stop_auto_restart pmcd
 echo "=== default configuration (authentication enabled, no user is allowed) ==="
 cat <<EOF | _pmdabpftrace_install
 # Installed by PCP QA test $seq on `date`
+[dynamic_scripts]
+enabled = true
 EOF
 pmstore bpftrace.control.register "tracepoint:raw_syscalls:sys_enter { @c = count(); }"
 grep -o "permission denied" $PCP_LOG_DIR/pmcd/bpftrace.log
@@ -30,8 +32,9 @@ echo
 echo "=== authentication enabled, user is not allowed ==="
 cat <<EOF | _pmdabpftrace_install
 # Installed by PCP QA test $seq on `date`
-[authentication]
+[dynamic_scripts]
 enabled = true
+auth_enabled = true
 allowed_users = some_user
 EOF
 pmstore bpftrace.control.register "tracepoint:raw_syscalls:sys_enter { @c = count(); }"
@@ -41,8 +44,9 @@ echo
 echo "=== authentication enabled, user is allowed ==="
 cat <<EOF | _pmdabpftrace_install
 # Installed by PCP QA test $seq on `date`
-[authentication]
+[dynamic_scripts]
 enabled = true
+auth_enabled = true
 allowed_users = some_user,$username
 EOF
 pmstore bpftrace.control.register "tracepoint:raw_syscalls:sys_enter { @c = count(); }"
@@ -51,8 +55,9 @@ echo
 echo "=== authentication disabled, everyone is allowed ==="
 cat <<EOF | _pmdabpftrace_install
 # Installed by PCP QA test $seq on `date`
-[authentication]
-enabled = false
+[dynamic_scripts]
+enabled = true
+auth_enabled = false
 EOF
 pmstore bpftrace.control.register "tracepoint:raw_syscalls:sys_enter { @c = count(); }"
 echo

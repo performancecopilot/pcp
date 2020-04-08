@@ -4,6 +4,7 @@ In combination with the [PCP Plugin for Grafana](https://github.com/performancec
 The Grafana plugin also supports the visualization of histograms collected by this PMDA.
 
 ## Quickstart (using the command line interface)
+Open `/var/lib/pcp/pmdas/bpftrace/bpftrace.conf` and enable dynamic scripts, then execute the following commands:
 ```
 $ cd /var/lib/pcp/pmdas/bpftrace && sudo ./Install
 

@@ -3,8 +3,10 @@ import os
 import sys
 import json
 import configparser
+import glob
 import pwd
 import atexit
+from pathlib import Path
 
 import cpmda
 from pcp.pmda import PMDA, pmdaMetric, pmdaGetContext
@@ -71,6 +73,9 @@ class BPFtracePMDA(PMDA):
         self.set_refresh(self.refresh_callback)
         self.set_fetch_callback(self.fetch_callback)
 
+        if self.config.static_scripts.enabled and not self.is_pmda_setup():
+            self.register_static_scripts()
+
         @atexit.register
         def cleanup():  # pylint: disable=unused-variable
             if not self.is_pmda_setup():
@@ -82,35 +87,45 @@ class BPFtracePMDA(PMDA):
 
     def parse_config(self) -> PMDAConfig:
         pmdas_dir = PCP.pmGetConfig('PCP_PMDAS_DIR')
-        configfile = f"{pmdas_dir}/{self.name}/{self.name}.conf"
+        configfile = f"{pmdas_dir}/bpftrace/bpftrace.conf"
         configreader = configparser.ConfigParser()
 
         # read() will skip missing files
         configreader.read([configfile])
 
         config = PMDAConfig()
-        if configreader.has_section('authentication'):
-            for opt in configreader.options('authentication'):
-                if opt == 'enabled':
-                    config.authentication.enabled = configreader.getboolean('authentication', opt)
-                elif opt == 'allowed_users':
-                    allowed_users = configreader.get('authentication', opt)
-                    if allowed_users:  # ''.split(',') produces [''] in Python
-                        config.authentication.allowed_users = allowed_users.split(',')
-                else:
-                    self.logger.error(f"Invalid directive '{opt}' in {configfile}, aborting.")
-                    sys.exit(1)
-        if configreader.has_section('bpftrace'):
-            for opt in configreader.options('bpftrace'):
-                if opt == 'bpftrace_path':
-                    config.bpftrace_path = configreader.get('bpftrace', opt)
-                elif opt == 'script_expiry_time':
-                    config.script_expiry_time = configreader.getint('bpftrace', opt)
-                elif opt == 'max_throughput':
-                    config.max_throughput = configreader.getint('bpftrace', opt)
-                else:
-                    self.logger.error(f"Invalid directive '{opt}' in {configfile}, aborting.")
-                    sys.exit(1)
+        # compat for PCP < 5.1.0
+        if 'authentication' in configreader:
+            if 'enabled' in configreader['authentication']:
+                config.dynamic_scripts.auth_enabled = configreader.getboolean('authentication', 'enabled')
+            if 'allowed_users' in configreader['authentication']:
+                allowed_users = configreader.get('authentication', 'allowed_users')
+                if allowed_users:  # ''.split(',') produces [''] in Python
+                    config.dynamic_scripts.allowed_users = allowed_users.split(',')
+
+        # current config format
+        if 'bpftrace' in configreader:
+            if 'bpftrace_path' in configreader['bpftrace']:
+                config.bpftrace_path = configreader.get('bpftrace', 'bpftrace_path')
+            if 'script_expiry_time' in configreader['bpftrace']:
+                config.script_expiry_time = configreader.getint('bpftrace', 'script_expiry_time')
+            if 'max_throughput' in configreader['bpftrace']:
+                config.max_throughput = configreader.getint('bpftrace', 'max_throughput')
+
+        if 'static_scripts' in configreader:
+            if 'enabled' in configreader['static_scripts']:
+                config.static_scripts.enabled = configreader.getboolean('static_scripts', 'enabled')
+
+        if 'dynamic_scripts' in configreader:
+            if 'enabled' in configreader['dynamic_scripts']:
+                config.dynamic_scripts.enabled = configreader.getboolean('dynamic_scripts', 'enabled')
+            if 'auth_enabled' in configreader['dynamic_scripts']:
+                config.dynamic_scripts.auth_enabled = configreader.getboolean('dynamic_scripts', 'auth_enabled')
+            if 'allowed_users' in configreader['dynamic_scripts']:
+                allowed_users = configreader.get('dynamic_scripts', 'allowed_users')
+                if allowed_users:  # ''.split(',') produces [''] in Python
+                    config.dynamic_scripts.allowed_users = allowed_users.split(',')
+
         return config
 
     def register_metrics(self):
@@ -150,18 +165,14 @@ class BPFtracePMDA(PMDA):
             c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, pmUnits()
         ), "list all available tracepoints")
 
-    def set_ctx_state(self, key: str, value: Any, ctx=None):
+    def set_ctx_state(self, ctx: int, key: str, value: Any):
         """set per-context state"""
-        if ctx is None:
-            ctx = pmdaGetContext()
         if ctx not in self.ctxtab:
             self.ctxtab[ctx] = {}
         self.ctxtab[ctx][key] = value
 
-    def get_ctx_state(self, key: str, ctx=None, default=None, delete=False) -> Any:
+    def get_ctx_state(self, ctx: int, key: str, default=None, delete=False) -> Any:
         """get per-context state"""
-        if ctx is None:
-            ctx = pmdaGetContext()
         if ctx not in self.ctxtab or key not in self.ctxtab[ctx]:
             return default
 
@@ -174,12 +185,9 @@ class BPFtracePMDA(PMDA):
         if ctx in self.ctxtab:
             del self.ctxtab[ctx]
 
-    def get_current_username(self):
-        return self.get_ctx_state('username')
-
     def attribute_callback(self, ctx: int, attr: int, value: str):
         if attr == cpmda.PMDA_ATTR_USERNAME:
-            self.set_ctx_state('username', value, ctx=ctx)
+            self.set_ctx_state(ctx, 'username', value)
         elif attr == cpmda.PMDA_ATTR_USERID:
             try:
                 passwd = pwd.getpwuid(int(value))
@@ -187,7 +195,7 @@ class BPFtracePMDA(PMDA):
                 self.logger.error(f"Cannot resolve uid {value} to a valid user account")
                 return
 
-            self.set_ctx_state('username', passwd.pw_name, ctx=ctx)
+            self.set_ctx_state(ctx, 'username', passwd.pw_name)
 
     def endcontext_callback(self, ctx: int):
         self.del_ctx_state(ctx)
@@ -221,12 +229,11 @@ class BPFtracePMDA(PMDA):
                 return cluster
         return None
 
-    def register_script(self, code: str):
+    def register_script(self, script: Script, update_ctx=True):
         """register a new bpftrace script"""
-        script = Script(code)
-        script.username = self.get_current_username()
         script = self.bpftrace_service.register_script(script)
-        self.set_ctx_state('register', script)
+        if update_ctx:
+            self.set_ctx_state(pmdaGetContext(), 'register', script)
         if script.state.status == Status.Error:
             return c_api.PM_ERR_BADSTORE
 
@@ -248,20 +255,60 @@ class BPFtracePMDA(PMDA):
         self.refresh_script_indom()
         return True
 
+    def register_static_scripts(self):
+        pmdas_dir = PCP.pmGetConfig('PCP_PMDAS_DIR')
+        scripts_dir = f"{pmdas_dir}/bpftrace/scripts"
+
+        try:
+            stat_res = os.stat(scripts_dir)
+        except OSError as e:
+            self.logger.error(f"Error accessing static scripts directory: {e}")
+            return
+        if stat_res.st_uid != 0 or (stat_res.st_mode & 0o777) != 0o700:
+            self.logger.error(f"Skipping static script registration: directory {scripts_dir} "
+                              f"must be owned by root, with permissions set to 700")
+            return
+
+        for script_path in glob.glob(f"{scripts_dir}/*.bt"):
+            stat_res = os.stat(script_path)
+            if stat_res.st_uid != 0 or (stat_res.st_mode & 0o777) != 0o600:
+                self.logger.error(f"Skipping script {script_path}: Scripts must be owned "
+                                  f"by root and have their permission bits set to 600")
+                continue
+
+            try:
+                with open(script_path) as f:
+                    code = f.read()
+            except IOError as e:
+                self.logger.error(f"Error reading bpftrace script: {e}")
+                continue
+
+            self.logger.info(f"registering script from file {script_path}...")
+            script = Script(code)
+            script.username = pwd.getpwuid(os.getuid()).pw_name
+            script.metadata.name = Path(script_path).stem
+            self.register_script(script, update_ctx=False)
+
     def store_callback(self, cluster: int, item: int, inst: int, val: str):
         """PMDA store callback"""
         if cluster == Consts.Control.Cluster:
-            if self.config.authentication.enabled:
-                username = self.get_current_username()
+            if not self.config.dynamic_scripts.enabled:
+                self.logger.error("dynamic scripts are disabled in configuration")
+                return c_api.PM_ERR_PERMISSION
+
+            if self.config.dynamic_scripts.auth_enabled:
+                username = self.get_ctx_state(pmdaGetContext(), 'username')
                 if username is None:
-                    self.logger.info(f"permission denied for unauthenticated user")
+                    self.logger.info("permission denied for unauthenticated user")
                     return c_api.PM_ERR_PERMISSION
-                elif username not in self.config.authentication.allowed_users:
+                elif username not in self.config.dynamic_scripts.allowed_users:
                     self.logger.info(f"permission denied for user {username}")
                     return c_api.PM_ERR_PERMISSION
 
             if item == Consts.Control.Register:
-                return self.register_script(val)
+                script = Script(val)
+                script.username = self.get_ctx_state(pmdaGetContext(), 'username')
+                return self.register_script(script)
             elif item == Consts.Control.Deregister:
                 success = True
                 for script_id in val.split(','):
@@ -269,28 +316,28 @@ class BPFtracePMDA(PMDA):
                         success = False
 
                 if success:
-                    self.set_ctx_state('deregister', {"success": "true"})
+                    self.set_ctx_state(pmdaGetContext(), 'deregister', {"success": "true"})
                     return 0
                 else:
-                    self.set_ctx_state('deregister', {"error": "one or more scripts were not found"})
+                    self.set_ctx_state(pmdaGetContext(), 'deregister', {"error": "one or more scripts were not found"})
                     return c_api.PM_ERR_BADSTORE
             elif item == Consts.Control.Start:
                 cluster = self.find_cluster_by_name(val)
                 if not cluster:
-                    self.set_ctx_state('start', {"error": "script not found"})
+                    self.set_ctx_state(pmdaGetContext(), 'start', {"error": "script not found"})
                     return c_api.PM_ERR_BADSTORE
 
                 self.bpftrace_service.start_script(cluster.script.script_id)
-                self.set_ctx_state('start', {"success": "true"})
+                self.set_ctx_state(pmdaGetContext(), 'start', {"success": "true"})
                 return 0
             elif item == Consts.Control.Stop:
                 cluster = self.find_cluster_by_name(val)
                 if not cluster:
-                    self.set_ctx_state('stop', {"error": "script not found"})
+                    self.set_ctx_state(pmdaGetContext(), 'stop', {"error": "script not found"})
                     return c_api.PM_ERR_BADSTORE
 
                 self.bpftrace_service.stop_script(cluster.script.script_id)
-                self.set_ctx_state('stop', {"success": "true"})
+                self.set_ctx_state(pmdaGetContext(), 'stop', {"success": "true"})
                 return 0
         return c_api.PM_ERR_PMID
 
@@ -323,16 +370,16 @@ class BPFtracePMDA(PMDA):
         if cluster == Consts.Control.Cluster:
             if item == Consts.Control.Register:
                 json_val = ScriptEncoder(dump_state_data=False).encode(
-                    self.get_ctx_state('register', default={}, delete=True))
+                    self.get_ctx_state(pmdaGetContext(), 'register', default={}, delete=True))
                 return [json_val, 1]
             elif item == Consts.Control.Deregister:
-                json_val = json.dumps(self.get_ctx_state('deregister', default={}, delete=True))
+                json_val = json.dumps(self.get_ctx_state(pmdaGetContext(), 'deregister', default={}, delete=True))
                 return [json_val, 1]
             elif item == Consts.Control.Start:
-                json_val = json.dumps(self.get_ctx_state('start', default={}, delete=True))
+                json_val = json.dumps(self.get_ctx_state(pmdaGetContext(), 'start', default={}, delete=True))
                 return [json_val, 1]
             elif item == Consts.Control.Stop:
-                json_val = json.dumps(self.get_ctx_state('stop', default={}, delete=True))
+                json_val = json.dumps(self.get_ctx_state(pmdaGetContext(), 'stop', default={}, delete=True))
                 return [json_val, 1]
         elif cluster == Consts.Info.Cluster:
             if item == Consts.Info.Scripts:
