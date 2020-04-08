@@ -68,8 +68,16 @@ class Script:
         self.state = State()
 
     def __str__(self) -> str:
-        pid_str = f" (PID={self.state.pid})" if self.state.pid != -1 else ""
-        return f"script {self.script_id}{pid_str}"
+        data = []
+        if self.metadata.name:
+            data.append(f"name={self.metadata.name}")
+        if self.state.pid != -1:
+            data.append(f"PID={self.state.pid}")
+
+        if data:
+            return f"script {self.script_id} ({', '.join(data)})"
+        else:
+            return f"script {self.script_id}"
 
 
 class ScriptEncoder(json.JSONEncoder):
@@ -93,13 +101,19 @@ class ScriptEncoder(json.JSONEncoder):
 
 class PMDAConfig:
     # see bpftrace.conf for configuration descriptions and units
-    class Authentication:
+    class StaticScriptsConfig:
         def __init__(self):
             self.enabled = True
+
+    class DynamicScriptsConfig:
+        def __init__(self):
+            self.enabled = False
+            self.auth_enabled = True
             self.allowed_users = []
 
     def __init__(self):
-        self.authentication = PMDAConfig.Authentication()
+        self.static_scripts = PMDAConfig.StaticScriptsConfig()
+        self.dynamic_scripts = PMDAConfig.DynamicScriptsConfig()
 
         self.bpftrace_path = 'bpftrace'
         self.script_expiry_time = 60  # 1 min

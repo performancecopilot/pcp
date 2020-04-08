@@ -22,7 +22,7 @@ CONFIGS  = bpftrace.conf
 
 DOMAIN   = BPFTRACE
 PMDADIR  = $(PCP_PMDAS_DIR)/$(IAM)
-SUBDIRS  = bpftrace
+SUBDIRS  = bpftrace scripts
 
 MAN_SECTION = 1
 MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
