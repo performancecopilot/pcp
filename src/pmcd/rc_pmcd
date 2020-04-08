@@ -47,6 +47,7 @@
 # for chasing arguments we're passed from init/systemd/...
 #
 #debug# echo "$*: `date`" >>$PCP_LOG_DIR/rc_pmcd.log
+#debug# env >>$PCP_LOG_DIR/rc_pmcd.log
 
 PMCD=$PCP_BINADM_DIR/pmcd
 PMCDOPTS=$PCP_PMCDOPTIONS_PATH
