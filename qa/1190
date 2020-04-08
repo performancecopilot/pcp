@@ -66,7 +66,7 @@ _check_file()
 	    mv $tmp.tmp $tmp.out
 	    ;;
 	"$PCP_PMCDOPTIONS_PATH")
-	    # Need to cocommodate old-style and new-style here
+	    # Need to accommodate old-style and new-style here
 	    #
 	    sed <$tmp.out >$tmp.tmp \
 		-e '/^# added by PCP QA/d' \
@@ -86,7 +86,8 @@ _check_file()
 	then
 	    echo "$1 ... BAD (QA text found)"
 	else
-	    orig=`echo "$1" | sed -e "s@^$2@"'$2@'`
+	    prefix=`eval echo "$2"`
+	    orig=`echo "$1" | sed -e "s@^$prefix@$2@"`
 	    echo "$orig ... BAD (QA text found)"
 	fi
 	cat $tmp.out | sed -e 's/^/  /'
@@ -96,7 +97,8 @@ _check_file()
 	then
 	    :
 	else
-	    orig=`echo "$1" | sed -e "s@^$2@"'$2@'`
+	    prefix=`eval echo "$2"`
+	    orig=`echo "$1" | sed -e "s@^$prefix@$2@"`
 	    echo "$orig ... OK"
 	fi
     fi
@@ -231,22 +233,31 @@ for arg in \
     '$PCP_PMDAS_DIR/linux/bandwidth.conf' \
 
 do
-    conf="$arg"
+    conf=`eval echo "$arg"`
     if [ -z "$conf" ]
     then
 	echo "empty var!"
     elif [ -f "$conf" ]
     then
-	_check_file "$conf" '$arg'
+	_check_file "$conf" "$arg"
     elif [ -d "$conf" ]
     then
+	rm -f $tmp.tmp
 	find "$conf" -type f \
 	| while read file
 	do
-	    _check_file "$file" '$arg'
+	    _check_file "$file" "$arg" >>$tmp.tmp
 	done
+	if [ -s $tmp.tmp ] && grep BAD $tmp.tmp
+	then
+	    # at least one BAD file below this dir, already reported from grep
+	    #
+	    :
+	else
+	    $check || echo "$arg ... OK"
+	fi
     else
-	$check || echo "$conf ... OK"
+	$check || echo "$arg ... OK"
     fi
 done
 
