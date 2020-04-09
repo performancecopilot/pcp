@@ -345,7 +345,7 @@ main(int argc, char *argv[])
 	pend = rindex(logfile, '.');
 	if (pend == NULL) {
 	    /* no '.', so append .<pid> */
-	    strncpy(newlogfile, logfile, MAXPATHLEN);
+	    strncpy(newlogfile, logfile, MAXPATHLEN-1);
 	    strcat(newlogfile, pbuf);
 	}
 	else {
