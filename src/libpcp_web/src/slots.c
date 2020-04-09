@@ -446,7 +446,7 @@ redisSlotsProxyConnect(redisSlots *slots, redisInfoCallBack info,
     redisReader		*reader = *readerp;
     redisReply		*reply = NULL;
     dictEntry		*entry;
-    long long		position;
+    long long		position, offset, length;
     sds			cmd, key, msg;
     int			sts;
 
@@ -457,6 +457,8 @@ redisSlotsProxyConnect(redisSlots *slots, redisInfoCallBack info,
 	return -ENOMEM;
     }
 
+    offset = reader->pos;
+    length = sdslen(reader->buf);
     if (redisReaderFeed(reader, buffer, nread) != REDIS_OK ||
 	redisReaderGetReply(reader, (void **)&reply) != REDIS_OK) {
 	infofmt(msg, "failed to parse Redis protocol request");
@@ -466,7 +468,9 @@ redisSlotsProxyConnect(redisSlots *slots, redisInfoCallBack info,
 
     if (reply != NULL) {	/* client request is complete */
 	key = cmd = NULL;
-	if (reply->type == REDIS_REPLY_ARRAY)
+	if (reply->type == REDIS_REPLY_ARRAY ||
+	    reply->type == REDIS_REPLY_MAP ||
+	    reply->type == REDIS_REPLY_SET)
 	    cmd = sdsnew(reply->element[0]->str);
 	if (cmd && (entry = dictFind(slots->keymap, cmd)) != NULL) {
 	    position = dictGetSignedIntegerVal(entry);
@@ -476,7 +480,7 @@ redisSlotsProxyConnect(redisSlots *slots, redisInfoCallBack info,
 	context = redisGetAsyncContext(slots, key, cmd);
 	sdsfree(key);
 	sdsfree(cmd);
-	cmd = sdsdup(reader->buf);
+	cmd = sdsnewlen(reader->buf + offset, sdslen(reader->buf) - length);
 	sts = redisAsyncFormattedCommand(context, callback, cmd, arg);
 	if (sts != REDIS_OK)
 	    return -EPROTO;
