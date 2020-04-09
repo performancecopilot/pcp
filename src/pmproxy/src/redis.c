@@ -115,6 +115,7 @@ static void
 on_redis_connected(void *arg)
 {
     struct proxy	*proxy = (struct proxy *)arg;
+    mmv_registry_t	*metric_registry = proxymetrics(proxy, METRICS_REDIS);
     sds			message;
 
     message = sdsnew("Redis slots");
@@ -125,7 +126,13 @@ on_redis_connected(void *arg)
     pmNotifyErr(LOG_INFO, "%s setup\n", message);
     sdsfree(message);
 
-    pmDiscoverSetSlots(&redis_discover.module, proxy->slots);
+    if (archive_discovery && series_queries) {
+	pmDiscoverSetEventLoop(&redis_discover.module, proxy->events);
+	pmDiscoverSetConfiguration(&redis_discover.module, proxy->config);
+	pmDiscoverSetMetricRegistry(&redis_discover.module, metric_registry);
+	pmDiscoverSetup(&redis_discover.module, &redis_discover.callbacks, proxy);
+	pmDiscoverSetSlots(&redis_discover.module, proxy->slots);
+    }
 }
 
 /*
@@ -137,7 +144,6 @@ void
 setup_redis_module(struct proxy *proxy)
 {
     redisSlotsFlags	flags = SLOTS_NONE;
-    mmv_registry_t	*metric_registry = proxymetrics(proxy, METRICS_REDIS);
     sds			option;
 
     if ((option = pmIniFileLookup(config, "pmproxy", "redis.enabled")))
@@ -155,15 +161,6 @@ setup_redis_module(struct proxy *proxy)
 	proxy->slots = redisSlotsConnect(proxy->config,
 			flags, proxylog, on_redis_connected,
 			proxy, proxy->events, proxy);
-	if (archive_discovery && series_queries)
-	    pmDiscoverSetSlots(&redis_discover.module, proxy->slots);
-    }
-
-    if (archive_discovery && series_queries) {
-	pmDiscoverSetEventLoop(&redis_discover.module, proxy->events);
-	pmDiscoverSetConfiguration(&redis_discover.module, proxy->config);
-	pmDiscoverSetMetricRegistry(&redis_discover.module, metric_registry);
-	pmDiscoverSetup(&redis_discover.module, &redis_discover.callbacks, proxy);
     }
 }
 
