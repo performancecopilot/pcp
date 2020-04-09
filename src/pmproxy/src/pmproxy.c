@@ -16,6 +16,7 @@
 #include "libpcp.h"
 #include "pmproxy.h"
 #include "pmwebapi.h"
+#include <strings.h>
 
 #define MAXPENDING	128	/* maximum number of pending connections */
 #define STRINGIFY(s)    #s
@@ -329,7 +330,41 @@ main(int argc, char *argv[])
     }
     timeseries = ParseOptions(argc, argv, &nport, &maxpending);
 
-    pmOpenLog(pmGetProgname(), logfile, stderr, &sts);
+    if (pmDebugOptions.appl1) {
+	/*
+	 * -Dappl1 is desperate logging mode ... insert .<pid> into
+	 * the logfile name, just before the last ., so pmproxy.log
+	 * will become pmproxy.<pid>.log
+	 */
+	char	newlogfile[MAXPATHLEN];
+	char	pbuf[11];	/* enough for a 32-bit pid */
+	char	*p = logfile;
+	char	*pend = NULL;
+
+	snprintf(pbuf, sizeof(pbuf), ".%" FMT_PID, (pid_t)getpid());
+	pend = rindex(logfile, '.');
+	if (pend == NULL) {
+	    /* no '.', so append .<pid> */
+	    strncpy(newlogfile, logfile, MAXPATHLEN);
+	    strcat(newlogfile, pbuf);
+	}
+	else {
+	    /* stitch name together ... <pre>.<post> -> <pre>.<pid>.<post> */
+	    char	*q = newlogfile;
+	    char	*r = pbuf;
+	    for (p = logfile; p < pend; ) 	/* <pre> */
+		*q++ = *p++;
+	    while (*r)				/* .<pid> */
+		*q++ = *r++;
+	    while (*p)				/* .<post> */
+		*q++ = *p++;
+	    *q = '\0';
+	}
+	pmOpenLog(pmGetProgname(), newlogfile, stderr, &sts);
+    }
+    else
+	pmOpenLog(pmGetProgname(), logfile, stderr, &sts);
+
     /* close old stdout, and force stdout into same stream as stderr */
     fflush(stdout);
     close(fileno(stdout));

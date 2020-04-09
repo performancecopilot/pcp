@@ -196,12 +196,15 @@ fi
 # the PMDA not in pmcd.conf, but with bogus entries in the PMNS
 #
 # CONFIGURE-ME
-# - may need to add metrics (in the grep -v part) that are OK to return
+# - may need to add metrics (in the sed part) that are OK to return
 #   'Unknown or illegal metric', but this is most unlikely
 #
 pminfo -v 2>&1 \
 | grep 'Unknown or illegal metric' \
-| grep -v 'sample.*\.bad\.unknown' >$tmp.out
+| sed >$tmp.out \
+    -e '/^sample.*\.bad\.unknown:/d' \
+    -e '/^pmproxy\.pid:/d' \
+    # end
 if [ -s $tmp.out ]
 then
     echo "check.callback: fail: PMNS not well!"

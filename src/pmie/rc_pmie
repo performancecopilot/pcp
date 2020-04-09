@@ -45,6 +45,7 @@
 # for chasing arguments we're passed from init/systemd/...
 #
 #debug# echo "$*: `date`" >>$PCP_LOG_DIR/rc_pmie.log
+#debug# env >>$PCP_LOG_DIR/rc_pmie.log
 
 PMIECTRL=$PCP_PMIECONTROL_PATH
 rcprog=$PCP_DIR/etc/init.d/pmie
