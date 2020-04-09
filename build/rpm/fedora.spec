@@ -3311,7 +3311,7 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %endif
 
 %changelog
-* Web Apr 15 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.1.0-1
+* Wed Apr 15 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.1.0-1
 - Update to latest PCP sources.
 
 * Thu Feb 27 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.0.3-1
