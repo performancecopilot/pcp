@@ -407,6 +407,8 @@ extern redisAsyncContext *redisAsyncConnect(const char *, int);
 extern redisAsyncContext *redisAsyncConnectBind(const char *, int, const char *);
 extern redisAsyncContext *redisAsyncConnectBindWithReuse(const char *, int, const char *);
 extern redisAsyncContext *redisAsyncConnectUnix(const char *);
+extern redisAsyncContext *redisAsyncConnectWithOptions(const redisOptions *);
+
 extern int redisAsyncSetConnectCallBack(redisAsyncContext *, redisConnectCallBack *);
 extern int redisAsyncSetDisconnectCallBack(redisAsyncContext *, redisDisconnectCallBack *);
 extern int redisAsyncEnableKeepAlive(redisAsyncContext *);
