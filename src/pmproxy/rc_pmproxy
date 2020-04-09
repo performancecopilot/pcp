@@ -47,6 +47,7 @@
 # for chasing arguments we're passed from init/systemd/...
 #
 #debug# echo "$*: `date`" >>$PCP_LOG_DIR/rc_pmproxy.log
+#debug# env >>$PCP_LOG_DIR/rc_pmproxy.log
 
 PMPROXY=$PCP_BINADM_DIR/pmproxy
 PMPROXYOPTS=$PCP_PMPROXYOPTIONS_PATH

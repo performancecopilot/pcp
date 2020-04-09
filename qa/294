@@ -144,6 +144,7 @@ mkdir -p $tmp.rundir
 export PCP_RUN_DIR=$tmp.rundir
 proxyargs="-Dcontext -U $username"
 $PCP_BINADM_DIR/pmproxy $proxyargs -l $tmp.log 2>&1 | _filter_pmproxy
+_wait_for_pmproxy
 $PCP_BINADM_DIR/pmcd_wait -t 5sec -h localhost@localhost
 
 # real QA test starts here
@@ -169,6 +170,9 @@ _do pmstat -h $PMPROXY_HOST -t 0.5 -s 2
 _do_config 
 _do pmlogger -h localhost -c $tmp.config -t 0.5sec -s 3 -l $tmp.logger.log $tmp.arch
 _do pmstat -S +0.25sec -t 0.5sec -a $tmp.arch -z
+
+( echo ""; echo "=== pmproxy.log ===" ) >>$seq.full
+cat $tmp.log >>$seq.full
 
 # success, all done
 status=0

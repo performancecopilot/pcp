@@ -330,7 +330,9 @@ done
 _do_dir "pcpqa:pcpqa" 775 "$PCP_VAR_DIR"/testsuite
 chown -R pcpqa:pcpqa "$PCP_VAR_DIR"/testsuite
 
-# Note: do not start daemons other than: pmcd, pmlogger, pmie and pmproxy
+# Note:
+#   Do not start daemons other than: pmcd, pmlogger, pmie,
+#   pmproxy and pmmgr
 #
 if which svcs >/dev/null 2>&1
 then
