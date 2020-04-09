@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Red Hat.
+ * Copyright (c) 2017-2020 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -126,10 +126,12 @@ redisSlotServerFree(redisSlots *pool, redisSlotServer *server)
 		fprintf(stderr, "%s: %s\n", "redisSlotServerFree", hostspec);
 	    context = dictGetVal(entry);
 	    dictFreeUnlinkedEntry(pool->contexts, entry);
+	    (context->c).flags &= ~REDIS_NO_AUTO_FREE;
 	    redisAsyncDisconnect(context);
 	}
 	sdsfree(hostspec);
     } else if ((context = server->redis) != NULL) {
+	(context->c).flags &= ~REDIS_NO_AUTO_FREE;
 	redisAsyncDisconnect(context);
     }
     memset(server, 0, sizeof(*server));
@@ -241,6 +243,7 @@ redis_disconnect_callback(const redisAsyncContext *redis, int status)
 static redisAsyncContext *
 redis_connect(const char *server)
 {
+    redisOptions	options = { .options = REDIS_OPT_NOAUTOFREE };
     char		hostname[MAXHOSTNAMELEN];
     char		*endnum, *p;
     unsigned int	port;
@@ -258,9 +261,11 @@ redis_connect(const char *server)
 	    else
 		*p = '\0';
 	}
-	return redisAsyncConnect(hostname, port);
+	REDIS_OPTIONS_SET_TCP(&options, hostname, port);
+    } else {
+	REDIS_OPTIONS_SET_UNIX(&options, server + 5);
     }
-    return redisAsyncConnectUnix(server + 5);
+    return redisAsyncConnectWithOptions(&options);
 }
 
 redisAsyncContext *
@@ -446,7 +451,7 @@ redisSlotsProxyConnect(redisSlots *slots, redisInfoCallBack info,
     redisReader		*reader = *readerp;
     redisReply		*reply = NULL;
     dictEntry		*entry;
-    long long		position;
+    long long		position, offset, length;
     sds			cmd, key, msg;
     int			sts;
 
@@ -457,6 +462,8 @@ redisSlotsProxyConnect(redisSlots *slots, redisInfoCallBack info,
 	return -ENOMEM;
     }
 
+    offset = reader->pos;
+    length = sdslen(reader->buf);
     if (redisReaderFeed(reader, buffer, nread) != REDIS_OK ||
 	redisReaderGetReply(reader, (void **)&reply) != REDIS_OK) {
 	infofmt(msg, "failed to parse Redis protocol request");
@@ -466,7 +473,9 @@ redisSlotsProxyConnect(redisSlots *slots, redisInfoCallBack info,
 
     if (reply != NULL) {	/* client request is complete */
 	key = cmd = NULL;
-	if (reply->type == REDIS_REPLY_ARRAY)
+	if (reply->type == REDIS_REPLY_ARRAY ||
+	    reply->type == REDIS_REPLY_MAP ||
+	    reply->type == REDIS_REPLY_SET)
 	    cmd = sdsnew(reply->element[0]->str);
 	if (cmd && (entry = dictFind(slots->keymap, cmd)) != NULL) {
 	    position = dictGetSignedIntegerVal(entry);
@@ -476,7 +485,7 @@ redisSlotsProxyConnect(redisSlots *slots, redisInfoCallBack info,
 	context = redisGetAsyncContext(slots, key, cmd);
 	sdsfree(key);
 	sdsfree(cmd);
-	cmd = sdsdup(reader->buf);
+	cmd = sdsnewlen(reader->buf + offset, sdslen(reader->buf) - length);
 	sts = redisAsyncFormattedCommand(context, callback, cmd, arg);
 	if (sts != REDIS_OK)
 	    return -EPROTO;

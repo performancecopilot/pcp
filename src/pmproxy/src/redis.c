@@ -90,7 +90,7 @@ on_redis_client_read(struct proxy *proxy, struct client *client,
     if (pmDebugOptions.pdu)
 	fprintf(stderr, "%s: client %p\n", "on_redis_client_read", client);
 
-    if (redis_protocol == 0 ||
+    if (redis_protocol == 0 || proxy->redisetup == 0 ||
 	redisSlotsProxyConnect(proxy->slots,
 		proxylog, &client->u.redis.reader,
 		buf->base, nread, on_redis_server_reply, client) < 0) {
@@ -133,6 +133,8 @@ on_redis_connected(void *arg)
 	pmDiscoverSetup(&redis_discover.module, &redis_discover.callbacks, proxy);
 	pmDiscoverSetSlots(&redis_discover.module, proxy->slots);
     }
+
+    proxy->redisetup = 1;
 }
 
 /*

@@ -26,6 +26,9 @@ jobs:
           sudo apt-get update && sudo apt-get install -y qemu-kvm
           wget -q -O azcopy.tar.gz https://aka.ms/downloadazcopy-v10-linux
           tar -xf azcopy.tar.gz && sudo mv ./azcopy_linux_amd64_*/azcopy /usr/local/bin
+
+          # we need some space for the VM images built with Qemu
+          sudo rm -rf /opt/ghc # 7.7 GB
         displayName: Setup
 
       - script: |
