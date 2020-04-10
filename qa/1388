@@ -153,39 +153,51 @@ _service pmproxy start >>$here/$seq.full 2>&1
 echo "Start test Python PMDA to check if username is in per-context state"
 cd pmdas/test_python
 $sudo ./Install </dev/null \
-    | _filter_pmda_install \
-    | sed -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
-    | $PCP_AWK_PROG '
-/Check test_python metrics have appeared/ { if ($10 >= 0 && $10 <= 9) $10 = "N" }
-                                          { print }'
+| _filter_pmda_install
 cd $here
 
-echo && echo "=== pmproxy no authentication (expect errors) ==="
-curl -s -S "http://localhost:44322/pmapi/context?hostspec=localhost%3Fusername%3Dbob" | pmjson | _filter_json
-curl -s -S "http://localhost:44322/pmapi/context?hostspec=localhost%3Fpassword%3Dbib" | pmjson | _filter_json
-curl -s --user $username:bob "http://localhost:44322/pmapi/context?hostspec=localhost%3Fusername%3Dbob" | pmjson | _filter_json
+echo && echo "=== invalid username with pminfo ==="
+pminfo -f -h "pcp://127.0.0.1?username=nonexisting_user&password=bob" test_python.current_username
 
-echo && echo "=== pmproxy with authentication (expect success) ==="
-curl -s --user $username:y "http://localhost:44322/pmapi/context" | pmjson | _filter_json | _filter_credentials
-
-echo && echo "=== state without authentication ==="
-ctx_no_auth=`curl -s "http://localhost:44322/pmapi/context" | pmpython -c 'import sys,json; print(json.load(sys.stdin)["context"])'`
-curl -s "http://localhost:44322/pmapi/$ctx_no_auth/fetch?names=test_python.current_username" | pmjson | grep '"value"' | _filter_ctx
-
-echo && echo "=== state with authentication ==="
-ctx_with_auth=`curl -s --user $username:y "http://localhost:44322/pmapi/context" | pmpython -c 'import sys,json; print(json.load(sys.stdin)["context"])'`
-curl -s "http://localhost:44322/pmapi/$ctx_with_auth/fetch?names=test_python.current_username" | pmjson | grep '"value"' | _filter_ctx | _filter_username
-
-echo && echo "=== verify with pminfo (expect error) ==="
+echo && echo "=== invalid password with pminfo ==="
 pminfo -f -h "pcp://127.0.0.1?username=$username&password=bob" test_python.current_username
 
-echo && echo "=== verify with pminfo (expect success) ==="
+echo && echo "=== correct password with pminfo ==="
 pminfo -f -h "pcp://127.0.0.1?username=$username&password=y" test_python.current_username | _filter_ctx | _filter_username
+
+
+echo && echo "=== no authentication ==="
+response=$(curl -s "http://localhost:44322/pmapi/context")
+echo "${response}" | pmjson | _filter_json
+ctx_unauthenticated=$(echo "${response}" | pmpython -c 'import sys,json; print(json.load(sys.stdin)["context"])')
+
+echo && echo "=== invalid username ==="
+curl -s --user nonexisting_user:bob "http://localhost:44322/pmapi/context" | pmjson | _filter_json
+
+echo && echo "=== invalid password ==="
+curl -s --user $username:bob "http://localhost:44322/pmapi/context" | pmjson | _filter_json
+
+echo && echo "=== correct password ==="
+response=$(curl -s --user $username:y "http://localhost:44322/pmapi/context")
+echo "${response}" | pmjson | _filter_json | _filter_credentials
+ctx_authenticated=$(echo "${response}" | pmpython -c 'import sys,json; print(json.load(sys.stdin)["context"])')
+
+
+echo && echo "=== using unauthenticated context ==="
+curl -s "http://localhost:44322/pmapi/$ctx_unauthenticated/fetch?names=test_python.current_username" | pmjson | grep '"value"' | _filter_ctx
+
+echo && echo "=== using authenticated context, missing HTTP auth headers (expect failure) ==="
+curl -s "http://localhost:44322/pmapi/$ctx_authenticated/fetch?names=test_python.current_username" | pmjson | _filter_json
+
+echo && echo "=== using authenticated context, with HTTP auth headers (expect success) ==="
+curl -s --user $username:y "http://localhost:44322/pmapi/$ctx_authenticated/fetch?names=test_python.current_username" | pmjson | grep '"value"' | _filter_ctx | _filter_username
 
 
 echo >>$here/$seq.full
 echo "=== pmproxy log ===" >>$here/$seq.full
 cat $PCP_LOG_DIR/pmproxy/pmproxy.log >>$here/$seq.full
+echo "=== test_python PMDA log ===" >>$here/$seq.full
+cat $PCP_LOG_DIR/pmcd/test_python.log >>$here/$seq.full
 
 status=0
 exit
