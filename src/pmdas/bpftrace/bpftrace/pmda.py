@@ -1,12 +1,13 @@
 from typing import Optional, Any, Dict
 import os
 import sys
-import json
-import configparser
+import stat
 import glob
+from pathlib import Path
 import pwd
 import atexit
-from pathlib import Path
+import json
+import configparser
 
 import cpmda
 from pcp.pmda import PMDA, pmdaMetric, pmdaGetContext
@@ -73,8 +74,8 @@ class BPFtracePMDA(PMDA):
         self.set_refresh(self.refresh_callback)
         self.set_fetch_callback(self.fetch_callback)
 
-        if self.config.static_scripts.enabled and not self.is_pmda_setup():
-            self.register_static_scripts()
+        if not self.is_pmda_setup():
+            self.register_autostart_scripts()
 
         @atexit.register
         def cleanup():  # pylint: disable=unused-variable
@@ -111,10 +112,6 @@ class BPFtracePMDA(PMDA):
                 config.script_expiry_time = configreader.getint('bpftrace', 'script_expiry_time')
             if 'max_throughput' in configreader['bpftrace']:
                 config.max_throughput = configreader.getint('bpftrace', 'max_throughput')
-
-        if 'static_scripts' in configreader:
-            if 'enabled' in configreader['static_scripts']:
-                config.static_scripts.enabled = configreader.getboolean('static_scripts', 'enabled')
 
         if 'dynamic_scripts' in configreader:
             if 'enabled' in configreader['dynamic_scripts']:
@@ -255,28 +252,36 @@ class BPFtracePMDA(PMDA):
         self.refresh_script_indom()
         return True
 
-    def register_static_scripts(self):
+    def exclusive_writable_by_root(self, path):
+        stat_res = os.stat(path)
+        if stat_res.st_mode & stat.S_IWUSR and stat_res.st_uid != 0:
+            return False
+        if stat_res.st_mode & stat.S_IWGRP and stat_res.st_gid != 0:
+            return False
+        if stat_res.st_mode & stat.S_IWOTH:
+            return False
+        return True
+
+    def register_autostart_scripts(self):
         pmdas_dir = PCP.pmGetConfig('PCP_PMDAS_DIR')
-        scripts_dir = f"{pmdas_dir}/bpftrace/scripts"
+        autostart_dir = f"{pmdas_dir}/bpftrace/autostart"
 
         try:
-            stat_res = os.stat(scripts_dir)
+            if not self.exclusive_writable_by_root(autostart_dir):
+                self.logger.error(f"Austostart directory {autostart_dir} "
+                                  f"must be exclusively writable by root")
+                return
         except OSError as e:
-            self.logger.error(f"Error accessing static scripts directory: {e}")
-            return
-        if stat_res.st_uid != 0 or (stat_res.st_mode & 0o777) != 0o700:
-            self.logger.error(f"Skipping static script registration: directory {scripts_dir} "
-                              f"must be owned by root, with permissions set to 700")
+            self.logger.error(f"Error accessing autostart directory: {e}")
             return
 
-        for script_path in glob.glob(f"{scripts_dir}/*.bt"):
-            stat_res = os.stat(script_path)
-            if stat_res.st_uid != 0 or (stat_res.st_mode & 0o777) != 0o600:
-                self.logger.error(f"Skipping script {script_path}: Scripts must be owned "
-                                  f"by root and have their permission bits set to 600")
-                continue
-
+        for script_path in glob.glob(f"{autostart_dir}/*.bt"):
             try:
+                if not self.exclusive_writable_by_root(script_path):
+                    self.logger.error(f"Skipping autostart script {script_path}: scripts "
+                                      f"must be exclusively writable by root")
+                    continue
+
                 with open(script_path) as f:
                     code = f.read()
             except IOError as e:
