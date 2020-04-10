@@ -1,0 +1,57 @@
+#!/bin/sh
+# PCP QA Test No. 1723
+# Exercise the bpftrace PMDA - check autostart script directory permissions
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.bpftrace
+
+_pmdabpftrace_check
+
+status=1       # failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+
+_prepare_pmda bpftrace
+trap "_pmdabpftrace_cleanup; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
+
+
+# real QA test starts here
+_pmdabpftrace_clean_autostart_scripts
+cat <<EOF | sudo tee $PCP_PMDAS_DIR/bpftrace/autostart/script.bt > /dev/null
+// name: testscript
+BEGIN { @scalar = 2; }
+tracepoint:syscalls:sys_enter_openat { @ = count(); }
+EOF
+
+echo "=== check with chmod 777 ==="
+$sudo chmod 777 $PCP_PMDAS_DIR/bpftrace/autostart
+cat <<EOF | _pmdabpftrace_install
+# Installed by PCP QA test $seq on `date`
+EOF
+pminfo bpftrace
+grep -o "/bpftrace/autostart must be exclusively writable by root" $PCP_LOG_DIR/pmcd/bpftrace.log
+
+echo "=== check with chmod 775, wrong group ==="
+$sudo chmod 775 $PCP_PMDAS_DIR/bpftrace/autostart
+$sudo chgrp $PCP_USER $PCP_PMDAS_DIR/bpftrace/autostart
+cat <<EOF | _pmdabpftrace_install
+# Installed by PCP QA test $seq on `date`
+EOF
+pminfo bpftrace
+grep -o "/bpftrace/autostart must be exclusively writable by root" $PCP_LOG_DIR/pmcd/bpftrace.log
+
+echo "=== check with chmod 775, correct group ==="
+$sudo chmod 775 $PCP_PMDAS_DIR/bpftrace/autostart
+$sudo chgrp root $PCP_PMDAS_DIR/bpftrace/autostart
+cat <<EOF | _pmdabpftrace_install
+# Installed by PCP QA test $seq on `date`
+EOF
+pminfo bpftrace
+
+
+_pmdabpftrace_remove
+status=0
+exit

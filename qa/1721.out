@@ -1,0 +1,41 @@
+QA output created by 1721
+
+=== bpftrace agent installation ===
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check bpftrace metrics have appeared ... 15 metrics and X values
+
+=== check script is running ===
+found metric bpftrace.scripts.biolatency.probes with matching value 3
+bpftrace.scripts.biolatency.data.usecs
+bpftrace.scripts.biolatency.data_bytes
+bpftrace.scripts.biolatency.code
+bpftrace.scripts.biolatency.probes
+bpftrace.scripts.biolatency.error
+bpftrace.scripts.biolatency.exit_code
+bpftrace.scripts.biolatency.pid
+bpftrace.scripts.biolatency.status
+bpftrace.info.tracepoints
+bpftrace.info.scripts_json
+bpftrace.info.scripts
+bpftrace.control.stop
+bpftrace.control.start
+bpftrace.control.deregister
+bpftrace.control.register
+=== check metrics ===
+
+bpftrace.scripts.biolatency.status PMID: 151.100.0 [status of bpftrace script]
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+status of bpftrace script
+    value "started"
+
+=== remove bpftrace agent ===
+Culling the Performance Metrics Name Space ...
+bpftrace ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check bpftrace metrics have gone away ... OK

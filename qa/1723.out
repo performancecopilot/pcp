@@ -1,0 +1,67 @@
+QA output created by 1723
+=== check with chmod 777 ===
+
+=== bpftrace agent installation ===
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check bpftrace metrics have appeared ... 7 metrics and X values
+
+bpftrace.info.tracepoints
+bpftrace.info.scripts_json
+bpftrace.info.scripts
+bpftrace.control.stop
+bpftrace.control.start
+bpftrace.control.deregister
+bpftrace.control.register
+/bpftrace/autostart must be exclusively writable by root
+=== check with chmod 775, wrong group ===
+
+=== bpftrace agent installation ===
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check bpftrace metrics have appeared ... 7 metrics and X values
+
+bpftrace.info.tracepoints
+bpftrace.info.scripts_json
+bpftrace.info.scripts
+bpftrace.control.stop
+bpftrace.control.start
+bpftrace.control.deregister
+bpftrace.control.register
+/bpftrace/autostart must be exclusively writable by root
+=== check with chmod 775, correct group ===
+
+=== bpftrace agent installation ===
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check bpftrace metrics have appeared ... 16 metrics and X values
+
+bpftrace.scripts.testscript.data.root
+bpftrace.scripts.testscript.data.scalar
+bpftrace.scripts.testscript.data_bytes
+bpftrace.scripts.testscript.code
+bpftrace.scripts.testscript.probes
+bpftrace.scripts.testscript.error
+bpftrace.scripts.testscript.exit_code
+bpftrace.scripts.testscript.pid
+bpftrace.scripts.testscript.status
+bpftrace.info.tracepoints
+bpftrace.info.scripts_json
+bpftrace.info.scripts
+bpftrace.control.stop
+bpftrace.control.start
+bpftrace.control.deregister
+bpftrace.control.register
+
+=== remove bpftrace agent ===
+Culling the Performance Metrics Name Space ...
+bpftrace ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check bpftrace metrics have gone away ... OK

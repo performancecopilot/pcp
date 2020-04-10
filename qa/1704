@@ -18,6 +18,7 @@ trap "_pmdabpftrace_cleanup; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
 
 # real QA test starts here
+_pmdabpftrace_clean_autostart_scripts
 cat <<EOF | _pmdabpftrace_install
 # Installed by PCP QA test $seq on `date`
 [dynamic_scripts]
