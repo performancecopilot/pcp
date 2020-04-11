@@ -127,7 +127,7 @@ _check_file()
 
 # real QA test starts here
 
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mcd ' >$tmp.out
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mcd |[p]mcd$' >$tmp.out
 n=`grep -v PID <$tmp.out | wc -l | sed -e 's/ //g'`
 if [ "$n" -eq 1 ]
 then
