@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 1855
-# Exercise the memcache PMDA - install, remove and values.
+# Exercise the rabbitmq PMDA - install, remove and values.
 #
 # Copyright (c) 2020 Ashwin Nayak.  All Rights Reserved.
 #
