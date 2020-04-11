@@ -63,7 +63,7 @@ SignalShutdown(void)
 	    killer_sig == SIGINT ? "SIGINT" : "SIGTERM", killer_pid, killer_uid);
 #if DESPERATE
 	pmNotifyErr(LOG_INFO, "Try to find process in ps output ...\n");
-	pmsprintf(buf, sizeof(buf), "sh -c \". \\$PCP_DIR/etc/pcp.env; ( \\$PCP_PS_PROG \\$PCP_PS_ALL_FLAGS | \\$PCP_AWK_PROG 'NR==1 {print} \\$2==%" FMT_PID " {print}' )\"", pid);
+	pmsprintf(buf, sizeof(buf), "sh -c \". \\$PCP_DIR/etc/pcp.env; ( \\$PCP_PS_PROG \\$PCP_PS_ALL_FLAGS | \\$PCP_AWK_PROG 'NR==1 {print} \\$2==%" FMT_PID " {print}' )\"", killer_pid);
 	system(buf);
 #endif
     }
