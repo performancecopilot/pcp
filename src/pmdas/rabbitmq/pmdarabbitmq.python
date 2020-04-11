@@ -46,7 +46,7 @@ class rabbitmqPMDA(PMDA):
 		self.build_url()
 
 		self.connect_pmcd()
-		self.add_metric('rabbitmq.queues',   
+		self.add_metric('rabbitmq',   
             pmdaMetric(self.pmid(0, 0),
             c_api.PM_TYPE_STRING, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT,
             pmUnits()),
