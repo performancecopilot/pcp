@@ -36,6 +36,7 @@ _stop_auto_restart pmlogger
 
 _cleanup()
 {
+    $sudo $signal -a pmproxy >>$seq.full 2>&1
     [ -n "$killpid" ] && $signal $killpid
     if $pmproxy_was_running
     then
