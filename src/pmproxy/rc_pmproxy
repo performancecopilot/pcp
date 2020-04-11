@@ -282,10 +282,24 @@ Error: pmproxy options file "$PMPROXYOPTS" is missing, cannot start pmproxy.'
 			    -e 's/ $//' \
 		    | tr '\012' ' ' `
 
+	    $PCP_BINADM_DIR/pmpost "start pmproxy from $pmprog"
+
+	    if [ -n "$NOTIFY_SOCKET" ]
+	    then
+		# Called from systemd with Type=Notify, we need to
+		# preserve the pid and systemd has already done the
+		# necessary daemonizing
+		#
+		exec $PMPROXY -f $OPTS
+		# NOTREACHED
+		#
+	    fi
+
+	    # otherwise, use the historical approach
+	    #
 	    $PMPROXY $OPTS
 	    $RC_STATUS -v
 
-	    $PCP_BINADM_DIR/pmpost "start pmproxy from $pmprog"
 
 	    # finally, stop here if running in a container
 	    [ -z "$PCP_CONTAINER_IMAGE" ] || exec $PCP_BINADM_DIR/pmpause

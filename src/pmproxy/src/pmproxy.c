@@ -387,6 +387,14 @@ main(int argc, char *argv[])
 	__pmServerStart(argc, argv, 1);
     mainpid = getpid();
 
+    /*
+     * If we're started from systemd with Type=notify, then we'll be
+     * launched with -f, but we really need to behave like a daemon from
+     * here on, e.g. so the pidfile gets created
+     */
+    if ((envstr = getenv("NOTIFY_SOCKET")) != NULL)
+	run_daemon = 1;
+
     /* Open non-blocking request ports for client connections */
     if ((info = server->openports(sockpath, sizeof(sockpath), maxpending)) == NULL)
 	DontStart();
