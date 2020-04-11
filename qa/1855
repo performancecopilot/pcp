@@ -65,15 +65,17 @@ _stop_auto_restart pmcd
 
 # real QA test starts here
 pmdarabbitmq_install
+
+echo
+echo "=== extract metric values and compare ==="
+if pmprobe rabbitmq | grep 'rabbitmq 1' >/dev/null >$tmp.out 2>&1 ;then
+    echo "rabbitmq works"
+else
+	echo "rabbit metric number of values do not match"
+fi | tee -a $here/$seq.full
+
 pmdarabbitmq_remove
 
-# if error
-# exit
-
-# optional stuff if your test has verbose output to help resolve problems
-#echo
-#echo "If failure, check $seq.full"
-
-# success, all done
+# QA test done
 status=0
 exit
