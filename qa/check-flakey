@@ -79,7 +79,7 @@ do
     then
 	xpect=`sed -n <check.time -e "/^$seq /s/.* //p"`
     fi
-    if [ -n "$xpect" ]
+    if [ -n "$xpect" -a "$xpect" != 0 ]
     then
 	echo "$seq: checking (duration approx $xpect secs) ..."
     else
