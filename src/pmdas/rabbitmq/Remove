@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# Copyright (c) 1997 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (C) 2020 Ashwin Nayak <ashwinnayak111@gmail.com>
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -16,7 +16,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #
-# Remove the trivial PMDA
+# Remove the rabbitmq PMDA
 #
 
 # source the PCP configuration environment variables
