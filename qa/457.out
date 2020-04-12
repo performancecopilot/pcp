@@ -6,7 +6,7 @@ Possible configuration files to choose from:
 Which configuration file do you want to use ? [1] 
 Contents of the selected configuration file:
 --------------- start $PCP_VAR_DIR/config/logger/logger.conf ---------------
-# from PCP QA 457
+# Installed by PCP QA test 457 on ...
 reg	n	TMPFILE.reg
 fifo	n	HERE/457.fifo
 none	n	TMPFILE.none
