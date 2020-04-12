@@ -2523,6 +2523,10 @@ _prepare_pmda_install()
 }
 
 # restore a saved pmcd configuration and ensure pmda back in place.
+# $1 is PMDA name
+# $2 is optional, and if not empty the (default) Install is not done
+# (because the Install may be interactive or may fail without some
+# user-provided information)
 #
 _restore_pmda_install()
 {
@@ -2537,10 +2541,15 @@ _restore_pmda_install()
     then
 	_restore_config $PCP_PMCDCONF_PATH
     else
-# do a default install which ensures the pmns and any views are installed
 
-	cd $PCP_PMDAS_DIR/$iam
-        $sudo ./Install < /dev/null > /dev/null 2>&1
+	if [ -z "$2" ]
+	then
+	    # do a default install which ensures the pmns and any
+	    # views are installed
+	    #
+	    cd $PCP_PMDAS_DIR/$iam
+	    $sudo ./Install < /dev/null > /dev/null 2>&1
+	fi
 
 # PMDA may have been installed differently to default. As everything is
 # installed we can use the old pmcd.conf file to restore state.
