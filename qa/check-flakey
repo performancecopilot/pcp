@@ -26,7 +26,10 @@ _output_for_kenj()
 {
     if [ "$USER" = "kenj" ]
     then
-	printf "%4d %s%s %s %s\n" $seq $s1 $s2 `hostname -s` `date '+%Y-%m-%d'` >>$tmp.kenj
+	# dodge numbers that look like octal!
+	#
+	_seq=`echo "$seq" | sed -e 's/^0*//'`
+	printf "%4d %s%s %s %s\n" $_seq $s1 $s2 `hostname -s` `date '+%Y-%m-%d'` >>$tmp.kenj
     fi
 }
 
@@ -76,7 +79,7 @@ do
     then
 	xpect=`sed -n <check.time -e "/^$seq /s/.* //p"`
     fi
-    if [ -n "$xpect" ]
+    if [ -n "$xpect" -a "$xpect" != 0 ]
     then
 	echo "$seq: checking (duration approx $xpect secs) ..."
     else

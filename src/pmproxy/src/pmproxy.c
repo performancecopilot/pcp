@@ -22,12 +22,16 @@
 #define STRINGIFY(s)    #s
 #define TO_STRING(s)    STRINGIFY(s)
 
+#define RUN_DAEMON	1		/* default */
+#define RUN_FOREGROUND	2		/* -f */
+#define RUN_SYSTEMD	3		/* -F */
+
 static void	*info;			/* opaque server information */
 static pmproxy	*server;		/* proxy server implementation */
 struct dict	*config;		/* configuration file settings */
 
 static char	*logfile = "pmproxy.log";	/* log file name */
-static int	run_daemon = 1;		/* run as a daemon, see -f */
+static int	run_mode = RUN_DAEMON;	/* style of execution, see -f and -F */
 static char	*fatalfile = "/dev/tty";/* fatal messages at startup go here */
 static char	*username;
 static char	*certdb;		/* certificate DB path (NSS) */
@@ -68,6 +72,7 @@ static pmLongOptions longopts[] = {
     { "", 0, 'A', 0, "disable service advertisement" },
     { "deprecated", 0, 'd', 0, "backward-compatibility mode; no REST APIs" },
     { "foreground", 0, 'f', 0, "run in the foreground" },
+    { "systemd", 0, 'F', 0, "run in systemd mode" },
     { "timeseries", 0, 't', 0, "automatic, scalable timeseries; REST APIs" },
     { "username", 1, 'U', "USER", "in daemon mode, run as named user [default pcp]" },
     PMAPI_OPTIONS_HEADER("Configuration options"),
@@ -89,7 +94,7 @@ static pmLongOptions longopts[] = {
 };
 
 static pmOptions opts = {
-    .short_options = "Ac:C:dD:fh:i:l:L:M:p:P:r:s:tU:x:?",
+    .short_options = "Ac:C:dD:Ffh:i:l:L:M:p:P:r:s:tU:x:?",
     .long_options = longopts,
 };
 
@@ -133,8 +138,24 @@ ParseOptions(int argc, char *argv[], int *nports, int *maxpending)
 	    }
 	    break;
 
+	case 'F':	/* foreground but do pidfile and uid work */
+	    if (run_mode != RUN_DAEMON) {
+		pmprintf("%s: at most one of -f and -F allowed\n",
+			pmGetProgname());
+		opts.errors++;
+	    }
+	    else
+		run_mode = RUN_SYSTEMD;
+	    break;
+
 	case 'f':	/* foreground, i.e. do _not_ run as a daemon */
-	    run_daemon = 0;
+	    if (run_mode != RUN_DAEMON) {
+		pmprintf("%s: at most one of -f and -F allowed\n",
+			pmGetProgname());
+		opts.errors++;
+	    }
+	    else
+		run_mode = RUN_FOREGROUND;
 	    break;
 
 	case 'h':	/* Redis host name */
@@ -383,8 +404,10 @@ main(int argc, char *argv[])
     /* Advertise the service on the network if that is supported */
     __pmServerSetServiceSpec(PM_SERVER_PROXY_SPEC);
 
-    if (run_daemon)
+    if (run_mode == RUN_DAEMON) {
+	/* daemonize - fork and parent exits, setsid */
 	__pmServerStart(argc, argv, 1);
+    }
     mainpid = getpid();
 
     /* Open non-blocking request ports for client connections */
@@ -401,7 +424,7 @@ main(int argc, char *argv[])
 	fprintf(stderr, "%s: maxpending=%d from PMPROXY_MAXPENDING=%s in environment\n",
 			"Warning", maxpending, getenv("PMPROXY_MAXPENDING"));
 
-    if (run_daemon) {
+    if (run_mode == RUN_DAEMON || run_mode == RUN_SYSTEMD) {
 	if (__pmServerCreatePIDFile(PM_SERVER_PROXY_SPEC, PM_FATAL_ERR) < 0)
 	    DontStart();
 	if (pmSetProcessIdentity(username) < 0)

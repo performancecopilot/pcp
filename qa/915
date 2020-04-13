@@ -94,7 +94,7 @@ cat >$tmp.local << End-Of-File
 [pmproxy]
 pcp.enabled = true
 [discover]
-enabled = true
+enabled = false
 [pmseries]
 enabled = false
 End-Of-File

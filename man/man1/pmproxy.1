@@ -19,7 +19,7 @@
 \f3pmproxy\f1 \- proxy for performance metrics collector and querying
 .SH SYNOPSIS
 \f3pmproxy\f1
-[\f3\-Aft?\f1]
+[\f3\-AFft?\f1]
 [\f3\-C\f1 \f2dirname\f1]
 [\f3\-i\f1 \f2ipaddress\f1]
 [\f3\-l\f1 \f2logfile\f1]
@@ -147,6 +147,36 @@ option indicates that it should run in the foreground.
 This is most useful when trying to diagnose problems with establishing
 connections.
 .TP
+\f3\-F\f1, \f3\-\-systemd\f1
+Like
+.BR \-f ,
+the
+.B \-F
+option runs
+.B pmproxy
+in the foreground, but also does some housekeeping (like create a
+``pid'' file and change user id).  This is intended for use when
+.B pmproxy
+is launched from
+.BR systemd (1)
+and the daemonizing has already been done by
+.BR systemd (1)
+and does not need to be done again by
+.BR pmproxy ,
+which is the case when neither
+.B \-f
+nor
+.B \-F
+is specified.
+.RS +5n
+.PP
+At most one of
+.B \-f
+and
+.B \-F
+may be specified.
+.RE
+.TP
 \f3\-h\f1 \f2host\f1, \f3\-\-redishost\f1=\f2host\f1
 Specify an alternate Redis
 .I host
@@ -212,7 +242,7 @@ will try to use a certificate called
 in its server role.
 The
 .B \-M
-option allows this certficate
+option allows this certificate
 .I name
 to be changed.
 This option implies \f3pmproxy\f1 is running in \f3deprecated\f1 mode.

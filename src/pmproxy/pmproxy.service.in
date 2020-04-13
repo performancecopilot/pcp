@@ -7,9 +7,7 @@ After=network-online.target pmcd.service
 Type=notify
 NotifyAccess=all
 Restart=always
-ExecStart=@PCP_RC_DIR@/pmproxy start
-ExecStop=@PCP_RC_DIR@/pmproxy stop
-PIDFile=@PCP_RUN_DIR@/pmproxy.pid
+ExecStart=@PCP_RC_DIR@/pmproxy start-systemd
 
 [Install]
 WantedBy=multi-user.target

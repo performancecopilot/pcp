@@ -18,9 +18,15 @@ _cleanup()
 {
     if $_needclean
     then
-	[ -f $PCP_VAR_DIR/config/logger/logger.conf.$seq ] && \
-	_restore_config $PCP_VAR_DIR/config/logger/logger.conf
-	_restore_pmda_install logger
+	if [ -f $PCP_VAR_DIR/config/logger/logger.conf.$seq ]
+	then
+	    _restore_config $PCP_VAR_DIR/config/logger/logger.conf
+	else
+	    # don't leave our one behind here!
+	    #
+	    $sudo rm -f $PCP_VAR_DIR/config/logger/logger.conf
+	fi
+	_restore_pmda_install logger NOINSTALL
 	if $install_on_cleanup
 	then
 	    ( cd $PCP_PMDAS_DIR/logger; $sudo ./Install <$tmp.input >/dev/null 2>&1 )
@@ -49,7 +55,9 @@ _filter()
 	-e "s,$tmp,TMPFILE,g" \
 	-e "s,$here,HERE,g" \
 	-e "s,$PCP_VAR_DIR,\$PCP_VAR_DIR,g" \
-	-e 's/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9]*[0-9]/TIMESTAMP/g'
+	-e 's/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9]*[0-9]/TIMESTAMP/g' \
+	-e '/^# Installed/s/ on .*/ on .../' \
+    # end
 }
 
 _filter_dir()
@@ -66,7 +74,7 @@ $sudo rm -f $tmp.* $seq.full
 
 # setup pmdalogger configuration file
 echo "
-# from PCP QA $seq
+# Installed by PCP QA test $seq on `date`
 reg	n	$tmp.reg
 fifo	n	$here/$seq.fifo
 none	n	$tmp.none
@@ -75,13 +83,14 @@ dir	n	$tmp.dir
 pipe	n	$here/$seq.pipe|
 " >$tmp.conf
 
-# and PMDA Install script
+# and reinstall PMDA Install script (if needed)
 cat >$tmp.input <<End-of-File
 1
 End-of-File
 
 install_on_cleanup=false
-pminfo logger >/dev/null 2>&1 && install_on_cleanup=true
+pminfo -v logger >>$here/$seq.full 2>&1 && install_on_cleanup=true
+echo "install_on_cleanup=$install_on_cleanup" >>$here/$seq.full
 
 status=1	# failure is the default!
 _needclean=true

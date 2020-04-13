@@ -52,14 +52,22 @@ status=0	# success is the default!
 $sudo rm -rf $tmp.*
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+pmproxy_was_running=false
+[ -f $PCP_RUN_DIR/pmproxy.pid ] && pmproxy_was_running=true
+echo "pmproxy_was_running=$pmproxy_was_running" >>$here/$seq.full
+
 _cleanup()
 {
     $sudo $signal -a pmproxy
     _wait_for_stop
     echo "final pmproxy log ..." >>$here/$seq.full
     cat $tmp.log >>$here/$seq.full
-    _service pmproxy start 2>&1 | _filter_pmproxy_start
-    _restore_auto_restart pmproxy
+    if $pmproxy_was_running
+    then
+	echo "Restart pmproxy ..." >>$here/$seq.full
+	_service pmproxy restart >>$here/$seq.full 2>&1
+	_wait_for_pmproxy
+    fi
     $sudo rm -f $tmp.*
 }
 
@@ -118,7 +126,7 @@ _wait_for_stop()
     else
 	echo "Failed to stop pmproxy"
 	$PCP_PS_PROG $PCP_PS_ALL_FLAGS \
-	| egrep 'PID|pmproxy|pmcd'
+	| egrep '[P]ID|[p]mproxy|[p]mcd'
     fi
 }
 
@@ -127,9 +135,7 @@ export PMCD_HOST=localhost
 export PMPROXY_HOST=$hostname
 export PMPROXY_PORT=44322
 
-_stop_auto_restart pmproxy
 _service pmproxy stop 2>&1 | _filter_pmproxy_stop
-# $sudo $signal -a pmproxy
 _wait_for_stop
 
 proxyargs="-l $tmp.log"
