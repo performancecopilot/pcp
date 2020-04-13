@@ -23,12 +23,38 @@ avahi_notrun_checks()
 avahi_cleanup()
 {
     cd $here
-    $sudo $signal -a "$service" >/dev/null 2>&1
+    echo "avahi_cleanup: before pmsignal" >>$seq.full
+    grep_service=`echo "$service" | sed -e 's/./[&]/'`
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|$grep_service |$grep_service$' >>$seq.full
+    $sudo $PCP_BINADM_DIR/pmsignal -a "$service" >>$here/$seq.full 2>&1
+    pmsleep 0.5
+    echo "avahi_cleanup: after pmsignal" >>$seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|$grep_service |$grep_service$' >>$seq.full
+    if $service_was_running
+    then
+	echo "Restart $service ..." >>$here/$seq.full
+	_service $service restart >>$here/$seq.full 2>&1
+	case "$service"
+	in
+	pmcd)
+	    _wait_for_pmcd
+	    ;;
+	pmproxy)
+	    _wait_for_pmproxy
+	    ;;
+	esac
+    else
+	echo "Stopping $service ..." >>$here/$seq.full
+	_service $service stop >>$here/$seq.full 2>&1
+    fi
     rm -f $tmp.*
 }
 
 avahi_service()
 {
+    service_was_running=false
+    [ -f $PCP_RUN_DIR/$service.pid ] && service_was_running=true
+    echo "service_was_running=$service_was_running" >>$here/$seq.full
     _stop_auto_restart $service
     $sudo "$PCP_RC_DIR/$service" restart >>$here/$seq.full 2>&1
     _restore_auto_restart $service

@@ -1574,6 +1574,20 @@ rpm?	statsd				[statsd (QA optional)]
 rpm?	/usr/include/chan/chan.h	[chan-devel (build optional)]
 rpm?	/usr/include/hdr/hdr_thread.h	[HdrHistogram_c-devel (build optional)]
 
+# -- pstree and fuser (for QA)
+#
+dpkg?		pstree		[psmisc (QA optional)]
+rpm?		pstree		[psmisc (QA optional)]
+urpmi?		pstree		[psmisc (QA optional)]
+emerge?		pstree		[?]
+pkgin?		pstree		[?]
+pkg_add?	pstree		[?]
+F_pkg?		pstree		[?]
+S_pkg?		pstree		[?]
+slackpkg?	pstree		[?]
+pacman?		pstree		[?]
+brew?		pstree		[?]
+
 # misc
 #
 redhat?		/usr/sbin/qshape	[postfix-perl-scripts]

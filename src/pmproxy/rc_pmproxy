@@ -218,7 +218,7 @@ $RC_RESET
 # considered a success.
 case "$1" in
 
-  start|faststart|restart|condrestart|reload|force-reload)
+  start|start-systemd|faststart|restart|condrestart|reload|force-reload)
 	if [ "$1" = "condrestart" ] && ! is_chkconfig_on pmproxy
 	then
 	    status=0
@@ -282,10 +282,23 @@ Error: pmproxy options file "$PMPROXYOPTS" is missing, cannot start pmproxy.'
 			    -e 's/ $//' \
 		    | tr '\012' ' ' `
 
+	    $PCP_BINADM_DIR/pmpost "start pmproxy from $pmprog"
+
+	    if [ "$1" = "start-systemd" ]
+	    then
+		# Called from systemd with need to preserve the pid and
+		# systemd has already done the necessary daemonizing
+		#
+		exec $PMPROXY -F $OPTS
+		# NOTREACHED
+		#
+	    fi
+
+	    # otherwise, use the historical approach
+	    #
 	    $PMPROXY $OPTS
 	    $RC_STATUS -v
 
-	    $PCP_BINADM_DIR/pmpost "start pmproxy from $pmprog"
 
 	    # finally, stop here if running in a container
 	    [ -z "$PCP_CONTAINER_IMAGE" ] || exec $PCP_BINADM_DIR/pmpause

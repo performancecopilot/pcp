@@ -13,6 +13,10 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+# needed by ./src/pmproxy_load_test.python
+#
+which python3 >/dev/null 2>&1 || _notrun "No binary named python3 found"
+
 _check_valgrind
 _check_series
 
