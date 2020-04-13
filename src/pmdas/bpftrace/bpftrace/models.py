@@ -101,10 +101,6 @@ class ScriptEncoder(json.JSONEncoder):
 
 class PMDAConfig:
     # see bpftrace.conf for configuration descriptions and units
-    class StaticScriptsConfig:
-        def __init__(self):
-            self.enabled = True
-
     class DynamicScriptsConfig:
         def __init__(self):
             self.enabled = False
@@ -112,7 +108,6 @@ class PMDAConfig:
             self.allowed_users = []
 
     def __init__(self):
-        self.static_scripts = PMDAConfig.StaticScriptsConfig()
         self.dynamic_scripts = PMDAConfig.DynamicScriptsConfig()
 
         self.bpftrace_path = 'bpftrace'

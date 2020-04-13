@@ -16,8 +16,8 @@ TOPDIR = ../../../..
 include $(TOPDIR)/src/include/builddefs
 
 IAM       = bpftrace
-BTSCRIPTSDIR = $(PCP_PMDAS_DIR)/$(IAM)/scripts
-BTSCRIPTS = $(shell echo *.bt)
+AUTOSTARTDIR = $(PCP_PMDAS_DIR)/$(IAM)/autostart
+SCRIPTS = $(shell echo *.bt)
 
 include $(BUILDRULES)
 
@@ -26,5 +26,5 @@ default_pcp default:	$(SUBDIRS)
 
 install_pcp install:	default $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
-	$(INSTALL) -m 700 -d $(BTSCRIPTSDIR)
-	$(INSTALL) -m 600 $(BTSCRIPTS) $(BTSCRIPTSDIR)
+	$(INSTALL) -m 755 -d $(AUTOSTARTDIR)
+	$(INSTALL) -m 644 $(SCRIPTS) $(AUTOSTARTDIR)

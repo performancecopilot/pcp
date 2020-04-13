@@ -1,6 +1,6 @@
 #!/bin/sh
-# PCP QA Test No. 1706
-# Exercise the bpftrace PMDA - authentication with legacy config file (PCP < 5.1.0)
+# PCP QA Test No. 1724
+# Exercise the bpftrace PMDA - authentication
 #
 
 seq=`basename $0`
@@ -20,6 +20,7 @@ _stop_auto_restart pmcd
 
 # real QA test starts here
 _pmdabpftrace_clean_autostart_scripts
+
 echo "=== default configuration (authentication enabled, no user is allowed) ==="
 cat <<EOF | _pmdabpftrace_install
 # Installed by PCP QA test $seq on `date`
@@ -35,8 +36,7 @@ cat <<EOF | _pmdabpftrace_install
 # Installed by PCP QA test $seq on `date`
 [dynamic_scripts]
 enabled = true
-[authentication]
-enabled = true
+auth_enabled = true
 allowed_users = some_user
 EOF
 pmstore bpftrace.control.register "tracepoint:raw_syscalls:sys_enter { @c = count(); }"
@@ -48,8 +48,7 @@ cat <<EOF | _pmdabpftrace_install
 # Installed by PCP QA test $seq on `date`
 [dynamic_scripts]
 enabled = true
-[authentication]
-enabled = true
+auth_enabled = true
 allowed_users = some_user,$username
 EOF
 pmstore bpftrace.control.register "tracepoint:raw_syscalls:sys_enter { @c = count(); }"
@@ -60,8 +59,7 @@ cat <<EOF | _pmdabpftrace_install
 # Installed by PCP QA test $seq on `date`
 [dynamic_scripts]
 enabled = true
-[authentication]
-enabled = false
+auth_enabled = false
 EOF
 pmstore bpftrace.control.register "tracepoint:raw_syscalls:sys_enter { @c = count(); }"
 echo

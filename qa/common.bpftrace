@@ -16,6 +16,19 @@ _pmdabpftrace_check()
     [ -f $PCP_PMDAS_DIR/bpftrace/pmdabpftrace.python ] || _notrun "bpftrace PMDA not installed"
 }
 
+_pmdabpftrace_clean_autostart_scripts()
+{
+    $sudo cp -r $PCP_PMDAS_DIR/bpftrace/autostart $PCP_PMDAS_DIR/bpftrace/autostart.backup
+    $sudo rm $PCP_PMDAS_DIR/bpftrace/autostart/*
+}
+
+_pmdabpftrace_install_filter()
+{
+    sed \
+    -e "s/metrics and [0-9]\+ values/metrics and X values/g" \
+    #end
+}
+
 _pmdabpftrace_install()
 {
     # start from known starting points
@@ -29,13 +42,10 @@ _pmdabpftrace_install()
     tee -a $here/$seq.full > $tmp.bpftrace.conf
     $sudo cp $tmp.bpftrace.conf $PCP_PMDAS_DIR/bpftrace/bpftrace.conf
 
-    # move default static scripts
-    [ -d $PCP_PMDAS_DIR/bpftrace/scripts ] && $sudo mv $PCP_PMDAS_DIR/bpftrace/scripts $PCP_PMDAS_DIR/bpftrace/scripts.backup
-
     echo
     echo "=== bpftrace agent installation ==="
     $sudo ./Install </dev/null > $tmp.bpftrace.out 2>&1
-    cat $tmp.bpftrace.out | _filter_pmda_install
+    cat $tmp.bpftrace.out | _filter_pmda_install | _pmdabpftrace_install_filter
 
     echo
 }
@@ -56,8 +66,9 @@ _pmdabpftrace_cleanup()
     if [ -f $PCP_PMDAS_DIR/bpftrace/bpftrace.conf.backup ]; then
         $sudo mv $PCP_PMDAS_DIR/bpftrace/bpftrace.conf.backup $PCP_PMDAS_DIR/bpftrace/bpftrace.conf
     fi
-    if [ -d $PCP_PMDAS_DIR/bpftrace/scripts.backup ]; then
-        $sudo mv $PCP_PMDAS_DIR/bpftrace/scripts.backup $PCP_PMDAS_DIR/bpftrace/scripts
+    if [ -d $PCP_PMDAS_DIR/bpftrace/autostart.backup ]; then
+        $sudo rm -r $PCP_PMDAS_DIR/bpftrace/autostart
+        $sudo mv $PCP_PMDAS_DIR/bpftrace/autostart.backup $PCP_PMDAS_DIR/bpftrace/autostart
     fi
 
     # note: _restore_auto_restart pmcd done in _cleanup_pmda()

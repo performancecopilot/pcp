@@ -1744,5 +1744,9 @@ BAD
 1718 pmda.statsd local
 1719 pmda.statsd local
 1720 pmda.statsd local
+1721 pmda.bpftrace local python
+1722 pmda.bpftrace local python
+1723 pmda.bpftrace local python
+1724 pmda.bpftrace local python
 1896 pmlogger logutil pmlc local
 4751 libpcp threads valgrind local pcp
