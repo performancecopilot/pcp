@@ -1,0 +1,81 @@
+#!/bin/sh
+# PCP QA Test No. 1855
+# Exercise the rabbitmq PMDA - install, remove and values.
+#
+# Copyright (c) 2020 Ashwin Nayak.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -d $PCP_PMDAS_DIR/rabbitmq ] || _notrun "rabbitmq PMDA directory is not installed"
+
+port=15672
+$PCP_BINADM_DIR/telnet-probe -c localhost $port || \
+    _notrun "rabbitmq not running on default port:$port"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+pmdarabbitmq_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+pmdarabbitmq_remove()
+{
+    echo
+    echo "=== remove rabbitmq agent ==="
+    $sudo ./Remove >$tmp.out 2>&1
+    _filter_pmda_remove <$tmp.out
+}
+
+pmdarabbitmq_install()
+{
+    # start from known starting points
+    cd $PCP_PMDAS_DIR/rabbitmq
+    $sudo ./Remove >/dev/null 2>&1
+    _service pmcd stop | _filter_pcp_stop
+
+    echo
+    echo "=== rabbitmq agent installation ==="
+    $sudo ./Install </dev/null >$tmp.out 2>&1
+    # Check metrics have appeared ... X metrics and Y values
+    _filter_pmda_install <$tmp.out \
+    | sed \
+        -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
+    | $PCP_AWK_PROG '
+/Check rabbitmq metrics have appeared/  { if ($7 == 1) $7 = "X"
+                                          if ($10 == 1) $10 = "Y"
+                                        }
+                                        { print }'
+}
+
+_prepare_pmda rabbitmq
+trap "pmdarabbitmq_cleanup; exit \$status" 0 1 2 3 15
+
+_stop_auto_restart pmcd
+
+
+# real QA test starts here
+pmdarabbitmq_install
+
+echo
+echo "=== extract metric values and compare ==="
+if pmprobe rabbitmq | grep 'rabbitmq 1' >/dev/null >$tmp.out 2>&1 ;then
+    echo "rabbitmq works"
+else
+	echo "rabbit metric number of values do not match"
+fi | tee -a $here/$seq.full
+
+pmdarabbitmq_remove
+
+# QA test done
+status=0
+exit

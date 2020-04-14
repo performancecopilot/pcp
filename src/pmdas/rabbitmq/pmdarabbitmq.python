@@ -1,0 +1,94 @@
+#!/usr/bin/env pmpython
+#
+# Copyright (C) 2020 Ashwin Nayak <ashwinnayak111@gmail.com>
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+
+""" Performance Metrics Domain Agent exporting rabbitmq metrics. """
+
+import sys
+import cpmapi as c_api
+from pcp.pmda import PMDA, pmdaMetric
+from pcp.pmapi import pmUnits, pmContext as PCP
+import requests
+try:
+    import ConfigParser
+except ImportError:
+    import configparser as ConfigParser
+
+DEFAULT_USERNAME = 'guest'
+DEFAULT_PASSWORD = 'guest'
+DEFAULT_PORT = 15672
+
+
+class rabbitmqPMDA(PMDA):
+	""" PCP rabbitmq PMDA """
+	def __init__(self, name, domain):
+		""" (Constructor) Initialisation - register metrics, callbacks, drop privileges """
+		PMDA.__init__(self, name, domain)
+		self.username = DEFAULT_USERNAME
+		self.password = DEFAULT_PASSWORD
+		self.port = DEFAULT_PORT
+		self.url = None
+		self.read_config()
+		self.build_url()
+
+		self.connect_pmcd()
+		self.add_metric('rabbitmq',   
+            pmdaMetric(self.pmid(0, 0),
+            c_api.PM_TYPE_STRING, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT,
+            pmUnits()),
+            'lists queues of rabbitmq',
+            'Displays name of queues, number of messages and queue details of rabbitmq')
+		self.set_fetch_callback(self.rabbit_fetch_callback)
+		self.set_user(PCP.pmGetConfig('PCP_USER'))
+    
+	def read_config(self):
+		""" Read Configuration file"""
+		configfile = PCP.pmGetConfig('PCP_PMDAS_DIR')
+		configfile += '/rabbitmq/rabbitmq.conf'
+
+		# Python < 3.2 compatible
+		if sys.version_info[0] >=3 and sys.version_info[1] >= 2:
+			config = ConfigParser.ConfigParser()
+		else:
+			config = ConfigParser.SafeConfigParser()
+
+		# Read the config file
+		if config.has_section('pmda'):
+			self.username = config.get('pmda','username')
+			self.password = config.get('pmda','password')
+			self.port = config.get('pmda','port')
+
+	def build_url(self):
+		"""Build up url needed for HTTP GET request"""
+		self.url = 'http://'+self.username+':'+self.password+'@localhost:'+str(self.port)+'/api/queues'
+
+	def rabbit_fetch(self):
+		""" fetches result from HTTP GET request """
+
+		try:
+			return requests.get(self.url).json()
+		except:
+			return None
+
+	def rabbit_fetch_callback(self, cluster, item, inst):
+
+		stats = self.rabbit_fetch()
+
+		if (cluster == 0 and item == 0) and stats is not None:
+			return [str(stats),1]
+		return [c_api.PM_ERR_PMID, 0]
+
+
+if __name__ == '__main__':
+	rabbitmqPMDA('rabbitmq', 143).run()
