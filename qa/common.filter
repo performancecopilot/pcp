@@ -315,6 +315,7 @@ _filter_optional_pmdas()
 	-e '/pmdaredis/d' \
 	-e '/pmdarpm/d' \
 	-e '/pmdarsyslog/d' \
+	-e '/pmdarabbitmq/d' \
 	-e '/pmdaroomtemp/d' \
 	-e '/pmdasamba/d' \
 	-e '/pmdasendmail/d' \
