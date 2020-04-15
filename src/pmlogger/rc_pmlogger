@@ -88,11 +88,7 @@ in
 	;;
 esac
 
-# Note: _start_pmcheck() runs in the background, in parallel with the rest
-# of the script (except in a container environment). It might complete well
-# after the caller so tmpfile handling is especially problematic.  Goal is
-# to speed bootup by starting potentially slow (remote monitoring) pmlogger
-# processes in the background.
+# Note: _start_pmcheck() starts each pmlogger configured in the control file(s)
 #
 _start_pmcheck()
 {
@@ -111,7 +107,7 @@ _start_pmcheck()
 	$PCP_SYSLOG_PROG -p daemon.warning "$message"
 	$PCP_BINADM_DIR/pmpost "$message"
     fi
-    exit $bgstatus # co-process is now complete
+    return $bgstatus # pmlogger_check is now complete
 }
 
 _start_pmlogger()
@@ -134,8 +130,8 @@ Error: PCP archive logger control file '$PMLOGCTRL'
 	    #
 	    $ECHO $PCP_ECHO_N "Starting pmlogger ..." "$PCP_ECHO_C"
 
-	    # run as a co-process
-	    _start_pmcheck &
+	    # start all pmlogger(s)
+	    _start_pmcheck
 
 	    # Container environment
 	    if [ -n "$PCP_CONTAINER_IMAGE" ]
@@ -216,7 +212,7 @@ _shutdown()
 
 _usage()
 {
-    echo "Usage: $prog [-v] {start|faststart|restart|condrestart|stop|status|reload|force-reload}"
+    echo "Usage: $prog [-v] {start|start-systemd|faststart|restart|condrestart|stop|status|reload|force-reload}"
 }
 
 while getopts v c
@@ -276,7 +272,7 @@ $RC_RESET
 # considered a success.
 case "$1" in
 
-  start|faststart|restart|condrestart|reload|force-reload)
+  start|start-systemd|faststart|restart|condrestart|reload|force-reload)
 	if [ "$1" = "condrestart" ] && ! is_chkconfig_on pmlogger
 	then
 	    status=0
