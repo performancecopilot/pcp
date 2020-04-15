@@ -50,7 +50,7 @@
       "scripts": [
         "hosts/rhel7/install_epel.sh",
         "hosts/rhel7/install_libuv.sh",
-        "common/redhat/provision_yum.sh",
+        "hosts/rhel7/provision.sh",
         "common/linux/deprovision.sh"
       ]
     }
