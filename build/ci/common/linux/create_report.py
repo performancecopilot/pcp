@@ -16,15 +16,18 @@ def read_logfile(path):
         with open(path) as f:
             return f.read()
     except IOError as e:
-        return 'could not open {}: {}'.format(path, e)
+        return "could not open {0}: {1}".format(path, e)
 
 
 def read_test_durations():
     test_durations = {}
-    with open("check.time") as f:
-        for line in f:
-            no, duration = line.strip().split()
-            test_durations[no] = duration
+    try:
+        with open("check.time") as f:
+            for line in f:
+                no, duration = line.strip().split()
+                test_durations[no] = duration
+    except IOError:
+        return {}
     return test_durations
 
 
@@ -50,7 +53,7 @@ def create_testcases(test_output_file, test_durations, test_groups):
         if success_m or notrun_m or failed_m:
             test_no = (success_m or notrun_m or failed_m).group(1)
             testcase = ET.Element("testcase")
-            testcase.set("name", "{} ({})".format(test_no, test_groups.get(test_no, "?")))  # title
+            testcase.set("name", "{0} ({1})".format(test_no, test_groups.get(test_no, "?")))  # title
             testcase.set("classname", "qa/" + test_no)  # test file
             if test_no in test_durations:
                 testcase.set("time", test_durations[test_no])  # duration
@@ -98,7 +101,7 @@ def create_report(test_output_path, output):
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print("usage: {} test-output.log".format(sys.argv[0]))
+        print("usage: {0} test-output.log".format(sys.argv[0]))
         sys.exit(1)
 
     create_report(sys.argv[1], sys.stdout)
