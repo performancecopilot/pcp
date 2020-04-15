@@ -33,7 +33,7 @@ int		vol_samples_counter;     /* Counts samples - reset for new vol*/
 int		vol_switch_afid = -1;    /* afid of event for vol switch */
 int		vol_switch_flag;         /* sighup received - switch vol now */
 int		vol_switch_alarm;	 /* vol_switch_callback() called */
-int		log_switch_flag;         /* set when SIGUSR2 received - re-exec */
+int		log_switch_flag;         /* SIGUSR2 received to re-exec / log-roll */
 int		argc_saved;		 /* saved for execv when switching logs */
 char		**argv_saved;		 /* saved for re-exec when switching logs */
 int		run_done_alarm;		 /* run_done_callback() called */
@@ -48,6 +48,7 @@ char		*pmcd_host_label;
 int		host_context = PM_CONTEXT_HOST;	 /* pmcd / local context mode */
 int		archive_version = PM_LOG_VERS02; /* Type of archive to create */
 int		linger = 0;		/* linger with no tasks/events */
+int		notify_service_mgr = 0;	/* notify service manager when we're ready (daemon mode only) */
 int		pmlogger_reexec = 0;	/* set when PMLOGGER_REEXEC is set in the environment */
 int		rflag;			/* report sizes */
 int		Cflag;			/* parse config and exit */
@@ -115,7 +116,7 @@ run_done(int sts, char *msg)
 
     if (log_switch_flag) {
     	/*
-	 * re-exec using original args
+	 * re-exec using saved args, see save_args().
 	 */
 	fprintf(stderr, "\n=== pmlogger: reexec cmdlne:");
 	for (i=0; i < argc_saved; i++)
@@ -132,8 +133,12 @@ run_done(int sts, char *msg)
 	perror("Error: execvp returned unexpectedly");
     }
 
-    /* notify service manager, if any, we are stopping */
-    __pmServerNotifyServiceManagerStopping(getpid());
+    /*
+     * Notify service manager, if any, we are stopping. Do this even
+     * if we've been reexec'd because the original pid is exiting.
+     */
+    if (notify_service_mgr)
+	__pmServerNotifyServiceManagerStopping(getpid());
 
     exit(sts);
 }
@@ -557,6 +562,7 @@ static pmLongOptions longopts[] = {
     PMOPT_SPECLOCAL,
     { "local-PMDA", 0, 'o', 0, "metrics sourced without connecting to pmcd" },
     PMOPT_NAMESPACE,
+    { "notify", 0, 'N', 0, "notify service manager (if any) when started and ready" },
     { "PID", 1, 'p', "PID", "Log specified metric for the lifetime of the pid" },
     { "primary", 0, 'P', 0, "execute as primary logger instance" },
     { "report", 0, 'r', 0, "report record sizes and archive growth rate" },
@@ -574,7 +580,7 @@ static pmLongOptions longopts[] = {
 };
 
 static pmOptions opts = {
-    .short_options = "c:CD:fh:H:l:K:Lm:n:op:Prs:T:t:uU:v:V:x:y?",
+    .short_options = "c:CD:fh:H:l:K:Lm:Nn:op:Prs:T:t:uU:v:V:x:y?",
     .long_options = longopts,
     .short_usage = "[options] archive",
 };
@@ -842,6 +848,10 @@ main(int argc, char **argv)
 			(strncmp(note, "reexec", 6) == 0));
 	    break;
 
+	case 'N':		/* notify service manager (even if not primary) */
+	    notify_service_mgr = 1;
+	    break;
+
 	case 'n':		/* alternative name space file */
 	    pmnsfile = opts.optarg;
 	    break;
@@ -996,9 +1006,10 @@ main(int argc, char **argv)
     if (getenv("PMLOGGER_REEXEC") != NULL) {
 	/*
 	 * We have been re-exec'd. See run_done(). This flag indicates
-	 * not to daemonize, do not notify the service manager, do not
-	 * create the PID file and do not create or bind to any sockets.
-	 * All this was already done by the pmlogger that exec'd us.
+	 * not to daemonize, do not notify the service manager, do
+	 * not (re)create the PID file and keep using the same log file.
+	 * We still create and bind to various sockets because these
+	 * are cleaned up by the outgoing pmlogger prior to exec.
 	 */
 	pmlogger_reexec = 1;
     }
@@ -1309,8 +1320,11 @@ main(int argc, char **argv)
 	updateLatestFolio(pmcd_host, archName);
     }
 
-    if (!pmlogger_reexec) {
-	/* notify service manager, if any, we are ready */
+    if (notify_service_mgr && !pmlogger_reexec) {
+	/*
+	 * If we haven't been reexec'd, notify service manager (if any),
+	 * that we are ready.
+	 */
 	__pmServerNotifyServiceManagerReady(getpid());
     }
 

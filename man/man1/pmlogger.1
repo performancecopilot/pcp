@@ -19,7 +19,7 @@
 \f3pmlogger\f1 \- create archive log for performance metrics
 .SH SYNOPSIS
 \f3pmlogger\f1
-[\f3\-CLoPruy?\f1]
+[\f3\-CNLoPruy?\f1]
 [\f3\-c\f1 \f2conffile\f1]
 [\f3\-h\f1 \f2host\f1]
 [\f3\-H\f1 \f2hostname\f1]
@@ -236,6 +236,34 @@ The
 option may be used to override the default behavior.
 If the log file cannot be created or is not writable, output is
 written to standard error instead.
+If the \f2logfile\f1 for the
+.B \-l
+option is "\fB\-\fP"
+(i.e.
+.BR \-l\- )
+then log messages are written to the standard output stream.
+This can be particularly useful when running
+.B pmlogger
+manually, rather than as a service daemon.
+.PP
+The
+.B \-N
+option directs
+.B pmlogger
+to notify a service manager, typically
+.BR systemd (1),
+when it has started and is about to begin writing PCP archive logs.
+This option would only normally be used when
+.B pmlogger
+is run as a daemon service under the control of a service manager.
+For more details, see
+.BR __pmServerNotifyServiceManagerReady (3)
+and
+.BR systemd (1).
+On platforms that do not use a service manager that supports notifications,
+the
+.B \-N
+option is basically a no-op.
 .PP
 If specified, the
 .B \-s
@@ -1040,6 +1068,17 @@ variable (if not set, 60 seconds will be used).
 Both the command line and directives in the configuration file will
 override this value.
 It is an integer in units of seconds.
+.P
+On platforms using
+.BR systemd (1),
+and when the
+.B \-N
+option is given,
+the
+.B NOTIFY_SOCKET
+environment variable would normally be set by the service manager
+prior to launching
+.BR pmlogger .
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize
 the file and directory names used by PCP.
@@ -1054,9 +1093,11 @@ configuration file, as described in \fBpcp.conf\fP(5).
 .BR pmlc (1),
 .BR pmlogger_check (1),
 .BR systemctl (1),
+.BR systemd (1),
 .BR execvp (3),
 .BR pmSpecLocalPMDA (3),
 .BR strftime (3),
+.BR __pmServerNotifyServiceManagerReady (3),
 .BR pcp.conf (5),
 .BR pcp.env (5),
 .BR pmlogger (5),
