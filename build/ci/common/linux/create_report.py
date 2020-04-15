@@ -28,7 +28,17 @@ def read_test_durations():
     return test_durations
 
 
-def create_testcases(test_output_file, test_durations):
+def read_test_groups():
+    test_groups = {}
+    with open("group") as f:
+        for line in f:
+            spl = line.strip().split()
+            if len(spl) >= 2 and spl[0].isdigit():
+                test_groups[spl[0]] = spl[1]
+    return test_groups
+
+
+def create_testcases(test_output_file, test_durations, test_groups):
     testcases = []
     for line in test_output_file:
         # [xx%] will be displayed if there are more than 9 tests
@@ -40,7 +50,7 @@ def create_testcases(test_output_file, test_durations):
         if success_m or notrun_m or failed_m:
             test_no = (success_m or notrun_m or failed_m).group(1)
             testcase = ET.Element("testcase")
-            testcase.set("name", test_no)  # title
+            testcase.set("name", "{} ({})".format(test_no, test_groups.get(test_no, "?")))  # title
             testcase.set("classname", "qa/" + test_no)  # test file
             if test_no in test_durations:
                 testcase.set("time", test_durations[test_no])  # duration
@@ -75,8 +85,9 @@ def create_testcases(test_output_file, test_durations):
 
 def create_report(test_output_path, output):
     test_durations = read_test_durations()
+    test_groups = read_test_groups()
     with open(test_output_path) as test_output_file:
-        testcases = create_testcases(test_output_file, test_durations)
+        testcases = create_testcases(test_output_file, test_durations, test_groups)
 
     for testcase in testcases:
         if sys.version_info > (3,):

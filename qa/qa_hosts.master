@@ -33,13 +33,10 @@ thing1.scott.net.au
 thing2.scott.net.au
 
 # Mark's section
-moonah.gateway
-moonahqa.qa
-rhel74.qa
-f27.qa
-f27-clone.qa
-# pcp.usersys.redhat.com
-# goody.usersys.redhat.com
+rhel76.gateway
+f31.gateway
+f31-qa.gateway
+f30.gateway
 
 # sort control lines
 # each line here is a specification that includes the keyword #order and
@@ -62,5 +59,4 @@ f27-clone.qa
 # Kenj Section
 #order	.localdomain		.localdomain
 # Mark's Section
-#order	.gateway		.qa
-#order	.usersys.redhat.com	.usersys.redhat.com
+#order	.gateway		.gateway
