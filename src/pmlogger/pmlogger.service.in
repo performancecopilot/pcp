@@ -6,10 +6,11 @@ After=pmlogger_check.timer pmlogger_daily.timer pmlogger_daily-poll.timer
 BindsTo=pmlogger_check.timer pmlogger_daily.timer pmlogger_daily-poll.timer
 
 [Service]
-Type=forking
+Type=notify
+NotifyAccess=all
 TimeoutSec=120
 Restart=always
-ExecStart=@PCP_RC_DIR@/pmlogger start
+ExecStart=@PCP_RC_DIR@/pmlogger start-systemd
 ExecStop=@PCP_RC_DIR@/pmlogger stop
 PIDFile=@PCP_RUN_DIR@/pmlogger.pid
 

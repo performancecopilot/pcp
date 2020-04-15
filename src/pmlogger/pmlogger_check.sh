@@ -726,7 +726,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	fi
 
 	pid=''
-	if [ "X$primary" = Xy ]
+	if [ "$primary" = y ]
 	then
 	    if test -e "$PCP_TMP_DIR/pmlogger/primary"
 	    then
@@ -860,6 +860,10 @@ END				{ print m }'`
 		eval $MV -f $logfile $logfile.prior
 	    fi
 
+	    # Notify service manager (if any) for the primary logger ONLY.
+	    # TODO if no primary, notify for the first logger.
+	    [ "$primary" = y ] && args="-N $args"
+
 	    args="$args -m pmlogger_check"
 	    if $SHOWME
 	    then
@@ -869,8 +873,8 @@ END				{ print m }'`
 		continue
 	    else
 		$PCP_BINADM_DIR/pmpost "start pmlogger from $prog for host $host"
-		eval $envs '${sock_me}$PMLOGGER $args $LOGNAME >$tmp/out 2>&1 &'
-		pid=$!
+		# The pmlogger child will be re-parented to init (aka systemd)
+		pid=`eval $envs '${sock_me}$PMLOGGER $args $LOGNAME >$tmp/out 2>&1 & echo $!'`
 	    fi
 
 	    # wait for pmlogger to get started, and check on its health
@@ -902,11 +906,11 @@ END				{ print m }'`
     done
 }
 
-_parse_control $CONTROL
-append=`ls $CONTROLDIR 2>/dev/null | LC_COLLATE=POSIX sort`
-for controlfile in $append
+# parse and process the control file(s)
+append=`ls $CONTROLDIR 2>/dev/null | LC_COLLATE=POSIX sort | sed -e "s;^;$CONTROLDIR/;g"`
+for c in $CONTROL $append
 do
-    _parse_control $CONTROLDIR/$controlfile
+    _parse_control "$c"
 done
 
 # check all the SIGTERM'd loggers really died - if not, use a bigger hammer.
@@ -939,8 +943,8 @@ then
 fi
 
 # Prior to exiting we compress existing logs, if any. See pmlogger_daily -K
-# Do not compress on a virgin install - it confuses systemd's Type=forking
-# exit status checks. There is nothing to compress anyway. See RHBZ#1721223.
+# Do not compress on a virgin install - there is nothing to compress anyway.
+# See RHBZ#1721223.
 [ -f "$PCP_LOG_DIR/pmlogger/pmlogger_daily.stamp" ] && _compress_now
 
 [ -f $tmp/err ] && status=1
