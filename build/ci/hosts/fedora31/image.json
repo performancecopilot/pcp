@@ -44,7 +44,7 @@
       "execute_command": "sudo {{ .Vars }} '{{ .Path }}'",
       "scripts": [
         "common/redhat/azure_prep.sh",
-        "common/redhat/provision_dnf.sh",
+        "common/redhat/provision.sh",
         "common/linux/deprovision.sh"
       ]
     },

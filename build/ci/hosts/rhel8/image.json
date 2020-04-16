@@ -55,7 +55,7 @@
       "scripts": [
         "hosts/rhel8/install_epel.sh",
         "hosts/rhel8/install_libuv.sh",
-        "common/redhat/provision_dnf.sh",
+        "common/redhat/provision.sh",
         "common/linux/deprovision.sh"
       ]
     }
