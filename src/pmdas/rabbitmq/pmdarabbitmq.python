@@ -37,7 +37,7 @@ DEFAULT_PASSWORD = 'guest'
 DEFAULT_PORT = 15672
 
 
-class RabbitmqPmda(PMDA):
+class RabbitmqPMDA(PMDA):
     """ PCP rabbitmq PMDA """
     def __init__(self, name, domain):
         """ (Constructor) Initialisation - register metrics, callbacks, drop privileges """
@@ -304,4 +304,4 @@ class RabbitmqPmda(PMDA):
                 return [PM_ERR_APPVERSION,0]
 
 if __name__ == '__main__':
-    RabbitmqPmda('rabbitmq', 143).run()
+    RabbitmqPMDA('rabbitmq', 143).run()
