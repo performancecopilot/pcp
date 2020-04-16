@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2019 Red Hat.
+# Copyright (c) 2013-2020 Red Hat.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -36,7 +36,7 @@ PLPMDAS = bonding netfilter zimbra postgresql \
 
 PYPMDAS = bcc gluster zswap unbound mic haproxy \
 	json libvirt lio openmetrics elasticsearch \
-	bpftrace mssql netcheck
+	bpftrace mssql netcheck rabbitmq
 
 SUBDIRS = $(CPMDAS) $(PLPMDAS) $(PYPMDAS)
 LDIRT = pmcd.conf

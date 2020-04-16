@@ -60,8 +60,12 @@ varlink_connect(void)
     }
 
     sts = varlink_connection_new(&varlink.connection, "unix:/run/podman/io.podman");
-    if (sts != 0)
+    if (sts != 0) {
+	fprintf(stderr, "Error connecting to varlink %s: %s\n",
+		"unix:/run/podman/io.podman",
+		varlink_error_string(-sts));
 	return NULL;
+    }
 
     return &varlink;
 }

@@ -1749,4 +1749,5 @@ BAD
 1723 pmda.bpftrace local python
 1724 pmda.bpftrace local python
 1896 pmlogger logutil pmlc local
+1855 pmda.rabbitmq local
 4751 libpcp threads valgrind local pcp
