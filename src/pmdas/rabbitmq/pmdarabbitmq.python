@@ -1,30 +1,29 @@
 #!/usr/bin/env pmpython
-#
+
 # Copyright (C) 2020 Ashwin Nayak <ashwinnayak111@gmail.com>
-# 
+
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-#
+
+# pylint: disable=bad-whitespace, line-too-long, too-many-return-statements
+# pylint: disable=broad-except, too-many-branches, too-many-statements, inconsistent-return-statements
+# pylint: disable=no-name-in-module, too-many-instance-attributes
 
 """ Performance Metrics Domain Agent exporting rabbitmq metrics. """
 
 import sys
-from ctypes import c_int
 from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaInstid
 from pcp.pmapi import pmUnits
 from pcp.pmapi import pmContext as PCP
-from cpmapi import PM_INDOM_NULL
-from cpmapi import PM_TYPE_32, PM_TYPE_U32, PM_TYPE_U64, PM_TYPE_STRING
+from cpmapi import PM_TYPE_U64, PM_TYPE_STRING
 from cpmapi import PM_SEM_COUNTER, PM_SEM_INSTANT, PM_SEM_DISCRETE
-from cpmapi import PM_COUNT_ONE, PM_SPACE_BYTE, PM_TIME_MSEC
-from cpmapi import PM_ERR_PMID, PM_ERR_APPVERSION
+from cpmapi import PM_ERR_APPVERSION
 from cpmda import PMDA_FETCH_NOVALUES
 
 import requests
@@ -38,270 +37,271 @@ DEFAULT_PASSWORD = 'guest'
 DEFAULT_PORT = 15672
 
 
-class rabbitmqPMDA(PMDA):
-	""" PCP rabbitmq PMDA """
-	def __init__(self, name, domain):
-		""" (Constructor) Initialisation - register metrics, callbacks, drop privileges """
-		PMDA.__init__(self, name, domain)
-		self.username = DEFAULT_USERNAME
-		self.password = DEFAULT_PASSWORD
-		self.port = DEFAULT_PORT
-		self.url = None
-		self.queue_names = []
-		self.read_config()
-		self.build_url()
+class RabbitmqPmda(PMDA):
+    """ PCP rabbitmq PMDA """
+    def __init__(self, name, domain):
+        """ (Constructor) Initialisation - register metrics, callbacks, drop privileges """
+        PMDA.__init__(self, name, domain)
+        self.username = DEFAULT_USERNAME
+        self.password = DEFAULT_PASSWORD
+        self.port = DEFAULT_PORT
+        self.url = None
+        self.queue_names = []
+        self.stats = None
+        self.read_config()
+        self.build_url()
 
-		self.connect_pmcd()
+        self.connect_pmcd()
 
-		self.queue_indom = self.indom(0)
-		self.rabbitmq_instances()
-		self.queue_cluster = 0
-		self.queue_metrics = [
-		    # Name - type - semantics - units - help
-		    [ 'queue.autodelete',                                           		   PM_TYPE_STRING, PM_SEM_DISCRETE, pmUnits(),  ''], # 0
-		    [ 'queue.backing_queue_status.avg_ack_egress_rate',                        PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  ''], # 1
-		    [ 'queue.backing_queue_status.avg_ack_ingress_rate',                       PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  ''], # 2
-		    [ 'queue.backing_queue_status.avg_egress_rate',                            PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  ''], # 3
-		    [ 'queue.backing_queue_status.avg_ingress_rate',                           PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  ''], # 4
-		    [ 'queue.backing_queue_status.delta',                                      PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  ''], # 5
-		    [ 'queue.backing_queue_status.len',                                        PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 6
-		    [ 'queue.backing_queue_status.mode',                                       PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  ''], # 7
-		    [ 'queue.backing_queue_status.next_seq_id',                                PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 8
-		    [ 'queue.backing_queue_status.q1',                                         PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 9
-		    [ 'queue.backing_queue_status.q2',                                         PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 10
-		    [ 'queue.backing_queue_status.q3',                                         PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 11
-		    [ 'queue.backing_queue_status.q4',                                         PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 12
-		    [ 'queue.backing_queue_status.target_ram_count',                           PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  ''], # 13
-		    [ 'queue.consumer_utilization',                                            PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  ''], # 14
-		    [ 'queue.consumers',                                                       PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 15
-		    [ 'queue.durable',                                                         PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  ''], # 16
-		    [ 'queue.effective_policy_definition',                                     PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  ''], # 17
-		    [ 'queue.exclusive',                                                       PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  ''], # 18
-		    [ 'queue.exclusive_consumer_tag',                                          PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  ''], # 19
-		    [ 'queue.garbage_collection.fullsweep_after',                              PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 20
-		    [ 'queue.garbage_collection.max_heap_size',                                PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 21
-		    [ 'queue.garbage_collection.min_bin_vheap_size',                           PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 22
-		    [ 'queue.garbage_collection.min_heap_size',                                PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 23
-		    [ 'queue.garbage_collection.minor_gcs',                                    PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 24
-		    [ 'queue.head_message_timestamp',                                          PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  ''], # 25
-		    [ 'queue.idle_since',                                                      PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  ''], # 26
-		    [ 'queue.memory',                                                          PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 27
-		    [ 'queue.message_bytes',                                                   PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 28
-		    [ 'queue.message_bytes_paged_out',                                         PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 29
-		    [ 'queue.message_bytes_persistent',                                        PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 30
-		    [ 'queue.message_bytes_ram',                                               PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 31
-		    [ 'queue.message_bytes_ready',                                             PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 32
-		    [ 'queue.message_bytes_unacknowledged',                                    PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 33
-		    [ 'queue.messages',                                                        PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 34
-		    [ 'queue.messages_unacknowledged_details.rate',                            PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  ''], # 35
-		    [ 'queue.messages_unacknowledged_ram',                                     PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 36
-		    [ 'queue.name',                                                            PM_TYPE_STRING, PM_SEM_DISCRETE, pmUnits(),  ''], # 37
-		    [ 'queue.node',                                                            PM_TYPE_STRING, PM_SEM_DISCRETE, pmUnits(),  ''], # 38
-		    [ 'queue.operator_policy',                                                 PM_TYPE_STRING, PM_SEM_DISCRETE, pmUnits(),  ''], # 39
-		    [ 'queue.policy',                                                          PM_TYPE_STRING, PM_SEM_DISCRETE, pmUnits(),  ''], # 40
-		    [ 'queue.recoverable_slaves',                                              PM_TYPE_STRING, PM_SEM_COUNTER, pmUnits(),  ''], # 41
-		    [ 'queue.reductions',                                                      PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(),  ''], # 42
-		    [ 'queue.reductions_details.rate',                                         PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  ''], # 43
-		    [ 'queue.single_active_consumer_tag',                                      PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  ''], # 44
-		    [ 'queue.state',                                                           PM_TYPE_STRING, PM_SEM_COUNTER, pmUnits(),  ''], # 45
-		    [ 'queue.type',                                                            PM_TYPE_STRING, PM_SEM_COUNTER, pmUnits(),  ''], # 46
-		    [ 'queue.vhost',                                     					   PM_TYPE_STRING, PM_SEM_COUNTER, pmUnits(),  ''], # 47
-		    [ 'queue.messages_details.rate',                                           PM_TYPE_STRING, PM_SEM_COUNTER, pmUnits(),  ''], # 48
-		    [ 'queue.messages_paged_out',                                              PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 49
-		    [ 'queue.messages_persistent',                                             PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 50
-		    [ 'queue.messages_ram',                                                    PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 51
-		    [ 'queue.messages_ready',                                                  PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 52
-		    [ 'queue.messages_ready_details.rate',                                     PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  ''], # 53
-		    [ 'queue.messages_ready_ram',                                              PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 54
-		    [ 'queue.messages_unacknowledged',                                         PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 55
-		    [ 'queue.arguments',                                                       PM_TYPE_STRING, PM_SEM_COUNTER, pmUnits(),  ''], # 56
-		]
+        self.queue_indom = self.indom(0)
+        self.rabbitmq_instances()
+        self.queue_cluster = 0
+        self.queue_metrics = [
+            # Name - type - semantics - units - help
+            [ 'queue.autodelete',                                                      PM_TYPE_STRING, PM_SEM_DISCRETE, pmUnits(),  ''], # 0
+            [ 'queue.backing_queue_status.avg_ack_egress_rate',                        PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  ''], # 1
+            [ 'queue.backing_queue_status.avg_ack_ingress_rate',                       PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  ''], # 2
+            [ 'queue.backing_queue_status.avg_egress_rate',                            PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  ''], # 3
+            [ 'queue.backing_queue_status.avg_ingress_rate',                           PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  ''], # 4
+            [ 'queue.backing_queue_status.delta',                                      PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  ''], # 5
+            [ 'queue.backing_queue_status.len',                                        PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 6
+            [ 'queue.backing_queue_status.mode',                                       PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  ''], # 7
+            [ 'queue.backing_queue_status.next_seq_id',                                PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 8
+            [ 'queue.backing_queue_status.q1',                                         PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 9
+            [ 'queue.backing_queue_status.q2',                                         PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 10
+            [ 'queue.backing_queue_status.q3',                                         PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 11
+            [ 'queue.backing_queue_status.q4',                                         PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 12
+            [ 'queue.backing_queue_status.target_ram_count',                           PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  ''], # 13
+            [ 'queue.consumer_utilization',                                            PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  ''], # 14
+            [ 'queue.consumers',                                                       PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 15
+            [ 'queue.durable',                                                         PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  ''], # 16
+            [ 'queue.effective_policy_definition',                                     PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  ''], # 17
+            [ 'queue.exclusive',                                                       PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  ''], # 18
+            [ 'queue.exclusive_consumer_tag',                                          PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  ''], # 19
+            [ 'queue.garbage_collection.fullsweep_after',                              PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 20
+            [ 'queue.garbage_collection.max_heap_size',                                PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 21
+            [ 'queue.garbage_collection.min_bin_vheap_size',                           PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 22
+            [ 'queue.garbage_collection.min_heap_size',                                PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 23
+            [ 'queue.garbage_collection.minor_gcs',                                    PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 24
+            [ 'queue.head_message_timestamp',                                          PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  ''], # 25
+            [ 'queue.idle_since',                                                      PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  ''], # 26
+            [ 'queue.memory',                                                          PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 27
+            [ 'queue.message_bytes',                                                   PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 28
+            [ 'queue.message_bytes_paged_out',                                         PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 29
+            [ 'queue.message_bytes_persistent',                                        PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 30
+            [ 'queue.message_bytes_ram',                                               PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 31
+            [ 'queue.message_bytes_ready',                                             PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 32
+            [ 'queue.message_bytes_unacknowledged',                                    PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 33
+            [ 'queue.messages',                                                        PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 34
+            [ 'queue.messages_unacknowledged_details.rate',                            PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  ''], # 35
+            [ 'queue.messages_unacknowledged_ram',                                     PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 36
+            [ 'queue.name',                                                            PM_TYPE_STRING, PM_SEM_DISCRETE, pmUnits(),  ''], # 37
+            [ 'queue.node',                                                            PM_TYPE_STRING, PM_SEM_DISCRETE, pmUnits(),  ''], # 38
+            [ 'queue.operator_policy',                                                 PM_TYPE_STRING, PM_SEM_DISCRETE, pmUnits(),  ''], # 39
+            [ 'queue.policy',                                                          PM_TYPE_STRING, PM_SEM_DISCRETE, pmUnits(),  ''], # 40
+            [ 'queue.recoverable_slaves',                                              PM_TYPE_STRING, PM_SEM_COUNTER, pmUnits(),  ''], # 41
+            [ 'queue.reductions',                                                      PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(),  ''], # 42
+            [ 'queue.reductions_details.rate',                                         PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  ''], # 43
+            [ 'queue.single_active_consumer_tag',                                      PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  ''], # 44
+            [ 'queue.state',                                                           PM_TYPE_STRING, PM_SEM_COUNTER, pmUnits(),  ''], # 45
+            [ 'queue.type',                                                            PM_TYPE_STRING, PM_SEM_COUNTER, pmUnits(),  ''], # 46
+            [ 'queue.vhost',                                                           PM_TYPE_STRING, PM_SEM_COUNTER, pmUnits(),  ''], # 47
+            [ 'queue.messages_details.rate',                                           PM_TYPE_STRING, PM_SEM_COUNTER, pmUnits(),  ''], # 48
+            [ 'queue.messages_paged_out',                                              PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 49
+            [ 'queue.messages_persistent',                                             PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 50
+            [ 'queue.messages_ram',                                                    PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 51
+            [ 'queue.messages_ready',                                                  PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 52
+            [ 'queue.messages_ready_details.rate',                                     PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  ''], # 53
+            [ 'queue.messages_ready_ram',                                              PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 54
+            [ 'queue.messages_unacknowledged',                                         PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 55
+            [ 'queue.arguments',                                                       PM_TYPE_STRING, PM_SEM_COUNTER, pmUnits(),  ''], # 56
+        ]
 
-		for item in range(len(self.queue_metrics)):
-		    self.add_metric(name + '.' +
-		                    self.queue_metrics[item][0],
-		                    pmdaMetric(self.pmid(self.queue_cluster, item),
-		                               self.queue_metrics[item][1],
-		                               self.queue_indom,
-		                               self.queue_metrics[item][2],
-		                               self.queue_metrics[item][3]),
-		                    self.queue_metrics[item][4],
-		                    self.queue_metrics[item][4])
+        for item in range(len(self.queue_metrics)):
+            self.add_metric(name + '.' +
+                            self.queue_metrics[item][0],
+                            pmdaMetric(self.pmid(self.queue_cluster, item),
+                                       self.queue_metrics[item][1],
+                                       self.queue_indom,
+                                       self.queue_metrics[item][2],
+                                       self.queue_metrics[item][3]),
+                            self.queue_metrics[item][4],
+                            self.queue_metrics[item][4])
 
-		self.set_fetch_callback(self.rabbit_fetch_callback)
-		self.set_user(PCP.pmGetConfig('PCP_USER'))
-    
-	def read_config(self):
-		""" Read Configuration file"""
-		configfile = PCP.pmGetConfig('PCP_PMDAS_DIR')
-		configfile += '/rabbitmq/rabbitmq.conf'
+        self.set_fetch_callback(self.rabbit_fetch_callback)
+        self.set_user(PCP.pmGetConfig('PCP_USER'))
 
-		# Python < 3.2 compatible
-		if sys.version_info[0] >=3 and sys.version_info[1] >= 2:
-			config = ConfigParser.ConfigParser()
-		else:
-			config = ConfigParser.SafeConfigParser()
+    def read_config(self):
+        """ Read Configuration file"""
+        configfile = PCP.pmGetConfig('PCP_PMDAS_DIR')
+        configfile += '/rabbitmq/rabbitmq.conf'
 
-		# Read the config file
-		if config.has_section('pmda'):
-			self.username = config.get('pmda','username')
-			self.password = config.get('pmda','password')
-			self.port = config.get('pmda','port')
+        # Python < 3.2 compatible
+        if sys.version_info[0] >=3 and sys.version_info[1] >= 2:
+            config = ConfigParser.ConfigParser()
+        else:
+            config = ConfigParser.SafeConfigParser()
 
-	def build_url(self):
-		"""Build up url needed for HTTP GET request"""
-		self.url = 'http://'+self.username+':'+self.password+'@localhost:'+str(self.port)+'/api/queues'
+        # Read the config file
+        if config.has_section('pmda'):
+            self.username = config.get('pmda','username')
+            self.password = config.get('pmda','password')
+            self.port = config.get('pmda','port')
 
-	def rabbit_fetch(self):
-		""" fetches result from HTTP GET request """
+    def build_url(self):
+        """Build up url needed for HTTP GET request"""
+        self.url = 'http://'+self.username+':'+self.password+'@localhost:'+str(self.port)+'/api/queues'
 
-		try:
-			temp = requests.get(self.url).json()
-			json_output = {}
-			queue_names = []
-			for i in range(len(temp)):
-				json_output[temp[i]['name']] = temp[i]
-				queue_names.append(temp[i]['name'])
+    def rabbit_fetch(self):
+        """ fetches result from HTTP GET request """
 
-			return json_output, queue_names
-		except:
-			return None, None
+        try:
+            temp = requests.get(self.url).json()
+            json_output = {}
+            queue_names = []
+            for _, val in enumerate(temp):
+                json_output[val['name']] = val
+                queue_names.append(val['name'])
 
-	def rabbitmq_instances(self):
-		""" set names for rabbitmq instances """
-		insts = []
-		temp, queue_names = self.rabbit_fetch()
-		for i in range(len(queue_names)):
-			insts.append(pmdaInstid(i,queue_names[i]))
-		self.add_indom(pmdaIndom(self.queue_indom, insts))
+            return json_output, queue_names
+        except Exception:
+            return None, []
 
-	def rabbit_fetch_callback(self, cluster, item, inst):
-		""" fetch callback method"""
+    def rabbitmq_instances(self):
+        """ set names for rabbitmq instances """
+        insts = []
+        _, queue_names = self.rabbit_fetch()
+        for idx, val in enumerate(queue_names):
+            insts.append(pmdaInstid(idx, val))
+        self.add_indom(pmdaIndom(self.queue_indom, insts))
 
-		self.stats, _ = self.rabbit_fetch()
+    def rabbit_fetch_callback(self, cluster, item, inst):
+        """ fetch callback method"""
 
-		if cluster == self.queue_cluster:
-			if self.stats is None:
-				return [PMDA_FETCH_NOVALUES]
-			try:
-				queue = self.inst_name_lookup(self.queue_indom,inst)
-				if item == 0:
-					return [str(self.stats[queue]['auto_delete']),1]
-				if item == 1:
-					return [str(self.stats[queue]['backing_queue_status']['avg_ack_egress_rate']),1]
-				if item == 2:
-					return [str(self.stats[queue]['backing_queue_status']['avg_ack_ingress_rate']),1]
-				if item == 3:
-					return [str(self.stats[queue]['backing_queue_status']['avg_egress_rate']),1]
-				if item == 4:
-					return [str(self.stats[queue]['backing_queue_status']['avg_ingress_rate']),1]
-				if item == 5:
-					return [str(self.stats[queue]['backing_queue_status']['delta']),1]
-				if item == 6:
-					return [self.stats[queue]['backing_queue_status']['len'],1]
-				if item == 7:
-					return [str(self.stats[queue]['backing_queue_status']['mode']),1]
-				if item == 8:
-					return [self.stats[queue]['backing_queue_status']['next_seq_id'],1]
-				if item == 9:
-					return [self.stats[queue]['backing_queue_status']['q1'],1]
-				if item == 10:
-					return [self.stats[queue]['backing_queue_status']['q2'],1]
-				if item == 11:
-					return [self.stats[queue]['backing_queue_status']['q3'],1]
-				if item == 12:
-					return [self.stats[queue]['backing_queue_status']['q4'],1]
-				if item == 13:
-					return [str(self.stats[queue]['backing_queue_status']['target_ram_count']),1]
-				if item == 14:
-					return [str(self.stats[queue]['consumer_utilisation']),1]
-				if item == 15:
-					return [self.stats[queue]['consumers'],1]
-				if item == 16:
-					return [str(self.stats[queue]['durable']),1]
-				if item == 17:
-					return [str(self.stats[queue]['effective_policy_definition']),1]
-				if item == 18:
-					return [str(self.stats[queue]['exclusive']),1]
-				if item == 19:
-					return [str(self.stats[queue]['exclusive_consumer_tag']),1]
-				if item == 20:
-					return [self.stats[queue]['garbage_collection']['fullsweep_after'],1]
-				if item == 21:
-					return [self.stats[queue]['garbage_collection']['max_heap_size'],1]
-				if item == 22:
-					return [self.stats[queue]['garbage_collection']['min_bin_vheap_size'],1]
-				if item == 23:
-					return [self.stats[queue]['garbage_collection']['min_heap_size'],1]
-				if item == 24:
-					return [self.stats[queue]['garbage_collection']['minor_gcs'],1]
-				if item == 25:
-					return [str(self.stats[queue]['head_message_timestamp']),1]
-				if item == 26:
-					return [str(self.stats[queue]['idle_since']),1]
-				if item == 27:
-					return [self.stats[queue]['memory'],1]
-				if item == 28:
-					return [self.stats[queue]['message_bytes'],1]
-				if item == 29:
-					return [self.stats[queue]['message_bytes_paged_out'],1]
-				if item == 30:
-					return [self.stats[queue]['message_bytes_persistent'],1]
-				if item == 31:
-					return [self.stats[queue]['message_bytes_ram'],1]
-				if item == 32:
-					return [self.stats[queue]['message_bytes_ready'],1]
-				if item == 33:
-					return [self.stats[queue]['message_bytes_unacknowledged'],1]
-				if item == 34:
-					return [self.stats[queue]['messages'],1]
-				if item == 35:
-					return [str(self.stats[queue]['messages_unacknowledged_details']['rate']),1]
-				if item == 36:
-					return [self.stats[queue]['messages_unacknowledged_ram'],1]
-				if item == 37:
-					return [str(self.stats[queue]['name']),1]
-				if item == 38:
-					return [str(self.stats[queue]['node']),1]
-				if item == 39:
-					return [str(self.stats[queue]['operator_policy']),1]
-				if item == 40:
-					return [str(self.stats[queue]['policy']),1]
-				if item == 41:
-					return [str(self.stats[queue]['recoverable_slaves']),1]
-				if item == 42:
-					return [self.stats[queue]['reductions'],1]
-				if item == 43:
-					return [str(self.stats[queue]['reductions_details']['rate']),1]
-				if item == 44:
-					return [str(self.stats[queue]['single_active_consumer_tag']),1]
-				if item == 45:
-					return [str(self.stats[queue]['state']),1]
-				if item == 46:
-					return [str(self.stats[queue]['type']),1]
-				if item == 47:
-					return [str(self.stats[queue]['vhost']),1]
-				if item == 48:
-					return [str(self.stats[queue]['messages_details']['rate']),1]
-				if item == 49:
-					return [self.stats[queue]['messages_paged_out'],1]
-				if item == 50:
-					return [self.stats[queue]['messages_persistent'],1]
-				if item == 51:
-					return [self.stats[queue]['messages_ram'],1]
-				if item == 52:
-					return [self.stats[queue]['messages_ready'],1]
-				if item == 53:
-					return [str(self.stats[queue]['messages_ready_details']['rate']),1]
-				if item == 54:
-					return [self.stats[queue]['messages_ready_ram'],1]
-				if item == 55:
-					return [self.stats[queue]['messages_unacknowledged'],1]
-				if item == 56:
-					return [str(self.stats[queue]['arguments']),1]
-			except Exception:
-				print('error in fetch')
-				return [PM_ERR_APPVERSION,0]
+        self.stats, _ = self.rabbit_fetch()
+
+        if cluster == self.queue_cluster:
+            if self.stats is None:
+                return [PMDA_FETCH_NOVALUES]
+            try:
+                queue = self.inst_name_lookup(self.queue_indom,inst)
+                if item == 0:
+                    return [str(self.stats[queue]['auto_delete']),1]
+                if item == 1:
+                    return [str(self.stats[queue]['backing_queue_status']['avg_ack_egress_rate']),1]
+                if item == 2:
+                    return [str(self.stats[queue]['backing_queue_status']['avg_ack_ingress_rate']),1]
+                if item == 3:
+                    return [str(self.stats[queue]['backing_queue_status']['avg_egress_rate']),1]
+                if item == 4:
+                    return [str(self.stats[queue]['backing_queue_status']['avg_ingress_rate']),1]
+                if item == 5:
+                    return [str(self.stats[queue]['backing_queue_status']['delta']),1]
+                if item == 6:
+                    return [self.stats[queue]['backing_queue_status']['len'],1]
+                if item == 7:
+                    return [str(self.stats[queue]['backing_queue_status']['mode']),1]
+                if item == 8:
+                    return [self.stats[queue]['backing_queue_status']['next_seq_id'],1]
+                if item == 9:
+                    return [self.stats[queue]['backing_queue_status']['q1'],1]
+                if item == 10:
+                    return [self.stats[queue]['backing_queue_status']['q2'],1]
+                if item == 11:
+                    return [self.stats[queue]['backing_queue_status']['q3'],1]
+                if item == 12:
+                    return [self.stats[queue]['backing_queue_status']['q4'],1]
+                if item == 13:
+                    return [str(self.stats[queue]['backing_queue_status']['target_ram_count']),1]
+                if item == 14:
+                    return [str(self.stats[queue]['consumer_utilisation']),1]
+                if item == 15:
+                    return [self.stats[queue]['consumers'],1]
+                if item == 16:
+                    return [str(self.stats[queue]['durable']),1]
+                if item == 17:
+                    return [str(self.stats[queue]['effective_policy_definition']),1]
+                if item == 18:
+                    return [str(self.stats[queue]['exclusive']),1]
+                if item == 19:
+                    return [str(self.stats[queue]['exclusive_consumer_tag']),1]
+                if item == 20:
+                    return [self.stats[queue]['garbage_collection']['fullsweep_after'],1]
+                if item == 21:
+                    return [self.stats[queue]['garbage_collection']['max_heap_size'],1]
+                if item == 22:
+                    return [self.stats[queue]['garbage_collection']['min_bin_vheap_size'],1]
+                if item == 23:
+                    return [self.stats[queue]['garbage_collection']['min_heap_size'],1]
+                if item == 24:
+                    return [self.stats[queue]['garbage_collection']['minor_gcs'],1]
+                if item == 25:
+                    return [str(self.stats[queue]['head_message_timestamp']),1]
+                if item == 26:
+                    return [str(self.stats[queue]['idle_since']),1]
+                if item == 27:
+                    return [self.stats[queue]['memory'],1]
+                if item == 28:
+                    return [self.stats[queue]['message_bytes'],1]
+                if item == 29:
+                    return [self.stats[queue]['message_bytes_paged_out'],1]
+                if item == 30:
+                    return [self.stats[queue]['message_bytes_persistent'],1]
+                if item == 31:
+                    return [self.stats[queue]['message_bytes_ram'],1]
+                if item == 32:
+                    return [self.stats[queue]['message_bytes_ready'],1]
+                if item == 33:
+                    return [self.stats[queue]['message_bytes_unacknowledged'],1]
+                if item == 34:
+                    return [self.stats[queue]['messages'],1]
+                if item == 35:
+                    return [str(self.stats[queue]['messages_unacknowledged_details']['rate']),1]
+                if item == 36:
+                    return [self.stats[queue]['messages_unacknowledged_ram'],1]
+                if item == 37:
+                    return [str(self.stats[queue]['name']),1]
+                if item == 38:
+                    return [str(self.stats[queue]['node']),1]
+                if item == 39:
+                    return [str(self.stats[queue]['operator_policy']),1]
+                if item == 40:
+                    return [str(self.stats[queue]['policy']),1]
+                if item == 41:
+                    return [str(self.stats[queue]['recoverable_slaves']),1]
+                if item == 42:
+                    return [self.stats[queue]['reductions'],1]
+                if item == 43:
+                    return [str(self.stats[queue]['reductions_details']['rate']),1]
+                if item == 44:
+                    return [str(self.stats[queue]['single_active_consumer_tag']),1]
+                if item == 45:
+                    return [str(self.stats[queue]['state']),1]
+                if item == 46:
+                    return [str(self.stats[queue]['type']),1]
+                if item == 47:
+                    return [str(self.stats[queue]['vhost']),1]
+                if item == 48:
+                    return [str(self.stats[queue]['messages_details']['rate']),1]
+                if item == 49:
+                    return [self.stats[queue]['messages_paged_out'],1]
+                if item == 50:
+                    return [self.stats[queue]['messages_persistent'],1]
+                if item == 51:
+                    return [self.stats[queue]['messages_ram'],1]
+                if item == 52:
+                    return [self.stats[queue]['messages_ready'],1]
+                if item == 53:
+                    return [str(self.stats[queue]['messages_ready_details']['rate']),1]
+                if item == 54:
+                    return [self.stats[queue]['messages_ready_ram'],1]
+                if item == 55:
+                    return [self.stats[queue]['messages_unacknowledged'],1]
+                if item == 56:
+                    return [str(self.stats[queue]['arguments']),1]
+            except Exception:
+                print('error in fetch')
+                return [PM_ERR_APPVERSION,0]
 
 if __name__ == '__main__':
-	rabbitmqPMDA('rabbitmq', 143).run()
+    RabbitmqPmda('rabbitmq', 143).run()
