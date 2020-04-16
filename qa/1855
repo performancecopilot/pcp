@@ -51,8 +51,8 @@ pmdarabbitmq_install()
     | sed \
         -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
     | $PCP_AWK_PROG '
-/Check rabbitmq metrics have appeared/  { if ($7 == 1) $7 = "X"
-                                          if ($10 == 1) $10 = "Y"
+/Check rabbitmq metrics have appeared/  { if ($7 == 57) $7 = "X"
+                                          if ($10 % 57 == 0) $10 = "Y"
                                         }
                                         { print }'
 }
@@ -65,15 +65,6 @@ _stop_auto_restart pmcd
 
 # real QA test starts here
 pmdarabbitmq_install
-
-echo
-echo "=== extract metric values and compare ==="
-if pmprobe rabbitmq | grep 'rabbitmq 1' >/dev/null >$tmp.out 2>&1 ;then
-    echo "rabbitmq works"
-else
-	echo "rabbit metric number of values do not match"
-fi | tee -a $here/$seq.full
-
 pmdarabbitmq_remove
 
 # QA test done
