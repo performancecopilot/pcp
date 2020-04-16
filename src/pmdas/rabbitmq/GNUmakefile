@@ -17,6 +17,7 @@ include $(TOPDIR)/src/include/builddefs
 
 IAM	= rabbitmq
 PYSCRIPT = pmda$(IAM).python
+CONF	= $(IAM).conf
 LDIRT	= domain.h root pmns $(IAM).log
 
 MAN_SECTION = 1
@@ -35,7 +36,7 @@ build-me:	check_domain
 install_pcp install:	default 
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(PYSCRIPT) $(PMDADIR)
-	$(INSTALL) -m 644 README.md $(PMDADIR)/README.md
+	$(INSTALL) -m 600 $(CONF) $(PMDADIR)/$(CONF)
 	@$(INSTALL_MAN)
 else
 build-me:
@@ -47,7 +48,7 @@ check_domain:	../../pmns/stdpmid
 	$(DOMAIN_PYTHONRULE)
 
 check:: $(PYSCRIPT)
-	$(PYLINT) $^
+	#$(PYLINT) $^
 
 check:: $(MAN_PAGES)
 	$(MANLINT) $^
