@@ -51,6 +51,7 @@
     { "type": "file", "source": "../../qa", "destination": "./" },
     {
       "type": "shell",
+      "skip_clean": true,
       "execute_command": "sudo {{ .Vars }} '{{ .Path }}'",
       "scripts": [
         "common/redhat/provision.sh",
