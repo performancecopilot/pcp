@@ -709,12 +709,27 @@ fmt_int64
 fmt_pid
 rdynamic_flag
 pcp_selinux_files_mmap_all_files
+pcp_selinux_rawip_socket_class
+pcp_selinux_dir_class
+pcp_selinux_security_class
+pcp_selinux_sock_file_class
+pcp_selinux_netlink_audit_socket_class
+pcp_selinux_netlink_selinux_socket_class
+pcp_selinux_logrotate
+pcp_selinux_xauth_exec
+pcp_selinux_lastlog
+pcp_selinux_var_log
+pcp_selinux_initrc
+pcp_selinux_chkpwd_exec
+pcp_selinux_security
+pcp_selinux_sudo_exec
+pcp_selinux_initrc_tmp
 pcp_selinux_icmp_socket
 pcp_selinux_cap2_syslog
 pcp_selinux_virt_var_run
 pcp_selinux_rpm_var_lib
 pcp_selinux_files_list_non_auth_dirs
-pcp_selinux_bpf_status
+pcp_selinux_bpf
 pcp_selinux_numad
 pcp_selinux_unconfined
 pcp_selinux_hostname_exec_map
@@ -11699,17 +11714,22 @@ pcp_selinux_unreserved_port=false
 pcp_selinux_hostname_exec_map=false
 pcp_selinux_unconfined=false
 pcp_selinux_numad=false
-pcp_selinux_bpf_status=false
+pcp_selinux_bpf=false
 pcp_selinux_files_list_non_auth_dirs=false
 pcp_selinux_rpm_var_lib=false
 pcp_selinux_virt_var_run=false
 pcp_selinux_cap2_syslog=false
 pcp_selinux_icmp_socket=false
+pcp_netlink_selinux_socket=false
+pcp_netlink_audit_socket=false
 
 if test "x$enable_selinux" != "xfalse"; then :
 
 
-            seinfo -t >conftest.out
+
+    seinfo -t >conftest.out
+
+
     grep '^[ 	][ 	]*container_runtime_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_container_runtime=true
     grep '^[ 	][ 	]*nsfs_t$' <conftest.out >/dev/null \
@@ -11728,6 +11748,27 @@ if test "x$enable_selinux" != "xfalse"; then :
 	&& pcp_selinux_rpm_var_lib=true
     grep '^[ 	][ 	]*virt_var_run_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_virt_var_run=true
+
+
+    grep '^[ 	][ 	]*initrc_tmp_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_initrc_tmp=true
+    grep '^[ 	][ 	]*sudo_exec_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_sudo_exec=true
+    grep '^[ 	][ 	]*security_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_security=true
+    grep '^[ 	][ 	]*chkpwd_exec_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_chkpwd_exec=true
+    grep '^[ 	][ 	]*initrc_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_initrc=true
+    grep '^[ 	][ 	]*var_log_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_var_log=true
+    grep '^[ 	][ 	]*lastlog_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_lastlog=true
+    grep '^[ 	][ 	]*xauth_exec_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_xauth_exec=true
+    grep '^[ 	][ 	]*logrotate_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_logrotate=true
+
     rm -f conftest.out
 
     seinfo --common >/dev/null 2>&1
@@ -11738,11 +11779,13 @@ if test "x$enable_selinux" != "xfalse"; then :
         seinfo_common_flag=""
     fi
 
-        seinfo -x --class=cap_userns $seinfo_common_flag 2>/dev/null \
+
+
+    seinfo -x --class=cap_userns $seinfo_common_flag 2>/dev/null \
     | grep '^[ 	][ 	]*sys_ptrace$' >/dev/null \
     && pcp_selinux_cap_userns_ptrace=true
 
-        seinfo -x --class=file $seinfo_common_flag 2>/dev/null \
+                seinfo -x --class=file $seinfo_common_flag 2>/dev/null \
     | grep '^[ 	][ 	]*map$' >/dev/null \
     && pcp_selinux_hostname_exec_map=true
     seinfo -x --common file 2>/dev/null \
@@ -11750,8 +11793,9 @@ if test "x$enable_selinux" != "xfalse"; then :
     && pcp_selinux_hostname_exec_map=true
 
     seinfo -x --class=bpf $seinfo_common_flag 2>/dev/null \
-    | grep '^[ 	][ 	]*class bpf$' >/dev/null \
-    && pcp_selinux_bpf_status=true
+    | head -1 \
+    | grep '^[ 	][ 	]*bpf$' >/dev/null \
+    && pcp_selinux_bpf=true
 
     seinfo -a 2>/dev/null \
     | grep '^[ 	][ 	]*non_auth_file_type$' >/dev/null \
@@ -11762,10 +11806,61 @@ if test "x$enable_selinux" != "xfalse"; then :
     && pcp_selinux_cap2_syslog=true
 
     seinfo -x --class=icmp_socket $seinfo_common_flag 2>/dev/null \
-    | grep '^[ 	][ 	]*class icmp_socket$' >/dev/null \
+    | head -1 \
+    | grep '^[ 	][ 	]*icmp_socket$' >/dev/null \
     && pcp_selinux_icmp_socket=true
 
+
+    seinfo -x --class=netlink_selinux_socket $seinfo_common_flag 2>/dev/null \
+    | head -1 \
+    | grep '^[ 	][ 	]*netlink_selinux_socket$' >/dev/null \
+    && pcp_selinux_netlink_selinux_socket_class=true
+
+    seinfo -x --class=netlink_audit_socket $seinfo_common_flag 2>/dev/null \
+    | head -1 \
+    | grep '^[ 	][ 	]*netlink_audit_socket$' >/dev/null \
+    && pcp_selinux_netlink_audit_socket_class=true
+
+    seinfo -x --class=sock_file $seinfo_common_flag 2>/dev/null \
+    | head -1 \
+    | grep '^[ 	][ 	]*sock_file$' >/dev/null \
+    && pcp_selinux_sock_file_class=true
+
+    seinfo -x --class=security $seinfo_common_flag 2>/dev/null \
+    | head -1 \
+    | grep '^[ 	][ 	]*security$' >/dev/null \
+    && pcp_selinux_security_class=true
+
+            seinfo -x --class=dir $seinfo_common_flag 2>/dev/null \
+    | head -1 \
+    | grep '^[ 	][ 	]*dir$' >/dev/null \
+    && pcp_selinux_dir_class=true
+
+    seinfo -x --class=rawip_socket $seinfo_common_flag 2>/dev/null \
+    | head -1 \
+    | grep '^[ 	][ 	]*rawip_socket$' >/dev/null \
+    && pcp_selinux_rawip_socket_class=true
+
+
 fi
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
