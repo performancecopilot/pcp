@@ -79,6 +79,7 @@ class TestPMDA(PMDA):
         self.set_fetch_callback(self.test_fetch_callback)
         self.set_store_callback(self.test_store_callback)
         self.set_attribute_callback(self.test_attribute_callback)
+        self.set_endcontext_callback(self.test_endcontext_callback)
         self.set_user(PCP.pmGetConfig('PCP_USER'))
         self.set_comm_flags(cpmda.PMDA_FLAG_AUTHORIZE)
 
@@ -175,6 +176,13 @@ class TestPMDA(PMDA):
         self.log("attribute callback for ctx %d attr %d value %s" % (ctx, attr, repr(value)))
         if attr == cpmda.PMDA_ATTR_USERNAME:
             self.ctxtabuser[ctx] = value
+
+    def test_endcontext_callback(self, ctx):
+        self.log("endcontext callback for ctx %d " % (ctx,))
+        if ctx in self.ctxtabval:
+            del self.ctxtabval[ctx]
+        if ctx in self.ctxtabuser:
+            del self.ctxtabuser[ctx]
 
 
 if __name__ == '__main__':

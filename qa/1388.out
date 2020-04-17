@@ -10,23 +10,44 @@ Updating the Performance Metrics Name Space (PMNS) ...
 Terminate PMDA if already installed ...
 [...install files, make output...]
 Updating the PMCD control file, and notifying PMCD ...
-Check test_python metrics have appeared ... 6 metrics and N values
+Check test_python metrics have appeared ... 6 metrics and 7 values
 
-=== pmproxy no authentication (expect errors) ===
+=== invalid username with pminfo ===
+Error: test_python.current_username: Authentication - user not found
+
+=== invalid password with pminfo ===
+Error: test_python.current_username: Authentication - authentication failure
+
+=== correct password with pminfo ===
+
+test_python.current_username
+    value "ctx ? user USER"
+
+=== no authentication ===
 {
-    "message": "authentication required",
-    "success": false
+    "context": "CONTEXT"
+    "source": "SOURCE"
+    "hostspec": "HOSTSPEC"
+    "labels": {
+        "domainname": "DOMAINNAME"
+        "hostname": "HOSTNAME"
+        "machineid": "MACHINEID"
+    }
 }
+
+=== invalid username ===
 {
-    "message": "cannot connect to PMCD on host \u0022localhost?password=bib\u0022: Authentication - invalid parameter supplied",
-    "success": false
-}
-{
-    "message": "authentication failed",
+    "message": "failed to get context labels: Authentication - user not found",
     "success": false
 }
 
-=== pmproxy with authentication (expect success) ===
+=== invalid password ===
+{
+    "message": "failed to get context labels: Authentication - authentication failure",
+    "success": false
+}
+
+=== correct password ===
 {
     "context": "CONTEXT"
     "source": "SOURCE"
@@ -40,16 +61,15 @@ Check test_python metrics have appeared ... 6 metrics and N values
     }
 }
 
-=== state without authentication ===
+=== using unauthenticated context ===
                     "value": "ctx ? user None"
 
-=== state with authentication ===
+=== using authenticated context, missing HTTP auth headers (expect failure) ===
+{
+    "context": "CONTEXT"
+    "message": "authentication required",
+    "success": false
+}
+
+=== using authenticated context, with HTTP auth headers (expect success) ===
                     "value": "ctx ? user USER"
-
-=== verify with pminfo (expect error) ===
-Error: test_python.current_username: Authentication - authentication failure
-
-=== verify with pminfo (expect success) ===
-
-test_python.current_username
-    value "ctx ? user USER"
