@@ -22,7 +22,7 @@ from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaInstid
 from pcp.pmapi import pmUnits
 from pcp.pmapi import pmContext as PCP
 from cpmapi import PM_TYPE_U64, PM_TYPE_STRING, PM_TYPE_FLOAT
-from cpmapi import PM_SPACE_BYTE
+from cpmapi import PM_SPACE_BYTE, PM_COUNT_ONE
 from cpmapi import PM_SEM_COUNTER, PM_SEM_INSTANT, PM_SEM_DISCRETE
 from cpmapi import PM_ERR_APPVERSION
 from cpmda import PMDA_FETCH_NOVALUES
@@ -64,57 +64,57 @@ class RabbitmqPMDA(PMDA):
             [ 'queue.backing_queue_status.avg_ack_ingress_rate',                       PM_TYPE_FLOAT, PM_SEM_INSTANT, pmUnits(),  'Rate at which unacknowledged message records enter RAM'], # 2
             [ 'queue.backing_queue_status.avg_egress_rate',                            PM_TYPE_FLOAT, PM_SEM_INSTANT, pmUnits(),  'Average egress (outbound) rate, not including messages that are sent straight through to auto-acking consumers'], # 3
             [ 'queue.backing_queue_status.avg_ingress_rate',                           PM_TYPE_FLOAT, PM_SEM_INSTANT, pmUnits(),  'Average ingress (inbound) rate, not including messages that are sent straight through to auto-acking consumers'], # 4
-            [ 'queue.backing_queue_status.delta',                                      PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  ''], # 5
-            [ 'queue.backing_queue_status.len',                                        PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  'Total backing queue length, in messages'], # 6
-            [ 'queue.backing_queue_status.mode',                                       PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  ''], # 7
+            [ 'queue.backing_queue_status.delta',                                      PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  'message classification, followed by 4 values; type: array'], # 5
+            [ 'queue.backing_queue_status.len',                                        PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'Total backing queue length, in messages'], # 6
+            [ 'queue.backing_queue_status.mode',                                       PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  'Mode of backing queue'], # 7
             [ 'queue.backing_queue_status.next_seq_id',                                PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  'The next sequence ID to be used in the backing queue'], # 8
-            [ 'queue.backing_queue_status.q1',                                         PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  'Number of messages in backing queue q1'], # 9
-            [ 'queue.backing_queue_status.q2',                                         PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  'Number of messages in backing queue q2'], # 10
-            [ 'queue.backing_queue_status.q3',                                         PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  'Number of messages in backing queue q3'], # 11
-            [ 'queue.backing_queue_status.q4',                                         PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  'Number of messages in backing queue q4'], # 12
-            [ 'queue.backing_queue_status.target_ram_count',                           PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  ''], # 13
+            [ 'queue.backing_queue_status.q1',                                         PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'Number of messages in backing queue q1'], # 9
+            [ 'queue.backing_queue_status.q2',                                         PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'Number of messages in backing queue q2'], # 10
+            [ 'queue.backing_queue_status.q3',                                         PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'Number of messages in backing queue q3'], # 11
+            [ 'queue.backing_queue_status.q4',                                         PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'Number of messages in backing queue q4'], # 12
+            [ 'queue.backing_queue_status.target_ram_count',                           PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  'backiing queue target ram count'], # 13
             [ 'queue.consumer_utilization',                                            PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  'Fraction of the time (between 0.0 and 1.0) that the queue is able to immediately deliver messages to consumers'], # 14
-            [ 'queue.consumers',                                                       PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  'Number of consumers of the queue'], # 15
+            [ 'queue.consumers',                                                       PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'Number of consumers of the queue'], # 15
             [ 'queue.durable',                                                         PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  'Durable queues are persisted to disk and thus survive broker restarts. Boolean value'], # 16
-            [ 'queue.effective_policy_definition',                                     PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  ''], # 17
+            [ 'queue.effective_policy_definition',                                     PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  'dict value: effective policy definitions'], # 17
             [ 'queue.exclusive',                                                       PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  'boolean value. Request the consumer to be the only one on the target queue.'], # 18
-            [ 'queue.exclusive_consumer_tag',                                          PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  ''], # 19
-            [ 'queue.garbage_collection.fullsweep_after',                              PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(),  ''], # 20
+            [ 'queue.exclusive_consumer_tag',                                          PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  'Tag of exclusive consumer'], # 19
+            [ 'queue.garbage_collection.fullsweep_after',                              PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(),  'fullsweep after N, where N is the number of gc to do before forcing a gc of both young and old heap'], # 20
             [ 'queue.garbage_collection.max_heap_size',                                PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(1,0,0,PM_SPACE_BYTE,0,0),  'erlang gc max heap size'], # 21
             [ 'queue.garbage_collection.min_bin_vheap_size',                           PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(1,0,0,PM_SPACE_BYTE,0,0),  'erlang gc min_bin_vheap_size'], # 22
             [ 'queue.garbage_collection.min_heap_size',                                PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(1,0,0,PM_SPACE_BYTE,0,0),  'erlang gc min heap size'], # 23
-            [ 'queue.garbage_collection.minor_gcs',                                    PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(),  ''], # 24
+            [ 'queue.garbage_collection.minor_gcs',                                    PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(),  'The generational(minor) gc just collects the young heap'], # 24
             [ 'queue.head_message_timestamp',                                          PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  'Timestamp of head message'], # 25
             [ 'queue.idle_since',                                                      PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  'Queue idle since'], # 26
-            [ 'queue.memory',                                                          PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  'Bytes of memory consumed by the Erlang process associated with the queue, including stack, heap and internal structures'], # 27
+            [ 'queue.memory',                                                          PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0),  'Bytes of memory consumed by the Erlang process associated with the queue, including stack, heap and internal structures'], # 27
             [ 'queue.message_bytes',                                                   PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0),  'Sum of the size of all message bodies in the queue'], # 28
-            [ 'queue.message_bytes_paged_out',                                         PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0),  ''], # 29
+            [ 'queue.message_bytes_paged_out',                                         PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0),  'All message bodies paged out'], # 29
             [ 'queue.message_bytes_persistent',                                        PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0),  'Total number of persistent messages in the queue (will always be 0 for transient queues)'], # 30
             [ 'queue.message_bytes_ram',                                               PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0),  'Like message_bytes but counting only those messages which are in RAM'], # 31
             [ 'queue.message_bytes_ready',                                             PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0),  'Like message_bytes but counting only those messages ready to be delivered to clients'], # 32
             [ 'queue.message_bytes_unacknowledged',                                    PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0),  'Like message_bytes but counting only those messages delivered to clients but not yet acknowledged'], # 33
-            [ 'queue.messages',                                                        PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  'Total number of messages (ready plus unacknowledged)'], # 34
-            [ 'queue.messages_unacknowledged_details.rate',                            PM_TYPE_FLOAT, PM_SEM_INSTANT, pmUnits(),  ''], # 35
-            [ 'queue.messages_unacknowledged_ram',                                     PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 36
+            [ 'queue.messages',                                                        PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'Total number of messages (ready plus unacknowledged)'], # 34
+            [ 'queue.messages_unacknowledged_details.rate',                            PM_TYPE_FLOAT, PM_SEM_INSTANT, pmUnits(),  'How much the queue depth has changed per second in the most recent sampling interval in regards messages_unacknowledged'], # 35
+            [ 'queue.messages_unacknowledged_ram',                                     PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'Number of unacknowledged messages in ram'], # 36
             [ 'queue.name',                                                            PM_TYPE_STRING, PM_SEM_DISCRETE, pmUnits(),  'name of queue'], # 37
-            [ 'queue.node',                                                            PM_TYPE_STRING, PM_SEM_DISCRETE, pmUnits(),  ''], # 38
+            [ 'queue.node',                                                            PM_TYPE_STRING, PM_SEM_DISCRETE, pmUnits(),  'A RabbitMQ broker is a logical grouping of one or several Erlang nodes, each running the RabbitMQ application and sharing users, virtual hosts, queues, exchanges, etc. Sometimes we refer to the collection of nodes as a cluster'], # 38
             [ 'queue.operator_policy',                                                 PM_TYPE_STRING, PM_SEM_DISCRETE, pmUnits(),  'operator_policy'], # 39
-            [ 'queue.policy',                                                          PM_TYPE_STRING, PM_SEM_DISCRETE, pmUnits(),  ''], # 40
-            [ 'queue.recoverable_slaves',                                              PM_TYPE_STRING, PM_SEM_DISCRETE, pmUnits(),  ''], # 41
-            [ 'queue.reductions',                                                      PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(),  ''], # 42
-            [ 'queue.reductions_details.rate',                                         PM_TYPE_FLOAT, PM_SEM_INSTANT, pmUnits(),  ''], # 43
-            [ 'queue.single_active_consumer_tag',                                      PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  ''], # 44
-            [ 'queue.state',                                                           PM_TYPE_STRING, PM_SEM_DISCRETE, pmUnits(),  ''], # 45
+            [ 'queue.policy',                                                          PM_TYPE_STRING, PM_SEM_DISCRETE, pmUnits(),  'queue policy'], # 40
+            [ 'queue.recoverable_slaves',                                              PM_TYPE_STRING, PM_SEM_DISCRETE, pmUnits(),  'list of slaves'], # 41
+            [ 'queue.reductions',                                                      PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  'Reductions (unit of scheduler/CPU consumption)'], # 42
+            [ 'queue.reductions_details.rate',                                         PM_TYPE_FLOAT, PM_SEM_INSTANT, pmUnits(),  'Reductions per second'], # 43
+            [ 'queue.single_active_consumer_tag',                                      PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  'single active consumer tag'], # 44
+            [ 'queue.state',                                                           PM_TYPE_STRING, PM_SEM_DISCRETE, pmUnits(),  'state of the queue(ex: running,idle etc.'], # 45
             [ 'queue.type',                                                            PM_TYPE_STRING, PM_SEM_DISCRETE, pmUnits(),  'Queue type'], # 46
             [ 'queue.vhost',                                                           PM_TYPE_STRING, PM_SEM_DISCRETE, pmUnits(),  'name of vhost'], # 47
-            [ 'queue.messages_details.rate',                                           PM_TYPE_FLOAT, PM_SEM_COUNTER, pmUnits(),  'How much the queue depth has changed per second in the most recent sampling interval'], # 48
-            [ 'queue.messages_paged_out',                                              PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 49
+            [ 'queue.messages_details.rate',                                           PM_TYPE_FLOAT, PM_SEM_INSTANT, pmUnits(),  'How much the queue depth has changed per second in the most recent sampling interval'], # 48
+            [ 'queue.messages_paged_out',                                              PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'Total number of messages paged out in the queue'], # 49
             [ 'queue.messages_persistent',                                             PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  'Total number of persistent messages in the queue (will always be 0 for transient queues)'], # 50
             [ 'queue.messages_ram',                                                    PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0),  'Total number of messages which are resident in RAM'], # 51
-            [ 'queue.messages_ready',                                                  PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  'Number of messages ready for delivery'], # 52
-            [ 'queue.messages_ready_details.rate',                                     PM_TYPE_FLOAT, PM_SEM_INSTANT, pmUnits(),  ''], # 53
-            [ 'queue.messages_ready_ram',                                              PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  ''], # 54
-            [ 'queue.messages_unacknowledged',                                         PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(),  'Number of unacknowledged messages'], # 55
+            [ 'queue.messages_ready',                                                  PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'Number of messages ready for delivery'], # 52
+            [ 'queue.messages_ready_details.rate',                                     PM_TYPE_FLOAT, PM_SEM_INSTANT, pmUnits(),  'How much the queue depth has changed per second in the most recent sampling interval in regards of messages ready'], # 53
+            [ 'queue.messages_ready_ram',                                              PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'Total number of messages_ready which are resident in RAM'], # 54
+            [ 'queue.messages_unacknowledged',                                         PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'Number of unacknowledged messages'], # 55
             [ 'queue.arguments',                                                       PM_TYPE_STRING, PM_SEM_DISCRETE, pmUnits(),  'arguments given to http request'], # 56
         ]
 
