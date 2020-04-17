@@ -1,7 +1,8 @@
-#! /bin/sh
+#!/usr/bin/sh
 # PCP QA Test No. 348
 # Install/Remove for Linux KVM pmda
 #
+# Copyright (c) 2020 Red Hat.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 #
 
@@ -19,6 +20,8 @@ kvm_stats_path=/sys/kernel/debug/kvm
 $sudo [ -d $kvm_stats_path ] || _notrun "KVM sysfs interface not available"
 count=`$sudo ls $kvm_stats_path | wc -l`
 [ "$count" -eq 0 ] && _notrun "KVM kernel instrumentation is disabled"
+lockdown=/sys/kernel/security/lockdown
+$sudo fgrep -q '[confidentiality]' $lockdown && _notrun "Kernel in lockdown"
 
 status=1
 done_clean=false
@@ -33,11 +36,8 @@ _cleanup()
     then
 	:
     else
-	if [ -f $tmp.pmcd.conf ]
-	then
-	    $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
-	    rm -f $tmp.pmcd.conf
-	fi
+	[ -f $tmp.kvm.conf ] && $sudo cp $tmp.kvm.conf $PCP_PMDAS_DIR/kvm/kvm.conf
+	[ -f $tmp.pmcd.conf ] && $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
 	_service pcp restart 2>&1 | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
@@ -57,26 +57,55 @@ _cleanup()
 trap "_cleanup" 0 1 2 3 15
 
 # real QA test starts here
-home=$PCP_PMDAS_DIR
 iam=kvm
-if [ ! -d $home/$iam ]
-then
-    echo "Where is $home/$iam?"
-    exit 1
-fi
-cd $home/$iam
-unset ROOT MAKEFLAGS
-
+cd $PCP_PMDAS_DIR/$iam
 _stop_auto_restart pmcd
 
-# copy the pmcd config file to restore state later.
+# create our own kvm config files for deterministic testing.
+cat > $tmp.default.conf << EOF
+[paths]
+debugfs=/sys/kernel/debug
+tracefs=/sys/kernel/debug/tracing
+
+# dynamically created kvm.trace metrics.
+[trace]
+kvm_exit
+kvm_entry
+kvm_mmio
+kvm_hypercall
+kvm_vcpu_wakeup
+EOF
+
+# sysfs file reflecting locked down kernel state
+echo 'none integrity [confidentiality]' > $tmp.lockdown
+cat > $tmp.lockdown.conf << EOF
+[paths]
+debugfs=/sys/kernel/debug
+tracefs=/sys/kernel/debug/tracing
+lockdown=$tmp.lockdown
+EOF
+
+# copy the config files to restore state later.
 cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
+cp $PCP_PMDAS_DIR/kvm/kvm.conf $tmp.kvm.conf
 
 # start from a known starting point
 $sudo ./Remove >/dev/null 2>&1
 
 echo
-echo "=== $iam agent installation ==="
+echo "=== $iam agent installation (locked down kernel) ==="
+$sudo cp $tmp.lockdown.conf $PCP_PMDAS_DIR/kvm/kvm.conf
+$sudo ./Install </dev/null >$tmp.out 2>&1
+# Check kvm metrics have appeared ... X warnings, Y metrics and 0 values
+_filter_pmda_install <$tmp.out \
+| $PCP_AWK_PROG '
+/Check kvm metrics have appeared/	{ if ($7 >= 30) $7 = "X"
+					  if ($9 >= 30) $9 = "Y"
+					}
+					{ print }'
+
+echo "=== $iam agent installation (normal kernel mode) ==="
+$sudo cp $tmp.default.conf $PCP_PMDAS_DIR/kvm/kvm.conf
 $sudo ./Install </dev/null >$tmp.out 2>&1
 # Check kvm metrics have appeared ... X metrics and Y values
 _filter_pmda_install <$tmp.out \

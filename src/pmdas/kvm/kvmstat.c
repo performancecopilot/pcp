@@ -2,7 +2,7 @@
  * Configurable Kernel Virtual Machine (KVM) PMDA
  *
  * Copyright (c) 2018 Fujitsu.
- * Copyright (c) 2018 Red Hat.
+ * Copyright (c) 2018,2020 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -31,7 +31,6 @@ static int _isDSO;
 static pmdaNameSpace *pmns;
 static char *username;
 static char helppath[MAXPATHLEN];
-static char sep;
 
 static int ntrace;
 static char **trace_nametab;
@@ -39,6 +38,8 @@ static int ncpus;
 static int *group_fd;
 static char tracefs[MAXPATHLEN];
 static char debugfs[MAXPATHLEN];
+static char lockdown[MAXPATHLEN];
+static int kernel_lockdown;
 static pmdaMetric *tmetrictab;
 
 static pmdaIndom indomtab[] = {
@@ -192,6 +193,9 @@ kvm_debug_refresh(kvm_debug_value_t *kvm)
     char		path[MAXPATHLEN];
     int			i, sts = 0;
 
+    if (kernel_lockdown)
+	return PM_ERR_PERMISSION;
+
     pmsprintf(path, sizeof(path), "%s/kvm", debugfs);
     if ((kvm_dir = opendir(path)) == NULL)
 	return -oserror();
@@ -291,6 +295,9 @@ perf_event(int ncpus, int *group_fd)
     int			i, fd = 0, cpu, flag, offset = 0, sts = 0;
     char		path[MAXPATHLEN];
 
+    if (kernel_lockdown)
+	return PM_ERR_PERMISSION;
+
     memset(&pe, 0, sizeof(perf_event_attr_t));
     pe.type = PERF_TYPE_TRACEPOINT;
     pe.size = sizeof(struct perf_event_attr);
@@ -384,6 +391,9 @@ kvm_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     kvm_trace_value_t	*va;
     char		*name;
     int			sts;
+
+    if (kernel_lockdown)
+	return PM_ERR_PERMISSION;
 
     switch (cluster) {
     case CLUSTER_TRACE:
@@ -483,9 +493,9 @@ kvm_config(void)
     FILE		*fp;
     enum { STATE_UNKNOWN, STATE_PATHS, STATE_TRACE } state = 0;
 
-    pmsprintf(buf, sizeof(buf), "%s%ckvm%ckvm.conf",
-		pmGetOptionalConfig("PCP_PMDAS_DIR"), sep, sep);
-    if ((fp = fopen(buf, "rt")) == NULL)
+    pmsprintf(buf, sizeof(buf), "%s/kvm/kvm.conf",
+		pmGetOptionalConfig("PCP_PMDAS_DIR"));
+    if ((fp = fopen(buf, "r")) == NULL)
 	return -oserror();
     while (fgets(buf, sizeof(buf), fp) != NULL) {
 	buf[sizeof(buf)-1] = '\0';
@@ -513,6 +523,8 @@ kvm_config(void)
 	        continue;
 	    if (sscanf(p, "debugfs=%s", debugfs) != 0)
 		continue;
+	    if (sscanf(p, "lockdown=%s", lockdown) != 0)
+		continue;
 	}
 	if (state == STATE_TRACE) {
 	    if (!(table = realloc(trace_nametab, (ntrace+1) * sizeof(char*)))) {
@@ -528,6 +540,19 @@ kvm_config(void)
 	}
     }
     fclose(fp);
+
+    if ((fp = fopen(lockdown, "r")) == NULL)
+	return 0;
+    while (fgets(buf, sizeof(buf), fp) != NULL) {
+	if ((p = strchr(buf, '[')) != NULL &&
+	    (strcmp(p, "[confidentiality]") != 0)) {
+	    pmNotifyErr(LOG_INFO,
+		    "disabling KVM metrics: kernel running in lockdown mode");
+	    kernel_lockdown = 1;
+	}
+    }
+    fclose(fp);
+
     return 0;
 }
 
@@ -547,9 +572,8 @@ kvm_init(pmdaInterface *dp)
     int			m = 0, sts;
 
     if (_isDSO) {
-	sep = pmPathSeparator();
-	pmsprintf(helppath, sizeof(helppath), "%s%c" "kvm" "%c" "help",
-		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
+	pmsprintf(helppath, sizeof(helppath), "%s/kvm/help",
+		pmGetConfig("PCP_PMDAS_DIR"));
 	pmdaDSO(dp, PMDA_INTERFACE_7, "KVM DSO", helppath);
     } else {
         if (username)
@@ -603,6 +627,10 @@ kvm_init(pmdaInterface *dp)
 	pmsprintf(tracefs, sizeof(tracefs), "%s", envpath);
     else
 	pmsprintf(tracefs, sizeof(tracefs), "/sys/kernel/debug/tracing");
+    if ((envpath = getenv("KVM_LOCKDOWN_PATH")))
+	pmsprintf(lockdown, sizeof(lockdown), "%s", envpath);
+    else
+	pmsprintf(lockdown, sizeof(lockdown), "/sys/kernel/security/lockdown");
 
     if (tmetrictab != metrictab) {
 	group_fd = malloc(ncpus * sizeof(int));
@@ -655,9 +683,8 @@ main(int argc, char **argv)
     _isDSO = 0;
     pmSetProgname(argv[0]);
 
-    sep = pmPathSeparator();
-    pmsprintf(helppath, sizeof(helppath), "%s%c" "kvm" "%c" "help",
-		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
+    pmsprintf(helppath, sizeof(helppath), "%s/kvm/help",
+		pmGetConfig("PCP_PMDAS_DIR"));
     pmdaDaemon(&dispatch, PMDA_INTERFACE_7, pmGetProgname(), KVM, "kvm.log", helppath);
 
     pmdaGetOptions(argc, argv,  &opts, &dispatch);
