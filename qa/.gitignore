@@ -25,6 +25,7 @@ localconfig
 localconfig.h
 pcpqa.fc
 pcpqa.if
+pcpqa.installed
 pcpqa.pp
 pcpqa.te
 qa_hosts

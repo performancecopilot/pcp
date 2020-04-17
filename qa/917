@@ -138,7 +138,8 @@ else
 fi
 
 if seinfo -x --class=bpf $common_flag 2>&1 \
-   | grep '^[ 	][ 	]*class bpf$' >/dev/null
+   | head -1 \
+   | grep '^[ 	][ 	]*bpf$' >/dev/null
 then
     :
 else
@@ -154,7 +155,8 @@ else
 fi
 
 if seinfo -x --class=icmp_socket $common_flag 2>&1 \
-   | grep '^[ 	][ 	]*class icmp_socket$' >/dev/null
+   | head -1 \
+   | grep '^[ 	][ 	]*icmp_socket$' >/dev/null
 then
     echo '/allow \[pcp_pmcd_t\] .*\[rawip_socket\]/d' >>$tmp.sed
 else
@@ -187,7 +189,6 @@ awk '{ print $1 }' $seq.full | grep "pcpupstream$"  | _filter_semodule
 # real QA test starts here
 echo "Checking policies."
 printf '1\nq\n' | sedismod $policy_file | _filter_sedismod | _filter_sedismod1
-
 
 # success, all done
 status=0
