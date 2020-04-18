@@ -216,7 +216,7 @@ _service()
 		    ;;
 	    esac
 	else
-	    $_verbose && echo "_service: no systemct executable"
+	    $_verbose && echo "_service: no systemctl executable"
 	fi
     fi
 
