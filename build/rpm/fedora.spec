@@ -517,7 +517,7 @@ Requires: pcp-pmda-bpftrace
 %if !%{disable_python2} || !%{disable_python3}
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
 Requires: pcp-pmda-libvirt pcp-pmda-lio pcp-pmda-openmetrics pcp-pmda-haproxy
-Requires: pcp-pmda-lmsensors pcp-pmda-netcheck
+Requires: pcp-pmda-lmsensors pcp-pmda-mssql pcp-pmda-netcheck pcp-pmda-rabbitmq
 %endif
 %if !%{disable_mssql}
 Requires: pcp-pmda-mssql 
@@ -1636,6 +1636,24 @@ collecting metrics about Elasticsearch.
 #end pcp-pmda-elasticsearch
 
 #
+# pcp-pmda-rabbitmq
+#
+%package pmda-rabbitmq
+License: GPLv2+
+Summary: Performance Co-Pilot (PCP) metrics for RabbitMQ queues
+URL: https://pcp.io
+Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
+%if !%{disable_python3}
+Requires: python3-pcp
+%else
+Requires: %{__python2}-pcp
+%endif
+%description pmda-rabbitmq
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics about RabbitMQ message queues.
+#end pcp-pmda-rabbitmq
+
+#
 # pcp-pmda-lio
 #
 %package pmda-lio
@@ -2287,6 +2305,7 @@ ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
   grep -E -v '^mssql' |\
   grep -E -v '^netcheck' |\
   grep -E -v '^nvidia' |\
+  grep -E -v '^rabbitmq' |\
   grep -E -v '^roomtemp' |\
   grep -E -v '^sendmail' |\
   grep -E -v '^shping' |\
@@ -2475,6 +2494,9 @@ fi
 
 %preun pmda-elasticsearch
 %{pmda_remove "$1" "elasticsearch"}
+
+%preun pmda-rabbitmq
+%{pmda_remove "$1" "rabbitmq"}
 
 %if !%{disable_snmp}
 %preun pmda-snmp
@@ -3035,6 +3057,9 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 
 %files pmda-elasticsearch
 %{_pmdasdir}/elasticsearch
+
+%files pmda-rabbitmq
+%{_pmdasdir}/rabbitmq
 
 %files pmda-gpfs
 %{_pmdasdir}/gpfs

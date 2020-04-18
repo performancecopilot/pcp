@@ -46,11 +46,12 @@
     { "type": "file", "source": "../../qa", "destination": "./" },
     {
       "type": "shell",
+      "skip_clean": true,
       "execute_command": "sudo {{ .Vars }} '{{ .Path }}'",
       "scripts": [
         "hosts/rhel6/remove_dstat.sh",
         "hosts/rhel6/install_epel.sh",
-        "common/redhat/provision_yum.sh",
+        "hosts/rhel6/provision.sh",
         "common/linux/deprovision.sh"
       ]
     }

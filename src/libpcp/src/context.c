@@ -229,8 +229,8 @@ __pmPtrToHandle(__pmContext *ctxp)
 /*
  * Determine the hostname associated with the given context.
  */
-char *
-pmGetContextHostName_r(int handle, char *buf, int buflen)
+int
+pmGetContextHostName_rr(int handle, char *buf, int buflen)
 {
     __pmContext *ctxp;
     char	*name;
@@ -238,7 +238,7 @@ pmGetContextHostName_r(int handle, char *buf, int buflen)
     pmResult	*resp;
     int		save_handle;
     __pmContext	*save_ctxp;
-    int		sts;
+    int		sts = 0;
 
     PM_INIT_LOCKS();
 
@@ -257,7 +257,7 @@ pmGetContextHostName_r(int handle, char *buf, int buflen)
 	     * context switch, then switch back.
 	     */
 	    if (pmDebugOptions.context)
-		fprintf(stderr, "pmGetContextHostName_r context(%d) -> 0\n", handle);
+		fprintf(stderr, "pmGetContextHostName_rr context(%d) -> 0\n", handle);
 	    save_handle = PM_TPD(curr_handle);
 	    save_ctxp = PM_TPD(curr_ctxp);
 	    PM_TPD(curr_handle) = handle;
@@ -268,7 +268,7 @@ pmGetContextHostName_r(int handle, char *buf, int buflen)
 	    if (sts >= 0)
 		sts = pmFetch_ctx(ctxp, 1, &pmid, &resp);
 	    if (pmDebugOptions.context)
-		fprintf(stderr, "pmGetContextHostName_r reset(%d) -> 0\n", save_handle);
+		fprintf(stderr, "pmGetContextHostName_rr reset(%d) -> 0\n", save_handle);
 
 	    PM_TPD(curr_handle) = save_handle;
 	    PM_TPD(curr_ctxp) = save_ctxp;
@@ -311,6 +311,16 @@ pmGetContextHostName_r(int handle, char *buf, int buflen)
 	PM_UNLOCK(ctxp->c_lock);
     }
 
+    return sts;
+}
+
+/*
+ * Backward-compatibility interface, does not return status code.
+ */
+char *
+pmGetContextHostName_r(int handle, char *buf, int buflen)
+{
+    pmGetContextHostName_rr(handle, buf, buflen);
     return buf;
 }
 

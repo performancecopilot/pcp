@@ -326,6 +326,7 @@ PCP_CALL extern int pmGetInDomArchive(pmInDom, int **, char ***);
  */
 PCP_CALL extern const char *pmGetContextHostName(int);
 PCP_CALL extern char *pmGetContextHostName_r(int, char *, int);
+PCP_CALL extern int pmGetContextHostName_rr(int, char *, int);
 
 /*
  * Return the handle of the current context
