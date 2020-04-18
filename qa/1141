@@ -19,7 +19,7 @@ which sedismod >/dev/null 2>&1 || _notrun "sedismod tool not installed (module d
 which semodule >/dev/null 2>&1 || _notrun "semodule tool not installed"
 $sudo semodule -l >$tmp.out 2>&1
 [ $? -eq 0 ] || _notrun "semodule -l fails"
-grep '^pcpupstream$' $tmp.out >/dev/null
+egrep '^pcpupstream([ 	]|$)' $tmp.out >/dev/null
 [ $? -eq 0 ] || _notrun "pcpupstream module not loaded"
 which seinfo >/dev/null 2>&1 || _notrun "seinfo tool not installed"
 [ -f "$policy_file" ] || _notrun "upstream policy package not installed"
