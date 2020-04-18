@@ -1984,13 +1984,12 @@ test "$enable_selinux" = "false" && AC_MSG_RESULT(no)
 AC_SUBST(enable_selinux)
 AC_SUBST(pcp_selinux_dir)
 
-
 pcp_selinux_cap_userns_ptrace=false
 pcp_selinux_container_runtime=false
 pcp_selinux_nsfs=false
 pcp_selinux_docker_var_lib=false
-pcp_selinux_tracefs=false
 pcp_selinux_unreserved_port=false
+pcp_selinux_tracefs=false
 pcp_selinux_hostname_exec_map=false
 pcp_selinux_unconfined=false
 pcp_selinux_numad=false
@@ -2000,8 +1999,23 @@ pcp_selinux_rpm_var_lib=false
 pcp_selinux_virt_var_run=false
 pcp_selinux_cap2_syslog=false
 pcp_selinux_icmp_socket=false
-pcp_netlink_selinux_socket=false
-pcp_netlink_audit_socket=false
+
+pcp_selinux_initrc_tmp=false
+pcp_selinux_sudo_exec=false
+pcp_selinux_security=false
+pcp_selinux_chkpwd_exec=false
+pcp_selinux_initrc=false
+pcp_selinux_var_log=false
+pcp_selinux_lastlog=false
+pcp_selinux_xauth_exec=false
+pcp_selinux_logrotate=false
+
+pcp_selinux_netlink_selinux_socket_class=false
+pcp_selinux_netlink_audit_socket_class=false
+pcp_selinux_sock_file_class=false
+pcp_selinux_security_class=false
+pcp_selinux_dir_class=false
+pcp_selinux_rawip_socket_class=false
 
 AS_IF([test "x$enable_selinux" != "xfalse"], [
 
@@ -2090,8 +2104,7 @@ AS_IF([test "x$enable_selinux" != "xfalse"], [
     && pcp_selinux_hostname_exec_map=true
 
     seinfo -x --class=bpf $seinfo_common_flag 2>/dev/null \
-    | head -1 \
-    | grep '^[[ 	]][[ 	]]*bpf$' >/dev/null \
+    | egrep '^[[ 	]][[ 	]]*(class |)bpf$' >/dev/null \
     && pcp_selinux_bpf=true
 
     seinfo -a 2>/dev/null \
@@ -2103,42 +2116,35 @@ AS_IF([test "x$enable_selinux" != "xfalse"], [
     && pcp_selinux_cap2_syslog=true
 
     seinfo -x --class=icmp_socket $seinfo_common_flag 2>/dev/null \
-    | head -1 \
-    | grep '^[[ 	]][[ 	]]*icmp_socket$' >/dev/null \
+    | egrep '^[[ 	]][[ 	]]*(class |)icmp_socket$' >/dev/null \
     && pcp_selinux_icmp_socket=true
 
     dnl these ones are for pcpqa.te
 
     seinfo -x --class=netlink_selinux_socket $seinfo_common_flag 2>/dev/null \
-    | head -1 \
-    | grep '^[[ 	]][[ 	]]*netlink_selinux_socket$' >/dev/null \
+    | egrep '^[[ 	]][[ 	]]*(class |)netlink_selinux_socket$' >/dev/null \
     && pcp_selinux_netlink_selinux_socket_class=true
 
     seinfo -x --class=netlink_audit_socket $seinfo_common_flag 2>/dev/null \
-    | head -1 \
-    | grep '^[[ 	]][[ 	]]*netlink_audit_socket$' >/dev/null \
+    | egrep '^[[ 	]][[ 	]]*(class |)netlink_audit_socket$' >/dev/null \
     && pcp_selinux_netlink_audit_socket_class=true
 
     seinfo -x --class=sock_file $seinfo_common_flag 2>/dev/null \
-    | head -1 \
-    | grep '^[[ 	]][[ 	]]*sock_file$' >/dev/null \
+    | egrep '^[[ 	]][[ 	]]*(class |)sock_file$' >/dev/null \
     && pcp_selinux_sock_file_class=true
 
     seinfo -x --class=security $seinfo_common_flag 2>/dev/null \
-    | head -1 \
-    | grep '^[[ 	]][[ 	]]*security$' >/dev/null \
+    | egrep '^[[ 	]][[ 	]]*(class |)security$' >/dev/null \
     && pcp_selinux_security_class=true
 
     dnl pcp_selinux_dir already used for something else, so name to
     dnl set is pcp_selinux_dir_class
     seinfo -x --class=dir $seinfo_common_flag 2>/dev/null \
-    | head -1 \
-    | grep '^[[ 	]][[ 	]]*dir$' >/dev/null \
+    | egrep '^[[ 	]][[ 	]]*(class |)dir$' >/dev/null \
     && pcp_selinux_dir_class=true
 
     seinfo -x --class=rawip_socket $seinfo_common_flag 2>/dev/null \
-    | head -1 \
-    | grep '^[[ 	]][[ 	]]*rawip_socket$' >/dev/null \
+    | grep '^[[ 	]][[ 	]]*(class |)rawip_socket$' >/dev/null \
     && pcp_selinux_rawip_socket_class=true
 
 ])

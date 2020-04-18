@@ -3,7 +3,9 @@
 
 ifeq "$(PCP_SELINUX_INITRC_TMP)" "true"
 PCP_INITRC_TMP_T="type initrc_tmp_t;"
+ifeq "$(PCP_SELINUX_DIR_CLASS)" "true"
 PCP_INITRC_TMP_RULE_1="allow pcp_pmcd_t initrc_tmp_t:dir { add_name remove_name write };"
+endif
 PCP_INITRC_TMP_RULE_2="allow pcp_pmcd_t initrc_tmp_t:file { create unlink };"
 endif
 
