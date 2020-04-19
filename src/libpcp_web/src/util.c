@@ -321,7 +321,7 @@ pmwebapi_source_meta(context_t *c, char *buffer, int length)
     char	host[MAXHOSTNAMELEN];
     int		sts;
 
-    if ((sts = pmGetContextHostName_rr(c->context, host, sizeof(host))) < 0) {
+    if ((sts = pmGetHostName(c->context, host, sizeof(host))) < 0) {
 	c->setup = 0;
 	return sts;
     }
