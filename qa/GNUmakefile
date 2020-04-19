@@ -33,12 +33,6 @@ ifeq "$(HAVE_PYTHON)" "true"
 SUBDIRS += secure mic haproxy lio openmetrics
 endif
 
-ifeq "$(ENABLE_SELINUX)" "true"
-SELINUX_PCPQA = pcpqa.installed
-else
-SELINUX_PCPQA =
-endif
-
 # No implicit rules here, thank you
 #
 .SUFFIXES:
@@ -57,7 +51,7 @@ LDIRT += 051.work 134.full.* \
 	 *.log eek* urk* so_locations tmp.* gmon.out oss.qa.tar.gz \
 	 *.full.ok *.new rc_cron_check.clean \
 	 make.out qa_hosts qa_outfiles stap_*.ko localconfig check.time \
-	 pcpqa.pp pcpqa.fc pcpqa.if pcpqa.te pcpqa.installed
+	 pcpqa.pp pcpqa.fc pcpqa.if pcpqa.te
 
 # these ones are links to the real files created when the associated
 # test is run
@@ -81,7 +75,10 @@ OTHERS = group qa_hosts.master README sanity.coverage \
 	 $(shell echo valgrind-suppress* helgrind-suppress*)
 
 ifeq "$(ENABLE_SELINUX)" "true"
-OTHERS += pcpqa.installed
+SELINUX_PCPQA = pcpqa.te
+OTHERS += GNUselinuxdefs $(SELINUX_PCPQA)
+else
+SELINUX_PCPQA =
 endif
 
 DOTOUTFILES = $(shell [ -f qa_outfiles ] && cat qa_outfiles || ls -1 | grep '^[0-9]' | grep -v '^[0-9][0-9][0-9]$$' | grep -v '^[0-9][0-9][0-9][0-9]$$' | egrep -v '^[0-9][0-9][0-9]*\.(full|out\.bad|notrun|work)' | tee qa_outfiles)
@@ -158,11 +155,3 @@ pcpqa.te:	GNUselinuxdefs pcpqa.te.in
 	    -e 's+@PCP_MAP_OP@+'$(PCP_MAP_OP)'+' \
 	    -e 's+@PCP_MAP_RULE@+'$(PCP_MAP_RULE)'+' \
 	# end
-
-pcpqa.installed:	pcpqa.pp
-	sudo semodule -l | grep '^pcpqa[ 	]' >/dev/null && sudo semodule -r pcpqa
-	sudo semodule -i pcpqa.pp && touch pcpqa.installed
-
-pcpqa.pp:	pcpqa.te.in GNUselinuxdefs pcpqa.te
-	make -f /usr/share/selinux/devel/Makefile pcpqa.pp
-
