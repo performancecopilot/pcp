@@ -14,6 +14,16 @@ sudo grep '^type=AVC.*pcp' /var/log/audit/audit.log \
 which will verify that the AVC is not already covered in the pcp
 policy file.
 
+Before going any further, consider the current SELinux mode.  If it
+is Enforcing, then you'll not be seeing any subsequent errors after
+the first one for a particular test or application.  Consider changing
+to Permissive mode, as in:
+    $ sudo setenforce Permissive
+and repeating the failing operation (which should now pass!).
+
+Just remember to turn Enforcing back on, if required, with:
+    $ sudo setenforce Enforcing
+
 Now there are two options ... create and load your own module policy
 (good for testing)
 

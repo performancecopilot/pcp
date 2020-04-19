@@ -10,6 +10,9 @@
 TOPDIR = ..
 include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
+ifeq "$(ENABLE_SELINUX)" "true"
+-include ./GNUselinuxdefs
+endif
 
 TESTDIR = $(PCP_VAR_DIR)/testsuite
 TESTS	= $(shell sed -n -e '/^[0-9][0-9]*:retired/d' -e '/^[0-9][0-9]*:reserved/d' -e '/^[0-9]/s/[        ].*//' -e '/^[0-9]/p' <group)
@@ -31,7 +34,7 @@ SUBDIRS += secure mic haproxy lio openmetrics
 endif
 
 ifeq "$(ENABLE_SELINUX)" "true"
-SELINUX_PCPQA = pcpqa.pp
+SELINUX_PCPQA = pcpqa.installed
 else
 SELINUX_PCPQA =
 endif
@@ -54,7 +57,7 @@ LDIRT += 051.work 134.full.* \
 	 *.log eek* urk* so_locations tmp.* gmon.out oss.qa.tar.gz \
 	 *.full.ok *.new rc_cron_check.clean \
 	 make.out qa_hosts qa_outfiles stap_*.ko localconfig check.time \
-	 pcpqa.pp pcpqa.fc pcpqa.if pcpqa.te
+	 pcpqa.pp pcpqa.fc pcpqa.if pcpqa.te pcpqa.installed
 
 # these ones are links to the real files created when the associated
 # test is run
@@ -78,7 +81,7 @@ OTHERS = group qa_hosts.master README sanity.coverage \
 	 $(shell echo valgrind-suppress* helgrind-suppress*)
 
 ifeq "$(ENABLE_SELINUX)" "true"
-OTHERS += pcpqa.te pcpqa.pp
+OTHERS += pcpqa.installed
 endif
 
 DOTOUTFILES = $(shell [ -f qa_outfiles ] && cat qa_outfiles || ls -1 | grep '^[0-9]' | grep -v '^[0-9][0-9][0-9]$$' | grep -v '^[0-9][0-9][0-9][0-9]$$' | egrep -v '^[0-9][0-9][0-9]*\.(full|out\.bad|notrun|work)' | tee qa_outfiles)
@@ -118,13 +121,50 @@ debug-me:
 
 default_pcp default setup:	$(SELINUX_PCPQA)
 
-pcpqa.te:	pcpqa.te.in
+pcpqa.te:	GNUselinuxdefs pcpqa.te.in
 ifeq "$(PCP_SELINUX_HOSTNAME_EXEC_MAP)" "true"
-	cat <pcpqa.te.in >pcpqa.te
+	$(SED) <pcpqa.te.in >pcpqa.te \
+	    -e 's+@PCP_INITRC_TMP_T@+'$(PCP_INITRC_TMP_T)'+' \
+	    -e 's+@PCP_INITRC_TMP_RULE_1@+'$(PCP_INITRC_TMP_RULE_1)'+' \
+	    -e 's+@PCP_INITRC_TMP_RULE_2@+'$(PCP_INITRC_TMP_RULE_2)'+' \
+	    -e 's+@PCP_SUDO_EXEC_T@+'$(PCP_SUDO_EXEC_T)'+' \
+	    -e 's+@PCP_SUDO_EXEC_RULE@+'$(PCP_SUDO_EXEC_RULE)'+' \
+	    -e 's+@PCP_SECURITY_T@+'$(PCP_SECURITY_T)'+' \
+	    -e 's+@PCP_SECURITY_RULE@+'$(PCP_SECURITY_RULE)'+' \
+	    -e 's+@PCP_CHKPWD_EXEC_T@+'$(PCP_CHKPWD_EXEC_T)'+' \
+	    -e 's+@PCP_CHKPWD_EXEC_RULE@+'$(PCP_CHKPWD_EXEC_RULE)'+' \
+	    -e 's+@PCP_INITRC_T@+'$(PCP_INITRC_T)'+' \
+	    -e 's+@PCP_INITRC_RULE@+'$(PCP_INITRC_RULE)'+' \
+	    -e 's+@PCP_VAR_LOG_T@+'$(PCP_VAR_LOG_T)'+' \
+	    -e 's+@PCP_VAR_LOG_RULE@+'$(PCP_VAR_LOG_RULE)'+' \
+	    -e 's+@PCP_LASTLOG_T@+'$(PCP_LASTLOG_T)'+' \
+	    -e 's+@PCP_LASTLOG_RULE@+'$(PCP_LASTLOG_RULE)'+' \
+	    -e 's+@PCP_XAUTH_EXEC_T@+'$(PCP_XAUTH_EXEC_T)'+' \
+	    -e 's+@PCP_XAUTH_EXEC_RULE@+'$(PCP_XAUTH_EXEC_RULE)'+' \
+	    -e 's+@PCP_LOGROTATE_T@+'$(PCP_LOGROTATE_T)'+' \
+	    -e 's+@PCP_LOGROTATE_RULE_1@+'$(PCP_LOGROTATE_RULE_1)'+' \
+	    -e 's+@PCP_LOGROTATE_RULE_2@+'$(PCP_LOGROTATE_RULE_2)'+' \
+	    -e 's+@PCP_NETLINK_AUDIT_SOCKET_CLASS@+'$(PCP_NETLINK_AUDIT_SOCKET_CLASS)'+' \
+	    -e 's+@PCP_NETLINK_AUDIT_SOCKET_RULE@+'$(PCP_NETLINK_AUDIT_SOCKET_RULE)'+' \
+	    -e 's+@PCP_NETLINK_SELINUX_SOCKET_CLASS@+'$(PCP_NETLINK_SELINUX_SOCKET_CLASS)'+' \
+	    -e 's+@PCP_NETLINK_SELINUX_SOCKET_RULE@+'$(PCP_NETLINK_SELINUX_SOCKET_RULE)'+' \
+	    -e 's+@PCP_SOCK_FILE_CLASS@+'$(PCP_SOCK_FILE_CLASS)'+' \
+	    -e 's+@PCP_SOCK_FILE_RULE@+'$(PCP_SOCK_FILE_RULE)'+' \
+	    -e 's+@PCP_SECURITY_CLASS@+'$(PCP_SECURITY_CLASS)'+' \
+	    -e 's+@PCP_SECURITY_RULE@+'$(PCP_SECURITY_RULE)'+' \
+	    -e 's+@PCP_DIR_CLASS@+'$(PCP_DIR_CLASS)'+' \
+	    -e 's+@PCP_DIR_RULE@+'$(PCP_DIR_RULE)'+' \
+	    -e 's+@PCP_RAWIP_SOCKET_CLASS@+'$(PCP_RAWIP_SOCKET_CLASS)'+' \
+	    -e 's+@PCP_RAWIP_SOCKET_RULE@+'$(PCP_RAWIP_SOCKET_RULE)'+' \
+	# end
 else
 	sed -e '/^[^#].* map;/d' -e '/^[^#].*{ map };/d' -e '/^[^#].* map /s/ map / /' <pcpqa.te.in >pcpqa.te
 endif
 
-pcpqa.pp:	pcpqa.te
+pcpqa.installed:	pcpqa.pp
+	sudo semodule --list=full | grep pcpqa >/dev/null && sudo semodule -X 400 -r pcpqa
+	sudo semodule -X 400 -i pcpqa.pp && touch pcpqa.installed
+
+pcpqa.pp:	pcpqa.te.in GNUselinuxdefs pcpqa.te
 	make -f /usr/share/selinux/devel/Makefile pcpqa.pp
 

@@ -1994,18 +1994,25 @@ pcp_selinux_unreserved_port=false
 pcp_selinux_hostname_exec_map=false
 pcp_selinux_unconfined=false
 pcp_selinux_numad=false
-pcp_selinux_bpf_status=false
+pcp_selinux_bpf=false
 pcp_selinux_files_list_non_auth_dirs=false
 pcp_selinux_rpm_var_lib=false
 pcp_selinux_virt_var_run=false
 pcp_selinux_cap2_syslog=false
 pcp_selinux_icmp_socket=false
+pcp_netlink_selinux_socket=false
+pcp_netlink_audit_socket=false
 
 AS_IF([test "x$enable_selinux" != "xfalse"], [
 
     dnl new-style optional type tests ... seinfo once, then grep
     dnl note [[...]] needed to escape m4 handling of [...]
+    dnl for type xyz_t we set pcp_selinux_xyz (note no trailing _t)
+
     seinfo -t >conftest.out
+
+    dnl these ones are for pcpupstream.te
+
     grep '^[[ 	]][[ 	]]*container_runtime_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_container_runtime=true
     grep '^[[ 	]][[ 	]]*nsfs_t$' <conftest.out >/dev/null \
@@ -2024,6 +2031,28 @@ AS_IF([test "x$enable_selinux" != "xfalse"], [
 	&& pcp_selinux_rpm_var_lib=true
     grep '^[[ 	]][[ 	]]*virt_var_run_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_virt_var_run=true
+
+    dnl these ones are for pcpqa.te
+
+    grep '^[[ 	]][[ 	]]*initrc_tmp_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_initrc_tmp=true
+    grep '^[[ 	]][[ 	]]*sudo_exec_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_sudo_exec=true
+    grep '^[[ 	]][[ 	]]*security_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_security=true
+    grep '^[[ 	]][[ 	]]*chkpwd_exec_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_chkpwd_exec=true
+    grep '^[[ 	]][[ 	]]*initrc_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_initrc=true
+    grep '^[[ 	]][[ 	]]*var_log_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_var_log=true
+    grep '^[[ 	]][[ 	]]*lastlog_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_lastlog=true
+    grep '^[[ 	]][[ 	]]*xauth_exec_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_xauth_exec=true
+    grep '^[[ 	]][[ 	]]*logrotate_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_logrotate=true
+
     rm -f conftest.out
 
     seinfo --common >/dev/null 2>&1
@@ -2035,11 +2064,24 @@ AS_IF([test "x$enable_selinux" != "xfalse"], [
     fi
 
     dnl classes need to be done one at a time
+    dnl
+    dnl If we're just looking for the class xyz we only need to
+    dnl look at the first line of output from seinfo -x --class=xyz,
+    dnl then we set pcp_selinux_xyz or pcp_selinux_xyz_class.
+    dnl But if we're looking for a particular permission within a
+    dnl class we need to look further into the seinfo output and
+    dnl we set a variable name that is constructed from (possibly part
+    dnl of) the class name _and_ the permission name
+
+    dnl pcpupstream.te first
+
     seinfo -x --class=cap_userns $seinfo_common_flag 2>/dev/null \
     | grep '^[[ 	]][[ 	]]*sys_ptrace$' >/dev/null \
     && pcp_selinux_cap_userns_ptrace=true
 
     dnl need to look in two places for this one?
+    dnl kenj- second one looks bad because --common is not always allowed,
+    dnl       which is what $seinfo_common is all about
     seinfo -x --class=file $seinfo_common_flag 2>/dev/null \
     | grep '^[[ 	]][[ 	]]*map$' >/dev/null \
     && pcp_selinux_hostname_exec_map=true
@@ -2048,8 +2090,9 @@ AS_IF([test "x$enable_selinux" != "xfalse"], [
     && pcp_selinux_hostname_exec_map=true
 
     seinfo -x --class=bpf $seinfo_common_flag 2>/dev/null \
-    | grep '^[[ 	]][[ 	]]*class bpf$' >/dev/null \
-    && pcp_selinux_bpf_status=true
+    | head -1 \
+    | grep '^[[ 	]][[ 	]]*bpf$' >/dev/null \
+    && pcp_selinux_bpf=true
 
     seinfo -a 2>/dev/null \
     | grep '^[[ 	]][[ 	]]*non_auth_file_type$' >/dev/null \
@@ -2060,9 +2103,47 @@ AS_IF([test "x$enable_selinux" != "xfalse"], [
     && pcp_selinux_cap2_syslog=true
 
     seinfo -x --class=icmp_socket $seinfo_common_flag 2>/dev/null \
-    | grep '^[[ 	]][[ 	]]*class icmp_socket$' >/dev/null \
+    | head -1 \
+    | grep '^[[ 	]][[ 	]]*icmp_socket$' >/dev/null \
     && pcp_selinux_icmp_socket=true
+
+    dnl these ones are for pcpqa.te
+
+    seinfo -x --class=netlink_selinux_socket $seinfo_common_flag 2>/dev/null \
+    | head -1 \
+    | grep '^[[ 	]][[ 	]]*netlink_selinux_socket$' >/dev/null \
+    && pcp_selinux_netlink_selinux_socket_class=true
+
+    seinfo -x --class=netlink_audit_socket $seinfo_common_flag 2>/dev/null \
+    | head -1 \
+    | grep '^[[ 	]][[ 	]]*netlink_audit_socket$' >/dev/null \
+    && pcp_selinux_netlink_audit_socket_class=true
+
+    seinfo -x --class=sock_file $seinfo_common_flag 2>/dev/null \
+    | head -1 \
+    | grep '^[[ 	]][[ 	]]*sock_file$' >/dev/null \
+    && pcp_selinux_sock_file_class=true
+
+    seinfo -x --class=security $seinfo_common_flag 2>/dev/null \
+    | head -1 \
+    | grep '^[[ 	]][[ 	]]*security$' >/dev/null \
+    && pcp_selinux_security_class=true
+
+    dnl pcp_selinux_dir already used for something else, so name to
+    dnl set is pcp_selinux_dir_class
+    seinfo -x --class=dir $seinfo_common_flag 2>/dev/null \
+    | head -1 \
+    | grep '^[[ 	]][[ 	]]*dir$' >/dev/null \
+    && pcp_selinux_dir_class=true
+
+    seinfo -x --class=rawip_socket $seinfo_common_flag 2>/dev/null \
+    | head -1 \
+    | grep '^[[ 	]][[ 	]]*rawip_socket$' >/dev/null \
+    && pcp_selinux_rawip_socket_class=true
+
 ])
+
+dnl for pcpupstream.te
 AC_SUBST(pcp_selinux_cap_userns_ptrace)
 AC_SUBST(pcp_selinux_container_runtime)
 AC_SUBST(pcp_selinux_nsfs)
@@ -2072,12 +2153,30 @@ AC_SUBST(pcp_selinux_tracefs)
 AC_SUBST(pcp_selinux_hostname_exec_map)
 AC_SUBST(pcp_selinux_unconfined)
 AC_SUBST(pcp_selinux_numad)
-AC_SUBST(pcp_selinux_bpf_status)
+AC_SUBST(pcp_selinux_bpf)
 AC_SUBST(pcp_selinux_files_list_non_auth_dirs)
 AC_SUBST(pcp_selinux_rpm_var_lib)
 AC_SUBST(pcp_selinux_virt_var_run)
 AC_SUBST(pcp_selinux_cap2_syslog)
 AC_SUBST(pcp_selinux_icmp_socket)
+
+dnl for pcpqa.te
+AC_SUBST(pcp_selinux_initrc_tmp)
+AC_SUBST(pcp_selinux_sudo_exec)
+AC_SUBST(pcp_selinux_security)
+AC_SUBST(pcp_selinux_chkpwd_exec)
+AC_SUBST(pcp_selinux_initrc)
+AC_SUBST(pcp_selinux_var_log)
+AC_SUBST(pcp_selinux_lastlog)
+AC_SUBST(pcp_selinux_xauth_exec)
+AC_SUBST(pcp_selinux_logrotate)
+
+AC_SUBST(pcp_selinux_netlink_selinux_socket_class)
+AC_SUBST(pcp_selinux_netlink_audit_socket_class)
+AC_SUBST(pcp_selinux_sock_file_class)
+AC_SUBST(pcp_selinux_security_class)
+AC_SUBST(pcp_selinux_dir_class)
+AC_SUBST(pcp_selinux_rawip_socket_class)
 
 pcp_selinux_files_mmap_all_files=false
 if test "x$enable_selinux" != "xfalse"

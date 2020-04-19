@@ -30,7 +30,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 # real QA test starts here
 leaked=`_run_valgrind $python src/labelsets_memleak.python 2>&1 | tee $tmp.full |\
   awk '/definitely lost: .* bytes in .* blocks/ { print $3 }' |sed -e 's/,//g'`
-[ "$leaked" -le 100 ] && status=0 # some small leaks not due to labelsets
+[ "$leaked" -le 512 ] && status=0 # some small leaks not due to labelsets
 
 if [ $status -eq 0 ]; then echo PASSED; else echo FAILED, leaked $leaked; fi
 

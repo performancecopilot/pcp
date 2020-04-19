@@ -147,6 +147,8 @@ type=AVC msg=audit(YYY.89): avc:  denied  { map } for  pid=4969 comm="pmdarpm" p
 type=AVC msg=audit(YYY.90): avc:  denied  { write } for  pid=30922 comm="python3" name="libvirt-sock-ro" dev="tmpfs" ino=25845 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:virt_var_run_t:s0 tclass=sock_file permissive=0
 type=AVC msg=audit(YYY.91): avc:  denied  { setrlimit } for  pid=2085 comm="systemctl" scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:system_r:pcp_pmie_t:s0 tclass=process permissive=0
 type=AVC msg=audit(YYY.92): avc:  denied  { open read ioctl } for pid=26828 comm="smartctl" name="sda" dev="devtmpfs" ino=9158 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:fixed_disk_device_t:s0 tclass=blk_file permissive=0
+type=AVC msg=audit(YYY.93): avc: denied { name_bind } for pid=2279401 comm="pmdastatsd" src=8126 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:unreserved_port_t:s0 tclass=udp_socket permissive=0
+type=AVC msg=audit(YYY.94): avc:  denied  { execute_no_trans } for  pid=30241 comm="zimbraprobe" path="/usr/bin/su" dev="dm-0" ino=26416761 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:su_exec_t:s0 tclass=file permissive=0
 
 #Synthesized AVC's
 type=AVC msg=audit(XXX.1): avc:  denied  { open read search } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:svirt_sandbox_file_t:s0 tclass=dir permissive=0
