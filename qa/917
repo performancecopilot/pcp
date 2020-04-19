@@ -79,6 +79,7 @@ do
 	    unreserved_port_t)
 		echo '/allow \[pcp_pmcd_t] \[unreserved_port_t]/d' >>$tmp.sed
 		echo '/allow \[pcp_pmmgr_t] \[unreserved_port_t]/d' >>$tmp.sed
+		echo '/allow \[pcp_pmlogger_t] \[unreserved_port_t]/d' >>$tmp.sed
 		;;
 	    tracefs_t)
 		echo '/allow \[pcp_pmcd_t] \[tracefs_t]/d' >>$tmp.sed
