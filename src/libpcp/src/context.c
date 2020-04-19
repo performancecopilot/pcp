@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Red Hat.
+ * Copyright (c) 2012-2018,2020 Red Hat.
  * Copyright (c) 2007-2008 Aconex.  All Rights Reserved.
  * Copyright (c) 1995-2002,2004,2006,2008 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -230,7 +230,7 @@ __pmPtrToHandle(__pmContext *ctxp)
  * Determine the hostname associated with the given context.
  */
 int
-pmGetContextHostName_rr(int handle, char *buf, int buflen)
+pmGetHostName(int handle, char *buf, int buflen)
 {
     __pmContext *ctxp;
     char	*name;
@@ -257,7 +257,7 @@ pmGetContextHostName_rr(int handle, char *buf, int buflen)
 	     * context switch, then switch back.
 	     */
 	    if (pmDebugOptions.context)
-		fprintf(stderr, "pmGetContextHostName_rr context(%d) -> 0\n", handle);
+		fprintf(stderr, "pmGetHostName context(%d) -> 0\n", handle);
 	    save_handle = PM_TPD(curr_handle);
 	    save_ctxp = PM_TPD(curr_ctxp);
 	    PM_TPD(curr_handle) = handle;
@@ -268,7 +268,7 @@ pmGetContextHostName_rr(int handle, char *buf, int buflen)
 	    if (sts >= 0)
 		sts = pmFetch_ctx(ctxp, 1, &pmid, &resp);
 	    if (pmDebugOptions.context)
-		fprintf(stderr, "pmGetContextHostName_rr reset(%d) -> 0\n", save_handle);
+		fprintf(stderr, "pmGetHostName reset(%d) -> 0\n", save_handle);
 
 	    PM_TPD(curr_handle) = save_handle;
 	    PM_TPD(curr_ctxp) = save_ctxp;
@@ -320,7 +320,7 @@ pmGetContextHostName_rr(int handle, char *buf, int buflen)
 char *
 pmGetContextHostName_r(int handle, char *buf, int buflen)
 {
-    pmGetContextHostName_rr(handle, buf, buflen);
+    pmGetHostName(handle, buf, buflen);
     return buf;
 }
 
