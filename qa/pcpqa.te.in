@@ -49,7 +49,7 @@ require {
 	@PCP_XAUTH_EXEC_T@
 	@PCP_LOGROTATE_T@
 
-	class file { map write };
+	class file { @PCP_MAP_OP@ write };
 	class process { execstack signull };
 	class capability audit_write;
 	class file { create execute execute_no_trans unlink write };
@@ -66,10 +66,10 @@ require {
 
 #type=AVC msg=audit(qa/255): avc:  denied  { map } for  pid=10604 comm="broken_pmda_2_0" path="/home/kenj/src/pcp/qa/pmdas/broken/broken_pmda_2_0" dev="dm-0" ino=295211 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:user_home_t:s0 tclass=file permissive=0
 #type=AVC msg=audit(qa/457): avc:  denied  { write } for  pid=31411 comm="457.pipe" name="457.pipe.pid" dev="dm-0" ino=295231 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:user_home_t:s0 tclass=file permissive=0
-allow pcp_pmcd_t user_home_t:file { map write };
+allow pcp_pmcd_t user_home_t:file { @PCP_MAP_OP@ write };
 
 #type=AVC msg=audit(qa/597): avc:  denied  { map } for  pid=27238 comm="hostname" path="/usr/bin/hostname" dev="dm-0" ino=4735 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:hostname_exec_t:s0 tclass=file permissive=0
-allow pcp_pmcd_t hostname_exec_t:file map;
+@PCP_MAP_RULE@
 
 # type=AVC msg=audit(qa/789) avc:  denied  { add_name } for  pid=1 comm="java" name="???" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:initrc_tmp_t:s0 tclass=dir permissive=1
 # type=AVC msg=audit(qa/789) avc:  denied  { add_name } for  pid=1 comm="sh" name="???" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:usr_t:s0 tclass=dir permissive=1

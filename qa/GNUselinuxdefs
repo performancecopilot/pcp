@@ -79,3 +79,7 @@ PCP_RAWIP_SOCKET_CLASS="class rawip_socket { create getopt setopt };"
 PCP_RAWIP_SOCKET_RULE="allow pcp_pmcd_t self:rawip_socket { create getopt setopt };"
 endif
 
+ifeq "$(PCP_SELINUX_HOSTNAME_EXEC_MAP)" "true"
+PCP_MAP_OP="map"
+PCP_MAP_RULE="allow pcp_pmcd_t hostname_exec_t:file { map };"
+endif

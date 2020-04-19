@@ -122,7 +122,6 @@ debug-me:
 default_pcp default setup:	$(SELINUX_PCPQA)
 
 pcpqa.te:	GNUselinuxdefs pcpqa.te.in
-ifeq "$(PCP_SELINUX_HOSTNAME_EXEC_MAP)" "true"
 	$(SED) <pcpqa.te.in >pcpqa.te \
 	    -e 's+@PCP_INITRC_TMP_T@+'$(PCP_INITRC_TMP_T)'+' \
 	    -e 's+@PCP_INITRC_TMP_RULE_1@+'$(PCP_INITRC_TMP_RULE_1)'+' \
@@ -156,14 +155,13 @@ ifeq "$(PCP_SELINUX_HOSTNAME_EXEC_MAP)" "true"
 	    -e 's+@PCP_DIR_RULE@+'$(PCP_DIR_RULE)'+' \
 	    -e 's+@PCP_RAWIP_SOCKET_CLASS@+'$(PCP_RAWIP_SOCKET_CLASS)'+' \
 	    -e 's+@PCP_RAWIP_SOCKET_RULE@+'$(PCP_RAWIP_SOCKET_RULE)'+' \
+	    -e 's+@PCP_MAP_OP@+'$(PCP_MAP_OP)'+' \
+	    -e 's+@PCP_MAP_RULE@+'$(PCP_MAP_RULE)'+' \
 	# end
-else
-	sed -e '/^[^#].* map;/d' -e '/^[^#].*{ map };/d' -e '/^[^#].* map /s/ map / /' <pcpqa.te.in >pcpqa.te
-endif
 
 pcpqa.installed:	pcpqa.pp
-	sudo semodule --list=full | grep pcpqa >/dev/null && sudo semodule -X 400 -r pcpqa
-	sudo semodule -X 400 -i pcpqa.pp && touch pcpqa.installed
+	sudo semodule -l | grep '^pcpqa[ 	]' >/dev/null && sudo semodule -r pcpqa
+	sudo semodule -i pcpqa.pp && touch pcpqa.installed
 
 pcpqa.pp:	pcpqa.te.in GNUselinuxdefs pcpqa.te
 	make -f /usr/share/selinux/devel/Makefile pcpqa.pp
