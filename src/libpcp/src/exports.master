@@ -699,6 +699,7 @@ PCP_3.27 {
 PCP_3.28 {
   global:
     pmGetHostName;
+    __pmHashPreAlloc;
     __pmServerNotifyServiceManagerReady;
     __pmServerNotifyServiceManagerStopping;
 } PCP_3.27;
