@@ -387,8 +387,6 @@ extern void	     __pmSockAddrSetScope(__pmSockAddr *, int) _PCP_HIDDEN;
 extern __pmSockAddr *__pmSockAddrFirstSubnetAddr(const __pmSockAddr *, int) _PCP_HIDDEN;
 extern __pmSockAddr *__pmSockAddrNextSubnetAddr(__pmSockAddr *, int) _PCP_HIDDEN;
 
-extern int __pmHashPreAlloc(int, __pmHashCtl *) _PCP_HIDDEN;
-
 extern int __pmConnectPMCD(pmHostSpec *, int, int, __pmHashCtl *) _PCP_HIDDEN;
 
 extern int __pmConnectLocal(__pmHashCtl *) _PCP_HIDDEN;

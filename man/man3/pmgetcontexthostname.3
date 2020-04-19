@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2013 Red Hat.
+.\" Copyright (c) 2013,2020 Red Hat.
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
@@ -16,12 +16,15 @@
 .\"
 .TH PMGETCONTEXTHOSTNAME 3 "PCP" "Performance Co-Pilot"
 .SH NAME
+\f3pmGetHostName\f1,
 \f3pmGetContextHostName\f1,
 \f3pmGetContextHostName_r\f1 \- return the hostname associated with a Performance Co-Pilot context
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
 .sp
+int pmGetHostName(int \fIid\fP, char *\fIbuf\fP, int \fIbuflen\fP);
+.br
 const char *pmGetContextHostName(int \fIid\fP);
 .br
 char *pmGetContextHostName_r(int \fIid\fP, char *\fIbuf\fP, int \fIbuflen\fP);
@@ -46,6 +49,10 @@ of length
 which should have room for at least
 .B MAXHOSTNAMELEN
 bytes.
+The
+.B pmGetHostName
+function behaves similarly again, but returns a status code to indicate
+success or failure.
 .PP
 If the context
 .I id
@@ -74,6 +81,12 @@ If
 .I id
 is not a valid PCP context identifier,
 the returned hostname is a zero length string.
+.PP
+On failure, the return code of
+.B pmGetHostName
+is a negative PMAPI error code which can be processed by
+.BR pmErrStr_r (3)
+for diagnostics relating to the failure to obtain the context hostname.
 .SH NOTES
 .B pmGetContextHostName
 returns a pointer to a static buffer,
@@ -81,6 +94,8 @@ so the returned value is only valid until the next call to
 .B pmGetContextHostName
 and hence is not thread-safe.
 Multi-threaded applications should use
+.B pmGetHostName
+or
 .B pmGetContextHostName_r
 instead.
 .SH "PCP ENVIRONMENT"
@@ -106,6 +121,7 @@ function.
 .BR PMAPI (3),
 .BR gethostname (3),
 .BR pmDupContext (3),
+.BR pmErrStr_r (3),
 .BR pmFetch (3),
 .BR pmGetArchiveLabel (3),
 .BR pmNewContext (3),

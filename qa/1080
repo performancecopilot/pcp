@@ -37,7 +37,7 @@ s/ -r .*\/archives/ -r ...\/archives/
 }
 
 # real QA test starts here
-_run_valgrind $ATOP 1 3 \
+_run_valgrind $ATOP 2 4 \
 	| tee -a $here/$seq.full | _filter
 export PCP_ORIGIN=1.1
 _run_valgrind $ATOP -r $here/archives/pcp-atop.folio \

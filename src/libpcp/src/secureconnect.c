@@ -1051,6 +1051,7 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
     int sts, zero, saslsts = SASL_FAIL;
     int pinned, length, method_length;
     char *payload, buffer[LIMIT_AUTH_PDU];
+    const char *data;
     const char *method = NULL;
     sasl_conn_t *saslconn;
     __pmHashNode *node;
@@ -1151,7 +1152,7 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
 	    sts = __pmDecodeAuth(pb, &zero, &payload, &length);
 	    if (sts >= 0) {
 		saslsts = sasl_client_step(saslconn, payload, length, NULL,
-						(const char **)&buffer,
+						&data,
 						(unsigned int *)&length);
 		if (saslsts != SASL_OK && saslsts != SASL_CONTINUE) {
 		    sts = __pmSecureSocketsError(saslsts);
@@ -1162,7 +1163,7 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
 		}
 		if (pmDebugOptions.auth) {
 		    fprintf(stderr, "%s:__pmAuthClientNegotiation"
-				    " step recv (%d bytes)", __FILE__, length);
+				    " step send (%d bytes)", __FILE__, length);
 		}
 	    }
 	}
@@ -1174,7 +1175,7 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
 	if (pinned > 0)
 	    __pmUnpinPDUBuf(pb);
 	if (sts >= 0)
-	    sts = __pmSendAuth(fd, FROM_ANON, 0, length ? buffer : "", length);
+	    sts = __pmSendAuth(fd, FROM_ANON, 0, length ? data : "", length);
 	if (sts < 0)
 	    break;
     }

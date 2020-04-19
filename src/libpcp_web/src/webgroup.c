@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Red Hat.
+ * Copyright (c) 2019-2020 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -168,10 +168,6 @@ webgroup_new_context(pmWebGroupSettings *sp, dict *params,
     cp->context = -1;
     cp->timeout = polltime;
 
-    handle = (uv_handle_t *)&cp->timer;
-    handle->data = (void *)cp;
-    uv_timer_init(groups->events, &cp->timer);
-
     if ((cp->randomid = random()) < 0 ||
 	dictFind(groups->contexts, &cp->randomid) != NULL) {
 	infofmt(*message, "random number failure on new web context");
@@ -208,6 +204,12 @@ webgroup_new_context(pmWebGroupSettings *sp, dict *params,
 	return NULL;
     }
     dictAdd(groups->contexts, &cp->randomid, cp);
+
+    /* leave until the end because uv_timer_init makes this visible in uv_run */
+    handle = (uv_handle_t *)&cp->timer;
+    handle->data = (void *)cp;
+    uv_timer_init(groups->events, &cp->timer);
+
     cp->privdata = groups;
     cp->setup = 1;
     return cp;

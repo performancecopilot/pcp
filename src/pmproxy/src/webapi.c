@@ -562,18 +562,17 @@ on_pmwebapi_check(sds context, pmWebAccess *access,
     /* Does this context require username/password authentication? */
     if (access->username != NULL ||
 		__pmServerHasFeature(PM_SERVER_FEATURE_CREDS_REQD)) {
-	if (access->username == NULL || access->password == NULL) {
+	if (access->username == NULL || access->password == NULL ||
+		client->u.http.username == NULL || client->u.http.password == NULL) {
 	    *message = sdsnew("authentication required");
 	    *status = -EAGAIN;
-	    return 1;
+	    return -1;
 	}
-	if ((access->username != NULL &&
-		sdscmp(access->username, client->u.http.username) != 0) ||
-	    (access->password != NULL &&
-		(sdscmp(access->password, client->u.http.password) != 0))) {
+	if (sdscmp(access->username, client->u.http.username) != 0 ||
+		sdscmp(access->password, client->u.http.password) != 0) {
 	    *message = sdsnew("authentication failed");
 	    *status = -EPERM;
-	    return 1;
+	    return -1;
 	}
     }
 
