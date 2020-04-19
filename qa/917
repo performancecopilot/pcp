@@ -79,6 +79,7 @@ do
 	    unreserved_port_t)
 		echo '/allow \[pcp_pmcd_t] \[unreserved_port_t]/d' >>$tmp.sed
 		echo '/allow \[pcp_pmmgr_t] \[unreserved_port_t]/d' >>$tmp.sed
+		echo '/allow \[pcp_pmlogger_t] \[unreserved_port_t]/d' >>$tmp.sed
 		;;
 	    tracefs_t)
 		echo '/allow \[pcp_pmcd_t] \[tracefs_t]/d' >>$tmp.sed
@@ -138,8 +139,7 @@ else
 fi
 
 if seinfo -x --class=bpf $common_flag 2>&1 \
-   | head -1 \
-   | grep '^[ 	][ 	]*bpf$' >/dev/null
+   | egrep '^[ 	][ 	]*(class |)bpf$' >/dev/null
 then
     :
 else
@@ -155,8 +155,7 @@ else
 fi
 
 if seinfo -x --class=icmp_socket $common_flag 2>&1 \
-   | head -1 \
-   | grep '^[ 	][ 	]*icmp_socket$' >/dev/null
+   | egrep '^[ 	][ 	]*(class |)icmp_socket$' >/dev/null
 then
     echo '/allow \[pcp_pmcd_t\] .*\[rawip_socket\]/d' >>$tmp.sed
 else

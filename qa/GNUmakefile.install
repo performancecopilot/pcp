@@ -24,14 +24,21 @@ ifeq "$(HAVE_PYTHON)" "true"
 SUBDIRS += secure mic haproxy lio openmetrics
 endif
 
-default default_pcp setup: $(SUBDIRS) localconfig qa_hosts
+ifeq "$(ENABLE_SELINUX)" "true"
+SELINUX_PCPQA = pcpqa.installed
+else
+SELINUX_PCPQA =
+endif
+
+default default_pcp setup: $(SUBDIRS) localconfig qa_hosts $(SELINUX_PCPQA)
 	$(QA_SUBDIRS_MAKERULE)
 
 LDIRT += 051.work 134.full.* \
          *.bak *.bad *.core *.full *.notrun *.raw *.o core a.out core.* \
 	 *.log eek* urk* so_locations tmp.* gmon.out oss.qa.tar.gz \
 	 *.full.ok *.new rc_cron_check.clean \
-	  make.out qa_hosts localconfig localconfig.h check.time
+	 make.out qa_hosts localconfig localconfig.h check.time \
+	 $(SELINUX_PCPQA)
 	# these ones are links to the real files created when the associated
 	# test is run
 LDIRT += $(shell [ -f .gitignore ] && grep '\.out$$' .gitignore)
@@ -47,6 +54,17 @@ install_pcp install:
 	false
 
 include $(BUILDRULES)
+
+ifeq "$(ENABLE_SELINUX)" "true"
+pcpqa.installed: pcpqa.pp
+	if sudo semodule -l | grep '^pcpqa[ 	]' >/dev/null; then sudo semodule -r pcpqa || true; fi
+	sudo semodule -i pcpqa.pp
+	touch pcpqa.installed
+
+pcpqa.pp: pcpqa.te
+	make -f /usr/share/selinux/devel/Makefile pcpqa.pp
+endif
+
 
 # Local variables:
 # mode: makefile
