@@ -1,4 +1,4 @@
-#!/usr/bin/sh
+#!/bin/sh
 # PCP QA Test No. 348
 # Install/Remove for Linux KVM pmda
 #
@@ -21,7 +21,10 @@ $sudo [ -d $kvm_stats_path ] || _notrun "KVM sysfs interface not available"
 count=`$sudo ls $kvm_stats_path | wc -l`
 [ "$count" -eq 0 ] && _notrun "KVM kernel instrumentation is disabled"
 lockdown=/sys/kernel/security/lockdown
-$sudo fgrep -q '[confidentiality]' $lockdown && _notrun "Kernel in lockdown"
+if [ -f $lockdown ]
+then
+    $sudo fgrep -q '[confidentiality]' $lockdown && _notrun "Kernel in lockdown"
+fi
 
 status=1
 done_clean=false

@@ -193,7 +193,7 @@ _shutdown()
 	if [ -f "$PCP_TMP_DIR/pmlogger/$pid" ]
 	then
 	    note=`sed -n -e 4p <"$PCP_TMP_DIR/pmlogger/$pid"`
-	    if [ "$note" = pmlogger_check -o "$note" = pmlogger_daily ]
+	    if [ "$note" = pmlogger_check -o "$note" = pmlogger_daily -o "$note" = reexec ]
 	    then
 		pmsignal -s TERM $pid
 	    fi
