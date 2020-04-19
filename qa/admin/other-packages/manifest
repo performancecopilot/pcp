@@ -735,7 +735,7 @@ brew?	File::Slurp		[base Darwin install (QA optional)]
 # -- Slurm::Hostlist ... skip this one, it comes in the pcp-testsuite package
 # -- List::MoreUtils
 dpkg?	List::MoreUtils		[liblist-moreutils-perl (QA optional)]
-rpm?	List::MoreUtils		[perl-List-MoreUtils or perl(List::MoreUtils) (QA optional)]
+rpm?	List::MoreUtils		[perl-List-MoreUtils or perl(List::MoreUtils) or cpan(List::MoreUtils) (QA optional)]
 urpmi?	List::MoreUtils		[perl-List-MoreUtils or perl(List::MoreUtils) (QA optional)]
 emerge?	List::MoreUtils		[dev-perl/List-MoreUtils (QA optional)]
 pkgin?	List::MoreUtils		[p5-List-MoreUtils (QA optional)]
@@ -1243,7 +1243,7 @@ pacman?		qtchooser	[N/A (build optional)]
 brew?		qtchooser	[N/A (build optional)]
 # -- Qt4 qmake
 dpkg?		qmake				[qt4-qmake or qtchooser (build optional)]
-rpm?		qmake|/usr/lib*/qt4/bin/qmake	[qt4-devel or libqt4-devel or qt-devel (build optional)]
+rpm?		qmake|/usr/lib*/qt4/bin/qmake|/usr/bin/qmake-qt5	[qt4-devel or libqt4-devel or qt5-qtbase-devel or qt-devel (build optional)]
 urpmi?		qmake|/usr/lib*/qt4/bin/qmake	[lib64qt4-devel (build optional)]
 emerge?		qmake|/usr/lib*/qt4/bin/qmake	[dev-qt/qtchooser (build optional)]
 pkgin?		qmake				[N/A (build optional)]

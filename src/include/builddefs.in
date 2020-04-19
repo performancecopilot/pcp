@@ -263,6 +263,7 @@ ENABLE_DECOMPRESSION = @enable_decompression@
 ENABLE_LZMA = @enable_lzma@
 
 # selinux configuration bits
+# pcpupstream.te
 PCP_SELINUX_FILES_LIST_NON_AUTH_DIRS = @pcp_selinux_files_list_non_auth_dirs@
 PCP_SELINUX_CAP_USERNS_PTRACE = @pcp_selinux_cap_userns_ptrace@
 PCP_SELINUX_CONTAINER_RUNTIME = @pcp_selinux_container_runtime@
@@ -273,12 +274,28 @@ PCP_SELINUX_TRACEFS = @pcp_selinux_tracefs@
 PCP_SELINUX_HOSTNAME_EXEC_MAP = @pcp_selinux_hostname_exec_map@
 PCP_SELINUX_UNCONFINED = @pcp_selinux_unconfined@
 PCP_SELINUX_NUMAD = @pcp_selinux_numad@
-PCP_SELINUX_BPF_STATUS = @pcp_selinux_bpf_status@
+PCP_SELINUX_BPF = @pcp_selinux_bpf@
 PCP_SELINUX_RPM_VAR_LIB = @pcp_selinux_rpm_var_lib@
 PCP_SELINUX_VIRT_VAR_RUN = @pcp_selinux_virt_var_run@
 PCP_SELINUX_FILES_MMAP_ALL_FILES = @pcp_selinux_files_mmap_all_files@
 PCP_SELINUX_CAP2_SYSLOG = @pcp_selinux_cap2_syslog@
 PCP_SELINUX_ICMP_SOCKET = @pcp_selinux_icmp_socket@
+# pcpqa.te
+PCP_SELINUX_INITRC_TMP = @pcp_selinux_initrc_tmp@
+PCP_SELINUX_SUDO_EXEC = @pcp_selinux_sudo_exec@
+PCP_SELINUX_SECURITY = @pcp_selinux_security@
+PCP_SELINUX_CHKPWD_EXEC = @pcp_selinux_chkpwd_exec@
+PCP_SELINUX_INITRC = @pcp_selinux_initrc@
+PCP_SELINUX_VAR_LOG = @pcp_selinux_var_log@
+PCP_SELINUX_LASTLOG = @pcp_selinux_lastlog@
+PCP_SELINUX_XAUTH_EXEC = @pcp_selinux_xauth_exec@
+PCP_SELINUX_LOGROTATE = @pcp_selinux_logrotate@
+PCP_SELINUX_NETLINK_SELINUX_SOCKET_CLASS = @pcp_selinux_netlink_selinux_socket_class@
+PCP_SELINUX_NETLINK_AUDIT_SOCKET_CLASS = @pcp_selinux_netlink_audit_socket_class@
+PCP_SELINUX_SOCK_FILE_CLASS = @pcp_selinux_sock_file_class@
+PCP_SELINUX_SECURITY_CLASS = @pcp_selinux_security_class@
+PCP_SELINUX_DIR_CLASS = @pcp_selinux_dir_class@
+PCP_SELINUX_RAWIP_SOCKET_CLASS = @pcp_selinux_rawip_socket_class@
 
 # for code supporting any modern version of perl
 HAVE_PERL = @have_perl@

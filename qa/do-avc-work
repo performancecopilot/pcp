@@ -1,0 +1,36 @@
+#!/bin/sh
+#
+# take type=AVC lines from a .out.bad file and do the necessary
+# SELinux magic ...
+#
+#
+
+tmp=/var/tmp/$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+if [ $# != 1 ]
+then
+    echo "Usage: avc-do-work seq"
+    exit
+fi
+
+seq=$1
+
+if [ ! -f $seq.out.bad ]
+then
+    echo "Error: no $seq.out.bad file"
+    exit
+fi
+
+grep '^type=AVC' $seq.out.bad \
+| sed \
+    -e "s/msg=audit([^)]*):/msg=audit(qa\/$seq)/" \
+    -e 's/pid=[0-9][0-9]*/pid=1/' \
+    -e 's/name=\"[^"]*"/name="???"/' \
+| sort \
+| uniq >$tmp.avc
+
+sed -e 's/^/# /' <$tmp.avc
+
+cat $tmp.avc | audit2allow -m pcpqa
+
