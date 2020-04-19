@@ -5,7 +5,7 @@ ConditionPathExists=!@CRONTAB_PATH@
 
 [Service]
 Type=oneshot
-TimeoutSec=120
+TimeoutStartSec=25m
 Environment="PMLOGGER_CHECK_PARAMS=-C"
 EnvironmentFile=-@PCP_SYSCONFIG_DIR@/pmlogger_timers
 ExecStart=@PCP_BINADM_DIR@/pmlogger_check $PMLOGGER_CHECK_PARAMS
