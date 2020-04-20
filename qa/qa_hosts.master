@@ -33,10 +33,11 @@ thing1.scott.net.au
 thing2.scott.net.au
 
 # Mark's section
-rhel76.gateway
 f31.gateway
 f31-qa.gateway
 f30.gateway
+centos7.gateway
+rhel82.gateway
 
 # sort control lines
 # each line here is a specification that includes the keyword #order and
