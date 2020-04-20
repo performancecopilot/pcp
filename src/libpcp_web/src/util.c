@@ -591,8 +591,8 @@ pmwebapi_new_context(context_t *cp)
     /* establish PMAPI context */
     if ((sts = cp->context = pmNewContext(cp->type, cp->name.sds)) < 0) {
 	if (cp->type == PM_CONTEXT_HOST)
-	    infofmt(msg, "cannot connect to PMCD on host \"%s\": %s",
-		    cp->name.sds, pmErrStr_r(sts, pmmsg, sizeof(pmmsg)));
+	    infofmt(msg, "cannot connect to PMCD: %s",
+		    pmErrStr_r(sts, pmmsg, sizeof(pmmsg)));
 	else if (cp->type == PM_CONTEXT_LOCAL)
 	    infofmt(msg, "cannot make standalone connection on localhost: %s",
 		    pmErrStr_r(sts, pmmsg, sizeof(pmmsg)));
