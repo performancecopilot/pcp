@@ -601,6 +601,8 @@ sub get_server_stats {
                             $metric,
                             $name} = $child_node->textContent;
             }
+        } elsif ($node->nodeName eq "version") {
+                # ignoring
         } else {
             warn "get_server_stats: unknown node name '" . $node->nodeName . "'";
         }
