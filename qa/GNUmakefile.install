@@ -24,10 +24,18 @@ ifeq "$(HAVE_PYTHON)" "true"
 SUBDIRS += secure mic haproxy lio openmetrics
 endif
 
-ifeq "$(ENABLE_SELINUX)" "true"
-SELINUX_PCPQA = pcpqa.installed
-else
+# Before installing the pcpqa policy module we need a PCP build with
+# ENABLE_SELINUX set and we need the current SELinux mode to be
+# Enforcing or Permissive (not Disabled), and the pcpupstream policy
+# module needs to be loaded.
+#
 SELINUX_PCPQA =
+ifeq "$(ENABLE_SELINUX)" "true"
+ifneq "$(shell getenforce)" "Disabled"
+ifeq "$(shell [ sudo semodule -l | grep '^pcpupstream[ 	]' >/dev/null ] && echo OK)" "OK"
+SELINUX_PCPQA = pcpqa.installed
+endif
+endif
 endif
 
 default default_pcp setup: $(SUBDIRS) localconfig qa_hosts $(SELINUX_PCPQA)
