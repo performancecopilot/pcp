@@ -2547,8 +2547,10 @@ _restore_pmda_install()
 	    # do a default install which ensures the pmns and any
 	    # views are installed
 	    #
+	    _here=`pwd`
 	    cd $PCP_PMDAS_DIR/$iam
 	    $sudo ./Install < /dev/null > /dev/null 2>&1
+	    cd $_here
 	fi
 
 # PMDA may have been installed differently to default. As everything is
