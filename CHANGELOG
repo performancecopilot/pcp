@@ -58,9 +58,8 @@ pcp-5.1.0 (24 April 2020)
 	pmdaactivemq: support for new version of ActiveMQ (v5.12+)
     - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings
 	libpcp: export __pmHashPreAlloc routine from hash APIs
-	libpcp: rename new pmgetcontexthostname variant more simply
 	libpcp: fix authentication for multi-step auth methods
-	libpcp: introduce pmGetContextHostName_rr which returns sts
+	libpcp: introduce pmGetHostName which returns errors
 	libpcp, pmcd: add diagnostics for -Daccess
 	libpcp: add new "access" debug flag
 	libpcp: dont clear NOTIFY_SOCKET after initial READY notification
