@@ -2,7 +2,7 @@
 # PCP QA Test No. 1600
 # Exercise log discovery, pmproxy and pmseries.
 #
-# Copyright (c) 2018-2019 Red Hat.
+# Copyright (c) 2018-2020 Red Hat.
 #
 
 seq=`basename $0`
@@ -115,9 +115,9 @@ redis-cli $options ping
 echo
 
 # prepare logging location and config
-export PCP_LOG_DIR=$tmp.log
-base=$PCP_LOG_DIR/pmlogger
-mkdir -p $base
+export PCP_ARCHIVE_DIR=$tmp.log/pmlogger
+mkdir -p $PCP_ARCHIVE_DIR
+
 cat >$tmp.pmlogger.conf << End-Of-File
 log mandatory on default {
     mmv
@@ -133,10 +133,10 @@ enabled = true
 End-Of-File
 
 # start long-running pmlogger actively writing archives
-pmlogger -t 0.25 -T 3sec -c $tmp.pmlogger.conf -l $tmp.pmlogger.log $base/archive &
+pmlogger -t 0.25 -T 3sec -c $tmp.pmlogger.conf -l $tmp.pmlogger.log $PCP_ARCHIVE_DIR/archive &
 pmlogger_pid=$!
 #echo pmlogger=$pmlogger_pid
-pmsleep 0.5
+pmsleep 0.5	# time for pmlogger to start logging
 
 # start pmproxy 
 proxyport=`_find_free_port`
@@ -148,8 +148,9 @@ pmproxy_pid=$!
 
 # check pmproxy has started and is discovering timeseries
 pmcd_wait -h localhost@localhost:$proxyport -v -t 5sec
+pmsleep 0.5	# time for pmproxy to start discovering
 
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep 'pmlogger|pmproxy' >> $seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep 'pmlogger|pmproxy|redis' >> $seq.full
 redis-cli $options keys pcp:* >> $seq.full
 ls -l $PCP_LOG_DIR/pmlogger >> $seq.full
 cat $tmp.pmproxy.log >> $seq.full
@@ -189,7 +190,7 @@ wait $pmlogger_pid
 # verify discovery handling of archive deletion
 #
 echo "== verify archive removal" | tee -a  $seq.full
-rm -fr $base
+rm -fr $PCP_ARCHIVE_DIR
 pmsleep 0.5	# allow filesystem event some time to arrive
 pmcd_wait -h localhost@localhost:$proxyport -v -t 1sec	# pmproxy still up?
 
