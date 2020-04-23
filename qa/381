@@ -84,7 +84,7 @@ _ping()
 {
     echo "Remote host: $rem_host [pid: $rem_pid port: $rem_port]" >>$here/$seq.full
     pminfo -f -h $rem_host pmcd.pmlogger.port >>$here/$seq.full 2>&1
-    ssh $rem_host '. /etc/pcp.env; $PCP_PS_PROG $PCP_PS_ALL_FLAGS' \
+    ssh $rem_host '. /etc/pcp.env; $PCP_PS_PROG $PCP_PS_ALL_FLAGS' 2>&1 \
     | egrep "PID|pmlogger" >>$here/$seq.full
     echo >>$here/$seq.full
     echo "Local host: $myhost [pid: $pid port: $port]" >>$here/$seq.full
