@@ -62,6 +62,7 @@ _check_file()
 	    sed <$tmp.out >$tmp.tmp \
 		-e '/bogus entries for PCP QA, added by qa.src.fixhosts/d' \
 		-e '/pcpqa-.*\.sgi\.com/d' \
+		-e '/[a-z]*[0-9]*-qa\.gateway/d' \
 	    # end
 	    mv $tmp.tmp $tmp.out
 	    ;;
