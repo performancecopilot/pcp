@@ -27,6 +27,7 @@ _cleanup()
 	_restore_config $PCP_SYSCONF_DIR/labels
         _restore_config $PCP_SYSCONF_DIR/pmproxy
         _restore_config $PCP_SYSCONF_DIR/pmseries
+	[ -d $PCP_TMP_DIR/mmv.$seq ] && _restore_config $PCP_TMP_DIR/mmv
 	_sighup_pmcd
     fi
     $sudo rm -rf $tmp $tmp.*
@@ -97,9 +98,11 @@ _filter_label_values()
 _save_config $PCP_SYSCONF_DIR/labels
 _save_config $PCP_SYSCONF_DIR/pmproxy
 _save_config $PCP_SYSCONF_DIR/pmseries
+[ -d $PCP_TMP_DIR/mmv ] && _save_config $PCP_TMP_DIR/mmv
 $sudo rm -f $PCP_SYSCONF_DIR/pmseries/*
 $sudo rm -f $PCP_SYSCONF_DIR/pmproxy/*
 $sudo rm -f $PCP_SYSCONF_DIR/labels/*
+$sudo rm -f $PCP_TMP_DIR/mmv/*
 need_restore=true
 echo '{"latitude": -25.28496, "longitude": 152.87886}' > $tmp.labels
 $sudo cp $tmp.labels $PCP_SYSCONF_DIR/labels/pcpqa.location
@@ -122,7 +125,13 @@ cat >$tmp.pmlogger.conf << End-Of-File
 log mandatory on default {
     mmv
     pmcd
-    sample
+    sample.long
+    sample.ulong
+    sample.double
+    sample.rapid
+    sample.colour
+    sample.mirage
+    sample.needprofile
 }
 End-Of-File
 cat >$tmp.pmproxy.conf << End-Of-File
@@ -152,8 +161,15 @@ pmsleep 0.5	# time for pmproxy to start discovering
 
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep 'pmlogger|pmproxy|redis' >> $seq.full
 redis-cli $options keys pcp:* >> $seq.full
-ls -l $PCP_LOG_DIR/pmlogger >> $seq.full
+ls -lR $PCP_ARCHIVE_DIR >> $seq.full
 cat $tmp.pmproxy.log >> $seq.full
+
+#echo "pausing for diagnosis ($options ... $PCP_ARCHIVE_DIR)"
+#echo pmlogger:
+#cat $tmp.pmlogger.log
+#echo pmproxy:
+#cat $tmp.pmproxy.log
+#read
 
 #
 # verify we have data loading and can issue various queries

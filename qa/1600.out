@@ -50,13 +50,11 @@ cluster: "zero"
 domainname: "DOMAIN"
 groupid: GID
 hostname: "HOSTNAME"
-indom_label: 42.001
 latitude: -25.28496
 longitude: 152.87886
 machineid: "MACHINE"
 measure: "speed"
 model: "RGB"
-registry_label: "string"
 role: "testing"
 transient: false
 units: "metres per second"
