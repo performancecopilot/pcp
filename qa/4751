@@ -44,20 +44,23 @@ _filter_ncpu()
   tee -a $seq.full | sed -e 's, [0-9]*$, NUMBER,'
 }
 
-# depending on network setup, there is a race between ...
-# 192.0.2.10 -110 (Connection timed out)
-# and
+# depending on network setup, attempts to reach a non-existant IP addr
+# may report ..
 # 192.0.2.10 -101 (Network is unreachable)
-# and
+# or
+# 192.0.2.10 -110 (Connection timed out)
+# or
+# 192.0.2.10 -111 (Connection refused)
+# or
 # 192.0.2.10 -113 (No route to host)
 # so treat 'em as equivalent here ...
 #
 _filter_connect_fail()
 {
     sed \
-	-e '/^192\..*-113$/s/-113/-101 or -110 or -113/' \
-	-e '/^192\..*-110$/s/-110/-101 or -110 or -113/' \
-	-e '/^192\..*-101$/s/-101/-101 or -110 or -113/' \
+	-e '/^192\..*-110$/s/-110/-101/' \
+	-e '/^192\..*-111$/s/-111/-101/' \
+	-e '/^192\..*-113$/s/-113/-101/' \
     # end
 }
 
