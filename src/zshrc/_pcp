@@ -555,6 +555,7 @@ _pcp () {
       "(-m --note $exargs)"{-m+,--note=}'[define map file note]:note:' \
       "(-h --host $exargs)"\*{-K+,--spec-local=}'[define PMDA spec for local DSO PMDAs]:spec:(add del clear)' \
       "(-o --local-PMDA -h --host $exargs)"{-o,--local-PMDA}'[use local DSO PMDAs as metrics source]' \
+      "(-N --notify $exargs)"{-N,--notify}'[notify service manager (if any) when started and ready]' \
       "(-n --namespace $exargs)"{-n+,--namespace=}'[specify alternative PMNS]:pmnsfile:_files' \
       "(-p --PID $exargs)"{-p+,--PID=}'[specify PID to exit after]:PID:_pids' \
       "(-P --primary $exargs)"{-P,--primary}'[run as primary logger instance]' \
