@@ -3336,8 +3336,16 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %endif
 
 %changelog
-* Wed Apr 15 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.1.0-1
+* Fri Apr 24 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.1.0-1
+- pmdakvm: debugfs access is restricted (BZ 1824297)
+- error starting pmlogger; pid file not owned by root (BZ 1761962)
 - Update to latest PCP sources.
+
+* Wed Mar 11 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.0.3-3
+- Resolve pcp-selinux issues causing services failures - (BZ 1810458)
+
+* Mon Mar 02 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.0.3-2
+- fix typo in Requires: perl-Time-HiRes affecting pcp-pmda-bind2
 
 * Thu Feb 27 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.0.3-1
 - Avoid python ctypes bitfield struct on-stack (BZ 1800685)
