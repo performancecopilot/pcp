@@ -1,5 +1,126 @@
-pcp-5.1.0 (15 April 2020)
-    - Work-in-progress: https://github.com/performancecopilot/pcp/projects/1
+pcp-5.1.0 (24 April 2020)
+    - Server-side utilities and log management scripts:
+        pmcd: change systemd service unit to use Type=notify
+        pmlogger: change systemd service unit to Type=notify
+        pmproxy: change systemd service unit to use Type=notify
+        pmlogger: support for archive log-rolling/re-exec on SIGUSR2
+        pmlogger: support strftime substitutions in archive name argument
+        pmlogger: add -N (--notify) flag to notify service manager
+        pmlogger: write out Latest archive folio when run as service daemon
+        pmlogger_check: fix so $PMLOGGER_CHECK_SKIP_LOGCONF is not ignored
+        pmlogger_check: fix for non-primary pmlogger matching
+        pmlogger: change duplicate archive name avoidance strategy
+        pmlogger: refactor -NN archive name collision avoidance
+        pmlogger: use execvp rather than execv so PATH is used
+        pmlogger_daily: signal (rather than restart) pmlogger for log rotation
+        pmlogger_check: use pmlogger's strftime template for archive name
+        logutil: increase start/run timeouts for pmlogger_check/daily
+        pmlogger_check: don't update the Latest folio (pmlogger does it now)
+        pmlogger_check: drop 0 in strftime template archive name patterns
+        pmsignal: add USR2 to the set of supported signals
+        pmnewlog: retired, replaced with SIGUSR2 handler in pmlogger
+        pmproxy: do not include hostspec in connection failure error message
+        pmproxy: return error if authentication isn't sent in each request
+        pmproxy: add -F flag to run as systemd service
+        pmproxy: fix a double free on pmproxy shutdown without a redis-server
+        pmproxy: fix async buffer reading for multi-stage RESP proxying
+        pmproxy: fix race between redis setup and log discovery
+        pmproxy: make logfile name unique with -Dappl1
+        pmproxy: send Access-Control-Allow-Headers CORS header
+        logutil: improved handling of $PCP_COMPRESSAFTER in control files
+        find-filter: (new) find-grained filter for files based on mtime or ctime
+
+    - Client tools and utilities:
+        pcp-atop: ensure allocated task memory is always initialised
+        pcp-atop: support interactively changing the sample interval
+        pcp-atop: support PSIZE output from pcp-atop using proc.smaps.pss
+        pcp-atop: fix STDATE/STTIME in -v output
+        pmlogconf: add boottime metric to the atop logged set
+        pmrep: catch PMI_ERR_DUPTEXT exceptions when writing indom help text
+        pmrep: correct headers for archive output
+        pmrep: correctly handle instance additions to archives
+        pmrep: more correct null indom checks
+
+    - PMDA additions, enhancements and bug fixes:
+        pmdarabbitmq: new PMDA for RabbitMQ message broker metrics
+        pmdabind2: update to handle additional version field in output
+        pmdakvm: do not access debugfs/tracefs when kernel in lockdown
+        pmdapodman: log varlink connection error message
+        pmdabpftrace: rename static scripts to autostart
+        pmdabpftrace: bpftrace.conf styling
+        pmdabpftrace: add option to load bpftrace scripts from a directory
+        pmdapostgresql: add back pmlogconf file with summary postgresql metrics
+        pmdamssql: add pmlogconf file with summary SQL server metrics
+        pmdaproc: correct parsing of lazyfree field in /proc/pid/smaps_rollup
+        pmdaproc: support proc.smaps.* metrics from /proc/pid/smaps_rollup
+        pmdalinux: correct new kernel.all.boottime units (seconds)
+        pmdalinux: add aggregate and per-device discard and flush metrics
+        pmdaredis: add perl-Data-Dumper dependency
+        pmdanfsclient: update nfs client statistics for recent kernel versions
+        pmdaactivemq: support for new version of ActiveMQ (v5.12+)
+
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings
+        libpcp: export __pmHashPreAlloc routine from hash APIs
+        libpcp: rename new pmgetcontexthostname variant more simply
+        libpcp: fix authentication for multi-step auth methods
+        libpcp: introduce pmGetContextHostName_rr which returns sts
+        libpcp, pmcd: add diagnostics for -Daccess
+        libpcp: add new "access" debug flag
+        libpcp: dont clear NOTIFY_SOCKET after initial READY notification
+        libpcp: add diagnostics for calls to sd_notify from __pm_sd_notify
+        libpcp: support notify on systemd platforms with no sd_notify API
+        libpcp: hide warning from __pmServerNotifySystemd
+        libpcp: change guards around libsystemd uses
+        libpcp: add portable service manager notify API functions
+        libpcp: add new "services" debug flag
+        libpcp: clarify -s/--samples option handling error message
+        libpcp_web: delay setup of the uv_timer_t in webgroup context creation
+        libpcp_web: ensure redis callback structures are initialized
+        libpcp_web: use unsigned type consistently in Redis version checks
+        libpcp_web: sync up the libuv/redis client adapter
+        libpcp_web, pmproxy: update Redis protocol code for RESP3
+        libpcp_web: minor extension to Redis version check logic
+        libpcp_web: fix segfault in redisSlotsRedirect
+        libpcp_web: check redis server version
+        python/logimport: add missing error definitions
+        python/pmapi: plug memleaks in labelsets API calls
+
+    - Misc build, infrastructure and packaging updates:
+        ci: set skip_clean to true to avoid race condition
+        ci: organize RHEL provisioning scripts
+        ci: enable rhui-optional-rpms repo on rhel 7 for python3-devel
+        ci: support Python 2.6 in create_report.py (RHEL 6)
+        ci: show test group in test results
+        ci: delete /opt/ghc on Azure Pipelines agent
+        ci: add script to delete Azure resource group deployment metadata
+        ci: enable redis on startup on Azure CI hosts
+        ci: install libuv-devel from EPEL Modular on RHEL 8
+        build/tar/preinstall: take more care of services before upgrade
+        debian/fixcontrol.master: fix libsystemd-dev conditional logic
+        configure.ac: improved libsystemd checks and portability
+        build: update do-maybe-requires script to check provides metadata
+        build: remove perl(NET::SNMP) from unavailable file (it's in EPEL)
+        build: add EPEL to RHEL 6, split epel and libuv installation
+        build: add libsystemd-dev for debian builds
+        build: add explicit RPM dependencies between pmdas and pcp package
+        build: RPM spec file change to avoid touch on read-only filesystems
+
+    - Security Enhanced Linux:
+        selinux: add config-driven setup for pcpqa.te
+        selinux: add policy rule for pmlogger unreserved port name_bind
+        selinux: additional zimbra PMDA selinux policy rules
+        selinux: additional policy needs for pmdanamed in el7
+        selinux: drop name_connect from class udp_socket
+
+    - Documentation and QA infrastructure:
+        qa/check-flakey: (new) run some basic triage on failing tests
+        qa: enable the use of pcpqa.te on SELinux platforms
+        check-vm: control file updates for RHEL 7.8 and RHEL 8
+        qa/check.callback.sample: check if pre-run AVC file exists before diff
+        qa/common.avahi: put service state back the way it was at the beginning
+        qa: extend filtering for when more optional PMDAs are active on QA host
+        qa: assorted flow-on changes from recent pmlogger changes
+        docs: update pmlogger(1) for SIGUSR2 handling and strftime(3)
 
 pcp-5.0.3 (27 February 2020)
     - Client tools and utilities:
