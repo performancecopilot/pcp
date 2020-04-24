@@ -1,3 +1,9 @@
+pcp (5.1.1-1) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 29 Apr 2020 08:37:26 +1000
+
 pcp (5.1.0-1) unstable; urgency=low
 
   * New release (full details in CHANGELOG).

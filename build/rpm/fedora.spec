@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 5.1.0
+Version: 5.1.1
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2+ and CC-BY
@@ -3336,6 +3336,9 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %endif
 
 %changelog
+* Fri May 29 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.1.1-1
+- Update to latest PCP sources.
+
 * Fri Apr 24 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.1.0-1
 - pmdakvm: debugfs access is restricted (BZ 1824297)
 - error starting pmlogger; pid file not owned by root (BZ 1761962)
