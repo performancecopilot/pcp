@@ -1129,7 +1129,7 @@ End-of-File
 		( cd $HOME/Logs/by-vm/$domain/qa;
 		    for file in common common.rc common.check common.setup group show-me localconfig
 		    do
-		    	ln -s $HOME/src/pcp/qa/$file* .
+		    	ln -s $HOME/src/pcp/qa/$file .
 		    done
 		)
 	    fi
