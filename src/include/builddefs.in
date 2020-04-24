@@ -290,6 +290,7 @@ PCP_SELINUX_VAR_LOG = @pcp_selinux_var_log@
 PCP_SELINUX_LASTLOG = @pcp_selinux_lastlog@
 PCP_SELINUX_XAUTH_EXEC = @pcp_selinux_xauth_exec@
 PCP_SELINUX_LOGROTATE = @pcp_selinux_logrotate@
+PCP_SELINUX_FAILLOG = @pcp_selinux_faillog@
 PCP_SELINUX_NETLINK_SELINUX_SOCKET_CLASS = @pcp_selinux_netlink_selinux_socket_class@
 PCP_SELINUX_NETLINK_AUDIT_SOCKET_CLASS = @pcp_selinux_netlink_audit_socket_class@
 PCP_SELINUX_SOCK_FILE_CLASS = @pcp_selinux_sock_file_class@
