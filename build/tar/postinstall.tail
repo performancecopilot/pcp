@@ -311,7 +311,7 @@ for dir in "$PCP_LOG_DIR" \
 	   "$PCP_TMP_DIR"/mmv "$PCP_TMP_DIR"/pmproxy \
 	   "$PCP_VAR_DIR"/config/pmda \
 	   "$PCP_VAR_DIR"/config/pmie "$PCP_VAR_DIR"/config/pmlogger \
-	   "$PCP_NSSDB_DIR"
+	   "$PCP_SECURE_DB_PATH"
 do
     _do_dir "pcp:pcp" 775 "$dir"
 done

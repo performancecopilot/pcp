@@ -157,7 +157,7 @@ PCP_DEMOS_DIR=@pcp_demos_dir@
 
 # directory for PCP specific nssdb
 # Standard path: /etc/pcp/nssdb
-PCP_NSSDB_DIR=@pcp_sysconf_dir@/nssdb
+PCP_SECURE_DB_PATH=@pcp_sysconf_dir@/nssdb
 
 # awk
 PCP_AWK_PROG="@awk@"
