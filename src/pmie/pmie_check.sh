@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# Copyright (c) 2013-2016,2018 Red Hat.
+# Copyright (c) 2013-2016,2018,2020 Red Hat.
 # Copyright (c) 1998-2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -726,9 +726,9 @@ NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
 		_configure_pmie "$configfile" "$host" "$primary"
 	    fi
 
-	    if [ "X$primary" = Xy ]
+	    if [ "$primary" = y ]
 	    then
-		args="-P -l $logfile $args"
+		args="-F -P -l $logfile $args"
 	    else
 		args="-h $host -l $logfile $args"
 	    fi
@@ -767,13 +767,12 @@ NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
 		_unlock
 		continue
 	    else
-		# since this is launched as a sort of daemon, any output should
+		# since this is launched as a daemon, any output should
 		# go on pmie's stderr, i.e. $logfile ... use -b for this
 		#
 		$VERY_VERBOSE && ( echo; $PCP_ECHO_PROG $PCP_ECHO_N "+ ${sock_me}$PMIE -b $args""$PCP_ECHO_C"; echo "..." )
 		$PCP_BINADM_DIR/pmpost "start pmie from $prog for host $host"
-		${sock_me}$PMIE -b $args &
-		pid=$!
+		pid=`${sock_me} $PMIE -b $args >/dev/null 2>&1 & echo $!`
 	    fi
 
 	    # wait for pmie to get started, and check on its health

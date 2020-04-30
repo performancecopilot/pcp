@@ -6,10 +6,12 @@ After=pmie_check.timer pmie_daily.timer
 BindsTo=pmie_check.timer pmie_daily.timer
 
 [Service]
-Type=forking
+Type=notify
 Restart=always
-ExecStart=@PCP_RC_DIR@/pmie start
-ExecStop=@PCP_RC_DIR@/pmie stop
+NotifyAccess=all
+TimeoutSec=120
+
+ExecStart=@PCP_RC_DIR@/pmie start-systemd
 PIDFile=@PCP_RUN_DIR@/pmie.pid
 
 [Install]
