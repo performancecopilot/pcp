@@ -2,7 +2,7 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
-.\" Copyright (c) 2015-2016,2018-2019 Red Hat.
+.\" Copyright (c) 2015-2016,2018-2020 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -20,7 +20,7 @@
 \f3pmie\f1 \- inference engine for performance metrics
 .SH SYNOPSIS
 \f3pmie\f1
-[\f3\-bCdefHPqvVWxXz?\f1]
+[\f3\-bCdeFfHPqvVWxXz?\f1]
 [\f3\-a\f1 \f2archive\f1]
 [\f3\-A\f1 \f2align\f1]
 [\f3\-c\f1 \f2filename\f1]
@@ -165,9 +165,35 @@ is run as a daemon in the background
 (in all other cases foreground is the default).
 The
 .B \-f
-option forces
+(and
+.BR \-F ,
+see below) options force
 .B pmie
 to be run in the foreground, independent of any other options.
+.TP
+\fB\-F\fR, \fB\-\-systemd\fR
+Like
+.BR \-f ,
+the
+.B \-F
+option runs
+.B pmie
+in the foreground, but also does some housekeeping
+(like create a pid file, change user id and notify
+.BR systemd (1)
+when
+.B pmie
+has started or is shutting down).
+This is intended for use when
+.B pmie
+is launched from
+.BR systemd (1)
+and the daemonizing has already been done.
+The
+.B \-f
+and
+.B \-F
+options are mutually exclusive.
 .TP
 \fB\-h\fR \fIhost\fR, \fB\-\-host\fR=\fIhost\fR
 By default performance data is fetched from the local host (in real-time mode)
@@ -1287,6 +1313,7 @@ a cross-platform dialog box.
 .BR pminfo (1),
 .BR pmlogger (1),
 .BR pmval (1),
+.BR systemd (1),
 .BR PMAPI (3),
 .BR pcp.conf (5),
 .BR pcp.env (5)

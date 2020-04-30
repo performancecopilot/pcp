@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015 Red Hat.
+ * Copyright (c) 2013-2015,2020 Red Hat.
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -408,6 +408,7 @@ extern int	   quiet;	/* suppress default diagnostics */
 extern int	   verbose;	/* verbosity 0, 1 or 2 */
 extern int	   interactive;	/* interactive mode, -d */
 extern int	   isdaemon;	/* run as a daemon */
+extern int	   systemd;	/* systemd mode, notify service manager */
 extern int         agent;	/* secret agent mode? */
 extern int         applet;	/* applet mode? */
 extern int	   dowrap;	/* counter wrap? default no */

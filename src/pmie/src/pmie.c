@@ -2,7 +2,7 @@
  * pmie.c - performance inference engine
  ***********************************************************************
  *
- * Copyright (c) 2013-2015,2017 Red Hat.
+ * Copyright (c) 2013-2015,2017,2020 Red Hat.
  * Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -98,6 +98,7 @@ static pmLongOptions longopts[] = {
     { "interact", 0, 'd', 0, "interactive debugging mode" },
     { "primary", 0, 'P', 0, "execute as primary inference engine" },
     { "foreground", 0, 'f', 0, "run in the foreground, not as a daemon" },
+    { "systemd", 0, 'F', 0, "systemd mode - notify service manager (if any) when started and ready" },
     { "", 0, 'H', NULL }, /* was: no DNS lookup on the default hostname */
     { "", 1, 'j', "FILE", "stomp protocol (JMS) file" },
     { "logfile", 1, 'l', "FILE", "send status and error messages to FILE" },
@@ -116,7 +117,7 @@ static pmLongOptions longopts[] = {
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_STDOUT_TZ,
-    .short_options = "a:A:bc:CdD:efHh:j:l:n:O:PqS:t:T:U:vVWXxzZ:?",
+    .short_options = "a:A:bc:CdD:efFHh:j:l:n:O:PqS:t:T:U:vVWXxzZ:?",
     .long_options = longopts,
     .short_usage = "[options] [filename ...]",
     .override = override,
@@ -552,6 +553,11 @@ getargs(int argc, char *argv[])
 	    isdaemon = 1;
 	    break;
 
+	case 'F':			/* systemd mode */
+	    systemd = 1;
+	    isdaemon = 1;
+	    break;
+
 	case 'H': 			/* deprecated: no DNS lookups */
 	    break;
 
@@ -616,6 +622,11 @@ getargs(int argc, char *argv[])
 
     if (!opts.errors && configfile && opts.optind != argc) {
 	pmprintf("%s: extra filenames cannot be given after using -c\n",
+		pmGetProgname());
+	opts.errors++;
+    }
+    if (!opts.errors && foreground && systemd) {
+	pmprintf("%s: the -f and -F options are mutually exclusive\n",
 		pmGetProgname());
 	opts.errors++;
     }
@@ -773,7 +784,8 @@ getargs(int argc, char *argv[])
 	if (agent)
 	    close(fileno(stdin));
 #ifndef IS_MINGW
-	setsid();	/* not process group leader, lose controlling tty */
+	if (!systemd)
+	    setsid();	/* not process group leader, lose controlling tty */
 #endif
 	if (primary)
 	    __pmServerCreatePIDFile(pmGetProgname(), 0);
@@ -941,7 +953,13 @@ main(int argc, char **argv)
 
     if (interactive)
 	interact();
-    else
+    else {
+	pid_t mainpid = getpid();
+	if (systemd)
+	    __pmServerNotifyServiceManagerReady(mainpid);
 	run();
+	if (systemd)
+	    __pmServerNotifyServiceManagerStopping(mainpid);
+    }
     exit(0);
 }
