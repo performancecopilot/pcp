@@ -742,6 +742,7 @@ Installing files ...\
 [...install files, make output...]\
 Updating the Performance Metrics Name Space (PMNS) ...
 ' \
+	-e '/^S$/d' \
     | _filter_pcp_start
 }
 
