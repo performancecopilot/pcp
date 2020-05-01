@@ -7,7 +7,7 @@
 ** This source-file contains the Linux-specific functions to calculate
 ** figures to be visualized.
 ** 
-** Copyright (C) 2015,2018,2019 Red Hat.
+** Copyright (C) 2015,2018-2020 Red Hat.
 ** Copyright (C) 2009-2010 JC van Winkel
 ** Copyright (C) 2000-2012 Gerlof Langeveld
 **
@@ -2026,9 +2026,15 @@ pridisklike(extraparam *ep, struct perdsk *dp, char *lp, char *highorderp,
 int
 compcpu(const void *a, const void *b)
 {
-        register count_t acpu = (*(struct tstat **)a)->cpu.stime +
+        register count_t acpu;
+        register count_t bcpu;
+
+        if (a == NULL)  return 1;
+        if (b == NULL)  return -1;
+
+        acpu = (*(struct tstat **)a)->cpu.stime +
                                 (*(struct tstat **)a)->cpu.utime;
-        register count_t bcpu = (*(struct tstat **)b)->cpu.stime +
+        bcpu = (*(struct tstat **)b)->cpu.stime +
                                 (*(struct tstat **)b)->cpu.utime;
 
         if (acpu < bcpu) return  1;
@@ -2044,6 +2050,9 @@ compdsk(const void *a, const void *b)
 
         count_t	adsk;
         count_t bdsk;
+
+	if (ta == NULL)  return  1;
+	if (tb == NULL)  return  -1;
 
 	if (ta->dsk.wsz > ta->dsk.cwsz)
 		adsk = ta->dsk.rio + ta->dsk.wsz - ta->dsk.cwsz;
@@ -2063,8 +2072,14 @@ compdsk(const void *a, const void *b)
 int
 compmem(const void *a, const void *b)
 {
-        register count_t amem = (*(struct tstat **)a)->mem.rmem;
-        register count_t bmem = (*(struct tstat **)b)->mem.rmem;
+        register count_t amem;
+        register count_t bmem;
+
+	if (a == NULL)   return 1;
+	if (b == NULL)   return -1;
+
+        amem = (*(struct tstat **)a)->mem.rmem;
+        bmem = (*(struct tstat **)b)->mem.rmem;
 
         if (amem < bmem) return  1;
         if (amem > bmem) return -1;
@@ -2074,12 +2089,22 @@ compmem(const void *a, const void *b)
 int
 compgpu(const void *a, const void *b)
 {
-        register char 	 astate = (*(struct tstat **)a)->gpu.state;
-        register char 	 bstate = (*(struct tstat **)b)->gpu.state;
-        register count_t abusy  = (*(struct tstat **)a)->gpu.gpubusy;
-        register count_t bbusy  = (*(struct tstat **)b)->gpu.gpubusy;
-        register count_t amem   = (*(struct tstat **)a)->gpu.memnow;
-        register count_t bmem   = (*(struct tstat **)b)->gpu.memnow;
+        register char 	 astate;
+        register char 	 bstate;
+        register count_t abusy;
+        register count_t bbusy;
+        register count_t amem;
+        register count_t bmem;
+
+	if (a == NULL)   return 1;
+	if (b == NULL)   return -1;
+
+        astate = (*(struct tstat **)a)->gpu.state;
+        bstate = (*(struct tstat **)b)->gpu.state;
+        abusy  = (*(struct tstat **)a)->gpu.gpubusy;
+        bbusy  = (*(struct tstat **)b)->gpu.gpubusy;
+        amem   = (*(struct tstat **)a)->gpu.memnow;
+        bmem   = (*(struct tstat **)b)->gpu.memnow;
 
         if (!astate)		// no GPU usage?
 		abusy = amem = -2; 
@@ -2104,14 +2129,20 @@ compgpu(const void *a, const void *b)
 int
 compnet(const void *a, const void *b)
 {
-        register count_t anet = (*(struct tstat **)a)->net.tcpssz +
-                                (*(struct tstat **)a)->net.tcprsz +
-                                (*(struct tstat **)a)->net.udpssz +
-                                (*(struct tstat **)a)->net.udprsz  ;
-        register count_t bnet = (*(struct tstat **)b)->net.tcpssz +
-                                (*(struct tstat **)b)->net.tcprsz +
-                                (*(struct tstat **)b)->net.udpssz +
-                                (*(struct tstat **)b)->net.udprsz  ;
+        register count_t anet;
+        register count_t bnet;
+
+	if (a == NULL)   return 1;
+	if (b == NULL)   return -1;
+
+        anet = (*(struct tstat **)a)->net.tcpssz +
+               (*(struct tstat **)a)->net.tcprsz +
+               (*(struct tstat **)a)->net.udpssz +
+               (*(struct tstat **)a)->net.udprsz  ;
+        bnet = (*(struct tstat **)b)->net.tcpssz +
+               (*(struct tstat **)b)->net.tcprsz +
+               (*(struct tstat **)b)->net.udpssz +
+               (*(struct tstat **)b)->net.udprsz  ;
 
         if (anet < bnet) return  1;
         if (anet > bnet) return -1;
@@ -2121,8 +2152,14 @@ compnet(const void *a, const void *b)
 int
 compusr(const void *a, const void *b)
 {
-        register int uida = (*(struct tstat **)a)->gen.ruid;
-        register int uidb = (*(struct tstat **)b)->gen.ruid;
+        register int uida;
+        register int uidb;
+
+	if (a == NULL)   return 1;
+	if (b == NULL)   return -1;
+
+        uida = (*(struct tstat **)a)->gen.ruid;
+        uidb = (*(struct tstat **)b)->gen.ruid;
 
         if (uida > uidb) return  1;
         if (uida < uidb) return -1;
@@ -2132,8 +2169,14 @@ compusr(const void *a, const void *b)
 int
 compnam(const void *a, const void *b)
 {
-        register char *nama = (*(struct tstat **)a)->gen.name;
-        register char *namb = (*(struct tstat **)b)->gen.name;
+        register char *nama;
+        register char *namb;
+
+	if (a == NULL)   return 1;
+	if (b == NULL)   return -1;
+
+        nama = (*(struct tstat **)a)->gen.name;
+        namb = (*(struct tstat **)b)->gen.name;
 
         return strcmp(nama, namb);
 }
@@ -2141,10 +2184,16 @@ compnam(const void *a, const void *b)
 int
 compcon(const void *a, const void *b)
 {
-        register char *containera = (*(struct tstat **)a)->gen.container;
-        register char *containerb = (*(struct tstat **)b)->gen.container;
+        register char *containera;
+        register char *containerb;
 
-       return strcmp(containera, containerb);
+	if (a == NULL)   return 1;
+	if (b == NULL)   return -1;
+
+        containera = (*(struct tstat **)a)->gen.container;
+        containerb = (*(struct tstat **)b)->gen.container;
+
+        return strcmp(containera, containerb);
 }
 
 /*
