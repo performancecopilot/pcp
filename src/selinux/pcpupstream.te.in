@@ -55,6 +55,7 @@ require {
 	type kmsg_device_t;
         type proc_kcore_t;
         type su_exec_t;
+	type postgresql_var_run_t;
 	@PCP_RPM_VAR_LIB_T@
 	@PCP_VIRT_VAR_RUN_T@
         class sem { unix_read associate getattr read };
@@ -237,6 +238,9 @@ allow pcp_pmcd_t kernel_t:system module_request;
 # type=AVC msg=audit(YYY.83): avc: denied { execute } for pid=19060 comm="zimbraprobe" name="su" dev="dm-0" ino=26416761 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:su_exec_t:s0 tclass=file permissive=0
 #pmdazimbra
 allow pcp_pmcd_t su_exec_t:file { execute execute_no_trans };
+
+# type=AVC msg=audit(YYY.95): avc:  denied  { write } for  pid=389594 comm="python3" name=".s.PGSQL.5432" dev="tmpfs" ino=746636 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:postgresql_var_run_t:s0 tclass=sock_file permissive=0
+allow pcp_pmcd_t postgresql_var_run_t:sock_file { write };
 
 #============= pcp_pmlogger_t ==============
 #type=AVC msg=audit(XXX.44): avc:  denied  { open write } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:kmsg_device_t:s0 tclass=chr_file permissive=0
