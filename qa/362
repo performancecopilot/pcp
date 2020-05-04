@@ -14,14 +14,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-if [ -f $PCP_BINADM_DIR/pmlogconf-setup ]
-then
-    :
-else
-    _notrun "pmlogconf-setup not installed"
-    # NOTREACHED
-fi
-
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
@@ -31,14 +23,14 @@ _doit()
     echo
     echo "--- group file ---"
     cat $tmp.grp
-    $PCP_BINADM_DIR/pmlogconf-setup $tmp.grp 2>$tmp.err >$tmp.out
+    pmlogconf --setup $tmp.grp 2>$tmp.err >$tmp.out
     xsts=$?
-    echo "--- pmlogconf-setup stdout ---"
+    echo "--- pmlogconf setup stdout ---"
     sed -e "s;$tmp;TMP;" <$tmp.out
     echo "--- exit status=$xsts ---"
     if [ -s $tmp.err ]
     then
-	echo "--- pmlogconf-setup stderr ---"
+	echo "--- pmlogconf setup stderr ---"
 	sed -e "s;$tmp;TMP;" <$tmp.err
     fi
 }

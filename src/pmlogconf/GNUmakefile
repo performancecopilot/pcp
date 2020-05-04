@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2011-2018 Red Hat.
+# Copyright (c) 2011-2018,2020 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -15,6 +15,11 @@
 
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
+
+CFILES = util.c pmlogconf.c
+NFILES = util.h
+CMDTARGET = pmlogconf$(EXECSUFFIX)
+LLDLIBS = $(PCPLIB)
 
 SUBDIRS = \
 	cpu \
@@ -41,19 +46,21 @@ ifneq "$(RPMPROG)" ""
 SUBDIRS += zeroconf
 endif
 
-default: makefiles pmlogconf.sh pmlogconf-setup.sh
+default: $(CMDTARGET) makefiles
 
 include $(BUILDRULES)
 
 install: default $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
-	$(INSTALL) -m 755 pmlogconf.sh $(PCP_BIN_DIR)/pmlogconf
-	$(INSTALL) -S $(PCP_BIN_DIR)/pmlogconf $(PCP_BINADM_DIR)/pmlogconf
-	$(INSTALL) -m 755 pmlogconf-setup.sh $(PCP_BINADM_DIR)/pmlogconf-setup
+	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BIN_DIR)/$(CMDTARGET)
+	$(INSTALL) -S $(PCP_BIN_DIR)/$(CMDTARGET) $(PCP_BINADM_DIR)/$(CMDTARGET)
 
 default_pcp : default
 
 install_pcp : install
+
+check:: $(CFILES) $(HFILES)
+	$(CLINT) $^
 
 # for src-link-pcp target from buildrules
 $(SUBDIRS):	makefiles

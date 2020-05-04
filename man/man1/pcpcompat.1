@@ -36,6 +36,24 @@ includes PCP archives created over 20 years ago!).
 From time to time the PCP developers deprecate and remove PCP utilities,
 replacing them with new versions of utilities providing comparable features.
 This page describes replacement utilities for historical PCP tools.
+.SH PMLOGCONF-SETUP
+Earlier versions of PCP (prior to v5.1.1) provided a shell script that
+was used internally by
+.BR pmlogconf (1),
+located in the
+.B PCP_BINADM_DIR
+directory, named
+.BR pmlogconf-setup .
+This script has been retired.
+The equivalent functionality remains available in the unlikely event
+it should be needed via the \fB\-s\fR or \fB\-\-setup\fR option to
+.BR pmlogconf (1).
+.PP
+The version 1
+.B pmlogconf-setup
+configuration file format (from IRIX) was also retired in this release,
+after more than 10 years of automatic transition to version 2 format by
+.BR pmlogconf .
 .SH PCP-COLLECTL
 The
 .B pcp-collectl
@@ -117,6 +135,7 @@ services could use the scalable time series REST APIs described on
 .BR pmrep (1),
 .BR pmproxy (1),
 .BR pmseries (1),
+.BR pmlogconf (1),
 .BR pmdabpftrace (1),
 .BR redis-server (1),
 .BR grafana-server (1)

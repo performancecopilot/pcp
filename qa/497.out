@@ -32,77 +32,49 @@ allow local:* : enquire;
 --- end initial config file ---
 
 === bad condition in probe clause ===
-need to add new group tag=02
-pmlogconf: Warning: TMP/02: pmlogconf-setup failed
-TMP/02: 
-probe sample.ulong.ten bozo ? include : exclude
-TMP/02: Error: condition operator "bozo" not recognized
+pmlogconf: Error: TMP/02 condition operator "bozo ? include : exclude" not recognized
 
 Group: qa group one this one contains no errors
 Log this group? [y] 
 No changes
 
 === missing val in probe condition ===
-need to add new group tag=02
-pmlogconf: Warning: TMP/02: pmlogconf-setup failed
-TMP/02: 
-probe sample.ulong.ten == ? include : exclude
-TMP/02: Error: expected "?" after condition, found "include : exclude"
+pmlogconf: Error: TMP/02 expected "?" after condition, found "include : exclude"
 
 Group: qa group one this one contains no errors
 Log this group? [y] 
 No changes
 
 === bad keyword in probe state rule ===
-need to add new group tag=02
-pmlogconf: Warning: TMP/02: pmlogconf-setup failed
-TMP/02: 
-probe sample.ulong.ten exists ? include : foo
-TMP/02: Error: failure state "foo" not recognized
+pmlogconf: Error: TMP/02 condition false state "foo" not recognized
 
 Group: qa group one this one contains no errors
 Log this group? [y] 
 No changes
 
 === missing : probe state rule ===
-need to add new group tag=02
-pmlogconf: Warning: TMP/02: pmlogconf-setup failed
-TMP/02: 
-probe sample.ulong.ten exists ? include exclude
-TMP/02: Error: missing state rule components: "? include exclude"
+pmlogconf: Error: TMP/02 missing ":" in state rule at "exclude"
 
 Group: qa group one this one contains no errors
 Log this group? [y] 
 No changes
 
 === bad probe state rule ===
-need to add new group tag=02
-pmlogconf: Warning: TMP/02: pmlogconf-setup failed
-TMP/02: 
-probe sample.ulong.ten exists ? include ! exclude
-TMP/02: Error: expected ":" in state rule, found "!"
+pmlogconf: Error: TMP/02 missing ":" in state rule at "! exclude"
 
 Group: qa group one this one contains no errors
 Log this group? [y] 
 No changes
 
 === extra text in probe state rule ===
-need to add new group tag=02
-pmlogconf: Warning: TMP/02: pmlogconf-setup failed
-TMP/02: 
-probe sample.ulong.ten exists ? include : exclude foo
-TMP/02: Error: extra state rule components: "? include : exclude foo"
+pmlogconf: Error: TMP/02 extra state rule components: "foo"
 
 Group: qa group one this one contains no errors
 Log this group? [y] 
 No changes
 
 === bad force clause ===
-need to add new group tag=02
-pmlogconf: Warning: TMP/02: pmlogconf-setup failed
-TMP/02: 
-force foo
-TMP/02: Error: force state "foo" not recognized
+pmlogconf: Error: TMP/02 force state "foo" not recognized
 
 Group: qa group one this one contains no errors
 Log this group? [y] 
