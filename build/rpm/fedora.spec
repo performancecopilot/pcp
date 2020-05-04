@@ -2037,13 +2037,14 @@ License: GPLv2+
 Summary: Performance Co-Pilot (PCP) Zeroconf Package
 URL: https://pcp.io
 Requires: pcp pcp-doc pcp-system-tools
-Requires: pcp-pmda-dm pcp-pmda-nfsclient
+Requires: pcp-pmda-dm
+%if !%{disable_python2} || !%{disable_python3}
+Requires: pcp-pmda-nfsclient pcp-pmda-openmetrics
+%endif
 %description zeroconf
 This package contains configuration tweaks and files to increase metrics
 gathering frequency, several extended pmlogger configurations, as well as
 automated pmie diagnosis, alerting and self-healing for the localhost.
-A cron script also writes daily performance summary reports similar to
-those written by sysstat.
 
 %if !%{disable_python2}
 #
@@ -2731,7 +2732,7 @@ PCP_PMDAS_DIR=%{_pmdasdir}
 PCP_SYSCONFIG_DIR=%{_sysconfdir}/sysconfig
 PCP_PMCDCONF_PATH=%{_confdir}/pmcd/pmcd.conf
 # auto-install important PMDAs for RH Support (if not present already)
-for PMDA in dm nfsclient ; do
+for PMDA in dm nfsclient openmetrics ; do
     if ! grep -q "$PMDA/pmda$PMDA" "$PCP_PMCDCONF_PATH"
     then
 	%{install_file "$PCP_PMDAS_DIR/$PMDA" .NeedInstall}
