@@ -1228,7 +1228,11 @@ pmlogger_create(FILE *file)
     }
     pmlogger_trailer(tempfile);
 
-    rename(tmpconfig, config);
+    if (rename(tmpconfig, config) < 0) {
+	fprintf(stderr, "%s: cannot rename file %s to %s: %s\n",
+		pmGetProgname(), tmpconfig, config, osstrerror());
+	exit(EXIT_FAILURE);
+    }
     fclose(tempfile);
     fputc('\n', stdout);
 }
@@ -1498,13 +1502,14 @@ diff_tempfile(FILE *tempfile)
     char		answer[16] = {0};
     __pmExecCtl_t	*argp = NULL;
     FILE		*diff;
-    int			sts;
+    int			sts = 0;
 
-    __pmProcessAddArg(&argp, "diff");
-    __pmProcessAddArg(&argp, "-c");
-    __pmProcessAddArg(&argp, config);
-    __pmProcessAddArg(&argp, tmpconfig);
-    if ((sts = __pmProcessPipe(&argp, "r", PM_EXEC_TOSS_NONE, &diff)) < 0) {
+    sts |= __pmProcessAddArg(&argp, "diff");
+    sts |= __pmProcessAddArg(&argp, "-c");
+    sts |= __pmProcessAddArg(&argp, config);
+    sts |= __pmProcessAddArg(&argp, tmpconfig);
+    if ((sts < 0) ||
+        (sts = __pmProcessPipe(&argp, "r", PM_EXEC_TOSS_NONE, &diff)) < 0) {
 	fprintf(stderr, "%s: cannot execute diff command: %s\n",
 			pmGetProgname(), pmErrStr(sts));
 	unlink(tmpconfig);
@@ -1561,6 +1566,7 @@ pmlogger_update(FILE *file, struct stat *stat)
 	for (i = 0; i < ngroups; i++)
 	    report_group(&groups[i]);
 	unlink(tmpconfig);
+	fclose(tempfile);
 	return;
     }
 
