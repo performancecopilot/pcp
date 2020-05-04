@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019 Red Hat.
+ * Copyright (c) 2013-2020 Red Hat.
  * Copyright (c) 1995-2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -185,6 +185,8 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(4,1), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* agent.fenced */
     { PMDA_PMID(4,2), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* agent.name */
+    { PMDA_PMID(4,3), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
 
 /* pmie.configfile */
     { PMDA_PMID(5,0), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
@@ -1648,6 +1650,9 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 			    break;
 			case 2:		/* agent.fenced */
 			    atom.ul = agent[j].status.fenced;
+			    break;
+			case 3:		/* agent.name */
+			    atom.cp = agent[j].pmDomainLabel;
 			    break;
 			default:
 			    sts = atom.l = PM_ERR_PMID;

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019 Red Hat.
+# Copyright (c) 2019-2020 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -41,6 +41,8 @@ install_pcp install ::	default
 	$(INSTALL) -m 644 pmdautil.python $(PMDADIR)/pmdautil.python
 	$(INSTALL) -m 644 $(CONF) $(PMDADIR)/$(CONF)
 	@$(INSTALL_MAN)
+	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
+	$(INSTALL) -m 644 pmlogconf.summary $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)/summary
 
 default_pcp default ::	$(SUBDIRS)
 	$(SUBDIRS_MAKERULE)

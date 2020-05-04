@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013,2017,2019 Red Hat.
+# Copyright (c) 2013,2017,2019-2020 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -454,6 +454,9 @@ The fence status is initially zero for all PMDAs, but may be subsequently
 modified to start and stop fencing using pmStore(3) or pmstore(1).  Note:
 only root may store to this metric and the PMCD PMDA cannot be fenced (it
 will be silently ignored if attempted).
+
+@ pmcd.agent.name string value metric for configured PMDA names
+Useful for creating pmlogconf group conditional expressions.
 
 @ pmcd.services running PCP services on the local host
 A space-separated string representing all running PCP services with PID

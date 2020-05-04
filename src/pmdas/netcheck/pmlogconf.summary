@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+ident	Network check information
+probe	pmcd.agent.name == netcheck ? include : exclude
+	netcheck
