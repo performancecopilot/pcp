@@ -54,6 +54,7 @@ require {
 	type kernel_t;
 	type kmsg_device_t;
         type proc_kcore_t;
+        type proc_security_t;
         type su_exec_t;
 	type postgresql_var_run_t;
 	@PCP_RPM_VAR_LIB_T@
@@ -127,6 +128,9 @@ allow pcp_pmcd_t pcp_var_lib_t:fifo_file { getattr open read unlink }; #RHBZ1460
 
 #type=AVC msg=audit(XXX.9): avc:  denied  { getattr } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:proc_kcore_t:s0 tclass=file permissive=0
 allow pcp_pmcd_t proc_kcore_t:file getattr;
+
+#type=AVC msg=audit(XXX.73): avc:  denied  { read } for  pid=YYYY comm="bpftrace" name="randomize_va_space" dev="proc" ino=178953675 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:proc_security_t:s0 tclass=file permissive=0
+allow pcp_pmcd_t proc_security_t:file { getattr open read };
 
 #type=AVC msg=audit(YYY.11): avc:  denied  { sys_chroot kill sys_resource } for  pid=25873 comm="pmdalinux" capability=18  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability
 #type=AVC msg=audit(YYY.87): avc:  denied  { chown } for  pid=8999 comm="pmdasimple" capability=0  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability
