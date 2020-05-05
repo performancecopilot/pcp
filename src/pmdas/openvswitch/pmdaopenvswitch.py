@@ -22,9 +22,8 @@ import subprocess
 from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaInstid
 from pcp.pmapi import pmUnits
 from pcp.pmapi import pmContext as PCP
-from cpmapi import PM_TYPE_U64, PM_TYPE_STRING, PM_TYPE_FLOAT
-from cpmapi import PM_SPACE_BYTE, PM_COUNT_ONE
-from cpmapi import PM_SEM_COUNTER, PM_SEM_INSTANT, PM_SEM_DISCRETE
+from cpmapi import PM_TYPE_STRING
+from cpmapi import PM_SEM_COUNTER, PM_SEM_DISCRETE
 from cpmapi import PM_ERR_APPVERSION
 from cpmda import PMDA_FETCH_NOVALUES
 
@@ -57,7 +56,6 @@ class OpenvswitchPMDA(PMDA):
             [ 'bridge.ipfix',                                                           PM_TYPE_STRING, PM_SEM_COUNTER, pmUnits(),  'The IPFIX Protocol Specification has been designed to be transport protocol independent.'], # 10
             [ 'bridge.mcast_snooping_enable',                                           PM_TYPE_STRING, PM_SEM_COUNTER, pmUnits(),  'multicast snooping status'], # 11
             [ 'bridge.mirrors',                                                         PM_TYPE_STRING, PM_SEM_COUNTER, pmUnits(),  'set:packets mirrored'], # 12
-            [ 'bridge.name',                                                            PM_TYPE_STRING, PM_SEM_COUNTER, pmUnits(),  'name of the bridge'], # 13
             [ 'bridge.netflow',                                                         PM_TYPE_STRING, PM_SEM_COUNTER, pmUnits(),  'NetFlow is a network protocol developed by Cisco for collecting IP traffic information and monitoring network traffic. By analyzing flow data, a picture of network traffic flow and volume can be built.'], # 14
             [ 'bridge.other_config',                                                    PM_TYPE_STRING, PM_SEM_COUNTER, pmUnits(),  'other configs to bridge'], # 15
             [ 'bridge.ports',                                                           PM_TYPE_STRING, PM_SEM_COUNTER, pmUnits(),  'set:list of ports attached to the bridge'], # 16
@@ -80,38 +78,32 @@ class OpenvswitchPMDA(PMDA):
                             self.bridge_metrics[item][4],
                             self.bridge_metrics[item][4])
 
-        self.set_fetch_callback(self.rabbit_fetch_callback)
+        self.set_fetch_callback(self.openvswitch_fetch_callback)
+        self.set_refresh(self.openvswitch_refresh)
         self.set_user(PCP.pmGetConfig('PCP_USER'))
-
-    def get_bridge_info_query(self):
-        """Build up query """
-        
-        query = ['sudo', '--format=json', 'ovs-vsctl', 'list', 'bridge']
-        return query
-
 
     def fetch_bridge_info(self):
         """ fetches result from command line """
 
-        query = self.get_bridge_info_query()
+        query = ['sudo', 'ovs-vsctl', '--format=json', 'list', 'bridge']
         out = subprocess.Popen(query, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         stdout, stderr = out.communicate()
-        stdout, stderr = stdout.decode("utf-8"), stderr.decode("utf-8")
-        
+        stdout = stdout.decode("utf-8")
         return stdout, stderr
-    
+
     def get_bridge_info_json(self):
         """ Convert the commandline output to json """
 
         stdout, stderr = self.fetch_bridge_info()
 
-        if stderr == "":
+        if stderr is None:
             temp = json.loads(stdout)
-            
             # reorganize json a bit
+            self.bridge_info_json = dict()
+            self.bridge_names = []
             for idx in range(len(temp)):
-                self.bridge_info_json[temp["data"][idx][13]] = temp["data"][idx]
-                self.bridge_names.append(temp["data"][idx][13])
+                self.bridge_info_json[str(temp["data"][idx][13])] = temp["data"][idx]
+                self.bridge_names.append(str(temp["data"][idx][13]))
 
     def bridge_instances(self):
         """ set names for openvswitch instances """
@@ -120,10 +112,20 @@ class OpenvswitchPMDA(PMDA):
             insts.append(pmdaInstid(idx, val))
         self.add_indom(pmdaIndom(self.bridge_indom, insts))
 
-    def rabbit_fetch_callback(self, cluster, item, inst):
+    def openvswitch_refresh(self, cluster):
+        """refresh function"""
+        if cluster == self.bridge_cluster:
+            # self.get_bridge_info_json()
+            insts = []
+            for idx, val in enumerate(self.bridge_names):
+                insts.append(pmdaInstid(idx, val))
+
+            self.replace_indom(self.bridge_indom, insts)
+
+    def openvswitch_fetch_callback(self, cluster, item, inst):
         """ fetch callback method"""
 
-        self.get_bridge_info_json()
+        # self.get_bridge_info_json()
 
         if cluster == self.bridge_cluster:
             if self.bridge_info_json is None:
@@ -131,7 +133,7 @@ class OpenvswitchPMDA(PMDA):
             try:
                 bridge = self.inst_name_lookup(self.bridge_indom,inst)
                 if item == 0:
-                    return [str(self.bridge_info_json[bridge][0]),1]
+                    return [str(self.bridge_info_json[bridge][0][1]),1]
                 if item == 1:
                     return [str(self.bridge_info_json[bridge][1][1]),1]
                 if item == 2:
@@ -156,8 +158,6 @@ class OpenvswitchPMDA(PMDA):
                     return [str(self.bridge_info_json[bridge][11]),1]
                 if item == 12:
                     return [str(self.bridge_info_json[bridge][12][1]),1]
-                if item == 13:
-                    return [str(self.bridge_info_json[13]),1]
                 if item == 14:
                     return [str(self.bridge_info_json[bridge][14][1]),1]
                 if item == 15:
@@ -178,8 +178,7 @@ class OpenvswitchPMDA(PMDA):
                     return [str(self.bridge_info_json[bridge][22]),1]
 
             except Exception:
-                print('error in fetch')
                 return [PM_ERR_APPVERSION,0]
 
 if __name__ == '__main__':
-    OpenvswitchPMDA('openvswitch', 143).run()
+    OpenvswitchPMDA('openvswitch', 126).run()
