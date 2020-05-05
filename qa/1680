@@ -1,8 +1,8 @@
 #!/bin/sh
 # PCP QA Test No. 1680
-# [what am I here for?]
+# Exercise the rabbitmq PMDA - install, remove and values.
 #
-# Copyright (c) 2020 [who are you?].  All Rights Reserved.
+# Copyright (c) 2020 Ashwin Nayak.  All Rights Reserved.
 #
 
 seq=`basename $0`
@@ -13,27 +13,56 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-# test for-some-thing || _notrun No support for some-thing
+[ -d $PCP_PMDAS_DIR/openvswitch ] || _notrun "openvswitch PMDA directory is not installed"
 
-_cleanup()
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+openvswitch_cleanup()
 {
     cd $here
     $sudo rm -rf $tmp $tmp.*
 }
 
-status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
-trap "_cleanup; exit \$status" 0 1 2 3 15
+pmdaopenvswitch_remove()
+{
+    echo
+    echo "=== remove openvswitch agent ==="
+    $sudo ./Remove >$tmp.out 2>&1
+    _filter_pmda_remove <$tmp.out
+}
+
+pmdaopenvswitch_install()
+{
+    # start from known starting points
+    cd $PCP_PMDAS_DIR/openvswitch
+    $sudo ./Remove >/dev/null 2>&1
+    _service pmcd stop | _filter_pcp_stop
+
+    echo
+    echo "=== openvswitch agent installation ==="
+    $sudo ./Install </dev/null >$tmp.out 2>&1
+    # Check metrics have appeared ... X metrics and Y values
+    _filter_pmda_install <$tmp.out \
+    | sed \
+        -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
+    | $PCP_AWK_PROG '
+/Check rabbitmq metrics have appeared/  { if ($7 == 22) $7 = "X"
+                                          if ($10 % 22 == 0) $10 = "Y"
+                                        }
+                                        { print }'
+}
+
+_prepare_pmda openvswitch
+trap "openvswitch_cleanup; exit \$status" 0 1 2 3 15
+
+_stop_auto_restart pmcd
+
 
 # real QA test starts here
+pmdaopenvswitch_install
+pmdaopenvswitch_remove
 
-# if error
-exit
-
-# optional stuff if your test has verbose output to help resolve problems
-#echo
-#echo "If failure, check $seq.full"
-
-# success, all done
+# QA test done
 status=0
 exit
