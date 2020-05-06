@@ -85,7 +85,7 @@ class OpenvswitchPMDA(PMDA):
         self.port_info_indom = self.indom(1)
         self.port_info_instances()
         self.port_info_cluster = 1
-        self.bridge_metrics = [
+        self.port_info_metrics = [
             # Name - type - semantics - units - help
             [ 'port_info.rx.pkts',                                                     PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 0
             [ 'port_info.rx.bytes',                                                    PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0),  ''], # 1
@@ -101,16 +101,16 @@ class OpenvswitchPMDA(PMDA):
             [ 'port_info.tx.coll',                                                     PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''] # 11
         ]
 
-        for item in range(len(self.bridge_metrics)):
+        for item in range(len(self.port_info_metrics)):
             self.add_metric(name + '.' +
-                            self.bridge_metrics[item][0],
-                            pmdaMetric(self.pmid(self.bridge_cluster, item),
-                                       self.bridge_metrics[item][1],
-                                       self.bridge_indom,
-                                       self.bridge_metrics[item][2],
-                                       self.bridge_metrics[item][3]),
-                            self.bridge_metrics[item][4],
-                            self.bridge_metrics[item][4])
+                            self.port_info_metrics[item][0],
+                            pmdaMetric(self.pmid(self.port_info_cluster, item),
+                                       self.port_info_metrics[item][1],
+                                       self.port_info_indom,
+                                       self.port_info_metrics[item][2],
+                                       self.port_info_metrics[item][3]),
+                            self.port_info_metrics[item][4],
+                            self.port_info_metrics[item][4])
 
 
         self.set_fetch_callback(self.openvswitch_fetch_callback)
@@ -152,7 +152,7 @@ class OpenvswitchPMDA(PMDA):
 
     def fetch_port_info(self, switch):
         """ fetches result from command line """
-        query = ['sudo', 'ovs-vsctl', '--format=json', 'list', switch]
+        query = ['sudo', 'ovs-ofctl', 'dump-ports', switch]
         out = subprocess.Popen(query, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         stdout, stderr = out.communicate()
         stdout = stdout.decode("utf-8")
@@ -165,14 +165,17 @@ class OpenvswitchPMDA(PMDA):
             
             # string manipulation to get required results
             output = stdout.split('\n')
+            # get number of ports
             num_ports = int(output[0].split(':')[1].strip().split(' ')[0])
             # discard line 1 
             output = output[1:]
             for i in range(num_ports):
                 temp = output[2*i]+','+output[2*i+1].strip()
+                # get port name
                 port, temp = temp.split(':')[0].strip(), temp.split(':')[1]
                 temp = temp.split(',')
                 port_vals = []
+                # put all port values in an array
                 for _,value in enumerate(temp):
                     port_vals.append(value.split('=')[1])
     
