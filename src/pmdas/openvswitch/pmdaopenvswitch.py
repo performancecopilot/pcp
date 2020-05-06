@@ -95,15 +95,19 @@ class OpenvswitchPMDA(PMDA):
         """ Convert the commandline output to json """
 
         stdout, stderr = self.fetch_bridge_info()
-
+        
         if stderr is None:
-            temp = json.loads(stdout)
-            # reorganize json a bit
-            self.bridge_info_json = dict()
-            self.bridge_names = []
-            for idx in range(len(temp)):
-                self.bridge_info_json[str(temp["data"][idx][13])] = temp["data"][idx]
-                self.bridge_names.append(str(temp["data"][idx][13]))
+            try:
+                temp = json.loads(stdout)
+                # reorganize json a bit
+                self.bridge_info_json = dict()
+                self.bridge_names = []
+                for idx in range(len(temp)):
+                    self.bridge_info_json[str(temp["data"][idx][13])] = temp["data"][idx]
+                    self.bridge_names.append(str(temp["data"][idx][13]))
+            except Exception:
+                print("Error while parsing json")
+
 
     def bridge_instances(self):
         """ set names for openvswitch instances """
