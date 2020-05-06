@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 1680
-# Exercise the rabbitmq PMDA - install, remove and values.
+# Exercise the openvswitch PMDA - install, remove and values.
 #
 # Copyright (c) 2020 Ashwin Nayak.  All Rights Reserved.
 #
@@ -47,7 +47,7 @@ pmdaopenvswitch_install()
     | sed \
         -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
     | $PCP_AWK_PROG '
-/Check rabbitmq metrics have appeared/  { if ($7 == 22) $7 = "X"
+/Check openvswitch metrics have appeared/  { if ($7 == 22) $7 = "X"
                                           if ($10 % 22 == 0) $10 = "Y"
                                         }
                                         { print }'
