@@ -22,8 +22,9 @@ import subprocess
 from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaInstid
 from pcp.pmapi import pmUnits
 from pcp.pmapi import pmContext as PCP
-from cpmapi import PM_TYPE_STRING
-from cpmapi import PM_SEM_COUNTER, PM_SEM_DISCRETE
+from cpmapi import PM_TYPE_STRING, PM_TYPE_U64
+from cpmapi import PM_SEM_COUNTER, PM_SEM_DISCRETE, PM_SEM_INSTANT
+from cpmapi import PM_COUNT_ONE, PM_SPACE_BYTE, PM_TIME_MSEC
 from cpmapi import PM_ERR_APPVERSION
 from cpmda import PMDA_FETCH_NOVALUES
 
@@ -33,8 +34,11 @@ class OpenvswitchPMDA(PMDA):
         """ (Constructor) Initialisation - register metrics, callbacks, drop privileges """
         PMDA.__init__(self, name, domain)
         self.bridge_info_json = dict()
+        self.port_info_json = dict()
         self.bridge_names = []
+        self.port_info_names = []
         self.get_bridge_info_json()
+        self.get_port_info_json()
 
         self.connect_pmcd()
 
@@ -78,6 +82,37 @@ class OpenvswitchPMDA(PMDA):
                             self.bridge_metrics[item][4],
                             self.bridge_metrics[item][4])
 
+        self.port_info_indom = self.indom(1)
+        self.port_info_instances()
+        self.port_info_cluster = 1
+        self.bridge_metrics = [
+            # Name - type - semantics - units - help
+            [ 'port_info.rx.pkts',                                                     PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 0
+            [ 'port_info.rx.bytes',                                                    PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0),  ''], # 1
+            [ 'port_info.rx.drop',                                                     PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 2
+            [ 'port_info.rx.errs',                                                     PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 3
+            [ 'port_info.rx.frame',                                                    PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 4
+            [ 'port_info.rx.over',                                                     PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], #5
+            [ 'port_info.rx.crc',                                                      PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 6
+            [ 'port_info.tx.pkts',                                                     PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 7
+            [ 'port_info.tx.bytes',                                                    PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0),  ''], # 8
+            [ 'port_info.tx.drop',                                                     PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 9
+            [ 'port_info.tx.errs',                                                     PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 10
+            [ 'port_info.tx.coll',                                                     PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''] # 11
+        ]
+
+        for item in range(len(self.bridge_metrics)):
+            self.add_metric(name + '.' +
+                            self.bridge_metrics[item][0],
+                            pmdaMetric(self.pmid(self.bridge_cluster, item),
+                                       self.bridge_metrics[item][1],
+                                       self.bridge_indom,
+                                       self.bridge_metrics[item][2],
+                                       self.bridge_metrics[item][3]),
+                            self.bridge_metrics[item][4],
+                            self.bridge_metrics[item][4])
+
+
         self.set_fetch_callback(self.openvswitch_fetch_callback)
         self.set_refresh(self.openvswitch_refresh)
         self.set_user(PCP.pmGetConfig('PCP_USER'))
@@ -93,7 +128,6 @@ class OpenvswitchPMDA(PMDA):
 
     def get_bridge_info_json(self):
         """ Convert the commandline output to json """
-
         stdout, stderr = self.fetch_bridge_info()
         
         if stderr is None:
@@ -110,11 +144,47 @@ class OpenvswitchPMDA(PMDA):
 
 
     def bridge_instances(self):
-        """ set names for openvswitch instances """
+        """ set names for openvswitch  switch instances """
         insts = []
         for idx, val in enumerate(self.bridge_names):
             insts.append(pmdaInstid(idx, val))
         self.add_indom(pmdaIndom(self.bridge_indom, insts))
+
+    def fetch_port_info(self, switch):
+        """ fetches result from command line """
+        query = ['sudo', 'ovs-vsctl', '--format=json', 'list', switch]
+        out = subprocess.Popen(query, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        stdout, stderr = out.communicate()
+        stdout = stdout.decode("utf-8")
+        return stdout, stderr
+
+    def get_port_info_json(self):
+        """ Convert the commandline output to json """
+        for val in self.bridge_names:
+            stdout, _ = self.fetch_port_info(val)
+            
+            # string manipulation to get required results
+            output = stdout.split('\n')
+            num_ports = int(output[0].split(':')[1].strip().split(' ')[0])
+            # discard line 1 
+            output = output[1:]
+            for i in range(num_ports):
+                temp = output[2*i]+','+output[2*i+1].strip()
+                port, temp = temp.split(':')[0].strip(), temp.split(':')[1]
+                temp = temp.split(',')
+                port_vals = []
+                for _,value in enumerate(temp):
+                    port_vals.append(value.split('=')[1])
+    
+                self.port_info_json[val+'::'+port] = port_vals
+                self.port_info_names.append(val+'::'+port)
+    
+    def port_info_instances(self):
+        """ set up ovs switch's port instances"""
+        insts = []
+        for idx, val in enumerate(self.port_info_names):
+            insts.append(pmdaInstid(idx, val))
+        self.add_indom(pmdaIndom(self.port_info_indom, insts))
 
     def openvswitch_refresh(self, cluster):
         """refresh function"""
@@ -125,6 +195,14 @@ class OpenvswitchPMDA(PMDA):
                 insts.append(pmdaInstid(idx, val))
 
             self.replace_indom(self.bridge_indom, insts)
+
+        if cluster == self.port_info_cluster:
+            # self.get_port_info_json()
+            insts = []
+            for idx, val in enumerate(self.port_info_names):
+                insts.append(pmdaInstid(idx, val))
+
+            self.replace_indom(self.port_info_indom, insts)
 
     def openvswitch_fetch_callback(self, cluster, item, inst):
         """ fetch callback method"""
@@ -180,6 +258,38 @@ class OpenvswitchPMDA(PMDA):
                     return [str(self.bridge_info_json[bridge][21][1]),1]
                 if item == 22:
                     return [str(self.bridge_info_json[bridge][22]),1]
+            except Exception:
+                return [PM_ERR_APPVERSION,0]
+        
+        if cluster == self.port_info_cluster:
+            if self.port_info_json is None:
+                return [PMDA_FETCH_NOVALUES]
+            try:
+                port = self.inst_name_lookup(self.port_info_indom,inst)
+                if item == 0:
+                    return [int(self.port_info_json[port][0]),1]
+                if item == 1:
+                    return [int(self.port_info_json[port][1]),1]
+                if item == 2:
+                    return [int(self.port_info_json[port][2]),1]
+                if item == 3:
+                    return [int(self.port_info_json[port][3]),1]
+                if item == 4:
+                    return [int(self.port_info_json[port][4]),1]
+                if item == 5:
+                    return [int(self.port_info_json[port][5]),1]
+                if item == 6:
+                    return [int(self.port_info_json[port][6]),1]
+                if item == 7:
+                    return [int(self.port_info_json[port][7]),1]
+                if item == 8:
+                    return [int(self.port_info_json[port][8]),1]
+                if item == 9:
+                    return [int(self.port_info_json[port][9]),1]
+                if item == 10:
+                    return [int(self.bridge_info_json[port][10]),1]
+                if item == 11:
+                    return [int(self.bridge_info_json[port][11]),1]
 
             except Exception:
                 return [PM_ERR_APPVERSION,0]
