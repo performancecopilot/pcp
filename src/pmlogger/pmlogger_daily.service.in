@@ -8,4 +8,6 @@ Type=oneshot
 TimeoutStartSec=1h
 EnvironmentFile=-@PCP_SYSCONFIG_DIR@/pmlogger_timers
 ExecStart=@PCP_BINADM_DIR@/pmlogger_daily $PMLOGGER_DAILY_PARAMS
+WorkingDirectory=@PCP_VAR_DIR@
+Group=@PCP_GROUP@
 User=@PCP_USER@

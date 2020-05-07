@@ -8,6 +8,8 @@ Type=oneshot
 Environment="PMLOGGER_DAILY_REPORT_POLL_PARAMS=-o @PCP_SA_DIR@ -p"
 EnvironmentFile=-@PCP_SYSCONFIG_DIR@/pmlogger_timers
 ExecStart=@PCP_BINADM_DIR@/pmlogger_daily_report $PMLOGGER_DAILY_REPORT_POLL_PARAMS
+WorkingDirectory=@PCP_VAR_DIR@
+Group=@PCP_GROUP@
 User=@PCP_USER@
 
 [Install]
