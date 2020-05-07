@@ -27,6 +27,16 @@ if test $? -ne 0; then
     exit
 fi
 
+# Check soft dependency on logconv.pl from 389-ds-base
+which logconv.pl >/dev/null 2>&1
+if [ $? -ne 0 ]
+then
+    echo "ds389log: 'logconv.pl' not found, cannot proceed."
+    echo "You may need to install the '389-ds-base' package."
+    status=1
+    exit
+fi
+
 pmdaSetup
 pmdaInstall
 exit
