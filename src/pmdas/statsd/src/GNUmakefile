@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2019 Miroslav Foltýn.  All Rights Reserved.
-# Copyright (c) 2019 Red Hat.
+# Copyright (c) 2019-2020 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -74,7 +74,13 @@ CFILES += $(RFILES)
 $(RAGELTARGET).o: $(RFILES)
 
 $(RFILES): $(RAGELTARGET).rl
+ifeq "$(RAGEL)" ""
+	@# for systems without ragel (RHEL/Centos)
+	@rm -f $@
+	$(LN_S) $@.in $@
+else
 	$(RAGEL) $<
+endif
 
 $(OBJECTS): $(RFILES) domain.h
 else

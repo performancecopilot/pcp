@@ -47,7 +47,7 @@ Source0: %{bintray}/pcp/source/pcp-%{version}.src.tar.gz
 %endif
 
 # libchan, libhdr_histogram and pmdastatsd
-%if 0%{?fedora} >= 29 || 0%{?rhel} > 8
+%if 0%{?fedora} >= 29 || 0%{?rhel} > 7
 %global disable_statsd 0
 %else
 %global disable_statsd 1
@@ -226,7 +226,10 @@ BuildRequires: cyrus-sasl-devel
 BuildRequires: libvarlink-devel
 %endif
 %if !%{disable_statsd}
-BuildRequires: ragel chan-devel HdrHistogram_c-devel
+%if 0%{?rhel} == 0	# unavailable on RHEL8
+BuildRequires: ragel
+%endif
+BuildRequires: chan-devel HdrHistogram_c-devel
 %endif
 %if !%{disable_perfevent}
 BuildRequires: libpfm-devel >= 4
