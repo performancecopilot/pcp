@@ -172,7 +172,6 @@ DisconnectLogger(void)
     if (logger_fd != -1) {
 	__pmCloseSocket(logger_fd);
 	logger_fd = -1;
-	sleep(1);
     }
 }
 
