@@ -3,7 +3,15 @@
 # Exercise the openvswitch PMDA - install, remove and values.
 #
 # Copyright (c) 2020 Ashwin Nayak.  All Rights Reserved.
-#
+
+# Install openvswitch with:
+# sudo dnf install openvswitch
+# Enable connection:
+# sudo /usr/share/openvswitch/scripts/ovs-ctl start
+# Add a temp switch with:
+# sudo ovs-vsctl add-br myswitch
+# This switch can be removed by
+# sudo ovs-vsctl del-br myswitch
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -47,8 +55,8 @@ pmdaopenvswitch_install()
     | sed \
         -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
     | $PCP_AWK_PROG '
-/Check openvswitch metrics have appeared/  { if ($7 == 22) $7 = "X"
-                                          if ($10 % 22 == 0) $10 = "Y"
+/Check openvswitch metrics have appeared/  { if ($8 == "metrics") $7 = "X"
+                                          if ($11 == "values") $10 = "Y"
                                         }
                                         { print }'
 }
