@@ -226,7 +226,8 @@ BuildRequires: cyrus-sasl-devel
 BuildRequires: libvarlink-devel
 %endif
 %if !%{disable_statsd}
-%if 0%{?rhel} == 0	# unavailable on RHEL8
+# ragel unavailable on RHEL8
+%if 0%{?rhel} == 0
 BuildRequires: ragel
 %endif
 BuildRequires: chan-devel HdrHistogram_c-devel

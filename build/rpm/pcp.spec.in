@@ -81,7 +81,11 @@ BuildRequires: rpm-devel
 BuildRequires: libvarlink-devel
 %endif
 %if "@pmda_statsd@" == "true"
-BuildRequires: ragel chan-devel HdrHistogram_c-devel
+# ragel unavailable on RHEL8
+%if 0%{?rhel} == 0
+BuildRequires: ragel
+%endif
+BuildRequires: chan-devel HdrHistogram_c-devel
 %endif
 %if "@pmda_perfevent@" == "true"
 BuildRequires: libpfm-devel >= 4.4
