@@ -300,7 +300,7 @@ Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shpin
 Requires: pcp-pmda-lustrecomm pcp-pmda-redis pcp-pmda-docker pcp-pmda-smart
 %if "@have_python@" == "true"
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
-Requires: pcp-pmda-haproxy pcp-pmda-nfsclient pcp-pmda-lmsensors pcp-pmda-mssql
+Requires: pcp-pmda-haproxy pcp-pmda-nfsclient pcp-pmda-lmsensors
 Requires: pcp-pmda-netcheck pcp-pmda-rabbitmq
 %endif
 %if "@pmda_podman@" == "true"

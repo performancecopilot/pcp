@@ -517,7 +517,7 @@ Requires: pcp-pmda-bpftrace
 %if !%{disable_python2} || !%{disable_python3}
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
 Requires: pcp-pmda-libvirt pcp-pmda-lio pcp-pmda-openmetrics pcp-pmda-haproxy
-Requires: pcp-pmda-lmsensors pcp-pmda-mssql pcp-pmda-netcheck pcp-pmda-rabbitmq
+Requires: pcp-pmda-lmsensors pcp-pmda-netcheck pcp-pmda-rabbitmq
 %endif
 %if !%{disable_mssql}
 Requires: pcp-pmda-mssql 
