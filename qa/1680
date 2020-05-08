@@ -21,6 +21,12 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+command -v ovs-vsctl > /dev/null
+if [[ ${?} -ne 0 ]]; then
+	printf -- "%s: missing required 'ovs-vsctl' command\n" "${PROG}" >&2
+	exit 1
+fi
+
 [ -d $PCP_PMDAS_DIR/openvswitch ] || _notrun "openvswitch PMDA directory is not installed"
 
 status=1	# failure is the default!

@@ -28,11 +28,14 @@ from cpmapi import PM_COUNT_ONE, PM_SPACE_BYTE, PM_TIME_SEC
 from cpmapi import PM_ERR_APPVERSION
 from cpmda import PMDA_FETCH_NOVALUES
 
+PMDA_DIR = '/home/ashwin/github/pcp/src/pmdas/openvswitch'
+
 class OpenvswitchPMDA(PMDA):
     """ PCP openvswitch PMDA """
     def __init__(self, name, domain):
         """ (Constructor) Initialisation - register metrics, callbacks, drop privileges """
         PMDA.__init__(self, name, domain)
+        self.pmda_dir = PMDA_DIR
         self.switch_info_json = dict()
         self.port_info_json = dict()
         self.flow_json = dict()
@@ -142,32 +145,34 @@ class OpenvswitchPMDA(PMDA):
 
         self.set_fetch_callback(self.openvswitch_fetch_callback)
         self.set_refresh(self.openvswitch_refresh)
-        self.set_user(PCP.pmGetConfig('PCP_USER'))
 
     def fetch_switch_info(self):
         """ fetches result from command line """
-
-        query = ['sudo', 'ovs-vsctl', '--format=json', 'list', 'switch']
-        out = subprocess.Popen(query, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        out = subprocess.Popen([self.pmda_dir+'/switch.sh'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         stdout, stderr = out.communicate()
         stdout = stdout.decode("utf-8")
         return stdout, stderr
 
     def get_switch_info_json(self):
         """ Convert the commandline output to json """
-        stdout, stderr = self.fetch_switch_info()
+        stdout, _ = self.fetch_switch_info()
+
+        # Store it in a file 
+        text_file = open("switch_output.txt", "w")
+        text_file.write(stdout)
+        text_file.close()
+
+        # Read 
+        with open(self.pmda_dir+'/switch_output.txt', 'r') as f:
+            temp = json.load(f)
         
-        if stderr is None:
-            try:
-                temp = json.loads(stdout)
-                # reorganize json a bit
-                self.switch_info_json = dict()
-                self.switch_names = []
-                for idx in range(len(temp)):
-                    self.switch_info_json[str(temp["data"][idx][13])] = temp["data"][idx]
-                    self.switch_names.append(str(temp["data"][idx][13]))
-            except Exception:
-                print("Error while parsing json")
+        # reorganize json a bit
+        self.switch_info_json = dict()
+        self.switch_names = []
+        for idx in range(len(temp["data"])):
+
+            self.switch_info_json[str(temp["data"][idx][13])] = temp["data"][idx]
+            self.switch_names.append(str(temp["data"][idx][13]))
 
 
     def switch_instances(self):
@@ -179,7 +184,7 @@ class OpenvswitchPMDA(PMDA):
 
     def fetch_port_info(self, switch):
         """ fetches result from command line """
-        query = ['sudo', 'ovs-ofctl', 'dump-ports', switch]
+        query = ['ovs-ofctl', 'dump-ports', switch]
         out = subprocess.Popen(query, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         stdout, stderr = out.communicate()
         stdout = stdout.decode("utf-8")
@@ -187,6 +192,9 @@ class OpenvswitchPMDA(PMDA):
 
     def get_port_info_json(self):
         """ Convert the commandline output to json """
+        self.port_info_json = dict()
+        self.port_info_names = []
+
         for val in self.switch_names:
             stdout, _ = self.fetch_port_info(val)
 
@@ -205,10 +213,10 @@ class OpenvswitchPMDA(PMDA):
                 # put all port values in an array
                 for _,value in enumerate(temp):
                     port_vals.append(value.split('=')[1])
-    
+        
                 self.port_info_json[val+'::'+port] = port_vals
                 self.port_info_names.append(val+'::'+port)
-    
+
     def port_info_instances(self):
         """ set up ovs switch's port instances"""
         insts = []
@@ -218,32 +226,40 @@ class OpenvswitchPMDA(PMDA):
 
     def fetch_flow_info(self, switch):
         """ fetches result from command line """
-        query = ['sudo', 'ovs-ofctl', 'dump-flows', switch]
+        query = ['ovs-ofctl','dump-flows', switch]
         out = subprocess.Popen(query, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         stdout, stderr = out.communicate()
         stdout = stdout.decode("utf-8")
         return stdout, stderr
-    
+
     def get_flow_json(self):
+        self.flow_json = dict()
+        self.flow_names = []
+
         for val in self.switch_names:
             stdout, _ = self.fetch_flow_info(val)
 
             output = stdout.split('\n')
             output = output[1:]
+
+            if output[-1] == '':
+                output = output[:-1]
+
             num_flows = len(output)
 
             for i in range(num_flows):
                 temp = output[i].strip()
                 temp = temp.split(',')
                 temp2 = []
-                for j in range(6):
+                for j in range(5):
                     if j != 1:
                         temp2.append(temp[j].split('=')[1])
                     else:
                         temp2.append(temp[j].split('=')[1][:-1])
-                
+
                 temp2.append(output[i].strip().split(' ')[-1].split('=')[1])
                 self.flow_json[val+'::'+str(i)] = temp2
+                self.flow_names.append(val+'::'+str(i))
 
     def flow_instances(self):
         """ set up ovs switch's port instances"""
@@ -255,7 +271,7 @@ class OpenvswitchPMDA(PMDA):
     def openvswitch_refresh(self, cluster):
         """refresh function"""
         if cluster == self.switch_cluster:
-            # self.get_switch_info_json()
+            self.get_switch_info_json()
             insts = []
             for idx, val in enumerate(self.switch_names):
                 insts.append(pmdaInstid(idx, val))
@@ -263,7 +279,7 @@ class OpenvswitchPMDA(PMDA):
             self.replace_indom(self.switch_indom, insts)
 
         if cluster == self.port_info_cluster:
-            # self.get_port_info_json()
+            self.get_port_info_json()
             insts = []
             for idx, val in enumerate(self.port_info_names):
                 insts.append(pmdaInstid(idx, val))
@@ -271,7 +287,7 @@ class OpenvswitchPMDA(PMDA):
             self.replace_indom(self.port_info_indom, insts)
 
         if cluster == self.flow_cluster:
-            # self.get_flow_json()
+            self.get_flow_json()
             insts = []
             for idx, val in enumerate(self.flow_names):
                 insts.append(pmdaInstid(idx, val))
@@ -336,7 +352,7 @@ class OpenvswitchPMDA(PMDA):
                     return [str(self.switch_info_json[switch][22]),1]
             except Exception:
                 return [PM_ERR_APPVERSION,0]
-        
+
         if cluster == self.port_info_cluster:
             if self.port_info_json is None:
                 return [PMDA_FETCH_NOVALUES]
@@ -363,9 +379,9 @@ class OpenvswitchPMDA(PMDA):
                 if item == 9:
                     return [int(self.port_info_json[port][9]),1]
                 if item == 10:
-                    return [int(self.switch_info_json[port][10]),1]
+                    return [int(self.port_info_json[port][10]),1]
                 if item == 11:
-                    return [int(self.switch_info_json[port][11]),1]
+                    return [int(self.port_info_json[port][11]),1]
 
             except Exception:
                 return [PM_ERR_APPVERSION,0]
