@@ -13,7 +13,7 @@
 
 # pylint: disable=bad-whitespace, line-too-long, too-many-return-statements
 # pylint: disable=broad-except, too-many-branches, too-many-statements, inconsistent-return-statements
-# pylint: disable=no-name-in-module, too-many-instance-attributes
+# pylint: disable=no-name-in-module, too-many-instance-attributes, no-self-use
 
 """ Performance Metrics Domain Agent exporting openvswitch metrics. """
 
@@ -28,7 +28,7 @@ from cpmapi import PM_COUNT_ONE, PM_SPACE_BYTE, PM_TIME_SEC
 from cpmapi import PM_ERR_APPVERSION
 from cpmda import PMDA_FETCH_NOVALUES
 
-PMDA_DIR = '/home/ashwin/github/pcp/src/pmdas/openvswitch'
+PMDA_DIR = PCP.pmGetConfig('PCP_PMDAS_DIR')
 
 class OpenvswitchPMDA(PMDA):
     """ PCP openvswitch PMDA """
@@ -148,7 +148,7 @@ class OpenvswitchPMDA(PMDA):
 
     def fetch_switch_info(self):
         """ fetches result from command line """
-        out = subprocess.Popen([self.pmda_dir+'/switch.sh'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        out = subprocess.Popen([self.pmda_dir+'/openvswitch/switch.sh'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         stdout, stderr = out.communicate()
         stdout = stdout.decode("utf-8")
         return stdout, stderr
@@ -157,15 +157,15 @@ class OpenvswitchPMDA(PMDA):
         """ Convert the commandline output to json """
         stdout, _ = self.fetch_switch_info()
 
-        # Store it in a file 
+        # Store it in a file
         text_file = open("switch_output.txt", "w")
         text_file.write(stdout)
         text_file.close()
 
-        # Read 
-        with open(self.pmda_dir+'/switch_output.txt', 'r') as f:
-            temp = json.load(f)
-        
+        # Read
+        with open(self.pmda_dir+'/openvswitch/switch_output.txt', 'r') as file:
+            temp = json.load(file)
+
         # reorganize json a bit
         self.switch_info_json = dict()
         self.switch_names = []
@@ -202,7 +202,7 @@ class OpenvswitchPMDA(PMDA):
             output = stdout.split('\n')
             # get number of ports
             num_ports = int(output[0].split(':')[1].strip().split(' ')[0])
-            # discard line 1 
+            # discard line 1
             output = output[1:]
             for i in range(num_ports):
                 temp = output[2*i]+','+output[2*i+1].strip()
@@ -213,7 +213,7 @@ class OpenvswitchPMDA(PMDA):
                 # put all port values in an array
                 for _,value in enumerate(temp):
                     port_vals.append(value.split('=')[1])
-        
+
                 self.port_info_json[val+'::'+port] = port_vals
                 self.port_info_names.append(val+'::'+port)
 
@@ -233,6 +233,7 @@ class OpenvswitchPMDA(PMDA):
         return stdout, stderr
 
     def get_flow_json(self):
+        """ Convert the commandline output to json """
         self.flow_json = dict()
         self.flow_names = []
 
@@ -240,13 +241,16 @@ class OpenvswitchPMDA(PMDA):
             stdout, _ = self.fetch_flow_info(val)
 
             output = stdout.split('\n')
+            # Remove the excess line
             output = output[1:]
-
+            # Remove the empty line
             if output[-1] == '':
                 output = output[:-1]
 
+            #Get number of flows per switch
             num_flows = len(output)
 
+            # String manipulation to get data
             for i in range(num_flows):
                 temp = output[i].strip()
                 temp = temp.split(',')
@@ -297,61 +301,57 @@ class OpenvswitchPMDA(PMDA):
     def openvswitch_fetch_callback(self, cluster, item, inst):
         """ fetch callback method"""
 
-        # self.get_switch_info_json()
-        # self.get_port_info_json()
-        # self.get_flow_json()
-
         if cluster == self.switch_cluster:
             if self.switch_info_json is None:
                 return [PMDA_FETCH_NOVALUES]
             try:
                 switch = self.inst_name_lookup(self.switch_indom,inst)
                 if item == 0:
-                    return [str(self.switch_info_json[switch][0][1]),1]
+                    return [str(self.switch_info_json[switch][0][1]), 1]
                 if item == 1:
-                    return [str(self.switch_info_json[switch][1][1]),1]
+                    return [str(self.switch_info_json[switch][1][1]), 1]
                 if item == 2:
-                    return [str(self.switch_info_json[switch][2][1]),1]
+                    return [str(self.switch_info_json[switch][2][1]), 1]
                 if item == 3:
-                    return [str(self.switch_info_json[switch][3]),1]
+                    return [str(self.switch_info_json[switch][3]), 1]
                 if item == 4:
-                    return [str(self.switch_info_json[switch][4]),1]
+                    return [str(self.switch_info_json[switch][4]), 1]
                 if item == 5:
-                    return [str(self.switch_info_json[switch][5]),1]
+                    return [str(self.switch_info_json[switch][5]), 1]
                 if item == 6:
-                    return [str(self.switch_info_json[switch][6][1]),1]
+                    return [str(self.switch_info_json[switch][6][1]), 1]
                 if item == 7:
-                    return [str(self.switch_info_json[switch][7][1]),1]
+                    return [str(self.switch_info_json[switch][7][1]), 1]
                 if item == 8:
-                    return [str(self.switch_info_json[switch][8][1]),1]
+                    return [str(self.switch_info_json[switch][8][1]), 1]
                 if item == 9:
-                    return [str(self.switch_info_json[switch][9][1]),1]
+                    return [str(self.switch_info_json[switch][9][1]), 1]
                 if item == 10:
-                    return [str(self.switch_info_json[switch][10][1]),1]
+                    return [str(self.switch_info_json[switch][10][1]), 1]
                 if item == 11:
-                    return [str(self.switch_info_json[switch][11]),1]
+                    return [str(self.switch_info_json[switch][11]), 1]
                 if item == 12:
-                    return [str(self.switch_info_json[switch][12][1]),1]
+                    return [str(self.switch_info_json[switch][12][1]), 1]
                 if item == 14:
-                    return [str(self.switch_info_json[switch][14][1]),1]
+                    return [str(self.switch_info_json[switch][14][1]), 1]
                 if item == 15:
-                    return [str(self.switch_info_json[switch][15][1]),1]
+                    return [str(self.switch_info_json[switch][15][1]), 1]
                 if item == 16:
-                    return [str(self.switch_info_json[switch][16]),1]
+                    return [str(self.switch_info_json[switch][16]), 1]
                 if item == 17:
-                    return [str(self.switch_info_json[switch][17][1]),1]
+                    return [str(self.switch_info_json[switch][17][1]), 1]
                 if item == 18:
-                    return [str(self.switch_info_json[switch][18]),1]
+                    return [str(self.switch_info_json[switch][18]), 1]
                 if item == 19:
-                    return [str(self.switch_info_json[switch][19][1]),1]
+                    return [str(self.switch_info_json[switch][19][1]), 1]
                 if item == 20:
-                    return [str(self.switch_info_json[switch][20][1]),1]
+                    return [str(self.switch_info_json[switch][20][1]), 1]
                 if item == 21:
-                    return [str(self.switch_info_json[switch][21][1]),1]
+                    return [str(self.switch_info_json[switch][21][1]), 1]
                 if item == 22:
-                    return [str(self.switch_info_json[switch][22]),1]
+                    return [str(self.switch_info_json[switch][22]), 1]
             except Exception:
-                return [PM_ERR_APPVERSION,0]
+                return [PM_ERR_APPVERSION, 0]
 
         if cluster == self.port_info_cluster:
             if self.port_info_json is None:
@@ -359,29 +359,29 @@ class OpenvswitchPMDA(PMDA):
             try:
                 port = self.inst_name_lookup(self.port_info_indom,inst)
                 if item == 0:
-                    return [int(self.port_info_json[port][0]),1]
+                    return [int(self.port_info_json[port][0]), 1]
                 if item == 1:
-                    return [int(self.port_info_json[port][1]),1]
+                    return [int(self.port_info_json[port][1]), 1]
                 if item == 2:
-                    return [int(self.port_info_json[port][2]),1]
+                    return [int(self.port_info_json[port][2]), 1]
                 if item == 3:
-                    return [int(self.port_info_json[port][3]),1]
+                    return [int(self.port_info_json[port][3]), 1]
                 if item == 4:
-                    return [int(self.port_info_json[port][4]),1]
+                    return [int(self.port_info_json[port][4]), 1]
                 if item == 5:
-                    return [int(self.port_info_json[port][5]),1]
+                    return [int(self.port_info_json[port][5]), 1]
                 if item == 6:
-                    return [int(self.port_info_json[port][6]),1]
+                    return [int(self.port_info_json[port][6]), 1]
                 if item == 7:
-                    return [int(self.port_info_json[port][7]),1]
+                    return [int(self.port_info_json[port][7]), 1]
                 if item == 8:
-                    return [int(self.port_info_json[port][8]),1]
+                    return [int(self.port_info_json[port][8]), 1]
                 if item == 9:
-                    return [int(self.port_info_json[port][9]),1]
+                    return [int(self.port_info_json[port][9]), 1]
                 if item == 10:
-                    return [int(self.port_info_json[port][10]),1]
+                    return [int(self.port_info_json[port][10]), 1]
                 if item == 11:
-                    return [int(self.port_info_json[port][11]),1]
+                    return [int(self.port_info_json[port][11]), 1]
 
             except Exception:
                 return [PM_ERR_APPVERSION,0]
@@ -392,21 +392,20 @@ class OpenvswitchPMDA(PMDA):
             try:
                 flow = self.inst_name_lookup(self.flow_indom,inst)
                 if item == 0:
-                    return [str(self.flow_json[flow][0]),1]
+                    return [str(self.flow_json[flow][0]), 1]
                 if item == 1:
-                    return [float(self.flow_json[flow][1]),1]
+                    return [float(self.flow_json[flow][1]), 1]
                 if item == 2:
-                    return [int(self.flow_json[flow][2]),1]
+                    return [int(self.flow_json[flow][2]), 1]
                 if item == 3:
-                    return [int(self.flow_json[flow][3]),1]
+                    return [int(self.flow_json[flow][3]), 1]
                 if item == 4:
-                    return [int(self.flow_json[flow][4]),1]
+                    return [int(self.flow_json[flow][4]), 1]
                 if item == 5:
-                    return [str(self.flow_json[flow][5]),1]
+                    return [str(self.flow_json[flow][5]), 1]
 
             except Exception:
-                return [PM_ERR_APPVERSION,0]
-
+                return [PM_ERR_APPVERSION, 0]
 
 if __name__ == '__main__':
     OpenvswitchPMDA('openvswitch', 126).run()
