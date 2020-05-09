@@ -17,6 +17,7 @@
 
 """ Performance Metrics Domain Agent exporting openvswitch metrics. """
 
+import os
 import json
 import subprocess
 from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaInstid
@@ -35,7 +36,6 @@ class OpenvswitchPMDA(PMDA):
     def __init__(self, name, domain):
         """ (Constructor) Initialisation - register metrics, callbacks, drop privileges """
         PMDA.__init__(self, name, domain)
-        self.pmda_dir = PMDA_DIR
         self.switch_info_json = dict()
         self.port_info_json = dict()
         self.flow_json = dict()
@@ -148,7 +148,7 @@ class OpenvswitchPMDA(PMDA):
 
     def fetch_switch_info(self):
         """ fetches result from command line """
-        out = subprocess.Popen([self.pmda_dir+'/openvswitch/switch.sh'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        out = subprocess.Popen([os.path.join(PMDA_DIR, 'openvswitch', 'switch.sh')], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         stdout, stderr = out.communicate()
         stdout = stdout.decode("utf-8")
         return stdout, stderr
@@ -163,7 +163,7 @@ class OpenvswitchPMDA(PMDA):
         text_file.close()
 
         # Read
-        with open(self.pmda_dir+'/openvswitch/switch_output.txt', 'r') as file:
+        with open(os.path.join(PMDA_DIR, 'openvswitch', 'switch_output.txt'), 'r') as file:
             temp = json.load(file)
 
         # reorganize json a bit
