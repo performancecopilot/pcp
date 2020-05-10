@@ -33,17 +33,28 @@ This PMDA exports metrics about pool size, number of pages stored, and
 various counters for the reasons pages are rejected.
 .SH INSTALLATION
 Install the zswap PMDA by using the Install script as root:
-.PP
-      # cd $PCP_PMDAS_DIR/zswap
-.br
-      # ./Install
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/zswap
+# ./Install
+.fi
+.ft P
+.RE
+.sp 1
 .PP
 To uninstall, do the following as root:
-.PP
-      # cd $PCP_PMDAS_DIR/zswap
-.br
-      # ./Remove
-.PP
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/zswap
+# ./Remove
+.fi
+.ft P
+.RE
+.sp 1
 \fBpmdazswap\fR is launched by \fIpmcd\fR(1) and should never be executed
 directly. The Install and Remove scripts notify \fIpmcd\fR(1) when the
 agent is installed or removed.

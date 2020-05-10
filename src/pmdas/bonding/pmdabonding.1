@@ -22,17 +22,27 @@ exports metric values from bonded network interfaces in the Linux
 kernel.
 .SH INSTALLATION
 Install the bonding PMDA by using the Install script as root:
-.PP
-      # cd $PCP_PMDAS_DIR/bonding
-.br
-      # ./Install
-.PP
-To uninstall, do the following as root:
-.PP
-      # cd $PCP_PMDAS_DIR/bonding
-.br
-      # ./Remove
-.PP
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/bonding
+# ./Install
+.fi
+.ft P
+.RE
+.sp 1
+To uninstall, the following must be done as root:
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/bonding
+# ./Remove
+.fi
+.ft P
+.RE
+.sp 1
 \fBpmdabonding\fR is launched by \fIpmcd\fR(1) and should never be executed
 directly. The Install and Remove scripts notify \fIpmcd\fR(1) when the
 agent is installed or removed.

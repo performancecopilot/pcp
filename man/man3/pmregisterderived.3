@@ -22,7 +22,6 @@
 .ft 3
 #include <pcp/pmapi.h>
 .sp
-.br
 char *pmRegisterDerived(char *\fIname\fP, char *\fIexpr\fP);
 .br
 int pmRegisterDerivedMetric(char *\fIname\fP, char *\fIexpr\fP, char **\fIerrmsg\fP);
@@ -34,7 +33,6 @@ cc ... \-lpcp
 .ie t \f(CW\\$1\fR\\$2
 .el \fI\\$1\fR\\$2
 ..
-.PP
 Derived metrics provide a way of extending the Performance Metrics
 Name Space (PMNS) with new metrics defined at the PCP client-side using
 expressions over the existing performance metrics.
@@ -298,7 +296,7 @@ For example:
 .ft CW
 fw.bytes = network.interface.in.bytes[eth1] + \e
 .br
-           network.interface.out.bytes[eth1]
+\           network.interface.out.bytes[eth1]
 .ft R
 .br
 or (equivalently):
@@ -306,7 +304,7 @@ or (equivalently):
 .ft CW
 fw.bytes = (network.interface.in.bytes + \e
 .br
-            network.interface.out.bytes)[eth1]
+\            network.interface.out.bytes)[eth1]
 .ft R
 .RS 2n
 .PP
@@ -339,7 +337,6 @@ lf(CW) | lf(R).
 tag	value
 _
 type	T{
-.fi
 one of the numeric metric types from <pcp/pmapi.h>, stripped of the
 PM_TYPE_
 prefix, so
@@ -348,7 +345,6 @@ prefix, so
 T}
 _
 semantics	T{
-.fi
 one of the semantic types from <pcp/pmapi.h>, stripped of the
 PM_SEM_
 prefix, so
@@ -359,7 +355,6 @@ units	T{
 a specification of dimension and scale (together forming the units),
 in the syntax accepted by
 .BR pmParseUnitsStr (3).
-.fi
 T}
 .TE
 .RS 2n
@@ -427,12 +422,10 @@ lf(CW) | lf(R).
 Function	Value
 _
 avg(x)	T{
-.fi
 A singular instance being the average value across all instances for the metric x.
 T}
 _
 count(x)	T{
-.fi
 A singular instance being the count of the number of instances for the metric x.
 As a special case, if fetching the metric x returns an error, then
 .ft CW
@@ -442,7 +435,6 @@ will be 0.
 T}
 _
 defined(x)	T{
-.fi
 A boolean value that is true (``1'') if the metric
 .ft CW
 x
@@ -459,7 +451,6 @@ of this function in the expression evaluation.
 T}
 _
 delta(x)	T{
-.fi
 Returns the difference in values for the metric x between
 one call to
 .BR pmFetch (3)
@@ -469,7 +460,6 @@ sample.
 T}
 _
 rate(x)	T{
-.fi
 Returns the difference in values for the metric x between
 one call to
 .BR pmFetch (3)
@@ -498,21 +488,17 @@ The semantics of the derived metric are based on the semantics of the
 operand (x); if x has semantics PM_SEM_COUNTER, the semantics of
 instant(x) is PM_SEM_INSTANT, otherwise the semantics of the derived metric
 is the same as the semantics of the metric x.
-.fi
 T}
 _
 max(x)	T{
-.fi
 A singular instance being the maximum value across all instances for the metric x.
 T}
 _
 min(x)	T{
-.fi
 A singular instance being the minimum value across all instances for the metric x.
 T}
 _
 sum(x)	T{
-.fi
 A singular instance being the sum of the values across all instances for the metric x.
 T}
 .TE
@@ -561,7 +547,7 @@ For example:
 .ft CW
 net.in.bytes = scalar(network.interface.in.bytes[eth0]) + \e
 .br
-           scalar(network.interface.in.bytes[eth1])
+\           scalar(network.interface.in.bytes[eth1])
 .ft R
 .RS 2n
 .PP
@@ -583,7 +569,6 @@ Lines beginning with ``#'' are treated as comments and ignored.
 .IP * 2n
 White space is ignored.
 .SH "SEMANTIC CHECKS AND RULES"
-.PP
 There are a number of conversions required to determine the
 metadata for a derived metric and to ensure the semantics of
 the expressions are sound.
@@ -659,10 +644,8 @@ box,center;
 cf(R) | cf(R) | cf(R) | cf(R)
 lf(CW) | lf(CW) | lf(R) | lf(R).
 Expression	Type	T{
-.fi
 Dimension & Scale
 T}	T{
-.fi
 Scale Factor(s)
 T}
 _
@@ -671,7 +654,6 @@ delta(...)	DOUBLE	millisec
 network...bytes	U64	byte
 delta(...)	U64	byte
 delta(...) / delta(...)	DOUBLE	byte/millisec	T{
-.fi
 /1048576 and *1000
 T}
 network...speed	FLOAT	Mbyte/sec
@@ -812,12 +794,10 @@ _
 either is PM_TYPE_U32	any	PM_TYPE_U32
 _
 T{
-.fi
 otherwise (both are PM_TYPE_32)
 T}	any	PM_TYPE_32
 .TE
 .SH CAVEATS
-.PP
 Derived metrics are not available when using
 .BR pmFetchArchive (3)
 as this routine does not use a target list of PMIDs that could be
@@ -829,7 +809,6 @@ There is no
 method, so once registered a derived metric persists for the life
 of the application.
 .SH DIAGNOSTICS
-.PP
 On success,
 .B pmRegisterDerived
 returns NULL.
