@@ -54,7 +54,7 @@ pminfo --verify $iam | _filter
 # How many sensors did PMDA lmsensors register?
 PMDA=`pminfo lmsensors|wc -l`
 # How many sensors did binary lmsensors find?
-SENS=`/usr/bin/sensors -u|egrep '_input: '|wc -l`
+SENS=`/usr/bin/sensors -u 2>/dev/null|egrep '_input: '|wc -l`
 
 if [ $PMDA -eq $SENS ]; then
     echo -n "number of sensors from '/usr/bin/sensors -u' and from 'pminfo "
@@ -65,7 +65,7 @@ else
     echo "pminfo lmsensors|wc -l:" >>$here/seq.full
     pminfo lmsensors |wc -l >>$here/seq.full
     echo "/usr/bin/sensors -u|egrep '_input: '|wc -l" >>$here/$seq.full
-    /usr/bin/sensors -u|egrep '_input: '|wc -l >>$here/$seq.full
+    /usr/bin/sensors -u 2>/dev/null|egrep '_input: '|wc -l >>$here/$seq.full
 fi
 
 # Now, I can not check if the actual values for sensors are the same,
@@ -79,7 +79,7 @@ fi
 # - this still fails for a fan tuning up suddenly, i.e. from 0 to 3k.
 
 echo "sensors -u output:" >> $here/$seq.full
-SENS=`sensors -u | tee -a $here/$seq.full | grep '_input: ' | \
+SENS=`sensors -u 2>/dev/null | tee -a $here/$seq.full | grep '_input: ' | \
 	awk '
 $1 ~ /temp[0-9]/ && $2 < -127	{ next }
 $1 ~ /fan[0-9]/ && $2 < 0	{ next }
