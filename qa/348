@@ -23,6 +23,7 @@ count=`$sudo ls $kvm_stats_path | wc -l`
 lockdown=/sys/kernel/security/lockdown
 if [ -f $lockdown ]
 then
+    $sudo fgrep -q '[integrity]' $lockdown && _notrun "Kernel in lockdown"
     $sudo fgrep -q '[confidentiality]' $lockdown && _notrun "Kernel in lockdown"
 fi
 
@@ -79,13 +80,20 @@ kvm_hypercall
 kvm_vcpu_wakeup
 EOF
 
-# sysfs file reflecting locked down kernel state
-echo 'none integrity [confidentiality]' > $tmp.lockdown
-cat > $tmp.lockdown.conf << EOF
+# sysfs files reflecting locked down kernel states
+echo 'none [integrity] confidentiality' > $tmp.integrity
+cat > $tmp.integrity.conf << EOF
 [paths]
 debugfs=/sys/kernel/debug
 tracefs=/sys/kernel/debug/tracing
-lockdown=$tmp.lockdown
+lockdown=$tmp.integrity
+EOF
+echo 'none integrity [confidentiality]' > $tmp.confidentiality
+cat > $tmp.confidentiality.conf << EOF
+[paths]
+debugfs=/sys/kernel/debug
+tracefs=/sys/kernel/debug/tracing
+lockdown=$tmp.confidentiality
 EOF
 
 # copy the config files to restore state later.
@@ -96,8 +104,8 @@ cp $PCP_PMDAS_DIR/kvm/kvm.conf $tmp.kvm.conf
 $sudo ./Remove >/dev/null 2>&1
 
 echo
-echo "=== $iam agent installation (locked down kernel) ==="
-$sudo cp $tmp.lockdown.conf $PCP_PMDAS_DIR/kvm/kvm.conf
+echo "=== $iam agent installation (kernel locked down for integrity) ==="
+$sudo cp $tmp.integrity.conf $PCP_PMDAS_DIR/kvm/kvm.conf
 $sudo ./Install </dev/null >$tmp.out 2>&1
 # Check kvm metrics have appeared ... X warnings, Y metrics and 0 values
 _filter_pmda_install <$tmp.out \
@@ -107,6 +115,19 @@ _filter_pmda_install <$tmp.out \
 					}
 					{ print }'
 
+echo
+echo "=== $iam agent installation (kernel locked down for confidentiality) ==="
+$sudo cp $tmp.confidentiality.conf $PCP_PMDAS_DIR/kvm/kvm.conf
+$sudo ./Install </dev/null >$tmp.out 2>&1
+# Check kvm metrics have appeared ... X warnings, Y metrics and 0 values
+_filter_pmda_install <$tmp.out \
+| $PCP_AWK_PROG '
+/Check kvm metrics have appeared/	{ if ($7 >= 30) $7 = "X"
+					  if ($9 >= 30) $9 = "Y"
+					}
+					{ print }'
+
+echo
 echo "=== $iam agent installation (normal kernel mode) ==="
 $sudo cp $tmp.default.conf $PCP_PMDAS_DIR/kvm/kvm.conf
 $sudo ./Install </dev/null >$tmp.out 2>&1
