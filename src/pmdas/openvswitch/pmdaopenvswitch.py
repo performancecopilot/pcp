@@ -28,6 +28,7 @@ from cpmapi import PM_SEM_COUNTER, PM_SEM_DISCRETE, PM_SEM_INSTANT
 from cpmapi import PM_COUNT_ONE, PM_SPACE_BYTE, PM_TIME_SEC
 from cpmapi import PM_ERR_APPVERSION
 from cpmda import PMDA_FETCH_NOVALUES
+import cpmapi as c_api
 
 PMDA_DIR = PCP.pmGetConfig('PCP_PMDAS_DIR')
 
@@ -145,10 +146,13 @@ class OpenvswitchPMDA(PMDA):
 
         self.set_fetch_callback(self.openvswitch_fetch_callback)
         self.set_refresh(self.openvswitch_refresh)
+        self.set_label(self.openvswitch_label)
+        self.set_label_callback(self.openvswitch_label_callback)
 
     def fetch_switch_info(self):
         """ fetches result from command line """
-        out = subprocess.Popen([os.path.join(PMDA_DIR, 'openvswitch', 'switch.sh')], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        query = ['ovs-vsctl --format=json list bridge']
+        out = subprocess.Popen(query, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
         stdout, stderr = out.communicate()
         stdout = stdout.decode("utf-8")
         return stdout, stderr
@@ -156,14 +160,15 @@ class OpenvswitchPMDA(PMDA):
     def get_switch_info_json(self):
         """ Convert the commandline output to json """
         stdout, _ = self.fetch_switch_info()
+        # temp = json.loads(stdout)
 
-        # Store it in a file
+        # # Store it in a file
         text_file = open("switch_output.txt", "w")
         text_file.write(stdout)
         text_file.close()
 
         # Read
-        with open(os.path.join(PMDA_DIR, 'openvswitch', 'switch_output.txt'), 'r') as file:
+        with open('/home/ashwin/github/pcp/src/pmdas/openvswitch/switch_output.txt', 'r') as file:
             temp = json.load(file)
 
         # reorganize json a bit
@@ -173,7 +178,6 @@ class OpenvswitchPMDA(PMDA):
 
             self.switch_info_json[str(temp["data"][idx][13])] = temp["data"][idx]
             self.switch_names.append(str(temp["data"][idx][13]))
-
 
     def switch_instances(self):
         """ set names for openvswitch  switch instances """
@@ -197,10 +201,10 @@ class OpenvswitchPMDA(PMDA):
 
         for val in self.switch_names:
             stdout, _ = self.fetch_port_info(val)
-
             # string manipulation to get required results
             output = stdout.split('\n')
             # get number of ports
+            # print(output[0])
             num_ports = int(output[0].split(':')[1].strip().split(' ')[0])
             # discard line 1
             output = output[1:]
@@ -297,10 +301,42 @@ class OpenvswitchPMDA(PMDA):
                 insts.append(pmdaInstid(idx, val))
 
             self.replace_indom(self.flow_indom, insts)
+    
+    def openvswitch_label(self, ident, type):
+        '''
+        Return JSONB format labelset for identifier of given type, as a string
+        '''
+        if type == c_api.PM_LABEL_DOMAIN:
+            ret = '"role":"testing"'
+        elif type == c_api.PM_LABEL_INDOM:
+            indom = ident
+            if indom == self.switch_indom:
+                ret = '"indom_name":"switch"'
+            elif indom == self.port_info_indom:
+                ret = '"indom_name":"port_info"'
+            elif indom == self.flow_indom:
+                ret = '"indom_name":"flow_info"'
+        else: # no labels added for types PM_LABEL_CLUSTER, PM_LABEL_ITEM
+            ret = '' # default is an empty labelset string
+
+        return '{%s}' % ret
+
+    def openvswitch_label_callback(self, indom, inst):
+        '''
+        Return JSONB format labelset for an inst in given indom, as a string
+        '''
+        if indom == self.switch_indom:
+            ret = '"switch":"%s"' % (self.inst_name_lookup(self.switch_indom, inst))
+        elif indom == self.port_info_indom:
+            ret = '"port":"%s"' % (self.inst_name_lookup(self.switch_indom, inst).split['::'][1])
+        else:
+            ret = ''
+
+        return '{%s}' % ret
 
     def openvswitch_fetch_callback(self, cluster, item, inst):
         """ fetch callback method"""
-
+        
         if cluster == self.switch_cluster:
             if self.switch_info_json is None:
                 return [PMDA_FETCH_NOVALUES]
@@ -350,8 +386,10 @@ class OpenvswitchPMDA(PMDA):
                     return [str(self.switch_info_json[switch][21][1]), 1]
                 if item == 22:
                     return [str(self.switch_info_json[switch][22]), 1]
+
             except Exception:
                 return [PM_ERR_APPVERSION, 0]
+
 
         if cluster == self.port_info_cluster:
             if self.port_info_json is None:
