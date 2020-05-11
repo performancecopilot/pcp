@@ -168,7 +168,7 @@ class OpenvswitchPMDA(PMDA):
         text_file.close()
 
         # Read
-        with open('/home/ashwin/github/pcp/src/pmdas/openvswitch/switch_output.txt', 'r') as file:
+        with open(os.path.join(PMDA_DIR, 'openvswitch','switch_output.txt'), 'r') as file:
             temp = json.load(file)
 
         # reorganize json a bit
