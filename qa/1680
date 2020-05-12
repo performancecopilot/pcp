@@ -21,13 +21,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-command -v ovs-vsctl > /dev/null
-if [[ ${?} -ne 0 ]]; then
-	printf -- "%s: missing required 'ovs-vsctl' command\n" "${PROG}" >&2
-	exit 1
-fi
-
-[ -d $PCP_PMDAS_DIR/openvswitch ] || _notrun "openvswitch PMDA directory is not installed"
+[ -d $PCP_PMDAS_DIR/openvswitch ] || _notrun "openvswitch PMDA is not installed"
+which ovs-vsctl >/dev/null 2>&1 || _notrun "missing required ovs-vsctl command"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
@@ -62,9 +57,9 @@ pmdaopenvswitch_install()
         -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
     | $PCP_AWK_PROG '
 /Check openvswitch metrics have appeared/  { if ($8 == "metrics") $7 = "X"
-                                          if ($11 == "values") $10 = "Y"
-                                        }
-                                        { print }'
+                                             if ($11 == "values") $10 = "Y"
+                                           }
+                                           { print }'
 }
 
 _prepare_pmda openvswitch
