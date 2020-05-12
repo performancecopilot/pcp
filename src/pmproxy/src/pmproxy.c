@@ -359,7 +359,6 @@ main(int argc, char *argv[])
 	 */
 	char	newlogfile[MAXPATHLEN];
 	char	pbuf[11];	/* enough for a 32-bit pid */
-	char	*p = logfile;
 	char	*pend = NULL;
 
 	snprintf(pbuf, sizeof(pbuf), ".%" FMT_PID, (pid_t)getpid());
@@ -373,6 +372,8 @@ main(int argc, char *argv[])
 	    /* stitch name together ... <pre>.<post> -> <pre>.<pid>.<post> */
 	    char	*q = newlogfile;
 	    char	*r = pbuf;
+	    char	*p;
+
 	    for (p = logfile; p < pend; ) 	/* <pre> */
 		*q++ = *p++;
 	    while (*r)				/* .<pid> */
