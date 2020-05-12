@@ -3475,7 +3475,7 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 - Updated versions of Vector (1.3.1) and Blinkenlights (1.0.1) webapps
 
 * Fri Aug 03 2018 Dave Brolley <brolley@redhat.com> - 4.1.1-2
-- pcp.spec: Fix the _with_dstat reference in the %configure command
+- pcp.spec: Fix the _with_dstat reference in the %%configure command
 
 * Fri Aug 03 2018 Dave Brolley <brolley@redhat.com> - 4.1.1-1
 - SELinux is preventing pmdalinux from 'unix_read' accesses on the shared memory Unknown
