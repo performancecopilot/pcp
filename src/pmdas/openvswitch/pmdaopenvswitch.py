@@ -26,7 +26,7 @@ from pcp.pmapi import pmContext as PCP
 from cpmapi import PM_TYPE_STRING, PM_TYPE_U64, PM_TYPE_FLOAT
 from cpmapi import PM_SEM_COUNTER, PM_SEM_DISCRETE, PM_SEM_INSTANT
 from cpmapi import PM_COUNT_ONE, PM_SPACE_BYTE, PM_TIME_SEC
-from cpmapi import PM_ERR_APPVERSION
+from cpmapi import PM_ERR_APPVERSION, PM_ERR_PMID
 from cpmda import PMDA_FETCH_NOVALUES
 import cpmapi as c_api
 
@@ -55,27 +55,27 @@ class OpenvswitchPMDA(PMDA):
         self.switch_metrics = [
             # Name - type - semantics - units - help
             [ 'switch.uuid',                                                            PM_TYPE_STRING, PM_SEM_DISCRETE, pmUnits(),  'switch id'], # 0
-            [ 'switch.autoattach',                                                      PM_TYPE_STRING, PM_SEM_COUNTER, pmUnits(),  'set:Shortest Path Bridging (SPB) network to automatically attach network devices to individual services in a SPB network'], # 1
-            [ 'switch.controller',                                                      PM_TYPE_STRING, PM_SEM_COUNTER, pmUnits(),  'set:controller'], # 2
-            [ 'switch.datapath_id',                                                     PM_TYPE_STRING, PM_SEM_COUNTER, pmUnits(),  'datapath_id'], # 3
-            [ 'switch.datapath_type',                                                   PM_TYPE_STRING, PM_SEM_COUNTER, pmUnits(),  'datapath_type'], # 4
-            [ 'switch.datapath_version',                                                PM_TYPE_STRING, PM_SEM_COUNTER, pmUnits(),  'datapath_version'], #5
-            [ 'switch.external_ids',                                                    PM_TYPE_STRING, PM_SEM_COUNTER, pmUnits(),  'map:These values are  intended to identify entities external to Open vSwitch with which switch is associated, e.g. the switchs  identifier  in  avirtualization  management  platform.  The Open vSwitch databaseschema specifies well-known key values, but key  and  value  are otherwise arbitrary strings'], # 6
-            [ 'switch.fail_mode',                                                       PM_TYPE_STRING, PM_SEM_COUNTER, pmUnits(),  'set:failmode'], # 7
-            [ 'switch.flood_vlans',                                                     PM_TYPE_STRING, PM_SEM_COUNTER, pmUnits(),  'set: flood_vlans'], # 8
-            [ 'switch.flow_tables',                                                     PM_TYPE_STRING, PM_SEM_COUNTER, pmUnits(),  'map: flow tables'], # 9
-            [ 'switch.ipfix',                                                           PM_TYPE_STRING, PM_SEM_COUNTER, pmUnits(),  'The IPFIX Protocol Specification has been designed to be transport protocol independent.'], # 10
-            [ 'switch.mcast_snooping_enable',                                           PM_TYPE_STRING, PM_SEM_COUNTER, pmUnits(),  'multicast snooping status'], # 11
-            [ 'switch.mirrors',                                                         PM_TYPE_STRING, PM_SEM_COUNTER, pmUnits(),  'set:packets mirrored'], # 12
-            [ 'switch.netflow',                                                         PM_TYPE_STRING, PM_SEM_COUNTER, pmUnits(),  'NetFlow is a network protocol developed by Cisco for collecting IP traffic information and monitoring network traffic. By analyzing flow data, a picture of network traffic flow and volume can be built.'], # 14
-            [ 'switch.other_config',                                                    PM_TYPE_STRING, PM_SEM_COUNTER, pmUnits(),  'other configs to switch'], # 15
-            [ 'switch.ports',                                                           PM_TYPE_STRING, PM_SEM_COUNTER, pmUnits(),  'set:list of ports attached to the switch'], # 16
-            [ 'switch.protocols',                                                       PM_TYPE_STRING, PM_SEM_COUNTER, pmUnits(),  'set: protocols ex:openflow12'], # 17
-            [ 'switch.rstp_enable',                                                     PM_TYPE_STRING, PM_SEM_COUNTER, pmUnits(),  'rapid spanning tree protocol enabled status'], # 18
-            [ 'switch.rstp_status',                                                     PM_TYPE_STRING, PM_SEM_COUNTER, pmUnits(),  'rapid spanning tree protocol status'], # 19
-            [ 'switch.sflow',                                                           PM_TYPE_STRING, PM_SEM_COUNTER, pmUnits(),  'sFlow is a sampling technology that meets the key requirements for a network traffic monitoring solution'], # 20
-            [ 'switch.status',                                                          PM_TYPE_STRING, PM_SEM_COUNTER, pmUnits(),  'status'], # 21
-            [ 'switch.stp_enable',                                                      PM_TYPE_STRING, PM_SEM_COUNTER, pmUnits(),  'spanning tree protocol'] # 22
+            [ 'switch.autoattach',                                                      PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  'set:Shortest Path Bridging (SPB) network to automatically attach network devices to individual services in a SPB network'], # 1
+            [ 'switch.controller',                                                      PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  'set:controller'], # 2
+            [ 'switch.datapath_id',                                                     PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  'datapath_id'], # 3
+            [ 'switch.datapath_type',                                                   PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  'datapath_type'], # 4
+            [ 'switch.datapath_version',                                                PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  'datapath_version'], #5
+            [ 'switch.external_ids',                                                    PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  'map:These values are  intended to identify entities external to Open vSwitch with which switch is associated, e.g. the switchs  identifier  in  avirtualization  management  platform.  The Open vSwitch databaseschema specifies well-known key values, but key  and  value  are otherwise arbitrary strings'], # 6
+            [ 'switch.fail_mode',                                                       PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  'set:failmode'], # 7
+            [ 'switch.flood_vlans',                                                     PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  'set: flood_vlans'], # 8
+            [ 'switch.flow_tables',                                                     PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  'map: flow tables'], # 9
+            [ 'switch.ipfix',                                                           PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  'The IPFIX Protocol Specification has been designed to be transport protocol independent.'], # 10
+            [ 'switch.mcast_snooping_enable',                                           PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  'multicast snooping status'], # 11
+            [ 'switch.mirrors',                                                         PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  'set:packets mirrored'], # 12
+            [ 'switch.netflow',                                                         PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  'NetFlow is a network protocol developed by Cisco for collecting IP traffic information and monitoring network traffic. By analyzing flow data, a picture of network traffic flow and volume can be built.'], # 14
+            [ 'switch.other_config',                                                    PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  'other configs to switch'], # 15
+            [ 'switch.ports',                                                           PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  'set:list of ports attached to the switch'], # 16
+            [ 'switch.protocols',                                                       PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  'set: protocols ex:openflow12'], # 17
+            [ 'switch.rstp_enable',                                                     PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  'rapid spanning tree protocol enabled status'], # 18
+            [ 'switch.rstp_status',                                                     PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  'rapid spanning tree protocol status'], # 19
+            [ 'switch.sflow',                                                           PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  'sFlow is a sampling technology that meets the key requirements for a network traffic monitoring solution'], # 20
+            [ 'switch.status',                                                          PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  'status'], # 21
+            [ 'switch.stp_enable',                                                      PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  'spanning tree protocol'] # 22
         ]
 
         for item in range(len(self.switch_metrics)):
@@ -94,18 +94,18 @@ class OpenvswitchPMDA(PMDA):
         self.port_info_cluster = 1
         self.port_info_metrics = [
             # Name - type - semantics - units - help
-            [ 'port_info.rx.pkts',                                                     PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 0
-            [ 'port_info.rx.bytes',                                                    PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0),  ''], # 1
-            [ 'port_info.rx.drop',                                                     PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 2
-            [ 'port_info.rx.errs',                                                     PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 3
-            [ 'port_info.rx.frame',                                                    PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 4
-            [ 'port_info.rx.over',                                                     PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], #5
-            [ 'port_info.rx.crc',                                                      PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 6
-            [ 'port_info.tx.pkts',                                                     PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 7
-            [ 'port_info.tx.bytes',                                                    PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0),  ''], # 8
-            [ 'port_info.tx.drop',                                                     PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 9
-            [ 'port_info.tx.errs',                                                     PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 10
-            [ 'port_info.tx.coll',                                                     PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''] # 11
+            [ 'port_info.rx.pkts',                                                     PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 0
+            [ 'port_info.rx.bytes',                                                    PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(1,0,0,PM_SPACE_BYTE,0,0),  ''], # 1
+            [ 'port_info.rx.drop',                                                     PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 2
+            [ 'port_info.rx.errs',                                                     PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 3
+            [ 'port_info.rx.frame',                                                    PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 4
+            [ 'port_info.rx.over',                                                     PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], #5
+            [ 'port_info.rx.crc',                                                      PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 6
+            [ 'port_info.tx.pkts',                                                     PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 7
+            [ 'port_info.tx.bytes',                                                    PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(1,0,0,PM_SPACE_BYTE,0,0),  ''], # 8
+            [ 'port_info.tx.drop',                                                     PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 9
+            [ 'port_info.tx.errs',                                                     PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 10
+            [ 'port_info.tx.coll',                                                     PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''] # 11
         ]
 
         for item in range(len(self.port_info_metrics)):
@@ -127,8 +127,8 @@ class OpenvswitchPMDA(PMDA):
             [ 'flow.cookie',                                                           PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  ''], # 0
             [ 'flow.duration',                                                         PM_TYPE_FLOAT, PM_SEM_INSTANT, pmUnits(0,1,0,0,PM_TIME_SEC,0),  ''], # 1
             [ 'flow.table',                                                            PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 2
-            [ 'flow.n_packets',                                                        PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 3
-            [ 'flow.n_bytes',                                                          PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 4
+            [ 'flow.n_packets',                                                        PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 3
+            [ 'flow.n_bytes',                                                          PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 4
             [ 'flow.actions',                                                          PM_TYPE_STRING, PM_SEM_DISCRETE, pmUnits(),  ''], #5
         ]
 
@@ -151,36 +151,26 @@ class OpenvswitchPMDA(PMDA):
 
     def fetch_switch_info(self):
         """ fetches result from command line """
-        query = ['ovs-vsctl --format=json list bridge']
-        out = subprocess.Popen(query, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
         stdout, stderr = out.communicate()
         stdout = stdout.decode("utf-8")
         return stdout, stderr
 
     def get_switch_info_json(self):
         """ Convert the commandline output to json """
-        stdout, _ = self.fetch_switch_info()
-        # temp = json.loads(stdout)
-
-        # # Store it in a file
-        text_file = open("switch_output.txt", "w")
-        text_file.write(stdout)
-        text_file.close()
-
-        # Read
-        with open(os.path.join(PMDA_DIR, 'openvswitch','switch_output.txt'), 'r') as file:
-            temp = json.load(file)
+        query = ["ovs-vsctl", "--format=json", "list", "bridge"]
+        with open(os.devnull, 'w') as devnull:
+            p = subprocess.Popen(query, stdout=subprocess.PIPE, stderr=devnull)
+            js = json.loads(p.communicate()[0].decode("utf-8"))
 
         # reorganize json a bit
         self.switch_info_json = dict()
         self.switch_names = []
-        for idx in range(len(temp["data"])):
-
-            self.switch_info_json[str(temp["data"][idx][13])] = temp["data"][idx]
-            self.switch_names.append(str(temp["data"][idx][13]))
+        for idx in range(len(js["data"])):
+            self.switch_info_json[str(js["data"][idx][13])] = js["data"][idx]
+            self.switch_names.append(str(js["data"][idx][13]))
 
     def switch_instances(self):
-        """ set names for openvswitch  switch instances """
+        """ set names for openvswitch switch instances """
         insts = []
         for idx, val in enumerate(self.switch_names):
             insts.append(pmdaInstid(idx, val))
@@ -301,14 +291,12 @@ class OpenvswitchPMDA(PMDA):
                 insts.append(pmdaInstid(idx, val))
 
             self.replace_indom(self.flow_indom, insts)
-    
-    def openvswitch_label(self, ident, type):
+
+    def openvswitch_label(self, ident, target):
         '''
         Return JSONB format labelset for identifier of given type, as a string
         '''
-        if type == c_api.PM_LABEL_DOMAIN:
-            ret = '"role":"testing"'
-        elif type == c_api.PM_LABEL_INDOM:
+        if target == c_api.PM_LABEL_INDOM:
             indom = ident
             if indom == self.switch_indom:
                 ret = '"indom_name":"switch"'
@@ -316,7 +304,7 @@ class OpenvswitchPMDA(PMDA):
                 ret = '"indom_name":"port_info"'
             elif indom == self.flow_indom:
                 ret = '"indom_name":"flow_info"'
-        else: # no labels added for types PM_LABEL_CLUSTER, PM_LABEL_ITEM
+        else: # no labels added for PM_LABEL_{DOMAIN,CLUSTER,ITEM}
             ret = '' # default is an empty labelset string
 
         return '{%s}' % ret
@@ -336,7 +324,7 @@ class OpenvswitchPMDA(PMDA):
 
     def openvswitch_fetch_callback(self, cluster, item, inst):
         """ fetch callback method"""
-        
+
         if cluster == self.switch_cluster:
             if self.switch_info_json is None:
                 return [PMDA_FETCH_NOVALUES]
@@ -386,41 +374,19 @@ class OpenvswitchPMDA(PMDA):
                     return [str(self.switch_info_json[switch][21][1]), 1]
                 if item == 22:
                     return [str(self.switch_info_json[switch][22]), 1]
+                return [PM_ERR_PMID, 0]
 
             except Exception:
                 return [PM_ERR_APPVERSION, 0]
-
 
         if cluster == self.port_info_cluster:
             if self.port_info_json is None:
                 return [PMDA_FETCH_NOVALUES]
             try:
                 port = self.inst_name_lookup(self.port_info_indom,inst)
-                if item == 0:
-                    return [int(self.port_info_json[port][0]), 1]
-                if item == 1:
-                    return [int(self.port_info_json[port][1]), 1]
-                if item == 2:
-                    return [int(self.port_info_json[port][2]), 1]
-                if item == 3:
-                    return [int(self.port_info_json[port][3]), 1]
-                if item == 4:
-                    return [int(self.port_info_json[port][4]), 1]
-                if item == 5:
-                    return [int(self.port_info_json[port][5]), 1]
-                if item == 6:
-                    return [int(self.port_info_json[port][6]), 1]
-                if item == 7:
-                    return [int(self.port_info_json[port][7]), 1]
-                if item == 8:
-                    return [int(self.port_info_json[port][8]), 1]
-                if item == 9:
-                    return [int(self.port_info_json[port][9]), 1]
-                if item == 10:
-                    return [int(self.port_info_json[port][10]), 1]
-                if item == 11:
-                    return [int(self.port_info_json[port][11]), 1]
-
+                if item in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]:
+                    return [int(self.port_info_json[port][item]), 1]
+                return [PM_ERR_PMID, 0]
             except Exception:
                 return [PM_ERR_APPVERSION,0]
 
@@ -429,21 +395,17 @@ class OpenvswitchPMDA(PMDA):
                 return [PMDA_FETCH_NOVALUES]
             try:
                 flow = self.inst_name_lookup(self.flow_indom,inst)
-                if item == 0:
-                    return [str(self.flow_json[flow][0]), 1]
+                if item in [0, 5]:
+                    return [str(self.flow_json[flow][item]), 1]
                 if item == 1:
-                    return [float(self.flow_json[flow][1]), 1]
-                if item == 2:
-                    return [int(self.flow_json[flow][2]), 1]
-                if item == 3:
-                    return [int(self.flow_json[flow][3]), 1]
-                if item == 4:
-                    return [int(self.flow_json[flow][4]), 1]
-                if item == 5:
-                    return [str(self.flow_json[flow][5]), 1]
-
+                    return [float(self.flow_json[flow][item]), 1]
+                if item in [2, 3, 4]:
+                    return [int(self.flow_json[flow][item]), 1]
+                return [PM_ERR_PMID, 0]
             except Exception:
                 return [PM_ERR_APPVERSION, 0]
+
+        return [PM_ERR_PMID, 0]
 
 if __name__ == '__main__':
     OpenvswitchPMDA('openvswitch', 126).run()

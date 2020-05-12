@@ -13,27 +13,38 @@
 .\" for more details.
 .\"
 .\"
-.TH PMDAopenvswitch 1 "PCP" "Performance Co-Pilot"
+.TH PMDAOPENVSWITCH 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmdaopenvswitch\f1 \- openvswitch PMDA
+\f3pmdaopenvswitch\f1 \- OpenvSwitch PMDA
 .SH DESCRIPTION
 \f3pmdaopenvswitch\f1 is a Performance Metrics Domain Agent (PMDA) which exports
-metric values for each openvswitch queue configured on the local system.
+metric values for each openvswitch virtual switch configured on the local system.
 .SH INSTALLATION
 Install the openvswitch PMDA by using the Install script as root:
-.PP
-      # cd $PCP_PMDAS_DIR/openvswitch
-.br
-      # ./Install
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/openvswitch
+# ./Install
+.fi
+.ft P
+.RE
+.sp 1
 .PP
 To uninstall, do the following as root:
-.PP
-      # cd $PCP_PMDAS_DIR/openvswitch
-.br
-      # ./Remove
-.PP
-\fBpmdaopenvswitch\fR is launched by \fIpmcd\fR(1) and should never be executed
-directly.
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/openvswitch
+# ./Remove
+.fi
+.ft P
+.RE
+.sp 1
+\fBpmdaopenvswitch\fR is launched by \fIpmcd\fR(1) and should never be
+executed directly.
 The Install and Remove scripts notify \fIpmcd\fR(1) when the agent is
 installed or removed.
 .SH FILES
