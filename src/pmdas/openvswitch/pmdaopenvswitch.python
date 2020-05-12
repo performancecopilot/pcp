@@ -94,18 +94,18 @@ class OpenvswitchPMDA(PMDA):
         self.port_info_cluster = 1
         self.port_info_metrics = [
             # Name - type - semantics - units - help
-            [ 'port_info.rx.pkts',                                                     PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 0
-            [ 'port_info.rx.bytes',                                                    PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(1,0,0,PM_SPACE_BYTE,0,0),  ''], # 1
-            [ 'port_info.rx.drop',                                                     PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 2
-            [ 'port_info.rx.errs',                                                     PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 3
-            [ 'port_info.rx.frame',                                                    PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 4
-            [ 'port_info.rx.over',                                                     PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], #5
-            [ 'port_info.rx.crc',                                                      PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 6
-            [ 'port_info.tx.pkts',                                                     PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 7
-            [ 'port_info.tx.bytes',                                                    PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(1,0,0,PM_SPACE_BYTE,0,0),  ''], # 8
-            [ 'port_info.tx.drop',                                                     PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 9
-            [ 'port_info.tx.errs',                                                     PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 10
-            [ 'port_info.tx.coll',                                                     PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''] # 11
+            [ 'port_info.rx.pkts',                                                     PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'rx:recieved packets'], # 0
+            [ 'port_info.rx.bytes',                                                    PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(1,0,0,PM_SPACE_BYTE,0,0),  'recieved bytes'], # 1
+            [ 'port_info.rx.drop',                                                     PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'recieved packets dropped'], # 2
+            [ 'port_info.rx.errs',                                                     PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'shows a total number of packets received with error.'], # 3
+            [ 'port_info.rx.frame',                                                    PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'is a number of misaligned frames, i.e. frames with length not divisible by 8.'], # 4
+            [ 'port_info.rx.over',                                                     PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'is a number of received packets that experienced fifo overruns, caused by rate at which a buffer gets full and kernel isn’t able to empty it.'], #5
+            [ 'port_info.rx.crc',                                                      PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'recieved crc'], # 6
+            [ 'port_info.tx.pkts',                                                     PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'total transmitted packets'], # 7
+            [ 'port_info.tx.bytes',                                                    PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(1,0,0,PM_SPACE_BYTE,0,0),  'total transmitted bytes'], # 8
+            [ 'port_info.tx.drop',                                                     PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'transmitted packets dropped'], # 9
+            [ 'port_info.tx.errs',                                                     PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'shows a total number of packets transmitted with error.'], # 10
+            [ 'port_info.tx.coll',                                                     PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'is a number of transmitted packets that experienced Ethernet collisions.'] # 11
         ]
 
         for item in range(len(self.port_info_metrics)):
@@ -124,12 +124,12 @@ class OpenvswitchPMDA(PMDA):
         self.flow_cluster = 2
         self.flow_metrics = [
             # Name - type - semantics - units - help
-            [ 'flow.cookie',                                                           PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  ''], # 0
-            [ 'flow.duration',                                                         PM_TYPE_FLOAT, PM_SEM_INSTANT, pmUnits(0,1,0,0,PM_TIME_SEC,0),  ''], # 1
-            [ 'flow.table',                                                            PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 2
-            [ 'flow.n_packets',                                                        PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 3
-            [ 'flow.n_bytes',                                                          PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 4
-            [ 'flow.actions',                                                          PM_TYPE_STRING, PM_SEM_DISCRETE, pmUnits(),  ''], #5
+            [ 'flow.cookie',                                                           PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  'ovs flow cookie'], # 0
+            [ 'flow.duration',                                                         PM_TYPE_FLOAT, PM_SEM_INSTANT, pmUnits(0,1,0,0,PM_TIME_SEC,0),  'duration the flow has been active'], # 1
+            [ 'flow.table',                                                            PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'ovs-flow tables'], # 2
+            [ 'flow.n_packets',                                                        PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'number of packets with specific flow'], # 3
+            [ 'flow.n_bytes',                                                          PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'packets of specific flow in bytes'], # 4
+            [ 'flow.actions',                                                          PM_TYPE_STRING, PM_SEM_DISCRETE, pmUnits(),  'action to be taken for incoming flow packets'], #5
         ]
 
         for item in range(len(self.flow_metrics)):
@@ -148,12 +148,6 @@ class OpenvswitchPMDA(PMDA):
         self.set_refresh(self.openvswitch_refresh)
         self.set_label(self.openvswitch_label)
         self.set_label_callback(self.openvswitch_label_callback)
-
-    def fetch_switch_info(self):
-        """ fetches result from command line """
-        stdout, stderr = out.communicate()
-        stdout = stdout.decode("utf-8")
-        return stdout, stderr
 
     def get_switch_info_json(self):
         """ Convert the commandline output to json """
@@ -194,7 +188,6 @@ class OpenvswitchPMDA(PMDA):
             # string manipulation to get required results
             output = stdout.split('\n')
             # get number of ports
-            # print(output[0])
             num_ports = int(output[0].split(':')[1].strip().split(' ')[0])
             # discard line 1
             output = output[1:]
@@ -356,23 +349,23 @@ class OpenvswitchPMDA(PMDA):
                     return [str(self.switch_info_json[switch][11]), 1]
                 if item == 12:
                     return [str(self.switch_info_json[switch][12][1]), 1]
-                if item == 14:
+                if item == 13:
                     return [str(self.switch_info_json[switch][14][1]), 1]
-                if item == 15:
+                if item == 14:
                     return [str(self.switch_info_json[switch][15][1]), 1]
-                if item == 16:
+                if item == 15:
                     return [str(self.switch_info_json[switch][16]), 1]
-                if item == 17:
+                if item == 16:
                     return [str(self.switch_info_json[switch][17][1]), 1]
-                if item == 18:
+                if item == 17:
                     return [str(self.switch_info_json[switch][18]), 1]
-                if item == 19:
+                if item == 18:
                     return [str(self.switch_info_json[switch][19][1]), 1]
-                if item == 20:
+                if item == 19:
                     return [str(self.switch_info_json[switch][20][1]), 1]
-                if item == 21:
+                if item == 20:
                     return [str(self.switch_info_json[switch][21][1]), 1]
-                if item == 22:
+                if item == 21:
                     return [str(self.switch_info_json[switch][22]), 1]
                 return [PM_ERR_PMID, 0]
 
