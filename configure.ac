@@ -1906,6 +1906,7 @@ AC_COMPILE_IFELSE(
    [AC_MSG_RESULT([yes])
     pmda_rpm=true],
    [AC_MSG_RESULT([no])])
+AC_CHECK_HEADER([sys/inotify.h], [],[pmda_rpm=false])
 AC_MSG_CHECKING([if the rpm PMDA should be included])
 AC_SUBST(PMDA_RPM,$pmda_rpm)
 if $pmda_rpm; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi

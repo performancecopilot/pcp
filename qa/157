@@ -1,7 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 157
-# exercise the -u (unbuffered) option for pmlogger that was added
-# for NASmgr
+# exercise the -u (unbuffered) option for pmlogger (now default)
 #
 # Copyright (c) 2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -27,26 +26,32 @@ echo "log mandatory on default { sample.bucket }" \
 _wait_for_pmlogger $! $tmp.log
 pmsleep 0.1
 
-then=0
+prev=0
 # expect pmlogger above to run for (5-1)*2sec
 for i in 1 2 3 4 5 6 7 8 9 10
 do
-    if [ -f $tmp.0 ]
+    if [ -s $tmp.0 ]
     then
 	now=`wc -c <$tmp.0 | sed -e 's/ //g'`
+	date >> $seq.full
 	ls -l $tmp.0 >>$seq.full
-	echo "then=$then now=$now" >>$seq.full
-	if [ "$now" -ne "$then" ]
+	echo "then=$prev now=$now" >>$seq.full
+	if [ "$now" -ne "$prev" ]
 	then
-	    # expect this to happen 4 times
+	    # expect this to happen 5 times.
+	    # Note that if _wait_for_pmlogger is slow(er), its possible
+	    # that we will see the first samples and log header at once
+	    # (and then change will be observed only 4 times).
 	    #
+	    echo "size changed @"`date` >> $seq.full
 	    echo "size changed"
-	    then=$now
+	    prev=$now
 	fi
     fi
     sleep 1
 done
 
 cat $tmp.log >>$seq.full
+pmdumplog -a $tmp >> $seq.full
 
 exit

@@ -1,0 +1,39 @@
+#!/bin/sh
+# PCP QA Test No. 1692
+# Exercise pmda.agent.name metric for pmlogconf.
+#
+# Copyright (c) 2020 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+pminfo -f pmcd.agent.name | tee -a $seq.full |
+	sed -e 's/"//g' -e 's/\[//g' -e 's/\]//g' > $tmp.info
+$PCP_AWK_PROG '/inst/ {
+                          count++;
+                          if ($4 != $6) print "Mismatch:", $4, $6
+                      }
+END { if (count < 2)  { print "Unexpected instance count: ", count }
+      else            { print "Silence is golden" }
+    }' $tmp.info
+
+# success, all done
+status=0
+exit

@@ -1720,7 +1720,9 @@ BAD
 1661 pmproxy libpcp_web pmlogger local
 1671 multi-archive archive libpcp pmrep local python
 1672 secure pmcd local
+1680 openvswitch local
 1690 pmseries local
+1692 pmda.pmcd local
 1694 pidstat local python pcp
 1695 pmproxy valgrind local
 1696 pmproxy valgrind local
@@ -1749,6 +1751,6 @@ BAD
 1722 pmda.bpftrace local python
 1723 pmda.bpftrace local python
 1724 pmda.bpftrace local python
-1896 pmlogger logutil pmlc local
 1855 pmda.rabbitmq local
+1896 pmlogger logutil pmlc local
 4751 libpcp threads valgrind local pcp

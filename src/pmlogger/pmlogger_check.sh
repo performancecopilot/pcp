@@ -330,6 +330,7 @@ _configure_pmlogger()
 		elif [ -w "$configfile" ]
 		then
 		    $VERBOSE && echo "Reconfigured: \"$configfile\" (pmlogconf)"
+		    chown $PCP_USER:$PCP_GROUP "$tmpconfig" >/dev/null 2>&1
 		    eval $MV "$tmpconfig" "$configfile"
 		else
 		    _warning "no write access to pmlogconf file \"$configfile\", skip reconfiguration"

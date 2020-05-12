@@ -45,39 +45,57 @@ that the statistics interface of the Bind server does not get overloaded.
 Configure BIND to export XML statistics via its REST interface.
 This requires BIND configuration to enable statistics exporting locally
 (at least).
-.PP
-    statistics-channels {
-.br
-        inet 127.0.0.1 port 8080 allow { 127.0.0.1; };
-.br
-    }
-.br
-    options { zone-statistics yes; }
-.PP
+.sp 1
+.RS +4
+.ft B
+.nf
+statistics-channels {
+\    inet 127.0.0.1 port 8080 allow { 127.0.0.1; };
+}
+options { zone-statistics yes; }
+# ./Install
+.fi
+.ft P
+.RE
+.sp 1
 The hostname (localhost), port (8080 above) and other configuration
 information must be specified in both the BIND configuration file
 as well as the
 \&\f(CW$PCP_PMDAS_DIR\fR/bind2/bind2.conf file.
-.PP
-      # cd $PCP_PMDAS_DIR/bind2
-.br
-      # [ edit bind2.conf ]
-.br
-        host=localhost.localdomain:8080
-.PP
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/bind2
+# [ edit bind2.conf ]
+\  host=localhost.localdomain:8080
+.fi
+.ft P
+.RE
+.sp 1
 Once this is setup, you can access the names and values for the
 bind2 performance metrics by doing the following as root:
-.PP
-      # cd $PCP_PMDAS_DIR/bind2
-.br
-      # ./Install
-.PP
-To uninstall, do the following as root:
-.PP
-      # cd $PCP_PMDAS_DIR/bind2
-.br
-      # ./Remove
-.PP
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/bind2
+# ./Install
+.fi
+.ft P
+.RE
+.sp 1
+To uninstall, the following must be done as root:
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/bind2
+# ./Remove
+.fi
+.ft P
+.RE
+.sp 1
 \fBpmdabind2\fR is launched by \fIpmcd\fR(1) and should never be executed
 directly. The Install and Remove scripts notify \fIpmcd\fR(1) when the
 agent is installed or removed.

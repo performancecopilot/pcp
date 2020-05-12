@@ -52,6 +52,8 @@ End-of-File
 
 _cleanup()
 {
+    _restore_auto_restart pmcd
+    _restore_auto_restart pmlogger
     if $needclean
     then
 	$sudo rm -f $control
@@ -59,10 +61,8 @@ _cleanup()
 	_restore_loggers
 	_service pcp restart 2>&1 | _filter_pcp_start
 	_wait_for_pmcd
-	_restore_auto_restart pmcd
 	_wait_for_pmlogger
-	_restore_auto_restart pmlogger
-	needlcean=false
+	needclean=false
     fi
     $sudo rm -f $tmp.*
 }

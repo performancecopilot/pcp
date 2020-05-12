@@ -31,22 +31,37 @@ used in the memcache farm.  These hosts can be listed in the
 Perl array) described at the top of pmdamemcache.pl.  A custom
 refresh rate can also be configured using this mechanism.
 .PP
-      # cd $PCP_PMDAS_DIR/memcache
-.br
-      # [ edit memcache.conf ]
+.ft CW
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/memcache
+# [ edit memcache.conf ]
+.in
+.fi
+.ft 1
 .PP
 Once this is setup, you can access the names and values for the
 memcache performance metrics by doing the following as root:
 .PP
-      # cd $PCP_PMDAS_DIR/memcache
-.br
-      # ./Install
+.ft CW
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/memcache
+# ./Install
+.in
+.fi
+.ft 1
 .PP
-To uninstall, do the following as root:
+If you want to undo the installation, do the following as root:
 .PP
-      # cd $PCP_PMDAS_DIR/memcache
-.br
-      # ./Remove
+.ft CW
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/memcache
+# ./Remove
+.in
+.fi
+.ft 1
 .PP
 \fBpmdamemcache\fR is launched by \fIpmcd\fR(1) and should never be executed
 directly. The Install and Remove scripts notify \fIpmcd\fR(1) when the

@@ -1,6 +1,6 @@
 #pmlogconf-setup 2.0
 ident	SQLServer summary
-probe	sqlserver.locks
+probe	sqlserver.sql.compilations values ? include : exclude
 	sqlserver.access
 	sqlserver.buf_mgr
 	sqlserver.mem_mgr

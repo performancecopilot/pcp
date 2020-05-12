@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2019 Red Hat.
+# Copyright (c) 2013-2020 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -104,6 +104,8 @@ pmlogger_daily.service : pmlogger_daily.service.in
 	    -e 's;@CRONTAB_PATH@;'$(CRONTAB_PATH)';' \
 	    -e 's;@PCP_SYSCONFIG_DIR@;'$(PCP_SYSCONFIG_DIR)';' \
 	    -e 's;@PCP_BINADM_DIR@;'$(PCP_BINADM_DIR)';' \
+	    -e 's;@PCP_VAR_DIR@;'$(PCP_VAR_DIR)';' \
+	    -e 's;@PCP_GROUP@;'$(PCP_GROUP)';' \
 	    -e 's;@PCP_USER@;'$(PCP_USER)';' \
 	# END
 
@@ -112,6 +114,8 @@ pmlogger_daily-poll.service : pmlogger_daily-poll.service.in
 	    -e 's;@CRONTAB_PATH@;'$(CRONTAB_PATH)';' \
 	    -e 's;@PCP_SYSCONFIG_DIR@;'$(PCP_SYSCONFIG_DIR)';' \
 	    -e 's;@PCP_BINADM_DIR@;'$(PCP_BINADM_DIR)';' \
+	    -e 's;@PCP_VAR_DIR@;'$(PCP_VAR_DIR)';' \
+	    -e 's;@PCP_GROUP@;'$(PCP_GROUP)';' \
 	    -e 's;@PCP_USER@;'$(PCP_USER)';' \
 	# END
 
@@ -120,6 +124,8 @@ pmlogger_check.service : pmlogger_check.service.in
 	    -e 's;@CRONTAB_PATH@;'$(CRONTAB_PATH)';' \
 	    -e 's;@PCP_SYSCONFIG_DIR@;'$(PCP_SYSCONFIG_DIR)';' \
 	    -e 's;@PCP_BINADM_DIR@;'$(PCP_BINADM_DIR)';' \
+	    -e 's;@PCP_VAR_DIR@;'$(PCP_VAR_DIR)';' \
+	    -e 's;@PCP_GROUP@;'$(PCP_GROUP)';' \
 	    -e 's;@PCP_USER@;'$(PCP_USER)';' \
 	# END
 
@@ -128,8 +134,10 @@ pmlogger_daily_report.service : pmlogger_daily_report.service.in
 	    -e 's;@CRONTAB_DAILY_REPORT_PATH@;'$(CRONTAB_DAILY_REPORT_PATH)';' \
 	    -e 's;@PCP_SYSCONFIG_DIR@;'$(PCP_SYSCONFIG_DIR)';' \
 	    -e 's;@PCP_BINADM_DIR@;'$(PCP_BINADM_DIR)';' \
-	    -e 's;@PCP_USER@;'$(PCP_USER)';' \
+	    -e 's;@PCP_VAR_DIR@;'$(PCP_VAR_DIR)';' \
 	    -e 's;@PCP_SA_DIR@;'$(PCP_SA_DIR)';' \
+	    -e 's;@PCP_GROUP@;'$(PCP_GROUP)';' \
+	    -e 's;@PCP_USER@;'$(PCP_USER)';' \
 	# END
 
 pmlogger_daily_report-poll.service : pmlogger_daily_report-poll.service.in
@@ -137,8 +145,10 @@ pmlogger_daily_report-poll.service : pmlogger_daily_report-poll.service.in
 	    -e 's;@CRONTAB_DAILY_REPORT_PATH@;'$(CRONTAB_DAILY_REPORT_PATH)';' \
 	    -e 's;@PCP_SYSCONFIG_DIR@;'$(PCP_SYSCONFIG_DIR)';' \
 	    -e 's;@PCP_BINADM_DIR@;'$(PCP_BINADM_DIR)';' \
-	    -e 's;@PCP_USER@;'$(PCP_USER)';' \
+	    -e 's;@PCP_VAR_DIR@;'$(PCP_VAR_DIR)';' \
 	    -e 's;@PCP_SA_DIR@;'$(PCP_SA_DIR)';' \
+	    -e 's;@PCP_GROUP@;'$(PCP_GROUP)';' \
+	    -e 's;@PCP_USER@;'$(PCP_USER)';' \
 	# END
 
 crontab : crontab.in

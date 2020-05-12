@@ -1,15 +1,32 @@
 QA output created by 1097
 default behaviour ... 
-Warning: cannot find group file (mia/kermit): no change is possible
-Warning: cannot find group file (mia/gonzo): no change is possible
-Warning: cannot find group file (mia/fozzie): no change is possible
-Warning: cannot find group file (mia/red): no change is possible
-Warning: cannot find group file (mia/green): no change is possible
-Warning: cannot find group file (mia/blue): no change is possible
-Warning: cannot find group file (reallymia/terry): no change is possible
-Warning: cannot find group file (reallymia/cathy): no change is possible
-Warning: cannot find group file (reallymia/emma): no change is possible
-expect no diffs
+pmlogconf: Warning: cannot find group file (mia/kermit): no change is possible
+pmlogconf: Warning: cannot find group file (mia/gonzo): no change is possible
+pmlogconf: Warning: cannot find group file (mia/fozzie): no change is possible
+pmlogconf: Warning: cannot find group file (mia/red): no change is possible
+pmlogconf: Warning: cannot find group file (mia/green): no change is possible
+pmlogconf: Warning: cannot find group file (mia/blue): no change is possible
+pmlogconf: Warning: cannot find group file (reallymia/terry): no change is possible
+pmlogconf: Warning: cannot find group file (reallymia/cathy): no change is possible
+pmlogconf: Warning: cannot find group file (reallymia/emma): no change is possible
+checking tag mia/kermit
+#+ /var/lib/pcp/config/pmlogconf/mia/kermit:y:default:
+checking tag mia/gonzo
+#+ /var/lib/pcp/config/pmlogconf/mia/gonzo:x::
+checking tag mia/fozzie
+#+ /var/lib/pcp/config/pmlogconf/mia/fozzie:n:default:
+checking tag mia/red
+#+ /var/lib/pcp/config/pmlogconf/mia/red:x::
+checking tag mia/green
+#+ /var/lib/pcp/config/pmlogconf/mia/green:y:default:
+checking tag mia/blue
+#+ /var/lib/pcp/config/pmlogconf/mia/blue:n:default:
+checking tag reallymia/terry
+#+ /var/lib/pcp/config/pmlogconf/reallymia/terry:x::
+checking tag reallymia/cathy
+#+ /var/lib/pcp/config/pmlogconf/reallymia/cathy:n:default:
+checking tag reallymia/emma
+#+ /var/lib/pcp/config/pmlogconf/reallymia/emma:y:default:
 
 new behaviour with -c ...
 pmlogconf: Warning: cannot find group file (mia/kermit): deleting obsolete group
@@ -22,33 +39,12 @@ pmlogconf: Warning: cannot find group file (reallymia/terry): deleting obsolete 
 pmlogconf: Warning: cannot find group file (reallymia/cathy): deleting obsolete group
 pmlogconf: Warning: cannot find group file (reallymia/emma): deleting obsolete group
 expect mia and reallymia templates to be gone
-N,NdN
-< #+ mia/kermit:y:default:
-< log mandatory on default {
-<     mia.kermit
-< }
-< #---- 1
-< #+ mia/gonzo:x::
-< #---- 2
-< #+ mia/fozzie:n::
-< #---- 3
-N,NdN
-< #+ mia/red:x::
-< #---- 4
-< #+ mia/green:y:once:
-< log advisory on once {
-<     mia.green
-< }
-< #---- 5
-< #+ mia/blue:n::
-< #---- 6
-N,NdN
-< #+ reallymia/terry:x::
-< #---- 7
-< #+ reallymia/cathy:n::
-< #---- 8
-< #+ reallymia/emma:y:1 hour:
-< log mandatory on 1 hour {
-<     reallymia.emma
-< }
-< #---- 9
+checking tag mia/kermit
+checking tag mia/gonzo
+checking tag mia/fozzie
+checking tag mia/red
+checking tag mia/green
+checking tag mia/blue
+checking tag reallymia/terry
+checking tag reallymia/cathy
+checking tag reallymia/emma

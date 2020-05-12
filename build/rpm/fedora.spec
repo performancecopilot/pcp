@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 5.1.0
+Version: 5.1.1
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2+ and CC-BY
@@ -47,7 +47,7 @@ Source0: %{bintray}/pcp/source/pcp-%{version}.src.tar.gz
 %endif
 
 # libchan, libhdr_histogram and pmdastatsd
-%if 0%{?fedora} >= 29 || 0%{?rhel} > 8
+%if 0%{?fedora} >= 29 || 0%{?rhel} > 7
 %global disable_statsd 0
 %else
 %global disable_statsd 1
@@ -226,7 +226,11 @@ BuildRequires: cyrus-sasl-devel
 BuildRequires: libvarlink-devel
 %endif
 %if !%{disable_statsd}
-BuildRequires: ragel chan-devel HdrHistogram_c-devel
+# ragel unavailable on RHEL8
+%if 0%{?rhel} == 0
+BuildRequires: ragel
+%endif
+BuildRequires: chan-devel HdrHistogram_c-devel
 %endif
 %if !%{disable_perfevent}
 BuildRequires: libpfm-devel >= 4
@@ -517,7 +521,8 @@ Requires: pcp-pmda-bpftrace
 %if !%{disable_python2} || !%{disable_python3}
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
 Requires: pcp-pmda-libvirt pcp-pmda-lio pcp-pmda-openmetrics pcp-pmda-haproxy
-Requires: pcp-pmda-lmsensors pcp-pmda-mssql pcp-pmda-netcheck pcp-pmda-rabbitmq
+Requires: pcp-pmda-lmsensors pcp-pmda-netcheck pcp-pmda-rabbitmq
+Requires: pcp-pmda-openvswitch
 %endif
 %if !%{disable_mssql}
 Requires: pcp-pmda-mssql 
@@ -1073,7 +1078,6 @@ URL: https://pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
 Requires: perl-PCP-PMDA = %{version}-%{release}
 Requires: perl-Date-Manip
-Requires: 389-ds-base
 
 %description pmda-ds389log
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -1636,6 +1640,24 @@ collecting metrics about Elasticsearch.
 #end pcp-pmda-elasticsearch
 
 #
+# pcp-pmda-openvswitch
+#
+%package pmda-openvswitch
+License: GPLv2+
+Summary: Performance Co-Pilot (PCP) metrics for Open vSwitch
+URL: https://pcp.io
+Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
+%if !%{disable_python3}
+Requires: python3-pcp
+%else
+Requires: %{__python2}-pcp
+%endif
+%description pmda-openvswitch
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics from Open vSwitch.
+#end pcp-pmda-openvswitch
+
+#
 # pcp-pmda-rabbitmq
 #
 %package pmda-rabbitmq
@@ -2037,13 +2059,14 @@ License: GPLv2+
 Summary: Performance Co-Pilot (PCP) Zeroconf Package
 URL: https://pcp.io
 Requires: pcp pcp-doc pcp-system-tools
-Requires: pcp-pmda-dm pcp-pmda-nfsclient
+Requires: pcp-pmda-dm
+%if !%{disable_python2} || !%{disable_python3}
+Requires: pcp-pmda-nfsclient pcp-pmda-openmetrics
+%endif
 %description zeroconf
 This package contains configuration tweaks and files to increase metrics
 gathering frequency, several extended pmlogger configurations, as well as
 automated pmie diagnosis, alerting and self-healing for the localhost.
-A cron script also writes daily performance summary reports similar to
-those written by sysstat.
 
 %if !%{disable_python2}
 #
@@ -2305,6 +2328,7 @@ ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
   grep -E -v '^mssql' |\
   grep -E -v '^netcheck' |\
   grep -E -v '^nvidia' |\
+  grep -E -v '^openvswitch' |\
   grep -E -v '^rabbitmq' |\
   grep -E -v '^roomtemp' |\
   grep -E -v '^sendmail' |\
@@ -2494,6 +2518,9 @@ fi
 
 %preun pmda-elasticsearch
 %{pmda_remove "$1" "elasticsearch"}
+
+%preun pmda-openvswitch
+%{pmda_remove "$1" "openvswitch"}
 
 %preun pmda-rabbitmq
 %{pmda_remove "$1" "rabbitmq"}
@@ -2731,7 +2758,7 @@ PCP_PMDAS_DIR=%{_pmdasdir}
 PCP_SYSCONFIG_DIR=%{_sysconfdir}/sysconfig
 PCP_PMCDCONF_PATH=%{_confdir}/pmcd/pmcd.conf
 # auto-install important PMDAs for RH Support (if not present already)
-for PMDA in dm nfsclient ; do
+for PMDA in dm nfsclient openmetrics ; do
     if ! grep -q "$PMDA/pmda$PMDA" "$PCP_PMCDCONF_PATH"
     then
 	%{install_file "$PCP_PMDAS_DIR/$PMDA" .NeedInstall}
@@ -3058,6 +3085,9 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %files pmda-elasticsearch
 %{_pmdasdir}/elasticsearch
 
+%files pmda-openvswitch
+%{_pmdasdir}/openvswitch
+
 %files pmda-rabbitmq
 %{_pmdasdir}/rabbitmq
 
@@ -3336,6 +3366,9 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %endif
 
 %changelog
+* Fri May 29 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.1.1-1
+- Update to latest PCP sources.
+
 * Fri Apr 24 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.1.0-1
 - pmdakvm: debugfs access is restricted (BZ 1824297)
 - error starting pmlogger; pid file not owned by root (BZ 1761962)
@@ -3442,7 +3475,7 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 - Updated versions of Vector (1.3.1) and Blinkenlights (1.0.1) webapps
 
 * Fri Aug 03 2018 Dave Brolley <brolley@redhat.com> - 4.1.1-2
-- pcp.spec: Fix the _with_dstat reference in the %configure command
+- pcp.spec: Fix the _with_dstat reference in the %%configure command
 
 * Fri Aug 03 2018 Dave Brolley <brolley@redhat.com> - 4.1.1-1
 - SELinux is preventing pmdalinux from 'unix_read' accesses on the shared memory Unknown

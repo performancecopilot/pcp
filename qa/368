@@ -3,7 +3,7 @@
 #
 # pmlogconf - handle changes in installed group files
 #
-# Copyright (c) 2014 Red Hat.
+# Copyright (c) 2014,2020 Red Hat.
 # Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
 #
 
@@ -15,17 +15,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-[ -f $PCP_BINADM_DIR/pmlogconf-setup ] || _notrun pmlogconf-setup not installed
 postgres=`pmprobe postgresql.stat.all_tables.seq_scan | awk '{ print $2 }'`
 [ "$postgres" -ge 0 ] && _notrun "Test $seq sensitive to local postgres install"
-
-rm -f $seq.out
-if [ $PCP_PLATFORM = darwin ]
-then
-    ln $seq.darwin $seq.out || exit 1
-else
-    ln $seq.other $seq.out || exit 1
-fi
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full
@@ -40,9 +31,9 @@ _filter()
 {
     sed \
 	-e "s;$tmp;TMP;g" \
+	-e '/^\-\-\- TMP\.conf\.new/s/\.conf\.new.*/.conf.new .../' \
 	-e '/^\*\*\* TMP\.conf/s/\.conf.*/.orig .../' \
-	-e '/^--- .*\/ctl/s/ .*/ TMP.new .../' \
-	-e '/^--- .*\.ctl/s/ .*/ TMP.new .../'
+    #end
 }
 
 cat <<End-of-File >$tmp/01
@@ -100,7 +91,7 @@ End-of-File
 
 rm $tmp/03
 
-( echo q ; echo '') | pmlogconf -v -d $tmp $tmp.conf 2>&1 \
+( echo q ; echo '') | pmlogconf -d $tmp $tmp.conf 2>&1 \
 | _filter
 
 # reverse the condition

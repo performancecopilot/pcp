@@ -433,6 +433,7 @@ _pcp () {
       "(-c --config $exargs)"{-c+,--config=}'[specify config file]:file:_files' \
       "(-d --interact $exargs)"{-d,--interact}'[interactive debugging mode]' \
       "(-f --foreground $exargs)"{-f,--foreground}'[run in foreground]' \
+      "(-F --systemd $exargs)"{-F,--systemd}'[notify service manager (if any) when started and ready]' \
       "(-P --primary $exargs)"{-P,--primary}'[run as primary pmie instance]' \
       "(-j $exargs)"-j+'[specify stomp protocol file]:file:_files' \
       "(-l --logfile $exargs)"{-l+,--logfile=}'[specify log file]:file:_files' \

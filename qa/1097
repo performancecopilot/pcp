@@ -33,6 +33,20 @@ _filter()
     # end
 }
 
+_report_tags()
+{
+    file=$1
+
+    [ -f "$file" ] || echo "File $file is not regular?"
+    miatags="mia/kermit mia/gonzo mia/fozzie mia/red mia/green mia/blue"
+    reallymiatags="reallymia/terry reallymia/cathy reallymia/emma"
+    for tag in $miatags $reallymiatags
+    do
+	echo checking tag $tag | tee -a $here/$seq.full
+	pmlogconf -q -g $tag $file 2>> $seq.full
+    done
+}
+
 rm -f $tmp.tmp
 pmlogconf -q $tmp.tmp >>$here/$seq.full </dev/null 2>&1
 
@@ -86,8 +100,10 @@ echo "default behaviour ... "
 cp $tmp.base $tmp.in
 pmlogconf -r -q $tmp.in </dev/null 2>$tmp.err >>$here/$seq.full
 _filter <$tmp.err
-echo "expect no diffs"
-diff $tmp.base $tmp.in
+# expect no differences, but groups are now sorted (so cant use diff)
+# instead use the --group option to pmlogconf to verify group exists.
+# diff $tmp.base $tmp.in
+_report_tags $tmp.in
 
 echo
 echo "new behaviour with -c ..."
@@ -95,7 +111,8 @@ cp $tmp.base $tmp.in
 pmlogconf -r -c -q $tmp.in </dev/null 2>$tmp.err >>$here/$seq.full
 _filter <$tmp.err
 echo "expect mia and reallymia templates to be gone"
-diff $tmp.base $tmp.in | sed -e '/^[0-9]/s/[0-9][0-9]*/N/g'
+#diff $tmp.base $tmp.in | sed -e '/^[0-9]/s/[0-9][0-9]*/N/g'
+_report_tags $tmp.in
 
 # success, all done
 status=0

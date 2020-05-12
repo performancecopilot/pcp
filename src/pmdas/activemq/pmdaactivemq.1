@@ -26,17 +26,28 @@ port 8161 with a username and password of 'admin'. This can be configured
 in PCP_PMDAS_DIR/activemq/activemq.conf
 .PP
 Install the ActiveMQ \s-1PMDA\s0 by using the Install script as root:
-.PP
-      # cd $PCP_PMDAS_DIR/activemq
-.br
-      # ./Install
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/activemq
+# ./Install
+.fi
+.ft P
+.RE
+.sp 1
 .PP
 To uninstall, do the following as root:
-.PP
-      # cd $PCP_PMDAS_DIR/activemq
-.br
-      # ./Remove
-.PP
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/activemq
+# ./Remove
+.fi
+.ft P
+.RE
+.sp 1
 \fBpmdaactivemq\fR is launched by \fIpmcd\fR(1) and should never be executed
 directly. The Install and Remove scripts notify \fIpmcd\fR(1) when the
 agent is installed or removed.

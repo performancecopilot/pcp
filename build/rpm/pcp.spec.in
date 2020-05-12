@@ -81,7 +81,11 @@ BuildRequires: rpm-devel
 BuildRequires: libvarlink-devel
 %endif
 %if "@pmda_statsd@" == "true"
-BuildRequires: ragel chan-devel HdrHistogram_c-devel
+# ragel unavailable on RHEL8
+%if 0%{?rhel} == 0
+BuildRequires: ragel
+%endif
+BuildRequires: chan-devel HdrHistogram_c-devel
 %endif
 %if "@pmda_perfevent@" == "true"
 BuildRequires: libpfm-devel >= 4.4
@@ -300,8 +304,8 @@ Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shpin
 Requires: pcp-pmda-lustrecomm pcp-pmda-redis pcp-pmda-docker pcp-pmda-smart
 %if "@have_python@" == "true"
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
-Requires: pcp-pmda-haproxy pcp-pmda-nfsclient pcp-pmda-lmsensors pcp-pmda-mssql
-Requires: pcp-pmda-netcheck pcp-pmda-rabbitmq
+Requires: pcp-pmda-haproxy pcp-pmda-nfsclient pcp-pmda-lmsensors
+Requires: pcp-pmda-netcheck pcp-pmda-rabbitmq pcp-pmda-openvswitch
 %endif
 %if "@pmda_podman@" == "true"
 Requires: pcp-pmda-podman
@@ -1654,6 +1658,24 @@ collecting metrics from simple network checks.
 # end pcp-pmda-netcheck
 
 #
+# pcp-pmda-openvswitch
+#
+%package pmda-openvswitch
+License: GPLv2+
+Summary: Performance Co-Pilot (PCP) metrics for RabbitMQ queues
+URL: https://pcp.io
+Requires: pcp = @package_version@ pcp-libs = @package_version@
+%if "@enable_python3@" == "true"
+Requires: python3-pcp
+%else
+Requires: %{__python2}-pcp
+%endif
+%description pmda-openvswitch
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics about RabbitMQ message queues.
+#end pcp-pmda-openvswitch
+
+#
 # pcp-pmda-rabbitmq
 #
 %package pmda-rabbitmq
@@ -2055,18 +2077,14 @@ License: GPLv2+
 Summary: Performance Co-Pilot (PCP) Zeroconf Package
 URL: https://pcp.io
 Requires: pcp pcp-doc pcp-system-tools
-Requires: pcp-pmda-dm pcp-pmda-nfsclient
+Requires: pcp-pmda-dm
 %if "@have_python@" == "true"
-Requires: pcp-pmda-nfsclient
+Requires: pcp-pmda-nfsclient pcp-pmda-openmetrics
 %endif
-# to make pcp-zeroconf replace sysstat, uncomment the next line
-# Obsoletes: sysstat
 %description zeroconf
 This package contains configuration tweaks and files to increase metrics
 gathering frequency, several extended pmlogger configurations, as well as
 automated pmie diagnosis, alerting and self-healing for the localhost.
-A cron script also writes daily performance summary reports similar to
-those written by sysstat.
 
 %prep
 %setup -q
@@ -2325,6 +2343,7 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/lmsensors' > pmda_lmsensors_f
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/mssql' > pmda_mssql_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/netcheck' > pmda_netcheck_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/nfsclient' > pmda_nfsclient_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/openvswitch' > pmda_openvswitch_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/rabbitmq' > pmda_rabbitmq_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmiostat|pmrep|dstat|pcp2csv' \
       -e 'pcp-atop|pcp-dmcache|pcp-dstat|pcp-free|pcp-ipcs' \
@@ -2360,6 +2379,7 @@ touch gui_files manager_files pmda_infiniband_files \
       pmda_gpsd_files pmda_lustre_files pmda_lustrecomm_files \
       pmda_memcache_files pmda_named_files pmda_redis_files pmda_docker_files \
       pmda_netfilter_files pmda_news_files pmda_logger_files \
+      pmda_openvswitch_files \
       pmda_rsyslog_files pmda_samba_files pmda_slurm_files pmda_rabbitmq_files \
       pmda_vmware_files pmda_zimbra_files pmda_apache_files pmda_bash_files \
       pmda_cifs_files pmda_cisco_files pmda_gfs2_files pmda_mic_files \
@@ -2466,6 +2486,7 @@ BEGIN {
     while( getline < "pmda_mssql_files") pmda_mssql[$0]=1;
     while( getline < "pmda_netcheck_files") pmda_netcheck[$0]=1;
     while( getline < "pmda_nfsclient_files") pmda_nfsclient[$0]=1;
+    while( getline < "pmda_openvswitch_files") pmda_openvswitch[$0]=1;
     while( getline < "pmda_rabbitmq_files") pmda_rabbitmq[$0]=1;
     while( getline < "export_pcp2graphite_files") export_pcp2graphite[$0]=1;
     while( getline < "export_pcp2json_files") export_pcp2json[$0]=1;
@@ -2621,6 +2642,7 @@ BEGIN {
     else if (pmda_mssql[$NF]) f="pmda_mssql_files.rpm";
     else if (pmda_netcheck[$NF]) f="pmda_netcheck_files.rpm";
     else if (pmda_nfsclient[$NF]) f="pmda_nfsclient_files.rpm";
+    else if (pmda_openvswitch[$NF]) f="pmda_openvswitch_files.rpm";
     else if (pmda_rabbitmq[$NF]) f="pmda_rabbitmq_files.rpm";
     else if (export_pcp2graphite[$NF]) f="export_pcp2graphite_files.rpm";
     else if (export_pcp2json[$NF]) f="export_pcp2json_files.rpm";
@@ -2766,7 +2788,7 @@ PCP_PMDAS_DIR=@pcp_pmdas_dir@
 PCP_SYSCONFIG_DIR=@pcp_sysconfig_dir@
 PCP_PMCDCONF_PATH=@pcp_pmcdconf_path@
 # auto-install important PMDAs for RH Support (if not present already)
-for PMDA in dm nfsclient ; do
+for PMDA in dm nfsclient openmetrics ; do
     if ! grep -q "$PMDA/pmda$PMDA" "$PCP_PMCDCONF_PATH"
     then
 	%{install_file "$PCP_PMDAS_DIR/$PMDA" .NeedInstall}
@@ -3003,6 +3025,9 @@ pmieconf -c enable dmthin
 
 %preun pmda-nfsclient
 %{pmda_remove "$1" "nfsclient"}
+
+%preun pmda-openvswitch
+%{pmda_remove "$1" "openvswitch"}
 
 %preun pmda-rabbitmq
 %{pmda_remove "$1" "rabbitmq"}
@@ -3296,6 +3321,8 @@ chown -R pcp:pcp "$PCP_LOG_DIR/pmproxy" 2>/dev/null
 %files pmda-netcheck -f pmda_netcheck_files.rpm
 
 %files pmda-nfsclient -f pmda_nfsclient_files.rpm
+
+%files pmda-openvswitch -f pmda_openvswitch_files.rpm
 
 %files pmda-rabbitmq -f pmda_rabbitmq_files.rpm
 

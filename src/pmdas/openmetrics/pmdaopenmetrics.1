@@ -447,17 +447,27 @@ internals impose some numerical constraints about the number of sources (4095),
 metrics (1024) within each source, and instances for each metric (4194304).
 .SH INSTALLATION
 Install the OpenMetrics PMDA by using the Install script as root:
-.PP
-      # cd $PCP_PMDAS_DIR/openmetrics
-.br
-      # ./Install
-.PP
-To uninstall, do the following as root:
-.PP
-      # cd $PCP_PMDAS_DIR/openmetrics
-.br
-      # ./Remove
-.PP
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/openmetrics
+# ./Install
+.fi
+.ft P
+.RE
+.sp 1
+To uninstall, the following must be done as root:
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/openmetrics
+# ./Remove
+.fi
+.ft P
+.RE
+.sp 1
 .B pmdaopenmetrics
 is launched by
 .BR pmcd (1)

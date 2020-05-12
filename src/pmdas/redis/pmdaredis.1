@@ -40,26 +40,51 @@ Database related statistics
 The hostname (localhost), port (6379 by default) and other configuration
 information must be specified in the
 \&\f(CW$PCP_PMDAS_DIR\fR/redis/redis.conf file.
-.PP
-      # cd $PCP_PMDAS_DIR/redis
-.br
-      # [ edit redis.conf ]
-.br
-        host=localhost.localdomain:6379
-.PP
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/redis
+# [ edit redis.conf ]
+\  host=localhost.localdomain:6379
+.fi
+.ft P
+.RE
+.sp 1
+To uninstall, the following must be done as root:
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/redis
+# ./Remove
+.fi
+.ft P
+.RE
+.sp 1
 Once this is setup, you can access the names and values for the
 redis performance metrics by doing the following as root:
-.PP
-      # cd $PCP_PMDAS_DIR/redis
-.br
-      # ./Install
-.PP
-To uninstall, do the following as root:
-.PP
-      # cd $PCP_PMDAS_DIR/redis
-.br
-      # ./Remove
-.PP
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/redis
+# ./Install
+.fi
+.ft P
+.RE
+.sp 1
+To uninstall, the following must be done as root:
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/redis
+# ./Remove
+.fi
+.ft P
+.RE
+.sp 1
 \fBpmdaredis\fR is launched by \fIpmcd\fR(1) and should never be executed
 directly. The Install and Remove scripts notify \fIpmcd\fR(1) when the
 agent is installed or removed.

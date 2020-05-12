@@ -91,7 +91,7 @@ sed -e 's/ /\\ /g' -e 's/|/ /g' <src/permslist \
     -e 's@$(PCP_LOG_DIR)@'$PCP_LOG_DIR@g \
     -e 's@$(PCP_VAR_DIR)@'$PCP_VAR_DIR@g \
     -e 's@$(PCP_RUN_DIR)@'$PCP_RUN_DIR@g \
-    -e 's@$(PCP_NSSDB_DIR)@'$PCP_NSSDB_DIR@g \
+    -e 's@$(PCP_SECURE_DB_PATH)@'$PCP_SECURE_DB_PATH@g \
     -e 's@$(PCP_SHARE_DIR)@'$PCP_SHARE_DIR@g \
     -e 's@$(PCP_SYSCONF_DIR)@'$PCP_SYSCONF_DIR@g \
 | while read makefile mode owner group target optional
@@ -174,7 +174,7 @@ done
 # (pmproxy is both client and server and needs r/w access).
 #
 find $PCP_SYSCONF_DIR ! -user root | \
-    grep -v "^$PCP_NSSDB_DIR" \
+    grep -v "^$PCP_SECURE_DB_PATH" \
     > $tmp.out
 if [ -s $tmp.out ]
 then

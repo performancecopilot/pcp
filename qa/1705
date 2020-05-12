@@ -38,8 +38,10 @@ echo "=== invalid probe ==="
 pmstore bpftrace.control.register "// name: test2
 does_not_exist { @c = count(); }"
 _pmdabpftrace_wait_for_value bpftrace.scripts.test2.status '"error"'
-# bpftrace v0.9.4+ includes the location of the error, but this QA should also work with bpftrace < v0.9.4
-pminfo -f bpftrace.scripts.test2.error | grep -o "Invalid provider: 'does_not_exist'"
+# error message changed between bpftrace versions
+pminfo -f bpftrace.scripts.test2.error \
+    | grep -q "Invalid provider: 'does_not_exist'\|Unrecognized probe type: does_not_exist" \
+    && echo "error message (invalid probe) found"
 pminfo -f bpftrace.scripts.test2.exit_code
 echo
 

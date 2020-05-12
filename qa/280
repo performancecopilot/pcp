@@ -38,7 +38,7 @@ _filter()
 	-e "s/$LOCALHOST/LOCALHOST/g" \
 	-e "s/localhost/LOCALHOST/g" \
 	-e "s/local:/LOCALHOST/g" \
-	-e 's/^Reconfigured: .*pmlogconf.//g' \
+	-e '/^Reconfigured: .*pmlogconf./d' \
 	-e 's;/private/;/;g' \
 	-e "s;$LOGGING_DIR;\$PCP_ARCHIVE_DIR;" \
 	-e "s;$PCP_PMLOGGERCONTROL_PATH;\$PCP_PMLOGGERCONTROL_PATH;" \

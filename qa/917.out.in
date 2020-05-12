@@ -28,6 +28,7 @@ decl 1:
 ! allow [pcp_pmcd_t] [pcp_pmie_exec_t] : [file] { execute execute_no_trans open read map };
   allow [pcp_pmcd_t] [pcp_var_lib_t] : [fifo_file] { getattr read open unlink };
   allow [pcp_pmcd_t] [proc_kcore_t] : [file] { getattr };
+  allow [pcp_pmcd_t] [proc_security_t] : [file] { getattr open read };
   allow [pcp_pmcd_t] self : [capability] { kill chown sys_chroot ipc_lock sys_resource };
 ! allow [pcp_pmcd_t] [nsfs_t] : [file] { getattr open read };
 ! allow [pcp_pmcd_t] [unreserved_port_t] : [tcp_socket] { name_bind name_connect };
@@ -59,6 +60,7 @@ decl 1:
 ! allow [pcp_pmcd_t] self : [capability2] { syslog };
   allow [pcp_pmcd_t] [kernel_t] : [system] { module_request };
   allow [pcp_pmcd_t] [su_exec_t] : [file] { execute execute_no_trans };
+  allow [pcp_pmcd_t] [postgresql_var_run_t] : [sock_file] { write };
   allow [pcp_pmlogger_t] [kmsg_device_t] : [chr_file] { open write };
   allow [pcp_pmlogger_t] self : [capability] { kill sys_ptrace fowner fsetid };
   allow [pcp_pmlogger_t] [unconfined_t] : [process] { signal };
@@ -88,6 +90,7 @@ decl 1:
   allow [pcp_pmcd_t] self : [capability] { sys_rawio };
 ! allow [pcp_pmcd_t] [rpm_var_lib_t] : [file] { map };
 ! allow [pcp_pmcd_t] [virt_var_run_t] : [sock_file] { write };
+  allow [pcp_pmcd_t] [openvswitch_exec_t] : [file] { execute execute_no_trans };
 ! allow [pcp_pmcd_t] [ping_exec_t] : [file] { execute execute_no_trans map };
   allow [pcp_pmcd_t] self : [capability] { net_raw };
   allow [pcp_pmcd_t] self : [process] { setcap };

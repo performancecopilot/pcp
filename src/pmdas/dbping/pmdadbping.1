@@ -53,17 +53,27 @@ delay between probes
 .PP
 Once this is setup, you can access the names and values for the
 dbping performance metrics by doing the following as root:
-.PP
-      # cd $PCP_PMDAS_DIR/dbping
-.br
-      # ./Install
-.PP
-To uninstall, do the following as root:
-.PP
-      # cd $PCP_PMDAS_DIR/dbping
-.br
-      # ./Remove
-.PP
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/dbping
+# ./Install
+.fi
+.ft P
+.RE
+.sp 1
+To uninstall, the following must be done as root:
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/dbping
+# ./Remove
+.fi
+.ft P
+.RE
+.sp 1
 \fBpmdadbping\fR is launched by \fIpmcd\fR(1) and should never be executed
 directly. The Install and Remove scripts notify \fIpmcd\fR(1) when the
 agent is installed or removed.

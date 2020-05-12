@@ -2,7 +2,7 @@
  * dstruct.c - central data structures and associated operations
  ***********************************************************************
  *
- * Copyright (c) 2013-2015 Red Hat.
+ * Copyright (c) 2013-2015,2020 Red Hat.
  * Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -64,6 +64,7 @@ int		quiet;				/* suppress default diagnostics */
 int		verbose;			/* verbosity 0, 1 or 2 */
 int		interactive;			/* interactive mode, -d */
 int		isdaemon;			/* run as a daemon */
+int		systemd;			/* systemd mode, notify service manager */
 int		agent;				/* secret agent mode? */
 int		applet;				/* applet mode? */
 int		dowrap;				/* counter wrap? default no */

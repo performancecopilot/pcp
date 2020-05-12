@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/usr/bin/sh
 # PCP QA Test No. 121
 # check that pmlogconf finds new groups, pv 893249
 #
@@ -22,13 +22,17 @@ rm -f $seq.full
 pmlogconf $tmp.in >/dev/null 2>&1
 echo "--- default config ---" >>$seq.full
 cat $tmp.in >>$seq.full
+cp $tmp.in $seq.full.in
 
-# strip comments, empty lines and then strip the groups:
+# strip comments, access control, empty lines and then strip the groups:
 #	disk/summary
 #	kernel/bufcache-all to memory/swap
 sed <$tmp.in >$tmp.ref \
     -e '/^#$/d' \
     -e '/^# /d' \
+    -e '/^\[access\]/d' \
+    -e '/^disallow /d' \
+    -e '/^allow /d' \
     -e '/^[ 	]*$/d'
 cat <<End-of-File >>$tmp.ref
 
@@ -50,6 +54,7 @@ cp $tmp.tmp $tmp.in
 echo >>$seq.full
 echo "--- culled and stripped config ---" >>$seq.full
 cat $tmp.in >>$seq.full
+cp $tmp.in $seq.full.cull
 
 # now process again ... the diffs should be small
 #
@@ -62,6 +67,7 @@ grep Error: $seq.full
 echo >>$seq.full
 echo "--- final config ---" >>$seq.full
 cat $tmp.in >>$seq.full
+cp $tmp.in $seq.full.out
 
 echo "Expect few differences ..."
 sed -e '/^[ 	]*$/d' $tmp.ref | LC_COLLATE=POSIX sort >$tmp.ref.sort

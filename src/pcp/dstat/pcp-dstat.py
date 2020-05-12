@@ -1333,6 +1333,8 @@ class DstatTool(object):
                 label = metric[0]
 
                 for instid, instname, _ in result:
+                    if plugin.cullinsts is not None and re.match(plugin.cullinsts, instname):
+                        continue
                     key = self.mgetkey(label, instid)
                     valueset = self.mlookup(valuesets, key)
                     totals[i] += self.maverage(valueset, key)
@@ -1388,6 +1390,8 @@ class DstatTool(object):
                 values = 0
                 result = results[name]
                 for _, instname, val in result:
+                    if plugin.cullinsts is not None and re.match(plugin.cullinsts, instname):
+                        continue
                     totals[i] += val
                     values += 1
             if values == 0:

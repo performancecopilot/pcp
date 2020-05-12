@@ -56,7 +56,6 @@ create_gauge_value(struct agent_config* config, struct statsd_datagram* datagram
 int
 update_gauge_value(struct agent_config* config, struct statsd_datagram* datagram, void* value) {
     (void)config;
-    double old = *(double*)value;
     double increment;
     switch (datagram->explicit_sign) {
         case SIGN_MINUS:

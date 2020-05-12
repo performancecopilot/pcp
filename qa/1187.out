@@ -5,7 +5,7 @@ You did not select any stats, using -cdngy by default.
 ----system---- ----total-usage---- -dsk/total- -net/total- ---paging-- ---system--
      time     |usr sys idl wai stl| read  writ| recv  send|  in   out | int   csw 
 25-07 16:08:19|                   |           |           |           |           
-25-07 16:08:20|  6   1  93   0   0|   0     0 |2146  1653 |   0     0 |1753  7008 
+25-07 16:08:20|  6   1  93   0   0|   0     0 |1044   551 |   0     0 |1753  7008 
 25-07 16:08:21| 11   1  88   0   0|   0     0 |  12k 1009 |   0     0 |2264  4872 
 === std err
 === done
@@ -55,7 +55,7 @@ Zero Disks
 ----system---- ----total-usage----  -net/total- ---paging-- ---system--
      time     |usr sys idl wai stl|| recv  send|  in   out | int   csw 
 25-07 16:08:19|                   |           |           |           
-25-07 16:08:20|  6   1  93   0   0|2146  1653 |   0     0 |1753  7008 
+25-07 16:08:20|  6   1  93   0   0|1044   551 |   0     0 |1753  7008 
 25-07 16:08:21| 11   1  88   0   0|  12k 1009 |   0     0 |2264  4872 
 === std err
 === done
@@ -175,7 +175,7 @@ Overlapping arguments
 ----system---- -dsk/total- ----total-usage---- -net/total- ---paging-- ---system-- ------memory-usage-----
      time     | read  writ|usr sys idl wai stl| recv  send|  in   out | int   csw | used  free  buf   cach
 25-07 16:08:19|           |                   |           |           |           |6463M 5065M  820M 4078M
-25-07 16:08:20|   0     0 |  6   1  93   0   0|2146  1653 |   0     0 |1753  7008 |6472M 5056M  820M 4086M
+25-07 16:08:20|   0     0 |  6   1  93   0   0|1044   551 |   0     0 |1753  7008 |6472M 5056M  820M 4086M
 25-07 16:08:21|   0     0 | 11   1  88   0   0|  12k 1009 |   0     0 |2264  4872 |6502M 5026M  820M 4094M
 === std err
 === done

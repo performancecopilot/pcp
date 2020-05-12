@@ -654,6 +654,8 @@ save_args(int argc, char **argv)
     	pmNoMem("save_args", argc * sizeof(char *), PM_FATAL_ERR);
 	/* NOTREACHED */
     }
+
+    memset(argv_saved, 0, (argc + 3) * sizeof(char *)); /* for covscan */
     for (i=0; i < argc; i++) {
 	if (strncmp(argv[i], "-m", 2) == 0)
 	    mflag = i;
@@ -677,8 +679,10 @@ save_args(int argc, char **argv)
 	}
 	else {
 	    /* remove two args, e.g. -m pmlogger_check */
-	    free(argv_saved[mflag]);
-	    free(argv_saved[mflag+1]);
+	    if (argv_saved[mflag])
+		free(argv_saved[mflag]); /* covscan */
+	    if (argv_saved[mflag+1])
+		free(argv_saved[mflag+1]);
 	    for (i=mflag; i < argc_saved; i++)
 	    	argv_saved[i] = argv_saved[i+2];
 	    argc_saved -= 2;

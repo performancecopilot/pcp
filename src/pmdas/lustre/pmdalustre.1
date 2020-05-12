@@ -26,15 +26,25 @@ trees to provide information on mounted lustre filesystems.
 .SH INSTALLATION
 Install the lustre PMDA by using the Install script as root:
 .PP
-      # cd $PCP_PMDAS_DIR/lustre
-.br
-      # ./Install
+.ft CW
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/lustre
+# ./Install
+.in
+.fi
+.ft 1
 .PP
-To uninstall, do the following as root:
+If you want to undo the installation, do the following as root:
 .PP
-      # cd $PCP_PMDAS_DIR/lustre
-.br
-      # ./Remove
+.ft CW
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/lustre
+# ./Remove
+.in
+.fi
+.ft 1
 .PP
 \fBpmdalustre\fR is launched by \fIpmcd\fR(1) and should never be executed
 directly. The Install and Remove scripts notify \fIpmcd\fR(1) when the

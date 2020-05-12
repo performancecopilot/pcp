@@ -3,7 +3,7 @@
 #
 # Copyright (c) 1995-2001,2003 Silicon Graphics, Inc.  All Rights Reserved.
 # Portions Copyright (c) 2008 Aconex.  All Rights Reserved.
-# Portions Copyright (c) 2013-2016,2018 Red Hat.
+# Portions Copyright (c) 2013-2016,2018,2020 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -837,7 +837,10 @@ _setup()
 	    python_pmns="${pmda_dir}/pmns.python"
 	    python_dom="${pmda_dir}/domain.h.python"
 	    $python -c 'from pcp import pmda' 2>/dev/null
-	    if test $? -eq 0
+	    __module=$?
+	    $python -c "import ast; ast.parse(open('$python_name').read())" 2>$tmp/err >/dev/null
+	    __syntax=$?
+	    if test $__module -eq 0 -a $__syntax -eq 0
 	    then
 		eval PCP_PYTHON_DOMAIN=1 $python "$python_name" > "$python_dom"
 		eval PCP_PYTHON_PMNS=1 $python "$python_name" > "$python_pmns"
@@ -845,7 +848,10 @@ _setup()
 	    then
 		:	# we have an alternative, so continue on
 	    else
-		echo 'Python pcp.pmda module is not installed, install it and try again'
+		test $__module -ne 0 && \
+		    echo 'Python pcp.pmda module is not installed, install it and try again'
+		test $__syntax -ne 0 && \
+		    echo 'Python script '$python_name' has syntax errors.' && cat $tmp/err
 		status=1
 		exit
 	    fi

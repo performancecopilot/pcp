@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2015 Red Hat.
+# Copyright (c) 2013-2015,2020 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -84,6 +84,8 @@ pmie_check.service : pmie_check.service.in
 	    -e 's;@CRONTAB_PATH@;'$(CRONTAB_PATH)';' \
 	    -e 's;@PCP_SYSCONFIG_DIR@;'$(PCP_SYSCONFIG_DIR)';' \
 	    -e 's;@PCP_BINADM_DIR@;'$(PCP_BINADM_DIR)';' \
+	    -e 's;@PCP_VAR_DIR@;'$(PCP_VAR_DIR)';' \
+	    -e 's;@PCP_GROUP@;'$(PCP_GROUP)';' \
 	    -e 's;@PCP_USER@;'$(PCP_USER)';' \
 	# END
 
@@ -92,6 +94,8 @@ pmie_daily.service : pmie_daily.service.in
 	    -e 's;@CRONTAB_PATH@;'$(CRONTAB_PATH)';' \
 	    -e 's;@PCP_SYSCONFIG_DIR@;'$(PCP_SYSCONFIG_DIR)';' \
 	    -e 's;@PCP_BINADM_DIR@;'$(PCP_BINADM_DIR)';' \
+	    -e 's;@PCP_VAR_DIR@;'$(PCP_VAR_DIR)';' \
+	    -e 's;@PCP_GROUP@;'$(PCP_GROUP)';' \
 	    -e 's;@PCP_USER@;'$(PCP_USER)';' \
 	# END
 

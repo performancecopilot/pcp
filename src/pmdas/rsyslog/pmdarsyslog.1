@@ -25,30 +25,45 @@ Further details about rsyslog can be found at
 .SH INSTALLATION
 If you want access to the names and values for the rsyslog performance
 metrics, do the following as root:
-.PP
-      # cd $PCP_PMDAS_DIR/rsyslog
-.br
-      # ./Install
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/rsyslog
+# ./Install
+.fi
+.ft P
+.RE
+.sp 1
 .PP
 To uninstall, do the following as root:
-.PP
-      # cd $PCP_PMDAS_DIR/rsyslog
-.br
-      # ./Remove
-.PP
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/rsyslog
+# ./Remove
+.fi
+.ft P
+.RE
+.sp 1
 \fBpmdarsyslog\fR is launched by \fBpmcd\fR(1) and should never be executed
 directly. The Install and Remove scripts notify \fBpmcd\fR(1) when the
 agent is installed or removed.
 .PP
 In order to use this agent, rsyslog stats gathering must be enabled.
 This is done by adding the lines:
-.PP
-      $ModLoad impstats
-.br
-      $PStatsInterval 5       # log every 5 seconds
-.br
-      syslog.info             |/var/log/pcp/rsyslog/stats
-.PP
+.sp 1
+.RS +4
+.ft B
+.nf
+$ModLoad impstats
+$PStatsInterval 5       # log every 5 seconds
+syslog.info             |/var/log/pcp/rsyslog/stats
+.fi
+.ft P
+.RE
+.sp 1
 to your \fIrsyslog.conf\fR\|(5) configuration file after installing the \s-1PMDA\s0.
 Take care to ensure the syslog.info messages do not get logged in any
 other file, as this could unexpectedly fill your filesystem.  Syntax

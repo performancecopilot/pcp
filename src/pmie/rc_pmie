@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright (c) 2012-2015 Red Hat.
+# Copyright (c) 2012-2015,2020 Red Hat.
 # Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -78,7 +78,7 @@ fi
 
 _usage()
 {
-    echo "Usage: $pmprog [-v] {start|restart|condrestart|stop|status|reload|force-reload}"
+    echo "Usage: $pmprog [-v] {start|start-systemd|restart|condrestart|stop|status|reload|force-reload}"
 }
 
 _reboot_setup()
@@ -141,7 +141,7 @@ _start_pmcheck()
 	$PCP_SYSLOG_PROG -p daemon.warning "$message"
 	$PCP_BINADM_DIR/pmpost "$message"
     fi
-    exit $bgstatus # co-process is now complete
+    return $bgstatus
 }
 
 _start_pmie()
@@ -159,8 +159,8 @@ Error: PCP inference engine control file '$PMIECTRL'
 	else
 	    $ECHO $PCP_ECHO_N "Starting pmie ..." "$PCP_ECHO_C"
 
-	    # run as a co-process
-	    _start_pmcheck &
+	    # start all pmie services configured in the control file(s)
+	    _start_pmcheck
 
 	    # Container environment
 	    if [ -n "$PCP_CONTAINER_IMAGE" ]
@@ -257,14 +257,14 @@ else                            # For a quiet startup and shutdown
 fi
 
 case "$1" in
-  start|faststart|restart|condrestart|reload|force-reload)
+  start|start-systemd|faststart|restart|condrestart|reload|force-reload)
 	if [ "$1" = "condrestart" ] && ! is_chkconfig_on pmie
 	then
 	    status=0
 	    exit
 	fi
 
-	_shutdown quietly
+	[ "$1" = start-systemd ] || _shutdown quietly
 
 	# messages should go to stderr, not the GUI notifiers
 	#
