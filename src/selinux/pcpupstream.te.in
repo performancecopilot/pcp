@@ -21,6 +21,7 @@ require {
         type pcp_pmwebd_t;
 	type pcp_pmie_exec_t; # pmda.summary
 	type ping_exec_t; # pmda.netcheck
+	type openvswitch_exec_t; # pmda.openvswitch
 	type websm_port_t; # pmda.openmetrics
         type system_cronjob_t;
         type user_home_t;
@@ -359,6 +360,10 @@ allow pcp_pmcd_t self:capability sys_rawio;
 #============= pmda-libvirt ==============
 #type=AVC msg=audit(YYY.90): avc:  denied  { write } for  pid=30922 comm="python3" name="libvirt-sock-ro" dev="tmpfs" ino=25845 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:virt_var_run_t:s0 tclass=sock_file permissive=0
 @PCP_VIRT_VAR_RUN_RULE@
+
+#============= pmda-openvswitch ==============
+#type=AVC msg=audit(YYY.96): avc: denied { execute } for pid=3248485 comm="sh" name="ovs-vsctl" dev="dm-0" ino=2403822 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:openvswitch_exec_t:s0 tclass=file permissive=0
+allow pcp_pmcd_t openvswitch_exec_t:file { execute execute_no_trans };
 
 #============= pmda-netcheck ==============
 allow pcp_pmcd_t ping_exec_t:file { execute execute_no_trans @PCP_HOSTNAME_EXEC_MAP@ };
