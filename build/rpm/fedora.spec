@@ -522,6 +522,7 @@ Requires: pcp-pmda-bpftrace
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
 Requires: pcp-pmda-libvirt pcp-pmda-lio pcp-pmda-openmetrics pcp-pmda-haproxy
 Requires: pcp-pmda-lmsensors pcp-pmda-netcheck pcp-pmda-rabbitmq
+Requires: pcp-pmda-openvswitch
 %endif
 %if !%{disable_mssql}
 Requires: pcp-pmda-mssql 
@@ -1639,6 +1640,24 @@ collecting metrics about Elasticsearch.
 #end pcp-pmda-elasticsearch
 
 #
+# pcp-pmda-openvswitch
+#
+%package pmda-openvswitch
+License: GPLv2+
+Summary: Performance Co-Pilot (PCP) metrics for Open vSwitch
+URL: https://pcp.io
+Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
+%if !%{disable_python3}
+Requires: python3-pcp
+%else
+Requires: %{__python2}-pcp
+%endif
+%description pmda-openvswitch
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics from Open vSwitch.
+#end pcp-pmda-openvswitch
+
+#
 # pcp-pmda-rabbitmq
 #
 %package pmda-rabbitmq
@@ -2309,6 +2328,7 @@ ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
   grep -E -v '^mssql' |\
   grep -E -v '^netcheck' |\
   grep -E -v '^nvidia' |\
+  grep -E -v '^openvswitch' |\
   grep -E -v '^rabbitmq' |\
   grep -E -v '^roomtemp' |\
   grep -E -v '^sendmail' |\
@@ -2498,6 +2518,9 @@ fi
 
 %preun pmda-elasticsearch
 %{pmda_remove "$1" "elasticsearch"}
+
+%preun pmda-openvswitch
+%{pmda_remove "$1" "openvswitch"}
 
 %preun pmda-rabbitmq
 %{pmda_remove "$1" "rabbitmq"}
@@ -3061,6 +3084,9 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 
 %files pmda-elasticsearch
 %{_pmdasdir}/elasticsearch
+
+%files pmda-openvswitch
+%{_pmdasdir}/openvswitch
 
 %files pmda-rabbitmq
 %{_pmdasdir}/rabbitmq
