@@ -26,6 +26,7 @@ from cpmapi import PM_SPACE_BYTE, PM_COUNT_ONE
 from cpmapi import PM_SEM_COUNTER, PM_SEM_INSTANT, PM_SEM_DISCRETE
 from cpmapi import PM_ERR_APPVERSION
 from cpmda import PMDA_FETCH_NOVALUES
+import cpmapi as c_api
 
 import requests
 try:
@@ -132,6 +133,8 @@ class RabbitmqPMDA(PMDA):
 
         self.set_fetch_callback(self.rabbit_fetch_callback)
         self.set_refresh(self.rabbitmq_refresh)
+        self.set_label(self.rabbitmq_label)
+        self.set_label_callback(self.rabbitmq_label_callback)
         self.set_user(PCP.pmGetConfig('PCP_USER'))
 
     def read_config(self):
@@ -180,6 +183,30 @@ class RabbitmqPMDA(PMDA):
                 insts.append(pmdaInstid(idx, val))
 
             self.replace_indom(self.queue_indom, insts)
+
+    def rabbitmq_label(self, ident, target):
+        '''
+        Return JSONB format labelset for identifier of given type, as a string
+        '''
+        if target == c_api.PM_LABEL_INDOM:
+            indom = ident
+            if indom == self.queue_indom:
+                ret = '"indom_name":"queue"'
+        else: # no labels added for PM_LABEL_{DOMAIN,CLUSTER,ITEM}
+            ret = '' # default is an empty labelset string
+
+        return '{%s}' % ret
+
+    def rabbitmq_label_callback(self, indom, inst):
+        '''
+        Return JSONB format labelset for an inst in given indom, as a string
+        '''
+        if indom == self.queue_indom:
+            ret = '"queue":"%s"' % (self.inst_name_lookup(self.queue_indom, inst))
+        else:
+            ret = ''
+
+        return '{%s}' % ret
 
     def rabbit_fetch_callback(self, cluster, item, inst):
         """ fetch callback method"""
