@@ -13,7 +13,7 @@
 
 # pylint: disable=bad-whitespace, line-too-long, too-many-return-statements
 # pylint: disable=broad-except, too-many-branches, too-many-statements, inconsistent-return-statements
-# pylint: disable=no-name-in-module, too-many-instance-attributes
+# pylint: disable=no-name-in-module, too-many-instance-attributes, c-extension-no-member
 
 """ Performance Metrics Domain Agent exporting rabbitmq metrics. """
 
