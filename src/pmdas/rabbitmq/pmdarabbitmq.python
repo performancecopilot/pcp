@@ -51,6 +51,7 @@ class RabbitmqPMDA(PMDA):
         self.stats = None
         self.read_config()
         self.build_url()
+        self.rabbit_fetch()
 
         self.connect_pmcd()
 
@@ -130,6 +131,7 @@ class RabbitmqPMDA(PMDA):
                             self.queue_metrics[item][4])
 
         self.set_fetch_callback(self.rabbit_fetch_callback)
+        self.set_refresh(self.rabbitmq_refresh)
         self.set_user(PCP.pmGetConfig('PCP_USER'))
 
     def read_config(self):
@@ -155,32 +157,32 @@ class RabbitmqPMDA(PMDA):
 
     def rabbit_fetch(self):
         """ fetches result from HTTP GET request """
-
-        try:
-            temp = requests.get(self.url).json()
-            json_output = {}
-            queue_names = []
-            for _, val in enumerate(temp):
-                json_output[val['name']] = val
-                queue_names.append(val['name'])
-
-            return json_output, queue_names
-        except Exception:
-            return None, []
+        temp = requests.get(self.url).json()
+        self.stats = {}
+        self.queue_names = []
+        for _, val in enumerate(temp):
+            self.stats[val['name']] = val
+            self.queue_names.append(val['name'])
 
     def rabbitmq_instances(self):
         """ set names for rabbitmq instances """
         insts = []
-        _, queue_names = self.rabbit_fetch()
-        for idx, val in enumerate(queue_names):
+        for idx, val in enumerate(self.queue_names):
             insts.append(pmdaInstid(idx, val))
         self.add_indom(pmdaIndom(self.queue_indom, insts))
 
+    def rabbitmq_refresh(self, cluster):
+        """rabbitmq refresh function"""
+        if cluster == self.queue_cluster:
+            self.rabbit_fetch()
+            insts = []
+            for idx, val in enumerate(self.queue_names):
+                insts.append(pmdaInstid(idx, val))
+
+            self.replace_indom(self.queue_indom, insts)
+
     def rabbit_fetch_callback(self, cluster, item, inst):
         """ fetch callback method"""
-
-        self.stats, _ = self.rabbit_fetch()
-
         if cluster == self.queue_cluster:
             if self.stats is None:
                 return [PMDA_FETCH_NOVALUES]
@@ -301,7 +303,6 @@ class RabbitmqPMDA(PMDA):
                 if item == 56:
                     return [str(self.stats[queue]['arguments']),1]
             except Exception:
-                print('error in fetch')
                 return [PM_ERR_APPVERSION,0]
 
 if __name__ == '__main__':
