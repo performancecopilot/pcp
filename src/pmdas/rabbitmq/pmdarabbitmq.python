@@ -49,7 +49,7 @@ class RabbitmqPMDA(PMDA):
         self.port = DEFAULT_PORT
         self.url = None
         self.queue_names = []
-        self.stats = None
+        self.stats = dict()
         self.read_config()
         self.build_url()
         self.rabbit_fetch()
@@ -161,7 +161,7 @@ class RabbitmqPMDA(PMDA):
     def rabbit_fetch(self):
         """ fetches result from HTTP GET request """
         temp = requests.get(self.url).json()
-        self.stats = {}
+        self.stats = dict()
         self.queue_names = []
         for _, val in enumerate(temp):
             self.stats[val['name']] = val
@@ -211,7 +211,7 @@ class RabbitmqPMDA(PMDA):
     def rabbit_fetch_callback(self, cluster, item, inst):
         """ fetch callback method"""
         if cluster == self.queue_cluster:
-            if self.stats is None:
+            if len(self.stats) == 0:
                 return [PMDA_FETCH_NOVALUES]
             try:
                 queue = self.inst_name_lookup(self.queue_indom,inst)
