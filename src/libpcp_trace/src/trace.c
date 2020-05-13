@@ -76,10 +76,11 @@ _pmlibdel(void *entry)
 {
     _pmTraceLibdata	*data = (_pmTraceLibdata *)entry;
 
-    if (data->tag)
-	free(data->tag);
-    if (data)
-	free(data);
+    if (data) {
+        if (data->tag)
+            free(data->tag);
+        free(data);
+    }
 }
 
 static int		__pmfd;
