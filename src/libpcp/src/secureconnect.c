@@ -1051,7 +1051,6 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
     int sts, zero, saslsts = SASL_FAIL;
     int pinned, length, method_length;
     char *payload, buffer[LIMIT_AUTH_PDU];
-    const char *data;
     const char *method = NULL;
     sasl_conn_t *saslconn;
     __pmHashNode *node;
@@ -1144,6 +1143,8 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
 	return sts;
 
     while (saslsts == SASL_CONTINUE) {
+	const char *data = NULL;
+
 	if (pmDebugOptions.auth)
 	    fprintf(stderr, "%s:__pmAuthClientNegotiation awaiting server reply\n", __FILE__);
 
@@ -1175,7 +1176,7 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
 	if (pinned > 0)
 	    __pmUnpinPDUBuf(pb);
 	if (sts >= 0)
-	    sts = __pmSendAuth(fd, FROM_ANON, 0, length ? data : "", length);
+	    sts = __pmSendAuth(fd, FROM_ANON, 0, (length && data) ? data : "", length);
 	if (sts < 0)
 	    break;
     }

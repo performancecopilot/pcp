@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+ident	RabbitMQ Queue Information
+probe	rabbitmq.queue.name exists ? include : exclude
+	rabbitmq.queue
