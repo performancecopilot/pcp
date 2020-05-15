@@ -1,4 +1,4 @@
-#!/usr/bin/sh
+#!/usr/sh
 # PCP QA Test No. 121
 # check that pmlogconf finds new groups, pv 893249
 #
