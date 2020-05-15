@@ -1598,6 +1598,7 @@ BAD
 1194 pmlogrewrite local
 1195 pmlogrewrite local
 1196 pmcd local
+1197 pmlogextract local
 1199 libpcp pmcd local
 1202 pmda.dm local pmrep python
 1203 derive pmval libpcp local
