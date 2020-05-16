@@ -56,6 +56,7 @@ _filter()
 
 pmlogsummary tmparch/truncbin | _filter
 pmlogsummary tmparch/null
+pmlogsummary tmparch/bad-1
 
 
 # success, all done
