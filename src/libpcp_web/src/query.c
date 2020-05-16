@@ -1389,6 +1389,353 @@ series_query_expr(void *arg)
     series_query_end_phase(baton);
 }
 
+static int
+series_instance_store_to_node(seriesQueryBaton *baton, sds series,
+	pmSeriesValue *value, int nelements, redisReply **elements, node_t *np, int idx_sample)
+{
+    char		hashbuf[42];
+    sds			inst;
+    int			i, sts = 0, idx_instance = 0, idx_series = np->result.nseries;
+
+    for (i = 0; i < nelements; i += 2) {
+	inst = value->series;
+	if (extract_string(baton, series, elements[i], &inst, "series") < 0) {
+	    sts = -EPROTO;
+	    continue;
+	}
+	if (sdslen(inst) == 0) {	/* no InDom, use series */
+	    inst = sdscpylen(inst, series, 40);
+	} else if (sdslen(inst) == 20) {
+	    pmwebapi_hash_str((const unsigned char *)inst, hashbuf, sizeof(hashbuf));
+	    inst = sdscpylen(inst, hashbuf, 40);
+	} else {
+	    /* TODO: propogate errors and mark records - separate callbacks? */
+	    continue;
+	}
+	value->series = inst;
+
+	if (extract_string(baton, series, elements[i+1], &value->data, "value") < 0)
+	    sts = -EPROTO;
+	else{
+	    memcpy(&(np->series_values[idx_series][idx_sample][idx_instance]),
+			value, sizeof(pmSeriesValue));
+	    np->series_values[idx_series][idx_sample][idx_instance].timestamp = sdsnew(value->timestamp);
+	    np->series_values[idx_series][idx_sample][idx_instance].series = sdsnew(value->series);
+	    np->series_values[idx_series][idx_sample][idx_instance].data = sdsnew(value->data);
+	    ++idx_instance;
+	}
+    }
+    return sts;
+}
+
+/* Do something like memcpy */
+static void
+series_values_store_to_node(seriesQueryBaton *baton, sds series,
+		int nsamples, redisReply **samples, void *arg, node_t *np)
+{
+    seriesSampling	sampling = {0};
+    redisReply		*reply, *sample, **elements;
+    timing_t		*tp = &baton->u.query.timing;
+    int			i, sts, next, nelements, idx_series = np->result.nseries, idx_sample = 0;
+    sds			msg, save_timestamp;
+
+    sampling.value.timestamp = sdsempty();
+    sampling.value.series = sdsempty();
+    sampling.value.data = sdsempty();
+
+    /* iterate over the 'samples' array */
+    for (i = 0; i < nsamples; i++) {
+	sample = samples[i];
+	if ((nelements = sample->elements) == 0)
+	    continue;
+	elements = sample->element;
+
+	/* expecting timestamp:valueset pairs, then instance:value pairs */
+	if (nelements % 2) {
+	    infofmt(msg, "expected time:valueset pairs in %s XRANGE", series);
+	    batoninfo(baton, PMLOG_RESPONSE, msg);
+	    sts = -EPROTO;
+	    break;
+	}
+
+	/* verify the instance:value pairs array before proceeding */
+	reply = elements[1];
+	if (reply->type != REDIS_REPLY_ARRAY) {
+	    infofmt(msg, "expected value array for series %s %s (type=%s)",
+			series, XRANGE, redis_reply_type(reply));
+	    batoninfo(baton, PMLOG_RESPONSE, msg);
+	    baton->error = -EPROTO;
+	    break;
+	}
+
+	/* In this initial setup phase, calloc space to store instance values */
+	idx_sample = i;
+	if ((np->series_values[idx_series][idx_sample] = (pmSeriesValue*)calloc(nelements/2, sizeof(pmSeriesValue))) == NULL) {
+	    /* TODO: error report here */
+	    baton->error = -ENOMEM;
+	}
+
+	/* setup state variables used internally during selection process */
+	if (sampling.setup == 0 && (tp->delta.tv_sec || tp->delta.tv_usec)) {
+	    /* 'next' is a nanosecond precision time interval to step with */
+	    sampling.delta.tv_sec = tp->delta.tv_sec;
+	    sampling.delta.tv_nsec = tp->delta.tv_usec * 1000;
+
+	    /* extract the first timestamp to kickstart the comparison process */
+	    if ((sts = extract_time(baton, series, elements[0],
+	    				&sampling.value.timestamp,
+					&sampling.value.ts)) < 0) {
+		baton->error = sts;
+		break;
+	    }
+	    /* 'goal' is the first target interval as an absolute timestamp */
+	    if (tp->start.tv_sec || tp->start.tv_usec) {
+		sampling.goal.tv_sec = tp->start.tv_sec;
+		sampling.goal.tv_nsec = tp->start.tv_usec * 1000;
+	    } else {
+		sampling.goal = sampling.value.ts;
+	    }
+	    sampling.next_timestamp = sdsempty();
+	    sampling.subsampling = 1;
+	}
+	sampling.setup = 1;
+
+	if (sampling.subsampling == 0) {
+	    if ((sts = extract_time(baton, series, elements[0],
+					&sampling.value.timestamp,
+					&sampling.value.ts)) < 0) {
+		baton->error = sts;
+		continue;
+	    }
+	} else if ((next = i + 1) < nsamples) {
+	    /*
+	     * Compare this point and the next to the ideal based on delta;
+	     * skip over returning this value if the next one looks better.
+	     */
+	    elements = samples[next]->element;
+	    if ((sts = extract_time(baton, series, elements[0],
+	    				&sampling.next_timestamp,
+					&sampling.next_timespec)) < 0) {
+		baton->error = sts;
+		continue;
+	    } else if ((sts = use_next_sample(&sampling)) == 1) {
+		goto next_sample;
+	    } else if (sts == -1) {		/* sampling reached the end */
+		goto last_sample;
+	    }
+	} /* else falls through and may call user-supplied callback */
+
+	/* check whether a user-requested sample count has been reached
+	 * Here copy the sample results(instance values) to the node.
+	 */
+	if (tp->count && sampling.count++ >= tp->count)
+	    break;
+
+	if ((sts = series_instance_store_to_node(baton, series, &sampling.value,
+				reply->elements, reply->element, np, idx_sample)) < 0) {
+	    baton->error = sts;
+	    goto last_sample;
+	}
+	
+	if (sampling.subsampling == 0)
+	    continue;
+next_sample:
+	/* carefully swap time strings to avoid leaking memory */
+	save_timestamp = sampling.next_timestamp;
+	sampling.next_timestamp = sampling.value.timestamp;
+	sampling.value.timestamp = save_timestamp;
+	sampling.value.ts = sampling.next_timespec;
+    }
+last_sample:
+    if (sampling.setup)
+	sdsfree(sampling.next_timestamp);
+    sdsfree(sampling.value.timestamp);
+    sdsfree(sampling.value.series);
+    sdsfree(sampling.value.data);
+}
+
+/* 
+ * Redis has returned replies about samples of series, save them into the corresponding node.
+ */
+static void
+series_node_prepare_time_reply(
+	redisAsyncContext *c, redisReply *reply, const sds cmd, void *arg)
+{
+    node_t			*np = (node_t *)arg;
+    seriesQueryBaton		*baton = (seriesQueryBaton *)np->baton;
+    sds				msg;
+    int				sts, idx = np->result.nseries;
+    seriesGetSID		*sid = *((seriesGetSID **)(np->SID) + idx);
+
+    /* 
+     * Got an reply contains series values which need to be saved into the corresponding 
+     * node, but when this callback function be called, we need the information of SID of the
+     * series. Here we can not access SID unless store SIDs in node. That's why I add **SID into
+     * struct node_t in query.h
+     */
+    seriesBatonCheckMagic(sid, MAGIC_SID, "series_node_prepare_time_reply_sid");
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_node_prepare_time_reply_baton");
+    sts = redisSlotsRedirect(baton->slots, reply, baton->info, baton->userdata,
+			     cmd, series_node_prepare_time_reply, arg);
+
+    if (sts > 0)
+	return;	/* short-circuit as command was re-submitted */
+
+    if (UNLIKELY(reply == NULL || reply->type != REDIS_REPLY_ARRAY)) {
+	if (sts < 0) {
+	    infofmt(msg, "expected array from %s XSTREAM values (type=%s)",
+			sid->name, redis_reply_type(reply));
+	    batoninfo(baton, PMLOG_RESPONSE, msg);
+	}
+	baton->error = -EPROTO;
+    } else {
+	/* calloc space to store series samples */
+	if ((*(np->series_values + idx) = (pmSeriesValue **)calloc(reply->elements, sizeof(pmSeriesValue *))) == NULL) {
+	    /* TODO: error report here */
+	    baton->error = -ENOMEM;
+	}
+	series_values_store_to_node(baton, sid->name, reply->elements, reply->element, sid, np);
+	np->result.nseries++;
+    }
+}
+
+static void
+series_node_prepare_time(seriesQueryBaton *baton, series_set_t *query_series_set, node_t *np)
+{
+    timing_t			*tp = &baton->u.query.timing;
+    unsigned char		*series = query_series_set->series;
+    seriesGetSID		*sid;
+    char			buffer[64], revbuf[64];
+    sds				start, end, key, cmd;
+    unsigned int		i, revlen = 0, reverse = 0;
+    int				nseries = query_series_set->nseries;
+
+    /* if only 'count' is requested, work back from most recent value */
+    if ((reverse = series_value_count_only(tp)) != 0) {
+	revlen = pmsprintf(revbuf, sizeof(revbuf), "%u", reverse);
+	start = sdsnew("+");
+    } else {
+	start = sdsnew(timeval_stream_str(&tp->start, buffer, sizeof(buffer)));
+    }
+
+    if (pmDebugOptions.series)
+	fprintf(stderr, "START: %s\n", start);
+
+    if (reverse)
+	end = sdsnew("-");
+    else if (tp->end.tv_sec)
+	end = sdsnew(timeval_stream_str(&tp->end, buffer, sizeof(buffer)));
+    else
+	end = sdsnew("+");	/* "+" means "no end" - to the most recent */
+
+    if (pmDebugOptions.series)
+	fprintf(stderr, "END: %s\n", end);
+    
+    /* Save SIDs' addresses into this node np */
+    if ((np->SID = (seriesGetSID **)calloc(nseries, sizeof(seriesGetSID*))) == NULL) {
+	/* TODO: error report here */
+	baton->error = -ENOMEM;
+    }
+
+    /* calloc nseries samples store space */
+    if ((np->series_values = (pmSeriesValue ***)calloc(nseries, sizeof(pmSeriesValue**))) == NULL) {
+	/* TODO: error report here */
+	baton->error = -ENOMEM;
+    }
+
+    /*
+     * Query cache for the time series range (groups of instance:value
+     * pairs, with an associated timestamp).
+     */
+    for (i = 0; i < nseries; i++, series += SHA1SZ) {
+	sid = calloc(1, sizeof(seriesGetSID));
+	pmwebapi_hash_str(series, buffer, sizeof(buffer));
+
+	initSeriesGetSID(sid, buffer, 1, baton);
+	seriesBatonReference(baton, "series_prepare_time");
+
+	key = sdscatfmt(sdsempty(), "pcp:values:series:%S", sid->name);
+
+	/* X[REV]RANGE key t1 t2 [count N] */
+	if (reverse) {
+	    cmd = redis_command(6);
+	    cmd = redis_param_str(cmd, XREVRANGE, XREVRANGE_LEN);
+	} else {
+	    cmd = redis_command(4);
+	    cmd = redis_param_str(cmd, XRANGE, XRANGE_LEN);
+	}
+	cmd = redis_param_sds(cmd, key);
+	cmd = redis_param_sds(cmd, start);
+	cmd = redis_param_sds(cmd, end);
+	if (reverse) {
+	    cmd = redis_param_str(cmd, "COUNT", sizeof("COUNT")-1);
+	    cmd = redis_param_str(cmd, revbuf, revlen);
+	}
+
+	/* Note: np->result.nseries is not equal to nseries in this function */
+	*( (seriesGetSID **)(np->SID) + i ) = sid;
+	redisSlotsRequest(baton->slots, XRANGE, key, cmd,
+				series_node_prepare_time_reply, np);
+    }
+    sdsfree(start);
+    sdsfree(end);
+}
+static int
+series_process_func(seriesQueryBaton *baton, node_t *np, int level)
+{
+/* 
+ * Do dfs here. In the process of unstacking from bottom of the parser tree, each time
+ * meet a functino-type node, we request to Redis to get the actual series values, then
+ * save replies to children nodes np.result
+ */
+    int				sts;
+    
+    if (np == NULL)
+	return 0;
+    if ((sts = series_process_func(baton, np->left, level+1)) < 0)
+	return sts;
+    if ((sts = series_process_func(baton, np->right, level+1)) < 0)
+	return sts;
+
+    switch (np->type) {
+    case N_RATE:
+    /* A N_RATE node must has a left child contains series values need to be rated.
+     * First save the series identifiers saved in left child into this node np.result
+     * Then use the left child's information to request to Redis
+     */
+	printf("series_process_func N_RATE\n");
+	if (np->right != NULL) {
+	    // error report here
+	}
+	unsigned char		*series;
+	sds			msg;
+	int			nelements = np->left->result.nseries;
+	if ((series = (unsigned char *)calloc(nelements, SHA1SZ)) == NULL) {
+	    infofmt(msg, "out of memory (%s, %" FMT_INT64 " bytes)",
+			"series_process_func", (__int64_t)nelements * SHA1SZ);
+	    batoninfo(baton, PMLOG_REQUEST, msg);
+	    return -ENOMEM;
+	}
+	np->result.nseries = nelements;
+	memcpy(series, np->left->result.series, 
+		np->result.nseries * SHA1SZ);
+	np->result.series = series;
+
+	np->left->result.nseries = 0;
+	free(np->left->result.series);
+	np->left->result.series = NULL;
+	
+	np->baton = baton;
+	series_node_prepare_time(baton, &np->result, np->left);
+	break;
+
+    default: 
+	break;
+    }
+
+    return sts;
+}
+
 static void
 series_query_report_values(void *arg)
 {
@@ -1398,6 +1745,8 @@ series_query_report_values(void *arg)
     seriesBatonCheckCount(baton, "series_query_report_values");
 
     seriesBatonReference(baton, "series_query_report_values");
+    series_process_func(baton, &baton->u.query.root, 0);
+    // leave series_prepare_time function just to report values, maybe need to modified
     series_prepare_time(baton, &baton->u.query.root.result);
     series_query_end_phase(baton);
 }

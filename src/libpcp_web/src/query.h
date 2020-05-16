@@ -109,6 +109,12 @@ typedef struct node {
     sds			*matches;
     regex_t		regex;	/* compiled regex */
     unsigned long long	cursor;
+
+    /* record SID for function-type node */
+    void		**SID;
+
+    /* store series values of this node */
+    pmSeriesValue	***series_values;
 } node_t;
 
 typedef struct timing {
