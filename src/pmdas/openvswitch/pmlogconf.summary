@@ -1,0 +1,7 @@
+#pmlogconf-setup 2.0
+ident	Openvswitch metrics information
+probe	openvswitch.switch.uuid exists ? include : exclude
+	
+    openvswitch.switch
+    openvswitch.port_info
+    openvswitch.flow
