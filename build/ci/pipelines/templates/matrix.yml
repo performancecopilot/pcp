@@ -2,9 +2,6 @@ jobs:
   - job: prepare
     displayName: Prepare
     steps:
-      - checkout: self
-        fetchDepth: 1
-
       - script: ./build/ci/pipelines/templates/gen_matrix.py "$(hosts)"
         name: matrix_step
         displayName: Prepare Job Matrix

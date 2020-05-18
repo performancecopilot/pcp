@@ -14,9 +14,6 @@ jobs:
       matrix: $[ dependencies.prepare.outputs['matrix_step.matrix'] ]
     timeoutInMinutes: 240
     steps:
-      - checkout: self
-        fetchDepth: 1
-
       - script: |
           set -eu
 
