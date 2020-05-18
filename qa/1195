@@ -1,0 +1,85 @@
+#!/bin/sh
+# PCP QA Test No. 1195
+# pmlogrewrite handling of empty archives
+#
+# Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+if which xz >/dev/null
+then
+    :
+else
+    _notrun "No xz(1) executable"
+    # NOTREACHED
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+mkdir $tmp
+
+# really empty
+#
+for suff in 0 meta index
+do
+    echo >$tmp/0.$suff
+done
+
+# just the label record, and an OK archive
+#
+for suff in 0 meta index
+do
+    dd if=tmparch/foo.$suff of=$tmp/1.$suff ibs=1 count=132 >/dev/null 2>&1
+    cp tmparch/foo.$suff $tmp/2.$suff
+done
+
+# and now compressed versions of the .meta and .0 files
+#
+for s in 0 1 2
+do
+    d=`expr $s + 3`
+    cp $tmp/$s.index $tmp/$d.index
+    for suff in 0 meta
+    do
+	cp $tmp/$s.$suff $tmp/$d.$suff
+	xz $tmp/$d.$suff
+    done
+done
+
+ls -l $tmp >>$seq.full
+
+# real QA test starts here
+cd $tmp
+for arch in ?.index
+do
+    arch=`echo "$arch" | sed -e 's/\.index$//'`
+    echo "=== $arch ==="
+    pmlogrewrite -i $arch
+done
+cd $here
+
+pmdumplog -a tmparch/foo >$tmp.ref
+echo "=== foo:2 expect no diffs ==="
+pmdumplog -a $tmp/2 | diff - $tmp.ref
+echo "=== foo:5 expect no diffs ==="
+pmdumplog -a $tmp/5 | diff - $tmp.ref
+
+
+# success, all done
+status=0
+exit

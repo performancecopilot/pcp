@@ -1363,6 +1363,9 @@ instance writing the log suddenly dies), then
 will detect and report the position of the corruption in the file,
 and any subsequent information from that archive log will not be processed.
 .PP
+If the input archive contains no archive records then an ``empty archive''
+warning is issued and no processing is performed.
+.PP
 If any error is detected,
 .B pmlogrewrite
 will exit with a non-zero status.

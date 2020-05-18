@@ -48,6 +48,7 @@ require {
 	@PCP_LASTLOG_T@
 	@PCP_XAUTH_EXEC_T@
 	@PCP_LOGROTATE_T@
+	@PCP_FAILLOG_T@
 
 	class file { @PCP_MAP_OP@ write };
 	class process { execstack signull };
@@ -137,3 +138,6 @@ allow pcp_pmcd_t usr_t:file { create unlink write };
 @PCP_SOCK_FILE_RULE@
 @PCP_DIR_RULE@
 @PCP_RAWIP_SOCKET_RULE@
+
+# type=AVC msg=audit(qa/789): avc:  denied  { write } for  pid=21132 comm="su" name="btmp" dev="dm-0" ino=25693341 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:faillog_t:s0 tclass=file permissive=0
+@PCP_FAILLOG_RULE@

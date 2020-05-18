@@ -1503,6 +1503,11 @@ main(int argc, char **argv)
     inarch.rp = NULL;
 
     if ((inarch.ctx = pmNewContext(PM_CONTEXT_ARCHIVE, inarch.name)) < 0) {
+	if (inarch.ctx == PM_ERR_NODATA) {
+	    fprintf(stderr, "%s: Warning: empty archive \"%s\" will be skipped\n",
+		    pmGetProgname(), inarch.name);
+	    exit(0);
+	}
 	fprintf(stderr, "%s: Error: cannot open archive \"%s\": %s\n",
 		pmGetProgname(), inarch.name, pmErrStr(inarch.ctx));
 	exit(1);

@@ -457,43 +457,71 @@ static void
 newlabel(void)
 {
     int		indx;
+    inarch_t	*f_iap = NULL;		/* first non-empty archive */
+    inarch_t	*l_iap = NULL;		/* last non-empty archive */
     inarch_t	*iap;
     __pmLogLabel	*lp = &logctl.l_label;
 
-    /* set outarch to inarch[0] to start off with */
-    iap = &inarch[0];
+    /*
+     * set outarch to inarch[indx] of first non-empty archive to start
+     * off with ... there must be at least one of these if we get
+     * this far
+     */
+    for (indx=0; indx<inarchnum; indx++) {
+	if (inarch[indx].ctx != PM_ERR_NODATA) {
+	    f_iap = &inarch[indx];
+	    break;
+	}
+    }
+    if (f_iap == NULL) {
+	fprintf(stderr, "Botch: no non-empty archive\n");
+	abandon_extract();
+    }
 
     /* check version number */
-    inarchvers = iap->label.ll_magic & 0xff;
+    inarchvers = f_iap->label.ll_magic & 0xff;
     outarchvers = inarchvers;
 
     if (inarchvers != PM_LOG_VERS02) {
 	fprintf(stderr,"%s: Error: illegal version number %d in archive (%s)\n",
-		pmGetProgname(), inarchvers, iap->name);
+		pmGetProgname(), inarchvers, f_iap->name);
 	abandon_extract();
     }
 
     /* copy magic number, pid, host and timezone */
-    lp->ill_magic = iap->label.ll_magic;
+    lp->ill_magic = f_iap->label.ll_magic;
     lp->ill_pid = (int)getpid();
-    strncpy(lp->ill_hostname, iap->label.ll_hostname, PM_LOG_MAXHOSTLEN);
+    strncpy(lp->ill_hostname, f_iap->label.ll_hostname, PM_LOG_MAXHOSTLEN);
     lp->ill_hostname[PM_LOG_MAXHOSTLEN-1] = '\0';
     if (farg) {
 	/*
-	 * use timezone from first archive ... this is the OLD default
+	 * use timezone from _first_ non-empty archive ...
+	 * this is the OLD default
 	 */
-	strcpy(lp->ill_tz, iap->label.ll_tz);
+	strcpy(lp->ill_tz, f_iap->label.ll_tz);
     }
     else {
 	/*
-	 * use timezone from last archive ... this is the NEW default
+	 * use timezone from the _last_ non-empty archive ...
+	 * this is the NEW default
 	 */
-	strcpy(lp->ill_tz, inarch[inarchnum-1].label.ll_tz);
+	for (indx=inarchnum-1; indx>=0; indx--) {
+	    if (inarch[indx].ctx != PM_ERR_NODATA) {
+		l_iap = &inarch[indx];
+		strcpy(lp->ill_tz, l_iap->label.ll_tz);
+		break;
+	    }
+	}
     }
 
     /* reset outarch as appropriate, depending on other input archives */
     for (indx=0; indx<inarchnum; indx++) {
 	iap = &inarch[indx];
+	
+	if (iap->ctx == PM_ERR_NODATA) {
+	    /* empty input archive, nothing to check here ... */
+	    continue;
+	}
 
 	/* Ensure all archives of the same version number */
         if ((iap->label.ll_magic & 0xff) != inarchvers) {
@@ -501,7 +529,7 @@ newlabel(void)
 		"%s: Error: input archives with different version numbers\n"
 		"archive: %s version: %d\n"
 		"archive: %s version: %d\n",
-		    pmGetProgname(), inarch[0].name, inarchvers,
+		    pmGetProgname(), f_iap->name, inarchvers,
 		    iap->name, (iap->label.ll_magic & 0xff));
 	    abandon_extract();
         }
@@ -511,7 +539,7 @@ newlabel(void)
 	    fprintf(stderr,"%s: Error: host name mismatch for input archives\n",
 		    pmGetProgname());
 	    fprintf(stderr, "archive: %s host: %s\n",
-		    inarch[0].name, inarch[0].label.ll_hostname);
+		    f_iap->name, f_iap->label.ll_hostname);
 	    fprintf(stderr, "archive: %s host: %s\n",
 		    iap->name, iap->label.ll_hostname);
 	    abandon_extract();
@@ -522,18 +550,10 @@ newlabel(void)
 	    fprintf(stderr,
 		"%s: Warning: timezone mismatch for input archives\n",
 		    pmGetProgname());
-	    if (farg) {
-		fprintf(stderr, "archive: %s timezone: %s [will be used]\n",
-		    inarch[0].name, lp->ill_tz);
-		fprintf(stderr, "archive: %s timezone: %s [will be ignored]\n",
-		    iap->name, iap->label.ll_tz);
-	    }
-	    else {
-		fprintf(stderr, "archive: %s timezone: %s [will be used]\n",
-		    inarch[inarchnum-1].name, lp->ill_tz);
-		fprintf(stderr, "archive: %s timezone: %s [will be ignored]\n",
-		    iap->name, iap->label.ll_tz);
-	    }
+	    fprintf(stderr, "archive: %s timezone: %s [will be used]\n",
+		farg ? f_iap->name : l_iap->name, lp->ill_tz);
+	    fprintf(stderr, "archive: %s timezone: %s [will be ignored]\n",
+		iap->name, iap->label.ll_tz);
 	}
     } /*for(indx)*/
 }
@@ -2472,6 +2492,7 @@ main(int argc, char **argv)
     int		sts;
     int		stslog;			/* sts from nextlog() */
     int		stsmeta;		/* sts from nextmeta() */
+    int		nempty = 0;		/* number of empty input archives */
 
     char	*msg;
 
@@ -2484,7 +2505,6 @@ main(int argc, char **argv)
     rlist_t	*rlready = NULL;	/* results ready for writing */
 
     struct timeval	unused;
-
 
     __pmHashInit(&rdesc);	/* hash of meta desc records to write */
     __pmHashInit(&rindom);	/* hash of meta indom records to write */
@@ -2509,7 +2529,6 @@ main(int argc, char **argv)
 	pmUsageMessage(&opts);
 	exit(1);
     }
-
 
     /* input  archive names are argv[opts.optind] ... argv[argc-2]) */
     /* output archive name  is  argv[argc-1]) */
@@ -2547,9 +2566,18 @@ main(int argc, char **argv)
 	iap->_Nresult = NULL;
 
 	if ((iap->ctx = pmNewContext(PM_CONTEXT_ARCHIVE, iap->name)) < 0) {
-	    fprintf(stderr, "%s: Error: cannot open archive \"%s\": %s\n",
-		    pmGetProgname(), iap->name, pmErrStr(iap->ctx));
-	    exit(1);
+	    if (iap->ctx == PM_ERR_NODATA) {
+		fprintf(stderr, "%s: Warning: empty archive \"%s\" will be skipped\n",
+			pmGetProgname(), iap->name);
+		iap->eof[LOG] = iap->eof[META] = 1;
+		nempty++;
+		continue;
+	    }
+	    else {
+		fprintf(stderr, "%s: Error: cannot open archive \"%s\": %s\n",
+			pmGetProgname(), iap->name, pmErrStr(iap->ctx));
+		exit(1);
+	    }
 	}
 
 	if ((sts = pmUseContext(iap->ctx)) < 0) {
@@ -2602,6 +2630,12 @@ main(int argc, char **argv)
 	}
     } /*for(indx)*/
 
+    if (nempty == inarchnum) {
+	fprintf(stderr, "%s: Warning: all input archive(s) are empty, no output archive created\n",
+		pmGetProgname());
+	exit(1);
+    }
+
     logctl.l_label.ill_start.tv_sec = logstart_tval.tv_sec;
     logctl.l_label.ill_start.tv_usec = logstart_tval.tv_usec;
 
@@ -2613,14 +2647,19 @@ main(int argc, char **argv)
 	exit(1);
 
     if (zarg) {
-	/* use TZ from metrics source (input-archive) */
-	if ((sts = pmNewZone(inarch[0].label.ll_tz)) < 0) {
-	    fprintf(stderr, "%s: Cannot set context timezone: %s\n",
-		    pmGetProgname(), pmErrStr(sts));
-            exit_status = 1;
-            goto cleanup;
+	/* use TZ from metrics source (first non-empty input archive) */
+	for (indx=0; indx<inarchnum; indx++) {
+	    if (inarch[indx].ctx != PM_ERR_NODATA) {
+		if ((sts = pmNewZone(inarch[indx].label.ll_tz)) < 0) {
+		    fprintf(stderr, "%s: Cannot set context timezone: %s\n",
+			    pmGetProgname(), pmErrStr(sts));
+		    exit_status = 1;
+		    goto cleanup;
+		}
+		printf("Note: timezone set to local timezone of host \"%s\" from archive\n\n", inarch[indx].label.ll_hostname);
+		break;
+	    }
 	}
-	printf("Note: timezone set to local timezone of host \"%s\" from archive\n\n", inarch[0].label.ll_hostname);
     }
     else if (tz != NULL) {
 	/* use TZ as specified by user */
