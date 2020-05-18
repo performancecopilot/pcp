@@ -148,6 +148,7 @@ __pmLogChkLabel(__pmArchCtl *acp, __pmFILE *f, __pmLogLabel *lp, int vol)
     int		xpectlen = sizeof(__pmLogLabel) + 2 * sizeof(len);
     int		n;
     int		sts;
+    int		diag_output = 0;
     struct stat	sbuf;
 
     if (vol >= 0 && vol < lcp->l_numseen && lcp->l_seen[vol]) {
@@ -169,8 +170,10 @@ __pmLogChkLabel(__pmArchCtl *acp, __pmFILE *f, __pmLogLabel *lp, int vol)
 	}
     }
 
-    if (pmDebugOptions.log)
+    if (pmDebugOptions.log) {
 	fprintf(stderr, "__pmLogChkLabel: fd=%d vol=%d", __pmFileno(f), vol);
+	diag_output = 1;
+    }
 
     __pmFseek(f, (long)0, SEEK_SET);
     n = (int)__pmFread(&len, 1, sizeof(len), f);
@@ -279,7 +282,7 @@ __pmLogChkLabel(__pmArchCtl *acp, __pmFILE *f, __pmLogLabel *lp, int vol)
 	lcp->l_seen[vol] = 1;
 
 func_return:
-    if (pmDebugOptions.log)
+    if (pmDebugOptions.log && diag_output)
 	fputc('\n', stderr);
 
     return version;

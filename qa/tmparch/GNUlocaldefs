@@ -10,7 +10,7 @@ MKARCH	= foo.0 mv-foo.0 noti-foo.0 noti-ok-foo.0 null.0 \
 	bigbin.0 mv-bigbin.0 noti-bigbin.0 truncbin.0 \
 	interp.0 mv-interp.0 noti-interp.0 \
 	gap.0 gap2.0 reduce-gap.0 \
-	dodgey-some.0 dodgey-all.0 dodgey-mixed.0
+	dodgey-some.0 dodgey-all.0 dodgey-mixed.0 bad-1.0
 
 LDIRT = $(MKARCH) \
 	$(patsubst %.0,%.meta,$(MKARCH)) $(patsubst %.0,%.index,$(MKARCH)) \
@@ -101,6 +101,13 @@ truncbin.0:	bigbin.0
 	ln bigbin.meta truncbin.meta
 	ln bigbin.index truncbin.index
 	dd ibs=1024 count=200 if=bigbin.0 of=truncbin.0
+
+# truncated in the middle of the first pmResult
+bad-1.0:	bigbin.0
+	rm -f bad-1.index bad-1.meta bad-1.0
+	ln foo.meta bad-1.meta
+	ln foo.index bad-1.index
+	dd ibs=1 count=140 if=foo.0 of=bad-1.0
 
 interp.0:	$(CONFIG_INTERP)
 	rm -f interp.index interp.meta interp.0

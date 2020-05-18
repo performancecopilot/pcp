@@ -2079,7 +2079,10 @@ URL: https://pcp.io
 Requires: pcp pcp-doc pcp-system-tools
 Requires: pcp-pmda-dm
 %if "@have_python@" == "true"
-Requires: pcp-pmda-nfsclient pcp-pmda-openmetrics
+Requires: pcp-pmda-nfsclient
+%endif
+%if "@pmda_openmetrics@" == "true"
+Requires: pcp-pmda-openmetrics
 %endif
 %description zeroconf
 This package contains configuration tweaks and files to increase metrics

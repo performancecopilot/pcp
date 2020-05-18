@@ -42,19 +42,8 @@ last result time (serial): MY-EOL-TIMESTAMP
 required 416 log reads
 
 empty archive
+eol: Cannot open archive "tmparch/null": Empty archive log file
 pmGetArchiveEnd failed!
-pmGetArchiveEnd: Corrupted record in a PCP archive log
-required 0 log reads
-
-pmFetchArchive: End of PCP archive log
-required 0 log reads
-
-pmFetchArchive: End of PCP archive log
-required 0 log reads
-
-pmFetchArchive: End of PCP archive log
-no results!
-required 0 log reads
 
 small multi-volume archive
 pmGetArchiveEnd time: MY-EOL-TIMESTAMP
