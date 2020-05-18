@@ -75,8 +75,3 @@ pcpqa.pp: pcpqa.te
 pcpqa.te: pcpqa.te.in GNUmakefile GNUselinuxdefs
 	make pcpqa.te.in
 endif
-
-
-# Local variables:
-# mode: makefile
-# End:
