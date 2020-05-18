@@ -76,7 +76,7 @@ OTHERS = group qa_hosts.master README sanity.coverage \
 
 ifeq "$(ENABLE_SELINUX)" "true"
 SELINUX_PCPQA = pcpqa.te
-OTHERS += GNUselinuxdefs $(SELINUX_PCPQA)
+OTHERS += GNUselinuxdefs $(SELINUX_PCPQA).in $(SELINUX_PCPQA)
 else
 SELINUX_PCPQA =
 endif
