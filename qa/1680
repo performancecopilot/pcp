@@ -27,12 +27,6 @@ which ovs-vsctl >/dev/null 2>&1 || _notrun "missing required ovs-vsctl command"
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 
-openvswitch_cleanup()
-{
-    cd $here
-    $sudo rm -rf $tmp $tmp.*
-}
-
 pmdaopenvswitch_remove()
 {
     echo
@@ -63,10 +57,9 @@ pmdaopenvswitch_install()
 }
 
 _prepare_pmda openvswitch
-trap "openvswitch_cleanup; exit \$status" 0 1 2 3 15
+trap "_cleanup_pmda openvswitch; exit \$status" 0 1 2 3 15
 
 _stop_auto_restart pmcd
-
 
 # real QA test starts here
 pmdaopenvswitch_install
