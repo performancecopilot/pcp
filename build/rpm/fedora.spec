@@ -2896,12 +2896,14 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 # services and timers replacing the old cron scripts
 %{_unitdir}/pmlogger_check.service
 %{_unitdir}/pmlogger_check.timer
+%{_unitdir}/pmlogger_check.path
 %{_unitdir}/pmlogger_daily.service
 %{_unitdir}/pmlogger_daily.timer
 %{_unitdir}/pmlogger_daily-poll.service
 %{_unitdir}/pmlogger_daily-poll.timer
 %{_unitdir}/pmie_check.service
 %{_unitdir}/pmie_check.timer
+%{_unitdir}/pmie_check.path
 %{_unitdir}/pmie_daily.service
 %{_unitdir}/pmie_daily.timer
 %config(noreplace) %{_sysconfdir}/sysconfig/pmie_timers
