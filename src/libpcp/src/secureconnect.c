@@ -244,12 +244,12 @@ __pmInitCertificates(void)
      */
     if (__pmMakePath(dbpath(nssdb, sizeof(nssdb), "sql:"), 0700) < 0)
 	return 0;
-    secsts = NSS_InitReadWrite(nssdb);
+    secsts = NSS_Init(nssdb);
 
     if (secsts != SECSuccess) {
 	/* fallback, older versions of NSS do not support sql: */
 	dbpath(nssdb, sizeof(nssdb), "");
-	secsts = NSS_InitReadWrite(nssdb);
+	secsts = NSS_Init(nssdb);
     }
 
     if (secsts != SECSuccess)
