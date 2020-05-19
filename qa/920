@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 # PCP QA Test No. 920
 # pmlogger_check with Martins Innus <minnus@buffalo.edu> style
 # multi-level directory structure.
@@ -22,6 +22,7 @@ _cleanup()
     then
 	$sudo rm -f ${PCP_PMLOGGERCONTROL_PATH}.d/qa-$seq
 	needclean=false
+	_service pmlogger_check start >/dev/null 2>&1
 	_service pcp restart 2>&1 | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
@@ -61,12 +62,23 @@ NF < 4		{ print; next }
     # end
 }
 
+_filter_pmlogger_check()
+{
+    sed \
+	-e '/pmlogger_check.service/d' \
+	-e '/pmlogger_check.timer/d' \
+	-e '/pmlogger_check.path/d' \
+    #end
+}
+
 status=1	# failure is the default!
 needclean=true
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
+_service pmlogger_check stop 2>&1 | _filter_pmlogger_check
+
 cat <<End-of-File >$tmp.tmp
 # dummy file created by qa/$seq on `date`
 # the goal here is to have a non-primary logger that has a deeply
@@ -76,7 +88,7 @@ LOCALHOSTNAME n n $tmp/pmlogger/myhost/2017/02/12 -c /dev/null -L
 End-of-File
 $sudo cp $tmp.tmp ${PCP_PMLOGGERCONTROL_PATH}.d/qa-$seq
 
-_service pmlogger restart | _filter_pcp_start
+_service pmlogger start | _filter_pcp_start
 
 # wait up to 20 seconds for our pmlogger to start
 #
