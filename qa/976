@@ -26,6 +26,7 @@ _filter()
     sed \
         -e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
         -e "s;$script;pmdalustre.pl;" \
+	-e "s;$here;HERE;g" \
     | _filter_dumpresult
 }
 
@@ -37,7 +38,7 @@ cd "$PCP_PMDAS_DIR/lustre"
 # create a root namespace file for dbpmda to use
 export LUSTRE_LLITE_PATH="$here/lustre/llite/"
 export LUSTRE_LNET_PATH="$here/lustre/lnet/"
-PCP_PERL_PMNS=root /usr/bin/env perl $script > $tmp.root
+PCP_PERL_PMNS=root /usr/bin/env perl $script 2>/dev/null > $tmp.root
 
 # create a set of commands for dbpmda
 cat >$tmp.cmds <<End-of-File
@@ -55,7 +56,7 @@ instance $domain.0
 End-of-File
 
 echo === Testing precanned lustre files
-$sudo TERM=ansi dbpmda -n $tmp.root -ie < $tmp.cmds 2>&1 | _filter
+$sudo dbpmda -n $tmp.root -ie < $tmp.cmds 2>&1 | _filter
 
 cat lustre.log >>$here/$seq.full
 
