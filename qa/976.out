@@ -2,6 +2,7 @@ QA output created by 976
 === Testing precanned lustre files
 dbpmda> open pipe /usr/bin/env perl pmdalustre.pl
 Start env PMDA: /usr/bin/env perl pmdalustre.pl
+Using Lustre stats in 'HERE/lustre/llite/' and HERE/lustre/lnet/
 dbpmda> getdesc on
 dbpmda> desc lustre.llite.superblock
 PMID: 134.0.2

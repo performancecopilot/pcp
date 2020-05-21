@@ -1,0 +1,3 @@
+[Path]
+PathChanged=@PCP_PMIECONTROL_PATH@
+PathChanged=@PCP_PMIECONTROL_PATH@.d

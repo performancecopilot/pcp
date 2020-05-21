@@ -121,7 +121,7 @@ Once this certificate has been received, it will be installed on the client.</P>
 	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Create the local CA:<BR>
 <PRE><B>
 $ openssl genrsa -out rootCA.key 2048
-$ openssl req -new -x509 -extensions v3_ca -key ca.key -out rootCA.crt -days 3650
+$ openssl req -new -x509 -extensions v3_ca -key rootCA.key -out rootCA.crt -days 3650
 .....
 Common Name (eg, your name or your server's hostname) []:myCA
 .....

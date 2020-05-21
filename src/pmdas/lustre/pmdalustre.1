@@ -1,6 +1,7 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2011 SGI.  All Rights Reserved.
+.\" Copyright (c) 2020 Red Hat.  All Rights Reserved.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -18,13 +19,89 @@
 \f3pmdalustre\f1 \- lustre filesystem statistics performance metrics domain agent (PMDA)
 .SH DESCRIPTION
 \f3pmdalustre\f1 is a Performance Metrics Domain Agent (\s-1PMDA\s0) which
-exports metric values from the
-.I /proc/fs/lustre
+reads and exports metric values from the statistics interfaces of a Lustre filesystem.
+.PP
+.B pmdalustre
+searches for statistics interfaces from several locations,
+which vary depending on the version of
+.B Lustre
+installed locally.
+.PP
+Recent
+.B Lustre
+versions (v2.12 and later) export statistics from the kernel
+.B debugfs
+pseudo filesystem,
+in the directories
+.B /sys/kernel/debug/lustre/llite
 and
-.I /proc/sys/lnet
-trees to provide information on mounted lustre filesystems.
+.BR /sys/kernel/debug/lnet .
+If these interfaces are not found during startup,
+.B pmdalustre
+will automatically check if the statistics interfaces are available from the
+.B procfs
+pseudo filesystem below the
+.B /proc/fs/lustre/llite
+and
+.B /proc/sys/lnet
+directories.
+These are the default locations of the statistics for
+.B Lustre
+versions less than
+.BR v2.12 .
+.PP
+If neither of the above filesystem interfaces are detected,
+or if the user wants to override the default locations,
+.B pmdalustre
+also supports an optional configuration file named
+.BR $PCP_PMDAS_DIR/lustre/lustre.conf .
+Note that
+.B $PCP_PMDAS_DIR
+is set to
+.B /var/lib/pcp/pmdas
+on most Linux based  systems.
+The configuration file supports
+.BR perl (1)
+variable assignment syntax.
+An example configuration file suitable for
+.B Lustre
+v2.12 and later is:
+.in 2i
+.nf
+
+.B $LLITE_PATH="/sys/kernel/debug/lustre/llite/";
+.B $LNET_PATH="/sys/kernel/debug/lustre/lnet/";
+
+.fi
+.in
+See comments in the shipped
+.B lustre.conf
+file for further details.
+By default, this file is installed with everything commented
+(and so it has no effect unless edited) because the built-in heuristics used by
+.B pmdalustre
+should suffice.
+.PP
+Finally, overriding all of the above, the
+.B LUSTRE_LLITE_PATH
+and
+.B LUSTRE_LNET_PATH
+environment variables may be set (and exported) to specify the directory locations
+of the statistics interfaces to be used.
+This mechanism using environment variabes is intended to be used
+for development and testing purposes only.
+.PP
+The
+.B pmdalustre
+process runs as the root user because
+.B debugfs
+directories are not normally readable by unprivileged users.
 .SH INSTALLATION
-Install the lustre PMDA by using the Install script as root:
+Install
+.B pmdalustre
+by using the
+.B Install
+script as the root user:
 .PP
 .ft CW
 .nf
@@ -56,6 +133,8 @@ installation script for the \fBpmdalustre\fR agent
 undo installation script for the \fBpmdalustre\fR agent
 .IP "\fB$PCP_LOG_DIR/pmcd/lustre.log\fR" 4
 default log file for error messages from \fBpmdalustre\fR
+.IP "\fB$PCP_PMDAS_DIR/lustre/lustre.conf\fR" 4
+Configuration file for over-riding default statistics directories used by \fBpmdalustre\fP.
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fR are used to parameterize
 the file and directory names used by \fBPCP\fR. On each installation, the
@@ -64,6 +143,7 @@ The \fB$PCP_CONF\fR variable may be used to specify an alternative
 configuration file, as described in \fIpcp.conf\fR(5).
 .SH SEE ALSO
 .BR PCPIntro (1),
+.BR perl (1),
 .BR pmcd (1)
 and
 .BR llstat (1).

@@ -222,6 +222,7 @@ int
 __pmInitCertificates(void)
 {
     char nssdb[MAXPATHLEN];
+    char *nssdb_path;
     const PRUint16 *cipher;
     PK11SlotInfo *slot;
     SECStatus secsts;
@@ -241,15 +242,20 @@ __pmInitCertificates(void)
      * If we cannot, we silently bail out so that users who're
      * not using secure connections (initially everyone) don't
      * have to diagnose / put up with spurious errors.
+     *
+     * for system services like pmlogger nssdb will be sql:/etc/pcp/nssdb
+     * the pmlogger process does *not* have write permissions for this directory
+     * let's check for rx access first before trying to create this directory
      */
-    if (__pmMakePath(dbpath(nssdb, sizeof(nssdb), "sql:"), 0700) < 0)
+    nssdb_path = dbpath(nssdb, sizeof(nssdb), "sql:");
+    if (access(nssdb_path, R_OK|X_OK) != 0 && __pmMakePath(nssdb_path, 0700) < 0)
 	return 0;
-    secsts = NSS_InitReadWrite(nssdb);
+    secsts = NSS_Init(nssdb);
 
     if (secsts != SECSuccess) {
 	/* fallback, older versions of NSS do not support sql: */
 	dbpath(nssdb, sizeof(nssdb), "");
-	secsts = NSS_InitReadWrite(nssdb);
+	secsts = NSS_Init(nssdb);
     }
 
     if (secsts != SECSuccess)
