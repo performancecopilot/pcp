@@ -65,7 +65,7 @@ class PCP2XLSX(object):
                      'type_prefer', 'precision_force',
                      'names_change',
                      'speclocal', 'instances', 'ignore_incompat', 'ignore_unknown',
-                     'omit_flat')
+                     'omit_flat', 'include_labels')
 
         # The order of preference for options (as present):
         # 1 - command line options
@@ -90,6 +90,7 @@ class PCP2XLSX(object):
         self.names_change = 0 # ignore
         self.instances = []
         self.omit_flat = 0
+        self.include_labels = 0
         self.precision = 3 # .3f
         self.precision_force = None
         self.timefmt = TIMEFMT
@@ -134,7 +135,7 @@ class PCP2XLSX(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:rRIi:4:5vP:0:q:b:y:Q:B:Y:F:f:Z:z")
+        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:rRIi:4:5vmP:0:q:b:y:Q:B:Y:F:f:Z:z")
         opts.pmSetShortUsage("[option...] metricspec [...]")
 
         opts.pmSetLongOptionHeader("General options")
@@ -171,6 +172,7 @@ class PCP2XLSX(object):
         opts.pmSetLongOption("names-change", 1, "4", "ACTION", "ignore/abort on PMNS change (default: ignore)")
         opts.pmSetLongOption("instances", 1, "i", "STR", "instances to report (default: all current)")
         opts.pmSetLongOption("omit-flat", 0, "v", "", "omit single-valued metrics")
+        opts.pmSetLongOption("include-labels", 0, "m", "", "include metric label info")
         opts.pmSetLongOption("precision", 1, "P", "N", "prefer N digits after decimal separator (default: 3)")
         opts.pmSetLongOption("precision-force", 1, "0", "N", "force N digits after decimal separator")
         opts.pmSetLongOption("timestamp-format", 1, "f", "STR", "xlsx timestamp format")
@@ -236,6 +238,8 @@ class PCP2XLSX(object):
             self.instances = self.instances + self.pmconfig.parse_instances(optarg)
         elif opt == 'v':
             self.omit_flat = 1
+        elif opt == 'm':
+            self.include_labels = 1
         elif opt == 'P':
             self.precision = optarg
         elif opt == '0':
@@ -446,6 +450,16 @@ class PCP2XLSX(object):
                        self.ws.column_dimensions[chr(col)].width < l + PADDING:
                         self.ws.column_dimensions[chr(col)].width = l + PADDING
             self.row += 1
+
+            # Labels, static
+            if self.include_labels:
+                col = COLUMNA
+                for i, metric in enumerate(self.metrics):
+                    for j in range(len(self.pmconfig.insts[i][0])):
+                        labels = self.pmconfig.get_labels_str(metric, self.pmconfig.insts[i][0][j], False)
+                        col += 1
+                        write_cell(col, self.row, labels, True)
+                self.row += 1
 
             # Units, static
             col = COLUMNA
