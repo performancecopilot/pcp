@@ -19,7 +19,7 @@
 \f3pcp2xlsx\f1 \- pcp-to-xlsx metrics exporter
 .SH SYNOPSIS
 \fBpcp2xlsx\fP
-[\fB\-5CGHILrRvVz?\fP]
+[\fB\-5CGHILmrRvVz?\fP]
 [\fB\-4\fP \fIaction\fP]
 [\fB\-a\fP \fIarchive\fP]
 [\fB\-A\fP \fIalign\fP]
@@ -306,6 +306,9 @@ Use a local context to collect metrics from DSO PMDAs on the local host
 without PMCD.
 See also
 .BR \-K .
+.TP
+\fB-m\fR
+include labels in the report.
 .TP
 \fB\-O\fR \fIorigin\fR, \fB\-\-origin\fR=\fIorigin\fR
 When reporting archived metrics, start reporting at
