@@ -46,7 +46,7 @@ class pmConfig(object):
         # Common special command line switches
         self.arghelp = ('-?', '--help', '-V', '--version')
 
-        # Supported metricset specifiers
+        # Supported metricset specifiers - label is txt label of metricspec
         self.metricspec = ('label', 'instances', 'unit', 'type',
                            'width', 'precision', 'limit', 'formula')
 
@@ -58,6 +58,8 @@ class pmConfig(object):
         self.descs = []
         self.insts = []
         self.texts = []
+        self.labels = []                 # PCP labels of initial instances
+        self.res_labels = OrderedDict()  # PCP labels of current results
 
         # Pause helpers
         self._round = 0
@@ -74,6 +76,9 @@ class pmConfig(object):
 
         # Store configured metrics to avoid rereading on PMNS updates
         self._conf_metrics = OrderedDict()
+
+        # Update PCP labels on instance changes
+        self._prev_insts = []
 
     def set_signal_handler(self):
         """ Set default signal handler """
@@ -381,6 +386,48 @@ class pmConfig(object):
             return True
         return False
 
+    def provide_labels(self):
+        """ Check if labels needed """
+        if hasattr(self.util, 'include_labels') and self.util.include_labels:
+            return True
+        return False
+
+    def _dict_to_flat_list(self, d):
+        """ Helper to flatten dict to list """
+        items = []
+        for k, v in d.items():
+            if isinstance(v, dict):
+                items.extend(self._dict_to_flat_list(v))
+            else:
+                items.append((k, v))
+        return items
+
+    def merge_labels(self, d1, d2):
+        """ Helper to merge label dicts """
+        d3 = d1.copy()
+        d3.update(d2)
+        return d3
+
+    def get_labels_str(self, metric, inst=None, curr=True, combine=True):
+        """ Return labels as string """
+        i = None if curr else list(self.util.metrics.keys()).index(metric)
+        ref = self.res_labels[metric] if curr else self.labels[i]
+        if inst in (None, pmapi.c_api.PM_IN_NULL):
+            labels = ref[0]
+        else:
+            if curr:
+                inst_labels = {} if inst not in ref[1] else ref[1][inst]
+            else:
+                inst_labels = {} if not ref[1] else ref[1][inst]
+            if not combine:
+                labels = inst_labels
+                if not labels:
+                    return "{}"
+            else:
+                metric_labels = ref[0]
+                labels = self.merge_labels(metric_labels, inst_labels)
+        return "{" + ','.join("'%s':'%s'" % (k, v) for (k, v) in self._dict_to_flat_list(labels)) + "}"
+
     def do_live_filtering(self):
         """ Check if doing live filtering """
         if hasattr(self.util, 'live_filter') and self.util.live_filter:
@@ -399,6 +446,18 @@ class pmConfig(object):
             return self.util.context.pmGetInDomArchive(desc)
         else:
             return self.util.context.pmGetInDom(desc)
+
+    def get_inst_labels(self, indom, curr=True, insts=[]): # pylint: disable=dangerous-default-value
+        """ Get instance labels """
+        if indom == pmapi.c_api.PM_INDOM_NULL:
+            return {} if curr else []
+        if curr:
+            return self.util.context.pmGetInstancesLabels(indom)
+        inst_labels = []
+        indom_labels = self.util.context.pmGetInstancesLabels(indom)
+        for i in insts:
+            inst_labels.append(indom_labels[i] if i in indom_labels else {})
+        return inst_labels
 
     def check_metric(self, metric):
         """ Validate individual metric and get its details """
@@ -457,6 +516,18 @@ class pmConfig(object):
                     if error.args[0] != pmapi.c_api.PM_ERR_TEXT:
                         raise
                 self.texts.append([line, full, doml, domh])
+            metric_labels = {}
+            inst_labels = []
+            ri_labels = {}
+            if self.provide_labels():
+                try:
+                    metric_labels = self.util.context.pmLookupLabels(pmid)
+                    inst_labels = self.get_inst_labels(desc.contents.indom, False, inst[0])
+                    ri_labels = self.get_inst_labels(desc.contents.indom)
+                except Exception:
+                    pass
+            self.labels.append([metric_labels, inst_labels])
+            self.res_labels[metric] = [metric_labels, ri_labels]
         except pmapi.pmErr as error:
             if hasattr(self.util, 'ignore_incompat') and self.util.ignore_incompat:
                 return
@@ -823,6 +894,8 @@ class pmConfig(object):
                         for v in reversed(vanished):
                             del self.insts[i][0][v]
                             del self.insts[i][1][v]
+                            if self.provide_labels():
+                                del self.labels[i][1][v]
                     self.util.metrics[metric][5] = self.pmfg_items_to_indom(items)
                 else:
                     self.util.metrics[metric][5] = self.util.pmfg.extend_indom(metric, mtype, scale, max_insts)
@@ -850,6 +923,8 @@ class pmConfig(object):
             del self.insts[incompat_metrics[metric]]
             if self.provide_texts():
                 del self.texts[incompat_metrics[metric]]
+            if self.provide_labels():
+                del self.labels[incompat_metrics[metric]]
             del self.util.metrics[metric]
         del incompat_metrics
 
@@ -900,6 +975,8 @@ class pmConfig(object):
         self.descs = []
         self.insts = []
         self.texts = []
+        self.labels = []
+        self.res_labels = OrderedDict()
         self.util.pmfg.clear()
         self.util.pmfg_ts = None
 
@@ -1034,6 +1111,27 @@ class pmConfig(object):
 
             if valid_only and not results[metric]:
                 del results[metric]
+
+        if self.provide_labels():
+            insts = [(metric, list(zip(*results[metric]))[0]) for metric in results if results[metric]]
+            if self._prev_insts != insts:
+                prev_labels = self.res_labels
+                self.res_labels = OrderedDict()
+                self._prev_insts = insts
+                for metric in results:
+                    ri_labels = None
+                    if metric in prev_labels:
+                        metric_labels = prev_labels[metric][0]
+                        prev_insts = prev_labels[metric][1].keys()
+                        curr_insts = list(zip(*results[metric]))[0] if results[metric] else {}
+                        if all(inst in prev_insts for inst in curr_insts):
+                            ri_labels = prev_labels[metric][1]
+                    else:
+                        i = list(self.util.metrics.keys()).index(metric)
+                        metric_labels = self.util.context.pmLookupLabels(self.pmids[i])
+                    if ri_labels is None:
+                        ri_labels = self.get_inst_labels(self.descs[i].contents.indom)
+                    self.res_labels[metric] = [metric_labels, ri_labels]
 
         if not results:
             return results
