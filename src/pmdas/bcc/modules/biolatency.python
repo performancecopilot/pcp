@@ -20,7 +20,7 @@
 from bcc import BPF
 
 from pcp.pmapi import pmUnits
-from cpmapi import PM_TYPE_U64, PM_SEM_COUNTER, PM_COUNT_ONE
+from cpmapi import PM_TYPE_U64, PM_SEM_COUNTER, PM_TIME_USEC
 from cpmda import PMDA_FETCH_NOVALUES
 
 from modules.pcpbcc import PCPBCCBase
@@ -35,7 +35,7 @@ bpf_src = "modules/biolatency.bpf"
 #
 MODULE = 'biolatency'
 METRIC = 'disk.all.latency'
-units_count = pmUnits(0, 0, 1, 0, 0, PM_COUNT_ONE)
+units_usecs = pmUnits(0, 1, 0, 0, PM_TIME_USEC, 0)
 
 #
 # PCP BCC Module
@@ -65,7 +65,7 @@ class PCPBCCModule(PCPBCCBase):
         name = METRIC
         self.items.append(
             # Name - reserved - type - semantics - units - help
-            (name, None, PM_TYPE_U64, PM_SEM_COUNTER, units_count, 'block io latency distribution'),
+            (name, None, PM_TYPE_U64, PM_SEM_COUNTER, units_usecs, 'block io latency distribution'),
         )
         return True, self.items
 
