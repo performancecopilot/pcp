@@ -147,7 +147,7 @@ do_logue(int type)
 		if (getcwd(path, MAXPATHLEN) == NULL)
 		    atom.cp = archName;
 		else {
-		    strncat(path, "/", 1);
+		    strncat(path, "/", 2);
 		    strncat(path, archName, MAXPATHLEN-strlen(path));
 		    atom.cp = path;
 		}
