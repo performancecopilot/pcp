@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016,2018-2019 Red Hat.
+ * Copyright (c) 2013-2016,2018-2020 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -14,6 +14,14 @@
 #include <signal.h>
 #include "pmapi.h"
 #include "libpcp.h"
+#include "source.h"
+#include "pmwebapi.h"
+#ifdef HAVE_LIBUV
+#include <uv.h>
+#endif
+
+int	sources;
+int	containers;
 
 static int	quiet;
 static char	*mechanism;
@@ -70,13 +78,15 @@ static pmLongOptions longopts[] = {
     { "timeout", 1, 't', "N.N", "timeout in seconds" },
     PMAPI_OPTIONS_HEADER("Reporting options"),
     { "quiet", 0, 'q', 0, "quiet mode, do not write to stdout" },
+    { "sources", 0, 'S', 0, "report source identifiers (pmcd service only)" },
+    { "containers", 0, 'C', 0, "report containers (pmcd service only)" },
     PMOPT_VERSION,
     PMOPT_HELP,
     PMAPI_OPTIONS_END
 };
 
 static pmOptions opts = {
-    .short_options = "D:m:rs:t:qV?",
+    .short_options = "CD:m:rs:St:qV?",
     .long_options = longopts,
     .override = override,
 };
@@ -85,7 +95,7 @@ static int
 override(int opt, pmOptions *opts)
 {
     (void)opts;
-    return (opt == 's' || opt == 't');
+    return (opt == 's' || opt == 't' || opt == 'S');
 }
 
 static int
@@ -138,8 +148,8 @@ addOption(const char *option, const char *arg)
 static int
 discovery(const char *spec)
 {
-    int		i, sts;
     char	**urls;
+    int		i, sts, count;
 
     sts = __pmDiscoverServicesWithOptions(spec, mechanism, options,
 					  &discoveryFlags, &urls);
@@ -148,15 +158,22 @@ discovery(const char *spec)
 		pmGetProgname(), spec, pmErrStr(sts));
 	return 2;
     }
-    if (sts == 0) {
+    if ((count = sts) == 0) {
 	if (!quiet)
 	    printf("No %s servers discovered\n", spec);
 	return 1;
     }
 
-    if (!quiet) {
+    if (sources || containers) {
+	if ((sts = source_discovery(count, urls)) < 0) {
+	    fprintf(stderr, "%s: service %s %s discovery failure: %s\n",
+		    pmGetProgname(), spec, sources? "sources":"containers",
+		    pmErrStr(sts));
+	    return 2;
+	}
+    } else if (!quiet) {
 	printf("Discovered %s servers:\n", spec);
-	for (i = 0; i < sts; ++i)
+	for (i = 0; i < count; i++)
 	    printf("  %s\n", urls[i]);
     }
     free(urls);
@@ -177,6 +194,9 @@ main(int argc, char **argv)
 
     while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {
+	case 'C':	/* container discovery */
+	    containers = 1;
+	    break;
 	case 'm':	/* discovery mechanism */
 	    if (strcmp(opts.optarg, "all") == 0)
 		mechanism = NULL;
@@ -195,6 +215,9 @@ main(int argc, char **argv)
 	    else
 		service = opts.optarg;
 	    break;
+	case 'S':	/* sources */
+	    sources = 1;
+	    break;
 	case 't':	/* timeout */
 	    addOption("timeout", opts.optarg);
 	    break;
@@ -206,6 +229,13 @@ main(int argc, char **argv)
 
     if (opts.optind != argc)
 	opts.errors++;
+
+    if (containers || sources) {
+	if (service == NULL)
+	    service = PM_SERVER_SERVICE_SPEC;
+	else if (strcmp(service, PM_SERVER_SERVICE_SPEC) != 0)
+	    opts.errors++;
+    }
 
     if (opts.errors || (opts.flags & PM_OPTFLAG_EXIT)) {
 	sts = !(opts.flags & PM_OPTFLAG_EXIT);

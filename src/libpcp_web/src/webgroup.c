@@ -1570,7 +1570,9 @@ webgroup_scrape(pmWebGroupSettings *settings, context_t *cp,
 		    if (metric->labels == NULL)
 			pmwebapi_metric_hash(metric);
 		    scrape_metric_labelsets(metric, &labels);
-		    settings->callbacks.on_scrape_labels(cp->origin, &labels, arg);
+		    if (settings->callbacks.on_scrape_labels)
+			settings->callbacks.on_scrape_labels(
+					cp->origin, &labels, arg);
 		    scrape.metric.labels = labels.buffer;
 
 		    settings->callbacks.on_scrape(cp->origin, &scrape, arg);
@@ -1594,7 +1596,9 @@ webgroup_scrape(pmWebGroupSettings *settings, context_t *cp,
 		    if (instance->labels == NULL)
 			pmwebapi_instance_hash(indom, instance);
 		    scrape_instance_labelsets(metric, indom, instance, &labels);
-		    settings->callbacks.on_scrape_labels(cp->origin, &labels, arg);
+		    if (settings->callbacks.on_scrape_labels)
+			settings->callbacks.on_scrape_labels(
+					cp->origin, &labels, arg);
 		    scrape.instance.labels = labels.buffer;
 
 		    settings->callbacks.on_scrape(cp->origin, &scrape, arg);

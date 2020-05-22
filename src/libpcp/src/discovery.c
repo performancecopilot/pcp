@@ -26,18 +26,14 @@
 __pmServerPresence *
 __pmServerAdvertisePresence(const char *serviceSpec, int port)
 {
-    __pmServerPresence *s;
+    __pmServerPresence	*s;
 
     /* Allocate a server presence and copy the given data. */
-    if ((s = malloc(sizeof(*s))) == NULL) {
-	pmNoMem("__pmServerAdvertisePresence: can't allocate __pmServerPresence",
-		  sizeof(*s), PM_FATAL_ERR);
-    }
-    s->serviceSpec = strdup(serviceSpec);
-    if (s->serviceSpec == NULL) {
-	pmNoMem("__pmServerAdvertisePresence: can't allocate service spec",
-		  strlen(serviceSpec) + 1, PM_FATAL_ERR);
-    }
+    if ((s = calloc(1, sizeof(*s))) == NULL)
+	pmNoMem("server advertise presence", sizeof(*s), PM_FATAL_ERR);
+    if ((s->serviceSpec = strdup(serviceSpec)) == NULL)
+	pmNoMem("server advertise presense service spec",
+		strlen(serviceSpec) + 1, PM_FATAL_ERR);
     s->port = port;
 
     /* Now advertise our presence using all available means. If a particular
@@ -70,8 +66,8 @@ __pmServerUnadvertisePresence(__pmServerPresence *s)
 char *
 __pmServiceDiscoveryParseTimeout(const char *s, struct timeval *timeout)
 {
-    double seconds;
-    char *end;
+    double		seconds;
+    char		*end;
 
     /*
      * The string is a floating point number representing the number of seconds
@@ -101,7 +97,8 @@ parseOptions(const char *optionsString, __pmServiceDiscoveryOptions *options)
 	    options->resolve = 1;
 	else if (strncmp(optionsString, "timeout=", sizeof("timeout=") - 1) == 0) {
 #if ! PM_MULTI_THREAD
-	    pmNotifyErr(LOG_ERR, "__pmDiscoverServicesWithOptions: Service discovery global timeout is not supported");
+	    pmNotifyErr(LOG_ERR, "%s: Service discovery global timeout unsupported",
+			"__pmDiscoverServicesWithOptions");
 	    return -EOPNOTSUPP;
 #else
 	    optionsString += sizeof("timeout=") - 1;
@@ -110,7 +107,8 @@ parseOptions(const char *optionsString, __pmServiceDiscoveryOptions *options)
 #endif
 	}
 	else {
-	    pmNotifyErr(LOG_ERR, "__pmDiscoverServicesWithOptions: unrecognized option at '%s'", optionsString);
+	    pmNotifyErr(LOG_ERR, "%s: unrecognized option at '%s'",
+			"__pmDiscoverServicesWithOptions", optionsString);
 	    return -EINVAL;
 	}
 	/* Locate the start of the next option. */
@@ -124,15 +122,15 @@ parseOptions(const char *optionsString, __pmServiceDiscoveryOptions *options)
 static void *
 timeoutSleep(void *arg)
 {
-    __pmServiceDiscoveryOptions *options = arg;
-    int old;
+    __pmServiceDiscoveryOptions	*options = arg;
+    int				unused;
 
     /*
      * Make sure that this thread is cancellable.
      * We don't need the previous state, but pthread_setcancelstate(3) says that
      * passing in NULL as the second argument is not portable.
      */
-    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, &old);    
+    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, &unused);
 
     /*
      * Sleep for the specified amount of time. Our thread will either be
@@ -213,7 +211,7 @@ __pmDiscoverServicesWithOptions(const char *service,
 	     */
 	    strerror_r(sts, errmsg, sizeof(errmsg));
 #endif
-	    pmNotifyErr(LOG_ERR, "Service discovery global timeout could not be set: %s",
+	    pmNotifyErr(LOG_ERR, "Service discovery global timeout not set: %s",
 			  errmsg);
 	    return -sts;
 	}
@@ -295,12 +293,10 @@ __pmAddDiscoveredService(__pmServiceInfo *info,
 			 int numUrls,
 			 char ***urls)
 {
-    const char *protocol = info->protocol;
-    char *host = NULL;
-    char *url;
-    size_t size;
-    int isIPv6;
-    int port;
+    const char		*protocol = info->protocol;
+    char		*url, *host = NULL;
+    size_t		size;
+    int			isIPv6, port;
 
     /* If address resolution was requested, then do attempt it. */
     if (options->resolve ||
@@ -311,13 +307,10 @@ __pmAddDiscoveredService(__pmServiceInfo *info,
      * If address resolution was not requested, or if it failed, then
      * just use the address.
      */
-    if (host == NULL) {
+    if (host == NULL)
 	host = __pmSockAddrToString(info->address);
-	if (host == NULL) {
-	    pmNoMem("__pmAddDiscoveredService: can't allocate host buffer",
-		      0, PM_FATAL_ERR);
-	}
-    }
+    if (host == NULL)
+	pmNoMem("discovered service host buffer", 0, PM_FATAL_ERR);
 
     /*
      * Allocate the new entry. We need room for the URL prefix, the
@@ -329,11 +322,8 @@ __pmAddDiscoveredService(__pmServiceInfo *info,
     size += strlen(host) + sizeof(":65535");
     if ((isIPv6 = (strchr(host, ':') != NULL)))
 	size += 2;
-    url = malloc(size);
-    if (url == NULL) {
-	pmNoMem("__pmAddDiscoveredService: can't allocate new entry",
-		  size, PM_FATAL_ERR);
-    }
+    if ((url = malloc(size)) == NULL)
+	pmNoMem("discovered service entry", size, PM_FATAL_ERR);
     if (isIPv6)
 	pmsprintf(url, size, "%s://[%s]:%u", protocol, host, port);
     else

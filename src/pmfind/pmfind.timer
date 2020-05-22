@@ -1,0 +1,11 @@
+[Unit]
+Description=Polled discovery of PCP services for analysis
+
+[Timer]
+# if enabled, runs 1m after boot and every minute
+OnBootSec=1min
+OnUnitActiveSec=1min
+
+[Install]
+WantedBy=timers.target
+RequiredBy=pmfind.service
