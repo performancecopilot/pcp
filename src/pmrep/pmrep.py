@@ -41,7 +41,7 @@ from cpmapi import PM_INDOM_NULL, PM_IN_NULL, PM_DEBUG_APPL1, PM_TIME_SEC
 from cpmapi import PM_SEM_DISCRETE, PM_TYPE_STRING
 from cpmapi import PM_TEXT_PMID, PM_TEXT_INDOM, PM_TEXT_ONELINE, PM_TEXT_HELP
 from cpmapi import PM_LABEL_INSTANCES
-from cpmi import PMI_ERR_DUPINSTNAME
+from cpmi import PMI_ERR_DUPINSTNAME, PMI_ERR_DUPTEXT
 
 if sys.version_info[0] >= 3:
     long = int # pylint: disable=redefined-builtin
@@ -1008,27 +1008,32 @@ class PMReporter(object):
                         record_labels(PM_LABEL_INSTANCES, i, inst, name, value)
 
             if self.include_texts:
-                if self.pmconfig.texts[i][0]:
-                    self.pmi.pmiPutText(PM_TEXT_PMID,
-                                        PM_TEXT_ONELINE,
-                                        self.pmconfig.pmids[i],
-                                        self.pmconfig.texts[i][0])
-                if self.pmconfig.texts[i][1]:
-                    self.pmi.pmiPutText(PM_TEXT_PMID,
-                                        PM_TEXT_HELP,
-                                        self.pmconfig.pmids[i],
-                                        self.pmconfig.texts[i][1])
-                if self.pmconfig.descs[i].contents.indom != PM_INDOM_NULL:
-                    if self.pmconfig.texts[i][2]:
-                        self.pmi.pmiPutText(PM_TEXT_INDOM,
+                try:
+                    if self.pmconfig.texts[i][0]:
+                        self.pmi.pmiPutText(PM_TEXT_PMID,
                                             PM_TEXT_ONELINE,
-                                            self.pmconfig.descs[i].contents.indom,
-                                            self.pmconfig.texts[i][2])
-                    if self.pmconfig.texts[i][3]:
-                        self.pmi.pmiPutText(PM_TEXT_INDOM,
+                                            self.pmconfig.pmids[i],
+                                            self.pmconfig.texts[i][0])
+                    if self.pmconfig.texts[i][1]:
+                        self.pmi.pmiPutText(PM_TEXT_PMID,
                                             PM_TEXT_HELP,
-                                            self.pmconfig.descs[i].contents.indom,
-                                            self.pmconfig.texts[i][3])
+                                            self.pmconfig.pmids[i],
+                                            self.pmconfig.texts[i][1])
+                    if self.pmconfig.descs[i].contents.indom != PM_INDOM_NULL:
+                        if self.pmconfig.texts[i][2]:
+                            self.pmi.pmiPutText(PM_TEXT_INDOM,
+                                                PM_TEXT_ONELINE,
+                                                self.pmconfig.descs[i].contents.indom,
+                                                self.pmconfig.texts[i][2])
+                        if self.pmconfig.texts[i][3]:
+                            self.pmi.pmiPutText(PM_TEXT_INDOM,
+                                                PM_TEXT_HELP,
+                                                self.pmconfig.descs[i].contents.indom,
+                                                self.pmconfig.texts[i][3])
+                except pmi.pmiErr as error:
+                    if error.errno() == PMI_ERR_DUPTEXT:
+                        # ignore duplicate help text exceptions
+                        pass
 
         if self.pmi is None:
             # Create a new archive
@@ -1054,18 +1059,24 @@ class PMReporter(object):
                 record_metric_info(metric, i)
             for inst, name, value in results[metric]:
                 if inst != PM_IN_NULL and inst not in self.recorded[metric]:
-                    try:
                         self.recorded[metric].append(inst)
                         record_metric_info(metric, i, inst)
-                        self.pmi.pmiAddInstance(self.pmconfig.descs[i].contents.indom, name, inst)
-                    except pmi.pmiErr as error:
-                        if error.errno() == PMI_ERR_DUPINSTNAME:
-                            pass
+
+                        try:
+                            self.pmi.pmiAddInstance(self.pmconfig.descs[i].contents.indom, name, inst)
+                        except pmi.pmiErr as error:
+                            if error.errno() == PMI_ERR_DUPINSTNAME:
+                                # already added, ignore the error
+                                pass
+
                 if self.pmconfig.descs[i].contents.sem == PM_SEM_DISCRETE and metric in self.prev_res:
                     index = [idx for idx, (x, _, _) in enumerate(self.prev_res[metric]) if x == inst]
                     if index and value == self.prev_res[metric][index[0]][2]:
                         continue
-                self.pmi.pmiPutValue(metric, name, str(value))
+                try:
+                    self.pmi.pmiPutValue(metric, name, str(value))
+                except pmi.pmiErr as error:
+                    pass
                 data = 1
         self.prev_res = results # pylint: disable=attribute-defined-outside-init
 
