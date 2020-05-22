@@ -2890,9 +2890,10 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %{_initddir}/pmproxy
 %if !%{disable_systemd}
 %{_unitdir}/pmcd.service
-%{_unitdir}/pmlogger.service
-%{_unitdir}/pmie.service
 %{_unitdir}/pmproxy.service
+%{_unitdir}/pmlogger.service
+%{_unitdir}/pmfind.service
+%{_unitdir}/pmie.service
 # services and timers replacing the old cron scripts
 %{_unitdir}/pmlogger_check.service
 %{_unitdir}/pmlogger_check.timer
@@ -2901,21 +2902,27 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %{_unitdir}/pmlogger_daily.timer
 %{_unitdir}/pmlogger_daily-poll.service
 %{_unitdir}/pmlogger_daily-poll.timer
+%{_unitdir}/pmie_check.timer
+%{_unitdir}/pmie_check.path
 %{_unitdir}/pmie_check.service
 %{_unitdir}/pmie_check.timer
 %{_unitdir}/pmie_check.path
 %{_unitdir}/pmie_daily.service
 %{_unitdir}/pmie_daily.timer
+%{_unitdir}/pmfind.timer
+%{_unitdir}/pmfind.path
 %config(noreplace) %{_sysconfdir}/sysconfig/pmie_timers
 %config(noreplace) %{_sysconfdir}/sysconfig/pmlogger_timers
 %else
 # cron scripts
 %config(noreplace) %{_sysconfdir}/cron.d/pcp-pmlogger
+%config(noreplace) %{_sysconfdir}/cron.d/pcp-pmfind
 %config(noreplace) %{_sysconfdir}/cron.d/pcp-pmie
 %endif
 %config(noreplace) %{_sysconfdir}/sasl2/pmcd.conf
 %config(noreplace) %{_sysconfdir}/sysconfig/pmlogger
 %config(noreplace) %{_sysconfdir}/sysconfig/pmproxy
+%config(noreplace) %{_sysconfdir}/sysconfig/pmfind
 %config(noreplace) %{_sysconfdir}/sysconfig/pmcd
 %config %{_sysconfdir}/pcp.env
 %dir %{_confdir}/pipe.conf.d

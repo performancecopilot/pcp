@@ -1,3 +1,6 @@
 [Path]
 PathChanged=@PCP_PMLOGGERCONTROL_PATH@
 PathChanged=@PCP_PMLOGGERCONTROL_PATH@.d
+
+[Install]
+RequiredBy=pmlogger.service

@@ -1599,6 +1599,7 @@ BAD
 1195 pmlogrewrite local
 1196 pmcd local
 1197 pmlogextract local
+1198 pmlogrewrite pmda.linux local
 1199 libpcp pmcd local
 1202 pmda.dm local pmrep python
 1203 derive pmval libpcp local
@@ -1753,6 +1754,7 @@ BAD
 1722 pmda.bpftrace local python
 1723 pmda.bpftrace local python
 1724 pmda.bpftrace local python
+1768 pmfind local
 1855 pmda.rabbitmq local
 1896 pmlogger logutil pmlc local
 4751 libpcp threads valgrind local pcp

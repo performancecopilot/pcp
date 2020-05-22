@@ -1,0 +1,6 @@
+#
+# Performance Co-Pilot crontab entries for a monitored site
+# with service discovery running
+#
+# once every minute, discover remote PCP services
+*  *  *  *  *  @user@  @path@/pmfind_check
