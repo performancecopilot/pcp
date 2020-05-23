@@ -413,6 +413,8 @@ _pcp () {
       "(-s --service $exargs)"{-s+,--service=}'[specify service to find]:service:(all pmcd pmproxy)' \
       "(-t --timeout $exargs)"{-t+,--timeout=}'[set discovery timeout in seconds]:timeout:' \
       "(-q --quiet $exargs)"{-q,--quiet}'[quiet mode]' \
+      "(-S --sources $exargs)"{-S,--sources}'[report source identifiers (pmcd service only)]' \
+      "(-C --containers $exargs)"{-C,--containers}'[report containers (pmcd service only)]' \
       && return 0
   ;;
   pmie)
