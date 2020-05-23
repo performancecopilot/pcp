@@ -19,7 +19,7 @@
 \f3pcp2xml\f1 \- pcp-to-xml metrics exporter
 .SH SYNOPSIS
 \fBpcp2xml\fP
-[\fB\-5CGHIjLnrRvVxXz?\fP]
+[\fB\-5CGHIjLmnrRvVxXz?\fP]
 [\fB\-4\fP \fIaction\fP]
 [\fB\-8\fP|\fB\-9\fP \fIlimit\fP]
 [\fB\-a\fP \fIarchive\fP]
@@ -367,6 +367,9 @@ Use a local context to collect metrics from DSO PMDAs on the local host
 without PMCD.
 See also
 .BR \-K .
+.TP
+\fB-m\fR
+include labels in the report.
 .TP
 \fB\-n\fR, \fB\-\-invert\-filter\fR
 Perform ranking before live filtering.
