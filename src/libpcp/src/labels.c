@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019 Red Hat.
+ * Copyright (c) 2016-2020 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -1046,7 +1046,7 @@ pmMergeLabels(char **sets, int nsets, char *buffer, int buflen)
     return bytes;
 }
 
-static size_t
+static void
 labelfile(const char *path, const char *file, char *buf, int buflen)
 {
     FILE		*fp;
@@ -1054,59 +1054,55 @@ labelfile(const char *path, const char *file, char *buf, int buflen)
     size_t		bytes;
 
     pmsprintf(lf, sizeof(lf), "%s%c%s", path, pmPathSeparator(), file);
-    if ((fp = fopen(lf, "r")) == NULL)
-	return 0;
-    bytes = fread(buf, 1, buflen-1, fp);
-    fclose(fp);
-    buf[bytes] = '\0';
-    if (pmDebugOptions.labels)
-	fprintf(stderr, "labelfile: loaded from %s:\n%s", file, buf);
-    return bytes;
+    if ((fp = fopen(lf, "r")) != NULL) {
+	bytes = fread(buf, 1, buflen-1, fp);
+	fclose(fp);
+	buf[bytes] = '\0';
+	if (pmDebugOptions.labels)
+	    fprintf(stderr, "labelfile: loaded from %s:\n%s", file, buf);
+    }
+}
+
+int
+__pmGetContextLabelSet(pmLabelSet **set, int flags, const char *path)
+{
+    struct dirent	**list = NULL;
+    char		buf[PM_MAXLABELJSONLEN];
+    int			i, num, sts = 0;
+
+    if ((num = scandir(path, &list, NULL, alphasort)) < 0)
+	return -oserror();
+
+    for (i = 0; i < num; i++) {
+	if (list[i]->d_name[0] == '.')
+	    continue;
+	labelfile(path, list[i]->d_name, buf, sizeof(buf));
+	if ((sts = __pmAddLabels(set, buf, flags | PM_LABEL_COMPOUND)) < 0) {
+	    if (pmDebugOptions.labels)
+		pmNotifyErr(LOG_ERR, "Error parsing %s labels in %s, ignored\n",
+				list[i]->d_name, path);
+	    continue;
+	}
+    }
+    for (i = 0; i < num; i++)
+	free(list[i]);
+    free(list);
+    return sts > 0;
 }
 
 int
 __pmGetContextLabels(pmLabelSet **set)
 {
-    struct dirent	**list = NULL;
-    char		**labels;
     char		path[MAXPATHLEN];
-    char		buf[PM_MAXLABELJSONLEN];
-    size_t		length;
-    int			flags = PM_LABEL_CONTEXT | PM_LABEL_COMPOUND;
-    int			i, num, sts = 0;
+    char		*sysconfdir = pmGetConfig("PCP_SYSCONF_DIR");
+    int			sts, sep = pmPathSeparator();
 
-    pmsprintf(path, MAXPATHLEN, "%s%clabels",
-		pmGetConfig("PCP_SYSCONF_DIR"), pmPathSeparator());
-    if ((num = scandir(path, &list, NULL, alphasort)) < 0)
-	return -oserror();
-
-    if ((labels = calloc(num, sizeof(char *))) == NULL) {
-	for (i = 0; i < num; i++) free(list[i]);
-	free(list);
-	return -oserror();
-    }
-
-    for (i = 0; i < num; i++) {
-	if (list[i]->d_name[0] == '.')
-	    continue;
-	length = labelfile(path, list[i]->d_name, buf, sizeof(buf));
-	labels[i] = strndup(buf, length + 1);
-    }
-    if ((sts = pmMergeLabels(labels, num, buf, sizeof(buf))) < 0) {
-	pmNotifyErr(LOG_WARNING, "Failed to merge %s labels file: %s",
-			path, pmErrStr(sts));
-    }
-    for (i = 0; i < num; i++) {
-	if (labels[i]) free(labels[i]);
-	free(list[i]);
-    }
-    free(labels);
-    free(list);
-
-    if (sts <= 0)
+    pmsprintf(path, sizeof(path), "%s%clabels", sysconfdir, sep);
+    if ((sts = __pmGetContextLabelSet(set, PM_LABEL_CONTEXT, path)) < 0)
 	return sts;
-
-    return __pmParseLabelSet(buf, sts, flags, set);
+    pmsprintf(path, sizeof(path), "%s%clabels%coptional", sysconfdir, sep, sep);
+    __pmGetContextLabelSet(set, PM_LABEL_CONTEXT | PM_LABEL_OPTIONAL, path);
+    return sts;
 }
 
 static char *
@@ -1165,23 +1161,40 @@ local_host_labels(char *buffer, int buflen)
     return buffer;
 }
 
+static char *
+local_user_labels(char *buffer, int buflen)
+{
+    pmsprintf(buffer, buflen, "{\"groupid\":%u,\"userid\":%u}",
+		    (unsigned int)getgid(), (unsigned int)getuid());
+    return buffer;
+}
+
 static int
 local_context_labels(pmLabelSet **sets)
 {
     pmLabelSet	*lp = NULL;
     char	buf[PM_MAXLABELJSONLEN];
-    char	*hostp;
-    int		sts, flags = PM_LABEL_CONTEXT|PM_LABEL_COMPOUND;
+    char	*hostp, *userp;
+    int		sts, flags = PM_LABEL_CONTEXT | PM_LABEL_COMPOUND;
 
     if ((sts = __pmGetContextLabels(&lp)) < 0)
 	return sts;
+
     hostp = local_host_labels(buf, sizeof(buf));
-    if ((sts = __pmAddLabels(&lp, hostp, flags)) > 0) {
-	*sets = lp;
-	return 1;
+    if ((sts = __pmAddLabels(&lp, hostp, flags)) <= 0) {
+	pmFreeLabelSets(lp, 1);
+	return sts;
     }
-    pmFreeLabelSets(lp, 1);
-    return sts;
+
+    flags |= PM_LABEL_OPTIONAL;
+    userp = local_user_labels(buf, sizeof(buf));
+    if ((sts = __pmAddLabels(&lp, userp, flags)) <= 0) {
+	pmFreeLabelSets(lp, 1);
+	return sts;
+    }
+
+    *sets = lp;
+    return 1;
 }
 
 int

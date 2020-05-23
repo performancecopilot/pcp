@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 # PCP QA Test No. 1768
 # Exercise the pmfind_check(1) utility.
 #
@@ -26,8 +26,9 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 _filter()
 {
     sed \
-	-e "s/$tmp\.pmfind/PMFIND/g" \
-	-e "s/.*tmp\.pcp.*\//TMPDIR/g" \
+	-e "s,$PCP_SYSCONF_DIR,PCP_SYSCONF_DIR,g" \
+	-e "s,$tmp\.pmfind,PMFIND,g" \
+	-e "s,cp .*tmp.pcp\........../,cp TMPDIR/,g" \
     #end
 }
 
@@ -46,7 +47,8 @@ cat >$tmp.found <<EOF
 EOF
 
 # real QA test starts here
+chmod 755 $tmp.pmfind
 export PMFIND=$tmp.pmfind
-$PCP_BINADM_DIR/pmfind_check -N -V | _filter
+$PCP_BINADM_DIR/pmfind_check -N -V | tee -a $seq.full | _filter
 status=$?
 exit

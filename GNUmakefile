@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2017 Red Hat.
+# Copyright (c) 2012-2020 Red Hat.
 # Copyright (c) 2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -96,6 +96,7 @@ endif
 	$(INSTALL) -m 755 -d $(INSTALL_PREFIX)$(PCP_SYSCONFIG_DIR)
 	$(INSTALL) -m 755 -d $(INSTALL_PREFIX)$(PCP_SYSCONF_DIR)
 	$(INSTALL) -m 755 -d $(INSTALL_PREFIX)$(PCP_SYSCONF_DIR)/labels
+	$(INSTALL) -m 755 -d $(INSTALL_PREFIX)$(PCP_SYSCONF_DIR)/labels/optional
 	$(INSTALL) -m 755 -d $(INSTALL_PREFIX)$(PCP_BINADM_DIR)
 	$(INSTALL) -m 755 -d $(INSTALL_PREFIX)$(PCP_SHARE_DIR)/lib
 	$(INSTALL) -m 755 -d $(INSTALL_PREFIX)$(PCP_SHARE_DIR)/examples

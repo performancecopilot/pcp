@@ -35,7 +35,7 @@ _cleanup()
     if $need_restore
     then
 	need_restore=false
-	$sudo rm -f $PCP_ETC_DIR/pcp/labels/*
+	$sudo rm -rf $PCP_ETC_DIR/pcp/labels/*
 	_restore_config $PCP_ETC_DIR/pcp/labels
 	[ -d $MMV_STATS_DIR.$seq ] && _restore_config $MMV_STATS_DIR
 	_sighup_pmcd
@@ -47,7 +47,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 need_restore=true
 _save_config $PCP_ETC_DIR/pcp/labels
-$sudo rm -f $PCP_ETC_DIR/pcp/labels/*
+$sudo rm -rf $PCP_ETC_DIR/pcp/labels/*
 
 # real QA test starts here
 home="$PCP_PMDAS_DIR"
@@ -94,6 +94,8 @@ _filter_pminfo()
 	-e "s/.domainname.:.${domainname}./\"domainname\":\"DOMAIN\"/g" \
 	-e "s/.machineid.:.${machineid}./\"machineid\":\"MACHINE\"/g" \
 	-e "s/.hostname.:.${hostname}./\"hostname\":\"HOSTNAME\"/g" \
+	-e "s/.groupid.:.[0-9][0-9]*/\"groupid\":GID/g" \
+	-e "s/.userid.:.[0-9][0-9]*/\"userid\":UID/g" \
     #end
 }
 
