@@ -40,7 +40,8 @@ from cpmapi import PM_CONTEXT_ARCHIVE, PM_CONTEXT_LOCAL
 from cpmapi import PM_INDOM_NULL, PM_IN_NULL, PM_DEBUG_APPL1, PM_TIME_SEC
 from cpmapi import PM_SEM_DISCRETE, PM_TYPE_STRING
 from cpmapi import PM_TEXT_PMID, PM_TEXT_INDOM, PM_TEXT_ONELINE, PM_TEXT_HELP
-from cpmapi import PM_LABEL_INSTANCES
+from cpmapi import PM_LABEL_INDOM, PM_LABEL_INSTANCES
+from cpmapi import PM_LABEL_DOMAIN, PM_LABEL_CLUSTER, PM_LABEL_ITEM
 from cpmi import PMI_ERR_DUPINSTNAME, PMI_ERR_DUPTEXT
 
 if sys.version_info[0] >= 3:
@@ -982,15 +983,28 @@ class PMReporter(object):
             def record_labels(lid, i, inst, name, value):
                 """ Helper to record labels """
                 try:
+                    pmid = self.pmconfig.pmids[i]
+
+                    if lid is PM_LABEL_DOMAIN:
+                        ident = pmapi.pmContext.pmID_domain(pmid)
+                    elif lid is PM_LABEL_INDOM:
+                        ident = self.pmconfig.descs[i].contents.indom
+                    elif lid is PM_LABEL_CLUSTER:
+                        ident = pmapi.pmContext.pmID_cluster(pmid)
+                    elif lid is PM_LABEL_ITEM:
+                        ident = pmapi.pmContext.pmID_item(pmid)
+                    else:
+                        ident = 0
+
                     self.pmi.pmiPutLabel(lid,
-                                         self.pmconfig.pmids[i],
+                                         ident,
                                          inst,
                                          name,
                                          str(value))
-                except Exception:
-                    pass
+                except Exception as e:
+                    print("Error pmiPutLabel failed: %s" % e)
 
-            if inst is None:
+            if inst in (None, PM_IN_NULL):
                 self.pmi.pmiAddMetric(metric,
                                       self.pmconfig.pmids[i],
                                       self.pmconfig.descs[i].contents.type,
@@ -1059,15 +1073,15 @@ class PMReporter(object):
                 record_metric_info(metric, i)
             for inst, name, value in results[metric]:
                 if inst != PM_IN_NULL and inst not in self.recorded[metric]:
-                        self.recorded[metric].append(inst)
-                        record_metric_info(metric, i, inst)
+                    self.recorded[metric].append(inst)
+                    record_metric_info(metric, i, inst)
 
-                        try:
-                            self.pmi.pmiAddInstance(self.pmconfig.descs[i].contents.indom, name, inst)
-                        except pmi.pmiErr as error:
-                            if error.errno() == PMI_ERR_DUPINSTNAME:
-                                # already added, ignore the error
-                                pass
+                    try:
+                        self.pmi.pmiAddInstance(self.pmconfig.descs[i].contents.indom, name, inst)
+                    except pmi.pmiErr as error:
+                        if error.errno() == PMI_ERR_DUPINSTNAME:
+                            # already added, ignore the error
+                            pass
 
                 if self.pmconfig.descs[i].contents.sem == PM_SEM_DISCRETE and metric in self.prev_res:
                     index = [idx for idx, (x, _, _) in enumerate(self.prev_res[metric]) if x == inst]
