@@ -951,7 +951,10 @@ pmnsDecodeCallback(const char *name, void *closure)
 static PyObject *
 pmUnits_int(PyObject *self, PyObject *args, PyObject *keywords)
 {
-    pmUnits units = {0};
+    union {
+	pmUnits		units;
+	unsigned int	uint;
+    } val;
     unsigned int dimSpace = 0, dimTime = 0, dimCount = 0;
     unsigned int scaleSpace = 0, scaleTime = 0, scaleCount = 0;
     char *keyword_list[] = {"dimSpace", "dimTime", "dimCount",
@@ -963,14 +966,15 @@ pmUnits_int(PyObject *self, PyObject *args, PyObject *keywords)
 		&scaleSpace, &scaleTime, &scaleCount))
 	return NULL;
 
-    units.dimSpace = dimSpace;
-    units.dimTime = dimTime;
-    units.dimCount = dimCount;
-    units.scaleSpace = scaleSpace;
-    units.scaleTime = scaleTime;
-    units.scaleCount = scaleCount;
+    val.uint = 0;
+    val.units.dimSpace = dimSpace;
+    val.units.dimTime = dimTime;
+    val.units.dimCount = dimCount;
+    val.units.scaleSpace = scaleSpace;
+    val.units.scaleTime = scaleTime;
+    val.units.scaleCount = scaleCount;
 
-    return Py_BuildValue("i", *(unsigned int *)&units);
+    return Py_BuildValue("i", val.uint);
 }
 
 /*

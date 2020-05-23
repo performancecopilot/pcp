@@ -30,7 +30,7 @@ pmprobe -i disk.all | grep -v PM_IN_NULL
 
 echo
 echo "Check rewrite rules ..."
-pmlogrewrite -c $PCP_VAR_DIR/config/pmlogrewrite/disk_all_fixups.conf \
+pmlogrewrite -c $PCP_VAR_DIR/config/pmlogrewrite/linux_disk_all_fixups.conf \
     badarchives/bozo-vm-disk $tmp
 
 pmdumplog -z -a badarchives/bozo-vm-disk >$tmp.bad
