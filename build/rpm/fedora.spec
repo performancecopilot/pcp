@@ -2925,8 +2925,9 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %config(noreplace) %{_sysconfdir}/sysconfig/pmfind
 %config(noreplace) %{_sysconfdir}/sysconfig/pmcd
 %config %{_sysconfdir}/pcp.env
-%dir %{_confdir}/pipe.conf.d
 %dir %{_confdir}/labels
+%dir %{_confdir}/labels/optional
+%dir %{_confdir}/pipe.conf.d
 %dir %{_confdir}/pmcd
 %config(noreplace) %{_confdir}/pmcd/pmcd.conf
 %config(noreplace) %{_confdir}/pmcd/pmcd.options
