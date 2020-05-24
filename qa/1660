@@ -1,0 +1,36 @@
+#!/bin/sh
+# PCP QA Test No. 1660
+# Exercise the internal __pmAddLabels libpcp routine.
+#
+# Copyright (c) 2020 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e 's/0x[0-9a-zA-z][0-9a-zA-z]*/ADDRESS/g' \
+    #end
+}
+
+# real QA test starts here
+./src/addlabels 2>&1 | _filter
+status=$?
+exit
