@@ -1720,6 +1720,7 @@ BAD
 1622 selinux local
 1623 libpcp_import collectl local
 1644 pmda.perfevent local
+1660 libpcp labels local
 1661 pmproxy libpcp_web pmlogger local
 1671 multi-archive archive libpcp pmrep local python
 1672 secure pmcd local
