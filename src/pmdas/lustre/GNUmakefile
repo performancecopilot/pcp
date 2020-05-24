@@ -31,6 +31,7 @@ ifeq "$(TARGET_OS)" "linux"
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
+	$(INSTALL) -m 644 lustre.conf $(PMDADIR)/lustre.conf
 	$(INSTALL) -m 644 pmda$(IAM).pl $(PMDADIR)/pmda$(IAM).pl
 	@$(INSTALL_MAN)
 else
@@ -42,7 +43,7 @@ default_pcp : default
 install_pcp : install
 
 check_domain : ../../pmns/stdpmid
-	$(DOMAIN_PERLRULE)
+	$(DOMAIN_PERLRULE) 2>/dev/null
 
 check:: $(MAN_PAGES)
 	$(MANLINT) $^

@@ -459,6 +459,10 @@ are reported on
 .I stderr
 with textual (if sometimes terse) explanation.
 .PP
+If one of the input archives contains no archive records then
+an ``empty archive''
+warning is issued and that archive is skipped.
+.PP
 Should one of the input archive logs be corrupted (this can happen
 if the
 .B pmlogger

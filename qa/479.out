@@ -30,8 +30,7 @@ pmdumplog: Cannot open archive "TMP/bozo.client_v2": Corrupted record in a PCP a
 pmdumplog: Cannot open archive "TMP/bozo.client_v2": Illegal label record at start of a PCP archive log file
 
 === size 132 ===
-__pmLogLoadMeta: no metrics found?
-pmdumplog: Cannot open archive "TMP/bozo.client_v2": Corrupted record in a PCP archive log
+pmdumplog: Cannot open archive "TMP/bozo.client_v2": Empty archive log file
 
 === size 136 ===
 __pmLogLoadMeta: no metrics found?

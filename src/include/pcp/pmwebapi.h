@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Red Hat.
+ * Copyright (c) 2017-2020 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -354,6 +354,7 @@ extern void pmWebGroupChildren(pmWebGroupSettings *, sds, struct dict *, void *)
 extern void pmWebGroupProfile(pmWebGroupSettings *, sds, struct dict *, void *);
 extern void pmWebGroupScrape(pmWebGroupSettings *, sds, struct dict *, void *);
 extern void pmWebGroupStore(pmWebGroupSettings *, sds, struct dict *, void *);
+extern void pmWebGroupDestroy(pmWebGroupSettings *, sds, void *);
 
 extern int pmWebGroupSetup(pmWebGroupModule *);
 extern int pmWebGroupSetEventLoop(pmWebGroupModule *, void *);

@@ -538,8 +538,10 @@ _filter_cron_scripts()
 # Examples:
 # S on a line by itself after the "Starting pmcd ..." line
 #     - bozo-vm, Debian bullseye/sid, Jan 2020
+#     - fedora 32
 # W on a line by itself after the "Updating the PMCD control file, ..." line
 #     - bozo-vm, Debian bullseye/sid, Jan 2020
+#     - fedora 32
 #
 _filter_pcp_start_distro()
 {
@@ -550,6 +552,12 @@ _filter_pcp_start_distro()
 	    sed -e '/^[SW]$/d'
 	    return
 	fi
+    fi
+
+    if [ -f /etc/redhat-release ]
+    then
+	sed -e '/^[SW]$/d'
+	return
     fi
 
     # if a filter has been chosen, it must return afterwards, so here
@@ -917,6 +925,7 @@ _filter_torture_api()
 	-e '/^    waitio /d' \
 	-e '/^    xfs /d' \
 	-e '/^    xvm /d' \
+	-e '/^    lustre /d' \
     # end
 }
 

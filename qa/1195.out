@@ -1,0 +1,13 @@
+QA output created by 1195
+=== 0 ===
+pmlogrewrite: Warning: empty archive "0" will be skipped
+=== 1 ===
+pmlogrewrite: Warning: empty archive "1" will be skipped
+=== 2 ===
+=== 3 ===
+pmlogrewrite: Warning: empty archive "3" will be skipped
+=== 4 ===
+pmlogrewrite: Warning: empty archive "4" will be skipped
+=== 5 ===
+=== foo:2 expect no diffs ===
+=== foo:5 expect no diffs ===

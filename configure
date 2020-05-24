@@ -715,6 +715,7 @@ pcp_selinux_security_class
 pcp_selinux_sock_file_class
 pcp_selinux_netlink_audit_socket_class
 pcp_selinux_netlink_selinux_socket_class
+pcp_selinux_faillog
 pcp_selinux_logrotate
 pcp_selinux_xauth_exec
 pcp_selinux_lastlog
@@ -11725,6 +11726,7 @@ pcp_selinux_var_log=false
 pcp_selinux_lastlog=false
 pcp_selinux_xauth_exec=false
 pcp_selinux_logrotate=false
+pcp_selinux_faillog=false
 
 pcp_selinux_netlink_selinux_socket_class=false
 pcp_selinux_netlink_audit_socket_class=false
@@ -11778,6 +11780,8 @@ if test "x$enable_selinux" != "xfalse"; then :
 	&& pcp_selinux_xauth_exec=true
     grep '^[ 	][ 	]*logrotate_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_logrotate=true
+    grep '^[ 	][ 	]*faillog_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_faillog=true
 
     rm -f conftest.out
 
@@ -11845,6 +11849,7 @@ if test "x$enable_selinux" != "xfalse"; then :
 
 
 fi
+
 
 
 

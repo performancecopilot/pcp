@@ -1,0 +1,54 @@
+#!/usr/bin/sh
+# PCP QA Test No. 1768
+# Exercise the pmfind_check(1) utility.
+#
+# Copyright (c) 2020 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s,$PCP_SYSCONF_DIR,PCP_SYSCONF_DIR,g" \
+	-e "s,$tmp\.pmfind,PMFIND,g" \
+	-e "s,cp .*tmp.pcp\........../,cp TMPDIR/,g" \
+    #end
+}
+
+# create a script to produce test data
+cat >$tmp.pmfind << EOF
+#!/bin/sh
+cat $tmp.found
+EOF
+
+# and some test data for it to produce
+cat >$tmp.found <<EOF
+243f90596d76cf23e8da47476ec452a2adbe0b32 pcp://slick:44321
+8d00c4cf51d11bb9dced8a0e7507542653635377 pcp://slack:44321
+7745e45ed37ca712f418ec7b871c04fc898b9276 pcp://localhost:44321?container=b0cd2cc912a3
+68dcffbdd4111d3ee82bb855286e3e35da828ca2 pcp://localhost:44321?container=77475e5fa09c
+EOF
+
+# real QA test starts here
+chmod 755 $tmp.pmfind
+export PMFIND=$tmp.pmfind
+$PCP_BINADM_DIR/pmfind_check -N -V | tee -a $seq.full | _filter
+status=$?
+exit

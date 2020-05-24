@@ -1283,7 +1283,15 @@ File names starting with a ``.'' are ignored, and files ending in
 The merged set can be queried via the
 .B pmcd.labels
 metric.
-Context labels are applied universally to all values.
+Context labels are applied universally to all metrics.
+.TP
+.I $PCP_SYSCONF_DIR/labels/optional
+directory of files containing the global metric labels that will be
+set for every client context created by
+.BR pmcd ,
+but which are flagged as optional.
+These labels are exactly the same as other context labels except that
+they are not used in time series identifier calculations.
 .TP
 .I \&./pmcd.log
 (or

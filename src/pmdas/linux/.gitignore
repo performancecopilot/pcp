@@ -4,7 +4,4 @@ help.pag
 pmda_linux.so
 pmdalinux
 exports
-linux_kernel_ulong.conf
-linux_kernel_fixups.conf
-proc_fs_nfsd_fixups.conf
-proc_net_sockstat_deprecate.conf
+kernel_ulong.conf

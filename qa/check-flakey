@@ -29,7 +29,12 @@ _output_for_kenj()
 	# dodge numbers that look like octal!
 	#
 	_seq=`echo "$seq" | sed -e 's/^0*//'`
-	printf "%4d %s%s %s %s\n" $_seq $s1 $s2 `hostname -s` `date '+%Y-%m-%d'` >>$tmp.kenj
+	if [ "$_seq" -gt 999 ]
+	then
+	    printf "%4d %s%s %s %s\n" $_seq $s1 $s2 `hostname -s` `date '+%Y-%m-%d'` >>$tmp.kenj
+	else
+	    printf " %03d %s%s %s %s\n" $_seq $s1 $s2 `hostname -s` `date '+%Y-%m-%d'` >>$tmp.kenj
+	fi
     fi
 }
 

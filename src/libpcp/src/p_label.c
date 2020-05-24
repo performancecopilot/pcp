@@ -119,8 +119,8 @@ __pmDumpLabelSets(FILE *fp, const pmLabelSet *sets, int nsets)
     int		n;
 
     for (n = 0; n < nsets; n++) {
-	fprintf(stderr, "[%d] ", n);
-	__pmDumpLabelSet(stderr, &sets[n]);
+	fprintf(fp, "[%d] ", n);
+	__pmDumpLabelSet(fp, &sets[n]);
     }
 }
 

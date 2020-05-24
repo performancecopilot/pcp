@@ -2079,7 +2079,10 @@ URL: https://pcp.io
 Requires: pcp pcp-doc pcp-system-tools
 Requires: pcp-pmda-dm
 %if "@have_python@" == "true"
-Requires: pcp-pmda-nfsclient pcp-pmda-openmetrics
+Requires: pcp-pmda-nfsclient
+%endif
+%if "@pmda_openmetrics@" == "true"
+Requires: pcp-pmda-openmetrics
 %endif
 %description zeroconf
 This package contains configuration tweaks and files to increase metrics
@@ -2168,6 +2171,7 @@ etc/sysconfig/pmcd
 etc/sysconfig/pmproxy
 etc/sysconfig/pmlogger
 etc/cron.d/pcp-pmie
+etc/cron.d/pcp-pmfind
 etc/cron.d/pcp-pmlogger
 etc/cron.d/pcp-pmlogger-daily-report
 pmcd/pmcd.conf
@@ -3098,11 +3102,13 @@ then
     # stop daemons before erasing the package
     %if "@enable_systemd@" == "true"
         %systemd_preun pmlogger.service
+	%systemd_preun pmfind.service
 	%systemd_preun pmie.service
 	%systemd_preun pmproxy.service
 	%systemd_preun pmcd.service
 
 	systemctl stop pmlogger.service >/dev/null 2>&1
+	systemctl stop pmfind.service >/dev/null 2>&1
 	systemctl stop pmie.service >/dev/null 2>&1
 	systemctl stop pmproxy.service >/dev/null 2>&1
 	systemctl stop pmcd.service >/dev/null 2>&1

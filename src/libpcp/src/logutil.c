@@ -147,6 +147,9 @@ __pmLogChkLabel(__pmArchCtl *acp, __pmFILE *f, __pmLogLabel *lp, int vol)
     int		version = UNKNOWN_VERSION;
     int		xpectlen = sizeof(__pmLogLabel) + 2 * sizeof(len);
     int		n;
+    int		sts;
+    int		diag_output = 0;
+    struct stat	sbuf;
 
     if (vol >= 0 && vol < lcp->l_numseen && lcp->l_seen[vol]) {
 	/* FastPath, cached result of previous check for this volume */
@@ -167,8 +170,10 @@ __pmLogChkLabel(__pmArchCtl *acp, __pmFILE *f, __pmLogLabel *lp, int vol)
 	}
     }
 
-    if (pmDebugOptions.log)
+    if (pmDebugOptions.log) {
 	fprintf(stderr, "__pmLogChkLabel: fd=%d vol=%d", __pmFileno(f), vol);
+	diag_output = 1;
+    }
 
     __pmFseek(f, (long)0, SEEK_SET);
     n = (int)__pmFread(&len, 1, sizeof(len), f);
@@ -177,13 +182,13 @@ __pmLogChkLabel(__pmArchCtl *acp, __pmFILE *f, __pmLogLabel *lp, int vol)
 	if (__pmFeof(f)) {
 	    __pmClearerr(f);
 	    if (pmDebugOptions.log)
-		fprintf(stderr, " file is empty\n");
+		fprintf(stderr, " file is empty");
 	    version = PM_ERR_NODATA;
 	    goto func_return;
 	}
 	else {
 	    if (pmDebugOptions.log)
-		fprintf(stderr, " header read -> %d (expect %d) or bad header len=%d (expected %d)\n",
+		fprintf(stderr, " header read -> %d (expect %d) or bad header len=%d (expected %d)",
 		    n, (int)sizeof(len), len, xpectlen);
 	    if (__pmFerror(f)) {
 		__pmClearerr(f);
@@ -199,7 +204,7 @@ __pmLogChkLabel(__pmArchCtl *acp, __pmFILE *f, __pmLogLabel *lp, int vol)
 
     if ((n = (int)__pmFread(lp, 1, sizeof(__pmLogLabel), f)) != sizeof(__pmLogLabel)) {
 	if (pmDebugOptions.log)
-	    fprintf(stderr, " bad label len=%d: expected %d\n",
+	    fprintf(stderr, " bad label len=%d: expected %d",
 		n, (int)sizeof(__pmLogLabel));
 	if (__pmFerror(f)) {
 	    __pmClearerr(f);
@@ -224,7 +229,7 @@ __pmLogChkLabel(__pmArchCtl *acp, __pmFILE *f, __pmLogLabel *lp, int vol)
     len = ntohl(len);
     if (n != sizeof(len) || len != xpectlen) {
 	if (pmDebugOptions.log)
-	    fprintf(stderr, " trailer read -> %d (expect %d) or bad trailer len=%d (expected %d)\n",
+	    fprintf(stderr, " trailer read -> %d (expect %d) or bad trailer len=%d (expected %d)",
 		n, (int)sizeof(len), len, xpectlen);
 	if (__pmFerror(f)) {
 	    __pmClearerr(f);
@@ -247,7 +252,6 @@ __pmLogChkLabel(__pmArchCtl *acp, __pmFILE *f, __pmLogLabel *lp, int vol)
 		fprintf(stderr, " label version %d not supported", version);
 	    if (lp->ill_vol != vol)
 		fprintf(stderr, " label volume %d not %d as expected", lp->ill_vol, vol);
-	    fputc('\n', stderr);
 	}
 	version = PM_ERR_LABEL;
 	goto func_return;
@@ -256,13 +260,30 @@ __pmLogChkLabel(__pmArchCtl *acp, __pmFILE *f, __pmLogLabel *lp, int vol)
     if (__pmSetVersionIPC(__pmFileno(f), version) < 0)
 	return -oserror();
     if (pmDebugOptions.log)
-	fprintf(stderr, " [magic=%8x version=%d vol=%d pid=%d host=%s]\n",
+	fprintf(stderr, " [magic=%8x version=%d vol=%d pid=%d host=%s]",
 		lp->ill_magic, version, lp->ill_vol, lp->ill_pid, lp->ill_hostname);
+
+    /*
+     * If we have the label record, and nothing else this is really
+     * an empty archive (probably pmlogger was killed off before any
+     * data records were written) ... better to return PM_ERR_NODATA
+     * here, rather than to stumble into PM_ERR_LOGREC at the first
+     * call to __pmLogRead*()
+     */
+    if ((sts = __pmFstat(f, &sbuf)) >= 0) {
+	if (sbuf.st_size == xpectlen) {
+	    if (pmDebugOptions.log)
+		fprintf(stderr, " file is empty");
+	    version = PM_ERR_NODATA;
+	}
+    }
 
     if (vol >= 0 && vol < lcp->l_numseen)
 	lcp->l_seen[vol] = 1;
 
 func_return:
+    if (pmDebugOptions.log && diag_output)
+	fputc('\n', stderr);
 
     return version;
 }

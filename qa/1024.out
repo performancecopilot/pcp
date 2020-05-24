@@ -8,7 +8,7 @@ disk.all.aveq
     value 532716500
 
 disk.all.blkdiscard
-    inst [N or "sda"] value 0
+    value 0
 
 disk.all.blkread
     value 95048962
@@ -20,22 +20,22 @@ disk.all.blkwrite
     value 178999432
 
 disk.all.discard
-    inst [N or "sda"] value 0
+    value 0
 
 disk.all.discard_bytes
-    inst [N or "sda"] value 0
+    value 0
 
 disk.all.discard_merge
-    inst [N or "sda"] value 0
+    value 0
 
 disk.all.discard_rawactive
-    inst [N or "sda"] value 0
+    value 0
 
 disk.all.flush
-    inst [N or "sda"] value 0
+    value 0
 
 disk.all.flush_rawactive
-    inst [N or "sda"] value 0
+    value 0
 
 disk.all.read
     value 1132105
@@ -588,7 +588,7 @@ disk.all.aveq
     value 532718191
 
 disk.all.blkdiscard
-    inst [N or "sda"] value 0
+    value 0
 
 disk.all.blkread
     value 95561506
@@ -600,22 +600,22 @@ disk.all.blkwrite
     value 178999688
 
 disk.all.discard
-    inst [N or "sda"] value 0
+    value 0
 
 disk.all.discard_bytes
-    inst [N or "sda"] value 0
+    value 0
 
 disk.all.discard_merge
-    inst [N or "sda"] value 0
+    value 0
 
 disk.all.discard_rawactive
-    inst [N or "sda"] value 0
+    value 0
 
 disk.all.flush
-    inst [N or "sda"] value 0
+    value 0
 
 disk.all.flush_rawactive
-    inst [N or "sda"] value 0
+    value 0
 
 disk.all.read
     value 1132650
@@ -985,7 +985,7 @@ disk.all.aveq
     value 2137007
 
 disk.all.blkdiscard
-    inst [N or "sda"] value 0
+    value 0
 
 disk.all.blkread
     value 933248
@@ -997,22 +997,22 @@ disk.all.blkwrite
     value 582524
 
 disk.all.discard
-    inst [N or "sda"] value 0
+    value 0
 
 disk.all.discard_bytes
-    inst [N or "sda"] value 0
+    value 0
 
 disk.all.discard_merge
-    inst [N or "sda"] value 0
+    value 0
 
 disk.all.discard_rawactive
-    inst [N or "sda"] value 0
+    value 0
 
 disk.all.flush
-    inst [N or "sda"] value 0
+    value 0
 
 disk.all.flush_rawactive
-    inst [N or "sda"] value 0
+    value 0
 
 disk.all.read
     value 16281
@@ -2651,7 +2651,7 @@ disk.all.aveq
     value 1165433000
 
 disk.all.blkdiscard
-    inst [N or "sda"] value 0
+    value 0
 
 disk.all.blkread
     value 180097924
@@ -2663,22 +2663,22 @@ disk.all.blkwrite
     value 457998864
 
 disk.all.discard
-    inst [N or "sda"] value 0
+    value 0
 
 disk.all.discard_bytes
-    inst [N or "sda"] value 0
+    value 0
 
 disk.all.discard_merge
-    inst [N or "sda"] value 0
+    value 0
 
 disk.all.discard_rawactive
-    inst [N or "sda"] value 0
+    value 0
 
 disk.all.flush
-    inst [N or "sda"] value 0
+    value 0
 
 disk.all.flush_rawactive
-    inst [N or "sda"] value 0
+    value 0
 
 disk.all.read
     value 3264210
@@ -3073,7 +3073,7 @@ disk.all.aveq
     value 3669184
 
 disk.all.blkdiscard
-    inst [N or "vda"] value 0
+    value 0
 
 disk.all.blkread
     value 12340603
@@ -3085,22 +3085,22 @@ disk.all.blkwrite
     value 3184590
 
 disk.all.discard
-    inst [N or "vda"] value 0
+    value 0
 
 disk.all.discard_bytes
-    inst [N or "vda"] value 0
+    value 0
 
 disk.all.discard_merge
-    inst [N or "vda"] value 0
+    value 0
 
 disk.all.discard_rawactive
-    inst [N or "vda"] value 0
+    value 0
 
 disk.all.flush
-    inst [N or "vda"] value 0
+    value 0
 
 disk.all.flush_rawactive
-    inst [N or "vda"] value 0
+    value 0
 
 disk.all.read
     value 710617
@@ -3610,7 +3610,7 @@ disk.all.aveq
     value 69598188
 
 disk.all.blkdiscard
-    inst [N or "sda"] value 0
+    value 0
 
 disk.all.blkread
     value 108318902
@@ -3622,22 +3622,22 @@ disk.all.blkwrite
     value 126878242
 
 disk.all.discard
-    inst [N or "sda"] value 0
+    value 0
 
 disk.all.discard_bytes
-    inst [N or "sda"] value 0
+    value 0
 
 disk.all.discard_merge
-    inst [N or "sda"] value 0
+    value 0
 
 disk.all.discard_rawactive
-    inst [N or "sda"] value 0
+    value 0
 
 disk.all.flush
-    inst [N or "sda"] value 0
+    value 0
 
 disk.all.flush_rawactive
-    inst [N or "sda"] value 0
+    value 0
 
 disk.all.read
     value 16505440

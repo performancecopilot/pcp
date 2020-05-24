@@ -1,5 +1,6 @@
 #
 # Copyright (c) 2015 Martins Innus.  All Rights Reserved.
+# Copyright (c) 2020 Red Hat.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -22,25 +23,35 @@ use vars qw( $pmda );
 
 our  $lustre_llite_indom = 0;
 
-# llite proc root
-our $LLITE_PATH = "/proc/fs/lustre/llite/";
+# Directories for llite and lnet stats - defaults for Lustre v2.12 and later
+our $LLITE_PATH = "/sys/kernel/debug/lustre/llite/";
+our $LNET_PATH = "/sys/kernel/debug/lnet/";
 
-# lnet proc root
-our $LNET_PATH = "/proc/sys/lnet/";
+# Fall-back defaults for pre-Lustre v2.12 using the /proc interfaces
+if (! -d $LLITE_PATH || ! -d $LNET_PATH) {
+    $LLITE_PATH = "/proc/fs/lustre/llite/";
+    $LNET_PATH = "/proc/sys/lnet/";
+}
 
-# Configuration files for overriding the location of LLITE_PATH, etc, mostly for testing purposes
+# Optional config files for overriding the stats dirs, mostly for testing purposes
 for my $file (pmda_config('PCP_PMDAS_DIR') . '/lustre/lustre.conf', 'luster.conf') {
         eval `cat $file` unless ! -f $file;
 }
 
-# Check env variable for llite path to use.  Should be a dir with all the files
+# Optional env variables for overriding the stats dirs to use, also mostly for testing
 if ( defined $ENV{"LUSTRE_LLITE_PATH"} ) {
 	$LLITE_PATH = $ENV{"LUSTRE_LLITE_PATH"}
 }
-
-# Check env variable for lnet path to use.  Should be a dir with all the files
 if ( defined $ENV{"LUSTRE_LNET_PATH"} ) {
 	$LNET_PATH = $ENV{"LUSTRE_LNET_PATH"}
+}
+
+if ( -d $LLITE_PATH && -d $LNET_PATH ) {
+    printf STDERR "Using Lustre stats in '%s' and %s\n", $LLITE_PATH, $LNET_PATH;
+}
+else {
+    print STDERR "FATAL Error: no Lustre stats interfaces detected, see pmdalustre(1).\n";
+    exit;
 }
 
 # List of metrics we care about
@@ -78,7 +89,7 @@ our $h_lnet = {};
 # And parse the stats file underneath
 
 sub lustre_get_llite_stats{
-	opendir(LLITEDIR, $LLITE_PATH) || die "Can't open directory: $LLITE_PATH\n";
+	opendir(LLITEDIR, $LLITE_PATH) || die "Can't open any stats directories, is Lustre installed?\n";
 
 	while(my $ldev = readdir(LLITEDIR) ){
 		if( $ldev =~ /^(\w+)-([a-f0-9]{16})$/ ){

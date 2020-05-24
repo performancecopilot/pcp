@@ -38,7 +38,7 @@ _cleanup()
     if $need_restore
     then
 	need_restore=false
-	$sudo rm -f $PCP_ETC_DIR/pcp/labels/*
+	$sudo rm -rf $PCP_ETC_DIR/pcp/labels/*
 	_restore_config $PCP_ETC_DIR/pcp/labels
 	[ -d $MMV_STATS_DIR.$seq ] && _restore_config $MMV_STATS_DIR
 	# note: _restore_auto_restart pmcd done in _cleanup_pmda()
@@ -66,7 +66,7 @@ _stop_auto_restart pmcd
 
 need_restore=true
 _save_config $PCP_ETC_DIR/pcp/labels
-$sudo rm -f $PCP_ETC_DIR/pcp/labels/*
+$sudo rm -rf $PCP_ETC_DIR/pcp/labels/*
 
 # move the MMV directory to restore contents later.
 [ -d $MMV_STATS_DIR ] && _save_config $MMV_STATS_DIR

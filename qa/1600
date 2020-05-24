@@ -23,7 +23,7 @@ _cleanup()
     if $need_restore
     then
 	need_restore=false
-	$sudo rm -f $PCP_SYSCONF_DIR/pcp/labels/*
+	$sudo rm -rf $PCP_SYSCONF_DIR/pcp/labels/*
 	_restore_config $PCP_SYSCONF_DIR/labels
         _restore_config $PCP_SYSCONF_DIR/pmproxy
         _restore_config $PCP_SYSCONF_DIR/pmseries
@@ -101,7 +101,7 @@ _save_config $PCP_SYSCONF_DIR/pmseries
 [ -d $PCP_TMP_DIR/mmv ] && _save_config $PCP_TMP_DIR/mmv
 $sudo rm -f $PCP_SYSCONF_DIR/pmseries/*
 $sudo rm -f $PCP_SYSCONF_DIR/pmproxy/*
-$sudo rm -f $PCP_SYSCONF_DIR/labels/*
+$sudo rm -rf $PCP_SYSCONF_DIR/labels/*
 $sudo rm -f $PCP_TMP_DIR/mmv/*
 need_restore=true
 echo '{"latitude": -25.28496, "longitude": 152.87886}' > $tmp.labels

@@ -1014,6 +1014,7 @@ create_tempfile(FILE *file, FILE **tempfile, struct stat *stat)
     FILE		*fp;
     char		bytes[BUFSIZ];
     mode_t		cur_umask;
+    int			sts;
 
     /* create a temporary file in the same directory as config (for rename) */
     pmsprintf(bytes, sizeof(bytes), "%s.new", config);
@@ -1036,8 +1037,14 @@ create_tempfile(FILE *file, FILE **tempfile, struct stat *stat)
     umask(cur_umask);
 
     if (stat) {
-	fchown(fd, stat->st_uid, stat->st_gid);
-	fchmod(fd, stat->st_mode);
+	if ((sts = fchown(fd, stat->st_uid, stat->st_gid)) < 0) {
+	    fprintf(stderr, "%s: Warning: fchown() failed: %s\n",
+			pmGetProgname(), osstrerror());
+	}
+	if ((sts = fchmod(fd, stat->st_mode)) < 0) {
+	    fprintf(stderr, "%s: Warning: fchmod() failed: %s\n",
+			pmGetProgname(), osstrerror());
+	}
     }
 
     *tempfile = fp;

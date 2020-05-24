@@ -1235,6 +1235,9 @@ priproc(struct tstat **proclist, int firstproc, int lastproc, int curline,
         {
                 curstat = *(proclist+i);
 
+                if (curstat == NULL)
+                        continue;
+
                 if (screen && curline >= LINES) /* screen filled entirely ? */
                         break;
 

@@ -1,0 +1,47 @@
+#!/bin/sh
+# PCP QA Test No. 1198
+# Check disk.all.*(discard|fush)* metrics ... they had an indom when they
+# should not have
+#
+# Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo "Expect nothing here ..."
+pmprobe -i disk.all | grep -v PM_IN_NULL
+
+echo
+echo "Check rewrite rules ..."
+pmlogrewrite -c $PCP_VAR_DIR/config/pmlogrewrite/linux_disk_all_fixups.conf \
+    badarchives/bozo-vm-disk $tmp
+
+pmdumplog -z -a badarchives/bozo-vm-disk >$tmp.bad
+pmdumplog -z -a $tmp >$tmp.good
+
+diff -u $tmp.bad $tmp.good \
+| sed \
+    -e '1s/ .*/ BAD/' \
+    -e '2s/ .*/ GOOD/' \
+# end
+
+# success, all done
+status=0
+exit

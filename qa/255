@@ -102,35 +102,16 @@ _cleanup()
     cd $here/pmdas/broken
     $sudo ./broken_Remove
     cd $here
-    sleep 4
-    _wait_for_pmcd
 
-    if [ -f $tmp.conf ]
-    then
-	echo "=== Resetting pmcd.conf back to original state ==="
-	$sudo cp $tmp.conf $PCP_PMCDCONF_PATH
-    fi
-    if [ -f $tmp.options ]
-    then
-	echo "=== Resetting pmcd.options back to original state ==="
-	echo '=== $PCP_PMCDOPTIONS_PATH before cp' >>$seq.full
-	cat $PCP_PMCDOPTIONS_PATH >>$seq.full
-	echo '=== $tmp.options before cp' >>$seq.full
-	cat $tmp.options >>$seq.full
-	$sudo cp $tmp.options $PCP_PMCDOPTIONS_PATH
-    fi
-    if [ -f $tmp.conf -o -f $tmp.options ]
-    then
-    	echo "=== Restart PMCD ==="
-	echo '=== $PCP_PMCDCONF_PATH before init.d/pcp/start' >>$seq.full
-	cat $PCP_PMCDCONF_PATH >>$seq.full
-	echo '=== $PCP_PMCDOPTIONS_PATH before init.d/pcp/start' >>$seq.full
-	cat $PCP_PMCDOPTIONS_PATH >>$seq.full
-	_service pcp restart 2>&1 | _filter_pcp_start
-	_restore_auto_restart pmcd
-	_wait_for_pmcd
-	_wait_for_pmlogger
-    fi
+    echo "=== Resetting pmcd.conf back to original state ==="
+    _restore_config $PCP_PMCDCONF_PATH
+    echo "=== Resetting pmcd.options back to original state ==="
+    _restore_config $PCP_PMCDOPTIONS_PATH
+    echo "=== Restart PMCD ==="
+    _service pcp restart 2>&1 | _filter_pcp_start
+    _restore_auto_restart pmcd
+    _wait_for_pmcd
+    _wait_for_pmlogger
     if [ -f $tmp.log ]
     then
 	echo "=== Filter pmcd.log ==="
@@ -140,7 +121,7 @@ _cleanup()
     fi
     echo "=== Restoring crontab ==="
     _restore_job_scheduler $tmp.cron $tmp.systemd $sudo
-    [ -f $PCP_PMDAS_DIR/simple/simple.conf.$seq ] && $sudo mv $PCP_PMDAS_DIR/simple/simple.conf.$seq $PCP_PMDAS_DIR/simple/simple.conf
+    [ -f $PCP_PMDAS_DIR/simple/simple.conf.$seq ] && _restore_config $PCP_PMDAS_DIR/simple/simple.conf
 
     echo "=== /tmp files" >>$seq.full
     $sudo ls -l /tmp/[0-9][0-9]*.* >>$seq.full 2>&1
@@ -148,7 +129,6 @@ _cleanup()
     ls -l $PCP_PMCDCONF_PATH $PCP_PMCDOPTIONS_PATH >>$seq.full
 
     $sudo rm -rf $tmp.*
-    _wait_for_pmlogger
 }
 
 # Removing systemd timers or cron entries that may collide
@@ -185,7 +165,7 @@ cd $PCP_PMDAS_DIR/simple
 
 # get rid of warnings from simple if no config exists
 #
-[ -f simple.conf ] && $sudo mv simple.conf simple.conf.$seq
+[ -f $PCP_PMDAS_DIR/simple/simple.conf ] && _save_config $PCP_PMDAS_DIR/simple/simple.conf
 echo "sec,min,hour" >$tmp.simple.conf
 $sudo cp $tmp.simple.conf simple.conf
 
@@ -205,7 +185,7 @@ cd $here
 # Replace pmcd.options
 #
 echo "=== Replacing pmcd.options ==="
-$sudo cp $PCP_PMCDOPTIONS_PATH $tmp.options
+_save_config $PCP_PMCDOPTIONS_PATH
 cat << end-of-file > $tmp.newoptions
 # New pmcd.options file created by PCP QA test $seq
 #
@@ -328,7 +308,7 @@ end-of-file
 
 # Copy and replace pmcd.conf
 #
-cp $PCP_PMCDCONF_PATH $tmp.conf
+_save_config $PCP_PMCDCONF_PATH
 cat << end-of-file > $tmp.newconf
 # pmcd.conf installed by PCP QA test $seq
 #

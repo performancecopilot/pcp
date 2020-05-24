@@ -37,7 +37,7 @@ fi
 audit=/var/log/audit/audit.log
 sudo=`which sudo`
 
-# Did pmlogger.daily get run as expected?
+# Did pmlogger_daily get run as expected?
 # But don't bother if it is just after midnight!
 #
 case `pmdate %H:%M`
@@ -55,7 +55,7 @@ in
 	    bozo|bozo-vm|vm01|vm03|vm36)
 		    if [ ! -f $PCP_LOG_DIR/pmlogger/$host/$yesterday.meta.xz -a ! -f $PCP_LOG_DIR/pmlogger/$host/$yesterday.meta ]
 		    then
-			echo "check.callback: fail: pmlogger.daily not well!"
+			echo "check.callback: fail: pmlogger_daily not well!"
 			echo "Missing $yesterday archive ..."
 			ls -l $PCP_LOG_DIR/pmlogger/$host/$yesterday.*
 		    fi
