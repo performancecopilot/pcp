@@ -1395,7 +1395,7 @@ series_instance_store_to_node(seriesQueryBaton *baton, sds series,
 {
     char		hashbuf[42];
     sds			inst;
-    int			i, sts = 0, idx_instance = 0, idx_series = np->result.nseries;
+    int			i, sts = 0, idx_instance = 0, idx_series = np->value_set.num_series;
 
     for (i = 0; i < nelements; i += 2) {
 	inst = value->series;
@@ -1417,11 +1417,11 @@ series_instance_store_to_node(seriesQueryBaton *baton, sds series,
 	if (extract_string(baton, series, elements[i+1], &value->data, "value") < 0)
 	    sts = -EPROTO;
 	else{
-	    memcpy(&(np->series_values[idx_series][idx_sample][idx_instance]),
+	    memcpy(&(np->value_set.series_values[idx_series][idx_sample][idx_instance]),
 			value, sizeof(pmSeriesValue));
-	    np->series_values[idx_series][idx_sample][idx_instance].timestamp = sdsnew(value->timestamp);
-	    np->series_values[idx_series][idx_sample][idx_instance].series = sdsnew(value->series);
-	    np->series_values[idx_series][idx_sample][idx_instance].data = sdsnew(value->data);
+	    np->value_set.series_values[idx_series][idx_sample][idx_instance].timestamp = sdsnew(value->timestamp);
+	    np->value_set.series_values[idx_series][idx_sample][idx_instance].series = sdsnew(value->series);
+	    np->value_set.series_values[idx_series][idx_sample][idx_instance].data = sdsnew(value->data);
 	    ++idx_instance;
 	}
     }
@@ -1436,7 +1436,7 @@ series_values_store_to_node(seriesQueryBaton *baton, sds series,
     seriesSampling	sampling = {0};
     redisReply		*reply, *sample, **elements;
     timing_t		*tp = &baton->u.query.timing;
-    int			i, sts, next, nelements, idx_series = np->result.nseries, idx_sample = 0;
+    int			i, sts, next, nelements, idx_series = np->value_set.num_series, idx_sample = 0;
     sds			msg, save_timestamp;
 
     sampling.value.timestamp = sdsempty();
@@ -1470,7 +1470,7 @@ series_values_store_to_node(seriesQueryBaton *baton, sds series,
 
 	/* In this initial setup phase, calloc space to store instance values */
 	idx_sample = i;
-	if ((np->series_values[idx_series][idx_sample] = (pmSeriesValue*)calloc(nelements/2, sizeof(pmSeriesValue))) == NULL) {
+	if ((np->value_set.series_values[idx_series][idx_sample] = (pmSeriesValue*)calloc(nelements/2, sizeof(pmSeriesValue))) == NULL) {
 	    /* TODO: error report here */
 	    baton->error = -ENOMEM;
 	}
@@ -1564,8 +1564,8 @@ series_node_prepare_time_reply(
     node_t			*np = (node_t *)arg;
     seriesQueryBaton		*baton = (seriesQueryBaton *)np->baton;
     sds				msg;
-    int				sts, idx = np->result.nseries;
-    seriesGetSID		*sid = *((seriesGetSID **)(np->SID) + idx);
+    int				sts, idx = np->value_set.num_series;
+    seriesGetSID		*sid = *((seriesGetSID **)(np->value_set.SID) + idx);
 
     /* 
      * Got an reply contains series values which need to be saved into the corresponding 
@@ -1590,13 +1590,15 @@ series_node_prepare_time_reply(
 	baton->error = -EPROTO;
     } else {
 	/* calloc space to store series samples */
-	if ((*(np->series_values + idx) = (pmSeriesValue **)calloc(reply->elements, sizeof(pmSeriesValue *))) == NULL) {
+	if ((*(np->value_set.series_values + idx) = (pmSeriesValue **)calloc(reply->elements, sizeof(pmSeriesValue *))) == NULL) {
 	    /* TODO: error report here */
 	    baton->error = -ENOMEM;
 	}
 	series_values_store_to_node(baton, sid->name, reply->elements, reply->element, sid, np);
-	np->result.nseries++;
+	np->value_set.num_series++;
     }
+    // May cause error: should this add here?
+    series_query_end_phase(baton);
 }
 
 static void
@@ -1632,13 +1634,13 @@ series_node_prepare_time(seriesQueryBaton *baton, series_set_t *query_series_set
 	fprintf(stderr, "END: %s\n", end);
     
     /* Save SIDs' addresses into this node np */
-    if ((np->SID = (seriesGetSID **)calloc(nseries, sizeof(seriesGetSID*))) == NULL) {
+    if ((np->value_set.SID = (seriesGetSID **)calloc(nseries, sizeof(seriesGetSID*))) == NULL) {
 	/* TODO: error report here */
 	baton->error = -ENOMEM;
     }
 
     /* calloc nseries samples store space */
-    if ((np->series_values = (pmSeriesValue ***)calloc(nseries, sizeof(pmSeriesValue**))) == NULL) {
+    if ((np->value_set.series_values = (pmSeriesValue ***)calloc(nseries, sizeof(pmSeriesValue**))) == NULL) {
 	/* TODO: error report here */
 	baton->error = -ENOMEM;
     }
@@ -1672,8 +1674,8 @@ series_node_prepare_time(seriesQueryBaton *baton, series_set_t *query_series_set
 	    cmd = redis_param_str(cmd, revbuf, revlen);
 	}
 
-	/* Note: np->result.nseries is not equal to nseries in this function */
-	*( (seriesGetSID **)(np->SID) + i ) = sid;
+	/* Note: np->series_set.num_series is not equal to nseries in this function */
+	*( (seriesGetSID **)(np->value_set.SID) + i ) = sid;
 	redisSlotsRequest(baton->slots, XRANGE, key, cmd,
 				series_node_prepare_time_reply, np);
     }
@@ -1720,10 +1722,8 @@ series_process_func(seriesQueryBaton *baton, node_t *np, int level)
 	memcpy(series, np->left->result.series, 
 		np->result.nseries * SHA1SZ);
 	np->result.series = series;
-
-	np->left->result.nseries = 0;
-	free(np->left->result.series);
-	np->left->result.series = NULL;
+	
+	np->left->value_set.num_series = 0;
 	
 	np->baton = baton;
 	series_node_prepare_time(baton, &np->result, np->left);
@@ -1745,7 +1745,10 @@ series_query_report_values(void *arg)
     seriesBatonCheckCount(baton, "series_query_report_values");
 
     seriesBatonReference(baton, "series_query_report_values");
+
+    // Process funtion-type node here
     series_process_func(baton, &baton->u.query.root, 0);
+
     // leave series_prepare_time function just to report values, maybe need to modified
     series_prepare_time(baton, &baton->u.query.root.result);
     series_query_end_phase(baton);

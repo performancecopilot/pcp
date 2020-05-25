@@ -122,16 +122,8 @@ typedef struct node {
     regex_t		regex;	/* compiled regex */
     unsigned long long	cursor;
 
-<<<<<<< HEAD
     /* result set of time series values at this node */
     series_value_set_t	value_set;
-=======
-    /* record SID for function-type node */
-    void		**SID;
-
-    /* store series values of this node */
-    pmSeriesValue	***series_values;
->>>>>>> 8393bb7e68d92e2dcfc988bf124a47563240c7f6
 } node_t;
 
 typedef struct timing {
