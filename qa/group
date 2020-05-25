@@ -1756,7 +1756,7 @@ BAD
 1723 pmda.bpftrace local python
 1724 pmda.bpftrace local python
 1768 pmfind local
-1793:reserved pmrep python local
+1793 pmrep pcp2xxx python local
 1855 pmda.rabbitmq local
 1896 pmlogger logutil pmlc local
 4751 libpcp threads valgrind local pcp
