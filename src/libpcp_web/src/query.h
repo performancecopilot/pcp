@@ -90,6 +90,18 @@ typedef struct series_set {
     int			nseries;
 } series_set_t;
 
+typedef struct series_value_set {
+    /* Number of series */
+    int num_series;
+    /* For each series, how many samples */
+    int *num_sample;
+    /* record SID for function-type node */
+    void		**SID;
+    /* store time series values of this node */
+    pmSeriesValue	***series_values;
+} series_value_set_t;
+
+
 typedef struct node {
     enum nodetype	type;
     enum nodetype	subtype;
@@ -109,6 +121,9 @@ typedef struct node {
     sds			*matches;
     regex_t		regex;	/* compiled regex */
     unsigned long long	cursor;
+
+    /* result set of time series values at this node */
+    series_value_set_t	value_set;
 } node_t;
 
 typedef struct timing {

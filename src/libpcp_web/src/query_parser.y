@@ -155,7 +155,7 @@ static const char initial_str[]  = "Unexpected initial";
 
 %type  <n>  query
 %type  <n>  expr
-//%type  <n>  func
+%type  <n>  func
 %type  <n>  exprlist
 %type  <n>  exprval
 %type  <n>  number
@@ -207,6 +207,17 @@ vector:	L_NAME L_LBRACE exprlist L_RBRACE L_EOS
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		  YYACCEPT;
 		}
+	| func L_LBRACE exprlist L_RBRACE L_LSQUARE timelist L_RSQUARE L_EOS
+		{ lp->yy_np = newmetricquery($1->left->value, $3);
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		  YYACCEPT;
+		}
+	| func L_LSQUARE timelist L_RSQUARE L_EOS
+		{ lp->yy_np = $1;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		  YYACCEPT;
+		}
+	;
 
 exprlist : exprlist L_COMMA expr
 		{ lp->yy_np = newnode(N_AND);
@@ -308,7 +319,13 @@ expr	: /* relational expressions */
 	;
 
 	/* TODO: functions */
-//func	: L_AVG L_LPAREN L_NAME L_RPAREN
+func	: L_RATE L_LPAREN L_NAME L_RPAREN
+		{ lp->yy_np = newnode(N_RATE);
+		  lp->yy_np->left = newmetric($3);
+		  $$ = lp->yy_np;
+		}
+	;
+//	| L_AVG L_LPAREN L_NAME L_RPAREN
 //		{ lp->yy_np = newnode(N_AVG);
 //		  lp->yy_np->left = newnode(N_NAME);
 //		  lp->yy_np->left->value = sdsnew($3);
@@ -340,12 +357,6 @@ expr	: /* relational expressions */
 //		}
 //	| L_SUM L_LPAREN L_NAME L_RPAREN
 //		{ lp->yy_np = newnode(N_SUM);
-//		  lp->yy_np->left = newnode(N_NAME);
-//		  lp->yy_np->left->value = sdsnew($3);
-//		  $$ = lp->yy_np;
-//		}
-//	| L_RATE L_LPAREN L_NAME L_RPAREN
-//		{ lp->yy_np = newnode(N_RATE);
 //		  lp->yy_np->left = newnode(N_NAME);
 //		  lp->yy_np->left->value = sdsnew($3);
 //		  $$ = lp->yy_np;
