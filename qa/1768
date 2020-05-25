@@ -1,4 +1,4 @@
-#!/usr/bin/sh
+#!/bin/sh
 # PCP QA Test No. 1768
 # Exercise the pmfind_check(1) utility.
 #

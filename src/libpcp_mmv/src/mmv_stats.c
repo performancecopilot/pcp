@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2001,2009 Silicon Graphics, Inc.  All rights reserved.
  * Copyright (C) 2009 Aconex.  All rights reserved.
- * Copyright (C) 2013,2016,2018 Red Hat.
+ * Copyright (C) 2013,2016,2018-2020 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -1028,13 +1028,13 @@ mmv_stats_add_registry_label(mmv_registry_t *registry,
     mmv_label_t * label;
     size_t bytes;
     char buffer[MMV_LABELMAX];
-    int buflen;
-    int flags = PM_LABEL_CLUSTER | PM_LABEL_COMPOUND;
+    int buflen, flags;
 
     if (registry == NULL) {
 	setoserror(EFAULT);
 	return -1;
     }
+    flags = PM_LABEL_CLUSTER;
     if (optional)
 	flags |= PM_LABEL_OPTIONAL;
     if ((buflen = get_label(name, value, type, flags, buffer)) < 0)
@@ -1071,13 +1071,13 @@ mmv_stats_add_indom_label(mmv_registry_t *registry, int serial,
     mmv_label_t * label;
     size_t bytes;
     char buffer[MMV_LABELMAX];
-    int buflen;
-    int flags = PM_LABEL_INDOM | PM_LABEL_COMPOUND;
+    int buflen, flags;
 
     if (registry == NULL) {
 	setoserror(EFAULT);
 	return -1;
     }
+    flags = PM_LABEL_INDOM;
     if (optional)
 	flags |= PM_LABEL_OPTIONAL;
     if ((buflen = get_label(name, value, type, flags, buffer)) < 0)
@@ -1114,13 +1114,13 @@ mmv_stats_add_metric_label(mmv_registry_t *registry, int item,
     mmv_label_t * label;
     size_t bytes;
     char buffer[MMV_LABELMAX];
-    int buflen;
-    int flags = PM_LABEL_ITEM | PM_LABEL_COMPOUND;
+    int buflen, flags;
 
     if (registry == NULL) {
 	setoserror(EFAULT);
 	return -1;
     }
+    flags |= PM_LABEL_ITEM;
     if (optional)
 	flags |= PM_LABEL_OPTIONAL;
     if ((buflen = get_label(name, value, type, flags, buffer)) < 0)
@@ -1157,13 +1157,13 @@ mmv_stats_add_instance_label(mmv_registry_t *registry, int serial, int instid,
     mmv_label_t * label;
     size_t bytes;
     char buffer[MMV_LABELMAX];
-    int buflen;
-    int flags = PM_LABEL_INSTANCES | PM_LABEL_COMPOUND;
+    int buflen, flags;
 
     if (registry == NULL) {
 	setoserror(EFAULT);
 	return -1;
     }
+    flags = PM_LABEL_INSTANCES;
     if (optional)
 	flags |= PM_LABEL_OPTIONAL;
     if ((buflen = get_label(name, value, type, flags, buffer)) < 0)

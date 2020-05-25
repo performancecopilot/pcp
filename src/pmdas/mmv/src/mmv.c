@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2019 Red Hat.
+ * Copyright (c) 2012-2020 Red Hat.
  * Copyright (c) 2009-2010 Aconex. All Rights Reserved.
  * Copyright (c) 1995-2000,2009 Silicon Graphics, Inc. All Rights Reserved.
  *
@@ -1292,7 +1292,7 @@ mmv_label_lookup(agent_t *ap, int ident, int type, pmLabelSet **lp)
 	    else
 		id = lb.identity;
 	    if ((lb.flags & type) && id == ident)
-		pmdaAddLabels(lp, lb.payload, lb.flags);
+		__pmAddLabels(lp, lb.payload, lb.flags);
 	}
     }
     return 0;
@@ -1330,7 +1330,7 @@ mmv_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
 		continue;
 	    if (((s->cluster << 11) | lb.identity) != pmInDom_serial(indom))
 		continue;
-	    if (pmdaAddLabels(lp, lb.payload, lb.flags) < 0)
+	    if (__pmAddLabels(lp, lb.payload, lb.flags) < 0)
 		continue;
 	    count++;
 	}

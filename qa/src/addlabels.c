@@ -12,6 +12,7 @@
 #define LABELS_1	"{\"a\":true}"
 #define LABELS_2	"{\"b\":0,\"c\":null}"
 #define LABELS_3	"{\"d\":{\"e\":1}}"
+#define LABELS_4	"{\"f\":{\"gee\":22,\"h\":333}}"
 
 int
 main(int argc, char **argv)
@@ -20,8 +21,8 @@ main(int argc, char **argv)
     int		sts;
     int		errflag = 0;
     pmLabelSet	*set = NULL;
-    const char	*sets[] = { LABELS_1, LABELS_2, LABELS_3 };
-    int		flags[] = { 0, PM_LABEL_OPTIONAL, PM_LABEL_COMPOUND};
+    const char	*sets[] = { LABELS_1, LABELS_2, LABELS_3, LABELS_4 };
+    int		flags[] = { 0, PM_LABEL_OPTIONAL, PM_LABEL_COMPOUND,PM_LABEL_COMPOUND };
 
     pmSetProgname(argv[0]);
 
