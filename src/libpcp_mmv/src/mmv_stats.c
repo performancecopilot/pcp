@@ -1120,7 +1120,7 @@ mmv_stats_add_metric_label(mmv_registry_t *registry, int item,
 	setoserror(EFAULT);
 	return -1;
     }
-    flags |= PM_LABEL_ITEM;
+    flags = PM_LABEL_ITEM;
     if (optional)
 	flags |= PM_LABEL_OPTIONAL;
     if ((buflen = get_label(name, value, type, flags, buffer)) < 0)
