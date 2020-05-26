@@ -152,16 +152,21 @@ class OpenvswitchPMDA(PMDA):
     def get_switch_info_json(self):
         """ Convert the commandline output to json """
         query = ["ovs-vsctl", "--format=json", "list", "bridge"]
-        with open(os.devnull, 'w') as devnull:
-            p = subprocess.Popen(query, stdout=subprocess.PIPE, stderr=devnull)
-            js = json.loads(p.communicate()[0].decode("utf-8"))
-
-        # reorganize json a bit
         self.switch_info_json = dict()
         self.switch_names = []
-        for idx in range(len(js["data"])):
-            self.switch_info_json[str(js["data"][idx][13])] = js["data"][idx]
-            self.switch_names.append(str(js["data"][idx][13]))
+
+        try:
+            with open(os.devnull, 'w') as devnull:
+                p = subprocess.Popen(query, stdout=subprocess.PIPE, stderr=devnull)
+                js = json.loads(p.communicate()[0].decode("utf-8"))
+
+            # reorganize json a bit
+            for idx in range(len(js["data"])):
+                self.switch_info_json[str(js["data"][idx][13])] = js["data"][idx]
+                self.switch_names.append(str(js["data"][idx][13]))
+
+        except Exception as e:
+            self.log("Failed to get switch info: %s" % (str(e)))
 
     def switch_instances(self):
         """ set names for openvswitch switch instances """
