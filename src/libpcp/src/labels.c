@@ -937,7 +937,7 @@ compound_filter(pmLabel *label, const char *json, void *arg)
     label->flags |= PM_LABEL_COMPOUND;
     if (baton->filter == NULL)
 	return 1;
-    return baton->filter((const pmLabel *)label, json, arg);
+    return baton->filter((const pmLabel *)label, json, baton->arg);
 }
 
 static int
