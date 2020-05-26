@@ -112,17 +112,12 @@
 <a name="discovery"></a>
 <H3>Dynamic Host Discovery</H3>
 
-<P>In dynamic environments manually configuring every host is not feasible, perhaps even impossible. PCP Manager (<a href="http://man7.org/linux/man-pages/man1/pmmgr.1.html">pmmgr(1)</a>, from the pcp-manager package) can be used instead of directly invoking pmlogger to auto-discover and auto-configure new collector hosts.
+<P>In dynamic environments manually configuring every host is not feasible, perhaps even impossible. The discovery service (<a href="http://man7.org/linux/man-pages/man1/pmfind.1.html">pmfind(1)</a> can be used to auto-discover and auto-configure new collector hosts and containers for logging and/or rule inference.
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
-	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To install the PMMGR daemon and begin monitoring either statically or dynamically configured hosts, run:<br><B>
-<br> # yum install pcp-manager # or apt-get or dnf or zypper
-<br> # systemctl enable pmmgr
-<br> # echo acme.com >> /etc/pcp/pmmgr/target-host
-<br> # echo avahi >> /etc/pcp/pmmgr/target-discovery
-<br> # echo probe=<FONT COLOR="#cc0000">ip.addr.tup.le/netmask</FONT> >> /etc/pcp/pmmgr/target-discovery
-<br> # systemctl restart pmmgr
-<br> # find /var/log/pcp/pmmgr
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To install pmfind to begin monitoring discovered metric sources, run:<br><B>
+<br> # systemctl enable pmfind
+<br> # systemctl restart pmfind
 </B></TD></TR>
 </TABLE>
 

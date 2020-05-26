@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2014,2018,2019 Red Hat.
+.\" Copyright (c) 2014,2018-2020 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -17,7 +17,7 @@
 \f3pmfind\f1 \- find PCP services on the network
 .SH SYNOPSIS
 \f3pmfind\f1
-[\f3\-qr?\f1]
+[\f3\-CqrS?\f1]
 [\f3\-m\f1 \f2mechanism\f1]
 [\f3\-s\f1 \f2service\f1]
 [\f3\-t\f1 \f2timeout\f1]
@@ -25,9 +25,17 @@
 .B pmfind
 searches for instances of the specified PCP service being advertised on the
 network and prints a list of URLs corresponding to the services discovered.
+It can be used in conjunction with
+.BR pmfind_check (1)
+to automate the monitoring of remote PCP collector systems.
 .SH OPTIONS
 The available command line options are:
 .TP 5
+\f3\-C\f1, \f3\-\-containers\f1
+Performs containers discovery as well, for each discovered
+.BR pmcd (1)
+service.
+.TP
 \f3\-m\f1 \f2mechanism\f1, \f3\-\-mechanism\f1=\f2mechanism\f1
 This option sets the
 .I mechanism
@@ -60,6 +68,31 @@ Supported services are
 .BR pmcd (1),
 and
 .BR pmproxy (1).
+.TP
+\f3\-S\f1, \f3\-\-sources\f1
+Reports source identifiers for each discovered
+.BR pmcd (1)
+service.
+These identifiers are unique for each host, and are formed using the
+(non-optional) context labels available for every PCP collector.
+Because the discovery process will often identify multiple paths to
+an individual collector host, this option is an important part of
+the process of using
+.B pmfind
+in conjunction with
+.BR pmfind_check (1),
+to ensure only one
+.BR pmie (1)
+and/or
+.BR pmlogger (1)
+process is started for each discovered collector host.
+The source identifiers reported by
+.B pmfind
+are the same as the source identifiers reported by the
+.BR pminfo (1)
+and
+.BR pmseries (1)
+commands.
 .TP
 \f3\-t\f1 \f2seconds\f1, \f3\-\-timeout\f1=\f2seconds\f1
 Sets the maximum amount of time in
@@ -154,7 +187,12 @@ configuration file, as described in \fBpcp.conf\fP(5).
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmcd (1),
+.BR pmfind_check (1),
+.BR pmie (1),
+.BR pminfo (1),
+.BR pmlogger (1),
 .BR pmproxy (1),
+.BR pmseries (1),
 .BR pcp-kube-pods (1),
 .BR PMAPI (3),
 .BR PMWEBAPI (3),

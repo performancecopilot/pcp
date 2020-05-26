@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2019 Red Hat.
+.\" Copyright (c) 2019-2020 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -54,6 +54,24 @@ The version 1
 configuration file format (from IRIX) was also retired in this release,
 after more than 10 years of automatic transition to version 2 format by
 .BR pmlogconf .
+.SH PMMGR
+The PCP daemon manager
+.B pmmgr
+is now deprecated, and will be removed in the next PCP release.
+It has being phased out in favour of the simpler
+.BR pmfind (1)
+service for setting up
+.BE pmie (1)
+and
+.BR pmlogger (1)
+``farms'' of discovered PCP collector systems.
+The new mechanisms, especially when integrated with
+.BR systemd ,
+require no additional daemons and are better integrated with the
+.BR pmie
+and
+.BR pmlogger
+service management used elsewhere in PCP.
 .SH PCP-COLLECTL
 The
 .B pcp-collectl
@@ -133,6 +151,7 @@ services could use the scalable time series REST APIs described on
 .BR pcp (1),
 .BR pmcd (1),
 .BR pmrep (1),
+.BR pmfind (1),
 .BR pmproxy (1),
 .BR pmseries (1),
 .BR pmlogconf (1),
