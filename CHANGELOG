@@ -22,9 +22,10 @@ pcp-5.1.1 (29 May 2020)
     - PMDA additions, enhancements and bug fixes:
 	pmdaopenvswitch: new, export Open vSwitch metrics
 	pmdalustre: support Lustre v2.12 and later
+	pmdabind2: remove Install checks for unused perl modules
 	pmdakvm: also handle kernel lockdown in integrity mode
 	pmdabcc: set correct units for biolatency, runqlat, *dist
-	pmdagfs2: Disable auto enablement of kernel tracepoints
+	pmdagfs2: disable auto enablement of kernel tracepoints
 	pmdalinux: fix bad metadata for disk.all.*(discard|flush)* metrics
 	pmdastatsd: allow builds to proceed when no ragel available
 	pmdaproc.sh: improve PMDA problem diagnosis by checking PMDA syntax
