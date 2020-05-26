@@ -3378,6 +3378,7 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %changelog
 * Fri May 29 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.1.1-1
 - Update to latest PCP sources.
+- pmdakvm: handle kernel lockdown in integrity mode (BZ 1824297)
 
 * Fri Apr 24 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.1.0-1
 - pmdakvm: debugfs access is restricted (BZ 1824297)
