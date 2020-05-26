@@ -28,18 +28,10 @@
 static int __pmMergeLabels(const char *, const char *, char *, int, int);
 static int __pmParseLabels(const char *, int, pmLabel *, int, __pmHashCtl *, int, char *, int *);
 
-typedef int (*writable_filter)(pmLabel *, const char *, void *);
-typedef int (*readonly_filter)(const pmLabel *, const char *, void *);
-
+typedef int (*filter)(const pmLabel *, const char *, void *);
 static int __pmMergeLabelSets(pmLabel *, const char *, __pmHashCtl *, int,
 		pmLabel *, const char *, __pmHashCtl *, int,
-		pmLabel *, char *, int *, int, writable_filter, void *);
-
-typedef struct {
-    readonly_filter	filter;
-    void		*arg;
-} filter_baton;
-
+		pmLabel *, char *, int *, int, filter, void *);
 
 /*
  * Parse JSONB labels string, building up the array index as we go.
@@ -438,10 +430,10 @@ stash_chars(const char *s, int slen, char **buffer, unsigned int *buflen)
 }
 
 static int
-stash_label(pmLabel *lp, const char *json, __pmHashCtl *lc,
+stash_label(const pmLabel *lp, const char *json, __pmHashCtl *lc,
 	    pmLabel *olabel, const char *obuffer, int *no,
 	    char **buffer, int *buflen,
-	    writable_filter filter, void *arg)
+	    filter filter, void *arg)
 {
     const char		*name;
     char		*bp = *buffer;
@@ -853,7 +845,7 @@ static int
 __pmMergeLabelSets(pmLabel *alabels, const char *abuf, __pmHashCtl *ac, int na,
 		   pmLabel *blabels, const char *bbuf, __pmHashCtl *bc, int nb,
 		   pmLabel *olabels, char *output, int *no, int buflen,
-		   writable_filter filter, void *arg)
+		   filter filter, void *arg)
 {
     char		*bp = output;
     int			sts, i, j;
@@ -929,21 +921,8 @@ done:
 }
 
 static int
-compound_filter(pmLabel *label, const char *json, void *arg)
-{
-    filter_baton	*baton = (filter_baton *)arg;
-
-    /* update flags for rendering names into output only */
-    label->flags |= PM_LABEL_COMPOUND;
-    if (baton->filter == NULL)
-	return 1;
-    return baton->filter((const pmLabel *)label, json, baton->arg);
-}
-
-static int
 __pmMergeLabels(const char *a, const char *b, char *buffer, int buflen, int flags)
 {
-    writable_filter	baton = {0};
     __pmHashCtl		acompound = {0}, bcompound = {0};
     pmLabel		alabels[MAXLABELSET], blabels[MAXLABELSET];
     char		abuf[PM_MAXLABELJSONLEN], bbuf[PM_MAXLABELJSONLEN];
@@ -974,8 +953,7 @@ __pmMergeLabels(const char *a, const char *b, char *buffer, int buflen, int flag
 
     sts = __pmMergeLabelSets(alabels, abuf, &acompound, na,
 			     blabels, bbuf, &bcompound, nb,
-			     NULL, buffer, NULL, buflen,
-			     compound_filter, &baton);
+			     NULL, buffer, NULL, buflen, NULL, NULL);
     labels_hash_destroy(&acompound);
     labels_hash_destroy(&bcompound);
     return sts;
@@ -989,9 +967,8 @@ __pmMergeLabels(const char *a, const char *b, char *buffer, int buflen, int flag
  */
 int
 pmMergeLabelSets(pmLabelSet **sets, int nsets, char *buffer, int buflen,
-		readonly_filter filter, void *arg)
+		filter filter, void *arg)
 {
-    filter_baton	baton = { .filter = filter, .arg = arg };
     __pmHashCtl		*compound, bhash = {0};
     pmLabel		olabels[MAXLABELSET];
     pmLabel		blabels[MAXLABELSET];
@@ -1032,8 +1009,7 @@ pmMergeLabelSets(pmLabelSet **sets, int nsets, char *buffer, int buflen,
 	sts = __pmMergeLabelSets(blabels, buf, &bhash, nlabels,
 				sets[i]->labels, sets[i]->json,
 				compound, sets[i]->nlabels,
-				olabels, buffer, &nlabels, buflen,
-				compound_filter, &baton);
+				olabels, buffer, &nlabels, buflen, filter, arg);
 	labels_hash_destroy(&bhash);
 	if (sts < 0)
 	    return sts;
