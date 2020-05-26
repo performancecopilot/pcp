@@ -144,7 +144,7 @@ def run_test():
     for config in testconfigs:
         utils.print_test_section_separator()
         utils.set_config(config)
-        p = Popen(command, cwd=utils.pmdastatsd_dir, stdout=PIPE, stdin=PIPE, bufsize=1, close_fds=ON_POSIX, shell=True)
+        p = Popen(command, cwd=utils.pmdastatsd_dir, stdout=PIPE, stdin=PIPE, bufsize=1, text=True, close_fds=ON_POSIX, shell=True)
         time.sleep(10)
         # get pmdastatsdpid
         pmdastatsd_pid = utils.get_pmdastatsd_pids_ran_by_dbpmda()[0]
