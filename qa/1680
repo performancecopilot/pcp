@@ -53,6 +53,7 @@ pmdaopenvswitch_install()
 /Check openvswitch metrics have appeared/  { if ($8 == "metrics") $7 = "X"
                                              if ($11 == "values") $10 = "Y"
                                            }
+/Info: Failed to get switch info/	   { next }
                                            { print }'
 }
 
