@@ -773,6 +773,7 @@ NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
 		$VERY_VERBOSE && ( echo; $PCP_ECHO_PROG $PCP_ECHO_N "+ ${sock_me}$PMIE -b $args""$PCP_ECHO_C"; echo "..." )
 		$PCP_BINADM_DIR/pmpost "start pmie from $prog for host $host"
 		pid=`${sock_me} $PMIE -b $args >/dev/null 2>&1 & echo $!`
+		pmsleep 0.2
 	    fi
 
 	    # wait for pmie to get started, and check on its health

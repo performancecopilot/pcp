@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019 Red Hat.
+ * Copyright (c) 2016-2020 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -23,7 +23,7 @@
 const char *
 __pmLabelTypeString(int type)
 {
-    switch (type) {
+    switch (type & ~(PM_LABEL_COMPOUND|PM_LABEL_OPTIONAL)) {
     case PM_LABEL_CONTEXT:  return "context";
     case PM_LABEL_DOMAIN:   return "domain";
     case PM_LABEL_INDOM:    return "indom";
@@ -41,7 +41,7 @@ __pmLabelIdentString(int ident, int type, char *buf, size_t buflen)
 {
     char	*p, id[32];
 
-    switch (type) {
+    switch (type & ~(PM_LABEL_COMPOUND|PM_LABEL_OPTIONAL)) {
     case PM_LABEL_DOMAIN:
 	pmsprintf(buf, buflen, "Domain %u", ident);
 	break;
@@ -71,15 +71,13 @@ __pmLabelIdentString(int ident, int type, char *buf, size_t buflen)
 char *
 __pmLabelFlagString(int flags, char *buf, int buflen)
 {
-    int		type = (flags & ~(PM_LABEL_COMPOUND|PM_LABEL_OPTIONAL));
-
     /*
      * buffer needs to be long enough to hold label source
      * and any optional flag strings, separated by commas.
      */
     if (buflen <= 16)
 	return NULL;
-    strcpy(buf, __pmLabelTypeString(type));
+    strcpy(buf, __pmLabelTypeString(flags));
     if (flags & PM_LABEL_COMPOUND)
 	strcat(buf, ",compound");
     if (flags & PM_LABEL_OPTIONAL)

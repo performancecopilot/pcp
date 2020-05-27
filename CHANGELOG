@@ -1,5 +1,62 @@
 pcp-5.1.1 (29 May 2020)
-    - Work in progress: https://github.com/performancecopilot/pcp/projects/1
+    - Server-side utilities and log management scripts:
+	pmfind, pmfind_check: allow running as a new discovery service
+	pmlogconf: rewrite the shell scripts as a C program for speed
+	pmlogconf: mechanism for detecting PMDAs without static metrics
+	pmlogconf: refinements and fixes to several existing configs
+	pmlogconf: rabbitmq and openvswitch configuration files added
+	systemd: support [path] monitoring of pmlogger/pmie control files
+	systemd: change pmie to type=notify service on systemd platforms
+	pmie,pmlogger_check,daily: set systemd working directory
+	pmcd: add support for /etc/pcp/labels/optional context labels too
+	pmlc: remove the 1 second delay on disconnect from pmlogger
+	pmlogger, pmproxy: fix minor coverity issues
+	pmlogrewrite: warn and do nothing for empty archives
+	pmlogextract: warn and do nothing for empty archives
+    - Client tools and utilities:
+        pcp-atop: resolve potential null task pointer dereferences
+	pcp-dstat: ensure culled instances are not accumulated in the total
+	pmrep, pcp2xxx: metric labels reporting
+	pmrep, pcp2xxx: label handling for writing archives
+	pmrep: ignore duplicate text and labels exceptions writing archives
+    - PMDA additions, enhancements and bug fixes:
+	pmdaopenvswitch: new, export Open vSwitch metrics
+	pmdalustre: support Lustre v2.12 and later
+	pmdabind2: remove Install checks for unused perl modules
+	pmdakvm: also handle kernel lockdown in integrity mode
+	pmdabcc: set correct units for biolatency, runqlat, *dist
+	pmdagfs2: disable auto enablement of kernel tracepoints
+	pmdalinux: fix bad metadata for disk.all.*(discard|flush)* metrics
+	pmdastatsd: allow builds to proceed when no ragel available
+	pmdaproc.sh: improve PMDA problem diagnosis by checking PMDA syntax
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings
+        rename PCP_NSSDB_DIR to PCP_SECURE_DB_PATH in pcp.conf
+	build: fix incorrect declaration of pmGetHostName routine
+	libpcp_trace: avoid dereferencing of possible NULL pointer
+	libpcp: possible uninitialized data use in __pmAuthClientNegotiation
+	libpcp: expand definition of PM_ERR_NODATA
+	libpcp: open NSSDB readonly for clients
+	libpcp: fix hostspec unparsing to deal with IPv6 bracketing
+	libpcp: fix label flags handling within __pmAddLabels
+    - Misc build, infrastructure and packaging updates:
+        build: make sure pre-requisites of the RPM PMDA are available
+	build: fix unescaped %configure in fedora.spec changelog
+	zeroconf: add openmetrics as a default-installed agent
+	packaging: fix install deps for pcp-testsuite on pcp-pmda-mssql
+	packaging: replace pmdads389log dep on 389-ds-base with a softdep
+	python build: remove (scary) module compilation warning
+    - Security Enhanced Linux:
+	selinux: fix AVC for pmdapostgresql socket write
+	selinux: resolve bpftrace pmda access with latest fedora selinux policy
+	selinux: resolve AVC's from RHEL Server 7.8 and PMDA zimbra
+	selinux: add policy to allow openvswitch commands to run
+	qa: add pcpqa.te for local selinux QA policy additions
+    - Documentation and QA infrastructure:
+	man pages: document deprecation of the pmmgr(1) daemon
+	man pages: update many pages for warnings from latest mandoc
+	qa: filter stderr from sensors(1) output, hardware may be inaccessible
+	guide.html: fix broken link to installation guide
+	ci: remove fetchDepth to allow the checkout of old commits
 
 pcp-5.1.0 (24 April 2020)
     - Server-side utilities and log management scripts:

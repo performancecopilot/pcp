@@ -337,7 +337,7 @@ pmwebapi_source_meta(context_t *c, char *buffer, int length)
 static int
 context_labels_str(context_t *c, char *buffer, int length)
 {
-    return pmMergeLabelSets(&c->labelset, 1, buffer, length, labels, NULL);
+    return pmMergeLabelSets(&c->labelset, 1, buffer, length, NULL, NULL);
 }
 
 int

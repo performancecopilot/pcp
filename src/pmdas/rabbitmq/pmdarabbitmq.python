@@ -160,12 +160,17 @@ class RabbitmqPMDA(PMDA):
 
     def rabbit_fetch(self):
         """ fetches result from HTTP GET request """
-        temp = requests.get(self.url).json()
         self.stats = dict()
         self.queue_names = []
-        for _, val in enumerate(temp):
-            self.stats[val['name']] = val
-            self.queue_names.append(val['name'])
+
+        try:
+            temp = requests.get(self.url).json()
+            for _, val in enumerate(temp):
+                self.stats[val['name']] = val
+                self.queue_names.append(val['name'])
+
+        except Exception as e:
+            self.log("Failed to get info from rabbitmq: %s" % (str(e)))
 
     def rabbitmq_instances(self):
         """ set names for rabbitmq instances """

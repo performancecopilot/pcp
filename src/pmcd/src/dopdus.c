@@ -385,7 +385,7 @@ GetContextLabels(ClientInfo *cp, pmLabelSet **sets)
     static char		machineid[MAXMACHINEIDLEN];
     char		buf[PM_MAXLABELJSONLEN];
     char		*hostname;
-    int			sts, flags = PM_LABEL_COMPOUND | PM_LABEL_CONTEXT;
+    int			sts, flags;
 
     if ((sts = GetChangedContextLabels(sets, &labelChanged)) >= 0) {
 	if ((hostname = pmcd_hostname) == NULL) {
@@ -438,6 +438,7 @@ GetContextLabels(ClientInfo *cp, pmLabelSet **sets)
 			    machineid);
 	pmsprintf(buf+sts, sizeof(buf)-sts, "}");
 
+	flags = PM_LABEL_CONTEXT;
 	if ((sts = __pmAddLabels(sets, buf, flags)) <= 0)
 	    return sts;
 
