@@ -13,8 +13,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-[ -x $PCP_BINADM_DIR/pmfind_check ] || _notrun "pmfind_check not installed"
-
 _cleanup()
 {
     cd $here
