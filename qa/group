@@ -1639,7 +1639,7 @@ BAD
 1287 pmda.install pmda.openmetrics local python
 1289 pmval archive multi-archive decompress-xz local pmlogextract
 1294 libpcp_mmv labels local valgrind
-1297 other local
+1297 pmieutil local
 1299 libpcp pminfo local
 1301 pmda.pmproxy pmda.mmv local
 1303 pcp dstat python local
