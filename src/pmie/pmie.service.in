@@ -12,6 +12,7 @@ NotifyAccess=all
 TimeoutSec=120
 
 ExecStart=@PCP_RC_DIR@/pmie start-systemd
+ExecStop=@PCP_RC_DIR@/pmie stop
 PIDFile=@PCP_RUN_DIR@/pmie.pid
 
 [Install]
