@@ -76,7 +76,7 @@ TOC[5]: offset 120, labels offset 4416 (7 entries)
         flags=0x8, identity=0x142
         internal=0xffffffff
   [2/4672] {"metric_label":null}
-        flags=0x98, identity=0x1
+        flags=0x90, identity=0x1
         internal=0xffffffff
   [3/4928] {"indom_label":42.001}
         flags=0x4, identity=0x1
