@@ -285,9 +285,6 @@ _check_logfile()
 _check_pmie()
 {
     $VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N " [process $1] ""$PCP_ECHO_C"
-    primary=$1
-    pidfile="$PCP_TMP_DIR/pmie/$2"
-    [ "$primary" = y ] && pidfile="$PCP_RUN_DIR/pmie/pmie.pid
 
     # wait until pmie process starts, or exits
     #
@@ -301,12 +298,12 @@ _check_pmie()
     delay=`expr \( $delay + 20 \* $x \) \* 10`	# tenths of a second
     while [ $delay -ne 0 ]
     do
-	if [ -f "$logfile" ]
+	if [ -f $logfile ]
 	then
 	    # $logfile was previously removed, if it has appeared again then
 	    # we know pmie has started ... if not just sleep and try again
 	    #
-	    if ls "$pidfile" >$tmp/out 2>&1
+	    if ls "$PCP_TMP_DIR/pmie/$1" >$tmp/out 2>&1
 	    then
 		if grep "No such file or directory" $tmp/out >/dev/null
 		then
@@ -776,10 +773,11 @@ NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
 		$VERY_VERBOSE && ( echo; $PCP_ECHO_PROG $PCP_ECHO_N "+ ${sock_me}$PMIE -b $args""$PCP_ECHO_C"; echo "..." )
 		$PCP_BINADM_DIR/pmpost "start pmie from $prog for host $host"
 		pid=`${sock_me} $PMIE -b $args >/dev/null 2>&1 & echo $!`
+		pmsleep 0.2
 	    fi
 
 	    # wait for pmie to get started, and check on its health
-	    _check_pmie "$primary" "$pid"
+	    _check_pmie $pid
 
 	elif [ ! -z "$pid" -a $STOP_PMIE = true ]
 	then
