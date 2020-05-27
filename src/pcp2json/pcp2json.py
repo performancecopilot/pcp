@@ -66,7 +66,7 @@ class PCP2JSON(object):
                      'type_prefer', 'precision_force', 'limit_filter', 'limit_filter_force',
                      'live_filter', 'rank', 'invert_filter', 'predicate', 'names_change',
                      'speclocal', 'instances', 'ignore_incompat', 'ignore_unknown',
-                     'omit_flat')
+                     'omit_flat', 'include_labels')
 
         # The order of preference for options (as present):
         # 1 - command line options
@@ -97,6 +97,7 @@ class PCP2JSON(object):
         self.invert_filter = 0
         self.predicate = None
         self.omit_flat = 0
+        self.include_labels = 0
         self.precision = 3 # .3f
         self.precision_force = None
         self.timefmt = TIMEFMT
@@ -142,7 +143,7 @@ class PCP2JSON(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:rRIi:jJ:4:58:9:nN:vP:0:q:b:y:Q:B:Y:F:f:Z:zxXE")
+        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:rRIi:jJ:4:58:9:nN:vmP:0:q:b:y:Q:B:Y:F:f:Z:zxXE")
         opts.pmSetShortUsage("[option...] metricspec [...]")
 
         opts.pmSetLongOptionHeader("General options")
@@ -185,6 +186,7 @@ class PCP2JSON(object):
         opts.pmSetLongOption("invert-filter", 0, "n", "", "perform ranking before live filtering")
         opts.pmSetLongOption("predicate", 1, "N", "METRIC", "set predicate filter reference metric")
         opts.pmSetLongOption("omit-flat", 0, "v", "", "omit single-valued metrics")
+        opts.pmSetLongOption("include-labels", 0, "m", "", "include metric label info")
         opts.pmSetLongOption("timestamp-format", 1, "f", "STR", "strftime string for timestamp format")
         opts.pmSetLongOption("precision", 1, "P", "N", "prefer N digits after decimal separator (default: 3)")
         opts.pmSetLongOption("precision-force", 1, "0", "N", "force N digits after decimal separator")
@@ -268,6 +270,8 @@ class PCP2JSON(object):
             self.predicate = optarg
         elif opt == 'v':
             self.omit_flat = 1
+        elif opt == 'm':
+            self.include_labels = 1
         elif opt == 'P':
             self.precision = optarg
         elif opt == '0':
@@ -316,6 +320,7 @@ class PCP2JSON(object):
 
         if self.everything:
             self.extended = 1
+            #self.include_labels = 1
 
         self.pmconfig.validate_metrics(curr_insts=not self.live_filter)
         self.pmconfig.finalize_options()
@@ -453,7 +458,7 @@ class PCP2JSON(object):
                 mtype = "unknown"
             return mtype
 
-        def create_attrs(value, inst_id, inst_name, unit, pmid, desc):
+        def create_attrs(value, inst_id, inst_name, unit, pmid, desc, labels):
             """ Create extra attribute string """
             data = {"value": value}
             if inst_name:
@@ -469,6 +474,8 @@ class PCP2JSON(object):
                     data['@indom'] = desc.contents.indom
                 if inst_id is not None:
                     data[inst_key] = str(inst_id)
+            if self.include_labels:
+                data['@labels'] = labels
             return data
 
         results = self.pmconfig.get_ranked_results(valid_only=True)
@@ -483,6 +490,9 @@ class PCP2JSON(object):
             i = list(self.metrics.keys()).index(metric)
             fmt = "." + str(self.metrics[metric][6]) + "f"
             for inst, name, value in results[metric]:
+                labels = None
+                if self.include_labels:
+                    labels = self.pmconfig.get_labels_str(metric, inst)
                 if self.exact_types:
                     value = round(value, self.metrics[metric][6]) if isinstance(value, float) else value
                 else:
@@ -497,12 +507,12 @@ class PCP2JSON(object):
                 last_part = pmns_parts[-1]
 
                 if inst == PM_IN_NULL:
-                    pmns_leaf_dict[last_part] = create_attrs(value, None, None, self.metrics[metric][2][0], self.pmconfig.pmids[i], self.pmconfig.descs[i])
+                    pmns_leaf_dict[last_part] = create_attrs(value, None, None, self.metrics[metric][2][0], self.pmconfig.pmids[i], self.pmconfig.descs[i], labels)
                 else:
                     if last_part not in pmns_leaf_dict:
                         pmns_leaf_dict[last_part] = {insts_key: []}
                     insts = pmns_leaf_dict[last_part][insts_key]
-                    insts.append(create_attrs(value, inst, name, self.metrics[metric][2][0], self.pmconfig.pmids[i], self.pmconfig.descs[i]))
+                    insts.append(create_attrs(value, inst, name, self.metrics[metric][2][0], self.pmconfig.pmids[i], self.pmconfig.descs[i], labels))
 
     def finalize(self):
         """ Finalize and clean up """

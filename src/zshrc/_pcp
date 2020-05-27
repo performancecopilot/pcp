@@ -179,6 +179,7 @@ _pcp () {
       "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]' \
       "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter=}'[set default limit filter]' \
       "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force=}'[set forced limit filter]' \
+      "(-m --include-labels -m --include-labels $exargs)"{-m,--include-labels}'[include labels]' \
       "(-n --invert-filter $exargs)"{-n,--invert-filter}'[perform ranking before live filtering]' \
       "(-N --predicate $exargs)"{-N+,--predicate=}'[specify predicate metric]:metric:->metrics' \
       "(-x --extended -X --everything $exargs)"{-x,--extended}'[write extended information]' \
@@ -212,6 +213,7 @@ _pcp () {
       "$common_python[@]" \
       "(-f --timestamp-format $exargs)"{-f+,--timestamp-format=}'[set time format string]:format:' \
       "(-F --output-file $exargs)"{-F+,--output-file=}'[specify output file]:file:_files' \
+      "(-m --include-labels -m --include-labels $exargs)"{-m,--include-labels}'[include labels]' \
       "(-z --hostzone -Z --timezone $exargs)"{-z,--hostzone}'[use metrics source timezone]' \
       "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone=}'[set reporting timezone]:timezone:_time_zone' \
       '*:metric:->metrics' \
@@ -228,6 +230,7 @@ _pcp () {
       "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]' \
       "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter=}'[set default limit filter]' \
       "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force=}'[set forced limit filter]' \
+      "(-m --include-labels -m --include-labels $exargs)"{-m,--include-labels}'[include labels]' \
       "(-n --invert-filter $exargs)"{-n,--invert-filter}'[perform ranking before live filtering]' \
       "(-N --predicate $exargs)"{-N+,--predicate=}'[specify predicate metric]:metric:->metrics' \
       "(-x --extended -X --everything $exargs)"{-x,--extended}'[write extended information]' \
@@ -666,6 +669,7 @@ _pcp () {
       "(-6 --sort-metric $exargs)"{-6+,--sort-metric}'[specify sort metric]' \
       "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter=}'[set default limit filter]' \
       "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force=}'[set forced limit filter]' \
+      "(-m --include-labels -m --include-labels $exargs)"{-m,--include-labels}'[include labels]' \
       "(-n --invert-filter $exargs)"{-n,--invert-filter}'[perform ranking before live filtering]' \
       "(-N --predicate -2 --overall-rank -3 --overall-rank-alt $exargs)"{-N+,--predicate=}'[specify predicate metric]:metric:->metrics' \
       "(-k --extended-csv $exargs)"{-k,--extended-csv}'[write extended CSV]' \

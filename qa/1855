@@ -48,6 +48,7 @@ pmdarabbitmq_install()
 /Check rabbitmq metrics have appeared/  { if ($7 == 57) $7 = "X"
                                           if ($10 % 57 == 0) $10 = "Y"
                                         }
+/Info: Failed to get info from rabbitmq/ { next }
                                         { print }'
 }
 

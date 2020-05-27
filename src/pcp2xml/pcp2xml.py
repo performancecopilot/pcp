@@ -17,7 +17,7 @@
 # pylint: disable=too-many-boolean-expressions, too-many-statements
 # pylint: disable=too-many-instance-attributes, too-many-locals
 # pylint: disable=too-many-branches, too-many-nested-blocks
-# pylint: disable=broad-except
+# pylint: disable=broad-except, too-many-arguments
 
 """ PCP to XML Bridge """
 
@@ -62,7 +62,7 @@ class PCP2XML(object):
                      'type_prefer', 'precision_force', 'limit_filter', 'limit_filter_force',
                      'live_filter', 'rank', 'invert_filter', 'predicate', 'names_change',
                      'speclocal', 'instances', 'ignore_incompat', 'ignore_unknown',
-                     'omit_flat')
+                     'omit_flat', 'include_labels')
 
         # The order of preference for options (as present):
         # 1 - command line options
@@ -93,6 +93,7 @@ class PCP2XML(object):
         self.invert_filter = 0
         self.predicate = None
         self.omit_flat = 0
+        self.include_labels = 0
         self.precision = 3 # .3f
         self.precision_force = None
         self.timefmt = TIMEFMT
@@ -136,7 +137,7 @@ class PCP2XML(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:rRIi:jJ:4:58:9:nN:vP:0:q:b:y:Q:B:Y:F:f:Z:zxX")
+        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:rRIi:jJ:4:58:9:nN:vmP:0:q:b:y:Q:B:Y:F:f:Z:zxX")
         opts.pmSetShortUsage("[option...] metricspec [...]")
 
         opts.pmSetLongOptionHeader("General options")
@@ -179,6 +180,7 @@ class PCP2XML(object):
         opts.pmSetLongOption("invert-filter", 0, "n", "", "perform ranking before live filtering")
         opts.pmSetLongOption("predicate", 1, "N", "METRIC", "set predicate filter reference metric")
         opts.pmSetLongOption("omit-flat", 0, "v", "", "omit single-valued metrics")
+        opts.pmSetLongOption("include-labels", 0, "m", "", "include metric label info")
         opts.pmSetLongOption("precision", 1, "P", "N", "prefer N digits after decimal separator (default: 3)")
         opts.pmSetLongOption("precision-force", 1, "0", "N", "force N digits after decimal separator")
         opts.pmSetLongOption("timestamp-format", 1, "f", "STR", "strftime string for timestamp format")
@@ -261,6 +263,8 @@ class PCP2XML(object):
             self.predicate = optarg
         elif opt == 'v':
             self.omit_flat = 1
+        elif opt == 'm':
+            self.include_labels = 1
         elif opt == 'P':
             self.precision = optarg
         elif opt == '0':
@@ -307,6 +311,7 @@ class PCP2XML(object):
 
         if self.everything:
             self.extended = 1
+            #self.include_labels = 1
 
         self.pmconfig.validate_metrics(curr_insts=not self.live_filter)
         self.pmconfig.finalize_options()
@@ -451,6 +456,9 @@ class PCP2XML(object):
             i = list(self.metrics.keys()).index(metric)
             fmt = "." + str(self.metrics[metric][6]) + "f"
             for inst, name, value in results[metric]:
+                labels = None
+                if self.include_labels:
+                    labels = escape_xml_attr(self.pmconfig.get_labels_str(metric, inst))
                 value = format(value, fmt) if isinstance(value, float) else str(value)
                 value = escape_xml_data(value)
                 name = escape_xml_attr(name)
@@ -465,7 +473,7 @@ class PCP2XML(object):
                 last_part = pmns_parts[-1]
 
                 if inst == PM_IN_NULL:
-                    pmns_leaf_dict[last_part] = [None, None, self.metrics[metric][2][0], value, self.pmconfig.pmids[i], self.pmconfig.descs[i]]
+                    pmns_leaf_dict[last_part] = [None, None, self.metrics[metric][2][0], value, self.pmconfig.pmids[i], self.pmconfig.descs[i], labels]
                 else:
                     if insts_key not in pmns_leaf_dict:
                         pmns_leaf_dict[insts_key] = []
@@ -474,10 +482,10 @@ class PCP2XML(object):
                     found = False
                     for j in range(1, len(insts)):
                         if insts[j][inst_key] == name:
-                            insts[j][last_part] = [inst, name, self.metrics[metric][2][0], value, self.pmconfig.pmids[i], self.pmconfig.descs[i]]
+                            insts[j][last_part] = [inst, name, self.metrics[metric][2][0], value, self.pmconfig.pmids[i], self.pmconfig.descs[i], labels]
                             found = True
                     if not found:
-                        insts.append({inst_key: name, last_part: [inst, name, self.metrics[metric][2][0], value, self.pmconfig.pmids[i], self.pmconfig.descs[i]]})
+                        insts.append({inst_key: name, last_part: [inst, name, self.metrics[metric][2][0], value, self.pmconfig.pmids[i], self.pmconfig.descs[i], labels]})
 
         def get_type_string(desc):
             """ Get metric type as string """
@@ -499,7 +507,7 @@ class PCP2XML(object):
                 mtype = "unknown"
             return mtype
 
-        def create_attrs(inst_id, inst_name, unit, pmid, desc):
+        def create_attrs(inst_id, inst_name, unit, pmid, desc, labels):
             """ Create extra attribute string """
             attrs = ""
             if inst_name:
@@ -515,6 +523,8 @@ class PCP2XML(object):
                     attrs += ' indom="' + str(desc.contents.indom) + '"'
                 if inst_id is not None:
                     attrs += ' instance-id="' + str(inst_id) + '"'
+            if self.include_labels:
+                attrs += ' labels="' + labels + '"'
             return attrs
 
         def iteritems(d):
@@ -534,13 +544,13 @@ class PCP2XML(object):
                     self.writer.write('%s</%s>\n' % (indent, key))
                 else:
                     if not isinstance(value[0], dict):
-                        self.writer.write('%s<%s%s>%s</%s>\n' % (indent, key, create_attrs(None, None, value[2], value[4], value[5]), value[3], key))
+                        self.writer.write('%s<%s%s>%s</%s>\n' % (indent, key, create_attrs(None, None, value[2], value[4], value[5], value[6]), value[3], key))
                     else:
                         for j, _ in enumerate(value):
                             for k in value[j]:
                                 if k == inst_key:
                                     continue
-                                self.writer.write('%s<%s%s>%s</%s>\n' % (indent, k, create_attrs(value[j][k][0], value[j][k][1], value[j][k][2], value[j][k][4], value[j][k][5]), value[j][k][3], k))
+                                self.writer.write('%s<%s%s>%s</%s>\n' % (indent, k, create_attrs(value[j][k][0], value[j][k][1], value[j][k][2], value[j][k][4], value[j][k][5], value[j][k][6]), value[j][k][3], k))
 
         # Add current values
         interval = str(int(ts - self.prev_ts + 0.5))
