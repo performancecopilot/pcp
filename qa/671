@@ -42,6 +42,11 @@ _filter()
     # end
 }
 
+_filter2_pmafm()
+{
+    $PCP_AWK_PROG '$1 == "Archive:" {if ($4 != "OK") {print $0}}'
+}
+
 _filter_pmafm()
 {
     # Need to sort lines in this block
@@ -121,6 +126,7 @@ do
     echo "--- $arg ---"
     mkaf $arg >folio
     pmafm folio list | _filter_pmafm
+    pmafm folio check | _filter2_pmafm
     pmafm folio pminfo -f pmcd.pmlogger.host
 done
 
@@ -137,6 +143,7 @@ do
     echo "--- $arg ---"
     mkaf $arg >folio
     pmafm folio list | _filter_pmafm
+    pmafm folio check | _filter2_pmafm
     pmafm folio pminfo -f pmcd.pmlogger.host
 done
 
