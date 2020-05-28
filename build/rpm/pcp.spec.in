@@ -371,6 +371,15 @@ Requires: pcp-system-tools
 Requires: pcp-gui
 %endif
 Requires: gcc bc bzip2 gzip
+%if "@enable_selinux@" == "true"
+Requires: selinux-policy-devel
+Requires: selinux-policy-targeted
+%if 0%{?fedora} >= 19 || 0%{?rhel} >= 6 || 0%{?suse_version} >= 1200
+Requires: setools-console
+%else
+Requires: setools
+%endif
+%endif
 
 %description testsuite
 Quality assurance test suite for Performance Co-Pilot (PCP).

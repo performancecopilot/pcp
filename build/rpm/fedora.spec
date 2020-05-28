@@ -545,6 +545,15 @@ Requires: pcp-gui
 %endif
 Requires: bc gcc gzip bzip2
 Requires: redhat-rpm-config
+%if !%{disable_selinux}
+Requires: selinux-policy-devel
+Requires: selinux-policy-targeted
+%if 0%{?rhel} == 5
+Requires: setools
+%else
+Requires: setools-console
+%endif
+%endif
 
 %description testsuite
 Quality assurance test suite for Performance Co-Pilot (PCP).
