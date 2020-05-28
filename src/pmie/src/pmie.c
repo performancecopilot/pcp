@@ -787,8 +787,11 @@ getargs(int argc, char *argv[])
 	if (!systemd)
 	    setsid();	/* not process group leader, lose controlling tty */
 #endif
-	if (primary)
+	if (primary) {
+	    if (systemd)
+		__pmServerNotifyServiceManagerReady(getpid());
 	    __pmServerCreatePIDFile(pmGetProgname(), 0);
+	}
     }
 
     if (stomping)
@@ -954,12 +957,9 @@ main(int argc, char **argv)
     if (interactive)
 	interact();
     else {
-	pid_t mainpid = getpid();
-	if (systemd)
-	    __pmServerNotifyServiceManagerReady(mainpid);
 	run();
 	if (systemd)
-	    __pmServerNotifyServiceManagerStopping(mainpid);
+	    __pmServerNotifyServiceManagerStopping(getpid());
     }
     exit(0);
 }
