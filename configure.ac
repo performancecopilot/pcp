@@ -1882,7 +1882,7 @@ AC_MSG_CHECKING([if the statsd PMDA should be included])
 pmda_statsd=false
 AS_IF([test "x$do_pmdastatsd" = "xyes"], [pmda_statsd=true])
 AS_IF([test "x$do_pmdastatsd" = "xcheck"], [
-       if test -n "$RAGEL" -a "x$lib_for_hdr_histogram" != "x" -a "x$lib_for_chan" != "x"; then
+       if test "x$lib_for_hdr_histogram" != "x" -a "x$lib_for_chan" != "x"; then
 	pmda_statsd=true
        fi])
 AC_SUBST(PMDA_STATSD, $pmda_statsd)

@@ -1037,6 +1037,8 @@ main(int argc, char *argv[])
     }
 
     if (run_daemon) {
+	/* notify service manager, if any, we are ready */
+	__pmServerNotifyServiceManagerReady(getpid());
 	if (__pmServerCreatePIDFile(PM_SERVER_SERVICE_SPEC, PM_FATAL_ERR) < 0)
 	    DontStart();
 	if (pmSetProcessIdentity(username) < 0)
@@ -1052,9 +1054,6 @@ main(int argc, char *argv[])
     fprintf(stderr, ", PDU version = %u\n", PDU_VERSION);
     __pmServerDumpRequestPorts(stderr);
     fflush(stderr);
-
-    /* notify service manager, if any, we are ready */
-    __pmServerNotifyServiceManagerReady(pmcd_pid);
 
     /* all the work is done here */
     ClientLoop();

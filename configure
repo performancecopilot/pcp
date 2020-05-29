@@ -11454,7 +11454,7 @@ if test "x$do_pmdastatsd" = "xyes"; then :
 fi
 if test "x$do_pmdastatsd" = "xcheck"; then :
 
-       if test -n "$RAGEL" -a "x$lib_for_hdr_histogram" != "x" -a "x$lib_for_chan" != "x"; then
+       if test "x$lib_for_hdr_histogram" != "x" -a "x$lib_for_chan" != "x"; then
 	pmda_statsd=true
        fi
 fi
