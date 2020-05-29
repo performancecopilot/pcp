@@ -345,9 +345,9 @@ Requires: pcp-libs = %{version}-%{release}
 %endif
 
 %if %{disable_statsd}
-%global _with_statsd --with-statsd=no
+%global _with_statsd --with-pmdastatsd=no
 %else
-%global _with_statsd --with-statsd=yes
+%global _with_statsd --with-pmdastatsd=yes
 %endif
 
 %if %{disable_bcc}
