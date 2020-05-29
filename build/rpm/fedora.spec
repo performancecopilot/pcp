@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 5.1.1
+Version: 5.2.0
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2+ and CC-BY
@@ -3385,6 +3385,9 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %endif
 
 %changelog
+* Fri Jul 31 2020 Nathan Scott <nathans@redhat.com> - 5.2.0-1
+- Work in progress: https://github.com/performancecopilot/pcp/projects/1
+
 * Fri May 29 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.1.1-1
 - Update to latest PCP sources.
 - Rebuild to pick up changed HdrHistogram_c version (BZ 1831502)
