@@ -197,7 +197,7 @@ create_label(
     ALLOC_CHECK("Unable to allocate memory for labels string in metric label record.");
     memcpy((*out)->labels, datagram->tags, labels_length);
     struct metric_label_metadata* meta = 
-        (struct metric_label_metadata*) malloc(sizeof(struct metric_label_metadata*));
+        (struct metric_label_metadata*) malloc(sizeof(struct metric_label_metadata));
     ALLOC_CHECK("Unable to allocate memory for metric label metadata.");
     (*out)->meta = meta;
     (*out)->type = METRIC_TYPE_NONE;
