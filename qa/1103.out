@@ -120,7 +120,7 @@ expr node <addr-28> type=FILTERINST left=<addr-29> right=<addr-30> save_last=0
     PMID: PM_ID_NULL (29.0.6 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 29.2 0x....
     Semantics: instant  Units: none
-expr node <addr-29> type=PATTERN pattern: (null) type: regex used=0
+expr node <addr-29> type=PATTERN pattern: ^bin-200$ type: regex used=0
 expr node <addr-30> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 29.2 0x....
@@ -315,7 +315,7 @@ expr node <addr-28> type=FILTERINST left=<addr-29> right=<addr-30> save_last=0
     Data Type: 32-bit int  InDom: 29.2 0x....
     Semantics: instant  Units: none
 [0] inst=200, val=200
-expr node <addr-29> type=PATTERN pattern: (null) type: regex used=1 (9 instances, 1 matches)
+expr node <addr-29> type=PATTERN pattern: ^bin-200$ type: regex used=1 (9 instances, 1 matches)
 expr node <addr-30> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 9
     Data Type: 32-bit int  InDom: 29.2 0x....
