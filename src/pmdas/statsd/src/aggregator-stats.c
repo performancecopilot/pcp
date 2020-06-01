@@ -141,7 +141,10 @@ void
 write_stats_to_file(struct agent_config* config, struct pmda_stats_container* stats) {
     VERBOSE_LOG(0, "Writing stats to file...");
     pthread_mutex_lock(&stats->mutex);
-    if (strlen(config->debug_output_filename) == 0) return; 
+    if (strlen(config->debug_output_filename) == 0) {
+        pthread_mutex_unlock(&stats->mutex);
+        return; 
+    }
     int sep = pmPathSeparator();
     char debug_output[MAXPATHLEN];
     pmsprintf(
