@@ -44,12 +44,22 @@ do
 	    # (and then change will be observed only 4 times).
 	    #
 	    echo "size changed @"`date` >> $seq.full
-	    echo "size changed"
+	    echo "size changed" >>$tmp.out
 	    prev=$now
 	fi
     fi
     sleep 1
 done
+
+# see note above re. 4 or 5 size changes expected
+#
+if [ -f $tmp.out ]
+then
+    head -4 $tmp.out
+else
+    echo "Badness: no $tmp.out output file created ... pmlogger died?"
+    status=1
+fi
 
 cat $tmp.log >>$seq.full
 pmdumplog -a $tmp >> $seq.full
