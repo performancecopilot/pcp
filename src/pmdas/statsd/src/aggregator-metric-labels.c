@@ -140,7 +140,7 @@ find_label_by_name(
 
 static char*
 create_instance_label_segment_str(char* tags) {
-    char buffer[JSON_BUFFER_SIZE];
+    char buffer[JSON_BUFFER_SIZE] = {'\0'};
     size_t tags_length = strlen(tags) + 1;
     if (tags_length > JSON_BUFFER_SIZE) {
         return NULL;
