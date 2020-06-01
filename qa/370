@@ -37,6 +37,11 @@ _fuzzy()
 		-e '/diskdev8-2/s/0.3[78]/0.37 or 0.38/' \
 	    # end
 	    ;;
+	12.0.6)
+	    sed \
+		-e '/^19:14:42 129060.79687500/s/129060.79687500/129061/' \
+	    # end
+	    ;;
 	*)	# no fuzziness required
 	    cat
 	    ;;
@@ -112,6 +117,10 @@ in
 	;;
     11.5.7)
 	unxz < $seq.out.14.xz > $seq.out || exit 1
+	;;
+    12.0.6)
+	unxz < $seq.out.15.xz > $seq.out || exit 1
+	file_version=12.0.6
 	;;
     *)
 	_notrun "no qualified output for sysstat version $version"
@@ -268,7 +277,8 @@ pmval -f 8 -w 16 -t 5 -a $tmp disk.all.write_bytes \
 | sed -n '/^[0-2][0-9]:/{
 s/\.[0-9][0-9][0-9]//
 p
-}' >$tmp.pcp
+}' \
+| _fuzzy >$tmp.pcp
 ( echo ""; echo "disk.all.write_bytes" ) >>$seq.full
 cat $tmp.pcp >>$seq.full
 paste $tmp.sar $tmp.pcp >$tmp.both

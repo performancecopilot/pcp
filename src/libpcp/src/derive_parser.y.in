@@ -336,7 +336,7 @@ free_expr(node_t *np)
 	}
 	else {
 	    /* F_EXACT */
-	    free(np->value);		/* external inst name from lexer */
+	    ;			/* nothing extra to be done */
 	}
 	free(np->data.pattern);
     }
@@ -422,12 +422,7 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, int lookup_err_ok)
 		/* F_EXACT */
 		new->data.pattern->inst = np->data.pattern->inst;
 	    }
-	    new->value = strdup(np->value);
-	    if (new->value == NULL) {
-		PM_UNLOCK(registered.mutex);
-		pmNoMem("bind_expr: inst name", strlen(np->value)+1, PM_FATAL_ERR);
-		/*NOTREACHED*/
-	    }
+	    new->value = np->value;	/* value[] does not change */
 	}
     }
     else {
@@ -2598,6 +2593,8 @@ regexpr	: opt_bang L_PATTERN
 		      return -1;
 		  }
 		  np->data.pattern->invert = $1;
+		  np->data.pattern->used = 0;
+		  np->data.pattern->hash.hash = NULL;
 		  $$ = np;
 		}
 
