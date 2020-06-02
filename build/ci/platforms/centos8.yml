@@ -1,0 +1,31 @@
+container:
+  image: registry.centos.org/centos:8
+  post_start: |
+    dnf install -y sudo
+    useradd --create-home pcpbuild
+    echo 'pcpbuild ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/pcpbuild
+
+tasks:
+  update: |
+    sudo dnf update -y
+  builddeps: |
+    sudo dnf install -y which
+    sudo dnf -y -b --skip-broken install man $(./pcp/qa/admin/check-vm -fp)
+  build: |
+    (cd ./pcp && ./Makepkgs --verbose)
+    cp ./pcp/pcp-*/build/rpm/*.rpm ./artifacts/build
+  install: |
+    sudo rpm -iv ./pcp/pcp-*/build/rpm/*.rpm
+    echo 'pcpqa ALL=(ALL) NOPASSWD: ALL' | sudo tee /etc/sudoers.d/pcpqa
+  initqa: |
+    sudo -i -u pcpqa ./check 002
+  qa_sanity: |
+    set -o pipefail && status=0 && sudo -i -u pcpqa ./check -TT -g sanity |& tee ./artifacts/test/test.log || status=$?
+    cp /var/lib/pcp/testsuite/check.timings ./artifacts/test
+    for test in /var/lib/pcp/testsuite/*.out.bad; do cp $test ${test/.out.bad/.full} ./artifacts/test || true; done
+    exit $status
+  qa: |
+    set -o pipefail && status=0 && sudo -i -u pcpqa ./check -TT |& tee ./artifacts/test/test.log || status=$?
+    cp /var/lib/pcp/testsuite/check.timings ./artifacts/test
+    for test in /var/lib/pcp/testsuite/*.out.bad; do cp $test ${test/.out.bad/.full} ./artifacts/test || true; done
+    exit $status

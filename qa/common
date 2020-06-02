@@ -534,6 +534,7 @@ check options
     -r		include reserved and retired tests
     -t		turn on tracing
     -T		output timestamps
+    -TT		write timestamps to check.timings
     -x group	exclude tests from these groups (multiple flags allowed)
     -X seq[,seq...]
 		exclude these tests
@@ -629,6 +630,11 @@ p
 
 	-T)	# turn on timestamp output
 	    timestamp=true
+	    xpand=false
+	    ;;
+
+	-TT)	# turn on check.timings
+	    timings_file=true
 	    xpand=false
 	    ;;
 

@@ -10,4 +10,4 @@ yum install -y git
 yum -y --skip-broken install $(./qa/admin/check-vm -fp)
 rm -rf ./qa
 
-systemctl enable redis
+#systemctl enable redis

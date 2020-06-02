@@ -297,12 +297,14 @@ trap "_wrapup; exit \$status" 0 1 2 3 15
 
 # by default don't output timestamps
 timestamp=false
+timings_file=false
 
 # generic initialization... this may take a while to run, because (unless
 # $quick is true) make is run.
 . ./common
 
 [ -f check.time ] || touch check.time
+$timings_file && $PCP_ECHO_PROG $PCP_ECHO_N > check.timings
 
 # Remove automated PMDA install/remove that will interfere with tests
 $sudo rm -f $PCP_PMDAS_DIR/*/.NeedInstall $PCP_PMDAS_DIR/*/.NeedRemove
@@ -365,6 +367,7 @@ do
 
 	start=`_wallclock`
 	$timestamp && _timestamp
+	$timings_file && $PCP_ECHO_PROG $PCP_ECHO_N "$seq `date '+%s'` " >> check.timings
 
 	# optional --precheck callback
 	#
@@ -522,6 +525,7 @@ do
 		$done_nl || echo
 	    fi
 	fi
+	$timings_file && $PCP_ECHO_PROG "`date '+%s'`" >> check.timings
     fi
 
     # come here for each test, except when $showme is true
