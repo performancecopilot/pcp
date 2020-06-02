@@ -5,6 +5,7 @@ import yaml
 import sys
 import os
 import tempfile
+from datetime import datetime
 
 
 class DirectRunner:
@@ -16,11 +17,14 @@ class DirectRunner:
     def setup(self, pcp_path):
         os.mkdir(self.build_dir)
         subprocess.run(['rsync', '-a', f"{pcp_path}/", f"{self.build_dir}/pcp/"], check=True)
-        self.exec(f"mkdir -p artifacts/build artifacts/test")
+        self.exec('mkdir -p artifacts/build artifacts/test')
 
     def exec(self, command, check=True):
-        command = "set -eu\n" + command
+        command = 'set -eu\n' + command
         subprocess.run(['bash', '-'], cwd=self.build_dir, input=command.encode(), check=check)
+
+    def shell(self):
+        pass
 
     def task(self, task_name):
         self.exec(self.platform['tasks'][task_name])
@@ -36,10 +40,10 @@ class VirtualMachineRunner:
         self.vm_name = f"pcp-ci-{self.platform_name}"
         self.ssh_config_file = f".ssh-config-{self.platform_name}"
         self.vagrant_env = {
-            "PATH": "/usr/bin",
-            "VAGRANT_CWD": os.path.dirname(__file__),
-            "VAGRANT_NAME": self.vm_name,
-            "VAGRANT_BOX": self.platform['vm']['box']
+            'PATH': '/usr/bin',
+            'VAGRANT_CWD': os.path.dirname(__file__),
+            'VAGRANT_NAME': self.vm_name,
+            'VAGRANT_BOX': self.platform['vm']['box']
         }
 
     def setup(self, pcp_path):
@@ -50,9 +54,12 @@ class VirtualMachineRunner:
         self.exec('mkdir -p artifacts/build artifacts/test')
 
     def exec(self, command, check=True):
-        command = "set -eu\n" + command
+        command = 'set -eu\n' + command
         subprocess.run(['ssh', '-F', self.ssh_config_file, self.vm_name, 'bash', '-'],
                        input=command.encode(), check=check)
+
+    def shell(self):
+        subprocess.run(['ssh', '-F', self.ssh_config_file, self.vm_name])
 
     def task(self, task_name):
         self.exec(self.platform['tasks'][task_name])
@@ -69,7 +76,7 @@ class ContainerRunner:
         self.container_name = f"pcp-ci-{self.platform_name}"
 
         # on Ubuntu 18.04, systemd inside the container only works with sudo
-        if os.path.exists("/etc/fedora-release"):
+        if os.path.exists('/etc/fedora-release'):
             self.sudo = []
         else:
             self.sudo = ['sudo']
@@ -82,7 +89,7 @@ class ContainerRunner:
 
         # e.g. create a new image with systemd before starting the container
         if pre_start:
-            pre_start = "set -eu\n" + pre_start
+            pre_start = 'set -eu\n' + pre_start
             subprocess.run([*self.sudo, 'bash', '-'], input=pre_start.encode(), check=True)
 
         # start a new container
@@ -91,7 +98,7 @@ class ContainerRunner:
                         image, init], check=True)
 
         # setup pcpbuild user
-        post_start = "set -eu\n" + post_start
+        post_start = 'set -eu\n' + post_start
         subprocess.run([*self.sudo, 'podman', 'exec', '-i', self.container_name, 'bash', '-'],
                        input=post_start.encode(), check=True)
 
@@ -99,11 +106,16 @@ class ContainerRunner:
         subprocess.run([*self.sudo, 'podman', 'cp', pcp_path, f"{self.container_name}:/home/pcpbuild/pcp"], check=True)
 
     def exec(self, command, check=True):
-        command = "set -eu\n" + command
+        command = 'set -eu\n' + command
         subprocess.run([*self.sudo, 'podman', 'exec', '-i',
                         '-u', 'pcpbuild', '-w', '/home/pcpbuild',
                         self.container_name, 'bash', '-'],
                        input=command.encode(), check=check)
+
+    def shell(self):
+        subprocess.run([*self.sudo, 'podman', 'exec', '-it',
+                        '-u', 'pcpbuild', '-w', '/home/pcpbuild',
+                        self.container_name, 'bash'])
 
     def task(self, task_name):
         self.exec(self.platform['tasks'][task_name])
@@ -131,6 +143,8 @@ def main():
     parser_exec = subparsers.add_parser('exec')
     parser_exec.add_argument('command', nargs=argparse.REMAINDER)
 
+    subparsers.add_parser('shell')
+
     subparsers.add_parser('reproduce')
 
     args = parser.parse_args()
@@ -150,15 +164,23 @@ def main():
         runner.task(args.task_name)
     elif args.main_command == 'getartifacts':
         runner.getartifacts(args.artifacts_path)
-    elif args.main_command == "exec":
+    elif args.main_command == 'exec':
         runner.exec(' '.join(args.command), check=False)
-    elif args.main_command == "reproduce":
-        print("Preparing...")
+    elif args.main_command == 'shell':
+        runner.shell()
+    elif args.main_command == 'reproduce':
+        print("Preparing a new virtual environment with PCP preinstalled, this will take about 20 minutes...\n")
+        started = datetime.now()
         runner.setup(args.pcp_path)
         for task in ['update', 'builddeps', 'build', 'install', 'initqa']:
             runner.task(task)
-        print(f"Setup done. Run commands with {sys.argv[0]} --platform {args.platform} --runner {args.runner} "
-              f"exec \"sudo -i -u pcpqa ./check X\"")
+        duration_min = (datetime.now() - started).total_seconds() / 60
+        print(f"\nVirtual environment setup done, took {duration_min:.0f}m.\n")
+        print("Please run:\n")
+        print("    sudo -u pcpqa -i ./check XXX\n")
+        print("to run a QA test. PCP is already installed, from sources located in './pcp'.")
+        print("Starting a shell in the new virtual environment...\n")
+        runner.shell()
     else:
         parser.print_help()
         sys.exit(1)
