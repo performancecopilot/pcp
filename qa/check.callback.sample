@@ -111,8 +111,8 @@ then
     # ok
     :
 else
-    # may be a transient thing, e.g. cron-driven log rotation or pmmgr
-    # log restarting, wait a bit and try again
+    # may be a transient thing, e.g. cron-driven log rotation
+    # wait a bit and try again
     #
     sleep 3
 

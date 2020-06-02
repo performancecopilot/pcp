@@ -68,7 +68,7 @@ network_listener_exec(void* args) {
     struct timeval tv;
     freeaddrinfo(res);
     int max_udp_packet_size = config->max_udp_packet_size;
-    char *buffer = (char *) malloc(max_udp_packet_size * sizeof(char*));
+    char *buffer = (char *) malloc(max_udp_packet_size * sizeof(char));
     struct sockaddr_storage src_addr;
     socklen_t src_addr_len = sizeof(src_addr);
     int rv;

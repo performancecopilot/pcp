@@ -1478,6 +1478,10 @@ copy_and_parse_tempfile(FILE *file, FILE *tempfile)
 	} else if (strncmp("#+ groupdir ", bytes, 12) == 0) {
 	    group_dircheck(bytes + 12);
 	} else if (strncmp("#+ ", bytes, 3) == 0) {
+	    if (group) {
+		/* reported by COVERITY RESOURCE LEAK */
+	    	group_free(group);
+	    }
 	    group = group_create(bytes + 3, line);
 	    head = 0;
 	} else if (group) {

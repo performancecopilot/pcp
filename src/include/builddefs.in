@@ -257,7 +257,6 @@ ENABLE_PERL = @enable_perl@
 ENABLE_PYTHON2 = @enable_python2@
 ENABLE_PYTHON3 = @enable_python3@
 ENABLE_SYSTEMD = @enable_systemd@
-ENABLE_MANAGER = @enable_manager@
 ENABLE_SELINUX = @enable_selinux@
 ENABLE_DECOMPRESSION = @enable_decompression@
 ENABLE_LZMA = @enable_lzma@

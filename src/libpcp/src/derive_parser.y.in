@@ -336,7 +336,7 @@ free_expr(node_t *np)
 	}
 	else {
 	    /* F_EXACT */
-	    free(np->value);		/* external inst name from lexer */
+	    ;			/* nothing extra to be done */
 	}
 	free(np->data.pattern);
     }
@@ -410,7 +410,7 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, int lookup_err_ok)
 	    PM_UNLOCK(registered.mutex);
 	    pmNoMem("bind_expr: pattern block", sizeof(pattern_t), PM_FATAL_ERR);
 	    /*NOTREACHED*/
-	}
+	} else {
 	    new->data.pattern->ftype = np->data.pattern->ftype;
 	    if (np->data.pattern->ftype == F_REGEX) {
 		new->data.pattern->regex = np->data.pattern->regex;
@@ -421,13 +421,9 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, int lookup_err_ok)
 	    else {
 		/* F_EXACT */
 		new->data.pattern->inst = np->data.pattern->inst;
-		new->value = strdup(np->value);
-		if (new->value == NULL) {
-		    PM_UNLOCK(registered.mutex);
-		    pmNoMem("bind_expr: inst name", strlen(np->value)+1, PM_FATAL_ERR);
-		    /*NOTREACHED*/
-		}
 	    }
+	    new->value = np->value;	/* value[] does not change */
+	}
     }
     else {
 	if ((new->data.info = (info_t *)malloc(sizeof(info_t))) == NULL) {
@@ -2597,6 +2593,8 @@ regexpr	: opt_bang L_PATTERN
 		      return -1;
 		  }
 		  np->data.pattern->invert = $1;
+		  np->data.pattern->used = 0;
+		  np->data.pattern->hash.hash = NULL;
 		  $$ = np;
 		}
 

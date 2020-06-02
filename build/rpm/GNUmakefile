@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2019 Red Hat.
+# Copyright (c) 2012-2020 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -99,7 +99,6 @@ pcp.spec: pcp.spec.in
 	    -e's|@enable_qt@|$(ENABLE_QT)|g' \
 	    -e's|@enable_python2@|$(ENABLE_PYTHON2)|g' \
 	    -e's|@enable_python3@|$(ENABLE_PYTHON3)|g' \
-	    -e's|@enable_manager@|$(ENABLE_MANAGER)|g' \
 	    -e's|@enable_selinux@|$(ENABLE_SELINUX)|g' \
 	    -e's|@enable_lzma@|$(ENABLE_LZMA)|g' \
 	    -e's|@have_python@|$(HAVE_PYTHON)|g' \

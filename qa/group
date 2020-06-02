@@ -52,7 +52,6 @@ kernel
 pmcd
 pmproxy
 pmcpp
-pmwebd		# note this group has been retired
 # strip chart app
 pmchart
 # 3D scene app
@@ -368,9 +367,6 @@ collectl
 # pmlogsize
 pmlogsize
 
-# pmmgr
-pmmgr
-
 # pcp2... pcp2xxx is generic
 pcp2xxx
 pcp2elasticsearch
@@ -390,6 +386,10 @@ man
 
 # selinux stuff
 selinux
+
+# retired tools
+pmmgr			# note this group has been retired
+pmwebd			# note this group has been retired
 
 # Bad tests with unacceptable cross-platform behaviour, these ones
 # will NOT be run in the QA Farm
@@ -1067,10 +1067,10 @@ BAD
 663:retired pmwebd local python
 664 logutil local pmlogrewrite
 665 pmda.linux local
-666 pmmgr local slow valgrind pmrep python pmlogrewrite
+666:retired pmmgr local slow valgrind pmrep python pmlogrewrite
 667 pcp2graphite python pcp2xxx local
-668 pmmgr local containers pmdumplog
-669 pmmgr local pmlogcheck
+668:retired pmmgr local containers pmdumplog
+669:retired pmmgr local pmlogcheck
 670 libpcp local
 671 folio local pmlogrewrite
 672 valgrind libpcp pmval local
@@ -1089,10 +1089,10 @@ BAD
 685 pmns local
 686 logutil local
 687 pmlogger local man
-688:reserved derive local
+688 reserved derive local
 689 pmclient archive multi-archive decompress-xz local sanity pmlogextract python
-690:reserved derive local
-691:reserved derive local
+690 reserved derive local
+691 reserved derive local
 692 pmie pmda.sample local
 693 pmie pmda.sample local
 694 pmie valgrind local
@@ -1489,7 +1489,7 @@ BAD
 1085 pmlogger local pmdumplog
 1086 pmprobe local
 1087 pmda.bind2 local
-1088 pmmgr local
+1088:retired pmmgr local
 1089 atop local folio
 1090 pmproxy local context
 1091 pmns libpcp context local kernel
@@ -1497,7 +1497,7 @@ BAD
 1093 pmcpp local
 1094 other local
 1095 derive local kernel
-1096 libpcp threads local pmmgr local
+1096:retired libpcp threads local pmmgr local
 1097 pmlogconf local
 1098 python local pmstore sanity
 1099 archive iostat local pmie pcp python
@@ -1635,7 +1635,7 @@ BAD
 1267 pmlogrewrite labels help pmdumplog local
 1269 libpcp local kernel
 1274 pmlogextract pmdumplog labels help local sanity
-1276 pmmgr containers local
+1276:retired pmmgr containers local
 1287 pmda.install pmda.openmetrics local python
 1289 pmval archive multi-archive decompress-xz local pmlogextract
 1294 libpcp_mmv labels local valgrind
@@ -1657,8 +1657,8 @@ BAD
 1338 pmlogrewrite labels pmdumplog local
 1340 pmcd pmda.pmcd pmstore local
 1342 pmda.openmetrics local python
-1343 pmmgr local pmlogrewrite
-1344 pmmgr local
+1343:retired pmmgr local pmlogrewrite
+1344:retired pmmgr local
 1347 atop pcp local
 1349 pmlogrewrite labels pmdumplog local kernel
 1350 pmda.proc local

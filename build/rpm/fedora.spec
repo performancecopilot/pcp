@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 5.1.1
+Version: 5.2.0
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2+ and CC-BY
@@ -201,6 +201,10 @@ Obsoletes: pcp-webapi-debuginfo < 5.0.0
 Obsoletes: pcp-webapi < 5.0.0
 Provides: pcp-webapi
 
+# PCP discovery service now provided by pmfind
+Obsoletes: pcp-manager-debuginfo < 5.2.0
+Obsoletes: pcp-manager < 5.2.0
+
 # https://fedoraproject.org/wiki/Packaging "C and C++"
 BuildRequires: gcc gcc-c++
 BuildRequires: procps autoconf bison flex
@@ -345,9 +349,9 @@ Requires: pcp-libs = %{version}-%{release}
 %endif
 
 %if %{disable_statsd}
-%global _with_statsd --with-statsd=no
+%global _with_statsd --with-pmdastatsd=no
 %else
-%global _with_statsd --with-statsd=yes
+%global _with_statsd --with-pmdastatsd=yes
 %endif
 
 %if %{disable_bcc}
@@ -545,27 +549,19 @@ Requires: pcp-gui
 %endif
 Requires: bc gcc gzip bzip2
 Requires: redhat-rpm-config
+%if !%{disable_selinux}
+Requires: selinux-policy-devel
+Requires: selinux-policy-targeted
+%if 0%{?rhel} == 5
+Requires: setools
+%else
+Requires: setools-console
+%endif
+%endif
 
 %description testsuite
 Quality assurance test suite for Performance Co-Pilot (PCP).
 # end testsuite
-
-#
-# pcp-manager
-#
-%package manager
-License: GPLv2+
-Summary: Performance Co-Pilot (PCP) manager daemon
-URL: https://pcp.io
-Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-
-%description manager
-An optional daemon (pmmgr) that manages a collection of pmlogger and
-pmie daemons, for a set of discovered local and remote hosts running
-the performance metrics collection daemon (pmcd).  It ensures these
-daemons are running when appropriate, and manages their log rotation
-needs.  It is an alternative to the cron-based pmlogger/pmie service
-scripts.
 
 #
 # perl-PCP-PMDA. This is the PCP agent perl binding.
@@ -2269,7 +2265,7 @@ sed -i -e '/^# .*_LOCAL=1/s/^# //' $RPM_BUILD_ROOT/%{_sysconfdir}/sysconfig/{pmc
 %endif
 
 # default chkconfig off (all RPM platforms)
-for f in $RPM_BUILD_ROOT/%{_initddir}/{pcp,pmcd,pmlogger,pmie,pmmgr,pmproxy}; do
+for f in $RPM_BUILD_ROOT/%{_initddir}/{pcp,pmcd,pmlogger,pmie,pmproxy}; do
 	test -f "$f" || continue
 	sed -i -e '/^# chkconfig/s/:.*$/: - 95 05/' -e '/^# Default-Start:/s/:.*$/:/' $f
 done
@@ -2413,7 +2409,7 @@ ls -1 $RPM_BUILD_ROOT/%{_ieconfdir}/ |\
     grep -E -v 'zeroconf' >pcp-ieconf.list
 cat base_pmdas.list base_bin.list base_exec.list base_bashcomp.list \
     pcp-logconf.list pcp-ieconf.list |\
-  grep -E -v 'pmdaib|pmmgr|pmsnap|2pcp|pmdas/systemd|zeroconf' |\
+  grep -E -v 'pmdaib|pmsnap|2pcp|pmdas/systemd|zeroconf' |\
   grep -E -v "$PCP_GUI|pixmaps|hicolor|pcp-doc|tutorials|selinux" |\
   grep -E -v %{_confdir} | grep -E -v %{_logsdir} > base.list
 
@@ -2456,18 +2452,6 @@ getent group pcp >/dev/null || groupadd -r pcp
 getent passwd pcp >/dev/null || \
   useradd -c "Performance Co-Pilot" -g pcp -d %{_localstatedir}/lib/pcp -M -r -s /sbin/nologin pcp
 exit 0
-
-%preun manager
-if [ "$1" -eq 0 ]
-then
-%if !%{disable_systemd}
-    systemctl --no-reload disable pmmgr.service >/dev/null 2>&1
-    systemctl stop pmmgr.service >/dev/null 2>&1
-%else
-    /sbin/service pmmgr stop >/dev/null 2>&1
-    /sbin/chkconfig --del pmmgr >/dev/null 2>&1
-%endif
-fi
 
 %if !%{disable_rpm}
 %preun pmda-rpm
@@ -2744,15 +2728,6 @@ then
     rm -f "$PCP_PMNS_DIR/.NeedRebuild" >/dev/null 2>&1
 fi
 
-%post manager
-chown -R pcp:pcp %{_logsdir}/pmmgr 2>/dev/null
-%if !%{disable_systemd}
-    systemctl condrestart pmmgr.service >/dev/null 2>&1
-%else
-    /sbin/chkconfig --add pmmgr >/dev/null 2>&1
-    /sbin/service pmmgr condrestart
-%endif
-
 %post zeroconf
 PCP_PMDAS_DIR=%{_pmdasdir}
 PCP_SYSCONFIG_DIR=%{_sysconfdir}/sysconfig
@@ -3025,16 +3000,6 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %files testsuite
 %defattr(-,pcpqa,pcpqa)
 %{_testsdir}
-
-%files manager
-%{_initddir}/pmmgr
-%if !%{disable_systemd}
-%{_unitdir}/pmmgr.service
-%endif
-%{_libexecdir}/pcp/bin/pmmgr
-%attr(0775,pcp,pcp) %{_logsdir}/pmmgr
-%config(missingok,noreplace) %{_confdir}/pmmgr
-%config(noreplace) %{_confdir}/pmmgr/pmmgr.options
 
 %files import-sar2pcp
 %{_bindir}/sar2pcp
@@ -3376,8 +3341,12 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %endif
 
 %changelog
+* Fri Jul 31 2020 Nathan Scott <nathans@redhat.com> - 5.2.0-1
+- Work in progress: https://github.com/performancecopilot/pcp/projects/1
+
 * Fri May 29 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.1.1-1
 - Update to latest PCP sources.
+- Rebuild to pick up changed HdrHistogram_c version (BZ 1831502)
 - pmdakvm: handle kernel lockdown in integrity mode (BZ 1824297)
 
 * Fri Apr 24 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.1.0-1

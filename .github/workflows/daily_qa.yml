@@ -1,0 +1,114 @@
+name: Daily QA
+on: [push]
+
+jobs:
+  qa:
+    name: ${{ matrix.platform }}-${{ matrix.runner }}
+    if: github.repository == 'performancecopilot/pcp'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {platform: ubuntu1804, runner: direct,    os: ubuntu-18.04}
+          - {platform: ubuntu2004, runner: container, os: ubuntu-latest}
+          - {platform: debian10,   runner: container, os: ubuntu-latest}
+          - {platform: debian11,   runner: container, os: ubuntu-latest}
+          - {platform: fedora31,   runner: container, os: ubuntu-latest}
+          - {platform: fedora32,   runner: container, os: ubuntu-latest}
+          - {platform: fedora33,   runner: container, os: ubuntu-latest}
+          - {platform: centos7,    runner: container, os: ubuntu-latest}
+          - {platform: centos8,    runner: container, os: ubuntu-latest}
+          #- {platform: fedora32,   runner: vm,        os: macOS-latest}
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+
+      - name: Setup
+        run: |
+          python3 -c 'import yaml' || pip3 install pyyaml
+          ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} setup
+
+      - name: Update packages
+        run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} task update
+
+      - name: Install build dependencies
+        run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} task builddeps
+
+      - name: Build
+        run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} task build
+
+      - name: Copy build artifacts
+        run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} getartifacts
+
+      - name: Publish build artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: build-${{ matrix.platform }}-${{ matrix.runner }}
+          path: ./artifacts/build
+
+      - name: Install
+        run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} task install
+
+      - name: Initialize QA
+        run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} task initqa
+
+      - name: QA
+        run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} task qa_sanity
+
+      - name: Copy test results
+        if: always()
+        run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} getartifacts
+
+      - name: Publish test results
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-${{ matrix.platform }}-${{ matrix.runner }}
+          path: ./artifacts/test
+
+  report:
+    name: Publish Test Report
+    if: github.repository == 'performancecopilot/pcp'
+    needs: qa
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+
+      - name: Setup
+        run: |
+          wget -q -O allure-commandline.zip https://repo1.maven.org/maven2/io/qameta/allure/allure-commandline/2.13.3/allure-commandline-2.13.3.zip
+          unzip -d /opt allure-commandline.zip
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v2
+        with:
+          path: artifacts
+
+      - name: Generate test report
+        run: |
+          ./build/ci/test-report.py --commit ${GITHUB_SHA} --allure_results ./allure-results
+          /opt/allure-*/bin/allure generate
+
+      - name: Checkout qa-reports
+        uses: actions/checkout@v2
+        with:
+          repository: ${{ github.repository_owner }}/qa-reports
+          path: qa-reports
+          ssh-key: ${{ secrets.QA_REPORT_DEPLOY_KEY }}
+
+      - name: Publish QA report
+        run: |
+          rm -rf qa-reports/test-* qa-reports/docs
+          mv artifacts/test-* qa-reports/
+          mv allure-report qa-reports/docs
+
+          cd qa-reports
+          git config --local user.name "GitHub Action"
+          git config --local user.email "action@github.com"
+          git add .
+          git commit -m "QA Report of ${{ github.repository_owner }}/pcp@${GITHUB_SHA}"
+          git push
+
+          echo "::warning::Complete test report is available at https://${{ github.repository_owner }}.github.io/qa-reports/"

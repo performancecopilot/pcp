@@ -13,13 +13,14 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-cleanup()
+_cleanup()
 {
-	pmstore sample.many.count 5
+    pmstore sample.many.count 5
+    rm -f $tmp.*
 }
 
-trap "cleanup ; rm -f $tmp.*; exit \$status" 0 1 2 3 15
 status=1
+trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 

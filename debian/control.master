@@ -11,10 +11,10 @@ X-Python3-Version: >= 3.3
 
 Package: pcp
 Depends: ${shlibs:Depends}, ${misc:Depends}, gawk, procps, libpcp-pmda-perl, ?{python-pcp}, ?{python}, ?{python3-bpfcc}, ?{bpftrace}, libpcp-web1
-Conflicts: pgpool2, dstat, pcp-webapi
+Conflicts: pgpool2, dstat, pcp-webapi, pcp-manager
 Suggests: pcp-gui, libpcp-import-perl
-Provides: dstat, pcp-webapi
-Replaces: dstat, pcp-webapi
+Provides: dstat, pcp-webapi, pcp-manager
+Replaces: dstat, pcp-webapi, pcp-manager
 Architecture: any
 Description: System level performance monitoring and performance management
  Performance Co-Pilot (PCP) is a framework and services to
@@ -44,8 +44,8 @@ Description: Performance Co-Pilot runtime configuration
 Package: libpcp3-dev
 Section: libdevel
 Depends: ${misc:Depends}, libpcp3 (= ${binary:Version}), libc6-dev | libc-dev
-Breaks: pcp (<< 4.3.4), libpcp-gui2-dev (<< 3.11.10~), pcp-webapi (<< 5.0.0)
-Replaces: libpcp-gui2-dev (<< 3.11.10~), pcp-webapi (<< 5.0.0)
+Breaks: pcp (<< 4.3.4), libpcp-gui2-dev (<< 3.11.10~), pcp-webapi (<< 5.0.0), pcp-manager (<< 5.2.0)
+Replaces: libpcp-gui2-dev (<< 3.11.10~), pcp-webapi (<< 5.0.0), pcp-manager (<< 5.2.0)
 Architecture: any
 Description: Performance Co-Pilot library and headers
  The libpcp-dev package contains the base Performance Co-Pilot (PCP)
@@ -402,20 +402,3 @@ Description: Performance Co-Pilot (PCP) Test Suite
  Provides a series of tests that exercise the many utilities and daemon
  processes that form the PCP toolkit.  Regular users should never have
  any need to install this package, it is for developers and testers only.
-
-Package: pcp-manager
-Depends: ${misc:Depends}, ${shlibs:Depends}, pcp (= ${binary:Version})
-Architecture: any
-Description: Performance Co-Pilot (PCP) manager daemon
- An optional daemon (pmmgr) that manages a collection of pmlogger and
- pmie daemons, for a set of discovered local and remote hosts running
- the performance metrics collection daemon (pmcd).  It ensures these
- daemons are running when appropriate, and manages their log rotation
- needs (which are particularly complex in the case of pmlogger).
- .
- The base PCP package provides comparable functionality through cron
- scripts which predate this daemon but do still provide effective and
- efficient log management services.
- .
- The pcp-manager package aims to aggressively enable new PCP features
- and as a result may not be suited to all production environments.

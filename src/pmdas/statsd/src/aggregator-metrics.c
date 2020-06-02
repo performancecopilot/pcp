@@ -212,7 +212,10 @@ write_metrics_to_file(struct agent_config* config, struct pmda_metrics_container
     VERBOSE_LOG(0, "Writing metrics to file...");
     pthread_mutex_lock(&container->mutex);
     metrics* m = container->metrics;
-    if (strlen(config->debug_output_filename) == 0) return; 
+    if (strlen(config->debug_output_filename) == 0) {
+        pthread_mutex_unlock(&container->mutex);
+        return; 
+    }
     int sep = pmPathSeparator();
     char debug_output[MAXPATHLEN];
     pmsprintf(

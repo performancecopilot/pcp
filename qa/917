@@ -38,12 +38,18 @@ _filter_semodule()
 
 _filter_sedismod()
 {
-    sed -n '/--- begin avrule block ---/,$p'
+    awk '
+/^--- begin avrule block ---/	{ body=1 }
+	{ if (body) print $0 }' | \
+    sed \
+	-e '/^--- begin avrule block ---/d' \
+	-e '/^decl [0-9[0-9]*/d' \
+	-e '/pcp_pmwebd_t/d' \
+	-e '/pcp_pmmgr_t/d' \
+	-e '/^Command/d' \
+    #end
 }
-_filter_sedismod1()
-{
-    sed -e '/^Command/d'
-}
+
 _filter_outfile()
 {
     sed -f $tmp.sed
@@ -78,7 +84,6 @@ do
 		;;
 	    unreserved_port_t)
 		echo '/allow \[pcp_pmcd_t] \[unreserved_port_t]/d' >>$tmp.sed
-		echo '/allow \[pcp_pmmgr_t] \[unreserved_port_t]/d' >>$tmp.sed
 		echo '/allow \[pcp_pmlogger_t] \[unreserved_port_t]/d' >>$tmp.sed
 		;;
 	    tracefs_t)
@@ -187,7 +192,7 @@ echo "Checking that pcpupstream policy module has been properly installed"
 awk '{ print $1 }' $seq.full | grep "pcpupstream$"  | _filter_semodule
 # real QA test starts here
 echo "Checking policies."
-printf '1\nq\n' | sedismod $policy_file | _filter_sedismod | _filter_sedismod1
+printf '1\nq\n' | sedismod $policy_file | _filter_sedismod
 
 # success, all done
 status=0

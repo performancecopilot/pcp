@@ -1,0 +1,47 @@
+container:
+  image: localhost/debian:11-systemd
+  init: /bin/systemd
+  pre_start: |
+    if ! buildah images -q localhost/debian:11-systemd 2>/dev/null; then
+       container=$(buildah from docker.io/library/debian:bullseye)
+       buildah run $container apt-get update
+       buildah run $container apt-get install -y systemd
+       buildah commit $container localhost/debian:11-systemd
+    fi
+  post_start: |
+    # allow services to be started during installation
+    # pmcd will create the file /var/lib/pcp/pmns/stdpmid, which is required by QA tests
+    printf '#!/bin/sh\nexit 0\n' > /usr/sbin/policy-rc.d
+
+    apt-get update && apt-get install -y sudo
+    useradd --create-home pcpbuild
+    echo 'pcpbuild ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/pcpbuild
+
+tasks:
+  update: |
+    sudo apt-get -y update
+    sudo apt-get -y dist-upgrade
+  builddeps: |
+    sudo apt-get -y update
+    for i in $(./pcp/qa/admin/check-vm -p)
+    do
+      sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "$i" || true
+    done
+  build: |
+    (cd ./pcp && ./Makepkgs --nonrpm --verbose)
+    cp ./pcp/build/deb/*.deb artifacts/build
+  install: |
+    sudo dpkg -i ./pcp/build/deb/*.deb
+    echo 'pcpqa ALL=(ALL) NOPASSWD: ALL' | sudo tee /etc/sudoers.d/pcpqa
+  initqa: |
+    sudo -i -u pcpqa ./check 002
+  qa_sanity: |
+    set -o pipefail && status=0 && sudo -i -u pcpqa ./check -TT -g sanity |& tee ./artifacts/test/test.log || status=$?
+    cp /var/lib/pcp/testsuite/check.timings ./artifacts/test
+    for test in /var/lib/pcp/testsuite/*.out.bad; do cp $test ${test/.out.bad/.full} ./artifacts/test || true; done
+    exit $status
+  qa: |
+    set -o pipefail && status=0 && sudo -i -u pcpqa ./check -TT |& tee ./artifacts/test/test.log || status=$?
+    cp /var/lib/pcp/testsuite/check.timings ./artifacts/test
+    for test in /var/lib/pcp/testsuite/*.out.bad; do cp $test ${test/.out.bad/.full} ./artifacts/test || true; done
+    exit $status

@@ -99,10 +99,6 @@ PCP_PMCDRCLOCAL_PATH=@pcp_pmcdrclocal_path@
 # Standard path: $PCP_SYSCONF_DIR/pmproxy/pmproxy.options
 PCP_PMPROXYOPTIONS_PATH=@pcp_pmproxyoptions_path@
 
-# path to pmmgr options file
-# Standard path: $PCP_SYSCONF_DIR/pmmgr/pmmgr.options
-PCP_PMMGROPTIONS_PATH=@pcp_pmmgroptions_path@
-
 # path to pmie control file
 # Standard path: $PCP_SYSCONF_DIR/pmie/control
 PCP_PMIECONTROL_PATH=@pcp_pmiecontrol_path@

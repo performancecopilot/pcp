@@ -140,7 +140,7 @@ find_label_by_name(
 
 static char*
 create_instance_label_segment_str(char* tags) {
-    char buffer[JSON_BUFFER_SIZE];
+    char buffer[JSON_BUFFER_SIZE] = {'\0'};
     size_t tags_length = strlen(tags) + 1;
     if (tags_length > JSON_BUFFER_SIZE) {
         return NULL;
@@ -197,7 +197,7 @@ create_label(
     ALLOC_CHECK("Unable to allocate memory for labels string in metric label record.");
     memcpy((*out)->labels, datagram->tags, labels_length);
     struct metric_label_metadata* meta = 
-        (struct metric_label_metadata*) malloc(sizeof(struct metric_label_metadata*));
+        (struct metric_label_metadata*) malloc(sizeof(struct metric_label_metadata));
     ALLOC_CHECK("Unable to allocate memory for metric label metadata.");
     (*out)->meta = meta;
     (*out)->type = METRIC_TYPE_NONE;

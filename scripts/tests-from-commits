@@ -699,7 +699,6 @@ _map()
 	   |src/pmlogrewrite/*\
 	   |src/pmlogsize/*\
 	   |src/pmlogsummary/*\
-	   |src/pmmgr/*\
 	   |src/pmns/*\
 	   |src/*pmpost/*\
 	   |src/pmprobe/*\

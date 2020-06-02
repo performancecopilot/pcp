@@ -1287,6 +1287,14 @@ main(int argc, char **argv)
 
     fprintf(stderr, "Archive basename: %s\n", archName);
 
+    if (notify_service_mgr && !pmlogger_reexec) {
+	/*
+	 * If we haven't been reexec'd, notify service manager (if any),
+	 * that we are ready.
+	 */
+	__pmServerNotifyServiceManagerReady(getpid());
+    }
+
     if (isdaemon) {
 #ifndef IS_MINGW
 	/* detach yourself from the launching process */
@@ -1322,14 +1330,6 @@ main(int argc, char **argv)
     /* create the Latest folio */
     if (isdaemon) {
 	updateLatestFolio(pmcd_host, archName);
-    }
-
-    if (notify_service_mgr && !pmlogger_reexec) {
-	/*
-	 * If we haven't been reexec'd, notify service manager (if any),
-	 * that we are ready.
-	 */
-	__pmServerNotifyServiceManagerReady(getpid());
     }
 
     for ( ; ; ) {

@@ -4,15 +4,27 @@ QA output created by 1793
     Cluster 0.0 labels (18 bytes): {"cluster":"zero"}
     InDom 29.1 labels (15 bytes): {"model":"RGB"}
 === check pmrep replaying an archive with labels
-{'hostname':'HOSTNAME','agent':'sample','role':'testing','model':'RGB'}
+    "agent": "sample"
+    "hostname": "HOSTNAME"
+    "model": "RGB"
+    "role": "testing"
 === check pcp2json replaying an archive with labels
-"{'hostname':'HOSTNAME','agent':'sample','role':'testing','model':'RGB'}",
-"{'hostname':'HOSTNAME','agent':'sample','role':'testing','model':'RGB'}",
-"{'hostname':'HOSTNAME','agent':'sample','role':'testing','model':'RGB'}",
+    "agent": "sample"
+    "hostname": "HOSTNAME"
+    "model": "RGB"
+    "role": "testing"
 === check pcp2csv replaying an archive with labels
-{'agent':'sample';'role':'testing';'model':'RGB'}"
+    "agent": "sample"
+    "model": "RGB"
+    "role": "testing"
 === check pmrep outputting labels live
-{'agent':'sample','role':'testing','model':'RGB','cluster':'zero'}
+    "agent": "sample"
+    "cluster": "zero"
+    "model": "RGB"
+    "role": "testing"
 === check pcp2csv outputting labels live
-{'agent':'sample';'role':'testing';'model':'RGB';'cluster':'zero'}"
+    "agent": "sample"
+    "cluster": "zero"
+    "model": "RGB"
+    "role": "testing"
 == done
