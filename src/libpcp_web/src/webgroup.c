@@ -56,17 +56,28 @@ webgroups_lookup(pmWebGroupModule *module)
 }
 
 static void
+webgroup_release_context(uv_handle_t *handle)
+{
+    struct context	*context = (struct context *)handle->data;
+
+    if (pmDebugOptions.http)
+	fprintf(stderr, "releasing context %p\n", context);
+
+    pmwebapi_free_context(context);
+}
+
+static void
 webgroup_destroy_context(struct context *context, struct webgroups *groups)
 {
     context->garbage = 1;
 
     if (pmDebugOptions.http)
-	fprintf(stderr, "freeing context %p\n", context);
+	fprintf(stderr, "destroying context %p\n", context);
 
     uv_timer_stop(&context->timer);
     if (groups)
 	dictUnlink(groups->contexts, &context->randomid);
-    pmwebapi_free_context(context);
+    uv_close((uv_handle_t *)&context->timer, webgroup_release_context);
 }
 
 static void
