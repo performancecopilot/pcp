@@ -1,5 +1,7 @@
 name: Daily QA
-on: [push]
+on:
+  schedule:
+    - cron:  '0 21 * * *'
 
 jobs:
   qa:
@@ -30,6 +32,12 @@ jobs:
           python3 -c 'import yaml' || pip3 install pyyaml
           ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} setup
 
+      - name: Set up Python 3.x
+        if: matrix.platform == 'ubuntu1604'
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
       - name: Update packages
         run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} task update
 
@@ -55,7 +63,7 @@ jobs:
         run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} task initqa
 
       - name: QA
-        run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} task qa_sanity
+        run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} task qa
 
       - name: Copy test results
         if: always()
