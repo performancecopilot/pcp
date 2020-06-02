@@ -69,7 +69,7 @@ jobs:
 
   report:
     name: Publish Test Report
-    if: github.repository == 'performancecopilot/pcp'
+    if: always() && github.repository == 'performancecopilot/pcp'
     needs: qa
     runs-on: ubuntu-latest
     steps:
