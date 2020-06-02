@@ -29,7 +29,6 @@ PCP_UNRESERVED_PORT="type unreserved_port_t;"
 PCP_UNRESERVED_PORT_RULE_TCP="allow pcp_pmcd_t unreserved_port_t:tcp_socket { name_bind name_connect };"
 PCP_UNRESERVED_PORT_RULE_UDP="allow pcp_pmcd_t unreserved_port_t:udp_socket { name_bind };"
 PCP_UNRESERVED_PORT_RULE_PMLOGGER="allow pcp_pmlogger_t unreserved_port_t:tcp_socket { name_bind };"
-PCP_UNRESERVED_PORT_RULE_PMMGR="allow pcp_pmmgr_t unreserved_port_t:tcp_socket name_bind;"
 endif
 
 ifeq "$(PCP_SELINUX_TRACEFS)" "true"

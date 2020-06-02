@@ -17,11 +17,6 @@ PCPGUI = pcp-gui
 PCPGUI_FILES = pcp-gui.dirs pcp-gui.install
 PCPGUI_DOC_DIR = $(PCP_DOC_DIR)/../pcp-gui
 
-PCPMANAGER = pcp-manager
-PCPMANAGER_FILES = pcp-manager.dirs pcp-manager.install pcp-manager.prerm \
-		   pcp-manager.postinst pcp-manager.postrm
-PCPMANAGER_DOC_DIR = $(PCP_DOC_DIR)/../pcp-manager
-
 PCPTESTSUITE = pcp-testsuite
 PCPTESTSUITE_FILES = pcp-testsuite.dirs pcp-testsuite.postinst
 PCPTESTSUITE_DOC_DIR = $(PCP_DOC_DIR)/../pcp-testsuite
@@ -132,15 +127,6 @@ ifeq ($(PACKAGE_DISTRIBUTION), debian)
 	$(INSTALL) -m 755 -d $(PCPGUI_DOC_DIR)
 	$(INSTALL) -m 644 copyright $(PCPGUI_DOC_DIR)
 	$(INSTALL) -m 644 changelog $(PCPGUI_DOC_DIR)/changelog.Debian
-endif
-endif
-
-install-manager: default
-ifeq ($(ENABLE_MANAGER), true)
-ifeq ($(PACKAGE_DISTRIBUTION), debian)
-	$(INSTALL) -m 755 -d $(PCPMANAGER_DOC_DIR)
-	$(INSTALL) -m 644 copyright $(PCPMANAGER_DOC_DIR)
-	$(INSTALL) -m 644 changelog $(PCPMANAGER_DOC_DIR)/changelog.Debian
 endif
 endif
 

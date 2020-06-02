@@ -2120,7 +2120,6 @@ _change_config()
 	    pmlogger)	pat=PMLOGGER ;;
 	    pmie)	pat=PMIE ;;
 	    pmproxy)	pat=PMPROXY ;;
-	    pmmgr)	pat=PMMGR ;;
 	    verbose)	pat="" ;;
 	    *)		pat=$1 ;;
 	esac

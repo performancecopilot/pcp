@@ -21,8 +21,6 @@
    obj:*
 }
 
-# Seen on bozo-laptop with qa/666
-#
 # Syscall param sendmsg(mmsg[0].msg_hdr) points to uninitialised byte(s)
 #    at 0x4ADC176: sendmmsg (sendmmsg.c:32)
 #    by 0x52788F0: __libc_res_nsend (res_send.c:1140)
@@ -105,8 +103,6 @@
    obj:*
 }
 
-# qa/666 on vm20 similar
-#
 # Syscall param sendmsg(mmsg[0].msg_hdr) points to uninitialised byte(s)
 # at 0x58DF869: sendmmsg (sendmmsg.c:32)
 # by 0x832E8FD: __libc_res_nsend (res_send.c:1140)
@@ -119,7 +115,6 @@
 # by 0x4E72570: __pmAuxConnectPMCDPort (in /usr/lib/libpcp.so.3)
 # by 0x4E45DDD: __pmConnectPMCD (in /usr/lib/libpcp.so.3)
 # by 0x4E48085: pmNewContext (in /usr/lib/libpcp.so.3)
-# by 0x1124E8: pmmgr_job_spec::compute_hostid(std::string const&) (in /usr/lib/pcp/bin/pmmgr)
 {
    Seen on vm20
    Memcheck:Param
