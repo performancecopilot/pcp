@@ -1,7 +1,7 @@
 name: Daily QA
 on:
   schedule:
-    - cron:  '0 21 * * *'
+    - cron:  '0 19 * * *'
 
 jobs:
   qa:
@@ -27,16 +27,16 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v2
 
+      - name: Set up Python 3.6+
+        if: matrix.platform == 'ubuntu1604'
+        uses: actions/setup-python@v2
+        with:
+          python-version: '>=3.6'
+
       - name: Setup
         run: |
           python3 -c 'import yaml' || pip3 install pyyaml
           ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} setup
-
-      - name: Set up Python 3.x
-        if: matrix.platform == 'ubuntu1604'
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.x'
 
       - name: Update packages
         run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} task update
@@ -85,6 +85,13 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v2
 
+      - name: Checkout qa-reports
+        uses: actions/checkout@v2
+        with:
+          repository: ${{ github.repository_owner }}/qa-reports
+          path: qa-reports
+          ssh-key: ${{ secrets.QA_REPORT_DEPLOY_KEY }}
+
       - name: Setup
         run: |
           wget -q -O allure-commandline.zip https://repo1.maven.org/maven2/io/qameta/allure/allure-commandline/2.13.3/allure-commandline-2.13.3.zip
@@ -98,14 +105,8 @@ jobs:
       - name: Generate test report
         run: |
           ./build/ci/test-report.py --commit ${GITHUB_SHA} --allure_results ./allure-results
+          [ -d qa-reports/docs/history ] && cp -r qa-reports/docs/history ./allure-results
           /opt/allure-*/bin/allure generate
-
-      - name: Checkout qa-reports
-        uses: actions/checkout@v2
-        with:
-          repository: ${{ github.repository_owner }}/qa-reports
-          path: qa-reports
-          ssh-key: ${{ secrets.QA_REPORT_DEPLOY_KEY }}
 
       - name: Publish QA report
         run: |

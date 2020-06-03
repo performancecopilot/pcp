@@ -125,6 +125,7 @@ def write_allure_result(test: Test, commit: str, allure_results_path: str):
     allure_result = {
         "name": f"QA {test.name}",
         "fullName": f"QA #{test.name} on {test.host}",
+        "historyId": f"{test.name}@{test.host}",
         "description": test.description,
         "status": test.status,
         "statusDetails": {
