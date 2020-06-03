@@ -84,7 +84,7 @@ refresh_filesys(pmInDom filesys_indom, pmInDom tmpfs_indom,
 	    indom = tmpfs_indom;
 	    device = path;
 	}
-	else if (strncmp(device, "/dev", 4) != 0)
+	else if (strncmp(device, "/dev", 4) != 0 && strcmp(path, "/") != 0)
 	    continue;
 
 	/* keep dm and md persistent names, RHBZ#1349932 */

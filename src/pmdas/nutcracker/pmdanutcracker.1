@@ -25,24 +25,39 @@ option to the
 server).
 The corresponding configuration must be reflected in the
 \&\f(CW$PCP_PMDAS_DIR\fR/nutcracker/nutcracker.conf file.
-.PP
-      # cd $PCP_PMDAS_DIR/nutcracker
-.br
-      # [ edit nutcracker.conf ]
-.PP
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/nutcracker
+# [ edit nutcracker.conf ]
+.fi
+.ft P
+.RE
+.sp 1
 Once this is setup, you can access the names and values for the
 nutcracker performance metrics by doing the following as root:
-.PP
-      # cd $PCP_PMDAS_DIR/nutcracker
-.br
-      # ./Install
-.PP
-To uninstall, do the following as root:
-.PP
-      # cd $PCP_PMDAS_DIR/nutcracker
-.br
-      # ./Remove
-.PP
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/nutcracker
+# ./Install
+.fi
+.ft P
+.RE
+.sp 1
+To uninstall, the following must be done as root:
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/nutcracker
+# ./Remove
+.fi
+.ft P
+.RE
+.sp 1
 \fBpmdanutcracker\fR is launched by \fIpmcd\fR(1) and should never be executed
 directly. The Install and Remove scripts notify \fIpmcd\fR(1) when the
 agent is installed or removed.

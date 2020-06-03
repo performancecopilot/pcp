@@ -170,7 +170,7 @@ _get_hex_addr()
 # Number of clients is platform/config dependent ...
 # 1. pmie
 # 2. pmie (maybe)
-# 3. pmlogger for pmmgr (maybe)
+# 3. pmlogger from pmfind (maybe)
 #
 _filter_numclients()
 {

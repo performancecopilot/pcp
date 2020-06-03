@@ -136,6 +136,22 @@ done
 tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
 trap "rm -rf $tmp; exit" 0 1 2 3 15
 
+_archive2filename()
+{
+    # Check for an archive file using all the supported compressions
+    for compression in "" .xz .lzma .bz .bz2 .gz .Z .z
+    do
+        if [ -f "$1$compression" ]
+	then
+	    # We have found the archive
+	    $PCP_ECHO_PROG "$1$compression"
+	    return 0
+	fi
+    done
+
+    return 1 # No archive has been found
+}
+
 _check()
 {
     sed -n '/^Archive:/p' <$_FOLIO \
@@ -146,7 +162,8 @@ _check()
 	rm -f $tmp/base
 	for part in index meta 0
 	do
-	    _is_archive $path.$part || echo "No such file: $path.$part" >>$tmp/base
+	    arch=`_archive2filename $path.$part`
+	    _is_archive $arch || echo "No such file: $path.$part" >>$tmp/base
 	done
 	if [ ! -s $tmp/base ]
 	then
@@ -510,14 +527,19 @@ do
 		    $PCP_AWK_PROG <$_FOLIO '$1 == "Creator:" && NF > 2	{ printf " %s",$3; exit }'
 		    for arch in $_ALL_ARCHIVES
 		    do
-			$PCP_ECHO_PROG $PCP_ECHO_N " $arch.log $arch.config $arch.meta $arch.index""$PCP_ECHO_C"
+			for archfiles in $arch.log $arch.config $arch.meta $arch.index
+			do
+			    archfiles=`_archive2filename "$archfiles"`
+			    $PCP_ECHO_PROG $PCP_ECHO_N " $archfiles""$PCP_ECHO_C"
+			done
 			path=`_fix_arch_path "" $arch`
 			pmdumplog -t $path 2>/dev/null \
 			| $PCP_AWK_PROG '/^[0-9][0-9]:/ { print $2 }' \
 			| sort -u \
 			| while read vol
 			do
-			    $PCP_ECHO_PROG $PCP_ECHO_N " $arch.$vol""$PCP_ECHO_C"
+			    archfile=`_archive2filename "$arch.$vol"`
+			    $PCP_ECHO_PROG $PCP_ECHO_N " $archfile""$PCP_ECHO_C"
 			done
 		    done
 		    [ ! -z "$_FOLIOPATH" ] && $PCP_ECHO_PROG $PCP_ECHO_N " )""$PCP_ECHO_C"

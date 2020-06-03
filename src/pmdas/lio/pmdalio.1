@@ -41,17 +41,28 @@ to interact with the settings and metadata held in
 .BR configfs .
 .SH INSTALLATION
 Install the lio PMDA by using the Install script as root:
-.PP
-      # cd $PCP_PMDAS_DIR/lio
-.br
-      # ./Install
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/lio
+# ./Install
+.fi
+.ft P
+.RE
+.sp 1
 .PP
 To uninstall, do the following as root:
-.PP
-      # cd $PCP_PMDAS_DIR/lio
-.br
-      # ./Remove
-.PP
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/lio
+# ./Remove
+.fi
+.ft P
+.RE
+.sp 1
 \fBpmdalio\fR is launched by \fIpmcd\fR(1) and should never be executed
 directly. The Install and Remove scripts notify \fIpmcd\fR(1) when the
 agent is installed or removed.

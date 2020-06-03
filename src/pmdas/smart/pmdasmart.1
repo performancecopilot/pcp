@@ -29,17 +29,28 @@ Further details on smartctl and smartmontools can be found at
 .BR https://smartmontools.org .
 .SH INSTALLATION
 Install the SMART PMDA by using the Install script as root:
-.PP
-      # cd $PCP_PMDAS_DIR/smart
-.br
-      # ./Install
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/smart
+# ./Install
+.fi
+.ft P
+.RE
+.sp 1
 .PP
 To uninstall, do the following as root:
-.PP
-      # cd $PCP_PMDAS_DIR/smart
-.br
-      # ./Remove
-.PP
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/smart
+# ./Remove
+.fi
+.ft P
+.RE
+.sp 1
 .B pmdasmart
 is launched by
 .BR pmcd (1)

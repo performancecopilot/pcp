@@ -1,0 +1,35 @@
+QA output created by 1660
+Adding set 0:  {"a":true}
+[0] pmLabelSet dump from ADDRESS inst=-1 nlabels=1
+pmLabelSet ADDRESS json:
+    {"a":true}
+pmLabelSet ADDRESS index:
+    [0] name(2,1) : value(5,4) [pmid]
+Adding set 1:  {"b":0,"c":null}
+[0] pmLabelSet dump from ADDRESS inst=-1 nlabels=3
+pmLabelSet ADDRESS json:
+    {"a":true,"b":0,"c":null}
+pmLabelSet ADDRESS index:
+    [0] name(2,1) : value(5,4) [pmid]
+    [1] name(11,1) : value(14,1) [pmid,optional]
+    [2] name(17,1) : value(20,4) [pmid,optional]
+Adding set 2:  {"d":{"e":1}}
+[0] pmLabelSet dump from ADDRESS inst=-1 nlabels=4
+pmLabelSet ADDRESS json:
+    {"a":true,"b":0,"c":null,"d.e":1}
+pmLabelSet ADDRESS index:
+    [0] name(2,1) : value(5,4) [pmid]
+    [1] name(11,1) : value(14,1) [pmid,optional]
+    [2] name(17,1) : value(20,4) [pmid,optional]
+    [3] name(26,3) : value(31,1) [pmid,compound]
+Adding set 3:  {"f":{"gee":22,"h":333}}
+[0] pmLabelSet dump from ADDRESS inst=-1 nlabels=6
+pmLabelSet ADDRESS json:
+    {"a":true,"b":0,"c":null,"d.e":1,"f.gee":22,"f.h":333}
+pmLabelSet ADDRESS index:
+    [0] name(2,1) : value(5,4) [pmid]
+    [1] name(11,1) : value(14,1) [pmid,optional]
+    [2] name(17,1) : value(20,4) [pmid,optional]
+    [3] name(26,3) : value(31,1) [pmid,compound]
+    [4] name(34,5) : value(41,2) [pmid,compound]
+    [5] name(45,3) : value(50,3) [pmid,compound]

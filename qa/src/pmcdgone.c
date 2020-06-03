@@ -33,6 +33,7 @@ _ConnectLogger(void)
     int		n;
     int		pid = PM_LOG_PRIMARY_PID;
     int		port = PM_LOG_NO_PORT;
+    int		sts;
 
     if ((n = __pmConnectLogger("localhost", &pid, &port)) < 0) {
 	printf("Cannot connect to primary pmlogger on \"localhost\": %s\n", pmErrStr(n));
@@ -43,7 +44,9 @@ _ConnectLogger(void)
 	 * Lines starting "+ " are debug from pmcdgone, and get syphoned
 	 * off to the .full file in qa/025
 	 */
-	system(". $PCP_DIR/etc/pcp.env; ( ls -l $PCP_TMP_DIR/pmlogger/primary; cat $PCP_TMP_DIR/pmlogger/primary ) | sed -e 's/^/+ /' >&2");
+	sts = system(". $PCP_DIR/etc/pcp.env; ( ls -l $PCP_TMP_DIR/pmlogger/primary; cat $PCP_TMP_DIR/pmlogger/primary ) | sed -e 's/^/+ /' >&2");
+	if (sts != 0)
+	    fprintf(stderr, "Warning: ls returns %d\n", sts);
 	fprintf(stderr, "+ __pmConnectLogger: returns pid=%d port=%d\n", pid, port);
     }
 

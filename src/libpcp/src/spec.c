@@ -618,7 +618,12 @@ unparseHostSpec(pmHostSpec *hostp, int count, char *string, size_t size, int pre
 	    }
 	}
 	else {
-	    if ((sts = pmsprintf(string + off, len, "%s", hostp[i].name)) >= size) {
+	    /* cater for the brace-enclosing for IPv6 names, if needed */
+	    if (strchr(hostp[i].name, ':') != NULL)
+		sts = pmsprintf(string + off, len, "[%s]", hostp[i].name);
+	    else
+		sts = pmsprintf(string + off, len, "%s", hostp[i].name);
+	    if (sts >= size) {
 		off = -E2BIG;
 		goto done;
 	    }

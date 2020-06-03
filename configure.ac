@@ -180,18 +180,6 @@ AC_ARG_WITH([pmdasnmp],
     [do_pmdasnmp=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdasnmp=$withval"],
     [do_pmdasnmp=check])
 
-AC_ARG_WITH([manager],
-    [AC_HELP_STRING([--with-manager],
-		   [enable daemon manager (default is on)])],
-    [do_manager=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-manager=$withval"],
-    [do_manager=check])
-
-AC_ARG_WITH([webapi],
-    [AC_HELP_STRING([--with-webapi],
-		   [enable REST API daemon (default is on)])],
-    [do_webapi=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-webapi=$withval"],
-    [do_webapi=check])
-
 AC_ARG_WITH([selinux],
     [AC_HELP_STRING([--with-selinux],
                     [enable building of selinux package (default is on)])],
@@ -1882,7 +1870,7 @@ AC_MSG_CHECKING([if the statsd PMDA should be included])
 pmda_statsd=false
 AS_IF([test "x$do_pmdastatsd" = "xyes"], [pmda_statsd=true])
 AS_IF([test "x$do_pmdastatsd" = "xcheck"], [
-       if test -n "$RAGEL" -a "x$lib_for_hdr_histogram" != "x" -a "x$lib_for_chan" != "x"; then
+       if test "x$lib_for_hdr_histogram" != "x" -a "x$lib_for_chan" != "x"; then
 	pmda_statsd=true
        fi])
 AC_SUBST(PMDA_STATSD, $pmda_statsd)
@@ -1933,34 +1921,6 @@ fi
 AC_SUBST(PMDA_POSTFIX,$pmda_postfix)
 if $pmda_postfix; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
-enable_manager=false
-AS_IF([test "x$do_manager" != "xno"], [
-    enable_manager=true
-
-    if test "$target_os" = "mingw"
-    then
-	enable_manager=false
-	test "$do_manager" != "check" && \
-	AC_MSG_ERROR([MinGW build, cannot enable daemon manager])
-    elif test "x$cxx" = "x"
-    then
-	enable_manager=false
-	test "$do_manager" != "check" && \
-	AC_MSG_ERROR([C++ compiler unavailable, cannot enable daemon manager])
-    fi
-    AC_MSG_CHECKING([compilation features for daemon manager])
-    AC_TRY_COMPILE(
-	[ #ifndef _XOPEN_SOURCE
-	  #define _XOPEN_SOURCE 600
-	  #endif
-	  #include <stdio.h>
-	], [],
-	AC_MSG_RESULT(yes),
-	enable_manager=false
-	AC_MSG_RESULT(no))
-])
-AC_SUBST(enable_manager)
-
 AC_CHECK_PROGS(SEINFO, seinfo)
 AC_SUBST(SEINFO)
 AC_MSG_CHECKING([if selinux policy should be included])
@@ -2010,6 +1970,7 @@ pcp_selinux_var_log=false
 pcp_selinux_lastlog=false
 pcp_selinux_xauth_exec=false
 pcp_selinux_logrotate=false
+pcp_selinux_faillog=false
 
 pcp_selinux_netlink_selinux_socket_class=false
 pcp_selinux_netlink_audit_socket_class=false
@@ -2067,6 +2028,8 @@ AS_IF([test "x$enable_selinux" != "xfalse"], [
 	&& pcp_selinux_xauth_exec=true
     grep '^[[ 	]][[ 	]]*logrotate_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_logrotate=true
+    grep '^[[ 	]][[ 	]]*faillog_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_faillog=true
 
     rm -f conftest.out
 
@@ -2177,6 +2140,7 @@ AC_SUBST(pcp_selinux_var_log)
 AC_SUBST(pcp_selinux_lastlog)
 AC_SUBST(pcp_selinux_xauth_exec)
 AC_SUBST(pcp_selinux_logrotate)
+AC_SUBST(pcp_selinux_faillog)
 
 AC_SUBST(pcp_selinux_netlink_selinux_socket_class)
 AC_SUBST(pcp_selinux_netlink_audit_socket_class)
@@ -3251,7 +3215,6 @@ AC_SUBST(pcp_sysconf_dir)
 pcp_pmcdconf_path=$pcp_sysconf_dir/pmcd/pmcd.conf
 pcp_pmcdrclocal_path=$pcp_sysconf_dir/pmcd/rc.local
 pcp_pmcdoptions_path=$pcp_sysconf_dir/pmcd/pmcd.options
-pcp_pmmgroptions_path=$pcp_sysconf_dir/pmmgr/pmmgr.options
 pcp_pmproxyoptions_path=$pcp_sysconf_dir/pmproxy/pmproxy.options
 pcp_pmiecontrol_path=$pcp_sysconf_dir/pmie/control
 pcp_pmsnapcontrol_path=$pcp_sysconf_dir/pmsnap/control
@@ -3259,7 +3222,6 @@ pcp_pmloggercontrol_path=$pcp_sysconf_dir/pmlogger/control
 AC_SUBST(pcp_pmcdconf_path)
 AC_SUBST(pcp_pmcdoptions_path)
 AC_SUBST(pcp_pmcdrclocal_path)
-AC_SUBST(pcp_pmmgroptions_path)
 AC_SUBST(pcp_pmproxyoptions_path)
 AC_SUBST(pcp_pmiecontrol_path)
 AC_SUBST(pcp_pmsnapcontrol_path)

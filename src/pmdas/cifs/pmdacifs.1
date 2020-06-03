@@ -25,17 +25,27 @@ to be loaded to return some metric values and at least one
 mounted CIFS share in order to provide data for all metrics.
 .SH INSTALLATION
 Install the CIFS PMDA by using the Install script as root:
-.PP
-      # cd $PCP_PMDAS_DIR/cifs
-.br
-      # ./Install
-.PP
-To uninstall, do the following as root:
-.PP
-      # cd $PCP_PMDAS_DIR/cifs
-.br
-      # ./Remove
-.PP
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/cifs
+# ./Install
+.fi
+.ft P
+.RE
+.sp 1
+To uninstall, the following must be done as root:
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/cifs
+# ./Remove
+.fi
+.ft P
+.RE
+.sp 1
 .B pmdacifs
 is launched by
 .BR pmcd (1)

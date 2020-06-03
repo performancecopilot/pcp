@@ -60,6 +60,7 @@ nss_notrun_checks()
 nss_cleanup()
 {
     unset PCP_SECURE_SOCKETS
+    unset PCP_SECURE_DB_PATH
 
     # restore any modified pmcd configuration file
     if test -f $PCP_PMCDOPTIONS_PATH.$seq
@@ -197,6 +198,8 @@ nss_setup_empty_userdb()
     echo > $tmp.empty
     mkdir -p -m 0755 $usersdb
     certutil -N -d $PCP_SECURE_DB_METHOD$usersdb -f $tmp.empty
+
+    export PCP_SECURE_DB_PATH="$usersdb"
 }
 
 nss_import_cert_userdb()

@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2019 Red Hat.
+.\" Copyright (c) 2019-2020 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -104,7 +104,6 @@ of type
 Setting up a discovery module and callbacks would normally declare an instance of
 .BR pmDiscoverSettings ,
 e.g.
-.br
 .sp
 .nf
 .in +0.5i
@@ -124,7 +123,6 @@ static pmDiscoverSettings someapp_discover = {
 .fi
 .P
 And then initialize this with API calls similar to the following:
-.br
 .sp
 .nf
 .in +0.5i
@@ -156,9 +154,9 @@ Such clients include the
 application and
 .BR pmproxy (1),
 which is the back-end REST API server for
-.BR grafana-pcp (1),
+.BR grafana-pcp ,
 a native
-.BR grafana (1)
+.BR grafana-server (1)
 data-source for PCP.
 .SH FILES
 The default archive directory is
@@ -170,6 +168,7 @@ The API recursively descends all sub-directories and also dynamically discovers 
 Generally zero on success, or on error a negative return code, see
 .BR pmerr (1).
 .SH SEE ALSO
+.BR grafana-server (1),
 .BR pmerr (1),
 .BR pmlogger (1),
 .BR pmproxy (1),

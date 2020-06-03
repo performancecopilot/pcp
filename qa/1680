@@ -1,0 +1,71 @@
+#!/bin/sh
+# PCP QA Test No. 1680
+# Exercise the openvswitch PMDA - install, remove and values.
+#
+# Copyright (c) 2020 Ashwin Nayak.  All Rights Reserved.
+
+# Install openvswitch with:
+# sudo dnf install openvswitch
+# Enable connection:
+# sudo /usr/share/openvswitch/scripts/ovs-ctl start
+# Add a temp switch with:
+# sudo ovs-vsctl add-br myswitch
+# This switch can be removed by
+# sudo ovs-vsctl del-br myswitch
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -d $PCP_PMDAS_DIR/openvswitch ] || _notrun "openvswitch PMDA is not installed"
+which ovs-vsctl >/dev/null 2>&1 || _notrun "missing required ovs-vsctl command"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+pmdaopenvswitch_remove()
+{
+    echo
+    echo "=== remove openvswitch agent ==="
+    $sudo ./Remove >$tmp.out 2>&1
+    _filter_pmda_remove <$tmp.out
+}
+
+pmdaopenvswitch_install()
+{
+    # start from known starting points
+    cd $PCP_PMDAS_DIR/openvswitch
+    $sudo ./Remove >/dev/null 2>&1
+    _service pmcd stop | _filter_pcp_stop
+
+    echo
+    echo "=== openvswitch agent installation ==="
+    $sudo ./Install </dev/null >$tmp.out 2>&1
+    # Check metrics have appeared ... X metrics and Y values
+    _filter_pmda_install <$tmp.out \
+    | sed \
+        -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
+    | $PCP_AWK_PROG '
+/Check openvswitch metrics have appeared/  { if ($8 == "metrics") $7 = "X"
+                                             if ($11 == "values") $10 = "Y"
+                                           }
+/Info: Failed to get switch info/	   { next }
+                                           { print }'
+}
+
+_prepare_pmda openvswitch
+trap "_cleanup_pmda openvswitch; exit \$status" 0 1 2 3 15
+
+_stop_auto_restart pmcd
+
+# real QA test starts here
+pmdaopenvswitch_install
+pmdaopenvswitch_remove
+
+# QA test done
+status=0
+exit

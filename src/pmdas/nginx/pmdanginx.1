@@ -55,22 +55,38 @@ location /nginx_status {
 .PP
 Instrumentation availability can be verified using these
 commands (compile-time then run-time checks):
-.PP
-      # nginx -V 2>&1 | grep -o with-http_stub_status_module
-      # curl http://localhost/nginx_status
-.PP
+.sp 1
+.RS +4
+.ft B
+.nf
+# nginx -V 2>&1 | grep -o with-http_stub_status_module
+# curl http://localhost/nginx_status
+.fi
+.ft P
+.RE
+.sp 1
 Install the nginx \s-1PMDA\s0 by using the Install script as root:
-.PP
-      # cd $PCP_PMDAS_DIR/nginx
-.br
-      # ./Install
-.PP
-To uninstall, do the following as root:
-.PP
-      # cd $PCP_PMDAS_DIR/nginx
-.br
-      # ./Remove
-.PP
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/nginx
+# ./Install
+.fi
+.ft P
+.RE
+.sp 1
+To uninstall, the following must be done as root:
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/nginx
+# ./Remove
+.fi
+.ft P
+.RE
+.sp 1
 \fBpmdanginx\fR is launched by \fIpmcd\fR(1) and should never be executed
 directly. The Install and Remove scripts notify \fIpmcd\fR(1) when the
 agent is installed or removed.

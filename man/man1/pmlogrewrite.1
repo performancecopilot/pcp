@@ -1278,7 +1278,6 @@ except that it reassociates the selected label(s) with the instances of the spec
 instance domain.
 .RE
 .SH EXAMPLES
-.PP
 To promote the values of the per-disk IOPS metrics to 64-bit to
 allow aggregation over a long time period for capacity
 planning, or because the PMDA has changed to export 64-bit counters
@@ -1363,6 +1362,9 @@ instance writing the log suddenly dies), then
 .B pmlogrewrite
 will detect and report the position of the corruption in the file,
 and any subsequent information from that archive log will not be processed.
+.PP
+If the input archive contains no archive records then an ``empty archive''
+warning is issued and no processing is performed.
 .PP
 If any error is detected,
 .B pmlogrewrite

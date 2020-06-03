@@ -56,17 +56,28 @@ webgroups_lookup(pmWebGroupModule *module)
 }
 
 static void
+webgroup_release_context(uv_handle_t *handle)
+{
+    struct context	*context = (struct context *)handle->data;
+
+    if (pmDebugOptions.http)
+	fprintf(stderr, "releasing context %p\n", context);
+
+    pmwebapi_free_context(context);
+}
+
+static void
 webgroup_destroy_context(struct context *context, struct webgroups *groups)
 {
     context->garbage = 1;
 
     if (pmDebugOptions.http)
-	fprintf(stderr, "freeing context %p\n", context);
+	fprintf(stderr, "destroying context %p\n", context);
 
     uv_timer_stop(&context->timer);
     if (groups)
 	dictUnlink(groups->contexts, &context->randomid);
-    pmwebapi_free_context(context);
+    uv_close((uv_handle_t *)&context->timer, webgroup_release_context);
 }
 
 static void
@@ -1570,7 +1581,9 @@ webgroup_scrape(pmWebGroupSettings *settings, context_t *cp,
 		    if (metric->labels == NULL)
 			pmwebapi_metric_hash(metric);
 		    scrape_metric_labelsets(metric, &labels);
-		    settings->callbacks.on_scrape_labels(cp->origin, &labels, arg);
+		    if (settings->callbacks.on_scrape_labels)
+			settings->callbacks.on_scrape_labels(
+					cp->origin, &labels, arg);
 		    scrape.metric.labels = labels.buffer;
 
 		    settings->callbacks.on_scrape(cp->origin, &scrape, arg);
@@ -1594,7 +1607,9 @@ webgroup_scrape(pmWebGroupSettings *settings, context_t *cp,
 		    if (instance->labels == NULL)
 			pmwebapi_instance_hash(indom, instance);
 		    scrape_instance_labelsets(metric, indom, instance, &labels);
-		    settings->callbacks.on_scrape_labels(cp->origin, &labels, arg);
+		    if (settings->callbacks.on_scrape_labels)
+			settings->callbacks.on_scrape_labels(
+					cp->origin, &labels, arg);
 		    scrape.instance.labels = labels.buffer;
 
 		    settings->callbacks.on_scrape(cp->origin, &scrape, arg);

@@ -16,11 +16,10 @@ require {
 	type pcp_log_t;
 	type pcp_pmie_t;
 	type pcp_pmproxy_t;
-	type pcp_pmmgr_t;
 	type pcp_tmp_t;
-        type pcp_pmwebd_t;
 	type pcp_pmie_exec_t; # pmda.summary
 	type ping_exec_t; # pmda.netcheck
+	type openvswitch_exec_t; # pmda.openvswitch
 	type websm_port_t; # pmda.openmetrics
         type system_cronjob_t;
         type user_home_t;
@@ -319,17 +318,6 @@ allow pcp_pmproxy_t sysctl_net_t:file { getattr open read };
 #RHBZ1517656
 allow pcp_pmproxy_t proc_net_t:file read;
 
-#============= pcp_pmmgr_t ==============
-
-#type=AVC msg=audit(YYY.73): avc:  denied  { name_bind } for  pid=13114 comm="pmlogger" src=4332 scontext=system_u:system_r:pcp_pmmgr_t:s0 tcontext=system_u:object_r:unreserved_port_t:s0 tclass=tcp_socket permissive=0
-@PCP_UNRESERVED_PORT_RULE_PMMGR@
-
-#type=AVC msg=audit(XXX.64): avc:  denied  { execute execute_no_trans open read getattr } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmmgr_t:s0 tcontext=system_u:object_r:ldconfig_exec_t:s0 tclass=file permissive=0
-allow pcp_pmmgr_t ldconfig_exec_t:file { execute execute_no_trans open read getattr };
-
-#type=AVC msg=audit(XXX.69): avc:  denied  { dac_override } for  pid=3767 comm="pmmgr" capability=1  scontext=system_u:system_r:pcp_pmmgr_t:s0 tcontext=system_u:system_r:pcp_pmmgr_t:s0 tclass=capability permissive=0
-allow pcp_pmmgr_t self:capability dac_override;
-
 #============= pmda-smart ==============
 
 #type=AVC msg=audit(YYY.75): avc:  denied  { read } for  pid=8678 comm="sh" name="smartctl" dev="dm-1" ino=2249815 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:fsadm_exec_t:s0 tclass=file permissive=1
@@ -360,6 +348,10 @@ allow pcp_pmcd_t self:capability sys_rawio;
 #type=AVC msg=audit(YYY.90): avc:  denied  { write } for  pid=30922 comm="python3" name="libvirt-sock-ro" dev="tmpfs" ino=25845 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:virt_var_run_t:s0 tclass=sock_file permissive=0
 @PCP_VIRT_VAR_RUN_RULE@
 
+#============= pmda-openvswitch ==============
+#type=AVC msg=audit(YYY.96): avc: denied { execute } for pid=3248485 comm="sh" name="ovs-vsctl" dev="dm-0" ino=2403822 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:openvswitch_exec_t:s0 tclass=file permissive=0
+allow pcp_pmcd_t openvswitch_exec_t:file { execute execute_no_trans };
+
 #============= pmda-netcheck ==============
 allow pcp_pmcd_t ping_exec_t:file { execute execute_no_trans @PCP_HOSTNAME_EXEC_MAP@ };
 allow pcp_pmcd_t self:capability net_raw;
@@ -372,9 +364,7 @@ allow pcp_pmcd_t self:process setcap;
 files_read_all_files(pcp_pmcd_t)
 files_read_all_files(pcp_pmie_t)
 files_read_all_files(pcp_pmlogger_t)
-files_read_all_files(pcp_pmmgr_t)
 files_read_all_files(pcp_pmproxy_t)
-files_read_all_files(pcp_pmwebd_t)
 
 allow pcp_domain file_type:fifo_file read_fifo_file_perms;
 

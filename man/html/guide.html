@@ -58,7 +58,7 @@
 <a name="install"></a>
 <H1>Installation</H1>
 
-<P>PCP is available on all recent Linux distribution releases, including Debian/Fedora/RHEL/SUSE/Ubuntu. For other operating systems and distributions you might want to consider installation <A HREF="https://pcp.io/source.html">from sources</A>.
+<P>PCP is available on all recent Linux distribution releases, including Debian/Fedora/RHEL/SUSE/Ubuntu. For other operating systems and distributions you might want to consider installation <A HREF="https://github.com/performancecopilot/pcp/blob/master/INSTALL.md">from sources</A>.
 
 <a name="collectors"></a>
 <H3>Installing Collector Hosts</H3>
@@ -112,17 +112,12 @@
 <a name="discovery"></a>
 <H3>Dynamic Host Discovery</H3>
 
-<P>In dynamic environments manually configuring every host is not feasible, perhaps even impossible. PCP Manager (<a href="http://man7.org/linux/man-pages/man1/pmmgr.1.html">pmmgr(1)</a>, from the pcp-manager package) can be used instead of directly invoking pmlogger to auto-discover and auto-configure new collector hosts.
+<P>In dynamic environments manually configuring every host is not feasible, perhaps even impossible. The discovery service (<a href="http://man7.org/linux/man-pages/man1/pmfind.1.html">pmfind(1)</a> can be used to auto-discover and auto-configure new collector hosts and containers for logging and/or rule inference.
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
-	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To install the PMMGR daemon and begin monitoring either statically or dynamically configured hosts, run:<br><B>
-<br> # yum install pcp-manager # or apt-get or dnf or zypper
-<br> # systemctl enable pmmgr
-<br> # echo acme.com >> /etc/pcp/pmmgr/target-host
-<br> # echo avahi >> /etc/pcp/pmmgr/target-discovery
-<br> # echo probe=<FONT COLOR="#cc0000">ip.addr.tup.le/netmask</FONT> >> /etc/pcp/pmmgr/target-discovery
-<br> # systemctl restart pmmgr
-<br> # find /var/log/pcp/pmmgr
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To install pmfind to begin monitoring discovered metric sources, run:<br><B>
+<br> # systemctl enable pmfind
+<br> # systemctl restart pmfind
 </B></TD></TR>
 </TABLE>
 
@@ -151,7 +146,7 @@ Performance Co-Pilot configuration on munch:
       pmie: /var/log/pcp/pmie/munch/pmie.log
 </PRE>
 <B>
-<BR> $ <a href="http://man7.org/linux/man-pages/man1/pcp.1.html">pcp</a> -a /var/log/pcp/pmlogger/<FONT COLOR="#cc0000">smash</FONT>/20140729</B><PRE>
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pcp.1.html">pcp</a> -a /var/log/pcp/pmlogger/<FONT COLOR="#cc0000">smash</FONT>/20190909</B><PRE>
 Performance Co-Pilot configuration on smash:
    archive: /var/log/pcp/pmlogger/smash/20190909
   platform: Linux smash 2.6.32-279.46.1.el6.x86_64 #1 SMP Mon May 19 16:16:00 EDT 2014 x86_64
@@ -612,7 +607,7 @@ Define a derived metric on the command line and monitor it with standard metrics
 <CENTER>
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0>
 	<TR> <TD WIDTH="50%"><P>Copyright &copy; 2007-2010 <A HREF="https://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A><BR>Copyright &copy; 2000-2004 <A HREF="https://www.sgi.com/"><FONT COLOR="#000060">Silicon Graphics Inc</FONT></A></P></TD>
-       <TD WIDTH="50%"><P ALIGN=RIGHT><A HREF="https://pcp.io/"><FONT COLOR="#000060">PCP Site</FONT></A><BR>Copyright &copy; 2012-2019 <A HREF="https://www.redhat.com/"><FONT COLOR="#000060">Red Hat</FONT></A></P></TD> </TR>
+       <TD WIDTH="50%"><P ALIGN=RIGHT><A HREF="https://pcp.io/"><FONT COLOR="#000060">PCP Site</FONT></A><BR>Copyright &copy; 2012-2020 <A HREF="https://www.redhat.com/"><FONT COLOR="#000060">Red Hat</FONT></A></P></TD> </TR>
 </TABLE>
 </CENTER>
 </BODY>

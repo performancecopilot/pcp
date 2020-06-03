@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2019 Red Hat.
+# Copyright (c) 2012-2020 Red Hat.
 # Copyright (c) 2000,2004,2012 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -82,7 +82,6 @@ OTHER_SUBDIRS = \
 	pmlogsize \
 	pmlogsummary \
 	pmlogcheck \
-	pmmgr \
 	pmpost \
 	pmproxy \
 	pmquery \

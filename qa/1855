@@ -22,12 +22,6 @@ $PCP_BINADM_DIR/telnet-probe -c localhost $port || \
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 
-pmdarabbitmq_cleanup()
-{
-    cd $here
-    $sudo rm -rf $tmp $tmp.*
-}
-
 pmdarabbitmq_remove()
 {
     echo
@@ -54,14 +48,14 @@ pmdarabbitmq_install()
 /Check rabbitmq metrics have appeared/  { if ($7 == 57) $7 = "X"
                                           if ($10 % 57 == 0) $10 = "Y"
                                         }
+/Info: Failed to get info from rabbitmq/ { next }
                                         { print }'
 }
 
 _prepare_pmda rabbitmq
-trap "pmdarabbitmq_cleanup; exit \$status" 0 1 2 3 15
+trap "_cleanup_pmda rabbitmq; exit \$status" 0 1 2 3 15
 
 _stop_auto_restart pmcd
-
 
 # real QA test starts here
 pmdarabbitmq_install

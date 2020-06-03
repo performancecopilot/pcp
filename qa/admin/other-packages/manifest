@@ -1091,7 +1091,7 @@ dpkg?	/usr/share/doc/python-requests|/usr/share/doc/packages/python-requests	[py
 dpkg?	/usr/lib/python2.*/dist-packages/requests	[python-requests (QA optional)]
 dpkg?	/usr/lib/python3/dist-packages/requests	[python3-requests (QA optional)]
 rpm?	/usr/lib*/python2.*/*-packages/requests	[python-requests or python2-requests (QA optional)]
-rpm?	/usr/lib*/python3.*/*-packages/requests	[python3-requests (QA optional)]
+rpm?	/usr/lib*/python3.*/*-packages/requests	[python3-requests or python36-requests(QA optional)]
 urpmi?	/usr/share/doc/python*-requests*|/usr/share/doc/packages/python*-requests	[python-requests (QA optional)]
 emerge?	/usr/lib/python3.*/*-packages/requests	[dev-python/requests (QA optional)]
 pkgin?	/usr/pkg/lib/python3.*/*-packages/requests/utils.py	[py36-requests (QA optional)]
@@ -1442,7 +1442,7 @@ pacman?		pluginviewer		[core/libsasl (QA optional)]
 brew?		pluginviewer		[N/A (QA optional)]
 # -- selinux policy
 rpm?		seinfo			[setools-console or setools (build optional)]
-rpm?    /usr/share/selinux/devel/Makefile [selinux-policy-devel or selinux-policy (build optional)]
+rpm?    /usr/share/selinux/devel/Makefile [selinux-policy-devel (build optional)]
 rpm?    /etc/selinux/targeted/policy	 [selinux-policy-targeted (build optional)]
 # -- systemtap
 dpkg?		dtrace		[systemtap-sdt-dev (build optional)]

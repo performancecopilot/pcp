@@ -1964,8 +1964,10 @@ pmDiscoverSetup(pmDiscoverModule *module, pmDiscoverCallBacks *cbs, void *arg)
 
     if (access(logdir, F_OK) == 0) {
 	sts = pmDiscoverRegister(logdir, module, cbs, arg);
-	if ((data->handle = sts) >= 0)
+	if (sts >= 0) {
+	    data->handle = sts;
 	    return 0;
+	}
     }
     return -ESRCH;
 }

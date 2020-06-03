@@ -9,7 +9,7 @@ pmcd.labels
 == Bad global label
 
 pmcd.labels
-    labels {"agent":"pmcd","hostname":"HOSTNAME"}
+    labels {"agent":"pmcd","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","userid":UID}
     value ""
 
 == Empty global label

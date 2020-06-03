@@ -27,6 +27,11 @@
 typedef struct perf_event_attr perf_event_attr_t;
 #endif
 
+#define INTEGRITY		"[integrity]"
+#define INTEGRITY_LEN		(sizeof("[integrity]")-1)
+#define CONFIDENTIALITY		"[confidentiality]"
+#define CONFIDENTIALITY_LEN	(sizeof("[confidentiality]")-1)
+
 static int _isDSO;
 static pmdaNameSpace *pmns;
 static char *username;
@@ -544,8 +549,10 @@ kvm_config(void)
     if ((fp = fopen(lockdown, "r")) == NULL)
 	return 0;
     while (fgets(buf, sizeof(buf), fp) != NULL) {
-	if ((p = strchr(buf, '[')) != NULL &&
-	    (strcmp(p, "[confidentiality]") != 0)) {
+	if ((p = strchr(buf, '[')) == NULL)
+	    continue;
+	if (strncmp(p, CONFIDENTIALITY, CONFIDENTIALITY_LEN) != 0 ||
+	    strncmp(p, INTEGRITY, INTEGRITY_LEN) != 0) {
 	    pmNotifyErr(LOG_INFO,
 		    "disabling KVM metrics: kernel running in lockdown mode");
 	    kernel_lockdown = 1;

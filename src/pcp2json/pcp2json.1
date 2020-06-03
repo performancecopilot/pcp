@@ -19,7 +19,7 @@
 \f3pcp2json\f1 \- pcp-to-json metrics exporter
 .SH SYNOPSIS
 \fBpcp2json\fP
-[\fB\-5CEGHIjLnrRvVxXz?\fP]
+[\fB\-5CEGHIjLmnrRvVxXz?\fP]
 [\fB\-4\fP \fIaction\fP]
 [\fB\-8\fP|\fB\-9\fP \fIlimit\fP]
 [\fB\-a\fP \fIarchive\fP]
@@ -130,7 +130,6 @@ option is recognized but ignored for
 .B pmrep.conf
 compatibility.
 .SS pcp2json specific options
-.PP
 extended (boolean)
 .RS 4
 Write extended information about metrics.
@@ -389,6 +388,9 @@ happens before instance ranking (when requested, see
 .BR \-J ).
 With this option the logic is inverted and ranking happens before
 live filtering.
+.TP
+\fB-m\fR
+include labels in the report.
 .TP
 \fB\-N\fR \fIpredicate\fR, \fB\-\-predicate\fR=\fIpredicate\fR
 Specify a comma-separated list of

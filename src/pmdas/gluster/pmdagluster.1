@@ -43,8 +43,8 @@ can report on the current status of profiling of each volume.
 # pminfo \(hyf gluster.volume.profile
 
 gluster.volume.profile
-    inst [0 or "gv0"] value 0
-    inst [1 or "gv1"] value 1
+\    inst [0 or "gv0"] value 0
+\    inst [1 or "gv1"] value 1
 
 # pmstore \(hyi "gv0" gluster.volume.profile 1
 gluster.volume.profile inst [0 or "gv0"] old value=0 new value=1
@@ -55,17 +55,28 @@ Further details on the gluster filesystem can be found at
 .BR http://www.gluster.org .
 .SH INSTALLATION
 Install the gluster PMDA by using the Install script as root:
-.PP
-      # cd $PCP_PMDAS_DIR/gluster
-.br
-      # ./Install
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/gluster
+# ./Install
+.fi
+.ft P
+.RE
+.sp 1
 .PP
 To uninstall, do the following as root:
-.PP
-      # cd $PCP_PMDAS_DIR/gluster
-.br
-      # ./Remove
-.PP
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/gluster
+# ./Remove
+.fi
+.ft P
+.RE
+.sp 1
 \fBpmdagluster\fR is launched by \fIpmcd\fR(1) and should never be executed
 directly. The Install and Remove scripts notify \fIpmcd\fR(1) when the
 agent is installed or removed.

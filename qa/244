@@ -125,8 +125,8 @@ _cleanup()
 	echo "Restart and ping pmcd ..."
 	unset PMCD_PORT
 	unset PMCD_SOCKET
-	_service pcp restart 2>&1 | _filter_pcp_start
 	_restore_auto_restart pmcd
+	_service pcp restart 2>&1 | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	pmprobe pmcd.control.debug

@@ -76,7 +76,7 @@ OTHERS = group qa_hosts.master README sanity.coverage \
 
 ifeq "$(ENABLE_SELINUX)" "true"
 SELINUX_PCPQA = pcpqa.te
-OTHERS += GNUselinuxdefs $(SELINUX_PCPQA)
+OTHERS += GNUselinuxdefs $(SELINUX_PCPQA).in $(SELINUX_PCPQA)
 else
 SELINUX_PCPQA =
 endif
@@ -140,6 +140,8 @@ pcpqa.te:	GNUselinuxdefs pcpqa.te.in
 	    -e 's+@PCP_LOGROTATE_T@+'$(PCP_LOGROTATE_T)'+' \
 	    -e 's+@PCP_LOGROTATE_RULE_1@+'$(PCP_LOGROTATE_RULE_1)'+' \
 	    -e 's+@PCP_LOGROTATE_RULE_2@+'$(PCP_LOGROTATE_RULE_2)'+' \
+	    -e 's+@PCP_FAILLOG_T@+'$(PCP_FAILLOG_T)'+' \
+	    -e 's+@PCP_FAILLOG_RULE@+'$(PCP_FAILLOG_RULE)'+' \
 	    -e 's+@PCP_NETLINK_AUDIT_SOCKET_CLASS@+'$(PCP_NETLINK_AUDIT_SOCKET_CLASS)'+' \
 	    -e 's+@PCP_NETLINK_AUDIT_SOCKET_RULE@+'$(PCP_NETLINK_AUDIT_SOCKET_RULE)'+' \
 	    -e 's+@PCP_NETLINK_SELINUX_SOCKET_CLASS@+'$(PCP_NETLINK_SELINUX_SOCKET_CLASS)'+' \

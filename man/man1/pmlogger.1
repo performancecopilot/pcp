@@ -1,7 +1,7 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
-.\" Copyright (c) 2014-2018 Red Hat.
+.\" Copyright (c) 2014-2020 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -465,9 +465,22 @@ meta characters
 .BR %Y%m%d.%H.%M ),
 otherwise
 .B pmlogger
-will exit because the archive files will already exit and
+will exit because the archive files will already exist and
 .B pmlogger
 will not over-write existing archive files.
+Note that
+.B SIGUSR2
+triggers
+.B pmlogger
+to re-exec itself and re-parse all original arguments.
+This means that any relative time limits placed on it's termination time
+or sampling limit are reset and begin again.
+This only affects relative termination times, not absolute times
+e.g.
+.B \-T 5s
+is affected, but
+.B \-T 5pm
+is not.
 .PP
 Historically the buffers for the current log may be flushed to disk using the
 \f3flush\f1 command of

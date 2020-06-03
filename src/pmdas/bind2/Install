@@ -22,8 +22,8 @@ iam=bind2
 perl_opt=true
 daemon_opt=false
 
-for module in Time::HiRes LWP::UserAgent XML::LibXML List::MoreUtils \
-              File::Spec::Functions File::Basename File::Slurp
+for module in Time::HiRes LWP::UserAgent XML::LibXML \
+              File::Spec::Functions File::Slurp
 do
     perl -e "use $module" 2>/dev/null 
     if test $? -ne 0

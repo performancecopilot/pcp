@@ -13,7 +13,7 @@
 
 # pylint: disable=bad-whitespace, line-too-long, too-many-return-statements
 # pylint: disable=broad-except, too-many-branches, too-many-statements, inconsistent-return-statements
-# pylint: disable=no-name-in-module, too-many-instance-attributes
+# pylint: disable=no-name-in-module, too-many-instance-attributes, c-extension-no-member
 
 """ Performance Metrics Domain Agent exporting rabbitmq metrics. """
 
@@ -26,6 +26,7 @@ from cpmapi import PM_SPACE_BYTE, PM_COUNT_ONE
 from cpmapi import PM_SEM_COUNTER, PM_SEM_INSTANT, PM_SEM_DISCRETE
 from cpmapi import PM_ERR_APPVERSION
 from cpmda import PMDA_FETCH_NOVALUES
+import cpmapi as c_api
 
 import requests
 try:
@@ -48,9 +49,10 @@ class RabbitmqPMDA(PMDA):
         self.port = DEFAULT_PORT
         self.url = None
         self.queue_names = []
-        self.stats = None
+        self.stats = dict()
         self.read_config()
         self.build_url()
+        self.rabbit_fetch()
 
         self.connect_pmcd()
 
@@ -130,6 +132,9 @@ class RabbitmqPMDA(PMDA):
                             self.queue_metrics[item][4])
 
         self.set_fetch_callback(self.rabbit_fetch_callback)
+        self.set_refresh(self.rabbitmq_refresh)
+        self.set_label(self.rabbitmq_label)
+        self.set_label_callback(self.rabbitmq_label_callback)
         self.set_user(PCP.pmGetConfig('PCP_USER'))
 
     def read_config(self):
@@ -155,34 +160,63 @@ class RabbitmqPMDA(PMDA):
 
     def rabbit_fetch(self):
         """ fetches result from HTTP GET request """
+        self.stats = dict()
+        self.queue_names = []
 
         try:
             temp = requests.get(self.url).json()
-            json_output = {}
-            queue_names = []
             for _, val in enumerate(temp):
-                json_output[val['name']] = val
-                queue_names.append(val['name'])
+                self.stats[val['name']] = val
+                self.queue_names.append(val['name'])
 
-            return json_output, queue_names
-        except Exception:
-            return None, []
+        except Exception as e:
+            self.log("Failed to get info from rabbitmq: %s" % (str(e)))
 
     def rabbitmq_instances(self):
         """ set names for rabbitmq instances """
         insts = []
-        _, queue_names = self.rabbit_fetch()
-        for idx, val in enumerate(queue_names):
+        for idx, val in enumerate(self.queue_names):
             insts.append(pmdaInstid(idx, val))
         self.add_indom(pmdaIndom(self.queue_indom, insts))
 
+    def rabbitmq_refresh(self, cluster):
+        """rabbitmq refresh function"""
+        if cluster == self.queue_cluster:
+            self.rabbit_fetch()
+            insts = []
+            for idx, val in enumerate(self.queue_names):
+                insts.append(pmdaInstid(idx, val))
+
+            self.replace_indom(self.queue_indom, insts)
+
+    def rabbitmq_label(self, ident, target):
+        '''
+        Return JSONB format labelset for identifier of given type, as a string
+        '''
+        if target == c_api.PM_LABEL_INDOM:
+            indom = ident
+            if indom == self.queue_indom:
+                ret = '"indom_name":"queue"'
+        else: # no labels added for PM_LABEL_{DOMAIN,CLUSTER,ITEM}
+            ret = '' # default is an empty labelset string
+
+        return '{%s}' % ret
+
+    def rabbitmq_label_callback(self, indom, inst):
+        '''
+        Return JSONB format labelset for an inst in given indom, as a string
+        '''
+        if indom == self.queue_indom:
+            ret = '"queue":"%s"' % (self.inst_name_lookup(self.queue_indom, inst))
+        else:
+            ret = ''
+
+        return '{%s}' % ret
+
     def rabbit_fetch_callback(self, cluster, item, inst):
         """ fetch callback method"""
-
-        self.stats, _ = self.rabbit_fetch()
-
         if cluster == self.queue_cluster:
-            if self.stats is None:
+            if len(self.stats) == 0:
                 return [PMDA_FETCH_NOVALUES]
             try:
                 queue = self.inst_name_lookup(self.queue_indom,inst)
@@ -301,7 +335,6 @@ class RabbitmqPMDA(PMDA):
                 if item == 56:
                     return [str(self.stats[queue]['arguments']),1]
             except Exception:
-                print('error in fetch')
                 return [PM_ERR_APPVERSION,0]
 
 if __name__ == '__main__':

@@ -994,23 +994,6 @@ gfs2_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 }
 
 /*
- * Enable all tracepoints by default on init
- */
-static void
-gfs2_tracepoints_init()
-{
-    FILE *fp;
-
-    fp = fopen("/sys/kernel/debug/tracing/events/gfs2/enable", "w");
-    if (!fp) {
-        fprintf(stderr, "Unable to automatically enable GFS2 tracepoints");
-    } else {
-        fprintf(fp, "%d\n", 1);
-        fclose(fp);
-    }
-}
-
-/*
  * Set default trace_pipe buffer size per cpu on init (32MB)
  */
 static void
@@ -1139,7 +1122,6 @@ gfs2_init(pmdaInterface *dp)
     pmdaInit(dp, indomtable, nindoms, metrictable, nmetrics);
 
     /* Set defaults */
-    gfs2_tracepoints_init(); /* Enables gfs2 tracepoints */
     gfs2_buffer_default_size_set(); /* Sets default buffer size */
     gfs2_ftrace_irq_info_set(); /* Disables irq-info output with trace_pipe */
 }

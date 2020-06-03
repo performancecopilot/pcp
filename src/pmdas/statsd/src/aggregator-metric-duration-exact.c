@@ -45,7 +45,7 @@ update_exact_duration_value(double value, struct exact_duration_collection* coll
     double** new_values = realloc(collection->values, sizeof(double*) * new_length);
     ALLOC_CHECK("Unable to allocate memory for collection value.");
     collection->values = new_values;
-    collection->values[collection->length] = (double*) malloc(sizeof(double*));
+    collection->values[collection->length] = (double*) malloc(sizeof(double));
     ALLOC_CHECK("Unable to allocate memory for duration collection value.");
     *(collection->values[collection->length]) = value;
     collection->length = new_length;

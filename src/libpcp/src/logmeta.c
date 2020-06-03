@@ -1321,6 +1321,7 @@ __pmLogLookupLabel(__pmArchCtl *acp, unsigned int type, unsigned int ident,
     __pmHashNode	*hp;
     __pmLogLabelSet	*ls;
 
+    type &= ~(PM_LABEL_COMPOUND|PM_LABEL_OPTIONAL);
     if ((hp = __pmHashSearch(type, &lcp->l_hashlabels)) == NULL)
 	return PM_ERR_NOLABELS;
 

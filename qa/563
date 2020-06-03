@@ -36,7 +36,7 @@ _cleanup()
     if $need_restore
     then
 	need_restore=false
-	$sudo rm -f $PCP_ETC_DIR/pcp/labels/*
+	$sudo rm -rf $PCP_ETC_DIR/pcp/labels/*
 	_restore_config $PCP_ETC_DIR/pcp/labels
 	_sighup_pmcd
     fi
@@ -56,7 +56,7 @@ _filter_labels()
 
 # real QA test starts here
 _save_config $PCP_ETC_DIR/pcp/labels
-$sudo rm -f $PCP_ETC_DIR/pcp/labels/*
+$sudo rm -f $PCP_ETC_DIR/pcp/labels/* $PCP_ETC_DIR/pcp/labels/optional/* 2>/dev/null
 _sighup_pmcd
 
 echo && echo == No global labels
@@ -105,9 +105,9 @@ pminfo -fl pmcd.labels | _filter_labels
 $sudo rm $PCP_ETC_DIR/pcp/labels/map.json
 
 echo && echo == Multiple global labels
-$sudo cp $tmp.simple $PCP_ETC_DIR/pcp/labels/simple.json
+$sudo cp $tmp.simple $PCP_ETC_DIR/pcp/labels/optional/simple.json
 $sudo cp $tmp.array $PCP_ETC_DIR/pcp/labels/array.json
-$sudo cp $tmp.map $PCP_ETC_DIR/pcp/labels/map.json
+$sudo cp $tmp.map $PCP_ETC_DIR/pcp/labels/optional/map.json
 _sighup_pmcd
 pminfo -fl pmcd.labels | _filter_labels
 

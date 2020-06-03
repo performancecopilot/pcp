@@ -140,18 +140,17 @@ testconfigs = [basic_parser_config, ragel_parser_config, duration_aggregation_ba
 def run_test():
     utils.pmdastatsd_remove()
     utils.setup_dbpmdarc()    
-    command = '(sleep 15;' + composed_command + '; cat) | sudo valgrind --trace-children=yes --leak-check=full --log-file=' + valgrind_out_path + ' dbpmda -i';
+    command = '(sleep 8;' + composed_command + '; cat) | sudo valgrind --trace-children=yes --leak-check=full --log-file=' + valgrind_out_path + ' dbpmda -i';
     for config in testconfigs:
         utils.print_test_section_separator()
         utils.set_config(config)
-        p = Popen(command, cwd=utils.pmdastatsd_dir, stdout=PIPE, stdin=PIPE, bufsize=1, close_fds=ON_POSIX, shell=True)
-        time.sleep(10)
+        p = Popen(command, cwd=utils.pmdastatsd_dir, stdout=PIPE, stdin=PIPE, bufsize=1, text=True, close_fds=ON_POSIX, shell=True)
+        time.sleep(4)
         # get pmdastatsdpid
         pmdastatsd_pid = utils.get_pmdastatsd_pids_ran_by_dbpmda()[0]
         # send payloads
         for payload in payloads:
            sock.sendto(payload.encode("utf-8"), (ip, port))
-        time.sleep(5)
         # wait to make sure the agent handles the payloads AND dbpmda gets delayed echo statements
         time.sleep(8)
         # trigger cleanup in agent by sending SIGINT

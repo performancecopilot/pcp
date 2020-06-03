@@ -21,3 +21,4 @@ _run_valgrind src/parsehostspec nas1.servers.com:44321@firewall.servers.com:4432
 _run_valgrind src/parsehostspec nas1.servers.com:44321@firewall.servers.com
 _run_valgrind src/parsehostspec nas1.servers.com@firewall.servers.com
 _run_valgrind src/parsehostspec nas1.servers.com:44321
+_run_valgrind src/parsehostspec '[fda4:caa0:9105:6d00:c06b:922:fae:9423]:44321'

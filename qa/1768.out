@@ -1,0 +1,13 @@
+QA output created by 1768
+Discovered host pcp://slick:44321 [243f90596d76cf23e8da47476ec452a2adbe0b32]
++ cp TMPDIR/243f90596d76cf23e8da47476ec452a2adbe0b32 PCP_SYSCONF_DIR/pmie/control.d/243f90596d76cf23e8da47476ec452a2adbe0b32
++ cp TMPDIR/243f90596d76cf23e8da47476ec452a2adbe0b32 PCP_SYSCONF_DIR/pmlogger/control.d/243f90596d76cf23e8da47476ec452a2adbe0b32
+Discovered host pcp://slack:44321 [8d00c4cf51d11bb9dced8a0e7507542653635377]
++ cp TMPDIR/8d00c4cf51d11bb9dced8a0e7507542653635377 PCP_SYSCONF_DIR/pmie/control.d/8d00c4cf51d11bb9dced8a0e7507542653635377
++ cp TMPDIR/8d00c4cf51d11bb9dced8a0e7507542653635377 PCP_SYSCONF_DIR/pmlogger/control.d/8d00c4cf51d11bb9dced8a0e7507542653635377
+Discovered host pcp://localhost:44321?container=b0cd2cc912a3 [7745e45ed37ca712f418ec7b871c04fc898b9276]
++ cp TMPDIR/7745e45ed37ca712f418ec7b871c04fc898b9276 PCP_SYSCONF_DIR/pmie/control.d/7745e45ed37ca712f418ec7b871c04fc898b9276
++ cp TMPDIR/7745e45ed37ca712f418ec7b871c04fc898b9276 PCP_SYSCONF_DIR/pmlogger/control.d/7745e45ed37ca712f418ec7b871c04fc898b9276
+Discovered host pcp://localhost:44321?container=77475e5fa09c [68dcffbdd4111d3ee82bb855286e3e35da828ca2]
++ cp TMPDIR/68dcffbdd4111d3ee82bb855286e3e35da828ca2 PCP_SYSCONF_DIR/pmie/control.d/68dcffbdd4111d3ee82bb855286e3e35da828ca2
++ cp TMPDIR/68dcffbdd4111d3ee82bb855286e3e35da828ca2 PCP_SYSCONF_DIR/pmlogger/control.d/68dcffbdd4111d3ee82bb855286e3e35da828ca2

@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2019 Red Hat.
+.\" Copyright (c) 2019-2020 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -17,6 +17,7 @@
 .SH NAME
 \f3PCPCompat\f1,
 \f3pcp-collectl\f1,
+\f3pmmgr\f1,
 \f3pmwebd\f1 \- backward-compatibility in the Performance Co-Pilot (PCP)
 .SH INTRODUCTION
 The Performance Co-Pilot (PCP) is a toolkit designed for monitoring
@@ -54,6 +55,25 @@ The version 1
 configuration file format (from IRIX) was also retired in this release,
 after more than 10 years of automatic transition to version 2 format by
 .BR pmlogconf .
+.SH PMMGR
+The standalone PCP daemon manager
+.B pmmgr
+has been retired from PCP v5.2.0 onward.
+It was phased out in favour of the simpler
+.BR pmfind (1)
+service for setting up
+.BR pmie (1)
+and
+.BR pmlogger (1)
+``farms'' of discovered PCP collector systems with
+.BR pmfind_check (1).
+The new mechanisms, especially when integrated with
+.BR systemd ,
+require no additional daemons and are better integrated with the
+.BR pmie
+and
+.BR pmlogger
+service management used elsewhere in PCP.
 .SH PCP-COLLECTL
 The
 .B pcp-collectl
@@ -133,9 +153,11 @@ services could use the scalable time series REST APIs described on
 .BR pcp (1),
 .BR pmcd (1),
 .BR pmrep (1),
+.BR pmfind (1),
+.BR pmfind_check (1),
+.BR pmlogconf (1),
 .BR pmproxy (1),
 .BR pmseries (1),
-.BR pmlogconf (1),
 .BR pmdabpftrace (1),
 .BR redis-server (1),
 .BR grafana-server (1)

@@ -58,10 +58,7 @@ HFILES		= linux.h linux_table.h convert.h namespaces.h \
 
 VERSION_SCRIPT	= exports
 HELPTARGETS	= help.dir help.pag
-CONFTARGETS	= linux_kernel_ulong.conf \
-		  linux_kernel_fixups.conf \
-		  proc_net_sockstat_deprecate.conf \
-		  proc_fs_nfsd_fixups.conf \
+CONFTARGETS	= kernel_ulong.conf
 
 LDIRT		= $(HELPTARGETS) domain.h $(VERSION_SCRIPT) $(CONFTARGETS)
 
@@ -84,6 +81,8 @@ build-me: $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS) $(CONFTARGETS)
 	    fi; \
 	fi
 
+# Note: pmlogrewrite configs are installed with linux_ prefix
+#
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 644 domain.h help $(HELPTARGETS) $(PMDADIR)
@@ -93,7 +92,9 @@ install: default
 	$(INSTALL) -m 644 proc_fs_nfsd_fixups.conf $(LOGREWRITEDIR)/linux_proc_fs_nfsd_fixups.conf
 	$(INSTALL) -m 644 proc_net_snmp_migrate.conf $(LOGREWRITEDIR)/linux_proc_net_snmp_migrate.conf
 	$(INSTALL) -m 644 proc_net_tcp_migrate.conf $(LOGREWRITEDIR)/linux_proc_net_tcp_migrate.conf
-	$(INSTALL) -m 644 linux_kernel_ulong.conf linux_kernel_fixups.conf $(LOGREWRITEDIR)
+	$(INSTALL) -m 644 disk_all_fixups.conf $(LOGREWRITEDIR)/linux_disk_all_fixups.conf
+	$(INSTALL) -m 644 kernel_fixups.conf $(LOGREWRITEDIR)/linux_kernel_fixups.conf
+	$(INSTALL) -m 644 kernel_ulong.conf $(LOGREWRITEDIR)/linux_kernel_ulong.conf
 else
 build-me:
 install:

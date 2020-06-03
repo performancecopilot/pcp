@@ -21,6 +21,7 @@ pmlogger.log
 webapi-pmcd-*
 webapi-webd-*
 check.time
+check.timings
 localconfig
 localconfig.h
 pcpqa.fc

@@ -333,7 +333,7 @@ cgroup1_mount_subsys(char *buffer, int length, const char *system, const char *s
  *
  * cgroups v2 kernel interface:
  * Life is easier - just find the cgroup2 filesystem mount point, as long
- * as we're not un 'unified' mode (in which case use v1 interface below).
+ * as we're not in 'unified' mode (in which case use v1 interface below).
  *
  * cgroups v1 kernel interface:
  * We must find this systems mount path for a cgroup subsystem that will
@@ -474,6 +474,17 @@ cgroup_name(const char *path, int offset)
     return name;
 }
 
+static const char *
+cgroup_basename(const char *cgroup)
+{
+    const char *p, *base = cgroup;
+
+    for (p = base; *p; p++)
+	if (*p == '/')
+	    base = p + 1;
+    return base;
+}
+
 static int
 check_refresh(const char *cgroup, const char *container, int container_length)
 {
@@ -484,7 +495,11 @@ check_refresh(const char *cgroup, const char *container, int container_length)
     if (container_length > 0) {
 	while (*cgroup == '/')
 	    cgroup++;	/* do not compare any leading slashes */
-	return (strncmp(cgroup, container, container_length) == 0);
+	if (strncmp(cgroup, container, container_length) == 0)
+	    return 1;
+	if (strncmp(cgroup_basename(cgroup), container, container_length) == 0)
+	    return 1;
+	return 0;
     }
     return 1;
 }

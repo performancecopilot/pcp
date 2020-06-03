@@ -19,7 +19,7 @@ _cleanup()
     if $need_restore
     then
 	need_restore=false
-	$sudo rm -f $PCP_ETC_DIR/pcp/labels/*
+	$sudo rm -rf $PCP_ETC_DIR/pcp/labels/*
 	_restore_config $PCP_ETC_DIR/pcp/labels
 	_sighup_pmcd
 	_wait_for_pmcd
@@ -43,8 +43,7 @@ _filter_labels()
 	-e "s,pmda_sample.$DSO_SUFFIX ,pmda_sample.dso ,g" \
 	-e 's/^[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9]*[0-9]/[TIMESTAMP]/' \
 	-e 's/Context labels ([0-9][0-9]* bytes)/Context labels (N bytes)/' \
-	-e '/.*name.* : value.*\[context]$/d' \
-	-e '/\[[1-6]].*context,compound/{
+	-e '/\[[1-6]].*context/{
 s/name([0-9][0-9]*,[0-9][0-9]*/name(I,J)/
 s/value([0-9][0-9]*,[0-9][0-9]*/value(K,L)/
 }' \
@@ -76,7 +75,7 @@ _service pmlogger stop | _filter_pcp_stop \
 
 # real QA test starts here
 _save_config $PCP_ETC_DIR/pcp/labels
-$sudo rm -f $PCP_ETC_DIR/pcp/labels/*
+$sudo rm -rf $PCP_ETC_DIR/pcp/labels/*
 echo "{\"ONE\":$seq}" > $tmp.1.$seq
 echo "{\"TWO\":$seq}" > $tmp.2.$seq
 $sudo mkdir $PCP_ETC_DIR/pcp/labels 2>/dev/null

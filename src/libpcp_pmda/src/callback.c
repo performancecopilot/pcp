@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014,2017-2019 Red Hat.
+ * Copyright (c) 2013-2014,2017-2020 Red Hat.
  * Copyright (c) 1995-2000 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -938,7 +938,6 @@ pmdaAddLabels(pmLabelSet **lsp, const char *fmt, ...)
     char		buf[PM_MAXLABELJSONLEN];
     va_list		arg;
     int			sts;
-    int			flags = PM_LABEL_COMPOUND;
 
     va_start(arg, fmt);
     sts = vsnprintf(buf, sizeof(buf), fmt, arg);
@@ -951,7 +950,7 @@ pmdaAddLabels(pmLabelSet **lsp, const char *fmt, ...)
     if (pmDebugOptions.labels)
 	fprintf(stderr, "pmdaAddLabels: %s\n", buf);
 
-    if ((sts = __pmAddLabels(lsp, buf, flags)) < 0) {
+    if ((sts = __pmAddLabels(lsp, buf, 0)) < 0) {
 	pmNotifyErr(LOG_ERR, "pmdaAddLabels: %s (%s)\n", buf,
 		pmErrStr_r(sts, errbuf, sizeof(errbuf)));
     }
@@ -968,7 +967,6 @@ pmdaAddNotes(pmLabelSet **lsp, const char *fmt, ...)
     char		errbuf[PM_MAXERRMSGLEN];
     char		buf[PM_MAXLABELJSONLEN];
     va_list		arg;
-    int			flags = PM_LABEL_COMPOUND | PM_LABEL_OPTIONAL;
     int			sts;
 
     va_start(arg, fmt);
@@ -982,7 +980,7 @@ pmdaAddNotes(pmLabelSet **lsp, const char *fmt, ...)
     if (pmDebugOptions.labels)
 	fprintf(stderr, "pmdaAddNotes: %s\n", buf);
 
-    if ((sts = __pmAddLabels(lsp, buf, flags)) < 0) {
+    if ((sts = __pmAddLabels(lsp, buf, PM_LABEL_OPTIONAL)) < 0) {
 	pmNotifyErr(LOG_ERR, "pmdaAddNotes: %s (%s)\n", buf,
 		pmErrStr_r(sts, errbuf, sizeof(errbuf)));
     }

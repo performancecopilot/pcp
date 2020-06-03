@@ -41,19 +41,27 @@ PMDA does not automatically enable any statistics collection
 because it may not be the only consumer of the data.
 .SH INSTALLATION
 Install the DM PMDA by using the Install script as root:
-.PP
-      \fB# cd $PCP_PMDAS_DIR/dm\fP
-(\fB$PCP_PMDAS_DIR\fP is usually
-.BR /var/lib/pcp/pmdas )
-.br
-      \fB# ./Install\fP
-.PP
-To uninstall, do the following as root:
-.PP
-      \fB# cd $PCP_PMDAS_DIR/dm\fP
-.br
-      \fB# ./Remove\fP
-.PP
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/dm
+# ./Install
+.fi
+.ft P
+.RE
+.sp 1
+To uninstall, the following must be done as root:
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/dm
+# ./Remove
+.fi
+.ft P
+.RE
+.sp 1
 .B pmdadm
 is launched by
 .BR pmcd (1)
@@ -173,31 +181,24 @@ The number of latency histogram bins configured for the area.
 .ft CW
 .nf
 .in
-    # dmstats create looptest0 --bounds 10us,30us,50us
-.br
-    looptest0: Created new region with 1 area(s) as region ID 0
-.PP
-    # pminfo -f dmstats.read dmstats.histogram.hist_count
-.br
-
-.br
-        dmstats.read
-.br
-            inst [0 or "looptest0"] value 4099
-.br
-
-.br
-        dmstats.histogram.hist_count
-.br
-            inst [0 or "looptest0:0:0s"] value 1
-.br
-            inst [1 or "looptest0:0:10us"] value 3752
-.br
-            inst [2 or "looptest0:0:30us"] value 250
-.br
-            inst [3 or "looptest0:0:50us"] value 96
+# dmstats create looptest0 --bounds 10us,30us,50us
+looptest0: Created new region with 1 area(s) as region ID 0
 .in
 .fi
+.PP
+.ft CW
+.in
+# pminfo -f dmstats.read dmstats.histogram.hist_count
+.P
+dmstats.read
+    inst [0 or "looptest0"] value 4099
+.P
+dmstats.histogram.hist_count
+    inst [0 or "looptest0:0:0s"] value 1
+    inst [1 or "looptest0:0:10us"] value 3752
+    inst [2 or "looptest0:0:30us"] value 250
+    inst [3 or "looptest0:0:50us"] value 96
+.ft 1
 .SH FILES
 .IP "\fB$PCP_PMDAS_DIR/dm/help\fR" 4
 default help text file for the dm metrics

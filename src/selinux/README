@@ -163,17 +163,14 @@ https://bugzilla.redhat.com/show_bug.cgi?id=1336211
 /etc/rc\.d/init\.d/pmcd                regular file       system_u:object_r:pcp_pmcd_initrc_exec_t:s0 
 /etc/rc\.d/init\.d/pmie                regular file       system_u:object_r:pcp_pmie_initrc_exec_t:s0 
 /etc/rc\.d/init\.d/pmlogger            regular file       system_u:object_r:pcp_pmlogger_initrc_exec_t:s0 
-/etc/rc\.d/init\.d/pmmgr               regular file       system_u:object_r:pcp_pmmgr_initrc_exec_t:s0 
 /etc/rc\.d/init\.d/pmproxy             regular file       system_u:object_r:pcp_pmproxy_initrc_exec_t:s0 
 /usr/bin/pmcd                          regular file       system_u:object_r:pcp_pmcd_exec_t:s0 
 /usr/bin/pmie                          regular file       system_u:object_r:pcp_pmie_exec_t:s0 
 /usr/bin/pmlogger                      regular file       system_u:object_r:pcp_pmlogger_exec_t:s0 
-/usr/bin/pmmgr                         regular file       system_u:object_r:pcp_pmmgr_exec_t:s0 
 /usr/bin/pmproxy                       regular file       system_u:object_r:pcp_pmproxy_exec_t:s0 
 /usr/libexec/pcp/bin/pmcd              regular file       system_u:object_r:pcp_pmcd_exec_t:s0 
 /usr/libexec/pcp/bin/pmie              regular file       system_u:object_r:pcp_pmie_exec_t:s0 
 /usr/libexec/pcp/bin/pmlogger          regular file       system_u:object_r:pcp_pmlogger_exec_t:s0 
-/usr/libexec/pcp/bin/pmmgr             regular file       system_u:object_r:pcp_pmmgr_exec_t:s0 
 /usr/libexec/pcp/bin/pmproxy           regular file       system_u:object_r:pcp_pmproxy_exec_t:s0 
 /usr/share/pcp/lib/pmie                regular file       system_u:object_r:pcp_pmie_exec_t:s0 
 /usr/share/pcp/lib/pmlogger            regular file       system_u:object_r:pcp_pmlogger_exec_t:s0

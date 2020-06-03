@@ -1,0 +1,61 @@
+name: CI
+on: [push]
+
+jobs:
+  qa:
+    name: ${{ matrix.platform }}-${{ matrix.runner }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {platform: ubuntu1804, runner: direct,    os: ubuntu-18.04}
+          - {platform: ubuntu2004, runner: container, os: ubuntu-latest}
+          - {platform: fedora33,   runner: container, os: ubuntu-latest}
+          - {platform: centos8,    runner: container, os: ubuntu-latest}
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+
+      - name: Setup
+        run: |
+          python3 -c 'import yaml' || pip3 install pyyaml
+          ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} setup
+
+      - name: Update packages
+        run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} task update
+
+      - name: Install build dependencies
+        run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} task builddeps
+
+      - name: Build
+        run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} task build
+
+      - name: Copy build artifacts
+        run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} getartifacts
+
+      - name: Publish build artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: build-${{ matrix.platform }}-${{ matrix.runner }}
+          path: ./artifacts/build
+
+      - name: Install
+        run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} task install
+
+      - name: Initialize QA
+        run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} task initqa
+
+      - name: QA
+        run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} task qa_sanity
+
+      - name: Copy test results
+        if: ${{ always() }}
+        run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} getartifacts
+
+      - name: Publish test results
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-${{ matrix.platform }}-${{ matrix.runner }}
+          path: ./artifacts/test

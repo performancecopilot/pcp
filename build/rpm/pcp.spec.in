@@ -53,7 +53,7 @@ BuildRequires: cyrus-sasl-devel
 %if "@enable_probes@" == "true"
 BuildRequires: systemtap-sdt-devel
 %endif
-%if "@enable_qt@" == "true" || "@enable_manager@" == "true"
+%if "@enable_qt@" == "true"
 BuildRequires: gcc-c++
 %endif
 %if "@enable_qt@" == "true"
@@ -108,6 +108,10 @@ Provides: pcp-pmda-kvm
 Obsoletes: pcp-webapi-debuginfo < 5.0.0
 Obsoletes: pcp-webapi < 5.0.0
 Provides: pcp-webapi
+
+# PCP discovery service now provided by pmfind
+Obsoletes: pcp-manager-debuginfo < 5.2.0
+Obsoletes: pcp-manager < 5.2.0
 
 # Utilities used indirectly e.g. by scripts we install
 Requires: bash xz gawk sed grep coreutils findutils
@@ -305,7 +309,7 @@ Requires: pcp-pmda-lustrecomm pcp-pmda-redis pcp-pmda-docker pcp-pmda-smart
 %if "@have_python@" == "true"
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
 Requires: pcp-pmda-haproxy pcp-pmda-nfsclient pcp-pmda-lmsensors
-Requires: pcp-pmda-netcheck pcp-pmda-rabbitmq
+Requires: pcp-pmda-netcheck pcp-pmda-rabbitmq pcp-pmda-openvswitch
 %endif
 %if "@pmda_podman@" == "true"
 Requires: pcp-pmda-podman
@@ -371,29 +375,19 @@ Requires: pcp-system-tools
 Requires: pcp-gui
 %endif
 Requires: gcc bc bzip2 gzip
+%if "@enable_selinux@" == "true"
+Requires: selinux-policy-devel
+Requires: selinux-policy-targeted
+%if 0%{?fedora} >= 19 || 0%{?rhel} >= 6 || 0%{?suse_version} >= 1200
+Requires: setools-console
+%else
+Requires: setools
+%endif
+%endif
 
 %description testsuite
 Quality assurance test suite for Performance Co-Pilot (PCP).
 # end testsuite
-
-%if "@enable_manager@" == "true"
-#
-# pcp-manager
-#
-%package manager
-License: GPLv2+
-Summary: Performance Co-Pilot (PCP) manager daemon
-URL: https://pcp.io
-Requires: pcp = @package_version@ pcp-libs = @package_version@
-
-%description manager
-An optional daemon (pmmgr) that manages a collection of pmlogger and
-pmie daemons, for a set of discovered local and remote hosts running
-the performance metrics collection daemon (pmcd).  It ensures these
-daemons are running when appropriate, and manages their log rotation
-needs.  It is an alternative to the cron-based pmlogger/pmie service
-scripts.
-%endif
 
 %if "@have_perl@" == "true"
 #
@@ -1658,6 +1652,24 @@ collecting metrics from simple network checks.
 # end pcp-pmda-netcheck
 
 #
+# pcp-pmda-openvswitch
+#
+%package pmda-openvswitch
+License: GPLv2+
+Summary: Performance Co-Pilot (PCP) metrics for RabbitMQ queues
+URL: https://pcp.io
+Requires: pcp = @package_version@ pcp-libs = @package_version@
+%if "@enable_python3@" == "true"
+Requires: python3-pcp
+%else
+Requires: %{__python2}-pcp
+%endif
+%description pmda-openvswitch
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics about RabbitMQ message queues.
+#end pcp-pmda-openvswitch
+
+#
 # pcp-pmda-rabbitmq
 #
 %package pmda-rabbitmq
@@ -2061,7 +2073,10 @@ URL: https://pcp.io
 Requires: pcp pcp-doc pcp-system-tools
 Requires: pcp-pmda-dm
 %if "@have_python@" == "true"
-Requires: pcp-pmda-nfsclient pcp-pmda-openmetrics
+Requires: pcp-pmda-nfsclient
+%endif
+%if "@pmda_openmetrics@" == "true"
+Requires: pcp-pmda-openmetrics
 %endif
 %description zeroconf
 This package contains configuration tweaks and files to increase metrics
@@ -2106,8 +2121,7 @@ LIBFILELIST=`ls -1 $BACKDIR/debian/lib*.{install,dirs} | fgrep -v -- -dev.`
 DEVFILELIST=`ls -1 $BACKDIR/debian/lib*-dev.{install,dirs}`
 
 #
-# Package split: pcp{-conf,-libs,-libs-devel,-manager,-testsuite,
-# -import-*,-export-*} ...
+# Package split: pcp{-conf,-libs,-libs-devel,-testsuite,-import-*,-export-*}...
 # The above list is ordered by file selection; files for each package are
 # removed from a global set, then the base package catches all remaining.
 sed -e 's/^/\//' $CFGFILELIST >cfg_files
@@ -2150,6 +2164,7 @@ etc/sysconfig/pmcd
 etc/sysconfig/pmproxy
 etc/sysconfig/pmlogger
 etc/cron.d/pcp-pmie
+etc/cron.d/pcp-pmfind
 etc/cron.d/pcp-pmlogger
 etc/cron.d/pcp-pmlogger-daily-report
 pmcd/pmcd.conf
@@ -2161,11 +2176,6 @@ pmlogger/control
 pmproxy/pmproxy.options
 pmproxy/pmproxy.conf
 EOF
-%if "@enable_manager@" == "true"
-cat >>conf_files <<MGREOF
-etc/pcp/pmmgr
-MGREOF
-%endif
 %if "@enable_qt@" == "true"
 cat >>conf_files <<GUIEOF
 pmsnap/control
@@ -2197,10 +2207,6 @@ awk '{print $NF}' $DIST_MANIFEST | egrep 'testsuite|etc/systemd/system' >testsui
 %if "@enable_qt@" == "true"
 PCP_GUI='pmchart|pmconfirm|pmdumptext|pmmessage|pmquery|pmsnap|pmtime'
 awk '{print $NF}' $DIST_MANIFEST | egrep "$PCP_GUI|applications|pixmaps|hicolor" | egrep -v '/pcp-doc/|/man/|pmtime.h' > gui_files
-%endif
-%if "@enable_manager@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep 'pmmgr' | \
-egrep -v 'testsuite|etc/systemd/system' >manager_files
 %endif
 %if "@have_perl@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep 'sar2pcp' >import_sar2pcp_files
@@ -2325,6 +2331,7 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/lmsensors' > pmda_lmsensors_f
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/mssql' > pmda_mssql_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/netcheck' > pmda_netcheck_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/nfsclient' > pmda_nfsclient_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/openvswitch' > pmda_openvswitch_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/rabbitmq' > pmda_rabbitmq_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmiostat|pmrep|dstat|pcp2csv' \
       -e 'pcp-atop|pcp-dmcache|pcp-dstat|pcp-free|pcp-ipcs' \
@@ -2353,13 +2360,14 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/trace' > pmda_trace_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/weblog' > pmda_weblog_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'zeroconf|daily[-_]report|/sa$' > zeroconf_files
 
-touch gui_files manager_files pmda_infiniband_files \
+touch gui_files pmda_infiniband_files \
       pmda_perfevent_files pmda_podman_files pmda_statsd_files \
       pmda_bonding_files pmda_dbping_files pmda_pdns_files \
       pmda_ds389_files pmda_ds389log_files pmda_gpfs_files \
       pmda_gpsd_files pmda_lustre_files pmda_lustrecomm_files \
       pmda_memcache_files pmda_named_files pmda_redis_files pmda_docker_files \
       pmda_netfilter_files pmda_news_files pmda_logger_files \
+      pmda_openvswitch_files \
       pmda_rsyslog_files pmda_samba_files pmda_slurm_files pmda_rabbitmq_files \
       pmda_vmware_files pmda_zimbra_files pmda_apache_files pmda_bash_files \
       pmda_cifs_files pmda_cisco_files pmda_gfs2_files pmda_mic_files \
@@ -2384,7 +2392,6 @@ BEGIN {
     while( getline < "libs_files") lib[$0]=1;
     while( getline < "dev_files") dev[$0]=1;
     while( getline < "lib_devel_files") libdev[$0]=1;
-    while( getline < "manager_files") manager[$0]=1;
     while( getline < "testsuite_files") testsuite[$0]=1;
     while( getline < "pmda_dm_files") pmda_dm[$0]=1;
     while( getline < "pmda_lustrecomm_files") pmda_lustrecomm[$0]=1;
@@ -2466,6 +2473,7 @@ BEGIN {
     while( getline < "pmda_mssql_files") pmda_mssql[$0]=1;
     while( getline < "pmda_netcheck_files") pmda_netcheck[$0]=1;
     while( getline < "pmda_nfsclient_files") pmda_nfsclient[$0]=1;
+    while( getline < "pmda_openvswitch_files") pmda_openvswitch[$0]=1;
     while( getline < "pmda_rabbitmq_files") pmda_rabbitmq[$0]=1;
     while( getline < "export_pcp2graphite_files") export_pcp2graphite[$0]=1;
     while( getline < "export_pcp2json_files") export_pcp2json[$0]=1;
@@ -2539,7 +2547,6 @@ BEGIN {
     else if (lib[$NF]) f="libs_files.rpm";
     else if (dev[$NF]) f="dev_files.rpm";
     else if (libdev[$NF]) f="lib_devel_files.rpm";
-    else if (manager[$NF]) f="manager_files.rpm";
     else if (testsuite[$NF]) f="testsuite_files.rpm";
     else if (pmda_dm[$NF]) f="pmda_dm_files.rpm";
     else if (pmda_lustrecomm[$NF]) f="pmda_lustrecomm_files.rpm";
@@ -2621,6 +2628,7 @@ BEGIN {
     else if (pmda_mssql[$NF]) f="pmda_mssql_files.rpm";
     else if (pmda_netcheck[$NF]) f="pmda_netcheck_files.rpm";
     else if (pmda_nfsclient[$NF]) f="pmda_nfsclient_files.rpm";
+    else if (pmda_openvswitch[$NF]) f="pmda_openvswitch_files.rpm";
     else if (pmda_rabbitmq[$NF]) f="pmda_rabbitmq_files.rpm";
     else if (export_pcp2graphite[$NF]) f="export_pcp2graphite_files.rpm";
     else if (export_pcp2json[$NF]) f="export_pcp2json_files.rpm";
@@ -2694,11 +2702,7 @@ $1 == "f" && $6 ~ "pmdapostgresql.conf"   { printf ("%%%%config(noreplace) ") >>
 $1 == "f" {
 	    for (i=0; i < nconf; i++) {
 		if ($6 ~ conf[i]) {
-		    if ($6 ~ "pmmgr") {
-			printf ("%%%%config(noreplace,missingok) ") >> f;
-		    } else {
-			printf ("%%%%config(noreplace) ") >> f;
-		    }
+		    printf ("%%%%config(noreplace) ") >> f;
 		    break;
 		}
 	    }
@@ -2737,29 +2741,6 @@ getent group pcp >/dev/null || groupadd -r pcp
 getent passwd pcp >/dev/null || \
     useradd -c "Performance Co-Pilot" -g pcp -d @pcp_var_dir@ -M -r -s /sbin/nologin pcp
 exit 0
-
-%if "@enable_manager@" == "true"
-%preun manager
-if [ "$1" -eq 0 ]
-then
-    %if "@enable_systemd@" == "true"
-	systemctl --no-reload disable pmmgr.service >/dev/null 2>&1
-	systemctl stop pmmgr.service >/dev/null 2>&1
-    %else
-	/sbin/service pmmgr stop >/dev/null 2>&1
-	/sbin/chkconfig --del pmmgr >/dev/null 2>&1
-    %endif
-fi
-
-%post manager
-chown -R pcp:pcp "$PCP_LOG_DIR/pmmgr" 2>/dev/null
-%if "@enable_systemd@" == "true"
-    systemctl condrestart pmmgr.service >/dev/null 2>&1
-%else
-    /sbin/chkconfig --add pmmgr >/dev/null 2>&1
-    /sbin/service pmmgr condrestart
-%endif
-%endif
 
 %post zeroconf
 PCP_PMDAS_DIR=@pcp_pmdas_dir@
@@ -3004,6 +2985,9 @@ pmieconf -c enable dmthin
 %preun pmda-nfsclient
 %{pmda_remove "$1" "nfsclient"}
 
+%preun pmda-openvswitch
+%{pmda_remove "$1" "openvswitch"}
+
 %preun pmda-rabbitmq
 %{pmda_remove "$1" "rabbitmq"}
 %endif
@@ -3073,11 +3057,13 @@ then
     # stop daemons before erasing the package
     %if "@enable_systemd@" == "true"
         %systemd_preun pmlogger.service
+	%systemd_preun pmfind.service
 	%systemd_preun pmie.service
 	%systemd_preun pmproxy.service
 	%systemd_preun pmcd.service
 
 	systemctl stop pmlogger.service >/dev/null 2>&1
+	systemctl stop pmfind.service >/dev/null 2>&1
 	systemctl stop pmie.service >/dev/null 2>&1
 	systemctl stop pmproxy.service >/dev/null 2>&1
 	systemctl stop pmcd.service >/dev/null 2>&1
@@ -3161,10 +3147,6 @@ chown -R pcp:pcp "$PCP_LOG_DIR/pmproxy" 2>/dev/null
 
 %if "@enable_qt@" == "true"
 %files gui -f gui_files.rpm
-%endif
-
-%if "@enable_manager@" == "true"
-%files manager -f manager_files.rpm
 %endif
 
 %files testsuite -f testsuite_files.rpm
@@ -3296,6 +3278,8 @@ chown -R pcp:pcp "$PCP_LOG_DIR/pmproxy" 2>/dev/null
 %files pmda-netcheck -f pmda_netcheck_files.rpm
 
 %files pmda-nfsclient -f pmda_nfsclient_files.rpm
+
+%files pmda-openvswitch -f pmda_openvswitch_files.rpm
 
 %files pmda-rabbitmq -f pmda_rabbitmq_files.rpm
 

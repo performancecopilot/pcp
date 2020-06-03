@@ -24,17 +24,27 @@ Unlike many PMDAs it dynamically enumerates its metric hierarchy,
 based entirely on the contents of /sys/kernel/debug/kvm.
 .SH INSTALLATION
 Install the kvm PMDA by using the Install script as root:
-.PP
-      # cd $PCP_PMDAS_DIR/kvm
-.br
-      # ./Install
-.PP
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/kvm
+# ./Install
+.fi
+.ft P
+.RE
+.sp 1
 To uninstall, do the following as root:
-.PP
-      # cd $PCP_PMDAS_DIR/kvm
-.br
-      # ./Remove
-.PP
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/kvm
+# ./Remove
+.fi
+.ft P
+.RE
+.sp 1
 \fBpmdakvm\fR is launched by \fIpmcd\fR(1) and should never be executed
 directly. The Install and Remove scripts notify \fIpmcd\fR(1) when the
 agent is installed or removed.

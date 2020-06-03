@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014,2017-2019 Red Hat.
+ * Copyright (c) 2012-2014,2017-2020 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -385,7 +385,7 @@ GetContextLabels(ClientInfo *cp, pmLabelSet **sets)
     static char		machineid[MAXMACHINEIDLEN];
     char		buf[PM_MAXLABELJSONLEN];
     char		*hostname;
-    int			sts, flags = PM_LABEL_COMPOUND | PM_LABEL_CONTEXT;
+    int			sts, flags;
 
     if ((sts = GetChangedContextLabels(sets, &labelChanged)) >= 0) {
 	if ((hostname = pmcd_hostname) == NULL) {
@@ -427,24 +427,29 @@ GetContextLabels(ClientInfo *cp, pmLabelSet **sets)
 			(const char *)node->data : NULL);
 
 	sts = pmsprintf(buf, sizeof(buf), "{\"hostname\":\"%s\"", hostname);
+	if (container)
+	    sts += pmsprintf(buf+sts, sizeof(buf)-sts, ",\"container\":\"%s\"",
+			    container);
 	if (domain[0] != '\0')
 	    sts += pmsprintf(buf+sts, sizeof(buf)-sts, ",\"domainname\":\"%s\"",
 			    domain);
 	if (machineid[0] != '\0')
 	    sts += pmsprintf(buf+sts, sizeof(buf)-sts, ",\"machineid\":\"%s\"",
 			    machineid);
-	if (userid)
-	    sts += pmsprintf(buf+sts, sizeof(buf)-sts, ",\"userid\":%s",
-			    userid);
-	if (groupid)
-	    sts += pmsprintf(buf+sts, sizeof(buf)-sts, ",\"groupid\":%s",
-			    groupid);
-	if (container)
-	    sts += pmsprintf(buf+sts, sizeof(buf)-sts, ",\"container\":%s",
-			    container);
 	pmsprintf(buf+sts, sizeof(buf)-sts, "}");
-	if ((sts = __pmAddLabels(sets, buf, flags)) > 0)
-	    return 1;
+
+	flags = PM_LABEL_CONTEXT;
+	if ((sts = __pmAddLabels(sets, buf, flags)) <= 0)
+	    return sts;
+
+	flags |= PM_LABEL_OPTIONAL;
+	if (userid && groupid) {
+	    pmsprintf(buf, sizeof(buf), "{\"groupid\":%s,\"userid\":%s}",
+					groupid, userid);
+	    if ((sts = __pmAddLabels(sets, buf, flags)) <= 0)
+		return sts;
+	}
+	return 1;
     }
     return sts;
 }

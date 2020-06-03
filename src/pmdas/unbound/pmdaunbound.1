@@ -32,17 +32,28 @@ Further details on the Unbound DNS resolver can be found at
 .BR https://unbound.net/ .
 .SH INSTALLATION
 Install the Unbound PMDA by using the Install script as root:
-.PP
-      # cd $PCP_PMDAS_DIR/unbound
-.br
-      # ./Install
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/unbound
+# ./Install
+.fi
+.ft P
+.RE
+.sp 1
 .PP
 To uninstall, do the following as root:
-.PP
-      # cd $PCP_PMDAS_DIR/unbound
-.br
-      # ./Remove
-.PP
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/unbound
+# ./Remove
+.fi
+.ft P
+.RE
+.sp 1
 \fBpmdaunbound\fR is launched by \fIpmcd\fR(1) and should never be executed
 directly. The Install and Remove scripts notify \fIpmcd\fR(1) when the
 agent is installed or removed.

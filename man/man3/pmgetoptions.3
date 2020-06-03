@@ -23,7 +23,6 @@
 .ft 3
 #include <pcp/pmapi.h>
 .sp
-.br
 int pmgetopt_r(int \fIargc\fP, char *const *\fIargv\fP, pmOptions *\fIopts\fP);
 .br
 int pmGetOptions(int \fIargc\fP, char *const *\fIargv\fP, pmOptions *\fIopts\fP);
@@ -403,7 +402,6 @@ parameter (which mimics the
 .B getopt
 variable of the same name).
 .SH "OPTIONS VIA ENVIRONMENT VARIABLES"
-.PP
 Some environment variables may be used as an alternative to the
 command line options.
 The use of these mechanisms is primarily
@@ -426,28 +424,24 @@ Environment	Short	Long	Meaning
 	Option	Option
 _
 $PCP_ALIGN_TIME	\-A	--align	T{
-.fi
 .hy 0
 .ad l
 align sample times on natural boundaries
 T}
 _
 $PCP_ARCHIVE	\-a	--archive	T{
-.fi
 .hy 0
 .ad l
 metrics source is a PCP archive
 T}
 _
 $PCP_ARCHIVE_LIST		--archive-list	T{
-.fi
 .hy 0
 .ad l
 comma-separated list of metric source archives
 T}
 _
 $PCP_FOLIO		--archive-folio	T{
-.fi
 .hy 0
 .ad l
 metric source is a
@@ -456,7 +450,6 @@ archives folio
 T}
 _
 $PCP_DEBUG	\-D	--debug	T{
-.fi
 .hy 0
 .ad l
 a comma-separated list of
@@ -465,7 +458,6 @@ debugging options
 T}
 _
 $PCP_GUIMODE	\-g	--guimode	T{
-.fi
 .hy 0
 .ad l
 start in GUI mode with new
@@ -474,7 +466,6 @@ time control
 T}
 _
 $PCP_HOST	\-h	--host	T{
-.fi
 .hy 0
 .ad l
 metrics source is
@@ -483,14 +474,12 @@ on a host
 T}
 _
 $PCP_HOST_LIST		--host-list	T{
-.fi
 .hy 0
 .ad l
 comma-separated list of metric source hosts
 T}
 _
 $PCP_SPECLOCAL	\-K	--spec-local	T{
-.fi
 .hy 0
 .ad l
 optional additional DSO PMDA specification for local connection,
@@ -499,28 +488,24 @@ see
 T}
 _
 T{
-.fi
 .hy 0
 .ad l
 $PCP_LOCALPMDA
 \fRor\fP
 $PCP_LOCALMODE
 T}	\-L	--local-PMDA	T{
-.fi
 .hy 0
 .ad l
 metrics source is local connection to a DSO PMDA
 T}
 _
 $PCP_NAMESPACE	\-n	--namespace	T{
-.fi
 .hy 0
 .ad l
 use an alternative Performance Metrics Name Space (PMNS)
 T}
 _
 $PCP_UNIQNAMES	\-N	--uniqnames	T{
-.fi
 .hy 0
 .ad l
 like
@@ -529,21 +514,18 @@ but only one name allowed for each metric in the PMNS
 T}
 _
 T{
-.fi
 .hy 0
 .ad l
 $PCP_ORIGIN
 \fRor\fP
 $ORIGIN_TIME
 T}	\-O	--origin	T{
-.fi
 .hy 0
 .ad l
 initial sample time within the time window
 T}
 _
 $PCP_GUIPORT	\-p	--guiport	T{
-.fi
 .hy 0
 .ad l
 port for connection to an existing
@@ -552,42 +534,36 @@ time control
 T}
 _
 $PCP_START_TIME	\-S	--start	T{
-.fi
 .hy 0
 .ad l
 start of the time window
 T}
 _
 $PCP_SAMPLES	\-s	--samples	T{
-.fi
 .hy 0
 .ad l
 terminate after this many samples
 T}
 _
 $PCP_FINISH_TIME	\-T	--finish	T{
-.fi
 .hy 0
 .ad l
 end of the time window
 T}
 _
 $PCP_INTERVAL	\-t	--interval	T{
-.fi
 .hy 0
 .ad l
 sampling interval
 T}
 _
 $PCP_TIMEZONE	\-Z	--timezone	T{
-.fi
 .hy 0
 .ad l
 set reporting timezone
 T}
 _
 $PCP_HOSTZONE	\-z	--hostzone	T{
-.fi
 .hy 0
 .ad l
 set reporting timezone to local time of metrics source

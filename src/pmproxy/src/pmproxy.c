@@ -359,7 +359,6 @@ main(int argc, char *argv[])
 	 */
 	char	newlogfile[MAXPATHLEN];
 	char	pbuf[11];	/* enough for a 32-bit pid */
-	char	*p = logfile;
 	char	*pend = NULL;
 
 	snprintf(pbuf, sizeof(pbuf), ".%" FMT_PID, (pid_t)getpid());
@@ -373,6 +372,8 @@ main(int argc, char *argv[])
 	    /* stitch name together ... <pre>.<post> -> <pre>.<pid>.<post> */
 	    char	*q = newlogfile;
 	    char	*r = pbuf;
+	    char	*p;
+
 	    for (p = logfile; p < pend; ) 	/* <pre> */
 		*q++ = *p++;
 	    while (*r)				/* .<pid> */
@@ -425,6 +426,8 @@ main(int argc, char *argv[])
 			"Warning", maxpending, getenv("PMPROXY_MAXPENDING"));
 
     if (run_mode == RUN_DAEMON || run_mode == RUN_SYSTEMD) {
+	/* notify service manager, if any, we are ready */
+	__pmServerNotifyServiceManagerReady(mainpid);
 	if (__pmServerCreatePIDFile(PM_SERVER_PROXY_SPEC, PM_FATAL_ERR) < 0)
 	    DontStart();
 	if (pmSetProcessIdentity(username) < 0)
@@ -442,9 +445,6 @@ main(int argc, char *argv[])
 #endif
     server->dumpports(stderr, info);
     fflush(stderr);
-
-    /* notify service manager, if any, we are ready */
-    __pmServerNotifyServiceManagerReady(mainpid);
 
     /* Loop processing client connections and server responses */
     server->loop(info);

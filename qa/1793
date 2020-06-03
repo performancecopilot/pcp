@@ -1,0 +1,63 @@
+#!/bin/sh
+# PCP QA Test No. 1793
+# Test pmrep and pcp2xxx labels handling
+#
+# Copyright (c) 2020 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.python
+. ./common.config
+
+which pmrep >/dev/null 2>&1 || _notrun pmrep not installed
+$python -c "from collections import OrderedDict" >/dev/null 2>&1  || _notrun no OrderedDict
+
+_filter()
+{
+    sed -e 's/'`hostname`'/HOSTNAME/g' -e s/\'/\"/g | pmjson |\
+    sed -e 's/^[\{\}]$//' -e '/^$/d' -e 's/,$//' | LC_COLLATE=POSIX sort
+}
+
+status=1       # failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+mkdir -p $tmp
+
+echo === check pmrep writing an archive with labels | tee -a $seq.full
+pmrep -m -t1 -s2 -o archive -F $tmp/pmrep_sample_colour sample.colour >> $seq.full 2>&1
+pmdumplog -e $tmp/pmrep_sample_colour | _filter_pmdumplog |\
+    grep -e 'Domain.*labels' -e 'Cluster.*labels' -e 'InDom.*labels' | tee -a $seq.full
+
+echo === check pmrep replaying an archive with labels | tee -a $seq.full
+pmrep -m -w 1024 -s1 -i "red" -a $tmp/pmrep_sample_colour sample.colour | \
+    tee -a $seq.full | grep '{' | $PCP_AWK_PROG '{print $1}' | _filter
+
+echo === check pcp2json replaying an archive with labels | tee -a $seq.full
+pcp2json -m -s1 -a $tmp/pmrep_sample_colour sample.colour | \
+    tee -a $seq.full | grep '@labels' | $PCP_AWK_PROG '{print $2}' | \
+    sed -e s/\'/\"/g -e 's/,$//' -e 's/^"//' -e 's/"$//' | _filter
+
+echo === check pcp2csv replaying an archive with labels | tee -a $seq.full
+pcp2csv -m -s1 -a $tmp/pmrep_sample_colour sample.colour | \
+    tee -a $seq.full | grep '{' | $PCP_AWK_PROG '{print $1}' | tee -a $seq.full |\
+    sed -e "s/^.*agent/{'agent/" -e 's/;/,/g' -e 's/"$//' | _filter
+
+echo === check pmrep outputting labels live | tee -a $seq.full
+pmrep -m -w 1024 -s1 -i "red" sample.colour | \
+    tee -a $seq.full | grep '{' | $PCP_AWK_PROG '{print $1}' | tee -a $seq.full |\
+    sed -e "s/^.*agent/{'agent/" | _filter
+
+echo === check pcp2csv outputting labels live | tee -a $seq.full
+pcp2csv -m -s1 sample.colour | \
+    tee -a $seq.full | grep '{' | $PCP_AWK_PROG '{print $1}' | tee -a $seq.full |\
+    sed -e "s/^.*agent/{'agent/" -e 's/;/,/g' -e 's/"$//' | _filter
+
+# success, all done
+echo "== done"
+status=0
+exit

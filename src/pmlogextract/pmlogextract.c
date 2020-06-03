@@ -391,6 +391,7 @@ skip_metric(pmID pmid)
 	    fprintf(stderr, "skip_metric: Error: cannot realloc %ld bytes for skip_ml[]\n",
 		    (long)skip_ml_numpmid*sizeof(pmID));
 	    abandon_extract();
+	    /*NOTREACHED*/
 	} else {
 	    skip_ml = skip_ml_tmp;
 	    skip_ml[skip_ml_numpmid-1] = pmid;
@@ -444,6 +445,7 @@ newvolume(char *base, pmTimeval *tvp)
 	fprintf(stderr, "%s: Error: volume %d: %s\n",
 		pmGetProgname(), nextvol, pmErrStr(-oserror()));
 	abandon_extract();
+	/*NOTREACHED*/
     }
     flushsize = 100000;
 }
@@ -457,43 +459,73 @@ static void
 newlabel(void)
 {
     int		indx;
+    inarch_t	*f_iap = NULL;		/* first non-empty archive */
+    inarch_t	*l_iap = NULL;		/* last non-empty archive */
     inarch_t	*iap;
     __pmLogLabel	*lp = &logctl.l_label;
 
-    /* set outarch to inarch[0] to start off with */
-    iap = &inarch[0];
+    /*
+     * set outarch to inarch[indx] of first non-empty archive to start
+     * off with ... there must be at least one of these if we get
+     * this far
+     */
+    for (indx=0; indx<inarchnum; indx++) {
+	if (inarch[indx].ctx != PM_ERR_NODATA) {
+	    f_iap = &inarch[indx];
+	    break;
+	}
+    }
+    if (f_iap == NULL) {
+	fprintf(stderr, "Botch: no non-empty archive\n");
+	abandon_extract();
+	/*NOTREACHED*/
+    }
 
     /* check version number */
-    inarchvers = iap->label.ll_magic & 0xff;
+    inarchvers = f_iap->label.ll_magic & 0xff;
     outarchvers = inarchvers;
 
     if (inarchvers != PM_LOG_VERS02) {
 	fprintf(stderr,"%s: Error: illegal version number %d in archive (%s)\n",
-		pmGetProgname(), inarchvers, iap->name);
+		pmGetProgname(), inarchvers, f_iap->name);
 	abandon_extract();
+	/*NOTREACHED*/
     }
 
     /* copy magic number, pid, host and timezone */
-    lp->ill_magic = iap->label.ll_magic;
+    lp->ill_magic = f_iap->label.ll_magic;
     lp->ill_pid = (int)getpid();
-    strncpy(lp->ill_hostname, iap->label.ll_hostname, PM_LOG_MAXHOSTLEN);
+    strncpy(lp->ill_hostname, f_iap->label.ll_hostname, PM_LOG_MAXHOSTLEN);
     lp->ill_hostname[PM_LOG_MAXHOSTLEN-1] = '\0';
     if (farg) {
 	/*
-	 * use timezone from first archive ... this is the OLD default
+	 * use timezone from _first_ non-empty archive ...
+	 * this is the OLD default
 	 */
-	strcpy(lp->ill_tz, iap->label.ll_tz);
+	strcpy(lp->ill_tz, f_iap->label.ll_tz);
     }
     else {
 	/*
-	 * use timezone from last archive ... this is the NEW default
+	 * use timezone from the _last_ non-empty archive ...
+	 * this is the NEW default
 	 */
-	strcpy(lp->ill_tz, inarch[inarchnum-1].label.ll_tz);
+	for (indx=inarchnum-1; indx>=0; indx--) {
+	    if (inarch[indx].ctx != PM_ERR_NODATA) {
+		l_iap = &inarch[indx];
+		strcpy(lp->ill_tz, l_iap->label.ll_tz);
+		break;
+	    }
+	}
     }
 
     /* reset outarch as appropriate, depending on other input archives */
     for (indx=0; indx<inarchnum; indx++) {
 	iap = &inarch[indx];
+	
+	if (iap->ctx == PM_ERR_NODATA) {
+	    /* empty input archive, nothing to check here ... */
+	    continue;
+	}
 
 	/* Ensure all archives of the same version number */
         if ((iap->label.ll_magic & 0xff) != inarchvers) {
@@ -501,9 +533,10 @@ newlabel(void)
 		"%s: Error: input archives with different version numbers\n"
 		"archive: %s version: %d\n"
 		"archive: %s version: %d\n",
-		    pmGetProgname(), inarch[0].name, inarchvers,
+		    pmGetProgname(), f_iap->name, inarchvers,
 		    iap->name, (iap->label.ll_magic & 0xff));
 	    abandon_extract();
+	    /*NOTREACHED*/
         }
 
 	/* Ensure all archives of the same host */
@@ -511,10 +544,11 @@ newlabel(void)
 	    fprintf(stderr,"%s: Error: host name mismatch for input archives\n",
 		    pmGetProgname());
 	    fprintf(stderr, "archive: %s host: %s\n",
-		    inarch[0].name, inarch[0].label.ll_hostname);
+		    f_iap->name, f_iap->label.ll_hostname);
 	    fprintf(stderr, "archive: %s host: %s\n",
 		    iap->name, iap->label.ll_hostname);
 	    abandon_extract();
+	    /*NOTREACHED*/
 	}
 
 	/* Ensure all archives of the same timezone */
@@ -522,18 +556,10 @@ newlabel(void)
 	    fprintf(stderr,
 		"%s: Warning: timezone mismatch for input archives\n",
 		    pmGetProgname());
-	    if (farg) {
-		fprintf(stderr, "archive: %s timezone: %s [will be used]\n",
-		    inarch[0].name, lp->ill_tz);
-		fprintf(stderr, "archive: %s timezone: %s [will be ignored]\n",
-		    iap->name, iap->label.ll_tz);
-	    }
-	    else {
-		fprintf(stderr, "archive: %s timezone: %s [will be used]\n",
-		    inarch[inarchnum-1].name, lp->ill_tz);
-		fprintf(stderr, "archive: %s timezone: %s [will be ignored]\n",
-		    iap->name, iap->label.ll_tz);
-	    }
+	    fprintf(stderr, "archive: %s timezone: %s [will be used]\n",
+		farg ? f_iap->name : l_iap->name, lp->ill_tz);
+	    fprintf(stderr, "archive: %s timezone: %s [will be ignored]\n",
+		iap->name, iap->label.ll_tz);
 	}
     } /*for(indx)*/
 }
@@ -591,6 +617,7 @@ mk_reclist_t(void)
 	fprintf(stderr, "%s: Error: cannot malloc space for record list.\n",
 		pmGetProgname());
 	abandon_extract();
+	/*NOTREACHED*/
     }
     if (pmDebugOptions.appl1) {
         totalmalloc += sizeof(reclist_t);
@@ -617,6 +644,7 @@ add_reclist_t(reclist_t *rec)
 	fprintf(stderr, "%s: Error: cannot realloc space for record list.\n",
 		pmGetProgname());
 	abandon_extract();
+	/*NOTREACHED*/
     }
     if (pmDebugOptions.appl1) {
 	totalmalloc += sizeof(reclist_t);
@@ -651,6 +679,7 @@ findnadd_indomreclist(int indom)
 	fprintf(stderr, "%s: Error: cannot add to indom hash table.\n",
 		pmGetProgname());
 	abandon_extract();
+	/*NOTREACHED*/
     }
 }
 
@@ -693,6 +722,7 @@ update_descreclist(int indx)
 		fprintf(stderr, " to %s!\n", pmIDStr(pmid));
 		if (xarg == 0)
 		    abandon_extract();
+		    /*NOTREACHED*/
 		else
 		    skip_metric(curr->desc.pmid);
 	    }
@@ -721,6 +751,7 @@ update_descreclist(int indx)
 	    fprintf(stderr, "%s: Error: cannot add to desc hash table.\n",
 		    pmGetProgname());
 	    abandon_extract();
+	    /*NOTREACHED*/
 	}
     } else {
 	curr = (reclist_t *)hp->data;
@@ -753,6 +784,7 @@ update_descreclist(int indx)
 	    fprintf(stderr, "!\n");
 	    if (xarg == 0)
 		abandon_extract();
+		/*NOTREACHED*/
 	    else
 		skip_metric(curr->desc.pmid);
 	}
@@ -765,6 +797,7 @@ update_descreclist(int indx)
 	    fprintf(stderr, " to %s!\n", pmTypeStr(ntohl(iap->pb[META][3])));
 	    if (xarg == 0)
 		abandon_extract();
+		/*NOTREACHED*/
 	    else
 		skip_metric(curr->desc.pmid);
 	}
@@ -777,6 +810,7 @@ update_descreclist(int indx)
 	    fprintf(stderr, " to %s!\n", pmInDomStr(ntoh_pmInDom(iap->pb[META][4])));
 	    if (xarg == 0)
 		abandon_extract();
+		/*NOTREACHED*/
 	    else
 		skip_metric(curr->desc.pmid);
 	}
@@ -792,6 +826,7 @@ update_descreclist(int indx)
 	    fprintf(stderr, "!\n");
 	    if (xarg == 0)
 		abandon_extract();
+		/*NOTREACHED*/
 	    else
 		skip_metric(curr->desc.pmid);
 	}
@@ -811,6 +846,7 @@ update_descreclist(int indx)
 	    fprintf(stderr, " to %s!\n", pmUnitsStr(&pmu));
 	    if (xarg == 0)
 		abandon_extract();
+		/*NOTREACHED*/
 	    else
 		skip_metric(curr->desc.pmid);
 	}
@@ -850,6 +886,7 @@ append_indomreclist(int indx)
 	    fprintf(stderr, "%s: Error: cannot add to indom hash table.\n",
 		    pmGetProgname());
 	    abandon_extract();
+	    /*NOTREACHED*/
 	}
     } else {
 	curr = (reclist_t *)hp->data;
@@ -907,6 +944,7 @@ append_labelsetreclist(int i)
 	    fprintf(stderr, "%s: Error: cannot malloc space for hash table.\n",
 		    pmGetProgname());
 	    abandon_extract();
+	    /*NOTREACHED*/
 	}
 	__pmHashInit(hash2);
 
@@ -915,6 +953,7 @@ append_labelsetreclist(int i)
 	    fprintf(stderr, "%s: Error: cannot add secondary hash table.\n",
 		    pmGetProgname());
 	    abandon_extract();
+	    /*NOTREACHED*/
 	}
     }
     else
@@ -930,6 +969,7 @@ append_labelsetreclist(int i)
 	fprintf(stderr, "%s: Error: cannot add label set record.\n",
 		pmGetProgname());
 	abandon_extract();
+	/*NOTREACHED*/
     }
 
     iap->pb[META] = NULL;
@@ -1065,6 +1105,7 @@ append_textreclist(int i)
 	    fprintf(stderr, "%s: Error: cannot add to help text hash table.\n",
 		    pmGetProgname());
 	    abandon_extract();
+	    /*NOTREACHED*/
 	}
     }
 
@@ -1089,6 +1130,7 @@ write_rec(reclist_t *rec)
 	    fprintf(stderr, "%s: Fatal Error!\n", pmGetProgname());
 	    fprintf(stderr,"    record is marked for write, but pdu is NULL\n");
 	    abandon_extract();
+	    /*NOTREACHED*/
 	}
 
 	if (pmDebugOptions.logmeta) {
@@ -1194,6 +1236,7 @@ write_rec(reclist_t *rec)
 	    fprintf(stderr, "%s: Error: _pmLogPut: meta data : %s\n",
 		    pmGetProgname(), pmErrStr(sts));
 	    abandon_extract();
+	    /*NOTREACHED*/
 	}
 	/* META: free PDU buffer */
 	free(rec->pdu);
@@ -1390,6 +1433,7 @@ write_metareclist(pmResult *result, int *needti)
 	    /* descriptor has not been found - this is bad */
 	    fprintf(stderr, "%s: Error: meta data (TYPE_DESC) for pmid %s has not been found.\n", pmGetProgname(), pmIDStr(pmid));
 	    abandon_extract();
+	    /*NOTREACHED*/
 	} else {
 	    curr_desc = (reclist_t *)hp->data;
 	    /* descriptor has been found */
@@ -1408,6 +1452,7 @@ write_metareclist(pmResult *result, int *needti)
 		fprintf(stderr, "%s: Error: missing pdu for pmid %s\n",
 			pmGetProgname(), pmIDStr(pmid));
 	        abandon_extract();
+		/*NOTREACHED*/
 	    }
 	    else {
 		/*
@@ -1502,6 +1547,7 @@ _createmark(void)
 	fprintf(stderr, "%s: Error: mark_t malloc: %s\n",
 		pmGetProgname(), osstrerror());
 	abandon_extract();
+	/*NOTREACHED*/
     }
     if (pmDebugOptions.appl1) {
         totalmalloc += sizeof(mark_t);
@@ -1566,10 +1612,12 @@ nextmeta(void)
 	    fprintf(stderr, "%s: Fatal Error!\n", pmGetProgname());
 	    fprintf(stderr, "    iap->pb[META] is not NULL\n");
 	    abandon_extract();
+	    /*NOTREACHED*/
 	}
 	if ((ctxp = __pmHandleToPtr(iap->ctx)) == NULL) {
 	    fprintf(stderr, "%s: botch: __pmHandleToPtr(%d) returns NULL!\n", pmGetProgname(), iap->ctx);
 	    abandon_extract();
+	    /*NOTREACHED*/
 	}
 	/* Need to hold c_lock for _pmLogGet() */
 
@@ -1595,6 +1643,7 @@ againmeta:
 			pmGetProgname(), iap->name, pmErrStr(sts));
 		_report(lcp->l_mdfp);
 		abandon_extract();
+		/*NOTREACHED*/
 	    }
 	    PM_UNLOCK(ctxp->c_lock);
 	    continue;
@@ -1749,7 +1798,7 @@ againmeta:
 		    fprintf(stderr, "%s: Error: invalid label set type: %d\n",
 			    pmGetProgname(), type);
 		    abandon_extract();
-		    break;
+		    /*NOTREACHED*/
 		}
 	    }
 
@@ -1802,7 +1851,7 @@ againmeta:
 		    fprintf(stderr, "%s: Error: invalid text type: %d\n",
 			    pmGetProgname(), type);
 		    abandon_extract();
-		    break;
+		    /*NOTREACHED*/
 		}
 	    }
 
@@ -1824,6 +1873,7 @@ againmeta:
 	    fprintf(stderr, "%s: Error: unrecognised meta data type: %d\n",
 		    pmGetProgname(), type);
 	    abandon_extract();
+	    /*NOTREACHED*/
 	}
 
 	PM_UNLOCK(ctxp->c_lock);
@@ -1873,6 +1923,7 @@ nextlog(void)
 	if ((ctxp = __pmHandleToPtr(iap->ctx)) == NULL) {
 	    fprintf(stderr, "%s: botch: __pmHandleToPtr(%d) returns NULL!\n", pmGetProgname(), iap->ctx);
 	    abandon_extract();
+	    /*NOTREACHED*/
 	}
 	/* Need to hold c_lock for __pmLogRead_ctx() */
 	acp = ctxp->c_archctl;
@@ -1885,6 +1936,7 @@ againlog:
 		_report(acp->ac_mfp);
 		if (sts != PM_ERR_LOGREC)
 		    abandon_extract();
+		    /*NOTREACHED*/
 	    }
 	    /*
 	     * if the first data record has not been written out, then
@@ -2233,6 +2285,7 @@ checkwinend(pmTimeval now)
 	fprintf(stderr, "%s: Error: __pmLogPutResult2: log data: %s\n",
 		pmGetProgname(), pmErrStr(sts));
 	abandon_extract();
+	/*NOTREACHED*/
     }
     written++;
     free(markpdu);
@@ -2300,6 +2353,7 @@ fprintf(stderr, " break!\n");
 	    fprintf(stderr, "%s: Error: __pmEncodeResult: %s\n",
 		    pmGetProgname(), pmErrStr(sts));
 	    abandon_extract();
+	    /*NOTREACHED*/
 	}
 
         /* switch volumes if required */
@@ -2328,6 +2382,7 @@ fprintf(stderr, " break!\n");
 	    fprintf(stderr, "%s: Error: __pmLogPutResult2: log data: %s\n",
 		    pmGetProgname(), pmErrStr(sts));
 	    abandon_extract();
+	    /*NOTREACHED*/
 	}
 	written++;
 
@@ -2401,12 +2456,14 @@ writemark(inarch_t *iap)
 	fprintf(stderr, "%s: Fatal Error!\n", pmGetProgname());
 	fprintf(stderr, "    writemark called, but mark not set\n");
 	abandon_extract();
+	/*NOTREACHED*/
     }
 
     if (p == NULL) {
 	fprintf(stderr, "%s: Fatal Error!\n", pmGetProgname());
 	fprintf(stderr, "    writemark called, but no pdu\n");
 	abandon_extract();
+	/*NOTREACHED*/
     }
 
     p->timestamp.tv_sec = htonl(p->timestamp.tv_sec);
@@ -2416,6 +2473,7 @@ writemark(inarch_t *iap)
 	fprintf(stderr, "%s: Error: __pmLogPutResult2: log data: %s\n",
 		pmGetProgname(), pmErrStr(sts));
 	abandon_extract();
+	/*NOTREACHED*/
     }
     written++;
     free(iap->pb[LOG]);
@@ -2472,6 +2530,7 @@ main(int argc, char **argv)
     int		sts;
     int		stslog;			/* sts from nextlog() */
     int		stsmeta;		/* sts from nextmeta() */
+    int		nempty = 0;		/* number of empty input archives */
 
     char	*msg;
 
@@ -2484,7 +2543,6 @@ main(int argc, char **argv)
     rlist_t	*rlready = NULL;	/* results ready for writing */
 
     struct timeval	unused;
-
 
     __pmHashInit(&rdesc);	/* hash of meta desc records to write */
     __pmHashInit(&rindom);	/* hash of meta indom records to write */
@@ -2509,7 +2567,6 @@ main(int argc, char **argv)
 	pmUsageMessage(&opts);
 	exit(1);
     }
-
 
     /* input  archive names are argv[opts.optind] ... argv[argc-2]) */
     /* output archive name  is  argv[argc-1]) */
@@ -2547,9 +2604,18 @@ main(int argc, char **argv)
 	iap->_Nresult = NULL;
 
 	if ((iap->ctx = pmNewContext(PM_CONTEXT_ARCHIVE, iap->name)) < 0) {
-	    fprintf(stderr, "%s: Error: cannot open archive \"%s\": %s\n",
-		    pmGetProgname(), iap->name, pmErrStr(iap->ctx));
-	    exit(1);
+	    if (iap->ctx == PM_ERR_NODATA) {
+		fprintf(stderr, "%s: Warning: empty archive \"%s\" will be skipped\n",
+			pmGetProgname(), iap->name);
+		iap->eof[LOG] = iap->eof[META] = 1;
+		nempty++;
+		continue;
+	    }
+	    else {
+		fprintf(stderr, "%s: Error: cannot open archive \"%s\": %s\n",
+			pmGetProgname(), iap->name, pmErrStr(iap->ctx));
+		exit(1);
+	    }
 	}
 
 	if ((sts = pmUseContext(iap->ctx)) < 0) {
@@ -2602,6 +2668,12 @@ main(int argc, char **argv)
 	}
     } /*for(indx)*/
 
+    if (nempty == inarchnum) {
+	fprintf(stderr, "%s: Warning: all input archive(s) are empty, no output archive created\n",
+		pmGetProgname());
+	exit(1);
+    }
+
     logctl.l_label.ill_start.tv_sec = logstart_tval.tv_sec;
     logctl.l_label.ill_start.tv_usec = logstart_tval.tv_usec;
 
@@ -2613,14 +2685,19 @@ main(int argc, char **argv)
 	exit(1);
 
     if (zarg) {
-	/* use TZ from metrics source (input-archive) */
-	if ((sts = pmNewZone(inarch[0].label.ll_tz)) < 0) {
-	    fprintf(stderr, "%s: Cannot set context timezone: %s\n",
-		    pmGetProgname(), pmErrStr(sts));
-            exit_status = 1;
-            goto cleanup;
+	/* use TZ from metrics source (first non-empty input archive) */
+	for (indx=0; indx<inarchnum; indx++) {
+	    if (inarch[indx].ctx != PM_ERR_NODATA) {
+		if ((sts = pmNewZone(inarch[indx].label.ll_tz)) < 0) {
+		    fprintf(stderr, "%s: Cannot set context timezone: %s\n",
+			    pmGetProgname(), pmErrStr(sts));
+		    exit_status = 1;
+		    goto cleanup;
+		}
+		printf("Note: timezone set to local timezone of host \"%s\" from archive\n\n", inarch[indx].label.ll_hostname);
+		break;
+	    }
 	}
-	printf("Note: timezone set to local timezone of host \"%s\" from archive\n\n", inarch[0].label.ll_hostname);
     }
     else if (tz != NULL) {
 	/* use TZ as specified by user */
@@ -2672,6 +2749,7 @@ main(int argc, char **argv)
 	fprintf(stderr, "%s: Invalid time window specified: %s\n",
 		pmGetProgname(), msg);
 	abandon_extract();
+	/*NOTREACHED*/
     }
     winstart.tv_sec = winstart_tval.tv_sec;
     winstart.tv_usec = winstart_tval.tv_usec;
@@ -2789,6 +2867,7 @@ main(int argc, char **argv)
 	    fprintf(stderr, "%s: Fatal Error!\n", pmGetProgname());
 	    fprintf(stderr, "    log file index = %d\n", ilog);
 	    abandon_extract();
+	    /*NOTREACHED*/
 	}
 
 
@@ -2807,6 +2886,7 @@ main(int argc, char **argv)
 		fprintf(stderr, "%s: Fatal Error!\n", pmGetProgname());
 		fprintf(stderr, "    pick == LOG and _Nresult = NULL\n");
 		abandon_extract();
+		/*NOTREACHED*/
 	    }
 	    insertresult(&rlready, iap->_Nresult);
 #if 0
@@ -2860,6 +2940,7 @@ main(int argc, char **argv)
                 pmGetProgname());
 cleanup:
 	abandon_extract();
+	/*NOTREACHED*/
     }
     else {
 	/* write the last time stamp */

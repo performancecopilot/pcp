@@ -222,6 +222,7 @@ int
 __pmInitCertificates(void)
 {
     char nssdb[MAXPATHLEN];
+    char *nssdb_path;
     const PRUint16 *cipher;
     PK11SlotInfo *slot;
     SECStatus secsts;
@@ -241,15 +242,20 @@ __pmInitCertificates(void)
      * If we cannot, we silently bail out so that users who're
      * not using secure connections (initially everyone) don't
      * have to diagnose / put up with spurious errors.
+     *
+     * for system services like pmlogger nssdb will be sql:/etc/pcp/nssdb
+     * the pmlogger process does *not* have write permissions for this directory
+     * let's check for rx access first before trying to create this directory
      */
-    if (__pmMakePath(dbpath(nssdb, sizeof(nssdb), "sql:"), 0700) < 0)
+    nssdb_path = dbpath(nssdb, sizeof(nssdb), "sql:");
+    if (access(nssdb_path, R_OK|X_OK) != 0 && __pmMakePath(nssdb_path, 0700) < 0)
 	return 0;
-    secsts = NSS_InitReadWrite(nssdb);
+    secsts = NSS_Init(nssdb);
 
     if (secsts != SECSuccess) {
 	/* fallback, older versions of NSS do not support sql: */
 	dbpath(nssdb, sizeof(nssdb), "");
-	secsts = NSS_InitReadWrite(nssdb);
+	secsts = NSS_Init(nssdb);
     }
 
     if (secsts != SECSuccess)
@@ -1051,7 +1057,6 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
     int sts, zero, saslsts = SASL_FAIL;
     int pinned, length, method_length;
     char *payload, buffer[LIMIT_AUTH_PDU];
-    const char *data;
     const char *method = NULL;
     sasl_conn_t *saslconn;
     __pmHashNode *node;
@@ -1144,6 +1149,8 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
 	return sts;
 
     while (saslsts == SASL_CONTINUE) {
+	const char *data = NULL;
+
 	if (pmDebugOptions.auth)
 	    fprintf(stderr, "%s:__pmAuthClientNegotiation awaiting server reply\n", __FILE__);
 
@@ -1175,7 +1182,7 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
 	if (pinned > 0)
 	    __pmUnpinPDUBuf(pb);
 	if (sts >= 0)
-	    sts = __pmSendAuth(fd, FROM_ANON, 0, length ? data : "", length);
+	    sts = __pmSendAuth(fd, FROM_ANON, 0, (length && data) ? data : "", length);
 	if (sts < 0)
 	    break;
     }

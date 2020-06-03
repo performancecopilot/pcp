@@ -1,7 +1,4 @@
 steps:
-  - checkout: self
-    fetchDepth: 1
-
   - script: |
       set -eu
       # parallel in Ubuntu bionic is from 2016, which has a bug regarding the results dir

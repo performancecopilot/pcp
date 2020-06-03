@@ -19,7 +19,7 @@
 \f3pmrep\f1 \- performance metrics reporter
 .SH SYNOPSIS
 \fBpmrep\fP
-[\fB\-12357CdgGHIjkLnprRuUvVxz?\fP]
+[\fB\-12357CdgGHIjkLmnprRuUvVxz?\fP]
 [\fB\-4\fP \fIaction\fP]
 [\fB\-6\fP \fIsort-metric\fP]
 [\fB\-8\fP|\fB\-9\fP \fIlimit\fP]
@@ -619,6 +619,9 @@ Use a local context to collect metrics from DSO PMDAs on the local host
 without PMCD.
 See also
 .BR \-K .
+.TP
+\fB-m\fR
+include labels in the report.
 .TP
 \fB\-n\fR, \fB\-\-invert\-filter\fR
 Perform ranking before live filtering.

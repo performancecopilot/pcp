@@ -119,12 +119,22 @@ _filter_ctx()
     sed -E -e 's/ctx [0-9]+/ctx ?/g'
 }
 
+_test_log()
+{
+    echo && echo "=== $@ ===" | tee -a $here/$seq.full
+}
+
+_json_log()
+{
+    pmjson | tee -a $here/$seq.full
+}
+
 # real QA test starts here
 _save_config $PCP_SYSCONF_DIR/labels
 _save_config $PCP_SYSCONF_DIR/pmproxy
 _save_config $PCP_SASLCONF_DIR/pmcd.conf
 need_restore=true
-$sudo rm -f $PCP_SYSCONF_DIR/labels/*
+$sudo rm -rf $PCP_SYSCONF_DIR/labels/*
 
 # start pmcd in sasldb authenticating mode
 echo 'mech_list: plain' >$tmp.sasl
@@ -166,41 +176,40 @@ $sudo ./Install </dev/null \
 | _filter_pmda_install
 cd $here
 
-echo && echo "=== invalid username with pminfo ==="
+_test_log "invalid username with pminfo"
 pminfo -f -h "pcp://127.0.0.1?username=nonexisting_user&password=bob" test_python.current_username
 
-echo && echo "=== invalid password with pminfo ==="
+_test_log "invalid password with pminfo"
 pminfo -f -h "pcp://127.0.0.1?username=$username&password=bob" test_python.current_username
 
-echo && echo "=== correct password with pminfo ==="
+_test_log "correct password with pminfo"
 pminfo -f -h "pcp://127.0.0.1?username=$username&password=y" test_python.current_username | _filter_ctx | _filter_username
 
 
-echo && echo "=== no authentication ==="
+_test_log "no authentication"
 response=$(curl -s "http://localhost:44322/pmapi/context")
 echo "${response}" | pmjson | _filter_json
 ctx_unauthenticated=$(echo "${response}" | pmpython -c 'import sys,json; print(json.load(sys.stdin)["context"])')
 
-echo && echo "=== invalid username ==="
-curl -s --user nonexisting_user:bob "http://localhost:44322/pmapi/context" | pmjson | _filter_json
+_test_log "invalid username"
+curl -s --user nonexisting_user:bob "http://localhost:44322/pmapi/context" | _json_log | _filter_json
 
-echo && echo "=== invalid password ==="
-curl -s --user $username:bob "http://localhost:44322/pmapi/context" | pmjson | _filter_json
+_test_log "invalid password"
+curl -s --user $username:bob "http://localhost:44322/pmapi/context" | _json_log | _filter_json
 
-echo && echo "=== correct password ==="
+_test_log "correct password"
 response=$(curl -s --user $username:y "http://localhost:44322/pmapi/context")
 echo "${response}" | pmjson | _filter_json | _filter_credentials
 ctx_authenticated=$(echo "${response}" | pmpython -c 'import sys,json; print(json.load(sys.stdin)["context"])')
 
+_test_log "using unauthenticated context"
+curl -s "http://localhost:44322/pmapi/$ctx_unauthenticated/fetch?names=test_python.current_username" | _json_log | grep '"value"' | _filter_ctx
 
-echo && echo "=== using unauthenticated context ==="
-curl -s "http://localhost:44322/pmapi/$ctx_unauthenticated/fetch?names=test_python.current_username" | pmjson | grep '"value"' | _filter_ctx
+_test_log "using authenticated context, missing HTTP auth headers (expect failure)"
+curl -s "http://localhost:44322/pmapi/$ctx_authenticated/fetch?names=test_python.current_username" | _json_log | _filter_json
 
-echo && echo "=== using authenticated context, missing HTTP auth headers (expect failure) ==="
-curl -s "http://localhost:44322/pmapi/$ctx_authenticated/fetch?names=test_python.current_username" | pmjson | _filter_json
-
-echo && echo "=== using authenticated context, with HTTP auth headers (expect success) ==="
-curl -s --user $username:y "http://localhost:44322/pmapi/$ctx_authenticated/fetch?names=test_python.current_username" | pmjson | grep '"value"' | _filter_ctx | _filter_username
+_test_log "using authenticated context, with HTTP auth headers (expect success)"
+curl -s --user $username:y "http://localhost:44322/pmapi/$ctx_authenticated/fetch?names=test_python.current_username" | _json_log | grep '"value"' | _filter_ctx | _filter_username
 
 
 echo >>$here/$seq.full

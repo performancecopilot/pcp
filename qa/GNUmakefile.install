@@ -32,7 +32,7 @@ endif
 SELINUX_PCPQA =
 ifeq "$(ENABLE_SELINUX)" "true"
 ifneq "$(shell getenforce)" "Disabled"
-ifeq "$(shell if sudo semodule -l | grep '^pcpupstream[ 	]' >/dev/null; then echo OK; fi)" "OK"
+ifeq "$(shell if sudo semodule -l | grep '^pcpupstream[ 	]*$$' >/dev/null; then echo OK; fi)" "OK"
 SELINUX_PCPQA = pcpqa.installed
 endif
 endif
@@ -65,15 +65,13 @@ include $(BUILDRULES)
 
 ifeq "$(ENABLE_SELINUX)" "true"
 pcpqa.installed: pcpqa.pp
-	if sudo semodule -l | grep '^pcpqa[ 	]' >/dev/null; then sudo semodule -r pcpqa || true; fi
+	if sudo semodule -l | grep '^pcpqa[ 	]*$$' >/dev/null; then sudo semodule -r pcpqa || true; fi
 	sudo semodule -i pcpqa.pp
 	touch pcpqa.installed
 
 pcpqa.pp: pcpqa.te
 	make -f /usr/share/selinux/devel/Makefile pcpqa.pp
+
+pcpqa.te: pcpqa.te.in GNUmakefile GNUselinuxdefs
+	make pcpqa.te.in
 endif
-
-
-# Local variables:
-# mode: makefile
-# End:

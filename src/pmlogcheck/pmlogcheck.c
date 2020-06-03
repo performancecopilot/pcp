@@ -220,9 +220,7 @@ main(int argc, char *argv[])
 	    /*
 	     * foo.<digit> ... if archpathname does exist, then
 	     * safe to strip digits, else leave as is for the
-	     * case of, e.g. archive-20150415.041154 which is the
-	     * pmmgr basename for an archive with a first volume
-	     * named archive-20150415.041154.0
+	     * case of, e.g. archive-20150415.041154
 	     */
 	    if (access(archpathname, F_OK) == 0)
 		__pmLogBaseName(archbasename);
