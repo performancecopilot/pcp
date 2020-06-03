@@ -1417,8 +1417,7 @@ series_instance_store_to_node(seriesQueryBaton *baton, sds series,
 	if (extract_string(baton, series, elements[i+1], &value->data, "value") < 0)
 	    sts = -EPROTO;
 	else{
-	    memcpy(&(np->value_set.series_values[idx_series][idx_sample][idx_instance]),
-			value, sizeof(pmSeriesValue));
+	    np->value_set.series_values[idx_series][idx_sample][idx_instance] = *value;
 	    np->value_set.series_values[idx_series][idx_sample][idx_instance].timestamp = sdsnew(value->timestamp);
 	    np->value_set.series_values[idx_series][idx_sample][idx_instance].series = sdsnew(value->series);
 	    np->value_set.series_values[idx_series][idx_sample][idx_instance].data = sdsnew(value->data);
@@ -1466,13 +1465,6 @@ series_values_store_to_node(seriesQueryBaton *baton, sds series,
 	    batoninfo(baton, PMLOG_RESPONSE, msg);
 	    baton->error = -EPROTO;
 	    break;
-	}
-
-	/* In this initial setup phase, calloc space to store instance values */
-	idx_sample = i;
-	if ((np->value_set.series_values[idx_series][idx_sample] = (pmSeriesValue*)calloc(nelements/2, sizeof(pmSeriesValue))) == NULL) {
-	    /* TODO: error report here */
-	    baton->error = -ENOMEM;
 	}
 
 	/* setup state variables used internally during selection process */
@@ -1530,7 +1522,12 @@ series_values_store_to_node(seriesQueryBaton *baton, sds series,
 	 */
 	if (tp->count && sampling.count++ >= tp->count)
 	    break;
-
+	
+	idx_sample = i;
+	if ((np->value_set.series_values[idx_series][idx_sample] = (pmSeriesValue*)calloc(reply->elements/2, sizeof(pmSeriesValue))) == NULL) {
+	    /* TODO: error report here */
+	    baton->error = -ENOMEM;
+	}
 	if ((sts = series_instance_store_to_node(baton, series, &sampling.value,
 				reply->elements, reply->element, np, idx_sample)) < 0) {
 	    baton->error = sts;
@@ -1590,7 +1587,7 @@ series_node_prepare_time_reply(
 	baton->error = -EPROTO;
     } else {
 	/* calloc space to store series samples */
-	if ((*(np->value_set.series_values + idx) = (pmSeriesValue **)calloc(reply->elements, sizeof(pmSeriesValue *))) == NULL) {
+	if ((np->value_set.series_values[idx] = (pmSeriesValue **)calloc(reply->elements, sizeof(pmSeriesValue *))) == NULL) {
 	    /* TODO: error report here */
 	    baton->error = -ENOMEM;
 	}
