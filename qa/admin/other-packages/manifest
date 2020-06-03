@@ -1442,7 +1442,7 @@ pacman?		pluginviewer		[core/libsasl (QA optional)]
 brew?		pluginviewer		[N/A (QA optional)]
 # -- selinux policy
 rpm?		seinfo			[setools-console or setools (build optional)]
-rpm?    /usr/share/selinux/devel/Makefile [selinux-policy-devel or selinux-policy (build optional)]
+rpm?    /usr/share/selinux/devel/Makefile [selinux-policy-devel (build optional)]
 rpm?    /etc/selinux/targeted/policy	 [selinux-policy-targeted (build optional)]
 # -- systemtap
 dpkg?		dtrace		[systemtap-sdt-dev (build optional)]
