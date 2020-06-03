@@ -23,6 +23,7 @@ _instance_filter()
     sed \
 	-e 's/[0-9]//g' \
 	-e 's/".*"/"inst"/g' \
+	-e 's/\[  /\[ /' \
     #end
 }
 
