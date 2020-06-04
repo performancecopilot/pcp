@@ -26,12 +26,12 @@ bpftrace.scripts.script100.data.bytes
 ```
 
 ## Features
-* start and stop multiple bpftrace scripts
-* export bpftrace variables (eBPF maps) as PCP metrics:
+* Start and stop multiple bpftrace scripts.
+* Export bpftrace variables (eBPF maps) as PCP metrics:
   * single values, counters
   * maps, histograms
   * text output (by `printf()`, `time()` etc.)
-* automatic removal of scripts whose values weren't requested in a specified time period
+* Automatic removal of scripts whose values weren't requested in a specified time period.
 
 ## Configuration
 The configuration of this PMDA is stored in `bpftrace.conf`.
