@@ -558,9 +558,9 @@ can be used in place of
 Context identifiers are used as a persistent way to refer to
 PMAPI contexts across related web requests.
 These contexts expire after a configurable period of disuse,
-and are explicitly allocated using the
+and are either explicitly allocated using the
 .I /pmapi/context
-interface.
+interface, or implicitly allocated using other interfaces.
 .PP
 The timeout interval is configurable at context creation time,
 and as such the
@@ -569,7 +569,7 @@ parameter can be used anywhere the
 .I hostspec
 is specified.
 It sets the context timeout in terms of length of inactive time.
-The unit for the timeout value is seconds.
+The unit for the timeout value is seconds and the default is 5.
 .PP
 To specify a specific existing context in any PMAPI web request,
 the endpoints can be accessed with either the
