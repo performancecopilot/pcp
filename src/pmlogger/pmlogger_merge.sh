@@ -48,6 +48,13 @@ _warning()
     force=false
 }
 
+_usage()
+{
+    pmgetopt --usage --progname=$prog --config=$tmp/usage
+    status=1
+    exit
+}
+
 cat > $tmp/usage << EOF
 # Usage: [options] [input-basename ... output-name]
 
@@ -82,8 +89,7 @@ do
 		break
 		;;
 
-	-\?)	pmgetopt --usage --progname=$prog --config=$tmp/usage
-		_abandon
+	-\?)	_usage
 		;;
     esac
     shift
@@ -103,9 +109,7 @@ then
     done
     output="$1"
 else
-    pmgetopt --usage --progname=$prog --config=$tmp/usage
-    status=1
-    exit
+    _usage
 fi
 
 fail=false
