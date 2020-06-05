@@ -40,6 +40,9 @@ static int _pm_have_kernel_2_6_partition_stats;
  * multi-device (MD) devices are named md[0-9]* and are mapped to optional
  * persistent names using the symlinks in /dev/md.
  *
+ * zram devices (compressed RAM) are named zram[0-9][0-9]*.  There are no
+ * zram sub-partitions.
+ *
  * Mylex raid disks are named e.g. rd/c0d0 or dac960/c0d0
  * Mylex raid partitions are named e.g. rd/c0d0p1 or dac960/c0d0p1
  *
@@ -63,6 +66,12 @@ static int
 _pm_isramdisk(char *dname)
 {
     return strncmp(dname, "ram", 3) == 0;
+}
+
+static int
+_pm_iszram(char *dname)
+{
+    return strncmp(dname, "zram", 4) == 0;
 }
 
 static int
@@ -159,7 +168,7 @@ _pm_ispartition(char *dname)
     }
     else {
 	/*
-	 * default test : partition names end in a digit do not look
+	 * default test: partition names end in a digit and do not look
 	 * like loopback devices.  Handle other special cases here.
 	 */
 	return isdigit((int)dname[m]) &&
@@ -168,6 +177,7 @@ _pm_ispartition(char *dname)
 		!_pm_ismmcdisk(dname) &&
 		!_pm_isnvmedrive(dname) &&
 		!_pm_iscephrados(dname) &&
+		!_pm_iszram(dname) &&
 		!_pm_isnbd(dname) &&
 		!_pm_ismd(dname) &&
 		!_pm_isdm(dname) &&
@@ -185,13 +195,13 @@ _pm_isxvmvol(char *dname)
 }
 
 /*
- * return true is arg is a disk name
+ * return true if arg is a disk name
  */
 static int
 _pm_isdisk(char *dname)
 {
     return (!_pm_isloop(dname) && !_pm_isramdisk(dname) &&
-	    !_pm_iscdrom(dname) &&
+	    !_pm_iscdrom(dname) && !_pm_iszram(dname) &&
 	    !_pm_ispartition(dname) && !_pm_isxvmvol(dname) &&
 	    !_pm_isdm(dname) && !_pm_ismd(dname));
 }
@@ -199,9 +209,9 @@ _pm_isdisk(char *dname)
 static int
 refresh_mdadm(const char *name)
 {
-    char mdadm[MAXPATHLEN];
-    char args[] = "--detail --test";
-    FILE *pfp;
+    char		mdadm[MAXPATHLEN];
+    char		args[] = "--detail --test";
+    FILE		*pfp;
 
     if (access(linux_mdadm, R_OK) != 0)
     	return -1;
@@ -214,18 +224,106 @@ refresh_mdadm(const char *name)
     return pclose(pfp);
 }
 
+static int
+refresh_zram_io_stat(const char *name, zram_stat_t *zram)
+{
+    zram_io_stat_t	*io;
+    char		buf[MAXPATHLEN];
+    FILE		*fp;
+    int			sts;
+
+    if (zram->uptodate & ZRAM_IO)
+	return 0;
+    pmsprintf(buf, sizeof(buf), "%s/sys/block/%s/io_stat", linux_statspath, name);
+    if ((fp = fopen(buf, "r")) == NULL)
+	return -ENOENT;
+    io = &zram->iostat;
+    sts = fscanf(fp, "%llu %llu %llu %llu", &io->failed_reads,
+		    &io->failed_writes, &io->invalid_io, &io->notify_free);
+    fclose(fp);
+    if (sts != 4)
+	return -ENODATA;
+    zram->uptodate |= ZRAM_IO;
+    return 0;
+}
+
+static int
+refresh_zram_mm_stat(const char *name, zram_stat_t *zram)
+{
+    zram_mm_stat_t	*mm;
+    char		buf[MAXPATHLEN];
+    FILE		*fp;
+    int			sts;
+
+    if (zram->uptodate & ZRAM_MM)
+	return 0;
+    pmsprintf(buf, sizeof(buf), "%s/sys/block/%s/mm_stat", linux_statspath, name);
+    if ((fp = fopen(buf, "r")) == NULL)
+	return -ENOENT;
+    mm = &zram->mmstat;
+    sts = fscanf(fp, "%llu %llu %llu %llu %llu %llu %llu %llu",
+		    &mm->original, &mm->compressed, &mm->mem_used,
+		    &mm->mem_limit, &mm->max_used, &mm->same_pages,
+		    &mm->compacted_pages, &mm->huge_pages);
+    fclose(fp);
+    if (sts != 8)
+	return -ENODATA;
+    zram->uptodate |= ZRAM_MM;
+    return 0;
+}
+
+static int
+refresh_zram_bd_stat(const char *name, zram_stat_t *zram)
+{
+    zram_bd_stat_t	*bd;
+    char		buf[MAXPATHLEN];
+    FILE		*fp;
+    int			sts;
+
+    if (zram->uptodate & ZRAM_BD)
+	return 0;
+    pmsprintf(buf, sizeof(buf), "%s/sys/block/%s/bd_stat", linux_statspath, name);
+    if ((fp = fopen(buf, "r")) == NULL)
+	return -ENOENT;
+    bd = &zram->bdstat;
+    sts = fscanf(fp, "%llu %llu %llu", &bd->count, &bd->reads, &bd->writes);
+    fclose(fp);
+    if (sts != 3)
+	return -ENODATA;
+    zram->uptodate |= ZRAM_BD;
+    return 0;
+}
+
+static int
+refresh_zram_size(const char *name, zram_stat_t *zram, unsigned long long *blocks)
+{
+    char		buf[MAXPATHLEN];
+    FILE		*fp;
+    int			sts;
+
+    if (zram->uptodate & ZRAM_SIZE)
+	return 0;
+    pmsprintf(buf, sizeof(buf), "%s/sys/block/%s/disksize", linux_statspath, name);
+    if ((fp = fopen(buf, "r")) == NULL)
+	return -ENOENT;
+    sts = fscanf(fp, "%llu", blocks);
+    fclose(fp);
+    if (sts != 1)
+	return -ENODATA;
+    *blocks >>= 10;	/* bytes to kilobytes */
+    zram->uptodate |= ZRAM_SIZE;
+    return 0;
+}
+
 static void
 refresh_udev(pmInDom disk_indom, pmInDom partitions_indom)
 {
-    char buf[MAXNAMELEN];
-    char realname[MAXNAMELEN];
-    char *shortname;
-    char *p;
-    char *udevname;
-    FILE *pfp;
-    partitions_entry_t *entry;
-    int indom;
-    int inst;
+    char		buf[MAXNAMELEN];
+    char		realname[MAXNAMELEN];
+    char		*p, *udevname, *shortname;
+    FILE		*pfp;
+    partitions_entry_t	*entry;
+    int			indom, inst;
 
     if (access("/dev/xscsi", R_OK) != 0)
     	return;
@@ -263,13 +361,12 @@ refresh_udev(pmInDom disk_indom, pmInDom partitions_indom)
 static int
 persistent_dm_name(char *namebuf, int namelen, int devmajor, int devminor)
 {
-    int fd;
-    char *p;
-    DIR *dp;
-    int found = 0;
-    struct dirent *dentry;
-    struct stat sb;
-    char path[MAXPATHLEN];
+    char		*p;
+    DIR			*dp;
+    int			fd, found = 0;
+    struct dirent	*dentry;
+    struct stat		sb;
+    char		path[MAXPATHLEN];
 
     pmsprintf(path, sizeof(path), "%s/sys/block/%s/dm/name", linux_statspath, namebuf);
     if ((fd = open(path, O_RDONLY)) >= 0) {
@@ -318,12 +415,12 @@ persistent_dm_name(char *namebuf, int namelen, int devmajor, int devminor)
 static int
 persistent_md_name(char *namebuf, int namelen)
 {
-    DIR *dp;
-    ssize_t size;
-    int found = 0;
-    struct dirent *dentry;
-    char path[MAXPATHLEN];
-    char name[MAXPATHLEN];
+    DIR			*dp;
+    ssize_t		size;
+    int			found = 0;
+    struct dirent	*dentry;
+    char		path[MAXPATHLEN];
+    char		name[MAXPATHLEN];
 
     pmsprintf(path, sizeof(path), "%s/dev/md", linux_statspath);
     if ((dp = opendir(path)) != NULL) {
@@ -350,7 +447,7 @@ persistent_md_name(char *namebuf, int namelen)
 
 static partitions_entry_t *
 refresh_disk_indom(char *namebuf, size_t namelen, int devmaj, int devmin,
-		pmInDom disk_indom, pmInDom part_indom,
+		pmInDom disk_indom, pmInDom part_indom, pmInDom zram_indom,
 		pmInDom dm_indom, pmInDom md_indom, int *indom_changes)
 {
     int			indom, inst;
@@ -369,6 +466,8 @@ refresh_disk_indom(char *namebuf, size_t namelen, int devmaj, int devmin,
 	indom = part_indom;
     else if (_pm_isdisk(namebuf))
 	indom = disk_indom;
+    else if (_pm_iszram(namebuf))
+	indom = zram_indom;
     else
 	return NULL;
 
@@ -388,12 +487,16 @@ refresh_disk_indom(char *namebuf, size_t namelen, int devmaj, int devmin,
     if (pmdaCacheLookupName(indom, namebuf, &inst, (void **)&p) < 0 || !p) {
 	/* not found: allocate and add a new entry */
 	p = (partitions_entry_t *)calloc(1, sizeof(partitions_entry_t));
+	if (indom == zram_indom)
+	    p->zram = (zram_stat_t *)calloc(1, sizeof(zram_stat_t));
 	*indom_changes += 1;
     } else {
 	if (p->dmname)
 	    free(p->dmname);
 	if (p->mdname)
 	    free(p->mdname);
+	if (p->zram)
+	    p->zram->uptodate = 0;	/* refreshing now required */
 	p->nr_blocks = 0;		/* zero if not read/needed */
     }
 
@@ -419,7 +522,7 @@ refresh_disk_indom(char *namebuf, size_t namelen, int devmaj, int devmin,
 
 static int
 refresh_diskstats(FILE *fp, pmInDom disk_indom, pmInDom part_indom,
-			    pmInDom dm_indom, pmInDom md_indom)
+		pmInDom zram_indom, pmInDom dm_indom, pmInDom md_indom)
 {
     int			indom_changes = 0;
     int			devmin, devmaj, n;
@@ -436,7 +539,8 @@ refresh_diskstats(FILE *fp, pmInDom disk_indom, pmInDom part_indom,
 	    continue;
 
 	if (!(p = refresh_disk_indom(name, sizeof(name), devmaj, devmin,
-		disk_indom, part_indom, dm_indom, md_indom, &indom_changes)))
+			disk_indom, part_indom, zram_indom, dm_indom, md_indom,
+			&indom_changes)))
 	    continue;
 
 	/* 2.6 style /proc/diskstats */
@@ -480,7 +584,7 @@ refresh_diskstats(FILE *fp, pmInDom disk_indom, pmInDom part_indom,
 
 static int
 refresh_partitions(FILE *fp, pmInDom disk_indom, pmInDom part_indom,
-			     pmInDom dm_indom, pmInDom md_indom)
+		pmInDom zram_indom, pmInDom dm_indom, pmInDom md_indom)
 {
     int			indom_changes = 0;
     int			devmin, devmaj, n;
@@ -499,7 +603,8 @@ refresh_partitions(FILE *fp, pmInDom disk_indom, pmInDom part_indom,
 	    continue;
 
 	if (!(p = refresh_disk_indom(name, sizeof(name), devmaj, devmin,
-		disk_indom, part_indom, dm_indom, md_indom, &indom_changes)))
+			disk_indom, part_indom, zram_indom, dm_indom, md_indom,
+			&indom_changes)))
 	    continue;
 
 	/* 2.4 format /proc/partitions (distro patched) */
@@ -517,7 +622,7 @@ refresh_partitions(FILE *fp, pmInDom disk_indom, pmInDom part_indom,
 
 int
 refresh_proc_partitions(pmInDom disk_indom, pmInDom part_indom,
-			pmInDom dm_indom, pmInDom md_indom,
+			pmInDom zram_indom, pmInDom dm_indom, pmInDom md_indom,
 			int need_diskstats, int need_partitions)
 {
     FILE	*fp;
@@ -529,6 +634,7 @@ refresh_proc_partitions(pmInDom disk_indom, pmInDom part_indom,
 	/* initialize the instance domain caches */
 	pmdaCacheOp(disk_indom, PMDA_CACHE_LOAD);
 	pmdaCacheOp(part_indom, PMDA_CACHE_LOAD);
+	pmdaCacheOp(zram_indom, PMDA_CACHE_LOAD);
 	pmdaCacheOp(dm_indom, PMDA_CACHE_LOAD);
 	pmdaCacheOp(md_indom, PMDA_CACHE_LOAD);
 	indom_changes = 1;
@@ -537,6 +643,7 @@ refresh_proc_partitions(pmInDom disk_indom, pmInDom part_indom,
 
     pmdaCacheOp(disk_indom, PMDA_CACHE_INACTIVE);
     pmdaCacheOp(part_indom, PMDA_CACHE_INACTIVE);
+    pmdaCacheOp(zram_indom, PMDA_CACHE_INACTIVE);
     pmdaCacheOp(dm_indom, PMDA_CACHE_INACTIVE);
     pmdaCacheOp(md_indom, PMDA_CACHE_INACTIVE);
 
@@ -544,7 +651,7 @@ refresh_proc_partitions(pmInDom disk_indom, pmInDom part_indom,
     if (need_diskstats) {
 	if ((fp = linux_statsfile("/proc/diskstats", buf, sizeof(buf)))) {
 	    indom_changes += refresh_diskstats(fp, disk_indom, part_indom,
-						dm_indom, md_indom);
+						zram_indom, dm_indom, md_indom);
 	    fclose(fp);
 	} else {
 	    need_partitions = 1;
@@ -555,7 +662,7 @@ refresh_proc_partitions(pmInDom disk_indom, pmInDom part_indom,
     if (need_partitions) {
 	if ((fp = linux_statsfile("/proc/partitions", buf, sizeof(buf)))) {
 	    indom_changes += refresh_partitions(fp, disk_indom, part_indom,
-						dm_indom, md_indom);
+						zram_indom, dm_indom, md_indom);
 	    fclose(fp);
 	}
     }
@@ -572,6 +679,7 @@ refresh_proc_partitions(pmInDom disk_indom, pmInDom part_indom,
 	refresh_udev(disk_indom, part_indom);
 	pmdaCacheOp(disk_indom, PMDA_CACHE_SAVE);
 	pmdaCacheOp(part_indom, PMDA_CACHE_SAVE);
+	pmdaCacheOp(zram_indom, PMDA_CACHE_SAVE);
 	pmdaCacheOp(dm_indom, PMDA_CACHE_SAVE);
 	pmdaCacheOp(md_indom, PMDA_CACHE_SAVE);
     }
@@ -716,6 +824,32 @@ static pmID disk_metric_table[] = {
     /* disk.md.flush */	             PMDA_PMID(CLUSTER_MD,23),
     /* disk.md.blkflush */	     PMDA_PMID(CLUSTER_MD,24),
     /* disk.md.flush_rawactive */    PMDA_PMID(CLUSTER_MD,25),
+
+    /* zram.read */	             PMDA_PMID(CLUSTER_ZRAM_DEVICES,0),
+    /* zram.write */     	     PMDA_PMID(CLUSTER_ZRAM_DEVICES,1),
+    /* zram.total */	             PMDA_PMID(CLUSTER_ZRAM_DEVICES,2),
+    /* zram.blkread */               PMDA_PMID(CLUSTER_ZRAM_DEVICES,3),
+    /* zram.blkwrite */              PMDA_PMID(CLUSTER_ZRAM_DEVICES,4),
+    /* zram.blktotal */              PMDA_PMID(CLUSTER_ZRAM_DEVICES,5),
+    /* zram.read_bytes */            PMDA_PMID(CLUSTER_ZRAM_DEVICES,6),
+    /* zram.write_bytes */           PMDA_PMID(CLUSTER_ZRAM_DEVICES,7),
+    /* zram.total_bytes */           PMDA_PMID(CLUSTER_ZRAM_DEVICES,8),
+    /* zram.read_merge */            PMDA_PMID(CLUSTER_ZRAM_DEVICES,9),
+    /* zram.write_merge */           PMDA_PMID(CLUSTER_ZRAM_DEVICES,10),
+    /* zram.avactive */              PMDA_PMID(CLUSTER_ZRAM_DEVICES,11),
+    /* zram.aveq */                  PMDA_PMID(CLUSTER_ZRAM_DEVICES,12),
+    /* zram.read_rawactive */        PMDA_PMID(CLUSTER_ZRAM_DEVICES,13),
+    /* zram.write_rawactive */       PMDA_PMID(CLUSTER_ZRAM_DEVICES,14),
+    /* zram.total_rawactive */       PMDA_PMID(CLUSTER_ZRAM_DEVICES,15),
+    /* zram.capacity */              PMDA_PMID(CLUSTER_ZRAM_DEVICES,16),
+    /* zram.discard */               PMDA_PMID(CLUSTER_ZRAM_DEVICES,17),
+    /* zram.blkdiscard */            PMDA_PMID(CLUSTER_ZRAM_DEVICES,18),
+    /* zram.discard_bytes */         PMDA_PMID(CLUSTER_ZRAM_DEVICES,19),
+    /* zram.discard_merge */         PMDA_PMID(CLUSTER_ZRAM_DEVICES,20),
+    /* zram.discard_rawactive */     PMDA_PMID(CLUSTER_ZRAM_DEVICES,21),
+    /* zram.flush */                 PMDA_PMID(CLUSTER_ZRAM_DEVICES,22),
+    /* zram.blkflush */              PMDA_PMID(CLUSTER_ZRAM_DEVICES,23),
+    /* zram.flush_rawactive */       PMDA_PMID(CLUSTER_ZRAM_DEVICES,24),
 };
 
 int
@@ -835,7 +969,7 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	/*
 	 * disk.{dev,all} remain in CLUSTER_STAT for backward compatibility
 	 */
-	switch(item) {
+	switch (item) {
 	case 4: /* disk.dev.read */
 	    if (p == NULL)
 		return PM_ERR_INST;
@@ -1049,104 +1183,106 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	break;
 
     case CLUSTER_PARTITIONS:
+    case CLUSTER_ZRAM_DEVICES:
 	if (p == NULL)
 	    return PM_ERR_INST;
-	switch(item) {
-	    /* disk.partitions */
-	    case 0: /* disk.partitions.read */
+	switch (item) {
+	    case 0: /* {disk.partitions,zram}.read */
 		_pm_assign_ulong(atom, p->rd_ios);
 		break;
-	    case 1: /* disk.partitions.write */
+	    case 1: /* {disk.partitions,zram}.write */
 		_pm_assign_ulong(atom, p->wr_ios);
 		break;
-	    case 2: /* disk.partitions.total */
+	    case 2: /* {disk.partitions,zram}.total */
 		atom->ul = p->wr_ios + p->rd_ios;
 		break;
-	    case 3: /* disk.partitions.blkread */
+	    case 3: /* {disk.partitions,zram}.blkread */
 		_pm_assign_ulong(atom, p->rd_sectors);
 		break;
-	    case 4: /* disk.partitions.blkwrite */
+	    case 4: /* {disk.partitions,zram}.blkwrite */
 		_pm_assign_ulong(atom, p->wr_sectors);
 		break;
-	    case 5: /* disk.partitions.blktotal */
+	    case 5: /* {disk.partitions,zram}.blktotal */
 		atom->ul = p->rd_sectors + p->wr_sectors;
 		break;
-	    case 6: /* disk.partitions.read_bytes */
+	    case 6: /* {disk.partitions,zram}.read_bytes */
 		atom->ul = p->rd_sectors / 2;
 		break;
-	    case 7: /* disk.partitions.write_bytes */
+	    case 7: /* {disk.partitions,zram}.write_bytes */
 		atom->ul = p->wr_sectors / 2;
 		break;
-	    case 8: /* disk.partitions.total_bytes */
+	    case 8: /* {disk.partitions,zram}.total_bytes */
 		atom->ul = (p->rd_sectors +
 			   p->wr_sectors) / 2;
 		break;
-            case 9: /* disk.partitions.read_merge */
+            case 9: /* {disk.partitions,zram}.read_merge */
                 if (_pm_have_kernel_2_6_partition_stats)
                     return PM_ERR_APPVERSION; /* no read_merge for partition in 2.6 */
                 else
                     _pm_assign_ulong(atom, p->rd_merges);
                 break;
-            case 10: /* disk.partitions.write_merge */
+            case 10: /* {disk.partitions,zram}.write_merge */
                 if (_pm_have_kernel_2_6_partition_stats)
                     return PM_ERR_APPVERSION; /* no write_merge for partition in 2.6 */
                 else
                     _pm_assign_ulong(atom, p->wr_merges);
                 break;
-            case 11: /* disk.partitions.avactive */
+            case 11: /* {disk.partitions,zram}.avactive */
                 if (_pm_have_kernel_2_6_partition_stats)
                     return PM_ERR_APPVERSION; /* no avactive for partition in 2.6 */
                 else
                     atom->ul = p->io_ticks;
                 break;
-            case 12: /* disk.partitions.aveq */
+            case 12: /* {disk.partitions,zram}.aveq */
                 if (_pm_have_kernel_2_6_partition_stats)
                     return PM_ERR_APPVERSION; /* no aveq for partition in 2.6 */
                 else
                     atom->ul = p->aveq;
                 break;
-            case 13: /* disk.partitions.read_rawactive */
+            case 13: /* {disk.partitions,zram}.read_rawactive */
                 if (_pm_have_kernel_2_6_partition_stats)
                     return PM_ERR_APPVERSION; /* no read_rawactive for partition in 2.6 */
                 else
                     atom->ul = p->rd_ticks;
                 break;
-            case 14: /* disk.partitions.write_rawactive */
+            case 14: /* {disk.partitions,zram}.write_rawactive */
                 if (_pm_have_kernel_2_6_partition_stats)
                     return PM_ERR_APPVERSION; /* no write_rawactive for partition in 2.6 */
                 else
                     atom->ul = p->wr_ticks;
                 break;
-            case 15: /* disk.partitions.total_rawactive */
+            case 15: /* {disk.partitions,zram}.total_rawactive */
                 if (_pm_have_kernel_2_6_partition_stats)
                     return PM_ERR_APPVERSION; /* no read_rawactive or write_rawactive for partition in 2.6 */
                 else
                     atom->ul = p->rd_ticks + p->wr_ticks;
                 break;
-	    case 16: /* disk.partitions.capacity */
-		if (!p->nr_blocks)
+	    case 16: /* {disk.partitions,zram}.capacity */
+		if (cluster == CLUSTER_ZRAM_DEVICES)
+		    refresh_zram_size(p->namebuf, p->zram, &p->nr_blocks);
+		else if (!p->nr_blocks)
 		    return 0;
 		atom->ull = p->nr_blocks;
 		break;
-	    case 17: /* disk.partitions.discard */
+	    case 17: /* {disk.partitions,zram}.discard */
 		_pm_assign_ulong(atom, p->ds_ios);
 		break;
-	    case 18: /* disk.partitions.blkdiscard */
+	    case 18: /* {disk.partitions,zram}.blkdiscard */
 		_pm_assign_ulong(atom, p->ds_sectors);
 		break;
-	    case 19: /* disk.partitions.discard_bytes */
+	    case 19: /* {disk.partitions,zram}.discard_bytes */
 		atom->ul = p->ds_sectors / 2;
 		break;
-	    case 20: /* disk.partitions.discard_merge */
+	    case 20: /* {disk.partitions,zram}.discard_merge */
 		_pm_assign_ulong(atom, p->ds_merges);
 		break;
-	    case 21: /* disk.partitions.discard_rawactive */
+	    case 21: /* {disk.partitions,zram}.discard_rawactive */
 		atom->ul = p->ds_ticks;
 		break;
-	    case 22: /* disk.partitions.flush */
+	    case 22: /* {disk.partitions,zram}.flush */
 		_pm_assign_ulong(atom, p->fl_ios);
 		break;
-	    case 23: /* disk.partitions.flush_rawactive */
+	    case 23: /* {disk.partitions,zram}.flush_rawactive */
 		atom->ul = p->fl_ticks;
 		break;
 	    default:
@@ -1158,7 +1294,7 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_MD:
 	if (p == NULL)
 	    return PM_ERR_INST;
-	switch(item) {
+	switch (item) {
 	case 0: /* disk.{dm,md}.read */
 	    _pm_assign_ulong(atom, p->rd_ios);
 	    break;
@@ -1244,7 +1380,7 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_MDADM:
 	if (p == NULL)
 	    return PM_ERR_INST;
-	switch(item) {
+	switch (item) {
 	case 0: /* disk.md.status */
 	    atom->l = refresh_mdadm(p->namebuf);
 	    break;
@@ -1252,6 +1388,85 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return PM_ERR_PMID;
 	}
 	break;
+
+    case CLUSTER_ZRAM_IO_STAT:
+	if (p == NULL)
+	    return PM_ERR_INST;
+	if (refresh_zram_io_stat(p->namebuf, p->zram) < 0)
+	    return 0;
+	switch (item) {
+	case 0: /* zram.io_stat.failed.reads */
+	    atom->ull = p->zram->iostat.failed_reads;
+	    break;
+	case 1: /* zram.io_stat.failed.writes */
+	    atom->ull = p->zram->iostat.failed_writes;
+	    break;
+	case 2: /* zram.io_stat.invalid */
+	    atom->ull = p->zram->iostat.invalid_io;
+	    break;
+	case 3: /* zram.io_stat.notify_free */
+	    atom->ull = p->zram->iostat.notify_free;
+	    break;
+	default:
+	    return PM_ERR_PMID;
+	}
+	break;
+
+    case CLUSTER_ZRAM_MM_STAT:
+	if (p == NULL)
+	    return PM_ERR_INST;
+	if (refresh_zram_mm_stat(p->namebuf, p->zram) < 0)
+	    return 0;
+	switch (item) {
+	case 0: /* zram.mm_stat.data_size.original */
+	    atom->ull = p->zram->mmstat.original >> 10;		/* bytes to KB */
+	    break;
+	case 1: /* zram.mm_stat.data_size.compressed */
+	    atom->ull = p->zram->mmstat.compressed >> 10;	/* bytes to KB */
+	    break;
+	case 2: /* zram.mm_stat.mem.used_total */
+	    atom->ull = p->zram->mmstat.mem_used >> 10;		/* bytes to KB */
+	    break;
+	case 3: /* zram.mm_stat.mem.limit */
+	    atom->ull = p->zram->mmstat.mem_limit >> 10;	/* bytes to KB */
+	    break;
+	case 4: /* zram.mm_stat.mem.max_used */
+	    atom->ull = p->zram->mmstat.max_used >> 10;		/* bytes to KB */
+	    break;
+	case 5: /* zram.mm_stat.pages.same */
+	    atom->ull = p->zram->mmstat.same_pages << 2;	/* 4k to 1k */
+	    break;
+	case 6: /* zram.mm_stat.pages.compacted */
+	    atom->ull = p->zram->mmstat.compacted_pages << 2;	/* 4k to 1k */
+	    break;
+	case 7: /* zram.mm_stat.pages.huge */
+	    atom->ull = p->zram->mmstat.huge_pages << 2;	/* 4k to 1k */
+	    break;
+	default:
+	    return PM_ERR_PMID;
+	}
+	break;
+
+    case CLUSTER_ZRAM_BD_STAT:
+	if (p == NULL)
+	    return PM_ERR_INST;
+	if (refresh_zram_bd_stat(p->namebuf, p->zram) < 0)
+	    return 0;
+	switch (item) {
+	case 0: /* zram.bd_stat.count */
+	    atom->ull = p->zram->bdstat.count << 2;		/* 4k to 1k */
+	    break;
+	case 1: /* zram.bd_stat.reads */
+	    atom->ull = p->zram->bdstat.reads << 2;		/* 4k to 1k */
+	    break;
+	case 2: /* zram.bd_stat.writes */
+	    atom->ull = p->zram->bdstat.writes << 2;		/* 4k to 1k */
+	    break;
+	default:
+	    return PM_ERR_PMID;
+	}
+	break;
+
 
     default: /* switch cluster */
 	return PM_ERR_PMID;

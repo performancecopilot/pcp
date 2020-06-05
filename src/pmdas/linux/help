@@ -66,6 +66,7 @@ devices all share the same statistics in the kernel as the st devices.
 @ 60.35 serial devices (aka ttys)
 @ 60.36 set of soft interrupts
 @ 60.37 pressure time averages for 10 seconds, 1 minute and 5 minutes
+@ 60.38 set of compressed memory devices
 
 
 @ kernel.uname.release release level of the running kernel
@@ -2052,3 +2053,165 @@ Pressure stall information (PSI) from /proc/pressure/io.
 @ kernel.all.pressure.io.full.total Total time when all tasks stall on IO resources
 The CPU time in which all tasks stalled on IO resources.
 Pressure stall information (PSI) from /proc/pressure/io.
+
+@ zram.read read operations metric for compressed memory
+Cumulative number of disk read operations since system boot time
+(subject to counter wrap) for compressed memory devices.
+
+@ zram.write write operations metric for compressed memory
+Cumulative number of disk write operations since system boot time
+(subject to counter wrap) for compressed memory devices.
+
+@ zram.total total (read+write) I/O operations for compressed memory
+Cumulative number of disk read and write operations since system boot
+time (subject to counter wrap) for compressed memory devices.
+
+@ zram.blkread block read operations metric for compressed memory
+Cumulative number of disk block read operations since system boot time
+(subject to counter wrap) for compressed memory devices.
+
+@ zram.blkwrite block write operations metric for compressed memory
+Cumulative number of disk block write operations since system boot time
+(subject to counter wrap) for compressed memory devices.
+
+@ zram.blktotal total (read+write) block operations for compressed memory
+Cumulative number of disk block read and write operations since system
+boot time (subject to counter wrap) for compressed memory devices.
+
+@ zram.read_bytes number of bytes read for compressed memory devices
+Cumulative number of bytes read since system boot time (subject to
+counter wrap) for compressed memory devices.
+
+@ zram.write_bytes number of bytes written for compressed memory devices
+Cumulative number of bytes written since system boot time (subject to
+counter wrap) for compressed memory devices.
+
+@ zram.total_bytes total number of bytes read and written for compressed memory 
+Cumulative number of bytes read and written since system boot time
+(subject to counter wrap) for compressed memory devices.
+
+@ zram.read_merge per-compressed-memory-device count of merged read requests
+
+@ zram.write_merge per-compressed-memory-device count of merged write requests
+
+@ zram.avactive per-compressed-memory-device count of active time
+Counts the number of milliseconds for which at least one I/O is in
+progress for each compressed memory device.
+
+When converted to a rate, this metric represents the average utilization
+of the compressed memory device during the sampling interval.  A value of 0.5
+(or 50%) means the memory device was active (i.e. busy) half the time.
+
+@ zram.aveq per-compressed-memory-device time averaged count of request queue length
+
+@ zram.read_rawactive per-compressed-memory-device raw count of read response time
+For each completed read on each compressed memory device the response time
+(queue time plus service time) in milliseconds is added to the associated
+instance of this metric.
+
+When converted to a normalized rate, the value represents the time average
+of the number of outstanding reads for a compressed memory device.  When
+divided by the number of completed reads for a zram device (zram.read),
+the value represents the stochastic average of the read response (or wait)
+time for that compressed memory device.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.zram.r_await = delta(zram.read_rawactive) / delta(zram.read)
+
+@ zram.write_rawactive per-compressed-memory-device raw count of write response time
+For each completed write on each compressed memory device the response time
+(queue time plus service time) in milliseconds is added to the associated
+instance of this metric.
+
+When converted to a normalized rate, the value represents the time
+average of the number of outstanding writes for a zram device.
+When divided by the number of completed writes for a zram device
+(zram.write), the value represents the stochastic average of
+the write response (or wait) time for that zram device.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.zram.w_await = delta(zram.write_rawactive) / delta(zram.write)
+
+@ zram.total_rawactive per-compressed-memory-device raw count of I/O response time
+For each completed I/O on each compressed memory device the response time
+(queue time plus service time) in milliseconds is added to the associated
+instance of this metric.
+
+When converted to a normalized rate, the value represents the time
+average of the number of outstanding I/Os for a zram device.
+When divided by the number of completed I/Os for a zram device
+(zram.total), the value represents the stochastic average of
+the I/O response (or wait) time for that zram device.
+
+@ zram.capacity per-compressed-memory-device capacity
+Total space presented by each zram device, from /proc/partitions.
+
+@ zram.discard discard operations count for compressed memory devices
+@ zram.blkdiscard block discard operations count for compressed memory device
+@ zram.discard_bytes number of discard bytes for compressed memory device
+@ zram.discard_merge per-zram-device count of merged discard requests
+@ zram.discard_rawactive per-zram-device raw count of discard response time
+For each completed discard on each compressed memory device the response time
+(queue time plus service time) in milliseconds is added to the associated
+instance of this metric.
+
+When converted to a normalized rate, the value represents the time average
+of the number of outstanding discards for a zram device.  When divided by
+the number of completed discards for a zram device (zram.discard),
+the value represents the stochastic average of the discard response (or wait)
+time for that compressed memory device.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.zram.d_await = delta(zram.discard_rawactive) / delta(zram.discard)
+
+@ zram.flush flush operations metric for compressed memory devices
+@ zram.flush_rawactive per-zram-device raw count of flush response time
+For each completed flush on each compressed memory device the response time
+(queue time plus service time) in milliseconds is added to the associated
+instance of this metric.
+
+When converted to a normalized rate, the value represents the time average
+of the number of outstanding flushes for a zram device.  When divided by
+the number of completed flushes for a compressed memory device (zram.flush),
+the value represents the stochastic average of the flush response (or wait)
+time for that compressed memory device.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.zram.f_await = delta(zram.flush_rawactive) / delta(zram.flush)
+
+@ zram.io_stat.failed.reads number of failed reads
+@ zram.io_stat.failed.writes number of failed writes
+@ zram.io_stat.invalid number of non-page-size-aligned I/O requests
+@ zram.io_stat.notify_free number of pages freed
+Depending on device usage scenario it may account:
+- the number of pages freed because of swap slot free notifications
+- the number of pages freed because of REQ_OP_DISCARD requests sent by
+bio. The former ones are sent to a swap block device when a swap slot
+is freed, which implies that this disk is being used as a swap disk.
+
+The latter ones are sent by filesystem mounted with discard option,
+whenever some data blocks are getting discarded.
+
+@ zram.mm_stat.data_size.original uncompressed data stored in this disk
+@ zram.mm_stat.data_size.compressed compressed data stored in this disk
+@ zram.mm_stat.mem.used_total amount of memory allocated for this disk
+This includes allocator fragmentation and metadata overhead, allocated
+for this disk.  So, allocator space efficiency can be calculated using
+zram.mm_stat.data_size.compressed and this statistic.
+
+@ zram.mm_stat.mem.limit maximum amount of memory zram can use to store compressed data
+@ zram.mm_stat.mem.max_used maximum amount of memory zram has consumed to store the data
+@ zram.mm_stat.pages.same number of same element filled pages written to this disk
+@ zram.mm_stat.pages.compacted pages freed during compaction
+@ zram.mm_stat.pages.huge the number of incompressible pages
+@ zram.bd_stat.count size of data written in backing device
+@ zram.bd_stat.reads the number of reads from backing device
+@ zram.bd_stat.writes the number of writes to backing device

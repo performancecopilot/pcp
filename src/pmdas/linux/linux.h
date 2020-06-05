@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019 Red Hat.
+ * Copyright (c) 2016-2020 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -107,6 +107,10 @@ enum {
 	CLUSTER_PRESSURE_CPU,	/* 83 /proc/pressure/cpu metrics */
 	CLUSTER_PRESSURE_MEM,	/* 84 /proc/pressure/memory metrics */
 	CLUSTER_PRESSURE_IO,	/* 85 /proc/pressure/io metrics */
+	CLUSTER_ZRAM_DEVICES,	/* 86 /proc/diskstat zram metrics */
+	CLUSTER_ZRAM_IO_STAT,	/* 87 /sys/block/zram[0-9]/io_stat metrics */
+	CLUSTER_ZRAM_MM_STAT,	/* 88 /sys/block/zram[0-9]/mm_stat metrics */
+	CLUSTER_ZRAM_BD_STAT,	/* 89 /sys/block/zram[0-9]/bd_stat metrics */
 
 	NUM_CLUSTERS		/* one more than highest numbered cluster */
 };
@@ -175,6 +179,7 @@ enum {
 	TTY_INDOM,              /* 35 - serial tty devices */
 	SOFTIRQS_INDOM,		/* 36 - softirqs */
 	PRESSUREAVG_INDOM,	/* 37 - 10, 60, 300 second pressure averages */
+	ZRAM_INDOM,		/* 38 - compressed RAM devices */
 
 	NUM_INDOMS		/* one more than highest numbered cluster */
 };

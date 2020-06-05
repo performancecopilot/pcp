@@ -894,6 +894,7 @@ _filter_torture_api()
 	-e '/^    kpreempt /d' \
 	-e '/^    kswitch /d' \
 	-e '/^    kvm /d' \
+	-e '/^    lustre /d' \
 	-e '/^    maillog /d' \
 	-e '/^    mounts /d' \
 	-e '/^    mt /d' \
@@ -926,7 +927,7 @@ _filter_torture_api()
 	-e '/^    waitio /d' \
 	-e '/^    xfs /d' \
 	-e '/^    xvm /d' \
-	-e '/^    lustre /d' \
+	-e '/^    zram /d' \
     # end
 }
 

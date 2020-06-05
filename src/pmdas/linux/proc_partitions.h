@@ -16,6 +16,41 @@
  */
 
 typedef struct {
+    unsigned long long	failed_reads;
+    unsigned long long	failed_writes;
+    unsigned long long	invalid_io;
+    unsigned long long	notify_free;
+} zram_io_stat_t;
+
+typedef struct {
+    unsigned long long	original;
+    unsigned long long	compressed;
+    unsigned long long	mem_used;
+    unsigned long long	mem_limit;
+    unsigned long long	max_used;
+    unsigned long long	same_pages;
+    unsigned long long	compacted_pages;
+    unsigned long long	huge_pages;
+} zram_mm_stat_t;
+
+typedef struct {
+    unsigned long long	count;
+    unsigned long long	reads;
+    unsigned long long	writes;
+} zram_bd_stat_t;
+
+typedef enum {
+    ZRAM_IO = 0x1, ZRAM_MM = 0x2, ZRAM_BD = 0x4, ZRAM_SIZE = 0x8
+} zram_state_t;
+
+typedef struct {
+    zram_state_t	uptodate;
+    zram_io_stat_t	iostat;
+    zram_mm_stat_t	mmstat;
+    zram_bd_stat_t	bdstat;
+} zram_stat_t;
+
+typedef struct {
     int			id;
     unsigned int	major;
     unsigned int	minor;
@@ -24,6 +59,7 @@ typedef struct {
     char		*udevnamebuf; /* from udev if we have it, else NULL */
     char		*dmname;      /* symlink from /dev/mapper, else NULL */
     char		*mdname;      /* symlink from /dev/md, else NULL */
+    zram_stat_t		*zram;
     unsigned long long	rd_ios;
     unsigned long long	rd_merges;
     unsigned long long	rd_sectors;
@@ -43,7 +79,7 @@ typedef struct {
     unsigned int	fl_ticks;
 } partitions_entry_t;
 
-extern int refresh_proc_partitions(pmInDom disk_indom, pmInDom partitions_indom, pmInDom dm_indom, pmInDom md_indom, int, int);
+extern int refresh_proc_partitions(pmInDom, pmInDom, pmInDom, pmInDom, pmInDom, int, int);
 extern int is_partitions_metric(pmID);
 extern int is_capacity_metric(int, int);
 extern int proc_partitions_fetch(pmdaMetric *, unsigned int, pmAtomValue *);

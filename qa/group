@@ -1717,6 +1717,7 @@ BAD
 1600 pmseries pmcd pmproxy pmlogger local
 1601 pmseries pmproxy local
 1602 pmproxy local
+1613 pmda.linux kernel local
 1622 selinux local
 1623 libpcp_import collectl local
 1644 pmda.perfevent local
