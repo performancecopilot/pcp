@@ -24,7 +24,7 @@
 #include <fnmatch.h>
 
 #define SHA1SZ		20	/* internal sha1 hash buffer size in bytes */
-#define QUERY_PHASES	6
+#define QUERY_PHASES	7
 
 typedef struct seriesGetSID {
     seriesBatonMagic	header;		/* MAGIC_SID */
@@ -1417,10 +1417,16 @@ series_instance_store_to_node(seriesQueryBaton *baton, sds series,
 	if (extract_string(baton, series, elements[i+1], &value->data, "value") < 0)
 	    sts = -EPROTO;
 	else{
-	    np->value_set.series_values[idx_series][idx_sample][idx_instance] = *value;
-	    np->value_set.series_values[idx_series][idx_sample][idx_instance].timestamp = sdsnew(value->timestamp);
-	    np->value_set.series_values[idx_series][idx_sample][idx_instance].series = sdsnew(value->series);
-	    np->value_set.series_values[idx_series][idx_sample][idx_instance].data = sdsnew(value->data);
+	    np->value_set.series_values[idx_series].series_sample[idx_sample].series_instance[idx_instance] = *value;
+	    np->value_set.series_values[idx_series].series_sample[idx_sample].series_instance[idx_instance].timestamp = sdsnew(value->timestamp);
+	    np->value_set.series_values[idx_series].series_sample[idx_sample].series_instance[idx_instance].series = sdsnew(value->series);
+	    np->value_set.series_values[idx_series].series_sample[idx_sample].series_instance[idx_instance].data = sdsnew(value->data);
+/*	    printf("%d %d %d\n", idx_series, idx_sample, idx_instance);
+	    printf("kyoma: why?? %s,  ", value->data);
+	    printf("num_series=%d, ", np->value_set.num_series);
+	    printf("num_samples=%d, ", np->value_set.series_values[idx_series].num_samples);
+	    printf("num_instance=%d\n", np->value_set.series_values[idx_series].series_sample[idx_sample].num_instances);
+*/
 	    ++idx_instance;
 	}
     }
@@ -1524,7 +1530,9 @@ series_values_store_to_node(seriesQueryBaton *baton, sds series,
 	    break;
 	
 	idx_sample = i;
-	if ((np->value_set.series_values[idx_series][idx_sample] = (pmSeriesValue*)calloc(reply->elements/2, sizeof(pmSeriesValue))) == NULL) {
+	np->value_set.series_values[idx_series].series_sample[idx_sample].num_instances = reply->elements/2;
+	//printf("idx_series=%d, idx_sample=%d, reply->elements=%d\n", idx_series, idx_sample, reply->elements);
+	if ((np->value_set.series_values[idx_series].series_sample[idx_sample].series_instance = (pmSeriesValue*)calloc(reply->elements/2, sizeof(pmSeriesValue))) == NULL) {
 	    /* TODO: error report here */
 	    baton->error = -ENOMEM;
 	}
@@ -1587,7 +1595,8 @@ series_node_prepare_time_reply(
 	baton->error = -EPROTO;
     } else {
 	/* calloc space to store series samples */
-	if ((np->value_set.series_values[idx] = (pmSeriesValue **)calloc(reply->elements, sizeof(pmSeriesValue *))) == NULL) {
+	np->value_set.series_values[idx].num_samples = reply->elements;
+	if ((np->value_set.series_values[idx].series_sample = (series_instance_set_t *)calloc(reply->elements, sizeof(series_instance_set_t))) == NULL) {
 	    /* TODO: error report here */
 	    baton->error = -ENOMEM;
 	}
@@ -1637,7 +1646,7 @@ series_node_prepare_time(seriesQueryBaton *baton, series_set_t *query_series_set
     }
 
     /* calloc nseries samples store space */
-    if ((np->value_set.series_values = (pmSeriesValue ***)calloc(nseries, sizeof(pmSeriesValue**))) == NULL) {
+    if ((np->value_set.series_values = (series_sample_set_t *)calloc(nseries, sizeof(series_sample_set_t))) == NULL) {
 	/* TODO: error report here */
 	baton->error = -ENOMEM;
     }
@@ -1702,7 +1711,7 @@ series_process_func(seriesQueryBaton *baton, node_t *np, int level)
      * First save the series identifiers saved in left child into this node np.result
      * Then use the left child's information to request to Redis
      */
-	printf("series_process_func N_RATE\n");
+	printf("kyoma: series_process_func N_RATE\n");
 	if (np->right != NULL) {
 	    // error report here
 	}
@@ -1734,6 +1743,54 @@ series_process_func(seriesQueryBaton *baton, node_t *np, int level)
 }
 
 static void
+series_noop_print(seriesQueryBaton *baton, node_t *np)
+{
+    for (int i = 0; i < np->value_set.num_series; i++) {
+	sds series = ((seriesGetSID **)np->value_set.SID)[i]->name;
+	printf("kyome test SID=%s, number of samples=%d\n", series, np->value_set.series_values[i].num_samples);
+	for (int j = 0; j < np->value_set.series_values[i].num_samples; j++) {
+	    for (int k = 0; k < np->value_set.series_values[i].series_sample[j].num_instances; k++) {
+		pmSeriesValue value = np->value_set.series_values[i].series_sample[j].series_instance[k];
+		baton->callbacks->on_value(series, &value, baton->userdata);
+	    }
+	}
+    }
+}
+
+static void
+series_noop_traverse(seriesQueryBaton *baton, node_t *np, int level)
+{
+    if (np == NULL) {
+	printf("NULL, return\n");
+	return;
+    }
+    printf("=====level %d, node type %d=====\n", level, np->type);
+    series_noop_print(baton, np);
+    printf("go left\n");
+    series_noop_traverse(baton, np->left, level+1);
+    printf("go right\n");
+    series_noop_traverse(baton, np->right, level+1);
+}
+
+static void
+series_calculate(seriesQueryBaton *baton, node_t *np, int level)
+{
+/* 
+ * In this phase all time series values have been stored into nodes.
+ * Therefore we can directly calculate values of a node accroding to
+ * the semantics of this node.
+ */
+    switch (np->type) {
+	case N_NOOP:
+	    printf("kyoma: series_calculate N_NOOP\n");
+	    /* Traverse the subtree of this node? */
+	    series_noop_traverse(baton, np, level);
+	default:
+	    break;
+    }
+}
+
+static void
 series_query_report_values(void *arg)
 {
     seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
@@ -1743,11 +1800,24 @@ series_query_report_values(void *arg)
 
     seriesBatonReference(baton, "series_query_report_values");
 
-    // Process funtion-type node here
-    series_process_func(baton, &baton->u.query.root, 0);
+    /* For function-tpye nodes, calculate actual values */
+    series_calculate(baton, &baton->u.query.root, 0);
 
-    // leave series_prepare_time function just to report values, maybe need to modified
     series_prepare_time(baton, &baton->u.query.root.result);
+    series_query_end_phase(baton);
+}
+
+static void
+series_query_funcs(void *arg)
+{
+    seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
+
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_query_funcs");
+    seriesBatonCheckCount(baton, "series_query_funcs");
+
+    seriesBatonReference(baton, "series_query_funcs");
+    // Process funtion-type node
+    series_process_func(baton, &baton->u.query.root, 0);
     series_query_end_phase(baton);
 }
 
@@ -1815,9 +1885,15 @@ series_solve(pmSeriesSettings *settings,
     if ((flags & PM_SERIES_FLAG_METADATA) || !series_time_window(timing))
 	/* Report matching series IDs, unless time windowing */
 	baton->phases[i++].func = series_query_report_matches;
-    else
-	/* Report actual values within the given time window */
+    else{
+	/* Kyoma: delete this comment temporarily--->Report actual values within the given time window */
+	//baton->phases[i++].func = series_query_report_values;
+
+	/* Store time series values into nodes */
+	baton->phases[i++].func = series_query_funcs;
+	/* Report actual values */
 	baton->phases[i++].func = series_query_report_values;
+    }
 
     /* final callback once everything is finished, free baton */
     baton->phases[i++].func = series_query_finished;

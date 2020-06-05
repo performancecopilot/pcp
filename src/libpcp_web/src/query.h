@@ -58,6 +58,7 @@ typedef enum nodetype {
     N_RESCALE,
     N_SCALE,
     N_DEFINED,
+    N_NOOP,
 
 /* node_t time-related sub-types */
     N_RANGE = 100,
@@ -90,15 +91,24 @@ typedef struct series_set {
     int			nseries;
 } series_set_t;
 
+typedef struct series_instance_set {
+    /* Number of series instances */
+    int			num_instances;
+    pmSeriesValue	*series_instance;
+} series_instance_set_t;
+
+typedef struct series_sample_set {
+    /* Number of series samples */
+    int				num_samples;
+    series_instance_set_t	*series_sample;
+} series_sample_set_t;
+
 typedef struct series_value_set {
-    /* Number of series */
-    int num_series;
-    /* For each series, how many samples */
-    int *num_sample;
+    /* Number of series identifiers*/
+    int			num_series;
     /* record SID for function-type node */
     void		**SID;
-    /* store time series values of this node */
-    pmSeriesValue	***series_values;
+    series_sample_set_t		*series_values;
 } series_value_set_t;
 
 

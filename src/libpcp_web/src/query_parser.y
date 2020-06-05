@@ -108,6 +108,7 @@ static const char initial_str[]  = "Unexpected initial";
 %token      L_RBRACE
 %token      L_LSQUARE
 %token      L_RSQUARE
+%token      L_NOOP
 %token      L_AVG
 %token      L_COUNT
 %token      L_DELTA
@@ -324,6 +325,11 @@ func	: L_RATE L_LPAREN L_NAME L_RPAREN
 		  lp->yy_np->left = newmetric($3);
 		  $$ = lp->yy_np;
 		}
+	| L_NOOP L_LPAREN func L_RPAREN
+		{ lp->yy_np = newnode(N_NOOP);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_np;
+		}
 	;
 //	| L_AVG L_LPAREN L_NAME L_RPAREN
 //		{ lp->yy_np = newnode(N_AVG);
@@ -427,6 +433,7 @@ static const struct {
     { L_MIN,    sizeof("min")-1,	"min" },
     { L_SUM,    sizeof("sum")-1,	"sum" },
     { L_RATE,   sizeof("rate")-1,	"rate" },
+    { L_NOOP,   sizeof("noop")-1,	"noop"},
     { L_UNDEF,  0,			NULL }
 };
 
@@ -458,6 +465,7 @@ static struct {
     { L_ASSIGN,		0,		"ASSIGN",	"=" },
     { L_COMMA,		0,		"COMMA",	"," },
     { L_STRING,		0,		"STRING",	"\"" },
+    { L_NOOP,		N_NOOP,		"NOOP",		NULL },
     { L_AVG,		N_AVG,		"AVG",		NULL },
     { L_COUNT,		N_COUNT,	"COUNT",	NULL },
     { L_DELTA,		N_DELTA,	"DELTA",	NULL },
