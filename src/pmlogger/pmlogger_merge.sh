@@ -26,8 +26,9 @@
 
 prog=`basename $0`
 tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
+tmpmerge=`mktemp -d $PCP_TMPFILE_DIR/pcp.XXXXXXXXX` || exit 1
 status=0
-trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
+trap "rm -rf $tmp $tmpmerge; exit \$status" 0 1 2 3 15
 
 force=false
 VERBOSE=false
@@ -229,8 +230,8 @@ else
 	    # output = 108 file descriptors which should be well below any
 	    # shell-imposed or system-imposed limits
 	    #
-	    $VERBOSE && echo "		-> partial merge to $tmp/$part"
-	    cmd="pmlogextract $list $tmp/$part"
+	    $VERBOSE && echo "		-> partial merge to $tmpmerge/$part"
+	    cmd="pmlogextract $list $tmpmerge/$part"
 	    if $SHOWME
 	    then
 		echo "+ $cmd"
@@ -239,13 +240,13 @@ else
 		then
 		    :
 		else
-		    $VERBOSE || echo "		-> partial merge to $tmp/$part"
+		    $VERBOSE || echo "		-> partial merge to $tmpmerge/$part"
 		    echo "$prog: Directory: `pwd`"
-		    echo "$prog: Failed: pmlogextract $list $tmp/$part"
+		    echo "$prog: Failed: pmlogextract $list $tmpmerge/$part"
 		    _warning
 		fi
 	    fi
-	    list=$tmp/$part
+	    list=$tmpmerge/$part
 	    part=`expr $part + 1`
 	    i=0
 	fi
