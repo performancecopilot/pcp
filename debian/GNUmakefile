@@ -25,9 +25,9 @@ PCPIMPORTSAR = pcp-import-sar2pcp
 PCPIMPORTSAR_FILES = pcp-import-sar2pcp.install
 PCPIMPORTSAR_DOC_DIR = $(PCP_DOC_DIR)/../pcp-import-sar2pcp
 
-PCPIMPORTSAR = pcp-import-ganglia2pcp
-PCPIMPORTSAR_FILES = pcp-import-ganglia2pcp.install
-PCPIMPORTSAR_DOC_DIR = $(PCP_DOC_DIR)/../pcp-import-ganglia2pcp
+PCPIMPORTGANGLIA = pcp-import-ganglia2pcp
+PCPIMPORTGANGLIA_FILES = pcp-import-ganglia2pcp.install
+PCPIMPORTGANGLIA_DOC_DIR = $(PCP_DOC_DIR)/../pcp-import-ganglia2pcp
 
 PCPIMPORTMRTG = pcp-import-mrtg2pcp
 PCPIMPORTMRTG_FILES = pcp-import-mrtg2pcp.install
@@ -105,7 +105,7 @@ LDIRT = *.debhelper *.substvars *.log pcp files pcp.postrm \
 	$(LIBIMPORTPCP) $(LIBIMPORTPCP)-dev \
 	$(LIBWEBPCP) $(LIBWEBPCP)-dev \
 	$(PCPIMPORTSAR) $(PCPIMPORTMRTG) $(PCPIMPORTSHEET) $(PCPIMPORTIOSTAT) \
-	$(PCPIMPORTCOLLECTL)
+	$(PCPIMPORTCOLLECTL) $(PCPIMPORTGANGLIA)
 
 default: pcp.preinst pcp.postinst pcp.postrm control pcp-gui.install
 
@@ -248,6 +248,13 @@ ifeq ($(PACKAGE_DISTRIBUTION), debian)
 	$(INSTALL) -m 755 -d $(PCPIMPORTSAR_DOC_DIR)
 	$(INSTALL) -m 644 copyright $(PCPIMPORTSAR_DOC_DIR)
 	$(INSTALL) -m 644 changelog $(PCPIMPORTSAR_DOC_DIR)/changelog.Debian
+endif
+
+install-pcpimportganglia: default
+ifeq ($(PACKAGE_DISTRIBUTION), debian)
+	$(INSTALL) -m 755 -d $(PCPIMPORTGANGLIA_DOC_DIR)
+	$(INSTALL) -m 644 copyright $(PCPIMPORTGANGLIA_DOC_DIR)
+	$(INSTALL) -m 644 changelog $(PCPIMPORTGANGLIA_DOC_DIR)/changelog.Debian
 endif
 
 install-pcpimportmrtg: default
