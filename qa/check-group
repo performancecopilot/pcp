@@ -110,6 +110,7 @@ sed <group -e '/^$/d' -e '/^[^0-9]/d' -e 's/ .*//' -e 's/:/ /' \
 do
     [ -f "$seq" ] && continue
     [ "$state" = reserved ] && continue
+    [ "$state" = retired ] && continue
     echo "$seq: Error: in group but file not found"
 done
 
