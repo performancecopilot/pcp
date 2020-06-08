@@ -395,6 +395,9 @@ pmwebd			# note this group has been retired
 # will NOT be run in the QA Farm
 BAD
 
+# these test don't work in containers (yet)
+not_in_container
+
 # test-group association ... one line per test
 # add :retired or :reserved as a tag immediately after the test number
 # to keep the test number allocated, but prevent the test from being run
@@ -755,7 +758,7 @@ BAD
 351 derive local
 352 derive pmlogger local pmdumplog
 353 pmsocks remote
-354 folio local sanity pmlc
+354 folio local sanity pmlc not_in_container
 355 trace local pmda.install
 356 derive local pmie
 357 other local

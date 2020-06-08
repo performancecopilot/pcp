@@ -19,21 +19,32 @@ tasks:
     do
       sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "$i" || true
     done
+    sudo apt-get install -y python-requests
   build: |
-    (cd ./pcp && ./Makepkgs --nonrpm --verbose)
+    (cd ./pcp && ./Makepkgs --with-python3=no --nonrpm --verbose)
     cp ./pcp/build/deb/*.deb artifacts/build
   install: |
     sudo dpkg -i ./pcp/build/deb/*.deb
     echo 'pcpqa ALL=(ALL) NOPASSWD: ALL' | sudo tee /etc/sudoers.d/pcpqa
+
+    # "invoke-rc.d pmcd start" (inside pcp.postinst.tail hook) doesn't start pmcd on ubuntu 16.04 (works fine on ubuntu 18.04)
+    # make sure it's started here, as pmcd will create the file /var/lib/pcp/pmns/stdpmid, which is required by QA tests
+    sudo systemctl start pmcd
   initqa: |
     sudo -i -u pcpqa ./check 002
   qa_sanity: |
-    set -o pipefail && status=0 && sudo -i -u pcpqa ./check -TT -g sanity |& tee ./artifacts/test/test.log || status=$?
+    set -o pipefail
+    status=0
+    sudo -i -u pcpqa ./check -TT -g sanity -x not_in_container |& tee ./artifacts/test/test.log || status=$?
+
     cp /var/lib/pcp/testsuite/check.timings ./artifacts/test
     for test in /var/lib/pcp/testsuite/*.out.bad; do cp $test ${test/.out.bad/.full} ./artifacts/test || true; done
     exit $status
   qa: |
-    set -o pipefail && status=0 && sudo -i -u pcpqa ./check -TT |& tee ./artifacts/test/test.log || status=$?
+    set -o pipefail
+    status=0
+    sudo -i -u pcpqa ./check -TT -x not_in_container |& tee ./artifacts/test/test.log || status=$?
+
     cp /var/lib/pcp/testsuite/check.timings ./artifacts/test
     for test in /var/lib/pcp/testsuite/*.out.bad; do cp $test ${test/.out.bad/.full} ./artifacts/test || true; done
     exit $status

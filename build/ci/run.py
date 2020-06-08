@@ -20,7 +20,7 @@ class DirectRunner:
         self.exec('mkdir -p artifacts/build artifacts/test')
 
     def exec(self, command, check=True):
-        command = 'set -eu\n' + command
+        command = 'set -eux\n' + command
         subprocess.run(['bash', '-'], cwd=self.build_dir, input=command.encode(), check=check)
 
     def shell(self):
@@ -47,14 +47,19 @@ class VirtualMachineRunner:
         }
 
     def setup(self, pcp_path):
+        post_start = self.platform['container'].get('post_start')
+
         subprocess.run(['vagrant', 'up'], env=self.vagrant_env, check=True)
         subprocess.run(f"vagrant ssh-config > {self.ssh_config_file}", env=self.vagrant_env, shell=True, check=True)
         subprocess.run(['rsync', '-a', '-e', f"ssh -F {self.ssh_config_file}",
                         f"{pcp_path}/", f"{self.vm_name}:pcp/"], check=True)
         self.exec('mkdir -p artifacts/build artifacts/test')
 
+        if post_start:
+            self.exec(post_start)
+
     def exec(self, command, check=True):
-        command = 'set -eu\n' + command
+        command = 'set -eux\n' + command
         subprocess.run(['ssh', '-F', self.ssh_config_file, self.vm_name, 'bash', '-'],
                        input=command.encode(), check=check)
 
@@ -89,7 +94,7 @@ class ContainerRunner:
 
         # e.g. create a new image with systemd before starting the container
         if pre_start:
-            pre_start = 'set -eu\n' + pre_start
+            pre_start = 'set -eux\n' + pre_start
             subprocess.run([*self.sudo, 'bash', '-'], input=pre_start.encode(), check=True)
 
         # start a new container
@@ -98,7 +103,7 @@ class ContainerRunner:
                         image, init], check=True)
 
         # setup pcpbuild user
-        post_start = 'set -eu\n' + post_start
+        post_start = 'set -eux\n' + post_start
         subprocess.run([*self.sudo, 'podman', 'exec', '-i', self.container_name, 'bash', '-'],
                        input=post_start.encode(), check=True)
 
@@ -106,15 +111,17 @@ class ContainerRunner:
         subprocess.run([*self.sudo, 'podman', 'cp', pcp_path, f"{self.container_name}:/home/pcpbuild/pcp"], check=True)
 
     def exec(self, command, check=True):
-        command = 'set -eu\n' + command
+        command = 'set -eux\n' + command
         subprocess.run([*self.sudo, 'podman', 'exec', '-i',
                         '-u', 'pcpbuild', '-w', '/home/pcpbuild',
+                        '-e', 'is_container=true',
                         self.container_name, 'bash', '-'],
                        input=command.encode(), check=check)
 
     def shell(self):
         subprocess.run([*self.sudo, 'podman', 'exec', '-it',
                         '-u', 'pcpbuild', '-w', '/home/pcpbuild',
+                        '-e', 'is_container=true',
                         self.container_name, 'bash'])
 
     def task(self, task_name):
