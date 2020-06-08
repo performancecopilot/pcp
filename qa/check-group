@@ -6,6 +6,12 @@
 # the QA scripts (or part of a command, e.g. purify in _setup_purify)
 # and the name of a group in the group file
 #
+# Note: if $1 is of the form pcp-xxx, this is special, and is the name
+#	of a command, but the groups are pcp and xxx
+# Note: there are some special group aliases, like folio, logutil,
+#	pmclient where $1 is a group name, but expands to multiple
+#	commands
+#
 
 tmp=/var/tmp/check-group-$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
@@ -14,7 +20,7 @@ debug=false
 
 if [ $# -ne 1 ]
 then
-    echo "Usage: $0 pcp-app"
+    echo "Usage: $0 <pcpapp>"
     exit 1
 fi
 
@@ -46,6 +52,8 @@ do
 	fi
     fi
 
+    report_group=""
+    group_list=""
     # need to handle some alias cases ...
     #
     case "$1"
@@ -77,14 +85,14 @@ do
 	    ( grep -v '^#' $seq \
 	      | egrep -q "(^[ 	]*(pmdumplog|_exercise_compression)([ '\"]|$))|([ /'\"\`_=](pmdumplog|_exercise_compression)([ '\"\`_]|$))" \
 	    ) && echo $seq >>$tmp.tmp
-	    report_group=pmdumplog
 	    ;;
+
+	pmie)		# executable might be hidden in src/grind
 
 	pmlogrewrite)	# executable might be hidden in mk.logfarm
 	    ( grep -v '^#' $seq \
 	      | egrep -q "(^[ 	]*(pmlogrewrite|mk.logfarm)([ '\"]|$))|([ /'\"\`_=](pmlogrewrite|mk.logfarm)([ '\"\`_]|$))" \
 	    ) && echo $seq >>$tmp.tmp
-	    report_group=pmlogrewrite
 	    ;;
 
 	valgrind)	# executable maybe hidden in wrappers, so look for
@@ -92,7 +100,13 @@ do
 	    ( grep -v '^#' $seq \
 	      | egrep -q "(^[ 	]*(valgrind|_check_valgrind)([ '\"]|$))|([ /'\"\`_=](valgrind|_run_valgrind)([ '\"\`_]|$))" \
 	    ) && echo $seq >>$tmp.tmp
-	    report_group="valgrind"
+	    ;;
+
+	pcp-*)		# pcp-xxx is cmd, expected group is pcp AND xxx
+	    ( grep -v '^#' $seq \
+	      | egrep "(^[ 	]*$1([ '\"]|$))|([ '\"\`]$1([ '\"\`]|$))" >$tmp.debug \
+	    ) && echo $seq >>$tmp.tmp
+	    group_list="`echo $1 | sed -e 's/-/ /'`"
 	    ;;
 
 	*)
@@ -100,7 +114,6 @@ do
 	      | egrep "(^[ 	]*$1([ '\"]|$))|([ '\"\`]$1([ '\"\`]|$))" >$tmp.debug \
 	    ) && echo $seq >>$tmp.tmp
 	    $debug && [ -s $tmp.debug ] && echo $seq: && cat $tmp.debug
-	    report_group="$1"
 	    ;;
     esac
 done
@@ -116,11 +129,37 @@ done
 
 sort -o $tmp.scripts $tmp.tmp
 
-check -r -n -g "$1" | sort \
-| while read f
-do
-    [ -f "$f" ] && echo "$f"
-done >$tmp.group
+if [ -z "$group_list" ]
+then
+    # $1 IS the group name
+    #
+    check -r -n -g "$1" \
+    | sort \
+    | while read f
+    do
+	[ -f "$f" ] && echo "$f"
+    done >$tmp.group
+else
+    # Need to match ALL the groups in the group file ... these ones are OK
+    #
+    for grp in $group_list
+    do
+	check -r -n -g "$grp" \
+	| while read f
+	do
+	    [ -f "$f" ] && echo "$f"
+	done
+    done >$tmp.tmp
+    xpect="`echo $group_list | wc -w | sed -e 's/ //g'`"
+    sort $tmp.tmp \
+    | uniq -c \
+    | while read num seq
+    do
+	[ "$num" = "$xpect" ] && echo $seq
+    done >$tmp.group
+fi
+
+[ -z "$report_group" ] && report_group="$1"
 
 comm -23 $tmp.scripts $tmp.group >$tmp.tmp
 if [ -s $tmp.tmp ]
