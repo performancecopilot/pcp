@@ -3342,6 +3342,24 @@ done
 if test x"$man_header" = "x'\\\" t" -o x"$man_header" = "x'\\\" te" ; then
     need_old_tbl_header=true
 fi
+
+if $have_manpages
+then
+    :
+else
+    dnl We can get here ($have_manpages == false) for container-based
+    dnl builds.
+    dnl For Debian packaging, we _must_ include the man pages, so 
+    dnl take the known and good settings ...
+    dnl
+    if test $target_distro = debian
+    then
+	have_manpages=true
+	have_gzipped_manpages=true
+	need_old_tbl_header=true
+    fi
+fi
+
 AC_SUBST(pcp_man_dir)
 AC_SUBST(have_manpages)
 AC_SUBST(have_gzipped_manpages)

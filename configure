@@ -691,7 +691,6 @@ pcp_pmloggercontrol_path
 pcp_pmsnapcontrol_path
 pcp_pmiecontrol_path
 pcp_pmproxyoptions_path
-pcp_pmmgroptions_path
 pcp_pmcdrclocal_path
 pcp_pmcdoptions_path
 pcp_pmcdconf_path
@@ -743,7 +742,6 @@ pcp_selinux_cap_userns_ptrace
 pcp_selinux_dir
 enable_selinux
 SEINFO
-enable_manager
 PMDA_POSTFIX
 QSHAPE
 PMDA_RPM
@@ -971,6 +969,7 @@ infodir
 docdir
 oldincludedir
 includedir
+runstatedir
 localstatedir
 sharedstatedir
 sysconfdir
@@ -1019,8 +1018,6 @@ with_pmdabpftrace
 with_pmdajson
 with_pmdanutcracker
 with_pmdasnmp
-with_manager
-with_webapi
 with_selinux
 with_make
 with_tar
@@ -1118,6 +1115,7 @@ datadir='${datarootdir}'
 sysconfdir='${prefix}/etc'
 sharedstatedir='${prefix}/com'
 localstatedir='${prefix}/var'
+runstatedir='${localstatedir}/run'
 includedir='${prefix}/include'
 oldincludedir='/usr/include'
 docdir='${datarootdir}/doc/${PACKAGE}'
@@ -1370,6 +1368,15 @@ do
   | -silent | --silent | --silen | --sile | --sil)
     silent=yes ;;
 
+  -runstatedir | --runstatedir | --runstatedi | --runstated \
+  | --runstate | --runstat | --runsta | --runst | --runs \
+  | --run | --ru | --r)
+    ac_prev=runstatedir ;;
+  -runstatedir=* | --runstatedir=* | --runstatedi=* | --runstated=* \
+  | --runstate=* | --runstat=* | --runsta=* | --runst=* | --runs=* \
+  | --run=* | --ru=* | --r=*)
+    runstatedir=$ac_optarg ;;
+
   -sbindir | --sbindir | --sbindi | --sbind | --sbin | --sbi | --sb)
     ac_prev=sbindir ;;
   -sbindir=* | --sbindir=* | --sbindi=* | --sbind=* | --sbin=* \
@@ -1507,7 +1514,7 @@ fi
 for ac_var in	exec_prefix prefix bindir sbindir libexecdir datarootdir \
 		datadir sysconfdir sharedstatedir localstatedir includedir \
 		oldincludedir docdir infodir htmldir dvidir pdfdir psdir \
-		libdir localedir mandir
+		libdir localedir mandir runstatedir
 do
   eval ac_val=\$$ac_var
   # Remove trailing slashes.
@@ -1660,6 +1667,7 @@ Fine tuning of the installation directories:
   --sysconfdir=DIR        read-only single-machine data [PREFIX/etc]
   --sharedstatedir=DIR    modifiable architecture-independent data [PREFIX/com]
   --localstatedir=DIR     modifiable single-machine data [PREFIX/var]
+  --runstatedir=DIR       modifiable per-process data [LOCALSTATEDIR/run]
   --libdir=DIR            object code libraries [EPREFIX/lib]
   --includedir=DIR        C header files [PREFIX/include]
   --oldincludedir=DIR     C header files for non-gcc [/usr/include]
@@ -1741,8 +1749,6 @@ Optional Packages:
   --with-pmdajson         enable JSON pmda (default is on)
   --with-pmdanutcracker   enable nutcracker pmda (default is on)
   --with-pmdasnmp         enable SNMP pmda (default is on)
-  --with-manager          enable daemon manager (default is on)
-  --with-webapi           enable REST API daemon (default is on)
   --with-selinux          enable building of selinux package (default is on)
   --with-make             path to GNU compatible make(1) (default is empty for
                           auto discovery)
@@ -2929,24 +2935,6 @@ if test "${with_pmdasnmp+set}" = set; then :
   withval=$with_pmdasnmp; do_pmdasnmp=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdasnmp=$withval"
 else
   do_pmdasnmp=check
-fi
-
-
-
-# Check whether --with-manager was given.
-if test "${with_manager+set}" = set; then :
-  withval=$with_manager; do_manager=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-manager=$withval"
-else
-  do_manager=check
-fi
-
-
-
-# Check whether --with-webapi was given.
-if test "${with_webapi+set}" = set; then :
-  withval=$with_webapi; do_webapi=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-webapi=$withval"
-else
-  do_webapi=check
 fi
 
 
@@ -11585,52 +11573,6 @@ if $pmda_postfix; then { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }; else { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }; fi
 
-enable_manager=false
-if test "x$do_manager" != "xno"; then :
-
-    enable_manager=true
-
-    if test "$target_os" = "mingw"
-    then
-	enable_manager=false
-	test "$do_manager" != "check" && \
-	as_fn_error $? "MinGW build, cannot enable daemon manager" "$LINENO" 5
-    elif test "x$cxx" = "x"
-    then
-	enable_manager=false
-	test "$do_manager" != "check" && \
-	as_fn_error $? "C++ compiler unavailable, cannot enable daemon manager" "$LINENO" 5
-    fi
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking compilation features for daemon manager" >&5
-$as_echo_n "checking compilation features for daemon manager... " >&6; }
-    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
- #ifndef _XOPEN_SOURCE
-	  #define _XOPEN_SOURCE 600
-	  #endif
-	  #include <stdio.h>
-
-int
-main ()
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-else
-  enable_manager=false
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-
-fi
-
-
 for ac_prog in seinfo
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
@@ -14291,12 +14233,10 @@ pcp_sysconf_dir=`eval echo $pcp_sysconf_dir`
 pcp_pmcdconf_path=$pcp_sysconf_dir/pmcd/pmcd.conf
 pcp_pmcdrclocal_path=$pcp_sysconf_dir/pmcd/rc.local
 pcp_pmcdoptions_path=$pcp_sysconf_dir/pmcd/pmcd.options
-pcp_pmmgroptions_path=$pcp_sysconf_dir/pmmgr/pmmgr.options
 pcp_pmproxyoptions_path=$pcp_sysconf_dir/pmproxy/pmproxy.options
 pcp_pmiecontrol_path=$pcp_sysconf_dir/pmie/control
 pcp_pmsnapcontrol_path=$pcp_sysconf_dir/pmsnap/control
 pcp_pmloggercontrol_path=$pcp_sysconf_dir/pmlogger/control
-
 
 
 
@@ -15114,6 +15054,19 @@ done
 if test x"$man_header" = "x'\\\" t" -o x"$man_header" = "x'\\\" te" ; then
     need_old_tbl_header=true
 fi
+
+if $have_manpages
+then
+    :
+else
+                        if test $target_distro = debian
+    then
+	have_manpages=true
+	have_gzipped_manpages=true
+	need_old_tbl_header=true
+    fi
+fi
+
 
 
 
