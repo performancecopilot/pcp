@@ -336,6 +336,7 @@ zbxpcp
 # pcp system commands
 atop
 dstat
+free
 pidstat
 iostat
 tapestat
@@ -1544,7 +1545,7 @@ BAD
 1137 derive pmrep local python kernel
 1138 archive pmval multi-archive decompress-xz local pmlogextract kernel
 1139 pmrep python local kernel
-1140 pidstat local python pcp pmlogrewrite pmrep derive
+1140 pidstat local python pcp pmlogrewrite pmrep derive free
 1141 selinux local
 1142 pmie local kernel
 1143 pmie local
@@ -1629,6 +1630,7 @@ BAD
 1243 valgrind pmfind libpcp local
 1245 libpcp local
 1247 pmlogrewrite labels pmdumplog local
+1250 selinux local
 1255 libpcp local kernel
 1257 libpcp python local
 1258 pmda.linux local valgrind
@@ -1670,6 +1672,7 @@ BAD
 1357 pmda.podman valgrind local
 1358 pmda.podman local
 1359 libpcp local
+1360:reserved pcp dstat local
 1362 pmda.postgresql local
 1367 labels pmda.simple local python
 1368 labels help pmlogger pmdumplog local sanity
@@ -1687,6 +1690,7 @@ BAD
 1397 pmda.smart local valgrind
 1398 pidstat local
 1399 pidstat local
+1400 pcp free local
 1401 pmproxy local
 1403 pmda.linux local valgrind
 1407 pmchart derive local
