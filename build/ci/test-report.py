@@ -46,10 +46,7 @@ def read_test_groups(group_path: str) -> Dict[str, List[str]]:
     tests = {}
     with open(group_path) as f:
         for line in f:
-            line = line.rstrip()
-            if '#' in line:
-                line = line[:line.find('#')]
-            spl = line.split(' ')
+            spl = line.rstrip().split()
             if len(spl) >= 2 and spl[0].isdigit():
                 tests[spl[0]] = spl[1:]
     return tests
