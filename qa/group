@@ -367,6 +367,9 @@ collectl
 # pmlogsize
 pmlogsize
 
+# pmdbg
+pmdbg
+
 # pcp2... pcp2xxx is generic
 pcp2xxx
 pcp2elasticsearch
@@ -620,7 +623,7 @@ BAD
 216 pmda.linux local
 217 folio local
 218 archive local pmlogextract pmdumplog
-219 other local
+219 pmdbg local
 220 pmlogger local folio
 221 pmlogger local
 222 other local
@@ -1141,7 +1144,7 @@ BAD
 737 python local timezone
 738 local pmlogmv
 739 python getopt local timezone
-740 pmda.sample pmstore secure local
+740 pmda.sample pmstore secure local pmdbg
 741 python getopt local
 742 pcp python local
 743 pcp python local
@@ -1193,7 +1196,7 @@ BAD
 789 pmda.zimbra local
 790 pmlogextract local
 791 pmlogextract valgrind local pmdumplog
-792 libpcp local
+792 libpcp local pmdbg
 793 logutil local kernel
 794 containers pmcd pmda.pmcd local
 795 pmimport local pmdumplog perl local
@@ -1224,7 +1227,7 @@ BAD
 820 pmda.linux local
 821 pmda.linux local
 822:reserved pmlogrewrite
-823 pmda.sample pmstore secure local
+823 pmda.sample pmstore secure local pmdbg
 824 pmlogsummary local #1132476 pmdumplog kernel
 825 pmda.ds389 local
 826 pmda.linux local
@@ -1232,13 +1235,13 @@ BAD
 828 valgrind archive context local kernel
 829 pcp python local
 830 other local
-831 pmda.sample pmstore secure local
+831 pmda.sample pmstore secure local pmdbg
 832 pmda.sample pmstore secure local
 833 archive context local kernel
 834 pmie local
 835 pmda.memcache local
 836 pmlogsummary local pmdiff
-837 pmda.sample containers local pmval pmstore pmprobe
+837 pmda.sample containers local pmval pmstore pmprobe pmdbg
 838 pmns local
 839 pcp python local
 840 avahi local
