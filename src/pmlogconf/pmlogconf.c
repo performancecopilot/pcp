@@ -735,7 +735,7 @@ parse_group(group_t *group)
 static int
 evaluate_number_values(group_t *group, int type, numeric_cmp_t compare)
 {
-    unsigned int	i, found;
+    int			i, found;
     pmValueSet		*vsp;
     pmValue		*vp;
     pmAtomValue		atom;
@@ -769,7 +769,7 @@ evaluate_number_values(group_t *group, int type, numeric_cmp_t compare)
 static int
 evaluate_string_values(group_t *group, string_cmp_t compare)
 {
-    unsigned int	i, found;
+    int			i, found;
     pmValueSet		*vsp;
     pmValue		*vp;
     pmAtomValue		atom;
@@ -828,7 +828,7 @@ number_to_string(pmAtomValue *atom, int type)
 static int
 evaluate_string_regexp(group_t *group, regex_cmp_t compare)
 {
-    unsigned int	i, found;
+    int			i, found;
     pmValueSet		*vsp;
     pmValue		*vp;
     pmAtomValue		atom;
