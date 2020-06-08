@@ -253,8 +253,11 @@ logonexit(void)
 	return;
     }
 
-    for (i = 0; i < nfilelog; i++)
+    for (i = 0; i < nfilelog; i++) {
+	if (pmDebugOptions.qa)
+	    fprintf(filelog[i], "logonexit: calling logfooter for log #%d\n", i);
 	logfooter(filelog[i], "finished");
+    }
 
     PM_UNLOCK(util_lock);
 }
