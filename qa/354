@@ -104,6 +104,10 @@ export PCP_XCONFIRM_PROG=$tmp.xconfirm
 
 # real QA test starts here
 
+# for CI duplicate Log finished message issue
+#
+export PCP_DEBUG="qa"
+
 echo
 echo "=== folio name relative to cwd ==="
 echo "=== folio name relative to cwd ===" >>$here/$seq.full
