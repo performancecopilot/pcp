@@ -121,43 +121,7 @@ http_content_type(http_flags flags)
 	return "text/html";
     if (flags & HTTP_FLAG_TEXT)
 	return "text/plain";
-    if (flags & HTTP_FLAG_JS)
-	return "text/javascript";
-    if (flags & HTTP_FLAG_CSS)
-	return "text/css";
-    if (flags & HTTP_FLAG_ICO)
-	return "image/x-icon";
-    if (flags & HTTP_FLAG_JPG)
-	return "image/jpeg";
-    if (flags & HTTP_FLAG_PNG)
-	return "image/png";
-    if (flags & HTTP_FLAG_GIF)
-	return "image/gif";
     return "application/octet-stream";
-}
-
-http_flags
-http_suffix_type(const char *suffix)
-{
-    if (strcmp(suffix, "js") == 0)
-	return HTTP_FLAG_JS;
-    if (strcmp(suffix, "ico") == 0)
-	return HTTP_FLAG_ICO;
-    if (strcmp(suffix, "css") == 0)
-	return HTTP_FLAG_CSS;
-    if (strcmp(suffix, "png") == 0)
-	return HTTP_FLAG_PNG;
-    if (strcmp(suffix, "gif") == 0)
-	return HTTP_FLAG_GIF;
-    if (strcmp(suffix, "jpg") == 0)
-	return HTTP_FLAG_JPG;
-    if (strcmp(suffix, "jpeg") == 0)
-	return HTTP_FLAG_JPG;
-    if (strcmp(suffix, "html") == 0)
-	return HTTP_FLAG_HTML;
-    if (strcmp(suffix, "txt") == 0)
-	return HTTP_FLAG_TEXT;
-    return 0;
 }
 
 static const char * const
@@ -271,8 +235,7 @@ http_response_header(struct client *client, unsigned int length, http_code sts, 
 
     if ((flags & HTTP_FLAG_STREAMING))
 	header = sdscatfmt(header, "Transfer-encoding: %s\r\n", "chunked");
-
-    if (!(flags & HTTP_FLAG_STREAMING))
+    else
 	header = sdscatfmt(header, "Content-Length: %u\r\n", length);
 
     header = sdscatfmt(header,
@@ -326,10 +289,10 @@ http_reply(struct client *client, sds message, http_code sts, http_flags type)
 	buffer = http_response_header(client, sdslen(suffix), sts, type);
     }
 
-    if (pmDebugOptions.http) {
+    if (pmDebugOptions.http)
 	fprintf(stderr, "HTTP response (client=%p)\n%s%s",
-			client, buffer, suffix);
-    }
+			client, buffer, suffix ? suffix : "");
+
     client_write(client, buffer, suffix);
 }
 
