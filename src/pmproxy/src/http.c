@@ -558,6 +558,11 @@ servlet_lookup(struct client *client, const char *offset, size_t length)
     struct servlet	*servlet;
     sds			url;
 
+    if (pmDebugOptions.http || pmDebugOptions.appl0)
+	fprintf(stderr, "HTTP %s %.*s\n",
+			http_method_str(client->u.http.parser.method),
+			(int)length, offset);
+
     if (!(url = http_url_decode(offset, length, &client->u.http.parameters)))
 	return NULL;
     for (servlet = proxy->servlets; servlet != NULL; servlet = servlet->next) {

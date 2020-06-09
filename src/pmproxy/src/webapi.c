@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Red Hat.
+ * Copyright (c) 2019-2020 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -632,6 +632,14 @@ on_pmwebapi_done(sds context, int status, sds message, void *arg)
     client_put(client);
 }
 
+static void
+on_pmwebapi_info(pmLogLevel level, sds message, void *arg)
+{
+    pmWebGroupBaton	*baton = (pmWebGroupBaton *)arg;
+
+    proxylog(level, message, baton->client->proxy);
+}
+
 static pmWebGroupSettings pmwebapi_settings = {
     .callbacks.on_context	= on_pmwebapi_context,
     .callbacks.on_metric	= on_pmwebapi_metric,
@@ -645,7 +653,7 @@ static pmWebGroupSettings pmwebapi_settings = {
     .callbacks.on_scrape_labels	= on_pmwebapi_scrape_labels,
     .callbacks.on_check		= on_pmwebapi_check,
     .callbacks.on_done		= on_pmwebapi_done,
-    .module.on_info		= proxylog,
+    .module.on_info		= on_pmwebapi_info,
 };
 
 /*
