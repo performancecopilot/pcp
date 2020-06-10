@@ -88,6 +88,11 @@ do
 	    ;;
 
 	pmie)		# executable might be hidden in src/grind
+	    ( grep -v '^#' $seq \
+	      | egrep -q "(^[ 	]*(pmie|src/grind-tools)([ '\"]|$))|([ /'\"\`_=](pmie|src/grind-tools)([ '\"\`_]|$))" \
+	    ) && echo $seq >>$tmp.tmp
+	    ;;
+
 
 	pmlogrewrite)	# executable might be hidden in mk.logfarm
 	    ( grep -v '^#' $seq \
