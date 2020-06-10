@@ -2780,6 +2780,7 @@ chown -R pcp:pcp %{_logsdir}/sa 2>/dev/null
 chown -R pcp:pcp %{_logsdir}/pmie 2>/dev/null
 chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %{install_file "$PCP_PMNS_DIR" .NeedRebuild}
+%{install_file "$PCP_LOG_DIR/pmlogger" .NeedRewrite}
 %if !%{disable_systemd}
     %systemd_postun_with_restart pmcd.service
     %systemd_post pmcd.service

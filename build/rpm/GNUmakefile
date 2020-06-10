@@ -109,6 +109,7 @@ pcp.spec: pcp.spec.in
 	    -e's|@pcp_sysconf_dir@|$(PCP_SYSCONF_DIR)|g' \
 	    -e's|@pcp_share_dir@|$(PCP_SHARE_DIR)|g' \
 	    -e's|@pcp_log_dir@|$(PCP_LOG_DIR)|g' \
+	    -e's|@pcp_archive_dir@|$(PCP_ARCHIVE_DIR)|g' \
 	    -e's|@pcp_sa_dir@|$(PCP_SA_DIR)|g' \
 	    -e's|@pcp_var_dir@|$(PCP_VAR_DIR)|g' \
 	    -e's|@pcp_etc_dir@|$(PCP_ETC_DIR)|g' \

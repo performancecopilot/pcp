@@ -223,5 +223,26 @@ probe	sample.secret.foo.one values ? include : exclude
 End-of-File
 _doit
 
+cat <<'End-of-File' >$tmp.grp
+#pmlogconf-setup 2.0
+ident	Bad metric - 'no support' error code instead of value
+probe	sample.bad.nosupport
+End-of-File
+_doit
+
+cat <<'End-of-File' >$tmp.grp
+#pmlogconf-setup 2.0
+ident	Bad metric - EAGAIN error code instead of value
+probe	sample.bad.fetch.again
+End-of-File
+_doit
+
+cat <<'End-of-File' >$tmp.grp
+#pmlogconf-setup 2.0
+ident	Bad metric - 'no desc' error code during pmDesc lookup
+probe	sample.bad.unknown
+End-of-File
+_doit
+
 # success, all done
 exit

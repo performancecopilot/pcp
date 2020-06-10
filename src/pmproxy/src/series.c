@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Red Hat.
+ * Copyright (c) 2019-2020 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -555,6 +555,14 @@ pmseries_setup(void *arg)
 	fprintf(stderr, "series module setup (arg=%p)\n", arg);
 }
 
+static void
+pmseries_log(pmLogLevel level, sds message, void *arg)
+{
+    pmSeriesBaton	*baton = (pmSeriesBaton *)arg;
+
+    proxylog(level, message, baton->client->proxy);
+}
+
 static pmSeriesSettings pmseries_settings = {
     .callbacks.on_match		= on_pmseries_match,
     .callbacks.on_desc		= on_pmseries_desc,
@@ -567,7 +575,7 @@ static pmSeriesSettings pmseries_settings = {
     .callbacks.on_label		= on_pmseries_label,
     .callbacks.on_done		= on_pmseries_done,
     .module.on_setup		= pmseries_setup,
-    .module.on_info		= proxylog,
+    .module.on_info		= pmseries_log,
 };
 
 static void

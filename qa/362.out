@@ -221,3 +221,27 @@ probe	sample.secret.foo.one values ? include : exclude
 --- pmlogconf setup stdout ---
 #+ TMP.grp:y:1 minute:
 --- exit status=0 ---
+
+--- group file ---
+#pmlogconf-setup 2.0
+ident	Bad metric - 'no support' error code instead of value
+probe	sample.bad.nosupport
+--- pmlogconf setup stdout ---
+#+ TMP.grp:n:default:
+--- exit status=0 ---
+
+--- group file ---
+#pmlogconf-setup 2.0
+ident	Bad metric - EAGAIN error code instead of value
+probe	sample.bad.fetch.again
+--- pmlogconf setup stdout ---
+#+ TMP.grp:n:default:
+--- exit status=0 ---
+
+--- group file ---
+#pmlogconf-setup 2.0
+ident	Bad metric - 'no desc' error code during pmDesc lookup
+probe	sample.bad.unknown
+--- pmlogconf setup stdout ---
+#+ TMP.grp:n:default:
+--- exit status=0 ---
