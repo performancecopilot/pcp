@@ -11,7 +11,7 @@ jobs:
         include:
           #- {platform: ubuntu1604, runner: direct,    os: ubuntu-16.04}
           - {platform: ubuntu1804, runner: direct,    os: ubuntu-18.04}
-          #- {platform: ubuntu2004, runner: container, os: ubuntu-latest}
+          - {platform: ubuntu2004, runner: container, os: ubuntu-latest}
           #- {platform: debian10,   runner: container, os: ubuntu-latest}
           #- {platform: debian11,   runner: container, os: ubuntu-latest}
           #- {platform: fedora31,   runner: container, os: ubuntu-latest}

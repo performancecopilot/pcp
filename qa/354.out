@@ -14,9 +14,7 @@ logfile: /tmp/SEQ-PID/MKTEMPa.HOST.log
 host: localhost
 f_config: OK f_ipc: -1 pid: 0 status: -1
 logfile: /tmp/SEQ-PID/MKTEMPa.localhost.log
-
 sleeping ...
-
 host: HOST
 f_config: NULL f_ipc: N pid: pmlogger-pid-1 status: -1
 logfile: /tmp/SEQ-PID/MKTEMP.HOST.log
@@ -29,7 +27,6 @@ logfile: /tmp/SEQ-PID/MKTEMPa.HOST.log
 host: localhost
 f_config: NULL f_ipc: N pid: pmlogger-pid-4 status: -1
 logfile: /tmp/SEQ-PID/MKTEMPa.localhost.log
-
 send some control requests ...
 host: HOST
  OFF
@@ -39,7 +36,6 @@ host: HOST
  STATUS
 host: localhost
  close(fd_ipc)
-
 now stop 'em all ...
 host: HOST
 pmRecordControl(... OFF ...): Invalid argument
@@ -48,13 +44,9 @@ pmRecordControl(... OFF ...): Invalid argument
 host: HOST
 host: localhost
 pmRecordControl(... OFF ...): IPC protocol failure
-
 and again to get any exit status ...
 pmRecordControl( ... OFF ...): Invalid argument
-
-
 discover what's happened ...
-
 host: HOST
 f_config: NULL f_ipc: -1 pid: pmlogger-pid-1 status: 0
 logfile: /tmp/SEQ-PID/MKTEMP.HOST.log
@@ -96,88 +88,65 @@ foo
 
 === MKTEMP.HOST.log ===
 Log for pmlogger on HOST started DATE
-
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE
-
 Error: pmconfirm(1) failed for recording session dialog
 Dialog:
 PCP recording for the archive folio "foo" and the host "HOST" has been in progress for SOME seconds and in that time the pmlogger process has created an archive of SOME bytes.
-
 This archive may be replayed with the following command:
   $ pmafm foo replay
-
 The application that launched pmlogger has terminated this PCP recording session.
 pmlogger: Recording session terminated, exiting
 
 === MKTEMP.localhost.log ===
 Log for pmlogger on HOST started DATE
-
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE
-
 Error: pmconfirm(1) failed for recording session dialog
 Dialog:
 PCP recording for the archive folio "foo" and the host "HOST" has been in progress for SOME seconds and in that time the pmlogger process has created an archive of SOME bytes.
-
 This archive may be replayed with the following command:
   $ pmafm foo replay
-
 The application that launched pmlogger has asked pmlogger to continue independently and the PCP archive will grow at the rate of SOME bytes per hour or SOME bytes per day.
-
 At any time this pmlogger process may be terminated with the following command:
   $ pmsignal -s TERM pmlogger-pid-2
 pmlogger: Caught signal 15, exiting
 
 === MKTEMPa.HOST.log ===
 Log for pmlogger on HOST started DATE
-
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE
-
 Warning: pmconfirm(1) failed for recording session dialog
 Dialog:
 PCP recording for the archive folio "foo" and the host "HOST" has been in progress for SOME seconds and in that time the pmlogger process has created an archive of SOME bytes.
-
 This archive may be replayed with the following command:
   $ pmafm foo replay
-
 At any time this pmlogger process may be terminated with the following command:
   $ pmsignal -s TERM pmlogger-pid-3
-
 Error: pmconfirm(1) failed for recording session dialog
 Dialog:
 PCP recording for the archive folio "foo" and the host "HOST" has been in progress for SOME seconds and in that time the pmlogger process has created an archive of SOME bytes.
-
 This archive may be replayed with the following command:
   $ pmafm foo replay
-
 The application that launched pmlogger has terminated this PCP recording session.
 pmlogger: Recording session terminated, exiting
 
 === MKTEMPa.localhost.log ===
 Log for pmlogger on HOST started DATE
-
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE
-
 Error: pmconfirm(1) failed for recording session dialog
 Dialog:
 PCP recording for the archive folio "foo" and the host "HOST" has been in progress for SOME seconds and in that time the pmlogger process has created an archive of SOME bytes.
-
 This archive may be replayed with the following command:
   $ pmafm foo replay
-
 The application that launched pmlogger has exited and you must decide if the PCP recording session should be terminated or continued.  If recording is continued the PCP archive will grow at the rate of SOME bytes per hour or SOME bytes per day.
-
 At any time this pmlogger process may be terminated with the following command:
   $ pmsignal -s TERM pmlogger-pid-4
-
-
 Terminate this PCP recording session now?pmlogger: Recording session terminated, exiting
 
 === absolute folio name ===
@@ -194,9 +163,7 @@ logfile: /tmp/SEQ-PID/MKTEMPa.HOST.log
 host: localhost
 f_config: OK f_ipc: -1 pid: 0 status: -1
 logfile: /tmp/SEQ-PID/MKTEMPa.localhost.log
-
 sleeping ...
-
 host: HOST
 f_config: NULL f_ipc: N pid: pmlogger-pid-1 status: -1
 logfile: /tmp/SEQ-PID/MKTEMP.HOST.log
@@ -209,7 +176,6 @@ logfile: /tmp/SEQ-PID/MKTEMPa.HOST.log
 host: localhost
 f_config: NULL f_ipc: N pid: pmlogger-pid-4 status: -1
 logfile: /tmp/SEQ-PID/MKTEMPa.localhost.log
-
 send some control requests ...
 host: HOST
  OFF
@@ -219,7 +185,6 @@ host: HOST
  STATUS
 host: localhost
  close(fd_ipc)
-
 now stop 'em all ...
 host: HOST
 pmRecordControl(... OFF ...): Invalid argument
@@ -228,13 +193,9 @@ pmRecordControl(... OFF ...): Invalid argument
 host: HOST
 host: localhost
 pmRecordControl(... OFF ...): IPC protocol failure
-
 and again to get any exit status ...
 pmRecordControl( ... OFF ...): Invalid argument
-
-
 discover what's happened ...
-
 host: HOST
 f_config: NULL f_ipc: -1 pid: pmlogger-pid-1 status: 0
 logfile: /tmp/SEQ-PID/MKTEMP.HOST.log
@@ -276,71 +237,53 @@ foo
 
 === MKTEMP.HOST.log ===
 Log for pmlogger on HOST started DATE
-
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE
-
 Error: pmconfirm(1) failed for recording session dialog
 Dialog:
 PCP recording for the archive folio "/tmp/SEQ-PID/foo" and the host "HOST" has been in progress for SOME seconds and in that time the pmlogger process has created an archive of SOME bytes.
-
 The application that launched pmlogger has terminated this PCP recording session.
 pmlogger: Recording session terminated, exiting
 
 === MKTEMP.localhost.log ===
 Log for pmlogger on HOST started DATE
-
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE
-
 Error: pmconfirm(1) failed for recording session dialog
 Dialog:
 PCP recording for the archive folio "/tmp/SEQ-PID/foo" and the host "HOST" has been in progress for SOME seconds and in that time the pmlogger process has created an archive of SOME bytes.
-
 The application that launched pmlogger has asked pmlogger to continue independently and the PCP archive will grow at the rate of SOME bytes per hour or SOME bytes per day.
-
 At any time this pmlogger process may be terminated with the following command:
   $ pmsignal -s TERM pmlogger-pid-2
 pmlogger: Caught signal 15, exiting
 
 === MKTEMPa.HOST.log ===
 Log for pmlogger on HOST started DATE
-
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE
-
 Warning: pmconfirm(1) failed for recording session dialog
 Dialog:
 PCP recording for the archive folio "/tmp/SEQ-PID/foo" and the host "HOST" has been in progress for SOME seconds and in that time the pmlogger process has created an archive of SOME bytes.
-
 At any time this pmlogger process may be terminated with the following command:
   $ pmsignal -s TERM pmlogger-pid-3
-
 Error: pmconfirm(1) failed for recording session dialog
 Dialog:
 PCP recording for the archive folio "/tmp/SEQ-PID/foo" and the host "HOST" has been in progress for SOME seconds and in that time the pmlogger process has created an archive of SOME bytes.
-
 The application that launched pmlogger has terminated this PCP recording session.
 pmlogger: Recording session terminated, exiting
 
 === MKTEMPa.localhost.log ===
 Log for pmlogger on HOST started DATE
-
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE
-
 Error: pmconfirm(1) failed for recording session dialog
 Dialog:
 PCP recording for the archive folio "/tmp/SEQ-PID/foo" and the host "HOST" has been in progress for SOME seconds and in that time the pmlogger process has created an archive of SOME bytes.
-
 The application that launched pmlogger has exited and you must decide if the PCP recording session should be terminated or continued.  If recording is continued the PCP archive will grow at the rate of SOME bytes per hour or SOME bytes per day.
-
 At any time this pmlogger process may be terminated with the following command:
   $ pmsignal -s TERM pmlogger-pid-4
-
-
 Terminate this PCP recording session now?pmlogger: Recording session terminated, exiting
