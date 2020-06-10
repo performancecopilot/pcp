@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Red Hat.
+ * Copyright (c) 2019-2020 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -36,15 +36,32 @@ typedef enum http_flags {
     HTTP_FLAG_HTML	= (1<<2),
     HTTP_FLAG_UTF8	= (1<<10),
     HTTP_FLAG_UTF16	= (1<<11),
+    HTTP_FLAG_NO_BODY	= (1<<13),
     HTTP_FLAG_COMPRESS	= (1<<14),
     HTTP_FLAG_STREAMING	= (1<<15),
     /* maximum 16 for server.h */
 } http_flags;
 
+typedef enum http_options {
+    HTTP_OPT_GET	= (1 << HTTP_GET),
+    HTTP_OPT_PUT	= (1 << HTTP_PUT),
+    HTTP_OPT_HEAD	= (1 << HTTP_HEAD),
+    HTTP_OPT_POST	= (1 << HTTP_POST),
+    HTTP_OPT_TRACE	= (1 << HTTP_TRACE),
+    HTTP_OPT_OPTIONS	= (1 << HTTP_OPTIONS),
+    /* maximum 16 in command opts fields */
+} http_options;
+
+#define HTTP_COMMON_OPTIONS (HTTP_OPT_HEAD | HTTP_OPT_TRACE | HTTP_OPT_OPTIONS)
+#define HTTP_OPTIONS_GET    (HTTP_COMMON_OPTIONS | HTTP_OPT_GET)
+#define HTTP_OPTIONS_PUT    (HTTP_COMMON_OPTIONS | HTTP_OPT_PUT)
+#define HTTP_OPTIONS_POST   (HTTP_COMMON_OPTIONS | HTTP_OPT_POST)
+#define HTTP_SERVER_OPTIONS (HTTP_OPTIONS_GET | HTTP_OPT_PUT | HTTP_OPT_POST)
+
 typedef unsigned int http_code;
 
 extern void http_transfer(struct client *);
-extern void http_reply(struct client *, sds, http_code, http_flags);
+extern void http_reply(struct client *, sds, http_code, http_flags, http_options);
 extern void http_error(struct client *, http_code, const char *);
 
 extern int http_decode(const char *, size_t, sds);

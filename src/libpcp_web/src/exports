@@ -192,6 +192,7 @@ PCP_WEB_1.13 {
 
 PCP_WEB_1.14 {
   global:
+    dictFetchValue;
     http_method_str;
     http_body_is_final;
     http_parser_version;

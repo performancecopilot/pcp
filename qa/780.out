@@ -1,8 +1,27 @@
 QA output created by 780
+=== Basic
 
 Access-Control-Allow-Headers: Accept, Accept-Language, Content-Language, Content-Type
 Access-Control-Allow-Origin: *
-Content-Length: SIZE
 Content-Type: application/json
 Date: DATE
 HTTP/1.1 200 OK
+Transfer-encoding: chunked
+=== Preflight
+
+Access-Control-Allow-Methods: GET, HEAD, POST, TRACE, OPTIONS
+Content-Length: 0
+Date: DATE
+HTTP/1.1 200 OK
+=== OK Request Method
+
+Access-Control-Allow-Methods: GET, HEAD, TRACE, OPTIONS
+Access-Control-Allow-Origin: http://example.com
+Content-Length: 0
+Date: DATE
+HTTP/1.1 200 OK
+=== Bad Request Method
+
+Content-Length: 0
+Date: DATE
+HTTP/1.1 405 Method Not Allowed

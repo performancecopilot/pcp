@@ -15,8 +15,7 @@
 #include <assert.h>
 
 typedef enum pmSeriesRestKey {
-    RESTKEY_NONE	= 0,
-    RESTKEY_SOURCE,
+    RESTKEY_SOURCE	= 1,
     RESTKEY_DESC,
     RESTKEY_INSTS,
     RESTKEY_LABELS,
@@ -29,7 +28,8 @@ typedef enum pmSeriesRestKey {
 
 typedef struct pmSeriesRestCommand {
     const char		*name;
-    unsigned int	size;
+    unsigned int	namelen : 16;
+    unsigned int	options : 16;
     pmSeriesRestKey	key;
 } pmSeriesRestCommand;
 
@@ -39,7 +39,8 @@ typedef struct pmSeriesBaton {
     pmSeriesFlags	flags;
     pmSeriesTimeWindow	window;
     uv_work_t		loading;
-    unsigned int	working;
+    unsigned int	working : 1;
+    unsigned int	options : 16;
     int			nsids;
     pmSID		*sids;
     pmSID		sid;
@@ -55,16 +56,25 @@ typedef struct pmSeriesBaton {
 } pmSeriesBaton;
 
 static pmSeriesRestCommand commands[] = {
-    { .key = RESTKEY_QUERY, .name = "query", .size = sizeof("query")-1 },
-    { .key = RESTKEY_DESC,  .name = "descs",  .size = sizeof("descs")-1 },
-    { .key = RESTKEY_INSTS, .name = "instances", .size = sizeof("instances")-1 },
-    { .key = RESTKEY_LABELS, .name = "labels", .size = sizeof("labels")-1 },
-    { .key = RESTKEY_METRIC, .name = "metrics", .size = sizeof("metrics")-1 },
-    { .key = RESTKEY_SOURCE, .name = "sources", .size = sizeof("sources")-1 },
-    { .key = RESTKEY_VALUES, .name = "values", .size = sizeof("values")-1 },
-    { .key = RESTKEY_LOAD, .name = "load", .size = sizeof("load")-1 },
-    { .key = RESTKEY_PING, .name = "ping", .size = sizeof("ping")-1 },
-    { .key = RESTKEY_NONE }
+    { .key = RESTKEY_QUERY, .options = HTTP_OPTIONS_GET | HTTP_OPTIONS_POST,
+	    .name = "query", .namelen = sizeof("query")-1 },
+    { .key = RESTKEY_DESC, .options = HTTP_OPTIONS_GET | HTTP_OPTIONS_POST,
+	    .name = "descs", .namelen = sizeof("descs")-1 },
+    { .key = RESTKEY_INSTS, .options = HTTP_OPTIONS_GET | HTTP_OPTIONS_POST,
+	    .name = "instances", .namelen = sizeof("instances")-1 },
+    { .key = RESTKEY_LABELS, .options = HTTP_OPTIONS_GET | HTTP_OPTIONS_POST,
+	    .name = "labels", .namelen = sizeof("labels")-1 },
+    { .key = RESTKEY_METRIC, .options = HTTP_OPTIONS_GET | HTTP_OPTIONS_POST,
+	    .name = "metrics", .namelen = sizeof("metrics")-1 },
+    { .key = RESTKEY_SOURCE, .options = HTTP_OPTIONS_GET | HTTP_OPTIONS_POST,
+	    .name = "sources", .namelen = sizeof("sources")-1 },
+    { .key = RESTKEY_VALUES, .options = HTTP_OPTIONS_GET | HTTP_OPTIONS_POST,
+	    .name = "values", .namelen = sizeof("values")-1 },
+    { .key = RESTKEY_LOAD, .options = HTTP_OPTIONS_GET | HTTP_OPTIONS_POST,
+	    .name = "load", .namelen = sizeof("load")-1 },
+    { .key = RESTKEY_PING, .options = HTTP_OPTIONS_GET,
+	    .name = "ping", .namelen = sizeof("ping")-1 },
+    { .name = NULL }	/* sentinel */
 };
 
 /* constant string keys (initialized during servlet setup) */
@@ -78,8 +88,8 @@ static sds PARAM_ALIGN, PARAM_COUNT, PARAM_DELTA, PARAM_OFFSET,
 static const char pmseries_success[] = "{\"success\":true}\r\n";
 static const char pmseries_failure[] = "{\"success\":false}\r\n";
 
-static pmSeriesRestKey
-pmseries_lookup_restkey(sds url)
+static pmSeriesRestCommand *
+pmseries_lookup_rest_command(sds url)
 {
     pmSeriesRestCommand	*cp;
     const char		*name;
@@ -88,11 +98,11 @@ pmseries_lookup_restkey(sds url)
 	strncmp(url, "/series/", sizeof("/series/") - 1) == 0) {
 	name = (const char *)url + sizeof("/series/") - 1;
 	for (cp = &commands[0]; cp->name; cp++) {
-	    if (strncmp(cp->name, name, cp->size) == 0)
-		return cp->key;
+	    if (strncmp(cp->name, name, cp->namelen) == 0)
+		return cp;
 	}
     }
-    return RESTKEY_NONE;
+    return NULL;
 }
 
 static void
@@ -518,6 +528,7 @@ on_pmseries_done(int status, void *arg)
 {
     pmSeriesBaton	*baton = (pmSeriesBaton *)arg;
     struct client	*client = baton->client;
+    http_options	options = baton->options;
     http_flags		flags = client->u.http.flags;
     http_code		code;
     sds			msg;
@@ -545,7 +556,7 @@ on_pmseries_done(int status, void *arg)
 	    msg = sdsnewlen(pmseries_failure, sizeof(pmseries_failure) - 1);
 	flags |= HTTP_FLAG_JSON;
     }
-    http_reply(client, msg, code, flags);
+    http_reply(client, msg, code, flags, options);
 }
 
 static void
@@ -694,7 +705,6 @@ pmseries_setup_request_parameters(struct client *client,
     case RESTKEY_PING:
 	break;
 
-    case RESTKEY_NONE:
     default:
 	client->u.http.parser.status_code = HTTP_STATUS_BAD_REQUEST;
 	break;
@@ -710,15 +720,16 @@ static int
 pmseries_request_url(struct client *client, sds url, dict *parameters)
 {
     pmSeriesBaton	*baton;
-    pmSeriesRestKey	key;
+    pmSeriesRestCommand	*command;
 
-    if ((key = pmseries_lookup_restkey(url)) == RESTKEY_NONE)
+    if ((command = pmseries_lookup_rest_command(url)) == NULL)
 	return 0;
 
     if ((baton = calloc(1, sizeof(*baton))) != NULL) {
 	client->u.http.data = baton;
 	baton->client = client;
-	baton->restkey = key;
+	baton->restkey = command->key;
+	baton->options = command->options;
 	pmseries_setup_request_parameters(client, baton, parameters);
     } else {
 	client->u.http.parser.status_code = HTTP_STATUS_INTERNAL_SERVER_ERROR;
@@ -802,10 +813,12 @@ pmseries_request_load(struct client *client, pmSeriesBaton *baton)
 
     if (baton->query == NULL) {
 	message = sdsnewlen(failed, sizeof(failed) - 1);
-	http_reply(client, message, HTTP_STATUS_BAD_REQUEST, HTTP_FLAG_JSON);
+	http_reply(client, message, HTTP_STATUS_BAD_REQUEST,
+			HTTP_FLAG_JSON, baton->options);
     } else if (baton->working) {
 	message = sdsnewlen(loading, sizeof(loading) - 1);
-	http_reply(client, message, HTTP_STATUS_CONFLICT, HTTP_FLAG_JSON);
+	http_reply(client, message, HTTP_STATUS_CONFLICT,
+			HTTP_FLAG_JSON, baton->options);
     } else {
 	uv_queue_work(client->proxy->events, &baton->loading,
 			pmseries_load_work, pmseries_load_done);
@@ -818,8 +831,17 @@ pmseries_request_done(struct client *client)
     pmSeriesBaton	*baton = (pmSeriesBaton *)client->u.http.data;
     int			sts;
 
-    if (client->u.http.parser.status_code)
+    if (client->u.http.parser.status_code) {
+	on_pmseries_done(-EINVAL, baton);
+	return 1;
+    }
+
+    if (client->u.http.parser.method == HTTP_OPTIONS ||
+	client->u.http.parser.method == HTTP_TRACE ||
+	client->u.http.parser.method == HTTP_HEAD) {
+	on_pmseries_done(0, baton);
 	return 0;
+    }
 
     switch (baton->restkey) {
     case RESTKEY_QUERY:

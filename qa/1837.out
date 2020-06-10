@@ -1,0 +1,6 @@
+QA output created by 1837
+
+Access-Control-Allow-Methods: GET, PUT, HEAD, POST, TRACE, OPTIONS
+Content-Length: 0
+Date: DATE
+HTTP/1.1 200 OK
