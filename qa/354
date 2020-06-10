@@ -45,7 +45,8 @@ BEGIN	{ numpid = 0; pid[""] = 1 }
 
 # Note on last awk ...
 #   In the CI environment we've found that there is non-determinism in
-#   the output of the "Log finished ..." line and the preceding blank line.
+#   the output of the "Log finished ..." line and the preceding blank line,
+#   and some other missing blank lines!
 #   The cause seems related to atexit() handling and sharing of the stderr
 #   stream across multiple processes.  It is not directly related to the
 #   purpose of this test, so these lines are filtered out.
@@ -72,16 +73,9 @@ _filter()
         -e 's/\/[A-Z]*\/tmp/\/tmp/' \
         -e 's/\/[a-z]*\/tmp/\/tmp/' \
     | $PCP_AWK_PROG '
-NF == 0			{ lastblank++; next }
-/Log finished DATE/	{ lastblank--;
-			  while (lastblank-- > 0) print ""
-			  next
-			}
-lastblank > 0		{ while (lastblank-- > 0) print ""
-			  lastblank = 0
-			}
-			{ print }
-END			{ while (lastblank-- > 0) print "" }'
+NF == 0			{ next }
+/Log finished DATE/	{ next }
+			{ print }'
 }
 
 _filter_ps()
