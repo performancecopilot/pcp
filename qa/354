@@ -128,7 +128,7 @@ echo "=== folio name relative to cwd ===" >>$here/$seq.full
 echo
 
 $here/src/record foo no-1 1 $host localhost $host localhost 2>&1 >$tmp.out &
-sleep 15
+sleep 10
 
 # We used to have the temp basename created and left over (this was a bug).
 # In fixing the bug we've made this test much harder ...
@@ -223,7 +223,7 @@ echo "=== absolute folio name ===" >>$here/$seq.full
 echo
 
 $here/src/record `pwd`/foo no-2 0 $host localhost $host localhost 2>&1 >$tmp.out &
-sleep 15
+sleep 10
 # see note above
 MKTEMP=`ls *.localhost.0 \
         | tee -a $here/$seq.full \
