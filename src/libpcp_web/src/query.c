@@ -1938,11 +1938,15 @@ extract_series_desc(seriesQueryBaton *baton, pmSID series,
 	return -EPROTO;
     }
 
-    /* sanity check - were we given an invalid series identifier? */
+    /* were we given a non-metric series identifier? (e.g. an instance) */
     if (elements[0]->type == REDIS_REPLY_NIL) {
-	infofmt(msg, "no descriptor for series identifier %s", series);
-	batoninfo(baton, PMLOG_ERROR, msg);
-	return -EINVAL;
+	desc->indom = sdscpylen(desc->indom, "unknown", 7);
+	desc->pmid = sdscpylen(desc->pmid, "PM_ID_NULL", 10);
+	desc->semantics = sdscpylen(desc->semantics, "unknown", 7);
+	desc->source = sdscpylen(desc->source, "unknown", 7);
+	desc->type = sdscpylen(desc->type, "unknown", 7);
+	desc->units = sdscpylen(desc->units, "unknown", 7);
+	return 0;
     }
 
     if (extract_string(baton, series, elements[0], &desc->indom, "indom") < 0)
