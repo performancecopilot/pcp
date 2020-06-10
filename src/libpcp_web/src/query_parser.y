@@ -325,6 +325,11 @@ func	: L_RATE L_LPAREN L_NAME L_RPAREN
 		  lp->yy_np->left = newmetric($3);
 		  $$ = lp->yy_np;
 		}
+	| L_NOOP L_LPAREN L_NAME L_RPAREN
+		{ lp->yy_np = newnode(N_NOOP);
+		  lp->yy_np->left = newmetric($3);
+		  $$ = lp->yy_np;
+		}
 	| L_NOOP L_LPAREN func L_RPAREN
 		{ lp->yy_np = newnode(N_NOOP);
 		  lp->yy_np->left = $3;

@@ -16,6 +16,7 @@
 
 #include "pmapi.h"
 #include "pmwebapi.h"
+#include "batons.h"
 #ifdef HAVE_REGEX_H
 #include <regex.h>
 #endif
@@ -80,6 +81,14 @@ typedef enum nodetype {
     MAX_NODETYPE
 } nodetype_t;
 
+typedef struct seriesGetSID {
+    seriesBatonMagic	header;		/* MAGIC_SID */
+    sds			name;		/* series or source SID */
+    sds			metric;		/* back-pointer for instance series */
+    int			freed;		/* freed individually on completion */
+    void		*baton;
+} seriesGetSID;
+
 typedef struct meta {
     int			type;	/* PM_TYPE_* */
     int			sem;	/* PM_SEM_* */
@@ -98,6 +107,9 @@ typedef struct series_instance_set {
 } series_instance_set_t;
 
 typedef struct series_sample_set {
+    seriesGetSID		*sid;
+    pmSeriesDesc		series_desc;
+    void			*baton;
     /* Number of series samples */
     int				num_samples;
     series_instance_set_t	*series_sample;
@@ -105,9 +117,7 @@ typedef struct series_sample_set {
 
 typedef struct series_value_set {
     /* Number of series identifiers*/
-    int			num_series;
-    /* record SID for function-type node */
-    void		**SID;
+    int				num_series;
     series_sample_set_t		*series_values;
 } series_value_set_t;
 

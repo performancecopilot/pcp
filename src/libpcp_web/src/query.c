@@ -18,7 +18,6 @@
 #include "query.h"
 #include "schema.h"
 #include "libpcp.h"
-#include "batons.h"
 #include "slots.h"
 #include "maps.h"
 #include <fnmatch.h>
@@ -26,13 +25,6 @@
 #define SHA1SZ		20	/* internal sha1 hash buffer size in bytes */
 #define QUERY_PHASES	7
 
-typedef struct seriesGetSID {
-    seriesBatonMagic	header;		/* MAGIC_SID */
-    sds			name;		/* series or source SID */
-    sds			metric;		/* back-pointer for instance series */
-    int			freed;		/* freed individually on completion */
-    void		*baton;
-} seriesGetSID;
 
 typedef struct seriesGetLabelMap {
     seriesBatonMagic	header;		/* MAGIC_LABELMAP */
@@ -91,10 +83,36 @@ initSeriesGetQuery(seriesQueryBaton *baton, node_t *root, timing_t *timing)
 }
 
 static void
+freeSeriesQueryNode(node_t *np, int level)
+{
+    if (np == NULL)
+	return;
+    int i, j, k;
+    for (i = 0; i < np->value_set.num_series; i++) {
+	for (j = 0; j < np->value_set.series_values[i].num_samples; j++) {
+	    for (k=0; k < np->value_set.series_values[i].series_sample[j].num_instances; k++) {
+		sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].timestamp);
+		sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].series);
+		sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].data);
+	    }
+	    free(np->value_set.series_values[i].series_sample[j].series_instance);
+	}
+	sdsfree(np->value_set.series_values[i].sid->name);
+	free(np->value_set.series_values[i].sid);
+	free(np->value_set.series_values[i].series_sample);
+    }
+    free(np->value_set.series_values);
+    freeSeriesQueryNode(np->left, level+1);
+    freeSeriesQueryNode(np->right, level+1);
+    if (level != 0) free(np);
+}
+
+static void
 freeSeriesGetQuery(seriesQueryBaton *baton)
 {
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "freeSeriesGetQuery");
     seriesBatonCheckCount(baton, "freeSeriesGetQuery");
+    freeSeriesQueryNode(&baton->u.query.root, 0);
     memset(baton, 0, sizeof(seriesQueryBaton));
     free(baton);
 }
@@ -1421,12 +1439,6 @@ series_instance_store_to_node(seriesQueryBaton *baton, sds series,
 	    np->value_set.series_values[idx_series].series_sample[idx_sample].series_instance[idx_instance].timestamp = sdsnew(value->timestamp);
 	    np->value_set.series_values[idx_series].series_sample[idx_sample].series_instance[idx_instance].series = sdsnew(value->series);
 	    np->value_set.series_values[idx_series].series_sample[idx_sample].series_instance[idx_instance].data = sdsnew(value->data);
-/*	    printf("%d %d %d\n", idx_series, idx_sample, idx_instance);
-	    printf("kyoma: why?? %s,  ", value->data);
-	    printf("num_series=%d, ", np->value_set.num_series);
-	    printf("num_samples=%d, ", np->value_set.series_values[idx_series].num_samples);
-	    printf("num_instance=%d\n", np->value_set.series_values[idx_series].series_sample[idx_sample].num_instances);
-*/
 	    ++idx_instance;
 	}
     }
@@ -1436,7 +1448,7 @@ series_instance_store_to_node(seriesQueryBaton *baton, sds series,
 /* Do something like memcpy */
 static void
 series_values_store_to_node(seriesQueryBaton *baton, sds series,
-		int nsamples, redisReply **samples, void *arg, node_t *np)
+		int nsamples, redisReply **samples, node_t *np)
 {
     seriesSampling	sampling = {0};
     redisReply		*reply, *sample, **elements;
@@ -1531,7 +1543,6 @@ series_values_store_to_node(seriesQueryBaton *baton, sds series,
 	
 	idx_sample = i;
 	np->value_set.series_values[idx_series].series_sample[idx_sample].num_instances = reply->elements/2;
-	//printf("idx_series=%d, idx_sample=%d, reply->elements=%d\n", idx_series, idx_sample, reply->elements);
 	if ((np->value_set.series_values[idx_series].series_sample[idx_sample].series_instance = (pmSeriesValue*)calloc(reply->elements/2, sizeof(pmSeriesValue))) == NULL) {
 	    /* TODO: error report here */
 	    baton->error = -ENOMEM;
@@ -1559,6 +1570,99 @@ last_sample:
     sdsfree(sampling.value.data);
 }
 
+static int
+extract_series_desc(seriesQueryBaton *baton, pmSID series,
+		int nelements, redisReply **elements, pmSeriesDesc *desc)
+{
+    sds			msg;
+
+    if (nelements < 6) {
+	infofmt(msg, "bad reply from %s %s (%d)", series, HMGET, nelements);
+	batoninfo(baton, PMLOG_RESPONSE, msg);
+	return -EPROTO;
+    }
+
+    /* sanity check - were we given an invalid series identifier? */
+    if (elements[0]->type == REDIS_REPLY_NIL) {
+	infofmt(msg, "no descriptor for series identifier %s", series);
+	batoninfo(baton, PMLOG_ERROR, msg);
+	return -EINVAL;
+    }
+
+    if (extract_string(baton, series, elements[0], &desc->indom, "indom") < 0)
+	return -EPROTO;
+    if (extract_string(baton, series, elements[1], &desc->pmid, "pmid") < 0)
+	return -EPROTO;
+    if (extract_string(baton, series, elements[2], &desc->semantics, "semantics") < 0)
+	return -EPROTO;
+    if (extract_sha1(baton, series, elements[3], &desc->source, "source") < 0)
+	return -EPROTO;
+    if (extract_string(baton, series, elements[4], &desc->type, "type") < 0)
+	return -EPROTO;
+    if (extract_string(baton, series, elements[5], &desc->units, "units") < 0)
+	return -EPROTO;
+
+    return 0;
+}
+
+static void
+series_node_get_desc_reply(
+	redisAsyncContext *c, redisReply *reply, const sds cmd, void *arg)
+{
+    series_sample_set_t		*sample_set = (series_sample_set_t *) arg;
+    int				sts;
+    pmSeriesDesc		*desc = &sample_set->series_desc;
+    seriesQueryBaton		*baton = (seriesQueryBaton *)sample_set->baton;
+    sds				msg;
+
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_node_get_desc_reply");
+
+    sts = redisSlotsRedirect(baton->slots, reply, baton->info, baton->userdata,
+			     cmd, series_node_get_desc_reply, arg);
+    if (sts > 0)
+	return;	/* short-circuit as command was re-submitted */
+
+    desc->indom = sdsempty();
+    desc->pmid = sdsempty();
+    desc->semantics = sdsempty();
+    desc->source = sdsempty();
+    desc->type = sdsempty();
+    desc->units = sdsempty();
+
+    if (UNLIKELY(reply == NULL || reply->type != REDIS_REPLY_ARRAY)) {
+	if (sts < 0) {
+	    infofmt(msg, "expected array type from series %s %s (type=%s)",
+			sample_set->sid->name, HMGET, redis_reply_type(reply));
+	    batoninfo(baton, PMLOG_RESPONSE, msg);
+	}
+	baton->error = -EPROTO;
+    } else if ((sts = extract_series_desc(baton, sample_set->sid->name,
+			reply->elements, reply->element, desc)) < 0)
+	baton->error = sts;
+
+    series_query_end_phase(baton);
+}
+
+static void
+series_node_get_desc(seriesQueryBaton *baton, sds sid_name, series_sample_set_t *sample_set)
+{
+    sds			cmd, key;
+
+    seriesBatonReference(baton, "series_node_get_desc");
+
+    key = sdscatfmt(sdsempty(), "pcp:desc:series:%S", sid_name);
+    cmd = redis_command(8);
+    cmd = redis_param_str(cmd, HMGET, HMGET_LEN);
+    cmd = redis_param_sds(cmd, key);
+    cmd = redis_param_str(cmd, "indom", sizeof("indom")-1);
+    cmd = redis_param_str(cmd, "pmid", sizeof("pmid")-1);
+    cmd = redis_param_str(cmd, "semantics", sizeof("semantics")-1);
+    cmd = redis_param_str(cmd, "source", sizeof("source")-1);
+    cmd = redis_param_str(cmd, "type", sizeof("type")-1);
+    cmd = redis_param_str(cmd, "units", sizeof("units")-1);
+    redisSlotsRequest(baton->slots, HMGET, key, cmd, series_node_get_desc_reply, sample_set);
+}
+
 /* 
  * Redis has returned replies about samples of series, save them into the corresponding node.
  */
@@ -1570,7 +1674,7 @@ series_node_prepare_time_reply(
     seriesQueryBaton		*baton = (seriesQueryBaton *)np->baton;
     sds				msg;
     int				sts, idx = np->value_set.num_series;
-    seriesGetSID		*sid = *((seriesGetSID **)(np->value_set.SID) + idx);
+    seriesGetSID		*sid = np->value_set.series_values[idx].sid;
 
     /* 
      * Got an reply contains series values which need to be saved into the corresponding 
@@ -1578,8 +1682,8 @@ series_node_prepare_time_reply(
      * series. Here we can not access SID unless store SIDs in node. That's why I add **SID into
      * struct node_t in query.h
      */
-    seriesBatonCheckMagic(sid, MAGIC_SID, "series_node_prepare_time_reply_sid");
-    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_node_prepare_time_reply_baton");
+    seriesBatonCheckMagic(sid, MAGIC_SID, "series_node_prepare_time_reply");
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_node_prepare_time_reply");
     sts = redisSlotsRedirect(baton->slots, reply, baton->info, baton->userdata,
 			     cmd, series_node_prepare_time_reply, arg);
 
@@ -1600,10 +1704,13 @@ series_node_prepare_time_reply(
 	    /* TODO: error report here */
 	    baton->error = -ENOMEM;
 	}
-	series_values_store_to_node(baton, sid->name, reply->elements, reply->element, sid, np);
+	/* Query for the desc of idx-th series */
+	np->value_set.series_values[idx].baton = baton;
+	series_node_get_desc(baton, sid->name, &np->value_set.series_values[idx]);
+	
+	series_values_store_to_node(baton, sid->name, reply->elements, reply->element, np);
 	np->value_set.num_series++;
     }
-    // May cause error: should this add here?
     series_query_end_phase(baton);
 }
 
@@ -1639,11 +1746,6 @@ series_node_prepare_time(seriesQueryBaton *baton, series_set_t *query_series_set
     if (pmDebugOptions.series)
 	fprintf(stderr, "END: %s\n", end);
     
-    /* Save SIDs' addresses into this node np */
-    if ((np->value_set.SID = (seriesGetSID **)calloc(nseries, sizeof(seriesGetSID*))) == NULL) {
-	/* TODO: error report here */
-	baton->error = -ENOMEM;
-    }
 
     /* calloc nseries samples store space */
     if ((np->value_set.series_values = (series_sample_set_t *)calloc(nseries, sizeof(series_sample_set_t))) == NULL) {
@@ -1679,11 +1781,12 @@ series_node_prepare_time(seriesQueryBaton *baton, series_set_t *query_series_set
 	    cmd = redis_param_str(cmd, "COUNT", sizeof("COUNT")-1);
 	    cmd = redis_param_str(cmd, revbuf, revlen);
 	}
-
+	np->value_set.series_values[i].baton = baton;
+	np->value_set.series_values[i].sid = sid;
 	/* Note: np->series_set.num_series is not equal to nseries in this function */
-	*( (seriesGetSID **)(np->value_set.SID) + i ) = sid;
 	redisSlotsRequest(baton->slots, XRANGE, key, cmd,
 				series_node_prepare_time_reply, np);
+	
     }
     sdsfree(start);
     sdsfree(end);
@@ -1692,62 +1795,65 @@ static int
 series_process_func(seriesQueryBaton *baton, node_t *np, int level)
 {
 /* 
- * Do dfs here. In the process of unstacking from bottom of the parser tree, each time
- * meet a functino-type node, we request to Redis to get the actual series values, then
- * save replies to children nodes np.result
+ * Each time when meet a data node i.e. np->result.nseries!=0, query to Redis for actural
+ * values and store them into this node. Beacause time series idetifier will always be 
+ * described in the top node of a subtree at the parser tree's bottom. 
  */
-    int				sts;
-    
-    if (np == NULL)
+    int				sts, nelements = 0;
+    if (np == NULL) {
 	return 0;
+    }
+    if (&np->result != NULL)
+	nelements = np->result.nseries;
+
+    if (nelements != 0) {
+	np->value_set.num_series = 0;
+	np->baton = baton;
+	series_node_prepare_time(baton, &np->result, np);
+	// TODO: should return error here. series_node_prepare_time should be int type.
+	return 0;
+    }
+
     if ((sts = series_process_func(baton, np->left, level+1)) < 0)
 	return sts;
     if ((sts = series_process_func(baton, np->right, level+1)) < 0)
 	return sts;
 
-    switch (np->type) {
-    case N_RATE:
-    /* A N_RATE node must has a left child contains series values need to be rated.
-     * First save the series identifiers saved in left child into this node np.result
-     * Then use the left child's information to request to Redis
-     */
-	printf("kyoma: series_process_func N_RATE\n");
-	if (np->right != NULL) {
-	    // error report here
-	}
-	unsigned char		*series;
-	sds			msg;
-	int			nelements = np->left->result.nseries;
-	if ((series = (unsigned char *)calloc(nelements, SHA1SZ)) == NULL) {
-	    infofmt(msg, "out of memory (%s, %" FMT_INT64 " bytes)",
-			"series_process_func", (__int64_t)nelements * SHA1SZ);
-	    batoninfo(baton, PMLOG_REQUEST, msg);
-	    return -ENOMEM;
-	}
-	np->result.nseries = nelements;
-	memcpy(series, np->left->result.series, 
-		np->result.nseries * SHA1SZ);
-	np->result.series = series;
-	
-	np->left->value_set.num_series = 0;
-	
-	np->baton = baton;
-	series_node_prepare_time(baton, &np->result, np->left);
-	break;
-
-    default: 
-	break;
-    }
-
     return sts;
 }
 
+
 static void
-series_noop_print(seriesQueryBaton *baton, node_t *np)
+kyoma_debug_print_node(seriesQueryBaton *baton, node_t *np)
 {
     for (int i = 0; i < np->value_set.num_series; i++) {
-	sds series = ((seriesGetSID **)np->value_set.SID)[i]->name;
+	sds series = np->value_set.series_values[i].sid->name;
 	printf("kyome test SID=%s, number of samples=%d\n", series, np->value_set.series_values[i].num_samples);
+	printf("kyoma pmSeriesDesc: indom=%s, pmid=%s, semantics=%s, source=%s, type=%s, units=%s\n",
+	np->value_set.series_values[i].series_desc.indom,
+	np->value_set.series_values[i].series_desc.pmid,
+	np->value_set.series_values[i].series_desc.semantics,
+	np->value_set.series_values[i].series_desc.source,
+	np->value_set.series_values[i].series_desc.type,
+	np->value_set.series_values[i].series_desc.units
+	);
+	for (int j = 0; j < np->value_set.series_values[i].num_samples; j++) {
+	    for (int k = 0; k < np->value_set.series_values[i].series_sample[j].num_instances; k++) {
+		pmSeriesValue value = np->value_set.series_values[i].series_sample[j].series_instance[k];
+		baton->callbacks->on_value(series, &value, baton->userdata);
+	    }
+	}
+    }
+}
+
+/*
+ * Report a timeseries result - timestamps and (instance) values from a node
+ */
+static void
+series_node_values_report(seriesQueryBaton *baton, node_t *np)
+{
+    for (int i = 0; i < np->value_set.num_series; i++) {
+	sds series = np->value_set.series_values[i].sid->name;
 	for (int j = 0; j < np->value_set.series_values[i].num_samples; j++) {
 	    for (int k = 0; k < np->value_set.series_values[i].series_sample[j].num_instances; k++) {
 		pmSeriesValue value = np->value_set.series_values[i].series_sample[j].series_instance[k];
@@ -1765,29 +1871,41 @@ series_noop_traverse(seriesQueryBaton *baton, node_t *np, int level)
 	return;
     }
     printf("=====level %d, node type %d=====\n", level, np->type);
-    series_noop_print(baton, np);
+    //series_node_values_report(baton, np);
+    kyoma_debug_print_node(baton, np);
     printf("go left\n");
     series_noop_traverse(baton, np->left, level+1);
     printf("go right\n");
     series_noop_traverse(baton, np->right, level+1);
 }
 
-static void
+static int
 series_calculate(seriesQueryBaton *baton, node_t *np, int level)
 {
 /* 
- * In this phase all time series values have been stored into nodes.
- * Therefore we can directly calculate values of a node accroding to
- * the semantics of this node.
+ * In this phase all time series values have been stored into nodes. Therefore we can 
+ * directly calculate values of a node accroding to the semantics of this node.
+ * Do dfs here. In the process of unstacking from bottom of the parser tree, each time
+ * meet a functino-type node, calculate the results and store them into this node.
  */
+    int				sts;
+    if (np == NULL)
+	return 0;
+    if ((sts = series_calculate(baton, np->left, level+1)) < 0)
+	return sts;
+    if ((sts = series_calculate(baton, np->right, level+1)) < 0)
+	return sts;
     switch (np->type) {
 	case N_NOOP:
-	    printf("kyoma: series_calculate N_NOOP\n");
+	    //printf("kyoma: series_calculate N_NOOP\n");
 	    /* Traverse the subtree of this node? */
 	    series_noop_traverse(baton, np, level);
+	case N_RATE:
+	    //printf("kyoma: series_calculate N_RATE\n");
 	default:
 	    break;
     }
+    return sts;
 }
 
 static void
@@ -1802,8 +1920,10 @@ series_query_report_values(void *arg)
 
     /* For function-tpye nodes, calculate actual values */
     series_calculate(baton, &baton->u.query.root, 0);
-
-    series_prepare_time(baton, &baton->u.query.root.result);
+    
+    // time series values have been saved in root node so report them directly.
+    series_node_values_report(baton, &baton->u.query.root);
+    
     series_query_end_phase(baton);
 }
 
@@ -2351,40 +2471,6 @@ pmSeriesLabelValues(pmSeriesSettings *settings, int nlabels, pmSID *labels, void
     return 0;
 }
 
-static int
-extract_series_desc(seriesQueryBaton *baton, pmSID series,
-		int nelements, redisReply **elements, pmSeriesDesc *desc)
-{
-    sds			msg;
-
-    if (nelements < 6) {
-	infofmt(msg, "bad reply from %s %s (%d)", series, HMGET, nelements);
-	batoninfo(baton, PMLOG_RESPONSE, msg);
-	return -EPROTO;
-    }
-
-    /* sanity check - were we given an invalid series identifier? */
-    if (elements[0]->type == REDIS_REPLY_NIL) {
-	infofmt(msg, "no descriptor for series identifier %s", series);
-	batoninfo(baton, PMLOG_ERROR, msg);
-	return -EINVAL;
-    }
-
-    if (extract_string(baton, series, elements[0], &desc->indom, "indom") < 0)
-	return -EPROTO;
-    if (extract_string(baton, series, elements[1], &desc->pmid, "pmid") < 0)
-	return -EPROTO;
-    if (extract_string(baton, series, elements[2], &desc->semantics, "semantics") < 0)
-	return -EPROTO;
-    if (extract_sha1(baton, series, elements[3], &desc->source, "source") < 0)
-	return -EPROTO;
-    if (extract_string(baton, series, elements[4], &desc->type, "type") < 0)
-	return -EPROTO;
-    if (extract_string(baton, series, elements[5], &desc->units, "units") < 0)
-	return -EPROTO;
-
-    return 0;
-}
 
 static void
 redis_series_desc_reply(
