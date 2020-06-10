@@ -172,7 +172,7 @@ LOCALHOSTNAME	n   n	'"$tmp"'	./config'
     echo "=== [$verbose_text] regular show ==="
     echo "=== [$verbose_text] regular show ===" >>$seq.full
     _fixperms
-    $sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_daily -o -x forever -c $tmp.control -k 3 $verbose -l $tmp.log
+    $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -o -x forever -c $tmp.control -k 3 $verbose -l $tmp.log"
 
     $sudo cat $tmp.log | _filter
     ls -lt $tmp >>$seq.full
@@ -186,7 +186,7 @@ LOCALHOSTNAME	n   n	'"$tmp"'	./config'
 	$sudo mv $tmp/$yesterday.$ext $tmp/save.$ext
     done
     _fixperms
-    $sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_daily -o -x forever -c $tmp.control -k 2 $verbose -l $tmp.log
+    $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -o -x forever -c $tmp.control -k 2 $verbose -l $tmp.log"
     $sudo cat $tmp.log | _filter
     ls -lt $tmp >>$seq.full
     ls $tmp | sed -f $tmp.sed | tee -a $seq.full | LC_COLLATE=POSIX sort
@@ -200,7 +200,7 @@ LOCALHOSTNAME	n   n	'"$tmp"'	./config'
 	$sudo mv $tmp/save.$ext $tmp/$yesterday.$ext
     done
     _fixperms
-    $sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_daily -o -x forever -c $tmp.control -k 2 $verbose -l $tmp.log
+    $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -o -x forever -c $tmp.control -k 2 $verbose -l $tmp.log"
     $sudo cat $tmp.log | _filter
     ls -lt $tmp >>$seq.full
     ls $tmp | sed -f $tmp.sed | tee -a $seq.full | LC_COLLATE=POSIX sort
