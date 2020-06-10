@@ -6,6 +6,8 @@ fi
 
 touch /var/lib/pcp/pmns/.NeedRebuild
 chmod 644 /var/lib/pcp/pmns/.NeedRebuild
+touch /var/log/pcp/pmlogger/.NeedRewrite
+chmod 644 /var/log/pcp/pmlogger/.NeedRewrite
 
 getent group pcp >/dev/null || groupadd -r pcp
 getent passwd pcp >/dev/null || \

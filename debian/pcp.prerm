@@ -24,3 +24,4 @@ else
     fi
 fi
 rm -f /var/lib/pcp/pmns/.NeedRebuild
+rm -f /var/log/pcp/pmlogger/.NeedRewrite
