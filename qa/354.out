@@ -110,9 +110,6 @@ This archive may be replayed with the following command:
 
 The application that launched pmlogger has terminated this PCP recording session.
 pmlogger: Recording session terminated, exiting
-logonexit: calling logfooter for log #0
-
-Log finished DATE
 
 === MKTEMP.localhost.log ===
 Log for pmlogger on HOST started DATE
@@ -133,9 +130,6 @@ The application that launched pmlogger has asked pmlogger to continue independen
 At any time this pmlogger process may be terminated with the following command:
   $ pmsignal -s TERM pmlogger-pid-2
 pmlogger: Caught signal 15, exiting
-logonexit: calling logfooter for log #0
-
-Log finished DATE
 
 === MKTEMPa.HOST.log ===
 Log for pmlogger on HOST started DATE
@@ -163,9 +157,6 @@ This archive may be replayed with the following command:
 
 The application that launched pmlogger has terminated this PCP recording session.
 pmlogger: Recording session terminated, exiting
-logonexit: calling logfooter for log #0
-
-Log finished DATE
 
 === MKTEMPa.localhost.log ===
 Log for pmlogger on HOST started DATE
@@ -188,9 +179,6 @@ At any time this pmlogger process may be terminated with the following command:
 
 
 Terminate this PCP recording session now?pmlogger: Recording session terminated, exiting
-logonexit: calling logfooter for log #0
-
-Log finished DATE
 
 === absolute folio name ===
 
@@ -299,9 +287,6 @@ PCP recording for the archive folio "/tmp/SEQ-PID/foo" and the host "HOST" has b
 
 The application that launched pmlogger has terminated this PCP recording session.
 pmlogger: Recording session terminated, exiting
-logonexit: calling logfooter for log #0
-
-Log finished DATE
 
 === MKTEMP.localhost.log ===
 Log for pmlogger on HOST started DATE
@@ -319,9 +304,6 @@ The application that launched pmlogger has asked pmlogger to continue independen
 At any time this pmlogger process may be terminated with the following command:
   $ pmsignal -s TERM pmlogger-pid-2
 pmlogger: Caught signal 15, exiting
-logonexit: calling logfooter for log #0
-
-Log finished DATE
 
 === MKTEMPa.HOST.log ===
 Log for pmlogger on HOST started DATE
@@ -343,9 +325,6 @@ PCP recording for the archive folio "/tmp/SEQ-PID/foo" and the host "HOST" has b
 
 The application that launched pmlogger has terminated this PCP recording session.
 pmlogger: Recording session terminated, exiting
-logonexit: calling logfooter for log #0
-
-Log finished DATE
 
 === MKTEMPa.localhost.log ===
 Log for pmlogger on HOST started DATE
@@ -365,6 +344,3 @@ At any time this pmlogger process may be terminated with the following command:
 
 
 Terminate this PCP recording session now?pmlogger: Recording session terminated, exiting
-logonexit: calling logfooter for log #0
-
-Log finished DATE
