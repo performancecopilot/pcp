@@ -2774,6 +2774,7 @@ pmieconf -c enable dmthin
 
 %post
 PCP_PMNS_DIR=%{_pmnsdir}
+PCP_LOG_DIR=%{_logsdir}
 chown -R pcp:pcp %{_logsdir}/pmcd 2>/dev/null
 chown -R pcp:pcp %{_logsdir}/pmlogger 2>/dev/null
 chown -R pcp:pcp %{_logsdir}/sa 2>/dev/null
