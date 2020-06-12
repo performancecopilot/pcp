@@ -1,6 +1,17 @@
 QA output created by 1837
 
+=== OPTIONS
+
 Access-Control-Allow-Methods: GET, PUT, HEAD, POST, TRACE, OPTIONS
 Content-Length: 0
 Date: DATE
 HTTP/1.1 200 OK
+
+=== TRACE
+
+Accept: */*
+Content-Length: 0
+Date: DATE
+HTTP/1.1 200 OK
+Host: localhost:44322
+User-Agent: curl VERSION

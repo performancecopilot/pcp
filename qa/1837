@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 1837
-# Exercise PMWEBAPI handling server OPTIONS.
+# Exercise PMWEBAPI handling server OPTIONS and TRACE.
 #
 # Copyright (c) 2020 Red Hat.  All Rights Reserved.
 #
@@ -43,7 +43,12 @@ _cleanup()
 # real QA test starts here
 _service pmproxy restart >/dev/null 2>&1
 
-curl -isS --request-target "*" -X OPTIONS http://localhost:44322 \
+echo; echo "=== OPTIONS"
+curl -isS -X OPTIONS --request-target "*" http://localhost:44322 \
+	2>&1 | tee -a $here/$seq.full | _webapi_header_filter
+
+echo; echo "=== TRACE"
+curl -isS -X TRACE http://localhost:44322 \
 	2>&1 | tee -a $here/$seq.full | _webapi_header_filter
 
 echo >>$here/$seq.full
