@@ -55,6 +55,8 @@ END				{ if ( eatlines ) {
 				{ print }' \
     | sed -f $tmp.sed \
     | sed \
+	-e '/^Roll .*\/NOTICES/d' \
+	-e '/^Start .*\/NOTICES/d' \
 	-e "s;$tmp;TMP;g" \
 	-e "s/`hostname`/HOST/g" \
 	-e "s/localhost/HOST/g" \

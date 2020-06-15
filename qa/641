@@ -22,6 +22,8 @@ _cleanup()
 _filter()
 {
     sed \
+	-e '/^Roll .*\/NOTICES/d' \
+	-e '/^Start .*\/NOTICES/d' \
 	-e "s@$tmp@TMP@g" \
 	-e '/^-rw/s/\. 1 .* \([^ ][^ ]*\)/ ... \1/' \
 	-e '/^-rw/s/ 1 .* \([^ ][^ ]*\)/ ... \1/' \

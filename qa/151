@@ -32,6 +32,8 @@ _filter()
     tee -a $seq.full \
     | sed -f $tmp/sed \
     | sed \
+	-e '/^Roll .*\/NOTICES/d' \
+	-e '/^Start .*\/NOTICES/d' \
 	-e "s;$tmp;TMP;g" \
 	-e "s/local:/HOST/g" \
 	-e "s/localhost/HOST/g" \
@@ -161,7 +163,6 @@ echo
 echo "pmlogger_daily -k 4 -x never -V ..." >>$seq.full
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -c $tmp/control -k 4 -x never -V -l $tmp.log"
 $sudo cat $tmp.log \
-| tee -a $seq.full \
 | _filter \
 | $PCP_AWK_PROG '
 state == 0		{ print >"'$tmp.out.0'"
