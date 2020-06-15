@@ -159,7 +159,7 @@ ls -l $tmp >>$seq.full
 #
 echo
 echo "pmlogger_daily -k 4 -x never -V ..." >>$seq.full
-$sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_daily -c $tmp/control -k 4 -x never -V -l $tmp.log
+$sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -c $tmp/control -k 4 -x never -V -l $tmp.log"
 $sudo cat $tmp.log \
 | tee -a $seq.full \
 | _filter \

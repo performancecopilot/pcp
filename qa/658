@@ -66,7 +66,7 @@ find $tmp/* -type f | xargs -r $sudo chown $PCP_USER:$PCP_GROUP
 find $tmp/* -type d | xargs -r $sudo chown $PCP_USER:$PCP_GROUP
 
 # real QA test starts here
-$sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_daily -l $tmp.log -V -k never -x 0 -f -c $tmp.control \
+$sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -l $tmp.log -V -k never -x 0 -f -c $tmp.control" \
 | _filter
 
 _filter <$tmp.log

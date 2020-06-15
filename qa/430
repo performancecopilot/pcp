@@ -50,11 +50,21 @@ _filter()
 	-e 's/control.d\/*:[0-9][0-9]*]/control:LINE]/' \
 	-e 's;/usr/var;/var;g' \
 	-e "s;$tmp;TMP;g" \
+	-e "s;$PCP_TMP_DIR;PCP_TMP_DIR;" \
 	-e '/Duplicate/d' \
 	-e 's/process [0-9][0-9]*/process PID/' \
 	-e '/[0-9] inode=/d' \
 	-e 's/[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]\.[0-9][0-9]\.[0-9][0-9]/CHECK/' \
-	| _filter_cron_scripts
+	-e '/^Start: /s/ .*/ .../' \
+	-e '/^End: /s/ .*/ .../' \
+	-e 's/^----------.*\/lock/.../' \
+    | $PCP_AWK_PROG '
+/^Called from:/			{ print; print "..."; skip = 1; next }
+/^Contents of /			{ print; print "..."; skip = 1; next }
+skip == 1 && /^--- end of/	{ skip = 0; next }
+skip == 1			{ next }
+				{ print }' \
+    | _filter_cron_scripts
 }
 
 _stop_loggers()
@@ -268,7 +278,7 @@ do
 
     echo "log mandatory on once pmcd.control.debug" >$logdir/config
     echo "--- pmlogger_check ---" >> $here/$seq.full
-    $sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_check -V -c $logdir/control -l $tmp.log
+    $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_check -V -c $logdir/control -l $tmp.log"
     $sudo cat $tmp.log | tee -a $here/$seq.full | _filter
 done
 
@@ -326,7 +336,7 @@ $2 == '"$pid"' { print; exit(0) }'
     cat $PCP_TMP_DIR/pmlogger/$pid >>$here/$seq.full
     $signal -s TERM $pid
     echo "Check ..." | tee -a $here/$seq.full
-    $sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_check -V -V -c $logdir/control -l $tmp.log
+    $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_check -V -V -c $logdir/control -l $tmp.log"
     if [ -f $tmp.log ]
     then
 	$sudo cat $tmp.log \
