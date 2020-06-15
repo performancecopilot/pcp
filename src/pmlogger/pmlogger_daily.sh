@@ -31,16 +31,24 @@ status=0
 echo >$tmp/lock
 prog=`basename $0`
 PROGLOG=$PCP_LOG_DIR/pmlogger/$prog.log
+MYPROGLOG=$PROGLOG.$$
 USE_SYSLOG=true
 
 _cleanup()
 {
+    if [ -s "$MYPROGLOG" ]
+    then
+	rm -f "$PROGLOG"
+	mv "$MYPROGLOG" "$PROGLOG"
+    else
+	rm -f "$MYPROGLOG"
+    fi
     $USE_SYSLOG && [ $status -ne 0 ] && \
     $PCP_SYSLOG_PROG -p daemon.error "$prog failed - see $PROGLOG"
-    [ -s "$PROGLOG" ] || rm -f "$PROGLOG"
     lockfile=`cat $tmp/lock 2>/dev/null`
     rm -f "$lockfile" "$PCP_RUN_DIR/pmlogger_daily.pid"
     rm -rf $tmp
+    $VERY_VERBOSE && echo "End: `date '+%F %T.%N'`"
 }
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
@@ -215,8 +223,10 @@ do
 		fi
 		COMPRESSONLY=true
 		PROGLOG=$PCP_LOG_DIR/pmlogger/$prog-K.log
+		MYPROGLOG=$PROGLOG.$$
 		;;
 	-l)	PROGLOG="$2"
+		MYPROGLOG=$PROGLOG.$$
 		USE_SYSLOG=false
 		shift
 		;;
@@ -278,6 +288,7 @@ do
 		# $PCP_LOG_DIR/pmlogger/daily.<date>.trace
 		#
 		PROGLOG=$PCP_LOG_DIR/pmlogger/daily.`date "+%Y%m%d.%H.%M"`.trace
+		MYPROGLOG=$PROGLOG.$$
 		VERBOSE=true
 		VERY_VERBOSE=true
 		MYARGS="$MYARGS -V -V"
@@ -418,13 +429,23 @@ else
     #
     # Exception ($SHOWME, above) is for -N where we want to see the output.
     #
-    touch "$PROGLOG"
-    chown $PCP_USER:$PCP_GROUP "$PROGLOG" >/dev/null 2>&1
-    exec 1>"$PROGLOG" 2>&1
+    touch "$MYPROGLOG"
+    chown $PCP_USER:$PCP_GROUP "$MYPROGLOG" >/dev/null 2>&1
+    exec 1>"$MYPROGLOG" 2>&1
+fi
+
+if $VERY_VERBOSE
+then
+    echo "Start: `date '+%F %T.%N'`"
+    if `which pstree >/dev/null 2>&1`
+    then
+	echo "Called from:"
+	pstree -spa $$
+    fi
 fi
 
 # if SaveLogs exists in the $PCP_LOG_DIR/pmlogger directory then save
-# $PROGLOG there as well with a unique name that contains the date and time
+# $MYPROGLOG there as well with a unique name that contains the date and time
 # when we're run ... skip if -N (showme)
 #
 if $SHOWME
@@ -433,15 +454,15 @@ then
 else
     if [ -d $PCP_LOG_DIR/pmlogger/SaveLogs ]
     then
-	now="`date '+%Y%m%d.%H.%M'`"
-	link=`echo $PROGLOG | sed -e "s/$prog/SaveLogs\/$prog.$now/"`
+	now="`date '+%Y%m%d.%H.%M.%S'`"
+	link=`echo $MYPROGLOG | sed -e "s/$prog/SaveLogs\/$prog.$now/"`
 	if [ ! -f "$link" ]
 	then
 	    if $SHOWME
 	    then
-		echo "+ ln $PROGLOG $link"
+		echo "+ ln $MYPROGLOG $link"
 	    else
-		ln $PROGLOG $link
+		ln $MYPROGLOG $link
 	    fi
 	fi
     fi
@@ -487,19 +508,20 @@ _lock()
 	delay=200	# tenths of a second
 	while [ $delay -gt 0 ]
 	do
-	    if pmlock -v lock >>$tmp/out 2>&1
+	    if pmlock -v "$1/lock" >>$tmp/out 2>&1
 	    then
-		echo $1/lock >$tmp/lock
+		echo "$1/lock" >$tmp/lock
 		break
 	    else
 		[ -f $tmp/stamp ] || touch -t `pmdate -30M %Y%m%d%H%M` $tmp/stamp
-		if [ ! -z "`find lock -newer $tmp/stamp -print 2>/dev/null`" ]
+		find $tmp/stamp -newer "$1/lock" -print 2>/dev/null >$tmp/tmp
+		if [ -s $tmp/tmp ]
 		then
-		    if [ -f lock ]
+		    if [ -f "$1/lock" ]
 		    then
 			_warning "removing lock file older than 30 minutes"
-			LC_TIME=POSIX ls -l $1/lock
-			rm -f lock
+			LC_TIME=POSIX ls -l "$1/lock"
+			rm -f "$1/lock"
 		    else
 			# there is a small timing window here where pmlock
 			# might fail, but the lock file has been removed by
@@ -517,10 +539,10 @@ _lock()
 	then
 	    # failed to gain mutex lock
 	    #
-	    if [ -f lock ]
+	    if [ -f "$1/lock" ]
 	    then
 		_warning "is another PCP cron job running concurrently?"
-		LC_TIME=POSIX ls -l $1/lock
+		LC_TIME=POSIX ls -l "$1/lock"
 	    else
 		echo "$prog: `cat $tmp/out`"
 	    fi
@@ -534,7 +556,7 @@ _lock()
 
 _unlock()
 {
-    rm -f lock
+    rm -f "$1/lock"
     echo >$tmp/lock
 }
 
@@ -1458,7 +1480,7 @@ p
 	    fi
 	fi
 
-	_unlock
+	_unlock "$dir"
     done
 }
 
