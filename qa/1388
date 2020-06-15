@@ -4,6 +4,12 @@
 #
 # Copyright (c) 2017,2019 Red Hat.
 #
+# NOTE
+#	This test is likely to fail unless hostname(1) returns
+#	some sort of FQDN.  For example, when hostname was bozo it
+#	failed, but when hostname was set (via /etc/hostname in
+#	this case) to bozo.localdomain the test passes.
+#
 
 seq=`basename $0`
 echo "QA output created by $seq"
