@@ -19,7 +19,7 @@
 \f3pmlogger_daily\f1 \- administration of Performance Co-Pilot archive log files
 .SH SYNOPSIS
 .B $PCP_BINADM_DIR/pmlogger_check
-[\f3\-CNsTV?\f1]
+[\f3\-CNpqsTV?\f1]
 [\f3\-c\f1 \f2control\f1]
 [\f3\-l\f1 \f2logfile\f1]
 .br
@@ -269,6 +269,20 @@ PCP archive and the individual archives are removed.
 .TP
 \fB\-p\fR
 If this option is specified for
+.B pmlogger_check
+then any line from the control files for the
+.I primary
+.B pmlogger
+will be ignored.
+This option is intended for environments where some system daemon,
+like
+.BR systemd (1),
+is responsible for controlling (starting, stopping, restarting, etc.) the
+.I primary
+.BR pmlogger .
+.TP
+\fB\-p\fR
+If this option is specified for
 .B pmlogger_daily
 then the status of the daily processing is polled and if the daily
 .BR pmlogger (1)
@@ -295,6 +309,12 @@ and
 options to
 .B pmlogger_daily
 are mutually exclusive.
+.TP
+\fB\-q\fR
+If this option is specified for
+.B pmlogger_check
+then the script will ``quickstart'' avoiding any optional processing
+like file compression.
 .TP
 \fB\-r\fR, \fB\-\-norewrite\fR
 This command line option acts as an override and prevents all archive

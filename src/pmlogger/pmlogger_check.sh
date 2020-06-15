@@ -36,16 +36,24 @@ status=0
 echo >$tmp/lock
 prog=`basename $0`
 PROGLOG=$PCP_LOG_DIR/pmlogger/$prog.log
+MYPROGLOG=$PROGLOG.$$
 USE_SYSLOG=true
 
 _cleanup()
 {
+    if [ -s "$MYPROGLOG" ]
+    then
+	rm -f "$PROGLOG"
+	mv "$MYPROGLOG" "$PROGLOG"
+    else
+	rm -f "$MYPROGLOG"
+    fi
     $USE_SYSLOG && [ $status -ne 0 ] && \
     $PCP_SYSLOG_PROG -p daemon.error "$prog failed - see $PROGLOG"
-    [ -s "$PROGLOG" ] || rm -f "$PROGLOG"
     lockfile=`cat $tmp/lock 2>/dev/null`
     rm -f "$lockfile"
     rm -rf $tmp
+    $VERY_VERBOSE && echo "End: `date '+%F %T.%N'`"
 }
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
@@ -86,6 +94,8 @@ VERY_VERBOSE=false
 CHECK_RUNLEVEL=false
 START_PMLOGGER=true
 STOP_PMLOGGER=false
+QUICKSTART=false
+SKIP_PRIMARY=false
 
 echo > $tmp/usage
 cat >> $tmp/usage << EOF
@@ -94,6 +104,8 @@ Options:
   -l=FILE,--logfile=FILE  send important diagnostic messages to FILE
   -C                      query system service runlevel information
   -N,--showme             perform a dry run, showing what would be done
+  -p,--skip-primary       do not start or stop the primary pmlogger instance
+  -q,--quick              quick start, no compression
   -s,--stop               stop pmlogger processes instead of starting them
   -T,--terse              produce a terser form of output
   -V,--verbose            increase diagnostic verbosity
@@ -117,6 +129,7 @@ do
 	-C)	CHECK_RUNLEVEL=true
 		;;
 	-l)	PROGLOG="$2"
+		MYPROGLOG="$PROGLOG".$$
 		USE_SYSLOG=false
 		daily_args="${daily_args} -l $2.from.check"
 		shift
@@ -128,6 +141,10 @@ do
 		LN="echo + ln"
 		KILL="echo + kill"
 		daily_args="${daily_args} -N"
+		;;
+	-p)	SKIP_PRIMARY=true
+		;;
+	-q)	QUICKSTART=true
 		;;
 	-s)	START_PMLOGGER=false
 		STOP_PMLOGGER=true
@@ -162,9 +179,15 @@ fi
 
 _compress_now()
 {
-    # If $PCP_COMPRESSAFTER=0 in the control file(s), compress archives now.
-    # Invoked just before exit when this script has finished successfully.
-    $PCP_BINADM_DIR/pmlogger_daily -K $daily_args
+    if $QUICKSTART
+    then
+	$VERY_VERBOSE && echo "Skip compression, -q/--quick on command line"
+    else
+	# If $PCP_COMPRESSAFTER=0 in the control file(s), compress archives now.
+	# Invoked just before exit when this script has finished successfully.
+	$VERY_VERBOSE && echo "Doing compression ..."
+	$PCP_BINADM_DIR/pmlogger_daily -K $daily_args
+    fi
 }
 
 # after argument checking, everything must be logged to ensure no mail is
@@ -187,26 +210,37 @@ else
     #
     # Exception ($SHOWME, above) is for -N where we want to see the output.
     #
-    touch "$PROGLOG"
-    chown $PCP_USER:$PCP_GROUP "$PROGLOG" >/dev/null 2>&1
-    exec 1>"$PROGLOG" 2>&1
+    touch "$MYPROGLOG"
+    chown $PCP_USER:$PCP_GROUP "$MYPROGLOG" >/dev/null 2>&1
+    exec 1>"$MYPROGLOG" 2>&1
+fi
+
+if $VERY_VERBOSE
+then
+    echo "Start: `date '+%F %T.%N'`"
+    if `which pstree >/dev/null 2>&1`
+    then
+	echo "Called from:"
+	pstree -spa $$
+	echo "--- end of pstree output ---"
+    fi
 fi
 
 # if SaveLogs exists in the $PCP_LOG_DIR/pmlogger directory then save
-# $PROGLOG there as well with a unique name that contains the date and time
+# $MYPROGLOG there as well with a unique name that contains the date and time
 # when we're run
 #
 if [ -d $PCP_LOG_DIR/pmlogger/SaveLogs ]
 then
-    now="`date '+%Y%m%d.%H.%M'`"
-    link=`echo $PROGLOG | sed -e "s/$prog/SaveLogs\/$prog.$now/"`
+    now="`date '+%Y%m%d.%H.%M.%S'`"
+    link=`echo $MYPROGLOG | sed -e "s/$prog/SaveLogs\/$prog.$now/"`
     if [ ! -f "$link" ]
     then
 	if $SHOWME
 	then
-	    echo "+ ln $PROGLOG $link"
+	    echo "+ ln $MYPROGLOG $link"
 	else
-	    ln $PROGLOG $link
+	    ln $MYPROGLOG $link
 	fi
     fi
 fi
@@ -273,7 +307,7 @@ _restarting()
 
 _unlock()
 {
-    rm -f lock
+    rm -f "$1/lock"
     echo >$tmp/lock
 }
 
@@ -393,6 +427,42 @@ _get_primary_logger_pid()
 {
     pid=`cat "$PCP_RUN_DIR/pmlogger.pid" 2>/dev/null`
     echo "$pid"
+}
+
+# wait for the local pmcd to get going for a primary pmlogger
+# (borrowed from qa/common.check)
+#
+# wait_for_pmcd [maxdelay]
+#
+_wait_for_pmcd()
+{
+    # 5 seconds default seems like a reasonable max time to get going
+    _can_wait=${1-5}
+    _limit=`expr $_can_wait \* 10`
+    _i=0
+    _dead=true
+    while [ $_i -lt $_limit ]
+    do
+	_sts=`pmprobe pmcd.numclients 2>/dev/null | $PCP_AWK_PROG '{print $2}'`
+	if [ "${_sts:-0}" -gt 0 ]
+	then
+	    # numval really > 0, we're done
+	    #
+	    _dead=false
+	    break
+	fi
+	pmsleep 0.1
+	_i=`expr $_i + 1`
+    done
+    if $_dead
+    then
+	date
+	echo "Arrgghhh ... pmcd at localhost failed to start after $_can_wait seconds"
+	echo "=== failing pmprobes ==="
+	pmprobe pmcd.numclients
+	status=1
+	exit
+    fi
 }
 
 _check_archive()
@@ -531,7 +601,17 @@ _parse_control()
 	cd "$here"
 	line=`expr $line + 1`
 
-	$VERY_VERBOSE && echo "[$controlfile:$line] host=\"$host\" primary=\"$primary\" socks=\"$socks\" dir=\"$dir\" args=\"$args\""
+
+	if $VERY_VERBOSE 
+	then
+	    case "$host"
+	    in
+	    \#*|'')	# comment or empty
+			;;
+	    *)		echo "[$controlfile:$line] host=\"$host\" primary=\"$primary\" socks=\"$socks\" dir=\"$dir\" args=\"$args\""
+	    		;;
+	    esac
+	fi
 
 	case "$host"
 	in
@@ -599,6 +679,15 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    continue
 	fi
 
+	# if -s/--skip-primary on the command line, do not process
+	# a control file line for the primary pmlogger
+	#
+	if $SKIP_PRIMARY && [ $primary = y ]
+	then
+	    $VERY_VERBOSE && echo "Skip, -s/--skip-primary on command line"
+	    continue
+	fi
+
 	# substitute LOCALHOSTNAME marker in this config line
 	# (differently for directory and pcp -h HOST arguments)
 	#
@@ -610,7 +699,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	then
 	    pflag=''
 	    [ $primary = y ] && pflag=' -P'
-	    echo "Check pmlogger$pflag -h $host ... in $dir ..."
+	    echo "Checking for: pmlogger$pflag -h $host ... in $dir ..."
 	fi
 
 	# check for directory duplicate entries
@@ -664,19 +753,25 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    delay=200	# tenths of a second
 	    while [ $delay -gt 0 ]
 	    do
-		if pmlock -v lock >$tmp/out 2>&1
+		if pmlock -v "$dir/lock" >$tmp/out 2>&1
 		then
-		    echo $dir/lock >$tmp/lock
+		    echo "$dir/lock" >$tmp/lock
+		    if $VERY_VERBOSE
+		    then
+			echo "Acquired lock:"
+			ls -l $dir/lock
+		    fi
 		    break
 		else
 		    [ -f $tmp/stamp ] || touch -t `pmdate -30M %Y%m%d%H%M` $tmp/stamp
-		    if [ -z "`find lock -newer $tmp/stamp -print 2>/dev/null`" ]
+		    find $tmp/stamp -newer "$dir/lock" -print 2>/dev/null >$tmp/tmp
+		    if [ -s $tmp/tmp ]
 		    then
-			if [ -f lock ]
+			if [ -f "$dir/lock" ]
 			then
 			    echo "$prog: Warning: removing lock file older than 30 minutes"
 			    LC_TIME=POSIX ls -l $dir/lock
-			    rm -f lock
+			    rm -f "$dir/lock"
 			else
 			    # there is a small timing window here where pmlock
 			    # might fail, but the lock file has been removed by
@@ -714,7 +809,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 			continue
 		    fi
 		fi
-		if [ -f lock ]
+		if [ -f "$dir/lock" ]
 		then
 		    echo "$prog: Warning: is another PCP cron job running concurrently?"
 		    LC_TIME=POSIX ls -l $dir/lock
@@ -752,6 +847,14 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		else
 		    $VERY_VERBOSE && echo "primary pmlogger process $pid not running"
 		    pid=''
+		fi
+	    else
+		if $VERY_VERBOSE
+		then
+		    echo "$PCP_TMP_DIR/pmlogger/primary: missing?"
+		    echo "Contents of $PCP_TMP_DIR/pmlogger"
+		    ls -l $PCP_TMP_DIR/pmlogger
+		    echo "--- end of ls output ---"
 		fi
 	    fi
 	else
@@ -798,6 +901,11 @@ END				{ print m }'`
 		#
 		PM_LOG_PORT_DIR="$PCP_TMP_DIR/pmlogger"
 		rm -f "$PM_LOG_PORT_DIR/primary"
+		# We really starting the primary pmlogger to work, especially
+		# in the systemd world, so make sure pmcd is ready to accept
+		# connections.
+		#
+		_wait_for_pmcd
 	    else
 		args="-h $host $args"
 		envs=""
@@ -870,7 +978,7 @@ END				{ print m }'`
 	    then
 		echo
 		echo "+ ${sock_me}$PMLOGGER $args $LOGNAME"
-		_unlock
+		_unlock "$dir"
 		continue
 	    else
 		$PCP_BINADM_DIR/pmpost "start pmlogger from $prog for host $host"
@@ -903,7 +1011,7 @@ END				{ print m }'`
 	    $PCP_ECHO_PROG $PCP_ECHO_N "$pid ""$PCP_ECHO_C" >> $tmp/pmloggers
 	fi
 
-	_unlock
+	_unlock "$dir"
     done
 }
 
