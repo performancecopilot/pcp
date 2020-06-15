@@ -96,7 +96,7 @@ _start_pmcheck()
     bgtmp=`mktemp -d $PCP_DIR/var/tmp/pcp.XXXXXXXXX` || exit 1
     trap "rm -rf $tmp $bgtmp; exit \$bgstatus" 0 1 2 3 15
 
-    pmlogger_check $VFLAG >$bgtmp/pmcheck.out 2>$bgtmp/pmcheck
+    pmlogger_check --quick $VFLAG >$bgtmp/pmcheck.out 2>$bgtmp/pmcheck
     bgstatus=$?
     if [ -s $bgtmp/pmcheck ]
     then
@@ -125,8 +125,6 @@ Error: PCP archive logger control file '$PMLOGCTRL'
 	    false
 	else
 	    # Really start the pmlogger instances based on the control file.
-	    # Done in the background to avoid delaying the init script,
-	    # failure notification is external (syslog, log files).
 	    #
 	    $ECHO $PCP_ECHO_N "Starting pmlogger ..." "$PCP_ECHO_C"
 
@@ -234,11 +232,9 @@ shift `expr $OPTIND - 1`
 if [ $VERBOSE_CTL = on ]
 then				# For a verbose startup and shutdown
     ECHO=$PCP_ECHO_PROG
-    REBUILDOPT=''
     VFLAG='-V'
 else				# For a quiet startup and shutdown
     ECHO=:
-    REBUILDOPT=-s
     VFLAG=
 fi
 
