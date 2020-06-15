@@ -75,11 +75,6 @@ _check_file()
 	    # end
 	    mv $tmp.tmp $tmp.out
 	    ;;
-	"$PCP_VAR_DIR/config/pmda/"*)
-	    # nothing to see inside these indom files
-	    #
-	    rm -f $tmp.out
-	    ;;
 	"$HOME"/.pki/nssdb/*.db)
 	    # nothing to see inside these database files
 	    #
@@ -169,7 +164,12 @@ else
     status=1
 fi
 
-pminfo -b 1 -v `pminfo | sed -e 's/\..*//' | sort | uniq` \
+pminfo \
+| sed -e 's/\./ /' \
+| sort \
+| $PCP_AWK_PROG '
+$1 != last	{ print $1 "." $2; last = $1 }' >$tmp.1perdomain
+pminfo -v -b1 `cat $tmp.1perdomain` \
 | grep 'No PMCD agent for domain' >$tmp.out
 n=`wc -l <$tmp.out | sed -e 's/ //g'`
 if [ "$n" -eq 0 ]
@@ -181,7 +181,7 @@ else
     status=1
 fi
 
-pminfo -v | grep 'illegal metric identifier' \
+pminfo -v -b 5000 | grep 'illegal metric identifier' \
 | grep -v 'sample.*\.bad\.unknown' >$tmp.out
 n=`wc -l <$tmp.out | sed -e 's/ //g'`
 if [ "$n" -eq 0 ]
@@ -236,17 +236,13 @@ for arg in \
     '$PCP_TMP_DIR/pmproxy' \
     '$PCP_VAR_DIR/config/cisco/cisco.conf' \
     '$PCP_VAR_DIR/config/logger/logger.conf' \
-    '$PCP_VAR_DIR/config/pmda' \
     '$PCP_VAR_DIR/config/pmlogger/config.default' \
     '$PCP_VAR_DIR/pmns/root' \
     '$PCP_PMDAS_DIR/linux/bandwidth.conf' \
 
 do
     conf=`eval echo "$arg"`
-    if [ -z "$conf" ]
-    then
-	echo "empty var!"
-    elif [ -f "$conf" ]
+    if [ -f "$conf" ]
     then
 	_check_file "$conf" "$arg"
     elif [ -d "$conf" ]
@@ -265,6 +261,9 @@ do
 	else
 	    $check || echo "$arg ... OK"
 	fi
+    elif [ -z "$conf" ]
+    then
+	echo "empty var!"
     else
 	$check || echo "$arg ... OK"
     fi
