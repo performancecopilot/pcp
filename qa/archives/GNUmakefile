@@ -35,6 +35,7 @@ DEFLATE = small.0.xz small.meta small.index \
 	  pcp-atop.0.xz pcp-atop.meta pcp-atop.index \
 	  pcp-atop-boot.0.xz pcp-atop-boot.meta pcp-atop-boot.index \
 	  pcp-dstat.0.xz pcp-dstat.meta pcp-dstat.index \
+	  pcp-free-tera.0.xz pcp-free-tera.meta.xz pcp-free-tera.index \
 	  pcp-hotatop.0.xz pcp-hotatop.meta pcp-hotatop.index \
 	  pcp-zeroconf.0.xz pcp-zeroconf.meta pcp-zeroconf.index \
 	  value-test.0.xz value-test.meta value-test.index \

@@ -2696,6 +2696,7 @@ _webapi_header_filter()
     | col -b \
     | sed \
 	-e 's/^\(Content-Length:\) [1-9][0-9]*/\1 SIZE/g' \
+	-e 's/^\(User-Agent: curl\).*/\1 VERSION/g' \
 	-e 's/^\(Date:\).*/\1 DATE/g' \
 	-e 's/\(\"context\":\) [0-9][0-9]*/\1 CTXID/g' \
 	-e '/^Connection: Keep-Alive/d' \

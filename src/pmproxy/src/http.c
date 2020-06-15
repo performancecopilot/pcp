@@ -324,17 +324,36 @@ http_methods_string(char *buffer, size_t length, http_options options)
 }
 
 static sds
-http_response_trace(struct client *client)
+http_response_trace(struct client *client, int sts)
 {
+    struct http_parser	*parser = &client->u.http.parser;
     dictIterator	*iterator;
     dictEntry		*entry;
-    sds			result = sdsempty();
+    char		buffer[64];
+    sds			header;
+
+    parser->http_major = parser->http_minor = 1;
+
+    header = sdscatfmt(sdsempty(),
+		"HTTP/%u.%u %u %s\r\n"
+		"%S: Keep-Alive\r\n",
+		parser->http_major, parser->http_minor,
+		sts, http_status_mapping(sts), HEADER_CONNECTION);
+    header = sdscatfmt(header, "%S: %u\r\n", HEADER_CONTENT_LENGTH, 0);
 
     iterator = dictGetSafeIterator(client->u.http.headers);
     while ((entry = dictNext(iterator)) != NULL)
-	result = sdscatfmt("%S: %S\r\n", dictGetKey(entry), dictGetVal(entry));
+	header = sdscatfmt(header, "%S: %S\r\n", dictGetKey(entry), dictGetVal(entry));
     dictReleaseIterator(iterator);
-    return result;
+
+    header = sdscatfmt(header, "Date: %s\r\n\r\n",
+		http_date_string(time(NULL), buffer, sizeof(buffer)));
+
+    if (pmDebugOptions.http && pmDebugOptions.desperate) {
+	fprintf(stderr, "trace response to client %p\n", client);
+	fputs(header, stderr);
+    }
+    return header;
 }
 
 static sds
@@ -418,7 +437,7 @@ http_reply(struct client *client, sds message,
 	if (client->u.http.parser.method == HTTP_OPTIONS)
 	    buffer = http_response_access(client, sts, options);
 	else if (client->u.http.parser.method == HTTP_TRACE)
-	    buffer = http_response_trace(client);
+	    buffer = http_response_trace(client, sts);
 	else	/* HTTP_HEAD */
 	    buffer = http_response_header(client, 0, sts, type);
 	suffix = NULL;
@@ -533,6 +552,8 @@ http_client_release(struct client *client)
     if (servlet && servlet->on_release)
 	servlet->on_release(client);
     client->u.http.privdata = NULL;
+    client->u.http.servlet = NULL;
+    client->u.http.flags = 0;
 
     if (client->u.http.headers) {
 	dictRelease(client->u.http.headers);
@@ -696,29 +717,39 @@ on_url(http_parser *request, const char *offset, size_t length)
 {
     struct client	*client = (struct client *)request->data;
     struct servlet	*servlet;
-    sds			buffer;
     int			sts;
 
     http_client_release(client);	/* new URL, clean slate */
-    /* server options - https://tools.ietf.org/html/rfc7231#section-4.3.7 */
-    if (length == 1 && *offset == '*' &&
-	client->u.http.parser.method == HTTP_OPTIONS) {
-	buffer = http_response_access(client, HTTP_STATUS_OK, HTTP_SERVER_OPTIONS);
-	client_write(client, buffer, NULL);
-    } else if ((servlet = servlet_lookup(client, offset, length)) != NULL) {
+    /* pass to servlets handling each of our internal request endpoints */
+    if ((servlet = servlet_lookup(client, offset, length)) != NULL) {
 	client->u.http.servlet = servlet;
-	if ((sts = client->u.http.parser.status_code) == 0) {
+	if ((sts = client->u.http.parser.status_code) != 0)
+	    http_error(client, sts, "failed to process URL");
+	else {
 	    if (client->u.http.parser.method == HTTP_OPTIONS ||
 		client->u.http.parser.method == HTTP_TRACE ||
 		client->u.http.parser.method == HTTP_HEAD)
 		client->u.http.flags |= HTTP_FLAG_NO_BODY;
-	    else
-		client->u.http.flags &= ~HTTP_FLAG_NO_BODY;
 	    client->u.http.headers = dictCreate(&sdsOwnDictCallBacks, NULL);
-	    return 0;
 	}
-	http_error(client, sts, "failed to process URL");
-    } else {
+    }
+    /* server options - https://tools.ietf.org/html/rfc7231#section-4.3.7 */
+    else if (client->u.http.parser.method == HTTP_OPTIONS) {
+	if (length == 1 && *offset == '*') {
+	    client->u.http.flags |= HTTP_FLAG_NO_BODY;
+	    client->u.http.headers = dictCreate(&sdsOwnDictCallBacks, NULL);
+	} else {
+	    sts = client->u.http.parser.status_code = HTTP_STATUS_BAD_REQUEST;
+	    http_error(client, sts, "no handler for OPTIONS");
+	}
+    }
+    /* server trace - https://tools.ietf.org/html/rfc7231#section-4.3.8 */
+    else if (client->u.http.parser.method == HTTP_TRACE) {
+	client->u.http.flags |= HTTP_FLAG_NO_BODY;
+	client->u.http.headers = dictCreate(&sdsOwnDictCallBacks, NULL);
+    }
+    /* nothing available to respond to this request - inform the client */
+    else {
 	sts = client->u.http.parser.status_code = HTTP_STATUS_BAD_REQUEST;
 	http_error(client, sts, "no handler for URL");
     }
@@ -734,7 +765,7 @@ on_body(http_parser *request, const char *offset, size_t length)
     if (pmDebugOptions.http && pmDebugOptions.desperate)
 	printf("Body: %.*s\n(client=%p)\n", (int)length, offset, client);
 
-    if (servlet->on_body)
+    if (servlet && servlet->on_body)
 	return servlet->on_body(client, offset, length);
     return 0;
 }
@@ -828,7 +859,7 @@ on_headers_complete(http_parser *request)
     }
 
     client->u.http.privdata = NULL;
-    if (servlet->on_headers)
+    if (servlet && servlet->on_headers)
 	sts = servlet->on_headers(client, client->u.http.headers);
 
     /* HTTP Basic Auth for all servlets */
@@ -857,13 +888,31 @@ on_message_complete(http_parser *request)
 {
     struct client	*client = (struct client *)request->data;
     struct servlet	*servlet = client->u.http.servlet;
+    sds			buffer;
+    int			sts;
 
     if (pmDebugOptions.http)
 	fprintf(stderr, "HTTP message complete (client=%p)\n", client);
 
-    if (servlet && servlet->on_done)
-	return servlet->on_done(client);
-    return 0;
+    if (servlet) {
+	if (servlet->on_done)
+	    return servlet->on_done(client);
+	return 0;
+    }
+
+    sts = HTTP_STATUS_OK;
+    if (client->u.http.parser.method == HTTP_OPTIONS) {
+	buffer = http_response_access(client, sts, HTTP_SERVER_OPTIONS);
+	client_write(client, buffer, NULL);
+	return 0;
+    }
+    if (client->u.http.parser.method == HTTP_TRACE) {
+	buffer = http_response_trace(client, sts);
+	client_write(client, buffer, NULL);
+	return 0;
+    }
+
+    return 1;
 }
 
 void
