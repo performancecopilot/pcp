@@ -1,0 +1,49 @@
+#!/bin/sh
+#
+# filter for qa/008 that takes output from the qa test like
+# Disks:
+#	[0]: 0 sda
+#	[1]: 1 sdb
+#	[2]: 2 sdc
+#all drives should be included here
+#pmResult ... numpmid: 1
+#  60.0.4 (disk.dev.read): numval: 5 valfmt: 1 vlist[]:
+#    inst [0 or "sda"] value ...
+#    inst [1 or "sdb"] value ...
+#    inst [2 or "sdc"] value ...
+#...
+#
+# and turns it into this to deal with non-determinism in the disk discovery
+# Disks:
+#	[0]: 0 disk-0
+#	[1]: 1 disk-1
+#	[2]: 2 disk-2
+#all drives should be included here
+#pmResult ... numpmid: 1
+#  60.0.4 (disk.dev.read): numval: 5 valfmt: 1 vlist[]:
+#    inst [0 or "disk-0"] value ...
+#    inst [1 or "disk-1"] value ...
+#    inst [2 or "disk-2"] value ...
+#
+
+. /etc/pcp.env
+
+$PCP_AWK_PROG '
+BEGIN		{ ndisk = 0 }
+/^Disks:/	{ inmap = 1; print; next }
+inmap == 1	{ if ($1 ~ /\[[0-9][0-9]*]:/) {
+		    map[$NF] = "disk-" ndisk
+		    ndisk++
+		    $NF = map[$NF]
+		  }
+		  else
+		    inmap = 0
+		}
+$1 == "inst"	{ i = $2
+		  sub(/\[/, "", i)
+		  old = $4
+		  gsub(/"/,"",old)
+		  gsub(/]/,"",old)
+		  $4 = "\"" map[old] "\"]"
+		}
+		{ print }'

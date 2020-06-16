@@ -40,7 +40,6 @@ $PCP_TMP_DIR/mmv ... OK
 $PCP_TMP_DIR/pmproxy ... OK
 $PCP_VAR_DIR/config/cisco/cisco.conf ... OK
 $PCP_VAR_DIR/config/logger/logger.conf ... OK
-$PCP_VAR_DIR/config/pmda ... OK
 $PCP_VAR_DIR/config/pmlogger/config.default ... OK
 $PCP_VAR_DIR/pmns/root ... OK
 $PCP_PMDAS_DIR/linux/bandwidth.conf ... OK

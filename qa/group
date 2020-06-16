@@ -1608,6 +1608,7 @@ not_in_container
 1197 pmlogextract local
 1198 pmlogrewrite pmda.linux local
 1199 libpcp pmcd local
+1200 logutil local
 1202 pmda.dm local pmrep python
 1203 derive pmval libpcp local
 1207 pcp dstat python local

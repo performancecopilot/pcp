@@ -88,15 +88,15 @@ then
 	if grep -q 'DISTRIB_ID=Ubuntu' /etc/lsb-release
 	then
 	    eval `grep DISTRIB_RELEASE= /etc/lsb-release`
-	    XDISTRIB_RELEASE=`echo $DISTRIB_RELEASE | sed -e 's/[^0-9]//g'`
+	    XDISTRIB_RELEASE=`echo $DISTRIB_RELEASE | sed -e 's/[^0-9]//g' -e 's/\.//'`
 	    [ -z "$XDISTRIB_RELEASE" ] && XDISTRIB_RELEASE=0000
-	    if [ $XDISTRIB_RELEASE -gt 2004 ]
+	    if [ $XDISTRIB_RELEASE -ge 2004 ]
 	    then
 		# As of Ubuntu 20.04 the Python2 dependency packages have
 		# been renamed (at least python-dev -> python-dev-is-python2)
 		# so try building without Python2
 		#
-		configopts='$configopts --without-python'
+		configopts="$configopts --without-python"
 	    fi
 	fi
     fi

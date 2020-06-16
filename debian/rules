@@ -146,7 +146,7 @@ config: .census
 	@echo "== dpkg-buildpackage: configure" 1>&2
 	$(checkdir)
 	autoconf
-	dh_autotools-dev_updateconfig
+	dh_update_autotools_config
 	$(configure_tools) ./configure $(configure_paths) $(configure_opts)
 	touch .census
 
@@ -157,7 +157,6 @@ clean:
 	$(MAKE) realclean
 	-rm -rf $(alldir)
 	-rm -f debian/*substvars debian/files* debian/*.debhelper qa/localconfig
-	dh_autotools-dev_restoreconfig
 	dh_clean
 
 binary-indep: checkroot build-stamp
@@ -212,7 +211,6 @@ binary-arch: checkroot build-stamp
 	dh_link -a
 	# Note: --no-automatic-dbgsym not defined for all releases up to
 	# 	and including Debian 8 (jessie), but defined after that
-	# 	... expect a warning on older releases, but no other ill
 	# 	... expect a warning on older releases, but no other ill
 	# 	effects from the unknown option ... until dh_strip started
 	# 	aborting on Ubuntu 14.04 (vm00) on 23 Nov 2017

@@ -32,6 +32,8 @@ _filter()
 	-e "s/local:/LOCALHOST/g" \
 	-e 's/control:[0-9][0-9]*]/control:LINE]/' \
 	-e 's;/usr/var;/var;g' \
+	-e '/^Roll .*\/NOTICES/d' \
+	-e '/^Start .*\/NOTICES/d' \
 	-e "s;$tmp;TMP;g" \
 	-e '/Duplicate/d' \
 	-e '/Roll [^ ]*\/NOTICES /d' \

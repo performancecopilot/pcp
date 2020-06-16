@@ -199,7 +199,7 @@ fi
 # - may need to add metrics (in the sed part) that are OK to return
 #   'Unknown or illegal metric', but this is most unlikely
 #
-pminfo -v 2>&1 \
+pminfo -v -b 5000 2>&1 \
 | grep 'Unknown or illegal metric' \
 | sed >$tmp.out \
     -e '/^sample.*\.bad\.unknown:/d' \
