@@ -3,6 +3,9 @@
 # pmlogger_check for primary logger and pmcd may not be running (yet)
 # - systemd and package install failure case
 #
+# This is the single pmlogger version.  See qa/1201 for the multiple
+# pmlogger version.
+#
 # Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
 #
 
