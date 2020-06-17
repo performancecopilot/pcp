@@ -265,11 +265,11 @@ fi
 
 if [ "$branch" != master ]
 then
-    # back to the master branch, and delete the temporary branch
+    # Back to the master branch, but leave the temporary branch to
+    # allow further commits to be added onto the same Pull Request
+    # on github
     #
     $GIT checkout master
-    $GIT branch -d $branch
-    $RM -f $pushed_sha
     # and if we pushed a non-master branch, then also push the master
     # branch back to the remote repo
     #
