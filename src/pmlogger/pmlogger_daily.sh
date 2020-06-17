@@ -725,6 +725,9 @@ rm -f $tmp/err
 # if the directory containing the archive matches, then the name
 # of the file is the pid.
 #
+# The pid(s) (if any) appear on stdout, so be careful to send any
+# diagnostics to stderr.
+#
 _get_non_primary_logger_pid()
 {
     pid=''
@@ -735,7 +738,7 @@ _get_non_primary_logger_pid()
 	then
 	    _host=`sed -n 2p <$log`
 	    _arch=`sed -n 3p <$log`
-	    $PCP_ECHO_PROG $PCP_ECHO_N "... try $log host=$_host arch=$_arch: ""$PCP_ECHO_C"
+	    $PCP_ECHO_PROG >&2 $PCP_ECHO_N "... try $log host=$_host arch=$_arch: ""$PCP_ECHO_C"
 	fi
 	# throw away stderr in case $log has been removed by now
 	match=`sed -e '3s@/[^/]*$@@' $log 2>/dev/null | \
@@ -743,19 +746,19 @@ _get_non_primary_logger_pid()
 BEGIN				{ m = 0 }
 NR == 3 && $0 == "'$dir'"	{ m = 2; next }
 END				{ print m }'`
-	$VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "match=$match ""$PCP_ECHO_C"
+	$VERY_VERBOSE && $PCP_ECHO_PROG >&2 $PCP_ECHO_N "match=$match ""$PCP_ECHO_C"
 	if [ "$match" = 2 ]
 	then
 	    pid=`echo $log | sed -e 's,.*/,,'`
 	    if _get_pids_by_name pmlogger | grep "^$pid\$" >/dev/null
 	    then
-		$VERY_VERBOSE && echo "pmlogger process $pid identified, OK"
+		$VERY_VERBOSE && echo >&2 "pmlogger process $pid identified, OK"
 		break
 	    fi
-	    $VERY_VERBOSE && echo "pmlogger process $pid not running, skip"
+	    $VERY_VERBOSE && echo >&2 "pmlogger process $pid not running, skip"
 	    pid=''
 	else
-	    $VERY_VERBOSE && echo "different directory, skip"
+	    $VERY_VERBOSE && echo >&2 "different directory, skip"
 	fi
     done
     echo "$pid"
@@ -1050,6 +1053,8 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		pid=''
 	    fi
 	else
+	    # pid(s) on stdout, diagnostics on stderr
+	    #
 	    pid=`_get_non_primary_logger_pid`
 	    if $VERY_VERBOSE
 	    then
