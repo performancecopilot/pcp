@@ -759,7 +759,7 @@ rm -f $tmp.domains
 
 # some driver host specific things ...
 #
-case `hostname`
+case `hostname -s`
 in
     bozo)
 	echo "bozo" >>$tmp.domains
