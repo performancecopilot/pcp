@@ -461,7 +461,6 @@ _wait_for_pmcd()
 	echo "=== failing pmprobes ==="
 	pmprobe pmcd.numclients
 	status=1
-	exit
     fi
 }
 
@@ -906,6 +905,12 @@ END				{ print m }'`
 		# connections.
 		#
 		_wait_for_pmcd
+		if [ "$status" = 1 ]
+		then
+		    $VERY_VERBOSE && echo "pmcd not running, skip primary pmlogger"
+		    _unlock "$dir"
+		    continue
+		fi
 	    else
 		args="-h $host $args"
 		envs=""
