@@ -22,10 +22,10 @@ Restarting pmlogger for host "another.host" ...
 + date-and-timestamp ...
 # $version=1.1    
 + export version; version=1.1    
-+ cd LOGDIR/logs/HOSTNAME
 
 === compressing PCP archives for host local: ===
 
++ cd LOGDIR/logs/HOSTNAME
 + get mutex lock
 pmlogger_daily: [control:4]
 Error: no pmlogger instance running for host "local:"
@@ -34,10 +34,10 @@ pmlogger_daily: [control:4]
 Warning: skipping log rotation because we don't know which pmlogger to signal
 pmlogger_daily: [control:4]
 Warning: current volume of current pmlogger not known, compression skipped
-+ cd LOGDIR/logs/no.such.host.pcp.io
 
 === compressing PCP archives for host no.such.host.pcp.io ===
 
++ cd LOGDIR/logs/no.such.host.pcp.io
 + get mutex lock
 pmlogger_daily: [control:5]
 Error: no pmlogger instance running for host "no.such.host.pcp.io"
@@ -46,10 +46,10 @@ pmlogger_daily: [control:5]
 Warning: skipping log rotation because we don't know which pmlogger to signal
 pmlogger_daily: [control:5]
 Warning: current volume of current pmlogger not known, compression skipped
-+ cd LOGDIR/logs/another.host
 
 === compressing PCP archives for host another.host ===
 
++ cd LOGDIR/logs/another.host
 + get mutex lock
 pmlogger_daily: [control:6]
 Error: no pmlogger instance running for host "another.host"
