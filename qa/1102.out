@@ -1,5 +1,12 @@
 QA output created by 1102
 
+=== remove openmetrics agent ===
+Culling the Performance Metrics Name Space ...
+openmetrics ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check openmetrics metrics have gone away ... OK
+
 === openmetrics agent installation ===
 Fetch and desc openmetrics metrics: success
 
