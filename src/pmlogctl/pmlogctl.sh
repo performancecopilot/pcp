@@ -14,6 +14,32 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
+# TODO
+# - man page
+# - qa
+# - glob expansion for <class> and <host> names
+# - resolve the semantics of specifying <class> and <host> in the control
+#   actions (all but create where the semantics are clear)
+# - create => create + start ... is there a case for create only?  
+# - destroy => stop + destroy ... is there a case for destroy iff already
+#   stopped?
+# - handling of multiple pmloggers for the same host (using different
+#   directories) ... probably does not work at the moment .... there are
+#   checks (untested) for this in the script, but the control files may
+#   already be in this state through upgrade or manual editing
+# - multiple pmloggers in the one control file ... create will not do
+#   this and destroy (will) check for it before removing the control
+#   file, but I'd like to avoid a "migration" path 'cause splitting a
+#   control file is messy and potentially dangerous, and subsequent manual
+#   editing could bring the situation back at any time
+# - pmfind integration
+# - other sections in the "policy" files, especially with pmfind to
+#   (a) at create, pick a class by probing the host
+#   (b) at create, decide not to by probing the host or by hostname
+#       pattern
+#   (c) at destroy, decide not to or wait some time before destroying
+#       (the latter is really hard)
+# - IAM=pmie is completely untested
 #
 
 . $PCP_DIR/etc/pcp.env
@@ -27,7 +53,7 @@ in
     pmiectl*)	IAM=pmie
 		CONTROLFILE=$PCP_PMIECONTROL_PATH
     		;;
-    *)		echo >&2 "$0: who the hell are you?"
+    *)		echo >&2 "$0: who the hell are you, bozo?"
     		exit 1
 		;;
 esac
@@ -186,6 +212,7 @@ _expand_control()
 _do_status()
 {
     # TODO - deal with args (limit report to named hosts)
+
     # see if system-level controls have stopped (all) ${IAM} processes
     #
     systemctl_state=''
@@ -400,11 +427,23 @@ _do_stop()
     return 0
 }
 
-# destroy command
+# restart command
 #
 _do_restart()
 {
-    echo TODO
+    host="$1"
+    if _do_stop "$host"
+    then
+	if _do_start "$host"
+	then
+	    :
+	else
+	    _error "failed to stop host \"$host\""
+	fi
+    else
+	_error "failed to start host \"$host\""
+    fi
+
     return 0
 }
 
