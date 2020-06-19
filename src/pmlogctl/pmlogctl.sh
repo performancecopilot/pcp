@@ -367,7 +367,14 @@ _do_start()
 	    echo "+ unmark host as stopped in $control"
 	else
 	    sed -e "/^#!#$host[ 	]/s/^#!#//" <"$control" >$tmp/control
-	    $VERBOSE && diff "$control" $tmp/control
+	    if $VERY_VERBOSE
+	    then
+		echo "Diffs for control file \"$control\" ..."
+		diff "$control" $tmp/control
+	    elif $VERBOSE
+	    then
+		echo "Enable ${IAM} in control file \"$control\""
+	    fi
 	    $CP $tmp/control "$control"
 	fi
     fi
@@ -407,7 +414,7 @@ _do_stop()
 	_warning "cannot find PID for host \"$host\" ${IAM}, already exited?"
 	return 1
     fi
-    $VERBOSE && echo "Found PID \"$pid\" to stop"
+    $VERBOSE && echo "Found PID $pid to stop"
     control=`cat $tmp/out | sed -e 's/:.*//'`
     if [ ! -f "$control" ]
     then
@@ -421,7 +428,14 @@ _do_stop()
 	echo "+ mark host as stopped in $control"
     else
 	sed -e "/^$host[ 	]/s/^/#!#/" <"$control" >$tmp/control
-	$VERBOSE && diff "$control" $tmp/control
+	if $VERY_VERBOSE
+	then
+	    echo "Diffs for control file \"$control\" ..."
+	    diff "$control" $tmp/control
+	elif $VERBOSE
+	then
+	    echo "Disable ${IAM} in control file \"$control\""
+	fi
 	$CP $tmp/control "$control"
     fi
     return 0
@@ -508,7 +522,7 @@ fi
 
 [ "$1" != "status" ] && _lock
 
-if $VERBOSE
+if $VERY_VERBOSE
 then
     if $EXPLICIT_CLASS
     then
@@ -536,7 +550,7 @@ destroy:
 manual
 End-of-File
 	POLICY=$tmp/policy
-	$VERBOSE && echo "Using default policy"
+	$VERY_VERBOSE && echo "Using default policy"
     fi
 else
     if [ ! -f "$POLICY" ]
@@ -545,7 +559,7 @@ else
 	status=1
 	exit
     fi
-    $VERBOSE && echo "Using policy: $POLICY"
+    $VERY_VERBOSE && echo "Using policy: $POLICY"
 fi
 
 action=$1
