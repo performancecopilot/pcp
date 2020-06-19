@@ -413,10 +413,37 @@ log mandatory on 2 second {
 The PMDA maintains special control metrics, as described below.
 Apart from
 .BR openmetrics.control.debug ,
-each of these metrics is a counter and has one instance for each configured metric source.
-The instance domain is adjusted dynamically as new sources are discovered.
+each of these metrics has one instance for each configured metric source.
+All of these metrics have integer values with counter semantics, except
+.BR openmetrics.control.status ,
+which has a string value.
+It is important to note that fetching any of the
+.B openmetrics.control
+metrics will only update the counters and status values if the corresponding URL is actually fetched.
+If the source URL is not fetched, the control metric values do not trigger a refresh and the control
+values reported represent the most recent fetch of each corresponding source.
+.PP
+The instance domain for the
+.B openmetrics.control
+metrics is adjusted dynamically as new sources are discovered.
 If there are no sources configured, the metric names are still defined
 but the instance domain will be empty and a fetch will return no values.
+.IP \fBopenmetrics.control.status\fP
+A string representing the status of the last fetch of the corresponding source.
+This will generally be
+.B success
+for an http response code of 200.
+This metric can be used for service availability monitoring - provided, as stated above,
+the corresponding source URL is fetched too.
+.IP \fBopenmetrics.control.status_code\fP
+This metric is similar to
+.B openmetrics.control.status
+except that it is the integer response code of the last fetch.
+A value of
+.B 200
+usually signifies success and any other value failure.
+This metric can also be used for service availability monitoring, with the same caveats as
+.BR openmetrics.control.status .
 .IP \fBopenmetrics.control.calls\fP
 total number of times each configured metric source has been fetched (if it's a URL)
 or executed (if it's a script), since the PMDA started.
