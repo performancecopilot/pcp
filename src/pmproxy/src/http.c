@@ -21,7 +21,9 @@
 static int chunked_transfer_size; /* pmproxy.chunksize, pagesize by default */
 static int smallest_buffer_size = 128;
 
-#define MAX_PARAMS_SIZE 4096
+/* https://tools.ietf.org/html/rfc7230#section-3.1.1 */
+#define MAX_URL_SIZE	8192
+#define MAX_PARAMS_SIZE 8000
 #define MAX_HEADERS_SIZE 128
 
 static sds HEADER_ACCESS_CONTROL_REQUEST_HEADERS,
@@ -720,8 +722,13 @@ on_url(http_parser *request, const char *offset, size_t length)
     int			sts;
 
     http_client_release(client);	/* new URL, clean slate */
+
+    if (length >= MAX_URL_SIZE) {
+	sts = client->u.http.parser.status_code = HTTP_STATUS_URI_TOO_LONG;
+	http_error(client, sts, "request URL too long");
+    }
     /* pass to servlets handling each of our internal request endpoints */
-    if ((servlet = servlet_lookup(client, offset, length)) != NULL) {
+    else if ((servlet = servlet_lookup(client, offset, length)) != NULL) {
 	client->u.http.servlet = servlet;
 	if ((sts = client->u.http.parser.status_code) != 0)
 	    http_error(client, sts, "failed to process URL");

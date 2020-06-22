@@ -1,0 +1,16 @@
+QA output created by 1608
+
+</body>
+</html>
+<body>
+<h1>414 URI Too Long</h1>
+<head><title>414 URI Too Long</title></head>
+<html>
+<p><b>unknown servlet</b>: request URL too long</p><hr>
+<p><small><i>PMPROXY/VERSION</i></small></p>
+Access-Control-Allow-Headers: Accept, Accept-Language, Content-Language, Content-Type
+Access-Control-Allow-Origin: *
+Content-Length: SIZE
+Content-Type: text/html
+Date: DATE
+HTTP/1.1 414 URI Too Long
