@@ -2594,8 +2594,7 @@ regexpr	: opt_bang L_PATTERN
 		  }
 		  np->data.pattern->invert = $1;
 		  np->data.pattern->used = 0;
-		  np->data.pattern->hash.hsize = 0;
-		  np->data.pattern->hash.hash = NULL;
+		  __pmHashInit(&np->data.pattern->hash);
 		  $$ = np;
 		}
 
