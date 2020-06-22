@@ -371,6 +371,9 @@ pmlogsize
 # pmdbg
 pmdbg
 
+# pmlogctl
+pmlogctl
+
 # pcp2... pcp2xxx is generic
 pcp2xxx
 pcp2elasticsearch
@@ -1612,6 +1615,7 @@ not_in_container
 1201 logutil remote
 1202 pmda.dm local pmrep python
 1203 derive pmval libpcp local
+1204 pmlogctl local
 1207 pcp dstat python local
 1211 pmseries local kernel
 1212 pmseries local
