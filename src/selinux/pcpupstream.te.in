@@ -20,6 +20,7 @@ require {
 	type pcp_pmie_exec_t; # pmda.summary
 	type ping_exec_t; # pmda.netcheck
 	type openvswitch_exec_t; # pmda.openvswitch
+	type samba_var_t; # pmda.samba
 	type websm_port_t; # pmda.openmetrics
         type system_cronjob_t;
         type user_home_t;
@@ -148,6 +149,10 @@ allow pcp_pmcd_t self:capability { sys_chroot kill sys_resource ipc_lock chown }
 
 #type=AVC msg=audit(YYY.94): avc: denied { name_bind } for pid=9365 comm=pmlogger src=4332 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:unreserved_port_t:s0 tclass=tcp_socket permissive=0
 @PCP_UNRESERVED_PORT_RULE_PMLOGGER@
+
+#type=AVC msg=audit(YYY.97): avc: denied { write } for pid=3507787 comm="smbstatus" name="msg.lock" dev="dm-0" ino=283321 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:samba_var_t:s0 tclass=dir permissive=0
+allow pcp_pmcd_t samba_var_t:dir { add_name write }; # pmda.samba
+allow pcp_pmcd_t samba_var_t:file { create }; # pmda.samba
 
 #type=AVC msg=audit(YYY.15): avc:  denied  { name_connect } for  pid=13816 comm="python3" dest=9090 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:websm_port_t:s0 tclass=tcp_socket permissive=0
 allow pcp_pmcd_t websm_port_t:tcp_socket name_connect; # pmda.openmetrics
