@@ -31,14 +31,10 @@ class Test:
 
 def read_test_durations(timings_path: str) -> Dict[str, List[int]]:
     test_durations = {}
-    try:
-        with open(timings_path) as f:
-            for line in f:
-                no, start, stop = line.strip().split()
-                test_durations[no] = [int(start), int(stop)]
-    except IOError:
-        # the check script failed before writing the timings file
-        return {}
+    with open(timings_path) as f:
+        for line in f:
+            no, start, stop = line.strip().split()
+            test_durations[no] = [int(start), int(stop)]
     return test_durations
 
 
@@ -106,14 +102,16 @@ def read_hosts(qa_dir: str, artifacts_path: str) -> List[Test]:
     groups = read_test_groups(os.path.join(qa_dir, 'group'))
     tests = []
     for artifact_dir in os.listdir(artifacts_path):
-        if not artifact_dir.startswith('test-'):
+        testartifacts_dir = os.path.join(artifacts_path, artifact_dir)
+        test_timings_file = os.path.join(testartifacts_dir, 'check.timings')
+
+        # ignore build artifacts and cancelled QA runs (timeout after 6h)
+        if not artifact_dir.startswith('test-') or not os.path.exists(test_timings_file):
             continue
 
         # e.g. test-fedora32-container
         host = artifact_dir[5:]
-        testartifacts_dir = os.path.join(artifacts_path, artifact_dir)
-        test_durations = read_test_durations(os.path.join(testartifacts_dir, 'check.timings'))
-
+        test_durations = read_test_durations(test_timings_file)
         tests.extend(read_testlog(qa_dir, testartifacts_dir, groups, test_durations, host))
     return tests
 
