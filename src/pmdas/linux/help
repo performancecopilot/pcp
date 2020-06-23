@@ -1415,11 +1415,11 @@ See also network.interface.speed for the Megabytes/second value.
 @ network.sockstat.total total number of sockets used by the system.
 @ network.sockstat.tcp.inuse instantaneous number of tcp sockets currently in use
 @ network.sockstat.tcp.orphan instantaneous number of orphan sockets
-@ network.sockstat.tcp.tw instantaneous number of sockets wating close
+@ network.sockstat.tcp.tw instantaneous number of sockets waiting close
 @ network.sockstat.tcp.alloc instantaneous number of allocated sockets
 @ network.sockstat.tcp.mem instantaneous number of used memory for tcp 
 @ network.sockstat.udp.inuse instantaneous number of udp sockets currently in use
-@ network.sockstat.udp.mem nstantaneous number of used memory for udp
+@ network.sockstat.udp.mem instantaneous number of used memory for udp
 @ network.sockstat.udplite.inuse instantaneous number of udplite sockets currently in use
 @ network.sockstat.raw.inuse instantaneous number of raw sockets currently in use
 @ network.sockstat.frag.inuse instantaneous number of frag sockets currently in use
@@ -1700,7 +1700,7 @@ tools running on IRIX.
 @ network.icmp.incsumerrors count of icmp in checksum errors
 @ network.icmpmsg.intype count of icmp message types recvd
 @ network.icmpmsg.outtype count of icmp message types sent
-@ network.tcp.rtoalgorithm the restransmission timeout algorithm in use
+@ network.tcp.rtoalgorithm the retransmission timeout algorithm in use
 @ network.tcp.rtomin minimum retransmission timeout
 @ network.tcp.rtomax maximum retransmission timeout
 @ network.tcp.maxconn limit on tcp connections
@@ -1839,7 +1839,7 @@ tools running on IRIX.
 Due to SYNACK retrans count lower than defer_accept value
 
 @ network.tcp.iprpfilter Number of packets dropped in input path because of rp_filter settings
-@ network.tcp.timewaitoverflow Number of occurences of time wait bucket overflow
+@ network.tcp.timewaitoverflow Number of occurrences of time wait bucket overflow
 @ network.tcp.reqqfulldocookies Number of times a SYNCOOKIE was replied to client
 @ network.tcp.reqqfulldrop Number of times a SYN request was dropped due to disabled syncookies
 @ network.tcp.retransfail Number of failed tcp_retransmit_skb() calls
@@ -1986,7 +1986,7 @@ segment marked for destruction on last detach) and "locked" or the empty string.
 
 @ hinv.ntape number of Linux scsi tape devices
 @ tape.dev.in_flight number of I/Os currently outstanding to this tape device
-@ tape.dev.io_ns cummulative amount of time spent waiting for all I/O to complete to tape device
+@ tape.dev.io_ns cumulative amount of time spent waiting for all I/O to complete to tape device
 The amount of time spent waiting (in nanoseconds) for all I/O to complete
 (including read and write). This includes tape movement commands such as seeking
 between file or set marks and implicit tape movement such as when rewind on close
@@ -1994,14 +1994,14 @@ tape devices are used.
 @ tape.dev.other_cnt number of I/Os issued to the tape drive other than read or write commands
 @ tape.dev.read_byte_cnt number of bytes read from the tape drive
 @ tape.dev.read_cnt number of read requests issued to the tape drive
-@ tape.dev.read_ns cummulative amount of time spent waiting for read requests to complete
+@ tape.dev.read_ns cumulative amount of time spent waiting for read requests to complete
 @ tape.dev.resid_cnt count of read or write residual data, per tape device
 Number of times during a read or write we found the residual amount to be non-zero.
 For reads this means a program is issuing a read larger than the block size on tape.
 For writes it means not all data made it to tape.
 @ tape.dev.write_byte_cnt number of bytes written to the tape drive
 @ tape.dev.write_cnt number of write requests issued to the tape drive
-@ tape.dev.write_ns cummulative amount of time spent waiting for write requests to complete
+@ tape.dev.write_ns cumulative amount of time spent waiting for write requests to complete
 
 @ tty.serial.rx Number of receive interrupts for current serial line.
 @ tty.serial.tx Number of transmit interrupts for current serial line.
