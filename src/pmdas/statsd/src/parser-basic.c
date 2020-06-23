@@ -152,7 +152,7 @@ parse(char* buffer, struct statsd_datagram** datagram) {
                 } else if (buffer[i] == '=' || (past_type && buffer[i] == ':')) {
                     tag_key = (char *) realloc(tag_key, current_segment_length + 1);
                     ALLOC_CHECK("Not enough memory for tag key buffer.");
-                    tag_allocated_flags = tag_allocated_flags | 1 << 2;
+                    tag_allocated_flags = tag_allocated_flags | 1 << 1;
                     memcpy(tag_key, &buffer[segment_start], current_segment_length);
                     tag_key[current_segment_length] = '\0';
                     segment_type = 2;
@@ -171,7 +171,7 @@ parse(char* buffer, struct statsd_datagram** datagram) {
                             (past_type && (buffer[i] == ',' || buffer[i] == '\0'))) {
                     tag_value = (char *) realloc(tag_value, current_segment_length + 1);
                     ALLOC_CHECK("Not enough memory for tag value buffer.");
-                    tag_allocated_flags = tag_allocated_flags | 1 << 1;
+                    tag_allocated_flags = tag_allocated_flags | 1 << 0;
                     memcpy(tag_value, &buffer[segment_start], current_segment_length + 1);
                     tag_value[current_segment_length] = '\0';
                     size_t key_len = strlen(tag_key) + 1;
@@ -332,10 +332,10 @@ parse(char* buffer, struct statsd_datagram** datagram) {
             (*datagram)->tags_pair_count = tags->length;
         }
         free_tag_collection(tags);
-        if (tag_allocated_flags & 1) {
+        if (tag_allocated_flags & 2) {
             free(tag_key);
         }
-        if (tag_allocated_flags & 2) {
+        if (tag_allocated_flags & 1) {
             free(tag_value);
         }
     }
@@ -345,10 +345,10 @@ parse(char* buffer, struct statsd_datagram** datagram) {
     if (any_tags) {
         free_tag_collection(tags);
     }
-    if (tag_allocated_flags & 1) {
+    if (tag_allocated_flags & 2) {
         free(tag_key);
     }
-    if (tag_allocated_flags & 2) {
+    if (tag_allocated_flags & 1) {
         free(tag_value);
     }
     return 0;
