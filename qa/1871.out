@@ -1,0 +1,27 @@
+QA output created by 1871
+=== Load an empty index ===
+0 search results
+=== Load some deterministic search content ===
+OK
+OK
+OK
+=== Search on switch ===
+=== Search on pressure ===
+=== Search on averages ===
+=== Search engine info ===
+RediSearch statistics:
+    Documents: INTEGER
+        Terms: INTEGER
+      Records: INTEGER
+- Average records per doc: DOUBLE
+- Average bytes per record: DOUBLE
+- Inverted Index
+         Size: DOUBLE MB
+     Capacity: DOUBLE MB
+     Overhead: DOUBLE
+- Skip Index
+         Size: DOUBLE MB
+- Score Index
+         Size: DOUBLE MB
+- Average offsets per term: DOUBLE
+- Average offset bits per record: DOUBLE

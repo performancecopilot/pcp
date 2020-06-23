@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018-2019 Red Hat.
+# Copyright (c) 2018-2020 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -28,7 +28,7 @@ PCPLIB_LDFLAGS += -L$(TOPDIR)/src/libpcp_mmv/$(LIBPCP_ABIDIR)
 
 ifeq "$(HAVE_LIBUV)" "true"
 LCFLAGS += $(LIBUVCFLAGS) -DHAVE_LIBUV=1
-SERVLETS = series.c webapi.c
+SERVLETS = search.c series.c webapi.c
 CFILES += openmetrics.c server.c http.c pcp.c uv_callback.c redis.c $(SERVLETS)
 HFILES += openmetrics.h server.h http.h pcp.h uv_callback.h
 ifeq "$(HAVE_OPENSSL)" "true"

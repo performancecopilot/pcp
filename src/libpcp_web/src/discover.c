@@ -1478,17 +1478,20 @@ pmDiscoverRegister(const char *dir, pmDiscoverModule *module,
 		pmDiscoverCallBacks *callbacks, void *arg)
 {
     int			handle = -1;
-    int			avail_handle = -1;
+    int			avail_handle;
     pmDiscoverCallBacks	**cbp;
 
-    if (callbacks != NULL) {
+    while (callbacks != NULL) {
+	avail_handle = -1;
 	for (handle = 0; handle < discoverCallBackTableSize; handle++) {
 	    if (callbacks == discoverCallBackTable[handle])
 		break; /* we're adding new dirs using an existing handle */
-	    if (discoverCallBackTable[handle] == NULL)
+	    if (discoverCallBackTable[handle] == NULL) {
 		avail_handle = handle;
+		break;
+	    }
 	}
-	if (handle == discoverCallBackTableSize && avail_handle < 0) {
+	if (handle == discoverCallBackTableSize || avail_handle < 0) {
 	    avail_handle = discoverCallBackTableSize++;
 	    cbp = (pmDiscoverCallBacks **)realloc(discoverCallBackTable,
 			discoverCallBackTableSize * sizeof(*cbp));
@@ -1501,6 +1504,7 @@ pmDiscoverRegister(const char *dir, pmDiscoverModule *module,
 	}
 	handle = avail_handle;
 	discoverCallBackTable[handle] = callbacks;
+	callbacks = callbacks->next;
     }
     /* else we are just adding dirs for all existing registered callbacks */
 

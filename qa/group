@@ -343,7 +343,10 @@ tapestat
 ipcs
 mpstat
 
-# pmseries
+# full test search
+pmsearch
+
+# scalable queries
 pmseries
 
 # Uses Linux kernel cgroups
@@ -1772,5 +1775,6 @@ not_in_container
 1793 pmrep pcp2xxx python local
 1837 pmproxy local
 1855 pmda.rabbitmq local
+1871 pmsearch local
 1896 pmlogger logutil pmlc local
 4751 libpcp threads valgrind local pcp

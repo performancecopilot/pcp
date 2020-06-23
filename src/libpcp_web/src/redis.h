@@ -64,6 +64,7 @@ struct redisAsyncContext;
 #define REDIS_ENOSCRIPT		"NOSCRIPT No matching script. Please use EVAL."
 #define REDIS_ENOCLUSTER	"ERR This instance has cluster support disabled"
 #define REDIS_ESTREAMXADD	"ERR The ID specified in XADD is equal or smaller than the target stream top item"
+#define REDIS_EDROPINDEX	"Index already exists. Drop it first!"	/* RediSearch */
 
 /*
  * Redis protocol reply types

@@ -23,6 +23,8 @@ GET /metrics
 .br
 GET /series/...
 .br
+GET /search/...
+.br
 GET /pmapi/...
 .ft 1
 .SH C SYNOPSIS
@@ -540,6 +542,115 @@ $ curl -s http://localhost:44322/series/load&\\
   "success": true
 }
 .ESAMPLE
+.SH FULL TEXT SEARCH
+The full text search capabilities
+provided by the
+.BR pmsearch (1)
+command are also available through a REST API.
+These queries provide access to an index over performance
+metric names, instances, instance domains and help text,
+suitable for a metric search engine, and in a fashion suited
+to efficient querying by any number of web applications.
+.PP
+In order to use this functionality, the optional
+.I RediSearch
+module must be loaded in the
+.B redis-server
+at the time
+.B pmproxy
+is started, such that metrics, instances and help text it
+discovers can be automatically indexed.
+.PP
+All requests in this group can be accompanied by an optional
+.IR client
+parameter.
+The value passed in the request will be sent back in the
+response \- all responses will be in JSON object form in
+this case, with top level "client" and "result" fields.
+.SS GET \fI/search/text\fR \- \fBpmSearchTextQuery\fR(3)
+.TS
+box;
+c | c | cw(2.4i)
+lf(CW) | l | l.
+Parameters	Type	Explanation
+_
+query	string	Query string in \f(CBpmsearch\fR(1) format
+highlight	fields	include matching markup in response fields
+offset	number	result offset cursor for pagination
+limit	number	maximum results to include in response
+field	fields	queried fields (defaults to all)
+return	fields	fields to actually return (defaults to all)
+type	types	entity types to filter (defaults to all)
+client	string	Request identifier sent back with response
+.TE
+.PP
+Performs a text search query across metrics and instance
+domains \- all forms of names and help texts.
+.PP
+The mandatory search string is further described in
+.BR pmsearch (1)
+and is passed to the server via the
+.I query
+parameter (HTTP GET).
+.PP
+.SAMPLE
+$ curl -s http://localhost:44322/search/text?\\
+	query=halt | pmjson
+{
+  "total": 2,
+  "elapsed": 0.000504,
+  "results": [
+    {
+      "docid": "ae2bba4478a916efe60c46132562d1f6ee53dc66",
+      "count": 1,
+      "score": 3.300000,
+      "name": "kvm.halt_exits",
+      "type": "metric",
+      "indom": "95.0.4",
+      "oneline": "Number of guest exits due to halt calls.",
+      "helptext": "This type of exit is usually seen when a guest is idle."
+    },
+    {
+      "docid": "5be7a38f204235a77d11f646b4f528388509ac91",
+      "count": 2,
+      "score": 3.300000,
+      "name": "kvm.halt_wakeup",
+      "type": "metric",
+      "indom": "95.0.6",
+      "oneline": "Number of wakeups from a halt.",
+    }
+  ]
+}
+.ESAMPLE
+.PP
+Every response has a unique document identifier associated
+with it, returned as a convenience (consider these opaque,
+they cannot be passed to the search engine).
+.PP
+The available search entity
+.I types
+are
+.IR metric ,
+.IR indom
+and
+.IR instance .
+There is typically both a name and help text associated with
+metrics.
+An instance domain has help text and a numeric identifier,
+while instances have a name only (which can be searched).
+.SS GET \fI/search/info\fR \- \fBpmSearchInfo\fR(3)
+.TS
+box;
+c | c | cw(2.4i)
+lf(CW) | l | l.
+Parameters	Type	Explanation
+_
+key	string	Metrics for search engine (default "text")
+client	string	Request identifier sent back with response
+.TE
+.PP
+Provides metrics relating to operation of the search engine,
+in particular showing document and text record counts.
 .SH PMAPI HOST SERVICES
 The live performance collection facilities available from
 .BR pmcd (1)

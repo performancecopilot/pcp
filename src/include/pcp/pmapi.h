@@ -1144,6 +1144,7 @@ typedef struct {
     int	appl5;		/* Application-specific flag 5 */
     int access;		/* Access controls */
     int qa;		/* QA (transient, developers only) */
+    int search;		/* Text search tracing */
 } pmdebugoptions_t;
 
 PCP_DATA extern pmdebugoptions_t	pmDebugOptions;

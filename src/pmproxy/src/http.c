@@ -1029,6 +1029,7 @@ setup_http_module(struct proxy *proxy)
     HEADER_ORIGIN = sdsnew("Origin");
     HEADER_WWW_AUTHENTICATE = sdsnew("WWW-Authenticate");
 
+    register_servlet(proxy, &pmsearch_servlet);
     register_servlet(proxy, &pmseries_servlet);
     register_servlet(proxy, &pmwebapi_servlet);
 }

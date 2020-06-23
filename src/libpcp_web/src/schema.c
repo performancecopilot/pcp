@@ -21,7 +21,7 @@
 
 #define STRINGIFY(s)	#s
 #define TO_STRING(s)	STRINGIFY(s)
-#define SCHEMA_VERSION	2
+#define SERIES_VERSION	2
 #define SERVER_VERSION	5
 
 extern sds		cursorcount;
@@ -59,97 +59,45 @@ redisScriptsInit(void)
     }
 }
 
-static int
-testReplyError(redisReply *reply, const char *server_message)
+static void
+initRedisSlotsBaton(redisSlotsBaton *baton,
+		redisInfoCallBack info, redisDoneCallBack done,
+		void *userdata, void *events, void *arg)
 {
-    return (reply && reply->type == REDIS_REPLY_ERROR &&
-	    strcmp(reply->str, server_message) == 0);
+    initSeriesBatonMagic(baton, MAGIC_SLOTS);
+    baton->info = info;
+    baton->done = done;
+    baton->version = -1;
+    baton->userdata = userdata;
+    baton->arg = arg;
 }
 
 static void
-reportReplyError(redisInfoCallBack info, void *userdata,
-	redisReply *reply, const char *format, va_list argp)
+redis_slots_finished(void *arg)
 {
-    sds			msg = sdsnew("Error: ");
+    redisSlotsBaton	*baton = (redisSlotsBaton *)arg;
 
-    msg = sdscatvprintf(msg, format, argp);
-    if (reply && reply->type == REDIS_REPLY_ERROR)
-	msg = sdscatfmt(msg, "\nRedis: %s\n", reply->str);
-    else
-	msg = sdscat(msg, "\n");
-    info(PMLOG_RESPONSE, msg, userdata);
-    sdsfree(msg);
+    seriesBatonCheckMagic(baton, MAGIC_SLOTS, "redis_slots_finished");
+
+    if (baton->error == 0)
+	baton->done(baton->arg);
+    memset(baton, 0, sizeof(*baton));
+    free(baton);
 }
 
-static int
-checkStatusReplyOK(redisInfoCallBack info, void *userdata,
-		redisReply *reply, const char *format, ...)
+void
+redis_slots_end_phase(void *arg)
 {
-    va_list		argp;
+    redisSlotsBaton	*baton = (redisSlotsBaton *)arg;
 
-    if (reply && reply->type == REDIS_REPLY_STATUS &&
-	(strcmp("OK", reply->str) == 0 || strcmp("QUEUED", reply->str) == 0))
-	return 0;
-    va_start(argp, format);
-    reportReplyError(info, userdata, reply, format, argp);
-    va_end(argp);
-    return -1;
-}
+    seriesBatonCheckMagic(baton, MAGIC_SLOTS, "redis_slots_end_phase");
 
-static int
-checkStreamReplyString(redisInfoCallBack info, void *userdata,
-	redisReply *reply, sds s, const char *format, ...)
-{
-    va_list		argp;
-
-    if (reply && reply->type == REDIS_REPLY_STRING && strcmp(s, reply->str) == 0)
-	return 0;
-    va_start(argp, format);
-    reportReplyError(info, userdata, reply, format, argp);
-    va_end(argp);
-    return -1;
-}
-
-static int
-checkArrayReply(redisInfoCallBack info, void *userdata,
-	redisReply *reply, const char *format, ...)
-{
-    va_list		argp;
-
-    if (reply && reply->type == REDIS_REPLY_ARRAY)
-	return 0;
-    va_start(argp, format);
-    reportReplyError(info, userdata, reply, format, argp);
-    va_end(argp);
-    return -1;
-}
-
-static long long
-checkIntegerReply(redisInfoCallBack info, void *userdata,
-	redisReply *reply, const char *format, ...)
-{
-    va_list		argp;
-
-    if (reply && reply->type == REDIS_REPLY_INTEGER)
-	return reply->integer;
-    va_start(argp, format);
-    reportReplyError(info, userdata, reply, format, argp);
-    va_end(argp);
-    return -1;
-}
-
-static sds
-checkStringReply(redisInfoCallBack info, void *userdata,
-	redisReply *reply, const char *format, ...)
-{
-    va_list		argp;
-
-    if (reply && reply->type == REDIS_REPLY_STRING)
-	return sdsnew(reply->str);
-    va_start(argp, format);
-    reportReplyError(info, userdata, reply, format, argp);
-    va_end(argp);
-    return NULL;
+    if (baton->error == 0) {
+	seriesPassBaton(&baton->current, baton, "redis_slots_end_phase");
+    } else {	/* fail after waiting on outstanding I/O */
+	if (seriesBatonDereference(baton, "redis_slots_end_phase"))
+	    redis_slots_finished(baton);
+    }
 }
 
 static void
@@ -1265,6 +1213,7 @@ redis_update_version_callback(
     int			sts;
 
     seriesBatonCheckMagic(baton, MAGIC_SLOTS, "redis_update_version_callback");
+
     sts = redisSlotsRedirect(baton->slots, reply, baton->info, baton->userdata,
 			     cmd, redis_update_version_callback, arg);
     if (sts > 0)
@@ -1272,14 +1221,16 @@ redis_update_version_callback(
     if (sts == 0)
 	checkStatusReplyOK(baton->info, baton->userdata, reply,
 			"%s setup", "pcp:version:schema");
-    doneRedisSlotsBaton(baton);
+    redis_slots_end_phase(baton);
 }
 
 static void
 redis_update_version(redisSlotsBaton *baton)
 {
     sds			cmd, key;
-    const char		ver[] = TO_STRING(SCHEMA_VERSION);
+    const char		ver[] = TO_STRING(SERIES_VERSION);
+
+    seriesBatonReference(baton, "redis_update_version");
 
     key = sdsnew("pcp:version:schema");
     cmd = redis_command(3);
@@ -1290,7 +1241,7 @@ redis_update_version(redisSlotsBaton *baton)
 }
 
 static void
-redis_load_schema_version_callback(
+redis_load_series_version_callback(
 	redisAsyncContext *c, redisReply *reply, const sds cmd, void *arg)
 {
     redisSlotsBaton	*baton = (redisSlotsBaton *)arg;
@@ -1298,9 +1249,9 @@ redis_load_schema_version_callback(
     int			sts;
     sds			msg;
 
-    seriesBatonCheckMagic(baton, MAGIC_SLOTS, "redis_load_schema_version_callback");
+    seriesBatonCheckMagic(baton, MAGIC_SLOTS, "redis_load_series_version_callback");
     sts = redisSlotsRedirect(baton->slots, reply, baton->info, baton->userdata,
-				cmd, redis_load_schema_version_callback, arg);
+				cmd, redis_load_series_version_callback, arg);
     if (sts > 0)
 	return;	/* short-circuit as command was re-submitted */
 
@@ -1308,11 +1259,11 @@ redis_load_schema_version_callback(
 	baton->version = 0;	/* NIL - no version key yet */
     } else if (reply->type == REDIS_REPLY_STRING) {
 	version = (unsigned int)atoi(reply->str);
-	if (version == 0 || version == SCHEMA_VERSION) {
+	if (version == 0 || version == SERIES_VERSION) {
 	    baton->version = version;
 	} else {
-	    infofmt(msg, "unsupported schema (got v%u, expected v%u)",
-			version, SCHEMA_VERSION);
+	    infofmt(msg, "unsupported series schema (got v%u, expected v%u)",
+			version, SERIES_VERSION);
 	    batoninfo(baton, PMLOG_ERROR, msg);
 	}
     } else if (reply->type == REDIS_REPLY_ERROR) {
@@ -1329,27 +1280,30 @@ redis_load_schema_version_callback(
     }
 
     /* set the version when none found (first time through) */
-    if (version != SCHEMA_VERSION && baton->version != -1)
+    if (version != SERIES_VERSION && baton->version != -1)
 	redis_update_version(arg);
     else
-	doneRedisSlotsBaton(baton);
+	redis_slots_end_phase(baton);
 }
 
 static void
-redis_load_schema_version(redisSlotsBaton *baton)
+redis_load_series_version(void *arg)
 {
+    redisSlotsBaton	*baton = (redisSlotsBaton *)arg;
     sds			cmd, key;
+
+    seriesBatonReference(baton, "redis_load_series_version");
 
     key = sdsnew("pcp:version:schema");
     cmd = redis_command(2);
     cmd = redis_param_str(cmd, GETS, GETS_LEN);
     cmd = redis_param_sds(cmd, key);
-    redisSlotsRequest(baton->slots, GETS, key, cmd, redis_load_schema_version_callback, baton);
+    redisSlotsRequest(baton->slots, GETS, key, cmd, redis_load_series_version_callback, baton);
 }
 
 static void
 redis_load_version_callback(
-redisAsyncContext *c, redisReply *reply, const sds cmd, void *arg)
+	redisAsyncContext *c, redisReply *reply, const sds cmd, void *arg)
 {
     redisSlotsBaton	*baton = (redisSlotsBaton *)arg;
     unsigned int	server_version = 0;
@@ -1398,18 +1352,16 @@ redisAsyncContext *c, redisReply *reply, const sds cmd, void *arg)
 	infofmt(msg, "unexpected redis server version reply type (%s)", redis_reply_type(reply));
 	batoninfo(baton, PMLOG_ERROR, msg);
     }
-
-    if (baton->flags & SLOTS_VERSION)
-	/* Verify pmseries schema version if previously requested */
-	redis_load_schema_version(baton);
-    else
-	doneRedisSlotsBaton(baton);
+    redis_slots_end_phase(baton);
 }
 
 static void
-redis_load_version(redisSlotsBaton *baton)
+redis_load_version(void *arg)
 {
+    redisSlotsBaton	*baton = (redisSlotsBaton *)arg;
     sds			cmd;
+
+    seriesBatonReference(baton, "redis_load_version");
 
     cmd = redis_command(2);
     cmd = redis_param_str(cmd, INFO, INFO_LEN);
@@ -1475,6 +1427,7 @@ redis_load_keymap_callback(
     int			i;
 
     seriesBatonCheckMagic(baton, MAGIC_SLOTS, "redis_load_keymap_callback");
+
     /* no cluster redirection checking is needed for this callback */
     sdsfree(cmd);
 
@@ -1493,18 +1446,16 @@ redis_load_keymap_callback(
 		redis_reply_type(reply));
 	batoninfo(baton, PMLOG_ERROR, msg);
     }
-
-    /* Verify pmseries schema version and redis server version if previously requested */
-    if (baton->flags & SLOTS_VERSION)
-	redis_load_version(baton);
-    else
-	doneRedisSlotsBaton(baton);
+    redis_slots_end_phase(baton);
 }
 
 static void
-redis_load_keymap(redisSlotsBaton *baton)
+redis_load_keymap(void *arg)
 {
+    redisSlotsBaton	*baton = (redisSlotsBaton *)arg;
     sds			cmd;
+
+    seriesBatonReference(baton, "redis_load_keymap");
 
     cmd = redis_command(1);
     cmd = redis_param_str(cmd, COMMAND, COMMAND_LEN);
@@ -1640,49 +1591,21 @@ redis_load_slots_callback(
 	    decodeRedisSlots(baton, reply);
 	}
     }
-
-    if (baton->flags & SLOTS_KEYMAP)
-	/* Prepare mapping of commands to key positions if needed */
-	redis_load_keymap(baton);
-    else if (baton->flags & SLOTS_VERSION)
-	/* Verify pmseries schema version and redis server version if previously requested */
-	redis_load_version(baton);
-    else
-	doneRedisSlotsBaton(baton);
+    redis_slots_end_phase(baton);
 }
 
 static void
-redis_load_slots(redisSlotsBaton *baton)
+redis_load_slots(void *arg)
 {
+    redisSlotsBaton	*baton = (redisSlotsBaton *)arg;
     sds			cmd;
+
+    seriesBatonReference(baton, "redis_load_slots");
 
     cmd = redis_command(2);
     cmd = redis_param_str(cmd, CLUSTER, CLUSTER_LEN);
     cmd = redis_param_str(cmd, "SLOTS", sizeof("SLOTS")-1);
     redisSlotsRequest(baton->slots, CLUSTER, NULL, cmd, redis_load_slots_callback, baton);
-}
-
-void
-initRedisSlotsBaton(redisSlotsBaton *baton, redisSlotsFlags flags,
-		redisInfoCallBack info, redisDoneCallBack done,
-		void *userdata, void *events, void *arg)
-{
-    initSeriesBatonMagic(baton, MAGIC_SLOTS);
-    baton->info = info;
-    baton->done = done;
-    baton->flags = flags;
-    baton->version = -1;
-    baton->userdata = userdata;
-    baton->arg = arg;
-}
-
-void
-doneRedisSlotsBaton(redisSlotsBaton *baton)
-{
-    seriesBatonCheckMagic(baton, MAGIC_SLOTS, "doneRedisSlotsBaton");
-    baton->done(baton->arg);
-    memset(baton, 0, sizeof(*baton));
-    free(baton);
 }
 
 redisSlots *
@@ -1693,17 +1616,32 @@ redisSlotsConnect(dict *config, redisSlotsFlags flags,
     redisSlotsBaton		*baton;
     redisSlots			*slots;
     sds				msg;
+    unsigned int		i = 0;
 
     if ((baton = (redisSlotsBaton *)calloc(1, sizeof(redisSlotsBaton))) != NULL) {
 	if ((slots = redisSlotsInit(config, events)) != NULL) {
-	    initRedisSlotsBaton(baton, flags, info, done, userdata, events, arg);
+	    initRedisSlotsBaton(baton, info, done, userdata, events, arg);
 	    baton->slots = slots;
-	    redis_load_slots(baton);
+	    baton->current = &baton->phases[0];
+	    baton->phases[i++].func = redis_load_slots;
+
+	    /* Prepare mapping of commands to key positions if needed */
+	    if (flags & SLOTS_KEYMAP)
+		baton->phases[i++].func = redis_load_keymap;
+	    /* Verify pmseries schema version and create it if needed */
+	    if (flags & SLOTS_VERSION) {
+		baton->phases[i++].func = redis_load_version; /* Redis v5 */
+		baton->phases[i++].func = redis_load_series_version;
+	    }
+	    /* Register the pmsearch schema with RediSearch if needed */
+	    if (flags & SLOTS_SEARCH)
+		baton->phases[i++].func = redis_load_search_schema;
+	    baton->phases[i++].func = redis_slots_finished;
+	    assert(i <= SLOTS_PHASES);
+	    seriesBatonPhases(baton->current, i, baton);
 	    return slots;
 	}
-	doneRedisSlotsBaton(baton);
-    } else {
-	done(arg);
+	redis_slots_end_phase(baton);
     }
     infofmt(msg, "Failed to allocate memory for Redis slots");
     info(PMLOG_ERROR, msg, arg);
@@ -1777,7 +1715,7 @@ pmSeriesSetMetricRegistry(pmSeriesModule *module, mmv_registry_t *registry)
 }
 
 static void
-redisGlobalsInit(struct dict *config)
+redisSeriesInit(struct dict *config)
 {
     sds		option;
 
@@ -1803,6 +1741,15 @@ redisGlobalsInit(struct dict *config)
     }
 }
 
+void
+redisGlobalsInit(struct dict *config)
+{
+    redisSeriesInit(config);
+    redisSearchInit(config);
+    redisScriptsInit();
+    redisMapsInit();
+}
+
 int
 pmSeriesSetup(pmSeriesModule *module, void *arg)
 {
@@ -1813,8 +1760,6 @@ pmSeriesSetup(pmSeriesModule *module, void *arg)
 
     /* create global EVAL hashes and string map caches */
     redisGlobalsInit(data->config);
-    redisScriptsInit();
-    redisMapsInit();
 
     /* fast path for when Redis has been setup already */
     if (data->slots) {
@@ -1955,7 +1900,8 @@ pmDiscoverSetup(pmDiscoverModule *module, pmDiscoverCallBacks *cbs, void *arg)
     }
 
     /* create global EVAL hashes and string map caches */
-    redisGlobalsInit(data->config);
+    redisSearchInit(data->config);
+    redisSeriesInit(data->config);
     redisScriptsInit();
     redisMapsInit();
 

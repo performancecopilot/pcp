@@ -1,0 +1,78 @@
+#!/bin/sh
+# PCP QA Test No. 1871
+# Exercise pmsearch functionality.
+#
+# Copyright (c) 2020 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_series
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo "=== Load an empty index ==="
+pmsearch 'no results'
+
+echo "=== Load some deterministic search content ==="
+redis-cli FT.ADD pcp:text abc123 1 REPLACE PARTIAL PAYLOAD 0 FIELDS \
+	NAME kernel.all.pressure.memory.some.avg \
+	TYPE metric \
+	INDOM 60.37 \
+	ONELINE "Percentage of time runnable processes delayed for memory resources" \
+	HELPTEXT "Indicates the time in which at least some tasks stalled on memory resources."
+redis-cli FT.ADD pcp:text def456 1 REPLACE PARTIAL PAYLOAD 1 FIELDS \
+	NAME 60.37 \
+	TYPE indom \
+	INDOM 60.37 \
+	ONELINE "pressure time averages for 10 seconds, 1 minute and 5 minutes"
+redis-cli FT.ADD pcp:text a1b2c3 1 REPLACE PARTIAL PAYLOAD 0 FIELDS \
+	NAME kernel.all.pswitch \
+	TYPE metric \
+	ONELINE "context switches metric from /proc/stat"
+redis-cli FT.ADD pcp:text aaccee 1 REPLACE PARTIAL PAYLOAD 2 FIELDS \
+	NAME "10 second" \
+	TYPE instance
+redis-cli FT.ADD pcp:text bbccdd 1 REPLACE PARTIAL PAYLOAD 2 FIELDS \
+	NAME "1 minute" \
+	TYPE instance
+redis-cli FT.ADD pcp:text ddccee 1 REPLACE PARTIAL PAYLOAD 2 FIELDS \
+	NAME "5 minute" \
+	TYPE instance
+
+search_terms="switch pressure averages"
+for term in $search_terms
+do
+    echo "=== Search on $term ==="
+    pmsearch -C $term
+done
+
+_filter_info()
+{
+    sed \
+	-e 's/: [0-9][0-9]*\.[0-9][0-9]*/: DOUBLE/g' \
+	-e 's/: [0-9][0-9]*/: INTEGER/g' \
+    #end
+}
+
+echo "=== Search engine info ==="
+pmsearch -i -C | _filter_info
+
+# success, all done
+status=0
+exit

@@ -207,6 +207,7 @@ typedef struct pmDiscoverCallBacks {
     pmDiscoverValuesCallBack	on_values;	/* metrics value set arrived */
     pmDiscoverInDomCallBack	on_indom;	/* instance domain discovered */
     pmDiscoverTextCallBack	on_text;	/* new help text discovered */
+    struct pmDiscoverCallBacks	*next;		/* optional list of callbacks */
 } pmDiscoverCallBacks;
 
 typedef struct pmDiscoverSettings {
@@ -361,6 +362,107 @@ extern int pmWebGroupSetEventLoop(pmWebGroupModule *, void *);
 extern int pmWebGroupSetConfiguration(pmWebGroupModule *, struct dict *);
 extern int pmWebGroupSetMetricRegistry(pmWebGroupModule *, struct mmv_registry *);
 extern void pmWebGroupClose(pmWebGroupModule *);
+
+/*
+ * Full text search for metrics and instance domains.
+ */
+
+typedef enum pmSearchFlags {
+    PM_SEARCH_FLAG_NONE		= (0),
+    PM_SEARCH_FLAG_NOTEXT	= (1 << 0),	/* no text in the response */
+    PM_SEARCH_FLAG_HIGHLIGHT	= (1 << 1),	/* highlight search terms */
+} pmSearchFlags;
+
+typedef enum pmSearchTextType {
+    PM_SEARCH_TYPE_METRIC	= 0,
+    PM_SEARCH_TYPE_INDOM	= 1,
+    PM_SEARCH_TYPE_INST		= 2,
+} pmSearchTextType;
+
+typedef struct pmSearchTextRequest {
+    sds			query;		/* query string */
+    pmSearchFlags	flags;		/* query control bits */
+    unsigned int	count;		/* maximum results to return */
+    unsigned int	offset;		/* results pagination offset */
+
+    unsigned int	type_metric : 1;	/* restrict query types */
+    unsigned int	type_indom : 1;
+    unsigned int	type_inst : 1;
+    unsigned int	type_pad : 1;
+    unsigned int	highlight_name : 1;	/* highlight results */
+    unsigned int	highlight_indom : 1;
+    unsigned int	highlight_oneline : 1;
+    unsigned int	highlight_helptext : 1;
+    unsigned int	infields_name : 1;	/* restrict query fields */
+    unsigned int	infields_indom : 1;
+    unsigned int	infields_oneline : 1;
+    unsigned int	infields_helptext : 1;
+    unsigned int	return_name : 1;	/* restrict returned fields */
+    unsigned int	return_indom : 1;
+    unsigned int	return_oneline : 1;
+    unsigned int	return_helptext : 1;
+} pmSearchTextRequest;
+
+typedef struct pmSearchTextResult {
+    unsigned int	total;		/* total number of results */
+    unsigned int	count;		/* query result index 'count' */
+    double		timer;		/* elapsed time (in seconds) */
+    double		score;		/* search engine hit ranking */
+
+    pmSearchTextType	type;		/* query result document type */
+    sds			docid;		/* unique result identifier */
+    sds			name;		/* metric / instance name */
+    sds			indom;
+    sds			oneline;
+    sds			helptext;
+} pmSearchTextResult;
+
+typedef struct pmSearchMetrics {
+    unsigned long long	docs;		/* number of documents */
+    unsigned long long	terms;		/* number of distinct terms */
+    unsigned long long	records;	/* number of search records */
+    double		inverted_sz_mb;
+    double		inverted_cap_mb;
+    double		inverted_cap_ovh;
+    double		offset_vectors_sz_mb;
+    double		skip_index_size_mb;
+    double		score_index_size_mb;
+    double		records_per_doc_avg;
+    double		bytes_per_record_avg;
+    double		offsets_per_term_avg;
+    double		offset_bits_per_record_avg;
+} pmSearchMetrics;
+
+typedef void (*pmSearchSetupCallBack)(void *);
+typedef void (*pmSearchTextResultCallBack)(pmSearchTextResult *, void *);
+typedef void (*pmSearchMetricsCallBack)(pmSearchMetrics *, void *);
+typedef void (*pmSearchDoneCallBack)(int, void *);
+
+typedef struct pmSearchCallBacks {
+    pmSearchTextResultCallBack	on_text_result;	/* text search hit */
+    pmSearchMetricsCallBack	on_metrics;	/* runtime stats */
+    pmSearchDoneCallBack	on_done;	/* request completed */
+} pmSearchCallBacks;
+
+typedef struct pmSeriesModule pmSearchModule;	/* shared structure */
+
+typedef struct pmSearchSettings {
+    pmSearchModule		module;
+    pmSearchCallBacks		callbacks;
+} pmSearchSettings;
+
+extern int pmSearchSetup(pmSearchModule *, void *);
+extern int pmSearchSetSlots(pmSearchModule *, void *);
+extern int pmSearchSetEventLoop(pmSearchModule *, void *);
+extern int pmSearchSetConfiguration(pmSearchModule *, struct dict *);
+extern int pmSearchSetMetricRegistry(pmSearchModule *, struct mmv_registry *);
+extern void pmSearchClose(pmSearchModule *);
+extern int pmSearchEnabled(void *);
+
+extern int pmSearchInfo(pmSearchSettings *, sds, void *);
+
+extern const char *pmSearchTextTypeStr(pmSearchTextType);
+extern int pmSearchTextQuery(pmSearchSettings *, pmSearchTextRequest *, void *);
 
 #ifdef __cplusplus
 }
