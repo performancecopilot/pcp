@@ -1,0 +1,126 @@
+#!/bin/sh
+# PCP QA Test No. 1209
+# pmlogctl - mixed class and hostname tests - destroy actions
+#
+# Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+if pmlogctl -c default status 2>/dev/null | grep ' default ' >/dev/null
+then
+    _notrun "at least one pmlogger already defined for \"default\" class"
+fi
+
+_cleanup()
+{
+    echo "_cleanup: ..." >>$seq.full
+    cd $here
+    $sudo pmlogctl -f -c default destroy localhost >>$seq.full 2>&1
+    $sudo pmlogctl -af -c $seq -p $tmp.policy destroy >>$seq.full 2>&1
+    $sudo rm -rf $tmp $tmp.*
+    for dir in $seq-localhost $seq-LOCALHOSTNAME localhost $seq-`hostname`
+    do
+	: [ -d "$PCP_ARCHIVE_DIR/$dir" ] && $sudo rm -rf "$PCP_ARCHIVE_DIR/$dir"
+    done
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+localhost=`hostname`
+
+_filter()
+{
+    tee -a $seq.full \
+    | sed \
+	-e '/^# created by pmlogctl/s/ on .*/ on DATE/' \
+	-e "s;$tmp\.;TMP.;g" \
+	-e "s;$PCP_BINADM_DIR/;PCP_BINADM_DIR/;g" \
+	-e "s;$PCP_ARCHIVE_DIR/;PCP_ARCHIVE_DIR/;g" \
+	-e "s;$PCP_TMP_DIR/;PCP_TMP_DIR/;g" \
+	-e "s;$PCP_TMPFILE_DIR/pmlogctl\.[^/]*;PCP_TMPFILE_DIR/pmlogctl.XXXXX;g" \
+	-e "s;$PCP_ETC_DIR/;PCP_ETC_DIR/;g" \
+    # end
+}
+
+# Note status command output order is non-deterministic, hence the sort
+# at the end
+#
+_filter_status()
+{
+    tee -a $seq.full \
+    | sed >$tmp.tmp \
+	-e "/^`hostname` .* primary /d" \
+	-e 's/[ 	][ 	]*/ /g' \
+	-e 's/2[0-9][0-9][0-9][01][0-9][0-3][0-9]\...\.[^ ]*/<archivename>/' \
+	-e "s/^$localhost /LOCALHOSTNAME /" \
+	-e "s/ $seq / <seq> /" \
+	-e 's/ [0-9][0-9]* / <pid> /' \
+    # end
+    head -1 $tmp.tmp
+    sed -e '1d' $tmp.tmp | LC_COLLATE=POSIX sort
+}
+
+cat <<End-of-File >$tmp.policy
+name:
+$seq-%h
+control:
+\$version=1.1
+%h n n PCP_ARCHIVE_DIR/$seq-%h -c $tmp.config
+End-of-File
+
+cat <<End-of-File >$tmp.config
+log mandatory on default { pmcd.pmlogger }
+End-of-File
+
+_setup()
+{
+    if pmlogctl -c default status localhost 2>&1 | grep 'Warning.* not defined in class' >/dev/null
+    then
+	$sudo pmlogctl -v create localhost | _filter
+    fi
+    if pmlogctl -c $seq status localhost 2>&1 | grep 'Warning.* not defined in class' >/dev/null
+    then
+	$sudo pmlogctl -v -p $tmp.policy -c $seq create localhost | _filter
+    fi
+    if pmlogctl -c $seq status LOCALHOSTNAME 2>&1 | grep 'Warning.* not defined in class' >/dev/null
+    then
+	$sudo pmlogctl -v -p $tmp.policy -c $seq create LOCALHOSTNAME | _filter
+    fi
+}
+
+# real QA test starts here
+_setup
+pmlogctl status | _filter_status
+
+# exercise all the variants for "destroy"
+echo '== -a destroy localhost' | tee -a $seq.full
+$sudo pmlogctl -a destroy localhost | _filter
+pmlogctl status | _filter_status
+_setup
+echo '== -a destroy localhost `hostname`' | tee -a $seq.full
+$sudo pmlogctl -a destroy localhost `hostname` | _filter_status
+pmlogctl status | _filter_status
+_setup
+echo '== -a -c -p destroy' | tee -a $seq.full
+$sudo pmlogctl -a -c $seq -p $tmp.policy destroy | _filter_status
+pmlogctl status | _filter_status
+_setup
+echo '== -a -c -p destroy localhost' | tee -a $seq.full
+$sudo pmlogctl -a -c $seq -p $tmp.policy destroy localhost | _filter_status
+pmlogctl status | _filter_status
+_setup
+echo '== -a -c -p destroy localhost `hostname`' | tee -a $seq.full
+$sudo pmlogctl -a -c $seq -p $tmp.policy destroy localhost `hostname` | _filter_status
+pmlogctl status | _filter_status
+
+status=0
+exit

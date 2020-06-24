@@ -1,0 +1,58 @@
+QA output created by 1206
+== create running pmlogger instances
+pmcd Host Archive Class PID State 
+LOCALHOSTNAME <archivename> <seq> <pid> running 
+localhost <archivename> <seq> <pid> running 
+localhost <archivename> default <pid> running 
+== -a stop localhost
+pmcd Host Archive Class PID State 
+LOCALHOSTNAME <archivename> <seq> <pid> running 
+localhost ? <seq> ? stopped by pmlogctl
+localhost ? default ? stopped by pmlogctl
+== -a start localhost
+pmcd Host Archive Class PID State 
+LOCALHOSTNAME <archivename> <seq> <pid> running 
+localhost <archivename> <seq> <pid> running 
+localhost <archivename> default <pid> running 
+== -a stop localhost `hostname`
+Warning: primary pmlogger cannot be controlled from pmlogctl
+pmcd Host Archive Class PID State 
+LOCALHOSTNAME ? <seq> ? stopped by pmlogctl
+localhost ? <seq> ? stopped by pmlogctl
+localhost ? default ? stopped by pmlogctl
+== -a start localhost `hostname`
+Warning: primary pmlogger cannot be controlled from pmlogctl
+pmcd Host Archive Class PID State 
+LOCALHOSTNAME <archivename> <seq> <pid> running 
+localhost <archivename> <seq> <pid> running 
+localhost <archivename> default <pid> running 
+== -a -c stop
+pmcd Host Archive Class PID State 
+LOCALHOSTNAME ? <seq> ? stopped by pmlogctl
+localhost <archivename> default <pid> running 
+localhost ? <seq> ? stopped by pmlogctl
+== -a -c start
+pmcd Host Archive Class PID State 
+LOCALHOSTNAME <archivename> <seq> <pid> running 
+localhost <archivename> <seq> <pid> running 
+localhost <archivename> default <pid> running 
+== -a -c stop localhost
+pmcd Host Archive Class PID State 
+LOCALHOSTNAME <archivename> <seq> <pid> running 
+localhost <archivename> default <pid> running 
+localhost ? <seq> ? stopped by pmlogctl
+== -a -c start localhost
+pmcd Host Archive Class PID State 
+LOCALHOSTNAME <archivename> <seq> <pid> running 
+localhost <archivename> <seq> <pid> running 
+localhost <archivename> default <pid> running 
+== -a -c stop localhost `hostname`
+pmcd Host Archive Class PID State 
+LOCALHOSTNAME ? <seq> ? stopped by pmlogctl
+localhost <archivename> default <pid> running 
+localhost ? <seq> ? stopped by pmlogctl
+== -a -c start localhost `hostname`
+pmcd Host Archive Class PID State 
+LOCALHOSTNAME <archivename> <seq> <pid> running 
+localhost <archivename> <seq> <pid> running 
+localhost <archivename> default <pid> running 

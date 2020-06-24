@@ -1616,7 +1616,11 @@ not_in_container
 1202 pmda.dm local pmrep python
 1203 derive pmval libpcp local
 1204 pmlogctl local
+1205 pmlogctl local
+1206 pmlogctl local
 1207 pcp dstat python local
+1208 pmlogctl local
+1209 pmlogctl local
 1211 pmseries local kernel
 1212 pmseries local
 1214 pmproxy pmseries libpcp_web local
