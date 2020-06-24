@@ -22,15 +22,13 @@
 static sds		resultcount;
 
 static void
-initRedisSearchBaton(redisSearchBaton *baton,
+initRedisSearchBaton(redisSearchBaton *baton, redisSlots *slots,
 		pmSearchSettings *settings, void *userdata)
 {
-    seriesModuleData	*data = getSeriesModuleData(&settings->module);
-
     initSeriesBatonMagic(baton, MAGIC_SEARCH);
     baton->callbacks = &settings->callbacks;
     baton->info = settings->module.on_info;
-    baton->slots = data->slots;
+    baton->slots = slots;
     baton->module = &settings->module;
     baton->userdata = userdata;
     pmtimevalNow(&baton->started);
@@ -378,12 +376,15 @@ redis_search_info(redisSlots *slots, sds pcpkey, void *arg)
 int
 pmSearchInfo(pmSearchSettings *settings, sds key, void *arg)
 {
+    seriesModuleData	*data = getSeriesModuleData(&settings->module);
     redisSearchBaton	*baton;
 
+    if (data == NULL)
+	return -ENOMEM;
     if ((baton = calloc(1, sizeof(redisSearchBaton))) == NULL)
 	return -ENOMEM;
-    initRedisSearchBaton(baton, settings, arg);
-    redis_search_info(baton->slots, key, baton);
+    initRedisSearchBaton(baton, data->slots, settings, arg);
+    redis_search_info(data->slots, key, baton);
     return 0;
 }
 
@@ -656,12 +657,15 @@ redis_search_text_query(redisSlots *slots, pmSearchTextRequest *request, void *a
 int
 pmSearchTextQuery(pmSearchSettings *settings, pmSearchTextRequest *request, void *arg)
 {
+    seriesModuleData	*data = getSeriesModuleData(&settings->module);
     redisSearchBaton	*baton;
 
+    if (data == NULL)
+	return -ENOMEM;
     if ((baton = calloc(1, sizeof(redisSearchBaton))) == NULL)
 	return -ENOMEM;
-    initRedisSearchBaton(baton, settings, arg);
-    redis_search_text_query(baton->slots, request, baton);
+    initRedisSearchBaton(baton, data->slots, settings, arg);
+    redis_search_text_query(data->slots, request, baton);
     return 0;
 }
 
