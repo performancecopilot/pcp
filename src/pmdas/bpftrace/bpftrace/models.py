@@ -71,6 +71,10 @@ class Script:
         data = []
         if self.metadata.name:
             data.append(f"name={self.metadata.name}")
+        if self.username:
+            data.append(f"user={self.username}")
+        else:
+            data.append(f"user=anonymous")
         if self.state.pid != -1:
             data.append(f"PID={self.state.pid}")
 
