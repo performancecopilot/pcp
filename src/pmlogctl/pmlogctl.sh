@@ -25,9 +25,6 @@
 #   but I'd like to avoid a "migration" path 'cause splitting a
 #   control file is messy and potentially dangerous, and subsequent manual
 #   editing could bring the situation back at any time
-# - need to either ban or have alternate action for stop/start primary,
-#   and ban destroy for primary and don't allow policy with primary == y
-#   (to stop create)
 # - pmfind integration
 # - other sections in the "policy" files, especially with pmfind to
 #   (a) at create, pick a class by probing the host
@@ -60,7 +57,7 @@ status=0
 
 _cleanup()
 {
-    _unlock
+    [ "$action" != status ] && _unlock
     rm -rf $tmp
 }
 trap "_cleanup; exit \$status" 0 1 2 3 15
@@ -98,12 +95,12 @@ _lock()
     _dir="$PCP_ETC_DIR/pcp/${IAM}"
     if [ ! -w "$_dir" ]
     then
-	_warning "no write access in \"$_dir\" skip lock file processing"
+	_warning "no write access in directory $_dir, skip lock file processing"
     else
 	# demand mutual exclusion
 	#
 	rm -f $tmp/stamp $tmp/out
-	_delay=200		# tenths of a second, so max wait is 20sec
+	_delay=200		# 1/10 of a second, so max wait is 20 sec
 	while [ $_delay -gt 0 ]
 	do
 	    if pmlock -v "$_dir/lock" >>$tmp/out 2>&1
@@ -159,6 +156,7 @@ _lock()
 
 _unlock()
 {
+    $SHOWME && return
     _dir="$PCP_ETC_DIR/pcp/${IAM}"
     if [ -f "$_dir/lock" ]
     then
@@ -271,16 +269,16 @@ _get_matching_hosts()
 	    then
 		if $EXPLICIT_CLASS
 		then
-		    _warning "no host defined in class \"$CLASS\" for any ${IAM} control file"
+		    _warning "no host defined in class $CLASS for any ${IAM} control file"
 		else
 		    _warning "no host defined in any ${IAM} control file"
 		fi
 	    else
 		if $EXPLICIT_CLASS
 		then
-		    _warning "host \"$host\" not defined in class \"$CLASS\" for any ${IAM} control file"
+		    _warning "host $host not defined in class $CLASS for any ${IAM} control file"
 		else
-		    _warning "host \"$host\" not defined in any ${IAM} control file"
+		    _warning "host $host not defined in any ${IAM} control file"
 		fi
 	    fi
 	    continue
@@ -296,9 +294,9 @@ _get_matching_hosts()
 		$VERBOSE && cat $tmp/tmp
 		if $EXPLICIT_CLASS
 		then
-		    _error "host \"$host\" defined in class \"$CLASS\" multiple times, don't know which instance to $action"
+		    _error "host $host defined in class $CLASS multiple times, don't know which instance to $action"
 		else
-		    _error "host \"$host\" is defined multiple times, don't know which instance to $action"
+		    _error "host $host is defined multiple times, don't know which instance to $action"
 		fi
 	    fi
 	fi
@@ -376,7 +374,73 @@ _unexpand_control()
 #
 _diagnose()
 {
-    echo "  $1 $2"
+    echo "  TODO - diagnose host=$1 dir=$2"
+}
+
+# check ${IAM} really started
+#
+# $1 = dir as it appears on the $PCP_TMP_DIR/${IAM} files (so a real path,
+#      not a possibly sybolic path from a control file)
+#
+_check_started()
+{
+    $SHOWME && return 0
+    dir="$1"
+    max=30		# 1/10 of a second, so 3 secs max
+    i=0
+    $VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "Started? ""$PCP_ECHO_C"
+    while [ $i -lt $max ]
+    do
+	$VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N ".""$PCP_ECHO_C"
+	pid=`grep -rl "^$dir/[^/]*$" $PCP_TMP_DIR/${IAM} \
+	     | sed -e 's;.*/;;'`
+	[ -n "$pid" ] && break
+	i=`expr $i + 1`
+	pmsleep 0.1
+    done
+    if [ -z "$pid" ]
+    then
+	$VERY_VERBOSE && $PCP_ECHO_PROG " no"
+	_warning "${IAM} failed to start for host $host and directory $dir"
+	sts=1
+    else
+	$VERY_VERBOSE && $PCP_ECHO_PROG " yes"
+	sts=0
+    fi
+    return $sts
+}
+
+# check ${IAM} really stopped
+#
+# $1 = dir as it appears on the $PCP_TMP_DIR/${IAM} files (so a real path,
+#      not a possibly sybolic path from a control file)
+#
+_check_stopped()
+{
+    $SHOWME && return 0
+    dir="$1"
+    max=30		# 1/10 of a second, so 3 secs max
+    i=0
+    $VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "Stopped? ""$PCP_ECHO_C"
+    while [ $i -lt $max ]
+    do
+	$VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N ".""$PCP_ECHO_C"
+	pid=`grep -rl "^$dir/[^/]*$" $PCP_TMP_DIR/${IAM} \
+	     | sed -e 's;.*/;;'`
+	[ -z "$pid" ] && break
+	i=`expr $i + 1`
+	pmsleep 0.1
+    done
+    if [ -n "$pid" ]
+    then
+	$VERY_VERBOSE && $PCP_ECHO_PROG " no"
+	_warning "${IAM} failed to stop for host $host and directory $dir (PID=$pid)"
+	sts=1
+    else
+	$VERY_VERBOSE && $PCP_ECHO_PROG " yes"
+	sts=0
+    fi
+    return $sts
 }
 
 # status command
@@ -399,11 +463,8 @@ _do_status()
 	    #
 	    if [ "`systemctl is-enabled ${IAM}.service`" = enabled ]
 	    then
-		if [ "`systemctl is-active ${IAM}.service`" = active ]
+		if [ "`systemctl is-active ${IAM}.service`" = inactive ]
 		then
-		    # all healthy
-		    :
-		else
 		    systemctl_state='stopped by systemctl'
 		fi
 	    else
@@ -441,6 +502,9 @@ _do_status()
 	    esac
 	    if $PICK_HOSTS
 	    then
+		# remove this one from $tmp/args ... so at the end we can
+		# see if any have been missed
+		#
 		rm -f $tmp/match
 		$PCP_AWK_PROG <$tmp/args >$tmp/tmp '
 BEGIN				{ found = 0 }
@@ -454,7 +518,7 @@ found == 0 && $3 == "'"$host"'" && $6 == "'"$dir"'"	{ print NR >>"'$tmp/match'";
 		fi
 	    fi
 	    [ "$primary" = y ] && class=primary
-	    archive=`grep "^$dir/" $tmp/archive \
+	    archive=`grep "^$dir/[^/]*$" $tmp/archive \
 		     | sed -e 's;.*/;;'`
 	    [ -z "$archive" ] && archive='?'
 	    if [ "$archive" = '?' ]
@@ -469,7 +533,7 @@ found == 0 && $3 == "'"$host"'" && $6 == "'"$dir"'"	{ print NR >>"'$tmp/match'";
 		    fi
 		fi
 	    fi
-	    pid=`grep -rl "^$dir/" $PCP_TMP_DIR/${IAM} \
+	    pid=`grep -rl "^$dir/[^/]*$" $PCP_TMP_DIR/${IAM} \
 		 | sed -e 's;.*/;;'`
 	    [ -z "$pid" ] && pid='?'
 	    printf "$fmt" "$host" "$archive" "$class" "$pid" "$state"
@@ -478,7 +542,7 @@ found == 0 && $3 == "'"$host"'" && $6 == "'"$dir"'"	{ print NR >>"'$tmp/match'";
 		case "$state"
 		in
 		    dead)
-			_diagnose "$host" "$dir"
+			_diagnose "$host" "$dir" 
 			;;
 		esac
 	    fi
@@ -518,7 +582,7 @@ _do_create()
 \$class=$CLASS
 End-of-File
 	_get_policy_section "$POLICY" control >$tmp/tmp
-	[ ! -s $tmp/tmp ] && _error "\"control:\" section is missing from $POLICY policy file"
+	[ ! -s $tmp/tmp ] && _error "control: section is missing from $POLICY policy file"
 	if grep '^\$version=1.1$' $tmp/tmp >/dev/null
 	then
 	    :
@@ -534,10 +598,25 @@ $1 == "'"$host"'"	{ print $4 }'`
 	then
 	    echo "control file ..."
 	    cat $tmp/control
-	    _error "cannot find directory from control file"
+	    _error "cannot find directory field from control file"
+	fi
+	primary=`$PCP_AWK_PROG <$tmp/control '
+$1 == "'"$host"'"	{ print $2 }'`
+	if [ -z "$primary" ]
+	then
+	    echo "control file ..."
+	    cat $tmp/control
+	    _error "cannot find primary field from control file"
+	fi
+	if [ "$primary" = y ]
+	then
+	    # don't dink with the primary ... systemctl (or the "rc" script)
+	    # must be used to control the primary ${IAM}
+	    #
+	    _error "primary ${IAM} cannot be created from $prog"
 	fi
 	egrep -lr "^($host|#!#$host)[ 	].*[ 	]$dir([ 	]|$)" $CONTROLFILE $CONTROLDIR >$tmp/out
-	[ -s $tmp/out ] && _error "host \"$host\" and directory $dir already defined in `cat $tmp/out`"
+	[ -s $tmp/out ] && _error "host $host and directory $dir already defined in `cat $tmp/out`"
 	if $SHOWME
 	then
 	    echo "--- start control file ---"
@@ -547,7 +626,8 @@ $1 == "'"$host"'"	{ print $4 }'`
 	$VERBOSE && echo "Installing control file: $CONTROLDIR/$name"
 	$CP $tmp/control $CONTROLDIR/$name
 	$CHECK -c $CONTROLDIR/$name
-	# TODO ... check really started && set sts=1
+	dir_args="`echo "$dir" | _expand_control`"
+	_check_started "$dir_args" || sts=1
     done
 
     return $sts
@@ -559,37 +639,49 @@ _do_destroy()
 {
     mv $tmp/args $tmp/destroy
     cat $tmp/destroy \
-    | while read control class host primary socks dir args
+    | while read control class args_host primary socks args_dir args
     do
-	echo "$control" "$class" "$host" "$primary" "$socks" "$dir" "$args" >$tmp/args
+	if [ "$primary" = y ]
+	then
+	    # don't dink with the primary ... systemctl (or the "rc" script)
+	    # must be used to control the primary ${IAM}
+	    #
+	    _error "primary ${IAM} cannot be destroyed from $prog"
+	fi
+	echo "$control" "$class" "$args_host" "$primary" "$socks" "$args_dir" "$args" >$tmp/args
 	if _do_stop
 	then
 	    :
 	else
-	    _error "failed to stop host \"$host\" and class \"$class\""
+	    _error "failed to stop host $args_host and class $class"
 	fi
-	dir=`echo "$dir" | _unexpand_control`
-	host=`echo "$host " | _unexpand_control | sed -e 's/ $//'`
+	dir=`echo "$args_dir" | _unexpand_control`
+	host=`echo "$args_host " | _unexpand_control | sed -e 's/ $//'`
 	$PCP_AWK_PROG <"$control" >$tmp/control '
-$1 == "'"$host"'" && $4 == "'"$dir"'"	{ next }
-					{ print }'
+$1 == "'"$host"'" && $4 == "'"$dir"'"		{ next }
+$1 == "'"#!#$host"'" && $4 == "'"$dir"'"	{ next }
+						{ print }'
 	if $VERY_VERBOSE
 	then
-	    echo "Diffs for control file $control ..."
+	    echo "Diffs for control file $control after removing host=$host and dir=$dir ..."
 	    diff "$control" $tmp/control
 	elif $VERBOSE
 	then
-	    echo "Remove ${IAM} for host \"$host\" and directory $dir in control file $control"
+	    echo "Remove ${IAM} for host $host and directory $dir in control file $control"
 	fi
 	sed -n <$tmp/control >$tmp/tmp -e '/^[^$# 	]/p'
 	if [ -s $tmp/tmp ]
 	then
+	    # at least one active control line left in $tmp/control ...
+	    # cannot remove it
+	    #
 	    $CP $tmp/control "$control"
 	else
 	    $VERBOSE && echo "Remove control file $control"
 	    $RM "$control"
 	fi
     done
+
     return 0
 }
 
@@ -597,106 +689,129 @@ $1 == "'"$host"'" && $4 == "'"$dir"'"	{ next }
 #
 _do_start()
 {
+    sts=0
     cat $tmp/args \
-    | while read control class host primary socks dir args
+    | while read control class args_host primary socks args_dir args
     do
-	$VERBOSE && echo "Looking for ${IAM} using directory $dir ..."
-	pid=`grep -rl "^$dir/" $PCP_TMP_DIR/${IAM} \
+	if [ "$primary" = y ]
+	then
+	    # don't dink with the primary ... systemctl (or the "rc" script)
+	    # must be used to control the primary ${IAM}
+	    #
+	    _warning "primary ${IAM} cannot be controlled from $prog"
+	    continue
+	fi
+	$VERBOSE && echo "Looking for ${IAM} using dir=$args_dir ..."
+	pid=`grep -rl "^$args_dir/[^/]*$" $PCP_TMP_DIR/${IAM} \
 	     | sed -e 's;.*/;;'`
 	if [ -n "$pid" ]
 	then
-	    $VERBOSE && echo "${IAM} PID $pid already running for host \"$host\", nothing to do"
-	    return 0
-	else
-	    $VERBOSE && echo "Not found, launching new ${IAM}"
+	    $VERBOSE && echo "${IAM} PID $pid already running for host $args_host, nothing to do"
+	    continue
 	fi
+	$VERBOSE && echo "Not found, launching new ${IAM}"
 	if [ ! -f "$control" ]
 	then
-	    _warning "control file $control for host \"$host\" ${IAM} has vanished"
-	    return 1
+	    _warning "control file $control for host $args_host ${IAM} has vanished"
+	    sts=1
+	    continue
 	fi
-	if grep "^#!#$host[ 	]" $control >/dev/null
+	dir=`echo "$args_dir" | _unexpand_control`
+	host=`echo "$args_host " | _unexpand_control | sed -e 's/ $//'`
+	$PCP_AWK_PROG <"$control" >$tmp/control '
+$1 == "'"#!#$host"'" && $4 == "'"$dir"'"	{ sub(/^#!#/,"",$1) }
+						{ print }'
+	if $VERY_VERBOSE
 	then
-	    # stopped by pmlogctl, remove the stopped prefix (#!#)
-	    #
-	    if $SHOWME
-	    then
-		echo "+ unmark host as stopped in $control"
-	    else
-		sed -e "/^#!#$host[ 	]/s/^#!#//" <"$control" >$tmp/control
-		if $VERY_VERBOSE
-		then
-		    echo "Diffs for control file $control ..."
-		    diff "$control" $tmp/control
-		elif $VERBOSE
-		then
-		    echo "Enable ${IAM} in control file $control"
-		fi
-		$CP $tmp/control "$control"
-	    fi
+	    echo "Diffs for control file $control after enabling host=$host and dir=$dir ..."
+	    diff "$control" $tmp/control
+	elif $VERBOSE
+	then
+	    echo "Enable ${IAM} in control file $control"
 	fi
+	$CP $tmp/control "$control"
 	$CHECK -c $control
-	# TODO ... check really started
+
+	_check_started "$args_dir" || sts=1
     done
-    return 0
+
+    return $sts
 }
 
 # stop command
 #
 _do_stop()
 {
+    sts=0
     cat $tmp/args \
-    | while read control class host primary socks dir args
+    | while read control class args_host primary socks args_dir args
     do
-	if grep "^[^:]*:#!#$host[ 	]" $control >/dev/null
+	if [ "$primary" = y ]
 	then
-	    _warning "${IAM} for host \"$host\" already stopped, nothing to do"
-	    return 0
+	    # don't dink with the primary ... systemctl (or the "rc" script)
+	    # must be used to control the primary ${IAM}
+	    #
+	    _warning "primary ${IAM} cannot be controlled from $prog"
+	    continue
 	fi
-	$VERBOSE && echo "Looking for ${IAM} using directory $dir ..."
-	pid=`grep -rl "^$dir/" $PCP_TMP_DIR/${IAM} \
+	if grep "^[^:]*:#!#$args_host[ 	]" $control >/dev/null
+	then
+	    _warning "${IAM} for host $args_host already stopped, nothing to do"
+	    continue
+	fi
+	$VERBOSE && echo "Looking for ${IAM} using directory $args_dir ..."
+	pid=`grep -rl "^$args_dir/[^/]*$" $PCP_TMP_DIR/${IAM} \
 	     | sed -e 's;.*/;;'`
 	if [ -z "$pid" ]
 	then
-	    _warning "cannot find PID for host \"$host\" ${IAM}, already exited?"
-	    return 1
+	    _warning "cannot find PID for host $args_host ${IAM}, already exited?"
+	else
+	    $VERBOSE && echo "Found PID $pid to stop"
+	    $KILL TERM $pid
+	    _check_stopped "$args_dir" || sts=1
 	fi
-	$VERBOSE && echo "Found PID $pid to stop"
 	if [ ! -f "$control" ]
 	then
-	    _warning "control file $control for host \"$host\" ${IAM} has vanished"
-	    return 1
+	    _warning "control file $control for host $args_host ${IAM} has vanished"
+	    sts=1
+	    continue
 	fi
-	$KILL TERM $pid
-	# TODO ... check really stopped
-	if $SHOWME
+	host=`echo "$args_host " | _unexpand_control | sed -e 's/ $//'`
+	dir=`echo "$args_dir" | _unexpand_control`
+	$PCP_AWK_PROG <"$control" >$tmp/control '
+$1 == "'"$host"'" && $4 == "'"$dir"'"	{ $1 = "#!#" $1 }
+				    	{ print }'
+	if $VERY_VERBOSE
 	then
-	    echo "+ mark host as stopped in $control"
-	else
-	    sed -e "/^$host[ 	]/s/^/#!#/" <"$control" >$tmp/control
-	    if $VERY_VERBOSE
-	    then
-		echo "Diffs for control file $control ..."
-		diff "$control" $tmp/control
-	    elif $VERBOSE
-	    then
-		echo "Disable ${IAM} in control file $control"
-	    fi
-	    $CP $tmp/control "$control"
+	    echo "Diffs for control file $control after disabling host=$host and dir=$dir ..."
+	    diff "$control" $tmp/control
+	elif $VERBOSE
+	then
+	    echo "Disable ${IAM} in control file $control"
 	fi
+	$CP $tmp/control "$control"
     done
 
-    return 0
+    return $sts
 }
 
 # restart command
 #
 _do_restart()
 {
+    sts=0
     mv $tmp/args $tmp/restart
     cat $tmp/restart \
     | while read control class host primary socks dir args
     do
+	if [ "$primary" = y ]
+	then
+	    # don't dink with the primary ... systemctl (or the "rc" script)
+	    # must be used to control the primary ${IAM}
+	    #
+	    _warning "primary ${IAM} cannot be controlled from $prog"
+	    continue
+	fi
 	echo "$control" "$class" "$host" "$primary" "$socks" "$dir" "$args" >$tmp/args
 	if _do_stop
 	then
@@ -704,14 +819,16 @@ _do_restart()
 	    then
 		:
 	    else
-		_error "failed to stop host \"$host\" and class \"$class\""
+		_error "failed to stop host $host and class $class"
+		sts=1
 	    fi
 	else
-	    _error "failed to start host \"$host\" and class \"$class\""
+	    _error "failed to start host $host and class $class"
+	    sts=1
 	fi
     done
 
-    return 0
+    return $sts
 }
 
 ARGS=`pmgetopt --progname=$prog --config=$tmp/usage -- "$@"`
@@ -827,10 +944,10 @@ else
 	if [ "$action" = create ]
 	then
 
-	    _error "policy file $POLICY not found, class \"$CLASS\" is not defined so cannot create"
+	    _error "policy file $POLICY not found, class $CLASS is not defined so cannot create"
 	elif [ "$action" = destroy ] && ! $FORCE
 	then
-	    _error "policy file $POLICY not found, class \"$CLASS\" is not defined so cannot destroy"
+	    _error "policy file $POLICY not found, class $CLASS is not defined so cannot destroy"
 	fi
     fi
     $VERY_VERBOSE && echo "Using policy: $POLICY"
