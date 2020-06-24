@@ -218,7 +218,7 @@ fi
 if $VERY_VERBOSE
 then
     echo "Start: `date '+%F %T.%N'`"
-    if `which pstree >/dev/null 2>&1`
+    if which pstree >/dev/null 2>&1
     then
 	echo "Called from:"
 	pstree -spa $$
