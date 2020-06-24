@@ -1,21 +1,14 @@
 container:
-  image: localhost/ubuntu:20.04-systemd
   init: /usr/bin/systemd
-  pre_start: |
-    if ! buildah images -q localhost/ubuntu:20.04-systemd 2>/dev/null; then
-       container=$(buildah from docker.io/library/ubuntu:20.04)
-       buildah run $container apt-get update
-       buildah run $container apt-get install -y systemd
-       buildah commit $container localhost/ubuntu:20.04-systemd
-    fi
-  post_start: |
+  containerfile: |
+    FROM docker.io/library/ubuntu:20.04
+    RUN apt-get update && apt-get install -y systemd sudo
+    RUN useradd --create-home pcpbuild
+    RUN echo 'pcpbuild ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/pcpbuild
+
     # allow services to be started during installation
     # pmcd will create the file /var/lib/pcp/pmns/stdpmid, which is required by QA tests
     printf '#!/bin/sh\nexit 0\n' > /usr/sbin/policy-rc.d
-
-    apt-get update && apt-get install -y sudo
-    useradd --create-home pcpbuild
-    echo 'pcpbuild ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/pcpbuild
 
 tasks:
   update: |
@@ -23,9 +16,9 @@ tasks:
     sudo apt-get -y dist-upgrade
   builddeps: |
     sudo apt-get -y update
-    for i in $(./pcp/qa/admin/check-vm -p)
+    for pkg in $(./pcp/qa/admin/check-vm -p)
     do
-      sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "$i" || true
+      sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "$pkg" || true
     done
   build: |
     (cd ./pcp && ./Makepkgs --nonrpm --verbose)

@@ -1,14 +1,12 @@
 container:
-  image: registry.centos.org/centos:8
-  post_start: |
-    # https://bugzilla.redhat.com/show_bug.cgi?id=1814337
-    systemctl stop dnf-makecache.timer
-    systemctl stop dnf-makecache.service
-    ps aux
+  containerfile: |
+    FROM registry.centos.org/centos:8
+    RUN dnf install -y sudo glibc-langpack-en
+    RUN useradd --create-home pcpbuild
+    RUN echo 'pcpbuild ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/pcpbuild
 
-    dnf install -y sudo
-    useradd --create-home pcpbuild
-    echo 'pcpbuild ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/pcpbuild
+    # https://bugzilla.redhat.com/show_bug.cgi?id=1814337
+    RUN systemctl mask dnf-makecache.service
 
 tasks:
   update: |
@@ -23,7 +21,6 @@ tasks:
     sudo rpm -iv ./pcp/pcp-*/build/rpm/*.rpm
     echo 'pcpqa ALL=(ALL) NOPASSWD: ALL' | sudo tee /etc/sudoers.d/pcpqa
   initqa: |
-    sudo systemctl start pmcd
     sudo -i -u pcpqa ./check 002
   qa_sanity: |
     set -o pipefail

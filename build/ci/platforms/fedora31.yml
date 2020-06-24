@@ -1,17 +1,17 @@
 vm:
   box: fedora/31-cloud-base
 container:
-  image: registry.fedoraproject.org/fedora:31
-  post_start: |
-    useradd --create-home pcpbuild
-    echo 'pcpbuild ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/pcpbuild
+  containerfile: |
+    FROM registry.fedoraproject.org/fedora:31
+    RUN useradd --create-home pcpbuild
+    RUN echo 'pcpbuild ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/pcpbuild
 
 tasks:
   update: |
     sudo dnf update -y
   builddeps: |
     sudo dnf install -y which hostname
-    sudo dnf -y -b --skip-broken install man $(./pcp/qa/admin/check-vm -fp)
+    sudo dnf -y -b --skip-broken install man python2-devel $(./pcp/qa/admin/check-vm -fp)
   build: |
     (cd ./pcp && ./Makepkgs --verbose)
     cp ./pcp/pcp-*/build/rpm/*.rpm ./artifacts/build

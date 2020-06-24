@@ -1,16 +1,11 @@
 vm:
   box: fedora/33-cloud-base
 container:
-  image: localhost/fedora:33-systemd
-  pre_start: |
-    if ! buildah images -q localhost/fedora:33-systemd 2>/dev/null; then
-       container=$(buildah from registry.fedoraproject.org/fedora:33)
-       buildah run $container dnf install -y systemd
-       buildah commit $container localhost/fedora:33-systemd
-    fi
-  post_start: |
-    useradd --create-home pcpbuild
-    echo 'pcpbuild ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/pcpbuild
+  containerfile: |
+    FROM registry.fedoraproject.org/fedora:33
+    RUN dnf install -y systemd
+    RUN useradd --create-home pcpbuild
+    RUN echo 'pcpbuild ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/pcpbuild
 
 tasks:
   update: |

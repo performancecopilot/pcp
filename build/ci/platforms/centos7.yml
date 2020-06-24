@@ -1,9 +1,9 @@
 container:
-  image: registry.centos.org/centos:7
-  post_start: |
-    yum install -y sudo
-    useradd --create-home pcpbuild
-    echo 'pcpbuild ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/pcpbuild
+  containerfile: |
+    FROM registry.centos.org/centos:7
+    RUN yum install -y sudo
+    RUN useradd --create-home pcpbuild
+    RUN echo 'pcpbuild ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/pcpbuild
 
 tasks:
   update: |

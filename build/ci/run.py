@@ -87,25 +87,18 @@ class ContainerRunner:
             self.sudo = ['sudo']
 
     def setup(self, pcp_path):
-        pre_start = self.platform['container'].get('pre_start')
-        post_start = self.platform['container']['post_start']
-        image = self.platform['container']['image']
+        image_name = f"{self.container_name}-image"
+        containerfile = self.platform['container']['containerfile']
         init = self.platform['container'].get('init', '/sbin/init')
 
-        # e.g. create a new image with systemd before starting the container
-        if pre_start:
-            pre_start = 'set -eux\n' + pre_start
-            subprocess.run([*self.sudo, 'bash', '-'], input=pre_start.encode(), check=True)
+        # build a new image
+        subprocess.run([*self.sudo, 'podman', 'build', '--squash', '-t', image_name, '-f', '-'],
+                       input=containerfile.encode(), check=True)
 
         # start a new container
         subprocess.run([*self.sudo, 'podman', 'rm', '-f', self.container_name], stderr=subprocess.DEVNULL)
         subprocess.run([*self.sudo, 'podman', 'run', '-d', '--name', self.container_name, '--privileged',
-                        image, init], check=True)
-
-        # setup pcpbuild user
-        post_start = 'set -eux\n' + post_start
-        subprocess.run([*self.sudo, 'podman', 'exec', '-i', self.container_name, 'bash', '-'],
-                       input=post_start.encode(), check=True)
+                        image_name, init], check=True)
 
         self.exec('mkdir -p artifacts/build artifacts/test')
         subprocess.run([*self.sudo, 'podman', 'cp', pcp_path, f"{self.container_name}:/home/pcpbuild/pcp"], check=True)

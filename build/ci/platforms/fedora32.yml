@@ -1,10 +1,10 @@
 vm:
   box: fedora/32-cloud-base
 container:
-  image: registry.fedoraproject.org/fedora:32
-  post_start: |
-    useradd --create-home pcpbuild
-    echo 'pcpbuild ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/pcpbuild
+  containerfile: |
+    FROM registry.fedoraproject.org/fedora:32
+    RUN useradd --create-home pcpbuild
+    RUN echo 'pcpbuild ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/pcpbuild
 
 tasks:
   update: |
