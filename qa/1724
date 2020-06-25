@@ -55,6 +55,18 @@ pmstore bpftrace.control.register "tracepoint:raw_syscalls:sys_enter { @c = coun
 grep -q "user=$username" $PCP_LOG_DIR/pmcd/bpftrace.log && echo "user was logged in bpftrace.log"
 echo
 
+echo "=== authentication enabled, user is allowed, space in config file ==="
+cat <<EOF | _pmdabpftrace_install
+# Installed by PCP QA test $seq on `date`
+[dynamic_scripts]
+enabled = true
+auth_enabled = true
+allowed_users = some_user, $username
+EOF
+pmstore bpftrace.control.register "tracepoint:raw_syscalls:sys_enter { @c = count(); }"
+grep -q "user=$username" $PCP_LOG_DIR/pmcd/bpftrace.log && echo "user was logged in bpftrace.log"
+echo
+
 echo "=== authentication disabled, everyone is allowed ==="
 cat <<EOF | _pmdabpftrace_install
 # Installed by PCP QA test $seq on `date`
