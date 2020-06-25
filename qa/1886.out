@@ -1,0 +1,18 @@
+QA output created by 1886
+Start test Redis server ...
+PING
+PONG
+
+== Load metric data into this redis instance
+pmseries: [Info] processed 5 archive records from PATH/archives/proc
+
+== Verify noop() function for a singular metric
+
+d51624d12da45900bfee2fd73f1e23f3ccabb784
+    [Mon Oct  3 20:10:24.305845000 2011] 172598559
+    [Mon Oct  3 20:10:23.802930000 2011] 172598481
+Compared to:
+
+d51624d12da45900bfee2fd73f1e23f3ccabb784
+    [Mon Oct  3 20:10:24.305845000 2011] 172598559
+    [Mon Oct  3 20:10:23.802930000 2011] 172598481

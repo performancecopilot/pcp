@@ -1776,5 +1776,6 @@ not_in_container
 1837 pmproxy local
 1855 pmda.rabbitmq local
 1871 pmsearch local
+1886 pmseries local libpcp_web local
 1896 pmlogger logutil pmlc local
 4751 libpcp threads valgrind local pcp
