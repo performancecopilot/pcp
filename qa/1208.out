@@ -10,7 +10,7 @@ LOCALHOSTNAME <archivename> <seq> <pid> running
 localhost <archivename> <seq> <pid> running 
 localhost <archivename> default <pid> running 
 == -a restart localhost `hostname`
-Warning: primary pmlogger cannot be controlled from pmlogctl
+Warning: /etc/pcp/pmlogger/control.d/local: primary pmlogger cannot be managed from pmlogctl
 pmcd Host Archive Class PID State 
 LOCALHOSTNAME <archivename> <seq> <pid> running 
 localhost <archivename> <seq> <pid> running 
