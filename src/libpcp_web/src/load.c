@@ -1346,13 +1346,8 @@ void
 pmSeriesDiscoverText(pmDiscoverEvent *event,
 		int ident, int type, char *text, void *arg)
 {
-    pmDiscover		*p = (pmDiscover *)event->data;
-    seriesLoadBaton	*baton = p->baton;
-
     if (pmDebugOptions.discovery)
 	fprintf(stderr, "%s: ident=%u type=%u arg=%p\n",
 			"pmSeriesDiscoverText", ident, type, arg);
-
-    if (baton == NULL || baton->slots == NULL || baton->slots->setup == 0)
-	return;
+    (void)event;
 }

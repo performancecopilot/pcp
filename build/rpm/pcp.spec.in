@@ -2091,6 +2091,10 @@ automated pmie diagnosis, alerting and self-healing for the localhost.
 rm -Rf $RPM_BUILD_ROOT
 
 %build
+# fix up build version
+_build=`echo %{release} | sed -e 's/\..*$//'`
+sed -i "/PACKAGE_BUILD/s/=[0-9]*/=$_build/" VERSION.pcp
+
 %configure @package_configure@ %{_configure_rcdir}
 @make@ %{?_smp_mflags} default_pcp
 
@@ -3095,6 +3099,7 @@ chown -R pcp:pcp "$PCP_SA_DIR" 2>/dev/null
 chown -R pcp:pcp "$PCP_LOG_DIR/pmie" 2>/dev/null
 chown -R pcp:pcp "$PCP_LOG_DIR/pmproxy" 2>/dev/null
 %{install_file "$PCP_PMNS_DIR" .NeedRebuild}
+%{install_file "$PCP_LOG_DIR/pmlogger" .NeedRewrite}
 %if "@enable_systemd@" == "true"
     %systemd_postun_with_restart pmcd.service
     %systemd_post pmcd.service

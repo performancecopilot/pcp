@@ -41,6 +41,7 @@ sub samba_fetch
 	$pmda->err("pmdasamba failed to open $smbstats pipe: $!");
 
     while (<STATS>) {
+	$_ =~ s/"//g;
 	if (m/^\*\*\*\*\s+(\w+[^*]*)\**$/) {
 	    my $heading = $1;
 	    $heading =~ s/ +$//g;

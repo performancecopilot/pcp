@@ -21,6 +21,20 @@
 static int chunked_transfer_size; /* pmproxy.chunksize, pagesize by default */
 static int smallest_buffer_size = 128;
 
+/* https://tools.ietf.org/html/rfc7230#section-3.1.1 */
+#define MAX_URL_SIZE	8192
+#define MAX_PARAMS_SIZE 8000
+#define MAX_HEADERS_SIZE 128
+
+static sds HEADER_ACCESS_CONTROL_REQUEST_HEADERS,
+	   HEADER_ACCESS_CONTROL_REQUEST_METHOD,
+	   HEADER_ACCESS_CONTROL_ALLOW_METHODS,
+	   HEADER_ACCESS_CONTROL_ALLOW_HEADERS,
+	   HEADER_ACCESS_CONTROL_ALLOW_ORIGIN,
+	   HEADER_ACCESS_CONTROL_ALLOWED_HEADERS,
+	   HEADER_CONNECTION, HEADER_CONTENT_LENGTH,
+	   HEADER_ORIGIN, HEADER_WWW_AUTHENTICATE;
+
 /*
  * Simple helpers to manage the cumulative addition of JSON
  * (arrays and/or objects) to a buffer.
@@ -121,43 +135,7 @@ http_content_type(http_flags flags)
 	return "text/html";
     if (flags & HTTP_FLAG_TEXT)
 	return "text/plain";
-    if (flags & HTTP_FLAG_JS)
-	return "text/javascript";
-    if (flags & HTTP_FLAG_CSS)
-	return "text/css";
-    if (flags & HTTP_FLAG_ICO)
-	return "image/x-icon";
-    if (flags & HTTP_FLAG_JPG)
-	return "image/jpeg";
-    if (flags & HTTP_FLAG_PNG)
-	return "image/png";
-    if (flags & HTTP_FLAG_GIF)
-	return "image/gif";
     return "application/octet-stream";
-}
-
-http_flags
-http_suffix_type(const char *suffix)
-{
-    if (strcmp(suffix, "js") == 0)
-	return HTTP_FLAG_JS;
-    if (strcmp(suffix, "ico") == 0)
-	return HTTP_FLAG_ICO;
-    if (strcmp(suffix, "css") == 0)
-	return HTTP_FLAG_CSS;
-    if (strcmp(suffix, "png") == 0)
-	return HTTP_FLAG_PNG;
-    if (strcmp(suffix, "gif") == 0)
-	return HTTP_FLAG_GIF;
-    if (strcmp(suffix, "jpg") == 0)
-	return HTTP_FLAG_JPG;
-    if (strcmp(suffix, "jpeg") == 0)
-	return HTTP_FLAG_JPG;
-    if (strcmp(suffix, "html") == 0)
-	return HTTP_FLAG_HTML;
-    if (strcmp(suffix, "txt") == 0)
-	return HTTP_FLAG_TEXT;
-    return 0;
 }
 
 static const char * const
@@ -259,26 +237,28 @@ http_response_header(struct client *client, unsigned int length, http_code sts, 
 
     header = sdscatfmt(sdsempty(),
 		"HTTP/%u.%u %u %s\r\n"
-		"Connection: Keep-Alive\r\n"
-		"Access-Control-Allow-Origin: *\r\n"
-		"Access-Control-Allow-Headers: Accept, Accept-Language, Content-Language, Content-Type\r\n",
+		"%S: Keep-Alive\r\n",
 		parser->http_major, parser->http_minor,
-		sts, http_status_mapping(sts));
+		sts, http_status_mapping(sts), HEADER_CONNECTION);
+    header = sdscatfmt(header,
+		"%S: *\r\n"
+		"%S: %S\r\n",
+		HEADER_ACCESS_CONTROL_ALLOW_ORIGIN,
+		HEADER_ACCESS_CONTROL_ALLOW_HEADERS,
+		HEADER_ACCESS_CONTROL_ALLOWED_HEADERS);
 
     if (sts == HTTP_STATUS_UNAUTHORIZED && client->u.http.realm)
-	header = sdscatfmt(header, "WWW-Authenticate: Basic realm=\"%S\"\r\n",
-				client->u.http.realm);
+	header = sdscatfmt(header, "%S: Basic realm=\"%S\"\r\n",
+				HEADER_WWW_AUTHENTICATE, client->u.http.realm);
 
-    if ((flags & HTTP_FLAG_STREAMING))
-	header = sdscatfmt(header, "Transfer-encoding: %s\r\n", "chunked");
+    if ((flags & (HTTP_FLAG_STREAMING | HTTP_FLAG_NO_BODY)))
+	header = sdscatfmt(header, "Transfer-encoding: chunked\r\n");
+    else
+	header = sdscatfmt(header, "%S: %u\r\n", HEADER_CONTENT_LENGTH, length);
 
-    if (!(flags & HTTP_FLAG_STREAMING))
-	header = sdscatfmt(header, "Content-Length: %u\r\n", length);
-
-    header = sdscatfmt(header,
-		"Content-Type: %s%s\r\n"
-		"Date: %s\r\n\r\n",
-		http_content_type(flags), http_content_encoding(flags),
+    header = sdscatfmt(header, "Content-Type: %s%s\r\n",
+		http_content_type(flags), http_content_encoding(flags));
+    header = sdscatfmt(header, "Date: %s\r\n\r\n",
 		http_date_string(time(NULL), date, sizeof(date)));
 
     if (pmDebugOptions.http && pmDebugOptions.desperate) {
@@ -288,8 +268,149 @@ http_response_header(struct client *client, unsigned int length, http_code sts, 
     return header;
 }
 
+static sds
+http_header_value(struct client *client, sds header)
+{
+    if (client->u.http.headers == NULL)
+	return NULL;
+    return (sds)dictFetchValue(client->u.http.headers, header);
+}
+
+static sds
+http_headers_allowed(sds headers)
+{
+    (void)headers;
+    return sdsdup(HEADER_ACCESS_CONTROL_ALLOWED_HEADERS);
+}
+
+/* check whether the (preflight) method being proposed is acceptable */
+static int
+http_method_allowed(sds value, http_options options)
+{
+    if (strcmp(value, "GET") == 0 && (options & HTTP_OPT_GET))
+	return 1;
+    if (strcmp(value, "PUT") == 0 && (options & HTTP_OPT_PUT))
+	return 1;
+    if (strcmp(value, "POST") == 0 && (options & HTTP_OPT_POST))
+	return 1;
+    if (strcmp(value, "HEAD") == 0 && (options & HTTP_OPT_HEAD))
+	return 1;
+    if (strcmp(value, "TRACE") == 0 && (options & HTTP_OPT_TRACE))
+	return 1;
+    return 0;
+}
+
+static char *
+http_methods_string(char *buffer, size_t length, http_options options)
+{
+    char		*p = buffer;
+
+    /* ensure room for all options, spaces and comma separation */
+    if (!options || length < 48)
+	return NULL;
+
+    memset(buffer, 0, length);
+    if (options & HTTP_OPT_GET)
+	strcat(p, ", GET");
+    if (options & HTTP_OPT_PUT)
+	strcat(p, ", PUT");
+    if (options & HTTP_OPT_HEAD)
+	strcat(p, ", HEAD");
+    if (options & HTTP_OPT_POST)
+	strcat(p, ", POST");
+    if (options & HTTP_OPT_TRACE)
+	strcat(p, ", TRACE");
+    if (options & HTTP_OPT_OPTIONS)
+	strcat(p, ", OPTIONS");
+    return p + 2; /* skip leading comma+space */
+}
+
+static sds
+http_response_trace(struct client *client, int sts)
+{
+    struct http_parser	*parser = &client->u.http.parser;
+    dictIterator	*iterator;
+    dictEntry		*entry;
+    char		buffer[64];
+    sds			header;
+
+    parser->http_major = parser->http_minor = 1;
+
+    header = sdscatfmt(sdsempty(),
+		"HTTP/%u.%u %u %s\r\n"
+		"%S: Keep-Alive\r\n",
+		parser->http_major, parser->http_minor,
+		sts, http_status_mapping(sts), HEADER_CONNECTION);
+    header = sdscatfmt(header, "%S: %u\r\n", HEADER_CONTENT_LENGTH, 0);
+
+    iterator = dictGetSafeIterator(client->u.http.headers);
+    while ((entry = dictNext(iterator)) != NULL)
+	header = sdscatfmt(header, "%S: %S\r\n", dictGetKey(entry), dictGetVal(entry));
+    dictReleaseIterator(iterator);
+
+    header = sdscatfmt(header, "Date: %s\r\n\r\n",
+		http_date_string(time(NULL), buffer, sizeof(buffer)));
+
+    if (pmDebugOptions.http && pmDebugOptions.desperate) {
+	fprintf(stderr, "trace response to client %p\n", client);
+	fputs(header, stderr);
+    }
+    return header;
+}
+
+static sds
+http_response_access(struct client *client, http_code sts, http_options options)
+{
+    struct http_parser	*parser = &client->u.http.parser;
+    char		buffer[64];
+    sds			header, value, result;
+
+    value = http_header_value(client, HEADER_ACCESS_CONTROL_REQUEST_METHOD);
+    if (value && http_method_allowed(value, options) == 0)
+	sts = HTTP_STATUS_METHOD_NOT_ALLOWED;
+
+    parser->http_major = parser->http_minor = 1;
+
+    header = sdscatfmt(sdsempty(),
+		"HTTP/%u.%u %u %s\r\n"
+		"%S: Keep-Alive\r\n",
+		parser->http_major, parser->http_minor,
+		sts, http_status_mapping(sts), HEADER_CONNECTION);
+    header = sdscatfmt(header, "%S: %u\r\n", HEADER_CONTENT_LENGTH, 0);
+
+    if (sts >= HTTP_STATUS_OK && sts < HTTP_STATUS_BAD_REQUEST) {
+	if ((value = http_header_value(client, HEADER_ORIGIN)))
+	    header = sdscatfmt(header, "%S: %S\r\n",
+			        HEADER_ACCESS_CONTROL_ALLOW_ORIGIN, value);
+
+	header = sdscatfmt(header, "%S: %s\r\n",
+			    HEADER_ACCESS_CONTROL_ALLOW_METHODS,
+			    http_methods_string(buffer, sizeof(buffer), options));
+
+	value = http_header_value(client, HEADER_ACCESS_CONTROL_REQUEST_HEADERS);
+	if (value && (result = http_headers_allowed(value)) != NULL) {
+	    header = sdscatfmt(header, "%S: %S\r\n",
+				HEADER_ACCESS_CONTROL_ALLOW_HEADERS, result);
+	    sdsfree(result);
+	}
+    }
+    if (sts == HTTP_STATUS_UNAUTHORIZED && client->u.http.realm)
+	header = sdscatfmt(header, "%S: Basic realm=\"%S\"\r\n",
+			    HEADER_WWW_AUTHENTICATE, client->u.http.realm);
+
+    header = sdscatfmt(header, "Date: %s\r\n\r\n",
+		http_date_string(time(NULL), buffer, sizeof(buffer)));
+
+    if (pmDebugOptions.http && pmDebugOptions.desperate) {
+	fprintf(stderr, "access response to client %p\n", client);
+	fputs(header, stderr);
+    }
+    return header;
+}
+
 void
-http_reply(struct client *client, sds message, http_code sts, http_flags type)
+http_reply(struct client *client, sds message,
+		http_code sts, http_flags type, http_options options)
 {
     http_flags		flags = client->u.http.flags;
     char		length[32]; /* hex length */
@@ -313,6 +434,15 @@ http_reply(struct client *client, sds message, http_code sts, http_flags type)
 
 	suffix = sdsnewlen("0\r\n\r\n", 5);		/* chunked suffix */
 	client->u.http.flags &= ~HTTP_FLAG_STREAMING;	/* end of stream! */
+
+    } else if (flags & HTTP_FLAG_NO_BODY) {
+	if (client->u.http.parser.method == HTTP_OPTIONS)
+	    buffer = http_response_access(client, sts, options);
+	else if (client->u.http.parser.method == HTTP_TRACE)
+	    buffer = http_response_trace(client, sts);
+	else	/* HTTP_HEAD */
+	    buffer = http_response_header(client, 0, sts, type);
+	suffix = NULL;
     } else {	/* regular non-chunked response - headers + response body */
 	if (client->buffer == NULL) {
 	    suffix = message;
@@ -326,10 +456,11 @@ http_reply(struct client *client, sds message, http_code sts, http_flags type)
 	buffer = http_response_header(client, sdslen(suffix), sts, type);
     }
 
-    if (pmDebugOptions.http) {
-	fprintf(stderr, "HTTP response (client=%p)\n%s%s",
-			client, buffer, suffix);
-    }
+    if (pmDebugOptions.http)
+	fprintf(stderr, "HTTP %s response (client=%p)\n%s%s",
+			http_method_str(client->u.http.parser.method),
+			client, buffer, suffix ? suffix : "");
+
     client_write(client, buffer, suffix);
 }
 
@@ -363,7 +494,7 @@ http_error(struct client *client, http_code status, const char *errstr)
 	if (pmDebugOptions.desperate)
 	    fputs(message, stderr);
     }
-    http_reply(client, message, status, HTTP_FLAG_HTML);
+    http_reply(client, message, status, HTTP_FLAG_HTML, 0);
 }
 
 void
@@ -371,6 +502,7 @@ http_transfer(struct client *client)
 {
     struct http_parser	*parser = &client->u.http.parser;
     http_flags		flags = client->u.http.flags;
+    const char		*method;
     sds			buffer, suffix;
 
     /* If the client buffer length is now beyond a set maximum size,
@@ -390,16 +522,18 @@ http_transfer(struct client *client)
 		buffer = sdsempty();
 	    }
 	    /* prepend a chunked transfer encoding message length (hex) */
-	    buffer = sdscatprintf(buffer, "%lX\r\n", (unsigned long)sdslen(client->buffer));
+	    buffer = sdscatprintf(buffer, "%lX\r\n",
+				 (unsigned long)sdslen(client->buffer));
 	    suffix = sdscatfmt(client->buffer, "\r\n");
 	    /* reset for next call - original released on I/O completion */
 	    client->buffer = NULL;	/* safe, as now held in 'suffix' */
 
 	    if (pmDebugOptions.http) {
-		fprintf(stderr, "HTTP chunked buffer (client %p, len=%lu)\n%s"
-				"HTTP chunked suffix (client %p, len=%lu)\n%s",
-				client, (unsigned long)sdslen(buffer), buffer,
-				client, (unsigned long)sdslen(suffix), suffix);
+		method = http_method_str(client->u.http.parser.method);
+		fprintf(stderr, "HTTP %s chunk buffer (client %p, len=%lu)\n%s"
+				"HTTP %s chunk suffix (client %p, len=%lu)\n%s",
+			method, client, (unsigned long)sdslen(buffer), buffer,
+			method, client, (unsigned long)sdslen(suffix), suffix);
 	    }
 	    client_write(client, buffer, suffix);
 
@@ -420,6 +554,8 @@ http_client_release(struct client *client)
     if (servlet && servlet->on_release)
 	servlet->on_release(client);
     client->u.http.privdata = NULL;
+    client->u.http.servlet = NULL;
+    client->u.http.flags = 0;
 
     if (client->u.http.headers) {
 	dictRelease(client->u.http.headers);
@@ -527,6 +663,8 @@ http_url_decode(const char *url, size_t length, dict **output)
 
     if (length == 0)
 	return NULL;
+    if (length > MAX_PARAMS_SIZE)
+	return NULL;
     for (p = url; p < end; p++) {
 	if (*p == '\0')
 	    break;
@@ -558,6 +696,11 @@ servlet_lookup(struct client *client, const char *offset, size_t length)
     struct servlet	*servlet;
     sds			url;
 
+    if (pmDebugOptions.http || pmDebugOptions.appl0)
+	fprintf(stderr, "HTTP %s %.*s\n",
+			http_method_str(client->u.http.parser.method),
+			(int)length, offset);
+
     if (!(url = http_url_decode(offset, length, &client->u.http.parameters)))
 	return NULL;
     for (servlet = proxy->servlets; servlet != NULL; servlet = servlet->next) {
@@ -580,14 +723,40 @@ on_url(http_parser *request, const char *offset, size_t length)
 
     http_client_release(client);	/* new URL, clean slate */
 
-    if ((servlet = servlet_lookup(client, offset, length)) != NULL) {
+    if (length >= MAX_URL_SIZE) {
+	sts = client->u.http.parser.status_code = HTTP_STATUS_URI_TOO_LONG;
+	http_error(client, sts, "request URL too long");
+    }
+    /* pass to servlets handling each of our internal request endpoints */
+    else if ((servlet = servlet_lookup(client, offset, length)) != NULL) {
 	client->u.http.servlet = servlet;
-	if ((sts = client->u.http.parser.status_code) == 0) {
+	if ((sts = client->u.http.parser.status_code) != 0)
+	    http_error(client, sts, "failed to process URL");
+	else {
+	    if (client->u.http.parser.method == HTTP_OPTIONS ||
+		client->u.http.parser.method == HTTP_TRACE ||
+		client->u.http.parser.method == HTTP_HEAD)
+		client->u.http.flags |= HTTP_FLAG_NO_BODY;
 	    client->u.http.headers = dictCreate(&sdsOwnDictCallBacks, NULL);
-	    return 0;
 	}
-	http_error(client, sts, "failed to process URL");
-    } else {
+    }
+    /* server options - https://tools.ietf.org/html/rfc7231#section-4.3.7 */
+    else if (client->u.http.parser.method == HTTP_OPTIONS) {
+	if (length == 1 && *offset == '*') {
+	    client->u.http.flags |= HTTP_FLAG_NO_BODY;
+	    client->u.http.headers = dictCreate(&sdsOwnDictCallBacks, NULL);
+	} else {
+	    sts = client->u.http.parser.status_code = HTTP_STATUS_BAD_REQUEST;
+	    http_error(client, sts, "no handler for OPTIONS");
+	}
+    }
+    /* server trace - https://tools.ietf.org/html/rfc7231#section-4.3.8 */
+    else if (client->u.http.parser.method == HTTP_TRACE) {
+	client->u.http.flags |= HTTP_FLAG_NO_BODY;
+	client->u.http.headers = dictCreate(&sdsOwnDictCallBacks, NULL);
+    }
+    /* nothing available to respond to this request - inform the client */
+    else {
 	sts = client->u.http.parser.status_code = HTTP_STATUS_BAD_REQUEST;
 	http_error(client, sts, "no handler for URL");
     }
@@ -603,7 +772,7 @@ on_body(http_parser *request, const char *offset, size_t length)
     if (pmDebugOptions.http && pmDebugOptions.desperate)
 	printf("Body: %.*s\n(client=%p)\n", (int)length, offset, client);
 
-    if (servlet->on_body)
+    if (servlet && servlet->on_body)
 	return servlet->on_body(client, offset, length);
     return 0;
 }
@@ -616,6 +785,11 @@ on_header_field(http_parser *request, const char *offset, size_t length)
 
     if (client->u.http.parser.status_code || !client->u.http.headers)
 	return 0;	/* already in process of failing connection */
+    if (dictSize(client->u.http.headers) >= MAX_HEADERS_SIZE) {
+	client->u.http.parser.status_code =
+		HTTP_STATUS_REQUEST_HEADER_FIELDS_TOO_LARGE;
+	return 0;
+    }
 
     field = sdsnewlen(offset, length);
     if (pmDebugOptions.http)
@@ -692,7 +866,7 @@ on_headers_complete(http_parser *request)
     }
 
     client->u.http.privdata = NULL;
-    if (servlet->on_headers)
+    if (servlet && servlet->on_headers)
 	sts = servlet->on_headers(client, client->u.http.headers);
 
     /* HTTP Basic Auth for all servlets */
@@ -721,13 +895,31 @@ on_message_complete(http_parser *request)
 {
     struct client	*client = (struct client *)request->data;
     struct servlet	*servlet = client->u.http.servlet;
+    sds			buffer;
+    int			sts;
 
     if (pmDebugOptions.http)
 	fprintf(stderr, "HTTP message complete (client=%p)\n", client);
 
-    if (servlet && servlet->on_done)
-	return servlet->on_done(client);
-    return 0;
+    if (servlet) {
+	if (servlet->on_done)
+	    return servlet->on_done(client);
+	return 0;
+    }
+
+    sts = HTTP_STATUS_OK;
+    if (client->u.http.parser.method == HTTP_OPTIONS) {
+	buffer = http_response_access(client, sts, HTTP_SERVER_OPTIONS);
+	client_write(client, buffer, NULL);
+	return 0;
+    }
+    if (client->u.http.parser.method == HTTP_TRACE) {
+	buffer = http_response_trace(client, sts);
+	client_write(client, buffer, NULL);
+	return 0;
+    }
+
+    return 1;
 }
 
 void
@@ -826,6 +1018,18 @@ setup_http_module(struct proxy *proxy)
     if (chunked_transfer_size < smallest_buffer_size)
 	chunked_transfer_size = smallest_buffer_size;
 
+    HEADER_ACCESS_CONTROL_REQUEST_HEADERS = sdsnew("Access-Control-Request-Headers");
+    HEADER_ACCESS_CONTROL_REQUEST_METHOD = sdsnew("Access-Control-Request-Method");
+    HEADER_ACCESS_CONTROL_ALLOW_METHODS = sdsnew("Access-Control-Allow-Methods");
+    HEADER_ACCESS_CONTROL_ALLOW_HEADERS = sdsnew("Access-Control-Allow-Headers");
+    HEADER_ACCESS_CONTROL_ALLOW_ORIGIN = sdsnew("Access-Control-Allow-Origin");
+    HEADER_ACCESS_CONTROL_ALLOWED_HEADERS = sdsnew("Accept, Accept-Language, Content-Language, Content-Type");
+    HEADER_CONNECTION = sdsnew("Connection");
+    HEADER_CONTENT_LENGTH = sdsnew("Content-Length");
+    HEADER_ORIGIN = sdsnew("Origin");
+    HEADER_WWW_AUTHENTICATE = sdsnew("WWW-Authenticate");
+
+    register_servlet(proxy, &pmsearch_servlet);
     register_servlet(proxy, &pmseries_servlet);
     register_servlet(proxy, &pmwebapi_servlet);
 }
@@ -839,4 +1043,15 @@ close_http_module(struct proxy *proxy)
 	servlet->close(proxy);
 
     proxymetrics_close(proxy, METRICS_HTTP);
+
+    sdsfree(HEADER_ACCESS_CONTROL_REQUEST_HEADERS);
+    sdsfree(HEADER_ACCESS_CONTROL_REQUEST_METHOD);
+    sdsfree(HEADER_ACCESS_CONTROL_ALLOW_METHODS);
+    sdsfree(HEADER_ACCESS_CONTROL_ALLOW_HEADERS);
+    sdsfree(HEADER_ACCESS_CONTROL_ALLOW_ORIGIN);
+    sdsfree(HEADER_ACCESS_CONTROL_ALLOWED_HEADERS);
+    sdsfree(HEADER_CONNECTION);
+    sdsfree(HEADER_CONTENT_LENGTH);
+    sdsfree(HEADER_ORIGIN);
+    sdsfree(HEADER_WWW_AUTHENTICATE);
 }

@@ -1,0 +1,11 @@
+QA output created by 1201
+pmcd not running, expect this to timeout
+now: DATE
+Oops ... primary pmlogger failed to start after 6 seconds
+pmlogger log (PCP_ARCHIVE_DIR/HOSTNAME/pmlogger.log) ...
+Not created ... this is good as it means pmlogger_check noticed
+pmlc attempt ...
+Unable to connect to primary pmlogger at local:: Connection refused
+pmcd running, expect this to work
+Found primary pmlogger
+Found non-primary pmlogger

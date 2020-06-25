@@ -20,6 +20,7 @@
 #include "redis.h"
 #include "private.h"
 #include "discover.h"
+#include "search.h"
 #include "slots.h"
 #include "query.h"
 
@@ -108,6 +109,8 @@ redis_param_raw(sds cmd, sds param)
     return sdscatfmt(cmd, "%S\r\n", param);
 }
 
+extern void redisGlobalsInit(struct dict *);
+
 extern void redis_series_source(redisSlots *, void *);
 extern void redis_series_mark(redisSlots *, sds, int, void *);
 extern void redis_series_metric(redisSlots *, metric_t *, sds, int, int, void *);
@@ -163,6 +166,7 @@ typedef struct seriesModuleData {
     uv_loop_t		*events;
     redisSlots		*slots;
     unsigned int	shareslots;
+    unsigned int	search;
 } seriesModuleData;
 
 extern seriesModuleData *getSeriesModuleData(pmSeriesModule *);

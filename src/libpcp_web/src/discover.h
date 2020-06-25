@@ -106,6 +106,13 @@ extern void pmSeriesDiscoverInDom(pmDiscoverEvent *,
 extern void pmSeriesDiscoverText(pmDiscoverEvent *,
 				int, int, char *, void *);
 
+extern void pmSearchDiscoverMetric(pmDiscoverEvent *,
+				pmDesc *, int, char **, void *);
+extern void pmSearchDiscoverInDom(pmDiscoverEvent *,
+				pmInResult *, void *);
+extern void pmSearchDiscoverText(pmDiscoverEvent *,
+				int, int, char *, void *);
+
 /*
  * Module internals data structure
  */

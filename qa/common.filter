@@ -760,6 +760,7 @@ _filter_pmda_remove()
     _filter_pmda_install |
     sed \
 	-e '/Removing files/d' \
+	-e '/Job for pmcd.service canceled/d' \
 	-e '/Updating the PMCD control file/c\
 Updating the PMCD control file, and notifying PMCD ...\
 [...removing files...]'
@@ -894,6 +895,7 @@ _filter_torture_api()
 	-e '/^    kpreempt /d' \
 	-e '/^    kswitch /d' \
 	-e '/^    kvm /d' \
+	-e '/^    lustre /d' \
 	-e '/^    maillog /d' \
 	-e '/^    mounts /d' \
 	-e '/^    mt /d' \
@@ -926,7 +928,7 @@ _filter_torture_api()
 	-e '/^    waitio /d' \
 	-e '/^    xfs /d' \
 	-e '/^    xvm /d' \
-	-e '/^    lustre /d' \
+	-e '/^    zram /d' \
     # end
 }
 

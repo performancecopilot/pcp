@@ -1,0 +1,96 @@
+#!/bin/sh
+# PCP QA Test No. 1886
+# Test function evaluation in pmseries queries
+#
+# Copyright (c) 2020 Red Hat.  All Rights Reserved.
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+path=""
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+# This test is not run if we dont have pmseries and redis installed.
+_check_series
+
+_cleanup()
+{
+    [ -n "$port" ] && redis-cli $port shutdown
+    _restore_config $PCP_SYSCONF_DIR/pmseries
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+hostname=`hostname`
+redisport=`_find_free_port`
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter_source()
+{
+    sed \
+	-e "s,$here,PATH,g" \
+    #end
+}
+
+_sort_context()
+{
+    sed -e 's/    Context: //g' -e 's/, /\n/g' | \
+    LC_COLLATE=POSIX sort | \
+    $PCP_AWK_PROG 'BEGIN { printf "    Context: " } {
+	if (count == 0) {printf("%s", $0)} else {printf(", %s", $0)};
+	count++
+    } END { print out }'
+}
+
+# real QA test starts here
+_save_config $PCP_SYSCONF_DIR/pmseries
+$sudo rm -f $PCP_SYSCONF_DIR/pmseries/*
+
+echo "Start test Redis server ..."
+redis-server --port $redisport > $tmp.redis 2>&1 &
+echo "PING"
+pmsleep 0.125
+port="-p $redisport"
+redis-cli $port ping
+echo
+
+echo "== Load metric data into this redis instance"
+pmseries $port --load "{source.path: \"$here/archives/proc\"}" | _filter_source
+
+echo;echo "== Verify noop() function for a singular metric"
+pmseries $port 'kernel.all.pswitch[count: 2]'
+echo Compared to:
+pmseries $port 'noop(kernel.all.pswitch)[count: 2]'
+echo
+
+#
+# Below are further commands we'd want to test too
+#
+
+# echo;echo "== Verify nested function noop(noop(...)) for a singular metric"
+# pmseries $port 'kernel.all.pswitch[count: 2]'
+# echo Compared to:
+# pmseries $port 'noop(noop(kernel.all.pswitch))[count: 2]'
+# echo
+# 
+# echo;echo "== Verify noop() function for a non-singular metric, all instances"
+# pmseries $port 'kernel.all.load[count: 2]'
+# echo Compared to:
+# pmseries $port 'noop(kernel.all.load)[count: 2]'
+# echo
+# 
+# echo;echo "== Verify noop() function for a non-singular metric, only one instance"
+# pmseries $port 'kernel.all.load{instance.name == "1 minute"}[count: 2]'
+# echo Compared to:
+# pmseries $port 'noop(kernel.all.load{instance.name == "1 minute"})[count: 2]'
+# echo
+
+# success, all done
+status=0
+exit

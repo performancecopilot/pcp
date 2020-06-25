@@ -507,9 +507,11 @@ ccf157fc1740b6459681bfca477fb6ea6864d32c
 Perform simple source-based query ...
 
 Error handling - descriptor for bad series identifier
-pmseries: [Error] no descriptor for series identifier no.such.identifier
 
 no.such.identifier
+    PMID: PM_ID_NULL
+    Data Type: ???  InDom: unknown 0xffffffff
+    Semantics: unknown  Units: unknown
 
 Error handling - metric name for bad series identifier
 

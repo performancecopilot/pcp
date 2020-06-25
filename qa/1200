@@ -1,0 +1,128 @@
+#!/bin/sh
+# PCP QA Test No. 1200
+# pmlogger_check for primary logger and pmcd may not be running (yet)
+# - systemd and package install failure case
+#
+# This is the single pmlogger version.  See qa/1201 for the multiple
+# pmlogger version.
+#
+# Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    if $_needclean
+    then
+	_service pcp restart 2>&1 | _filter_pcp_start
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	_needclean=false
+    fi
+    $sudo rm -rf $tmp $tmp.*
+}
+
+# borrowed from _wait_for_pmlogger
+#
+_my_wait_for_pmlogger()
+{
+    # 6 seconds default seems like a reasonable max time to get going
+    _maxdelay=6
+    _dir_hostname=`hostname || echo localhost`
+    _logfile="$PCP_ARCHIVE_DIR/$_dir_hostname/pmlogger.log" 
+
+    _i=0
+    _dead=true
+    while [ $_i -lt $_maxdelay ]
+    do
+	if $sudo -u pcp pmlc -P </dev/null 2>&1 \
+		| tee $tmp.err \
+		| egrep "Connection refused|Transport endpoint is not connected" >/dev/null
+	then
+	    sleep 1
+	    _i=`expr $_i + 1`
+        else
+	    # pmlogger socket has been set up ...
+	    _dead=false
+	    # give pmlogger a chance to detect that pmlc has gone away
+	    # so the port is free
+	    sleep 1
+	    break
+	fi
+    done
+    if $_dead
+    then
+	echo "now: `date`"
+	echo "Oops ... primary pmlogger failed to start after $_maxdelay seconds"
+	echo "pmlogger log ($_logfile) ..."
+	if [ -f $_logfile ]
+	then
+	    cat $_logfile
+	else
+	    echo "Not created ... this is good as it means pmlogger_check noticed"
+	fi
+	echo "pmlc attempt ..."
+	[ -f $tmp.err ] && cat $tmp.err
+    fi
+}
+
+_filter()
+{
+    tee -a $seq.full \
+    | sed \
+	-e '/^now: /s/ .*/ DATE/' \
+	-e "s@$PCP_ARCHIVE_DIR@PCP_ARCHIVE_DIR@" \
+	-e "s@$_dir_hostname@HOSTNAME@" \
+    | _filter_pmlogger_log
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_needclean=true
+myhost=`hostname`
+
+# real QA test starts here
+echo "initially" >>$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[p](mcd|mlogger)' >>$seq.full
+
+# stop pmcd, primary pmlogger
+#
+_service pcp stop 2>&1 | _filter_pcp_stop
+echo "pcp stop" >>$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[p](mcd|mlogger)' >>$seq.full
+
+# from here on, don't use any "_service" wrapper ... we need to dodge
+# any linking of the services and starting stuff under the covers
+#
+_dir_hostname=`hostname || echo localhost`
+_logfile="$PCP_ARCHIVE_DIR/$_dir_hostname/pmlogger.log" 
+$sudo rm -f $_logfile
+echo "pmcd not running, expect this to timeout"
+$sudo $PCP_RC_DIR/pmlogger start 2>&1 | _filter_pcp_start
+_my_wait_for_pmlogger | _filter
+echo "pmlogger start fail case" >>$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[p](mcd|mlogger)' >>$seq.full
+
+$sudo $PCP_RC_DIR/pmcd start 2>&1 | _filter_pcp_start
+_wait_for_pmcd
+
+$sudo rm -f $_logfile
+echo "pmcd running, expect this to work"
+$sudo $PCP_RC_DIR/pmlogger start 2>&1 | _filter_pcp_start
+_wait_for_pmlogger
+echo "pmlogger start success case" >>$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[p](mcd|mlogger)' >>$seq.full
+
+# success, all done
+status=0
+exit

@@ -1,16 +1,11 @@
 vm:
   box: fedora/33-cloud-base
 container:
-  image: localhost/fedora:33-systemd
-  pre_start: |
-    if ! buildah images -q localhost/fedora:33-systemd 2>/dev/null; then
-       container=$(buildah from registry.fedoraproject.org/fedora:33)
-       buildah run $container dnf install -y systemd
-       buildah commit $container localhost/fedora:33-systemd
-    fi
-  post_start: |
-    useradd --create-home pcpbuild
-    echo 'pcpbuild ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/pcpbuild
+  containerfile: |
+    FROM registry.fedoraproject.org/fedora:33
+    RUN dnf install -y systemd
+    RUN useradd --create-home pcpbuild
+    RUN echo 'pcpbuild ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/pcpbuild
 
 tasks:
   update: |
@@ -27,12 +22,18 @@ tasks:
   initqa: |
     sudo -i -u pcpqa ./check 002
   qa_sanity: |
-    set -o pipefail && status=0 && sudo -i -u pcpqa ./check -TT -g sanity |& tee ./artifacts/test/test.log || status=$?
+    set -o pipefail
+    status=0
+    sudo -i -u pcpqa ./check -TT -g sanity -x not_in_container |& tee ./artifacts/test/test.log || status=$?
+
     cp /var/lib/pcp/testsuite/check.timings ./artifacts/test
     for test in /var/lib/pcp/testsuite/*.out.bad; do cp $test ${test/.out.bad/.full} ./artifacts/test || true; done
     exit $status
   qa: |
-    set -o pipefail && status=0 && sudo -i -u pcpqa ./check -TT |& tee ./artifacts/test/test.log || status=$?
+    set -o pipefail
+    status=0
+    sudo -i -u pcpqa ./check -TT -x not_in_container |& tee ./artifacts/test/test.log || status=$?
+
     cp /var/lib/pcp/testsuite/check.timings ./artifacts/test
     for test in /var/lib/pcp/testsuite/*.out.bad; do cp $test ${test/.out.bad/.full} ./artifacts/test || true; done
     exit $status

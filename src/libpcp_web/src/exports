@@ -189,3 +189,34 @@ PCP_WEB_1.13 {
     pmWebGroupDestroy;
     sdsKeyDictCallBacks;
 } PCP_WEB_1.12;
+
+PCP_WEB_1.14 {
+  global:
+    dictFetchValue;
+    http_method_str;
+    http_body_is_final;
+    http_parser_version;
+    http_parser_url_init;
+    http_parser_parse_url;
+    http_parser_settings_init;
+} PCP_WEB_1.13;
+
+PCP_WEB_1.15 {
+  global:
+    pmSearchSetup;
+    pmSearchEnabled;
+    pmSearchClose;
+
+    pmSearchDiscoverMetric;
+    pmSearchDiscoverInDom;
+    pmSearchDiscoverText;
+
+    pmSearchSetSlots;
+    pmSearchSetEventLoop;
+    pmSearchSetConfiguration;
+    pmSearchSetMetricRegistry;
+
+    pmSearchInfo;
+    pmSearchTextQuery;
+    pmSearchTextTypeStr;
+} PCP_WEB_1.14;

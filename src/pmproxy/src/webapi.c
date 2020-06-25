@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Red Hat.
+ * Copyright (c) 2019-2020 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -18,8 +18,7 @@
 #include "util.h"
 
 typedef enum pmWebRestKey {
-    RESTKEY_NONE	= 0,
-    RESTKEY_CONTEXT,
+    RESTKEY_CONTEXT	= 1,
     RESTKEY_METRIC,
     RESTKEY_FETCH,
     RESTKEY_INDOM,
@@ -32,7 +31,8 @@ typedef enum pmWebRestKey {
 
 typedef struct pmWebRestCommand {
     const char		*name;
-    unsigned int	size;
+    unsigned int	namelen : 16;
+    unsigned int	options : 16;
     pmWebRestKey	key;
 } pmWebRestCommand;
 
@@ -47,6 +47,7 @@ typedef struct pmWebGroupBaton {
     sds			password;	/* from basic auth header */
     unsigned int	times : 1;
     unsigned int	compat : 1;
+    unsigned int	options : 16;
     unsigned int	numpmids;
     unsigned int	numvsets;
     unsigned int	numinsts;
@@ -56,21 +57,31 @@ typedef struct pmWebGroupBaton {
 } pmWebGroupBaton;
 
 static pmWebRestCommand commands[] = {
-    { .key = RESTKEY_CONTEXT, .name = "context", .size = sizeof("context")-1 },
-    { .key = RESTKEY_PROFILE, .name = "profile", .size = sizeof("profile")-1 },
-    { .key = RESTKEY_SCRAPE, .name = "metrics", .size = sizeof("metrics")-1 },
-    { .key = RESTKEY_METRIC, .name = "metric", .size = sizeof("metric")-1 },
-    { .key = RESTKEY_DERIVE, .name = "derive", .size = sizeof("derive")-1 },
-    { .key = RESTKEY_FETCH, .name = "fetch", .size = sizeof("fetch")-1 },
-    { .key = RESTKEY_INDOM, .name = "indom", .size = sizeof("indom")-1 },
-    { .key = RESTKEY_STORE, .name = "store", .size = sizeof("store")-1 },
-    { .key = RESTKEY_CHILD, .name = "children", .size = sizeof("children")-1 },
-    { .key = RESTKEY_NONE }
+    { .key = RESTKEY_CONTEXT, .options = HTTP_OPTIONS_GET,
+	    .name = "context", .namelen = sizeof("context")-1 },
+    { .key = RESTKEY_PROFILE, .options = HTTP_OPTIONS_GET,
+	    .name = "profile", .namelen = sizeof("profile")-1 },
+    { .key = RESTKEY_SCRAPE, .options = HTTP_OPTIONS_GET,
+	    .name = "metrics", .namelen = sizeof("metrics")-1 },
+    { .key = RESTKEY_METRIC, .options = HTTP_OPTIONS_GET,
+	    .name = "metric", .namelen = sizeof("metric")-1 },
+    { .key = RESTKEY_DERIVE, .options = HTTP_OPTIONS_GET | HTTP_OPTIONS_POST,
+	    .name = "derive", .namelen = sizeof("derive")-1 },
+    { .key = RESTKEY_FETCH, .options = HTTP_OPTIONS_GET,
+	    .name = "fetch", .namelen = sizeof("fetch")-1 },
+    { .key = RESTKEY_INDOM, .options = HTTP_OPTIONS_GET,
+	    .name = "indom", .namelen = sizeof("indom")-1 },
+    { .key = RESTKEY_STORE, .options = HTTP_OPTIONS_GET,
+	    .name = "store", .namelen = sizeof("store")-1 },
+    { .key = RESTKEY_CHILD, .options = HTTP_OPTIONS_GET,
+	    .name = "children", .namelen = sizeof("children")-1 },
+    { .name = NULL }	/* sentinel */
 };
 
 static pmWebRestCommand openmetrics[] = {
-    { .key = RESTKEY_SCRAPE, .name = "/metrics", .size = sizeof("/metrics")-1 },
-    { .key = RESTKEY_NONE }
+    { .key = RESTKEY_SCRAPE, .options = HTTP_OPTIONS_GET,
+	    .name = "/metrics", .namelen = sizeof("/metrics")-1 },
+    { .name = NULL }	/* sentinel */
 };
 
 static sds PARAM_NAMES, PARAM_NAME, PARAM_PMIDS, PARAM_PMID,
@@ -78,8 +89,8 @@ static sds PARAM_NAMES, PARAM_NAME, PARAM_PMIDS, PARAM_PMID,
 	   PARAM_CONTEXT, PARAM_CLIENT;
 
 
-static pmWebRestKey
-pmwebapi_lookup_restkey(sds url, unsigned int *compat, sds *context)
+static pmWebRestCommand *
+pmwebapi_lookup_rest_command(sds url, unsigned int *compat, sds *context)
 {
     pmWebRestCommand	*cp;
     const char		*name, *ctxid = NULL;
@@ -94,7 +105,7 @@ pmwebapi_lookup_restkey(sds url, unsigned int *compat, sds *context)
 		name++;
 	    } while (isdigit((int)(*name)));
 	    if (*name++ != '/')
-		return RESTKEY_NONE;
+		return NULL;
 	    *context = sdsnewlen(ctxid, name - ctxid - 1);
 	}
 	if (*name == '_') {
@@ -102,13 +113,13 @@ pmwebapi_lookup_restkey(sds url, unsigned int *compat, sds *context)
 	    *compat = 1;	/* backward-compatibility mode */
 	}
 	for (cp = &commands[0]; cp->name; cp++)
-	    if (strncmp(cp->name, name, cp->size) == 0)
-		return cp->key;
+	    if (strncmp(cp->name, name, cp->namelen) == 0)
+		return cp;
     }
     for (cp = &openmetrics[0]; cp->name; cp++)
-	if (strncmp(cp->name, url, cp->size) == 0)
-	    return cp->key;
-    return RESTKEY_NONE;
+	if (strncmp(cp->name, url, cp->namelen) == 0)
+	    return cp;
+    return NULL;
 }
 
 static void
@@ -584,9 +595,10 @@ on_pmwebapi_done(sds context, int status, sds message, void *arg)
 {
     pmWebGroupBaton	*baton = (pmWebGroupBaton *)arg;
     struct client	*client = (struct client *)baton->client;
-    sds			quoted, msg;
+    http_options	options = baton->options;
     http_flags		flags = client->u.http.flags;
     http_code		code;
+    sds			quoted, msg;
 
     if (pmDebugOptions.series)
 	fprintf(stderr, "%s: client=%p (sts=%d,msg=%s)\n", "on_pmwebapi_done",
@@ -596,7 +608,9 @@ on_pmwebapi_done(sds context, int status, sds message, void *arg)
 	code = HTTP_STATUS_OK;
 	/* complete current response with JSON suffix if needed */
 	if ((msg = baton->suffix) == NULL) {	/* empty OK response */
-	    if (flags & HTTP_FLAG_JSON) {
+	    if (flags & HTTP_FLAG_NO_BODY) {
+		msg = sdsempty();
+	    } else if (flags & HTTP_FLAG_JSON) {
 		msg = sdsnewlen("{", 1);
 		if (context)
 		    msg = sdscatfmt(msg, "\"context\":%S,", context);
@@ -628,8 +642,16 @@ on_pmwebapi_done(sds context, int status, sds message, void *arg)
 	sdsfree(quoted);
     }
 
-    http_reply(client, msg, code, flags);
+    http_reply(client, msg, code, flags, options);
     client_put(client);
+}
+
+static void
+on_pmwebapi_info(pmLogLevel level, sds message, void *arg)
+{
+    pmWebGroupBaton	*baton = (pmWebGroupBaton *)arg;
+
+    proxylog(level, message, baton->client->proxy);
 }
 
 static pmWebGroupSettings pmwebapi_settings = {
@@ -645,7 +667,7 @@ static pmWebGroupSettings pmwebapi_settings = {
     .callbacks.on_scrape_labels	= on_pmwebapi_scrape_labels,
     .callbacks.on_check		= on_pmwebapi_check,
     .callbacks.on_done		= on_pmwebapi_done,
-    .module.on_info		= proxylog,
+    .module.on_info		= on_pmwebapi_info,
 };
 
 /*
@@ -734,7 +756,6 @@ pmwebapi_setup_request_parameters(struct client *client,
 	client->u.http.flags |= HTTP_FLAG_JSON;
 	break;
 
-    case RESTKEY_NONE:
     default:
 	client->u.http.parser.status_code = HTTP_STATUS_BAD_REQUEST;
 	break;
@@ -750,11 +771,11 @@ static int
 pmwebapi_request_url(struct client *client, sds url, dict *parameters)
 {
     pmWebGroupBaton	*baton;
-    pmWebRestKey	key;
+    pmWebRestCommand	*command;
     unsigned int	compat = 0;
     sds			context = NULL;
 
-    if ((key = pmwebapi_lookup_restkey(url, &compat, &context)) == RESTKEY_NONE) {
+    if (!(command = pmwebapi_lookup_rest_command(url, &compat, &context))) {
 	sdsfree(context);
 	return 0;
     }
@@ -762,7 +783,8 @@ pmwebapi_request_url(struct client *client, sds url, dict *parameters)
     if ((baton = calloc(1, sizeof(*baton))) != NULL) {
 	client->u.http.data = baton;
 	baton->client = client;
-	baton->restkey = key;
+	baton->restkey = command->key;
+	baton->options = command->options;
 	baton->compat = compat;
 	baton->context = context;
 	pmwebapi_setup_request_parameters(client, baton, parameters);
@@ -885,16 +907,26 @@ pmwebapi_request_done(struct client *client)
     uv_loop_t		*loop = client->proxy->events;
     uv_work_t		*work;
 
-    /* fail early if something has already gone wrong */
-    if (client->u.http.parser.status_code != 0)
-	return 1;
-
-    if ((work = (uv_work_t *)calloc(1, sizeof(uv_work_t))) == NULL)
-	return 1;
-    work->data = baton;
-
     /* take a reference on the client to prevent freeing races on close */
     client_get(client);
+
+    if (client->u.http.parser.status_code) {
+	on_pmwebapi_done(NULL, -EINVAL, NULL, baton);
+	return 1;
+    }
+
+    if (client->u.http.parser.method == HTTP_OPTIONS ||
+	client->u.http.parser.method == HTTP_TRACE ||
+	client->u.http.parser.method == HTTP_HEAD) {
+	on_pmwebapi_done(NULL, 0, NULL, baton);
+	return 0;
+    }
+
+    if ((work = (uv_work_t *)calloc(1, sizeof(uv_work_t))) == NULL) {
+	client_put(client);
+	return 1;
+    }
+    work->data = baton;
 
     /* submit command request to worker thread */
     switch (baton->restkey) {
@@ -925,11 +957,10 @@ pmwebapi_request_done(struct client *client)
     case RESTKEY_SCRAPE:
 	uv_queue_work(loop, work, pmwebapi_scrape, pmwebapi_work_done);
 	break;
-    case RESTKEY_NONE:
     default:
+	pmwebapi_work_done(work, -EINVAL);
 	client->u.http.parser.status_code = HTTP_STATUS_BAD_REQUEST;
-	client_put(client);
-	free(work);
+	on_pmwebapi_done(NULL, -EINVAL, NULL, baton);
 	return 1;
     }
     return 0;

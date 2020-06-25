@@ -19,8 +19,6 @@ status=1	# failure is the default!
 _needclean=true
 [ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
 	PCP_PMLOGGERCONTROL_PATH="$PCP_SYSCONF_DIR/pmlogger/control"
-_needpmmgr=false
-[ -x "$PCP_BINADM_DIR/pmmgr" ] && _needpmmgr=true
 
 LOGGING_DIR=$PCP_LOG_DIR/pmlogger_qa
 PMCHECK_LOG=$LOGGING_DIR/pmlogger_check.log
@@ -31,7 +29,6 @@ trap "_cleanup" 0 1 2 3 15
 
 _stop_auto_restart pmcd
 _stop_auto_restart pmlogger
-$_needpmmgr && _stop_auto_restart pmmgr
 
 _cleanup()
 {
@@ -44,11 +41,8 @@ _cleanup()
 	_service pcp restart 2>&1 | _filter_pcp_start
 	_restore_auto_restart pmcd
 	_restore_auto_restart pmlogger
-	$_needpmmgr && _restore_auto_restart pmmgr
 	_wait_for_pmcd
 	_wait_for_pmlogger
-	# just in case pmmgr was configured and running
-	$_needpmmgr && _service pmmgr restart >/dev/null 2>&1
 	_needclean=false
     fi
     $sudo rm -rf $LOGGING_DIR
@@ -83,15 +77,11 @@ no.such.host.pcp.io	n n $LOGGING_DIR/no.such.host.pcp.io -c /dev/null
 End-of-File
 $sudo cp $tmp.tmp $PCP_PMLOGGERCONTROL_PATH
 
-# stop pmcd, primary pmlogger and pmmgr, create the archive directories,
+# stop pmcd, primary pmlogger, create the archive directories,
 # start pmcd ...
 #
 _get_pids_by_name -a pmlogger >$tmp.pid
 _service pcp stop >$tmp.out 2>&1
-cat $tmp.out >$seq.full
-# test may not pass if pmlogger from pmmgr is running
-#
-$_needpmmgr && _service pmmgr stop >$tmp.out 2>&1
 cat $tmp.out >$seq.full
 
 # wait for all of the extant pmloggers to exit

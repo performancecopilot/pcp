@@ -33,6 +33,7 @@ Updating the PMCD control file, and notifying PMCD ...
 Check bpftrace metrics have appeared ... 7 metrics and X values
 
 bpftrace.control.register old value="{}" new value="tracepoint:raw_syscalls:sys_enter { @c = count(); }"
+user was logged in bpftrace.log
 
 === authentication disabled, everyone is allowed ===
 
@@ -44,6 +45,7 @@ Updating the PMCD control file, and notifying PMCD ...
 Check bpftrace metrics have appeared ... 7 metrics and X values
 
 bpftrace.control.register old value="{}" new value="tracepoint:raw_syscalls:sys_enter { @c = count(); }"
+user was logged in bpftrace.log
 
 
 === remove bpftrace agent ===

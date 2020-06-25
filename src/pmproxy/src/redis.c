@@ -14,19 +14,29 @@
 #include "server.h"
 #include "discover.h"
 
+static int search_queries;
 static int series_queries;
 static int redis_protocol;
 static int archive_discovery;
 
+static pmDiscoverCallBacks redis_series = {
+    .on_source		= pmSeriesDiscoverSource,
+    .on_closed		= pmSeriesDiscoverClosed,
+    .on_labels		= pmSeriesDiscoverLabels,
+    .on_metric		= pmSeriesDiscoverMetric,
+    .on_values		= pmSeriesDiscoverValues,
+    .on_indom		= pmSeriesDiscoverInDom,
+    .on_text		= pmSeriesDiscoverText,
+};
+
+static pmDiscoverCallBacks redis_search = {
+    .on_metric		= pmSearchDiscoverMetric,
+    .on_indom		= pmSearchDiscoverInDom,
+    .on_text		= pmSearchDiscoverText,
+};
+
 static pmDiscoverSettings redis_discover = {
-    .callbacks.on_source	= pmSeriesDiscoverSource,
-    .callbacks.on_closed	= pmSeriesDiscoverClosed,
-    .callbacks.on_labels	= pmSeriesDiscoverLabels,
-    .callbacks.on_metric	= pmSeriesDiscoverMetric,
-    .callbacks.on_values	= pmSeriesDiscoverValues,
-    .callbacks.on_indom		= pmSeriesDiscoverInDom,
-    .callbacks.on_text		= pmSeriesDiscoverText,
-    .module.on_info		= proxylog,
+    .module.on_info	= proxylog,
 };
 
 static sds
@@ -121,12 +131,22 @@ on_redis_connected(void *arg)
     message = sdsnew("Redis slots");
     if (redis_protocol)
 	message = sdscat(message, ", command keys");
-    if (archive_discovery || series_queries)
+    if ((search_queries = pmSearchEnabled(proxy->slots)))
+	message = sdscat(message, ", RediSearch");
+    if (series_queries)
 	message = sdscat(message, ", schema version");
     pmNotifyErr(LOG_INFO, "%s setup\n", message);
     sdsfree(message);
 
-    if (archive_discovery && series_queries) {
+    if (series_queries) {
+	if (search_queries)
+	    redis_series.next = &redis_search;
+	redis_discover.callbacks = redis_series;
+    } else if (search_queries) {
+	redis_discover.callbacks = redis_search;
+    }
+
+    if (archive_discovery && (series_queries || search_queries)) {
 	pmDiscoverSetEventLoop(&redis_discover.module, proxy->events);
 	pmDiscoverSetConfiguration(&redis_discover.module, proxy->config);
 	pmDiscoverSetMetricRegistry(&redis_discover.module, metric_registry);
@@ -152,14 +172,18 @@ setup_redis_module(struct proxy *proxy)
 	redis_protocol = (strncmp(option, "true", sdslen(option)) == 0);
     if ((option = pmIniFileLookup(config, "pmseries", "enabled")))
 	series_queries = (strncmp(option, "true", sdslen(option)) == 0);
+    if ((option = pmIniFileLookup(config, "pmsearch", "enabled")))
+	search_queries = (strncmp(option, "true", sdslen(option)) == 0);
     if ((option = pmIniFileLookup(config, "discover", "enabled")))
 	archive_discovery = (strncmp(option, "true", sdslen(option)) == 0);
 
     if (proxy->slots == NULL) {
 	if (redis_protocol)
 	    flags |= SLOTS_KEYMAP;
-	if (archive_discovery || series_queries)
+	if (series_queries)
 	    flags |= SLOTS_VERSION;
+	if (search_queries)
+	    flags |= SLOTS_SEARCH;
 	proxy->slots = redisSlotsConnect(proxy->config,
 			flags, proxylog, on_redis_connected,
 			proxy, proxy->events, proxy);

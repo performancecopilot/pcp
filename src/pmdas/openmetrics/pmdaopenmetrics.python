@@ -1,6 +1,6 @@
 #!/usr/bin/env pmpython
 #
-# Copyright (c) 2017-2019 Red Hat.
+# Copyright (c) 2017-2020 Red Hat.
 # Copyright (c) 2017 Ronak Jain.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -704,6 +704,7 @@ class Source(object):
             return
 
         # fetch the document
+        status_code = 0
         try:
             if self.is_scripted:
                 # Execute file, expecting openmetrics metric data on stdout.
@@ -715,6 +716,7 @@ class Source(object):
                     self.document = open(self.url[7:], 'r').read()
                 else:
                     r = self.requests.get(self.url, headers=self.headers, timeout=timeout)
+                    status_code = r.status_code
                     r.raise_for_status() # non-200?  ERROR
                     # NB: the requests package automatically enables http keep-alive and compression
                     self.document = r.text
@@ -723,9 +725,13 @@ class Source(object):
             incr = int(1000 * (time.time() - fetch_time))
             self.pmda.stats_fetch_time[self.cluster] += incr
             self.pmda.stats_fetch_time[0] += incr # total for all sources
+            self.pmda.stats_status[self.cluster] = "success"
+            self.pmda.stats_status_code[self.cluster] = status_code
 
         except Exception as e:
-            self.pmda.err('Warning: cannot fetch URL or execute script %s: %s' % (self.path, e))
+            self.pmda.stats_status[self.cluster] = 'failed to fetch URL or execute script %s: %s' % (self.path, e)
+            self.pmda.stats_status_code[self.cluster] = status_code
+            self.pmda.debug('Warning: cannot fetch URL or execute script %s: %s' % (self.path, e)) if self.pmda.dbg else None
             return
 
     def refresh2(self, timeout):
@@ -844,6 +850,20 @@ class OpenMetricsPMDA(PMDA):
             pmUnits(0, 0, 0, 0, 0, 0)),
             'debug flag to enable verbose log messages, to enable: pmstore %s.control.debug 1' % self.pmda_name)
 
+        # response status string, per-source end-point
+        self.stats_status = {0:"none"} # status string, keyed by cluster number
+        self.add_metric('%s.control.status' % self.pmda_name, pmdaMetric(self.pmid(0, 5),
+            c_api.PM_TYPE_STRING, self.sources_indom, c_api.PM_SEM_INSTANT,
+            pmUnits(0, 0, 0, 0, 0, 0)), # no units
+            'per-end-point source URL response status after the most recent fetch')
+
+        # response status code, per-source end-point
+        self.stats_status_code = {0:0} # status code, keyed by cluster number
+        self.add_metric('%s.control.status_code' % self.pmda_name, pmdaMetric(self.pmid(0, 6),
+            c_api.PM_TYPE_32, self.sources_indom, c_api.PM_SEM_DISCRETE,
+            pmUnits(0, 0, 0, 0, 0, 0)), # no units
+            'per-end-point source URL response status code after the most recent fetch')
+
         # schedule a refresh
         self.set_need_refresh()
 
@@ -961,6 +981,8 @@ class OpenMetricsPMDA(PMDA):
                     self.stats_fetch_calls[cluster] = 0
                     self.stats_fetch_time[cluster] = 0
                     self.stats_parse_time[cluster] = 0
+                    self.stats_status[cluster] = "unknown"
+                    self.stats_status_code[cluster] = 0
 
                     save_cluster_table = True
                     self.log("Found source %s cluster %d" % (name, cluster))
@@ -996,6 +1018,10 @@ class OpenMetricsPMDA(PMDA):
                 return [self.stats_parse_time[inst], 1] if inst in self.stats_parse_time else [c_api.PM_ERR_INST, 0]
             elif item == 4: # $(pmda_name).control.debug
                 return [self.dbg, 1]
+            elif item == 5: # per-source status string
+                return [self.stats_status[inst], 1] if inst in self.stats_status else [c_api.PM_ERR_INST, 0]
+            elif item == 6: # per-source status code
+                return [self.stats_status_code[inst], 1] if inst in self.stats_status_code else [c_api.PM_ERR_INST, 0]
             return [c_api.PM_ERR_PMID, 0]
 
         self.assert_source_invariants(cluster=cluster)

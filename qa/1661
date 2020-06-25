@@ -58,9 +58,20 @@ _full_log()
     echo; echo $@ | tee -a $here/$seq.full
 }
 
+# get current log volume of primary pmlogger, according to pmproxy
+#
 _log_volume()
 {
+    path=`pminfo -f pmcd.pmlogger.archive | sed -n -e '/"primary"]/{
+s/"$//
+s/.*"//
+p
+}'`
+    echo "primary pmlogger archive path: $path" >>$seq.full
+    echo "contents of /proc/$pmproxy_pid/fd/ ..." >>$seq.full
     $sudo ls -l /proc/$pmproxy_pid/fd/ | \
+        tee -a $seq.full | \
+	grep "$path" | \
 	$PCP_AWK_PROG -F. '/pmlogger.'$LOCALHOST'.*.[0-9]$/ {print $NF; exit}'
 }
 
@@ -135,6 +146,8 @@ then
     exit
 fi
 echo 'new volume' | $sudo pmlc -P >> $here/$seq.full 2>&1
+# make sure pmproxy has noticed ...
+sleep 1
 newlogvol=`_log_volume`
 echo "newlogvol=$newlogvol" >>$seq.full
 if [ -z "$newlogvol" ]

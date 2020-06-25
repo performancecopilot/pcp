@@ -2024,6 +2024,9 @@ cumusers(struct tstat **curprocs, struct tstat *curusers, int numprocs)
 	*/
 	for (numusers=i=0; i < numprocs; i++, curprocs++)
 	{
+	        if (*curprocs == NULL)
+		        continue;
+		
 		if (procsuppress(*curprocs, &procsel))
 			continue;
 
@@ -2069,6 +2072,9 @@ cumprogs(struct tstat **curprocs, struct tstat *curprogs, int numprocs)
 	*/
 	for (numprogs=i=0; i < numprocs; i++, curprocs++)
 	{
+	        if (*curprocs == NULL)
+		        continue;
+		
 		if (procsuppress(*curprocs, &procsel))
 			continue;
 
@@ -2112,6 +2118,9 @@ cumconts(struct tstat **curprocs, struct tstat *curconts, int numprocs)
 	*/
 	for (numconts=i=0; i < numprocs; i++, curprocs++)
 	{
+	        if (*curprocs == NULL)
+		        continue;
+		
 		if (procsuppress(*curprocs, &procsel))
 			continue;
 

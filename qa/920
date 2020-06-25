@@ -27,11 +27,10 @@ _cleanup()
 {
     if $needclean
     then
+	_service pmlogger stop 2>&1 | _filter_pcp_stop
 	_restore_config $control
 	needclean=false
-	_restore_primary_logger
-	_service pcp restart 2>&1 | _filter_pcp_start
-	_wait_for_pmcd
+	_service pmlogger start 2>&1 | _filter_pcp_start
 	_wait_for_pmlogger
 	_restore_job_scheduler $tmp.cron $tmp.systemd $sudo
     fi
@@ -85,14 +84,14 @@ control=$PCP_PMLOGGERCONTROL_PATH.d/local
 
 # real QA test starts here
 _remove_job_scheduler $tmp.cron $tmp.systemd $sudo
-_service pmlogger stop 2>&1 | _filter_pcp_stop
 
 cat <<End-of-File >$tmp.control
 # dummy file created by qa/$seq on `date`
 # the goal here is to have a non-primary logger that has a deeply
 # nested directory structure for the logs
 \$version=1.1
-LOCALHOSTNAME n n $tmp/pmlogger/myhost/2017/02/12 -c /dev/null -L
+LOCALHOSTNAME   n   n   $tmp/pmlogger/myhost/2017/02/12 -c /dev/null -L
+LOCALHOSTNAME	y   n	PCP_ARCHIVE_DIR/LOCALHOSTNAME	-r -T24h10m -c config.default -v 100Mb
 End-of-File
 _save_config $control
 $sudo cp $tmp.control $control
@@ -112,8 +111,19 @@ do
     i=`expr $i + 1`
 done
 
+# pmlogger process has started, give it a chance to create the archive files
+#
+sleep 1
+
 _report
 echo
+
+# wait for primary pmlogger ... our pmlogger may have got started first
+# ... without this the _service stop in _cleanup() risks clobbering the
+# previous start for the primary pmlogger before it is finished starting
+# up, and this may lead to systemd complaints
+#
+_wait_for_pmlogger
 
 # success, all done
 status=0

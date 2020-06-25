@@ -1,0 +1,58 @@
+#!/bin/sh
+# PCP QA Test No. 1608
+# Exercise a long URL handling in pmproxy.
+#
+# Copyright (c) 2020 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_series
+which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+pmproxy_was_running=false
+[ -f $PCP_RUN_DIR/pmproxy.pid ] && pmproxy_was_running=true
+echo "pmproxy_was_running=$pmproxy_was_running" >>$here/$seq.full
+
+_cleanup()
+{
+    if $pmproxy_was_running
+    then
+        echo "Restart pmproxy ..." >>$here/$seq.full
+        _service pmproxy restart >>$here/$seq.full 2>&1
+        _wait_for_pmproxy
+    else
+        echo "Stopping pmproxy ..." >>$here/$seq.full
+        _service pmproxy stop >>$here/$seq.full 2>&1
+    fi
+    $sudo rm -f $tmp.*
+}
+
+_webapi_failure_filter()
+{
+    _webapi_header_filter | \
+    sed \
+	-e 's/pmproxy.[0-9][0-9]*.[0-9][0-9]*.[0-9][0-9]*/PMPROXY\/VERSION/g' \
+    #end
+}
+
+# real QA test starts here
+_service pmproxy restart >/dev/null 2>&1
+
+url="http://localhost:44322/pmapi/context"
+aaa=`head -c 10000 < /dev/zero | tr '\0' '\141'`
+curl -isS -X OPTIONS "${url}?${aaa}" | _webapi_failure_filter
+
+# success, all done
+status=0
+exit

@@ -35,6 +35,7 @@ root {
     sysfs
     tape
     tty
+    zram
 }
 
 hinv {
@@ -476,6 +477,76 @@ disk.partitions {
     discard_rawactive	60:10:21
     flush		60:10:22
     flush_rawactive	60:10:23
+}
+
+zram {
+    read		60:86:0
+    write		60:86:1
+    total		60:86:2
+    blkread		60:86:3
+    blkwrite		60:86:4
+    blktotal		60:86:5
+    read_bytes		60:86:6
+    write_bytes		60:86:7
+    total_bytes		60:86:8
+    read_merge          60:86:9
+    write_merge         60:86:10
+    avactive            60:86:11
+    aveq                60:86:12
+    read_rawactive      60:86:13
+    write_rawactive     60:86:14
+    total_rawactive	60:86:15
+    capacity		60:86:16
+    discard		60:86:17
+    blkdiscard		60:86:18
+    discard_bytes	60:86:19
+    discard_merge	60:86:20
+    discard_rawactive	60:86:21
+    flush		60:86:22
+    flush_rawactive	60:86:23
+    io_stat
+    mm_stat
+    bd_stat
+}
+
+zram.io_stat {
+    failed
+    invalid		60:87:2
+    notify_free		60:87:3
+}
+
+zram.io_stat.failed {
+    reads		60:87:0
+    writes		60:87:1
+}
+
+zram.mm_stat {
+    data_size
+    mem
+    pages
+}
+
+zram.mm_stat.data_size {
+    original		60:88:0
+    compressed		60:88:1
+}
+
+zram.mm_stat.mem {
+    used_total		60:88:2
+    limit		60:88:3
+    max_used		60:88:4
+}
+
+zram.mm_stat.pages {
+    same		60:88:5
+    compacted		60:88:6
+    huge		60:88:7
+}
+
+zram.bd_stat {
+    count		60:89:0
+    reads		60:89:1
+    writes		60:89:2
 }
 
 mem {

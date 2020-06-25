@@ -2471,6 +2471,47 @@ pmSeriesLabelValues(pmSeriesSettings *settings, int nlabels, pmSID *labels, void
     return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int
+extract_series_desc(seriesQueryBaton *baton, pmSID series,
+		int nelements, redisReply **elements, pmSeriesDesc *desc)
+{
+    sds			msg;
+
+    if (nelements < 6) {
+	infofmt(msg, "bad reply from %s %s (%d)", series, HMGET, nelements);
+	batoninfo(baton, PMLOG_RESPONSE, msg);
+	return -EPROTO;
+    }
+
+    /* were we given a non-metric series identifier? (e.g. an instance) */
+    if (elements[0]->type == REDIS_REPLY_NIL) {
+	desc->indom = sdscpylen(desc->indom, "unknown", 7);
+	desc->pmid = sdscpylen(desc->pmid, "PM_ID_NULL", 10);
+	desc->semantics = sdscpylen(desc->semantics, "unknown", 7);
+	desc->source = sdscpylen(desc->source, "unknown", 7);
+	desc->type = sdscpylen(desc->type, "unknown", 7);
+	desc->units = sdscpylen(desc->units, "unknown", 7);
+	return 0;
+    }
+
+    if (extract_string(baton, series, elements[0], &desc->indom, "indom") < 0)
+	return -EPROTO;
+    if (extract_string(baton, series, elements[1], &desc->pmid, "pmid") < 0)
+	return -EPROTO;
+    if (extract_string(baton, series, elements[2], &desc->semantics, "semantics") < 0)
+	return -EPROTO;
+    if (extract_sha1(baton, series, elements[3], &desc->source, "source") < 0)
+	return -EPROTO;
+    if (extract_string(baton, series, elements[4], &desc->type, "type") < 0)
+	return -EPROTO;
+    if (extract_string(baton, series, elements[5], &desc->units, "units") < 0)
+	return -EPROTO;
+
+    return 0;
+}
+>>>>>>> upstream_pcp/master
 
 static void
 redis_series_desc_reply(

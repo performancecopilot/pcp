@@ -70,7 +70,8 @@ touch -t "$STAMP" $tmp.*/$FIVEMONTHS.*
 $sudo $PCP_BINADM_DIR/pmlogger_daily -V -N -x 3 -X bzip2 -c $tmp.ctl 2>&1 | \
 sed \
 	-e '/date-and-timestamp/d' \
-	-e '/NOTICES/d' \
+	-e '/^Roll .*\/NOTICES/d' \
+	-e '/^Start .*\/NOTICES/d' \
 	-e "s/$TODAY/TODAY/g" \
 	-e "s/$FIVEDAYS/FIVEDAYS/g" \
 	-e "s/$FIVEMONTHS/FIVEMONTHS/g" \

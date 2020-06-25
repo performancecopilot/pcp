@@ -52,5 +52,6 @@ export PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT
 src/disk_test \
 | sed \
     -e '/pmResult/s/ .* numpmid/ ... numpmid/' \
-    -e '/ value /s/ value .*/ value .../'
+    -e '/ value /s/ value .*/ value .../' \
+| ./008.helper
 

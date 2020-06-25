@@ -1,9 +1,12 @@
 container:
-  image: registry.centos.org/centos:8
-  post_start: |
-    dnf install -y sudo
-    useradd --create-home pcpbuild
-    echo 'pcpbuild ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/pcpbuild
+  containerfile: |
+    FROM registry.centos.org/centos:8
+    RUN dnf install -y sudo glibc-langpack-en
+    RUN useradd --create-home pcpbuild
+    RUN echo 'pcpbuild ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/pcpbuild
+
+    # https://bugzilla.redhat.com/show_bug.cgi?id=1814337
+    RUN systemctl mask dnf-makecache.service
 
 tasks:
   update: |
@@ -20,12 +23,18 @@ tasks:
   initqa: |
     sudo -i -u pcpqa ./check 002
   qa_sanity: |
-    set -o pipefail && status=0 && sudo -i -u pcpqa ./check -TT -g sanity |& tee ./artifacts/test/test.log || status=$?
+    set -o pipefail
+    status=0
+    sudo -i -u pcpqa ./check -TT -g sanity -x not_in_container |& tee ./artifacts/test/test.log || status=$?
+
     cp /var/lib/pcp/testsuite/check.timings ./artifacts/test
     for test in /var/lib/pcp/testsuite/*.out.bad; do cp $test ${test/.out.bad/.full} ./artifacts/test || true; done
     exit $status
   qa: |
-    set -o pipefail && status=0 && sudo -i -u pcpqa ./check -TT |& tee ./artifacts/test/test.log || status=$?
+    set -o pipefail
+    status=0
+    sudo -i -u pcpqa ./check -TT -x not_in_container |& tee ./artifacts/test/test.log || status=$?
+
     cp /var/lib/pcp/testsuite/check.timings ./artifacts/test
     for test in /var/lib/pcp/testsuite/*.out.bad; do cp $test ${test/.out.bad/.full} ./artifacts/test || true; done
     exit $status

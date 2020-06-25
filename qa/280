@@ -93,7 +93,7 @@ echo
 echo "Expect this should do nothing ..." | tee -a $seq.full
 touch $tmp.log
 $sudo chown $PCP_USER:$PCP_GROUP $tmp.log
-$sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_check -V -l $tmp.log
+$sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_check -V -l $tmp.log"
 [ -f $tmp.log ] && $sudo cat $tmp.log | tee -a $seq.full | _filter
 echo 'connect primary' | pmlc
 
@@ -120,7 +120,7 @@ sleep 2
 
 echo
 echo "Expect this to re-start the primary logger ..." | tee -a $seq.full
-$sudo -u $PCP_USER -g $PCP_USER $PCP_BINADM_DIR/pmlogger_check -V -l $tmp.log
+$sudo -u $PCP_USER -g $PCP_USER sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_check -V -l $tmp.log"
 [ -f $tmp.log ] && $sudo cat $tmp.log | tee -a $seq.full | _filter
 echo 'connect primary' | pmlc
 
@@ -152,14 +152,14 @@ sleep 2
 
 echo
 echo "Expect this to quietly re-start the primary logger ..." | tee -a $seq.full
-$sudo -u $PCP_USER -g $PCP_USER $PCP_BINADM_DIR/pmlogger_check -l $tmp.log
+$sudo -u $PCP_USER -g $PCP_USER sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_check -l $tmp.log"
 [ -f $tmp.log ] && $sudo cat $tmp.log | tee -a $seq.full | _filter
 echo 'connect primary' | pmlc
 
 echo
 echo "Expect this to get a mutex failure ..." | tee -a $seq.full
 $sudo touch $LOGGING_DIR/$LOCALHOST/lock
-$sudo -u $PCP_USER -g $PCP_USER $PCP_BINADM_DIR/pmlogger_check -l $tmp.log
+$sudo -u $PCP_USER -g $PCP_USER sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_check -l $tmp.log"
 if [ -f $tmp.log ]
 then
     $sudo cat $tmp.log | tee -a $seq.full | _filter \
@@ -172,7 +172,7 @@ echo
 echo "Expect this to cleanup an old lock file ..." | tee -a $seq.full
 $sudo rm -f $LOGGING_DIR/$LOCALHOST/lock
 $sudo touch -t 199701020304.00 $LOGGING_DIR/$LOCALHOST/lock
-$sudo -u $PCP_USER -g $PCP_USER $PCP_BINADM_DIR/pmlogger_check -l $tmp.log
+$sudo -u $PCP_USER -g $PCP_USER sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_check -l $tmp.log"
 if [ -f $tmp.log ]
 then
     $sudo cat $tmp.log | tee -a $seq.full | _filter \

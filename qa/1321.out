@@ -13,6 +13,8 @@ openmetrics.control.calls
 openmetrics.control.debug
 openmetrics.control.fetch_time
 openmetrics.control.parse_time
+openmetrics.control.status
+openmetrics.control.status_code
 openmetrics.source1.metric1
 
 == Created URL file /var/lib/pcp/pmdas/openmetrics/config.d/source2.url
@@ -22,6 +24,8 @@ openmetrics.control.calls
 openmetrics.control.debug
 openmetrics.control.fetch_time
 openmetrics.control.parse_time
+openmetrics.control.status
+openmetrics.control.status_code
 openmetrics.source1.metric1
 openmetrics.source2.metric1
 openmetrics.source2.metric2
@@ -33,6 +37,8 @@ openmetrics.control.calls
 openmetrics.control.debug
 openmetrics.control.fetch_time
 openmetrics.control.parse_time
+openmetrics.control.status
+openmetrics.control.status_code
 openmetrics.source1.metric1
 openmetrics.source2.metric1
 openmetrics.source2.metric2
@@ -47,6 +53,8 @@ openmetrics.control.calls
 openmetrics.control.debug
 openmetrics.control.fetch_time
 openmetrics.control.parse_time
+openmetrics.control.status
+openmetrics.control.status_code
 openmetrics.source1.metric1
 openmetrics.source2.metric1
 openmetrics.source2.metric2
@@ -63,6 +71,8 @@ openmetrics.control.calls
 openmetrics.control.debug
 openmetrics.control.fetch_time
 openmetrics.control.parse_time
+openmetrics.control.status
+openmetrics.control.status_code
 openmetrics.source1.metric1
 openmetrics.source2.metric1
 openmetrics.source2.metric2

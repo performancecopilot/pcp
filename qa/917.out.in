@@ -32,6 +32,8 @@ Checking policies.
 ! allow [pcp_pmcd_t] [unreserved_port_t] : [tcp_socket] { name_bind name_connect };
 ! allow [pcp_pmcd_t] [unreserved_port_t] : [udp_socket] { name_bind };
 ! allow [pcp_pmlogger_t] [unreserved_port_t] : [tcp_socket] { name_bind };
+  allow [pcp_pmcd_t] [samba_var_t] : [dir] { add_name write };
+  allow [pcp_pmcd_t] [samba_var_t] : [file] { create };
   allow [pcp_pmcd_t] [websm_port_t] : [tcp_socket] { name_connect };
 ! allow [pcp_pmcd_t] [pcp_tmp_t] : [file] { execute execute_no_trans map };
   allow [pcp_pmcd_t] [hostname_exec_t] : [file] { execute execute_no_trans getattr open read };

@@ -9,13 +9,26 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          #- {platform: ubuntu1604, runner: direct,    os: ubuntu-16.04}
           - {platform: ubuntu1804, runner: direct,    os: ubuntu-18.04}
-          - {platform: ubuntu2004, runner: container, os: ubuntu-latest}
-          - {platform: fedora33,   runner: container, os: ubuntu-latest}
-          - {platform: centos8,    runner: container, os: ubuntu-latest}
+          - {platform: ubuntu2004, runner: direct,    os: ubuntu-20.04}
+          #- {platform: debian10,   runner: container, os: ubuntu-20.04}
+          #- {platform: debian11,   runner: container, os: ubuntu-20.04}
+          #- {platform: fedora31,   runner: container, os: ubuntu-20.04}
+          #- {platform: fedora32,   runner: container, os: ubuntu-20.04}
+          - {platform: fedora33,   runner: container, os: ubuntu-20.04}
+          #- {platform: centos7,    runner: container, os: ubuntu-20.04}
+          - {platform: centos8,    runner: container, os: ubuntu-20.04}
+          #- {platform: fedora32,   runner: vm,        os: macOS-latest}
     steps:
       - name: Checkout sources
         uses: actions/checkout@v2
+
+      - name: Set up Python 3.6+
+        if: matrix.platform == 'ubuntu1604'
+        uses: actions/setup-python@v2
+        with:
+          python-version: '>=3.6'
 
       - name: Setup
         run: |
