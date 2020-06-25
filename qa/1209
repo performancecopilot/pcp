@@ -83,15 +83,15 @@ End-of-File
 
 _setup()
 {
-    if pmlogctl -c default status localhost 2>&1 | grep 'Warning.* not defined in class' >/dev/null
+    if pmlogctl -c default status localhost 2>&1 | grep 'Warning.* defined in class' >/dev/null
     then
 	$sudo pmlogctl -v create localhost | _filter
     fi
-    if pmlogctl -c $seq status localhost 2>&1 | grep 'Warning.* not defined in class' >/dev/null
+    if pmlogctl -c $seq status localhost 2>&1 | grep 'Warning.* defined in class' >/dev/null
     then
 	$sudo pmlogctl -v -p $tmp.policy -c $seq create localhost | _filter
     fi
-    if pmlogctl -c $seq status LOCALHOSTNAME 2>&1 | grep 'Warning.* not defined in class' >/dev/null
+    if pmlogctl -c $seq status LOCALHOSTNAME 2>&1 | grep 'Warning.* defined in class' >/dev/null
     then
 	$sudo pmlogctl -v -p $tmp.policy -c $seq create LOCALHOSTNAME | _filter
     fi
