@@ -1,0 +1,69 @@
+QA output created by 1210
+Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/1210-localhost
+Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/1210-LOCALHOSTNAME
+=== bogus class
+Warning: no host defined in class bogus for any pmlogger control file
+pmcd Host Archive Class PID State 
+LOCALHOSTNAME <archivename> <seq> <pid> running 
+localhost <archivename> <seq> <pid> running 
+
+=== no control dir
+Warning: no host defined in any pmlogger control file
+
+=== no control files
+Warning: no host defined in any pmlogger control file
+
+=== empty control files
+Warning: no host defined in any pmlogger control file
+
+=== host not part of nominated group
+Warning: host localhost not defined in class default for any pmlogger control file
+Error: no matching host(s) to start
+pmcd Host Archive Class PID State 
+LOCALHOSTNAME <archivename> <seq> <pid> running 
+localhost <archivename> <seq> <pid> running 
+
+=== host not part of any group
+Warning: host local: not defined in any pmlogger control file
+Error: no matching host(s) to start
+pmcd Host Archive Class PID State 
+LOCALHOSTNAME <archivename> <seq> <pid> running 
+localhost <archivename> <seq> <pid> running 
+
+=== bad host, pmlogger won't start
+Warning: pmlogger failed to start for host no.such.host.pcp.io and directory /var/log/pcp/pmlogger/1210-no.such.host.pcp.io
+Warning: start not completed
+pmcd Host Archive Class PID State 
+LOCALHOSTNAME <archivename> <seq> <pid> running 
+localhost <archivename> <seq> <pid> running 
+no.such.host.pcp.io ? <seq> ? dead 
+
+=== stopping (as part of destroy) a stopped pmlogger instance
+Warning: cannot find PID for host no.such.host.pcp.io pmlogger, already exited?
+pmcd Host Archive Class PID State 
+LOCALHOSTNAME <archivename> <seq> <pid> running 
+localhost <archivename> <seq> <pid> running 
+no.such.host.pcp.io ? <seq> ? stopped by pmlogctl
+Warning: pmlogger for host no.such.host.pcp.io already stopped, nothing to do
+pmcd Host Archive Class PID State 
+LOCALHOSTNAME <archivename> <seq> <pid> running 
+localhost <archivename> <seq> <pid> running 
+
+=== stale mutex
+Warning: removing lock file older than 30 minutes (PID <mypid>)
+------ ... ls output ... PCP_ETC_DIR/pcp/pmlogger/lock
+Looking for pmlogger using directory PCP_ARCHIVE_DIR/1210-localhost ...
+Found PID <somepid> to stop
+Disable pmlogger in control file PCP_ETC_DIR/pcp/pmlogger/control.d/1210-localhost
+Looking for pmlogger using directory PCP_ARCHIVE_DIR/1210-bozo.localdomain ...
+Found PID <somepid> to stop
+Disable pmlogger in control file PCP_ETC_DIR/pcp/pmlogger/control.d/1210-LOCALHOSTNAME
+pmcd Host Archive Class PID State 
+LOCALHOSTNAME ? <seq> ? stopped by pmlogctl
+localhost ? <seq> ? stopped by pmlogctl
+Looking for pmlogger using dir=PCP_ARCHIVE_DIR/1210-localhost ...
+Not found, launching new pmlogger
+Enable pmlogger in control file PCP_ETC_DIR/pcp/pmlogger/control.d/1210-localhost
+Looking for pmlogger using dir=PCP_ARCHIVE_DIR/1210-bozo.localdomain ...
+Not found, launching new pmlogger
+Enable pmlogger in control file PCP_ETC_DIR/pcp/pmlogger/control.d/1210-LOCALHOSTNAME

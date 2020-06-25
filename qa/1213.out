@@ -1,0 +1,159 @@
+QA output created by 1213
+Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/1213-localhost
+Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/1213-LOCALHOSTNAME
+=== not run as root
+--- start control file ---
+# created by pmlogctl on DATE
+$class=1213
+$version=1.1
+local: n n PCP_ARCHIVE_DIR/1213-local: -c TMP.config
+--- end control file ---
++ cp PCP_TMPFILE_DIR/pmlogctl.XXXXX/control PCP_ETC_DIR/pcp/pmlogger/control.d/1213-local:
++ sudo -u pcp -g pcp PCP_BINADM_DIR/pmlogger_check -c PCP_ETC_DIR/pcp/pmlogger/control.d/1213-local:
+Error: you must be root (uid 0) to change the Performance Co-Pilot logger setup
+Error: you must be root (uid 0) to change the Performance Co-Pilot logger setup
++ PCP_BINADM_DIR/pmsignal -s TERM <somepid>
++ cp PCP_TMPFILE_DIR/pmlogctl.XXXXX/control PCP_ETC_DIR/pcp/pmlogger/control.d/1213-LOCALHOSTNAME
++ PCP_BINADM_DIR/pmsignal -s TERM <somepid>
++ cp PCP_TMPFILE_DIR/pmlogctl.XXXXX/control PCP_ETC_DIR/pcp/pmlogger/control.d/1213-localhost
+Error: you must be root (uid 0) to change the Performance Co-Pilot logger setup
++ PCP_BINADM_DIR/pmsignal -s TERM <somepid>
++ cp PCP_TMPFILE_DIR/pmlogctl.XXXXX/control PCP_ETC_DIR/pcp/pmlogger/control.d/1213-LOCALHOSTNAME
++ PCP_BINADM_DIR/pmsignal -s TERM <somepid>
++ cp PCP_TMPFILE_DIR/pmlogctl.XXXXX/control PCP_ETC_DIR/pcp/pmlogger/control.d/1213-localhost
+Error: you must be root (uid 0) to change the Performance Co-Pilot logger setup
++ PCP_BINADM_DIR/pmsignal -s TERM <somepid>
++ cp PCP_TMPFILE_DIR/pmlogctl.XXXXX/control PCP_ETC_DIR/pcp/pmlogger/control.d/1213-LOCALHOSTNAME
++ rm PCP_ETC_DIR/pcp/pmlogger/control.d/1213-LOCALHOSTNAME
++ PCP_BINADM_DIR/pmsignal -s TERM <somepid>
++ cp PCP_TMPFILE_DIR/pmlogctl.XXXXX/control PCP_ETC_DIR/pcp/pmlogger/control.d/1213-localhost
++ rm PCP_ETC_DIR/pcp/pmlogger/control.d/1213-localhost
+Error: you must be root (uid 0) to change the Performance Co-Pilot logger setup
+
+=== missing "primary" field in policy file
+control file ...
+# created by pmlogctl on DATE
+$class=1213
+$version=1.1
+# missing primary (and all others)
+local:
+Error: cannot find primary field from control file
+pmcd Host Archive Class PID State 
+LOCALHOSTNAME <archivename> <seq> <pid> running 
+localhost <archivename> <seq> <pid> running 
+localhost <archivename> default <pid> running 
+
+=== bad "primary" field in policy file
+Error: primary pmlogger cannot be created from pmlogctl
+pmcd Host Archive Class PID State 
+LOCALHOSTNAME <archivename> <seq> <pid> running 
+localhost <archivename> <seq> <pid> running 
+localhost <archivename> default <pid> running 
+
+=== missing "directory" field in policy file
+control file ...
+# created by pmlogctl on DATE
+$class=1213
+$version=1.1
+# missing directory and other fields
+local: n n
+Error: cannot find directory field from control file
+pmcd Host Archive Class PID State 
+LOCALHOSTNAME <archivename> <seq> <pid> running 
+localhost <archivename> <seq> <pid> running 
+localhost <archivename> default <pid> running 
+
+=== missing "control:" section in policy file
+Error: control: section is missing from TMP.policy.bad.4 policy file
+pmcd Host Archive Class PID State 
+LOCALHOSTNAME <archivename> <seq> <pid> running 
+localhost <archivename> <seq> <pid> running 
+localhost <archivename> default <pid> running 
+
+=== bad "name:" section in policy file
+Error: name: section is invalid in TMP.policy.bad.5 policy file (expect a single word, not 3 words)
+pmcd Host Archive Class PID State 
+LOCALHOSTNAME <archivename> <seq> <pid> running 
+localhost <archivename> <seq> <pid> running 
+localhost <archivename> default <pid> running 
+
+=== empty "control:" section in policy file
+Error: control: section is missing from TMP.policy.bad.6 policy file
+pmcd Host Archive Class PID State 
+LOCALHOSTNAME <archivename> <seq> <pid> running 
+localhost <archivename> <seq> <pid> running 
+localhost <archivename> default <pid> running 
+
+=== missing "primary" field in control file
+Warning: /etc/pcp/pmlogger/control.d/1213-foo: insufficient fields in control line for host 1213-foo
+Warning: host 1213-foo not defined in any pmlogger control file
+Error: no matching host(s) to start
+pmcd Host Archive Class PID State 
+LOCALHOSTNAME <archivename> <seq> <pid> running 
+localhost <archivename> <seq> <pid> running 
+localhost <archivename> default <pid> running 
+Warning: PCP_ETC_DIR/pcp/pmlogger/control.d/1213-foo: insufficient fields in control line for host 1213-foo
+
+=== missing "directory" field in control file
+Warning: /etc/pcp/pmlogger/control.d/1213-foo: insufficient fields in control line for host 1213-foo
+Warning: host 1213-foo not defined in any pmlogger control file
+Error: no matching host(s) to start
+pmcd Host Archive Class PID State 
+LOCALHOSTNAME <archivename> <seq> <pid> running 
+localhost <archivename> <seq> <pid> running 
+localhost <archivename> default <pid> running 
+Warning: PCP_ETC_DIR/pcp/pmlogger/control.d/1213-foo: insufficient fields in control line for host 1213-foo
+
+=== host in class more than once
+Error: host(s) (localhost) defined in class 1213-bad multiple times, don't know which instance to start
+Error: host(s) (localhost) defined multiple times, don't know which instance to start
+Error: host(s) (localhost) defined in class 1213-bad multiple times, don't know which instance to start
+pmcd Host Archive Class PID State 
+LOCALHOSTNAME <archivename> <seq> <pid> running 
+localhost <archivename> <seq> <pid> running 
+localhost <archivename> default <pid> running 
+localhost ? 1213-bad ? dead 
+localhost ? 1213-bad ? dead 
+
+=== host in multiple classes
+Error: host(s) (localhost) defined multiple times, don't know which instance to start
+pmcd Host Archive Class PID State 
+localhost <archivename> <seq> <pid> running 
+localhost <archivename> default <pid> running 
+Error: host(s) (localhost) defined multiple times, don't know which instance to stop
+pmcd Host Archive Class PID State 
+localhost <archivename> <seq> <pid> running 
+localhost <archivename> default <pid> running 
+Error: host(s) (localhost) defined multiple times, don't know which instance to restart
+pmcd Host Archive Class PID State 
+localhost <archivename> <seq> <pid> running 
+localhost <archivename> default <pid> running 
+Error: host(s) (localhost) defined multiple times, don't know which instance to destroy
+pmcd Host Archive Class PID State 
+localhost <archivename> <seq> <pid> running 
+localhost <archivename> default <pid> running 
+
+=== create the same entry twice
+Error: control file PCP_ETC_DIR/pcp/pmlogger/control.d/1213-localhost already exists
+pmcd Host Archive Class PID State 
+localhost <archivename> <seq> <pid> running 
+localhost <archivename> default <pid> running 
+
+=== policy file missing
+Error: policy file PCP_ETC_DIR/pcp/pmlogger/class.d/1213 not found, class 1213 is not defined so cannot create
+pmcd Host Archive Class PID State 
+localhost <archivename> <seq> <pid> running 
+localhost <archivename> default <pid> running 
+Error: policy file PCP_ETC_DIR/pcp/pmlogger/class.d/1213 not found, class 1213 is not defined so cannot destroy
+pmcd Host Archive Class PID State 
+localhost <archivename> <seq> <pid> running 
+localhost <archivename> default <pid> running 
+
+=== no host/class specified
+Error: "destroy" command requres hostname(s) and/or a --class
+Error: "create" command requres hostname(s) and/or a --class
+Error: "start" command requres hostname(s) and/or a --class
+
+=== bad action
+Error: command "fubar" not known
+Error: command "snafu" not known
