@@ -21,7 +21,7 @@ include $(BUILDRULES)
 
 install : default
 	$(INSTALL) -m 755 pmlogctl.sh $(PCP_BIN_DIR)/pmlogctl$(SHELLSUFFIX)
-	$(INSTALL) -m 755 -d $(PCP_ETC_DIR)/pmlogger/policy.d
+	$(INSTALL) -m 755 -d $(PCP_ETC_DIR)/pcp/pmlogger/class.d
 
 default_pcp : default
 

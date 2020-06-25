@@ -20,6 +20,10 @@
 # - create => create + start ... is there a case for create only?  
 # - destroy => stop + destroy ... is there a case for destroy iff already
 #   stopped?
+# - more than 1 -c option ... what does it mean?  the current code simply
+#   uses the last -c option from the command line ... the likely semantics
+#   are the union of the named classes ... unless this is allowed, a glob
+#   pattern for the -c arg (classname) makes no sense
 # - multiple pmloggers in the one control file ... create will not do
 #   this and destroy checks for it before removing the control file,
 #   but I'd like to avoid a "migration" path 'cause splitting a
@@ -71,8 +75,8 @@ Options:
 [default: default]
   -f,--force                    force action if possible
   -n,--showme             	perform a dry run, showing what would be done
-  -p=POLICY,--policy=POLICY	use POLICY as the policy file \
-[default: $PCP_ETC_DIR/pcp/${IAM}/policy.d/<class>]
+  -p=POLICY,--policy=POLICY	use POLICY as the class policy file \
+[default: $PCP_ETC_DIR/pcp/${IAM}/class.d/<class>]
   -v,--verbose            	increase verbosity
   --help
 End-of-File
@@ -92,62 +96,61 @@ _error()
 _lock()
 {
     $SHOWME && return
+
+    # can assume $_dir is writeable ... if we get this far we're running
+    # as root ...
+    #
     _dir="$PCP_ETC_DIR/pcp/${IAM}"
-    if [ ! -w "$_dir" ]
-    then
-	_warning "no write access in directory $_dir, skip lock file processing"
-    else
-	# demand mutual exclusion
-	#
-	rm -f $tmp/stamp $tmp/out
-	_delay=200		# 1/10 of a second, so max wait is 20 sec
-	while [ $_delay -gt 0 ]
-	do
-	    if pmlock -v "$_dir/lock" >>$tmp/out 2>&1
+    # demand mutual exclusion
+    #
+    rm -f $tmp/stamp $tmp/out
+    _delay=200		# 1/10 of a second, so max wait is 20 sec
+    while [ $_delay -gt 0 ]
+    do
+	if pmlock -v "$_dir/lock" >>$tmp/out 2>&1
+	then
+	    echo "$$" >"$_dir/lock"
+	    break
+	else
+	    [ -f $tmp/stamp ] || touch -t `pmdate -30M %Y%m%d%H%M` $tmp/stamp
+	    find $tmp/stamp -newer "$_dir/lock" -print 2>/dev/null >$tmp/tmp
+	    if [ -s $tmp/tmp ]
 	    then
-		echo "$$" >"$_dir/lock"
-		break
-	    else
-		[ -f $tmp/stamp ] || touch -t `pmdate -30M %Y%m%d%H%M` $tmp/stamp
-		find $tmp/stamp -newer "$_dir/lock" -print 2>/dev/null >$tmp/tmp
-		if [ -s $tmp/tmp ]
+		if [ -f "$_dir/lock" ]
 		then
-		    if [ -f "$_dir/lock" ]
-		    then
-			_warning "removing lock file older than 30 minutes (PID `cat $_dir/lock`)"
-			LC_TIME=POSIX ls -l "$_dir/lock"
-			rm -f "$_dir/lock"
-		    else
-			# there is a small timing window here where pmlock
-			# might fail, but the lock file has been removed by
-			# the time we get here, so just keep trying
-			#
-			:
-		    fi
+		    _warning "removing lock file older than 30 minutes (PID `cat $_dir/lock`)"
+		    LC_TIME=POSIX ls -l "$_dir/lock"
+		    rm -f "$_dir/lock"
+		else
+		    # there is a small timing window here where pmlock
+		    # might fail, but the lock file has been removed by
+		    # the time we get here, so just keep trying
+		    #
+		    :
 		fi
 	    fi
-	    pmsleep 0.1
-	    _delay=`expr $_delay - 1`
-	done
+	fi
+	pmsleep 0.1
+	_delay=`expr $_delay - 1`
+    done
 
-	if [ $_delay -eq 0 ]
+    if [ $_delay -eq 0 ]
+    then
+	# failed to gain mutex lock
+	#
+	if [ -f "$_dir/lock" ]
 	then
-	    # failed to gain mutex lock
-	    #
-	    if [ -f "$_dir/lock" ]
-	    then
-		_warning "is another ${IAM}ctl job running concurrently?"
-		LC_TIME=POSIX ls -l "$_dir/lock"
-	    else
-		_error "`cat $tmp/out`"
-	    fi
-	    _error "failed to acquire exclusive lock ($_dir/lock) ..."
-	    return 1
+	    _warning "is another $prog job running concurrently?"
+	    LC_TIME=POSIX ls -l "$_dir/lock"
 	else
-	    if $VERY_VERBOSE
-	    then
-		echo "Lock acquired `cat $_dir/lock` `ls -l $_dir/lock`"
-	    fi
+	    _error "`cat $tmp/out`"
+	fi
+	_error "failed to acquire exclusive lock ($_dir/lock) ..."
+	return 1
+    else
+	if $VERY_VERBOSE
+	then
+	    echo "Lock acquired `cat $_dir/lock` `ls -l $_dir/lock`"
 	fi
     fi
 
@@ -163,6 +166,44 @@ _unlock()
 	rm -f "$_dir/lock"
 	$VERY_VERBOSE && echo "Lock released"
     fi
+}
+
+# FreeBSD's egrep does not support -r nor -Z
+#
+# This variant accepts -r or -rl as the first argument ...
+# -r always outputs the filename at the start of the line (no matter
+# how may filenames are processed, followed by a | (using a : causes
+# all manner of problems with the hostname local:) followed by line
+# of text from the file that matches the pattern
+#
+_egrep()
+{
+    if [ "$1" = "-rl" ]
+    then
+	_text=false
+    elif [ "$1" = "-r" ]
+    then
+	_text=true
+    else
+	echo >&2 "Botch: _egrep() requires -r or -rl, not $1"
+	return
+    fi
+    shift
+    _pat="$1"
+    shift
+
+    # skip errors from find(1), only interested in real, existing files
+    #
+    find $* -type f 2>/dev/null \
+    | while read _f
+    do
+	if $_text
+	then
+	    egrep "$_pat" <$_f | sed -e "s;^;$_f|;"
+	else
+	    egrep "$_pat" <$_f >/dev/null && echo "$_f"
+	fi
+    done
 }
 
 _usage()
@@ -193,9 +234,11 @@ _get_matching_hosts()
     rm -f $tmp/args
     if [ $# -eq 0 ]
     then
-	# this regexp matches all possible hostname lines
+	# this regexp matches the start of all possible lines that
+	# could be ${IAM} control lines, e.g
+	# somehostname n ...
 	#
-	set -- '[^#$][^ 	]*'
+	set -- '[^#$]'
     fi
     for host
     do
@@ -206,8 +249,8 @@ _get_matching_hosts()
 	else
 	    pat="$host"
 	fi
-	egrep -r "^($pat|#!#$pat)[ 	]" $CONTROLFILE $CONTROLDIR \
-	| sed -e 's/:/ /' \
+	_egrep -r "^($pat|#!#$pat)" $CONTROLFILE $CONTROLDIR \
+	| sed -e 's/|/ /' \
 	| while read controlfile controlline
 	do
 	    controlline=`echo "$controlline" | _expand_control | sed -e 's/^#!#//'`
@@ -392,7 +435,7 @@ _check_started()
     while [ $i -lt $max ]
     do
 	$VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N ".""$PCP_ECHO_C"
-	pid=`grep -rl "^$dir/[^/]*$" $PCP_TMP_DIR/${IAM} \
+	pid=`_egrep -rl "^$dir/[^/]*$" $PCP_TMP_DIR/${IAM} \
 	     | sed -e 's;.*/;;'`
 	[ -n "$pid" ] && break
 	i=`expr $i + 1`
@@ -425,7 +468,7 @@ _check_stopped()
     while [ $i -lt $max ]
     do
 	$VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N ".""$PCP_ECHO_C"
-	pid=`grep -rl "^$dir/[^/]*$" $PCP_TMP_DIR/${IAM} \
+	pid=`_egrep -rl "^$dir/[^/]*$" $PCP_TMP_DIR/${IAM} \
 	     | sed -e 's;.*/;;'`
 	[ -z "$pid" ] && break
 	i=`expr $i + 1`
@@ -478,7 +521,7 @@ _do_status()
 	sed -n -e 3p $f \
 	| _expand_control
     done >>$tmp/archive
-    find $CONTROLFILE $CONTROLDIR -type f \
+    find $CONTROLFILE $CONTROLDIR -type f 2>/dev/null \
     | while read control
     do
 	class=''
@@ -533,7 +576,7 @@ found == 0 && $3 == "'"$host"'" && $6 == "'"$dir"'"	{ print NR >>"'$tmp/match'";
 		    fi
 		fi
 	    fi
-	    pid=`grep -rl "^$dir/[^/]*$" $PCP_TMP_DIR/${IAM} \
+	    pid=`_egrep -rl "^$dir/[^/]*$" $PCP_TMP_DIR/${IAM} \
 		 | sed -e 's;.*/;;'`
 	    [ -z "$pid" ] && pid='?'
 	    printf "$fmt" "$host" "$archive" "$class" "$pid" "$state"
@@ -558,7 +601,17 @@ found == 0 && $3 == "'"$host"'" && $6 == "'"$dir"'"	{ print NR >>"'$tmp/match'";
     fi
     if [ -s $tmp/args ]
     then
-	echo "No ${IAM} configuration found for: `tr '\012' ' ' <$tmp/args`"
+	echo "No ${IAM} configuration found for:"
+	cat $tmp/args \
+	| while read control class args_host primary socks args_dir args
+	do
+	    if [ X"$class" != X- ]
+	    then
+		echo "  host=$args_host dir=$args_dir class=$class"
+	    else
+		echo "  host=$args_host dir=$args_dir"
+	    fi
+	done
     fi
 }
 
@@ -615,7 +668,7 @@ $1 == "'"$host"'"	{ print $2 }'`
 	    #
 	    _error "primary ${IAM} cannot be created from $prog"
 	fi
-	egrep -lr "^($host|#!#$host)[ 	].*[ 	]$dir([ 	]|$)" $CONTROLFILE $CONTROLDIR >$tmp/out
+	_egrep -rl "^($host|#!#$host)[ 	].*[ 	]$dir([ 	]|$)" $CONTROLFILE $CONTROLDIR >$tmp/out
 	[ -s $tmp/out ] && _error "host $host and directory $dir already defined in `cat $tmp/out`"
 	if $SHOWME
 	then
@@ -702,7 +755,7 @@ _do_start()
 	    continue
 	fi
 	$VERBOSE && echo "Looking for ${IAM} using dir=$args_dir ..."
-	pid=`grep -rl "^$args_dir/[^/]*$" $PCP_TMP_DIR/${IAM} \
+	pid=`_egrep -rl "^$args_dir/[^/]*$" $PCP_TMP_DIR/${IAM} \
 	     | sed -e 's;.*/;;'`
 	if [ -n "$pid" ]
 	then
@@ -760,7 +813,7 @@ _do_stop()
 	    continue
 	fi
 	$VERBOSE && echo "Looking for ${IAM} using directory $args_dir ..."
-	pid=`grep -rl "^$args_dir/[^/]*$" $PCP_TMP_DIR/${IAM} \
+	pid=`_egrep -rl "^$args_dir/[^/]*$" $PCP_TMP_DIR/${IAM} \
 	     | sed -e 's;.*/;;'`
 	if [ -z "$pid" ]
 	then
@@ -915,13 +968,13 @@ then
 	echo "Using default class"
     fi
 fi
-[ -z "$POLICY" ] && POLICY="$PCP_ETC_DIR/pcp/${IAM}/policy.d/$CLASS"
+[ -z "$POLICY" ] && POLICY="$PCP_ETC_DIR/pcp/${IAM}/class.d/$CLASS"
 if [ "$CLASS" = default ]
 then
     if [ ! -f "$POLICY" ]
     then
 	# This is the _real_ default policy, when there is no
-	# $PCP_ETC_DIR/pcp/${IAM}/policy.d/default
+	# $PCP_ETC_DIR/pcp/${IAM}/class.d/default
 	#
 	cat <<'End-of-File' >$tmp/policy
 name:
@@ -973,7 +1026,7 @@ in
 		_get_matching_hosts $*
 		if [ ! -f $tmp/args ]
 		then
-		    _warning "nothing to be done!"
+		    _error "no matching host(s) to $action"
 		    exit
 		fi
 	    fi
@@ -981,7 +1034,12 @@ in
 	    cmd_sts=$?
 	    if [ $cmd_sts -ne 0 ]
 	    then
-		_warning "action not completed"
+		if [ "$action" = create ]
+		then
+		    _warning "start not completed"
+		else
+		    _warning "$action not completed"
+		fi
 	    fi
 	    ;;
 
@@ -990,7 +1048,7 @@ in
 	    _do_status
 	    ;;
 
-    *)	    _error "action \"$action\" not known"
+    *)	    _error "command \"$action\" not known"
 	    exit
 	    ;;
 esac
