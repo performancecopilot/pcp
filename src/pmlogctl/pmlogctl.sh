@@ -61,7 +61,7 @@ status=0
 
 _cleanup()
 {
-    [ "$action" != status ] && _unlock
+    _unlock
     rm -rf $tmp
 }
 trap "_cleanup; exit \$status" 0 1 2 3 15
@@ -242,7 +242,7 @@ _get_matching_hosts()
     fi
     for host
     do
-	$VERY_VERBOSE && echo "Looking for host=$host and class=$CLASS ..."
+	$VERY_VERBOSE && echo "Looking for host $host in class $CLASS ..."
 	if [ "$host" = "$localhost" ]
 	then
 	    pat="($host|LOCALHOSTNAME)"
@@ -254,12 +254,23 @@ _get_matching_hosts()
 	| while read controlfile controlline
 	do
 	    controlline=`echo "$controlline" | _expand_control | sed -e 's/^#!#//'`
+	    _check=`echo "$controlline" | wc -w | sed -e 's/ //g'`
+	    if [ "$_check" -lt 4 ]
+	    then
+		# bad control line ... missing at least dir, so warn and
+		# ignore
+		#
+		_warning "$controlfile: insufficient fields in control line for host `echo "$controlline" | sed -e 's/ .*//'`"
+		continue
+	    fi
 	    echo "$controlfile" "$controlline"
 	done >$tmp/tmp
 	if $VERY_VERBOSE
 	then
 	    echo "Candidate control files:"
-	    sed -e 's/ .*//' $tmp/tmp
+	    sed -e 's/ .*//' <$tmp/tmp \
+	    | LC_COLLATE=POSIX sort \
+	    | uniq
 	fi
 	if $EXPLICIT_CLASS
 	then
@@ -279,7 +290,7 @@ _get_matching_hosts()
 		then
 		    echo "$control" default "$host" "$primary" "$socks" "$dir" "$args" >>$tmp/tmp2
 		else
-		    $VERY_VERBOSE && echo "No match for control=$control host=$host dir=$dir class=$class"
+		    $VERY_VERBOSE && echo "No match for control $control host $host dir $dir class $class"
 		fi
 	    done
 	    if [ -s $tmp/tmp2 ]
@@ -329,17 +340,17 @@ _get_matching_hosts()
 	if [ "$action" != status ]
 	then
 	    $PCP_AWK_PROG <$tmp/tmp '{ print $3 }' \
-	    | sort \
+	    | LC_COLLATE=POSIX sort \
 	    | uniq -c \
 	    | grep -v ' 1 ' >$tmp/tmp2
 	    if [ -s $tmp/tmp2 ] && ! $DOALL
 	    then
-		$VERBOSE && cat $tmp/tmp
+		dups=`$PCP_AWK_PROG <$tmp/tmp2 '{ print $2 }' | tr '\012' ' ' | sed -e 's/  *$//'`
 		if $EXPLICIT_CLASS
 		then
-		    _error "host $host defined in class $CLASS multiple times, don't know which instance to $action"
+		    _error "host(s) ($dups) defined in class $CLASS multiple times, don't know which instance to $action"
 		else
-		    _error "host $host is defined multiple times, don't know which instance to $action"
+		    _error "host(s) ($dups) defined multiple times, don't know which instance to $action"
 		fi
 	    fi
 	fi
@@ -417,7 +428,7 @@ _unexpand_control()
 #
 _diagnose()
 {
-    echo "  TODO - diagnose host=$1 dir=$2"
+    echo "  TODO - diagnose host $1 dir $2"
 }
 
 # check ${IAM} really started
@@ -543,6 +554,14 @@ _do_status()
 				state='stopped by pmlogctl'
 				;;
 	    esac
+	    if [ -z "$dir" ]
+	    then
+		# bad control line ... already reported in
+		# _get_matching_hosts() before _do_status() was called,
+		# so silently ignore it here
+		#
+		continue
+	    fi
 	    if $PICK_HOSTS
 	    then
 		# remove this one from $tmp/args ... so at the end we can
@@ -579,37 +598,43 @@ found == 0 && $3 == "'"$host"'" && $6 == "'"$dir"'"	{ print NR >>"'$tmp/match'";
 	    pid=`_egrep -rl "^$dir/[^/]*$" $PCP_TMP_DIR/${IAM} \
 		 | sed -e 's;.*/;;'`
 	    [ -z "$pid" ] && pid='?'
+	    $VERBOSE && state="$state|$dir"
 	    printf "$fmt" "$host" "$archive" "$class" "$pid" "$state"
-	    if $VERBOSE
-	    then
-		case "$state"
-		in
-		    dead)
-			_diagnose "$host" "$dir" 
-			;;
-		esac
-	    fi
-	    class=''
 	done
     done \
-    | sort >$tmp/out
+    | LC_COLLATE=POSIX sort >$tmp/out
 
     if [ -s $tmp/out ]
     then
 	printf "$fmt" "pmcd Host" Archive Class PID State
-	cat $tmp/out
+	if $VERBOSE
+	then
+	    cat $tmp/out \
+	    | while read host archive class pid state
+	    do
+		dir=`echo "$state" | sed -e 's/.*|//'`
+		state=`echo "$state" | sed -e 's/|.*//'`
+		printf "$fmt" "$host" "$archive" "$class" "$pid" "$state"
+		if [ "$state" = dead ]
+		then
+		    _diagnose "$host" "$dir" 
+		fi
+	    done
+	else
+	    cat $tmp/out
+	fi
     fi
     if [ -s $tmp/args ]
     then
-	echo "No ${IAM} configuration found for:"
+	echo >&2 "No ${IAM} configuration found for:"
 	cat $tmp/args \
 	| while read control class args_host primary socks args_dir args
 	do
 	    if [ X"$class" != X- ]
 	    then
-		echo "  host=$args_host dir=$args_dir class=$class"
+		echo >&2 "  host $args_host dir $args_dir class $class"
 	    else
-		echo "  host=$args_host dir=$args_dir"
+		echo >&2 "  host $args_host dir $args_dir"
 	    fi
 	done
     fi
@@ -625,11 +650,14 @@ _do_create()
 	_get_policy_section "$POLICY" name >$tmp/tmp
 	if [ -s $tmp/tmp ]
 	then
+	    _check=`wc -w <$tmp/tmp | sed -e 's/ //g'`
+	    [ "$_check" -ne 1 ] &&
+		_error "name: section is invalid in $POLICY policy file (expect a single word, not $_check words)"
 	    name=`sed -e "s/%h/$host/g" <$tmp/tmp`
 	else
 	    name="$host"
 	fi
-	[ -f $CONTROLDIR/$name ] && _error "control file $CONTROLDIR/$name already exists"
+	[ -f $CONTROLDIR/"$name" ] && _error "control file $CONTROLDIR/$name already exists"
 	cat <<End-of-File >$tmp/control
 # created by pmlogctl on `date`
 \$class=$CLASS
@@ -645,14 +673,6 @@ End-of-File
 	    echo '$version=1.1' >>$tmp/control
 	fi
 	sed -e "s/%h/$host/g" <$tmp/tmp >>$tmp/control
-	dir=`$PCP_AWK_PROG <$tmp/control '
-$1 == "'"$host"'"	{ print $4 }'`
-	if [ -z "$dir" ]
-	then
-	    echo "control file ..."
-	    cat $tmp/control
-	    _error "cannot find directory field from control file"
-	fi
 	primary=`$PCP_AWK_PROG <$tmp/control '
 $1 == "'"$host"'"	{ print $2 }'`
 	if [ -z "$primary" ]
@@ -668,6 +688,14 @@ $1 == "'"$host"'"	{ print $2 }'`
 	    #
 	    _error "primary ${IAM} cannot be created from $prog"
 	fi
+	dir=`$PCP_AWK_PROG <$tmp/control '
+$1 == "'"$host"'"	{ print $4 }'`
+	if [ -z "$dir" ]
+	then
+	    echo "control file ..."
+	    cat $tmp/control
+	    _error "cannot find directory field from control file"
+	fi
 	_egrep -rl "^($host|#!#$host)[ 	].*[ 	]$dir([ 	]|$)" $CONTROLFILE $CONTROLDIR >$tmp/out
 	[ -s $tmp/out ] && _error "host $host and directory $dir already defined in `cat $tmp/out`"
 	if $SHOWME
@@ -677,8 +705,8 @@ $1 == "'"$host"'"	{ print $2 }'`
 	    echo "--- end control file ---"
 	fi
 	$VERBOSE && echo "Installing control file: $CONTROLDIR/$name"
-	$CP $tmp/control $CONTROLDIR/$name
-	$CHECK -c $CONTROLDIR/$name
+	$CP $tmp/control "$CONTROLDIR/$name"
+	$CHECK -c "$CONTROLDIR/$name"
 	dir_args="`echo "$dir" | _expand_control`"
 	_check_started "$dir_args" || sts=1
     done
@@ -706,7 +734,7 @@ _do_destroy()
 	then
 	    :
 	else
-	    _error "failed to stop host $args_host and class $class"
+	    _error "failed to stop host $args_host in class $class"
 	fi
 	dir=`echo "$args_dir" | _unexpand_control`
 	host=`echo "$args_host " | _unexpand_control | sed -e 's/ $//'`
@@ -716,7 +744,7 @@ $1 == "'"#!#$host"'" && $4 == "'"$dir"'"	{ next }
 						{ print }'
 	if $VERY_VERBOSE
 	then
-	    echo "Diffs for control file $control after removing host=$host and dir=$dir ..."
+	    echo "Diffs for control file $control after removing host $host and dir $dir ..."
 	    diff "$control" $tmp/control
 	elif $VERBOSE
 	then
@@ -751,7 +779,7 @@ _do_start()
 	    # don't dink with the primary ... systemctl (or the "rc" script)
 	    # must be used to control the primary ${IAM}
 	    #
-	    _warning "primary ${IAM} cannot be controlled from $prog"
+	    _warning "$control: primary ${IAM} cannot be managed from $prog"
 	    continue
 	fi
 	$VERBOSE && echo "Looking for ${IAM} using dir=$args_dir ..."
@@ -776,14 +804,14 @@ $1 == "'"#!#$host"'" && $4 == "'"$dir"'"	{ sub(/^#!#/,"",$1) }
 						{ print }'
 	if $VERY_VERBOSE
 	then
-	    echo "Diffs for control file $control after enabling host=$host and dir=$dir ..."
+	    echo "Diffs for control file $control after enabling host $host and dir $dir ..."
 	    diff "$control" $tmp/control
 	elif $VERBOSE
 	then
 	    echo "Enable ${IAM} in control file $control"
 	fi
 	$CP $tmp/control "$control"
-	$CHECK -c $control
+	$CHECK -c "$control"
 
 	_check_started "$args_dir" || sts=1
     done
@@ -804,10 +832,10 @@ _do_stop()
 	    # don't dink with the primary ... systemctl (or the "rc" script)
 	    # must be used to control the primary ${IAM}
 	    #
-	    _warning "primary ${IAM} cannot be controlled from $prog"
+	    _warning "$control: primary ${IAM} cannot be managed from $prog"
 	    continue
 	fi
-	if grep "^[^:]*:#!#$args_host[ 	]" $control >/dev/null
+	if grep "^#!#$args_host[ 	]" $control >/dev/null
 	then
 	    _warning "${IAM} for host $args_host already stopped, nothing to do"
 	    continue
@@ -836,7 +864,7 @@ $1 == "'"$host"'" && $4 == "'"$dir"'"	{ $1 = "#!#" $1 }
 				    	{ print }'
 	if $VERY_VERBOSE
 	then
-	    echo "Diffs for control file $control after disabling host=$host and dir=$dir ..."
+	    echo "Diffs for control file $control after disabling host $host and dir=$dir ..."
 	    diff "$control" $tmp/control
 	elif $VERBOSE
 	then
@@ -862,7 +890,7 @@ _do_restart()
 	    # don't dink with the primary ... systemctl (or the "rc" script)
 	    # must be used to control the primary ${IAM}
 	    #
-	    _warning "primary ${IAM} cannot be controlled from $prog"
+	    _warning "$control: primary ${IAM} cannot be managed from $prog"
 	    continue
 	fi
 	echo "$control" "$class" "$host" "$primary" "$socks" "$dir" "$args" >$tmp/args
@@ -872,11 +900,11 @@ _do_restart()
 	    then
 		:
 	    else
-		_error "failed to stop host $host and class $class"
+		_error "failed to restart host $host in class $class"
 		sts=1
 	    fi
 	else
-	    _error "failed to start host $host and class $class"
+	    _error "failed to stop host $host in class $class"
 	    sts=1
 	fi
     done
@@ -945,19 +973,10 @@ then
     # NOTREACHED
 fi
 
-if [ `id -u` != 0 -a "$1" != "status" -a "$SHOWME" = false ]
-then
-    _error "you must be root (uid 0) to change the Performance Co-Pilot logger setup"
-    status=1
-    exit
-fi
-
 localhost=`hostname`
 
 action="$1"
 shift
-
-[ "$action" != "status" ] && _lock
 
 if $VERY_VERBOSE
 then
@@ -1006,21 +1025,25 @@ else
     $VERY_VERBOSE && echo "Using policy: $POLICY"
 fi
 
-# need --class and/or hostname, except for status command
-#
-FIND_ALL_HOSTS=false
-if [ $# -eq 0 ]
-then
-    if [ "$action" != status ]
-    then
-	$CLASSS_EXPLICIT || _error "\"$action\" command requres hostname(s) and/or a --class"
-    fi
-    FIND_ALL_HOSTS=true
-fi
-
 case "$action"
 in
     create|start|stop|restart|destroy)
+	    if [ `id -u` != 0 -a "$SHOWME" = false ]
+	    then
+		_error "you must be root (uid 0) to change the Performance Co-Pilot logger setup"
+	    fi
+	    # need --class and/or hostname
+	    #
+	    FIND_ALL_HOSTS=false
+	    if [ $# -eq 0 ]
+	    then
+		if [ "$action" != status ]
+		then
+		    $EXPLICIT_CLASS || _error "\"$action\" command requres hostname(s) and/or a --class"
+		fi
+		FIND_ALL_HOSTS=true
+	    fi
+	    _lock
 	    if [ "$action" != create ]
 	    then
 		_get_matching_hosts $*
