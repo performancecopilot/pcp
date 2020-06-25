@@ -82,26 +82,35 @@ initSeriesGetQuery(seriesQueryBaton *baton, node_t *root, timing_t *timing)
     baton->u.query.timing = *timing;
 }
 
+static int
+skip_free_value_set(node_t *np) {
+    // return 0 stands for skipping free this node's value_set.
+    if (np->type == N_RATE || np->type == N_MAX || np->type == N_MIN) return 0;
+    return 1;
+}
+
 static void
 freeSeriesQueryNode(node_t *np, int level)
 {
     if (np == NULL)
 	return;
-    int i, j, k;
-    for (i = 0; i < np->value_set.num_series; i++) {
-	for (j = 0; j < np->value_set.series_values[i].num_samples; j++) {
-	    for (k=0; k < np->value_set.series_values[i].series_sample[j].num_instances; k++) {
-		sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].timestamp);
-		sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].series);
-		sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].data);
+    if (skip_free_value_set(np) != 0) {
+	int i, j, k;
+	for (i = 0; i < np->value_set.num_series; i++) {
+	    for (j = 0; j < np->value_set.series_values[i].num_samples; j++) {
+		for (k=0; k < np->value_set.series_values[i].series_sample[j].num_instances; k++) {
+		    sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].timestamp);
+		    sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].series);
+		    sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].data);
+		}
+		free(np->value_set.series_values[i].series_sample[j].series_instance);
 	    }
-	    free(np->value_set.series_values[i].series_sample[j].series_instance);
+	    sdsfree(np->value_set.series_values[i].sid->name);
+	    free(np->value_set.series_values[i].sid);
+	    free(np->value_set.series_values[i].series_sample);
 	}
-	sdsfree(np->value_set.series_values[i].sid->name);
-	free(np->value_set.series_values[i].sid);
-	free(np->value_set.series_values[i].series_sample);
+	free(np->value_set.series_values);
     }
-    free(np->value_set.series_values);
     freeSeriesQueryNode(np->left, level+1);
     freeSeriesQueryNode(np->right, level+1);
     if (level != 0) free(np);
@@ -1880,6 +1889,166 @@ series_noop_traverse(seriesQueryBaton *baton, node_t *np, int level)
 }
 
 static int
+series_rate_check(pmSeriesDesc desc){
+    // TODO: Do type check for rate function. return 0 when success.
+    if (strcmp(desc.semantics, "counter") != 0) return 1;
+    return 0;
+}
+
+static void
+series_calculate_rate(node_t *np){
+    pmSeriesValue	s_pmval, t_pmval;
+    int			n_instances, flag, n_samples;
+    double		s_data, t_data, d_data;
+    char		str[256];
+    np->value_set = np->left->value_set;
+    for (int i = 0; i < np->value_set.num_series; i++) {
+	if (series_rate_check(np->value_set.series_values[i].series_desc) == 0) {
+	    n_samples = np->value_set.series_values[i].num_samples;
+	    if (n_samples > 0) {
+		n_instances = np->value_set.series_values[i].series_sample[0].num_instances;
+	    }
+	    for (int j = 1; j < n_samples; j++) {
+		if (np->value_set.series_values[i].series_sample[j].num_instances != n_instances) {
+		    // TODO: number of instances in each sample are not equal, report error.
+		    printf("TODO: number of instances in each sample are not equal, report error.\n");
+		}
+		for (int k = 0; k < n_instances; k++) {
+		    t_pmval = np->value_set.series_values[i].series_sample[j-1].series_instance[k];
+		    s_pmval = np->value_set.series_values[i].series_sample[j].series_instance[k];
+		    if (strcmp(s_pmval.series, t_pmval.series) != 0) {
+			// TODO: two SIDs of the instances' names between samples are different, report error.
+			printf("TODO: two SIDs of the instances' names between samples are different, report error.");
+			printf("%s %s\n", s_pmval.series, t_pmval.series);
+		    }
+		    s_data = atof(s_pmval.data);
+		    t_data = atof(t_pmval.data);
+		    d_data = t_data - s_data;
+		    // TODO: better output double data format
+		    sprintf(str, "%g", d_data);
+		    sdsfree(np->value_set.series_values[i].series_sample[j-1].series_instance[k].data);
+		    sdsfree(np->value_set.series_values[i].series_sample[j-1].series_instance[k].timestamp);
+		    np->value_set.series_values[i].series_sample[j-1].series_instance[k].data = sdsnew(str);
+		    np->value_set.series_values[i].series_sample[j-1].series_instance[k].timestamp = sdsnew(np->value_set.series_values[i].series_sample[j].series_instance[k].timestamp);
+		    np->value_set.series_values[i].series_sample[j-1].series_instance[k].ts = np->value_set.series_values[i].series_sample[j].series_instance[k].ts;
+		}
+		if (j == n_samples-1) {
+		    /* Free the last sample */
+		    for (int k = 0; k < n_instances; k++) {
+			sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].timestamp);
+			sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].series);
+			sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].data);
+		    }
+		    np->value_set.series_values[i].num_samples -= 1;
+		}
+	    }
+	} else {
+	    // TODO: Type error report. Only semantics counter is allowed for rate() computation.
+	    printf("Semantics of %s is not counter\n", np->value_set.series_values[i].sid->name);
+	}
+    }
+}
+
+static void
+series_calculate_max(node_t *np){
+/*    int			n_series, n_samples, n_instances, max_pointer;
+    double		max_data, data;
+    n_series = np->left->value_set.num_series;
+    np->value_set.num_series = n_series;
+    np->value_set.series_values = (series_sample_set_t *)calloc(n_series, sizeof(series_sample_set_t));
+    for (int i = 0; i < n_series; i++) {
+	n_samples = np->left->value_set.series_values[i].num_samples;
+	if (n_samples > 0) {
+	    np->value_set.series_values[i].num_samples = 1;
+	    np->value_set.series_values[i].series_sample = (series_instance_set_t *)calloc(1, sizeof(series_instance_set_t));
+	    n_instances = np->left->value_set.series_values[i].series_sample[0].num_instances;
+	    np->value_set.series_values[i].series_sample[0].num_instances = n_instances;
+	    np->value_set.series_values[i].series_sample[0].series_instance = (series_instance_set_t *)calloc(n_instances, sizeof(series_instance_set_t));
+	    for (int k = 0; k < n_instances; k++) {
+		max_pointer = 0;
+		max_data = atof(np->left->value_set.series_values[i].series_sample[0].series_instance[k].data);
+		for (int j = 1; j < n_samples; j++) {
+		    if (np->left->value_set.series_values[i].series_sample[j].num_instances != n_instances) {
+			// TODO: number of instances in each sample are not equal, report error.
+			printf("TODO: number of instances in each sample are not equal, report error.\n");
+		    }
+		    data = atof(np->left->value_set.series_values[i].series_sample[j].series_instance[k].data);
+		    if (max_data < data) {
+			max_data = data;
+			max_pointer = j;
+		    }
+		}
+		np->value_set.series_values[i].series_sample[0].series_instance[k].timestamp = 
+			sdsnew(np->left->value_set.series_values[i].series_sample[max_pointer].series_instance[k].timestamp);
+		np->value_set.series_values[i].series_sample[0].series_instance[k].series = 
+			sdsnew(np->left->value_set.series_values[i].series_sample[max_pointer].series_instance[k].series);
+		np->value_set.series_values[i].series_sample[0].series_instance[k].data = 
+			sdsnew(np->left->value_set.series_values[i].series_sample[max_pointer].series_instance[k].data);
+		np->value_set.series_values[i].series_sample[0].series_instance[k].ts = 
+			np->left->value_set.series_values[i].series_sample[max_pointer].series_instance[k].ts;
+	    }
+	} else {
+	    np->value_set.series_values[i].num_samples = 0;
+	}
+	np->value_set.series_values[i].baton = np->left->value_set.series_values[i].baton;
+	np->value_set.series_values[i].series_desc = np->left->value_set.series_values[i].series_desc;
+	np->value_set.series_values[i].sid = np->left->value_set.series_values[i].sid;
+
+    }
+*/
+}
+
+static void
+series_calculate_min(node_t *np){
+/*
+    int			n_series, n_samples, n_instances, min_pointer;
+    double		min_data, data;
+    n_series = np->left->value_set.num_series;
+    np->value_set.num_series = n_series;
+    np->value_set.series_values = (series_sample_set_t *)calloc(n_series, sizeof(series_sample_set_t));
+    for (int i = 0; i < n_series; i++) {
+	n_samples = np->left->value_set.series_values[i].num_samples;
+	if (n_samples > 0) {
+	    np->value_set.series_values[i].num_samples = 1;
+	    np->value_set.series_values[i].series_sample = (series_instance_set_t *)calloc(1, sizeof(series_instance_set_t));
+	    n_instances = np->left->value_set.series_values[i].series_sample[0].num_instances;
+	    np->value_set.series_values[i].series_sample[0].num_instances = n_instances;
+	    np->value_set.series_values[i].series_sample[0].series_instance = (series_instance_set_t *)calloc(n_instances, sizeof(series_instance_set_t));
+	    for (int k = 0; k < n_instances; k++) {
+		min_pointer = 0;
+		min_data = atof(np->left->value_set.series_values[i].series_sample[0].series_instance[k].data);
+		for (int j = 1; j < n_samples; j++) {
+		    if (np->left->value_set.series_values[i].series_sample[j].num_instances != n_instances) {
+			// TODO: number of instances in each sample are not equal, report error.
+			printf("TODO: number of instances in each sample are not equal, report error.\n");
+		    }
+		    data = atof(np->left->value_set.series_values[i].series_sample[j].series_instance[k].data);
+		    if (min_data > data) {
+			min_data = data;
+			min_pointer = j;
+		    }
+		}
+		np->value_set.series_values[i].series_sample[0].series_instance[k].timestamp = 
+			sdsnew(np->left->value_set.series_values[i].series_sample[max_pointer].series_instance[k].timestamp);
+		np->value_set.series_values[i].series_sample[0].series_instance[k].series = 
+			sdsnew(np->left->value_set.series_values[i].series_sample[max_pointer].series_instance[k].series);
+		np->value_set.series_values[i].series_sample[0].series_instance[k].data = 
+			sdsnew(np->left->value_set.series_values[i].series_sample[max_pointer].series_instance[k].data);
+		np->value_set.series_values[i].series_sample[0].series_instance[k].ts = 
+			np->left->value_set.series_values[i].series_sample[max_pointer].series_instance[k].ts;
+	    }
+	} else {
+	    np->value_set.series_values[i].num_samples = 0;
+	}
+	np->value_set.series_values[i].baton = np->left->value_set.series_values[i].baton;
+	np->value_set.series_values[i].series_desc = np->left->value_set.series_values[i].series_desc;
+	np->value_set.series_values[i].sid = np->left->value_set.series_values[i].sid;
+
+    }
+*/
+}
+
+static int
 series_calculate(seriesQueryBaton *baton, node_t *np, int level)
 {
 /* 
@@ -1897,11 +2066,18 @@ series_calculate(seriesQueryBaton *baton, node_t *np, int level)
 	return sts;
     switch (np->type) {
 	case N_NOOP:
-	    //printf("kyoma: series_calculate N_NOOP\n");
 	    /* Traverse the subtree of this node? */
 	    series_noop_traverse(baton, np, level);
+	    break;
 	case N_RATE:
-	    //printf("kyoma: series_calculate N_RATE\n");
+	    series_calculate_rate(np);
+	    break;
+	case N_MAX:
+	    series_calculate_max(np);
+	    break;
+	case N_MIN:
+	    series_calculate_min(np);
+	    break;
 	default:
 	    break;
     }
@@ -1923,6 +2099,7 @@ series_query_report_values(void *arg)
     
     // time series values have been saved in root node so report them directly.
     series_node_values_report(baton, &baton->u.query.root);
+//    series_prepare_time(baton, &baton->u.query.root.result);
     
     series_query_end_phase(baton);
 }
@@ -2006,9 +2183,6 @@ series_solve(pmSeriesSettings *settings,
 	/* Report matching series IDs, unless time windowing */
 	baton->phases[i++].func = series_query_report_matches;
     else{
-	/* Kyoma: delete this comment temporarily--->Report actual values within the given time window */
-	//baton->phases[i++].func = series_query_report_values;
-
 	/* Store time series values into nodes */
 	baton->phases[i++].func = series_query_funcs;
 	/* Report actual values */
@@ -2471,47 +2645,6 @@ pmSeriesLabelValues(pmSeriesSettings *settings, int nlabels, pmSID *labels, void
     return 0;
 }
 
-<<<<<<< HEAD
-=======
-static int
-extract_series_desc(seriesQueryBaton *baton, pmSID series,
-		int nelements, redisReply **elements, pmSeriesDesc *desc)
-{
-    sds			msg;
-
-    if (nelements < 6) {
-	infofmt(msg, "bad reply from %s %s (%d)", series, HMGET, nelements);
-	batoninfo(baton, PMLOG_RESPONSE, msg);
-	return -EPROTO;
-    }
-
-    /* were we given a non-metric series identifier? (e.g. an instance) */
-    if (elements[0]->type == REDIS_REPLY_NIL) {
-	desc->indom = sdscpylen(desc->indom, "unknown", 7);
-	desc->pmid = sdscpylen(desc->pmid, "PM_ID_NULL", 10);
-	desc->semantics = sdscpylen(desc->semantics, "unknown", 7);
-	desc->source = sdscpylen(desc->source, "unknown", 7);
-	desc->type = sdscpylen(desc->type, "unknown", 7);
-	desc->units = sdscpylen(desc->units, "unknown", 7);
-	return 0;
-    }
-
-    if (extract_string(baton, series, elements[0], &desc->indom, "indom") < 0)
-	return -EPROTO;
-    if (extract_string(baton, series, elements[1], &desc->pmid, "pmid") < 0)
-	return -EPROTO;
-    if (extract_string(baton, series, elements[2], &desc->semantics, "semantics") < 0)
-	return -EPROTO;
-    if (extract_sha1(baton, series, elements[3], &desc->source, "source") < 0)
-	return -EPROTO;
-    if (extract_string(baton, series, elements[4], &desc->type, "type") < 0)
-	return -EPROTO;
-    if (extract_string(baton, series, elements[5], &desc->units, "units") < 0)
-	return -EPROTO;
-
-    return 0;
-}
->>>>>>> upstream_pcp/master
 
 static void
 redis_series_desc_reply(

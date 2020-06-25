@@ -208,12 +208,7 @@ vector:	L_NAME L_LBRACE exprlist L_RBRACE L_EOS
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		  YYACCEPT;
 		}
-	| func L_LBRACE exprlist L_RBRACE L_LSQUARE timelist L_RSQUARE L_EOS
-		{ lp->yy_np = newmetricquery($1->left->value, $3);
-		  $$ = lp->yy_series.expr = lp->yy_np;
-		  YYACCEPT;
-		}
-	| func L_LSQUARE timelist L_RSQUARE L_EOS
+	| func L_EOS
 		{ lp->yy_np = $1;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		  YYACCEPT;
@@ -320,20 +315,65 @@ expr	: /* relational expressions */
 	;
 
 	/* TODO: functions */
-func	: L_RATE L_LPAREN L_NAME L_RPAREN
+func	: L_RATE L_LPAREN L_NAME L_LBRACE exprlist L_RBRACE L_LSQUARE timelist L_RSQUARE L_RPAREN
+		{ lp->yy_np = newnode(N_RATE);
+		  lp->yy_np->left = newmetricquery($3, $5);
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_RATE L_LPAREN L_NAME L_LSQUARE timelist L_RSQUARE L_RPAREN
 		{ lp->yy_np = newnode(N_RATE);
 		  lp->yy_np->left = newmetric($3);
-		  $$ = lp->yy_np;
+		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
-	| L_NOOP L_LPAREN L_NAME L_RPAREN
+	| L_RATE L_LPAREN func L_RPAREN
+		{ lp->yy_np = newnode(N_RATE);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_NOOP L_LPAREN L_NAME L_LBRACE exprlist L_RBRACE L_LSQUARE timelist L_RSQUARE L_RPAREN
+		{ lp->yy_np = newnode(N_NOOP);
+		  lp->yy_np->left = newmetricquery($3, $5);
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_NOOP L_LPAREN L_NAME L_LSQUARE timelist L_RSQUARE L_RPAREN
 		{ lp->yy_np = newnode(N_NOOP);
 		  lp->yy_np->left = newmetric($3);
-		  $$ = lp->yy_np;
+		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_NOOP L_LPAREN func L_RPAREN
 		{ lp->yy_np = newnode(N_NOOP);
 		  lp->yy_np->left = $3;
-		  $$ = lp->yy_np;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_MAX L_LPAREN L_NAME L_LBRACE exprlist L_RBRACE L_LSQUARE timelist L_RSQUARE L_RPAREN
+		{ lp->yy_np = newnode(N_MAX);
+		  lp->yy_np->left = newmetricquery($3, $5);
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_MAX L_LPAREN L_NAME L_LSQUARE timelist L_RSQUARE L_RPAREN
+		{ lp->yy_np = newnode(N_MAX);
+		  lp->yy_np->left = newmetric($3);
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_MAX L_LPAREN func L_RPAREN
+		{ lp->yy_np = newnode(N_MAX);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_MIN L_LPAREN L_NAME L_LBRACE exprlist L_RBRACE L_LSQUARE timelist L_RSQUARE L_RPAREN
+		{ lp->yy_np = newnode(N_MIN);
+		  lp->yy_np->left = newmetricquery($3, $5);
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_MIN L_LPAREN L_NAME L_LSQUARE timelist L_RSQUARE L_RPAREN
+		{ lp->yy_np = newnode(N_MIN);
+		  lp->yy_np->left = newmetric($3);
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_MIN L_LPAREN func L_RPAREN
+		{ lp->yy_np = newnode(N_MIN);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	;
 //	| L_AVG L_LPAREN L_NAME L_RPAREN
