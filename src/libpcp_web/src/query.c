@@ -1837,15 +1837,17 @@ kyoma_debug_print_node(seriesQueryBaton *baton, node_t *np)
 {
     for (int i = 0; i < np->value_set.num_series; i++) {
 	sds series = np->value_set.series_values[i].sid->name;
-	printf("kyome test SID=%s, number of samples=%d\n", series, np->value_set.series_values[i].num_samples);
-	printf("kyoma pmSeriesDesc: indom=%s, pmid=%s, semantics=%s, source=%s, type=%s, units=%s\n",
-	np->value_set.series_values[i].series_desc.indom,
-	np->value_set.series_values[i].series_desc.pmid,
-	np->value_set.series_values[i].series_desc.semantics,
-	np->value_set.series_values[i].series_desc.source,
-	np->value_set.series_values[i].series_desc.type,
-	np->value_set.series_values[i].series_desc.units
-	);
+	if (pmDebugOptions.query) {
+	    fprintf(stderr, "kyome test SID=%s, number of samples=%d\n", series, np->value_set.series_values[i].num_samples);
+	    fprintf(stderr, "kyoma pmSeriesDesc: indom=%s, pmid=%s, semantics=%s, source=%s, type=%s, units=%s\n",
+		np->value_set.series_values[i].series_desc.indom,
+		np->value_set.series_values[i].series_desc.pmid,
+		np->value_set.series_values[i].series_desc.semantics,
+		np->value_set.series_values[i].series_desc.source,
+		np->value_set.series_values[i].series_desc.type,
+		np->value_set.series_values[i].series_desc.units
+	    );
+	}
 	for (int j = 0; j < np->value_set.series_values[i].num_samples; j++) {
 	    for (int k = 0; k < np->value_set.series_values[i].series_sample[j].num_instances; k++) {
 		pmSeriesValue value = np->value_set.series_values[i].series_sample[j].series_instance[k];
@@ -1876,22 +1878,27 @@ static void
 series_noop_traverse(seriesQueryBaton *baton, node_t *np, int level)
 {
     if (np == NULL) {
-	printf("NULL, return\n");
+	if (pmDebugOptions.query)
+	    fprintf(stderr, "NULL, return\n");
 	return;
     }
-    printf("=====level %d, node type %d=====\n", level, np->type);
+    if (pmDebugOptions.query)
+	fprintf(stderr, "=====level %d, node type %d=====\n", level, np->type);
     //series_node_values_report(baton, np);
     kyoma_debug_print_node(baton, np);
-    printf("go left\n");
+    if (pmDebugOptions.query)
+	fprintf(stderr, "go left\n");
     series_noop_traverse(baton, np->left, level+1);
-    printf("go right\n");
+    if (pmDebugOptions.query)
+	fprintf(stderr, "go right\n");
     series_noop_traverse(baton, np->right, level+1);
 }
 
 static int
 series_rate_check(pmSeriesDesc desc){
     // TODO: Do type check for rate function. return 0 when success.
-    if (strcmp(desc.semantics, "counter") != 0) return 1;
+    if (strncmp(desc.semantics, "counter", 7) != 0)
+    	return 1;
     return 0;
 }
 
@@ -1911,15 +1918,18 @@ series_calculate_rate(node_t *np){
 	    for (int j = 1; j < n_samples; j++) {
 		if (np->value_set.series_values[i].series_sample[j].num_instances != n_instances) {
 		    // TODO: number of instances in each sample are not equal, report error.
-		    printf("TODO: number of instances in each sample are not equal, report error.\n");
+		    if (pmDebugOptions.query)
+			fprintf(stderr, "TODO: number of instances in each sample are not equal, report error.\n");
 		}
 		for (int k = 0; k < n_instances; k++) {
 		    t_pmval = np->value_set.series_values[i].series_sample[j-1].series_instance[k];
 		    s_pmval = np->value_set.series_values[i].series_sample[j].series_instance[k];
 		    if (strcmp(s_pmval.series, t_pmval.series) != 0) {
 			// TODO: two SIDs of the instances' names between samples are different, report error.
-			printf("TODO: two SIDs of the instances' names between samples are different, report error.");
-			printf("%s %s\n", s_pmval.series, t_pmval.series);
+			if (pmDebugOptions.query) {
+			    fprintf(stderr, "TODO: two SIDs of the instances' names between samples are different, report error.");
+			    fprintf(stderr, "%s %s\n", s_pmval.series, t_pmval.series);
+			}
 		    }
 		    s_data = atof(s_pmval.data);
 		    t_data = atof(t_pmval.data);
@@ -1944,7 +1954,9 @@ series_calculate_rate(node_t *np){
 	    }
 	} else {
 	    // TODO: Type error report. Only semantics counter is allowed for rate() computation.
-	    printf("Semantics of %s is not counter\n", np->value_set.series_values[i].sid->name);
+	    if (pmDebugOptions.query) {
+		fprintf(stderr, "Semantics of %s is not counter\n", np->value_set.series_values[i].sid->name);
+	    }
 	}
     }
 }
