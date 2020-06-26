@@ -1626,6 +1626,7 @@ not_in_container
 1212 pmseries local
 1213 pmlogctl local
 1214 pmproxy pmseries libpcp_web local
+1215 pmlogctl local
 1217 pmrep python local
 1218 pmda.root local
 1219 pcp local
