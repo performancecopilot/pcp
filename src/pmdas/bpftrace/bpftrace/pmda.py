@@ -121,7 +121,9 @@ class BPFtracePMDA(PMDA):
             if 'allowed_users' in configreader['dynamic_scripts']:
                 allowed_users = configreader.get('dynamic_scripts', 'allowed_users')
                 if allowed_users:  # ''.split(',') produces [''] in Python
-                    config.dynamic_scripts.allowed_users = allowed_users.split(',')
+                    config.dynamic_scripts.allowed_users = [user.strip() for user in allowed_users.split(',')]
+                else:
+                    config.dynamic_scripts.allowed_users = []
 
         return config
 
