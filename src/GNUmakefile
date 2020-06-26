@@ -82,6 +82,7 @@ OTHER_SUBDIRS = \
 	pmlogsize \
 	pmlogsummary \
 	pmlogcheck \
+	pmlogctl \
 	pmpost \
 	pmproxy \
 	pmquery \
