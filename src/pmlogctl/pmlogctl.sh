@@ -1037,6 +1037,8 @@ else
     $VERY_VERBOSE && echo "Using policy: $POLICY"
 fi
 
+FIND_ALL_HOSTS=false
+
 case "$action"
 in
     create|start|stop|restart|destroy)
@@ -1046,13 +1048,9 @@ in
 	    fi
 	    # need --class and/or hostname
 	    #
-	    FIND_ALL_HOSTS=false
 	    if [ $# -eq 0 ]
 	    then
-		if [ "$action" != status ]
-		then
-		    $EXPLICIT_CLASS || _error "\"$action\" command requres hostname(s) and/or a --class"
-		fi
+		$EXPLICIT_CLASS || _error "\"$action\" command requres hostname(s) and/or a --class"
 		FIND_ALL_HOSTS=true
 	    fi
 	    _lock
@@ -1074,6 +1072,7 @@ in
 	    ;;
 
     status)
+	    [ $# -eq 0 ] && FIND_ALL_HOSTS=true
 	    _get_matching_hosts $*
 	    _do_status
 	    ;;
