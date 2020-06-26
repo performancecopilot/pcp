@@ -82,6 +82,14 @@ def test_pmi(self, path = OUTFILE, inherit = 0):
     print("pmiPutValue: kernel.all.load[15 minute]")
     self.assertTrue(code >= 0)
 
+    # date --date='@1547483647'
+    # Tue 15 Jan 2019 03:34:07 AEDT
+
+    # write the record at a fixed time
+    sec = 1547483647
+    usec = 123456
+    log.pmiWrite(sec, usec)
+
     del log
 
 
