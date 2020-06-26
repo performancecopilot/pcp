@@ -56,8 +56,8 @@ def traverse_callback(arg):
 def test_pcp(self):
 
     if (ARCHIVE == ""):
-        print('Running as localhost')
-        ctx = pmapi.pmContext(api.PM_CONTEXT_HOST, "localhost")
+        print('Running as local:')
+        ctx = pmapi.pmContext(api.PM_CONTEXT_HOST, "local:")
         self.local_type = True
     else:
         print('Running as archive', ARCHIVE)
