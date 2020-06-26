@@ -1,6 +1,7 @@
 #!/bin/sh
 # PCP QA Test No. 1886
 # Test function evaluation in pmseries queries
+# -- Note: this test is work in progress --
 #
 # Copyright (c) 2020 Red Hat.  All Rights Reserved.
 #
@@ -66,7 +67,7 @@ pmseries $port --load "{source.path: \"$here/archives/proc\"}" | _filter_source
 echo;echo "== Verify noop() function for a singular metric"
 pmseries $port 'kernel.all.pswitch[count: 2]'
 echo Compared to:
-pmseries $port 'noop(kernel.all.pswitch)[count: 2]'
+pmseries $port 'noop(kernel.all.pswitch[count: 2])'
 echo
 
 #
@@ -74,22 +75,22 @@ echo
 #
 
 # echo;echo "== Verify nested function noop(noop(...)) for a singular metric"
-# pmseries $port 'kernel.all.pswitch[count: 2]'
-# echo Compared to:
-# pmseries $port 'noop(noop(kernel.all.pswitch))[count: 2]'
-# echo
-# 
-# echo;echo "== Verify noop() function for a non-singular metric, all instances"
-# pmseries $port 'kernel.all.load[count: 2]'
-# echo Compared to:
-# pmseries $port 'noop(kernel.all.load)[count: 2]'
-# echo
-# 
-# echo;echo "== Verify noop() function for a non-singular metric, only one instance"
-# pmseries $port 'kernel.all.load{instance.name == "1 minute"}[count: 2]'
-# echo Compared to:
-# pmseries $port 'noop(kernel.all.load{instance.name == "1 minute"})[count: 2]'
-# echo
+pmseries $port 'kernel.all.pswitch[count: 2]'
+echo Compared to:
+pmseries $port 'noop(noop(kernel.all.pswitch[count: 2]))'
+echo
+
+echo;echo "== Verify noop() function for a non-singular metric, all instances"
+pmseries $port 'kernel.all.load[count: 2]'
+echo Compared to:
+pmseries $port 'noop(kernel.all.load[count: 2])'
+echo
+
+echo;echo "== Verify noop() function for a non-singular metric, only one instance"
+pmseries $port 'kernel.all.load{instance.name == "1 minute"}[count: 2]'
+echo Compared to:
+pmseries $port 'noop(kernel.all.load{instance.name == "1 minute"}[count: 2])'
+echo
 
 # success, all done
 status=0
