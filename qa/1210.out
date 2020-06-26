@@ -32,7 +32,7 @@ localhost <archivename> <seq> <pid> running
 
 === bad host, pmlogger won't start
 Warning: pmlogger failed to start for host no.such.host.pcp.io and directory /var/log/pcp/pmlogger/1210-no.such.host.pcp.io
-Warning: start not completed
+Error: could not complete create operation
 pmcd Host Archive Class PID State 
 LOCALHOSTNAME <archivename> <seq> <pid> running 
 localhost <archivename> <seq> <pid> running 
@@ -53,10 +53,10 @@ localhost <archivename> <seq> <pid> running
 Warning: removing lock file older than 30 minutes (PID <mypid>)
 ------ ... ls output ... PCP_ETC_DIR/pcp/pmlogger/lock
 Looking for pmlogger using directory PCP_ARCHIVE_DIR/1210-localhost ...
-Found PID <somepid> to stop
+Found PID <somepid> to stop using signal TERM
 Disable pmlogger in control file PCP_ETC_DIR/pcp/pmlogger/control.d/1210-localhost
 Looking for pmlogger using directory PCP_ARCHIVE_DIR/1210-bozo.localdomain ...
-Found PID <somepid> to stop
+Found PID <somepid> to stop using signal TERM
 Disable pmlogger in control file PCP_ETC_DIR/pcp/pmlogger/control.d/1210-LOCALHOSTNAME
 pmcd Host Archive Class PID State 
 LOCALHOSTNAME ? <seq> ? stopped by pmlogctl

@@ -283,9 +283,6 @@ echo "=== bad action"
 pmlogctl fubar
 $sudo pmlogctl snafu
 
-status=0
-exit
-
 echo
 echo "=== mutex"
 if ! $sudo $PCP_BINADM_DIR/pmlock $PCP_ETC_DIR/pcp/pmlogger/lock
