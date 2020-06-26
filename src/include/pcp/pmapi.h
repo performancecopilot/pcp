@@ -1145,6 +1145,7 @@ typedef struct {
     int access;		/* Access controls */
     int qa;		/* QA (transient, developers only) */
     int search;		/* Text search tracing */
+    int query;		/* libpcp_web query parsing and evaulation */
 } pmdebugoptions_t;
 
 PCP_DATA extern pmdebugoptions_t	pmDebugOptions;
