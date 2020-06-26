@@ -21,14 +21,15 @@
 # - destroy => stop + destroy ... is there a case for destroy iff already
 #   stopped?
 # - more than 1 -c option ... what does it mean?  the current code simply
-#   uses the last -c option from the command line ... the likely semantics
+#   and silently uses the last -c option from the command line (this
+#   warrants at least a warning) ... if supported the likely semantics
 #   are the union of the named classes ... unless this is allowed, a glob
 #   pattern for the -c arg (classname) makes no sense
-# - multiple pmloggers in the one control file ... create will not do
-#   this and destroy checks for it before removing the control file,
-#   but I'd like to avoid a "migration" path 'cause splitting a
-#   control file is messy and potentially dangerous, and subsequent manual
-#   editing could bring the situation back at any time
+# - multiple pmloggers in the one control file ... relatively untested
+#   ... pmlogctl won't do this (it uses a one control file per pmlogger
+#   instance model), but I'd like to avoid a "migration" path 'cause
+#   splitting a control file is messy and potentially dangerous, and
+#   subsequent manual editing could bring the situation back at any time
 # - pmfind integration
 # - other sections in the "policy" files, especially with pmfind to
 #   (a) at create, pick a class by probing the host
@@ -61,7 +62,7 @@ status=0
 
 _cleanup()
 {
-    _unlock
+    [ -n "$action" -a "$action" != status ] && _unlock
     rm -rf $tmp
 }
 trap "_cleanup; exit \$status" 0 1 2 3 15
@@ -734,7 +735,7 @@ _do_destroy()
 	then
 	    :
 	else
-	    _error "failed to stop host $args_host in class $class"
+	    _error "control file changes skipped because ${IAM} could not be stopped"
 	fi
 	dir=`echo "$args_dir" | _unexpand_control`
 	host=`echo "$args_host " | _unexpand_control | sed -e 's/ $//'`
@@ -824,6 +825,7 @@ $1 == "'"#!#$host"'" && $4 == "'"$dir"'"	{ sub(/^#!#/,"",$1) }
 _do_stop()
 {
     sts=0
+    rm -f $tmp.sts
     cat $tmp/args \
     | while read control class args_host primary socks args_dir args
     do
@@ -847,14 +849,22 @@ _do_stop()
 	then
 	    _warning "cannot find PID for host $args_host ${IAM}, already exited?"
 	else
-	    $VERBOSE && echo "Found PID $pid to stop"
-	    $KILL TERM $pid
-	    _check_stopped "$args_dir" || sts=1
+	    # $PCPQA_KILL_SIGNAL is only intended for QA tests
+	    #
+	    $VERBOSE && echo "Found PID $pid to stop using signal ${PCPQA_KILL_SIGNAL-TERM}"
+	    $KILL ${PCPQA_KILL_SIGNAL-TERM} $pid
+	    if _check_stopped "$args_dir"
+	    then
+		:
+	    else
+		echo 1 >$tmp.sts
+		continue
+	    fi
 	fi
 	if [ ! -f "$control" ]
 	then
 	    _warning "control file $control for host $args_host ${IAM} has vanished"
-	    sts=1
+	    echo 1 >$tmp.sts
 	    continue
 	fi
 	host=`echo "$args_host " | _unexpand_control | sed -e 's/ $//'`
@@ -872,6 +882,8 @@ $1 == "'"$host"'" && $4 == "'"$dir"'"	{ $1 = "#!#" $1 }
 	fi
 	$CP $tmp/control "$control"
     done
+
+    [ -f $tmp.sts ] && sts="`cat $tmp.sts`"
 
     return $sts
 }
@@ -900,11 +912,11 @@ _do_restart()
 	    then
 		:
 	    else
-		_error "failed to restart host $host in class $class"
+		_error "restart failed to start host $host in class $class"
 		sts=1
 	    fi
 	else
-	    _error "failed to stop host $host in class $class"
+	    _error "restart failed to stop host $host in class $class"
 	    sts=1
 	fi
     done
@@ -1057,12 +1069,7 @@ in
 	    cmd_sts=$?
 	    if [ $cmd_sts -ne 0 ]
 	    then
-		if [ "$action" = create ]
-		then
-		    _warning "start not completed"
-		else
-		    _warning "$action not completed"
-		fi
+		_error "could not complete $action operation"
 	    fi
 	    ;;
 
