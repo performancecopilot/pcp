@@ -401,6 +401,8 @@ typedef struct pmSearchTextRequest {
     unsigned int	return_indom : 1;
     unsigned int	return_oneline : 1;
     unsigned int	return_helptext : 1;
+
+    unsigned int	reserved: 16;	/* zero padding */
 } pmSearchTextRequest;
 
 typedef struct pmSearchTextResult {
