@@ -15,13 +15,13 @@ LOCALHOSTNAME <archivename> <seq> <pid> running
 localhost <archivename> <seq> <pid> running 
 localhost <archivename> default <pid> running 
 == -a stop localhost `hostname`
-Warning: /etc/pcp/pmlogger/control.d/local: primary pmlogger cannot be managed from pmlogctl
+Warning: /etc/pcp/pmlogger/control.d/local: cannot stop the primary pmlogger from pmlogctl
 pmcd Host Archive Class PID State 
 LOCALHOSTNAME ? <seq> ? stopped by pmlogctl
 localhost ? <seq> ? stopped by pmlogctl
 localhost ? default ? stopped by pmlogctl
 == -a start localhost `hostname`
-Warning: /etc/pcp/pmlogger/control.d/local: primary pmlogger cannot be managed from pmlogctl
+Warning: /etc/pcp/pmlogger/control.d/local: cannot start the primary pmlogger from pmlogctl
 pmcd Host Archive Class PID State 
 LOCALHOSTNAME <archivename> <seq> <pid> running 
 localhost <archivename> <seq> <pid> running 

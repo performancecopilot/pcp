@@ -12,7 +12,7 @@ LOCALHOSTNAME <archivename> <seq> <pid> running
 Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/localhost
 Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/1209-localhost
 == -a destroy localhost `hostname`
-Error: primary pmlogger cannot be destroyed from pmlogctl
+Warning: /etc/pcp/pmlogger/control.d/local: cannot destroy the primary pmlogger from pmlogctl
 pmcd Host Archive Class PID State 
 Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/localhost
 Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/1209-localhost
