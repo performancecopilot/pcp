@@ -264,6 +264,22 @@ _get_matching_hosts()
 		_warning "$controlfile: insufficient fields in control line for host `echo "$controlline" | sed -e 's/ .*//'`"
 		continue
 	    fi
+	    if $EXPLICIT_CLASS || [ "$action" = status ]
+	    then
+		# primary is not a concern here
+		#
+		:
+	    else
+		_primary=`echo "$controlline" | $PCP_AWK_PROG '{ print $2 }'`
+		if [ "$_primary" = y ]
+		then
+		    # don't dink with the primary ... systemctl (or the
+		    # "rc" script) must be used to control the primary ${IAM}
+		    #
+		    _warning "$controlfile: cannot $action the primary ${IAM} from $prog"
+		    continue
+		fi
+	    fi
 	    echo "$controlfile" "$controlline"
 	done >$tmp/tmp
 	if $VERY_VERBOSE
@@ -723,13 +739,6 @@ _do_destroy()
     cat $tmp/destroy \
     | while read control class args_host primary socks args_dir args
     do
-	if [ "$primary" = y ]
-	then
-	    # don't dink with the primary ... systemctl (or the "rc" script)
-	    # must be used to control the primary ${IAM}
-	    #
-	    _error "primary ${IAM} cannot be destroyed from $prog"
-	fi
 	echo "$control" "$class" "$args_host" "$primary" "$socks" "$args_dir" "$args" >$tmp/args
 	if _do_stop
 	then
@@ -775,14 +784,6 @@ _do_start()
     cat $tmp/args \
     | while read control class args_host primary socks args_dir args
     do
-	if [ "$primary" = y ]
-	then
-	    # don't dink with the primary ... systemctl (or the "rc" script)
-	    # must be used to control the primary ${IAM}
-	    #
-	    _warning "$control: primary ${IAM} cannot be managed from $prog"
-	    continue
-	fi
 	$VERBOSE && echo "Looking for ${IAM} using dir=$args_dir ..."
 	pid=`_egrep -rl "^$args_dir/[^/]*$" $PCP_TMP_DIR/${IAM} \
 	     | sed -e 's;.*/;;'`
@@ -829,14 +830,6 @@ _do_stop()
     cat $tmp/args \
     | while read control class args_host primary socks args_dir args
     do
-	if [ "$primary" = y ]
-	then
-	    # don't dink with the primary ... systemctl (or the "rc" script)
-	    # must be used to control the primary ${IAM}
-	    #
-	    _warning "$control: primary ${IAM} cannot be managed from $prog"
-	    continue
-	fi
 	if grep "^#!#$args_host[ 	]" $control >/dev/null
 	then
 	    _warning "${IAM} for host $args_host already stopped, nothing to do"
@@ -897,14 +890,6 @@ _do_restart()
     cat $tmp/restart \
     | while read control class host primary socks dir args
     do
-	if [ "$primary" = y ]
-	then
-	    # don't dink with the primary ... systemctl (or the "rc" script)
-	    # must be used to control the primary ${IAM}
-	    #
-	    _warning "$control: primary ${IAM} cannot be managed from $prog"
-	    continue
-	fi
 	echo "$control" "$class" "$host" "$primary" "$socks" "$dir" "$args" >$tmp/args
 	if _do_stop
 	then
