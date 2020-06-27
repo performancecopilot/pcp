@@ -15,7 +15,7 @@
 .\"
 .TH PMLOGCTL 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmlogctl\f1 \- manage Performance Co-Pilot pmlogger(s)
+\f3pmlogctl\f1 \- manage and control Performance Co-Pilot archive loggers
 .SH SYNOPSIS
 \f3pmlogctl\f1
 [\f3\-afnv?\f1]
@@ -64,7 +64,7 @@ instance.
 .PP
 All
 instances managed by
-.B pmlogctl ,
+.BR pmlogctl ,
 .BR pmlogger_check (1)
 and
 .BR pmlogger_daily (1)
@@ -125,7 +125,7 @@ The combination of a
 .I classname
 from the optional
 .B \-c
-command line option (or
+option (or
 .BR default )
 and the
 .I hostname
@@ -205,7 +205,7 @@ Start the target set of instances.
 .PP
 If the target set intentionally contains more than one instance, then the
 .BR \-a
-command option should be used (this is designed to reduce the
+option should be used (this is designed to reduce the
 risk of accidentally starting a
 potentially large number of
 .BR pmlogger (1)
@@ -226,7 +226,7 @@ Stop the target set of instances.
 If the target set intentionally contains more than one
 instance, then the
 .BR \-a
-command option should be used (this is designed to reduce the
+option should be used (this is designed to reduce the
 risk of accidentally stopping a
 potentially large number of
 .BR pmlogger (1)
@@ -243,7 +243,7 @@ Stop and then start the target set of instances.
 .PP
 If the target set intentionally contains more than one instance, then the
 .BR \-a
-command option should be used (this is designed to reduce the
+option should be used (this is designed to reduce the
 risk of accidentally stopping and starting a
 potentially large number of
 .BR pmlogger (1)
@@ -274,7 +274,7 @@ control file information removed.
 .PP
 If the target set intentionally contains more than one instance, then the
 .BR \-a
-command option should be used (this is designed to reduce the
+option should be used (this is designed to reduce the
 risk of accidentally terminating a
 potentially large number of
 .BR pmlogger (1)
@@ -289,15 +289,16 @@ section that may influence if and how the destroy operation
 should be performed.
 This may require a
 .B \-p
-command line option to find the associated class policy file.
+option to find the associated class policy file.
 .PP
 The class policy checking can be by-passed using the
 .B \-f
 (force) command line option.
 .RE
 .SH "CLASS POLICY FILE"
-A class policy file contains a number of sections, each beginning with
-the name of the section followed by a colon (:) on a line by itself.
+A class policy file contains a number of sections, each section
+begins with a line that simply starts with
+the name of the section followed by a colon (:).
 .PP
 Lines beginning with a hash (#) are treated as comments and ignored.
 Blank or empty lines are also ignored.
@@ -306,7 +307,7 @@ By convention, the last component of the name of the policy file is
 also the name of the associated class, but this can be over-ridden using
 the
 .B \-p
-command line option as described above.
+option as described above.
 The typical location of the policy file for the class
 .I foo
 is
@@ -367,7 +368,7 @@ option to provide a configuration file that describes which metrics
 should be logged for instances of this class
 .PD
 .PP
-.B Before
+.I Before
 the control line there should be a line that defines the version of 
 the control line that follows, i.e.
 .br
@@ -375,7 +376,7 @@ the control line that follows, i.e.
 .br
 If this is missing,
 .B pmlogctl
-will assume the version is 1.1 and add the line when the instance is created.
+will assume the version is 1.1 and insert the line when the instance is created.
 .PP
 .B pmlogctl
 will also add the class name during creation. e.g.
@@ -409,6 +410,25 @@ notices that a host associated with an instance is no longer
 present.
 But in the current version this is not implemented and the destroy
 section syntax and semantics is not yet defined.
+.RE
+.PP
+A sample class policy file is as follows:
+.RS 4n
+.PP
+.ft CW
+.nf
+# policy file for the foo class
+name:
+foo-%h
+
+control:
+$version=1.1
+%h n n PCP_ARCHIVE_DIR/foo-%h -r -c foo-metrics.config
+
+destroy:
+# still to be defined
+.fi
+.ft
 .RE
 .SH DIAGNOSTICS
 Most error or warning messages are self-explanatory.
