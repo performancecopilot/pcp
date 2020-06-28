@@ -740,7 +740,7 @@ _do_destroy()
     | while read control class args_host primary socks args_dir args
     do
 	echo "$control" "$class" "$args_host" "$primary" "$socks" "$args_dir" "$args" >$tmp/args
-	if _do_stop
+	if _do_stop -q
 	then
 	    :
 	else
@@ -752,13 +752,18 @@ _do_destroy()
 $1 == "'"$host"'" && $4 == "'"$dir"'"		{ next }
 $1 == "'"#!#$host"'" && $4 == "'"$dir"'"	{ next }
 						{ print }'
-	if $VERY_VERBOSE
+	if cmp -s "$control" "$tmp/control"
 	then
-	    echo "Diffs for control file $control after removing host $host and dir $dir ..."
-	    diff "$control" $tmp/control
-	elif $VERBOSE
-	then
-	    echo "Remove ${IAM} for host $host and directory $dir in control file $control"
+	    $VERBOSE && echo "${IAM} for host $host and directory $dir already removed from control file $control"
+	else
+	    if $VERY_VERBOSE
+	    then
+		echo "Diffs for control file $control after removing host $host and dir $dir ..."
+		diff "$control" $tmp/control
+	    elif $VERBOSE
+	    then
+		echo "Remove ${IAM} for host $host and directory $dir in control file $control"
+	    fi
 	fi
 	sed -n <$tmp/control >$tmp/tmp -e '/^[^$# 	]/p'
 	if [ -s $tmp/tmp ]
@@ -780,19 +785,30 @@ $1 == "'"#!#$host"'" && $4 == "'"$dir"'"	{ next }
 #
 _do_start()
 {
+    _restart=false
+    [ "$1" = '-r' ] && _restart=true
     sts=0
     cat $tmp/args \
     | while read control class args_host primary socks args_dir args
     do
-	$VERBOSE && echo "Looking for ${IAM} using dir=$args_dir ..."
+	$VERBOSE && echo "Looking for ${IAM} using dir $args_dir ..."
 	pid=`_egrep -rl "^$args_dir/[^/]*$" $PCP_TMP_DIR/${IAM} \
 	     | sed -e 's;.*/;;'`
 	if [ -n "$pid" ]
 	then
 	    $VERBOSE && echo "${IAM} PID $pid already running for host $args_host, nothing to do"
+	    $VERBOSE && $_restart && echo "Not expected for restart!"
 	    continue
 	fi
-	$VERBOSE && echo "Not found, launching new ${IAM}"
+	if $VERBOSE
+	then
+	    if $_restart
+	    then
+		echo "Not found as expected, launching new ${IAM}"
+	    else
+		echo "Not found, launching new ${IAM}"
+	    fi
+	fi
 	if [ ! -f "$control" ]
 	then
 	    _warning "control file $control for host $args_host ${IAM} has vanished"
@@ -804,15 +820,25 @@ _do_start()
 	$PCP_AWK_PROG <"$control" >$tmp/control '
 $1 == "'"#!#$host"'" && $4 == "'"$dir"'"	{ sub(/^#!#/,"",$1) }
 						{ print }'
-	if $VERY_VERBOSE
+	if cmp -s "$control" "$tmp/control"
 	then
-	    echo "Diffs for control file $control after enabling host $host and dir $dir ..."
-	    diff "$control" $tmp/control
-	elif $VERBOSE
-	then
-	    echo "Enable ${IAM} in control file $control"
+	    if $_restart
+	    then
+		:
+	    else
+		$VERBOSE && echo "${IAM} for host $host and directory $dir already enabled in control file $control"
+	    fi
+	else
+	    if $VERY_VERBOSE
+	    then
+		echo "Diffs for control file $control after enabling host $host and dir $dir ..."
+		diff "$control" $tmp/control
+	    elif $VERBOSE
+	    then
+		echo "Enable ${IAM} for host $host and directory $dir in control file $control"
+	    fi
+	    $CP $tmp/control "$control"
 	fi
-	$CP $tmp/control "$control"
 	$CHECK -c "$control"
 
 	_check_started "$args_dir" || sts=1
@@ -825,14 +851,17 @@ $1 == "'"#!#$host"'" && $4 == "'"$dir"'"	{ sub(/^#!#/,"",$1) }
 #
 _do_stop()
 {
+    _skip_control_update=false
+    [ "$1" = '-q' ] && _skip_control_update=true
     sts=0
     rm -f $tmp.sts
     cat $tmp/args \
     | while read control class args_host primary socks args_dir args
     do
-	if grep "^#!#$args_host[ 	]" $control >/dev/null
+	host=`echo "$args_host " | _unexpand_control | sed -e 's/ $//'`
+	if grep "^#!#$host[ 	]" $control >/dev/null
 	then
-	    _warning "${IAM} for host $args_host already stopped, nothing to do"
+	    _warning "${IAM} for host $host already stopped, nothing to do"
 	    continue
 	fi
 	$VERBOSE && echo "Looking for ${IAM} using directory $args_dir ..."
@@ -854,26 +883,31 @@ _do_stop()
 		continue
 	    fi
 	fi
+	$_skip_control_update && continue
 	if [ ! -f "$control" ]
 	then
 	    _warning "control file $control for host $args_host ${IAM} has vanished"
 	    echo 1 >$tmp.sts
 	    continue
 	fi
-	host=`echo "$args_host " | _unexpand_control | sed -e 's/ $//'`
 	dir=`echo "$args_dir" | _unexpand_control`
 	$PCP_AWK_PROG <"$control" >$tmp/control '
 $1 == "'"$host"'" && $4 == "'"$dir"'"	{ $1 = "#!#" $1 }
 				    	{ print }'
-	if $VERY_VERBOSE
+	if cmp -s "$control" "$tmp/control"
 	then
-	    echo "Diffs for control file $control after disabling host $host and dir=$dir ..."
-	    diff "$control" $tmp/control
-	elif $VERBOSE
-	then
-	    echo "Disable ${IAM} in control file $control"
+	    $VERBOSE && echo "${IAM} for host $host and directory $dir already disabled in control file $control"
+	else
+	    if $VERY_VERBOSE
+	    then
+		echo "Diffs for control file $control after disabling host $host and dir $dir ..."
+		diff "$control" $tmp/control
+	    elif $VERBOSE
+	    then
+		echo "Disable ${IAM} for host $host and directory $dir in control file $control"
+	    fi
+	    $CP $tmp/control "$control"
 	fi
-	$CP $tmp/control "$control"
     done
 
     [ -f $tmp.sts ] && sts="`cat $tmp.sts`"
@@ -891,9 +925,9 @@ _do_restart()
     | while read control class host primary socks dir args
     do
 	echo "$control" "$class" "$host" "$primary" "$socks" "$dir" "$args" >$tmp/args
-	if _do_stop
+	if _do_stop -q
 	then
-	    if _do_start
+	    if _do_start -r
 	    then
 		:
 	    else
