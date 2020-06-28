@@ -27,7 +27,8 @@ _cleanup()
     $sudo rm -rf $tmp $tmp.*
     for dir in $seq-localhost $seq-LOCALHOSTNAME localhost $seq-`hostname`
     do
-	: [ -d "$PCP_ARCHIVE_DIR/$dir" ] && $sudo rm -rf "$PCP_ARCHIVE_DIR/$dir"
+	# [ -d "$PCP_ARCHIVE_DIR/$dir" ] && $sudo rm -rf "$PCP_ARCHIVE_DIR/$dir"
+	:
     done
 }
 

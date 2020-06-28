@@ -54,16 +54,16 @@ Warning: removing lock file older than 30 minutes (PID <mypid>)
 ------ ... ls output ... PCP_ETC_DIR/pcp/pmlogger/lock
 Looking for pmlogger using directory PCP_ARCHIVE_DIR/1210-localhost ...
 Found PID <somepid> to stop using signal TERM
-Disable pmlogger in control file PCP_ETC_DIR/pcp/pmlogger/control.d/1210-localhost
+Disable pmlogger for host localhost and directory PCP_ARCHIVE_DIR/1210-localhost in control file PCP_ETC_DIR/pcp/pmlogger/control.d/1210-localhost
 Looking for pmlogger using directory PCP_ARCHIVE_DIR/1210-LOCALHOSTNAME ...
 Found PID <somepid> to stop using signal TERM
-Disable pmlogger in control file PCP_ETC_DIR/pcp/pmlogger/control.d/1210-LOCALHOSTNAME
+Disable pmlogger for host LOCALHOSTNAME and directory PCP_ARCHIVE_DIR/1210-LOCALHOSTNAME in control file PCP_ETC_DIR/pcp/pmlogger/control.d/1210-LOCALHOSTNAME
 pmcd Host Archive Class PID State 
 LOCALHOSTNAME ? <seq> ? stopped by pmlogctl
 localhost ? <seq> ? stopped by pmlogctl
-Looking for pmlogger using dir=PCP_ARCHIVE_DIR/1210-localhost ...
+Looking for pmlogger using dir PCP_ARCHIVE_DIR/1210-localhost ...
 Not found, launching new pmlogger
-Enable pmlogger in control file PCP_ETC_DIR/pcp/pmlogger/control.d/1210-localhost
-Looking for pmlogger using dir=PCP_ARCHIVE_DIR/1210-LOCALHOSTNAME ...
+Enable pmlogger for host localhost and directory PCP_ARCHIVE_DIR/1210-localhost in control file PCP_ETC_DIR/pcp/pmlogger/control.d/1210-localhost
+Looking for pmlogger using dir PCP_ARCHIVE_DIR/1210-LOCALHOSTNAME ...
 Not found, launching new pmlogger
-Enable pmlogger in control file PCP_ETC_DIR/pcp/pmlogger/control.d/1210-LOCALHOSTNAME
+Enable pmlogger for host LOCALHOSTNAME and directory PCP_ARCHIVE_DIR/1210-LOCALHOSTNAME in control file PCP_ETC_DIR/pcp/pmlogger/control.d/1210-LOCALHOSTNAME

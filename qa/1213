@@ -162,17 +162,44 @@ mypid=$$
 # real QA test starts here
 _setup
 
+# NOTE
+# 	For this first group of tests there is ugly non-determinism from
+# 	mixed output on stdeout and stderr, and a filesystem directory order
+# 	dependency ... using a split-n-sort strategy, but to triage failures
+# 	you'll need to look at the $seq.full file to see the original output
+# 	order from pmlogctl
+#
 echo "=== not run as root"
-pmlogctl -n -c $seq -p $tmp.policy create local: 2>&1 | _filter
-pmlogctl    -c $seq -p $tmp.policy create local: 2>&1 | _filter
-pmlogctl -n -c $seq start 2>&1 | _filter
-pmlogctl    -c $seq start 2>&1 | _filter
-pmlogctl -n -c $seq stop 2>&1 | _filter
-pmlogctl    -c $seq stop 2>&1 | _filter
-pmlogctl -n -c $seq restart 2>&1 | _filter
-pmlogctl    -c $seq restart 2>&1 | _filter
-pmlogctl -n -c $seq -p $tmp.policy destroy 2>&1 | _filter
-pmlogctl    -c $seq -p $tmp.policy destroy 2>&1 | _filter
+echo "- create -" | tee -a $seq.full
+pmlogctl -n -c $seq -p $tmp.policy create local: 2>$tmp.err | _filter | LC_COLLATE=POSIX sort
+_filter <$tmp.err | LC_COLLATE=POSIX sort
+pmlogctl    -c $seq -p $tmp.policy create local: 2>&1 | _filter | LC_COLLATE=POSIX sort
+echo "- start (nothing to be done) -" | tee -a $seq.full
+pmlogctl -n -c $seq start 2>$tmp.err | _filter | LC_COLLATE=POSIX sort
+_filter <$tmp.err | LC_COLLATE=POSIX sort
+pmlogctl    -c $seq start 2>&1 | _filter | LC_COLLATE=POSIX sort
+$sudo pmlogctl -c $seq stop
+echo "- start -" | tee -a $seq.full
+pmlogctl -n -c $seq start 2>$tmp.err | _filter | LC_COLLATE=POSIX sort
+_filter <$tmp.err | LC_COLLATE=POSIX sort
+pmlogctl    -c $seq start 2>&1 | _filter | LC_COLLATE=POSIX sort
+echo "- stop (nothing to be done) -" | tee -a $seq.full
+pmlogctl -n -c $seq stop 2>$tmp.err | _filter | LC_COLLATE=POSIX sort
+_filter <$tmp.err | LC_COLLATE=POSIX sort
+pmlogctl    -c $seq stop 2>&1 | _filter | LC_COLLATE=POSIX sort
+$sudo pmlogctl -c $seq start
+echo "- stop -" | tee -a $seq.full
+pmlogctl -n -c $seq stop 2>$tmp.err | _filter | LC_COLLATE=POSIX sort
+_filter <$tmp.err | LC_COLLATE=POSIX sort
+pmlogctl    -c $seq stop 2>&1 | _filter | LC_COLLATE=POSIX sort
+echo "- restart -" | tee -a $seq.full
+pmlogctl -n -c $seq restart 2>$tmp.err | _filter | LC_COLLATE=POSIX sort
+_filter <$tmp.err | LC_COLLATE=POSIX sort
+pmlogctl    -c $seq restart 2>&1 | _filter | LC_COLLATE=POSIX sort
+echo "- destroy -" | tee -a $seq.full
+pmlogctl -n -c $seq -p $tmp.policy destroy 2>$tmp.err | _filter | LC_COLLATE=POSIX sort
+_filter <$tmp.err | LC_COLLATE=POSIX sort
+pmlogctl    -c $seq -p $tmp.policy destroy 2>&1 | _filter | LC_COLLATE=POSIX sort
 
 echo
 echo "=== missing \"primary\" field in policy file"
