@@ -68,7 +68,7 @@ _cleanup()
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 cat >$tmp/usage <<End-of-File
-# Usage: [options] command [arg ...]
+# Usage: [options] command [host ...]
 
 Options:
   -a,--all                      apply action to all matching hosts
@@ -209,13 +209,16 @@ _egrep()
 
 _usage()
 {
-    pmgetopt >&2 --progname=$prog --config=$tmp/usage --usage
+    pmgetopt --progname=$prog --config=$tmp/usage --usage 2>&1 \
+    | sed >&2 -e 's/ \[default/\n                        [default/'
     cat >&2 <<End-of-File
 
 Avaliable commands:
-   create [-c class] host ...
-   status [host ...]
-   {start|stop|restart|destroy} [-c class] [host ...]
+   create [-c classname] host ...
+   {start|stop|restart|destroy|status} [-c classname] [host ...]
+
+   and host may be a valid hostname or an egrep(1) pattern that matches
+   the start of a hostname
 End-of-File
     status=1
     exit
@@ -252,16 +255,69 @@ _get_matching_hosts()
 	fi
 	_egrep -r "^($pat|#!#$pat)" $CONTROLFILE $CONTROLDIR \
 	| sed -e 's/|/ /' \
-	| while read controlfile controlline
+	| while read ctl_file ctl_line
 	do
-	    controlline=`echo "$controlline" | _expand_control | sed -e 's/^#!#//'`
-	    _check=`echo "$controlline" | wc -w | sed -e 's/ //g'`
+	    # the pattern above returns all possible control lines, but
+	    # may need some further culling
+	    #
+	    ctl_host="`echo "$ctl_line" | sed -e 's/[ 	].*//'`"
+	    if echo "$host" | grep '^[a-zA-Z0-9][a-zA-Z0-9.-]*$' >/dev/null
+	    then
+		# $host is a syntactically correct hostname so we need
+		# an exact match on the first field (up to the first white
+		# space)
+		#
+		if [ "$ctl_host" = "$pat" -o "$ctl_host" = "#!#$pat" ]
+		then
+		    :
+		elif [ "$host" = "$localhost" ]
+		then
+		    if [ "$ctl_host" = "LOCALHOSTNAME" -o "$ctl_host" = "#!#LOCALHOSTNAME" ]
+		    then
+			:
+		    else
+			# false match
+			continue
+		    fi
+		else
+		    # false match
+		    continue
+		fi
+	    else
+		# otherwise assume $host is a regexp and this could match
+		# all manner of lines, including comments (consider .*pat)
+		#
+		if echo "$ctl_host" | egrep "^($pat|#!#$pat)" >/dev/null
+		then
+		    # so far so good (matches first field, not just whole
+		    # line ... still some false matches to weed out
+		    #
+		    ok=false
+		    case "$ctl_host"
+		    in
+			\#!\#*)
+			    ok=true
+			    ;;
+			\#*)
+			    ;;
+			*)
+			    ok=true
+			    ;;
+		    esac
+		    $ok || continue;
+		else
+		    # false match
+		    continue
+		fi
+	    fi
+	    ctl_line=`echo "$ctl_line" | _expand_control | sed -e 's/^#!#//'`
+	    _check=`echo "$ctl_line" | wc -w | sed -e 's/ //g'`
 	    if [ "$_check" -lt 4 ]
 	    then
-		# bad control line ... missing at least dir, so warn and
+		# bad control line ... missing at least directory, so warn and
 		# ignore
 		#
-		_warning "$controlfile: insufficient fields in control line for host `echo "$controlline" | sed -e 's/ .*//'`"
+		_warning "$ctl_file: insufficient fields in control line for host `echo "$ctl_line" | sed -e 's/ .*//'`"
 		continue
 	    fi
 	    if $EXPLICIT_CLASS || [ "$action" = status ]
@@ -270,17 +326,17 @@ _get_matching_hosts()
 		#
 		:
 	    else
-		_primary=`echo "$controlline" | $PCP_AWK_PROG '{ print $2 }'`
+		_primary=`echo "$ctl_line" | $PCP_AWK_PROG '{ print $2 }'`
 		if [ "$_primary" = y ]
 		then
 		    # don't dink with the primary ... systemctl (or the
 		    # "rc" script) must be used to control the primary ${IAM}
 		    #
-		    _warning "$controlfile: cannot $action the primary ${IAM} from $prog"
+		    _warning "$ctl_file: cannot $action the primary ${IAM} from $prog"
 		    continue
 		fi
 	    fi
-	    echo "$controlfile" "$controlline"
+	    echo "$ctl_file" "$ctl_line"
 	done >$tmp/tmp
 	if $VERY_VERBOSE
 	then
@@ -307,7 +363,7 @@ _get_matching_hosts()
 		then
 		    echo "$control" default "$host" "$primary" "$socks" "$dir" "$args" >>$tmp/tmp2
 		else
-		    $VERY_VERBOSE && echo "No match for control $control host $host dir $dir class $class"
+		    $VERY_VERBOSE && echo "No match for control $control host $host directory $dir class $class"
 		fi
 	    done
 	    if [ -s $tmp/tmp2 ]
@@ -383,7 +439,7 @@ _get_matching_hosts()
 # get class for a specific ${IAM} instance
 # $1 = control
 # $2 = host (expanded)
-# $3 = dir (expanded)
+# $3 = directory (expanded)
 #
 _get_class()
 {
@@ -441,11 +497,11 @@ _unexpand_control()
 
 # verbose diagosis of failed state
 # $1 = host
-# $2 = directory
+# $2 = dir
 #
 _diagnose()
 {
-    echo "  TODO - diagnose host $1 dir $2"
+    echo "  TODO - diagnose host $1 directory $2"
 }
 
 # check ${IAM} really started
@@ -649,9 +705,9 @@ found == 0 && $3 == "'"$host"'" && $6 == "'"$dir"'"	{ print NR >>"'$tmp/match'";
 	do
 	    if [ X"$class" != X- ]
 	    then
-		echo >&2 "  host $args_host dir $args_dir class $class"
+		echo >&2 "  host $args_host directory $args_dir class $class"
 	    else
-		echo >&2 "  host $args_host dir $args_dir"
+		echo >&2 "  host $args_host directory $args_dir"
 	    fi
 	done
     fi
@@ -758,7 +814,7 @@ $1 == "'"#!#$host"'" && $4 == "'"$dir"'"	{ next }
 	else
 	    if $VERY_VERBOSE
 	    then
-		echo "Diffs for control file $control after removing host $host and dir $dir ..."
+		echo "Diffs for control file $control after removing host $host and directory $dir ..."
 		diff "$control" $tmp/control
 	    elif $VERBOSE
 	    then
@@ -791,7 +847,7 @@ _do_start()
     cat $tmp/args \
     | while read control class args_host primary socks args_dir args
     do
-	$VERBOSE && echo "Looking for ${IAM} using dir $args_dir ..."
+	$VERBOSE && echo "Looking for ${IAM} using directory $args_dir ..."
 	pid=`_egrep -rl "^$args_dir/[^/]*$" $PCP_TMP_DIR/${IAM} \
 	     | sed -e 's;.*/;;'`
 	if [ -n "$pid" ]
@@ -831,7 +887,7 @@ $1 == "'"#!#$host"'" && $4 == "'"$dir"'"	{ sub(/^#!#/,"",$1) }
 	else
 	    if $VERY_VERBOSE
 	    then
-		echo "Diffs for control file $control after enabling host $host and dir $dir ..."
+		echo "Diffs for control file $control after enabling host $host and directory $dir ..."
 		diff "$control" $tmp/control
 	    elif $VERBOSE
 	    then
@@ -900,7 +956,7 @@ $1 == "'"$host"'" && $4 == "'"$dir"'"	{ $1 = "#!#" $1 }
 	else
 	    if $VERY_VERBOSE
 	    then
-		echo "Diffs for control file $control after disabling host $host and dir $dir ..."
+		echo "Diffs for control file $control after disabling host $host and directory $dir ..."
 		diff "$control" $tmp/control
 	    elif $VERBOSE
 	    then

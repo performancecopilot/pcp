@@ -1,0 +1,59 @@
+QA output created by 1216
+Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/1216-localhost
+Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/1216-LOCALHOSTNAME
+Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/1216-local:
+=== status cases
+-- localhost
+pmcd Host Archive Class PID State 
+localhost <archivename> <seq> <pid> running 
+-- LOCALHOSTNAME
+pmcd Host Archive Class PID State 
+LOCALHOSTNAME <archivename> <seq> <pid> running 
+-- local:
+pmcd Host Archive Class PID State 
+local: <archivename> <seq> <pid> running 
+-- local.*
+pmcd Host Archive Class PID State 
+local: <archivename> <seq> <pid> running 
+localhost <archivename> <seq> <pid> running 
+-- .*[hH][oO][sS][tT]
+pmcd Host Archive Class PID State 
+LOCALHOSTNAME <archivename> <seq> <pid> running 
+localhost <archivename> <seq> <pid> running 
+
+=== restart cases
+-- localhost
+Found PID <somepid> to stop using signal TERM
+Looking for pmlogger using directory PCP_ARCHIVE_DIR/1216-localhost ...
+Looking for pmlogger using directory PCP_ARCHIVE_DIR/1216-localhost ...
+Not found as expected, launching new pmlogger
+-- LOCALHOSTNAME
+Warning: /etc/pcp/pmlogger/control.d/local: cannot restart the primary pmlogger from pmlogctl
+Found PID <somepid> to stop using signal TERM
+Looking for pmlogger using directory PCP_ARCHIVE_DIR/1216-LOCALHOSTNAME ...
+Looking for pmlogger using directory PCP_ARCHIVE_DIR/1216-LOCALHOSTNAME ...
+Not found as expected, launching new pmlogger
+-- local:
+Found PID <somepid> to stop using signal TERM
+Looking for pmlogger using directory PCP_ARCHIVE_DIR/1216-local: ...
+Looking for pmlogger using directory PCP_ARCHIVE_DIR/1216-local: ...
+Not found as expected, launching new pmlogger
+-- local.*
+Found PID <somepid> to stop using signal TERM
+Found PID <somepid> to stop using signal TERM
+Looking for pmlogger using directory PCP_ARCHIVE_DIR/1216-local: ...
+Looking for pmlogger using directory PCP_ARCHIVE_DIR/1216-local: ...
+Looking for pmlogger using directory PCP_ARCHIVE_DIR/1216-localhost ...
+Looking for pmlogger using directory PCP_ARCHIVE_DIR/1216-localhost ...
+Not found as expected, launching new pmlogger
+Not found as expected, launching new pmlogger
+-- .*[hH][oO][sS][tT]
+Warning: /etc/pcp/pmlogger/control.d/local: cannot restart the primary pmlogger from pmlogctl
+Found PID <somepid> to stop using signal TERM
+Found PID <somepid> to stop using signal TERM
+Looking for pmlogger using directory PCP_ARCHIVE_DIR/1216-LOCALHOSTNAME ...
+Looking for pmlogger using directory PCP_ARCHIVE_DIR/1216-LOCALHOSTNAME ...
+Looking for pmlogger using directory PCP_ARCHIVE_DIR/1216-localhost ...
+Looking for pmlogger using directory PCP_ARCHIVE_DIR/1216-localhost ...
+Not found as expected, launching new pmlogger
+Not found as expected, launching new pmlogger

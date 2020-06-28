@@ -1,0 +1,114 @@
+#!/bin/sh
+# PCP QA Test No. 1216
+# pmlogctl - test regexp for host args
+#
+# Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    echo "_cleanup: ..." >>$seq.full
+    cd $here
+    unset PCPQA_KILL_SIGNAL
+    $sudo pmlogctl -af -c $seq destroy >>$seq.full 2>&1
+    for dir in $seq-localhost "$seq-local:" "$seq-`hostname`"
+    do
+	[ -d "$PCP_ARCHIVE_DIR/$dir" ] && $sudo rm -rf "$PCP_ARCHIVE_DIR/$dir"
+    done
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+localhost=`hostname`
+
+_filter()
+{
+    tee -a $seq.full \
+    | sed \
+	-e '/^# created by pmlogctl/s/ on .*/ on DATE/' \
+	-e "s;$tmp\.;TMP.;g" \
+	-e "s;$PCP_BINADM_DIR/;PCP_BINADM_DIR/;g" \
+	-e "s;$PCP_ARCHIVE_DIR/;PCP_ARCHIVE_DIR/;g" \
+	-e "s;$PCP_TMP_DIR/;PCP_TMP_DIR/;g" \
+	-e "s;$PCP_TMPFILE_DIR/pmlogctl\.[^/]*;PCP_TMPFILE_DIR/pmlogctl.XXXXX;g" \
+	-e "s;$PCP_ETC_DIR/;PCP_ETC_DIR/;g" \
+	-e 's/PID=[0-9][0-9]*/PID=<somepid>/' \
+	-e 's/PID [0-9][0-9]*/PID <somepid>/' \
+	-e 's/TERM [0-9][0-9]*/TERM <somepid>/' \
+	-e "s/$seq-$localhost /$seq-LOCALHOSTNAME /" \
+    # end
+}
+
+# Note status command output order is non-deterministic, hence the sort
+# at the end
+#
+_filter_status()
+{
+    tee -a $seq.full \
+    | sed >$tmp.tmp \
+	-e "/^`hostname` .* primary /d" \
+	-e 's/[ 	][ 	]*/ /g' \
+	-e 's/2[0-9][0-9][0-9][01][0-9][0-3][0-9]\...\.[^ ]*/<archivename>/' \
+	-e "s/^$localhost /LOCALHOSTNAME /" \
+	-e "s/ $seq / <seq> /" \
+	-e 's/ [0-9][0-9]* / <pid> /' \
+    # end
+    head -1 $tmp.tmp
+    sed -e '1d' $tmp.tmp | LC_COLLATE=POSIX sort
+}
+
+cat <<End-of-File >$tmp.policy
+name:
+$seq-%h
+control:
+\$version=1.1
+%h n n PCP_ARCHIVE_DIR/$seq-%h -c $tmp.config
+End-of-File
+
+cat <<End-of-File >$tmp.config
+log mandatory on default { pmcd.pmlogger }
+End-of-File
+
+_setup()
+{
+    for host in localhost LOCALHOSTNAME local:
+    do
+	if pmlogctl -c $seq status $host 2>&1 | grep 'Warning.* defined in class' >/dev/null
+	then
+	    $sudo pmlogctl -v -p $tmp.policy -c $seq create $host 2>&1 | _filter
+	fi
+    done
+}
+
+# real QA test starts here
+_setup
+
+echo "=== status cases"
+for host in localhost LOCALHOSTNAME local: 'local.*' '.*[hH][oO][sS][tT]'
+do
+    echo "-- $host"
+    pmlogctl status "$host" | _filter_status
+done
+
+echo
+echo "=== restart cases"
+for host in localhost LOCALHOSTNAME local: 'local.*' '.*[hH][oO][sS][tT]'
+do
+    echo "-- $host"
+    $sudo pmlogctl -v restart "$host" | _filter | LC_COLLATE=POSIX sort
+done
+
+# success, all done
+status=0
+exit

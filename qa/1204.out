@@ -1,4 +1,26 @@
 QA output created by 1204
+== usage
+Usage: pmlogctl [options] command [host ...]
+
+Options:
+  -a, --all             apply action to all matching hosts
+  -c NAME, --class=NAME pmlogger instances belong to the NAME class
+                        [default: default]
+  -f, --force           force action if possible
+  -n, --showme          perform a dry run, showing what would be done
+  -p POLICY, --policy=POLICY
+                        use POLICY as the class policy file
+                        [default: PCP_ETC_DIR/pcp/pmlogger/class.d/<class>]
+  -v, --verbose         increase verbosity
+  -?, --help            show this usage message and exit
+
+Avaliable commands:
+   create [-c classname] host ...
+   {start|stop|restart|destroy|status} [-c classname] [host ...]
+
+   and host may be a valid hostname or an egrep(1) pattern that matches
+   the start of a hostname
+
 == -n -v create
 --- start control file ---
 # created by pmlogctl on DATE

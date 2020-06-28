@@ -22,7 +22,7 @@
 [\f3\-c\f1 \f2classname\f1]
 [\f3\-p\f1 \f2policyfile\f1]
 \f2command\f1
-[\f2hostname ...\f1]
+[\f2host ...\f1]
 .SH DESCRIPTION
 .B pmlogctl
 may be used to manage
@@ -121,6 +121,32 @@ and then running
 .BR pmlogger_check (1)
 to effect the desired change.
 .PP
+The
+.I host
+arguments are usually valid host names.
+For all commands
+.I except
+.B create
+(described below)
+the
+.I host
+arguments may also be
+.BR egrep (1)
+regular expressions that match the
+.I whole
+of a valid host name, so the pattern used is actually
+.BI ^ host $ \c
+\&.
+For example
+.B foo.*
+(matches all host names beginning with ``foo'')
+or
+.B .*foo
+(matches all host names ending with ``foo'')
+or
+.B .*[fF][oO][oO].*
+(matches all host names containing ``foo'' in uppper, lower or mixed case).
+.PP
 The combination of a
 .I classname
 from the optional
@@ -128,7 +154,7 @@ from the optional
 option (or
 .BR default )
 and the
-.I hostname
+.I host
 arguments to each
 .I command
 identifies a
@@ -174,14 +200,14 @@ Create new instances in the class
 (\c
 .B default
 by default) for the
-.I hostname
+.I host
 hosts.
 The name of the class is used to identify a class policy file
 (see the CLASS POLICY FILE section below) which provides a template for
 each new control file with
 .B %h
 replaced by
-.I hostname
+.I host
 in each.
 .RS 4n
 .PP
@@ -193,7 +219,7 @@ the one found in the standard place, i.e. \c
 .IR classname .
 .PP
 At least one
-.I hostname
+.I host
 must be specified for the
 .B create
 command.
@@ -259,7 +285,7 @@ Report the status of the target set of instances.
 If there is no
 .B \-c
 option specified and no
-.I hostname
+.I host
 arguments, i.e. the target set is empty, then
 .I all
 instances will be reported.
@@ -323,7 +349,7 @@ contain the class name and the macro
 e.g. \c
 .BR foo-%h .
 The macro is replaced by the
-.I hostname
+.I host
 when each instance is created.
 .TP 4n
 .B control:
@@ -355,7 +381,7 @@ macro
 .B PCP_ARCHIVE_DIR
 as the start of the path, followed by the instance's unique directory
 (typically combining the
-.I hostname
+.I host
 and the class name)
 e.g. \c
 .B PCP_ARCHIVE_DIR/foo-%h
@@ -440,6 +466,7 @@ file \fI/etc/pcp.conf\fP contains the local values for these variables.
 The \fB$PCP_CONF\fP variable may be used to specify an alternative
 configuration file, as described in \fBpcp.conf\fP(5).
 .SH SEE ALSO
+.BR egrep (1),
 .BR init (1),
 .BR PCPIntro (1),
 .BR pmcd (1),
