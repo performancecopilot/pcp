@@ -786,7 +786,7 @@ _parse_control()
 	$controlfile | \
     while read host primary socks dir args
     do
-	# start in one place for each iteration (beware relative paths)
+	# start in one place for each iteration (beware of relative paths)
 	cd "$here"
 	line=`expr $line + 1`
 
@@ -932,6 +932,18 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	dir=`echo $dir | sed -e "s;LOCALHOSTNAME;$dirhostname;"`
 	[ $primary = y -o "x$host" = xLOCALHOSTNAME ] && host=local:
 
+	if $VERBOSE
+	then
+	    echo
+	    if $COMPRESSONLY
+	    then
+		echo "=== compressing PCP archives for host $host ==="
+	    else
+		echo "=== daily maintenance of PCP archives for host $host ==="
+	    fi
+	    echo
+	fi
+
 	if $VERY_VERBOSE
 	then
 	    pflag=''
@@ -958,18 +970,6 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	cd $dir
 	dir=`$PWDCMND`
 	$SHOWME && echo "+ cd $dir"
-
-	if $VERBOSE
-	then
-	    echo
-	    if $COMPRESSONLY
-	    then
-		echo "=== compressing PCP archives for host $host ==="
-	    else
-		echo "=== daily maintenance of PCP archives for host $host ==="
-	    fi
-	    echo
-	fi
 
 	if $SHOWME
 	then

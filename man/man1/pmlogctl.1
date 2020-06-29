@@ -1,0 +1,479 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
+.TH PMLOGCTL 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmlogctl\f1 \- manage and control Performance Co-Pilot archive loggers
+.SH SYNOPSIS
+\f3pmlogctl\f1
+[\f3\-afnv?\f1]
+[\f3\-c\f1 \f2classname\f1]
+[\f3\-p\f1 \f2policyfile\f1]
+\f2command\f1
+[\f2host ...\f1]
+.SH DESCRIPTION
+.B pmlogctl
+may be used to manage
+.I non-primary
+instances of
+the Performance Co-Pilot (PCP) archiver
+.BR pmlogger (1).
+This would be most relevant in a PCP archive logger ``farm'' where
+many
+.BR pmlogger (1)
+instances would be creating archives of performance data collected
+from
+.BR pmcd (1)
+on many remote hosts.
+.PP
+The
+.I primary
+.BR pmlogger (1)
+instance is closely linked to the local
+.BR pmcd (1)
+process and as a consequence shares the same control infrastructure,
+namely
+.BR systemd (1)
+or
+the PCP
+.BR init (1)
+\&``rc scripts''.
+This is why the
+.I primary
+.BR pmlogger (1)
+instance
+.I cannot
+be managed with
+.BR pmlogctl .
+.PP
+For brevity in the description below, the term ``instance'' means a
+.BR pmlogger (1)
+instance.
+.PP
+All
+instances managed by
+.BR pmlogctl ,
+.BR pmlogger_check (1)
+and
+.BR pmlogger_daily (1)
+abide by the following rules:
+.IP 1. 3n
+Each
+instance is fetching performance data from a single
+.BR pmcd (1)
+(i.e. one host), but each
+.BR pmcd (1)
+may be providing performance data to zero, one or more
+.BR pmlogger (1)
+processes running on one or more hosts.
+.IP 2. 3n
+On the local host, each
+.BR pmlogger (1)
+instance
+must be specified once in a
+.BR pmlogger_check (1)
+control file and
+.BR pmlogger (1)
+creates archives in a unique directory,
+named in the 4th parameter of the associated control
+file entry
+(see the CONFIGURATION section of
+.BR pmlogger_check (1)).
+.IP 3. 3n
+Each
+instance belongs to exactly one
+.BR class ,
+optionally named using a
+.B $class=...
+assignment in the associated control file.
+The special
+.B default
+class is reserved for all instances that do not have an
+associated
+.B $class=...
+assignment.
+For reporting purposes (refer to the
+.B summary
+command below), the
+.I primary
+.BR pmlogger (1)
+instance is automatically assigned to the special
+.B primary
+class.
+.PP
+Each
+.B pmlogctl
+execution manages one or more
+instances updating the associated control files
+and then running
+.BR pmlogger_check (1)
+to effect the desired change.
+.PP
+The
+.I host
+arguments are usually valid host names.
+For all commands
+.I except
+.B create
+(described below)
+the
+.I host
+arguments may also be
+.BR egrep (1)
+regular expressions that match the
+.I whole
+of a valid host name, so the pattern used is actually
+.BI ^ host $ \c
+\&.
+For example
+.B foo.*
+(matches all host names beginning with ``foo'')
+or
+.B .*foo
+(matches all host names ending with ``foo'')
+or
+.B .*[fF][oO][oO].*
+(matches all host names containing ``foo'' in uppper, lower or mixed case).
+.PP
+The combination of a
+.I classname
+from the optional
+.B \-c
+option (or
+.BR default )
+and the
+.I host
+arguments to each
+.I command
+identifies a
+.I target
+.I of
+.I set
+instances to which the
+.I command
+operation should be applied.
+.PP
+The
+.BR \-n
+option runs
+.B pmlogctl
+in ``show me'' mode where the intent of the
+.I command
+is shown, but no changes are made.
+.PP
+The
+.B \-v
+option generally increases the verbosity of the output.
+A second
+.B \-v
+makes
+.B pmlogctl
+very chatty.
+.PP
+Given the tasks that
+.B pmlogctl
+is undertaking it usually must be run a ``root'', the exceptions
+being the
+.B status
+command or when the
+.B \-n
+option is specified.
+.SH COMMANDS
+.I command
+is one of the following:
+.TP 4
+\f3create\f1
+Create new instances in the class
+.I classname
+(\c
+.B default
+by default) for the
+.I host
+hosts.
+The name of the class is used to identify a class policy file
+(see the CLASS POLICY FILE section below) which provides a template for
+each new control file with
+.B %h
+replaced by
+.I host
+in each.
+.RS 4n
+.PP
+The
+.B \-p
+option may be used to identify a class policy file other than
+the one found in the standard place, i.e. \c
+.B $PCP_ETC_DIR/pcp/pmlogger/class.d/\c
+.IR classname .
+.PP
+At least one
+.I host
+must be specified for the
+.B create
+command.
+.RE
+.TP 4
+\f3start\f1
+Start the target set of instances.
+.RS 4n
+.PP
+If the target set intentionally contains more than one instance, then the
+.BR \-a
+option should be used (this is designed to reduce the
+risk of accidentally starting a
+potentially large number of
+.BR pmlogger (1)
+processes).
+.PP
+If an
+instance in the target set is already started, no change is made
+(see the
+.B restart
+command to force new instances
+to be launched).
+.RE
+.TP 4
+\f3stop\f1
+Stop the target set of instances.
+.RS 4n
+.PP
+If the target set intentionally contains more than one
+instance, then the
+.BR \-a
+option should be used (this is designed to reduce the
+risk of accidentally stopping a
+potentially large number of
+.BR pmlogger (1)
+processes).
+.PP
+If an
+instance in the target set is already stopped, no change is made
+but a warning is issued.
+.RE
+.TP 4
+\f3restart\f1
+Stop and then start the target set of instances.
+.RS 4n
+.PP
+If the target set intentionally contains more than one instance, then the
+.BR \-a
+option should be used (this is designed to reduce the
+risk of accidentally stopping and starting a
+potentially large number of
+.BR pmlogger (1)
+processes).
+.PP
+If an
+instance in the target set is already stopped,
+a warning is issued before the instance is started.
+.RE
+.TP 4
+\f3status\f1
+Report the status of the target set of instances.
+If there is no
+.B \-c
+option specified and no
+.I host
+arguments, i.e. the target set is empty, then
+.I all
+instances will be reported.
+.TP 4
+\f3destroy\f1
+Destroy the target set of instances.
+At the end of this operation the associated
+.BR pmlogger (1)
+processes will have been stopped and the relevant
+control file information removed.
+.RS 4n
+.PP
+If the target set intentionally contains more than one instance, then the
+.BR \-a
+option should be used (this is designed to reduce the
+risk of accidentally terminating a
+potentially large number of
+.BR pmlogger (1)
+processes and removing their
+.BR pmlogger_check (1)
+configurations).
+.PP
+The policy file linked to the class of an
+instance to be destroyed may contain a
+.B destroy
+section that may influence if and how the destroy operation
+should be performed.
+This may require a
+.B \-p
+option to find the associated class policy file.
+.PP
+The class policy checking can be by-passed using the
+.B \-f
+(force) command line option.
+.RE
+.SH "CLASS POLICY FILE"
+A class policy file contains a number of sections, each section
+begins with a line that simply starts with
+the name of the section followed by a colon (:).
+.PP
+Lines beginning with a hash (#) are treated as comments and ignored.
+Blank or empty lines are also ignored.
+.PP
+By convention, the last component of the name of the policy file is
+also the name of the associated class, but this can be over-ridden using
+the
+.B \-p
+option as described above.
+The typical location of the policy file for the class
+.I foo
+is
+.B $PCP_ETC_DIR/pcp/pmlogger/class.d/\c
+.IR foo .
+.TP 4n
+.B name:
+The name section specifies the instance name to be given to each member
+of the class.
+This name needs to be unique across all instances, so would normally
+contain the class name and the macro
+.BR %h ,
+e.g. \c
+.BR foo-%h .
+The macro is replaced by the
+.I host
+when each instance is created.
+.TP 4n
+.B control:
+The control section consists of one or more lines of template text
+that will be used to create the control file for each instance.
+This must at least include the
+.BR pmlogger_check (1)
+control line to specify how to start the associated
+.BR pmlogger (1)
+process; this line contains fields separated by white space as follows:
+.PD 0
+.RS 4n
+.IP 1. 4n
+the hostname, usually the macro
+.B %h
+.IP 2. 4n
+.B n
+to indicate this is a non-primary instance
+.IP 3. 4n
+the ``socks'' flag, typically
+.B n
+.IP 4. 4n
+the directory in which the
+.BR pmlogger (1)
+archives will be created; this needs to be unique and is usually
+specified using the
+.BR pmlogger_check (1)
+macro
+.B PCP_ARCHIVE_DIR
+as the start of the path, followed by the instance's unique directory
+(typically combining the
+.I host
+and the class name)
+e.g. \c
+.B PCP_ARCHIVE_DIR/foo-%h
+.IP 5. 4n
+additional parameters to
+.BR pmlogger (1)
+which probably include at least a
+.B \-c
+option to provide a configuration file that describes which metrics
+should be logged for instances of this class
+.PD
+.PP
+.I Before
+the control line there should be a line that defines the version of 
+the control line that follows, i.e.
+.br
+.B $version=1.1
+.br
+If this is missing,
+.B pmlogctl
+will assume the version is 1.1 and insert the line when the instance is created.
+.PP
+.B pmlogctl
+will also add the class name during creation. e.g.
+.br
+.B $class=foo
+.RE
+.TP 4n
+.B create:
+The create section defines the policy to be applied when an
+instance is created.
+.RS 4n
+.PP
+The intent is to allow different decisions to be made when a new host
+running
+.BR pmcd (1)
+is discovered, e.g. by
+.BR pmfind (1).
+But in the current version this is not implemented and the create
+section syntax and semantics is not yet defined.
+.RE
+.TP 4n
+.B destroy:
+The destroy section defines the policy to be applied when an
+instance is destroyed.
+.RS 4n
+.PP
+The intent is to allow different decisions to be made when discovery
+service, e.g. 
+.BR pmfind (1),
+notices that a host associated with an instance is no longer
+present.
+But in the current version this is not implemented and the destroy
+section syntax and semantics is not yet defined.
+.RE
+.PP
+A sample class policy file is as follows:
+.RS 4n
+.PP
+.ft CW
+.nf
+# policy file for the foo class
+name:
+foo-%h
+
+control:
+$version=1.1
+%h n n PCP_ARCHIVE_DIR/foo-%h -r -c foo-metrics.config
+
+destroy:
+# still to be defined
+.fi
+.ft
+.RE
+.SH DIAGNOSTICS
+Most error or warning messages are self-explanatory.
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
+.SH SEE ALSO
+.BR egrep (1),
+.BR init (1),
+.BR PCPIntro (1),
+.BR pmcd (1),
+.BR pmlc (1),
+.BR pmlogger (1),
+.BR pmlogger_check (1),
+.BR pmlogger_daily (1),
+.BR systemd (1)
+and
+.BR pcp.conf (5).

@@ -997,15 +997,26 @@ END				{ print m }'`
 	    # if SaveLogs exists in the same directory that the archive
 	    # is being created, save pmlogger log file there as well
 	    #
-	    dirname=`dirname $mylogname.0`
-	    if [ -d $dirname/SaveLogs ]
+	    if [ -d ./SaveLogs ]
 	    then
-		if [ ! -f $dirname/SaveLogs/$mylogname.log ]
+		# get archive basename, which is the expanded version
+		# of $LOGNAME, possibly with duplicate resolution ...
+		# the $PCP_TMP_DIR/pmlogger file has the answer
+		#
+		mylogname=`sed -n -e 3p $PCP_TMP_DIR/pmlogger/$pid 2>/dev/null \
+		           | sed -e 's;.*/;;'`
+		if [ -n "$mylogname" ]
 		then
-		    $LN $logfile $dirname/SaveLogs/$mylogname.log
+		    if [ ! -f ./SaveLogs/$mylogname.log ]
+		    then
+			$LN $logfile ./SaveLogs/$mylogname.log
+		    else
+			$VERBOSE && echo "Failed to link $logfile, SaveLogs/$mylogname.log already exists"
+		    fi
+		else
+		    $VERBOSE && echo "Failed to get archive basename from $PCP_TMP_DIR/pmlogger/$pid"
 		fi
 	    fi
-
 	elif [ ! -z "$pid" -a $STOP_PMLOGGER = true ]
 	then
 	    # Send pmlogger a SIGTERM, which is noted as a pending shutdown.

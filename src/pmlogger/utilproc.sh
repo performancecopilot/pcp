@@ -101,45 +101,17 @@ _save_prev_file()
 	return 1
     elif [ -f "$1" ]
     then
-	# complicated because pathname.prev may already exist and
+	# Complicated because pathname.prev may already exist and
 	# pathname may already exist and one or other or both
-	# may not be able to be removed
+	# may not be able to be removed.
+	# As we have no locks protecting these files, and the contents
+	# are not really useful if we're experiencing a race between
+	# concurrent executions, quietly do the best you can
 	#
-	if [ -e "$1.prev" ]
-	then
-	    if rm -f "$1.prev"
-	    then
-		:
-	    else
-		echo "_save_prev_filename: unable to remove \"$1.prev\""
-		ls -ld "$1.prev"
-		if rm -f "$1"
-		then
-		    :
-		else
-		    echo "_save_prev_filename: unable to remove \"$1\""
-		    ls -ld "$1"
-		fi
-		return 1
-	    fi
-	fi
-	__sts=0
-	if cp -p "$1" "$1.prev"
-	then
-	    :
-	else
-	    echo "_save_prev_filename: copy \"$1\" to \"$1.prev\" failed"
-	    __sts=1
-	fi
-	if rm -f "$1"
-	then
-	    :
-	else
-	    echo "_save_prev_filename: unable to remove \"$1\""
-	    ls -ld "$1"
-	    __sts=1
-	fi
-	return $__sts
+	rm -f "$1.prev" 2>/dev/null
+	cp -f-p "$1" "$1.prev" 2>/dev/null
+	rm -f "$1" 2>/dev/null
+	return 0
     else
 	echo "_save_prev_filename: \"$1\" exists and is not a file"
 	ls -ld "$1"

@@ -1,0 +1,327 @@
+#!/bin/sh
+# PCP QA Test No. 1213
+# pmlogctl - _Error code paths
+#
+# Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+if pmlogctl -c default status 2>/dev/null | grep ' default ' >/dev/null
+then
+    _notrun "at least one pmlogger already defined for \"default\" class"
+fi
+
+_cleanup()
+{
+    echo "_cleanup: ..." >>$seq.full
+    cd $here
+    $sudo pmlogctl -f -c default destroy localhost >>$seq.full 2>&1
+    $sudo pmlogctl -af -c $seq destroy >>$seq.full 2>&1
+    $sudo pmlogctl -af -c $seq-bad destroy >>$seq.full 2>&1
+    for dir in $seq-localhost $seq-localhost-a $seq-localhost-b \
+    	$seq-LOCALHOSTNAME $seq-`hostname` $seq-no.such.host.pcp.io localhost
+    do
+	[ -d "$PCP_ARCHIVE_DIR/$dir" ] && $sudo rm -rf "$PCP_ARCHIVE_DIR/$dir"
+    done
+    $sudo rm -f $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq-foo
+    $sudo rm -f $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq-bad
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+localhost=`hostname`
+
+_filter()
+{
+    tee -a $seq.full \
+    | sed \
+	-e '/^# created by pmlogctl/s/ on .*/ on DATE/' \
+	-e "s;$tmp\.;TMP.;g" \
+	-e "s;$PCP_BINADM_DIR/;PCP_BINADM_DIR/;g" \
+	-e "s;$PCP_ARCHIVE_DIR/;PCP_ARCHIVE_DIR/;g" \
+	-e "s;$PCP_TMP_DIR/;PCP_TMP_DIR/;g" \
+	-e "s;$PCP_TMPFILE_DIR/pmlogctl\.[^/]*;PCP_TMPFILE_DIR/pmlogctl.XXXXX;g" \
+	-e "s;$PCP_ETC_DIR/;PCP_ETC_DIR/;g" \
+	-e "s/PID $mypid/PID <mypid>/" \
+	-e 's/PID [0-9][0-9]*/PID <somepid>/' \
+	-e 's/TERM [0-9][0-9]*/TERM <somepid>/' \
+	-e '/^------.*\/lock/s/.* /------ ... ls output ... /' \
+    # end
+}
+
+# Note status command output order is non-deterministic, hence the sort
+# at the end
+#
+_filter_status()
+{
+    tee -a $seq.full \
+    | sed >$tmp.tmp \
+	-e "/^`hostname` .* primary /d" \
+	-e 's/[ 	][ 	]*/ /g' \
+	-e 's/2[0-9][0-9][0-9][01][0-9][0-3][0-9]\...\.[^ ]*/<archivename>/' \
+	-e "s/^$localhost /LOCALHOSTNAME /" \
+	-e "s/ $seq / <seq> /" \
+	-e 's/ [0-9][0-9]* / <pid> /' \
+    # end
+    head -1 $tmp.tmp
+    sed -e '1d' $tmp.tmp | LC_COLLATE=POSIX sort
+}
+
+cat <<End-of-File >$tmp.policy
+name:
+$seq-%h
+control:
+\$version=1.1
+%h n n PCP_ARCHIVE_DIR/$seq-%h -c $tmp.config
+End-of-File
+
+cat <<End-of-File >$tmp.config
+log mandatory on default { pmcd.pmlogger }
+End-of-File
+
+cat <<End-of-File >$tmp.policy.bad.1
+name:
+$seq-%h
+control:
+\$version=1.1
+# missing primary (and all others)
+%h
+End-of-File
+
+cat <<End-of-File >$tmp.policy.bad.2
+name:
+$seq-%h
+control:
+\$version=1.1
+# bad primary (other fields missing)
+%h y
+End-of-File
+
+cat <<End-of-File >$tmp.policy.bad.3
+name:
+$seq-%h
+control:
+\$version=1.1
+# missing directory and other fields
+%h n n
+End-of-File
+
+cat <<End-of-File >$tmp.policy.bad.4
+# missing control: section
+name:
+$seq-%h
+
+destroy:
+End-of-File
+
+cat <<End-of-File >$tmp.policy.bad.5
+# bad name: section
+name:
+$seq-%h
+
+extra stuff
+
+control:
+End-of-File
+
+cat <<End-of-File >$tmp.policy.bad.6
+# empty control: section
+name:
+$seq-%h
+control:
+End-of-File
+
+_setup()
+{
+    if pmlogctl -c $seq status localhost 2>&1 | grep 'Warning.* defined in class' >/dev/null
+    then
+	$sudo pmlogctl -v -p $tmp.policy -c $seq create localhost 2>&1 | _filter
+    fi
+    if pmlogctl -c $seq status LOCALHOSTNAME 2>&1 | grep 'Warning.* defined in class' >/dev/null
+    then
+	$sudo pmlogctl -v -p $tmp.policy -c $seq create LOCALHOSTNAME 2>&1 | _filter
+    fi
+    if pmlogctl -c default status localhost 2>&1 | grep 'Warning.* defined in class' >/dev/null
+    then
+	$sudo pmlogctl create localhost | _filter
+    fi
+}
+
+mypid=$$
+
+# real QA test starts here
+_setup
+
+# NOTE
+# 	For this first group of tests there is ugly non-determinism from
+# 	mixed output on stdeout and stderr, and a filesystem directory order
+# 	dependency ... using a split-n-sort strategy, but to triage failures
+# 	you'll need to look at the $seq.full file to see the original output
+# 	order from pmlogctl
+#
+echo "=== not run as root"
+echo "- create -" | tee -a $seq.full
+pmlogctl -n -c $seq -p $tmp.policy create local: 2>$tmp.err | _filter | LC_COLLATE=POSIX sort
+_filter <$tmp.err | LC_COLLATE=POSIX sort
+pmlogctl    -c $seq -p $tmp.policy create local: 2>&1 | _filter | LC_COLLATE=POSIX sort
+echo "- start (nothing to be done) -" | tee -a $seq.full
+pmlogctl -n -c $seq start 2>$tmp.err | _filter | LC_COLLATE=POSIX sort
+_filter <$tmp.err | LC_COLLATE=POSIX sort
+pmlogctl    -c $seq start 2>&1 | _filter | LC_COLLATE=POSIX sort
+$sudo pmlogctl -c $seq stop
+echo "- start -" | tee -a $seq.full
+pmlogctl -n -c $seq start 2>$tmp.err | _filter | LC_COLLATE=POSIX sort
+_filter <$tmp.err | LC_COLLATE=POSIX sort
+pmlogctl    -c $seq start 2>&1 | _filter | LC_COLLATE=POSIX sort
+echo "- stop (nothing to be done) -" | tee -a $seq.full
+pmlogctl -n -c $seq stop 2>$tmp.err | _filter | LC_COLLATE=POSIX sort
+_filter <$tmp.err | LC_COLLATE=POSIX sort
+pmlogctl    -c $seq stop 2>&1 | _filter | LC_COLLATE=POSIX sort
+$sudo pmlogctl -c $seq start
+echo "- stop -" | tee -a $seq.full
+pmlogctl -n -c $seq stop 2>$tmp.err | _filter | LC_COLLATE=POSIX sort
+_filter <$tmp.err | LC_COLLATE=POSIX sort
+pmlogctl    -c $seq stop 2>&1 | _filter | LC_COLLATE=POSIX sort
+echo "- restart -" | tee -a $seq.full
+pmlogctl -n -c $seq restart 2>$tmp.err | _filter | LC_COLLATE=POSIX sort
+_filter <$tmp.err | LC_COLLATE=POSIX sort
+pmlogctl    -c $seq restart 2>&1 | _filter | LC_COLLATE=POSIX sort
+echo "- destroy -" | tee -a $seq.full
+pmlogctl -n -c $seq -p $tmp.policy destroy 2>$tmp.err | _filter | LC_COLLATE=POSIX sort
+_filter <$tmp.err | LC_COLLATE=POSIX sort
+pmlogctl    -c $seq -p $tmp.policy destroy 2>&1 | _filter | LC_COLLATE=POSIX sort
+
+echo
+echo "=== missing \"primary\" field in policy file"
+$sudo pmlogctl -c $seq -p $tmp.policy.bad.1 create local: 2>&1 | _filter
+pmlogctl status | _filter_status
+
+echo
+echo "=== bad \"primary\" field in policy file"
+$sudo pmlogctl -c $seq -p $tmp.policy.bad.2 create local: 2>&1 | _filter
+pmlogctl status | _filter_status
+
+echo
+echo "=== missing \"directory\" field in policy file"
+$sudo pmlogctl -c $seq -p $tmp.policy.bad.3 create local: 2>&1 | _filter
+pmlogctl status | _filter_status
+
+echo
+echo "=== missing \"control:\" section in policy file"
+$sudo pmlogctl -c $seq -p $tmp.policy.bad.4 create local: 2>&1 | _filter
+pmlogctl status | _filter_status
+
+echo
+echo "=== bad \"name:\" section in policy file"
+$sudo pmlogctl -c $seq -p $tmp.policy.bad.5 create local: 2>&1 | _filter
+pmlogctl status | _filter_status
+
+echo
+echo "=== empty \"control:\" section in policy file"
+$sudo pmlogctl -c $seq -p $tmp.policy.bad.6 create local: 2>&1 | _filter
+pmlogctl status | _filter_status
+
+echo
+echo "=== missing \"primary\" field in control file"
+cat <<End-of-File >$tmp.control
+# Installed by PCP QA test $seq on `date`
+\$version=1.1
+# missing primary (and following fields)
+$seq-foo
+End-of-File
+$sudo cp $tmp.control $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq-foo
+$sudo pmlogctl -v start $seq-foo
+pmlogctl status 2>$tmp.err | _filter_status
+_filter <$tmp.err
+$sudo rm -f $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq-foo
+
+echo
+echo "=== missing \"directory\" field in control file"
+cat <<End-of-File >$tmp.control
+# Installed by PCP QA test $seq on `date`
+\$version=1.1
+# missing directory (and following fields)
+$seq-foo n n
+End-of-File
+$sudo cp $tmp.control $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq-foo
+$sudo pmlogctl -v start $seq-foo
+pmlogctl status 2>$tmp.err | _filter_status
+_filter <$tmp.err
+$sudo rm -f $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq-foo
+
+echo
+echo "=== host in class more than once"
+cat <<End-of-File >$tmp.control
+# Installed by PCP QA test $seq on `date`
+\$version=1.1
+\$class=$seq-bad
+localhost n n PCP_ARCHIVE_DIR/$seq-localhost-a -c $tmp.config
+localhost n n PCP_ARCHIVE_DIR/$seq-localhost-b -c $tmp.config
+End-of-File
+$sudo cp $tmp.control $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq-bad
+$sudo pmlogctl -c $seq-bad start
+$sudo pmlogctl start localhost
+$sudo pmlogctl -c $seq-bad start localhost
+pmlogctl status 2>$tmp.err | _filter_status
+_filter <$tmp.err
+$sudo rm -f $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq-bad
+
+echo
+echo "=== host in multiple classes"
+$sudo pmlogctl start localhost 2>&1 | _filter
+pmlogctl status localhost | _filter_status
+$sudo pmlogctl stop localhost 2>&1 | _filter
+pmlogctl status localhost | _filter_status
+$sudo pmlogctl restart localhost 2>&1 | _filter
+pmlogctl status localhost | _filter_status
+$sudo pmlogctl destroy localhost 2>&1 | _filter
+pmlogctl status localhost | _filter_status
+
+echo
+echo "=== create the same entry twice"
+$sudo pmlogctl -v -p $tmp.policy -c $seq create localhost 2>&1 | _filter
+pmlogctl status localhost | _filter_status
+
+echo
+echo "=== policy file missing"
+$sudo pmlogctl -c $seq create local: 2>&1 | _filter
+pmlogctl status localhost | _filter_status
+$sudo pmlogctl -c $seq destroy local: 2>&1 | _filter
+pmlogctl status localhost | _filter_status
+
+echo
+echo "=== no host/class specified"
+$sudo pmlogctl destroy 2>&1 | _filter
+$sudo pmlogctl create 2>&1 | _filter
+$sudo pmlogctl start 2>&1 | _filter
+
+echo
+echo "=== bad action"
+pmlogctl fubar
+$sudo pmlogctl snafu
+
+echo
+echo "=== mutex"
+if ! $sudo $PCP_BINADM_DIR/pmlock $PCP_ETC_DIR/pcp/pmlogger/lock
+then
+    echo "Arrgh, failed to get lock $PCP_ETC_DIR/pcp/pmlogger/lock"
+fi
+echo $$ >$tmp.tmp
+$sudo cp $tmp.tmp $PCP_ETC_DIR/pcp/pmlogger/lock
+$sudo pmlogctl -v -a -c $seq stop 2>&1 | _filter
+pmlogctl status | _filter_status
+$sudo rm -f $PCP_ETC_DIR/pcp/pmlogger/lock
+
+# success, all done
+status=0
+exit

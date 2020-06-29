@@ -1,0 +1,73 @@
+QA output created by 1204
+== usage
+Usage: pmlogctl [options] command [host ...]
+
+Options:
+  -a, --all             apply action to all matching hosts
+  -c NAME, --class=NAME pmlogger instances belong to the NAME class
+                        [default: default]
+  -f, --force           force action if possible
+  -n, --showme          perform a dry run, showing what would be done
+  -p POLICY, --policy=POLICY
+                        use POLICY as the class policy file
+                        [default: PCP_ETC_DIR/pcp/pmlogger/class.d/<class>]
+  -v, --verbose         increase verbosity
+  -?, --help            show this usage message and exit
+
+Avaliable commands:
+   create [-c classname] host ...
+   {start|stop|restart|destroy|status} [-c classname] [host ...]
+
+   and host may be a valid hostname or an egrep(1) pattern that matches
+   the start of a hostname
+
+== -n -v create
+--- start control file ---
+# created by pmlogctl on DATE
+$class=default
+#DO NOT REMOVE OR EDIT THE FOLLOWING LINE
+$version=1.1
+localhost n n PCP_ARCHIVE_DIR/localhost -c config.default
+--- end control file ---
+Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/localhost
++ cp PCP_TMPFILE_DIR/pmlogctl.XXXXX/control PCP_ETC_DIR/pcp/pmlogger/control.d/localhost
++ sudo -u pcp -g pcp PCP_BINADM_DIR/pmlogger_check -c PCP_ETC_DIR/pcp/pmlogger/control.d/localhost
+
+== create
+== status
+pmcd Host Archive Class PID State 
+localhost <archivename> default <pid> running 
+== status localhost
+pmcd Host Archive Class PID State 
+localhost <archivename> default <pid> running 
+
+== stop
+== status
+pmcd Host Archive Class PID State 
+localhost ? default ? stopped by pmlogctl
+== status localhost
+pmcd Host Archive Class PID State 
+localhost ? default ? stopped by pmlogctl
+
+== start
+== status
+pmcd Host Archive Class PID State 
+localhost <archivename> default <pid> running 
+== status localhost
+pmcd Host Archive Class PID State 
+localhost <archivename> default <pid> running 
+
+== restart
+== status
+pmcd Host Archive Class PID State 
+localhost <archivename> default <pid> running 
+== status localhost
+pmcd Host Archive Class PID State 
+localhost <archivename> default <pid> running 
+
+== destroy
+== status
+pmcd Host Archive Class PID State 
+== status localhost
+Warning: host localhost not defined in any pmlogger control file
+pmcd Host Archive Class PID State 
