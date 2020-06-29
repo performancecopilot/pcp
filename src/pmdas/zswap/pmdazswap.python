@@ -19,6 +19,7 @@ Performance Metrics Domain Agent exporting Linux compressed swap metrics.
 import cpmapi as c_api
 from pcp.pmapi import pmUnits
 from pcp.pmda import PMDA, pmdaMetric, pmdaIndom
+from cpmda import PMDA_FETCH_NOVALUES
 from resource import getpagesize
 from os import getenv, listdir
 import sys
@@ -81,7 +82,7 @@ class ZswapPMDA(PMDA):
         elif cluster != 0:
             return [c_api.PM_ERR_PMID, 0]
         if item >= 0 and item < self.nmetrics and self.patherrors == 1:
-            return [pcp.pmda.PMDA_FETCH_NOVALUES, 0]
+            return [PMDA_FETCH_NOVALUES, 0]
 
         if item == 0:
             return [self.values['pool_limit_hit'], 1]
