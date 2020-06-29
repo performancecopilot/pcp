@@ -1,3 +1,9 @@
+pcp (5.2.0-1) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 31 Jul 2020 11:33:58 +1000
+
 pcp (5.1.2-1) unstable; urgency=low
 
   * Resolve dependency generation issue (closes: #962994)
