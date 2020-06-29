@@ -1,4 +1,4 @@
-pcp (5.1.1-2) unstable; urgency=low
+pcp (5.1.2-1) unstable; urgency=low
 
   * Resolve dependency generation issue (closes: #962994)
 
