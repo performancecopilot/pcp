@@ -85,7 +85,7 @@ initSeriesGetQuery(seriesQueryBaton *baton, node_t *root, timing_t *timing)
 static int
 skip_free_value_set(node_t *np) {
     // return 0 stands for skipping free this node's value_set.
-    if (np->type == N_RATE || np->type == N_MAX || np->type == N_MIN) return 0;
+    if (np->type == N_RATE || np->type == N_NOOP) return 0;
     return 1;
 }
 
@@ -1884,8 +1884,7 @@ series_noop_traverse(seriesQueryBaton *baton, node_t *np, int level)
     }
     if (pmDebugOptions.query)
 	fprintf(stderr, "=====level %d, node type %d=====\n", level, np->type);
-    //series_node_values_report(baton, np);
-    kyoma_debug_print_node(baton, np);
+    //kyoma_debug_print_node(baton, np);
     if (pmDebugOptions.query)
 	fprintf(stderr, "go left\n");
     series_noop_traverse(baton, np->left, level+1);
@@ -1904,8 +1903,12 @@ series_rate_check(pmSeriesDesc desc){
 
 static void
 series_calculate_rate(node_t *np){
+/*
+ * Compute rate between samples for each metric. The number of samples in result is one less 
+ * than the original samples. 
+ */
     pmSeriesValue	s_pmval, t_pmval;
-    int			n_instances, flag, n_samples;
+    int			n_instances, n_samples;
     double		s_data, t_data, d_data;
     char		str[256];
     np->value_set = np->left->value_set;
@@ -1963,7 +1966,10 @@ series_calculate_rate(node_t *np){
 
 static void
 series_calculate_max(node_t *np){
-/*    int			n_series, n_samples, n_instances, max_pointer;
+/*
+ * Compare and pick the maximal instance value(s) among samples for each metric.
+ */
+    int			n_series, n_samples, n_instances, max_pointer;
     double		max_data, data;
     n_series = np->left->value_set.num_series;
     np->value_set.num_series = n_series;
@@ -1975,7 +1981,7 @@ series_calculate_max(node_t *np){
 	    np->value_set.series_values[i].series_sample = (series_instance_set_t *)calloc(1, sizeof(series_instance_set_t));
 	    n_instances = np->left->value_set.series_values[i].series_sample[0].num_instances;
 	    np->value_set.series_values[i].series_sample[0].num_instances = n_instances;
-	    np->value_set.series_values[i].series_sample[0].series_instance = (series_instance_set_t *)calloc(n_instances, sizeof(series_instance_set_t));
+	    np->value_set.series_values[i].series_sample[0].series_instance = (pmSeriesValue *)calloc(n_instances, sizeof(pmSeriesValue));
 	    for (int k = 0; k < n_instances; k++) {
 		max_pointer = 0;
 		max_data = atof(np->left->value_set.series_values[i].series_sample[0].series_instance[k].data);
@@ -2002,17 +2008,18 @@ series_calculate_max(node_t *np){
 	} else {
 	    np->value_set.series_values[i].num_samples = 0;
 	}
+	np->value_set.series_values[i].sid = (seriesGetSID *)calloc(1, sizeof(seriesGetSID));
+	np->value_set.series_values[i].sid->name = sdsnew(np->left->value_set.series_values[i].sid->name);
 	np->value_set.series_values[i].baton = np->left->value_set.series_values[i].baton;
 	np->value_set.series_values[i].series_desc = np->left->value_set.series_values[i].series_desc;
-	np->value_set.series_values[i].sid = np->left->value_set.series_values[i].sid;
-
     }
-*/
 }
 
 static void
 series_calculate_min(node_t *np){
 /*
+ * Compare and pick the minimal instance value(s) among samples for each metric.
+ */
     int			n_series, n_samples, n_instances, min_pointer;
     double		min_data, data;
     n_series = np->left->value_set.num_series;
@@ -2025,7 +2032,7 @@ series_calculate_min(node_t *np){
 	    np->value_set.series_values[i].series_sample = (series_instance_set_t *)calloc(1, sizeof(series_instance_set_t));
 	    n_instances = np->left->value_set.series_values[i].series_sample[0].num_instances;
 	    np->value_set.series_values[i].series_sample[0].num_instances = n_instances;
-	    np->value_set.series_values[i].series_sample[0].series_instance = (series_instance_set_t *)calloc(n_instances, sizeof(series_instance_set_t));
+	    np->value_set.series_values[i].series_sample[0].series_instance = (pmSeriesValue *)calloc(n_instances, sizeof(pmSeriesValue));
 	    for (int k = 0; k < n_instances; k++) {
 		min_pointer = 0;
 		min_data = atof(np->left->value_set.series_values[i].series_sample[0].series_instance[k].data);
@@ -2041,23 +2048,22 @@ series_calculate_min(node_t *np){
 		    }
 		}
 		np->value_set.series_values[i].series_sample[0].series_instance[k].timestamp = 
-			sdsnew(np->left->value_set.series_values[i].series_sample[max_pointer].series_instance[k].timestamp);
+			sdsnew(np->left->value_set.series_values[i].series_sample[min_pointer].series_instance[k].timestamp);
 		np->value_set.series_values[i].series_sample[0].series_instance[k].series = 
-			sdsnew(np->left->value_set.series_values[i].series_sample[max_pointer].series_instance[k].series);
+			sdsnew(np->left->value_set.series_values[i].series_sample[min_pointer].series_instance[k].series);
 		np->value_set.series_values[i].series_sample[0].series_instance[k].data = 
-			sdsnew(np->left->value_set.series_values[i].series_sample[max_pointer].series_instance[k].data);
+			sdsnew(np->left->value_set.series_values[i].series_sample[min_pointer].series_instance[k].data);
 		np->value_set.series_values[i].series_sample[0].series_instance[k].ts = 
-			np->left->value_set.series_values[i].series_sample[max_pointer].series_instance[k].ts;
+			np->left->value_set.series_values[i].series_sample[min_pointer].series_instance[k].ts;
 	    }
 	} else {
 	    np->value_set.series_values[i].num_samples = 0;
 	}
+	np->value_set.series_values[i].sid = (seriesGetSID *)calloc(1, sizeof(seriesGetSID));
+	np->value_set.series_values[i].sid->name = sdsnew(np->left->value_set.series_values[i].sid->name);
 	np->value_set.series_values[i].baton = np->left->value_set.series_values[i].baton;
 	np->value_set.series_values[i].series_desc = np->left->value_set.series_values[i].series_desc;
-	np->value_set.series_values[i].sid = np->left->value_set.series_values[i].sid;
-
     }
-*/
 }
 
 static int
@@ -2079,6 +2085,7 @@ series_calculate(seriesQueryBaton *baton, node_t *np, int level)
     switch (np->type) {
 	case N_NOOP:
 	    /* Traverse the subtree of this node? */
+	    np->value_set = np->left->value_set;
 	    series_noop_traverse(baton, np, level);
 	    break;
 	case N_RATE:
