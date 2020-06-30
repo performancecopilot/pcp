@@ -30,6 +30,10 @@ jobs:
         with:
           python-version: '>=3.6'
 
+      - name: Setup tmate session
+        if: matrix.platform == 'centos8'
+        uses: mxschmitt/action-tmate@v2
+
       - name: Setup
         run: |
           python3 -c 'import yaml' || pip3 install pyyaml
