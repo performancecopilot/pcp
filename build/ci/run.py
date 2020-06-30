@@ -82,14 +82,12 @@ class ContainerRunner:
 
         # on Ubuntu, systemd inside the container only works with sudo
         self.sudo = []
-        self.security_opts = []
         with open('/etc/os-release') as f:
             for line in f:
                 k, v = line.rstrip().split('=')
                 if k == 'NAME':
                     if v == '"Ubuntu"':
                         self.sudo = ['sudo']
-                        self.security_opts = ['--security-opt', 'apparmor=unconfined']
                     break
 
     def setup(self, pcp_path):
