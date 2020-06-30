@@ -59,12 +59,25 @@ _filter()
     # end
 }
 
+# Build filter for any existing non-qa and non-primary pmlogger instances.
+# The "pmcd Host" and "Class" fields from the pmlogctl status output
+# should suffice to uniquely identify each.
+#
+pmlogctl status 2>&1 \
+| $PCP_AWK_PROG >$tmp.awk '
+NR == 1	{ next }
+NF >= 5	{ if ($3 == "primary") next
+	  print "$1 == \"" $1 "\" && $3 == \"" $3 "\" { next }"
+	}
+END	{ print "{ print }" }'
+
 # Note status command output order is non-deterministic, hence the sort
 # at the end
 #
 _filter_status()
 {
     tee -a $seq.full \
+    | $PCP_AWK_PROG -f $tmp.awk \
     | sed >$tmp.tmp \
 	-e "/^`hostname` .* primary /d" \
 	-e 's/[ 	][ 	]*/ /g' \
