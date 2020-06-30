@@ -80,7 +80,7 @@ class ContainerRunner:
         self.platform = platform
         self.container_name = f"pcp-ci-{self.platform_name}"
 
-        # on Ubuntu systemd inside the container only works with sudo
+        # on Ubuntu, systemd inside the container only works with sudo
         self.sudo = []
         self.security_opts = []
         with open('/etc/os-release') as f:
