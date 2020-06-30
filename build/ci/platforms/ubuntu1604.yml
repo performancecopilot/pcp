@@ -1,6 +1,6 @@
 container:
   containerfile: |
-    FROM: docker.io/library/ubuntu:16.04
+    FROM docker.io/library/ubuntu:16.04
     RUN apt-get update && apt-get install -y sudo
     RUN useradd --create-home pcpbuild
     RUN echo 'pcpbuild ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/pcpbuild
