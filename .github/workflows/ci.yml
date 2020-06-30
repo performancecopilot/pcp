@@ -30,7 +30,7 @@ jobs:
         with:
           python-version: '>=3.6'
 
-      - name: Setup tmate session
+      - name: Setup tmate session2
         uses: mxschmitt/action-tmate@v2
 
       - name: Setup
