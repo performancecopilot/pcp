@@ -106,7 +106,7 @@ Only some metrics are available in this mode.
 .PP
 When processing a set of archives,
 .B pmval
-may relinquish its own timing control, and operate as a ``slave'' of
+may relinquish its own timing control, and operate under the control of a
 a
 .BR pmtime (1)
 process that uses a GUI dialog to provide timing control.
@@ -114,7 +114,7 @@ In this case, either the
 .B \-g
 option should be used to start
 .B pmval
-as the sole slave of a new
+as the sole client of a new
 .BR pmtime (1)
 instance, or
 .B \-p
@@ -197,9 +197,9 @@ omits the decimal point and any fractional digits.
 \fB\-g\fR, \fB\-\-guimode\fR
 Start
 .B pmval
-as the slave of a new
+as the sole client of a new
 .BR pmtime (1)
-process for replay of archived performance data using the
+server process for replay of archived performance data using the
 .BR pmtime (1)
 graphical user interface.
 .TP
