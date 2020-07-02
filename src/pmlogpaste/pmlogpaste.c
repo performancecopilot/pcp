@@ -19,22 +19,26 @@
 #include <pcp/pmapi.h>
 #include <pcp/import.h>
 
+static int  myoverrides(int, pmOptions *);
+
 static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Options"),
-    { "hostname", 1, 'x', "HOST", "set hostname" },
-    { "timezone", 1, 'e', "TIMEZONE", "set timezone" },
-    { "outfile", 1, 'w', "OUT", "set outfile" },
+    { "hostname", 1, 'h', "HOST", "set hostname" },
+    { "timezone", 1, 't', "TIMEZONE", "set timezone" },
+    { "outfile", 1, 'o', "OUT", "set outfile" },
     { "metric_name", 1, 'm', "MNAME", "set metric name" },
     { "file_name", 1, 'f', "FILE", "set filename" },
+    { "input", 1, 'i', "INPUT", " input to archive" },
     PMOPT_HELP,
     PMAPI_OPTIONS_END
 };
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_DONE | PM_OPTFLAG_STDOUT_TZ,
-    .short_options = "w:x:e:m:f:?",
+    .short_options = "h:t:o:m:f:i:?",
     .long_options = longopts,
     .short_usage = "[options] archive",
+    .override = myoverrides,
 };
 
 char  
@@ -64,7 +68,7 @@ char
 }
 
 void 
-pmpaste ( char *fn, char *name, char *outfile, char *host_name, char *timezone)
+pmpaste ( char *fn, char *name, char *outfile, char *host_name, char *timezone, char *input)
 {
     /*
      * function archives a string output from a tool
@@ -97,7 +101,13 @@ pmpaste ( char *fn, char *name, char *outfile, char *host_name, char *timezone)
         exit(EXIT_FAILURE);
     }
 
-    code = pmiPutValue(name, "", file_read(fn));
+    if (input == NULL) {
+        code = pmiPutValue(name, "", file_read(fn));
+    }
+    else {
+        code = pmiPutValue(name, "", "input");
+    }
+    
     if (code < 0) {
         fprintf(stderr, "%s: error putting value\n", pmGetProgname());
         exit(EXIT_FAILURE);
@@ -117,11 +127,23 @@ pmpaste ( char *fn, char *name, char *outfile, char *host_name, char *timezone)
     
 }
 
+/*
+ * pmlogpaste has a few options which do not follow the defacto standards
+ */
+static int
+myoverrides(int opt, pmOptions *opts)
+{
+    if (opt == 'h' || opt == 't' || opt == 'o'|| opt == 'i')
+	return 1;	/* we've claimed these, inform pmGetOptions */
+    return 0;
+}
+
 int 
 main (int argc, char *argv[]) 
 {
     int         opt = 0;
     char        *file_name = NULL;
+    char        *input = NULL;
     char        *metric_name = "output";
     char        *outfile = "archive";
     char        *host_name = "localhost";
@@ -138,18 +160,22 @@ main (int argc, char *argv[])
             metric_name = opts.optarg;
             break;
 
-        case 'w':
+        case 'o':
             outfile = opts.optarg;
             break;
 
-        case 'x':
+        case 'h':
             host_name = opts.optarg;
             break;
 
-        case 'e':
+        case 't':
             timezone = opts.optarg;
             break;
         
+        case 'i':
+            input = opts.optarg;
+            break;
+
         case '?':
             opts.errors++;
             break;
@@ -158,7 +184,13 @@ main (int argc, char *argv[])
         }
     }
 
-    if (file_name == NULL) {
+    if (file_name && input) {
+	fprintf(stderr, "%s: -f and -i cannot be used together\n", pmGetProgname());
+	opts.errors++;
+    }
+
+    if (!(file_name || input)) {
+	fprintf(stderr, "%s: either filename(-f) should be provided or input(-i)\n", pmGetProgname());
 	opts.errors++;
     }
 
@@ -167,7 +199,7 @@ main (int argc, char *argv[])
 	exit(EXIT_FAILURE);
     }
 
-    pmpaste(file_name, metric_name, outfile, host_name, timezone);
+    pmpaste(file_name, metric_name, outfile, host_name, timezone, input);
     fprintf(stdout, "OK\n");
 
     return 0;
