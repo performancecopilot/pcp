@@ -4,6 +4,9 @@
 #
 # Copyright (c) 2020 Ashwin Nayak.  All Rights Reserved.
 #
+# Run by giving file: pmlogpaste -f <filename> -o <outfile> -m <metricname> -t <timezone> -h <hostname> 
+# or run by providing input: pmlogpaste -i <input> -o <outfile> -m <metricname> -t <timezone> -h <hostname>
+#
 
 seq=`basename $0`
 echo "QA output created by $seq"
