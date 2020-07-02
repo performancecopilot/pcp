@@ -56,22 +56,6 @@ pmSearchTextTypeStr(pmSearchTextType type)
     return "unknown";
 }
 
-static int
-pmwebapi_search_hash(unsigned char *hash, const char *string, int length)
-{
-    SHA1_CTX		shactx;
-    const char		prefix[] = "{\"series\":\"search\",";
-    const char		suffix[] = "}";
-
-    /* Calculate unique string identifier 20-byte SHA1 hash */
-    SHA1Init(&shactx);
-    SHA1Update(&shactx, (unsigned char *)prefix, sizeof(prefix)-1);
-    SHA1Update(&shactx, (unsigned char *)string, length);
-    SHA1Update(&shactx, (unsigned char *)suffix, sizeof(suffix)-1);
-    SHA1Final(hash, &shactx);
-    return 0;
-}
-
 static sds
 redis_search_docid(const char *key, const char *type, const char *name)
 {

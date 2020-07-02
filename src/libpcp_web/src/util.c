@@ -489,16 +489,16 @@ pmwebapi_source_hash(unsigned char *hash, const char *labels, int length)
 }
 
 int
-pmwebapi_search_hash(unsigned char *hash, const char *labels, int length)
+pmwebapi_search_hash(unsigned char *hash, const char *string, int length)
 {
     SHA1_CTX		shactx;
-    const char		prefix[] = "{\"series\":\"source\",\"labels\":";
+    const char		prefix[] = "{\"series\":\"search\",";
     const char		suffix[] = "}";
 
     /* Calculate unique source identifier 20-byte SHA1 hash */
     SHA1Init(&shactx);
     SHA1Update(&shactx, (unsigned char *)prefix, sizeof(prefix)-1);
-    SHA1Update(&shactx, (unsigned char *)labels, length);
+    SHA1Update(&shactx, (unsigned char *)string, length);
     SHA1Update(&shactx, (unsigned char *)suffix, sizeof(suffix)-1);
     SHA1Final(hash, &shactx);
     return 0;
