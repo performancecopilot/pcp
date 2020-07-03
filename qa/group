@@ -377,6 +377,9 @@ pmdbg
 # pmlogctl
 pmlogctl
 
+# pmiectl
+pmiectl
+
 # pcp2... pcp2xxx is generic
 pcp2xxx
 pcp2elasticsearch
@@ -1640,8 +1643,11 @@ not_in_container
 1223 pmlogctl local
 1224 pcp dstat python local
 1225:retired pmwebd local pmrep python pcp kernel
+1226 pmiectl local
 1227 derive local
+1228 pmiectl local
 1229 pmlogextract pmdumplog labels help local sanity
+1230 pmiectl local
 1231 pmlogrewrite labels help pmdumplog local
 1234 libpcp_web local
 1238 iostat archive multi-archive decompress-xz local pmlogextract pcp python

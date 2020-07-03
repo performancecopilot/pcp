@@ -13,6 +13,9 @@
 .\" for more details.
 .\"
 .\"
+.\" NOTE
+.\"	This is the text for pmlogctl's man page, but it is also used to
+.\"	generate the text for pmiectl's man page (see mk.pmiectl)
 .TH PMLOGCTL 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmlogctl\f1 \- manage and control Performance Co-Pilot archive loggers
@@ -390,8 +393,9 @@ additional parameters to
 .BR pmlogger (1)
 which probably include at least a
 .B \-c
-option to provide a configuration file that describes which metrics
-should be logged for instances of this class
+option to provide a configuration file that describes which
+metrics should be logged
+for instances of this class
 .PD
 .PP
 .I Before
