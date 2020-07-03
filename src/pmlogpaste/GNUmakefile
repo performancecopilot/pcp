@@ -17,7 +17,7 @@ include $(TOPDIR)/src/include/builddefs
 
 CFILES = pmlogpaste.c
 CMDTARGET = pmlogpaste$(EXECSUFFIX)
-LLDLIBS	= $(PCPLIB) $(LIB_FOR_MATH)
+LLDLIBS	= -lpcp_import $(PCPLIB)
 
 default:	$(CMDTARGET)
 

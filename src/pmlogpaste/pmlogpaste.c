@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2020 Ashwin Nayak.  All Rights Reserved.
+ * Copyright (c) 2020 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -12,11 +13,8 @@
  * for more details.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <time.h>
 #include <pcp/pmapi.h>
+#include <pcp/libpcp.h>
 #include <pcp/import.h>
 
 static int  myoverrides(int, pmOptions *);
@@ -24,107 +22,128 @@ static int  myoverrides(int, pmOptions *);
 static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Options"),
     { "hostname", 1, 'h', "HOST", "set hostname" },
-    { "timezone", 1, 't', "TIMEZONE", "set timezone" },
+    { "timezone", 1, 't', "TZ", "set timezone" },
     { "outfile", 1, 'o', "OUT", "set outfile" },
-    { "metric_name", 1, 'm', "MNAME", "set metric name" },
-    { "file_name", 1, 'f', "FILE", "set filename" },
-    { "input", 1, 'i', "INPUT", " input to archive" },
+    { "metric", 1, 'm', "NAME", "set metric name" },
+    { "file", 1, 'f', "FILE", "set filename" },
     PMOPT_HELP,
     PMAPI_OPTIONS_END
 };
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_DONE | PM_OPTFLAG_STDOUT_TZ,
-    .short_options = "h:t:o:m:f:i:?",
+    .short_options = "f:h:i:m:o:t:?",
     .long_options = longopts,
     .short_usage = "[options] archive",
     .override = myoverrides,
 };
 
-char  
-*file_read(char *fn)
+static char *input;
+static size_t input_length;
+static struct timespec timestamp;
+static char hostname_buffer[MAXHOSTNAMELEN];
+
+/*
+ * Append the given buffer to a global (accumulating) string.
+ * No assumptions are made about buffer termination (i.e. not
+ * explictly NULL terminated here - callers ensure this if it
+ * is needed, depending on the context).
+ */
+static void
+append_input(const char *buffer, size_t length)
 {
-    /*
-     * function reads a file given a input filename
-     */
-    char        *buffer = 0;
-    long        length;
-    FILE        *file = fopen (fn, "rb");
+    void	*p;
 
-    if (file) {
-        fseek (file, 0, SEEK_END);
-        length = ftell (file);
-        fseek (file, 0, SEEK_SET);
-        buffer = malloc (length + 1);
-
-        if (buffer){
-            fread (buffer, 1, length, file);
-        }
-        fclose (file);
-        buffer[length] = '\0';
+    if ((p = realloc(input, input_length + length)) == NULL) {
+	fprintf(stderr, "%s: out of memory on input\n", pmGetProgname());
+	exit(EXIT_FAILURE);
     }
-
-    return buffer;
+    memcpy(p + input_length, buffer, length);
+    input_length += length;
+    input = p;
 }
 
-void 
-pmlogpaste ( char *fn, char *name, char *outfile, char *host_name, char *timezone, char *input)
+/*
+ * Reads the contents of a file given an input filename (or '-' for stdin),
+ * returns a single buffer.
+ */
+char *
+slurp(const char *filename)
 {
-    /*
-     * function archives a string output from a tool
-     * input: filename, metricname, outfile, hostname and timezone
-     */
-    int         code = 0;
+    char	buffer[BUFSIZ];
+    size_t	length;
+    FILE	*file;
 
-    code = pmiStart(outfile, 0);
-    if (code < 0) {
-        fprintf(stderr, "%s: error starting pmi\n", pmGetProgname());
-        exit(EXIT_FAILURE);
+    if (strcmp(filename, "-") != 0)
+	file = fopen(filename, "r");
+    else
+	file = stdin;
+
+    if (file) {
+	while (!feof(file)) {
+	    if ((length = fread(buffer, 1, BUFSIZ, file)) > 0)
+		append_input(buffer, length);
+	}
+	if (strcmp(filename, "-") != 0)
+	    fclose(file);
+	append_input("\0", 1);	/* ensure string termination */
+    }
+    return input;
+}
+
+/*
+ * archives the output from a tool
+ */
+void 
+pmlogpaste(const char *filename, const char *metric,
+	   const char *hostname, const char *timezone,
+	   const char *input, const char **labels, int nlabels,
+	   struct timespec *timestamp)
+{
+    int		sts;
+
+    if ((sts = pmiStart(filename, 0)) < 0) {
+	fprintf(stderr, "%s: error starting log import: %s\n",
+			pmGetProgname(), pmiErrStr(sts));
+	exit(EXIT_FAILURE);
+    }
+
+    if ((sts = pmiSetHostname(hostname)) < 0) {
+	fprintf(stderr, "%s: error setting log hostname: %s\n",
+			pmGetProgname(), pmiErrStr(sts));
+	exit(EXIT_FAILURE);
+    }
+
+    if ((sts = pmiSetTimezone(timezone)) < 0) {
+	fprintf(stderr, "%s: error setting log timezone: %s\n",
+			pmGetProgname(), pmiErrStr(sts));
+	exit(EXIT_FAILURE);
+    }
+
+    if ((sts = pmiAddMetric(metric, PM_ID_NULL, PM_TYPE_STRING, PM_INDOM_NULL,
+			    PM_SEM_DISCRETE, pmiUnits(0, 0, 0, 0, 0, 0))) < 0) {
+	fprintf(stderr, "%s: error adding metric descriptor: %s\n",
+			pmGetProgname(), pmiErrStr(sts));
+	exit(EXIT_FAILURE);
+    }
+
+    if ((sts = pmiPutValue(metric, NULL, input)) < 0) {
+	fprintf(stderr, "%s: error adding metric value: %s\n",
+			pmGetProgname(), pmiErrStr(sts));
+	exit(EXIT_FAILURE);
     }
     
-    code = pmiSetHostname(host_name);
-    if (code < 0) {
-        fprintf(stderr, "%s: error setting pmi hostname\n", pmGetProgname());
-        exit(EXIT_FAILURE);
+    if ((sts = pmiWrite(timestamp->tv_sec, timestamp->tv_nsec * 1000)) < 0) {
+	fprintf(stderr, "%s: error writing archive: %s\n",
+			pmGetProgname(), pmiErrStr(sts));
+	exit(EXIT_FAILURE);
     }
 
-    code = pmiSetTimezone(timezone);
-    if (code < 0) {
-        fprintf(stderr, "%s: error setting pmi timezone\n", pmGetProgname());
-        exit(EXIT_FAILURE);
+    if ((sts = pmiEnd()) < 0) {
+	fprintf(stderr, "%s: error in ending log writing: %s\n",
+			pmGetProgname(), pmiErrStr(sts));
+	exit(EXIT_FAILURE);
     }
-
-    code = pmiAddMetric(name, PM_ID_NULL, PM_TYPE_STRING, PM_INDOM_NULL, 
-                        PM_SEM_DISCRETE, pmiUnits(0, 0, 0, 0, 0, 0));
-    if (code < 0) {
-        fprintf(stderr, "%s: error adding metric\n", pmGetProgname());
-        exit(EXIT_FAILURE);
-    }
-
-    if (input == NULL) {
-        code = pmiPutValue(name, "", file_read(fn));
-    }
-    else {
-        code = pmiPutValue(name, "", "input");
-    }
-    
-    if (code < 0) {
-        fprintf(stderr, "%s: error putting value\n", pmGetProgname());
-        exit(EXIT_FAILURE);
-    }
-
-    code = pmiWrite(time(NULL), 123456);
-    if (code < 0) {
-        fprintf(stderr, "%s: error in flushing data\n", pmGetProgname());
-        exit(EXIT_FAILURE);
-    }
-
-    code = pmiEnd();
-    if (code < 0) {
-        fprintf(stderr, "%s: error in ending process\n", pmGetProgname());
-        exit(EXIT_FAILURE);
-    }
-    
 }
 
 /*
@@ -133,74 +152,97 @@ pmlogpaste ( char *fn, char *name, char *outfile, char *host_name, char *timezon
 static int
 myoverrides(int opt, pmOptions *opts)
 {
-    if (opt == 'h' || opt == 't' || opt == 'o'|| opt == 'i')
+    if (opt == 'h' || opt == 't')
 	return 1;	/* we've claimed these, inform pmGetOptions */
     return 0;
 }
 
 int 
-main (int argc, char *argv[]) 
+main(int argc, char *argv[])
 {
-    int         opt = 0;
-    char        *file_name = NULL;
-    char        *input = NULL;
-    char        *metric_name = "output";
-    char        *outfile = "archive";
-    char        *host_name = "localhost";
-    char        *timezone = "UTC";
+    int		opt, exitsts;
+    char	*filename = NULL;
+    char	*metric = NULL;
+    char	*outfile = NULL;
+    char	*hostname = NULL;
+    char	*timezone = NULL;
 
     while ((opt = pmGetOptions(argc, argv, &opts)) != EOF) {
-        switch(opt) {
+	switch(opt) {
 
-        case 'f':
-            file_name = opts.optarg;
-            break;
+	case 'f':
+	    filename = opts.optarg;
+	    break;
 
-        case 'm':
-            metric_name = opts.optarg;
-            break;
+	case 'm':
+	    metric = opts.optarg;
+	    break;
 
-        case 'o':
-            outfile = opts.optarg;
-            break;
+	case 'o':
+	    outfile = opts.optarg;
+	    break;
 
-        case 'h':
-            host_name = opts.optarg;
-            break;
+	case 'h':
+	    hostname = opts.optarg;
+	    break;
 
-        case 't':
-            timezone = opts.optarg;
-            break;
-        
-        case 'i':
-            input = opts.optarg;
-            break;
+	case 't':
+	    timezone = opts.optarg;
+	    break;
 
-        case '?':
-            opts.errors++;
-            break;
+	case '?':
+	    break;
 
-        break;
-        }
+	default:
+	    opts.errors++;
+	    break;
+	}
     }
 
-    if (file_name && input) {
-	fprintf(stderr, "%s: -f and -i cannot be used together\n", pmGetProgname());
+    if (filename && opts.optind < argc) {
+	fprintf(stderr,
+		"%s: -f/--file cannot be used with command line input\n",
+		pmGetProgname());
 	opts.errors++;
     }
 
-    if (!(file_name || input)) {
-	fprintf(stderr, "%s: either filename(-f) should be provided or input(-i)\n", pmGetProgname());
-	opts.errors++;
-    }
-
-    if (opts.errors) {
+    if (opts.errors || (opts.flags & PM_OPTFLAG_EXIT)) {
+	exitsts = !(opts.flags & PM_OPTFLAG_EXIT);
 	pmUsageMessage(&opts);
-	exit(EXIT_FAILURE);
+	exit(exitsts);
     }
 
-    pmlogpaste(file_name, metric_name, outfile, host_name, timezone, input);
-    fprintf(stdout, "OK\n");
+    if (filename == NULL && opts.optind < argc) {
+	for (opt = opts.optind; opt < argc; opt++) {
+	    append_input(argv[opt], strlen(argv[opt]));
+	    append_input(" ", 1);
+	}
+	input[input_length-1] = '\0';
+    } else {
+	if (filename == NULL)
+	    filename = "-";	/* read from standard input when nowhere else */
+	slurp(filename);
+    }
 
+    if (metric == NULL)
+	metric = "paste.value";		/* default metric name */
+
+    if (outfile == NULL)
+	outfile = "paste";		/* default archive name */
+
+    if (timezone == NULL)
+	timezone = __pmTimezone();
+
+    if (__pmGetTimespec(&timestamp) < 0)	/* high resolution timestamp */
+	timestamp.tv_sec = time(NULL);
+
+    if (hostname == NULL) {
+	if ((gethostname(hostname_buffer, sizeof(hostname_buffer))) < 0)
+	    hostname = "localhost";
+	else
+	    hostname = &hostname_buffer[0];
+    }
+
+    pmlogpaste(outfile, metric, hostname, timezone, input, NULL, 0, &timestamp);
     return 0;
 }

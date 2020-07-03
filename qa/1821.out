@@ -1,6 +1,17 @@
 QA output created by 1821
-=== starting QA test ===
-OK
-OK
+=== read from file ===
+=== verify archive ===
+
+paste.value
+    value "123"
+=== read from stdin ===
+=== verify archive ===
+
+paste.value
+    value "456"
+=== command line value ===
+=== verify archive ===
+
+paste.metric
+    value "a cmd line value"
 === removing temp files ===
-=== done === 
