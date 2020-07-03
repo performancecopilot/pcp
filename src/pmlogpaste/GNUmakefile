@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015 Red Hat.
+# Copyright (c) 2020 Ashwin Nayak.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -12,18 +12,23 @@
 # for more details.
 #
 
-TOPDIR = ../../..
+TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
--include ./GNUlocaldefs
 
-CONTAINER = pcp-pmlogger
-LDIRT = $(CONTAINER)-$(CONTAINER_VERSION).$(CONTAINER_ARCH).tgz
+CFILES = pmlogpaste.c
+CMDTARGET = pmlogpaste$(EXECSUFFIX)
+LLDLIBS	= -lpcp_import $(PCPLIB)
 
-default default_pcp install install_pcp:
-
-pack pack_pcp: $(CONTAINER)-$(CONTAINER_VERSION).$(CONTAINER_ARCH).tgz
-
-# rule to build $(CONTAINER)-$(CONTAINER_VERSION).$(CONTAINER_ARCH).tgz from Dockerfile
-include ../GNUlocalrules
+default:	$(CMDTARGET)
 
 include $(BUILDRULES)
+
+install:	$(CMDTARGET)
+	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BIN_DIR)/$(CMDTARGET)
+
+default_pcp:	default
+
+install_pcp:	install
+
+check::	$(CFILES)
+	$(CLINT) $^

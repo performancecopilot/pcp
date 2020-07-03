@@ -933,7 +933,7 @@ statsd_resolve_static_metric_fetch(pmdaMetric* mdesc, unsigned int instance, pmA
 }
 
 /**
- * Handles fetches of all dynamic metrics - all metrics aggregated via StatsD in statsd.* namespace, excluding blacklisted ones in statsd.pmda.*
+ * Handles fetches of all dynamic metrics - all metrics aggregated via StatsD in statsd.* namespace, excluding blocklisted ones in statsd.pmda.*
  * @arg mdesc - pmdaMetric being fetched
  * @arg instance - metric's instance domain's instance
  * @arg atom - Placeholder to be populated with response

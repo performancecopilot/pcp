@@ -24,7 +24,7 @@ int
 main(int argc, char **argv)
 {
 	int	iter;
-	int	slave;
+	int	child;
 	int	status;
 
 	if (argc != 2) {
@@ -35,13 +35,13 @@ main(int argc, char **argv)
 	iter = atoi(argv[1]);
 
 	while (iter-- > 0) {
-		if ((slave = fork()) == 0) {
-			/* slave .. boring */
+		if ((child = fork()) == 0) {
+			/* child .. boring */
 #if debug
 			printf("fork OK\n");
 #endif
 			exit(0);
-		} else if (slave < 0) {
+		} else if (child < 0) {
 			/* woops ... */
 			printf("Fork failed at iteration %d\n", iter);
 			perror("Reason");
@@ -53,7 +53,7 @@ main(int argc, char **argv)
 			exit(2);
 		}
 #if debug
-		printf("Child %d done.\n", slave);
+		printf("Child %d done.\n", child);
 #endif
 	}
 	exit(0);

@@ -29,7 +29,7 @@ class DirectRunner:
     def task(self, task_name):
         self.exec(self.platform['tasks'][task_name])
 
-    def getartifacts(self, artifacts_path):
+    def get_artifacts(self, artifacts_path):
         subprocess.run(['rsync', '-a', f"{self.build_dir}/artifacts/", f"{artifacts_path}/", ], check=True)
 
 
@@ -69,7 +69,7 @@ class VirtualMachineRunner:
     def task(self, task_name):
         self.exec(self.platform['tasks'][task_name])
 
-    def getartifacts(self, artifacts_path):
+    def get_artifacts(self, artifacts_path):
         subprocess.run(['rsync', '-a', '-e', f"ssh -F {self.ssh_config_file}",
                         f"{self.vm_name}:artifacts/", f"{artifacts_path}/", ], check=True)
 
@@ -124,7 +124,7 @@ class ContainerRunner:
     def task(self, task_name):
         self.exec(self.platform['tasks'][task_name])
 
-    def getartifacts(self, artifacts_path):
+    def get_artifacts(self, artifacts_path):
         subprocess.run([*self.sudo, 'podman', 'cp',
                         f"{self.container_name}:/home/pcpbuild/artifacts/.", artifacts_path], check=True)
 
@@ -141,8 +141,8 @@ def main():
     parser_task = subparsers.add_parser('task')
     parser_task.add_argument('task_name')
 
-    parser_getartifacts = subparsers.add_parser('getartifacts')
-    parser_getartifacts.add_argument('--artifacts_path', default='./artifacts')
+    parser_artifacts = subparsers.add_parser('artifacts')
+    parser_artifacts.add_argument('--artifacts_path', default='./artifacts')
 
     parser_exec = subparsers.add_parser('exec')
     parser_exec.add_argument('command', nargs=argparse.REMAINDER)
@@ -166,8 +166,8 @@ def main():
         runner.setup(args.pcp_path)
     elif args.main_command == 'task':
         runner.task(args.task_name)
-    elif args.main_command == 'getartifacts':
-        runner.getartifacts(args.artifacts_path)
+    elif args.main_command == 'artifacts':
+        runner.get_artifacts(args.artifacts_path)
     elif args.main_command == 'exec':
         runner.exec(' '.join(args.command), check=False)
     elif args.main_command == 'shell':
@@ -176,7 +176,7 @@ def main():
         print("Preparing a new virtual environment with PCP preinstalled, this will take about 20 minutes...\n")
         started = datetime.now()
         runner.setup(args.pcp_path)
-        for task in ['update', 'builddeps', 'build', 'install', 'initqa']:
+        for task in ['update', 'install_build_dependencies', 'build', 'install', 'init_qa']:
             runner.task(task)
         duration_min = (datetime.now() - started).total_seconds() / 60
         print(f"\nVirtual environment setup done, took {duration_min:.0f}m.\n")

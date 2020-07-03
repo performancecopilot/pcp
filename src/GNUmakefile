@@ -73,16 +73,17 @@ OTHER_SUBDIRS = \
 	pmjson \
 	pmlc \
 	pmlock \
+	pmlogcheck \
+	pmlogctl \
 	pmlogextract \
 	pmlogger \
 	pmlogreduce \
 	pmlogconf \
 	pmloglabel \
+	pmlogpaste \
 	pmlogrewrite \
 	pmlogsize \
 	pmlogsummary \
-	pmlogcheck \
-	pmlogctl \
 	pmpost \
 	pmproxy \
 	pmquery \

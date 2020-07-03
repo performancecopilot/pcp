@@ -60,6 +60,7 @@ extern void pmwebapi_free_context(struct context *);
 extern int pmwebapi_source_meta(struct context *, char *, int);
 extern int pmwebapi_source_hash(unsigned char *, const char *, int);
 extern int pmwebapi_string_hash(unsigned char *, const char *, int);
+extern int pmwebapi_search_hash(unsigned char *, const char *, int);
 extern sds pmwebapi_hash_sds(sds, const unsigned char *);
 extern char *pmwebapi_hash_str(const unsigned char *, char *, int);
 

@@ -352,7 +352,7 @@ Agent also exports metrics about itself:
     Used duration aggregation type
 </details>
 
-These names are blacklisted for user usage. No messages with these names will processed. While not yet reserved, whole <strong>statsd.pmda.*</strong> namespace is not recommended to use for user metrics.
+These names are blocklisted for user usage. No messages with these names will processed. While not yet reserved, whole <strong>statsd.pmda.*</strong> namespace is not recommended to use for user metrics.
 
 # Roadmap
 - Make sure code is optimized

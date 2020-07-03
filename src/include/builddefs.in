@@ -161,6 +161,7 @@ OBJECTS = $(ASFILES:.s=.o) \
 
 #NB: don't override $(MAKE); gnumake sets it well, propagating -j etc.
 #MAKE	= @make@
+AR	= @ar@
 CC	= @cc@
 CXX	= @cxx@
 LD	= @ld@

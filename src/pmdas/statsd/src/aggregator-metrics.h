@@ -206,7 +206,7 @@ update_metric_value(
 );
 
 /**
- * Checks if given metric name is available (it isn't recorded yet or is blacklisted)
+ * Checks if given metric name is available (it isn't recorded yet or is blocklisted)
  * @arg container - Metrics container
  * @arg key - Key of metric
  * @return 1 on success else 0

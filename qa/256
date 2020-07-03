@@ -172,7 +172,7 @@ cat $tmp.config | tee -a $seq.full
 
 _filter_derived()
 {
-    # look for metric names containing "derived", apply a blacklist
+    # look for metric names containing "derived", apply a blocklist
     grep derived | \
     sed \
 	-e '/perfevent.derived/d' \

@@ -142,7 +142,7 @@ process_metric(struct agent_config* config, struct pmda_metrics_container* conta
                 status = 0;
             }
         } else {
-            METRIC_PROCESSING_ERR_LOG("%s REASON: name is not available. (blacklisted?)", throwing_away_msg);
+            METRIC_PROCESSING_ERR_LOG("%s REASON: name is not available. (blocklisted?)", throwing_away_msg);
             status = 0;
         }
     }
@@ -418,7 +418,7 @@ update_metric_value(
 }
 
 /**
- * Checks if given metric name is available (it isn't recorded yet or is blacklisted)
+ * Checks if given metric name is available (it isn't recorded yet or is blocklisted)
  * @arg container - Metrics container
  * @arg key - Key of metric
  * @return 1 on success else 0
@@ -429,7 +429,7 @@ check_metric_name_available(struct pmda_metrics_container* container, char* key)
      * Metric names that won't be saved into hashtable 
      * - these names are already taken by metric stats
      */
-    static const char* const g_blacklist[] = {
+    static const char* const g_blocklist[] = {
         "pmda.received",
         "pmda.parsed",
         "pmda.aggregated",
@@ -447,10 +447,10 @@ check_metric_name_available(struct pmda_metrics_container* container, char* key)
         "pmda.settings.duration_aggregation_type"
     };
     size_t i;
-    for (i = 0; i < sizeof(g_blacklist) / sizeof(g_blacklist[0]); i++) {
+    for (i = 0; i < sizeof(g_blocklist) / sizeof(g_blocklist[0]); i++) {
         const char* ampptr = strchr(key, '&');
         if (ampptr) {
-            if (strncmp(key, g_blacklist[i], ampptr - key) == 0) return 0;
+            if (strncmp(key, g_blocklist[i], ampptr - key) == 0) return 0;
         }
     }
     if (!find_metric_by_name(container, key, NULL)) {

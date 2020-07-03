@@ -128,14 +128,14 @@ and
 are mutually exclusive.
 .PP
 .B pmstat
-may relinquish its own timing control, and operate as a ``slave'' of a
+may relinquish its own timing control, and operate under the control of a
 .BR pmtime (1)
 process that uses a GUI dialog to provide timing control.
 In this case, either the
 .B \-g
 option should be used to start
 .B pmstat
-as the sole slave of a new
+as the sole client of a new
 .BR pmtime (1)
 instance, or
 .B \-p
@@ -181,9 +181,9 @@ for a complete description of the syntax for
 \fB\-g\fR, \fB\-\-guimode\fR
 Start
 .B pmstat
-as the slave of a new
+as the client of a new
 .BR pmtime (1)
-process for replay of archived performance data using the
+server process for replay of archived performance data using the
 .BR pmtime (1)
 graphical user interface.
 .TP
