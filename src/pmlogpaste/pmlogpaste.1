@@ -1,0 +1,39 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2020 Ashwin Nayak.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
+.TH PMLOGPASTE 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmlogpaste\f1 \- PMLOGPASTE
+.SH DESCRIPTION
+\f3pmlogpaste\f1 takes a file and writes it to a metric in a new archive
+.SH USAGE
+Run pmlogpaste with following command. For more info use ? argument.
+.sp 1
+.RS +4
+.ft B
+.nf
+# pmlogpaste -f <filename>
+.fi
+.ft P
+.RE
+.sp 1
+\fBpmlogpaste\fR takes a file and writes it to a metric in a new archive. Uses \fBLOGIMPORT(3) in building up the archive.
+
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmcd (1),
+.BR pminfo (1)
+and
+.BR LOGIMPORT(3)

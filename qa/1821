@@ -1,0 +1,45 @@
+#!/bin/sh
+# PCP QA Test No. 1821
+# Test pmlogpaste
+#
+# Copyright (c) 2020 Ashwin Nayak.  All Rights Reserved.
+#
+# Run by giving file: pmlogpaste -f <filename> -o <outfile> -m <metricname> -t <timezone> -h <hostname> 
+# or run by providing input: pmlogpaste -i <input> -o <outfile> -m <metricname> -t <timezone> -h <hostname>
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters checks and config
+. ./common.product
+. ./common.filter
+. ./common.check
+. ./common.config
+
+which pmpaste >/dev/null 2>&1 || _notrun pmpaste not installed
+
+_cleanup()
+{
+    echo "=== removing temp files ==="
+    cd $here
+    $sudo rm -rf $tmp $tmp.* $seq.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.*
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo "=== starting QA test ==="
+echo 123 > $tmp.out
+pmpaste -f $tmp.out -o $seq.out1 > $seq.full 2>&1
+grep OK $seq.full
+pmpaste -i "sample" -o $seq.out2 > $seq.full 2>&1
+grep OK $seq.full
+
+# success, all done
+_cleanup
+echo "=== done ==="
+status=0
+exit
