@@ -47,9 +47,7 @@ jobs:
         run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} task build
 
       - name: Copy build artifacts
-        run: |
-          ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} task copy_build_artifacts
-          ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} artifacts
+        run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} artifacts build --path ./artifacts/build
 
       - name: Publish build artifacts
         uses: actions/upload-artifact@v2
@@ -68,9 +66,7 @@ jobs:
 
       - name: Copy test results
         if: always()
-        run: |
-          ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} task copy_qa_artifacts
-          ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} artifacts
+        run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} artifacts qa --path ./artifacts/test
 
       - name: Publish test results
         if: always()
