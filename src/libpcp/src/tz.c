@@ -117,8 +117,8 @@ __pmSquashTZ(char *tzbuffer)
     {
 	char tzoffset[6]; /* +1200\0 */
 
-	strftime (tzoffset, sizeof (tzoffset), "%z", t);
-	offset = -strtol (tzoffset, NULL, 10);
+	strftime(tzoffset, sizeof (tzoffset), "%z", t);
+	offset = -strtol(tzoffset, NULL, 10);
 	offset = ((offset/100) * 3600) + ((offset%100) * 60);
     }
 #else
@@ -133,7 +133,7 @@ __pmSquashTZ(char *tzbuffer)
 
     if (offset != 0) {
 	int hours = offset / 3600;
-	int mins = abs ((int)((offset % 3600) / 60));
+	int mins = abs((int)((offset % 3600) / 60));
 	int len = (int)strlen(tzn);
 
 	if (mins == 0) {
@@ -293,14 +293,18 @@ __pmTimezone(void)
     }
 
     if (tz == NULL || tz[0] == ':') {
-	/* NO TZ in the environment - invent one. If TZ starts with a colon,
-	 * it's an Olson-style TZ and it does not supported on all IRIXes, so
-	 * squash it into a simple one (pv#788431). */
+	/*
+	 * NO TZ in the environment - invent one. If TZ starts with a colon,
+	 * it's a file-based TZ and it is not supported on all platforms, so
+	 * squash it into a simple one.
+	 */
 	__pmSquashTZ(tzbuffer);
 	tz = tzbuffer;
     } else if (strlen(tz) > PM_TZ_MAXLEN) {
-	/* TZ is too long to fit into the internal PCP timezone structs
-	 * let's try to sqash it a bit */
+	/*
+	 * TZ is too long to fit into the internal PCP timezone structs
+	 * let's try to squash it a bit.
+	 * */
 	char *tb;
 
 	if ((tb = strdup(tz)) == NULL) {
@@ -321,7 +325,7 @@ __pmTimezone(void)
 	    }
 
 	    if (strlen(tb) > PM_TZ_MAXLEN) { 
-		/* Still too long - let's pretend it's Olson */
+		/* Still too long - let's pretend it's file-based */
 		__pmSquashTZ(tzbuffer);
 		tz = tzbuffer;
 	    } else {
