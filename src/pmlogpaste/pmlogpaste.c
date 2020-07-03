@@ -68,7 +68,7 @@ char
 }
 
 void 
-pmpaste ( char *fn, char *name, char *outfile, char *host_name, char *timezone, char *input)
+pmlogpaste ( char *fn, char *name, char *outfile, char *host_name, char *timezone, char *input)
 {
     /*
      * function archives a string output from a tool
@@ -199,7 +199,7 @@ main (int argc, char *argv[])
 	exit(EXIT_FAILURE);
     }
 
-    pmpaste(file_name, metric_name, outfile, host_name, timezone, input);
+    pmlogpaste(file_name, metric_name, outfile, host_name, timezone, input);
     fprintf(stdout, "OK\n");
 
     return 0;
