@@ -18,8 +18,9 @@ include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
 MAN_SECTION	= 1
-MAN_PAGES	= $(shell echo *.1)
+MAN_PAGES	= $(shell echo *.1) pmiectl.1
 MAN_DEST	= $(PCP_MAN_DIR)/man$(MAN_SECTION)
+LDIRT		= pmiectl.1
 
 default :: $(MAN_PAGES)
 
@@ -31,6 +32,9 @@ install :: install_pcp
 
 install_pcp : default
 	$(INSTALL_MAN)
+
+pmiectl.1:	pmlogctl.1 mk.pmiectl
+	./mk.pmiectl
 
 check :: $(MAN_PAGES)
 	$(MANLINT) $^
