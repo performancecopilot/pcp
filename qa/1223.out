@@ -1,0 +1,85 @@
+QA output created by 1223
+== stop LOCALHOSTNAME
+12c12
+< LOCALHOSTNAME n n PCP_ARCHIVE_DIR/1223-LOCALHOSTNAME -r -c TMP.config
+---
+> #!#LOCALHOSTNAME n n PCP_ARCHIVE_DIR/1223-LOCALHOSTNAME -r -c TMP.config
+pmcd Host Archive Class PID State 
+LOCALHOSTNAME ? <seq> ? stopped by pmlogctl
+local: <archivename> <seq> <pid> running 
+localhost <archivename> <seq> <pid> running 
+== stop local:
+6c6
+< local: n n PCP_ARCHIVE_DIR/1223-local: -r -c TMP.config
+---
+> #!#local: n n PCP_ARCHIVE_DIR/1223-local: -r -c TMP.config
+12c12
+< LOCALHOSTNAME n n PCP_ARCHIVE_DIR/1223-LOCALHOSTNAME -r -c TMP.config
+---
+> #!#LOCALHOSTNAME n n PCP_ARCHIVE_DIR/1223-LOCALHOSTNAME -r -c TMP.config
+pmcd Host Archive Class PID State 
+LOCALHOSTNAME ? <seq> ? stopped by pmlogctl
+local: ? <seq> ? stopped by pmlogctl
+localhost <archivename> <seq> <pid> running 
+== stop localhost
+6c6
+< local: n n PCP_ARCHIVE_DIR/1223-local: -r -c TMP.config
+---
+> #!#local: n n PCP_ARCHIVE_DIR/1223-local: -r -c TMP.config
+9c9
+< localhost n n PCP_ARCHIVE_DIR/1223-localhost -r -c TMP.config
+---
+> #!#localhost n n PCP_ARCHIVE_DIR/1223-localhost -r -c TMP.config
+12c12
+< LOCALHOSTNAME n n PCP_ARCHIVE_DIR/1223-LOCALHOSTNAME -r -c TMP.config
+---
+> #!#LOCALHOSTNAME n n PCP_ARCHIVE_DIR/1223-LOCALHOSTNAME -r -c TMP.config
+pmcd Host Archive Class PID State 
+LOCALHOSTNAME ? <seq> ? stopped by pmlogctl
+local: ? <seq> ? stopped by pmlogctl
+localhost ? <seq> ? stopped by pmlogctl
+
+== start LOCALHOSTNAME
+6c6
+< local: n n PCP_ARCHIVE_DIR/1223-local: -r -c TMP.config
+---
+> #!#local: n n PCP_ARCHIVE_DIR/1223-local: -r -c TMP.config
+9c9
+< localhost n n PCP_ARCHIVE_DIR/1223-localhost -r -c TMP.config
+---
+> #!#localhost n n PCP_ARCHIVE_DIR/1223-localhost -r -c TMP.config
+pmcd Host Archive Class PID State 
+LOCALHOSTNAME <archivename> <seq> <pid> running 
+local: ? <seq> ? stopped by pmlogctl
+localhost ? <seq> ? stopped by pmlogctl
+== start local:
+9c9
+< localhost n n PCP_ARCHIVE_DIR/1223-localhost -r -c TMP.config
+---
+> #!#localhost n n PCP_ARCHIVE_DIR/1223-localhost -r -c TMP.config
+pmcd Host Archive Class PID State 
+LOCALHOSTNAME <archivename> <seq> <pid> running 
+local: <archivename> <seq> <pid> running 
+localhost ? <seq> ? stopped by pmlogctl
+== start localhost
+pmcd Host Archive Class PID State 
+LOCALHOSTNAME <archivename> <seq> <pid> running 
+local: <archivename> <seq> <pid> running 
+localhost <archivename> <seq> <pid> running 
+
+== destroy LOCALHOSTNAME
+12d11
+< LOCALHOSTNAME n n PCP_ARCHIVE_DIR/1223-LOCALHOSTNAME -r -c TMP.config
+pmcd Host Archive Class PID State 
+local: <archivename> <seq> <pid> running 
+localhost <archivename> <seq> <pid> running 
+== destroy local:
+6d5
+< local: n n PCP_ARCHIVE_DIR/1223-local: -r -c TMP.config
+12d10
+< LOCALHOSTNAME n n PCP_ARCHIVE_DIR/1223-LOCALHOSTNAME -r -c TMP.config
+pmcd Host Archive Class PID State 
+localhost <archivename> <seq> <pid> running 
+== destroy localhost
+PCP_ETC_DIR/pcp/pmlogger/control.d/1223 has gone away
+pmcd Host Archive Class PID State 

@@ -15,8 +15,7 @@
 # for more details.
 #
 # TODO
-# - man page
-# - glob expansion for <class> and <host> names
+# - regex expansion for <class>
 # - create => create + start ... is there a case for create only?  
 # - destroy => stop + destroy ... is there a case for destroy iff already
 #   stopped?
@@ -25,11 +24,6 @@
 #   warrants at least a warning) ... if supported the likely semantics
 #   are the union of the named classes ... unless this is allowed, a glob
 #   pattern for the -c arg (classname) makes no sense
-# - multiple pmloggers in the one control file ... relatively untested
-#   ... pmlogctl won't do this (it uses a one control file per pmlogger
-#   instance model), but I'd like to avoid a "migration" path 'cause
-#   splitting a control file is messy and potentially dangerous, and
-#   subsequent manual editing could bring the situation back at any time
 # - pmfind integration
 # - other sections in the "policy" files, especially with pmfind to
 #   (a) at create, pick a class by probing the host
@@ -247,6 +241,7 @@ _get_matching_hosts()
     for host
     do
 	$VERY_VERBOSE && echo "Looking for host $host in class $CLASS ..."
+	rm -f $tmp/primary_seen
 	if [ "$host" = "$localhost" ]
 	then
 	    pat="($host|LOCALHOSTNAME)"
@@ -320,15 +315,16 @@ _get_matching_hosts()
 		_warning "$ctl_file: insufficient fields in control line for host `echo "$ctl_line" | sed -e 's/ .*//'`"
 		continue
 	    fi
-	    if $EXPLICIT_CLASS || [ "$action" = status ]
+	    _primary=`echo "$ctl_line" | $PCP_AWK_PROG '{ print $2 }'`
+	    if [ "$_primary" = y ]
 	    then
-		# primary is not a concern here
-		#
-		:
-	    else
-		_primary=`echo "$ctl_line" | $PCP_AWK_PROG '{ print $2 }'`
-		if [ "$_primary" = y ]
+		touch $tmp/primary_seen
+		if $EXPLICIT_CLASS || [ "$action" = status ]
 		then
+		    # primary is not a concern here
+		    #
+		    :
+		else
 		    # don't dink with the primary ... systemctl (or the
 		    # "rc" script) must be used to control the primary ${IAM}
 		    #
@@ -397,6 +393,11 @@ _get_matching_hosts()
 		if $EXPLICIT_CLASS
 		then
 		    _warning "no host defined in class $CLASS for any ${IAM} control file"
+		elif [ -f $tmp/primary_seen ]
+		then
+		    # Warning reported above, don't add chatter here
+		    #
+		    :
 		else
 		    _warning "no host defined in any ${IAM} control file"
 		fi
@@ -404,6 +405,11 @@ _get_matching_hosts()
 		if $EXPLICIT_CLASS
 		then
 		    _warning "host $host not defined in class $CLASS for any ${IAM} control file"
+		elif [ -f $tmp/primary_seen ]
+		then
+		    # Warning reported above, don't add chatter here
+		    #
+		    :
 		else
 		    _warning "host $host not defined in any ${IAM} control file"
 		fi
@@ -501,7 +507,18 @@ _unexpand_control()
 #
 _diagnose()
 {
-    echo "  TODO - diagnose host $1 directory $2"
+    if [ -f $2/pmlogger.log ]
+    then
+	sed <"$2/pmlogger.log" \
+	    -e '/^[ 	]*$/d' \
+	    -e '/^preprocessor cmd:/d' \
+	    -e '/^Config parsed/d' \
+	    -e '/^Group \[/,/^} logged/d' \
+	    -e 's/^/   + /' \
+	# end
+    else
+	echo "   + pmlogger.log not available"
+    fi
 }
 
 # check ${IAM} really started
@@ -652,10 +669,13 @@ found == 0 && $3 == "'"$host"'" && $6 == "'"$dir"'"	{ print NR >>"'$tmp/match'";
 		    continue
 		fi
 	    fi
-	    [ "$primary" = y ] && class=primary
 	    archive=`grep "^$dir/[^/]*$" $tmp/archive \
 		     | sed -e 's;.*/;;'`
 	    [ -z "$archive" ] && archive='?'
+	    [ -z "$class" ] && class=default
+	    pid=`_egrep -rl "^$dir/[^/]*$" $PCP_TMP_DIR/${IAM} \
+		 | sed -e 's;.*/;;'`
+	    [ -z "$pid" ] && pid='?'
 	    if [ "$archive" = '?' ]
 	    then
 		if [ "$state" = running ]
@@ -668,11 +688,17 @@ found == 0 && $3 == "'"$host"'" && $6 == "'"$dir"'"	{ print NR >>"'$tmp/match'";
 		    fi
 		fi
 	    fi
-	    pid=`_egrep -rl "^$dir/[^/]*$" $PCP_TMP_DIR/${IAM} \
-		 | sed -e 's;.*/;;'`
-	    [ -z "$pid" ] && pid='?'
 	    $VERBOSE && state="$state|$dir"
-	    printf "$fmt" "$host" "$archive" "$class" "$pid" "$state"
+	    if [ "$primary" = y ]
+	    then
+		# "primary" is a pseudo-class and in particular don't set
+		# $class as this may screw up the next pmlogger line (if
+		# any) in this control file
+		#
+		printf "$fmt" "$host" "$archive" "primary" "$pid" "$state"
+	    else
+		printf "$fmt" "$host" "$archive" "$class" "$pid" "$state"
+	    fi
 	done
     done \
     | LC_COLLATE=POSIX sort >$tmp/out

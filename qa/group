@@ -1618,7 +1618,7 @@ not_in_container
 1201 logutil remote
 1202 pmda.dm local pmrep python
 1203 derive pmval libpcp local
-1204 pmlogctl local
+1204 pmlogctl local sanity
 1205 pmlogctl local
 1206 pmlogctl local
 1207 pcp dstat python local
@@ -1637,6 +1637,7 @@ not_in_container
 1220 pmda.proc local
 1221 labels pmda.openmetrics local python
 1222 pmda.linux pmda.proc local valgrind
+1223 pmlogctl local
 1224 pcp dstat python local
 1225:retired pmwebd local pmrep python pcp kernel
 1227 derive local
