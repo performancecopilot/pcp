@@ -105,7 +105,7 @@ def read_hosts(qa_dir: str, artifacts_path: str) -> List[Test]:
         testartifacts_dir = os.path.join(artifacts_path, artifact_dir)
         test_timings_file = os.path.join(testartifacts_dir, 'check.timings')
 
-        # ignore build artifacts and cancelled QA runs (timeout after 6h)
+        # ignore build artifacts and test runs without any QA run (e.g. build failure)
         if not artifact_dir.startswith('test-') or not os.path.exists(test_timings_file):
             continue
 

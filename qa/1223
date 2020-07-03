@@ -1,6 +1,8 @@
 #!/bin/sh
-# PCP QA Test No. 1216
-# pmlogctl - test regexp for host args
+# PCP QA Test No. 1223
+# pmlogctl - multiple pmloggers per control file tests
+# (migration from an existing config, or hand-edited, as pmlogctl create
+# will not set it up this way)
 #
 # Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
 #
@@ -17,9 +19,8 @@ _cleanup()
 {
     echo "_cleanup: ..." >>$seq.full
     cd $here
-    unset PCPQA_KILL_SIGNAL
     $sudo pmlogctl -af -c $seq destroy >>$seq.full 2>&1
-    for dir in $seq-localhost "$seq-local:" "$seq-`hostname`"
+    for dir in $seq-localhost $seq-$localhost $seq-local:
     do
 	[ -d "$PCP_ARCHIVE_DIR/$dir" ] && $sudo rm -rf "$PCP_ARCHIVE_DIR/$dir"
     done
@@ -46,7 +47,6 @@ _filter()
 	-e 's/PID=[0-9][0-9]*/PID=<somepid>/' \
 	-e 's/PID [0-9][0-9]*/PID <somepid>/' \
 	-e 's/TERM [0-9][0-9]*/TERM <somepid>/' \
-	-e "s/$seq-$localhost /$seq-LOCALHOSTNAME /" \
     # end
 }
 
@@ -93,33 +93,66 @@ cat <<End-of-File >$tmp.config
 log mandatory on default { pmcd.pmlogger }
 End-of-File
 
+cat <<End-of-File >$tmp.control
+# Installed by PCP QA test $seq on `date`
+\$class=$seq
+\$version=1.1
+
+# eeny
+local: n n PCP_ARCHIVE_DIR/$seq-local: -r -c $tmp.config
+
+# meeny
+localhost n n PCP_ARCHIVE_DIR/$seq-localhost -r -c $tmp.config
+
+# miney
+LOCALHOSTNAME n n PCP_ARCHIVE_DIR/$seq-LOCALHOSTNAME -r -c $tmp.config
+
+# mo
+End-of-File
+
 _setup()
 {
-    for host in localhost LOCALHOSTNAME local:
-    do
-	if pmlogctl -c $seq status $host 2>&1 | grep 'Warning.* defined in class' >/dev/null
-	then
-	    $sudo pmlogctl -v -p $tmp.policy -c $seq create $host 2>&1 | _filter
-	fi
-    done
+    $sudo cp $tmp.control $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq
+    # copying this file may trigger a race with the systemd (I hate you)
+    # pmlogger_check.path trigger which can result in our QA pmloggers
+    # being killed ... so sleep for a while
+    #
+    #sleep 3
+    $sudo pmlogctl -c $seq restart >>$seq.full 2>&1
 }
 
 # real QA test starts here
 _setup
 
-echo "=== status cases"
-for host in localhost LOCALHOSTNAME local: 'local.*' '.*[hH][oO][sS][tT]'
+for host in LOCALHOSTNAME local: localhost
 do
-    echo "-- $host"
-    pmlogctl status "$host" | _filter_status
+    echo "== stop $host" | _filter
+    $sudo pmlogctl -c $seq stop "$host" 2>&1 | _filter
+    diff $tmp.control $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq | _filter
+    pmlogctl -v status | _filter_status
 done
 
 echo
-echo "=== restart cases"
-for host in localhost LOCALHOSTNAME local: 'local.*' '.*[hH][oO][sS][tT]'
+for host in LOCALHOSTNAME local: localhost
 do
-    echo "-- $host"
-    $sudo pmlogctl -v restart "$host" | _filter | LC_COLLATE=POSIX sort
+    echo "== start $host" | _filter
+    $sudo pmlogctl -c $seq start "$host" 2>&1 | _filter
+    diff $tmp.control $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq | _filter
+    pmlogctl -v status | _filter_status
+done
+
+echo
+for host in LOCALHOSTNAME local: localhost
+do
+    echo "== destroy $host" | _filter
+    $sudo pmlogctl -f -c $seq destroy "$host" 2>&1 | _filter
+    if [ -f $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq ]
+    then
+	diff $tmp.control $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq | _filter
+    else
+	echo "PCP_ETC_DIR/pcp/pmlogger/control.d/$seq has gone away"
+    fi
+    pmlogctl -v status | _filter_status
 done
 
 # success, all done
