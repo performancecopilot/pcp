@@ -2,6 +2,7 @@ container:
   containerfile: |
     FROM registry.centos.org/centos:8
     RUN dnf install -y sudo glibc-langpack-en
+    RUN dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm # libuv-devel
     RUN useradd --create-home pcpbuild
     RUN echo 'pcpbuild ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/pcpbuild
 

@@ -174,11 +174,13 @@ def main():
         runner.shell()
     elif args.main_command == 'reproduce':
         print("Preparing a new virtual environment with PCP preinstalled, this will take about 20 minutes...\n")
+
         started = datetime.now()
         runner.setup(args.pcp_path)
         for task in ['update', 'install_build_dependencies', 'build', 'install', 'init_qa']:
             runner.task(task)
         duration_min = (datetime.now() - started).total_seconds() / 60
+
         print(f"\nVirtual environment setup done, took {duration_min:.0f}m.\n")
         print("Please run:\n")
         print("    sudo -u pcpqa -i ./check XXX\n")
