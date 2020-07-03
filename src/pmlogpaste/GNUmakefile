@@ -17,7 +17,7 @@ include $(TOPDIR)/src/include/builddefs
 
 CFILES = pmlogpaste.c
 CMDTARGET = pmlogpaste$(EXECSUFFIX)
-LLDLIBS	= -lpcp_import $(PCPLIB)
+LLDLIBS = -L$(TOPDIR)/src/libpcp_import/src -lpcp_import $(PCPLIB)
 
 default:	$(CMDTARGET)
 
