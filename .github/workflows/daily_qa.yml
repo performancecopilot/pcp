@@ -35,6 +35,7 @@ jobs:
       - name: Setup
         run: |
           python3 -c 'import yaml' || pip3 install pyyaml
+          mkdir -p artifacts/build artifacts/test
           ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} setup
 
       - name: Update packages
@@ -66,7 +67,7 @@ jobs:
 
       - name: Copy test results
         if: always()
-        run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} artifacts qa --path ./artifacts/test
+        run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} artifacts test --path ./artifacts/test
 
       - name: Publish test results
         if: always()

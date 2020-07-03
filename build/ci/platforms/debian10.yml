@@ -1,3 +1,9 @@
+bintray:
+  repository: buster
+  deb_distribution: buster
+  deb_component: main
+  deb_architecture: amd64
+
 container:
   containerfile: |
     FROM docker.io/library/debian:10
@@ -40,7 +46,7 @@ tasks:
     status=0
     sudo -i -u pcpqa ./check -TT -x not_in_container |& tee ./artifacts/test/test.log || status=$?
     exit $status
-  copy_qa_artifacts: |
+  copy_test_artifacts: |
     cp /var/lib/pcp/testsuite/check.timings ./artifacts/test
     [ $(awk 'END{print NF}' ./artifacts/test/check.timings) = 2 ] && date '+%s' >> ./artifacts/test/check.timings
     for test in /var/lib/pcp/testsuite/*.out.bad; do cp $test ${test/.out.bad/.full} ./artifacts/test || true; done

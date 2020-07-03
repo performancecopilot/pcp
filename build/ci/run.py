@@ -64,7 +64,7 @@ class VirtualMachineRunner:
                        input=command.encode(), check=check)
 
     def shell(self):
-        subprocess.run(['ssh', '-F', self.ssh_config_file, self.vm_name])
+        subprocess.run(['ssh', '-F', self.ssh_config_file, self.vm_name], check=False)
 
     def task(self, task_name):
         self.exec(self.platform['tasks'][task_name])
@@ -100,7 +100,7 @@ class ContainerRunner:
                        input=containerfile.encode(), check=True)
 
         # start a new container
-        subprocess.run([*self.sudo, 'podman', 'rm', '-f', self.container_name], stderr=subprocess.DEVNULL)
+        subprocess.run([*self.sudo, 'podman', 'rm', '-f', self.container_name], stderr=subprocess.DEVNULL, check=False)
         subprocess.run([*self.sudo, 'podman', 'run', '-d', '--name', self.container_name,
                         '--privileged', image_name, init], check=True)
 
@@ -119,7 +119,7 @@ class ContainerRunner:
         subprocess.run([*self.sudo, 'podman', 'exec', '-it',
                         '-u', 'pcpbuild', '-w', '/home/pcpbuild',
                         '-e', 'is_container=true',
-                        self.container_name, 'bash'])
+                        self.container_name, 'bash'], check=False)
 
     def task(self, task_name):
         self.exec(self.platform['tasks'][task_name])
@@ -142,7 +142,7 @@ def main():
     parser_task.add_argument('task_name')
 
     parser_artifacts = subparsers.add_parser('artifacts')
-    parser_artifacts.add_argument('artifact', choices=['build', 'qa'])
+    parser_artifacts.add_argument('artifact', choices=['build', 'test'])
     parser_artifacts.add_argument('--path', default='./artifacts')
 
     parser_exec = subparsers.add_parser('exec')
