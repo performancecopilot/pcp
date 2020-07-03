@@ -34,9 +34,9 @@
 # - IAM=pmie is completely untested
 #
 
-. $PCP_DIR/etc/pcp.env
+. "$PCP_DIR/etc/pcp.env"
 
-prog=`basename $0`
+prog=`basename "$0"`
 case "$prog"
 in
     pmlogctl*)	IAM=pmlogger
@@ -51,7 +51,7 @@ in
 esac
 CONTROLDIR=${CONTROLFILE}.d
 
-tmp=`mktemp -d $PCP_TMPFILE_DIR/$prog.XXXXXXXXX` || exit 1
+tmp=`mktemp -d "$PCP_TMPFILE_DIR/$prog.XXXXXXXXX"` || exit 1
 status=0
 
 _cleanup()
@@ -438,7 +438,17 @@ _get_matching_hosts()
     done
     if [ -f $tmp/args ]
     then
-	$VERY_VERBOSE && ( echo "\$tmp/args:"; cat $tmp/args )
+	if $VERY_VERBOSE
+	then
+	    echo "_get_matching_hosts results:"
+	    echo "# control class host dir"
+	    cat $tmp/args \
+	    | while read control class host primary socks dir other
+	    do
+		echo "$control $class $host $dir"
+	    done
+	    echo "# end"
+	fi
     fi
 }
 
@@ -477,6 +487,21 @@ $1 ~ /^[a-z]*:$/	{ want = 0; next }
 want == 1		{ print }'
 }
 
+# find the PID for the ${IAM} that is dinking in the $1 directory
+#
+_get_pid()
+{
+    if [ ${IAM} = pmlogger ]
+    then
+	_egrep -rl "^$1/[^/]*$" $PCP_TMP_DIR/${IAM} \
+	| sed -e 's;.*/;;'
+    else
+	$PCP_BINADM_DIR/pmie_dump_stats $PCP_TMP_DIR/${IAM}/* 2>&1 \
+	| grep ":logfile=$1" \
+	| sed -e 's/:.*//'
+    fi
+}
+
 # do what ${IAM}_check does to a control line in terms of variable
 # expansion
 # 
@@ -484,7 +509,8 @@ _expand_control()
 {
     sed \
 	-e 's/[ 	][ 	]*/ /g' \
-	-e "s;PCP_ARCHIVE_DIR/;$PCP_ARCHIVE_DIR/;g" \
+	-e "s;PCP_ARCHIVE_DIR/;$PCP_LOG_DIR/pmlogger/;g" \
+	-e "s;PCP_LOG_DIR/;$PCP_LOG_DIR/;g" \
 	-e "s/^LOCALHOSTNAME /$localhost /g" \
 	-e "s/\\([^a-zA-Z0-9]\\)LOCALHOSTNAME/\\1$localhost/g" \
     # end
@@ -495,7 +521,8 @@ _expand_control()
 _unexpand_control()
 {
     sed \
-	-e "s;$PCP_ARCHIVE_DIR/;PCP_ARCHIVE_DIR/;g" \
+	-e "s;$PCP_LOG_DIR/pmlogger/;PCP_ARCHIVE_DIR/;g" \
+	-e "s;$PCP_LOG_DIR/;PCP_LOG_DIR/;g" \
 	-e "s/^$localhost /LOCALHOSTNAME /g" \
 	-e "s/\\([^a-zA-Z0-9]\\)$localhost/\\1LOCALHOSTNAME/g" \
     # end
@@ -503,21 +530,35 @@ _unexpand_control()
 
 # verbose diagosis of failed state
 # $1 = host
-# $2 = dir
+# $2 = dir (pmlogger) or logfile (pmie)
 #
 _diagnose()
 {
-    if [ -f $2/pmlogger.log ]
+    if [ ${IAM} = pmlogger ]
     then
-	sed <"$2/pmlogger.log" \
-	    -e '/^[ 	]*$/d' \
-	    -e '/^preprocessor cmd:/d' \
-	    -e '/^Config parsed/d' \
-	    -e '/^Group \[/,/^} logged/d' \
-	    -e 's/^/   + /' \
-	# end
+	if [ -f "$2/pmlogger.log" ]
+	then
+	    sed <"$2/pmlogger.log" \
+		-e '/^[ 	]*$/d' \
+		-e '/^preprocessor cmd:/d' \
+		-e '/^Config parsed/d' \
+		-e '/^Group \[/,/^} logged/d' \
+		-e 's/^/   + /' \
+	    # end
+	else
+	    echo "   + pmlogger.log not available"
+	fi
     else
-	echo "   + pmlogger.log not available"
+	# TODO ... need some filtering here for pmie logs
+	if [ -f "$2" ]
+	then
+	    sed <"$2" \
+		-e '/^[ 	]*$/d' \
+		-e 's/^/   + /' \
+	    # end
+	else
+	    echo "   + pmie.log not available"
+	fi
     fi
 }
 
@@ -536,8 +577,7 @@ _check_started()
     while [ $i -lt $max ]
     do
 	$VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N ".""$PCP_ECHO_C"
-	pid=`_egrep -rl "^$dir/[^/]*$" $PCP_TMP_DIR/${IAM} \
-	     | sed -e 's;.*/;;'`
+	pid=`_get_pid "$dir"`
 	[ -n "$pid" ] && break
 	i=`expr $i + 1`
 	pmsleep 0.1
@@ -569,8 +609,7 @@ _check_stopped()
     while [ $i -lt $max ]
     do
 	$VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N ".""$PCP_ECHO_C"
-	pid=`_egrep -rl "^$dir/[^/]*$" $PCP_TMP_DIR/${IAM} \
-	     | sed -e 's;.*/;;'`
+	pid=`_get_pid "$dir"`
 	[ -z "$pid" ] && break
 	i=`expr $i + 1`
 	pmsleep 0.1
@@ -591,7 +630,12 @@ _check_stopped()
 #
 _do_status()
 {
-    fmt="%-20s %-17s %-8s %7s %-8s\n"
+    if [ ${IAM} = pmlogger ]
+    then
+	fmt="%-20s %-17s %-8s %7s %-8s\n"
+    else
+	fmt="%-20s %5s %12s %-8s %7s %-8s\n"
+    fi
 
     PICK_HOSTS=false
     [ -s $tmp/args ] && PICK_HOSTS=true
@@ -616,12 +660,38 @@ _do_status()
 	    fi
 	fi
     fi
-    find $PCP_TMP_DIR/${IAM} -type f -a ! -name primary \
-    | while read f
-    do
-	sed -n -e 3p $f \
-	| _expand_control
-    done >>$tmp/archive
+
+    if [ ${IAM} = pmlogger ]
+    then
+	# for pmlogger the entry here is the full pathaname of
+	# the current archive
+	#
+	find $PCP_TMP_DIR/${IAM} -type f -a ! -name primary \
+	| while read f
+	do
+	    sed -n -e 3p $f \
+	    | _expand_control
+	done >>$tmp/archive
+    else
+	# for pmie, the entry here is ...
+	# pid:logfile:eval_actual
+	#
+	$PCP_BINADM_DIR/pmie_dump_stats $PCP_TMP_DIR/pmie/* 2>&1 \
+	| $PCP_AWK_PROG -F':' '
+BEGIN			{ OFS = ":" }
+$2 ~ /logfile=/		{ logfile = $2
+			  sub(/^logfile=/,"",logfile)
+			}
+$2 ~ /numrules=/	{ rules = $2
+			  sub(/^numrules=/,"",rules)
+			}
+$2 ~ /eval_actual=/	{ evals = $2
+			  sub(/^eval_actual=/,"",evals)
+			  print $1,logfile,rules,evals
+			}' \
+	| _expand_control >$tmp/pmiestats
+    fi
+
     find $CONTROLFILE $CONTROLDIR -type f 2>/dev/null \
     | while read control
     do
@@ -641,7 +711,7 @@ _do_status()
 		\$*)		continue
 				;;
 		\#!\#*)		host=`echo "$host" | sed -e 's/^#!#//'`
-				state='stopped by pmlogctl'
+				state="stopped by $prog"
 				;;
 	    esac
 	    if [ -z "$dir" ]
@@ -669,14 +739,33 @@ found == 0 && $3 == "'"$host"'" && $6 == "'"$dir"'"	{ print NR >>"'$tmp/match'";
 		    continue
 		fi
 	    fi
-	    archive=`grep "^$dir/[^/]*$" $tmp/archive \
+	    archive=''
+	    evals=''
+	    if [ ${IAM} = pmlogger ]
+	    then
+		archive=`grep "^$dir/[^/]*$" $tmp/archive \
+			 | sed -e 's;.*/;;'`
+		_check=`echo "$archive" | wc -l | sed -e 's/ //g'`
+		if [ "$_check" -gt 1 ]
+		then
+		    cat $tmp/archive
+		    _error "Botch: more than one archive matches directory $dir"
+		fi
+		pid=`_egrep -rl "^$dir/[^/]*$" $PCP_TMP_DIR/${IAM} \
 		     | sed -e 's;.*/;;'`
-	    [ -z "$archive" ] && archive='?'
+		[ -z "$archive" ] && archive='?'
+		[ -z "$pid" ] && pid='?'
+	    else
+		pid=''
+		rules=''
+		evals=''
+		eval `$PCP_AWK_PROG -F':' <$tmp/pmiestats '$2 == "'"$dir"'" { print "pid=" $1 " rules=" $3 " evals=" $4 }'`
+		[ -z "$pid" ] && pid='?'
+		[ -z "$rules" ] && rules='?'
+		[ -z "$evals" ] && evals='?'
+	    fi
 	    [ -z "$class" ] && class=default
-	    pid=`_egrep -rl "^$dir/[^/]*$" $PCP_TMP_DIR/${IAM} \
-		 | sed -e 's;.*/;;'`
-	    [ -z "$pid" ] && pid='?'
-	    if [ "$archive" = '?' ]
+	    if [ "$archive" = '?' -o "$evals" = '?' ]
 	    then
 		if [ "$state" = running ]
 		then
@@ -692,12 +781,22 @@ found == 0 && $3 == "'"$host"'" && $6 == "'"$dir"'"	{ print NR >>"'$tmp/match'";
 	    if [ "$primary" = y ]
 	    then
 		# "primary" is a pseudo-class and in particular don't set
-		# $class as this may screw up the next pmlogger line (if
-		# any) in this control file
+		# $class as this may screw up the next pmlogger/pmie line
+		# (if any) in this control file
 		#
-		printf "$fmt" "$host" "$archive" "primary" "$pid" "$state"
+		if [ ${IAM} = pmlogger ]
+		then
+		    printf "$fmt" "$host" "$archive" "primary" "$pid" "$state"
+		else
+		    printf "$fmt" "$host" "$rules" "$evals" "primary" "$pid" "$state"
+		fi
 	    else
-		printf "$fmt" "$host" "$archive" "$class" "$pid" "$state"
+		if [ ${IAM} = pmlogger ]
+		then
+		    printf "$fmt" "$host" "$archive" "$class" "$pid" "$state"
+		else
+		    printf "$fmt" "$host" "$rules" "$evals" "$class" "$pid" "$state"
+		fi
 	    fi
 	done
     done \
@@ -705,35 +804,55 @@ found == 0 && $3 == "'"$host"'" && $6 == "'"$dir"'"	{ print NR >>"'$tmp/match'";
 
     if [ -s $tmp/out ]
     then
-	printf "$fmt" "pmcd Host" Archive Class PID State
+	if [ ${IAM} = pmlogger ]
+	then
+	    printf "$fmt" "pmcd Host" Archive Class PID State
+	else
+	    printf "$fmt" "pmcd Host" Rules Evaluations Class PID State
+	fi
 	if $VERBOSE
 	then
-	    cat $tmp/out \
-	    | while read host archive class pid state
-	    do
-		dir=`echo "$state" | sed -e 's/.*|//'`
-		state=`echo "$state" | sed -e 's/|.*//'`
-		printf "$fmt" "$host" "$archive" "$class" "$pid" "$state"
-		if [ "$state" = dead ]
-		then
-		    _diagnose "$host" "$dir" 
-		fi
-	    done
+	    if [ ${IAM} = pmlogger ]
+	    then
+		cat $tmp/out \
+		| while read host archive class pid state
+		do
+		    dir=`echo "$state" | sed -e 's/.*|//'`
+		    state=`echo "$state" | sed -e 's/|.*//'`
+		    printf "$fmt" "$host" "$archive" "$class" "$pid" "$state"
+		    if [ "$state" = dead ]
+		    then
+			_diagnose "$host" "$dir" 
+		    fi
+		done
+	    else
+		cat $tmp/out \
+		| while read host rules evals class pid state
+		do
+		    dir=`echo "$state" | sed -e 's/.*|//'`
+		    state=`echo "$state" | sed -e 's/|.*//'`
+		    printf "$fmt" "$host" "$rules" "$evals" "$class" "$pid" "$state"
+		    if [ "$state" = dead ]
+		    then
+			_diagnose "$host" "$dir" 
+		    fi
+		done
+	    fi
 	else
 	    cat $tmp/out
 	fi
     fi
     if [ -s $tmp/args ]
     then
-	echo >&2 "No ${IAM} configuration found for:"
+	echo "No ${IAM} configuration found for:"
 	cat $tmp/args \
 	| while read control class args_host primary socks args_dir args
 	do
 	    if [ X"$class" != X- ]
 	    then
-		echo >&2 "  host $args_host directory $args_dir class $class"
+		echo "  host $args_host directory $args_dir class $class"
 	    else
-		echo >&2 "  host $args_host directory $args_dir"
+		echo "  host $args_host directory $args_dir"
 	    fi
 	done
     fi
@@ -758,7 +877,7 @@ _do_create()
 	fi
 	[ -f $CONTROLDIR/"$name" ] && _error "control file $CONTROLDIR/$name already exists"
 	cat <<End-of-File >$tmp/control
-# created by pmlogctl on `date`
+# created by $prog on `date`
 \$class=$CLASS
 End-of-File
 	_get_policy_section "$POLICY" control >$tmp/tmp
@@ -874,8 +993,7 @@ _do_start()
     | while read control class args_host primary socks args_dir args
     do
 	$VERBOSE && echo "Looking for ${IAM} using directory $args_dir ..."
-	pid=`_egrep -rl "^$args_dir/[^/]*$" $PCP_TMP_DIR/${IAM} \
-	     | sed -e 's;.*/;;'`
+	pid=`_get_pid "$args_dir"`
 	if [ -n "$pid" ]
 	then
 	    $VERBOSE && echo "${IAM} PID $pid already running for host $args_host, nothing to do"
@@ -947,8 +1065,7 @@ _do_stop()
 	    continue
 	fi
 	$VERBOSE && echo "Looking for ${IAM} using directory $args_dir ..."
-	pid=`_egrep -rl "^$args_dir/[^/]*$" $PCP_TMP_DIR/${IAM} \
-	     | sed -e 's;.*/;;'`
+	pid=`_get_pid "$args_dir"`
 	if [ -z "$pid" ]
 	then
 	    _warning "cannot find PID for host $args_host ${IAM}, already exited?"
@@ -1112,14 +1229,19 @@ then
 name:
 %h
 
+destroy:
+manual
+
 control:
 #DO NOT REMOVE OR EDIT THE FOLLOWING LINE
 $version=1.1
-%h n n PCP_ARCHIVE_DIR/%h -c config.default
-
-destroy:
-manual
 End-of-File
+	if [ ${IAM} = pmlogger ]
+	then
+	    echo '%h n n PCP_ARCHIVE_DIR/%h -c config.default' >>$tmp/policy
+	else
+	    echo '%h n n PCP_LOG_DIR/pmie/%h/pmie.log -c config.default' >>$tmp/policy
+	fi
 	POLICY=$tmp/policy
 	$VERY_VERBOSE && echo "Using default policy"
     fi
