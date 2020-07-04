@@ -187,16 +187,17 @@ _egrep()
     _pat="$1"
     shift
 
-    # skip errors from find(1), only interested in real, existing files
+    # skip errors from find(1) and egrep(1), only interested in matches for
+    # real, existing files
     #
     find $* -type f 2>/dev/null \
     | while read _f
     do
 	if $_text
 	then
-	    egrep "$_pat" <$_f | sed -e "s;^;$_f|;"
+	    egrep "$_pat" <$_f 2>/dev/null | sed -e "s;^;$_f|;"
 	else
-	    egrep "$_pat" <$_f >/dev/null && echo "$_f"
+	    egrep "$_pat" <$_f >/dev/null 2>&1 && echo "$_f"
 	fi
     done
 }
