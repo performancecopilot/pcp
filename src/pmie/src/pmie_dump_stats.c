@@ -54,9 +54,18 @@ main(int argc, char **argv)
 		p = argv[1];
 	    else
 		p++;
+	    /*
+	     * Ignore Coverity errors here ... these strings are all
+	     * guaranteed to be null-byte terminated in the binary pmie
+	     * stats file.
+	     */
+	    /* coverity[string_null] */
 	    printf("%s:config=%s\n", p, stats.config);
+	    /* coverity[string_null] */
 	    printf("%s:logfile=%s\n", p, stats.logfile);
+	    /* coverity[string_null] */
 	    printf("%s:pmcd_host=%s\n", p, stats.defaultfqdn);
+
 	    printf("%s:eval_expected=%.2f\n", p, stats.eval_expected);
 	    printf("%s:numrules=%d\n", p, stats.numrules);
 	    printf("%s:actions=%d\n", p, stats.actions);
@@ -72,20 +81,3 @@ main(int argc, char **argv)
 
     return 0;
 }
-
-#if 0
-typedef struct {
-    char		config[MAXPATHLEN+1];
-    char		logfile[MAXPATHLEN+1];
-    char		defaultfqdn[MAXHOSTNAMELEN+1];
-    float		eval_expected;		/* pmcd.pmie.eval.expected */
-    unsigned int	numrules;		/* pmcd.pmie.numrules      */
-    unsigned int	actions;		/* pmcd.pmie.actions       */
-    unsigned int	eval_true;		/* pmcd.pmie.eval.true     */
-    unsigned int	eval_false;		/* pmcd.pmie.eval.false    */
-    unsigned int	eval_unknown;		/* pmcd.pmie.eval.unknown  */
-    unsigned int	eval_actual;		/* pmcd.pmie.eval.actual   */
-    unsigned int	version;
-} pmiestats_t;
-
-#endif /* STATS_H */
