@@ -17,7 +17,10 @@
 #include <sys/wait.h>
 #include "acct.h"
 
+#define MAX_ACCT_RECORD_SIZE_BYTES	128
 #define RINGBUF_SIZE			5000
+#define OPEN_RETRY_INTERVAL		60
+#define CHECK_ACCOUNTING_INTERVAL	600
 #define PACCT_SYSTEM_FILE		"/var/account/pacct"
 #define PACCT_PCP_PRIVATE_FILE		"/tmp/pcp-pacct"
 
@@ -236,6 +239,76 @@ static int open_pacct_file(void) {
 	return 0;
 }
 
+static void reopen_pacct_file(void) {
+	close_pacct_file();
+	open_pacct_file();
+}
+
+static void free_entry(__pmHashCtl *hp, int i_inst) {
+	__pmHashNode *node = __pmHashSearch(i_inst, hp);
+	if (node && node->data) {
+		__pmHashDel(i_inst, (void *)node->data, hp);
+		free(node->data);
+	}
+}
+
+static int free_ringbuf_entry(__pmHashCtl *hp, int index) {
+	if (!acct_ringbuf.buf[index].instid.i_inst)
+		return 0;
+	free_entry(hp, acct_ringbuf.buf[index].instid.i_inst);
+	memset(&acct_ringbuf.buf[index], 0, sizeof(acct_ringbuf_entry_t));
+	return 1;
+}
+
+static int next_ringbuf_index(int index) {
+	return (index + 1) % RINGBUF_SIZE;
+}
+
+static void acct_ringbuf_add(__pmHashCtl *hp, acct_ringbuf_entry_t *entry) {
+	free_ringbuf_entry(hp, acct_ringbuf.next_index);
+	acct_ringbuf.buf[acct_ringbuf.next_index] = *entry;
+	acct_ringbuf.next_index = next_ringbuf_index(acct_ringbuf.next_index);
+}
+
+static int ringbuf_entry_is_valid(time_t t, int index) {
+	return (t - acct_ringbuf.buf[index].time) <= acct_lifetime;
+}
+
+static int acct_gc(__pmHashCtl *hp, time_t t) {
+	int need_update = 0;
+	int i, index = acct_ringbuf.next_index;
+	for (i = 0; i < RINGBUF_SIZE; i++) {
+		if (ringbuf_entry_is_valid(t, index))
+			break;
+		need_update += free_ringbuf_entry(hp, index);
+		index = next_ringbuf_index(index);
+	}
+	return need_update;
+}
+
+static void copy_ringbuf_to_indom(pmdaIndom* indomp, time_t t) {
+	int i, index;
+	for (i = 0; i < RINGBUF_SIZE; i++) {
+		index = (acct_ringbuf.next_index - 1 - i + RINGBUF_SIZE) % RINGBUF_SIZE;
+		if (!ringbuf_entry_is_valid(t, index))
+			break;
+		indomp->it_set[i] = acct_ringbuf.buf[index].instid;
+	}
+	indomp->it_numinst = i;
+}
+
+static int get_file_size(const char* path) {
+	struct stat statbuf;
+	if (stat(path, &statbuf) < 0)
+		return -1;
+	return statbuf.st_size;
+}
+
+static int exists_hash_entry(int i_inst, proc_acct_t *proc_acct) {
+	__pmHashNode *node = __pmHashSearch(i_inst, &proc_acct->accthash);
+	return node && node->data ? 1 : 0;
+}
+
 void acct_init(proc_acct_t *proc_acct) {
 	init_acct_file_info();
 	open_pacct_file();
@@ -250,6 +323,77 @@ void acct_init(proc_acct_t *proc_acct) {
 }
 
 void refresh_acct(proc_acct_t *proc_acct) {
+	char* tmprec[MAX_ACCT_RECORD_SIZE_BYTES];
+	void* acctp;
+	int acct_file_size;
+	int i, records, i_inst, need_update = 0;
+	time_t now, process_end_time;
+	acct_ringbuf_entry_t ringbuf_entry;
+
+	now = time(NULL);
+	if (acct_file.fd < 0) {
+		if ((now - acct_file.last_fail_open) > OPEN_RETRY_INTERVAL)
+			open_pacct_file();
+		return;
+	}
+
+	if (acct_file.record_size <= 0 || MAX_ACCT_RECORD_SIZE_BYTES < acct_file.record_size)
+		return;
+
+	if ((now - acct_file.last_check_accounting) > CHECK_ACCOUNTING_INTERVAL) {
+		if (!check_accounting(acct_file.fd)) {
+			reopen_pacct_file();
+			return;
+		}
+		acct_file.last_check_accounting = now;
+	}
+	need_update = acct_gc(&proc_acct->accthash, now);
+
+	acct_file_size = get_file_size(acct_file.path);
+	if (acct_file_size < 0) {
+		reopen_pacct_file();
+		return;
+	}
+
+	records = (acct_file_size - acct_file.prev_size) / acct_file.record_size;
+	for (i = 0; i < records; i++) {
+		if (read(acct_file.fd, tmprec, acct_file.record_size) < acct_file.record_size) {
+			reopen_pacct_file();
+			return;
+		}
+
+		if (((struct acct_header*)tmprec)->ac_version != acct_file.version) {
+			reopen_pacct_file();
+			return;
+		}
+
+		i_inst = acct_ops.get_pid(tmprec);
+
+		if (!i_inst)
+			continue;
+
+		if (exists_hash_entry(i_inst, proc_acct))
+			continue;
+
+		process_end_time = acct_ops.get_end_time(tmprec);
+		if (now - process_end_time > acct_lifetime)
+			continue;
+
+		acctp = malloc(acct_file.record_size);
+		memcpy(acctp, tmprec, acct_file.record_size);
+
+		ringbuf_entry.time = process_end_time;
+		ringbuf_entry.instid.i_inst = i_inst;
+		ringbuf_entry.instid.i_name = acct_ops.get_comm(acctp);
+
+		acct_ringbuf_add(&proc_acct->accthash, &ringbuf_entry);
+		__pmHashAdd(i_inst, acctp, &proc_acct->accthash);
+		need_update++;
+	}
+
+	if (need_update)
+		copy_ringbuf_to_indom(proc_acct->indom, now);
+	acct_file.prev_size = acct_file_size;
 }
 
 int acct_fetchCallBack(int i_inst, int item, proc_acct_t* proc_acct, pmAtomValue *atom) {
