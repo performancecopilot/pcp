@@ -14,9 +14,13 @@
  * for more details.
  */
 
+#include <sys/wait.h>
 #include "acct.h"
 
 #define RINGBUF_SIZE			5000
+#define PACCT_SYSTEM_FILE		"/var/account/pacct"
+#define PACCT_PCP_PRIVATE_FILE		"/tmp/pcp-pacct"
+
 unsigned long hertz;
 
 static struct {
@@ -40,13 +44,118 @@ static struct {
 	int next_index;
 } acct_ringbuf;
 
+static int set_record_size(int fd) {
+	struct acct_header tmprec;
+
+	if (read(fd, &tmprec, sizeof(tmprec)) < sizeof(tmprec))
+		return 0;
+
+	if ((tmprec.ac_version & 0x0f) == 3) {
+		acct_file.version = 3;
+		acct_file.record_size = sizeof(struct acct_v3);
+		return 1;
+	}
+
+	return 0;
+}
+
+static int check_accounting(int fd) {
+	struct stat before, after;
+
+	if (fstat(fd, &before) < 0)
+		return 0;
+	if (fork() == 0)
+		exit(0);
+	wait(0);
+	if (fstat(fd, &after) < 0)
+		return 0;
+
+	return after.st_size > before.st_size;
+}
+
 static void init_acct_file_info(void) {
 	memset(&acct_file, 0, sizeof(acct_file));
 	acct_file.fd = -1;
 }
 
+static void close_pacct_file(void) {
+	if (acct_file.fd >= 0) {
+		if (acct_file.acct_enabled)
+			acct(0);
+		close(acct_file.fd);
+	}
+	init_acct_file_info();
+}
+
+static int open_and_acct(const char* path, int do_acct) {
+	struct stat file_stat;
+
+	if (acct_file.fd != -1)
+		return 0;
+
+	if (do_acct)
+		acct_file.fd = open(path, O_TRUNC|O_CREAT, S_IRUSR);
+	else
+		acct_file.fd = open(path, O_RDONLY);
+
+	if (acct_file.fd < 0)
+		goto err1;
+
+	if (stat(path, &file_stat) < 0)
+		goto err2;
+
+	if (do_acct && acct(path) < 0)
+		goto err2;
+
+	if (!check_accounting(acct_file.fd))
+		goto err3;
+
+	if (!set_record_size(acct_file.fd))
+		goto err3;
+
+	if (lseek(acct_file.fd, file_stat.st_size, SEEK_SET) < 0)
+		goto err3;
+
+	acct_file.prev_size = file_stat.st_size;
+	acct_file.path = path;
+
+	return 1;
+
+err3:
+	if (do_acct)
+		acct(0);
+
+err2:
+	close(acct_file.fd);
+
+err1:
+	init_acct_file_info();
+
+	return 0;
+}
+
+static int open_pacct_file(void) {
+	int ret;
+
+	ret = open_and_acct(PACCT_SYSTEM_FILE, 0);
+	if (ret) {
+		acct_file.acct_enabled = 0;
+		return 1;
+	}
+
+	ret = open_and_acct(PACCT_PCP_PRIVATE_FILE, 1);
+	if (ret) {
+		acct_file.acct_enabled = 1;
+		return 1;
+	}
+
+	acct_file.last_fail_open = time(NULL);
+	return 0;
+}
+
 void acct_init(proc_acct_t *proc_acct) {
 	init_acct_file_info();
+	open_pacct_file();
 
 	acct_ringbuf.next_index = 0;
 	acct_ringbuf.buf = calloc(RINGBUF_SIZE, sizeof(acct_ringbuf_entry_t));

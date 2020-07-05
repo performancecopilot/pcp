@@ -25,6 +25,11 @@ typedef __u32	comp2_t;
 
 #define ACCT_COMM	16
 
+struct acct_header {
+	char		ac_flag;		/* Flags */
+	char		ac_version;		/* Always set to ACCT_VERSION */
+};
+
 struct acct_v3 {
 	char		ac_flag;		/* Flags */
 	char		ac_version;		/* Always set to ACCT_VERSION */
