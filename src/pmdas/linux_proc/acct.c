@@ -21,11 +21,16 @@
 #define RINGBUF_SIZE			5000
 #define OPEN_RETRY_INTERVAL		60
 #define CHECK_ACCOUNTING_INTERVAL	600
+#define ACCT_FILE_SIZE_THRESHOLD	10485760
 #define PACCT_SYSTEM_FILE		"/var/account/pacct"
 #define PACCT_PCP_PRIVATE_FILE		"/tmp/pcp-pacct"
 
 int acct_lifetime = 60;
 unsigned long hertz;
+struct timeval acct_update_interval = {
+	.tv_sec = 600,
+};
+static int acct_timer_id = -1;
 
 static struct {
 	const char* path;
@@ -179,6 +184,9 @@ static int open_and_acct(const char* path, int do_acct) {
 	if (acct_file.fd != -1)
 		return 0;
 
+	if (do_acct && acct_timer_id == -1)
+		return 0;
+
 	if (do_acct)
 		acct_file.fd = open(path, O_TRUNC|O_CREAT, S_IRUSR);
 	else
@@ -309,7 +317,23 @@ static int exists_hash_entry(int i_inst, proc_acct_t *proc_acct) {
 	return node && node->data ? 1 : 0;
 }
 
+static void acct_timer(int sig, void *ptr) {
+	if (acct_file.fd >= 0 && acct_file.acct_enabled && get_file_size(acct_file.path) > ACCT_FILE_SIZE_THRESHOLD)
+		reopen_pacct_file();
+}
+
+static void init_acct_timer(void) {
+	int sts;
+
+	sts = __pmAFregister(&acct_update_interval, NULL, acct_timer);
+	if (sts < 0)
+		return;
+	acct_timer_id = sts;
+}
+
 void acct_init(proc_acct_t *proc_acct) {
+	init_acct_timer();
+
 	init_acct_file_info();
 	open_pacct_file();
 
