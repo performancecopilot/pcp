@@ -43,6 +43,7 @@
 #include "proc_runq.h"
 #include "proc_dynamic.h"
 #include "cgroups.h"
+#include "acct.h"
 
 /* globals */
 static int			_isDSO = 1;	/* =0 I am a daemon */
@@ -1404,6 +1405,58 @@ static pmdaMetric metrictab[] = {
     /* hotproc.predicate.cpuburn */
     { NULL, {PMDA_PMID(CLUSTER_HOTPROC_PRED,ITEM_HOTPROC_P_CPUBURN),
       PM_TYPE_FLOAT, HOTPROC_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0, 0,0,0)} },
+
+/*
+ * acct cluster
+ */
+    /* acct.tty */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_TTY),
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* acct.exitcode */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_EXITCODE),
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* acct.uid */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_UID),
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* acct.gid */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_GID),
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* acct.pid */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_PID),
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* acct.ppid */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_PPID),
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* acct.btime */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_BTIME),
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* acct.etime */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_ETIME),
+      PM_TYPE_FLOAT, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+    /* acct.utime */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_UTIME),
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+    /* acct.stime */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_STIME),
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+    /* acct.mem */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_MEM),
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+    /* acct.io */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_IO),
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* acct.rw */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_RW),
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* acct.minflt */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_MINFLT),
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* acct.majflt */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_MAJFLT),
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* acct.swaps */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_SWAPS),
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
 };
 

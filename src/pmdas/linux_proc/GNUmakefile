@@ -29,7 +29,7 @@ CFILES		= pmda.c cgroups.c proc_pid.c proc_runq.c proc_dynamic.c\
 		  getinfo.c contexts.c gram_node.c config.c error.c hotproc.c
 
 HFILES		= clusters.h indom.h \
-		  cgroups.h proc_pid.h proc_runq.h getinfo.h contexts.h hotproc.h gram_node.h config.h
+		  acct.h cgroups.h proc_pid.h proc_runq.h getinfo.h contexts.h hotproc.h gram_node.h config.h
 
 LFILES		= lex.l
 YFILES		= gram.y

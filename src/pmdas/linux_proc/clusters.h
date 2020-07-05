@@ -61,7 +61,9 @@
 #define CLUSTER_CGROUP2_CPU_STAT	67
 #define CLUSTER_CGROUP2_IO_STAT		68
 
+#define CLUSTER_ACCT                    70
+
 #define MIN_CLUSTER  8		/* first cluster number we use here */
-#define MAX_CLUSTER 69		/* one more than highest cluster number used */
+#define MAX_CLUSTER 71		/* one more than highest cluster number used */
 
 #endif /* _CLUSTERS_H */

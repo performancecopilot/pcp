@@ -14,6 +14,7 @@ root {
     cgroup
     proc
     hotproc
+    acct
 }
 
 cgroup {
@@ -508,6 +509,25 @@ hotproc.predicate {
     iowait         PROC:61:5
     schedwait      PROC:61:6
     cpuburn        PROC:61:7
+}
+
+acct {
+    tty         PROC:70:0
+    exitcode    PROC:70:1
+    uid         PROC:70:2
+    gid         PROC:70:3
+    pid         PROC:70:4
+    ppid        PROC:70:5
+    btime       PROC:70:6
+    etime       PROC:70:7
+    utime       PROC:70:8
+    stime       PROC:70:9
+    mem         PROC:70:10
+    io          PROC:70:11
+    rw          PROC:70:12
+    minflt      PROC:70:13
+    majflt      PROC:70:14
+    swaps       PROC:70:15
 }
 
 #undef PROC
