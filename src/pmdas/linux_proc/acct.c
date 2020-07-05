@@ -34,6 +34,13 @@ static struct {
 	time_t last_check_accounting;
 } acct_file;
 
+static struct {
+	int    (*get_pid)(void*);
+	char*  (*get_comm)(void*);
+	time_t (*get_end_time)(void*);
+	int    (*fetchCallBack)(int, void*, pmAtomValue*);
+} acct_ops;
+
 typedef struct {
 	time_t time;
 	struct pmdaInstid instid;
@@ -44,6 +51,76 @@ static struct {
 	int next_index;
 } acct_ringbuf;
 
+static int get_pid_v3(void *entry) {
+	return ((struct acct_v3*)entry)->ac_pid;
+}
+
+static char* get_comm_v3(void *entry) {
+	return ((struct acct_v3*)entry)->ac_comm;
+}
+
+static time_t get_end_time_v3(void *entry) {
+	return ((struct acct_v3*)entry)->ac_btime +
+		(int)(((struct acct_v3*)entry)->ac_etime / hertz);
+}
+
+static int acct_fetchCallBack_v3(int item, void *p, pmAtomValue* atom) {
+	struct acct_v3* acctp = (struct acct_v3*)p;
+	switch (item) {
+	case ACCT_TTY:
+		atom->ul = acctp->ac_tty;
+		break;
+	case ACCT_EXITCODE:
+		atom->ul = acctp->ac_exitcode;
+		break;
+	case ACCT_UID:
+		atom->ul = acctp->ac_uid;
+		break;
+	case ACCT_GID:
+		atom->ul = acctp->ac_gid;
+		break;
+	case ACCT_PID:
+		atom->ul = acctp->ac_pid;
+		break;
+	case ACCT_PPID:
+		atom->ul = acctp->ac_ppid;
+		break;
+	case ACCT_BTIME:
+		atom->ul = acctp->ac_btime;
+		break;
+	case ACCT_ETIME:
+		atom->f = acctp->ac_etime * 1000 / hertz;
+		break;
+	case ACCT_UTIME:
+		atom->ul = acctp->ac_utime * 1000 / hertz;
+		break;
+	case ACCT_STIME:
+		atom->ul = acctp->ac_stime * 1000 / hertz;
+		break;
+	case ACCT_MEM:
+		atom->ul = acctp->ac_mem;
+		break;
+	case ACCT_IO:
+		atom->ul = acctp->ac_io;
+		break;
+	case ACCT_RW:
+		atom->ul = acctp->ac_rw;
+		break;
+	case ACCT_MINFLT:
+		atom->ul = acctp->ac_minflt;
+		break;
+	case ACCT_MAJFLT:
+		atom->ul = acctp->ac_majflt;
+		break;
+	case ACCT_SWAPS:
+		atom->ul = acctp->ac_swaps;
+		break;
+	default:
+		return 0;
+	}
+	return 1;
+}
+
 static int set_record_size(int fd) {
 	struct acct_header tmprec;
 
@@ -53,6 +130,11 @@ static int set_record_size(int fd) {
 	if ((tmprec.ac_version & 0x0f) == 3) {
 		acct_file.version = 3;
 		acct_file.record_size = sizeof(struct acct_v3);
+
+		acct_ops.get_pid       = get_pid_v3;
+		acct_ops.get_comm      = get_comm_v3;
+		acct_ops.get_end_time  = get_end_time_v3;
+		acct_ops.fetchCallBack = acct_fetchCallBack_v3;
 		return 1;
 	}
 
