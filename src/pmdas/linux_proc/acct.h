@@ -15,6 +15,10 @@
  */
 
 #include <linux/types.h>
+#include <sys/stat.h>
+#include <pcp/pmapi.h>
+#include <pcp/pmda.h>
+#include "libpcp.h"
 
 typedef __u16	comp_t;
 typedef __u32	comp2_t;
@@ -43,6 +47,11 @@ struct acct_v3 {
 	char		ac_comm[ACCT_COMM];	/* Command Name */
 };
 
+typedef struct {
+	__pmHashCtl	accthash;		/* hash table for acct */
+	pmdaIndom	*indom;			/* instance domain table */
+} proc_acct_t;
+
 enum {
 	ACCT_TTY      = 0,
 	ACCT_EXITCODE = 1,
@@ -61,3 +70,7 @@ enum {
 	ACCT_MAJFLT   = 14,
 	ACCT_SWAPS    = 15,
 };
+
+extern void acct_init(proc_acct_t *);
+extern void refresh_acct(proc_acct_t *);
+extern int acct_fetchCallBack(int i_inst, int item, proc_acct_t* proc_acct, pmAtomValue *atom);

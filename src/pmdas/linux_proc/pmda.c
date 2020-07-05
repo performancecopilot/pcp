@@ -51,6 +51,7 @@ static int			rootfd = -1;	/* af_unix pmdaroot */
 static proc_pid_t		proc_pid;
 static proc_pid_t		hotproc_pid;
 static proc_runq_t		proc_runq;
+static proc_acct_t		proc_acct;
 static int			all_access;	/* =1 no access checks */
 static int			have_access;	/* =1 recvd uid/gid */
 static size_t			_pm_system_pagesize;
@@ -1522,6 +1523,9 @@ proc_refresh(pmdaExt *pmda, int *need_refresh)
 	    refresh_cgroups2(cgroup, cgrouplen, need_refresh);
     }
 
+    if (need_refresh[CLUSTER_ACCT] && !proc_ctx_getuid(pmda->e_context))
+	refresh_acct(&proc_acct);
+
     if (need_refresh[CLUSTER_PID_STAT] ||
 	need_refresh[CLUSTER_PID_STATM] || 
 	need_refresh[CLUSTER_PID_STATUS] ||
@@ -1616,6 +1620,9 @@ proc_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt 
 	break;
     case CGROUP_MOUNTS_INDOM:
     	need_refresh[CLUSTER_CGROUP_MOUNTS]++;
+	break;
+    case ACCT_INDOM:
+	need_refresh[CLUSTER_ACCT]++;
 	break;
     /* no default label : pmdaInstance will pick up errors */
     }
@@ -3411,6 +3418,11 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	atom->ul = entry->oom_score;
 	break;
 
+    case CLUSTER_ACCT:
+	if (!acct_fetchCallBack(inst, item, &proc_acct, atom))
+	    return PM_ERR_PMID;
+	break;
+
     case CLUSTER_CONTROL:
 	switch (item) {
 	/* case 1: not reached -- proc.control.all.threads is direct */
@@ -3818,6 +3830,10 @@ proc_init(pmdaInterface *dp)
 
     proc_ctx_init();
     proc_dynamic_init(metrictab, nmetrics);
+
+    indomtab[ACCT_INDOM].it_indom = ACCT_INDOM;
+    proc_acct.indom = &indomtab[ACCT_INDOM];
+    acct_init(&proc_acct);
 
     rootfd = pmdaRootConnect(NULL);
     pmdaSetFlags(dp, PMDA_EXT_FLAG_HASHED);
