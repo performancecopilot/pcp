@@ -193,13 +193,21 @@ _egrep()
     find $* -type f 2>/dev/null \
     | while read _f
     do
-	if $_text
+	# possible race here with async execution of ${IAM}_check removing
+	# the file after find saw it ... so check again for existance
+	#
+	[ -f "$_f" ] && egrep "$_pat" "$_f" 2>/dev/null >$tmp/_egrep
+	if [ -s $tmp/_egrep ]
 	then
-	    egrep "$_pat" <$_f 2>/dev/null | sed -e "s;^;$_f|;"
-	else
-	    egrep "$_pat" <$_f >/dev/null 2>&1 && echo "$_f"
+	    if $_text
+	    then
+		sed -e "s;^;$_f|;" $tmp/_egrep
+	    else
+		echo "$_f"
+	    fi
 	fi
     done
+    rm -f $tmp/_egrep
 }
 
 _usage()
