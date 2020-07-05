@@ -21,6 +21,7 @@
 #define PACCT_SYSTEM_FILE		"/var/account/pacct"
 #define PACCT_PCP_PRIVATE_FILE		"/tmp/pcp-pacct"
 
+int acct_lifetime = 60;
 unsigned long hertz;
 
 static struct {
@@ -252,5 +253,15 @@ void refresh_acct(proc_acct_t *proc_acct) {
 }
 
 int acct_fetchCallBack(int i_inst, int item, proc_acct_t* proc_acct, pmAtomValue *atom) {
-	return 0;
+	if (acct_file.fd < 0)
+		return 0;
+
+	__pmHashNode *node = __pmHashSearch(i_inst, &proc_acct->accthash);
+	if (!node || !node->data)
+		return 0;
+
+	if (time(NULL) - acct_ops.get_end_time(node->data) > acct_lifetime)
+		return 0;
+
+	return acct_ops.fetchCallBack(item, node->data, atom);
 }
