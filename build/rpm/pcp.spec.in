@@ -751,6 +751,7 @@ BuildRequires: python36-devel
 Requires: python36
 %else
 BuildRequires: python3-devel
+BuildRequires: python3-setuptools
 Requires: python3
 %endif
 Requires: pcp-libs = @package_version@
