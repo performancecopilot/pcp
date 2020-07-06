@@ -11,7 +11,7 @@ tape.dev.in_flight PMID: 60.71.0 [number of I/Os currently outstanding to this t
     Semantics: instant  Units: count
     inst [N or "st0"] value 0
 
-tape.dev.io_ns PMID: 60.71.1 [cummulative amount of time spent waiting for all I/O to complete to tape device]
+tape.dev.io_ns PMID: 60.71.1 [cumulative amount of time spent waiting for all I/O to complete to tape device]
     Data Type: 64-bit unsigned int  InDom: 60.34 0xf000022
     Semantics: counter  Units: nanosec
     inst [N or "st0"] value 174239975693
@@ -31,7 +31,7 @@ tape.dev.read_cnt PMID: 60.71.4 [number of read requests issued to the tape driv
     Semantics: counter  Units: count
     inst [N or "st0"] value 234430
 
-tape.dev.read_ns PMID: 60.71.5 [cummulative amount of time spent waiting for read requests to complete]
+tape.dev.read_ns PMID: 60.71.5 [cumulative amount of time spent waiting for read requests to complete]
     Data Type: 64-bit unsigned int  InDom: 60.34 0xf000022
     Semantics: counter  Units: nanosec
     inst [N or "st0"] value 66588205359
@@ -51,7 +51,7 @@ tape.dev.write_cnt PMID: 60.71.8 [number of write requests issued to the tape dr
     Semantics: counter  Units: count
     inst [N or "st0"] value 100470
 
-tape.dev.write_ns PMID: 60.71.9 [cummulative amount of time spent waiting for write requests to complete]
+tape.dev.write_ns PMID: 60.71.9 [cumulative amount of time spent waiting for write requests to complete]
     Data Type: 64-bit unsigned int  InDom: 60.34 0xf000022
     Semantics: counter  Units: nanosec
     inst [N or "st0"] value 31994162683
@@ -71,7 +71,7 @@ tape.dev.in_flight PMID: 60.71.0 [number of I/Os currently outstanding to this t
     inst [N or "st0"] value 0
     inst [N or "st1"] value 0
 
-tape.dev.io_ns PMID: 60.71.1 [cummulative amount of time spent waiting for all I/O to complete to tape device]
+tape.dev.io_ns PMID: 60.71.1 [cumulative amount of time spent waiting for all I/O to complete to tape device]
     Data Type: 64-bit unsigned int  InDom: 60.34 0xf000022
     Semantics: counter  Units: nanosec
     inst [N or "st0"] value 0
@@ -95,7 +95,7 @@ tape.dev.read_cnt PMID: 60.71.4 [number of read requests issued to the tape driv
     inst [N or "st0"] value 0
     inst [N or "st1"] value 0
 
-tape.dev.read_ns PMID: 60.71.5 [cummulative amount of time spent waiting for read requests to complete]
+tape.dev.read_ns PMID: 60.71.5 [cumulative amount of time spent waiting for read requests to complete]
     Data Type: 64-bit unsigned int  InDom: 60.34 0xf000022
     Semantics: counter  Units: nanosec
     inst [N or "st0"] value 0
@@ -119,7 +119,7 @@ tape.dev.write_cnt PMID: 60.71.8 [number of write requests issued to the tape dr
     inst [N or "st0"] value 0
     inst [N or "st1"] value 0
 
-tape.dev.write_ns PMID: 60.71.9 [cummulative amount of time spent waiting for write requests to complete]
+tape.dev.write_ns PMID: 60.71.9 [cumulative amount of time spent waiting for write requests to complete]
     Data Type: 64-bit unsigned int  InDom: 60.34 0xf000022
     Semantics: counter  Units: nanosec
     inst [N or "st0"] value 0
