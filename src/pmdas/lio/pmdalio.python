@@ -13,6 +13,8 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
+# pylint: disable=too-many-arguments
+#
 
 from ctypes import c_uint, c_ulong, POINTER, cast, Structure
 import cpmapi as c_api
@@ -39,7 +41,6 @@ class LIO(Structure):
     Define the structure for the attributes that make up the Linux I/O (LIO)
     iSCSI target
     """
-
     _fields_ = [
         ("total_iops", c_ulong),
         ("total_read_mb", c_ulong),
@@ -50,13 +51,21 @@ class LIO(Structure):
         ("active_sessions", c_uint),
         ("tpgs", c_uint)
     ]
-
+    def __init__(self, iops=0, rmb=0, wmb=0, cls=0, size=0, luns=0, sess=0, tpgs=0):
+        Structure.__init__(self)
+        self.total_iops = iops
+        self.total_read_mb = rmb
+        self.total_write_mb = wmb
+        self.total_clients = cls
+        self.total_size = size
+        self.total_luns = luns
+        self.active_sessions = sess
+        self.tpgs = tpgs
 
 class LUN(Structure):
     """
     Define the structure for the attributes that make up a LUN object
     """
-
     _fields_ = [
         ("iops", c_uint),
         ("read_mb", c_uint),
@@ -64,6 +73,12 @@ class LUN(Structure):
         ("size", c_uint)
     ]
 
+    def __init__(self, iops=0, read_mb=0, write_mb=0, size=0):
+        Structure.__init__(self)
+        self.iops = iops
+        self.read_mb = read_mb
+        self.write_mb = write_mb
+        self.size = size
 
 class LIOPMDA(PMDA):
     """
