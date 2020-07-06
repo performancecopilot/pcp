@@ -56,12 +56,13 @@ def read_testlog(qa_dir: str, testartifacts_dir: str, groups: Dict[str, List[str
         for line in testlog_file:
             # [xx%] will be displayed if there are more than 9 tests
             #  Xs ... will be displayed if test was already run
-            success_m = re.match(r'^(?:\[\d+%\] )?(\d+)(?: \d+s \.\.\.)?$', line)
-            notrun_m = re.match(r'^(?:\[\d+%\] )?(\d+)(?: \d+s \.\.\.)? \[not run\] (.+)$', line)
-            failed_m = re.match(r'^(?:\[\d+%\] )?(\d+)(?: \d+s \.\.\.)? ((\- |\[).+)$', line)
+            success_m = re.match(r'^(?:\[\d+%\] )?(\d+)(?: \d+s \.\.\.)?\n$', line)
+            notrun_m = re.match(r'^(?:\[\d+%\] )?(\d+)(?: \d+s \.\.\.)? \[not run\] (.+)\n$', line)
+            failed_m = re.match(r'^(?:\[\d+%\] )?(\d+)(?: \d+s \.\.\.)? ((\- |\[).+)\n$', line)
+            cancelled_m = re.match(r'^(?:\[\d+%\] )?(\d+)(?: \d+s \.\.\.)?\Z', line)
 
-            if success_m or notrun_m or failed_m:
-                test_no = (success_m or notrun_m or failed_m).group(1)
+            if success_m or notrun_m or failed_m or cancelled_m:
+                test_no = (success_m or notrun_m or failed_m or cancelled_m).group(1)
                 platform, runner = host.split('-')
 
                 test = Test(test_no)
@@ -92,6 +93,9 @@ def read_testlog(qa_dir: str, testartifacts_dir: str, groups: Dict[str, List[str
 
                 test.status = Test.Status.Broken if 'failed' in failed_msg else Test.Status.Failed
                 test.message = failed_msg + "\n"
+            elif cancelled_m:
+                test.status = Test.Status.Broken
+                test.message = "test cancelled"
             elif tests and tests[-1].status in [Test.Status.Failed, Test.Status.Broken]:
                 # if this line doesn't match any regex, it's probably output from the previous test
                 tests[-1].message += line
@@ -157,13 +161,14 @@ def write_allure_result(test: Test, commit: str, allure_results_path: str):
                                f"    ./build/ci/run.py --runner {test.runner} --platform {test.platform} reproduce")
 
         out_bad = os.path.join(test.path, f"{test.name}.out.bad")
-        out_bad_attachment_fn = f"{test.host}-{test.name}.out.bad-attachment.txt"
-        shutil.copyfile(out_bad, os.path.join(allure_results_path, out_bad_attachment_fn))
-        allure_result["attachments"].append({
-            "type": "text/plain",
-            "name": f"{test.name}.out.bad",
-            "source": out_bad_attachment_fn
-        })
+        if os.path.exists(out_bad):
+            out_bad_attachment_fn = f"{test.host}-{test.name}.out.bad-attachment.txt"
+            shutil.copyfile(out_bad, os.path.join(allure_results_path, out_bad_attachment_fn))
+            allure_result["attachments"].append({
+                "type": "text/plain",
+                "name": f"{test.name}.out.bad",
+                "source": out_bad_attachment_fn
+            })
 
         out_full = os.path.join(test.path, f"{test.name}.full")
         if os.path.exists(out_full):
@@ -198,8 +203,9 @@ def print_test_summary(all_tests: List[Test]):
     for name, count in failed_tests_sorted[:10]:
         print(f"{name:>5}  {count:>5}")
 
-    if failed_tests:
-        print(f"\n::error::{len(failed_tests)} unique QA test failures.")
+    num_failed_tests = sum(failed_tests.values())
+    if num_failed_tests:
+        print(f"\n::error::{num_failed_tests} unique QA test failures.")
 
 
 def main():

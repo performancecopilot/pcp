@@ -14,7 +14,7 @@ container:
 
     # allow services to be started during installation
     # pmcd will create the file /var/lib/pcp/pmns/stdpmid, which is required by QA tests
-    printf '#!/bin/sh\nexit 0\n' > /usr/sbin/policy-rc.d
+    RUN printf '#!/bin/sh\nexit 0\n' > /usr/sbin/policy-rc.d
 
 tasks:
   update: |
