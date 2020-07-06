@@ -1280,10 +1280,13 @@ redis_load_series_version_callback(
     }
 
     /* set the version when none found (first time through) */
-    if (version != SERIES_VERSION && baton->version != -1)
+    if (version != SERIES_VERSION && baton->version != -1) {
+	/* drop reference from schema version request */
+	seriesBatonDereference(baton, "redis_load_series_version_callback");
 	redis_update_version(arg);
-    else
+    } else {
 	redis_slots_end_phase(baton);
+    }
 }
 
 static void
