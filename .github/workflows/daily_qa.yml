@@ -79,7 +79,7 @@ jobs:
     name: Publish Test Report
     if: always() && github.repository == 'performancecopilot/pcp'
     needs: qa
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     steps:
       - name: Checkout sources
         uses: actions/checkout@v2

@@ -7,7 +7,7 @@ on:
 jobs:
   qa:
     name: ${{ matrix.platform }}-${{ matrix.runner }}
-    #if: github.repository == 'performancecopilot/pcp'
+    if: github.repository == 'performancecopilot/pcp'
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: true
@@ -77,9 +77,9 @@ jobs:
 
   release:
     name: Release on Bintray
-    #if: github.repository == 'performancecopilot/pcp'
+    if: github.repository == 'performancecopilot/pcp'
     needs: qa
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     steps:
       - name: Checkout sources
         uses: actions/checkout@v2
@@ -93,7 +93,7 @@ jobs:
         run: ./Makepkgs --source --nonrpm
 
       - name: Release on Bintray
-        run: ./build/ci/release-bintray.py --subject agerstmayr --version ${GITHUB_REF#refs/tags/} --source ./build/tar/*.src.tar.gz
+        run: ./build/ci/release-bintray.py --version ${GITHUB_REF#refs/tags/} --source ./build/tar/*.src.tar.gz
         env:
           BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
           BINTRAY_APIKEY: ${{ secrets.BINTRAY_APIKEY }}

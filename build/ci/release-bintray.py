@@ -29,7 +29,9 @@ class BintrayApi:
                 data=f
             )
         print(r.text)
-        r.raise_for_status()
+        if r.status_code not in [200, 409]:
+            # ignore HTTP 409: An artifact with the path ... already exists [under another version]
+            r.raise_for_status()
         print()
 
     def sign_version(self, repository, package, version):
@@ -83,10 +85,11 @@ def main():
         sys.exit(1)
 
     bintray = BintrayApi(args.subject, args.user, args.apikey, args.gpg_passphrase)
+    repositories_to_publish = []
 
     if args.source:
         bintray.upload('source', args.package, args.version, {}, args.source)
-        bintray.publish('source', args.package, args.version)
+        repositories_to_publish.append('source')
 
     for artifact_dir in os.listdir(args.artifacts):
         # ex. build-fedora31-container
@@ -112,6 +115,10 @@ def main():
 
         bintray.sign_version(repository, args.package, args.version)
         bintray.sign_metadata(repository, args.package, args.version)
+        repositories_to_publish.append(repository)
+
+    # publish new version for all distributions at the same time
+    for repository in repositories_to_publish:
         bintray.publish(repository, args.package, args.version)
 
 
