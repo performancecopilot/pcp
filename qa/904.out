@@ -1,5 +1,5 @@
 QA output created by 904
-Running as local:
+Running as localhost
 pmGetChildren:
 ['one', 'ten', 'hundred', 'million', 'write_me', 'bin', 'bin_ctr']
 pmGetChildrenStatus:
