@@ -76,8 +76,8 @@ def main():
     parser.add_argument('--apikey', default=os.environ.get('BINTRAY_APIKEY'))
     parser.add_argument('--gpg_passphrase', default=os.environ.get('BINTRAY_GPG_PASSPHRASE'))
     parser.add_argument('--version', required=True)
-    parser.add_argument('--artifacts', default='./artifacts')
     parser.add_argument('--source')
+    parser.add_argument('artifact', nargs='*')
 
     args = parser.parse_args()
     if not args.user or not args.apikey or not args.gpg_passphrase:
@@ -91,9 +91,9 @@ def main():
         bintray.upload('source', args.package, args.version, {}, args.source)
         repositories_to_publish.append('source')
 
-    for artifact_dir in os.listdir(args.artifacts):
+    for artifact_dir in args.artifact:
         # ex. build-fedora31-container
-        artifact, platform_name, _runner = artifact_dir.split('-')
+        artifact, platform_name, _runner = os.path.basename(artifact_dir).split('-')
         if artifact != 'build':
             continue
 
@@ -107,11 +107,10 @@ def main():
 
         bintray_params = platform['bintray']
         repository = bintray_params.pop('repository')
-        build_artifacts_dir = os.path.join(args.artifacts, artifact_dir)
 
-        for artifact in os.listdir(build_artifacts_dir):
-            artifact_path = os.path.join(build_artifacts_dir, artifact)
-            bintray.upload(repository, args.package, args.version, bintray_params, artifact_path)
+        for artifact_filename in os.listdir(artifact_dir):
+            artifact_filepath = os.path.join(artifact_dir, artifact_filename)
+            bintray.upload(repository, args.package, args.version, bintray_params, artifact_filepath)
 
         bintray.sign_version(repository, args.package, args.version)
         bintray.sign_metadata(repository, args.package, args.version)

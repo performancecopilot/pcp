@@ -93,7 +93,7 @@ jobs:
         run: ./Makepkgs --source --nonrpm
 
       - name: Release on Bintray
-        run: ./build/ci/release-bintray.py --version ${GITHUB_REF#refs/tags/} --source ./build/tar/*.src.tar.gz
+        run: ./build/ci/release-bintray.py --version ${GITHUB_REF#refs/tags/} --source ./build/tar/*.src.tar.gz ./artifacts/build-*
         env:
           BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
           BINTRAY_APIKEY: ${{ secrets.BINTRAY_APIKEY }}
