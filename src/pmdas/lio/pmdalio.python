@@ -22,7 +22,7 @@ from pcp.pmda import PMDA, pmdaMetric, pmdaIndom
 
 import rtslib_fb.root as root
 import rtslib_fb.tcm as tcm
-from rtslib_fb.utils import fread, RTSLibNotInCFS
+from rtslib_fb.utils import fread, RTSLibError
 
 import os
 
@@ -72,6 +72,8 @@ class LIOPMDA(PMDA):
 
     LIO_SUMMARY = 0
     LUN_STATS = 1
+
+    logged = False  # log-once module refresh error condition
 
     targets = {}
     luns = {}
@@ -174,7 +176,7 @@ class LIOPMDA(PMDA):
         self.set_instance(self.lio_instance)
         self.set_fetch_callback(self.lio_fetch_callback)
 
-    def refresh(self):
+    def refresh_all(self):
         """
         gather the metrics from LIO, and store in either a LUN or LIO
         object, then add this object to a dict to serve as a cache for later
@@ -233,7 +235,7 @@ class LIOPMDA(PMDA):
                             self.luns[so_name] = lun
 
                         # determine the client count based on the active tpg
-                        clients_defined = [client for client in tpg.node_acls]
+                        clients_defined = list(tpg.node_acls)
                         active_sessions = [client for client in clients_defined
                                            if client.session]
                         target.total_clients = len(clients_defined)
@@ -243,8 +245,15 @@ class LIOPMDA(PMDA):
 
                 self.targets[tgt.wwn] = target
 
-    def lio_instance(self, serial):
+    def refresh(self):
+        try:
+            self.refresh_all()
+        except RTSLibError as error:
+            if not self.logged:
+                self.log(str(error))
+            self.logged = True
 
+    def lio_instance(self, serial):
         self.refresh()
 
     def lio_fetch(self):
@@ -299,9 +308,7 @@ class LIOPMDA(PMDA):
 
         if 0 <= item <= (len(LUN._fields_) - 1):
             return [getattr(lun, item_lookup[item]), 1]
-        else:
-            return [c_api.PM_ERR_INST, 0]
-        pass
+        return [c_api.PM_ERR_INST, 0]
 
     def lio_fetch_callback(self, cluster, item, inst):
         """
