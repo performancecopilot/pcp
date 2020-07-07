@@ -20,6 +20,7 @@
 #ifdef HAVE_REGEX_H
 #include <regex.h>
 #endif
+#include <sys/stat.h>
 
 extern int istoken(const char *, const char *, size_t);
 extern char *trim(const char *);

@@ -2,6 +2,7 @@
  * Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
  */
 #include "pmapi.h"
+#include <sys/stat.h>
 
 static void
 usage(void) {

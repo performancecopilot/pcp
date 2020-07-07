@@ -17,6 +17,7 @@
 #include "pmproxy.h"
 #include "pmwebapi.h"
 #include <strings.h>
+#include <sys/stat.h>
 
 #define MAXPENDING	128	/* maximum number of pending connections */
 #define STRINGIFY(s)    #s
