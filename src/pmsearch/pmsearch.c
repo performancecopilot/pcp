@@ -218,7 +218,7 @@ static int
 pmsearch_overrides(int opt, pmOptions *opts)
 {
     switch (opt) {
-    case 'h': case 'n': case 'N': case 's': case 't':
+    case 'h': case 'n': case 'N': case 'O': case 's': case 't':
 	return 1;
     }
     return 0;
@@ -235,7 +235,7 @@ static pmLongOptions longopts[] = {
     { "info", 0, 'i', 0, "report search engine interal metrics" },
     { "names", 0, 'n', 0, "search for names associated with given InDom" },
     { "number", 1, 'N', "N", "return N search results at most" },
-    { "offset", 1, 'o', "N", "paginated results from given offset" },
+    { "offset", 1, 'O', "N", "paginated results from given offset" },
     { "query", 0, 'q', 0, "perform a general text search (default)" },
     { "score", 0, 's', 0, "report score (rank) of each result" },
     { "total", 0, 't', 0, "report total number of search results" },
@@ -247,7 +247,7 @@ static pmLongOptions longopts[] = {
 };
 
 static pmOptions opts = {
-    .short_options = "c:CdD:h:inN:oqp:stvV?",
+    .short_options = "c:CdD:h:inN:O:qp:stvV?",
     .long_options = longopts,
     .short_usage = "[options] [query | indom]",
     .override = pmsearch_overrides,
@@ -359,7 +359,7 @@ main(int argc, char *argv[])
 	    search_count = strtoul(opts.optarg, NULL, 10);
 	    break;
 
-	case 'o':	/* cursor - search starting point */
+	case 'O':	/* cursor - search starting point */
 	    search_offset = strtoul(opts.optarg, NULL, 10);
 	    break;
 
