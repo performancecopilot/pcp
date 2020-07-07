@@ -1,5 +1,5 @@
 /***********************************************************************
- * pmie_dump_stats - dump "stats" file that sites between pmie and the
+ * pmie_dump_stats - dump "stats" file that sits between pmie and the
  * pmcd PMDA ... designed to be used by pmiectl
  ***********************************************************************
  *

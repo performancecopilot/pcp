@@ -2,3 +2,4 @@ fun.c
 grammar.h
 grammar.tab.h
 pmie
+pmie_dump_stats
