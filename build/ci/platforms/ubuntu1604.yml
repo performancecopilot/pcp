@@ -23,11 +23,11 @@ tasks:
     sudo apt-get -y update
     for pkg in $(./pcp/qa/admin/check-vm -p)
     do
+      [ "$runner" = "container" ] && [ "$pkg" = "auditd" ] && continue
       sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "$pkg" || true
     done
-    sudo apt-get install -y python-requests
   build: |
-    cd ./pcp && ./Makepkgs --with-python3=no --nonrpm --verbose
+    cd ./pcp && ./Makepkgs --nonrpm --verbose
   copy_build_artifacts: |
     cp ./pcp/build/deb/*.deb artifacts/build
   install: |

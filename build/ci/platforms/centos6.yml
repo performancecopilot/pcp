@@ -1,40 +1,27 @@
 bintray:
-  repository: bionic
-  deb_distribution: bionic
-  deb_component: main
-  deb_architecture: amd64
+  repository: el6
 
 container:
-  init: /bin/systemd
   containerfile: |
-    FROM docker.io/library/ubuntu:18.04
-    RUN apt-get update && apt-get install -y systemd sudo
+    FROM registry.centos.org/centos:6
+    RUN yum install -y upstart sudo
     RUN useradd --create-home pcpbuild
     RUN echo 'pcpbuild ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/pcpbuild
 
-    # allow services to be started during installation
-    # pmcd will create the file /var/lib/pcp/pmns/stdpmid, which is required by QA tests
-    RUN printf '#!/bin/sh\nexit 0\n' > /usr/sbin/policy-rc.d
-
 tasks:
   update: |
-    sudo apt-get -y update
-    sudo apt-get -y dist-upgrade
+    sudo yum update -y
   install_build_dependencies: |
-    sudo apt-get -y update
-    for pkg in $(./pcp/qa/admin/check-vm -p)
-    do
-      [ "$runner" = "container" ] && [ "$pkg" = "auditd" ] && continue
-      sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "$pkg" || true
-    done
-    sudo apt-get install -y zlib1g-dev
+    sudo yum install -y which
+    sudo yum -y --skip-broken install man $(./pcp/qa/admin/check-vm -fp)
   build: |
-    cd ./pcp && ./Makepkgs --nonrpm --verbose
+    cd ./pcp && ./Makepkgs --verbose
   copy_build_artifacts: |
-    cp ./pcp/build/deb/*.deb artifacts/build
+    cp ./pcp/pcp-*/build/rpm/*.rpm ./artifacts/build
   install: |
-    sudo dpkg -i ./pcp/build/deb/*.deb
+    sudo rpm -iv ./pcp/pcp-*/build/rpm/*.rpm
     echo 'pcpqa ALL=(ALL) NOPASSWD: ALL' | sudo tee /etc/sudoers.d/pcpqa
+    sudo service pmcd start
   init_qa: |
     sudo -i -u pcpqa ./check 002
   qa_sanity: |
