@@ -218,7 +218,7 @@ static int
 pmsearch_overrides(int opt, pmOptions *opts)
 {
     switch (opt) {
-    case 'h': case 'n': case 's': case 't':
+    case 'h': case 'n': case 'N': case 's': case 't':
 	return 1;
     }
     return 0;
