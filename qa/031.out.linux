@@ -65,6 +65,7 @@ children of "sample.longlong" ...
 pmid: PM_ID_NULL name: bozo.the.clown
 
 children of "" ...
+    acct                <s = 1>
     disk                <s = 1>
     event               <s = 1>
     filesys             <s = 1>

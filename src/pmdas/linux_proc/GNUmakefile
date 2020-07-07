@@ -25,11 +25,11 @@ PMDAINIT	= proc_init
 PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
 CONF_LINE	= "proc	3	pipe	binary		$(PMDADIR)/$(CMDTARGET) -d 3"
 
-CFILES		= pmda.c cgroups.c proc_pid.c proc_runq.c proc_dynamic.c\
+CFILES		= pmda.c acct.c cgroups.c proc_pid.c proc_runq.c proc_dynamic.c\
 		  getinfo.c contexts.c gram_node.c config.c error.c hotproc.c
 
 HFILES		= clusters.h indom.h \
-		  cgroups.h proc_pid.h proc_runq.h getinfo.h contexts.h hotproc.h gram_node.h config.h
+		  acct.h cgroups.h proc_pid.h proc_runq.h getinfo.h contexts.h hotproc.h gram_node.h config.h
 
 LFILES		= lex.l
 YFILES		= gram.y
@@ -103,6 +103,7 @@ proc_kernel_ulong.conf proc_jiffies.conf proc_kernel_ulong_migrate.conf: mk.rewr
 
 gram.tab.o:	hotproc.h
 lex.o:	hotproc.h
+acct.o pmda.o: acct.h
 cgroups.o pmda.o: clusters.h
 cgroups.o pmda.o:	cgroups.h
 cgroups.o pmda.o proc_pid.o proc_runq.o proc_dynamic.o:	proc_pid.h
@@ -113,7 +114,7 @@ pmda.o:	domain.h
 pmda.o:	getinfo.h
 pmda.o:	$(VERSION_SCRIPT)
 
-cgroups.o contexts.o pmda.o proc_dynamic.o proc_pid.o proc_runq.o:	$(TOPDIR)/src/include/pcp/libpcp.h
+acct.o cgroups.o contexts.o pmda.o proc_dynamic.o proc_pid.o proc_runq.o:	$(TOPDIR)/src/include/pcp/libpcp.h
 
 check::	$(CFILES) $(HFILES)
 	$(CLINT) $^

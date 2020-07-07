@@ -126,6 +126,7 @@ __pmHashDel(unsigned int key, void *data, __pmHashCtl *hcp)
 	    else
 		lhp->next = hp->next;
 	    free(hp);
+	    hcp->nodes--;
 	    return 1;
 	}
 	lhp = hp;
