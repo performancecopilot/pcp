@@ -8,7 +8,7 @@ QA output created by 679
 
 + cd TMP/oldsem0
 + get mutex lock
-pmlogger_daily: Info: pmlogrewrite all archives in TMP/oldsem0
+Info: pmlogrewrite all archives in TMP/oldsem0
 + PCP_BINADM_DIR/pmlogger_rewrite  -c TMP/oldsem0/pmlogrewrite -V TMP/oldsem0
 Error: no pmlogger instance running for host "localhost"
 ... logging for host "localhost" unchanged
@@ -22,7 +22,7 @@ Warning: skipping log rotation because we don't know which pmlogger to signal
 
 + cd TMP/oldsem1
 + get mutex lock
-pmlogger_daily: Info: pmlogrewrite all archives in TMP/oldsem1
+Info: pmlogrewrite all archives in TMP/oldsem1
 + PCP_BINADM_DIR/pmlogger_rewrite  -c TMP/oldsem1/pmlogrewrite -V TMP/oldsem1
 Error: no pmlogger instance running for host "localhost"
 ... logging for host "localhost" unchanged
@@ -35,7 +35,7 @@ Warning: skipping log rotation because we don't know which pmlogger to signal
 
 + cd TMP/oldsem2
 + get mutex lock
-pmlogger_daily: Info: pmlogrewrite all archives in TMP/oldsem2
+Info: pmlogrewrite all archives in TMP/oldsem2
 + PCP_BINADM_DIR/pmlogger_rewrite  -c TMP/oldsem2/pmlogrewrite -V TMP/oldsem2
 Error: no pmlogger instance running for host "localhost"
 ... logging for host "localhost" unchanged
@@ -47,7 +47,7 @@ Warning: skipping log rotation because we don't know which pmlogger to signal
 
 + cd TMP/newsem0
 + get mutex lock
-pmlogger_daily: Info: pmlogrewrite all archives in TMP/newsem0
+Info: pmlogrewrite all archives in TMP/newsem0
 + PCP_BINADM_DIR/pmlogger_rewrite -c $PCP_VAR_DIR/config/pmlogrewrite -V TMP/newsem0
 Error: no pmlogger instance running for host "localhost"
 ... logging for host "localhost" unchanged
@@ -64,7 +64,7 @@ Warning: skipping log rotation because we don't know which pmlogger to signal
 
 + cd TMP/newsem1
 + get mutex lock
-pmlogger_daily: Info: pmlogrewrite all archives in TMP/newsem1
+Info: pmlogrewrite all archives in TMP/newsem1
 + PCP_BINADM_DIR/pmlogger_rewrite -c $PCP_VAR_DIR/config/pmlogrewrite -V TMP/newsem1
 Error: no pmlogger instance running for host "localhost"
 ... logging for host "localhost" unchanged
@@ -78,7 +78,7 @@ Warning: skipping log rotation because we don't know which pmlogger to signal
 
 + cd TMP/empty
 + get mutex lock
-pmlogger_daily: Info: pmlogrewrite all archives in TMP/empty
+Info: pmlogrewrite all archives in TMP/empty
 + PCP_BINADM_DIR/pmlogger_rewrite -c $PCP_VAR_DIR/config/pmlogrewrite -V TMP/empty
 Error: no pmlogger instance running for host "localhost"
 ... logging for host "localhost" unchanged
@@ -176,7 +176,7 @@ newsem1/20011008:
 
 === daily maintenance of PCP archives for host localhost ===
 
-pmlogger_daily: Info: pmlogrewrite all archives in TMP/oldsem0
+Info: pmlogrewrite all archives in TMP/oldsem0
 Error: no pmlogger instance running for host "localhost"
 ... logging for host "localhost" unchanged
 Warning: skipping log rotation because we don't know which pmlogger to signal
@@ -192,7 +192,7 @@ Removing input archive files ......... done
 
 === daily maintenance of PCP archives for host localhost ===
 
-pmlogger_daily: Info: pmlogrewrite all archives in TMP/oldsem1
+Info: pmlogrewrite all archives in TMP/oldsem1
 Error: no pmlogger instance running for host "localhost"
 ... logging for host "localhost" unchanged
 Warning: skipping log rotation because we don't know which pmlogger to signal
@@ -207,7 +207,7 @@ Removing input archive files ...... done
 
 === daily maintenance of PCP archives for host localhost ===
 
-pmlogger_daily: Info: pmlogrewrite all archives in TMP/oldsem2
+Info: pmlogrewrite all archives in TMP/oldsem2
 Error: no pmlogger instance running for host "localhost"
 ... logging for host "localhost" unchanged
 Warning: skipping log rotation because we don't know which pmlogger to signal
@@ -220,7 +220,7 @@ remove 20011005.00.10.meta
 
 === daily maintenance of PCP archives for host localhost ===
 
-pmlogger_daily: Info: pmlogrewrite all archives in TMP/newsem0
+Info: pmlogrewrite all archives in TMP/newsem0
 Error: no pmlogger instance running for host "localhost"
 ... logging for host "localhost" unchanged
 Warning: skipping log rotation because we don't know which pmlogger to signal
@@ -239,7 +239,7 @@ Removing input archive files .................. done
 
 === daily maintenance of PCP archives for host localhost ===
 
-pmlogger_daily: Info: pmlogrewrite all archives in TMP/newsem1
+Info: pmlogrewrite all archives in TMP/newsem1
 Error: no pmlogger instance running for host "localhost"
 ... logging for host "localhost" unchanged
 Warning: skipping log rotation because we don't know which pmlogger to signal
@@ -255,12 +255,12 @@ Removing input archive files ......... done
 
 === daily maintenance of PCP archives for host localhost ===
 
-pmlogger_daily: Info: pmlogrewrite all archives in TMP/empty
+Info: pmlogrewrite all archives in TMP/empty
 Warning: no PCP archives found
 Error: no pmlogger instance running for host "localhost"
 ... logging for host "localhost" unchanged
 Warning: skipping log rotation because we don't know which pmlogger to signal
-pmlogger_daily: Warning: no archives found to merge
+Warning: no archives found to merge
 oldsem0/20011002:
     Semantics: discrete  Units: none
     Semantics: counter  Units: Kbyte

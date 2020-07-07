@@ -64,7 +64,7 @@ Error: no pmlogger instance running for host "HOST"
 ... logging for host "HOST" unchanged
 PMLOGGER.DAILY: [TMP/control:2]
 Warning: skipping log rotation because we don't know which pmlogger to signal
-Archive files older than 2 days being removed ...
+Archive files older than 3 days being removed ...
 NOW-3.1H.MM-00.0
 NOW-3.1H.MM-00.index
 NOW-3.1H.MM-00.meta

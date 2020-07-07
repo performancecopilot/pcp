@@ -86,7 +86,7 @@ Error: no pmlogger instance running for host "HOST"
 ... logging for host "HOST" unchanged
 PMLOGGER.DAILY: [TMP.control:2]
 Warning: skipping log rotation because we don't know which pmlogger to signal
-Archive files older than 3 days being removed ...
+Archive files older than 4 days being removed ...
     NOW-5.00.02.0 NOW-5.00.02.index NOW-5.00.02.meta
     NOW-5.00.04.0 NOW-5.00.04.index NOW-5.00.04.meta
     NOW-4.00.02.0 NOW-4.00.02.index NOW-4.00.02.meta
@@ -130,10 +130,10 @@ Error: no pmlogger instance running for host "HOST"
 ... logging for host "HOST" unchanged
 PMLOGGER.DAILY: [TMP.control:2]
 Warning: skipping log rotation because we don't know which pmlogger to signal
-Archive files older than 2 days being removed ...
+Archive files older than 3 days being removed ...
     NOW-3.00.02.0 NOW-3.00.02.index NOW-3.00.02.meta
     NOW-3.00.04.0 NOW-3.00.04.index NOW-3.00.04.meta
-PMLOGGER.DAILY: Warning: no archives found to merge
+Warning: no archives found to merge
 NOW-2.00.02.0
 NOW-2.00.02.index
 NOW-2.00.02.meta
