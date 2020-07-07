@@ -140,6 +140,7 @@ on_pmsearch_text_result(pmSearchTextResult *search, void *arg)
     const char		*prefix;
     char		buffer[64];
     sds			result = http_get_buffer(baton->client);
+    sds			oneline, helptext;
 
     if (baton->results++ == 0) {
 	result = push_client_identifier(baton, result);
@@ -153,14 +154,23 @@ on_pmsearch_text_result(pmSearchTextResult *search, void *arg)
     } else {
 	prefix = ",";
     }
+
+    oneline = search->oneline;
+    oneline = sdscatrepr(sdsempty(), oneline, sdslen(oneline));
+    helptext = search->helptext;
+    helptext = sdscatrepr(sdsempty(), helptext, sdslen(helptext));
+
     pmsprintf(buffer, sizeof(buffer), "%.6f", search->score);
     result = sdscatfmt(result,
 		    "%s{\"docid\":\"%S\",\"count\":%u,\"score\":%s,"
 		    "\"name\":\"%S\",\"type\":\"%s\"," "\"indom\":\"%S\","
-		    "\"oneline\":\"%S\",\"helptext\":\"%S\"}",
+		    "\"oneline\":%S,\"helptext\":%S}",
 		    prefix, search->docid, baton->results, buffer, search->name,
 		    pmSearchTextTypeStr(search->type), search->indom,
-		    search->oneline, search->helptext);
+		    oneline, helptext);
+
+    sdsfree(helptext);
+    sdsfree(oneline);
 
     http_set_buffer(client, result, HTTP_FLAG_JSON);
     http_transfer(client);
