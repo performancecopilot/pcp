@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2020 Ashwin Nayak.
+.\" Copyright (c) Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -11,33 +11,66 @@
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\"
+.\" 
 .\"
 .TH PMLOGPASTE 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmlogpaste\f1 \- paste text into a metric in a PCP archive
+.SH SYNOPSIS
+\f3pmlogsize\f1
+[\f3\-?\f1]
+[\f3\-f\f1 \f2file\f1]
+[\f3\-h\f1 \f2hostname\f1]
+[\f3\-m\f1 \f2metric\f1]
+[\f3\-o\f1 \f2outfile\f1]
+[\f3\-t\f1 \f2timezone\f1]
 .SH DESCRIPTION
 .B pmlogpaste
 takes input text from a file or command line, and writes it to a
-metric in a new PCP archive.
-.PP
-(placeholder man page - more content needed)
-.SH OPTIONS
-Run pmlogpaste with following command. For more info use ? argument.
-.sp 1
-.RS +4
-.ft B
-.nf
-# pmlogpaste -f <filename>
-.fi
-.ft P
-.RE
-.sp 1
-\fBpmlogpaste\fR takes a file and writes it to a metric in a new archive. Uses \fBLOGIMPORT(3) in building up the archive.
+metric in a new PCP archive. Uses 
+.BR LOGIMPORT(3) 
+API in achieving this. The 
+.BR LOGIMPORT(3) 
+API library supports the creation of PCP
+archives from external sources of performance data, either in the form of historical logs and spreadsheets or from real-time sources that are not inte‐
+grated as a Performance Metrics Domain Agent (PMDA) under the control of
+.BR pmcd(1)
 
+.PP
+The main purpose of this tool is to take the already captured tool output which contains metrics and create a PCP archive from it.
+
+.SH OPTIONS
+The available command line options are:
+.TP
+\fB\-h\fR \fIhostname\fR, \fB\-\-hostname\fR=\fIhostname\fR
+source host name for a LOGIMPORT archive. The default value is 'localhost'.
+.TP
+\fB\-t\fR \fItimezone\fR, \fB\-\-timezone\fR=\fItimezone\fR
+source timezone for a LOGIMPORT archive. The default value is the local timezone.
+.TP
+\fB\-m\fR \fImetric\fR, \fB\-\-metric\fR=\fImetric\fR
+metric name for a LOGIMPORT archive. The default value is 'paste.value'.
+.TP
+\fB\-f\fR \fIfile\fR, \fB\-\-file\fR=\fIfile\fR
+file with input text to be archived.
+.TP
+\fB\-o\fR \fIoutfile\fR, \fB\-\-outfile\fR=\fIoutfile\fR
+archive output file. The default value is 'paste'.
+.TP
+\fB\-?\fR, \fB\-\-help\fR
+Display usage message and exit.
+.SH DIAGNOSTICS
+All are generated on standard error and are intended to be
+self-explanatory.
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmcd (1),
-.BR pminfo (1)
 and
 .BR LOGIMPORT(3)
