@@ -14,11 +14,11 @@
  * for more details.
  */
 
-#include <linux/types.h>
 #include <sys/stat.h>
-#include <pcp/pmapi.h>
-#include <pcp/pmda.h>
+#include "pmapi.h"
+#include "pmda.h"
 #include "libpcp.h"
+#include "indom.h"
 
 typedef __u16	comp_t;
 typedef __u32	comp2_t;

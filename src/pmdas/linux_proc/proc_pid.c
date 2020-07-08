@@ -46,10 +46,6 @@ static proc_pid_t *hotproc_poss_pid;
 
 #define INIT_HOTPROC_MAX 200
 
-extern int conf_gen;
-extern char *proc_statspath;
-extern long hz;
-
 /* Actual processes that are hot based on the current configuration 
  * Filled in hotproc_eval_procs 
  */

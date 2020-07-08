@@ -26,7 +26,6 @@
 #define PACCT_PCP_PRIVATE_FILE		"/tmp/pcp-pacct"
 
 int acct_lifetime = 60;
-unsigned long hertz;
 struct timeval acct_update_interval = {
 	.tv_sec = 600,
 };
@@ -78,7 +77,7 @@ static char* get_comm_v3(void *entry) {
 
 static time_t get_end_time_v3(void *entry) {
 	return ((struct acct_v3*)entry)->ac_btime +
-		(int)(((struct acct_v3*)entry)->ac_etime / hertz);
+		(int)(((struct acct_v3*)entry)->ac_etime / hz);
 }
 
 static int acct_fetchCallBack_v3(int item, void *p, pmAtomValue* atom) {
@@ -106,13 +105,13 @@ static int acct_fetchCallBack_v3(int item, void *p, pmAtomValue* atom) {
 		atom->ul = acctp->ac_btime;
 		break;
 	case ACCT_ETIME:
-		atom->f = acctp->ac_etime * 1000 / hertz;
+		atom->f = acctp->ac_etime * 1000 / hz;
 		break;
 	case ACCT_UTIME:
-		atom->ul = acctp->ac_utime * 1000 / hertz;
+		atom->ul = acctp->ac_utime * 1000 / hz;
 		break;
 	case ACCT_STIME:
-		atom->ul = acctp->ac_stime * 1000 / hertz;
+		atom->ul = acctp->ac_stime * 1000 / hz;
 		break;
 	case ACCT_MEM:
 		atom->ul = acctp->ac_mem;
@@ -355,8 +354,6 @@ void acct_init(proc_acct_t *proc_acct) {
 
 	proc_acct->indom->it_numinst = 0;
 	proc_acct->indom->it_set = calloc(RINGBUF_SIZE, sizeof(pmdaInstid));
-
-	hertz = sysconf(_SC_CLK_TCK);
 }
 
 void refresh_acct(proc_acct_t *proc_acct) {

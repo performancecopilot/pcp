@@ -57,7 +57,6 @@ static int			have_access;	/* =1 recvd uid/gid */
 static size_t			_pm_system_pagesize;
 static unsigned int		threads;	/* control.all.threads */
 static char *			cgroups;	/* control.all.cgroups */
-unsigned int			conf_gen;	/* hotproc config version, if zero hotproc not configured yet */
 long				hz;
 
 /*
@@ -86,8 +85,6 @@ long				hz;
  *        __int64_t
  *    we choose option (b).
  */
-
-extern struct timeval   hotproc_update_interval;
 
 char *proc_statspath = "";	/* optional path prefix for all stats files */
 

@@ -58,6 +58,9 @@ extern pmInDom proc_indom(int);
 extern char *proc_statspath;
 extern FILE *proc_statsfile(const char *, char *, int);
 
+/* Generic globals setup during PMDA startup */
+extern long hz;
+
 /*
  * static string dictionary - one copy of oft-repeated strings;
  * implemented using STRINGS_INDOM and pmdaCache(3) routines.
