@@ -13,14 +13,14 @@
 .\" for more details.
 .\"
 .\"
-.TH PMSEARCHSUGGESTQUERY 3 "PCP" "Performance Co-Pilot"
+.TH PMSEARCHTEXTSUGGEST 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmSearchSuggestQuery\ \- 
+\f3pmSearchTextSuggest\f1 \- suggest metric names using PCP text index
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmwebapi.h>
 .sp
-int pmSearchSuggestQuery(pmSearchSettings *\fIsettings\fP, pmSearchSuggestRequest *\fIrequest\fP, void *\fIarg\fP)
+int pmSearchTextSuggest(pmSearchSettings *\fIsettings\fP, pmSearchTextRequest *\fIrequest\fP, void *\fIarg\fP)
 .sp
 cc ... \-lpcp_web
 .ft 1

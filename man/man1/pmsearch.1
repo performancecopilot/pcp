@@ -15,13 +15,12 @@
 .\"
 .TH PMSERIES 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmsearch\f1 \- display information from full-text Redis index
+\f3pmsearch\f1 \- help text and names search for metrics and instances
 .SH SYNOPSIS
 \fBpmsearch\fR
-[\fB\-cdinqstvV?\fR]
+[\fB\-CdinqstvV?\fR]
 [\fB\-c\fR \fIconfig\fR]
 [\fB\-h\fR \fIhost\fR]
-[\fB\-p\fR \fIport\fR]
 [\fB\-p\fR \fIport\fR]
 [\fB\-N\fR \fInumber\fR]
 [\fB\-O\fR \fIoffset\fR]
@@ -38,8 +37,44 @@
 .RE
 ..
 .B pmsearch
-displays various types of information about performance metrics, instances and instance domains available through the scalable timeseries facilities of the
-Performance Co-Pilot (PCP) and the Redis distributed data store.
+performs full text search queries to find metrics using names
+and help text from metrics, instance domains and instances.
+.PP
+It makes use of capabilties of the Performance Co-Pilot (PCP)
+.BR pmproxy (1)
+service, the Redis distributed data store, and the RediSearch
+module.
+.PP
+Note that in order to use these services, it is
+.B mandatory
+that
+.B pmproxy
+is communicating with a
+.BR redis-server (1)
+that has the
+.I redisearch.so
+module loaded.
+When configured to do so,
+.B pmproxy
+will then automatically index PCP metric names, instance names,
+metric and instance domain help text into the RediSearch store,
+from PCP archives that it discovers locally.
+Refer to
+.BR pmlogger (1)
+and
+.BR pmlogger_daily (1)
+for further details.
+.PP
+By default
+.B pmsearch
+communicates with a local
+.BR redis-server (1),
+however the \fB\-h\fR and \fB\-p\fR options can be used to
+specify an alternate Redis instance.
+If this instance is a node of a Redis cluster, all
+other instances in the cluster will be discovered
+and used automatically.
+.PP
 .SH OPTIONS
 .TP 5
 \fB\-c\fR \fIconfig\fR, \fB\-\-config\fR=\fIconfig\fR
@@ -48,36 +83,33 @@ Specify the
 file to use.
 .TP
 \fB\-C\fR, \fB\-\-no-colour\fR
-No highlighting in results text
+No highlighting in results text.
 .TP
 \fB\-d\fR, \fB\-\-docid\fR
-Report document ID of each search result
+Report document ID of each search result.
+Documents are identified using a unique SHA-1 hash which
+is always displayed in a 40-hexdigit human readable form.
 .TP
 \fB\-h\fR \fIhost\fR, \fB\-\-host\fR=\fIhost\fR
-Connect Redis server at
+Connect to the Redis server at
 .IR host ,
 rather than the one the localhost.
 .TP
 \fB\-i\fR, \fB\-\-info\fR
-Report search engine internal metrics
+Report search engine internal metrics.
 .TP
 \fB\-n\fR, \fB\-\-names\fR
 Search for
 .IR names ,
-associated with given InDom
+associated with given InDom (instance domain identifier).
 .TP
 \fB\-N\fR \fIN\fR, \fB\-\-number\fR=\fIN\fR
 Return
 .IR N ,
-search results at most
+search results at most.
 .TP
 \fB\-O\fR \fIN\fR, \fB\-\-offset\fR=\fIN\fR
-Paginated results from given offset
-.TP
-\fB\-p\fR \fIport\fR, \fB\-\-port\fR=\fIport\fR
-Connect Redis server at
-.IR port ,
-rather than the default \fB6379\fR.
+Paginated results from given offset.
 .TP
 \fB\-q\fR, \fB\-\-query\fR
 Perform a general text search (default).
@@ -124,27 +156,6 @@ e.g. mirroring the results from existing performance tools:
 
  iostat.all.r_await = delta(disk.all.read_rawactive) / delta(disk.all.read)
 .ESAMPLE
-.PP
-.SAMPLE
-$ pmsearch -i
-
-RediSearch statistics:
-    Documents: 1589
-        Terms: 3855
-      Records: 117661
-- Average records per doc: 74.05
-- Average bytes per record: 6.36
-- Inverted Index
-         Size: 0.71 MB
-     Capacity: 0.00 MB
-     Overhead: 0.00
-- Skip Index
-         Size: 0.00 MB
-- Score Index
-         Size: 0.00 MB
-- Average offsets per term: 9.35
-- Average offset bits per record: 8.00
-.ESAMPLE
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize
 the file and directory names used by PCP.
@@ -156,23 +167,8 @@ configuration file, as described in \fBpcp.conf\fP(5).
 For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .SH SEE ALSO
 .BR PCPIntro (1),
-.BR pmcd (1),
-.BR pminfo (1),
 .BR pmproxy (1),
-.BR redis-server (1),
-.BR access (2),
-.BR PMAPI (3),
-.BR PMWEBAPI (3),
-.BR pmLookupDesc (3),
-.BR pmLookupInDom (3),
-.BR pmLookupLabels (3),
-.BR pmLookupName (3),
-.BR pmNewContextZone (3),
-.BR pmNewZone (3),
-.BR pmParseInterval (3),
-.BR pmParseTimeWindow (3),
-.BR pcp.conf (5),
-.BR environ (7),
-.BR glob (7)
+.BR pmlogger (1),
+.BR pmlogger_daily (1)
 and
-.BR regex (7).
+.BR redis-server (1).

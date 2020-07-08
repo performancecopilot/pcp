@@ -637,7 +637,7 @@ There is typically both a name and help text associated with
 metrics.
 An instance domain has help text and a numeric identifier,
 while instances have a name only (which can be searched).
-.SS GET \fI/search/suggest\fR \- \fBpmSearchSuggestQuery\fR(3)
+.SS GET \fI/search/suggest\fR \- \fBpmSearchTextSuggest\fR(3)
 .TS
 box;
 c | c | cw(2.4i)
@@ -655,7 +655,7 @@ The mandatory search string is further described in
 and is passed to the server via the
 .I query
 parameter (HTTP GET).
-\" TODO: replace with actual call when search/suggest is donr
+\" TODO: replace with actual call when search/suggest is done
 .SAMPLE
 $ curl -s http://localhost:44322/search/suggest?\\
 	query=disk | pmjson
