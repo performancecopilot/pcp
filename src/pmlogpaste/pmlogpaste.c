@@ -13,9 +13,9 @@
  * for more details.
  */
 
-#include <pcp/pmapi.h>
-#include <pcp/libpcp.h>
-#include <pcp/import.h>
+#include "pmapi.h"
+#include "libpcp.h"
+#include "import.h"
 
 static int  myoverrides(int, pmOptions *);
 
