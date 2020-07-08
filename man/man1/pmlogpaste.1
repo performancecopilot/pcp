@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) Red Hat.
+.\" Copyright (c) 2020 Red Hat.  All Rights Reserved.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -11,7 +11,7 @@
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMLOGPASTE 1 "PCP" "Performance Co-Pilot"
 .SH NAME
@@ -26,36 +26,49 @@
 [\f3\-t\f1 \f2timezone\f1]
 .SH DESCRIPTION
 .B pmlogpaste
-takes input text from a file or command line, and writes it to a
-metric in a new PCP archive. Uses 
-.BR LOGIMPORT(3) 
-API in achieving this. The 
-.BR LOGIMPORT(3) 
-API library supports the creation of PCP
-archives from external sources of performance data, either in the form of historical logs and spreadsheets or from real-time sources that are not inte‐
-grated as a Performance Metrics Domain Agent (PMDA) under the control of
-.BR pmcd(1)
-
+takes input text from a file or the command line, and writes it as
+a metric value in a new PCP archive.
+This metric value is timestamped with the current time, and is stored
+as a string type metric.
 .PP
-The main purpose of this tool is to take the already captured tool output which contains metrics and create a PCP archive from it.
-
+The main purpose of this tool is to take captured output and preserve
+this in a PCP archive.
+This allows, for example, the output of a benchmark run to be stored
+along with performance metrics captured during that run, in a single
+archive.
+Archives can be merged using the
+.BR pmlogextract (1)
+utility.
+.PP
+.B pmlogpaste
+uses the
+.BR LOGIMPORT (3)
+library interfaces internally, which support the creation of archives
+from external sources of performance data.
 .SH OPTIONS
 The available command line options are:
 .TP
 \fB\-h\fR \fIhostname\fR, \fB\-\-hostname\fR=\fIhostname\fR
-source host name for a LOGIMPORT archive. The default value is 'localhost'.
+source host name for a LOGIMPORT archive.
+The default value is the local host name, or ``localhost''
+if that cannot be obtained.
 .TP
 \fB\-t\fR \fItimezone\fR, \fB\-\-timezone\fR=\fItimezone\fR
-source timezone for a LOGIMPORT archive. The default value is the local timezone.
+source timezone for a LOGIMPORT archive.
+The default value is the local timezone.
 .TP
 \fB\-m\fR \fImetric\fR, \fB\-\-metric\fR=\fImetric\fR
-metric name for a LOGIMPORT archive. The default value is 'paste.value'.
+metric name for a LOGIMPORT archive.
+The default metric name is
+.IR paste.value .
 .TP
 \fB\-f\fR \fIfile\fR, \fB\-\-file\fR=\fIfile\fR
-file with input text to be archived.
+file with input text to be archived, or ``-'' for standard input.
 .TP
 \fB\-o\fR \fIoutfile\fR, \fB\-\-outfile\fR=\fIoutfile\fR
-archive output file. The default value is 'paste'.
+archive output file.
+The default archive name is
+.IR paste .
 .TP
 \fB\-?\fR, \fB\-\-help\fR
 Display usage message and exit.
@@ -72,5 +85,6 @@ configuration file, as described in \fBpcp.conf\fP(5).
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmcd (1),
+.BR pmlogextract (1)
 and
-.BR LOGIMPORT(3)
+.BR LOGIMPORT (3).
