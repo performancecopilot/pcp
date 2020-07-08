@@ -126,12 +126,12 @@ ls -l $tmp >>$seq.full
 # complexity at the end of this pipeline
 #
 echo
-$sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -o -c $tmp/control -x never -k 2 $verbose -l $tmp.log"
+$sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -o -c $tmp/control -x never -k 3 $verbose -l $tmp.log"
 $sudo cat $tmp.log \
 | _filter \
 | $PCP_AWK_PROG '
 state == 0		{ print >"'$tmp.out.0'"
-			  if ($0 ~ /older than 2 days/) state = 1
+			  if ($0 ~ /older than /) state = 1
 			  next
 			}
 state == 1 && $0 ~ /Input archives to be merged:/	{ state = 2 }
