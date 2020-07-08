@@ -20,8 +20,8 @@
 #include "libpcp.h"
 #include "indom.h"
 
-typedef __u16	comp_t;
-typedef __u32	comp2_t;
+typedef uint16_t	comp_t;
+typedef uint32_t	comp2_t;
 
 #define ACCT_COMM	16
 
@@ -33,13 +33,13 @@ struct acct_header {
 struct acct_v3 {
 	char		ac_flag;		/* Flags */
 	char		ac_version;		/* Always set to ACCT_VERSION */
-	__u16		ac_tty;			/* Control Terminal */
-	__u32		ac_exitcode;		/* Exitcode */
-	__u32		ac_uid;			/* Real User ID */
-	__u32		ac_gid;			/* Real Group ID */
-	__u32		ac_pid;			/* Process ID */
-	__u32		ac_ppid;		/* Parent Process ID */
-	__u32		ac_btime;		/* Process Creation Time */
+	uint16_t	ac_tty;			/* Control Terminal */
+	uint32_t	ac_exitcode;		/* Exitcode */
+	uint32_t	ac_uid;			/* Real User ID */
+	uint32_t	ac_gid;			/* Real Group ID */
+	uint32_t	ac_pid;			/* Process ID */
+	uint32_t	ac_ppid;		/* Parent Process ID */
+	uint32_t	ac_btime;		/* Process Creation Time */
 	float		ac_etime;		/* Elapsed Time */
 	comp_t		ac_utime;		/* User Time */
 	comp_t		ac_stime;		/* System Time */
