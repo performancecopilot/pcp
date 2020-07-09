@@ -1449,6 +1449,7 @@ __pmLogLookupText(__pmArchCtl *acp, unsigned int ident, unsigned int type,
     __pmHashCtl		*text_hash;
     __pmHashNode	*hp;
 
+    type &= ~PM_TEXT_DIRECT;
     if ((hp = __pmHashSearch(type, &lcp->l_hashtext)) == NULL)
 	return PM_ERR_NOTHOST;	/* back-compat error code */
 
