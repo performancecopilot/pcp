@@ -1,34 +1,28 @@
-# Cloud-based Continuous Integration
+# GitHub Actions CI
 
-## Overview
+## Workflows
+Workflow descriptions are located in `./github/workflows`, platform specific PCP build tasks are stored in `./build/ci/platforms`.
 
-Tests run on prepared images containing all required PCP build dependencies and shellscripts to build, install and run the PCP testsuite.
+* CI: Triggered on push and on pull requests, runs the sanity QA group on assorted platforms
+* Daily CI: Runs a full QA run daily at 19:00 UTC and publishes the results at https://pcp.io/qa-reports/
+* Release: Triggered when a new tag is pushed, creates a new release and pushes it to https://bintray.com/pcp
 
-## Images
-
-Images are created using [Packer](https://www.packer.io/).
-Individual image configurations are stored in `hosts/`.
-Common configuration is stored in `common/` (for example Debian and Ubuntu can share the same set of scripts).
-Each image contains the following shell scripts:
-* `/usr/local/ci/build.sh` to build PCP and move build artifacts to `~/artifacts`
-* `/usr/local/ci/install.sh` to install PCP using the built artifacts from `~/artifacts`
-* `/usr/local/ci/test.sh` to run a single test from the PCP testsuite
-
-## Cluster management
-
-The `scripts/` folder contains the following scripts:
-* `build_image.sh` build a new image
-* `start_vmss.sh` start a Virtual Machine Scale Set (a set of identical Virtual Machines)
-* `start_build.sh` start the build on a single VM
-* `start_install.sh` install PCP on all VMs in the scale set
-* `start_tests.sh` start distributed tests on all VMs
-* `stop_vmss.sh` stop all VMs
+## Reproducing test failures
+```
+./build/ci/run.py --runner container --platform ubuntu2004|fedora32|centos8|... reproduce
+```
 
 ## Debugging
+Include the following action in a workflow, and connect via SSH:
 
-### Qemu
 ```
-"qemuargs": [
-  ["-serial", "stdio"]
-]
+- name: Setup tmate session
+  uses: mxschmitt/action-tmate@v2
 ```
+
+## Notes
+Ubuntu 16.04 runs in a container even though there is a native Ubuntu 16.04 VM on GitHub actions, because:
+* the `run.py` script requires Python >= 3.6, but
+* Ubuntu 16.04 contains Python 3.5 in the official repositories, and
+* if a more recent version is installed using the `actions/setup-python` action, the included setuptools doesn't include the `--install-layout` option (this option is included only in the official Debian Python builds),
+* however, this option is required by the PCP Python build.

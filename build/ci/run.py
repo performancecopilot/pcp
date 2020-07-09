@@ -13,6 +13,7 @@ class DirectRunner:
         self.platform_name = platform_name
         self.platform = platform
         self.build_dir = os.path.join(tempfile.gettempdir(), f"pcp-ci-{self.platform_name}")
+        self.command_preamble = 'set -eux\nexport runner=direct\n'
 
     def setup(self, pcp_path):
         os.mkdir(self.build_dir)
@@ -20,7 +21,7 @@ class DirectRunner:
         self.exec('mkdir -p artifacts/build artifacts/test')
 
     def exec(self, command, check=True):
-        command = 'set -eux\n' + command
+        command = self.command_preamble + command
         subprocess.run(['bash', '-'], cwd=self.build_dir, input=command.encode(), check=check)
 
     def shell(self):
@@ -45,6 +46,7 @@ class VirtualMachineRunner:
             'VAGRANT_NAME': self.vm_name,
             'VAGRANT_BOX': self.platform['vm']['box']
         }
+        self.command_preamble = 'set -eux\nexport runner=vm\n'
 
     def setup(self, pcp_path):
         post_start = self.platform['container'].get('post_start')
@@ -59,7 +61,7 @@ class VirtualMachineRunner:
             self.exec(post_start)
 
     def exec(self, command, check=True):
-        command = 'set -eux\n' + command
+        command = self.command_preamble + command
         subprocess.run(['ssh', '-F', self.ssh_config_file, self.vm_name, 'bash', '-'],
                        input=command.encode(), check=check)
 
@@ -79,6 +81,7 @@ class ContainerRunner:
         self.platform_name = platform_name
         self.platform = platform
         self.container_name = f"pcp-ci-{self.platform_name}"
+        self.command_preamble = 'set -eux\nexport runner=container\n'
 
         # on Ubuntu, systemd inside the container only works with sudo
         self.sudo = []
@@ -108,17 +111,15 @@ class ContainerRunner:
         subprocess.run([*self.sudo, 'podman', 'cp', pcp_path, f"{self.container_name}:/home/pcpbuild/pcp"], check=True)
 
     def exec(self, command, check=True):
-        command = 'set -eux\n' + command
+        command = self.command_preamble + command
         subprocess.run([*self.sudo, 'podman', 'exec', '-i',
                         '-u', 'pcpbuild', '-w', '/home/pcpbuild',
-                        '-e', 'is_container=true',
                         self.container_name, 'bash', '-'],
                        input=command.encode(), check=check)
 
     def shell(self):
         subprocess.run([*self.sudo, 'podman', 'exec', '-it',
                         '-u', 'pcpbuild', '-w', '/home/pcpbuild',
-                        '-e', 'is_container=true',
                         self.container_name, 'bash'], check=False)
 
     def task(self, task_name):
