@@ -99,9 +99,8 @@ slurp(const char *filename)
 void 
 pmlogpaste(const char *filename, const char *metric,
 	   const char *hostname, const char *timezone,
-	   const char *input, const char **labels, int nlabels,
-	   struct timespec *timestamp, char **list,
-	   int list_index)
+	   const char *input, char **labels, int nlabels,
+	   struct timespec *timestamp)
 {
     int		sts;
 
@@ -136,8 +135,8 @@ pmlogpaste(const char *filename, const char *metric,
 	exit(EXIT_FAILURE);
     }
 
-	for(int i = 0; i < list_index; i++) {
-		char 	*temp = strdup(*(list + i));
+	for(int i = 0; i < nlabels; i++) {
+		char 	*temp = strdup(*(labels + i));
 		// extracting name from string(temp)
 		char	*name = strtok(temp, ":");
 		if(name == NULL) {
@@ -279,6 +278,6 @@ main(int argc, char *argv[])
 	    hostname = &hostname_buffer[0];
     }
 
-    pmlogpaste(outfile, metric, hostname, timezone, input, NULL, 0, &timestamp, list, list_index);
+    pmlogpaste(outfile, metric, hostname, timezone, input, list, list_index, &timestamp);
     return 0;
 }
