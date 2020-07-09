@@ -25,6 +25,7 @@ typedef enum search_flags {
     PMSEARCH_OPT_INFO   = (1<<16),	/* -i, --info option */
     PMSEARCH_OPT_NAMES	= (1<<17),	/* -n, --names option */
     PMSEARCH_OPT_QUERY	= (1<<18),	/* -q, --query option (default) */
+    PMSEARCH_OPT_SUGGEST= (1<<19),	/* -s, --suggest option */
 } search_flags;
 
 #define ANSI_RESET	"\x1b[0m"
@@ -218,7 +219,7 @@ static int
 pmsearch_overrides(int opt, pmOptions *opts)
 {
     switch (opt) {
-    case 'h': case 'n': case 'N': case 'O': case 's': case 't':
+    case 'h': case 'n': case 'N': case 'O': case 'p': case 's': case 'S': case 't':
 	return 1;
     }
     return 0;
@@ -237,9 +238,10 @@ static pmLongOptions longopts[] = {
     { "number", 1, 'N', "N", "return N search results at most" },
     { "offset", 1, 'O', "N", "paginated results from given offset" },
     { "query", 0, 'q', 0, "perform a general text search (default)" },
-    { "score", 0, 's', 0, "report score (rank) of each result" },
+    { "suggest", 0, 's', 0, "perform a name suggestions search" },
+    { "score", 0, 'S', 0, "report score (rank) of each result" },
     { "total", 0, 't', 0, "report total number of search results" },
-    { "verbose", 0, 'v', 0, "report elapsed search execution time" },
+    { "times", 0, 'T', 0, "report elapsed search execution time" },
     PMOPT_DEBUG,
     PMOPT_VERSION,
     PMOPT_HELP,
@@ -247,7 +249,7 @@ static pmLongOptions longopts[] = {
 };
 
 static pmOptions opts = {
-    .short_options = "c:CdD:h:inN:O:qp:stvV?",
+    .short_options = "c:CdD:h:inN:O:qp:sSTvV?",
     .long_options = longopts,
     .short_usage = "[options] [query | indom]",
     .override = pmsearch_overrides,
@@ -259,7 +261,8 @@ on_search_done(int sts, void *arg)
      search_data	*dp = (search_data *)arg;
 
      if (sts == 0) {
-	if ((dp->flags & PMSEARCH_OPT_QUERY) && dp->count == 0)
+	if ((dp->flags & (PMSEARCH_OPT_QUERY | PMSEARCH_OPT_SUGGEST)) &&
+	    (dp->count == 0))
 	    printf("0 search results\n");
      } else if (dp->flags & PMSEARCH_OPT_INFO)
 	fprintf(stderr, "%s: %s failed - %s\n", pmGetProgname(),
@@ -282,9 +285,11 @@ on_search_setup(void *arg)
 	sds key = sdsnew("text");
 	sts = pmSearchInfo(&dp->settings, key, arg);
 	sdsfree(key);
-     } else {
-	sts = pmSearchTextQuery(&dp->settings, &dp->request, arg);
      }
+     else if ((dp->flags & PMSEARCH_OPT_SUGGEST))
+	sts = pmSearchTextSuggest(&dp->settings, &dp->request, arg);
+     else	/* flags & PMSEARCH_OPT_QUERY */
+	sts = pmSearchTextQuery(&dp->settings, &dp->request, arg);
 
      if (sts < 0)
 	on_search_done(sts, arg);
@@ -371,7 +376,11 @@ main(int argc, char *argv[])
 	    flags |= PMSEARCH_OPT_QUERY;
 	    break;
 
-	case 's':	/* report score (rank) with search hits */
+	case 's':	/* command line contains suggestion string */
+	    flags |= PMSEARCH_OPT_SUGGEST;
+	    break;
+
+	case 'S':	/* report score (rank) with search hits */
 	    flags |= PMSEARCH_SCORES;
 	    break;
 
@@ -379,7 +388,7 @@ main(int argc, char *argv[])
 	    flags |= PMSEARCH_TOTALS;
 	    break;
 
-	case 'v':	/* report verbose search execution times */
+	case 'T':	/* report elapsed search execution time */
 	    flags |= PMSEARCH_TIMING;
 	    break;
 
@@ -426,7 +435,7 @@ main(int argc, char *argv[])
 	exit(sts);
     }
 
-    if ((flags & (PMSEARCH_OPT_NAMES|PMSEARCH_OPT_INFO|PMSEARCH_OPT_QUERY)) == 0)
+    if ((flags & (PMSEARCH_OPT_NAMES | PMSEARCH_OPT_INFO | PMSEARCH_OPT_SUGGEST)) == 0)
 	flags |= PMSEARCH_OPT_QUERY;	/* default */
 
     if (colour && pmLogLevelIsTTY())

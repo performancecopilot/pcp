@@ -69,6 +69,7 @@ typedef enum pmSeriesFlags {
     PM_SERIES_FLAG_NONE		= (0),
     PM_SERIES_FLAG_METADATA	= (1 << 0),	/* only load metric metadata */
     PM_SERIES_FLAG_ACTIVE	= (1 << 1),	/* continual source updates */
+    PM_SERIES_FLAG_TEXT		= (1 << 2),	/* load metric & indom help */
     PM_SERIES_FLAG_ALL		= ((unsigned int)~PM_SERIES_FLAG_NONE)
 } pmSeriesFlags;
 
@@ -465,6 +466,7 @@ extern int pmSearchInfo(pmSearchSettings *, sds, void *);
 
 extern const char *pmSearchTextTypeStr(pmSearchTextType);
 extern int pmSearchTextQuery(pmSearchSettings *, pmSearchTextRequest *, void *);
+extern int pmSearchTextSuggest(pmSearchSettings *, pmSearchTextRequest *, void *);
 
 #ifdef __cplusplus
 }

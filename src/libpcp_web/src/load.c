@@ -129,6 +129,8 @@ get_instance_metadata(seriesLoadBaton *baton, pmInDom indom, int force_refresh)
 		pmwebapi_add_indom_instances(cp, ip);
 		pmwebapi_add_instances_labels(cp, ip);
 	    }
+	    if ((baton->flags & PM_SERIES_FLAG_TEXT) && baton->slots->search)
+		pmwebapi_indom_help(cp, ip);
 	}
     }
 }
@@ -146,6 +148,9 @@ get_metric_metadata(seriesLoadBaton *baton, metric_t *metric)
     if (metric->indom)
 	pmwebapi_add_instances_labels(context, metric->indom);
     pmwebapi_add_item_labels(context, metric);
+    if ((baton->flags & PM_SERIES_FLAG_TEXT) && baton->slots->search)
+	pmwebapi_metric_help(context, metric);
+
     pmwebapi_metric_hash(metric);
 }
 
@@ -895,6 +900,7 @@ connect_redis_source_service(seriesLoadBaton *baton)
 {
     pmSeriesModule	*module = (pmSeriesModule *)baton->module;
     seriesModuleData	*data = getSeriesModuleData(module);
+    redisSlotsFlags	flags;
 
     /* attempt to re-use existing slots connections */
     if (data == NULL) {
@@ -903,9 +909,12 @@ connect_redis_source_service(seriesLoadBaton *baton)
 	baton->slots = data->slots;
 	series_load_end_phase(baton);
     } else {
+	flags = SLOTS_VERSION;
+	if ((baton->flags & PM_SERIES_FLAG_TEXT))
+	    flags |= SLOTS_SEARCH;
 	baton->slots = data->slots =
 	    redisSlotsConnect(
-		data->config, 1, baton->info,
+		data->config, flags, baton->info,
 		series_load_end_phase, baton->userdata,
 		data->events, (void *)baton);
     }
@@ -982,7 +991,7 @@ series_load(pmSeriesSettings *settings,
 	return -ENOMEM;
     if ((baton = (seriesLoadBaton *)calloc(1, sizeof(seriesLoadBaton))) == NULL)
 	return -ENOMEM;
-    initSeriesLoadBaton(baton, &settings->module, flags,
+    initSeriesLoadBaton(baton, &settings->module, flags | PM_SERIES_FLAG_TEXT,
 			settings->module.on_info, settings->callbacks.on_done,
 			data->slots, arg);
     initSeriesGetContext(&baton->pmapi, baton);

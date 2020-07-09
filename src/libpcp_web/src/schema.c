@@ -14,6 +14,7 @@
 #include <assert.h>
 #include "pmapi.h"
 #include "pmda.h"
+#include "search.h"
 #include "schema.h"
 #include "discover.h"
 #include "util.h"
@@ -886,7 +887,7 @@ redis_series_metadata(context_t *context, metric_t *metric, void *arg)
     redisSlots			*slots = baton->slots;
     instance_t			*instance;
     value_t			*value;
-    const char			*units, *indom, *pmid, *sem, *type;
+    const char			*units, *indom = NULL, *pmid, *sem, *type;
     char			ibuf[32], pbuf[32], sbuf[20], tbuf[20], ubuf[60];
     char			hashbuf[42];
     sds				cmd, key;
@@ -941,6 +942,11 @@ redis_series_metadata(context_t *context, metric_t *metric, void *arg)
 	cmd = redis_param_str(cmd, "units", sizeof("units")-1);
 	cmd = redis_param_str(cmd, units, strlen(units));
 	redisSlotsRequest(slots, HMSET, key, cmd, redis_desc_series_callback, arg);
+
+	if ((baton->flags & PM_SERIES_FLAG_TEXT) && slots->search)
+	    redis_search_text_add(slots, PM_SEARCH_TYPE_METRIC,
+				metric->names[i].sds, indom,
+				metric->oneline, metric->helptext, baton);
     }
 
     seriesBatonReference(baton, "redis_series_metadata");
@@ -955,6 +961,14 @@ redis_series_metadata(context_t *context, metric_t *metric, void *arg)
     redisSlotsRequest(slots, SADD, key, cmd, redis_series_source_callback, arg);
 
 check_instances:
+    if (metric->desc.indom != PM_INDOM_NULL &&
+        (baton->flags & PM_SERIES_FLAG_TEXT) && slots->search) {
+	if (indom == NULL)
+	    indom = pmwebapi_indom_str(metric, ibuf, sizeof(ibuf));
+	redis_search_text_add(slots, PM_SEARCH_TYPE_INDOM, indom, indom,
+			metric->indom->oneline, metric->indom->helptext, baton);
+    }
+
     if (metric->desc.indom == PM_INDOM_NULL || metric->u.vlist == NULL) {
 	if (metric->cached == 0) {
 	    redis_series_labelset(slots, metric, NULL, baton);
@@ -968,6 +982,13 @@ check_instances:
 	    if (instance->cached == 0 || metric->cached == 0) {
 		redis_series_instance(slots, metric, instance, baton);
 		redis_series_labelset(slots, metric, instance, baton);
+
+		if ((baton->flags & PM_SERIES_FLAG_TEXT) && slots->search) {
+		    if (indom == NULL)
+			indom = pmwebapi_indom_str(metric, ibuf, sizeof(ibuf));
+		    redis_search_text_add(slots, PM_SEARCH_TYPE_INST,
+				instance->name.sds, indom, NULL, NULL, baton);
+		}
 	    }
 	    instance->cached = 1;
 	}
@@ -1757,6 +1778,7 @@ int
 pmSeriesSetup(pmSeriesModule *module, void *arg)
 {
     seriesModuleData	*data = getSeriesModuleData(module);
+    redisSlotsFlags	flags;
 
     if (data == NULL)
 	return -ENOMEM;
@@ -1770,8 +1792,9 @@ pmSeriesSetup(pmSeriesModule *module, void *arg)
 	data->shareslots = 1;
     } else {
 	/* establish an initial connection to Redis instance(s) */
+	flags = SLOTS_VERSION | SLOTS_SEARCH;
 	data->slots = redisSlotsConnect(
-			data->config, SLOTS_VERSION, module->on_info,
+			data->config, flags, module->on_info,
 			module->on_setup, arg, data->events, arg);
 	data->shareslots = 0;
     }

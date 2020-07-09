@@ -25,9 +25,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-hostname=`hostname`
-redisport=`_find_free_port`
-
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
@@ -49,6 +46,7 @@ _sort_context()
 }
 
 # real QA test starts here
+redisport=`_find_free_port`
 _save_config $PCP_SYSCONF_DIR/pmseries
 $sudo rm -f $PCP_SYSCONF_DIR/pmseries/*
 

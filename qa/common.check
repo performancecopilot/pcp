@@ -1266,6 +1266,25 @@ _check_series()
     [ $redis_version -ge 5 ] || _notrun "Redis $redis_version too old"
 }
 
+_check_search()
+{
+    which pmsearch >/dev/null 2>&1 || \
+	_notrun "pmsearch command line utility not installed"
+    redis-cli module list | grep -q ^ft$ || \
+	_notrun "redisearch module is not loaded in Redis server"
+}
+
+_find_redis_modules()
+{
+    # scan through a list of known locations for Redis modules
+    if sudo test -d "$PCP_LIB_DIR/redis/modules"
+    then
+	echo "$PCP_LIB_DIR/redis/modules"
+    else
+	echo "$PCP_LIB32_DIR/redis/modules"
+    fi
+}
+
 _check_display()
 {
     # note: non-X systems (MacOSX, Windows) must pass here unchallenged

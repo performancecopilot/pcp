@@ -81,6 +81,8 @@
 
 extern void redisSearchInit(struct dict *);
 extern void redis_load_search_schema(void *);
+extern void redis_search_text_add(redisSlots *, pmSearchTextType,
+		const char *, const char *, const char *, const char *, void *);
 
 /*
  * Asynchronous search baton structures
