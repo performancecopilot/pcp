@@ -1,7 +1,0 @@
-jobs:
-  - job: prepare
-    displayName: Prepare
-    steps:
-      - script: ./build/ci/pipelines/templates/gen_matrix.py "$(hosts)"
-        name: matrix_step
-        displayName: Prepare Job Matrix
