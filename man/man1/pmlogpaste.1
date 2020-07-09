@@ -72,7 +72,13 @@ The default archive name is
 .IR paste .
 .TP
 \fB\-l\fR \fIlabel\fR, \fB\-\-label\fR=\fIlabel\fR
-labels for a LOGIMPORT archive.
+Add context labels to the generated archive.
+This option can be presented multiple times to produce multiple
+labels in the archive.
+The
+.I label
+should be in the form
+.IR name:value .
 .TP
 \fB\-?\fR, \fB\-\-help\fR
 Display usage message and exit.

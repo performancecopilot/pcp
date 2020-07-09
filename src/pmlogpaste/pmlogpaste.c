@@ -102,7 +102,7 @@ pmlogpaste(const char *filename, const char *metric,
 	   const char *input, char **labels, int nlabels,
 	   struct timespec *timestamp)
 {
-    int		sts;
+    int		i, sts;
 
     if ((sts = pmiStart(filename, 0)) < 0) {
 	fprintf(stderr, "%s: error starting log import: %s\n",
@@ -135,26 +135,25 @@ pmlogpaste(const char *filename, const char *metric,
 	exit(EXIT_FAILURE);
     }
 
-	for(int i = 0; i < nlabels; i++) {
-		char 	*temp = strdup(*(labels + i));
-		// extracting name from string(temp)
-		char	*name = strtok(temp, ":");
-		if(name == NULL) {
-			fprintf(stderr, "%s: invalid label token: %s\n",
-					pmGetProgname(), pmiErrStr(sts));
-			exit(EXIT_FAILURE);
-		}
-		// extracting value from string(temp)
-		char	*value = strtok(NULL, ":");
-		
-		if ((sts = pmiPutLabel(PM_LABEL_CONTEXT, 0, 0, name, value)) < 0) {
-			fprintf(stderr, "%s: error adding labels: %s\n",
-					pmGetProgname(), pmiErrStr(sts));
-			exit(EXIT_FAILURE);
-		}
+    for (i = 0; i < nlabels; i++) {
+	char 	*temp = strdup(*(labels + i));
+	char	*name = strtok(temp, ":");
+	char	*value = strtok(NULL, ":");
+
+	if (name == NULL) {
+	    fprintf(stderr, "%s: invalid label token %s: %s\n",
+			pmGetProgname(), temp, pmiErrStr(sts));
+	    exit(EXIT_FAILURE);
 	}
+	if ((sts = pmiPutLabel(PM_LABEL_CONTEXT, 0, 0, name, value)) < 0) {
+	    fprintf(stderr, "%s: error adding label %s:%s: %s\n",
+			pmGetProgname(), name, value, pmiErrStr(sts));
+	    exit(EXIT_FAILURE);
+	}
+	free(temp);
+    }
     
-    if ((sts = pmiWrite(timestamp->tv_sec, timestamp->tv_nsec * 1000)) < 0) {
+    if ((sts = pmiWrite(timestamp->tv_sec, timestamp->tv_nsec / 1000)) < 0) {
 	fprintf(stderr, "%s: error writing archive: %s\n",
 			pmGetProgname(), pmiErrStr(sts));
 	exit(EXIT_FAILURE);
@@ -182,18 +181,14 @@ int
 main(int argc, char *argv[])
 {
     int		opt, exitsts;
-	int 	list_index = 0;
     char	*filename = NULL;
     char	*metric = NULL;
     char	*outfile = NULL;
     char	*hostname = NULL;
     char	*timezone = NULL;
-	char	*temp = NULL;
+    char	**labels = NULL;
+    int 	nlabels = 0;
 
-	char	**list = (char **) malloc(list_index * (sizeof (char *)));
-	if (list == NULL)
-		pmNoMem("pmlogpaste.list", list_index * sizeof(char *), PM_FATAL_ERR);
-	
     while ((opt = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch(opt) {
 
@@ -218,12 +213,12 @@ main(int argc, char *argv[])
 	    break;
 	
 	case 'l':
-		temp = opts.optarg;
-		list_index += 1;
-		list = (char **)realloc(list, list_index * (sizeof(char *)));
-		if (list == NULL)
-			pmNoMem("pmlogpaste.list", list_index * sizeof(char *), PM_FATAL_ERR);
-		*(list + list_index - 1) = temp;
+	    nlabels++;
+	    labels = (char **)realloc(labels, nlabels * (sizeof(char *)));
+	    if (labels == NULL)
+		pmNoMem("pmlogpaste.labels", nlabels * sizeof(char *), PM_FATAL_ERR);
+	    *(labels + nlabels - 1) = opts.optarg;
+	    break;
 
 	case '?':
 	    break;
@@ -278,6 +273,6 @@ main(int argc, char *argv[])
 	    hostname = &hostname_buffer[0];
     }
 
-    pmlogpaste(outfile, metric, hostname, timezone, input, list, list_index, &timestamp);
+    pmlogpaste(outfile, metric, hostname, timezone, input, labels, nlabels, &timestamp);
     return 0;
 }
