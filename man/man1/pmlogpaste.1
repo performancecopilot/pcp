@@ -24,6 +24,7 @@
 [\f3\-m\f1 \f2metric\f1]
 [\f3\-o\f1 \f2outfile\f1]
 [\f3\-t\f1 \f2timezone\f1]
+[\f3\-l\f1 \f2label\f1]
 .SH DESCRIPTION
 .B pmlogpaste
 takes input text from a file or the command line, and writes it as
@@ -69,6 +70,9 @@ file with input text to be archived, or ``-'' for standard input.
 archive output file.
 The default archive name is
 .IR paste .
+.TP
+\fB\-l\fR \fIlabel\fR, \fB\-\-label\fR=\fIlabel\fR
+labels for a LOGIMPORT archive.
 .TP
 \fB\-?\fR, \fB\-\-help\fR
 Display usage message and exit.

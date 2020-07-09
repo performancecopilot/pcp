@@ -16,6 +16,7 @@
 #include "pmapi.h"
 #include "libpcp.h"
 #include "import.h"
+#include <string.h>
 
 static int  myoverrides(int, pmOptions *);
 
@@ -26,13 +27,14 @@ static pmLongOptions longopts[] = {
     { "outfile", 1, 'o', "OUT", "set outfile" },
     { "metric", 1, 'm', "NAME", "set metric name" },
     { "file", 1, 'f', "FILE", "set filename" },
+	{ "label", 1, 'l', "LABEL", "set label"},
     PMOPT_HELP,
     PMAPI_OPTIONS_END
 };
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_DONE | PM_OPTFLAG_STDOUT_TZ,
-    .short_options = "f:h:i:m:o:t:?",
+    .short_options = "f:h:m:o:t:l:?",
     .long_options = longopts,
     .short_usage = "[options] archive",
     .override = myoverrides,
@@ -98,7 +100,8 @@ void
 pmlogpaste(const char *filename, const char *metric,
 	   const char *hostname, const char *timezone,
 	   const char *input, const char **labels, int nlabels,
-	   struct timespec *timestamp)
+	   struct timespec *timestamp, char **list,
+	   int list_index)
 {
     int		sts;
 
@@ -132,6 +135,25 @@ pmlogpaste(const char *filename, const char *metric,
 			pmGetProgname(), pmiErrStr(sts));
 	exit(EXIT_FAILURE);
     }
+
+	for(int i = 0; i < list_index; i++) {
+		char 	*temp = strdup(*(list + i));
+		// extracting name from string(temp)
+		char	*name = strtok(temp, ":");
+		if(name == NULL) {
+			fprintf(stderr, "%s: invalid label token: %s\n",
+					pmGetProgname(), pmiErrStr(sts));
+			exit(EXIT_FAILURE);
+		}
+		// extracting value from string(temp)
+		char	*value = strtok(NULL, ":");
+		
+		if ((sts = pmiPutLabel(PM_LABEL_CONTEXT, 0, 0, name, value)) < 0) {
+			fprintf(stderr, "%s: error adding labels: %s\n",
+					pmGetProgname(), pmiErrStr(sts));
+			exit(EXIT_FAILURE);
+		}
+	}
     
     if ((sts = pmiWrite(timestamp->tv_sec, timestamp->tv_nsec * 1000)) < 0) {
 	fprintf(stderr, "%s: error writing archive: %s\n",
@@ -161,12 +183,18 @@ int
 main(int argc, char *argv[])
 {
     int		opt, exitsts;
+	int 	list_index = 0;
     char	*filename = NULL;
     char	*metric = NULL;
     char	*outfile = NULL;
     char	*hostname = NULL;
     char	*timezone = NULL;
+	char	*temp = NULL;
 
+	char	**list = (char **) malloc(list_index * (sizeof (char *)));
+	if (list == NULL)
+		pmNoMem("pmlogpaste.list", list_index * sizeof(char *), PM_FATAL_ERR);
+	
     while ((opt = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch(opt) {
 
@@ -189,6 +217,14 @@ main(int argc, char *argv[])
 	case 't':
 	    timezone = opts.optarg;
 	    break;
+	
+	case 'l':
+		temp = opts.optarg;
+		list_index += 1;
+		list = (char **)realloc(list, list_index * (sizeof(char *)));
+		if (list == NULL)
+			pmNoMem("pmlogpaste.list", list_index * sizeof(char *), PM_FATAL_ERR);
+		*(list + list_index - 1) = temp;
 
 	case '?':
 	    break;
@@ -243,6 +279,6 @@ main(int argc, char *argv[])
 	    hostname = &hostname_buffer[0];
     }
 
-    pmlogpaste(outfile, metric, hostname, timezone, input, NULL, 0, &timestamp);
+    pmlogpaste(outfile, metric, hostname, timezone, input, NULL, 0, &timestamp, list, list_index);
     return 0;
 }
