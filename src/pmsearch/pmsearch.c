@@ -429,6 +429,9 @@ main(int argc, char *argv[])
 	}
     }
 
+    if (!(flags & PMSEARCH_OPT_INFO) && opts.optind >= argc)
+	opts.errors++;
+
     if (opts.errors || (opts.flags & PM_OPTFLAG_EXIT)) {
 	sts = !(opts.flags & PM_OPTFLAG_EXIT);
 	pmUsageMessage(&opts);
@@ -441,9 +444,7 @@ main(int argc, char *argv[])
     if (colour && pmLogLevelIsTTY())
 	flags |= PMSEARCH_COLOUR;
 
-    if (opts.optind == argc)
-	query = sdsempty();
-    else
+    if (opts.optind < argc)
 	query = sdsjoin(&argv[opts.optind], argc - opts.optind, " ");
 
     dp = search_data_init(flags, query, search_count, search_offset);
