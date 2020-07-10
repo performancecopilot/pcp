@@ -6,6 +6,7 @@ vm:
 container:
   containerfile: |
     FROM registry.fedoraproject.org/fedora:32
+    RUN dnf install -y systemd
     RUN useradd --create-home pcpbuild
     RUN echo 'pcpbuild ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/pcpbuild
 
