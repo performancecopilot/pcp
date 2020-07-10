@@ -129,30 +129,19 @@ Display version number and exit.
 Display usage message and exit.
 .SH EXAMPLES
 .SAMPLE
-$ pmsearch disk.all.read
+$ pmsearch kernel idle
+Type: metric
+Name: \fBkernel\fR.all.cpu.\fBidle\fR
+One line: total \fBidle\fR CPU time from /proc/stat for all CPUs
 
 Type: metric
-Name: disk.all.read
-One line: total read operations, summed for all disks
-Help: Cumulative number of disk read operations since system boot time
-(subject to counter wrap), summed over all disk devices.
+Name: \fBkernel\fR.all.idletime
+One line: time the current \fBkernel\fR has been \fBidle\f1 since boot
 
 Type: metric
-Name: disk.all.read_rawactive
-One line: raw count of read response time, summed for all disks
-Help: For each completed read on every disk the response time (queue time plus
-service time) in milliseconds is added to this metric.
-
-When converted to a normalized rate, the value represents the time average
-of the number of outstanding reads across all disks.  When divided
-by the number of completed reads for all disks (disk.all.read), value
-represents the stochastic average of the read response (or wait) time
-across all disks.
-
-It is suitable mainly for use in calculations with other metrics,
-e.g. mirroring the results from existing performance tools:
-
- iostat.all.r_await = delta(disk.all.read_rawactive) / delta(disk.all.read)
+Name: \fBkernel\f1.percpu.cpu.\fBidle\fR
+InDom: 60.0
+One line: percpu \fBidle\fR CPU time metric from /proc/stat
 .ESAMPLE
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize
