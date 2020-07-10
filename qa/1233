@@ -1,0 +1,112 @@
+#!/bin/sh
+# PCP QA Test No. 1233
+# name(attr) = string testing for derived metrics - error cases
+#
+# Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+if [ $# -eq 0 ]
+then
+    echo "QA output created by $seq"
+else
+    echo "QA output created by $seq $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s;$tmp;TMP;g" \
+    # end
+}
+
+# real QA test starts here
+cat <<End-of-File >$tmp.config.1
+# missing <name>
+( = "foo"
+(oneline  = "foo"
+(oneline)="foo"
+
+# missing )
+qa( = "foo"
+qa.a(oneline="foo"
+
+# missing ( => illegal metric name
+) = "bar"
+qa)= "bar"
+qa.a) ="bar"
+
+# missing <attr>
+qa.seconds = sample.milliseconds / 1000
+qa.seconds()="foo"
+qa.seconds ()  = "foo"
+qa.seconds (	)	=	"foo"
+
+# missing <value>
+qa.seconds(oneline)=
+
+# illegal <attr>
+qa.seconds(foo) = bar;
+
+# bad metric
+qa.notdefined.yet ( foo ) = bar;
+
+# terminated value ... check to see if line number is updated correctly
+# for next error
+qa.seconds(helptext) = 'foo
+bar
+fratz'
+
+# next line is line number
+qa.seconds(oneline) = "expect this error to be at line number ...
+37
+was it?
+End-of-File
+
+cat <<End-of-File >$tmp.config.2
+qa.seconds = sample.milliseconds / 1000
+qa.seconds(oneline) = "a string with extra text after the quote"extra stuff oneline
+qa.seconds(helptext) = 'a block
+with extra
+text after
+the quote'extra stuff helptext
+End-of-File
+
+for config in $tmp.config.*
+do
+    echo
+    echo "=== `echo $config | sed -e 's;.*config\.;config.;'` ==="
+    export PCP_DERIVED_CONFIG=$config
+
+    if [ "$1" = "--valgrind" ]
+    then
+	_run_valgrind `which pminfo` -dtT -Dderive qa | _filter
+    else
+	pminfo -dtT -Dderive qa 2>&1 \
+	| _filter
+    fi
+done
+
+# success, all done
+status=0
+exit
