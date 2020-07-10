@@ -19,7 +19,7 @@
 # Get standard environment
 . $PCP_DIR/etc/pcp.env
 
-tmp=`mktemp -d /var/tmp/pcp.XXXXXXXXX` || exit 1
+tmp=`mktemp -d "$PCP_TMPFILE_DIR/pmlogsummary.XXXXXXXXX"` || exit 1
 status=1
 trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
 prog=`basename $0`

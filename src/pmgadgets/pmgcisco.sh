@@ -17,7 +17,7 @@
 . $PCP_DIR/etc/pcp.env
 
 status=1
-tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
+tmp=`mktemp -d "$PCP_TMPFILE_DIR/pmgcisco.XXXXXXXXX"` || exit 1
 trap "rm -fr $tmp; exit \$status" 0 1 2 3 15
 
 # usage - print out the usage of program

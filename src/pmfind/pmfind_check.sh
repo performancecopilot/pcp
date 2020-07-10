@@ -32,7 +32,7 @@ PMLOGGER_SERVICE_ARGS=${PMLOGGER_SERVICE_PARAMS:-$PMLOGGER_ARGS}
 # error messages should go to stderr, not the GUI notifiers
 unset PCP_STDERR
 
-tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
+tmp=`mktemp -d "$PCP_TMPFILE_DIR/pmfind_check.XXXXXXXXX"` || exit 1
 status=0
 prog=`basename $0`
 PROGLOG=$PCP_LOG_DIR/pmfind/$prog.log

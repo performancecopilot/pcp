@@ -20,7 +20,7 @@
 
 . $PCP_DIR/etc/pcp.env
 
-tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
+tmp=`mktemp -d "$PCP_TMPFILE_DIR/pmsnap.XXXXXXXXX"` || exit 1
 trap "rm -rf $tmp; exit 0" 0 1 2 3 15
 prog=`basename $0`
 

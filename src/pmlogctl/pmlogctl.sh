@@ -1063,7 +1063,7 @@ _do_stop()
     _skip_control_update=false
     [ "$1" = '-q' ] && _skip_control_update=true
     sts=0
-    rm -f $tmp.sts
+    rm -f $tmp/sts
     cat $tmp/args \
     | while read control class args_host primary socks args_dir args
     do
@@ -1087,7 +1087,7 @@ _do_stop()
 	    then
 		:
 	    else
-		echo 1 >$tmp.sts
+		echo 1 >$tmp/sts
 		continue
 	    fi
 	fi
@@ -1095,7 +1095,7 @@ _do_stop()
 	if [ ! -f "$control" ]
 	then
 	    _warning "control file $control for host $args_host ${IAM} has vanished"
-	    echo 1 >$tmp.sts
+	    echo 1 >$tmp/sts
 	    continue
 	fi
 	dir=`echo "$args_dir" | _unexpand_control`
@@ -1118,7 +1118,7 @@ $1 == "'"$host"'" && $4 == "'"$dir"'"	{ $1 = "#!#" $1 }
 	fi
     done
 
-    [ -f $tmp.sts ] && sts="`cat $tmp.sts`"
+    [ -f $tmp/sts ] && sts="`cat $tmp/sts`"
 
     return $sts
 }

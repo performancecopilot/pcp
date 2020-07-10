@@ -19,7 +19,7 @@
 
 sts=2
 progname=`basename $0`
-tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
+tmp=`mktemp -d "$PCP_TMPFILE_DIR/pcp-vmstat.XXXXXXXXX"` || exit 1
 trap "rm -rf $tmp; exit \$sts" 0 1 2 3 15
 
 _usage()

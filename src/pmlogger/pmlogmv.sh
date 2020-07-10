@@ -22,7 +22,7 @@
 . $PCP_DIR/etc/pcp.env
 
 status=1
-tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
+tmp=`mktemp -d "$PCP_TMPFILE_DIR/pmlogmv.XXXXXXXXX"` || exit 1
 trap "rm -rf $tmp; exit \$status" 0
 trap "_cleanup; rm -rf $tmp; exit \$status" 1 2 3 15
 prog=`basename $0`

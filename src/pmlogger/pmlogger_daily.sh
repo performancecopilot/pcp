@@ -26,7 +26,7 @@ unset PCP_STDERR
 
 # constant setup
 #
-tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
+tmp=`mktemp -d "$PCP_TMPFILE_DIR/pmlogger_daily.XXXXXXXXX"` || exit 1
 status=0
 echo >$tmp/lock
 prog=`basename $0`

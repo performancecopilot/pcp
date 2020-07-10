@@ -13,7 +13,7 @@ fi
 
 . ../../include/pcp.conf
 
-tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
+tmp=`mktemp -d "$PCP_TMPFILE_DIR/pcp-build-mk.exports.XXXXXXXXX"` || exit 1
 sts=0
 trap "rm -rf $tmp; exit \$sts" 0 1 2 3 15
 
