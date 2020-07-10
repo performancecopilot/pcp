@@ -30,13 +30,13 @@ TMP/DATE.index
 TMP/DATE.meta.compressed
 
 some error cases
-Error: -x value (bozo) must be numeric, "forever" or "never"
-Error: $PCP_COMPRESSAFTER value (bozo) must be numeric, "forever" or "never"
+Error: -x value (bozo) must be number, time, "forever" or "never"
+Error: $PCP_COMPRESSAFTER value (bozo) must be number, time, "forever" or "never"
 Warning: skipping log rotation because we don't know which pmlogger to signal
 Error: no-such-compression-tool: compression program not found
 Warning: skipping log rotation because we don't know which pmlogger to signal
 Error: no-such-compression-tool: compression program not found
-Error: $PCP_COMPRESSAFTER value (bozo) must be numeric, "forever" or "never"
+Error: $PCP_COMPRESSAFTER value (bozo) must be number, time, "forever" or "never"
 Warning: skipping log rotation because we don't know which pmlogger to signal
 
 some warning cases
