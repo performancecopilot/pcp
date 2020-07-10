@@ -901,13 +901,14 @@ pmiPutText(unsigned int type, unsigned int class, unsigned int id, const char *c
 }
 
 int
-pmiPutLabel(unsigned int type, unsigned int id, unsigned int inst, const char *name, const char *value)
+pmiPutLabel(unsigned int flags, unsigned int id, unsigned int inst, const char *name, const char *value)
 {
     size_t	size;
     int		l;
     int		new_labelset = 0;
     pmi_label	*lp = NULL;
     char	buf[PM_MAXLABELJSONLEN];
+    int		type = (flags & ~(PM_LABEL_OPTIONAL | PM_LABEL_COMPOUND));
 
     if (current == NULL)
 	return PM_ERR_NOCONTEXT;
@@ -930,7 +931,7 @@ pmiPutLabel(unsigned int type, unsigned int id, unsigned int inst, const char *n
     }
 
     /* Check the id. */
-    if (id == PM_ID_NULL)
+    if (id == PM_ID_NULL && type != PM_LABEL_CONTEXT)
 	return current->last_sts = PMI_ERR_BADLABELID;
 
     /* Make sure the name is not empty or NULL */
@@ -958,9 +959,8 @@ pmiPutLabel(unsigned int type, unsigned int id, unsigned int inst, const char *n
 	current->nlabel++;
 	size = current->nlabel * sizeof(pmi_label);
 	current->label = (pmi_label *)realloc(current->label, size);
-	if (current->label == NULL) {
+	if (current->label == NULL)
 	    pmNoMem("pmiPutLabel: pmi_label", size, PM_FATAL_ERR);
-	}
 	lp = &current->label[current->nlabel-1];
 	lp->type = type;
 	lp->id = id;
@@ -980,7 +980,7 @@ pmiPutLabel(unsigned int type, unsigned int id, unsigned int inst, const char *n
     else
 	pmsprintf(buf, sizeof(buf), "{\"%s\":\"%s\"}", name, value);
 
-    if (__pmAddLabels(&lp->labelset, buf, type) < 0) {
+    if (__pmAddLabels(&lp->labelset, buf, flags) < 0) {
 	/*
 	 * There was an error adding this label to the labelset. If this
 	 * was the first label of its kind to to be added then we must free the

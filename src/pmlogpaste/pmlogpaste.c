@@ -145,7 +145,7 @@ pmlogpaste(const char *filename, const char *metric,
 			pmGetProgname(), temp, pmiErrStr(sts));
 	    exit(EXIT_FAILURE);
 	}
-	if ((sts = pmiPutLabel(PM_LABEL_CONTEXT, 0, 0, name, value)) < 0) {
+	if ((sts = pmiPutLabel(PM_LABEL_CONTEXT, PM_ID_NULL, PM_IN_NULL, name, value)) < 0) {
 	    fprintf(stderr, "%s: error adding label %s:%s: %s\n",
 			pmGetProgname(), name, value, pmiErrStr(sts));
 	    exit(EXIT_FAILURE);
@@ -274,5 +274,8 @@ main(int argc, char *argv[])
     }
 
     pmlogpaste(outfile, metric, hostname, timezone, input, labels, nlabels, &timestamp);
+
+    if (labels)
+	free(labels);
     return 0;
 }
