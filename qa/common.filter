@@ -393,6 +393,7 @@ _filter_top_pmns()
 {
     sed \
 	-e 's/$/ /' \
+	-e '/^    acct /d' \
 	-e '/^    aim /d' \
 	-e '/^    array /d' \
 	-e '/^    ash /d' \
