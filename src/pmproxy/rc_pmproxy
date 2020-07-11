@@ -289,6 +289,7 @@ Error: pmproxy options file "$PMPROXYOPTS" is missing, cannot start pmproxy.'
 		# Called from systemd with need to preserve the pid and
 		# systemd has already done the necessary daemonizing
 		#
+		rm -rf $tmp
 		exec $PMPROXY -F $OPTS
 		# NOTREACHED
 		#
@@ -301,7 +302,13 @@ Error: pmproxy options file "$PMPROXYOPTS" is missing, cannot start pmproxy.'
 
 
 	    # finally, stop here if running in a container
-	    [ -z "$PCP_CONTAINER_IMAGE" ] || exec $PCP_BINADM_DIR/pmpause
+	    if [ -z "$PCP_CONTAINER_IMAGE" ]
+	    then
+		:
+	    else
+		rm -rf $tmp
+		exec $PCP_BINADM_DIR/pmpause
+	    fi
 	fi
 	status=0
         ;;
@@ -334,7 +341,13 @@ Error: pmproxy options file "$PMPROXYOPTS" is missing, cannot start pmproxy.'
 	;;
 
   *)
-	[ -z "$PCP_CONTAINER_IMAGE" ] || exec "$@"
+	if [ -z "$PCP_CONTAINER_IMAGE" ]
+	then
+	    :
+	else
+	    rm -rf $tmp
+	    exec "$@"
+	fi
 	_usage
         ;;
 esac
