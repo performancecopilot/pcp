@@ -14,7 +14,6 @@ pmproxy request port(s):
   === ==== ===== ====== =======
 ok FD unix UNIX_DOMAIN_SOCKET
 ok FD PORT inet INADDR_ANY
-ok FD PORT ipv6 INADDR_ANY
 [DATE] pmproxy(PID) Info: pmproxy caught SIGTERM
 [DATE] pmproxy(PID) Info: pmproxy Shutdown
 
