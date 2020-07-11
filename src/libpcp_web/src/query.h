@@ -60,6 +60,7 @@ typedef enum nodetype {
     N_SCALE,
     N_DEFINED,
     N_NOOP,
+    N_CONVERT,
 
 /* node_t time-related sub-types */
     N_RANGE = 100,

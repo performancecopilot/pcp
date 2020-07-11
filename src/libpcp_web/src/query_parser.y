@@ -163,6 +163,7 @@ static const char initial_str[]  = "Unexpected initial";
 %type  <n>  string
 %type  <s>  timespec
 %type  <n>  vector
+%type  <n>  val_vec
 
 %left  L_AND L_OR
 %left  L_LT L_LEQ L_EQ L_GLOB L_COLON L_ASSIGN L_GEQ L_GT L_NEQ L_REQ L_RNE
@@ -314,65 +315,89 @@ expr	: /* relational expressions */
 	/* TODO: error reporting */
 	;
 
-	/* TODO: functions */
-func	: L_RATE L_LPAREN L_NAME L_LBRACE exprlist L_RBRACE L_LSQUARE timelist L_RSQUARE L_RPAREN
-		{ lp->yy_np = newnode(N_RATE);
-		  lp->yy_np->left = newmetricquery($3, $5);
+val_vec	: L_NAME L_LBRACE exprlist L_RBRACE L_LSQUARE timelist L_RSQUARE
+		{ lp->yy_np = newmetricquery($1, $3);
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
-	| L_RATE L_LPAREN L_NAME L_LSQUARE timelist L_RSQUARE L_RPAREN
-		{ lp->yy_np = newnode(N_RATE);
-		  lp->yy_np->left = newmetric($3);
+	| L_NAME L_LSQUARE timelist L_RSQUARE
+		{ lp->yy_np = newmetric($1);
 		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	;
+	/* TODO: functions */
+func	: L_RATE L_LPAREN val_vec L_RPAREN
+		{ lp->yy_np = newnode(N_RATE);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np->left;
 		}
 	| L_RATE L_LPAREN func L_RPAREN
 		{ lp->yy_np = newnode(N_RATE);
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
-	| L_NOOP L_LPAREN L_NAME L_LBRACE exprlist L_RBRACE L_LSQUARE timelist L_RSQUARE L_RPAREN
+	| L_NOOP L_LPAREN val_vec L_RPAREN
 		{ lp->yy_np = newnode(N_NOOP);
-		  lp->yy_np->left = newmetricquery($3, $5);
-		  $$ = lp->yy_series.expr = lp->yy_np;
-		}
-	| L_NOOP L_LPAREN L_NAME L_LSQUARE timelist L_RSQUARE L_RPAREN
-		{ lp->yy_np = newnode(N_NOOP);
-		  lp->yy_np->left = newmetric($3);
-		  $$ = lp->yy_series.expr = lp->yy_np;
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np->left;
 		}
 	| L_NOOP L_LPAREN func L_RPAREN
 		{ lp->yy_np = newnode(N_NOOP);
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
-	| L_MAX L_LPAREN L_NAME L_LBRACE exprlist L_RBRACE L_LSQUARE timelist L_RSQUARE L_RPAREN
+	| L_MAX L_LPAREN val_vec L_RPAREN
 		{ lp->yy_np = newnode(N_MAX);
-		  lp->yy_np->left = newmetricquery($3, $5);
-		  $$ = lp->yy_series.expr = lp->yy_np;
-		}
-	| L_MAX L_LPAREN L_NAME L_LSQUARE timelist L_RSQUARE L_RPAREN
-		{ lp->yy_np = newnode(N_MAX);
-		  lp->yy_np->left = newmetric($3);
-		  $$ = lp->yy_series.expr = lp->yy_np;
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np->left;
 		}
 	| L_MAX L_LPAREN func L_RPAREN
 		{ lp->yy_np = newnode(N_MAX);
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
-	| L_MIN L_LPAREN L_NAME L_LBRACE exprlist L_RBRACE L_LSQUARE timelist L_RSQUARE L_RPAREN
+	| L_MIN L_LPAREN val_vec L_RPAREN
 		{ lp->yy_np = newnode(N_MIN);
-		  lp->yy_np->left = newmetricquery($3, $5);
-		  $$ = lp->yy_series.expr = lp->yy_np;
-		}
-	| L_MIN L_LPAREN L_NAME L_LSQUARE timelist L_RSQUARE L_RPAREN
-		{ lp->yy_np = newnode(N_MIN);
-		  lp->yy_np->left = newmetric($3);
-		  $$ = lp->yy_series.expr = lp->yy_np;
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np->left;
 		}
 	| L_MIN L_LPAREN func L_RPAREN
 		{ lp->yy_np = newnode(N_MIN);
 		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_RESCALE L_LPAREN val_vec L_COMMA L_STRING L_RPAREN
+		{ double		mult;
+		  struct pmUnits	units;
+		  char			*errmsg;
+		
+		  lp->yy_np = newnode(N_RESCALE);
+		  lp->yy_np->left = $3;
+		  if (pmParseUnitsStr($5, &units, &mult, &errmsg) < 0) {
+		      gramerr(lp, "Illegal units:", NULL, errmsg);
+		      free(errmsg);
+		      series_error(lp, NULL);
+		      return -1;
+		  }
+		  lp->yy_np->right = newnode(N_SCALE);
+		  lp->yy_np->right->meta.units = units;	/* struct assign */
+		  //free($5); kyoma: why this causs free error?
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_RESCALE L_LPAREN func L_COMMA L_STRING L_RPAREN
+		{ double		mult;
+		  struct pmUnits	units;
+		  char			*errmsg;
+		
+		  lp->yy_np = newnode(N_RESCALE);
+		  lp->yy_np->left = $3;
+		  if (pmParseUnitsStr($5, &units, &mult, &errmsg) < 0) {
+		      gramerr(lp, "Illegal units:", NULL, errmsg);
+		      free(errmsg);
+		      series_error(lp, NULL);
+		      return -1;
+		  }
+		  lp->yy_np->right = newnode(N_SCALE);
+		  lp->yy_np->right->meta.units = units;	/* struct assign */
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	;
@@ -472,14 +497,15 @@ static const struct {
     int		f_namelen;
     char	*f_name;
 } func[] = {
-    { L_AVG,	sizeof("avg")-1,	"avg" },
-    { L_COUNT,	sizeof("count")-1,	"count" },
-    { L_MAX,    sizeof("max")-1,	"max" },
-    { L_MIN,    sizeof("min")-1,	"min" },
-    { L_SUM,    sizeof("sum")-1,	"sum" },
-    { L_RATE,   sizeof("rate")-1,	"rate" },
-    { L_NOOP,   sizeof("noop")-1,	"noop"},
-    { L_UNDEF,  0,			NULL }
+    { L_AVG,		sizeof("avg")-1,	"avg" },
+    { L_COUNT,		sizeof("count")-1,	"count" },
+    { L_MAX,		sizeof("max")-1,	"max" },
+    { L_MIN,		sizeof("min")-1,	"min" },
+    { L_SUM,		sizeof("sum")-1,	"sum" },
+    { L_RATE,		sizeof("rate")-1,	"rate" },
+    { L_NOOP,		sizeof("noop")-1,	"noop"},
+    { L_RESCALE,	sizeof("rescale")-1,	"rescale"},
+    { L_UNDEF,		0,			NULL }
 };
 
 static struct {

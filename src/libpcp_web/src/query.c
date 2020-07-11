@@ -85,7 +85,7 @@ initSeriesGetQuery(seriesQueryBaton *baton, node_t *root, timing_t *timing)
 static int
 skip_free_value_set(node_t *np) {
     // return 0 stands for skipping free this node's value_set.
-    if (np->type == N_RATE || np->type == N_NOOP) return 0;
+    if (np->type == N_RATE || np->type == N_NOOP || np->type == N_RESCALE) return 0;
     return 1;
 }
 
@@ -1902,7 +1902,8 @@ series_rate_check(pmSeriesDesc desc){
 }
 
 static void
-series_calculate_rate(node_t *np){
+series_calculate_rate(node_t *np)
+{
 /*
  * Compute rate between samples for each metric. The number of samples in result is one less 
  * than the original samples. 
@@ -1965,7 +1966,8 @@ series_calculate_rate(node_t *np){
 }
 
 static void
-series_calculate_max(node_t *np){
+series_calculate_max(node_t *np)
+{
 /*
  * Compare and pick the maximal instance value(s) among samples for each metric.
  */
@@ -2016,7 +2018,8 @@ series_calculate_max(node_t *np){
 }
 
 static void
-series_calculate_min(node_t *np){
+series_calculate_min(node_t *np)
+{
 /*
  * Compare and pick the minimal instance value(s) among samples for each metric.
  */
@@ -2067,6 +2070,168 @@ series_calculate_min(node_t *np){
 }
 
 static int
+compare_pmUnits(pmUnits *a, pmUnits *b)
+{
+    if (a->dimCount == b->dimCount && a->dimTime == b->dimTime && a->dimSpace == b->dimSpace) {
+	return 0;
+    }
+    return -1;
+}
+
+const int
+series_extract_type(char *typeStr) 
+{
+    if (strncmp("32", typeStr, sizeof("32")-1) == 0) {
+	return PM_TYPE_32;
+    } else if ((strncmp("U32", typeStr, sizeof("U32")-1) == 0) || (strncmp("u32", typeStr, sizeof("u32")-1) == 0)) {
+	return PM_TYPE_U32;
+    } else if (strncmp("64", typeStr, sizeof("64")-1) == 0) {
+	return PM_TYPE_64;
+    } else if ((strncmp("U64", typeStr, sizeof("U64")-1) == 0) || (strncmp("u64", typeStr, sizeof("u64")-1) == 0)) {
+	return PM_TYPE_U64;
+    } else if ((strncmp("FLOAT", typeStr, sizeof("FLOAT")-1) == 0) || (strncmp("float", typeStr, sizeof("float")-1) == 0)) {
+	return PM_TYPE_FLOAT;
+    } else if ((strncmp("DOUBLE", typeStr, sizeof("DOUBLE")-1) == 0) || (strncmp("double", typeStr, sizeof("double")-1) == 0)) {
+	return PM_TYPE_DOUBLE;
+    } else {
+	return PM_TYPE_UNKNOWN;
+    }
+}
+
+static int
+series_extract_value(int type, sds str, pmAtomValue *oval) 
+{
+    int		sts;
+    switch (type) {
+	case PM_TYPE_32:
+	    sts = sscanf(str, "%d", &oval->l);
+	    break;
+	case PM_TYPE_U32:
+	    sts = sscanf(str, "%u", &oval->ul);
+	    break;
+	case PM_TYPE_64:
+	    sts = sscanf(str, "%ld", &oval->ll);
+	    break;
+	case PM_TYPE_U64:
+	    sts = sscanf(str, "%lu", &oval->ull);
+	    break;
+	case PM_TYPE_FLOAT:
+	    sts = sscanf(str, "%f", &oval->f);
+	    break;
+	case PM_TYPE_DOUBLE:
+	    sts = sscanf(str, "%lf", &oval->d);
+	    break;
+	default:
+	    sts = 0;
+	    break;
+    }
+    if (sts == 1) {
+	return 0;
+    } else {
+	return PM_ERR_CONV;
+    }
+}
+
+static int
+series_pmAtomValue_conv_str(int type, char *str, pmAtomValue *val)
+{
+    int		sts;
+    switch (type) {
+	case PM_TYPE_32:
+	    sts = sprintf(str, "%d", val->l);
+	    break;
+	case PM_TYPE_U32:
+	    sts = sprintf(str, "%u", val->ul);
+	    break;
+	case PM_TYPE_64:
+	    sts = sprintf(str, "%ld", val->ll);
+	    break;
+	case PM_TYPE_U64:
+	    sts = sprintf(str, "%lu", val->ull);
+	    break;
+	case PM_TYPE_FLOAT:
+	    sts = sprintf(str, "%f", val->f);
+	    break;
+	case PM_TYPE_DOUBLE:
+	    sts = sprintf(str, "%lf", val->d);
+	    break;
+	default:
+	    sts = 0;
+	    break;
+    }
+    return sts;
+}
+
+static void
+series_calculate_rescale(node_t *np)
+{
+/* 
+ * The left child node of L_RESCALE should contains a set of time series values.
+ * And the right child node should be L_SCALE, which contains the target units information.
+ * This rescale() should only accept metrics with semantics instant. Compare the consistencies
+ * of 3 time/space/count dimantions between the pmUnits of input and metrics to be modified. 
+ */
+    double			mult;
+    pmUnits			iunit;
+    char			*errmsg;
+    pmAtomValue			ival, oval;
+    int				type, sts, str_len;
+    char			str_val[255];
+
+    np->value_set = np->left->value_set;
+    for (int i = 0; i < np->value_set.num_series; i++) {
+	if (strcmp(np->value_set.series_values[i].series_desc.semantics, "instant") != 0) {
+	    // TODO: error report, only accept semantic instant
+	    fprintf(stderr, "Only accpet semantic instant, the semantic of %s is %s\n", 
+	    		np->value_set.series_values[i].sid->name, np->value_set.series_values[i].series_desc.semantics);
+	    return;
+	}
+	if (pmParseUnitsStr(np->value_set.series_values[i].series_desc.units, &iunit, &mult, &errmsg) < 0) {
+	    // TODO: error report for units parse
+	    fprintf(stderr, "Units string of %s parse error, %s\n", np->value_set.series_values[i].sid->name, errmsg);
+	    free(errmsg);
+	    return;
+	}
+	if (compare_pmUnits(&iunit, &np->right->meta.units)) {
+	    // TODO: error report for unmatched units 
+	    fprintf(stderr, "Dimentions of units mismatch, for series %s the units is %s\n", 
+		np->value_set.series_values[i].sid->name, np->value_set.series_values[i].series_desc.units);
+	    return;
+	}
+	if ((type = series_extract_type(np->value_set.series_values[i].series_desc.type)) == PM_ERR_CONV) {
+	    // TODO: type extraction fail report
+	    fprintf(stderr, "Series values' Type extract fail\n");
+	    return;
+	}
+
+	
+	for (int j = 0; j < np->value_set.series_values[i].num_samples; j++) {
+	    for (int k = 0; k < np->value_set.series_values[i].series_sample[j].num_instances; k++) {
+		if (series_extract_value(type, 
+			np->value_set.series_values[i].series_sample[j].series_instance[k].data, &ival) != 0 ) {
+		    // TODO: error report for convert fail
+		    fprintf(stderr, "Convert fail\n");
+		    return;
+		}
+		if((sts = pmConvScale(type, &ival, &iunit, &oval, &np->right->meta.units)) != 0) {
+		    // TODO: rescale error report
+		    fprintf(stderr, "rescale error\n");
+		    return;
+		}
+		sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].data);
+		if((str_len = series_pmAtomValue_conv_str(type, str_val, &oval)) == 0) {
+		    // TODO: series values convert to string fail report
+		    fprintf(stderr, "series values convert to string fail\n");
+		    return;
+		}
+		np->value_set.series_values[i].series_sample[j].series_instance[k].data = sdsnewlen(str_val, str_len);
+	    }
+	}
+    }
+
+}
+
+static int
 series_calculate(seriesQueryBaton *baton, node_t *np, int level)
 {
 /* 
@@ -2096,6 +2261,9 @@ series_calculate(seriesQueryBaton *baton, node_t *np, int level)
 	    break;
 	case N_MIN:
 	    series_calculate_min(np);
+	    break;
+	case N_RESCALE:
+	    series_calculate_rescale(np);
 	    break;
 	default:
 	    break;
