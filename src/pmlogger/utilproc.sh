@@ -109,7 +109,7 @@ _save_prev_file()
 	# concurrent executions, quietly do the best you can
 	#
 	rm -f "$1.prev" 2>/dev/null
-	cp -f-p "$1" "$1.prev" 2>/dev/null
+	cp -f -p "$1" "$1.prev" 2>/dev/null
 	rm -f "$1" 2>/dev/null
 	return 0
     else
