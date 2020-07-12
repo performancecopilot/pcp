@@ -68,6 +68,16 @@ _filter_info()
 }
 pmsearch $port -i -C | _filter_info
 
+echo "=== Extra reporting - timing, score, hits, doc IDs ==="
+_filter_extras()
+{
+    sed \
+	-e 's/\([0-9][0-9]* hit in\) 0\.[0-9][0-9]* seconds/\1 0.X seconds/g' \
+	-e 's/\([0-9][0-9]* hits in\) 0\.[0-9][0-9]* seconds/\1 0.Y seconds/g' \
+    #end
+}
+pmsearch $port -dStT 99 | _filter_extras
+
 # success, all done
 status=0
 exit

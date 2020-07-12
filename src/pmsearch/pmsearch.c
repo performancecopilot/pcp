@@ -192,11 +192,11 @@ on_search_result(pmSearchTextResult *result, void *arg)
 
     if (dp->count == 0) {
 	if (dp->flags & PMSEARCH_TOTALS)
-	    printf("%u hits", result->total);
+	    printf("%u hit%s", result->total, result->total == 1? "" : "s");
 	if (dp->flags & PMSEARCH_TOTALS && dp->flags & PMSEARCH_TIMING)
 	    printf(" in ");
 	if (dp->flags & PMSEARCH_TIMING)
-	    printf("%.5f seconds", result->timer);
+	    printf("%.5f second%s", result->timer, result->timer==1.0? "" : "s");
 	if (dp->flags & (PMSEARCH_TOTALS | PMSEARCH_TIMING))
 	    puts("\n");
     } else {
@@ -219,7 +219,7 @@ static int
 pmsearch_overrides(int opt, pmOptions *opts)
 {
     switch (opt) {
-    case 'h': case 'n': case 'N': case 'O': case 'p': case 's': case 'S': case 't':
+    case 'h': case 'n': case 'N': case 'O': case 'p': case 's': case 'S': case 't': case 'T':
 	return 1;
     }
     return 0;
@@ -249,7 +249,7 @@ static pmLongOptions longopts[] = {
 };
 
 static pmOptions opts = {
-    .short_options = "c:CdD:h:inN:O:qp:sSTvV?",
+    .short_options = "c:CdD:h:inN:O:qp:sStTvV?",
     .long_options = longopts,
     .short_usage = "[options] [query | indom]",
     .override = pmsearch_overrides,

@@ -94,3 +94,15 @@ RediSearch statistics:
          Size: DOUBLE MB
 - Average offsets per term: DOUBLE
 - Average offset bits per record: DOUBLE
+=== Extra reporting - timing, score, hits, doc IDs ===
+1 hit in 0.X seconds
+
+ID: 6697a5ee42032f3e914b3475c07a16605d3c8b7a
+Score: 0.00
+Type: indom
+Name: 29.3
+InDom: 29.3
+One line: Instance domain "mirage" for sample PMDA
+Help: Random number of instances, that change with time.  Instance "m-00" (0)
+is always present, while the others are numbered 1 .. 49 and named "m-01"
+.. "m-99"
