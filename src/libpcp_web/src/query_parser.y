@@ -47,7 +47,7 @@ static int yyerror(PARSER *, const char *);
 
 static int series_lex(YYSTYPE *, PARSER *);
 static int series_error(PARSER *, const char *);
-//static void gramerr(PARSER *, const char *, const char *, char *);
+static void gramerr(PARSER *, const char *, const char *, char *);
 static node_t *newnode(int);
 static node_t *newmetric(char *);
 static node_t *newmetricquery(char *, node_t *);
@@ -109,6 +109,11 @@ static const char initial_str[]  = "Unexpected initial";
 %token      L_LSQUARE
 %token      L_RSQUARE
 %token      L_NOOP
+%token      L_ABS
+%token      L_FLOOR
+%token      L_LOG
+%token      L_SQRT
+%token      L_ROUND
 %token      L_AVG
 %token      L_COUNT
 %token      L_DELTA
@@ -328,7 +333,7 @@ val_vec	: L_NAME L_LBRACE exprlist L_RBRACE L_LSQUARE timelist L_RSQUARE
 func	: L_RATE L_LPAREN val_vec L_RPAREN
 		{ lp->yy_np = newnode(N_RATE);
 		  lp->yy_np->left = $3;
-		  $$ = lp->yy_series.expr = lp->yy_np->left;
+		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_RATE L_LPAREN func L_RPAREN
 		{ lp->yy_np = newnode(N_RATE);
@@ -338,7 +343,7 @@ func	: L_RATE L_LPAREN val_vec L_RPAREN
 	| L_NOOP L_LPAREN val_vec L_RPAREN
 		{ lp->yy_np = newnode(N_NOOP);
 		  lp->yy_np->left = $3;
-		  $$ = lp->yy_series.expr = lp->yy_np->left;
+		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_NOOP L_LPAREN func L_RPAREN
 		{ lp->yy_np = newnode(N_NOOP);
@@ -348,7 +353,7 @@ func	: L_RATE L_LPAREN val_vec L_RPAREN
 	| L_MAX L_LPAREN val_vec L_RPAREN
 		{ lp->yy_np = newnode(N_MAX);
 		  lp->yy_np->left = $3;
-		  $$ = lp->yy_series.expr = lp->yy_np->left;
+		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_MAX L_LPAREN func L_RPAREN
 		{ lp->yy_np = newnode(N_MAX);
@@ -358,7 +363,7 @@ func	: L_RATE L_LPAREN val_vec L_RPAREN
 	| L_MIN L_LPAREN val_vec L_RPAREN
 		{ lp->yy_np = newnode(N_MIN);
 		  lp->yy_np->left = $3;
-		  $$ = lp->yy_series.expr = lp->yy_np->left;
+		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_MIN L_LPAREN func L_RPAREN
 		{ lp->yy_np = newnode(N_MIN);
@@ -398,6 +403,68 @@ func	: L_RATE L_LPAREN val_vec L_RPAREN
 		  }
 		  lp->yy_np->right = newnode(N_SCALE);
 		  lp->yy_np->right->meta.units = units;	/* struct assign */
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_ABS L_LPAREN val_vec L_RPAREN
+		{ lp->yy_np = newnode(N_ABS);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_ABS L_LPAREN func L_RPAREN
+		{ lp->yy_np = newnode(N_ABS);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_FLOOR L_LPAREN val_vec L_RPAREN
+		{ lp->yy_np = newnode(N_FLOOR);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_FLOOR L_LPAREN func L_RPAREN
+		{ lp->yy_np = newnode(N_FLOOR);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_LOG L_LPAREN val_vec L_COMMA number L_RPAREN
+		{ lp->yy_np = newnode(N_LOG);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right = $5;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_LOG L_LPAREN func L_COMMA number L_RPAREN
+		{ lp->yy_np = newnode(N_LOG);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right = $5;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_LOG L_LPAREN val_vec L_RPAREN
+		{ lp->yy_np = newnode(N_LOG);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_LOG L_LPAREN func L_RPAREN
+		{ lp->yy_np = newnode(N_LOG);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_SQRT L_LPAREN val_vec L_RPAREN
+		{ lp->yy_np = newnode(N_SQRT);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_SQRT L_LPAREN func L_RPAREN
+		{ lp->yy_np = newnode(N_SQRT);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_ROUND L_LPAREN val_vec L_RPAREN
+		{ lp->yy_np = newnode(N_ROUND);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_ROUND L_LPAREN func L_RPAREN
+		{ lp->yy_np = newnode(N_ROUND);
+		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	;
@@ -503,8 +570,13 @@ static const struct {
     { L_MIN,		sizeof("min")-1,	"min" },
     { L_SUM,		sizeof("sum")-1,	"sum" },
     { L_RATE,		sizeof("rate")-1,	"rate" },
-    { L_NOOP,		sizeof("noop")-1,	"noop"},
-    { L_RESCALE,	sizeof("rescale")-1,	"rescale"},
+    { L_NOOP,		sizeof("noop")-1,	"noop" },
+    { L_ABS,		sizeof("abs")-1,	"abs" },
+    { L_FLOOR,		sizeof("floor")-1,	"floor" },
+    { L_LOG,		sizeof("log")-1,	"log" },
+    { L_SQRT,		sizeof("sqrt")-1,	"sqrt" },
+    { L_ROUND,		sizeof("round")-1,	"round" },
+    { L_RESCALE,	sizeof("rescale")-1,	"rescale" },
     { L_UNDEF,		0,			NULL }
 };
 
@@ -537,6 +609,11 @@ static struct {
     { L_COMMA,		0,		"COMMA",	"," },
     { L_STRING,		0,		"STRING",	"\"" },
     { L_NOOP,		N_NOOP,		"NOOP",		NULL },
+    { L_ABS,		N_ABS,		"ABS",		NULL },
+    { L_FLOOR,		N_FLOOR,	"FLOOR",	NULL },
+    { N_LOG,		N_LOG,		"LOG",		NULL },
+    { N_SQRT,		N_SQRT,		"SQRT",		NULL },
+    { N_ROUND,		N_ROUND,	"ROUND",	NULL },
     { L_AVG,		N_AVG,		"AVG",		NULL },
     { L_COUNT,		N_COUNT,	"COUNT",	NULL },
     { L_DELTA,		N_DELTA,	"DELTA",	NULL },
@@ -821,20 +898,20 @@ newoffset(PARSER *lp, const char *string)
     }
 }
 
-//static void
-//gramerr(PARSER *lp, const char *phrase, const char *pos, char *arg)
-//{
-//    char errmsg[256];
-//
-//    /* unless lexer has already found something amiss ... */
-//    if (lp->yy_errstr == NULL) {
-//	if (pos == NULL)
-//	    pmsprintf(errmsg, sizeof(errmsg), "%s '%s'", phrase, arg);
-//	else
-//	    pmsprintf(errmsg, sizeof(errmsg), "%s expected to %s %s", phrase, pos, arg);
-//	lp->yy_errstr = sdsnew(errmsg);
-//    }
-//}
+static void
+gramerr(PARSER *lp, const char *phrase, const char *pos, char *arg)
+{
+   char errmsg[256];
+
+   /* unless lexer has already found something amiss ... */
+   if (lp->yy_errstr == NULL) {
+	if (pos == NULL)
+	    pmsprintf(errmsg, sizeof(errmsg), "%s '%s'", phrase, arg);
+	else
+	    pmsprintf(errmsg, sizeof(errmsg), "%s expected to %s %s", phrase, pos, arg);
+	lp->yy_errstr = sdsnew(errmsg);
+   }
+}
 
 /* Construct error message buffer for syntactic error */
 static char *
