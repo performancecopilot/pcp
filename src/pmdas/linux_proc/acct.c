@@ -59,14 +59,6 @@ static struct {
 	int next_index;
 } acct_ringbuf;
 
-static void acct_debug(const char *fmt, ...) {
-	va_list arg;
-	va_start(arg, fmt);
-	if (pmDebugOptions.libpmda && pmDebugOptions.desperate)
-		vfprintf(stderr, fmt, arg);
-	va_end(arg);
-}
-
 static int get_pid_v3(void *entry) {
 	return ((struct acct_v3*)entry)->ac_pid;
 }
@@ -177,7 +169,9 @@ static void init_acct_file_info(void) {
 }
 
 static void close_pacct_file(void) {
-	acct_debug("acct: close file=%s\n", acct_file.path);
+	if (pmDebugOptions.libpmda && pmDebugOptions.desperate)
+		pmNotifyErr(LOG_DEBUG, "acct: close file=%s\n", acct_file.path);
+
 	if (acct_file.fd >= 0) {
 		if (acct_file.acct_enabled)
 			acct(0);
@@ -221,7 +215,8 @@ static int open_and_acct(const char* path, int do_acct) {
 	acct_file.prev_size = file_stat.st_size;
 	acct_file.path = path;
 
-	acct_debug("acct: open file=%s acct=%d version=%d\n", path, do_acct, acct_file.version);
+	if (pmDebugOptions.libpmda && pmDebugOptions.desperate)
+		pmNotifyErr(LOG_DEBUG, "acct: open file=%s acct=%d version=%d\n", path, do_acct, acct_file.version);
 	return 1;
 
 err3:
@@ -327,7 +322,8 @@ static int exists_hash_entry(int i_inst, proc_acct_t *proc_acct) {
 }
 
 static void acct_timer(int sig, void *ptr) {
-	acct_debug("acct: timer called\n");
+	if (pmDebugOptions.libpmda && pmDebugOptions.desperate)
+		pmNotifyErr(LOG_DEBUG, "acct: timer called\n");
 	if (acct_file.fd >= 0 && acct_file.acct_enabled && get_file_size(acct_file.path) > ACCT_FILE_SIZE_THRESHOLD)
 		reopen_pacct_file();
 }
@@ -337,7 +333,8 @@ static void init_acct_timer(void) {
 
 	sts = __pmAFregister(&acct_update_interval, NULL, acct_timer);
 	if (sts < 0) {
-		acct_debug("acct: error registering timer: %s\n", pmErrStr(sts));
+		if (pmDebugOptions.libpmda && pmDebugOptions.desperate)
+			pmNotifyErr(LOG_DEBUG, "acct: error registering timer: %s\n", pmErrStr(sts));
 		return;
 	}
 	acct_timer_id = sts;
@@ -375,7 +372,8 @@ void refresh_acct(proc_acct_t *proc_acct) {
 		return;
 
 	if ((now - acct_file.last_check_accounting) > CHECK_ACCOUNTING_INTERVAL) {
-		acct_debug("acct: check accounting\n");
+		if (pmDebugOptions.libpmda && pmDebugOptions.desperate)
+			pmNotifyErr(LOG_DEBUG, "acct: check accounting\n");
 		if (!check_accounting(acct_file.fd)) {
 			reopen_pacct_file();
 			return;
@@ -384,8 +382,10 @@ void refresh_acct(proc_acct_t *proc_acct) {
 	}
 	need_update = acct_gc(&proc_acct->accthash, now);
 
-	if (need_update)
-		acct_debug("acct: acct_gc n=%d\n", need_update);
+	if (need_update) {
+		if (pmDebugOptions.libpmda && pmDebugOptions.desperate)
+			pmNotifyErr(LOG_DEBUG, "acct: acct_gc n=%d\n", need_update);
+	}
 
 	acct_file_size = get_file_size(acct_file.path);
 	if (acct_file_size < 0) {
@@ -424,7 +424,8 @@ void refresh_acct(proc_acct_t *proc_acct) {
 		ringbuf_entry.instid.i_inst = i_inst;
 		ringbuf_entry.instid.i_name = acct_ops.get_comm(acctp);
 
-		acct_debug("acct: hash add pid=%d comm=%s\n", i_inst, acct_ops.get_comm(acctp));
+		if (pmDebugOptions.libpmda && pmDebugOptions.desperate)
+			pmNotifyErr(LOG_DEBUG, "acct: hash add pid=%d comm=%s\n", i_inst, acct_ops.get_comm(acctp));
 
 		acct_ringbuf_add(&proc_acct->accthash, &ringbuf_entry);
 		__pmHashAdd(i_inst, acctp, &proc_acct->accthash);
@@ -433,7 +434,8 @@ void refresh_acct(proc_acct_t *proc_acct) {
 
 	if (need_update) {
 		copy_ringbuf_to_indom(proc_acct->indom, now);
-		acct_debug("acct: update indom it_numinst=%d\n", proc_acct->indom->it_numinst);
+		if (pmDebugOptions.libpmda && pmDebugOptions.desperate)
+			pmNotifyErr(LOG_DEBUG, "acct: update indom it_numinst=%d\n", proc_acct->indom->it_numinst);
 	}
 	acct_file.prev_size = acct_file_size;
 }
