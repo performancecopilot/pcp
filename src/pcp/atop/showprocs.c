@@ -1165,25 +1165,18 @@ procprt_POLI_a(struct tstat *curstat, int avgval, int nsecs)
         {
                 case SCHED_NORMAL:
                         return "norm";
-                        break;
                 case SCHED_FIFO:
                         return "fifo";
-                        break;
                 case SCHED_RR:
                         return "rr  ";
-                        break;
                 case SCHED_BATCH:
                         return "btch";
-                        break;
                 case SCHED_ISO:
                         return "iso ";
-                        break;
                 case SCHED_IDLE:
                         return "idle";
-                        break;
                 case SCHED_DEADLINE:
                         return "dead";
-                        break;
         }
         return "?   ";
 }
