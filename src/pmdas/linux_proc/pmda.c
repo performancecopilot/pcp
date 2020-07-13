@@ -1795,7 +1795,6 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	switch (item) {
 	    case ITEM_HOTPROC_P_SYSCALLS: /* No way to get this right now (maybe from systemtap?)*/
 		return PM_ERR_PMID;
-		break;
 	    case ITEM_HOTPROC_P_CTXSWITCH: /* hotproc.predicate.ctxswitch */
 		atom->f = hotnode->preds.ctxswitch;
 		break;
