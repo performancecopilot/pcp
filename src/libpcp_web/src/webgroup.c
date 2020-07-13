@@ -1309,6 +1309,7 @@ typedef struct weblookup {
     struct context	*context;
     pmWebMetric		metric;	/* keep buffers to reduce memory allocations */
     int			status;
+    sds			message;
     void		*arg;
 } weblookup_t;
 
@@ -1322,6 +1323,9 @@ webmetric_lookup(const char *name, void *arg)
     seriesname_t	*snp = NULL;
     context_t		*cp = lookup->context;
     metric_t		*mp;
+
+    if (webgroup_use_context(cp, &lookup->status, &lookup->message, arg) == NULL)
+	return;
 
     /* make sure we use the original caller supplied arg now */
     arg = lookup->arg;
@@ -1418,6 +1422,7 @@ pmWebGroupMetric(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
     if (prefix == NULL || *prefix == '\0') {
 	sts = pmTraversePMNS_r("", webmetric_lookup, &lookup);
 	if (sts >= 0) {
+	    msg = lookup.message;
 	    sts = (lookup.status < 0) ? lookup.status : 0;
 	} else {
 	    if (sts == PM_ERR_IPC)
@@ -1429,7 +1434,9 @@ pmWebGroupMetric(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
     for (i = 0; i < numnames; i++) {
 	sts = pmTraversePMNS_r(names[i], webmetric_lookup, &lookup);
 	if (sts >= 0) {
-	    sts = (lookup.status < 0) ? lookup.status : 0;
+	    msg = lookup.message;
+	    if ((sts = (lookup.status < 0) ? lookup.status : 0) < 0)
+		break;
 	} else {
 	    if (sts == PM_ERR_IPC)
 		cp->setup = 0;
