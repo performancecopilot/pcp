@@ -85,12 +85,14 @@ class ContainerRunner:
 
         # on Ubuntu, systemd inside the container only works with sudo
         self.sudo = []
+        self.security_opts = []
         with open('/etc/os-release') as f:
             for line in f:
                 k, v = line.rstrip().split('=')
                 if k == 'NAME':
                     if v == '"Ubuntu"':
                         self.sudo = ['sudo']
+                        self.security_opts = ['--security-opt', 'label=disable']
                     break
 
     def setup(self, pcp_path):
@@ -105,7 +107,8 @@ class ContainerRunner:
         # start a new container
         subprocess.run([*self.sudo, 'podman', 'rm', '-f', self.container_name], stderr=subprocess.DEVNULL, check=False)
         subprocess.run([*self.sudo, 'podman', 'run', '-d', '--name', self.container_name,
-                        '--privileged', image_name, init], check=True)
+                        '--privileged', *self.security_opts,
+                        image_name, init], check=True)
 
         self.exec('mkdir -p artifacts/build artifacts/test')
         subprocess.run([*self.sudo, 'podman', 'cp', pcp_path, f"{self.container_name}:/home/pcpbuild/pcp"], check=True)
