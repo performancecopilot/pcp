@@ -34,7 +34,7 @@ static int acct_timer_id = -1;
 static struct {
 	const char* path;
 	int fd;
-	int prev_size;
+	unsigned long long prev_size;
 	int acct_enabled;
 	int version;
 	int record_size;
@@ -314,7 +314,7 @@ static void copy_ringbuf_to_indom(pmdaIndom* indomp, time_t t) {
 	indomp->it_numinst = i;
 }
 
-static int get_file_size(const char* path) {
+static unsigned long long get_file_size(const char* path) {
 	struct stat statbuf;
 	if (stat(path, &statbuf) < 0)
 		return -1;
@@ -359,7 +359,7 @@ void acct_init(proc_acct_t *proc_acct) {
 void refresh_acct(proc_acct_t *proc_acct) {
 	char* tmprec[MAX_ACCT_RECORD_SIZE_BYTES];
 	void* acctp;
-	int acct_file_size;
+	unsigned long long acct_file_size;
 	int i, records, i_inst, need_update = 0;
 	time_t now, process_end_time;
 	acct_ringbuf_entry_t ringbuf_entry;
