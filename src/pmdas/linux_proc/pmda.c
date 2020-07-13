@@ -1520,7 +1520,8 @@ proc_refresh(pmdaExt *pmda, int *need_refresh)
 	    refresh_cgroups2(cgroup, cgrouplen, need_refresh);
     }
 
-    if (need_refresh[CLUSTER_ACCT] && !proc_ctx_getuid(pmda->e_context))
+    if (need_refresh[CLUSTER_ACCT] &&
+	(all_access || proc_ctx_getuid(pmda->e_context) >= 0))
 	refresh_acct(&proc_acct);
 
     if (need_refresh[CLUSTER_PID_STAT] ||
