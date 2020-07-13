@@ -15,15 +15,30 @@ echo "QA output created by $seq"
 which pmrep >/dev/null 2>&1 || _notrun pmrep not installed
 $python -c "from collections import OrderedDict" >/dev/null 2>&1  || _notrun no OrderedDict
 
-_filter()
-{
-    sed -e 's/'`hostname`'/HOSTNAME/g' -e s/\'/\"/g | pmjson |\
-    sed -e 's/^[\{\}]$//' -e '/^$/d' -e 's/,$//' | LC_COLLATE=POSIX sort
-}
+userid=`id -u`
+groupid=`id -g`
+hostname=`hostname`
+machineid=`_machine_id`
+domainname=`_domain_name`
 
 status=1       # failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    echo "===filter:" >> /tmp/cat
+    tee -a /tmp/cat | \
+    sed \
+	-e s/\'/\"/g \
+	-e "s/\(\"userid\"\):\"$userid\"/\1:\"USERID\"/g" \
+	-e "s/\(\"groupid\"\):\"$groupid\"/\1:\"GROUPID\"/g" \
+	-e "s/\(\"hostname\"\):\"$hostname\"/\1:\"HOSTNAME\"/g" \
+	-e "s/\(\"machineid\"\):\"$machineid\"/\1:\"MACHINEID\"/g" \
+	-e "s/\(\"domainname\"\):\"$domainname\"/\1:\"DOMAINNAME\"/g" \
+    | pmjson \
+    | sed -e 's/^[\{\}]$//' -e '/^$/d' -e 's/,$//' | LC_COLLATE=POSIX sort
+}
 
 # real QA test starts here
 mkdir -p $tmp
