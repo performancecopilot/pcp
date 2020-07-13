@@ -78,4 +78,4 @@ enum {
 
 extern void acct_init(proc_acct_t *);
 extern void refresh_acct(proc_acct_t *);
-extern int acct_fetchCallBack(int i_inst, int item, proc_acct_t* proc_acct, pmAtomValue *atom);
+extern int acct_fetchCallBack(int i_inst, int item, proc_acct_t *proc_acct, pmAtomValue *atom);

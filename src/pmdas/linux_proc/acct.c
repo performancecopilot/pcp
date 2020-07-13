@@ -32,7 +32,7 @@ struct timeval acct_update_interval = {
 static int acct_timer_id = -1;
 
 static struct {
-	const char* path;
+	const char *path;
 	int fd;
 	unsigned long long prev_size;
 	int acct_enabled;
@@ -43,10 +43,10 @@ static struct {
 } acct_file;
 
 static struct {
-	int    (*get_pid)(void*);
-	char*  (*get_comm)(void*);
-	time_t (*get_end_time)(void*);
-	int    (*fetchCallBack)(int, void*, pmAtomValue*);
+	int    (*get_pid)(void *);
+	char * (*get_comm)(void *);
+	time_t (*get_end_time)(void *);
+	int    (*fetchCallBack)(int, void *, pmAtomValue *);
 } acct_ops;
 
 typedef struct {
@@ -59,21 +59,29 @@ static struct {
 	int next_index;
 } acct_ringbuf;
 
-static int get_pid_v3(void *entry) {
-	return ((struct acct_v3*)entry)->ac_pid;
+static int
+get_pid_v3(void *entry)
+{
+	return ((struct acct_v3 *)entry)->ac_pid;
 }
 
-static char* get_comm_v3(void *entry) {
-	return ((struct acct_v3*)entry)->ac_comm;
+static char *
+get_comm_v3(void *entry)
+{
+	return ((struct acct_v3 *)entry)->ac_comm;
 }
 
-static time_t get_end_time_v3(void *entry) {
-	return ((struct acct_v3*)entry)->ac_btime +
-		(int)(((struct acct_v3*)entry)->ac_etime / hz);
+static time_t
+get_end_time_v3(void *entry)
+{
+	return ((struct acct_v3 *)entry)->ac_btime +
+		(int)(((struct acct_v3 *)entry)->ac_etime / hz);
 }
 
-static int acct_fetchCallBack_v3(int item, void *p, pmAtomValue* atom) {
-	struct acct_v3* acctp = (struct acct_v3*)p;
+static int
+acct_fetchCallBack_v3(int item, void *p, pmAtomValue *atom)
+{
+	struct acct_v3 *acctp = (struct acct_v3 *)p;
 	switch (item) {
 	case ACCT_TTY:
 		atom->ul = acctp->ac_tty;
@@ -129,7 +137,9 @@ static int acct_fetchCallBack_v3(int item, void *p, pmAtomValue* atom) {
 	return 1;
 }
 
-static int set_record_size(int fd) {
+static int
+set_record_size(int fd)
+{
 	struct acct_header tmprec;
 
 	if (read(fd, &tmprec, sizeof(tmprec)) < sizeof(tmprec))
@@ -149,7 +159,9 @@ static int set_record_size(int fd) {
 	return 0;
 }
 
-static int check_accounting(int fd) {
+static int
+check_accounting(int fd)
+{
 	struct stat before, after;
 
 	if (fstat(fd, &before) < 0)
@@ -163,12 +175,16 @@ static int check_accounting(int fd) {
 	return after.st_size > before.st_size;
 }
 
-static void init_acct_file_info(void) {
+static void
+init_acct_file_info(void)
+{
 	memset(&acct_file, 0, sizeof(acct_file));
 	acct_file.fd = -1;
 }
 
-static void close_pacct_file(void) {
+static void
+close_pacct_file(void)
+{
 	if (pmDebugOptions.libpmda && pmDebugOptions.desperate)
 		pmNotifyErr(LOG_DEBUG, "acct: close file=%s\n", acct_file.path);
 
@@ -180,7 +196,9 @@ static void close_pacct_file(void) {
 	init_acct_file_info();
 }
 
-static int open_and_acct(const char* path, int do_acct) {
+static int
+open_and_acct(const char *path, int do_acct)
+{
 	struct stat file_stat;
 
 	if (acct_file.fd != -1)
@@ -232,7 +250,9 @@ err1:
 	return 0;
 }
 
-static int open_pacct_file(void) {
+static int
+open_pacct_file(void)
+{
 	int ret;
 
 	ret = open_and_acct(PACCT_SYSTEM_FILE, 0);
@@ -251,12 +271,16 @@ static int open_pacct_file(void) {
 	return 0;
 }
 
-static void reopen_pacct_file(void) {
+static void
+reopen_pacct_file(void)
+{
 	close_pacct_file();
 	open_pacct_file();
 }
 
-static void free_entry(__pmHashCtl *hp, int i_inst) {
+static void
+free_entry(__pmHashCtl *hp, int i_inst)
+{
 	__pmHashNode *node = __pmHashSearch(i_inst, hp);
 	if (node && node->data) {
 		__pmHashDel(i_inst, (void *)node->data, hp);
@@ -264,7 +288,9 @@ static void free_entry(__pmHashCtl *hp, int i_inst) {
 	}
 }
 
-static int free_ringbuf_entry(__pmHashCtl *hp, int index) {
+static int
+free_ringbuf_entry(__pmHashCtl *hp, int index)
+{
 	if (!acct_ringbuf.buf[index].instid.i_inst)
 		return 0;
 	free_entry(hp, acct_ringbuf.buf[index].instid.i_inst);
@@ -272,21 +298,29 @@ static int free_ringbuf_entry(__pmHashCtl *hp, int index) {
 	return 1;
 }
 
-static int next_ringbuf_index(int index) {
+static int
+next_ringbuf_index(int index)
+{
 	return (index + 1) % RINGBUF_SIZE;
 }
 
-static void acct_ringbuf_add(__pmHashCtl *hp, acct_ringbuf_entry_t *entry) {
+static void
+acct_ringbuf_add(__pmHashCtl *hp, acct_ringbuf_entry_t *entry)
+{
 	free_ringbuf_entry(hp, acct_ringbuf.next_index);
 	acct_ringbuf.buf[acct_ringbuf.next_index] = *entry;
 	acct_ringbuf.next_index = next_ringbuf_index(acct_ringbuf.next_index);
 }
 
-static int ringbuf_entry_is_valid(time_t t, int index) {
+static int
+ringbuf_entry_is_valid(time_t t, int index)
+{
 	return (t - acct_ringbuf.buf[index].time) <= acct_lifetime;
 }
 
-static int acct_gc(__pmHashCtl *hp, time_t t) {
+static int
+acct_gc(__pmHashCtl *hp, time_t t)
+{
 	int need_update = 0;
 	int i, index = acct_ringbuf.next_index;
 	for (i = 0; i < RINGBUF_SIZE; i++) {
@@ -298,7 +332,9 @@ static int acct_gc(__pmHashCtl *hp, time_t t) {
 	return need_update;
 }
 
-static void copy_ringbuf_to_indom(pmdaIndom* indomp, time_t t) {
+static void
+copy_ringbuf_to_indom(pmdaIndom *indomp, time_t t)
+{
 	int i, index;
 	for (i = 0; i < RINGBUF_SIZE; i++) {
 		index = (acct_ringbuf.next_index - 1 - i + RINGBUF_SIZE) % RINGBUF_SIZE;
@@ -309,26 +345,34 @@ static void copy_ringbuf_to_indom(pmdaIndom* indomp, time_t t) {
 	indomp->it_numinst = i;
 }
 
-static unsigned long long get_file_size(const char* path) {
+static unsigned long long
+get_file_size(const char *path)
+{
 	struct stat statbuf;
 	if (stat(path, &statbuf) < 0)
 		return -1;
 	return statbuf.st_size;
 }
 
-static int exists_hash_entry(int i_inst, proc_acct_t *proc_acct) {
+static int
+exists_hash_entry(int i_inst, proc_acct_t *proc_acct)
+{
 	__pmHashNode *node = __pmHashSearch(i_inst, &proc_acct->accthash);
 	return node && node->data ? 1 : 0;
 }
 
-static void acct_timer(int sig, void *ptr) {
+static void
+acct_timer(int sig, void *ptr)
+{
 	if (pmDebugOptions.libpmda && pmDebugOptions.desperate)
 		pmNotifyErr(LOG_DEBUG, "acct: timer called\n");
 	if (acct_file.fd >= 0 && acct_file.acct_enabled && get_file_size(acct_file.path) > ACCT_FILE_SIZE_THRESHOLD)
 		reopen_pacct_file();
 }
 
-static void init_acct_timer(void) {
+static void
+init_acct_timer(void)
+{
 	int sts;
 
 	sts = __pmAFregister(&acct_update_interval, NULL, acct_timer);
@@ -340,7 +384,9 @@ static void init_acct_timer(void) {
 	acct_timer_id = sts;
 }
 
-void acct_init(proc_acct_t *proc_acct) {
+void
+acct_init(proc_acct_t *proc_acct)
+{
 	init_acct_timer();
 
 	init_acct_file_info();
@@ -353,9 +399,11 @@ void acct_init(proc_acct_t *proc_acct) {
 	proc_acct->indom->it_set = calloc(RINGBUF_SIZE, sizeof(pmdaInstid));
 }
 
-void refresh_acct(proc_acct_t *proc_acct) {
+void
+refresh_acct(proc_acct_t *proc_acct)
+{
 	char tmprec[MAX_ACCT_RECORD_SIZE_BYTES];
-	void* acctp;
+	void *acctp;
 	unsigned long long acct_file_size;
 	int i, records, i_inst, need_update = 0;
 	time_t now, process_end_time;
@@ -400,7 +448,7 @@ void refresh_acct(proc_acct_t *proc_acct) {
 			return;
 		}
 
-		if (((struct acct_header*)tmprec)->ac_version != acct_file.version) {
+		if (((struct acct_header *)tmprec)->ac_version != acct_file.version) {
 			reopen_pacct_file();
 			return;
 		}
@@ -440,7 +488,9 @@ void refresh_acct(proc_acct_t *proc_acct) {
 	acct_file.prev_size = acct_file_size;
 }
 
-int acct_fetchCallBack(int i_inst, int item, proc_acct_t* proc_acct, pmAtomValue *atom) {
+int
+acct_fetchCallBack(int i_inst, int item, proc_acct_t *proc_acct, pmAtomValue *atom)
+{
 	if (acct_file.fd < 0)
 		return 0;
 
