@@ -357,7 +357,7 @@ void acct_init(proc_acct_t *proc_acct) {
 }
 
 void refresh_acct(proc_acct_t *proc_acct) {
-	char* tmprec[MAX_ACCT_RECORD_SIZE_BYTES];
+	char tmprec[MAX_ACCT_RECORD_SIZE_BYTES];
 	void* acctp;
 	unsigned long long acct_file_size;
 	int i, records, i_inst, need_update = 0;
