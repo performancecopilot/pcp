@@ -48,14 +48,7 @@ echo "pmproxy_was_running=$pmproxy_was_running" >>$here/$seq.full
 
 hostname=`hostname`
 machineid=`_machine_id`
-if which domainname >/dev/null 2>&1
-then
-    domainname=`domainname`
-else
-    domainname=`hostname -d`
-fi
-[ -z "$domainname" ] && domainname=localdomain
-[ "$domainname" = "(none)" ] && domainname=localdomain
+domainname=`_domain_name`
 
 _filter_html()
 {

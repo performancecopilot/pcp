@@ -19,14 +19,7 @@ groupid=`id -g`
 username=`id -u -n`
 hostname=`hostname`
 machineid=`_machine_id`
-if which domainname >/dev/null 2>&1
-then
-    domainname=`domainname`
-else
-    domainname=`hostname -d`
-fi
-[ -z "$domainname" ] && domainname=localdomain
-[ "$domainname" = "(none)" ] && domainname=localdomain
+domainnam=`_domain_name`
 MMV_STATS_DIR="$PCP_TMP_DIR/mmv"
 
 # for QA the default install for mmv PMDA is as a dso, not a daemon

@@ -514,6 +514,7 @@ _domain_name()
     fi
     [ -z "$__domainname" ] && __domainname=localdomain
     [ "$__domainname" = "(none)" ] && __domainname=localdomain
+    [ "$__domainname" = "(null)" ] && __domainname=localdomain
     echo "$__domainname"
 }
 

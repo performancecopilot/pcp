@@ -37,14 +37,7 @@ groupid=`id -g`
 username=`id -u -n`
 hostname=`hostname`
 machineid=`_machine_id`
-if which domainname >/dev/null 2>&1
-then
-    domainname=`domainname`
-else
-    domainname=`hostname -d`
-fi
-[ -z "$domainname" ] && domainname=localdomain
-[ "$domainname" = "(none)" ] && domainname=localdomain
+domainname=`_domain_name`
 
 need_restore=false
 $sudo rm -rf $tmp $tmp.* $seq.full
