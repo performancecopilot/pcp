@@ -737,7 +737,6 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 		}
 	    }
 	    return 1;
-	    break;
 
 	case N_DELTA:
 	case N_RATE:
@@ -880,7 +879,6 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 	    }
 	    np->data.info->numval = k;
 	    return np->data.info->numval;
-	    break;
 
 	case N_NOT:	/* boolean negation, values are in the left expr */
 	    assert(np->left != NULL);
@@ -919,7 +917,6 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 		np->data.info->ivlist[i].inst = np->left->data.info->ivlist[i].inst;
 	    }
 	    return np->data.info->numval;
-	    break;
 
 	case N_NEG:	/* unary arithmetic negation */
 	    assert(np->left != NULL);
@@ -958,12 +955,10 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 		np->data.info->ivlist[i].inst = np->left->data.info->ivlist[i].inst;
 	    }
 	    return np->data.info->numval;
-	    break;
 
 	case N_COLON:
 	    /* do nothing */
 	    return 0;
-	    break;
 
 	case N_QUEST:
 	    assert(np->left != NULL);
@@ -1121,7 +1116,6 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 		}
 	    }
 	    return np->data.info->numval;
-	    break;
 
 	case N_RESCALE:
 	    assert(np->left != NULL);
@@ -1146,7 +1140,6 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 	    }
 	    np->data.info->numval = j;
 	    return np->data.info->numval;
-	    break;
 
 	case N_INSTANT:
 	    /*
@@ -1159,7 +1152,6 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 	    if (np->data.info->numval > 0)
 		np->data.info->ivlist = np->left->data.info->ivlist;
 	    return np->data.info->numval;
-	    break;
 
 	case N_AVG:
 	case N_COUNT:
@@ -1364,7 +1356,6 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 		}
 	    }
 	    return np->data.info->numval;
-	    break;
 
 	case N_NAME:
 	    /*
@@ -1599,12 +1590,10 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 		    regex_inst_gc(np->left->data.pattern);
 	    }
 	    return np->data.info->numval;
-	    break;
 
 	case N_PATTERN:
 	    /* do nothing */
 	    return 0;
-	    break;
 
 	default:
 	    /*
