@@ -12,6 +12,7 @@
  * License for more details.
  */
 #include <ctype.h>
+#include <unistd.h>
 #include <stdlib.h>
 #include "encoding.h"
 
