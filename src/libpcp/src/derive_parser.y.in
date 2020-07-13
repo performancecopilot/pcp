@@ -13,7 +13,8 @@
  *	_dmchildren(), PMNS ops
  *
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+ * Copyright (c) 2017-2020 Ken McDonell.  All Rights Reserved.
+ * Copyright (c) 2020 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -2572,35 +2573,29 @@ int
 __dmhelptext(pmID pmid, int level, char **buffer)
 {
     int		i;
-    int		sts = 0;
+    int		sts;
+    const char	*text;
 
     PM_LOCK(registered.mutex);
     __dminit();
 
     for (i = 0; i < registered.nmetric; i++) {
 	if (pmid == registered.mlist[i].pmid) {
-	    if (level == PM_TEXT_ONELINE ||
-	        (level == PM_TEXT_HELP && registered.mlist[i].helptext == NULL)) {
-		if (registered.mlist[i].oneline == NULL)
+	    sts = 0;
+	    text = NULL;
+	    if (level & PM_TEXT_ONELINE) {
+		if ((text = registered.mlist[i].oneline) == NULL)
 		    sts = PM_ERR_TEXT;
-		else {
-		    *buffer = strdup(registered.mlist[i].oneline);
-		    if (*buffer == NULL) {
-			pmNoMem("__dmhelptext oneline", strlen(registered.mlist[i].oneline)+1, PM_RECOV_ERR);
-			sts = -oserror();
-		    }
-		}
+	    } else if (level & PM_TEXT_HELP) {
+		text = registered.mlist[i].helptext;
+		if (text == NULL && !(level & PM_TEXT_DIRECT))
+		    text = registered.mlist[i].oneline;
+		if (text == NULL)
+		    sts = PM_ERR_TEXT;
 	    }
-	    else if (level == PM_TEXT_HELP) {
-		if (registered.mlist[i].helptext == NULL)
-		    sts = PM_ERR_TEXT;
-		else {
-		    *buffer = strdup(registered.mlist[i].helptext);
-		    if (*buffer == NULL) {
-			pmNoMem("__dmhelptext helptext", strlen(registered.mlist[i].helptext)+1, PM_RECOV_ERR);
-			sts = -oserror();
-		    }
-		    }
+	    if (text && (*buffer = strdup(text)) == NULL) {
+		pmNoMem("__dmhelptext", strlen(text) + 1, PM_RECOV_ERR);
+		sts = -oserror();
 	    }
 	    PM_UNLOCK(registered.mutex);
 	    return sts;
