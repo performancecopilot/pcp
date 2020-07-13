@@ -102,7 +102,7 @@ parse_config(bool_node **tree)
     /* Return 1 on success, 0 on empty config, sts on error (negative)*/
     int sts;
     FILE *file = NULL;
-    char tmpname[] = "/var/tmp/pcp.XXXXXX";
+    char tmpname[] = "/var/tmp/linux_proc.XXXXXX";
     mode_t cur_umask;
     int fid = -1;
     struct stat stat_buf;

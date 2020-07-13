@@ -77,6 +77,8 @@ Slackware    14\.2    -       python3-.*
 # we're using python3
 SUSE         12-SP.*  -       python-.*
 #-- Ubuntu
+# Python2 retired from PCP builds as of Ubunutu version 20.04
+Ubuntu       2.*      -       python-.*
 # observed on vm01
 # python3-bpfcc : Depends: libbpfcc (>= 0.5.0-5ubuntu1) but it is not installable
 Ubuntu       18\.04   i.86    python3-bpfcc

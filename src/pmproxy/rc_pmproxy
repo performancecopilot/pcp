@@ -56,7 +56,7 @@ RUNDIR=$PCP_LOG_DIR/pmproxy
 pmprog=$PCP_RC_DIR/pmproxy
 prog=$PCP_RC_DIR/`basename $0`
 
-tmp=`mktemp -d $PCP_DIR/var/tmp/pcp.XXXXXXXXX` || exit 1
+tmp=`mktemp -d "$PCP_TMPFILE_DIR/pmproxy_rc.XXXXXXXXX"` || exit 1
 status=1
 trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
 
@@ -289,6 +289,7 @@ Error: pmproxy options file "$PMPROXYOPTS" is missing, cannot start pmproxy.'
 		# Called from systemd with need to preserve the pid and
 		# systemd has already done the necessary daemonizing
 		#
+		rm -rf $tmp
 		exec $PMPROXY -F $OPTS
 		# NOTREACHED
 		#
@@ -301,7 +302,13 @@ Error: pmproxy options file "$PMPROXYOPTS" is missing, cannot start pmproxy.'
 
 
 	    # finally, stop here if running in a container
-	    [ -z "$PCP_CONTAINER_IMAGE" ] || exec $PCP_BINADM_DIR/pmpause
+	    if [ -z "$PCP_CONTAINER_IMAGE" ]
+	    then
+		:
+	    else
+		rm -rf $tmp
+		exec $PCP_BINADM_DIR/pmpause
+	    fi
 	fi
 	status=0
         ;;
@@ -334,7 +341,13 @@ Error: pmproxy options file "$PMPROXYOPTS" is missing, cannot start pmproxy.'
 	;;
 
   *)
-	[ -z "$PCP_CONTAINER_IMAGE" ] || exec "$@"
+	if [ -z "$PCP_CONTAINER_IMAGE" ]
+	then
+	    :
+	else
+	    rm -rf $tmp
+	    exec "$@"
+	fi
 	_usage
         ;;
 esac

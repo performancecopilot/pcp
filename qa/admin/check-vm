@@ -1225,8 +1225,29 @@ if which dpkg >/dev/null 2>&1
 then
     # Debian based
     #
+    # Borrowed from Makepkgs ... we don't use Python2 on some recent
+    # Ubuntu versions
+    #
+    pkgs="python-all python-all-dev python3-all python3-all-dev"
+    if [ -f /etc/lsb-release ]
+    then
+	if grep -q 'DISTRIB_ID=Ubuntu' /etc/lsb-release
+	then
+	    eval `grep DISTRIB_RELEASE= /etc/lsb-release`
+	    XDISTRIB_RELEASE=`echo $DISTRIB_RELEASE | sed -e 's/[^0-9]//g' -e 's/\.//'`
+	    [ -z "$XDISTRIB_RELEASE" ] && XDISTRIB_RELEASE=0000
+	    if [ $XDISTRIB_RELEASE -ge 2004 ]
+	    then
+		# As of Ubuntu 20.04 the Python2 dependency packages have
+		# been renamed (at least python-dev -> python-dev-is-python2)
+		# so try building without Python2
+		#
+		pkgs=`echo "$pkgs" | sed -e 's/python-[^ ]*//g'`
+	    fi
+	fi
+    fi
     dpkg -l >$tmp.tmp
-    for pkg in python-all python-all-dev python3-all python3-all-dev
+    for pkg in $pkgs
     do
 	if grep "^ii *$pkg" <$tmp.tmp >/dev/null
 	then

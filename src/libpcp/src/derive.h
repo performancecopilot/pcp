@@ -76,6 +76,8 @@ typedef struct {		/* one derived metric */
     pmID	pmid;
     int		bind;		/* 0/1 if bind_expr() has been called */
     node_t	*expr;		/* NULL => invalid, e.g. dup or missing operands */
+    const char	*oneline;	/* help text for PM_TEXT_ONELINE */
+    const char	*helptext;	/* help text for PM_TEXT_HELP */
 } dm_t;
 
 /*
@@ -146,5 +148,6 @@ extern int __dmprefetch(__pmContext *, int, const pmID *, pmID **) _PCP_HIDDEN;
 extern void __dmpostfetch(__pmContext *, pmResult **) _PCP_HIDDEN;
 extern void __dmdumpexpr(node_t *, int) _PCP_HIDDEN;
 extern char *__dmnode_type_str(int) _PCP_HIDDEN;
+extern int __dmhelptext(pmID, int, char **) _PCP_HIDDEN;
 
 #endif	/* _DERIVE_H */

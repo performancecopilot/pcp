@@ -22,7 +22,7 @@
 # Get standard environment
 . $PCP_DIR/etc/pcp.env
 
-tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
+tmp=`mktemp -d "$PCP_TMPFILE_DIR/pmie2col.XXXXXXXXX"` || exit 1
 status=1
 trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
 prog=`basename $0`

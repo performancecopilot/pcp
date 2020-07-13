@@ -133,7 +133,7 @@ do
     fi
 done
 
-tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
+tmp=`mktemp -d "$PCP_TMPFILE_DIR/pmafm.XXXXXXXXX"` || exit 1
 trap "rm -rf $tmp; exit" 0 1 2 3 15
 
 _archive2filename()

@@ -29,7 +29,7 @@
 . $PCP_SHARE_DIR/lib/utilproc.sh
 
 prog=`basename $0`
-tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
+tmp=`mktemp -d "$PCP_TMPFILE_DIR/pmlogger_rewrite.XXXXXXXXX"` || exit 1
 status=0
 trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
 

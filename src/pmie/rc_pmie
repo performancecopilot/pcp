@@ -52,7 +52,7 @@ rcprog=$PCP_DIR/etc/init.d/pmie
 pmprog=$PCP_RC_DIR/pmie
 prog=$PCP_RC_DIR/`basename $0`
 
-tmp=`mktemp -d $PCP_DIR/var/tmp/pcp.XXXXXXXXX` || exit 1
+tmp=`mktemp -d "$PCP_TMPFILE_DIR/pmie_rc.XXXXXXXXX"` || exit 1
 status=1
 trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
 
@@ -116,7 +116,7 @@ _reboot_setup()
 _start_pmcheck()
 {
     bgstatus=0
-    bgtmp=`mktemp -d $PCP_DIR/var/tmp/pcp.XXXXXXXXX` || exit 1
+    bgtmp=`mktemp -d "$PCP_TMPFILE_DIR/pmie_rc_start.XXXXXXXXX"` || exit 1
     trap "rm -rf $tmp $bgtmp; exit \$bgstatus" 0 1 2 3 15
 
     wait_option=''

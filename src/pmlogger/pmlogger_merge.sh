@@ -25,8 +25,8 @@
 
 
 prog=`basename $0`
-tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
-tmpmerge=`mktemp -d $PCP_TMPFILE_DIR/pcp.XXXXXXXXX` || exit 1
+tmp=`mktemp -d "$PCP_TMPFILE_DIR/pmlogger_merge.XXXXXXXXX"` || exit 1
+tmpmerge=`mktemp -d $PCP_TMPFILE_DIR/pmlogger_merge.XXXXXXXXX` || exit 1
 status=0
 trap "rm -rf $tmp $tmpmerge; exit \$status" 0 1 2 3 15
 

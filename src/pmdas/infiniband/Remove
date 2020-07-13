@@ -13,7 +13,7 @@
 # for more details.
 # 
 
-. /etc/pcp.env
+. $PCP_DIR/etc/pcp.env
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=infiniband

@@ -41,7 +41,10 @@ EOF
 port=`_find_free_port`
 _filter_port()
 {
-    sed -e "s/ FD $port / FD PORT /g"
+    sed \
+	-e "s/ FD $port / FD PORT /g" \
+	-e '/PORT ipv6 /d' \
+    # end
 }
 
 # real QA test starts here

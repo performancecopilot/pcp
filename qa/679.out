@@ -83,7 +83,6 @@ Info: pmlogrewrite all archives in TMP/empty
 Error: no pmlogger instance running for host "localhost"
 ... logging for host "localhost" unchanged
 Warning: skipping log rotation because we don't know which pmlogger to signal
-pmlogger_daily: Warning: no archives found to merge
 oldsem0/20011002:
     Semantics: instant  Units: none
     Semantics: counter  Units: byte

@@ -20,7 +20,7 @@
 
 umask 22		# anything else is pretty silly
 exitsts=1
-tmp=`mktemp -d $PCP_TMPFILE_DIR/pcp.XXXXXXXXX` || exit 1
+tmp=`mktemp -d $PCP_TMPFILE_DIR/pmnsadd.XXXXXXXXX` || exit 1
 prog=`basename $0`
 trap "rm -rf $tmp; exit \$exitsts" 0 1 2 3 15
 
