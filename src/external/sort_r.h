@@ -2,9 +2,9 @@
 #ifndef SORT_R_H_
 #define SORT_R_H_
 
+#include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
-
 /*
 
 sort_r function to be exported.
