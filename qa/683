@@ -19,7 +19,7 @@ groupid=`id -g`
 username=`id -u -n`
 hostname=`hostname`
 machineid=`_machine_id`
-domainnam=`_domain_name`
+domainname=`_domain_name`
 MMV_STATS_DIR="$PCP_TMP_DIR/mmv"
 
 # for QA the default install for mmv PMDA is as a dso, not a daemon
