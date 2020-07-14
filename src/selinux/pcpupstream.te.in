@@ -57,6 +57,7 @@ require {
         type proc_security_t;
         type su_exec_t;
 	type postgresql_var_run_t;
+	type fs_t;
 	@PCP_RPM_VAR_LIB_T@
 	@PCP_VIRT_VAR_RUN_T@
         class sem { unix_read associate getattr read };
@@ -77,7 +78,7 @@ require {
 	class tcp_socket { name_bind name_connect };
 	class udp_socket { name_bind };
 	class shm { unix_read associate getattr read };
-	class filesystem mount;
+	class filesystem { mount quotaget };
 	class blk_file { ioctl open read };
 	class msgq { unix_read };
         class unix_dgram_socket { sendto };
@@ -309,6 +310,9 @@ allow pcp_pmcd_t configfs_t:lnk_file { getattr read };
 
 #type=AVC msg=audit(XXX.58): avc:  denied  { execute execute_no_trans getattr open read } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:ldconfig_exec_t:s0 tclass=file permissive=0
 allow pcp_pmcd_t ldconfig_exec_t:file { execute execute_no_trans getattr open read };
+
+#type=AVC msg=audit(XXX.74): avc:  denied  { quotaget } for  pid=1385536 comm="pmdaxfs" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:fs_t:s0 tclass=filesystem permissive=0
+allow pcp_pmcd_t fs_t:filesystem quotaget;
 
 #============= pcp_pmproxy_t ==============
 #type=AVC msg=audit(YYY.67) : avc: denied { net_admin } for pid=6669 comm=pmproxy capability=net_admin scontext=system_u:system_r:pcp_pmproxy_t:s0 tcontext=system_u:system_r:pcp_pmproxy_t:s0 tclass=capability
