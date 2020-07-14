@@ -7365,6 +7365,8 @@ done
 
 
 
+
+
 enable_python2=false
 if test "x$do_python" != "xno"; then :
 
@@ -7373,8 +7375,8 @@ if test "x$do_python" != "xno"; then :
     then
 	enable_python2=false
     else
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking Python version" >&5
-$as_echo_n "checking Python version... " >&6; }
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking Python2 version" >&5
+$as_echo_n "checking Python2 version... " >&6; }
 	eval `$PYTHON -V 2>&1 | awk '/^Python/ { ver=2; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export PY_MAJOR=%d PY_MINOR=%d PY_POINT=%d\n",$major,$minor,$point }'`
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $PY_MAJOR.$PY_MINOR.$PY_POINT" >&5
 $as_echo "$PY_MAJOR.$PY_MINOR.$PY_POINT" >&6; }
@@ -7387,23 +7389,34 @@ $as_echo "$PY_MAJOR.$PY_MINOR.$PY_POINT" >&6; }
 		echo Python version 2.6 or later is required for Python builds.
 		enable_python2=false
 	    else
-		for ac_header in python${PY_MAJOR}.${PY_MINOR}/Python.h
+		 PY_MAJOR="$PY_MAJOR"
+    PY_MINOR="$PY_MINOR"
+    PY_VERSION="python$PY_MAJOR.$PY_MINOR"
+    PY_INCLUDE_DIRS="-I/usr/include/${PY_VERSION}m -I/usr/include/${PY_VERSION}"
+    saved_CFLAGS="$CFLAGS"
+    saved_CPPFLAGS="$CPPFLAGS"
+    CFLAGS="$CFLAGS $PY_INCLUDE_DIRS"
+    CPPFLAGS="$CPPFLAGS $PY_INCLUDE_DIRS"
+
+    for ac_header in Python.h
 do :
-  as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
-ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
-if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
+  ac_fn_c_check_header_mongrel "$LINENO" "Python.h" "ac_cv_header_Python_h" "$ac_includes_default"
+if test "x$ac_cv_header_Python_h" = xyes; then :
   cat >>confdefs.h <<_ACEOF
-#define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
+#define HAVE_PYTHON_H 1
 _ACEOF
 
 else
 
-		    echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file may be missing.
-		    echo Proceeding with the Python $PY_MAJOR installation found, regardless.
-
+	echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file may be missing.
+	echo Proceeding with the Python $PY_MAJOR installation found, regardless.
 fi
 
 done
+
+
+    CPPFLAGS="$saved_CPPFLAGS"
+    CFLAGS="$saved_CFLAGS"
 
 	    fi
 	fi
@@ -7439,23 +7452,34 @@ $as_echo "$PY_MAJOR.$PY_MINOR.$PY_POINT" >&6; }
 		echo Python version 3.3 or later is required for Python builds.
 		enable_python3=false
 	    else
-		for ac_header in python${PY_MAJOR}.${PY_MINOR}m/Python.h
+		 PY_MAJOR="$PY_MAJOR"
+    PY_MINOR="$PY_MINOR"
+    PY_VERSION="python$PY_MAJOR.$PY_MINOR"
+    PY_INCLUDE_DIRS="-I/usr/include/${PY_VERSION}m -I/usr/include/${PY_VERSION}"
+    saved_CFLAGS="$CFLAGS"
+    saved_CPPFLAGS="$CPPFLAGS"
+    CFLAGS="$CFLAGS $PY_INCLUDE_DIRS"
+    CPPFLAGS="$CPPFLAGS $PY_INCLUDE_DIRS"
+
+    for ac_header in Python.h
 do :
-  as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
-ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
-if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
+  ac_fn_c_check_header_mongrel "$LINENO" "Python.h" "ac_cv_header_Python_h" "$ac_includes_default"
+if test "x$ac_cv_header_Python_h" = xyes; then :
   cat >>confdefs.h <<_ACEOF
-#define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
+#define HAVE_PYTHON_H 1
 _ACEOF
 
 else
 
-		    echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file may be missing.
-		    echo Proceeding with the Python $PY_MAJOR installation found, regardless.
-
+	echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file may be missing.
+	echo Proceeding with the Python $PY_MAJOR installation found, regardless.
 fi
 
 done
+
+
+    CPPFLAGS="$saved_CPPFLAGS"
+    CFLAGS="$saved_CFLAGS"
 
 	    fi
 	fi

@@ -831,6 +831,27 @@ dnl check if python3 available for the build and runtime
 AC_CHECK_PROGS(PYTHON3, [python3 python3.7 python3.6 python3.4])
 AC_SUBST(PYTHON3)
 
+dnl check availability of Python header files
+dnl usage PCP_CHECK_PYTHON_HEADER(major, minor)
+dnl
+AC_DEFUN([PCP_CHECK_PYTHON_HEADER],
+  [ PY_MAJOR="$1"
+    PY_MINOR="$2"
+    PY_VERSION="python$PY_MAJOR.$PY_MINOR"
+    PY_INCLUDE_DIRS="-I/usr/include/${PY_VERSION}m -I/usr/include/${PY_VERSION}"
+    saved_CFLAGS="$CFLAGS"
+    saved_CPPFLAGS="$CPPFLAGS"
+    CFLAGS="$CFLAGS $PY_INCLUDE_DIRS"
+    CPPFLAGS="$CPPFLAGS $PY_INCLUDE_DIRS"
+
+    AC_CHECK_HEADERS([Python.h], [], [
+	echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file may be missing.
+	echo Proceeding with the Python $PY_MAJOR installation found, regardless.])
+
+    CPPFLAGS="$saved_CPPFLAGS"
+    CFLAGS="$saved_CFLAGS"
+  ])
+
 dnl check if python tools/packages wanted (need python >= 2.6)
 enable_python2=false
 AS_IF([test "x$do_python" != "xno"], [
@@ -839,7 +860,7 @@ AS_IF([test "x$do_python" != "xno"], [
     then
 	enable_python2=false
     else
-	AC_MSG_CHECKING([Python version])
+	AC_MSG_CHECKING([Python2 version])
 	eval `$PYTHON -V 2>&1 | awk '/^Python/ { ver=2; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export PY_MAJOR=%d PY_MINOR=%d PY_POINT=%d\n",$major,$minor,$point }'`
 	AC_MSG_RESULT([$PY_MAJOR.$PY_MINOR.$PY_POINT])
 	if test "$PY_MAJOR" -lt 2; then
@@ -851,10 +872,7 @@ AS_IF([test "x$do_python" != "xno"], [
 		echo Python version 2.6 or later is required for Python builds.
 		enable_python2=false
 	    else
-		AC_CHECK_HEADERS([python${PY_MAJOR}.${PY_MINOR}/Python.h], [], [
-		    echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file may be missing.
-		    echo Proceeding with the Python $PY_MAJOR installation found, regardless.
-		])
+		PCP_CHECK_PYTHON_HEADER([$PY_MAJOR], [$PY_MINOR])
 	    fi
 	fi
     fi
@@ -886,10 +904,7 @@ AS_IF([test "x$do_python3" != "xno"], [
 		echo Python version 3.3 or later is required for Python builds.
 		enable_python3=false
 	    else
-		AC_CHECK_HEADERS([python${PY_MAJOR}.${PY_MINOR}m/Python.h], [], [
-		    echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file may be missing.
-		    echo Proceeding with the Python $PY_MAJOR installation found, regardless.
-		])
+		PCP_CHECK_PYTHON_HEADER([$PY_MAJOR], [$PY_MINOR])
 	    fi
 	fi
     fi
