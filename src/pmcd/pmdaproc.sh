@@ -1374,7 +1374,7 @@ _remove()
 	for __n in $pmns_name
 	do
 	    $PCP_ECHO_PROG $PCP_ECHO_N "Check $__n metrics have gone away ... ""$PCP_ECHO_C"
-	    if pminfo -n $NAMESPACE -f $__n >$tmp/base 2>&1
+	    if PCP_DERIVED_CONFIG= pminfo -n $NAMESPACE -v -b 1000 $__n >$tmp/base 2>&1
 	    then
 		echo "Arrgh, something has gone wrong!"
 		cat $tmp/base
