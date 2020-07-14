@@ -81,6 +81,7 @@ END	{ if (NR > 0) {
 		else
 		    echo "Aborted! [running $seq]" | tee -a check.log
 		fi
+		status=1
 	    fi
 
 	    if [ ! -z "$notrun" ]
