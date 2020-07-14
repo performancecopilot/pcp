@@ -27,7 +27,7 @@ Checking policies.
   allow [pcp_pmcd_t] [pcp_var_lib_t] : [fifo_file] { getattr read open unlink };
   allow [pcp_pmcd_t] [proc_kcore_t] : [file] { getattr };
   allow [pcp_pmcd_t] [proc_security_t] : [file] { getattr open read };
-  allow [pcp_pmcd_t] self : [capability] { sys_chroot sys_resource sys_pacct kill ipc_lock chown };
+  allow [pcp_pmcd_t] self : [capability] { kill sys_pacct chown sys_chroot ipc_lock sys_resource };
 ! allow [pcp_pmcd_t] [nsfs_t] : [file] { getattr open read };
 ! allow [pcp_pmcd_t] [unreserved_port_t] : [tcp_socket] { name_bind name_connect };
 ! allow [pcp_pmcd_t] [unreserved_port_t] : [udp_socket] { name_bind };
