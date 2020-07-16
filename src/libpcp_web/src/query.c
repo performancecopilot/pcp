@@ -85,7 +85,11 @@ initSeriesGetQuery(seriesQueryBaton *baton, node_t *root, timing_t *timing)
 static int
 skip_free_value_set(node_t *np) {
     // return 0 stands for skipping free this node's value_set.
-    if (np->type == N_RATE || np->type == N_NOOP || np->type == N_RESCALE) return 0;
+    if (np->type == N_RATE || np->type == N_NOOP 
+    	|| np->type == N_RESCALE || np->type == N_ABS 
+	|| np->type == N_SQRT || np->type == N_FLOOR
+	|| np->type == N_ROUND  || np->type == N_LOG) 
+	return 0;
     return 1;
 }
 
@@ -2169,7 +2173,7 @@ series_calculate_rescale(node_t *np)
  * The left child node of L_RESCALE should contains a set of time series values.
  * And the right child node should be L_SCALE, which contains the target units information.
  * This rescale() should only accept metrics with semantics instant. Compare the consistencies
- * of 3 time/space/count dimantions between the pmUnits of input and metrics to be modified. 
+ * of 3 time/space/count dimensions between the pmUnits of input and metrics to be modified. 
  */
     double			mult;
     pmUnits			iunit;
@@ -2194,23 +2198,22 @@ series_calculate_rescale(node_t *np)
 	}
 	if (compare_pmUnits(&iunit, &np->right->meta.units)) {
 	    // TODO: error report for unmatched units 
-	    fprintf(stderr, "Dimentions of units mismatch, for series %s the units is %s\n", 
+	    fprintf(stderr, "Dimensions of units mismatch, for series %s the units is %s\n", 
 		np->value_set.series_values[i].sid->name, np->value_set.series_values[i].series_desc.units);
 	    return;
 	}
 	if ((type = series_extract_type(np->value_set.series_values[i].series_desc.type)) == PM_ERR_CONV) {
-	    // TODO: type extraction fail report
-	    fprintf(stderr, "Series values' Type extract fail\n");
+	    // TODO: type extraction fail report, unsupport type
+	    fprintf(stderr, "Series values' Type extract fail, unsupport type\n");
 	    return;
 	}
-
 	
 	for (int j = 0; j < np->value_set.series_values[i].num_samples; j++) {
 	    for (int k = 0; k < np->value_set.series_values[i].series_sample[j].num_instances; k++) {
 		if (series_extract_value(type, 
 			np->value_set.series_values[i].series_sample[j].series_instance[k].data, &ival) != 0 ) {
-		    // TODO: error report for convert fail
-		    fprintf(stderr, "Convert fail\n");
+		    // TODO: error report for extracting values from string fail
+		    fprintf(stderr, "Extract values from string fail\n");
 		    return;
 		}
 		if((sts = pmConvScale(type, &ival, &iunit, &oval, &np->right->meta.units)) != 0) {
@@ -2218,17 +2221,431 @@ series_calculate_rescale(node_t *np)
 		    fprintf(stderr, "rescale error\n");
 		    return;
 		}
-		sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].data);
 		if((str_len = series_pmAtomValue_conv_str(type, str_val, &oval)) == 0) {
 		    // TODO: series values convert to string fail report
 		    fprintf(stderr, "series values convert to string fail\n");
 		    return;
 		}
+		sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].data);
 		np->value_set.series_values[i].series_sample[j].series_instance[k].data = sdsnewlen(str_val, str_len);
 	    }
 	}
     }
+}
 
+static int
+series_abs_pmAtomValue(int type, pmAtomValue *val)
+{
+    int			sts = 0;
+    switch (type) {
+	case PM_TYPE_32:
+	    if (val->l < 0) {
+		val->l =  -val->l;
+	    }
+	    break;
+	case PM_TYPE_U32:
+	    // No need to change value
+	    break;
+	case PM_TYPE_64:
+	    if (val->ll < 0) {
+		val->ll = val->ll;
+	    }
+	    break;
+	case PM_TYPE_U64:
+	    // No need to change value
+	    break;
+	case PM_TYPE_FLOAT:
+	    if (val->f < 0) {
+		val->f = -val->f;
+	    }
+	    break;
+	case PM_TYPE_DOUBLE:
+	    if (val->d < 0) {
+		val->d = -val->d;
+	    }
+	    break;
+	default:
+	    // Unsupport type
+	    sts = -1;
+	    break;
+    }
+    return sts;
+}
+
+static void
+series_calculate_abs(node_t *np)
+{
+/* 
+ * 
+ */
+    pmAtomValue			val;
+    int				type, sts, str_len;
+    char			str_val[255];
+    np->value_set = np->left->value_set;
+    for (int i = 0; i < np->value_set.num_series; i++) {
+	if ((type = series_extract_type(np->value_set.series_values[i].series_desc.type)) == PM_ERR_CONV) {
+	    // TODO: type extraction fail report, unsupport type
+	    fprintf(stderr, "Series values' Type extract fail, unsupport type\n");
+	    return;
+	}	
+	for (int j = 0; j < np->value_set.series_values[i].num_samples; j++) {
+	    for (int k = 0; k < np->value_set.series_values[i].series_sample[j].num_instances; k++) {
+		if (series_extract_value(type, 
+			np->value_set.series_values[i].series_sample[j].series_instance[k].data, &val) != 0 ) {
+		    // TODO: error report for extracting values from string fail
+		    fprintf(stderr, "Extract values from string fail\n");
+		    return;
+		}
+		if ((sts = series_abs_pmAtomValue(type, &val)) != 0) {
+		    // TODO: unsuport type
+		    fprintf(stderr, "Unsupport type to take abs()\n");
+		    return;
+		}
+		if((str_len = series_pmAtomValue_conv_str(type, str_val, &val)) == 0) {
+		    // TODO: series values convert to string fail report
+		    fprintf(stderr, "series values convert to string fail\n");
+		    return;
+		}
+		sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].data);
+		np->value_set.series_values[i].series_sample[j].series_instance[k].data = sdsnewlen(str_val, str_len);
+	    }
+	}
+    }
+}
+
+static int
+series_floor_pmAtomValue(int type, pmAtomValue *val)
+{
+    int			sts = 0;
+    switch (type) {
+	case PM_TYPE_32:
+	    // No change
+	    break;
+	case PM_TYPE_U32:
+	    // No change
+	    break;
+	case PM_TYPE_64:
+	    // No chage
+	    break;
+	case PM_TYPE_U64:
+	    // No change
+	    break;
+	case PM_TYPE_FLOAT:
+	    // TODO: The return type of floor() is double, will this cause loss of accuracy?
+	    val->f = floor(val->f);
+	    break;
+	case PM_TYPE_DOUBLE:
+	    val->d = floor(val->f);
+	    break;
+	default:
+	    // Unsupport type
+	    sts = -1;
+	    break;
+    }
+    return sts;
+}
+
+static void
+series_calculate_floor(node_t *np)
+{
+    pmAtomValue			val;
+    int				type, sts, str_len;
+    char			str_val[255];
+    np->value_set = np->left->value_set;
+    for (int i = 0; i < np->value_set.num_series; i++) {
+	if ((type = series_extract_type(np->value_set.series_values[i].series_desc.type)) == PM_ERR_CONV) {
+	    // TODO: type extraction fail report, unsupport type
+	    fprintf(stderr, "Series values' Type extract fail, unsupport type\n");
+	    return;
+	}	
+	for (int j = 0; j < np->value_set.series_values[i].num_samples; j++) {
+	    for (int k = 0; k < np->value_set.series_values[i].series_sample[j].num_instances; k++) {
+		if (series_extract_value(type, 
+			np->value_set.series_values[i].series_sample[j].series_instance[k].data, &val) != 0 ) {
+		    // TODO: error report for extracting values from string fail
+		    fprintf(stderr, "Extract values from string fail\n");
+		    return;
+		}
+		if ((sts = series_floor_pmAtomValue(type, &val)) != 0) {
+		    // TODO: unsuport type
+		    fprintf(stderr, "Unsupport type to take abs()\n");
+		    return;
+		}
+		if((str_len = series_pmAtomValue_conv_str(type, str_val, &val)) == 0) {
+		    // TODO: series values convert to string fail report
+		    fprintf(stderr, "series values convert to string fail\n");
+		    return;
+		}
+		sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].data);
+		np->value_set.series_values[i].series_sample[j].series_instance[k].data = sdsnewlen(str_val, str_len);
+	    }
+	}
+    }
+}
+
+static int
+series_log_pmAtomValue(int itype, int *otype, pmAtomValue *val, int is_natural_log, double base)
+{
+    int			sts = 0;
+    double		res;
+    switch (itype) {
+	case PM_TYPE_32:
+	    *otype = PM_TYPE_DOUBLE;
+	    res = val->l;
+	    if (is_natural_log == 1) {
+		val->d = log(res);
+	    } else {
+		val->d = log(res)/log(base);
+	    }
+	    break;
+	case PM_TYPE_U32:
+	    *otype = PM_TYPE_DOUBLE;
+	    res = val->ul;
+	    if (is_natural_log == 1) {
+		val->d = log(res);
+	    } else {
+		val->d = log(res)/log(base);
+	    }
+	    break;
+	case PM_TYPE_64:
+	    *otype = PM_TYPE_DOUBLE;
+	    res = val->ll;
+	    if (is_natural_log == 1) {
+		val->d = log(res);
+	    } else {
+		val->d = log(res)/log(base);
+	    }
+	    break;
+	case PM_TYPE_U64:
+	    *otype = PM_TYPE_DOUBLE;
+	    res = val->ull;
+	    if (is_natural_log == 1) {
+		val->d = log(res);
+	    } else {
+		val->d = log(res)/log(base);
+	    }
+	    break;
+	case PM_TYPE_FLOAT:
+	    *otype = PM_TYPE_DOUBLE;
+	    res = val->f;
+	    if (is_natural_log == 1) {
+		val->d = log(res);
+	    } else {
+		val->d = log(res)/log(base);
+	    }
+	    break;
+	case PM_TYPE_DOUBLE:
+	    if (is_natural_log == 1) {
+		val->d = log(val->d);
+	    } else {
+		val->d = log(val->d)/log(base);
+	    }
+	    break;
+	default:
+	    // Unsupport type
+	    sts = -1;
+	    break;
+    }
+    return sts;
+}
+
+static void
+series_calculate_log(node_t *np)
+{
+/*
+ * Return the logarithm of x to base b (log_b^x).
+ */
+    double			base, x;
+    pmAtomValue			val;
+    int				itype, otype, sts, str_len, is_natural_log;
+    char			str_val[255];
+    if (np->right != NULL) {
+	sscanf(np->right->value, "%lf", &base);
+	is_natural_log = 0;
+    } else {
+	is_natural_log = 1;
+    }
+    np->value_set = np->left->value_set;
+    for (int i = 0; i < np->value_set.num_series; i++) {
+	if ((itype = series_extract_type(np->value_set.series_values[i].series_desc.type)) == PM_ERR_CONV) {
+	    // TODO: type extraction fail report, unsupport type
+	    fprintf(stderr, "Series values' Type extract fail, unsupport type\n");
+	    return;
+	}	
+	for (int j = 0; j < np->value_set.series_values[i].num_samples; j++) {
+	    for (int k = 0; k < np->value_set.series_values[i].series_sample[j].num_instances; k++) {
+		if (series_extract_value(itype, 
+			np->value_set.series_values[i].series_sample[j].series_instance[k].data, &val) != 0 ) {
+		    // TODO: error report for extracting values from string fail
+		    fprintf(stderr, "Extract values from string fail\n");
+		    return;
+		}
+		if ((sts = series_log_pmAtomValue(itype, &otype, &val, is_natural_log, base)) != 0) {
+		    // TODO: unsuport type
+		    fprintf(stderr, "Unsupport type to take sqrt()\n");
+		    return;
+		}
+		if((str_len = series_pmAtomValue_conv_str(otype, str_val, &val)) == 0) {
+		    // TODO: series values convert to string fail report
+		    fprintf(stderr, "series values convert to string fail\n");
+		    return;
+		}
+		sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].data);
+		np->value_set.series_values[i].series_sample[j].series_instance[k].data = sdsnewlen(str_val, str_len);
+	    }
+	}
+    }
+}
+
+static int
+series_sqrt_pmAtomValue(int itype, int *otype, pmAtomValue *val)
+{
+    int			sts = 0;
+    double		res;
+    switch (itype) {
+	case PM_TYPE_32:
+	    *otype = PM_TYPE_DOUBLE;
+	    res = val->l;
+	    val->d = sqrt(res);
+	    break;
+	case PM_TYPE_U32:
+	    *otype = PM_TYPE_DOUBLE;
+	    res = val->ul;
+	    val->d = sqrt(res);
+	    break;
+	case PM_TYPE_64:
+	    *otype = PM_TYPE_DOUBLE;
+	    res = val->ll;
+	    val->d = sqrt(res);
+	    break;
+	case PM_TYPE_U64:
+	    *otype = PM_TYPE_DOUBLE;
+	    res = val->ull;
+	    val->d = sqrt(res);
+	    break;
+	case PM_TYPE_FLOAT:
+	    *otype = PM_TYPE_DOUBLE;
+	    res = val->f;
+	    val->d = sqrt(res);
+	    break;
+	case PM_TYPE_DOUBLE:
+	    val->d = sqrt(val->d);
+	    break;
+	default:
+	    // Unsupport type
+	    sts = -1;
+	    break;
+    }
+    return sts;
+}
+
+static void
+series_calculate_sqrt(node_t *np)
+{
+/* 
+ * 
+ */
+    pmAtomValue			val;
+    int				itype, otype, sts, str_len;
+    char			str_val[255];
+    np->value_set = np->left->value_set;
+    for (int i = 0; i < np->value_set.num_series; i++) {
+	if ((itype = series_extract_type(np->value_set.series_values[i].series_desc.type)) == PM_ERR_CONV) {
+	    // TODO: type extraction fail report, unsupport type
+	    fprintf(stderr, "Series values' Type extract fail, unsupport type\n");
+	    return;
+	}	
+	for (int j = 0; j < np->value_set.series_values[i].num_samples; j++) {
+	    for (int k = 0; k < np->value_set.series_values[i].series_sample[j].num_instances; k++) {
+		if (series_extract_value(itype, 
+			np->value_set.series_values[i].series_sample[j].series_instance[k].data, &val) != 0 ) {
+		    // TODO: error report for extracting values from string fail
+		    fprintf(stderr, "Extract values from string fail\n");
+		    return;
+		}
+		if ((sts = series_sqrt_pmAtomValue(itype, &otype, &val)) != 0) {
+		    // TODO: unsuport type
+		    fprintf(stderr, "Unsupport type to take sqrt()\n");
+		    return;
+		}
+		if((str_len = series_pmAtomValue_conv_str(otype, str_val, &val)) == 0) {
+		    // TODO: series values convert to string fail report
+		    fprintf(stderr, "series values convert to string fail\n");
+		    return;
+		}
+		sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].data);
+		np->value_set.series_values[i].series_sample[j].series_instance[k].data = sdsnewlen(str_val, str_len);
+	    }
+	}
+    }
+}
+
+static int series_round_pmAtomValue(int type, pmAtomValue *val)
+{
+    int			sts = 0;
+    switch (type) {
+	case PM_TYPE_32:
+	    // No change
+	    break;
+	case PM_TYPE_U32:
+	    // No change
+	    break;
+	case PM_TYPE_64:
+	    // No chage
+	    break;
+	case PM_TYPE_U64:
+	    // No change
+	    break;
+	case PM_TYPE_FLOAT:
+	    val->f = roundf(val->f);
+	    break;
+	case PM_TYPE_DOUBLE:
+	    val->d = round(val->f);
+	    break;
+	default:
+	    // Unsupport type
+	    sts = -1;
+	    break;
+    }
+    return sts;
+}
+
+static void
+series_calculate_round(node_t *np)
+{
+    pmAtomValue			val;
+    int				type, sts, str_len;
+    char			str_val[255];
+    np->value_set = np->left->value_set;
+    for (int i = 0; i < np->value_set.num_series; i++) {
+	if ((type = series_extract_type(np->value_set.series_values[i].series_desc.type)) == PM_ERR_CONV) {
+	    // TODO: type extraction fail report, unsupport type
+	    fprintf(stderr, "Series values' Type extract fail, unsupport type\n");
+	    return;
+	}	
+	for (int j = 0; j < np->value_set.series_values[i].num_samples; j++) {
+	    for (int k = 0; k < np->value_set.series_values[i].series_sample[j].num_instances; k++) {
+		if (series_extract_value(type, 
+			np->value_set.series_values[i].series_sample[j].series_instance[k].data, &val) != 0 ) {
+		    // TODO: error report for extracting values from string fail
+		    fprintf(stderr, "Extract values from string fail\n");
+		    return;
+		}
+		if ((sts = series_round_pmAtomValue(type, &val)) != 0) {
+		    // TODO: unsuport type
+		    fprintf(stderr, "Unsupport type to take abs()\n");
+		    return;
+		}
+		if((str_len = series_pmAtomValue_conv_str(type, str_val, &val)) == 0) {
+		    // TODO: series values convert to string fail report
+		    fprintf(stderr, "series values convert to string fail\n");
+		    return;
+		}
+		sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].data);
+		np->value_set.series_values[i].series_sample[j].series_instance[k].data = sdsnewlen(str_val, str_len);
+	    }
+	}
+    }
 }
 
 static int
@@ -2264,6 +2681,21 @@ series_calculate(seriesQueryBaton *baton, node_t *np, int level)
 	    break;
 	case N_RESCALE:
 	    series_calculate_rescale(np);
+	    break;
+	case N_ABS:
+	    series_calculate_abs(np);
+	    break;
+	case N_FLOOR:
+	    series_calculate_floor(np);
+	    break;
+	case N_LOG:
+	    series_calculate_log(np);
+	    break;
+	case N_SQRT:
+	    series_calculate_sqrt(np);
+	    break;
+	case N_ROUND:
+	    series_calculate_round(np);
 	    break;
 	default:
 	    break;
