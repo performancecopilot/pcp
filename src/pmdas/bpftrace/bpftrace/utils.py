@@ -1,6 +1,8 @@
 from typing import Optional, Tuple
+import sys
 import re
 import subprocess
+import asyncio
 
 
 def get_bpftrace_version(bpftrace_path: str) -> Optional[Tuple]:
@@ -15,3 +17,10 @@ def get_bpftrace_version(bpftrace_path: str) -> Optional[Tuple]:
 
 def get_tracepoints_csv(bpftrace_path: str) -> str:
     return subprocess.check_output([bpftrace_path, '-l'], encoding='utf8').strip().replace('\n', ',')
+
+
+def asyncio_get_all_tasks(loop):
+    if sys.version_info >= (3, 7):
+        return asyncio.all_tasks(loop)
+    else:
+        return asyncio.Task.all_tasks(loop)
