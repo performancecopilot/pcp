@@ -81,7 +81,11 @@ class ServiceTests(unittest.TestCase):
         self.setup(config)
 
         script = self.service.register_script(Script('profile:hz:9999 { @test1[kstack,ustack] = count(); }'))
-        time.sleep(15)
+        for _i in range(20):
+            script = self.service.refresh_script(script.script_id)
+            if script.state.status == 'error':
+                break
+            time.sleep(1)
         script = self.service.refresh_script(script.script_id)
         self.assertEqual(script.state.status, 'error')
         self.assertRegex(script.state.error, 'BPFtrace output exceeds limit of .+ bytes per second')
@@ -92,7 +96,11 @@ class ServiceTests(unittest.TestCase):
         self.setup(config)
 
         script = self.service.register_script(Script('profile:hz:9999 { printf("test"); }'))
-        time.sleep(15)
+        for _i in range(20):
+            script = self.service.refresh_script(script.script_id)
+            if script.state.status == 'error':
+                break
+            time.sleep(1)
         script = self.service.refresh_script(script.script_id)
         self.assertEqual(script.state.status, 'error')
         self.assertRegex(script.state.error, 'BPFtrace output exceeds limit of .+ bytes per second')
