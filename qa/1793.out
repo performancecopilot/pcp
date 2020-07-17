@@ -5,14 +5,22 @@ QA output created by 1793
     InDom 29.1 labels (15 bytes): {"model":"RGB"}
 === check pmrep replaying an archive with labels
     "agent": "sample"
+    "domainname": "DOMAINNAME"
+    "groupid": "GROUPID"
     "hostname": "HOSTNAME"
+    "machineid": "MACHINEID"
     "model": "RGB"
     "role": "testing"
+    "userid": "USERID"
 === check pcp2json replaying an archive with labels
     "agent": "sample"
+    "domainname": "DOMAINNAME"
+    "groupid": "GROUPID"
     "hostname": "HOSTNAME"
+    "machineid": "MACHINEID"
     "model": "RGB"
     "role": "testing"
+    "userid": "USERID"
 === check pcp2csv replaying an archive with labels
     "agent": "sample"
     "model": "RGB"

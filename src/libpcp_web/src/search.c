@@ -56,22 +56,6 @@ pmSearchTextTypeStr(pmSearchTextType type)
     return "unknown";
 }
 
-static int
-pmwebapi_search_hash(unsigned char *hash, const char *string, int length)
-{
-    SHA1_CTX		shactx;
-    const char		prefix[] = "{\"series\":\"search\",";
-    const char		suffix[] = "}";
-
-    /* Calculate unique string identifier 20-byte SHA1 hash */
-    SHA1Init(&shactx);
-    SHA1Update(&shactx, (unsigned char *)prefix, sizeof(prefix)-1);
-    SHA1Update(&shactx, (unsigned char *)string, length);
-    SHA1Update(&shactx, (unsigned char *)suffix, sizeof(suffix)-1);
-    SHA1Final(hash, &shactx);
-    return 0;
-}
-
 static sds
 redis_search_docid(const char *key, const char *type, const char *name)
 {
@@ -242,7 +226,7 @@ pmSearchDiscoverInDom(pmDiscoverEvent *event, pmInResult *in, void *arg)
     pmLookupText(id, PM_TEXT_INDOM | PM_TEXT_HELP | PM_TEXT_DIRECT, &helptext);
 
     redis_search_text_add(baton->slots, PM_SEARCH_TYPE_INDOM,
-			"", buffer, oneline, helptext, baton);
+			buffer, buffer, oneline, helptext, baton);
     for (i = 0; i < in->numinst; i++)
 	redis_search_text_add(baton->slots, PM_SEARCH_TYPE_INST,
 			in->namelist[i], buffer, NULL, NULL, baton);
@@ -510,7 +494,9 @@ redis_search_text_query(redisSlots *slots, pmSearchTextRequest *request, void *a
 
     seriesBatonReference(baton, "redis_search_text_query");
 
-    query = sdscatrepr(sdsempty(), request->query, sdslen(request->query));
+    /*TODO: redisearch quoting*/
+    /*query = sdscatrepr(sdsempty(), request->query, sdslen(request->query));*/
+    query = sdsdup(request->query);
 
     types += request->type_metric;
     types += request->type_indom;
@@ -666,6 +652,77 @@ pmSearchTextQuery(pmSearchSettings *settings, pmSearchTextRequest *request, void
 	return -ENOMEM;
     initRedisSearchBaton(baton, data->slots, settings, arg);
     redis_search_text_query(data->slots, request, baton);
+    return 0;
+}
+
+static void
+redis_search_text_suggest(redisSlots *slots, pmSearchTextRequest *request, void *arg)
+{
+    redisSearchBaton	*baton = (redisSearchBaton *)arg;
+    const char		*typestr;
+    size_t		length;
+    char		buffer[64];
+    sds			cmd, key, query;
+
+    seriesBatonCheckMagic(baton, MAGIC_SEARCH, "redis_search_suggest_query");
+    seriesBatonCheckCount(baton, "redis_search_suggest_query");
+
+    if (pmDebugOptions.search)
+	fprintf(stderr, "%s: %s\n", "redis_search_suggest_query", request->query);
+
+    seriesBatonReference(baton, "redis_search_suggest_query");
+
+    /*TODO: redisearch quoting*/
+    query = sdscatfmt(sdsempty(), "(@NAME:(%S*)|@NAME:(%%%S%%))",
+			request->query, request->query);
+
+    /*
+     * FT.SEARCH pcp:text
+     *          (@NAME:({query}*)|@NAME:(%{query}%))
+     *		@type={ metric | instance }
+     *          LIMIT 0 {?return result count}
+     */
+    key = sdsnewlen(FT_TEXT_KEY, FT_TEXT_KEY_LEN);
+
+    length = 2 + 1 + 5 + 3;
+    cmd = redis_command(length);
+    cmd = redis_param_str(cmd, FT_SEARCH, FT_SEARCH_LEN);
+    cmd = redis_param_sds(cmd, key);
+    cmd = redis_param_sds(cmd, query);
+    sdsfree(query);
+
+    cmd = redis_param_str(cmd, "@type={ ", 8);
+    typestr = pmSearchTextTypeStr(PM_SEARCH_TYPE_METRIC);
+    cmd = redis_param_str(cmd, typestr, strlen(typestr));
+    cmd = redis_param_str(cmd, " | ", 3);
+    typestr = pmSearchTextTypeStr(PM_SEARCH_TYPE_INST);
+    cmd = redis_param_str(cmd, typestr, strlen(typestr));
+    cmd = redis_param_str(cmd, " }\"", 3);
+
+    cmd = redis_param_str(cmd, FT_LIMIT, FT_LIMIT_LEN);
+    cmd = redis_param_str(cmd, "0", 1);
+    if (request->count == 0) {
+	cmd = redis_param_sds(cmd, resultcount);
+    } else {
+	length = pmsprintf(buffer, sizeof(buffer), "%u", request->count);
+	cmd = redis_param_str(cmd, buffer, length);
+    }
+
+    redisSlotsRequest(slots, FT_SEARCH, key, cmd, redis_search_text_query_callback, arg);
+}
+
+int
+pmSearchTextSuggest(pmSearchSettings *settings, pmSearchTextRequest *request, void *arg)
+{
+    seriesModuleData	*data = getSeriesModuleData(&settings->module);
+    redisSearchBaton	*baton;
+
+    if (data == NULL)
+	return -ENOMEM;
+    if ((baton = calloc(1, sizeof(redisSearchBaton))) == NULL)
+	return -ENOMEM;
+    initRedisSearchBaton(baton, data->slots, settings, arg);
+    redis_search_text_suggest(data->slots, request, baton);
     return 0;
 }
 

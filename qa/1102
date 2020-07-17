@@ -46,7 +46,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
 
 _pmdaopenmetrics_save_config
-_pmdaopenmetrics_remove
+_pmdaopenmetrics_remove | sed -e 's/not found in Name Space, this is OK/done/'
 _pmdaopenmetrics_install
 
 port=`_find_free_port 10000`

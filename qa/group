@@ -374,6 +374,12 @@ pmlogsize
 # pmdbg
 pmdbg
 
+# pmlogctl
+pmlogctl
+
+# pmiectl
+pmiectl
+
 # pcp2... pcp2xxx is generic
 pcp2xxx
 pcp2elasticsearch
@@ -1615,22 +1621,40 @@ not_in_container
 1201 logutil remote
 1202 pmda.dm local pmrep python
 1203 derive pmval libpcp local
+1204 pmlogctl local sanity
+1205 pmlogctl local
+1206 pmlogctl local
 1207 pcp dstat python local
+1208 pmlogctl local
+1209 pmlogctl local
+1210 pmlogctl local
 1211 pmseries local kernel
 1212 pmseries local
+1213 pmlogctl local
 1214 pmproxy pmseries libpcp_web local
+1215 pmlogctl local
+1216 pmlogctl local
 1217 pmrep python local
 1218 pmda.root local
 1219 pcp local
 1220 pmda.proc local
 1221 labels pmda.openmetrics local python
 1222 pmda.linux pmda.proc local valgrind
+1223 pmlogctl local
 1224 pcp dstat python local
 1225:retired pmwebd local pmrep python pcp kernel
+1226 pmiectl local
 1227 derive local
+1228 pmiectl local
 1229 pmlogextract pmdumplog labels help local sanity
+1230 pmiectl local
 1231 pmlogrewrite labels help pmdumplog local
+1232 logutil pmlogctl local
+1233 derive local
 1234 libpcp_web local
+1235 derive local
+1236 derive local
+1237 derive local
 1238 iostat archive multi-archive decompress-xz local pmlogextract pcp python
 1239 pmlogrewrite labels pmdumplog local
 1240 libpcp pmrep local python
@@ -1773,9 +1797,10 @@ not_in_container
 1724 pmda.bpftrace local python
 1768 pmfind local
 1793 pmrep pcp2xxx python local
+1821 pmlogpaste local
 1837 pmproxy local
 1855 pmda.rabbitmq local
 1871 pmsearch local
-1886 pmseries local libpcp_web local
+1886:reserved pmseries local libpcp_web local
 1896 pmlogger logutil pmlc local
 4751 libpcp threads valgrind local pcp

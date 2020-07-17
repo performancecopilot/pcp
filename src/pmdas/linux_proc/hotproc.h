@@ -62,6 +62,8 @@ typedef struct process_t {
 
 } process_t;
 
-void hotproc_init();
+extern void hotproc_init();
+
+extern struct timeval hotproc_update_interval;
 
 #endif

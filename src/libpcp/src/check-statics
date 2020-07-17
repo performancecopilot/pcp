@@ -6,10 +6,11 @@
 
 set -e # detect syntax errors or subsidiary command failures
 sts=1  # presume failure, in case of an unexpected early exit
-tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
+tmp=`mktemp -d /tmp/pcp-build-check-statics.XXXXXXXXX` || exit 1
 trap "rm -rf $tmp; exit \$sts" 0 1 2 3 15
 
 NM=nm
+which gcc-nm >/dev/null 2>&1 && NM=gcc-nm
 
 # Note
 #    Really want to make this run on as many platforms as possible ...

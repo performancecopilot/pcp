@@ -16,6 +16,7 @@ TOPDIR = ../../..
 include	$(TOPDIR)/src/include/builddefs
 
 TARGET = pmie$(EXECSUFFIX)
+DUMPER = pmie_dump_stats
 
 CFILES	= pmie.c symbol.c dstruct.c lexicon.c syntax.c pragmatics.c eval.c \
 	  show.c match_inst.c systemlog.c stomp.c andor.c
@@ -26,14 +27,15 @@ HFILES  = fun.h dstruct.h eval.h lexicon.h pragmatics.h stats.h \
 SKELETAL = hdr.sk fetch.sk misc.sk aggregate.sk unary.sk binary.sk \
 	merge.sk act.sk binary_str.sk
 
-LDIRT += $(YFILES:%.y=%.tab.?) fun.c fun.o $(TARGET) grammar.h
+LDIRT += $(YFILES:%.y=%.tab.?) fun.c fun.o $(TARGET) grammar.h \
+	$(DUMPER).o
 
 LLDLIBS = $(PCPLIB) $(LIB_FOR_MATH) $(LIB_FOR_REGEX)
 
 LCFLAGS += $(PIECFLAGS)
 LLDFLAGS += $(PIELDFLAGS)
 
-default:	$(TARGET)
+default:	$(TARGET) $(DUMPER)$(EXECSUFFIX)
 
 YFILES = grammar.y
 
@@ -46,6 +48,7 @@ pmie$(EXECSUFFIX):	$(OBJECTS) fun.o
 
 install:	default
 	$(INSTALL) -m 755 $(TARGET) $(PCP_BIN_DIR)/$(TARGET)
+	$(INSTALL) -m 755 $(DUMPER)$(EXECSUFFIX) $(PCP_BINADM_DIR)/$(DUMPER)$(EXECSUFFIX)
 
 lexicon.o syntax.o:	grammar.h
 
@@ -76,6 +79,8 @@ grammar.tab.o lexicon.o pmie.o syntax.o systemlog.o: syntax.h
 fun.o grammar.tab.o systemlog.o: systemlog.h
 
 $(OBJECTS):	$(TOPDIR)/src/include/pcp/libpcp.h
+
+$(DUMPER)$(EXECSUFFIX):	$(DUMPER).c
 
 check::	$(CFILES) $(HFILES)
 	$(CLINT) $^

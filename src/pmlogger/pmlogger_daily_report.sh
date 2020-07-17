@@ -39,7 +39,7 @@ unset PCP_STDERR
 # default message log file
 PROGLOG=$PCP_LOG_DIR/pmlogger/$prog.log
 USE_SYSLOG=true
-tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
+tmp=`mktemp -d "$PCP_TMPFILE_DIR/pmlogger_daily_report.XXXXXXXXX"` || exit 1
 
 _cleanup()
 {

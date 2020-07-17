@@ -11,8 +11,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-
-#include <ctype.h>
 #include "util.h"
 
 static pmLongOptions longopts[] = {

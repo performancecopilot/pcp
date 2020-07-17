@@ -1,0 +1,35 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2020 Red Hat.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
+.TH PMSEARCHTEXTQUERY 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmSearchTextQuery\f1 \- full text search on PCP names and help text
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmwebapi.h>
+.sp
+int pmSearchTextQuery(pmSearchSettings *\fIsettings\fP, pmSearchTextRequest *\fIrequest\fP, void *\fIarg\fP)
+.sp
+cc ... \-lpcp_web
+.ft 1
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\f1\\$2
+.el \fI\\$1\f1\\$2
+..
+
+.SH NOTES
+.SH SEE ALSO
+

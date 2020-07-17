@@ -26,7 +26,7 @@
 # source the PCP configuration environment variables
 . $PCP_DIR/etc/pcp.env
 
-tmp=`mktemp -d ./pcp.XXXXXXXXX` || exit 1
+tmp=`mktemp -d ./pmns_rebuild.XXXXXXXXX` || exit 1
 status=1
 
 $PCP_SHARE_DIR/lib/lockpmns root

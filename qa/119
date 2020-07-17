@@ -62,21 +62,6 @@ _filter()
     | _filter_pmlogger_log
 }
 
-$sudo cp $PCP_PMLOGGERCONTROL_PATH $tmp.control
-$sudo mv $PCP_PMLOGGERCONTROL_PATH.d $tmp.control.d
-
-cat <<End-of-File >$tmp.tmp
-# dummy file created by qa/$seq on `date`
-# the goal here is to have just two pmlogger instances running and
-# a third one that will never run ...
-#
-\$version=1.1
-LOCALHOSTNAME	y n $LOGGING_DIR/LOCALHOSTNAME-one -c /dev/null
-LOCALHOSTNAME	n n $LOGGING_DIR/LOCALHOSTNAME-two -c /dev/null -L
-no.such.host.pcp.io	n n $LOGGING_DIR/no.such.host.pcp.io -c /dev/null
-End-of-File
-$sudo cp $tmp.tmp $PCP_PMLOGGERCONTROL_PATH
-
 # stop pmcd, primary pmlogger, create the archive directories,
 # start pmcd ...
 #
@@ -93,6 +78,21 @@ then
 	_wait_pmlogger_end $pid
     done
 fi
+
+$sudo cp $PCP_PMLOGGERCONTROL_PATH $tmp.control
+$sudo mv $PCP_PMLOGGERCONTROL_PATH.d $tmp.control.d
+
+cat <<End-of-File >$tmp.tmp
+# dummy file created by qa/$seq on `date`
+# the goal here is to have just two pmlogger instances running and
+# a third one that will never run ...
+#
+\$version=1.1
+LOCALHOSTNAME	y n $LOGGING_DIR/LOCALHOSTNAME-one -c /dev/null
+LOCALHOSTNAME	n n $LOGGING_DIR/LOCALHOSTNAME-two -c /dev/null -L
+no.such.host.pcp.io	n n $LOGGING_DIR/no.such.host.pcp.io -c /dev/null
+End-of-File
+$sudo cp $tmp.tmp $PCP_PMLOGGERCONTROL_PATH
 
 $sudo mkdir -p $LOGGING_DIR/${myhost}-one >/dev/null 2>&1
 $sudo mkdir -p $LOGGING_DIR/${myhost}-two >/dev/null 2>&1

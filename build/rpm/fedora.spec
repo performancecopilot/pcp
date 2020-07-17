@@ -222,6 +222,7 @@ BuildRequires: %{__python2}-devel
 %endif
 %if !%{disable_python3}
 BuildRequires: python3-devel
+BuildRequires: python3-setuptools
 %endif
 BuildRequires: ncurses-devel
 BuildRequires: readline-devel

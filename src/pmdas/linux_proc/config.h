@@ -38,6 +38,8 @@ typedef struct {
 
 #include "gram_node.h"
 
+extern unsigned int conf_gen;
+
 extern void set_conf_buffer(char *);
 extern char *get_conf_buffer(void);
 extern FILE *open_config(char []);

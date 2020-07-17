@@ -170,7 +170,7 @@ else
     echo "s/?{python-six}, //" >>$tmp.sed
 fi
 
-if [ -n "$LIB_FOR_LZMA" ]
+if $ENABLE_LZMA
 then
     echo "s/?{liblzma-dev}, /liblzma-dev, /" >>$tmp.sed
 else

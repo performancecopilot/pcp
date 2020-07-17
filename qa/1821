@@ -1,0 +1,60 @@
+#!/bin/sh
+# PCP QA Test No. 1821
+# Test pmlogpaste PCP archive generation and metric contents.
+#
+# Copyright (c) 2020 Ashwin Nayak.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters checks and config
+. ./common.product
+. ./common.filter
+. ./common.check
+. ./common.config
+
+_cleanup()
+{
+    echo "=== removing temp files ==="
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.*
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter_pminfo()
+{
+    sed \
+	-e "s,$hostname,HOSTNAME,g" \
+    #end
+}
+
+# real QA test starts here
+hostname=`hostname`
+
+echo "=== read from file ==="
+$PCP_ECHO_PROG $PCP_ECHO_N 123"$PCP_ECHO_C" > $tmp.out
+pmlogpaste -f $tmp.out -o $tmp.out1 > $seq.full 2>&1
+[ $? -eq 0 ] || _fail "Failed input file test case"
+echo "=== verify archive ==="
+pminfo -f -l -a $tmp.out1 paste | _filter_pminfo
+
+echo "=== read from stdin ==="
+$PCP_ECHO_PROG $PCP_ECHO_N 456"$PCP_ECHO_C" | \
+	pmlogpaste -o $tmp.out2 > $seq.full 2>&1
+[ $? -eq 0 ] || _fail "Failed stdin input test case"
+echo "=== verify archive ==="
+pminfo -f -l -a $tmp.out2 paste | _filter_pminfo
+
+echo "=== command line value and labels ==="
+pmlogpaste -o $tmp.out3 -l key1:val1 -l key2:val2 -m paste.metric a cmd line value > $seq.full 2>&1
+[ $? -eq 0 ] || _fail "Failed command line input test case"
+echo "=== verify archive ==="
+pminfo -f -l -a $tmp.out3 paste | _filter_pminfo
+
+# success, all done
+status=0
+exit

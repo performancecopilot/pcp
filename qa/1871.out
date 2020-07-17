@@ -1,13 +1,82 @@
 QA output created by 1871
+=== Start test Redis server ===
+PING
+PONG
+
 === Load an empty index ===
 0 search results
-=== Load some deterministic search content ===
-OK
-OK
-OK
-=== Search on switch ===
-=== Search on pressure ===
-=== Search on averages ===
+=== Load deterministic search content ===
+pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
+=== Search on 99 ===
+Type: indom
+Name: 29.3
+InDom: 29.3
+One line: Instance domain "mirage" for sample PMDA
+Help: Random number of instances, that change with time.  Instance "m-00" (0)
+is always present, while the others are numbered 1 .. 49 and named "m-01"
+.. "m-99"
+=== Search on random ===
+Type: indom
+Name: 29.3
+InDom: 29.3
+One line: Instance domain "mirage" for sample PMDA
+Help: Random number of instances, that change with time.  Instance "m-00" (0)
+is always present, while the others are numbered 1 .. 49 and named "m-01"
+.. "m-99"
+
+Type: metric
+Name: sample.mirage
+InDom: 29.3
+One line: Simple saw-tooth rate, but instances come and go
+Help: The metric is a rate (Kbytes/sec) that varies in a saw-tooth distribution
+over time.  Different instances of the metric have different baselines
+for the saw-tooth, but all have an max-to-min range of 100.
+
+What makes this metric interesting is that instances come and go although
+not more often than once every 10 seconds by default.  Use pmstore to
+change sample.controller.mirage and the frequency of instance domain
+changes can be varied.
+
+Instance 0 is always present, but the other instances 1 thru 49 come
+and go in a cyclic pattern with a large random component influencing
+when each instance appears and disappears.
+
+The underlying counter starts at 0 and is incremented once
+for each pmFetch() to this metric and/or sample.colour and/or
+sample.mirage_longlong.
+
+Use pmStore() to modify the underlying counter (independent of which
+instance or instances are used).
+=== Search on interesting ===
+Type: metric
+Name: sample.mirage
+InDom: 29.3
+One line: Simple saw-tooth rate, but instances come and go
+Help: The metric is a rate (Kbytes/sec) that varies in a saw-tooth distribution
+over time.  Different instances of the metric have different baselines
+for the saw-tooth, but all have an max-to-min range of 100.
+
+What makes this metric interesting is that instances come and go although
+not more often than once every 10 seconds by default.  Use pmstore to
+change sample.controller.mirage and the frequency of instance domain
+changes can be varied.
+
+Instance 0 is always present, but the other instances 1 thru 49 come
+and go in a cyclic pattern with a large random component influencing
+when each instance appears and disappears.
+
+The underlying counter starts at 0 and is incremented once
+for each pmFetch() to this metric and/or sample.colour and/or
+sample.mirage_longlong.
+
+Use pmStore() to modify the underlying counter (independent of which
+instance or instances are used).
+=== Search on result ===
+Type: metric
+Name: sample.rapid
+InDom: none
+One line: count very quickly
+Help: Base counter increments by 8*10^7 per fetch.  Result is 10 x base counter.
 === Search engine info ===
 RediSearch statistics:
     Documents: INTEGER
@@ -25,3 +94,15 @@ RediSearch statistics:
          Size: DOUBLE MB
 - Average offsets per term: DOUBLE
 - Average offset bits per record: DOUBLE
+=== Extra reporting - timing, score, hits, doc IDs ===
+1 hit in 0.X seconds
+
+ID: 6697a5ee42032f3e914b3475c07a16605d3c8b7a
+Score: 0.00
+Type: indom
+Name: 29.3
+InDom: 29.3
+One line: Instance domain "mirage" for sample PMDA
+Help: Random number of instances, that change with time.  Instance "m-00" (0)
+is always present, while the others are numbered 1 .. 49 and named "m-01"
+.. "m-99"

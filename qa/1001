@@ -24,7 +24,7 @@ End-of-File
 
 echo
 echo "=== view with non-existant archive ==="
-PCP_STDERR=$tmp.err pmchart -c CPU -a /no/such/archive
+PCP_STDERR=$tmp.err pmchart -c CPU -a /no/such/archive 2>&1 | _filter_views
 cat $tmp.err
 
 exit

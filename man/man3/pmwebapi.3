@@ -575,12 +575,12 @@ lf(CW) | l | l.
 Parameters	Type	Explanation
 _
 query	string	Query string in \f(CBpmsearch\fR(1) format
-highlight	fields	include matching markup in response fields
-offset	number	result offset cursor for pagination
-limit	number	maximum results to include in response
-field	fields	queried fields (defaults to all)
-return	fields	fields to actually return (defaults to all)
-type	types	entity types to filter (defaults to all)
+highlight	fields	Include matching markup in response fields
+offset	number	Result offset cursor for pagination
+limit	number	Maximum results to include in response
+field	fields	Queried fields (defaults to all)
+return	fields	Fields to actually return (defaults to all)
+type	types	entity Types to filter (defaults to all)
 client	string	Request identifier sent back with response
 .TE
 .PP
@@ -637,6 +637,40 @@ There is typically both a name and help text associated with
 metrics.
 An instance domain has help text and a numeric identifier,
 while instances have a name only (which can be searched).
+.SS GET \fI/search/suggest\fR \- \fBpmSearchTextSuggest\fR(3)
+.TS
+box;
+c | c | cw(2.4i)
+lf(CW) | l | l.
+Parameters	Type	Explanation
+_
+query	string	Search query for search engine
+limit	number	Max results to include in response
+.TE
+.PP
+Provides search query suggestions.
+.PP
+The mandatory search string is further described in
+.BR pmsearch (1)
+and is passed to the server via the
+.I query
+parameter (HTTP GET).
+\" TODO: replace with actual call when search/suggest is done
+.SAMPLE
+$ curl -s http://localhost:44322/search/suggest?\\
+	query=disk | pmjson
+[
+    "disk.all.avactive",
+    "disk.all.aveq",
+    "disk.all.blkread",
+    "disk.all.blktotal",
+    "disk.all.blkwrite",
+    "disk.all.read",
+    "disk.all.read_bytes"
+    "disk.all.read_merge",
+    "disk.all.read_rawactive"
+]
+.ESAMPLE
 .SS GET \fI/search/info\fR \- \fBpmSearchInfo\fR(3)
 .TS
 box;
@@ -650,6 +684,23 @@ client	string	Request identifier sent back with response
 .PP
 Provides metrics relating to operation of the search engine,
 in particular showing document and text record counts.
+.SAMPLE
+$ curl -s http://localhost:44322/search/info | pmjson
+{
+    "docs": 1589,
+    "terms": 3855,
+    "records": 116831,
+    "records_per_doc_avg": 73.52,
+    "bytes_per_record_avg": 6.36,
+    "inverted_sz_mb": 0.71,
+    "inverted_cap_mb": 0.00,
+    "inverted_cap_ovh": 0.00,
+    "skip_index_size_mb": 0.00,
+    "score_index_size_mb": 0.00,
+    "offsets_per_term_avg": 9.41,
+    "offset_bits_per_record_avg": 8.00
+}
+.ESAMPLE
 .SH PMAPI HOST SERVICES
 The live performance collection facilities available from
 .BR pmcd (1)

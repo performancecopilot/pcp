@@ -18,6 +18,7 @@ check.out
 check.log
 check.callback
 pmlogger.log
+webapi-host*
 webapi-pmcd-*
 webapi-webd-*
 check.time

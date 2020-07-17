@@ -52,6 +52,11 @@ _setup_zswap_values()
     cd $here
 }
 
+_setup_zswap_novalues()
+{
+    rm -fr $ZSWAP_STATS_PATH
+}
+
 domain=125
 export ZSWAP_PAGESIZE=4096
 export ZSWAP_STATS_PATH="$tmp.zswap"
@@ -82,6 +87,16 @@ fetch zswap.written_back_pages
 fetch zswap.duplicate_entry
 fetch zswap.pool_pages
 fetch zswap.stored_pages
+End-of-File
+test -f zswap.log && cat zswap.log >> $seq.full
+
+echo "== Testing zswap without values" | tee -a $seq.full
+_setup_zswap_novalues
+dbpmda -n $tmp.root -ie <<End-of-File 2>&1 | _filter
+open pipe $python_path $pmda_script
+getdesc on
+desc zswap.pool_limit_hit
+fetch zswap.pool_limit_hit
 End-of-File
 test -f zswap.log && cat zswap.log >> $seq.full
 

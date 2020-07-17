@@ -1,0 +1,175 @@
+#!/bin/sh
+# PCP QA Test No. 1210
+# pmlogctl - _warning code paths
+#
+# Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    echo "_cleanup: ..." >>$seq.full
+    cd $here
+    $sudo pmlogctl -af -c $seq -p $tmp.policy destroy >>$seq.full 2>&1
+    for dir in $seq-localhost $seq-LOCALHOSTNAME $seq-`hostname` $seq-no.such.host.pcp.io
+    do
+	[ -d "$PCP_ARCHIVE_DIR/$dir" ] && $sudo rm -rf "$PCP_ARCHIVE_DIR/$dir"
+    done
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+localhost=`hostname`
+
+_filter()
+{
+    tee -a $seq.full \
+    | sed \
+	-e '/^# created by pmlogctl/s/ on .*/ on DATE/' \
+	-e "s;$tmp\.;TMP.;g" \
+	-e "s;$PCP_BINADM_DIR/;PCP_BINADM_DIR/;g" \
+	-e "s;$PCP_ARCHIVE_DIR/;PCP_ARCHIVE_DIR/;g" \
+	-e "s;$PCP_TMP_DIR/;PCP_TMP_DIR/;g" \
+	-e "s;$PCP_TMPFILE_DIR/pmlogctl\.[^/]*;PCP_TMPFILE_DIR/pmlogctl.XXXXX;g" \
+	-e "s;$PCP_ETC_DIR/;PCP_ETC_DIR/;g" \
+	-e "s/-$localhost /-LOCALHOSTNAME /" \
+	-e "s/PID $mypid/PID <mypid>/" \
+	-e 's/PID [0-9][0-9]*/PID <somepid>/' \
+	-e '/^------.*\/lock/s/.* /------ ... ls output ... /' \
+    # end
+}
+
+# Build filter for any existing non-qa and non-primary pmlogger instances.
+# The "pmcd Host" and "Class" fields from the pmlogctl status output
+# should suffice to uniquely identify each.
+#
+pmlogctl status 2>&1 \
+| $PCP_AWK_PROG >$tmp.awk '
+NR == 1	{ next }
+NF >= 5	{ if ($3 == "primary") next
+	  print "$1 == \"" $1 "\" && $3 == \"" $3 "\" { next }"
+	}
+END	{ print "{ print }" }'
+
+# Note status command output order is non-deterministic, hence the sort
+# at the end
+#
+_filter_status()
+{
+    tee -a $seq.full \
+    | $PCP_AWK_PROG -f $tmp.awk \
+    | sed >$tmp.tmp \
+	-e "/^`hostname` .* primary /d" \
+	-e 's/[ 	][ 	]*/ /g' \
+	-e 's/2[0-9][0-9][0-9][01][0-9][0-3][0-9]\...\.[^ ]*/<archivename>/' \
+	-e "s/^$localhost /LOCALHOSTNAME /" \
+	-e "s/ $seq / <seq> /" \
+	-e 's/ [0-9][0-9]* / <pid> /' \
+    # end
+    head -1 $tmp.tmp
+    sed -e '1d' $tmp.tmp | LC_COLLATE=POSIX sort
+}
+
+cat <<End-of-File >$tmp.policy
+name:
+$seq-%h
+control:
+\$version=1.1
+%h n n PCP_ARCHIVE_DIR/$seq-%h -c $tmp.config
+End-of-File
+
+cat <<End-of-File >$tmp.config
+log mandatory on default { pmcd.pmlogger }
+End-of-File
+
+_setup()
+{
+    if pmlogctl -c $seq status localhost 2>&1 | grep 'Warning.* defined in class' >/dev/null
+    then
+	$sudo pmlogctl -v -p $tmp.policy -c $seq create localhost 2>&1 | _filter
+    fi
+    if pmlogctl -c $seq status LOCALHOSTNAME 2>&1 | grep 'Warning.* defined in class' >/dev/null
+    then
+	$sudo pmlogctl -v -p $tmp.policy -c $seq create LOCALHOSTNAME 2>&1 | _filter
+    fi
+}
+
+mypid=$$
+
+# real QA test starts here
+_setup
+
+echo "=== bogus class"
+pmlogctl -c bogus status | _filter_status
+
+echo
+echo "=== no control dir"
+rm -rf $tmp.control.d
+PCP_PMLOGGERCONTROL_PATH=$tmp.control pmlogctl status 2>&1 | _filter_status
+
+echo
+echo "=== no control files"
+mkdir $tmp.control.d
+PCP_PMLOGGERCONTROL_PATH=$tmp.control pmlogctl status 2>&1 | _filter_status
+
+echo
+echo "=== empty control files"
+touch $tmp.control $tmp.control.d/control
+PCP_PMLOGGERCONTROL_PATH=$tmp.control pmlogctl status 2>&1 | _filter_status
+rm -rf $tmp.control $tmp.control.d
+
+echo
+echo "=== host not part of nominated group"
+$sudo pmlogctl -c default start localhost
+pmlogctl status | _filter_status
+
+echo
+echo "=== host not part of any group"
+$sudo pmlogctl start local:
+pmlogctl status | _filter_status
+
+echo
+echo "=== bad host, pmlogger won't start"
+$sudo pmlogctl -p $tmp.policy -c $seq create no.such.host.pcp.io
+pmlogctl status | _filter_status
+
+echo
+echo "=== stopping (as part of destroy) a stopped pmlogger instance"
+$sudo pmlogctl stop no.such.host.pcp.io
+pmlogctl status | _filter_status
+$sudo pmlogctl -p $tmp.policy -c $seq destroy no.such.host.pcp.io
+pmlogctl status | _filter_status
+
+# NOTE
+# 	For this next test there is ugly non-determinism from a
+# 	filesystem directory order dependency ... using a sort strategy,
+#	but to triage failures you'll need to look at the $seq.full
+#	file to see the original output order from pmlogctl
+#
+echo
+echo "=== stale mutex"
+if ! $sudo $PCP_BINADM_DIR/pmlock $PCP_ETC_DIR/pcp/pmlogger/lock
+then
+    echo "Arrgh, failed to get lock $PCP_ETC_DIR/pcp/pmlogger/lock"
+fi
+echo $mypid >$tmp.tmp
+$sudo cp $tmp.tmp $PCP_ETC_DIR/pcp/pmlogger/lock
+$sudo touch -t `pmdate -35M %Y%m%d%H%M` $PCP_ETC_DIR/pcp/pmlogger/lock
+$sudo pmlogctl -v -a -c $seq stop 2>&1 | _filter | LC_COLLATE=POSIX sort
+pmlogctl status | _filter_status
+$sudo rm -f $PCP_ETC_DIR/pcp/pmlogger/lock
+$sudo pmlogctl -v -a -c $seq start 2>&1 | _filter | LC_COLLATE=POSIX sort
+
+# success, all done
+status=0
+exit

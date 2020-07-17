@@ -16,7 +16,7 @@
 . $PCP_DIR/etc/pcp.env
 
 sts=2
-tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
+tmp=`mktemp -d "$PCP_TMPFILE_DIR/pcp.XXXXXXXXX"` || exit 1
 trap "rm -rf $tmp; exit \$sts" 0 1 2 3 15
 
 progname=`basename $0`

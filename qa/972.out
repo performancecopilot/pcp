@@ -85,3 +85,16 @@ pmResult ... numpmid: 1
   125.0.8 (<noname>): numval: 1 valfmt: 1 vlist[]:
    value 365047808
 dbpmda> 
+== Testing zswap without values
+dbpmda> open pipe $PCP_PYTHON_PROG $PCP_PMDAS_DIR/zswap/pmdazswap.python
+Start python PMDA: $PCP_PYTHON_PROG $PCP_PMDAS_DIR/zswap/pmdazswap.python
+dbpmda> getdesc on
+dbpmda> desc zswap.pool_limit_hit
+PMID: 125.0.0
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+dbpmda> fetch zswap.pool_limit_hit
+PMID(s): 125.0.0
+pmResult ... numpmid: 1
+  125.0.0 (<noname>): No values returned!
+dbpmda> 

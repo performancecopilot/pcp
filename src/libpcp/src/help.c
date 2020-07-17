@@ -123,8 +123,13 @@ again_archive:
 int
 pmLookupText(pmID pmid, int level, char **buffer)
 {
-    if (IS_DERIVED(pmid))
-	return PM_ERR_TEXT;
+    if (IS_DERIVED(pmid)) {
+	/*
+	 * for derived metrics there is no indom help text, only metric
+	 * help text, so don't need | PM_TEXT_PMID
+	 */
+	return __dmhelptext(pmid, level, buffer);
+    }
     return lookuptext((int)pmid, level | PM_TEXT_PMID, buffer);
 }
 

@@ -22,7 +22,7 @@ you report to the maintainers privately at first we will endeavour to
 respond within 24 hours with an initial assessment of the problem and
 a timeframe for resolution and next release with the fix(es).
 
-The maintainers can be contacted privately via <pcp-masters@groups.io>
+The maintainers can be contacted privately via <pcp-maintainers@groups.io>
 
 # Philosophy
 

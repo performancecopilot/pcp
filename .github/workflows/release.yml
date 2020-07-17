@@ -1,0 +1,102 @@
+name: Release
+on:
+  push:
+    tags:
+      - '*.*.*'
+
+jobs:
+  qa:
+    name: ${{ matrix.platform }}-${{ matrix.runner }}
+    if: github.repository == 'performancecopilot/pcp'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - {platform: ubuntu1604,     runner: container, os: ubuntu-18.04}
+          - {platform: ubuntu1804,     runner: direct,    os: ubuntu-18.04}
+          - {platform: ubuntu2004,     runner: direct,    os: ubuntu-20.04}
+          - {platform: debian10,       runner: container, os: ubuntu-18.04}
+          - {platform: debian11,       runner: container, os: ubuntu-18.04}
+          - {platform: fedora31,       runner: container, os: ubuntu-18.04}
+          - {platform: fedora32,       runner: container, os: ubuntu-18.04}
+          - {platform: centos6,        runner: container, os: ubuntu-18.04}
+          - {platform: centos7,        runner: container, os: ubuntu-18.04}
+          - {platform: centos8,        runner: container, os: ubuntu-18.04}
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+
+      - name: Set up Python 3.6+
+        if: matrix.platform == 'ubuntu1604'
+        uses: actions/setup-python@v2
+        with:
+          python-version: '>=3.6'
+
+      - name: Setup
+        run: |
+          python3 -c 'import yaml' || pip3 install pyyaml
+          mkdir -p artifacts/build artifacts/test
+          ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} setup
+
+      - name: Update packages
+        run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} task update
+
+      - name: Install build dependencies
+        run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} task install_build_dependencies
+
+      - name: Build
+        run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} task build
+
+      - name: Copy build artifacts
+        run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} artifacts build --path ./artifacts/build
+
+      - name: Publish build artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: build-${{ matrix.platform }}-${{ matrix.runner }}
+          path: ./artifacts/build
+
+      - name: Install
+        run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} task install
+
+      - name: Initialize QA
+        run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} task init_qa
+
+      - name: QA
+        run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} task qa_sanity
+
+      - name: Copy test results
+        if: always()
+        run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} artifacts test --path ./artifacts/test
+
+      - name: Publish test results
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-${{ matrix.platform }}-${{ matrix.runner }}
+          path: ./artifacts/test
+
+  release:
+    name: Release on Bintray
+    if: github.repository == 'performancecopilot/pcp'
+    needs: qa
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v2
+        with:
+          path: artifacts
+
+      - name: Create source tarball
+        run: ./Makepkgs --source --nonrpm
+
+      - name: Release on Bintray
+        run: ./build/ci/release-bintray.py --version ${GITHUB_REF#refs/tags/} --source ./build/tar/*.src.tar.gz ./artifacts/build-*
+        env:
+          BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
+          BINTRAY_APIKEY: ${{ secrets.BINTRAY_APIKEY }}
+          BINTRAY_GPG_PASSPHRASE: ${{ secrets.BINTRAY_GPG_PASSPHRASE }}

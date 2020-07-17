@@ -1,27 +1,34 @@
+bintray:
+  repository: xenial
+  deb_distribution: xenial
+  deb_component: main
+  deb_architecture: amd64
+
 container:
   containerfile: |
-    FROM: docker.io/library/ubuntu:16.04
+    FROM docker.io/library/ubuntu:16.04
     RUN apt-get update && apt-get install -y sudo
     RUN useradd --create-home pcpbuild
     RUN echo 'pcpbuild ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/pcpbuild
 
     # allow services to be started during installation
     # pmcd will create the file /var/lib/pcp/pmns/stdpmid, which is required by QA tests
-    printf '#!/bin/sh\nexit 0\n' > /usr/sbin/policy-rc.d
+    RUN printf '#!/bin/sh\nexit 0\n' > /usr/sbin/policy-rc.d
 
 tasks:
   update: |
     sudo apt-get -y update
     sudo apt-get -y dist-upgrade
-  builddeps: |
+  install_build_dependencies: |
     sudo apt-get -y update
     for pkg in $(./pcp/qa/admin/check-vm -p)
     do
+      [ "$runner" = "container" ] && [ "$pkg" = "auditd" ] && continue
       sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "$pkg" || true
     done
-    sudo apt-get install -y python-requests
   build: |
-    (cd ./pcp && ./Makepkgs --with-python3=no --nonrpm --verbose)
+    cd ./pcp && ./Makepkgs --nonrpm --verbose
+  copy_build_artifacts: |
     cp ./pcp/build/deb/*.deb artifacts/build
   install: |
     sudo dpkg -i ./pcp/build/deb/*.deb
@@ -30,21 +37,19 @@ tasks:
     # "invoke-rc.d pmcd start" (inside pcp.postinst.tail hook) doesn't start pmcd on ubuntu 16.04 (works fine on ubuntu 18.04)
     # make sure it's started here, as pmcd will create the file /var/lib/pcp/pmns/stdpmid, which is required by QA tests
     sudo systemctl start pmcd
-  initqa: |
+  init_qa: |
     sudo -i -u pcpqa ./check 002
   qa_sanity: |
     set -o pipefail
     status=0
     sudo -i -u pcpqa ./check -TT -g sanity -x not_in_container |& tee ./artifacts/test/test.log || status=$?
-
-    cp /var/lib/pcp/testsuite/check.timings ./artifacts/test
-    for test in /var/lib/pcp/testsuite/*.out.bad; do cp $test ${test/.out.bad/.full} ./artifacts/test || true; done
     exit $status
   qa: |
     set -o pipefail
     status=0
     sudo -i -u pcpqa ./check -TT -x not_in_container |& tee ./artifacts/test/test.log || status=$?
-
-    cp /var/lib/pcp/testsuite/check.timings ./artifacts/test
-    for test in /var/lib/pcp/testsuite/*.out.bad; do cp $test ${test/.out.bad/.full} ./artifacts/test || true; done
     exit $status
+  copy_test_artifacts: |
+    cp /var/lib/pcp/testsuite/check.timings ./artifacts/test
+    [ $(awk 'END{print NF}' ./artifacts/test/check.timings) = 2 ] && date '+%s' >> ./artifacts/test/check.timings
+    for test in /var/lib/pcp/testsuite/*.out.bad; do cp $test ${test/.out.bad/.full} ./artifacts/test || true; done

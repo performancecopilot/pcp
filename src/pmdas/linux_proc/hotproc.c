@@ -13,8 +13,9 @@
  */
 #include "pmapi.h"
 #include "config.h"
+#include "indom.h"
 
-extern int conf_gen;
+unsigned int	conf_gen;   /* hotproc config version, zero if not configured */
 
 void
 hotproc_init(void)

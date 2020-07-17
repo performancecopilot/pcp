@@ -60,7 +60,7 @@ file2="planning.html"
 file3="tasks.html"
 pfx="  "
 skipping="${pfx}skipping..."
-tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
+tmp=`mktemp -d "$PCP_TMPFILE_DIR/pmda_weblog.XXXXXXXXX"` || exit 1
 trap "rm -rf $tmp; exit" 0 1 2 3 15
 
 # Duplicate entry check file

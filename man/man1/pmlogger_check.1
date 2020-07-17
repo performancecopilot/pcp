@@ -26,12 +26,12 @@
 .B $PCP_BINADM_DIR/pmlogger_daily
 [\f3\-KMNoprRV?\f1]
 [\f3\-c\f1 \f2control\f1]
-[\f3\-k\f1 \f2discard\f1]
+[\f3\-k\f1 \f2time\f1]
 [\f3\-l\f1 \f2logfile\f1]
 [\f3\-m\f1 \f2addresses\f1]
 [\f3\-s\f1 \f2size\f1]
 [\f3\-t\f1 \f2want\f1]
-[\f3\-x\f1 \f2compress\f1]
+[\f3\-x\f1 \f2time\f1]
 [\f3\-X\f1 \f2program\f1]
 [\f3\-Y\f1 \f2regex\f1]
 .SH DESCRIPTION
@@ -128,29 +128,62 @@ to query the system service runlevel information for
 .BR pmlogger ,
 and use that to determine whether to start processes or not.
 .TP
-\fB\-k\fR \fIperiod\fR, \fB\-\-discard\fR=\fIperiod\fR
+\fB\-k\fR \fItime\fR, \fB\-\-discard\fR=\fItime\fR
 After some period, old PCP archives are discarded.
-This period is 14 days by default, but may be changed using
+.I time
+is a time specification in the syntax of
+.BR find-filter (1),
+so
+\fIDD\fR[\fB:\fIHH\fR[\fB:\fIMM\fR]].
+The optional
+.I HH
+(hours) and
+.I MM
+(minutes) parts are 0 if not specified.
+By default the
+.I time
+is
+.B 14:0:0
+or 14 days, but may be changed using
 this option.
+.RS
+.PP
 Some special values are recognized for the
-.IR period ,
+.IR time ,
 namely
 .B 0
-to keep no archives beyond the current one, and
+to keep no archives beyond the the ones being currently written by
+.BR pmlogger (1),
+and
 .B forever
 or
 .B never
 to prevent any archives being discarded.
+.PP
+The
+.I time
+can also be set using the
+.B $PCP_CULLAFTER
+variable, set in either the environment or in a control file.
+If both
+.B $PCP_CULLAFTER
+and
+.B \-x
+specify different values for
+.I time
+then the environment variable value is used and a warning is issued.
+.PP
 Note that the semantics of
-.I discard
+.I time
 are that it is measured from the time of last modification of each
-archive, and not from the current day.
+archive, and not from the original archive creation date.
 This has subtle implications for compression (see below) \- the
 compression process results in the creation of new archive files
 which have new modification times.
 In this case, the
-.I discard
+.I time
 period (re)starts from the time of compression.
+.RE
 .TP
 \fB\-K\fR
 When this option is specified for
@@ -161,14 +194,14 @@ rotation, no culling, no rewriting, etc.
 When
 .B \-K
 is used and a
-.I compress
-value of
+.I period
+of
 .B 0
 is in effect
 (from
 .B \-x
 on the command line or
-.BR PCP_COMPRESSAFTER
+.B $PCP_COMPRESSAFTER
 in the environment or via the
 .I control
 file)
@@ -183,7 +216,7 @@ with just the
 .B \-K
 option.
 Provided
-.B PCP_COMPRESSAFTER
+.B $PCP_COMPRESSAFTER
 is set to
 .B 0
 along with any other required compression options to match the
@@ -408,13 +441,36 @@ in conjunction with
 .B \-V
 maximizes the diagnostic capabilities for debugging.
 .TP
-\fB\-x\fR \fIperiod\fR, \fB\-\-compress\-after\fR=\fIperiod\fR
+\fB\-x\fR \fItime\fR, \fB\-\-compress\-after\fR=\fItime\fR
 Archive data files can optionally be compressed after some period
 to conserve disk space.
 This is particularly useful for large numbers of
 .B pmlogger
 processes under the control of
 .BR pmlogger_check .
+.RS
+.PP
+.I time
+is a time specification in the syntax of
+.BR find-filter (1),
+so
+\fIDD\fR[\fB:\fIHH\fR[\fB:\fIMM\fR]].
+The optional
+.I HH
+(hours) and
+.I MM
+(minutes) parts are 0 if not specified.
+.PP
+Some special values are recognized for the
+.IR time ,
+namely
+.B 0
+to apply compression as soon as possible, and
+.B forever
+or
+.B never
+to prevent any compression being done.
+.PP
 If
 .B transparent_decompress
 is enabled when
@@ -422,50 +478,40 @@ is enabled when
 was built
 (can be checked with the
 .BR pmconfig (1)
-.BR \-L option),
+.B \-L
+option),
 then the default behaviour is compression ``as soon as possible''.
 Otherwise the default behaviour is to
 .B not
 compress files (which matches the historical default behaviour in
 earlier PCP releases).
+.PP
 The
-.B \-x
-option specifies the number of days after which to compress archive data
-and metadata files.
-If
-.I compress
-is
-.B 0
-then compression will be applied as soon as possible.
-If
-.I compress
-is
-.B never
-or
-.B forever
-then no compression will be done.
-The environment variable
-.B PCP_COMPRESSAFTER
-may be used as an alternative mechanism to define
-.IR compress .
+.I time
+can also be set using the
+.B $PCP_COMPRESSAFTER
+variable, set in either the environment or in a
+.I control
+file.
 If both
-.B PCP_COMPRESSAFTER
+.B $PCP_COMPRESSAFTER
 and
 .B \-x
 specify different values for
-.I compress
+.I time
 then the environment variable value is used and a warning is issued.
+.RE
 .TP
 \fB\-X\fR \fIprogram\fR, \fB\-\-compressor\fR=\fIprogram\fR
 This option specifies the program to use for compression \- by default
 this is
 .BR xz (1).
 The environment variable
-.B PCP_COMPRESS
+.B $PCP_COMPRESS
 may be used as an alternative mechanism to define
 .IR program .
 If both
-.B PCP_COMPRESS
+.B $PCP_COMPRESS
 and
 .B \-X
 specify different compression programs
@@ -484,11 +530,11 @@ filtered using the
 option to
 .BR egrep (1).
 The environment variable
-.B PCP_COMPRESSREGEX
+.B $PCP_COMPRESSREGEX
 may be used as an alternative mechanism to define
 .IR regex .
 If both
-.B PCP_COMPRESSREGEX
+.B $PCP_COMPRESSREGEX
 and
 .B \-Y
 specify different values for
@@ -501,15 +547,20 @@ Display usage message and exit.
 .BR Warning :
 The
 .B $PCP_PMLOGGERCONTROL_PATH
-and
+file and files within the
 .BR $PCP_PMLOGGERCONTROL_PATH .d
-files must not be writable by any user other than root.
+directory must not be writable by any user other than root.
 .PP
 The control file(s) should be customized according to the following rules
 that define for the current version (1.1)
 of the control file format.
 .IP 1. 4m
 Lines beginning with a ``#'' are comments.
+A special case is lines beginning ``#!#''; these are control lines
+for a
+.BR pmlogger (1)
+that has been stopped using
+.BR pmlogctl (1).
 .PD 0
 .IP 2.
 Lines beginning with a ``$'' are assumed to be
@@ -710,7 +761,15 @@ is used instead.
 .SH FILES
 .TP 5
 .I $PCP_PMLOGGERCONTROL_PATH
-the PCP logger control file
+the PCP logger control file.
+For a new installation
+this file contains no
+.BR pmlogger (1)
+control lines (the real control files are all
+in the
+.I $PCP_PMLOGGERCONTROL_PATH.d
+directory), but this file is still processed to support any
+legacy configurations therein from earlier PCP releases.
 .br
 .BR Warning :
 this file must not be writable by any user other than root.
@@ -827,12 +886,35 @@ and setting
 to
 .B yes
 disables the regeneration and checking.
+.SH "COMPATIBILITY ISSUES"
+Earlier versions of
+.B pmlogger_daily
+used
+.BR find (1)
+to locate files for compressing or culling and the
+.B \-k
+and
+.B \-x
+options took only integer values to mean ``days''.
+The semantics of this was quite loose given that
+.BR find (1)
+offers different precision and semantics across platforms.
+.PP
+The current implementation of
+.B pmlogger_daily
+uses
+.BR find-filter (1)
+which provides high precision intervals and semantics that are
+relative to the time of execution and are consistent across
+platforms.
 .SH SEE ALSO
 .BR egrep (1),
+.BR find-filter (1),
 .BR PCPIntro (1),
 .BR pmconfig (1),
 .BR pmlc (1),
 .BR pmlogconf (1),
+.BR pmlogctl (1),
 .BR pmlogger (1),
 .BR pmlogger_daily_report (1),
 .BR pmlogger_merge (1),

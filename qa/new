@@ -222,7 +222,12 @@ cat <<End-of-File >>$id
 #
 
 seq=\`basename \$0\`
-echo "QA output created by \$seq"
+if [ \$# -eq 0 ]
+then
+    echo "QA output created by \$seq"
+else
+    echo "QA output created by \$seq \$*"
+fi
 
 # get standard environment, filters and checks
 . ./common.product

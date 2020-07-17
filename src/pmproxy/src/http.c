@@ -936,7 +936,7 @@ void
 on_http_client_write(struct client *client)
 {
     if (pmDebugOptions.http)
-	fprintf(stderr, "%s: client %p\n", "on_redis_client_write", client);
+	fprintf(stderr, "%s: client %p\n", "on_http_client_write", client);
 
     /* write has been submitted now, close connection if required */
     if (http_should_keep_alive(&client->u.http.parser) == 0)

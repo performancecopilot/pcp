@@ -59,7 +59,7 @@ LDIRT += $(shell [ -f .gitignore ] && grep '\.out$$' .gitignore)
 
 SCRIPTS = mk.localconfig mk.pcpversion mk.qa_hosts mk.variant getpmcdhosts \
 	  new check recheck remake findmetric group-stats changeversion \
-	  check-gitignore check-group chk.setup show-me disk-work \
+	  check-gitignore check-group chk.setup show-me disk-work 008.helper \
 	  xlate_2_new_pmns common setup.051 mk.logfarm check.callback.sample
 
 COMMON_SCRIPTS = common.install.cisco common.pcpweb
@@ -81,7 +81,7 @@ else
 SELINUX_PCPQA =
 endif
 
-DOTOUTFILES = $(shell [ -f qa_outfiles ] && cat qa_outfiles || ls -1 | grep '^[0-9]' | grep -v '^[0-9][0-9][0-9]$$' | grep -v '^[0-9][0-9][0-9][0-9]$$' | egrep -v '^[0-9][0-9][0-9]*\.(full|out\.bad|notrun|work)' | tee qa_outfiles)
+DOTOUTFILES = $(shell [ -f qa_outfiles ] && cat qa_outfiles || ls -1 | grep '^[0-9]' | grep -v '^[0-9][0-9][0-9]$$' | grep -v '^[0-9][0-9][0-9][0-9]$$' | egrep -v '^[0-9][0-9][0-9]*\.(full|out\.bad|notrun|helper|work)' | tee qa_outfiles)
 
 qa_outfiles:
 	@echo $(DOTOUTFILES) > qa_outfiles

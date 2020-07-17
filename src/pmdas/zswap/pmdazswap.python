@@ -3,22 +3,25 @@
 Performance Metrics Domain Agent exporting Linux compressed swap metrics.
 '''
 #
-# Copyright (c) 2014-2015 Red Hat.
-# 
+# Copyright (c) 2014-2015,2020 Red Hat.
+#
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
+#
+# pylint: disable=bad-continuation,line-too-long,too-many-lines,bare-except
+#
 
 import cpmapi as c_api
 from pcp.pmapi import pmUnits
-from pcp.pmda import PMDA, pmdaMetric, pmdaIndom
+from pcp.pmda import PMDA, pmdaMetric
+from cpmda import PMDA_FETCH_NOVALUES
 from resource import getpagesize
 from os import getenv, listdir
 import sys
@@ -49,7 +52,6 @@ class ZswapPMDA(PMDA):
             if self.fileerrors < self.nmetrics:
                 self.err("fetch_single: failed to read %s" % fullpath)
             self.fileerrors += 1
-            pass
 
     def zswap_fetch(self):
         '''
@@ -66,7 +68,6 @@ class ZswapPMDA(PMDA):
         except:
             # the kernel module may simply not be loaded currently
             self.patherrors = 1
-            pass
 
 
     def zswap_fetch_callback(self, cluster, item, inst):
@@ -80,8 +81,8 @@ class ZswapPMDA(PMDA):
             return [c_api.PM_ERR_INST, 0]
         elif cluster != 0:
             return [c_api.PM_ERR_PMID, 0]
-        if item >= 0 and item < self.nmetrics and self.patherrors == 1:
-            return [pcp.pmda.PMDA_FETCH_NOVALUES, 0]
+        if 0 <= item < self.nmetrics and self.patherrors == 1:
+            return [PMDA_FETCH_NOVALUES, 0]
 
         if item == 0:
             return [self.values['pool_limit_hit'], 1]

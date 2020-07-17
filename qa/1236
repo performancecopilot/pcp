@@ -1,0 +1,92 @@
+#!/bin/sh
+# PCP QA Test No. 1236
+# name(attr) = string testing for derived metrics - string handling cases
+#
+# Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+if [ $# -eq 0 ]
+then
+    echo "QA output created by $seq"
+else
+    echo "QA output created by $seq $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s;$tmp;TMP;g" \
+    # end
+}
+
+# real QA test starts here
+cat <<'End-of-File' >$tmp.config
+qa.one.simple = sample.milliseconds / 1000
+qa.one.string = sample.milliseconds / 1000
+qa.one.escape = sample.milliseconds / 1000
+qa.help.simple = sample.milliseconds / 1000
+qa.help.string = sample.milliseconds / 1000
+qa.help.escape = sample.milliseconds / 1000
+qa.both.simple = sample.milliseconds / 1000
+qa.both.string = sample.milliseconds / 1000
+qa.both.escape = sample.milliseconds / 1000
+
+qa.one.simple(oneline) = words without quotes
+qa.one.string(oneline) = "a string"
+qa.one.escape(oneline) = "embedded escapes, >>>\f\o\o\\\"<<< expect foo<backslash><doublequote>"
+
+qa.help.simple(helptext) = longer words, but still no ' nor any "
+qa.help.string(helptext) = "string with quote (') and double quote (\") embedded"
+qa.help.escape(helptext) ='embedded escapes, >>>\f
+\o
+\o
+\\
+\'
+<<< expect f\\no\\no\\n<backslash>\\n<single quote\\n where \\n is a newline'
+
+qa.both.simple(oneline) = fubar
+qa.both.simple(helptext) = fouled up beyond all recognition
+qa.both.string(oneline) = ''
+qa.both.string(helptext) = 'string with quote (\') and double quote (") embedded'
+qa.both.escape(oneline) = "'"
+qa.both.escape(helptext) = 'just quotes ...
+\' " \' " \'
+" \' " \' "
+\' " \' " \'
+" \' " \' "'
+End-of-File
+
+export PCP_DERIVED_CONFIG=$tmp.config
+
+if [ "$1" = "--valgrind" ]
+then
+    _run_valgrind `which pminfo` -tT qa | _filter
+else
+    pminfo -tT qa 2>&1 \
+    | _filter
+fi
+
+# success, all done
+status=0
+exit

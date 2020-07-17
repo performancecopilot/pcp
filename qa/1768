@@ -28,7 +28,7 @@ _filter()
     sed \
 	-e "s,$PCP_SYSCONF_DIR,PCP_SYSCONF_DIR,g" \
 	-e "s,$tmp\.pmfind,PMFIND,g" \
-	-e "s,cp .*tmp.pcp\........../,cp TMPDIR/,g" \
+	-e "/^+ cp /s, $PCP_TMPFILE_DIR/pmfind_check.[^/]*/, TMPDIR/," \
     #end
 }
 

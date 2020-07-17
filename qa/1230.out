@@ -1,0 +1,32 @@
+QA output created by 1230
+== create running pmlogger instances
+pmcd Host Rules Evaluations Class PID State 
+LOCALHOSTNAME <nrule> <neval> 1230 <pid> running
+localhost <nrule> <neval> 1230 <pid> running
+localhost <nrule> <neval> default <pid> running
+== -a restart localhost
+pmcd Host Rules Evaluations Class PID State 
+LOCALHOSTNAME <nrule> <neval> 1230 <pid> running
+localhost <nrule> <neval> 1230 <pid> running
+localhost <nrule> <neval> default <pid> running
+== -a restart localhost `hostname`
+Warning: /etc/pcp/pmie/control.d/local: cannot restart the primary pmie from pmiectl
+pmcd Host Rules Evaluations Class PID State 
+LOCALHOSTNAME <nrule> <neval> 1230 <pid> running
+localhost <nrule> <neval> 1230 <pid> running
+localhost <nrule> <neval> default <pid> running
+== -a -c restart
+pmcd Host Rules Evaluations Class PID State 
+LOCALHOSTNAME <nrule> <neval> 1230 <pid> running
+localhost <nrule> <neval> 1230 <pid> running
+localhost <nrule> <neval> default <pid> running
+== -a -c restart localhost
+pmcd Host Rules Evaluations Class PID State 
+LOCALHOSTNAME <nrule> <neval> 1230 <pid> running
+localhost <nrule> <neval> 1230 <pid> running
+localhost <nrule> <neval> default <pid> running
+== -a -c restart localhost `hostname`
+pmcd Host Rules Evaluations Class PID State 
+LOCALHOSTNAME <nrule> <neval> 1230 <pid> running
+localhost <nrule> <neval> 1230 <pid> running
+localhost <nrule> <neval> default <pid> running

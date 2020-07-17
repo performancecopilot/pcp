@@ -81,6 +81,7 @@ END	{ if (NR > 0) {
 		else
 		    echo "Aborted! [running $seq]" | tee -a check.log
 		fi
+		status=1
 	    fi
 
 	    if [ ! -z "$notrun" ]
@@ -525,7 +526,7 @@ do
 		$done_nl || echo
 	    fi
 	fi
-	$timings_file && $PCP_ECHO_PROG "`date '+%s'`" >> check.timings
+	$timings_file && date '+%s' >> check.timings
     fi
 
     # come here for each test, except when $showme is true

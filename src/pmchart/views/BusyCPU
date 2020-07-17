@@ -10,7 +10,7 @@
 # a token attempt to make this general
 . /etc/pcp.env
 
-tmp=`mktemp -d /var/tmp/pcp.XXXXXXXXX` || exit 1
+tmp=`mktemp -d "$PCP_TMPFILE_DIR/pmchart-BusyCPU.XXXXXXXXX"` || exit 1
 trap "rm -rf $tmp; exit" 0 1 2 3 15
 
 # bad stuff ...

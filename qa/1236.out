@@ -1,0 +1,46 @@
+QA output created by 1236
+
+qa.one.simple [words without quotes]
+Help:
+words without quotes
+
+qa.one.string [a string]
+Help:
+a string
+
+qa.one.escape [embedded escapes, >>>foo\"<<< expect foo<backslash><doublequote>]
+Help:
+embedded escapes, >>>foo\"<<< expect foo<backslash><doublequote>
+
+qa.help.simple One-line Help: Error: One-line or help text is not available
+Help:
+longer words, but still no ' nor any "
+
+qa.help.string One-line Help: Error: One-line or help text is not available
+Help:
+string with quote (') and double quote (") embedded
+
+qa.help.escape One-line Help: Error: One-line or help text is not available
+Help:
+embedded escapes, >>>f
+o
+o
+\
+'
+<<< expect f\no\no\n<backslash>\n<single quote\n where \n is a newline
+
+qa.both.simple [fubar]
+Help:
+fouled up beyond all recognition
+
+qa.both.string []
+Help:
+string with quote (') and double quote (") embedded
+
+qa.both.escape [']
+Help:
+just quotes ...
+' " ' " '
+" ' " ' "
+' " ' " '
+" ' " ' "

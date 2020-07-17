@@ -13,6 +13,7 @@ class DirectRunner:
         self.platform_name = platform_name
         self.platform = platform
         self.build_dir = os.path.join(tempfile.gettempdir(), f"pcp-ci-{self.platform_name}")
+        self.command_preamble = 'set -eux\nexport runner=direct\n'
 
     def setup(self, pcp_path):
         os.mkdir(self.build_dir)
@@ -20,7 +21,7 @@ class DirectRunner:
         self.exec('mkdir -p artifacts/build artifacts/test')
 
     def exec(self, command, check=True):
-        command = 'set -eux\n' + command
+        command = self.command_preamble + command
         subprocess.run(['bash', '-'], cwd=self.build_dir, input=command.encode(), check=check)
 
     def shell(self):
@@ -29,8 +30,8 @@ class DirectRunner:
     def task(self, task_name):
         self.exec(self.platform['tasks'][task_name])
 
-    def getartifacts(self, artifacts_path):
-        subprocess.run(['rsync', '-a', f"{self.build_dir}/artifacts/", f"{artifacts_path}/", ], check=True)
+    def get_artifacts(self, artifact, path):
+        subprocess.run(['rsync', '-a', f"{self.build_dir}/artifacts/{artifact}/", f"{path}/", ], check=True)
 
 
 class VirtualMachineRunner:
@@ -45,6 +46,7 @@ class VirtualMachineRunner:
             'VAGRANT_NAME': self.vm_name,
             'VAGRANT_BOX': self.platform['vm']['box']
         }
+        self.command_preamble = 'set -eux\nexport runner=vm\n'
 
     def setup(self, pcp_path):
         post_start = self.platform['container'].get('post_start')
@@ -59,19 +61,19 @@ class VirtualMachineRunner:
             self.exec(post_start)
 
     def exec(self, command, check=True):
-        command = 'set -eux\n' + command
+        command = self.command_preamble + command
         subprocess.run(['ssh', '-F', self.ssh_config_file, self.vm_name, 'bash', '-'],
                        input=command.encode(), check=check)
 
     def shell(self):
-        subprocess.run(['ssh', '-F', self.ssh_config_file, self.vm_name])
+        subprocess.run(['ssh', '-F', self.ssh_config_file, self.vm_name], check=False)
 
     def task(self, task_name):
         self.exec(self.platform['tasks'][task_name])
 
-    def getartifacts(self, artifacts_path):
+    def get_artifacts(self, artifact, path):
         subprocess.run(['rsync', '-a', '-e', f"ssh -F {self.ssh_config_file}",
-                        f"{self.vm_name}:artifacts/", f"{artifacts_path}/", ], check=True)
+                        f"{self.vm_name}:artifacts/{artifact}/", f"{path}/", ], check=True)
 
 
 class ContainerRunner:
@@ -79,12 +81,19 @@ class ContainerRunner:
         self.platform_name = platform_name
         self.platform = platform
         self.container_name = f"pcp-ci-{self.platform_name}"
+        self.command_preamble = 'set -eux\nexport runner=container\n'
 
-        # on Ubuntu 18.04, systemd inside the container only works with sudo
-        if os.path.exists('/etc/fedora-release'):
-            self.sudo = []
-        else:
-            self.sudo = ['sudo']
+        # on Ubuntu, systemd inside the container only works with sudo
+        self.sudo = []
+        self.security_opts = []
+        with open('/etc/os-release') as f:
+            for line in f:
+                k, v = line.rstrip().split('=')
+                if k == 'NAME':
+                    if v == '"Ubuntu"':
+                        self.sudo = ['sudo']
+                        self.security_opts = ['--security-opt', 'label=disable']
+                    break
 
     def setup(self, pcp_path):
         image_name = f"{self.container_name}-image"
@@ -96,33 +105,32 @@ class ContainerRunner:
                        input=containerfile.encode(), check=True)
 
         # start a new container
-        subprocess.run([*self.sudo, 'podman', 'rm', '-f', self.container_name], stderr=subprocess.DEVNULL)
-        subprocess.run([*self.sudo, 'podman', 'run', '-d', '--name', self.container_name, '--privileged',
+        subprocess.run([*self.sudo, 'podman', 'rm', '-f', self.container_name], stderr=subprocess.DEVNULL, check=False)
+        subprocess.run([*self.sudo, 'podman', 'run', '-d', '--name', self.container_name,
+                        '--privileged', *self.security_opts,
                         image_name, init], check=True)
 
         self.exec('mkdir -p artifacts/build artifacts/test')
         subprocess.run([*self.sudo, 'podman', 'cp', pcp_path, f"{self.container_name}:/home/pcpbuild/pcp"], check=True)
 
     def exec(self, command, check=True):
-        command = 'set -eux\n' + command
+        command = self.command_preamble + command
         subprocess.run([*self.sudo, 'podman', 'exec', '-i',
                         '-u', 'pcpbuild', '-w', '/home/pcpbuild',
-                        '-e', 'is_container=true',
                         self.container_name, 'bash', '-'],
                        input=command.encode(), check=check)
 
     def shell(self):
         subprocess.run([*self.sudo, 'podman', 'exec', '-it',
                         '-u', 'pcpbuild', '-w', '/home/pcpbuild',
-                        '-e', 'is_container=true',
-                        self.container_name, 'bash'])
+                        self.container_name, 'bash'], check=False)
 
     def task(self, task_name):
         self.exec(self.platform['tasks'][task_name])
 
-    def getartifacts(self, artifacts_path):
+    def get_artifacts(self, artifact, path):
         subprocess.run([*self.sudo, 'podman', 'cp',
-                        f"{self.container_name}:/home/pcpbuild/artifacts/.", artifacts_path], check=True)
+                        f"{self.container_name}:/home/pcpbuild/artifacts/{artifact}/.", path], check=True)
 
 
 def main():
@@ -137,8 +145,9 @@ def main():
     parser_task = subparsers.add_parser('task')
     parser_task.add_argument('task_name')
 
-    parser_getartifacts = subparsers.add_parser('getartifacts')
-    parser_getartifacts.add_argument('--artifacts_path', default='./artifacts')
+    parser_artifacts = subparsers.add_parser('artifacts')
+    parser_artifacts.add_argument('artifact', choices=['build', 'test'])
+    parser_artifacts.add_argument('--path', default='./artifacts')
 
     parser_exec = subparsers.add_parser('exec')
     parser_exec.add_argument('command', nargs=argparse.REMAINDER)
@@ -162,19 +171,22 @@ def main():
         runner.setup(args.pcp_path)
     elif args.main_command == 'task':
         runner.task(args.task_name)
-    elif args.main_command == 'getartifacts':
-        runner.getartifacts(args.artifacts_path)
+    elif args.main_command == 'artifacts':
+        runner.task(f"copy_{args.artifact}_artifacts")
+        runner.get_artifacts(args.artifact, args.path)
     elif args.main_command == 'exec':
         runner.exec(' '.join(args.command), check=False)
     elif args.main_command == 'shell':
         runner.shell()
     elif args.main_command == 'reproduce':
         print("Preparing a new virtual environment with PCP preinstalled, this will take about 20 minutes...\n")
+
         started = datetime.now()
         runner.setup(args.pcp_path)
-        for task in ['update', 'builddeps', 'build', 'install', 'initqa']:
+        for task in ['update', 'install_build_dependencies', 'build', 'install', 'init_qa']:
             runner.task(task)
         duration_min = (datetime.now() - started).total_seconds() / 60
+
         print(f"\nVirtual environment setup done, took {duration_min:.0f}m.\n")
         print("Please run:\n")
         print("    sudo -u pcpqa -i ./check XXX\n")

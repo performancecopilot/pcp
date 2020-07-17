@@ -504,6 +504,20 @@ _ipv6_localhost()
     return
 }
 
+_domain_name()
+{
+    if which domainname >/dev/null 2>&1
+    then
+	__domainname=`domainname`
+    else
+	__domainname=`hostname -d`
+    fi
+    [ -z "$__domainname" ] && __domainname=localdomain
+    [ "$__domainname" = "(none)" ] && __domainname=localdomain
+    [ "$__domainname" = "(null)" ] && __domainname=localdomain
+    echo "$__domainname"
+}
+
 _machine_id()
 {
     cat /etc/machine-id 2> /dev/null || echo localmachine
@@ -1264,6 +1278,25 @@ _check_series()
 	grep redis_version: |
 	sed -e 's/:/=/g' -e 's/\..*//g'`
     [ $redis_version -ge 5 ] || _notrun "Redis $redis_version too old"
+}
+
+_check_search()
+{
+    which pmsearch >/dev/null 2>&1 || \
+	_notrun "pmsearch command line utility not installed"
+    redis-cli module list | grep -q ^ft$ || \
+	_notrun "redisearch module is not loaded in Redis server"
+}
+
+_find_redis_modules()
+{
+    # scan through a list of known locations for Redis modules
+    if sudo test -d "$PCP_LIB_DIR/redis/modules"
+    then
+	echo "$PCP_LIB_DIR/redis/modules"
+    else
+	echo "$PCP_LIB32_DIR/redis/modules"
+    fi
 }
 
 _check_display()

@@ -15,8 +15,9 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  */
-#include <ctype.h>
 #include "pmapi.h"
+#include <ctype.h>
+#include <sys/stat.h>
 #include "mmv_stats.h"
 #include "mmv_dev.h"
 #include "libpcp.h"

@@ -13,7 +13,8 @@
  *	_dmchildren(), PMNS ops
  *
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+ * Copyright (c) 2017-2020 Ken McDonell.  All Rights Reserved.
+ * Copyright (c) 2020 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -1566,6 +1567,8 @@ registerderived(int derive_locked, const char *name, const char *expr, int isano
     registered.mlist[registered.nmetric-1].pmid = *((pmID *)&pmid);
     registered.mlist[registered.nmetric-1].expr = np;
     registered.mlist[registered.nmetric-1].bind = 0;
+    registered.mlist[registered.nmetric-1].oneline = NULL;
+    registered.mlist[registered.nmetric-1].helptext = NULL;
 
     if (pmDebugOptions.derive) {
 	fprintf(stderr, "pmRegisterDerived: register metric[%d] %s = %s\n", registered.nmetric-1, name, expr);
@@ -1576,6 +1579,68 @@ registerderived(int derive_locked, const char *name, const char *expr, int isano
     if (derive_locked == PM_NOT_LOCKED)
 	PM_UNLOCK(registered.mutex);
     return NULL;
+}
+
+#define ATTR_BAD_METRIC	-1
+#define ATTR_BAD_ATTR	-2
+#define ATTR_DUP_VALUE	-3
+
+/*
+ * set attribute values for derived metrics
+ */
+static int
+setattr(int derive_locked, const char *name, const char *attr, const char *value)
+{
+    int			i;
+    int			sts = 0;
+
+    if (derive_locked == PM_NOT_LOCKED) {
+	PM_INIT_LOCKS();
+	PM_LOCK(registered.mutex);
+    }
+    else {
+	PM_ASSERT_IS_LOCKED(registered.mutex);
+    }
+
+    if (pmDebugOptions.derive && pmDebugOptions.appl0) {
+	fprintf(stderr, "setattr: name=\"%s\" attr=\"%s\" value=\"%s\"\n", name, attr, value);
+    }
+
+    for (i = 0; i < registered.nmetric; i++) {
+	if (strcmp(name, registered.mlist[i].name) == 0) {
+	    /* found it! */
+	    break;
+	}
+    }
+
+    if (i == registered.nmetric) {
+	/* oops, derived metric name not defined (yet) */
+	sts = ATTR_BAD_METRIC;
+	goto done;
+    }
+
+    if (strcmp(attr, "oneline") == 0) {
+	if (registered.mlist[i].oneline == NULL)
+	    registered.mlist[i].oneline = value;
+	else
+	    sts = ATTR_DUP_VALUE;
+    }
+    else if (strcmp(attr, "helptext") == 0) {
+	if (registered.mlist[i].helptext == NULL)
+	    registered.mlist[i].helptext = value;
+	else
+	    sts = ATTR_DUP_VALUE;
+    }
+    else {
+	/* not one of the attributes we recognize */
+	sts = ATTR_BAD_ATTR;
+	goto done;
+    }
+
+done:
+    if (derive_locked == PM_NOT_LOCKED)
+	PM_UNLOCK(registered.mutex);
+    return sts;
 }
 
 /* The original, and still the best. */
@@ -1670,6 +1735,7 @@ PM_FAULT_RETURN(PM_FAULT_PMAPI);
 int
 pmLoadDerivedConfig(const char *fname)
 {
+
     int		sts;
 
     PM_INIT_LOCKS();
@@ -1681,6 +1747,16 @@ pmLoadDerivedConfig(const char *fname)
     return sts;
 }
 
+/*
+ * process a derived metric configuration file
+ * - skip comments (leading #) and blank lines
+ * - split each line into either
+ *   <name> = <expr>
+ *   or
+ *   <name>(<attr>) = <string>
+ * - remove white space around name and (optionally) attr
+ * - build <string> which includes \x handling and multi-line <string>s
+ */  
 static int
 __dminit_configfile(const char *fname)
 {
@@ -1690,7 +1766,9 @@ __dminit_configfile(const char *fname)
     char	*p;
     int		c;
     int		sts = 0;
-    int		eq = -1;
+    int		eq = -1;	/* offset to =, start of <expr> or <value> */
+    int		lp = -1;	/* offset to (, start of <attr> */
+    int		rp = -1;	/* offset to ), end of <attr> */
     int		lineno = 1;
 
     if (pmDebugOptions.derive) {
@@ -1717,12 +1795,29 @@ __dminit_configfile(const char *fname)
 	    p = &buf[buflen];
 	    buflen *= 2;
 	}
-	if (c == '=' && eq == -1) {
-	    /*
-	     * mark first = in line ... metric name to the left and
-	     * expression to the right
-	     */
-	    eq = p - buf;
+	if (eq == -1) {
+	    /* no = yet ... */
+	    if (c == '=') {
+		/*
+		 * mark first = in line ... <name> or <name>(<attr>) to the
+		 * left and <expr> or <value> to the right
+		 */
+		eq = p - buf;
+	    }
+	    else if (c == '(' && lp == -1) {
+		/*
+		 * mark first ( in line before = ... <name> to the
+		 * left and <attr> to the right
+		 */
+		lp = p - buf;
+	    }
+	    else if (c == ')' && rp == -1) {
+		/*
+		 * mark first ) in line before = ... <attr> to the
+		 * left and = <value> to the right
+		 */
+		rp = p - buf;
+	    }
 	}
 	if (c == '\n') {
 	    if (p == buf || buf[0] == '#') {
@@ -1731,63 +1826,261 @@ __dminit_configfile(const char *fname)
 	    }
 	    *p = '\0';
 	    if (eq != -1) {
-		char	*np;	/* copy of name */
-		char	*ep;	/* start of expression */
+		char	*dupbuf;	/* copy of <name> */
+		char	*np;		/* start of <name> or <name>(<attr>) */
 		char	*q;
 		char	*errp;
 		buf[eq] = '\0';
-		if ((np = strdup(buf)) == NULL) {
+		if ((dupbuf = strdup(buf)) == NULL) {
 		    /* registered.mutex not locked in this case */
 		    pmNoMem("pmLoadDerivedConfig: dupname", strlen(buf), PM_FATAL_ERR);
 		    /*NOTREACHED*/
 		}
-		/* trim white space from tail of metric name */
-		q = &np[eq-1];
-		while (q >= np && isspace((int)*q))
+		buf[eq] = '=';
+		/* trim white space from tail of <name> */
+		if (lp != -1) {
+		    /* <name> ends at or before ( */
+		    q = &dupbuf[lp];
 		    *q-- = '\0';
-		/* trim white space from head of metric name */
-		q = np;
-		while (*q && isspace((int)*q))
-		    q++;
-		if (*q == '\0') {
-		    buf[eq] = '=';
+		}
+		else {
+		    /* <name> ends at or before = */
+		    q = &dupbuf[eq-1];
+		}
+		while (q >= dupbuf && isspace((int)*q))
+		    *q-- = '\0';
+		/* trim white space from head of <name> */
+		np = dupbuf;
+		while (*np && isspace((int)*np))
+		    np++;
+		if (*np == '\0') {
 		    pmprintf("[%s:%d] Error: pmLoadDerivedConfig: derived metric name missing\n%s\n", fname, lineno, buf);
 		    pmflush();
-		    free(np);
+		    free(dupbuf);
 		    goto next_line;
 		}
-		if (checkname(q) < 0) {
-		    pmprintf("[%s:%d] Error: pmLoadDerivedConfig: illegal derived metric name (%s)\n", fname, lineno, q);
+		if (checkname(np) < 0) {
+		    pmprintf("[%s:%d] Error: pmLoadDerivedConfig: illegal derived metric name (%s)\n", fname, lineno, np);
 		    pmflush();
-		    free(np);
+		    free(dupbuf);
 		    goto next_line;
 		}
-		ep = &buf[eq+1];
-		while (*ep != '\0' && isspace((int)*ep))
-		    ep++;
-		if (*ep == '\0') {
-		    buf[eq] = '=';
-		    pmprintf("[%s:%d] Error: pmLoadDerivedConfig: expression missing\n%s\n", fname, lineno, buf);
+		if (lp >= 0 && rp == -1) {
+		    pmprintf("[%s:%d] Error: pmLoadDerivedConfig: missing ')' after attribute\n%s\n", fname, lineno, buf);
 		    pmflush();
-		    free(np);
+		    free(dupbuf);
 		    goto next_line;
 		}
-		errp = registerderived(PM_LOCKED, q, ep, 0);
-		if (errp != NULL) {
-		    pmprintf("[%s:%d] Error: pmRegisterDerived(%s, ...) syntax error\n", fname, lineno, q);
-		    pmprintf("%s\n", &buf[eq+1]);
-		    for (q = &buf[eq+1]; *q; q++) {
-			if (q == errp) *q = '^';
-			else if (!isspace((int)*q)) *q = ' ';
+		if (rp >= 0 && lp == -1) {
+		    pmprintf("[%s:%d] Error: pmLoadDerivedConfig: missing '(' before attribute\n%s\n", fname, lineno, buf);
+		    pmflush();
+		    free(dupbuf);
+		    goto next_line;
+		}
+		if (lp == -1 && rp == -1) {
+		    /* <name> = ... */
+		    char	*ep;	/* start of <expr> */
+		    ep = &buf[eq+1];
+		    while (*ep != '\0' && isspace((int)*ep))
+			ep++;
+		    if (*ep == '\0') {
+			pmprintf("[%s:%d] Error: pmLoadDerivedConfig: expression missing\n%s\n", fname, lineno, buf);
+			pmflush();
+			free(dupbuf);
+			goto next_line;
 		    }
-		    pmprintf("%s\n", &buf[eq+1]);
-		    q = pmDerivedErrStr();
-		    if (q != NULL) pmprintf("%s\n", q);
-		    pmflush();
+		    errp = registerderived(PM_LOCKED, np, ep, 0);
+		    if (errp != NULL) {
+			pmprintf("[%s:%d] Error: pmRegisterDerived(%s, ...) syntax error\n", fname, lineno, np);
+			pmprintf("%s\n", &buf[eq+1]);
+			for (q = &buf[eq+1]; *q; q++) {
+			    if (q == errp) *q = '^';
+			    else if (!isspace((int)*q)) *q = ' ';
+			}
+			pmprintf("%s\n", &buf[eq+1]);
+			q = pmDerivedErrStr();
+			if (q != NULL) pmprintf("%s\n", q);
+			pmflush();
+		    }
+		    else
+			sts++;
 		}
-		else
-		    sts++;
-		free(np);
+		else {
+		    /* <name>(<attr>) = ... */
+		    char	*ap;		/* start of <attr> */
+		    char	*vp;		/* start of <value> */
+		    char	*value;		/* accumulated <value> */
+		    int		vlen = 0;	/* length of value */
+		    char	delim = '\0';	/* string delimiter, if any */
+		    int		lsts;
+		    /* trim white space from tail of <attr> */
+		    q = &dupbuf[rp];
+		    *q-- = '\0';
+		    while (q >= &dupbuf[lp] && isspace((int)*q))
+			*q-- = '\0';
+		    /* trim white space from head of <attr> */
+		    ap = &dupbuf[lp+1];
+		    while (*ap && isspace((int)*ap))
+			ap++;
+		    if (*ap == '\0') {
+			pmprintf("[%s:%d] Error: pmLoadDerivedConfig: attribute name missing\n%s\n", fname, lineno, buf);
+			pmflush();
+			free(dupbuf);
+			goto next_line;
+		    }
+		    /* trim white space from head of <value> */
+		    vp = &buf[eq+1];
+		    while (*vp != '\0' && isspace((int)*vp))
+			vp++;
+		    if (*vp == '"' || *vp == '\'') {
+			/* string delimiter found */
+			delim = *vp;
+			vp++;
+		    }
+		    if (*vp == '\0') {
+			pmprintf("[%s:%d] Error: pmLoadDerivedConfig: attribute value missing\n%s\n", fname, lineno, buf);
+			pmflush();
+			free(dupbuf);
+			goto next_line;
+		    }
+		    vlen = strlen(vp);
+		    if ((value = strdup(vp)) == NULL) {
+			/* registered.mutex not locked in this case */
+			pmNoMem("pmLoadDerivedConfig: value", vlen, PM_FATAL_ERR);
+			/*NOTREACHED*/
+		    }
+		    if (delim == 0) {
+			/* no string delimiter, so <value> is complete */
+			;
+		    }
+		    else {
+			/*
+			 * process the <value>, handling any \x escape
+			 * sequences ... may need more input for multi-line
+			 * <value>s
+			 */
+			char	*q = value;
+			int	esc = 0;
+			int	xtralines = 0;
+			for ( ; ; ) {
+			    if (*vp)
+				c = *vp++;
+			    else if (xtralines == 0)
+				c = '\n';
+			    else {
+				c = fgetc(fp);
+				if (c == EOF) {
+				    /* string value not terminated */
+				    break;
+				}
+			    }
+			    if (c == '\n')
+				xtralines++;
+			    if (q >= &value[vlen]) {
+				/*
+				 * out the end of the value buffer ... use
+				 * a "doubling" algorithm
+				 */
+				char	*tmp_value;
+
+				tmp_value = realloc(value, 2*vlen);
+				if (tmp_value == NULL) {
+				    /* registered.mutex not locked in this case */
+				    pmNoMem("pmLoadDerivedConfig: expand value", 2*vlen, PM_FATAL_ERR);
+				    /*NOTREACHED*/
+				}
+				q = &tmp_value[q - value];
+				value = tmp_value;
+				vlen *= 2;
+			    }
+			    if (esc) {
+				esc = 0;
+				/*
+				 * \ at the end of the line is a special case,
+				 * ... don't emit the newline (so treat as
+				 * "continuation"
+				 */
+				if (c != '\n')
+				    *q++ = c;
+				continue;
+			    }
+			    if (c == '\\') {
+				esc = 1;
+				continue;
+			    }
+			    if (c == delim) {
+				*q++ = '\0';
+				break;
+			    }
+			    *q++ = c;
+			}
+			if (xtralines > 1)
+			    lineno += xtralines - 1;
+			if (c == EOF) {
+			    pmprintf("[%s:%d] Error: pmLoadDerivedConfig: missing termination (%c) for value\n", fname, lineno, delim);
+			    pmflush();
+			    free(value);
+			    vp = NULL;
+			}
+			else {
+			    /*
+			     * expect no text on same line after string
+			     * terminator
+			     */
+			    if (*vp) {
+				while (*vp && isspace((int)*vp))
+				    vp++;
+				if (*vp) {
+				    pmprintf("[%s:%d] Warning: pmLoadDerivedConfig: extra text (%s) after attribute value will be ignored\n", fname, lineno, vp);
+				    pmflush();
+				}
+			    }
+			    else if (xtralines == 0) {
+				/* all ok, <value> is end of one line of input */
+				;
+			    }
+			    else {
+				c = fgetc(fp);
+				while (c != EOF && c != '\n') {
+				    c = fgetc(fp);
+				    if (!isspace(c))
+					break;
+				}
+				if (c != EOF && c != '\n') {
+				    pmprintf("[%s:%d] Warning: pmLoadDerivedConfig: extra text (%c", fname, lineno, c);
+				    while ((c = fgetc(fp)) != EOF && c != '\n')
+					pmprintf("%c", c);
+				    pmprintf(") after attribute value will be ignored\n");
+				    pmflush();
+				}
+			    }
+			    vp = value;
+			}
+		    }
+
+		    if (vp != NULL) {
+			/*
+			 * value[] is guaranteed to be a malloc'd array at
+			 * this point ... settattr() will permanently hold
+			 * a pointer to this memory on succes (so nothing to
+			 * do there), but we need to free on error
+			 */
+			if ((lsts = setattr(PM_LOCKED, np, ap, value)) < 0) {
+			    free(value);
+			    if (lsts == ATTR_BAD_METRIC)
+				pmprintf("[%s:%d] Error: pmLoadDerivedConfig: cannot set attribute, derived metric (%s) not defined\n", fname, lineno, np);
+			    else if (lsts == ATTR_BAD_ATTR)
+				pmprintf("[%s:%d] Error: pmLoadDerivedConfig: attribute (%s) is unknown for metric (%s)\n", fname, lineno, ap, np);
+			    else if (lsts == ATTR_DUP_VALUE)
+				pmprintf("[%s:%d] Error: pmLoadDerivedConfig: duplicate value for attribute (%s) of metric (%s)\n", fname, lineno, ap, np);
+			    else
+				pmprintf("[%s:%d] Error: pmLoadDerivedConfig: cannot set attribute, reason unknown\n", fname, lineno);
+			    pmprintf("%s\n", buf);
+			    pmflush();
+			}
+		    }
+		}
+		free(dupbuf);
 	    }
 	    else {
 		/*
@@ -1799,7 +2092,7 @@ __dminit_configfile(const char *fname)
 next_line:
 	    lineno++;
 	    p = buf;
-	    eq = -1;
+	    eq = lp = rp = -1;
 	}
 	else
 	    *p++ = c;
@@ -2222,6 +2515,8 @@ __dmopencontext(__pmContext *ctxp)
 	cp->mlist[i].anon = registered.mlist[i].anon;
 	cp->mlist[i].expr = NULL;
 	cp->mlist[i].bind = 0;
+	cp->mlist[i].oneline = registered.mlist[i].oneline;
+	cp->mlist[i].helptext = registered.mlist[i].helptext;
 	assert(registered.mlist[i].expr != NULL);
     }
     PM_UNLOCK(registered.mutex);
@@ -2271,6 +2566,42 @@ __dmdesc(__pmContext *ctxp, int derive_locked, pmID pmid, pmDesc *desc)
 	    return 0;
 	}
     }
+    return PM_ERR_PMID;
+}
+
+int
+__dmhelptext(pmID pmid, int level, char **buffer)
+{
+    int		i;
+    int		sts;
+    const char	*text;
+
+    PM_LOCK(registered.mutex);
+    __dminit();
+
+    for (i = 0; i < registered.nmetric; i++) {
+	if (pmid == registered.mlist[i].pmid) {
+	    sts = 0;
+	    text = NULL;
+	    if (level & PM_TEXT_ONELINE) {
+		if ((text = registered.mlist[i].oneline) == NULL)
+		    sts = PM_ERR_TEXT;
+	    } else if (level & PM_TEXT_HELP) {
+		text = registered.mlist[i].helptext;
+		if (text == NULL && !(level & PM_TEXT_DIRECT))
+		    text = registered.mlist[i].oneline;
+		if (text == NULL)
+		    sts = PM_ERR_TEXT;
+	    }
+	    if (text && (*buffer = strdup(text)) == NULL) {
+		pmNoMem("__dmhelptext", strlen(text) + 1, PM_RECOV_ERR);
+		sts = -oserror();
+	    }
+	    PM_UNLOCK(registered.mutex);
+	    return sts;
+	}
+    }
+    PM_UNLOCK(registered.mutex);
     return PM_ERR_PMID;
 }
 

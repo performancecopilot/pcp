@@ -26,7 +26,7 @@ unset PCP_STDERR
 
 # constant setup
 #
-tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
+tmp=`mktemp -d "$PCP_TMPFILE_DIR/pmlogger_daily.XXXXXXXXX"` || exit 1
 status=0
 echo >$tmp/lock
 prog=`basename $0`
@@ -48,9 +48,100 @@ _cleanup()
     lockfile=`cat $tmp/lock 2>/dev/null`
     rm -f "$lockfile" "$PCP_RUN_DIR/pmlogger_daily.pid"
     rm -rf $tmp
-    $VERY_VERBOSE && echo "End: `date '+%F %T.%N'`"
+    $VERY_VERBOSE && echo >&2 "End: `date '+%F %T.%N'`"
 }
 trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# pretty format a find-filter timespec
+#
+_timespec()
+{
+    echo "$1" | sed -e 's/:/ /g' \
+    | while read _d _h _m
+    do
+	case "$_d:$_h:$_m"
+	in
+	    0::)
+		echo "0 days"
+		;;
+	    0::1)
+		echo "1 minute"
+		;;
+	    0::*)
+		echo "$_m minutes"
+		;;
+	    0:1:)
+		echo "1 hour"
+		;;
+	    0:*:)
+		echo "$_h hours"
+		;;
+	    0:1:1)
+		echo "1 hour and 1 minute"
+		;;
+	    0:1:*)
+		echo "1 hour and $_m minutes"
+		;;
+	    0:*:*)
+		echo "$_h hours and $_m minutes"
+		;;
+	    1::)
+		echo "1 day"
+		;;
+	    1::1)
+		echo "1 day and 1 minute"
+		;;
+	    1::*)
+		echo "1 day and $_m minutes"
+		;;
+	    1:1:)
+		echo "1 day and 1 hour"
+		;;
+	    1:*:)
+		echo "1 day and $_h hours"
+		;;
+	    1:1:1)
+		echo "1 day, 1 hour and 1 minute"
+		;;
+	    1:1:*)
+		echo "1 day, 1 hour and $_m minutes"
+		;;
+	    1:*:1)
+		echo "1 day, $_h hours and 1 minute"
+		;;
+	    1:*:*)
+		echo "1 day, $_h hours and $_m minutes"
+		;;
+	    *::)
+		echo "$_d days"
+		;;
+	    *::1)
+		echo "$_d days and 1 minute"
+		;;
+	    *::*)
+		echo "$_d days and $_m minutes"
+		;;
+	    *:1:)
+		echo "$_d days and 1 hour"
+		;;
+	    *:*:)
+		echo "$_d days and $_h hours"
+		;;
+	    *:1:1)
+		echo "$_d days, 1 hour and 1 minute"
+		;;
+	    *:1:*)
+		echo "$_d days, 1 hour and $_m minutes"
+		;;
+	    *:*:1)
+		echo "$_d days, $_h hours and 1 minute"
+		;;
+	    *:*:*)
+		echo "$_d days, $_h hours and $_m minutes"
+		;;
+	esac
+    done
+}
 
 if is_chkconfig_on pmlogger
 then
@@ -98,10 +189,10 @@ else
 fi
 if [ -n "$PCP_COMPRESSAFTER" ]
 then
-    check=`echo "$PCP_COMPRESSAFTER" | sed -e 's/[0-9]//g'`
-    if [ ! -z "$check" -a X"$check" != Xforever -a X"$check" != Xnever ]
+    $PCP_BINADM_DIR/find-filter </dev/null >/dev/null 2>&1 mtime "+$PCP_COMPRESSAFTER"
+    if [ $? != 0 -a X"$PCP_COMPRESSAFTER" != Xforever -a X"$PCP_COMPRESSAFTER" != Xnever ]
     then
-	echo "Error: \$PCP_COMPRESSAFTER value ($PCP_COMPRESSAFTER) must be numeric, \"forever\" or \"never\""
+	echo "Error: \$PCP_COMPRESSAFTER value ($PCP_COMPRESSAFTER) must be number, time, \"forever\" or \"never\""
 	status=1
 	exit
     fi
@@ -149,7 +240,7 @@ cat >> $tmp/usage <<EOF
 Options:
   -c=FILE,--control=FILE  pmlogger control file
   -f,--force              force actions (intended for QA, not production)
-  -k=N,--discard=N        remove archives after N days
+  -k=TIME,--discard=TIME  remove archives after TIME (format DD[:HH[:MM]])
   -K                      compress, but no other changes
   -l=FILE,--logfile=FILE  send important diagnostic messages to FILE
   -m=ADDRs,--mail=ADDRs   send daily NOTICES entries to email addresses
@@ -162,7 +253,7 @@ Options:
   -s=SIZE,--rotate=SIZE   rotate NOTICES file after reaching SIZE bytes
   -t=WANT                 implies -VV, keep verbose output trace for WANT days
   -V,--verbose            verbose output (multiple times for very verbose)
-  -x=N,--compress-after=N  compress archive data files after N days
+  -x=TIME,--compress-after=TIME  compress archive data files after TIME (format DD[:HH[:MM]])
   -X=PROGRAM,--compressor=PROGRAM  use PROGRAM for archive data file compression
   -Y=REGEX,--regex=REGEX  egrep filter when compressing files ["$COMPRESSREGEX_DEFAULT"]
   --help
@@ -207,10 +298,10 @@ do
 		;;
 	-k)	CULLAFTER="$2"
 		shift
-		check=`echo "$CULLAFTER" | sed -e 's/[0-9]//g'`
-		if [ ! -z "$check" -a X"$check" != Xforever -a X"$check" != Xnever ]
+		$PCP_BINADM_DIR/find-filter </dev/null >/dev/null 2>&1 mtime "+$CULLAFTER"
+		if [ $? != 0 -a X"$CULLAFTER" != Xforever -a X"$CULLAFTER" != Xnever ]
 		then
-		    echo "Error: -k value ($CULLAFTER) must be numeric, \"forever\" or \"never\""
+		    echo "Error: -k value ($CULLAFTER) must be number, time, \"forever\" or \"never\""
 		    status=1
 		    exit
 		fi
@@ -309,10 +400,10 @@ do
 		    COMPRESSAFTER_CMDLINE=""
 		    continue
 		fi
-		check=`echo "$COMPRESSAFTER_CMDLINE" | sed -e 's/[0-9]//g'`
-		if [ ! -z "$check" -a X"$check" != Xforever -a X"$check" != Xnever ]
+		$PCP_BINADM_DIR/find-filter </dev/null >/dev/null 2>&1 mtime "+$COMPRESSAFTER_CMDLINE"
+		if [ $? != 0 -a X"$COMPRESSAFTER_CMDLINE" != Xforever -a X"$COMPRESSAFTER_CMDLINE" != Xnever ]
 		then
-		    echo "Error: -x value ($COMPRESSAFTER_CMDLINE) must be numeric, \"forever\" or \"never\""
+		    echo "Error: -x value ($COMPRESSAFTER_CMDLINE) must be number, time, \"forever\" or \"never\""
 		    status=1
 		    exit
 		fi
@@ -436,11 +527,11 @@ fi
 
 if $VERY_VERBOSE
 then
-    echo "Start: `date '+%F %T.%N'`"
+    echo >&2 "Start: `date '+%F %T.%N'`"
     if which pstree >/dev/null 2>&1
     then
-	echo "Called from:"
-	pstree -spa $$
+	echo >&2 "Called from:"
+	pstree >&2 -spa $$
     fi
 fi
 
@@ -786,7 +877,7 @@ _parse_control()
 	$controlfile | \
     while read host primary socks dir args
     do
-	# start in one place for each iteration (beware relative paths)
+	# start in one place for each iteration (beware of relative paths)
 	cd "$here"
 	line=`expr $line + 1`
 
@@ -794,16 +885,22 @@ _parse_control()
 	then
 	    case "$host"
 	    in
+		\#!#*)	# stopped by pmlogctl ... we'll be checking this one
+			echo >&2 "[$filename:$line] host=\"$host\" primary=\"$primary\" socks=\"$socks\" dir=\"$dir\" args=\"$args\""
+			;;
 		\#*|'')	# comment or empty
 			;;
 		*)
-			echo "[$filename:$line] host=\"$host\" primary=\"$primary\" socks=\"$socks\" dir=\"$dir\" args=\"$args\""
+			echo >&2 "[$filename:$line] host=\"$host\" primary=\"$primary\" socks=\"$socks\" dir=\"$dir\" args=\"$args\""
 			;;
 	    esac
 	fi
 
 	case "$host"
 	in
+	    \#!#*)	# stopped by pmlogctl ... need to check this one
+		host=`echo "$host" | sed -e 's/^#!#//'`
+		;;
 	    \#*|'')	# comment or empty
 		continue
 		;;
@@ -852,10 +949,11 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 
 			'export PCP_COMPRESSAFTER;'*)
 			    old_value="$PCP_COMPRESSAFTER"
-			    check=`echo "$cmd" | sed -e 's/.*=//' -e 's/[0-9]//g' -e 's/  *$//'`
-			    if [ ! -z "$check" -a X"$check" != Xforever -a X"$check" != Xnever ]
+			    check=`echo "$cmd" | sed -e 's/.*=//' -e 's/  *$//'`
+			    $PCP_BINADM_DIR/find-filter </dev/null >/dev/null 2>&1 mtime "+$check"
+			    if [ $? != 0 -a -n "$check" -a X"$check" != Xforever -a X"$check" != Xnever ]
 			    then
-				_error "\$PCP_COMPRESSAFTER value ($check) must be numeric, \"forever\" or \"never\""
+				_error "\$PCP_COMPRESSAFTER value ($check) must be number, time, \"forever\" or \"never\""
 			    else
 				$SHOWME && echo "+ $cmd"
 				echo eval $cmd >>$tmp/cmd
@@ -932,11 +1030,23 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	dir=`echo $dir | sed -e "s;LOCALHOSTNAME;$dirhostname;"`
 	[ $primary = y -o "x$host" = xLOCALHOSTNAME ] && host=local:
 
+	if $VERBOSE
+	then
+	    echo
+	    if $COMPRESSONLY
+	    then
+		echo "=== compressing PCP archives for host $host ==="
+	    else
+		echo "=== daily maintenance of PCP archives for host $host ==="
+	    fi
+	    echo
+	fi
+
 	if $VERY_VERBOSE
 	then
 	    pflag=''
 	    [ $primary = y ] && pflag=' -P'
-	    echo "Check pmlogger$pflag -h $host ... in $dir ..."
+	    echo >&2 "Check pmlogger$pflag -h $host ... in $dir ..."
 	fi
 
 	# make sure output directory hierarchy exists and $PCP_USER
@@ -958,18 +1068,6 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	cd $dir
 	dir=`$PWDCMND`
 	$SHOWME && echo "+ cd $dir"
-
-	if $VERBOSE
-	then
-	    echo
-	    if $COMPRESSONLY
-	    then
-		echo "=== compressing PCP archives for host $host ==="
-	    else
-		echo "=== daily maintenance of PCP archives for host $host ==="
-	    fi
-	    echo
-	fi
 
 	if $SHOWME
 	then
@@ -1010,7 +1108,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    rewrite_args="$rewrite"
 	    if $VERBOSE
 	    then
-		echo "$prog: Info: pmlogrewrite all archives in $dir"
+		echo "Info: pmlogrewrite all archives in $dir"
 		rewrite_args="$rewrite_args -V"
 	    fi
 	    $VERY_VERBOSE && rewrite_args="$rewrite_args -V"
@@ -1034,22 +1132,22 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    then
 		_host=`sed -n 2p <"$PCP_TMP_DIR/pmlogger/primary"`
 		_arch=`sed -n 3p <"$PCP_TMP_DIR/pmlogger/primary"`
-		$VERY_VERBOSE && echo "... try $PCP_TMP_DIR/pmlogger/primary: host=$_host arch=$_arch"
+		$VERY_VERBOSE && echo >&2 "... try $PCP_TMP_DIR/pmlogger/primary: host=$_host arch=$_arch"
 		pid=`_get_primary_logger_pid`
 	    fi
 	    if [ -z "$pid" ]
 	    then
 		if $VERY_VERBOSE
 		then
-		    echo "primary pmlogger process PID not found"
-		    ls -l "$PCP_TMP_DIR/pmlogger"
-		    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mlogger'
+		    echo >&2 "primary pmlogger process PID not found"
+		    ls >&2 -l "$PCP_TMP_DIR/pmlogger"
+		    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep >&2 '[P]ID|[p]mlogger'
 		fi
 	    elif _get_pids_by_name pmlogger | grep "^$pid\$" >/dev/null
 	    then
-		$VERY_VERBOSE && echo "primary pmlogger process $pid identified, OK"
+		$VERY_VERBOSE && echo >&2 "primary pmlogger process $pid identified, OK"
 	    else
-		$VERY_VERBOSE && echo "primary pmlogger process $pid not running"
+		$VERY_VERBOSE && echo >&2 "primary pmlogger process $pid not running"
 		pid=''
 	    fi
 	else
@@ -1060,9 +1158,9 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    then
 		if [ -z "$pid" ]
 		then
-		    $VERY_VERBOSE && echo "No non-primary pmlogger process(es) found"
+		    $VERY_VERBOSE && echo >&2 "No non-primary pmlogger process(es) found"
 		else
-		    $VERY_VERBOSE && echo "non-primary pmlogger process(es) $pid identified, OK"
+		    $VERY_VERBOSE && echo >&2 "non-primary pmlogger process(es) $pid identified, OK"
 		fi
 	    fi
 	fi
@@ -1099,27 +1197,57 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    #
 	    if [ X"$CULLAFTER" != Xforever -a X"$CULLAFTER" != Xnever ]
 	    then
+		# *BSD semantics for find(1) -mtime +N are "rounded up to
+		# the next full 24-hour period", compared to GNU/Linux
+		# semantics "any fractional part is ignored".  So, these are
+		# almost always off by one day in terms of the files selected.
+		# 
+		# For GNU/Linux reduce the number of days by one (opens up
+		# the window).
+		#
+		# The real filtering is done by find-filter, we just want to
+		# be sure that we include all of the candidate files in the
+		# find(1) part.
+		#
+		CULLDAYS=`echo $CULLAFTER | sed -e 's/:.*//'`
 		if [ "$PCP_PLATFORM" = freebsd -o "$PCP_PLATFORM" = netbsd -o "$PCP_PLATFORM" = openbsd ]
 		then
-		    # *BSD semantics for find(1) -mtime +N are "rounded up to
-		    # the next full 24-hour period", compared to GNU/Linux
-		    # semantics "any fractional part is ignored".  So, these are
-		    # almost always off by one day in terms of the files selected.
-		    # For consistency, try to match the GNU/Linux semantics by
-		    # using one MORE day.
-		    #
-		    mtime=`expr $CULLAFTER + 1`
+		    :
 		else
-		    mtime=$CULLAFTER
+		    # decrement, unless already zero
+		    #
+		    [ "$CULLDAYS" -gt 0 ] && CULLDAYS=`expr "$CULLDAYS" - 1`
 		fi
-		find . -type f -mtime +$mtime \
+		if [ "$CULLDAYS" -gt 0 ]
+		then
+		    find . -type f -mtime +$CULLDAYS
+		else
+		    find . -type f
+		fi \
+		| $PCP_BINADM_DIR/find-filter mtime +$CULLAFTER \
 		| _filter_filename \
 		| sort >$tmp/list
+		if [ -n "$pid" ]
+		then
+		    # pmlogger is running, make sure we don't cull the current
+		    # archive
+		    #
+		    if [ -f "$PCP_TMP_DIR/pmlogger/$pid" ]
+		    then
+			current_base=`sed -n -e '3s;.*/;;p' <"$PCP_TMP_DIR/pmlogger/$pid"`
+			if [ -n "$current_base" ]
+			then
+			    $VERY_VERBOSE && echo >&2 "[$filename:$line] skip cull for current $current_base archive"
+			    sed -e "/^$current_base/d" <$tmp/list >$tmp/tmp
+			    mv $tmp/tmp $tmp/list
+			fi
+		    fi
+		fi
 		if [ -s $tmp/list ]
 		then
 		    if $VERBOSE
 		    then
-			echo "Archive files older than $CULLAFTER days being removed ..."
+			echo "Archive files older than `_timespec $CULLAFTER` being removed ..."
 			fmt <$tmp/list | sed -e 's/^/    /'
 		    fi
 		    if $SHOWME
@@ -1129,7 +1257,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 			cat $tmp/list | xargs rm -f
 		    fi
 		else
-		    $VERY_VERBOSE && echo "$prog: Warning: no archive files found to cull"
+		    $VERY_VERBOSE && echo >&2 "Warning: no archive files found to cull"
 		fi
 	    fi
 
@@ -1198,10 +1326,15 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
 	    else
 		if [ ! -s $tmp/list ]
 		then
-		    if $VERBOSE
+		    if $SHOWME
 		    then
-			echo "$prog: Warning: no archives found to merge"
-			$VERY_VERBOSE && ls -l
+			:
+		    else
+			if $VERBOSE
+			then
+			    echo "Warning: no archives found to merge"
+			    $VERY_VERBOSE && ls >&2 -l
+			fi
 		    fi
 		else
 		    cat $tmp/list \
@@ -1212,7 +1345,7 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
 			    _skipping "output archive ($outfile) already exists"
 			    continue
 			else
-			    $VERY_VERBOSE && echo "Rewriting input archives using $rewrite"
+			    $VERY_VERBOSE && echo >&2 "Rewriting input archives using $rewrite"
 			    if $RFLAG
 			    then
 				:
@@ -1238,12 +1371,12 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
 			    then
 				for arch in $inlist
 				do
-				    echo "Input archive $arch ..."
+				    echo >&2 "Input archive $arch ..."
 				    if $SHOWME
 				    then
 					echo "+ pmdumplog -L $arch"
 				    else
-					pmdumplog -L $arch
+					pmdumplog >&2 -L $arch
 				    fi
 				done
 			    fi
@@ -1259,8 +1392,8 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
 				then
 				    if $VERY_VERBOSE
 				    then
-					echo "Renamed output archive $outfile ..."
-					pmdumplog -L $outfile
+					echo >&2 "Renamed output archive $outfile ..."
+					pmdumplog >&2 -L $outfile
 				    fi
 				else
 				    _error "problems executing pmlogmv for host \"$host\""
@@ -1275,8 +1408,8 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
 				then
 				    if $VERY_VERBOSE
 				    then
-					echo "Merged output archive $outfile ..."
-					pmdumplog -L $outfile
+					echo >&2 "Merged output archive $outfile ..."
+					pmdumplog >&2 -L $outfile
 				    fi
 				else
 				    _error "problems executing pmlogger_merge for host \"$host\""
@@ -1294,7 +1427,7 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
 	COMPRESSAFTER="$PCP_COMPRESSAFTER"
 	[ -z "$COMPRESSAFTER" ] && COMPRESSAFTER="$COMPRESSAFTER_CMDLINE"
 	[ -z "$COMPRESSAFTER" ] && COMPRESSAFTER="$COMPRESSAFTER_DEFAULT"
-	$VERY_VERBOSE && echo "$prog: COMPRESSAFTER=$COMPRESSAFTER"
+	$VERY_VERBOSE && echo >&2 "COMPRESSAFTER=$COMPRESSAFTER"
 	if [ -n "$COMPRESSAFTER" -a X"$COMPRESSAFTER" != Xforever -a X"$COMPRESSAFTER" != Xnever ]
 	then
 	    # may have some compression to do ...
@@ -1384,7 +1517,7 @@ p
 			# either the current index or the current metadata
 			# files
 			#
-			$VERY_VERBOSE && echo "[$filename:$line] skip current vol $current_base.$current_vol"
+			$VERY_VERBOSE && echo >&2 "[$filename:$line] skip compress for current $current_base.$current_vol volume"
 			rm -f $tmp/out
 			touch $tmp/out
 			# need to handle both the year 2000 and the old name
@@ -1438,7 +1571,7 @@ p
 			    cat $tmp/list | xargs $COMPRESS
 			fi
 		    else
-			$VERY_VERBOSE && echo "$prog: Warning: no archive files found to compress"
+			$VERY_VERBOSE && echo >&2 "Warning: no archive files found to compress"
 		    fi
 		elif [ -z "$COMPRESSAFTER" -o X"$COMPRESSAFTER" = Xforever -o X"$COMPRESSAFTER" = Xnever ]
 		then
@@ -1481,7 +1614,7 @@ p
 		    cat $tmp/list | xargs rm -f
 		fi
 	    else
-		$VERY_VERBOSE && echo "$prog: Warning: no trace files found to cull"
+		$VERY_VERBOSE && echo >&2 "Warning: no trace files found to cull"
 	    fi
 	fi
 
@@ -1497,7 +1630,7 @@ p
 if [ -f $PCP_LOG_DIR/pmlogger/.NeedRewrite ]
 then
     REWRITEALL=true
-    $VERBOSE && echo "$prog: Info: found .NeedRewrite => rewrite all archives"
+    $VERBOSE && echo "Info: found .NeedRewrite => rewrite all archives"
 fi
 
 _parse_control $CONTROL

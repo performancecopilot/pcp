@@ -1,0 +1,20 @@
+QA output created by 1821
+=== read from file ===
+=== verify archive ===
+
+paste.value
+    labels {"hostname":"HOSTNAME"}
+    value "123"
+=== read from stdin ===
+=== verify archive ===
+
+paste.value
+    labels {"hostname":"HOSTNAME"}
+    value "456"
+=== command line value and labels ===
+=== verify archive ===
+
+paste.metric
+    labels {"key1":"val1","key2":"val2"}
+    value "a cmd line value"
+=== removing temp files ===

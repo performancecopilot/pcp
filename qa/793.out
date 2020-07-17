@@ -24,15 +24,15 @@ pmlogger_daily
 
 === daily maintenance of PCP archives for host LOCALHOST ===
 
-PMLOGGER.DAILY: Warning: no archives found to merge
+Warning: no archives found to merge
 
 === daily maintenance of PCP archives for host LOCALHOST ===
 
-PMLOGGER.DAILY: Warning: no archives found to merge
+Warning: no archives found to merge
 
 === daily maintenance of PCP archives for host LOCALHOST ===
 
-PMLOGGER.DAILY: Warning: no archives found to merge
+Warning: no archives found to merge
 3 archives in TMP/A
 3 archives in TMP/B
 3 archives in TMP/C

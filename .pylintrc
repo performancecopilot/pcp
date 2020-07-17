@@ -547,7 +547,7 @@ defining-attr-methods=__init__,
 # List of member names, which should be excluded from the protected access
 # warning.
 exclude-protected=_asdict,
-                  _fields,
+                  _fields_,
                   _replace,
                   _source,
                   _make

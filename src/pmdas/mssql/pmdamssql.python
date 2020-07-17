@@ -155,8 +155,9 @@ class MSSQLPMDA(PMDA):
         self.dm_os_execreq_clusters = {
                 101: [c_api.PM_INDOM_NULL,
                     'select count(*) ' +
-                    'from sys.dm_exec_requests ' +
-                    'where session_id >= 51 and status = \'running\''],
+                    'from sys.dm_exec_requests er ' +
+                    'join sys.dm_exec_sessions es on er.session_id = es.session_id ' +
+                    'where es.is_user_process = 1 and er.status = \'running\''],
         }
         self.dm_os_workers_items = 1
         self.dm_os_workers_clusters = {

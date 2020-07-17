@@ -21,7 +21,8 @@ _cleanup()
     if $culldir
     then
 	_restore_config "$PCP_TMP_DIR/bash"
-	culldir=False
+	$sudo rm -rf $PCP_TMP_DIR/bash.$seq
+	culldir=false
     fi
     $sudo rm -rf $tmp $tmp.*
     rm -f $tmp.*

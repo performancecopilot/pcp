@@ -198,7 +198,7 @@ cp VERSION.pcp.daily VERSION.pcp
 if which systemctl >/dev/null 2>&1
 then
     echo "Info: stopping PCP services" | tee -a $HOME/daily.log
-    for svc in pmie pmlogger pmmgr pmproxy pmcd
+    for svc in pmie pmlogger pmproxy pmcd
     do
 	sudo systemctl stop $svc
     done
@@ -543,7 +543,7 @@ fi
 if which systemctl >/dev/null 2>&1
 then
     systemctl list-unit-files >\$tmp.systemctl
-    for svc in pmcd pmproxy pmie pmlogger_daily_report pmlogger pmmgr
+    for svc in pmcd pmproxy pmie pmlogger_daily_report pmlogger
     do
 	if grep "\$svc.service[ 	]*enabled" <\$tmp.systemctl >/dev/null
 	then

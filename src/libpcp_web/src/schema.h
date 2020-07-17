@@ -151,7 +151,7 @@ typedef struct seriesLoadBaton {
     unsigned int	nmetrics;	/* number of metric names passed */
     const char		**metrics;	/* metric specification strings */
     dict		*errors;	/* PMIDs where errors observed */
-    dict		*wanted;	/* PMIDs from query whitelist */
+    dict		*wanted;	/* allowed metrics list PMIDs */
 
     int			error;
     void		*arg;

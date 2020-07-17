@@ -16,6 +16,7 @@
 
 typedef enum pmSearchRestKey {
     RESTKEY_TEXT	= 1,
+    RESTKEY_SUGGEST,
     RESTKEY_INFO,
 } pmSearchRestKey;
 
@@ -39,6 +40,8 @@ typedef struct pmSearchBaton {
 static pmSearchRestCommand commands[] = {
     { .key = RESTKEY_TEXT, .options = HTTP_OPTIONS_GET,
 	    .name = "text", .namelen = sizeof("text")-1 },
+    { .key = RESTKEY_SUGGEST, .options = HTTP_OPTIONS_GET,
+	    .name = "suggest", .namelen = sizeof("suggest")-1 },
     { .key = RESTKEY_INFO, .options = HTTP_OPTIONS_GET,
 	    .name = "info", .namelen = sizeof("info")-1 },
     { .name = NULL }	/* sentinel */
@@ -140,27 +143,39 @@ on_pmsearch_text_result(pmSearchTextResult *search, void *arg)
     const char		*prefix;
     char		buffer[64];
     sds			result = http_get_buffer(baton->client);
+    sds			oneline, helptext;
 
     if (baton->results++ == 0) {
 	result = push_client_identifier(baton, result);
 	/* once-off header containing metrics - timing, total hits */
 	baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_OBJECT);
 	pmsprintf(buffer, sizeof(buffer), "%.6f", search->timer);
-	result = sdscatfmt(result, "{\"total\":%u,\"elapsed\":%s,\"results\":",
-				    search->total, buffer);
+	result = sdscatfmt(result, "{\"total\":%u,\"elapsed\":%s,"
+				   "\"offset\":%u,\"limit\":%u,\"results\":",
+				    search->total, buffer,
+				    baton->request.offset, baton->request.count);
 	baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_ARRAY);
 	prefix = "[";
     } else {
 	prefix = ",";
     }
+
+    oneline = search->oneline;
+    oneline = sdscatrepr(sdsempty(), oneline, sdslen(oneline));
+    helptext = search->helptext;
+    helptext = sdscatrepr(sdsempty(), helptext, sdslen(helptext));
+
     pmsprintf(buffer, sizeof(buffer), "%.6f", search->score);
     result = sdscatfmt(result,
 		    "%s{\"docid\":\"%S\",\"count\":%u,\"score\":%s,"
 		    "\"name\":\"%S\",\"type\":\"%s\"," "\"indom\":\"%S\","
-		    "\"oneline\":\"%S\",\"helptext\":\"%S\"}",
+		    "\"oneline\":%S,\"helptext\":%S}",
 		    prefix, search->docid, baton->results, buffer, search->name,
 		    pmSearchTextTypeStr(search->type), search->indom,
-		    search->oneline, search->helptext);
+		    oneline, helptext);
+
+    sdsfree(helptext);
+    sdsfree(oneline);
 
     http_set_buffer(client, result, HTTP_FLAG_JSON);
     http_transfer(client);
@@ -335,6 +350,24 @@ pmsearch_setup_request_parameters(struct client *client,
 	    baton->request.offset = strtoul(value, NULL, 0);
 	break;
 
+    case RESTKEY_SUGGEST:
+	/* expect a suggestions query string */
+	if (parameters == NULL) {
+	    client->u.http.parser.status_code = HTTP_STATUS_BAD_REQUEST;
+	    break;
+	} else if ((entry = dictFind(parameters, PARAM_QUERY)) != NULL) {
+	    baton->request.query = dictGetVal(entry);   /* get sds value */
+	    dictSetVal(parameters, entry, NULL);   /* claim this */
+	} else {
+	    client->u.http.parser.status_code = HTTP_STATUS_BAD_REQUEST;
+	    break;
+	}
+	/* optional parameters - flags, result count and pagination offset */
+	baton->request.flags = 0;
+	if ((value = (sds)dictFetchValue(parameters, PARAM_LIMIT)))
+	    baton->request.count = strtoul(value, NULL, 0);
+	break;
+
     case RESTKEY_INFO:
 	break;
 
@@ -407,6 +440,11 @@ pmsearch_request_done(struct client *client)
     switch (baton->restkey) {
     case RESTKEY_TEXT:
 	if ((sts = pmSearchTextQuery(&pmsearch_settings, &baton->request, baton)) < 0)
+	    on_pmsearch_done(sts, baton);
+	break;
+
+    case RESTKEY_SUGGEST:
+	if ((sts = pmSearchTextSuggest(&pmsearch_settings, &baton->request, baton)) < 0)
 	    on_pmsearch_done(sts, baton);
 	break;
 

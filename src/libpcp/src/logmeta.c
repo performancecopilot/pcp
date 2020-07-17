@@ -269,6 +269,10 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":13", PM_FAULT_ALLOC);
 	fprintf(stderr, ", nsets=%d)\n", nsets);
     }
 
+    type &= ~(PM_LABEL_COMPOUND|PM_LABEL_OPTIONAL);
+    if (type == PM_LABEL_CONTEXT)
+	ident = PM_ID_NULL;
+
     if ((sts = __pmLogLookupLabel(acp, type, ident, &label, NULL)) <= 0) {
 
 	idp->next = NULL;
@@ -1322,6 +1326,9 @@ __pmLogLookupLabel(__pmArchCtl *acp, unsigned int type, unsigned int ident,
     __pmLogLabelSet	*ls;
 
     type &= ~(PM_LABEL_COMPOUND|PM_LABEL_OPTIONAL);
+    if (type == PM_LABEL_CONTEXT)
+	ident = PM_ID_NULL;
+
     if ((hp = __pmHashSearch(type, &lcp->l_hashlabels)) == NULL)
 	return PM_ERR_NOLABELS;
 
@@ -1449,6 +1456,7 @@ __pmLogLookupText(__pmArchCtl *acp, unsigned int ident, unsigned int type,
     __pmHashCtl		*text_hash;
     __pmHashNode	*hp;
 
+    type &= ~PM_TEXT_DIRECT;
     if ((hp = __pmHashSearch(type, &lcp->l_hashtext)) == NULL)
 	return PM_ERR_NOTHOST;	/* back-compat error code */
 

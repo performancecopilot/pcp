@@ -1529,8 +1529,19 @@ S_pkg?		redis-server	[N/A (QA optional)]
 slackpkg?	redis-server	[N/A (QA optional)]
 pacman?		redis-server	[? (QA optional)]
 brew?		redis-server	[redis (QA optional)]
-# -- zpool (bcc PMDA QA)
-				# may need contrib & non-free repos enabled
+# -- redisearch (pmproxy, pmsearch QA)
+dpkg?		/usr/lib*/redis/modules/redisearch.so	[redis-redisearch (QA optional)]
+rpm?		/usr/lib*/redis/modules/redisearch.so	[RediSearch (QA optional)]
+urpmi?		redisearch.so	[N/A (QA optional)]
+emerge?		redisearch.so	[? (QA optional)]
+pkgin?		redisearch.so	[N/A (QA optional)]
+pkg_add?	redisearch.so	[N/A (QA optional)]
+F_pkg?		redisearch.so	[N/A (QA optional)]
+S_pkg?		redisearch.so	[N/A (QA optional)]
+slackpkg?	redisearch.so	[N/A (QA optional)]
+pacman?		redisearch.so	[? (QA optional)]
+brew?		redisearch.dylib	[RediSearch (QA optional)]
+# -- zpool (bcc PMDA QA)	# may need contrib & non-free repos enabled
 dpkg?		zpool		[zfsutils-linux (QA optional)]
 rpm?		zpool		[zfs-fuse (QA optional)]
 urpmi?		zpool		[zfs-fuse (QA optional)]
@@ -1568,9 +1579,7 @@ S_pkg?		libdevmapper.h		[N/A (build optional)]
 slackpkg?	libdevmapper.h		[N/A (build optional)]
 pacman?	/usr/include/libdevmapper.h	[core/device-mapper (build optional)]
 brew?		libdevmapper.h		[N/A (build optional)]
-# -- ruby and devel packages for pmdastatsd
-rpm?	ruby				[ruby (QA optional)]
-rpm?	statsd				[statsd (QA optional)]
+# -- devel packages for pmdastatsd
 rpm?	/usr/include/chan/chan.h	[chan-devel (build optional)]
 rpm?	/usr/include/hdr/hdr_thread.h	[HdrHistogram_c-devel (build optional)]
 

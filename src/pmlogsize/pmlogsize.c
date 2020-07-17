@@ -18,6 +18,7 @@
 #include "pmapi.h"
 #include "libpcp.h"
 #include "logsize.h"
+#include <sys/stat.h>
 
 int		dflag;		/* detail off by default */
 int		rflag;		/* replication off by default */

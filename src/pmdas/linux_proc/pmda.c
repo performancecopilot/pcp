@@ -43,6 +43,7 @@
 #include "proc_runq.h"
 #include "proc_dynamic.h"
 #include "cgroups.h"
+#include "acct.h"
 
 /* globals */
 static int			_isDSO = 1;	/* =0 I am a daemon */
@@ -50,12 +51,12 @@ static int			rootfd = -1;	/* af_unix pmdaroot */
 static proc_pid_t		proc_pid;
 static proc_pid_t		hotproc_pid;
 static proc_runq_t		proc_runq;
+static proc_acct_t		proc_acct;
 static int			all_access;	/* =1 no access checks */
 static int			have_access;	/* =1 recvd uid/gid */
 static size_t			_pm_system_pagesize;
 static unsigned int		threads;	/* control.all.threads */
 static char *			cgroups;	/* control.all.cgroups */
-unsigned int			conf_gen;	/* hotproc config version, if zero hotproc not configured yet */
 long				hz;
 
 /*
@@ -84,8 +85,6 @@ long				hz;
  *        __int64_t
  *    we choose option (b).
  */
-
-extern struct timeval   hotproc_update_interval;
 
 char *proc_statspath = "";	/* optional path prefix for all stats files */
 
@@ -1405,6 +1404,58 @@ static pmdaMetric metrictab[] = {
     { NULL, {PMDA_PMID(CLUSTER_HOTPROC_PRED,ITEM_HOTPROC_P_CPUBURN),
       PM_TYPE_FLOAT, HOTPROC_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0, 0,0,0)} },
 
+/*
+ * acct cluster
+ */
+    /* acct.tty */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_TTY),
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* acct.exitcode */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_EXITCODE),
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* acct.uid */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_UID),
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* acct.gid */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_GID),
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* acct.pid */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_PID),
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* acct.ppid */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_PPID),
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* acct.btime */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_BTIME),
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* acct.etime */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_ETIME),
+      PM_TYPE_FLOAT, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+    /* acct.utime */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_UTIME),
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+    /* acct.stime */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_STIME),
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+    /* acct.mem */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_MEM),
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+    /* acct.io */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_IO),
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* acct.rw */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_RW),
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* acct.minflt */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_MINFLT),
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* acct.majflt */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_MAJFLT),
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* acct.swaps */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_SWAPS),
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
 };
 
 pmInDom
@@ -1468,6 +1519,10 @@ proc_refresh(pmdaExt *pmda, int *need_refresh)
 	else
 	    refresh_cgroups2(cgroup, cgrouplen, need_refresh);
     }
+
+    if (need_refresh[CLUSTER_ACCT] &&
+	(all_access || proc_ctx_getuid(pmda->e_context) >= 0))
+	refresh_acct(&proc_acct);
 
     if (need_refresh[CLUSTER_PID_STAT] ||
 	need_refresh[CLUSTER_PID_STATM] || 
@@ -1563,6 +1618,9 @@ proc_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt 
 	break;
     case CGROUP_MOUNTS_INDOM:
     	need_refresh[CLUSTER_CGROUP_MOUNTS]++;
+	break;
+    case ACCT_INDOM:
+	need_refresh[CLUSTER_ACCT]++;
 	break;
     /* no default label : pmdaInstance will pick up errors */
     }
@@ -1737,7 +1795,6 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	switch (item) {
 	    case ITEM_HOTPROC_P_SYSCALLS: /* No way to get this right now (maybe from systemtap?)*/
 		return PM_ERR_PMID;
-		break;
 	    case ITEM_HOTPROC_P_CTXSWITCH: /* hotproc.predicate.ctxswitch */
 		atom->f = hotnode->preds.ctxswitch;
 		break;
@@ -3358,6 +3415,11 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	atom->ul = entry->oom_score;
 	break;
 
+    case CLUSTER_ACCT:
+	if (!acct_fetchCallBack(inst, item, &proc_acct, atom))
+	    return PM_ERR_PMID;
+	break;
+
     case CLUSTER_CONTROL:
 	switch (item) {
 	/* case 1: not reached -- proc.control.all.threads is direct */
@@ -3765,6 +3827,10 @@ proc_init(pmdaInterface *dp)
 
     proc_ctx_init();
     proc_dynamic_init(metrictab, nmetrics);
+
+    indomtab[ACCT_INDOM].it_indom = ACCT_INDOM;
+    proc_acct.indom = &indomtab[ACCT_INDOM];
+    acct_init(&proc_acct);
 
     rootfd = pmdaRootConnect(NULL);
     pmdaSetFlags(dp, PMDA_EXT_FLAG_HASHED);

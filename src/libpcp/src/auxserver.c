@@ -14,6 +14,7 @@
 
 #include "pmapi.h"
 #include "libpcp.h"
+#include <sys/stat.h>
 #define SOCKET_INTERNAL
 #include "internal.h"
 #if defined(HAVE_GETPEERUCRED)

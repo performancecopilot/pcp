@@ -33,7 +33,7 @@ So, we want all the latest commits from [0] included in [1], [2] and
 [3].
 
 First we need to pull from [0] into [2], but only if [2] is on the
-master baranch and contains no commits that have not already been
+master branch and contains no commits that have not already been
 pushed to [1] and [3].  The script below does this after ensuring
 the preconditions are met.
 

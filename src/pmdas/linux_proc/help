@@ -48,6 +48,8 @@
 @ 3.37 control group (cgroup) subsystems
 @ 3.38 control group (cgroup) mount points
 
+@ 3.40 process accounting information
+
 @ proc.nprocs instantaneous number of processes
 @ hotproc.nprocs instantaneous number of interesting ("hot") processes
 
@@ -532,3 +534,20 @@ refresh interval.
 @ hotproc.predicate.schedwait time in secs waiting on run queue per second over refresh interval
 The fraction of time waiting on the run queue for each "interesting"
 process over the last refresh interval.
+
+@ acct.tty Controlling terminal
+@ acct.exitcode Process termination status
+@ acct.uid Real user ID
+@ acct.gid Real group ID
+@ acct.pid Process ID
+@ acct.ppid Parent process ID
+@ acct.btime Process creation time
+@ acct.etime Elapsed time
+@ acct.utime User CPU time
+@ acct.stime System CPU time
+@ acct.mem Average memory usage
+@ acct.io Characters transferred
+@ acct.rw Blocks read or written
+@ acct.minflt Minor page faults
+@ acct.majflt Major page faults
+@ acct.swaps Number of swaps
