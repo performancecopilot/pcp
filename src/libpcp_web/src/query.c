@@ -1888,7 +1888,7 @@ series_noop_traverse(seriesQueryBaton *baton, node_t *np, int level)
     }
     if (pmDebugOptions.query)
 	fprintf(stderr, "=====level %d, node type %d=====\n", level, np->type);
-    //kyoma_debug_print_node(baton, np);
+    kyoma_debug_print_node(baton, np);
     if (pmDebugOptions.query)
 	fprintf(stderr, "go left\n");
     series_noop_traverse(baton, np->left, level+1);
@@ -2230,6 +2230,8 @@ series_calculate_rescale(node_t *np)
 		np->value_set.series_values[i].series_sample[j].series_instance[k].data = sdsnewlen(str_val, str_len);
 	    }
 	}
+	sdsfree(np->value_set.series_values[i].series_desc.units);
+	np->value_set.series_values[i].series_desc.units = sdsnew(pmUnitsStr(&np->right->meta.units));
     }
 }
 
@@ -2455,7 +2457,7 @@ series_calculate_log(node_t *np)
 /*
  * Return the logarithm of x to base b (log_b^x).
  */
-    double			base, x;
+    double			base;
     pmAtomValue			val;
     int				itype, otype, sts, str_len, is_natural_log;
     char			str_val[255];
@@ -2494,6 +2496,8 @@ series_calculate_log(node_t *np)
 		np->value_set.series_values[i].series_sample[j].series_instance[k].data = sdsnewlen(str_val, str_len);
 	    }
 	}
+	sdsfree(np->value_set.series_values[i].series_desc.type);
+	np->value_set.series_values[i].series_desc.type = sdsnew(pmTypeStr(otype));
     }
 }
 
@@ -2577,6 +2581,8 @@ series_calculate_sqrt(node_t *np)
 		np->value_set.series_values[i].series_sample[j].series_instance[k].data = sdsnewlen(str_val, str_len);
 	    }
 	}
+	sdsfree(np->value_set.series_values[i].series_desc.type);
+	np->value_set.series_values[i].series_desc.type = sdsnew(pmTypeStr(otype));
     }
 }
 
@@ -2622,7 +2628,7 @@ series_calculate_round(node_t *np)
 	    // TODO: type extraction fail report, unsupport type
 	    fprintf(stderr, "Series values' Type extract fail, unsupport type\n");
 	    return;
-	}	
+	}
 	for (int j = 0; j < np->value_set.series_values[i].num_samples; j++) {
 	    for (int k = 0; k < np->value_set.series_values[i].series_sample[j].num_instances; k++) {
 		if (series_extract_value(type, 
@@ -2645,6 +2651,7 @@ series_calculate_round(node_t *np)
 		np->value_set.series_values[i].series_sample[j].series_instance[k].data = sdsnewlen(str_val, str_len);
 	    }
 	}
+	
     }
 }
 
