@@ -647,7 +647,7 @@ pcp_doc_dir
 pcp_tmp_dir
 pcp_tmpfile_dir
 pcp_run_dir
-pcp_psacct_system_path
+pcp_pacct_system_path
 pcp_sa_dir
 pcp_archive_dir
 pcp_log_dir
@@ -15280,7 +15280,7 @@ pcp_archive_dir=$pcp_log_dir/pmlogger
 pcp_sa_dir=$pcp_log_dir/sa
 
 
-pcp_psacct_system_path="/var/account/pacct"
+pcp_pacct_system_path="$localstatedir/account/pacct"
 
 
 

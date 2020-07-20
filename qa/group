@@ -1795,6 +1795,7 @@ not_in_container
 1722 pmda.bpftrace local python
 1723 pmda.bpftrace local python
 1724 pmda.bpftrace local python
+1740 pmda.proc local
 1768 pmfind local
 1793 pmrep pcp2xxx python local
 1821 pmlogpaste local

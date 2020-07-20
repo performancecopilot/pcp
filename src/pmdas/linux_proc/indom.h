@@ -22,8 +22,10 @@
  * assigned values for *_INDOM from the linux PMDA.  Consequently,
  * the proc indom table is permanently sparse.
  */
+#define STRINGS_INDOM		 1 /* - fake indom, string hash */
+#define UIDNAME_INDOM		 2 /* - fake indom, uid:name hash */
+#define GIDNAME_INDOM		 3 /* - fake indom, gid:name hash */
 #define PROC_INDOM		 9 /* - processes */
-#define STRINGS_INDOM		10 /* - fake indom, string hash */
 #define DISK_INDOM		11 /* - internal-only (user device names) */
 #define DEVT_INDOM		12 /* - internal-only (major:minor names) */
 #define CPU_INDOM		13 /* - internal-only (user-visible CPUs) */
@@ -65,7 +67,9 @@ extern long hz;
  * static string dictionary - one copy of oft-repeated strings;
  * implemented using STRINGS_INDOM and pmdaCache(3) routines.
  */
-char *proc_strings_lookup(int);
 int proc_strings_insert(const char *);
+char *proc_strings_lookup(int);
+char *proc_uidname_lookup(int);
+char *proc_gidname_lookup(int);
 
 #endif /* _INDOM_H */
