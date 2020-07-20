@@ -426,6 +426,13 @@ _get_logfile()
 _get_primary_logger_pid()
 {
     pid=`cat "$PCP_RUN_DIR/pmlogger.pid" 2>/dev/null`
+    if [ -z "$pid" ]
+    then
+	# No PID file, try the pmcd.pmlogger.* info files where "primary"
+	# is a symlink to a <pid> file
+	#
+	pid=`ls -l $PCP_TMP_DIR/pmlogger/primary 2>/dev/null | sed -e 's;.*/\([0-9][0-9]*\)$;\1;'`
+    fi
     echo "$pid"
 }
 
