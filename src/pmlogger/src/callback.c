@@ -570,7 +570,7 @@ do_work(task_t *tp)
     int			changed;
     int			needindom;
     int			needti;
-    static int		flushsize = 100000;
+    static off_t	flushsize = 100000;
     long		old_meta_offset;
     long		new_offset;
     long		new_meta_offset;
