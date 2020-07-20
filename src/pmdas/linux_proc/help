@@ -535,19 +535,29 @@ refresh interval.
 The fraction of time waiting on the run queue for each "interesting"
 process over the last refresh interval.
 
-@ acct.tty Controlling terminal
-@ acct.exitcode Process termination status
-@ acct.uid Real user ID
-@ acct.gid Real group ID
-@ acct.pid Process ID
-@ acct.ppid Parent process ID
-@ acct.btime Process creation time
-@ acct.etime Elapsed time
-@ acct.utime User CPU time
-@ acct.stime System CPU time
-@ acct.mem Average memory usage
-@ acct.io Characters transferred
-@ acct.rw Blocks read or written
-@ acct.minflt Minor page faults
-@ acct.majflt Major page faults
-@ acct.swaps Number of swaps
+@ acct.psinfo.tty Controlling terminal device number
+@ acct.psinfo.ttyname Controlling terminal name
+@ acct.psinfo.exitcode Process termination status
+@ acct.psinfo.pid Process ID
+@ acct.psinfo.ppid Parent process ID
+@ acct.psinfo.btime Process creation time
+@ acct.psinfo.etime Elapsed time
+@ acct.psinfo.utime User CPU time
+@ acct.psinfo.stime System CPU time
+@ acct.psinfo.mem Average memory usage
+@ acct.psinfo.io Characters transferred
+@ acct.psinfo.rw Blocks read or written
+@ acct.psinfo.minflt Minor page faults
+@ acct.psinfo.majflt Major page faults
+@ acct.psinfo.swaps Number of swaps
+@ acct.id.uid Real user ID
+@ acct.id.uid_nm Real user name
+@ acct.id.gid Real group ID
+@ acct.id.gid_nm Real group name
+@ acct.flag.fork Executed fork but no exec (boolean)
+@ acct.flag.su Used superuser privileges (boolean)
+@ acct.flag.core Dumped core (boolean)
+@ acct.flag.xsig Killed by a signal (boolean)
+@ acct.control.open_retry_interval Interval of failed acct file opening check
+@ acct.control.check_acct_interval Interval on which acct file size is checked
+@ acct.control.file_size_threshold Size at which the acct file will be reopened

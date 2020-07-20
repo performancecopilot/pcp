@@ -133,6 +133,10 @@ PCP_ARCHIVE_DIR=@pcp_archive_dir@
 # Standard path: /var/log/pcp/sa
 PCP_SA_DIR=@pcp_sa_dir@
 
+# path to system-wide process accounting file
+# Standard path: /var/account/pacct
+PCP_PACCT_SYSTEM_PATH=@pcp_pacct_system_path@
+
 # directory for PCP temp status files
 # Standard path: /var/lib/pcp/tmp
 # Subdirectories: pmie pmlogger

@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# Copyright (c) 2014 Red Hat.
+# Copyright (c) 2014,2020 Red Hat.
 # Copyright (c) 1995,2003 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -33,6 +33,7 @@ trap "rm -rf $tmp $tmpmerge; exit \$status" 0 1 2 3 15
 force=false
 VERBOSE=false
 SHOWME=false
+EXPUNGE=""
 RM=rm
 
 _abandon()
@@ -62,6 +63,7 @@ Options:
   -f, --force    remove input files after creating output files
   -N, --showme   perform a dry run, showing what would be done
   -V, --verbose  increase diagnostic verbosity
+  -E, --expunge  expunge metrics with metadata mismatches between archives
   --help
 EOF
 
@@ -83,6 +85,9 @@ do
 		;;
 
 	-V)	VERBOSE=true
+		;;
+
+	-E)	EXPUNGE="-x" # for pmlogextract -x
 		;;
 
 	--)	shift
@@ -235,7 +240,7 @@ else
 	    # shell-imposed or system-imposed limits
 	    #
 	    $VERBOSE && echo "		-> partial merge to $tmpmerge/$part"
-	    cmd="pmlogextract $list $tmpmerge/$part"
+	    cmd="pmlogextract $EXPUNGE $list $tmpmerge/$part"
 	    if $SHOWME
 	    then
 		echo "+ $cmd"
@@ -266,7 +271,7 @@ else
 	i=`expr $i + 1`
     done
 
-    cmd="pmlogextract $list $output"
+    cmd="pmlogextract $EXPUNGE $list $output"
     if $SHOWME
     then
 	echo "+ $cmd"

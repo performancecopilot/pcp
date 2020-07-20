@@ -1407,55 +1407,87 @@ static pmdaMetric metrictab[] = {
 /*
  * acct cluster
  */
-    /* acct.tty */
+    /* acct.psinfo.tty */
     { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_TTY),
-      PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
-    /* acct.exitcode */
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* acct.psinfo.ttyname */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_TTYNAME),
+      PM_TYPE_STRING, ACCT_INDOM, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* acct.psinfo.exitcode */
     { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_EXITCODE),
-      PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
-    /* acct.uid */
-    { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_UID),
-      PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
-    /* acct.gid */
-    { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_GID),
-      PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
-    /* acct.pid */
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* acct.psinfo.pid */
     { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_PID),
-      PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
-    /* acct.ppid */
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* acct.psinfo.ppid */
     { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_PPID),
-      PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
-    /* acct.btime */
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* acct.psinfo.btime */
     { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_BTIME),
-      PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
-    /* acct.etime */
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_DISCRETE, PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0) }, },
+    /* acct.psinfo.etime */
     { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_ETIME),
-      PM_TYPE_FLOAT, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
-    /* acct.utime */
+      PM_TYPE_FLOAT, ACCT_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+    /* acct.psinfo.utime */
     { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_UTIME),
-      PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
-    /* acct.stime */
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+    /* acct.psinfo.stime */
     { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_STIME),
-      PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
-    /* acct.mem */
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+    /* acct.psinfo.mem */
     { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_MEM),
       PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
-    /* acct.io */
+    /* acct.psinfo.io */
     { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_IO),
-      PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
-    /* acct.rw */
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    /* acct.psinfo.rw */
     { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_RW),
-      PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
-    /* acct.minflt */
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    /* acct.psinfo.minflt */
     { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_MINFLT),
-      PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
-    /* acct.majflt */
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* acct.psinfo.majflt */
     { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_MAJFLT),
-      PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
-    /* acct.swaps */
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    /* acct.psinfo.swaps */
     { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_SWAPS),
-      PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
+    /* acct.id.uid */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_UID),
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* acct.id.uid_nm */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_UIDNAME),
+      PM_TYPE_STRING, ACCT_INDOM, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* acct.id.gid */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_GID),
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* acct.id.gid_nm */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCT_GIDNAME),
+      PM_TYPE_STRING, ACCT_INDOM, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+    /* acct.flag.fork */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCTFLAG_FORK),
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* acct.flag.su */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCTFLAG_SU),
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* acct.flag.core */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCTFLAG_CORE),
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* acct.flag.xsig */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,ACCTFLAG_XSIG),
+      PM_TYPE_U32, ACCT_INDOM, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+    /* acct.control.open_retry_interval */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,CONTROL_OPEN_RETRY_INTERVAL),
+      PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0) }, },
+    /* acct.control.check_acct_interval */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,CONTROL_CHECK_ACCT_INTERVAL),
+      PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0) }, },
+    /* acct.control.file_size_threshold */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,CONTROL_FILE_SIZE_THRESHOLD),
+      PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
 };
 
 pmInDom
@@ -1844,7 +1876,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		if (f == NULL || strcmp(f, "0") == 0)
 		    atom->cp = "?";
 		else
-		    atom->cp = get_ttyname_info(inst, f);
+		    atom->cp = get_ttyname_info(f);
 		break;
 
 	    case PROC_PID_STAT_TTY_PGRP: /* proc.psinfo.tty_pgrp */
@@ -2220,17 +2252,11 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case PROC_PID_STATUS_EUID_NM: /* proc.id.euid_nm */
 	case PROC_PID_STATUS_SUID_NM: /* proc.id.suid_nm */
 	case PROC_PID_STATUS_FSUID_NM: { /* proc.id.fsuid_nm */
-	    struct passwd *pwe;
-
-	    if ((f = _pm_getfield(entry->status_lines.uid, (item % 4) + 1)) == NULL)
+	    if (!(f = _pm_getfield(entry->status_lines.uid, (item % 4) + 1)))
 		return 0;
 	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
-	    if (item > PROC_PID_STATUS_FSUID) {
-		if ((pwe = getpwuid((uid_t)atom->ul)) != NULL)
-		    atom->cp = pwe->pw_name;
-		else
-		    atom->cp = "UNKNOWN";
-	    }
+	    if (item > PROC_PID_STATUS_FSUID)
+		atom->cp = proc_uidname_lookup(atom->ul);
 	}
 	break;
 
@@ -2242,18 +2268,11 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case PROC_PID_STATUS_EGID_NM: /* proc.id.egid_nm */
 	case PROC_PID_STATUS_SGID_NM: /* proc.id.sgid_nm */
 	case PROC_PID_STATUS_FSGID_NM: { /* proc.id.fsgid_nm */
-	    struct group *gre;
-
-	    if ((f = _pm_getfield(entry->status_lines.gid, (item % 4) + 1)) == NULL)
+	    if (!(f = _pm_getfield(entry->status_lines.gid, (item % 4) + 1)))
 		return 0;
 	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
-	    if (item > PROC_PID_STATUS_FSGID) {
-		if ((gre = getgrgid((gid_t)atom->ul)) != NULL) {
-		    atom->cp = gre->gr_name;
-		} else {
-		    atom->cp = "UNKNOWN";
-		}
-	    }
+	    if (item > PROC_PID_STATUS_FSGID)
+		atom->cp = proc_gidname_lookup(atom->ul);
 	}
 	break;
 
@@ -3723,16 +3742,17 @@ proc_label(int ident, int type, pmLabelSet **lp, pmdaExt *pmda)
 }
 
 /*
- * Helper routines for accessing a generic static string dictionary
+ * Helper routines for accessing a generic static string dictionary,
+ * a uid -> username dictionary, and a gid -> groupname dictionary.
  */
 
 char *
 proc_strings_lookup(int index)
 {
     char	*value;
-    pmInDom	dict = INDOM(STRINGS_INDOM);
 
-    if (pmdaCacheLookup(dict, index, &value, NULL) == PMDA_CACHE_ACTIVE)
+    if (pmdaCacheLookup(INDOM(STRINGS_INDOM), index,
+			&value, NULL) == PMDA_CACHE_ACTIVE)
 	return value;
     return "";
 }
@@ -3740,8 +3760,49 @@ proc_strings_lookup(int index)
 int
 proc_strings_insert(const char *buf)
 {
-    pmInDom dict = INDOM(STRINGS_INDOM);
-    return pmdaCacheStore(dict, PMDA_CACHE_ADD, buf, NULL);
+    return pmdaCacheStore(INDOM(STRINGS_INDOM), PMDA_CACHE_ADD, buf, NULL);
+}
+
+char *
+proc_uidname_lookup(int uid)
+{
+    struct passwd	*pwe;
+    pmInDom		indom = INDOM(UIDNAME_INDOM);
+    char		*name;
+
+    if (pmdaCacheLookupKey(indom, NULL, sizeof(uid), &uid,
+			   &name, NULL, NULL) == PMDA_CACHE_ACTIVE)
+	return name;
+    if ((pwe = getpwuid(uid)) != NULL)
+	name = pwe->pw_name;
+    else
+	name = "";
+    pmdaCacheStoreKey(indom, PMDA_CACHE_ADD, name, sizeof(uid), &uid, NULL);
+    if (pmdaCacheLookupKey(indom, NULL, sizeof(uid), &uid,
+			   &name, NULL, NULL) == PMDA_CACHE_ACTIVE)
+	return name;
+    return "";
+}
+
+char *
+proc_gidname_lookup(int gid)
+{
+    struct group	*gre;
+    pmInDom		indom = INDOM(GIDNAME_INDOM);
+    char		*name;
+
+    if (pmdaCacheLookupKey(indom, NULL, sizeof(gid), &gid,
+			   &name, NULL, NULL) == PMDA_CACHE_ACTIVE)
+	return name;
+    if ((gre = getgrgid(gid)) != NULL)
+	name = gre->gr_name;
+    else
+	name = "";
+    pmdaCacheStoreKey(indom, PMDA_CACHE_ADD, name, sizeof(gid), &gid, NULL);
+    if (pmdaCacheLookupKey(indom, NULL, sizeof(gid), &gid,
+			   &name, NULL, NULL) == PMDA_CACHE_ACTIVE)
+	return name;
+    return "";
 }
 
 /*
@@ -3800,10 +3861,12 @@ proc_init(pmdaInterface *dp)
     /*
      * Initialize the instance domain table.
      */
+    indomtab[STRINGS_INDOM].it_indom = STRINGS_INDOM;
+    indomtab[UIDNAME_INDOM].it_indom = UIDNAME_INDOM;
+    indomtab[GIDNAME_INDOM].it_indom = GIDNAME_INDOM;
     indomtab[DEVT_INDOM].it_indom = DEVT_INDOM;
     indomtab[DISK_INDOM].it_indom = DISK_INDOM;
     indomtab[PROC_INDOM].it_indom = PROC_INDOM;
-    indomtab[STRINGS_INDOM].it_indom = STRINGS_INDOM;
     indomtab[CGROUP_CPUSET_INDOM].it_indom = CGROUP_CPUSET_INDOM;
     indomtab[CGROUP_CPUACCT_INDOM].it_indom = CGROUP_CPUACCT_INDOM;
     indomtab[CGROUP_CPUSCHED_INDOM].it_indom = CGROUP_CPUSCHED_INDOM;
@@ -3832,12 +3895,16 @@ proc_init(pmdaInterface *dp)
     proc_acct.indom = &indomtab[ACCT_INDOM];
     acct_init(&proc_acct);
 
+    tty_driver_init();
+
     rootfd = pmdaRootConnect(NULL);
     pmdaSetFlags(dp, PMDA_EXT_FLAG_HASHED);
     pmdaInit(dp, indomtab, nindoms, metrictab, nmetrics);
 
     /* string metrics use the pmdaCache API for value indexing */
     pmdaCacheOp(INDOM(STRINGS_INDOM), PMDA_CACHE_STRINGS);
+    pmdaCacheOp(INDOM(UIDNAME_INDOM), PMDA_CACHE_STRINGS);
+    pmdaCacheOp(INDOM(GIDNAME_INDOM), PMDA_CACHE_STRINGS);
 
     /* cgroup metrics use the pmdaCache API for indom indexing */
     pmdaCacheOp(INDOM(CGROUP_CPUSET_INDOM), PMDA_CACHE_CULL);
