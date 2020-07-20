@@ -918,7 +918,7 @@ do_work(task_t *tp)
 	if (__pmFtell(archctl.ac_mfp) > flushsize) {
 	    needti = 1;
 	    if (pmDebugOptions.appl2)
-		fprintf(stderr, "callback: file size (%d) reached flushsize (%d)\n", (int)__pmFtell(archctl.ac_mfp), flushsize);
+		fprintf(stderr, "callback: file size (%d) reached flushsize (%ld)\n", (int)__pmFtell(archctl.ac_mfp), (long)flushsize);
 	}
 
 	if (needti) {
