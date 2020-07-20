@@ -25,7 +25,7 @@ pmlogger_daily: [TMP.control:4]
 Warning: skipping log rotation because we don't know which pmlogger to signal
 + pmlogrewrite -iq -c $PCP_VAR_DIR/config/pmlogrewrite PAST.00.10
 + pmlogrewrite -iq -c $PCP_VAR_DIR/config/pmlogrewrite PAST.13.13
-+ pmlogger_merge -V -N -f PAST.00.10 PAST.13.13 PAST
++ pmlogger_merge -V -N  -f PAST.00.10 PAST.13.13 PAST
 
 --- -M case ---
 # $version=1.1    
