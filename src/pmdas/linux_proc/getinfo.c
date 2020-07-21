@@ -14,20 +14,91 @@
  * for more details.
  */
 
+#include <sys/sysmacros.h>
 #include <sys/stat.h>
 #include <dirent.h>
 #include <ctype.h>
 #include <fcntl.h>
 #include "pmapi.h"
+#include "indom.h"
+#include "getinfo.h"
 
 /*
- * Convert kernels string device number encoding into a dev_t.
+ * Holds /proc/tty/drivers details, for looking up tty by dev_t
+ * Sample file format -
+ *   /dev/tty             /dev/tty        5     0 system:/dev/tty
+ *   rfcomm               /dev/rfcomm   216 0-255 serial
+ *   serial               /dev/ttyS       4 64-95 serial
+ *   unknown              /dev/tty        4  1-63 console
  */
-static dev_t
-get_encoded_dev(const char *devnum)
+typedef struct tty_driver {
+    char		*devpath;
+    unsigned int	major;
+    unsigned int	minor;
+    unsigned int	range;
+} tty_driver_t;
+
+static tty_driver_t	*tty_drivers;
+static unsigned int	tty_driver_count;
+
+void
+tty_driver_init(void)
 {
-    unsigned device = (unsigned int)strtoul(devnum, NULL, 0);
-    return (dev_t)device;
+    tty_driver_t	*tty, *tmp;
+    char		path[MAXPATHLEN];
+    FILE		*file;
+    char		unused[128], device[128], range[64], *end;
+    int			maj, n;
+
+    /* create a data structure of tty drivers for faster lookups */
+    pmsprintf(path, sizeof(path), "%s/proc/tty/drivers", proc_statspath);
+    if ((file = fopen(path, "r")) == NULL)
+	return;
+    while (!feof(file)) {
+	n = fscanf(file, "%s %s %d %s %s", unused, device, &maj, range, unused);
+	if (n != 5)
+	    continue;
+
+	n = (tty_driver_count + 1) * sizeof(tty_driver_t);
+	if ((tmp = (tty_driver_t *)realloc(tty_drivers, n)) == NULL)
+	    break;
+
+	tty = &tmp[tty_driver_count];
+	if (strncmp(end = device, "/dev/", 5) == 0)
+	    end += 5;
+	tty->devpath = strdup(end);
+	tty->major = maj;
+	tty->minor = strtoul(range, &end, 10);
+	if (*end != '-')
+	    tty->range = tty->minor;
+	else
+	    tty->range = strtoul(end + 1, &end, 10);
+
+	tty_drivers = tmp;
+	tty_driver_count++;
+    }
+    fclose(file);
+}
+
+char *
+lookup_ttyname(dev_t dev)
+{
+    tty_driver_t	*tty;
+    unsigned int	i, maj = major(dev), min = minor(dev);
+    static char		devpath[256];
+
+    for (i = 0; i < tty_driver_count; i++) {
+	tty = &tty_drivers[i];
+	if (tty->major != maj)
+	    continue;
+	if (min == tty->minor && min == tty->range)
+	    return tty->devpath;
+	if (min < tty->minor || min > tty->range)
+	    break;
+	pmsprintf(devpath, sizeof(devpath), "%s/%u", tty->devpath, min);
+	return devpath;
+    }
+    return strcpy(devpath, "?");
 }
 
 /*
@@ -42,7 +113,7 @@ get_encoded_dev(const char *devnum)
  * Returns a pointer into a static buffer, so no free'ing needed.
  */
 char *
-get_ttyname(int pid, dev_t dev, char *devpath)
+get_ttyname(dev_t dev, char *devpath)
 {
     static char	ttyname[MAXPATHLEN];
     char	fullpath[MAXPATHLEN];
@@ -76,14 +147,28 @@ get_ttyname(int pid, dev_t dev, char *devpath)
     return ttyname;
 }
 
+/*
+ * Convert kernels string device number encoding into a dev_t
+ * before searching for matching tty name.
+ */
 char *
-get_ttyname_info(int pid, const char *devnum)
+get_ttyname_info(const char *devnum)
 {
-    dev_t	dev = get_encoded_dev(devnum);
+    unsigned device = (unsigned int)strtoul(devnum, NULL, 0);
+
+    return get_ttyname_info_dev_t((dev_t)device);
+}
+
+char *
+get_ttyname_info_dev_t(dev_t dev)
+{
     char	*name;
 
-    name = get_ttyname(pid, dev, "/dev/pts");
+    name = lookup_ttyname(dev);
     if (*name != '?')
 	return name;
-    return get_ttyname(pid, dev, "/dev");
+    name = get_ttyname(dev, "/dev/pts");
+    if (*name != '?')
+	return name;
+    return get_ttyname(dev, "/dev");
 }

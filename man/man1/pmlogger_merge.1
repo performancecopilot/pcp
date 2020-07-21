@@ -18,7 +18,7 @@
 \f3pmlogger_merge\f1 \- helper script to merge Performance Co-Pilot archives
 .SH SYNOPSIS
 .B $PCP_BINADM_DIR/pmlogger_merge
-[\f3\-fNV?\f1]
+[\f3\-fNVE?\f1]
 [\f2input-basename\f1 ... \f2output-name\f1]
 .SH DESCRIPTION
 .B pmlogger_merge
@@ -60,6 +60,24 @@ options.
 .TP
 \fB\-V\fR, \fB\-\-verbose\fR
 Increase verbosity in the output progress report.
+.TP
+\fB\-E\fR, \fB\-\-expunge\fR
+When metric metadata differences are encountered between archives to be merged,
+the default behaviour is for
+.B pmlogger_merge
+to fail with a fatal error and the \f2output-name\f1 archive is not created.
+The
+.B \-E
+flag instead issues a warning and excludes the affected metrics from the merged
+output archive.
+This is intended for automated daily log rotation where it is highly desirable
+for unattended daily archive merging, rewriting and compression to succeed.
+See also
+.BR pmlogger_daily (1)
+and the
+.B \-x
+flag to
+.BR pmlogextract (1).
 .TP
 \fB\-?\fR, \fB\-\-help\fR
 Display usage message and exit.

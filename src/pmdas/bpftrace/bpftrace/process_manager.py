@@ -9,6 +9,7 @@ import time
 from datetime import datetime, timedelta
 from .models import PMDAConfig, RuntimeInfo, Script, Status, Logger, MetricType, BPFtraceError
 from .parser import parse_code, process_bpftrace_output
+from .utils import asyncio_get_all_tasks
 
 
 class ScriptTasks:
@@ -62,6 +63,7 @@ class ProcessManager():
                                       f"the following error occured:\n"
                                       f"{traceback.format_exc()}")
         except ValueError:
+            # thrown if the output exceeds 'limit' (argument passed to create_subprocess_exec)
             raise BPFtraceError(
                 f"BPFtrace output exceeds limit of {self.config.max_throughput}"
                 f" bytes per second") from None
@@ -289,12 +291,12 @@ class ProcessManager():
         self.loop.run_until_complete(self.main_loop())
 
         # stop pending tasks
-        pending = asyncio.Task.all_tasks()
+        pending = asyncio_get_all_tasks(self.loop)
         if pending:
             self.logger.info("manager: waiting 10 secs for running tasks to stop...")
             self.loop.run_until_complete(asyncio.wait(pending, timeout=10))
 
-            pending = asyncio.Task.all_tasks()
+            pending = asyncio_get_all_tasks(self.loop)
             for task in pending:
                 task.cancel()
                 try:

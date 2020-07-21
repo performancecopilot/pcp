@@ -24,7 +24,7 @@
 [\f3\-l\f1 \f2logfile\f1]
 .br
 .B $PCP_BINADM_DIR/pmlogger_daily
-[\f3\-KMNoprRV?\f1]
+[\f3\-EKMNoprRV?\f1]
 [\f3\-c\f1 \f2control\f1]
 [\f3\-k\f1 \f2time\f1]
 [\f3\-l\f1 \f2logfile\f1]
@@ -127,6 +127,24 @@ This option causes
 to query the system service runlevel information for
 .BR pmlogger ,
 and use that to determine whether to start processes or not.
+.TP
+\fB\-E\fR
+This option causes
+.B pmlogger_daily
+to pass the
+.B \-E
+flag to
+.B pmlogger_merge
+in order to expunge metrics with metadata inconsistencies and continue
+rather than fail.
+This is intended for automated daily log rotation where it is highly desirable
+for unattended daily archive merging, rewriting and compression to succeed.
+For further details, see
+.BR pmlogger_merge (1)
+and description for the
+.B \-x
+flag in
+.BR pmlogextract (1).
 .TP
 \fB\-k\fR \fItime\fR, \fB\-\-discard\fR=\fItime\fR
 After some period, old PCP archives are discarded.
@@ -918,6 +936,7 @@ platforms.
 .BR pmlogger (1),
 .BR pmlogger_daily_report (1),
 .BR pmlogger_merge (1),
+.BR pmlogextract (1),
 .BR pmlogmv (1),
 .BR pmlogrewrite (1),
 .BR pmsocks (1),

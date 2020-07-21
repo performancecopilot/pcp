@@ -1,8 +1,12 @@
 ## Type:        string
-## Default:	""
+## Default:	"-E"
 #
 # Run the pmlogger_daily binary, via pmlogger_daily.service, with the
-# following parameters.
+# given parameters. If PMLOGGER_DAILY_PARAMS is left commented out, the
+# default is "-E", which causes pmlogger_daily to continue rather than fail
+# if metadata inconsistencies are encountered when merging archives during
+# daily log processing. See pmlogger_daily(1), pmlogger_merge(1),
+# pmlogger_rewrite(1) and the -x flag for pmlogextract(1).
 #
 #PMLOGGER_DAILY_PARAMS=""
 
