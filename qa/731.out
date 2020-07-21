@@ -111,6 +111,7 @@ cgroup.io.stat.rbytes
 cgroup.io.stat.rios
 cgroup.io.stat.wbytes
 cgroup.io.stat.wios
+cgroup.memory.current
 cgroup.memory.failcnt
 cgroup.memory.id.container
 cgroup.memory.limit
@@ -337,6 +338,7 @@ cgroup.io.stat.rbytes
 cgroup.io.stat.rios
 cgroup.io.stat.wbytes
 cgroup.io.stat.wios
+cgroup.memory.current
 cgroup.memory.failcnt
 cgroup.memory.id.container
 cgroup.memory.limit
@@ -549,6 +551,7 @@ cgroup.io.stat.rbytes
 cgroup.io.stat.rios
 cgroup.io.stat.wbytes
 cgroup.io.stat.wios
+cgroup.memory.current
 cgroup.memory.failcnt
 cgroup.memory.id.container
 cgroup.memory.limit
@@ -761,6 +764,7 @@ cgroup.io.stat.rbytes
 cgroup.io.stat.rios
 cgroup.io.stat.wbytes
 cgroup.io.stat.wios
+cgroup.memory.current
 cgroup.memory.failcnt
 cgroup.memory.id.container
 cgroup.memory.limit
@@ -852,7 +856,7 @@ cgroup.subsys.enabled
 cgroup.subsys.hierarchy
 cgroup.subsys.num_cgroups
 
-and 13756 instance values.
+and 13979 instance values.
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector

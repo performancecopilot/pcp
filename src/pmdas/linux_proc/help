@@ -163,6 +163,7 @@ sources.
 @ cgroup.memory.usage Current physical memory accounted to each cgroup
 @ cgroup.memory.limit Maximum memory that can be utilized by each cgroup
 @ cgroup.memory.failcnt Count of failures to allocate memory due to cgroup limit
+@ cgroup.memory.current The total amount of memory currently being used by the cgroup and its descendants
 @ cgroup.memory.stat.cache Number of bytes of page cache memory
 @ cgroup.memory.stat.rss Anonymous and swap memory (incl transparent hugepages)
 @ cgroup.memory.stat.rss_huge Anonymous transparent hugepages
