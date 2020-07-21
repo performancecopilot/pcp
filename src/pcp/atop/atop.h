@@ -77,6 +77,7 @@ struct sysname {
 extern struct sysname	sysname;
 extern int              nodenamelen;
 extern struct timeval	start;
+extern struct timeval	finish;
 extern struct timeval	origin;
 extern struct timeval   pretime;
 extern struct timeval   curtime;

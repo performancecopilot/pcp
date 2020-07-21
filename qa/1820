@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 1820
-# Exercise memory allocation bug in pcp-atopsar(1).
+# Exercise memory allocation and time window bugs in pcp-atopsar(1).
 #
 # Copyright (c) 2020 Red Hat.  All Rights Reserved.
 #
@@ -33,7 +33,12 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 # real QA test starts here
 export PCP_HOSTZONE=1
 export PCP_ARCHIVE=$here/archives/pcp-atop-log
+
+echo && echo "=== Check memory allocation issue:"
 $PCP_BINADM_DIR/pcp-atopsar -x -R 5 2 10
+
+echo && echo "=== Check time window issue:"
+$PCP_BINADM_DIR/pcp-atopsar -x -b 16:14:29 -e 16:14:33 1
 
 # success, all done
 status=0

@@ -611,6 +611,7 @@ setup_origin(pmOptions *opts)
 	int		sts = 0;
 
 	start = opts->start;
+	finish = opts->finish;
 	curtime = origin = opts->origin;
 
 	if (opts->interval.tv_sec || opts->interval.tv_usec)
@@ -728,13 +729,13 @@ setup_globals(pmOptions *opts)
 {
 	pmID		pmids[HOST_NMETRICS];
 	pmDesc		descs[HOST_NMETRICS];
-	pmResult	*result;
+	pmResult	*result = NULL;
 
 	setup_context(opts);
 	setup_metrics(hostmetrics, &pmids[0], &descs[0], HOST_NMETRICS);
 	fetch_metrics("host", HOST_NMETRICS, pmids, &result);
 
-	if (HOST_NMETRICS != result->numpmid)
+	if (result == NULL || HOST_NMETRICS != result->numpmid)
 	{
 		fprintf(stderr,
 			"%s: pmFetch failed to fetch initial metric value(s)\n",
@@ -988,11 +989,26 @@ setup_metrics(char **metrics, pmID *pmidlist, pmDesc *desclist, int nmetrics)
 	}
 }
 
+static inline int
+timeval_greater_than(struct timeval *a, struct timeval *b)
+{
+    if (a->tv_sec > b->tv_sec)
+	return 1;
+    if (a->tv_sec == b->tv_sec && a->tv_usec > b->tv_usec)
+	return 1;
+    return 0;
+}
+
 int
 fetch_metrics(const char *purpose, int nmetrics, pmID *pmids, pmResult **result)
 {
 	pmResult	*rp;
 	int		sts;
+
+	if (timeval_greater_than(&curtime, &finish)) {
+	    sampflags |= (RRLAST | RRMARK);
+	    return PM_ERR_EOL;
+	}
 
 	pmSetMode(fetchmode, &curtime, fetchstep);
 	if ((sts = pmFetch(nmetrics, pmids, result)) < 0)
