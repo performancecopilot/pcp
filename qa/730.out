@@ -109,6 +109,7 @@ cgroup.io.stat.rbytes
 cgroup.io.stat.rios
 cgroup.io.stat.wbytes
 cgroup.io.stat.wios
+cgroup.memory.current
 cgroup.memory.failcnt
 cgroup.memory.id.container
 cgroup.memory.limit
@@ -1133,6 +1134,11 @@ cgroup.io.stat.wios
     Semantics: counter  Units: count
 No value(s) available!
 
+cgroup.memory.current
+    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+    Semantics: instant  Units: byte
+No value(s) available!
+
 cgroup.memory.failcnt
     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
     Semantics: counter  Units: count
@@ -1805,6 +1811,7 @@ cgroup.io.stat.rbytes
 cgroup.io.stat.rios
 cgroup.io.stat.wbytes
 cgroup.io.stat.wios
+cgroup.memory.current
 cgroup.memory.failcnt
 cgroup.memory.id.container
 cgroup.memory.limit
@@ -2529,6 +2536,11 @@ cgroup.io.stat.wios
     Semantics: counter  Units: count
 No value(s) available!
 
+cgroup.memory.current
+    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+    Semantics: instant  Units: byte
+No value(s) available!
+
 cgroup.memory.failcnt
     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
     Semantics: counter  Units: count
@@ -3133,6 +3145,7 @@ cgroup.io.stat.rbytes
 cgroup.io.stat.rios
 cgroup.io.stat.wbytes
 cgroup.io.stat.wios
+cgroup.memory.current
 cgroup.memory.failcnt
 cgroup.memory.id.container
 cgroup.memory.limit
@@ -8792,6 +8805,11 @@ cgroup.io.stat.wios
     Semantics: counter  Units: count
 No value(s) available!
 
+cgroup.memory.current
+    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+    Semantics: instant  Units: byte
+No value(s) available!
+
 cgroup.memory.failcnt
     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
     Semantics: counter  Units: count
@@ -9483,6 +9501,7 @@ cgroup.io.stat.rbytes
 cgroup.io.stat.rios
 cgroup.io.stat.wbytes
 cgroup.io.stat.wios
+cgroup.memory.current
 cgroup.memory.failcnt
 cgroup.memory.id.container
 cgroup.memory.limit
@@ -12207,6 +12226,233 @@ cgroup.io.stat.wios
     inst [N or "/user.slice::dm-1"] value 544299746
     inst [N or "/user.slice::dm-2"] value 2505223
     inst [N or "/user.slice::sda"] value 547453168
+
+cgroup.memory.current
+    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+    Semantics: instant  Units: byte
+    inst [N or "/init.scope"] value 36016128
+    inst [N or "/machine.slice"] value 61440
+    inst [N or "/machine.slice/machine-libpod_pod_17a0d088e8b115261fa578e09a9260fc8017c7a7219bc9e05013d6ab43521573.slice"] value 0
+    inst [N or "/machine.slice/machine-libpod_pod_182f9b0428d6ecc2aa915fe667037be8b9028fe24951080c83abecb3c348f1ab.slice"] value 0
+    inst [N or "/machine.slice/machine-libpod_pod_2990b770e5990de62160f8e8fe288e62b0810649a8e5ffbba7b0df30b2cd7f7b.slice"] value 0
+    inst [N or "/machine.slice/machine-libpod_pod_358b487bed4f0fac014383214d8d28b7d8e748df08fcaf74babe328af593f470.slice"] value 0
+    inst [N or "/machine.slice/machine-libpod_pod_36ba2a263440d43c6e56c55e43931f5aadb0dfc286afe1cdb18a9942266ab1d2.slice"] value 0
+    inst [N or "/machine.slice/machine-libpod_pod_53f8b82d86f802bd9408734c37a9a762714e42ae3706eed194804e7ab42ddfcf.slice"] value 0
+    inst [N or "/machine.slice/machine-libpod_pod_5c4db5a7fea61df8a19e8afeda1b83a1f134c7d5cada94ccf3f9ee5c1ba8d928.slice"] value 0
+    inst [N or "/machine.slice/machine-libpod_pod_60c014265f20f5b2d38925aa20d85b31bfa549dc46a1c69f2057c1c25a5e2a3b.slice"] value 0
+    inst [N or "/machine.slice/machine-libpod_pod_74ff46da9269749f52ac60c239569da0fcfe30400385f0a544639aac79b3e22c.slice"] value 0
+    inst [N or "/machine.slice/machine-libpod_pod_81119c70572e8df353577b3f4e41d44762de853d5652443b06737d5598e222a5.slice"] value 0
+    inst [N or "/machine.slice/machine-libpod_pod_91af1f9b5db98bce89bd77fd0fa6edaa52cab29688c56f76ab137a0911468f83.slice"] value 0
+    inst [N or "/machine.slice/machine-libpod_pod_99ba02ce892d8f0fb15b5f731236ebf1d5a8cd41b75ccf7cd2be6147f3b5b509.slice"] value 0
+    inst [N or "/machine.slice/machine-libpod_pod_9d30caebefaaf8afd150f71505b3bdccd79b6cf8c2a754426e66b0a2c9584d81.slice"] value 0
+    inst [N or "/machine.slice/machine-libpod_pod_9dea3197340764d3b85586438be30aff53511b86746bc2b105c3a0f5f911547f.slice"] value 0
+    inst [N or "/machine.slice/machine-libpod_pod_a028ab97072d3c355a22186ba5d5a536df2dfca179bcc6948441b2b7b51eae4a.slice"] value 0
+    inst [N or "/machine.slice/machine-libpod_pod_b0f94badd920df992c8e78486891e9a9ee8b2757b9829b6a51b4298015c89a0f.slice"] value 0
+    inst [N or "/machine.slice/machine-libpod_pod_b16b015b20484bb24411ad17d61e216650bf6368bd295db7d72679688e6ce297.slice"] value 0
+    inst [N or "/machine.slice/machine-libpod_pod_b396ef8d459acce24e26653e1d5e37f5a8223f87f21e554bbcbb716886da5f8e.slice"] value 0
+    inst [N or "/machine.slice/machine-libpod_pod_b55e84d1048f7a3ecc6530f5000f69fe88630348e9bfea333346e8cac7d01216.slice"] value 0
+    inst [N or "/machine.slice/machine-libpod_pod_bb6c20ec7219a60facbdc9a5a4fe0b2460d0ac1b3dfcc4e48a609c4165cd92cb.slice"] value 0
+    inst [N or "/machine.slice/machine-libpod_pod_f6fb8308bc7a45b2bd490a1fc128aecf611747df3ebe4885cee11ea0995a9fde.slice"] value 0
+    inst [N or "/system.slice"] value 2831458304
+    inst [N or "/system.slice/-.mount"] value 0
+    inst [N or "/system.slice/ModemManager.service"] value 1474560
+    inst [N or "/system.slice/NetworkManager-wait-online.service"] value 0
+    inst [N or "/system.slice/NetworkManager.service"] value 14753792
+    inst [N or "/system.slice/abrt-journal-core.service"] value 3022848
+    inst [N or "/system.slice/abrt-oops.service"] value 1708032
+    inst [N or "/system.slice/abrt-xorg.service"] value 1384448
+    inst [N or "/system.slice/abrtd.service"] value 10792960
+    inst [N or "/system.slice/accounts-daemon.service"] value 2945024
+    inst [N or "/system.slice/alsa-state.service"] value 675840
+    inst [N or "/system.slice/atd.service"] value 1536000
+    inst [N or "/system.slice/auditd.service"] value 10678272
+    inst [N or "/system.slice/avahi-daemon.service"] value 2920448
+    inst [N or "/system.slice/avahi-daemon.socket"] value 0
+    inst [N or "/system.slice/bluetooth.service"] value 1888256
+    inst [N or "/system.slice/bolt.service"] value 1556480
+    inst [N or "/system.slice/boot.mount"] value 90112
+    inst [N or "/system.slice/chronyd.service"] value 4034560
+    inst [N or "/system.slice/cockpit.socket"] value 1761280
+    inst [N or "/system.slice/colord.service"] value 4698112
+    inst [N or "/system.slice/crond.service"] value 8732672
+    inst [N or "/system.slice/cups.service"] value 2834432
+    inst [N or "/system.slice/cups.socket"] value 0
+    inst [N or "/system.slice/dbus-broker.service"] value 8179712
+    inst [N or "/system.slice/dbus.socket"] value 0
+    inst [N or "/system.slice/dev-disk-by-id-dm-name-fedora_shard-swap.swap"] value 0
+    inst [N or "/system.slice/dev-disk-by-id-dm-uuid-LVM-lnbNOkRDFkqA4El3U9ezetplADFVNH334lynuJzuoyfgUVAoAmjGq8sbmG3dCDC0.swap"] value 0
+    inst [N or "/system.slice/dev-disk-by-uuid-a03f889d-ebe3-444d-87a8-1a3e6b082ffd.swap"] value 0
+    inst [N or "/system.slice/dev-dm-1.swap"] value 0
+    inst [N or "/system.slice/dev-fedora_shard-swap.swap"] value 0
+    inst [N or "/system.slice/dev-hugepages.mount"] value 114688
+    inst [N or "/system.slice/dev-mapper-fedora_shard-swap.swap"] value 135168
+    inst [N or "/system.slice/dev-mqueue.mount"] value 114688
+    inst [N or "/system.slice/dm-event.socket"] value 0
+    inst [N or "/system.slice/dracut-shutdown.service"] value 0
+    inst [N or "/system.slice/firewalld.service"] value 10539008
+    inst [N or "/system.slice/fwupd.service"] value 9134080
+    inst [N or "/system.slice/gdm.service"] value 5300224
+    inst [N or "/system.slice/geoclue.service"] value 12582912
+    inst [N or "/system.slice/grafana-server.service"] value 27332608
+    inst [N or "/system.slice/gssproxy.service"] value 1228800
+    inst [N or "/system.slice/home-containers-storage-overlay-containers-eee0b309d63dab22f8f598e68f407741f29455580b21ccea24dcd33b11b79c9a-userdata-shm.mount"] value 0
+    inst [N or "/system.slice/home-containers-storage-overlay.mount"] value 0
+    inst [N or "/system.slice/home.mount"] value 286720
+    inst [N or "/system.slice/io.podman.socket"] value 0
+    inst [N or "/system.slice/iscsi-shutdown.service"] value 0
+    inst [N or "/system.slice/iscsid.socket"] value 0
+    inst [N or "/system.slice/iscsiuio.socket"] value 0
+    inst [N or "/system.slice/kmod-static-nodes.service"] value 0
+    inst [N or "/system.slice/libvirtd-admin.socket"] value 0
+    inst [N or "/system.slice/libvirtd-ro.socket"] value 0
+    inst [N or "/system.slice/libvirtd.service"] value 6254592
+    inst [N or "/system.slice/libvirtd.socket"] value 0
+    inst [N or "/system.slice/livesys-late.service"] value 0
+    inst [N or "/system.slice/livesys.service"] value 0
+    inst [N or "/system.slice/lm_sensors.service"] value 0
+    inst [N or "/system.slice/lvm2-lvmpolld.socket"] value 0
+    inst [N or "/system.slice/lvm2-monitor.service"] value 0
+    inst [N or "/system.slice/mcelog.service"] value 294912
+    inst [N or "/system.slice/mssql-server.service"] value 310890496
+    inst [N or "/system.slice/netcf-transaction.service"] value 0
+    inst [N or "/system.slice/php-fpm.service"] value 3989504
+    inst [N or "/system.slice/pmcd.service"] value 64028672
+    inst [N or "/system.slice/pmlogger.service"] value 15724544
+    inst [N or "/system.slice/pmproxy.service"] value 25415680
+    inst [N or "/system.slice/polkit.service"] value 10170368
+    inst [N or "/system.slice/readonly-root.service"] value 0
+    inst [N or "/system.slice/redis.service"] value 24322048
+    inst [N or "/system.slice/rngd.service"] value 1081344
+    inst [N or "/system.slice/rpc-statd-notify.service"] value 0
+    inst [N or "/system.slice/rtkit-daemon.service"] value 1990656
+    inst [N or "/system.slice/run-netns-cni-220c0b6a-75a9-bcd2-0f73-c15c2e013779.mount"] value 0
+    inst [N or "/system.slice/run-netns.mount"] value 0
+    inst [N or "/system.slice/run-user-1000-gvfs.mount"] value 0
+    inst [N or "/system.slice/run-user-1000.mount"] value 0
+    inst [N or "/system.slice/run-user-385.mount"] value 0
+    inst [N or "/system.slice/smartd.service"] value 1597440
+    inst [N or "/system.slice/source.mount"] value 40960
+    inst [N or "/system.slice/sshd.service"] value 5332992
+    inst [N or "/system.slice/sssd.service"] value 11800576
+    inst [N or "/system.slice/switcheroo-control.service"] value 618496
+    inst [N or "/system.slice/sys-fs-fuse-connections.mount"] value 114688
+    inst [N or "/system.slice/sys-kernel-config.mount"] value 61440
+    inst [N or "/system.slice/sys-kernel-debug-tracing.mount"] value 0
+    inst [N or "/system.slice/sys-kernel-debug.mount"] value 114688
+    inst [N or "/system.slice/sysstat.service"] value 0
+    inst [N or "/system.slice/system-dbus-:1.8-org.freedesktop.problems.slice"] value 1851392
+    inst [N or "/system.slice/system-dbus-:1.8-org.freedesktop.problems.slice/dbus-:1.8-org.freedesktop.problems@0.service"] value 1851392
+    inst [N or "/system.slice/system-getty.slice"] value 0
+    inst [N or "/system.slice/system-lvm2-pvscan.slice"] value 40960
+    inst [N or "/system.slice/system-lvm2-pvscan.slice/lvm2-pvscan@8:2.service"] value 0
+    inst [N or "/system.slice/system-sshd-keygen.slice"] value 0
+    inst [N or "/system.slice/system-systemd-backlight.slice"] value 20480
+    inst [N or "/system.slice/system-systemd-backlight.slice/systemd-backlight@backlight:intel_backlight.service"] value 0
+    inst [N or "/system.slice/system-systemd-backlight.slice/systemd-backlight@leds:tpacpi::kbd_backlight.service"] value 0
+    inst [N or "/system.slice/system-systemd-coredump.slice"] value 114688
+    inst [N or "/system.slice/system-systemd-fsck.slice"] value 4096
+    inst [N or "/system.slice/system-systemd-fsck.slice/systemd-fsck@dev-disk-by-uuid-65d89129-9e67-4ba5-9fac-867c363a665f.service"] value 0
+    inst [N or "/system.slice/system-systemd-fsck.slice/systemd-fsck@dev-mapper-fedora_shard-home.service"] value 0
+    inst [N or "/system.slice/systemd-coredump.socket"] value 0
+    inst [N or "/system.slice/systemd-fsck-root.service"] value 0
+    inst [N or "/system.slice/systemd-initctl.socket"] value 0
+    inst [N or "/system.slice/systemd-journal-flush.service"] value 0
+    inst [N or "/system.slice/systemd-journald-audit.socket"] value 0
+    inst [N or "/system.slice/systemd-journald-dev-log.socket"] value 0
+    inst [N or "/system.slice/systemd-journald.service"] value 52768768
+    inst [N or "/system.slice/systemd-journald.socket"] value 0
+    inst [N or "/system.slice/systemd-logind.service"] value 6156288
+    inst [N or "/system.slice/systemd-machined.service"] value 1302528
+    inst [N or "/system.slice/systemd-modules-load.service"] value 0
+    inst [N or "/system.slice/systemd-random-seed.service"] value 0
+    inst [N or "/system.slice/systemd-remount-fs.service"] value 0
+    inst [N or "/system.slice/systemd-rfkill.socket"] value 0
+    inst [N or "/system.slice/systemd-sysctl.service"] value 0
+    inst [N or "/system.slice/systemd-tmpfiles-setup-dev.service"] value 0
+    inst [N or "/system.slice/systemd-tmpfiles-setup.service"] value 0
+    inst [N or "/system.slice/systemd-udev-settle.service"] value 0
+    inst [N or "/system.slice/systemd-udev-trigger.service"] value 0
+    inst [N or "/system.slice/systemd-udevd.service"] value 18227200
+    inst [N or "/system.slice/systemd-update-utmp.service"] value 0
+    inst [N or "/system.slice/systemd-user-sessions.service"] value 0
+    inst [N or "/system.slice/tmp.mount"] value 114688
+    inst [N or "/system.slice/udisks2.service"] value 8015872
+    inst [N or "/system.slice/upower.service"] value 5615616
+    inst [N or "/system.slice/var-lib-containers-storage-overlay-containers-eee0b309d63dab22f8f598e68f407741f29455580b21ccea24dcd33b11b79c9a-userdata-shm.mount"] value 0
+    inst [N or "/system.slice/var-lib-containers-storage-overlay-d7991c7756a992c8f8dc7d827988b827e7d6c49de2fbbe56a647485986f388fc-merged.mount"] value 0
+    inst [N or "/system.slice/var-lib-containers-storage-overlay.mount"] value 0
+    inst [N or "/system.slice/var-lib-containers.mount"] value 147456
+    inst [N or "/system.slice/var-lib-libvirt.mount"] value 147456
+    inst [N or "/system.slice/var-lib-nfs-rpc_pipefs.mount"] value 4096
+    inst [N or "/system.slice/virtlockd.socket"] value 0
+    inst [N or "/system.slice/virtlogd.socket"] value 0
+    inst [N or "/system.slice/wpa_supplicant.service"] value 3919872
+    inst [N or "/user.slice"] value 7924121600
+    inst [N or "/user.slice/user-1000.slice"] value 7917395968
+    inst [N or "/user.slice/user-1000.slice/session-4.scope"] value 12083200
+    inst [N or "/user.slice/user-1000.slice/user-runtime-dir@1000.service"] value 0
+    inst [N or "/user.slice/user-1000.slice/user@1000.service"] value 7905423360
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/at-spi-dbus-bus.service"] value 2437120
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/dbus-:1.2-ca.desrt.dconf.slice"] value 2740224
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/dbus-:1.2-ca.desrt.dconf.slice/dbus-:1.2-ca.desrt.dconf@0.service"] value 2740224
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/dbus-:1.2-org.freedesktop.portal.IBus.slice"] value 1216512
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/dbus-:1.2-org.freedesktop.portal.IBus.slice/dbus-:1.2-org.freedesktop.portal.IBus@1.service"] value 1216512
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/dbus-:1.2-org.freedesktop.problems.applet.slice"] value 3063808
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/dbus-:1.2-org.freedesktop.problems.applet.slice/dbus-:1.2-org.freedesktop.problems.applet@0.service"] value 3063808
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/dbus-:1.2-org.gnome.GConf.slice"] value 942080
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/dbus-:1.2-org.gnome.GConf.slice/dbus-:1.2-org.gnome.GConf@0.service"] value 942080
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/dbus-:1.2-org.gnome.Identity.slice"] value 5251072
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/dbus-:1.2-org.gnome.Identity.slice/dbus-:1.2-org.gnome.Identity@0.service"] value 5251072
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/dbus-:1.2-org.gnome.OnlineAccounts.slice"] value 36696064
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/dbus-:1.2-org.gnome.OnlineAccounts.slice/dbus-:1.2-org.gnome.OnlineAccounts@0.service"] value 36696064
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/dbus-:1.2-org.gnome.Shell.CalendarServer.slice"] value 4591616
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/dbus-:1.2-org.gnome.Shell.CalendarServer.slice/dbus-:1.2-org.gnome.Shell.CalendarServer@0.service"] value 4591616
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/dbus-:1.2-org.gnome.Shell.HotplugSniffer.slice"] value 0
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/dbus-:1.2-org.gnome.Shell.PortalHelper.slice"] value 0
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/dbus-:1.2-org.gnome.evince.Daemon.slice"] value 0
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/dbus-:1.20-org.a11y.atspi.Registry.slice"] value 1290240
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/dbus-:1.20-org.a11y.atspi.Registry.slice/dbus-:1.20-org.a11y.atspi.Registry@0.service"] value 1290240
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/dbus-broker.service"] value 5537792
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/dbus.socket"] value 151552
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/evolution-addressbook-factory.service"] value 3248128
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/evolution-calendar-factory.service"] value 19693568
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/evolution-source-registry.service"] value 6713344
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/gnome-session-manager.slice"] value 222408704
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/gnome-session-manager.slice/gnome-session-manager@gnome.service"] value 222408704
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/gnome-session-monitor.service"] value 122880
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/gnome-shell-wayland.service"] value 4061175808
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/gnome-terminal-server.service"] value 3407052800
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/gsd-a11y-settings.service"] value 1077248
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/gsd-color.service"] value 8155136
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/gsd-datetime.service"] value 1343488
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/gsd-housekeeping.service"] value 4907008
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/gsd-keyboard.service"] value 2482176
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/gsd-media-keys.service"] value 8241152
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/gsd-power.service"] value 4075520
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/gsd-print-notifications.service"] value 3825664
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/gsd-rfkill.service"] value 1314816
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/gsd-screensaver-proxy.service"] value 1327104
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/gsd-sharing.service"] value 3362816
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/gsd-smartcard.service"] value 1724416
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/gsd-sound.service"] value 1380352
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/gsd-wacom.service"] value 2691072
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/gsd-wwan.service"] value 1245184
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/gsd-xsettings.service"] value 4497408
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/gvfs-afc-volume-monitor.service"] value 1736704
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/gvfs-daemon.service"] value 9129984
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/gvfs-goa-volume-monitor.service"] value 1712128
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/gvfs-gphoto2-volume-monitor.service"] value 1691648
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/gvfs-metadata.service"] value 2859008
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/gvfs-mtp-volume-monitor.service"] value 1708032
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/gvfs-udisks2-volume-monitor.service"] value 3743744
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/init.scope"] value 7680000
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/pulseaudio.service"] value 10977280
+    inst [N or "/user.slice/user-1000.slice/user@1000.service/xdg-permission-store.service"] value 413696
+    inst [N or "/user.slice/user-385.slice"] value 5455872
+    inst [N or "/user.slice/user-385.slice/user-runtime-dir@385.service"] value 0
+    inst [N or "/user.slice/user-385.slice/user@385.service"] value 5435392
+    inst [N or "/user.slice/user-385.slice/user@385.service/dbus.socket"] value 155648
+    inst [N or "/user.slice/user-385.slice/user@385.service/init.scope"] value 1826816
 
 cgroup.memory.failcnt
     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
