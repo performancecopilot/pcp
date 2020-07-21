@@ -377,6 +377,7 @@ _configure_pmlogger()
 		cat "$tmpconfig"
 		echo "=== end pmlogconf file ==="
 	    fi
+	    rm -f "$tmpconfig"
 	fi
     elif [ ! -e "$configfile" ]
     then
