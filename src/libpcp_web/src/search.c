@@ -401,6 +401,11 @@ extract_search_results(redisSearchBaton *baton,
 	result.score = strtod(score->str, NULL);
 	result.type = atoi(payload->str);
 
+	// These may not have been saved in Redisearch record, therefore create fallbacks
+	result.indom = sdsempty();
+	result.oneline = sdsempty();
+	result.helptext = sdsempty();
+
 	for (j = 0; j < array->elements - 1; j += 2) {
 	    redisReply	*field = array->element[j];
 	    redisReply	*value = array->element[j+1];
@@ -554,6 +559,7 @@ redis_search_text_query(redisSlots *slots, pmSearchTextRequest *request, void *a
     cmd = redis_command(length);
     cmd = redis_param_str(cmd, FT_SEARCH, FT_SEARCH_LEN);
     cmd = redis_param_sds(cmd, key);
+    /* TODO: redisearch tokenization */
     cmd = redis_param_sds(cmd, query);
     sdsfree(query);
     cmd = redis_param_str(cmd, FT_WITHSCORES, FT_WITHSCORES_LEN);
@@ -659,7 +665,6 @@ static void
 redis_search_text_suggest(redisSlots *slots, pmSearchTextRequest *request, void *arg)
 {
     redisSearchBaton	*baton = (redisSearchBaton *)arg;
-    const char		*typestr;
     size_t		length;
     char		buffer[64];
     sds			cmd, key, query;
@@ -672,33 +677,38 @@ redis_search_text_suggest(redisSlots *slots, pmSearchTextRequest *request, void 
 
     seriesBatonReference(baton, "redis_search_suggest_query");
 
-    /*TODO: redisearch quoting*/
-    query = sdscatfmt(sdsempty(), "(@NAME:(%S*)|@NAME:(%%%S%%))",
-			request->query, request->query);
+    /* TODO: redisearch tokenization */
+    query = sdscatfmt(
+	sdsempty(),
+	// quote pairs have to be in a single RESP array item, else fails
+	"\'(@NAME:(%S*)|@NAME:(%%%S%%)) @TYPE:{%s|%s}\'",
+	request->query,
+	request->query,
+	pmSearchTextTypeStr(PM_SEARCH_TYPE_METRIC),
+	pmSearchTextTypeStr(PM_SEARCH_TYPE_INST)
+    );
 
     /*
      * FT.SEARCH pcp:text
-     *          (@NAME:({query}*)|@NAME:(%{query}%))
-     *		@type={ metric | instance }
-     *          LIMIT 0 {?return result count}
+     * 		"(@NAME:({query}*)|@NAME:(%{query}%)) @TYPE={metric|instance}"
+     * 		WITHSCORES WITHPAYLOADS
+     * 		RETURN 1 NAME
+     * 		LIMIT 0 {?return result count}
      */
     key = sdsnewlen(FT_TEXT_KEY, FT_TEXT_KEY_LEN);
 
-    length = 2 + 1 + 5 + 3;
+    length = 11; // Resp array size
     cmd = redis_command(length);
     cmd = redis_param_str(cmd, FT_SEARCH, FT_SEARCH_LEN);
     cmd = redis_param_sds(cmd, key);
     cmd = redis_param_sds(cmd, query);
     sdsfree(query);
 
-    cmd = redis_param_str(cmd, "@type={ ", 8);
-    typestr = pmSearchTextTypeStr(PM_SEARCH_TYPE_METRIC);
-    cmd = redis_param_str(cmd, typestr, strlen(typestr));
-    cmd = redis_param_str(cmd, " | ", 3);
-    typestr = pmSearchTextTypeStr(PM_SEARCH_TYPE_INST);
-    cmd = redis_param_str(cmd, typestr, strlen(typestr));
-    cmd = redis_param_str(cmd, " }\"", 3);
-
+    cmd = redis_param_str(cmd, FT_WITHSCORES, FT_WITHSCORES_LEN);
+    cmd = redis_param_str(cmd, FT_WITHPAYLOADS, FT_WITHPAYLOADS_LEN);
+    cmd = redis_param_str(cmd, FT_RETURN, FT_RETURN_LEN);
+    cmd = redis_param_str(cmd, "1", 1);
+    cmd = redis_param_str(cmd, FT_NAME, FT_NAME_LEN);
     cmd = redis_param_str(cmd, FT_LIMIT, FT_LIMIT_LEN);
     cmd = redis_param_str(cmd, "0", 1);
     if (request->count == 0) {
