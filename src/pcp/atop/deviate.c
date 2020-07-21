@@ -7,7 +7,7 @@
 ** This source-file contains functions to calculate the differences for
 ** the system-level and process-level counters since the previous sample.
 **
-** Copyright (C) 2015,2017,2019 Red Hat.
+** Copyright (C) 2015,2017,2019-2020 Red Hat.
 ** Copyright (C) 2000-2010 Gerlof Langeveld
 **
 ** This program is free software; you can redistribute it and/or modify it
@@ -1220,6 +1220,7 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev, double inter
                                    pre->nfs.nfsmounts.nfsmnt[j].pagesmwrite);
 	}
 
+	dev->nfs.nfsmounts.nfsmnt[i].mountdev[0] = '\0';
 	dev->nfs.nfsmounts.nrmounts = cur->nfs.nfsmounts.nrmounts;
 
 	/*
@@ -1227,7 +1228,7 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev, double inter
 	*/
 	if (cur->cfs.nrcontainer != dev->cfs.nrcontainer)
 	{
-		size = (cur->cfs.nrcontainer + 1) * sizeof(struct percontainer);
+		size = cur->cfs.nrcontainer * sizeof(struct percontainer);
 		dev->cfs.cont = (struct percontainer *)realloc(dev->cfs.cont, size);
 		ptrverify(dev->cfs.cont, "deviatsyst cont [%ld]\n", (long)size);
 	}
@@ -1283,6 +1284,12 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev, double inter
 	** application-specific counters
 	** calculate deviations for GPUs
 	*/
+	if (cur->gpu.nrgpus != dev->gpu.nrgpus)
+	{
+		size = cur->gpu.nrgpus * sizeof(struct pergpu);
+		dev->gpu.gpu = (struct pergpu *)realloc(dev->gpu.gpu, size);
+		ptrverify(dev->gpu.gpu, "deviatsyst gpu [%ld]\n", (long)size);
+	}
 	for (i=0; i < cur->gpu.nrgpus; i++)
 	{
 	    dev->gpu.gpu[i].gpunr      = i;
@@ -1325,6 +1332,12 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev, double inter
 	/*
 	** calculate deviations for InfiniBand
 	*/
+	if (cur->ifb.nrports != dev->ifb.nrports)
+	{
+		size = (cur->ifb.nrports + 1) * sizeof(struct perifb);
+		dev->ifb.ifb = (struct perifb *)realloc(dev->ifb.ifb, size);
+		ptrverify(dev->ifb.ifb, "deviatsyst ifb [%ld]\n", (long)size);
+	}
 	for (i=0; i < cur->ifb.nrports; i++)
 	{
 		strcpy(dev->ifb.ifb[i].ibname, cur->ifb.ifb[i].ibname);
@@ -1343,6 +1356,7 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev, double inter
 		                         pre->ifb.ifb[i].sndp;
 	}
 
+	dev->ifb.ifb[i].ibname[0] = '\0';
 	dev->ifb.nrports = cur->ifb.nrports;
 
 	/*
@@ -1374,6 +1388,7 @@ totalsyst(char category, struct sstat *new, struct sstat *tot)
 {
 	register int	i;
 	count_t		*ctot, *cnew;
+	size_t		size;
 
 	switch (category)
 	{
@@ -1392,6 +1407,13 @@ totalsyst(char category, struct sstat *new, struct sstat *tot)
 		tot->cpu.all.Stime += new->cpu.all.Stime;
 		tot->cpu.all.steal += new->cpu.all.steal;
 		tot->cpu.all.guest += new->cpu.all.guest;
+
+		if (tot->cpu.nrcpu < new->cpu.nrcpu || !tot->cpu.cpu)
+		{
+		    size = new->cpu.nrcpu * sizeof(struct percpu);
+		    tot->cpu.cpu = realloc(tot->cpu.cpu, size);
+		    ptrverify(tot->cpu.cpu, "totalsyst cpus [%ld]", (long)size);
+		}
 
 		if (new->cpu.nrcpu == 1)
 		{
@@ -1537,6 +1559,13 @@ totalsyst(char category, struct sstat *new, struct sstat *tot)
 		tot->net.tcp.MaxConn      = new->net.tcp.MaxConn;
 		tot->net.tcp.CurrEstab    = new->net.tcp.CurrEstab;
 	
+		if (tot->intf.nrintf < new->intf.nrintf || !tot->intf.intf)
+		{
+		    size = (new->intf.nrintf + 1) * sizeof(struct perintf);
+		    tot->intf.intf = realloc(tot->intf.intf, size);
+		    ptrverify(tot->intf.intf, "totalsyst intfs [%ld]", (long)size);
+		}
+
 		for (i=0; new->intf.intf[i].name[0]; i++)
 		{
 			/*
@@ -1603,6 +1632,13 @@ totalsyst(char category, struct sstat *new, struct sstat *tot)
 		break;
 
 	   case 'd':	/* accumulate disk-related counters */
+		if (tot->dsk.ndsk < new->dsk.ndsk || !tot->dsk.dsk)
+		{
+		    size = (new->dsk.ndsk + 1) * sizeof(struct perdsk);
+		    tot->dsk.dsk = realloc(tot->dsk.dsk, size);
+		    ptrverify(tot->dsk.dsk, "totalsyst disks [%ld]", (long)size);
+		}
+
 		for (i=0; new->dsk.dsk[i].name[0]; i++)
 		{
 			strcpy(tot->dsk.dsk[i].name, new->dsk.dsk[i].name);
@@ -1618,6 +1654,13 @@ totalsyst(char category, struct sstat *new, struct sstat *tot)
 		tot->dsk.dsk[i].name[0] = '\0';
 		tot->dsk.ndsk = i;
 
+		if (tot->dsk.nlvm < new->dsk.nlvm || !tot->dsk.lvm)
+		{
+		    size = (new->dsk.nlvm + 1) * sizeof(struct perdsk);
+		    tot->dsk.lvm = realloc(tot->dsk.lvm, size);
+		    ptrverify(tot->dsk.lvm, "totalsyst LVs [%ld]", (long)size);
+		}
+
 		for (i=0; new->dsk.lvm[i].name[0]; i++)
 		{
 			strcpy(tot->dsk.lvm[i].name, new->dsk.lvm[i].name);
@@ -1632,6 +1675,13 @@ totalsyst(char category, struct sstat *new, struct sstat *tot)
 	
 		tot->dsk.lvm[i].name[0] = '\0';
 		tot->dsk.nlvm = i;
+
+		if (tot->dsk.nmdd < new->dsk.nmdd || !tot->dsk.mdd)
+		{
+		    size = (new->dsk.nmdd + 1) * sizeof(struct perdsk);
+		    tot->dsk.mdd = realloc(tot->dsk.mdd, size);
+		    ptrverify(tot->dsk.mdd, "totalsyst MDs [%ld]", (long)size);
+		}
 
 		for (i=0; new->dsk.mdd[i].name[0]; i++)
 		{

@@ -129,6 +129,7 @@
 struct sysname	sysname;
 int		nodenamelen;
 struct timeval	start;
+struct timeval	finish;
 struct timeval	origin;
 struct timeval	pretime;	/* timing info				*/
 struct timeval	curtime;	/* timing info				*/
