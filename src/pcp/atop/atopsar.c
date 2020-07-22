@@ -91,8 +91,8 @@ static char	reportlive(double, double,
 static char	reportraw (double, double,
 		           struct devtstat *, struct sstat *,
 		           int, unsigned int, int);
-static void    prep(void);
-static int     next_prinow(void);
+static void	prep(void);
+static int	next_prinow(void);
 static void	reportheader(struct sysname *, time_t);
 static time_t	daylimit(time_t);
 
@@ -540,6 +540,7 @@ next_prinow()
     }
     return -1;
 }
+
 static void
 prep()
 {
