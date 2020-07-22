@@ -15,16 +15,23 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-default :
+LDIRT = pmie-pmfind.class
+
+default : pmie-pmfind.class
 
 include $(BUILDRULES)
 
 install : default
 	$(INSTALL) -m 755 pmlogctl.sh $(PCP_BIN_DIR)/pmlogctl$(SHELLSUFFIX)
 	$(INSTALL) -m 755 -d $(PCP_ETC_DIR)/pcp/pmlogger/class.d
+	$(INSTALL) -m 644 pmlogger-pmfind.class $(PCP_ETC_DIR)/pcp/pmlogger/class.d/pmfind
 	$(INSTALL) -S $(PCP_BIN_DIR)/pmlogctl$(SHELLSUFFIX) $(PCP_BIN_DIR)/pmiectl$(SHELLSUFFIX)
 	$(INSTALL) -m 755 -d $(PCP_ETC_DIR)/pcp/pmie/class.d
+	$(INSTALL) -m 644 pmie-pmfind.class $(PCP_ETC_DIR)/pcp/pmie/class.d/pmfind
 
 default_pcp : default
 
 install_pcp : install
+
+pmie-pmfind.class: pmlogger-pmfind.class
+	$(SED) -e 's/pmlogctl/pmiectl/g' -e '/PCP_ARCHIVE_DIR\/[^ ]*/s//PCP_LOG_DIR\/pmie\/pmfind-%h\/pmie.log/' <pmlogger-pmfind.class >pmie-pmfind.class

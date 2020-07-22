@@ -83,8 +83,8 @@ echo "== usage"
 pmlogctl --usage 2>&1 | _filter
 
 echo
-echo '== -n -v create' | tee -a $seq.full
-pmlogctl -n -v create localhost | _filter
+echo '== -N -V create' | tee -a $seq.full
+pmlogctl -N -V create localhost | _filter
 
 echo | tee -a $seq.full
 echo '== create' | tee -a $seq.full

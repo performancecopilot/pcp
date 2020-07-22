@@ -86,10 +86,12 @@ $5 ~ /^[0-9][0-9]*$/	{ $5 = "<pid>" }
 }
 
 cat <<End-of-File >$tmp.policy
-name:
+class:
+$seq
+ident:
 $seq-%h
 control:
-%h n n PCP_LOG_DIR/pmie/$seq-%h -c $tmp.config
+%h n n PCP_LOG_DIR/pmie/%i -c $tmp.config
 End-of-File
 
 cat <<End-of-File >$tmp.config
@@ -99,8 +101,8 @@ some_inst pmcd.pmie.eval.actual > 0 ->
 End-of-File
 
 # real QA test starts here
-echo '== -n -v -p -c create' | tee -a $seq.full
-pmiectl -n -v -p $tmp.policy -c $seq create localhost | _filter
+echo '== -N -V -p -c create' | tee -a $seq.full
+pmiectl -N -V -p $tmp.policy -c $seq create localhost | _filter
 
 echo | tee -a $seq.full
 echo '== -p -c create' | tee -a $seq.full

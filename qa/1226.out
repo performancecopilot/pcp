@@ -7,11 +7,11 @@ Options:
   -c NAME, --class=NAME pmie instances belong to the NAME class
                         [default: default]
   -f, --force           force action if possible
-  -n, --showme          perform a dry run, showing what would be done
+  -N, --showme          perform a dry run, showing what would be done
   -p POLICY, --policy=POLICY
                         use POLICY as the class policy file
                         [default: PCP_ETC_DIR/pcp/pmie/class.d/<class>]
-  -v, --verbose         increase verbosity
+  -V, --verbose         increase verbosity
   -?, --help            show this usage message and exit
 
 Avaliable commands:
@@ -21,13 +21,13 @@ Avaliable commands:
    and host may be a valid hostname or an egrep(1) pattern that matches
    the start of a hostname
 
-== -n -v create
+== -N -V create
 --- start control file ---
 # created by pmiectl on DATE
 $class=default
 #DO NOT REMOVE OR EDIT THE FOLLOWING LINE
 $version=1.1
-localhost n n PCP_LOG_DIR/pmie/localhost/pmie.log -c config.default
+localhost n n PCP_LOG_DIR/pmie/localhost/pmie.log -c localhost.ctl
 --- end control file ---
 Installing control file: PCP_ETC_DIR/pcp/pmie/control.d/localhost
 + cp PCP_TMPFILE_DIR/pmiectl.XXXXX/control PCP_ETC_DIR/pcp/pmie/control.d/localhost

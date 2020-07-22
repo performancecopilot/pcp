@@ -83,11 +83,13 @@ _filter_status()
 }
 
 cat <<End-of-File >$tmp.policy
-name:
+class:
+$seq
+ident:
 $seq-%h
 control:
 \$version=1.1
-%h n n PCP_ARCHIVE_DIR/$seq-%h -c $tmp.config
+%h n n PCP_ARCHIVE_DIR/%i -c $tmp.config
 End-of-File
 
 cat <<End-of-File >$tmp.config
@@ -98,15 +100,15 @@ _setup()
 {
     if pmlogctl -c default status localhost 2>&1 | grep 'Warning.* defined in class' >/dev/null
     then
-	$sudo pmlogctl -v create localhost | _filter
+	$sudo pmlogctl -V create localhost | _filter
     fi
     if pmlogctl -c $seq status localhost 2>&1 | grep 'Warning.* defined in class' >/dev/null
     then
-	$sudo pmlogctl -v -p $tmp.policy -c $seq create localhost | _filter
+	$sudo pmlogctl -V -p $tmp.policy -c $seq create localhost | _filter
     fi
     if pmlogctl -c $seq status LOCALHOSTNAME 2>&1 | grep 'Warning.* defined in class' >/dev/null
     then
-	$sudo pmlogctl -v -p $tmp.policy -c $seq create LOCALHOSTNAME | _filter
+	$sudo pmlogctl -V -p $tmp.policy -c $seq create LOCALHOSTNAME | _filter
     fi
 }
 

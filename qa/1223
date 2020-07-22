@@ -82,11 +82,13 @@ _filter_status()
 }
 
 cat <<End-of-File >$tmp.policy
-name:
+class:
+$seq
+ident:
 $seq-%h
 control:
 \$version=1.1
-%h n n PCP_ARCHIVE_DIR/$seq-%h -c $tmp.config
+%h n n PCP_ARCHIVE_DIR/%i -c $tmp.config
 End-of-File
 
 cat <<End-of-File >$tmp.config
@@ -129,7 +131,7 @@ do
     echo "== stop $host" | _filter
     $sudo pmlogctl -c $seq stop "$host" 2>&1 | _filter
     diff $tmp.control $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq | _filter
-    pmlogctl -v status | _filter_status
+    pmlogctl -V status | _filter_status
 done
 
 echo
@@ -138,7 +140,7 @@ do
     echo "== start $host" | _filter
     $sudo pmlogctl -c $seq start "$host" 2>&1 | _filter
     diff $tmp.control $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq | _filter
-    pmlogctl -v status | _filter_status
+    pmlogctl -V status | _filter_status
 done
 
 echo
@@ -152,7 +154,7 @@ do
     else
 	echo "PCP_ETC_DIR/pcp/pmlogger/control.d/$seq has gone away"
     fi
-    pmlogctl -v status | _filter_status
+    pmlogctl -V status | _filter_status
 done
 
 # success, all done

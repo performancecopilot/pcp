@@ -81,11 +81,13 @@ _filter_status()
 }
 
 cat <<End-of-File >$tmp.policy
-name:
+class:
+$seq
+ident:
 $seq-%h
 control:
 \$version=1.1
-%h n n PCP_ARCHIVE_DIR/$seq-%h -c $tmp.config
+%h n n PCP_ARCHIVE_DIR/%i -c $tmp.config
 End-of-File
 
 cat <<End-of-File >$tmp.config
@@ -96,7 +98,7 @@ _setup()
 {
     if pmlogctl -c $seq status localhost 2>&1 | grep 'Warning.* defined in class' >/dev/null
     then
-	$sudo pmlogctl -v -p $tmp.policy -c $seq create localhost 2>&1 | _filter
+	$sudo pmlogctl -V -p $tmp.policy -c $seq create localhost 2>&1 | _filter
     fi
 }
 
@@ -114,12 +116,12 @@ echo "=== pmlogger won't stop ... stop case"
 # SIGHUP is change volume, will not terminate pmlogger
 #
 export PCPQA_KILL_SIGNAL=HUP
-$sudo pmlogctl -v -p $tmp.policy -c $seq stop localhost 2>&1 | _filter
+$sudo pmlogctl -V -p $tmp.policy -c $seq stop localhost 2>&1 | _filter
 pmlogctl status localhost | _filter_status
 
 echo
 echo "=== pmlogger won't stop ... restart case"
-$sudo pmlogctl -v -p $tmp.policy -c $seq restart localhost 2>&1 | _filter
+$sudo pmlogctl -V -p $tmp.policy -c $seq restart localhost 2>&1 | _filter
 pmlogctl status localhost | _filter_status
 
 # success, all done

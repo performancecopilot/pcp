@@ -82,11 +82,13 @@ _filter_status()
 }
 
 cat <<End-of-File >$tmp.policy
-name:
+class:
+$seq
+ident:
 $seq-%h
 control:
 \$version=1.1
-%h n n PCP_ARCHIVE_DIR/$seq-%h -c $tmp.config
+%h n n PCP_ARCHIVE_DIR/%i -c $tmp.config
 End-of-File
 
 cat <<End-of-File >$tmp.config
@@ -99,7 +101,7 @@ _setup()
     do
 	if pmlogctl -c $seq status $host 2>&1 | grep 'Warning.* defined in class' >/dev/null
 	then
-	    $sudo pmlogctl -v -p $tmp.policy -c $seq create $host 2>&1 | _filter
+	    $sudo pmlogctl -V -p $tmp.policy -c $seq create $host 2>&1 | _filter
 	fi
     done
 }
@@ -119,7 +121,7 @@ echo "=== restart cases"
 for host in localhost LOCALHOSTNAME local: 'local.*' '.*[hH][oO][sS][tT]'
 do
     echo "-- $host"
-    $sudo pmlogctl -v restart "$host" | _filter | LC_COLLATE=POSIX sort
+    $sudo pmlogctl -V restart "$host" | _filter | LC_COLLATE=POSIX sort
 done
 
 # success, all done
