@@ -1888,7 +1888,7 @@ series_noop_traverse(seriesQueryBaton *baton, node_t *np, int level)
     }
     if (pmDebugOptions.query)
 	fprintf(stderr, "=====level %d, node type %d=====\n", level, np->type);
-    kyoma_debug_print_node(baton, np);
+    //kyoma_debug_print_node(baton, np);
     if (pmDebugOptions.query)
 	fprintf(stderr, "go left\n");
     series_noop_traverse(baton, np->left, level+1);
