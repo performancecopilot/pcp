@@ -118,7 +118,7 @@ redis_search_text_prep(sds s, int min_length, char *prefix, char* suffix) {
     formatted_result = sdsempty();
     for (i = 0; i < token_count; i++) {
 	size_t token_len = sdslen(tokens[i]);
-	if (min_length != 0 && token_len <= min_length)
+	if (min_length != 0 && token_len < min_length)
 	   continue;
 	if (redis_search_is_stopword(tokens[i]))
 	   continue;
