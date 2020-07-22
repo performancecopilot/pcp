@@ -658,17 +658,23 @@ parameter (HTTP GET).
 \" TODO: replace with actual call when search/suggest is done
 .SAMPLE
 $ curl -s http://localhost:44322/search/suggest?\\
-	query=disk | pmjson
+	query=disk&limit=4 | pmjson
 [
-    "disk.all.avactive",
-    "disk.all.aveq",
-    "disk.all.blkread",
-    "disk.all.blktotal",
-    "disk.all.blkwrite",
-    "disk.all.read",
-    "disk.all.read_bytes"
-    "disk.all.read_merge",
-    "disk.all.read_rawactive"
+    {
+        "name":"disk.all.avactive",
+        "type":"metric"
+    },
+    {
+        "name":"disk.all.aveq",
+        "type":"metric"
+    },
+        "name":"disk.all.blkread",
+        "type":"metric"
+    },
+    {
+        "name":"disk.all.blktotal",
+        "type":"metric",
+    }
 ]
 .ESAMPLE
 .SS GET \fI/search/info\fR \- \fBpmSearchInfo\fR(3)

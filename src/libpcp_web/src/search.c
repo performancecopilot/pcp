@@ -68,6 +68,96 @@ redis_search_docid(const char *key, const char *type, const char *name)
     return pmwebapi_hash_sds(docid, hash);
 }
 
+
+/**
+ * This issue isn't fixed in OSS version of RediSearch we are using, 
+ * https://github.com/RediSearch/RediSearch/issues/748
+ */
+static int
+redis_search_is_stopword(sds s) {
+    size_t			i;
+    static const char* const 	stopwords[] = {
+	"a", "is", "the", "an", "and", "are", "as", "at", "be", "but", "by", "for",
+ 	"if", "in", "into", "it", "no", "not", "of", "on", "or", "such", "that", "their",
+ 	"then", "there", "these", "they", "this", "to", "was", "will", "with",
+    };
+    for (i = 0; i < sizeof(stopwords) / sizeof(stopwords[0]); i++) {
+	if (strcmp(s, stopwords[i]) == 0)
+	    return 1;
+    }
+    return 0;
+}
+
+/**
+ * Tokenizes text by delimiters described here https://oss.redislabs.com/redisearch/Escaping.html +
+ * ('/' - this one giving troubles to prefix search),
+ * omits tokens of length greated then *min_length* (0 = don't omit any), optionally prepends *prefix*
+ * and appends *suffix* (NULL doesnt get prepended / appended), joins tokens by space back into new sds.
+ * Ideally we would just escape delimtiers with double backslash,
+ * unfortunately, this doesnt seem to work when searching for indoms and buch of other inconsitencies
+ */
+static sds
+redis_search_text_prep(sds s, int min_length, char *prefix, char* suffix) {
+    static const char	*delimiters = ",.<>{}[]\"\':;!@#$%^&*()-+=~/"; 
+    size_t		len = sdslen(s);
+    size_t		i, j;
+    sds			result = sdsempty();
+    sds			formatted_result;
+    sds*		tokens;
+    int			token_count, non_digit_found;
+    for (i = 0; i < len; i++) {
+	char *is_found = strchr(delimiters, s[i]);
+	if (is_found != NULL) {
+	    result = sdscat(result, " ");
+	} else {
+	    result = sdscatlen(result, &s[i], 1);
+	}
+    }
+    sdstrim(result, " ");
+    tokens = sdssplitlen(result, sdslen(result), " ", 1, &token_count);
+    formatted_result = sdsempty();
+    for (i = 0; i < token_count; i++) {
+	size_t token_len = sdslen(tokens[i]);
+	if (min_length != 0 && token_len <= min_length)
+	   continue;
+	if (redis_search_is_stopword(tokens[i]))
+	   continue;
+	if (prefix == NULL && suffix == NULL)
+	    formatted_result = sdscatsds(formatted_result, tokens[i]);
+	else if (prefix == NULL)
+	    formatted_result = sdscatfmt(formatted_result, "%S%s", tokens[i], suffix);
+	else if (suffix == NULL)
+	    formatted_result = sdscatfmt(formatted_result, "%s%S", prefix, tokens[i]);
+	else {
+    	    // Monkey patch for numbers in fuzzy search, not fixed in OSS version of RediSearch
+	    // https://github.com/RediSearch/RediSearch/issues/346
+	    // Lets just assume that if both prefix and suffix start with %,
+	    // fuzzy search formatting is intended (OSS RediSearch doesn't support LD > 1 anyway) 
+	    if (prefix[0] == '%' && suffix[0] == '%') {
+		non_digit_found = 0;
+		for (j = 0; j < token_len; j++) {
+		    if (tokens[i][j] < '0' || tokens[i][j] > '9') {
+			non_digit_found = 1;
+		    }
+		}
+		if (!non_digit_found) {
+		    goto outer_loop;
+		}
+	    }
+	    formatted_result = sdscatfmt(formatted_result, "%s%S%s", prefix, tokens[i], suffix);
+	}
+	if (i != token_count - 1) {
+	    formatted_result = sdscat(formatted_result, " ");
+	}
+	outer_loop:
+	continue;
+    }
+    sdsfree(result);
+    sdsfreesplitres(tokens, token_count);
+    sdstrim(formatted_result, " ");
+    return formatted_result;
+}
+
 static void
 redis_search_text_add_callback(
 	redisAsyncContext *c, redisReply *reply, const sds cmd, void *arg)
@@ -501,7 +591,7 @@ redis_search_text_query(redisSlots *slots, pmSearchTextRequest *request, void *a
 
     /*TODO: redisearch quoting*/
     /*query = sdscatrepr(sdsempty(), request->query, sdslen(request->query));*/
-    query = sdsdup(request->query);
+    query = redis_search_text_prep(request->query, 0, NULL, NULL);
 
     types += request->type_metric;
     types += request->type_indom;
@@ -541,8 +631,8 @@ redis_search_text_query(redisSlots *slots, pmSearchTextRequest *request, void *a
      *		[INFIELDS {?field item count} {?field separated by space}]
      *		[RETURN {?return item count} {?return separated by space}]
      *		[HIGHLIGHT FIELDS {num} {field} ... ]
+     *		SORTER DISMAX
      *		LIMIT {?pagination offset} {?return result count}
-     *		SORTBY NAME ASC
      */
     key = sdsnewlen(FT_TEXT_KEY, FT_TEXT_KEY_LEN);
     length = 5;
@@ -554,7 +644,7 @@ redis_search_text_query(redisSlots *slots, pmSearchTextRequest *request, void *a
 	length += 2 + returns;
     if (highlights)
 	length += 3 + highlights;
-    length += 3 + 3;
+    length += 2 + 3;
 
     cmd = redis_command(length);
     cmd = redis_param_str(cmd, FT_SEARCH, FT_SEARCH_LEN);
@@ -566,7 +656,7 @@ redis_search_text_query(redisSlots *slots, pmSearchTextRequest *request, void *a
     cmd = redis_param_str(cmd, FT_WITHPAYLOADS, FT_WITHPAYLOADS_LEN);
 
     if (types) {
-	cmd = redis_param_str(cmd, "@type={ ", 8);
+	cmd = redis_param_str(cmd, "@TYPE={ ", 8);
 	if (request->type_metric) {
 	    typestr = pmSearchTextTypeStr(PM_SEARCH_TYPE_METRIC);
 	    cmd = redis_param_str(cmd, typestr, strlen(typestr));
@@ -629,6 +719,9 @@ redis_search_text_query(redisSlots *slots, pmSearchTextRequest *request, void *a
 	    cmd = redis_param_str(cmd, FT_HELPTEXT, FT_HELPTEXT_LEN);
     }
 
+    cmd = redis_param_str(cmd, FT_SCORER, FT_SCORER_LEN);
+    cmd = redis_param_str(cmd, FT_SCORER_DISMAX, FT_SCORER_DISMAX_LEN);
+
     cmd = redis_param_str(cmd, FT_LIMIT, FT_LIMIT_LEN);
     length = pmsprintf(buffer, sizeof(buffer), "%u", request->offset);
     cmd = redis_param_str(cmd, buffer, length);
@@ -638,10 +731,6 @@ redis_search_text_query(redisSlots *slots, pmSearchTextRequest *request, void *a
 	length = pmsprintf(buffer, sizeof(buffer), "%u", request->count);
 	cmd = redis_param_str(cmd, buffer, length);
     }
-
-    cmd = redis_param_str(cmd, FT_SORTBY, FT_SORTBY_LEN);
-    cmd = redis_param_str(cmd, FT_NAME, FT_NAME_LEN);
-    cmd = redis_param_str(cmd, FT_ASC, FT_ASC_LEN);
 
     redisSlotsRequest(slots, FT_SEARCH, key, cmd, redis_search_text_query_callback, arg);
 }
@@ -667,7 +756,8 @@ redis_search_text_suggest(redisSlots *slots, pmSearchTextRequest *request, void 
     redisSearchBaton	*baton = (redisSearchBaton *)arg;
     size_t		length;
     char		buffer[64];
-    sds			cmd, key, query;
+    sds			cmd, key, query,
+    			prefix_query, fuzzy_query;
 
     seriesBatonCheckMagic(baton, MAGIC_SEARCH, "redis_search_suggest_query");
     seriesBatonCheckCount(baton, "redis_search_suggest_query");
@@ -677,27 +767,33 @@ redis_search_text_suggest(redisSlots *slots, pmSearchTextRequest *request, void 
 
     seriesBatonReference(baton, "redis_search_suggest_query");
 
-    /* TODO: redisearch tokenization */
+    // by default we cannot use prefix search with words of length less than 2
+    prefix_query = redis_search_text_prep(request->query, 2, NULL, "*");
+    fuzzy_query = redis_search_text_prep(request->query, 2, "%", "%");
+
     query = sdscatfmt(
 	sdsempty(),
 	// quote pairs have to be in a single RESP array item, else fails
-	"\'(@NAME:(%S*)|@NAME:(%%%S%%)) @TYPE:{%s|%s}\'",
-	request->query,
-	request->query,
+	"\'(@NAME:(%S)|@NAME:(%S)=>{$weight:0.25;}) @TYPE:{%s|%s}\'",
+	prefix_query,
+	fuzzy_query,
 	pmSearchTextTypeStr(PM_SEARCH_TYPE_METRIC),
 	pmSearchTextTypeStr(PM_SEARCH_TYPE_INST)
     );
+    sdsfree(prefix_query);
+    sdsfree(fuzzy_query);
 
     /*
      * FT.SEARCH pcp:text
-     * 		"(@NAME:({query}*)|@NAME:(%{query}%)) @TYPE={metric|instance}"
+     * 		"(@NAME:({query}*)|@NAME:(%{query}%)=>{$weight:0.25;}) @TYPE={metric|instance}"
      * 		WITHSCORES WITHPAYLOADS
      * 		RETURN 1 NAME
      * 		LIMIT 0 {?return result count}
+     * 		SCORER DISMAX
      */
     key = sdsnewlen(FT_TEXT_KEY, FT_TEXT_KEY_LEN);
 
-    length = 11; // Resp array size
+    length = 13; // Resp array size
     cmd = redis_command(length);
     cmd = redis_param_str(cmd, FT_SEARCH, FT_SEARCH_LEN);
     cmd = redis_param_sds(cmd, key);
@@ -710,6 +806,8 @@ redis_search_text_suggest(redisSlots *slots, pmSearchTextRequest *request, void 
     cmd = redis_param_str(cmd, "1", 1);
     cmd = redis_param_str(cmd, FT_NAME, FT_NAME_LEN);
     cmd = redis_param_str(cmd, FT_LIMIT, FT_LIMIT_LEN);
+    cmd = redis_param_str(cmd, FT_SCORER, FT_SCORER_LEN);
+    cmd = redis_param_str(cmd, FT_SCORER_DISMAX, FT_SCORER_DISMAX_LEN);
     cmd = redis_param_str(cmd, "0", 1);
     if (request->count == 0) {
 	cmd = redis_param_sds(cmd, resultcount);
