@@ -145,6 +145,7 @@ typedef struct {
 
 typedef struct {
     cgroup_memstat_t	stat;
+    __uint64_t		current;
     __uint64_t		usage;
     __uint64_t		limit;
     __uint64_t		failcnt;
@@ -222,6 +223,8 @@ enum {
     CG_MEMORY_USAGE_IN_BYTES		= 80,
     CG_MEMORY_LIMIT_IN_BYTES		= 81,
     CG_MEMORY_FAILCNT			= 82,
+
+    CG_MEMORY_CURRENT			= 90,
 };
 
 typedef struct {
