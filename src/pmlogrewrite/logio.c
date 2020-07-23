@@ -1,5 +1,5 @@
 /*
- * utils for pmlogextract
+ * utils for pmlogrewrite
  *
  * Copyright (c) 2017 Red Hat.
  * Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -73,7 +73,7 @@ again:
 
     if ((lpb = (__pmPDU *)malloc(ntohl(head))) == NULL) {
 	if (pmDebugOptions.log)
-	    fprintf(stderr, "Error: __pmFindPDUBuf(%d) %s\n",
+	    fprintf(stderr, "Error: _pmLogGet:(%d) %s\n",
 		(int)ntohl(head), osstrerror());
 	__pmFseek(f, offset, SEEK_SET);
 	return -oserror();
@@ -140,7 +140,7 @@ again:
 		fprintf(stderr, "\n%03d: ", j);
 		i = 0;
 	    }
-	    fprintf(stderr, "%08x ", lpb[j]);
+	    fprintf(stderr, "0x%x ", lpb[j]);
 	    i++;
 	}
 	fputc('\n', stderr);

@@ -19,7 +19,7 @@ include $(TOPDIR)/src/include/builddefs
 SUBDIRS	= src examples
 OTHERS  = control stomp rc_pmie pmie2col.sh pmie_check.sh pmie_daily.sh
 LDIRT	= crontab crontab.docker pmie.service pmie_daily.service \
-	  pmie_check.service pmie_check.path
+	  pmie_check.service
 
 ifeq ($(TARGET_OS),linux)
 CRONTAB_USER = $(PCP_USER)
@@ -30,7 +30,7 @@ CRONTAB_PATH = $(PCP_SYSCONF_DIR)/pmie/crontab
 endif
 
 default:: crontab crontab.docker pmie.service pmie_daily.service \
-	  pmie_check.service pmie_check.path
+	  pmie_check.service
 
 default:: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
@@ -54,7 +54,6 @@ ifeq ($(ENABLE_SYSTEMD),true)
 	$(INSTALL) -m 644 pmie.service $(PCP_SYSTEMDUNIT_DIR)/pmie.service
 	$(INSTALL) -m 644 pmie_daily.timer $(PCP_SYSTEMDUNIT_DIR)/pmie_daily.timer
 	$(INSTALL) -m 644 pmie_daily.service $(PCP_SYSTEMDUNIT_DIR)/pmie_daily.service
-	$(INSTALL) -m 644 pmie_check.path $(PCP_SYSTEMDUNIT_DIR)/pmie_check.path
 	$(INSTALL) -m 644 pmie_check.timer $(PCP_SYSTEMDUNIT_DIR)/pmie_check.timer
 	$(INSTALL) -m 644 pmie_check.service $(PCP_SYSTEMDUNIT_DIR)/pmie_check.service
 	$(INSTALL) -m 644 pmie_timers.sysconfig $(PCP_SYSCONFIG_DIR)/pmie_timers
@@ -90,11 +89,6 @@ pmie_check.service : pmie_check.service.in
 	    -e 's;@PCP_VAR_DIR@;'$(PCP_VAR_DIR)';' \
 	    -e 's;@PCP_GROUP@;'$(PCP_GROUP)';' \
 	    -e 's;@PCP_USER@;'$(PCP_USER)';' \
-	# END
-
-pmie_check.path : pmie_check.path.in
-	$(SED) <$< >$@ \
-	    -e 's;@PCP_PMIECONTROL_PATH@;'$(PCP_PMIECONTROL_PATH)';' \
 	# END
 
 pmie_daily.service : pmie_daily.service.in

@@ -3,7 +3,7 @@ Description=Discover remote PCP services for analysis
 Documentation=man:pmfind(1)
 After=network-online.target pmcd.service
 After=pmie_check.timer pmlogger_check.timer
-BindsTo=pmfind.timer pmfind.path
+BindsTo=pmfind.timer
 
 [Service]
 Type=oneshot
