@@ -28,40 +28,40 @@ What This Guide Contains
 
 This guide contains the following chapters:
 
--  `Introduction to PCP <#LE91944-PARENT>`__, provides an introduction,
+-  `Introduction to PCP <#introduction-to-pcp>`__, provides an introduction,
    a brief overview of the software components, and conceptual
    foundations of the PCP software.
 
 -  `Installing and Configuring Performance
-   Co-Pilot <#LE17127-PARENT>`__, describes the basic installation and
+   Co-Pilot <#installing-and-configuring-performance-co-pilot>`__, describes the basic installation and
    configuration steps necessary to get PCP running on your systems.
 
--  `Common Conventions and Arguments <#LE94335-PARENT>`__, describes the
+-  `Common Conventions and Arguments <#common-conventions-and-arguments>`__, describes the
    user interface components that are common to most of the text-based
    utilities that make up the monitor portion of PCP.
 
--  `Monitoring System Performance <#LE38515-PARENT>`__, describes the
+-  `Monitoring System Performance <#monitoring-system-performance>`__, describes the
    performance monitoring tools available in Performance Co-Pilot (PCP).
 
--  `Performance Metrics Inference Engine <#LE21414-PARENT>`__, describes
+-  `Performance Metrics Inference Engine <#performance-metrics-inference-engine>`__, describes
    the Performance Metrics Inference Engine (``pmie``) tool that
    provides automated monitoring of, and reasoning about, system
    performance within the PCP framework.
 
--  `Archive Logging <#LE93354-PARENT>`__, covers the PCP services and
+-  `Archive Logging <#archive-logging>`__, covers the PCP services and
    utilities that support archive logging for capturing accurate
    historical performance records.
 
--  `Performance Co-Pilot Deployment Strategies <#LE83321-PARENT>`__,
+-  `Performance Co-Pilot Deployment Strategies <#performance-co-pilot-deployment-strategies>`__,
    presents the various options for deploying PCP functionality across
    cooperating systems.
 
--  `Customizing and Extending PCP Services <#LE62564-PARENT>`__,
+-  `Customizing and Extending PCP Services <#customizing-and-extending-pcp-services>`__,
    describes the procedures necessary to ensure that the PCP
    configuration is customized in ways that maximize the coverage and
    quality of performance monitoring and management services.
 
--  `appendix_title <#LE65325-PARENT>`__, provides a comprehensive list
+-  `Acronyms <#acronyms>`__, provides a comprehensive list
    of the acronyms used in this guide and in the man pages for
    Performance Co-Pilot.
 
@@ -205,27 +205,24 @@ We value your comments and will respond to them promptly.
 Introduction to PCP
 ===================
 
-overviewPCPfeaturesPerformance Co-PilotPCPThis chapter provides an
-introduction to Performance Co-Pilot (PCP), an overview of its
-individual components, and conceptual information to help you use this
-software.
+This chapter provides an introduction to Performance Co-Pilot (PCP), 
+an overview of its individual components, and conceptual information 
+to help you use this software.
 
 The following sections are included:
 
--  `Objectives <#LE92676-PARENT>`__ covers the intended purposes of PCP.
+-  `Objectives <#objectives>`__ covers the intended purposes of PCP.
 
--  `Overview of Component Software <#LE13618-PARENT>`__, describes PCP
+-  `Overview of Component Software <#overview-of-component-software>`__, describes PCP
    tools and agents.
 
--  `Conceptual Foundations <#LE79836-PARENT>`__, discusses the design
+-  `Conceptual Foundations <#conceptual-foundations>`__, discusses the design
    theories behind PCP.
 
 .. _LE92676-PARENT:
 
 Objectives
 ----------
-
-objectives
 
 Performance Co-Pilot (PCP) provides a range of services that may be used
 to monitor and manage system performance. These services are distributed
@@ -237,7 +234,7 @@ performance problems.
 PCP Target Usage
 ~~~~~~~~~~~~~~~~
 
-target usagePCP is targeted at the performance analyst, benchmarker,
+PCP is targeted at the performance analyst, benchmarker,
 capacity planner, developer, database administrator, or system
 administrator with an interest in overall system performance and a need
 to quickly isolate and understand performance behavior, resource
@@ -252,7 +249,7 @@ services.
 Empowering the PCP User
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-audienceTo deal efficiently with the dynamic behavior of complex
+To deal efficiently with the dynamic behavior of complex
 systems, performance analysts need to filter out noise from the
 overwhelming stream of performance data, and focus on exceptional
 scenarios. Visualization of current and historical performance data, and
@@ -272,7 +269,7 @@ those critical system performance problems.
 Unification of Performance Metric Domains
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-domainsmetric domainsAt the lowest level, performance metrics are
+At the lowest level, performance metrics are
 collected and managed in autonomous performance domains such as the
 operating system kernel, a DBMS, a layered service, or an end-user
 application. These domains feature a multitude of access control
@@ -289,8 +286,7 @@ export performance information from, autonomous performance domains.
 Uniform Naming and Access to Performance Metrics
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-uniform namingnaming schemePMNS defined namesPerformance Metrics Name
-SpacePMNSUsability and extensibility of performance management tools
+Usability and extensibility of performance management tools
 mandate a single scheme for naming performance metrics. The set of
 defined names constitutes a Performance Metrics Name Space (PMNS).
 Within PCP, the PMNS is adaptive so it can be extended, reshaped, and
@@ -304,12 +300,12 @@ performance metrics, independently of their source or location.
 PCP Distributed Operation
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-PCPdistributed operationFrom a purely pragmatic viewpoint, a single
+From a purely pragmatic viewpoint, a single
 workstation must be able to monitor the concurrent performance of
 multiple remote hosts. At the same time, a single host may be subject to
 monitoring from multiple remote workstations.
 
-client-server architectureThese requirements suggest a classic
+These requirements suggest a classic
 client-server architecture, which is exactly what PCP uses to provide
 concurrent and multiconnected access to performance metrics, independent
 of their host location.
@@ -319,7 +315,7 @@ of their host location.
 Dynamic Adaptation to Change
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-dynamic adaptationadaptationComplex systems are subject to continual
+Complex systems are subject to continual
 changes as network connections fail and are reestablished; nodes are
 taken out of service and rebooted; hardware is added and removed; and
 software is upgraded, installed, or removed. Often these changes are
@@ -342,7 +338,7 @@ support subsequent automated reconnection.
 Logging and Retrospective Analysis
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-archive logsanalysisloggingarchive logsA range of tools is provided to
+A range of tools is provided to
 support flexible, adaptive logging of performance metrics for archive,
 playback, remote diagnosis, and capacity planning. PCP archive logs may
 be accumulated either at the host being monitored, at a monitoring
@@ -365,7 +361,7 @@ review both current and historical performance data.
 Automated Operational Support
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-automated operational supportFor operational and production
+For operational and production
 environments, PCP provides a framework with scripts to customize in
 order to automate the execution of ongoing tasks such as these:
 
@@ -391,7 +387,7 @@ order to automate the execution of ongoing tasks such as these:
 PCP Extensibility
 ~~~~~~~~~~~~~~~~~
 
-extensibilityPCPextensibilityPCP permits the integration of new
+PCP permits the integration of new
 performance metrics into the PMNS, the collection infrastructure, and
 the logging framework. The guiding principle is, “if it is important for
 monitoring system performance, and you can measure it, you can easily
@@ -405,7 +401,7 @@ particular application environment.
 One example is an application that measures the round-trip time for a
 benign “probe” transaction against some mission-critical application.
 
-PMDAlibrariesFor application developers, a library is provided to
+For application developers, a library is provided to
 support easy-to-use insertion of trace and monitoring points within an
 application, and the automatic export of resultant performance data into
 the PCP framework. Other libraries and tools aid the development of
@@ -421,7 +417,7 @@ integrated into the PCP framework.
 Metric Coverage
 ~~~~~~~~~~~~~~~
 
-coverageThe core PCP modules support export of performance metrics that
+The core PCP modules support export of performance metrics that
 include kernel instrumentation, hardware instrumentation, process-level
 resource utilization, database and other system services
 instrumentation, and activity in the PCP collection infrastructure.
@@ -435,7 +431,7 @@ or per process.
 Conceptual Foundations
 ----------------------
 
-conceptual foundationsThe following sections provide a detailed overview
+The following sections provide a detailed overview
 of concepts that underpin Performance Co-Pilot (PCP).
 
 .. _id5188366:
@@ -443,16 +439,15 @@ of concepts that underpin Performance Co-Pilot (PCP).
 Performance Metrics
 ~~~~~~~~~~~~~~~~~~~
 
-PMAPInaming metricsperformance metricsconcept Across all of the
-supported performance metric domains, there are a large number of
+Across all of the supported performance metric domains, there are a large number of
 performance metrics. Each metric has its own structure and semantics.
 PCP presents a uniform interface to these metrics, independent of the
 underlying metric data source.
 
-PMNSbrief descriptionThe Performance Metrics Name Space (PMNS) provides
+The Performance Metrics Name Space (PMNS) provides
 a hierarchical classification of human-readable metric names, and a
 mapping from these external names to internal metric identifiers. See
-`Performance Metrics Name Space <#LE94677-PARENT>`__, for a description
+`Performance Metrics Name Space <#performance-metrics-name-space>`__, for a description
 of the PMNS.
 
 .. _id5188440:
@@ -485,13 +480,13 @@ profile of desired instances. This means that the application making the
 request has already negotiated to establish the context in which the
 request should be executed.
 
-pmlogger toolcurrent metric contextA metric source may be the current
+A metric source may be the current
 performance data from a particular host (a live or real-time source), or
 a set of archive logs of performance data collected by ``pmlogger`` at
 some distant host or at an earlier time (a retrospective or archive
 source).
 
-collection timeBy default, the collection time for a performance metric
+By default, the collection time for a performance metric
 is the current time of day for real-time sources, or current point
 within an archive source. For archives, the collection time may be reset
 to an arbitrary time within the bounds of the set of archive
@@ -502,7 +497,7 @@ logs.archive logs collection time
 Sources of Performance Metrics and Their Domains
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-performance metrics sourcesfunctional domains Instrumentation for the
+Instrumentation for the
 purpose of performance monitoring typically consists of counts of
 activity or events, attribution of resource consumption, and
 service-time or response-time measures. This instrumentation may exist
@@ -533,7 +528,7 @@ Each domain has an associated access method:
 -  network routers and bridgesexternal equipmentExternal equipment such
    as network routers and bridges.
 
-performance metrics methodsFor each domain, the set of performance
+For each domain, the set of performance
 metrics may be viewed as an abstract data type, with an associated set
 of methods that may be used to perform the following tasks:
 
@@ -559,8 +554,7 @@ Hence, the management of performance metrics domains must be both
 extensible at a particular host and distributed across a number of
 hosts.
 
-PMIDdescriptionPerformance Metric Identifier PMIDEach performance
-metrics domain on a particular host must be assigned a unique
+Each performance metrics domain on a particular host must be assigned a unique
 Performance Metric Identifier (PMID). In practice, this means unique
 identifiers are assigned globally for each performance metrics domain
 type. For example, the same identifier would be used for the Apache Web
@@ -571,8 +565,7 @@ Server performance metrics domain on all hosts.
 Distributed Collection
 ~~~~~~~~~~~~~~~~~~~~~~
 
-distributed collectioncollector hostsPMCDdistributed collectionThe
-performance metrics collection architecture is distributed, in the sense
+The performance metrics collection architecture is distributed, in the sense
 that any performance tool may be executing remotely. However, a PMDA
 usually runs on the system for which it is collecting performance
 measurements. In most cases, connecting these tools together on the
@@ -590,7 +583,7 @@ the ``pmcd`` process on the collector host. These requests are then
 forwarded to the appropriate PMDAs, which respond with metric
 descriptions, help text, and most importantly, metric values.
 
-PMCDdistributed collectionThe connections between monitor clients and
+The connections between monitor clients and
 ``pmcd`` processes are managed in ``libpcp``, below the PMAPI level; see
 the ``pmapi(3)`` man page. Connections between PMDAs and ``pmcd`` are
 managed by the PMDA routines; see the ``pmda(3)`` man page. There can be
@@ -602,12 +595,12 @@ normally there would be only one ``pmcd`` process.
 Performance Metrics Name Space
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-PMNSdescription PMID descriptionInternally, each unique performance
+Internally, each unique performance
 metric is identified by a Performance Metric Identifier (PMID) drawn
 from a universal set of identifiers, including some that are reserved
 for site-specific, application-specific, and customer-specific use.
 
-performance metrics PMNSAn external name space - the Performance Metrics
+An external name space - the Performance Metrics
 Name Space (PMNS) - maps from a hierarchy (or tree) of human-readable
 names to PMIDs.
 
@@ -646,7 +639,7 @@ metrics:
 Descriptions for Performance Metrics
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-performance metrics descriptionsmetadata Through the various performance
+Through the various performance
 metric domains, the PCP must support a wide range of formats and
 semantics for performance metrics. This metadata describing the
 performance metrics includes the following:
@@ -688,7 +681,7 @@ single-valued and set-valued.
 Single-Valued Performance Metrics
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-single-valued performance metricsSome performance metrics have a
+Some performance metrics have a
 singular value within their performance metric domains. For example,
 available memory (or the total number of context switches) has only one
 value per performance metric domain, that is, one value per host. The
@@ -700,7 +693,7 @@ that process values for these metrics.
 Set-Valued Performance Metrics
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-set-valued performance metricsSome performance metrics have a set of
+Some performance metrics have a set of
 values or instances in each implementing performance metric domain. For
 example, one value for each disk, one value for each process, one value
 for each CPU, or one value for each activation of a given application.
@@ -724,7 +717,7 @@ operations for each disk spindle, and the associated instance domain
 contains one member for each disk spindle. On a system with five
 specific disks, one value would be associated with each of the external
 and internal instance identifier pairs shown in
-`table_title <#id5189432>`__.
+`Sample Instance Identifiers for Disk Statistics <#id11>`__.
 
 .. table:: Sample Instance Identifiers for Disk Statistics
 
@@ -764,7 +757,7 @@ available instances.
 Collector and Monitor Roles
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-rolescollectorrolesmonitorHosts supporting PCP services are broadly
+Hosts supporting PCP services are broadly
 classified into two categories:
 
 Collector
@@ -784,7 +777,7 @@ Each PCP enabled host can operate as a collector, a monitor, or both.
 Retrospective Sources of Performance Metrics
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-performance metrics retrospective sourcesThe PMAPI also supports
+The PMAPI also supports
 delivery of performance metrics from a historical source in the form of
 a PCP archive log. Archive logs are created using the ``pmlogger``
 utility, and are replayed in an architecture as shown in
@@ -805,7 +798,7 @@ retrospective monitoring with equal facility.
 Product Extensibility
 ~~~~~~~~~~~~~~~~~~~~~
 
-PCPextensibilityMuch of the PCP software's potential for attacking
+Much of the PCP software's potential for attacking
 difficult performance problems in production environments comes from the
 design philosophy that considers extensibility to be critically
 important.
@@ -840,7 +833,7 @@ some examples:
 Overview of Component Software
 ------------------------------
 
-softwarecomponent softwarePerformance Co-Pilot (PCP) is composed of both
+Performance Co-Pilot (PCP) is composed of both
 text-based and graphical tools. Each tool is fully documented by a man
 page. These man pages are named after the tools or commands they
 describe, and are accessible through the ``man`` command. For example,
@@ -859,7 +852,7 @@ functionality, is provided in the following four sections.
 Performance Monitoring and Visualization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-PCPtool summariesperformance monitoringThe following tools provide the
+The following tools provide the
 principal services for the PCP end-user with an interest in monitoring,
 visualizing, or processing performance information collected either in
 real time or from PCP archive logs:
@@ -937,8 +930,7 @@ real time or from PCP archive logs:
 Collecting, Transporting, and Archiving Performance Information
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-PCPtool summariesdata collection toolsnetwork transportation
-toolsarchive logscreationPCP provides the following tools to support
+PCP provides the following tools to support
 real-time data collection, network transport, and archive log creation
 services for performance data:
 
@@ -1121,8 +1113,7 @@ services for performance data:
 Operational and Infrastructure Support
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-PCPtool summariesoperational support toolsinfrastructure support
-toolsPCP provides the following tools to support the PCP infrastructure
+PCP provides the following tools to support the PCP infrastructure
 and assist operational procedures for PCP deployment in a production
 environment:
 
@@ -1226,8 +1217,7 @@ to export performance data within the PCP framework:
 Installing and Configuring Performance Co-Pilot
 ===============================================
 
-installing PCPconfiguring PCPPCPconfiguring and installingThe sections
-in this chapter describe the basic installation and configuration steps
+The sections in this chapter describe the basic installation and configuration steps
 necessary to run Performance Co-Pilot (PCP) on your systems. The
 following major sections are included:
 
@@ -1250,8 +1240,7 @@ following major sections are included:
 Product Structure
 -----------------
 
-subsystemsmonitor configurationrolescollectorrolesmonitorIn a typical
-deployment, Performance Co-Pilot (PCP) would be installed in a collector
+In a typical deployment, Performance Co-Pilot (PCP) would be installed in a collector
 configuration on one or more hosts, from which the performance
 information could then be collected, and in a monitor configuration on
 one or more workstations, from which the performance of the server
@@ -1275,8 +1264,7 @@ pcp-doc-X.Y.Z-rev
 Performance Metrics Collection Daemon (PMCD)
 --------------------------------------------
 
-PMCDmaintenancePerformance Metrics Collection DaemonPMCD On each
-Performance Co-Pilot (PCP) collection system, you must be certain that
+On each Performance Co-Pilot (PCP) collection system, you must be certain that
 the ``pmcd`` daemon is running. This daemon coordinates the gathering
 and exporting of performance statistics in response to requests from the
 PCP monitoring tools.
@@ -1286,7 +1274,7 @@ PCP monitoring tools.
 Starting and Stopping the PMCD
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-PMCDstarting and stoppingTo start the daemon, enter the following
+To start the daemon, enter the following
 commands as ``root`` on each PCP collection system:
 
 ::
@@ -1349,7 +1337,7 @@ described earlier (not SIGHUP).
 PMCD Diagnostics and Error Messages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-PMCDdiagnostics and error messagesIf there is a problem with ``pmcd``,
+If there is a problem with ``pmcd``,
 the first place to investigate should be the ``pmcd.log`` file. By
 default, this file is in the ``${PCP_LOG_DIR}/pmcd`` directory.
 
@@ -1358,7 +1346,7 @@ default, this file is in the ``${PCP_LOG_DIR}/pmcd`` directory.
 PMCD Options and Configuration Files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-PMCDconfiguration filesThere are two files that control PMCD operation.
+There are two files that control PMCD operation.
 These are the ``${PCP_PMCDCONF_PATH}`` and ``${PCP_PMCDOPTIONS_PATH}``
 files. The ``pmcd.options`` file contains the command line options used
 with PMCD; it is read when the daemon is invoked by
@@ -1371,7 +1359,7 @@ These configuration files are described in the following sections.
 The ``pmcd.options`` File
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-pmcd.options fileCommand line options for the PMCD are stored in the
+Command line options for the PMCD are stored in the
 ``${PCP_PMCDOPTIONS_PATH}`` file. The PMCD can be invoked directly from
 a shell prompt, or it can be invoked by\ `` ${PCP_RC_DIR}/pmcd`` as part
 of the boot process. It is usual and normal to invoke it using
@@ -1464,7 +1452,7 @@ enter the command:
 The ``pmcd.conf`` File
 ^^^^^^^^^^^^^^^^^^^^^^
 
-pmcd.conf fileWhen the PMCD is invoked, it reads its configuration file,
+When the PMCD is invoked, it reads its configuration file,
 which is ``${PCP_PMCDCONF_PATH}``. This file contains entries that
 specify the PMDAs used by this instance of the PMCD and which metrics
 are covered by these PMDAs. Also, you may specify access control rules
@@ -1729,7 +1717,7 @@ file can be found in the ``pmcd(1)`` man page.
 Managing Optional PMDAs
 -----------------------
 
-PMDAmanaging optional agentsSome Performance Metrics Domain Agents
+Performance Metrics Domain Agents
 (PMDAs) shipped with Performance Co-Pilot (PCP) are designed to be
 installed and activated on every collector host, for example, ``linux``,
 ``windows``, ``darwin``, ``pmcd``, and ``process`` PMDAs.
@@ -1756,13 +1744,13 @@ PMDAs installation automatically, with default options taken.
 PMDA Installation on a PCP Collector Host
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-PMDAinstallationTo install a PMDA you must perform a collector
+To install a PMDA you must perform a collector
 installation for each host on which the PMDA is required to export
 performance metrics. PCP provides a distributed metric namespace (PMNS)
 and metadata, so it is not necessary to install PMDAs (with their
 associated PMNS) on PCP monitor hosts.
 
-collector hosts You need to update the PMNS, configure the PMDA, and
+You need to update the PMNS, configure the PMDA, and
 notify PMCD. The ``Install`` script for each PMDA automates these
 operations, as follows:
 
@@ -1848,7 +1836,7 @@ operations, as follows:
 PMDA Removal on a PCP Collector Host
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-PMDAremovalTo remove a PMDA, you must perform a collector removal for
+To remove a PMDA, you must perform a collector removal for
 each host on which the PMDA is currently installed.
 
 The PMNS needs to be updated, the PMDA unconfigured, and PMCD notified.
@@ -1884,7 +1872,7 @@ follows:
 Troubleshooting
 ---------------
 
-troubleshootingPMCDThe following sections offer troubleshooting advice
+The following sections offer troubleshooting advice
 on the Performance Metrics Name Space (PMNS), missing and incomplete
 values for performance metrics, kernel metrics and the PMCD.
 
@@ -1896,7 +1884,7 @@ Advice for troubleshooting the archive logging system is provided in
 Performance Metrics Name Space
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-pminfo tooldisplaying the PMNSPMNStroubleshootingTo display the active
+To display the active
 PMNS, use the ``pminfo`` command; see the ``pminfo(1)`` man page.
 
 The PMNS at the collector host is updated whenever a PMDA is installed
@@ -1911,7 +1899,7 @@ directory and are merged into the ``root`` file there.
 Missing and Incomplete Values for Performance Metrics
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-performance metricsmissing and incomplete valuesMissing or incomplete
+Missing or incomplete
 performance metric values are the result of their unavailability.
 
 .. _LE89271-PARENT:
@@ -1953,7 +1941,7 @@ Resolution:
 Kernel Metrics and the PMCD
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-troubleshootingKernel metricstroubleshootingPMCDThe following issues
+The following issues
 involve the kernel metrics and the PMCD:
 
 -  Cannot connect to remote PMCD
@@ -1967,7 +1955,7 @@ involve the kernel metrics and the PMCD:
 Cannot Connect to Remote PMCD
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-PMCDremote connectiontroubleshootinggeneral utilitiesThe following
+The following
 symptom has a known cause and resolution:
 
 Symptom:
@@ -2029,7 +2017,7 @@ Resolution:
 PMCD Not Reconfiguring after ``SIGHUP``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-SIGHUP signalThe following symptom has a known cause and resolution:
+The following symptom has a known cause and resolution:
 
 Symptom
    PMCD does not reconfigure itself after receiving the ``SIGHUP``
@@ -2108,7 +2096,7 @@ Resolution:
 Common Conventions and Arguments
 ================================
 
-PCPconventions conventionsuser interface components This chapter deals
+This chapter deals
 with the user interface components that are common to most text-based
 utilities that make up the monitor portion of Performance Co-Pilot
 (PCP). These are the major sections in this chapter:
@@ -2135,7 +2123,7 @@ utilities that make up the monitor portion of Performance Co-Pilot
    Values <#LE17322-PARENT>`__, covers some uncommon scenarios that may
    compromise performance metric integrity over the short term.
 
-PCPnaming conventionsMany of the utilities provided with PCP conform to
+Many of the utilities provided with PCP conform to
 a common set of naming and syntactic conventions for command line
 arguments and options. This section outlines these conventions and their
 meaning. The options may be generally assumed to be honored for all
@@ -2144,7 +2132,7 @@ utilities supporting the corresponding functionality.
 In all cases, the man pages for each utility fully describe the
 supported command arguments and options.
 
-pmrun toolCommand line options are also relevant when starting PCP
+Command line options are also relevant when starting PCP
 applications from the desktop using the Alt double-click method. This
 technique launches the ``pmrun`` program to collect additional arguments
 to pass along when starting a PCP application.
@@ -2165,8 +2153,7 @@ from sources other than this default.
 Fetching Metrics from Another Host
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-fetching metricspmchart toolfetching metricspmie toolfetching metricsThe
-option ``-h`` host directs any PCP utility (such as ``pmchart`` or
+The option ``-h`` host directs any PCP utility (such as ``pmchart`` or
 ``pmie``) to make a connection with the PMCD instance running on host.
 Once established, this connection serves as the principal real-time
 source of performance metrics and metadata. The host specification may
@@ -2182,24 +2169,23 @@ Studies companion document.
 Fetching Metrics from an Archive Log
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-fetching metricsarchive logsfetching metricsPCP log file optionThe
-option ``-a`` archive directs the utility to treat the set of PCP
+The option ``-a`` archive directs the utility to treat the set of PCP
 archive logs designated by archive as the principal source of
 performance metrics and metadata. archive is a comma-sparated list of
 names, each of which may be the base name of an archive or the name of a
 directory containing archives.
 
-pmlogger toolarchive logsPCP archive logs are created with ``pmlogger``.
+PCP archive logs are created with ``pmlogger``.
 Most PCP utilities operate with equal facility for performance
 information coming from either a real-time feed via PMCD on some host,
 or for historical data from a set of PCP archive logs. For more
 information on archive logs and their use, see `Archive
 Logging <#LE93354-PARENT>`__.
 
-archive logsphysical filenamesThe list of names (``archive``) used with
+The list of names (``archive``) used with
 the ``-a`` option implies the existence of the files created
 automatically by ``pmlogger``, as listed in
-`table_title <#id5193871>`__.
+`Physical Filenames for Components of a PCP Archive Log <#id13>`__.
 
 .. table:: Physical Filenames for Components of a PCP Archive Log
 
@@ -2232,7 +2218,7 @@ list of archive names following the ``-a`` option.
 General PCP Tool Options
 ------------------------
 
-tool optionsThe following sections provide information relevant to most
+The following sections provide information relevant to most
 of the PCP tools. It is presented here in a single place for
 convenience.
 
@@ -2308,7 +2294,7 @@ and for binaries:
 Alternate Performance Metric Name Spaces
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-PMNSPMNSThe Performance Metrics Name Space (PMNS) defines a mapping from
+The Performance Metrics Name Space (PMNS) defines a mapping from
 a collection of human-readable names for performance metrics (convenient
 to the user) into corresponding internal identifiers (convenient for the
 underlying implementation).
@@ -2326,7 +2312,7 @@ When a PMNS is maintained on a host, it is likely to reside in the
 Time Duration and Control
 -------------------------
 
-time durationThe periodic nature of sampling performance metrics and
+The periodic nature of sampling performance metrics and
 refreshing the displays of the PCP tools makes specification and control
 of the temporal domain a common operation. In the following sections,
 the services and conventions for specifying time positions and intervals
@@ -2337,7 +2323,7 @@ are described.
 Performance Monitor Reporting Frequency and Duration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-reporting frequencydurationMany of the performance monitoring utilities
+Many of the performance monitoring utilities
 have periodic reporting patterns. The ``-t`` interval and ``-s`` samples
 options are used to control the sampling (reporting) interval, usually
 expressed as a real number of seconds (interval), and the number of
@@ -2461,7 +2447,7 @@ to nothing in the extreme.
 Timezone Options
 ~~~~~~~~~~~~~~~~
 
-timezone optionsAll utilities that report time of day use the local
+All utilities that report time of day use the local
 timezone by default. The following timezone options are available:
 
 ``-z``
@@ -2479,8 +2465,7 @@ timezone by default. The following timezone options are available:
 PCP Environment Variables
 -------------------------
 
-PCPenvironment variablesenvironment variables${PCP_DIR}/etc/pcp.conf
-file/etc/pcp.env filepmGetConfig functionWhen you are using PCP tools
+When you are using PCP tools
 and utilities and are calling PCP library functions, a standard set of
 defined environment variables are available in the
 ``${PCP_DIR}/etc/pcp.conf`` file. These variables are generally used to
@@ -2609,14 +2594,12 @@ definitions are also available on the ``PCPIntro(1)`` man page):
 Running PCP Tools through a Firewall
 ------------------------------------
 
-firewallsTCP/IPcollector and monitor hostsIn some production
+In some production
 environments, the Performance Co-Pilot (PCP) monitoring hosts are on one
 side of a TCP/IP firewall, and the PCP collector hosts may be on the
 other side.
 
-PROXY protocolpmproxy toolTCP/IP firewallPMCDTCP/IP firewallpmlogger
-toolTCP/IP firewallpmlc tool TCP/IP firewallPMCD_PORT
-variablePMLOGGER_PORT variableIf the firewall service sits between the
+If the firewall service sits between the
 monitor and collector tools, the ``pmproxy`` service may be used to
 perform both packet forwarding and DNS proxying through the firewall;
 see the ``pmproxy(1)`` man page. Otherwise, it is necessary to arrange
@@ -2647,7 +2630,7 @@ available extensions to the basic host naming syntax - refer to the
 Transient Problems with Performance Metric Values
 -------------------------------------------------
 
-transient problemsSometimes the values for a performance metric as
+Sometimes the values for a performance metric as
 reported by a PCP tool appear to be incorrect. This is typically caused
 by transient conditions such as metric wraparound or time skew,
 described below. These conditions result from design decisions that are
@@ -2662,8 +2645,7 @@ should not persist beyond a few samples.
 Performance Metric Wraparound
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-performance metric wraparoundPCP_COUNTER_WRAP variablePerformance
-metrics are usually expressed as numbers with finite precision. For
+Performance metrics are usually expressed as numbers with finite precision. For
 metrics that are cumulative counters of events or resource consumption,
 the value of the metric may occasionally overflow the specified range
 and wraparound to zero.
@@ -2681,7 +2663,7 @@ the next sample.
 Time Dilation and Time Skew
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-time dilationIf a PMDA is tardy in returning results, or the PCP
+If a PMDA is tardy in returning results, or the PCP
 monitoring tool is connected to PMCD via a slow or congested network, an
 error might be introduced in rate calculations due to a difference
 between the time the metric was sampled and the time PMCD sends the
@@ -2703,8 +2685,7 @@ refer to the ``ntpd(1)`` man page.
 Monitoring System Performance
 =============================
 
-monitoring system performanceperformance monitoringman
-commandusagepmchart toolman exampleThis chapter describes the
+This chapter describes the
 performance monitoring tools available in Performance Co-Pilot (PCP).
 This product provides a group of commands and tools for measuring system
 performance. Each tool is described completely by its own man page. The
@@ -2743,7 +2724,7 @@ system performance.
 The ``pmstat`` Command
 ----------------------
 
-pmstat tooldescription The ``pmstat`` command provides a periodic,
+The ``pmstat`` command provides a periodic,
 one-line summary of system performance. This command is intended to
 monitor system performance at the highest level, after which other tools
 may be used for examining subsystems to observe potential performance
@@ -2834,7 +2815,7 @@ see the ``pmstat(1)`` man page.
 The ``pmrep`` Command
 ---------------------
 
-pmrep tooldescriptionThe ``pmrep`` command displays performance metrics
+The ``pmrep`` command displays performance metrics
 in ASCII tables, suitable for export into databases or report
 generators. It is a flexible command. For example, the following command
 provides continuous memory statistics on a host named ``surf``:
@@ -3150,7 +3131,7 @@ associated with each instance of the metric is printed:
        inst [0 or "/dev/xscsi/pci00.01.0/target81/lun0/part3"] value "/"
        inst [1 or "/dev/xscsi/pci00.01.0/target81/lun0/part1"] value "/boot/efi"
 
-PMIDprintingThe ``-m`` option prints the Performance Metric Identifiers
+The ``-m`` option prints the Performance Metric Identifiers
 (PMIDs) of the selected metrics. This is useful for finding out which
 PMDA supplies the metric. For example, the output below identifies the
 PMDA supporting domain 4 (the leftmost part of the PMID) as the one
@@ -3166,7 +3147,7 @@ correspond with supported metrics, and checks that a value is available
 for the metric. Descriptions and values are fetched, but not printed.
 Only errors are reported.
 
-pminfo toolPCP Tutorials and Case StudiesPCP Tutorials and Case
+PCP Tutorials and Case StudiesPCP Tutorials and Case
 Studiespminfo commandComplete information on the ``pminfo`` command is
 found in the ``pminfo(1)`` man page. There are further examples of the
 use of ``pminfo`` in the PCP Tutorials and Case Studies.
@@ -3176,7 +3157,7 @@ use of ``pminfo`` in the PCP Tutorials and Case Studies.
 The ``pmstore`` Command
 -----------------------
 
-pmstore tooldescriptionFrom time to time you may wish to change the
+From time to time you may wish to change the
 value of a particular metric. Some metrics are counters that may need to
 be reset, and some are simply control variables for agents that collect
 performance metrics. When you need to change the value of a metric for
@@ -3251,8 +3232,7 @@ For complete information on ``pmstore`` usage and syntax, see the
 Performance Metrics Inference Engine
 ====================================
 
-pmie toolperformance metrics inference enginetool optionsPerformance
-Metrics Inference Enginepmie toolThe Performance Metrics Inference
+The Performance Metrics Inference
 Engine (``pmie``) is a tool that provides automated monitoring of, and
 reasoning about, system performance within the Performance Co-Pilot
 (PCP) framework.
@@ -3288,7 +3268,7 @@ The major sections in this chapter are as follows:
 Introduction to ``pmie``
 ------------------------
 
-pmie toolautomated reasoningAutomated reasoning within Performance
+Automated reasoning within Performance
 Co-Pilot (PCP) is provided by the Performance Metrics Inference Engine,
 (``pmie``), which is an applied artificial intelligence application.
 
@@ -3306,7 +3286,7 @@ more hosts, or from one or more PCP archive logs. In the latter case,
 ``pmie`` may be used to retrospectively identify adverse performance
 conditions.
 
-PCPpmie capabilitiesPMAPIpmie capabilitiesUsing ``pmie``, you can
+Using ``pmie``, you can
 filter, interpret, and reason about the large volume of performance data
 made available from PCP collector systems or PCP archives.
 
@@ -3325,7 +3305,7 @@ Typical ``pmie`` uses include the following:
    abnormal to chronic system behavior, trend analysis, and capacity
    planning
 
-pmie toollanguageThe ``pmie`` expressions are described in a language
+The ``pmie`` expressions are described in a language
 with expressive power and operational flexibility. It includes the
 following operators and functions:
 
@@ -3390,7 +3370,7 @@ e-mail to advise that data has been collected and is awaiting analysis.
 Or, if production batch throughput falls below 50 jobs per minute,
 activate a pager to the systems administrator on duty.
 
-pmie toolcustomizationpmieconf toolcustomizationObviously, ``pmie``
+Obviously, ``pmie``
 customization is required to produce meaningful filtering and actions in
 each production environment. The ``pmieconf`` tool provides a convenient
 customization method, allowing the user to generate parameterized
@@ -3401,7 +3381,7 @@ customization method, allowing the user to generate parameterized
 Basic ``pmie`` Usage
 --------------------
 
-pmie toolbasic examplesThis section presents and explains some basic
+This section presents and explains some basic
 examples of ``pmie`` usage. The ``pmie`` tool accepts the common PCP
 command line arguments, as described in `Common Conventions and
 Arguments <#LE94335-PARENT>`__. In addition, ``pmie`` accepts the
@@ -3435,7 +3415,7 @@ input, which may be your system keyboard.
 ``pmie`` use of PCP services
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-PCPpmie toolBefore you use ``pmie``, it is strongly recommended that you
+Before you use ``pmie``, it is strongly recommended that you
 familiarize yourself with the concepts from the `Conceptual
 Foundations <#LE79836-PARENT>`__. The discussion in this section serves
 as a very brief review of these concepts.
@@ -3571,7 +3551,7 @@ Please refer to the ``pmie(1)`` man page for a complete description of
 Complex ``pmie`` Examples
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-pmie toolexamplesThis section illustrates more complex ``pmie``
+This section illustrates more complex ``pmie``
 expressions of the specification language. `Specification Language
 for <#LE90227-PARENT>`__, provides a complete description of the
 ``pmie`` specification language.
@@ -3667,7 +3647,7 @@ of the rule appears (before the ``-v`` values).
 Specification Language for ``pmie``
 -----------------------------------
 
-pmie toollanguageThis section describes the complete syntax of the
+This section describes the complete syntax of the
 ``pmie`` specification language, as well as macro facilities and the
 issue of sampling and evaluation frequency. The reader with a preference
 for learning by example may choose to skip this section and go straight
@@ -3698,7 +3678,7 @@ Complex expressions are built up recursively from simple elements:
 Basic ``pmie`` Syntax
 ~~~~~~~~~~~~~~~~~~~~~
 
-pmie toolsyntaxThe ``pmie`` rule specification language supports a
+The ``pmie`` rule specification language supports a
 number of basic syntactic elements.
 
 .. _id5200293:
@@ -3744,7 +3724,7 @@ escape character as shown in the following example:
 Comments
 ^^^^^^^^
 
-commentsComments may be embedded anywhere in the source, in either of
+Comments may be embedded anywhere in the source, in either of
 these forms:
 
 ``/* text */``
@@ -3759,7 +3739,7 @@ these forms:
 Macros
 ^^^^^^
 
-macrosWhen they are fully specified, expressions in ``pmie`` tend to be
+When they are fully specified, expressions in ``pmie`` tend to be
 verbose and repetitive. The use of macros can reduce repetition and
 improve readability and modularity. Any statement of the following form
 associates the macro name ``identifier`` with the given string constant.
@@ -3841,7 +3821,7 @@ The following are examples of units usage:
 Setting Evaluation Frequency
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-pmie toolsetting evaluation frequencyevaluation frequencyThe identifier
+The identifier
 name ``delta`` is reserved to denote the interval of time between
 consecutive evaluations of one or more expressions. Set ``delta`` as
 follows:
@@ -3870,7 +3850,7 @@ seconds.
 ``pmie`` Metric Expressions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-pmie toolmetric expressionsPMNSmetric expressionsPMCDcollector hostThe
+The
 performance metrics namespace (PMNS) provides a means of naming
 performance metrics, for example, ``disk.dev.read``. PCP allows an
 application to retrieve one or more values for a performance metric from
@@ -3888,7 +3868,7 @@ following:
 The permissible values for hosts are the range of valid hostnames as
 provided by Internet naming conventions.
 
-PMDAinstance namesThe names for instances are provided by the
+The names for instances are provided by the
 Performance Metrics Domain Agents (PMDA) for the instance domain
 associated with the chosen performance metric.
 
@@ -4642,8 +4622,7 @@ caveatsThe following sections provide important information for users of
 Performance Metrics Wraparound
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-performance metric wraparoundPCP_COUNTER_WRAP variablemetric
-wraparoundPerformance metrics that are cumulative counters may
+Performance metrics that are cumulative counters may
 occasionally overflow their range and wraparound to 0. When this
 happens, an unknown value (printed as ``?``) is returned as the value of
 the metric for one sample (recall that the value returned is normally a
@@ -4655,7 +4634,7 @@ change by setting the ``PCP_COUNTER_WRAP`` environment variable.
 ``pmie`` Sample Intervals
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-pmie toolsample intervalssample intervalsThe sample interval (``delta``)
+The sample interval (``delta``)
 should always be long enough, particularly in the case of rates, to
 ensure that a meaningful value is computed. Interval may vary according
 to the metric and your needs. A reasonable minimum is in the range of
@@ -4668,7 +4647,7 @@ unnecessary load on the monitored system.
 ``pmie`` Instance Names
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-pmie toolinstance namesWhen you specify a metric instance name
+When you specify a metric instance name
 (``#``\ identifier) in a ``pmie`` expression, it is compared against the
 instance name looked up from either a live collector system or an
 archive as follows:
@@ -4690,7 +4669,7 @@ policy circumvents this problem.
 ``pmie`` Error Detection
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-pmie toolerror detectionerror detectionThe parser used in ``pmie`` is
+The parser used in ``pmie`` is
 not particularly robust in handling syntax errors. It is suggested that
 you check any problematic expressions individually in interactive mode:
 
@@ -4732,7 +4711,7 @@ error stream (``stderr``) and the offending expression is set aside.
 Creating ``pmie`` Rules with ``pmieconf``
 -----------------------------------------
 
-pmie toolpmieconf rulespmieconf toolrulesThe ``pmieconf`` tool is a
+The ``pmieconf`` tool is a
 command line utility that is designed to aid the specification of
 ``pmie`` rules from parameterized versions of the rules. ``pmieconf`` is
 used to display and modify variables or parameters controlling the
@@ -5040,7 +5019,7 @@ their progress in terms of rule evaluations and action execution rates.
 Archive Logging
 ===============
 
-archive logsusagePerformance monitoring and management in complex
+Performance monitoring and management in complex
 systems demands the ability to accurately capture performance
 characteristics for subsequent review, analysis, and comparison.
 Performance Co-Pilot (PCP) provides extensive support for the creation
@@ -5281,7 +5260,7 @@ Basename Conventions
 
 basename conventionsWhen a PCP archive is created by ``pmlogger``, an
 archive basename must be specified and several physical files are
-created, as shown in `table_title <#id5206972>`__.
+created, as shown in `Filenames for PCP Archive Log Components <#id16>`__.
 
 .. table:: Filenames for PCP Archive Log Components (``archive``.*)
 
@@ -5643,7 +5622,7 @@ collected from multiple remote hosts, repeat the steps in
 Archive Log Administration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-archive logsadministrationAssume the local host has been set up to
+Assume the local host has been set up to
 create archive logs of performance metrics collected from one or more
 hosts (which may be either the local host or a remote host).
 
@@ -5695,13 +5674,12 @@ manipulating archive logs, primary logger, and using ``pmlc``.
 PCP Archive Folios
 ~~~~~~~~~~~~~~~~~~
 
-foliosarchive logsfoliospmchart toolrecord modepcp-collectl toolrecord
-modeA collection of one or more sets of PCP archive logs may be combined
+A collection of one or more sets of PCP archive logs may be combined
 with a control file to produce a PCP archive folio. Archive folios are
 created using either ``mkaf`` or the interactive record mode services of
 various PCP monitor tools (e.g. ``pmchart`` and ``pmrep``).
 
-pmlogger toolfoliosThe automated archive log management services also
+The automated archive log management services also
 create an archive folio named ``Latest`` for each managed ``pmlogger``
 instance, to provide a symbolic name to the most recent archive log.
 With reference to `figure_title <#id5207462>`__, this would mean the
@@ -6117,7 +6095,7 @@ Resolution:
 Performance Co-Pilot Deployment Strategies
 ==========================================
 
-deployment strategiesPerformance Co-Pilot (PCP) is a coordinated suite
+Performance Co-Pilot (PCP) is a coordinated suite
 of tools and utilities allowing you to monitor performance and make
 automated judgments and initiate actions based on those judgments. PCP
 is designed to be fully configurable for custom implementation and
@@ -6128,7 +6106,7 @@ Because each enterprise and site is different and PCP represents a new
 way of managing performance information, some discussion of deployment
 strategies is useful.
 
-PMCDmonitoring utilitiesPMDAmonitoring utilitiesThe most common use of
+The most common use of
 performance monitoring utilities is a scenario where the PCP tools are
 executed on a workstation (the PCP monitoring system), while the
 interesting performance data is collected on remote systems (PCP
@@ -6206,7 +6184,7 @@ of this chapter.
 PCP Collector Deployment
 ------------------------
 
-PCPcollector deploymentEach PCP collector system must have an active
+Each PCP collector system must have an active
 ``pmcd`` and, typically, a number of PMDAs installed.
 
 .. _id5210938:
@@ -6248,7 +6226,7 @@ Performance Co-Pilot Programmer's Guide.
 Quality of Service Measurement
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-service managementApplications and services with a client-server
+Applications and services with a client-server
 architecture need to monitor performance at both the server side and the
 client side.
 
@@ -6509,7 +6487,7 @@ of Processes <#Z927039824sdc>`__.
 Customizing and Extending PCP Services
 ======================================
 
-customizationPCP servicesextensibility Performance Co-Pilot (PCP) has
+Performance Co-Pilot (PCP) has
 been developed to be fully extensible. The following sections summarize
 the various facilities provided to allow you to extend and customize PCP
 for your site:
@@ -6552,7 +6530,7 @@ The summary PMDA is a special case that warrants further discussion.
 Customizing the Summary PMDA
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-PMDAcustomizingThe summary PMDA exports performance metrics derived from
+The summary PMDA exports performance metrics derived from
 performance metrics made available by other PMDAs. It is described
 completely in the ``pmdasummary(1)`` man page.
 
@@ -6589,12 +6567,12 @@ Check that the symbolic constant ``SYSSUMMARY`` is defined in the
 postinstall update of this file, as superuser: ``cd ${PCP_VAR_DIR}/pmns
 ./Make.stdpmid``
 
-PMNSnamesChoose Performance Metric Name Space (PMNS) names for the new
+Choose Performance Metric Name Space (PMNS) names for the new
 metrics. These must begin with ``summary`` and follow the rules
 described in the ``pmns(5)`` man page. For example, you might use
 ``summary.fs.cache_write`` and ``summary.fs.cache_hit``.
 
-PMIDPMNS namesEdit the ``pmns`` file in the ``${PCP_PMDAS_DIR}/summary``
+Edit the ``pmns`` file in the ``${PCP_PMDAS_DIR}/summary``
 directory to add the new metric names in the format described in the
 ``pmns(5)`` man page. You must choose a unique performance metric
 identifier (PMID) for each metric. In the ``pmns`` file, these appear as
@@ -6732,7 +6710,7 @@ configurations to monitor and archive your new performance metrics.
 PCP Tool Customization
 ----------------------
 
-PCPtool customizationtool customizationPerformance Co-Pilot (PCP) has
+Performance Co-Pilot (PCP) has
 been designed and implemented with a philosophy that embraces the notion
 of toolkits and encourages extensibility.
 
@@ -6753,7 +6731,7 @@ installation.
 Archive Logging Customization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-archive logscustomizationcustomizationarchive logsThe PCP archive logger
+The PCP archive logger
 is presented in `Archive Logging <#LE93354-PARENT>`__, and documented in
 the ``pmlogger(1)`` man page.
 
@@ -6804,7 +6782,7 @@ The following global files and directories influence the behavior of
 Inference Engine Customization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-inference enginecustomizationinference engineThe PCP inference engine is
+The PCP inference engine is
 presented in `Performance Metrics Inference Engine <#LE21414-PARENT>`__,
 and documented in the ``pmie(1)`` man page.
 
@@ -7029,7 +7007,7 @@ available for the C, C++ and Python languages.
 Acronyms
 ========
 
-acronymsglossary\ `table_title <#id5214266>`__ provides a list of the
+`Performance Co-Pilot Acronyms and Their Meanings <#id25>`__ provides a list of the
 acronyms used in the Performance Co-Pilot (PCP) documentation, help
 cards, man pages, and user interface.
 

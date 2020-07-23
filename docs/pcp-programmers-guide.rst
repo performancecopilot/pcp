@@ -29,21 +29,21 @@ What This Guide Contains
 
 This guide contains the following chapters:
 
--  `Programming Performance Co-Pilot <#LE21795-PARENT>`__, contains a
+-  `Programming Performance Co-Pilot <#programming-performance-co-pilot>`__, contains a
    thumbnail sketch of how to program the various PCP components.
 
--  `Writing a PMDA <#LE98072-PARENT>`__, describes how to write
+-  `Writing a PMDA <#writing-a-pmda>`__, describes how to write
    Performance Metrics Domain Agents (PMDAs) for PCP.
 
--  `PMAPI--The Performance Metrics API <#LE97135-PARENT>`__, describes
+-  `PMAPI--The Performance Metrics API <#pmapi-the-performance-metrics-api>`__, describes
    the interface that allows you to design custom performance monitoring
    tools.
 
--  `Instrumenting Applications <#LE25915-PARENT>`__, introduces
+-  `Instrumenting Applications <#instrumenting-applications>`__, introduces
    techniques, tools and interfaces to assist with exporting performance
    data from within applications.
 
--  `appendix_title <#LE54271-PARENT>`__, provides a comprehensive list
+-  `Acronyms <#acronyms>`__, provides a comprehensive list
    of the acronyms used in this guide, in the PCP man pages, and in the
    release notes.
 
@@ -200,7 +200,7 @@ We value your comments and will respond to them promptly.
 Programming Performance Co-Pilot
 ================================
 
-PCP descriptionPerformance Co-Pilot (PCP) provides a systems-level suite
+Performance Co-Pilot (PCP) provides a systems-level suite
 of tools that cooperate to deliver distributed, integrated performance
 management services. PCP is designed for the in-depth analysis and
 sophisticated control that are needed to understand and manage the
@@ -214,7 +214,7 @@ Performance data may be collected and exported from multiple sources,
 most notably the hardware platform, the operating system kernel, layered
 services, and end-user applications.
 
-programming components audienceThere are several ways to extend PCP by
+There are several ways to extend PCP by
 programming certain of its components:
 
 -  Performance Metrics Domain Agent PMDA PMDA introductionBy writing a
@@ -241,11 +241,11 @@ Performance Co-Pilot User's and Administrator's Guide.
 PCP Architecture
 ----------------
 
-architectureThis section gives a brief overview of PCP architecture. For
+This section gives a brief overview of PCP architecture. For
 an explanation of terms and acronyms, refer to
-`appendix_title <#LE54271-PARENT>`__.
+`Acronyms <#acronyms>`__.
 
-pmchart command monitoring tools collection toolsPCP consists of
+PCP consists of
 numerous monitoring and collecting tools. ``Monitoring tools`` such as
 ``pmval`` and ``pminfo`` report on metrics, but have minimal interaction
 with target systems. ``Collection tools``, called PMDAs, extract
@@ -281,6 +281,9 @@ Each performance metric domain (such as the operating system kernel or a
 database management system) has a well-defined name space for referring
 to the specific performance metrics it knows how to collect.
 
+.. figure:: images/local-collector.svg
+   :alt: PCP Global Process Architecture
+
 PCP Global Process Architecture
 
 .. _id5177343:
@@ -288,8 +291,7 @@ PCP Global Process Architecture
 Distributed Collection
 ~~~~~~~~~~~~~~~~~~~~~~
 
-distributed performance management metrics collection Cisco PMDA Cluster
-PMDAThe performance metrics collection architecture is distributed, in
+The performance metrics collection architecture is distributed, in
 the sense that any monitoring tool may be executing remotely. However, a
 PMDA is expected to be running on the operating system for which it is
 collecting performance measurements; there are some notable PMDAs such
@@ -302,6 +304,9 @@ PMCD. The PMDAs are controlled by PMCD and respond to requests from the
 monitoring tools that are forwarded by PMCD to the relevant PMDAs on the
 collector host.
 
+.. figure:: images/remote-collector.svg
+   :alt: Process Structure for Distributed Operation
+   
 Process Structure for Distributed Operation
 
 The host running the monitoring tools does not require any collection
@@ -320,14 +325,13 @@ there may be only one PMCD process.
 Name Space
 ~~~~~~~~~~
 
-name space Performance Metric Identifier PMID PMID introductionEach PMDA
-provides a domain of metrics, whether they be for the operating system,
+Each PMDA provides a domain of metrics, whether they be for the operating system,
 a database manager, a layered service, or an application module. These
 metrics are referred to by name inside the user interface, and with a
 numeric Performance Metric Identifier (PMID) within the underlying
 PMAPI.
 
-clusters item numbers domains fieldsThe PMID consists of three fields:
+The PMID consists of three fields:
 the domain, the cluster, and the item number of the metric. The domain
 is a unique number assigned to each PMDA. For example, two metrics with
 the same domain number must be from the same PMDA. The cluster and item
@@ -335,7 +339,7 @@ numbers allow metrics to be easily organized into groups within the
 PMDA, and provide a hierarchical taxonomy to guarantee uniqueness within
 each PMDA.
 
-Performance Metrics Name Space PMNSThe Performance Metrics Name Space
+The Performance Metrics Name Space
 (PMNS) describes the exported performance metrics, in particular the
 mapping from PMID to external name, and vice-versa.
 
@@ -344,7 +348,7 @@ mapping from PMID to external name, and vice-versa.
 Distributed PMNS
 ~~~~~~~~~~~~~~~~
 
-PMNSdistributed Performance metric namespace (PMNS) operations are
+Performance metric namespace (PMNS) operations are
 directed by default to the host or set of archives that is the source of
 the desired performance metrics.
 
@@ -363,15 +367,18 @@ file in preference to the PMNS at the source of the metrics.
 Retrospective Sources of Performance Metrics
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-retrospective analysisThe distributed collection architecture described
+The distributed collection architecture described
 in the previous section is used when PMAPI clients are requesting
 performance metrics from a real-time or live source.
 
-archive logs retrospective sourcesThe PMAPI also supports delivery of
+The PMAPI also supports delivery of
 performance metrics from a historical source in the form of a PCP
 archive log. Archive logs are created using the ``pmlogger`` utility,
 and are replayed in an architecture as shown in
 `figure_title <#id5177742>`__.
+
+.. figure:: images/retrospective-architecture.svg
+   :alt: Architecture for Retrospective Analysis
 
 Architecture for Retrospective Analysis
 
@@ -380,7 +387,7 @@ Architecture for Retrospective Analysis
 Overview of Component Software
 ------------------------------
 
-software component softwarePerformance Co-Pilot (PCP) is composed of
+Performance Co-Pilot (PCP) is composed of
 text-based tools, optional graphical tools, and related commands. Each
 tool or command is fully documented by a man page. These man pages are
 named after the tools or commands they describe, and are accessible
@@ -395,7 +402,7 @@ provided in the following section.
 Application and Agent Development
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-application programs PCP tool summariesThe following PCP tools aid the
+The following PCP tools aid the
 development of new programs to consume performance data, and new agents
 to export performance data within the PCP framework:
 
@@ -443,7 +450,7 @@ to export performance data within the PCP framework:
 PMDA Development
 ----------------
 
-PMDA developmentA collection of Performance Metrics Domain Agents
+A collection of Performance Metrics Domain Agents
 (PMDAs) are provided with PCP to extract performance metrics. Each PMDA
 encapsulates domain-specific knowledge and methods about performance
 metrics that implement the uniform access protocols and functional
@@ -497,8 +504,7 @@ the Performance Co-Pilot User's and Administrator's Guide.
 In-Process (DSO) Method
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-DSO PMDA building dlopen man page dynamic shared object DSO interprocess
-communication IPC IPC DSOThis method of building a PMDA uses a Dynamic
+This method of building a PMDA uses a Dynamic
 Shared Object (DSO) that is attached by PMCD, using the
 platform-specific shared library manipulation interfaces such as
 ``dlopen(3)``, at initialization time. This is the highest performance
@@ -519,7 +525,7 @@ and end monitoring of that host. Other implications are discussed in
 Daemon Process Method
 ^^^^^^^^^^^^^^^^^^^^^
 
-daemon process methodFunctionally, this method may be thought of as a
+Functionally, this method may be thought of as a
 DSO implementation with a standard ``main`` routine conversion wrapper
 so that communication with PMCD uses message passing rather than direct
 procedure calls. For some very basic examples, see the
@@ -541,7 +547,7 @@ and provides more resilient error encapsulation than the DSO method.
 Client Development and PMAPI
 ----------------------------
 
-client developmentApplication developers are encouraged to create new
+Application developers are encouraged to create new
 PCP client applications to monitor, display, and analyze performance
 data in a manner suited to their particular site, application suite, or
 information processing environment.
@@ -558,7 +564,7 @@ used by the standard PCP utilities.
 Library Reentrancy and Threaded Applications
 --------------------------------------------
 
-threaded applications multiple threads library reentrancyWhile the core
+While the core
 PCP library (``libpcp``) is thread safe, the layered PMDA library
 (``libpcp_pmda``) is not. This is a deliberate design decision to
 trade-off commonly required performance and efficiency against the less
@@ -573,7 +579,7 @@ thread to make calls into the PCP PMDA library.
 Writing a PMDA
 ==============
 
-PMDA writingThis chapter constitutes a programmer's guide to writing a
+This chapter constitutes a programmer's guide to writing a
 Performance Metrics Domain Agent (PMDA) for Performance Co-Pilot (PCP).
 
 The presentation assumes the developer is using the standard PCP
@@ -585,7 +591,7 @@ man pages.
 Implementing a PMDA
 -------------------
 
-implementation design requirementsThe job of a PMDA is to gather
+The job of a PMDA is to gather
 performance data and report them to the Performance Metrics Collection
 Daemon (PMCD) in response to requests from PCP monitoring tools routed
 to the PMDA via PMCD.
@@ -596,7 +602,7 @@ method and a single thread of control, or it must have asynchronous
 refresh and two threads of control: one for communicating with PMCD, the
 other for updating the performance data.
 
-target domain sequential log files snapshot files IPC PMDAThe PMDA is
+The PMDA is
 typically acting as a gateway between the target domain (that is, the
 performance instrumentation in an application program or service) and
 the PCP framework. The PMDA may extract the information using one of a
@@ -629,7 +635,7 @@ with names for the metrics in the Performance Metrics Name Space (PMNS).
 These concepts will be further expanded in `Domains, Metrics, Instances
 and Labels <#LE97285-PARENT>`__
 
-help text structure specificationSpecify the help file and control data
+Specify the help file and control data
 structures for metrics and instances that are required by the standard
 PMDA implementation library functions.
 
@@ -638,18 +644,18 @@ Write code to supply the metrics and associated information to PMCD.
 Implement any PMDA-specific callbacks, and PMDA initialization
 functions.
 
-dbpmda man pageExercise and test the PMDA with the purpose-built PMDA
+Exercise and test the PMDA with the purpose-built PMDA
 debugger; see the ``dbpmda(1)`` man page.
 
 Install and connect the PMDA to a running PMCD process; see the
 ``pmcd(1)`` man page.
 
-pmie command pmieconf command examples alarm toolsWhere appropriate,
+Where appropriate,
 define ``pmie`` rule templates suitable for alerting or notification
 systems. For more information, see the ``pmie(1)`` and ``pmieconf(1)``
 man pages.
 
-pmlogger commandWhere appropriate, define ``pmlogger`` configuration
+Where appropriate, define ``pmlogger`` configuration
 templates suitable for creating PCP archives containing the new metrics.
 For more information, see the ``pmlogconf(1)`` and ``pmlogger(1)`` man
 pages.
@@ -659,7 +665,7 @@ pages.
 PMDA Architecture
 -----------------
 
-architecture PMDA architecture DSOarchitectureThis section discusses the
+This section discusses the
 two methods of connecting a PMDA to a PMCD process:
 
 -  As a separate process using some interprocess communication (IPC)
@@ -673,7 +679,7 @@ two methods of connecting a PMDA to a PMCD process:
 Overview
 ~~~~~~~~
 
-PDU protocol data units PDUAll PMDAs are launched and controlled by the
+All PMDAs are launched and controlled by the
 PMCD process on the local host. PMCD receives requests from the
 monitoring tools and forwards them to the PMDAs. Responses, when
 required, are returned through PMCD to the clients. The requests fall
@@ -750,7 +756,7 @@ given client request.
 DSO PMDA
 ~~~~~~~~
 
-DSO implementation dlopen man pageEach PMDA is required to implement a
+Each PMDA is required to implement a
 function that handles each of the request types. By implementing these
 functions as library functions, a PMDA can be implemented as a
 dynamically shared object (DSO) and attached by PMCD at run time with a
@@ -806,7 +812,7 @@ column headed ``Id``.
 Daemon PMDA
 ~~~~~~~~~~~
 
-DSO disadvantagesA DSO PMDA provides the most efficient communication
+A DSO PMDA provides the most efficient communication
 between the PMDA and PMCD. This approach has some disadvantages
 resulting from the DSO PMDA being the same process as PMCD:
 
@@ -875,7 +881,7 @@ The specification for the simple PMDA now states the connection type of
 Caching PMDA
 ~~~~~~~~~~~~
 
-caching PMDAWhen either the cost or latency associated with collecting
+When either the cost or latency associated with collecting
 performance metrics is high, the PMDA implementer may choose to trade
 off the currency of the performance data to reduce the PMDA resource
 demands or the fetch latency time.
@@ -910,7 +916,7 @@ available.
 Overview
 ~~~~~~~~
 
-domains definition metrics definition Domains are autonomous performance
+Domains are autonomous performance
 areas, such as the operating system or a layered service or a particular
 application. Metrics are raw performance data for a domain, and
 typically quantify activity levels, resource utilization or quality of
@@ -939,7 +945,7 @@ the demands of performance metrics drawn from multiple domains:
    ``disk.dev.total`` is defined over an instance domain that has one
    member per disk spindle.
 
-metrics and instancesThe selection of metrics and instances is an
+The selection of metrics and instances is an
 important design decision for a PMDA implementer. The metrics and
 instances for a target domain should have the following qualities:
 
@@ -1005,7 +1011,7 @@ standard way for a PMDA to implement this run-time initialization.
 Metrics
 ~~~~~~~
 
-metrics definition target domainA PMDA provides support for a collection
+A PMDA provides support for a collection
 of metrics. In addition to the obvious performance metrics, and the
 measures of time, activity and resource utilization, the metrics should
 also describe how the target domain has been configured, as this can
@@ -1159,7 +1165,7 @@ This single metric (``trivial.time``) has the following:
 Semantics
 ^^^^^^^^^
 
-semantic typesThe metric's semantics describe how PCP tools should
+The metric's semantics describe how PCP tools should
 interpret the metric's value. The following are the possible semantic
 types:
 
@@ -1522,7 +1528,7 @@ overlapping (duplicate) label names:
 Data Structures
 ^^^^^^^^^^^^^^^
 
-data structures pmLabel structureIn any PMDA that supports labels at any
+In any PMDA that supports labels at any
 level of the hierarchy, each individual label (one name:value pair)
 requires a ``pmLabel`` structure as shown in
 `example_title <#Z975964618nat>`__:
@@ -1543,7 +1549,7 @@ of the mandatory, identifying metadata for the metric or instance). All
 other fields are offsets and lengths in the JSONB string from an
 associated ``pmLabelSet`` structure.
 
-pmLabelSet structureZero or more labels are specified via a label set,
+Zero or more labels are specified via a label set,
 in a ``pmLabelSet`` structure as shown in
 `example_title <#Z975964773nat>`__:
 
@@ -1640,7 +1646,7 @@ a PMDA.
 Extracting the Information
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-information extractionA suggested approach to writing a PMDA is to write
+A suggested approach to writing a PMDA is to write
 a standalone program to extract the values from the target domain and
 then incorporate this program into the PMDA framework. This approach
 avoids concurrent debugging of two distinct problems:
@@ -1673,7 +1679,7 @@ PMDA.
 Latency and Threads of Control
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-latency control threads delaysThe PCP protocols expect PMDAs to return
+The PCP protocols expect PMDAs to return
 the current values for performance metrics when requested, and with
 short delay (low latency). For some target domains, access to the
 underlying instrumentation may be costly or involve unpredictable delays
@@ -1701,7 +1707,7 @@ parent and child processes.
    library functions - this would typically be the thread servicing
    requests from PMCD.
 
-caching PMDAOne caveat about this style of caching PMDA--in this
+One caveat about this style of caching PMDA--in this
 (special) case it is better if the PMDA converts counts to rates based
 upon consecutive periodic sampling from the underlying instrumentation.
 By exporting precomputed rate metrics with instantaneous semantics, the
@@ -1715,7 +1721,7 @@ in `Semantics <#id5190312>`__
 Name Space
 ~~~~~~~~~~
 
-pmns man page name spaceThe PMNS file defines the name space of the
+The PMNS file defines the name space of the
 PMDA. It is a simple text file that is used during installation to
 expand the Name Space of the PMCD process. The format of this file is
 described by the ``pmns(5)`` man page and its hierarchical nature,
@@ -1865,7 +1871,7 @@ starting with “@” or end of file:
 Management of Evolution within a PMDA
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-new metrics PMDA evolutionEvolution of a PMDA, or more particularly the
+Evolution of a PMDA, or more particularly the
 underlying instrumentation to which it provides access, over time
 naturally results in the appearance of new metrics and the disappearance
 of old metrics. This creates potential problems for PMAPI clients and
@@ -1937,7 +1943,7 @@ PMAPI, and for end users of those tools.
 PMDA Interface
 --------------
 
-PMDA interfaceThis section describes an interface for the request
+This section describes an interface for the request
 handling callbacks in a PMDA. This interface is used by PMCD for
 communicating with DSO PMDAs and is also used by daemon PMDAs with
 ``pmdaMain``.
@@ -1981,7 +1987,7 @@ To further simplify matters, default callbacks are declared in
 
 -  pmdaLabel callback ``pmdaLabel``
 
-pmdaExt structureEach callback takes a ``pmdaExt`` structure as its last
+Each callback takes a ``pmdaExt`` structure as its last
 argument. This structure contains all the information that is required
 by the default callbacks in most cases. The one exception is
 ``pmdaFetch``, which needs an additional callback to instantiate the
@@ -2031,7 +2037,7 @@ Structures, as described in `PMDA Structures <#id5193658>`__.
 Simple PMDA
 ^^^^^^^^^^^
 
-simple PMDA pmdaFetch callback simple_init functionThe simple PMDA
+Fetch callback simple_init functionThe simple PMDA
 callback for ``pmdaFetch`` is more complicated because it supports more
 metrics, some metrics are instantiated with each fetch, and one instance
 domain is dynamic. The default ``pmdaFetch`` callback, shown in
@@ -2326,7 +2332,7 @@ Value
 PMDA Structures
 ~~~~~~~~~~~~~~~
 
-PMDA structuresPMDA structures used with the ``pcp_pmda`` library are
+PMDA structures used with the ``pcp_pmda`` library are
 defined in ``<pcp/pmda.h>``. `example_title <#Z964112160sdc>`__ and
 `example_title <#Z964117744sdc>`__ describe the ``pmdaInterface`` and
 ``pmdaExt`` structures.
@@ -2419,7 +2425,7 @@ To date there have been six revisions of the interface structure:
    earlier versions of this header structure (and PMDA library) function
    correctly with the latest version of the PMDA library.
 
-pmdaExt structureAdditional PMDA information must be specified in a
+Additional PMDA information must be specified in a
 ``pmdaExt`` structure:
 
 ::
@@ -2458,7 +2464,7 @@ pmdaExt structureAdditional PMDA information must be specified in a
        pmdaLabelCallBack  e_labelCallBack;  /* callback to lookup metric instance labels */
    } pmdaExt;
 
-pmdaConnect man page pmdaDSO man page pmdaDaemon man page pmdaGetOptions
+Connect man page pmdaDSO man page pmdaDaemon man page pmdaGetOptions
 man page pmdaInit man pageThe ``pmdaExt`` structure contains filenames,
 pointers to tables, and some variables shared by several functions in
 the ``pcp_pmda``\ library. All fields of the ``pmdaInterface`` and
@@ -2473,7 +2479,7 @@ set or used by ``pcp_pmda`` library functions.
 Initializing a PMDA
 -------------------
 
-PMDAinitializationSeveral functions are provided to simplify the
+Several functions are provided to simplify the
 initialization of a PMDA. These functions, if used, must be called in a
 strict order so that the PMDA can operate correctly.
 
@@ -2482,7 +2488,7 @@ strict order so that the PMDA can operate correctly.
 Overview
 ~~~~~~~~
 
-pmdaInterface structureThe initialization process for a PMDA involves
+The initialization process for a PMDA involves
 opening help text files, assigning callback function pointers, adjusting
 the metric and instance identifiers to the correct domains, and much
 more. The initialization of a daemon PMDA also differs significantly
@@ -2494,7 +2500,7 @@ from a DSO PMDA, since the ``pmdaInterface`` structure is initialized by
 Common Initialization
 ~~~~~~~~~~~~~~~~~~~~~
 
-DSO PMDA initializationAs described in `DSO PMDA <#LE82676-PARENT>`__,
+As described in `DSO PMDA <#LE82676-PARENT>`__,
 an initialization function is provided by a DSO PMDA and called by PMCD.
 Using the standard PMDA wrappers, the same function can also be used as
 part of the daemon PMDA initialization. This PMDA initialization
@@ -2728,7 +2734,7 @@ debugging debugging and testing
 Overview
 ~~~~~~~~
 
-dbx man pageThoroughly testing a PMDA with PMCD is difficult, although
+Thoroughly testing a PMDA with PMCD is difficult, although
 testing a daemon PMDA is marginally simpler than testing a DSO PMDA. If
 a DSO PMDA exits, PMCD also exits because they share a single address
 space and control thread.
@@ -2759,7 +2765,7 @@ debugging and tracing framework.
 Debugging Information
 ~~~~~~~~~~~~~~~~~~~~~
 
-pmdbg man page debugging flags flags flags debuggingYou can activate
+You can activate
 debugging options in PMCD and most other PCP tools with the ``-D``
 command-line option. Supported options can be listed with the ``pmdbg``
 command; see the ``pmdbg(1)`` man page. Setting the debug options for
@@ -2814,7 +2820,7 @@ man page.
 ``dbpmda`` Debug Utility
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-dbpmda man pageThe ``dbpmda`` utility provides a simple interface to the
+The ``dbpmda`` utility provides a simple interface to the
 PDU communication protocol. It allows daemon and DSO PMDAs to be tested
 with most request types, while the PMDA process may be monitored with a
 debugger, tracing utilities, and other diagnostic tools. The
@@ -2826,7 +2832,7 @@ PMDA.
 Integration of a PMDA
 ---------------------
 
-PMDA integrationSeveral steps are required to install (or remove) a PMDA
+Several steps are required to install (or remove) a PMDA
 from a production PMCD environment without affecting the operation of
 other PMDAs or related visualization and logging tools.integrating a
 PMDA
@@ -3035,7 +3041,7 @@ a wealth of examples that may be used to construct a new PMDA
 Removing a PMDA
 ~~~~~~~~~~~~~~~
 
-PMDA removalThe simplest way to stop a PMDA from running, apart from
+The simplest way to stop a PMDA from running, apart from
 killing the process, is to remove the entry from
 ``${PCP_PMCDCONF_PATH}`` and signal PMCD (with ``SIGHUP``) to reread its
 configuration file. To completely remove a PMDA requires the reverse
@@ -3085,8 +3091,7 @@ created using the ``pmieconf`` facilities; see the ``pmieconf(1)`` and
 PMAPI--The Performance Metrics API
 ==================================
 
-PMAPI description Application Programming InterfaceThis chapter
-describes the Performance Metrics Application Programming Interface
+This chapter describes the Performance Metrics Application Programming Interface
 (PMAPI) provided with Performance Co-Pilot (PCP).
 
 archive logs performance dataThe PMAPI is a set of functions and data
@@ -3118,8 +3123,7 @@ termed “above the PMAPI” and the latter “below the PMAPI.”
 Naming and Identifying Performance Metrics
 ------------------------------------------
 
-performance metrics metrics metrics API PMAPI identifying metricsAcross
-all of the supported performance metric domains, there are a large
+Across all of the supported performance metric domains, there are a large
 number of performance metrics. Each metric has its own description,
 format, and semantics. PCP presents a uniform interface to these metrics
 above the PMAPI, independent of the source of the underlying metric
@@ -3281,7 +3285,7 @@ The current context can be changed by passing a context handle to
 Performance Metric Descriptions
 -------------------------------
 
-pmDesc structureFor each defined performance metric, there exists
+For each defined performance metric, there exists
 metadata describing it.
 
 -  A performance metric description (``pmDesc`` structure) that
@@ -3381,7 +3385,7 @@ encoding, as follows:
    Space\ :sup:`1`.Time\ :sup:`-1` may have values encoded using the
    scale megabytes per second.
 
-pmDesc structureThis information is encoded in the ``pmUnits`` data
+This information is encoded in the ``pmUnits`` data
 structure, shown in `example_title <#Z1034792511tls>`__. It is embedded
 in the ``pmDesc`` structure :
 
@@ -3496,7 +3500,7 @@ associated ``pmLabelSet`` structure.
 Performance Metrics Values
 --------------------------
 
-pmFetch function pmStore functionAn application may fetch (or store)
+An application may fetch (or store)
 values for a set of performance metrics, each with a set of associated
 instances, using a single ``pmFetch`` (or ``pmStore``) function call. To
 accommodate this, values are delivered across the PMAPI in the form of a
@@ -3513,6 +3517,9 @@ data structures in `example_title <#Z976557818sdc>`__:
            int           lval;   /* integer value insitu */
        } value;
    } pmValue;
+
+.. figure:: images/pmresult.svg
+   :alt: A Structured Result for Performance Metrics from pmFetch
 
 A Structured Result for Performance Metrics from pmFetch
 
@@ -3650,6 +3657,9 @@ associated Performance Metric Identifier and Descriptor, may have an
 instance domain associated with them, and may be recorded by
 ``pmlogger`` for subsequent replay.
 
+.. figure:: images/syscallevent.svg
+   :alt: Sample syscall entry point encoding
+
 Sample syscall entry point encoding
 
 Event metrics and their associated information (parameters, timestamps,
@@ -3665,6 +3675,9 @@ event will have the metadata described earlier encoded with it
 series of events involves a compound data structure within the
 ``pmValueSet`` associated with the event metric PMID, as illustrated in
 `figure_title <#id5198719>`__.
+
+.. figure:: images/pmevents.svg
+   :alt: Result Format for Event Performance Metrics from pmFetch
 
 Result Format for Event Performance Metrics from pmFetch
 
@@ -5888,7 +5901,7 @@ in the archive log.
    Python:
    c_uint instid = pmLookupInDomArchive(pmDesc pmdesc, "Instance")
 
-pmLookupInDomArchive functionProvided the current PMAPI context is
+Provided the current PMAPI context is
 associated with a set of PCP archive logs, ``pmLookupInDomArchive``
 scans the metadata for the instance domain indom, locates the first
 instance with the external identification given by name, and returns the
@@ -6946,11 +6959,10 @@ to the following command:
 Instrumenting Applications
 ==========================
 
-MMV PMDA description trace PMDA description PMDA traceThis chapter
-provides an introduction to ways of instrumenting applications using
+This chapter provides an introduction to ways of instrumenting applications using
 PCP.
 
-customization The first section covers the use of the Memory Mapped
+The first section covers the use of the Memory Mapped
 Value (MMV) Performance Metrics Domain Agent (PMDA) to generate
 customized metrics from an application. This provides a robust,
 extremely efficient mechanism for transferring custom instrumentation
@@ -7021,10 +7033,13 @@ performance metrics:
 Application and Performance Co-Pilot Relationship
 -------------------------------------------------
 
-applications instrumentation instrumentation data exportThe relationship
+The relationship
 between an application, the ``pcp_mmv`` and ``pcp_trace``
 instrumentation libraries, the MMV and Trace PMDAs, and the rest of the
 PCP infrastructure is shown in `figure_title <#id5216302>`__:
+
+.. figure:: images/instrumentation.svg
+   :alt: Application and PCP Relationship
 
 Application and PCP Relationship
 
@@ -7074,6 +7089,11 @@ MMV PMDA reads those values directly, from the ``same`` memory that the
 application is updating, when current values are sampled on behalf of
 PMAPI client tools. This relationship, and a simplified MMV API, are
 shown in `figure_title <#id5214410nat>`__.
+
+.. figure:: images/pmdammv.svg
+   :alt: Memory Mapped Page Sharing
+
+Memory Mapped Page Sharing
 
 It is worth noting that once the metrics of an application have been
 registered via the ``pcp_mmv`` library initialisation API, subsequent
@@ -7456,6 +7476,9 @@ Application Interaction
 applications interaction `figure_title <#id5213335>`__ describes the
 general state maintained within the trace PMDA.
 
+.. figure:: images/trace.svg
+   :alt: Trace PMDA Overview
+
 Trace PMDA Overview
 
 Application Programming Interface identification tags IPCtrace
@@ -7546,11 +7569,14 @@ at the point where data is actually exported. At this point, the data
 has a higher probability of reflecting a more recent sampling period
 than the data exported using simple periodic sampling.
 
-sample durationThe data collected over each sample duration and exported
+The data collected over each sample duration and exported
 using the rolling-window sampling technique provides a more up-to-date
 representation of the activity during the most recently completed sample
 duration than simple periodic sampling as shown in
 `figure_title <#id5213739>`__.
+
+.. figure:: images/trace-sampling.svg
+   :alt: Sample Duration Comparison
 
 Sample Duration Comparison
 
@@ -7568,7 +7594,7 @@ buffer is cleared of data and becomes the new working buffer.
 Rolling-Window Periodic Sampling Example
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-examples rolling-window samplingConsider the scenario where you want to
+Consider the scenario where you want to
 know the rate of transactions over the last 10 seconds. You set the
 sampling rate for the trace PMDA to 10 seconds and fetch the metric
 ``trace.transact.rate``. So if in the last 10 seconds, 8 transactions
@@ -7579,6 +7605,9 @@ The trace PMDA does not actually do this. It instead does its
 calculations automatically at a subinterval of the sampling interval.
 Reconsider the 10-second scenario. It has a calculation subinterval of 2
 seconds as shown in `figure_title <#id5213848>`__.
+
+.. figure:: images/trace-example.svg
+   :alt: Sampling Intervals
 
 Sampling Intervals
 
@@ -7595,7 +7624,7 @@ each time a fetch request is received to do a calculation.
 Configuring the Trace PMDA
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-trace PMDA command-line optionsThe trace PMDA is configurable primarily
+The trace PMDA is configurable primarily
 through command-line options. The list of command-line options in
 `table_title <#id5213936>`__ is not exhaustive, but it identifies those
 options which are particularly relevant to tuning the manner in which
@@ -7667,8 +7696,7 @@ by the trace PMDA.
 Transactions
 ~~~~~~~~~~~~
 
-pmtracebegin function pmtracend function transactions pmtraceabort
-functionPaired calls to the ``pmtracebegin`` and ``pmtraceend`` API
+Paired calls to the ``pmtracebegin`` and ``pmtraceend`` API
 functions result in transaction data being sent to the trace PMDA with a
 measure of the time interval between the two calls. This interval is the
 transaction service time. Using the ``pmtraceabort`` call causes data
@@ -7720,7 +7748,7 @@ in `table_title <#id5214410>`__:
 Point Tracing
 ~~~~~~~~~~~~~
 
-point tracing pmtracepoint functionPoint tracing allows the application
+Point tracing allows the application
 programmer to export metrics related to salient events. The
 ``pmtracepoint`` function is most useful when start and end points are
 not well defined. For example, this function is useful when the code
@@ -7749,8 +7777,7 @@ in `table_title <#id5214762>`__:
 Observations and Counters
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-pmtraceobs function pmtracepoint function trace.observe metricsThe
-``pmtraceobs`` and ``pmtracecount`` functions have similar semantics to
+The ``pmtraceobs`` and ``pmtracecount`` functions have similar semantics to
 ``pmtracepoint``, but also allow an arbitrary numeric value to be passed
 to the trace PMDA. The most recent value for each tag is then
 immediately available from the PMDA. Observation data is exported
@@ -7785,8 +7812,7 @@ through the ``trace.observe`` metrics listed in
 Configuring the Trace Library
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-configuration environment variables state flags diagnostic outputThe
-trace library is configurable through the use of environment variables
+The trace library is configurable through the use of environment variables
 listed in `table_title <#id5215299>`__ as well as through the state
 flags listed in `table_title <#id5215745>`__. Both provide diagnostic
 output and enable or disable the configurable functionality within the
