@@ -952,6 +952,9 @@ static pmdaMetric metrictab[] = {
 /* cgroup.memory.stat.workingset.refault */
   { NULL, { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_STAT_WORKINGSET_REFAULT), PM_TYPE_U64,
     CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+/* cgroup.memory.current */
+  { NULL, { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_CURRENT), PM_TYPE_U64,
+    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
 /* cgroup.memory.usage */
   { NULL, { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_USAGE_IN_BYTES), PM_TYPE_U64,
     CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
@@ -2868,6 +2871,10 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case CG_MEMORY_STAT_WORKINGSET_REFAULT:
 	    if (memory->stat.workingset_refault == (__uint64_t)-1) return 0;
 	    atom->ull = memory->stat.workingset_refault;
+	    break;
+	case CG_MEMORY_CURRENT: /* cgroup.memory.current */
+	    if (memory->current == (__uint64_t)-1) return 0;
+	    atom->ull = memory->current;
 	    break;
 	case CG_MEMORY_USAGE_IN_BYTES: /* cgroup.memory.usage */
 	    if (memory->usage == (__uint64_t)-1) return 0;
