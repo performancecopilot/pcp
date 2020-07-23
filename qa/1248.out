@@ -1,0 +1,130 @@
+QA output created by 1248
+== -NV expect pmfind class to be used
+PCP_ETC_DIR/pcp/pmlogger/class.d/pmfind: host localhost hostname(.*) true
+--- start control file ---
+# created by pmlogctl on DATE
+$class=pmfind
+# DO NOT REMOVE OR EDIT THE FOLLOWING LINE
+$version=1.1
+$class=pmfind
+localhost n n PCP_ARCHIVE_DIR/pmfind-localhost -c pmfind-localhost.ctl
+--- end control file ---
+Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/pmfind-localhost
++ cp PCP_TMPFILE_DIR/pmlogctl.XXXXX/control PCP_ETC_DIR/pcp/pmlogger/control.d/pmfind-localhost
++ sudo -u pcp -g pcp PCP_BINADM_DIR/pmlogger_check -c PCP_ETC_DIR/pcp/pmlogger/control.d/pmfind-localhost
+
+== -NV -p, no create: section, expect on instance to be created
+Warning: no instance created for host localhost
+
+== -NV -p -c, no create: section, expect no instance to be created
+Warning: no instance created for host localhost
+
+== -NV -p -c exists() false, expect no instance to be created
+Warning: no instance created for host localhost
+
+== -NV -p -c exists() true (leaf in PMNS), expect instance to be created
+TMP.policy: host localhost exists(sample.bin) true
+--- start control file ---
+# created by pmlogctl on DATE
+$class=1248
+$version=1.1
+localhost n n PCP_ARCHIVE_DIR/1248-localhost -c TMP.config
+--- end control file ---
+Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/1248-localhost
++ cp PCP_TMPFILE_DIR/pmlogctl.XXXXX/control PCP_ETC_DIR/pcp/pmlogger/control.d/1248-localhost
++ sudo -u pcp -g pcp PCP_BINADM_DIR/pmlogger_check -c PCP_ETC_DIR/pcp/pmlogger/control.d/1248-localhost
+
+== -NV -p -c exists() true (non-leaf in PMNS), expect instance to be created
+TMP.policy: host localhost exists(sample) true
+--- start control file ---
+# created by pmlogctl on DATE
+$class=1248
+$version=1.1
+localhost n n PCP_ARCHIVE_DIR/1248-localhost -c TMP.config
+--- end control file ---
+Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/1248-localhost
++ cp PCP_TMPFILE_DIR/pmlogctl.XXXXX/control PCP_ETC_DIR/pcp/pmlogger/control.d/1248-localhost
++ sudo -u pcp -g pcp PCP_BINADM_DIR/pmlogger_check -c PCP_ETC_DIR/pcp/pmlogger/control.d/1248-localhost
+
+== -NV -p -c values() false (bad metric), expect no instance to be created
+Warning: no instance created for host localhost
+
+== -NV -p -c values() false (numval < 1), expect no instance to be created
+Warning: no instance created for host localhost
+
+== -NV -p -c values() true (leaf & singular), expect instance to be created
+TMP.policy: host localhost values(sample.long) true
+--- start control file ---
+# created by pmlogctl on DATE
+$class=1248
+$version=1.1
+localhost n n PCP_ARCHIVE_DIR/1248-localhost -c TMP.config
+--- end control file ---
+Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/1248-localhost
++ cp PCP_TMPFILE_DIR/pmlogctl.XXXXX/control PCP_ETC_DIR/pcp/pmlogger/control.d/1248-localhost
++ sudo -u pcp -g pcp PCP_BINADM_DIR/pmlogger_check -c PCP_ETC_DIR/pcp/pmlogger/control.d/1248-localhost
+
+== -NV -p -c values() true (leaf & indom), expect instance to be created
+TMP.policy: host localhost values(sample.bin) true
+--- start control file ---
+# created by pmlogctl on DATE
+$class=1248
+$version=1.1
+localhost n n PCP_ARCHIVE_DIR/1248-localhost -c TMP.config
+--- end control file ---
+Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/1248-localhost
++ cp PCP_TMPFILE_DIR/pmlogctl.XXXXX/control PCP_ETC_DIR/pcp/pmlogger/control.d/1248-localhost
++ sudo -u pcp -g pcp PCP_BINADM_DIR/pmlogger_check -c PCP_ETC_DIR/pcp/pmlogger/control.d/1248-localhost
+
+== -NV -p -c values() true (non-leaf & indom), expect instance to be created
+TMP.policy: host localhost values(disk.dev) true
+--- start control file ---
+# created by pmlogctl on DATE
+$class=1248
+$version=1.1
+localhost n n PCP_ARCHIVE_DIR/1248-localhost -c TMP.config
+--- end control file ---
+Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/1248-localhost
++ cp PCP_TMPFILE_DIR/pmlogctl.XXXXX/control PCP_ETC_DIR/pcp/pmlogger/control.d/1248-localhost
++ sudo -u pcp -g pcp PCP_BINADM_DIR/pmlogger_check -c PCP_ETC_DIR/pcp/pmlogger/control.d/1248-localhost
+
+== -NV -p -c condition() false (bad expr), expect no instance to be created
+[PCP_TMPFILE_DIR/pmlogctl.XXXXX/derived:1] Error: pmRegisterDerived(pmlogctl.check, ...) syntax error
+ hinv.ncpu >
+           ^
+Arithmetic expression expected to follow GT
+Warning: no instance created for host localhost
+
+== -NV -p -c condition() false (singular value == 0), expect no instance to be created
+Warning: no instance created for host localhost
+
+== -NV -p -c condition() false (indom value < 0), expect no instance to be created
+Warning: TMP.policy: condition(-sample.bin) has 9 values, not 1 as expected, using first value (-100)
+Warning: no instance created for host localhost
+
+== -NV -p -c condition() true (singular value > 0), expect instance to be created
+TMP.policy: host localhost values(hinv.ndisk > 0 ? hinv.ndisk : 1 + hinv.ncpu > 0 ? hinv.ndisk : 1) true
+--- start control file ---
+# created by pmlogctl on DATE
+$class=1248
+$version=1.1
+localhost n n PCP_ARCHIVE_DIR/1248-localhost -c TMP.config
+--- end control file ---
+Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/1248-localhost
++ cp PCP_TMPFILE_DIR/pmlogctl.XXXXX/control PCP_ETC_DIR/pcp/pmlogger/control.d/1248-localhost
++ sudo -u pcp -g pcp PCP_BINADM_DIR/pmlogger_check -c PCP_ETC_DIR/pcp/pmlogger/control.d/1248-localhost
+
+== -NV -p -c hostname() false, expect no instance to be created
+Warning: no instance created for host localhost
+
+== -NV -p -c hostname() true, expect instance to be created
+TMP.policy: host localhost hostname((local|LOCAL)host) true
+--- start control file ---
+# created by pmlogctl on DATE
+$class=1248
+$version=1.1
+localhost n n PCP_ARCHIVE_DIR/1248-localhost -c TMP.config
+--- end control file ---
+Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/1248-localhost
++ cp PCP_TMPFILE_DIR/pmlogctl.XXXXX/control PCP_ETC_DIR/pcp/pmlogger/control.d/1248-localhost
++ sudo -u pcp -g pcp PCP_BINADM_DIR/pmlogger_check -c PCP_ETC_DIR/pcp/pmlogger/control.d/1248-localhost

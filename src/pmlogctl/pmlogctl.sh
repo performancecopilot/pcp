@@ -865,6 +865,7 @@ found == 0 && $3 == "'"$host"'" && $6 == "'"$dir"'"	{ print NR >>"'$tmp/match'";
 _do_cond_create()
 {
     _sts=0
+    _POLICY="$POLICY"		# value on entry, POLICY gets reset below
 
     for _host
     do
@@ -872,7 +873,7 @@ _do_cond_create()
 	# if no -p, then we're going to use all the class policy files,
 	# unless none exist in which case we'll use the default policy.
 	#
-	if [ "$POLICY" = $tmp/policy ]
+	if [ "$_POLICY" = $tmp/policy ]
 	then
 	    find "$PCP_ETC_DIR/pcp/${IAM}/class.d" -type f \
 	    | sed -e '/class.d\/pmfind$/d' >$tmp/class
@@ -893,7 +894,7 @@ _do_cond_create()
 	    # explicit policy file from command line -p or implicit policy
 	    # file from command line -c ... use that
 	    #
-	    echo "$POLICY"
+	    echo "$_POLICY"
 	fi \
 	| while read _policy
 	do
@@ -906,7 +907,6 @@ _do_cond_create()
 		fi
 		continue
 	    fi
-echo >&2 "_policy=$_policy"
 	    _get_policy_section "$_policy" create >$tmp/cond
 	    if [ -s $tmp/cond ]
 	    then
@@ -920,7 +920,6 @@ echo >&2 "_policy=$_policy"
 		    cat >&2 $tmp/tmp
 		fi
 		rm -f $tmp/match
-echo >&2 foo
 		grep '[a-z][^(]*(.*)[ 	]*$' <$tmp/cond \
 		| sed -e 's/(/ /' -e 's/)[ 	]*$//' \
 		| while read _func _args
@@ -960,7 +959,7 @@ END	{ exit(sts) }'
 			    _val=`cut -d ' ' -f 3 <$tmp/tmp`
 			    if [ "$_numval" -gt 1 ]
 			    then
-				_warning "_policy: condition($_args) has $_numval values, not 1 as expected, using first value ($_val)"
+				_warning "$_policy: condition($_args) has $_numval values, not 1 as expected, using first value ($_val)"
 			    fi
 			    if [ "$_numval" -gt 0 ]
 			    then
@@ -1005,6 +1004,7 @@ END	{ exit(sts) }'
 		$VERY_VERBOSE && echo "$_policy: no create: section, skip class"
 	    fi
 	done
+	[ ! -f $tmp/some-conditon-true ] && $VERBOSE && _warning "no instance created for host $_host"
     done
 
     return $_sts

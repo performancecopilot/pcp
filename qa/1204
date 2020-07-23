@@ -26,7 +26,7 @@ _cleanup()
     cd $here
     $sudo pmlogctl -f -c default destroy localhost >>$seq.full 2>&1
     $sudo rm -rf $tmp $tmp.*
-    $sudo rm -rf $PCP_ARCHIVE_DIR/localhost
+    $sudo rm -rf $PCP_ARCHIVE_DIR/localhost $PCP_ARCHIVE_DIR/pmfind-localhost
 
 }
 
@@ -125,6 +125,12 @@ echo '== status' | tee -a $seq.full
 pmlogctl status | _filter_status
 echo '== status localhost' | tee -a $seq.full
 pmlogctl status localhost | _filter_status
+
+echo | tee -a $seq.full
+echo '== cond-create' | tee -a $seq.full
+$sudo pmlogctl cond-create localhost | _filter
+echo '== status' | tee -a $seq.full
+pmlogctl status | _filter_status
 
 # success, all done
 status=0

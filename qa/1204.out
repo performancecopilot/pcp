@@ -71,3 +71,8 @@ pmcd Host Archive Class PID State
 == status localhost
 Warning: host localhost not defined in any pmlogger control file
 pmcd Host Archive Class PID State 
+
+== cond-create
+== status
+pmcd Host Archive Class PID State 
+localhost <archivename> pmfind <pid> running 
