@@ -163,22 +163,35 @@ on_pmsearch_text_result(pmSearchTextResult *search, void *arg)
 	    prefix = ",";
 	}
 
-	oneline = search->oneline;
-	oneline = sdscatrepr(sdsempty(), oneline, sdslen(oneline));
-	helptext = search->helptext;
-	helptext = sdscatrepr(sdsempty(), helptext, sdslen(helptext));
-
-	pmsprintf(buffer, sizeof(buffer), "%.6f", search->score);
-	result = sdscatfmt(result,
-			"%s{\"docid\":\"%S\",\"count\":%u,\"score\":%s,"
-			"\"name\":\"%S\",\"type\":\"%s\"," "\"indom\":\"%S\","
-			"\"oneline\":%S,\"helptext\":%S}",
-			prefix, search->docid, baton->results, buffer, search->name,
-			pmSearchTextTypeStr(search->type), search->indom,
-			oneline, helptext);
-
-	sdsfree(helptext);
-	sdsfree(oneline);
+	result = sdscatfmt(result, "%s{", prefix);
+	prefix = "";
+	if (search->name != NULL) {
+	    result = sdscatfmt(result, "%s\"name\":\"%S\"", prefix, search->name);
+	    prefix = ",";
+	}
+	if (search->type != PM_SEARCH_TYPE_UNKNOWN) {
+	    result = sdscatfmt(result, "%s\"type\":\"%s\"", prefix, pmSearchTextTypeStr(search->type));
+	    prefix = ",";
+	}
+	if (search->indom != NULL) {
+	    result = sdscatfmt(result, "%s\"indom\":\"%S\"", prefix, search->indom);
+	    prefix = ",";
+	}
+	if (search->oneline != NULL) {
+	    oneline = search->oneline;
+	    oneline = sdscatrepr(sdsempty(), oneline, sdslen(oneline));
+	    result = sdscatfmt(result, "%s\"oneline\":%S", prefix, oneline);
+	    sdsfree(oneline);
+	    prefix = ",";
+	}
+	if (search->helptext != NULL) {
+	    helptext = search->helptext;
+	    helptext=  sdscatrepr(sdsempty(), helptext, sdslen(helptext));
+	    result = sdscatfmt(result, "%s\"helptext\":%S", prefix, helptext);
+	    sdsfree(helptext);
+	    prefix = ",";
+	}
+	result = sdscat(result, "}");
 	break;
 
     case RESTKEY_SUGGEST:
@@ -190,7 +203,7 @@ on_pmsearch_text_result(pmSearchTextResult *search, void *arg)
 	} else {
 	    prefix = ",";
 	}
-	result = sdscatfmt(result, "%s{\"name\":\"%S\",\"type\":\"%s\"}", prefix, search->name, pmSearchTextTypeStr(search->type));
+	result = sdscatfmt(result, "%s\"%S\"", prefix, search->name);
 	break;
     case RESTKEY_INFO:
 	break;
@@ -274,18 +287,20 @@ pmsearch_setup_request_parameters(struct client *client,
 	    baton->clientid = sdscatrepr(sdsempty(), value, sdslen(value));
 	}
     }
+    
 
-    /* default to querying most */
+    /* FIELDS: default to querying most */
     baton->request.infields_name = 1;
     baton->request.infields_indom = 0;
     baton->request.infields_oneline = 1;
     baton->request.infields_helptext = 1;
 
-    /* default to returning all */
+    /* RETURN: default to returning all */
     baton->request.return_name = 1;
     baton->request.return_indom = 1;
     baton->request.return_oneline = 1;
     baton->request.return_helptext = 1;
+    baton->request.return_type = 1;
 
     switch (baton->restkey) {
     case RESTKEY_TEXT:
@@ -328,6 +343,7 @@ pmsearch_setup_request_parameters(struct client *client,
 	    baton->request.return_indom = 0;
 	    baton->request.return_oneline = 0;
 	    baton->request.return_helptext = 0;
+	    baton->request.return_type = 0;
 	    if ((value = dictGetVal(entry)) != NULL) {	/* no text */
 		values = sdssplitlen(value, sdslen(value), ",", 1, &nvalues);
 		for (i = 0; values && i < nvalues; i++) {
@@ -339,6 +355,8 @@ pmsearch_setup_request_parameters(struct client *client,
 			baton->request.return_oneline = 1;
 		    else if (strcmp(values[i], "helptext") == 0)
 			baton->request.return_helptext = 1;
+		    else if (strcmp(values[i], "type") == 0)
+			baton->request.return_type = 1;
 		}
 		sdsfreesplitres(values, nvalues);
 	    }
@@ -352,13 +370,13 @@ pmsearch_setup_request_parameters(struct client *client,
 		values = sdssplitlen(value, sdslen(value), ",", 1, &nvalues);
 		for (i = 0; values && i < nvalues; i++) {
 		    if (strcmp(values[i], "name") == 0)
-			baton->request.highlight_name = 1;
+			baton->request.infields_name = 1;
 		    else if (strcmp(values[i], "indom") == 0)
-			baton->request.highlight_indom = 1;
+			baton->request.infields_indom = 1;
 		    else if (strcmp(values[i], "oneline") == 0)
-			baton->request.highlight_oneline = 1;
+			baton->request.infields_oneline = 1;
 		    else if (strcmp(values[i], "helptext") == 0)
-			baton->request.highlight_helptext = 1;
+			baton->request.infields_helptext = 1;
 		}
 		sdsfreesplitres(values, nvalues);
 	    }

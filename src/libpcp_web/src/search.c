@@ -19,7 +19,9 @@
 #include "util.h"
 #include "sha1.h"
 
-static sds		resultcount;
+static sds		resultcount_str;
+// above gets converted only once this way
+static unsigned int	resultcount;
 
 static void
 initRedisSearchBaton(redisSearchBaton *baton, redisSlots *slots,
@@ -46,6 +48,8 @@ const char *
 pmSearchTextTypeStr(pmSearchTextType type)
 {
     switch (type) {
+    case PM_SEARCH_TYPE_UNKNOWN:
+	return "unknown";
     case PM_SEARCH_TYPE_METRIC:
 	return "metric";
     case PM_SEARCH_TYPE_INDOM:
@@ -488,15 +492,9 @@ extract_search_results(redisSearchBaton *baton,
 	result.timer = timer;
 	result.count = (i / 2) + 1;
 	result.docid = sdsnewlen(docid->str, docid->len);
-	result.score = strtod(score->str, NULL);
-	result.type = atoi(payload->str);
+	result.score = strtod(score->str, NULL);	
 
-	// These may not have been saved in Redisearch record, therefore create fallbacks
-	result.indom = sdsempty();
-	result.oneline = sdsempty();
-	result.helptext = sdsempty();
-
-	for (j = 0; j < array->elements - 1; j += 2) {
+	for (j = 0; j < array->elements; j += 2) {
 	    redisReply	*field = array->element[j];
 	    redisReply	*value = array->element[j+1];
 
@@ -515,6 +513,8 @@ extract_search_results(redisSearchBaton *baton,
 		result.oneline = sdsnewlen(value->str, value->len);
 	    else if (strcmp(field->str, FT_HELPTEXT) == 0)
 		result.helptext = sdsnewlen(value->str, value->len);
+	    else if (strcmp(field->str, FT_TYPE) == 0)
+		result.type = atoi(payload->str);
 	}
 	if (baton->error == 0)
 	    baton->callbacks->on_text_result(&result, baton->userdata);
@@ -578,7 +578,7 @@ redis_search_text_query(redisSlots *slots, pmSearchTextRequest *request, void *a
     const char		*typestr;
     size_t		length;
     char		buffer[64];
-    sds			cmd, key, query;
+    sds			cmd, key, query, base_query;
     unsigned int	types = 0, infields = 0, returns = 0, highlights = 0;
 
     seriesBatonCheckMagic(baton, MAGIC_SEARCH, "redis_search_text_query");
@@ -588,10 +588,6 @@ redis_search_text_query(redisSlots *slots, pmSearchTextRequest *request, void *a
 	fprintf(stderr, "%s: %s\n", "redis_search_text_query", request->query);
 
     seriesBatonReference(baton, "redis_search_text_query");
-
-    /*TODO: redisearch quoting*/
-    /*query = sdscatrepr(sdsempty(), request->query, sdslen(request->query));*/
-    query = redis_search_text_prep(request->query, 0, NULL, NULL);
 
     types += request->type_metric;
     types += request->type_indom;
@@ -617,17 +613,18 @@ redis_search_text_query(redisSlots *slots, pmSearchTextRequest *request, void *a
     returns += request->return_indom;
     returns += request->return_oneline;
     returns += request->return_helptext;
+    returns += request->return_type;
     if (returns == 0) {
-	returns = 4;	/* defaults */
+	returns = 5;	/* defaults */
 	request->return_name = 1;
 	request->return_indom = 1;
 	request->return_oneline = 1;
 	request->return_helptext = 1;
+	request->return_type = 1;
     }
 
     /*
-     * FT.SEARCH pcp:text "query" WITHSCORES WITHPAYLOADS
-     *		[@type={ {?type separated by pipe} }]
+     * FT.SEARCH pcp:text "query [@TYPE={ {?type separated by pipe} }]" WITHSCORES WITHPAYLOADS
      *		[INFIELDS {?field item count} {?field separated by space}]
      *		[RETURN {?return item count} {?return separated by space}]
      *		[HIGHLIGHT FIELDS {num} {field} ... ]
@@ -636,8 +633,6 @@ redis_search_text_query(redisSlots *slots, pmSearchTextRequest *request, void *a
      */
     key = sdsnewlen(FT_TEXT_KEY, FT_TEXT_KEY_LEN);
     length = 5;
-    if (types)
-	length += 2 + (types * 2) - 1;
     if (infields)
 	length += 2 + infields;
     if (returns)
@@ -649,32 +644,37 @@ redis_search_text_query(redisSlots *slots, pmSearchTextRequest *request, void *a
     cmd = redis_command(length);
     cmd = redis_param_str(cmd, FT_SEARCH, FT_SEARCH_LEN);
     cmd = redis_param_sds(cmd, key);
-    /* TODO: redisearch tokenization */
-    cmd = redis_param_sds(cmd, query);
-    sdsfree(query);
-    cmd = redis_param_str(cmd, FT_WITHSCORES, FT_WITHSCORES_LEN);
-    cmd = redis_param_str(cmd, FT_WITHPAYLOADS, FT_WITHPAYLOADS_LEN);
 
+    query = sdsnewlen("\'", 1);
+    base_query = redis_search_text_prep(request->query, 0, NULL, NULL);
+    query = sdscatsds(query, base_query);
+    sdsfree(base_query);
     if (types) {
-	cmd = redis_param_str(cmd, "@TYPE={ ", 8);
+	query = sdscatlen(query, " @TYPE:{", 8);
 	if (request->type_metric) {
 	    typestr = pmSearchTextTypeStr(PM_SEARCH_TYPE_METRIC);
-	    cmd = redis_param_str(cmd, typestr, strlen(typestr));
+	    query = sdscat(query, typestr);
 	}
 	if (request->type_indom && (request->type_metric))
-	    cmd = redis_param_str(cmd, " | ", 3);
+	    query = sdscatlen(query, "|", 1);
 	if (request->type_indom) {
 	    typestr = pmSearchTextTypeStr(PM_SEARCH_TYPE_INDOM);
-	    cmd = redis_param_str(cmd, typestr, strlen(typestr));
+	    query = sdscat(query, typestr);
 	}
 	if (request->type_inst && (request->type_indom || request->type_metric))
-	    cmd = redis_param_str(cmd, " | ", 3);
+	    query = sdscatlen(query, "|", 1);
 	if (request->type_inst) {
 	    typestr = pmSearchTextTypeStr(PM_SEARCH_TYPE_INST);
-	    cmd = redis_param_str(cmd, typestr, strlen(typestr));
+	    query = sdscat(query, typestr);
 	}
-	cmd = redis_param_str(cmd, " }", 2);
+	query = sdscatlen(query, "}", 1);
     }
+    query = sdscatlen(query, "\'", 1);
+    cmd = redis_param_sds(cmd, query);
+    sdsfree(query);
+
+    cmd = redis_param_str(cmd, FT_WITHSCORES, FT_WITHSCORES_LEN);
+    cmd = redis_param_str(cmd, FT_WITHPAYLOADS, FT_WITHPAYLOADS_LEN);
 
     if (infields) {
 	cmd = redis_param_str(cmd, FT_INFIELDS, FT_INFIELDS_LEN);
@@ -702,6 +702,8 @@ redis_search_text_query(redisSlots *slots, pmSearchTextRequest *request, void *a
 	    cmd = redis_param_str(cmd, FT_ONELINE, FT_ONELINE_LEN);
 	if (request->return_helptext)
 	    cmd = redis_param_str(cmd, FT_HELPTEXT, FT_HELPTEXT_LEN);
+	if (request->return_type)
+	    cmd = redis_param_str(cmd, FT_TYPE, FT_TYPE_LEN);
     }
 
     if (highlights) {
@@ -726,7 +728,8 @@ redis_search_text_query(redisSlots *slots, pmSearchTextRequest *request, void *a
     length = pmsprintf(buffer, sizeof(buffer), "%u", request->offset);
     cmd = redis_param_str(cmd, buffer, length);
     if (request->count == 0) {
-	cmd = redis_param_sds(cmd, resultcount);
+	cmd = redis_param_sds(cmd, resultcount_str);
+	request->count = resultcount;
     } else {
 	length = pmsprintf(buffer, sizeof(buffer), "%u", request->count);
 	cmd = redis_param_str(cmd, buffer, length);
@@ -810,7 +813,8 @@ redis_search_text_suggest(redisSlots *slots, pmSearchTextRequest *request, void 
     cmd = redis_param_str(cmd, FT_SCORER_DISMAX, FT_SCORER_DISMAX_LEN);
     cmd = redis_param_str(cmd, "0", 1);
     if (request->count == 0) {
-	cmd = redis_param_sds(cmd, resultcount);
+	cmd = redis_param_sds(cmd, resultcount_str);
+	request->count = resultcount;
     } else {
 	length = pmsprintf(buffer, sizeof(buffer), "%u", request->count);
 	cmd = redis_param_str(cmd, buffer, length);
@@ -948,9 +952,10 @@ redisSearchInit(struct dict *config)
 
     if (!resultcount) {
 	if ((option = pmIniFileLookup(config, "pmsearch", "result.count")))
-	    resultcount = option;
+	    resultcount_str = option;
 	else
-	    resultcount = sdsnew("10");
+	    resultcount_str = sdsnew("10");
+	resultcount = atoi(resultcount_str);
     }
 }
 
