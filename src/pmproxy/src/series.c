@@ -537,12 +537,31 @@ on_pmseries_done(int status, void *arg)
 	code = HTTP_STATUS_OK;
 	/* complete current response with JSON suffix if needed */
 	if ((msg = baton->suffix) == NULL) {	/* empty OK response */
-	    if (baton->clientid)
-		msg = sdscatfmt(sdsempty(),
+	    switch (baton->restkey) {
+	    case RESTKEY_DESC:
+	    case RESTKEY_INSTS:
+	    case RESTKEY_LABELS:
+	    case RESTKEY_METRIC:
+	    case RESTKEY_VALUES:
+	    case RESTKEY_SOURCE:
+	    case RESTKEY_QUERY:		/* result is an empty array */
+		if (baton->clientid)
+		    msg = sdscatfmt(sdsempty(),
+				"{\"client\":%S,\"result\":[]}\r\n",
+				baton->clientid);
+		else
+		    msg = sdsnewlen("[]\r\n", 4);
+		break;
+
+	    default:			/* use success:true default */
+		if (baton->clientid)
+		    msg = sdscatfmt(sdsempty(),
 				"{\"client\":%S,\"success\":%s}\r\n",
 				baton->clientid, "true");
-	    else
-		msg = sdsnewlen(pmseries_success, sizeof(pmseries_success) - 1);
+		else
+		    msg = sdsnewlen(pmseries_success, sizeof(pmseries_success) - 1);
+		break;
+	    }
 	}
 	baton->suffix = NULL;
     } else {

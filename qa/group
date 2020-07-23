@@ -1800,6 +1800,7 @@ not_in_container
 1793 pmrep pcp2xxx python local
 1820 atop local
 1821 pmlogpaste local
+1824 pmproxy local
 1837 pmproxy local
 1855 pmda.rabbitmq local
 1871 pmsearch local
