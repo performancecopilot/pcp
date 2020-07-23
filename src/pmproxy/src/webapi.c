@@ -71,7 +71,7 @@ static pmWebRestCommand commands[] = {
 	    .name = "fetch", .namelen = sizeof("fetch")-1 },
     { .key = RESTKEY_INDOM, .options = HTTP_OPTIONS_GET,
 	    .name = "indom", .namelen = sizeof("indom")-1 },
-    { .key = RESTKEY_STORE, .options = HTTP_OPTIONS_GET,
+    { .key = RESTKEY_STORE, .options = HTTP_OPTIONS_GET | HTTP_OPTIONS_POST,
 	    .name = "store", .namelen = sizeof("store")-1 },
     { .key = RESTKEY_CHILD, .options = HTTP_OPTIONS_GET,
 	    .name = "children", .namelen = sizeof("children")-1 },
@@ -731,12 +731,18 @@ pmwebapi_setup_request_parameters(struct client *client,
 	break;
 
     case RESTKEY_STORE:
-	if (parameters == NULL)
+	/*
+	 * Metric name always in parameters, value optionally there or
+	 * via a POST (see pmwebapi_request_body() for further detail).
+	 */
+	if ((parameters == NULL) &&
+	    (client->u.http.parser.method != HTTP_POST))
 	    client->u.http.parser.status_code = HTTP_STATUS_BAD_REQUEST;
 	else if (dictFind(parameters, PARAM_NAME) == NULL &&
-	     dictFind(parameters, PARAM_PMID) == NULL)
+		(dictFind(parameters, PARAM_PMID) == NULL))
 	    client->u.http.parser.status_code = HTTP_STATUS_BAD_REQUEST;
-	else if (dictFind(parameters, PARAM_VALUE) == NULL)
+	else if (client->u.http.parser.method != HTTP_POST &&
+		(dictFind(parameters, PARAM_VALUE) == NULL))
 	    client->u.http.parser.status_code = HTTP_STATUS_BAD_REQUEST;
 	client->u.http.flags |= HTTP_FLAG_JSON;
 	break;
@@ -806,6 +812,14 @@ pmwebapi_request_body(struct client *client, const char *content, size_t length)
 	    client->u.http.parameters = dictCreate(&sdsOwnDictCallBacks, NULL);
 	dictAdd(client->u.http.parameters,
 			sdsnewlen(PARAM_EXPR, sdslen(PARAM_EXPR)),
+			sdsnewlen(content, length));
+    }
+    if (baton->restkey == RESTKEY_STORE &&
+	client->u.http.parser.method == HTTP_POST) {
+	if (client->u.http.parameters == NULL)
+	    client->u.http.parameters = dictCreate(&sdsOwnDictCallBacks, NULL);
+	dictAdd(client->u.http.parameters,
+			sdsnewlen(PARAM_VALUE, sdslen(PARAM_VALUE)),
 			sdsnewlen(content, length));
     }
     return 0;
