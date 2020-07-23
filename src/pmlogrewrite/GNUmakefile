@@ -31,7 +31,7 @@ default:	$(CMDTARGET)
 
 include $(BUILDRULES)
 
-pmlogextract:	$(OBJECTS)
+pmlogrewrite$(EXECSUFFIX):	$(OBJECTS)
 
 install:	$(CMDTARGET)
 	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmlogrewrite

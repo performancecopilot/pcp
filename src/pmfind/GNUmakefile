@@ -36,7 +36,7 @@ CRONTAB_USER =
 CRONTAB_PATH = $(PCP_SYSCONF_DIR)/pmfind/crontab
 endif
 
-default : $(CMDTARGET) crontab pmfind.path pmfind.service
+default : $(CMDTARGET) crontab pmfind.service
 
 include $(BUILDRULES)
 
@@ -49,7 +49,6 @@ install : default
 ifeq ($(ENABLE_SYSTEMD),true)
 	$(INSTALL) -m 644 pmfind.service $(PCP_SYSTEMDUNIT_DIR)/pmfind.service
 	$(INSTALL) -m 644 pmfind.timer $(PCP_SYSTEMDUNIT_DIR)/pmfind.timer
-	$(INSTALL) -m 644 pmfind.path $(PCP_SYSTEMDUNIT_DIR)/pmfind.path
 else
 	$(INSTALL) -m 755 -d `dirname $(CRONTAB_PATH)`
 	$(INSTALL) -m 644 crontab $(CRONTAB_PATH)
@@ -66,11 +65,6 @@ pmfind.service : pmfind.service.in
 	    -e 's;@PCP_SYSCONFIG_DIR@;'$(PCP_SYSCONFIG_DIR)';' \
 	    -e 's;@PCP_BINADM_DIR@;'$(PCP_BINADM_DIR)';' \
 	    -e 's;@PCP_VAR_DIR@;'$(PCP_VAR_DIR)';' \
-	# END
-
-pmfind.path : pmfind.path.in
-	$(SED) <$< >$@ \
-	    -e 's;@PCP_SYSCONF_DIR@;'$(PCP_SYSCONF_DIR)';' \
 	# END
 
 crontab: crontab.in
