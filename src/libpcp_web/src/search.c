@@ -874,8 +874,7 @@ redis_search_text_indom(redisSlots *slots, pmSearchTextRequest *request, void *a
 
     query = sdscatfmt(
 	sdsnewlen("", 0),
-	"\'@TYPE:{%s} @INDOM:{%s}\'",
-	pmSearchTextTypeStr(PM_SEARCH_TYPE_INDOM),
+	"\'@INDOM:{%s}\'",
 	request->query
     );
 

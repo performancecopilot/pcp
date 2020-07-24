@@ -151,15 +151,17 @@ on_pmsearch_text_result(pmSearchTextResult *search, void *arg)
 
     switch(baton->restkey) {
     case RESTKEY_TEXT:
+    case RESTKEY_INDOM:
 	if (baton->results++ == 0) {
 	    result = push_client_identifier(baton, result);
 	    /* once-off header containing metrics - timing, total hits */
 	    baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_OBJECT);
 	    pmsprintf(buffer, sizeof(buffer), "%.6f", search->timer);
-	    result = sdscatfmt(result, "{\"total\":%u,\"elapsed\":%s,"
-				"\"offset\":%u,\"limit\":%u,\"results\":",
-				search->total, buffer,
-				baton->request.offset, baton->request.count);
+	    result = sdscatfmt(result, "{\"total\":%u,\"elapsed\":%s", search->total, buffer);
+	    if (baton->restkey == RESTKEY_TEXT) {
+		result = sdscatfmt(result, ",\"offset\":%u,\"limit\":%u", baton->request.offset, baton->request.count);
+	    }
+	    result = sdscat(result, ",\"results\":");
 	    baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_ARRAY);
 	    prefix = "[";
 	} else {
@@ -198,18 +200,6 @@ on_pmsearch_text_result(pmSearchTextResult *search, void *arg)
 	break;
 
     case RESTKEY_SUGGEST:
-	if (baton->results++ == 0) {
-	    result = push_client_identifier(baton, result);
-	    baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_ARRAY);
-	    result = sdscatfmt(result, "[");
-	    prefix = "";
-	} else {
-	    prefix = ",";
-	}
-	result = sdscatfmt(result, "%s\"%S\"", prefix, search->name);
-	break;
-
-    case RESTKEY_INDOM:
 	if (baton->results++ == 0) {
 	    result = push_client_identifier(baton, result);
 	    baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_ARRAY);
