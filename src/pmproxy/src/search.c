@@ -158,9 +158,7 @@ on_pmsearch_text_result(pmSearchTextResult *search, void *arg)
 	    baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_OBJECT);
 	    pmsprintf(buffer, sizeof(buffer), "%.6f", search->timer);
 	    result = sdscatfmt(result, "{\"total\":%u,\"elapsed\":%s", search->total, buffer);
-	    if (baton->restkey == RESTKEY_TEXT) {
-		result = sdscatfmt(result, ",\"offset\":%u,\"limit\":%u", baton->request.offset, baton->request.count);
-	    }
+	    result = sdscatfmt(result, ",\"offset\":%u,\"limit\":%u", baton->request.offset, baton->request.count);
 	    result = sdscat(result, ",\"results\":");
 	    baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_ARRAY);
 	    prefix = "[";
@@ -208,7 +206,9 @@ on_pmsearch_text_result(pmSearchTextResult *search, void *arg)
 	} else {
 	    prefix = ",";
 	}
-	result = sdscatfmt(result, "%s\"%S\"", prefix, search->name);
+	if (search->name != NULL) {
+	    result = sdscatfmt(result, "%s\"%S\"", prefix, search->name);
+	}
 	break;
 
     case RESTKEY_INFO:
@@ -310,6 +310,7 @@ pmsearch_setup_request_parameters(struct client *client,
 
     switch (baton->restkey) {
     case RESTKEY_TEXT:
+    case RESTKEY_INDOM:
 	/* expect a search query string */
 	if (parameters == NULL) {
 	    client->u.http.parser.status_code = HTTP_STATUS_BAD_REQUEST;
@@ -429,20 +430,6 @@ pmsearch_setup_request_parameters(struct client *client,
 	baton->request.flags = 0;
 	if ((value = (sds)dictFetchValue(parameters, PARAM_LIMIT)))
 	    baton->request.count = strtoul(value, NULL, 0);
-	break;
-
-    case RESTKEY_INDOM:
-	/* expect a suggestions query string */
-	if (parameters == NULL) {
-	    client->u.http.parser.status_code = HTTP_STATUS_BAD_REQUEST;
-	    break;
-	} else if ((entry = dictFind(parameters, PARAM_QUERY)) != NULL) {
-	    baton->request.query = dictGetVal(entry);   /* get sds value */
-	    dictSetVal(parameters, entry, NULL);   /* claim this */
-	} else {
-	    client->u.http.parser.status_code = HTTP_STATUS_BAD_REQUEST;
-	    break;
-	}
 	break;
 
     case RESTKEY_INFO:

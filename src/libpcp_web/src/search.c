@@ -810,8 +810,8 @@ redis_search_text_suggest(redisSlots *slots, pmSearchTextRequest *request, void 
      * 		"(@NAME:({query}*)|@NAME:(%{query}%)=>{$weight:0.25;}) @TYPE={metric|instance}"
      * 		WITHSCORES WITHPAYLOADS
      * 		RETURN 1 NAME
-     * 		LIMIT 0 {?return result count}
      * 		SCORER DISMAX
+     * 		LIMIT 0 {?return result count}
      */
     key = sdsnewlen(FT_TEXT_KEY, FT_TEXT_KEY_LEN);
 
@@ -827,9 +827,9 @@ redis_search_text_suggest(redisSlots *slots, pmSearchTextRequest *request, void 
     cmd = redis_param_str(cmd, FT_RETURN, FT_RETURN_LEN);
     cmd = redis_param_str(cmd, "1", 1);
     cmd = redis_param_str(cmd, FT_NAME, FT_NAME_LEN);
-    cmd = redis_param_str(cmd, FT_LIMIT, FT_LIMIT_LEN);
     cmd = redis_param_str(cmd, FT_SCORER, FT_SCORER_LEN);
     cmd = redis_param_str(cmd, FT_SCORER_DISMAX, FT_SCORER_DISMAX_LEN);
+    cmd = redis_param_str(cmd, FT_LIMIT, FT_LIMIT_LEN);
     cmd = redis_param_str(cmd, "0", 1);
     if (request->count == 0) {
 	cmd = redis_param_sds(cmd, resultcount_str);
@@ -862,6 +862,7 @@ redis_search_text_indom(redisSlots *slots, pmSearchTextRequest *request, void *a
 {
     redisSearchBaton	*baton = (redisSearchBaton *)arg;
     size_t		length;
+    char		buffer[64];
     sds			cmd, key, query;
 
     seriesBatonCheckMagic(baton, MAGIC_SEARCH, "redis_search_indom_query");
@@ -881,7 +882,7 @@ redis_search_text_indom(redisSlots *slots, pmSearchTextRequest *request, void *a
     /*
      * FT.SEARCH pcp:text
      * 		"@TYPE:{ indom } @INDOM:{{query}}"
-     * 		LIMIT 0 999
+     *.		LIMIT {?pagination offset} {?return result count}
      */
     key = sdsnewlen(FT_TEXT_KEY, FT_TEXT_KEY_LEN);
 
@@ -895,8 +896,15 @@ redis_search_text_indom(redisSlots *slots, pmSearchTextRequest *request, void *a
     cmd = redis_param_str(cmd, FT_WITHSCORES, FT_WITHSCORES_LEN);
     cmd = redis_param_str(cmd, FT_WITHPAYLOADS, FT_WITHPAYLOADS_LEN);
     cmd = redis_param_str(cmd, FT_LIMIT, FT_LIMIT_LEN);
-    cmd = redis_param_str(cmd, "0", 1);
-    cmd = redis_param_str(cmd, "999", 3);
+    length = pmsprintf(buffer, sizeof(buffer), "%u", request->offset);
+    cmd = redis_param_str(cmd, buffer, length);
+    if (request->count == 0) {
+	cmd = redis_param_sds(cmd, resultcount_str);
+	request->count = resultcount;
+    } else {
+	length = pmsprintf(buffer, sizeof(buffer), "%u", request->count);
+	cmd = redis_param_str(cmd, buffer, length);
+    }
 
     redisSlotsRequest(slots, FT_SEARCH, key, cmd, redis_search_text_query_callback, arg);
 }
@@ -922,7 +930,6 @@ redis_search_schema_callback(
 {
     redisSlotsBaton	*baton = (redisSlotsBaton *)arg;
     int			sts;
-    sleep(30);
     seriesBatonCheckMagic(baton, MAGIC_SLOTS, "redis_search_schema_callback");
 
     sts = redisSlotsRedirect(baton->slots, reply, baton->info, baton->userdata,
