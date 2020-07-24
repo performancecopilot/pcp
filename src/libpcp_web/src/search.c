@@ -757,7 +757,8 @@ static void
 redis_search_text_suggest(redisSlots *slots, pmSearchTextRequest *request, void *arg)
 {
     redisSearchBaton	*baton = (redisSearchBaton *)arg;
-    size_t		length;
+    size_t		length, prefix_length, fuzzy_length;
+    const char		*prefix;
     char		buffer[64];
     sds			cmd, key, query,
     			prefix_query, fuzzy_query;
@@ -773,16 +774,34 @@ redis_search_text_suggest(redisSlots *slots, pmSearchTextRequest *request, void 
     // by default we cannot use prefix search with words of length less than 2
     prefix_query = redis_search_text_prep(request->query, 2, NULL, "*");
     fuzzy_query = redis_search_text_prep(request->query, 2, "%", "%");
+    prefix_length = sdslen(prefix_query);
+    fuzzy_length = sdslen(fuzzy_query);
 
+    query = sdsnewlen("\'", 1);
+    prefix = "";
+    if (prefix_length || fuzzy_length) {
+	prefix = "(";
+    }
+    if (prefix_length) {
+	query = sdscatfmt(query, "%s@NAME:(%S)", prefix, prefix_query);
+	prefix = "|";
+    }
+    if (fuzzy_length) {
+	query = sdscatfmt(query, "%s@NAME:(%S)=>{$weight:0.25;}", prefix, fuzzy_query);
+	prefix = "|";
+    }
+    if (prefix_length || fuzzy_length) {
+	prefix = ")";
+    }
     query = sdscatfmt(
-	sdsempty(),
-	// quote pairs have to be in a single RESP array item, else fails
-	"\'(@NAME:(%S)|@NAME:(%S)=>{$weight:0.25;}) @TYPE:{%s|%s}\'",
-	prefix_query,
-	fuzzy_query,
+	query,
+	"%s @TYPE:{%s|%s}",
+	prefix,
 	pmSearchTextTypeStr(PM_SEARCH_TYPE_METRIC),
 	pmSearchTextTypeStr(PM_SEARCH_TYPE_INST)
     );
+    query = sdscat(query, "\'");
+
     sdsfree(prefix_query);
     sdsfree(fuzzy_query);
 
