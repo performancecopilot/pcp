@@ -74,6 +74,8 @@ _filter_status()
 	-e 's/[ 	][ 	]*/ /g' \
 	-e 's/2[0-9][0-9][0-9][01][0-9][0-3][0-9]\...\.[^ ]*/<archivename>/' \
 	-e "s/^$localhost /LOCALHOSTNAME /" \
+	-e "s;/$localhost\([ /]\);/LOCALHOSTNAME\1;" \
+	-e "s;-$localhost\$;-LOCALHOSTNAME;" \
 	-e "s/ $seq / <seq> /" \
 	-e 's/ [0-9][0-9]* / <pid> /' \
     # end

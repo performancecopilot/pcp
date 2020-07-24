@@ -23,6 +23,7 @@
 \f3pmlogctl\f1
 [\f3\-afNV?\f1]
 [\f3\-c\f1 \f2classname\f1]
+[\f3\-i\f1 \f2ident\f1]
 [\f3\-p\f1 \f2policyfile\f1]
 \f2command\f1
 [\f2host ...\f1]
@@ -179,6 +180,22 @@ in ``show me'' mode where the intent of the
 is shown, but no changes are made.
 .PP
 The
+.B \-i
+option may be used with the
+.B create
+or
+.B cond-create
+commands to over-ride the instance identity that is specified
+in the ident section of the class policy file
+(see the CLASS POLICY FILE section below).
+Since the identifier must
+be unique across all instances and all
+classes, it only makes sense to use this option when there
+is a single
+.I host
+argument.
+.PP
+The
 .B \-V
 option generally increases the verbosity of the output.
 A second
@@ -215,8 +232,12 @@ replaced by
 .I host
 and
 .B %i
-replaced by the instance's name from the ident section of the
-class policy file.
+replaced by the instance's (unique) identifier from the ident section of the
+class policy file or
+.I ident
+from the
+.B \-i
+option.
 .RS 4n
 .PP
 The
@@ -237,7 +258,7 @@ command.
 Similar to
 .B create
 but the instance will only be created if one of the conditions in the
-create section of associated class policy file evaluates to true.
+create section of associated class policy file(s) evaluates to true.
 .RS 4n
 .PP
 If a
@@ -372,9 +393,9 @@ prefix) is used as the name of the class.
 .TP 4n
 .B ident:
 The ident section specifies the template to be used for
-the instance name to be given to each member
+the instance identifier to be given to each member
 of the class.
-This name needs to be unique across all instances and all
+This identifier needs to be unique across all instances and all
 classes, and it needs
 to be a valid file name in the local filesystem, so would normally
 contain the class name and the macro
@@ -412,7 +433,7 @@ specified using the
 .BR pmlogger_check (1)
 macro
 .B PCP_ARCHIVE_DIR
-as the start of the path, followed by the instance name, usually the macro
+as the start of the path, followed by the instance identifier, usually the macro
 .BR %i ,
 e.g. \c
 .B PCP_ARCHIVE_DIR/%i

@@ -7,6 +7,8 @@ Options:
   -c NAME, --class=NAME pmlogger instances belong to the NAME class
                         [default: default]
   -f, --force           force action if possible
+  -i IDENT, --ident=IDENT
+                        over-ride instance id (only for create and cond-create)
   -N, --showme          perform a dry run, showing what would be done
   -p POLICY, --policy=POLICY
                         use POLICY as the class policy file
@@ -15,7 +17,7 @@ Options:
   -?, --help            show this usage message and exit
 
 Avaliable commands:
-   create [-c classname] host ...
+   {create|cond-create} [-c classname] host ...
    {start|stop|restart|destroy|status} [-c classname] [host ...]
 
    and host may be a valid hostname or an egrep(1) pattern that matches
@@ -27,7 +29,7 @@ Avaliable commands:
 $class=default
 #DO NOT REMOVE OR EDIT THE FOLLOWING LINE
 $version=1.1
-localhost n n PCP_ARCHIVE_DIR/localhost -c localhost.ctl
+localhost n n PCP_ARCHIVE_DIR/localhost -c ./localhost.ctl
 --- end control file ---
 Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/localhost
 + cp PCP_TMPFILE_DIR/pmlogctl.XXXXX/control PCP_ETC_DIR/pcp/pmlogger/control.d/localhost
@@ -76,3 +78,8 @@ pmcd Host Archive Class PID State
 == status
 pmcd Host Archive Class PID State 
 localhost <archivename> pmfind <pid> running 
+
+== cond-create -i 1204-foo
+== status
+pmcd Host Archive Class PID State Instance Id
+localhost <archivename> pmfind <pid> running 1204-foo

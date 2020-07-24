@@ -34,4 +34,4 @@ default_pcp : default
 install_pcp : install
 
 pmie-pmfind.class: pmlogger-pmfind.class
-	$(SED) -e 's/pmlogctl/pmiectl/g' -e '/PCP_ARCHIVE_DIR\/[^ ]*/s//PCP_LOG_DIR\/pmie\/pmfind-%h\/pmie.log/' <pmlogger-pmfind.class >pmie-pmfind.class
+	$(SED) -e 's/pmlogctl/pmiectl/g' -e '/PCP_ARCHIVE_DIR\/[^ ]*/s//PCP_LOG_DIR\/pmie\/%i\/pmie.log/' <pmlogger-pmfind.class >pmie-pmfind.class

@@ -49,7 +49,7 @@ status=0
 
 _cleanup()
 {
-    [ -n "$action" -a "$action" != status ] && _unlock
+    [ -n "$ACTION" -a "$ACTION" != status ] && _unlock
     rm -rf $tmp
 }
 trap "_cleanup; exit \$status" 0 1 2 3 15
@@ -62,6 +62,7 @@ Options:
   -c=NAME,--class=NAME    	${IAM} instances belong to the NAME class \
 [default: default]
   -f,--force                    force action if possible
+  -i=IDENT,--ident=IDENT        over-ride instance id (only for create and cond-create)
   -N,--showme             	perform a dry run, showing what would be done
   -p=POLICY,--policy=POLICY	use POLICY as the class policy file \
 [default: $PCP_ETC_DIR/pcp/${IAM}/class.d/<class>]
@@ -210,7 +211,7 @@ _usage()
     cat >&2 <<End-of-File
 
 Avaliable commands:
-   create [-c classname] host ...
+   {create|cond-create} [-c classname] host ...
    {start|stop|restart|destroy|status} [-c classname] [host ...]
 
    and host may be a valid hostname or an egrep(1) pattern that matches
@@ -244,7 +245,7 @@ _get_matching_hosts()
     do
 	$VERY_VERBOSE && echo "Looking for host $host in class $CLASS ..."
 	rm -f $tmp/primary_seen
-	if [ "$host" = "$localhost" ]
+	if [ "$host" = "$LOCALHOST" ]
 	then
 	    pat="($host|LOCALHOSTNAME)"
 	else
@@ -267,7 +268,7 @@ _get_matching_hosts()
 		if [ "$ctl_host" = "$pat" -o "$ctl_host" = "#!#$pat" ]
 		then
 		    :
-		elif [ "$host" = "$localhost" ]
+		elif [ "$host" = "$LOCALHOST" ]
 		then
 		    if [ "$ctl_host" = "LOCALHOSTNAME" -o "$ctl_host" = "#!#LOCALHOSTNAME" ]
 		    then
@@ -321,7 +322,7 @@ _get_matching_hosts()
 	    if [ "$_primary" = y ]
 	    then
 		touch $tmp/primary_seen
-		if $EXPLICIT_CLASS || [ "$action" = status ]
+		if $EXPLICIT_CLASS || [ "$ACTION" = status ]
 		then
 		    # primary is not a concern here
 		    #
@@ -330,7 +331,7 @@ _get_matching_hosts()
 		    # don't dink with the primary ... systemctl (or the
 		    # "rc" script) must be used to control the primary ${IAM}
 		    #
-		    _warning "$ctl_file: cannot $action the primary ${IAM} from $prog"
+		    _warning "$ctl_file: cannot $ACTION the primary ${IAM} from $prog"
 		    continue
 		fi
 	    fi
@@ -386,7 +387,7 @@ _get_matching_hosts()
 	ninst=`wc -l <$tmp/tmp | sed -e 's/ //g'`
 	if [ "$ninst" -eq 0 ]
 	then
-	    if [ "$action" = create ]
+	    if [ "$ACTION" = create ]
 	    then
 		# that's good ...
 		:
@@ -418,7 +419,7 @@ _get_matching_hosts()
 	    fi
 	    continue
 	fi
-	if [ "$action" != status ]
+	if [ "$ACTION" != status ]
 	then
 	    $PCP_AWK_PROG <$tmp/tmp '{ print $3 }' \
 	    | LC_COLLATE=POSIX sort \
@@ -429,9 +430,9 @@ _get_matching_hosts()
 		dups=`$PCP_AWK_PROG <$tmp/tmp2 '{ print $2 }' | tr '\012' ' ' | sed -e 's/  *$//'`
 		if $EXPLICIT_CLASS
 		then
-		    _error "host(s) ($dups) defined in class $CLASS multiple times, don't know which instance to $action"
+		    _error "host(s) ($dups) defined in class $CLASS multiple times, don't know which instance to $ACTION"
 		else
-		    _error "host(s) ($dups) defined multiple times, don't know which instance to $action"
+		    _error "host(s) ($dups) defined multiple times, don't know which instance to $ACTION"
 		fi
 	    fi
 	fi
@@ -513,8 +514,8 @@ _expand_control()
 	-e 's/[ 	][ 	]*/ /g' \
 	-e "s;PCP_ARCHIVE_DIR/;$PCP_LOG_DIR/pmlogger/;g" \
 	-e "s;PCP_LOG_DIR/;$PCP_LOG_DIR/;g" \
-	-e "s/^LOCALHOSTNAME /$localhost /g" \
-	-e "s/\\([^a-zA-Z0-9]\\)LOCALHOSTNAME/\\1$localhost/g" \
+	-e "s/^LOCALHOSTNAME /$LOCALHOST /g" \
+	-e "s/\\([^a-zA-Z0-9]\\)LOCALHOSTNAME/\\1$LOCALHOST/g" \
     # end
 }
 
@@ -525,8 +526,8 @@ _unexpand_control()
     sed \
 	-e "s;$PCP_LOG_DIR/pmlogger/;PCP_ARCHIVE_DIR/;g" \
 	-e "s;$PCP_LOG_DIR/;PCP_LOG_DIR/;g" \
-	-e "s/^$localhost /LOCALHOSTNAME /g" \
-	-e "s/\\([^a-zA-Z0-9]\\)$localhost/\\1LOCALHOSTNAME/g" \
+	-e "s/^$LOCALHOST /LOCALHOSTNAME /g" \
+	-e "s/\\([^a-zA-Z0-9]\\)$LOCALHOST/\\1LOCALHOSTNAME/g" \
     # end
 }
 
@@ -634,9 +635,19 @@ _do_status()
 {
     if [ ${IAM} = pmlogger ]
     then
-	fmt="%-20s %-17s %-8s %7s %-8s\n"
+	if $VERBOSE
+	then
+	    fmt="%-20s %-17s %-8s %7s %-8s %s\n"
+	else
+	    fmt="%-20s %-17s %-8s %7s %-8s\n"
+	fi
     else
-	fmt="%-20s %5s %12s %-8s %7s %-8s\n"
+	if $VERBOSE
+	then
+	    fmt="%-20s %5s %11s %-8s %7s %-8s %s\n"
+	else
+	    fmt="%-20s %5s %11s %-8s %7s %-8s\n"
+	fi
     fi
 
     PICK_HOSTS=false
@@ -808,9 +819,19 @@ found == 0 && $3 == "'"$host"'" && $6 == "'"$dir"'"	{ print NR >>"'$tmp/match'";
     then
 	if [ ${IAM} = pmlogger ]
 	then
-	    printf "$fmt" "pmcd Host" Archive Class PID State
+	    if $VERBOSE
+	    then
+		printf "$fmt" "pmcd Host" Archive Class PID State "Instance Id"
+	    else
+		printf "$fmt" "pmcd Host" Archive Class PID State
+	    fi
 	else
-	    printf "$fmt" "pmcd Host" Rules Evaluations Class PID State
+	    if $VERBOSE
+	    then
+		printf "$fmt" "pmcd Host" Rules Evaluations Class PID State "Instance Id"
+	    else
+		printf "$fmt" "pmcd Host" Rules Evaluations Class PID State
+	    fi
 	fi
 	if $VERBOSE
 	then
@@ -821,7 +842,8 @@ found == 0 && $3 == "'"$host"'" && $6 == "'"$dir"'"	{ print NR >>"'$tmp/match'";
 		do
 		    dir=`echo "$state" | sed -e 's/.*|//'`
 		    state=`echo "$state" | sed -e 's/|.*//'`
-		    printf "$fmt" "$host" "$archive" "$class" "$pid" "$state"
+		    ident=`echo "$dir" | sed -e 's;.*/;;'`
+		    printf "$fmt" "$host" "$archive" "$class" "$pid" "$state" "$ident"
 		    if [ "$state" = dead ]
 		    then
 			_diagnose "$host" "$dir" 
@@ -833,7 +855,8 @@ found == 0 && $3 == "'"$host"'" && $6 == "'"$dir"'"	{ print NR >>"'$tmp/match'";
 		do
 		    dir=`echo "$state" | sed -e 's/.*|//'`
 		    state=`echo "$state" | sed -e 's/|.*//'`
-		    printf "$fmt" "$host" "$rules" "$evals" "$class" "$pid" "$state"
+		    ident=`echo "$dir" | sed -e 's;/[^/]*$;;' -e 's;.*/;;'`
+		    printf "$fmt" "$host" "$rules" "$evals" "$class" "$pid" "$state" "$ident"
 		    if [ "$state" = dead ]
 		    then
 			_diagnose "$host" "$dir" 
@@ -1017,15 +1040,23 @@ _do_create()
     sts=0
     for host
     do
-	_get_policy_section "$POLICY" ident >$tmp/tmp
-	if [ -s $tmp/tmp ]
+	if [ -n "$IDENT" ]
 	then
-	    check=`wc -w <$tmp/tmp | sed -e 's/ //g'`
-	    [ "$check" -ne 1 ] &&
-		_error "ident: section is invalid in $POLICY policy file (expect a single word, not $check words)"
-	    ident=`sed -e "s/%h/$host/g" <$tmp/tmp`
+	    # -i from command line ... this is only going to work if we're
+	    # creating a single host
+	    #
+	    ident="$IDENT"
 	else
-	    ident="$host"
+	    _get_policy_section "$POLICY" ident >$tmp/tmp
+	    if [ -s $tmp/tmp ]
+	    then
+		check=`wc -w <$tmp/tmp | sed -e 's/ //g'`
+		[ "$check" -ne 1 ] &&
+		    _error "ident: section is invalid in $POLICY policy file (expect a single word, not $check words)"
+		ident=`sed -e "s/%h/$host/g" <$tmp/tmp`
+	    else
+		ident="$host"
+	    fi
 	fi
 	[ -f $CONTROLDIR/"$ident" ] && _error "control file $CONTROLDIR/$ident already exists"
 	if $EXPLICIT_CLASS
@@ -1313,6 +1344,7 @@ eval set -- "$ARGS"
 
 DOALL=false
 FORCE=false
+IDENT=''
 SHOWME=false
 CP=cp
 RM=rm
@@ -1334,6 +1366,9 @@ do
 		shift
 		;;
 	-f)	FORCE=true
+		;;
+	-i)	IDENT="$2"
+		shift
 		;;
 	-N)	SHOWME=true
 		CP="echo + $CP"
@@ -1367,10 +1402,18 @@ then
     # NOTREACHED
 fi
 
-localhost=`hostname`
+LOCALHOST=`hostname`
 
-action="$1"
+ACTION="$1"
 shift
+
+if [ -n "$IDENT" ]
+then
+    if [ "$ACTION" != create -a "$ACTION" != cond-create ]
+    then
+	_error "-i option may only be used with create or cond-create commands"
+    fi
+fi
 
 if $VERY_VERBOSE
 then
@@ -1408,9 +1451,9 @@ $version=1.1
 End-of-File
 	if [ ${IAM} = pmlogger ]
 	then
-	    echo '%h n n PCP_ARCHIVE_DIR/%i -c %i.ctl' >>$tmp/policy
+	    echo '%h n n PCP_ARCHIVE_DIR/%i -c ./%i.ctl' >>$tmp/policy
 	else
-	    echo '%h n n PCP_LOG_DIR/pmie/%i/pmie.log -c %i.ctl' >>$tmp/policy
+	    echo '%h n n PCP_LOG_DIR/pmie/%i/pmie.log -c ./%i.ctl' >>$tmp/policy
 	fi
 	POLICY=$tmp/policy
 	$VERY_VERBOSE && echo "Using default policy"
@@ -1418,11 +1461,11 @@ End-of-File
 else
     if [ ! -f "$POLICY" ]
     then
-	if [ "$action" = create ]
+	if [ "$ACTION" = create ]
 	then
 
 	    _error "policy file $POLICY not found, class $CLASS is not defined so cannot create"
-	elif [ "$action" = destroy ] && ! $FORCE
+	elif [ "$ACTION" = destroy ] && ! $FORCE
 	then
 	    _error "policy file $POLICY not found, class $CLASS is not defined so cannot destroy"
 	fi
@@ -1432,7 +1475,7 @@ fi
 
 FIND_ALL_HOSTS=false
 
-case "$action"
+case "$ACTION"
 in
     create|cond-create|start|stop|restart|destroy)
 	    if [ `id -u` != 0 -a "$SHOWME" = false ]
@@ -1443,16 +1486,16 @@ in
 	    #
 	    if [ $# -eq 0 ]
 	    then
-		$EXPLICIT_CLASS || _error "\"$action\" command requres hostname(s) and/or a --class"
+		$EXPLICIT_CLASS || _error "\"$ACTION\" command requres hostname(s) and/or a --class"
 		FIND_ALL_HOSTS=true
 	    fi
 	    _lock
-	    if [ "$action" != create -a "$action" != cond-create ]
+	    if [ "$ACTION" != create -a "$ACTION" != cond-create ]
 	    then
 		_get_matching_hosts $*
 		if [ ! -f $tmp/args ]
 		then
-		    _error "no matching host(s) to $action"
+		    _error "no matching host(s) to $ACTION"
 		    exit
 		fi
 	    fi
@@ -1460,11 +1503,11 @@ in
 	    # cond-create -> cond_create, so it is a valid shell
 	    # function name
 	    #
-	    eval "_do_`echo "$action" | sed -e 's/-/_/g'`" $*
+	    eval "_do_`echo "$ACTION" | sed -e 's/-/_/g'`" $*
 	    cmd_sts=$?
 	    if [ $cmd_sts -ne 0 ]
 	    then
-		_error "could not complete $action operation"
+		_error "could not complete $ACTION operation"
 	    fi
 	    ;;
 
@@ -1474,7 +1517,7 @@ in
 	    _do_status
 	    ;;
 
-    *)	    _error "command \"$action\" not known"
+    *)	    _error "command \"$ACTION\" not known"
 	    exit
 	    ;;
 esac
