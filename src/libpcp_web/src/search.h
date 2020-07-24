@@ -62,6 +62,10 @@
 #define FT_SCHEMA_LEN	(sizeof(FT_SCHEMA)-1)
 #define FT_SCORE	"SCORE"
 #define FT_SCORE_LEN	(sizeof(FT_SCORE)-1)
+#define FT_SCORER	"SCORER"
+#define FT_SCORER_LEN	(sizeof(FT_SCORER)-1)
+#define FT_SCORER_DISMAX "DISMAX"
+#define FT_SCORER_DISMAX_LEN (sizeof(FT_SCORER_DISMAX)-1)
 #define FT_SORTABLE	"SORTABLE"
 #define FT_SORTABLE_LEN	(sizeof(FT_SORTABLE)-1)
 #define FT_SORTBY	"SORTBY"
@@ -78,10 +82,6 @@
 #define FT_WITHPAYLOADS_LEN (sizeof(FT_WITHPAYLOADS)-1)
 #define FT_WITHSCORES	"WITHSCORES"
 #define FT_WITHSCORES_LEN  (sizeof(FT_WITHSCORES)-1)
-#define FT_SCORER	"SCORER"
-#define FT_SCORER_LEN	(sizeof(FT_SCORER)-1)
-#define FT_SCORER_DISMAX "DISMAX"
-#define FT_SCORER_DISMAX_LEN (sizeof(FT_SCORER_DISMAX)-1)
 
 extern void redisSearchInit(struct dict *);
 extern void redis_load_search_schema(void *);

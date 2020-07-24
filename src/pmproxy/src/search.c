@@ -17,6 +17,7 @@
 typedef enum pmSearchRestKey {
     RESTKEY_TEXT	= 1,
     RESTKEY_SUGGEST,
+    RESTKEY_INDOM,
     RESTKEY_INFO,
 } pmSearchRestKey;
 
@@ -42,6 +43,8 @@ static pmSearchRestCommand commands[] = {
 	    .name = "text", .namelen = sizeof("text")-1 },
     { .key = RESTKEY_SUGGEST, .options = HTTP_OPTIONS_GET,
 	    .name = "suggest", .namelen = sizeof("suggest")-1 },
+    { .key = RESTKEY_INDOM, .options = HTTP_OPTIONS_GET,
+	    .name = "indom", .namelen = sizeof("indom")-1 },
     { .key = RESTKEY_INFO, .options = HTTP_OPTIONS_GET,
 	    .name = "info", .namelen = sizeof("info")-1 },
     { .name = NULL }	/* sentinel */
@@ -205,6 +208,19 @@ on_pmsearch_text_result(pmSearchTextResult *search, void *arg)
 	}
 	result = sdscatfmt(result, "%s\"%S\"", prefix, search->name);
 	break;
+
+    case RESTKEY_INDOM:
+	if (baton->results++ == 0) {
+	    result = push_client_identifier(baton, result);
+	    baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_ARRAY);
+	    result = sdscatfmt(result, "[");
+	    prefix = "";
+	} else {
+	    prefix = ",";
+	}
+	result = sdscatfmt(result, "%s\"%S\"", prefix, search->name);
+	break;
+
     case RESTKEY_INFO:
 	break;
     }
@@ -425,6 +441,20 @@ pmsearch_setup_request_parameters(struct client *client,
 	    baton->request.count = strtoul(value, NULL, 0);
 	break;
 
+    case RESTKEY_INDOM:
+	/* expect a suggestions query string */
+	if (parameters == NULL) {
+	    client->u.http.parser.status_code = HTTP_STATUS_BAD_REQUEST;
+	    break;
+	} else if ((entry = dictFind(parameters, PARAM_QUERY)) != NULL) {
+	    baton->request.query = dictGetVal(entry);   /* get sds value */
+	    dictSetVal(parameters, entry, NULL);   /* claim this */
+	} else {
+	    client->u.http.parser.status_code = HTTP_STATUS_BAD_REQUEST;
+	    break;
+	}
+	break;
+
     case RESTKEY_INFO:
 	break;
 
@@ -502,6 +532,11 @@ pmsearch_request_done(struct client *client)
 
     case RESTKEY_SUGGEST:
 	if ((sts = pmSearchTextSuggest(&pmsearch_settings, &baton->request, baton)) < 0)
+	    on_pmsearch_done(sts, baton);
+	break;
+
+    case RESTKEY_INDOM:
+	if ((sts = pmSearchTextIndom(&pmsearch_settings, &baton->request, baton)) < 0)
 	    on_pmsearch_done(sts, baton);
 	break;
 

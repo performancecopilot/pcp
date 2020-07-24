@@ -858,12 +858,72 @@ pmSearchTextSuggest(pmSearchSettings *settings, pmSearchTextRequest *request, vo
 }
 
 static void
+redis_search_text_indom(redisSlots *slots, pmSearchTextRequest *request, void *arg)
+{
+    redisSearchBaton	*baton = (redisSearchBaton *)arg;
+    size_t		length;
+    sds			cmd, key, query;
+
+    seriesBatonCheckMagic(baton, MAGIC_SEARCH, "redis_search_indom_query");
+    seriesBatonCheckCount(baton, "redis_search_indom_query");
+
+    if (pmDebugOptions.search)
+	fprintf(stderr, "%s: %s\n", "redis_search_indom_query", request->query);
+
+    seriesBatonReference(baton, "redis_search_indom_query");
+
+    query = sdscatfmt(
+	sdsnewlen("", 0),
+	"\'@TYPE:{%s} @INDOM:{%s}\'",
+	pmSearchTextTypeStr(PM_SEARCH_TYPE_INDOM),
+	request->query
+    );
+
+    /*
+     * FT.SEARCH pcp:text
+     * 		"@TYPE:{ indom } @INDOM:{{query}}"
+     * 		LIMIT 0 999
+     */
+    key = sdsnewlen(FT_TEXT_KEY, FT_TEXT_KEY_LEN);
+
+    length = 8; // Resp array size
+    cmd = redis_command(length);
+    cmd = redis_param_str(cmd, FT_SEARCH, FT_SEARCH_LEN);
+    cmd = redis_param_sds(cmd, key);
+    cmd = redis_param_sds(cmd, query);
+    sdsfree(query);
+
+    cmd = redis_param_str(cmd, FT_WITHSCORES, FT_WITHSCORES_LEN);
+    cmd = redis_param_str(cmd, FT_WITHPAYLOADS, FT_WITHPAYLOADS_LEN);
+    cmd = redis_param_str(cmd, FT_LIMIT, FT_LIMIT_LEN);
+    cmd = redis_param_str(cmd, "0", 1);
+    cmd = redis_param_str(cmd, "999", 3);
+
+    redisSlotsRequest(slots, FT_SEARCH, key, cmd, redis_search_text_query_callback, arg);
+}
+
+int
+pmSearchTextIndom(pmSearchSettings *settings, pmSearchTextRequest *request, void *arg)
+{
+    seriesModuleData	*data = getSeriesModuleData(&settings->module);
+    redisSearchBaton	*baton;
+
+    if (data == NULL)
+	return -ENOMEM;
+    if ((baton = calloc(1, sizeof(redisSearchBaton))) == NULL)
+	return -ENOMEM;
+    initRedisSearchBaton(baton, data->slots, settings, arg);
+    redis_search_text_indom(data->slots, request, baton);
+    return 0;
+}
+
+static void
 redis_search_schema_callback(
 	redisAsyncContext *c, redisReply *reply, const sds cmd, void *arg)
 {
     redisSlotsBaton	*baton = (redisSlotsBaton *)arg;
     int			sts;
-
+    sleep(30);
     seriesBatonCheckMagic(baton, MAGIC_SLOTS, "redis_search_schema_callback");
 
     sts = redisSlotsRedirect(baton->slots, reply, baton->info, baton->userdata,
@@ -902,12 +962,12 @@ redis_load_search_schema(void *arg)
      * FT.CREATE pcp:text SCHEMA
      *		type TAG
      *		name TEXT WEIGHT 9 SORTABLE
-     *		indom TEXT WEIGHT 1
+     *		indom TAG
      *		oneline TEXT WEIGHT 4
      *		helptext TEXT WEIGHT 2
      */
     key = sdsnewlen(FT_TEXT_KEY, FT_TEXT_KEY_LEN);
-    cmd = redis_command(3 + 2 + 5 + 4 + 4 + 4);
+    cmd = redis_command(3 + 2 + 5 + 2 + 4 + 4);
 
     cmd = redis_param_str(cmd, FT_CREATE, FT_CREATE_LEN);
     cmd = redis_param_str(cmd, FT_TEXT_KEY, FT_TEXT_KEY_LEN);
@@ -923,9 +983,7 @@ redis_load_search_schema(void *arg)
     cmd = redis_param_str(cmd, FT_SORTABLE, FT_SORTABLE_LEN);
 
     cmd = redis_param_str(cmd, FT_INDOM, FT_INDOM_LEN);
-    cmd = redis_param_str(cmd, FT_TEXT, FT_TEXT_LEN);
-    cmd = redis_param_str(cmd, FT_WEIGHT, FT_WEIGHT_LEN);
-    cmd = redis_param_str(cmd, "1", sizeof("1")-1);
+    cmd = redis_param_str(cmd, FT_TAG, FT_TAG_LEN);
 
     cmd = redis_param_str(cmd, FT_ONELINE, FT_ONELINE_LEN);
     cmd = redis_param_str(cmd, FT_TEXT, FT_TEXT_LEN);
