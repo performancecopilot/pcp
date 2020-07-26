@@ -2106,7 +2106,7 @@ series_calculate_rate(node_t *np)
 		    t_data = atof(t_pmval.data);
 		    d_data = t_data - s_data;
 		    // TODO: better output double data format
-		    sprintf(str, "%g", d_data);
+		    sprintf(str, "%.6lf", d_data);
 		    sdsfree(np->value_set.series_values[i].series_sample[j-1].series_instance[k].data);
 		    sdsfree(np->value_set.series_values[i].series_sample[j-1].series_instance[k].timestamp);
 		    np->value_set.series_values[i].series_sample[j-1].series_instance[k].data = sdsnew(str);
@@ -2370,7 +2370,7 @@ series_calculate_rescale(node_t *np)
 	    fprintf(stderr, "Series values' Type extract fail, unsupport type\n");
 	    return;
 	}
-	
+	type = PM_TYPE_DOUBLE;
 	for (int j = 0; j < np->value_set.series_values[i].num_samples; j++) {
 	    for (int k = 0; k < np->value_set.series_values[i].series_sample[j].num_instances; k++) {
 		if (series_extract_value(type, 
