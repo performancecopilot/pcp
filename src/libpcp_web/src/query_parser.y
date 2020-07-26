@@ -385,6 +385,7 @@ func	: L_RATE L_LPAREN val_vec L_RPAREN
 		  }
 		  lp->yy_np->right = newnode(N_SCALE);
 		  lp->yy_np->right->meta.units = units;	/* struct assign */
+		  lp->yy_np->right->value = $5;
 		  //free($5); kyoma: why this causs free error?
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
@@ -403,6 +404,7 @@ func	: L_RATE L_LPAREN val_vec L_RPAREN
 		  }
 		  lp->yy_np->right = newnode(N_SCALE);
 		  lp->yy_np->right->meta.units = units;	/* struct assign */
+		  lp->yy_np->right->value = $5;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_ABS L_LPAREN val_vec L_RPAREN

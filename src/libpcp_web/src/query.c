@@ -15,11 +15,13 @@
 #include <assert.h>
 #include <ctype.h>
 #include "util.h"
+#include "sha1.h"
 #include "query.h"
 #include "schema.h"
 #include "libpcp.h"
 #include "slots.h"
 #include "maps.h"
+#include <math.h>
 #include <fnmatch.h>
 
 #define SHA1SZ		20	/* internal sha1 hash buffer size in bytes */
@@ -125,7 +127,7 @@ freeSeriesGetQuery(seriesQueryBaton *baton)
 {
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "freeSeriesGetQuery");
     seriesBatonCheckCount(baton, "freeSeriesGetQuery");
-    freeSeriesQueryNode(&baton->u.query.root, 0);
+    //freeSeriesQueryNode(&baton->u.query.root, 0);
     memset(baton, 0, sizeof(seriesQueryBaton));
     free(baton);
 }
@@ -1160,6 +1162,43 @@ series_prepare_smembers(seriesQueryBaton *baton, sds kp, node_t *np)
 			series_prepare_smembers_reply, np);
 }
 
+static void
+series_set_function_expr_callback(
+	redisAsyncContext *c, redisReply *reply, const sds cmd, void *arg)
+{
+    redisSlotsBaton	*baton = (redisSlotsBaton *)arg;
+    int			sts;
+
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_set_function_expr_callback");
+
+    sts = redisSlotsRedirect(baton->slots, reply, baton->info, baton->userdata,
+			     cmd, series_set_function_expr_callback, arg);
+    if (sts > 0)
+	return;	/* short-circuit as command was re-submitted */
+    if (sts == 0)
+	checkStatusReplyOK(baton->info, baton->userdata, reply,
+			"%s", "pcp:expr");
+    series_query_end_phase(baton);
+}
+
+static void
+series_set_function_expr(seriesQueryBaton *baton, sds key, sds value)
+{
+    sds			cmd;
+
+    seriesBatonReference(baton, "series_prepare_set");
+    
+    key = key;
+    cmd = redis_command(3);
+    cmd = redis_param_str(cmd, SETS, SETS_LEN);
+    cmd = redis_param_sds(cmd, key);
+    cmd = redis_param_sds(cmd, value);
+    if (pmDebugOptions.query) {
+	fprintf(stderr, "Cmd:\n%s\n", cmd);
+    }
+    redisSlotsRequest(baton->slots, SETS, key, cmd, series_set_function_expr_callback, baton);
+}
+
 /*
  * Prepare evaluation of leaf nodes.
  */
@@ -1835,6 +1874,137 @@ series_process_func(seriesQueryBaton *baton, node_t *np, int level)
     return sts;
 }
 
+static sds
+series_expr_canonical(node_t *np)
+{
+    sds		statement = sdsempty();
+    if (np == NULL)
+	return statement;
+    switch (np->type) {
+	case N_INTEGER:
+	    statement = np->value;
+	    break;
+	case N_NAME:
+	    statement = np->value;
+	    break;
+	case N_PLUS:
+	    break;
+	case N_MINUS:
+	    break;
+	case N_STAR:
+	    break;
+	case N_SLASH:
+	    break;
+	case N_AVG:
+	    statement = sdscatfmt(statement, "avg(%s)", series_expr_canonical(np->left));
+	    break;
+	case N_COUNT:
+	    break;
+	case N_DELTA:
+	    break;
+	case N_MAX:
+	    statement = sdscatfmt(statement, "max(%s)", series_expr_canonical(np->left));
+	    break;
+	case N_MIN:
+	    statement = sdscatfmt(statement, "min(%s)", series_expr_canonical(np->left));
+	    break;
+	case N_SUM:
+	    break;
+	case N_ANON:
+	    break;
+	case N_RATE:
+	    statement = sdscatfmt(statement, "rate(%s)", series_expr_canonical(np->left));
+	    break;
+	case N_INSTANT:
+	    break;
+	case N_DOUBLE:
+	    statement = np->value;
+	    break;
+	case N_LT:
+	    statement = sdscatfmt(statement, "%s<%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
+	    break;
+	case N_LEQ:
+	    statement = sdscatfmt(statement, "%s<=%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
+	    break;
+	case N_EQ:
+	    statement = sdscatfmt(statement, "%s==%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
+	    break;
+	case N_GLOB:
+	    statement = sdscatfmt(statement, "%s~~%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
+	    break;
+	case N_GEQ:
+	    statement = sdscatfmt(statement, "%s>=%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
+	    break;
+	case N_GT:
+	    statement = sdscatfmt(statement, "%s>%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
+	    break;
+	case N_NEQ:
+	    statement = sdscatfmt(statement, "%s!=%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
+	    break;
+	case N_AND:
+	    statement = sdscatfmt(statement, "%s&&%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
+	    break;
+	case N_OR:
+	    statement = sdscatfmt(statement, "%s||%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
+	    break;
+	case N_REQ:
+	    statement = sdscatfmt(statement, "%s=~%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
+	    break;
+	case N_RNE:
+	    statement = sdscatfmt(statement, "%s!~%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
+	    break;
+	case N_NEG:
+	    break;
+	case N_STRING:
+	    statement = np->value;
+	    break;
+	case N_RESCALE:
+	    statement = sdscatfmt(statement, "rescale(%s,%s)", series_expr_canonical(np->left), series_expr_canonical(np->right));
+	    break;
+	case N_SCALE:
+	    statement = np->value;
+	    break;
+	case N_DEFINED:
+	    break;
+	case N_NOOP:
+	    statement = sdscatfmt(statement, "noop(%s)", series_expr_canonical(np->left));
+	    break;
+	case N_ABS:
+	    statement = sdscatfmt(statement, "abs(%s)", series_expr_canonical(np->left));
+	    break;
+	case N_FLOOR:
+	    statement = sdscatfmt(statement, "floor(%s)", series_expr_canonical(np->left));
+	    break;
+	case N_LOG:
+	    statement = sdscatfmt(statement, "log(%s,%s)", series_expr_canonical(np->left), series_expr_canonical(np->right));
+	    break;
+	case N_SQRT:
+	    statement = sdscatfmt(statement, "sqrt(%s)", series_expr_canonical(np->left));
+	    break;
+	case N_ROUND:
+	    statement = sdscatfmt(statement, "round(%s)", series_expr_canonical(np->left));
+	    break;
+	default:
+	    break;
+    }
+    return statement;
+}
+
+static sds
+series_function_hash(unsigned char *hash, node_t *np)
+{
+    //SHA1_CTX	shactx;
+    sds			identifier = series_expr_canonical(np);
+    SHA1_CTX		shactx;
+    const char		prefix[] = "{\"series\":\"expr\",\"expr\":\"";
+    const char		suffix[] = "\"}";
+    SHA1Init(&shactx);
+    SHA1Update(&shactx, (unsigned char *)prefix, sizeof(prefix)-1);
+    SHA1Update(&shactx, (unsigned char *)identifier, sdslen(identifier));
+    SHA1Update(&shactx, (unsigned char *)suffix, sizeof(suffix)-1);
+    SHA1Final(hash, &shactx);
+    return identifier;
+}
 
 static void
 kyoma_debug_print_node(seriesQueryBaton *baton, node_t *np)
@@ -1882,18 +2052,11 @@ static void
 series_noop_traverse(seriesQueryBaton *baton, node_t *np, int level)
 {
     if (np == NULL) {
-	if (pmDebugOptions.query)
-	    fprintf(stderr, "NULL, return\n");
 	return;
     }
-    if (pmDebugOptions.query)
-	fprintf(stderr, "=====level %d, node type %d=====\n", level, np->type);
-    //kyoma_debug_print_node(baton, np);
-    if (pmDebugOptions.query)
-	fprintf(stderr, "go left\n");
+//     if (pmDebugOptions.query)
+// 	kyoma_debug_print_node(baton, np);
     series_noop_traverse(baton, np->left, level+1);
-    if (pmDebugOptions.query)
-	fprintf(stderr, "go right\n");
     series_noop_traverse(baton, np->right, level+1);
 }
 
@@ -2184,12 +2347,12 @@ series_calculate_rescale(node_t *np)
 
     np->value_set = np->left->value_set;
     for (int i = 0; i < np->value_set.num_series; i++) {
-	if (strcmp(np->value_set.series_values[i].series_desc.semantics, "instant") != 0) {
-	    // TODO: error report, only accept semantic instant
-	    fprintf(stderr, "Only accpet semantic instant, the semantic of %s is %s\n", 
-	    		np->value_set.series_values[i].sid->name, np->value_set.series_values[i].series_desc.semantics);
-	    return;
-	}
+	// if (strcmp(np->value_set.series_values[i].series_desc.semantics, "instant") != 0) {
+	//     // TODO: error report, only accept semantic instant
+	//     fprintf(stderr, "Only accpet semantic instant, the semantic of %s is %s\n", 
+	//     		np->value_set.series_values[i].sid->name, np->value_set.series_values[i].series_desc.semantics);
+	//     return;
+	// }
 	if (pmParseUnitsStr(np->value_set.series_values[i].series_desc.units, &iunit, &mult, &errmsg) < 0) {
 	    // TODO: error report for units parse
 	    fprintf(stderr, "Units string of %s parse error, %s\n", np->value_set.series_values[i].sid->name, errmsg);
@@ -2667,6 +2830,10 @@ series_calculate(seriesQueryBaton *baton, node_t *np, int level)
     int				sts;
     if (np == NULL)
 	return 0;
+//     if (pmDebugOptions.query) {
+// 	fprintf(stderr, "level: %d, type: %d, subtype: %d, key: %s, value: %s\n", 
+// 	level, np->type, np->subtype, np->key, np->value);
+//     }
     if ((sts = series_calculate(baton, np->left, level+1)) < 0)
 	return sts;
     if ((sts = series_calculate(baton, np->right, level+1)) < 0)
@@ -2676,33 +2843,43 @@ series_calculate(seriesQueryBaton *baton, node_t *np, int level)
 	    /* Traverse the subtree of this node? */
 	    np->value_set = np->left->value_set;
 	    series_noop_traverse(baton, np, level);
+	    sts = N_NOOP;
 	    break;
 	case N_RATE:
 	    series_calculate_rate(np);
+	    sts = N_RATE;
 	    break;
 	case N_MAX:
 	    series_calculate_max(np);
+	    sts = N_MAX;
 	    break;
 	case N_MIN:
 	    series_calculate_min(np);
+	    sts = N_MIN;
 	    break;
 	case N_RESCALE:
 	    series_calculate_rescale(np);
+	    sts = N_RESCALE;
 	    break;
 	case N_ABS:
 	    series_calculate_abs(np);
+	    sts = N_ABS;
 	    break;
 	case N_FLOOR:
 	    series_calculate_floor(np);
+	    sts = N_FLOOR;
 	    break;
 	case N_LOG:
 	    series_calculate_log(np);
+	    sts = N_LOG;
 	    break;
 	case N_SQRT:
 	    series_calculate_sqrt(np);
+	    sts = N_SQRT;
 	    break;
 	case N_ROUND:
 	    series_calculate_round(np);
+	    sts = N_ROUND;
 	    break;
 	default:
 	    break;
@@ -2714,6 +2891,10 @@ static void
 series_query_report_values(void *arg)
 {
     seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
+    int			has_function = 0;
+    char		hashbuf[42];
+    unsigned char	*hash = sdsempty();
+    sds			key, value;
 
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_query_report_values");
     seriesBatonCheckCount(baton, "series_query_report_values");
@@ -2721,8 +2902,16 @@ series_query_report_values(void *arg)
     seriesBatonReference(baton, "series_query_report_values");
 
     /* For function-tpye nodes, calculate actual values */
-    series_calculate(baton, &baton->u.query.root, 0);
-    
+    has_function = series_calculate(baton, &baton->u.query.root, 0);
+
+    /* Store the canonical query to Redis if this query statement has function oepration */
+    if (has_function != 0) {
+	value = series_function_hash(hash, &baton->u.query.root);
+	pmwebapi_hash_str(hash, hashbuf, sizeof(hashbuf));
+	key = sdscatfmt(sdsempty(), "pcp:expr:%s", hashbuf);
+	series_set_function_expr(baton, key, value);
+    }
+
     // time series values have been saved in root node so report them directly.
     series_node_values_report(baton, &baton->u.query.root);
 //    series_prepare_time(baton, &baton->u.query.root.result);
