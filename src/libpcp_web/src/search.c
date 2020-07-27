@@ -722,7 +722,7 @@ redis_search_text_query(redisSlots *slots, pmSearchTextRequest *request, void *a
     }
 
     cmd = redis_param_str(cmd, FT_SCORER, FT_SCORER_LEN);
-    cmd = redis_param_str(cmd, FT_SCORER_DISMAX, FT_SCORER_DISMAX_LEN);
+    cmd = redis_param_str(cmd, FT_SCORER_BM25, FT_SCORER_BM25_LEN);
 
     cmd = redis_param_str(cmd, FT_LIMIT, FT_LIMIT_LEN);
     length = pmsprintf(buffer, sizeof(buffer), "%u", request->offset);
@@ -810,7 +810,7 @@ redis_search_text_suggest(redisSlots *slots, pmSearchTextRequest *request, void 
      * 		"(@NAME:({query}*)|@NAME:(%{query}%)=>{$weight:0.25;}) @TYPE={metric|instance}"
      * 		WITHSCORES WITHPAYLOADS
      * 		RETURN 1 NAME
-     * 		SCORER DISMAX
+     * 		SCORER BM25
      * 		LIMIT 0 {?return result count}
      */
     key = sdsnewlen(FT_TEXT_KEY, FT_TEXT_KEY_LEN);
@@ -828,7 +828,7 @@ redis_search_text_suggest(redisSlots *slots, pmSearchTextRequest *request, void 
     cmd = redis_param_str(cmd, "1", 1);
     cmd = redis_param_str(cmd, FT_NAME, FT_NAME_LEN);
     cmd = redis_param_str(cmd, FT_SCORER, FT_SCORER_LEN);
-    cmd = redis_param_str(cmd, FT_SCORER_DISMAX, FT_SCORER_DISMAX_LEN);
+    cmd = redis_param_str(cmd, FT_SCORER_BM25, FT_SCORER_BM25_LEN);
     cmd = redis_param_str(cmd, FT_LIMIT, FT_LIMIT_LEN);
     cmd = redis_param_str(cmd, "0", 1);
     if (request->count == 0) {
