@@ -2035,10 +2035,14 @@ kyoma_debug_print_node(seriesQueryBaton *baton, node_t *np)
  * Report a timeseries result - timestamps and (instance) values from a node
  */
 static void
-series_node_values_report(seriesQueryBaton *baton, node_t *np)
+series_node_values_report(seriesQueryBaton *baton, node_t *np, int has_function, char *hashbuf)
 {
+    sds series;
     for (int i = 0; i < np->value_set.num_series; i++) {
-	sds series = np->value_set.series_values[i].sid->name;
+	if (has_function != 0)
+	    series = sdsnew(hashbuf);
+	else 
+	    series = np->value_set.series_values[i].sid->name;
 	for (int j = 0; j < np->value_set.series_values[i].num_samples; j++) {
 	    for (int k = 0; k < np->value_set.series_values[i].series_sample[j].num_instances; k++) {
 		pmSeriesValue value = np->value_set.series_values[i].series_sample[j].series_instance[k];
@@ -2105,7 +2109,6 @@ series_calculate_rate(node_t *np)
 		    s_data = atof(s_pmval.data);
 		    t_data = atof(t_pmval.data);
 		    d_data = t_data - s_data;
-		    // TODO: better output double data format
 		    sprintf(str, "%.6lf", d_data);
 		    sdsfree(np->value_set.series_values[i].series_sample[j-1].series_instance[k].data);
 		    sdsfree(np->value_set.series_values[i].series_sample[j-1].series_instance[k].timestamp);
@@ -2913,7 +2916,7 @@ series_query_report_values(void *arg)
     }
 
     // time series values have been saved in root node so report them directly.
-    series_node_values_report(baton, &baton->u.query.root);
+    series_node_values_report(baton, &baton->u.query.root, has_function, hashbuf);
 //    series_prepare_time(baton, &baton->u.query.root.result);
     
     series_query_end_phase(baton);
