@@ -23,14 +23,19 @@
 #define ACCT_LIFE_TIME             60
 #define OPEN_RETRY_INTERVAL        60
 #define CHECK_ACCOUNTING_INTERVAL  600
+#define ACCT_TIMER_INTERVAL        600
 #define ACCT_FILE_SIZE_THRESHOLD   10485760
 
 static char pacct_system_file[1024];
 static char pacct_private_file[1024];
 
-int acct_lifetime = ACCT_LIFE_TIME;
+static uint32_t acct_lifetime                  = ACCT_LIFE_TIME;
+static uint32_t acct_open_retry_interval       = OPEN_RETRY_INTERVAL;
+static uint32_t acct_check_accounting_interval = CHECK_ACCOUNTING_INTERVAL;
+static uint64_t acct_file_size_threshold       = ACCT_FILE_SIZE_THRESHOLD;
+
 struct timeval acct_update_interval = {
-    .tv_sec = CHECK_ACCOUNTING_INTERVAL,
+    .tv_sec = ACCT_TIMER_INTERVAL,
 };
 static int acct_timer_id = -1;
 static int is_child = 0;
@@ -422,22 +427,28 @@ acct_timer(int sig, void *ptr)
 {
     if (pmDebugOptions.libpmda && pmDebugOptions.desperate)
 	pmNotifyErr(LOG_DEBUG, "acct: timer called\n");
-    if (acct_file.fd >= 0 && acct_file.acct_enabled && get_file_size() > ACCT_FILE_SIZE_THRESHOLD)
+    if (acct_file.fd >= 0 && acct_file.acct_enabled && get_file_size() > acct_file_size_threshold)
 	reopen_pacct_file();
 }
 
 static void
-init_acct_timer(void)
+reset_acct_timer(void)
 {
     int sts;
 
+    if (acct_timer_id != -1) {
+	__pmAFunregister(acct_timer_id);
+	acct_timer_id = -1;
+    }
     sts = __pmAFregister(&acct_update_interval, NULL, acct_timer);
     if (sts < 0) {
+	close_pacct_file();
 	if (pmDebugOptions.libpmda && pmDebugOptions.desperate)
 	    pmNotifyErr(LOG_DEBUG, "acct: error registering timer: %s\n", pmErrStr(sts));
 	return;
     }
     acct_timer_id = sts;
+    reopen_pacct_file();
 }
 
 static void
@@ -474,10 +485,8 @@ acct_init(proc_acct_t *proc_acct)
     init_pacct_system_file();
     init_pacct_private_file();
 
-    init_acct_timer();
-
     init_acct_file_info();
-    open_pacct_file();
+    reset_acct_timer();
 
     acct_ringbuf.next_index = 0;
     acct_ringbuf.buf = calloc(RINGBUF_SIZE, sizeof(acct_ringbuf_entry_t));
@@ -501,7 +510,7 @@ refresh_acct(proc_acct_t *proc_acct)
     proc_acct->now = time(NULL);	/* timestamp for current sample */
 
     if (acct_file.fd < 0) {
-	if ((proc_acct->now - acct_file.last_fail_open) > OPEN_RETRY_INTERVAL)
+	if ((proc_acct->now - acct_file.last_fail_open) > acct_open_retry_interval)
 	    open_pacct_file();
 	return;
     }
@@ -509,7 +518,7 @@ refresh_acct(proc_acct_t *proc_acct)
     if (acct_file.record_size <= 0 || MAX_ACCT_RECORD_SIZE_BYTES < acct_file.record_size)
 	return;
 
-    if ((proc_acct->now - acct_file.last_check_accounting) > CHECK_ACCOUNTING_INTERVAL) {
+    if ((proc_acct->now - acct_file.last_check_accounting) > acct_check_accounting_interval) {
 	if (pmDebugOptions.libpmda && pmDebugOptions.desperate)
 	    pmNotifyErr(LOG_DEBUG, "acct: check accounting\n");
 	if (!check_accounting(acct_file.fd)) {
@@ -585,13 +594,19 @@ acct_fetchCallBack(int i_inst, int item, proc_acct_t *proc_acct, pmAtomValue *at
 
     switch (item) {
     case CONTROL_OPEN_RETRY_INTERVAL:
-	atom->ul = OPEN_RETRY_INTERVAL;
+	atom->ul = acct_open_retry_interval;
 	return 1;
     case CONTROL_CHECK_ACCT_INTERVAL:
-	atom->ul = CHECK_ACCOUNTING_INTERVAL;
+	atom->ul = acct_check_accounting_interval;
 	return 1;
     case CONTROL_FILE_SIZE_THRESHOLD:
-	atom->ul = ACCT_FILE_SIZE_THRESHOLD;
+	atom->ull = acct_file_size_threshold;
+	return 1;
+    case CONTROL_ACCT_LIFETIME:
+	atom->ul = acct_lifetime;
+	return 1;
+    case CONTROL_ACCT_TIMER_INTERVAL:
+	atom->ul = acct_update_interval.tv_sec;
 	return 1;
     }
 
@@ -606,4 +621,53 @@ acct_fetchCallBack(int i_inst, int item, proc_acct_t *proc_acct, pmAtomValue *at
 	return 0;
 
     return acct_ops.fetchCallBack(item, node->data, atom);
+}
+
+int
+acct_store(pmResult *result, pmdaExt *pmda, pmValueSet *vsp)
+{
+    int sts = 0;
+    pmAtomValue av;
+    switch (pmID_item(vsp->pmid)) {
+    case CONTROL_OPEN_RETRY_INTERVAL: /* acct.control.open_retry_interval */
+	if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+			PM_TYPE_U32, &av, PM_TYPE_U32)) >= 0) {
+	    acct_open_retry_interval = av.ul;
+	}
+	break;
+    case CONTROL_CHECK_ACCT_INTERVAL: /* acct.control.check_acct_interval */
+	if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+			PM_TYPE_U32, &av, PM_TYPE_U32)) >= 0) {
+	    acct_check_accounting_interval = av.ul;
+	}
+	break;
+    case CONTROL_FILE_SIZE_THRESHOLD: /* acct.control.file_size_threshold */
+	if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+			PM_TYPE_U64, &av, PM_TYPE_U64)) >= 0) {
+	    acct_file_size_threshold = av.ul;
+	}
+	break;
+    case CONTROL_ACCT_LIFETIME: /* acct.control.lifetime */
+	if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+			PM_TYPE_U32, &av, PM_TYPE_U32)) >= 0) {
+	    acct_lifetime = av.ul;
+	}
+	break;
+    case CONTROL_ACCT_TIMER_INTERVAL: /* acct.control.refresh */
+	if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+			PM_TYPE_U32, &av, PM_TYPE_U32)) >= 0) {
+	    if (av.ul > 0) {
+		acct_update_interval.tv_sec = av.ul;
+		reset_acct_timer();
+	    } else {
+		sts = PM_ERR_PERMISSION;
+	    }
+	}
+	break;
+    default:
+	sts = PM_ERR_PERMISSION;
+	break;
+    }
+
+    return sts;
 }

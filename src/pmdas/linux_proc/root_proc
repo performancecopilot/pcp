@@ -555,6 +555,8 @@ acct.control {
     open_retry_interval	PROC:70:23
     check_acct_interval	PROC:70:24
     file_size_threshold	PROC:70:25
+    lifetime		PROC:70:26
+    refresh		PROC:70:27
 }
 
 #undef PROC
