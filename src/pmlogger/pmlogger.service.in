@@ -12,7 +12,7 @@ NotifyAccess=all
 TimeoutSec=120
 Restart=always
 ExecStart=@PCP_RC_DIR@/pmlogger start-systemd
-ExecStop=@PCP_RC_DIR@/pmlogger stop
+ExecStop=@PCP_RC_DIR@/pmlogger stop-systemd
 PIDFile=@PCP_RUN_DIR@/pmlogger.pid
 
 [Install]

@@ -151,10 +151,9 @@ _shutdown()
     fi
     if [ "$1" = quietly ]
     then
-	$RC_STATUS
+	true && $RC_STATUS
     else
-	true
-	$RC_STATUS -v
+	true && $RC_STATUS -v
     fi
     rm -f $PCP_RUN_DIR/pmproxy.pid
     $PCP_BINADM_DIR/pmpost "stop pmproxy from $pmprog"
@@ -265,6 +264,7 @@ Error: pmproxy options file "$PMPROXYOPTS" is missing, cannot start pmproxy.'
 		mv pmproxy.log pmproxy.log.prev
 	    fi
 
+	    [ "$1" = "start-systemd" ] ||\
 	    $ECHO $PCP_ECHO_N "Starting pmproxy ..." "$PCP_ECHO_C"
 
 	    # only consider variables which start with PMPROXY
@@ -299,22 +299,17 @@ Error: pmproxy options file "$PMPROXYOPTS" is missing, cannot start pmproxy.'
 	    #
 	    $PMPROXY $OPTS
 	    $RC_STATUS -v
-
-
-	    # finally, stop here if running in a container
-	    if [ -z "$PCP_CONTAINER_IMAGE" ]
-	    then
-		:
-	    else
-		rm -rf $tmp
-		exec $PCP_BINADM_DIR/pmpause
-	    fi
 	fi
 	status=0
         ;;
 
   stop)
 	_shutdown
+	status=0
+        ;;
+
+  stop-systemd)
+	_shutdown quietly
 	status=0
         ;;
 
@@ -341,13 +336,6 @@ Error: pmproxy options file "$PMPROXYOPTS" is missing, cannot start pmproxy.'
 	;;
 
   *)
-	if [ -z "$PCP_CONTAINER_IMAGE" ]
-	then
-	    :
-	else
-	    rm -rf $tmp
-	    exec "$@"
-	fi
 	_usage
         ;;
 esac
