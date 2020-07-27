@@ -398,7 +398,7 @@ pmsearch_setup_request_parameters(struct client *client,
 		for (i = 0; values && i < nvalues; i++) {
 		    if (strcmp(values[i], "indom") == 0)
 			baton->request.type_indom = 1; 
-		    if (strcmp(values[i], "inst") == 0)
+		    if (strcmp(values[i], "instance") == 0)
 			baton->request.type_inst = 1; 
 		    if (strcmp(values[i], "metric") == 0)
 			baton->request.type_metric = 1;

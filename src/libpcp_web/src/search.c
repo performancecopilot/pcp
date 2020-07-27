@@ -360,7 +360,7 @@ pmSearchDiscoverText(pmDiscoverEvent *event,
     } else { /* PM_TEXT_INDOM */
 	pmInDomStr_r(ident, indom, sizeof(indom));
 	redis_search_text_add(baton->slots, PM_SEARCH_TYPE_INDOM,
-			indom, NULL, oneline, helptext, baton);
+			indom, indom, oneline, helptext, baton);
     }
 }
 
@@ -961,7 +961,7 @@ redis_load_search_schema(void *arg)
 
     if (pmDebugOptions.search && pmDebugOptions.desperate)
 	fprintf(stderr, "%s: loading schema\n", "redis_search_schema");
-
+        
     seriesBatonReference(baton, "redis_load_search_schema");
 
     /*
