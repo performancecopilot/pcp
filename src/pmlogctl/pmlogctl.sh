@@ -1185,7 +1185,7 @@ END	{ exit(sts) }'
 	    # some work to be done ...
 	    #
 	    _resolve_configs "$host" $tmp/control.*
-	    if $SHOWME
+	    if $VERBOSE
 	    then
 		echo "--- start combined config file ---"
 		cat $tmp/config
@@ -1245,7 +1245,7 @@ End-of-File
 	fi
 	dir=`$PCP_AWK_PROG <$tmp/control '
 $1 == "'"$host"'"	{ print $4 }'`
-	if $SHOWME
+	if $VERBOSE
 	then
 	    echo "--- start control file ---"
 	    cat $tmp/control
@@ -1355,7 +1355,7 @@ $1 == "'"$host"'"	{ print $4 }'`
 	    # skip this part (the real create and start) ...
 	    :
 	else
-	    if $SHOWME
+	    if $VERBOSE
 	    then
 		echo "--- start control file ---"
 		cat $tmp/control

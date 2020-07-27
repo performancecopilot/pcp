@@ -1,16 +1,22 @@
 QA output created by 1213
-Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/1213-localhost
-Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/1213-LOCALHOSTNAME
-=== not run as root
-- create -
+--- start control file ---
 # created by pmlogctl on DATE
 $class=1213
 $version=1.1
+localhost n n PCP_ARCHIVE_DIR/1213-localhost -c TMP.config
+--- end control file ---
+Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/1213-localhost
+--- start control file ---
+# created by pmlogctl on DATE
+$class=1213
+$version=1.1
+LOCALHOSTNAME n n PCP_ARCHIVE_DIR/1213-LOCALHOSTNAME -c TMP.config
+--- end control file ---
+Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/1213-LOCALHOSTNAME
+=== not run as root
+- create -
 + cp PCP_TMPFILE_DIR/pmlogctl.XXXXX/control PCP_ETC_DIR/pcp/pmlogger/control.d/1213-local:
 + sudo -u pcp -g pcp PCP_BINADM_DIR/pmlogger_check -c PCP_ETC_DIR/pcp/pmlogger/control.d/1213-local:
---- end control file ---
---- start control file ---
-local: n n PCP_ARCHIVE_DIR/1213-local: -c TMP.config
 Error: you must be root (uid 0) to change the Performance Co-Pilot logger setup
 - start (nothing to be done) -
 Error: you must be root (uid 0) to change the Performance Co-Pilot logger setup
