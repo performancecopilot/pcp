@@ -29,6 +29,7 @@
 static char pacct_system_file[1024];
 static char pacct_private_file[1024];
 
+static int      acct_enable_private_acct       = 0;
 static uint32_t acct_lifetime                  = ACCT_LIFE_TIME;
 static uint32_t acct_open_retry_interval       = OPEN_RETRY_INTERVAL;
 static uint32_t acct_check_accounting_interval = CHECK_ACCOUNTING_INTERVAL;
@@ -263,9 +264,6 @@ open_and_acct(const char *path, int do_acct)
     if (acct_file.fd != -1)
 	return 0;
 
-    if (do_acct && acct_timer_id == -1)
-	return 0;
-
     if (do_acct)
 	acct_file.fd = open(path, O_TRUNC|O_CREAT, S_IRUSR);
     else
@@ -319,6 +317,9 @@ open_pacct_file(void)
 	acct_file.acct_enabled = 0;
 	return 1;
     }
+
+    if (!acct_enable_private_acct || acct_timer_id == -1)
+	return 0;
 
     ret = open_and_acct(pacct_private_file, 1);
     if (ret) {
@@ -608,6 +609,9 @@ acct_fetchCallBack(int i_inst, int item, proc_acct_t *proc_acct, pmAtomValue *at
     case CONTROL_ACCT_TIMER_INTERVAL:
 	atom->ul = acct_update_interval.tv_sec;
 	return 1;
+    case CONTROL_ACCT_ENABLE:
+	atom->ul = acct_enable_private_acct;
+	return 1;
     }
 
     if (acct_file.fd < 0)
@@ -662,6 +666,13 @@ acct_store(pmResult *result, pmdaExt *pmda, pmValueSet *vsp)
 	    } else {
 		sts = PM_ERR_PERMISSION;
 	    }
+	}
+	break;
+    case CONTROL_ACCT_ENABLE: /* acct.control.enable_acct */
+	if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+			PM_TYPE_U32, &av, PM_TYPE_U32)) >= 0) {
+	    acct_enable_private_acct = av.ul ? 1 : 0;
+	    reopen_pacct_file();
 	}
 	break;
     default:

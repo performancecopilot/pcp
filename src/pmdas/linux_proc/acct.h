@@ -97,6 +97,7 @@ enum {
     CONTROL_FILE_SIZE_THRESHOLD = 25,
     CONTROL_ACCT_LIFETIME       = 26,
     CONTROL_ACCT_TIMER_INTERVAL = 27,
+    CONTROL_ACCT_ENABLE         = 28,
 };
 
 extern void acct_init(proc_acct_t *);

@@ -1497,6 +1497,9 @@ static pmdaMetric metrictab[] = {
     /* acct.control.refresh */
     { NULL, { PMDA_PMID(CLUSTER_ACCT,CONTROL_ACCT_TIMER_INTERVAL),
       PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0) }, },
+    /* acct.control.enabled */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,CONTROL_ACCT_ENABLE),
+      PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 };
 
 pmInDom

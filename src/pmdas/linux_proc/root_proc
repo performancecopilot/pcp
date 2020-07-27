@@ -557,6 +557,7 @@ acct.control {
     file_size_threshold	PROC:70:25
     lifetime		PROC:70:26
     refresh		PROC:70:27
+    enable_acct		PROC:70:28
 }
 
 #undef PROC
