@@ -98,12 +98,14 @@ skip_free_value_set(node_t *np) {
 static void
 freeSeriesQueryNode(node_t *np, int level)
 {
+    int		nsamples;
     if (np == NULL)
 	return;
     if (skip_free_value_set(np) != 0) {
 	int i, j, k;
 	for (i = 0; i < np->value_set.num_series; i++) {
-	    for (j = 0; j < np->value_set.series_values[i].num_samples; j++) {
+	    nsamples = np->value_set.series_values[i].num_samples;
+	    for (j = 0; j < nsamples || -j <nsamples; j++) {
 		for (k=0; k < np->value_set.series_values[i].series_sample[j].num_instances; k++) {
 		    sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].timestamp);
 		    sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].series);
@@ -127,7 +129,9 @@ freeSeriesGetQuery(seriesQueryBaton *baton)
 {
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "freeSeriesGetQuery");
     seriesBatonCheckCount(baton, "freeSeriesGetQuery");
-    //freeSeriesQueryNode(&baton->u.query.root, 0);
+    if (baton->error == 0) {
+    	freeSeriesQueryNode(&baton->u.query.root, 0);
+    }
     memset(baton, 0, sizeof(seriesQueryBaton));
     free(baton);
 }
@@ -2067,7 +2071,7 @@ series_noop_traverse(seriesQueryBaton *baton, node_t *np, int level)
 static int
 series_rate_check(pmSeriesDesc desc){
     // TODO: Do type check for rate function. return 0 when success.
-    if (strncmp(desc.semantics, "counter", 7) != 0)
+    if (strncmp(desc.semantics, "counter", sizeof("counter")-1) != 0)
     	return 1;
     return 0;
 }
@@ -2079,14 +2083,17 @@ series_calculate_rate(node_t *np)
  * Compute rate between samples for each metric. The number of samples in result is one less 
  * than the original samples. 
  */
+    seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
     pmSeriesValue	s_pmval, t_pmval;
     int			n_instances, n_samples;
     double		s_data, t_data, d_data;
     char		str[256];
+    sds			msg;
+
     np->value_set = np->left->value_set;
     for (int i = 0; i < np->value_set.num_series; i++) {
+	n_samples = np->value_set.series_values[i].num_samples;
 	if (series_rate_check(np->value_set.series_values[i].series_desc) == 0) {
-	    n_samples = np->value_set.series_values[i].num_samples;
 	    if (n_samples > 0) {
 		n_instances = np->value_set.series_values[i].series_sample[0].num_instances;
 	    }
@@ -2106,8 +2113,8 @@ series_calculate_rate(node_t *np)
 			    fprintf(stderr, "%s %s\n", s_pmval.series, t_pmval.series);
 			}
 		    }
-		    s_data = atof(s_pmval.data);
-		    t_data = atof(t_pmval.data);
+		    sscanf(s_pmval.data, "%lf", &s_data);
+		    sscanf(t_pmval.data, "%lf", &t_data);
 		    d_data = t_data - s_data;
 		    sprintf(str, "%.6lf", d_data);
 		    sdsfree(np->value_set.series_values[i].series_sample[j-1].series_instance[k].data);
@@ -2127,11 +2134,15 @@ series_calculate_rate(node_t *np)
 		}
 	    }
 	} else {
-	    // TODO: Type error report. Only semantics counter is allowed for rate() computation.
-	    if (pmDebugOptions.query) {
-		fprintf(stderr, "Semantics of %s is not counter\n", np->value_set.series_values[i].sid->name);
-	    }
+	    infofmt(msg, "Semantics of '%s' is not counter\n", series_expr_canonical(np->left));
+	    batoninfo(baton, PMLOG_ERROR, msg);
+	    baton->error = -EPROTO;
+	    np->value_set.series_values[i].num_samples = -n_samples;
 	}
+	sdsfree(np->value_set.series_values[i].series_desc.type);
+	sdsfree(np->value_set.series_values[i].series_desc.semantics);
+	np->value_set.series_values[i].series_desc.type = sdsnew("double");
+	np->value_set.series_values[i].series_desc.semantics = sdsnew("instant");
     }
 }
 
@@ -2141,8 +2152,11 @@ series_calculate_max(node_t *np)
 /*
  * Compare and pick the maximal instance value(s) among samples for each metric.
  */
+    seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
     int			n_series, n_samples, n_instances, max_pointer;
     double		max_data, data;
+    sds			msg;
+
     n_series = np->left->value_set.num_series;
     np->value_set.num_series = n_series;
     np->value_set.series_values = (series_sample_set_t *)calloc(n_series, sizeof(series_sample_set_t));
@@ -2160,7 +2174,9 @@ series_calculate_max(node_t *np)
 		for (int j = 1; j < n_samples; j++) {
 		    if (np->left->value_set.series_values[i].series_sample[j].num_instances != n_instances) {
 			// TODO: number of instances in each sample are not equal, report error.
-			printf("TODO: number of instances in each sample are not equal, report error.\n");
+			infofmt(msg, "number of instances in each sample are not equal\n");
+			batoninfo(baton, PMLOG_ERROR, msg);
+			continue;
 		    }
 		    data = atof(np->left->value_set.series_values[i].series_sample[j].series_instance[k].data);
 		    if (max_data < data) {
@@ -2193,8 +2209,11 @@ series_calculate_min(node_t *np)
 /*
  * Compare and pick the minimal instance value(s) among samples for each metric.
  */
+    seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
     int			n_series, n_samples, n_instances, min_pointer;
     double		min_data, data;
+    sds			msg;
+
     n_series = np->left->value_set.num_series;
     np->value_set.num_series = n_series;
     np->value_set.series_values = (series_sample_set_t *)calloc(n_series, sizeof(series_sample_set_t));
@@ -2211,8 +2230,9 @@ series_calculate_min(node_t *np)
 		min_data = atof(np->left->value_set.series_values[i].series_sample[0].series_instance[k].data);
 		for (int j = 1; j < n_samples; j++) {
 		    if (np->left->value_set.series_values[i].series_sample[j].num_instances != n_instances) {
-			// TODO: number of instances in each sample are not equal, report error.
-			printf("TODO: number of instances in each sample are not equal, report error.\n");
+			infofmt(msg, "number of instances in each sample are not equal\n");
+			batoninfo(baton, PMLOG_ERROR, msg);
+			continue;
 		    }
 		    data = atof(np->left->value_set.series_values[i].series_sample[j].series_instance[k].data);
 		    if (min_data > data) {
@@ -2341,12 +2361,14 @@ series_calculate_rescale(node_t *np)
  * This rescale() should only accept metrics with semantics instant. Compare the consistencies
  * of 3 time/space/count dimensions between the pmUnits of input and metrics to be modified. 
  */
+    seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
     double			mult;
     pmUnits			iunit;
-    char			*errmsg;
+    char			*errmsg, str_val[255];
     pmAtomValue			ival, oval;
     int				type, sts, str_len;
-    char			str_val[255];
+    sds				msg;
+
 
     np->value_set = np->left->value_set;
     for (int i = 0; i < np->value_set.num_series; i++) {
@@ -2357,20 +2379,26 @@ series_calculate_rescale(node_t *np)
 	//     return;
 	// }
 	if (pmParseUnitsStr(np->value_set.series_values[i].series_desc.units, &iunit, &mult, &errmsg) < 0) {
-	    // TODO: error report for units parse
-	    fprintf(stderr, "Units string of %s parse error, %s\n", np->value_set.series_values[i].sid->name, errmsg);
+	    infofmt(msg, "Units string of %s parse error, %s\n", np->value_set.series_values[i].sid->name, errmsg);
+	    batoninfo(baton, PMLOG_ERROR, msg);
+	    baton->error = -EPROTO;
+	    np->value_set.series_values[i].num_samples = -np->value_set.series_values[i].num_samples;
 	    free(errmsg);
 	    return;
 	}
 	if (compare_pmUnits(&iunit, &np->right->meta.units)) {
-	    // TODO: error report for unmatched units 
-	    fprintf(stderr, "Dimensions of units mismatch, for series %s the units is %s\n", 
+	    infofmt(msg, "Dimensions of units mismatch, for series %s the units is %s\n", 
 		np->value_set.series_values[i].sid->name, np->value_set.series_values[i].series_desc.units);
+	    batoninfo(baton, PMLOG_ERROR, msg);
+	    baton->error = -EPROTO;
+	    np->value_set.series_values[i].num_samples = -np->value_set.series_values[i].num_samples;
 	    return;
 	}
 	if ((type = series_extract_type(np->value_set.series_values[i].series_desc.type)) == PM_ERR_CONV) {
-	    // TODO: type extraction fail report, unsupport type
-	    fprintf(stderr, "Series values' Type extract fail, unsupport type\n");
+	    infofmt(msg, "Series values' Type extract fail, unsupport type\n");
+	    batoninfo(baton, PMLOG_ERROR, msg);
+	    baton->error = -EPROTO;
+	    np->value_set.series_values[i].num_samples = -np->value_set.series_values[i].num_samples;
 	    return;
 	}
 	type = PM_TYPE_DOUBLE;
@@ -2446,14 +2474,19 @@ series_calculate_abs(node_t *np)
 /* 
  * 
  */
+    seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
     pmAtomValue			val;
     int				type, sts, str_len;
     char			str_val[255];
+    sds				msg;
+
     np->value_set = np->left->value_set;
     for (int i = 0; i < np->value_set.num_series; i++) {
 	if ((type = series_extract_type(np->value_set.series_values[i].series_desc.type)) == PM_ERR_CONV) {
-	    // TODO: type extraction fail report, unsupport type
-	    fprintf(stderr, "Series values' Type extract fail, unsupport type\n");
+	    infofmt(msg, "Series values' Type extract fail, unsupport type\n");
+	    batoninfo(baton, PMLOG_ERROR, msg);
+	    baton->error = -EPROTO;
+	    np->value_set.series_values[i].num_samples = -np->value_set.series_values[i].num_samples;
 	    return;
 	}	
 	for (int j = 0; j < np->value_set.series_values[i].num_samples; j++) {
@@ -2516,14 +2549,19 @@ series_floor_pmAtomValue(int type, pmAtomValue *val)
 static void
 series_calculate_floor(node_t *np)
 {
+    seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
     pmAtomValue			val;
     int				type, sts, str_len;
     char			str_val[255];
+    sds				msg;
+
     np->value_set = np->left->value_set;
     for (int i = 0; i < np->value_set.num_series; i++) {
 	if ((type = series_extract_type(np->value_set.series_values[i].series_desc.type)) == PM_ERR_CONV) {
-	    // TODO: type extraction fail report, unsupport type
-	    fprintf(stderr, "Series values' Type extract fail, unsupport type\n");
+	    infofmt(msg, "Series values' Type extract fail, unsupport type\n");
+	    batoninfo(baton, PMLOG_ERROR, msg);
+	    baton->error = -EPROTO;
+	    np->value_set.series_values[i].num_samples = -np->value_set.series_values[i].num_samples;
 	    return;
 	}	
 	for (int j = 0; j < np->value_set.series_values[i].num_samples; j++) {
@@ -2623,10 +2661,14 @@ series_calculate_log(node_t *np)
 /*
  * Return the logarithm of x to base b (log_b^x).
  */
+    seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
     double			base;
     pmAtomValue			val;
     int				itype, otype, sts, str_len, is_natural_log;
     char			str_val[255];
+    sds				msg;
+
+
     if (np->right != NULL) {
 	sscanf(np->right->value, "%lf", &base);
 	is_natural_log = 0;
@@ -2636,8 +2678,10 @@ series_calculate_log(node_t *np)
     np->value_set = np->left->value_set;
     for (int i = 0; i < np->value_set.num_series; i++) {
 	if ((itype = series_extract_type(np->value_set.series_values[i].series_desc.type)) == PM_ERR_CONV) {
-	    // TODO: type extraction fail report, unsupport type
-	    fprintf(stderr, "Series values' Type extract fail, unsupport type\n");
+	    infofmt(msg, "Series values' Type extract fail, unsupport type\n");
+	    batoninfo(baton, PMLOG_ERROR, msg);
+	    baton->error = -EPROTO;
+	    np->value_set.series_values[i].num_samples = -np->value_set.series_values[i].num_samples;
 	    return;
 	}	
 	for (int j = 0; j < np->value_set.series_values[i].num_samples; j++) {
@@ -2715,14 +2759,19 @@ series_calculate_sqrt(node_t *np)
 /* 
  * 
  */
+    seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
     pmAtomValue			val;
     int				itype, otype, sts, str_len;
     char			str_val[255];
+    sds				msg;
+
     np->value_set = np->left->value_set;
     for (int i = 0; i < np->value_set.num_series; i++) {
 	if ((itype = series_extract_type(np->value_set.series_values[i].series_desc.type)) == PM_ERR_CONV) {
-	    // TODO: type extraction fail report, unsupport type
-	    fprintf(stderr, "Series values' Type extract fail, unsupport type\n");
+	    infofmt(msg, "Series values' Type extract fail, unsupport type\n");
+	    batoninfo(baton, PMLOG_ERROR, msg);
+	    baton->error = -EPROTO;
+	    np->value_set.series_values[i].num_samples = -np->value_set.series_values[i].num_samples;
 	    return;
 	}	
 	for (int j = 0; j < np->value_set.series_values[i].num_samples; j++) {
@@ -2785,14 +2834,19 @@ static int series_round_pmAtomValue(int type, pmAtomValue *val)
 static void
 series_calculate_round(node_t *np)
 {
+    seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
     pmAtomValue			val;
     int				type, sts, str_len;
     char			str_val[255];
+    sds				msg;
+
     np->value_set = np->left->value_set;
     for (int i = 0; i < np->value_set.num_series; i++) {
 	if ((type = series_extract_type(np->value_set.series_values[i].series_desc.type)) == PM_ERR_CONV) {
-	    // TODO: type extraction fail report, unsupport type
-	    fprintf(stderr, "Series values' Type extract fail, unsupport type\n");
+	    infofmt(msg, "Series values' Type extract fail, unsupport type\n");
+	    batoninfo(baton, PMLOG_ERROR, msg);
+	    baton->error = -EPROTO;
+	    np->value_set.series_values[i].num_samples = -np->value_set.series_values[i].num_samples;
 	    return;
 	}
 	for (int j = 0; j < np->value_set.series_values[i].num_samples; j++) {
@@ -2849,38 +2903,47 @@ series_calculate(seriesQueryBaton *baton, node_t *np, int level)
 	    sts = N_NOOP;
 	    break;
 	case N_RATE:
+	    np->baton = baton;
 	    series_calculate_rate(np);
 	    sts = N_RATE;
 	    break;
 	case N_MAX:
+	    np->baton = baton;
 	    series_calculate_max(np);
 	    sts = N_MAX;
 	    break;
 	case N_MIN:
+	    np->baton = baton;
 	    series_calculate_min(np);
 	    sts = N_MIN;
 	    break;
 	case N_RESCALE:
+	    np->baton = baton;
 	    series_calculate_rescale(np);
 	    sts = N_RESCALE;
 	    break;
 	case N_ABS:
+	    np->baton = baton;
 	    series_calculate_abs(np);
 	    sts = N_ABS;
 	    break;
 	case N_FLOOR:
+	    np->baton = baton;
 	    series_calculate_floor(np);
 	    sts = N_FLOOR;
 	    break;
 	case N_LOG:
+	    np->baton = baton;
 	    series_calculate_log(np);
 	    sts = N_LOG;
 	    break;
 	case N_SQRT:
+	    np->baton = baton;
 	    series_calculate_sqrt(np);
 	    sts = N_SQRT;
 	    break;
 	case N_ROUND:
+	    np->baton = baton;
 	    series_calculate_round(np);
 	    sts = N_ROUND;
 	    break;
@@ -2896,7 +2959,7 @@ series_query_report_values(void *arg)
     seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
     int			has_function = 0;
     char		hashbuf[42];
-    unsigned char	*hash = sdsempty();
+    unsigned char	hash[20];
     sds			key, value;
 
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_query_report_values");
