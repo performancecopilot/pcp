@@ -12,7 +12,7 @@ control:
 $version=1.1
 
 $class=pmfind
-%h n n PCP_ARCHIVE_DIR/%i -c %i.ctl
+%h n n PCP_ARCHIVE_DIR/%i -c ./%i.config
 
 create:
 # want this policy to apply to every pmcd host discovered by pmfind

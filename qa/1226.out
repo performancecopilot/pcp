@@ -17,8 +17,9 @@ Options:
   -?, --help            show this usage message and exit
 
 Avaliable commands:
-   {create|cond-create} [-c classname] host ...
-   {start|stop|restart|destroy|status} [-c classname] [host ...]
+   [-c classname] create  host ...
+   {-c classname|-i ident} cond-create host ...
+   [-c classname] {start|stop|restart|destroy|status} [host ...]
 
    and host may be a valid hostname or an egrep(1) pattern that matches
    the start of a hostname
@@ -29,7 +30,7 @@ Avaliable commands:
 $class=default
 #DO NOT REMOVE OR EDIT THE FOLLOWING LINE
 $version=1.1
-localhost n n PCP_LOG_DIR/pmie/localhost/pmie.log -c ./localhost.ctl
+localhost n n PCP_LOG_DIR/pmie/localhost/pmie.log -c ./localhost.config
 --- end control file ---
 Installing control file: PCP_ETC_DIR/pcp/pmie/control.d/localhost
 + cp PCP_TMPFILE_DIR/pmiectl.XXXXX/control PCP_ETC_DIR/pcp/pmie/control.d/localhost

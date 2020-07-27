@@ -274,6 +274,18 @@ to true, the the special
 class is used (this is the ``default'' class for the
 .B cond-create
 command when all else fails).
+.PP
+If more than one class evalutes to true then a composite
+.BR pmlogger (1)
+configuration
+file is created and the instance is also assigned to the special
+.B pmfind
+class.
+The composite configuration file may contain a mix of explicit configuration
+clauses and the more general conditional configuration clauses as understood
+by the
+.BR pmlogconf (1)
+tool.
 .RE
 .TP 4
 \f3start\f1

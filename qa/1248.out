@@ -3,11 +3,10 @@ QA output created by 1248
 PCP_ETC_DIR/pcp/pmlogger/class.d/pmfind: host localhost hostname(.*) true
 --- start control file ---
 # created by pmlogctl on DATE
-$class=pmfind
 # DO NOT REMOVE OR EDIT THE FOLLOWING LINE
 $version=1.1
 $class=pmfind
-localhost n n PCP_ARCHIVE_DIR/pmfind-localhost -c pmfind-localhost.ctl
+localhost n n PCP_ARCHIVE_DIR/pmfind-localhost -c ./pmfind-localhost.config
 --- end control file ---
 Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/pmfind-localhost
 + cp PCP_TMPFILE_DIR/pmlogctl.XXXXX/control PCP_ETC_DIR/pcp/pmlogger/control.d/pmfind-localhost
@@ -28,6 +27,7 @@ TMP.policy: host localhost exists(sample.bin) true
 # created by pmlogctl on DATE
 $class=1248
 $version=1.1
+# existing config file
 localhost n n PCP_ARCHIVE_DIR/1248-localhost -c TMP.config
 --- end control file ---
 Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/1248-localhost
@@ -40,6 +40,7 @@ TMP.policy: host localhost exists(sample) true
 # created by pmlogctl on DATE
 $class=1248
 $version=1.1
+# existing config file
 localhost n n PCP_ARCHIVE_DIR/1248-localhost -c TMP.config
 --- end control file ---
 Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/1248-localhost
@@ -58,6 +59,7 @@ TMP.policy: host localhost values(sample.long) true
 # created by pmlogctl on DATE
 $class=1248
 $version=1.1
+# existing config file
 localhost n n PCP_ARCHIVE_DIR/1248-localhost -c TMP.config
 --- end control file ---
 Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/1248-localhost
@@ -70,6 +72,7 @@ TMP.policy: host localhost values(sample.bin) true
 # created by pmlogctl on DATE
 $class=1248
 $version=1.1
+# existing config file
 localhost n n PCP_ARCHIVE_DIR/1248-localhost -c TMP.config
 --- end control file ---
 Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/1248-localhost
@@ -82,6 +85,7 @@ TMP.policy: host localhost values(disk.dev) true
 # created by pmlogctl on DATE
 $class=1248
 $version=1.1
+# existing config file
 localhost n n PCP_ARCHIVE_DIR/1248-localhost -c TMP.config
 --- end control file ---
 Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/1248-localhost
@@ -108,6 +112,7 @@ TMP.policy: host localhost values(hinv.ndisk > 0 ? hinv.ndisk : 1 + hinv.ncpu > 
 # created by pmlogctl on DATE
 $class=1248
 $version=1.1
+# existing config file
 localhost n n PCP_ARCHIVE_DIR/1248-localhost -c TMP.config
 --- end control file ---
 Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/1248-localhost
@@ -123,8 +128,84 @@ TMP.policy: host localhost hostname((local|LOCAL)host) true
 # created by pmlogctl on DATE
 $class=1248
 $version=1.1
+# existing config file
 localhost n n PCP_ARCHIVE_DIR/1248-localhost -c TMP.config
 --- end control file ---
 Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/1248-localhost
 + cp PCP_TMPFILE_DIR/pmlogctl.XXXXX/control PCP_ETC_DIR/pcp/pmlogger/control.d/1248-localhost
 + sudo -u pcp -g pcp PCP_BINADM_DIR/pmlogger_check -c PCP_ETC_DIR/pcp/pmlogger/control.d/1248-localhost
+
+== -NV, expect simple instance to be created
+PCP_ETC_DIR/pcp/pmlogger/class.d/1248.1: host localhost hostname((local|LOCAL)host) true
+--- start control file ---
+# created by pmlogctl on DATE
+$class=1248
+$version=1.1
+# existing config file
+localhost n n PCP_ARCHIVE_DIR/1248-localhost -c TMP.config
+--- end control file ---
+Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/1248-localhost
++ cp PCP_TMPFILE_DIR/pmlogctl.XXXXX/control PCP_ETC_DIR/pcp/pmlogger/control.d/1248-localhost
++ sudo -u pcp -g pcp PCP_BINADM_DIR/pmlogger_check -c PCP_ETC_DIR/pcp/pmlogger/control.d/1248-localhost
+
+== -i, 2 explicit configs, expect concat config file for one pmfind instance
+pmcd Host Archive Class PID State Instance Id
+localhost <archivename> pmfind <pid> running 1248
+log mandatory on default { sample.lights }
+log mandatory on default { sample.lights }
+Host: LOCALHOSTNAME Archive: PCP_ARCHIVE_DIR/1248/DATESTAMP
+sample.lights
+sample.dupnames.two.lights
+pmcd.seqnum
+pmcd.pid
+pmcd.pmlogger.archive
+pmcd.pmlogger.port
+pmcd.pmlogger.host
+event.flags
+event.missed
+
+== -i, + logconf config, expect concat config file for one pmfind instance
+pmcd Host Archive Class PID State Instance Id
+localhost <archivename> pmfind <pid> running 1248
+localhost <archivename> pmfind <pid> running 1248-a
+check sample.lights ...
+log mandatory on default { sample.lights }
+log mandatory on default { sample.lights }
+Host: LOCALHOSTNAME Archive: PCP_ARCHIVE_DIR/1248-a/DATESTAMP
+check network.interface.total.bytes ...
+	network.interface.total.bytes
+Host: LOCALHOSTNAME Archive: PCP_ARCHIVE_DIR/1248-a/DATESTAMP
+check disk.dev.total ...
+	disk.dev.total
+Host: LOCALHOSTNAME Archive: PCP_ARCHIVE_DIR/1248-a/DATESTAMP
+
+== -i, 2x logconf config, expect concat config file for one pmfind instance
+pmcd Host Archive Class PID State Instance Id
+localhost <archivename> pmfind <pid> running 1248
+localhost <archivename> pmfind <pid> running 1248-a
+localhost <archivename> pmfind <pid> running 1248-b
+check sample.lights ...
+log mandatory on default { sample.lights }
+Host: LOCALHOSTNAME Archive: PCP_ARCHIVE_DIR/1248-b/DATESTAMP
+check network.interface.total.bytes ...
+	network.interface.total.bytes
+Host: LOCALHOSTNAME Archive: PCP_ARCHIVE_DIR/1248-b/DATESTAMP
+check disk.dev.total ...
+	disk.dev.total
+Host: LOCALHOSTNAME Archive: PCP_ARCHIVE_DIR/1248-b/DATESTAMP
+
+== -i, 3x logconf config, expect concat config file for one pmfind instance
+pmcd Host Archive Class PID State Instance Id
+localhost <archivename> pmfind <pid> running 1248
+localhost <archivename> pmfind <pid> running 1248-a
+localhost <archivename> pmfind <pid> running 1248-b
+localhost <archivename> pmfind <pid> running 1248-c
+check sample.lights ...
+Error: sample.lights: Unknown metric name
+Host: LOCALHOSTNAME Archive: PCP_ARCHIVE_DIR/1248-c/DATESTAMP
+check network.interface.total.bytes ...
+	network.interface.total.bytes
+Host: LOCALHOSTNAME Archive: PCP_ARCHIVE_DIR/1248-c/DATESTAMP
+check disk.dev.total ...
+	disk.dev.total
+Host: LOCALHOSTNAME Archive: PCP_ARCHIVE_DIR/1248-c/DATESTAMP

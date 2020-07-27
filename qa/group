@@ -1666,6 +1666,7 @@ not_in_container
 1246:reserved pmlogreduce local
 1247 pmlogrewrite labels pmdumplog local
 1248 pmlogctl local
+1249 pmlogctl local
 1250 selinux local
 1255 libpcp local kernel
 1257 libpcp python local

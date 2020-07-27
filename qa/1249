@@ -1,8 +1,8 @@
 #!/bin/sh
-# PCP QA Test No. 1248
-# pmlogctl - cond-create
+# PCP QA Test No. 1249
+# pmiectl - cond-create
 #
-# see qa/1249 for the pmiectl version of this test
+# see qa/1248 for the pmlogctl version of this test
 #
 # Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
 #
@@ -15,21 +15,21 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-if pmlogctl -c pmfind status 2>/dev/null | grep ' pmfind ' >/dev/null
+if pmiectl -c pmfind status 2>/dev/null | grep ' pmfind ' >/dev/null
 then
-    _notrun "at least one pmlogger already defined for \"pmfind\" class"
+    _notrun "at least one pmie already defined for \"pmfind\" class"
 fi
 
 _cleanup()
 {
     echo "_cleanup: ..." >>$seq.full
     cd $here
-    $sudo pmlogctl -af -c pmfind destroy localhost >>$seq.full 2>&1
-    $sudo rm -rf $PCP_ETC_DIR/pcp/pmlogger/class.d/$seq.?
+    $sudo pmiectl -af -c pmfind destroy localhost >>$seq.full 2>&1
+    $sudo rm -rf $PCP_ETC_DIR/pcp/pmie/class.d/$seq.?
     $sudo rm -rf $tmp $tmp.*
     for dir in $seq $seq-a $seq-b $seq-c
     do
-	[ -d "$PCP_ARCHIVE_DIR/$dir" ] && $sudo rm -rf "$PCP_ARCHIVE_DIR/$dir"
+	[ -d "$PCP_LOG_DIR/pmie/$dir" ] && $sudo rm -rf "$PCP_LOG_DIR/pmie/$dir"
     done
 }
 
@@ -43,12 +43,13 @@ _filter()
 {
     tee -a $seq.full \
     | sed \
-	-e '/^# created by pmlogctl/s/ on .*/ on DATE/' \
+	-e '/^# created by pmiectl/s/ on .*/ on DATE/' \
 	-e "s;$tmp\.;TMP.;g" \
 	-e "s;$PCP_BINADM_DIR/;PCP_BINADM_DIR/;g" \
 	-e "s;$PCP_ARCHIVE_DIR/;PCP_ARCHIVE_DIR/;g" \
+	-e "s;$PCP_LOG_DIR/;PCP_LOG_DIR/;g" \
 	-e "s;$PCP_TMP_DIR/;PCP_TMP_DIR/;g" \
-	-e "s;$PCP_TMPFILE_DIR/pmlogctl\.[^/]*;PCP_TMPFILE_DIR/pmlogctl.XXXXX;g" \
+	-e "s;$PCP_TMPFILE_DIR/pmiectl\.[^/]*;PCP_TMPFILE_DIR/pmlogctl.XXXXX;g" \
 	-e "s;$PCP_ETC_DIR/;PCP_ETC_DIR/;g" \
 	-e '/^Host:/{
 s/Host: '$localhost' /Host: LOCALHOSTNAME /
@@ -57,11 +58,11 @@ s/[0-9.]*$/DATESTAMP/
     # end
 }
 
-# Build filter for any existing non-qa and non-primary pmlogger instances.
-# The "pmcd Host" and "Class" fields from the pmlogctl status output
+# Build filter for any existing non-qa and non-primary pmie instances.
+# The "pmcd Host" and "Class" fields from the pmiectl status output
 # should suffice to uniquely identify each.
 #
-pmlogctl status 2>&1 \
+pmiectl status 2>&1 \
 | $PCP_AWK_PROG >$tmp.awk '
 NR == 1	{ next }
 NF >= 5	{ if ($3 == "primary") next
@@ -76,16 +77,27 @@ _filter_status()
 {
     tee -a $seq.full \
     | $PCP_AWK_PROG -f $tmp.awk \
-    | sed >$tmp.tmp \
+    | sed \
 	-e "/^`hostname` .* primary /d" \
 	-e 's/[ 	][ 	]*/ /g' \
 	-e 's/2[0-9][0-9][0-9][01][0-9][0-3][0-9]\...\.[^ ]*/<archivename>/' \
 	-e "s/^$localhost /LOCALHOSTNAME /" \
-	-e "s/ $seq / <seq> /" \
-	-e 's/ [0-9][0-9]* / <pid> /' \
-    # end
+    | $PCP_AWK_PROG '
+$2 ~ /^[0-9][0-9]*$/	{ $2 = "<nrule>" }
+$3 ~ /^[0-9][0-9]*$/	{ $3 = "<neval>" }
+$5 ~ /^[0-9][0-9]*$/	{ $5 = "<pid>" }
+			{ print }' >$tmp.tmp
     head -1 $tmp.tmp
     sed -e '1d' $tmp.tmp | LC_COLLATE=POSIX sort
+}
+
+_filter_pmie()
+{
+    sed  \
+	-e '/^Log for pmie on .* started /d' \
+	-e 's/^[A-Za-z0-9 :]*: /DATESTAMP: /' \
+	-e '/^DATESTAMP: PID = /d' \
+    # end
 }
 
 cat <<End-of-File >$tmp.policy.head
@@ -97,25 +109,26 @@ $seq-%h
 control:
 \$version=1.1
 # existing config file
-%h n n PCP_ARCHIVE_DIR/%i -c $tmp.config
+%h n n PCP_LOG_DIR/pmie/%i/pmie.log -c $tmp.config
 End-of-File
 
 cat <<End-of-File >$tmp.config
-log mandatory on default { sample.lights }
+delta = 0.1sec;
+some_inst sample.lights > 0 -> print "The lights are on!";
 End-of-File
 
 # real QA test starts here
 echo '== -NV expect pmfind class to be used' | tee -a $seq.full
-pmlogctl -NV cond-create localhost 2>&1 | _filter
+pmiectl -NV cond-create localhost 2>&1 | _filter
 
 echo | tee -a $seq.full
 echo '== -NV -p, no create: section, expect on instance to be created' | tee -a $seq.full
 cp $tmp.policy.head $tmp.policy
-pmlogctl -NV -p $tmp.policy cond-create localhost 2>&1 | _filter
+pmiectl -NV -p $tmp.policy cond-create localhost 2>&1 | _filter
 
 echo | tee -a $seq.full
 echo '== -NV -p -c, no create: section, expect no instance to be created' | tee -a $seq.full
-pmlogctl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
+pmiectl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
 
 echo "create:" >>$tmp.policy.head
 
@@ -123,93 +136,93 @@ echo | tee -a $seq.full
 echo '== -NV -p -c exists() false, expect no instance to be created' | tee -a $seq.full
 cp $tmp.policy.head $tmp.policy
 echo "exists(hinv.foo)" >>$tmp.policy
-pmlogctl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
+pmiectl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
 
 echo | tee -a $seq.full
 echo '== -NV -p -c exists() true (leaf in PMNS), expect instance to be created' | tee -a $seq.full
 cp $tmp.policy.head $tmp.policy
 echo "exists(sample.bin)" >>$tmp.policy
-pmlogctl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
+pmiectl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
 
 echo | tee -a $seq.full
 echo '== -NV -p -c exists() true (non-leaf in PMNS), expect instance to be created' | tee -a $seq.full
 cp $tmp.policy.head $tmp.policy
 echo "exists(sample)" >>$tmp.policy
-pmlogctl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
+pmiectl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
 
 echo | tee -a $seq.full
 echo '== -NV -p -c values() false (bad metric), expect no instance to be created' | tee -a $seq.full
 cp $tmp.policy.head $tmp.policy
 echo "values(hinv.foo.bar)" >>$tmp.policy
-pmlogctl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
+pmiectl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
 
 echo | tee -a $seq.full
 echo '== -NV -p -c values() false (numval < 1), expect no instance to be created' | tee -a $seq.full
 cp $tmp.policy.head $tmp.policy
 echo "values(sample.bad.novalues)" >>$tmp.policy
-pmlogctl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
+pmiectl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
 
 echo | tee -a $seq.full
 echo '== -NV -p -c values() true (leaf & singular), expect instance to be created' | tee -a $seq.full
 cp $tmp.policy.head $tmp.policy
 echo "values(sample.long)" >>$tmp.policy
-pmlogctl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
+pmiectl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
 
 echo | tee -a $seq.full
 echo '== -NV -p -c values() true (leaf & indom), expect instance to be created' | tee -a $seq.full
 cp $tmp.policy.head $tmp.policy
 echo "values(sample.bin)" >>$tmp.policy
-pmlogctl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
+pmiectl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
 
 echo | tee -a $seq.full
 echo '== -NV -p -c values() true (non-leaf & indom), expect instance to be created' | tee -a $seq.full
 cp $tmp.policy.head $tmp.policy
 echo "values(disk.dev)" >>$tmp.policy
-pmlogctl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
+pmiectl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
 
 echo | tee -a $seq.full
 echo '== -NV -p -c condition() false (bad expr), expect no instance to be created' | tee -a $seq.full
 cp $tmp.policy.head $tmp.policy
 echo "condition(hinv.ncpu >)" >>$tmp.policy
-pmlogctl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
+pmiectl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
 
 echo | tee -a $seq.full
 echo '== -NV -p -c condition() false (singular value == 0), expect no instance to be created' | tee -a $seq.full
 cp $tmp.policy.head $tmp.policy
 echo "condition(hinv.ncpu < 1)" >>$tmp.policy
-pmlogctl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
+pmiectl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
 
 echo | tee -a $seq.full
 echo '== -NV -p -c condition() false (indom value < 0), expect no instance to be created' | tee -a $seq.full
 cp $tmp.policy.head $tmp.policy
 echo "condition(-sample.bin)" >>$tmp.policy
-pmlogctl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
+pmiectl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
 
 echo | tee -a $seq.full
 echo '== -NV -p -c condition() true (singular value > 0), expect instance to be created' | tee -a $seq.full
 cp $tmp.policy.head $tmp.policy
 echo "values(hinv.ndisk > 0 ? hinv.ndisk : 1 + hinv.ncpu > 0 ? hinv.ndisk : 1)" >>$tmp.policy
-pmlogctl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
+pmiectl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
 
 echo | tee -a $seq.full
 echo '== -NV -p -c hostname() false, expect no instance to be created' | tee -a $seq.full
 cp $tmp.policy.head $tmp.policy
 echo "hostname(.*[fF][oO][oO].*)" >>$tmp.policy
-pmlogctl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
+pmiectl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
 
 echo | tee -a $seq.full
 echo '== -NV -p -c hostname() true, expect instance to be created' | tee -a $seq.full
 cp $tmp.policy.head $tmp.policy
 echo "hostname((local|LOCAL)host)" >>$tmp.policy
-pmlogctl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
+pmiectl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
 
 # now use the installed class files, no -p or -c
 #
-$sudo cp $tmp.policy $PCP_ETC_DIR/pcp/pmlogger/class.d/$seq.1
+$sudo cp $tmp.policy $PCP_ETC_DIR/pcp/pmie/class.d/$seq.1
 
 echo | tee -a $seq.full
 echo '== -NV, expect simple instance to be created' | tee -a $seq.full
-pmlogctl -NV cond-create localhost 2>&1 | _filter
+pmiectl -NV cond-create localhost 2>&1 | _filter
 
 cat <<End-of-File >$tmp.policy
 # Installed by PCP QA test $seq on `date`
@@ -220,21 +233,21 @@ $seq.2-%h
 control:
 \$version=1.1
 # same existing config file
-%h n n PCP_ARCHIVE_DIR/%i -c $tmp.config
+%h n n PCP_LOG_DIR/pmie/%i/pmie.log -c $tmp.config
 create:
 condition(1)
 End-of-File
-$sudo cp $tmp.policy $PCP_ETC_DIR/pcp/pmlogger/class.d/$seq.2
+$sudo cp $tmp.policy $PCP_ETC_DIR/pcp/pmie/class.d/$seq.2
 
 echo | tee -a $seq.full
 echo '== -i, 2 explicit configs, expect concat config file for one pmfind instance' | tee -a $seq.full
-$sudo pmlogctl -i $seq cond-create localhost 2>&1 | _filter
-pmlogctl -V status | _filter_status
-grep sample.lights $PCP_ARCHIVE_DIR/$seq/$seq.config
-PCP_DERIVED_CONFIG= pmafm $PCP_ARCHIVE_DIR/$seq/Latest pminfo | _filter
-echo "--- start pmlogger config file ---" >>$seq.full
-cat $PCP_ARCHIVE_DIR/$seq/$seq.config >>$seq.full
-echo "--- end pmlogger config file ---" >>$seq.full
+$sudo pmiectl -i $seq cond-create localhost 2>&1 | _filter
+pmiectl -V status | _filter_status
+grep sample.lights $PCP_LOG_DIR/pmie/$seq/$seq.config
+_filter_pmie <$PCP_LOG_DIR/pmie/$seq/pmie.log | sort | uniq
+echo "--- start pmie config file ---" >>$seq.full
+cat $PCP_LOG_DIR/pmie/$seq/$seq.config >>$seq.full
+echo "--- end pmie config file ---" >>$seq.full
 
 cat <<End-of-File >$tmp.policy
 # Installed by PCP QA test $seq on `date`
@@ -245,60 +258,57 @@ $seq.3-%h
 control:
 \$version=1.1
 # no config file @ start
-%h n n PCP_ARCHIVE_DIR/%i -c ./%i.config
+%h n n PCP_LOG_DIR/pmie/%i/pmie.log -c ./%i.config
 create:
 condition(hinv.ncpu > 0)
 End-of-File
-$sudo cp $tmp.policy $PCP_ETC_DIR/pcp/pmlogger/class.d/$seq.3
+$sudo cp $tmp.policy $PCP_ETC_DIR/pcp/pmie/class.d/$seq.3
 
 echo | tee -a $seq.full
 echo '== -i, + logconf config, expect concat config file for one pmfind instance' | tee -a $seq.full
-$sudo pmlogctl -i $seq-a cond-create localhost 2>&1 | _filter
-pmlogctl -V status | _filter_status
-for metric in sample.lights network.interface.total.bytes disk.dev.total
+$sudo pmiectl -i $seq-a cond-create localhost 2>&1 | _filter
+pmiectl -V status | _filter_status
+for metric in sample.lights network.interface.total.bytes
 do
     echo "check $metric ..."
-    egrep "$metric( |\$)" $PCP_ARCHIVE_DIR/$seq-a/$seq-a.config
-    PCP_DERIVED_CONFIG= pmafm $PCP_ARCHIVE_DIR/$seq-a/Latest pminfo -v $metric \
-    | _filter
+    egrep "$metric( |\$)" $PCP_LOG_DIR/pmie/$seq-a/$seq-a.config
 done
-echo "--- start pmlogger config file ---" >>$seq.full
-cat $PCP_ARCHIVE_DIR/$seq-a/$seq-a.config >>$seq.full
-echo "--- end pmlogger config file ---" >>$seq.full
+_filter_pmie <$PCP_LOG_DIR/pmie/$seq-a/pmie.log | sort | uniq
+echo "--- start pmie config file ---" >>$seq.full
+cat $PCP_LOG_DIR/pmie/$seq-a/$seq-a.config >>$seq.full
+echo "--- end pmie config file ---" >>$seq.full
 
-$sudo cp $tmp.policy $PCP_ETC_DIR/pcp/pmlogger/class.d/$seq.2
+$sudo cp $tmp.policy $PCP_ETC_DIR/pcp/pmie/class.d/$seq.2
 
 echo | tee -a $seq.full
 echo '== -i, 2x logconf config, expect concat config file for one pmfind instance' | tee -a $seq.full
-$sudo pmlogctl -i $seq-b cond-create localhost 2>&1 | _filter
-pmlogctl -V status | _filter_status
-for metric in sample.lights network.interface.total.bytes disk.dev.total
+$sudo pmiectl -i $seq-b cond-create localhost 2>&1 | _filter
+pmiectl -V status | _filter_status
+for metric in sample.lights network.interface.total.bytes
 do
     echo "check $metric ..."
-    egrep "$metric( |\$)" $PCP_ARCHIVE_DIR/$seq-b/$seq-b.config
-    PCP_DERIVED_CONFIG= pmafm $PCP_ARCHIVE_DIR/$seq-b/Latest pminfo -v $metric \
-    | _filter
+    egrep "$metric( |\$)" $PCP_LOG_DIR/pmie/$seq-b/$seq-b.config
 done
-echo "--- start pmlogger config file ---" >>$seq.full
-cat $PCP_ARCHIVE_DIR/$seq-b/$seq-b.config >>$seq.full
-echo "--- end pmlogger config file ---" >>$seq.full
+_filter_pmie <$PCP_LOG_DIR/pmie/$seq-b/pmie.log | sort | uniq
+echo "--- start pmie config file ---" >>$seq.full
+cat $PCP_LOG_DIR/pmie/$seq-b/$seq-b.config >>$seq.full
+echo "--- end pmie config file ---" >>$seq.full
 
-$sudo cp $tmp.policy $PCP_ETC_DIR/pcp/pmlogger/class.d/$seq.1
+$sudo cp $tmp.policy $PCP_ETC_DIR/pcp/pmie/class.d/$seq.1
 
 echo | tee -a $seq.full
 echo '== -i, 3x logconf config, expect concat config file for one pmfind instance' | tee -a $seq.full
-$sudo pmlogctl -i $seq-c cond-create localhost 2>&1 | _filter
-pmlogctl -V status | _filter_status
-for metric in sample.lights network.interface.total.bytes disk.dev.total
+$sudo pmiectl -i $seq-c cond-create localhost 2>&1 | _filter
+pmiectl -V status | _filter_status
+for metric in sample.lights network.interface.total.bytes
 do
     echo "check $metric ..."
-    egrep "$metric( |\$)" $PCP_ARCHIVE_DIR/$seq-c/$seq-c.config
-    PCP_DERIVED_CONFIG= pmafm $PCP_ARCHIVE_DIR/$seq-c/Latest pminfo -v $metric \
-    | _filter
+    egrep "$metric( |\$)" $PCP_LOG_DIR/pmie/$seq-c/$seq-c.config
 done
-echo "--- start pmlogger config file ---" >>$seq.full
-cat $PCP_ARCHIVE_DIR/$seq-c/$seq-c.config >>$seq.full
-echo "--- end pmlogger config file ---" >>$seq.full
+_filter_pmie <$PCP_LOG_DIR/pmie/$seq-c/pmie.log | sort | uniq
+echo "--- start pmie config file ---" >>$seq.full
+cat $PCP_LOG_DIR/pmie/$seq-c/$seq-c.config >>$seq.full
+echo "--- end pmie config file ---" >>$seq.full
 
 status=0
 exit
