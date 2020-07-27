@@ -6,7 +6,7 @@ Adding $version=1.1 to control file
 $class=1228
 #DO NOT REMOVE OR EDIT THE FOLLOWING LINE
 $version=1.1
-localhost n n PCP_LOG_DIR/pmie/1228-localhost -c TMP.config
+localhost n n PCP_LOG_DIR/pmie/1228-localhost/pmie.log -c TMP.config
 --- end control file ---
 Installing control file: PCP_ETC_DIR/pcp/pmie/control.d/1228-localhost
 + cp PCP_TMPFILE_DIR/pmiectl.XXXXX/control PCP_ETC_DIR/pcp/pmie/control.d/1228-localhost
