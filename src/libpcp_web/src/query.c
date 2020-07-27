@@ -98,14 +98,15 @@ skip_free_value_set(node_t *np) {
 static void
 freeSeriesQueryNode(node_t *np, int level)
 {
-    int		nsamples;
+    int		n_samples;
     if (np == NULL)
 	return;
     if (skip_free_value_set(np) != 0) {
 	int i, j, k;
 	for (i = 0; i < np->value_set.num_series; i++) {
-	    nsamples = np->value_set.series_values[i].num_samples;
-	    for (j = 0; j < nsamples || -j <nsamples; j++) {
+	    n_samples = np->value_set.series_values[i].num_samples;
+	    if (n_samples < 0) n_samples = -n_samples;
+	    for (j = 0; j < n_samples; j++) {
 		for (k=0; k < np->value_set.series_values[i].series_sample[j].num_instances; k++) {
 		    sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].timestamp);
 		    sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].series);
