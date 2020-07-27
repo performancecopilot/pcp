@@ -74,22 +74,22 @@ LOCALHOSTNAME <archivename> <seq> <pid> running
 localhost <archivename> <seq> <pid> running 
 localhost <archivename> default <pid> running 
 
-=== missing "control:" section in policy file
-Error: control: section is missing from TMP.policy.bad.4 policy file
+=== missing [control] section in policy file
+Error: [control] section is missing from TMP.policy.bad.4 policy file
 pmcd Host Archive Class PID State 
 LOCALHOSTNAME <archivename> <seq> <pid> running 
 localhost <archivename> <seq> <pid> running 
 localhost <archivename> default <pid> running 
 
-=== bad "ident:" section in policy file
-Error: ident: section is invalid in TMP.policy.bad.5 policy file (expect a single word, not 3 words)
+=== bad [ident] section in policy file
+Error: [ident] section is invalid in TMP.policy.bad.5 policy file (expect a single word, not 3 words)
 pmcd Host Archive Class PID State 
 LOCALHOSTNAME <archivename> <seq> <pid> running 
 localhost <archivename> <seq> <pid> running 
 localhost <archivename> default <pid> running 
 
-=== empty "control:" section in policy file
-Error: control: section is missing from TMP.policy.bad.6 policy file
+=== empty [control] section in policy file
+Error: [control] section is missing from TMP.policy.bad.6 policy file
 pmcd Host Archive Class PID State 
 LOCALHOSTNAME <archivename> <seq> <pid> running 
 localhost <archivename> <seq> <pid> running 

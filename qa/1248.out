@@ -12,10 +12,10 @@ Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/pmfind-localhost
 + cp PCP_TMPFILE_DIR/pmlogctl.XXXXX/control PCP_ETC_DIR/pcp/pmlogger/control.d/pmfind-localhost
 + sudo -u pcp -g pcp PCP_BINADM_DIR/pmlogger_check -c PCP_ETC_DIR/pcp/pmlogger/control.d/pmfind-localhost
 
-== -NV -p, no create: section, expect on instance to be created
+== -NV -p, no [create] section, expect on instance to be created
 Warning: no instance created for host localhost
 
-== -NV -p -c, no create: section, expect no instance to be created
+== -NV -p -c, no [create] section, expect no instance to be created
 Warning: no instance created for host localhost
 
 == -NV -p -c exists() false, expect no instance to be created

@@ -91,11 +91,11 @@ _filter_status()
 }
 
 cat <<End-of-File >$tmp.policy
-class:
+[class]
 $seq
-ident:
+[ident]
 $seq-%h
-control:
+[control]
 \$version=1.1
 %h n n PCP_ARCHIVE_DIR/%i -c $tmp.config
 End-of-File
@@ -105,65 +105,65 @@ log mandatory on default { pmcd.pmlogger }
 End-of-File
 
 cat <<End-of-File >$tmp.policy.bad.1
-class:
+[class]
 $seq
-ident:
+[ident]
 $seq-%h
-control:
+[control]
 \$version=1.1
 # missing primary (and all others)
 %h
 End-of-File
 
 cat <<End-of-File >$tmp.policy.bad.2
-class:
+[class]
 $seq
-ident:
+[ident]
 $seq-%h
-control:
+[control]
 \$version=1.1
 # bad primary (other fields missing)
 %h y
 End-of-File
 
 cat <<End-of-File >$tmp.policy.bad.3
-class:
+[class]
 $seq
-ident:
+[ident]
 $seq-%h
-control:
+[control]
 \$version=1.1
 # missing directory and other fields
 %h n n
 End-of-File
 
 cat <<End-of-File >$tmp.policy.bad.4
-# missing control: section
-class:
+# missing [control] section
+[class]
 $seq
-ident:
+[ident]
 $seq-%h
 
-destroy:
+[destroy]
 End-of-File
 
 cat <<End-of-File >$tmp.policy.bad.5
-# bad ident: section
-ident:
+# bad [ident] section
+[ident]
 $seq-%h
 
 extra stuff
 
-control:
+[control]
 End-of-File
 
 cat <<End-of-File >$tmp.policy.bad.6
-# empty control: section
-class:
+# empty [control] section
+[class]
 $seq
-ident:
+[ident]
 $seq-%h
-control:
+[control]
 End-of-File
 
 _setup()
@@ -242,17 +242,17 @@ $sudo pmlogctl -c $seq -p $tmp.policy.bad.3 create local: 2>&1 | _filter
 pmlogctl status | _filter_status
 
 echo
-echo "=== missing \"control:\" section in policy file"
+echo "=== missing [control] section in policy file"
 $sudo pmlogctl -c $seq -p $tmp.policy.bad.4 create local: 2>&1 | _filter
 pmlogctl status | _filter_status
 
 echo
-echo "=== bad \"ident:\" section in policy file"
+echo "=== bad [ident] section in policy file"
 $sudo pmlogctl -c $seq -p $tmp.policy.bad.5 create local: 2>&1 | _filter
 pmlogctl status | _filter_status
 
 echo
-echo "=== empty \"control:\" section in policy file"
+echo "=== empty [control] section in policy file"
 $sudo pmlogctl -c $seq -p $tmp.policy.bad.6 create local: 2>&1 | _filter
 pmlogctl status | _filter_status
 

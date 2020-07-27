@@ -487,8 +487,8 @@ _get_policy_section()
 {
     $PCP_AWK_PROG <"$1" '
 NF == 0			{ next }
-$1 == "'"$2"':"		{ want = 1; next }
-$1 ~ /^[a-z]*:$/	{ want = 0; next }
+$1 == "['"$2"']"	{ want = 1; next }
+$1 ~ /^\[[a-z]*]$/	{ want = 0; next }
 want == 1		{ print }'
 }
 
@@ -1167,7 +1167,7 @@ END	{ exit(sts) }'
 		    fi
 		fi
 	    else
-		$VERY_VERBOSE && echo "$policy: no create: section, skip class"
+		$VERY_VERBOSE && echo "$policy: no [create] section, skip class"
 	    fi
 	done
 	n=`cat $tmp/condition-true`
@@ -1286,7 +1286,7 @@ _do_create()
 	    then
 		check=`wc -w <$tmp/tmp | sed -e 's/ //g'`
 		[ "$check" -ne 1 ] &&
-		    _error "ident: section is invalid in $POLICY policy file (expect a single word, not $check words)"
+		    _error "[ident] section is invalid in $POLICY policy file (expect a single word, not $check words)"
 		ident=`sed -e "s/%h/$host/g" <$tmp/tmp`
 	    else
 		ident="$host"
@@ -1298,8 +1298,8 @@ _do_create()
 	    # use classname from -c
 	    :
 	else
-	    # try to extract from class: section, else fallback to basename
-	    # of the policy file (this was the scheme before the class:
+	    # try to extract from [class] section, else fallback to basename
+	    # of the policy file (this was the scheme before the [class]
 	    # section was introduced)
 	    #
 	    CLASS=`_get_policy_section "$POLICY" class`
@@ -1309,7 +1309,7 @@ _do_create()
 # created by $prog on `date`
 End-of-File
 	_get_policy_section "$POLICY" control >$tmp/tmp
-	[ ! -s $tmp/tmp ] && _error "control: section is missing from $POLICY policy file"
+	[ ! -s $tmp/tmp ] && _error "[control] section is missing from $POLICY policy file"
 	if grep '^\$class=' $tmp/tmp >/dev/null
 	then
 	    :
@@ -1694,19 +1694,19 @@ then
 	# $PCP_ETC_DIR/pcp/${IAM}/class.d/default
 	#
 	cat <<'End-of-File' >$tmp/policy
-class:
+[class]
 default
 
-ident:
+[ident]
 %h
 
-destroy:
+[destroy]
 condition(1)
 
-create:
+[create]
 hostname(.*)
 
-control:
+[control]
 #DO NOT REMOVE OR EDIT THE FOLLOWING LINE
 $version=1.1
 End-of-File

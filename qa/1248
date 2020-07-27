@@ -90,11 +90,11 @@ _filter_status()
 
 cat <<End-of-File >$tmp.policy.head
 # Installed by PCP QA test $seq on `date`
-class:
+[class]
 $seq
-ident:
+[ident]
 $seq-%h
-control:
+[control]
 \$version=1.1
 # existing config file
 %h n n PCP_ARCHIVE_DIR/%i -c $tmp.config
@@ -109,15 +109,15 @@ echo '== -NV expect pmfind class to be used' | tee -a $seq.full
 pmlogctl -NV cond-create localhost 2>&1 | _filter
 
 echo | tee -a $seq.full
-echo '== -NV -p, no create: section, expect on instance to be created' | tee -a $seq.full
+echo '== -NV -p, no [create] section, expect on instance to be created' | tee -a $seq.full
 cp $tmp.policy.head $tmp.policy
 pmlogctl -NV -p $tmp.policy cond-create localhost 2>&1 | _filter
 
 echo | tee -a $seq.full
-echo '== -NV -p -c, no create: section, expect no instance to be created' | tee -a $seq.full
+echo '== -NV -p -c, no [create] section, expect no instance to be created' | tee -a $seq.full
 pmlogctl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
 
-echo "create:" >>$tmp.policy.head
+echo "[create]" >>$tmp.policy.head
 
 echo | tee -a $seq.full
 echo '== -NV -p -c exists() false, expect no instance to be created' | tee -a $seq.full
@@ -213,15 +213,15 @@ pmlogctl -NV cond-create localhost 2>&1 | _filter
 
 cat <<End-of-File >$tmp.policy
 # Installed by PCP QA test $seq on `date`
-class:
+[class]
 $seq.2
-ident:
+[ident]
 $seq.2-%h
-control:
+[control]
 \$version=1.1
 # same existing config file
 %h n n PCP_ARCHIVE_DIR/%i -c $tmp.config
-create:
+[create]
 condition(1)
 End-of-File
 $sudo cp $tmp.policy $PCP_ETC_DIR/pcp/pmlogger/class.d/$seq.2
@@ -238,15 +238,15 @@ echo "--- end pmlogger config file ---" >>$seq.full
 
 cat <<End-of-File >$tmp.policy
 # Installed by PCP QA test $seq on `date`
-class:
+[class]
 $seq.3
-ident:
+[ident]
 $seq.3-%h
-control:
+[control]
 \$version=1.1
 # no config file @ start
 %h n n PCP_ARCHIVE_DIR/%i -c ./%i.config
-create:
+[create]
 condition(hinv.ncpu > 0)
 End-of-File
 $sudo cp $tmp.policy $PCP_ETC_DIR/pcp/pmlogger/class.d/$seq.3

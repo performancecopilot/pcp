@@ -88,11 +88,11 @@ $5 ~ /^[0-9][0-9]*$/	{ $5 = "<pid>" }
 }
 
 cat <<End-of-File >$tmp.policy
-class:
+[class]
 $seq
-ident:
+[ident]
 $seq-%h
-control:
+[control]
 %h n n PCP_LOG_DIR/pmie/%i -c $tmp.config
 End-of-File
 

@@ -387,7 +387,7 @@ The class policy checking can be by-passed using the
 .SH "CLASS POLICY FILE"
 A class policy file contains a number of sections, each section
 begins with a line that simply starts with
-the name of the section followed by a colon (:).
+the name of the section followed enclosed by ``['' and ``]''.
 .PP
 Lines beginning with a hash (#) are treated as comments and ignored.
 Blank or empty lines are also ignored.
@@ -398,12 +398,12 @@ is
 .B $PCP_ETC_DIR/pcp/pmlogger/class.d/\c
 .IR foo .
 .TP 4n
-.B class:
+.B [class]
 The optional class name section names the class.
 If it is missing, the name of the policy file (stripped of any directory
 prefix) is used as the name of the class.
 .TP 4n
-.B ident:
+.B [ident]
 The ident section specifies the template to be used for
 the instance identifier to be given to each member
 of the class.
@@ -418,7 +418,7 @@ The macro is replaced by the
 .I host
 when each instance is created.
 .TP 4n
-.B control:
+.B [control]
 The control section consists of one or more lines of template text
 that will be used to create the control file for each instance.
 This must at least include the
@@ -484,7 +484,7 @@ will also add the class name during creation. e.g.
 .B $class=foo
 .RE
 .TP 4n
-.B create:
+.B [create]
 The create section defines the conditions that must be met before an
 instance will be created with the
 .B cond-create
@@ -534,7 +534,7 @@ evaluates to true if the remote host name matches
 .I arg
 .RE
 .TP 4n
-.B destroy:
+.B [destroy]
 The destroy section defines the policy to be applied when an
 instance is destroyed.
 .RS 4n
@@ -554,20 +554,20 @@ A sample class policy file is as follows:
 .ft CW
 .nf
 # policy file for the foo class
-class:
+[class]
 foo
-ident:
+[ident]
 foo-%h
 
-control:
+[control]
 $version=1.1
 %h n n PCP_ARCHIVE_DIR/%i -c foo-metrics.config
 
-create:
+[create]
 # matches all hosts
 hostname(.*)
 
-destroy:
+[destroy]
 # still to be defined
 .fi
 .ft
