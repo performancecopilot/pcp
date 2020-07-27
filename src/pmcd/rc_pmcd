@@ -389,6 +389,7 @@ Warning: process ID in $PCP_RUN_DIR/pmcd.pid ($runpid) is different.
     # connections, wait for any agents, and then exit.
     # On failure, resort to SIGKILL.
     #
+    [ "$1" = quietly ] ||\
     $ECHO $PCP_ECHO_N "Waiting for pmcd to terminate ...""$PCP_ECHO_C"
     delay=200	# tenths of a second
     for SIG in TERM KILL
@@ -428,13 +429,19 @@ Warning: process ID in $PCP_RUN_DIR/pmcd.pid ($runpid) is different.
 	fi
     done
     _killpmdas
-    $RC_STATUS -v
+
+    if [ "$1" = quietly ]
+    then
+	true && $RC_STATUS
+    else
+	true && $RC_STATUS -v
+    fi
     $PCP_BINADM_DIR/pmpost "stop pmcd from $prog"
 }
 
 _usage()
 {
-    echo "Usage: $prog [-v] {start|faststart|restart|condrestart|stop|status|reload|force-reload}"
+    echo "Usage: $prog [-v] {start|start-systemd|faststart|restart|condrestart|stop|stop-systemd|status|reload|force-reload}"
 }
 
 VERBOSE_CTL=on
@@ -495,7 +502,7 @@ $RC_RESET
 # considered a success.
 case "$1" in
 
-  start|faststart|restart|condrestart|reload|force-reload)
+  start|start-systemd|faststart|restart|condrestart|reload|force-reload)
 	if [ "$1" = "condrestart" ] && ! is_chkconfig_on pmcd
 	then
 	    status=0
@@ -541,6 +548,7 @@ Error: pmcd control file '"$PCP_PMCDCONF_PATH"' is missing, cannot start pmcd.'
 		fi
 	    done
 
+	    [ "$1" = "start-systemd" ] ||\
 	    $ECHO $PCP_ECHO_N "Starting pmcd ..." "$PCP_ECHO_C"
 
 	    # only consider variables which start with PMCD
@@ -586,18 +594,6 @@ Error: pmcd control file '"$PCP_PMCDCONF_PATH"' is missing, cannot start pmcd.'
 		# environment is the guard
 		#
 		PMDA_SETUP_RUNNING=yes _pmda_setup &
-
-		# container environment
-		if [ -n "$PCP_CONTAINER_IMAGE" ]
-		then
-		    # in a container, _pmda_setup cannot run indefinitely -
-		    # if it did then the pmpause signal handler would reap
-		    # the _pmda_setup child and exit.
-		    wait
-
-		    # finally, stop here when running as a container
-		    exec $PCP_BINADM_DIR/pmpause
-		fi
 	    else
 		$PCP_BINADM_DIR/pmpost "start pmcd from PMDA setup called from $prog"
 	    fi
@@ -606,11 +602,16 @@ Error: pmcd control file '"$PCP_PMCDCONF_PATH"' is missing, cannot start pmcd.'
 	status=0
         ;;
 
-  stop)
+  stop|stop-systemd)
 	# site-local customisations before pmcd shutdown
 	#
 	[ -x $PCPLOCAL ] && $PCPLOCAL $VFLAG stop
-	_shutdown verbose
+	if [ "$1" = stop-systemd ]
+	then
+	    _shutdown quietly
+	else
+	    _shutdown verbose
+	fi
 	status=0
         ;;
 
@@ -637,7 +638,6 @@ Error: pmcd control file '"$PCP_PMCDCONF_PATH"' is missing, cannot start pmcd.'
 	;;
 
   *)
-	[ -z "$PCP_CONTAINER_IMAGE" ] || exec "$@"
 	_usage
         ;;
 esac

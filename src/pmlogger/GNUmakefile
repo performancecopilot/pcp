@@ -20,7 +20,7 @@ SUBDIRS = src
 OTHERS	= pmnewlog.sh control rc_pmlogger \
 	  pmlogger_daily.sh pmlogger_check.sh pmlogger_merge.sh pmlogmv.sh \
 	  pmlogger_daily_report.sh pmlogger_rewrite.sh
-LDIRT	= crontab crontab.docker crontab.daily_report pmlogger.service \
+LDIRT	= crontab crontab.daily_report pmlogger.service \
 	  pmlogger_daily.service pmlogger_daily-poll.service \
 	  pmlogger_daily_report.service pmlogger_daily_report-poll.service \
 	  pmlogger_check.service
@@ -78,11 +78,6 @@ else
 endif
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_LOG_DIR)/pmlogger
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_TMP_DIR)/pmlogger
-ifeq ($(TARGET_OS),linux)
-	# In a container environment, the rc_pmlogger script installs the
-	# Docker version of the crontab into the hosts cron.d directory.
-	$(INSTALL) -m 644 crontab.docker $(PCP_VAR_DIR)/config/pmlogger/crontab.docker
-endif
 	$(INSTALL) -m 644 utilproc.sh $(PCP_SHARE_DIR)/lib/utilproc.sh
 	$(INSTALL) -m 755 pmlogger_daily_report.sh $(PCP_BINADM_DIR)/pmlogger_daily_report$(SHELLSUFFIX)
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_SA_DIR)
@@ -153,10 +148,6 @@ pmlogger_daily_report-poll.service : pmlogger_daily_report-poll.service.in
 
 crontab : crontab.in
 	$(SED) -e 's;@user@;'$(CRONTAB_USER)';' -e 's;@path@;'$(PCP_BINADM_DIR)';' $< > $@
-
-crontab.docker : crontab.docker.in
-	# docker crontab runs as root. this may change in the future.
-	$(SED) -e 's;@path@;'$(PCP_BINADM_DIR)';' $< > $@
 
 crontab.daily_report : crontab.daily_report.in
 	$(SED) -e 's;@user@;'$(CRONTAB_USER)';' -e 's;@path@;'$(PCP_BINADM_DIR)';' -e 's;@sapath@;'$(PCP_SA_DIR)';' $< > $@
