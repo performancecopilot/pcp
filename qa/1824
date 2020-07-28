@@ -1,0 +1,53 @@
+#!/bin/sh
+# PCP QA Test No. 1824
+# Exercise appropriate return values for PMWEBAPI(3) calls.
+#
+# Copyright (c) 2020 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+if [ $# -eq 0 ]
+then
+    echo "QA output created by $seq"
+else
+    echo "QA output created by $seq $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_series
+
+_cleanup()
+{
+    [ -n "$pmproxy_pid" ] && $signal -s TERM $pmproxy_pid
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+signal=$PCP_BINADM_DIR/pmsignal
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+username=`id -u -n`
+proxyport=`_find_free_port`
+proxyopts="-p $proxyport -c /dev/null"
+pmproxy -f -t -U $username -x $seq.full -l $tmp.pmproxy.log $proxyopts &
+pmproxy_pid=$!
+
+# check pmproxy has started and is available for requests
+pmcd_wait -h localhost@localhost:$proxyport -v -t 5sec
+
+echo "=== direct query with no results available"
+curl --get --silent "http://localhost:$proxyport/series/query?expr=no.such.metric"
+
+echo "=== client query with no results available"
+curl --get --silent "http://localhost:$proxyport/series/query?client=cow&expr=no.such.metric"
+
+# success, all done
+status=0
+exit

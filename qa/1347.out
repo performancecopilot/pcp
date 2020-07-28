@@ -3,340 +3,493 @@ QA output created by 1347
 === std out
 
 
-ATOP - shard        2020/03/19  15:05:16        --------------        1s elapsed
-PRC | sys    0.00s | user   0.00s | #proc    326 | #zombie    0 | no  procacct |
-CPU | sys       0% | user      0% | irq       0% | idle      0% | wait      0% |
-CPL | avg1   -1.00 | avg5   -1.00 | avg15  -1.00 | csw        0 | intr       0 |
-MEM | tot    15.3G | free    0.0M | cache   0.0M | buff    0.0M | slab    0.0M |
-SWP | tot     0.0M | free    0.0M |              | vmcom   0.0M | vmlim   0.0M |
-                   *** system and process activity since boot ***
+ATOP - shard        2020/07/22  17:32:51        --------------        1s elapsed
+PRC | sys    0.44s | user   1.00s | #proc    396 | #zombie    0 | no  procacct |
+CPU | sys      19% | user     49% | irq      34% | idle    698% | wait      1% |
+cpu | sys       4% | user     22% | irq       4% | idle     70% | cpu002 w  0% |
+cpu | sys       3% | user      6% | irq       4% | idle     87% | cpu004 w  1% |
+cpu | sys       3% | user      5% | irq       5% | idle     88% | cpu000 w  0% |
+cpu | sys       3% | user      5% | irq       4% | idle     88% | cpu006 w  0% |
+cpu | sys       2% | user      3% | irq       5% | idle     91% | cpu001 w  0% |
+cpu | sys       2% | user      3% | irq       4% | idle     91% | cpu003 w  0% |
+cpu | sys       1% | user      3% | irq       4% | idle     91% | cpu007 w  0% |
+cpu | sys       2% | user      2% | irq       4% | idle     93% | cpu005 w  0% |
+CPL | avg1    0.75 | avg5    0.99 | avg15   0.99 | csw    45143 | intr   33919 |
+MEM | tot    15.3G | free  168.9M | cache   2.7G | buff  127.0M | slab  932.7M |
+SWP | tot     7.7G | free  657.6M |              | vmcom  25.7G | vmlim  15.1G |
+LVM | a_shard-home | busy      0% | read       0 | write     33 | avio 0.00 ms |
+DSK |          sda | busy      0% | read       0 | write      3 | avio 1.33 ms |
+NET | transport    | tcpi      51 | tcpo      48 | udpi       5 | udpo       1 |
+NET | network      | ipi       45 | ipo       37 | ipfrw      0 | deliv     45 |
+NET | tun0      0% | pcki       2 | pcko       0 | si    1 Kbps | so    0 Kbps |
+NET | enp0s25   0% | pcki      26 | pcko      19 | si  122 Kbps | so   12 Kbps |
+NET | lo      ---- | pcki      30 | pcko      30 | si   16 Kbps | so   16 Kbps |
+
     PID    PPID RUID     RGID       STDATE    STTIME  EXC S  CPU CMD            
-      1       0 root     root     2020/03/06 14:47:50   -    0% systemd        
-      2       1 root     root     2020/03/06 14:47:50   -    0% kthreadd       
-      3       2 root     root     2020/03/06 14:47:50   -    0% rcu_gp         
-      4       2 root     root     2020/03/06 14:47:50   -    0% rcu_par_gp     
-      6       2 root     root     2020/03/06 14:47:50   -    0% kworker/0:0H-e 
-      9       2 root     root     2020/03/06 14:47:50   -    0% mm_percpu_wq   
-     10       2 root     root     2020/03/06 14:47:50   -    0% ksoftirqd/0    
-     11       2 root     root     2020/03/06 14:47:50   -    0% rcu_sched      
-     12       2 root     root     2020/03/06 14:47:50   -    0% migration/0    
-     13       2 root     root     2020/03/06 14:47:50   -    0% cpuhp/0        
-     14       2 root     root     2020/03/06 14:47:50   -    0% cpuhp/1        
-     15       2 root     root     2020/03/06 14:47:50   -    0% migration/1    
-     16       2 root     root     2020/03/06 14:47:50   -    0% ksoftirqd/1    
-     18       2 root     root     2020/03/06 14:47:50   -    0% kworker/1:0H-k 
-     19       2 root     root     2020/03/06 14:47:50   -    0% cpuhp/2        
-     20       2 root     root     2020/03/06 14:47:50   -    0% migration/2    
-     21       2 root     root     2020/03/06 14:47:50   -    0% ksoftirqd/2    
-     23       2 root     root     2020/03/06 14:47:50   -    0% kworker/2:0H-e 
-     24       2 root     root     2020/03/06 14:47:50   -    0% cpuhp/3        
-     25       2 root     root     2020/03/06 14:47:50   -    0% migration/3    
-     26       2 root     root     2020/03/06 14:47:50   -    0% ksoftirqd/3    
-     28       2 root     root     2020/03/06 14:47:50   -    0% kworker/3:0H-e 
-     29       2 root     root     2020/03/06 14:47:50   -    0% cpuhp/4        
-     30       2 root     root     2020/03/06 14:47:50   -    0% migration/4    
-     31       2 root     root     2020/03/06 14:47:50   -    0% ksoftirqd/4    
-     33       2 root     root     2020/03/06 14:47:50   -    0% kworker/4:0H-k 
-     34       2 root     root     2020/03/06 14:47:50   -    0% cpuhp/5        
-     35       2 root     root     2020/03/06 14:47:50   -    0% migration/5    
-     36       2 root     root     2020/03/06 14:47:50   -    0% ksoftirqd/5    
-     38       2 root     root     2020/03/06 14:47:50   -    0% kworker/5:0H-k 
-     39       2 root     root     2020/03/06 14:47:50   -    0% cpuhp/6        
-     40       2 root     root     2020/03/06 14:47:50   -    0% migration/6    
-     41       2 root     root     2020/03/06 14:47:50   -    0% ksoftirqd/6    
-     43       2 root     root     2020/03/06 14:47:50   -    0% kworker/6:0H-k 
-     44       2 root     root     2020/03/06 14:47:50   -    0% cpuhp/7        
-     45       2 root     root     2020/03/06 14:47:50   -    0% migration/7    
-     46       2 root     root     2020/03/06 14:47:50   -    0% ksoftirqd/7    
-     48       2 root     root     2020/03/06 14:47:50   -    0% kworker/7:0H-k 
-     49       2 root     root     2020/03/06 14:47:50   -    0% kdevtmpfs      
-     50       2 root     root     2020/03/06 14:47:50   -    0% netns          
-     51       2 root     root     2020/03/06 14:47:50   -    0% rcu_tasks_kthr 
-     52       2 root     root     2020/03/06 14:47:50   -    0% kauditd        
-     53       2 root     root     2020/03/06 14:47:50   -    0% oom_reaper     
-     54       2 root     root     2020/03/06 14:47:50   -    0% writeback      
-     55       2 root     root     2020/03/06 14:47:50   -    0% kcompactd0     
-     56       2 root     root     2020/03/06 14:47:50   -    0% ksmd           
-     57       2 root     root     2020/03/06 14:47:50   -    0% khugepaged     
-     86       2 root     root     2020/03/06 14:47:50   -    0% cryptd         
-    168       2 root     root     2020/03/06 14:47:50   -    0% kintegrityd    
-    169       2 root     root     2020/03/06 14:47:50   -    0% kblockd        
-    170       2 root     root     2020/03/06 14:47:50   -    0% blkcg_punt_bio 
-    171       2 root     root     2020/03/06 14:47:50   -    0% tpm_dev_wq     
-    173       2 root     root     2020/03/06 14:47:50   -    0% ata_sff        
-    174       2 root     root     2020/03/06 14:47:50   -    0% md             
-    175       2 root     root     2020/03/06 14:47:50   -    0% edac-poller    
-    177       2 root     root     2020/03/06 14:47:50   -    0% devfreq_wq     
-    178       2 root     root     2020/03/06 14:47:50   -    0% watchdogd      
-    179       2 root     root     2020/03/06 14:47:50   -    0% kswapd0        
-    182       2 root     root     2020/03/06 14:47:50   -    0% kthrotld       
-    185       2 root     root     2020/03/06 14:47:50   -    0% acpi_thermal_p 
-    186       2 root     root     2020/03/06 14:47:50   -    0% scsi_eh_0      
-    187       2 root     root     2020/03/06 14:47:50   -    0% scsi_tmf_0     
-    188       2 root     root     2020/03/06 14:47:50   -    0% scsi_eh_1      
-    189       2 root     root     2020/03/06 14:47:50   -    0% scsi_tmf_1     
-    190       2 root     root     2020/03/06 14:47:50   -    0% scsi_eh_2      
-    191       2 root     root     2020/03/06 14:47:50   -    0% scsi_tmf_2     
-    192       2 root     root     2020/03/06 14:47:50   -    0% scsi_eh_3      
-    193       2 root     root     2020/03/06 14:47:50   -    0% scsi_tmf_3     
-    194       2 root     root     2020/03/06 14:47:50   -    0% scsi_eh_4      
-    195       2 root     root     2020/03/06 14:47:50   -    0% scsi_tmf_4     
-    196       2 root     root     2020/03/06 14:47:50   -    0% scsi_eh_5      
-    197       2 root     root     2020/03/06 14:47:50   -    0% scsi_tmf_5     
-    204       2 root     root     2020/03/06 14:47:50   -    0% dm_bufio_cache 
-    205       2 root     root     2020/03/06 14:47:51   -    0% ipv6_addrconf  
-    212       2 root     root     2020/03/06 14:47:51   -    0% kstrp          
-    291       2 root     root     2020/03/06 14:47:51   -    0% kworker/6:1H-k 
-    293       2 root     root     2020/03/06 14:47:51   -    0% kworker/7:1H-k 
-    465       2 root     root     2020/03/06 14:47:51   -    0% sdhci          
-    466       2 root     root     2020/03/06 14:47:51   -    0% irq/34-mmc0    
-    499       2 root     root     2020/03/06 14:47:52   -    0% kworker/3:1H-e 
-    501       2 root     root     2020/03/06 14:47:52   -    0% nvkm-disp      
-    503       2 root     root     2020/03/06 14:47:53   -    0% ttm_swap       
-    506       2 root     root     2020/03/06 14:47:53   -    0% kworker/2:1H-k 
-    519       2 root     root     2020/03/06 14:47:54   -    0% kworker/0:1H-k 
-    554       2 root     root     2020/03/06 14:47:57   -    0% kworker/1:1H-k 
-    555       2 root     root     2020/03/06 14:47:57   -    0% kdmflush       
-    562       2 root     root     2020/03/06 14:47:57   -    0% kdmflush       
-    578       2 root     root     2020/03/06 14:47:57   -    0% jbd2/dm-0-8    
-    579       2 root     root     2020/03/06 14:47:57   -    0% ext4-rsv-conve 
-    589       2 root     root     2020/03/06 14:47:57   -    0% kworker/4:1H-k 
-    656       2 root     root     2020/03/06 14:47:58   -    0% kworker/5:1H-e 
-    675       1 root     root     2020/03/06 14:47:58   -    0% systemd-journa 
-    700       1 root     root     2020/03/06 14:47:58   -    0% systemd-udevd  
-    740       2 root     root     2020/03/06 14:47:59   -    0% irq/37-mei_me  
-    743       2 root     root     2020/03/06 14:47:59   -    0% ktpacpid       
-    759       2 root     root     2020/03/06 14:47:59   -    0% cfg80211       
-    777       2 root     root     2020/03/06 14:47:59   -    0% irq/40-iwlwifi 
-    778       2 root     root     2020/03/06 14:47:59   -    0% kdmflush       
-    848       2 root     root     2020/03/06 14:48:00   -    0% irq/41-rmi4_sm 
-    880       2 root     root     2020/03/06 14:48:01   -    0% jbd2/sda1-8    
-    881       2 root     root     2020/03/06 14:48:01   -    0% ext4-rsv-conve 
-    882       2 root     root     2020/03/06 14:48:01   -    0% jbd2/dm-2-8    
-    883       2 root     root     2020/03/06 14:48:01   -    0% ext4-rsv-conve 
-    906       1 root     root     2020/03/06 14:48:02   -    0% auditd         
-    908     906 root     root     2020/03/06 14:48:02   -    0% sedispatch     
-    911       2 root     root     2020/03/06 14:48:02   -    0% rpciod         
-    912       2 root     root     2020/03/06 14:48:02   -    0% xprtiod        
-    937       1 root     root     2020/03/06 14:48:02   -    0% ModemManager   
-    938       1 user-0   group-N  2020/03/06 14:48:02   -    0% avahi-daemon   
-    939       1 root     root     2020/03/06 14:48:02   -    0% bluetoothd     
-    940       1 root     root     2020/03/06 14:48:02   -    0% firewalld      
-    947       1 root     root     2020/03/06 14:48:02   -    0% mcelog         
-    954       1 root     root     2020/03/06 14:48:02   -    0% rngd           
-    955       1 user-1   group-N  2020/03/06 14:48:02   -    0% rtkit-daemon   
-    957       1 root     root     2020/03/06 14:48:02   -    0% smartd         
-    959       1 root     root     2020/03/06 14:48:02   -    0% switcheroo-con 
-    961       1 root     root     2020/03/06 14:48:02   -    0% systemd-machin 
-    971       1 user-2   group-N  2020/03/06 14:48:02   -    0% dbus-broker-la 
-    983       1 root     root     2020/03/06 14:48:02   -    0% gssproxy       
-    986       1 root     root     2020/03/06 14:48:02   -    0% abrtd          
-    996       1 user-3   group-N  2020/03/06 14:48:02   -    0% chronyd        
-   1000     971 user-2   group-N  2020/03/06 14:48:02   -    0% dbus-broker    
-   1005     938 user-0   group-N  2020/03/06 14:48:02   -    0% avahi-daemon   
-   1006       1 root     root     2020/03/06 14:48:02   -    0% alsactl        
-   1054       1 root     root     2020/03/06 14:48:03   -    0% accounts-daemo 
-   1061       1 user-4   group-N  2020/03/06 14:48:03   -    0% polkitd        
-   1096       1 root     root     2020/03/06 14:48:03   -    0% NetworkManager 
-   1097       1 root     root     2020/03/06 14:48:03   -    0% systemd-logind 
-   1132       1 root     root     2020/03/06 14:48:03   -    0% cupsd          
-   1150       1 root     root     2020/03/06 14:48:03   -    0% atd            
-   1152       1 root     root     2020/03/06 14:48:03   -    0% crond          
-   1153       1 root     root     2020/03/06 14:48:03   -    0% gdm            
-   1187       1 root     root     2020/03/06 14:48:03   -    0% abrt-dump-jour 
-   1188       1 root     root     2020/03/06 14:48:03   -    0% abrt-dump-jour 
-   1189       1 root     root     2020/03/06 14:48:03   -    0% abrt-dump-jour 
-   1309       1 user-5   group-N  2020/03/06 14:48:04   -    0% systemd        
-   1310       1 user-6   group-N  2020/03/06 14:48:04   -    0% systemd        
-   1333       1 root     root     2020/03/06 14:48:04   -    0% wpa_supplicant 
-   1348    1310 user-6   group-N  2020/03/06 14:48:04   -    0% (sd-pam        
-   1351    1309 user-5   group-N  2020/03/06 14:48:04   -    0% (sd-pam        
-   2153       1 user-7   group-N  2020/03/06 14:48:04   -    0% dnsmasq        
-   2154    2153 root     root     2020/03/06 14:48:04   -    0% dnsmasq        
-   2360       1 user-7   group-N  2020/03/06 14:48:05   -    0% dnsmasq        
-   2361    2360 root     root     2020/03/06 14:48:05   -    0% dnsmasq        
-   6741       1 root     root     2020/03/06 14:48:08   -    0% upowerd        
-   6966       1 user-8   group-N  2020/03/06 14:48:10   -    0% redis-server   
-   7003       1 user-9   group-N  2020/03/06 14:48:10   -    0% grafana-server 
-   7031       1 user-10  group-N  2020/03/06 14:48:10   -    0% colord         
-  14518    1153 root     group-N  2020/03/06 14:50:27   -    0% gdm-session-wo 
-  14537       1 user-5   group-N  2020/03/06 14:50:31   -    0% gnome-keyring- 
-  14554   14518 user-5   group-N  2020/03/06 14:50:33   -    0% gdm-wayland-se 
-  14556    1309 user-5   group-N  2020/03/06 14:50:33   -    0% dbus-broker-la 
-  14557   14556 user-5   group-N  2020/03/06 14:50:33   -    0% dbus-broker    
-  14559   14554 user-5   group-N  2020/03/06 14:50:33   -    0% gnome-session- 
-  14608    1309 user-5   group-N  2020/03/06 14:50:33   -    0% gnome-session- 
-  14609    1309 user-5   group-N  2020/03/06 14:50:33   -    0% pulseaudio     
-  14611    1309 user-5   group-N  2020/03/06 14:50:33   -    0% gnome-session- 
-  14625    1309 user-5   group-N  2020/03/06 14:50:33   -    0% gnome-shell    
-  14709   14625 user-5   group-N  2020/03/06 14:50:34   -    0% Xwayland       
-  14746    1309 user-5   group-N  2020/03/06 14:50:34   -    0% at-spi-bus-lau 
-  14752   14746 user-5   group-N  2020/03/06 14:50:34   -    0% dbus-broker-la 
-  14753   14752 user-5   group-N  2020/03/06 14:50:34   -    0% dbus-broker    
-  14809    1309 user-5   group-N  2020/03/06 14:50:34   -    0% gvfsd          
-  14814    1309 user-5   group-N  2020/03/06 14:50:34   -    0% gvfsd-fuse     
-  14845    1309 user-5   group-N  2020/03/06 14:50:35   -    0% xdg-permission 
-  14851    1309 user-5   group-N  2020/03/06 14:50:35   -    0% gnome-shell-ca 
-  14855    1309 user-5   group-N  2020/03/06 14:50:35   -    0% evolution-sour 
-  14857       2 root     root     2020/03/06 14:50:35   -    0% krfcommd       
-  14865       1 user-11  group-N  2020/03/06 14:50:35   -    0% geoclue        
-  14876    1309 user-5   group-N  2020/03/06 14:50:35   -    0% gvfs-udisks2-v 
-  14879       1 root     root     2020/03/06 14:50:35   -    0% udisksd        
-  14886    1309 user-5   group-N  2020/03/06 14:50:35   -    0% goa-daemon     
-  14890    1309 user-5   group-N  2020/03/06 14:50:35   -    0% dconf-service  
-  14893    1309 user-5   group-N  2020/03/06 14:50:35   -    0% gvfsd-metadata 
-  14902    1309 user-5   group-N  2020/03/06 14:50:35   -    0% goa-identity-s 
-  14919    1309 user-5   group-N  2020/03/06 14:50:35   -    0% gvfs-gphoto2-v 
-  14923    1309 user-5   group-N  2020/03/06 14:50:35   -    0% gvfs-mtp-volum 
-  14927    1309 user-5   group-N  2020/03/06 14:50:35   -    0% gvfs-goa-volum 
-  14931    1309 user-5   group-N  2020/03/06 14:50:35   -    0% gvfs-afc-volum 
-  14937    1309 user-5   group-N  2020/03/06 14:50:35   -    0% evolution-cale 
-  14940   14625 user-5   group-N  2020/03/06 14:50:35   -    0% ibus-daemon    
-  14945   14940 user-5   group-N  2020/03/06 14:50:35   -    0% ibus-dconf     
-  14946   14940 user-5   group-N  2020/03/06 14:50:35   -    0% ibus-extension 
-  14948    1309 user-5   group-N  2020/03/06 14:50:35   -    0% ibus-x11       
-  14950    1309 user-5   group-N  2020/03/06 14:50:35   -    0% ibus-portal    
-  14968    1309 user-5   group-N  2020/03/06 14:50:35   -    0% at-spi2-regist 
-  14976    1309 user-5   group-N  2020/03/06 14:50:35   -    0% gsd-a11y-setti 
-  14977    1309 user-5   group-N  2020/03/06 14:50:35   -    0% gsd-color      
-  14978    1309 user-5   group-N  2020/03/06 14:50:35   -    0% gsd-datetime   
-  14982    1309 user-5   group-N  2020/03/06 14:50:35   -    0% gsd-housekeepi 
-  14987    1309 user-5   group-N  2020/03/06 14:50:35   -    0% gsd-keyboard   
-  14992    1309 user-5   group-N  2020/03/06 14:50:35   -    0% gsd-media-keys 
-  14994    1309 user-5   group-N  2020/03/06 14:50:35   -    0% gsd-power      
-  14999   14611 user-5   group-N  2020/03/06 14:50:35   -    0% gnome-software 
-  15000    1309 user-5   group-N  2020/03/06 14:50:35   -    0% gsd-print-noti 
-  15002    1309 user-5   group-N  2020/03/06 14:50:35   -    0% gsd-rfkill     
-  15003   14611 user-5   group-N  2020/03/06 14:50:35   -    0% gsd-disk-utili 
-  15004    1309 user-5   group-N  2020/03/06 14:50:35   -    0% gsd-screensave 
-  15009    1309 user-5   group-N  2020/03/06 14:50:35   -    0% gsd-sharing    
-  15014   14611 user-5   group-N  2020/03/06 14:50:35   -    0% evolution-alar 
-  15023   14611 user-5   group-N  2020/03/06 14:50:35   -    0% tracker-miner- 
-  15028    1309 user-5   group-N  2020/03/06 14:50:35   -    0% gsd-smartcard  
-  15033    1309 user-5   group-N  2020/03/06 14:50:35   -    0% gsd-sound      
-  15035    1309 user-5   group-N  2020/03/06 14:50:35   -    0% gsd-wacom      
-  15038    1309 user-5   group-N  2020/03/06 14:50:35   -    0% gsd-wwan       
-  15043    1309 user-5   group-N  2020/03/06 14:50:35   -    0% gsd-xsettings  
-  15093   14940 user-5   group-N  2020/03/06 14:50:36   -    0% ibus-engine-si 
-  15104    1309 user-5   group-N  2020/03/06 14:50:36   -    0% abrt-applet    
-  15107    1309 user-5   group-N  2020/03/06 14:50:36   -    0% evolution-addr 
-  15164    1309 user-5   group-N  2020/03/06 14:50:36   -    0% gsd-printer    
-  15268       1 root     root     2020/03/06 14:50:36   -    0% abrt-dbus      
- 214877       1 root     root     2020/03/09 12:02:14   -    0% nm-openvpn-ser 
- 214901  214877 user-12  group-N  2020/03/09 12:02:23   -    0% openvpn        
- 214956   14625 user-5   group-N  2020/03/09 12:02:39   -    0% hexchat        
- 214983    1309 user-5   group-N  2020/03/09 12:02:44   -    0% gnome-terminal 
- 215031  214983 user-5   group-N  2020/03/09 12:02:47   -    0% bash           
- 215080  215031 user-5   group-N  2020/03/09 12:03:04   -    0% slack          
- 215089  215080 user-5   group-N  2020/03/09 12:03:04   -    0% slack          
- 215091  215089 user-5   group-N  2020/03/09 12:03:04   -    0% slack          
- 215120  215080 user-5   group-N  2020/03/09 12:03:04   -    0% slack          
- 215129  215080 user-5   group-N  2020/03/09 12:03:05   -    0% slack          
- 215264  214983 user-5   group-N  2020/03/09 12:03:24   -    0% bash           
- 215381  214983 user-5   group-N  2020/03/09 12:05:08   -    0% bash           
- 215434   14625 user-5   group-N  2020/03/09 12:05:20   -    0% firefox        
- 215543  215434 user-5   group-N  2020/03/09 12:05:21   -    0% Web Content    
- 215596  215434 user-5   group-N  2020/03/09 12:05:21   -    0% WebExtensions  
- 230329   14518 root     group-N  2020/03/09 15:58:24   -    0% gdm-session-wo 
- 231071    1309 user-5   group-N  2020/03/09 16:12:08   -    0% sd_dummy       
- 231075    1309 user-5   group-N  2020/03/09 16:12:08   -    0% sd_espeak-ng   
- 231082    1309 user-5   group-N  2020/03/09 16:12:08   -    0% sd_generic     
- 231085    1309 user-5   group-N  2020/03/09 16:12:08   -    0% sd_generic     
- 231088    1309 user-5   group-N  2020/03/09 16:12:08   -    0% speech-dispatc 
- 231217  215434 user-5   group-N  2020/03/09 16:15:21   -    0% Web Content    
- 231409   14537 user-5   group-N  2020/03/09 16:18:01   -    0% ssh-agent      
- 232603  215434 user-5   group-N  2020/03/09 16:29:11   -    0% RDD Process    
- 232922  215434 user-5   group-N  2020/03/09 16:35:21   -    0% Web Content    
- 233198  215434 user-5   group-N  2020/03/09 16:41:02   -    0% Web Content    
- 233386  215434 user-5   group-N  2020/03/09 16:46:36   -    0% Web Content    
- 234883    1309 user-5   group-N  2020/03/09 17:09:05   -    0% gconfd-2       
- 289839  215434 user-5   group-N  2020/03/10 06:41:54   -    0% Web Content    
- 291591  214983 user-5   group-N  2020/03/10 06:58:29   -    0% bash           
- 291919  214983 user-5   group-N  2020/03/10 07:04:29   -    0% bash           
- 292265    1309 root     root     2020/03/10 07:07:18   -    0% dbus-launch    
- 292266    1309 root     root     2020/03/10 07:07:18   -    0% dbus-daemon    
- 292269    1309 root     root     2020/03/10 07:07:18   -    0% at-spi-bus-lau 
- 292274  292269 root     root     2020/03/10 07:07:18   -    0% dbus-broker-la 
- 292275  292274 root     root     2020/03/10 07:07:18   -    0% dbus-broker    
- 292371       1 user-13  group-N  2020/03/10 07:07:25   -    0% mysqld         
- 292451       1 root     root     2020/03/10 07:07:28   -    0% sssd           
- 292452  292451 root     root     2020/03/10 07:07:28   -    0% sssd_be        
- 292453  292451 root     root     2020/03/10 07:07:28   -    0% sssd_nss       
- 310645   14809 user-5   group-N  2020/03/10 10:44:24   -    0% gvfsd-trash    
- 310657   14809 user-5   group-N  2020/03/10 10:44:24   -    0% gvfsd-network  
- 310676   14809 user-5   group-N  2020/03/10 10:44:27   -    0% gvfsd-dnssd    
- 319270   14809 user-5   group-N  2020/03/10 13:02:41   -    0% gvfsd-http     
- 913558  215434 user-5   group-N  2020/03/11 08:05:19   -    0% Web Content    
- 916066  215434 user-5   group-N  2020/03/11 08:53:58   -    0% Web Content    
-1020377  215264 user-5   group-N  2020/03/11 15:33:44   -    0% vim            
-1572542   14518 root     group-N  2020/03/11 19:50:04   -    0% gdm-session-wo 
-1698377       1 root     root     2020/03/13 04:16:44   -    0% sshd           
-1743163  214983 user-5   group-N  2020/03/13 13:50:30   -    0% bash           
-1804016  215080 user-5   group-N  2020/03/14 05:02:10   -    0% slack          
-2245243  215031 user-5   group-N  2020/03/18 07:32:39   -    0% chrome         
-2245254 2245243 user-5   group-N  2020/03/18 07:32:39   -    0% cat            
-2245255 2245243 user-5   group-N  2020/03/18 07:32:39   -    0% cat            
-2245258 2245243 user-5   group-N  2020/03/18 07:32:39   -    0% chrome         
-2245259 2245258 user-5   group-N  2020/03/18 07:32:39   -    0% nacl_helper    
-2245262 2245258 user-5   group-N  2020/03/18 07:32:39   -    0% chrome         
-2245282 2245243 user-5   group-N  2020/03/18 07:32:39   -    0% chrome         
-2245293 2245243 user-5   group-N  2020/03/18 07:32:39   -    0% chrome         
-2245318 2245262 user-5   group-N  2020/03/18 07:32:40   -    0% chrome         
-2245336 2245262 user-5   group-N  2020/03/18 07:32:40   -    0% chrome         
-2245345 2245262 user-5   group-N  2020/03/18 07:32:40   -    0% chrome         
-2245483 2245262 user-5   group-N  2020/03/18 07:32:41   -    0% chrome         
-2263860 2245262 user-5   group-N  2020/03/18 12:00:09   -    0% chrome         
-2563735       1 user-14  group-N  2020/03/19 11:54:20   -    0% pmproxy        
-3089119       2 root     root     2020/03/19 14:06:06   -    0% kworker/2:2-ev 
-3089135       2 root     root     2020/03/19 14:06:38   -    0% kworker/u17:1- 
-3096585       1 user-14  group-N  2020/03/19 14:08:25   -    0% pmcd           
-3096590 3096585 root     root     2020/03/19 14:08:25   -    0% pmdaroot       
-3096591 3096590 user-5   group-N  2020/03/19 14:08:25   -    0% pmdaproc       
-3096592 3096590 root     root     2020/03/19 14:08:25   -    0% pmdaxfs        
-3096593 3096590 user-14  group-N  2020/03/19 14:08:25   -    0% pmdaredis      
-3096594 3096590 user-14  group-N  2020/03/19 14:08:25   -    0% pmdasample     
-3096595 3096590 root     root     2020/03/19 14:08:25   -    0% pmdalinux      
-3096596 3096590 root     root     2020/03/19 14:08:25   -    0% python3        
-3096600 3096590 root     root     2020/03/19 14:08:25   -    0% pmdakvm        
-3096601 3096590 user-14  group-N  2020/03/19 14:08:25   -    0% pmdaperfevent  
-3096603 3096590 root     root     2020/03/19 14:08:25   -    0% pmdadm         
-3096604 3096590 root     root     2020/03/19 14:08:25   -    0% python3        
-3096608 3096590 user-14  group-N  2020/03/19 14:08:26   -    0% pmdasimple     
-3102549       1 user-14  group-N  2020/03/19 14:08:32   -    0% pmlogger       
-3108564       1 user-14  group-N  2020/03/19 14:08:41   -    0% pmlogger       
-3111579       2 root     root     2020/03/19 14:11:08   -    0% kworker/5:0-ev 
-3111608       2 root     root     2020/03/19 14:12:13   -    0% kworker/u17:2- 
-3112135       2 root     root     2020/03/19 14:16:48   -    0% kworker/u16:0- 
-3112497       2 root     root     2020/03/19 14:21:30   -    0% kworker/6:1-ev 
-3113582       2 root     root     2020/03/19 14:28:22   -    0% kworker/7:1-ev 
-3113658       2 root     root     2020/03/19 14:29:44   -    0% kworker/1:2-mm 
-3114179       2 root     root     2020/03/19 14:36:06   -    0% kworker/2:1-ev 
-3114328       2 root     root     2020/03/19 14:39:53   -    0% kworker/u16:1- 
-3114341       2 root     root     2020/03/19 14:40:13   -    0% kworker/4:3-ev 
-3114400       2 root     root     2020/03/19 14:41:06   -    0% kworker/0:0-ev 
-3114638       2 root     root     2020/03/19 14:44:02   -    0% kworker/5:1    
-3114804       2 root     root     2020/03/19 14:47:24   -    0% kworker/3:1-ev 
-3114806       2 root     root     2020/03/19 14:47:29   -    0% kworker/u16:4- 
-3115027       2 root     root     2020/03/19 14:50:08   -    0% kworker/7:0-kd 
-3131976       2 root     root     2020/03/19 14:52:15   -    0% kworker/1:1-ev 
-3138833 1743163 user-5   group-N  2020/03/19 14:53:58   -    0% vim            
-3199753       2 root     root     2020/03/19 14:55:15   -    0% kworker/6:0-ev 
-3236121       2 root     root     2020/03/19 14:56:06   -    0% kworker/0:1-ev 
-3264040       2 root     root     2020/03/19 14:56:29   -    0% kworker/4:1-mm 
-3294897       2 root     root     2020/03/19 14:59:22   -    0% kworker/u16:3- 
-3296070       2 root     root     2020/03/19 15:00:03   -    0% kworker/3:0-ev 
-3297366       2 root     root     2020/03/19 15:00:38   -    0% kworker/2:0-ev 
-3297424       2 root     root     2020/03/19 15:01:05   -    0% kworker/5:2-mm 
-3297431  214983 user-5   group-N  2020/03/19 15:01:16   -    0% bash           
-3297575       2 root     root     2020/03/19 15:02:00   -    0% kworker/4:0-ev 
-3297624       2 root     root     2020/03/19 15:03:04   -    0% kworker/1:0    
-3297625       2 root     root     2020/03/19 15:03:04   -    0% kworker/u17:0  
-3297665    1309 user-5   group-N  2020/03/19 15:04:52   -    0% tracker-store  
-3297675  215381 user-5   group-N  2020/03/19 15:04:56   -    0% mk.atop-boot   
-3298106 3297675 user-5   group-N  2020/03/19 15:05:14   -    0% pmlogger       
-3298115 3297675 user-5   group-N  2020/03/19 15:05:15   -    0% pmsleep        
-3298100    6966 user-8   group-N  2020/03/19 15:05:13   -    0% redis-server   
-3298109       1 root     root     2020/03/06 14:47:50   -    0%                
+1073790 1073783 user-0   group-N  2020/06/01 12:51:43   -    S 38% sqlservr   
+2283480   41220 user-1   group-N  2020/06/01 12:51:43   -    S 11% firefox    
+2284066 2283480 user-1   group-N  2020/06/01 12:51:43   -    S 5% Web Content 
+  41204    1633 user-1   group-N  2020/06/02 07:26:24   -    S 4% pulseaudio  
+2754614 2754613 user-1   group-N  2020/06/01 12:51:43   -    R 3% pmdaproc    
+2754608       1 user-2   group-N  2020/06/01 12:51:43   -    S 2% pmcd        
+2722962 2283480 user-1   group-N  2020/06/01 12:51:43   -    S 2% Web Content 
+  41220    1633 user-1   group-N  2020/06/02 07:26:24   -    S 1% gnome-shell 
+2956901 2956875 user-1   group-N  2020/06/01 12:51:43   -    S 1% pmlogger    
+2754619 2754613 root     root     2020/06/01 12:51:43   -    S 1% pmdalinux   
+3343871       1 user-3   group-N  2020/06/01 12:51:43   -    S 1% redis-server
+  42839    1633 user-1   group-N  2020/06/02 07:27:59   -    S 1% gnome-termin
+3078515 2612644 user-1   group-N  2020/06/01 12:51:43   -    S 1% chrome      
+2880468 2612644 user-1   group-N  2020/06/01 12:51:43   -    S 1% chrome      
+2284034 2283480 user-1   group-N  2020/06/01 12:51:43   -    S 0% Web Content 
+2692050 2283480 user-1   group-N  2020/06/01 12:51:43   -    S 0% Web Content 
+2293102 2283480 user-1   group-N  2020/06/01 12:51:43   -    S 0% Web Content 
+2766247 2766198 user-1   group-N  2020/06/01 12:51:43   -    S 0% pmchart     
+  41322   41220 user-1   group-N  2020/06/02 07:26:24   -    S 0% Xwayland    
+     11       2 root     root     2020/06/01 12:51:43   -    I 0% rcu_sched   
+2029336 2029237 user-1   group-N  2020/06/01 12:51:43   -    S 0% slack       
+2612625   44073 user-1   group-N  2020/06/09 10:06:08   -    S 0% chrome      
+2283740 2283480 user-1   group-N  2020/06/01 12:51:43   -    S 0% Web Content 
+  41490    1633 user-1   group-N  2020/06/02 07:26:25   -    S 0% goa-daemon  
+2880482 2612644 user-1   group-N  2020/06/01 12:51:43   -    S 0% chrome      
+  42253   41220 user-1   group-N  2020/06/02 07:27:12   -    S 0% hexchat     
+      1       0 root     root     2020/06/01 12:51:43   -    S 0% systemd     
+2766257 2766247 user-1   group-N  2020/06/01 12:51:43   -    S 0% pmtime      
+2754620 2754613 root     root     2020/06/01 12:51:43   -    S 0% python3     
+2952288 2754613 user-2   group-N  2020/06/01 12:51:43   -    S 0% pmdaperfeven
+2952537 2754613 user-2   group-N  2020/06/01 12:51:43   -    S 0% pmdaapache  
+  41520    1633 user-1   group-N  2020/06/02 07:26:25   -    S 0% goa-identity
+2613049 2612625 user-1   group-N  2020/06/09 10:06:22   -    S 0% chrome      
+  41152   41151 user-1   group-N  2020/06/02 07:26:23   -    S 0% dbus-broker 
+2956875 1866820 user-1   group-N  2020/06/01 12:51:43   -    S 0% mk.atop-boot
+2333846 2333829 user-4   group-N  2020/06/01 12:51:43   -    S 0% openvpn     
+1671685    1633 user-1   group-N  2020/06/01 12:51:43   -    S 0% nstat       
+2909726       2 root     root     2020/06/01 12:51:43   -    I 0% kworker/u16:
+2956410       2 root     root     2020/06/01 12:51:43   -    I 0% kworker/u16:
+2956910 2956875 user-1   group-N  2020/06/01 12:51:43   -    0% pmsleep        
+      0       0 user-5   group-N                                            
+      0       0 user-5   group-N                                            
+      0       0 user-6   group-N    17:32:53 --------------  1s    elapsed                
+      0       0 user-7   group-N           |    user 0.39s    | #proc 396 | #zo
+      0       0 user-7   group-N           |    user -1120%    | irq -1084% | id
+      0       0 user-7   group-N           |    user 33%    | irq 33% | idle 
+      0       0 user-7   group-N           |    user 33%    | irq 33% | idle 
+      0       0 user-7   group-N           |    user 33%    | irq 33% | idle 
+      0       0 user-7   group-N           |    user 33%    | irq 33% | idle 
+      0       0 user-7   group-N           |    user 33%    | irq 33% | idle 
+      0       0 user-7   group-N           |    user 33%    | irq 33% | idle 
+      0       0 user-7   group-N           |    user 33%    | irq 33% | idle 
+      0       0 user-7   group-N           |    user 33%    | irq 33% | idle 
+      0       0 user-8   group-N           |    avg5 -1.00    | avg15 -1.00 | c
+      0       0 user-9   group-N           |    free 0.0M    | cache 0.0M | bu
+      0       0 user-9   group-N           |    free 0.0M    | | vmcom 0.0M | 
+      0       0 user-10  group-N           |   steal   0    | stall 0 | swin 
+      0       0 user-11  group-N        busy     -0%   |    read 42745e5 | write
+      0       0 user-12  group-N        busy     -0%   |    read 42934e5 | write
+      0       0 user-13  group-N        busy     -0%   |    read 42638e5 | write
+      0       0 user-14  group-N        busy 999999%   |    read 42654e5 | write
+      0       0 user-15  group-N        tcpi       ?   |    tcpo ? | udpi ? | ud
+      0       0 user-16  group-N         ipi       ?   |    ipo ? | ipfrw ? | d
+      0       0 user-17  group-N           |    pcki 42914e5    | pcko 42913e5 | 
+      0       0 user-18  group-N           |    pcki 42948e5    | pcko 42947e5 | 
+      0       0 user-19  group-N           |    pcki 42102e5    | pcko 42265e5 | 
+      0       0 user-20  group-N           |    pcki 42933e5    | pcko 42949e5 | 
+      0       0 user-21  group-N           |    pcki 41334e5    | pcko 41334e5 | 
+      0       0 user-5   group-N                                            
+      0       0 user-22  group-N      STDATE  STTIME EXC    S CPU CMD        
+      1       0 root     root     2020/06/01 12:51:43   -    -0% systemd        
+      2       1 root     root     2020/06/01 12:51:43   -    -0% kthreadd       
+      3       2 root     root     2020/06/01 12:51:43   -    -0% rcu_gp         
+      4       2 root     root     2020/06/01 12:51:43   -    -0% rcu_par_gp     
+      6       2 root     root     2020/06/01 12:51:43   -    -0% kworker/0:0H-k 
+      9       2 root     root     2020/06/01 12:51:43   -    -0% mm_percpu_wq   
+     10       2 root     root     2020/06/01 12:51:43   -    -0% ksoftirqd/0    
+     11       2 root     root     2020/06/01 12:51:43   -    -0% rcu_sched      
+     12       2 root     root     2020/06/01 12:51:43   -    -0% migration/0    
+     13       2 root     root     2020/06/01 12:51:43   -    -0% cpuhp/0        
+     14       2 root     root     2020/06/01 12:51:43   -    -0% cpuhp/1        
+     15       2 root     root     2020/06/01 12:51:43   -    -0% migration/1    
+     16       2 root     root     2020/06/01 12:51:43   -    -0% ksoftirqd/1    
+     18       2 root     root     2020/06/01 12:51:43   -    -0% kworker/1:0H-k 
+     19       2 root     root     2020/06/01 12:51:43   -    -0% cpuhp/2        
+     20       2 root     root     2020/06/01 12:51:43   -    -0% migration/2    
+     21       2 root     root     2020/06/01 12:51:43   -    -0% ksoftirqd/2    
+     23       2 root     root     2020/06/01 12:51:43   -    -0% kworker/2:0H-e 
+     24       2 root     root     2020/06/01 12:51:43   -    -0% cpuhp/3        
+     25       2 root     root     2020/06/01 12:51:43   -    -0% migration/3    
+     26       2 root     root     2020/06/01 12:51:43   -    -0% ksoftirqd/3    
+     28       2 root     root     2020/06/01 12:51:43   -    -0% kworker/3:0H-k 
+     29       2 root     root     2020/06/01 12:51:43   -    -0% cpuhp/4        
+     30       2 root     root     2020/06/01 12:51:43   -    -0% migration/4    
+     31       2 root     root     2020/06/01 12:51:43   -    -0% ksoftirqd/4    
+     33       2 root     root     2020/06/01 12:51:43   -    -0% kworker/4:0H-e 
+     34       2 root     root     2020/06/01 12:51:43   -    -0% cpuhp/5        
+     35       2 root     root     2020/06/01 12:51:43   -    -0% migration/5    
+     36       2 root     root     2020/06/01 12:51:43   -    -0% ksoftirqd/5    
+     38       2 root     root     2020/06/01 12:51:43   -    -0% kworker/5:0H-e 
+     39       2 root     root     2020/06/01 12:51:43   -    -0% cpuhp/6        
+     40       2 root     root     2020/06/01 12:51:43   -    -0% migration/6    
+     41       2 root     root     2020/06/01 12:51:43   -    -0% ksoftirqd/6    
+     43       2 root     root     2020/06/01 12:51:43   -    -0% kworker/6:0H-k 
+     44       2 root     root     2020/06/01 12:51:43   -    -0% cpuhp/7        
+     45       2 root     root     2020/06/01 12:51:43   -    -0% migration/7    
+     46       2 root     root     2020/06/01 12:51:43   -    -0% ksoftirqd/7    
+     48       2 root     root     2020/06/01 12:51:43   -    -0% kworker/7:0H-k 
+     49       2 root     root     2020/06/01 12:51:43   -    -0% kdevtmpfs      
+     50       2 root     root     2020/06/01 12:51:43   -    -0% netns          
+     51       2 root     root     2020/06/01 12:51:43   -    -0% rcu_tasks_kthr 
+     52       2 root     root     2020/06/01 12:51:43   -    -0% kauditd        
+     53       2 root     root     2020/06/01 12:51:43   -    -0% oom_reaper     
+     54       2 root     root     2020/06/01 12:51:43   -    -0% writeback      
+     55       2 root     root     2020/06/01 12:51:43   -    -0% kcompactd0     
+     56       2 root     root     2020/06/01 12:51:43   -    -0% ksmd           
+     57       2 root     root     2020/06/01 12:51:43   -    -0% khugepaged     
+     86       2 root     root     2020/06/01 12:51:43   -    -0% cryptd         
+    167       2 root     root     2020/06/01 12:51:43   -    -0% kintegrityd    
+    168       2 root     root     2020/06/01 12:51:43   -    -0% kblockd        
+    169       2 root     root     2020/06/01 12:51:43   -    -0% blkcg_punt_bio 
+    172       2 root     root     2020/06/01 12:51:43   -    -0% tpm_dev_wq     
+    174       2 root     root     2020/06/01 12:51:43   -    -0% ata_sff        
+    175       2 root     root     2020/06/01 12:51:43   -    -0% md             
+    176       2 root     root     2020/06/01 12:51:43   -    -0% edac-poller    
+    177       2 root     root     2020/06/01 12:51:43   -    -0% devfreq_wq     
+    178       2 root     root     2020/06/01 12:51:43   -    -0% watchdogd      
+    179       2 root     root     2020/06/01 12:51:43   -    -0% kswapd0        
+    182       2 root     root     2020/06/01 12:51:43   -    -0% kthrotld       
+    184       2 root     root     2020/06/01 12:51:43   -    -0% acpi_thermal_p 
+    185       2 root     root     2020/06/01 12:51:43   -    -0% scsi_eh_0      
+    186       2 root     root     2020/06/01 12:51:43   -    -0% scsi_tmf_0     
+    187       2 root     root     2020/06/01 12:51:43   -    -0% scsi_eh_1      
+    188       2 root     root     2020/06/01 12:51:43   -    -0% scsi_tmf_1     
+    189       2 root     root     2020/06/01 12:51:43   -    -0% scsi_eh_2      
+    190       2 root     root     2020/06/01 12:51:43   -    -0% scsi_tmf_2     
+    191       2 root     root     2020/06/01 12:51:43   -    -0% scsi_eh_3      
+    192       2 root     root     2020/06/01 12:51:43   -    -0% scsi_tmf_3     
+    193       2 root     root     2020/06/01 12:51:43   -    -0% scsi_eh_4      
+    194       2 root     root     2020/06/01 12:51:43   -    -0% scsi_tmf_4     
+    195       2 root     root     2020/06/01 12:51:43   -    -0% scsi_eh_5      
+    196       2 root     root     2020/06/01 12:51:43   -    -0% scsi_tmf_5     
+    203       2 root     root     2020/06/01 12:51:43   -    -0% dm_bufio_cache 
+    205       2 root     root     2020/06/01 12:51:43   -    -0% ipv6_addrconf  
+    212       2 root     root     2020/06/01 12:51:43   -    -0% kstrp          
+    272       2 root     root     2020/06/01 12:51:43   -    -0% zswap-shrink   
+    293       2 root     root     2020/06/01 12:51:44   -    -0% kworker/6:1H-e 
+    294       2 root     root     2020/06/01 12:51:44   -    -0% kworker/7:1H-k 
+    472       2 root     root     2020/06/01 12:51:44   -    -0% sdhci          
+    474       2 root     root     2020/06/01 12:51:44   -    -0% irq/33-mmc0    
+    524       2 root     root     2020/06/01 12:51:45   -    -0% kworker/4:1H-k 
+    526       2 root     root     2020/06/01 12:51:45   -    -0% nvkm-disp      
+    528       2 root     root     2020/06/01 12:51:46   -    -0% ttm_swap       
+    531       2 root     root     2020/06/01 12:51:46   -    -0% kworker/5:1H-e 
+    570       2 root     root     2020/06/01 12:51:47   -    -0% kdmflush       
+    577       2 root     root     2020/06/01 12:51:47   -    -0% kdmflush       
+    592       2 root     root     2020/06/01 12:51:47   -    -0% jbd2/dm-0-8    
+    593       2 root     root     2020/06/01 12:51:47   -    -0% ext4-rsv-conve 
+    650       2 root     root     2020/06/01 12:51:47   -    -0% kworker/2:1H-k 
+    651       2 root     root     2020/06/01 12:51:48   -    -0% kworker/3:1H-e 
+    658       2 root     root     2020/06/01 12:51:49   -    -0% kworker/0:1H-k 
+    663       2 root     root     2020/06/01 12:51:49   -    -0% kworker/1:1H-e 
+    688       1 root     root     2020/06/01 12:51:49   -    -0% systemd-journa 
+    766       2 root     root     2020/06/01 12:51:50   -    -0% irq/37-mei_me  
+    772       2 root     root     2020/06/01 12:51:50   -    -0% ktpacpid       
+    782       2 root     root     2020/06/01 12:51:50   -    -0% cfg80211       
+    783       2 root     root     2020/06/01 12:51:50   -    -0% kdmflush       
+    806       2 root     root     2020/06/01 12:51:50   -    -0% irq/38-iwlwifi 
+    880       2 root     root     2020/06/01 12:51:51   -    -0% irq/41-rmi4_sm 
+    900       2 root     root     2020/06/01 12:51:51   -    -0% jbd2/sda1-8    
+    901       2 root     root     2020/06/01 12:51:51   -    -0% ext4-rsv-conve 
+    902       2 root     root     2020/06/01 12:51:51   -    -0% jbd2/dm-2-8    
+    903       2 root     root     2020/06/01 12:51:51   -    -0% ext4-rsv-conve 
+    914       1 root     root     2020/06/01 12:51:51   -    -0% auditd         
+    916     914 root     root     2020/06/01 12:51:51   -    -0% sedispatch     
+    919       2 root     root     2020/06/01 12:51:51   -    -0% rpciod         
+    920       2 root     root     2020/06/01 12:51:51   -    -0% xprtiod        
+    945       1 root     root     2020/06/01 12:51:51   -    -0% ModemManager   
+    946       1 user-23  group-N  2020/06/01 12:51:51   -    -0% avahi-daemon   
+    947       1 root     root     2020/06/01 12:51:51   -    -0% bluetoothd     
+    956       1 root     root     2020/06/01 12:51:51   -    -0% mcelog         
+    961       1 root     root     2020/06/01 12:51:51   -    -0% rngd           
+    965       1 user-24  group-N  2020/06/01 12:51:51   -    -0% rtkit-daemon   
+    967       1 root     root     2020/06/01 12:51:51   -    -0% smartd         
+    968       1 root     root     2020/06/01 12:51:51   -    -0% sssd           
+    969       1 root     root     2020/06/01 12:51:51   -    -0% switcheroo-con 
+    971       1 root     root     2020/06/01 12:51:51   -    -0% systemd-homed  
+    972       1 root     root     2020/06/01 12:51:51   -    -0% systemd-machin 
+    977     946 user-23  group-N  2020/06/01 12:51:51   -    -0% avahi-daemon   
+    981       1 user-25  group-N  2020/06/01 12:51:51   -    -0% dbus-broker-la 
+   1006       1 user-26  group-N  2020/06/01 12:51:51   -    -0% chronyd        
+   1009       1 root     root     2020/06/01 12:51:51   -    -0% abrtd          
+   1028     981 user-25  group-N  2020/06/01 12:51:52   -    -0% dbus-broker    
+   1031     968 root     root     2020/06/01 12:51:52   -    -0% sssd_be        
+   1058     968 root     root     2020/06/01 12:51:52   -    -0% sssd_nss       
+   1065       1 root     root     2020/06/01 12:51:52   -    -0% accounts-daemo 
+   1066       1 root     root     2020/06/01 12:51:52   -    -0% systemd-logind 
+   1073       1 user-27  group-N  2020/06/01 12:51:52   -    -0% polkitd        
+   1112       1 root     root     2020/06/01 12:51:53   -    -0% NetworkManager 
+   1120       1 root     root     2020/06/01 12:51:53   -    -0% systemd-userdb 
+   1174       1 root     root     2020/06/01 12:51:53   -    -0% abrt-dump-jour 
+   1175       1 root     root     2020/06/01 12:51:53   -    -0% abrt-dump-jour 
+   1176       1 root     root     2020/06/01 12:51:53   -    -0% abrt-dump-jour 
+   1343       1 root     root     2020/06/01 12:51:54   -    -0% wpa_supplicant 
+   1579       1 root     root     2020/06/01 12:52:03   -    -0% atd            
+   1581       1 root     root     2020/06/01 12:52:03   -    -0% gdm            
+   1633       1 user-1   group-N  2020/06/01 12:52:03   -    -0% systemd        
+   1634       1 user-28  group-N  2020/06/01 12:52:03   -    -0% systemd        
+   1676    1634 user-28  group-N  2020/06/01 12:52:03   -    -0% (sd-pam        
+   1677    1633 user-1   group-N  2020/06/01 12:52:03   -    -0% (sd-pam        
+   1923       1 user-29  group-N  2020/06/01 12:52:04   -    -0% dnsmasq        
+   1924    1923 root     root     2020/06/01 12:52:04   -    -0% dnsmasq        
+   1986       1 user-29  group-N  2020/06/01 12:52:04   -    -0% dnsmasq        
+   1987    1986 root     root     2020/06/01 12:52:04   -    -0% dnsmasq        
+   2790       2 root     root     2020/06/01 12:52:08   -    -0% dio/dm-0       
+   2918       1 root     root     2020/06/01 12:52:09   -    -0% upowerd        
+   2961       1 root     root     2020/06/01 12:52:09   -    -0% packagekitd    
+   3456       1 user-30  group-N  2020/06/01 12:52:10   -    -0% colord         
+  41112    1581 root     group-N  2020/06/02 07:26:17   -    -0% gdm-session-wo 
+  41131       1 user-1   group-N  2020/06/02 07:26:23   -    -0% gnome-keyring- 
+  41149   41112 user-1   group-N  2020/06/02 07:26:23   -    -0% gdm-wayland-se 
+  41151    1633 user-1   group-N  2020/06/02 07:26:23   -    -0% dbus-broker-la 
+  41152   41151 user-1   group-N  2020/06/02 07:26:23   -    -0% dbus-broker    
+  41154   41149 user-1   group-N  2020/06/02 07:26:23   -    -0% gnome-session- 
+  41203    1633 user-1   group-N  2020/06/02 07:26:24   -    -0% gnome-session- 
+  41204    1633 user-1   group-N  2020/06/02 07:26:24   -    -0% pulseaudio     
+  41206    1633 user-1   group-N  2020/06/02 07:26:24   -    -0% gnome-session- 
+  41220    1633 user-1   group-N  2020/06/02 07:26:24   -    -0% gnome-shell    
+  41299    1633 user-1   group-N  2020/06/02 07:26:24   -    -0% at-spi-bus-lau 
+  41305   41299 user-1   group-N  2020/06/02 07:26:24   -    -0% dbus-broker-la 
+  41307   41305 user-1   group-N  2020/06/02 07:26:24   -    -0% dbus-broker    
+  41322   41220 user-1   group-N  2020/06/02 07:26:24   -    -0% Xwayland       
+  41406    1633 user-1   group-N  2020/06/02 07:26:25   -    -0% gvfsd          
+  41411    1633 user-1   group-N  2020/06/02 07:26:25   -    -0% dconf-service  
+  41418    1633 user-1   group-N  2020/06/02 07:26:25   -    -0% gvfsd-fuse     
+  41448       2 root     root     2020/06/02 07:26:25   -    -0% krfcommd       
+  41450    1633 user-1   group-N  2020/06/02 07:26:25   -    -0% xdg-permission 
+  41454    1633 user-1   group-N  2020/06/02 07:26:25   -    -0% gnome-shell-ca 
+  41458    1633 user-1   group-N  2020/06/02 07:26:25   -    -0% evolution-sour 
+  41466       1 user-31  group-N  2020/06/02 07:26:25   -    -0% geoclue        
+  41477    1633 user-1   group-N  2020/06/02 07:26:25   -    -0% gvfs-udisks2-v 
+  41480       1 root     root     2020/06/02 07:26:25   -    -0% udisksd        
+  41490    1633 user-1   group-N  2020/06/02 07:26:25   -    -0% goa-daemon     
+  41495    1633 user-1   group-N  2020/06/02 07:26:25   -    -0% gvfsd-metadata 
+  41506    1633 user-1   group-N  2020/06/02 07:26:25   -    -0% gvfs-gphoto2-v 
+  41510    1633 user-1   group-N  2020/06/02 07:26:25   -    -0% gvfs-mtp-volum 
+  41520    1633 user-1   group-N  2020/06/02 07:26:25   -    -0% goa-identity-s 
+  41521    1633 user-1   group-N  2020/06/02 07:26:25   -    -0% gvfs-goa-volum 
+  41529    1633 user-1   group-N  2020/06/02 07:26:25   -    -0% gvfs-afc-volum 
+  41534    1633 user-1   group-N  2020/06/02 07:26:25   -    -0% gjs            
+  41535    1633 user-1   group-N  2020/06/02 07:26:25   -    -0% at-spi2-regist 
+  41552    1633 user-1   group-N  2020/06/02 07:26:25   -    -0% gsd-a11y-setti 
+  41554    1633 user-1   group-N  2020/06/02 07:26:25   -    -0% gsd-color      
+  41555    1633 user-1   group-N  2020/06/02 07:26:25   -    -0% gsd-datetime   
+  41558    1633 user-1   group-N  2020/06/02 07:26:25   -    -0% gsd-housekeepi 
+  41559    1633 user-1   group-N  2020/06/02 07:26:25   -    -0% gsd-keyboard   
+  41560    1633 user-1   group-N  2020/06/02 07:26:25   -    -0% gsd-media-keys 
+  41565    1633 user-1   group-N  2020/06/02 07:26:25   -    -0% gsd-power      
+  41566    1633 user-1   group-N  2020/06/02 07:26:25   -    -0% gsd-print-noti 
+  41569    1633 user-1   group-N  2020/06/02 07:26:25   -    -0% gsd-rfkill     
+  41570    1633 user-1   group-N  2020/06/02 07:26:25   -    -0% gsd-screensave 
+  41573    1633 user-1   group-N  2020/06/02 07:26:25   -    -0% gsd-sharing    
+  41589   41206 user-1   group-N  2020/06/02 07:26:25   -    -0% tracker-miner- 
+  41592   41206 user-1   group-N  2020/06/02 07:26:25   -    -0% evolution-alar 
+  41604    1633 user-1   group-N  2020/06/02 07:26:25   -    -0% gsd-smartcard  
+  41607    1633 user-1   group-N  2020/06/02 07:26:25   -    -0% gsd-sound      
+  41610    1633 user-1   group-N  2020/06/02 07:26:25   -    -0% gsd-usb-protec 
+  41612    1633 user-1   group-N  2020/06/02 07:26:25   -    -0% gsd-wacom      
+  41626    1633 user-1   group-N  2020/06/02 07:26:25   -    -0% gsd-wwan       
+  41627   41206 user-1   group-N  2020/06/02 07:26:25   -    -0% gnome-software 
+  41632   41206 user-1   group-N  2020/06/02 07:26:25   -    -0% gsd-disk-utili 
+  41633    1633 user-1   group-N  2020/06/02 07:26:25   -    -0% abrt-applet    
+  41634    1633 user-1   group-N  2020/06/02 07:26:25   -    -0% evolution-cale 
+  41741    1633 user-1   group-N  2020/06/02 07:26:26   -    -0% gsd-printer    
+  41752   41220 user-1   group-N  2020/06/02 07:26:26   -    -0% ibus-daemon    
+  41755    1633 user-1   group-N  2020/06/02 07:26:26   -    -0% gsd-xsettings  
+  41774   41752 user-1   group-N  2020/06/02 07:26:26   -    -0% ibus-dconf     
+  41775   41752 user-1   group-N  2020/06/02 07:26:26   -    -0% ibus-extension 
+  41777    1633 user-1   group-N  2020/06/02 07:26:26   -    -0% ibus-x11       
+  41781    1633 user-1   group-N  2020/06/02 07:26:26   -    -0% ibus-portal    
+  41798    1633 user-1   group-N  2020/06/02 07:26:26   -    -0% evolution-addr 
+  41858   41752 user-1   group-N  2020/06/02 07:26:26   -    -0% ibus-engine-si 
+  41909       1 root     root     2020/06/02 07:26:26   -    -0% abrt-dbus      
+  42253   41220 user-1   group-N  2020/06/02 07:27:12   -    -0% hexchat        
+  42839    1633 user-1   group-N  2020/06/02 07:27:59   -    -0% gnome-terminal 
+  43245   42839 user-1   group-N  2020/06/02 07:28:56   -    -0% bash           
+  44073   42839 user-1   group-N  2020/06/02 07:49:17   -    -0% bash           
+  44851   41131 user-1   group-N  2020/06/02 07:52:42   -    -0% ssh-agent      
+  48434    1633 user-1   group-N  2020/06/02 08:34:48   -    -0% gconfd-2       
+  53785   41406 user-1   group-N  2020/06/02 09:42:43   -    -0% gvfsd-trash    
+  53794   41406 user-1   group-N  2020/06/02 09:42:44   -    -0% gvfsd-network  
+  53811   41406 user-1   group-N  2020/06/02 09:42:47   -    -0% gvfsd-dnssd    
+ 154664       1 root     root     2020/06/01 12:51:43   -    -0% rsyslogd       
+ 365788 2612644 user-1   group-N  2020/06/01 12:51:43   -    -0% chrome         
+ 465141    1633 user-28  group-N  2020/06/02 16:13:45   -    -0% podman pause   
+ 465153    1634 user-28  group-N  2020/06/02 16:13:45   -    -0% dbus-broker-la 
+ 465154  465153 user-28  group-N  2020/06/02 16:13:45   -    -0% dbus-broker    
+ 623701 2612644 user-1   group-N  2020/06/01 12:51:43   -    -0% chrome         
+ 939556 2612644 user-1   group-N  2020/06/01 12:51:43   -    -0% chrome         
+1073783       1 user-0   group-N  2020/06/01 12:51:43   -    -0% sqlservr       
+1073790 1073783 user-0   group-N  2020/06/01 12:51:43   -    -0% sqlservr       
+1140385       1 user-32  group-N  2020/06/01 12:51:43   -    -0% earlyoom       
+1140394       1 root     root     2020/06/01 12:51:43   -    -0% alsactl        
+1208346 2612644 user-1   group-N  2020/06/01 12:51:43   -    -0% chrome         
+1229488       1 user-33  group-N  2020/06/01 12:51:43   -    -0% grafana-server 
+1266343    1633 user-28  group-N  2020/06/02 18:22:01   -    -0% dbus-launch    
+1266344    1633 user-28  group-N  2020/06/02 18:22:01   -    -0% dbus-daemon    
+1266542    1633 user-28  group-N  2020/06/01 12:51:43   -    -0% pmtime         
+1541229    1633 user-1   group-N  2020/06/01 12:51:43   -    -0% gnome-calendar 
+1541314    1633 user-1   group-N  2020/06/01 12:51:43   -    -0% obexd          
+1671685    1633 user-1   group-N  2020/06/01 12:51:43   -    -0% nstat          
+1866820   42839 user-1   group-N  2020/06/01 12:51:43   -    -0% bash           
+1873447    1633 user-1   group-N  2020/06/01 12:51:43   -    -0% kdeinit4       
+1873449 1873447 user-1   group-N  2020/06/01 12:51:43   -    -0% klauncher      
+1873451    1633 user-1   group-N  2020/06/01 12:51:43   -    -0% kded4          
+1920659       2 root     root     2020/06/02 19:38:04   -    -0% glock_workqueu 
+1920660       2 root     root     2020/06/02 19:38:04   -    -0% delete_workque 
+1920661       2 root     root     2020/06/02 19:38:04   -    -0% gfs_recovery   
+1998008   41112 root     group-N  2020/06/01 12:51:43   -    -0% gdm-session-wo 
+2029227   44073 user-1   group-N  2020/06/01 12:51:43   -    -0% slack          
+2029234 2029227 user-1   group-N  2020/06/01 12:51:43   -    -0% slack          
+2029235 2029227 user-1   group-N  2020/06/01 12:51:43   -    -0% slack          
+2029237 2029235 user-1   group-N  2020/06/01 12:51:43   -    -0% slack          
+2029267 2029234 user-1   group-N  2020/06/01 12:51:43   -    -0% slack          
+2029317 2029227 user-1   group-N  2020/06/01 12:51:43   -    -0% slack          
+2029336 2029237 user-1   group-N  2020/06/01 12:51:43   -    -0% slack          
+2124722   42839 user-1   group-N  2020/06/01 12:51:43   -    -0% bash           
+2259492       1 root     root     2020/06/01 12:51:43   -    -0% firewalld      
+2259596       1 root     root     2020/06/01 12:51:43   -    -0% smbd           
+2259598 2259596 root     root     2020/06/01 12:51:43   -    -0% smbd-notifyd   
+2259599 2259596 root     root     2020/06/01 12:51:43   -    -0% cleanupd       
+2259601 2259596 root     root     2020/06/01 12:51:43   -    -0% lpqd           
+2259720       1 user-34  group-N  2020/06/01 12:51:43   -    -0% mysqld         
+2269681       1 root     root     2020/06/01 12:51:43   -    -0% crond          
+2270956       1 root     root     2020/06/01 12:51:43   -    -0% gssproxy       
+2271362       1 root     root     2020/06/01 12:51:43   -    -0% sshd           
+2283480   41220 user-1   group-N  2020/06/01 12:51:43   -    -0% firefox        
+2283635 2283480 user-1   group-N  2020/06/01 12:51:43   -    -0% Web Content    
+2283692 2283480 user-1   group-N  2020/06/01 12:51:43   -    -0% WebExtensions  
+2283740 2283480 user-1   group-N  2020/06/01 12:51:43   -    -0% Web Content    
+2283779 2283480 user-1   group-N  2020/06/01 12:51:43   -    -0% Web Content    
+2284034 2283480 user-1   group-N  2020/06/01 12:51:43   -    -0% Web Content    
+2284066 2283480 user-1   group-N  2020/06/01 12:51:43   -    -0% Web Content    
+2284349 2283480 user-1   group-N  2020/06/01 12:51:43   -    -0% Privileged Con 
+2284408 2283480 user-1   group-N  2020/06/01 12:51:43   -    -0% RDD Process    
+2290904       2 root     root     2020/06/02 20:17:13   -    -0% xfsalloc       
+2290905       2 root     root     2020/06/02 20:17:13   -    -0% xfs_mru_cache  
+2293102 2283480 user-1   group-N  2020/06/01 12:51:43   -    -0% Web Content    
+2309214    1633 user-1   group-N  2020/06/01 12:51:43   -    -0% ssh-agent      
+2311258    1633 user-1   group-N  2020/06/01 12:51:43   -    -0% dirmngr        
+2316771   42839 user-1   group-N  2020/06/01 12:51:43   -    -0% bash           
+2316972 2316771 user-1   group-N  2020/06/01 12:51:43   -    -0% vim            
+2333634    1633 user-1   group-N  2020/06/01 12:51:43   -    -0% xdg-desktop-po 
+2333638    1633 user-1   group-N  2020/06/01 12:51:43   -    -0% xdg-document-p 
+2333642 2333638 user-1   group-N  2020/06/01 12:51:43   -    -0% fusermount     
+2333646    1633 user-1   group-N  2020/06/01 12:51:43   -    -0% xdg-desktop-po 
+2333703    1633 user-1   group-N  2020/06/01 12:51:43   -    -0% pipewire       
+2333705 2333703 user-1   group-N  2020/06/01 12:51:43   -    -0% pipewire-media 
+2333829       1 root     root     2020/06/01 12:51:43   -    -0% nm-openvpn-ser 
+2333846 2333829 user-4   group-N  2020/06/01 12:51:43   -    -0% openvpn        
+2336718   42839 user-1   group-N  2020/06/01 12:51:43   -    -0% bash           
+2513816       1 user-2   group-N  2020/06/01 12:51:43   -    -0% pmproxy        
+2560686       2 root     root     2020/06/02 20:47:40   -    -0% target_complet 
+2560687       2 root     root     2020/06/02 20:47:40   -    -0% xcopy_wq       
+2569077    1633 root     root     2020/06/09 09:13:03   -    -0% dbus-launch    
+2569078    1633 root     root     2020/06/09 09:13:03   -    -0% dbus-daemon    
+2569081    1633 root     root     2020/06/09 09:13:03   -    -0% at-spi-bus-lau 
+2569086 2569081 root     root     2020/06/09 09:13:03   -    -0% dbus-broker-la 
+2569087 2569086 root     root     2020/06/09 09:13:03   -    -0% dbus-broker    
+2569286       1 root     root     2020/06/09 09:13:32   -    -0% systemd-udevd  
+2612625   44073 user-1   group-N  2020/06/09 10:06:08   -    -0% chrome         
+2612634 2612625 user-1   group-N  2020/06/09 10:06:08   -    -0% cat            
+2612635 2612625 user-1   group-N  2020/06/09 10:06:08   -    -0% cat            
+2612638 2612625 user-1   group-N  2020/06/09 10:06:09   -    -0% chrome         
+2612639 2612625 user-1   group-N  2020/06/09 10:06:09   -    -0% chrome         
+2612640 2612638 user-1   group-N  2020/06/09 10:06:09   -    -0% nacl_helper    
+2612641 2612639 user-1   group-N  2020/06/09 10:06:09   -    -0% nacl_helper    
+2612644 2612639 user-1   group-N  2020/06/09 10:06:09   -    -0% chrome         
+2612667 2612638 user-1   group-N  2020/06/09 10:06:09   -    -0% chrome         
+2612670 2612625 user-1   group-N  2020/06/09 10:06:09   -    -0% chrome         
+2612710 2612644 user-1   group-N  2020/06/09 10:06:09   -    -0% chrome         
+2612745 2612644 user-1   group-N  2020/06/09 10:06:09   -    -0% chrome         
+2613049 2612625 user-1   group-N  2020/06/09 10:06:22   -    -0% chrome         
+2632232       1 user-2   group-N  2020/06/01 12:51:43   -    -0% pmlogger       
+2633652 2612644 user-1   group-N  2020/06/09 14:55:02   -    -0% chrome         
+2684700 2612644 user-1   group-N  2020/06/01 12:51:43   -    -0% chrome         
+2692050 2283480 user-1   group-N  2020/06/01 12:51:43   -    -0% Web Content    
+2722962 2283480 user-1   group-N  2020/06/01 12:51:43   -    -0% Web Content    
+2754608       1 user-2   group-N  2020/06/01 12:51:43   -    -0% pmcd           
+2754613 2754608 root     root     2020/06/01 12:51:43   -    -0% pmdaroot       
+2754614 2754613 user-1   group-N  2020/06/01 12:51:43   -    -0% pmdaproc       
+2754617 2754613 root     root     2020/06/01 12:51:43   -    -0% pmdaxfs        
+2754618 2754613 user-2   group-N  2020/06/01 12:51:43   -    -0% pmdasample     
+2754619 2754613 root     root     2020/06/01 12:51:43   -    -0% pmdalinux      
+2754620 2754613 root     root     2020/06/01 12:51:43   -    -0% python3        
+2754624 2754613 root     root     2020/06/01 12:51:43   -    -0% pmdakvm        
+2754628 2754613 root     root     2020/06/01 12:51:43   -    -0% python3        
+2754632 2754613 user-2   group-N  2020/06/01 12:51:43   -    -0% pmdasimple     
+2766198   42839 user-1   group-N  2020/06/01 12:51:43   -    -0% bash           
+2766247 2766198 user-1   group-N  2020/06/01 12:51:43   -    -0% pmchart        
+2766257 2766247 user-1   group-N  2020/06/01 12:51:43   -    -0% pmtime         
+2880468 2612644 user-1   group-N  2020/06/01 12:51:43   -    -0% chrome         
+2880482 2612644 user-1   group-N  2020/06/01 12:51:43   -    -0% chrome         
+2888580       2 root     root     2020/06/01 12:51:43   -    -0% kworker/u17:2- 
+2890378       2 root     root     2020/06/01 12:51:43   -    -0% kworker/u17:0- 
+2895366 2612644 user-1   group-N  2020/06/01 12:51:43   -    -0% chrome         
+2895425 2612644 user-1   group-N  2020/06/01 12:51:43   -    -0% chrome         
+2896418 2124722 user-1   group-N  2020/06/01 12:51:43   -    -0% vim            
+2898386       1 root     root     2020/06/01 12:51:43   -    -0% sshd           
+2898861 2898386 user-1   group-N  2020/06/01 12:51:43   -    -0% sshd           
+2898887 2898861 user-1   group-N  2020/06/01 12:51:43   -    -0% bash           
+2904418       2 root     root     2020/06/01 12:51:43   -    -0% kworker/u16:2- 
+2904664   42839 user-1   group-N  2020/06/01 12:51:43   -    -0% bash           
+2904990 2904664 user-1   group-N  2020/06/01 12:51:43   -    -0% vim            
+2907249       2 root     root     2020/06/01 12:51:43   -    -0% kworker/u16:4- 
+2907839       2 root     root     2020/06/01 12:51:43   -    -0% kworker/7:1-ev 
+2908025       2 root     root     2020/06/01 12:51:43   -    -0% kworker/1:2-ev 
+2909160   42839 user-1   group-N  2020/06/01 12:51:43   -    -0% bash           
+2909726       2 root     root     2020/06/01 12:51:43   -    -0% kworker/u16:0- 
+2910784       2 root     root     2020/06/01 12:51:43   -    -0% kworker/u16:1- 
+2915571 2336718 root     root     2020/06/01 12:51:43   -    -0% sudo           
+2915573 2915571 root     root     2020/06/01 12:51:43   -    -0% su             
+2915574 2915573 user-28  group-N  2020/06/01 12:51:43   -    -0% bash           
+2924224       2 root     root     2020/06/01 12:51:43   -    -0% kworker/3:0-cg 
+2941805       2 root     root     2020/06/01 12:51:43   -    -0% kworker/2:2-ev 
+2948327       2 root     root     2020/06/01 12:51:43   -    -0% kworker/6:2-ev 
+2952288 2754613 user-2   group-N  2020/06/01 12:51:43   -    -0% pmdaperfevent  
+2952537 2754613 user-2   group-N  2020/06/01 12:51:43   -    -0% pmdaapache     
+2952609       2 root     root     2020/06/01 12:51:43   -    -0% kworker/0:1-ev 
+2954314       2 root     root     2020/06/01 12:51:43   -    -0% kworker/6:3-ev 
+2954316       2 root     root     2020/06/01 12:51:43   -    -0% kworker/4:3-ev 
+2954449       2 root     root     2020/06/01 12:51:43   -    -0% kworker/5:1-mm 
+2954773       2 root     root     2020/06/01 12:51:43   -    -0% kworker/u16:5- 
+2954774       2 root     root     2020/06/01 12:51:43   -    -0% kworker/u16:6- 
+2954941       2 root     root     2020/06/01 12:51:43   -    -0% kworker/3:2-ev 
+2954961       2 root     root     2020/06/01 12:51:43   -    -0% kworker/1:1-ev 
+2955047       2 root     root     2020/06/01 12:51:43   -    -0% kworker/2:1-ev 
+2955757       2 root     root     2020/06/01 12:51:43   -    -0% kworker/0:3-ev 
+2955758       2 root     root     2020/06/01 12:51:43   -    -0% kworker/5:2-ev 
+2955856       2 root     root     2020/06/01 12:51:43   -    -0% kworker/4:1-mm 
+2955973       2 root     root     2020/06/01 12:51:43   -    -0% kworker/7:0-ev 
+2956039       2 root     root     2020/06/01 12:51:43   -    -0% kworker/2:0-ev 
+2956203       2 root     root     2020/06/01 12:51:43   -    -0% kworker/6:0-ev 
+2956409       2 root     root     2020/06/01 12:51:43   -    -0% kworker/u16:3  
+2956410       2 root     root     2020/06/01 12:51:43   -    -0% kworker/u16:7- 
+2956504       2 root     root     2020/06/01 12:51:43   -    -0% kworker/3:1-ev 
+2956508       2 root     root     2020/06/01 12:51:43   -    -0% kworker/3:3-ev 
+2956688       2 root     root     2020/06/01 12:51:43   -    -0% kworker/4:0-ev 
+2956689       2 root     root     2020/06/01 12:51:43   -    -0% kworker/0:0-ev 
+2956702    1120 root     root     2020/06/01 12:51:43   -    -0% systemd-userwo 
+2956707    1120 root     root     2020/06/01 12:51:43   -    -0% systemd-userwo 
+2956737    1120 root     root     2020/06/01 12:51:43   -    -0% systemd-userwo 
+2956762    1633 user-1   group-N  2020/06/01 12:51:43   -    -0% tracker-store  
+2956875 1866820 user-1   group-N  2020/06/01 12:51:43   -    -0% mk.atop-boot   
+2956901 2956875 user-1   group-N  2020/06/01 12:51:43   -    -0% pmlogger       
+3078515 2612644 user-1   group-N  2020/06/01 12:51:43   -    -0% chrome         
+3089383   43245 user-1   group-N  2020/06/01 12:51:43   -    -0% vim            
+3246189    1633 user-1   group-N  2020/06/03 14:29:30   -    -0% podman pause   
+3343871       1 user-3   group-N  2020/06/01 12:51:43   -    -0% redis-server   
+3385392   41406 user-1   group-N  2020/06/04 08:26:50   -    -0% gvfsd-http     
+3415046    1633 user-1   group-N  2020/06/04 17:18:48   -    -0% gpg-agent      
+3415048 3415046 user-1   group-N  2020/06/04 17:18:48   -    -0% scdaemon       
+3433701 2612644 user-1   group-N  2020/06/01 12:51:43   -    -0% chrome         
+3734807       1 root     root     2020/06/22 14:59:54   -    -0% cupsd          
 === std err
 === done
 
@@ -344,19 +497,278 @@ SWP | tot     0.0M | free    0.0M |              | vmcom   0.0M | vmlim   0.0M |
 === std out
 
 
-ATOP - shard        2020/03/19  15:05:16        ------R-------        1s elapsed
-PRC | sys    0.00s | user   0.00s | #proc    326 | #zombie    0 | no  procacct |
-CPU | sys       0% | user      0% | irq       0% | idle      0% | wait      0% |
-CPL | avg1   -1.00 | avg5   -1.00 | avg15  -1.00 | csw        0 | intr       0 |
-MEM | tot    15.3G | free    0.0M | cache   0.0M | buff    0.0M | slab    0.0M |
-SWP | tot     0.0M | free    0.0M |              | vmcom   0.0M | vmlim   0.0M |
-                   *** system and process activity since boot ***
+ATOP - shard        2020/07/22  17:32:51        ------R-------        1s elapsed
+PRC | sys    0.44s | user   1.00s | #proc    396 | #zombie    0 | no  procacct |
+CPU | sys      19% | user     49% | irq      34% | idle    698% | wait      1% |
+cpu | sys       4% | user     22% | irq       4% | idle     70% | cpu002 w  0% |
+cpu | sys       3% | user      6% | irq       4% | idle     87% | cpu004 w  1% |
+cpu | sys       3% | user      5% | irq       5% | idle     88% | cpu000 w  0% |
+cpu | sys       3% | user      5% | irq       4% | idle     88% | cpu006 w  0% |
+cpu | sys       2% | user      3% | irq       5% | idle     91% | cpu001 w  0% |
+cpu | sys       2% | user      3% | irq       4% | idle     91% | cpu003 w  0% |
+cpu | sys       1% | user      3% | irq       4% | idle     91% | cpu007 w  0% |
+cpu | sys       2% | user      2% | irq       4% | idle     93% | cpu005 w  0% |
+CPL | avg1    0.75 | avg5    0.99 | avg15   0.99 | csw    45143 | intr   33919 |
+MEM | tot    15.3G | free  168.9M | cache   2.7G | buff  127.0M | slab  932.7M |
+SWP | tot     7.7G | free  657.6M |              | vmcom  25.7G | vmlim  15.1G |
+LVM | a_shard-home | busy      0% | read       0 | write     33 | avio 0.00 ms |
+DSK |          sda | busy      0% | read       0 | write      3 | avio 1.33 ms |
+NET | transport    | tcpi      51 | tcpo      48 | udpi       5 | udpo       1 |
+NET | network      | ipi       45 | ipo       37 | ipfrw      0 | deliv     45 |
+NET | tun0      0% | pcki       2 | pcko       0 | si    1 Kbps | so    0 Kbps |
+NET | enp0s25   0% | pcki      26 | pcko      19 | si  122 Kbps | so   12 Kbps |
+NET | lo      ---- | pcki      30 | pcko      30 | si   16 Kbps | so   16 Kbps |
+
     PID VSTACK  VSIZE  RSIZE  PSIZE  VGROW  RGROW SWAPSZ  MEM CMD            
-      1     0K     0K     0K     ?K     0K     0K     0K   0% systemd        
+3343871   132K   4.4G   3.3G     ?K     0K     0K 22416K  22% redis-server   
+   2961   132K   2.8G   1.6G     ?K     0K     0K 674.9M  11% packagekitd    
+2283480   140K   4.5G 742.2M     ?K     0K     0K 36988K   5% firefox        
+  41627   132K   1.7G 623.8M     ?K     0K     0K 329.8M   4% gnome-software 
+  41220   288K  10.2G 617.7M     ?K     0K     0K   4.2G   4% gnome-shell    
+2284066   284K   3.3G 476.9M     ?K     0K     0K  4872K   3% Web Content    
+  42839   536K   1.1G 430.7M     ?K     0K     0K 92968K   3% gnome-terminal 
+2284034   192K   3.2G 382.5M     ?K     0K     0K  4872K   2% Web Content    
+2029336   144K   4.9G 356.3M     ?K     0K     0K     0K   2% slack          
+3078515   220K   9.0G 325.5M     ?K -2964K -2836K  6960K   2% chrome         
+1073790   132K  13.3G 318.6M     ?K     0K     0K 523.9M   2% sqlservr       
+1208346   400K  21.2G 267.8M     ?K     0K     0K  6936K   2% chrome         
+2692050   180K   2.9G 254.6M     ?K     0K     0K     0K   2% Web Content    
+2513816   296K 491.4M 245.4M     ?K     0K     0K  1408K   2% pmproxy        
+2612667   136K 969.8M 245.0M     ?K     0K     0K 27900K   2% chrome         
+2283779   260K   3.3G 241.6M     ?K     0K     0K  9996K   2% Web Content    
+2612625   136K   1.1G 233.6M     ?K     0K     0K 15104K   1% chrome         
+2283740   172K   2.9G 179.9M     ?K     0K     0K 11760K   1% Web Content    
+2722962   144K   2.7G 177.9M     ?K     0K     0K     0K   1% Web Content    
+2283635   192K   3.0G 143.0M     ?K     0K     0K  7048K   1% Web Content    
+2293102   192K   2.9G 132.1M     ?K     0K     0K  7172K   1% Web Content    
+2029227   136K   4.9G 125.2M     ?K     0K     0K     0K   1% slack          
+  41490   132K   1.0G 88340K     ?K     0K     0K 43076K   1% goa-daemon     
+2684700   136K   8.7G 81716K     ?K     0K     0K  7024K   1% chrome         
+2880482   136K   4.7G 78420K     ?K     0K     0K  7020K   0% chrome         
+2612670   136K 614.2M 75432K     ?K     0K     0K 27900K   0% chrome         
+ 623701   144K   4.7G 74552K     ?K     0K     0K  6980K   0% chrome         
+  41634   132K   2.3G 64544K     ?K     0K     0K 35916K   0% evolution-cale 
+ 939556   136K   4.7G 63028K     ?K     0K     0K  7008K   0% chrome         
+ 365788   136K   8.9G 62336K     ?K     0K     0K  6992K   0% chrome         
+2895366   136K   8.7G 59352K     ?K     0K     0K  7000K   0% chrome         
+3433701   136K   4.6G 58004K     ?K     0K     0K  6960K   0% chrome         
+2880468   136K   4.6G 49444K     ?K     0K     0K  7028K   0% chrome         
+2029267   136K 598.3M 44432K     ?K     0K     0K     0K   0% slack          
+2029317   136K 498.1M 41488K     ?K     0K     0K     0K   0% slack          
+2283692   132K   2.5G 40796K     ?K     0K     0K 19308K   0% WebExtensions  
+2766247   136K   1.0G 39916K     ?K     0K     0K     0K   0% pmchart        
+2632232   132K 68888K 38092K     ?K     0K     0K    80K   0% pmlogger       
+1229488   132K   1.9G 36944K     ?K     0K     0K 16344K   0% grafana-server 
+  41322   132K   1.6G 36472K     ?K     0K     0K 42184K   0% Xwayland       
+2612710   136K   4.6G 32568K     ?K     0K     0K 10420K   0% chrome         
+2284349   132K   2.5G 31332K     ?K     0K     0K  9724K   0% Privileged Con 
+  42253   132K 505.3M 31084K     ?K     0K     0K 13148K   0% hexchat        
+2633652   156K   4.7G 30708K     ?K     0K     0K  9004K   0% chrome         
+2956762   132K 557.9M 27580K     ?K     0K     0K     0K   0% tracker-store  
+2895425   136K   4.6G 21136K     ?K     0K     0K  7064K   0% chrome         
+2754628   216K 468.1M 20488K     ?K     0K     0K     0K   0% python3        
+      1  1036K 192.6M 20452K     ?K     0K     0K  3544K   0% systemd        
+    688   132K 97780K 18640K     ?K     0K     0K  1544K   0% systemd-journa 
+2754614   276K 47780K 16452K     ?K     0K     0K   676K   0% pmdaproc       
+2766257   136K 674.7M 15368K     ?K     0K     0K     0K   0% pmtime         
+2259720   132K   1.6G 15248K     ?K     0K     0K 45224K   0% mysqld         
+  41554   132K 778.2M 14544K     ?K     0K     0K  2276K   0% gsd-color      
+1541229   132K   1.2G 12144K     ?K     0K     0K  6492K   0% gnome-calendar 
+   1073   132K   1.9G 11224K     ?K     0K     0K  2268K   0% polkitd        
+  41204   132K   2.6G 11176K     ?K     0K     0K   768K   0% pulseaudio     
+2612745   136K   4.6G 11132K     ?K     0K     0K 10832K   0% chrome         
+  41534   132K   3.0G 10932K     ?K     0K     0K  1968K   0% gjs            
+2754620   216K 242.3M 10640K     ?K     0K     0K     0K   0% python3        
+2029234   136K 401.7M 10444K     ?K     0K     0K     0K   0% slack          
+2029235   136K 401.7M 10304K     ?K     0K     0K     0K   0% slack          
+2333646   132K 680.9M 10048K     ?K     0K     0K  2192K   0% xdg-desktop-po 
+  41798   132K   1.0G  9716K     ?K     0K     0K 15636K   0% evolution-addr 
+2952288   276K 45952K  8964K     ?K     0K     0K     0K   0% pmdaperfevent  
+2029237   136K 401.7M  8408K     ?K     0K     0K     0K   0% slack          
+2904990   136K 230.5M  8404K     ?K     0K     0K     0K   0% vim            
+2956901   136K 17544K  8300K     ?K  1388K  1148K     0K   0% pmlogger       
+  41589   132K   1.2G  8060K     ?K     0K     0K 10484K   0% tracker-miner- 
+2915571   136K 246.6M  7844K     ?K     0K     0K     0K   0% sudo           
+2956707   132K 19060K  7828K     ?K     0K     0K     0K   0% systemd-userwo 
+2956702   132K 19060K  7800K     ?K     0K     0K     0K   0% systemd-userwo 
+  41560   132K   1.1G  7752K     ?K     0K     0K  1636K   0% gsd-media-keys 
+2259492   132K 561.6M  7704K     ?K     0K     0K 20696K   0% firewalld      
+2956737   132K 19060K  7684K     ?K     0K     0K     0K   0% systemd-userwo 
+2952537   132K 35776K  7676K     ?K     0K     0K     0K   0% pmdaapache     
+   1633   132K 23092K  7444K     ?K     0K     0K   436K   0% systemd        
+2896418   136K 231.0M  7276K     ?K     0K     0K     0K   0% vim            
+2766198   132K 223.5M  6900K     ?K     0K     0K     0K   0% bash           
+  41565   132K 802.5M  6820K     ?K     0K     0K  1580K   0% gsd-power      
+2915573   132K 244.8M  6792K     ?K     0K     0K     0K   0% su             
+2909160   132K 222.6M  6760K     ?K     0K     0K     0K   0% bash           
+1266542   136K 448.8M  6748K     ?K     0K     0K  5596K   0% pmtime         
+2915574   132K 222.4M  6736K     ?K     0K     0K     0K   0% bash           
+1873451   132K 335.1M  6292K     ?K     0K     0K  4932K   0% kded4          
+2612644   136K 466.2M  6116K     ?K     0K     0K  7492K   0% chrome         
+2612639   136K 466.2M  6088K     ?K     0K     0K  7644K   0% chrome         
+  41458   132K   1.3G  6040K     ?K     0K     0K 12440K   0% evolution-sour 
+2569286   132K 51308K  5848K     ?K     0K     0K  2092K   0% systemd-udevd  
+2904664   132K 222.4M  5844K     ?K     0K     0K     0K   0% bash           
+2284408   132K 159.4M  5764K     ?K     0K     0K  6256K   0% RDD Process    
+1866820   136K 223.6M  5740K     ?K     0K     0K  1160K   0% bash           
+3089383   136K 234.3M  5688K     ?K     0K     0K   440K   0% vim            
+2336718   132K 224.9M  5668K     ?K     0K     0K  2560K   0% bash           
+  41112   132K 539.4M  5600K     ?K     0K     0K  1100K   0% gdm-session-wo 
+2259596   132K 307.6M  5584K     ?K     0K     0K   484K   0% smbd           
+   1028   132K 268.2M  5564K     ?K     0K     0K  3572K   0% dbus-broker    
+   1112   132K   1.2G  5540K     ?K     0K     0K  1624K   0% NetworkManager 
+  41520   132K 513.0M  5528K     ?K     0K     0K   784K   0% goa-identity-s 
+  41755   132K 849.9M  5504K     ?K     0K     0K  5428K   0% gsd-xsettings  
+  41592   132K 910.5M  5336K     ?K     0K     0K  9188K   0% evolution-alar 
+2333703   132K 188.7M  5260K     ?K     0K     0K   408K   0% pipewire       
+2613049   136K 767.1M  5244K     ?K     0K     0K  9976K   0% chrome         
+   1058   132K 262.9M  5188K     ?K     0K     0K   772K   0% sssd_nss       
+  41131   132K 725.8M  5100K     ?K     0K     0K   488K   0% gnome-keyring- 
+  41152   132K  8848K  5064K     ?K     0K     0K   300K   0% dbus-broker    
+2316972   136K 230.5M  5044K     ?K     0K     0K   632K   0% vim            
+ 154664   132K 278.1M  4996K     ?K     0K     0K   240K   0% rsyslogd       
+1998008   132K 378.2M  4864K     ?K     0K     0K     0K   0% gdm-session-wo 
+   1066   132K 23072K  4736K     ?K     0K     0K  1508K   0% systemd-logind 
+  41480   132K 392.5M  4724K     ?K     0K     0K   900K   0% udisksd        
+2259601   132K 307.6M  4632K     ?K     0K     0K   484K   0% lpqd           
+2124722   132K 223.8M  4496K     ?K     0K     0K  1760K   0% bash           
+2333634   132K 953.6M  4468K     ?K     0K     0K   892K   0% xdg-desktop-po 
+  41777   132K 705.5M  4140K     ?K     0K     0K  6672K   0% ibus-x11       
+   1031   132K 251.0M  4100K     ?K     0K     0K   896K   0% sssd_be        
+   1174   132K 357.6M  4048K     ?K     0K     0K  1564K   0% abrt-dump-jour 
+2754619   276K 24916K  3892K     ?K     0K     0K     0K   0% pmdalinux      
+2956875   136K 211.9M  3872K     ?K     0K     0K     0K   0% mk.atop-boot   
+  41411   132K 153.2M  3788K     ?K     0K     0K  1108K   0% dconf-service  
+   1175   132K 365.5M  3672K     ?K     0K     0K  1640K   0% abrt-dump-jour 
+  41495   132K 363.0M  3620K     ?K     0K     0K   252K   0% gvfsd-metadata 
+  41775   132K 538.4M  3588K     ?K     0K     0K  7372K   0% ibus-extension 
+  41612   132K 534.8M  3552K     ?K     0K     0K  2284K   0% gsd-wacom      
+2754632   132K 34588K  3536K     ?K     0K     0K     0K   0% pmdasimple     
+  41559   132K 534.5M  3520K     ?K     0K     0K  2204K   0% gsd-keyboard   
+2754624   216K 15936K  3520K     ?K     0K     0K     0K   0% pmdakvm        
+2259598   132K 287.4M  3500K     ?K     0K     0K   512K   0% smbd-notifyd   
+  41206   220K 682.0M  3496K     ?K     0K     0K  1396K   0% gnome-session- 
+  41466   132K   1.0G  3444K     ?K     0K     0K 11736K   0% geoclue        
+2754618   132K 34680K  3400K     ?K     0K     0K     0K   0% pmdasample     
+   1009   132K 470.2M  3392K     ?K     0K     0K  1504K   0% abrtd          
+  41570   132K 434.0M  3364K     ?K     0K     0K   312K   0% gsd-screensave 
+   1176   132K 343.4M  3300K     ?K     0K     0K  1932K   0% abrt-dump-jour 
+  44073   132K 222.9M  3184K     ?K     0K     0K  2000K   0% bash           
+  41781   132K 434.1M  3128K     ?K     0K     0K   696K   0% ibus-portal    
+2754613   132K 17216K  3112K     ?K     0K     0K   772K   0% pmdaroot       
+2612638   136K 466.2M  3100K     ?K     0K     0K 10616K   0% chrome         
+  41858   132K 361.9M  3092K     ?K     0K     0K   336K   0% ibus-engine-si 
+  41633   132K 475.9M  3080K     ?K     0K     0K  1588K   0% abrt-applet    
+2333705   132K 27620K  3064K     ?K     0K     0K   496K   0% pipewire-media 
+2898887   136K 222.8M  3040K     ?K     0K     0K  2148K   0% bash           
+2333846   132K 25684K  2992K     ?K     0K     0K   436K   0% openvpn        
+   1634   132K 21996K  2988K     ?K     0K     0K  1124K   0% systemd        
+  53794   132K 653.5M  2956K     ?K     0K     0K   464K   0% gvfsd-network  
+   3456   132K 520.8M  2828K     ?K     0K     0K  1080K   0% colord         
+    968   132K 249.4M  2812K     ?K     0K     0K  1084K   0% sssd           
+   2918   132K 445.6M  2776K     ?K     0K     0K   552K   0% upowerd        
+2754608   340K 109.6M  2764K     ?K     0K     0K   656K   0% pmcd           
+2754617   132K 15876K  2604K     ?K     0K     0K    80K   0% pmdaxfs        
+  41454   132K 622.4M  2564K     ?K     0K     0K  7188K   0% gnome-shell-ca 
+  41752   132K 514.9M  2556K     ?K     0K     0K   844K   0% ibus-daemon    
+1073783   132K 258.0M  2548K     ?K     0K     0K  8828K   0% sqlservr       
+1873447   132K 285.4M  2480K     ?K     0K     0K  2136K   0% kdeinit4       
+3734807   132K 248.4M  2440K     ?K     0K     0K  1384K   0% cupsd          
+2898386   132K 38896K  2420K     ?K     0K     0K  1288K   0% sshd           
+  41558   132K 507.3M  2408K     ?K     0K     0K   328K   0% gsd-housekeepi 
+1873449   132K 299.0M  2396K     ?K     0K     0K  2060K   0% klauncher      
+    981   132K 265.9M  2368K     ?K     0K     0K  1620K   0% dbus-broker-la 
+2259599   132K 287.4M  2328K     ?K     0K     0K   516K   0% cleanupd       
+    946   132K 31588K  2260K     ?K     0K     0K   196K   0% avahi-daemon   
+  44851   132K  7236K  2248K     ?K     0K     0K   324K   0% ssh-agent      
+  53811   132K 510.2M  2232K     ?K     0K     0K   620K   0% gvfsd-dnssd    
+    916   132K  7224K  2184K     ?K     0K     0K   232K   0% sedispatch     
+2333829   132K 382.1M  2164K     ?K     0K     0K   996K   0% nm-openvpn-ser 
+2269681   524K 220.5M  2108K     ?K     0K     0K    36K   0% crond          
+    945   132K 378.6M  1988K     ?K     0K     0K   892K   0% ModemManager   
+    947   132K  8472K  1948K     ?K     0K     0K   176K   0% bluetoothd     
+   1581   132K 450.4M  1944K     ?K     0K     0K   452K   0% gdm            
+  48434   132K 227.5M  1916K     ?K     0K     0K   332K   0% gconfd-2       
+  41307   132K  5368K  1904K     ?K     0K     0K   116K   0% dbus-broker    
+  41610   132K 578.8M  1904K     ?K     0K     0K   264K   0% gsd-usb-protec 
+ 465153   132K 270.6M  1900K     ?K     0K     0K   184K   0% dbus-broker-la 
+   1120   132K 19044K  1864K     ?K     0K     0K   908K   0% systemd-userdb 
+1140385   132K  2616K  1864K     ?K     0K     0K     0K   0% earlyoom       
+   1006   132K 87076K  1760K     ?K     0K     0K     0K   0% chronyd        
+    969   132K 432.9M  1688K     ?K     0K     0K   380K   0% switcheroo-con 
+    914   132K 98976K  1684K     ?K     0K     0K   492K   0% auditd         
+  41573   132K 658.2M  1664K     ?K     0K     0K   752K   0% gsd-sharing    
+  41555   132K 537.6M  1632K     ?K     0K     0K  1680K   0% gsd-datetime   
+2271362   132K 26632K  1624K     ?K     0K     0K   616K   0% sshd           
+   1579   132K 18248K  1616K     ?K     0K     0K    80K   0% atd            
+3415046   136K 428.3M  1604K     ?K     0K     0K   112K   0% gpg-agent      
+   1065   132K 522.2M  1596K     ?K     0K     0K   300K   0% accounts-daemo 
+1140394   132K  5164K  1596K     ?K     0K     0K     4K   0% alsactl        
+  41774   132K 433.6M  1592K     ?K     0K     0K   812K   0% ibus-dconf     
+2311258   136K 325.9M  1584K     ?K     0K     0K 16324K   0% dirmngr        
+  41529   132K 508.2M  1572K     ?K     0K     0K   528K   0% gvfs-afc-volum 
+  41510   132K 432.8M  1556K     ?K     0K     0K   236K   0% gvfs-mtp-volum 
+  41535   132K 157.0M  1536K     ?K     0K     0K   364K   0% at-spi2-regist 
+  41149   132K 360.4M  1524K     ?K     0K     0K   580K   0% gdm-wayland-se 
+    956   132K 10816K  1512K     ?K     0K     0K     0K   0% mcelog         
+  41741   132K 537.8M  1488K     ?K     0K     0K  1592K   0% gsd-printer    
+2898861   132K 39228K  1448K     ?K     0K     0K  1728K   0% sshd           
+  41154   228K 457.0M  1432K     ?K     0K     0K  1904K   0% gnome-session- 
+  41477   132K 521.9M  1428K     ?K     0K     0K   600K   0% gvfs-udisks2-v 
+2569087   132K  5148K  1424K     ?K     0K     0K   116K   0% dbus-broker    
+  53785   132K 509.0M  1408K     ?K     0K     0K   384K   0% gvfsd-trash    
+3385392   132K 447.9M  1408K     ?K     0K     0K   948K   0% gvfsd-http     
+  41151   132K 270.8M  1380K     ?K     0K     0K   244K   0% dbus-broker-la 
+  41632   132K 226.5M  1380K     ?K     0K     0K   400K   0% gsd-disk-utili 
+2569081   132K 301.7M  1348K     ?K     0K     0K   936K   0% at-spi-bus-lau 
+2333642   132K 10620K  1324K     ?K     0K     0K     0K   0% fusermount     
+    967   132K 10772K  1308K     ?K     0K     0K  1036K   0% smartd         
+1671685   136K  3784K  1308K     ?K     0K     0K    44K   0% nstat          
+   1343   132K 12856K  1264K     ?K     0K     0K   488K   0% wpa_supplicant 
+  43245   132K 222.4M  1248K     ?K     0K     0K  3140K   0% bash           
+2612641   132K 10616K  1232K     ?K     0K     0K   556K   0% nacl_helper    
+1541314   132K 43992K  1212K     ?K     0K     0K   532K   0% obexd          
+  41305   132K 262.2M  1196K     ?K     0K     0K   328K   0% dbus-broker-la 
+  41909   132K 464.0M  1196K     ?K     0K     0K  1688K   0% abrt-dbus      
+2569086   132K 262.2M  1176K     ?K     0K     0K   328K   0% dbus-broker-la 
+    965   132K 149.4M  1172K     ?K     0K     0K   132K   0% rtkit-daemon   
+2270956   132K 257.8M  1172K     ?K     0K     0K   432K   0% gssproxy       
+  41566   132K 456.3M  1060K     ?K     0K     0K  1064K   0% gsd-print-noti 
+    961   132K 304.9M  1048K     ?K     0K     0K   984K   0% rngd           
+  41506   132K 435.2M  1028K     ?K     0K     0K   436K   0% gvfs-gphoto2-v 
+    971   132K 19472K   984K     ?K     0K     0K   936K   0% systemd-homed  
+   1677   132K 132.9M   972K     ?K     0K     0K  5516K   0% (sd-pam        
+  41450   132K 432.6M   960K     ?K     0K     0K   236K   0% xdg-permission 
+1266344   136K 99548K   888K     ?K     0K     0K   196K   0% dbus-daemon    
+2333638   132K 793.3M   884K     ?K     0K     0K   224K   0% xdg-document-p 
+2316771   132K 222.5M   832K     ?K     0K     0K  3112K   0% bash           
+  41607   132K 514.2M   788K     ?K     0K     0K   748K   0% gsd-sound      
+  41406   132K 436.6M   784K     ?K     0K     0K   400K   0% gvfsd          
+  41521   132K 433.4M   744K     ?K     0K     0K   320K   0% gvfs-goa-volum 
+2569078   132K 33816K   728K     ?K     0K     0K   240K   0% dbus-daemon    
+  41569   132K 650.2M   720K     ?K     0K     0K   216K   0% gsd-rfkill     
+ 465154   132K  5148K   672K     ?K     0K     0K   116K   0% dbus-broker    
+  41203   132K 290.5M   636K     ?K     0K     0K   380K   0% gnome-session- 
+  41626   132K 510.6M   548K     ?K     0K     0K   520K   0% gsd-wwan       
+  41604   132K 584.5M   500K     ?K     0K     0K  1420K   0% gsd-smartcard  
+  41552   132K 506.3M   496K     ?K     0K     0K   260K   0% gsd-a11y-setti 
+2612640   132K 10616K   444K     ?K     0K     0K   508K   0% nacl_helper    
+  41299   132K 298.3M   412K     ?K     0K     0K   368K   0% at-spi-bus-lau 
+  41418   132K 371.1M   356K     ?K     0K     0K   436K   0% gvfsd-fuse     
+    972   132K 19276K   332K     ?K     0K     0K   968K   0% systemd-machin 
+   1923   132K 23112K   244K     ?K     0K     0K   220K   0% dnsmasq        
+   1986   132K 23116K   188K     ?K     0K     0K   272K   0% dnsmasq        
+3415048   136K 357.0M   116K     ?K     0K     0K   340K   0% scdaemon       
+ 465141   136K 59012K    96K     ?K     0K     0K 20088K   0% podman pause   
+2309214   136K  7236K    84K     ?K     0K     0K   432K   0% ssh-agent      
+    977   132K 31044K    56K     ?K     0K     0K   284K   0% avahi-daemon   
+   1924   132K 23020K    40K     ?K     0K     0K   312K   0% dnsmasq        
+   1987   132K 23020K    16K     ?K     0K     0K   328K   0% dnsmasq        
+   1676   132K 132.9M     8K     ?K     0K     0K  6480K   0% (sd-pam        
       2     0K     0K     0K     ?K     0K     0K     0K   0% kthreadd       
       3     0K     0K     0K     ?K     0K     0K     0K   0% rcu_gp         
       4     0K     0K     0K     ?K     0K     0K     0K   0% rcu_par_gp     
-      6     0K     0K     0K     ?K     0K     0K     0K   0% kworker/0:0H-e 
+      6     0K     0K     0K     ?K     0K     0K     0K   0% kworker/0:0H-k 
       9     0K     0K     0K     ?K     0K     0K     0K   0% mm_percpu_wq   
      10     0K     0K     0K     ?K     0K     0K     0K   0% ksoftirqd/0    
      11     0K     0K     0K     ?K     0K     0K     0K   0% rcu_sched      
@@ -373,15 +785,15 @@ SWP | tot     0.0M | free    0.0M |              | vmcom   0.0M | vmlim   0.0M |
      24     0K     0K     0K     ?K     0K     0K     0K   0% cpuhp/3        
      25     0K     0K     0K     ?K     0K     0K     0K   0% migration/3    
      26     0K     0K     0K     ?K     0K     0K     0K   0% ksoftirqd/3    
-     28     0K     0K     0K     ?K     0K     0K     0K   0% kworker/3:0H-e 
+     28     0K     0K     0K     ?K     0K     0K     0K   0% kworker/3:0H-k 
      29     0K     0K     0K     ?K     0K     0K     0K   0% cpuhp/4        
      30     0K     0K     0K     ?K     0K     0K     0K   0% migration/4    
      31     0K     0K     0K     ?K     0K     0K     0K   0% ksoftirqd/4    
-     33     0K     0K     0K     ?K     0K     0K     0K   0% kworker/4:0H-k 
+     33     0K     0K     0K     ?K     0K     0K     0K   0% kworker/4:0H-e 
      34     0K     0K     0K     ?K     0K     0K     0K   0% cpuhp/5        
      35     0K     0K     0K     ?K     0K     0K     0K   0% migration/5    
      36     0K     0K     0K     ?K     0K     0K     0K   0% ksoftirqd/5    
-     38     0K     0K     0K     ?K     0K     0K     0K   0% kworker/5:0H-k 
+     38     0K     0K     0K     ?K     0K     0K     0K   0% kworker/5:0H-e 
      39     0K     0K     0K     ?K     0K     0K     0K   0% cpuhp/6        
      40     0K     0K     0K     ?K     0K     0K     0K   0% migration/6    
      41     0K     0K     0K     ?K     0K     0K     0K   0% ksoftirqd/6    
@@ -400,284 +812,536 @@ SWP | tot     0.0M | free    0.0M |              | vmcom   0.0M | vmlim   0.0M |
      56     0K     0K     0K     ?K     0K     0K     0K   0% ksmd           
      57     0K     0K     0K     ?K     0K     0K     0K   0% khugepaged     
      86     0K     0K     0K     ?K     0K     0K     0K   0% cryptd         
-    168     0K     0K     0K     ?K     0K     0K     0K   0% kintegrityd    
-    169     0K     0K     0K     ?K     0K     0K     0K   0% kblockd        
-    170     0K     0K     0K     ?K     0K     0K     0K   0% blkcg_punt_bio 
-    171     0K     0K     0K     ?K     0K     0K     0K   0% tpm_dev_wq     
-    173     0K     0K     0K     ?K     0K     0K     0K   0% ata_sff        
-    174     0K     0K     0K     ?K     0K     0K     0K   0% md             
-    175     0K     0K     0K     ?K     0K     0K     0K   0% edac-poller    
+    167     0K     0K     0K     ?K     0K     0K     0K   0% kintegrityd    
+    168     0K     0K     0K     ?K     0K     0K     0K   0% kblockd        
+    169     0K     0K     0K     ?K     0K     0K     0K   0% blkcg_punt_bio 
+    172     0K     0K     0K     ?K     0K     0K     0K   0% tpm_dev_wq     
+    174     0K     0K     0K     ?K     0K     0K     0K   0% ata_sff        
+    175     0K     0K     0K     ?K     0K     0K     0K   0% md             
+    176     0K     0K     0K     ?K     0K     0K     0K   0% edac-poller    
     177     0K     0K     0K     ?K     0K     0K     0K   0% devfreq_wq     
     178     0K     0K     0K     ?K     0K     0K     0K   0% watchdogd      
     179     0K     0K     0K     ?K     0K     0K     0K   0% kswapd0        
     182     0K     0K     0K     ?K     0K     0K     0K   0% kthrotld       
-    185     0K     0K     0K     ?K     0K     0K     0K   0% acpi_thermal_p 
-    186     0K     0K     0K     ?K     0K     0K     0K   0% scsi_eh_0      
-    187     0K     0K     0K     ?K     0K     0K     0K   0% scsi_tmf_0     
-    188     0K     0K     0K     ?K     0K     0K     0K   0% scsi_eh_1      
-    189     0K     0K     0K     ?K     0K     0K     0K   0% scsi_tmf_1     
-    190     0K     0K     0K     ?K     0K     0K     0K   0% scsi_eh_2      
-    191     0K     0K     0K     ?K     0K     0K     0K   0% scsi_tmf_2     
-    192     0K     0K     0K     ?K     0K     0K     0K   0% scsi_eh_3      
-    193     0K     0K     0K     ?K     0K     0K     0K   0% scsi_tmf_3     
-    194     0K     0K     0K     ?K     0K     0K     0K   0% scsi_eh_4      
-    195     0K     0K     0K     ?K     0K     0K     0K   0% scsi_tmf_4     
-    196     0K     0K     0K     ?K     0K     0K     0K   0% scsi_eh_5      
-    197     0K     0K     0K     ?K     0K     0K     0K   0% scsi_tmf_5     
-    204     0K     0K     0K     ?K     0K     0K     0K   0% dm_bufio_cache 
+    184     0K     0K     0K     ?K     0K     0K     0K   0% acpi_thermal_p 
+    185     0K     0K     0K     ?K     0K     0K     0K   0% scsi_eh_0      
+    186     0K     0K     0K     ?K     0K     0K     0K   0% scsi_tmf_0     
+    187     0K     0K     0K     ?K     0K     0K     0K   0% scsi_eh_1      
+    188     0K     0K     0K     ?K     0K     0K     0K   0% scsi_tmf_1     
+    189     0K     0K     0K     ?K     0K     0K     0K   0% scsi_eh_2      
+    190     0K     0K     0K     ?K     0K     0K     0K   0% scsi_tmf_2     
+    191     0K     0K     0K     ?K     0K     0K     0K   0% scsi_eh_3      
+    192     0K     0K     0K     ?K     0K     0K     0K   0% scsi_tmf_3     
+    193     0K     0K     0K     ?K     0K     0K     0K   0% scsi_eh_4      
+    194     0K     0K     0K     ?K     0K     0K     0K   0% scsi_tmf_4     
+    195     0K     0K     0K     ?K     0K     0K     0K   0% scsi_eh_5      
+    196     0K     0K     0K     ?K     0K     0K     0K   0% scsi_tmf_5     
+    203     0K     0K     0K     ?K     0K     0K     0K   0% dm_bufio_cache 
     205     0K     0K     0K     ?K     0K     0K     0K   0% ipv6_addrconf  
     212     0K     0K     0K     ?K     0K     0K     0K   0% kstrp          
-    291     0K     0K     0K     ?K     0K     0K     0K   0% kworker/6:1H-k 
-    293     0K     0K     0K     ?K     0K     0K     0K   0% kworker/7:1H-k 
-    465     0K     0K     0K     ?K     0K     0K     0K   0% sdhci          
-    466     0K     0K     0K     ?K     0K     0K     0K   0% irq/34-mmc0    
-    499     0K     0K     0K     ?K     0K     0K     0K   0% kworker/3:1H-e 
-    501     0K     0K     0K     ?K     0K     0K     0K   0% nvkm-disp      
-    503     0K     0K     0K     ?K     0K     0K     0K   0% ttm_swap       
-    506     0K     0K     0K     ?K     0K     0K     0K   0% kworker/2:1H-k 
-    519     0K     0K     0K     ?K     0K     0K     0K   0% kworker/0:1H-k 
-    554     0K     0K     0K     ?K     0K     0K     0K   0% kworker/1:1H-k 
-    555     0K     0K     0K     ?K     0K     0K     0K   0% kdmflush       
-    562     0K     0K     0K     ?K     0K     0K     0K   0% kdmflush       
-    578     0K     0K     0K     ?K     0K     0K     0K   0% jbd2/dm-0-8    
-    579     0K     0K     0K     ?K     0K     0K     0K   0% ext4-rsv-conve 
-    589     0K     0K     0K     ?K     0K     0K     0K   0% kworker/4:1H-k 
-    656     0K     0K     0K     ?K     0K     0K     0K   0% kworker/5:1H-e 
-    675     0K     0K     0K     ?K     0K     0K     0K   0% systemd-journa 
-    700     0K     0K     0K     ?K     0K     0K     0K   0% systemd-udevd  
-    740     0K     0K     0K     ?K     0K     0K     0K   0% irq/37-mei_me  
-    743     0K     0K     0K     ?K     0K     0K     0K   0% ktpacpid       
-    759     0K     0K     0K     ?K     0K     0K     0K   0% cfg80211       
-    777     0K     0K     0K     ?K     0K     0K     0K   0% irq/40-iwlwifi 
-    778     0K     0K     0K     ?K     0K     0K     0K   0% kdmflush       
-    848     0K     0K     0K     ?K     0K     0K     0K   0% irq/41-rmi4_sm 
-    880     0K     0K     0K     ?K     0K     0K     0K   0% jbd2/sda1-8    
-    881     0K     0K     0K     ?K     0K     0K     0K   0% ext4-rsv-conve 
-    882     0K     0K     0K     ?K     0K     0K     0K   0% jbd2/dm-2-8    
-    883     0K     0K     0K     ?K     0K     0K     0K   0% ext4-rsv-conve 
-    906     0K     0K     0K     ?K     0K     0K     0K   0% auditd         
-    908     0K     0K     0K     ?K     0K     0K     0K   0% sedispatch     
-    911     0K     0K     0K     ?K     0K     0K     0K   0% rpciod         
-    912     0K     0K     0K     ?K     0K     0K     0K   0% xprtiod        
-    937     0K     0K     0K     ?K     0K     0K     0K   0% ModemManager   
-    938     0K     0K     0K     ?K     0K     0K     0K   0% avahi-daemon   
-    939     0K     0K     0K     ?K     0K     0K     0K   0% bluetoothd     
-    940     0K     0K     0K     ?K     0K     0K     0K   0% firewalld      
-    947     0K     0K     0K     ?K     0K     0K     0K   0% mcelog         
-    954     0K     0K     0K     ?K     0K     0K     0K   0% rngd           
-    955     0K     0K     0K     ?K     0K     0K     0K   0% rtkit-daemon   
-    957     0K     0K     0K     ?K     0K     0K     0K   0% smartd         
-    959     0K     0K     0K     ?K     0K     0K     0K   0% switcheroo-con 
-    961     0K     0K     0K     ?K     0K     0K     0K   0% systemd-machin 
-    971     0K     0K     0K     ?K     0K     0K     0K   0% dbus-broker-la 
-    983     0K     0K     0K     ?K     0K     0K     0K   0% gssproxy       
-    986     0K     0K     0K     ?K     0K     0K     0K   0% abrtd          
-    996     0K     0K     0K     ?K     0K     0K     0K   0% chronyd        
-   1000     0K     0K     0K     ?K     0K     0K     0K   0% dbus-broker    
-   1005     0K     0K     0K     ?K     0K     0K     0K   0% avahi-daemon   
-   1006     0K     0K     0K     ?K     0K     0K     0K   0% alsactl        
-   1054     0K     0K     0K     ?K     0K     0K     0K   0% accounts-daemo 
-   1061     0K     0K     0K     ?K     0K     0K     0K   0% polkitd        
-   1096     0K     0K     0K     ?K     0K     0K     0K   0% NetworkManager 
-   1097     0K     0K     0K     ?K     0K     0K     0K   0% systemd-logind 
-   1132     0K     0K     0K     ?K     0K     0K     0K   0% cupsd          
-   1150     0K     0K     0K     ?K     0K     0K     0K   0% atd            
-   1152     0K     0K     0K     ?K     0K     0K     0K   0% crond          
-   1153     0K     0K     0K     ?K     0K     0K     0K   0% gdm            
-   1187     0K     0K     0K     ?K     0K     0K     0K   0% abrt-dump-jour 
-   1188     0K     0K     0K     ?K     0K     0K     0K   0% abrt-dump-jour 
-   1189     0K     0K     0K     ?K     0K     0K     0K   0% abrt-dump-jour 
-   1309     0K     0K     0K     ?K     0K     0K     0K   0% systemd        
-   1310     0K     0K     0K     ?K     0K     0K     0K   0% systemd        
-   1333     0K     0K     0K     ?K     0K     0K     0K   0% wpa_supplicant 
-   1348     0K     0K     0K     ?K     0K     0K     0K   0% (sd-pam        
-   1351     0K     0K     0K     ?K     0K     0K     0K   0% (sd-pam        
-   2153     0K     0K     0K     ?K     0K     0K     0K   0% dnsmasq        
-   2154     0K     0K     0K     ?K     0K     0K     0K   0% dnsmasq        
-   2360     0K     0K     0K     ?K     0K     0K     0K   0% dnsmasq        
-   2361     0K     0K     0K     ?K     0K     0K     0K   0% dnsmasq        
-   6741     0K     0K     0K     ?K     0K     0K     0K   0% upowerd        
-   6966     0K     0K     0K     ?K     0K     0K     0K   0% redis-server   
-   7003     0K     0K     0K     ?K     0K     0K     0K   0% grafana-server 
-   7031     0K     0K     0K     ?K     0K     0K     0K   0% colord         
-  14518     0K     0K     0K     ?K     0K     0K     0K   0% gdm-session-wo 
-  14537     0K     0K     0K     ?K     0K     0K     0K   0% gnome-keyring- 
-  14554     0K     0K     0K     ?K     0K     0K     0K   0% gdm-wayland-se 
-  14556     0K     0K     0K     ?K     0K     0K     0K   0% dbus-broker-la 
-  14557     0K     0K     0K     ?K     0K     0K     0K   0% dbus-broker    
-  14559     0K     0K     0K     ?K     0K     0K     0K   0% gnome-session- 
-  14608     0K     0K     0K     ?K     0K     0K     0K   0% gnome-session- 
-  14609     0K     0K     0K     ?K     0K     0K     0K   0% pulseaudio     
-  14611     0K     0K     0K     ?K     0K     0K     0K   0% gnome-session- 
-  14625     0K     0K     0K     ?K     0K     0K     0K   0% gnome-shell    
-  14709     0K     0K     0K     ?K     0K     0K     0K   0% Xwayland       
-  14746     0K     0K     0K     ?K     0K     0K     0K   0% at-spi-bus-lau 
-  14752     0K     0K     0K     ?K     0K     0K     0K   0% dbus-broker-la 
-  14753     0K     0K     0K     ?K     0K     0K     0K   0% dbus-broker    
-  14809     0K     0K     0K     ?K     0K     0K     0K   0% gvfsd          
-  14814     0K     0K     0K     ?K     0K     0K     0K   0% gvfsd-fuse     
-  14845     0K     0K     0K     ?K     0K     0K     0K   0% xdg-permission 
-  14851     0K     0K     0K     ?K     0K     0K     0K   0% gnome-shell-ca 
-  14855     0K     0K     0K     ?K     0K     0K     0K   0% evolution-sour 
-  14857     0K     0K     0K     ?K     0K     0K     0K   0% krfcommd       
-  14865     0K     0K     0K     ?K     0K     0K     0K   0% geoclue        
-  14876     0K     0K     0K     ?K     0K     0K     0K   0% gvfs-udisks2-v 
-  14879     0K     0K     0K     ?K     0K     0K     0K   0% udisksd        
-  14886     0K     0K     0K     ?K     0K     0K     0K   0% goa-daemon     
-  14890     0K     0K     0K     ?K     0K     0K     0K   0% dconf-service  
-  14893     0K     0K     0K     ?K     0K     0K     0K   0% gvfsd-metadata 
-  14902     0K     0K     0K     ?K     0K     0K     0K   0% goa-identity-s 
-  14919     0K     0K     0K     ?K     0K     0K     0K   0% gvfs-gphoto2-v 
-  14923     0K     0K     0K     ?K     0K     0K     0K   0% gvfs-mtp-volum 
-  14927     0K     0K     0K     ?K     0K     0K     0K   0% gvfs-goa-volum 
-  14931     0K     0K     0K     ?K     0K     0K     0K   0% gvfs-afc-volum 
-  14937     0K     0K     0K     ?K     0K     0K     0K   0% evolution-cale 
-  14940     0K     0K     0K     ?K     0K     0K     0K   0% ibus-daemon    
-  14945     0K     0K     0K     ?K     0K     0K     0K   0% ibus-dconf     
-  14946     0K     0K     0K     ?K     0K     0K     0K   0% ibus-extension 
-  14948     0K     0K     0K     ?K     0K     0K     0K   0% ibus-x11       
-  14950     0K     0K     0K     ?K     0K     0K     0K   0% ibus-portal    
-  14968     0K     0K     0K     ?K     0K     0K     0K   0% at-spi2-regist 
-  14976     0K     0K     0K     ?K     0K     0K     0K   0% gsd-a11y-setti 
-  14977     0K     0K     0K     ?K     0K     0K     0K   0% gsd-color      
-  14978     0K     0K     0K     ?K     0K     0K     0K   0% gsd-datetime   
-  14982     0K     0K     0K     ?K     0K     0K     0K   0% gsd-housekeepi 
-  14987     0K     0K     0K     ?K     0K     0K     0K   0% gsd-keyboard   
-  14992     0K     0K     0K     ?K     0K     0K     0K   0% gsd-media-keys 
-  14994     0K     0K     0K     ?K     0K     0K     0K   0% gsd-power      
-  14999     0K     0K     0K     ?K     0K     0K     0K   0% gnome-software 
-  15000     0K     0K     0K     ?K     0K     0K     0K   0% gsd-print-noti 
-  15002     0K     0K     0K     ?K     0K     0K     0K   0% gsd-rfkill     
-  15003     0K     0K     0K     ?K     0K     0K     0K   0% gsd-disk-utili 
-  15004     0K     0K     0K     ?K     0K     0K     0K   0% gsd-screensave 
-  15009     0K     0K     0K     ?K     0K     0K     0K   0% gsd-sharing    
-  15014     0K     0K     0K     ?K     0K     0K     0K   0% evolution-alar 
-  15023     0K     0K     0K     ?K     0K     0K     0K   0% tracker-miner- 
-  15028     0K     0K     0K     ?K     0K     0K     0K   0% gsd-smartcard  
-  15033     0K     0K     0K     ?K     0K     0K     0K   0% gsd-sound      
-  15035     0K     0K     0K     ?K     0K     0K     0K   0% gsd-wacom      
-  15038     0K     0K     0K     ?K     0K     0K     0K   0% gsd-wwan       
-  15043     0K     0K     0K     ?K     0K     0K     0K   0% gsd-xsettings  
-  15093     0K     0K     0K     ?K     0K     0K     0K   0% ibus-engine-si 
-  15104     0K     0K     0K     ?K     0K     0K     0K   0% abrt-applet    
-  15107     0K     0K     0K     ?K     0K     0K     0K   0% evolution-addr 
-  15164     0K     0K     0K     ?K     0K     0K     0K   0% gsd-printer    
-  15268     0K     0K     0K     ?K     0K     0K     0K   0% abrt-dbus      
- 214877     0K     0K     0K     ?K     0K     0K     0K   0% nm-openvpn-ser 
- 214901     0K     0K     0K     ?K     0K     0K     0K   0% openvpn        
- 214956     0K     0K     0K     ?K     0K     0K     0K   0% hexchat        
- 214983     0K     0K     0K     ?K     0K     0K     0K   0% gnome-terminal 
- 215031     0K     0K     0K     ?K     0K     0K     0K   0% bash           
- 215080     0K     0K     0K     ?K     0K     0K     0K   0% slack          
- 215089     0K     0K     0K     ?K     0K     0K     0K   0% slack          
- 215091     0K     0K     0K     ?K     0K     0K     0K   0% slack          
- 215120     0K     0K     0K     ?K     0K     0K     0K   0% slack          
- 215129     0K     0K     0K     ?K     0K     0K     0K   0% slack          
- 215264     0K     0K     0K     ?K     0K     0K     0K   0% bash           
- 215381     0K     0K     0K     ?K     0K     0K     0K   0% bash           
- 215434     0K     0K     0K     ?K     0K     0K     0K   0% firefox        
- 215543     0K     0K     0K     ?K     0K     0K     0K   0% Web Content    
- 215596     0K     0K     0K     ?K     0K     0K     0K   0% WebExtensions  
- 230329     0K     0K     0K     ?K     0K     0K     0K   0% gdm-session-wo 
- 231071     0K     0K     0K     ?K     0K     0K     0K   0% sd_dummy       
- 231075     0K     0K     0K     ?K     0K     0K     0K   0% sd_espeak-ng   
- 231082     0K     0K     0K     ?K     0K     0K     0K   0% sd_generic     
- 231085     0K     0K     0K     ?K     0K     0K     0K   0% sd_generic     
- 231088     0K     0K     0K     ?K     0K     0K     0K   0% speech-dispatc 
- 231217     0K     0K     0K     ?K     0K     0K     0K   0% Web Content    
- 231409     0K     0K     0K     ?K     0K     0K     0K   0% ssh-agent      
- 232603     0K     0K     0K     ?K     0K     0K     0K   0% RDD Process    
- 232922     0K     0K     0K     ?K     0K     0K     0K   0% Web Content    
- 233198     0K     0K     0K     ?K     0K     0K     0K   0% Web Content    
- 233386     0K     0K     0K     ?K     0K     0K     0K   0% Web Content    
- 234883     0K     0K     0K     ?K     0K     0K     0K   0% gconfd-2       
- 289839     0K     0K     0K     ?K     0K     0K     0K   0% Web Content    
- 291591     0K     0K     0K     ?K     0K     0K     0K   0% bash           
- 291919     0K     0K     0K     ?K     0K     0K     0K   0% bash           
- 292265     0K     0K     0K     ?K     0K     0K     0K   0% dbus-launch    
- 292266     0K     0K     0K     ?K     0K     0K     0K   0% dbus-daemon    
- 292269     0K     0K     0K     ?K     0K     0K     0K   0% at-spi-bus-lau 
- 292274     0K     0K     0K     ?K     0K     0K     0K   0% dbus-broker-la 
- 292275     0K     0K     0K     ?K     0K     0K     0K   0% dbus-broker    
- 292371     0K     0K     0K     ?K     0K     0K     0K   0% mysqld         
- 292451     0K     0K     0K     ?K     0K     0K     0K   0% sssd           
- 292452     0K     0K     0K     ?K     0K     0K     0K   0% sssd_be        
- 292453     0K     0K     0K     ?K     0K     0K     0K   0% sssd_nss       
- 310645     0K     0K     0K     ?K     0K     0K     0K   0% gvfsd-trash    
- 310657     0K     0K     0K     ?K     0K     0K     0K   0% gvfsd-network  
- 310676     0K     0K     0K     ?K     0K     0K     0K   0% gvfsd-dnssd    
- 319270     0K     0K     0K     ?K     0K     0K     0K   0% gvfsd-http     
- 913558     0K     0K     0K     ?K     0K     0K     0K   0% Web Content    
- 916066     0K     0K     0K     ?K     0K     0K     0K   0% Web Content    
-1020377     0K     0K     0K     ?K     0K     0K     0K   0% vim            
-1572542     0K     0K     0K     ?K     0K     0K     0K   0% gdm-session-wo 
-1698377     0K     0K     0K     ?K     0K     0K     0K   0% sshd           
-1743163     0K     0K     0K     ?K     0K     0K     0K   0% bash           
-1804016     0K     0K     0K     ?K     0K     0K     0K   0% slack          
-2245243     0K     0K     0K     ?K     0K     0K     0K   0% chrome         
-2245254     0K     0K     0K     ?K     0K     0K     0K   0% cat            
-2245255     0K     0K     0K     ?K     0K     0K     0K   0% cat            
-2245258     0K     0K     0K     ?K     0K     0K     0K   0% chrome         
-2245259     0K     0K     0K     ?K     0K     0K     0K   0% nacl_helper    
-2245262     0K     0K     0K     ?K     0K     0K     0K   0% chrome         
-2245282     0K     0K     0K     ?K     0K     0K     0K   0% chrome         
-2245293     0K     0K     0K     ?K     0K     0K     0K   0% chrome         
-2245318     0K     0K     0K     ?K     0K     0K     0K   0% chrome         
-2245336     0K     0K     0K     ?K     0K     0K     0K   0% chrome         
-2245345     0K     0K     0K     ?K     0K     0K     0K   0% chrome         
-2245483     0K     0K     0K     ?K     0K     0K     0K   0% chrome         
-2263860     0K     0K     0K     ?K     0K     0K     0K   0% chrome         
-2563735     0K     0K     0K     ?K     0K     0K     0K   0% pmproxy        
-3089119     0K     0K     0K     ?K     0K     0K     0K   0% kworker/2:2-ev 
-3089135     0K     0K     0K     ?K     0K     0K     0K   0% kworker/u17:1- 
-3096585     0K     0K     0K     ?K     0K     0K     0K   0% pmcd           
-3096590     0K     0K     0K     ?K     0K     0K     0K   0% pmdaroot       
-3096591     0K     0K     0K     ?K     0K     0K     0K   0% pmdaproc       
-3096592     0K     0K     0K     ?K     0K     0K     0K   0% pmdaxfs        
-3096593     0K     0K     0K     ?K     0K     0K     0K   0% pmdaredis      
-3096594     0K     0K     0K     ?K     0K     0K     0K   0% pmdasample     
-3096595     0K     0K     0K     ?K     0K     0K     0K   0% pmdalinux      
-3096596     0K     0K     0K     ?K     0K     0K     0K   0% python3        
-3096600     0K     0K     0K     ?K     0K     0K     0K   0% pmdakvm        
-3096601     0K     0K     0K     ?K     0K     0K     0K   0% pmdaperfevent  
-3096603     0K     0K     0K     ?K     0K     0K     0K   0% pmdadm         
-3096604     0K     0K     0K     ?K     0K     0K     0K   0% python3        
-3096608     0K     0K     0K     ?K     0K     0K     0K   0% pmdasimple     
-3102549     0K     0K     0K     ?K     0K     0K     0K   0% pmlogger       
-3108564     0K     0K     0K     ?K     0K     0K     0K   0% pmlogger       
-3111579     0K     0K     0K     ?K     0K     0K     0K   0% kworker/5:0-ev 
-3111608     0K     0K     0K     ?K     0K     0K     0K   0% kworker/u17:2- 
-3112135     0K     0K     0K     ?K     0K     0K     0K   0% kworker/u16:0- 
-3112497     0K     0K     0K     ?K     0K     0K     0K   0% kworker/6:1-ev 
-3113582     0K     0K     0K     ?K     0K     0K     0K   0% kworker/7:1-ev 
-3113658     0K     0K     0K     ?K     0K     0K     0K   0% kworker/1:2-mm 
-3114179     0K     0K     0K     ?K     0K     0K     0K   0% kworker/2:1-ev 
-3114328     0K     0K     0K     ?K     0K     0K     0K   0% kworker/u16:1- 
-3114341     0K     0K     0K     ?K     0K     0K     0K   0% kworker/4:3-ev 
-3114400     0K     0K     0K     ?K     0K     0K     0K   0% kworker/0:0-ev 
-3114638     0K     0K     0K     ?K     0K     0K     0K   0% kworker/5:1    
-3114804     0K     0K     0K     ?K     0K     0K     0K   0% kworker/3:1-ev 
-3114806     0K     0K     0K     ?K     0K     0K     0K   0% kworker/u16:4- 
-3115027     0K     0K     0K     ?K     0K     0K     0K   0% kworker/7:0-kd 
-3131976     0K     0K     0K     ?K     0K     0K     0K   0% kworker/1:1-ev 
-3138833     0K     0K     0K     ?K     0K     0K     0K   0% vim            
-3199753     0K     0K     0K     ?K     0K     0K     0K   0% kworker/6:0-ev 
-3236121     0K     0K     0K     ?K     0K     0K     0K   0% kworker/0:1-ev 
-3264040     0K     0K     0K     ?K     0K     0K     0K   0% kworker/4:1-mm 
-3294897     0K     0K     0K     ?K     0K     0K     0K   0% kworker/u16:3- 
-3296070     0K     0K     0K     ?K     0K     0K     0K   0% kworker/3:0-ev 
-3297366     0K     0K     0K     ?K     0K     0K     0K   0% kworker/2:0-ev 
-3297424     0K     0K     0K     ?K     0K     0K     0K   0% kworker/5:2-mm 
-3297431     0K     0K     0K     ?K     0K     0K     0K   0% bash           
-3297575     0K     0K     0K     ?K     0K     0K     0K   0% kworker/4:0-ev 
-3297624     0K     0K     0K     ?K     0K     0K     0K   0% kworker/1:0    
-3297625     0K     0K     0K     ?K     0K     0K     0K   0% kworker/u17:0  
-3297665     0K     0K     0K     ?K     0K     0K     0K   0% tracker-store  
-3297675     0K     0K     0K     ?K     0K     0K     0K   0% mk.atop-boot   
-3298106     0K     0K     0K     ?K     0K     0K     0K   0% pmlogger       
-3298115     0K     0K     0K     ?K     0K     0K     0K   0% pmsleep        
-3298100     0K     0K     0K     ?K     0K     0K     0K   0% redis-server   
-3298109     0K     0K     0K     ?K     0K     0K     0K   0%                
+    272     0K     0K     0K     ?K     0K     0K     0K   0% zswap-shrink   
+    293     0K     0K     0K     ?K     0K     0K     0K   0% kworker/6:1H-e 
+    294     0K     0K     0K     ?K     0K     0K     0K   0% kworker/7:1H-k 
+    472     0K     0K     0K     ?K     0K     0K     0K   0% sdhci          
+    474     0K     0K     0K     ?K     0K     0K     0K   0% irq/33-mmc0    
+    524     0K     0K     0K     ?K     0K     0K     0K   0% kworker/4:1H-k 
+    526     0K     0K     0K     ?K     0K     0K     0K   0% nvkm-disp      
+    528     0K     0K     0K     ?K     0K     0K     0K   0% ttm_swap       
+    531     0K     0K     0K     ?K     0K     0K     0K   0% kworker/5:1H-e 
+    570     0K     0K     0K     ?K     0K     0K     0K   0% kdmflush       
+    577     0K     0K     0K     ?K     0K     0K     0K   0% kdmflush       
+    592     0K     0K     0K     ?K     0K     0K     0K   0% jbd2/dm-0-8    
+    593     0K     0K     0K     ?K     0K     0K     0K   0% ext4-rsv-conve 
+    650     0K     0K     0K     ?K     0K     0K     0K   0% kworker/2:1H-k 
+    651     0K     0K     0K     ?K     0K     0K     0K   0% kworker/3:1H-e 
+    658     0K     0K     0K     ?K     0K     0K     0K   0% kworker/0:1H-k 
+    663     0K     0K     0K     ?K     0K     0K     0K   0% kworker/1:1H-e 
+    766     0K     0K     0K     ?K     0K     0K     0K   0% irq/37-mei_me  
+    772     0K     0K     0K     ?K     0K     0K     0K   0% ktpacpid       
+    782     0K     0K     0K     ?K     0K     0K     0K   0% cfg80211       
+    783     0K     0K     0K     ?K     0K     0K     0K   0% kdmflush       
+    806     0K     0K     0K     ?K     0K     0K     0K   0% irq/38-iwlwifi 
+    880     0K     0K     0K     ?K     0K     0K     0K   0% irq/41-rmi4_sm 
+    900     0K     0K     0K     ?K     0K     0K     0K   0% jbd2/sda1-8    
+    901     0K     0K     0K     ?K     0K     0K     0K   0% ext4-rsv-conve 
+    902     0K     0K     0K     ?K     0K     0K     0K   0% jbd2/dm-2-8    
+    903     0K     0K     0K     ?K     0K     0K     0K   0% ext4-rsv-conve 
+    919     0K     0K     0K     ?K     0K     0K     0K   0% rpciod         
+    920     0K     0K     0K     ?K     0K     0K     0K   0% xprtiod        
+   2790     0K     0K     0K     ?K     0K     0K     0K   0% dio/dm-0       
+  41448     0K     0K     0K     ?K     0K     0K     0K   0% krfcommd       
+1266343   136K 15280K     0K     ?K     0K     0K   408K   0% dbus-launch    
+1920659     0K     0K     0K     ?K     0K     0K     0K   0% glock_workqueu 
+1920660     0K     0K     0K     ?K     0K     0K     0K   0% delete_workque 
+1920661     0K     0K     0K     ?K     0K     0K     0K   0% gfs_recovery   
+2290904     0K     0K     0K     ?K     0K     0K     0K   0% xfsalloc       
+2290905     0K     0K     0K     ?K     0K     0K     0K   0% xfs_mru_cache  
+2560686     0K     0K     0K     ?K     0K     0K     0K   0% target_complet 
+2560687     0K     0K     0K     ?K     0K     0K     0K   0% xcopy_wq       
+2569077   132K 15356K     0K     ?K     0K     0K   404K   0% dbus-launch    
+2612634   136K 210.4M     0K     ?K     0K     0K    84K   0% cat            
+2612635   136K 210.4M     0K     ?K     0K     0K    68K   0% cat            
+2888580     0K     0K     0K     ?K     0K     0K     0K   0% kworker/u17:2- 
+2890378     0K     0K     0K     ?K     0K     0K     0K   0% kworker/u17:0- 
+2904418     0K     0K     0K     ?K     0K     0K     0K   0% kworker/u16:2- 
+2907249     0K     0K     0K     ?K     0K     0K     0K   0% kworker/u16:4- 
+2907839     0K     0K     0K     ?K     0K     0K     0K   0% kworker/7:1-ev 
+2908025     0K     0K     0K     ?K     0K     0K     0K   0% kworker/1:2-ev 
+2909726     0K     0K     0K     ?K     0K     0K     0K   0% kworker/u16:0- 
+2910784     0K     0K     0K     ?K     0K     0K     0K   0% kworker/u16:1- 
+2924224     0K     0K     0K     ?K     0K     0K     0K   0% kworker/3:0-cg 
+2941805     0K     0K     0K     ?K     0K     0K     0K   0% kworker/2:2-ev 
+2948327     0K     0K     0K     ?K     0K     0K     0K   0% kworker/6:2-ev 
+2952609     0K     0K     0K     ?K     0K     0K     0K   0% kworker/0:1-ev 
+2954314     0K     0K     0K     ?K     0K     0K     0K   0% kworker/6:3-ev 
+2954316     0K     0K     0K     ?K     0K     0K     0K   0% kworker/4:3-ev 
+2954449     0K     0K     0K     ?K     0K     0K     0K   0% kworker/5:1-mm 
+2954773     0K     0K     0K     ?K     0K     0K     0K   0% kworker/u16:5- 
+2954774     0K     0K     0K     ?K     0K     0K     0K   0% kworker/u16:6- 
+2954941     0K     0K     0K     ?K     0K     0K     0K   0% kworker/3:2-ev 
+2954961     0K     0K     0K     ?K     0K     0K     0K   0% kworker/1:1-ev 
+2955047     0K     0K     0K     ?K     0K     0K     0K   0% kworker/2:1-ev 
+2955757     0K     0K     0K     ?K     0K     0K     0K   0% kworker/0:3-ev 
+2955758     0K     0K     0K     ?K     0K     0K     0K   0% kworker/5:2-ev 
+2955856     0K     0K     0K     ?K     0K     0K     0K   0% kworker/4:1-mm 
+2955973     0K     0K     0K     ?K     0K     0K     0K   0% kworker/7:0-ev 
+2956039     0K     0K     0K     ?K     0K     0K     0K   0% kworker/2:0-ev 
+2956203     0K     0K     0K     ?K     0K     0K     0K   0% kworker/6:0-ev 
+2956409     0K     0K     0K     ?K     0K     0K     0K   0% kworker/u16:3  
+2956410     0K     0K     0K     ?K     0K     0K     0K   0% kworker/u16:7- 
+2956504     0K     0K     0K     ?K     0K     0K     0K   0% kworker/3:1-ev 
+2956508     0K     0K     0K     ?K     0K     0K     0K   0% kworker/3:3-ev 
+2956688     0K     0K     0K     ?K     0K     0K     0K   0% kworker/4:0-ev 
+2956689     0K     0K     0K     ?K     0K     0K     0K   0% kworker/0:0-ev 
+3246189   136K 59012K     0K     ?K     0K     0K 20084K   0% podman pause   
+2956910     0K     0K     0K     ?K     0K     0K     0K   0% pmsleep        
+2956902     0K     0K     0K     ?K     0K     0K     0K   0% pmsleep        
+
+
+ATOP - shard        2020/07/22  17:32:53        ------R-------        1s elapsed
+PRC | sys    0.39s | user   0.39s | #proc    396 | #zombie    0 | no  procacct |
+CPU | sys    -564% | user  -1120% | irq   -1084% | idle   4219% | wait   -650% |
+cpu | sys      17% | user     33% | irq      33% | idle      1% | cpu005 w 17% |
+cpu | sys      17% | user     33% | irq      33% | idle      1% | cpu003 w 17% |
+cpu | sys      17% | user     33% | irq      33% | idle      1% | cpu007 w 17% |
+cpu | sys      16% | user     33% | irq      33% | idle      1% | cpu001 w 17% |
+cpu | sys      16% | user     33% | irq      33% | idle      1% | cpu002 w 17% |
+cpu | sys      16% | user     33% | irq      33% | idle      1% | cpu006 w 17% |
+cpu | sys      16% | user     33% | irq      33% | idle      1% | cpu000 w 17% |
+cpu | sys      16% | user     33% | irq      33% | idle      1% | cpu004 w 17% |
+CPL | avg1   -1.00 | avg5   -1.00 | avg15  -1.00 | csw        ? | intr       ? |
+MEM | tot    15.3G | free    0.0M | cache   0.0M | buff    0.0M | slab    0.0M |
+SWP | tot     0.0M | free    0.0M |              | vmcom   0.0M | vmlim   0.0M |
+PAG | scan       0 | steal      0 | stall      0 | swin 42934e5 | swout 4289e6 |
+LVM | a_shard-root | busy     -0% | read 42745e5 | write 4273e6 | avio 0.00 ms |
+LVM | a_shard-swap | busy     -0% | read 42934e5 | write 4289e6 | avio 0.00 ms |
+LVM | a_shard-home | busy     -0% | read 42638e5 | write 4251e6 | avio 0.00 ms |
+DSK |          sda | busy 999999% | read 42654e5 | write 4252e6 | avio 0.50 ms |
+NET | transport    | tcpi       ? | tcpo       ? | udpi       ? | udpo       ? |
+NET | network      | ipi        ? | ipo        ? | ipfrw      ? | deliv      ? |
+NET | tun0    306701% | pcki 42914e5 | pcko 42913e5 | si   26 Gbps | so   30 Gbps |
+NET | cni-pod   0% | pcki 42948e5 | pcko 42947e5 | si   34 Gbps | so   31 Gbps |
+NET | enp0s25 -16700% | pcki 42102e5 | pcko 42265e5 | si -345051456 K | so -167001159 K |
+NET | wlp3s0  ---- | pcki 42933e5 | pcko 42949e5 | si   32 Gbps | so   34 Gbps |
+NET | lo      ---- | pcki 41334e5 | pcko 41334e5 | si -549766287 K | so -549766287 K |
+
+    PID VSTACK  VSIZE  RSIZE  PSIZE  VGROW  RGROW SWAPSZ  MEM CMD            
+      1     0K     0K     0K     ?K  -0.2G -20.0M     0K   0% systemd        
+      2     0K     0K     0K     ?K     0K     0K     0K   0% kthreadd       
+      3     0K     0K     0K     ?K     0K     0K     0K   0% rcu_gp         
+      4     0K     0K     0K     ?K     0K     0K     0K   0% rcu_par_gp     
+      6     0K     0K     0K     ?K     0K     0K     0K   0% kworker/0:0H-k 
+      9     0K     0K     0K     ?K     0K     0K     0K   0% mm_percpu_wq   
+     10     0K     0K     0K     ?K     0K     0K     0K   0% ksoftirqd/0    
+     11     0K     0K     0K     ?K     0K     0K     0K   0% rcu_sched      
+     12     0K     0K     0K     ?K     0K     0K     0K   0% migration/0    
+     13     0K     0K     0K     ?K     0K     0K     0K   0% cpuhp/0        
+     14     0K     0K     0K     ?K     0K     0K     0K   0% cpuhp/1        
+     15     0K     0K     0K     ?K     0K     0K     0K   0% migration/1    
+     16     0K     0K     0K     ?K     0K     0K     0K   0% ksoftirqd/1    
+     18     0K     0K     0K     ?K     0K     0K     0K   0% kworker/1:0H-k 
+     19     0K     0K     0K     ?K     0K     0K     0K   0% cpuhp/2        
+     20     0K     0K     0K     ?K     0K     0K     0K   0% migration/2    
+     21     0K     0K     0K     ?K     0K     0K     0K   0% ksoftirqd/2    
+     23     0K     0K     0K     ?K     0K     0K     0K   0% kworker/2:0H-e 
+     24     0K     0K     0K     ?K     0K     0K     0K   0% cpuhp/3        
+     25     0K     0K     0K     ?K     0K     0K     0K   0% migration/3    
+     26     0K     0K     0K     ?K     0K     0K     0K   0% ksoftirqd/3    
+     28     0K     0K     0K     ?K     0K     0K     0K   0% kworker/3:0H-k 
+     29     0K     0K     0K     ?K     0K     0K     0K   0% cpuhp/4        
+     30     0K     0K     0K     ?K     0K     0K     0K   0% migration/4    
+     31     0K     0K     0K     ?K     0K     0K     0K   0% ksoftirqd/4    
+     33     0K     0K     0K     ?K     0K     0K     0K   0% kworker/4:0H-e 
+     34     0K     0K     0K     ?K     0K     0K     0K   0% cpuhp/5        
+     35     0K     0K     0K     ?K     0K     0K     0K   0% migration/5    
+     36     0K     0K     0K     ?K     0K     0K     0K   0% ksoftirqd/5    
+     38     0K     0K     0K     ?K     0K     0K     0K   0% kworker/5:0H-e 
+     39     0K     0K     0K     ?K     0K     0K     0K   0% cpuhp/6        
+     40     0K     0K     0K     ?K     0K     0K     0K   0% migration/6    
+     41     0K     0K     0K     ?K     0K     0K     0K   0% ksoftirqd/6    
+     43     0K     0K     0K     ?K     0K     0K     0K   0% kworker/6:0H-k 
+     44     0K     0K     0K     ?K     0K     0K     0K   0% cpuhp/7        
+     45     0K     0K     0K     ?K     0K     0K     0K   0% migration/7    
+     46     0K     0K     0K     ?K     0K     0K     0K   0% ksoftirqd/7    
+     48     0K     0K     0K     ?K     0K     0K     0K   0% kworker/7:0H-k 
+     49     0K     0K     0K     ?K     0K     0K     0K   0% kdevtmpfs      
+     50     0K     0K     0K     ?K     0K     0K     0K   0% netns          
+     51     0K     0K     0K     ?K     0K     0K     0K   0% rcu_tasks_kthr 
+     52     0K     0K     0K     ?K     0K     0K     0K   0% kauditd        
+     53     0K     0K     0K     ?K     0K     0K     0K   0% oom_reaper     
+     54     0K     0K     0K     ?K     0K     0K     0K   0% writeback      
+     55     0K     0K     0K     ?K     0K     0K     0K   0% kcompactd0     
+     56     0K     0K     0K     ?K     0K     0K     0K   0% ksmd           
+     57     0K     0K     0K     ?K     0K     0K     0K   0% khugepaged     
+     86     0K     0K     0K     ?K     0K     0K     0K   0% cryptd         
+    167     0K     0K     0K     ?K     0K     0K     0K   0% kintegrityd    
+    168     0K     0K     0K     ?K     0K     0K     0K   0% kblockd        
+    169     0K     0K     0K     ?K     0K     0K     0K   0% blkcg_punt_bio 
+    172     0K     0K     0K     ?K     0K     0K     0K   0% tpm_dev_wq     
+    174     0K     0K     0K     ?K     0K     0K     0K   0% ata_sff        
+    175     0K     0K     0K     ?K     0K     0K     0K   0% md             
+    176     0K     0K     0K     ?K     0K     0K     0K   0% edac-poller    
+    177     0K     0K     0K     ?K     0K     0K     0K   0% devfreq_wq     
+    178     0K     0K     0K     ?K     0K     0K     0K   0% watchdogd      
+    179     0K     0K     0K     ?K     0K     0K     0K   0% kswapd0        
+    182     0K     0K     0K     ?K     0K     0K     0K   0% kthrotld       
+    184     0K     0K     0K     ?K     0K     0K     0K   0% acpi_thermal_p 
+    185     0K     0K     0K     ?K     0K     0K     0K   0% scsi_eh_0      
+    186     0K     0K     0K     ?K     0K     0K     0K   0% scsi_tmf_0     
+    187     0K     0K     0K     ?K     0K     0K     0K   0% scsi_eh_1      
+    188     0K     0K     0K     ?K     0K     0K     0K   0% scsi_tmf_1     
+    189     0K     0K     0K     ?K     0K     0K     0K   0% scsi_eh_2      
+    190     0K     0K     0K     ?K     0K     0K     0K   0% scsi_tmf_2     
+    191     0K     0K     0K     ?K     0K     0K     0K   0% scsi_eh_3      
+    192     0K     0K     0K     ?K     0K     0K     0K   0% scsi_tmf_3     
+    193     0K     0K     0K     ?K     0K     0K     0K   0% scsi_eh_4      
+    194     0K     0K     0K     ?K     0K     0K     0K   0% scsi_tmf_4     
+    195     0K     0K     0K     ?K     0K     0K     0K   0% scsi_eh_5      
+    196     0K     0K     0K     ?K     0K     0K     0K   0% scsi_tmf_5     
+    203     0K     0K     0K     ?K     0K     0K     0K   0% dm_bufio_cache 
+    205     0K     0K     0K     ?K     0K     0K     0K   0% ipv6_addrconf  
+    212     0K     0K     0K     ?K     0K     0K     0K   0% kstrp          
+    272     0K     0K     0K     ?K     0K     0K     0K   0% zswap-shrink   
+    293     0K     0K     0K     ?K     0K     0K     0K   0% kworker/6:1H-e 
+    294     0K     0K     0K     ?K     0K     0K     0K   0% kworker/7:1H-k 
+    472     0K     0K     0K     ?K     0K     0K     0K   0% sdhci          
+    474     0K     0K     0K     ?K     0K     0K     0K   0% irq/33-mmc0    
+    524     0K     0K     0K     ?K     0K     0K     0K   0% kworker/4:1H-k 
+    526     0K     0K     0K     ?K     0K     0K     0K   0% nvkm-disp      
+    528     0K     0K     0K     ?K     0K     0K     0K   0% ttm_swap       
+    531     0K     0K     0K     ?K     0K     0K     0K   0% kworker/5:1H-e 
+    570     0K     0K     0K     ?K     0K     0K     0K   0% kdmflush       
+    577     0K     0K     0K     ?K     0K     0K     0K   0% kdmflush       
+    592     0K     0K     0K     ?K     0K     0K     0K   0% jbd2/dm-0-8    
+    593     0K     0K     0K     ?K     0K     0K     0K   0% ext4-rsv-conve 
+    650     0K     0K     0K     ?K     0K     0K     0K   0% kworker/2:1H-k 
+    651     0K     0K     0K     ?K     0K     0K     0K   0% kworker/3:1H-e 
+    658     0K     0K     0K     ?K     0K     0K     0K   0% kworker/0:1H-k 
+    663     0K     0K     0K     ?K     0K     0K     0K   0% kworker/1:1H-e 
+    688     0K     0K     0K     ?K -95.5M -18.2M     0K   0% systemd-journa 
+    766     0K     0K     0K     ?K     0K     0K     0K   0% irq/37-mei_me  
+    772     0K     0K     0K     ?K     0K     0K     0K   0% ktpacpid       
+    782     0K     0K     0K     ?K     0K     0K     0K   0% cfg80211       
+    783     0K     0K     0K     ?K     0K     0K     0K   0% kdmflush       
+    806     0K     0K     0K     ?K     0K     0K     0K   0% irq/38-iwlwifi 
+    880     0K     0K     0K     ?K     0K     0K     0K   0% irq/41-rmi4_sm 
+    900     0K     0K     0K     ?K     0K     0K     0K   0% jbd2/sda1-8    
+    901     0K     0K     0K     ?K     0K     0K     0K   0% ext4-rsv-conve 
+    902     0K     0K     0K     ?K     0K     0K     0K   0% jbd2/dm-2-8    
+    903     0K     0K     0K     ?K     0K     0K     0K   0% ext4-rsv-conve 
+    914     0K     0K     0K     ?K -96.7M -1684K     0K   0% auditd         
+    916     0K     0K     0K     ?K -7224K -2184K     0K   0% sedispatch     
+    919     0K     0K     0K     ?K     0K     0K     0K   0% rpciod         
+    920     0K     0K     0K     ?K     0K     0K     0K   0% xprtiod        
+    945     0K     0K     0K     ?K  -0.4G -1988K     0K   0% ModemManager   
+    946     0K     0K     0K     ?K -30.8M -2260K     0K   0% avahi-daemon   
+    947     0K     0K     0K     ?K -8472K -1948K     0K   0% bluetoothd     
+    956     0K     0K     0K     ?K -10.6M -1512K     0K   0% mcelog         
+    961     0K     0K     0K     ?K  -0.3G -1048K     0K   0% rngd           
+    965     0K     0K     0K     ?K  -0.1G -1172K     0K   0% rtkit-daemon   
+    967     0K     0K     0K     ?K -10.5M -1308K     0K   0% smartd         
+    968     0K     0K     0K     ?K  -0.2G -2812K     0K   0% sssd           
+    969     0K     0K     0K     ?K  -0.4G -1688K     0K   0% switcheroo-con 
+    971     0K     0K     0K     ?K -19.0M  -984K     0K   0% systemd-homed  
+    972     0K     0K     0K     ?K -18.8M  -332K     0K   0% systemd-machin 
+    977     0K     0K     0K     ?K -30.3M   -56K     0K   0% avahi-daemon   
+    981     0K     0K     0K     ?K  -0.3G -2368K     0K   0% dbus-broker-la 
+   1006     0K     0K     0K     ?K -85.0M -1760K     0K   0% chronyd        
+   1009     0K     0K     0K     ?K  -0.5G -3392K     0K   0% abrtd          
+   1028     0K     0K     0K     ?K  -0.3G -5564K     0K   0% dbus-broker    
+   1031     0K     0K     0K     ?K  -0.2G -4100K     0K   0% sssd_be        
+   1058     0K     0K     0K     ?K  -0.3G -5188K     0K   0% sssd_nss       
+   1065     0K     0K     0K     ?K  -0.5G -1596K     0K   0% accounts-daemo 
+   1066     0K     0K     0K     ?K -22.5M -4736K     0K   0% systemd-logind 
+   1073     0K     0K     0K     ?K  -1.9G -11.0M     0K   0% polkitd        
+   1112     0K     0K     0K     ?K  -1.2G -5540K     0K   0% NetworkManager 
+   1120     0K     0K     0K     ?K -18.6M -1864K     0K   0% systemd-userdb 
+   1174     0K     0K     0K     ?K  -0.3G -4048K     0K   0% abrt-dump-jour 
+   1175     0K     0K     0K     ?K  -0.4G -3672K     0K   0% abrt-dump-jour 
+   1176     0K     0K     0K     ?K  -0.3G -3300K     0K   0% abrt-dump-jour 
+   1343     0K     0K     0K     ?K -12.6M -1264K     0K   0% wpa_supplicant 
+   1579     0K     0K     0K     ?K -17.8M -1616K     0K   0% atd            
+   1581     0K     0K     0K     ?K  -0.4G -1944K     0K   0% gdm            
+   1633     0K     0K     0K     ?K -22.6M -7444K     0K   0% systemd        
+   1634     0K     0K     0K     ?K -21.5M -2988K     0K   0% systemd        
+   1676     0K     0K     0K     ?K  -0.1G    -8K     0K   0% (sd-pam        
+   1677     0K     0K     0K     ?K  -0.1G  -972K     0K   0% (sd-pam        
+   1923     0K     0K     0K     ?K -22.6M  -244K     0K   0% dnsmasq        
+   1924     0K     0K     0K     ?K -22.5M   -40K     0K   0% dnsmasq        
+   1986     0K     0K     0K     ?K -22.6M  -188K     0K   0% dnsmasq        
+   1987     0K     0K     0K     ?K -22.5M   -16K     0K   0% dnsmasq        
+   2790     0K     0K     0K     ?K     0K     0K     0K   0% dio/dm-0       
+   2918     0K     0K     0K     ?K  -0.4G -2776K     0K   0% upowerd        
+   2961     0K     0K     0K     ?K  -2.8G  -1.6G     0K   0% packagekitd    
+   3456     0K     0K     0K     ?K  -0.5G -2828K     0K   0% colord         
+  41112     0K     0K     0K     ?K  -0.5G -5600K     0K   0% gdm-session-wo 
+  41131     0K     0K     0K     ?K  -0.7G -5100K     0K   0% gnome-keyring- 
+  41149     0K     0K     0K     ?K  -0.4G -1524K     0K   0% gdm-wayland-se 
+  41151     0K     0K     0K     ?K  -0.3G -1380K     0K   0% dbus-broker-la 
+  41152     0K     0K     0K     ?K -8848K -5064K     0K   0% dbus-broker    
+  41154     0K     0K     0K     ?K  -0.4G -1432K     0K   0% gnome-session- 
+  41203     0K     0K     0K     ?K  -0.3G  -636K     0K   0% gnome-session- 
+  41204     0K     0K     0K     ?K  -2.6G -10.9M     0K   0% pulseaudio     
+  41206     0K     0K     0K     ?K  -0.7G -3496K     0K   0% gnome-session- 
+  41220     0K     0K     0K     ?K -10.2G  -0.6G     0K   0% gnome-shell    
+  41299     0K     0K     0K     ?K  -0.3G  -412K     0K   0% at-spi-bus-lau 
+  41305     0K     0K     0K     ?K  -0.3G -1196K     0K   0% dbus-broker-la 
+  41307     0K     0K     0K     ?K -5368K -1904K     0K   0% dbus-broker    
+  41322     0K     0K     0K     ?K  -1.6G -35.6M     0K   0% Xwayland       
+  41406     0K     0K     0K     ?K  -0.4G  -784K     0K   0% gvfsd          
+  41411     0K     0K     0K     ?K  -0.1G -3788K     0K   0% dconf-service  
+  41418     0K     0K     0K     ?K  -0.4G  -356K     0K   0% gvfsd-fuse     
+  41448     0K     0K     0K     ?K     0K     0K     0K   0% krfcommd       
+  41450     0K     0K     0K     ?K  -0.4G  -960K     0K   0% xdg-permission 
+  41454     0K     0K     0K     ?K  -0.6G -2564K     0K   0% gnome-shell-ca 
+  41458     0K     0K     0K     ?K  -1.3G -6040K     0K   0% evolution-sour 
+  41466     0K     0K     0K     ?K  -1.0G -3444K     0K   0% geoclue        
+  41477     0K     0K     0K     ?K  -0.5G -1428K     0K   0% gvfs-udisks2-v 
+  41480     0K     0K     0K     ?K  -0.4G -4724K     0K   0% udisksd        
+  41490     0K     0K     0K     ?K  -1.0G -86.3M     0K   0% goa-daemon     
+  41495     0K     0K     0K     ?K  -0.4G -3620K     0K   0% gvfsd-metadata 
+  41506     0K     0K     0K     ?K  -0.4G -1028K     0K   0% gvfs-gphoto2-v 
+  41510     0K     0K     0K     ?K  -0.4G -1556K     0K   0% gvfs-mtp-volum 
+  41520     0K     0K     0K     ?K  -0.5G -5528K     0K   0% goa-identity-s 
+  41521     0K     0K     0K     ?K  -0.4G  -744K     0K   0% gvfs-goa-volum 
+  41529     0K     0K     0K     ?K  -0.5G -1572K     0K   0% gvfs-afc-volum 
+  41534     0K     0K     0K     ?K  -3.0G -10.7M     0K   0% gjs            
+  41535     0K     0K     0K     ?K  -0.2G -1536K     0K   0% at-spi2-regist 
+  41552     0K     0K     0K     ?K  -0.5G  -496K     0K   0% gsd-a11y-setti 
+  41554     0K     0K     0K     ?K  -0.8G -14.2M     0K   0% gsd-color      
+  41555     0K     0K     0K     ?K  -0.5G -1632K     0K   0% gsd-datetime   
+  41558     0K     0K     0K     ?K  -0.5G -2408K     0K   0% gsd-housekeepi 
+  41559     0K     0K     0K     ?K  -0.5G -3520K     0K   0% gsd-keyboard   
+  41560     0K     0K     0K     ?K  -1.1G -7752K     0K   0% gsd-media-keys 
+  41565     0K     0K     0K     ?K  -0.8G -6820K     0K   0% gsd-power      
+  41566     0K     0K     0K     ?K  -0.4G -1060K     0K   0% gsd-print-noti 
+  41569     0K     0K     0K     ?K  -0.6G  -720K     0K   0% gsd-rfkill     
+  41570     0K     0K     0K     ?K  -0.4G -3364K     0K   0% gsd-screensave 
+  41573     0K     0K     0K     ?K  -0.6G -1664K     0K   0% gsd-sharing    
+  41589     0K     0K     0K     ?K  -1.2G -8060K     0K   0% tracker-miner- 
+  41592     0K     0K     0K     ?K  -0.9G -5336K     0K   0% evolution-alar 
+  41604     0K     0K     0K     ?K  -0.6G  -500K     0K   0% gsd-smartcard  
+  41607     0K     0K     0K     ?K  -0.5G  -788K     0K   0% gsd-sound      
+  41610     0K     0K     0K     ?K  -0.6G -1904K     0K   0% gsd-usb-protec 
+  41612     0K     0K     0K     ?K  -0.5G -3552K     0K   0% gsd-wacom      
+  41626     0K     0K     0K     ?K  -0.5G  -548K     0K   0% gsd-wwan       
+  41627     0K     0K     0K     ?K  -1.7G  -0.6G     0K   0% gnome-software 
+  41632     0K     0K     0K     ?K  -0.2G -1380K     0K   0% gsd-disk-utili 
+  41633     0K     0K     0K     ?K  -0.5G -3080K     0K   0% abrt-applet    
+  41634     0K     0K     0K     ?K  -2.3G -63.0M     0K   0% evolution-cale 
+  41741     0K     0K     0K     ?K  -0.5G -1488K     0K   0% gsd-printer    
+  41752     0K     0K     0K     ?K  -0.5G -2556K     0K   0% ibus-daemon    
+  41755     0K     0K     0K     ?K  -0.8G -5504K     0K   0% gsd-xsettings  
+  41774     0K     0K     0K     ?K  -0.4G -1592K     0K   0% ibus-dconf     
+  41775     0K     0K     0K     ?K  -0.5G -3588K     0K   0% ibus-extension 
+  41777     0K     0K     0K     ?K  -0.7G -4140K     0K   0% ibus-x11       
+  41781     0K     0K     0K     ?K  -0.4G -3128K     0K   0% ibus-portal    
+  41798     0K     0K     0K     ?K  -1.0G -9716K     0K   0% evolution-addr 
+  41858     0K     0K     0K     ?K  -0.4G -3092K     0K   0% ibus-engine-si 
+  41909     0K     0K     0K     ?K  -0.5G -1196K     0K   0% abrt-dbus      
+  42253     0K     0K     0K     ?K  -0.5G -30.4M     0K   0% hexchat        
+  42839     0K     0K     0K     ?K  -1.1G  -0.4G     0K   0% gnome-terminal 
+  43245     0K     0K     0K     ?K  -0.2G -1248K     0K   0% bash           
+  44073     0K     0K     0K     ?K  -0.2G -3184K     0K   0% bash           
+  44851     0K     0K     0K     ?K -7236K -2248K     0K   0% ssh-agent      
+  48434     0K     0K     0K     ?K  -0.2G -1916K     0K   0% gconfd-2       
+  53785     0K     0K     0K     ?K  -0.5G -1408K     0K   0% gvfsd-trash    
+  53794     0K     0K     0K     ?K  -0.6G -2956K     0K   0% gvfsd-network  
+  53811     0K     0K     0K     ?K  -0.5G -2232K     0K   0% gvfsd-dnssd    
+ 154664     0K     0K     0K     ?K  -0.3G -4996K     0K   0% rsyslogd       
+ 365788     0K     0K     0K     ?K  -8.9G -60.9M     0K   0% chrome         
+ 465141     0K     0K     0K     ?K -57.6M   -96K     0K   0% podman pause   
+ 465153     0K     0K     0K     ?K  -0.3G -1900K     0K   0% dbus-broker-la 
+ 465154     0K     0K     0K     ?K -5148K  -672K     0K   0% dbus-broker    
+ 623701     0K     0K     0K     ?K  -4.7G -72.8M     0K   0% chrome         
+ 939556     0K     0K     0K     ?K  -4.7G -61.6M     0K   0% chrome         
+1073783     0K     0K     0K     ?K  -0.3G -2548K     0K   0% sqlservr       
+1073790     0K     0K     0K     ?K -13.3G  -0.3G     0K   0% sqlservr       
+1140385     0K     0K     0K     ?K -2616K -1864K     0K   0% earlyoom       
+1140394     0K     0K     0K     ?K -5164K -1596K     0K   0% alsactl        
+1208346     0K     0K     0K     ?K -21.2G  -0.3G     0K   0% chrome         
+1229488     0K     0K     0K     ?K  -1.9G -36.1M     0K   0% grafana-server 
+1266343     0K     0K     0K     ?K -14.9M     0K     0K   0% dbus-launch    
+1266344     0K     0K     0K     ?K -97.2M  -888K     0K   0% dbus-daemon    
+1266542     0K     0K     0K     ?K  -0.4G -6748K     0K   0% pmtime         
+1541229     0K     0K     0K     ?K  -1.2G -11.9M     0K   0% gnome-calendar 
+1541314     0K     0K     0K     ?K -43.0M -1212K     0K   0% obexd          
+1671685     0K     0K     0K     ?K -3784K -1308K     0K   0% nstat          
+1866820     0K     0K     0K     ?K  -0.2G -5740K     0K   0% bash           
+1873447     0K     0K     0K     ?K  -0.3G -2480K     0K   0% kdeinit4       
+1873449     0K     0K     0K     ?K  -0.3G -2396K     0K   0% klauncher      
+1873451     0K     0K     0K     ?K  -0.3G -6292K     0K   0% kded4          
+1920659     0K     0K     0K     ?K     0K     0K     0K   0% glock_workqueu 
+1920660     0K     0K     0K     ?K     0K     0K     0K   0% delete_workque 
+1920661     0K     0K     0K     ?K     0K     0K     0K   0% gfs_recovery   
+1998008     0K     0K     0K     ?K  -0.4G -4864K     0K   0% gdm-session-wo 
+2029227     0K     0K     0K     ?K  -4.9G  -0.1G     0K   0% slack          
+2029234     0K     0K     0K     ?K  -0.4G -10.2M     0K   0% slack          
+2029235     0K     0K     0K     ?K  -0.4G -10.1M     0K   0% slack          
+2029237     0K     0K     0K     ?K  -0.4G -8408K     0K   0% slack          
+2029267     0K     0K     0K     ?K  -0.6G -43.4M     0K   0% slack          
+2029317     0K     0K     0K     ?K  -0.5G -40.5M     0K   0% slack          
+2029336     0K     0K     0K     ?K  -4.9G  -0.3G     0K   0% slack          
+2124722     0K     0K     0K     ?K  -0.2G -4496K     0K   0% bash           
+2259492     0K     0K     0K     ?K  -0.5G -7704K     0K   0% firewalld      
+2259596     0K     0K     0K     ?K  -0.3G -5584K     0K   0% smbd           
+2259598     0K     0K     0K     ?K  -0.3G -3500K     0K   0% smbd-notifyd   
+2259599     0K     0K     0K     ?K  -0.3G -2328K     0K   0% cleanupd       
+2259601     0K     0K     0K     ?K  -0.3G -4632K     0K   0% lpqd           
+2259720     0K     0K     0K     ?K  -1.6G -14.9M     0K   0% mysqld         
+2269681     0K     0K     0K     ?K  -0.2G -2108K     0K   0% crond          
+2270956     0K     0K     0K     ?K  -0.3G -1172K     0K   0% gssproxy       
+2271362     0K     0K     0K     ?K -26.0M -1624K     0K   0% sshd           
+2283480     0K     0K     0K     ?K  -4.5G  -0.7G     0K   0% firefox        
+2283635     0K     0K     0K     ?K  -3.0G  -0.1G     0K   0% Web Content    
+2283692     0K     0K     0K     ?K  -2.5G -39.8M     0K   0% WebExtensions  
+2283740     0K     0K     0K     ?K  -2.9G  -0.2G     0K   0% Web Content    
+2283779     0K     0K     0K     ?K  -3.3G  -0.2G     0K   0% Web Content    
+2284034     0K     0K     0K     ?K  -3.2G  -0.4G     0K   0% Web Content    
+2284066     0K     0K     0K     ?K  -3.3G  -0.5G     0K   0% Web Content    
+2284349     0K     0K     0K     ?K  -2.5G -30.6M     0K   0% Privileged Con 
+2284408     0K     0K     0K     ?K  -0.2G -5764K     0K   0% RDD Process    
+2290904     0K     0K     0K     ?K     0K     0K     0K   0% xfsalloc       
+2290905     0K     0K     0K     ?K     0K     0K     0K   0% xfs_mru_cache  
+2293102     0K     0K     0K     ?K  -2.9G  -0.1G     0K   0% Web Content    
+2309214     0K     0K     0K     ?K -7236K   -84K     0K   0% ssh-agent      
+2311258     0K     0K     0K     ?K  -0.3G -1584K     0K   0% dirmngr        
+2316771     0K     0K     0K     ?K  -0.2G  -832K     0K   0% bash           
+2316972     0K     0K     0K     ?K  -0.2G -5044K     0K   0% vim            
+2333634     0K     0K     0K     ?K  -0.9G -4468K     0K   0% xdg-desktop-po 
+2333638     0K     0K     0K     ?K  -0.8G  -884K     0K   0% xdg-document-p 
+2333642     0K     0K     0K     ?K -10.4M -1324K     0K   0% fusermount     
+2333646     0K     0K     0K     ?K  -0.7G  -9.8M     0K   0% xdg-desktop-po 
+2333703     0K     0K     0K     ?K  -0.2G -5260K     0K   0% pipewire       
+2333705     0K     0K     0K     ?K -27.0M -3064K     0K   0% pipewire-media 
+2333829     0K     0K     0K     ?K  -0.4G -2164K     0K   0% nm-openvpn-ser 
+2333846     0K     0K     0K     ?K -25.1M -2992K     0K   0% openvpn        
+2336718     0K     0K     0K     ?K  -0.2G -5668K     0K   0% bash           
+2513816     0K     0K     0K     ?K  -0.5G  -0.2G     0K   0% pmproxy        
+2560686     0K     0K     0K     ?K     0K     0K     0K   0% target_complet 
+2560687     0K     0K     0K     ?K     0K     0K     0K   0% xcopy_wq       
+2569077     0K     0K     0K     ?K -15.0M     0K     0K   0% dbus-launch    
+2569078     0K     0K     0K     ?K -33.0M  -728K     0K   0% dbus-daemon    
+2569081     0K     0K     0K     ?K  -0.3G -1348K     0K   0% at-spi-bus-lau 
+2569086     0K     0K     0K     ?K  -0.3G -1176K     0K   0% dbus-broker-la 
+2569087     0K     0K     0K     ?K -5148K -1424K     0K   0% dbus-broker    
+2569286     0K     0K     0K     ?K -50.1M -5848K     0K   0% systemd-udevd  
+2612625     0K     0K     0K     ?K  -1.1G  -0.2G     0K   0% chrome         
+2612634     0K     0K     0K     ?K  -0.2G     0K     0K   0% cat            
+2612635     0K     0K     0K     ?K  -0.2G     0K     0K   0% cat            
+2612638     0K     0K     0K     ?K  -0.5G -3100K     0K   0% chrome         
+2612639     0K     0K     0K     ?K  -0.5G -6088K     0K   0% chrome         
+2612640     0K     0K     0K     ?K -10.4M  -444K     0K   0% nacl_helper    
+2612641     0K     0K     0K     ?K -10.4M -1232K     0K   0% nacl_helper    
+2612644     0K     0K     0K     ?K  -0.5G -6116K     0K   0% chrome         
+2612667     0K     0K     0K     ?K  -0.9G  -0.2G     0K   0% chrome         
+2612670     0K     0K     0K     ?K  -0.6G -73.7M     0K   0% chrome         
+2612710     0K     0K     0K     ?K  -4.6G -31.8M     0K   0% chrome         
+2612745     0K     0K     0K     ?K  -4.6G -10.9M     0K   0% chrome         
+2613049     0K     0K     0K     ?K  -0.7G -5244K     0K   0% chrome         
+2632232     0K     0K     0K     ?K -67.3M -37.2M     0K   0% pmlogger       
+2633652     0K     0K     0K     ?K  -4.7G -30.0M     0K   0% chrome         
+2684700     0K     0K     0K     ?K  -8.7G -79.8M     0K   0% chrome         
+2692050     0K     0K     0K     ?K  -2.9G  -0.2G     0K   0% Web Content    
+2722962     0K     0K     0K     ?K  -2.7G  -0.2G     0K   0% Web Content    
+2754608     0K     0K     0K     ?K  -0.1G -2764K     0K   0% pmcd           
+2754613     0K     0K     0K     ?K -16.8M -3112K     0K   0% pmdaroot       
+2754614     0K     0K     0K     ?K -46.7M -16.1M     0K   0% pmdaproc       
+2754617     0K     0K     0K     ?K -15.5M -2604K     0K   0% pmdaxfs        
+2754618     0K     0K     0K     ?K -33.9M -3400K     0K   0% pmdasample     
+2754619     0K     0K     0K     ?K -24.3M -3892K     0K   0% pmdalinux      
+2754620     0K     0K     0K     ?K  -0.2G -10.4M     0K   0% python3        
+2754624     0K     0K     0K     ?K -15.6M -3520K     0K   0% pmdakvm        
+2754628     0K     0K     0K     ?K  -0.5G -20.0M     0K   0% python3        
+2754632     0K     0K     0K     ?K -33.8M -3536K     0K   0% pmdasimple     
+2766198     0K     0K     0K     ?K  -0.2G -6900K     0K   0% bash           
+2766247     0K     0K     0K     ?K  -1.0G -39.0M     0K   0% pmchart        
+2766257     0K     0K     0K     ?K  -0.7G -15.0M     0K   0% pmtime         
+2880468     0K     0K     0K     ?K  -4.6G -48.3M     0K   0% chrome         
+2880482     0K     0K     0K     ?K  -4.7G -76.6M     0K   0% chrome         
+2888580     0K     0K     0K     ?K     0K     0K     0K   0% kworker/u17:2- 
+2890378     0K     0K     0K     ?K     0K     0K     0K   0% kworker/u17:0- 
+2895366     0K     0K     0K     ?K  -8.7G -58.0M     0K   0% chrome         
+2895425     0K     0K     0K     ?K  -4.6G -20.6M     0K   0% chrome         
+2896418     0K     0K     0K     ?K  -0.2G -7276K     0K   0% vim            
+2898386     0K     0K     0K     ?K -38.0M -2420K     0K   0% sshd           
+2898861     0K     0K     0K     ?K -38.3M -1448K     0K   0% sshd           
+2898887     0K     0K     0K     ?K  -0.2G -3040K     0K   0% bash           
+2904418     0K     0K     0K     ?K     0K     0K     0K   0% kworker/u16:2- 
+2904664     0K     0K     0K     ?K  -0.2G -5844K     0K   0% bash           
+2904990     0K     0K     0K     ?K  -0.2G -8404K     0K   0% vim            
+2907249     0K     0K     0K     ?K     0K     0K     0K   0% kworker/u16:4- 
+2907839     0K     0K     0K     ?K     0K     0K     0K   0% kworker/7:1-ev 
+2908025     0K     0K     0K     ?K     0K     0K     0K   0% kworker/1:2-ev 
+2909160     0K     0K     0K     ?K  -0.2G -6760K     0K   0% bash           
+2909726     0K     0K     0K     ?K     0K     0K     0K   0% kworker/u16:0- 
+2910784     0K     0K     0K     ?K     0K     0K     0K   0% kworker/u16:1- 
+2915571     0K     0K     0K     ?K  -0.2G -7844K     0K   0% sudo           
+2915573     0K     0K     0K     ?K  -0.2G -6792K     0K   0% su             
+2915574     0K     0K     0K     ?K  -0.2G -6736K     0K   0% bash           
+2924224     0K     0K     0K     ?K     0K     0K     0K   0% kworker/3:0-cg 
+2941805     0K     0K     0K     ?K     0K     0K     0K   0% kworker/2:2-ev 
+2948327     0K     0K     0K     ?K     0K     0K     0K   0% kworker/6:2-ev 
+2952288     0K     0K     0K     ?K -44.9M -8964K     0K   0% pmdaperfevent  
+2952537     0K     0K     0K     ?K -34.9M -7676K     0K   0% pmdaapache     
+2952609     0K     0K     0K     ?K     0K     0K     0K   0% kworker/0:1-ev 
+2954314     0K     0K     0K     ?K     0K     0K     0K   0% kworker/6:3-ev 
+2954316     0K     0K     0K     ?K     0K     0K     0K   0% kworker/4:3-ev 
+2954449     0K     0K     0K     ?K     0K     0K     0K   0% kworker/5:1-mm 
+2954773     0K     0K     0K     ?K     0K     0K     0K   0% kworker/u16:5- 
+2954774     0K     0K     0K     ?K     0K     0K     0K   0% kworker/u16:6- 
+2954941     0K     0K     0K     ?K     0K     0K     0K   0% kworker/3:2-ev 
+2954961     0K     0K     0K     ?K     0K     0K     0K   0% kworker/1:1-ev 
+2955047     0K     0K     0K     ?K     0K     0K     0K   0% kworker/2:1-ev 
+2955757     0K     0K     0K     ?K     0K     0K     0K   0% kworker/0:3-ev 
+2955758     0K     0K     0K     ?K     0K     0K     0K   0% kworker/5:2-ev 
+2955856     0K     0K     0K     ?K     0K     0K     0K   0% kworker/4:1-mm 
+2955973     0K     0K     0K     ?K     0K     0K     0K   0% kworker/7:0-ev 
+2956039     0K     0K     0K     ?K     0K     0K     0K   0% kworker/2:0-ev 
+2956203     0K     0K     0K     ?K     0K     0K     0K   0% kworker/6:0-ev 
+2956409     0K     0K     0K     ?K     0K     0K     0K   0% kworker/u16:3  
+2956410     0K     0K     0K     ?K     0K     0K     0K   0% kworker/u16:7- 
+2956504     0K     0K     0K     ?K     0K     0K     0K   0% kworker/3:1-ev 
+2956508     0K     0K     0K     ?K     0K     0K     0K   0% kworker/3:3-ev 
+2956688     0K     0K     0K     ?K     0K     0K     0K   0% kworker/4:0-ev 
+2956689     0K     0K     0K     ?K     0K     0K     0K   0% kworker/0:0-ev 
+2956702     0K     0K     0K     ?K -18.6M -7800K     0K   0% systemd-userwo 
+2956707     0K     0K     0K     ?K -18.6M -7828K     0K   0% systemd-userwo 
+2956737     0K     0K     0K     ?K -18.6M -7684K     0K   0% systemd-userwo 
+2956762     0K     0K     0K     ?K  -0.5G -26.9M     0K   0% tracker-store  
+2956875     0K     0K     0K     ?K  -0.2G -3872K     0K   0% mk.atop-boot   
+2956901     0K     0K     0K     ?K -17.1M -8300K     0K   0% pmlogger       
+3078515     0K     0K     0K     ?K  -9.0G  -0.3G     0K   0% chrome         
+3089383     0K     0K     0K     ?K  -0.2G -5688K     0K   0% vim            
+3246189     0K     0K     0K     ?K -57.6M     0K     0K   0% podman pause   
+3343871     0K     0K     0K     ?K  -4.4G  -3.3G     0K   0% redis-server   
+3385392     0K     0K     0K     ?K  -0.4G -1408K     0K   0% gvfsd-http     
+3415046     0K     0K     0K     ?K  -0.4G -1604K     0K   0% gpg-agent      
+3415048     0K     0K     0K     ?K  -0.3G  -116K     0K   0% scdaemon       
+3433701     0K     0K     0K     ?K  -4.6G -56.6M     0K   0% chrome         
+3734807     0K     0K     0K     ?K  -0.2G -2440K     0K   0% cupsd          
+2956910     0K     0K     0K     ?K     0K     0K     0K   0% pmsleep        
+2956902     0K     0K     0K     ?K     0K     0K     0K   0% pmsleep        
 === std err
 === done
 

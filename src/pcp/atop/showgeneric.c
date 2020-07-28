@@ -27,7 +27,6 @@
 #else
 #include <curses.h>
 #endif
-#include <regex.h>
 #include <pwd.h>
 #include <grp.h>
 #include <stdarg.h>
@@ -105,14 +104,15 @@ generic_samp(double sampletime, double nsecs,
 	char		*p;
 
 	register int	i, curline, statline, nproc;
-	int		firstproc = 0, plistsz, alistsz /*, killpid, killsig */;
+	int		firstproc = 0, plistsz, alistsz, killpid, killsig;
 	int		lastchar;
-	char		format1[16], format2[16];
+	char		format1[16], format2[16], branchtime[32];
 	char		*statmsg = NULL, statbuf[80], genline[80];
-	char		 *lastsortp, curorder, autoorder;
-	char		buf[33];
-	struct passwd 	*pwd;
+	char		*lastsortp, curorder, autoorder;
+	char		buf[34];
+	struct timeval	timeval;
 	struct syscap	syscap;
+	struct passwd 	*pwd;
 
 	/*
 	** curlist points to the active list of tstat-pointers that
@@ -798,7 +798,7 @@ generic_samp(double sampletime, double nsecs,
 				if (tsklist)   free(tsklist);
 				if (sellist)   free(sellist);
 
-				return lastchar;	
+				return '\0';	
 
 			   /*
 			   ** stop it
@@ -853,18 +853,18 @@ generic_samp(double sampletime, double nsecs,
 				if (tsklist)   free(tsklist);
 				if (sellist)   free(sellist);
 
+				/*
+				** back up two steps, advancing again shortly
+				*/
+				pmtimevalDec(&curtime, &interval);
+				pmtimevalDec(&curtime, &interval);
+
 				return lastchar;
 
                            /*
 			   ** branch to certain time stamp
                            */
                            case MSAMPBRANCH:
-#if 1
-				statmsg = "Not yet supported in this atop!";
-				beep();
-				break;
-#else
-				char hhmm[16];
                                 if (!rawreadflag)
                                 {
                                         statmsg = "Only allowed when viewing "
@@ -879,21 +879,32 @@ generic_samp(double sampletime, double nsecs,
                                 echo();
                                 move(statline, 0);
                                 clrtoeol();
-                                printw("Enter new time (format hh:mm): ");
+                                printw("Enter new time "
+				       "(format [YYYYMMDD]hh:mm:ss): ");
 
-                                hhmm[0] = '\0';
-                                scanw("%15s\n", hhmm);
+                                branchtime[0] = '\0';
+                                scanw("%31s\n", branchtime);
                                 noecho();
 
-                                if ( !hhmm2secs(hhmm, &begintime) )
+				timeval = curtime;
+
+                                if ( !getbranchtime(branchtime, &timeval) )
                                 {
                                         move(statline, 0);
                                         clrtoeol();
                                         statmsg = "Wrong time format!";
                                         beep();
-                                        begintime = 0;
                                         break;
                                 }
+
+				/*
+				** back up one step before the branch time,
+				** to advance onto it in the next sample
+				*/
+				curtime = timeval;
+				pmtimevalDec(&curtime, &interval);
+				if (time_less_than(&curtime, &start))
+				    curtime = start;
 
 				if (tpcumlist) free(tpcumlist);
 				if (pcumlist)  free(pcumlist);
@@ -905,7 +916,6 @@ generic_samp(double sampletime, double nsecs,
 				if (sellist)   free(sellist);
 
                                 return lastchar;
-#endif
 
 			   /*
 			   ** sort order automatically depending on
@@ -1171,14 +1181,17 @@ generic_samp(double sampletime, double nsecs,
 			   ** send signal to process
 			   */
 			   case MKILLPROC:
-#if 1
-				statmsg = "Not supported in this atop!";
-				beep();
-#else
-				if (rawreadflag)	// TODO: or via remote pmcd, or...?
+				if (rawreadflag)
 				{
 					statmsg = "Not possible when viewing "
 					          "raw file!";
+					beep();
+					break;
+				}
+				if (!localhost)
+				{
+					statmsg = "Not possible when viewing "
+					          "values from a remote host!";
 					beep();
 					break;
 				}
@@ -1217,7 +1230,6 @@ generic_samp(double sampletime, double nsecs,
 					setalarm2(3, 0); /* set short timer */
 
 				firstproc = 0;
-#endif
 				break;
 
 			   /*
@@ -1236,7 +1248,6 @@ generic_samp(double sampletime, double nsecs,
 				{
 					if (!paused)
 						setalarm2(3, 0); /*  set short timer */
-					origin = curtime;
 					setup_step_mode(0);
 				}
 				else
@@ -2842,6 +2853,7 @@ generic_next(void)
 {
     return -1;
 }
+
 /*
 ** function to be called when usage-info is required
 */

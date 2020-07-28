@@ -1049,6 +1049,8 @@ refresh_memory(const char *path, const char *name, void *arg)
 
     pmsprintf(file, sizeof(file), "%s/%s", path, "memory.stat");
     read_memory_stats(file, &memory->stat);
+    pmsprintf(file, sizeof(file), "%s/%s", path, "memory.current");
+    read_oneline_ull(file, &memory->current);
     pmsprintf(file, sizeof(file), "%s/%s", path, "memory.limit_in_bytes");
     read_oneline_ull(file, &memory->limit);
     pmsprintf(file, sizeof(file), "%s/%s", path, "memory.usage_in_bytes");

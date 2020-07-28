@@ -78,7 +78,7 @@ fi
 
 _usage()
 {
-    echo "Usage: $pmprog [-v] {start|start-systemd|restart|condrestart|stop|status|reload|force-reload}"
+    echo "Usage: $pmprog [-v] {start|start-systemd|restart|condrestart|stop|stop-systemd|status|reload|force-reload}"
 }
 
 _reboot_setup()
@@ -155,37 +155,16 @@ _start_pmie()
 Error: PCP inference engine control file '$PMIECTRL'
        is missing!  Cannot start any Performance Co-Pilot inference engine(s).'
 	    # failure
-	    false
+	    estatus=false
 	else
+	    [ "$1" = "start-systemd" ] ||\
 	    $ECHO $PCP_ECHO_N "Starting pmie ..." "$PCP_ECHO_C"
 
 	    # start all pmie services configured in the control file(s)
 	    _start_pmcheck
 
-	    # Container environment
-	    if [ -n "$PCP_CONTAINER_IMAGE" ]
-	    then
-		# Set up the host crontab for pmie_{check,daily}.
-		# This needs to be robust for when the container isn't running
-		# so that a failing crontab entry doesn't spam the host logs.
-		cronjob=/etc/cron.d/pcp-pmie-docker
-		if [ ! -f $cronjob ]
-		then
-		    cp $PCP_VAR_DIR/config/pmie/crontab.docker $cronjob
-		    $PCP_BINADM_DIR/pmpost "pmie script installed $cronjob"
-		fi
-
-		# In a container, pmie_check cannot run indefinitely -
-		# if it did then the pmpause signal handler would reap the
-		# pmie_check child and exit.
-		wait
-
-		# finally, stop here when running as a container
-		exec $PCP_BINADM_DIR/pmpause
-	    fi
-
             # success
-            true
+            estatus=true
 	fi
     else
         echo "$prog:"'
@@ -193,9 +172,15 @@ Warning: Performance Co-Pilot installation is incomplete (at least the
          script "pmie_check" is missing) and the PCP inference engine(s)
          cannot be started.'
         # failure
-        false
+        estatus=false
     fi
-    $RC_STATUS -v
+    if [ "$1" = start-systemd ]; then
+	$estatus
+    	$RC_STATUS
+    else
+	$estatus
+	$RC_STATUS -v
+    fi
 }
 
 _shutdown()
@@ -224,10 +209,9 @@ _shutdown()
 
     if [ "$1" = quietly ]
     then
-	$RC_STATUS
+	true && $RC_STATUS
     else
-	true
-	$RC_STATUS -v
+	true && $RC_STATUS -v
     fi
     rm -f $PCP_RUN_DIR/pmie.pid
     rm -fr "$tmp/pmie" "$PCP_TMP_DIR"/pmie/*
@@ -264,7 +248,7 @@ case "$1" in
 	    exit
 	fi
 
-	[ "$1" = start-systemd ] || _shutdown quietly
+	_shutdown quietly
 
 	# messages should go to stderr, not the GUI notifiers
 	#
@@ -284,13 +268,18 @@ case "$1" in
 		chkconfig_on_msg pmie
 	    fi
 
-	    _start_pmie
+	    _start_pmie $1
 	fi
 	status=0
         ;;
 
   stop)
 	_shutdown verbose
+	status=0
+        ;;
+
+  stop-systemd)
+	_shutdown quietly
 	status=0
         ;;
 
@@ -316,7 +305,6 @@ case "$1" in
         fi
         ;;
   *)
-	[ -n "$PCP_CONTAINER_IMAGE" ] && exec "$@"
 	_usage
         ;;
 esac

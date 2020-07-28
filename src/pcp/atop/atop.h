@@ -20,7 +20,7 @@
 ** See the GNU General Public License for more details.
 */
 #define	EQ		0
-#define SECSDAY		86400
+#define SECONDSINDAY	86400
 
 /*
 ** memory-size formatting possibilities
@@ -60,8 +60,8 @@ struct visualize {
 	void	(*show_error) (const char *, ...);
 	void	(*show_end)   (void);
 	void	(*show_usage) (void);
-       void    (*prep)       (void);
-       int     (*next)       (void);
+	void    (*prep)       (void);
+	int     (*next)       (void);
 };
 
 struct sysname {
@@ -75,8 +75,10 @@ struct sysname {
 ** external values
 */
 extern struct sysname	sysname;
+extern int		localhost;
 extern int              nodenamelen;
 extern struct timeval	start;
+extern struct timeval	finish;
 extern struct timeval	origin;
 extern struct timeval   pretime;
 extern struct timeval   curtime;
@@ -151,7 +153,11 @@ int            generic_next (void);
 int		atopsar(int, char *[]);
 char   		*convtime(double, char *, size_t);
 char   		*convdate(double, char *, size_t);
-int   		hhmm2secs(char *, unsigned int *);
+int   		getbranchtime(char *, struct timeval *);
+time_t		normalize_epoch(time_t, long);
+int		time_less_than(struct timeval *, struct timeval *);
+int		time_greater_than(struct timeval *, struct timeval *);
+
 
 char   		*val2valstr(count_t, char *, size_t, int, int, int);
 char   		*val2memstr(count_t, char *, size_t, int, int, int);

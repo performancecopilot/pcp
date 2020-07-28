@@ -78,7 +78,7 @@ _logs()
 }
 
 # real QA test starts here
-pcp_options="pcp -z --origin=+1.1 --archive $here/archives/pcp-atop-boot"
+pcp_options="pcp -z --origin=+0.1 --archive $here/archives/pcp-atop-boot"
 
 echo "=== -v option:"
 $pcp_options atop -v 2 3 >$tmp.out 2>$tmp.err
