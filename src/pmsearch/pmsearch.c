@@ -203,11 +203,16 @@ on_search_result(pmSearchTextResult *result, void *arg)
 	printf("ID: %s\n", result->docid);
     if (dp->flags & PMSEARCH_SCORES)
 	printf("Score: %.2f\n", result->score);
-    printf("Type: %s\n", pmSearchTextTypeStr(result->type));
-    printv(dp, "Name", result->name);
-    printv(dp, "InDom", result->indom);
-    printv(dp, "One line", result->oneline);
-    printv(dp, "Help", result->helptext);
+    if (result->type != PM_SEARCH_TYPE_UNKNOWN)
+	printf("Type: %s\n", pmSearchTextTypeStr(result->type));
+    if (result->name != NULL)
+	printv(dp, "Name", result->name);
+    if (result->indom != NULL)
+	printv(dp, "InDom", result->indom);
+    if (result->oneline != NULL)
+	printv(dp, "One line", result->oneline);
+    if (result->helptext != NULL)
+	printv(dp, "Help", result->helptext);
 }
 
 static int

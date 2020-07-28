@@ -71,12 +71,24 @@ pmsearch $port -i -C | _filter_info
 echo "=== Extra reporting - timing, score, hits, doc IDs ==="
 _filter_extras()
 {
+    # need to filter out score, since it seems that Redisearch indexes records asynchronously and therefore they may be 
+    # delay before "score" "stabilizes" until all records are process - this may take longer then adding of records itself
     sed \
+	-e 's/\(Score:\) 0\.[0-9][0-9]*/\1 0.XX/g' \
 	-e 's/\([0-9][0-9]* hit in\) 0\.[0-9][0-9]* seconds/\1 0.X seconds/g' \
 	-e 's/\([0-9][0-9]* hits in\) 0\.[0-9][0-9]* seconds/\1 0.Y seconds/g' \
     #end
 }
 pmsearch $port -dStT 99 | _filter_extras
+
+echo "=== Suggestion search 1 ==="
+pmsearch $port -s sample | _filter_extras
+
+echo "=== Suggestion search 2 ==="
+pmsearch $port -s blue | _filter_extras
+
+echo "=== Indom search ==="
+pmsearch $port -n 29.3 | _filter_extras
 
 # success, all done
 status=0
