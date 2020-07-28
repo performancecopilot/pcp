@@ -1,0 +1,5 @@
+QA output created by 1824
+=== direct query with no results available
+[]
+=== client query with no results available
+{"client":"cow","result":[]}

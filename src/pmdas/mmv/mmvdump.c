@@ -609,7 +609,7 @@ dump(const char *file, void *addr, size_t size)
 	return 1;
     }
 
-    if (strcmp(hdr->magic, "MMV")) {
+    if (strncmp(hdr->magic, "MMV", 4)) {
 	printf("Bad magic: %c%c%c\n",
 		hdr->magic[0], hdr->magic[1], hdr->magic[2]);
 	return 1;

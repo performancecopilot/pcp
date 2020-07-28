@@ -2,26 +2,22 @@ QA output created by 1820
 
 === Check memory allocation issue:
 
-        2020/07/20
+        2020/07/22
 
 -------------------------- analysis date: 2013/09/26 --------------------------
-
-16:14:15  cpu  %usr %nice %sys %irq %softirq  %steal %guest  %wait %idle  _cpu_
 
 16:14:19  cpu  %usr %nice %sys %irq %softirq  %steal %guest  %wait %idle  _cpu_
 16:14:27  all    23     0    8    2        1       0      0      3   363
-            0     6     3    1    4        4       3      3      4    75
-            1    10     6    8    6        6       6      6      6    51
-            2    11     6    8    6        6       6      6      6    51
-            3    11     6    7    6        6       6      6      6    52
+            0    14    14    0   14       14      14     14     14    14
+            1    12    12   12   12       12      12      0     12    13
+            2     9    11    8   14       15      16     18     13    12
+            3    11    11    3   15       16      16     21     14    13
 
 === Check time window issue:
 
-        2020/07/20
+        2020/07/22
 
 -------------------------- analysis date: 2013/09/26 --------------------------
-
-16:14:29  cpu  %usr %nice %sys %irq %softirq  %steal %guest  %wait %idle  _cpu_
 
 16:14:31  cpu  %usr %nice %sys %irq %softirq  %steal %guest  %wait %idle  _cpu_
 16:14:31  all    14     0    6    2        1       0      0      5   373

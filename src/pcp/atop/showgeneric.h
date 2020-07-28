@@ -8,7 +8,7 @@
 ** of counters.
 **
 ** Copyright (C) 1996-2014 Gerlof Langeveld
-** Copyright (C) 2015,2019 Red Hat
+** Copyright (C) 2015,2019-2020 Red Hat
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -20,6 +20,8 @@
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ** See the GNU General Public License for more details.
 */
+#include <regex.h>
+
 #define USERSTUB	9999999
 #define MAXUSERSEL	64
 #define AT_MAXPID	32
