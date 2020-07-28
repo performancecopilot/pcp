@@ -18,7 +18,7 @@ include $(TOPDIR)/src/include/builddefs
 
 SUBDIRS	= src examples
 OTHERS  = control stomp rc_pmie pmie2col.sh pmie_check.sh pmie_daily.sh
-LDIRT	= crontab crontab.docker pmie.service pmie_daily.service \
+LDIRT	= crontab pmie.service pmie_daily.service \
 	  pmie_check.service pmie_check.path
 
 ifeq ($(TARGET_OS),linux)
@@ -29,7 +29,7 @@ CRONTAB_USER =
 CRONTAB_PATH = $(PCP_SYSCONF_DIR)/pmie/crontab
 endif
 
-default:: crontab crontab.docker pmie.service pmie_daily.service \
+default:: crontab pmie.service pmie_daily.service \
 	  pmie_check.service pmie_check.path
 
 default:: $(SUBDIRS)
@@ -64,11 +64,6 @@ else
 endif
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_LOG_DIR)/pmie
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_TMP_DIR)/pmie
-ifeq ($(TARGET_OS),linux)
-	# In a Docker container environment, the rc_pmie script installs the
-	# Docker version of the crontab into the hosts /etc/cron.d directory.
-	$(INSTALL) -m 644 crontab.docker $(PCP_VAR_DIR)/config/pmie/crontab.docker
-endif
 
 include $(BUILDRULES)
 
@@ -109,7 +104,3 @@ pmie_daily.service : pmie_daily.service.in
 
 crontab: crontab.in
 	$(SED) -e 's;@user@;'$(CRONTAB_USER)';' -e 's;@path@;'$(PCP_BINADM_DIR)';g' $< > $@
-
-crontab.docker:	crontab.docker.in
-	# docker crontab runs as root. this may change in the future.
-	$(SED) -e 's;@path@;'$(PCP_BINADM_DIR)';' $< > $@
