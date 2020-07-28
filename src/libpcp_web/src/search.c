@@ -628,7 +628,7 @@ redis_search_text_query(redisSlots *slots, pmSearchTextRequest *request, void *a
      *		[INFIELDS {?field item count} {?field separated by space}]
      *		[RETURN {?return item count} {?return separated by space}]
      *		[HIGHLIGHT FIELDS {num} {field} ... ]
-     *		SORTER DISMAX
+     *		SCORER BM25
      *		LIMIT {?pagination offset} {?return result count}
      */
     key = sdsnewlen(FT_TEXT_KEY, FT_TEXT_KEY_LEN);
@@ -882,12 +882,12 @@ redis_search_text_indom(redisSlots *slots, pmSearchTextRequest *request, void *a
     /*
      * FT.SEARCH pcp:text
      * 		"@INDOM:{{query}}" WITHSCORES WITHPAYLOADS
-     * 		SORTBY TYPE ASC
+     * 		SORTBY 2 TYPE ASC
      *.		LIMIT {?pagination offset} {?return result count}
      */
     key = sdsnewlen(FT_TEXT_KEY, FT_TEXT_KEY_LEN);
 
-    length = 11; // Resp array size
+    length = 12; // Resp array size
     cmd = redis_command(length);
     cmd = redis_param_str(cmd, FT_SEARCH, FT_SEARCH_LEN);
     cmd = redis_param_sds(cmd, key);
@@ -898,6 +898,7 @@ redis_search_text_indom(redisSlots *slots, pmSearchTextRequest *request, void *a
     cmd = redis_param_str(cmd, FT_WITHPAYLOADS, FT_WITHPAYLOADS_LEN);
 
     cmd = redis_param_str(cmd, FT_SORTBY, FT_SORTBY_LEN);
+    cmd = redis_param_str(cmd, "2", 1);
     cmd = redis_param_str(cmd, FT_TYPE, FT_TYPE_LEN);
     cmd = redis_param_str(cmd, FT_ASC, FT_ASC_LEN);
 
