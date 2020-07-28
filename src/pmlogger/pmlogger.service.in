@@ -2,8 +2,8 @@
 Description=Performance Metrics Archive Logger
 Documentation=man:pmlogger(1)
 After=network-online.target pmcd.service
-Before=pmlogger_check.timer pmlogger_check.path pmlogger_daily.timer pmlogger_daily-poll.timer
-BindsTo=pmlogger_check.timer pmlogger_check.path pmlogger_daily.timer pmlogger_daily-poll.timer
+Before=pmlogger_check.timer pmlogger_daily.timer pmlogger_daily-poll.timer
+BindsTo=pmlogger_check.timer pmlogger_daily.timer pmlogger_daily-poll.timer
 Wants=pmcd.service
 
 [Service]
