@@ -63,9 +63,9 @@ echo "== Load metric data into this redis instance"
 pmseries $port --load "{source.path: \"$here/archives/proc\"}" | _filter_source
 
 echo;echo "== Verify noop() function for a singular metric"
-pmseries $port 'kernel.all.pswitch[count: 2]'
+pmseries $port 'kernel.all.pswitch[count:2]'
 echo Compared to:
-pmseries $port 'noop(kernel.all.pswitch[count: 2])'
+pmseries $port 'noop(kernel.all.pswitch[count:2])'
 echo
 
 #
@@ -73,22 +73,67 @@ echo
 #
 
 # echo;echo "== Verify nested function noop(noop(...)) for a singular metric"
-pmseries $port 'kernel.all.pswitch[count: 2]'
+pmseries $port 'kernel.all.pswitch[count:2]'
 echo Compared to:
-pmseries $port 'noop(noop(kernel.all.pswitch[count: 2]))'
+pmseries $port 'noop(noop(kernel.all.pswitch[count:2]))'
 echo
 
 echo;echo "== Verify noop() function for a non-singular metric, all instances"
-pmseries $port 'kernel.all.load[count: 2]'
+pmseries $port 'kernel.all.load[count:2]'
 echo Compared to:
-pmseries $port 'noop(kernel.all.load[count: 2])'
+pmseries $port 'noop(kernel.all.load[count:2])'
 echo
 
 echo;echo "== Verify noop() function for a non-singular metric, only one instance"
-pmseries $port 'kernel.all.load{instance.name == "1 minute"}[count: 2]'
+pmseries $port 'kernel.all.load{instance.name == "1 minute"}[count:2]'
 echo Compared to:
-pmseries $port 'noop(kernel.all.load{instance.name == "1 minute"}[count: 2])'
+pmseries $port 'noop(kernel.all.load{instance.name == "1 minute"}[count:2])'
 echo
+
+echo;echo "== Verify rate() function for a singular metric"
+pmseries $port 'kernel.all.pswitch[count:5]'
+pmseries $port 'rate(kernel.all.pswitch[count:5])'
+
+echo;echo "== Verify min/max() functions for a non-sigular metric"
+pmseries $port 'kernel.all.load[count:5]'
+pmseries $port 'max(kernel.all.load[count:5])'
+pmseries $port 'min(kernel.all.load[count:5])'
+
+echo;echo "== Verify min/max() functions for a non-sigular metric, only one instance"
+pmseries $port 'kernel.all.load{instance.name == "5 minute"}[count:5]'
+pmseries $port 'max(kernel.all.load{instance.name == "5 minute"}[count:5])'
+pmseries $port 'min(kernel.all.load{instance.name == "5 minute"}[count:5])'
+
+echo;echo "== Verify min/max() functions for a singular metric"
+pmseries $port 'kernel.all.uptime[count:10]'
+pmseries $port 'min(kernel.all.uptime[count:10])'
+pmseries $port 'max(kernel.all.uptime[count:10])'
+
+echo;echo "== Verify rescale() functions for a singular metric"
+pmseries $port 'kernel.all.uptime[count:2]'
+pmseries $port 'rescale(kernel.all.uptime[count:2], "sec")'
+pmseries $port 'rescale(kernel.all.uptime[count:2], "min")'
+pmseries $port 'rescale(rescale(kernel.all.uptime[count:2], "min"), "hour")'
+
+echo;echo "== Verify abs() functions for a non-singular metric"
+pmseries $port 'abs(kernel.all.load[count:5])'
+
+echo;echo "== Verify abs() functions for a non-singular metric, only one instance"
+pmseries $port 'abs(kernel.all.load{instance.name == "5 minute"}[count:5])'
+
+echo;echo "== Verify log() functions for a singular metric"
+pmseries $port 'kernel.all.pswitch[count:2]'
+pmseries $port 'log(kernel.all.pswitch[count:2],3)'
+pmseries $port 'log(log(kernel.all.pswitch[count:2],3),2)'
+
+echo;echo "== Verify floor() functions for a non-singular metric"
+pmseries $port 'floor(kernel.all.load[count:5])'
+
+echo;echo "== Verify round() functions for a non-singular metric"
+pmseries $port 'round(kernel.all.load[count:5])'
+
+echo;echo "== Verify round() functions for a singular metric"
+pmseries $port 'kernel.all.uptime[count:5]'
 
 # success, all done
 status=0
