@@ -1,5 +1,4 @@
 crontab
 pmie.service
-pmie_check.path
 pmie_check.service
 pmie_daily.service
