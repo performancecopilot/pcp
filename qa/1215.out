@@ -1,4 +1,10 @@
 QA output created by 1215
+--- start control file ---
+# created by pmlogctl on DATE
+$class=1215
+$version=1.1
+localhost n n PCP_ARCHIVE_DIR/1215-localhost -c TMP.config
+--- end control file ---
 Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/1215-localhost
 === regular stop and restart
 pmcd Host Archive Class PID State 

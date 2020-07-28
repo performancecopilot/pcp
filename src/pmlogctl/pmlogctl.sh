@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/sh
 #
 # Control program for managing pmlogger and pmie instances.
 #
@@ -15,26 +15,20 @@
 # for more details.
 #
 # TODO
-# - regex expansion for <class>
-# - create => create + start ... is there a case for create only?  
-# - destroy => stop + destroy ... is there a case for destroy iff already
-#   stopped?
 # - more than 1 -c option ... what does it mean?  the current code simply
 #   and silently uses the last -c option from the command line (this
 #   warrants at least a warning) ... if supported the likely semantics
-#   are the union of the named classes ... unless this is allowed, a glob
+#   are the union of the named classes ... unless this is allowed, a regex
 #   pattern for the -c arg (classname) makes no sense
+# - regex expansion for <class>
 # - pmfind integration
 # - other sections in the "policy" files, especially with pmfind to
-#   (a) at create, pick a class by probing the host
-#   (b) at create, decide not to by probing the host or by hostname
-#       pattern
-#   (c) at destroy, decide not to or wait some time before destroying
+#   (a) at destroy, decide not to or wait some time before destroying
 #       (the latter is really hard)
-# - IAM=pmie is completely untested
 #
 
 . "$PCP_DIR/etc/pcp.env"
+. "$PCP_SHARE_DIR/lib/rc-proc.sh"
 
 prog=`basename "$0"`
 case "$prog"
@@ -56,7 +50,7 @@ status=0
 
 _cleanup()
 {
-    [ -n "$action" -a "$action" != status ] && _unlock
+    [ -n "$ACTION" -a "$ACTION" != status ] && _unlock
     rm -rf $tmp
 }
 trap "_cleanup; exit \$status" 0 1 2 3 15
@@ -69,10 +63,11 @@ Options:
   -c=NAME,--class=NAME    	${IAM} instances belong to the NAME class \
 [default: default]
   -f,--force                    force action if possible
-  -n,--showme             	perform a dry run, showing what would be done
+  -i=IDENT,--ident=IDENT        over-ride instance id (only for create and cond-create)
+  -N,--showme             	perform a dry run, showing what would be done
   -p=POLICY,--policy=POLICY	use POLICY as the class policy file \
 [default: $PCP_ETC_DIR/pcp/${IAM}/class.d/<class>]
-  -v,--verbose            	increase verbosity
+  -V,--verbose            	increase verbosity
   --help
 End-of-File
 
@@ -92,30 +87,30 @@ _lock()
 {
     $SHOWME && return
 
-    # can assume $_dir is writeable ... if we get this far we're running
+    # can assume $__dir is writeable ... if we get this far we're running
     # as root ...
     #
-    _dir="$PCP_ETC_DIR/pcp/${IAM}"
+    __dir="$PCP_ETC_DIR/pcp/${IAM}"
     # demand mutual exclusion
     #
     rm -f $tmp/stamp $tmp/out
-    _delay=200		# 1/10 of a second, so max wait is 20 sec
-    while [ $_delay -gt 0 ]
+    __delay=200		# 1/10 of a second, so max wait is 20 sec
+    while [ $__delay -gt 0 ]
     do
-	if pmlock -v "$_dir/lock" >>$tmp/out 2>&1
+	if pmlock -v "$__dir/lock" >>$tmp/out 2>&1
 	then
-	    echo "$$" >"$_dir/lock"
+	    echo "$$" >"$__dir/lock"
 	    break
 	else
 	    [ -f $tmp/stamp ] || touch -t `pmdate -30M %Y%m%d%H%M` $tmp/stamp
-	    find $tmp/stamp -newer "$_dir/lock" -print 2>/dev/null >$tmp/tmp
+	    find $tmp/stamp -newer "$__dir/lock" -print 2>/dev/null >$tmp/tmp
 	    if [ -s $tmp/tmp ]
 	    then
-		if [ -f "$_dir/lock" ]
+		if [ -f "$__dir/lock" ]
 		then
-		    _warning "removing lock file older than 30 minutes (PID `cat $_dir/lock`)"
-		    LC_TIME=POSIX ls -l "$_dir/lock"
-		    rm -f "$_dir/lock"
+		    _warning "removing lock file older than 30 minutes (PID `cat $__dir/lock`)"
+		    LC_TIME=POSIX ls -l "$__dir/lock"
+		    rm -f "$__dir/lock"
 		else
 		    # there is a small timing window here where pmlock
 		    # might fail, but the lock file has been removed by
@@ -126,26 +121,26 @@ _lock()
 	    fi
 	fi
 	pmsleep 0.1
-	_delay=`expr $_delay - 1`
+	__delay=`expr $__delay - 1`
     done
 
-    if [ $_delay -eq 0 ]
+    if [ $__delay -eq 0 ]
     then
 	# failed to gain mutex lock
 	#
-	if [ -f "$_dir/lock" ]
+	if [ -f "$__dir/lock" ]
 	then
 	    _warning "is another $prog job running concurrently?"
-	    LC_TIME=POSIX ls -l "$_dir/lock"
+	    LC_TIME=POSIX ls -l "$__dir/lock"
 	else
 	    _error "`cat $tmp/out`"
 	fi
-	_error "failed to acquire exclusive lock ($_dir/lock) ..."
+	_error "failed to acquire exclusive lock ($__dir/lock) ..."
 	return 1
     else
 	if $VERY_VERBOSE
 	then
-	    echo "Lock acquired `cat $_dir/lock` `ls -l $_dir/lock`"
+	    echo "Lock acquired `cat $__dir/lock` `ls -l $__dir/lock`"
 	fi
     fi
 
@@ -155,10 +150,10 @@ _lock()
 _unlock()
 {
     $SHOWME && return
-    _dir="$PCP_ETC_DIR/pcp/${IAM}"
-    if [ -f "$_dir/lock" ]
+    __dir="$PCP_ETC_DIR/pcp/${IAM}"
+    if [ -f "$__dir/lock" ]
     then
-	rm -f "$_dir/lock"
+	rm -f "$__dir/lock"
 	$VERY_VERBOSE && echo "Lock released"
     fi
 }
@@ -175,35 +170,35 @@ _egrep()
 {
     if [ "$1" = "-rl" ]
     then
-	_text=false
+	__text=false
     elif [ "$1" = "-r" ]
     then
-	_text=true
+	__text=true
     else
 	echo >&2 "Botch: _egrep() requires -r or -rl, not $1"
 	return
     fi
     shift
-    _pat="$1"
+    __pat="$1"
     shift
 
     # skip errors from find(1) and egrep(1), only interested in matches for
     # real, existing files
     #
     find $* -type f 2>/dev/null \
-    | while read _f
+    | while read __f
     do
 	# possible race here with async execution of ${IAM}_check removing
 	# the file after find saw it ... so check again for existance
 	#
-	[ -f "$_f" ] && egrep "$_pat" "$_f" 2>/dev/null >$tmp/_egrep
+	[ -f "$__f" ] && egrep "$__pat" "$__f" 2>/dev/null >$tmp/_egrep
 	if [ -s $tmp/_egrep ]
 	then
-	    if $_text
+	    if $__text
 	    then
-		sed -e "s;^;$_f|;" $tmp/_egrep
+		sed -e "s;^;$__f|;" $tmp/_egrep
 	    else
-		echo "$_f"
+		echo "$__f"
 	    fi
 	fi
     done
@@ -217,8 +212,9 @@ _usage()
     cat >&2 <<End-of-File
 
 Avaliable commands:
-   create [-c classname] host ...
-   {start|stop|restart|destroy|status} [-c classname] [host ...]
+   [-c classname] create  host ...
+   {-c classname|-i ident} cond-create host ...
+   [-c classname] {start|stop|restart|destroy|status} [host ...]
 
    and host may be a valid hostname or an egrep(1) pattern that matches
    the start of a hostname
@@ -251,7 +247,7 @@ _get_matching_hosts()
     do
 	$VERY_VERBOSE && echo "Looking for host $host in class $CLASS ..."
 	rm -f $tmp/primary_seen
-	if [ "$host" = "$localhost" ]
+	if [ "$host" = "$LOCALHOST" ]
 	then
 	    pat="($host|LOCALHOSTNAME)"
 	else
@@ -274,7 +270,7 @@ _get_matching_hosts()
 		if [ "$ctl_host" = "$pat" -o "$ctl_host" = "#!#$pat" ]
 		then
 		    :
-		elif [ "$host" = "$localhost" ]
+		elif [ "$host" = "$LOCALHOST" ]
 		then
 		    if [ "$ctl_host" = "LOCALHOSTNAME" -o "$ctl_host" = "#!#LOCALHOSTNAME" ]
 		    then
@@ -315,8 +311,8 @@ _get_matching_hosts()
 		fi
 	    fi
 	    ctl_line=`echo "$ctl_line" | _expand_control | sed -e 's/^#!#//'`
-	    _check=`echo "$ctl_line" | wc -w | sed -e 's/ //g'`
-	    if [ "$_check" -lt 4 ]
+	    check=`echo "$ctl_line" | wc -w | sed -e 's/ //g'`
+	    if [ "$check" -lt 4 ]
 	    then
 		# bad control line ... missing at least directory, so warn and
 		# ignore
@@ -324,11 +320,11 @@ _get_matching_hosts()
 		_warning "$ctl_file: insufficient fields in control line for host `echo "$ctl_line" | sed -e 's/ .*//'`"
 		continue
 	    fi
-	    _primary=`echo "$ctl_line" | $PCP_AWK_PROG '{ print $2 }'`
-	    if [ "$_primary" = y ]
+	    primary=`echo "$ctl_line" | $PCP_AWK_PROG '{ print $2 }'`
+	    if [ "$primary" = y ]
 	    then
 		touch $tmp/primary_seen
-		if $EXPLICIT_CLASS || [ "$action" = status ]
+		if $EXPLICIT_CLASS || [ "$ACTION" = status ]
 		then
 		    # primary is not a concern here
 		    #
@@ -337,7 +333,7 @@ _get_matching_hosts()
 		    # don't dink with the primary ... systemctl (or the
 		    # "rc" script) must be used to control the primary ${IAM}
 		    #
-		    _warning "$ctl_file: cannot $action the primary ${IAM} from $prog"
+		    _warning "$ctl_file: cannot $ACTION the primary ${IAM} from $prog"
 		    continue
 		fi
 	    fi
@@ -393,7 +389,7 @@ _get_matching_hosts()
 	ninst=`wc -l <$tmp/tmp | sed -e 's/ //g'`
 	if [ "$ninst" -eq 0 ]
 	then
-	    if [ "$action" = create ]
+	    if [ "$ACTION" = create ]
 	    then
 		# that's good ...
 		:
@@ -425,7 +421,7 @@ _get_matching_hosts()
 	    fi
 	    continue
 	fi
-	if [ "$action" != status ]
+	if [ "$ACTION" != status ]
 	then
 	    $PCP_AWK_PROG <$tmp/tmp '{ print $3 }' \
 	    | LC_COLLATE=POSIX sort \
@@ -436,9 +432,9 @@ _get_matching_hosts()
 		dups=`$PCP_AWK_PROG <$tmp/tmp2 '{ print $2 }' | tr '\012' ' ' | sed -e 's/  *$//'`
 		if $EXPLICIT_CLASS
 		then
-		    _error "host(s) ($dups) defined in class $CLASS multiple times, don't know which instance to $action"
+		    _error "host(s) ($dups) defined in class $CLASS multiple times, don't know which instance to $ACTION"
 		else
-		    _error "host(s) ($dups) defined multiple times, don't know which instance to $action"
+		    _error "host(s) ($dups) defined multiple times, don't know which instance to $ACTION"
 		fi
 	    fi
 	fi
@@ -491,8 +487,8 @@ _get_policy_section()
 {
     $PCP_AWK_PROG <"$1" '
 NF == 0			{ next }
-$1 == "'"$2"':"		{ want = 1; next }
-$1 ~ /^[a-z]*:$/	{ want = 0; next }
+$1 == "['"$2"']"	{ want = 1; next }
+$1 ~ /^\[[a-z]*]$/	{ want = 0; next }
 want == 1		{ print }'
 }
 
@@ -520,8 +516,8 @@ _expand_control()
 	-e 's/[ 	][ 	]*/ /g' \
 	-e "s;PCP_ARCHIVE_DIR/;$PCP_LOG_DIR/pmlogger/;g" \
 	-e "s;PCP_LOG_DIR/;$PCP_LOG_DIR/;g" \
-	-e "s/^LOCALHOSTNAME /$localhost /g" \
-	-e "s/\\([^a-zA-Z0-9]\\)LOCALHOSTNAME/\\1$localhost/g" \
+	-e "s/^LOCALHOSTNAME /$LOCALHOST /g" \
+	-e "s/\\([^a-zA-Z0-9]\\)LOCALHOSTNAME/\\1$LOCALHOST/g" \
     # end
 }
 
@@ -532,8 +528,8 @@ _unexpand_control()
     sed \
 	-e "s;$PCP_LOG_DIR/pmlogger/;PCP_ARCHIVE_DIR/;g" \
 	-e "s;$PCP_LOG_DIR/;PCP_LOG_DIR/;g" \
-	-e "s/^$localhost /LOCALHOSTNAME /g" \
-	-e "s/\\([^a-zA-Z0-9]\\)$localhost/\\1LOCALHOSTNAME/g" \
+	-e "s/^$LOCALHOST /LOCALHOSTNAME /g" \
+	-e "s/\\([^a-zA-Z0-9]\\)$LOCALHOST/\\1LOCALHOSTNAME/g" \
     # end
 }
 
@@ -641,9 +637,19 @@ _do_status()
 {
     if [ ${IAM} = pmlogger ]
     then
-	fmt="%-20s %-17s %-8s %7s %-8s\n"
+	if $VERBOSE
+	then
+	    fmt="%-20s %-17s %-8s %7s %-8s %s\n"
+	else
+	    fmt="%-20s %-17s %-8s %7s %-8s\n"
+	fi
     else
-	fmt="%-20s %5s %12s %-8s %7s %-8s\n"
+	if $VERBOSE
+	then
+	    fmt="%-20s %5s %11s %-8s %7s %-8s %s\n"
+	else
+	    fmt="%-20s %5s %11s %-8s %7s %-8s\n"
+	fi
     fi
 
     PICK_HOSTS=false
@@ -672,7 +678,7 @@ _do_status()
 
     if [ ${IAM} = pmlogger ]
     then
-	# for pmlogger the entry here is the full pathaname of
+	# for pmlogger the entry here is the full pathname of
 	# the current archive
 	#
 	find $PCP_TMP_DIR/${IAM} -type f -a ! -name primary \
@@ -754,8 +760,8 @@ found == 0 && $3 == "'"$host"'" && $6 == "'"$dir"'"	{ print NR >>"'$tmp/match'";
 	    then
 		archive=`grep "^$dir/[^/]*$" $tmp/archive \
 			 | sed -e 's;.*/;;'`
-		_check=`echo "$archive" | wc -l | sed -e 's/ //g'`
-		if [ "$_check" -gt 1 ]
+		check=`echo "$archive" | wc -l | sed -e 's/ //g'`
+		if [ "$check" -gt 1 ]
 		then
 		    cat $tmp/archive
 		    _error "Botch: more than one archive matches directory $dir"
@@ -815,9 +821,19 @@ found == 0 && $3 == "'"$host"'" && $6 == "'"$dir"'"	{ print NR >>"'$tmp/match'";
     then
 	if [ ${IAM} = pmlogger ]
 	then
-	    printf "$fmt" "pmcd Host" Archive Class PID State
+	    if $VERBOSE
+	    then
+		printf "$fmt" "pmcd Host" Archive Class PID State "Instance Id"
+	    else
+		printf "$fmt" "pmcd Host" Archive Class PID State
+	    fi
 	else
-	    printf "$fmt" "pmcd Host" Rules Evaluations Class PID State
+	    if $VERBOSE
+	    then
+		printf "$fmt" "pmcd Host" Rules Evaluations Class PID State "Instance Id"
+	    else
+		printf "$fmt" "pmcd Host" Rules Evaluations Class PID State
+	    fi
 	fi
 	if $VERBOSE
 	then
@@ -828,7 +844,13 @@ found == 0 && $3 == "'"$host"'" && $6 == "'"$dir"'"	{ print NR >>"'$tmp/match'";
 		do
 		    dir=`echo "$state" | sed -e 's/.*|//'`
 		    state=`echo "$state" | sed -e 's/|.*//'`
-		    printf "$fmt" "$host" "$archive" "$class" "$pid" "$state"
+		    if [ ${IAM} = pmlogger ]
+		    then
+			ident=`echo "$dir" | sed -e 's;.*/;;'`
+		    else
+			ident=`echo "$dir" | sed -e 's;/pmie.log;;' -e 's;.*/;;'`
+		    fi
+		    printf "$fmt" "$host" "$archive" "$class" "$pid" "$state" "$ident"
 		    if [ "$state" = dead ]
 		    then
 			_diagnose "$host" "$dir" 
@@ -840,7 +862,8 @@ found == 0 && $3 == "'"$host"'" && $6 == "'"$dir"'"	{ print NR >>"'$tmp/match'";
 		do
 		    dir=`echo "$state" | sed -e 's/.*|//'`
 		    state=`echo "$state" | sed -e 's/|.*//'`
-		    printf "$fmt" "$host" "$rules" "$evals" "$class" "$pid" "$state"
+		    ident=`echo "$dir" | sed -e 's;/[^/]*$;;' -e 's;.*/;;'`
+		    printf "$fmt" "$host" "$rules" "$evals" "$class" "$pid" "$state" "$ident"
 		    if [ "$state" = dead ]
 		    then
 			_diagnose "$host" "$dir" 
@@ -867,30 +890,432 @@ found == 0 && $3 == "'"$host"'" && $6 == "'"$dir"'"	{ print NR >>"'$tmp/match'";
     fi
 }
 
+# build aggregated ${IAM} config file from multiple selected control
+# files
+#
+# $1 = the remote host
+# $2 ... = the control files
+#
+_resolve_configs()
+{
+    _host="$1"
+    shift
+    rm -f $tmp/config $tmp/done_conf
+    rm -f $tmp/config.0 $tmp/config.1 $tmp/config.2 $tmp/config.3
+    for c
+    do
+	sed -n <$c \
+	    -e 's/[ 	][ 	]*/ /g' \
+	    -e '/^#/d' \
+	    -e '/^\$/d' \
+	    -e '/^ *$/d' \
+	    -e '/ -c/{
+s/.*-c *\([^ ]*\).*/\1/p
+}' \
+	| while read config
+	do
+	    if [ ! -f "$config" ]
+	    then
+		# config does not exist, would normally expect it to be
+		# created at the first use in ${IAM}_check ... so do that
+		# now, unless it has already been done
+		#
+		[ -f $tmp/done_conf ] && continue
+		rm -f $tmp/tmp
+		if [ ${IAM} = pmlogger ]
+		then
+		    if ! pmlogconf -c -q -h "$_host" $tmp/tmp </dev/null >$tmp/err 2>&1
+		    then
+			_warning "pmlogconf failed"
+			cat $tmp/diag
+			echo "=== start pmlogconf file ==="
+			cat $tmp/tmp
+			echo "=== end pmlogconf file ==="
+			continue
+		    fi
+		else
+		    if ! pmieconf -cF -f $tmp/tmp </dev/null 2>$tmp/err 2>&1
+		    then
+			_warning "pmieconf failed"
+			cat $tmp/diag
+			echo "=== start pmieconf file ==="
+			cat $tmp/tmp
+			echo "=== end pmieconf file ==="
+			continue
+		    fi
+		fi
+		config=$tmp/tmp
+		touch $tmp/done_conf
+	    fi
+	    # now have the desired config file for this class ... split
+	    # it into parts:
+	    # 0 - any #! and preamble before the first config or conf lines
+	    # 1 - any pm{log,ie}conf lines
+	    # 2 - any config lines
+	    # 3 - any [access] section
+	    #
+	    rm -f $tmp/[0-3]
+	    $PCP_AWK_PROG <"$config" '
+BEGIN		{ part = 2; state = 0 }
+NR == 1 && /^#pmlogconf /		{ part = 0 }
+NR == 1 && /^\/\/ pmieconf-pmie/	{ part = 0 }
+state == 1 && $1 == "#+"		{ state = 2; part = 1 }
+state == 3 && $1 !~ /^#/		{ state = 4; part = 2 }
+/^\/\/ --- START GENERATED SECTION (do not change this section) ---/ \
+					{ part = 1 }
+/^\[access]/				{ part = 3 }
+					{ print >"'$tmp/'" part }
+/^# DO NOT UPDATE THE INITIAL SECTION OF THIS FILE/ \
+					{ state = 1 }
+/^# DO NOT UPDATE THE FILE ABOVE THIS LINE/ \
+					{ state = 3 }
+/^\/\/ --- END GENERATED SECTION (changes below will be preserved) ---/ \
+					{ part = 2 }'
+	    if $VERY_VERY_VERBOSE
+	    then
+		echo "$config split ->"
+		for p in 0 1 2 3
+		do
+		    echo "--- part $p ---"
+		    [ -f $tmp/$p ] && cat $tmp/$p
+		done
+		echo "--- end parts ---"
+	    fi
+	    if [ -f $tmp/0 ]
+	    then
+		if [ -f $tmp/config.0 ]
+		then
+		    : TODO, may be different?
+		else
+		    mv $tmp/0 $tmp/config.0
+		fi
+	    fi
+	    # we concat these blocks of pm{log,ie}conf controls and
+	    # config fragments ... pm{log,ie}conf will cull any
+	    # duplicates when the config is regenerated in pm${IAM}_check
+	    #
+	    [ -f $tmp/1 ] && cat $tmp/1 >>$tmp/config.1
+	    # concat these explicit config fragments together
+	    [ -f $tmp/2 ] && cat $tmp/2 >>$tmp/config.2
+	    if [ -f $tmp/3 ]
+	    then
+		if [ -f $tmp/config.3 ]
+		then
+		    : TODO, may be different?
+		else
+		    mv $tmp/3 $tmp/config.3
+		fi
+	    fi
+	done
+    done
+
+    # assemble to final config file ...
+    #
+    for p in 0 1 2 3
+    do
+	[ -f $tmp/config.$p ] && cat $tmp/config.$p >>$tmp/config
+    done
+    touch $tmp/config
+}
+
+# cond-create command
+#
+_do_cond_create()
+{
+    sts=0
+    FROM_COND_CREATE=true
+    __POLICY="$POLICY"		# value on entry, POLICY gets reset below
+
+    for host
+    do
+	echo 0 >$tmp/condition-true
+	# if no -p, then we're going to use all the class policy files,
+	# unless none exist in which case we'll use the default policy.
+	#
+	if [ "$__POLICY" = $tmp/policy ]
+	then
+	    find "$PCP_ETC_DIR/pcp/${IAM}/class.d" -type f \
+	    | sed -e '/class.d\/pmfind$/d' >$tmp/class
+	    if [ -s $tmp/class ]
+	    then
+		# we have user-defined classes, use 'em first, then
+		# marker, then the default pmfind class
+		#
+		cat $tmp/class
+		echo "End-of-User-Classes"
+		echo "$PCP_ETC_DIR/pcp/${IAM}/class.d/pmfind"
+	    else
+		# fallback to the default pmfind class
+		#
+		echo "$PCP_ETC_DIR/pcp/${IAM}/class.d/pmfind"
+	    fi
+	else
+	    # explicit policy file from command line -p or implicit policy
+	    # file from command line -c ... use that
+	    #
+	    echo "$__POLICY"
+	fi \
+	| while read policy
+	do
+	    if [ "$policy" = "End-of-User-Classes" ]
+	    then
+		if [ "`cat $tmp/condition-true`" -gt 0 ]
+		then
+		    $VERY_VERBOSE && echo "host: $host condition true for some class, skip pmfind class"
+		    break
+		fi
+		continue
+	    fi
+	    _get_policy_section "$policy" create >$tmp/cond
+	    if [ -s $tmp/cond ]
+	    then
+		# expect func(args...)
+		#
+		sed -e '/^#/d' <$tmp/cond \
+		| grep -v '[a-z][^(]*(.*)[ 	]*$' >$tmp/tmp
+		if [ -s $tmp/tmp ]
+		then
+		    _warning "$policy: bad create clause(s) will be ignored"
+		    cat >&2 $tmp/tmp
+		fi
+		rm -f $tmp/match
+		grep '[a-z][^(]*(.*)[ 	]*$' <$tmp/cond \
+		| sed -e 's/(/ /' -e 's/)[ 	]*$//' \
+		| while read func args
+		do
+		    case "$func"
+		    in
+			exists)
+			    if pminfo -h "$host" "$args" >/dev/null 2>&1
+			    then
+				touch $tmp/match
+				$VERBOSE && echo "$policy: host $host exists($args) true"
+				break
+			    else
+				$VERY_VERBOSE && echo "$policy: host $host exists($args) false"
+			    fi
+			    ;;
+
+			values)
+			    if pmprobe -h "$host" "$args" 2>/dev/null \
+			       | $PCP_AWK_PROG '
+BEGIN	{ sts=1 }
+$2 > 0	{ sts=0; exit }
+END	{ exit(sts) }'
+			    then
+				touch $tmp/match
+				$VERBOSE && echo "$policy: host $host values($args) true"
+				break
+			    else
+				$VERY_VERBOSE && echo "$policy: host $host values($args) false"
+			    fi
+			    ;;
+
+			condition)
+			    echo "pmlogctl.check = $args" >$tmp/derived
+			    PCP_DERIVED_CONFIG=$tmp/derived pmprobe -v -h "$host" pmlogctl.check >$tmp/tmp
+			    numval=`cut -d ' ' -f 2 <$tmp/tmp`
+			    val=`cut -d ' ' -f 3 <$tmp/tmp`
+			    if [ "$numval" -gt 1 ]
+			    then
+				_warning "$policy: condition($args) has $numval values, not 1 as expected, using first value ($val)"
+			    fi
+			    if [ "$numval" -gt 0 ]
+			    then
+				if [ "$val" -gt 0 ]
+				then
+				    touch $tmp/match
+				    $VERBOSE && echo "$policy: host $host condition($args) true, value $val"
+				    break
+				else
+				    $VERY_VERBOSE && echo "$policy: host $host condition($args) false, value $val"
+				fi
+			    else
+				$VERY_VERBOSE && echo "$policy: host $host condition($args) false, numval $numval"
+
+			    fi
+			    ;;
+
+			hostname)
+			    if echo "$host" | egrep "$args" >/dev/null
+			    then
+				touch $tmp/match
+				$VERBOSE && echo "$policy: host $host hostname($args) true"
+			    else
+				$VERY_VERBOSE && echo "$policy: host $host hostname($args) false"
+				break
+			    fi
+			    ;;
+		    esac
+		done
+		if [ -f $tmp/match ]
+		then
+		    POLICY="$policy"
+		    if _do_create "$host"
+		    then
+			# on success $tmp/control is the control file for
+			# this class
+			# TODO
+			#
+			n=`cat $tmp/condition-true`
+			n=`expr $n + 1`
+			mv $tmp/control $tmp/control.$n
+			echo "$policy" >$tmp/policy.$n
+			echo $n >$tmp/condition-true
+		    else
+			_error "$policy: create failed for host $host"
+		    fi
+		fi
+	    else
+		$VERY_VERBOSE && echo "$policy: no [create] section, skip class"
+	    fi
+	done
+	n=`cat $tmp/condition-true`
+	if [ "$n" -eq 0 ]
+	then
+	    $VERBOSE && _warning "no instance created for host $host"
+	    continue
+	elif [ "$n" -eq 1 ]
+	then
+	    # just one class "matches", use the control file from do_create()
+	    #
+	    mv $tmp/control.$n $tmp/control
+	    POLICY="`cat $tmp/policy.1`"
+	else
+	    # some work to be done ...
+	    #
+	    _resolve_configs "$host" $tmp/control.*
+	    if $VERBOSE
+	    then
+		echo "--- start combined config file ---"
+		cat $tmp/config
+		echo "--- end combined config file ---"
+	    fi
+	    [ -z "$IDENT" ] && IDENT=pmfind-$host
+	    # build a pmfind-like control file
+	    #
+	    if [ ${IAM} = pmlogger ]
+	    then
+		target_dir=$PCP_ARCHIVE_DIR/$IDENT
+		cat <<End-of-File >$tmp/control
+# DO NOT REMOVE OR EDIT THE FOLLOWING LINE
+\$version=1.1
+
+\$class=pmfind
+$host n n PCP_ARCHIVE_DIR/$IDENT -c ./$IDENT.config -r
+End-of-File
+	    else
+		target_dir=$PCP_LOG_DIR/pmie/$IDENT
+		cat <<End-of-File >$tmp/control
+# DO NOT REMOVE OR EDIT THE FOLLOWING LINE
+\$version=1.1
+
+\$class=pmfind
+$host n n PCP_LOG_DIR/pmie/$IDENT/pmie.log -c ./$IDENT.config
+End-of-File
+	    fi
+	    if $SHOWME
+	    then
+		echo + mkdir_and_chown "$target_dir" 755 $PCP_USER:$PCP_GROUP
+	    else
+		mkdir_and_chown "$target_dir" 755 $PCP_USER:$PCP_GROUP >$tmp/tmp 2>&1
+		if [ ! -d "$target_dir" ]
+		then
+		    cat $tmp/tmp
+		    _error "cannot create directory ($target_dir)"
+		fi
+	    fi
+	    $CP $tmp/config $target_dir/$IDENT.config
+	fi
+	# this bit is more or less replicated from do_create(),
+	# but we don't need to replicate error checking that's
+	# already been done
+	#
+	if [ -n "$IDENT" ]
+	then
+	    ident="$IDENT"
+	else
+	    _get_policy_section "$POLICY" ident >$tmp/tmp
+	    if [ -s $tmp/tmp ]
+	    then
+		ident=`sed -e "s/%h/$host/g" <$tmp/tmp`
+	    else
+		ident="$host"
+	    fi
+	fi
+	dir=`$PCP_AWK_PROG <$tmp/control '
+$1 == "'"$host"'"	{ print $4 }'`
+	if $VERBOSE
+	then
+	    echo "--- start control file ---"
+	    cat $tmp/control
+	    echo "--- end control file ---"
+	fi
+	$VERBOSE && echo "Installing control file: $CONTROLDIR/$ident"
+
+	$CP $tmp/control "$CONTROLDIR/$ident"
+	$CHECK -c "$CONTROLDIR/$ident"
+	dir_args="`echo "$dir" | _expand_control`"
+	_check_started "$dir_args" || sts=1
+    done
+
+    return $sts
+}
+
 # create command
+#
+# if FROM_COND_CREATE is true, we're doing work on behalf of the cond-create
+# command, and nothing is installed, but the control file is left in
+# $tmp/control to be used back in cond_create()
 #
 _do_create()
 {
     sts=0
     for host
     do
-	_get_policy_section "$POLICY" name >$tmp/tmp
-	if [ -s $tmp/tmp ]
+	if [ -n "$IDENT" ]
 	then
-	    _check=`wc -w <$tmp/tmp | sed -e 's/ //g'`
-	    [ "$_check" -ne 1 ] &&
-		_error "name: section is invalid in $POLICY policy file (expect a single word, not $_check words)"
-	    name=`sed -e "s/%h/$host/g" <$tmp/tmp`
+	    # -i from command line ... 
+	    #
+	    ident="$IDENT"
 	else
-	    name="$host"
+	    # -c from command line ... 
+	    #
+	    _get_policy_section "$POLICY" ident >$tmp/tmp
+	    if [ -s $tmp/tmp ]
+	    then
+		check=`wc -w <$tmp/tmp | sed -e 's/ //g'`
+		[ "$check" -ne 1 ] &&
+		    _error "[ident] section is invalid in $POLICY policy file (expect a single word, not $check words)"
+		ident=`sed -e "s/%h/$host/g" <$tmp/tmp`
+	    else
+		ident="$host"
+	    fi
 	fi
-	[ -f $CONTROLDIR/"$name" ] && _error "control file $CONTROLDIR/$name already exists"
+	[ -f $CONTROLDIR/"$ident" ] && _error "control file $CONTROLDIR/$ident already exists"
+	if $EXPLICIT_CLASS
+	then
+	    # use classname from -c
+	    :
+	else
+	    # try to extract from [class] section, else fallback to basename
+	    # of the policy file (this was the scheme before the [class]
+	    # section was introduced)
+	    #
+	    CLASS=`_get_policy_section "$POLICY" class`
+	    [ -z "$CLASS" ] && CLASS=`echo "$POLICY" | sed -e 's;.*/;;'`
+	fi
 	cat <<End-of-File >$tmp/control
 # created by $prog on `date`
-\$class=$CLASS
 End-of-File
 	_get_policy_section "$POLICY" control >$tmp/tmp
-	[ ! -s $tmp/tmp ] && _error "control: section is missing from $POLICY policy file"
+	[ ! -s $tmp/tmp ] && _error "[control] section is missing from $POLICY policy file"
+	if grep '^\$class=' $tmp/tmp >/dev/null
+	then
+	    :
+	else
+	    echo "\$class=$CLASS" >>$tmp/control
+	fi
 	if grep '^\$version=1.1$' $tmp/tmp >/dev/null
 	then
 	    :
@@ -899,7 +1324,7 @@ End-of-File
 	    echo '#DO NOT REMOVE OR EDIT THE FOLLOWING LINE' >>$tmp/control
 	    echo '$version=1.1' >>$tmp/control
 	fi
-	sed -e "s/%h/$host/g" <$tmp/tmp >>$tmp/control
+	sed -e "s/%h/$host/g" -e "s/%i/$ident/g" <$tmp/tmp >>$tmp/control
 	primary=`$PCP_AWK_PROG <$tmp/control '
 $1 == "'"$host"'"	{ print $2 }'`
 	if [ -z "$primary" ]
@@ -925,17 +1350,23 @@ $1 == "'"$host"'"	{ print $4 }'`
 	fi
 	_egrep -rl "^($host|#!#$host)[ 	].*[ 	]$dir([ 	]|$)" $CONTROLFILE $CONTROLDIR >$tmp/out
 	[ -s $tmp/out ] && _error "host $host and directory $dir already defined in `cat $tmp/out`"
-	if $SHOWME
+	if $FROM_COND_CREATE
 	then
-	    echo "--- start control file ---"
-	    cat $tmp/control
-	    echo "--- end control file ---"
+	    # skip this part (the real create and start) ...
+	    :
+	else
+	    if $VERBOSE
+	    then
+		echo "--- start control file ---"
+		cat $tmp/control
+		echo "--- end control file ---"
+	    fi
+	    $VERBOSE && echo "Installing control file: $CONTROLDIR/$ident"
+	    $CP $tmp/control "$CONTROLDIR/$ident"
+	    $CHECK -c "$CONTROLDIR/$ident"
+	    dir_args="`echo "$dir" | _expand_control`"
+	    _check_started "$dir_args" || sts=1
 	fi
-	$VERBOSE && echo "Installing control file: $CONTROLDIR/$name"
-	$CP $tmp/control "$CONTROLDIR/$name"
-	$CHECK -c "$CONTROLDIR/$name"
-	dir_args="`echo "$dir" | _expand_control`"
-	_check_started "$dir_args" || sts=1
     done
 
     return $sts
@@ -962,7 +1393,7 @@ _do_destroy()
 $1 == "'"$host"'" && $4 == "'"$dir"'"		{ next }
 $1 == "'"#!#$host"'" && $4 == "'"$dir"'"	{ next }
 						{ print }'
-	if cmp -s "$control" "$tmp/control"
+	if cmp -s "$control" $tmp/control
 	then
 	    $VERBOSE && echo "${IAM} for host $host and directory $dir already removed from control file $control"
 	else
@@ -995,8 +1426,8 @@ $1 == "'"#!#$host"'" && $4 == "'"$dir"'"	{ next }
 #
 _do_start()
 {
-    _restart=false
-    [ "$1" = '-r' ] && _restart=true
+    restart=false
+    [ "$1" = '-r' ] && restart=true
     sts=0
     cat $tmp/args \
     | while read control class args_host primary socks args_dir args
@@ -1006,12 +1437,12 @@ _do_start()
 	if [ -n "$pid" ]
 	then
 	    $VERBOSE && echo "${IAM} PID $pid already running for host $args_host, nothing to do"
-	    $VERBOSE && $_restart && echo "Not expected for restart!"
+	    $VERBOSE && $restart && echo "Not expected for restart!"
 	    continue
 	fi
 	if $VERBOSE
 	then
-	    if $_restart
+	    if $restart
 	    then
 		echo "Not found as expected, launching new ${IAM}"
 	    else
@@ -1029,9 +1460,9 @@ _do_start()
 	$PCP_AWK_PROG <"$control" >$tmp/control '
 $1 == "'"#!#$host"'" && $4 == "'"$dir"'"	{ sub(/^#!#/,"",$1) }
 						{ print }'
-	if cmp -s "$control" "$tmp/control"
+	if cmp -s "$control" $tmp/control
 	then
-	    if $_restart
+	    if $restart
 	    then
 		:
 	    else
@@ -1060,8 +1491,8 @@ $1 == "'"#!#$host"'" && $4 == "'"$dir"'"	{ sub(/^#!#/,"",$1) }
 #
 _do_stop()
 {
-    _skip_control_update=false
-    [ "$1" = '-q' ] && _skip_control_update=true
+    skip_control_update=false
+    [ "$1" = '-q' ] && skip_control_update=true
     sts=0
     rm -f $tmp/sts
     cat $tmp/args \
@@ -1091,7 +1522,7 @@ _do_stop()
 		continue
 	    fi
 	fi
-	$_skip_control_update && continue
+	$skip_control_update && continue
 	if [ ! -f "$control" ]
 	then
 	    _warning "control file $control for host $args_host ${IAM} has vanished"
@@ -1102,7 +1533,7 @@ _do_stop()
 	$PCP_AWK_PROG <"$control" >$tmp/control '
 $1 == "'"$host"'" && $4 == "'"$dir"'"	{ $1 = "#!#" $1 }
 				    	{ print }'
-	if cmp -s "$control" "$tmp/control"
+	if cmp -s "$control" $tmp/control
 	then
 	    $VERBOSE && echo "${IAM} for host $host and directory $dir already disabled in control file $control"
 	else
@@ -1158,6 +1589,7 @@ eval set -- "$ARGS"
 
 DOALL=false
 FORCE=false
+IDENT=''
 SHOWME=false
 CP=cp
 RM=rm
@@ -1165,6 +1597,7 @@ CHECK="sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/${IAM}_check"
 KILL="$PCP_BINADM_DIR/pmsignal -s"
 VERBOSE=false
 VERY_VERBOSE=false
+VERY_VERY_VERBOSE=false
 CLASS=default
 POLICY=''
 EXPLICIT_CLASS=false
@@ -1180,7 +1613,10 @@ do
 		;;
 	-f)	FORCE=true
 		;;
-	-n)	SHOWME=true
+	-i)	IDENT="$2"
+		shift
+		;;
+	-N)	SHOWME=true
 		CP="echo + $CP"
 		RM="echo + $RM"
 		CHECK="echo + $CHECK"
@@ -1189,7 +1625,10 @@ do
 	-p)	POLICY="$2"
 		shift
 		;;
-	-v)	if $VERBOSE
+	-V)	if $VERY_VERBOSE
+		then
+		    VERY_VERY_VERBOSE=true
+		elif $VERBOSE
 		then
 		    VERY_VERBOSE=true
 		else
@@ -1212,10 +1651,30 @@ then
     # NOTREACHED
 fi
 
-localhost=`hostname`
+LOCALHOST=`hostname`
 
-action="$1"
+ACTION="$1"
 shift
+
+if [ -n "$IDENT" ]
+then
+    if [ "$ACTION" != create -a "$ACTION" != cond-create ]
+    then
+	_error "-i option may only be used with create or cond-create commands"
+    fi
+fi
+
+# TODO - cull?
+if false
+then
+if [ "$ACTION" = cond-create ]
+then
+    if [ -z "$IDENT" ] && ! $EXPLICIT_CLASS
+    then
+	_error "cond-create command requires at least one of the -i or -c options"
+    fi
+fi
+fi
 
 if $VERY_VERBOSE
 then
@@ -1235,21 +1694,27 @@ then
 	# $PCP_ETC_DIR/pcp/${IAM}/class.d/default
 	#
 	cat <<'End-of-File' >$tmp/policy
-name:
+[class]
+default
+
+[ident]
 %h
 
-destroy:
-manual
+[destroy]
+condition(1)
 
-control:
+[create]
+hostname(.*)
+
+[control]
 #DO NOT REMOVE OR EDIT THE FOLLOWING LINE
 $version=1.1
 End-of-File
 	if [ ${IAM} = pmlogger ]
 	then
-	    echo '%h n n PCP_ARCHIVE_DIR/%h -c config.default' >>$tmp/policy
+	    echo '%h n n PCP_ARCHIVE_DIR/%i -c ./%i.config' >>$tmp/policy
 	else
-	    echo '%h n n PCP_LOG_DIR/pmie/%h/pmie.log -c config.default' >>$tmp/policy
+	    echo '%h n n PCP_LOG_DIR/pmie/%i/pmie.log -c ./%i.config' >>$tmp/policy
 	fi
 	POLICY=$tmp/policy
 	$VERY_VERBOSE && echo "Using default policy"
@@ -1257,11 +1722,11 @@ End-of-File
 else
     if [ ! -f "$POLICY" ]
     then
-	if [ "$action" = create ]
+	if [ "$ACTION" = create ]
 	then
 
 	    _error "policy file $POLICY not found, class $CLASS is not defined so cannot create"
-	elif [ "$action" = destroy ] && ! $FORCE
+	elif [ "$ACTION" = destroy ] && ! $FORCE
 	then
 	    _error "policy file $POLICY not found, class $CLASS is not defined so cannot destroy"
 	fi
@@ -1270,10 +1735,11 @@ else
 fi
 
 FIND_ALL_HOSTS=false
+FROM_COND_CREATE=false
 
-case "$action"
+case "$ACTION"
 in
-    create|start|stop|restart|destroy)
+    create|cond-create|start|stop|restart|destroy)
 	    if [ `id -u` != 0 -a "$SHOWME" = false ]
 	    then
 		_error "you must be root (uid 0) to change the Performance Co-Pilot logger setup"
@@ -1282,24 +1748,28 @@ in
 	    #
 	    if [ $# -eq 0 ]
 	    then
-		$EXPLICIT_CLASS || _error "\"$action\" command requres hostname(s) and/or a --class"
+		$EXPLICIT_CLASS || _error "\"$ACTION\" command requres hostname(s) and/or a --class"
 		FIND_ALL_HOSTS=true
 	    fi
 	    _lock
-	    if [ "$action" != create ]
+	    if [ "$ACTION" != create -a "$ACTION" != cond-create ]
 	    then
 		_get_matching_hosts $*
 		if [ ! -f $tmp/args ]
 		then
-		    _error "no matching host(s) to $action"
+		    _error "no matching host(s) to $ACTION"
 		    exit
 		fi
 	    fi
-	    eval "_do_$action" $*
+	    # small wrinkle: map - to _ in action, e.g.
+	    # cond-create -> cond_create, so it is a valid shell
+	    # function name
+	    #
+	    eval "_do_`echo "$ACTION" | sed -e 's/-/_/g'`" $*
 	    cmd_sts=$?
 	    if [ $cmd_sts -ne 0 ]
 	    then
-		_error "could not complete $action operation"
+		_error "could not complete $ACTION operation"
 	    fi
 	    ;;
 
@@ -1309,7 +1779,7 @@ in
 	    _do_status
 	    ;;
 
-    *)	    _error "command \"$action\" not known"
+    *)	    _error "command \"$ACTION\" not known"
 	    exit
 	    ;;
 esac
