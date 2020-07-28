@@ -881,12 +881,13 @@ redis_search_text_indom(redisSlots *slots, pmSearchTextRequest *request, void *a
 
     /*
      * FT.SEARCH pcp:text
-     * 		"@TYPE:{ indom } @INDOM:{{query}}"
+     * 		"@INDOM:{{query}}" WITHSCORES WITHPAYLOADS
+     * 		SORTBY TYPE ASC
      *.		LIMIT {?pagination offset} {?return result count}
      */
     key = sdsnewlen(FT_TEXT_KEY, FT_TEXT_KEY_LEN);
 
-    length = 8; // Resp array size
+    length = 11; // Resp array size
     cmd = redis_command(length);
     cmd = redis_param_str(cmd, FT_SEARCH, FT_SEARCH_LEN);
     cmd = redis_param_sds(cmd, key);
@@ -895,6 +896,11 @@ redis_search_text_indom(redisSlots *slots, pmSearchTextRequest *request, void *a
 
     cmd = redis_param_str(cmd, FT_WITHSCORES, FT_WITHSCORES_LEN);
     cmd = redis_param_str(cmd, FT_WITHPAYLOADS, FT_WITHPAYLOADS_LEN);
+
+    cmd = redis_param_str(cmd, FT_SORTBY, FT_SORTBY_LEN);
+    cmd = redis_param_str(cmd, FT_TYPE, FT_TYPE_LEN);
+    cmd = redis_param_str(cmd, FT_ASC, FT_ASC_LEN);
+
     cmd = redis_param_str(cmd, FT_LIMIT, FT_LIMIT_LEN);
     length = pmsprintf(buffer, sizeof(buffer), "%u", request->offset);
     cmd = redis_param_str(cmd, buffer, length);
@@ -966,14 +972,14 @@ redis_load_search_schema(void *arg)
 
     /*
      * FT.CREATE pcp:text SCHEMA
-     *		type TAG
+     *		type TAG SORTABLE
      *		name TEXT WEIGHT 9 SORTABLE
      *		indom TAG
      *		oneline TEXT WEIGHT 4
      *		helptext TEXT WEIGHT 2
      */
     key = sdsnewlen(FT_TEXT_KEY, FT_TEXT_KEY_LEN);
-    cmd = redis_command(3 + 2 + 5 + 2 + 4 + 4);
+    cmd = redis_command(3 + 3 + 5 + 2 + 4 + 4);
 
     cmd = redis_param_str(cmd, FT_CREATE, FT_CREATE_LEN);
     cmd = redis_param_str(cmd, FT_TEXT_KEY, FT_TEXT_KEY_LEN);
@@ -981,6 +987,7 @@ redis_load_search_schema(void *arg)
 
     cmd = redis_param_str(cmd, FT_TYPE, FT_TYPE_LEN);
     cmd = redis_param_str(cmd, FT_TAG, FT_TAG_LEN);
+    cmd = redis_param_str(cmd, FT_SORTABLE, FT_SORTABLE_LEN);
 
     cmd = redis_param_str(cmd, FT_NAME, FT_NAME_LEN);
     cmd = redis_param_str(cmd, FT_TEXT, FT_TEXT_LEN);
