@@ -117,7 +117,7 @@ then
     #
     export CC=clang
     export CXX=clang
-    configopts="`brew diy --version=$version --name=pcp` --without-manager --without-webapi"
+    configopts="`brew diy --version=$version --name=pcp`"
 elif [ $target = netbsd ]
 then
     # Try to mimic where pkgsrc/pkgin place things

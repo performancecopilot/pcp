@@ -83,19 +83,15 @@ again:
     if ((sts = (int)__pmFread(&lpb[1], 1, ntohl(head) - sizeof(head), f)) != ntohl(head) - sizeof(head)) {
 	if (pmDebugOptions.log)
 	    fprintf(stderr, "Error: data fread=%d %s\n", sts, osstrerror());
+	free(lpb);
 	if (sts == 0) {
 	    __pmFseek(f, offset, SEEK_SET);
-	    free(lpb);
 	    return PM_ERR_EOL;
 	}
-	else if (sts > 0) {
-	    free(lpb);
+	else if (sts > 0)
 	    return PM_ERR_LOGREC;
-	}
-	else {
-	    free(lpb);
+	else
 	    return -oserror();
-	}
     }
 
 

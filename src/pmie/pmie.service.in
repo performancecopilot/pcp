@@ -2,8 +2,8 @@
 Description=Performance Metrics Inference Engine
 Documentation=man:pmie(1)
 After=network-online.target pmcd.service
-After=pmie_check.timer pmie_check.path pmie_daily.timer
-BindsTo=pmie_check.timer pmie_check.path pmie_daily.timer
+After=pmie_check.timer pmie_daily.timer
+BindsTo=pmie_check.timer pmie_daily.timer
 Wants=pmcd.service
 
 [Service]

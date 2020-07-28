@@ -82,6 +82,21 @@ get_end_time_v3(void *entry)
 	   (int)(((struct acct_v3 *)entry)->ac_etime / hz);
 }
 
+static unsigned long long
+decode_comp_t(comp_t c)
+{
+    int exp;
+    unsigned long long val;
+
+    exp = (c >> 13) & 0x7;
+    val = c & 0x1fff;
+
+    while (exp-- > 0)
+	val <<= 3;
+
+    return val;
+}
+
 static int
 acct_fetchCallBack_v3(int item, void *p, pmAtomValue *atom)
 {
@@ -103,31 +118,31 @@ acct_fetchCallBack_v3(int item, void *p, pmAtomValue *atom)
 	atom->ul = acctp->ac_btime;
 	break;
     case ACCT_ETIME:
-	atom->f = acctp->ac_etime * 1000 / hz;
+	atom->f = decode_comp_t(acctp->ac_etime) * 1.0 / hz;
 	break;
     case ACCT_UTIME:
-	atom->ul = acctp->ac_utime * 1000 / hz;
+	atom->f = decode_comp_t(acctp->ac_utime) * 1.0 / hz;
 	break;
     case ACCT_STIME:
-	atom->ul = acctp->ac_stime * 1000 / hz;
+	atom->f = decode_comp_t(acctp->ac_stime) * 1.0 / hz;
 	break;
     case ACCT_MEM:
-	atom->ul = acctp->ac_mem;
+	atom->ull = acctp->ac_mem;
 	break;
     case ACCT_IO:
-	atom->ul = acctp->ac_io;
+	atom->ull = acctp->ac_io;
 	break;
     case ACCT_RW:
-	atom->ul = acctp->ac_rw;
+	atom->ull = acctp->ac_rw;
 	break;
     case ACCT_MINFLT:
-	atom->ul = acctp->ac_minflt;
+	atom->ull = acctp->ac_minflt;
 	break;
     case ACCT_MAJFLT:
-	atom->ul = acctp->ac_majflt;
+	atom->ull = acctp->ac_majflt;
 	break;
     case ACCT_SWAPS:
-	atom->ul = acctp->ac_swaps;
+	atom->ull = acctp->ac_swaps;
 	break;
     case ACCT_EXITCODE:
 	atom->ul = acctp->ac_exitcode;
