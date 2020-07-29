@@ -186,7 +186,7 @@ class BCCPMDA(PMDA):
 
         # For packaging, allow both .python and .py suffixed files
         cwd = os.getcwd()
-        pmdadir = PCP.pmGetConfig('PCP_PMDAS_DIR') + '/' + self.read_name()
+        pmdadir = PCP.pmGetConfig('PCP_PMDASADM_DIR') + '/' + self.read_name()
         for root, _, filenames in os.walk(pmdadir):
             os.chdir(root)
             for filename in fnmatch.filter(filenames, '*.python'):
