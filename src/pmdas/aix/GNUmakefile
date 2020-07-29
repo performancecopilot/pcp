@@ -20,15 +20,14 @@ IAM	= aix
 DOMAIN	= AIX
 CMDTARGET = pmdaaix
 LIBTARGET = pmda_aix.so
-PMDADIR   = $(PCP_PMDAS_DIR)/$(IAM)
-CONF_LINE = "aix	80	dso	aix_init	$(PMDADIR)/$(LIBTARGET)"
+PMDAADMDIR = $(PCP_PMDASADM_DIR)/$(IAM)
+PMDATMPDIR = $(PCP_PMDAS_DIR)/$(IAM)
+CONF_LINE = "aix	80	dso	aix_init	$(PMDATMPDIR)/$(LIBTARGET)"
 
 CFILES	= aix.c data.c disk_total.c disk.c cpu_total.c cpu.c netif.c
 
 LLDLIBS = $(PCP_PMDALIB) -lperfstat
 PMNS	= pmns.disk pmns.kernel pmns.mem pmns.network pmns.hinv
-LSRCFILES = $(PMNS) help root common.h
-
 LDIRT	= *.log *.dir *.pag root_aix domain.h
 
 default:	build-me
@@ -42,10 +41,11 @@ build-me: common.h root_aix $(CMDTARGET) $(LIBTARGET) help.dir help.pag
 	fi
 
 install: build-me
-	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 644 domain.h help.dir help.pag $(PMDADIR)
-	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(PMDADIR)
-	$(INSTALL) -m 644 root_aix $(PCP_VAR_DIR)/pmns/root_aix
+	$(INSTALL) -m 755 -d $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMDATMPDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h help.dir help.pag $(PMDAADMDIR)
+	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(LIBTARGET) $(CMDTARGET) $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_aix root_aix $(PCP_PMNSADM_DIR)/root_aix
 else
 build-me:
 install:

@@ -71,23 +71,6 @@ chmod 755 /etc/pcp/pmlogger
 chown root:root /etc/pcp/pmlogger/control
 chmod 644 /etc/pcp/pmlogger/control
 
-# migrate generated config files from /etc/pcp/* to /var/lib/pcp/config/*
-#
-if [ -f /etc/pcp/pmie/config.default ]
-then
-    cp /etc/pcp/pmie/config.default /var/lib/pcp/config/pmie/config.default
-    rm -f /etc/pcp/pmie/config.default
-    chown pcp:pcp /var/lib/pcp/config/pmie/config.default
-    chmod 644 /var/lib/pcp/config/pmie/config.default
-fi
-if [ -f /etc/pcp/pmlogger/config.default ]
-then
-    cp /etc/pcp/pmlogger/config.default /var/lib/pcp/config/pmlogger/config.default
-    rm -f /etc/pcp/pmlogger/config.default
-    chown pcp:pcp /var/lib/pcp/config/pmlogger/config.default
-    chmod 644 /var/lib/pcp/config/pmlogger/config.default
-fi
-
 do_systemd=true
 which deb-systemd-helper >/dev/null 2>&1 || do_systemd=false
 # only need to check pmcd.service, if it is here they will all

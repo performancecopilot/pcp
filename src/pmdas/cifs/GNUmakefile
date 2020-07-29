@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014-2015 Red Hat.
+# Copyright (c) 2014-2015,2020 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -24,8 +24,9 @@ LLDLIBS		= $(PCP_PMDALIB)
 
 IAM		= cifs
 DOMAIN		= CIFS
-PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
 PMDAINIT	= $(IAM)_init
+PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
+PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
 
 LDIRT		= domain.h $(IAM).log
 
@@ -41,9 +42,10 @@ ifeq "$(TARGET_OS)" "linux"
 build-me: $(CMDTARGET) $(LIBTARGET)
 
 install: default
-	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 644 root pmns domain.h help $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove $(CMDTARGET) $(LIBTARGET) $(PMDADIR)
+	$(INSTALL) -m 755 -d $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMDATMPDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) root pmns domain.h help $(PMDAADMDIR)
+	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove $(CMDTARGET) $(LIBTARGET) $(PMDAADMDIR)
 	@$(INSTALL_MAN)
 else
 build-me:

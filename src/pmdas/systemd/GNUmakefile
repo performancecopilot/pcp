@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2015 Red Hat Inc.
+# Copyright (c) 2012-2015,2020 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -15,17 +15,17 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
+IAM	= systemd
 CMDTARGET = pmdasystemd$(EXECSUFFIX)
 DFILES 	= README
 CFILES	= systemd.c
 LCFLAGS = $(SYSTEMD_CFLAGS)
 LLDLIBS = $(PCP_PMDALIB) $(SYSTEMD_LIBS)
-
-IAM	= systemd
 DOMAIN	= SYSTEMD
-PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
-
 LDIRT	= domain.h *.o $(IAM).log $(CMDTARGET)
+
+PMDAADMDIR = $(PCP_PMDASADM_DIR)/$(IAM)
+PMDATMPDIR = $(PCP_PMDAS_DIR)/$(IAM)
 
 MAN_SECTION = 1
 MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
@@ -39,11 +39,12 @@ ifeq "$(PMDA_SYSTEMD)" "true"
 build-me: $(CMDTARGET)
 
 install_pcp install:	default
-	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove $(PMDADIR)
-	$(INSTALL) -m 644 $(DFILES) root help pmns $(PMDADIR)
-	$(INSTALL) -m 644 domain.h $(PMDADIR)/domain.h
-	$(INSTALL) -m 755 $(CMDTARGET) $(PMDADIR)/$(CMDTARGET)
+	$(INSTALL) -m 755 -d $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMDATMPDIR)
+	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) $(DFILES) root help pmns $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR)/domain.h domain.h $(PMDAADMDIR)/domain.h
+	$(INSTALL) -m 755 -t $(PMDATMPDIR)/$(CMDTARGET) $(CMDTARGET) $(PMDAADMDIR)/$(CMDTARGET)
 	@$(INSTALL_MAN)
 else
 build-me:

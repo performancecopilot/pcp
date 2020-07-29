@@ -1,12 +1,12 @@
 #
 # Copyright (c) 2018 Fujitsu.
-# Copyright (c) 2018 Red Hat.
-# 
+# Copyright (c) 2018,2020 Red Hat.
+#
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -18,11 +18,12 @@ include $(TOPDIR)/src/include/builddefs
 
 IAM        = kvm
 DOMAIN     = KVM
-PMDADIR	   = $(PCP_PMDAS_DIR)/$(IAM)
+PMDAADMDIR = $(PCP_PMDASADM_DIR)/$(IAM)
+PMDATMPDIR = $(PCP_PMDAS_DIR)/$(IAM)
 CMDTARGET  = pmda$(IAM)
 LIBTARGET  = pmda_$(IAM).$(DSOSUFFIX)
 PMDAINIT   = $(IAM)_init
-CONF_LINE  = "kvm	95	pipe	binary		$(PMDADIR)/$(CMDTARGET) -d 95"
+CONF_LINE  = "kvm	95	pipe	binary		$(PMDATMPDIR)/$(CMDTARGET) -d 95"
 
 CFILES	   = kvmstat.c
 HFILES	   = kvmstat.h
@@ -51,10 +52,11 @@ build-me: $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS)
 	fi
 
 install: default
-	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 644 domain.h help help.dir help.pag root root_kvm kvm.conf $(PMDADIR)
-	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) $(PMDADIR)
-	$(INSTALL) -m 644 root_kvm $(PCP_VAR_DIR)/pmns/root_kvm
+	$(INSTALL) -m 755 -d $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMDATMPDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h help help.dir help.pag root root_kvm kvm.conf $(PMDAADMDIR)
+	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_kvm root_kvm $(PCP_PMNSADM_DIR)/root_kvm
 	@$(INSTALL_MAN)
 else
 build-me:

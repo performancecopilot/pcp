@@ -1,13 +1,13 @@
 #
 # Copyright (c) 2000,2003,2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 # Copyright (c) 2007-2010 Aconex.  All Rights Reserved.
-# Copyright (c) 2013-2015 Red Hat.
-# 
+# Copyright (c) 2013-2015,2020 Red Hat.
+#
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -21,7 +21,9 @@ IAM		= perfevent
 DOMAIN		= PERFEVENT
 CMDTARGET	= pmda$(IAM)
 
-PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
+PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
+PMDACONFIG	= $(PCP_SYSCONF_DIR)/$(IAM)
+PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
 
 CFILES	= pmda.c perfmanager.c perfinterface.c architecture.c \
 		  rapl-interface.c configparser.yy.c perflock.c \
@@ -44,9 +46,12 @@ ifeq "$(PMDA_PERFEVENT)" "true"
 build-me: $(CMDTARGET) $(HELPTARGETS) perfalloc
 
 install_pcp install: default
-	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 644 domain.h help root pmns perfevent.conf $(PMDADIR)
-	$(INSTALL) -m 755 $(CMDTARGET) $(SCRIPTS) perfalloc $(PMDADIR)
+	$(INSTALL) -m 755 -d $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMDATMPDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h help root pmns $(PMDAADMDIR)
+	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(CMDTARGET) $(SCRIPTS) perfalloc $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMDACONFIG)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR)/$(IAM).conf $(IAM).conf $(PMDACONFIG)/$(IAM).conf
 else
 build-me:
 install_pcp install:

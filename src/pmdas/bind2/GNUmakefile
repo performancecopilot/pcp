@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Red Hat.
+# Copyright (c) 2017,2020 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -17,8 +17,9 @@ include $(TOPDIR)/src/include/builddefs
 
 IAM = bind2
 DOMAIN = BIND2
-PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
-LOGCONF	= $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
+PMDATMPDIR = $(PCP_PMDAS_DIR)/$(IAM)
+PMDAADMDIR = $(PCP_PMDASADM_DIR)/$(IAM)
+CONFIGDIR = $(PCP_SYSCONF_DIR)/$(IAM)
 
 LDIRT = domain.h root pmns *.log
 
@@ -31,11 +32,12 @@ default: check_domain
 include $(BUILDRULES)
 
 install: default
-	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove $(PMDADIR)
-	$(INSTALL) -m 644 pmda$(IAM).pl $(PMDADIR)/pmda$(IAM).pl
-	$(INSTALL) -m 644 bind2-example.conf $(PMDADIR)/bind2.conf
-	$(INSTALL) -m 644 README.md $(PMDADIR)/README.md
+	$(INSTALL) -m 755 -d $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMDATMPDIR)
+	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) pmda$(IAM).pl README.md $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(CONFIGDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR)/bind2.conf bind2-example.conf $(CONFIGDIR)/bind2.conf
 	@$(INSTALL_MAN)
 
 default_pcp : default

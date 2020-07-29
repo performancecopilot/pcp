@@ -1,26 +1,30 @@
 #!/bin/sh
 #
-# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2013,2020 Red Hat.
 # Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
-# 
+#
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
+#
 # This script emulates bsd install and also recognises
 # two environment variables, with the following semantics :-
 #
 # $DIST_MANIFEST - if set, the name of the file to append manifest
 #                  information in the following format:
-#                  File    :  f mode owner group src target
-#                  Diretory:  d mode owner group target
-#                  Symlink :  l linkval target
+#                  File      : f mode owner group src target
+#                  Directory : d mode owner group target
+#                  Symlink   : l linkval target
+# $DIST_TMPFILES - if set, the name of the file to append tmpfiles
+#                  information (-t option) in tmpfiles.d format:
+#                  #Type Path                    Mode User Group Age Argument
+#                  L+    /symlink/to/[re]create  -    -    -     -   symlink/target/path
 #
 # $DIST_ROOT     - if set, prepend to target
 #
@@ -37,12 +41,12 @@
 _usage()
 {
     echo "Usage: $prog [-o owner] [-g group] [-m mode] -d directory"
-    echo "or     $prog [-o owner] [-g group] [-m mode] file directory/file"
-    echo "or     $prog [-o owner] [-g group] [-m mode] file file [file ...] directory"
+    echo "or     $prog [-o owner] [-g group] [-m mode] [-t path] file directory/file"
+    echo "or     $prog [-o owner] [-g group] [-m mode] [-t path] file file [file ...] directory"
     echo "or     $prog -S file target  (creates \"target\" symlink)"
     echo ""
-    echo "The \$DIST_MANIFEST and \$DIST_ROOT environment variables affect the"
-    echo "behaviour of this command - see comments in the script."
+    echo "The \$DIST_MANIFEST, \$DIST_TMPFILES and \$DIST_ROOT environment variables"
+    echo "affect the behaviour of this command - see comments in the script."
     echo ""
     exit 1
 }
@@ -65,7 +69,7 @@ _chown()
 		    fi
 		fi
 	       _st=0
-	    fi     
+	    fi
 	fi
     fi
 
@@ -83,8 +87,50 @@ _ln()
 }
 
 _manifest()
-{ 
+{
     echo $* | sed -e 's/\/\//\//g' >>${DIST_MANIFEST:-/dev/null}
+}
+
+_symlink()
+{
+    __target="$1"
+    __symlink="$2"
+
+    $RM -f "$__symlink"
+    __dir=`dirname "$__symlink" | sed -e 's;//*;/;g'`
+    [ ! -d "$__dir" ] && mkdir -p "$__dir"
+
+    $LN "$__target" "$__symlink"
+    status=$?
+    $MANIFEST l "$__target" `echo "$__symlink" | sed -e "s;^$DIST_ROOT;;"`
+}
+
+_tmpfiles()
+{
+    __target=`echo "$1" | sed -e "s;^$DIST_ROOT;;" -e 's;//*;/;g'`
+    __symlink=`echo "$2" | sed -e "s;^$DIST_ROOT;;" -e 's;//*;/;g'`
+
+    __rel=`echo "$__symlink" | sed -e 's;^/;;'`	# remove just first slash
+    __dlist=`dirname "$__target" | sed -e 's;/; ;g'`
+    __tpath=""
+    for d in $__dlist
+    do
+        __tpath="../${__tpath}"	# constructing a relative path
+    done
+    echo "L+ $__target - - - - ${__tpath}${__rel}" >>${DIST_TMPFILES:-/dev/null}
+}
+
+_varcheck()
+{
+    __path="$1"
+
+    echo "$__path" | grep ^/var >/dev/null 2>&1
+    if [ $? -eq 0 ]
+    then
+	echo "ERROR: attempted /var install to location $__path"
+	_usage
+	exit 1
+    fi
 }
 
 ID=id
@@ -95,6 +141,7 @@ prog=`basename $0`
 HERE=`pwd`
 dflag=false
 Sflag=false
+tflag=false
 DIRMODE=755
 FILEMODE=644
 OWNER=`$ID -u 2>/dev/null`
@@ -108,12 +155,14 @@ then
 fi
 REAL_UID=$OWNER
 
-# default is to install and don't append manifest
+# default is to install and don't append manifest/tmpfiles
 INSTALL=true
 MANIFEST=:
+TMPFILES=:
 
 [ -n "$DIST_MANIFEST" -a -z "$DIST_ROOT" ] && INSTALL=false
 [ -n "$DIST_MANIFEST" ] && MANIFEST="_manifest"
+[ -n "$DIST_TMPFILES" ] && TMPFILES="_tmpfiles"
 
 [ $# -eq 0 ] && _usage
 
@@ -128,10 +177,10 @@ fi
 test $REAL_UID -ne 0 && CHOWN=true
 test "$NO_CHOWN" = "true" && CHOWN=true
 
-while getopts "d:g:m:o:S:" c
+while getopts "d:g:m:o:S:t:" c
 do
    case $c in
-   d) 
+   d)
 	dir=`echo "$DIST_ROOT/$OPTARG" | sed -e 's;//*;/;g'`
 	dflag=true
 	;;
@@ -145,9 +194,13 @@ do
    o)
 	OWNER=$OPTARG
 	;;
-   S) 
+   S)
 	symlink=$OPTARG
 	Sflag=true
+	;;
+   t)
+	tmpfile=`echo "$DIST_ROOT/$OPTARG" | sed -e 's;//*;/;g'`
+	tflag=true
 	;;
    *)
    	_usage
@@ -163,6 +216,7 @@ then
     #
     # first usage
     #
+    $tflag && _usage
     $MKDIR -p "$dir"
     status=$?
     if [ $status -eq 0 ]
@@ -187,12 +241,8 @@ then
     else
 	target=`echo "$DIST_ROOT/$1" | sed -e 's;//*;/;g'`
     fi
-    $RM -f "$target"
-    dir=`dirname "$target" | sed -e 's;//*;/;g'`
-    [ ! -d "$dir" ] && mkdir -p "$dir"
-    $LN "$symlink" "$target"
-    status=$?
-    $MANIFEST l "$symlink" `echo "$target" | sed -e "s;^$DIST_ROOT;;"`
+    _varcheck "$target"
+    _symlink "$symlink" "$target"
 else
     list=""
     dir=""
@@ -201,7 +251,7 @@ else
 	#
 	# second usage: install file dir/name
 	# target 'name' is not necessarily the same as 'file'
-	# (Note: install file dir  is ambiguous and not supported
+	# (Note:  install file dir  is ambiguous and not supported
 	#
 	f="$1"
 	dir="$DIST_ROOT"/`dirname "$2"`
@@ -222,6 +272,7 @@ else
 		destfile="$destfile.exe"
 	    fi
 	fi
+	_varcheck "$dir"
 	[ ! -d "$dir" ] && mkdir -p "$dir"
 	if [ -d "$dir/$destfile" ]
 	then
@@ -244,6 +295,11 @@ else
 		status=$?
 	    fi
 	    $MANIFEST f $FILEMODE $OWNER $GROUP "$HERE/$f" "$t_dir/$destfile"
+	    if $tflag
+	    then
+		_symlink "$t_dir/$destfile" "$tmpfile"
+		$TMPFILES "$tmpfile" "$t_dir/$destfile"
+	    fi
 	fi
 	[ $status -ne 0 ] && break
 
@@ -262,7 +318,6 @@ else
 	    fi
 	    shift
 	done
-
 	# At this stage, $list is the list of files to install
 	# in $dir. We create $dir if necessary
 
@@ -285,6 +340,7 @@ else
 		fi
 	    fi
 
+	    _varcheck "$dir"
 	    [ ! -d "$dir" ] && mkdir -p "$dir"
 	    $RM -f "$dir/$f"
 	    $CP "$f" "$dir/$f"
@@ -300,6 +356,11 @@ else
 		    status=$?
 		fi
 		$MANIFEST f $FILEMODE $OWNER $GROUP "$HERE/$f" "$t_dir/$f"
+		if $tflag
+		then
+		    _symlink "$t_dir/$f" "$tmpfile/$f"
+		    $TMPFILES "$tmpfile/$f" "$t_dir/$f"
+		fi
 	    fi
 	    [ $status -ne 0 ] && break
 	done

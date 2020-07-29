@@ -1,5 +1,5 @@
 # 
-# Copyright (c) 2013,2017 Red Hat.
+# Copyright (c) 2013,2017,2020 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -25,7 +25,8 @@ CMDTARGET = pmieconf$(EXECSUFFIX)
 CFILES = pmieconf.c rules.c io.c
 HFILES = rules.h
 
-PMLOGCONF_TOOLS = $(PCP_VAR_DIR)/config/pmlogconf/tools
+PMLOGCONF_ETC_TOOLS = $(PCP_SYSCONF_DIR)/pmlogconf/tools
+PMLOGCONF_VAR_TOOLS = $(PCP_VAR_DIR)/config/pmlogconf/tools
 
 LLDLIBS = $(PCPLIB)
 LCFLAGS = -I$(TOPDIR)/src/pmie/src
@@ -80,7 +81,7 @@ install: default $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BIN_DIR)/$(CMDTARGET)
 	$(INSTALL) -m 755 pmie_email $(PCP_BINADM_DIR)/pmie_email
-	$(INSTALL) -m 644 pmlogconf $(PMLOGCONF_TOOLS)/pmieconf
+	$(INSTALL) -m 644 -t $(PMLOGCONF_VAR_TOOLS)/pmieconf pmlogconf $(PMLOGCONF_ETC_TOOLS)/pmieconf
 
 include $(BUILDRULES)
 

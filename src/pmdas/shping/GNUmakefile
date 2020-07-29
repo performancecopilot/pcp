@@ -1,12 +1,12 @@
 #
 # Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
-# Copyright (c) 2015 Red Hat.
-# 
+# Copyright (c) 2015,2020 Red Hat.
+#
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -22,17 +22,22 @@ DOMAIN	= SHPING
 CMDTARGETS	= $(IAM)$(EXECSUFFIX)
 HFILES	= shping.h
 CFILES	= shping.c pmda.c
-OTHERS	= README root help pmns sample.conf
+CONFIG	= sample.conf
+OTHERS	= README root help pmns
 CHARTS	= shping.CPUTime.pmchart shping.RealTime.pmchart
 PMIECS	= shping.status.pmie shping.response.pmie
-
+LDIRT	= *.log *.dir *.pag so_locations a.out domain.h $(CMDTARGETS)
 LLDLIBS	= $(PCP_PMDALIB) $(LIB_FOR_PTHREADS)
 
-PMDADIR = $(PCP_PMDAS_DIR)/$(IAM)
-PMCHART	= $(PCP_VAR_DIR)/config/pmchart
-PMIE	= $(PCP_VAR_DIR)/config/pmieconf/$(IAM)
-LOGCONF	= $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
-LDIRT	= *.log *.dir *.pag so_locations a.out domain.h $(CMDTARGETS)
+PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
+PMDACONFIG	= $(PCP_SYSCONF_DIR)/$(IAM)
+PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
+PMCHARTDIR	= $(PCP_SYSCONF_DIR)/pmchart
+PMCHARTVARDIR	= $(PCP_VAR_DIR)/config/pmchart
+PMIECONFDIR	= $(PCP_SYSCONF_DIR)/pmieconf/$(IAM)
+PMIECONFVARDIR	= $(PCP_VAR_DIR)/config/pmieconf/$(IAM)
+PMLOGCONFDIR	= $(PCP_SYSCONF_DIR)/pmlogconf/$(IAM)
+PMLOGCONFVARDIR	= $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
 
 default:	build-me
 
@@ -42,23 +47,28 @@ ifneq "$(TARGET_OS)" "mingw"
 build-me:	$(CMDTARGETS)
 
 install: build-me configs
-	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 $(IAM) $(PMDADIR)/pmda$(IAM) 
-	$(INSTALL) -m 755 Install Remove $(PMDADIR)
-	$(INSTALL) -m 644 $(OTHERS) domain.h $(PMDADIR)
+	$(INSTALL) -m 755 -d $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMDATMPDIR)
+	$(INSTALL) -m 755 -t $(PMDATMPDIR)/pmda$(IAM) $(IAM) $(PMDAADMDIR)/pmda$(IAM) 
+	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) $(OTHERS) domain.h $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMDACONFIG)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR)/$(CONFIG) $(CONFIG) $(PMDACONFIG)/$(CONFIG)
 else
 build-me:
 install: configs
 endif
 
 configs:
-	$(INSTALL) -m 644 shping.CPUTime.pmchart $(PMCHART)/shping.CPUTime
-	$(INSTALL) -m 644 shping.RealTime.pmchart $(PMCHART)/shping.RealTime
-	$(INSTALL) -m 755 -d $(PMIE)
-	$(INSTALL) -m 644 shping.status.pmie $(PMIE)/status
-	$(INSTALL) -m 644 shping.response.pmie $(PMIE)/response
-	$(INSTALL) -m 755 -d $(LOGCONF)
-	$(INSTALL) -m 644 pmlogconf.summary $(LOGCONF)/summary
+	$(INSTALL) -m 644 -t $(PMCHARTVARDIR)/shping.CPUTime shping.CPUTime.pmchart $(PMCHARTDIR)/shping.CPUTime
+	$(INSTALL) -m 644 -t $(PMCHARTVARDIR)/shping.RealTime shping.RealTime.pmchart $(PMCHARTDIR)/shping.RealTime
+	$(INSTALL) -m 755 -d $(PMIECONFDIR)
+	$(INSTALL) -m 755 -d $(PMIECONFVARDIR)
+	$(INSTALL) -m 644 -t $(PMIECONFVARDIR)/status shping.status.pmie $(PMIECONFDIR)/status
+	$(INSTALL) -m 644 -t $(PMIECONFVARDIR)/response shping.response.pmie $(PMIECONFDIR)/response
+	$(INSTALL) -m 755 -d $(PMLOGCONFDIR)
+	$(INSTALL) -m 755 -d $(PMLOGCONFVARDIR)
+	$(INSTALL) -m 644 -t $(PMLOGCONFVARDIR)/summary pmlogconf.summary $(PMLOGCONFDIR)/summary
 
 $(IAM)$(EXECSUFFIX):	$(OBJECTS)
 

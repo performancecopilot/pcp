@@ -1,6 +1,6 @@
 #
 # Copyright (C) 2000 Michal Kara.  All Rights Reserved.
-# Copyright (c) 2015-2016 Red Hat.
+# Copyright (c) 2015-2016,2020 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -22,11 +22,13 @@ TARGETS	= $(IAM)$(EXECSUFFIX)
 CFILES	= apache.c
 SCRIPTS	= Install Remove
 DFILES	= README
-LSRCFILES= $(SCRIPTS) pmns help root Apache.pmchart $(DFILES) \
-	pmlogconf.summary pmlogconf.processes pmlogconf.uptime
 
-PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
-PMCHART	= $(PCP_VAR_DIR)/config/pmchart
+PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
+PMDAVARDIR	= $(PCP_PMDAS_DIR)/$(IAM)
+PMCHARTETCDIR	= $(PCP_SYSCONF_DIR)/pmchart
+PMCHARTVARDIR	= $(PCP_VAR_DIR)/config/pmchart
+PMLOGCONFETCDIR	= $(PCP_SYSCONF_DIR)/pmlogconf/$(IAM)
+PMLOGCONFVARDIR	= $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
 
 LDIRT	= domain.h *.o $(IAM).log pmda$(IAM) pmda_$(IAM).so $(TARGETS)
 LLDFLAGS= -L$(TOPDIR)/src/libpcp_web/src
@@ -39,15 +41,17 @@ include $(BUILDRULES)
 build-me: $(TARGETS)
 
 install: build-me
-	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 $(IAM) $(PMDADIR)/pmda$(IAM)
-	$(INSTALL) -m 755 $(SCRIPTS) $(PMDADIR)
-	$(INSTALL) -m 644 $(DFILES) pmns help root domain.h $(PMDADIR)
-	$(INSTALL) -m 644 Apache.pmchart $(PMCHART)/Apache
-	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
-	$(INSTALL) -m 644 pmlogconf.summary $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)/summary
-	$(INSTALL) -m 644 pmlogconf.processes $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)/processes
-	$(INSTALL) -m 644 pmlogconf.uptime $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)/uptime
+	$(INSTALL) -m 755 -d $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMDAVARDIR)
+	$(INSTALL) -m 755 -t $(PMDAVARDIR)/pmda$(IAM) $(IAM) $(PMDAADMDIR)/pmda$(IAM)
+	$(INSTALL) -m 755 -t $(PMDAVARDIR) $(SCRIPTS) $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMDAVARDIR) $(DFILES) pmns help root domain.h $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMCHARTVARDIR)/Apache Apache.pmchart $(PMCHARTETCDIR)/Apache
+	$(INSTALL) -m 755 -d $(PMLOGCONFETCDIR)
+	$(INSTALL) -m 755 -d $(PMLOGCONFVARDIR)
+	$(INSTALL) -m 644 -t $(PMLOGCONFVARDIR)/processes pmlogconf.processes $(PMLOGCONFETCDIR)/processes
+	$(INSTALL) -m 644 -t $(PMLOGCONFVARDIR)/summary pmlogconf.summary $(PMLOGCONFETCDIR)/summary
+	$(INSTALL) -m 644 -t $(PMLOGCONFVARDIR)/uptime pmlogconf.uptime $(PMLOGCONFETCDIR)/uptime
 
 $(IAM)$(EXECSUFFIX):	$(OBJECTS)
 
