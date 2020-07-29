@@ -30,15 +30,22 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+_filter()
+{
+    sed \
+	-e 's;^ *[0-9][0-9][0-9][0-9]/[0-9][0-9]/[0-9][0-9]$;DATESTAMP;g' \
+    #end
+}
+
 # real QA test starts here
 export PCP_HOSTZONE=1
 export PCP_ARCHIVE=$here/archives/pcp-atop-log
 
 echo && echo "=== Check memory allocation issue:"
-$PCP_BINADM_DIR/pcp-atopsar -x -R 5 2 10
+$PCP_BINADM_DIR/pcp-atopsar -x -R 5 2 10 | _filter
 
 echo && echo "=== Check time window issue:"
-$PCP_BINADM_DIR/pcp-atopsar -x -b 16:14:29 -e 16:14:33 1
+$PCP_BINADM_DIR/pcp-atopsar -x -b 16:14:29 -e 16:14:33 1 | _filter
 
 # success, all done
 status=0
