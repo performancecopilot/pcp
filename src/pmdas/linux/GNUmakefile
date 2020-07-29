@@ -1,13 +1,13 @@
 #
 # Copyright (c) 2000,2003,2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 # Copyright (c) 2007-2010 Aconex.  All Rights Reserved.
-# Copyright (c) 2013-2019 Red Hat.
-# 
+# Copyright (c) 2013-2020 Red Hat.
+#
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -22,9 +22,12 @@ DOMAIN		= LINUX
 CMDTARGET	= pmdalinux
 LIBTARGET	= pmda_linux.so
 PMDAINIT	= linux_init
-PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
-LOGREWRITEDIR	= $(PCP_VAR_DIR)/config/pmlogrewrite
-CONF_LINE	= "linux	60	pipe	binary		$(PMDADIR)/$(CMDTARGET)"
+PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
+PMDACONFIG	= $(PCP_SYSCONF_DIR)/$(IAM)
+PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
+REWRITEDIR	= $(PCP_SYSCONF_DIR)/pmlogrewrite
+REWRITEVARDIR	= $(PCP_VAR_DIR)/config/pmlogrewrite
+CONF_LINE	= "linux	60	pipe	binary		$(PMDATMPDIR)/$(CMDTARGET)"
 
 CFILES		= pmda.c linux_table.c mem_bandwidth.c namespaces.c \
 		  proc_stat.c proc_meminfo.c proc_loadavg.c \
@@ -84,17 +87,19 @@ build-me: $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS) $(CONFTARGETS)
 # Note: pmlogrewrite configs are installed with linux_ prefix
 #
 install: default
-	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 644 domain.h help $(HELPTARGETS) $(PMDADIR)
-	$(INSTALL) -m 644 bandwidth.conf $(PMDADIR)/samplebandwidth.conf
-	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(PMDADIR)
-	$(INSTALL) -m 644 root_linux $(PCP_VAR_DIR)/pmns/root_linux
-	$(INSTALL) -m 644 proc_fs_nfsd_fixups.conf $(LOGREWRITEDIR)/linux_proc_fs_nfsd_fixups.conf
-	$(INSTALL) -m 644 proc_net_snmp_migrate.conf $(LOGREWRITEDIR)/linux_proc_net_snmp_migrate.conf
-	$(INSTALL) -m 644 proc_net_tcp_migrate.conf $(LOGREWRITEDIR)/linux_proc_net_tcp_migrate.conf
-	$(INSTALL) -m 644 disk_all_fixups.conf $(LOGREWRITEDIR)/linux_disk_all_fixups.conf
-	$(INSTALL) -m 644 kernel_fixups.conf $(LOGREWRITEDIR)/linux_kernel_fixups.conf
-	$(INSTALL) -m 644 kernel_ulong.conf $(LOGREWRITEDIR)/linux_kernel_ulong.conf
+	$(INSTALL) -m 755 -d $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMDATMPDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h help $(HELPTARGETS) $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMDACONFIG)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR)/samplebandwidth.conf bandwidth.conf $(PMDACONFIG)/samplebandwidth.conf
+	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(LIBTARGET) $(CMDTARGET) $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_linux root_linux $(PCP_PMNSADM_DIR)/root_linux
+	$(INSTALL) -m 644 -t $(REWRITEVARDIR)/linux_proc_fs_nfsd_fixups.conf proc_fs_nfsd_fixups.conf $(REWRITEDIR)/linux_proc_fs_nfsd_fixups.conf
+	$(INSTALL) -m 644 -t $(REWRITEVARDIR)/linux_proc_net_snmp_migrate.conf proc_net_snmp_migrate.conf $(REWRITEDIR)/linux_proc_net_snmp_migrate.conf
+	$(INSTALL) -m 644 -t $(REWRITEVARDIR)/linux_proc_net_tcp_migrate.conf proc_net_tcp_migrate.conf $(REWRITEDIR)/linux_proc_net_tcp_migrate.conf
+	$(INSTALL) -m 644 -t $(REWRITEVARDIR)/linux_disk_all_fixups.conf disk_all_fixups.conf $(REWRITEDIR)/linux_disk_all_fixups.conf
+	$(INSTALL) -m 644 -t $(REWRITEVARDIR)/linux_kernel_fixups.conf kernel_fixups.conf $(REWRITEDIR)/linux_kernel_fixups.conf
+	$(INSTALL) -m 644 -t $(REWRITEVARDIR)/linux_kernel_ulong.conf kernel_ulong.conf $(REWRITEDIR)/linux_kernel_ulong.conf
 else
 build-me:
 install:

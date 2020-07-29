@@ -257,7 +257,7 @@ BuildRequires: perl(ExtUtils::MakeMaker) perl(LWP::UserAgent) perl(JSON)
 BuildRequires: perl(LWP::UserAgent) perl(Time::HiRes) perl(Digest::MD5)
 BuildRequires: man %{_hostname_executable}
 %if !%{disable_systemd}
-BuildRequires: systemd-devel
+BuildRequires: systemd-devel systemd-rpm-macros
 %endif
 %if !%{disable_qt}
 BuildRequires: desktop-file-utils
@@ -2216,7 +2216,11 @@ make %{?_smp_mflags} default_pcp
 
 %install
 rm -Rf $RPM_BUILD_ROOT
-export NO_CHOWN=true DIST_ROOT=$RPM_BUILD_ROOT
+BACKDIR=`pwd`
+NO_CHOWN=true
+DIST_ROOT=$RPM_BUILD_ROOT
+DIST_TMPFILES=$BACKDIR/install.tmpfiles
+export NO_CHOWN DIST_ROOT DIST_TMPFILES
 make install_pcp
 
 PCP_GUI='pmchart|pmconfirm|pmdumptext|pmmessage|pmquery|pmsnap|pmtime'
@@ -2417,6 +2421,11 @@ cat base_pmdas.list base_bin.list base_exec.list base_bashcomp.list \
   grep -E -v 'pmdaib|pmsnap|2pcp|pmdas/systemd|zeroconf' |\
   grep -E -v "$PCP_GUI|pixmaps|hicolor|pcp-doc|tutorials|selinux" |\
   grep -E -v %{_confdir} | grep -E -v %{_logsdir} > base.list
+%if !%{disable_systemd}
+mkdir -p $RPM_BUILD_ROOT/%{_tmpfilesdir}
+mv $DIST_TMPFILES $RPM_BUILD_ROOT/%{_tmpfilesdir}/pcp.conf
+echo %{_tmpfilesdir}/pcp.conf >> base.list
+%endif
 
 # all devel pcp package files except those split out into sub packages
 ls -1 $RPM_BUILD_ROOT/%{_mandir}/man3 |\

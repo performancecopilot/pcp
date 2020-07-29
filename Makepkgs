@@ -247,7 +247,7 @@ then
     # On RPM-based platforms, rpm macros provide an excellent set of defaults.
     # This set is based on Fedora 22 %configure macro from /usr/lib/rpm/macros,
     # and is known to work as far back as RHEL5.
-    configopts="`rpmbuild --eval '--prefix=%{_prefix} --exec-prefix=%{_exec_prefix} --bindir=%{_bindir} --sbindir=%{_sbindir} --sysconfdir=%{_sysconfdir} --datadir=%{_datadir} --includedir=%{_includedir} --libdir=%{_libdir} --libexecdir=%{_libexecdir} --localstatedir=%{_localstatedir} --sharedstatedir=%{_sharedstatedir} --mandir=%{_mandir}' 2>/dev/null`"
+    configopts="`rpmbuild --eval '--exec-prefix=%{_exec_prefix} --bindir=%{_bindir} --sbindir=%{_sbindir} --sysconfdir=%{_sysconfdir} --datadir=%{_datadir} --includedir=%{_includedir} --libdir=%{_libdir} --libexecdir=%{_libexecdir} --localstatedir=%{_localstatedir} --sharedstatedir=%{_sharedstatedir} --mandir=%{_mandir} --prefix=%{_prefix}' 2>/dev/null`"
     # rpmbuild clears the environment, so force these settings into the
     # rpm build configure
     #
@@ -257,12 +257,12 @@ then
     # On Mac OS X platforms, we install away from /usr/bin, /usr/lib
     # and so on because of security requirements in recent versions.
     #
-    configopts="--prefix=/usr/local --sysconfdir=/etc --localstatedir=/var"
+    configopts="--sysconfdir=/etc --localstatedir=/var --prefix=/usr/local"
 elif [ $target = netbsd ]
 then
     # Try to mimic where pkgsrc/pkgin places things
     #
-    configopts="--prefix=/usr/pkg --exec-prefix=/usr/pkg --mandir=/usr/pkg/man --with-rcdir=/etc/rc.d --localstatedir=/usr/pkg --with-rundir=/var/run --with-tmpdir=/var/tmp --with-logdir=/var/log/pcp"
+    configopts="--exec-prefix=/usr/pkg --mandir=/usr/pkg/man --with-rcdir=/etc/rc.d --localstatedir=/usr/pkg --with-rundir=/var/run --with-tmpdir=/var/tmp --with-logdir=/var/log/pcp --prefix=/usr/pkg"
 elif [ $target = freebsd ]
 then
     # Python build does not work on FreeBSD 9.3, so skip it
@@ -274,17 +274,17 @@ then
 	9.3*)
 		# Bog-standard, just without python and without python3
 		#
-		configopts="--prefix=/usr --sysconfdir=/etc --localstatedir=/var --with-python=no --with-python3=no"
+		configopts="--sysconfdir=/etc --localstatedir=/var --with-python=no --with-python3=no --prefix=/usr"
 		;;
 	10.*|11.*)
 		# Bog-standard, just without python2
 		#
-		configopts="--prefix=/usr --sysconfdir=/etc --localstatedir=/var --with-python=no"
+		configopts="--sysconfdir=/etc --localstatedir=/var --with-python=no --prefix=/usr"
 		;;
 	*)
 		# Bog-standard, as below ...
 		#
-		configopts="--prefix=/usr --sysconfdir=/etc --localstatedir=/var"
+		configopts="--sysconfdir=/etc --localstatedir=/var --prefix=/usr"
 		;;
     esac
 elif [ $target = sunos ]
@@ -296,7 +296,7 @@ else
     # Bog-standard options suitable for a package on any platform.
     # Command line can be used to extend this set, and any unusual
     # platform-specific requirements are also appended later on.
-    configopts="--prefix=/usr --sysconfdir=/etc --localstatedir=/var"
+    configopts="--sysconfdir=/etc --localstatedir=/var --prefix=/usr"
 fi
 
 # Platform-specific variants ...

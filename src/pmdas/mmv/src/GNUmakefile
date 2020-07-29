@@ -29,20 +29,22 @@ LLDLIBS		= $(PCP_PMDALIB)
 LCFLAGS		= $(INVISIBILITY)
 LDIRT		= domain.h *.log pmns
 
-PMDADIR = $(PCP_PMDAS_DIR)/$(IAM)
+PMDAADMDIR = $(PCP_PMDASADM_DIR)/$(IAM)
+PMDATMPDIR = $(PCP_PMDAS_DIR)/$(IAM)
 
 default_pcp default: $(TARGETS) pmns
 
 include $(BUILDRULES)
 
 install_pcp install: default
-	$(INSTALL) -m 755 -d $(PMDADIR)
+	$(INSTALL) -m 755 -d $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMDATMPDIR)
 	$(INSTALL) -o $(PCP_USER) -g $(PCP_GROUP) -m 775 -d $(PCP_TMP_DIR)/$(IAM)
 	$(INSTALL) -o $(PCP_USER) -g $(PCP_GROUP) -m 775 -d $(PCP_TMP_DIR)/pmproxy
-	$(INSTALL) -m 644 domain.h $(PMDADIR)/domain.h
-	$(INSTALL) -m 755 $(TARGETS) Install Remove $(PMDADIR)
-	$(INSTALL) -m 644 pmns $(PMDADIR)/root_mmv
-	$(INSTALL) -m 644 root_mmv root_pmproxy $(PCP_VAR_DIR)/pmns
+	$(INSTALL) -m 644 -t $(PMDATMPDIR)/domain.h domain.h $(PMDAADMDIR)/domain.h
+	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(TARGETS) Install Remove $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR)/root_mmv pmns $(PMDAADMDIR)/root_mmv
+	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR) root_mmv root_pmproxy $(PCP_PMNSADM_DIR)
 
 $(CMDTARGET):	$(OBJECTS)
 

@@ -78,7 +78,7 @@ else
 endif
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_LOG_DIR)/pmlogger
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_TMP_DIR)/pmlogger
-	$(INSTALL) -m 644 utilproc.sh $(PCP_SHARE_DIR)/lib/utilproc.sh
+	$(INSTALL) -m 644 -t $(PCP_SHARE_DIR)/lib/utilproc.sh utilproc.sh $(PCP_LIBADM_DIR)/utilproc.sh
 	$(INSTALL) -m 755 pmlogger_daily_report.sh $(PCP_BINADM_DIR)/pmlogger_daily_report$(SHELLSUFFIX)
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_SA_DIR)
 

@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2020 Red Hat, Inc.  All Rights Reserved.
 # Copyright (c) 2000-2001 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -15,10 +16,6 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
-
-PMNS_VAR_DIR = $(PCP_VAR_DIR)/pmns
-PMNS_BIN_DIR = $(PCP_BINADM_DIR)
-PMNS_LIB_DIR = $(PCP_SHARE_DIR)/lib
 
 # Take control here ... do not need to search in libpcp_pmda directory
 # for libpcp_pmda DSO, and it is not even built yet for a virgin make.
@@ -49,19 +46,19 @@ pmnsdel$(EXECSUFFIX):        pmnsdel.o pmnsutil.o
 .NeedRebuild:
 	echo "This file flags the rc scripts to rebuild the PMNS" > .NeedRebuild
 
-# All PMNS config stuff goes in $PCP_VAR_DIR/pmns
+# All PMNS config stuff goes (or is symlinked) in $PCP_VAR_DIR/pmns
 # For platforms that want it, the .NeedRebuild hook is added there,
 # else a manual touch(1) here is as close as it gets unfortunately.
 #
 install:	default
-	$(INSTALL) -m 755 $(TARGETS) $(SCRIPTS) $(PMNS_BIN_DIR)
-	$(INSTALL) -m 755 $(LOCKERS) ReplacePmnsSubtree $(PMNS_LIB_DIR)
-	$(INSTALL) -m 644 GNUmakefile.install $(PMNS_VAR_DIR)/Makefile
-	$(INSTALL) -m 755 Rebuild $(PMNS_VAR_DIR)/Rebuild
-	$(INSTALL) -m 755 Make.stdpmid $(PMNS_VAR_DIR)/Make.stdpmid
-	$(INSTALL) -m 644 $(STDPMID) $(PMNS_VAR_DIR)
+	$(INSTALL) -m 755 $(TARGETS) $(SCRIPTS) $(PCP_BINADM_DIR)
+	$(INSTALL) -m 755 -t $(PCP_SHARE_DIR)/lib $(LOCKERS) ReplacePmnsSubtree $(PCP_PMNSADM_DIR)
+	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/Makefile GNUmakefile.install $(PCP_PMNSADM_DIR)/Makefile
+	$(INSTALL) -m 755 -t $(PCP_PMNS_DIR)/Rebuild Rebuild $(PCP_PMNSADM_DIR)/Rebuild
+	$(INSTALL) -m 755 -t $(PCP_PMNS_DIR)/Make.stdpmid Make.stdpmid $(PCP_PMNSADM_DIR)/Make.stdpmid
+	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR) $(STDPMID) $(PCP_PMNSADM_DIR)
 ifeq (, $(filter redhat debian suse, $(PACKAGE_DISTRIBUTION)))
-	$(INSTALL) -m 644 .NeedRebuild $(PMNS_VAR_DIR)/.NeedRebuild
+	$(INSTALL) -m 644 .NeedRebuild $(PCP_PMNS_DIR)/.NeedRebuild
 endif
 
 stdpmid:	$(STDPMID)

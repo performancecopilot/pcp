@@ -86,7 +86,7 @@ alldir = $(dirpcp) $(dirpcpcfg) \
 		$(dirpcp_pmda_infiniband) $(allperldir) \
 		$(dirpcp_python3)
 
-zip = export GZIP=-9qn
+zip = export GZIP=-9qn DIST_TMPFILES="`pwd`"/install.tmpfiles
 pkgpcp = $(zip) NO_CHOWN=true DIST_ROOT="`pwd`"/$(dirpcp);
 pkgpcpgui = $(zip) DIST_ROOT="`pwd`"/$(dirgui);
 pkgpcpdoc = $(zip) DIST_ROOT="`pwd`"/$(dirdoc);

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019 Red Hat.
+# Copyright (c) 2019-2020 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -16,8 +16,10 @@ TOPDIR = ../../../..
 include $(TOPDIR)/src/include/builddefs
 
 IAM       = bpftrace
-MODULEDIR = $(PCP_PMDAS_DIR)/$(IAM)/bpftrace
 PYSCRIPTS = $(shell echo *.py)
+
+MODULEDIR = $(PCP_PMDASADM_DIR)/$(IAM)/bpftrace
+MODULETMPDIR = $(PCP_PMDAS_DIR)/$(IAM)/bpftrace
 
 include $(BUILDRULES)
 
@@ -27,7 +29,8 @@ default_pcp default:	$(SUBDIRS)
 install_pcp install:	default $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 	$(INSTALL) -m 755 -d $(MODULEDIR)
-	$(INSTALL) -m 644 $(PYSCRIPTS) $(MODULEDIR)
+	$(INSTALL) -m 755 -d $(MODULETMPDIR)
+	$(INSTALL) -m 644 -t $(MODULETMPDIR) $(PYSCRIPTS) $(MODULEDIR)
 
 check:: $(PYSCRIPTS)
 	$(PYLINT) $^

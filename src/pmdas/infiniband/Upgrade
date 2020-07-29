@@ -1,5 +1,6 @@
+#! /bin/sh
 #
-# Copyright (c) 2019-2020 Red Hat.
+# Copyright (c) 2020 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -11,24 +12,13 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
+# Upgrade an older InfiniBand PMDA (ib) to the latest name (infiniband)
+#
 
-TOPDIR = ../../../..
-include $(TOPDIR)/src/include/builddefs
+. $PCP_DIR/etc/pcp.env
 
-IAM		= netcheck
-PYSCRIPTS	= $(shell echo *.python)
-
-PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)/modules
-PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)/modules
-
-include $(BUILDRULES)
-
-default_pcp default:	$(SCRIPTS)
-
-install_pcp install:	default
-	$(INSTALL) -m 755 -d $(PMDAADMDIR)
-	$(INSTALL) -m 755 -d $(PMDATMPDIR)
-	$(INSTALL) -m 644 -t $(PMDATMPDIR) $(PYSCRIPTS) $(PMDAADMDIR)
-
-check:: $(PYSCRIPTS)
-	$(PYLINT) $^
+if grep -q ^ib "$PCP_PMCDCONF_PATH" 2>/dev/null
+then
+    sed -i -e "s,$PCP_PMDAS_DIR/ib/pmdaib,$PCP_PMDAS_DIR/infiniband/pmdainfiniband,g" $PCP_PMCDCONF_PATH 2>/dev/null
+fi
+exit 0
