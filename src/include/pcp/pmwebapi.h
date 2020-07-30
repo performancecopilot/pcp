@@ -375,9 +375,10 @@ typedef enum pmSearchFlags {
 } pmSearchFlags;
 
 typedef enum pmSearchTextType {
-    PM_SEARCH_TYPE_METRIC	= 0,
-    PM_SEARCH_TYPE_INDOM	= 1,
-    PM_SEARCH_TYPE_INST		= 2,
+    PM_SEARCH_TYPE_UNKNOWN	= 0,
+    PM_SEARCH_TYPE_METRIC	= 1,
+    PM_SEARCH_TYPE_INDOM	= 2,
+    PM_SEARCH_TYPE_INST		= 3
 } pmSearchTextType;
 
 typedef struct pmSearchTextRequest {
@@ -402,8 +403,9 @@ typedef struct pmSearchTextRequest {
     unsigned int	return_indom : 1;
     unsigned int	return_oneline : 1;
     unsigned int	return_helptext : 1;
+    unsigned int	return_type : 1;
 
-    unsigned int	reserved: 16;	/* zero padding */
+    unsigned int	reserved: 15;	/* zero padding */
 } pmSearchTextRequest;
 
 typedef struct pmSearchTextResult {
@@ -467,6 +469,7 @@ extern int pmSearchInfo(pmSearchSettings *, sds, void *);
 extern const char *pmSearchTextTypeStr(pmSearchTextType);
 extern int pmSearchTextQuery(pmSearchSettings *, pmSearchTextRequest *, void *);
 extern int pmSearchTextSuggest(pmSearchSettings *, pmSearchTextRequest *, void *);
+extern int pmSearchTextIndom(pmSearchSettings *, pmSearchTextRequest *, void *);
 
 #ifdef __cplusplus
 }

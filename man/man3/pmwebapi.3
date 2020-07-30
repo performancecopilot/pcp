@@ -648,29 +648,38 @@ query	string	Search query for search engine
 limit	number	Max results to include in response
 .TE
 .PP
-Provides search query suggestions.
+Provides search query suggestions, that is, metric and instance names.
 .PP
 The mandatory search string is further described in
 .BR pmsearch (1)
 and is passed to the server via the
 .I query
 parameter (HTTP GET).
-\" TODO: replace with actual call when search/suggest is done
 .SAMPLE
 $ curl -s http://localhost:44322/search/suggest?\\
-	query=disk | pmjson
+	query=disk&limit=4 | pmjson
 [
     "disk.all.avactive",
     "disk.all.aveq",
     "disk.all.blkread",
-    "disk.all.blktotal",
-    "disk.all.blkwrite",
-    "disk.all.read",
-    "disk.all.read_bytes"
-    "disk.all.read_merge",
-    "disk.all.read_rawactive"
+    "disk.all.blktotal"
 ]
 .ESAMPLE
+.SS GET \fI/search/indom\fR \- \fBpmSearchTextIndom\fR(3)
+.TS
+box;
+c | c | cw(2.4i)
+lf(CW) | l | l.
+Parameters	Type	Explanation
+_
+query	string	Target indom for search engine
+offset	number	Result offset cursor for pagination
+limit	number	M results to include in response
+.TE
+.PP
+Provides all entities (instances, metrics) related to indom, including itself, that is passed to the server via the
+.I query
+parameter (HTTP GET).
 .SS GET \fI/search/info\fR \- \fBpmSearchInfo\fR(3)
 .TS
 box;

@@ -17,6 +17,7 @@
 typedef enum pmSearchRestKey {
     RESTKEY_TEXT	= 1,
     RESTKEY_SUGGEST,
+    RESTKEY_INDOM,
     RESTKEY_INFO,
 } pmSearchRestKey;
 
@@ -42,6 +43,8 @@ static pmSearchRestCommand commands[] = {
 	    .name = "text", .namelen = sizeof("text")-1 },
     { .key = RESTKEY_SUGGEST, .options = HTTP_OPTIONS_GET,
 	    .name = "suggest", .namelen = sizeof("suggest")-1 },
+    { .key = RESTKEY_INDOM, .options = HTTP_OPTIONS_GET,
+	    .name = "indom", .namelen = sizeof("indom")-1 },
     { .key = RESTKEY_INFO, .options = HTTP_OPTIONS_GET,
 	    .name = "info", .namelen = sizeof("info")-1 },
     { .name = NULL }	/* sentinel */
@@ -50,6 +53,7 @@ static pmSearchRestCommand commands[] = {
 /* constant string keys (initialized during servlet setup) */
 static sds PARAM_CLIENT, PARAM_QUERY, PARAM_RETURN, PARAM_HIGHLIGHT;
 static sds PARAM_FIELDS, PARAM_LIMIT, PARAM_OFFSET, PARAM_TEXT;
+static sds PARAM_TYPE;
 
 /* constant global strings (read-only) */
 static const char pmsearch_success[] = "{\"success\":true}\r\n";
@@ -145,38 +149,72 @@ on_pmsearch_text_result(pmSearchTextResult *search, void *arg)
     sds			result = http_get_buffer(baton->client);
     sds			oneline, helptext;
 
-    if (baton->results++ == 0) {
-	result = push_client_identifier(baton, result);
-	/* once-off header containing metrics - timing, total hits */
-	baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_OBJECT);
-	pmsprintf(buffer, sizeof(buffer), "%.6f", search->timer);
-	result = sdscatfmt(result, "{\"total\":%u,\"elapsed\":%s,"
-				   "\"offset\":%u,\"limit\":%u,\"results\":",
-				    search->total, buffer,
-				    baton->request.offset, baton->request.count);
-	baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_ARRAY);
-	prefix = "[";
-    } else {
-	prefix = ",";
+    switch(baton->restkey) {
+    case RESTKEY_TEXT:
+    case RESTKEY_INDOM:
+	if (baton->results++ == 0) {
+	    result = push_client_identifier(baton, result);
+	    /* once-off header containing metrics - timing, total hits */
+	    baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_OBJECT);
+	    pmsprintf(buffer, sizeof(buffer), "%.6f", search->timer);
+	    result = sdscatfmt(result, "{\"total\":%u,\"elapsed\":%s", search->total, buffer);
+	    result = sdscatfmt(result, ",\"offset\":%u,\"limit\":%u", baton->request.offset, baton->request.count);
+	    result = sdscat(result, ",\"results\":");
+	    baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_ARRAY);
+	    prefix = "[";
+	} else {
+	    prefix = ",";
+	}
+
+	result = sdscatfmt(result, "%s{", prefix);
+	prefix = "";
+	if (search->name != NULL) {
+	    result = sdscatfmt(result, "%s\"name\":\"%S\"", prefix, search->name);
+	    prefix = ",";
+	}
+	if (search->type != PM_SEARCH_TYPE_UNKNOWN) {
+	    result = sdscatfmt(result, "%s\"type\":\"%s\"", prefix, pmSearchTextTypeStr(search->type));
+	    prefix = ",";
+	}
+	if (search->indom != NULL) {
+	    result = sdscatfmt(result, "%s\"indom\":\"%S\"", prefix, search->indom);
+	    prefix = ",";
+	}
+	if (search->oneline != NULL) {
+	    oneline = search->oneline;
+	    oneline = sdscatrepr(sdsempty(), oneline, sdslen(oneline));
+	    result = sdscatfmt(result, "%s\"oneline\":%S", prefix, oneline);
+	    sdsfree(oneline);
+	    prefix = ",";
+	}
+	if (search->helptext != NULL) {
+	    helptext = search->helptext;
+	    helptext=  sdscatrepr(sdsempty(), helptext, sdslen(helptext));
+	    result = sdscatfmt(result, "%s\"helptext\":%S", prefix, helptext);
+	    sdsfree(helptext);
+	    prefix = ",";
+	}
+	result = sdscat(result, "}");
+	break;
+
+    case RESTKEY_SUGGEST:
+	if (baton->results++ == 0) {
+	    result = push_client_identifier(baton, result);
+	    baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_ARRAY);
+	    result = sdscatfmt(result, "[");
+	    prefix = "";
+	} else {
+	    prefix = ",";
+	}
+	if (search->name != NULL) {
+	    result = sdscatfmt(result, "%s\"%S\"", prefix, search->name);
+	}
+	break;
+
+    case RESTKEY_INFO:
+	break;
     }
-
-    oneline = search->oneline;
-    oneline = sdscatrepr(sdsempty(), oneline, sdslen(oneline));
-    helptext = search->helptext;
-    helptext = sdscatrepr(sdsempty(), helptext, sdslen(helptext));
-
-    pmsprintf(buffer, sizeof(buffer), "%.6f", search->score);
-    result = sdscatfmt(result,
-		    "%s{\"docid\":\"%S\",\"count\":%u,\"score\":%s,"
-		    "\"name\":\"%S\",\"type\":\"%s\"," "\"indom\":\"%S\","
-		    "\"oneline\":%S,\"helptext\":%S}",
-		    prefix, search->docid, baton->results, buffer, search->name,
-		    pmSearchTextTypeStr(search->type), search->indom,
-		    oneline, helptext);
-
-    sdsfree(helptext);
-    sdsfree(oneline);
-
+    
     http_set_buffer(client, result, HTTP_FLAG_JSON);
     http_transfer(client);
 }
@@ -255,21 +293,24 @@ pmsearch_setup_request_parameters(struct client *client,
 	    baton->clientid = sdscatrepr(sdsempty(), value, sdslen(value));
 	}
     }
+    
 
-    /* default to querying most */
+    /* FIELDS: default to querying most */
     baton->request.infields_name = 1;
     baton->request.infields_indom = 0;
     baton->request.infields_oneline = 1;
     baton->request.infields_helptext = 1;
 
-    /* default to returning all */
+    /* RETURN: default to returning all */
     baton->request.return_name = 1;
     baton->request.return_indom = 1;
     baton->request.return_oneline = 1;
     baton->request.return_helptext = 1;
+    baton->request.return_type = 1;
 
     switch (baton->restkey) {
     case RESTKEY_TEXT:
+    case RESTKEY_INDOM:
 	/* expect a search query string */
 	if (parameters == NULL) {
 	    client->u.http.parser.status_code = HTTP_STATUS_BAD_REQUEST;
@@ -285,10 +326,10 @@ pmsearch_setup_request_parameters(struct client *client,
 	baton->request.flags = 0;
 	if ((entry = dictFind(parameters, PARAM_HIGHLIGHT))) {
 	    if ((value = dictGetVal(entry)) == NULL) {	/* all */
-		baton->request.highlight_name = 1;
-		baton->request.highlight_indom = 1;
-		baton->request.highlight_oneline = 1;
-		baton->request.highlight_helptext = 1;
+		baton->request.highlight_name = 0;
+		baton->request.highlight_indom = 0;
+		baton->request.highlight_oneline = 0;
+		baton->request.highlight_helptext = 0;
 	    } else {
 		values = sdssplitlen(value, sdslen(value), ",", 1, &nvalues);
 		for (i = 0; values && i < nvalues; i++) {
@@ -309,6 +350,7 @@ pmsearch_setup_request_parameters(struct client *client,
 	    baton->request.return_indom = 0;
 	    baton->request.return_oneline = 0;
 	    baton->request.return_helptext = 0;
+	    baton->request.return_type = 0;
 	    if ((value = dictGetVal(entry)) != NULL) {	/* no text */
 		values = sdssplitlen(value, sdslen(value), ",", 1, &nvalues);
 		for (i = 0; values && i < nvalues; i++) {
@@ -320,6 +362,8 @@ pmsearch_setup_request_parameters(struct client *client,
 			baton->request.return_oneline = 1;
 		    else if (strcmp(values[i], "helptext") == 0)
 			baton->request.return_helptext = 1;
+		    else if (strcmp(values[i], "type") == 0)
+			baton->request.return_type = 1;
 		}
 		sdsfreesplitres(values, nvalues);
 	    }
@@ -333,13 +377,33 @@ pmsearch_setup_request_parameters(struct client *client,
 		values = sdssplitlen(value, sdslen(value), ",", 1, &nvalues);
 		for (i = 0; values && i < nvalues; i++) {
 		    if (strcmp(values[i], "name") == 0)
-			baton->request.highlight_name = 1;
+			baton->request.infields_name = 1;
 		    else if (strcmp(values[i], "indom") == 0)
-			baton->request.highlight_indom = 1;
+			baton->request.infields_indom = 1;
 		    else if (strcmp(values[i], "oneline") == 0)
-			baton->request.highlight_oneline = 1;
+			baton->request.infields_oneline = 1;
 		    else if (strcmp(values[i], "helptext") == 0)
-			baton->request.highlight_helptext = 1;
+			baton->request.infields_helptext = 1;
+		}
+		sdsfreesplitres(values, nvalues);
+	    }
+	}
+	if ((entry = dictFind(parameters, PARAM_TYPE))) {
+	    baton->request.type_indom = 0;
+	    baton->request.type_inst = 0;
+	    baton->request.type_metric = 0;
+	    baton->request.type_pad = 0;
+	    if ((value = dictGetVal(entry)) != NULL) {
+		values = sdssplitlen(value, sdslen(value), ",", 1, &nvalues);
+		for (i = 0; values && i < nvalues; i++) {
+		    if (strcmp(values[i], "indom") == 0)
+			baton->request.type_indom = 1; 
+		    if (strcmp(values[i], "instance") == 0)
+			baton->request.type_inst = 1; 
+		    if (strcmp(values[i], "metric") == 0)
+			baton->request.type_metric = 1;
+		    if (strcmp(values[i], "pad") == 0)
+			baton->request.type_pad = 1;
 		}
 		sdsfreesplitres(values, nvalues);
 	    }
@@ -448,6 +512,11 @@ pmsearch_request_done(struct client *client)
 	    on_pmsearch_done(sts, baton);
 	break;
 
+    case RESTKEY_INDOM:
+	if ((sts = pmSearchTextIndom(&pmsearch_settings, &baton->request, baton)) < 0)
+	    on_pmsearch_done(sts, baton);
+	break;
+
     case RESTKEY_INFO:
 	if ((sts = pmSearchInfo(&pmsearch_settings, PARAM_TEXT, baton)) < 0)
 	    on_pmsearch_done(sts, baton);
@@ -471,6 +540,7 @@ pmsearch_servlet_setup(struct proxy *proxy)
     PARAM_FIELDS = sdsnew("fields");
     PARAM_RETURN = sdsnew("return");
     PARAM_HIGHLIGHT = sdsnew("highlight");
+    PARAM_TYPE = sdsnew("type");
     PARAM_LIMIT = sdsnew("limit");
     PARAM_OFFSET = sdsnew("offset");
 
@@ -494,6 +564,7 @@ pmsearch_servlet_close(struct proxy *proxy)
     sdsfree(PARAM_FIELDS);
     sdsfree(PARAM_RETURN);
     sdsfree(PARAM_HIGHLIGHT);
+    sdsfree(PARAM_TYPE);
     sdsfree(PARAM_LIMIT);
     sdsfree(PARAM_OFFSET);
 }
