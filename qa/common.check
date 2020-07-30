@@ -251,15 +251,6 @@ _service()
 		    $sudo systemctl reset-failed $1.service 2>>$here/$seq.full
 		fi
 		$sudo systemctl $2 $1.service
-		if [ "$1" = pmie -a "$2" = stop ]
-		then
-		    # need to stop pmie_check.service and the pmie_check.timer
-		    # as well, else "start" may fail due to a pmie/pmie_check
-		    # race
-		    #
-		    $sudo systemctl stop pmie_check.service
-		    $sudo systemctl stop pmie_check.timer
-		fi
 		;;
 	esac
     elif [ -f $PCP_RC_DIR/$1 ]
