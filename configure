@@ -684,8 +684,13 @@ perl_install_base
 perl_installdirs
 pcp_lib32_dir
 pcp_lib_dir
+pcp_selinuxadm_dir
+pcp_pmdasadm_dir
 pcp_pmdas_dir
+pcp_pmnsadm_dir
+pcp_pmns_dir
 pcp_var_dir
+pcp_libadm_dir
 pcp_binadm_dir
 pcp_share_dir
 pcp_pmloggercontrol_path
@@ -878,6 +883,8 @@ PACKAGE_MAJOR
 enable_systemd
 pcp_systemdunit_dir
 SYSTEMD_SYSTEMUNITDIR
+pcp_systemdtmpfiles_dir
+SYSTEMD_TMPFILESDIR
 enable_avahi
 enable_discovery
 lib_for_avahi
@@ -1029,7 +1036,6 @@ enable_ssp
 enable_pie
 enable_visibility
 enable_shared
-with_configdir
 with_perl_installdirs
 with_perl_install_base
 with_python_prefix
@@ -1061,6 +1067,7 @@ YFLAGS
 CPP
 avahi_CFLAGS
 avahi_LIBS
+SYSTEMD_TMPFILESDIR
 SYSTEMD_SYSTEMUNITDIR
 openssl_CFLAGS
 openssl_LIBS
@@ -1750,7 +1757,6 @@ Optional Packages:
   --with-transparent-decompression
                           enable support for transparent decompression of
                           archives (default is on)
-  --with-configdir        configuration directory [LOCALSTATEDIR/pcp/config]
   --with-perl_installdirs perl installdirs [vendor]
   --with-perl_install_base
                           perl install_base [PREFIX]
@@ -1789,6 +1795,8 @@ Some influential environment variables:
   avahi_CFLAGS
               C compiler flags for avahi, overriding pkg-config
   avahi_LIBS  linker flags for avahi, overriding pkg-config
+  SYSTEMD_TMPFILESDIR
+              value of tmpfilesdir for systemd, overriding pkg-config
   SYSTEMD_SYSTEMUNITDIR
               value of systemdsystemunitdir for systemd, overriding pkg-config
   openssl_CFLAGS
@@ -2692,8 +2700,6 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
-
-unset ROOT TOOLROOT
 
 
 # Check whether --with-64bit was given.
@@ -5820,6 +5826,32 @@ $as_echo_n "checking if systemd should be used... " >&6; }
 if test "x$do_systemd" != "xno"; then :
 
     enable_systemd=true
+
+
+if test -n "$SYSTEMD_TMPFILESDIR"; then
+    pkg_cv_SYSTEMD_TMPFILESDIR="$SYSTEMD_TMPFILESDIR"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"systemd\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "systemd") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_SYSTEMD_TMPFILESDIR=`$PKG_CONFIG --variable="tmpfilesdir" "systemd" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+SYSTEMD_TMPFILESDIR=$pkg_cv_SYSTEMD_TMPFILESDIR
+
+if test "x$SYSTEMD_TMPFILESDIR" = x""; then :
+  pcp_systemdtmpfiles_dir=$pcp_lib32_dir/tmpfiles.d
+else
+  pcp_systemdtmpfiles_dir=$SYSTEMD_TMPFILESDIR
+fi
 
 
 if test -n "$SYSTEMD_SYSTEMUNITDIR"; then
@@ -14322,23 +14354,30 @@ pcp_binadm_dir=`eval echo $libexecdir/pcp/bin`
 pcp_binadm_dir=`eval echo $pcp_binadm_dir`
 
 
+pcp_libadm_dir=`eval echo $libexecdir/pcp/lib`
+pcp_libadm_dir=`eval echo $pcp_libadm_dir`
+
+
 pcp_var_dir=`eval echo $localstatedir/lib/pcp`
 pcp_var_dir=`eval echo $pcp_var_dir`
 
 
+pcp_pmns_dir=$pcp_var_dir/pmns
 
-# Check whether --with-configdir was given.
-if test "${with_configdir+set}" = set; then :
-  withval=$with_configdir; pcp_config_dir=$withval
-else
-  pcp_config_dir=$pcp_var_dir/config
-fi
+pcp_pmnsadm_dir=$libexecdir/pcp/pmns
+pcp_pmnsadm_dir=`eval echo $pcp_pmnsadm_dir`
 
 
 pcp_pmdas_dir=$pcp_var_dir/pmdas
 
+pcp_pmdasadm_dir=$libexecdir/pcp/pmdas
+pcp_pmdasadm_dir=`eval echo $pcp_pmdasadm_dir`
+
 
 pcp_selinux_dir=$pcp_var_dir/selinux
+
+pcp_selinuxadm_dir=$libexecdir/pcp/selinux
+pcp_selinuxadm_dir=`eval echo $pcp_selinuxadm_dir`
 
 
 pcp_lib_dir=`eval echo $libdir`
@@ -15238,7 +15277,7 @@ else
 
 if $enable_systemd
 then
-    pcp_rc_dir="$pcp_share_dir/lib"
+    pcp_rc_dir="$pcp_libadm_dir/lib"
 elif test $target_os = freebsd
 then
     pcp_rc_dir="/usr/local/etc/rc.d"

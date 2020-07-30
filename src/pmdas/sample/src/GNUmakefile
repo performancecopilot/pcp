@@ -25,9 +25,10 @@ DOMAIN = SAMPLE
 CMDTARGET = pmda$(IAM)$(EXECSUFFIX)
 LIBTARGET = pmda_$(IAM).$(DSOSUFFIX)
 TARGETS = $(CMDTARGET) $(LIBTARGET)
-
 PMDAINIT = $(IAM)_init
-PMDADIR = $(PCP_PMDAS_DIR)/sample
+
+PMDAADMDIR = $(PCP_PMDASADM_DIR)/sample
+PMDATMPDIR = $(PCP_PMDAS_DIR)/sample
 
 CFILES = pmda.c sample.c percontext.c events.c
 HFILES = percontext.h events.h libpcp.h
@@ -36,7 +37,6 @@ VERSION_SCRIPT = exports
 LDIRT = domain.h libpcp.h sample.log $(TARGETS) $(VERSION_SCRIPT)
 LCFLAGS += $(INVISIBILITY)
 LLDLIBS = $(PCP_PMDALIB) $(LIB_FOR_RT)
-LSRCFILES = GNUmakefile.install
 
 default:	$(TARGETS)
 
@@ -53,10 +53,11 @@ $(VERSION_SCRIPT):
 	$(VERSION_SCRIPT_MAKERULE)
 
 install:	default
-	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 644 domain.h $(CFILES) $(HFILES) $(PMDADIR)
-	$(INSTALL) -m 644 GNUmakefile.install $(PMDADIR)/Makefile
-	$(INSTALL) -m 755 $(TARGETS) $(PMDADIR)
+	$(INSTALL) -m 755 -d $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMDATMPDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h $(CFILES) $(HFILES) $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR)/Makefile GNUmakefile.install $(PMDAADMDIR)/Makefile
+	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(TARGETS) $(PMDAADMDIR)
 
 include $(BUILDRULES)
 

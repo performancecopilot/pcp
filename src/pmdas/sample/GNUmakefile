@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014-2015 Red Hat.  All Rights Reserved.
+# Copyright (c) 2014-2015,2020 Red Hat.  All Rights Reserved.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -17,11 +17,14 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 DFILES	= README help
-LSRCFILES = root pmns $(DFILES) Install Remove Sample.pmchart get_next_pmid
 LDIRT = *.dir *.pag
 
 SUBDIRS = src
-PMDADIR = $(PCP_PMDAS_DIR)/sample
+
+PMDAADMDIR = $(PCP_PMDASADM_DIR)/sample
+PMDATMPDIR = $(PCP_PMDAS_DIR)/sample
+PMCHARTDIR = $(PCP_SYSCONF_DIR)/pmchart
+PMCHARTVARDIR = $(PCP_VAR_DIR)/config/pmchart
 
 default_pcp default :: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
@@ -30,10 +33,11 @@ install_pcp install :: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 
 install_pcp install :: default
-	$(INSTALL) -d $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove $(PMDADIR)
-	$(INSTALL) -m 644 $(DFILES) pmns root $(PMDADIR)
-	$(INSTALL) -m 644 Sample.pmchart $(PCP_VAR_DIR)/config/pmchart/Sample
+	$(INSTALL) -m 755 -d $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMDATMPDIR)
+	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) $(DFILES) pmns root $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMCHARTVARDIR)/Sample Sample.pmchart $(PMCHARTDIR)/Sample
 
 $(OBJECTS): domain.h
 

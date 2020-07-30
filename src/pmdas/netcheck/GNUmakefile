@@ -21,8 +21,13 @@ CONF		= $(IAM).conf
 LDIRT		= domain.h root pmns $(IAM).log
 
 DOMAIN		= NETCHECK
-PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
 SUBDIRS		= modules
+
+PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
+PMDACONFIG	= $(PCP_SYSCONF_DIR)/$(IAM)
+PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
+LOGCONFDIR	= $(PCP_SYSCONF_DIR)/pmlogconf/$(IAM)
+LOGCONFVARDIR	= $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
 
 MAN_SECTION = 1
 MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
@@ -36,13 +41,16 @@ ifeq "$(HAVE_PYTHON)" "true"
 build-me: check_domain
 
 install_pcp install ::	default
-	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove pyprep $(PYSCRIPT) $(PMDADIR)
-	$(INSTALL) -m 644 pmdautil.python $(PMDADIR)/pmdautil.python
-	$(INSTALL) -m 644 $(CONF) $(PMDADIR)/$(CONF)
+	$(INSTALL) -m 755 -d $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMDATMPDIR)
+	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove pyprep $(PYSCRIPT) $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR)/pmdautil.python pmdautil.python $(PMDAADMDIR)/pmdautil.python
+	$(INSTALL) -m 755 -d $(PMDACONFIG)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR)/$(CONF) $(CONF) $(PMDACONFIG)/$(CONF)
 	@$(INSTALL_MAN)
-	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
-	$(INSTALL) -m 644 pmlogconf.summary $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)/summary
+	$(INSTALL) -m 755 -d $(LOGCONFDIR)
+	$(INSTALL) -m 755 -d $(LOGCONFVARDIR)
+	$(INSTALL) -m 644 -t $(LOGCONFVARDIR)/summary pmlogconf.summary $(LOGCONFDIR)/summary
 
 default_pcp default ::	$(SUBDIRS)
 	$(SUBDIRS_MAKERULE)

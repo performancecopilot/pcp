@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2018 Red Hat.
+# Copyright (c) 2017-2018,2020 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -82,16 +82,17 @@ $(IAM).te: $(IAM).te.in
 
 install: default
 	$(INSTALL) -m 755 selinux-setup.sh $(PCP_BINADM_DIR)/selinux-setup
+	$(INSTALL) -m 755 -d $(PCP_SELINUXADM_DIR)
 	$(INSTALL) -m 755 -d $(PCP_SELINUX_DIR)
-	$(INSTALL) -m 644 $(IAM).pp $(PCP_SELINUX_DIR)/$(IAM).pp
-	$(INSTALL) -m 644 $(IAM).te $(PCP_SELINUX_DIR)/$(IAM).te
+	$(INSTALL) -m 644 -t $(PCP_SELINUX_DIR)/$(IAM).pp $(IAM).pp $(PCP_SELINUXADM_DIR)/$(IAM).pp
+	$(INSTALL) -m 644 -t $(PCP_SELINUX_DIR)/$(IAM).te $(IAM).te $(PCP_SELINUXADM_DIR)/$(IAM).te
 ifneq "$(PCP_DOCKER_VAR_LIB)" ""
-	$(INSTALL) -m 644 $(IAM)-docker.pp $(PCP_SELINUX_DIR)/$(IAM)-docker.pp
-	$(INSTALL) -m 644 $(IAM)-docker.te $(PCP_SELINUX_DIR)/$(IAM)-docker.te
+	$(INSTALL) -m 644 -t $(PCP_SELINUX_DIR)/$(IAM)-docker.pp $(IAM)-docker.pp $(PCP_SELINUXADM_DIR)/$(IAM)-docker.pp
+	$(INSTALL) -m 644 -t $(PCP_SELINUX_DIR)/$(IAM)-docker.te $(IAM)-docker.te $(PCP_SELINUXADM_DIR)/$(IAM)-docker.te
 endif
 ifneq "$(PCP_CONTAINER_RUNTIME_T)" ""
-	$(INSTALL) -m 644 $(IAM)-container.pp $(PCP_SELINUX_DIR)/$(IAM)-container.pp
-	$(INSTALL) -m 644 $(IAM)-container.te $(PCP_SELINUX_DIR)/$(IAM)-container.te
+	$(INSTALL) -m 644 -t $(PCP_SELINUX_DIR)/$(IAM)-container.pp $(IAM)-container.pp $(PCP_SELINUXADM_DIR)/$(IAM)-container.pp
+	$(INSTALL) -m 644 -t $(PCP_SELINUX_DIR)/$(IAM)-container.te $(IAM)-container.te $(PCP_SELINUXADM_DIR)/$(IAM)-container.te
 endif
 
 else

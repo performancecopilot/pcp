@@ -356,7 +356,7 @@ _configure_pmlogger()
 	then
 	    # pmlogconf file that we own, see if re-generation is needed
 	    cp "$configfile" "$tmpconfig"
-	    if $PMLOGCONF -r -c -q -h $hostname "$tmpconfig" >$tmp/diag 2>&1
+	    if $PMLOGCONF -r -c -q -h $hostname "$tmpconfig" </dev/null >$tmp/diag 2>&1
 	    then
 		if grep 'No changes' $tmp/diag >/dev/null 2>&1
 		then
@@ -377,6 +377,7 @@ _configure_pmlogger()
 		cat "$tmpconfig"
 		echo "=== end pmlogconf file ==="
 	    fi
+	    rm -f "$tmpconfig"
 	fi
     elif [ ! -e "$configfile" ]
     then
@@ -384,7 +385,7 @@ _configure_pmlogger()
 	if $SHOWME
 	then
 	    echo "+ $PMLOGCONF -c -q -h $hostname $configfile"
-	elif ! $PMLOGCONF -c -q -h $hostname "$configfile" >$tmp/diag 2>&1
+	elif ! $PMLOGCONF -c -q -h $hostname "$configfile" </dev/null >$tmp/diag 2>&1
 	then
 	    _warning "pmlogconf failed to generate \"$configfile\""
 	    cat $tmp/diag

@@ -20,7 +20,8 @@ include localdefs
 
 WORKDIR	:= $(shell pwd)
 GROUP	:= $(shell basename "$(WORKDIR)")
-RULESDIR	= $(PCP_VAR_DIR)/config/pmieconf
+RULESETC	= $(PCP_SYSCONF_DIR)/pmieconf
+RULESVAR	= $(PCP_VAR_DIR)/config/pmieconf
 
 LDIRT	= GNUmakefile
 
@@ -31,9 +32,10 @@ default_pcp: $(LOCAL_RULES)
 install_pcp: install
 
 install: default_pcp
-	$(INSTALL) -d $(RULESDIR)/$(GROUP)
+	$(INSTALL) -d $(RULESETC)/$(GROUP)
+	$(INSTALL) -d $(RULESVAR)/$(GROUP)
 	@for f in $(CONFIGS); do \
-	    $(INSTALL) -m 644 $$f $(RULESDIR)/$(GROUP)/$$f; \
+	    $(INSTALL) -m 644 -t $(RULESVAR)/$(GROUP)/$$f $$f $(RULESETC)/$(GROUP)/$$f; \
 	done
 
 local:

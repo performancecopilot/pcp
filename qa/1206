@@ -83,10 +83,12 @@ _filter_status()
 }
 
 cat <<End-of-File >$tmp.policy
-name:
+[class]
+$seq
+[ident]
 $seq-%h
-control:
-%h n n PCP_ARCHIVE_DIR/$seq-%h -c $tmp.config
+[control]
+%h n n PCP_ARCHIVE_DIR/%i -c $tmp.config
 End-of-File
 
 cat <<End-of-File >$tmp.config

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2019 Red Hat.
+# Copyright (c) 2015-2020 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -21,8 +21,10 @@ PMNSFILES	= pmns.dmcache pmns.dmthin pmns.dmstats pmns.vdo
 CMDTARGET	= pmda$(IAM)
 LIBTARGET	= pmda_$(IAM).$(DSOSUFFIX)
 PMDAINIT	= $(IAM)_init
-PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
-PMIEDIR		= $(PCP_VAR_DIR)/config/pmieconf/$(IAM)
+PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
+PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
+PMIEDIR		= $(PCP_SYSCONF_DIR)/pmieconf/$(IAM)
+PMIEVARDIR	= $(PCP_VAR_DIR)/config/pmieconf/$(IAM)
 
 CFILES		= pmda.c dmthin.c dmcache.c vdo.c
 HFILES		= indom.h dmthin.h dmcache.h dmstats.h vdo.h
@@ -51,12 +53,13 @@ ifeq "$(TARGET_OS)" "linux"
 build-me: $(CMDTARGET) $(LIBTARGET)
 
 install: default
-	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 644 domain.h help $(PMDADIR)
-	$(INSTALL) -m 644 root $(PMNSFILES) $(PMDADIR)
-	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) $(PMDADIR)
-	$(INSTALL) -m 644 dmthin.data_high_util.pmie $(PMIEDIR)/data_high_util
-	$(INSTALL) -m 644 dmthin.metadata_high_util.pmie $(PMIEDIR)/metadata_high_util
+	$(INSTALL) -m 755 -d $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMDATMPDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h help $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) root $(PMNSFILES) $(PMDAADMDIR)
+	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMIEVARDIR)/data_high_util dmthin.data_high_util.pmie $(PMIEDIR)/data_high_util
+	$(INSTALL) -m 644 -t $(PMIEVARDIR)/metadata_high_util dmthin.metadata_high_util.pmie $(PMIEDIR)/metadata_high_util
 	@$(INSTALL_MAN)
 else
 build-me:

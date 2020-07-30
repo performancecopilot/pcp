@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018-2019 Red Hat.
+# Copyright (c) 2018-2020 Red Hat.
 # Copyright (c) 2011 Aconex.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -19,8 +19,11 @@ include $(TOPDIR)/src/include/builddefs
 IAM	= elasticsearch
 DOMAIN	= ELASTICSEARCH
 PYSCRIPT = pmda$(IAM).python
-PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
-LOGCONF	= $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
+
+PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
+PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
+PMLOGCONFDIR	= $(PCP_SYSCONF_DIR)/pmlogconf/$(IAM)
+PMLOGCONFVARDIR	= $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
 
 LDIRT	= domain.h root pmns *.log
 
@@ -35,10 +38,12 @@ include $(BUILDRULES)
 ifeq "$(PMDA_ELASTICSEARCH)" "true"
 build-me:	check_domain
 install_pcp install: default
-	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove Upgrade $(PYSCRIPT) $(PMDADIR)
-	$(INSTALL) -m 755 -d $(LOGCONF)
-	$(INSTALL) -m 644 pmlogconf.summary $(LOGCONF)/summary
+	$(INSTALL) -m 755 -d $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMDATMPDIR)
+	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove Upgrade $(PYSCRIPT) $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMLOGCONFDIR)
+	$(INSTALL) -m 755 -d $(PMLOGCONFVARDIR)
+	$(INSTALL) -m 644 -t $(PMLOGCONFVARDIR)/summary pmlogconf.summary $(PMLOGCONFDIR)/summary
 	@$(INSTALL_MAN)
 else
 build-me:

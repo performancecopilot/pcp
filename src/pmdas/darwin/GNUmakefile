@@ -1,17 +1,17 @@
 #
 # Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
-# Copyright (c) 2015 Red Hat.
-# 
+# Copyright (c) 2015,2020 Red Hat.
+#
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
+#
 
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
@@ -20,8 +20,9 @@ IAM		= darwin
 DOMAIN		= DARWIN
 CMDTARGET	= pmdadarwin
 LIBTARGET	= pmda_darwin.dylib
-PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
-CONF_LINE	= "darwin	78	dso	darwin_init	$(PMDADIR)/$(LIBTARGET)"
+PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
+PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
+CONF_LINE	= "darwin	78	dso	darwin_init	$(PMDATMPDIR)/$(LIBTARGET)"
 
 CFILES		= pmda.c kernel.c disk.c network.c
 HFILES		= disk.h network.h
@@ -46,10 +47,11 @@ build-me: root_darwin $(LIBTARGET) $(CMDTARGET) help.dir help.pag
 	fi
 
 install: build-me
-	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 644 domain.h help.dir help.pag $(PMDADIR)
-	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(PMDADIR)
-	$(INSTALL) -m 644 root_darwin $(PCP_VAR_DIR)/pmns/root_darwin
+	$(INSTALL) -m 755 -d $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMDATMPDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h help.dir help.pag $(PMDAADMDIR)
+	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(LIBTARGET) $(CMDTARGET) $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_darwin root_darwin $(PCP_PMNSADM_DIR)/root_darwin
 else
 build-me:
 install:

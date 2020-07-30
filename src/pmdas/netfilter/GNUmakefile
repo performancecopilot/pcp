@@ -1,23 +1,28 @@
 #
 # Copyright (c) 2009 Aconex.  All Rights Reserved.
-# 
+# Copyright (c) 2020 Red Hat.
+#
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
+#
 
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 IAM	= netfilter
-PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 LDIRT	= domain.h root pmns *.log
+
+PMDAADMDIR = $(PCP_PMDASADM_DIR)/$(IAM)
+PMDATMPDIR = $(PCP_PMDAS_DIR)/$(IAM)
+LOGCONFDIR = $(PCP_SYSCONF_DIR)/pmlogconf/$(IAM)
+LOGCONFVARDIR = $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
 
 MAN_SECTION = 1
 MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
@@ -29,13 +34,15 @@ include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
 install: default
-	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove $(PMDADIR)
-	$(INSTALL) -m 644 pmda$(IAM).pl $(PMDADIR)/pmda$(IAM).pl
+	$(INSTALL) -m 755 -d $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMDATMPDIR)
+	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR)/pmda$(IAM).pl pmda$(IAM).pl $(PMDAADMDIR)/pmda$(IAM).pl
 	@$(INSTALL_MAN)
-	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
-	$(INSTALL) -m 644 pmlogconf.summary $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)/summary
-	$(INSTALL) -m 644 pmlogconf.config $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)/config
+	$(INSTALL) -m 755 -d $(LOGCONFDIR)
+	$(INSTALL) -m 755 -d $(LOGCONFVARDIR)
+	$(INSTALL) -m 644 -t $(LOGCONFVARDIR)/summary pmlogconf.summary $(LOGCONFDIR)/summary
+	$(INSTALL) -m 644 -t $(LOGCONFVARDIR)/config pmlogconf.config $(LOGCONFDIR)/config
 else
 install:
 endif

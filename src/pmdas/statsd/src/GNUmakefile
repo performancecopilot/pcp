@@ -21,7 +21,9 @@ DOMAIN = STATSD
 CMDTARGET = pmda$(IAM)$(EXECSUFFIX)
 LIBTARGET = pmda_$(IAM).$(DSOSUFFIX)
 PMDAINIT = $(IAM)_init
-PMDADIR = $(PCP_PMDAS_DIR)/$(IAM)
+
+PMDAADMDIR = $(PCP_PMDASADM_DIR)/$(IAM)
+PMDATMPDIR = $(PCP_PMDAS_DIR)/$(IAM)
 
 RAGELTARGET = parser-ragel
 RFILES = $(RAGELTARGET).c
@@ -64,10 +66,10 @@ ifeq "$(PMDA_STATSD)" "true"
 build-me: $(RAGELTARGET).o $(CMDTARGET) $(LIBTARGET)
 
 install: default
-	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 644 domain.h $(PMDADIR)/domain.h
-	$(INSTALL) -m 644 root_statsd $(PMDADIR)/root_statsd
-	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(PMDADIR)
+	$(INSTALL) -m 755 -d $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMDATMPDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h root_statsd $(PMDAADMDIR)
+	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(LIBTARGET) $(CMDTARGET) $(PMDAADMDIR)
 
 CFILES += $(RFILES)
 

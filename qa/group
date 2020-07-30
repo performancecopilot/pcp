@@ -1665,6 +1665,8 @@ not_in_container
 1245 libpcp local
 1246:reserved pmlogreduce local
 1247 pmlogrewrite labels pmdumplog local
+1248 pmlogctl local
+1249 pmlogctl local
 1250 selinux local
 1255 libpcp local kernel
 1257 libpcp python local
@@ -1801,6 +1803,7 @@ not_in_container
 1740 pmda.proc local
 1768 pmfind local
 1793 pmrep pcp2xxx python local
+1805 pmda.linux kernel local
 1820 atop local
 1821 pmlogpaste local
 1824 pmproxy local

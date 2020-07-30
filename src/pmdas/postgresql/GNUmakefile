@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018-2019 Red Hat.
+# Copyright (c) 2018-2020 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -19,13 +19,17 @@ IAM		= postgresql
 PYSCRIPT	= pmda$(IAM).python
 CONF		= pmda$(IAM).conf
 LDIRT		= domain.h root pmns $(IAM).log
+DOMAIN		= POSTGRESQL
+
+PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
+PMDACONFIG	= $(PCP_SYSCONF_DIR)/$(IAM)
+PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
+LOGCONFDIR	= $(PCP_SYSCONF_DIR)/pmlogconf/$(IAM)
+LOGCONFVARDIR	= $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
 
 MAN_SECTION	= 1
 MAN_PAGES	= pmda$(IAM).$(MAN_SECTION)
 MAN_DEST	= $(PCP_MAN_DIR)/man$(MAN_SECTION)
-
-DOMAIN		= POSTGRESQL
-PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
 
 default_pcp default: build-me
 
@@ -34,12 +38,15 @@ include $(BUILDRULES)
 ifeq "$(PMDA_POSTGRESQL)" "true"
 build-me: check_domain
 install_pcp install: default
-	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove Upgrade $(PYSCRIPT) $(PMDADIR)
-	$(INSTALL) -m 600 $(CONF) $(PMDADIR)/$(CONF)
+	$(INSTALL) -m 755 -d $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMDATMPDIR)
+	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove Upgrade $(PYSCRIPT) $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMDACONFIG)
+	$(INSTALL) -m 600 -t $(PMDATMPDIR)/$(CONF) $(CONF) $(PMDACONFIG)/$(CONF)
 	@$(INSTALL_MAN)
-	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
-	$(INSTALL) -m 644 pmlogconf.summary $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)/summary
+	$(INSTALL) -m 755 -d $(LOGCONFDIR)
+	$(INSTALL) -m 755 -d $(LOGCONFVARDIR)
+	$(INSTALL) -m 644 -t $(LOGCONFVARDIR)/summary pmlogconf.summary $(LOGCONFDIR)/summary
 else
 build-me:
 install_pcp install:

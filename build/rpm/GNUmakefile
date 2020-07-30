@@ -105,6 +105,7 @@ pcp.spec: pcp.spec.in
 	    -e's|@have_perl@|$(HAVE_PERL)|g' \
 	    -e"s|@build_root@|$${DIST_ROOT}|g" \
 	    -e's|@pcp_pmcdconf_path@|$(PCP_PMCDCONF_PATH)|g' \
+	    -e's|@pcp_systemdtmpfiles_dir@|$(PCP_SYSTEMDTMPFILES_DIR)|g' \
 	    -e's|@pcp_sysconfig_dir@|$(PCP_SYSCONFIG_DIR)|g' \
 	    -e's|@pcp_sysconf_dir@|$(PCP_SYSCONF_DIR)|g' \
 	    -e's|@pcp_share_dir@|$(PCP_SHARE_DIR)|g' \

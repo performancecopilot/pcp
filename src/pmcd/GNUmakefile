@@ -33,9 +33,7 @@ install : $(SUBDIRS)
 ifeq ($(ENABLE_SYSTEMD),true)
 	$(INSTALL) -m 644 pmcd.service $(PCP_SYSTEMDUNIT_DIR)/pmcd.service
 endif
-	$(INSTALL) -m 644 pmdaproc.sh $(PCP_SHARE_DIR)/lib/pmdaproc.sh
-	$(INSTALL) -m 644 rc-proc.sh $(PCP_SHARE_DIR)/lib/rc-proc.sh
-	$(INSTALL) -m 644 rc-proc.sh.minimal $(PCP_SHARE_DIR)/lib/rc-proc.sh.minimal
+	$(INSTALL) -m 644 -t $(PCP_SHARE_DIR)/lib pmdaproc.sh rc-proc.sh rc-proc.sh.minimal $(PCP_LIBADM_DIR)
 	$(INSTALL) -o $(PCP_USER) -g $(PCP_GROUP) -m 775 -d $(PCP_LOG_DIR)/pmcd
 	$(INSTALL) -m 700 -d $(PCP_TMP_DIR)/pmcd
 ifneq ($(PACKAGE_DISTRIBUTION),debian)
