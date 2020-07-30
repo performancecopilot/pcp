@@ -43,7 +43,7 @@ pmcd RESTARTED at DATE
 
 Current PMCD clients ...
      fd  client connection from                    ipc ver  operations denied
-...
++++
 
 
 active agent dom   pid  in out ver protocol parameters
