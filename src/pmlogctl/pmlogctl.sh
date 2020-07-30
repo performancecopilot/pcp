@@ -1252,7 +1252,7 @@ End-of-File
 	    _get_policy_section "$POLICY" ident >$tmp/tmp
 	    if [ -s $tmp/tmp ]
 	    then
-		ident=`sed -e "s/%h/$host/g" <$tmp/tmp`
+		ident=`sed -e "s;%h;$host;g" <$tmp/tmp`
 	    else
 		ident="$host"
 	    fi
@@ -1301,7 +1301,7 @@ _do_create()
 		check=`wc -w <$tmp/tmp | sed -e 's/ //g'`
 		[ "$check" -ne 1 ] &&
 		    _error "[ident] section is invalid in $POLICY policy file (expect a single word, not $check words)"
-		ident=`sed -e "s/%h/$host/g" <$tmp/tmp`
+		ident=`sed -e "s;%h;$host;g" <$tmp/tmp`
 	    else
 		ident="$host"
 	    fi
@@ -1338,7 +1338,7 @@ End-of-File
 	    echo '#DO NOT REMOVE OR EDIT THE FOLLOWING LINE' >>$tmp/control
 	    echo '$version=1.1' >>$tmp/control
 	fi
-	sed -e "s/%h/$host/g" -e "s/%i/$ident/g" <$tmp/tmp >>$tmp/control
+	sed -e "s;%h;$host;g" -e "s;%i;$ident;g" <$tmp/tmp >>$tmp/control
 	primary=`$PCP_AWK_PROG <$tmp/control '
 $1 == "'"$host"'"	{ print $2 }'`
 	if [ -z "$primary" ]
