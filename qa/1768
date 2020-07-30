@@ -30,6 +30,8 @@ _filter()
 	-e '/^# created by pmiectl/s/ on .*/ on DATE/' \
 	-e "s;$PCP_TMPFILE_DIR/pmlogctl\.[^/]*;PCP_TMPFILE_DIR/pmlogctl.XXXXX;g" \
 	-e "s;$PCP_TMPFILE_DIR/pmiectl\.[^/]*;PCP_TMPFILE_DIR/pmiectl.XXXXX;g" \
+	-e "s;$PCP_BINADM_DIR/;PCP_BINADM_DIR/;g" \
+	-e "s;$PCP_ETC_DIR/;PCP_ETC_DIR/;g" \
     #end
 }
 
