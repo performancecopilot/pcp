@@ -4121,6 +4121,72 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_NET_NETSTAT,118), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
+/* network.mptcp.mpcapablesynrx */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPCAPABLESYNRX],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,119), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.mpcapableackrx */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPCAPABLEACKRX],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,120), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.mpcapablefallbackack */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPCAPABLEFALLBACKACK],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,121), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.mpcapablefallbacksynack */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPCAPABLEFALLBACKSYNACK],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,122), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.mptcpretrans */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPTCPRETRANS],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,123), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.mpjoinnotokenfound */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPJOINNOTOKENFOUND],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,124), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.mpjoinsynrx */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPJOINSYNRX],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,125), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.mpjoinsynackrx */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPJOINSYNACKRX],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,126), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.mpjoinsynackhmacfailure */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPJOINSYNACKHMACFAILURE],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,127), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.mpjoinackrx */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPJOINACKRX],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,128), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.mpjoinackhmacfailure */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPJOINACKHMACFAILURE],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,129), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.dssnotmatching */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_DSSNOTMATCHING],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,130), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.infinitemaprx */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_INFINITEMAPRX],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,131), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+
 /* hinv.map.scsi */
     { NULL, 
       { PMDA_PMID(CLUSTER_SCSI,0), PM_TYPE_STRING, SCSI_INDOM, PM_SEM_DISCRETE, 

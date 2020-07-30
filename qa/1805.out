@@ -1,0 +1,41 @@
+QA output created by 1805
+== Checking network.mptcp metrics
+
+network.mptcp.mpcapablesynrx
+    value 2
+
+network.mptcp.mpcapableackrx
+    value 4
+
+network.mptcp.mpcapablefallbackack
+    value 0
+
+network.mptcp.mpcapablefallbacksynack
+    value 6
+
+network.mptcp.mptcpretrans
+    value 8
+
+network.mptcp.mpjoinnotokenfound
+    value 0
+
+network.mptcp.mpjoinsynrx
+    value 4096
+
+network.mptcp.mpjoinsynackrx
+    value 6570
+
+network.mptcp.mpjoinsynackhmacfailure
+    value 0
+
+network.mptcp.mpjoinackrx
+    value 450
+
+network.mptcp.mpjoinackhmacfailure
+    value 0
+
+network.mptcp.dssnotmatching
+    value 3
+
+network.mptcp.infinitemaprx
+    value 1

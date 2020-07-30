@@ -1801,6 +1801,7 @@ not_in_container
 1740 pmda.proc local
 1768 pmfind local
 1793 pmrep pcp2xxx python local
+1805 pmda.linux kernel local
 1820 atop local
 1821 pmlogpaste local
 1824 pmproxy local

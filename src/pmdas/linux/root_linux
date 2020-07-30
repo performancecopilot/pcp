@@ -771,6 +771,7 @@ network {
     udplite6
     rawconn6
     tcpconn6
+    mptcp
 }
 
 network.interface {
@@ -1069,6 +1070,22 @@ network.tcp {
     wantzerowindowadv	60:53:116
     synretrans		60:53:117
     origdatasent	60:53:118
+}
+
+network.mptcp {
+    mpcapablesynrx	60:53:119
+    mpcapableackrx	60:53:120
+    mpcapablefallbackack 60:53:121
+    mpcapablefallbacksynack 60:53:122
+    mptcpretrans	60:53:123
+    mpjoinnotokenfound	60:53:124
+    mpjoinsynrx		60:53:125
+    mpjoinsynackrx	60:53:126
+    mpjoinsynackhmacfailure 60:53:127
+    mpjoinackrx		60:53:128
+    mpjoinackhmacfailure 60:53:129
+    dssnotmatching	60:53:130
+    infinitemaprx	60:53:131
 }
 
 network.udp {
