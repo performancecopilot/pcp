@@ -26,9 +26,10 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 _filter()
 {
     sed \
-	-e "s,$PCP_SYSCONF_DIR,PCP_SYSCONF_DIR,g" \
-	-e "s,$tmp\.pmfind,PMFIND,g" \
-	-e "/^+ cp /s, $PCP_TMPFILE_DIR/pmfind_check.[^/]*/, TMPDIR/," \
+	-e '/^# created by pmlogctl/s/ on .*/ on DATE/' \
+	-e '/^# created by pmiectl/s/ on .*/ on DATE/' \
+	-e "s;$PCP_TMPFILE_DIR/pmlogctl\.[^/]*;PCP_TMPFILE_DIR/pmlogctl.XXXXX;g" \
+	-e "s;$PCP_TMPFILE_DIR/pmiectl\.[^/]*;PCP_TMPFILE_DIR/pmiectl.XXXXX;g" \
     #end
 }
 
