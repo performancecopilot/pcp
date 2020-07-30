@@ -1491,6 +1491,15 @@ static pmdaMetric metrictab[] = {
     /* acct.control.file_size_threshold */
     { NULL, { PMDA_PMID(CLUSTER_ACCT,CONTROL_FILE_SIZE_THRESHOLD),
       PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+    /* acct.control.lifetime */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,CONTROL_ACCT_LIFETIME),
+      PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0) }, },
+    /* acct.control.refresh */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,CONTROL_ACCT_TIMER_INTERVAL),
+      PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0) }, },
+    /* acct.control.enabled */
+    { NULL, { PMDA_PMID(CLUSTER_ACCT,CONTROL_ACCT_ENABLE),
+      PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 };
 
 pmInDom
@@ -3603,6 +3612,13 @@ proc_store(pmResult *result, pmdaExt *pmda)
 		sts = PM_ERR_PERMISSION;
 		break;
 	    }
+	    break;
+
+	case CLUSTER_ACCT:
+	    if (!isroot)
+		sts = PM_ERR_PERMISSION;
+	    else
+		sts = acct_store(result, pmda, vsp);
 	    break;
 
 	default:
