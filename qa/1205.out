@@ -1,5 +1,5 @@
 QA output created by 1205
-== -n -v -p -c create
+== -N -V -p -c create
 Adding $version=1.1 to control file
 --- start control file ---
 # created by pmlogctl on DATE

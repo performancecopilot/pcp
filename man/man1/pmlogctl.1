@@ -21,8 +21,9 @@
 \f3pmlogctl\f1 \- manage and control Performance Co-Pilot archive loggers
 .SH SYNOPSIS
 \f3pmlogctl\f1
-[\f3\-afnv?\f1]
+[\f3\-afNV?\f1]
 [\f3\-c\f1 \f2classname\f1]
+[\f3\-i\f1 \f2ident\f1]
 [\f3\-p\f1 \f2policyfile\f1]
 \f2command\f1
 [\f2host ...\f1]
@@ -130,6 +131,8 @@ arguments are usually valid host names.
 For all commands
 .I except
 .B create
+and
+.B cond-create
 (described below)
 the
 .I host
@@ -148,7 +151,7 @@ or
 (matches all host names ending with ``foo'')
 or
 .B .*[fF][oO][oO].*
-(matches all host names containing ``foo'' in uppper, lower or mixed case).
+(matches all host names containing ``foo'' in upper, lower or mixed case).
 .PP
 The combination of a
 .I classname
@@ -169,7 +172,7 @@ instances to which the
 operation should be applied.
 .PP
 The
-.BR \-n
+.BR \-N
 option runs
 .B pmlogctl
 in ``show me'' mode where the intent of the
@@ -177,10 +180,26 @@ in ``show me'' mode where the intent of the
 is shown, but no changes are made.
 .PP
 The
-.B \-v
+.B \-i
+option may be used with the
+.B create
+or
+.B cond-create
+commands to over-ride the instance identity that is specified
+in the ident section of the class policy file
+(see the CLASS POLICY FILE section below).
+Since the identifier must
+be unique across all instances and all
+classes, it only makes sense to use this option when there
+is a single
+.I host
+argument.
+.PP
+The
+.B \-V
 option generally increases the verbosity of the output.
 A second
-.B \-v
+.B \-V
 makes
 .B pmlogctl
 very chatty.
@@ -191,7 +210,7 @@ is undertaking it usually must be run a ``root'', the exceptions
 being the
 .B status
 command or when the
-.B \-n
+.B \-N
 option is specified.
 .SH COMMANDS
 .I command
@@ -211,7 +230,14 @@ each new control file with
 .B %h
 replaced by
 .I host
-in each.
+and
+.B %i
+replaced by the instance's (unique) identifier from the ident section of the
+class policy file or
+.I ident
+from the
+.B \-i
+option.
 .RS 4n
 .PP
 The
@@ -226,6 +252,40 @@ At least one
 must be specified for the
 .B create
 command.
+.RE
+.TP 4
+\f3cond-create\f1
+Similar to
+.B create
+but the instance will only be created if one of the conditions in the
+create section of associated class policy file(s) evaluates to true.
+.RS 4n
+.PP
+If a
+.B \-c
+option is specified, then only the class
+.I classname
+will be considered, otherwise
+.B all
+classes will be considered.
+In the latter case, if none of the conditions in any of the classes evaluates
+to true, the the special
+.B pmfind
+class is used (this is the ``default'' class for the
+.B cond-create
+command when all else fails).
+.PP
+If more than one class evalutes to true then a composite
+.BR pmlogger (1)
+configuration
+file is created and the instance is also assigned to the special
+.B pmfind
+class.
+The composite configuration file may contain a mix of explicit configuration
+clauses and the more general conditional configuration clauses as understood
+by the
+.BR pmlogconf (1)
+tool.
 .RE
 .TP 4
 \f3start\f1
@@ -327,26 +387,29 @@ The class policy checking can be by-passed using the
 .SH "CLASS POLICY FILE"
 A class policy file contains a number of sections, each section
 begins with a line that simply starts with
-the name of the section followed by a colon (:).
+the name of the section followed enclosed by ``['' and ``]''.
 .PP
 Lines beginning with a hash (#) are treated as comments and ignored.
 Blank or empty lines are also ignored.
 .PP
-By convention, the last component of the name of the policy file is
-also the name of the associated class, but this can be over-ridden using
-the
-.B \-p
-option as described above.
 The typical location of the policy file for the class
 .I foo
 is
 .B $PCP_ETC_DIR/pcp/pmlogger/class.d/\c
 .IR foo .
 .TP 4n
-.B name:
-The name section specifies the instance name to be given to each member
+.B [class]
+The optional class name section names the class.
+If it is missing, the name of the policy file (stripped of any directory
+prefix) is used as the name of the class.
+.TP 4n
+.B [ident]
+The ident section specifies the template to be used for
+the instance identifier to be given to each member
 of the class.
-This name needs to be unique across all instances, so would normally
+This identifier needs to be unique across all instances and all
+classes, and it needs
+to be a valid file name in the local filesystem, so would normally
 contain the class name and the macro
 .BR %h ,
 e.g. \c
@@ -355,7 +418,7 @@ The macro is replaced by the
 .I host
 when each instance is created.
 .TP 4n
-.B control:
+.B [control]
 The control section consists of one or more lines of template text
 that will be used to create the control file for each instance.
 This must at least include the
@@ -382,12 +445,10 @@ specified using the
 .BR pmlogger_check (1)
 macro
 .B PCP_ARCHIVE_DIR
-as the start of the path, followed by the instance's unique directory
-(typically combining the
-.I host
-and the class name)
+as the start of the path, followed by the instance identifier, usually the macro
+.BR %i ,
 e.g. \c
-.B PCP_ARCHIVE_DIR/foo-%h
+.B PCP_ARCHIVE_DIR/%i
 .IP 5. 4n
 additional parameters to
 .BR pmlogger (1)
@@ -395,7 +456,16 @@ which probably include at least a
 .B \-c
 option to provide a configuration file that describes which
 metrics should be logged
-for instances of this class
+for instances of this class, which may be the same for all
+instances in this class, or it may include the
+.B %i
+macro to use a different configuration file for each instance.
+Note that if this configuration file does not exist, it will be
+created using
+.BR pmlogconf (1)
+the first time
+.BR pmlogger_check (1)
+is run.
 .PD
 .PP
 .I Before
@@ -414,21 +484,57 @@ will also add the class name during creation. e.g.
 .B $class=foo
 .RE
 .TP 4n
-.B create:
-The create section defines the policy to be applied when an
-instance is created.
-.RS 4n
-.PP
+.B [create]
+The create section defines the conditions that must be met before an
+instance will be created with the
+.B cond-create
+command.
 The intent is to allow different decisions to be made when a new host
 running
 .BR pmcd (1)
 is discovered, e.g. by
 .BR pmfind (1).
-But in the current version this is not implemented and the create
-section syntax and semantics is not yet defined.
+.RS 4n
+.PP
+Each non-blank line in the create section is a condition
+of the form \fIfunction\fR(\fIarg\fR), where
+.I function
+is one of the following:
+.TP 4n
+.I exists
+.I arg
+is the name of a performance metric and
+.I exits
+evaluates to true if that metric exists in the Performance Metrics
+Name Space (PMNS) on the remote host
+.TP 4n
+.I values
+.I arg
+is the name of a performance metric in the remote PMNS and
+.I values
+evaluates to true if some instance of that metric has a value
+on the remote host
+.TP 4n
+.I condition
+.I arg
+is a derived metric expression in the format supported by
+.BR pmRegisterDerived (3),
+and
+.I condition
+evaluates to true if the value of that expression on the remote
+host is greater than zero
+.TP 4n
+.I hostname
+.I arg
+is a regular expression in the style of
+.BR egrep (1)
+and
+.I hostname
+evaluates to true if the remote host name matches
+.I arg
 .RE
 .TP 4n
-.B destroy:
+.B [destroy]
 The destroy section defines the policy to be applied when an
 instance is destroyed.
 .RS 4n
@@ -448,14 +554,20 @@ A sample class policy file is as follows:
 .ft CW
 .nf
 # policy file for the foo class
-name:
+[class]
+foo
+[ident]
 foo-%h
 
-control:
+[control]
 $version=1.1
-%h n n PCP_ARCHIVE_DIR/foo-%h -r -c foo-metrics.config
+%h n n PCP_ARCHIVE_DIR/%i -c foo-metrics.config
 
-destroy:
+[create]
+# matches all hosts
+hostname(.*)
+
+[destroy]
 # still to be defined
 .fi
 .ft
@@ -475,9 +587,12 @@ configuration file, as described in \fBpcp.conf\fP(5).
 .BR PCPIntro (1),
 .BR pmcd (1),
 .BR pmlc (1),
+.BR pmlogconf (1),
 .BR pmlogger (1),
 .BR pmlogger_check (1),
 .BR pmlogger_daily (1),
-.BR systemd (1)
+.BR systemd (1),
+.BR PMAPI (3),
+.BR pmDerivedRegister (3)
 and
 .BR pcp.conf (5).

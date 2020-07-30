@@ -1,5 +1,17 @@
 QA output created by 1210
+--- start control file ---
+# created by pmlogctl on DATE
+$class=1210
+$version=1.1
+localhost n n PCP_ARCHIVE_DIR/1210-localhost -c TMP.config
+--- end control file ---
 Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/1210-localhost
+--- start control file ---
+# created by pmlogctl on DATE
+$class=1210
+$version=1.1
+LOCALHOSTNAME n n PCP_ARCHIVE_DIR/1210-LOCALHOSTNAME -c TMP.config
+--- end control file ---
 Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/1210-LOCALHOSTNAME
 === bogus class
 Warning: no host defined in class bogus for any pmlogger control file
