@@ -295,9 +295,11 @@ usr/share/man/man3/pmregisterderived.3.gz
 usr/share/man/man3/pmRegisterDerived.3.gz
 usr/share/man/man3/pmRegisterDerivedMetric.3.gz
 usr/share/man/man3/__pmResetIPC.3.gz
+usr/share/man/man3/pmsearchindom.3.gz
 usr/share/man/man3/pmsearchinfo.3.gz
 usr/share/man/man3/pmsearchtextquery.3.gz
 usr/share/man/man3/pmsearchtextsuggest.3.gz
+usr/share/man/man3/pmSearchInDom.3.gz
 usr/share/man/man3/pmSearchInfo.3.gz
 usr/share/man/man3/pmSearchTextQuery.3.gz
 usr/share/man/man3/pmSearchTextSuggest.3.gz
