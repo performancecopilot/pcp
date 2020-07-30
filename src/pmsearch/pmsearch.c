@@ -289,7 +289,7 @@ on_search_setup(void *arg)
      else if ((dp->flags & PMSEARCH_OPT_SUGGEST))
 	sts = pmSearchTextSuggest(&dp->settings, &dp->request, arg);
      else if ((dp->flags & PMSEARCH_OPT_INDOM))
-	sts = pmSearchTextIndom(&dp->settings, &dp->request, arg);
+	sts = pmSearchTextInDom(&dp->settings, &dp->request, arg);
      else	/* flags & PMSEARCH_OPT_QUERY */
 	sts = pmSearchTextQuery(&dp->settings, &dp->request, arg);
 

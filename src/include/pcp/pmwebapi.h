@@ -469,7 +469,7 @@ extern int pmSearchInfo(pmSearchSettings *, sds, void *);
 extern const char *pmSearchTextTypeStr(pmSearchTextType);
 extern int pmSearchTextQuery(pmSearchSettings *, pmSearchTextRequest *, void *);
 extern int pmSearchTextSuggest(pmSearchSettings *, pmSearchTextRequest *, void *);
-extern int pmSearchTextIndom(pmSearchSettings *, pmSearchTextRequest *, void *);
+extern int pmSearchTextInDom(pmSearchSettings *, pmSearchTextRequest *, void *);
 
 #ifdef __cplusplus
 }

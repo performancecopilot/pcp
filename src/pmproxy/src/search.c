@@ -211,7 +211,9 @@ on_pmsearch_text_result(pmSearchTextResult *search, void *arg)
 	}
 	break;
 
-    case RESTKEY_INFO:
+    default:
+	/*NOTREACHED*/
+	assert(0);
 	break;
     }
     
@@ -293,7 +295,6 @@ pmsearch_setup_request_parameters(struct client *client,
 	    baton->clientid = sdscatrepr(sdsempty(), value, sdslen(value));
 	}
     }
-    
 
     /* FIELDS: default to querying most */
     baton->request.infields_name = 1;
@@ -513,7 +514,7 @@ pmsearch_request_done(struct client *client)
 	break;
 
     case RESTKEY_INDOM:
-	if ((sts = pmSearchTextIndom(&pmsearch_settings, &baton->request, baton)) < 0)
+	if ((sts = pmSearchTextInDom(&pmsearch_settings, &baton->request, baton)) < 0)
 	    on_pmsearch_done(sts, baton);
 	break;
 

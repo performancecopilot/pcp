@@ -20,8 +20,7 @@
 #include "sha1.h"
 
 static sds		resultcount_str;
-// above gets converted only once this way
-static unsigned int	resultcount;
+static unsigned int	resultcount;	/* converted resultcount_str */
 
 static void
 initRedisSearchBaton(redisSearchBaton *baton, redisSlots *slots,
@@ -73,18 +72,20 @@ redis_search_docid(const char *key, const char *type, const char *name)
 }
 
 
-/**
+/*
  * This issue isn't fixed in OSS version of RediSearch we are using, 
  * https://github.com/RediSearch/RediSearch/issues/748
  */
 static int
-redis_search_is_stopword(sds s) {
+redis_search_is_stopword(sds s)
+{
     size_t			i;
     static const char* const 	stopwords[] = {
 	"a", "is", "the", "an", "and", "are", "as", "at", "be", "but", "by", "for",
  	"if", "in", "into", "it", "no", "not", "of", "on", "or", "such", "that", "their",
  	"then", "there", "these", "they", "this", "to", "was", "will", "with",
     };
+
     for (i = 0; i < sizeof(stopwords) / sizeof(stopwords[0]); i++) {
 	if (strcmp(s, stopwords[i]) == 0)
 	    return 1;
@@ -92,7 +93,7 @@ redis_search_is_stopword(sds s) {
     return 0;
 }
 
-/**
+/*
  * Tokenizes text by delimiters described here https://oss.redislabs.com/redisearch/Escaping.html +
  * ('/' - this one giving troubles to prefix search),
  * omits tokens of length greated then *min_length* (0 = don't omit any), optionally prepends *prefix*
@@ -101,7 +102,8 @@ redis_search_is_stopword(sds s) {
  * unfortunately, this doesnt seem to work when searching for indoms and buch of other inconsitencies
  */
 static sds
-redis_search_text_prep(sds s, int min_length, char *prefix, char* suffix) {
+redis_search_text_prep(sds s, int min_length, char *prefix, char *suffix)
+{
     static const char	*delimiters = ",.<>{}[]\"\':;!@#$%^&*()-+=~/"; 
     size_t		len = sdslen(s);
     size_t		i, j;
@@ -109,6 +111,7 @@ redis_search_text_prep(sds s, int min_length, char *prefix, char* suffix) {
     sds			formatted_result;
     sds*		tokens;
     int			token_count, non_digit_found;
+
     for (i = 0; i < len; i++) {
 	char *is_found = strchr(delimiters, s[i]);
 	if (is_found != NULL) {
@@ -771,7 +774,7 @@ redis_search_text_suggest(redisSlots *slots, pmSearchTextRequest *request, void 
 
     seriesBatonReference(baton, "redis_search_suggest_query");
 
-    // by default we cannot use prefix search with words of length less than 2
+    /* by default we cannot use prefix search with words of length less than 2 */
     prefix_query = redis_search_text_prep(request->query, 2, NULL, "*");
     fuzzy_query = redis_search_text_prep(request->query, 2, "%", "%");
     prefix_length = sdslen(prefix_query);
@@ -917,7 +920,7 @@ redis_search_text_indom(redisSlots *slots, pmSearchTextRequest *request, void *a
 }
 
 int
-pmSearchTextIndom(pmSearchSettings *settings, pmSearchTextRequest *request, void *arg)
+pmSearchTextInDom(pmSearchSettings *settings, pmSearchTextRequest *request, void *arg)
 {
     seriesModuleData	*data = getSeriesModuleData(&settings->module);
     redisSearchBaton	*baton;
