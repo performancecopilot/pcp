@@ -23,11 +23,7 @@
 
 PMFIND=${PMFIND:-"$PCP_BIN_DIR/pmfind"}
 
-PMIE_ARGS=''
-PMFIND_ARGS=${PMFIND_ARGS:-'-s pmcd -r -S'}
-PMLOGGER_ARGS='-r -T24h10m -v 100Mb'
-PMIE_SERVICE_ARGS=${PMIE_SERVICE_PARAMS:-$PMIE_ARGS}
-PMLOGGER_SERVICE_ARGS=${PMLOGGER_SERVICE_PARAMS:-$PMLOGGER_ARGS}
+PMFIND_ARGS=${PMFIND_ARGS:-'-s pmcd -r -S -q'}
 CTL_ARGS=''
 
 # error messages should go to stderr, not the GUI notifiers
