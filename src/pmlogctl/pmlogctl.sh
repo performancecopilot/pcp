@@ -499,11 +499,13 @@ _get_pid()
     if [ ${IAM} = pmlogger ]
     then
 	_egrep -rl "^$1/[^/]*$" $PCP_TMP_DIR/${IAM} \
-	| sed -e 's;.*/;;'
+	| sed -e 's;.*/;;' \
+	| grep -f $tmp/pids
     else
 	$PCP_BINADM_DIR/pmie_dump_stats $PCP_TMP_DIR/${IAM}/* 2>&1 \
 	| grep ":logfile=$1" \
-	| sed -e 's/:.*//'
+	| sed -e 's/:.*//' \
+	| grep -f $tmp/pids
     fi
 }
 
@@ -576,12 +578,14 @@ _check_started()
 {
     $SHOWME && return 0
     dir="$1"
-    max=30		# 1/10 of a second, so 3 secs max
+    max=100		# 1/10 of a second, so 10 secs max
     i=0
     $VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "Started? ""$PCP_ECHO_C"
     while [ $i -lt $max ]
     do
 	$VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N ".""$PCP_ECHO_C"
+	# rebuild active pids list, then check for our $dir
+	_get_pids_by_name ${IAM} | sed -e 's/.*/^&$/' >$tmp/pids
 	pid=`_get_pid "$dir"`
 	[ -n "$pid" ] && break
 	i=`expr $i + 1`
@@ -614,6 +618,8 @@ _check_stopped()
     while [ $i -lt $max ]
     do
 	$VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N ".""$PCP_ECHO_C"
+	# rebuild active pids list, then check for our $dir
+	_get_pids_by_name ${IAM} | sed -e 's/.*/^&$/' >$tmp/pids
 	pid=`_get_pid "$dir"`
 	[ -z "$pid" ] && break
 	i=`expr $i + 1`
@@ -684,6 +690,12 @@ _do_status()
 	find $PCP_TMP_DIR/${IAM} -type f -a ! -name primary \
 	| while read f
 	do
+	    # skip entries if the process is no longer running
+	    #
+	    _pid=`echo "$f" \
+	          | sed -e "s;^$PCP_TMP_DIR/${IAM}/;;" \
+		  | grep -f $tmp/pids`
+	    [ -z "$_pid" ] && continue
 	    sed -n -e 3p $f \
 	    | _expand_control
 	done >>$tmp/archive
@@ -763,11 +775,13 @@ found == 0 && $3 == "'"$host"'" && $6 == "'"$dir"'"	{ print NR >>"'$tmp/match'";
 		check=`echo "$archive" | wc -l | sed -e 's/ //g'`
 		if [ "$check" -gt 1 ]
 		then
-		    cat $tmp/archive
+		    cat >&2 $tmp/archive
+		    ls >&2 -l $PCP_TMP_DIR/${IAM}
 		    _error "Botch: more than one archive matches directory $dir"
 		fi
 		pid=`_egrep -rl "^$dir/[^/]*$" $PCP_TMP_DIR/${IAM} \
-		     | sed -e 's;.*/;;'`
+		     | sed -e 's;.*/;;' \
+		     | grep -f $tmp/pids`
 		[ -z "$archive" ] && archive='?'
 		[ -z "$pid" ] && pid='?'
 	    else
@@ -1737,6 +1751,11 @@ fi
 FIND_ALL_HOSTS=false
 FROM_COND_CREATE=false
 
+# don't get confused by processes that exited, but did not cleanup ...
+# build a list of runing ${IAM} processes
+#
+_get_pids_by_name ${IAM} | sed -e 's/.*/^&$/' >$tmp/pids
+
 case "$ACTION"
 in
     create|cond-create|start|stop|restart|destroy)
@@ -1751,6 +1770,7 @@ in
 		$EXPLICIT_CLASS || _error "\"$ACTION\" command requres hostname(s) and/or a --class"
 		FIND_ALL_HOSTS=true
 	    fi
+
 	    _lock
 	    if [ "$ACTION" != create -a "$ACTION" != cond-create ]
 	    then

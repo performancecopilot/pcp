@@ -5,6 +5,7 @@ ConditionPathExists=!@CRONTAB_PATH@
 
 [Service]
 Type=oneshot
+KillMode=none
 TimeoutStartSec=1h
 Environment="PMLOGGER_DAILY_PARAMS=-E"
 EnvironmentFile=-@PCP_SYSCONFIG_DIR@/pmlogger_timers
