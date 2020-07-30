@@ -115,7 +115,12 @@ _filter()
 	-e '/^Job for pmie.service failed because /d' \
 	-e '/^Job for pmie.service failed\. /d' \
 	-e '/^See "systemctl  *status pmie.service" and/d' \
-    # end
+	-e '/^Start: /s/ .*/ DATE/' \
+	-e '/^End: /s/ .*/ DATE/' \
+    | $PCP_AWK_PROG '
+/^Called from:/		{ skip = 1 }
+skip == 0		{ print }
+/end of pstree output/	{ skip = 0 }'
 }
 
 _count_pmies()
