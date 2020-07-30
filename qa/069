@@ -78,7 +78,7 @@ d
 	-e 's/ $//' \
     | $PCP_AWK_PROG '
 BEGIN				{ skip = 0 }
-/client connection from/	{ print; print "..."; skip=1; next }
+/client connection from/	{ print; print "+++"; skip=1; next }
 skip == 1 && NF == 0		{ skip = 0 }
 skip == 1			{ next }
 				{ print }' \
