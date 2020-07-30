@@ -154,6 +154,10 @@ _debug()
 
 $CONTAINERS && PMFIND_ARGS="$PMFIND_ARGS -C"
 $PMFIND $PMFIND_ARGS > "$tmp/out" 2> "$tmp/err"
+# exit status from pmfind(1) is not a good indicator of success,
+# no output => nothing to do, status == 0 => work to be done
+#
+[ -s "$tmp/out" ] || exit
 [ $? -eq 0 ] && rm -f "$tmp/err"
 
 pmiectl -V status >$tmp/pmie.status
