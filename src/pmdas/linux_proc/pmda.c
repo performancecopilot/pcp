@@ -3451,9 +3451,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	break;
 
     case CLUSTER_ACCT:
-	if (!acct_fetchCallBack(inst, item, &proc_acct, atom))
-	    return PM_ERR_PMID;
-	break;
+	return acct_fetchCallBack(inst, item, &proc_acct, atom);
 
     case CLUSTER_CONTROL:
 	switch (item) {

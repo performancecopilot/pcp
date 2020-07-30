@@ -41,19 +41,38 @@ _filter()
     | head -3
 }
 
-# real QA test starts here
-root=$tmp.root
-export PROC_STATSPATH=$root
-pmda=$PCP_PMDAS_DIR/proc/pmda_proc.so,proc_init
+_header()
+{
+    echo
+    echo === $* ===
+    echo
+}
 
+# real QA test starts here
 psinfo=`pminfo acct.psinfo | LC_COLLATE=POSIX sort`
 flag=`pminfo acct.flag | LC_COLLATE=POSIX sort`
 id=`pminfo acct.id | LC_COLLATE=POSIX sort`
 
-for metric in $psinfo $flag $id
-do
-    $sudo pminfo -L -K clear -K add,3,$pmda -f $metric | _filter
-done
+_pminfo()
+{
+    for metric in $psinfo $flag $id
+    do
+	$sudo pminfo -f $metric | _filter
+    done
+}
+
+_header "initially disabled"
+_pminfo
+
+_header "enable accounting as non-root"
+pmstore acct.control.enable_acct 1
+_header "enable accounting as root"
+$sudo pmstore acct.control.enable_acct 1
+_pminfo
+
+_header "disable accounting"
+$sudo pmstore acct.control.enable_acct 0
+_pminfo
 
 # success, all done
 status=0
