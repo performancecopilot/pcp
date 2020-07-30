@@ -2,6 +2,7 @@
 Description=Check PMIE instances are running
 Documentation=man:pmie_check(1)
 ConditionPathExists=!@CRONTAB_PATH@
+PartOf=pmie.service
 
 [Service]
 Type=oneshot
