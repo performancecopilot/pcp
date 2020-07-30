@@ -18,8 +18,7 @@ include $(TOPDIR)/src/include/builddefs
 
 SUBDIRS	= src examples
 OTHERS  = control stomp rc_pmie pmie2col.sh pmie_check.sh pmie_daily.sh
-LDIRT	= crontab pmie.service pmie_daily.service \
-	  pmie_check.service
+LDIRT	= crontab pmie.service pmie_daily.service pmie_check.service
 
 ifeq ($(TARGET_OS),linux)
 CRONTAB_USER = $(PCP_USER)
@@ -29,8 +28,7 @@ CRONTAB_USER =
 CRONTAB_PATH = $(PCP_SYSCONF_DIR)/pmie/crontab
 endif
 
-default:: crontab pmie.service pmie_daily.service \
-	  pmie_check.service
+default:: crontab pmie.service pmie_daily.service pmie_check.service
 
 default:: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)

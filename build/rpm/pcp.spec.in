@@ -2101,12 +2101,13 @@ sed -i "/PACKAGE_BUILD/s/=[0-9]*/=$_build/" VERSION.pcp
 
 %install
 rm -Rf $RPM_BUILD_ROOT
+BACKDIR=`pwd`
 NO_CHOWN=true
-BACKDIR=`pwd`;
 DIST_ROOT=$RPM_BUILD_ROOT
-DIST_MANIFEST=`pwd`/install.manifest
+DIST_TMPFILES=$BACKDIR/install.tmpfiles
+DIST_MANIFEST=$BACKDIR/install.manifest
 PCP_SYSCONFIG_DIR=@pcp_sysconfig_dir@
-export NO_CHOWN DIST_ROOT DIST_MANIFEST
+export NO_CHOWN DIST_ROOT DIST_MANIFEST DIST_TMPFILES
 rm -f $DIST_MANIFEST
 @make@ install_pcp
 
@@ -2165,39 +2166,10 @@ egrep 'pcp\/(examples|demos)|pmdas\/(sample|simple|trivial|txmon)|bin/(pmdbg|pmc
 # Note: /etc/pcp.{conf,env,sh} are %config but not noreplace
 # and are treated specially below.
 cat >conf_files <<EOF
-etc/sysconfig/pmcd
-etc/sysconfig/pmproxy
-etc/sysconfig/pmlogger
-etc/cron.d/pcp-pmie
-etc/cron.d/pcp-pmfind
-etc/cron.d/pcp-pmlogger
-etc/cron.d/pcp-pmlogger-daily-report
-pmcd/pmcd.conf
-pmcd/pmcd.options
-pmcd/rc.local
-pmie/control
-pmie/stomp
-pmlogger/control
-pmproxy/pmproxy.options
-pmproxy/pmproxy.conf
+etc/sysconfig/
+etc/cron.d/
+etc/pcp/
 EOF
-%if "@enable_qt@" == "true"
-cat >>conf_files <<GUIEOF
-pmsnap/control
-pmsnap/crontab
-GUIEOF
-%endif
-%if "@pmda_perfevent@" == "true"
-cat >>conf_files <<PFMEOF
-perfevent/perfevent.conf
-PFMEOF
-%endif
-%if "@have_python@" == "true"
-cat >>conf_files <<SYSEOF
-etc/pcp/dstat
-etc/pcp/pmrep
-SYSEOF
-%endif
 
 #
 # Files for the various subpackages.  We use these subpackages
@@ -2239,130 +2211,130 @@ awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp2zabbix' >export_pcp2zabbix_files
 %endif
 awk '{print $NF}' $DIST_MANIFEST | egrep 'zabbix|zbxpcp' | grep -v pcp2zabbix >export_zabbix_agent_files
 %if "@pmda_infiniband@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep 'pmdas/infiniband|pmdaib|pmdas/ib' >pmda_infiniband_files
+awk '{print $NF}' $DIST_MANIFEST | egrep '(etc/pcp|pmdas)/infiniband' >pmda_infiniband_files
 %endif
 %if "@pmda_podman@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep 'pmdas/podman' > pmda_podman_files
+awk '{print $NF}' $DIST_MANIFEST | egrep '(etc/pcp|pmdas)/podman' > pmda_podman_files
 %endif
 %if "@pmda_statsd@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep 'pmdas/statsd' > pmda_statsd_files
+awk '{print $NF}' $DIST_MANIFEST | egrep '(etc/pcp|pmdas)/statsd' > pmda_statsd_files
 %endif
 %if "@pmda_perfevent@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep 'pmdas/perfevent|perfalloc.1' > pmda_perfevent_files
+awk '{print $NF}' $DIST_MANIFEST | egrep '(etc/pcp|pmdas)/perfevent|perfalloc.1' > pmda_perfevent_files
 %endif
 %if "@pmda_systemd@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep 'pmdas/systemd' > pmda_systemd_files
+awk '{print $NF}' $DIST_MANIFEST | egrep '(etc/pcp|pmdas)/systemd' > pmda_systemd_files
 %endif
 %if "@pmda_activemq@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/activemq' > pmda_activemq_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/activemq' > pmda_activemq_files
 %endif
 %if "@pmda_bind2@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/bind2' > pmda_bind2_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/bind2' > pmda_bind2_files
 %endif
 %if "@pmda_elasticsearch@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/elasticsearch' > pmda_elasticsearch_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/elasticsearch' > pmda_elasticsearch_files
 %endif
 %if "@pmda_nutcracker@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/nutcracker' > pmda_nutcracker_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/nutcracker' > pmda_nutcracker_files
 %endif
 %if "@have_perl@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/redis' > pmda_redis_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/bonding' > pmda_bonding_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/dbping' > pmda_dbping_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/ds389log' > pmda_ds389log_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/ds389' > pmda_ds389_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/gpfs' > pmda_gpfs_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/gpsd' > pmda_gpsd_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/redis' > pmda_redis_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/bonding' > pmda_bonding_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/dbping' > pmda_dbping_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/ds389log' > pmda_ds389log_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/ds389' > pmda_ds389_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/gpfs' > pmda_gpfs_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/gpsd' > pmda_gpsd_files
 %endif
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/docker' > pmda_docker_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/lustrecomm' > pmda_lustrecomm_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/docker' > pmda_docker_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/lustrecomm' > pmda_lustrecomm_files
 %if "@pmda_mysql@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/mysql' > pmda_mysql_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/mysql' > pmda_mysql_files
 %endif
 %if "@have_perl@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/lustre' > pmda_lustre_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/memcache' > pmda_memcache_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/named' > pmda_named_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/netfilter' > pmda_netfilter_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/news' > pmda_news_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/pdns' > pmda_pdns_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/rsyslog' > pmda_rsyslog_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/samba' > pmda_samba_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/slurm' > pmda_slurm_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/vmware' > pmda_vmware_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/zimbra' > pmda_zimbra_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/lustre' > pmda_lustre_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/memcache' > pmda_memcache_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/named' > pmda_named_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/netfilter' > pmda_netfilter_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/news' > pmda_news_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/pdns' > pmda_pdns_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/rsyslog' > pmda_rsyslog_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/samba' > pmda_samba_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/slurm' > pmda_slurm_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/vmware' > pmda_vmware_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/zimbra' > pmda_zimbra_files
 %endif
 %if "@pmda_nginx@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/nginx' > pmda_nginx_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/nginx' > pmda_nginx_files
 %endif
 %if "@pmda_postfix@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/postfix' > pmda_postfix_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/postfix' > pmda_postfix_files
 %endif
 %if "@pmda_postgresql@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/postgresql' > pmda_postgresql_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/postgresql' > pmda_postgresql_files
 %endif
 %if "@pmda_oracle@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/oracle' > pmda_oracle_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/oracle' > pmda_oracle_files
 %endif
 %if "@pmda_snmp@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/snmp' > pmda_snmp_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/snmp' > pmda_snmp_files
 %endif
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/dm|pmieconf/dm' > pmda_dm_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas|pmieconf)/dm' > pmda_dm_files
 %if "@pmda_json@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/json' > pmda_json_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/json' > pmda_json_files
 %endif
 %if "@pmda_libvirt@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/libvirt' > pmda_libvirt_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/libvirt' > pmda_libvirt_files
 %endif
 %if "@pmda_lio@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/lio' > pmda_lio_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/lio' > pmda_lio_files
 %endif
 %if "@pmda_openmetrics@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/openmetrics' > pmda_openmetrics_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/openmetrics' > pmda_openmetrics_files
 %endif
 %if "@pmda_bcc@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/bcc' > pmda_bcc_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/bcc' > pmda_bcc_files
 %endif
 %if "@pmda_bpftrace@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/bpftrace' > pmda_bpftrace_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/bpftrace' > pmda_bpftrace_files
 %endif
 %if "@have_python@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/gluster' > pmda_gluster_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/zswap' > pmda_zswap_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/unbound' > pmda_unbound_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/mic' > pmda_mic_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/haproxy' > pmda_haproxy_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/lmsensors' > pmda_lmsensors_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/mssql' > pmda_mssql_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/netcheck' > pmda_netcheck_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/nfsclient' > pmda_nfsclient_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/openvswitch' > pmda_openvswitch_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/rabbitmq' > pmda_rabbitmq_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/gluster' > pmda_gluster_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/zswap' > pmda_zswap_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/unbound' > pmda_unbound_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/mic' > pmda_mic_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/haproxy' > pmda_haproxy_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/lmsensors' > pmda_lmsensors_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/mssql' > pmda_mssql_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/netcheck' > pmda_netcheck_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/nfsclient' > pmda_nfsclient_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/openvswitch' > pmda_openvswitch_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/rabbitmq' > pmda_rabbitmq_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmiostat|pmrep|dstat|pcp2csv' \
       -e 'pcp-atop|pcp-dmcache|pcp-dstat|pcp-free|pcp-ipcs' \
       -e 'pcp-iostat|pcp-lvmcache|pcp-mpstat|pcp-numastat|pcp-pidstat' \
       -e 'pcp-shping|pcp-tapestat|pcp-uptime|pcp-verify' |\
 egrep -v 'testsuite|selinux|pmlogconf|pmieconf' > system_tools_files
 %endif
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/apache' > pmda_apache_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/bash' > pmda_bash_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/cifs' > pmda_cifs_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/cisco' > pmda_cisco_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/gfs2' > pmda_gfs2_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/logger' > pmda_logger_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/mailq' > pmda_mailq_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/mounts' > pmda_mounts_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/nvidia' > pmda_nvidia_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/roomtemp' > pmda_roomtemp_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/apache' > pmda_apache_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/bash' > pmda_bash_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/cifs' > pmda_cifs_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/cisco' > pmda_cisco_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/gfs2' > pmda_gfs2_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/logger' > pmda_logger_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/mailq' > pmda_mailq_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/mounts' > pmda_mounts_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/nvidia' > pmda_nvidia_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/roomtemp' > pmda_roomtemp_files
 %if "@pmda_rpm@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/rpm' > pmda_rpm_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/rpm' > pmda_rpm_files
 %endif
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/sendmail' > pmda_sendmail_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/shping' > pmda_shping_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/smart' > pmda_smart_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/summary' > pmda_summary_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/trace' > pmda_trace_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/weblog' > pmda_weblog_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/sendmail' > pmda_sendmail_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/shping' > pmda_shping_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/smart' > pmda_smart_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/summary' > pmda_summary_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/trace' > pmda_trace_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/weblog' > pmda_weblog_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'zeroconf|daily[-_]report|/sa$' > zeroconf_files
 
 touch gui_files pmda_infiniband_files \
@@ -2700,10 +2672,9 @@ $1 == "d" {
 	    }
 	    printf ("%%%%dir %%%%attr(%s,%s,%s) %s\n", $2, $3, $4, $5) >> f
 	  }
-$1 == "f" && $6 ~ "etc/pcp.conf" { printf ("%%%%config ") >> f; }
-$1 == "f" && $6 ~ "etc/pcp.env"  { printf ("%%%%config ") >> f; }
-$1 == "f" && $6 ~ "etc/pcp.sh"   { printf ("%%%%config ") >> f; }
-$1 == "f" && $6 ~ "pmdapostgresql.conf"   { printf ("%%%%config(noreplace) ") >> f; }
+$1 == "f" && $6 ~ "etc/pcp\\.conf" { printf ("%%%%config ") >> f; }
+$1 == "f" && $6 ~ "etc/pcp\\.env"  { printf ("%%%%config ") >> f; }
+$1 == "f" && $6 ~ "etc/pcp\\.sh"   { printf ("%%%%config ") >> f; }
 $1 == "f" {
 	    for (i=0; i < nconf; i++) {
 		if ($6 ~ conf[i]) {
@@ -2717,6 +2688,12 @@ $1 == "f" {
 	    printf ("%%%%attr(%s,%s,%s) %s\n", $2, $3, $4, $6) >> f
 	  }
 $1 == "l" { print $3 >> f }'
+
+%if "@enable_systemd@" == "true"
+mkdir -p $DIST_ROOT/@pcp_systemdtmpfiles_dir@
+mv $DIST_TMPFILES $DIST_ROOT/@pcp_systemdtmpfiles_dir@/pcp.conf
+echo @pcp_systemdtmpfiles_dir@/pcp.conf >> base_files.rpm
+%endif
 
 %pre testsuite
 test -d @pcp_var_dir@/testsuite || mkdir -p -m 755 @pcp_var_dir@/testsuite

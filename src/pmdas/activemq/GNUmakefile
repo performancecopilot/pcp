@@ -24,7 +24,9 @@ MODULES = ActiveMQ.pm Queue.pm RESTClient.pm \
 
 IAM	= activemq
 DOMAIN	= ACTIVEMQ
-PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
+
+PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
+PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
 
 MAN_SECTION = 1
 MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
@@ -39,11 +41,13 @@ include $(BUILDRULES)
 ifeq "$(PMDA_ACTIVEMQ)" "true"
 build-me: check_domain
 install install_pcp: default
-	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove $(PMDADIR)
-	$(INSTALL) -m 644 pmda$(IAM).pl $(PMDADIR)/pmda$(IAM).pl
-	$(INSTALL) -m 755 -d $(PMDADIR)/PCP
-	$(INSTALL) -m 644 $(MODULES) $(PMDADIR)/PCP
+	$(INSTALL) -m 755 -d $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMDATMPDIR)
+	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR)/pmda$(IAM).pl pmda$(IAM).pl $(PMDAADMDIR)/pmda$(IAM).pl
+	$(INSTALL) -m 755 -d $(PMDAADMDIR)/PCP
+	$(INSTALL) -m 755 -d $(PMDATMPDIR)/PCP
+	$(INSTALL) -m 644 -t $(PMDATMPDIR)/PCP $(MODULES) $(PMDAADMDIR)/PCP
 	@$(INSTALL_MAN)
 else
 build-me:

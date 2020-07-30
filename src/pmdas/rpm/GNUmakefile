@@ -1,11 +1,11 @@
 #
-# Copyright (c) 2013-2015 Red Hat.
-# 
+# Copyright (c) 2013-2015,2020 Red Hat.
+#
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -19,8 +19,6 @@ IAM		= rpm
 DOMAIN		= RPM
 CMDTARGET	= pmda$(IAM)$(EXECSUFFIX)
 LIBTARGET	= pmda_$(IAM).$(DSOSUFFIX)
-
-PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
 PMDAINIT	 = $(IAM)_init
 
 HFILES		= rpm.h timer.h
@@ -28,8 +26,12 @@ CFILES		= rpm.c timer.c
 
 SCRIPTS		= Install Remove
 VERSION_SCRIPT	= exports
-LSRCFILES	= Install Remove pmns root help
 LDIRT		= domain.h $(IAM).log $(VERSION_SCRIPT)
+
+PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
+PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
+REWRITEDIR	= $(PCP_SYSCONF_DIR)/pmlogrewrite
+REWRITEVARDIR	= $(PCP_VAR_DIR)/config/pmlogrewrite
 
 MAN_SECTION	= 1
 MAN_PAGES	= pmda$(IAM).$(MAN_SECTION)
@@ -47,10 +49,11 @@ ifeq "$(PMDA_RPM)" "true"
 build-me: $(CMDTARGET) $(LIBTARGET)
 
 install_pcp install:	default 
-	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 644 root pmns domain.h help $(PMDADIR)
-	$(INSTALL) -m 755 $(CMDTARGET) $(LIBTARGET) $(SCRIPTS) $(PMDADIR)
-	$(INSTALL) -m 644 migrate.conf $(PCP_VAR_DIR)/config/pmlogrewrite/rpm_migrate.conf
+	$(INSTALL) -m 755 -d $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMDATMPDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) root pmns domain.h help $(PMDAADMDIR)
+	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(CMDTARGET) $(LIBTARGET) $(SCRIPTS) $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(REWRITEVARDIR)/rpm_migrate.conf migrate.conf $(REWRITEDIR)/rpm_migrate.conf
 	@$(INSTALL_MAN)
 else
 build-me:

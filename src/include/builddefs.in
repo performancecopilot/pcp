@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2019 Red Hat.
+# Copyright (c) 2012-2020 Red Hat.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -239,7 +239,10 @@ PCP_MAN_DIR = @pcp_man_dir@
 PCP_BOOKS_DIR = @pcp_books_dir@
 PCP_ICONS_DIR = @pcp_icons_dir@
 PCP_DESKTOP_DIR = @pcp_desktop_dir@
+PCP_PMNS_DIR = @pcp_pmns_dir@
+PCP_PMNSADM_DIR = @pcp_pmnsadm_dir@
 PCP_SELINUX_DIR = @pcp_selinux_dir@
+PCP_SELINUXADM_DIR = @pcp_selinuxadm_dir@
 
 NEED_OLD_TBL_HEADER = @need_old_tbl_header@
 RDYNAMIC_FLAG = @rdynamic_flag@

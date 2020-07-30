@@ -20,9 +20,6 @@ AC_INIT(src/include/pcp/pmapi.h)
 dnl need 2.63 for AS_VAR_IF and AS_VAR_COPY
 AC_PREREQ([2.63])dnl
 
-dnl Irix build issue ... use the tools from the local filesystems
-unset ROOT TOOLROOT
-
 AC_ARG_WITH([64bit],
     [AS_HELP_STRING([--with-64bit],
 		    [turn on 64 bit compilation mode (default is platform dependent)])],
@@ -757,6 +754,10 @@ AC_MSG_CHECKING([if systemd should be used])
 AS_IF([test "x$do_systemd" != "xno"], [
     enable_systemd=true
 
+    PKG_CHECK_VAR([SYSTEMD_TMPFILESDIR], [systemd], [tmpfilesdir],
+	[pcp_systemdtmpfiles_dir=$SYSTEMD_TMPFILESDIR],
+	[pcp_systemdtmpfiles_dir=$pcp_lib32_dir/tmpfiles.d])
+    AC_SUBST(pcp_systemdtmpfiles_dir)
     PKG_CHECK_VAR([SYSTEMD_SYSTEMUNITDIR], [systemd], [systemdsystemunitdir],
 	[pcp_systemdunit_dir=$SYSTEMD_SYSTEMUNITDIR], [enable_systemd=false])
     AC_SUBST(pcp_systemdunit_dir)
@@ -3261,21 +3262,33 @@ pcp_binadm_dir=`eval echo $libexecdir/pcp/bin`
 pcp_binadm_dir=`eval echo $pcp_binadm_dir`
 AC_SUBST(pcp_binadm_dir)
 
+dnl private PCP libraries
+pcp_libadm_dir=`eval echo $libexecdir/pcp/lib`
+pcp_libadm_dir=`eval echo $pcp_libadm_dir`
+AC_SUBST(pcp_libadm_dir)
+
 dnl non-shared (i.e. system local) PCP files
 pcp_var_dir=`eval echo $localstatedir/lib/pcp`
 pcp_var_dir=`eval echo $pcp_var_dir`
 AC_SUBST(pcp_var_dir)
 
-dnl pmcd control and options files
-AC_ARG_WITH(configdir,[AC_HELP_STRING([--with-configdir],[configuration directory [LOCALSTATEDIR/pcp/config]])],
-                      [pcp_config_dir=$withval],
-                      [pcp_config_dir=$pcp_var_dir/config])
+pcp_pmns_dir=$pcp_var_dir/pmns
+AC_SUBST(pcp_pmns_dir)
+pcp_pmnsadm_dir=$libexecdir/pcp/pmns
+pcp_pmnsadm_dir=`eval echo $pcp_pmnsadm_dir`
+AC_SUBST(pcp_pmnsadm_dir)
 
 pcp_pmdas_dir=$pcp_var_dir/pmdas
 AC_SUBST(pcp_pmdas_dir)
+pcp_pmdasadm_dir=$libexecdir/pcp/pmdas
+pcp_pmdasadm_dir=`eval echo $pcp_pmdasadm_dir`
+AC_SUBST(pcp_pmdasadm_dir)
 
 pcp_selinux_dir=$pcp_var_dir/selinux
 AC_SUBST(pcp_selinux_dir)
+pcp_selinuxadm_dir=$libexecdir/pcp/selinux
+pcp_selinuxadm_dir=`eval echo $pcp_selinuxadm_dir`
+AC_SUBST(pcp_selinuxadm_dir)
 
 dnl runtime shared libraries
 pcp_lib_dir=`eval echo $libdir`
@@ -3448,7 +3461,7 @@ AC_ARG_WITH(rcdir,[AC_HELP_STRING([--with-rcdir],[rc directory [SYSCONFDIR/rc.d]
                   [pcp_rc_dir=$withval], [
 if $enable_systemd
 then
-    pcp_rc_dir="$pcp_share_dir/lib"
+    pcp_rc_dir="$pcp_libadm_dir/lib"
 elif test $target_os = freebsd
 then
     pcp_rc_dir="/usr/local/etc/rc.d"

@@ -4,8 +4,10 @@ include $(TOPDIR)/src/include/builddefs
 SCRIPTS = pmsnap.sh
 CONFIGS = crontab.IN Snap control
 HTMLDOC = summary.html
-LSRCFILES = $(SCRIPTS) $(CONFIGS) $(HTMLDOC)
 LDIRT = crontab
+
+CONFIGETC = $(PCP_SYSCONF_DIR)/pmsnap
+CONFIGVAR = $(PCP_VAR_DIR)/config/pmsnap
 
 default: crontab
 
@@ -18,8 +20,9 @@ install: default
 ifeq "$(ENABLE_QT)" "true"
 	$(INSTALL) -m 755 -d $(PCP_BINADM_DIR)
 	$(INSTALL) -m 755 pmsnap.sh $(PCP_BINADM_DIR)/pmsnap
-	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmsnap
-	$(INSTALL) -m 644 Snap crontab summary.html $(PCP_VAR_DIR)/config/pmsnap
+	$(INSTALL) -m 755 -d $(CONFIGETC)
+	$(INSTALL) -m 755 -d $(CONFIGVAR)
+	$(INSTALL) -m 644 -t $(CONFIGVAR) Snap crontab summary.html $(CONFIGETC)
 	$(INSTALL) -m 755 -d `dirname $(PCP_PMSNAPCONTROL_PATH)`
 	$(INSTALL) -m 644 control $(PCP_PMSNAPCONTROL_PATH)
 endif

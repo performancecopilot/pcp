@@ -8,14 +8,18 @@ VIEWS	= CPU Disk Diskbytes Loadavg NFS2 NFS3 Filesystem Memory Netbytes \
 	  
 EXEC_VIEWS	= BusyCPU
 
+CONFIGETC	= $(PCP_SYSCONF_DIR)/pmchart
+CONFIGVAR	= $(PCP_VAR_DIR)/config/pmchart
+
 default build-me:
 
 include $(BUILDRULES)
 
 install:	default
-	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmchart
-	$(INSTALL) -m 644 $(VIEWS) $(PCP_VAR_DIR)/config/pmchart
-	$(INSTALL) -m 755 $(EXEC_VIEWS) $(PCP_VAR_DIR)/config/pmchart/$(EXEC_VIEWS)
+	$(INSTALL) -m 755 -d $(CONFIGETC)
+	$(INSTALL) -m 755 -d $(CONFIGVAR)
+	$(INSTALL) -m 644 -t $(CONFIGVAR) $(VIEWS) $(CONFIGETC)
+	$(INSTALL) -m 755 -t $(CONFIGVAR)/$(EXEC_VIEWS) $(EXEC_VIEWS) $(CONFIGETC)/$(EXEC_VIEWS)
 
 default_pcp:	default
 

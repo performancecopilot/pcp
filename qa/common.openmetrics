@@ -57,13 +57,18 @@ _pmdaopenmetrics_save_config()
     for f in $PCP_VAR_DIR/config/pmda/144.*.py; do
 	[ -f "$f" ] && $sudo mv -f $f $f.$seq
     done
+    # turn off all pmloggers when running open metrics tests
+    _stop_auto_restart pmlogger
+    _service pmlogger stop 2>&1 | _filter_pcp_stop
 }
 
 _pmdaopenmetrics_restore_config()
 {
-    $sudo rm -rf $CONFIG_DIR
-    $sudo mv $CONFIG_DIR.$seq $CONFIG_DIR
-    $sudo chmod 755 $CONFIG_DIR
+    if [ -d $CONFIG_DIR.$seq ]; then
+	$sudo rm -rf $CONFIG_DIR
+	$sudo mv $CONFIG_DIR.$seq $CONFIG_DIR
+	$sudo chmod 755 $CONFIG_DIR
+    fi
     $sudo rm -f $PCP_VAR_DIR/config/pmda/144.*.py
     for f in $PCP_VAR_DIR/config/pmda/144.*.py.$seq; do
 	[ -f "$f" ] && $sudo mv -f $f `echo $f | sed -e "s/\.$seq//"`
@@ -83,6 +88,10 @@ _pmdaopenmetrics_cleanup()
     _pmdaopenmetrics_restore_config
     # note: _restore_auto_restart pmcd done in _cleanup_pmda()
     _cleanup_pmda openmetrics
+    # restart all pmloggers after running open metrics tests
+    _restore_auto_restart pmlogger
+    _service pmlogger restart 2>&1 | _filter_pcp_start
+    _wait_for_pmlogger
 }
 
 # wait for the PMDA to dynamically create a named metric (or subtree)

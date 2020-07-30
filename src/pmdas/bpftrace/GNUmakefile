@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019 Red Hat.
+# Copyright (c) 2019-2020 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -18,11 +18,14 @@ include $(TOPDIR)/src/include/builddefs
 IAM      = bpftrace
 PYSCRIPT = pmda$(IAM).python
 LDIRT    = domain.h root pmns $(IAM).log
-CONFIGS  = bpftrace.conf
+CONFIG   = bpftrace.conf
 
 DOMAIN   = BPFTRACE
-PMDADIR  = $(PCP_PMDAS_DIR)/$(IAM)
 SUBDIRS  = bpftrace autostart
+
+PMDAADMDIR = $(PCP_PMDASADM_DIR)/$(IAM)
+PMDACONFIG = $(PCP_SYSCONF_DIR)/$(IAM)
+PMDATMPDIR = $(PCP_PMDAS_DIR)/$(IAM)
 
 MAN_SECTION = 1
 MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
@@ -36,9 +39,12 @@ ifeq "$(PMDA_BPFTRACE)" "true"
 build-me:	check_domain
 
 install_pcp install ::	default
-	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove $(PYSCRIPT) $(PMDADIR)
-	$(INSTALL) -m 644 README.md $(CONFIGS) $(PMDADIR)
+	$(INSTALL) -m 755 -d $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMDATMPDIR)
+	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove $(PYSCRIPT) $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR)/README.md README.md $(PMDAADMDIR)/README.md
+	$(INSTALL) -m 755 -d $(PMDACONFIG)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR)/$(CONFIG) $(CONFIG) $(PMDACONFIG)/$(CONFIG)
 	@$(INSTALL_MAN)
 
 default_pcp default ::	$(SUBDIRS)

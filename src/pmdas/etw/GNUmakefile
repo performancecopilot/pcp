@@ -1,16 +1,16 @@
 #
 # Copyright (c) 2011, Nathan Scott.  All Rights Reserved.
-# 
+#
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
+#
 
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
@@ -25,12 +25,14 @@ LCFLAGS		= -I$(WINDIR)/include -D_WIN32_WINNT=0x0600 -DFORCEINLINE="static inlin
 LLDFLAGS	= -L$(WINDIR)/lib
 LLDLIBS		= $(PCP_PMDALIB) -lpcp_tdh
 
-PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
+PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
+PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
+
 LIBTARGET	= pmda_etw.dll
 EXTRATARGETS	= tdhlist.exe tdhconsume.exe help.dir help.pag
 LDIRT		= $(EXTRATARGETS) root_etw domain.h $(IAM).log
 
-CONF_LINE = "etw	87	dso	etw_init	$(PCP_PMDAS_DIR)/etw/pmda_etw.dll"
+CONF_LINE = "etw	87	dso	etw_init	$(PMDATMPDIR)/pmda_etw.dll"
 
 default:	build-me
 
@@ -45,11 +47,12 @@ build-me: root_etw $(LSRCFILES) $(LIBTARGET) $(EXTRATARGETS)
 	fi
 
 install: build-me
-	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 tdhlist.exe $(PMDADIR)/tdhlist.exe
-	$(INSTALL) -m 644 pmns $(PMDADIR)/root
-	$(INSTALL) -m 644 domain.h help.dir help.pag help $(PMDADIR)
-	$(INSTALL) -m 644 root_etw $(PCP_VAR_DIR)/pmns/root_etw
+	$(INSTALL) -m 755 -d $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMDATMPDIR)
+	$(INSTALL) -m 755 -t $(PMDATMPDIR)/tdhlist.exe tdhlist.exe $(PMDAADMDIR)/tdhlist.exe
+	$(INSTALL) -m 644 -t $(PMDATMPDIR)/root pmns $(PMDAADMDIR)/root
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h help.dir help.pag help $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_etw root_etw $(PCP_PMNSADM_DIR)/root_etw
 else
 build-me:
 install:

@@ -15,13 +15,12 @@ include localdefs
 
 WORKDIR	:= $(shell pwd)
 GROUP	:= $(shell basename $(WORKDIR))
-GROUPDIR	= $(PCP_VAR_DIR)/config/pmlogconf
+GROUPETC = $(PCP_SYSCONF_DIR)/pmlogconf
+GROUPVAR = $(PCP_VAR_DIR)/config/pmlogconf
 
 LDIRT	= GNUmakefile
 
 DEFAULT	= $(FILES)
-
-LSRCFILES = localdefs $(DEFAULT)
 
 CONFIGS	= $(subst "./","",$(DEFAULT))
 
@@ -30,9 +29,10 @@ default_pcp: $(DEFAULT)
 install_pcp: install
 
 install: default_pcp
-	$(INSTALL) -d $(GROUPDIR)/$(GROUP)
+	$(INSTALL) -d $(GROUPETC)/$(GROUP)
+	$(INSTALL) -d $(GROUPVAR)/$(GROUP)
 	@for f in $(CONFIGS); do \
-	    $(INSTALL) -m 644 $$f $(GROUPDIR)/$(GROUP)/$$f; \
+	    $(INSTALL) -m 644 -t $(GROUPVAR)/$(GROUP)/$$f $$f $(GROUPETC)/$(GROUP)/$$f; \
 	done
 
 include $(BUILDRULES)

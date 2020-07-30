@@ -51,11 +51,15 @@ LLDLIBS += -lpcp_pmcd
 PCPLIB_LDFLAGS += -L$(TOPDIR)/src/libpcp_pmcd/src
 endif
 
+PMDATMPDIR = $(PCP_PMDAS_DIR)/pmcd
+PMDAADMDIR = $(PCP_PMDASADM_DIR)/pmcd
+
 default: $(LIBTARGET)
 
 install: default
-	$(INSTALL) -m 755 -d $(PCP_PMDAS_DIR)/pmcd
-	$(INSTALL) -m 755 $(LIBTARGET) $(PCP_PMDAS_DIR)/pmcd/$(LIBTARGET)
+	$(INSTALL) -m 755 -d $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMDATMPDIR)
+	$(INSTALL) -m 755 -t $(PMDATMPDIR)/$(LIBTARGET) $(LIBTARGET) $(PMDAADMDIR)/$(LIBTARGET)
 
 include $(BUILDRULES)
 

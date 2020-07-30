@@ -18,13 +18,16 @@ include $(TOPDIR)/src/include/builddefs
 IAM	= openvswitch
 PYSCRIPT = pmda$(IAM).python
 LDIRT	= domain.h root pmns $(IAM).log
+DOMAIN	= OPENVSWITCH
 
 MAN_SECTION = 1
 MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
 MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
 
-DOMAIN	= OPENVSWITCH
-PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
+PMDAADMDIR = $(PCP_PMDASADM_DIR)/$(IAM)
+PMDATMPDIR = $(PCP_PMDAS_DIR)/$(IAM)
+LOGCONFDIR = $(PCP_SYSCONF_DIR)/pmlogconf/$(IAM)
+LOGCONFVARDIR = $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
 
 default_pcp default:	build-me
 
@@ -33,11 +36,13 @@ include $(BUILDRULES)
 ifeq "$(HAVE_PYTHON)" "true"
 build-me:	check_domain
 install_pcp install:	default 
-	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove $(PYSCRIPT) $(PMDADIR)
+	$(INSTALL) -m 755 -d $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMDATMPDIR)
+	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove $(PYSCRIPT) $(PMDAADMDIR)
 	@$(INSTALL_MAN)
-	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
-	$(INSTALL) -m 644 pmlogconf.summary $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)/summary
+	$(INSTALL) -m 755 -d $(LOGCONFDIR)
+	$(INSTALL) -m 755 -d $(LOGCONFVARDIR)
+	$(INSTALL) -m 644 -t $(LOGCONFVARDIR)/summary pmlogconf.summary $(LOGCONFDIR)/summary
 else
 build-me:
 install_pcp install:

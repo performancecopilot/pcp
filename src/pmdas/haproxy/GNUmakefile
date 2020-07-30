@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Red Hat.
+# Copyright (c) 2017,2020 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -18,9 +18,11 @@ include $(TOPDIR)/src/include/builddefs
 IAM      = haproxy
 PYSCRIPT = pmda$(IAM).python
 LDIRT    = domain.h root pmns $(IAM).log
-
 DOMAIN   = HAPROXY
-PMDADIR  = $(PCP_PMDAS_DIR)/$(IAM)
+
+PMDAADMDIR  = $(PCP_PMDASADM_DIR)/$(IAM)
+PMDATMPDIR  = $(PCP_PMDAS_DIR)/$(IAM)
+CONFIGDIR   = $(PCP_SYSCONF_DIR)/$(IAM)
 
 MAN_SECTION = 1
 MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
@@ -33,9 +35,11 @@ include $(BUILDRULES)
 ifeq "$(HAVE_PYTHON)" "true"
 build-me:	check_domain
 install_pcp install:	default
-	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove connect $(PYSCRIPT) $(PMDADIR)
-	$(INSTALL) -m 644 $(IAM).conf $(PMDADIR)/$(IAM).conf
+	$(INSTALL) -m 755 -d $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMDATMPDIR)
+	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove connect $(PYSCRIPT) $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(CONFIGDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR)/$(IAM).conf $(IAM).conf $(CONFIGDIR)/$(IAM).conf
 	@$(INSTALL_MAN)
 else
 build-me:
