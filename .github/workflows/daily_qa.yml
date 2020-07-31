@@ -37,7 +37,17 @@ jobs:
         run: |
           python3 -c 'import yaml' || pip3 install pyyaml
           mkdir -p artifacts/build artifacts/test
-          ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} setup
+
+          for i in 1 2 3
+          do
+            if [ $i -gt 1 ]; then
+              echo && echo "Probably network error, wait 1 min and try again ($i/3)..."
+              sleep 60
+            fi
+
+            ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} setup && exit 0 || true
+          done
+          exit 1
 
       - name: Update packages
         run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} task update

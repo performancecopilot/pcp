@@ -168,9 +168,17 @@ def main():
         runner = ContainerRunner(args.platform, platform)
 
     if args.main_command == 'setup':
-        runner.setup(args.pcp_path)
+        try:
+            runner.setup(args.pcp_path)
+        except subprocess.CalledProcessError as e:
+            print(f"Error: {e}", file=sys.stderr)
+            sys.exit(1)
     elif args.main_command == 'task':
-        runner.task(args.task_name)
+        try:
+            runner.task(args.task_name)
+        except subprocess.CalledProcessError as e:
+            print(f"Error: {e}", file=sys.stderr)
+            sys.exit(1)
     elif args.main_command == 'artifacts':
         runner.task(f"copy_{args.artifact}_artifacts")
         runner.get_artifacts(args.artifact, args.path)
