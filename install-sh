@@ -100,9 +100,25 @@ _symlink()
     __dir=`dirname "$__symlink" | sed -e 's;//*;/;g'`
     [ ! -d "$__dir" ] && mkdir -p "$__dir"
 
-    $LN "$__target" "$__symlink"
-    status=$?
-    $MANIFEST l "$__target" `echo "$__symlink" | sed -e "s;^$DIST_ROOT;;"`
+    __rel=`echo "$__target" | sed -e 's;^/;;'`	# remove leading slash
+    if [ "$__rel" = "$__target" ]
+    then
+	$LN "$__target" "$__symlink"
+	status=$?
+	$MANIFEST l "$__target" `echo "$__symlink" | sed -e "s;^$DIST_ROOT;;"`
+    else
+	__dlist=`dirname "$__symlink" | sed -e "s;^$DIST_ROOT;;" -e 's;/; ;g'`
+	__tpath=""
+	for d in $__dlist
+	do
+	    __tpath="../${__tpath}"	# constructing a relative path
+	done
+	pushd ${__dir}
+	$LN "${__tpath}${__rel}" "$__symlink"
+	status=$?
+	popd
+	$MANIFEST l "${__tpath}${__rel}" `echo "$__symlink" | sed -e "s;^$DIST_ROOT;;"`
+    fi
 }
 
 _tmpfiles()
@@ -110,7 +126,7 @@ _tmpfiles()
     __target=`echo "$1" | sed -e "s;^$DIST_ROOT;;" -e 's;//*;/;g'`
     __symlink=`echo "$2" | sed -e "s;^$DIST_ROOT;;" -e 's;//*;/;g'`
 
-    __rel=`echo "$__symlink" | sed -e 's;^/;;'`	# remove just first slash
+    __rel=`echo "$__symlink" | sed -e 's;^/;;'`	# remove leading slash
     __dlist=`dirname "$__target" | sed -e 's;/; ;g'`
     __tpath=""
     for d in $__dlist
