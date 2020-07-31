@@ -22,14 +22,10 @@ tasks:
     sudo -i -u pcpqa ./check 002
   qa_sanity: |
     set -o pipefail
-    status=0
-    sudo -i -u pcpqa ./check -TT -g sanity -x not_in_container |& tee ./artifacts/test/test.log || status=$?
-    exit $status
+    sudo -i -u pcpqa ./check -TT -g sanity -x not_in_container |& tee ./artifacts/test/test.log
   qa: |
     set -o pipefail
-    status=0
-    sudo -i -u pcpqa ./check -TT -x not_in_container |& tee ./artifacts/test/test.log || status=$?
-    exit $status
+    sudo -i -u pcpqa ./check -TT -x not_in_container |& tee ./artifacts/test/test.log
   copy_test_artifacts: |
     cp /var/lib/pcp/testsuite/check.timings ./artifacts/test
     [ $(awk 'END{print NF}' ./artifacts/test/check.timings) = 2 ] && date '+%s' >> ./artifacts/test/check.timings
