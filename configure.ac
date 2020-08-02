@@ -800,7 +800,7 @@ AC_SUBST(PACKAGE_BUILD)
 
 if test -z "$PACKAGE_BUILD_DATE" ; then
     # use SOURCE_DATE_EPOCH for a deterministic builddate (reproducible builds)
-    PACKAGE_BUILD_DATE=`date --utc --date="@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y-%m-%d`
+    PACKAGE_BUILD_DATE=`TZ=UTC date -d "@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y-%m-%d`
     test $? -eq 0 || PACKAGE_BUILD_DATE=`date +%Y-%m-%d`
 fi
 AC_SUBST(PACKAGE_BUILD_DATE)
