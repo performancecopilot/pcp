@@ -115,9 +115,9 @@ endif
 
 CFLAGS_ABI = @cflags_abi@
 CFLAGS_OPT = @optimization@
-CFLAGS += $(PCFLAGS) $(LCFLAGS) $(WARN_OFF) $(CFLAGS_OPT) \
+CFLAGS += -I$(TOPDIR)/src/include -I$(TOPDIR)/src/include/pcp \
 	-DPCP_VERSION=\"$(PCP_VERSION)\" \
-	-I$(TOPDIR)/src/include -I$(TOPDIR)/src/include/pcp
+	$(PCFLAGS) $(LCFLAGS) $(WARN_OFF) $(CFLAGS_OPT)
 
 PIECFLAGS = @PIECFLAGS@
 PIELDFLAGS = @PIELDFLAGS@
