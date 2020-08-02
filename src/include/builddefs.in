@@ -541,7 +541,8 @@ INSTALL_MAN = \
 	base=`echo $$d | sed -e 's/\.[0-9]//g'`; \
 	section=`echo $$d | sed -e 's/.*\.//g'`; \
 	$(AWK) <$$d ' \
-BEGIN { state=0; print "'"$$base"'" } \
+BEGIN { state=0 } \
+$$1==".ds" && $$2=="xM" { print $$3; next } \
 $$1==".ds" { ds["\\\\\\*\\("$$2] = $$3 } \
 $$1==".SH" && $$2=="NAME" { state=1; next } \
 $$1==".SH" && state==1	{ exit } \
@@ -578,17 +579,8 @@ state==1 { for (i=1;i<=NF;i++) { \
 		echo $(INSTALL) -m 644 $${d}$$_tfx $${t}$$_sfx; \
 		$(INSTALL) -m 644 $${d}$$_tfx $${t}$$_sfx; \
 	    else \
-		if test "$(CASE_INSENSITIVE_FS)" = "yes"; then \
-		    _upper_u=`echo $$u | tr 'a-z' 'A-Z'`; \
-		    _upper_t=`basename $${t}$$_sfx | tr 'a-z' 'A-Z'`; \
-		    if test "$$_upper_u" != "$$_upper_t"; then \
-			echo $(INSTALL) -S $$u $${t}$$_sfx; \
-			$(INSTALL) -S $$u $${t}$$_sfx; \
-		    fi \
-		else \
-		    echo $(INSTALL) -S $$u $${t}$$_sfx; \
-		    $(INSTALL) -S $$u $${t}$$_sfx; \
-		fi \
+		echo $(INSTALL) -S $$u $${t}$$_sfx; \
+		$(INSTALL) -S $$u $${t}$$_sfx; \
 	    fi; \
 	    first=false; \
 	done; \

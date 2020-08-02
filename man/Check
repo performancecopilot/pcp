@@ -1,29 +1,238 @@
 #!/bin/sh
 #
-# Check various man pages for consistency issues related to
-# possible changes in the code base
+# Check various man pages for consistency issues related to troff
+# style and format, man(1) plumbing, possible changes in the code
+# base, etc
+#
+# Checks:
+# - .SH NAME entries have expected format, in particular the
+#    format in the style of
+#   \f3foo\f1,
+#   \f3bar\f1,
+#   ... \- 
+# - one of the .SH NAME entries or the \*(xM string (converted to uppercase)
+#   should match the .TH name
+# - every section "3" entry should be in one of the ../debian/*-dev.install
+#   files
+# - PM_ERR_* codes match between pmerr -l and man3/pcpintro.3
+# - no remnants of IRIX annotations
+# - make check
 #
 
 tmp=/var/tmp/$$
-trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+status=0
 
-# man pages that are not in the GNUmakefile will not be included
-# in the build
-for dir in man?
+export LC_COLLATE=POSIX
+ALL=false
+
+DEBUG=false
+if [ $# -gt 0 -a X"$1" = X-D ]
+then
+    DEBUG=true
+    shift
+fi
+
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+if [ $# -eq 0 ]
+then
+    set -- man*
+    ALL=true
+fi
+
+find $@ -type f -a ! -name "*.tmp" \
+| while read file
 do
-    cd $dir
-    for file in *
-    do
-	[ "$file" = GNUmakefile ] && continue
-	if grep "[ 	]$file" GNUmakefile >/dev/null
+    sed <$file \
+	-e 's/^\\&//' \
+    | awk '
+$1 == ".TH"	{ title = $2; section = $3; gsub(/"/, "", title) }
+$1 == ".SH"	{ if ($2 == "NAME") {
+		    want = 1
+		    next
+		  }
+		  if ($0 ~ /SYNOPSIS/) {
+		    if (want == 2)
+			exit
+		    want = 2
+		    next
+		  }
+		  if ($2 == "DESCRIPTION")
+		    exit
+		  else
+		    want = 0
+		}
+$1 == ".ds" && $2 == "xM"	{
+		  print "X '"$file"'",title,$3; next
+		}
+$1 ~ /^\.[a-z][a-z]/	{
+		  next
+		}
+want == 1	{ if ($1 ~ /^\\f3/)
+		    print "N '"$file"'",title,$0; next
+		}
+want == 2	{ if (section == 1) {
+		    if ($1 ~ /^\.[a-z][a-z]/) next
+		    if ($1 ~ /^\.\\"/) next
+		    if ($1 ~ /^\\f2/) next
+		    if ($1 ~ /^\\fI/) next
+		    if ($1 ~ /^\.\.\./) next
+		    if ($1 ~ /\\-/) next
+		    if ($1 == ".PP" || $1 == ".P" || $1 == ".I") next
+		    if ($0 ~ /^\[/) next
+		    print "C '"$file"'",$0
+		  }
+		  else {
+		    if ($1 == "typedef") next
+		    if ($0 ~ / \**[_a-zA-Z0-9]*[(]/) print "F '"$file"'",$0
+		  }
+		}
+' \
+    | sed \
+	-e 's/ \\-.*//' \
+	-e '/^F /{
+s/[(].*//
+s/F \([^ ][^ ]*\).*[ *]\([_a-zA-Z][^ ]*\)$/F \1 \2/
+}' \
+	-e 's/\\f[B3R1P]//g' \
+	-e '/^C /{
+s/ \.B / /
+s; \$.*/; ;
+s/ *\[.*//
+s/ \\f2.*//
+s/ \\fI.*//
+}' \
+	-e 's/, *$//'
+done >$tmp.man
+
+$DEBUG && ! $ALL && cat $tmp.man
+
+( cat $tmp.man ; echo "N end of files" ) \
+|
+awk '
+BEGIN		{ ok = 1; last_f = ""; last_th = ""; miss = "" }
+$1 == "N" && NF != 4	{ printf "%s Botched NAME entry:",$2
+			  for (i = 3; i <= NF; i++) printf " %s",$i
+			  printf "\n"
+			}
+($1 == "C" || $1 == "F") && NF != 3	{
+			  printf "%s Botched SYNOPSIS entry:",$2
+			  for (i = 3; i <= NF; i++) printf " %s",$i
+			  printf "\n"
+			}
+last_f != $2	{ if (!ok) {
+		    printf "%s Botched no NAME entry or xM string matches TH %s\n",last_f,last_th
+		    print "Mismatches:" miss
+		  }
+		  last_f = $2
+		  last_th = $3
+		  miss = ""
+		  ok = 0
+		}
+		{ check = $4
+		  sub(/_*/, "", check)		# strip leading underscores
+		  if ($3 == toupper(check)) ok = 1
+		  else miss = miss " |" $4 "|"
+		}' >$tmp.out
+if [ -s $tmp.out ]
+then
+    echo "=== Bad NAME section"
+    sed -e 's/^/  /' $tmp.out
+    status=1
+fi
+
+# some man pages are intro-style and the .SH NAME and .SH SYNOPSIS sections
+# are not expected to be the same, ditto for some whacky ones like pcp-shping
+# where the SYNOPSIS shows an invocation of pcp(1) ...
+# these are excluded from the analysis below
+#
+cat <<'End-of-File' >$tmp.exclude
+man1/pmstat.1
+man1/pcp.1
+man1/pcpcompat.1
+man1/pcp-shping.1
+man1/pcpintro.1
+man1/pcp-python.1
+man3/pmwebapi.3
+man3i/pmapi_internal.3
+man3/QmcIndom.3
+man3/QmcMetric.3
+man3/QmcDesc.3
+man3/QMC.3
+man3/pcpintro.3
+man3/pmapi.3
+man3/pmda.3
+man3/QmcSource.3
+man3/logimport.3
+man3/QmcGroup.3
+man3/QmcContext.3
+man5/.*
+End-of-File
+
+( cat $tmp.man ; echo "F end of files" ) \
+| grep -v -f $tmp.exclude \
+|
+awk '
+BEGIN		{ ok = 1; last_f = "" }
+last_f != $2	{ if (last_f != "") {
+		    for (n in name) {
+			if (name[n] == 1)
+			    printf "%s %s: mentioned in NAME and not in SYNOPSIS\n",last_f,n
+		    }
+		  }
+		  last_f = $2
+		  # portable "delete"
+		  split("", name, ":")
+		}
+$1 == "N" && NF == 4	{ name[$4] = 1 }
+($1 == "F" || $1 == "C") && NF == 3	{
+		    if (name[$3] == 0)
+		      printf "%s %s: in SYNOPSIS and not mentioned in NAME\n",last_f,$3
+		    else
+		      name[$3]++
+		    }' >$tmp.out
+if [ -s $tmp.out ]
+then
+    echo "=== SYNPOSIS vs NAME issues"
+    sed -e 's/^/  /' $tmp.out
+    status=1
+    $DEBUG && grep '^[NFC]' $tmp.man
+fi
+
+if $ALL
+then
+    # We're doing all man pages, so Section 3 => need *-dev.install mention
+    # for Debian packaging
+    #
+    awk <$tmp.man '($1 == "N" || $1 == "X") && $2 ~ /\.3$/	{ print $4 ".3.gz" }' \
+    | sort >$tmp.make
+
+    grep man3 ../debian/*-dev.install \
+    | sed \
+	-e 's;.*/;;' \
+	-e 's/[ 	]*$//' \
+    | sort >$tmp.deb
+
+    comm -23 $tmp.make $tmp.deb >$tmp.out
+    if [ -s $tmp.out ]
+    then
+	echo "=== Generated from the build, missing from any ../debian/*-dev.install file"
+	sed -e 's/^/  /' $tmp.out
+	status=1
+    fi
+
+    comm -13 $tmp.make $tmp.deb >$tmp.out
+    if [ -s $tmp.out ]
+    then
+	echo "=== In a ../debian/*-dev.install file, but not generated from the build"
+	sed -e 's/^/  /' $tmp.out
+	status=1
+	if $DEBUG
 	then
-	    :
-	else
-	    echo "$dir/$file: not in GNUmakefile"
+	    diff $tmp.make $tmp.deb
+	    wc -l $tmp.make $tmp.deb
 	fi
-    done
-    cd ..
-done
+    fi
+fi
 
 # completeness of PM_ERR codes in man3/pcpintro.3
 #
@@ -44,28 +253,53 @@ awk <man3/pcpintro.3 '
 /^.TP/				{ want = 1; next }
 want == 1 && /^.B PM_ERR/	{ print $2 }
 				{ want = 0 }' \
-| sort >$tmp.desc
+| sort \
+| uniq >$tmp.desc
 
-comm -23 $tmp.codes $tmp.desc >$tmp.tmp
-if [ -s $tmp.tmp ]
+comm -23 $tmp.codes $tmp.desc >$tmp.out
+if [ -s $tmp.out ]
 then
-    echo "Error codes defined but not documented in man3/pcpintro.3:"
-    sed -e 's/^/    /' $tmp.tmp
+    echo "=== Error codes defined but not documented in man3/pcpintro.3:"
+    sed -e 's/^/  /' $tmp.out
+    status=1
 fi
-comm -13 $tmp.codes $tmp.desc >$tmp.tmp
-if [ -s $tmp.tmp ]
+comm -13 $tmp.codes $tmp.desc >$tmp.out
+if [ -s $tmp.out ]
 then
-    echo "Error codes documented in man3/pcpintro.3 but not defined:"
-    sed -e 's/^/    /' $tmp.tmp
+    echo "=== Error codes documented in man3/pcpintro.3 but not defined:"
+    sed -e 's/^/  /' $tmp.out
+    status=1
 fi
 
 # references to Irix are probably needing to be retired ... other
 # than the previously checked exceptions
 #
 grep -r -i irix man? \
-| sed \
+| sed >$tmp.out \
+    -e '/\.tmp:/d' \
     -e '/man5\/pmns.5:.*IRIX:[A-Z]/d' \
     -e '/man1\/pcpintro.1:.*MacOSX, IRIX, AIX/d' \
     -e '/man1\/pmie.1:.*\/SGI_Admin\/books\/PCP_IRIX\//d' \
-    -e '/man5\/pmns.5:#define IRIX 1/d'
+    -e '/man5\/pmns.5:#define IRIX 1/d' \
+    -e '/man1\/pcpcompat.1:configuration file format (from IRIX) was also retired in this release,/d' \
+# end
+if [ -s $tmp.out ]
+then
+    echo "=== References to Irix ..."
+    sed -e 's/^/  /' -e 's/: / /' $tmp.out
+    status=1
+fi
+
+# make check
+#
+if make check >$tmp.out
+then
+    :
+else
+    echo "=== make check failed"
+    sed -e 's/^/  /' $tmp.out
+    status=1
+fi
+
+exit
 

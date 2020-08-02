@@ -14,15 +14,11 @@
 .\" for more details.
 .\"
 .\"
-.\" I am variants ...
-.ds ia sample
-.ds IA SAMPLE
-.ds Ia Sample
 .TH PMDASAMPLE 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmdasample\f1 \- \*(ia performance metrics domain agent (PMDA)
+\f3pmdasample\f1 \- sample performance metrics domain agent (PMDA)
 .SH SYNOPSIS
-\f3$PCP_PMDAS_DIR/pmda\*(ia\f1
+\f3$PCP_PMDAS_DIR/pmdasample\f1
 [\f3\-d\f1 \f2domain\f1]
 [\f3\-i\f1 \f2port\f1]
 [\f3\-l\f1 \f2logfile\f1]
@@ -30,20 +26,20 @@
 [\f3\-u\f1 \f2socket\f1]
 [\f3\-U\f1 \f2username\f1]
 .SH DESCRIPTION
-.B pmda\*(ia
-is a \*(ia Performance Metrics Domain Agent (PMDA) which exports
+.B pmdasample
+is a sample Performance Metrics Domain Agent (PMDA) which exports
 a variety of synthetic performance metrics.
 .PP
 This PMDA was developed as part of the quality assurance testing
 for the PCP product, but has other uses, most notably in the
 development of new PCP clients.
 .PP
-The metrics exported by the \*(ia PMDA cover the full range of
+The metrics exported by the sample PMDA cover the full range of
 data types, data semantics, value cardinality, instance domain
 stability and error conditions found in real PMDAs.
 .PP
 A brief description of the
-.B pmda\*(ia
+.B pmdasample
 command line options follows:
 .TP 5
 .B \-d
@@ -58,18 +54,18 @@ number should be used for the same PMDA on all hosts.
 .TP
 .B \-i
 Expect PMCD to connect to
-.B pmda\*(ia
+.B pmdasample
 on the specified TCP/IP port.
 .I port
 may be a port number or port name.
 .TP
 .B \-l
 Location of the log file.  By default, a log file named
-.I \*(ia.log
+.I sample.log
 is written in the current directory of
 .BR pmcd (1)
 when
-.B pmda\*(ia
+.B pmdasample
 is started, i.e.
 .BR $PCP_LOG_DIR/pmcd .
 If the log file cannot
@@ -77,13 +73,13 @@ be created or is not writable, output is written to the standard error instead.
 .TP
 .B \-p
 Expect PMCD to create a pipe and the connection to
-.B pmda\*(ia
+.B pmdasample
 is via standard input and standard output.  This is the
 default connection mode.
 .TP
 .B \-u
 Expect PMCD to connect to
-.B pmda\*(ia
+.B pmdasample
 on the Unix domain socket named
 .IR socket .
 .TP 5
@@ -99,20 +95,20 @@ and
 .B \-u
 may be specified.
 .SH INSTALLATION
-If you want access to the names, help text and values for the \*(ia
+If you want access to the names, help text and values for the sample
 performance metrics, do the following as root:
 .PP
 .ft CW
 .nf
 .in +0.5i
-# cd $PCP_PMDAS_DIR/\*(ia
+# cd $PCP_PMDAS_DIR/sample
 # ./Install
 .in
 .fi
 .ft 1
 .PP
 Note that the installation script also installs the DSO version of
-the \*(ia PMDA, so there are in fact two PMDAs installed, and two
+the sample PMDA, so there are in fact two PMDAs installed, and two
 sets of performance metrics, namely
 .B sample.*
 and
@@ -124,13 +120,13 @@ do the following as root:
 .ft CW
 .nf
 .in +0.5i
-# cd $PCP_PMDAS_DIR/\*(ia
+# cd $PCP_PMDAS_DIR/sample
 # ./Remove
 .in
 .fi
 .ft 1
 .PP
-.B pmda\*(ia
+.B pmdasample
 is launched by
 .BR pmcd (1)
 and should never be executed directly.
@@ -142,24 +138,24 @@ when the agent is installed or removed.
 .TP 10
 .B $PCP_PMCDCONF_PATH
 command line options used to launch
-.B pmda\*(ia
+.B pmdasample
 .TP 10
-.B $PCP_PMDAS_DIR/\*(ia/help
-default help text file for the \*(ia metrics
+.B $PCP_PMDAS_DIR/sample/help
+default help text file for the sample metrics
 .TP 10
-.B $PCP_PMDAS_DIR/\*(ia/Install
+.B $PCP_PMDAS_DIR/sample/Install
 installation script for the
-.B pmda\*(ia
+.B pmdasample
 agent
 .TP 10
-.B $PCP_PMDAS_DIR/\*(ia/Remove
+.B $PCP_PMDAS_DIR/sample/Remove
 undo installation script for the
-.B pmda\*(ia
+.B pmdasample
 agent
 .TP 10
 .B $PCP_LOG_DIR/pmcd/sample.log
 default log file for error messages and other information from
-.B pmda\*(ia
+.B pmdasample
 .PD
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
