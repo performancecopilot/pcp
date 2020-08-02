@@ -19,13 +19,13 @@ container:
 tasks:
   update: |
     sudo apt-get -y update
-    sudo DEBIAN_FRONTEND=noninteractive apt-get -y dist-upgrade
+    sudo ACCEPT_EULA=Y DEBIAN_FRONTEND=noninteractive apt-get -y dist-upgrade
   install_build_dependencies: |
     sudo apt-get -y update
     for pkg in $(./pcp/qa/admin/check-vm -p)
     do
       [ "$runner" = "container" ] && [ "$pkg" = "auditd" ] && continue
-      sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "$pkg" || true
+      sudo ACCEPT_EULA=Y DEBIAN_FRONTEND=noninteractive apt-get install -y "$pkg" || true
     done
     sudo DEBIAN_FRONTEND=noninteractive apt-get install -y zlib1g-dev
   build: |
