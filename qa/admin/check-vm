@@ -1262,7 +1262,12 @@ then
 	then
 	    :
 	else
-	    echo "Need # apt-get install $pkg"
+	    if $pkglist
+	    then
+		echo "$pkg"
+	    else
+		echo "Need # apt-get install $pkg"
+	    fi
 	fi
     done
     # There are some version dependencies in the debian/control file
