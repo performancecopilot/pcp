@@ -597,12 +597,10 @@ redis_search_text_query(redisSlots *slots, pmSearchTextRequest *request, void *a
     types += request->type_inst;
 
     highlights += request->highlight_name;
-    highlights += request->highlight_indom;
     highlights += request->highlight_oneline;
     highlights += request->highlight_helptext;
 
     infields += request->infields_name;
-    infields += request->infields_indom;
     infields += request->infields_oneline;
     infields += request->infields_helptext;
     if (infields == 0) {
@@ -648,9 +646,8 @@ redis_search_text_query(redisSlots *slots, pmSearchTextRequest *request, void *a
     cmd = redis_param_str(cmd, FT_SEARCH, FT_SEARCH_LEN);
     cmd = redis_param_sds(cmd, key);
 
-    query = sdsnewlen("\'", 1);
     base_query = redis_search_text_prep(request->query, 0, NULL, NULL);
-    query = sdscatsds(query, base_query);
+    query = sdscatfmt(sdsempty(), "\'(%S)=>{$inorder:true}", base_query);
     sdsfree(base_query);
     if (types) {
 	query = sdscatlen(query, " @TYPE:{", 8);
@@ -685,8 +682,6 @@ redis_search_text_query(redisSlots *slots, pmSearchTextRequest *request, void *a
 	cmd = redis_param_str(cmd, buffer, length);
 	if (request->infields_name)
 	    cmd = redis_param_str(cmd, FT_NAME, FT_NAME_LEN);
-	if (request->infields_indom)
-	    cmd = redis_param_str(cmd, FT_INDOM, FT_INDOM_LEN);
 	if (request->infields_oneline)
 	    cmd = redis_param_str(cmd, FT_ONELINE, FT_ONELINE_LEN);
 	if (request->infields_helptext)
@@ -716,8 +711,6 @@ redis_search_text_query(redisSlots *slots, pmSearchTextRequest *request, void *a
 	cmd = redis_param_str(cmd, buffer, length);
 	if (request->highlight_name)
 	    cmd = redis_param_str(cmd, FT_NAME, FT_NAME_LEN);
-	if (request->highlight_indom)
-	    cmd = redis_param_str(cmd, FT_INDOM, FT_INDOM_LEN);
 	if (request->highlight_oneline)
 	    cmd = redis_param_str(cmd, FT_ONELINE, FT_ONELINE_LEN);
 	if (request->highlight_helptext)

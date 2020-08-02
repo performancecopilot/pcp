@@ -560,13 +560,7 @@ at the time
 .B pmproxy
 is started, such that metrics, instances and help text it
 discovers can be automatically indexed.
-.PP
-All requests in this group can be accompanied by an optional
-.IR client
-parameter.
-The value passed in the request will be sent back in the
-response \- all responses will be in JSON object form in
-this case, with top level "client" and "result" fields.
+
 .SS GET \fI/search/text\fR \- \fBpmSearchTextQuery\fR(3)
 .TS
 box;
@@ -580,8 +574,7 @@ offset	number	Result offset cursor for pagination
 limit	number	Maximum results to include in response
 field	fields	Queried fields (defaults to all)
 return	fields	Fields to actually return (defaults to all)
-type	types	entity Types to filter (defaults to all)
-client	string	Request identifier sent back with response
+type	types	Entity types to filter (defaults to all)
 .TE
 .PP
 Performs a text search query across metrics and instance
@@ -597,12 +590,11 @@ $ curl -s http://localhost:44322/search/text?\\
 	query=halt | pmjson
 {
   "total": 2,
+  "offset": 0,
+  "limit": 10,
   "elapsed": 0.000504,
   "results": [
     {
-      "docid": "ae2bba4478a916efe60c46132562d1f6ee53dc66",
-      "count": 1,
-      "score": 3.300000,
       "name": "kvm.halt_exits",
       "type": "metric",
       "indom": "95.0.4",
@@ -610,9 +602,6 @@ $ curl -s http://localhost:44322/search/text?\\
       "helptext": "This type of exit is usually seen when a guest is idle."
     },
     {
-      "docid": "5be7a38f204235a77d11f646b4f528388509ac91",
-      "count": 2,
-      "score": 3.300000,
       "name": "kvm.halt_wakeup",
       "type": "metric",
       "indom": "95.0.6",
@@ -622,10 +611,6 @@ $ curl -s http://localhost:44322/search/text?\\
 }
 .ESAMPLE
 .PP
-Every response has a unique document identifier associated
-with it, returned as a convenience (consider these opaque,
-they cannot be passed to the search engine).
-.PP
 The available search entity
 .I types
 are
@@ -633,8 +618,27 @@ are
 .IR indom
 and
 .IR instance .
+Query parameters
+.IR highlight
+and
+.IR field
+take
+.IR name ,
+.IR oneline
+and
+.IR helptext .
+.PP
+Query parameter
+.IR return
+takes
+.IR name ,
+.IR type ,
+.IR oneline ,
+.IR helptext ,
+.IR indom .
 There is typically both a name and help text associated with
-metrics.
+metrics. Contents of these are then matched against
+.IR query .
 An instance domain has help text and a numeric identifier,
 while instances have a name only (which can be searched).
 .SS GET \fI/search/suggest\fR \- \fBpmSearchTextSuggest\fR(3)
@@ -679,18 +683,8 @@ limit	number	M results to include in response
 .PP
 Provides all entities (instances, metrics) related to indom, including itself, that is passed to the server via the
 .I query
-parameter (HTTP GET).
+parameter.
 .SS GET \fI/search/info\fR \- \fBpmSearchInfo\fR(3)
-.TS
-box;
-c | c | cw(2.4i)
-lf(CW) | l | l.
-Parameters	Type	Explanation
-_
-key	string	Metrics for search engine (default "text")
-client	string	Request identifier sent back with response
-.TE
-.PP
 Provides metrics relating to operation of the search engine,
 in particular showing document and text record counts.
 .SAMPLE
