@@ -3461,7 +3461,7 @@ AC_ARG_WITH(rcdir,[AC_HELP_STRING([--with-rcdir],[rc directory [SYSCONFDIR/rc.d]
                   [pcp_rc_dir=$withval], [
 if $enable_systemd
 then
-    pcp_rc_dir="$pcp_libadm_dir/lib"
+    pcp_rc_dir="$pcp_libadm_dir"
 elif test $target_os = freebsd
 then
     pcp_rc_dir="/usr/local/etc/rc.d"
