@@ -559,6 +559,9 @@ process over the last refresh interval.
 @ acct.flag.su Used superuser privileges (boolean)
 @ acct.flag.core Dumped core (boolean)
 @ acct.flag.xsig Killed by a signal (boolean)
-@ acct.control.open_retry_interval Interval of failed acct file opening check
-@ acct.control.check_acct_interval Interval on which acct file size is checked
+@ acct.control.open_retry_interval Minimal time to retry open after failing to open acct file
+@ acct.control.check_acct_interval Interval to check if process accounting works
 @ acct.control.file_size_threshold Size at which the acct file will be reopened
+@ acct.control.lifetime Period of holding acct information after process exits
+@ acct.control.refresh Interval to check if private acct file should be reopened
+@ acct.control.enable_acct Boolean for whether to open private acct file and to use acct(2) syscall
