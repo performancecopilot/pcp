@@ -22,7 +22,7 @@ tasks:
     sudo ACCEPT_EULA=Y DEBIAN_FRONTEND=noninteractive apt-get -y dist-upgrade
   install_build_dependencies: |
     sudo apt-get -y update
-    for pkg in $(./pcp/qa/admin/check-vm -p)
+    for pkg in $(./pcp/qa/admin/check-vm -fp)
     do
       [ "$runner" = "container" ] && [ "$pkg" = "auditd" ] && continue
       sudo ACCEPT_EULA=Y DEBIAN_FRONTEND=noninteractive apt-get install -y "$pkg" || true
