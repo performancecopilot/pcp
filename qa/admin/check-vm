@@ -4,6 +4,8 @@
 # and packages
 #
 
+export LC_COLLATE=POSIX
+
 if [ -f /etc/pcp.conf ]
 then
     . /etc/pcp.conf
@@ -878,11 +880,18 @@ else
 	    then
 		echo >&2 "Warning: cannot get Python version from: `$PCP_PYTHON_PROG --version`"
 	    else
-		#debug# echo "pyver=$pyver"
+		$verbose && echo "Info: guessing Python version $pyver"
 		sed <$tmp.manifest >$tmp.tmp -e '/\/python[0-9]/{
-/\/python'"$pyver"'[./]/!d
+/\/python'"$pyver"'[./-]/!d
 }'
-		#debug# diff $tmp.manifest $tmp.tmp
+		if $very_verbose
+		then
+		    echo "packages excluded based on guessed Python version"
+		    sort $tmp.manifest >$tmp.all
+		    sort $tmp.tmp >$tmp.selected
+		    comm -23 $tmp.all $tmp.selected
+		    rm -f $tmp.all $tmp.selected
+		fi
 		mv $tmp.tmp $tmp.manifest
 	    fi
 	fi
