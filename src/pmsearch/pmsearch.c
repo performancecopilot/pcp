@@ -53,7 +53,6 @@ search_data_init(search_flags flags, sds query, unsigned int count, unsigned int
     dp->request.query = query;
     if ((flags & PMSEARCH_COLOUR)) {
 	dp->request.highlight_name = 1;
-	dp->request.highlight_indom = 0;
 	dp->request.highlight_oneline = 1;
 	dp->request.highlight_helptext = 1;
     }
