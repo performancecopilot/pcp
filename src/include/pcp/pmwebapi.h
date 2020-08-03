@@ -382,7 +382,7 @@ typedef enum pmSearchTextType {
 } pmSearchTextType;
 
 typedef struct pmSearchTextRequest {
-    sds			    query;		/* query string */
+    sds			query;		/* query string */
     pmSearchFlags	flags;		/* query control bits */
     unsigned int	count;		/* maximum results to return */
     unsigned int	offset;		/* results pagination offset */
@@ -403,7 +403,7 @@ typedef struct pmSearchTextRequest {
     unsigned int	return_helptext : 1;
     unsigned int	return_type : 1;
 
-    unsigned int	reserved: 17;	/* zero padding */
+    unsigned int	reserved: 13;	/* zero padding */
 } pmSearchTextRequest;
 
 typedef struct pmSearchTextResult {
