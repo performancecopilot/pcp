@@ -1,0 +1,63 @@
+QA output created by 1251
+
+=== fubar ===
+fubar: nothing appropriate.
+No man entry in any section!
+
+=== pminfo ===
+--- (1) ---
+No match for pattern fubar
+
+=== pminfo ===
+--- (1) ---
+OK
+
+=== pmconfirm ===
+--- (1) ---
+OK
+
+=== pmmessage ===
+--- (1) ---
+OK
+
+=== pmquery ===
+--- (1) ---
+OK
+
+=== KERNEL_PMDAS ===
+--- (1) ---
+OK
+
+=== PCPIntro ===
+--- (1) ---
+OK
+--- (3) ---
+OK
+
+=== pmNewContext ===
+--- (3) ---
+OK
+
+=== pmRecord ===
+--- (3) ---
+OK
+
+=== pmRecordSetup ===
+--- (3) ---
+OK
+
+=== pmRecordControl ===
+--- (3) ---
+OK
+
+=== PCP::MMV ===
+--- (3pm) ---
+OK
+
+=== pcp.env ===
+--- (5) ---
+OK
+
+=== pmdajson ===
+--- (1) ---
+OK

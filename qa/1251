@@ -1,0 +1,98 @@
+#!/bin/sh
+# PCP QA Test No. 1251
+# basic man(1) workout for man pages
+#
+# Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+if [ $# -eq 0 ]
+then
+    echo "QA output created by $seq"
+else
+    echo "QA output created by $seq $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which man >/dev/null 2>&1 || _notrun "No man(1) command?"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+cat <<'End-of-File' | sed -e '/^#/d' -e '/^[ 	]*$/d' | while read key pat
+# keyword	egrep for text in man page
+# for keyword, avoid case aliasing (different man's have different rules)
+# and use (one of) the .SH NAME names
+#
+
+# no man page, check logic
+fubar		beyond all recognition
+# no matching text, check logic
+pminfo		fubar
+
+# simple section 1 entry
+pminfo		.-T, *--helptext
+# composite section 1 entry
+pmconfirm	button-name
+pmmessage	button-name
+pmquery		button-name
+# aliased (xM) section 1 entry
+KERNEL_PMDAS	usually running as shared libraries
+# special case section 1 and 3 entry
+PCPIntro	Co-Pilot
+
+# simple section 3 entry
+pmNewContext	PM_CTXFLAG_SECURE
+# composite and aliased (xM) section 3 entry
+pmRecord	pmRecordHost
+pmRecordSetup	pmRecordHost
+pmRecordControl	pmRecordHost
+
+# weirdos
+PCP::MMV	MMV Perl module
+pcp.env		\.pcp/pcp.conf
+# from src/pmdas/json (Python), not man/man?
+pmdajson	generating  *JavaScript
+End-of-File
+do
+    echo | tee -a $seq.full
+    echo "=== $key ===" | tee -a $seq.full
+    man -k "$key" | sed -e 's/).*//' -e 's/.*(//' 2>$tmp.err \
+    | LC_COLLATE=POSIX sort \
+    | uniq >$tmp.sect
+    if [ -s $tmp.sect ]
+    then
+	echo >$tmp.last
+	for sect in `cat $tmp.sect`
+	do
+	    echo "--- ($sect) ---" | tee -a $seq.full
+	    TERM=dumb man $sect $key >$tmp.out 2>&1
+	    if egrep "$pat" $tmp.out >/dev/null
+	    then
+		echo OK
+	    else
+		cat $tmp.out >>$seq.full
+		echo "No match for pattern $pat"
+	    fi
+	done
+    else
+	cat $tmp.err >>$seq.full
+	echo "No man entry in any section!"
+    fi
+done
+
+# success, all done
+status=0
+exit
