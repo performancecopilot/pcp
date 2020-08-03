@@ -1087,7 +1087,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    fi
 	fi
 
-	# For archive rewiting (to make metadata consistent across
+	# For archive rewriting (to make metadata consistent across
 	# archives) find the rules as follows:
 	# - if pmlogrewrite exists (as a file, directory or symlink)
 	#   in the current archive directory use that
