@@ -113,10 +113,10 @@ _symlink()
 	do
 	    __tpath="../${__tpath}"	# constructing a relative path
 	done
-	pushd ${__dir}
+	cd "${__dir}"
 	$LN "${__tpath}${__rel}" "$__symlink"
 	status=$?
-	popd
+	cd "$HERE"
 	$MANIFEST l "${__tpath}${__rel}" `echo "$__symlink" | sed -e "s;^$DIST_ROOT;;"`
     fi
 }

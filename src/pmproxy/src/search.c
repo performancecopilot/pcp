@@ -52,7 +52,7 @@ static pmSearchRestCommand commands[] = {
 
 /* constant string keys (initialized during servlet setup) */
 static sds PARAM_CLIENT, PARAM_QUERY, PARAM_RETURN, PARAM_HIGHLIGHT;
-static sds PARAM_FIELDS, PARAM_LIMIT, PARAM_OFFSET, PARAM_TEXT;
+static sds PARAM_FIELD, PARAM_LIMIT, PARAM_OFFSET, PARAM_TEXT;
 static sds PARAM_TYPE;
 
 /* constant global strings (read-only) */
@@ -92,22 +92,6 @@ pmsearch_data_release(struct client *client)
     free(baton);
 }
 
-/*
- * If any request is accompanied by 'client', the client is using
- * this to identify responses.  Wrap the usual response using the
- * identifier - by adding a JSON object at the top level with two
- * fields, 'client' (ID) and 'result' (the rest of the response).
- */
-static sds
-push_client_identifier(pmSearchBaton *baton, sds result)
-{
-    if (baton->clientid) {
-	baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_OBJECT);
-	return sdscatfmt(result, "{\"client\":%S,\"result\":", baton->clientid);
-    }
-    return result;
-}
-
 static void
 on_pmsearch_metrics(pmSearchMetrics *metrics, void *arg)
 {
@@ -115,7 +99,6 @@ on_pmsearch_metrics(pmSearchMetrics *metrics, void *arg)
     struct client	*client = baton->client;
     sds			result = http_get_buffer(baton->client);
 
-    result = push_client_identifier(baton, result);
     baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_OBJECT);
     result = sdscatprintf(result,
 			"{\"docs\":%llu,\"terms\":%llu,\"records\":%llu,"
@@ -153,7 +136,6 @@ on_pmsearch_text_result(pmSearchTextResult *search, void *arg)
     case RESTKEY_TEXT:
     case RESTKEY_INDOM:
 	if (baton->results++ == 0) {
-	    result = push_client_identifier(baton, result);
 	    /* once-off header containing metrics - timing, total hits */
 	    baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_OBJECT);
 	    pmsprintf(buffer, sizeof(buffer), "%.6f", search->timer);
@@ -199,7 +181,6 @@ on_pmsearch_text_result(pmSearchTextResult *search, void *arg)
 
     case RESTKEY_SUGGEST:
 	if (baton->results++ == 0) {
-	    result = push_client_identifier(baton, result);
 	    baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_ARRAY);
 	    result = sdscatfmt(result, "[");
 	    prefix = "";
@@ -298,7 +279,6 @@ pmsearch_setup_request_parameters(struct client *client,
 
     /* FIELDS: default to querying most */
     baton->request.infields_name = 1;
-    baton->request.infields_indom = 0;
     baton->request.infields_oneline = 1;
     baton->request.infields_helptext = 1;
 
@@ -328,7 +308,6 @@ pmsearch_setup_request_parameters(struct client *client,
 	if ((entry = dictFind(parameters, PARAM_HIGHLIGHT))) {
 	    if ((value = dictGetVal(entry)) == NULL) {	/* all */
 		baton->request.highlight_name = 0;
-		baton->request.highlight_indom = 0;
 		baton->request.highlight_oneline = 0;
 		baton->request.highlight_helptext = 0;
 	    } else {
@@ -336,8 +315,6 @@ pmsearch_setup_request_parameters(struct client *client,
 		for (i = 0; values && i < nvalues; i++) {
 		    if (strcmp(values[i], "name") == 0)
 			baton->request.highlight_name = 1;
-		    else if (strcmp(values[i], "indom") == 0)
-			baton->request.highlight_indom = 1;
 		    else if (strcmp(values[i], "oneline") == 0)
 			baton->request.highlight_oneline = 1;
 		    else if (strcmp(values[i], "helptext") == 0)
@@ -369,9 +346,8 @@ pmsearch_setup_request_parameters(struct client *client,
 		sdsfreesplitres(values, nvalues);
 	    }
 	}
-	if ((entry = dictFind(parameters, PARAM_FIELDS))) {
+	if ((entry = dictFind(parameters, PARAM_FIELD))) {
 	    baton->request.infields_name = 0;
-	    baton->request.infields_indom = 0;
 	    baton->request.infields_oneline = 0;
 	    baton->request.infields_helptext = 0;
 	    if ((value = dictGetVal(entry)) != NULL) {
@@ -379,8 +355,6 @@ pmsearch_setup_request_parameters(struct client *client,
 		for (i = 0; values && i < nvalues; i++) {
 		    if (strcmp(values[i], "name") == 0)
 			baton->request.infields_name = 1;
-		    else if (strcmp(values[i], "indom") == 0)
-			baton->request.infields_indom = 1;
 		    else if (strcmp(values[i], "oneline") == 0)
 			baton->request.infields_oneline = 1;
 		    else if (strcmp(values[i], "helptext") == 0)
@@ -538,7 +512,7 @@ pmsearch_servlet_setup(struct proxy *proxy)
     PARAM_CLIENT = sdsnew("clientid");
     PARAM_TEXT = sdsnew("text");
     PARAM_QUERY = sdsnew("query");
-    PARAM_FIELDS = sdsnew("fields");
+    PARAM_FIELD = sdsnew("field");
     PARAM_RETURN = sdsnew("return");
     PARAM_HIGHLIGHT = sdsnew("highlight");
     PARAM_TYPE = sdsnew("type");
@@ -562,7 +536,7 @@ pmsearch_servlet_close(struct proxy *proxy)
     sdsfree(PARAM_CLIENT);
     sdsfree(PARAM_TEXT);
     sdsfree(PARAM_QUERY);
-    sdsfree(PARAM_FIELDS);
+    sdsfree(PARAM_FIELD);
     sdsfree(PARAM_RETURN);
     sdsfree(PARAM_HIGHLIGHT);
     sdsfree(PARAM_TYPE);

@@ -391,21 +391,22 @@ typedef struct pmSearchTextRequest {
     unsigned int	type_indom : 1;
     unsigned int	type_inst : 1;
     unsigned int	type_pad : 1;
+
     unsigned int	highlight_name : 1;	/* highlight results */
-    unsigned int	highlight_indom : 1;
     unsigned int	highlight_oneline : 1;
     unsigned int	highlight_helptext : 1;
+
     unsigned int	infields_name : 1;	/* restrict query fields */
-    unsigned int	infields_indom : 1;
     unsigned int	infields_oneline : 1;
     unsigned int	infields_helptext : 1;
+
     unsigned int	return_name : 1;	/* restrict returned fields */
     unsigned int	return_indom : 1;
     unsigned int	return_oneline : 1;
     unsigned int	return_helptext : 1;
     unsigned int	return_type : 1;
 
-    unsigned int	reserved: 15;	/* zero padding */
+    unsigned int	reserved: 17;	/* zero padding */
 } pmSearchTextRequest;
 
 typedef struct pmSearchTextResult {
