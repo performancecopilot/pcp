@@ -231,14 +231,14 @@ fmt(const char *input, char *output, size_t length, int goal, int maximum,
      * a maximum length, in a very simplified fmt(1)-alike fashion.
      */
     while (*cut != '\0') {
-	if (isspace(*line)) {	/* skip whitespace at start of line */
+	if (isspace((int)*line)) {	/* skip whitespace at start of line */
 	    cut = ++line;
 	    continue;
 	}
 	bytes = ++cut - line;
 	if (bytes <= goal)	/* too early, keep scanning */
 	    continue;
-	if (bytes < maximum && !isspace(*cut))
+	if (bytes < maximum && !isspace((int)*cut))
 	    continue;
 	callback(line, bytes, arg);
 	line = cut;		/* start on the next line */
@@ -252,7 +252,7 @@ istoken(const char *input, const char *token, size_t length)
 {
     if (strncmp(input, token, length) != 0)
 	return 0;
-    return input[length] == '\0' || isspace(input[length]);
+    return input[length] == '\0' || isspace((int)input[length]);
 }
 
 char *
@@ -270,7 +270,7 @@ trim(const char *input)
 {
     const char	*p = input;
 
-    while (isspace(*p) && *p != '\n')
+    while (isspace((int)*p) && *p != '\n')
 	p++;
     return (char *)p;
 }
@@ -326,7 +326,7 @@ copy_token(const char *input)
 {
     const char	*end = input;
 
-    while (!isspace(*end) && *end != '\0')
+    while (!isspace((int)*end) && *end != '\0')
 	end++;
     return strndup(input, end - input);
 }

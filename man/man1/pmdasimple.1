@@ -14,15 +14,11 @@
 .\" for more details.
 .\"
 .\"
-.\" I am variants ...
-.ds ia simple
-.ds IA SIMPLE
-.ds Ia Simple
 .TH PMDASIMPLE 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmdasimple\f1 \- \*(ia performance metrics domain agent (PMDA)
+\f3pmdasimple\f1 \- simple performance metrics domain agent (PMDA)
 .SH SYNOPSIS
-\f3$PCP_PMDAS_DIR/\*(ia/pmda\*(ia\f1
+\f3$PCP_PMDAS_DIR/simple/pmdasimple\f1
 [\f3\-d\f1 \f2domain\f1]
 [\f3\-i\f1 \f2port\f1]
 [\f3\-l\f1 \f2logfile\f1]
@@ -30,20 +26,20 @@
 [\f3\-u\f1 \f2socket\f1]
 [\f3\-U\f1 \f2username\f1]
 .SH DESCRIPTION
-.B pmda\*(ia
-is a \*(ia Performance Metrics Domain Agent (PMDA) which exports
+.B pmdasimple
+is a simple Performance Metrics Domain Agent (PMDA) which exports
 a small number of synthetic performance metrics.
 .PP
-The \*(ia PMDA is
+The simple PMDA is
 shipped as source code and is designed to be an aid for PMDA developers.
 In terms of code size and features, it is more complex than the
 trivial PMDA, about the same as the txmon PMDA
 and less complex than the sample PMDA.
-The source for the \*(ia PMDA is a good template from which production,
+The source for the simple PMDA is a good template from which production,
 customized PMDAs can be developed.
 .PP
 A brief description of the
-.B pmda\*(ia
+.B pmdasimple
 command line options follows:
 .TP 5
 .B \-d
@@ -58,18 +54,18 @@ number should be used for the same PMDA on all hosts.
 .TP
 .B \-i
 Expect PMCD to connect to
-.B pmda\*(ia
+.B pmdasimple
 on the specified TCP/IP port.
 .I port
 may be a port number or port name.
 .TP
 .B \-l
 Location of the log file.  By default, a log file named
-.I \*(ia.log
+.I simple.log
 is written in the current directory of
 .BR pmcd (1)
 when
-.B pmda\*(ia
+.B pmdasimple
 is started, i.e.
 .BR $PCP_LOG_DIR/pmcd .
 If the log file cannot
@@ -77,13 +73,13 @@ be created or is not writable, output is written to the standard error instead.
 .TP
 .B \-p
 Expect PMCD to create a pipe and the connection to
-.B pmda\*(ia
+.B pmdasimple
 is via standard input and standard output.  This is the
 default connection mode.
 .TP
 .B \-u
 Expect PMCD to connect to
-.B pmda\*(ia
+.B pmdasimple
 on the Unix domain socket named
 .IR socket .
 .TP 5
@@ -99,13 +95,13 @@ and
 .B \-u
 may be specified.
 .SH INSTALLATION
-If you want access the names, help text and values for the \*(ia
+If you want access the names, help text and values for the simple
 performance metrics, do the following as root:
 .PP
 .ft CW
 .nf
 .in +0.5i
-# cd $PCP_PMDAS_DIR/\*(ia
+# cd $PCP_PMDAS_DIR/simple
 # ./Install
 .in
 .fi
@@ -116,13 +112,13 @@ If you want to undo the installation, do the following as root:
 .ft CW
 .nf
 .in +0.5i
-# cd $PCP_PMDAS_DIR/\*(ia
+# cd $PCP_PMDAS_DIR/simple
 # ./Remove
 .in
 .fi
 .ft 1
 .PP
-.B pmda\*(ia
+.B pmdasimple
 is launched by
 .BR pmcd (1)
 and should never be executed directly.
@@ -134,22 +130,22 @@ when the agent is installed or removed.
 .TP 10
 .B $PCP_PMCDCONF_PATH
 command line options used to launch
-.B pmda\*(ia
+.B pmdasimple
 .TP
-.B $PCP_PMDAS_DIR/\*(ia/help
-default help text file for the \*(ia metrics
+.B $PCP_PMDAS_DIR/simple/help
+default help text file for the simple metrics
 .TP
-.B $PCP_PMDAS_DIR/\*(ia/Install
+.B $PCP_PMDAS_DIR/simple/Install
 installation script for the
-.B pmda\*(ia
+.B pmdasimple
 agent
 .TP
-.B $PCP_PMDAS_DIR/\*(ia/Remove
+.B $PCP_PMDAS_DIR/simple/Remove
 undo installation script for the
-.B pmda\*(ia
+.B pmdasimple
 agent
 .TP
-.B $PCP_PMDAS_DIR/\*(ia/simple.conf
+.B $PCP_PMDAS_DIR/simple/simple.conf
 configuration file for the dynamic instance domain that
 underlies the
 .B simple.now
@@ -161,16 +157,16 @@ $ pminfo \-T simple.now
 .ft P
 .sp 0.5v
 .TP
-.B $PCP_PMDAS_DIR/\*(ia/*.pmda_simple.so
+.B $PCP_PMDAS_DIR/simple/*.pmda_simple.so
 The DSO version of the PMDA.  The same source is used to create both the
-DSO and the daemon versions of the \*(ia PMDA, and one or the other
+DSO and the daemon versions of the simple PMDA, and one or the other
 may be installed as part of the dialog in the
 .B Install
 script.
 .TP
 .B $PCP_LOG_DIR/pmcd/simple.log
 default log file for error messages and other information from
-.B pmda\*(ia
+.B pmdasimple
 .PD
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
