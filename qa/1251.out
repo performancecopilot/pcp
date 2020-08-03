@@ -1,8 +1,9 @@
 QA output created by 1251
 
-=== fubar ===
-fubar: nothing appropriate.
-No man entry in any section!
+=== really_fubar ===
+No matching man entry in any section!
+--- (1) ---
+No match for pattern beyond all recognition
 
 === pminfo ===
 --- (1) ---
@@ -31,6 +32,8 @@ OK
 === PCPIntro ===
 --- (1) ---
 OK
+
+=== PCPIntro ===
 --- (3) ---
 OK
 
@@ -51,7 +54,7 @@ OK
 OK
 
 === PCP::MMV ===
---- (3pm) ---
+--- (3) ---
 OK
 
 === pcp.env ===
