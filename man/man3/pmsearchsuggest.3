@@ -13,26 +13,37 @@
 .\" for more details.
 .\"
 .\"
-.TH PMSEARCHINFO 3 "PCP" "Performance Co-Pilot"
+.TH PMSEARCHSUGGEST 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmSearchInfo\f1 \- diagnostic metrics of PCP search services
+\f3pmSearchSuggest\f1 \- search for suggestions of metric or instance names using PCP search services
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmwebapi.h>
 .sp
-int pmSearchInfo(pmSearchSettings *\fIsettings\fP, sds \fIkey\fP, void *\fIarg\fP)
+int pmSearchSuggest(pmSearchSettings *\fIsettings\fP, pmSearchTextRequest *\fIrequest\fP, void *\fIarg\fP)
 .sp
 cc ... \-lpcp_web
 .ft 1
 .SH DESCRIPTION
-Diagnostic metrics related to the Performance Co-Pilot (PCP) fast, scalable and fulltext capable search services.
+Executes fulltext search for names of metrics or instances suitable for autocompletition, specified by
+.IR request :
+.TP 5
+\fIquery\fR
+Query string that will be used to search.
+.TP 5
+\fIcount\fR
+Limits number of results. Defaults to 10.
 .PP
-Currently, as all fulltext related services are using single RediSearch index, diagnostic metrics are requestable by passing in
-.IR key
-with a value of
-.BR `text' .
-The results will passed to
-.B on_metrics
+Words with length less than 2 are omitted.
+.PP
+This search matches terms inside entity name that either have
+.B query
+prefix or are within Levenshtein distance of 1, with former having slightly higher priority than the latter.
+.PP
+Each entity matched by the
+.B request
+above will be passed to
+.B on_text_result
 callback provided by
 .B settings.
 .SH DIAGNOSTICS
@@ -47,3 +58,4 @@ On failure a negative PMAPI error code is returned.
 .BR PMAPI (3)
 and
 .BR PMWEBAPI (3).
+

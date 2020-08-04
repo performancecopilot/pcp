@@ -217,8 +217,8 @@ PCP_WEB_1.15 {
     pmSearchSetMetricRegistry;
 
     pmSearchInfo;
-    pmSearchTextQuery;
-    pmSearchTextSuggest;
-    pmSearchTextInDom;
+    pmSearchText;
+    pmSearchSuggest;
+    pmSearchInDom;
     pmSearchTextTypeStr;
 } PCP_WEB_1.14;

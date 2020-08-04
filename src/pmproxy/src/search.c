@@ -478,17 +478,17 @@ pmsearch_request_done(struct client *client)
 
     switch (baton->restkey) {
     case RESTKEY_TEXT:
-	if ((sts = pmSearchTextQuery(&pmsearch_settings, &baton->request, baton)) < 0)
+	if ((sts = pmSearchText(&pmsearch_settings, &baton->request, baton)) < 0)
 	    on_pmsearch_done(sts, baton);
 	break;
 
     case RESTKEY_SUGGEST:
-	if ((sts = pmSearchTextSuggest(&pmsearch_settings, &baton->request, baton)) < 0)
+	if ((sts = pmSearchSuggest(&pmsearch_settings, &baton->request, baton)) < 0)
 	    on_pmsearch_done(sts, baton);
 	break;
 
     case RESTKEY_INDOM:
-	if ((sts = pmSearchTextInDom(&pmsearch_settings, &baton->request, baton)) < 0)
+	if ((sts = pmSearchInDom(&pmsearch_settings, &baton->request, baton)) < 0)
 	    on_pmsearch_done(sts, baton);
 	break;
 

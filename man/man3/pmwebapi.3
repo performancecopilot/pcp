@@ -561,7 +561,7 @@ at the time
 is started, such that metrics, instances and help text it
 discovers can be automatically indexed.
 
-.SS GET \fI/search/text\fR \- \fBpmSearchTextQuery\fR(3)
+.SS GET \fI/search/text\fR \- \fBpmSearchText\fR(3)
 .TS
 box;
 c | c | cw(2.4i)
@@ -641,7 +641,7 @@ metrics. Contents of these are then matched against
 .IR query .
 An instance domain has help text and a numeric identifier,
 while instances have a name only (which can be searched).
-.SS GET \fI/search/suggest\fR \- \fBpmSearchTextSuggest\fR(3)
+.SS GET \fI/search/suggest\fR \- \fBpmSearchSuggest\fR(3)
 .TS
 box;
 c | c | cw(2.4i)
@@ -669,7 +669,7 @@ $ curl -s http://localhost:44322/search/suggest?\\
     "disk.all.blktotal"
 ]
 .ESAMPLE
-.SS GET \fI/search/indom\fR \- \fBpmSearchTextIndom\fR(3)
+.SS GET \fI/search/indom\fR \- \fBpmSearchIndom\fR(3)
 .TS
 box;
 c | c | cw(2.4i)

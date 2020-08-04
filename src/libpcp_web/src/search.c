@@ -735,7 +735,7 @@ redis_search_text_query(redisSlots *slots, pmSearchTextRequest *request, void *a
 }
 
 int
-pmSearchTextQuery(pmSearchSettings *settings, pmSearchTextRequest *request, void *arg)
+pmSearchText(pmSearchSettings *settings, pmSearchTextRequest *request, void *arg)
 {
     seriesModuleData	*data = getSeriesModuleData(&settings->module);
     redisSearchBaton	*baton;
@@ -750,7 +750,7 @@ pmSearchTextQuery(pmSearchSettings *settings, pmSearchTextRequest *request, void
 }
 
 static void
-redis_search_text_suggest(redisSlots *slots, pmSearchTextRequest *request, void *arg)
+redis_search_suggest_query(redisSlots *slots, pmSearchTextRequest *request, void *arg)
 {
     redisSearchBaton	*baton = (redisSearchBaton *)arg;
     size_t		length, prefix_length, fuzzy_length;
@@ -839,7 +839,7 @@ redis_search_text_suggest(redisSlots *slots, pmSearchTextRequest *request, void 
 }
 
 int
-pmSearchTextSuggest(pmSearchSettings *settings, pmSearchTextRequest *request, void *arg)
+pmSearchSuggest(pmSearchSettings *settings, pmSearchTextRequest *request, void *arg)
 {
     seriesModuleData	*data = getSeriesModuleData(&settings->module);
     redisSearchBaton	*baton;
@@ -849,12 +849,12 @@ pmSearchTextSuggest(pmSearchSettings *settings, pmSearchTextRequest *request, vo
     if ((baton = calloc(1, sizeof(redisSearchBaton))) == NULL)
 	return -ENOMEM;
     initRedisSearchBaton(baton, data->slots, settings, arg);
-    redis_search_text_suggest(data->slots, request, baton);
+    redis_search_suggest_query(data->slots, request, baton);
     return 0;
 }
 
 static void
-redis_search_text_indom(redisSlots *slots, pmSearchTextRequest *request, void *arg)
+redis_search_indom_query(redisSlots *slots, pmSearchTextRequest *request, void *arg)
 {
     redisSearchBaton	*baton = (redisSearchBaton *)arg;
     size_t		length;
@@ -913,7 +913,7 @@ redis_search_text_indom(redisSlots *slots, pmSearchTextRequest *request, void *a
 }
 
 int
-pmSearchTextInDom(pmSearchSettings *settings, pmSearchTextRequest *request, void *arg)
+pmSearchInDom(pmSearchSettings *settings, pmSearchTextRequest *request, void *arg)
 {
     seriesModuleData	*data = getSeriesModuleData(&settings->module);
     redisSearchBaton	*baton;
@@ -923,7 +923,7 @@ pmSearchTextInDom(pmSearchSettings *settings, pmSearchTextRequest *request, void
     if ((baton = calloc(1, sizeof(redisSearchBaton))) == NULL)
 	return -ENOMEM;
     initRedisSearchBaton(baton, data->slots, settings, arg);
-    redis_search_text_indom(data->slots, request, baton);
+    redis_search_indom_query(data->slots, request, baton);
     return 0;
 }
 
