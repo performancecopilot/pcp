@@ -62,6 +62,10 @@ pmdaMetric metrictable[] = {
 		PMDA_PMID(CLUSTER_DEVICE_INFO, ROTATION_RATE),
 		PM_TYPE_STRING, DISK_INDOM, PM_SEM_DISCRETE,
 		PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_DEVICE_INFO, FIRMWARE_VERSION),
+		PM_TYPE_STRING, DISK_INDOM, PM_SEM_DISCRETE,
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },
 	/* Smart Attribute metrics */
 	{ .m_desc = {
 		PMDA_PMID(CLUSTER_RAW_READ_ERROR_RATE, SMART_ID),
@@ -1003,6 +1007,107 @@ pmdaMetric metrictable[] = {
 		PMDA_PMID(CLUSTER_FREE_FALL_SENSOR, SMART_RAW),
 		PM_TYPE_U64, DISK_INDOM, PM_SEM_INSTANT,
 		PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+	/* Smart Attribute metrics */
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_ATTRIBUTES, CRITICAL_WARNING),
+		PM_TYPE_STRING, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_ATTRIBUTES, COMPOSITE_TEMPERATURE),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_ATTRIBUTES, AVAILABLE_SPARE),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_ATTRIBUTES, AVAILABLE_SPARE_THRESHOLD),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_ATTRIBUTES, PERCENTAGE_USED),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_ATTRIBUTES, DATA_UNITS_READ),
+		PM_TYPE_U64, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_ATTRIBUTES, DATA_UNITS_WRITTEN),
+		PM_TYPE_U64, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_ATTRIBUTES, HOST_READ_COMMANDS),
+		PM_TYPE_U64, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_ATTRIBUTES, HOST_WRITES_COMMANDS),
+		PM_TYPE_U64, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_ATTRIBUTES, CONTROLLER_BUSY_TIME),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_ATTRIBUTES, POWER_CYCLES),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_ATTRIBUTES, NVME_POWER_ON_HOURS),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_ATTRIBUTES, UNSAFE_SHUTDOWNS),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_ATTRIBUTES, MEDIA_AND_DATA_INTEGRITY_ERRORS),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_ATTRIBUTES, NUMBER_OF_ERROR_INFORMATION_LOG_ENTRIES),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_ATTRIBUTES, WARNING_COMPOSITE_TEMPERATRE_TIME),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_ATTRIBUTES, CRITICAL_COMPOSITE_TEMPERATURE_TIME),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_ATTRIBUTES, TEMPERATURE_SENSOR_ONE),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_ATTRIBUTES, TEMPERATURE_SENSOR_TWO),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_ATTRIBUTES, TEMPERATURE_SENSOR_THREE),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_ATTRIBUTES, TEMPERATURE_SENSOR_FOUR),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_ATTRIBUTES, TEMPERATURE_SENSOR_FIVE),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_ATTRIBUTES, TEMPERATURE_SENSOR_SIX),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_ATTRIBUTES, TEMPERATURE_SENSOR_SEVEN),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_ATTRIBUTES, TEMPERATURE_SENSOR_EIGHT),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },	
 };
 
 int
@@ -1038,7 +1143,7 @@ smart_instance_refresh(void)
 		/* at this point dev_name contains our device name this will be used to
 		   map stats to disk drive instances */
 
-		struct block_dev *dev;
+		struct block_dev *dev;	
 
 		sts = pmdaCacheLookupName(indom, dev_name, NULL, (void **)&dev);
 		if (sts == PM_ERR_INST || (sts >=0 && dev == NULL)) {
@@ -1047,6 +1152,12 @@ smart_instance_refresh(void)
 				pclose(pf);
 				return PM_ERR_AGAIN;
 			}
+			
+			/* check for nvme device so that we use the nvme S.M.A.R.T attribute 
+		   	path */
+			if (strncmp(dev_name, "nvme", 4) == 0)
+				dev->is_nvme = 1;
+
 		}
 		else if (sts < 0)
 			continue;
@@ -1083,7 +1194,7 @@ smart_fetch_refresh(pmdaExt *pmda, int *need_refresh)
 			continue;
 
 		if (need_refresh[CLUSTER_DEVICE_INFO])
-			smart_refresh_device_info(dev_name, &dev->device_info);
+			smart_refresh_device_info(dev_name, &dev->device_info, dev->is_nvme);
 
 		if (need_refresh[CLUSTER_RAW_READ_ERROR_RATE] ||
 			need_refresh[CLUSTER_THROUGHPUT_PERFORMANCE] ||
@@ -1132,7 +1243,10 @@ smart_fetch_refresh(pmdaExt *pmda, int *need_refresh)
 			need_refresh[CLUSTER_TOTAL_LBAS_READ] ||
 			need_refresh[CLUSTER_READ_ERROR_RETRY_RATE] ||
 			need_refresh[CLUSTER_FREE_FALL_SENSOR])
-				smart_refresh_data(dev_name, &dev->smart_data);
+				smart_refresh_data(dev_name, &dev->smart_data, dev->is_nvme);
+				
+		if (need_refresh[CLUSTER_NVME_ATTRIBUTES])
+			nvme_smart_refresh_data(dev_name, &dev->nvme_smart_data, dev->is_nvme);
 	}
 	return sts;
 }
@@ -1220,6 +1334,12 @@ smart_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 			if (sts < 0)
 				return sts;
 			return smart_data_fetch(item, cluster, &dev->smart_data, atom);
+			
+		case CLUSTER_NVME_ATTRIBUTES:
+			sts = pmdaCacheLookup(INDOM(DISK_INDOM), inst, NULL, (void **)&dev);
+			if (sts < 0)
+				return sts;
+			return nvme_smart_data_fetch(item, cluster, &dev->nvme_smart_data, atom, dev->is_nvme);
 
 		default:
 			return PM_ERR_PMID;
