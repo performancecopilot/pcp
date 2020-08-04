@@ -62,7 +62,6 @@ cat <<'End-of-File' | sed -e '/^#/d' -e '/^[ 	]*$/d' | while read sect key altna
 3	pmRecordControl	pmRecord	pmRecordHost
 
 # weirdos
-3	PCP::MMV	-	MMV Perl module
 5	pcp.env		-	\.pcp/pcp.conf
 # from src/pmdas/json (Python), not man/man?
 1	pmdajson	-	generating  *JavaScript
@@ -106,6 +105,26 @@ do
 	    # at the start of the line, e.g.
 	    # pmRecordAddHost [pmRecord] (3)  - record ...
 	    :
+	elif grep "^$lc_key, .*($sect" $tmp.tmp >/dev/null
+	then
+	    # FreeBSD 12.0 style with all the .SH NAME options on the
+	    # same line and the first entry in the list, e.g. pmconfirm
+	    # below:
+	    # pmconfirm, pmmessage, pmquery(1) - general ...
+	elif grep " $lc_key, .*($sect" $tmp.tmp >/dev/null
+	then
+	    # FreeBSD 12.0 style with all the .SH NAME options on the
+	    # same line and a middle entry in the list, e.g. pmmessage
+	    # below:
+	    # pmconfirm, pmmessage, pmquery(1) - general ...
+	    :
+	elif grep " $lc_key($sect" $tmp.tmp >/dev/null
+	then
+	    # FreeBSD 12.0 style with all the .SH NAME options on the
+	    # same line and the last entry in the list, e.g. pmquery
+	    # below;
+	    # pmconfirm, pmmessage, pmquery(1) - general ...
+	    :
 	else
 	    # no matching entry from man -k
 	    cat $tmp.err >>$seq.full
@@ -113,6 +132,7 @@ do
 	fi
     else
 	# no output from man -k
+	cat $tmp.out >>$seq.full
 	cat $tmp.err >>$seq.full
 	echo "No matching man entry in any section!"
     fi
