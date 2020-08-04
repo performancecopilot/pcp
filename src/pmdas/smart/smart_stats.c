@@ -45,7 +45,7 @@ smart_strip_input(char *units)
 	r = units;
 	
 	/* second pass to strip space separators from string */
-	do while (*r == ' ') r++; while ((*units++) = *r++);
+	do while (*r == ' ') r++; while (((*units++) = *r++));
 
 	return *units;
 }
