@@ -38,6 +38,7 @@ _cleanup()
     done
     $sudo rm -f $tmp.*
     _restore_auto_restart pmcd
+    [ "$pmie_state" = on ] && _change_config pmie on
     if $pmie_was_running
     then
 	_restore_auto_restart pmie
@@ -56,6 +57,7 @@ needclean=false
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _stop_auto_restart pmcd
+pmie_state=`_get_config pmie`
 
 lhost=`hostname | sed -e 's/\..*//'`
 host=`_get_fqdn`
