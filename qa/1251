@@ -111,6 +111,7 @@ do
 	    # same line and the first entry in the list, e.g. pmconfirm
 	    # below:
 	    # pmconfirm, pmmessage, pmquery(1) - general ...
+	    :
 	elif grep " $lc_key, .*($sect" $tmp.tmp >/dev/null
 	then
 	    # FreeBSD 12.0 style with all the .SH NAME options on the
