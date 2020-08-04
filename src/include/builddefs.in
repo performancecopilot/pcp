@@ -554,7 +554,6 @@ state==1 { for (i=1;i<=NF;i++) { \
 	     print $$i \
 	   } \
 	 }' \
-	| LC_COLLATE=POSIX $(PCP_SORT_PROG) -u \
 	| while read m; do \
 	    [ -z "$$m" -o "$$m" = "\\" ] && continue; \
 	    t=$(PCP_MAN_DIR)/man$$section/$$m.$$section; \

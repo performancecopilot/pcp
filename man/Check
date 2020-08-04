@@ -146,25 +146,26 @@ fi
 # these are excluded from the analysis below
 #
 cat <<'End-of-File' >$tmp.exclude
-man1/pmstat.1
 man1/pcp.1
 man1/pcpcompat.1
-man1/pcp-shping.1
 man1/pcpintro.1
 man1/pcp-python.1
-man3/pmwebapi.3
+man1/pcp-shping.1
+man1/pmdacisco.1
+man1/pmstat.1
 man3i/pmapi_internal.3
-man3/QmcIndom.3
-man3/QmcMetric.3
-man3/QmcDesc.3
-man3/QMC.3
+man3/logimport.3
 man3/pcpintro.3
 man3/pmapi.3
 man3/pmda.3
-man3/QmcSource.3
-man3/logimport.3
-man3/QmcGroup.3
+man3/pmwebapi.3
+man3/QMC.3
 man3/QmcContext.3
+man3/QmcDesc.3
+man3/QmcGroup.3
+man3/QmcIndom.3
+man3/QmcMetric.3
+man3/QmcSource.3
 man5/.*
 End-of-File
 
