@@ -68,17 +68,20 @@ enum {
 	CLUSTER_TOTAL_LBAS_READ = 242,
 	CLUSTER_READ_ERROR_RETRY_RATE = 250,
 	CLUSTER_FREE_FALL_SENSOR = 254,
+	CLUSTER_NVME_ATTRIBUTES = 255,
 	NUM_CLUSTERS
 };
 
 enum {
-	DISK_INDOM = 0,								/* 0 - Detected disk names      */
+	DISK_INDOM = 0,						/* 0 - Detected disk names      */
 	NUM_INDOMS
 };
 
 struct block_dev {
+        int 			is_nvme;
 	struct device_info	device_info;
-	struct smart_data smart_data;
+	struct smart_data	smart_data;
+	struct nvme_smart_data	nvme_smart_data;
 };
 
 extern pmdaMetric metrictable[];

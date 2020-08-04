@@ -908,7 +908,7 @@ END				{ print m }'`
 		#
 		PM_LOG_PORT_DIR="$PCP_TMP_DIR/pmlogger"
 		rm -f "$PM_LOG_PORT_DIR/primary"
-		# We really starting the primary pmlogger to work, especially
+		# We really expect the primary pmlogger to work, especially
 		# in the systemd world, so make sure pmcd is ready to accept
 		# connections.
 		#
