@@ -4154,7 +4154,6 @@ No value(s) available!
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: pminfo -L -K clear -K add,150,PCP_PMDAS_DIR/smart/pmda_smart.so,smart_init -f smart.health smart.info.capacity_bytes smart.attributes.power_off_retract_count.worst smart.nvme_attributes.data_units_read
---2297437-- get_Form_contents: DW_FORM_GNU_strp_alt used, but no alternate .debug_str
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
