@@ -78,14 +78,14 @@ do
     lc_altname=`echo "$altname" | tr '[A-Z]' '[a-z']`
     man -k "$key" 2>$tmp.err \
     | sed >$tmp.out \
-	-e "/$key: nothing appropriate./d" \
+	-e "/$key: nothing appropriate/d" \
     # end
     if [ -s $tmp.out ]
     then
 	tr '[A-Z]' '[a-z'] <$tmp.out >$tmp.tmp
 	if grep "^$lc_key *($sect" $tmp.tmp >/dev/null
 	then
-	    # matching entry found from man -k
+	    # matching simple entry found from man -k
 	    :
 	elif [ X"$altname" != X- ] && grep "^$lc_altname *($sect" $tmp.tmp >/dev/null
 	then
@@ -93,6 +93,18 @@ do
 	    # *BSD where man -k is really apropos and *BSD apropos does
 	    # not build index entries for symlink'd man pages
 	    #
+	    :
+	elif grep "^$lc_key *\[[^ ]*] *($sect" $tmp.tmp >/dev/null
+	then
+	    # Slackware type whatis, [...] is magically crafted from .TH
+	    # arguments, e.g.
+	    # pcp.env [pcp]        (5)  - script ...
+	    :
+	elif grep "\[$lc_key] *($sect" $tmp.tmp >/dev/null
+	then
+	    # Slackware type whatis, [...] is our .xM string, not a keyword
+	    # at the start of the line, e.g.
+	    # pmRecordAddHost [pmRecord] (3)  - record ...
 	    :
 	else
 	    # no matching entry from man -k
