@@ -4,6 +4,16 @@
 #
 # Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
 #
+# Note:
+# 	if the platform and/or installer is sloppy, the apropos/whatis
+# 	index may not have been rebuild after a PCP install, this usually
+# 	requires running (as root) one of mandb(1) or makewhatis(1) or
+# 	...
+#	To check, try man -k ls ... if this reports
+#	ls: nothing appropriate
+#	(or similar), then this test is never going to pass until the
+#	appropriate command is run to rebuild the index
+#
 
 seq=`basename $0`
 if [ $# -eq 0 ]
@@ -35,6 +45,14 @@ _run_man_k()
 	-e "/^$1: nothing appropriate/d" \
     # end
 }
+
+_run_man_k "ls" >$tmp.out
+if [ -s $tmp.out ]
+then
+    : may be OK
+else
+    _notrun "man -k ls won't even work ... apropos/whatis index needs rebuilding?"
+fi
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
