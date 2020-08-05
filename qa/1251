@@ -43,6 +43,9 @@ _run_man_k()
      man -k "$1" 2>$tmp.err \
      | sed \
 	-e "/^$1: nothing appropriate/d" \
+	-e 's/_//g' \
+	-e 's/.//g' \
+	-e 's/[ 	][ 	]*/ /g' \
     # end
 }
 
