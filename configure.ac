@@ -1036,13 +1036,15 @@ AC_MSG_CHECKING([if the bpftrace PMDA should be included])
 pmda_bpftrace=false
 AS_IF([test "x$do_pmdabpftrace" = "xyes"], [pmda_bpftrace=true])
 AS_IF([test "x$do_pmdabpftrace" = "xcheck"], [
-    dnl bpftrace PMDA needs python 3.6+ and bpftrace with JSON support
-    if bpftrace --help 2>&1 | grep '\-f.*json' > /dev/null; then
-        have_bpftrace=true
-    else
-        have_bpftrace=false
+    dnl bpftrace PMDA needs bpftrace executable, python 3.6+ and bpftrace
+    dnl with JSON support
+    have_bpftrace=false
+    if which bpftrace >/dev/null 2>&1
+    then
+	if bpftrace --help 2>&1 | grep '\-f.*json' > /dev/null; then
+	    have_bpftrace=true
+	fi
     fi
-
     $enable_python3 && test "$PY_MAJOR" -eq 3 -a "$PY_MINOR" -ge 6 && \
     $have_bpftrace && pmda_bpftrace=true
 ])
@@ -3329,6 +3331,7 @@ pcp_x11_pre=$X_PRE_LIBS
 AC_SUBST(pcp_x11_pre)
 
 dnl man pages (source)
+AC_MSG_CHECKING([if man pages should packaged])
 have_manpages=false
 have_gzipped_manpages=false
 have_bzip2ed_manpages=false
@@ -3339,43 +3342,58 @@ man_header=
 pcp_man_dir=`eval echo $mandir`
 pcp_man_dir=`eval echo $pcp_man_dir`
 
-dnl guess compression in use
+dnl guess compression in use ... if we can find at least one file
+dnl with the designated extension in section 1 of the man pages then
+dnl we're good to go
 for d in /usr/man /usr/share/man $pcp_man_dir
 do
     for sd in man1 sman1
     do
-	if test -f $d/$sd/man.1.gz
+	ls $d/$sd 2>/dev/null >conftest
+	test -s conftest || continue
+	try=`grep '\.1\.gz$' conftest | head -1`
+	if test -n "$try"
 	then
 	    have_gzipped_manpages=true
 	    have_manpages=true
-	    man_header=`$ZIP -d < $d/$sd/man.1.gz | head -1`
+	    man_header=`$ZIP -d < "$d/$sd/$try" | head -1`
 	    break
-	elif test -f $d/$sd/man.1.bz2
+	fi
+	try=`grep '\.1\.bz2$' conftest | head -1`
+	if test -n "$try"
 	then
 	    have_bzip2ed_manpages=true
 	    have_manpages=true
-	    man_header=`$BZIP2 -d < $d/$sd/man.1.bz2 | head -1`
+	    man_header=`$BZIP2 -d < "$d/$sd/$try" | head -1`
 	    break
-	elif test -f $d/$sd/man.1.lzma
+	fi
+	try=`grep '\.1\.lzma$' conftest | head -1`
+	if test -n "$try"
 	then
 	    have_lzmaed_manpages=true
 	    have_manpages=true
-	    man_header=`$LZMA -d < $d/$sd/man.1.lzma | head -1`
+	    man_header=`$LZMA -d < "$d/$sd/$try" | head -1`
 	    break
-	elif test -f $d/$sd/man.1.xz
+	fi
+	try=`grep '\.1\.xz$' conftest | head -1`
+	if test -n "$try"
 	then
 	    have_xzed_manpages=true
 	    have_manpages=true
-	    man_header=`$XZ -d < $d/$sd/man.1.xz | head -1`
+	    man_header=`$XZ -d < "$d/$sd/$try" | head -1`
 	    break
-	elif test -f $d/$sd/man.1
+	fi
+	try=`grep '\.1$' conftest | head -1`
+	if test -n "$try"
 	then
-	    man_header=`head -1 $d/$sd/man.1`
+	    man_header=`head -1 $d/$sd/$try`
 	    have_manpages=true
 	    break
 	fi
     done
+    $have_manpages && break
 done
+rm -f conftest
 if test x"$man_header" = "x'\\\" t" -o x"$man_header" = "x'\\\" te" ; then
     need_old_tbl_header=true
 fi
@@ -3396,6 +3414,8 @@ else
 	need_old_tbl_header=true
     fi
 fi
+
+if $have_manpages; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
 AC_SUBST(pcp_man_dir)
 AC_SUBST(have_manpages)
