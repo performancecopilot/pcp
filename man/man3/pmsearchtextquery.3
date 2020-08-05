@@ -13,14 +13,14 @@
 .\" for more details.
 .\"
 .\"
-.TH PMSEARCHTEXT 3 "PCP" "Performance Co-Pilot"
+.TH PMSEARCHTEXTQUERY 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmSearchText\f1 \- fulltext search for metrics, instances and instance domains provided by PCP search services
+\f3pmSearchTextQuery\f1 \- fulltext search for metrics, instances and instance domains provided by PCP search services
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmwebapi.h>
 .sp
-int pmSearchText(pmSearchSettings *\fIsettings\fP, pmSearchTextRequest *\fIrequest\fP, void *\fIarg\fP)
+int pmSearchTextQuery(pmSearchSettings *\fIsettings\fP, pmSearchTextRequest *\fIrequest\fP, void *\fIarg\fP)
 .sp
 cc ... \-lpcp_web
 .ft 1

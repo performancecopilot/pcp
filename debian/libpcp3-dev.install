@@ -201,10 +201,10 @@ usr/share/man/man3/pmRegisterDerived.3.gz
 usr/share/man/man3/pmRegisterDerivedMetric.3.gz
 usr/share/man/man3/__pmResetIPC.3.gz
 usr/share/man/man3/pmSearchInfo.3.gz
-usr/share/man/man3/pmSearchInDom.3.gz
-usr/share/man/man3/pmSearchText.3.gz
 usr/share/man/man3/pmSearchSetup.3.gz
-usr/share/man/man3/pmSearchSuggest.3.gz
+usr/share/man/man3/pmSearchTextInDom.3.gz
+usr/share/man/man3/pmSearchTextQuery.3.gz
+usr/share/man/man3/pmSearchTextSuggest.3.gz
 usr/share/man/man3/pmSemStr.3.gz
 usr/share/man/man3/pmSemStr_r.3.gz
 usr/share/man/man3/pmSeriesClose.3.gz

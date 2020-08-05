@@ -89,9 +89,9 @@ to handle events are as follows:
 Callback is called once for each item of search result that matches a given
 .B query
 passed by
-.BR pmSearchInDom (3),
-.BR pmSearchText (3),
-.BR pmSearchSuggest (3).
+.BR pmSearchTextInDom (3),
+.BR pmSearchTextQuery (3),
+.BR pmSearchTextSuggest (3).
 .TP 5
 \fBpmSearchMetricsCallBack\fR \fIon_metrics\fR
 Callback is called for results of a call to
@@ -136,10 +136,10 @@ On failure a negative PMAPI error code is returned.
 .BR pmsearch (1),
 .BR redis-server (1),
 .BR mmv_stats_registry (3),
-.BR pmSearchInDom (3),
 .BR pmSearchInfo (3),
-.BR pmSearchText (3),
-.BR pmSearchSuggest (3),
+.BR pmSearchTextInDom (3),
+.BR pmSearchTextQuery (3),
+.BR pmSearchTextSuggest (3),
 .BR PMAPI (3)
 and
 .BR PMWEBAPI (3).

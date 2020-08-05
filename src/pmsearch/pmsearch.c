@@ -266,10 +266,16 @@ on_search_done(int sts, void *arg)
     } else if (dp->flags & PMSEARCH_OPT_INFO)
 	fprintf(stderr, "%s: %s failed - %s\n", pmGetProgname(),
 			"pmSearchInfo", pmErrStr(sts));
+    else if (dp->flags & PMSEARCH_OPT_QUERY)
+	fprintf(stderr, "%s: %s failed - %s\n", pmGetProgname(),
+			"pmSearchTextQuery", pmErrStr(sts));
+    else if (dp->flags & PMSEARCH_OPT_SUGGEST)
+	fprintf(stderr, "%s: %s failed - %s\n", pmGetProgname(),
+			"pmSearchTextSuggest", pmErrStr(sts));
     else
 	fprintf(stderr, "%s: %s failed - %s\n", pmGetProgname(),
-			"pmSearchText", pmErrStr(sts));
-
+			"pmSearchTextIndom", pmErrStr(sts));
+                        
     pmSearchClose(&dp->settings.module);
     search_data_free(dp);
 }
@@ -286,11 +292,11 @@ on_search_setup(void *arg)
 	sdsfree(key);
     }
     else if ((dp->flags & PMSEARCH_OPT_SUGGEST))
-	sts = pmSearchSuggest(&dp->settings, &dp->request, arg);
+	sts = pmSearchTextSuggest(&dp->settings, &dp->request, arg);
     else if ((dp->flags & PMSEARCH_OPT_INDOM))
-	sts = pmSearchInDom(&dp->settings, &dp->request, arg);
+	sts = pmSearchTextInDom(&dp->settings, &dp->request, arg);
     else	/* flags & PMSEARCH_OPT_QUERY */
-	sts = pmSearchText(&dp->settings, &dp->request, arg);
+	sts = pmSearchTextQuery(&dp->settings, &dp->request, arg);
 
     if (sts < 0)
 	on_search_done(sts, arg);

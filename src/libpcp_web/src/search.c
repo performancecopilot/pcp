@@ -735,7 +735,7 @@ redis_search_text_query(redisSlots *slots, pmSearchTextRequest *request, void *a
 }
 
 int
-pmSearchText(pmSearchSettings *settings, pmSearchTextRequest *request, void *arg)
+pmSearchTextQuery(pmSearchSettings *settings, pmSearchTextRequest *request, void *arg)
 {
     seriesModuleData	*data = getSeriesModuleData(&settings->module);
     redisSearchBaton	*baton;
@@ -750,7 +750,7 @@ pmSearchText(pmSearchSettings *settings, pmSearchTextRequest *request, void *arg
 }
 
 static void
-redis_search_suggest_query(redisSlots *slots, pmSearchTextRequest *request, void *arg)
+redis_search_text_suggest(redisSlots *slots, pmSearchTextRequest *request, void *arg)
 {
     redisSearchBaton	*baton = (redisSearchBaton *)arg;
     size_t		length, prefix_length, fuzzy_length;
@@ -759,13 +759,13 @@ redis_search_suggest_query(redisSlots *slots, pmSearchTextRequest *request, void
     sds			cmd, key, query,
     			prefix_query, fuzzy_query;
 
-    seriesBatonCheckMagic(baton, MAGIC_SEARCH, "redis_search_suggest_query");
-    seriesBatonCheckCount(baton, "redis_search_suggest_query");
+    seriesBatonCheckMagic(baton, MAGIC_SEARCH, "redis_search_text_suggest");
+    seriesBatonCheckCount(baton, "redis_search_text_suggest");
 
     if (pmDebugOptions.search)
-	fprintf(stderr, "%s: %s\n", "redis_search_suggest_query", request->query);
+	fprintf(stderr, "%s: %s\n", "redis_search_text_suggest", request->query);
 
-    seriesBatonReference(baton, "redis_search_suggest_query");
+    seriesBatonReference(baton, "redis_search_text_suggest");
 
     /* by default we cannot use prefix search with words of length less than 2 */
     prefix_query = redis_search_text_prep(request->query, 2, NULL, "*");
@@ -839,7 +839,7 @@ redis_search_suggest_query(redisSlots *slots, pmSearchTextRequest *request, void
 }
 
 int
-pmSearchSuggest(pmSearchSettings *settings, pmSearchTextRequest *request, void *arg)
+pmSearchTextSuggest(pmSearchSettings *settings, pmSearchTextRequest *request, void *arg)
 {
     seriesModuleData	*data = getSeriesModuleData(&settings->module);
     redisSearchBaton	*baton;
@@ -849,25 +849,25 @@ pmSearchSuggest(pmSearchSettings *settings, pmSearchTextRequest *request, void *
     if ((baton = calloc(1, sizeof(redisSearchBaton))) == NULL)
 	return -ENOMEM;
     initRedisSearchBaton(baton, data->slots, settings, arg);
-    redis_search_suggest_query(data->slots, request, baton);
+    redis_search_text_suggest(data->slots, request, baton);
     return 0;
 }
 
 static void
-redis_search_indom_query(redisSlots *slots, pmSearchTextRequest *request, void *arg)
+redis_search_text_indom(redisSlots *slots, pmSearchTextRequest *request, void *arg)
 {
     redisSearchBaton	*baton = (redisSearchBaton *)arg;
     size_t		length;
     char		buffer[64];
     sds			cmd, key, query;
 
-    seriesBatonCheckMagic(baton, MAGIC_SEARCH, "redis_search_indom_query");
-    seriesBatonCheckCount(baton, "redis_search_indom_query");
+    seriesBatonCheckMagic(baton, MAGIC_SEARCH, "redis_search_text_indom");
+    seriesBatonCheckCount(baton, "redis_search_text_indom");
 
     if (pmDebugOptions.search)
-	fprintf(stderr, "%s: %s\n", "redis_search_indom_query", request->query);
+	fprintf(stderr, "%s: %s\n", "redis_search_text_indom", request->query);
 
-    seriesBatonReference(baton, "redis_search_indom_query");
+    seriesBatonReference(baton, "redis_search_text_indom");
 
     query = sdscatfmt(
 	sdsnewlen("", 0),
@@ -913,7 +913,7 @@ redis_search_indom_query(redisSlots *slots, pmSearchTextRequest *request, void *
 }
 
 int
-pmSearchInDom(pmSearchSettings *settings, pmSearchTextRequest *request, void *arg)
+pmSearchTextInDom(pmSearchSettings *settings, pmSearchTextRequest *request, void *arg)
 {
     seriesModuleData	*data = getSeriesModuleData(&settings->module);
     redisSearchBaton	*baton;
@@ -923,7 +923,7 @@ pmSearchInDom(pmSearchSettings *settings, pmSearchTextRequest *request, void *ar
     if ((baton = calloc(1, sizeof(redisSearchBaton))) == NULL)
 	return -ENOMEM;
     initRedisSearchBaton(baton, data->slots, settings, arg);
-    redis_search_indom_query(data->slots, request, baton);
+    redis_search_text_indom(data->slots, request, baton);
     return 0;
 }
 
