@@ -30,6 +30,22 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+rm -f $seq.out
+# check to see if filenames are used in the whatis/apropos index, or
+# is the index based on the .SH NAME sections of the man page ...
+# KERNEL_PMDAS is usually a file, mentioned in the .TH and the .xM
+# macro and NOT the .SH NAME section
+# 
+man -k KERNEL_PMDAS 2>/dev/null >$tmp.tmp
+if [ -s $tmp.tmp ]
+then
+    ln $seq.out.xM $seq.out
+    xM=true
+else
+    ln $seq.out.no_xM $seq.out
+    xM=false
+fi
+
 # real QA test starts here
 cat <<'End-of-File' | sed -e '/^#/d' -e '/^[ 	]*$/d' | while read sect key altname pat
 # section	keyword	altname	egrep for text in man page
@@ -71,6 +87,17 @@ do
     # text searching, so all we can try to match on here is 
     # for each man section
     #
+    if $xM
+    then
+	:
+    else
+	case "$key"
+	in
+	    KERNEL_PMDAS|pmRecord)
+		continue
+		;;
+	esac
+    fi
     echo | tee -a $seq.full
     echo "=== $key ===" | tee -a $seq.full
     lc_key=`echo "$key" | tr '[A-Z]' '[a-z']`
