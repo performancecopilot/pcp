@@ -26,6 +26,16 @@ _cleanup()
     $sudo rm -rf $tmp $tmp.*
 }
 
+# run man -k and filter out noise ...
+#
+_run_man_k()
+{
+     man -k "$1" 2>$tmp.err \
+     | sed \
+	-e "/^$1: nothing appropriate/d" \
+    # end
+}
+
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
@@ -36,7 +46,7 @@ rm -f $seq.out
 # KERNEL_PMDAS is usually a file, mentioned in the .TH and the .xM
 # macro and NOT the .SH NAME section
 # 
-man -k KERNEL_PMDAS 2>/dev/null >$tmp.tmp
+_run_man_k KERNEL_PMDAS >$tmp.tmp
 if [ -s $tmp.tmp ]
 then
     ln $seq.out.xM $seq.out
@@ -102,10 +112,7 @@ do
     echo "=== $key ===" | tee -a $seq.full
     lc_key=`echo "$key" | tr '[A-Z]' '[a-z']`
     lc_altname=`echo "$altname" | tr '[A-Z]' '[a-z']`
-    man -k "$key" 2>$tmp.err \
-    | sed >$tmp.out \
-	-e "/$key: nothing appropriate/d" \
-    # end
+    _run_man_k "$key" >$tmp.out
     if [ -s $tmp.out ]
     then
 	tr '[A-Z]' '[a-z'] <$tmp.out >$tmp.tmp
@@ -155,6 +162,7 @@ do
 	    :
 	else
 	    # no matching entry from man -k
+	    cat $tmp.out >>$seq.full
 	    cat $tmp.err >>$seq.full
 	    echo "No matching man entry for section $sect"
 	fi
@@ -166,7 +174,7 @@ do
     fi
     echo "--- ($sect) ---" | tee -a $seq.full
     TERM=dumb man $sect $key 2>&1 \
-    | sed -e 's/_//g' -e 's/.//g' >$tmp.out
+    | sed -e 's/_//g' -e 's/.//g' -e 's/[ 	][ 	]*/ /g' >$tmp.out
     if egrep "$pat" $tmp.out >/dev/null
     then
 	echo OK
