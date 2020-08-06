@@ -200,7 +200,12 @@ usr/share/man/man3/pmRecordSetup.3.gz
 usr/share/man/man3/pmRegisterDerived.3.gz
 usr/share/man/man3/pmRegisterDerivedMetric.3.gz
 usr/share/man/man3/__pmResetIPC.3.gz
+usr/share/man/man3/pmSearchClose.3.gz
 usr/share/man/man3/pmSearchInfo.3.gz
+usr/share/man/man3/pmSearchSetConfiguration.3.gz
+usr/share/man/man3/pmSearchSetEventLoop.3.gz
+usr/share/man/man3/pmSearchSetMetricRegistry.3.gz
+usr/share/man/man3/pmSearchSetSlots.3.gz
 usr/share/man/man3/pmSearchSetup.3.gz
 usr/share/man/man3/pmSearchTextInDom.3.gz
 usr/share/man/man3/pmSearchTextQuery.3.gz
