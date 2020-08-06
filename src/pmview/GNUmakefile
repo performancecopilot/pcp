@@ -46,7 +46,7 @@ lex.cpp:	lex.l
 	$(LEX) -t lex.l > $@
 
 gram.c gram.h:	gram.y
-	$(YACC) -d -b `basename $< .y` $< && mv gram.tab.h gram.h && mv gram.tab.c gram.c
+	$(YACC) -d -o `basename $< .y`.c $<
 
 gram.cpp:	gram.c
 	cp gram.c $@
