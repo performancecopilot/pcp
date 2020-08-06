@@ -759,13 +759,13 @@ redis_search_text_suggest(redisSlots *slots, pmSearchTextRequest *request, void 
     sds			cmd, key, query,
     			prefix_query, fuzzy_query;
 
-    seriesBatonCheckMagic(baton, MAGIC_SEARCH, "redis_search_suggest_query");
-    seriesBatonCheckCount(baton, "redis_search_suggest_query");
+    seriesBatonCheckMagic(baton, MAGIC_SEARCH, "redis_search_text_suggest");
+    seriesBatonCheckCount(baton, "redis_search_text_suggest");
 
     if (pmDebugOptions.search)
-	fprintf(stderr, "%s: %s\n", "redis_search_suggest_query", request->query);
+	fprintf(stderr, "%s: %s\n", "redis_search_text_suggest", request->query);
 
-    seriesBatonReference(baton, "redis_search_suggest_query");
+    seriesBatonReference(baton, "redis_search_text_suggest");
 
     /* by default we cannot use prefix search with words of length less than 2 */
     prefix_query = redis_search_text_prep(request->query, 2, NULL, "*");
@@ -861,13 +861,13 @@ redis_search_text_indom(redisSlots *slots, pmSearchTextRequest *request, void *a
     char		buffer[64];
     sds			cmd, key, query;
 
-    seriesBatonCheckMagic(baton, MAGIC_SEARCH, "redis_search_indom_query");
-    seriesBatonCheckCount(baton, "redis_search_indom_query");
+    seriesBatonCheckMagic(baton, MAGIC_SEARCH, "redis_search_text_indom");
+    seriesBatonCheckCount(baton, "redis_search_text_indom");
 
     if (pmDebugOptions.search)
-	fprintf(stderr, "%s: %s\n", "redis_search_indom_query", request->query);
+	fprintf(stderr, "%s: %s\n", "redis_search_text_indom", request->query);
 
-    seriesBatonReference(baton, "redis_search_indom_query");
+    seriesBatonReference(baton, "redis_search_text_indom");
 
     query = sdscatfmt(
 	sdsnewlen("", 0),

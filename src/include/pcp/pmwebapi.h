@@ -465,12 +465,11 @@ extern int pmSearchSetMetricRegistry(pmSearchModule *, struct mmv_registry *);
 extern void pmSearchClose(pmSearchModule *);
 extern int pmSearchEnabled(void *);
 
-extern int pmSearchInfo(pmSearchSettings *, sds, void *);
-
 extern const char *pmSearchTextTypeStr(pmSearchTextType);
-extern int pmSearchTextQuery(pmSearchSettings *, pmSearchTextRequest *, void *);
-extern int pmSearchTextSuggest(pmSearchSettings *, pmSearchTextRequest *, void *);
+extern int pmSearchInfo(pmSearchSettings *, sds, void *);
 extern int pmSearchTextInDom(pmSearchSettings *, pmSearchTextRequest *, void *);
+extern int pmSearchTextSuggest(pmSearchSettings *, pmSearchTextRequest *, void *);
+extern int pmSearchTextQuery(pmSearchSettings *, pmSearchTextRequest *, void *);
 
 #ifdef __cplusplus
 }
