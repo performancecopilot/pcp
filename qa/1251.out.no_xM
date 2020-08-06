@@ -25,10 +25,6 @@ OK
 --- (1) ---
 OK
 
-=== KERNEL_PMDAS ===
---- (1) ---
-OK
-
 === PCPIntro ===
 --- (1) ---
 OK
@@ -41,19 +37,11 @@ OK
 --- (3) ---
 OK
 
-=== pmRecord ===
---- (3) ---
-OK
-
 === pmRecordSetup ===
 --- (3) ---
 OK
 
 === pmRecordControl ===
---- (3) ---
-OK
-
-=== PCP::MMV ===
 --- (3) ---
 OK
 

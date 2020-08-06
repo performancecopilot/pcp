@@ -7,6 +7,7 @@ PartOf=pmie.service
 [Service]
 Type=oneshot
 KillMode=none
+TimeoutStartSec=25m
 Environment="PMIE_CHECK_PARAMS=-C"
 EnvironmentFile=-@PCP_SYSCONFIG_DIR@/pmie_timers
 ExecStart=@PCP_BINADM_DIR@/pmie_check $PMIE_CHECK_PARAMS

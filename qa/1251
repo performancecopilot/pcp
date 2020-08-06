@@ -4,6 +4,16 @@
 #
 # Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
 #
+# Note:
+# 	if the platform and/or installer is sloppy, the apropos/whatis
+# 	index may not have been rebuild after a PCP install, this usually
+# 	requires running (as root) one of mandb(1) or makewhatis(1) or
+# 	...
+#	To check, try man -k ls ... if this reports
+#	ls: nothing appropriate
+#	(or similar), then this test is never going to pass until the
+#	appropriate command is run to rebuild the index
+#
 
 seq=`basename $0`
 if [ $# -eq 0 ]
@@ -26,9 +36,46 @@ _cleanup()
     $sudo rm -rf $tmp $tmp.*
 }
 
+# run man -k and filter out noise ...
+#
+_run_man_k()
+{
+     man -k "$1" 2>$tmp.err \
+     | sed \
+	-e "/^$1: nothing appropriate/d" \
+	-e 's/_//g' \
+	-e 's/.//g' \
+	-e 's/[ 	][ 	]*/ /g' \
+    # end
+}
+
+_run_man_k "ls" >$tmp.out
+if [ -s $tmp.out ]
+then
+    : may be OK
+else
+    _notrun "man -k ls won't even work ... apropos/whatis index needs rebuilding?"
+fi
+
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
+
+rm -f $seq.out
+# check to see if filenames are used in the whatis/apropos index, or
+# is the index based on the .SH NAME sections of the man page ...
+# KERNEL_PMDAS is usually a file, mentioned in the .TH and the .xM
+# macro and NOT the .SH NAME section
+# 
+_run_man_k KERNEL_PMDAS >$tmp.tmp
+if [ -s $tmp.tmp ]
+then
+    ln $seq.out.xM $seq.out
+    xM=true
+else
+    ln $seq.out.no_xM $seq.out
+    xM=false
+fi
 
 # real QA test starts here
 cat <<'End-of-File' | sed -e '/^#/d' -e '/^[ 	]*$/d' | while read sect key altname pat
@@ -62,7 +109,6 @@ cat <<'End-of-File' | sed -e '/^#/d' -e '/^[ 	]*$/d' | while read sect key altna
 3	pmRecordControl	pmRecord	pmRecordHost
 
 # weirdos
-3	PCP::MMV	-	MMV Perl module
 5	pcp.env		-	\.pcp/pcp.conf
 # from src/pmdas/json (Python), not man/man?
 1	pmdajson	-	generating  *JavaScript
@@ -72,20 +118,28 @@ do
     # text searching, so all we can try to match on here is 
     # for each man section
     #
+    if $xM
+    then
+	:
+    else
+	case "$key"
+	in
+	    KERNEL_PMDAS|pmRecord)
+		continue
+		;;
+	esac
+    fi
     echo | tee -a $seq.full
     echo "=== $key ===" | tee -a $seq.full
     lc_key=`echo "$key" | tr '[A-Z]' '[a-z']`
     lc_altname=`echo "$altname" | tr '[A-Z]' '[a-z']`
-    man -k "$key" 2>$tmp.err \
-    | sed >$tmp.out \
-	-e "/$key: nothing appropriate./d" \
-    # end
+    _run_man_k "$key" >$tmp.out
     if [ -s $tmp.out ]
     then
 	tr '[A-Z]' '[a-z'] <$tmp.out >$tmp.tmp
 	if grep "^$lc_key *($sect" $tmp.tmp >/dev/null
 	then
-	    # matching entry found from man -k
+	    # matching simple entry found from man -k
 	    :
 	elif [ X"$altname" != X- ] && grep "^$lc_altname *($sect" $tmp.tmp >/dev/null
 	then
@@ -94,19 +148,54 @@ do
 	    # not build index entries for symlink'd man pages
 	    #
 	    :
+	elif grep "^$lc_key *\[[^ ]*] *($sect" $tmp.tmp >/dev/null
+	then
+	    # Slackware type whatis, [...] is magically crafted from .TH
+	    # arguments, e.g.
+	    # pcp.env [pcp]        (5)  - script ...
+	    :
+	elif grep "\[$lc_key] *($sect" $tmp.tmp >/dev/null
+	then
+	    # Slackware type whatis, [...] is our .xM string, not a keyword
+	    # at the start of the line, e.g.
+	    # pmRecordAddHost [pmRecord] (3)  - record ...
+	    :
+	elif grep "^$lc_key, .*($sect" $tmp.tmp >/dev/null
+	then
+	    # FreeBSD 12.0 style with all the .SH NAME options on the
+	    # same line and the first entry in the list, e.g. pmconfirm
+	    # below:
+	    # pmconfirm, pmmessage, pmquery(1) - general ...
+	    :
+	elif grep " $lc_key, .*($sect" $tmp.tmp >/dev/null
+	then
+	    # FreeBSD 12.0 style with all the .SH NAME options on the
+	    # same line and a middle entry in the list, e.g. pmmessage
+	    # below:
+	    # pmconfirm, pmmessage, pmquery(1) - general ...
+	    :
+	elif grep " $lc_key($sect" $tmp.tmp >/dev/null
+	then
+	    # FreeBSD 12.0 style with all the .SH NAME options on the
+	    # same line and the last entry in the list, e.g. pmquery
+	    # below;
+	    # pmconfirm, pmmessage, pmquery(1) - general ...
+	    :
 	else
 	    # no matching entry from man -k
+	    cat $tmp.out >>$seq.full
 	    cat $tmp.err >>$seq.full
 	    echo "No matching man entry for section $sect"
 	fi
     else
 	# no output from man -k
+	cat $tmp.out >>$seq.full
 	cat $tmp.err >>$seq.full
 	echo "No matching man entry in any section!"
     fi
     echo "--- ($sect) ---" | tee -a $seq.full
     TERM=dumb man $sect $key 2>&1 \
-    | sed -e 's/_//g' -e 's/.//g' >$tmp.out
+    | sed -e 's/_//g' -e 's/.//g' -e 's/[ 	][ 	]*/ /g' >$tmp.out
     if egrep "$pat" $tmp.out >/dev/null
     then
 	echo OK

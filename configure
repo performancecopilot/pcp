@@ -7816,12 +7816,13 @@ if test "x$do_pmdabpftrace" = "xyes"; then :
 fi
 if test "x$do_pmdabpftrace" = "xcheck"; then :
 
-        if bpftrace --help 2>&1 | grep '\-f.*json' > /dev/null; then
-        have_bpftrace=true
-    else
-        have_bpftrace=false
+            have_bpftrace=false
+    if which bpftrace >/dev/null 2>&1
+    then
+	if bpftrace --help 2>&1 | grep '\-f.*json' > /dev/null; then
+	    have_bpftrace=true
+	fi
     fi
-
     $enable_python3 && test "$PY_MAJOR" -eq 3 -a "$PY_MINOR" -ge 6 && \
     $have_bpftrace && pmda_bpftrace=true
 
@@ -15125,6 +15126,8 @@ pcp_x11_extra=$X_EXTRA_LIBS
 pcp_x11_pre=$X_PRE_LIBS
 
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if man pages should packaged" >&5
+$as_echo_n "checking if man pages should packaged... " >&6; }
 have_manpages=false
 have_gzipped_manpages=false
 have_bzip2ed_manpages=false
@@ -15139,38 +15142,51 @@ for d in /usr/man /usr/share/man $pcp_man_dir
 do
     for sd in man1 sman1
     do
-	if test -f $d/$sd/man.1.gz
+	ls $d/$sd 2>/dev/null >conftest
+	test -s conftest || continue
+	try=`grep '\.1\.gz$' conftest | head -1`
+	if test -n "$try"
 	then
 	    have_gzipped_manpages=true
 	    have_manpages=true
-	    man_header=`$ZIP -d < $d/$sd/man.1.gz | head -1`
+	    man_header=`$ZIP -d < "$d/$sd/$try" | head -1`
 	    break
-	elif test -f $d/$sd/man.1.bz2
+	fi
+	try=`grep '\.1\.bz2$' conftest | head -1`
+	if test -n "$try"
 	then
 	    have_bzip2ed_manpages=true
 	    have_manpages=true
-	    man_header=`$BZIP2 -d < $d/$sd/man.1.bz2 | head -1`
+	    man_header=`$BZIP2 -d < "$d/$sd/$try" | head -1`
 	    break
-	elif test -f $d/$sd/man.1.lzma
+	fi
+	try=`grep '\.1\.lzma$' conftest | head -1`
+	if test -n "$try"
 	then
 	    have_lzmaed_manpages=true
 	    have_manpages=true
-	    man_header=`$LZMA -d < $d/$sd/man.1.lzma | head -1`
+	    man_header=`$LZMA -d < "$d/$sd/$try" | head -1`
 	    break
-	elif test -f $d/$sd/man.1.xz
+	fi
+	try=`grep '\.1\.xz$' conftest | head -1`
+	if test -n "$try"
 	then
 	    have_xzed_manpages=true
 	    have_manpages=true
-	    man_header=`$XZ -d < $d/$sd/man.1.xz | head -1`
+	    man_header=`$XZ -d < "$d/$sd/$try" | head -1`
 	    break
-	elif test -f $d/$sd/man.1
+	fi
+	try=`grep '\.1$' conftest | head -1`
+	if test -n "$try"
 	then
-	    man_header=`head -1 $d/$sd/man.1`
+	    man_header=`head -1 $d/$sd/$try`
 	    have_manpages=true
 	    break
 	fi
     done
+    $have_manpages && break
 done
+rm -f conftest
 if test x"$man_header" = "x'\\\" t" -o x"$man_header" = "x'\\\" te" ; then
     need_old_tbl_header=true
 fi
@@ -15186,6 +15202,10 @@ else
 	need_old_tbl_header=true
     fi
 fi
+
+if $have_manpages; then { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }; else { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }; fi
 
 
 

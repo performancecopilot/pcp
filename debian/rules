@@ -146,7 +146,10 @@ config: .census
 	@echo "== dpkg-buildpackage: configure" 1>&2
 	$(checkdir)
 	autoconf
-	dh_update_autotools_config
+	if `which dh_update_autotools_config` >/dev/null; \
+	then dh_update_autotools_config; \
+	else dh_autotools-dev_updateconfig; \
+	fi
 	$(configure_tools) ./configure $(configure_paths) $(configure_opts)
 	touch .census
 
@@ -157,6 +160,10 @@ clean:
 	$(MAKE) realclean
 	-rm -rf $(alldir)
 	-rm -f debian/*substvars debian/files* debian/*.debhelper qa/localconfig
+	if `which dh_update_autotools_config` >/dev/null; \
+	then :;\
+	else dh_autotools-dev_restoreconfig; \
+	fi
 	dh_clean
 
 binary-indep: checkroot build-stamp

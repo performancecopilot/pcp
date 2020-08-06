@@ -1173,7 +1173,7 @@ __pm_sd_notify(int clear, const char *notify_socket, const char *msg)
     /* use the devel library call and return it's status */
     sts = sd_notify(clear, msg);
     if (pmDebugOptions.services)
-	pmNotifyErr(LOG_INFO, "__pm_sd_notify: using libsystemd:sd_notify(). NOTIFY_SOCKET=\"%s\". msg=\"%s\" sts=%d\n", 
+	fprintf(stderr, "__pm_sd_notify: using libsystemd:sd_notify(). NOTIFY_SOCKET=\"%s\". msg=\"%s\" sts=%d\n", 
 		notify_socket, msg, sts);
     goto out;
 #else
@@ -1187,7 +1187,7 @@ __pm_sd_notify(int clear, const char *notify_socket, const char *msg)
 	int sendto_flags = 0;
 
 	if (pmDebugOptions.services)
-	    pmNotifyErr(LOG_WARNING, "__pm_sd_notify: using AF_UNIX socket for notification\n");
+	    fprintf(stderr, "__pm_sd_notify: using AF_UNIX socket for notification\n");
 
 	if ((strchr("@/", notify_socket[0])) == NULL || strlen(notify_socket) < 2) {
 	    pmNotifyErr(LOG_ERR, "__pm_sd_notify: invalid notify_socket=\"%s\"\n", notify_socket);
@@ -1268,7 +1268,7 @@ __pmServerNotifySystemd(const char *msg)
     if (notify_socket) {
 	sts = __pm_sd_notify(0, notify_socket, msg);
 	if (pmDebugOptions.services)
-	    pmNotifyErr(LOG_WARNING, "__pmServerNotifySystemd: NOTIFY_SOCKET=\"%s\" msg=\"%s\" sts=%d\n",
+	    fprintf(stderr, "__pmServerNotifySystemd: NOTIFY_SOCKET=\"%s\" msg=\"%s\" sts=%d\n",
 		    notify_socket, msg, sts);
     } else {
 	/*
@@ -1277,8 +1277,8 @@ __pmServerNotifySystemd(const char *msg)
 	 * (especially) the QA suite
 	 */
     	if (pmDebugOptions.services)
-	    pmNotifyErr(LOG_WARNING, "__pmServerNotifySystemd: NOTIFY_SOCKET not set:"
-	    	    " not launched by systemd, or service unit is not using Type=notify");
+	    fprintf(stderr, "__pmServerNotifySystemd: NOTIFY_SOCKET not set:"
+	    	    " not launched by systemd, or service unit is not using Type=notify\n");
 	sts = PM_ERR_GENERIC;
     }
     /* negative return indicates error */
@@ -1297,7 +1297,7 @@ __pmServerNotifyServiceManagerReady(pid_t pid)
 #else
     /* no systemd - not fatal but log a debug message */
     if (pmDebugOptions.services)
-	pmNotifyErr(LOG_WARNING, "__pmServerNotifyServiceManagerReady: no service manager on this platform");
+	fprintf(stderr, "__pmServerNotifyServiceManagerReady: no service manager on this platform\n");
     return PM_ERR_NYI;
 #endif
 }
@@ -1310,7 +1310,7 @@ __pmServerNotifyServiceManagerStopping(pid_t pid)
 #else
     /* no systemd - not fatal but log a debug message */
     if (pmDebugOptions.services)
-	pmNotifyErr(LOG_WARNING, "__pmServerNotifyServiceManagerStopping: no service manager on this platform");
+	fprintf(stderr, "__pmServerNotifyServiceManagerStopping: no service manager on this platform\n");
     return PM_ERR_NYI;
 #endif
 }
