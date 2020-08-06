@@ -23,7 +23,7 @@ tasks:
     sudo apt-get -y update
     for pkg in $(./pcp/qa/admin/check-vm -fp)
     do
-      [ "$runner" = "container" ] && [ "$pkg" = "auditd" ] && continue
+      [[ "$runner" = "container" && ( "$pkg" = "auditd" || "$pkg" = "docker.io" ) ]] && continue
       sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "$pkg" || true
     done
     sudo apt-get install -y zlib1g-dev

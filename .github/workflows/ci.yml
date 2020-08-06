@@ -38,8 +38,8 @@ jobs:
           for i in 1 2 3
           do
             if [ $i -gt 1 ]; then
-              echo && echo "Probably network error, wait 1 min and try again ($i/3)..."
-              sleep 60
+              echo && echo "Probably network error, wait 5 min and try again ($i/3)..."
+              sleep 300
             fi
 
             ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} setup && exit 0 || true
