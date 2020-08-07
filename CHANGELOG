@@ -1,3 +1,6 @@
+pcp-5.2.1 (25 September 2020)
+- In-progress: https://github.com/performancecopilot/pcp/projects/1
+
 pcp-5.2.0 (7 August 2020)
     - Client tools and utilities:
 	pmiectl: (new) experimental pmie control utility

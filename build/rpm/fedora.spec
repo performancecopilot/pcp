@@ -3436,6 +3436,9 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %endif
 
 %changelog
+* Fri Sep 25 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.2.1-1
+- https://github.com/performancecopilot/pcp/projects/1
+
 * Fri Aug 07 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.2.0-1
 - rearrange installed /var file layouts extensively (BZ 1827441)
 - pmproxy intermittently crashes at uv_timer_stop (BZ 1789312)
