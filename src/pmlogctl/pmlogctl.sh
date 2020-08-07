@@ -60,13 +60,11 @@ cat >$tmp/usage <<End-of-File
 
 Options:
   -a,--all                      apply action to all matching hosts
-  -c=NAME,--class=NAME    	${IAM} instances belong to the NAME class \
-[default: default]
+  -c=NAME,--class=NAME    	${IAM} instances belong to the NAME class [default: default]
   -f,--force                    force action if possible
   -i=IDENT,--ident=IDENT        over-ride instance id (only for create and cond-create)
   -N,--showme             	perform a dry run, showing what would be done
-  -p=POLICY,--policy=POLICY	use POLICY as the class policy file \
-[default: $PCP_ETC_DIR/pcp/${IAM}/class.d/<class>]
+  -p=POLICY,--policy=POLICY	use POLICY as the class policy file [default: $PCP_ETC_DIR/pcp/${IAM}/class.d/<class>]
   -V,--verbose            	increase verbosity
   --help
 End-of-File
@@ -208,7 +206,8 @@ _egrep()
 _usage()
 {
     pmgetopt --progname=$prog --config=$tmp/usage --usage 2>&1 \
-    | sed >&2 -e 's/ \[default/\n                        [default/'
+    | sed >&2 -e 's/ \[default/\
+                        [default/'
     cat >&2 <<End-of-File
 
 Avaliable commands:

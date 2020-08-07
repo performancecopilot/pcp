@@ -51,7 +51,7 @@ _filter()
 	-e "s;$PCP_ARCHIVE_DIR/;PCP_ARCHIVE_DIR/;g" \
 	-e "s;$PCP_TMP_DIR/;PCP_TMP_DIR/;g" \
 	-e "s;$PCP_TMPFILE_DIR/pmlogctl\.[^/]*;PCP_TMPFILE_DIR/pmlogctl.XXXXX;g" \
-	-e "s;$PCP_ETC_DIR/;PCP_ETC_DIR/;g" \
+	-e "s;$PCP_ETC_DIR/pcp;PCP_ETC_DIR/pcp;g" \
 	-e "s/PID $mypid/PID <mypid>/" \
 	-e 's/PID [0-9][0-9]*/PID <somepid>/' \
 	-e 's/TERM [0-9][0-9]*/TERM <somepid>/' \
@@ -79,6 +79,7 @@ _filter_status()
     tee -a $seq.full \
     | $PCP_AWK_PROG -f $tmp.awk \
     | sed >$tmp.tmp \
+	-e "s;$PCP_TMP_DIR/;PCP_TMP_DIR/;g" \
 	-e "/^`hostname` .* primary /d" \
 	-e 's/[ 	][ 	]*/ /g' \
 	-e 's/2[0-9][0-9][0-9][01][0-9][0-3][0-9]\...\.[^ ]*/<archivename>/' \
@@ -265,7 +266,7 @@ cat <<End-of-File >$tmp.control
 $seq-foo
 End-of-File
 $sudo cp $tmp.control $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq-foo
-$sudo pmlogctl -V start $seq-foo
+$sudo pmlogctl -V start $seq-foo 2>&1 | _filter
 pmlogctl status 2>$tmp.err | _filter_status
 _filter <$tmp.err
 $sudo rm -f $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq-foo
@@ -279,7 +280,7 @@ cat <<End-of-File >$tmp.control
 $seq-foo n n
 End-of-File
 $sudo cp $tmp.control $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq-foo
-$sudo pmlogctl -V start $seq-foo
+$sudo pmlogctl -V start $seq-foo 2>&1 | _filter
 pmlogctl status 2>$tmp.err | _filter_status
 _filter <$tmp.err
 $sudo rm -f $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq-foo

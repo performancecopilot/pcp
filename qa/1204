@@ -55,7 +55,7 @@ _filter()
 # The "pmcd Host" and "Class" fields from the pmlogctl status output
 # should suffice to uniquely identify each.
 #
-pmlogctl status 2>&1 \
+pmlogctl status \
 | $PCP_AWK_PROG >$tmp.awk '
 NR == 1	{ next }
 NF >= 5	{ if ($3 == "primary") next
@@ -83,7 +83,10 @@ _filter_status()
 # real QA test starts here
 
 echo "== usage"
-pmlogctl --usage 2>&1 | _filter
+pmlogctl --usage 2>&1 | _filter \
+| sed \
+    -e 's/[ 	][ 	]*/ /g' \
+# end
 
 echo
 echo '== -N -V create' | tee -a $seq.full

@@ -112,22 +112,23 @@ mypid=$$
 _setup
 
 echo "=== bogus class"
-pmlogctl -c bogus status | _filter_status
+pmlogctl -c bogus status 2>$tmp.err | _filter_status
+_filter <$tmp.err
 
 echo
 echo "=== no control dir"
 rm -rf $tmp.control.d
-PCP_PMLOGGERCONTROL_PATH=$tmp.control pmlogctl status 2>&1 | _filter_status
+PCP_PMLOGGERCONTROL_PATH=$tmp.control pmlogctl status | _filter_status
 
 echo
 echo "=== no control files"
 mkdir $tmp.control.d
-PCP_PMLOGGERCONTROL_PATH=$tmp.control pmlogctl status 2>&1 | _filter_status
+PCP_PMLOGGERCONTROL_PATH=$tmp.control pmlogctl status | _filter_status
 
 echo
 echo "=== empty control files"
 touch $tmp.control $tmp.control.d/control
-PCP_PMLOGGERCONTROL_PATH=$tmp.control pmlogctl status 2>&1 | _filter_status
+PCP_PMLOGGERCONTROL_PATH=$tmp.control pmlogctl status | _filter_status
 rm -rf $tmp.control $tmp.control.d
 
 echo
@@ -167,10 +168,11 @@ fi
 echo $mypid >$tmp.tmp
 $sudo cp $tmp.tmp $PCP_ETC_DIR/pcp/pmlogger/lock
 $sudo touch -t `pmdate -35M %Y%m%d%H%M` $PCP_ETC_DIR/pcp/pmlogger/lock
-$sudo pmlogctl -V -a -c $seq stop 2>&1 | _filter | LC_COLLATE=POSIX sort
+$sudo pmlogctl -V -a -c $seq stop 2>$tmp.err | _filter | LC_COLLATE=POSIX sort
+_filter <$tmp.err
 pmlogctl status | _filter_status
 $sudo rm -f $PCP_ETC_DIR/pcp/pmlogger/lock
-$sudo pmlogctl -V -a -c $seq start 2>&1 | _filter | LC_COLLATE=POSIX sort
+$sudo pmlogctl -V -a -c $seq start | _filter | LC_COLLATE=POSIX sort
 
 # success, all done
 status=0
