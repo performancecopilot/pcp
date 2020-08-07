@@ -1,5 +1,8 @@
 bintray:
-  repository: el7
+  repository:
+    type: rpm
+    name: el7
+    description: Performance Co-Pilot for EL7
 
 container:
   containerfile: |

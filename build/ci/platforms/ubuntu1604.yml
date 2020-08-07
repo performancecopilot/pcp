@@ -1,8 +1,12 @@
 bintray:
-  repository: xenial
-  deb_distribution: xenial
-  deb_component: main
-  deb_architecture: amd64
+  repository:
+    type: debian
+    name: xenial
+    description: Performance Co-Pilot for Ubuntu 16.04 (xenial xerus)
+  params:
+    deb_distribution: xenial
+    deb_component: main
+    deb_architecture: amd64
 
 container:
   containerfile: |

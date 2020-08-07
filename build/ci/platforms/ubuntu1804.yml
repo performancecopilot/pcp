@@ -1,8 +1,12 @@
 bintray:
-  repository: bionic
-  deb_distribution: bionic
-  deb_component: main
-  deb_architecture: amd64
+  repository:
+    type: debian
+    name: bionic
+    description: Performance Co-Pilot for Ubuntu 18.04 (bionic beaver)
+  params:
+    deb_distribution: bionic
+    deb_component: main
+    deb_architecture: amd64
 
 container:
   init: /bin/systemd

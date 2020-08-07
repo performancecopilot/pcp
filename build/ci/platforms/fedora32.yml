@@ -1,5 +1,8 @@
 bintray:
-  repository: f32
+  repository:
+    type: rpm
+    name: f32
+    description: Performance Co-Pilot for Fedora 32
 
 vm:
   box: fedora/32-cloud-base

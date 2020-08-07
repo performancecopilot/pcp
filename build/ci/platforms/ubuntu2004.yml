@@ -1,8 +1,12 @@
 bintray:
-  repository: focal
-  deb_distribution: focal
-  deb_component: main
-  deb_architecture: amd64
+  repository:
+    type: debian
+    name: focal
+    description: Performance Co-Pilot for Ubuntu 20.04 (focal fossa)
+  params:
+    deb_distribution: focal
+    deb_component: main
+    deb_architecture: amd64
 
 container:
   init: /usr/bin/systemd

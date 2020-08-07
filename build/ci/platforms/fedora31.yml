@@ -1,5 +1,8 @@
 bintray:
-  repository: f31
+  repository:
+    type: rpm
+    name: f31
+    description: Performance Co-Pilot for Fedora 31
 
 vm:
   box: fedora/31-cloud-base

@@ -1,8 +1,12 @@
 bintray:
-  repository: buster
-  deb_distribution: buster
-  deb_component: main
-  deb_architecture: amd64
+  repository:
+    type: debian
+    name: buster
+    description: Performance Co-Pilot for Debian 10 (buster)
+  params:
+    deb_distribution: buster
+    deb_component: main
+    deb_architecture: amd64
 
 container:
   containerfile: |

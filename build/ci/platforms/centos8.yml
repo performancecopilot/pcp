@@ -1,5 +1,8 @@
 bintray:
-  repository: el8
+  repository:
+    type: rpm
+    name: el8
+    description: Performance Co-Pilot for EL8
 
 container:
   containerfile: |
@@ -31,7 +34,7 @@ tasks:
   init_qa: |
     sudo systemctl start pmcd
     systemctl status pmcd
-    journalctl -e -u pmcd
+    journalctl -u pmcd
     cat /var/log/pcp/pmcd/pmcd.log
     sudo -i -u pcpqa ./check 002
   qa_sanity: |
