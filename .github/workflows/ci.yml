@@ -40,6 +40,7 @@ jobs:
             if [ $i -gt 1 ]; then
               echo && echo "Probably network error, wait 5 min and try again ($i/3)..."
               sleep 300
+              sudo podman system prune -a -f
             fi
 
             ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} setup && exit 0 || true
