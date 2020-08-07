@@ -39,10 +39,10 @@ jobs:
           python3 -c 'import yaml' || pip3 install pyyaml
           mkdir -p artifacts/build artifacts/test
 
-          for i in 1 2 3
+          for i in $(seq 1 10)
           do
             if [ $i -gt 1 ]; then
-              echo && echo "Probably network error, wait 5 min and try again ($i/3)..."
+              echo && echo "Probably network error, wait 5 min and try again ($i/10)..."
               sleep 300
               sudo podman system prune -a -f
             fi
