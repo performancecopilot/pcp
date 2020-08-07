@@ -1,5 +1,129 @@
 pcp-5.2.0 (7 August 2020)
-    - Work in progress: https://github.com/performancecopilot/pcp/projects/1
+    - Client tools and utilities:
+	pmiectl: (new) experimental pmie control utility
+	pmlogctl: (new) experimental pmlogger control utility
+	pmlogpaste: (new) log string metric paste facility
+	pmsearch: (new) full text search for metrics, instances and help
+	pmfind_check: connect to pm{ie,log}ctl
+	pmfind_check: deal with strange exit status from pmfind(1)
+	pmlogconf: fix intermittent core dump
+	pmlogconf: fix resource leak found by coverity scan
+	pcp-atop: resolve other paths of potential null task pointer dereference
+	pcp-atop: fix logic around the end of an optional time window
+	pcp-atop: implement several RFEs relating to time navigation
+	pcp-atopsar: fix memory allocation problem with some options
+	pmie_dump_stats: (new) helper to dump pmie stats files
+	pmieconf: add network rules detecting socket connection saturation
+	pmie.c: move systemd notify call earlier
+    - Server-side utilities and log management scripts:
+	Retired standalone pmmgr daemon - see pcpcompat(1) for details.
+	pmproxy: improve diagnostics, particularly relating to http requests
+	pmproxy: support the OPTIONS protocol in HTTP 1.1
+	pmproxy: allow URLs up to 8k in length
+	pmproxy: escape help text before returning it in JSON payload
+	pmproxy: improve handling of series APIs with empty results
+	pmproxy: accept /pmapi/store value in the message body
+	pmproxy/rc_pmproxy: remove $tmp (dir) before exec
+	services: pmlogger and pmie services want pmcd on boot
+	services: assorted systemd oneshot services use KillMode=none
+	services: pmie_check PartOf pmie, pmlogger_check PartOf pmlogger
+	pmie_check: use per-process log file
+	pmlogger_check: fix locking snarfoo
+	pmlogger_check: remove temp file used in pmlogconf check
+	pmlogger_check: make sure pmlogconf has input from /dev/null
+	pmlogger_check: alternate strategy for finding primary logger's PID
+	pmlogger_check: major overhaul (diags and systemd fixups)
+	pmlogger_daily: similar changes to pmlogger_check.sh
+	pmlogger_daily: fix diagnostic spaghetti
+	pmlogger_daily: fix merge failures
+	pmlogger_daily: use $PCP_TMPFILE_DIR for intermediate pmlogger_merge archives
+	pmlogger.service: change ancillary services from After to Before
+	pmlogger/utilproc.sh: make _save_prev_file() less chatty
+	pmie/rc_pmie & pmlogger/rc_pmlogger: fix trap snarfoo
+    - PMDA additions, enhancements and bug fixes:
+	pmdabpftrace: update link to authentication guide
+	pmdabpftrace: switch to asyncio.all_tasks() in Python 3.9
+	pmdabpftrace: log user who started the bpftrace script
+	pmdabpftrace: strip spaces in allowed_users config setting
+	pmdalinux: correctly support compressed memory (zram) metrics
+	pmdalinux: add multipath TCP metrics from /proc/net/netstat
+	pmdalio: wrap refresh routine with exception handling
+	pmdalio: add pylint static checking
+	pmdamssql: corrections to the sys.dm_exec_requests query
+	pmdaproc: support Linux process accounting metrics
+	pmdaproc: add cgroup.memory.current metric (cgroup v2)
+	pmdaopenmetrics: add control.status metrics, de-verbosify the log, QA updates
+	pmdaopenmetrics: add etcd and collectd configurations for reference
+	pmdasmart: add full support for NVM Express disks
+	pmdasnmp: add Install checks for the required Net::SNMP module
+	pmdastatsd: fix minor sizeof issues found by Coverity scan
+	pmdastatsd: fixed a possible memory leak when parsing invalid datagrams
+	pmdazswap: fix error handling case when no kernel module loaded
+	pmdazswap: add pylint static checking into the build
+	pmcd/pmdaproc.sh: silence derived metrics warnings from Remove
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings
+	libpcp: add help text support for derived metrics
+	libpcp: fix memleak in hash.c
+	libpcp: clear PM_TEXT_DIRECT flag when looking up context text
+	libpcp, libpcp_import: fixes to labels setting functionality
+	libpcp_web: ensure context is freed only after timer 21is fully closed
+	libpcp_web: add resilience to descriptor lookup paths
+	libpcp_web: fix reference counting error in reworked connect paths
+	libpcp_web: search and auto-complete support
+	libpcp_web: load text from archives
+	pmapi.h: add 'qa', 'query' and 'services' debug flags
+    - Misc build, infrastructure and packaging updates:
+	build: rearrange installed /var file layouts extensively
+	build: install relative symlinks for full absolute paths
+	src: cleanup temp file naming
+	build: fix deb packaging test for liblzma
+	build: drop pcp-manager, pmfind in base pcp now handles discovery
+	configure.ac: redo HAVE_MANPAGES heuristic, guard exection of bpftrace
+	configure.ac: force man pages for Debian-style builds
+	configure.ac: fix *BSD build breakage
+	debian/GNUmakefile: fix cut-n-paste botch for ganglia2pcp packaging
+	packaging: activate pmlogger_rewrite on upgrades
+	build: edit PACKAGE_BUILD in VERSION.pcp in RPM %build
+	build: add an explicit py3 dependency on the setuptools package
+	build: remove ancient container build files from the pcp repo
+	build: support gcc -flto in most parts of the build
+	build: fix compiler warnings with latest gcc toolchain and headers
+	build: fix 'make check' with latest glibc headers and cppcheck
+	build: fix configure checks for Python.h, resolves python3 warnings
+	build: crontab.docker is gone
+	build: rework man pages installation wrt wymlinks
+    - Security Enhanced Linux:
+	selinux: allow pmdaxfs quotaget permissions
+	selinux: fix pmdasamba(1) operating with selinux enforcing
+	selinux: add sys_pacct capability to allow pmdaproc acct syscall
+    - Documentation and QA infrastructure:
+	docs: fix typos in the Linux kernel agent help text
+	docs: remove reference to a non-existant PCP_CONFIG_DIR variable
+	docs: add details of the default polltimeout value in pmwebapi(3)
+	docs: refine client/server terminology relating to pmtime
+	man: added pmsearchinfo(3), pmsearchsuggestquery(3), pmsearchtextquery(3)
+	man: update pmwebapi.3 with /search query, indom, suggest and info APIs
+	debian: roll debhelper compat version from 9 to 10
+	pmapi.h & libpcp: add new -Dqa debug flag
+	ci: remove Azure Pipelines, replaced with GitHub Actions
+	ci: implement workaround for podman and AppArmor
+	ci: daily QA with Status Report on GitHub Actions
+	ci: only run on pushes/PRs to master branch, not tags
+	ci: use containerfile for containers, fix locale of centos8
+	ci: add epel repos to centos7 and centos8 for libuv-devel
+	ci: add ubuntu 16.04
+	ci: don't run update/dist-upgrade in containers (it's an anti pattern)
+	qa: umask changes
+	qa/1190: rework for performance improvement
+	qa/check.callback.sample: performance improvements
+	qa/008: deal with non-determinism in disk indom
+	qa/1102: tweak openmetrics QA to be more deterministic
+	qa/1210: remove another filesystem directory order problem in the test
+	qa: resolve manifest file issue with selinux Makefile
+	qa: resolve failure of filesys tests running inside containers in CI
+	qa: remove ancient buildbot files from the build
+	qa: add valgrind suppressions needed for valgrind 3.16 on f32
+	qa/admin/check-vm: fix Python version heuristic
 
 pcp-5.1.1 (29 May 2020)
     - Server-side utilities and log management scripts:
