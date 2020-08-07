@@ -554,9 +554,9 @@ across all disks.
 
 @ disk.all.aveq total time averaged count of request queue length, summed for all disks
 When converted to a rate, this metric represents the average across all disks
-of the time averaged request queue length during the sampling interval.  A
-value of 1.5 (or 150%) suggests that (on average) each all disk experienced a
-time averaged queue length of 1.5 requests during the sampling interval.
+of the time averaged request queue length during the sampling interval.
+A value of 1.5 (or 150%) suggests that (on average) over all disks there was
+a time averaged queue length of 1.5 requests during the sampling interval.
 
 @ disk.all.read total read operations, summed for all disks
 Cumulative number of disk read operations since system boot time
