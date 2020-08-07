@@ -16,10 +16,13 @@ tasks:
   update: |
     sudo dnf update -y
   install_build_dependencies: |
-    sudo dnf install -y which
+    sudo dnf install -y which libuv # see BZ 1809314
+    sudo dnf module install -y libuv/devel
     sudo dnf -y -b --skip-broken install man $(./pcp/qa/admin/check-vm -fp)
   build: |
-    cd ./pcp && ./Makepkgs --verbose
+    cd ./pcp
+    ./Makepkgs --verbose
+    rpm -qp --requires $(echo ./pcp-*/build/rpm/pcp-*.src.rpm | sed 's/src/x86_64/') | grep -q libuv.so
   copy_build_artifacts: |
     cp ./pcp/pcp-*/build/rpm/*.rpm ./artifacts/build
   install: |

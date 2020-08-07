@@ -21,14 +21,16 @@ tasks:
     sudo apt-get -y dist-upgrade
   install_build_dependencies: |
     sudo apt-get -y update
+    sudo apt-get install -y zlib1g-dev
     for pkg in $(./pcp/qa/admin/check-vm -fp)
     do
       [[ "$runner" = "container" && ( "$pkg" = "auditd" || "$pkg" = "docker.io" ) ]] && continue
       sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "$pkg" || true
     done
-    sudo apt-get install -y zlib1g-dev
   build: |
-    cd ./pcp && ./Makepkgs --nonrpm --verbose
+    cd ./pcp
+    ./Makepkgs --nonrpm --verbose
+    dpkg -I ./build/deb/pcp_*.deb | grep Depends | grep -q libuv1
   copy_build_artifacts: |
     cp ./pcp/build/deb/*.deb artifacts/build
   install: |

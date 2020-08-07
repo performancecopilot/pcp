@@ -16,7 +16,9 @@ tasks:
     sudo yum install -y which
     sudo yum -y --skip-broken install man $(./pcp/qa/admin/check-vm -fp)
   build: |
-    cd ./pcp && ./Makepkgs --verbose
+    cd ./pcp
+    ./Makepkgs --verbose
+    rpm -qp --requires $(echo ./pcp-*/build/rpm/pcp-*.src.rpm | sed 's/src/x86_64/') | grep -q libuv.so
   copy_build_artifacts: |
     cp ./pcp/pcp-*/build/rpm/*.rpm ./artifacts/build
   install: |
