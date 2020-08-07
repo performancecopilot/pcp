@@ -2176,7 +2176,7 @@ EOF
 # to isolate the (somewhat exotic) dependencies for these tools.
 # Likewise, for the pcp-pmda and pcp-testsuite subpackages.
 %if "@enable_selinux@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep 'selinux' | egrep -v 'tmp' >selinux_files
+awk '{print $NF}' $DIST_MANIFEST | egrep 'selinux' | egrep -v 'tmp|GNUselinuxdefs' >selinux_files
 %endif
 awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp-doc|man.*\.[1-9].*' | egrep -v 'out' >docs_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'tutorials|/html/' >>docs_files
