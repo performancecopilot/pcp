@@ -126,10 +126,6 @@ class ContainerRunner:
                         self.container_name, 'bash'], check=False)
 
     def task(self, task_name):
-        if task_name == 'update':
-            print('info: skipping update task for containers')
-            # do not run dnf update/apt dist-upgrade in containers
-            return
         self.exec(self.platform['tasks'][task_name])
 
     def get_artifacts(self, artifact, path):

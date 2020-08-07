@@ -49,9 +49,6 @@ jobs:
           done
           exit 1
 
-      - name: Update packages
-        run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} task update
-
       - name: Install build dependencies
         run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} task install_build_dependencies
 
