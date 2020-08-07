@@ -3,11 +3,17 @@ on:
   push:
     tags:
       - '*.*.*'
+  workflow_dispatch:
+    inputs:
+      publish_bintray:
+        description: 'Publish Release on Bintray'
+        default: 'no'
+        required: true
 
 jobs:
   qa:
     name: ${{ matrix.platform }}-${{ matrix.runner }}
-    if: github.repository == 'performancecopilot/pcp'
+    if: github.repository == 'performancecopilot/pcp' || github.event_name == 'workflow_dispatch'
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: true
@@ -87,7 +93,7 @@ jobs:
 
   release:
     name: Release on Bintray
-    if: github.repository == 'performancecopilot/pcp'
+    if: (github.event_name == 'push' && github.repository == 'performancecopilot/pcp') || (github.event_name == 'workflow_dispatch' && github.event.inputs.publish_bintray == 'yes')
     needs: qa
     runs-on: ubuntu-18.04
     steps:
