@@ -322,15 +322,15 @@ void PmTimeArch::updateTime()
 
 void PmTimeArch::displayDeltaText()
 {
-    QString text;
+    char text[64];
     double delta = PmTime::secondsFromTimeval(&my.pmtime.delta);
 
     delta = PmTime::secondsToUnits(delta, my.units);
     if ((double)(int)delta == delta)
-	text.sprintf("%.2f", delta);
+	pmsprintf(text, sizeof(text), "%.2f", delta);
     else
-	text.sprintf("%.6f", delta);
-    lineEditDelta->setText(text);
+	pmsprintf(text, sizeof(text), "%.6f", delta);
+    lineEditDelta->setText(QString(text));
 }
 
 void PmTimeArch::displayPositionText()
@@ -434,7 +434,7 @@ void PmTimeArch::resetSpeed()
 
 void PmTimeArch::changeSpeed(double value)
 {
-    QString text;
+    char text[64];
     int reset = my.timer->isActive();
     double upper, lower, delta = PmTime::secondsFromTimeval(&my.pmtime.delta);
 
@@ -446,8 +446,8 @@ void PmTimeArch::changeSpeed(double value)
 	value = upper;
     else if (value < lower)
 	value = lower;
-    text.sprintf("%.1f", value);
-    lineEditSpeed->setText(text);
+    pmsprintf(text, sizeof(text), "%.1f", value);
+    lineEditSpeed->setText(QString(text));
     if (wheelSpeed->value() != value)
 	wheelSpeed->setValue(value);
 
@@ -530,7 +530,7 @@ void PmTimeArch::lineEditCtime_validate()
 
     input = lineEditCtime->text().simplified();
     if (input.length() == 0) {
-	error.sprintf("Position time has not been set.\n");
+	error = QString("Position time has not been set.\n");
 	QMessageBox::warning(0, tr("Warning"), error, tr("Quit"));
 	return;
     }
@@ -538,7 +538,7 @@ void PmTimeArch::lineEditCtime_validate()
 	input.prepend("@");
     if (__pmParseTime(input.toLatin1(),
 			&my.pmtime.start, &my.pmtime.end, &current, &msg) < 0) {
-	error.sprintf("Invalid position date/time:\n\n%s\n", msg);
+	error = QString("Invalid position date/time:\n\n%1\n").arg(msg);
 	QMessageBox::warning(0, tr("Warning"), error, tr("Quit"));
 	displayPositionText();	// reset to previous, known-good position
 	free(msg);
