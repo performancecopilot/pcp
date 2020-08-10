@@ -333,9 +333,8 @@ bool OpenViewDialog::useLiveContext(int index)
     int sts;
 
     if ((sts = liveGroup->use(PM_CONTEXT_HOST, source.source())) < 0) {
-	QString msg;
-	msg.sprintf("Failed to connect to pmcd on \"%s\".\n%s.\n\n",
-		    sourceName, pmErrStr(sts));
+	QString msg = QString("Failed to connect to pmcd on \"%1\".\n%2.\n\n")
+				.arg(sourceName).arg(pmErrStr(sts));
 	QMessageBox::warning(NULL, pmGetProgname(), msg,
 		QMessageBox::Ok | QMessageBox::Default | QMessageBox::Escape,
 		QMessageBox::NoButton, QMessageBox::NoButton);
@@ -362,9 +361,8 @@ bool OpenViewDialog::useArchiveContext(int index)
     int sts;
 
     if ((sts = archiveGroup->use(PM_CONTEXT_ARCHIVE, source.source())) < 0) {
-	QString msg;
-	msg.sprintf("Failed to open archive \"%s\".\n%s.\n\n",
-		    sourceName, pmErrStr(sts));
+	QString msg = QString("Failed to open archive \"%1\".\n%2.\n\n")
+				.arg(sourceName).arg(pmErrStr(sts));
 	QMessageBox::warning(NULL, pmGetProgname(), msg,
 		QMessageBox::Ok | QMessageBox::Default | QMessageBox::Escape,
 		QMessageBox::NoButton, QMessageBox::NoButton);

@@ -258,11 +258,11 @@ void NameSpace::expandMetricNames(QString parent, bool show)
 	    goto done;
 	QString msg = QString();
 	if (isRoot())
-	    msg.sprintf("Cannot get metric names from source\n%s: %s.\n\n",
-		(const char *)my.basename.toLatin1(), pmErrStr(sts));
+	    msg = QString("Cannot get metric names from source\n%1: %2.\n\n")
+		.arg(my.basename).arg(pmErrStr(sts));
 	else
-	    msg.sprintf("Cannot get children of node\n\"%s\".\n%s.\n\n",
-		name, pmErrStr(sts));
+	    msg = QString("Cannot get children of node\n\"%1\".\n%2.\n\n")
+		.arg(name).arg(pmErrStr(sts));
 	QMessageBox::warning(NULL, pmGetProgname(), msg,
 		QMessageBox::Ok | QMessageBox::Default | QMessageBox::Escape,
 		QMessageBox::NoButton, QMessageBox::NoButton);
@@ -331,7 +331,7 @@ void NameSpace::expandMetricNames(QString parent, bool show)
     if ((sts = pmLookupName(nleaf, offspring, pmidlist)) < 0) {
 	if (!show)
 	    goto done;
-	failmsg.sprintf("Cannot find PMIDs: %s.\n", pmErrStr(sts));
+	failmsg = QString("Cannot find PMIDs: %1.\n").arg(pmErrStr(sts));
 	for (i = 0; i < nleaf; i++) {
 	    leaflist[i]->setFailed(true);
 	    if (pmidlist[i] == PM_ID_NULL) {
@@ -410,9 +410,8 @@ void NameSpace::expandInstanceNames(bool show)
     if (sts < 0) {
 	if (!show)
 	    goto done;
-	QString msg = QString();
-	msg.sprintf("Error fetching instance domain at node \"%s\".\n%s.\n\n",
-		(const char *)metricName().toLatin1(), pmErrStr(sts));
+	QString msg = QString("Error fetching instance domain at node \"%1\".\n%2.\n\n")
+		.arg(metricName()).arg(pmErrStr(sts));
 	QMessageBox::warning(NULL, pmGetProgname(), msg,
 		QMessageBox::Ok | QMessageBox::Default |
 			QMessageBox::Escape,

@@ -727,8 +727,7 @@ Chart::moved(const QPointF &p)
 QString
 Chart::pointValueText(const QPointF &p) const
 {
-    QString text;
-    text.sprintf("[%.2f", (float)p.y());
+    QString text = QString("[%1").arg((double)p.y(), 0, 'f', 2);
     QString title = YAxisTitle();
     if (title != QString()) {
 	text.append(" ");

@@ -40,7 +40,7 @@ public:
     virtual QwtText label(double v) const
     {
 	struct tm tm;
-	QString string;
+	char string[64];
 	double delta = fabs(axis->delta());
 	double points = axis->points();
 	time_t seconds = (time_t)(unsigned long)v;
@@ -49,14 +49,14 @@ public:
 
 	if (delta * points > 24 * 60 * 60 / 6 || (tm.tm_hour == 0 && tm.tm_min == 0))
 	    // visible interval is more than 6 hours - omit seconds but include date
-	    string.sprintf("%2d:%02d\n%3s %02d",
+	    pmsprintf(string, sizeof(string), "%2d:%02d\n%3s %02d",
 		tm.tm_hour, tm.tm_min, month[tm.tm_mon], tm.tm_mday);
 	else
 	    // just show the time, including seconds but omit date
-	    string.sprintf("%2d:%02d:%02d",
+	    pmsprintf(string, sizeof(string), "%2d:%02d:%02d",
 		tm.tm_hour, tm.tm_min, tm.tm_sec);
 
-	return string;
+	return QString(string);
     }
 
     virtual void getBorderDistHint(const QFont &f, int &start, int &end) const
