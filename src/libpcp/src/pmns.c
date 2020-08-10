@@ -1934,7 +1934,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
 	nfail = 0;
 	for (i = 0; i < numpmid; i++) {
 	    if (pmidlist[i] == PM_ID_NULL) {
-		lsts = __dmgetpmid(derive_locked, namelist[i], &pmidlist[i]);
+		lsts = __dmgetpmid(ctxp, derive_locked, namelist[i], &pmidlist[i]);
 		if (lsts < 0) {
 		    nfail++;
 		}

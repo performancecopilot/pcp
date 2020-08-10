@@ -83,7 +83,7 @@ typedef struct {		/* one derived metric */
 /*
  * Control structure for a set of derived metrics.
  * This is used for the static definitions (registered) and the dynamic
- * tree of expressions maintained per context.
+ * array of expressions maintained per context.
  */
 typedef struct {
     __pmMutex		mutex;
@@ -138,7 +138,7 @@ typedef struct {
 
 extern int __dmtraverse(__pmContext *, const char *, char ***) _PCP_HIDDEN;
 extern int __dmchildren(__pmContext *, int, const char *, char ***, int **) _PCP_HIDDEN;
-extern int __dmgetpmid(int, const char *, pmID *) _PCP_HIDDEN;
+extern int __dmgetpmid(__pmContext *, int, const char *, pmID *) _PCP_HIDDEN;
 extern int __dmgetname(pmID, char **) _PCP_HIDDEN;
 extern void __dmopencontext(__pmContext *) _PCP_HIDDEN;
 extern void __dmbind(int, __pmContext *, int) _PCP_HIDDEN;

@@ -8,7 +8,7 @@
  *   DERIVE & APPL0
  *	pmRegisterDerived(), lexical scanner, syntactic checks
  *   DERIVE & APPL1
- *	_dmopencontext(), semantic checks
+ *	_dmopencontext(), refresh(), semantic checks
  *   DERIVE & APPL2
  *	_dmchildren(), PMNS ops
  *
@@ -2144,6 +2144,44 @@ __dmctl(__pmContext *ctxp)
     return cp;
 }
 
+/*
+ * update the context's version of the available derived metrics
+ * - only ever called with the context locked and registered.mutex
+ * locked
+ */
+static void
+refresh(__pmContext *ctxp)
+{
+    ctl_t       *cp = (ctl_t *)ctxp->c_dm;
+    int		i;
+    dm_t	*tmp_mlist;
+
+    if ((tmp_mlist = (dm_t *)realloc(cp->mlist, registered.nmetric*sizeof(dm_t))) == NULL) {
+	/*
+	 * tough luck, recently added derived metrics will not be
+	 * available in this context
+	 */
+	pmNoMem("refresh: derived metrics (mlist)", registered.nmetric*sizeof(dm_t), PM_RECOV_ERR);
+	return;
+    }
+    cp->mlist = tmp_mlist;
+    for (i = cp->nmetric; i < registered.nmetric; i++) {
+	cp->mlist[i].name = registered.mlist[i].name;
+	cp->mlist[i].pmid = registered.mlist[i].pmid;
+	cp->mlist[i].anon = registered.mlist[i].anon;
+	assert(registered.mlist[i].expr != NULL);
+	cp->mlist[i].expr = NULL;
+	cp->mlist[i].bind = 0;
+	cp->mlist[i].oneline = registered.mlist[i].oneline;
+	cp->mlist[i].helptext = registered.mlist[i].helptext;
+	if (pmDebugOptions.derive && pmDebugOptions.appl1) {
+	    fprintf(stderr, "refresh: append metric \"%s\" for ctx %d\n",
+	    	cp->mlist[i].name, ctxp->c_handle);
+	}
+    }
+    cp->nmetric = registered.nmetric;
+}
+
 int
 __dmtraverse(__pmContext *ctxp, const char *name, char ***namelist)
 {
@@ -2161,6 +2199,9 @@ __dmtraverse(__pmContext *ctxp, const char *name, char ***namelist)
 
     PM_LOCK(registered.mutex);
     __dminit();
+
+    if (cp->nmetric < registered.nmetric)
+	refresh(ctxp);
 
     for (i = 0; i < cp->nmetric; i++) {
 	/*
@@ -2233,6 +2274,9 @@ __dmchildren(__pmContext *ctxp, int derive_locked, const char *name, char ***off
     else {
 	PM_ASSERT_IS_LOCKED(registered.mutex);
     }
+
+    if (cp->nmetric < registered.nmetric)
+	refresh(ctxp);
 
     for (i = 0; i < cp->nmetric; i++) {
 	/* skip invalid derived metrics, e.g. due to missing operands */
@@ -2355,7 +2399,7 @@ __dmchildren(__pmContext *ctxp, int derive_locked, const char *name, char ***off
 }
 
 int
-__dmgetpmid(int derive_locked, const char *name, pmID *dp)
+__dmgetpmid(__pmContext *ctxp, int derive_locked, const char *name, pmID *dp)
 {
     int		i;
 
@@ -2490,7 +2534,7 @@ __dmopencontext(__pmContext *ctxp)
     __dminit();
 
     if (pmDebugOptions.derive && pmDebugOptions.appl1) {
-	fprintf(stderr, "__dmopencontext(->ctx %d) called\n", ctxp->c_handle);
+	fprintf(stderr, "__dmopencontext(->ctx %d) called, %d derived metrics\n", ctxp->c_handle, registered.nmetric);
     }
     if (registered.nmetric == 0) {
 	ctxp->c_dm = NULL;
@@ -2513,11 +2557,11 @@ __dmopencontext(__pmContext *ctxp)
 	cp->mlist[i].name = registered.mlist[i].name;
 	cp->mlist[i].pmid = registered.mlist[i].pmid;
 	cp->mlist[i].anon = registered.mlist[i].anon;
+	assert(registered.mlist[i].expr != NULL);
 	cp->mlist[i].expr = NULL;
 	cp->mlist[i].bind = 0;
 	cp->mlist[i].oneline = registered.mlist[i].oneline;
 	cp->mlist[i].helptext = registered.mlist[i].helptext;
-	assert(registered.mlist[i].expr != NULL);
     }
     PM_UNLOCK(registered.mutex);
 }
@@ -2535,8 +2579,9 @@ __dmclosecontext(__pmContext *ctxp)
     }
     if (cp == NULL) return;
     for (i = 0; i < cp->nmetric; i++) {
-	if (cp->mlist[i].expr != NULL)
+	if (cp->mlist[i].expr != NULL) {
 	    free_expr(cp->mlist[i].expr); 
+	}
     }
     free(cp->mlist);
     free(cp);
@@ -2549,9 +2594,18 @@ __dmdesc(__pmContext *ctxp, int derive_locked, pmID pmid, pmDesc *desc)
     int		i;
     ctl_t	*cp = (ctl_t *)ctxp->c_dm;
 
-    /* if needed, __dminit() called in __dmopencontext beforehand */
-
+    /*
+     * if needed, __dminit() has been called in __dmopencontext beforehand
+     * which means cp != NULL
+     */
     if (cp == NULL) return PM_ERR_PMID;
+
+    if (derive_locked == PM_NOT_LOCKED)
+	PM_LOCK(registered.mutex);
+    if (cp->nmetric < registered.nmetric)
+	refresh(ctxp);
+    if (derive_locked == PM_NOT_LOCKED)
+	PM_UNLOCK(registered.mutex);
 
     for (i = 0; i < cp->nmetric; i++) {
 	if (cp->mlist[i].pmid == pmid) {
@@ -2566,6 +2620,7 @@ __dmdesc(__pmContext *ctxp, int derive_locked, pmID pmid, pmDesc *desc)
 	    return 0;
 	}
     }
+
     return PM_ERR_PMID;
 }
 
