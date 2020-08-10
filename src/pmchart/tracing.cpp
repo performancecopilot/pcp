@@ -314,7 +314,7 @@ TracingItem::updateEventRecords(TracingEngine *engine, QmcMetric *metric, int in
 	    my.events.append(TracingEvent(record, metric->metricID(), index));
 	    TracingEvent &event = my.events.last();
 
-	    if (event.hasIdentifier() && name == QString::null) {
+	    if (event.hasIdentifier() && name.isNull()) {
 		addTraceSpan(engine, event.spanID(), slot);
 	    }
 
@@ -669,7 +669,6 @@ TracingEngine::getTraceSpan(const QString &spanID, int slot) const
 void
 TracingEngine::addTraceSpan(const QString &spanID, int slot)
 {
-    Q_ASSERT(spanID != QString::null && spanID != "");
     console->post("TracingEngine::addTraceSpan: \"%s\" <=> slot %d (%d/%d span/label)",
 			(const char *)spanID.toLatin1(), slot,
 			my.traceSpanMapping.size(), my.labelSpanMapping.size());

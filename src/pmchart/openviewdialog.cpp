@@ -277,7 +277,7 @@ void OpenViewDialog::hostAdd()
 	QString hostspec = host->getHostSpecification();
 	int sts, flags = host->getContextFlags();
 
-	if (hostspec == QString::null || hostspec.length() == 0) {
+	if (hostspec.isNull() || hostspec.length() == 0) {
 	    hostspec.append(tr("Hostname not specified\n"));
 	    QMessageBox::warning(this, pmGetProgname(), hostspec,
 		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,

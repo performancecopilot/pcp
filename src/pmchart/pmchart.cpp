@@ -633,7 +633,7 @@ void PmChart::acceptEditTab()
 void PmChart::createNewTab(bool live)
 {
     setupDialogs();
-    my.newtab->reset(QString::null, live);
+    my.newtab->reset(QString(), live);
     my.newtab->show();
 }
 

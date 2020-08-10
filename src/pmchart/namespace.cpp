@@ -33,7 +33,7 @@ NameSpace::NameSpace(NameSpace *parent, const QString &name, bool inst)
     my.desc = parent->my.desc;
     my.context = parent->my.context;
     my.basename = name;
-    if (name == QString::null)
+    if (name.isNull())
 	my.type = ChildMinder;
     else if (!inst)
 	my.type = NoType;
@@ -102,7 +102,7 @@ QString NameSpace::sourceTip()
 	tooltip.append(source.startTime());
 	tooltip.append("\n  ending            ");
 	tooltip.append(source.endTime());
-    } else if (source.attributes() != QString::null) {
+    } else if (source.attributes() != QString()) {
 	tooltip.append("\nAttributes: ");
 	tooltip.append(source.attributes());
     }
@@ -147,7 +147,7 @@ QString NameSpace::metricInstance()
 {
     if (my.type == InstanceName)
 	return text(0);
-    return QString::null;
+    return QString();
 }
 
 void NameSpace::setExpanded(bool expand, bool show)
@@ -206,7 +206,7 @@ void NameSpace::setExpandable(bool expandable)
     // When we later do fill in the real kids, we first delete the ChildMinder.
 
     if (expandable)
-	addChild(new NameSpace(this, QString::null, false));
+	addChild(new NameSpace(this, QString(), false));
 }
 
 static char *namedup(const char *name, const char *suffix)
@@ -440,7 +440,7 @@ done:
 QString NameSpace::text(int column) const
 {
     if (column > 0)
-	return QString::null;
+	return QString();
     return my.basename;
 }
 

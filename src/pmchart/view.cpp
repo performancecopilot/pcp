@@ -741,7 +741,7 @@ done_tab:
 		tab = pmchart->activeTab();
 		bool isArchive = tab->isArchiveSource();
 
-		if (host != QString::null) {
+		if (host != QString()) {
 		    if (isArchive)
 			archiveGroup->use(PM_CONTEXT_ARCHIVE, host);
 		    else
@@ -1197,7 +1197,7 @@ void SaveViewDialog::saveChart(FILE *f, Chart *cp, bool hostDynamic)
     bool	autoscale;
 
     fprintf(f, "chart");
-    if (cp->title() != QString::null)
+    if (cp->title() != QString())
 	fprintf(f, " title \"%s\"", (const char*)cp->title().toLatin1());
     switch (cp->style()) {
 	case Chart::LineStyle:
@@ -1240,7 +1240,7 @@ void SaveViewDialog::saveChart(FILE *f, Chart *cp, bool hostDynamic)
 	    continue;
 	fprintf(f, "\tplot");
 	legend = cp->legend(m);
-	if (legend != QString::null)
+	if (legend != QString())
 	    fprintf(f, " legend \"%s\"", (const char *)legend.toLatin1());
 	fprintf(f, " color %s", (const char *)cp->color(m).name().toLatin1());
 	if (hostDynamic == false)
@@ -1279,7 +1279,7 @@ bool SaveViewDialog::saveView(QString file, bool hostDynamic,
 
     for (c = 0; c < pmchart->activeTab()->gadgetCount(); c++) {
 	gadget = pmchart->activeTab()->gadget(c);
-	if (gadget->scheme() == QString::null ||
+	if (gadget->scheme() == QString() ||
 	    schemes.contains(gadget->scheme()) == true)
 	    continue;
 	schemes.append(gadget->scheme());
