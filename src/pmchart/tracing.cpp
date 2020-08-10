@@ -421,7 +421,7 @@ TracingItem::setStroke(Chart::Style, QColor color, bool)
     my.pointSymbol->setPen(outline);
 
     my.selectionSymbol->setSize(8);
-    my.selectionSymbol->setColor(color.dark(180));
+    my.selectionSymbol->setColor(color.darker(180));
     my.selectionSymbol->setPen(outline);
 }
 

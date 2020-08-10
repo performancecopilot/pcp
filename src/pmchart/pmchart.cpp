@@ -17,13 +17,13 @@
 #include <QTimer>
 #include <QLibraryInfo>
 #include <QDesktopServices>
-#include <QDesktopWidget>
 #include <QApplication>
 #include <QPrintDialog>
 #include <QMessageBox>
 #include <QWhatsThis>
 #include <QPainter>
 #include <QPrinter>
+#include <QScreen>
 
 #include "main.h"
 #include "pmchart.h"
@@ -195,7 +195,7 @@ void PmChart::updateHeight(int adjustment)
 {
     QSize newSize = size();
     int ideal = newSize.height() + adjustment;	// may be negative
-    int sized = QApplication::desktop()->availableGeometry().height();
+    int sized = QApplication::primaryScreen()->availableGeometry().height();
 
 #ifdef DESPERATE
     console->post(PmChart::DebugUi,
