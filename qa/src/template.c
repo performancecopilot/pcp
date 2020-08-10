@@ -6,7 +6,22 @@
 #include <pcp/pmapi.h>
 
 static pmLongOptions longopts[] = {
-    PMAPI_GENERAL_OPTIONS,	/* -[AaDghnOpSsTtVZz?] */
+    PMOPT_ALIGN,	/* -A */
+    PMOPT_ARCHIVE,	/* -a */
+    PMOPT_DEBUG,	/* -D */
+    PMOPT_GUIMODE,	/* -g */
+    PMOPT_HOST,		/* -h */
+    PMOPT_NAMESPACE,	/* -n */
+    PMOPT_ORIGIN,	/* -O */
+    PMOPT_GUIPORT,	/* -p */
+    PMOPT_START,	/* -S */
+    PMOPT_SAMPLES,	/* -s */
+    PMOPT_FINISH,	/* -T */
+    PMOPT_INTERVAL,	/* -t */
+    PMOPT_VERSION,	/* -V */
+    PMOPT_TIMEZONE,	/* -Z */
+    PMOPT_HOSTZONE,	/* -z */
+    PMOPT_HELP,		/* -? */
     PMOPT_HOSTSFILE,		/* -H */
     PMOPT_SPECLOCAL,		/* -K */
     PMOPT_LOCALPMDA,		/* -L */
