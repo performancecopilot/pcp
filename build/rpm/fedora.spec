@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 5.2.0
+Version: 5.2.1
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2+ and CC-BY
@@ -157,10 +157,6 @@ Source0: %{bintray}/pcp/source/pcp-%{version}.src.tar.gz
 %endif
 
 # static probes, missing before el6 and on some architectures
-# and currently also need to be disabled on Fedora f33/rawhide
-%if 0%{?fedora} >= 33
-%global disable_sdt 1
-%else
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
 %global disable_sdt 0
 %else
@@ -168,7 +164,6 @@ Source0: %{bintray}/pcp/source/pcp-%{version}.src.tar.gz
 %global disable_sdt 0
 %else
 %global disable_sdt 1
-%endif
 %endif
 %endif
 
@@ -2302,9 +2297,10 @@ done
 
 # list of conf directories in base pcp package
 for conf in discover labels nssdb pmafm pmcd pmfind pmie pmieconf pmlogconf \
-            pmlogger pmlogrewrite pmproxy pmsearch pmseries; do
+    proc simple pipe linux pmlogger pmlogrewrite pmproxy pmsearch pmseries; do
     for alt in %{_confdir} %{_localstatedir}/lib/pcp/config; do
-        [ -d $RPM_BUILD_ROOT/$alt/$conf ] && echo $alt/$conf >>base_conf.list
+        replace=""; [ "$alt" = "%{_confdir}" ] && replace="%config(noreplace)"
+        [ -d $RPM_BUILD_ROOT/$alt/$conf ] && echo "$replace $alt/$conf" >>base_conf.list
     done
 done
 
@@ -2810,10 +2806,6 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %endif
 
 %files -f base.list
-%dir %{_logsdir}/pmfind
-%dir %{_confdir}/simple
-%{_confdir}/simple
-
 #
 # Note: there are some headers (e.g. domain.h) and in a few cases some
 # C source files that rpmlint complains about. These are not devel files,
@@ -2852,6 +2844,7 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %attr(0775,pcp,pcp) %{_logsdir}/pmlogger
 %attr(0775,pcp,pcp) %{_logsdir}/pmie
 %attr(0775,pcp,pcp) %{_logsdir}/pmproxy
+%attr(0775,pcp,pcp) %{_logsdir}/pmfind
 %{_localstatedir}/lib/pcp/pmns
 %{_initddir}/pcp
 %{_initddir}/pmcd
@@ -2943,10 +2936,10 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %else
 %config(noreplace) %{_sysconfdir}/cron.d/pcp-pmlogger-daily-report
 %endif
-%{_ieconfdir}/zeroconf
-%{_logconfdir}/zeroconf
-%{_confdir}/pmlogconf/zeroconf
-%{_confdir}/pmieconf/zeroconf
+%config(noreplace) %{_ieconfdir}/zeroconf
+%config(noreplace) %{_logconfdir}/zeroconf
+%config(noreplace) %{_confdir}/pmlogconf/zeroconf
+%config(noreplace) %{_confdir}/pmieconf/zeroconf
 %{_logsdir}/sa
 
 #additional pmlogger config files
@@ -2990,6 +2983,7 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 # PMDAs that ship src and are not for production use
 # straight out-of-the-box, for devel or QA use only.
 %{_pmdasdir}/simple
+%config(noreplace) %{_confdir}/simple
 %{_pmdasdir}/sample
 %{_pmdasdir}/trivial
 %{_pmdasdir}/txmon
@@ -3017,7 +3011,6 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %files pmda-podman
 %{_pmdasdir}/podman
 %{_pmdasexecdir}/podman
-%config(noreplace) %{_pmdasdir}/statsd/pmdastatsd.ini
 %endif
 
 %if !%{disable_statsd}
@@ -3099,12 +3092,12 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %files pmda-openmetrics
 %{_pmdasdir}/openmetrics
 %{_pmdasexecdir}/openmetrics
-%{_confdir}/openmetrics
+%config(noreplace) %{_confdir}/openmetrics
 
 %files pmda-lustre
 %{_pmdasdir}/lustre
 %{_pmdasexecdir}/lustre
-%{_confdir}/lustre
+%config(noreplace) %{_confdir}/lustre
 
 %files pmda-lustrecomm
 %{_pmdasdir}/lustrecomm
@@ -3133,7 +3126,7 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %files pmda-nginx
 %{_pmdasdir}/nginx
 %{_pmdasexecdir}/nginx
-%{_confdir}/nginx
+%config(noreplace) %{_confdir}/nginx
 
 %files pmda-nfsclient
 %{_pmdasdir}/nfsclient
@@ -3143,13 +3136,13 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %files pmda-nutcracker
 %{_pmdasdir}/nutcracker
 %{_pmdasexecdir}/nutcracker
-%{_confdir}/nutcracker
+%config(noreplace) %{_confdir}/nutcracker
 %endif
 
 %files pmda-oracle
 %{_pmdasdir}/oracle
 %{_pmdasexecdir}/oracle
-%{_confdir}/oracle
+%config(noreplace) %{_confdir}/oracle
 
 %files pmda-pdns
 %{_pmdasdir}/pdns
@@ -3162,8 +3155,8 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %files pmda-postgresql
 %{_pmdasdir}/postgresql
 %{_pmdasexecdir}/postgresql
-%{_confdir}/postgresql
-%config(noreplace) %{_pmdasdir}/postgresql/pmdapostgresql.conf
+%dir %{_confdir}/postgresql
+%config(noreplace) %{_confdir}/postgresql/pmdapostgresql.conf
 
 %files pmda-redis
 %{_pmdasdir}/redis
@@ -3202,7 +3195,7 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %{_pmdasexecdir}/dm
 %{_ieconfdir}/dm
 %dir %{_confdir}/pmieconf/dm
-%{_confdir}/pmieconf/dm
+%config(noreplace) %{_confdir}/pmieconf/dm
 
 %if !%{disable_bcc}
 %files pmda-bcc
@@ -3214,7 +3207,7 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %files pmda-bpftrace
 %{_pmdasdir}/bpftrace
 %{_pmdasexecdir}/bpftrace
-%{_confdir}/bpftrace
+%config(noreplace) %{_confdir}/bpftrace
 %endif
 
 %if !%{disable_python2} || !%{disable_python3}
@@ -3292,20 +3285,20 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %files export-zabbix-agent
 %{_libdir}/zabbix
 %dir %{_sysconfdir}/zabbix/zabbix_agentd.d
-%{_sysconfdir}/zabbix/zabbix_agentd.d/zbxpcp.conf
+%config(noreplace) %{_sysconfdir}/zabbix/zabbix_agentd.d/zbxpcp.conf
 
 %if !%{disable_mssql}
 %files pmda-mssql
 %{_pmdasdir}/mssql
 %{_pmdasexecdir}/mssql
-%{_confdir}/mssql
+%config(noreplace) %{_confdir}/mssql
 %endif
 
 %if !%{disable_json}
 %files pmda-json
 %{_pmdasdir}/json
 %{_pmdasexecdir}/json
-%{_confdir}/json
+%config(noreplace) %{_confdir}/json
 %endif
 
 %files pmda-apache
@@ -3339,7 +3332,7 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %files pmda-mounts
 %{_pmdasdir}/mounts
 %{_pmdasexecdir}/mounts
-%{_confdir}/mounts
+%config(noreplace) %{_confdir}/mounts
 
 %files pmda-nvidia-gpu
 %{_pmdasdir}/nvidia
@@ -3362,7 +3355,7 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %files pmda-shping
 %{_pmdasdir}/shping
 %{_pmdasexecdir}/shping
-%{_confdir}/shping
+%config(noreplace) %{_confdir}/shping
 
 %files pmda-smart
 %{_pmdasdir}/smart
@@ -3371,7 +3364,7 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %files pmda-summary
 %{_pmdasdir}/summary
 %{_pmdasexecdir}/summary
-%{_confdir}/summary
+%config(noreplace) %{_confdir}/summary
 
 %if !%{disable_systemd}
 %files pmda-systemd
@@ -3439,10 +3432,19 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 * Fri Sep 25 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.2.1-1
 - https://github.com/performancecopilot/pcp/projects/1
 
-* Fri Aug 07 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.2.0-1
+* Sat Aug 08 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.2.0-1
 - rearrange installed /var file layouts extensively (BZ 1827441)
 - pmproxy intermittently crashes at uv_timer_stop (BZ 1789312)
 - Update to latest PCP sources.
+
+* Tue Jul 28 2020 Fedora Release Engineering <releng@fedoraproject.org> - 5.1.1-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_33_Mass_Rebuild
+
+* Wed Jul 01 2020 Jeff Law <law@redhat.com> - 5.1.1-3
+- Disable LTO
+
+* Tue Jun 23 2020 Jitka Plesnikova <jplesnik@redhat.com> - 5.1.1-2
+- Perl 5.32 rebuild
 
 * Fri May 29 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.1.1-1
 - Update to latest PCP sources.
