@@ -54,7 +54,7 @@ public:
     virtual bool activeMetric(int) const { return true; }
     virtual QmcMetric *metricPtr(int) const { return NULL; }
     virtual QmcDesc *metricDesc(int) const { return NULL; }
-    virtual QString metricInstance(int) const { return QString::null; }
+    virtual QString metricInstance(int) const { return QString(); }
     virtual QmcContext *metricContext(int) const { return NULL; }
 
     virtual QStringList hosts();	// unique hostnames across all metrics

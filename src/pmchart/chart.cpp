@@ -36,9 +36,9 @@
 Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent), Gadget(this)
 {
     my.tab = chartTab;
-    my.title = QString::null;
+    my.title = QString();
     my.style = NoStyle;
-    my.scheme = QString::null;
+    my.scheme = QString();
     my.sequence = 0;
     my.metricDetailsWindow = NULL;
 
@@ -120,7 +120,7 @@ ChartItem::ChartItem(QmcMetric *mp,
 	my.name.append("[").append(msp->inst[0]).append("]");
 	my.inst = QString(msp->inst[0]);
     } else {
-	my.inst = QString::null;
+	my.inst = QString();
     }
     setLegend(legend);
     my.removed = false;
@@ -138,7 +138,7 @@ void
 ChartItem::setLegend(const QString &legend)
 {
     my.legend = legend;
-    if (legend != QString::null)
+    if (legend != QString())
 	expandLegendLabel(legend);
     else
 	clearLegendLabel();
@@ -522,13 +522,13 @@ Chart::hostNameString(bool shortened)
 void
 Chart::changeTitle(QString title, bool expand)
 {
-    bool hadTitle = (my.title != QString::null);
+    bool hadTitle = (my.title != QString());
     bool expandHostShort = title.contains("%h");
     bool expandHostLong = title.contains("%H");
 
     my.title = title;	// copy into QString
 
-    if (my.title != QString::null) {
+    if (my.title != QString()) {
 	if (!hadTitle)
 	    pmchart->updateHeight(titleLabel()->height());
 	resetTitleFont();
@@ -727,10 +727,9 @@ Chart::moved(const QPointF &p)
 QString
 Chart::pointValueText(const QPointF &p) const
 {
-    QString text;
-    text.sprintf("[%.2f", (float)p.y());
+    QString text = QString("[%1").arg((double)p.y(), 0, 'f', 2);
     QString title = YAxisTitle();
-    if (title != QString::null) {
+    if (title != QString()) {
 	text.append(" ");
 	text.append(title);
     }

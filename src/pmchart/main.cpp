@@ -13,6 +13,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
+#include <QScreen>
 #include <QSettings>
 #include <QStatusBar>
 #include <QApplication>
@@ -416,7 +417,7 @@ static void setupViewGlobals()
     OpenViewDialog::globals(&w, &h, &points, &x, &y);
     if (w || h) {
 	QSize size = pmchart->size().expandedTo(QSize(w, h));
-	QSize desk = QApplication::desktop()->availableGeometry().size();
+	QSize desk = QApplication::primaryScreen()->availableGeometry().size();
 	pmchart->resize(size.boundedTo(desk));
     }
     if (x || y) {
