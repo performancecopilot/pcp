@@ -51,6 +51,7 @@ context_fd_leak
 context_test
 countmark
 crashpmcd
+ctx_derive
 defctx
 derived
 descreqX2

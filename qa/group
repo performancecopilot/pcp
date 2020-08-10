@@ -1669,6 +1669,8 @@ not_in_container
 1249 pmlogctl local
 1250 selinux local
 1251 other local
+1252 derive local
+1253 derive local
 1255 libpcp local kernel
 1257 libpcp python local
 1258 pmda.linux local valgrind
