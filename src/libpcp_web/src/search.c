@@ -646,11 +646,9 @@ redis_search_text_query(redisSlots *slots, pmSearchTextRequest *request, void *a
     cmd = redis_param_str(cmd, FT_SEARCH, FT_SEARCH_LEN);
     cmd = redis_param_sds(cmd, key);
 
-    base_query = redis_search_text_prep(request->query, 0, NULL, NULL);
-    query = sdscatfmt(sdsempty(), "\'(%S)=>{$inorder:true}", base_query);
-    sdsfree(base_query);
+    query = sdscatlen(sdsempty(), "\'", 1);
     if (types) {
-	query = sdscatlen(query, " @TYPE:{", 8);
+	query = sdscatlen(query, "@TYPE:{", 7);
 	if (request->type_metric) {
 	    typestr = pmSearchTextTypeStr(PM_SEARCH_TYPE_METRIC);
 	    query = sdscat(query, typestr);
@@ -667,9 +665,11 @@ redis_search_text_query(redisSlots *slots, pmSearchTextRequest *request, void *a
 	    typestr = pmSearchTextTypeStr(PM_SEARCH_TYPE_INST);
 	    query = sdscat(query, typestr);
 	}
-	query = sdscatlen(query, "}", 1);
+	query = sdscatlen(query, "} ", 2);
     }
-    query = sdscatlen(query, "\'", 1);
+    base_query = redis_search_text_prep(request->query, 0, NULL, NULL);
+    query = sdscatfmt(query, "(%S)=>{$inorder:true}\'", base_query);
+    sdsfree(base_query);
     cmd = redis_param_sds(cmd, query);
     sdsfree(query);
 
