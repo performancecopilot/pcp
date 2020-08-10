@@ -1952,12 +1952,13 @@ __pmSetClientId(const char *id)
 char *
 __pmGetClientId(int argc, char **argv)
 {
-    char	*clientID;
+    char	*clientID = NULL;
     int		a, need = 0;
 
     for (a = 0; a < argc; a++)
 	need += strlen(argv[a]) + 1;
-    clientID = (char *)malloc(need);
+    if (need)
+	clientID = (char *)malloc(need);
     if (clientID) {
 	clientID[0] = '\0';
 	for (a = 0; a < argc; a++) {
