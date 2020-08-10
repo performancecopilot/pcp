@@ -406,7 +406,7 @@ expr node <addr-144> type=NAME left=(nil) right=(nil) save_last=0 [sample.string
 expr node <addr-145> type=COLON left=<addr-146> right=<addr-147> save_last=0
 expr node <addr-146> type=INTEGER left=(nil) right=(nil) save_last=0 [1] master=1
 expr node <addr-147> type=INTEGER left=(nil) right=(nil) save_last=0 [2] master=1
-__dmopencontext(->ctx 0) called
+__dmopencontext(->ctx 0) called, 19 derived metrics
 __dmgetpmid: metric "a.m1" -> PMID 511.0.3
 __dmbind: bind metric[2] a.m1
 Derived metric expr dump from <addr-148>...

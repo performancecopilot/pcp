@@ -234,7 +234,7 @@ Derived metric expr dump from <addr-60>...
 expr node <addr-60> type=RESCALE left=<addr-61> right=<addr-62> save_last=0
 expr node <addr-61> type=NAME left=(nil) right=(nil) save_last=0 [sample.string.hullo] master=1
 expr node <addr-62> type=SCALE left=(nil) right=(nil) save_last=0 [millisec / count]
-__dmopencontext(->ctx 0) called
+__dmopencontext(->ctx 0) called, 11 derived metrics
 __dmgetpmid: metric "a.m1" -> PMID 511.0.3
 __dmbind: bind metric[2] a.m1
 Derived metric expr dump from <addr-63>...

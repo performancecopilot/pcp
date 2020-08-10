@@ -246,7 +246,7 @@ expr node <addr-79> type=INTEGER left=(nil) right=(nil) save_last=0 [100] master
 expr node <addr-80> type=EQ left=<addr-81> right=<addr-82> save_last=0
 expr node <addr-81> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] master=1
 expr node <addr-82> type=INTEGER left=(nil) right=(nil) save_last=0 [100] master=1
-__dmopencontext(->ctx 0) called
+__dmopencontext(->ctx 0) called, 14 derived metrics
 __dmgetpmid: metric "qa_927.bin_2_5" -> PMID 511.0.3
 __dmbind: bind metric[2] qa_927.bin_2_5
 Derived metric expr dump from <addr-83>...

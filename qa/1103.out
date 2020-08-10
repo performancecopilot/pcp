@@ -7,7 +7,7 @@ pmLoadDerivedConfig("TMP.config")
 pmRegisterDerived: register metric[2] qa.a = scalar(sample.bin[bin-300])
 pmRegisterDerived: register metric[3] qa.b = (scalar(sample.bin[bin-100]) + scalar(sample.bin[bin-200]) + scalar(sample.bin[bin-300])) / 3
 pmRegisterDerived: register metric[4] qa.c = (scalar(sample.bin[bin-100]) + scalar(matchinst(/^bin-200$/,sample.bin)) + scalar(sample.bin[bin-300])) / 3
-__dmopencontext(->ctx 0) called
+__dmopencontext(->ctx 0) called, 5 derived metrics
 __dmgetpmid: metric "qa.a" -> PMID 511.0.3
 __dmbind: bind metric[2] qa.a
 Derived metric expr dump from <addr-0>...
@@ -387,5 +387,5 @@ pmLoadDerivedConfig("TMP.config")
  123 + scalar(^name)
               ^     
 Illegal character
-__dmopencontext(->ctx 0) called
+__dmopencontext(->ctx 0) called, 2 derived metrics
 Error: qa: Unknown metric name

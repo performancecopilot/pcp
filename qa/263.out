@@ -679,7 +679,7 @@ pmRegisterDerived: register metric[42] aggr.count_noinst = count(sample.noinst)
 Derived metric expr dump from <addr-99>...
 expr node <addr-99> type=COUNT left=<addr-100> right=(nil) save_last=0
 expr node <addr-100> type=NAME left=(nil) right=(nil) save_last=0 [sample.noinst] master=1
-__dmopencontext(->ctx 0) called
+__dmopencontext(->ctx 0) called, 43 derived metrics
 __dmgetpmid: metric "aggr.max32" -> PMID 511.0.3
 __dmbind: bind metric[2] aggr.max32
 Derived metric expr dump from <addr-101>...
@@ -1436,7 +1436,7 @@ pmRegisterDerived: register metric[2] aggr.non_arith = max(sample.lights)
 Derived metric expr dump from <addr-4>...
 expr node <addr-4> type=MAX left=<addr-5> right=(nil) save_last=0
 expr node <addr-5> type=NAME left=(nil) right=(nil) save_last=0 [sample.lights] master=1
-__dmopencontext(->ctx 0) called
+__dmopencontext(->ctx 0) called, 3 derived metrics
 __dmgetpmid: metric "aggr.non_arith" -> PMID 511.0.3
 Semantic error: derived metric aggr.non_arith: MAX(sample.lights): Non-arithmetic operand for function
 __dmtraverse: name="aggr", omitting invalid child "aggr.non_arith"

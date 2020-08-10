@@ -153,7 +153,7 @@ expr node <addr-37> type=DELTA left=<addr-38> right=(nil) save_last=0
 expr node <addr-38> type=NAME left=(nil) right=(nil) save_last=1 [sampledso.const_rate.value] master=1
 expr node <addr-39> type=DELTA left=<addr-40> right=(nil) save_last=0
 expr node <addr-40> type=NAME left=(nil) right=(nil) save_last=1 [sample.const_rate.value] master=1
-__dmopencontext(->ctx 0) called
+__dmopencontext(->ctx 0) called, 8 derived metrics
 __dmgetpmid: metric "delta.m1" -> PMID 511.0.3
 __dmbind: bind metric[2] delta.m1
 Derived metric expr dump from <addr-41>...

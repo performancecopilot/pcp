@@ -774,7 +774,7 @@ pmRegisterDerived: register metric[6] derived.tree.b.million = sample.long.milli
 pmRegisterDerived: register metric[7] derived.tree.b.cmillion = sample.long.million
 pmRegisterDerived: register metric[8] sample.long.derived = sample.long.one
 pmRegisterDerived: register metric[9] sample.long.foo.bar.derived = sample.long.one
-__dmopencontext(->ctx 0) called
+__dmopencontext(->ctx 0) called, 10 derived metrics
 __dmgetpmid: metric "derived.tree" -> Unknown metric name
 __dmchildren: offspring[0] one (status=0)
 __dmchildren: offspring[1] ten (status=0)
