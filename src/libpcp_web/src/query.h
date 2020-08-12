@@ -127,6 +127,21 @@ typedef struct series_value_set {
 } series_value_set_t;
 
 
+typedef struct timing {
+    /* input string */
+    pmSeriesTimeWindow	window;
+
+    /* parsed inputs */
+    struct timeval	delta;	
+    struct timeval	align;
+    struct timeval	start;
+    struct timeval	end;
+    unsigned int	count;		/* sample count */
+    unsigned int	offset;		/* sample offset */
+    int			zone;		/* pmNewZone handle */
+} timing_t;
+
+
 typedef struct node {
     enum nodetype	type;
     enum nodetype	subtype;
@@ -149,21 +164,11 @@ typedef struct node {
 
     /* result set of time series values at this node */
     series_value_set_t	value_set;
+
+    /* Corresponding time specifier */
+    timing_t		time;
 } node_t;
 
-typedef struct timing {
-    /* input string */
-    pmSeriesTimeWindow	window;
-
-    /* parsed inputs */
-    struct timeval	delta;	
-    struct timeval	align;
-    struct timeval	start;
-    struct timeval	end;
-    unsigned int	count;		/* sample count */
-    unsigned int	offset;		/* sample offset */
-    int			zone;		/* pmNewZone handle */
-} timing_t;
 
 typedef struct series {
     sds			name;

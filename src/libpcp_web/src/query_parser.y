@@ -162,6 +162,7 @@ static const char initial_str[]  = "Unexpected initial";
 %type  <n>  query
 %type  <n>  expr
 %type  <n>  func
+%type  <n>  arithmetic_expression
 %type  <n>  exprlist
 %type  <n>  exprval
 %type  <n>  number
@@ -197,6 +198,7 @@ vector:	L_NAME L_LBRACE exprlist L_RBRACE L_EOS
 		}
 	| L_NAME L_LBRACE exprlist L_RBRACE L_LSQUARE timelist L_RSQUARE L_EOS
 		{ lp->yy_np = newmetricquery($1, $3);
+		  lp->yy_np->time = lp->yy_series.time;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		  YYACCEPT;
 		}
@@ -206,6 +208,7 @@ vector:	L_NAME L_LBRACE exprlist L_RBRACE L_EOS
 		{ lp->yy_np = lp->yy_series.expr = $2; YYACCEPT; }
 	| L_NAME L_LSQUARE timelist L_RSQUARE L_EOS
 		{ lp->yy_np = newmetric($1);
+		  lp->yy_np->time = lp->yy_series.time;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		  YYACCEPT;
 		}
@@ -322,10 +325,12 @@ expr	: /* relational expressions */
 
 val_vec	: L_NAME L_LBRACE exprlist L_RBRACE L_LSQUARE timelist L_RSQUARE
 		{ lp->yy_np = newmetricquery($1, $3);
+		  lp->yy_np->time = lp->yy_series.time;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_NAME L_LSQUARE timelist L_RSQUARE
 		{ lp->yy_np = newmetric($1);
+		  lp->yy_np->time = lp->yy_series.time;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	;
@@ -467,6 +472,108 @@ func	: L_RATE L_LPAREN val_vec L_RPAREN
 	| L_ROUND L_LPAREN func L_RPAREN
 		{ lp->yy_np = newnode(N_ROUND);
 		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| arithmetic_expression
+		{ lp->yy_np = $1;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	;
+arithmetic_expression
+	: val_vec L_PLUS val_vec
+		{ lp->yy_np = newnode(N_PLUS);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| val_vec L_PLUS func
+		{ lp->yy_np = newnode(N_PLUS);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| func L_PLUS val_vec
+		{ lp->yy_np = newnode(N_PLUS);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| func L_PLUS func
+		{ lp->yy_np = newnode(N_PLUS);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| val_vec L_MINUS val_vec
+		{ lp->yy_np = newnode(N_MINUS);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| val_vec L_MINUS func
+		{ lp->yy_np = newnode(N_MINUS);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| func L_MINUS val_vec
+		{ lp->yy_np = newnode(N_MINUS);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| func L_MINUS func
+		{ lp->yy_np = newnode(N_MINUS);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| val_vec L_STAR val_vec
+		{ lp->yy_np = newnode(N_STAR);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| val_vec L_STAR func
+		{ lp->yy_np = newnode(N_STAR);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| func L_STAR val_vec
+		{ lp->yy_np = newnode(N_STAR);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| func L_STAR func
+		{ lp->yy_np = newnode(N_STAR);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| val_vec L_SLASH val_vec
+		{ lp->yy_np = newnode(N_SLASH);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| val_vec L_SLASH func
+		{ lp->yy_np = newnode(N_SLASH);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| func L_SLASH val_vec
+		{ lp->yy_np = newnode(N_SLASH);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| func L_SLASH func
+		{ lp->yy_np = newnode(N_SLASH);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	;
