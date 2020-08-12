@@ -36,7 +36,6 @@
 #include "eval.h"
 #include "show.h"
 
-
 /***********************************************************************
  * constants
  ***********************************************************************/
@@ -396,7 +395,7 @@ sigintproc(int sig)
 	doexit = sig;
     else {
 	/* for RH BZ 1327226 */
-	fprintf(stderr, "\nInterrupted!\n");
+	fprintf(stderr, "\nInterrupted! signal=%d\n", sig);
 	exit(1);
     }
 }
@@ -704,6 +703,24 @@ getargs(int argc, char *argv[])
     if ((bflag || isdaemon) && !agent)
 	remap_stdout_stderr();
 
+    if (isdaemon) {			/* daemon mode */
+	/* Note: we can no longer unilaterally close stdin here, as it
+	 * can really confuse remap_stdout_stderr() during log rotation!
+	 */
+	if (agent)
+	    close(fileno(stdin));
+#ifndef IS_MINGW
+	if (!systemd)
+	    setsid();	/* not process group leader, lose controlling tty */
+#endif
+	if (primary) {
+	    if (systemd) {
+		__pmServerNotifyServiceManagerReady(getpid());
+	    }
+	    __pmServerCreatePIDFile(pmGetProgname(), 0);
+	}
+    }
+
     /* default host from leftmost archive on command line, or from
        discovery after a brief connection */
     if (archives) {
@@ -717,9 +734,13 @@ getargs(int argc, char *argv[])
     }
 
     if (!archives && !interactive) {
-	if (commandlog != NULL)
-            fprintf(stderr, "pmie: PID = %" FMT_PID ", via %s\n\n",
+	if (commandlog != NULL) {
+            fprintf(stderr, "pmie: PID = %" FMT_PID ", via %s",
                     (pid_t)getpid(), dfltHostConn);
+	    if (primary)
+		fprintf(stderr, " [primary]");
+	    fprintf(stderr, "\n\n");
+	}
 	startmonitor();
     }
 
@@ -776,23 +797,6 @@ getargs(int argc, char *argv[])
 					 * suggestion from 
 					 * Kevin Wang <kjw@rightsock.com>
 					 */
-
-    if (isdaemon) {			/* daemon mode */
-	/* Note: we can no longer unilaterally close stdin here, as it
-	 * can really confuse remap_stdout_stderr() during log rotation!
-	 */
-	if (agent)
-	    close(fileno(stdin));
-#ifndef IS_MINGW
-	if (!systemd)
-	    setsid();	/* not process group leader, lose controlling tty */
-#endif
-	if (primary) {
-	    if (systemd)
-		__pmServerNotifyServiceManagerReady(getpid());
-	    __pmServerCreatePIDFile(pmGetProgname(), 0);
-	}
-    }
 
     if (stomping)
 	stompInit();			/* connect to our message server */

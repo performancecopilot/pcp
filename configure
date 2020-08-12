@@ -647,6 +647,7 @@ pcp_doc_dir
 pcp_tmp_dir
 pcp_tmpfile_dir
 pcp_run_dir
+pcp_pacct_system_path
 pcp_sa_dir
 pcp_archive_dir
 pcp_log_dir
@@ -683,8 +684,13 @@ perl_install_base
 perl_installdirs
 pcp_lib32_dir
 pcp_lib_dir
+pcp_selinuxadm_dir
+pcp_pmdasadm_dir
 pcp_pmdas_dir
+pcp_pmnsadm_dir
+pcp_pmns_dir
 pcp_var_dir
+pcp_libadm_dir
 pcp_binadm_dir
 pcp_share_dir
 pcp_pmloggercontrol_path
@@ -877,6 +883,8 @@ PACKAGE_MAJOR
 enable_systemd
 pcp_systemdunit_dir
 SYSTEMD_SYSTEMUNITDIR
+pcp_systemdtmpfiles_dir
+SYSTEMD_TMPFILESDIR
 enable_avahi
 enable_discovery
 lib_for_avahi
@@ -971,6 +979,7 @@ infodir
 docdir
 oldincludedir
 includedir
+runstatedir
 localstatedir
 sharedstatedir
 sysconfdir
@@ -1028,7 +1037,6 @@ enable_ssp
 enable_pie
 enable_visibility
 enable_shared
-with_configdir
 with_perl_installdirs
 with_perl_install_base
 with_python_prefix
@@ -1060,6 +1068,7 @@ YFLAGS
 CPP
 avahi_CFLAGS
 avahi_LIBS
+SYSTEMD_TMPFILESDIR
 SYSTEMD_SYSTEMUNITDIR
 openssl_CFLAGS
 openssl_LIBS
@@ -1116,6 +1125,7 @@ datadir='${datarootdir}'
 sysconfdir='${prefix}/etc'
 sharedstatedir='${prefix}/com'
 localstatedir='${prefix}/var'
+runstatedir='${localstatedir}/run'
 includedir='${prefix}/include'
 oldincludedir='/usr/include'
 docdir='${datarootdir}/doc/${PACKAGE}'
@@ -1368,6 +1378,15 @@ do
   | -silent | --silent | --silen | --sile | --sil)
     silent=yes ;;
 
+  -runstatedir | --runstatedir | --runstatedi | --runstated \
+  | --runstate | --runstat | --runsta | --runst | --runs \
+  | --run | --ru | --r)
+    ac_prev=runstatedir ;;
+  -runstatedir=* | --runstatedir=* | --runstatedi=* | --runstated=* \
+  | --runstate=* | --runstat=* | --runsta=* | --runst=* | --runs=* \
+  | --run=* | --ru=* | --r=*)
+    runstatedir=$ac_optarg ;;
+
   -sbindir | --sbindir | --sbindi | --sbind | --sbin | --sbi | --sb)
     ac_prev=sbindir ;;
   -sbindir=* | --sbindir=* | --sbindi=* | --sbind=* | --sbin=* \
@@ -1505,7 +1524,7 @@ fi
 for ac_var in	exec_prefix prefix bindir sbindir libexecdir datarootdir \
 		datadir sysconfdir sharedstatedir localstatedir includedir \
 		oldincludedir docdir infodir htmldir dvidir pdfdir psdir \
-		libdir localedir mandir
+		libdir localedir mandir runstatedir
 do
   eval ac_val=\$$ac_var
   # Remove trailing slashes.
@@ -1658,6 +1677,7 @@ Fine tuning of the installation directories:
   --sysconfdir=DIR        read-only single-machine data [PREFIX/etc]
   --sharedstatedir=DIR    modifiable architecture-independent data [PREFIX/com]
   --localstatedir=DIR     modifiable single-machine data [PREFIX/var]
+  --runstatedir=DIR       modifiable per-process data [LOCALSTATEDIR/run]
   --libdir=DIR            object code libraries [EPREFIX/lib]
   --includedir=DIR        C header files [PREFIX/include]
   --oldincludedir=DIR     C header files for non-gcc [/usr/include]
@@ -1749,7 +1769,6 @@ Optional Packages:
   --with-transparent-decompression
                           enable support for transparent decompression of
                           archives (default is on)
-  --with-configdir        configuration directory [LOCALSTATEDIR/pcp/config]
   --with-perl_installdirs perl installdirs [vendor]
   --with-perl_install_base
                           perl install_base [PREFIX]
@@ -1788,6 +1807,8 @@ Some influential environment variables:
   avahi_CFLAGS
               C compiler flags for avahi, overriding pkg-config
   avahi_LIBS  linker flags for avahi, overriding pkg-config
+  SYSTEMD_TMPFILESDIR
+              value of tmpfilesdir for systemd, overriding pkg-config
   SYSTEMD_SYSTEMUNITDIR
               value of systemdsystemunitdir for systemd, overriding pkg-config
   openssl_CFLAGS
@@ -2691,8 +2712,6 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
-
-unset ROOT TOOLROOT
 
 
 # Check whether --with-64bit was given.
@@ -5821,6 +5840,32 @@ if test "x$do_systemd" != "xno"; then :
     enable_systemd=true
 
 
+if test -n "$SYSTEMD_TMPFILESDIR"; then
+    pkg_cv_SYSTEMD_TMPFILESDIR="$SYSTEMD_TMPFILESDIR"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"systemd\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "systemd") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_SYSTEMD_TMPFILESDIR=`$PKG_CONFIG --variable="tmpfilesdir" "systemd" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+SYSTEMD_TMPFILESDIR=$pkg_cv_SYSTEMD_TMPFILESDIR
+
+if test "x$SYSTEMD_TMPFILESDIR" = x""; then :
+  pcp_systemdtmpfiles_dir=$pcp_lib32_dir/tmpfiles.d
+else
+  pcp_systemdtmpfiles_dir=$SYSTEMD_TMPFILESDIR
+fi
+
+
 if test -n "$SYSTEMD_SYSTEMUNITDIR"; then
     pkg_cv_SYSTEMD_SYSTEMUNITDIR="$SYSTEMD_SYSTEMUNITDIR"
  elif test -n "$PKG_CONFIG"; then
@@ -5896,7 +5941,7 @@ PACKAGE_VERSION=${PACKAGE_MAJOR}.${PACKAGE_MINOR}.${PACKAGE_REVISION}
 
 if test -z "$PACKAGE_BUILD_DATE" ; then
     # use SOURCE_DATE_EPOCH for a deterministic builddate (reproducible builds)
-    PACKAGE_BUILD_DATE=`date --utc --date="@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y-%m-%d`
+    PACKAGE_BUILD_DATE=`TZ=UTC date -d "@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y-%m-%d`
     test $? -eq 0 || PACKAGE_BUILD_DATE=`date +%Y-%m-%d`
 fi
 
@@ -7771,12 +7816,13 @@ if test "x$do_pmdabpftrace" = "xyes"; then :
 fi
 if test "x$do_pmdabpftrace" = "xcheck"; then :
 
-        if bpftrace --help 2>&1 | grep '\-f.*json' > /dev/null; then
-        have_bpftrace=true
-    else
-        have_bpftrace=false
+            have_bpftrace=false
+    if which bpftrace >/dev/null 2>&1
+    then
+	if bpftrace --help 2>&1 | grep '\-f.*json' > /dev/null; then
+	    have_bpftrace=true
+	fi
     fi
-
     $enable_python3 && test "$PY_MAJOR" -eq 3 -a "$PY_MINOR" -ge 6 && \
     $have_bpftrace && pmda_bpftrace=true
 
@@ -14321,23 +14367,30 @@ pcp_binadm_dir=`eval echo $libexecdir/pcp/bin`
 pcp_binadm_dir=`eval echo $pcp_binadm_dir`
 
 
+pcp_libadm_dir=`eval echo $libexecdir/pcp/lib`
+pcp_libadm_dir=`eval echo $pcp_libadm_dir`
+
+
 pcp_var_dir=`eval echo $localstatedir/lib/pcp`
 pcp_var_dir=`eval echo $pcp_var_dir`
 
 
+pcp_pmns_dir=$pcp_var_dir/pmns
 
-# Check whether --with-configdir was given.
-if test "${with_configdir+set}" = set; then :
-  withval=$with_configdir; pcp_config_dir=$withval
-else
-  pcp_config_dir=$pcp_var_dir/config
-fi
+pcp_pmnsadm_dir=$libexecdir/pcp/pmns
+pcp_pmnsadm_dir=`eval echo $pcp_pmnsadm_dir`
 
 
 pcp_pmdas_dir=$pcp_var_dir/pmdas
 
+pcp_pmdasadm_dir=$libexecdir/pcp/pmdas
+pcp_pmdasadm_dir=`eval echo $pcp_pmdasadm_dir`
+
 
 pcp_selinux_dir=$pcp_var_dir/selinux
+
+pcp_selinuxadm_dir=$libexecdir/pcp/selinux
+pcp_selinuxadm_dir=`eval echo $pcp_selinuxadm_dir`
 
 
 pcp_lib_dir=`eval echo $libdir`
@@ -15073,6 +15126,8 @@ pcp_x11_extra=$X_EXTRA_LIBS
 pcp_x11_pre=$X_PRE_LIBS
 
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if man pages should packaged" >&5
+$as_echo_n "checking if man pages should packaged... " >&6; }
 have_manpages=false
 have_gzipped_manpages=false
 have_bzip2ed_manpages=false
@@ -15087,38 +15142,51 @@ for d in /usr/man /usr/share/man $pcp_man_dir
 do
     for sd in man1 sman1
     do
-	if test -f $d/$sd/man.1.gz
+	ls $d/$sd 2>/dev/null >conftest
+	test -s conftest || continue
+	try=`grep '\.1\.gz$' conftest | head -1`
+	if test -n "$try"
 	then
 	    have_gzipped_manpages=true
 	    have_manpages=true
-	    man_header=`$ZIP -d < $d/$sd/man.1.gz | head -1`
+	    man_header=`$ZIP -d < "$d/$sd/$try" | head -1`
 	    break
-	elif test -f $d/$sd/man.1.bz2
+	fi
+	try=`grep '\.1\.bz2$' conftest | head -1`
+	if test -n "$try"
 	then
 	    have_bzip2ed_manpages=true
 	    have_manpages=true
-	    man_header=`$BZIP2 -d < $d/$sd/man.1.bz2 | head -1`
+	    man_header=`$BZIP2 -d < "$d/$sd/$try" | head -1`
 	    break
-	elif test -f $d/$sd/man.1.lzma
+	fi
+	try=`grep '\.1\.lzma$' conftest | head -1`
+	if test -n "$try"
 	then
 	    have_lzmaed_manpages=true
 	    have_manpages=true
-	    man_header=`$LZMA -d < $d/$sd/man.1.lzma | head -1`
+	    man_header=`$LZMA -d < "$d/$sd/$try" | head -1`
 	    break
-	elif test -f $d/$sd/man.1.xz
+	fi
+	try=`grep '\.1\.xz$' conftest | head -1`
+	if test -n "$try"
 	then
 	    have_xzed_manpages=true
 	    have_manpages=true
-	    man_header=`$XZ -d < $d/$sd/man.1.xz | head -1`
+	    man_header=`$XZ -d < "$d/$sd/$try" | head -1`
 	    break
-	elif test -f $d/$sd/man.1
+	fi
+	try=`grep '\.1$' conftest | head -1`
+	if test -n "$try"
 	then
-	    man_header=`head -1 $d/$sd/man.1`
+	    man_header=`head -1 $d/$sd/$try`
 	    have_manpages=true
 	    break
 	fi
     done
+    $have_manpages && break
 done
+rm -f conftest
 if test x"$man_header" = "x'\\\" t" -o x"$man_header" = "x'\\\" te" ; then
     need_old_tbl_header=true
 fi
@@ -15134,6 +15202,10 @@ else
 	need_old_tbl_header=true
     fi
 fi
+
+if $have_manpages; then { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }; else { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }; fi
 
 
 
@@ -15237,7 +15309,7 @@ else
 
 if $enable_systemd
 then
-    pcp_rc_dir="$pcp_share_dir/lib"
+    pcp_rc_dir="$pcp_libadm_dir"
 elif test $target_os = freebsd
 then
     pcp_rc_dir="/usr/local/etc/rc.d"
@@ -15277,6 +15349,9 @@ pcp_archive_dir=$pcp_log_dir/pmlogger
 
 
 pcp_sa_dir=$pcp_log_dir/sa
+
+
+pcp_pacct_system_path="$localstatedir/account/pacct"
 
 
 

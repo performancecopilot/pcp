@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018 Red Hat.
+# Copyright (c) 2018,2020 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -16,9 +16,10 @@ TOPDIR = ../../../../..
 include $(TOPDIR)/src/include/builddefs
 
 IAM       = bcc
-MODULEDIR = $(PCP_PMDAS_DIR)/$(IAM)/modules/fs
 PYSCRIPTS = $(shell echo *.python)
 EBPFPROGS = $(shell echo *.bpf)
+MODULETMP = $(PCP_PMDAS_DIR)/$(IAM)/modules/fs
+MODULEDIR = $(PCP_PMDASADM_DIR)/$(IAM)/modules/fs
 
 include $(BUILDRULES)
 
@@ -26,4 +27,5 @@ default_pcp default:	$(SCRIPTS) $(BCC_EBPF)
 
 install_pcp install:	default
 	$(INSTALL) -m 755 -d $(MODULEDIR)
-	$(INSTALL) -m 644 $(EBPFPROGS) $(PYSCRIPTS) $(MODULEDIR)
+	$(INSTALL) -m 755 -d $(MODULETMP)
+	$(INSTALL) -m 644 -t $(MODULETMP) $(EBPFPROGS) $(PYSCRIPTS) $(MODULEDIR)

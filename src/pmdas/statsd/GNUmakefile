@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019 Red Hat.
+# Copyright (c) 2019-2020 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -17,7 +17,10 @@ include $(TOPDIR)/src/include/builddefs
 
 IAM = statsd
 SUBDIRS = src
-PMDADIR = $(PCP_PMDAS_DIR)/$(IAM)
+
+PMDAADMDIR = $(PCP_PMDASADM_DIR)/$(IAM)
+PMDACONFIG = $(PCP_SYSCONF_DIR)/$(IAM)
+PMDATMPDIR = $(PCP_PMDAS_DIR)/$(IAM)
 
 MAN_SECTION = 1
 MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
@@ -33,9 +36,12 @@ install_pcp install :: $(SUBDIRS)
 
 install_pcp install :: $(SUBDIRS)
 ifeq "$(PMDA_STATSD)" "true"
-	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove $(PMDADIR)
-	$(INSTALL) -m 644 pmda$(IAM).ini README.md $(PMDADIR)
+	$(INSTALL) -m 755 -d $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMDATMPDIR)
+	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR)/README.md README.md $(PMDAADMDIR)/README.md
+	$(INSTALL) -m 755 -d $(PMDACONFIG)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR)/pmda$(IAM).ini pmda$(IAM).ini $(PMDACONFIG)/pmda$(IAM).ini
 	@$(INSTALL_MAN)
 endif
 

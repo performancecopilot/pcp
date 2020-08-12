@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019 Red Hat.
+# Copyright (c) 2019-2020 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -16,16 +16,19 @@ TOPDIR = ../../../..
 include $(TOPDIR)/src/include/builddefs
 
 IAM		= netcheck
-MODULEDIR	= $(PCP_PMDAS_DIR)/$(IAM)/modules
 PYSCRIPTS	= $(shell echo *.python)
+
+PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)/modules
+PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)/modules
 
 include $(BUILDRULES)
 
 default_pcp default:	$(SCRIPTS)
 
 install_pcp install:	default
-	$(INSTALL) -m 755 -d $(MODULEDIR)
-	$(INSTALL) -m 644 $(PYSCRIPTS) $(MODULEDIR)
+	$(INSTALL) -m 755 -d $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMDATMPDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) $(PYSCRIPTS) $(PMDAADMDIR)
 
 check:: $(PYSCRIPTS)
 	$(PYLINT) $^

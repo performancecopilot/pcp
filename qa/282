@@ -60,6 +60,7 @@ _poke_pmcd()
 	-e '/pcp.*.PCP_BINADM_DIR.pmcd/s/.*/-- ps output line --/' \
 	-e '/^failed (status=1)/d' \
 	-e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
+	-e '/^\.\.\.[. ]*$/d' \
 	-e '/^$/d'
 
     can_wait=5

@@ -98,6 +98,7 @@ cgroup.memory {
     usage		PROC:45:80
     limit		PROC:45:81
     failcnt		PROC:45:82
+    current		PROC:45:90
     id
 }
 
@@ -512,10 +513,15 @@ hotproc.predicate {
 }
 
 acct {
+    psinfo
+    id
+    flag
+    control
+}
+
+acct.psinfo {
     tty         PROC:70:0
     exitcode    PROC:70:1
-    uid         PROC:70:2
-    gid         PROC:70:3
     pid         PROC:70:4
     ppid        PROC:70:5
     btime       PROC:70:6
@@ -528,6 +534,30 @@ acct {
     minflt      PROC:70:13
     majflt      PROC:70:14
     swaps       PROC:70:15
+    ttyname     PROC:70:16
+}
+
+acct.id {
+    uid         PROC:70:2
+    gid         PROC:70:3
+    uid_nm	PROC:70:17
+    gid_nm	PROC:70:18
+}
+
+acct.flag {
+    fork        PROC:70:19
+    su          PROC:70:20
+    core        PROC:70:21
+    xsig        PROC:70:22
+}
+
+acct.control {
+    open_retry_interval	PROC:70:23
+    check_acct_interval	PROC:70:24
+    file_size_threshold	PROC:70:25
+    lifetime		PROC:70:26
+    refresh		PROC:70:27
+    enable_acct		PROC:70:28
 }
 
 #undef PROC

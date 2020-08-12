@@ -29,8 +29,7 @@ _cleanup()
     $sudo rm -rf $tmp $tmp.*
     for dir in $seq-localhost $seq-LOCALHOSTNAME localhost $seq-`hostname`
     do
-	# [ -d "$PCP_ARCHIVE_DIR/$dir" ] && $sudo rm -rf "$PCP_ARCHIVE_DIR/$dir"
-	:
+	[ -d "$PCP_LOG_DIR/pmie/$dir" ] && $sudo rm -rf "$PCP_LOG_DIR/pmie/$dir"
     done
 }
 
@@ -88,10 +87,12 @@ $5 ~ /^[0-9][0-9]*$/	{ $5 = "<pid>" }
 }
 
 cat <<End-of-File >$tmp.policy
-name:
+[class]
+$seq
+[ident]
 $seq-%h
-control:
-%h n n PCP_LOG_DIR/pmie/$seq-%h -c $tmp.config
+[control]
+%h n n PCP_LOG_DIR/pmie/%i/pmie.log -c $tmp.config
 End-of-File
 
 cat <<End-of-File >$tmp.config

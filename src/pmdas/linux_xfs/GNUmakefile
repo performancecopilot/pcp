@@ -1,12 +1,12 @@
 #
-# Copyright (c) 2013-2016 Red Hat.
+# Copyright (c) 2013-2016,2020 Red Hat.
 # Copyright (c) 2000,2003,2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
-# 
+#
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -21,8 +21,11 @@ DOMAIN		= XFS
 CMDTARGET	= pmda$(IAM)
 LIBTARGET	= pmda_$(IAM).$(DSOSUFFIX)
 PMDAINIT	= $(IAM)_init
-PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
-CONF_LINE	= "xfs	11	pipe	binary		$(PMDADIR)/$(CMDTARGET) -d 11"
+PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
+PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
+REWRITEDIR	= $(PCP_SYSCONF_DIR)/pmlogrewrite
+REWRITEVARDIR	= $(PCP_VAR_DIR)/config/pmlogrewrite
+CONF_LINE	= "xfs	11	pipe	binary		$(PMDATMPDIR)/$(CMDTARGET) -d 11"
 
 CFILES		= sysfs_xfs.c filesys.c pmda.c
 HFILES		= sysfs_xfs.h filesys.h clusters.h indom.h
@@ -52,11 +55,12 @@ build-me: $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS)
 	fi
 
 install: default
-	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 644 domain.h help help.dir help.pag root root_xfs $(PMDADIR)
-	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) $(PMDADIR)
-	$(INSTALL) -m 644 root_xfs $(PCP_VAR_DIR)/pmns/root_xfs
-	$(INSTALL) -m 644 linux_xfs_migrate.conf $(PCP_VAR_DIR)/config/pmlogrewrite/linux_xfs_migrate.conf
+	$(INSTALL) -m 755 -d $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMDATMPDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h help help.dir help.pag root root_xfs $(PMDAADMDIR)
+	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_xfs root_xfs $(PCP_PMNSADM_DIR)/root_xfs
+	$(INSTALL) -m 644 -t $(REWRITEVARDIR)/linux_xfs_migrate.conf linux_xfs_migrate.conf $(REWRITEDIR)/linux_xfs_migrate.conf
 	@$(INSTALL_MAN)
 else
 build-me:

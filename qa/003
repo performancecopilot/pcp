@@ -260,6 +260,7 @@ do
 	    -e "/network\.ip\.noect.*: $unavailable/d" \
 	    -e "/network\.ip\.outbcastoctets: $unavailable/d" \
 	    -e "/network\.ip\.outoctets: $unavailable/d" \
+	    -e "/network\.mptcp\..*: $unavailable/d" \
 	    -e "/network\.softnet\.flow_limit_count: $nosupport/d" \
 	    -e "/network\.softnet\..*: $nosupport/d" \
 	    -e "/network\.tcp\.autocork.*: $unavailable/d" \

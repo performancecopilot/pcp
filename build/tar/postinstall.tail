@@ -250,7 +250,7 @@ fi
 #
 if [ -n "$PCP_SYSTEMDUNIT_DIR" ]
 then
-    for service in pmcd pmlogger pmie pmproxy pmmgr
+    for service in pmcd pmlogger pmie pmproxy
     do
 	[ -f "$PCP_SYSTEMDUNIT_DIR/$service.service" ] || continue
 	chown "root:$grp" "$PCP_SYSTEMDUNIT_DIR/$service.service"
@@ -304,7 +304,6 @@ done
 for dir in "$PCP_LOG_DIR" \
 	   "$PCP_LOG_DIR"/pmcd "$PCP_LOG_DIR"/pmproxy \
 	   "$PCP_LOG_DIR"/pmie "$PCP_LOG_DIR"/pmlogger \
-	   "$PCP_LOG_DIR"/pmmgr \
 	   "$PCP_SA_DIR" \
 	   "$PCP_RUN_DIR" \
 	   "$PCP_TMP_DIR" "$PCP_TMP_DIR"/pmie "$PCP_TMP_DIR"/pmlogger \
@@ -332,7 +331,7 @@ chown -R pcpqa:pcpqa "$PCP_VAR_DIR"/testsuite
 
 # Note:
 #   Do not start daemons other than: pmcd, pmlogger, pmie,
-#   pmproxy and pmmgr
+#   pmproxy
 #
 if which svcs >/dev/null 2>&1
 then
@@ -362,13 +361,15 @@ else
 	# disable or enable and start as required by default policy
 	case "$svc"
 	in
-	    pmcd|pmlogger|pmproxy|pmie|pmmgr)
+	    pmcd|pmlogger|pmproxy|pmie)
 		if which rc-update >/dev/null 2>&1
 		then
 		    : TODO?
 		fi
 		"$PCP_RC_DIR"/"$svc" start
 		;;
+	    pmmgr)	# retired, do nothing
+	    	;;
 	    *)
 		if which rc-update >/dev/null 2>&1
 		then
@@ -380,14 +381,29 @@ else
     done
 fi
 
+# optionally update the apropos/whatis/man-k database of man pages
+# ... this can take a long time, so it is run in the background
+#
+if which makewhatis >/dev/null 2>&1
+then
+    echo "Rebuilding whatis DB in the background"
+    makewhatis &
+fi
+
 # cull any old files or directories that used to be in the distribution
 # but that have gone away or moved somewhere else
 #
-for file in "$PCP_VAR_DIR"/config/pmieconf/pcp/pmda_status
+for file in "$PCP_VAR_DIR"/config/pmieconf/pcp/pmda_status \
+	    "$PCP_BINADM_DIR/pmmgr" "$PCP_RC_DIR/pmmgr" /etc/init.d/pmmgr
 do
     [ -f "$file" ] && rm -f "$file"
 done
-for dir in "$PCP_VAR_DIR"/config/pmieconf/pcp
+if [ -n "$PCP_SYSTEMDUNIT_DIR" ]
+then
+    [ -f "$PCP_SYSTEMDUNIT_DIR/pmmgr.service" ] && rm -f "$PCP_SYSTEMDUNIT_DIR/$service.service"
+fi
+for dir in "$PCP_VAR_DIR"/config/pmieconf/pcp \
+	   "$PCP_LOG_DIR"/pmmgr "$PCP_ETC_DIR/pcp/pmmgr"
 do
     [ -d "$dir" ] && rm -rf "$dir"
 done

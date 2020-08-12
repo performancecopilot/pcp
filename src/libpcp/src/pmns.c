@@ -828,9 +828,14 @@ backname(__pmnsNode *np, char **name)
 
     nch = 0;
     xp = np;
-    while (xp->parent != NULL) {
+    while (xp && xp->parent != NULL) {
 	nch += (int)strlen(xp->name)+1;
 	xp = xp->parent;
+    }
+
+    if (!nch) {
+	/* invalid PMNS argument */
+    	return PM_ERR_PMNS;
     }
 
     if ((p = (char *)malloc(nch)) == NULL)

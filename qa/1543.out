@@ -761,6 +761,28 @@ Context successfully expired
         }
     ]
 }
+== store by POST ==
+{
+    "context": "CONTEXT"
+    "success": true
+}
+== check POST stored value by name ==
+{
+    "context": "CONTEXT"
+    "timestamp": TIME,
+    "values": [
+        {
+            "pmid": "29.0.14",
+            "name": "sample.long.write_me",
+            "instances": [
+                {
+                    "instance": null,
+                    "value": 24
+                }
+            ]
+        }
+    ]
+}
 == instance store by name and iname ==
 {
     "context": "CONTEXT"
@@ -820,7 +842,7 @@ sample_long_million{hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAIN
 # PCP5 sample.long.write_me 29.0.14 32 PM_INDOM_NULL instant none
 # HELP sample_long_write_me a 32-bit integer that can be modified
 # TYPE sample_long_write_me gauge
-sample_long_write_me{hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",changed="true"} 2
+sample_long_write_me{hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",changed="true"} 24
 # PCP5 sample.long.bin 29.0.103 32 29.2 instant none
 # HELP sample_long_bin like sample.bin but type 32
 # TYPE sample_long_bin gauge

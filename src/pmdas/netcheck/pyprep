@@ -8,7 +8,7 @@ from pcp.pmapi import pmContext as PCP
 
 CWD = os.getcwd()
 PMDANAME = os.path.basename(CWD)
-PMDADIR = PCP.pmGetConfig('PCP_PMDAS_DIR') + '/' + PMDANAME
+PMDADIR = PCP.pmGetConfig('PCP_PMDASADM_DIR') + '/' + PMDANAME
 
 for root, _, filenames in os.walk(PMDADIR):
     os.chdir(root)

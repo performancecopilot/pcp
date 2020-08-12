@@ -16,20 +16,30 @@
 
 #include <sys/wait.h>
 #include "acct.h"
+#include "getinfo.h"
 
 #define MAX_ACCT_RECORD_SIZE_BYTES 128
 #define RINGBUF_SIZE               5000
+#define ACCT_LIFE_TIME             60
 #define OPEN_RETRY_INTERVAL        60
 #define CHECK_ACCOUNTING_INTERVAL  600
+#define ACCT_TIMER_INTERVAL        600
 #define ACCT_FILE_SIZE_THRESHOLD   10485760
-#define PACCT_SYSTEM_FILE          "/var/account/pacct"
-#define PACCT_PCP_PRIVATE_FILE     "/tmp/pcp-pacct"
 
-int acct_lifetime = 60;
+static char pacct_system_file[1024];
+static char pacct_private_file[1024];
+
+static int      acct_enable_private_acct       = 0;
+static uint32_t acct_lifetime                  = ACCT_LIFE_TIME;
+static uint32_t acct_open_retry_interval       = OPEN_RETRY_INTERVAL;
+static uint32_t acct_check_accounting_interval = CHECK_ACCOUNTING_INTERVAL;
+static uint64_t acct_file_size_threshold       = ACCT_FILE_SIZE_THRESHOLD;
+
 struct timeval acct_update_interval = {
-    .tv_sec = 600,
+    .tv_sec = ACCT_TIMER_INTERVAL,
 };
 static int acct_timer_id = -1;
+static int is_child = 0;
 
 static struct {
     const char *path;
@@ -78,6 +88,21 @@ get_end_time_v3(void *entry)
 	   (int)(((struct acct_v3 *)entry)->ac_etime / hz);
 }
 
+static unsigned long long
+decode_comp_t(comp_t c)
+{
+    int exp;
+    unsigned long long val;
+
+    exp = (c >> 13) & 0x7;
+    val = c & 0x1fff;
+
+    while (exp-- > 0)
+	val <<= 3;
+
+    return val;
+}
+
 static int
 acct_fetchCallBack_v3(int item, void *p, pmAtomValue *atom)
 {
@@ -86,14 +111,8 @@ acct_fetchCallBack_v3(int item, void *p, pmAtomValue *atom)
     case ACCT_TTY:
 	atom->ul = acctp->ac_tty;
 	break;
-    case ACCT_EXITCODE:
-	atom->ul = acctp->ac_exitcode;
-	break;
-    case ACCT_UID:
-	atom->ul = acctp->ac_uid;
-	break;
-    case ACCT_GID:
-	atom->ul = acctp->ac_gid;
+    case ACCT_TTYNAME:
+	atom->cp = get_ttyname_info_dev_t(acctp->ac_tty);
 	break;
     case ACCT_PID:
 	atom->ul = acctp->ac_pid;
@@ -105,32 +124,62 @@ acct_fetchCallBack_v3(int item, void *p, pmAtomValue *atom)
 	atom->ul = acctp->ac_btime;
 	break;
     case ACCT_ETIME:
-	atom->f = acctp->ac_etime * 1000 / hz;
+	atom->f = acctp->ac_etime / hz;
 	break;
     case ACCT_UTIME:
-	atom->ul = acctp->ac_utime * 1000 / hz;
+	atom->f = decode_comp_t(acctp->ac_utime) * 1.0 / hz;
 	break;
     case ACCT_STIME:
-	atom->ul = acctp->ac_stime * 1000 / hz;
+	atom->f = decode_comp_t(acctp->ac_stime) * 1.0 / hz;
 	break;
     case ACCT_MEM:
-	atom->ul = acctp->ac_mem;
+	atom->ull = decode_comp_t(acctp->ac_mem);
 	break;
     case ACCT_IO:
-	atom->ul = acctp->ac_io;
+	atom->ull = decode_comp_t(acctp->ac_io);
 	break;
     case ACCT_RW:
-	atom->ul = acctp->ac_rw;
+	atom->ull = decode_comp_t(acctp->ac_rw);
 	break;
     case ACCT_MINFLT:
-	atom->ul = acctp->ac_minflt;
+	atom->ull = decode_comp_t(acctp->ac_minflt);
 	break;
     case ACCT_MAJFLT:
-	atom->ul = acctp->ac_majflt;
+	atom->ull = decode_comp_t(acctp->ac_majflt);
 	break;
     case ACCT_SWAPS:
-	atom->ul = acctp->ac_swaps;
+	atom->ull = decode_comp_t(acctp->ac_swaps);
 	break;
+    case ACCT_EXITCODE:
+	atom->ul = acctp->ac_exitcode;
+	break;
+
+    case ACCT_UID:
+	atom->ul = acctp->ac_uid;
+	break;
+    case ACCT_UIDNAME:
+	atom->cp = proc_uidname_lookup(acctp->ac_uid);
+	break;
+    case ACCT_GID:
+	atom->ul = acctp->ac_gid;
+	break;
+    case ACCT_GIDNAME:
+	atom->cp = proc_gidname_lookup(acctp->ac_gid);
+	break;
+
+    case ACCTFLAG_FORK:
+	atom->ul = (acctp->ac_flag & AFORK) != 0;
+	break;
+    case ACCTFLAG_SU:
+	atom->ul = (acctp->ac_flag & ASU) != 0;
+	break;
+    case ACCTFLAG_CORE:
+	atom->ul = (acctp->ac_flag & ACORE) != 0;
+	break;
+    case ACCTFLAG_XSIG:
+	atom->ul = (acctp->ac_flag & AXSIG) != 0;
+	break;
+
     default:
 	return 0;
     }
@@ -166,8 +215,10 @@ check_accounting(int fd)
 
     if (fstat(fd, &before) < 0)
 	return 0;
-    if (fork() == 0)
+    if (fork() == 0) {
+	is_child = 1;
 	exit(0);
+    }
     wait(0);
     if (fstat(fd, &after) < 0)
 	return 0;
@@ -189,11 +240,20 @@ close_pacct_file(void)
 	pmNotifyErr(LOG_DEBUG, "acct: close file=%s\n", acct_file.path);
 
     if (acct_file.fd >= 0) {
-	if (acct_file.acct_enabled)
-	    acct(0);
 	close(acct_file.fd);
+	if (acct_file.acct_enabled) {
+	    acct(0);
+	    unlink(acct_file.path);
+	}
     }
     init_acct_file_info();
+}
+
+static void
+acct_cleanup(void)
+{
+    if (!is_child)
+	close_pacct_file();
 }
 
 static int
@@ -204,9 +264,6 @@ open_and_acct(const char *path, int do_acct)
     if (acct_file.fd != -1)
 	return 0;
 
-    if (do_acct && acct_timer_id == -1)
-	return 0;
-
     if (do_acct)
 	acct_file.fd = open(path, O_TRUNC|O_CREAT, S_IRUSR);
     else
@@ -215,7 +272,7 @@ open_and_acct(const char *path, int do_acct)
     if (acct_file.fd < 0)
 	goto err1;
 
-    if (stat(path, &file_stat) < 0)
+    if (fstat(acct_file.fd, &file_stat) < 0)
 	goto err2;
 
     if (do_acct && acct(path) < 0)
@@ -255,13 +312,16 @@ open_pacct_file(void)
 {
     int ret;
 
-    ret = open_and_acct(PACCT_SYSTEM_FILE, 0);
+    ret = open_and_acct(pacct_system_file, 0);
     if (ret) {
 	acct_file.acct_enabled = 0;
 	return 1;
     }
 
-    ret = open_and_acct(PACCT_PCP_PRIVATE_FILE, 1);
+    if (!acct_enable_private_acct || acct_timer_id == -1)
+	return 0;
+
+    ret = open_and_acct(pacct_private_file, 1);
     if (ret) {
 	acct_file.acct_enabled = 1;
 	return 1;
@@ -345,11 +405,13 @@ copy_ringbuf_to_indom(pmdaIndom *indomp, time_t t)
     indomp->it_numinst = i;
 }
 
-static unsigned long long
-get_file_size(const char *path)
+static long long
+get_file_size(void)
 {
     struct stat statbuf;
-    if (stat(path, &statbuf) < 0)
+    if (acct_file.fd < 0)
+	return -1;
+    if (fstat(acct_file.fd, &statbuf) < 0)
 	return -1;
     return statbuf.st_size;
 }
@@ -366,37 +428,74 @@ acct_timer(int sig, void *ptr)
 {
     if (pmDebugOptions.libpmda && pmDebugOptions.desperate)
 	pmNotifyErr(LOG_DEBUG, "acct: timer called\n");
-    if (acct_file.fd >= 0 && acct_file.acct_enabled && get_file_size(acct_file.path) > ACCT_FILE_SIZE_THRESHOLD)
+    if (acct_file.fd >= 0 && acct_file.acct_enabled && get_file_size() > acct_file_size_threshold)
 	reopen_pacct_file();
 }
 
 static void
-init_acct_timer(void)
+reset_acct_timer(void)
 {
     int sts;
 
+    if (acct_timer_id != -1) {
+	__pmAFunregister(acct_timer_id);
+	acct_timer_id = -1;
+    }
     sts = __pmAFregister(&acct_update_interval, NULL, acct_timer);
     if (sts < 0) {
+	close_pacct_file();
 	if (pmDebugOptions.libpmda && pmDebugOptions.desperate)
 	    pmNotifyErr(LOG_DEBUG, "acct: error registering timer: %s\n", pmErrStr(sts));
 	return;
     }
     acct_timer_id = sts;
+    reopen_pacct_file();
+}
+
+static void
+init_pacct_system_file(void)
+{
+    char *tmppath;
+    if ((tmppath = pmGetOptionalConfig("PCP_PACCT_SYSTEM_PATH")) == NULL) {
+	pacct_system_file[0] = '\0';
+    } else {
+	strncpy(pacct_system_file, tmppath, sizeof(pacct_system_file)-1);
+    }
+
+    if (pmDebugOptions.libpmda && pmDebugOptions.desperate)
+	pmNotifyErr(LOG_DEBUG, "acct: initialize pacct_system_file path to %s\n", pacct_system_file);
+}
+
+static void
+init_pacct_private_file(void)
+{
+    char *tmpdir;
+    if ((tmpdir = pmGetOptionalConfig("PCP_TMP_DIR")) == NULL) {
+	pacct_private_file[0] = '\0';
+    } else {
+	pmsprintf(pacct_private_file, sizeof(pacct_private_file), "%s/pmcd/pacct", tmpdir);
+    }
+
+    if (pmDebugOptions.libpmda && pmDebugOptions.desperate)
+	pmNotifyErr(LOG_DEBUG, "acct: initialize pacct_private_file path to %s\n", pacct_private_file);
 }
 
 void
 acct_init(proc_acct_t *proc_acct)
 {
-    init_acct_timer();
+    init_pacct_system_file();
+    init_pacct_private_file();
 
     init_acct_file_info();
-    open_pacct_file();
+    reset_acct_timer();
 
     acct_ringbuf.next_index = 0;
     acct_ringbuf.buf = calloc(RINGBUF_SIZE, sizeof(acct_ringbuf_entry_t));
 
     proc_acct->indom->it_numinst = 0;
     proc_acct->indom->it_set = calloc(RINGBUF_SIZE, sizeof(pmdaInstid));
+
+    atexit(acct_cleanup);
 }
 
 void
@@ -404,14 +503,15 @@ refresh_acct(proc_acct_t *proc_acct)
 {
     char tmprec[MAX_ACCT_RECORD_SIZE_BYTES];
     void *acctp;
-    unsigned long long acct_file_size;
+    long long acct_file_size;
     int i, records, i_inst, need_update = 0;
-    time_t now, process_end_time;
+    time_t process_end_time;
     acct_ringbuf_entry_t ringbuf_entry;
 
-    now = time(NULL);
+    proc_acct->now = time(NULL);	/* timestamp for current sample */
+
     if (acct_file.fd < 0) {
-	if ((now - acct_file.last_fail_open) > OPEN_RETRY_INTERVAL)
+	if ((proc_acct->now - acct_file.last_fail_open) > acct_open_retry_interval)
 	    open_pacct_file();
 	return;
     }
@@ -419,23 +519,23 @@ refresh_acct(proc_acct_t *proc_acct)
     if (acct_file.record_size <= 0 || MAX_ACCT_RECORD_SIZE_BYTES < acct_file.record_size)
 	return;
 
-    if ((now - acct_file.last_check_accounting) > CHECK_ACCOUNTING_INTERVAL) {
+    if ((proc_acct->now - acct_file.last_check_accounting) > acct_check_accounting_interval) {
 	if (pmDebugOptions.libpmda && pmDebugOptions.desperate)
 	    pmNotifyErr(LOG_DEBUG, "acct: check accounting\n");
 	if (!check_accounting(acct_file.fd)) {
 	    reopen_pacct_file();
 	    return;
 	}
-	acct_file.last_check_accounting = now;
+	acct_file.last_check_accounting = proc_acct->now;
     }
-    need_update = acct_gc(&proc_acct->accthash, now);
+    need_update = acct_gc(&proc_acct->accthash, proc_acct->now);
 
     if (need_update) {
 	if (pmDebugOptions.libpmda && pmDebugOptions.desperate)
 	    pmNotifyErr(LOG_DEBUG, "acct: acct_gc n=%d\n", need_update);
     }
 
-    acct_file_size = get_file_size(acct_file.path);
+    acct_file_size = get_file_size();
     if (acct_file_size < 0) {
 	reopen_pacct_file();
 	return;
@@ -462,7 +562,7 @@ refresh_acct(proc_acct_t *proc_acct)
 	    continue;
 
 	process_end_time = acct_ops.get_end_time(tmprec);
-	if (now - process_end_time > acct_lifetime)
+	if (proc_acct->now - process_end_time > acct_lifetime)
 	    continue;
 
 	acctp = malloc(acct_file.record_size);
@@ -481,7 +581,7 @@ refresh_acct(proc_acct_t *proc_acct)
     }
 
     if (need_update) {
-	copy_ringbuf_to_indom(proc_acct->indom, now);
+	copy_ringbuf_to_indom(proc_acct->indom, proc_acct->now);
 	if (pmDebugOptions.libpmda && pmDebugOptions.desperate)
 	    pmNotifyErr(LOG_DEBUG, "acct: update indom it_numinst=%d\n", proc_acct->indom->it_numinst);
     }
@@ -491,15 +591,94 @@ refresh_acct(proc_acct_t *proc_acct)
 int
 acct_fetchCallBack(int i_inst, int item, proc_acct_t *proc_acct, pmAtomValue *atom)
 {
+    __pmHashNode *node;
+
+    switch (item) {
+    case CONTROL_OPEN_RETRY_INTERVAL:
+	atom->ul = acct_open_retry_interval;
+	return 1;
+    case CONTROL_CHECK_ACCT_INTERVAL:
+	atom->ul = acct_check_accounting_interval;
+	return 1;
+    case CONTROL_FILE_SIZE_THRESHOLD:
+	atom->ull = acct_file_size_threshold;
+	return 1;
+    case CONTROL_ACCT_LIFETIME:
+	atom->ul = acct_lifetime;
+	return 1;
+    case CONTROL_ACCT_TIMER_INTERVAL:
+	atom->ul = acct_update_interval.tv_sec;
+	return 1;
+    case CONTROL_ACCT_ENABLE:
+	atom->ul = acct_enable_private_acct;
+	return 1;
+    }
+
     if (acct_file.fd < 0)
 	return 0;
 
-    __pmHashNode *node = __pmHashSearch(i_inst, &proc_acct->accthash);
+    node = __pmHashSearch(i_inst, &proc_acct->accthash);
     if (!node || !node->data)
 	return 0;
 
-    if (time(NULL) - acct_ops.get_end_time(node->data) > acct_lifetime)
+    if (proc_acct->now - acct_ops.get_end_time(node->data) > acct_lifetime)
 	return 0;
 
     return acct_ops.fetchCallBack(item, node->data, atom);
+}
+
+int
+acct_store(pmResult *result, pmdaExt *pmda, pmValueSet *vsp)
+{
+    int sts = 0;
+    pmAtomValue av;
+    switch (pmID_item(vsp->pmid)) {
+    case CONTROL_OPEN_RETRY_INTERVAL: /* acct.control.open_retry_interval */
+	if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+			PM_TYPE_U32, &av, PM_TYPE_U32)) >= 0) {
+	    acct_open_retry_interval = av.ul;
+	}
+	break;
+    case CONTROL_CHECK_ACCT_INTERVAL: /* acct.control.check_acct_interval */
+	if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+			PM_TYPE_U32, &av, PM_TYPE_U32)) >= 0) {
+	    acct_check_accounting_interval = av.ul;
+	}
+	break;
+    case CONTROL_FILE_SIZE_THRESHOLD: /* acct.control.file_size_threshold */
+	if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+			PM_TYPE_U64, &av, PM_TYPE_U64)) >= 0) {
+	    acct_file_size_threshold = av.ul;
+	}
+	break;
+    case CONTROL_ACCT_LIFETIME: /* acct.control.lifetime */
+	if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+			PM_TYPE_U32, &av, PM_TYPE_U32)) >= 0) {
+	    acct_lifetime = av.ul;
+	}
+	break;
+    case CONTROL_ACCT_TIMER_INTERVAL: /* acct.control.refresh */
+	if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+			PM_TYPE_U32, &av, PM_TYPE_U32)) >= 0) {
+	    if (av.ul > 0) {
+		acct_update_interval.tv_sec = av.ul;
+		reset_acct_timer();
+	    } else {
+		sts = PM_ERR_PERMISSION;
+	    }
+	}
+	break;
+    case CONTROL_ACCT_ENABLE: /* acct.control.enable_acct */
+	if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+			PM_TYPE_U32, &av, PM_TYPE_U32)) >= 0) {
+	    acct_enable_private_acct = av.ul ? 1 : 0;
+	    reopen_pacct_file();
+	}
+	break;
+    default:
+	sts = PM_ERR_PERMISSION;
+	break;
+    }
+
+    return sts;
 }

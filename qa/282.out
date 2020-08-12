@@ -1,6 +1,7 @@
 QA output created by 282
 
 === expect error: no $PCP_PMCDCONF_PATH ===
+$PCP_RC_DIR/pmcd:
 Warning: pmcd control file $PCP_PMCDCONF_PATH is missing, cannot identify PMDAs
          to be terminated.
 $PCP_RC_DIR/pmcd:

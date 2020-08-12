@@ -59,6 +59,11 @@ PCP_BIN_DIR=@pcp_bin_dir@
 # /usr/libexec/pcp/bin or /usr/lib/pcp/bin or /usr/share/pcp/bin
 PCP_BINADM_DIR=@pcp_binadm_dir@
 
+# directory for private PCP libraries (not used directly by users)
+# Standard path is platform dependent, but generally one of
+# /usr/libexec/pcp/lib or /usr/lib/pcp/lib or /usr/share/pcp/lib
+PCP_LIBADM_DIR=@pcp_libadm_dir@
+
 # directory for runtime shared libraries, libpcp.so, etc.
 # Standard path: /usr/lib
 PCP_LIB_DIR=@pcp_lib_dir@
@@ -78,7 +83,7 @@ PCP_INC_DIR=@pcp_inc_dir@
 # Subdirectories: man1 man3 man5
 PCP_MAN_DIR=@pcp_man_dir@
 
-# directory for non-shared (i.e. system local) PCP files
+# runtime directory for non-shared (i.e. system local) PCP files
 # Standard path: /var/lib/pcp
 # Subdirectories: config pmns (note see $PCP_PMDAS_DIR) for pmdas
 PCP_VAR_DIR=@pcp_var_dir@
@@ -111,10 +116,15 @@ PCP_PMSNAPCONTROL_PATH=@pcp_pmsnapcontrol_path@
 # Standard path: $PCP_SYSCONF_DIR/pmlogger/control
 PCP_PMLOGGERCONTROL_PATH=@pcp_pmloggercontrol_path@
 
-# directory for PCP PMDAs
+# runtime directory for PCP PMDA files
 # Standard path: /var/lib/pcp/pmdas
 # Subdirectories: one per PMDA
 PCP_PMDAS_DIR=@pcp_pmdas_dir@
+
+# installed files directory for PCP PMDA files
+# Standard path: /usr/libexec/pcp/pmdas or /usr/lib/pcp/pmdas
+# Subdirectories: one per PMDA
+PCP_PMDASADM_DIR=@pcp_pmdasadm_dir@
 
 # directory for PCP pid files
 # Standard path: /var/run/pcp
@@ -132,6 +142,10 @@ PCP_ARCHIVE_DIR=@pcp_archive_dir@
 # directory for daily PCP activity reports
 # Standard path: /var/log/pcp/sa
 PCP_SA_DIR=@pcp_sa_dir@
+
+# path to system-wide process accounting file
+# Standard path: /var/account/pacct
+PCP_PACCT_SYSTEM_PATH=@pcp_pacct_system_path@
 
 # directory for PCP temp status files
 # Standard path: /var/lib/pcp/tmp
@@ -209,6 +223,7 @@ PCP_GROUP=@pcp_group@
 # Standard path: /etc/sasl2
 PCP_SASLCONF_DIR=@pcp_saslconf_dir@
 
-# directory for systemd unit files
-# Standard path: /usr/lib/systemd/systemd
+# directory for systemd unit files and tmpfiles specification
+# Standard path: /usr/lib/systemd/systemd, /usr/lib/tmpfiles.d
 PCP_SYSTEMDUNIT_DIR=@pcp_systemdunit_dir@
+PCP_SYSTEMDTMPFILES_DIR=@pcp_systemdtmpfiles_dir@

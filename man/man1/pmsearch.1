@@ -13,9 +13,9 @@
 .\" for more details.
 .\"
 .\"
-.TH PMSERIES 1 "PCP" "Performance Co-Pilot"
+.TH PMSEARCH 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmsearch\f1 \- help text and names search for metrics and instances
+\f3pmsearch\f1 \- help text and names search for metrics, instances and instance domains
 .SH SYNOPSIS
 \fBpmsearch\fR
 [\fB\-CdinqsStTV?\fR]
@@ -97,10 +97,11 @@ rather than the one the localhost.
 \fB\-i\fR, \fB\-\-info\fR
 Report search engine internal metrics.
 .TP
-\fB\-n\fR, \fB\-\-names\fR
-Search for
-.IR names ,
-associated with given InDom (instance domain identifier).
+\fB\-n\fR, \fB\-\-indom\fR
+Perform an
+.IR instance
+.IR domain
+related entities search
 .TP
 \fB\-N\fR \fIN\fR, \fB\-\-number\fR=\fIN\fR
 Return
@@ -112,6 +113,9 @@ Paginated results from given offset.
 .TP
 \fB\-q\fR, \fB\-\-query\fR
 Perform a general text search (default).
+.TP
+\fB\-s\fR, \fB\-\-suggest\fR
+Peform a name suggestion search
 .TP
 \fB\-S\fR, \fB\-\-score\fR
 Report score (rank) of each result.

@@ -32,6 +32,13 @@ cat <<EOF > $tmp.conf
 [pmproxy]
 pcp.enabled = true
 http.enabled = true
+redis.enabled = false
+[discover]
+enabled = false
+[pmsearch]
+enabled = false
+[pmseries]
+enabled = false
 EOF
 
 port=`_find_free_port`

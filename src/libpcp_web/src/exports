@@ -219,5 +219,6 @@ PCP_WEB_1.15 {
     pmSearchInfo;
     pmSearchTextQuery;
     pmSearchTextSuggest;
+    pmSearchTextInDom;
     pmSearchTextTypeStr;
 } PCP_WEB_1.14;

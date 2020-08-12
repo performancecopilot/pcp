@@ -1,0 +1,42 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
+# 
+
+rule	network.listenoverflows
+	summary	= "$rule$"
+	enumerate = hosts
+	predicate =
+"some_host (
+        network.tcp.listenoverflows $hosts$ > 0
+)"
+	enabled	= yes
+	version	= 1
+	help	=
+"Socket connections are being dropped by the kernel due to the accept
+queue backlog for a socket being overrun.  This can happen when there
+are too many socket connections being made in too short a time, such
+that the service listening on the socket is not processing them (via
+the listen(2) system call) sufficiently quickly.";
+
+string	rule
+	default	= "TCP listen overflows"
+	modify	= no
+	display	= no;
+
+string	delta
+	default = "2 min"
+	help =
+"Sample interval between evaluations of this rule.";
+
+string	action_expand
+	default	= "%v/sec@%h"
+	display	= no
+	modify	= no;
+
+string	email_expand
+	default	= "host: %h listen overflows: %v%"
+	display	= no
+	modify	= no;
+
+# 
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)

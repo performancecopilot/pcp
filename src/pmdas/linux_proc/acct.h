@@ -52,9 +52,18 @@ struct acct_v3 {
     char        ac_comm[ACCT_COMM]; /* Command Name */
 };
 
+enum {          /* Bits that may be set in ac_flag field */
+    AFORK = 0x01,           /* Has executed fork, but no exec */
+    ASU   = 0x02,           /* Used superuser privileges */
+    ACORE = 0x08,           /* Dumped core */
+    AXSIG = 0x10,           /* Killed by a signal */
+};
+
+
 typedef struct {
-    __pmHashCtl    accthash;        /* hash table for acct */
-    pmdaIndom      *indom;          /* instance domain table */
+    __pmHashCtl	accthash;	/* hash table for acct */
+    pmdaIndom	*indom;		/* instance domain table */
+    time_t	now;		/* timestamp of this sample */
 } proc_acct_t;
 
 enum {
@@ -74,8 +83,24 @@ enum {
     ACCT_MINFLT   = 13,
     ACCT_MAJFLT   = 14,
     ACCT_SWAPS    = 15,
+    ACCT_TTYNAME  = 16,
+    ACCT_UIDNAME  = 17,
+    ACCT_GIDNAME  = 18,
+
+    ACCTFLAG_FORK = 19,
+    ACCTFLAG_SU   = 20,
+    ACCTFLAG_CORE = 21,
+    ACCTFLAG_XSIG = 22,
+
+    CONTROL_OPEN_RETRY_INTERVAL = 23,
+    CONTROL_CHECK_ACCT_INTERVAL = 24,
+    CONTROL_FILE_SIZE_THRESHOLD = 25,
+    CONTROL_ACCT_LIFETIME       = 26,
+    CONTROL_ACCT_TIMER_INTERVAL = 27,
+    CONTROL_ACCT_ENABLE         = 28,
 };
 
 extern void acct_init(proc_acct_t *);
 extern void refresh_acct(proc_acct_t *);
 extern int acct_fetchCallBack(int i_inst, int item, proc_acct_t *proc_acct, pmAtomValue *atom);
+extern int acct_store(pmResult *result, pmdaExt *pmda, pmValueSet *vsp);

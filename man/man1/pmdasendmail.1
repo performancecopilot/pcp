@@ -14,25 +14,21 @@
 .\" for more details.
 .\"
 .\"
-.\" I am variants ...
-.ds ia sendmail
-.ds IA SENDMAIL
-.ds Ia Sendmail
 .TH PMDASENDMAIL 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmdasendmail\f1 \- \*(ia performance metrics domain agent (PMDA)
+\f3pmdasendmail\f1 \- sendmail performance metrics domain agent (PMDA)
 .SH SYNOPSIS
-\f3$PCP_PMDAS_DIR/\*(ia/pmda\*(ia\f1
+\f3$PCP_PMDAS_DIR/sendmail/pmdasendmail\f1
 [\f3\-d\f1 \f2domain\f1]
 [\f3\-l\f1 \f2logfile\f1]
 [\f3\-U\f1 \f2username\f1]
 .SH DESCRIPTION
-.B pmda\*(ia
-is a \*(ia Performance Metrics Domain Agent (PMDA) which exports
+.B pmdasendmail
+is a sendmail Performance Metrics Domain Agent (PMDA) which exports
 mail traffic statistics as collected by
 .BR sendmail (1).
 .PP
-Before the \*(ia PMDA can export any metrics,
+Before the sendmail PMDA can export any metrics,
 .BR sendmail (1)
 must have statistics collection enabled.  This involves checking the
 name of the statistics file, as given by the
@@ -44,10 +40,10 @@ control lines in
 and then creating this file if it does not already exist.
 Removing the file will terminate statistics collection by
 .BR sendmail (1)
-and hence the \*(ia PMDA.
+and hence the sendmail PMDA.
 .PP
 A brief description of the
-.B pmda\*(ia
+.B pmdasendmail
 command line options follows:
 .TP 5
 .B \-d
@@ -62,11 +58,11 @@ number should be used for the same PMDA on all hosts.
 .TP
 .B \-l
 Location of the log file.  By default, a log file named
-.I \*(ia.log
+.I sendmail.log
 is written in the current directory of
 .BR pmcd (1)
 when
-.B pmda\*(ia
+.B pmdasendmail
 is started, i.e.
 .BR $PCP_LOG_DIR/pmcd .
 If the log file cannot
@@ -79,16 +75,16 @@ but in older versions the superuser account ("root") was used by default.
 .PP
 There are no communication options, as the
 .I Install
-script ensures the \*(ia PMDA will be connected to
+script ensures the sendmail PMDA will be connected to
 PMCD by a pipe.
 .SH INSTALLATION
-If you want access to the names, help text and values for the \*(ia
+If you want access to the names, help text and values for the sendmail
 performance metrics, do the following as root:
 .PP
 .ft CW
 .nf
 .in +0.5i
-# cd $PCP_PMDAS_DIR/\*(ia
+# cd $PCP_PMDAS_DIR/sendmail
 # ./Install
 .in
 .fi
@@ -99,13 +95,13 @@ If you want to undo the installation, do the following as root:
 .ft CW
 .nf
 .in +0.5i
-# cd $PCP_PMDAS_DIR/\*(ia
+# cd $PCP_PMDAS_DIR/sendmail
 # ./Remove
 .in
 .fi
 .ft 1
 .PP
-.B pmda\*(ia
+.B pmdasendmail
 is launched by
 .BR pmcd (1)
 and should never be executed directly.
@@ -117,24 +113,24 @@ when the agent is installed or removed.
 .TP 10
 .B $PCP_PMCDCONF_PATH
 command line options used to launch
-.B pmda\*(ia
+.B pmdasendmail
 .TP
-.B $PCP_PMDAS_DIR/\*(ia/help
-default help text file for the \*(ia metrics
+.B $PCP_PMDAS_DIR/sendmail/help
+default help text file for the sendmail metrics
 .TP
-.B $PCP_PMDAS_DIR/\*(ia/Install
+.B $PCP_PMDAS_DIR/sendmail/Install
 installation script for the
-.B pmda\*(ia
+.B pmdasendmail
 agent
 .TP
-.B $PCP_PMDAS_DIR/\*(ia/Remove
+.B $PCP_PMDAS_DIR/sendmail/Remove
 undo installation script for the
-.B pmda\*(ia
+.B pmdasendmail
 agent
 .TP
-.B $PCP_LOG_DIR/pmcd/\*(ia.log
+.B $PCP_LOG_DIR/pmcd/sendmail.log
 default log file for error messages and other information from
-.B pmda\*(ia
+.B pmdasendmail
 .TP
 .B /etc/sendmail.cf
 .B sendmail

@@ -20,9 +20,6 @@ AC_INIT(src/include/pcp/pmapi.h)
 dnl need 2.63 for AS_VAR_IF and AS_VAR_COPY
 AC_PREREQ([2.63])dnl
 
-dnl Irix build issue ... use the tools from the local filesystems
-unset ROOT TOOLROOT
-
 AC_ARG_WITH([64bit],
     [AS_HELP_STRING([--with-64bit],
 		    [turn on 64 bit compilation mode (default is platform dependent)])],
@@ -757,6 +754,10 @@ AC_MSG_CHECKING([if systemd should be used])
 AS_IF([test "x$do_systemd" != "xno"], [
     enable_systemd=true
 
+    PKG_CHECK_VAR([SYSTEMD_TMPFILESDIR], [systemd], [tmpfilesdir],
+	[pcp_systemdtmpfiles_dir=$SYSTEMD_TMPFILESDIR],
+	[pcp_systemdtmpfiles_dir=$pcp_lib32_dir/tmpfiles.d])
+    AC_SUBST(pcp_systemdtmpfiles_dir)
     PKG_CHECK_VAR([SYSTEMD_SYSTEMUNITDIR], [systemd], [systemdsystemunitdir],
 	[pcp_systemdunit_dir=$SYSTEMD_SYSTEMUNITDIR], [enable_systemd=false])
     AC_SUBST(pcp_systemdunit_dir)
@@ -799,7 +800,7 @@ AC_SUBST(PACKAGE_BUILD)
 
 if test -z "$PACKAGE_BUILD_DATE" ; then
     # use SOURCE_DATE_EPOCH for a deterministic builddate (reproducible builds)
-    PACKAGE_BUILD_DATE=`date --utc --date="@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y-%m-%d`
+    PACKAGE_BUILD_DATE=`TZ=UTC date -d "@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y-%m-%d`
     test $? -eq 0 || PACKAGE_BUILD_DATE=`date +%Y-%m-%d`
 fi
 AC_SUBST(PACKAGE_BUILD_DATE)
@@ -1035,13 +1036,15 @@ AC_MSG_CHECKING([if the bpftrace PMDA should be included])
 pmda_bpftrace=false
 AS_IF([test "x$do_pmdabpftrace" = "xyes"], [pmda_bpftrace=true])
 AS_IF([test "x$do_pmdabpftrace" = "xcheck"], [
-    dnl bpftrace PMDA needs python 3.6+ and bpftrace with JSON support
-    if bpftrace --help 2>&1 | grep '\-f.*json' > /dev/null; then
-        have_bpftrace=true
-    else
-        have_bpftrace=false
+    dnl bpftrace PMDA needs bpftrace executable, python 3.6+ and bpftrace
+    dnl with JSON support
+    have_bpftrace=false
+    if which bpftrace >/dev/null 2>&1
+    then
+	if bpftrace --help 2>&1 | grep '\-f.*json' > /dev/null; then
+	    have_bpftrace=true
+	fi
     fi
-
     $enable_python3 && test "$PY_MAJOR" -eq 3 -a "$PY_MINOR" -ge 6 && \
     $have_bpftrace && pmda_bpftrace=true
 ])
@@ -3261,21 +3264,33 @@ pcp_binadm_dir=`eval echo $libexecdir/pcp/bin`
 pcp_binadm_dir=`eval echo $pcp_binadm_dir`
 AC_SUBST(pcp_binadm_dir)
 
+dnl private PCP libraries
+pcp_libadm_dir=`eval echo $libexecdir/pcp/lib`
+pcp_libadm_dir=`eval echo $pcp_libadm_dir`
+AC_SUBST(pcp_libadm_dir)
+
 dnl non-shared (i.e. system local) PCP files
 pcp_var_dir=`eval echo $localstatedir/lib/pcp`
 pcp_var_dir=`eval echo $pcp_var_dir`
 AC_SUBST(pcp_var_dir)
 
-dnl pmcd control and options files
-AC_ARG_WITH(configdir,[AC_HELP_STRING([--with-configdir],[configuration directory [LOCALSTATEDIR/pcp/config]])],
-                      [pcp_config_dir=$withval],
-                      [pcp_config_dir=$pcp_var_dir/config])
+pcp_pmns_dir=$pcp_var_dir/pmns
+AC_SUBST(pcp_pmns_dir)
+pcp_pmnsadm_dir=$libexecdir/pcp/pmns
+pcp_pmnsadm_dir=`eval echo $pcp_pmnsadm_dir`
+AC_SUBST(pcp_pmnsadm_dir)
 
 pcp_pmdas_dir=$pcp_var_dir/pmdas
 AC_SUBST(pcp_pmdas_dir)
+pcp_pmdasadm_dir=$libexecdir/pcp/pmdas
+pcp_pmdasadm_dir=`eval echo $pcp_pmdasadm_dir`
+AC_SUBST(pcp_pmdasadm_dir)
 
 pcp_selinux_dir=$pcp_var_dir/selinux
 AC_SUBST(pcp_selinux_dir)
+pcp_selinuxadm_dir=$libexecdir/pcp/selinux
+pcp_selinuxadm_dir=`eval echo $pcp_selinuxadm_dir`
+AC_SUBST(pcp_selinuxadm_dir)
 
 dnl runtime shared libraries
 pcp_lib_dir=`eval echo $libdir`
@@ -3316,6 +3331,7 @@ pcp_x11_pre=$X_PRE_LIBS
 AC_SUBST(pcp_x11_pre)
 
 dnl man pages (source)
+AC_MSG_CHECKING([if man pages should packaged])
 have_manpages=false
 have_gzipped_manpages=false
 have_bzip2ed_manpages=false
@@ -3326,43 +3342,58 @@ man_header=
 pcp_man_dir=`eval echo $mandir`
 pcp_man_dir=`eval echo $pcp_man_dir`
 
-dnl guess compression in use
+dnl guess compression in use ... if we can find at least one file
+dnl with the designated extension in section 1 of the man pages then
+dnl we're good to go
 for d in /usr/man /usr/share/man $pcp_man_dir
 do
     for sd in man1 sman1
     do
-	if test -f $d/$sd/man.1.gz
+	ls $d/$sd 2>/dev/null >conftest
+	test -s conftest || continue
+	try=`grep '\.1\.gz$' conftest | head -1`
+	if test -n "$try"
 	then
 	    have_gzipped_manpages=true
 	    have_manpages=true
-	    man_header=`$ZIP -d < $d/$sd/man.1.gz | head -1`
+	    man_header=`$ZIP -d < "$d/$sd/$try" | head -1`
 	    break
-	elif test -f $d/$sd/man.1.bz2
+	fi
+	try=`grep '\.1\.bz2$' conftest | head -1`
+	if test -n "$try"
 	then
 	    have_bzip2ed_manpages=true
 	    have_manpages=true
-	    man_header=`$BZIP2 -d < $d/$sd/man.1.bz2 | head -1`
+	    man_header=`$BZIP2 -d < "$d/$sd/$try" | head -1`
 	    break
-	elif test -f $d/$sd/man.1.lzma
+	fi
+	try=`grep '\.1\.lzma$' conftest | head -1`
+	if test -n "$try"
 	then
 	    have_lzmaed_manpages=true
 	    have_manpages=true
-	    man_header=`$LZMA -d < $d/$sd/man.1.lzma | head -1`
+	    man_header=`$LZMA -d < "$d/$sd/$try" | head -1`
 	    break
-	elif test -f $d/$sd/man.1.xz
+	fi
+	try=`grep '\.1\.xz$' conftest | head -1`
+	if test -n "$try"
 	then
 	    have_xzed_manpages=true
 	    have_manpages=true
-	    man_header=`$XZ -d < $d/$sd/man.1.xz | head -1`
+	    man_header=`$XZ -d < "$d/$sd/$try" | head -1`
 	    break
-	elif test -f $d/$sd/man.1
+	fi
+	try=`grep '\.1$' conftest | head -1`
+	if test -n "$try"
 	then
-	    man_header=`head -1 $d/$sd/man.1`
+	    man_header=`head -1 $d/$sd/$try`
 	    have_manpages=true
 	    break
 	fi
     done
+    $have_manpages && break
 done
+rm -f conftest
 if test x"$man_header" = "x'\\\" t" -o x"$man_header" = "x'\\\" te" ; then
     need_old_tbl_header=true
 fi
@@ -3383,6 +3414,8 @@ else
 	need_old_tbl_header=true
     fi
 fi
+
+if $have_manpages; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
 AC_SUBST(pcp_man_dir)
 AC_SUBST(have_manpages)
@@ -3448,7 +3481,7 @@ AC_ARG_WITH(rcdir,[AC_HELP_STRING([--with-rcdir],[rc directory [SYSCONFDIR/rc.d]
                   [pcp_rc_dir=$withval], [
 if $enable_systemd
 then
-    pcp_rc_dir="$pcp_share_dir/lib"
+    pcp_rc_dir="$pcp_libadm_dir"
 elif test $target_os = freebsd
 then
     pcp_rc_dir="/usr/local/etc/rc.d"
@@ -3479,6 +3512,9 @@ AC_SUBST(pcp_archive_dir)
 
 pcp_sa_dir=$pcp_log_dir/sa
 AC_SUBST(pcp_sa_dir)
+
+pcp_pacct_system_path="$localstatedir/account/pacct"
+AC_SUBST(pcp_pacct_system_path)
 
 AC_ARG_WITH(rundir,[AC_HELP_STRING([--with-rundir],[run directory [LOCALSTATEDIR/run/pcp]])],
                   [pcp_run_dir=$withval], [

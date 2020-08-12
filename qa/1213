@@ -91,11 +91,13 @@ _filter_status()
 }
 
 cat <<End-of-File >$tmp.policy
-name:
+[class]
+$seq
+[ident]
 $seq-%h
-control:
+[control]
 \$version=1.1
-%h n n PCP_ARCHIVE_DIR/$seq-%h -c $tmp.config
+%h n n PCP_ARCHIVE_DIR/%i -c $tmp.config
 End-of-File
 
 cat <<End-of-File >$tmp.config
@@ -103,66 +105,76 @@ log mandatory on default { pmcd.pmlogger }
 End-of-File
 
 cat <<End-of-File >$tmp.policy.bad.1
-name:
+[class]
+$seq
+[ident]
 $seq-%h
-control:
+[control]
 \$version=1.1
 # missing primary (and all others)
 %h
 End-of-File
 
 cat <<End-of-File >$tmp.policy.bad.2
-name:
+[class]
+$seq
+[ident]
 $seq-%h
-control:
+[control]
 \$version=1.1
 # bad primary (other fields missing)
 %h y
 End-of-File
 
 cat <<End-of-File >$tmp.policy.bad.3
-name:
+[class]
+$seq
+[ident]
 $seq-%h
-control:
+[control]
 \$version=1.1
 # missing directory and other fields
 %h n n
 End-of-File
 
 cat <<End-of-File >$tmp.policy.bad.4
-# missing control: section
-name:
+# missing [control] section
+[class]
+$seq
+[ident]
 $seq-%h
 
-destroy:
+[destroy]
 End-of-File
 
 cat <<End-of-File >$tmp.policy.bad.5
-# bad name: section
-name:
+# bad [ident] section
+[ident]
 $seq-%h
 
 extra stuff
 
-control:
+[control]
 End-of-File
 
 cat <<End-of-File >$tmp.policy.bad.6
-# empty control: section
-name:
+# empty [control] section
+[class]
+$seq
+[ident]
 $seq-%h
-control:
+[control]
 End-of-File
 
 _setup()
 {
     if pmlogctl -c $seq status localhost 2>&1 | grep 'Warning.* defined in class' >/dev/null
     then
-	$sudo pmlogctl -v -p $tmp.policy -c $seq create localhost 2>&1 | _filter
+	$sudo pmlogctl -V -p $tmp.policy -c $seq create localhost 2>&1 | _filter
     fi
     if pmlogctl -c $seq status LOCALHOSTNAME 2>&1 | grep 'Warning.* defined in class' >/dev/null
     then
-	$sudo pmlogctl -v -p $tmp.policy -c $seq create LOCALHOSTNAME 2>&1 | _filter
+	$sudo pmlogctl -V -p $tmp.policy -c $seq create LOCALHOSTNAME 2>&1 | _filter
     fi
     if pmlogctl -c default status localhost 2>&1 | grep 'Warning.* defined in class' >/dev/null
     then
@@ -184,33 +196,33 @@ _setup
 #
 echo "=== not run as root"
 echo "- create -" | tee -a $seq.full
-pmlogctl -n -c $seq -p $tmp.policy create local: 2>$tmp.err | _filter | LC_COLLATE=POSIX sort
+pmlogctl -N -c $seq -p $tmp.policy create local: 2>$tmp.err | _filter | LC_COLLATE=POSIX sort
 _filter <$tmp.err | LC_COLLATE=POSIX sort
 pmlogctl    -c $seq -p $tmp.policy create local: 2>&1 | _filter | LC_COLLATE=POSIX sort
 echo "- start (nothing to be done) -" | tee -a $seq.full
-pmlogctl -n -c $seq start 2>$tmp.err | _filter | LC_COLLATE=POSIX sort
+pmlogctl -N -c $seq start 2>$tmp.err | _filter | LC_COLLATE=POSIX sort
 _filter <$tmp.err | LC_COLLATE=POSIX sort
 pmlogctl    -c $seq start 2>&1 | _filter | LC_COLLATE=POSIX sort
 $sudo pmlogctl -c $seq stop
 echo "- start -" | tee -a $seq.full
-pmlogctl -n -c $seq start 2>$tmp.err | _filter | LC_COLLATE=POSIX sort
+pmlogctl -N -c $seq start 2>$tmp.err | _filter | LC_COLLATE=POSIX sort
 _filter <$tmp.err | LC_COLLATE=POSIX sort
 pmlogctl    -c $seq start 2>&1 | _filter | LC_COLLATE=POSIX sort
 echo "- stop (nothing to be done) -" | tee -a $seq.full
-pmlogctl -n -c $seq stop 2>$tmp.err | _filter | LC_COLLATE=POSIX sort
+pmlogctl -N -c $seq stop 2>$tmp.err | _filter | LC_COLLATE=POSIX sort
 _filter <$tmp.err | LC_COLLATE=POSIX sort
 pmlogctl    -c $seq stop 2>&1 | _filter | LC_COLLATE=POSIX sort
 $sudo pmlogctl -c $seq start
 echo "- stop -" | tee -a $seq.full
-pmlogctl -n -c $seq stop 2>$tmp.err | _filter | LC_COLLATE=POSIX sort
+pmlogctl -N -c $seq stop 2>$tmp.err | _filter | LC_COLLATE=POSIX sort
 _filter <$tmp.err | LC_COLLATE=POSIX sort
 pmlogctl    -c $seq stop 2>&1 | _filter | LC_COLLATE=POSIX sort
 echo "- restart -" | tee -a $seq.full
-pmlogctl -n -c $seq restart 2>$tmp.err | _filter | LC_COLLATE=POSIX sort
+pmlogctl -N -c $seq restart 2>$tmp.err | _filter | LC_COLLATE=POSIX sort
 _filter <$tmp.err | LC_COLLATE=POSIX sort
 pmlogctl    -c $seq restart 2>&1 | _filter | LC_COLLATE=POSIX sort
 echo "- destroy -" | tee -a $seq.full
-pmlogctl -n -c $seq -p $tmp.policy destroy 2>$tmp.err | _filter | LC_COLLATE=POSIX sort
+pmlogctl -N -c $seq -p $tmp.policy destroy 2>$tmp.err | _filter | LC_COLLATE=POSIX sort
 _filter <$tmp.err | LC_COLLATE=POSIX sort
 pmlogctl    -c $seq -p $tmp.policy destroy 2>&1 | _filter | LC_COLLATE=POSIX sort
 
@@ -230,17 +242,17 @@ $sudo pmlogctl -c $seq -p $tmp.policy.bad.3 create local: 2>&1 | _filter
 pmlogctl status | _filter_status
 
 echo
-echo "=== missing \"control:\" section in policy file"
+echo "=== missing [control] section in policy file"
 $sudo pmlogctl -c $seq -p $tmp.policy.bad.4 create local: 2>&1 | _filter
 pmlogctl status | _filter_status
 
 echo
-echo "=== bad \"name:\" section in policy file"
+echo "=== bad [ident] section in policy file"
 $sudo pmlogctl -c $seq -p $tmp.policy.bad.5 create local: 2>&1 | _filter
 pmlogctl status | _filter_status
 
 echo
-echo "=== empty \"control:\" section in policy file"
+echo "=== empty [control] section in policy file"
 $sudo pmlogctl -c $seq -p $tmp.policy.bad.6 create local: 2>&1 | _filter
 pmlogctl status | _filter_status
 
@@ -253,7 +265,7 @@ cat <<End-of-File >$tmp.control
 $seq-foo
 End-of-File
 $sudo cp $tmp.control $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq-foo
-$sudo pmlogctl -v start $seq-foo
+$sudo pmlogctl -V start $seq-foo
 pmlogctl status 2>$tmp.err | _filter_status
 _filter <$tmp.err
 $sudo rm -f $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq-foo
@@ -267,7 +279,7 @@ cat <<End-of-File >$tmp.control
 $seq-foo n n
 End-of-File
 $sudo cp $tmp.control $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq-foo
-$sudo pmlogctl -v start $seq-foo
+$sudo pmlogctl -V start $seq-foo
 pmlogctl status 2>$tmp.err | _filter_status
 _filter <$tmp.err
 $sudo rm -f $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq-foo
@@ -302,7 +314,7 @@ pmlogctl status localhost | _filter_status
 
 echo
 echo "=== create the same entry twice"
-$sudo pmlogctl -v -p $tmp.policy -c $seq create localhost 2>&1 | _filter
+$sudo pmlogctl -V -p $tmp.policy -c $seq create localhost 2>&1 | _filter
 pmlogctl status localhost | _filter_status
 
 echo
@@ -331,7 +343,7 @@ then
 fi
 echo $$ >$tmp.tmp
 $sudo cp $tmp.tmp $PCP_ETC_DIR/pcp/pmlogger/lock
-$sudo pmlogctl -v -a -c $seq stop 2>&1 | _filter
+$sudo pmlogctl -V -a -c $seq stop 2>&1 | _filter
 pmlogctl status | _filter_status
 $sudo rm -f $PCP_ETC_DIR/pcp/pmlogger/lock
 

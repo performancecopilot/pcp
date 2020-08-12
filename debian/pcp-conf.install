@@ -1,7 +1,11 @@
 etc/pcp.conf
+etc/pcp/derived/cpu-util.conf
+etc/pcp/derived/iostat.conf
+etc/pcp/derived/mssql.conf
+etc/pcp/derived/proc.conf
 usr/include/pcp/builddefs
 usr/include/pcp/buildrules
-var/lib/pcp/config/derived/proc.conf
-var/lib/pcp/config/derived/mssql.conf
-var/lib/pcp/config/derived/iostat.conf
 var/lib/pcp/config/derived/cpu-util.conf
+var/lib/pcp/config/derived/iostat.conf
+var/lib/pcp/config/derived/mssql.conf
+var/lib/pcp/config/derived/proc.conf

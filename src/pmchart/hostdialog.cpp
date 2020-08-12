@@ -81,7 +81,7 @@ HostDialog::getHostName(void) const
     if (hostLineEdit->isModified())
         host = hostLineEdit->text().trimmed();
     if (host.length() == 0)
-        return QString::null;
+        return QString();
     return host;
 }
 
@@ -95,7 +95,7 @@ HostDialog::getHostSpecification(void) const
     if (hostLineEdit->isModified())
         host = hostLineEdit->text().trimmed();
     if (host.length() == 0)
-        return QString::null;
+        return QString();
 
     if (proxyLineEdit->isModified()) {
         QString proxy = proxyLineEdit->text().trimmed();

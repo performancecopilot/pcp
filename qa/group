@@ -1658,11 +1658,17 @@ not_in_container
 1238 iostat archive multi-archive decompress-xz local pmlogextract pcp python
 1239 pmlogrewrite labels pmdumplog local
 1240 libpcp pmrep local python
+1241 pmlogrewrite local
 1242 pmrep archive multi-archive decompress-xz local pmlogextract python
 1243 valgrind pmfind libpcp local
+1244 pmlogextract local
 1245 libpcp local
+1246:reserved pmlogreduce local
 1247 pmlogrewrite labels pmdumplog local
+1248 pmlogctl local
+1249 pmlogctl local
 1250 selinux local
+1251 other local
 1255 libpcp local kernel
 1257 libpcp python local
 1258 pmda.linux local valgrind
@@ -1795,12 +1801,17 @@ not_in_container
 1722 pmda.bpftrace local python
 1723 pmda.bpftrace local python
 1724 pmda.bpftrace local python
+1740 pmda.proc local
 1768 pmfind local
 1793 pmrep pcp2xxx python local
+1805 pmda.linux kernel local
+1820 atop local
 1821 pmlogpaste local
+1824 pmproxy local
 1837 pmproxy local
 1855 pmda.rabbitmq local
 1871 pmsearch local
-1886 pmseries local libpcp_web local
+1872 pmproxy local
+1886:reserved pmseries local libpcp_web local
 1896 pmlogger logutil pmlc local
 4751 libpcp threads valgrind local pcp

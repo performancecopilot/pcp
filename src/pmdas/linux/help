@@ -117,21 +117,21 @@ For example:
 @ kernel.percpu.cpu.wait.total percpu wait CPU time
 Per-CPU I/O wait CPU time - time spent with outstanding I/O requests.
 
-@ kernel.percpu.cpu.intr percpu interrupt CPU time 
+@ kernel.percpu.cpu.intr percpu interrupt CPU time
 Total time spent processing interrupts on each CPU (this includes
 both soft and hard interrupt processing time).
 
-@ kernel.percpu.cpu.irq.soft percpu soft interrupt CPU time 
+@ kernel.percpu.cpu.irq.soft percpu soft interrupt CPU time
 Per-CPU soft interrupt CPU time (deferred interrupt handling code,
 not run in the initial interrupt handler).
 
-@ kernel.percpu.cpu.irq.hard percpu hard interrupt CPU time 
+@ kernel.percpu.cpu.irq.hard percpu hard interrupt CPU time
 Per-CPU hard interrupt CPU time ("hard" interrupt handling code
 is the code run directly on receipt of the initial hardware
 interrupt, and does not include "soft" interrupt handling code
 which is deferred until later).
 
-@ kernel.percpu.cpu.steal percpu CPU steal time 
+@ kernel.percpu.cpu.steal percpu CPU steal time
 Per-CPU time when the CPU had a runnable process, but the hypervisor
 (virtualisation layer) chose to run something else instead.
 
@@ -554,9 +554,9 @@ across all disks.
 
 @ disk.all.aveq total time averaged count of request queue length, summed for all disks
 When converted to a rate, this metric represents the average across all disks
-of the time averaged request queue length during the sampling interval.  A
-value of 1.5 (or 150%) suggests that (on average) each all disk experienced a
-time averaged queue length of 1.5 requests during the sampling interval.
+of the time averaged request queue length during the sampling interval.
+A value of 1.5 (or 150%) suggests that (on average) over all disks there was
+a time averaged queue length of 1.5 requests during the sampling interval.
 
 @ disk.all.read total read operations, summed for all disks
 Cumulative number of disk read operations since system boot time
@@ -864,8 +864,8 @@ files which have been mmaped, such as libraries
 @ mem.util.slab Kbytes in slab memory, from /proc/meminfo
 in-kernel data structures cache
 @ mem.util.commitLimit Kbytes limit for address space commit, from /proc/meminfo
-The static total, in Kbytes, available for commitment to address 
-spaces. Thus, mem.util.committed_AS may range up to this total. Normally 
+The static total, in Kbytes, available for commitment to address
+spaces. Thus, mem.util.committed_AS may range up to this total. Normally
 the kernel overcommits memory, so this value may exceed mem.physmem
 @ mem.util.committed_AS Kbytes committed to address spaces, from /proc/meminfo
 An estimate of how much RAM you would need to make a 99.99% guarantee
@@ -1417,7 +1417,7 @@ See also network.interface.speed for the Megabytes/second value.
 @ network.sockstat.tcp.orphan instantaneous number of orphan sockets
 @ network.sockstat.tcp.tw instantaneous number of sockets waiting close
 @ network.sockstat.tcp.alloc instantaneous number of allocated sockets
-@ network.sockstat.tcp.mem instantaneous number of used memory for tcp 
+@ network.sockstat.tcp.mem instantaneous number of used memory for tcp
 @ network.sockstat.udp.inuse instantaneous number of udp sockets currently in use
 @ network.sockstat.udp.mem instantaneous number of used memory for udp
 @ network.sockstat.udplite.inuse instantaneous number of udplite sockets currently in use
@@ -1871,6 +1871,20 @@ Excluding retransmission but including data-in-SYN). This counter is different f
 TcpOutSegs because TcpOutSegs also tracks pure ACKs. TCPOrigDataSent is
 more useful to track the TCP retransmission rate.
 
+@ network.mptcp.mpcapablesynrx Multipath TCP received SYN with MP_CAPABLE
+@ network.mptcp.mpcapableackrx Multipath TCP received third ACK with MP_CAPABLE
+@ network.mptcp.mpcapablefallbackack Multipath TCP server-side fallback during 3-way handshake
+@ network.mptcp.mpcapablefallbacksynack Multipath TCP client-side fallback during 3-way handshake
+@ network.mptcp.mptcpretrans Multipath TCP segments retransmitted at the MPTCP-level
+@ network.mptcp.mpjoinnotokenfound Multipath TCP received MP_JOIN but the token was not found
+@ network.mptcp.mpjoinsynrx Multipath TCP received a SYN and MP_JOIN
+@ network.mptcp.mpjoinsynackrx Multipath TCP received a SYN/ACK and MP_JOIN
+@ network.mptcp.mpjoinsynackhmacfailure Multipath TCP HMAC was wrong on SYN/ACK and MP_JOIN
+@ network.mptcp.mpjoinackrx Multipath TCP received an ACK and MP_JOIN
+@ network.mptcp.mpjoinackhmacfailure Multipath TCP HMAC was wrong on ACK and MP_JOIN
+@ network.mptcp.dssnotmatching Multipath TCP received a new mapping that did not match the previous one
+@ network.mptcp.infinitemaprx Multipath TCP received an infinite mapping
+
 @ pmda.uname identity and type of current system
 Identity and type of current system.  The concatenation of the values
 returned from utsname(2), also similar to uname -a.
@@ -2086,7 +2100,7 @@ counter wrap) for compressed memory devices.
 Cumulative number of bytes written since system boot time (subject to
 counter wrap) for compressed memory devices.
 
-@ zram.total_bytes total number of bytes read and written for compressed memory 
+@ zram.total_bytes total number of bytes read and written for compressed memory
 Cumulative number of bytes read and written since system boot time
 (subject to counter wrap) for compressed memory devices.
 

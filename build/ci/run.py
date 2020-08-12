@@ -84,6 +84,8 @@ class ContainerRunner:
         self.command_preamble = 'set -eux\nexport runner=container\n'
 
         # on Ubuntu, systemd inside the container only works with sudo
+        # also don't run as root in general on Github actions,
+        # otherwise the direct runner would run everything as root
         self.sudo = []
         self.security_opts = []
         with open('/etc/os-release') as f:
@@ -154,7 +156,8 @@ def main():
 
     subparsers.add_parser('shell')
 
-    subparsers.add_parser('reproduce')
+    parser_reproduce = subparsers.add_parser('reproduce')
+    parser_reproduce.add_argument('--until', default='init_qa')
 
     args = parser.parse_args()
     platform_def_path = os.path.join(os.path.dirname(__file__), f"platforms/{args.platform}.yml")
@@ -168,9 +171,17 @@ def main():
         runner = ContainerRunner(args.platform, platform)
 
     if args.main_command == 'setup':
-        runner.setup(args.pcp_path)
+        try:
+            runner.setup(args.pcp_path)
+        except subprocess.CalledProcessError as e:
+            print(f"Error: {e}", file=sys.stderr)
+            sys.exit(1)
     elif args.main_command == 'task':
-        runner.task(args.task_name)
+        try:
+            runner.task(args.task_name)
+        except subprocess.CalledProcessError as e:
+            print(f"Error: {e}", file=sys.stderr)
+            sys.exit(1)
     elif args.main_command == 'artifacts':
         runner.task(f"copy_{args.artifact}_artifacts")
         runner.get_artifacts(args.artifact, args.path)
@@ -179,16 +190,20 @@ def main():
     elif args.main_command == 'shell':
         runner.shell()
     elif args.main_command == 'reproduce':
-        print("Preparing a new virtual environment with PCP preinstalled, this will take about 20 minutes...\n")
+        all_tasks = ['install_build_dependencies', 'build', 'install', 'init_qa', 'qa']
+        run_tasks = all_tasks[:all_tasks.index(args.until)+1]
 
+        print("Preparing a new virtual environment with PCP preinstalled, this will take about 20 minutes...")
         started = datetime.now()
+        print("\nRunning setup...")
         runner.setup(args.pcp_path)
-        for task in ['update', 'install_build_dependencies', 'build', 'install', 'init_qa']:
+        for task in run_tasks:
+            print(f"\nRunning task {task}...")
             runner.task(task)
         duration_min = (datetime.now() - started).total_seconds() / 60
+        print(f"\nVirtual environment setup done, took {duration_min:.0f}m.")
 
-        print(f"\nVirtual environment setup done, took {duration_min:.0f}m.\n")
-        print("Please run:\n")
+        print("\nPlease run:\n")
         print("    sudo -u pcpqa -i ./check XXX\n")
         print("to run a QA test. PCP is already installed, from sources located in './pcp'.")
         print("Starting a shell in the new virtual environment...\n")

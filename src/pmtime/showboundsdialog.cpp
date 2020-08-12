@@ -152,20 +152,20 @@ void ShowBounds::accept()
     if (lineEditStart->isModified()) {
 	input = lineEditStart->text().simplified();
 	if (input.length() == 0) {
-	    error.sprintf("Start time has not been set.\n");
+	    error = QString("Start time has not been set.\n");
 	    QMessageBox::warning(0, tr("Warning"), error, tr("Quit"));
 	    return;
 	}
 	if (input[0] != '@')
 	    input.prepend("@");
 	if (__pmParseTime(input.toLatin1(), &start, &end, &current, &msg) < 0) {
-	    error.sprintf("Invalid start date/time:\n\n%s\n", msg);
+	    error = QString("Invalid start date/time:\n\n%1\n").arg(msg);
 	    QMessageBox::warning(0, tr("Warning"), error, tr("Quit"));
 	    free(msg);
 	    return;
 	} else if (PmTime::timevalCompare(&current, &start) < 0 ||
 		   PmTime::timevalCompare(&current, &end) > 0) {
-	    error.sprintf("Start time is outside archive boundaries\n");
+	    error = QString("Start time is outside archive boundaries\n");
 	    QMessageBox::warning(0, tr("Warning"), error, tr("Quit"));
 	    return;
 	}
@@ -178,20 +178,20 @@ void ShowBounds::accept()
     if (lineEditEnd->isModified()) {
 	input = lineEditEnd->text().simplified();
 	if (input.length() == 0) {
-	    error.sprintf("End time has not been set.\n");
+	    error = QString("End time has not been set.\n");
 	    QMessageBox::warning(0, tr("Warning"), error, tr("Quit"));
 	    return;
 	}
 	if (input[0] != '@')
 	    input.prepend("@");
 	if (__pmParseTime(input.toLatin1(), &start, &end, &current, &msg) < 0) {
-	    error.sprintf("Invalid end date/time:\n%s\n\n", msg);
+	    error = QString("Invalid end date/time:\n%1\n\n").arg(msg);
 	    QMessageBox::warning(0, tr("Warning"), error, tr("Quit"));
 	    free(msg);
 	    return;
 	} else if (PmTime::timevalCompare(&current, &start) < 0 ||
 		   PmTime::timevalCompare(&current, &end) > 0) {
-	    error.sprintf("End time is outside the archive boundaries\n");
+	    error = QString("End time is outside the archive boundaries\n");
 	    QMessageBox::warning(0, tr("Warning"), error, tr("Quit"));
 	    return;
 	}
@@ -201,7 +201,7 @@ void ShowBounds::accept()
     }
 
     if (my.localCurrentStart > my.localCurrentEnd) {
-	error.sprintf("Start time must be less than end time.\n");
+	error = QString("Start time must be less than end time.\n");
 	QMessageBox::warning(0, tr("Warning"), error, tr("Quit"));
 	return;
     }

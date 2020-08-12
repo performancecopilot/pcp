@@ -25,6 +25,7 @@ enum {
 	CAPACITY_BYTES,
 	SECTOR_SIZE,
 	ROTATION_RATE,
+	FIRMWARE_VERSION,
 	NUM_INFO_METRICS
 };
 
@@ -88,6 +89,39 @@ enum {
 	NUM_METRICS
 };
 
+enum {
+	CRITICAL_WARNING = 0,
+	COMPOSITE_TEMPERATURE,
+	AVAILABLE_SPARE,
+	AVAILABLE_SPARE_THRESHOLD,
+	PERCENTAGE_USED,
+	DATA_UNITS_READ,
+	DATA_UNITS_WRITTEN,
+	HOST_READ_COMMANDS,
+	HOST_WRITES_COMMANDS,
+	CONTROLLER_BUSY_TIME,
+	POWER_CYCLES,
+	NVME_POWER_ON_HOURS,
+	UNSAFE_SHUTDOWNS,
+	MEDIA_AND_DATA_INTEGRITY_ERRORS,
+	NUMBER_OF_ERROR_INFORMATION_LOG_ENTRIES,
+	WARNING_COMPOSITE_TEMPERATRE_TIME,
+	CRITICAL_COMPOSITE_TEMPERATURE_TIME,
+	TEMPERATURE_SENSOR_ONE,
+	TEMPERATURE_SENSOR_TWO,
+	TEMPERATURE_SENSOR_THREE,
+	TEMPERATURE_SENSOR_FOUR,
+	TEMPERATURE_SENSOR_FIVE,
+	TEMPERATURE_SENSOR_SIX,
+	TEMPERATURE_SENSOR_SEVEN,
+	TEMPERATURE_SENSOR_EIGHT,
+	THERMAL_MANAGEMENT_TEMPERATURE_ONE_TRANSITION_COUNT,
+	THERMAL_MANAGEMENT_TEMPERATURE_TWO_TRANSITION_COUNT,
+	TOTAL_TIME_FOR_THERMAL_MANAGEMENT_TEMPERATURE_ONE,
+	TOTAL_TIME_FOR_THERMAL_MANAGEMENT_TEMPERATURE_TWO,
+	NUM_NVME_STATS
+};
+
 struct device_info {
 	char			health[9];
 	char			model_family[41];
@@ -96,22 +130,54 @@ struct device_info {
 	uint64_t		capacity_bytes;
 	char			sector_size[64];
 	char			rotation_rate[18];
+	char			firmware_version[9];
 };
 
 struct smart_data {
-	uint8_t			id[NUM_SMART_STATS];
-	uint8_t			type[NUM_SMART_STATS];
-	uint8_t			value[NUM_SMART_STATS];
-	uint8_t			worst[NUM_SMART_STATS];
+	uint8_t		id[NUM_SMART_STATS];
+	uint8_t		type[NUM_SMART_STATS];
+	uint8_t		value[NUM_SMART_STATS];
+	uint8_t		worst[NUM_SMART_STATS];
 	uint8_t 		thresh[NUM_SMART_STATS];
 	uint32_t		raw[NUM_SMART_STATS];
 };
 
-extern int smart_device_info_fetch(int, struct device_info *, pmAtomValue *);
-extern int smart_refresh_device_info(const char *, struct device_info *);
+struct nvme_smart_data{
+	char			critical_warning[9];
+	uint8_t		composite_temperature;
+	uint8_t		available_spare;
+	uint8_t		available_spare_threshold;
+	uint8_t		percentage_used;
+	uint64_t		data_units_read;
+	uint64_t		data_units_written;
+	uint64_t		host_read_commands;
+	uint64_t		host_write_commands;
+	uint32_t		controller_busy_time;
+	uint32_t		power_cycles;
+	uint32_t		power_on_hours;
+	uint32_t		unsafe_shutdowns;
+	uint32_t		media_and_data_integrity_errors;
+	uint32_t		number_of_error_information_log_entries;
+	uint32_t		warning_composite_temperature_time;
+	uint32_t		critical_composite_temperature_time;
+	uint8_t		temperature_sensor_one;
+	uint8_t		temperature_sensor_two;
+	uint8_t		temperature_sensor_three;
+	uint8_t		temperature_sensor_four;
+	uint8_t		temperature_sensor_five;
+	uint8_t		temperature_sensor_six;
+	uint8_t		temperature_sensor_seven;
+	uint8_t		temperature_sensor_eight;
+};
 
-extern int smart_data_fetch (int, int, struct smart_data *, pmAtomValue *);
-extern int smart_refresh_data(const char *, struct smart_data *);
+extern int smart_device_info_fetch(int, struct device_info *, pmAtomValue *);
+extern int smart_refresh_device_info(const char *, struct device_info *, int);
+
+extern int smart_data_fetch(int, int, struct smart_data *, pmAtomValue *);
+extern int smart_refresh_data(const char *, struct smart_data *, int);
+
+extern int nvme_smart_data_fetch(int, int, struct nvme_smart_data *, pmAtomValue *, int);
+extern int nvme_smart_refresh_data(const char *, struct nvme_smart_data *, int);
 
 extern void smart_stats_setup(void);
 

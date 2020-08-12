@@ -87,8 +87,7 @@ const char *_style[] = { "None", "Line", "Bar", "Stack", "Area", "Util" };
 static void err(int severity, int do_where, QString msg)
 {
     if (do_where) {
-	QString	where = QString();
-	where.sprintf("%s[%d] ", _fname, _line);
+	QString	where = QString("%1[%s] ").arg(_fname).arg(_line);
 	msg.prepend(where);
     }
     if (Cflag) {
@@ -160,10 +159,12 @@ eol:
     }
 
     if (p == &buf[MAXWDSZ]) {
-	QString	msg = QString();
+	char msg[256];
 	p[-1] = '\0';
-	msg.sprintf("Word truncated after %d characters!\n\"%20.20s ... %20.20s\"", (int)sizeof(buf)-1, buf, &p[-21]);
-	err(E_CRIT, true, msg);
+	pmsprintf(msg, sizeof(msg),
+		"Word truncated after %d characters!\n\"%20.20s ... %20.20s\"",
+		(int)sizeof(buf)-1, buf, &p[-21]);
+	err(E_CRIT, true, QString(msg));
     }
     else
 	*p = '\0';
@@ -741,7 +742,7 @@ done_tab:
 		tab = pmchart->activeTab();
 		bool isArchive = tab->isArchiveSource();
 
-		if (host != QString::null) {
+		if (host != QString()) {
 		    if (isArchive)
 			archiveGroup->use(PM_CONTEXT_ARCHIVE, host);
 		    else
@@ -958,9 +959,8 @@ done_tab:
 		    if (activeGroup == archiveGroup) {
 			QString hostname = host;
 			if (archiveGroup->use(PM_CONTEXT_HOST, hostname) < 0) {
-			    QString msg;
-			    msg.sprintf("\nHost \"%s\" cannot be matched to an open archive for metric %s",
-				host, pms.metric);
+			    QString msg = QString("\nHost \"%1\" cannot be matched to an open archive for metric %2")
+						.arg(host).arg(pms.metric);
 			    errmsg.append(msg);
 			    goto skip;
 			}
@@ -1002,10 +1002,8 @@ done_tab:
 			if (inst_match_type == IM_MATCH ||
 			    inst_match_type == IM_NOT_MATCH) {
 			    // a bit embarrassing
-			    QString	msg = QString();
-			    msg.sprintf("\nMetric \"%s\" for\n%s %s: no instance domain, cannot handle matching specification",
-				pms.metric, pms.isarch ? "archive" : "host",
-				pms.source);
+			    QString	msg = QString("\nMetric \"%1\" for\n%2 %3: no instance domain, cannot handle matching specification")
+				.arg(pms.metric).arg(pms.isarch ? "archive" : "host").arg(pms.source);
 			    errmsg.append(msg);
 			    goto skip;
 			}
@@ -1017,10 +1015,8 @@ done_tab:
 		    else
 			numinst = pmGetInDom(desc.indom, &instlist, &namelist);
 		    if (numinst < 0) {
-			QString	msg = QString();
-			msg.sprintf("\nMetric \"%s\" for\n%s %s: empty instance domain",
-			    pms.metric, pms.isarch ? "archive" : "host",
-			    pms.source);
+			QString	msg = QString("\nMetric \"%1\" for\n%2 %3: empty instance domain")
+				.arg(pms.metric).arg(pms.isarch ? "archive" : "host").arg(pms.source);
 			errmsg.append(msg);
 			goto skip;
 		    }
@@ -1074,14 +1070,13 @@ try_plot:
 		    if (!optional) {
 			QString	msg;
 			if (pms.inst[0] != NULL)
-			    msg.sprintf("\nFailed to plot metric \"%s[%s]\" for\n%s %s:\n",
-				pms.metric, pms.inst[0],
-				pms.isarch ? "archive" : "host",
-				pms.source);
+			    msg = QString("\nFailed to plot metric \"%1[%2]\" for\n%3 %4:\n")
+				.arg(pms.metric).arg(pms.inst[0])
+				.arg(pms.isarch ? "archive" : "host").arg(pms.source);
 			else
-			    msg.sprintf("\nFailed to plot metric \"%s\" for\n%s %s:\n",
-				pms.metric, pms.isarch ? "archive" : "host",
-				pms.source);
+			    msg = QString("\nFailed to plot metric \"%1\" for\n%2 %3:\n")
+				.arg(pms.metric).arg(pms.isarch ? "archive" : "host")
+				.arg(pms.source);
 			if (m == PM_ERR_CONV)
 			    msg.append("Units for this metric are not compatible with other plots in this chart");
 			else
@@ -1117,8 +1112,7 @@ skip:
 	}
 	
 	else {
-	    QString	msg = QString();
-	    msg.sprintf("Botch, state=%d", state);
+	    QString	msg = QString("Botch, state=%1").arg(state);
 	    err(E_CRIT, true, msg);
 	    goto abandon;
 	}
@@ -1155,15 +1149,14 @@ abandon:
     return true;
 
 noview:
-    errmsg = QString("Cannot open view file \"");
-    errmsg.append(_fname);
-    errmsg.append("\"\n");
-    errmsg.append(strerror(errno));
+    errmsg = QString("Cannot open view file \"%1\"\n%2")
+	    .arg(_fname).arg(strerror(errno));
     err(E_CRIT, false, errmsg);
     return false;
 
 nopipe:
-    errmsg.sprintf("Cannot execute \"%s\"\n%s", _fname, strerror(errno));
+    errmsg = QString("Cannot execute \"%1\"\n%2")
+	    .arg(_fname).arg(strerror(errno));
     err(E_CRIT, false, errmsg);
     return false;
 }
@@ -1197,7 +1190,7 @@ void SaveViewDialog::saveChart(FILE *f, Chart *cp, bool hostDynamic)
     bool	autoscale;
 
     fprintf(f, "chart");
-    if (cp->title() != QString::null)
+    if (cp->title() != QString())
 	fprintf(f, " title \"%s\"", (const char*)cp->title().toLatin1());
     switch (cp->style()) {
 	case Chart::LineStyle:
@@ -1240,7 +1233,7 @@ void SaveViewDialog::saveChart(FILE *f, Chart *cp, bool hostDynamic)
 	    continue;
 	fprintf(f, "\tplot");
 	legend = cp->legend(m);
-	if (legend != QString::null)
+	if (legend != QString())
 	    fprintf(f, " legend \"%s\"", (const char *)legend.toLatin1());
 	fprintf(f, " color %s", (const char *)cp->color(m).name().toLatin1());
 	if (hostDynamic == false)
@@ -1279,7 +1272,7 @@ bool SaveViewDialog::saveView(QString file, bool hostDynamic,
 
     for (c = 0; c < pmchart->activeTab()->gadgetCount(); c++) {
 	gadget = pmchart->activeTab()->gadget(c);
-	if (gadget->scheme() == QString::null ||
+	if (gadget->scheme() == QString() ||
 	    schemes.contains(gadget->scheme()) == true)
 	    continue;
 	schemes.append(gadget->scheme());
@@ -1312,8 +1305,8 @@ bool SaveViewDialog::saveView(QString file, bool hostDynamic,
     return true;
 
 noview:
-    QString errmsg;
-    errmsg.sprintf("Cannot open \"%s\" for writing\n%s", path, strerror(errno));
+    QString errmsg = QString("Cannot open \"%1\" for writing\n%2")
+	    .arg(path).arg(strerror(errno));
     err(E_CRIT, false, errmsg);
     free (path);
     return false;

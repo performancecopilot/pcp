@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014,2020 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -141,9 +141,27 @@ enum {
     _PM_NETSTAT_TCPEXT_NFIELDS /* must be last */
 };
 
+enum {
+    _PM_NETSTAT_MPTCPEXT_MPCAPABLESYNRX = 0,
+    _PM_NETSTAT_MPTCPEXT_MPCAPABLEACKRX,
+    _PM_NETSTAT_MPTCPEXT_MPCAPABLEFALLBACKACK,
+    _PM_NETSTAT_MPTCPEXT_MPCAPABLEFALLBACKSYNACK,
+    _PM_NETSTAT_MPTCPEXT_MPTCPRETRANS,
+    _PM_NETSTAT_MPTCPEXT_MPJOINNOTOKENFOUND,
+    _PM_NETSTAT_MPTCPEXT_MPJOINSYNRX,
+    _PM_NETSTAT_MPTCPEXT_MPJOINSYNACKRX,
+    _PM_NETSTAT_MPTCPEXT_MPJOINSYNACKHMACFAILURE,
+    _PM_NETSTAT_MPTCPEXT_MPJOINACKRX,
+    _PM_NETSTAT_MPTCPEXT_MPJOINACKHMACFAILURE,
+    _PM_NETSTAT_MPTCPEXT_DSSNOTMATCHING,
+    _PM_NETSTAT_MPTCPEXT_INFINITEMAPRX,
+    _PM_NETSTAT_MPTCPEXT_NFIELDS /* must be last */
+};
+
 typedef struct {
     __uint64_t	ip[_PM_NETSTAT_IPEXT_NFIELDS];
     __uint64_t	tcp[_PM_NETSTAT_TCPEXT_NFIELDS];
+    __uint64_t	mptcp[_PM_NETSTAT_MPTCPEXT_NFIELDS];
 } proc_net_netstat_t;
 
 extern int refresh_proc_net_netstat(proc_net_netstat_t *);

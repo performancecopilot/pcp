@@ -356,7 +356,7 @@ _configure_pmlogger()
 	then
 	    # pmlogconf file that we own, see if re-generation is needed
 	    cp "$configfile" "$tmpconfig"
-	    if $PMLOGCONF -r -c -q -h $hostname "$tmpconfig" >$tmp/diag 2>&1
+	    if $PMLOGCONF -r -c -q -h $hostname "$tmpconfig" </dev/null >$tmp/diag 2>&1
 	    then
 		if grep 'No changes' $tmp/diag >/dev/null 2>&1
 		then
@@ -377,6 +377,7 @@ _configure_pmlogger()
 		cat "$tmpconfig"
 		echo "=== end pmlogconf file ==="
 	    fi
+	    rm -f "$tmpconfig"
 	fi
     elif [ ! -e "$configfile" ]
     then
@@ -384,7 +385,7 @@ _configure_pmlogger()
 	if $SHOWME
 	then
 	    echo "+ $PMLOGCONF -c -q -h $hostname $configfile"
-	elif ! $PMLOGCONF -c -q -h $hostname "$configfile" >$tmp/diag 2>&1
+	elif ! $PMLOGCONF -c -q -h $hostname "$configfile" </dev/null >$tmp/diag 2>&1
 	then
 	    _warning "pmlogconf failed to generate \"$configfile\""
 	    cat $tmp/diag
@@ -426,6 +427,13 @@ _get_logfile()
 _get_primary_logger_pid()
 {
     pid=`cat "$PCP_RUN_DIR/pmlogger.pid" 2>/dev/null`
+    if [ -z "$pid" ]
+    then
+	# No PID file, try the pmcd.pmlogger.* info files where "primary"
+	# is a symlink to a <pid> file
+	#
+	pid=`ls -l $PCP_TMP_DIR/pmlogger/primary 2>/dev/null | sed -e 's;.*/\([0-9][0-9]*\)$;\1;'`
+    fi
     echo "$pid"
 }
 
@@ -900,7 +908,7 @@ END				{ print m }'`
 		#
 		PM_LOG_PORT_DIR="$PCP_TMP_DIR/pmlogger"
 		rm -f "$PM_LOG_PORT_DIR/primary"
-		# We really starting the primary pmlogger to work, especially
+		# We really expect the primary pmlogger to work, especially
 		# in the systemd world, so make sure pmcd is ready to accept
 		# connections.
 		#

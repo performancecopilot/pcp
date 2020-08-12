@@ -27,7 +27,7 @@ SamplingItem::SamplingItem(Chart *parent,
     pmDesc desc = mp->desc().desc();
 
     my.chart = parent;
-    my.info = QString::null;
+    my.info = QString();
 
     // initialize the pcp data and item data arrays
     my.dataCount = 0;

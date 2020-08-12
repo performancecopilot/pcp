@@ -83,7 +83,7 @@ given in the $PCP_PMLOGGERCONTROL_PATH file, and (optionally) files
 in the $PCP_PMLOGGERCONTROL_PATH.d directory.</P>
 <P>This has a default entry for the local host, which specifies the metrics
 to be logged, and the frequency of logging - by default, using the file
-$PCP_CONFIG_DIR/pmlogger/config.default.</P>
+$PCP_VAR_DIR/config/pmlogger/config.default.</P>
 
 <P><BR></P>
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
@@ -102,7 +102,7 @@ the syntax is fully described in the <I>pmlogger</I>(1) man page.</P>
 </TABLE>
 <P>Some configuration files are supplied, e.g. to create archive logs 
 suitable for the PCP visualization tools.
-These may be found in the directory $PCP_CONFIG_DIR/pmlogger.</P>
+These may be found in the directory $PCP_VAR_DIR/config/pmlogger.</P>
 <P>A simple example has been provided to illustrate the creation of an 
 archive log, and subsequent playback using <I>mpvis</I>.
 (All of the PCP monitoring tools accept the command line arguments 
@@ -115,7 +115,7 @@ $ source /etc/pcp.conf
 $ cd /tmp
 $ rm -f myarchive.*
 $ $PCP_BINADM_DIR/pmlogger -T 30sec -t 1sec \
-        -c $PCP_CONFIG_DIR/pmlogger/config.mpvis myarchive
+        -c $PCP_VAR_DIR/config/pmlogger/config.mpvis myarchive
 $ ls myarchive.*
 $ mpvis -a myarchive
 </B></PRE>
@@ -127,7 +127,7 @@ $ mpvis -a myarchive
     This starts <I>pmlogger</I> with <B><I>localhost</I></B> as the default
     host from which metrics will be fetched, a logging duration of
     <B>30 seconds</B>, a logging interval of <B>1 second</B>, a configuration
-    from the $PCP_CONFIG_DIR/pmlogger/config.mpvis file, and
+    from the $PCP_VAR_DIR/config/pmlogger/config.mpvis file, and
     <I>myarchive</I> as the base name of the output archive.
     <LI>
     Once the archive has been created, the directory listing of

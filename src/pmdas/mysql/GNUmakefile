@@ -1,24 +1,30 @@
 #
-# Copyright (c) 2014 Red Hat.
+# Copyright (c) 2014,2020 Red Hat.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
-# 
+#
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
+#
 
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 IAM = mysql
-PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 LDIRT = domain.h root pmns *.log
+
+PMDATMPDIR = $(PCP_PMDAS_DIR)/$(IAM)
+PMDAADMDIR = $(PCP_PMDASADM_DIR)/$(IAM)
+LOGCONFDIR = $(PCP_SYSCONF_DIR)/pmlogconf/$(IAM)
+LOGCONFVARDIR = $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
+REWRITEDIR = $(PCP_SYSCONF_DIR)/pmlogrewrite
+REWRITEVARDIR = $(PCP_VAR_DIR)/config/pmlogrewrite
 
 MAN_SECTION = 1
 MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
@@ -31,14 +37,16 @@ include $(BUILDRULES)
 ifeq "$(PMDA_MYSQL)" "true"
 build-me:	check_domain $(MAN_PAGES)
 install_pcp install: default
-	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove $(PMDADIR)
-	$(INSTALL) -m 644 README $(PMDADIR)/README
-	$(INSTALL) -m 644 pmda$(IAM).pl $(PMDADIR)/pmda$(IAM).pl
+	$(INSTALL) -m 755 -d $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMDATMPDIR)
+	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR)/README README $(PMDAADMDIR)/README
+	$(INSTALL) -m 644 -t $(PMDATMPDIR)/pmda$(IAM).pl pmda$(IAM).pl $(PMDAADMDIR)/pmda$(IAM).pl
 	@$(INSTALL_MAN)
-	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
-	$(INSTALL) -m 644 pmlogconf.summary $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)/summary
-	$(INSTALL) -m 644 migrate.conf $(PCP_VAR_DIR)/config/pmlogrewrite/mysql_migrate.conf
+	$(INSTALL) -m 755 -d $(LOGCONFDIR)
+	$(INSTALL) -m 755 -d $(LOGCONFVARDIR)
+	$(INSTALL) -m 644 -t $(LOGCONFVARDIR)/summary pmlogconf.summary $(LOGCONFDIR)/summary
+	$(INSTALL) -m 644 -t $(REWRITEVARDIR)/mysql_migrate.conf migrate.conf $(REWRITEDIR)/mysql_migrate.conf
 else
 build-me:
 install_pcp install:

@@ -1,11 +1,12 @@
 #
 # Copyright (c) 2000-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
-# 
+# Copyright (c) 2020 Red Hat.
+#
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -18,7 +19,8 @@ include $(TOPDIR)/src/include/builddefs
 IAM	= trace
 DOMAIN	= TRACE
 
-PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
+PMDAADMDIR = $(PCP_PMDASADM_DIR)/$(IAM)
+PMDATMPDIR = $(PCP_PMDAS_DIR)/$(IAM)
 DEMODIR	= $(PCP_DEMOS_DIR)/$(IAM)
 
 SCRIPTS	= Install Remove
@@ -35,8 +37,6 @@ LLDLIBS = $(PCP_TRACELIB)
 LDIRT	= *.log *.dir *.pag *.o $(APPS) \
 	  pmtrace.c Makefile.demos Makefile.stub
 
-LSRCFILES= $(SCRIPTS) $(OTHERS) $(DEMOS) $(DEMOFILES) $(DFILES)
-
 SUBDIRS	= src
 
 default:	$(SUBDIRS) Makefile.demos Makefile.stub build-me
@@ -49,9 +49,10 @@ build-me:	demos
 
 install:	$(SUBDIRS) Makefile.demos Makefile.stub
 	$(SUBDIRS_MAKERULE)
-	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 $(SCRIPTS) $(PMDADIR)
-	$(INSTALL) -m 644 $(OTHERS) $(DFILES) $(PMDADIR)
+	$(INSTALL) -m 755 -d $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMDATMPDIR)
+	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(SCRIPTS) $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) $(OTHERS) $(DFILES) $(PMDAADMDIR)
 	$(INSTALL) -m 755 -d $(DEMODIR)
 	$(INSTALL) -m 644 Makefile.demos $(DEMODIR)/Makefile
 	$(INSTALL) -m 644 Makefile.stub $(DEMODIR)/Makefile.stub

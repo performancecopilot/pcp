@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# Copyright (c) 2013-2016,2018 Red Hat.
+# Copyright (c) 2013-2016,2018,2020 Red Hat.
 # Copyright (c) 1995-2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -239,6 +239,7 @@ echo > $tmp/usage
 cat >> $tmp/usage <<EOF
 Options:
   -c=FILE,--control=FILE  pmlogger control file
+  -E,--expunge            expunge metrics with metadata inconsistencies when merging archives
   -f,--force              force actions (intended for QA, not production)
   -k=TIME,--discard=TIME  remove archives after TIME (format DD[:HH[:MM]])
   -K                      compress, but no other changes
@@ -279,6 +280,7 @@ TRACE=0
 RFLAG=false
 REWRITEALL=false
 MFLAG=false
+EXPUNGE=""
 FORCE=false
 KILL=pmsignal
 
@@ -293,6 +295,8 @@ do
 	-c)	CONTROL="$2"
 		CONTROLDIR="$2.d"
 		shift
+		;;
+	-E)	EXPUNGE="-E"
 		;;
 	-f)	FORCE=true
 		;;
@@ -1083,7 +1087,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    fi
 	fi
 
-	# For archive rewiting (to make metadata consistent across
+	# For archive rewriting (to make metadata consistent across
 	# archives) find the rules as follows:
 	# - if pmlogrewrite exists (as a file, directory or symlink)
 	#   in the current archive directory use that
@@ -1403,8 +1407,8 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
 				#
 				if $SHOWME
 				then
-				    echo "+ pmlogger_merge$MYARGS -f $inlist $outfile"
-				elif pmlogger_merge$MYARGS -f $inlist $outfile
+				    echo "+ pmlogger_merge$MYARGS $EXPUNGE -f $inlist $outfile"
+				elif pmlogger_merge$MYARGS $EXPUNGE -f $inlist $outfile
 				then
 				    if $VERY_VERBOSE
 				    then

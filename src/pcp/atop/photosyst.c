@@ -18,6 +18,7 @@
 #include "atop.h"
 #include "photosyst.h"
 #include "systmetrics.h"
+#include "showgeneric.h"
 
 /*
 ** Allocate the fixes space for system statistics and the associated
@@ -274,7 +275,7 @@ photosyst(struct sstat *si)
 	}
 
 	if (fetch_metrics("system", SYST_NMETRICS, pmids, &result) < 0)
-		return 'r';
+		return MRESET;
 
 	onrcpu  = si->cpu.nrcpu;
 	onrintf = si->intf.nrintf;

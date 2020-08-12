@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018-2019 Red Hat.
+# Copyright (c) 2018-2020 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -21,8 +21,9 @@ CONFIGS  = $(shell echo bcc*.conf)
 LDIRT    = domain.h root pmns $(IAM).log
 
 DOMAIN   = BCC
-PMDADIR  = $(PCP_PMDAS_DIR)/$(IAM)
 SUBDIRS  = modules
+PMDATMPDIR  = $(PCP_PMDAS_DIR)/$(IAM)
+PMDAADMDIR  = $(PCP_PMDASADM_DIR)/$(IAM)
 
 MAN_SECTION = 1
 MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
@@ -36,10 +37,11 @@ ifeq "$(PMDA_BCC)" "true"
 build-me:	check_domain
 
 install_pcp install ::	default
-	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove Upgrade $(PYSCRIPT) $(PMDADIR)
-	$(INSTALL) -m 644 pmdautil.python $(PMDADIR)/pmdautil.python
-	$(INSTALL) -m 644 README.md $(CONFIGS) $(PMDADIR)
+	$(INSTALL) -m 755 -d $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMDATMPDIR)
+	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove Upgrade $(PYSCRIPT) $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR)/pmdautil.python pmdautil.python $(PMDAADMDIR)/pmdautil.python
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) README.md $(CONFIGS) $(PMDAADMDIR)
 	@$(INSTALL_MAN)
 
 default_pcp default ::	$(SUBDIRS)

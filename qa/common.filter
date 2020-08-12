@@ -122,6 +122,7 @@ s/entry=[^ ]*/entry=[OS]_init/
         -e '/NOTICE: using kernel 2\.4 or earlier CPU types/d' \
         -e '/NOTICE: using kernel 2\.6\.0 to 2\.6\.4 CPU types/d' \
         -e '/NOTICE: using 64 bit CPU time types/d' \
+	-e '/^\.\.\.[. ]*$/d' \
     | sed \
 	-e '/Connected from.*Operations denied/{
 P
@@ -537,7 +538,7 @@ _filter_cron_scripts()
 # from time to time, a specific distro can produce babble during PCP
 # startup ... rather than wasting effort to find where this comes from,
 # just filter it away here.
-# Examples:
+# Examples (both of these should now now be fixed):
 # S on a line by itself after the "Starting pmcd ..." line
 #     - bozo-vm, Debian bullseye/sid, Jan 2020
 #     - fedora 32
@@ -547,21 +548,6 @@ _filter_cron_scripts()
 #
 _filter_pcp_start_distro()
 {
-    if [ -f /etc/debian_version ]
-    then
-	if grep 'bullseye/sid' /etc/debian_version >/dev/null
-	then
-	    sed -e '/^[SW]$/d'
-	    return
-	fi
-    fi
-
-    if [ -f /etc/redhat-release ]
-    then
-	sed -e '/^[SW]$/d'
-	return
-    fi
-
     # if a filter has been chosen, it must return afterwards, so here
     # we need a noop fiter ...
     #

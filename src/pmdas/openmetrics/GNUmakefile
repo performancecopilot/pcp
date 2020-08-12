@@ -19,13 +19,17 @@ include $(TOPDIR)/src/include/builddefs
 IAM	= openmetrics
 PYSCRIPT = pmda$(IAM).python
 LDIRT	= domain.h root pmns $(IAM).log
+DOMAIN	= $(IAM)
 
 MAN_SECTION = 1
 MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
 MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
 
-DOMAIN	= $(IAM)
-PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
+PMDAADMDIR = $(PCP_PMDASADM_DIR)/$(IAM)
+PMDACONFIG = $(PCP_SYSCONF_DIR)/$(IAM)
+PMDATMPDIR = $(PCP_PMDAS_DIR)/$(IAM)
+LOGCONFDIR = $(PCP_SYSCONF_DIR)/pmlogconf/$(IAM)
+LOGCONFVARDIR = $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
 
 default_pcp default ::	build-me
 
@@ -35,12 +39,17 @@ ifeq "$(PMDA_OPENMETRICS)" "true"
 build-me:	check_domain
 
 install_pcp install :: default
-	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 -d $(PMDADIR)/config.d
-	$(INSTALL) -m 644 grafana.url $(PMDADIR)/config.d/grafana.url
-	$(INSTALL) -m 755 Install Remove Upgrade $(PYSCRIPT) $(PMDADIR)
+	$(INSTALL) -m 755 -d $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMDATMPDIR)
+	$(INSTALL) -m 755 -d $(PMDACONFIG)
+	$(INSTALL) -m 755 -d $(PMDACONFIG)/config.d
+	$(INSTALL) -m 644 collectd.url etcd.url $(PMDACONFIG)/config.d
+	$(INSTALL) -m 644 -t $(PMDATMPDIR)/config.d/grafana.url grafana.url $(PMDACONFIG)/config.d/grafana.url
+	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove Upgrade $(PYSCRIPT) $(PMDAADMDIR)
 	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
-	$(INSTALL) -m 644 pmlogconf.summary $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)/summary
+	$(INSTALL) -m 755 -d $(LOGCONFDIR)
+	$(INSTALL) -m 755 -d $(LOGCONFVARDIR)
+	$(INSTALL) -m 644 -t $(LOGCONFVARDIR)/summary pmlogconf.summary $(LOGCONFDIR)/summary
 	@$(INSTALL_MAN)
 
 check:: $(PYSCRIPT)

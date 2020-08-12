@@ -1,5 +1,0 @@
-[Path]
-PathChanged=@PCP_SYSCONF_DIR@/pmfind
-
-[Install]
-RequiredBy=pmfind.service

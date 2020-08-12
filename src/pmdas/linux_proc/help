@@ -163,6 +163,7 @@ sources.
 @ cgroup.memory.usage Current physical memory accounted to each cgroup
 @ cgroup.memory.limit Maximum memory that can be utilized by each cgroup
 @ cgroup.memory.failcnt Count of failures to allocate memory due to cgroup limit
+@ cgroup.memory.current The total amount of memory currently being used by the cgroup and its descendants
 @ cgroup.memory.stat.cache Number of bytes of page cache memory
 @ cgroup.memory.stat.rss Anonymous and swap memory (incl transparent hugepages)
 @ cgroup.memory.stat.rss_huge Anonymous transparent hugepages
@@ -535,19 +536,32 @@ refresh interval.
 The fraction of time waiting on the run queue for each "interesting"
 process over the last refresh interval.
 
-@ acct.tty Controlling terminal
-@ acct.exitcode Process termination status
-@ acct.uid Real user ID
-@ acct.gid Real group ID
-@ acct.pid Process ID
-@ acct.ppid Parent process ID
-@ acct.btime Process creation time
-@ acct.etime Elapsed time
-@ acct.utime User CPU time
-@ acct.stime System CPU time
-@ acct.mem Average memory usage
-@ acct.io Characters transferred
-@ acct.rw Blocks read or written
-@ acct.minflt Minor page faults
-@ acct.majflt Major page faults
-@ acct.swaps Number of swaps
+@ acct.psinfo.tty Controlling terminal device number
+@ acct.psinfo.ttyname Controlling terminal name
+@ acct.psinfo.exitcode Process termination status
+@ acct.psinfo.pid Process ID
+@ acct.psinfo.ppid Parent process ID
+@ acct.psinfo.btime Process creation time
+@ acct.psinfo.etime Elapsed time
+@ acct.psinfo.utime User CPU time
+@ acct.psinfo.stime System CPU time
+@ acct.psinfo.mem Average memory usage
+@ acct.psinfo.io Characters transferred
+@ acct.psinfo.rw Blocks read or written
+@ acct.psinfo.minflt Minor page faults
+@ acct.psinfo.majflt Major page faults
+@ acct.psinfo.swaps Number of swaps
+@ acct.id.uid Real user ID
+@ acct.id.uid_nm Real user name
+@ acct.id.gid Real group ID
+@ acct.id.gid_nm Real group name
+@ acct.flag.fork Executed fork but no exec (boolean)
+@ acct.flag.su Used superuser privileges (boolean)
+@ acct.flag.core Dumped core (boolean)
+@ acct.flag.xsig Killed by a signal (boolean)
+@ acct.control.open_retry_interval Minimal time to retry open after failing to open acct file
+@ acct.control.check_acct_interval Interval to check if process accounting works
+@ acct.control.file_size_threshold Size at which the acct file will be reopened
+@ acct.control.lifetime Period of holding acct information after process exits
+@ acct.control.refresh Interval to check if private acct file should be reopened
+@ acct.control.enable_acct Boolean for whether to open private acct file and to use acct(2) syscall

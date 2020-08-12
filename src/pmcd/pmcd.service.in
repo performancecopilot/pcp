@@ -9,8 +9,8 @@ Before=zabbix-agent.service
 Type=notify
 NotifyAccess=all
 Restart=always
-ExecStart=@PCP_RC_DIR@/pmcd start
-ExecStop=@PCP_RC_DIR@/pmcd stop
+ExecStart=@PCP_RC_DIR@/pmcd start-systemd
+ExecStop=@PCP_RC_DIR@/pmcd stop-systemd
 PIDFile=@PCP_RUN_DIR@/pmcd.pid
  
 [Install]

@@ -14,29 +14,25 @@
 .\" for more details.
 .\"
 .\"
-.\" I am variants ...
-.ds ia trivial
-.ds IA TRIVIAL
-.ds Ia Trivial
 .TH PMDATRIVIAL 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmdatrivial\f1 \- \*(ia performance metrics domain agent (PMDA)
+\f3pmdatrivial\f1 \- trivial performance metrics domain agent (PMDA)
 .SH SYNOPSIS
-\f3$PCP_PMDAS_DIR/\*(ia/pmda\*(ia\f1
+\f3$PCP_PMDAS_DIR/trivial/pmdatrivial\f1
 [\f3\-d\f1 \f2domain\f1]
 [\f3\-l\f1 \f2logfile\f1]
 [\f3\-U\f1 \f2username\f1]
 .SH DESCRIPTION
-.B pmda\*(ia
+.B pmdatrivial
 is the simplest possible Performance Metrics Domain Agent (PMDA) which
 exports a single performance metric, the time
 in seconds since the 1st of January, 1970.
 .PP
-The \*(ia PMDA is
+The trivial PMDA is
 shipped as source code and is designed to be an aid for PMDA developers.
 .PP
 A brief description of the
-.B pmda\*(ia
+.B pmdatrivial
 command line options follows:
 .TP 5
 .B \-d
@@ -51,11 +47,11 @@ number should be used for the same PMDA on all hosts.
 .TP
 .B \-l
 Location of the log file.  By default, a log file named
-.I \*(ia.log
+.I trivial.log
 is written in the current directory of
 .BR pmcd (1)
 when
-.B pmda\*(ia
+.B pmdatrivial
 is started, i.e.
 .BR $PCP_LOG_DIR/pmcd .
 If the log file cannot
@@ -66,13 +62,13 @@ User account under which to run the agent.
 The default is the unprivileged "pcp" account in current versions of PCP,
 but in older versions the superuser account ("root") was used by default.
 .SH INSTALLATION
-If you want access to the names, help text and values for the \*(ia
+If you want access to the names, help text and values for the trivial
 performance metrics, do the following as root:
 .PP
 .ft CW
 .nf
 .in +0.5i
-# cd $PCP_PMDAS_DIR/\*(ia
+# cd $PCP_PMDAS_DIR/trivial
 # ./Install
 .in
 .fi
@@ -83,13 +79,13 @@ If you want to undo the installation, do the following as root:
 .ft CW
 .nf
 .in +0.5i
-# cd $PCP_PMDAS_DIR/\*(ia
+# cd $PCP_PMDAS_DIR/trivial
 # ./Remove
 .in
 .fi
 .ft 1
 .PP
-.B pmda\*(ia
+.B pmdatrivial
 is launched by
 .BR pmcd (1)
 and should never be executed directly.
@@ -101,24 +97,24 @@ when the agent is installed or removed.
 .TP 10
 .B $PCP_PMCDCONF_PATH
 command line options used to launch
-.B pmda\*(ia
+.B pmdatrivial
 .TP 10
-.B $PCP_PMDAS_DIR/\*(ia/help
-default help text file for the \*(ia metrics
+.B $PCP_PMDAS_DIR/trivial/help
+default help text file for the trivial metrics
 .TP 10
-.B $PCP_PMDAS_DIR/\*(ia/Install
+.B $PCP_PMDAS_DIR/trivial/Install
 installation script for the
-.B pmda\*(ia
+.B pmdatrivial
 agent
 .TP 10
-.B $PCP_PMDAS_DIR/\*(ia/Remove
+.B $PCP_PMDAS_DIR/trivial/Remove
 undo installation script for the
-.B pmda\*(ia
+.B pmdatrivial
 agent
 .TP 10
-.B $PCP_LOG_DIR/pmcd/\*(ia.log
+.B $PCP_LOG_DIR/pmcd/trivial.log
 default log file for error messages and other information from
-.B pmda\*(ia
+.B pmdatrivial
 .PD
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
