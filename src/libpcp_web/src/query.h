@@ -113,6 +113,7 @@ typedef struct series_instance_set {
 
 typedef struct series_sample_set {
     seriesGetSID		*sid;
+    sds				metric_name;
     pmSeriesDesc		series_desc;
     void			*baton;
     /* Number of series samples */

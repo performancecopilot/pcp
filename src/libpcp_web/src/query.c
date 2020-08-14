@@ -25,7 +25,7 @@
 #include <fnmatch.h>
 
 #define SHA1SZ		20	/* internal sha1 hash buffer size in bytes */
-#define QUERY_PHASES	7
+#define QUERY_PHASES	8
 
 
 typedef struct seriesGetLabelMap {
@@ -73,6 +73,7 @@ static int series_intersect(series_set_t *, series_set_t *);
 static void series_lookup_services(void *);
 static void series_lookup_mapping(void *);
 static void series_lookup_finished(void *);
+static void series_query_mapping(void *arg);
 
 sds	cursorcount;	/* number of elements in each SCAN call */
 
@@ -1727,6 +1728,86 @@ series_node_get_desc(seriesQueryBaton *baton, sds sid_name, series_sample_set_t 
     redisSlotsRequest(baton->slots, HMGET, key, cmd, series_node_get_desc_reply, sample_set);
 }
 
+static int
+series_store_metric_name(seriesQueryBaton *baton, series_sample_set_t *sample_set,
+		sds series, int nelements, redisReply **elements)
+{
+    redisMapEntry	*entry;
+    redisReply		*reply;
+    sds			msg, key;
+    unsigned int	i;
+    int			sts = 0;
+
+    key = sdsnewlen(SDS_NOINIT, 20);
+    for (i = 0; i < nelements; i++) {
+	reply = elements[i];
+	if (reply->type == REDIS_REPLY_STRING) {
+	    sdsclear(key);
+	    key = sdscatlen(key, reply->str, reply->len);
+	    if ((entry = redisMapLookup(namesmap, key)) != NULL){
+		sample_set->metric_name = redisMapValue(entry);
+	    }else {
+		infofmt(msg, "%s - timeseries string map", series);
+		batoninfo(baton, PMLOG_CORRUPT, msg);
+		sts = -EINVAL;
+	    }
+	} else {
+	    infofmt(msg, "expected string in %s set (type=%s)",
+			series, redis_reply_type(reply));
+	    batoninfo(baton, PMLOG_RESPONSE, msg);
+	    sts = -EPROTO;
+	}
+    }
+    sdsfree(key);
+
+    return sts;
+}
+
+static void
+series_node_get_metric_name_reply(
+	redisAsyncContext *c, redisReply *reply, const sds cmd, void *arg)
+{
+    series_sample_set_t		*sample_set = (series_sample_set_t *) arg;
+    seriesQueryBaton		*baton = (seriesQueryBaton *)sample_set->baton;
+    int				sts;
+    sds				msg;
+
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_node_get_metric_name_reply");
+    sts = redisSlotsRedirect(baton->slots, reply, baton->info, baton->userdata,
+			     cmd, series_node_get_metric_name_reply, arg);
+    if (sts > 0)
+	return;	/* short-circuit as command was re-submitted */
+
+    /* unpack - extract names for this source via context name map */
+    if (UNLIKELY(reply == NULL || reply->type != REDIS_REPLY_ARRAY)) {
+	if (sts < 0) {
+	    infofmt(msg, "expected array from %s %s (type=%s)",
+			SMEMBERS, sample_set->sid->name, redis_reply_type(reply));
+	    batoninfo(baton, PMLOG_RESPONSE, msg);
+	}
+	baton->error = -EPROTO;
+    } else if ((sts = series_store_metric_name(baton, sample_set, sample_set->sid->name,
+			reply->elements, reply->element)) < 0) {
+	baton->error = sts;
+    }
+    series_query_end_phase(baton);
+}
+
+static void
+series_node_get_metric_name(
+	seriesQueryBaton *baton, seriesGetSID *sid, series_sample_set_t *sample_set)
+{
+    sds cmd, key;
+
+    seriesBatonReference(baton, "series_node_get_metric_name");
+    key = sdscatfmt(sdsempty(), "pcp:metric.name:series:%S", sid->name);
+    cmd = redis_command(2);
+    cmd = redis_param_str(cmd, SMEMBERS, SMEMBERS_LEN);
+	cmd = redis_param_sds(cmd, key);
+	redisSlotsRequest(baton->slots, SMEMBERS, key, cmd,
+			series_node_get_metric_name_reply, sample_set);
+}
+
 /* 
  * Redis has returned replies about samples of series, save them into the corresponding node.
  */
@@ -1771,6 +1852,7 @@ series_node_prepare_time_reply(
 	/* Query for the desc of idx-th series */
 	np->value_set.series_values[idx].baton = baton;
 	series_node_get_desc(baton, sid->name, &np->value_set.series_values[idx]);
+	series_node_get_metric_name(baton, sid, &np->value_set.series_values[idx]);
 	
 	series_values_store_to_node(baton, sid->name, reply->elements, reply->element, np);
 	np->value_set.num_series++;
@@ -1888,7 +1970,7 @@ series_process_func(seriesQueryBaton *baton, node_t *np, int level)
 }
 
 static sds
-series_expr_canonical(node_t *np)
+series_expr_canonical(node_t *np, int idx)
 {
     sds		statement = sdsempty();
     if (np == NULL)
@@ -1901,36 +1983,36 @@ series_expr_canonical(node_t *np)
 	    statement = np->value;
 	    break;
 	case N_PLUS:
-	    statement = sdscatfmt(statement, "%s+%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
+	    statement = sdscatfmt(statement, "%s+%s", series_expr_canonical(np->left, idx), series_expr_canonical(np->right, idx));
 	    break;
 	case N_MINUS:
-	    statement = sdscatfmt(statement, "%s-%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
+	    statement = sdscatfmt(statement, "%s-%s", series_expr_canonical(np->left, idx), series_expr_canonical(np->right, idx));
 	    break;
 	case N_STAR:
-	    statement = sdscatfmt(statement, "%s*%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
+	    statement = sdscatfmt(statement, "%s*%s", series_expr_canonical(np->left, idx), series_expr_canonical(np->right, idx));
 	    break;
 	case N_SLASH:
-	    statement = sdscatfmt(statement, "%s/%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
+	    statement = sdscatfmt(statement, "%s/%s", series_expr_canonical(np->left, idx), series_expr_canonical(np->right, idx));
 	    break;
 	case N_AVG:
-	    statement = sdscatfmt(statement, "avg(%s)", series_expr_canonical(np->left));
+	    statement = sdscatfmt(statement, "avg(%s)", series_expr_canonical(np->left, idx));
 	    break;
 	case N_COUNT:
 	    break;
 	case N_DELTA:
 	    break;
 	case N_MAX:
-	    statement = sdscatfmt(statement, "max(%s)", series_expr_canonical(np->left));
+	    statement = sdscatfmt(statement, "max(%s)", series_expr_canonical(np->left, idx));
 	    break;
 	case N_MIN:
-	    statement = sdscatfmt(statement, "min(%s)", series_expr_canonical(np->left));
+	    statement = sdscatfmt(statement, "min(%s)", series_expr_canonical(np->left, idx));
 	    break;
 	case N_SUM:
 	    break;
 	case N_ANON:
 	    break;
 	case N_RATE:
-	    statement = sdscatfmt(statement, "rate(%s)", series_expr_canonical(np->left));
+	    statement = sdscatfmt(statement, "rate(%s)", series_expr_canonical(np->left, idx));
 	    break;
 	case N_INSTANT:
 	    break;
@@ -1938,37 +2020,39 @@ series_expr_canonical(node_t *np)
 	    statement = np->value;
 	    break;
 	case N_LT:
-	    statement = sdscatfmt(statement, "%s<%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
+	    //statement = sdscatfmt(statement, "%s<%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
 	    break;
 	case N_LEQ:
-	    statement = sdscatfmt(statement, "%s<=%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
+	    //statement = sdscatfmt(statement, "%s<=%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
 	    break;
 	case N_EQ:
-	    statement = sdscatfmt(statement, "%s==%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
+	    statement = sdscatfmt(statement, "%s==\"%s\"", series_expr_canonical(np->left, idx), series_expr_canonical(np->right, idx));
 	    break;
 	case N_GLOB:
-	    statement = sdscatfmt(statement, "%s~~%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
+	    //statement = sdscatfmt(statement, "%s~~%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
+	    statement = sdscatfmt(
+		statement, "%s==\"%s\"", series_expr_canonical(np->left, idx), np->value_set.series_values[idx].metric_name);
 	    break;
 	case N_GEQ:
-	    statement = sdscatfmt(statement, "%s>=%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
+	    //statement = sdscatfmt(statement, "%s>=%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
 	    break;
 	case N_GT:
-	    statement = sdscatfmt(statement, "%s>%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
+	    //statement = sdscatfmt(statement, "%s>%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
 	    break;
 	case N_NEQ:
-	    statement = sdscatfmt(statement, "%s!=%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
+	    //statement = sdscatfmt(statement, "%s!=%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
 	    break;
 	case N_AND:
-	    statement = sdscatfmt(statement, "%s&&%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
+	    //statement = sdscatfmt(statement, "%s&&%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
 	    break;
 	case N_OR:
-	    statement = sdscatfmt(statement, "%s||%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
+	    //statement = sdscatfmt(statement, "%s||%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
 	    break;
 	case N_REQ:
-	    statement = sdscatfmt(statement, "%s=~%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
+	    //statement = sdscatfmt(statement, "%s=~%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
 	    break;
 	case N_RNE:
-	    statement = sdscatfmt(statement, "%s!~%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
+	    //statement = sdscatfmt(statement, "%s!~%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
 	    break;
 	case N_NEG:
 	    break;
@@ -1976,7 +2060,7 @@ series_expr_canonical(node_t *np)
 	    statement = np->value;
 	    break;
 	case N_RESCALE:
-	    statement = sdscatfmt(statement, "rescale(%s,%s)", series_expr_canonical(np->left), series_expr_canonical(np->right));
+	    statement = sdscatfmt(statement, "rescale(%s,%s)", series_expr_canonical(np->left, idx), series_expr_canonical(np->right, idx));
 	    break;
 	case N_SCALE:
 	    statement = np->value;
@@ -1984,22 +2068,22 @@ series_expr_canonical(node_t *np)
 	case N_DEFINED:
 	    break;
 	case N_NOOP:
-	    statement = sdscatfmt(statement, "noop(%s)", series_expr_canonical(np->left));
+	    statement = sdscatfmt(statement, "noop(%s)", series_expr_canonical(np->left, idx));
 	    break;
 	case N_ABS:
-	    statement = sdscatfmt(statement, "abs(%s)", series_expr_canonical(np->left));
+	    statement = sdscatfmt(statement, "abs(%s)", series_expr_canonical(np->left, idx));
 	    break;
 	case N_FLOOR:
-	    statement = sdscatfmt(statement, "floor(%s)", series_expr_canonical(np->left));
+	    statement = sdscatfmt(statement, "floor(%s)", series_expr_canonical(np->left, idx));
 	    break;
 	case N_LOG:
-	    statement = sdscatfmt(statement, "log(%s,%s)", series_expr_canonical(np->left), series_expr_canonical(np->right));
+	    statement = sdscatfmt(statement, "log(%s,%s)", series_expr_canonical(np->left, idx), series_expr_canonical(np->right, idx));
 	    break;
 	case N_SQRT:
-	    statement = sdscatfmt(statement, "sqrt(%s)", series_expr_canonical(np->left));
+	    statement = sdscatfmt(statement, "sqrt(%s)", series_expr_canonical(np->left, idx));
 	    break;
 	case N_ROUND:
-	    statement = sdscatfmt(statement, "round(%s)", series_expr_canonical(np->left));
+	    statement = sdscatfmt(statement, "round(%s)", series_expr_canonical(np->left, idx));
 	    break;
 	default:
 	    break;
@@ -2008,10 +2092,11 @@ series_expr_canonical(node_t *np)
 }
 
 static sds
-series_function_hash(unsigned char *hash, node_t *np)
+series_function_hash(unsigned char *hash, node_t *np, int idx)
 {
     //SHA1_CTX	shactx;
-    sds			identifier = series_expr_canonical(np);
+    sds			identifier = series_expr_canonical(np, idx);
+    if (pmDebugOptions.query) printf("expression %s\n", identifier);
     SHA1_CTX		shactx;
     const char		prefix[] = "{\"series\":\"expr\",\"expr\":\"";
     const char		suffix[] = "\"}";
@@ -2050,8 +2135,6 @@ series_noop_traverse(seriesQueryBaton *baton, node_t *np, int level)
     if (np == NULL) {
 	return;
     }
-//     if (pmDebugOptions.query)
-// 	kyoma_debug_print_node(baton, np);
     series_noop_traverse(baton, np->left, level+1);
     series_noop_traverse(baton, np->right, level+1);
 }
@@ -2122,7 +2205,7 @@ series_calculate_rate(node_t *np)
 		}
 	    }
 	} else {
-	    infofmt(msg, "Semantics of '%s' is not counter\n", series_expr_canonical(np->left));
+	    infofmt(msg, "Semantics of '%s' is not counter\n", series_expr_canonical(np->left, i));
 	    batoninfo(baton, PMLOG_ERROR, msg);
 	    baton->error = -EPROTO;
 	    np->value_set.series_values[i].num_samples = -n_samples;
@@ -2671,7 +2754,7 @@ series_calculate_log(node_t *np)
 	    baton->error = -EPROTO;
 	    np->value_set.series_values[i].num_samples = -np->value_set.series_values[i].num_samples;
 	    return;
-	}	
+	}
 	for (int j = 0; j < np->value_set.series_values[i].num_samples; j++) {
 	    for (int k = 0; k < np->value_set.series_values[i].series_sample[j].num_instances; k++) {
 		if (series_extract_value(itype, 
@@ -3351,59 +3434,59 @@ series_calculate(seriesQueryBaton *baton, node_t *np, int level)
 	    /* Traverse the subtree of this node? */
 	    np->value_set = np->left->value_set;
 	    series_noop_traverse(baton, np, level);
-	    //sts = N_NOOP;
+	    sts = N_NOOP;
 	    break;
 	case N_RATE:
 	    series_calculate_rate(np);
-	    //sts = N_RATE;
+	    sts = N_RATE;
 	    break;
 	case N_MAX:
 	    series_calculate_max(np);
-	    //sts = N_MAX;
+	    sts = N_MAX;
 	    break;
 	case N_MIN:
 	    series_calculate_min(np);
-	    //sts = N_MIN;
+	    sts = N_MIN;
 	    break;
 	case N_RESCALE:
 	    series_calculate_rescale(np);
-	    //sts = N_RESCALE;
+	    sts = N_RESCALE;
 	    break;
 	case N_ABS:
 	    series_calculate_abs(np);
-	    //sts = N_ABS;
+	    sts = N_ABS;
 	    break;
 	case N_FLOOR:
 	    series_calculate_floor(np);
-	    //sts = N_FLOOR;
+	    sts = N_FLOOR;
 	    break;
 	case N_LOG:
 	    series_calculate_log(np);
-	    //sts = N_LOG;
+	    sts = N_LOG;
 	    break;
 	case N_SQRT:
 	    series_calculate_sqrt(np);
-	    //sts = N_SQRT;
+	    sts = N_SQRT;
 	    break;
 	case N_ROUND:
 	    series_calculate_round(np);
-	    //sts = N_ROUND;
+	    sts = N_ROUND;
 	    break;
 	case N_PLUS:
 	    series_calculate_plus(np);
-	    //sts = N_PLUS;
+	    sts = N_PLUS;
 	    break;
 	case N_MINUS:
 	    series_calculate_minus(np);
-	    //sts = N_MINUS;
+	    sts = N_MINUS;
 	    break;
 	case N_STAR:
 	    series_calculate_star(np);
-	    //sts = N_STAR;
+	    sts = N_STAR;
 	    break;
 	case N_SLASH:
 	    series_calculate_slash(np);
-	    //sts = N_SLASH;
+	    sts = N_SLASH;
 	    break;
 	default:
 	    break;
@@ -3415,6 +3498,7 @@ void dfs(node_t *np, int level){
     if(np==NULL) return;
     printf("level: %d, type: %d, key: %s, value: %s\n", level, np->type, np->key, np->value);
     printf("time %d, window.count: %s\n", np->time.count, np->time.window.count);
+    printf("num_series=%d\n\n", np->value_set.num_series);
     if(np->value_set.num_series != 0){
 	for(int i=0; i<np->value_set.num_series; i++){
 	    printf("series: %s\n", np->value_set.series_values[i].sid->name);
@@ -3430,13 +3514,27 @@ void dfs(node_t *np, int level){
 }
 
 static void
+series_redis_hash_expression(seriesQueryBaton *baton, char *hashbuf, int len_hashbuf)
+{
+    unsigned char	hash[20];
+    sds			key, value;
+    node_t		*np = &baton->u.query.root;
+    int			num_series = np->value_set.num_series;
+
+    for (int i = 0; i < num_series; i++) {
+	value = series_function_hash(hash, np, i);
+	pmwebapi_hash_str(hash, hashbuf, len_hashbuf);
+	key = sdscatfmt(sdsempty(), "pcp:expr:%s", hashbuf);
+	//series_set_function_expr(baton, key, value);
+    }
+}
+
+static void
 series_query_report_values(void *arg)
 {
     seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
     int			has_function = 0;
     char		hashbuf[42];
-    unsigned char	hash[20];
-    sds			key, value;
 
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_query_report_values");
     seriesBatonCheckCount(baton, "series_query_report_values");
@@ -3449,12 +3547,9 @@ series_query_report_values(void *arg)
     has_function = series_calculate(baton, &baton->u.query.root, 0);
 
     /* Store the canonical query to Redis if this query statement has function oepration */
-    if (has_function != 0) {
-	value = series_function_hash(hash, &baton->u.query.root);
-	pmwebapi_hash_str(hash, hashbuf, sizeof(hashbuf));
-	key = sdscatfmt(sdsempty(), "pcp:expr:%s", hashbuf);
-	series_set_function_expr(baton, key, value);
-    }
+    if (has_function != 0)
+	series_redis_hash_expression(baton, hashbuf, sizeof(hashbuf));
+
     // time series values have been saved in root node so report them directly.
     series_node_values_report(baton, &baton->u.query.root, has_function, hashbuf);
 //    series_prepare_time(baton, &baton->u.query.root.result);
@@ -3541,6 +3636,7 @@ series_solve(pmSeriesSettings *settings,
 	/* Report matching series IDs, unless time windowing */
 	baton->phases[i++].func = series_query_report_matches;
     else{
+	baton->phases[i++].func = series_query_mapping;
 	/* Store time series values into nodes */
 	baton->phases[i++].func = series_query_funcs;
 	/* Report actual values */
@@ -4342,6 +4438,52 @@ series_lookup_mapping(void *arg)
     cmd = redis_param_sds(cmd, key);
     redisSlotsRequest(baton->slots, HGETALL, key, cmd,
 			redis_lookup_mapping_callback, baton);
+}
+
+static void
+series_query_mapping_callback(
+	redisAsyncContext *c, redisReply *reply, const sds cmd, void *arg)
+{
+    seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
+    sds			msg;
+    int			sts;
+
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_query_mapping_callback");
+    sts = redisSlotsRedirect(baton->slots, reply, baton->info, baton->userdata,
+			     cmd, series_query_mapping_callback, arg);
+    if (sts > 0)
+	return;	/* short-circuit as command was re-submitted */
+
+    /* unpack - produce reverse map of ids-to-names for each context */
+    if (LIKELY(reply && reply->type == REDIS_REPLY_ARRAY)) {
+	reverse_map(baton, namesmap, reply->elements, reply->element);
+    } else {
+	if (sts < 0) {
+	    infofmt(msg, "expected array from %s %s (type=%s)",
+		    HGETALL, "pcp:map:context.name", redis_reply_type(reply));
+	    batoninfo(baton, PMLOG_RESPONSE, msg);
+	}
+	baton->error = -EPROTO;
+    }
+
+    series_query_end_phase(baton);
+}
+
+static void
+series_query_mapping(void *arg){
+    seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
+    sds			cmd, key;
+
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_query_mapping");
+    seriesBatonCheckCount(baton, "series_query_mapping");
+    seriesBatonReference(baton, "series_query_mapping");
+
+    key = sdsnew("pcp:map:metric.name");
+    cmd = redis_command(2);
+    cmd = redis_param_str(cmd, HGETALL, HGETALL_LEN);
+    cmd = redis_param_sds(cmd, key);
+    redisSlotsRequest(baton->slots, HGETALL, key, cmd,
+			series_query_mapping_callback, baton);
 }
 
 static void
