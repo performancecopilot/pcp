@@ -17,7 +17,7 @@
 .TH PMREGISTERDERIVED 3 "" "Performance Co-Pilot"
 .SH NAME
 \f3pmRegisterDerived\f1,
-\f3pmRegisterDerivedMetric\f1  \- register a derived metric name and definition
+\f3pmRegisterDerivedMetric\f1  \- register a global derived metric name and definition
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
@@ -83,20 +83,29 @@ or re-established with
 at which time the PMNS and metadata is available to
 allow semantic checking and the metadata of the derived metrics
 to be determined.
-This means
+.PP
+If
 .B pmRegisterDerived
-does not apply retrospectively to any open PMAPI contexts, nor
-to any PMAPI contexts already open at the time
-.B pmRegisterDerived
-is called, so the normal
+is called after one or more PMAPI contexts has been opened, then
+the newly registered metrics will be avaiable in those contexts,
+however the more normal
 use would be to make all calls to
 .B pmRegisterDerived
 (possibly via
 .BR pmLoadDerivedConfig (3))
 or
 .B pmRegisterDerivedMetric
-and then call
+before calling
 .BR pmNewContext (3).
+.PP
+All of the defined global derived metrics are available in all PMAPI contexts.
+.PP
+It is also possible to define per-context derived metrics once a
+PMAPI context has been establised.  These derived metrics are private
+to the context in which they are defined using the allied routines
+.BR pmAddDerived (3)
+and
+.BR pmAddDerivedMetric (3).
 .PP
 .I name
 should follow the syntactic rules for the names of performance metrics,
@@ -864,6 +873,8 @@ to release the space allocated for
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR free (3),
+.BR pmAddDerived (3),
+.BR pmAddDerivedMetric (3),
 .BR PMAPI (3),
 .BR pmDerivedErrStr (3),
 .BR pmFetch (3),
