@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 1260
-# exercise pmControlDerived()
+# exercise pm{Get,Set}DerivedControl()
 #
 # Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
 #
