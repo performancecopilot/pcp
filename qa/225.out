@@ -496,7 +496,7 @@ pmRegisterDerived: name="myname.a" expr="dup.name.a"
 [TMP.config:14] Error: pmRegisterDerived(myname.a, ...) syntax error
  dup.name.a
  ^         
-Duplicate derived metric name
+Duplicate global derived metric name
 pmRegisterDerived: name="myname.h" expr="4294967296"
 derive_lex() -> type=L_ERROR "4294967296"
 [TMP.config:15] Error: pmRegisterDerived(myname.h, ...) syntax error
