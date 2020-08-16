@@ -703,3 +703,11 @@ PCP_3.28 {
     __pmServerNotifyServiceManagerReady;
     __pmServerNotifyServiceManagerStopping;
 } PCP_3.27;
+
+PCP_3.29 {
+  global:
+    pmAddDerivedMetric;
+    pmAddDerived;
+    pmGetDerivedControl;
+    pmSetDerivedControl;
+} PCP_3.28;
