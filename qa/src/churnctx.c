@@ -22,6 +22,10 @@ static char	**instname = NULL;
 static int	*inst = NULL;
 static pmInDom	indom;
 
+static char	*dm_config = NULL;	/* per-context derived metrics */
+
+extern int add_ctx_dm(char *);
+
 void
 dometric(const char *new_name)
 {
@@ -114,11 +118,10 @@ main(int argc, char **argv)
 
     /* trim cmd name of leading directory components */
     pmSetProgname(argv[0]);
+    setlinebuf(stdout);
+    setlinebuf(stderr);
 
-    setvbuf(stdout, NULL, _IONBF, 0);
-    setvbuf(stderr, NULL, _IONBF, 0);
-
-    while ((c = getopt(argc, argv, "a:A:c:D:df:h:i:l:Ln:O:s:S:t:T:U:vzZ:?")) != EOF) {
+    while ((c = getopt(argc, argv, "a:A:c:C:D:df:h:i:l:Ln:O:s:S:t:T:U:vzZ:?")) != EOF) {
 	switch (c) {
 
 	case 'a':	/* archive name */
@@ -141,6 +144,10 @@ main(int argc, char **argv)
 	    }
 	    configfile = optarg;
 	    break;	
+
+	case 'C':	/* per-context derived metrics config file */
+	    dm_config = optarg;
+	    break;
 
 	case 'D':	/* debug options */
 	    sts = pmSetDebug(optarg);
@@ -340,6 +347,13 @@ Options:\n\
 	exit(1);
     }
 
+    if (dm_config != NULL) {
+	if (add_ctx_dm(dm_config) < 0) {
+	    /* fatal error reported earlier */
+	    exit(1);
+	}
+    }
+
     if (type == PM_CONTEXT_ARCHIVE) {
 	if ((sts = pmGetArchiveLabel(&label)) < 0) {
 	    fprintf(stderr, "%s: Cannot get archive label record: %s\n",
@@ -426,6 +440,13 @@ Options:\n\
 
 	    }
 
+	    if (dm_config != NULL) {
+		if (add_ctx_dm(dm_config) < 0) {
+		    /* fatal error reported earlier */
+		    exit(1);
+		}
+	    }
+
 	    if ((sts = pmDestroyContext(ctx)) < 0) {
 		fprintf(stderr, "%s: pmDestroyContex failed: %s\n", pmGetProgname(), pmErrStr(sts));
 		exit(1);
@@ -438,8 +459,11 @@ Options:\n\
 	    ctx = new_ctx;
 	}
 
+	fflush(stdout);
+	fflush(stderr);
 	/* dump out PDU buffer pool state */
 	__pmFindPDUBuf(-1);
+	fflush(stderr);
 
 	/* check for outrageous memory leaks */
 	__pmProcessDataSize(&check);

@@ -31,14 +31,16 @@ static pmLongOptions longopts[] = {
     PMOPT_ARCHIVE,	/* -a */
     { PMLONGOPT_DEBUG,      1, 'D', "OPTS", "set pmDebug options" },
     PMOPT_HOST,		/* -h */
+    { "control", 0, 'c', "play pm{Set,Get}DerivedControl() games" },
+    { "globlimit", 1, 'l', "limit max # of global derived metrics" },
+    { "ctxlimit", 1, 'L', "limit max # of per-context derived metrics" },
     { "private", 0, 'P', "use per-context (private) registration" },
     PMOPT_HELP,		/* -? */
     PMAPI_OPTIONS_END
 };
 
 static pmOptions opts = {
-    .flags = PM_OPTFLAG_BOUNDARIES | PM_OPTFLAG_STDOUT_TZ,
-    .short_options = PMAPI_OPTIONS "P",
+    .short_options = "a:cD:h:l:M:P?",
     .long_options = longopts,
     .short_usage = "[options] metricname ...",
 };
@@ -143,20 +145,21 @@ do_work()
 	    else {
 		putchar('\n');
 		pmPrintDesc(stdout, &desclist[m]);
-		/* only deal with valid PMIDs from here on, this one is OK */
-		pmidlist[j++] = pmidlist[m];
+		j++;
 	    }
 	}
 	if (j == 0) {
 	    printf("ctx[%d]: No valid PMIDs, nothing to fetch\n", c);
 	    continue;
 	}
-	sts = pmFetch(j, pmidlist, &rp);
+	sts = pmFetch(numnames, pmidlist, &rp);
 	if (sts < 0) {
 	    printf("ctx[%d]: pmFetch: %s, skip work\n", c, pmErrStr(sts));
 	    continue;
 	}
-	for (m = 0; m < j; m++) {
+	for (m = 0; m < numnames; m++) {
+	    if (pmidlist[m] == PM_ID_NULL)
+		continue;
 	    printf("ctx[%d]: %s: ", c, namelist[m]);
 	    if (rp->vset[m]->numval < 0)
 		printf("%s\n", pmErrStr(rp->vset[m]->numval));
@@ -179,18 +182,61 @@ do_work()
 	do_first = 0;
 }
 
+void
+set_context_limit(int limit)
+{
+    int	sts;
+    int	c;
+    int ctx = pmWhichContext();
+
+    sts = pmGetDerivedControl(PCP_DERIVED_CONTEXT_LIMIT, &c);
+    if (sts < 0)
+	printf("ctx %d: pmGetDerivedControl(PCP_DERIVED_CONTEXT_LIMIT, ...): %s\n", ctx, pmErrStr(sts));
+    else
+	printf("Context %d limit was: %d\n", ctx, c);
+    sts = pmSetDerivedControl(PCP_DERIVED_CONTEXT_LIMIT, limit);
+    if (sts < 0)
+	printf("ctx %d: pmSetDerivedControl(PCP_DERIVED_CONTEXT_LIMIT, %d %s\n", ctx, limit, pmErrStr(sts));
+    sts = pmGetDerivedControl(PCP_DERIVED_CONTEXT_LIMIT, &c);
+    if (sts < 0)
+	printf("ctx %d: pmGetDerivedControl(PCP_DERIVED_CONTEXT_LIMIT, ...): %s\n", ctx, pmErrStr(sts));
+    else
+	printf("Context %d limit now: %d\n", ctx, c);
+}
+
 int
 main(int argc, char **argv)
 {
     int		c;
     char	*p;
     int		sts;
+    int		cflag = 0;
+    int		lflag = 0;
+    int		Mflag = 0;
     int		Pflag = 0;
+    int		limit;
+    int		Limit;
 
     pmSetProgname(argv[0]);
+    setlinebuf(stdout);
+    setlinebuf(stderr);
 
     while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {
+
+	case 'c':
+	    cflag++;
+	    break;
+
+	case 'l':
+	    lflag++;
+	    limit = atoi(opts.optarg);
+	    break;
+
+	case 'M':
+	    Mflag++;
+	    Limit = atoi(opts.optarg);
+	    break;
 
 	case 'P':	/* use private per-context registrations */
 	    Pflag++;
@@ -203,6 +249,22 @@ main(int argc, char **argv)
 	pmflush();
 	pmUsageMessage(&opts);
 	exit(0);
+    }
+
+    if (lflag) {
+	sts = pmGetDerivedControl(PCP_DERIVED_GLOBAL_LIMIT, &c);
+	if (sts < 0)
+	    printf("pmGetDerivedControl(PCP_DERIVED_GLOBAL_LIMIT, ...): %s\n", pmErrStr(sts));
+	else
+	    printf("Global limit was: %d\n", c);
+	sts = pmSetDerivedControl(PCP_DERIVED_GLOBAL_LIMIT, limit);
+	if (sts < 0)
+	    printf("pmSetDerivedControl(PCP_DERIVED_GLOBAL_LIMIT, %d %s\n", limit, pmErrStr(sts));
+	sts = pmGetDerivedControl(PCP_DERIVED_GLOBAL_LIMIT, &c);
+	if (sts < 0)
+	    printf("pmGetDerivedControl(PCP_DERIVED_GLOBAL_LIMIT, ...): %s\n", pmErrStr(sts));
+	else
+	    printf("Global limit now: %d\n", c);
     }
 
     if (opts.narchives == 1) {
@@ -275,6 +337,8 @@ main(int argc, char **argv)
 	printf("pmDupContext: %s\n", pmErrStr(sts));
 	exit(1);
     }
+    if (Mflag && Pflag)
+	set_context_limit(Limit);
     do_work();
 
     /*
@@ -286,10 +350,39 @@ main(int argc, char **argv)
 	printf("ctx[0]: pmUseContext: %s\n", pmErrStr(sts));
 	exit(1);
     }
-    sts = pmRegisterDerivedMetric(namelist[0], "sample.bin - 50", &p);
+    if (cflag) {
+	sts = pmSetDerivedControl(PCP_DERIVED_DEBUG_SYNTAX, 1);
+	if (sts < 0)
+	    printf("ctx[0]: pmSetDerivedControl(PCP_DERIVED_DEBUG_SYNTAX, ...): %s\n", pmErrStr(sts));
+	sts = pmGetDerivedControl(PCP_DERIVED_DEBUG_SYNTAX, &c);
+	if (sts < 0)
+	    printf("ctx[0]: pmGetDerivedControl(PCP_DERIVED_DEBUG_SYNTAX, ...): %s\n", pmErrStr(sts));
+	else {
+	    if (c != 1)
+		printf("ctx[0]: pmGetDerivedControl(PCP_DERIVED_DEBUG_SYNTAX, ...) -> %d not 1 as expected\n", c);
+	    printf("ctx[0]: DEBUG_SYNTAX=%d (derive=%d appl0=%d)\n", c, pmDebugOptions.derive, pmDebugOptions.appl0);
+	}
+    }
+    if (Pflag)
+	sts = pmAddDerivedMetric(namelist[0], "sample.bin - 50", &p);
+    else
+	sts = pmRegisterDerivedMetric(namelist[0], "sample.bin - 50", &p);
     if (sts < 0) {
 	printf("%s: %s\n", namelist[0], p);
 	free(p);
+    }
+    if (cflag) {
+	sts = pmSetDerivedControl(PCP_DERIVED_DEBUG_SYNTAX, 0);
+	if (sts < 0)
+	    printf("ctx[0]: pmSetDerivedControl(PCP_DERIVED_DEBUG_SYNTAX, ...): %s\n", pmErrStr(sts));
+	sts = pmGetDerivedControl(PCP_DERIVED_DEBUG_SYNTAX, &c);
+	if (sts < 0)
+	    printf("ctx[0]: pmGetDerivedControl(PCP_DERIVED_DEBUG_SYNTAX, ...): %s\n", pmErrStr(sts));
+	else {
+	    if (c != 0)
+	    printf("ctx[0]: pmGetDerivedControl(PCP_DERIVED_DEBUG_SYNTAX, -> %d not 1 as expected\n", c);
+	    printf("ctx[0]: DEBUG_SYNTAX=%d (derive=%d appl0=%d)\n", c, pmDebugOptions.derive, pmDebugOptions.appl0);
+	}
     }
     do_work();
 
@@ -303,17 +396,49 @@ main(int argc, char **argv)
 	printf("ctx[1]: pmUseContext: %s\n", pmErrStr(sts));
 	exit(1);
     }
-    sts = pmRegisterDerivedMetric(namelist[1], "sample.long.ten + sample.long.one * 3", &p);
+    if (cflag) {
+	sts = pmSetDerivedControl(PCP_DERIVED_DEBUG_SEMANTICS, 1);
+	if (sts < 0)
+	    printf("ctx[1]: pmSetDerivedControl(PCP_DERIVED_DEBUG_SEMANTICS, ...): %s\n", pmErrStr(sts));
+	sts = pmGetDerivedControl(PCP_DERIVED_DEBUG_SEMANTICS, &c);
+	if (sts < 0)
+	    printf("ctx[1]: pmGetDerivedControl(PCP_DERIVED_DEBUG_SEMANTICS, ...): %s\n", pmErrStr(sts));
+	else {
+	    if (c != 1)
+		printf("ctx[1]: pmGetDerivedControl(PCP_DERIVED_DEBUG_SEMANTICS, ...) -> %d not 1 as expected\n", c);
+	    printf("ctx[1]: DEBUG_SEMANTICS=%d (derive=%d appl1=%d)\n", c, pmDebugOptions.derive, pmDebugOptions.appl1);
+	}
+    }
+    if (Pflag)
+	sts = pmAddDerivedMetric(namelist[1], "sample.long.ten + sample.long.one * 3", &p);
+    else
+	sts = pmRegisterDerivedMetric(namelist[1], "sample.long.ten + sample.long.one * 3", &p);
     if (sts < 0) {
 	printf("%s: %s\n", namelist[1], p);
 	free(p);
     }
-    sts = pmRegisterDerivedMetric(namelist[2], "sample.string.hullo", &p);
+    if (Pflag)
+	sts = pmAddDerivedMetric(namelist[2], "sample.string.hullo", &p);
+    else
+	sts = pmRegisterDerivedMetric(namelist[2], "sample.string.hullo", &p);
     if (sts < 0) {
 	printf("%s: %s\n", namelist[2], p);
 	free(p);
     }
     do_work();
+    if (cflag) {
+	sts = pmSetDerivedControl(PCP_DERIVED_DEBUG_SEMANTICS, 0);
+	if (sts < 0)
+	    printf("ctx[0]: pmSetDerivedControl(PCP_DERIVED_DEBUG_SEMANTICS, ...): %s\n", pmErrStr(sts));
+	sts = pmGetDerivedControl(PCP_DERIVED_DEBUG_SEMANTICS, &c);
+	if (sts < 0)
+	    printf("ctx[1]: pmGetDerivedControl(PCP_DERIVED_DEBUG_SEMANTICS, ...): %s\n", pmErrStr(sts));
+	else {
+	    if (c != 0)
+		printf("ctx[1]: pmGetDerivedControl(PCP_DERIVED_DEBUG_SEMANTICS, ...) -> %d not 1 as expected\n", c);
+	    printf("ctx[1]: DEBUG_SEMANTICS=%d (derive=%d appl1=%d)\n", c, pmDebugOptions.derive, pmDebugOptions.appl1);
+	}
+    }
 
     /* 5. destroy ctx[0] */
     printf("\n=== State 5 ===\n");
@@ -330,17 +455,26 @@ main(int argc, char **argv)
      *    == 42, sample.bin[] - sample.bin[], and 123456
      */
     printf("\n=== State 6 ===\n");
-    sts = pmRegisterDerivedMetric(namelist[3], "5*sample.long.ten - 8*sample.long.one", &p);
+    if (Pflag)
+	sts = pmAddDerivedMetric(namelist[3], "5*sample.long.ten - 8*sample.long.one", &p);
+    else
+	sts = pmRegisterDerivedMetric(namelist[3], "5*sample.long.ten - 8*sample.long.one", &p);
     if (sts < 0) {
 	printf("%s: %s\n", namelist[3], p);
 	free(p);
     }
-    sts = pmRegisterDerivedMetric(namelist[4], "sample.bin - sample.bin", &p);
+    if (Pflag)
+	sts = pmAddDerivedMetric(namelist[4], "sample.bin - sample.bin", &p);
+    else
+	sts = pmRegisterDerivedMetric(namelist[4], "sample.bin - sample.bin", &p);
     if (sts < 0) {
 	printf("%s: %s\n", namelist[4], p);
 	free(p);
     }
-    sts = pmRegisterDerivedMetric(namelist[5], "123456", &p);
+    if (Pflag)
+	sts = pmAddDerivedMetric(namelist[5], "123456", &p);
+    else
+	sts = pmRegisterDerivedMetric(namelist[5], "123456", &p);
     if (sts < 0) {
 	printf("%s: %s\n", namelist[5], p);
 	free(p);
@@ -349,12 +483,40 @@ main(int argc, char **argv)
 
     /* 7. dup ctx[1] -> ctx[0] */
     printf("\n=== State 7 ===\n");
+    if (cflag) {
+	sts = pmSetDerivedControl(PCP_DERIVED_DEBUG_PMNS, 1);
+	if (sts < 0)
+	    printf("ctx[1]: pmSetDerivedControl(PCP_DERIVED_DEBUG_PMNS, ...): %s\n", pmErrStr(sts));
+	sts = pmGetDerivedControl(PCP_DERIVED_DEBUG_PMNS, &c);
+	if (sts < 0)
+	    printf("ctx[1]: pmGetDerivedControl(PCP_DERIVED_DEBUG_PMNS, ...): %s\n", pmErrStr(sts));
+	else {
+	    if (c != 1)
+		printf("ctx[1]: pmGetDerivedControl(PCP_DERIVED_DEBUG_PMNS, ...) -> %d not 1 as expected\n", c);
+	    printf("ctx[1]: DEBUG_PMNS=%d (derive=%d appl2=%d)\n", c, pmDebugOptions.derive, pmDebugOptions.appl2);
+	}
+    }
     sts = ctx[0] = pmDupContext();
     if (sts < 0) {
 	printf("pmDupContext: %s\n", pmErrStr(sts));
 	exit(1);
     }
+    if (Mflag && Pflag)
+	set_context_limit(Limit);
     do_work();
+    if (cflag) {
+	sts = pmSetDerivedControl(PCP_DERIVED_DEBUG_PMNS, 0);
+	if (sts < 0)
+	    printf("ctx[0]: pmSetDerivedControl(PCP_DERIVED_DEBUG_PMNS, ...): %s\n", pmErrStr(sts));
+	sts = pmGetDerivedControl(PCP_DERIVED_DEBUG_PMNS, &c);
+	if (sts < 0)
+	    printf("ctx[1]: pmGetDerivedControl(PCP_DERIVED_DEBUG_PMNS, ...): %s\n", pmErrStr(sts));
+	else {
+	    if (c != 0)
+		printf("ctx[1]: pmGetDerivedControl(PCP_DERIVED_DEBUG_PMNS, ...) -> %d not 1 as expected\n", c);
+	    printf("ctx[1]: DEBUG_PMNS=%d (derive=%d appl2=%d)\n", c, pmDebugOptions.derive, pmDebugOptions.appl2);
+	}
+    }
 
     /* 8. destroy ctx[1] */
     printf("\n=== State 8 ===\n");

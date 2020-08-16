@@ -644,6 +644,16 @@ units-parse: units-parse.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ units-parse.c $(LDLIBS)
 
+# --- need add_ctx_dm()
+#
+grind_ctx:	grind_ctx.o addctxdm.o
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $^ $(LDLIBS)
+
+churnctx:	churnctx.o addctxdm.o
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $^ $(LDLIBS)
+
 # --- miscellaneous
 #
 qa_timezone.$(DSOSUFFIX):	qa_timezone.o
