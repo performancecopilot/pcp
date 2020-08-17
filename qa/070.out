@@ -21,9 +21,9 @@ General options:
                         end of the time window
   -t DELTA, --interval=DELTA
                         sampling interval
+  -V, --version         display version number and exit
   -Z TZ, --timezone=TZ  set reporting timezone
   -z, --hostzone        set reporting timezone to local time of metrics source
-  -V, --version         display version number and exit
   -?, --help            show this usage message and exit
   -H FILE, --hostsfile=FILE
                         read metric source hosts from a file
@@ -64,9 +64,9 @@ General options:
                         end of the time window
   -t DELTA, --interval=DELTA
                         sampling interval
+  -V, --version         display version number and exit
   -Z TZ, --timezone=TZ  set reporting timezone
   -z, --hostzone        set reporting timezone to local time of metrics source
-  -V, --version         display version number and exit
   -?, --help            show this usage message and exit
   -H FILE, --hostsfile=FILE
                         read metric source hosts from a file
@@ -107,9 +107,9 @@ General options:
                         end of the time window
   -t DELTA, --interval=DELTA
                         sampling interval
+  -V, --version         display version number and exit
   -Z TZ, --timezone=TZ  set reporting timezone
   -z, --hostzone        set reporting timezone to local time of metrics source
-  -V, --version         display version number and exit
   -?, --help            show this usage message and exit
   -H FILE, --hostsfile=FILE
                         read metric source hosts from a file
@@ -150,9 +150,9 @@ General options:
                         end of the time window
   -t DELTA, --interval=DELTA
                         sampling interval
+  -V, --version         display version number and exit
   -Z TZ, --timezone=TZ  set reporting timezone
   -z, --hostzone        set reporting timezone to local time of metrics source
-  -V, --version         display version number and exit
   -?, --help            show this usage message and exit
   -H FILE, --hostsfile=FILE
                         read metric source hosts from a file
@@ -193,9 +193,9 @@ General options:
                         end of the time window
   -t DELTA, --interval=DELTA
                         sampling interval
+  -V, --version         display version number and exit
   -Z TZ, --timezone=TZ  set reporting timezone
   -z, --hostzone        set reporting timezone to local time of metrics source
-  -V, --version         display version number and exit
   -?, --help            show this usage message and exit
   -H FILE, --hostsfile=FILE
                         read metric source hosts from a file
@@ -236,9 +236,9 @@ General options:
                         end of the time window
   -t DELTA, --interval=DELTA
                         sampling interval
+  -V, --version         display version number and exit
   -Z TZ, --timezone=TZ  set reporting timezone
   -z, --hostzone        set reporting timezone to local time of metrics source
-  -V, --version         display version number and exit
   -?, --help            show this usage message and exit
   -H FILE, --hostsfile=FILE
                         read metric source hosts from a file
@@ -279,9 +279,9 @@ General options:
                         end of the time window
   -t DELTA, --interval=DELTA
                         sampling interval
+  -V, --version         display version number and exit
   -Z TZ, --timezone=TZ  set reporting timezone
   -z, --hostzone        set reporting timezone to local time of metrics source
-  -V, --version         display version number and exit
   -?, --help            show this usage message and exit
   -H FILE, --hostsfile=FILE
                         read metric source hosts from a file
@@ -322,9 +322,9 @@ General options:
                         end of the time window
   -t DELTA, --interval=DELTA
                         sampling interval
+  -V, --version         display version number and exit
   -Z TZ, --timezone=TZ  set reporting timezone
   -z, --hostzone        set reporting timezone to local time of metrics source
-  -V, --version         display version number and exit
   -?, --help            show this usage message and exit
   -H FILE, --hostsfile=FILE
                         read metric source hosts from a file
@@ -365,9 +365,9 @@ General options:
                         end of the time window
   -t DELTA, --interval=DELTA
                         sampling interval
+  -V, --version         display version number and exit
   -Z TZ, --timezone=TZ  set reporting timezone
   -z, --hostzone        set reporting timezone to local time of metrics source
-  -V, --version         display version number and exit
   -?, --help            show this usage message and exit
   -H FILE, --hostsfile=FILE
                         read metric source hosts from a file
@@ -408,9 +408,9 @@ General options:
                         end of the time window
   -t DELTA, --interval=DELTA
                         sampling interval
+  -V, --version         display version number and exit
   -Z TZ, --timezone=TZ  set reporting timezone
   -z, --hostzone        set reporting timezone to local time of metrics source
-  -V, --version         display version number and exit
   -?, --help            show this usage message and exit
   -H FILE, --hostsfile=FILE
                         read metric source hosts from a file
@@ -451,9 +451,9 @@ General options:
                         end of the time window
   -t DELTA, --interval=DELTA
                         sampling interval
+  -V, --version         display version number and exit
   -Z TZ, --timezone=TZ  set reporting timezone
   -z, --hostzone        set reporting timezone to local time of metrics source
-  -V, --version         display version number and exit
   -?, --help            show this usage message and exit
   -H FILE, --hostsfile=FILE
                         read metric source hosts from a file
@@ -494,9 +494,9 @@ General options:
                         end of the time window
   -t DELTA, --interval=DELTA
                         sampling interval
+  -V, --version         display version number and exit
   -Z TZ, --timezone=TZ  set reporting timezone
   -z, --hostzone        set reporting timezone to local time of metrics source
-  -V, --version         display version number and exit
   -?, --help            show this usage message and exit
   -H FILE, --hostsfile=FILE
                         read metric source hosts from a file
@@ -537,9 +537,9 @@ General options:
                         end of the time window
   -t DELTA, --interval=DELTA
                         sampling interval
+  -V, --version         display version number and exit
   -Z TZ, --timezone=TZ  set reporting timezone
   -z, --hostzone        set reporting timezone to local time of metrics source
-  -V, --version         display version number and exit
   -?, --help            show this usage message and exit
   -H FILE, --hostsfile=FILE
                         read metric source hosts from a file
@@ -580,9 +580,9 @@ General options:
                         end of the time window
   -t DELTA, --interval=DELTA
                         sampling interval
+  -V, --version         display version number and exit
   -Z TZ, --timezone=TZ  set reporting timezone
   -z, --hostzone        set reporting timezone to local time of metrics source
-  -V, --version         display version number and exit
   -?, --help            show this usage message and exit
   -H FILE, --hostsfile=FILE
                         read metric source hosts from a file
@@ -623,9 +623,9 @@ General options:
                         end of the time window
   -t DELTA, --interval=DELTA
                         sampling interval
+  -V, --version         display version number and exit
   -Z TZ, --timezone=TZ  set reporting timezone
   -z, --hostzone        set reporting timezone to local time of metrics source
-  -V, --version         display version number and exit
   -?, --help            show this usage message and exit
   -H FILE, --hostsfile=FILE
                         read metric source hosts from a file

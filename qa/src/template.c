@@ -6,6 +6,7 @@
 #include <pcp/pmapi.h>
 
 static pmLongOptions longopts[] = {
+    PMAPI_OPTIONS_HEADER("General options"),
     PMOPT_ALIGN,	/* -A */
     PMOPT_ARCHIVE,	/* -a */
     PMOPT_DEBUG,	/* -D */
@@ -38,7 +39,7 @@ static pmLongOptions longopts[] = {
 static int overrides(int, pmOptions *);
 static pmOptions opts = {
     .flags = PM_OPTFLAG_BOUNDARIES | PM_OPTFLAG_STDOUT_TZ,
-    .short_options = PMAPI_OPTIONS "H:K:LN:c:fi:l:",
+    .short_options = "A:a:D:gh:n:O:p:S:s:T:t:VZ:z?" "H:K:LN:c:fi:l:",
     .long_options = longopts,
     .short_usage = "[options] ...",
     .override = overrides,
