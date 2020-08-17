@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014,2016 Red Hat.
+ * Copyright (c) 2014,2016,2020 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -56,10 +56,8 @@ netstat_fields_t netstat_ip_fields[] = {
      .offset = &_pm_proc_net_netstat.ip[_PM_NETSTAT_IPEXT_ECT0PKTS] },
     { .field = "InCEPkts",
      .offset = &_pm_proc_net_netstat.ip[_PM_NETSTAT_IPEXT_CEPKTS] },
-
     { .field = NULL, .offset = NULL }
 };
-
 
 netstat_fields_t netstat_tcp_fields[] = {
     { .field = "SyncookiesSent",
@@ -264,9 +262,39 @@ netstat_fields_t netstat_tcp_fields[] = {
      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPSYNRETRANS] },
     { .field = "TCPOrigDataSent",
      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPORIGDATASENT] },
-
     { .field = NULL, .offset = NULL }
 };
+
+netstat_fields_t netstat_mptcp_fields[] = {
+    { .field = "MPCapableSYNRX",
+     .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPCAPABLESYNRX] },
+    { .field = "MPCapableACKRX",
+     .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPCAPABLEACKRX] },
+    { .field = "MPCapableFallbackACK",
+     .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPCAPABLEFALLBACKACK] },
+    { .field = "MPCapableFallbackSYNACK",
+     .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPCAPABLEFALLBACKSYNACK] },
+    { .field = "MPTCPRetrans",
+     .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPTCPRETRANS] },
+    { .field = "MPJoinNoTokenFound",
+     .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPJOINNOTOKENFOUND] },
+    { .field = "MPJoinSynRx",
+     .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPJOINSYNRX] },
+    { .field = "MPJoinSynAckRx",
+     .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPJOINSYNACKRX] },
+    { .field = "MPJoinSynAckHMacFailure",
+     .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPJOINSYNACKHMACFAILURE] },
+    { .field = "MPJoinAckRx",
+     .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPJOINACKRX] },
+    { .field = "MPJoinAckHMacFailure",
+     .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPJOINACKHMACFAILURE] },
+    { .field = "DSSNotMatching",
+     .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_DSSNOTMATCHING] },
+    { .field = "InfiniteMapRx",
+     .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_INFINITEMAPRX] },
+    { .field = NULL, .offset = NULL }
+};
+
 
 static void
 get_fields(netstat_fields_t *fields, char *header, char *buffer)
@@ -315,6 +343,8 @@ get_fields(netstat_fields_t *fields, char *header, char *buffer)
     (__psint_t)netstat_ip_fields[ii].offset - (__psint_t)&_pm_proc_net_netstat.ip)
 #define NETSTAT_TCP_OFFSET(ii, pp) (int64_t *)((char *)pp + \
     (__psint_t)netstat_tcp_fields[ii].offset - (__psint_t)&_pm_proc_net_netstat.tcp)
+#define NETSTAT_MPTCP_OFFSET(ii, pp) (int64_t *)((char *)pp + \
+    (__psint_t)netstat_mptcp_fields[ii].offset - (__psint_t)&_pm_proc_net_netstat.mptcp)
 
 static void
 init_refresh_proc_net_netstat(proc_net_netstat_t *netstat)
@@ -326,6 +356,8 @@ init_refresh_proc_net_netstat(proc_net_netstat_t *netstat)
 	*(NETSTAT_IP_OFFSET(i, netstat->ip)) = -1;
     for (i = 0; netstat_tcp_fields[i].field != NULL; i++)
 	*(NETSTAT_TCP_OFFSET(i, netstat->tcp)) = -1;
+    for (i = 0; netstat_mptcp_fields[i].field != NULL; i++)
+	*(NETSTAT_MPTCP_OFFSET(i, netstat->mptcp)) = -1;
 }
 
 int
@@ -345,6 +377,8 @@ refresh_proc_net_netstat(proc_net_netstat_t *netstat)
 		get_fields(netstat_ip_fields, header, buf);
 	    else if (strncmp(buf, "TcpExt:", 7) == 0)
 		get_fields(netstat_tcp_fields, header, buf);
+	    else if (strncmp(buf, "MPTcpExt:", 9) == 0)
+		get_fields(netstat_mptcp_fields, header, buf);
 	    else
 		pmNotifyErr(LOG_ERR, "Unrecognised netstat row: %s\n", buf);
 	}

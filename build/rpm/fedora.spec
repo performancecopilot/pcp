@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 5.2.0
+Version: 5.2.1
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2+ and CC-BY
@@ -257,7 +257,7 @@ BuildRequires: perl(ExtUtils::MakeMaker) perl(LWP::UserAgent) perl(JSON)
 BuildRequires: perl(LWP::UserAgent) perl(Time::HiRes) perl(Digest::MD5)
 BuildRequires: man %{_hostname_executable}
 %if !%{disable_systemd}
-BuildRequires: systemd-devel
+BuildRequires: systemd-devel systemd-rpm-macros
 %endif
 %if !%{disable_qt}
 BuildRequires: desktop-file-utils
@@ -287,20 +287,23 @@ Obsoletes: pcp-pmda-nvidia < 3.10.5
 
 Requires: pcp-libs = %{version}-%{release}
 
-%global _confdir	%{_sysconfdir}/pcp
-%global _logsdir	%{_localstatedir}/log/pcp
-%global _pmnsdir	%{_localstatedir}/lib/pcp/pmns
-%global _tempsdir	%{_localstatedir}/lib/pcp/tmp
-%global _pmdasdir	%{_localstatedir}/lib/pcp/pmdas
-%global _testsdir	%{_localstatedir}/lib/pcp/testsuite
-%global _selinuxdir	%{_localstatedir}/lib/pcp/selinux
-%global _logconfdir	%{_localstatedir}/lib/pcp/config/pmlogconf
-%global _ieconfdir	%{_localstatedir}/lib/pcp/config/pmieconf
-%global _tapsetdir	%{_datadir}/systemtap/tapset
-%global _bashcompdir	%{_datadir}/bash-completion/completions
-%global _pixmapdir	%{_datadir}/pcp-gui/pixmaps
-%global _hicolordir	%{_datadir}/icons/hicolor
-%global _booksdir	%{_datadir}/doc/pcp-doc
+%global _confdir        %{_sysconfdir}/pcp
+%global _logsdir        %{_localstatedir}/log/pcp
+%global _pmnsdir        %{_localstatedir}/lib/pcp/pmns
+%global _pmnsexecdir    %{_libexecdir}/pcp/pmns
+%global _tempsdir       %{_localstatedir}/lib/pcp/tmp
+%global _pmdasdir       %{_localstatedir}/lib/pcp/pmdas
+%global _pmdasexecdir   %{_libexecdir}/pcp/pmdas
+%global _testsdir       %{_localstatedir}/lib/pcp/testsuite
+%global _selinuxdir     %{_localstatedir}/lib/pcp/selinux
+%global _selinuxexecdir %{_libexecdir}/pcp/selinux
+%global _logconfdir     %{_localstatedir}/lib/pcp/config/pmlogconf
+%global _ieconfdir      %{_localstatedir}/lib/pcp/config/pmieconf
+%global _tapsetdir      %{_datadir}/systemtap/tapset
+%global _bashcompdir    %{_datadir}/bash-completion/completions
+%global _pixmapdir      %{_datadir}/pcp-gui/pixmaps
+%global _hicolordir     %{_datadir}/icons/hicolor
+%global _booksdir       %{_datadir}/doc/pcp-doc
 
 %if 0%{?fedora} >= 20 || 0%{?rhel} >= 8
 %global _with_doc --with-docdir=%{_docdir}/%{name}
@@ -315,7 +318,7 @@ Requires: pcp-libs = %{version}-%{release}
 %endif
 
 %if !%{disable_systemd}
-%global _initddir %{_datadir}/pcp/lib
+%global _initddir %{_libexecdir}/pcp/lib
 %else
 %global _initddir %{_sysconfdir}/rc.d/init.d
 %global _with_initd --with-rcdir=%{_initddir}
@@ -392,7 +395,7 @@ then
     PCP_PMCDCONF_PATH=%{_confdir}/pmcd/pmcd.conf
     if [ -f "$PCP_PMCDCONF_PATH" -a -f "$PCP_PMDAS_DIR/%2/domain.h" ]
     then
-	(cd "$PCP_PMDAS_DIR/%2/" && ./Remove >/dev/null 2>&1)
+        (cd "$PCP_PMDAS_DIR/%2/" && ./Remove >/dev/null 2>&1)
     fi
 fi
 }
@@ -2216,7 +2219,11 @@ make %{?_smp_mflags} default_pcp
 
 %install
 rm -Rf $RPM_BUILD_ROOT
-export NO_CHOWN=true DIST_ROOT=$RPM_BUILD_ROOT
+BACKDIR=`pwd`
+NO_CHOWN=true
+DIST_ROOT=$RPM_BUILD_ROOT
+DIST_TMPFILES=$BACKDIR/install.tmpfiles
+export NO_CHOWN DIST_ROOT DIST_TMPFILES
 make install_pcp
 
 PCP_GUI='pmchart|pmconfirm|pmdumptext|pmmessage|pmquery|pmsnap|pmtime'
@@ -2240,6 +2247,12 @@ rm -fr $RPM_BUILD_ROOT/%{_pmdasdir}/infiniband
 %if %{disable_mssql}
 # remove pmdamssql on platforms lacking MSODBC driver packages.
 rm -fr $RPM_BUILD_ROOT/%{_pmdasdir}/mssql
+rm -fr $RPM_BUILD_ROOT/%{_pmdasexecdir}/mssql
+rm -fr $RPM_BUILD_ROOT/%{_confdir}/mssql
+%endif
+
+%if %{disable_sdt}
+rm -fr $RPM_BUILD_ROOT/%{_tapsetdir}
 %endif
 
 %if %{disable_selinux}
@@ -2271,91 +2284,38 @@ sed -i -e '/^# .*_LOCAL=1/s/^# //' $RPM_BUILD_ROOT/%{_sysconfdir}/sysconfig/{pmc
 
 # default chkconfig off (all RPM platforms)
 for f in $RPM_BUILD_ROOT/%{_initddir}/{pcp,pmcd,pmlogger,pmie,pmproxy}; do
-	test -f "$f" || continue
-	sed -i -e '/^# chkconfig/s/:.*$/: - 95 05/' -e '/^# Default-Start:/s/:.*$/:/' $f
+    test -f "$f" || continue
+    sed -i -e '/^# chkconfig/s/:.*$/: - 95 05/' -e '/^# Default-Start:/s/:.*$/:/' $f
 done
 
-# list of PMDAs in the base pkg
-ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
-  grep -E -v '^simple|sample|trivial|txmon' |\
-  grep -E -v '^perfevent|perfalloc.1' |\
-  grep -E -v '^ib$|^infiniband' |\
-  grep -E -v '^activemq' |\
-  grep -E -v '^bonding' |\
-  grep -E -v '^bind2' |\
-  grep -E -v '^dbping' |\
-  grep -E -v '^docker' |\
-  grep -E -v '^ds389log'|\
-  grep -E -v '^ds389' |\
-  grep -E -v '^elasticsearch' |\
-  grep -E -v '^gpfs' |\
-  grep -E -v '^gpsd' |\
-  grep -E -v '^lio' |\
-  grep -E -v '^lustre' |\
-  grep -E -v '^lustrecomm' |\
-  grep -E -v '^memcache' |\
-  grep -E -v '^mysql' |\
-  grep -E -v '^named' |\
-  grep -E -v '^netfilter' |\
-  grep -E -v '^news' |\
-  grep -E -v '^nfsclient' |\
-  grep -E -v '^nginx' |\
-  grep -E -v '^nutcracker' |\
-  grep -E -v '^oracle' |\
-  grep -E -v '^openmetrics' |\
-  grep -E -v '^pdns' |\
-  grep -E -v '^podman' |\
-  grep -E -v '^postfix' |\
-  grep -E -v '^postgresql' |\
-  grep -E -v '^redis' |\
-  grep -E -v '^rsyslog' |\
-  grep -E -v '^samba' |\
-  grep -E -v '^slurm' |\
-  grep -E -v '^snmp' |\
-  grep -E -v '^statsd' |\
-  grep -E -v '^vmware' |\
-  grep -E -v '^zimbra' |\
-  grep -E -v '^dm' |\
-  grep -E -v '^apache' |\
-  grep -E -v '^bash' |\
-  grep -E -v '^cifs' |\
-  grep -E -v '^cisco' |\
-  grep -E -v '^gfs2' |\
-  grep -E -v '^libvirt' |\
-  grep -E -v '^lmsensors' |\
-  grep -E -v '^logger' |\
-  grep -E -v '^mailq' |\
-  grep -E -v '^mounts' |\
-  grep -E -v '^mssql' |\
-  grep -E -v '^netcheck' |\
-  grep -E -v '^nvidia' |\
-  grep -E -v '^openvswitch' |\
-  grep -E -v '^rabbitmq' |\
-  grep -E -v '^roomtemp' |\
-  grep -E -v '^sendmail' |\
-  grep -E -v '^shping' |\
-  grep -E -v '^smart' |\
-  grep -E -v '^summary' |\
-  grep -E -v '^trace' |\
-  grep -E -v '^weblog' |\
-  grep -E -v '^rpm' |\
-  grep -E -v '^json' |\
-  grep -E -v '^mic' |\
-  grep -E -v '^bcc' |\
-  grep -E -v '^bpftrace' |\
-  grep -E -v '^gluster' |\
-  grep -E -v '^zswap' |\
-  grep -E -v '^unbound' |\
-  grep -E -v '^haproxy' |\
-  sed -e 's#^#'%{_pmdasdir}'\/#' >base_pmdas.list
+# list of PMDAs in the base pcp package
+for pmda in jbd2 kvm linux mmv pipe pmcd proc root xfs; do
+    for alt in %{_pmdasdir} %{_pmdasexecdir} %{_confdir}; do
+        [ -d $RPM_BUILD_ROOT/$alt/$pmda ] && echo $alt/$pmda >>base_pmdas.list
+    done
+done
 
-# all base pcp package files except those split out into sub-packages
+# list of conf directories in base pcp package
+for conf in discover labels nssdb pmafm pmcd pmfind pmie pmieconf pmlogconf \
+    proc simple pipe linux pmlogger pmlogrewrite pmproxy pmsearch pmseries; do
+    for alt in %{_confdir} %{_localstatedir}/lib/pcp/config; do
+        replace=""; [ "$alt" = "%{_confdir}" ] && replace="%config(noreplace)"
+        [ -d $RPM_BUILD_ROOT/$alt/$conf ] && echo "$replace $alt/$conf" >>base_conf.list
+    done
+done
+
+# all base binary files except those split out into sub-packages
 ls -1 $RPM_BUILD_ROOT/%{_bindir} |\
   grep -E -v 'pmiostat|zabbix|zbxpcp|dstat|pmrep|pcp2csv' |\
   grep -E -v 'pcp2spark|pcp2graphite|pcp2influxdb|pcp2zabbix' |\
   grep -E -v 'pcp2elasticsearch|pcp2json|pcp2xlsx|pcp2xml' |\
   grep -E -v 'pmdbg|pmclient|pmerr|genpmda' |\
 sed -e 's#^#'%{_bindir}'\/#' >base_bin.list
+
+# all base pmns files
+echo %{_pmnsdir} >>base_pmns.list
+echo %{_pmnsexecdir} >>base_pmns.list
+
 ls -1 $RPM_BUILD_ROOT/%{_bashcompdir} |\
   grep -E -v 'pcp2spark|pcp2graphite|pcp2influxdb|pcp2zabbix' |\
   grep -E -v 'pcp2elasticsearch|pcp2json|pcp2xlsx|pcp2xml' |\
@@ -2367,10 +2327,10 @@ sed -e 's#^#'%{_bashcompdir}'\/#' >base_bashcomp.list
 # so its also in pcp-system-tools.
 %if !%{disable_python2} || !%{disable_python3}
 ls -1 $RPM_BUILD_ROOT/%{_bindir} |\
-  egrep -e 'pmiostat|pmrep|dstat|pcp2csv' |\
+  grep -E -e 'pmiostat|pmrep|dstat|pcp2csv' |\
   sed -e 's#^#'%{_bindir}'\/#' >pcp-system-tools.list
 ls -1 $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin |\
-  egrep -e 'atop|dmcache|dstat|free|iostat|ipcs|lvmcache|mpstat' \
+  grep -E -e 'atop|dmcache|dstat|free|iostat|ipcs|lvmcache|mpstat' \
         -e 'numastat|pidstat|shping|tapestat|uptime|verify' |\
   sed -e 's#^#'%{_libexecdir}/pcp/bin'\/#' >>pcp-system-tools.list
 %endif
@@ -2378,6 +2338,8 @@ ls -1 $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin |\
 %if !%{disable_selinux}
 ls -1 $RPM_BUILD_ROOT/%{_selinuxdir} |\
   sed -e 's#^#'%{_selinuxdir}'\/#' > pcp-selinux.list
+ls -1 $RPM_BUILD_ROOT/%{_selinuxexecdir} |\
+  sed -e 's#^#'%{_selinuxexecdir}'\/#' >> pcp-selinux.list
 ls -1 $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin |\
   grep -E 'selinux-setup' |\
   sed -e 's#^#'%{_libexecdir}/pcp/bin'\/#' >> pcp-selinux.list
@@ -2389,7 +2351,10 @@ ls -1 $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin |\
   grep -E -v 'numastat|shping|tapestat|uptime|verify|selinux-setup' |\
 %endif
   grep -E -v 'pmlogger_daily_report' |\
+  grep -E -v 'pmsnap' |\
   sed -e 's#^#'%{_libexecdir}/pcp/bin'\/#' >base_exec.list
+echo %{_libexecdir}/pcp/lib >>base_exec.list
+
 ls -1 $RPM_BUILD_ROOT/%{_booksdir} |\
   sed -e 's#^#'%{_booksdir}'\/#' > pcp-doc.list
 ls -1 $RPM_BUILD_ROOT/%{_mandir}/man1 |\
@@ -2398,6 +2363,7 @@ ls -1 $RPM_BUILD_ROOT/%{_mandir}/man5 |\
   sed -e 's#^#'%{_mandir}'\/man5\/#' >>pcp-doc.list
 ls -1 $RPM_BUILD_ROOT/%{_datadir}/pcp/demos/tutorials |\
   sed -e 's#^#'%{_datadir}/pcp/demos/tutorials'\/#' >>pcp-doc.list
+
 %if !%{disable_qt}
 ls -1 $RPM_BUILD_ROOT/%{_pixmapdir} |\
   sed -e 's#^#'%{_pixmapdir}'\/#' > pcp-gui.list
@@ -2405,18 +2371,28 @@ ls -1 $RPM_BUILD_ROOT/%{_hicolordir} |\
   sed -e 's#^#'%{_hicolordir}'\/#' >> pcp-gui.list
 cat base_bin.list base_exec.list base_bashcomp.list |\
   grep -E "$PCP_GUI" >> pcp-gui.list
+echo %{_confdir}/pmchart >>pcp-gui.list
+echo %{_libexecdir}/pcp/bin/pmsnap >>pcp-gui.list
 %endif
+
 ls -1 $RPM_BUILD_ROOT/%{_logconfdir}/ |\
     sed -e 's#^#'%{_logconfdir}'\/#' |\
     grep -E -v 'zeroconf' >pcp-logconf.list
 ls -1 $RPM_BUILD_ROOT/%{_ieconfdir}/ |\
     sed -e 's#^#'%{_ieconfdir}'\/#' |\
     grep -E -v 'zeroconf' >pcp-ieconf.list
-cat base_pmdas.list base_bin.list base_exec.list base_bashcomp.list \
-    pcp-logconf.list pcp-ieconf.list |\
+
+# generate full base package file list
+cat base_pmdas.list base_conf.list base_bin.list base_exec.list base_bashcomp.list \
+    pcp-logconf.list pcp-ieconf.list base_pmns.list |\
   grep -E -v 'pmdaib|pmsnap|2pcp|pmdas/systemd|zeroconf' |\
   grep -E -v "$PCP_GUI|pixmaps|hicolor|pcp-doc|tutorials|selinux" |\
-  grep -E -v %{_confdir} | grep -E -v %{_logsdir} > base.list
+  grep -E -v %{_logsdir} > base.list
+%if !%{disable_systemd}
+mkdir -p $RPM_BUILD_ROOT/%{_tmpfilesdir}
+mv $DIST_TMPFILES $RPM_BUILD_ROOT/%{_tmpfilesdir}/pcp.conf
+echo %{_tmpfilesdir}/pcp.conf >> base.list
+%endif
 
 # all devel pcp package files except those split out into sub packages
 ls -1 $RPM_BUILD_ROOT/%{_mandir}/man3 |\
@@ -2426,6 +2402,10 @@ sed -e 's#^#'%{_datadir}'\/pcp\/demos\/#' | grep -E -v tutorials >> devel.list
 ls -1 $RPM_BUILD_ROOT/%{_bindir} |\
 grep -E 'pmdbg|pmclient|pmerr|genpmda' |\
 sed -e 's#^#'%{_bindir}'\/#' >>devel.list
+for pmda in sample simple trivial txmon; do
+    echo %{_libexecdir}/pcp/pmdas/$pmda >>devel.list
+done
+echo %{_confdir}/simple/simple.conf >>devel.list
 
 %pre testsuite
 test -d %{_testsdir} || mkdir -p -m 755 %{_testsdir}
@@ -2712,21 +2692,21 @@ then
        %systemd_preun pmie.service
        %systemd_preun pmproxy.service
        %systemd_preun pmcd.service
-	systemctl stop pmlogger.service >/dev/null 2>&1
-	systemctl stop pmie.service >/dev/null 2>&1
-	systemctl stop pmproxy.service >/dev/null 2>&1
-	systemctl stop pmcd.service >/dev/null 2>&1
+       systemctl stop pmlogger.service >/dev/null 2>&1
+       systemctl stop pmie.service >/dev/null 2>&1
+       systemctl stop pmproxy.service >/dev/null 2>&1
+       systemctl stop pmcd.service >/dev/null 2>&1
     %else
-	/sbin/service pmlogger stop >/dev/null 2>&1
-	/sbin/service pmie stop >/dev/null 2>&1
-	/sbin/service pmproxy stop >/dev/null 2>&1
-	/sbin/service pmcd stop >/dev/null 2>&1
+       /sbin/service pmlogger stop >/dev/null 2>&1
+       /sbin/service pmie stop >/dev/null 2>&1
+       /sbin/service pmproxy stop >/dev/null 2>&1
+       /sbin/service pmcd stop >/dev/null 2>&1
 
-	/sbin/chkconfig --del pcp >/dev/null 2>&1
-	/sbin/chkconfig --del pmcd >/dev/null 2>&1
-	/sbin/chkconfig --del pmlogger >/dev/null 2>&1
-	/sbin/chkconfig --del pmie >/dev/null 2>&1
-	/sbin/chkconfig --del pmproxy >/dev/null 2>&1
+       /sbin/chkconfig --del pcp >/dev/null 2>&1
+       /sbin/chkconfig --del pmcd >/dev/null 2>&1
+       /sbin/chkconfig --del pmlogger >/dev/null 2>&1
+       /sbin/chkconfig --del pmie >/dev/null 2>&1
+       /sbin/chkconfig --del pmproxy >/dev/null 2>&1
     %endif
     # cleanup namespace state/flag, may still exist
     PCP_PMNS_DIR=%{_pmnsdir}
@@ -2741,7 +2721,7 @@ PCP_PMCDCONF_PATH=%{_confdir}/pmcd/pmcd.conf
 for PMDA in dm nfsclient openmetrics ; do
     if ! grep -q "$PMDA/pmda$PMDA" "$PCP_PMCDCONF_PATH"
     then
-	%{install_file "$PCP_PMDAS_DIR/$PMDA" .NeedInstall}
+        %{install_file "$PCP_PMDAS_DIR/$PMDA" .NeedInstall}
     fi
 done
 # increase default pmlogger recording frequency
@@ -2823,8 +2803,8 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 
 %triggerun selinux -- container-selinux
 %{selinux_handle_policy "$1" "pcpupstream-container"}
-
 %endif
+
 %files -f base.list
 #
 # Note: there are some headers (e.g. domain.h) and in a few cases some
@@ -2864,6 +2844,7 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %attr(0775,pcp,pcp) %{_logsdir}/pmlogger
 %attr(0775,pcp,pcp) %{_logsdir}/pmie
 %attr(0775,pcp,pcp) %{_logsdir}/pmproxy
+%attr(0775,pcp,pcp) %{_logsdir}/pmfind
 %{_localstatedir}/lib/pcp/pmns
 %{_initddir}/pcp
 %{_initddir}/pmcd
@@ -2879,20 +2860,16 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 # services and timers replacing the old cron scripts
 %{_unitdir}/pmlogger_check.service
 %{_unitdir}/pmlogger_check.timer
-%{_unitdir}/pmlogger_check.path
 %{_unitdir}/pmlogger_daily.service
 %{_unitdir}/pmlogger_daily.timer
 %{_unitdir}/pmlogger_daily-poll.service
 %{_unitdir}/pmlogger_daily-poll.timer
 %{_unitdir}/pmie_check.timer
-%{_unitdir}/pmie_check.path
 %{_unitdir}/pmie_check.service
 %{_unitdir}/pmie_check.timer
-%{_unitdir}/pmie_check.path
 %{_unitdir}/pmie_daily.service
 %{_unitdir}/pmie_daily.timer
 %{_unitdir}/pmfind.timer
-%{_unitdir}/pmfind.path
 %config(noreplace) %{_sysconfdir}/sysconfig/pmie_timers
 %config(noreplace) %{_sysconfdir}/sysconfig/pmlogger_timers
 %else
@@ -2959,8 +2936,11 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %else
 %config(noreplace) %{_sysconfdir}/cron.d/pcp-pmlogger-daily-report
 %endif
-%{_ieconfdir}/zeroconf
-%{_logconfdir}/zeroconf
+%config(noreplace) %{_ieconfdir}/zeroconf
+%config(noreplace) %{_logconfdir}/zeroconf
+%config(noreplace) %{_confdir}/pmlogconf/zeroconf
+%config(noreplace) %{_confdir}/pmieconf/zeroconf
+%{_logsdir}/sa
 
 #additional pmlogger config files
 
@@ -2969,6 +2949,8 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %{_includedir}/pcp/builddefs
 %{_includedir}/pcp/buildrules
 %config %{_sysconfdir}/pcp.conf
+%dir %{_confdir}/derived
+%config %{_confdir}/derived/*
 %dir %{_localstatedir}/lib/pcp/config/derived
 %config %{_localstatedir}/lib/pcp/config/derived/*
 
@@ -2996,10 +2978,12 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 
 %files devel -f devel.list
 %{_datadir}/pcp/examples
+%dir %{_datadir}/pcp/demos
 
 # PMDAs that ship src and are not for production use
 # straight out-of-the-box, for devel or QA use only.
 %{_pmdasdir}/simple
+%config(noreplace) %{_confdir}/simple
 %{_pmdasdir}/sample
 %{_pmdasdir}/trivial
 %{_pmdasdir}/txmon
@@ -3026,168 +3010,232 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %if !%{disable_podman}
 %files pmda-podman
 %{_pmdasdir}/podman
+%{_pmdasexecdir}/podman
 %endif
 
 %if !%{disable_statsd}
 %files pmda-statsd
 %{_pmdasdir}/statsd
+%{_pmdasexecdir}/statsd
+%{_confdir}/statsd
 %config(noreplace) %{_pmdasdir}/statsd/pmdastatsd.ini
 %endif
 
 %if !%{disable_perfevent}
 %files pmda-perfevent
 %{_pmdasdir}/perfevent
+%{_pmdasexecdir}/perfevent
+%{_confdir}/perfevent
 %config(noreplace) %{_pmdasdir}/perfevent/perfevent.conf
 %endif
 
 %if !%{disable_infiniband}
 %files pmda-infiniband
-%{_pmdasdir}/ib
 %{_pmdasdir}/infiniband
+%{_pmdasexecdir}/infiniband
 %endif
 
 %files pmda-activemq
 %{_pmdasdir}/activemq
+%{_pmdasexecdir}/activemq
 
 %files pmda-bonding
 %{_pmdasdir}/bonding
+%{_pmdasexecdir}/bonding
 
 %files pmda-bind2
 %{_pmdasdir}/bind2
+%{_pmdasexecdir}/bind2
+%{_confdir}/bind2
 
 %files pmda-dbping
 %{_pmdasdir}/dbping
+%{_pmdasexecdir}/dbping
 
 %files pmda-ds389log
 %{_pmdasdir}/ds389log
+%{_pmdasexecdir}/ds389log
 
 %files pmda-ds389
 %{_pmdasdir}/ds389
+%{_pmdasexecdir}/ds389
 
 %files pmda-elasticsearch
 %{_pmdasdir}/elasticsearch
+%{_pmdasexecdir}/elasticsearch
 
 %files pmda-openvswitch
 %{_pmdasdir}/openvswitch
+%{_pmdasexecdir}/openvswitch
 
 %files pmda-rabbitmq
 %{_pmdasdir}/rabbitmq
+%{_pmdasexecdir}/rabbitmq
+%{_confdir}/rabbitmq
 
 %files pmda-gpfs
 %{_pmdasdir}/gpfs
+%{_pmdasexecdir}/gpfs
 
 %files pmda-gpsd
 %{_pmdasdir}/gpsd
+%{_pmdasexecdir}/gpsd
 
 %files pmda-docker
 %{_pmdasdir}/docker
+%{_pmdasexecdir}/docker
 
 %files pmda-lio
 %{_pmdasdir}/lio
+%{_pmdasexecdir}/lio
 
 %files pmda-openmetrics
 %{_pmdasdir}/openmetrics
+%{_pmdasexecdir}/openmetrics
+%config(noreplace) %{_confdir}/openmetrics
 
 %files pmda-lustre
 %{_pmdasdir}/lustre
+%{_pmdasexecdir}/lustre
+%config(noreplace) %{_confdir}/lustre
 
 %files pmda-lustrecomm
 %{_pmdasdir}/lustrecomm
+%{_pmdasexecdir}/lustrecomm
 
 %files pmda-memcache
 %{_pmdasdir}/memcache
+%{_pmdasexecdir}/memcache
 
 %files pmda-mysql
 %{_pmdasdir}/mysql
+%{_pmdasexecdir}/mysql
 
 %files pmda-named
 %{_pmdasdir}/named
+%{_pmdasexecdir}/named
 
 %files pmda-netfilter
 %{_pmdasdir}/netfilter
+%{_pmdasexecdir}/netfilter
 
 %files pmda-news
 %{_pmdasdir}/news
+%{_pmdasexecdir}/news
 
 %files pmda-nginx
 %{_pmdasdir}/nginx
+%{_pmdasexecdir}/nginx
+%config(noreplace) %{_confdir}/nginx
 
 %files pmda-nfsclient
 %{_pmdasdir}/nfsclient
+%{_pmdasexecdir}/nfsclient
 
 %if !%{disable_nutcracker}
 %files pmda-nutcracker
 %{_pmdasdir}/nutcracker
+%{_pmdasexecdir}/nutcracker
+%config(noreplace) %{_confdir}/nutcracker
 %endif
 
 %files pmda-oracle
 %{_pmdasdir}/oracle
+%{_pmdasexecdir}/oracle
+%config(noreplace) %{_confdir}/oracle
 
 %files pmda-pdns
 %{_pmdasdir}/pdns
+%{_pmdasexecdir}/pdns
 
 %files pmda-postfix
 %{_pmdasdir}/postfix
+%{_pmdasexecdir}/postfix
 
 %files pmda-postgresql
 %{_pmdasdir}/postgresql
-%config(noreplace) %{_pmdasdir}/postgresql/pmdapostgresql.conf
+%{_pmdasexecdir}/postgresql
+%dir %{_confdir}/postgresql
+%config(noreplace) %{_confdir}/postgresql/pmdapostgresql.conf
 
 %files pmda-redis
 %{_pmdasdir}/redis
+%{_pmdasexecdir}/redis
+%{_confdir}/redis
 
 %files pmda-rsyslog
 %{_pmdasdir}/rsyslog
+%{_pmdasexecdir}/rsyslog
 
 %files pmda-samba
 %{_pmdasdir}/samba
+%{_pmdasexecdir}/samba
 
 %if !%{disable_snmp}
 %files pmda-snmp
 %{_pmdasdir}/snmp
+%{_pmdasexecdir}/snmp
+%{_confdir}/snmp
 %endif
 
 %files pmda-slurm
 %{_pmdasdir}/slurm
+%{_pmdasexecdir}/slurm
 
 %files pmda-vmware
 %{_pmdasdir}/vmware
+%{_pmdasexecdir}/vmware
 
 %files pmda-zimbra
 %{_pmdasdir}/zimbra
+%{_pmdasexecdir}/zimbra
 
 %files pmda-dm
 %{_pmdasdir}/dm
+%{_pmdasexecdir}/dm
 %{_ieconfdir}/dm
+%dir %{_confdir}/pmieconf/dm
+%config(noreplace) %{_confdir}/pmieconf/dm
 
 %if !%{disable_bcc}
 %files pmda-bcc
 %{_pmdasdir}/bcc
+%{_pmdasexecdir}/bcc
 %endif
 
 %if !%{disable_bpftrace}
 %files pmda-bpftrace
 %{_pmdasdir}/bpftrace
+%{_pmdasexecdir}/bpftrace
+%config(noreplace) %{_confdir}/bpftrace
 %endif
 
 %if !%{disable_python2} || !%{disable_python3}
 %files pmda-gluster
 %{_pmdasdir}/gluster
+%{_pmdasexecdir}/gluster
 
 %files pmda-zswap
 %{_pmdasdir}/zswap
+%{_pmdasexecdir}/zswap
 
 %files pmda-unbound
 %{_pmdasdir}/unbound
+%{_pmdasexecdir}/unbound
 
 %files pmda-mic
 %{_pmdasdir}/mic
+%{_pmdasexecdir}/mic
 
 %files pmda-haproxy
 %{_pmdasdir}/haproxy
+%{_pmdasexecdir}/haproxy
+%{_confdir}/haproxy
 
 %files pmda-libvirt
 %{_pmdasdir}/libvirt
+%{_pmdasexecdir}/libvirt
+%{_confdir}/libvirt
 
 %files export-pcp2elasticsearch
 %{_bindir}/pcp2elasticsearch
@@ -3225,83 +3273,112 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 
 %files pmda-lmsensors
 %{_pmdasdir}/lmsensors
+%{_pmdasexecdir}/lmsensors
 
 %files pmda-netcheck
 %{_pmdasdir}/netcheck
+%{_pmdasexecdir}/netcheck
+%{_confdir}/netcheck
 
 %endif
 
 %files export-zabbix-agent
 %{_libdir}/zabbix
-%{_sysconfdir}/zabbix/zabbix_agentd.d/zbxpcp.conf
+%dir %{_sysconfdir}/zabbix/zabbix_agentd.d
+%config(noreplace) %{_sysconfdir}/zabbix/zabbix_agentd.d/zbxpcp.conf
 
 %if !%{disable_mssql}
 %files pmda-mssql
 %{_pmdasdir}/mssql
+%{_pmdasexecdir}/mssql
+%config(noreplace) %{_confdir}/mssql
 %endif
 
 %if !%{disable_json}
 %files pmda-json
 %{_pmdasdir}/json
+%{_pmdasexecdir}/json
+%config(noreplace) %{_confdir}/json
 %endif
 
 %files pmda-apache
 %{_pmdasdir}/apache
+%{_pmdasexecdir}/apache
 
 %files pmda-bash
 %{_pmdasdir}/bash
+%{_pmdasexecdir}/bash
 
 %files pmda-cifs
 %{_pmdasdir}/cifs
+%{_pmdasexecdir}/cifs
 
 %files pmda-cisco
 %{_pmdasdir}/cisco
+%{_pmdasexecdir}/cisco
 
 %files pmda-gfs2
 %{_pmdasdir}/gfs2
+%{_pmdasexecdir}/gfs2
 
 %files pmda-logger
 %{_pmdasdir}/logger
+%{_pmdasexecdir}/logger
 
 %files pmda-mailq
 %{_pmdasdir}/mailq
+%{_pmdasexecdir}/mailq
 
 %files pmda-mounts
 %{_pmdasdir}/mounts
+%{_pmdasexecdir}/mounts
+%config(noreplace) %{_confdir}/mounts
 
 %files pmda-nvidia-gpu
 %{_pmdasdir}/nvidia
+%{_pmdasexecdir}/nvidia
 
 %files pmda-roomtemp
 %{_pmdasdir}/roomtemp
+%{_pmdasexecdir}/roomtemp
 
 %if !%{disable_rpm}
 %files pmda-rpm
 %{_pmdasdir}/rpm
+%{_pmdasexecdir}/rpm
 %endif
 
 %files pmda-sendmail
 %{_pmdasdir}/sendmail
+%{_pmdasexecdir}/sendmail
 
 %files pmda-shping
 %{_pmdasdir}/shping
+%{_pmdasexecdir}/shping
+%config(noreplace) %{_confdir}/shping
 
 %files pmda-smart
 %{_pmdasdir}/smart
+%{_pmdasexecdir}/smart
 
 %files pmda-summary
 %{_pmdasdir}/summary
+%{_pmdasexecdir}/summary
+%config(noreplace) %{_confdir}/summary
 
 %if !%{disable_systemd}
 %files pmda-systemd
 %{_pmdasdir}/systemd
+%{_pmdasexecdir}/systemd
 %endif
 
 %files pmda-trace
 %{_pmdasdir}/trace
+%{_pmdasexecdir}/trace
 
 %files pmda-weblog
 %{_pmdasdir}/weblog
+%{_pmdasexecdir}/weblog
 
 %files -n perl-PCP-PMDA -f perl-pcp-pmda.list
 
@@ -3328,14 +3405,18 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %{_localstatedir}/lib/pcp/config/pmchart
 %{_localstatedir}/lib/pcp/config/pmafm/pcp-gui
 %{_datadir}/applications/pmchart.desktop
+%dir %{_pixmapdir}
 %{_bashcompdir}/pmdumptext
 %endif
 
 %files doc -f pcp-doc.list
+%dir %{_booksdir}
+%dir %{_datadir}/pcp/demos/tutorials
 
 %if !%{disable_selinux}
 %files selinux -f pcp-selinux.list
 %dir %{_selinuxdir}
+%dir %{_selinuxexecdir}
 %endif
 
 %if !%{disable_python2} || !%{disable_python3}
@@ -3348,8 +3429,22 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %endif
 
 %changelog
-* Fri Jul 31 2020 Nathan Scott <nathans@redhat.com> - 5.2.0-1
-- Work in progress: https://github.com/performancecopilot/pcp/projects/1
+* Fri Sep 25 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.2.1-1
+- https://github.com/performancecopilot/pcp/projects/1
+
+* Sat Aug 08 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.2.0-1
+- rearrange installed /var file layouts extensively (BZ 1827441)
+- pmproxy intermittently crashes at uv_timer_stop (BZ 1789312)
+- Update to latest PCP sources.
+
+* Tue Jul 28 2020 Fedora Release Engineering <releng@fedoraproject.org> - 5.1.1-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_33_Mass_Rebuild
+
+* Wed Jul 01 2020 Jeff Law <law@redhat.com> - 5.1.1-3
+- Disable LTO
+
+* Tue Jun 23 2020 Jitka Plesnikova <jplesnik@redhat.com> - 5.1.1-2
+- Perl 5.32 rebuild
 
 * Fri May 29 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.1.1-1
 - Update to latest PCP sources.

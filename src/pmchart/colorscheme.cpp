@@ -19,7 +19,7 @@
 ColorScheme::ColorScheme()
 {
     my.isModified = false;
-    my.name = QString::null;
+    my.name = QString();
 }
 
 bool ColorScheme::lookupScheme(QString name)

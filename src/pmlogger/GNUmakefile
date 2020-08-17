@@ -20,10 +20,10 @@ SUBDIRS = src
 OTHERS	= pmnewlog.sh control rc_pmlogger \
 	  pmlogger_daily.sh pmlogger_check.sh pmlogger_merge.sh pmlogmv.sh \
 	  pmlogger_daily_report.sh pmlogger_rewrite.sh
-LDIRT	= crontab crontab.docker crontab.daily_report pmlogger.service \
+LDIRT	= crontab crontab.daily_report pmlogger.service \
 	  pmlogger_daily.service pmlogger_daily-poll.service \
 	  pmlogger_daily_report.service pmlogger_daily_report-poll.service \
-	  pmlogger_check.service pmlogger_check.path
+	  pmlogger_check.service
 
 ifeq ($(TARGET_OS),linux)
 CRONTAB_USER = $(PCP_USER)
@@ -64,7 +64,6 @@ ifeq ($(ENABLE_SYSTEMD),true)
 	$(INSTALL) -m 644 pmlogger_daily.service $(PCP_SYSTEMDUNIT_DIR)/pmlogger_daily.service
 	$(INSTALL) -m 644 pmlogger_daily-poll.timer $(PCP_SYSTEMDUNIT_DIR)/pmlogger_daily-poll.timer
 	$(INSTALL) -m 644 pmlogger_daily-poll.service $(PCP_SYSTEMDUNIT_DIR)/pmlogger_daily-poll.service
-	$(INSTALL) -m 644 pmlogger_check.path $(PCP_SYSTEMDUNIT_DIR)/pmlogger_check.path
 	$(INSTALL) -m 644 pmlogger_check.timer $(PCP_SYSTEMDUNIT_DIR)/pmlogger_check.timer
 	$(INSTALL) -m 644 pmlogger_check.service $(PCP_SYSTEMDUNIT_DIR)/pmlogger_check.service
 	$(INSTALL) -m 644 pmlogger_daily_report.timer $(PCP_SYSTEMDUNIT_DIR)/pmlogger_daily_report.timer
@@ -79,12 +78,7 @@ else
 endif
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_LOG_DIR)/pmlogger
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_TMP_DIR)/pmlogger
-ifeq ($(TARGET_OS),linux)
-	# In a container environment, the rc_pmlogger script installs the
-	# Docker version of the crontab into the hosts cron.d directory.
-	$(INSTALL) -m 644 crontab.docker $(PCP_VAR_DIR)/config/pmlogger/crontab.docker
-endif
-	$(INSTALL) -m 644 utilproc.sh $(PCP_SHARE_DIR)/lib/utilproc.sh
+	$(INSTALL) -m 644 -t $(PCP_SHARE_DIR)/lib/utilproc.sh utilproc.sh $(PCP_LIBADM_DIR)/utilproc.sh
 	$(INSTALL) -m 755 pmlogger_daily_report.sh $(PCP_BINADM_DIR)/pmlogger_daily_report$(SHELLSUFFIX)
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_SA_DIR)
 
@@ -130,11 +124,6 @@ pmlogger_check.service : pmlogger_check.service.in
 	    -e 's;@PCP_USER@;'$(PCP_USER)';' \
 	# END
 
-pmlogger_check.path : pmlogger_check.path.in
-	$(SED) <$< >$@ \
-	    -e 's;@PCP_PMLOGGERCONTROL_PATH@;'$(PCP_PMLOGGERCONTROL_PATH)';' \
-	# END
-
 pmlogger_daily_report.service : pmlogger_daily_report.service.in
 	$(SED) <$< >$@ \
 	    -e 's;@CRONTAB_DAILY_REPORT_PATH@;'$(CRONTAB_DAILY_REPORT_PATH)';' \
@@ -159,10 +148,6 @@ pmlogger_daily_report-poll.service : pmlogger_daily_report-poll.service.in
 
 crontab : crontab.in
 	$(SED) -e 's;@user@;'$(CRONTAB_USER)';' -e 's;@path@;'$(PCP_BINADM_DIR)';' $< > $@
-
-crontab.docker : crontab.docker.in
-	# docker crontab runs as root. this may change in the future.
-	$(SED) -e 's;@path@;'$(PCP_BINADM_DIR)';' $< > $@
 
 crontab.daily_report : crontab.daily_report.in
 	$(SED) -e 's;@user@;'$(CRONTAB_USER)';' -e 's;@path@;'$(PCP_BINADM_DIR)';' -e 's;@sapath@;'$(PCP_SA_DIR)';' $< > $@

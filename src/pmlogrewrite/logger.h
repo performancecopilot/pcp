@@ -12,7 +12,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  *
- * common data structures for pmlogextract
+ * common data structures for pmlogrewrite
  */
 
 #ifndef _LOGGER_H

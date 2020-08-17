@@ -2,8 +2,8 @@
 Description=Performance Metrics Inference Engine
 Documentation=man:pmie(1)
 After=network-online.target pmcd.service
-After=pmie_check.timer pmie_check.path pmie_daily.timer
-BindsTo=pmie_check.timer pmie_check.path pmie_daily.timer
+Before=pmie_check.timer pmie_daily.timer
+BindsTo=pmie_check.timer pmie_daily.timer
 Wants=pmcd.service
 
 [Service]
@@ -13,7 +13,7 @@ NotifyAccess=all
 TimeoutSec=120
 
 ExecStart=@PCP_RC_DIR@/pmie start-systemd
-ExecStop=@PCP_RC_DIR@/pmie stop
+ExecStop=@PCP_RC_DIR@/pmie stop-systemd
 PIDFile=@PCP_RUN_DIR@/pmie.pid
 
 [Install]

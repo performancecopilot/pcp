@@ -319,7 +319,7 @@ public:
     QString hostname(void) const;
     QString metricName(void) const { return my.metric->name(); }
     QString metricInstance(void) const
-        { return my.metric->numInst() > 0 ? my.metric->instName(0) : QString::null; }
+        { return my.metric->numInst() > 0 ? my.metric->instName(0) : QString(); }
     bool metricHasInstances(void) const { return my.metric->hasInstances(); }
     QmcDesc *metricDesc(void) const { return (QmcDesc *)&my.metric->desc(); }
     QmcContext *metricContext(void) const { return my.metric->context(); }

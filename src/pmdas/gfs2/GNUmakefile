@@ -1,11 +1,11 @@
 #
-# Copyright (c) 2013-2015 Red Hat.
-# 
+# Copyright (c) 2013-2015,2020 Red Hat.
+#
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -22,7 +22,9 @@ LLDLIBS		= $(PCP_PMDALIB)
 
 IAM		= gfs2
 DOMAIN		= GFS2
-PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
+
+PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
+PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
 
 LDIRT		= domain.h $(IAM).log
 
@@ -38,9 +40,10 @@ ifeq "$(TARGET_OS)" "linux"
 build-me: $(CMDTARGET)
 
 install: default
-	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove $(CMDTARGET) $(PMDADIR)
-	$(INSTALL) -m 644 root pmns domain.h help $(PMDADIR)
+	$(INSTALL) -m 755 -d $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMDATMPDIR)
+	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove $(CMDTARGET) $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) root pmns domain.h help $(PMDAADMDIR)
 	@$(INSTALL_MAN)
 else
 build-me:

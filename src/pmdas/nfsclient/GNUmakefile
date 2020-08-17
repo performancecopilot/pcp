@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018-2019 Red Hat.
+# Copyright (c) 2018-2020 Red Hat.
 # Copyright (c) 2011 SGI.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -19,14 +19,16 @@ include $(TOPDIR)/src/include/builddefs
 IAM		= nfsclient
 PYSCRIPT	= pmda$(IAM).python
 LDIRT		= domain.h root pmns $(IAM).log
+DOMAIN		= NFSCLIENT
 
 MAN_SECTION	= 1
 MAN_PAGES	= pmda$(IAM).$(MAN_SECTION)
 MAN_DEST	= $(PCP_MAN_DIR)/man$(MAN_SECTION)
 
-DOMAIN		= NFSCLIENT
-PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
-REWRITEDIR	= $(PCP_VAR_DIR)/config/pmlogrewrite
+PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
+PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
+REWRITEDIR	= $(PCP_SYSCONF_DIR)/pmlogrewrite
+REWRITEVARDIR	= $(PCP_VAR_DIR)/config/pmlogrewrite
 
 default_pcp default: build-me
 
@@ -35,9 +37,10 @@ include $(BUILDRULES)
 ifeq "$(HAVE_PYTHON)" "true"
 build-me: check_domain
 install_pcp install: default
-	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove Upgrade $(PYSCRIPT) $(PMDADIR)
-	$(INSTALL) -m 644 migrate.conf $(REWRITEDIR)/nfsclient_migrate.conf
+	$(INSTALL) -m 755 -d $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMDATMPDIR)
+	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove Upgrade $(PYSCRIPT) $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(REWRITEVARDIR)/nfsclient_migrate.conf migrate.conf $(REWRITEDIR)/nfsclient_migrate.conf
 	@$(INSTALL_MAN)
 else
 build-me:

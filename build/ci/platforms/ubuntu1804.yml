@@ -1,8 +1,12 @@
 bintray:
-  repository: bionic
-  deb_distribution: bionic
-  deb_component: main
-  deb_architecture: amd64
+  repository:
+    type: debian
+    name: bionic
+    description: Performance Co-Pilot for Ubuntu 18.04 (bionic beaver)
+  params:
+    deb_distribution: bionic
+    deb_component: main
+    deb_architecture: amd64
 
 container:
   init: /bin/systemd
@@ -19,17 +23,19 @@ container:
 tasks:
   update: |
     sudo apt-get -y update
-    sudo apt-get -y dist-upgrade
+    sudo ACCEPT_EULA=Y DEBIAN_FRONTEND=noninteractive apt-get -y dist-upgrade
   install_build_dependencies: |
     sudo apt-get -y update
-    for pkg in $(./pcp/qa/admin/check-vm -p)
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y zlib1g-dev
+    for pkg in $(./pcp/qa/admin/check-vm -fp)
     do
       [ "$runner" = "container" ] && [ "$pkg" = "auditd" ] && continue
-      sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "$pkg" || true
+      sudo ACCEPT_EULA=Y DEBIAN_FRONTEND=noninteractive apt-get install -y "$pkg" || true
     done
-    sudo apt-get install -y zlib1g-dev
   build: |
-    cd ./pcp && ./Makepkgs --nonrpm --verbose
+    cd ./pcp
+    ./Makepkgs --nonrpm --verbose
+    dpkg -I ./build/deb/pcp_*.deb | grep Depends | grep -q libuv1
   copy_build_artifacts: |
     cp ./pcp/build/deb/*.deb artifacts/build
   install: |
@@ -39,14 +45,10 @@ tasks:
     sudo -i -u pcpqa ./check 002
   qa_sanity: |
     set -o pipefail
-    status=0
-    sudo -i -u pcpqa ./check -TT -g sanity -x not_in_container |& tee ./artifacts/test/test.log || status=$?
-    exit $status
+    sudo -i -u pcpqa ./check -TT -g sanity -x not_in_container |& tee ./artifacts/test/test.log
   qa: |
     set -o pipefail
-    status=0
-    sudo -i -u pcpqa ./check -TT -x not_in_container |& tee ./artifacts/test/test.log || status=$?
-    exit $status
+    sudo -i -u pcpqa ./check -TT -x not_in_container |& tee ./artifacts/test/test.log
   copy_test_artifacts: |
     cp /var/lib/pcp/testsuite/check.timings ./artifacts/test
     [ $(awk 'END{print NF}' ./artifacts/test/check.timings) = 2 ] && date '+%s' >> ./artifacts/test/check.timings

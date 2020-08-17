@@ -1,0 +1,2 @@
+ALL_RULES = tcplistenoverflows tcpqfulldrops tcpqfulldocookies
+LOCAL_RULES = $(ALL_RULES)

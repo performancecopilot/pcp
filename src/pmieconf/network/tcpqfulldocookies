@@ -1,0 +1,44 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
+# 
+
+rule	network.tcpqfulldocookies
+	summary	= "$rule$"
+	enumerate = hosts
+	predicate =
+"some_host (
+        network.tcp.reqqfulldocookies $hosts$ > 0
+)"
+	enabled	= yes
+	version	= 1
+	help	=
+"New socket connection attempts are being dropped because the SYN
+backlog queue is full and the kernel's built-in SYN flood prevention
+has kicked in.  When the kernel is sending SYN cookies during normal
+operation it indicates that the rate of connections is probably too
+high for the default limits as SYN cookies are really only meant for
+mitigating SYN floods (see also tcpqfulldocookies and listenoverflows
+rules for additional details).";
+
+string	rule
+	default	= "TCP request queue full SYN cookie replies"
+	modify	= no
+	display	= no;
+
+string	delta
+	default = "2 min"
+	help =
+"Sample interval between evaluations of this rule.";
+
+string	action_expand
+	default	= "%v/sec@%h"
+	display	= no
+	modify	= no;
+
+string	email_expand
+	default	= "host: %h request queue full SYNCOOKIE replies: %v%"
+	display	= no
+	modify	= no;
+
+# 
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)

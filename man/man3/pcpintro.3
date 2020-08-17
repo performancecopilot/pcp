@@ -293,6 +293,13 @@ one element to
 or
 .BR pmStore (3).
 .TP
+.B PM_ERR_FAULT
+.I "QA fault injected"
+.br
+For testing, there is a ``fault injection'' version of
+.B libpcp
+and this error indicates a misuse of the fault injection infrastructure.
+.TP
 .B PM_ERR_THREAD
 .I "Operation not supported for multi-threaded applications"
 .br
@@ -301,6 +308,18 @@ As documented in
 and elsewhere, some
 .B libpcp
 routines are intended solely for use from single-threaded applications.
+.TP
+.B PM_ERR_NOCONTAINER
+.I "Container not found"
+The user supplied container name does not match any known container.
+.TP
+.B PM_ERR_BADSTORE
+.I "Bad input to pmstore"
+.br
+The metric value provided for a
+.BR pmStore (3)
+operation is in the wrong format, or of the wrong type or
+has the wrong number of values.
 .TP
 .B PM_ERR_TOOBIG
 .I "Result size exceeded"
@@ -345,6 +364,17 @@ Self explanatory and rarely used.
 Rarely used, this error may be returned when the error condition
 is a consequent of some earlier returned error and a more precise
 characterization is not possible.
+.TP
+.B PM_ERR_BADDERIVE
+.I "Derived metric definition failed"
+.br
+When registering a derived metric, the metric expression is either
+syntactically or semantically incorrect.
+.TP
+.B PM_ERR_NOLABELS
+.I "No support for metric label metadata"
+.br
+Operation requires metric labels, but none are available.
 .SH "CLIENT-PMCD ERRORS"
 These errors may occur in the interactions between a PCP client and
 .BR pmcd (1)
@@ -387,6 +417,22 @@ Internal error in the communication between a client application
 and
 .BR pmcd (1)
 \- should not occur.
+.TP
+.B PM_ERR_NEEDCLIENTCERT
+.I "PMCD requires a client certificate"
+Authentication failure.
+.TP
+.B PM_ERR_PMDAFENCED
+.I "PMDA is currently fenced and unable to respond to requests"
+.br
+A privileged user has decided to isolate a PMDA from
+.BR pmcd (1)
+using a
+.BR pmStore (1)
+operation on the
+.B pmcd.agent.fenced
+metric, which means all fetch-level requests to that PMDA are
+being blocked.
 .SH "CLIENT-ARCHIVE ERRORS"
 These errors may occur in the interactions between a PCP client and
 the library routines that provide historical
@@ -527,12 +573,6 @@ set may not overlap in time.
 .br
 When using a context associated with a set of archives, the archives in the
 set must all have been generated on the same host.
-.TP
-.B PM_ERR_LOGTIMEZONE
-.I "Archives differ by time zone"
-.br
-When using a context associated with a set of archives, the archives in the
-set must all have been generated using the same time zone.
 .TP
 .B PM_ERR_LOGCHANGETYPE
 .I "The type of a metric differs among archives"

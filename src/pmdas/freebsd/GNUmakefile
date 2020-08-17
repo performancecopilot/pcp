@@ -2,17 +2,18 @@
 # Copyright (c) 2000,2003,2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 # Copyright (c) 2007-2010 Aconex.  All Rights Reserved.
 # Copyright (c) 2012 Ken McDonell.  All Rights Reserved.
-# 
+# Copyright (c) 2020 Red Hat, Inc.  All Rights Reserved.
+#
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
+#
 
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
@@ -21,9 +22,12 @@ IAM		= freebsd
 DOMAIN		= FREEBSD
 CMDTARGET 	= pmdafreebsd
 LIBTARGET	= pmda_freebsd.so
-PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
-LOGREWRITEDIR   = $(PCP_VAR_DIR)/config/pmlogrewrite
-CONF_LINE	= "freebsd	85	dso	freebsd_init	$(PMDADIR)/$(LIBTARGET)"
+
+PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
+PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
+REWRITEDIR	= $(PCP_SYSCONF_DIR)/pmlogrewrite
+REWRITEVARDIR	= $(PCP_VAR_DIR)/config/pmlogrewrite
+CONF_LINE	= "freebsd	85	dso	freebsd_init	$(PMDATMPDIR)/$(LIBTARGET)"
 
 CFILES		= freebsd.c disk.c netif.c
 HFILES		= freebsd.h
@@ -47,12 +51,13 @@ build-me: $(LIBTARGET) $(CMDTARGET) help.dir help.pag $(CONFTARGETS)
 	fi
 
 install: default
-	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 644 domain.h help help.dir help.pag $(PMDADIR)
-	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(PMDADIR)
-	$(INSTALL) -m 644 root_freebsd $(PCP_VAR_DIR)/pmns/root_freebsd
-	$(INSTALL) -m 644 freebsd_disk_units.conf $(LOGREWRITEDIR)/freebsd_disk_units.conf
-	$(INSTALL) -m 644 freebsd_misc.conf $(LOGREWRITEDIR)/freebsd_misc.conf
+	$(INSTALL) -m 755 -d $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMDATMPDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h help help.dir help.pag $(PMDAADMDIR)
+	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(LIBTARGET) $(CMDTARGET) $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_freebsd root_freebsd $(PCP_PMNSADM_DIR)/root_freebsd
+	$(INSTALL) -m 644 -t $(REWRITEVARDIR)/freebsd_disk_units.conf freebsd_disk_units.conf $(REWRITEDIR)/freebsd_disk_units.conf
+	$(INSTALL) -m 644 -t $(REWRITEVARDIR)/freebsd_misc.conf freebsd_misc.conf $(REWRITEDIR)/freebsd_misc.conf
 else
 build-me:
 install:

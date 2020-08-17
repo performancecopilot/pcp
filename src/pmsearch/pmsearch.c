@@ -23,7 +23,7 @@ typedef enum search_flags {
     PMSEARCH_SCORES	= (1<<4),	/* report score for each result */
 
     PMSEARCH_OPT_INFO   = (1<<16),	/* -i, --info option */
-    PMSEARCH_OPT_NAMES	= (1<<17),	/* -n, --names option */
+    PMSEARCH_OPT_INDOM	= (1<<17),	/* -m, --indom option */
     PMSEARCH_OPT_QUERY	= (1<<18),	/* -q, --query option (default) */
     PMSEARCH_OPT_SUGGEST= (1<<19),	/* -s, --suggest option */
 } search_flags;
@@ -53,14 +53,8 @@ search_data_init(search_flags flags, sds query, unsigned int count, unsigned int
     dp->request.query = query;
     if ((flags & PMSEARCH_COLOUR)) {
 	dp->request.highlight_name = 1;
-	dp->request.highlight_indom = 0;
 	dp->request.highlight_oneline = 1;
 	dp->request.highlight_helptext = 1;
-    }
-    if ((flags & PMSEARCH_OPT_NAMES)) {
-	dp->request.infields_indom = 1;
-	dp->request.return_name = 1;
-	dp->request.type_indom = 1;
     }
     dp->request.offset = offset;
     dp->request.count = count;
@@ -208,11 +202,16 @@ on_search_result(pmSearchTextResult *result, void *arg)
 	printf("ID: %s\n", result->docid);
     if (dp->flags & PMSEARCH_SCORES)
 	printf("Score: %.2f\n", result->score);
-    printf("Type: %s\n", pmSearchTextTypeStr(result->type));
-    printv(dp, "Name", result->name);
-    printv(dp, "InDom", result->indom);
-    printv(dp, "One line", result->oneline);
-    printv(dp, "Help", result->helptext);
+    if (result->type != PM_SEARCH_TYPE_UNKNOWN)
+	printf("Type: %s\n", pmSearchTextTypeStr(result->type));
+    if (result->name != NULL)
+	printv(dp, "Name", result->name);
+    if (result->indom != NULL)
+	printv(dp, "InDom", result->indom);
+    if (result->oneline != NULL)
+	printv(dp, "One line", result->oneline);
+    if (result->helptext != NULL)
+	printv(dp, "Help", result->helptext);
 }
 
 static int
@@ -234,7 +233,7 @@ static pmLongOptions longopts[] = {
     { "no-colour", 0, 'C', 0, "no highlighting in results text" },
     { "docid", 0, 'd', 0, "report document ID of each result" },
     { "info", 0, 'i', 0, "report search engine interal metrics" },
-    { "names", 0, 'n', 0, "search for names associated with given InDom" },
+    { "indom", 0, 'n', 0, "perform an instance domain related entities search"},
     { "number", 1, 'N', "N", "return N search results at most" },
     { "offset", 1, 'O', "N", "paginated results from given offset" },
     { "query", 0, 'q', 0, "perform a general text search (default)" },
@@ -258,19 +257,25 @@ static pmOptions opts = {
 static void
 on_search_done(int sts, void *arg)
 {
-     search_data	*dp = (search_data *)arg;
+    search_data	*dp = (search_data *)arg;
 
-     if (sts == 0) {
-	if ((dp->flags & (PMSEARCH_OPT_QUERY | PMSEARCH_OPT_SUGGEST)) &&
+    if (sts == 0) {
+	if ((dp->flags & (PMSEARCH_OPT_QUERY | PMSEARCH_OPT_SUGGEST | PMSEARCH_OPT_INDOM)) &&
 	    (dp->count == 0))
 	    printf("0 search results\n");
-     } else if (dp->flags & PMSEARCH_OPT_INFO)
+    } else if (dp->flags & PMSEARCH_OPT_INFO)
 	fprintf(stderr, "%s: %s failed - %s\n", pmGetProgname(),
 			"pmSearchInfo", pmErrStr(sts));
-     else
+    else if (dp->flags & PMSEARCH_OPT_QUERY)
 	fprintf(stderr, "%s: %s failed - %s\n", pmGetProgname(),
 			"pmSearchTextQuery", pmErrStr(sts));
-
+    else if (dp->flags & PMSEARCH_OPT_SUGGEST)
+	fprintf(stderr, "%s: %s failed - %s\n", pmGetProgname(),
+			"pmSearchTextSuggest", pmErrStr(sts));
+    else
+	fprintf(stderr, "%s: %s failed - %s\n", pmGetProgname(),
+			"pmSearchTextIndom", pmErrStr(sts));
+                        
     pmSearchClose(&dp->settings.module);
     search_data_free(dp);
 }
@@ -278,20 +283,22 @@ on_search_done(int sts, void *arg)
 static void
 on_search_setup(void *arg)
 {
-     search_data	*dp = (search_data *)arg;
-     int		sts;
+    search_data	*dp = (search_data *)arg;
+    int		sts;
 
-     if ((dp->flags & PMSEARCH_OPT_INFO)) {
+    if ((dp->flags & PMSEARCH_OPT_INFO)) {
 	sds key = sdsnew("text");
 	sts = pmSearchInfo(&dp->settings, key, arg);
 	sdsfree(key);
-     }
-     else if ((dp->flags & PMSEARCH_OPT_SUGGEST))
+    }
+    else if ((dp->flags & PMSEARCH_OPT_SUGGEST))
 	sts = pmSearchTextSuggest(&dp->settings, &dp->request, arg);
-     else	/* flags & PMSEARCH_OPT_QUERY */
+    else if ((dp->flags & PMSEARCH_OPT_INDOM))
+	sts = pmSearchTextInDom(&dp->settings, &dp->request, arg);
+    else	/* flags & PMSEARCH_OPT_QUERY */
 	sts = pmSearchTextQuery(&dp->settings, &dp->request, arg);
 
-     if (sts < 0)
+    if (sts < 0)
 	on_search_done(sts, arg);
 }
 
@@ -352,12 +359,12 @@ main(int argc, char *argv[])
 	    redis_host = opts.optarg;
 	    break;
 
-	case 'n':	/* command line contains indom identifier */
-	    flags |= PMSEARCH_OPT_NAMES;
-	    break;
-
 	case 'i':	/* report search engine info (metrics) */
 	    flags |= PMSEARCH_OPT_INFO;
+	    break;
+
+	case 'n':	/* command line contains pmindom related entities query string */
+	    flags |= PMSEARCH_OPT_INDOM;
 	    break;
 
 	case 'N':	/* number of results to report */
@@ -438,7 +445,7 @@ main(int argc, char *argv[])
 	exit(sts);
     }
 
-    if ((flags & (PMSEARCH_OPT_NAMES | PMSEARCH_OPT_INFO | PMSEARCH_OPT_SUGGEST)) == 0)
+    if ((flags & (PMSEARCH_OPT_INFO | PMSEARCH_OPT_SUGGEST | PMSEARCH_OPT_INDOM)) == 0)
 	flags |= PMSEARCH_OPT_QUERY;	/* default */
 
     if (colour && pmLogLevelIsTTY())

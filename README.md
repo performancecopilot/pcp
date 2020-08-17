@@ -1,6 +1,6 @@
 ![PCP](images/pcpicon.png)
 
-[![Daily QA](https://github.com/performancecopilot/pcp/workflows/Daily%20QA/badge.svg)](https://pcp.io/qa-reports/)
+[![CI](https://github.com/performancecopilot/pcp/workflows/CI/badge.svg)](https://pcp.io/qa-reports/)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/15853/badge.svg)](https://scan.coverity.com/projects/15853)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/1872/badge)](https://bestpractices.coreinfrastructure.org/projects/1872)
 [![Mailing List](https://img.shields.io/badge/Mailing%20List-pcp-blue.svg)](https://groups.io/g/pcp)

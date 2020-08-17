@@ -16,15 +16,13 @@
 .TH PMPROCESSPIPE 3 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3__pmProcessPipe\f1,
-\f3__pmProcessClosePipe\f1 \- support for process execution at the end of a pipe
+\f3__pmProcessPipeClose\f1 \- support for process execution at the end of a pipe
 .SH "C SYNOPSIS"
 .ft 3
 #include "pmapi.h"
 .br
 #include "libpcp.h"
 .sp
-int __pmProcessAddArg(__pmExecCtl_t **\fIhandle\fP, const char *\fIarg\fP);
-.br
 int __pmProcessPipe(__pmExecCtl_t **\fIhandle\fP, const char *\fItype\fP, int \fItoss\fP, FILE **\fIfp\fP);
 .br
 int __pmProcessPipeClose(FILE *\fIfp\fP);

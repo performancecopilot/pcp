@@ -375,9 +375,10 @@ typedef enum pmSearchFlags {
 } pmSearchFlags;
 
 typedef enum pmSearchTextType {
-    PM_SEARCH_TYPE_METRIC	= 0,
-    PM_SEARCH_TYPE_INDOM	= 1,
-    PM_SEARCH_TYPE_INST		= 2,
+    PM_SEARCH_TYPE_UNKNOWN	= 0,
+    PM_SEARCH_TYPE_METRIC	= 1,
+    PM_SEARCH_TYPE_INDOM	= 2,
+    PM_SEARCH_TYPE_INST		= 3
 } pmSearchTextType;
 
 typedef struct pmSearchTextRequest {
@@ -390,20 +391,22 @@ typedef struct pmSearchTextRequest {
     unsigned int	type_indom : 1;
     unsigned int	type_inst : 1;
     unsigned int	type_pad : 1;
+
     unsigned int	highlight_name : 1;	/* highlight results */
-    unsigned int	highlight_indom : 1;
     unsigned int	highlight_oneline : 1;
     unsigned int	highlight_helptext : 1;
+
     unsigned int	infields_name : 1;	/* restrict query fields */
-    unsigned int	infields_indom : 1;
     unsigned int	infields_oneline : 1;
     unsigned int	infields_helptext : 1;
+
     unsigned int	return_name : 1;	/* restrict returned fields */
     unsigned int	return_indom : 1;
     unsigned int	return_oneline : 1;
     unsigned int	return_helptext : 1;
+    unsigned int	return_type : 1;
 
-    unsigned int	reserved: 16;	/* zero padding */
+    unsigned int	reserved: 17;	/* zero padding */
 } pmSearchTextRequest;
 
 typedef struct pmSearchTextResult {
@@ -462,11 +465,11 @@ extern int pmSearchSetMetricRegistry(pmSearchModule *, struct mmv_registry *);
 extern void pmSearchClose(pmSearchModule *);
 extern int pmSearchEnabled(void *);
 
-extern int pmSearchInfo(pmSearchSettings *, sds, void *);
-
 extern const char *pmSearchTextTypeStr(pmSearchTextType);
-extern int pmSearchTextQuery(pmSearchSettings *, pmSearchTextRequest *, void *);
+extern int pmSearchInfo(pmSearchSettings *, sds, void *);
+extern int pmSearchTextInDom(pmSearchSettings *, pmSearchTextRequest *, void *);
 extern int pmSearchTextSuggest(pmSearchSettings *, pmSearchTextRequest *, void *);
+extern int pmSearchTextQuery(pmSearchSettings *, pmSearchTextRequest *, void *);
 
 #ifdef __cplusplus
 }

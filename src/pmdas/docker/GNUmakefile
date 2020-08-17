@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016-2017 Red Hat.
+# Copyright (c) 2016-2017,2020 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -19,8 +19,10 @@ IAM	= docker
 DOMAIN	= DOCKER
 CMDTARGET = pmda$(IAM)$(EXECSUFFIX)
 LIBTARGET = pmda_$(IAM).$(DSOSUFFIX)
-PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 PMDAINIT = $(IAM)_init
+
+PMDAADMDIR = $(PCP_PMDASADM_DIR)/$(IAM)
+PMDATMPDIR = $(PCP_PMDAS_DIR)/$(IAM)
 
 LLDLIBS = $(PCP_WEBLIB) $(LIB_FOR_PTHREADS)
 
@@ -41,9 +43,10 @@ ifeq "$(TARGET_OS)" "linux"
 build-me:	$(CMDTARGET) $(LIBTARGET)
 
 install_pcp install:	default 
-	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove $(CMDTARGET) $(LIBTARGET) $(PMDADIR)
-	$(INSTALL) -m 644 root pmns domain.h $(DFILES) $(PMDADIR)
+	$(INSTALL) -m 755 -d $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMDATMPDIR)
+	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove $(CMDTARGET) $(LIBTARGET) $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) root pmns domain.h $(DFILES) $(PMDAADMDIR)
 	@$(INSTALL_MAN)
 else
 build-me:

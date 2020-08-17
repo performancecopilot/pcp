@@ -127,6 +127,7 @@
 ** declaration of global variables
 */
 struct sysname	sysname;
+int		localhost;
 int		nodenamelen;
 struct timeval	start;
 struct timeval	finish;
@@ -170,7 +171,7 @@ long long	system_boottime;
 
 struct visualize vis = {generic_samp, generic_error,
 			generic_end,  generic_usage,
-                       generic_prep, generic_next};
+                        generic_prep, generic_next};
 
 /*
 ** argument values
@@ -520,6 +521,8 @@ engine(void)
 	unsigned int		nrgpuproc = 0;	/* number of GPU processes   */
 	struct gpupidstat	*gp = NULL;
 
+	char			lastcmd = '\0';
+
 	/*
 	** initialization: allocate required memory dynamically
 	*/
@@ -565,8 +568,6 @@ engine(void)
 	*/
 	for (sampcnt=0; sampcnt < nsamples; sampcnt++)
 	{
-		char	lastcmd;
-
 		/*
 		** wait for alarm-signal to arrive (except first sample)
 		** or wait for SIGUSR1/SIGUSR2
@@ -583,12 +584,12 @@ engine(void)
 		cursstat = presstat;
 		presstat = hlpsstat;
 
-		lastcmd = photosyst(cursstat);	/* obtain new counters     */
-		if (lastcmd == 'r')
+		if (photosyst(cursstat) == MRESET) /* obtain new counters */
 		{
 			/* reset to zero */
 			if ((*vis.next)() < 0)
 				cleanstop(1);
+			lastcmd = MRESET;
 			goto reset;
 		}
 		system_boottime = cursstat->cpu.btime;
@@ -680,6 +681,14 @@ engine(void)
 		if (sampcnt==0)
 			sampflags |= RRBOOT;
 
+		if ((rawreadflag && (sampflags & RRBOOT)) ||
+		    (lastcmd == MSAMPPREV || lastcmd == MSAMPBRANCH))
+		{
+			pmtimevalInc(&curtime, &interval);
+			lastcmd = '\0';
+			goto reset;
+		}
+
 		/*
 		** activate the installed print-function to visualize
 		** the deviations
@@ -689,11 +698,9 @@ engine(void)
 		           	     &devtstat, devsstat,
 		                     nprocexit, noverflow, sampflags);
                 /*
-                 */
+		** prepare for next phase of sampling after visualize
+                */
                 (*vis.prep)();
-
-		if (rawreadflag)
-			pmtimevalInc(&curtime, &interval);
 
 		/*
 		** release dynamically allocated memory
@@ -707,12 +714,17 @@ engine(void)
 		if (gp)
 			free(gp);
 
-reset:
-		if (lastcmd == 'r')	/* reset requested ? */
-		{
-			sampcnt = -1;
+		if (rawreadflag && (lastcmd == 0 || lastcmd == MSAMPNEXT))
+			pmtimevalInc(&curtime, &interval);
 
-			curtime = origin;
+reset:
+		if (lastcmd == MRESET || lastcmd == MSAMPBRANCH || lastcmd == MSAMPPREV)
+		{
+			if (lastcmd == MRESET)
+			{
+				sampcnt = -1;
+				curtime = origin;
+			}
 
 			/* set current (will be 'previous') counters to 0 */
 			sstat_reset(cursstat);

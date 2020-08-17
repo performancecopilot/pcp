@@ -1368,7 +1368,7 @@ _check_valgrind()
 # 
 _filter_valgrind()
 {
-   noleak="LEAK SUMMARY:\ndefinitely lost: 0 bytes in 0 blocks\nindirectly lost: 0 bytes in 0 blocks"
+    noleak="LEAK SUMMARY:\ndefinitely lost: 0 bytes in 0 blocks\nindirectly lost: 0 bytes in 0 blocks"
     sed \
 	-e 's/^==*[1-9][0-9]*==* *//' \
 	-e '/^$/d' \
@@ -1393,6 +1393,7 @@ _filter_valgrind()
 	-e '/Ignoring non-Dwarf2\/3\/4 block in .debug_info/d' \
 	-e '/Last block truncated in .debug_info; ignoring/d' \
 	-e '/parse_CU_Header: is neither DWARF2 nor DWARF3 nor DWARF4/d' \
+	-e '/DW_FORM_GNU_strp_alt used, but no alternate .debug_str/d' \
 	-e '/^parse DIE/,/confused by the above DIE/d' \
     # end
 }
@@ -1648,10 +1649,9 @@ _remove_job_scheduler()
     $rc_sudo rm -f $rc_cron_backup $rc_systemd_state
 
     if systemctl cat pmie_daily.timer >/dev/null 2>&1; then
-	for i in pmie_daily.timer pmie_check.timer pmlogger_daily.timer \
-		pmlogger_daily-poll.timer pmlogger_check.timer \
+	for i in pmie.service pmie_daily.timer pmie_check.timer pmlogger_daily.timer \
 		pmlogger_daily_report.timer pmlogger_daily_report-poll.timer \
-		pmlogger_check.path pmie_check.path ; do
+		pmlogger_daily-poll.timer pmlogger_check.timer ; do
 	    $rc_sudo systemctl is-active "$i" > /dev/null || continue
 	    $rc_sudo systemctl stop $i >/dev/null
 	    echo "$i" >> $rc_systemd_state

@@ -42,6 +42,9 @@
 [\f3\-\-container\f1=\f2name\f1]
 [\f3\-\-derived\f1=\f2file\f1]
 \f2metricname\f1
+.sp
+\f3pmevent\f1
+\&...
 .SH DESCRIPTION
 .de EX
 .in +0.5i
@@ -147,6 +150,10 @@ output:  A question mark symbol (?) indicates that a value is no
 longer available for that metric instance.
 An exclamation mark (!)
 indicates that a 64-bit counter wrapped during the sample.
+.PP
+.B pmevent
+is an alias for
+.BR pmval .
 .SH OPTIONS
 The available command line options are:
 .TP 5

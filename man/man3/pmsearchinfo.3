@@ -15,7 +15,7 @@
 .\"
 .TH PMSEARCHINFO 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmSearchInfo\f1 \- metrics for PCP fulltext search services
+\f3pmSearchInfo\f1 \- diagnostic metrics of PCP search services
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmwebapi.h>
@@ -25,10 +25,25 @@ int pmSearchInfo(pmSearchSettings *\fIsettings\fP, sds \fIkey\fP, void *\fIarg\f
 cc ... \-lpcp_web
 .ft 1
 .SH DESCRIPTION
-.de CW
-.ie t \f(CW\\$1\f1\\$2
-.el \fI\\$1\f1\\$2
-..
-
-.SH NOTES
+Diagnostic metrics related to the Performance Co-Pilot (PCP) fast, scalable and fulltext capable search services.
+.PP
+Currently, as all fulltext related services are using single RediSearch index, diagnostic metrics are requestable by passing in
+.IR key
+with a value of
+.BR `text' .
+The results will passed to
+.B on_metrics
+callback provided by
+.B settings.
+.SH DIAGNOSTICS
+This function always returns zero on success.
+On failure a negative PMAPI error code is returned.
 .SH SEE ALSO
+.BR pmproxy (1),
+.BR pmlogger (1),
+.BR pmsearch (1),
+.BR redis-server (1),
+.BR pmSearchSetup (3),
+.BR PMAPI (3)
+and
+.BR PMWEBAPI (3).

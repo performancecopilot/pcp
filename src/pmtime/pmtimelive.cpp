@@ -205,15 +205,15 @@ void PmTimeLive::changeDelta(int value)
 
 void PmTimeLive::displayDeltaText()
 {
-    QString text;
+    char text[64];
     double delta = PmTime::secondsFromTimeval(&my.pmtime.delta);
 
     delta = PmTime::secondsToUnits(delta, my.units);
     if ((double)(int)delta == delta)
-	text.sprintf("%.2f", delta);
+	pmsprintf(text, sizeof(text), "%.2f", delta);
     else
-	text.sprintf("%.6f", delta);
-    lineEditDelta->setText(text);
+	pmsprintf(text, sizeof(text), "%.6f", delta);
+    lineEditDelta->setText(QString(text));
 }
 
 void PmTimeLive::disableConsole()

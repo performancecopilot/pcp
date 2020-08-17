@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016-2017 Red Hat.  All Rights Reserved.
+# Copyright (c) 2016-2017,2020 Red Hat.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -16,7 +16,8 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
-CONFIGDIR = $(PCP_VAR_DIR)/config/derived
+CONFIGVAR = $(PCP_VAR_DIR)/config/derived
+CONFIGETC = $(PCP_SYSCONF_DIR)/derived
 CONFIGFILES = $(shell echo *.conf)
 
 default:	$(CONFIGFILES)
@@ -24,8 +25,9 @@ default:	$(CONFIGFILES)
 include $(BUILDRULES)
 
 install:	default
-	$(INSTALL) -m 755 -d $(CONFIGDIR)
-	$(INSTALL) -m 644 $(CONFIGFILES) $(CONFIGDIR)
+	$(INSTALL) -m 755 -d $(CONFIGETC)
+	$(INSTALL) -m 755 -d $(CONFIGVAR)
+	$(INSTALL) -m 644 -t $(CONFIGVAR) $(CONFIGFILES) $(CONFIGETC)
 
 default_pcp:	default
 

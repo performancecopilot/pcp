@@ -1,0 +1,46 @@
+#!/bin/sh
+# PCP QA Test No. 1241
+# pmlogrewrite emits TI records every 100,000 bytes of output?
+#
+# Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+if [ $# -eq 0 ]
+then
+    echo "QA output created by $seq"
+else
+    echo "QA output created by $seq $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+cat <<End-of-File >$tmp.rewrite
+metric vfs.inodes.count { type -> U32 }
+End-of-File
+
+# real QA test starts here
+pmlogrewrite -c $tmp.rewrite archives/pmiostat_mark $tmp
+
+pmdumplog -zt archives/pmiostat_mark | tee -a $seq.full >$tmp.in
+pmdumplog -zt $tmp | tee -a $seq.full >$tmp.out
+
+echo "Silence is golden ..."
+diff $tmp.in $tmp.out
+
+# success, all done
+status=0
+exit

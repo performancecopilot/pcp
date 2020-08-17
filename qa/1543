@@ -2,7 +2,7 @@
 # PCP QA Test No. 1543
 # Exercise the async pmproxy PMWEBAPI implementation.
 #
-# Copyright (c) 2019 Red Hat.
+# Copyright (c) 2019-2020 Red Hat.
 #
 
 seq=`basename $0`
@@ -281,7 +281,7 @@ curl -s "http://localhost:$port/pmapi/$context/profile?expr=del&indom=29.1&iname
 
 
 section "GET /pmapi/store"
-# mandatory params: name or pmid, value
+# mandatory params: name or pmid, value (or POST body)
 # optional params: iname, instance
 
 curl -s "http://localhost:$port/pmapi/store?name=sample.long.write_me&value=42" \
@@ -289,11 +289,20 @@ curl -s "http://localhost:$port/pmapi/store?name=sample.long.write_me&value=42" 
 context=`cat $tmp.context`
 curl -s "http://localhost:$port/pmapi/$context/fetch?name=sample.long.write_me" \
 	| _filter_json "check stored value by name"
+
 curl -s "http://localhost:$port/pmapi/store?pmid=29.0.14&value=2" \
 	| _filter_json "store value by pmid"
 context=`cat $tmp.context`
 curl -s "http://localhost:$port/pmapi/$context/fetch?pmid=29.0.14" \
 	| _filter_json "check stored value by pmid"
+
+echo 24 | tr -d '\n' > $tmp.out
+curl -s "http://localhost:$port/pmapi/store?name=sample.long.write_me" -d @$tmp.out \
+	| _filter_json "store by POST"
+context=`cat $tmp.context`
+curl -s "http://localhost:$port/pmapi/$context/fetch?name=sample.long.write_me" \
+	| _filter_json "check POST stored value by name"
+
 curl -s "http://localhost:$port/pmapi/store?name=sample.colour&value=42&iname=red,blue" \
 	| _filter_json "instance store by name and iname"
 curl -s "http://localhost:$port/pmapi/store?name=sample.colour&value=42&instance=0,1" \

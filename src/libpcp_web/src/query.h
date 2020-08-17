@@ -113,6 +113,7 @@ typedef struct series_instance_set {
 
 typedef struct series_sample_set {
     seriesGetSID		*sid;
+    sds				metric_name;
     pmSeriesDesc		series_desc;
     void			*baton;
     /* Number of series samples */
@@ -125,6 +126,21 @@ typedef struct series_value_set {
     int				num_series;
     series_sample_set_t		*series_values;
 } series_value_set_t;
+
+
+typedef struct timing {
+    /* input string */
+    pmSeriesTimeWindow	window;
+
+    /* parsed inputs */
+    struct timeval	delta;	
+    struct timeval	align;
+    struct timeval	start;
+    struct timeval	end;
+    unsigned int	count;		/* sample count */
+    unsigned int	offset;		/* sample offset */
+    int			zone;		/* pmNewZone handle */
+} timing_t;
 
 
 typedef struct node {
@@ -149,21 +165,11 @@ typedef struct node {
 
     /* result set of time series values at this node */
     series_value_set_t	value_set;
+
+    /* Corresponding time specifier */
+    timing_t		time;
 } node_t;
 
-typedef struct timing {
-    /* input string */
-    pmSeriesTimeWindow	window;
-
-    /* parsed inputs */
-    struct timeval	delta;	
-    struct timeval	align;
-    struct timeval	start;
-    struct timeval	end;
-    unsigned int	count;		/* sample count */
-    unsigned int	offset;		/* sample offset */
-    int			zone;		/* pmNewZone handle */
-} timing_t;
 
 typedef struct series {
     sds			name;

@@ -23,11 +23,8 @@
 
 PMFIND=${PMFIND:-"$PCP_BIN_DIR/pmfind"}
 
-PMIE_ARGS=''
-PMFIND_ARGS=${PMFIND_ARGS:-'-s pmcd -r -S'}
-PMLOGGER_ARGS='-r -T24h10m -v 100Mb'
-PMIE_SERVICE_ARGS=${PMIE_SERVICE_PARAMS:-$PMIE_ARGS}
-PMLOGGER_SERVICE_ARGS=${PMLOGGER_SERVICE_PARAMS:-$PMLOGGER_ARGS}
+PMFIND_ARGS=${PMFIND_ARGS:-'-s pmcd -r -S -q'}
+CTL_ARGS=''
 
 # error messages should go to stderr, not the GUI notifiers
 unset PCP_STDERR
@@ -50,9 +47,6 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 # option parsing
 CONTAINERS=false
 SHOWME=false
-MV=mv
-RM=rm
-CP=cp
 VERBOSE=false
 VERY_VERBOSE=false
 
@@ -83,6 +77,7 @@ do
 	-N)	SHOWME=true
 		USE_SYSLOG=false
 		CP="echo + cp"
+		CTL_ARGS="$CTL_ARGS -N"
 		;;
 	-V)	if $VERBOSE
 		then
@@ -90,6 +85,7 @@ do
 		else
 		    VERBOSE=true
 		fi
+		CTL_ARGS="$CTL_ARGS -V"
 		;;
 	--)	shift
 		break
@@ -154,38 +150,47 @@ _debug()
 
 $CONTAINERS && PMFIND_ARGS="$PMFIND_ARGS -C"
 $PMFIND $PMFIND_ARGS > "$tmp/out" 2> "$tmp/err"
+# exit status from pmfind(1) is not a good indicator of success,
+# no output => nothing to do, status == 0 => work to be done
+#
+[ -s "$tmp/out" ] || exit
 [ $? -eq 0 ] && rm -f "$tmp/err"
+
+pmiectl -V status >$tmp/pmie.status
+pmlogctl -V status >$tmp/pmlogger.status
 
 cat "$tmp/out" | while read SHA1 host
 do
     $VERBOSE && echo "Discovered host $host [$SHA1]"
 
-    if [ ! -f "$PCP_PMIECONTROL_PATH.d/$SHA1" ]
+    if grep " $SHA1\$" $tmp/pmie.status >/dev/null
     then
-	# newly discovered source - create pmie control file for it
-	cat > "$tmp/$SHA1" <<EOF_PMIE
-\$version=1.1
-$host	n   n	PCP_LOG_DIR/pmie/$SHA1/pmie.log	-c config.$SHA1 $PMIE_SERVICE_ARGS
-EOF_PMIE
-	$CP "$tmp/$SHA1" "$PCP_PMIECONTROL_PATH.d/$SHA1" || \
-	    _error "cannot create $PCP_PMIECONTROL_PATH.d/$SHA1"
-	_debug "pmie setup for host \"$host\""
-    else
 	_debug "pmie already setup for host \"$host\""
+    else
+	# no pmie has instance id $SHA1, set it up
+	#
+	if pmiectl $CTL_ARGS -i "$SHA1" cond-create $host
+	then
+	    _debug "pmie setup for host \"$host\""
+	else
+	    _debug "pmie setup failed for host \"$host\""
+	    touch $tmp/err
+	fi
     fi
 
-    if [ ! -f "$PCP_PMLOGGERCONTROL_PATH.d/$SHA1" ]
+    if grep " $SHA1\$" $tmp/pmlogger.status >/dev/null
     then
-	# newly discovered source - create pmlogger control file for it
-	cat > "$tmp/$SHA1" <<EOF_PMLOGGER
-\$version=1.1
-$host	n   n	PCP_ARCHIVE_DIR/$SHA1	-c config.$SHA1 $PMLOGGER_SERVICE_ARGS
-EOF_PMLOGGER
-	$CP "$tmp/$SHA1" "$PCP_PMLOGGERCONTROL_PATH.d/$SHA1" || \
-	    _error "cannot create $PCP_PMLOGGERCONTROL_PATH.d/$SHA1"
-	_debug "pmlogger setup for host \"$host\""
-    else
 	_debug "pmlogger already setup for host \"$host\""
+    else
+	# no pmlogger has instance id $SHA1, set it up
+	#
+	if pmlogctl $CTL_ARGS -i "$SHA1" cond-create $host
+	then
+	    _debug "pmlogger setup for host \"$host\""
+	else
+	    _debug "pmlogger setup failed for host \"$host\""
+	    touch $tmp/err
+	fi
     fi
 done
 

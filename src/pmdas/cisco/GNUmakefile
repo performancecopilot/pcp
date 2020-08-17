@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014-2015 Red Hat.
+# Copyright (c) 2014-2015,2020 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -22,14 +22,15 @@ TARGETS	= $(IAM)$(EXECSUFFIX) probe$(EXECSUFFIX)
 CFILES	= cisco.c pmda.c interface.c telnet.c
 HFILES	= cisco.h 
 DFILES	= README
-LSRCFILES=Install Remove root pmns Cisco.pmchart help Samples Tested $(DFILES) \
-	cisco.in_util.pmie cisco.out_util.pmie probe.c parse.sh
 
 LLDLIBS	= $(PCP_PMDALIB) $(LIB_FOR_PTHREADS)
 
-PMDADIR = $(PCP_PMDAS_DIR)/$(IAM)
-PMCHART	= $(PCP_VAR_DIR)/config/pmchart
-PMIEDIR	= $(PCP_VAR_DIR)/config/pmieconf/$(IAM)
+PMDATMPDIR = $(PCP_PMDAS_DIR)/$(IAM)
+PMDAADMDIR = $(PCP_PMDASADM_DIR)/$(IAM)
+PMCHARTDIR	= $(PCP_SYSCONF_DIR)/pmchart
+PMCHARTVARDIR	= $(PCP_VAR_DIR)/config/pmchart
+PMIEDIR		= $(PCP_SYSCONF_DIR)/pmieconf/$(IAM)
+PMIEVARDIR	= $(PCP_VAR_DIR)/config/pmieconf/$(IAM)
 
 LDIRT	= domain.h cisco.log *.dir *.pag so_locations a.out probe.o $(TARGETS)
 
@@ -41,15 +42,17 @@ ifneq "$(TARGET_OS)" "mingw"
 build-me:	$(TARGETS)
 
 install:	build-me
-	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 $(IAM) $(PMDADIR)/pmda$(IAM) 
-	$(INSTALL) -m 755 parse.sh $(PMDADIR)/parse
-	$(INSTALL) -m 755 probe Install Remove $(PMDADIR)
-	$(INSTALL) -m 644 $(DFILES) root help pmns domain.h $(PMDADIR)
-	$(INSTALL) -m 644 Cisco.pmchart $(PMCHART)/Cisco
+	$(INSTALL) -m 755 -d $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMDATMPDIR)
+	$(INSTALL) -m 755 -t $(PMDATMPDIR)/pmda$(IAM) $(IAM) $(PMDAADMDIR)/pmda$(IAM) 
+	$(INSTALL) -m 755 -t $(PMDATMPDIR)/parse parse.sh $(PMDAADMDIR)/parse
+	$(INSTALL) -m 755 -t $(PMDATMPDIR) probe Install Remove $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) $(DFILES) root help pmns domain.h $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMCHARTVARDIR)/Cisco Cisco.pmchart $(PMCHARTDIR)/Cisco
 	$(INSTALL) -m 755 -d $(PMIEDIR)
-	$(INSTALL) -m 644 cisco.in_util.pmie $(PMIEDIR)/in_util
-	$(INSTALL) -m 644 cisco.out_util.pmie $(PMIEDIR)/out_util
+	$(INSTALL) -m 755 -d $(PMIEVARDIR)
+	$(INSTALL) -m 644 -t $(PMIEVARDIR)/in_util cisco.in_util.pmie $(PMIEDIR)/in_util
+	$(INSTALL) -m 644 -t $(PMIEVARDIR)/out_util cisco.out_util.pmie $(PMIEDIR)/out_util
 else
 build-me:
 install:

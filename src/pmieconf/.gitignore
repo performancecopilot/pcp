@@ -3,6 +3,7 @@ entropy/GNUmakefile
 filesys/GNUmakefile
 global/GNUmakefile
 memory/GNUmakefile
+network/GNUmakefile
 percpu/GNUmakefile
 pernetif/GNUmakefile
 primary/GNUmakefile

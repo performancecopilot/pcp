@@ -116,37 +116,126 @@ convdate(double timed, char *chardat, size_t buflen)
 
 
 /*
-** Convert a hh:mm string into a number of seconds since 00:00
+** Convert a string in format [YYYYMMDD]hh[:]mm into an epoch time value or
+** when only the value hh[:]mm was given, take this time from midnight.
+**
+** Arguments:           String with date-time in format [YYYYMMDD]hh[:]mm
+**                      or hh[:]mm.
+**
+**                      Pointer to time_t containing 0 or current epoch time.
 **
 ** Return-value:	0 - Wrong input-format
 **			1 - Success
 */
 int
-hhmm2secs(char *itim, unsigned int *otim)
+getbranchtime(char *itim, struct timeval *newtime)
 {
-	register int	i;
-	int		hours, minutes;
+	register int	ilen = strlen(itim);
+	int		hours, minutes, seconds = 0;
+	time_t		epoch;
+	struct tm	tm;
+
+	memset(&tm, 0, sizeof tm);
 
 	/*
-	** check string syntax
+	** verify length of input string
 	*/
-	for (i=0; *(itim+i); i++)
-		if ( !isdigit(*(itim+i)) && *(itim+i) != ':' )
-			return(0);
+	if (ilen != 4 && ilen != 5 && ilen != 6 && ilen != 8 &&
+	    ilen != 12 && ilen != 13 && ilen != 14 && ilen != 16)
+		return 0;		// wrong date-time format
 
-	sscanf(itim, "%d:%d", &hours, &minutes);
+	/*
+	** check string syntax for absolute time specified as
+	** YYYYMMDDhh:mm or YYYYMMDDhhmm or YYYYMMDDhh:mm:ss or YYYYMMDDhhmmss
+	*/
+	if ( sscanf(itim, "%4d%2d%2d%2d:%2d", &tm.tm_year, &tm.tm_mon,
+				&tm.tm_mday,  &tm.tm_hour, &tm.tm_min) == 5 ||
+	     sscanf(itim, "%4d%2d%2d%2d%2d",  &tm.tm_year, &tm.tm_mon,
+				&tm.tm_mday,  &tm.tm_hour, &tm.tm_min) == 5   )
+	{
+		tm.tm_year -= 1900;
+		tm.tm_mon  -= 1;
 
-	if ( hours < 0 || hours > 23 || minutes < 0 || minutes > 59 )
-		return(0);
+		if (tm.tm_year < 100 || tm.tm_mon  < 0  || tm.tm_mon > 11 ||
+		    tm.tm_mday < 1   || tm.tm_mday > 31 ||
+		    tm.tm_hour < 0   || tm.tm_hour > 23 ||
+		    tm.tm_min  < 0   || tm.tm_min  > 59   )
+		{
+			return 0;	// wrong date-time format
+		}
 
-	*otim = (hours * 3600) + (minutes * 60);
+		tm.tm_isdst = -1;
 
-	if (*otim >= SECSDAY)
-		*otim = SECSDAY-1;
+		if ((epoch = __pmMktime(&tm)) == -1)
+			return 0;	// wrong date-time format
 
-	return(1);
+		// correct date-time format
+		newtime->tv_sec = epoch;
+		newtime->tv_usec = 0;
+		return 1;
+	}
+
+	/*
+	** check string syntax for relative time specified as
+	** hh:mm or hhmm or hh:mm:ss or hhmmss
+	*/
+
+	if ( sscanf(itim, "%2d:%2d", &hours, &minutes) == 2     ||
+	     sscanf(itim, "%2d%2d",  &hours, &minutes) == 2     ||
+	     sscanf(itim, "%2d%2d%2d",  &hours, &minutes, &seconds) == 3  ||
+	     sscanf(itim, "%2d:%2d:%2d",  &hours, &minutes, &seconds) == 3 )
+	{
+		if ( hours < 0 || hours > 23 || minutes < 0 || minutes > 59 )
+			return 0;	// wrong date-time format
+		if ( seconds < 0 || seconds > 59 )
+			return 0;	// wrong date-time format
+
+		newtime->tv_usec = 0;
+
+		/*
+		** when the new time is already filled with an epoch time,
+		** the relative time will be on the same day as indicated by
+		** that epoch time
+		** when the new time is the time within a day or 0, the new
+		** time will be stored again as the time within a day.
+		*/
+		if (newtime->tv_sec <= SECONDSINDAY)	// time within the day?
+		{
+			newtime->tv_sec = (hours * 3600) + (minutes * 60) + seconds;
+
+			if (newtime->tv_sec >= SECONDSINDAY)
+				newtime->tv_sec = SECONDSINDAY-1;
+			return 1;
+		}
+		else
+		{
+			newtime->tv_sec = normalize_epoch(newtime->tv_sec,
+					(hours*3600) + (minutes*60) + seconds);
+			return 1;
+		}
+	}
+
+	return 0;       // wrong date-time format
 }
 
+/*
+** Normalize an epoch time with the number of seconds within a day
+** Return-value:	Normalized epoch 
+*/
+time_t
+normalize_epoch(time_t epoch, long secondsinday)
+{
+	struct tm	tm;
+
+	pmLocaltime(&epoch, &tm);	// convert epoch to tm
+
+	tm.tm_hour   = 0;
+	tm.tm_min    = 0;
+	tm.tm_sec    = secondsinday;
+	tm.tm_isdst  = -1;
+
+	return __pmMktime(&tm);		// convert tm to epoch
+}
 
 /*
 ** Function val2valstr() converts a positive value to an ascii-string of a 
@@ -577,11 +666,6 @@ setup_step_mode(int forward)
 {
 	const int SECONDS_IN_24_DAYS = 2073600;
 
-	if (forward)
-		curtime = start;
-	else
-		curtime = origin;
-
 	if (!rawreadflag)
 		fetchmode = PM_MODE_LIVE;
 	else if (forward)
@@ -620,6 +704,7 @@ setup_origin(pmOptions *opts)
 	/* initial archive mode, position and delta */
 	if (opts->context == PM_CONTEXT_ARCHIVE)
 	{
+		curtime = start;
 		setup_step_mode(1);
 		if ((sts = pmSetMode(fetchmode, &curtime, fetchstep)) < 0)
 		{
@@ -688,13 +773,22 @@ setup_context(pmOptions *opts)
 	if (opts->context == PM_CONTEXT_ARCHIVE)
 		source = opts->archives[0];
 	else if (opts->context == PM_CONTEXT_HOST)
+	{
 		source = opts->hosts[0];
+		if (strcmp(source, "local:") == 0 ||
+		    strcmp(source, "localhost") == 0)
+			localhost = 1;
+	}
 	else if (opts->context == PM_CONTEXT_LOCAL)
+	{
 		source = NULL;
+		localhost = 1;
+	}
 	else
 	{
 		opts->context = PM_CONTEXT_HOST;
 		source = "local:";
+		localhost = 1;
 	}
 
 	if ((sts = ctx = pmNewContext(opts->context, source)) < 0)
@@ -766,6 +860,8 @@ setup_globals(pmOptions *opts)
 		hinv_nrintf = 1;
 
 	pmFreeResult(result);
+
+	curtime = origin;
 	setup_step_mode(0);
 }
 
@@ -989,8 +1085,18 @@ setup_metrics(char **metrics, pmID *pmidlist, pmDesc *desclist, int nmetrics)
 	}
 }
 
-static inline int
-timeval_greater_than(struct timeval *a, struct timeval *b)
+int
+time_less_than(struct timeval *a, struct timeval *b)
+{
+    if (a->tv_sec < b->tv_sec)
+	return 1;
+    if (a->tv_sec == b->tv_sec && a->tv_usec < b->tv_usec)
+	return 1;
+    return 0;
+}
+
+int
+time_greater_than(struct timeval *a, struct timeval *b)
 {
     if (a->tv_sec > b->tv_sec)
 	return 1;
@@ -1005,7 +1111,7 @@ fetch_metrics(const char *purpose, int nmetrics, pmID *pmids, pmResult **result)
 	pmResult	*rp;
 	int		sts;
 
-	if (timeval_greater_than(&curtime, &finish)) {
+	if (time_greater_than(&curtime, &finish)) {
 	    sampflags |= (RRLAST | RRMARK);
 	    return PM_ERR_EOL;
 	}

@@ -21,11 +21,13 @@ cp $PCP_VAR_DIR/config/pmlogconf/tools/atop* $tmp/config
 # create an empty pmlogconf configuration
 echo "#pmlogconf 2.0" > $tmp.config 
 echo "#+ groupdir $tmp/config" >> $tmp.config
-# interactive - set 1 second interval, and log everything!
+# interactive - set default interval, and log everything!
 $PMLOGCONF -d $tmp/config $tmp.config
+sed -i -e 's/atop-proc:n:/atop-proc:y:/g' $tmp.config
+$PMLOGCONF -c -d $tmp/config $tmp.config
 
 rm -f pcp-atop-boot.*
-$PMLOGGER -t 1 -s 3 -c $tmp.config -l $tmp.log pcp-atop-boot &
+$PMLOGGER -t 1 -T 5sec -c $tmp.config -l $tmp.log pcp-atop-boot &
 
 #
 # Do some work to make kernel stats move ...

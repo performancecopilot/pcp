@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2019 Red Hat.
+# Copyright (c) 2012-2020 Red Hat.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -115,9 +115,9 @@ endif
 
 CFLAGS_ABI = @cflags_abi@
 CFLAGS_OPT = @optimization@
-CFLAGS += $(PCFLAGS) $(LCFLAGS) $(WARN_OFF) $(CFLAGS_OPT) \
+CFLAGS += -I$(TOPDIR)/src/include -I$(TOPDIR)/src/include/pcp \
 	-DPCP_VERSION=\"$(PCP_VERSION)\" \
-	-I$(TOPDIR)/src/include -I$(TOPDIR)/src/include/pcp
+	$(PCFLAGS) $(LCFLAGS) $(WARN_OFF) $(CFLAGS_OPT)
 
 PIECFLAGS = @PIECFLAGS@
 PIELDFLAGS = @PIELDFLAGS@
@@ -239,7 +239,10 @@ PCP_MAN_DIR = @pcp_man_dir@
 PCP_BOOKS_DIR = @pcp_books_dir@
 PCP_ICONS_DIR = @pcp_icons_dir@
 PCP_DESKTOP_DIR = @pcp_desktop_dir@
+PCP_PMNS_DIR = @pcp_pmns_dir@
+PCP_PMNSADM_DIR = @pcp_pmnsadm_dir@
 PCP_SELINUX_DIR = @pcp_selinux_dir@
+PCP_SELINUXADM_DIR = @pcp_selinuxadm_dir@
 
 NEED_OLD_TBL_HEADER = @need_old_tbl_header@
 RDYNAMIC_FLAG = @rdynamic_flag@
@@ -538,7 +541,8 @@ INSTALL_MAN = \
 	base=`echo $$d | sed -e 's/\.[0-9]//g'`; \
 	section=`echo $$d | sed -e 's/.*\.//g'`; \
 	$(AWK) <$$d ' \
-BEGIN { state=0; print "'"$$base"'" } \
+BEGIN { state=0 } \
+$$1==".ds" && $$2=="xM" { print $$3; next } \
 $$1==".ds" { ds["\\\\\\*\\("$$2] = $$3 } \
 $$1==".SH" && $$2=="NAME" { state=1; next } \
 $$1==".SH" && state==1	{ exit } \
@@ -550,7 +554,6 @@ state==1 { for (i=1;i<=NF;i++) { \
 	     print $$i \
 	   } \
 	 }' \
-	| LC_COLLATE=POSIX $(PCP_SORT_PROG) -u \
 	| while read m; do \
 	    [ -z "$$m" -o "$$m" = "\\" ] && continue; \
 	    t=$(PCP_MAN_DIR)/man$$section/$$m.$$section; \
@@ -575,17 +578,8 @@ state==1 { for (i=1;i<=NF;i++) { \
 		echo $(INSTALL) -m 644 $${d}$$_tfx $${t}$$_sfx; \
 		$(INSTALL) -m 644 $${d}$$_tfx $${t}$$_sfx; \
 	    else \
-		if test "$(CASE_INSENSITIVE_FS)" = "yes"; then \
-		    _upper_u=`echo $$u | tr 'a-z' 'A-Z'`; \
-		    _upper_t=`basename $${t}$$_sfx | tr 'a-z' 'A-Z'`; \
-		    if test "$$_upper_u" != "$$_upper_t"; then \
-			echo $(INSTALL) -S $$u $${t}$$_sfx; \
-			$(INSTALL) -S $$u $${t}$$_sfx; \
-		    fi \
-		else \
-		    echo $(INSTALL) -S $$u $${t}$$_sfx; \
-		    $(INSTALL) -S $$u $${t}$$_sfx; \
-		fi \
+		echo $(INSTALL) -S $$u $${t}$$_sfx; \
+		$(INSTALL) -S $$u $${t}$$_sfx; \
 	    fi; \
 	    first=false; \
 	done; \

@@ -2,8 +2,8 @@
 Description=Performance Metrics Archive Logger
 Documentation=man:pmlogger(1)
 After=network-online.target pmcd.service
-Before=pmlogger_check.timer pmlogger_check.path pmlogger_daily.timer pmlogger_daily-poll.timer
-BindsTo=pmlogger_check.timer pmlogger_check.path pmlogger_daily.timer pmlogger_daily-poll.timer
+Before=pmlogger_check.timer pmlogger_daily.timer pmlogger_daily-poll.timer
+BindsTo=pmlogger_check.timer pmlogger_daily.timer pmlogger_daily-poll.timer
 Wants=pmcd.service
 
 [Service]
@@ -12,7 +12,7 @@ NotifyAccess=all
 TimeoutSec=120
 Restart=always
 ExecStart=@PCP_RC_DIR@/pmlogger start-systemd
-ExecStop=@PCP_RC_DIR@/pmlogger stop
+ExecStop=@PCP_RC_DIR@/pmlogger stop-systemd
 PIDFile=@PCP_RUN_DIR@/pmlogger.pid
 
 [Install]

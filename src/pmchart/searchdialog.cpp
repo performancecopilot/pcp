@@ -53,9 +53,9 @@ void SearchDialog::clear()
 
 void SearchDialog::changed()
 {
-    bool hostEnabled = (hostPattern->text() != QString::null);
-    bool metricEnabled = (metricPattern->text() != QString::null);
-    bool instanceEnabled = (instancePattern->text() != QString::null);
+    bool hostEnabled = hostPattern->text().isEmpty();
+    bool metricEnabled = metricPattern->text().isEmpty();
+    bool instanceEnabled = instancePattern->text().isEmpty();
     buttonSearch->setEnabled(hostEnabled || metricEnabled || instanceEnabled);
 }
 
@@ -93,21 +93,21 @@ void SearchDialog::search()
 	 (const char *)metricPattern->text().toLatin1(),
 	 (const char *)instancePattern->text().toLatin1());
 
-    if (hostPattern->text() == QString::null &&
-	metricPattern->text() == QString::null &&
-	instancePattern->text() == QString::null) {
+    if (hostPattern->text().isEmpty() &&
+	metricPattern->text().isEmpty() &&
+	instancePattern->text().isEmpty()) {
 	// got here via pressing Enter from one of the pattern input fields,
 	// and all the fields are empty ... do nothing
 	return;
     }
 
-    if (hostPattern->text() != QString::null)
+    if (!hostPattern->text().isEmpty())
 	h_rx.setPattern(hostPattern->text());
 
-    if (metricPattern->text() != QString::null)
+    if (!metricPattern->text().isEmpty())
 	m_rx.setPattern(metricPattern->text());
 
-    if (instancePattern->text() != QString::null)
+    if (!instancePattern->text().isEmpty())
 	i_rx.setPattern(instancePattern->text());
 
     matchList->clear();
@@ -117,7 +117,7 @@ void SearchDialog::search()
 	NameSpace *item = (NameSpace *)(*iterator);
 	if (item->isRoot()) {
 	    // host name
-	    if (hostPattern->text() != QString::null)
+	    if (!hostPattern->text().isEmpty())
 		h_match = h_rx.indexIn(item->sourceName());
 	    else
 		h_match = 0;
@@ -132,13 +132,13 @@ void SearchDialog::search()
 	else if (h_match >= 0 && item->isMetric()) {
 	    // metric name
 	    count++;
-	    if (metricPattern->text() != QString::null)
+	    if (!metricPattern->text().isEmpty())
 		m_match = m_rx.indexIn(item->metricName());
 	    else
 		m_match = 0;
 	    if (m_match >= 0) {
 		if (item->isLeaf() &&
-		    instancePattern->text() == QString::null) {
+		    instancePattern->text().isEmpty()) {
 		    QString fqn = item->sourceName().append(":");
 		    fqn.append(item->metricName());
 		    matchList->addItem(fqn);
@@ -160,7 +160,7 @@ void SearchDialog::search()
 	else if (h_match >= 0 && m_match >= 0 && item->isInst()) {
 	    // matched last metric, now related instance name ... 
 	    count++;
-	    if (instancePattern->text() != QString::null)
+	    if (!instancePattern->text().isEmpty())
 		i_match = i_rx.indexIn(item->metricInstance());
 	    else
 		i_match = 0;

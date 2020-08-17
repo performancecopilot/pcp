@@ -52,16 +52,24 @@ status=0
 echo >$tmp/lock
 prog=`basename $0`
 PROGLOG=$PCP_LOG_DIR/pmie/$prog.log
+MYPROGLOG=$PROGLOG.$$
 USE_SYSLOG=true
 
 _cleanup()
 {
+    if [ -s "$MYPROGLOG" ]
+    then
+	rm -f "$PROGLOG"
+	mv "$MYPROGLOG" "$PROGLOG"
+    else
+	rm -f "$MYPROGLOG"
+    fi
     $USE_SYSLOG && [ $status -ne 0 ] && \
     $PCP_SYSLOG_PROG -p daemon.error "$prog failed - see $PROGLOG"
-    [ -s "$PROGLOG" ] || rm -f "$PROGLOG"
     lockfile=`cat $tmp/lock 2>/dev/null`
     rm -f "$lockfile"
     rm -rf $tmp
+    $VERY_VERBOSE && echo "End: `date '+%F %T.%N'`"
 }
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
@@ -126,6 +134,7 @@ do
 	-C)	CHECK_RUNLEVEL=true
 		;;
 	-l)	PROGLOG="$2"
+		MYPROGLOG="$PROGLOG".$$
 		USE_SYSLOG=false
 		shift
 		;;
@@ -187,11 +196,21 @@ else
     #
     # Exception ($SHOWME, above) is for -N where we want to see the output.
     #
-    touch "$PROGLOG"
-    chown $PCP_USER:$PCP_GROUP "$PROGLOG" >/dev/null 2>&1
-    exec 1>"$PROGLOG" 2>&1
+    touch "$MYPROGLOG"
+    chown $PCP_USER:$PCP_GROUP "$MYPROGLOG" >/dev/null 2>&1
+    exec 1>"$MYPROGLOG" 2>&1
 fi
 
+if $VERY_VERBOSE
+then
+    echo "Start: `date '+%F %T.%N'`"
+    if which pstree >/dev/null 2>&1
+    then
+	echo "Called from:"
+	pstree -spa $$
+	echo "--- end of pstree output ---"
+    fi
+fi
 _error()
 {
     echo "$prog: [$controlfile:$line]"
