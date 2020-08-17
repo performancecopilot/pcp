@@ -60,7 +60,7 @@ webgroup_release_context(uv_handle_t *handle)
 {
     struct context	*context = (struct context *)handle->data;
 
-    if (pmDebugOptions.http)
+    if (pmDebugOptions.http || pmDebugOptions.libweb)
 	fprintf(stderr, "releasing context %p\n", context);
 
     pmwebapi_free_context(context);
@@ -70,8 +70,7 @@ static void
 webgroup_destroy_context(struct context *context, struct webgroups *groups)
 {
     context->garbage = 1;
-
-    if (pmDebugOptions.http)
+    if (pmDebugOptions.http || pmDebugOptions.libweb)
 	fprintf(stderr, "destroying context %p\n", context);
 
     uv_timer_stop(&context->timer);
@@ -87,7 +86,7 @@ webgroup_timeout_context(uv_timer_t *arg)
     struct context	*cp = (struct context *)handle->data;
     struct webgroups	*gp = (struct webgroups *)cp->privdata;
 
-    if (pmDebugOptions.http)
+    if (pmDebugOptions.http || pmDebugOptions.libweb)
 	fprintf(stderr, "context %u timed out (%p)\n", cp->randomid, cp);
 
     webgroup_destroy_context(cp, gp);
@@ -223,6 +222,10 @@ webgroup_new_context(pmWebGroupSettings *sp, dict *params,
 
     cp->privdata = groups;
     cp->setup = 1;
+
+    if (pmDebugOptions.http || pmDebugOptions.libweb)
+	fprintf(stderr, "context %u new context setup (%p)\n", cp->randomid, cp);
+
     return cp;
 }
 
@@ -231,12 +234,14 @@ webgroup_use_context(struct context *cp, int *status, sds *message, void *arg)
 {
     char		errbuf[PM_MAXERRMSGLEN];
     int			sts;
+    struct webgroups    *gp = (struct webgroups *)cp->privdata;
 
-    if (pmDebugOptions.http)
+    if (pmDebugOptions.http || pmDebugOptions.libweb)
 	fprintf(stderr, "context %u timer set (%p) to %u msec\n",
 			cp->randomid, cp, cp->timeout);
 
     /* if already started, uv_timer_start updates the timer */
+    uv_update_time(gp->events); /* see https://github.com/libuv/libuv/issues/1068 */
     uv_timer_start(&cp->timer, webgroup_timeout_context, cp->timeout, 0);
 
     if (cp->setup == 0) {
@@ -344,7 +349,7 @@ pmWebGroupDestroy(pmWebGroupSettings *settings, sds id, void *arg)
 	gp = settings->module.privdata;
 
 	if (pmDebugOptions.libweb)
-	    fprintf(stderr, "%s: destroy context %p\n", "pmWebGroupDestroy", cp);
+	    fprintf(stderr, "%s: destroy context %p gp=%p\n", "pmWebGroupDestroy", cp, gp);
 
 	webgroup_destroy_context(cp, gp);
     }
