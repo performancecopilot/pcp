@@ -43,6 +43,7 @@ jobs:
         run: |
           python3 -c 'import yaml' || pip3 install pyyaml
           mkdir -p artifacts/build artifacts/test
+          touch artifacts/test/.keep
 
           for i in $(seq 1 10)
           do
