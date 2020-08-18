@@ -170,7 +170,7 @@ MYFILES += \
 	permslist \
 	qa_shmctl.c qa_sem_msg_ctl.c \
 	qa_shmctl_stat.c qa_msgctl_stat.c qa_semctl_stat.c \
-	qa_libpcp_compat.c
+	qa_libpcp_compat.c addctxdm.c
 
 MYSCRIPTS = grind-tools show-args fixhosts mkpermslist \
 	memcachestats.pl
