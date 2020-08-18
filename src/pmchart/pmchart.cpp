@@ -17,6 +17,7 @@
 #include <QTimer>
 #include <QLibraryInfo>
 #include <QDesktopServices>
+#include <QDesktopWidget>
 #include <QApplication>
 #include <QPrintDialog>
 #include <QMessageBox>
