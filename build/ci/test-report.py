@@ -252,13 +252,13 @@ def send_slack_notification(slack_channel: str, github_run_url: str, qa_report_u
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
-                    "text": f"*<{github_run_url}|Daily QA>*"
+                    "text": "*Daily QA:*"
                 }
             }] + host_blocks + [{
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
-                    "text": f"*<{qa_report_url}|View full QA Report>*"
+                    "text": f"*<{github_run_url}|View build logs>*\n*<{qa_report_url}|View QA report>*"
                 }
             }]
         }]
