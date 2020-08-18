@@ -1000,7 +1000,7 @@ PCP_CALL extern int pmSetDerivedControl(int, int);
 #define PCP_DERIVED_CONTEXT_LIMIT	2
 #define PCP_DERIVED_DEBUG_SYNTAX	3
 #define PCP_DERIVED_DEBUG_SEMANTICS	4
-#define PCP_DERIVED_DEBUG_PMNS		5
+#define PCP_DERIVED_DEBUG_EVAL		5
 
 /*
  * Event Record support
