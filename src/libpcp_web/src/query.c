@@ -3533,13 +3533,26 @@ static void
 series_query_report_values(void *arg)
 {
     seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
-    int			has_function = 0;
-    char		hashbuf[42];
 
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_query_report_values");
     seriesBatonCheckCount(baton, "series_query_report_values");
 
     seriesBatonReference(baton, "series_query_report_values");
+    series_prepare_time(baton, &baton->u.query.root.result);
+    series_query_end_phase(baton);
+}
+
+static void
+series_query_funcs_report_values(void *arg)
+{
+    seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
+    int			has_function = 0;
+    char		hashbuf[42];
+
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_query_funcs_report_values");
+    seriesBatonCheckCount(baton, "series_query_funcs_report_values");
+
+    seriesBatonReference(baton, "series_query_funcs_report_values");
 
     if (pmDebugOptions.query) dfs(&baton->u.query.root, 0);
 
@@ -3552,7 +3565,6 @@ series_query_report_values(void *arg)
 
     // time series values have been saved in root node so report them directly.
     series_node_values_report(baton, &baton->u.query.root, has_function, hashbuf);
-//    series_prepare_time(baton, &baton->u.query.root.result);
     
     series_query_end_phase(baton);
 }
@@ -3640,7 +3652,7 @@ series_solve(pmSeriesSettings *settings,
 	/* Store time series values into nodes */
 	baton->phases[i++].func = series_query_funcs;
 	/* Report actual values */
-	baton->phases[i++].func = series_query_report_values;
+	baton->phases[i++].func = series_query_funcs_report_values;
     }
 
     /* final callback once everything is finished, free baton */
