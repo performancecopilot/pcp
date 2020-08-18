@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2017-2019 Red Hat.
+ * Copyright (c) 2017-2020 Red Hat.
+ * Copyright (c) 2020 Yushan ZHANG.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -16,6 +17,7 @@
 
 #include "pmapi.h"
 #include "pmwebapi.h"
+#include "batons.h"
 #ifdef HAVE_REGEX_H
 #include <regex.h>
 #endif
@@ -58,6 +60,12 @@ typedef enum nodetype {
     N_RESCALE,
     N_SCALE,
     N_DEFINED,
+    N_NOOP,
+    N_ABS,
+    N_FLOOR,
+    N_LOG,
+    N_SQRT,
+    N_ROUND,
 
 /* node_t time-related sub-types */
     N_RANGE = 100,
@@ -79,6 +87,14 @@ typedef enum nodetype {
     MAX_NODETYPE
 } nodetype_t;
 
+typedef struct seriesGetSID {
+    seriesBatonMagic	header;		/* MAGIC_SID */
+    sds			name;		/* series or source SID */
+    sds			metric;		/* back-pointer for instance series */
+    int			freed;		/* freed individually on completion */
+    void		*baton;
+} seriesGetSID;
+
 typedef struct meta {
     int			type;	/* PM_TYPE_* */
     int			sem;	/* PM_SEM_* */
@@ -89,6 +105,44 @@ typedef struct series_set {
     unsigned char	*series;
     int			nseries;
 } series_set_t;
+
+typedef struct series_instance_set {
+    /* Number of series instances */
+    int			num_instances;
+    pmSeriesValue	*series_instance;
+} series_instance_set_t;
+
+typedef struct series_sample_set {
+    seriesGetSID		*sid;
+    sds				metric_name;
+    pmSeriesDesc		series_desc;
+    void			*baton;
+    /* Number of series samples */
+    int				num_samples;
+    series_instance_set_t	*series_sample;
+} series_sample_set_t;
+
+typedef struct series_value_set {
+    /* Number of series identifiers*/
+    int				num_series;
+    series_sample_set_t		*series_values;
+} series_value_set_t;
+
+
+typedef struct timing {
+    /* input string */
+    pmSeriesTimeWindow	window;
+
+    /* parsed inputs */
+    struct timeval	delta;	
+    struct timeval	align;
+    struct timeval	start;
+    struct timeval	end;
+    unsigned int	count;		/* sample count */
+    unsigned int	offset;		/* sample offset */
+    int			zone;		/* pmNewZone handle */
+} timing_t;
+
 
 typedef struct node {
     enum nodetype	type;
@@ -109,21 +163,14 @@ typedef struct node {
     sds			*matches;
     regex_t		regex;	/* compiled regex */
     unsigned long long	cursor;
+
+    /* result set of time series values at this node */
+    series_value_set_t	value_set;
+
+    /* Corresponding time specifier */
+    timing_t		time;
 } node_t;
 
-typedef struct timing {
-    /* input string */
-    pmSeriesTimeWindow	window;
-
-    /* parsed inputs */
-    struct timeval	delta;	
-    struct timeval	align;
-    struct timeval	start;
-    struct timeval	end;
-    unsigned int	count;		/* sample count */
-    unsigned int	offset;		/* sample offset */
-    int			zone;		/* pmNewZone handle */
-} timing_t;
 
 typedef struct series {
     sds			name;

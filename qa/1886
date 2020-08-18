@@ -1,6 +1,7 @@
 #!/bin/sh
 # PCP QA Test No. 1886
 # Test function evaluation in pmseries queries
+# -- Note: this test is work in progress --
 #
 # Copyright (c) 2020 Red Hat.  All Rights Reserved.
 #
@@ -58,36 +59,145 @@ port="-p $redisport"
 redis-cli $port ping
 echo
 
+args="$port -Z UTC"
+
 echo "== Load metric data into this redis instance"
-pmseries $port --load "{source.path: \"$here/archives/proc\"}" | _filter_source
+pmseries $args --load "{source.path: \"$here/archives/proc\"}" | _filter_source
 
 echo;echo "== Verify noop() function for a singular metric"
-pmseries $port 'kernel.all.pswitch[count: 2]'
+pmseries $args 'kernel.all.pswitch[count:2]'
 echo Compared to:
-pmseries $port 'noop(kernel.all.pswitch)[count: 2]'
+pmseries $args 'noop(kernel.all.pswitch[count:2])'
 echo
 
-#
-# Below are further commands we'd want to test too
-#
-
 # echo;echo "== Verify nested function noop(noop(...)) for a singular metric"
-# pmseries $port 'kernel.all.pswitch[count: 2]'
-# echo Compared to:
-# pmseries $port 'noop(noop(kernel.all.pswitch))[count: 2]'
-# echo
-# 
-# echo;echo "== Verify noop() function for a non-singular metric, all instances"
-# pmseries $port 'kernel.all.load[count: 2]'
-# echo Compared to:
-# pmseries $port 'noop(kernel.all.load)[count: 2]'
-# echo
-# 
-# echo;echo "== Verify noop() function for a non-singular metric, only one instance"
-# pmseries $port 'kernel.all.load{instance.name == "1 minute"}[count: 2]'
-# echo Compared to:
-# pmseries $port 'noop(kernel.all.load{instance.name == "1 minute"})[count: 2]'
-# echo
+pmseries $args 'kernel.all.pswitch[count:2]'
+echo Compared to:
+pmseries $args 'noop(noop(kernel.all.pswitch[count:2]))'
+echo
+
+echo;echo "== Verify noop() function for a non-singular metric, all instances"
+pmseries $args 'kernel.all.load[count:2]'
+echo Compared to:
+pmseries $args 'noop(kernel.all.load[count:2])'
+echo
+
+echo;echo "== Verify noop() function for a non-singular metric, only one instance"
+pmseries $args 'kernel.all.load{instance.name == "1 minute"}[count:2]'
+echo Compared to:
+pmseries $args 'noop(kernel.all.load{instance.name == "1 minute"}[count:2])'
+echo
+
+echo;echo "== Verify rate() function for a singular metric"
+pmseries $args 'kernel.all.pswitch[count:5]'
+echo Compared to:
+pmseries $args 'rate(kernel.all.pswitch[count:5])'
+echo
+
+echo;echo "== Verify min/max() functions for a non-sigular metric"
+pmseries $args 'kernel.all.load[count:5]'
+pmseries $args 'max(kernel.all.load[count:5])'
+pmseries $args 'min(kernel.all.load[count:5])'
+
+echo;echo "== Verify min/max() functions for a non-sigular metric, only one instance"
+pmseries $args 'kernel.all.load{instance.name == "5 minute"}[count:5]'
+echo Compared to max:
+pmseries $args 'max(kernel.all.load{instance.name == "5 minute"}[count:5])'
+echo Compared to min:
+pmseries $args 'min(kernel.all.load{instance.name == "5 minute"}[count:5])'
+
+echo;echo "== Verify min/max() functions for a singular metric"
+pmseries $args 'kernel.all.uptime[count:10]'
+echo Compared to max:
+pmseries $args 'min(kernel.all.uptime[count:10])'
+echo Compared to min:
+pmseries $args 'max(kernel.all.uptime[count:10])'
+
+echo;echo "== Verify rescale() functions for a singular metric"
+pmseries $args 'kernel.all.uptime[count:2]'
+echo Compared to rescale to sec:
+pmseries $args 'rescale(kernel.all.uptime[count:2], "sec")'
+echo Compared to rescale to min:
+pmseries $args 'rescale(kernel.all.uptime[count:2], "min")'
+echo Compared to rescale to min and then hour:
+pmseries $args 'rescale(rescale(kernel.all.uptime[count:2], "min"), "hour")'
+
+echo;echo "== Verify abs() functions for a non-singular metric"
+pmseries $args 'kernel.all.load[count:5]'
+echo Compared to abs:
+pmseries $args 'abs(kernel.all.load[count:5])'
+
+echo;echo "== Verify abs() functions for a non-singular metric, only one instance"
+pmseries $args 'kernel.all.load{instance.name == "5 minute"}[count:5]'
+echo Compared to abs:
+pmseries $args 'abs(kernel.all.load{instance.name == "5 minute"}[count:5])'
+
+echo;echo "== Verify log() functions for a singular metric"
+pmseries $args 'kernel.all.pswitch[count:2]'
+echo Compared to log:
+pmseries $args 'log(kernel.all.pswitch[count:2],3)'
+echo Compared to 'log(log(..,3), 2):'
+pmseries $args 'log(log(kernel.all.pswitch[count:2],3),2)'
+
+echo;echo "== Verify floor() functions for a non-singular metric"
+pmseries $args 'kernel.all.load[count:5]'
+echo Compared to floor:
+pmseries $args 'floor(kernel.all.load[count:5])'
+
+echo;echo "== Verify round() functions for a non-singular metric"
+pmseries $args 'kernel.all.load[count:5]'
+echo Compared to round:
+pmseries $args 'round(kernel.all.load[count:5])'
+
+echo;echo "== Verify round() functions for a singular metric"
+pmseries $args 'kernel.all.uptime[count:5]'
+echo Compared to round:
+pmseries $args 'round(kernel.all.uptime[count:5])'
+
+echo;echo "== Verify addition functions for a singular metric"
+pmseries $args 'kernel.all.uptime[count:5]'
+echo 'Compared to series + series:'
+pmseries $args 'kernel.all.uptime[count:5] + kernel.all.uptime[count:5]'
+
+echo;echo "== Verify addition functions for a non-singular metric"
+pmseries $args 'kernel.all.load[count:5]'
+echo 'Compared to series + series:'
+pmseries $args 'kernel.all.load[count:5] + kernel.all.load[count:5]'
+
+echo;echo "== Verify addition functions for a non-singular metric, only one instance"
+pmseries $args 'kernel.all.load{instance.name == "5 minute"}[count:5]'
+echo 'Compared to series + series:'
+pmseries $args 'kernel.all.load{instance.name == "5 minute"}[count:5] + kernel.all.load{instance.name == "5 minute"}[count:5]'
+
+echo;echo "== Verify subtraction functions for a singular metric"
+pmseries $args 'kernel.all.uptime[count:5]'
+echo 'Compared to series - series:'
+pmseries $args 'kernel.all.uptime[count:5] - kernel.all.uptime[count:5]'
+
+echo;echo "== Verify subtraction functions for a non-singular metric"
+pmseries $args 'kernel.all.load[count:5]'
+echo 'Compared to series - series:'
+pmseries $args 'kernel.all.load[count:5] - kernel.all.load[count:5]'
+
+echo;echo "== Verify subtraction functions for a non-singular metric, only one instance"
+pmseries $args 'kernel.all.load{instance.name == "5 minute"}[count:5]'
+echo 'Compared to series - series:'
+pmseries $args 'kernel.all.load{instance.name == "5 minute"}[count:5] - kernel.all.load{instance.name == "5 minute"}[count:5]'
+
+echo;echo "== Verify division functions for a singular metric"
+pmseries $args 'kernel.all.uptime[count:5]'
+echo 'Compared to series / series:'
+pmseries $args 'kernel.all.uptime[count:5] / kernel.all.uptime[count:5]'
+
+echo;echo "== Verify division functions for a non-singular metric"
+pmseries $args 'kernel.all.load[count:5]'
+echo 'Compared to series / series:'
+pmseries $args 'kernel.all.load[count:5] / kernel.all.load[count:5]'
+
+echo;echo "== Verify division functions for a non-singular metric, only one instance"
+pmseries $args 'kernel.all.load{instance.name == "5 minute"}[count:5]'
+echo 'Compared to series / series:'
+pmseries $args 'kernel.all.load{instance.name == "5 minute"}[count:5] / kernel.all.load{instance.name == "5 minute"}[count:5]'
 
 # success, all done
 status=0
