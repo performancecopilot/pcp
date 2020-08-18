@@ -28,6 +28,6 @@ include $(BUILDRULES)
 
 install_pcp install:	default 
 	$(INSTALL) -m 755 -d $(TESTDIR)
-	$(INSTALL) -m 755 Install Remove $(TESTDIR)
-	$(INSTALL) -m 644 $(PLSCRIPT) $(TESTDIR)/$(PLSCRIPT)
-	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile
+	$(INSTALL) -m 755 -f Install Remove $(TESTDIR)
+	$(INSTALL) -m 644 -f $(PLSCRIPT) $(TESTDIR)/$(PLSCRIPT)
+	$(INSTALL) -m 644 -f GNUmakefile.install $(TESTDIR)/GNUmakefile

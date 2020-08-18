@@ -1,5 +1,3 @@
-#!gmake
-
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
@@ -10,7 +8,7 @@ default default_pcp setup:
 
 install install_pcp:
 	$(INSTALL) -m 755 -d $(TESTDIR)
-	$(INSTALL) -m 644 $(QAFILES) $(TESTDIR)
-	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile
+	$(INSTALL) -m 644 -f $(QAFILES) $(TESTDIR)
+	$(INSTALL) -m 644 -f GNUmakefile.install $(TESTDIR)/GNUmakefile
 
 include $(BUILDRULES)

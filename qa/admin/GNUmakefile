@@ -10,8 +10,8 @@ default default_pcp setup: $(SUBDIRS)
 
 install install_pcp: $(SUBDIRS)
 	$(INSTALL) -m 755 -d $(TESTDIR)
-	$(INSTALL) -m 755 $(SCRIPTS) $(TESTDIR)
-	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile
+	$(INSTALL) -m 755 -f $(SCRIPTS) $(TESTDIR)
+	$(INSTALL) -m 644 -f GNUmakefile.install $(TESTDIR)/GNUmakefile
 	$(SUBDIRS_MAKERULE)
 
 include $(BUILDRULES)

@@ -60,10 +60,9 @@ is not NULL, then
 will also return the status of each child via
 .IR status.
 The status will refer to either a leaf node (with value
-.B PMNS_LEAF_STATUS
-) or a non-leaf node (with value
-.B PMNS_NONLEAF_STATUS
-).
+.BR PMNS_LEAF_STATUS )
+or a non-leaf node (with value
+.BR PMNS_NONLEAF_STATUS ).
 .PP
 Normally,
 .B pmGetChildrenStatus
@@ -103,7 +102,7 @@ is less than one), both
 and
 .I status
 are undefined (no space will have been
-allocated, and so calling
+allocated and so calling
 .BR free (3)
 is a singularly bad idea).
 .SH "PCP ENVIRONMENT"

@@ -13,9 +13,9 @@ default default_pcp setup: $(SERVER) $(ENDPOINT) $(SUBDIRS)
 
 install install_pcp: $(SUBDIRS)
 	$(INSTALL) -m 755 -d $(TESTDIR)
-	$(INSTALL) -m 755 $(SERVER) $(TESTDIR)/$(SERVER)
-	$(INSTALL) -m 755 $(ENDPOINT) $(TESTDIR)/$(ENDPOINT)
-	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile
+	$(INSTALL) -m 755 -f $(SERVER) $(TESTDIR)/$(SERVER)
+	$(INSTALL) -m 755 -f $(ENDPOINT) $(TESTDIR)/$(ENDPOINT)
+	$(INSTALL) -m 644 -f GNUmakefile.install $(TESTDIR)/GNUmakefile
 	$(SUBDIRS_MAKERULE)
 
 include $(BUILDRULES)

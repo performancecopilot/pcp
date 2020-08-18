@@ -38,9 +38,9 @@ $(TARGETS):
 
 install install_pcp:
 	$(INSTALL) -m 755 -d $(TESTDIR)
-	$(INSTALL) -m 644 $(CFILES) $(MYFILES) $(TESTDIR)
-	$(INSTALL) -m 755 $(MYSCRIPTS) $(TARGETS) $(TESTDIR)
-	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile
+	$(INSTALL) -m 644 -f $(CFILES) $(MYFILES) $(TESTDIR)
+	$(INSTALL) -m 755 -f $(MYSCRIPTS) $(TARGETS) $(TESTDIR)
+	$(INSTALL) -m 644 -f GNUmakefile.install $(TESTDIR)/GNUmakefile
 
 real_broken_pmns:	domain.h broken_pmns
 	cat domain.h >real_broken_pmns

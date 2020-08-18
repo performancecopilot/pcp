@@ -96,10 +96,10 @@ localconfig:
 install_pcp install: $(SUBDIRS)
 ifeq (, $(filter mingw darwin freebsd netbsd openbsd solaris, $(TARGET_OS)))
 	$(INSTALL) -m 755 -d $(TESTDIR)
-	$(INSTALL) -m 755 $(TESTS) $(SCRIPTS) $(COMMON_SCRIPTS) $(TESTDIR)
-	$(INSTALL) -m 644 $(COMMON) $(OTHERS) $(TESTDIR)
-	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile
-	$(INSTALL) -m 644 qa_outfiles $(DOTOUTFILES) $(TESTDIR)
+	$(INSTALL) -m 755 -f $(TESTS) $(SCRIPTS) $(COMMON_SCRIPTS) $(TESTDIR)
+	$(INSTALL) -m 644 -f $(COMMON) $(OTHERS) $(TESTDIR)
+	$(INSTALL) -m 644 -f GNUmakefile.install $(TESTDIR)/GNUmakefile
+	$(INSTALL) -m 644 -f qa_outfiles $(DOTOUTFILES) $(TESTDIR)
 	$(SUBDIRS_MAKERULE)
 endif
 

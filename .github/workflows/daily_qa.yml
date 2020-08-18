@@ -38,6 +38,7 @@ jobs:
         run: |
           python3 -c 'import yaml' || pip3 install pyyaml
           mkdir -p artifacts/build artifacts/test
+          touch artifacts/test/.keep
 
           for i in $(seq 1 10)
           do
@@ -104,7 +105,7 @@ jobs:
 
       - name: Setup
         run: |
-          wget -q -O allure-commandline.zip https://repo1.maven.org/maven2/io/qameta/allure/allure-commandline/2.13.3/allure-commandline-2.13.3.zip
+          wget -q -O allure-commandline.zip https://repo1.maven.org/maven2/io/qameta/allure/allure-commandline/2.13.5/allure-commandline-2.13.5.zip
           unzip -d /opt allure-commandline.zip
 
       - name: Download all artifacts
@@ -114,12 +115,20 @@ jobs:
 
       - name: Generate test report
         run: |
-          ./build/ci/test-report.py --commit ${GITHUB_SHA} --allure_results ./allure-results
+          ./build/ci/test-report.py \
+            --commit ${GITHUB_SHA} \
+            --allure-results ./allure-results \
+            --slack-channel ${SLACK_CHANNEL} \
+            --github-run-url "https://github.com/${{ github.repository_owner }}/pcp/actions/runs/${{ github.run_id }}" \
+            --qa-report-url "https://${{ github.repository_owner }}.github.io/qa-reports"
 
           # disable history, because the history.json file is getting bigger than 100 MB (max GitHub file size)
           # [ -d qa-reports/docs/history ] && cp -r qa-reports/docs/history ./allure-results
 
           /opt/allure-*/bin/allure generate
+        env:
+          SLACK_CHANNEL: C011ERBFQGN
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
 
       - name: Publish QA report
         run: |
