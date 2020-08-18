@@ -417,7 +417,13 @@ static void setupViewGlobals()
     OpenViewDialog::globals(&w, &h, &points, &x, &y);
     if (w || h) {
 	QSize size = pmchart->size().expandedTo(QSize(w, h));
-	QSize desk = QApplication::primaryScreen()->availableGeometry().size();
+	QSize desk;
+
+#if QT_VERSION >= 0x050000
+	desk = QApplication::primaryScreen()->availableGeometry().size();
+#else
+	desk = QApplication::desktop()->availableGeometry().size();
+#endif
 	pmchart->resize(size.boundedTo(desk));
     }
     if (x || y) {
