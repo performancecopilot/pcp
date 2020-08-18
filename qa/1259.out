@@ -101,8 +101,8 @@ Iteration 2
 Iteration 1
 Iteration 0
 === std err ===
-pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
-pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
 __dmclosecontext(->ctx 9) 5 metrics
 __dmclosecontext(->ctx 8) 5 metrics
 __dmclosecontext(->ctx 7) 5 metrics

@@ -29,19 +29,19 @@ sample.bin
     Semantics: instant  Units: none
 
 No semantic errors here ...
-pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
-pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
 pmLoadDerivedConfig("TMP.config")
-pmRegisterDerived: register metric[2] myname.a = sample.kbyte_ctr
-pmRegisterDerived: register metric[3] myname.b = sample.recv_pdu + sample.xmit_pdu
-pmRegisterDerived: register metric[4] myname.c = 123
-pmRegisterDerived: register metric[5] myname.d = 123 + sample.long.hundred
-pmRegisterDerived: register metric[6] myname.e = sample.pdu / sample.long.hundred
-pmRegisterDerived: register metric[7] myname.f = 1024 * sample.byte_ctr
-pmRegisterDerived: register metric[8] myname.g = sample.bin + 100 - sample.bin - 100
-pmRegisterDerived: register metric[9] myname.h = sample.seconds + sample.milliseconds / 1000
-pmRegisterDerived: register metric[10] myname.i = sample.bin + sample.double.hundred
-pmRegisterDerived: register metric[11] myname.j = sample.double.hundred + sample.bin
+pmRegisterDerived: global metric[2] myname.a = sample.kbyte_ctr
+pmRegisterDerived: global metric[3] myname.b = sample.recv_pdu + sample.xmit_pdu
+pmRegisterDerived: global metric[4] myname.c = 123
+pmRegisterDerived: global metric[5] myname.d = 123 + sample.long.hundred
+pmRegisterDerived: global metric[6] myname.e = sample.pdu / sample.long.hundred
+pmRegisterDerived: global metric[7] myname.f = 1024 * sample.byte_ctr
+pmRegisterDerived: global metric[8] myname.g = sample.bin + 100 - sample.bin - 100
+pmRegisterDerived: global metric[9] myname.h = sample.seconds + sample.milliseconds / 1000
+pmRegisterDerived: global metric[10] myname.i = sample.bin + sample.double.hundred
+pmRegisterDerived: global metric[11] myname.j = sample.double.hundred + sample.bin
 __dmgetpmid: metric "myname.a" -> PMID 511.0.3
 __dmbind: bind metric[2] myname.a
 __dmtraverse: name="myname" added "myname.a"
@@ -124,26 +124,26 @@ myname.j
     Semantics: instant  Units: none
 
 Semantic errors ...
-pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
-pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
 pmLoadDerivedConfig("TMP.config")
-pmRegisterDerived: register metric[2] myname.a = no.such.metric
-pmRegisterDerived: register metric[3] myname.b = sample.bad.unknown
-pmRegisterDerived: register metric[4] myname.c = disk.dev.read * disk.dev.write
-pmRegisterDerived: register metric[5] myname.d = sample.byte_ctr + sample.long.hundred
-pmRegisterDerived: register metric[6] myname.e = sample.long.hundred - 100 / sample.byte_ctr
-pmRegisterDerived: register metric[7] myname.f = 3 + sample.lights
-pmRegisterDerived: register metric[8] myname.g = sample.sysinfo - 42
-pmRegisterDerived: register metric[9] myname.h = disk.dev.total + sample.long.hundred
-pmRegisterDerived: register metric[10] myname.i = sample.long.hundred - disk.dev.total
-pmRegisterDerived: register metric[11] myname.j = sample.mirage * sample.step_counter
-pmRegisterDerived: register metric[12] myname.k = sample.step_counter / sample.mirage_longlong
-pmRegisterDerived: register metric[13] myname.k2 = sample.mirage_longlong * sample.step_counter
-pmRegisterDerived: register metric[14] myname.l = sample.bin + sample.darkness
-pmRegisterDerived: register metric[15] myname.gcov.a = 42 + sample.bad.unknown
-pmRegisterDerived: register metric[16] myname.gcov.b = (disk.all.total + disk.dev.total) + 42 
-pmRegisterDerived: register metric[17] myname.gcov.c = 42 - (disk.all.total + disk.dev.total)
-pmRegisterDerived: register metric[18] myname.gcov.d = (sample.bin + sample.darkness)+42
+pmRegisterDerived: global metric[2] myname.a = no.such.metric
+pmRegisterDerived: global metric[3] myname.b = sample.bad.unknown
+pmRegisterDerived: global metric[4] myname.c = disk.dev.read * disk.dev.write
+pmRegisterDerived: global metric[5] myname.d = sample.byte_ctr + sample.long.hundred
+pmRegisterDerived: global metric[6] myname.e = sample.long.hundred - 100 / sample.byte_ctr
+pmRegisterDerived: global metric[7] myname.f = 3 + sample.lights
+pmRegisterDerived: global metric[8] myname.g = sample.sysinfo - 42
+pmRegisterDerived: global metric[9] myname.h = disk.dev.total + sample.long.hundred
+pmRegisterDerived: global metric[10] myname.i = sample.long.hundred - disk.dev.total
+pmRegisterDerived: global metric[11] myname.j = sample.mirage * sample.step_counter
+pmRegisterDerived: global metric[12] myname.k = sample.step_counter / sample.mirage_longlong
+pmRegisterDerived: global metric[13] myname.k2 = sample.mirage_longlong * sample.step_counter
+pmRegisterDerived: global metric[14] myname.l = sample.bin + sample.darkness
+pmRegisterDerived: global metric[15] myname.gcov.a = 42 + sample.bad.unknown
+pmRegisterDerived: global metric[16] myname.gcov.b = (disk.all.total + disk.dev.total) + 42 
+pmRegisterDerived: global metric[17] myname.gcov.c = 42 - (disk.all.total + disk.dev.total)
+pmRegisterDerived: global metric[18] myname.gcov.d = (sample.bin + sample.darkness)+42
 __dmgetpmid: metric "myname.a" -> PMID 511.0.3
 __dmgetpmid: metric "no.such.metric" -> Unknown metric name
 bind_expr: error: derived metric myname.a: operand: no.such.metric: Unknown metric name

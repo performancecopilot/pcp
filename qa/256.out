@@ -762,18 +762,18 @@ derived.tree.b.million = sample.long.million
 derived.tree.b.cmillion = sample.long.million
 sample.long.derived = sample.long.one
 sample.long.foo.bar.derived = sample.long.one
-pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
-pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
 Derived metric initialization from $PCP_DERIVED_CONFIG
 pmLoadDerivedConfig("TMP.config")
-pmRegisterDerived: register metric[2] derived.tree.one = sample.long.one
-pmRegisterDerived: register metric[3] derived.tree.ten = sample.long.ten
-pmRegisterDerived: register metric[4] derived.tree.hundred = sample.long.hundred
-pmRegisterDerived: register metric[5] derived.tree.a.million = sample.long.million
-pmRegisterDerived: register metric[6] derived.tree.b.million = sample.long.million
-pmRegisterDerived: register metric[7] derived.tree.b.cmillion = sample.long.million
-pmRegisterDerived: register metric[8] sample.long.derived = sample.long.one
-pmRegisterDerived: register metric[9] sample.long.foo.bar.derived = sample.long.one
+pmRegisterDerived: global metric[2] derived.tree.one = sample.long.one
+pmRegisterDerived: global metric[3] derived.tree.ten = sample.long.ten
+pmRegisterDerived: global metric[4] derived.tree.hundred = sample.long.hundred
+pmRegisterDerived: global metric[5] derived.tree.a.million = sample.long.million
+pmRegisterDerived: global metric[6] derived.tree.b.million = sample.long.million
+pmRegisterDerived: global metric[7] derived.tree.b.cmillion = sample.long.million
+pmRegisterDerived: global metric[8] sample.long.derived = sample.long.one
+pmRegisterDerived: global metric[9] sample.long.foo.bar.derived = sample.long.one
 __dmopencontext(->ctx 0) called, 10 derived metrics
 __dmgetpmid: metric "derived.tree" -> Unknown metric name
 __dmchildren: offspring[0] one (status=0)

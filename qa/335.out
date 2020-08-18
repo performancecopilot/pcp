@@ -29,12 +29,12 @@ diffs ... expect only names to be different
 
 delta() check ...
 sample.scramble.version old value=N new value=0
-pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
-pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
 Derived metric initialization from $PCP_DERIVED_CONFIG
 pmLoadDerivedConfig("TMP.config")
-pmRegisterDerived: register metric[2] my.scramble.bin = sample.scramble.bin
-pmRegisterDerived: register metric[3] my.scramble.delta = delta(sample.scramble.bin)
+pmRegisterDerived: global metric[2] my.scramble.bin = sample.scramble.bin
+pmRegisterDerived: global metric[3] my.scramble.delta = delta(sample.scramble.bin)
 __dmgetpmid: metric "my.scramble.delta" -> PMID 511.0.4
 __dmgetpmid: metric "my.scramble.delta" -> PMID 511.0.4
 __dmbind: bind metric[3] my.scramble.delta

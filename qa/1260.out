@@ -274,7 +274,7 @@ ctx[1]: testme.big: 1 values:  1000000
 ctx[1]: testme.lights: 1 values: <COLOR>
 
 === State 7 ===
-ctx[1]: DEBUG_PMNS=1 (derive=1 appl2=1)
+ctx[1]: DEBUG_EVAL=1 (derive=1 appl2=1)
 Context 2 limit was: 2
 Context 2 limit now: 1
 __dmgetpmid: metric "testme.one" -> Unknown metric name
@@ -384,7 +384,7 @@ expr node ADDR type=NAME left=(nil) right=(nil) save_last=0 [sampledso.lights] m
 ctx[1]: testme.two: 1 values:       13
 ctx[1]: testme.big: 1 values:  1000000
 ctx[1]: testme.lights: 1 values: <COLOR>
-ctx[1]: DEBUG_PMNS=0 (derive=0 appl2=0)
+ctx[1]: DEBUG_EVAL=0 (derive=0 appl2=0)
 
 === State 8 ===
 pmTraversePMNS found: testme.big

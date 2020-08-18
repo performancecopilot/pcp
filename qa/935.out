@@ -5,7 +5,7 @@ derive_lex() -> type=L_LPAREN "("
 derive_lex() -> type=L_NAME "PM_TYPE_U32"
 derive_lex() -> type=L_RPAREN ")"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
 Derived metric expr dump from <addr-0>...
 expr node <addr-0> type=ANON left=<addr-1> right=(nil) save_last=0
 expr node <addr-1> type=INTEGER left=(nil) right=(nil) save_last=0 [PM_TYPE_U32] master=1
@@ -15,7 +15,7 @@ derive_lex() -> type=L_LPAREN "("
 derive_lex() -> type=L_NAME "PM_TYPE_U32"
 derive_lex() -> type=L_RPAREN ")"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
 Derived metric expr dump from <addr-2>...
 expr node <addr-2> type=ANON left=<addr-3> right=(nil) save_last=0
 expr node <addr-3> type=INTEGER left=(nil) right=(nil) save_last=0 [PM_TYPE_U32] master=1
@@ -28,7 +28,7 @@ derive_lex() -> type=L_NAME "sample.long.hundred"
 derive_lex() -> type=L_SLASH "/"
 derive_lex() -> type=L_NAME "sample.long.ten"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[2] a.m1 = sample.long.ten + sample.long.hundred / sample.long.ten
+pmRegisterDerived: global metric[2] a.m1 = sample.long.ten + sample.long.hundred / sample.long.ten
 Derived metric expr dump from <addr-4>...
 expr node <addr-4> type=PLUS left=<addr-5> right=<addr-6> save_last=0
 expr node <addr-5> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] master=1
@@ -44,7 +44,7 @@ derive_lex() -> type=L_RPAREN ")"
 derive_lex() -> type=L_SLASH "/"
 derive_lex() -> type=L_NAME "sample.long.ten"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[3] a.m2 = (sample.long.ten + sample.long.hundred) / sample.long.ten
+pmRegisterDerived: global metric[3] a.m2 = (sample.long.ten + sample.long.hundred) / sample.long.ten
 Derived metric expr dump from <addr-9>...
 expr node <addr-9> type=SLASH left=<addr-10> right=<addr-13> save_last=0
 expr node <addr-10> type=PLUS left=<addr-11> right=<addr-12> save_last=0
@@ -58,7 +58,7 @@ derive_lex() -> type=L_NAME "sample.long.ten"
 derive_lex() -> type=L_EQ "=="
 derive_lex() -> type=L_NAME "sample.long.hundred"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[4] a.m3 = sample.long.ten * sample.long.ten == sample.long.hundred
+pmRegisterDerived: global metric[4] a.m3 = sample.long.ten * sample.long.ten == sample.long.hundred
 Derived metric expr dump from <addr-14>...
 expr node <addr-14> type=EQ left=<addr-15> right=<addr-18> save_last=0
 expr node <addr-15> type=STAR left=<addr-16> right=<addr-17> save_last=0
@@ -74,7 +74,7 @@ derive_lex() -> type=L_NAME "sample.long.ten"
 derive_lex() -> type=L_STAR "*"
 derive_lex() -> type=L_NAME "sample.long.ten"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[5] a.m4 = sample.long.ten * sample.long.ten + sample.long.ten * sample.long.ten
+pmRegisterDerived: global metric[5] a.m4 = sample.long.ten * sample.long.ten + sample.long.ten * sample.long.ten
 Derived metric expr dump from <addr-19>...
 expr node <addr-19> type=PLUS left=<addr-20> right=<addr-23> save_last=0
 expr node <addr-20> type=STAR left=<addr-21> right=<addr-22> save_last=0
@@ -92,7 +92,7 @@ derive_lex() -> type=L_NAME "sample.long.ten"
 derive_lex() -> type=L_PLUS "+"
 derive_lex() -> type=L_NAME "sample.long.ten"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[6] a.m5 = sample.long.ten + sample.long.ten == sample.long.ten + sample.long.ten
+pmRegisterDerived: global metric[6] a.m5 = sample.long.ten + sample.long.ten == sample.long.ten + sample.long.ten
 Derived metric expr dump from <addr-26>...
 expr node <addr-26> type=EQ left=<addr-27> right=<addr-30> save_last=0
 expr node <addr-27> type=PLUS left=<addr-28> right=<addr-29> save_last=0
@@ -112,7 +112,7 @@ derive_lex() -> type=L_RPAREN ")"
 derive_lex() -> type=L_PLUS "+"
 derive_lex() -> type=L_NAME "sample.long.ten"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[7] a.m6 = sample.long.ten + (sample.long.ten >= sample.long.ten) + sample.long.ten
+pmRegisterDerived: global metric[7] a.m6 = sample.long.ten + (sample.long.ten >= sample.long.ten) + sample.long.ten
 Derived metric expr dump from <addr-33>...
 expr node <addr-33> type=PLUS left=<addr-34> right=<addr-39> save_last=0
 expr node <addr-34> type=PLUS left=<addr-35> right=<addr-36> save_last=0
@@ -132,7 +132,7 @@ derive_lex() -> type=L_NAME "sample.long.ten"
 derive_lex() -> type=L_SLASH "/"
 derive_lex() -> type=L_INTEGER "10"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[8] a.m7 = sample.long.ten * sample.long.ten == sample.long.hundred * sample.long.ten / 10
+pmRegisterDerived: global metric[8] a.m7 = sample.long.ten * sample.long.ten == sample.long.hundred * sample.long.ten / 10
 Derived metric expr dump from <addr-40>...
 expr node <addr-40> type=EQ left=<addr-41> right=<addr-44> save_last=0
 expr node <addr-41> type=STAR left=<addr-42> right=<addr-43> save_last=0
@@ -158,7 +158,7 @@ derive_lex() -> type=L_NAME "sample.long.hundred"
 derive_lex() -> type=L_STAR "*"
 derive_lex() -> type=L_NAME "sample.long.ten"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[9] a.m8 = (9 + 1) * sample.long.ten * sample.long.ten == sample.long.hundred * sample.long.ten
+pmRegisterDerived: global metric[9] a.m8 = (9 + 1) * sample.long.ten * sample.long.ten == sample.long.hundred * sample.long.ten
 Derived metric expr dump from <addr-49>...
 expr node <addr-49> type=EQ left=<addr-50> right=<addr-57> save_last=0
 expr node <addr-50> type=STAR left=<addr-51> right=<addr-56> save_last=0
@@ -192,7 +192,7 @@ derive_lex() -> type=L_MINUS "-"
 derive_lex() -> type=L_INTEGER "9"
 derive_lex() -> type=L_RPAREN ")"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[10] a.m9 = (1 + sample.long.ten) * (sample.long.ten - 1) / (2 * sample.long.ten - 9)
+pmRegisterDerived: global metric[10] a.m9 = (1 + sample.long.ten) * (sample.long.ten - 1) / (2 * sample.long.ten - 9)
 Derived metric expr dump from <addr-60>...
 expr node <addr-60> type=SLASH left=<addr-61> right=<addr-68> save_last=0
 expr node <addr-61> type=STAR left=<addr-62> right=<addr-65> save_last=0
@@ -220,7 +220,7 @@ derive_lex() -> type=L_MINUS "-"
 derive_lex() -> type=L_NAME "sample.long.one"
 derive_lex() -> type=L_RPAREN ")"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[11] a.m10 = (sample.long.one + sample.long.ten) * (sample.long.ten - sample.long.one)
+pmRegisterDerived: global metric[11] a.m10 = (sample.long.one + sample.long.ten) * (sample.long.ten - sample.long.one)
 Derived metric expr dump from <addr-73>...
 expr node <addr-73> type=STAR left=<addr-74> right=<addr-77> save_last=0
 expr node <addr-74> type=PLUS left=<addr-75> right=<addr-76> save_last=0
@@ -236,7 +236,7 @@ derive_lex() -> type=L_GT ">"
 derive_lex() -> type=L_NAME "sample.long.ten"
 derive_lex() -> type=L_RPAREN ")"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[12] a.m11 = (sample.long.hundred > sample.long.ten)
+pmRegisterDerived: global metric[12] a.m11 = (sample.long.hundred > sample.long.ten)
 Derived metric expr dump from <addr-80>...
 expr node <addr-80> type=GT left=<addr-81> right=<addr-82> save_last=0
 expr node <addr-81> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] master=1
@@ -254,7 +254,7 @@ derive_lex() -> type=L_LEQ "<="
 derive_lex() -> type=L_NAME "sample.long.ten"
 derive_lex() -> type=L_RPAREN ")"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[13] a.m12 = (sample.long.hundred > sample.long.ten) + (sample.long.ten <= sample.long.ten)
+pmRegisterDerived: global metric[13] a.m12 = (sample.long.hundred > sample.long.ten) + (sample.long.ten <= sample.long.ten)
 Derived metric expr dump from <addr-83>...
 expr node <addr-83> type=PLUS left=<addr-84> right=<addr-87> save_last=0
 expr node <addr-84> type=GT left=<addr-85> right=<addr-86> save_last=0
@@ -282,7 +282,7 @@ derive_lex() -> type=L_NEQ "!="
 derive_lex() -> type=L_INTEGER "99"
 derive_lex() -> type=L_RPAREN ")"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[14] a.m13 = (sample.long.hundred > sample.long.ten) + (sample.long.ten <= sample.long.ten) + (sample.long.hundred != 99)
+pmRegisterDerived: global metric[14] a.m13 = (sample.long.hundred > sample.long.ten) + (sample.long.ten <= sample.long.ten) + (sample.long.hundred != 99)
 Derived metric expr dump from <addr-90>...
 expr node <addr-90> type=PLUS left=<addr-91> right=<addr-98> save_last=0
 expr node <addr-91> type=PLUS left=<addr-92> right=<addr-95> save_last=0
@@ -302,7 +302,7 @@ derive_lex() -> type=L_NAME "sample.long.ten"
 derive_lex() -> type=L_EQ "=="
 derive_lex() -> type=L_NAME "sample.long.one"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[15] a.m14 = sample.long.hundred > sample.long.ten == sample.long.one
+pmRegisterDerived: global metric[15] a.m14 = sample.long.hundred > sample.long.ten == sample.long.one
 Derived metric expr dump from <addr-101>...
 expr node <addr-101> type=EQ left=<addr-102> right=<addr-105> save_last=0
 expr node <addr-102> type=GT left=<addr-103> right=<addr-104> save_last=0
@@ -318,7 +318,7 @@ derive_lex() -> type=L_NAME "sample.long.hundred"
 derive_lex() -> type=L_EQ "=="
 derive_lex() -> type=L_INTEGER "100"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[16] a.m15 = sample.double.million == 1000000 && sample.long.hundred == 100
+pmRegisterDerived: global metric[16] a.m15 = sample.double.million == 1000000 && sample.long.hundred == 100
 Derived metric expr dump from <addr-106>...
 expr node <addr-106> type=AND left=<addr-107> right=<addr-110> save_last=0
 expr node <addr-107> type=EQ left=<addr-108> right=<addr-109> save_last=0
@@ -336,7 +336,7 @@ derive_lex() -> type=L_NAME "sample.long.hundred"
 derive_lex() -> type=L_GEQ ">="
 derive_lex() -> type=L_INTEGER "100"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[17] a.m16 = sample.double.million == sample.long.one || sample.long.hundred >= 100
+pmRegisterDerived: global metric[17] a.m16 = sample.double.million == sample.long.one || sample.long.hundred >= 100
 Derived metric expr dump from <addr-113>...
 expr node <addr-113> type=OR left=<addr-114> right=<addr-117> save_last=0
 expr node <addr-114> type=EQ left=<addr-115> right=<addr-116> save_last=0
@@ -352,7 +352,7 @@ derive_lex() -> type=L_INTEGER "2"
 derive_lex() -> type=L_STAR "*"
 derive_lex() -> type=L_NAME "sample.long.one"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[18] a.m17 = 0 + 2 * sample.long.one
+pmRegisterDerived: global metric[18] a.m17 = 0 + 2 * sample.long.one
 Derived metric expr dump from <addr-120>...
 expr node <addr-120> type=PLUS left=<addr-121> right=<addr-122> save_last=0
 expr node <addr-121> type=INTEGER left=(nil) right=(nil) save_last=0 [0] master=1
@@ -366,7 +366,7 @@ derive_lex() -> type=L_INTEGER "2"
 derive_lex() -> type=L_PLUS "+"
 derive_lex() -> type=L_NAME "sample.long.one"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[19] a.m18 = 0 * 2 + sample.long.one
+pmRegisterDerived: global metric[19] a.m18 = 0 * 2 + sample.long.one
 Derived metric expr dump from <addr-125>...
 expr node <addr-125> type=PLUS left=<addr-126> right=<addr-129> save_last=0
 expr node <addr-126> type=STAR left=<addr-127> right=<addr-128> save_last=0
@@ -386,7 +386,7 @@ derive_lex() -> type=L_NAME "sample.float.ten"
 derive_lex() -> type=L_PLUS "+"
 derive_lex() -> type=L_NAME "sample.double.ten"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[20] a.m19 = 123 >= 0 * 2 + sample.long.hundred + sample.float.ten + sample.double.ten
+pmRegisterDerived: global metric[20] a.m19 = 123 >= 0 * 2 + sample.long.hundred + sample.float.ten + sample.double.ten
 Derived metric expr dump from <addr-130>...
 expr node <addr-130> type=GEQ left=<addr-131> right=<addr-132> save_last=0
 expr node <addr-131> type=INTEGER left=(nil) right=(nil) save_last=0 [123] master=1
@@ -404,7 +404,7 @@ derive_lex() -> type=L_NAME "sample.double.million"
 derive_lex() -> type=L_NEQ "!="
 derive_lex() -> type=L_NAME "sample.long.one"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[21] a.m20 = sample.double.million != sample.long.one
+pmRegisterDerived: global metric[21] a.m20 = sample.double.million != sample.long.one
 Derived metric expr dump from <addr-141>...
 expr node <addr-141> type=NEQ left=<addr-142> right=<addr-143> save_last=0
 expr node <addr-142> type=NAME left=(nil) right=(nil) save_last=0 [sample.double.million] master=1
@@ -418,7 +418,7 @@ derive_lex() -> type=L_INTEGER "2"
 derive_lex() -> type=L_PLUS "+"
 derive_lex() -> type=L_NAME "sample.long.one"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[22] a.m21 = 1 >= 0 * 2 + sample.long.one
+pmRegisterDerived: global metric[22] a.m21 = 1 >= 0 * 2 + sample.long.one
 Derived metric expr dump from <addr-144>...
 expr node <addr-144> type=GEQ left=<addr-145> right=<addr-146> save_last=0
 expr node <addr-145> type=INTEGER left=(nil) right=(nil) save_last=0 [1] master=1
@@ -434,7 +434,7 @@ derive_lex() -> type=L_INTEGER "10"
 derive_lex() -> type=L_STAR "*"
 derive_lex() -> type=L_NAME "sample.longlong.ten"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[23] a.m22 = sample.long.hundred >= 10 * sample.longlong.ten
+pmRegisterDerived: global metric[23] a.m22 = sample.long.hundred >= 10 * sample.longlong.ten
 Derived metric expr dump from <addr-151>...
 expr node <addr-151> type=GEQ left=<addr-152> right=<addr-153> save_last=0
 expr node <addr-152> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] master=1
@@ -448,7 +448,7 @@ derive_lex() -> type=L_NAME "sample.longlong.ten"
 derive_lex() -> type=L_PLUS "+"
 derive_lex() -> type=L_INTEGER "91"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[24] a.m23 = sample.ulonglong.hundred <= sample.longlong.ten + 91
+pmRegisterDerived: global metric[24] a.m23 = sample.ulonglong.hundred <= sample.longlong.ten + 91
 Derived metric expr dump from <addr-156>...
 expr node <addr-156> type=LEQ left=<addr-157> right=<addr-158> save_last=0
 expr node <addr-157> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.hundred] master=1
@@ -468,7 +468,7 @@ derive_lex() -> type=L_NAME "sample.longlong.ten"
 derive_lex() -> type=L_PLUS "+"
 derive_lex() -> type=L_INTEGER "91"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[25] a.m24 = sample.long.hundred >= 10 * sample.longlong.ten && sample.ulonglong.hundred <= sample.longlong.ten + 91
+pmRegisterDerived: global metric[25] a.m24 = sample.long.hundred >= 10 * sample.longlong.ten && sample.ulonglong.hundred <= sample.longlong.ten + 91
 Derived metric expr dump from <addr-161>...
 expr node <addr-161> type=AND left=<addr-162> right=<addr-167> save_last=0
 expr node <addr-162> type=GEQ left=<addr-163> right=<addr-164> save_last=0
@@ -498,7 +498,7 @@ derive_lex() -> type=L_NAME "sample.long.hundred"
 derive_lex() -> type=L_GT ">"
 derive_lex() -> type=L_INTEGER "100"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[26] a.m25 = sample.long.hundred >= 10 && sample.long.hundred == 100 || sample.long.hundred < 101 && sample.long.hundred > 100
+pmRegisterDerived: global metric[26] a.m25 = sample.long.hundred >= 10 && sample.long.hundred == 100 || sample.long.hundred < 101 && sample.long.hundred > 100
 Derived metric expr dump from <addr-172>...
 expr node <addr-172> type=AND left=<addr-173> right=<addr-184> save_last=0
 expr node <addr-173> type=OR left=<addr-174> right=<addr-181> save_last=0
@@ -536,7 +536,7 @@ derive_lex() -> type=L_NAME "sample.long.hundred"
 derive_lex() -> type=L_GT ">"
 derive_lex() -> type=L_INTEGER "100"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[27] a.m26 = ((sample.long.hundred >= 10 && sample.long.hundred == 100) || sample.long.hundred < 101) && sample.long.hundred > 100
+pmRegisterDerived: global metric[27] a.m26 = ((sample.long.hundred >= 10 && sample.long.hundred == 100) || sample.long.hundred < 101) && sample.long.hundred > 100
 Derived metric expr dump from <addr-187>...
 expr node <addr-187> type=AND left=<addr-188> right=<addr-199> save_last=0
 expr node <addr-188> type=OR left=<addr-189> right=<addr-196> save_last=0

@@ -6,12 +6,12 @@ derived.inst = delta(sample.longlong.million)
 # counter
 derived.ctr = delta(sampledso.recv_pdu)
 
-pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
-pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
 Derived metric initialization from $PCP_DERIVED_CONFIG
 pmLoadDerivedConfig("TMP.config")
-pmRegisterDerived: register metric[2] derived.inst = delta(sample.longlong.million)
-pmRegisterDerived: register metric[3] derived.ctr = delta(sampledso.recv_pdu)
+pmRegisterDerived: global metric[2] derived.inst = delta(sample.longlong.million)
+pmRegisterDerived: global metric[3] derived.ctr = delta(sampledso.recv_pdu)
 pmFetch returns ...
 TIMESTAMP ... numpmid: 1
   2.0.21 (pmcd.hostname): numval: 1 valfmt: 1 vlist[]:
@@ -94,12 +94,12 @@ TIMESTAMP ... numpmid: 1
    value 0
                     0
 
-pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
-pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
 Derived metric initialization from $PCP_DERIVED_CONFIG
 pmLoadDerivedConfig("TMP.config")
-pmRegisterDerived: register metric[2] derived.inst = delta(sample.longlong.million)
-pmRegisterDerived: register metric[3] derived.ctr = delta(sampledso.recv_pdu)
+pmRegisterDerived: global metric[2] derived.inst = delta(sample.longlong.million)
+pmRegisterDerived: global metric[3] derived.ctr = delta(sampledso.recv_pdu)
 pmFetch returns ...
 TIMESTAMP ... numpmid: 1
   2.0.21 (pmcd.hostname): numval: 1 valfmt: 1 vlist[]:
@@ -189,15 +189,15 @@ myname.b = delta + 3
 myname.c = delta(sample.long.one + sample.long.hundred)
 myname.d = delta(12345)
 
-pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
-pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
 Derived metric initialization from $PCP_DERIVED_CONFIG
 pmLoadDerivedConfig("TMP.config")
 [TMP.config:1] Error: pmRegisterDerived(myname.a, ...) syntax error
  delta(
       ^
 Metric name expected to follow delta(
-pmRegisterDerived: register metric[2] myname.b = delta + 3
+pmRegisterDerived: global metric[2] myname.b = delta + 3
 [TMP.config:3] Error: pmRegisterDerived(myname.c, ...) syntax error
  delta(sample.long.one + sample.long.hundred)
                        ^                     

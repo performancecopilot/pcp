@@ -162,9 +162,9 @@ pmLoadDerivedConfig("./A")
 pmLoadDerivedConfig("./B")
 pmLoadDerivedConfig("./D")
 pmLoadDerivedConfig("./sub/C")
-pmRegisterDerived: register metric[N] event.flags = anon(PM_TYPE_U32)
-pmRegisterDerived: register metric[N] event.missed = anon(PM_TYPE_U32)
-pmRegisterDerived: register metric[N] qa.A = sample.bin
-pmRegisterDerived: register metric[N] qa.B = sample.long.one+sample.long.ten
-pmRegisterDerived: register metric[N] qa.C = sample.longlong.one+sample.longlong.ten
-pmRegisterDerived: register metric[N] qa.D = sample.longlong.one+sample.longlong.ten
+pmRegisterDerived: global metric[N] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[N] event.missed = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[N] qa.A = sample.bin
+pmRegisterDerived: global metric[N] qa.B = sample.long.one+sample.long.ten
+pmRegisterDerived: global metric[N] qa.C = sample.longlong.one+sample.longlong.ten
+pmRegisterDerived: global metric[N] qa.D = sample.longlong.one+sample.longlong.ten

@@ -1,12 +1,12 @@
 QA output created by 1103
 === simple cases ===
-pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
-pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
 Derived metric initialization from $PCP_DERIVED_CONFIG
 pmLoadDerivedConfig("TMP.config")
-pmRegisterDerived: register metric[2] qa.a = scalar(sample.bin[bin-300])
-pmRegisterDerived: register metric[3] qa.b = (scalar(sample.bin[bin-100]) + scalar(sample.bin[bin-200]) + scalar(sample.bin[bin-300])) / 3
-pmRegisterDerived: register metric[4] qa.c = (scalar(sample.bin[bin-100]) + scalar(matchinst(/^bin-200$/,sample.bin)) + scalar(sample.bin[bin-300])) / 3
+pmRegisterDerived: global metric[2] qa.a = scalar(sample.bin[bin-300])
+pmRegisterDerived: global metric[3] qa.b = (scalar(sample.bin[bin-100]) + scalar(sample.bin[bin-200]) + scalar(sample.bin[bin-300])) / 3
+pmRegisterDerived: global metric[4] qa.c = (scalar(sample.bin[bin-100]) + scalar(matchinst(/^bin-200$/,sample.bin)) + scalar(sample.bin[bin-300])) / 3
 __dmopencontext(->ctx 0) called, 5 derived metrics
 __dmgetpmid: metric "qa.a" -> PMID 511.0.3
 __dmbind: bind metric[2] qa.a
@@ -375,8 +375,8 @@ qa.c
     value 200
 
 === some error cases ===
-pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
-pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
 Derived metric initialization from $PCP_DERIVED_CONFIG
 pmLoadDerivedConfig("TMP.config")
 [TMP.config:1] Error: pmRegisterDerived(qa.p, ...) syntax error

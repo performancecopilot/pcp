@@ -5,7 +5,7 @@ derive_lex() -> type=L_LPAREN "("
 derive_lex() -> type=L_NAME "PM_TYPE_U32"
 derive_lex() -> type=L_RPAREN ")"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
 Derived metric expr dump from <addr-0>...
 expr node <addr-0> type=ANON left=<addr-1> right=(nil) save_last=0
 expr node <addr-1> type=INTEGER left=(nil) right=(nil) save_last=0 [PM_TYPE_U32] master=1
@@ -15,7 +15,7 @@ derive_lex() -> type=L_LPAREN "("
 derive_lex() -> type=L_NAME "PM_TYPE_U32"
 derive_lex() -> type=L_RPAREN ")"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
 Derived metric expr dump from <addr-2>...
 expr node <addr-2> type=ANON left=<addr-3> right=(nil) save_last=0
 expr node <addr-3> type=INTEGER left=(nil) right=(nil) save_last=0 [PM_TYPE_U32] master=1
@@ -29,7 +29,7 @@ derive_lex() -> type=L_COMMA ","
 derive_lex() -> type=L_STRING "Kbyte/min"
 derive_lex() -> type=L_RPAREN ")"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[2] a.m1 = rescale(sample.byte_rate, "Kbyte/min")
+pmRegisterDerived: global metric[2] a.m1 = rescale(sample.byte_rate, "Kbyte/min")
 Derived metric expr dump from <addr-4>...
 expr node <addr-4> type=RESCALE left=<addr-5> right=<addr-6> save_last=0
 expr node <addr-5> type=NAME left=(nil) right=(nil) save_last=0 [sample.byte_rate] master=1
@@ -49,7 +49,7 @@ derive_lex() -> type=L_COMMA ","
 derive_lex() -> type=L_STRING "count/sec"
 derive_lex() -> type=L_RPAREN ")"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[3] a.m2 = rescale(mkconst(36000, units="count/hour"),"count/sec")
+pmRegisterDerived: global metric[3] a.m2 = rescale(mkconst(36000, units="count/hour"),"count/sec")
 Derived metric expr dump from <addr-7>...
 expr node <addr-7> type=RESCALE left=<addr-8> right=<addr-9> save_last=0
 expr node <addr-8> type=INTEGER left=(nil) right=(nil) save_last=0 [36000] master=1
@@ -83,7 +83,7 @@ derive_lex() -> type=L_COMMA ","
 derive_lex() -> type=L_STRING "count/sec"
 derive_lex() -> type=L_RPAREN ")"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[4] a.m3 = rescale(mkconst(36000, units="count/hour")+rescale(mkconst(600, units="count/min"),"count/hour"), "count/sec")
+pmRegisterDerived: global metric[4] a.m3 = rescale(mkconst(36000, units="count/hour")+rescale(mkconst(600, units="count/min"),"count/hour"), "count/sec")
 Derived metric expr dump from <addr-10>...
 expr node <addr-10> type=RESCALE left=<addr-11> right=<addr-16> save_last=0
 expr node <addr-11> type=PLUS left=<addr-12> right=<addr-13> save_last=0
@@ -98,7 +98,7 @@ derive_lex() -> type=L_LPAREN "("
 derive_lex() -> type=L_NAME "sample.long.million"
 derive_lex() -> type=L_RPAREN ")"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[5] a.m4 = defined(sample.long.million)
+pmRegisterDerived: global metric[5] a.m4 = defined(sample.long.million)
 Derived metric expr dump from <addr-17>...
 expr node <addr-17> type=DEFINED left=<addr-18> right=(nil) save_last=0
 expr node <addr-18> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.million] master=1
@@ -108,7 +108,7 @@ derive_lex() -> type=L_LPAREN "("
 derive_lex() -> type=L_NAME "sample.long.not_million"
 derive_lex() -> type=L_RPAREN ")"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[6] a.m5 = defined(sample.long.not_million)
+pmRegisterDerived: global metric[6] a.m5 = defined(sample.long.not_million)
 Derived metric expr dump from <addr-19>...
 expr node <addr-19> type=DEFINED left=<addr-20> right=(nil) save_last=0
 expr node <addr-20> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.not_million] master=1
@@ -140,7 +140,7 @@ derive_lex() -> type=L_LPAREN "("
 derive_lex() -> type=L_NAME "sample.ulong.million"
 derive_lex() -> type=L_RPAREN ")"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[7] a.m6 = ! defined(sample.long.ten) ? 0 : defined(sample.ulong.ten) + 2*defined(sample.ulong.hundred) + 3*defined(sample.ulong.million)
+pmRegisterDerived: global metric[7] a.m6 = ! defined(sample.long.ten) ? 0 : defined(sample.ulong.ten) + 2*defined(sample.ulong.hundred) + 3*defined(sample.ulong.million)
 Derived metric expr dump from <addr-21>...
 expr node <addr-21> type=QUEST left=<addr-22> right=<addr-25> save_last=0
 expr node <addr-22> type=NOT left=<addr-23> right=(nil) save_last=0
@@ -188,7 +188,7 @@ derive_lex() -> type=L_RPAREN ")"
 derive_lex() -> type=L_COLON ":"
 derive_lex() -> type=L_INTEGER "0"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[8] a.m7 = ! defined(sample.long.bozo) ? defined(sample.ulong.ten) + 2*defined(sample.ulong.hundred) + 3*defined(sample.ulong.million) : 0
+pmRegisterDerived: global metric[8] a.m7 = ! defined(sample.long.bozo) ? defined(sample.ulong.ten) + 2*defined(sample.ulong.hundred) + 3*defined(sample.ulong.million) : 0
 Derived metric expr dump from <addr-39>...
 expr node <addr-39> type=QUEST left=<addr-40> right=<addr-43> save_last=0
 expr node <addr-40> type=NOT left=<addr-41> right=(nil) save_last=0
@@ -216,7 +216,7 @@ derive_lex() -> type=L_COMMA ","
 derive_lex() -> type=L_STRING "Kbyte/sec"
 derive_lex() -> type=L_RPAREN ")"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[9] a.err.m1 = rescale(sample.long.hundred, "Kbyte/sec")
+pmRegisterDerived: global metric[9] a.err.m1 = rescale(sample.long.hundred, "Kbyte/sec")
 Derived metric expr dump from <addr-57>...
 expr node <addr-57> type=RESCALE left=<addr-58> right=<addr-59> save_last=0
 expr node <addr-58> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] master=1
@@ -229,7 +229,7 @@ derive_lex() -> type=L_COMMA ","
 derive_lex() -> type=L_STRING "millisec/count"
 derive_lex() -> type=L_RPAREN ")"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[10] a.err.m2 = rescale(sample.string.hullo, "millisec/count")
+pmRegisterDerived: global metric[10] a.err.m2 = rescale(sample.string.hullo, "millisec/count")
 Derived metric expr dump from <addr-60>...
 expr node <addr-60> type=RESCALE left=<addr-61> right=<addr-62> save_last=0
 expr node <addr-61> type=NAME left=(nil) right=(nil) save_last=0 [sample.string.hullo] master=1

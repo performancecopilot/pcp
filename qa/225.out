@@ -6,7 +6,7 @@ derive_lex() -> type=L_LPAREN "("
 derive_lex() -> type=L_NAME "PM_TYPE_U32"
 derive_lex() -> type=L_RPAREN ")"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
 Derived metric expr dump from <addr->...
 expr node <addr-> type=ANON left=<addr-1> right=(nil) save_last=0
 expr node <addr-1> type=INTEGER left=(nil) right=(nil) save_last=0 [PM_TYPE_U32] master=1
@@ -16,7 +16,7 @@ derive_lex() -> type=L_LPAREN "("
 derive_lex() -> type=L_NAME "PM_TYPE_U32"
 derive_lex() -> type=L_RPAREN ")"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
 Derived metric expr dump from <addr-2>...
 expr node <addr-2> type=ANON left=<addr-3> right=(nil) save_last=0
 expr node <addr-3> type=INTEGER left=(nil) right=(nil) save_last=0 [PM_TYPE_U32] master=1
@@ -24,7 +24,7 @@ pmLoadDerivedConfig("TMP.config")
 pmRegisterDerived: name="myname.a" expr="disk.dev.read"
 derive_lex() -> type=L_NAME "disk.dev.read"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[2] myname.a = disk.dev.read
+pmRegisterDerived: global metric[2] myname.a = disk.dev.read
 Derived metric expr dump from <addr-4>...
 expr node <addr-4> type=NAME left=(nil) right=(nil) save_last=0 [disk.dev.read] master=1
 pmRegisterDerived: name="myname.b" expr="disk.dev.read + disk.dev.write"
@@ -32,7 +32,7 @@ derive_lex() -> type=L_NAME "disk.dev.read"
 derive_lex() -> type=L_PLUS "+"
 derive_lex() -> type=L_NAME "disk.dev.write"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[3] myname.b = disk.dev.read + disk.dev.write
+pmRegisterDerived: global metric[3] myname.b = disk.dev.read + disk.dev.write
 Derived metric expr dump from <addr-5>...
 expr node <addr-5> type=PLUS left=<addr-6> right=<addr-7> save_last=0
 expr node <addr-6> type=NAME left=(nil) right=(nil) save_last=0 [disk.dev.read] master=1
@@ -44,7 +44,7 @@ derive_lex() -> type=L_NAME "disk.dev.write"
 derive_lex() -> type=L_PLUS "+"
 derive_lex() -> type=L_NAME "sample.long.writeme"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[4] myname.c = disk.dev.read + disk.dev.write + sample.long.writeme
+pmRegisterDerived: global metric[4] myname.c = disk.dev.read + disk.dev.write + sample.long.writeme
 Derived metric expr dump from <addr-8>...
 expr node <addr-8> type=PLUS left=<addr-9> right=<addr-12> save_last=0
 expr node <addr-9> type=PLUS left=<addr-10> right=<addr-11> save_last=0
@@ -56,7 +56,7 @@ derive_lex() -> type=L_LPAREN "("
 derive_lex() -> type=L_NAME "disk.dev.read"
 derive_lex() -> type=L_RPAREN ")"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[5] myname.d = (disk.dev.read)
+pmRegisterDerived: global metric[5] myname.d = (disk.dev.read)
 Derived metric expr dump from <addr-13>...
 expr node <addr-13> type=NAME left=(nil) right=(nil) save_last=0 [disk.dev.read] master=1
 pmRegisterDerived: name="myname.e" expr="2 * disk.dev.write + sample.long.writeme"
@@ -66,7 +66,7 @@ derive_lex() -> type=L_NAME "disk.dev.write"
 derive_lex() -> type=L_PLUS "+"
 derive_lex() -> type=L_NAME "sample.long.writeme"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[6] myname.e = 2 * disk.dev.write + sample.long.writeme
+pmRegisterDerived: global metric[6] myname.e = 2 * disk.dev.write + sample.long.writeme
 Derived metric expr dump from <addr-14>...
 expr node <addr-14> type=PLUS left=<addr-15> right=<addr-18> save_last=0
 expr node <addr-15> type=STAR left=<addr-16> right=<addr-17> save_last=0
@@ -80,7 +80,7 @@ derive_lex() -> type=L_NAME "disk.dev.write"
 derive_lex() -> type=L_STAR "*"
 derive_lex() -> type=L_NAME "sample.long.writeme"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[7] myname.f = 2 + disk.dev.write * sample.long.writeme
+pmRegisterDerived: global metric[7] myname.f = 2 + disk.dev.write * sample.long.writeme
 Derived metric expr dump from <addr-19>...
 expr node <addr-19> type=PLUS left=<addr-20> right=<addr-21> save_last=0
 expr node <addr-20> type=INTEGER left=(nil) right=(nil) save_last=0 [2] master=1
@@ -96,7 +96,7 @@ derive_lex() -> type=L_RPAREN ")"
 derive_lex() -> type=L_STAR "*"
 derive_lex() -> type=L_NAME "sample.long.writeme"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[8] myname.g = ( 2 + disk.dev.write ) * sample.long.writeme
+pmRegisterDerived: global metric[8] myname.g = ( 2 + disk.dev.write ) * sample.long.writeme
 Derived metric expr dump from <addr-24>...
 expr node <addr-24> type=STAR left=<addr-25> right=<addr-28> save_last=0
 expr node <addr-25> type=PLUS left=<addr-26> right=<addr-27> save_last=0
@@ -112,7 +112,7 @@ derive_lex() -> type=L_STAR "*"
 derive_lex() -> type=L_NAME "sample.long.writeme"
 derive_lex() -> type=L_RPAREN ")"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[9] myname.h = 2 + ( disk.dev.write * sample.long.writeme )
+pmRegisterDerived: global metric[9] myname.h = 2 + ( disk.dev.write * sample.long.writeme )
 Derived metric expr dump from <addr-29>...
 expr node <addr-29> type=PLUS left=<addr-30> right=<addr-31> save_last=0
 expr node <addr-30> type=INTEGER left=(nil) right=(nil) save_last=0 [2] master=1
@@ -132,7 +132,7 @@ derive_lex() -> type=L_PLUS "+"
 derive_lex() -> type=L_NAME "sample.long.ten"
 derive_lex() -> type=L_RPAREN ")"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[10] myname.i = (disk.dev.write+disk.dev.read)*(sample.long.one+sample.long.ten)
+pmRegisterDerived: global metric[10] myname.i = (disk.dev.write+disk.dev.read)*(sample.long.one+sample.long.ten)
 Derived metric expr dump from <addr-34>...
 expr node <addr-34> type=STAR left=<addr-35> right=<addr-38> save_last=0
 expr node <addr-35> type=PLUS left=<addr-36> right=<addr-37> save_last=0
@@ -154,7 +154,7 @@ derive_lex() -> type=L_STAR "*"
 derive_lex() -> type=L_NAME "sample.long.ten"
 derive_lex() -> type=L_RPAREN ")"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[11] myname.j = (disk.dev.write*disk.dev.read)+(sample.long.one*sample.long.ten)
+pmRegisterDerived: global metric[11] myname.j = (disk.dev.write*disk.dev.read)+(sample.long.one*sample.long.ten)
 Derived metric expr dump from <addr-41>...
 expr node <addr-41> type=PLUS left=<addr-42> right=<addr-45> save_last=0
 expr node <addr-42> type=STAR left=<addr-43> right=<addr-44> save_last=0
@@ -180,7 +180,7 @@ derive_lex() -> type=L_NAME "sample.longlong.hundred"
 derive_lex() -> type=L_PLUS "+"
 derive_lex() -> type=L_NAME "sample.longlong.million"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[12] myname.k = sample.long.one + sample.long.ten + sample.long.hundred + sample.long.million + sample.longlong.one + sample.longlong.ten + sample.longlong.hundred + sample.longlong.million
+pmRegisterDerived: global metric[12] myname.k = sample.long.one + sample.long.ten + sample.long.hundred + sample.long.million + sample.longlong.one + sample.longlong.ten + sample.longlong.hundred + sample.longlong.million
 Derived metric expr dump from <addr-48>...
 expr node <addr-48> type=PLUS left=<addr-49> right=<addr-62> save_last=0
 expr node <addr-49> type=PLUS left=<addr-50> right=<addr-61> save_last=0
@@ -214,7 +214,7 @@ derive_lex() -> type=L_NAME "sample.longlong.hundred"
 derive_lex() -> type=L_MINUS "-"
 derive_lex() -> type=L_NAME "sample.longlong.million"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[13] myname.l = sample.long.one + sample.long.ten + sample.long.hundred + sample.long.million - sample.longlong.one - sample.longlong.ten - sample.longlong.hundred - sample.longlong.million
+pmRegisterDerived: global metric[13] myname.l = sample.long.one + sample.long.ten + sample.long.hundred + sample.long.million - sample.longlong.one - sample.longlong.ten - sample.longlong.hundred - sample.longlong.million
 Derived metric expr dump from <addr-63>...
 expr node <addr-63> type=MINUS left=<addr-64> right=<addr-77> save_last=0
 expr node <addr-64> type=MINUS left=<addr-65> right=<addr-76> save_last=0
@@ -240,7 +240,7 @@ derive_lex() -> type=L_NAME "sample.long.ten"
 derive_lex() -> type=L_STAR "*"
 derive_lex() -> type=L_NAME "sample.longlong.ten"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[14] myname.m = sample.long.one * sample.longlong.one + sample.long.ten * sample.longlong.ten
+pmRegisterDerived: global metric[14] myname.m = sample.long.one * sample.longlong.one + sample.long.ten * sample.longlong.ten
 Derived metric expr dump from <addr-78>...
 expr node <addr-78> type=PLUS left=<addr-79> right=<addr-82> save_last=0
 expr node <addr-79> type=STAR left=<addr-80> right=<addr-81> save_last=0
@@ -258,7 +258,7 @@ derive_lex() -> type=L_NAME "sample.long.ten"
 derive_lex() -> type=L_PLUS "+"
 derive_lex() -> type=L_NAME "sample.longlong.ten"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[15] myname.n = sample.long.one + sample.longlong.one * sample.long.ten + sample.longlong.ten
+pmRegisterDerived: global metric[15] myname.n = sample.long.one + sample.longlong.one * sample.long.ten + sample.longlong.ten
 Derived metric expr dump from <addr-85>...
 expr node <addr-85> type=PLUS left=<addr-86> right=<addr-91> save_last=0
 expr node <addr-86> type=PLUS left=<addr-87> right=<addr-88> save_last=0
@@ -276,7 +276,7 @@ derive_lex() -> type=L_NAME "sample.long.one"
 derive_lex() -> type=L_STAR "*"
 derive_lex() -> type=L_NAME "sample.long.ten"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[16] myname.ABC.k42.x_1_3 = disk.dev.write*disk.dev.read	+	sample.long.one*sample.long.ten	
+pmRegisterDerived: global metric[16] myname.ABC.k42.x_1_3 = disk.dev.write*disk.dev.read	+	sample.long.one*sample.long.ten	
 Derived metric expr dump from <addr-92>...
 expr node <addr-92> type=PLUS left=<addr-93> right=<addr-96> save_last=0
 expr node <addr-93> type=STAR left=<addr-94> right=<addr-95> save_last=0
@@ -302,7 +302,7 @@ derive_lex() -> type=L_NAME "sample.long.million"
 derive_lex() -> type=L_STAR "*"
 derive_lex() -> type=L_NAME "sample.longlong.million"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[17] myname.o = sample.long.one * sample.longlong.one + sample.long.ten * sample.longlong.ten + sample.long.hundred * sample.longlong.hundred + sample.long.million * sample.longlong.million
+pmRegisterDerived: global metric[17] myname.o = sample.long.one * sample.longlong.one + sample.long.ten * sample.longlong.ten + sample.long.hundred * sample.longlong.hundred + sample.long.million * sample.longlong.million
 Derived metric expr dump from <addr-99>...
 expr node <addr-99> type=PLUS left=<addr-100> right=<addr-111> save_last=0
 expr node <addr-100> type=PLUS left=<addr-101> right=<addr-108> save_last=0
@@ -328,7 +328,7 @@ derive_lex() -> type=L_PLUS "+"
 derive_lex() -> type=L_NAME "pmcd.pdu_out.total"
 derive_lex() -> type=L_RPAREN ")"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[18] myname.p = pmcd.pdu_in.total / ( pmcd.pdu_in.total + pmcd.pdu_out.total )
+pmRegisterDerived: global metric[18] myname.p = pmcd.pdu_in.total / ( pmcd.pdu_in.total + pmcd.pdu_out.total )
 Derived metric expr dump from <addr-114>...
 expr node <addr-114> type=SLASH left=<addr-115> right=<addr-116> save_last=0
 expr node <addr-115> type=NAME left=(nil) right=(nil) save_last=0 [pmcd.pdu_in.total] master=1
@@ -338,7 +338,7 @@ expr node <addr-118> type=NAME left=(nil) right=(nil) save_last=0 [pmcd.pdu_out.
 pmRegisterDerived: name="myname.biggest.const" expr="4294967295"
 derive_lex() -> type=L_INTEGER "4294967295"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[19] myname.biggest.const = 4294967295
+pmRegisterDerived: global metric[19] myname.biggest.const = 4294967295
 Derived metric expr dump from <addr-119>...
 expr node <addr-119> type=INTEGER left=(nil) right=(nil) save_last=0 [4294967295] master=1
 __dmchildren: name="", omitting invalid child "myname.a"
@@ -411,7 +411,7 @@ derive_lex() -> type=L_LPAREN "("
 derive_lex() -> type=L_NAME "PM_TYPE_U32"
 derive_lex() -> type=L_RPAREN ")"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
 Derived metric expr dump from <addr->...
 expr node <addr-> type=ANON left=<addr-1> right=(nil) save_last=0
 expr node <addr-1> type=INTEGER left=(nil) right=(nil) save_last=0 [PM_TYPE_U32] master=1
@@ -421,7 +421,7 @@ derive_lex() -> type=L_LPAREN "("
 derive_lex() -> type=L_NAME "PM_TYPE_U32"
 derive_lex() -> type=L_RPAREN ")"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
 Derived metric expr dump from <addr-2>...
 expr node <addr-2> type=ANON left=<addr-3> right=(nil) save_last=0
 expr node <addr-3> type=INTEGER left=(nil) right=(nil) save_last=0 [PM_TYPE_U32] master=1
@@ -489,7 +489,7 @@ Unexpected ')'
 pmRegisterDerived: name="myname.a" expr="1"
 derive_lex() -> type=L_INTEGER "1"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[2] myname.a = 1
+pmRegisterDerived: global metric[2] myname.a = 1
 Derived metric expr dump from <addr-4>...
 expr node <addr-4> type=INTEGER left=(nil) right=(nil) save_last=0 [1] master=1
 pmRegisterDerived: name="myname.a" expr="dup.name.a"
@@ -551,7 +551,7 @@ derive_lex() -> type=L_INTEGER "3"
 derive_lex() -> type=L_STAR "*"
 derive_lex() -> type=L_NAME "space"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[3] myname.gcov.d = 3 * space
+pmRegisterDerived: global metric[3] myname.gcov.d = 3 * space
 Derived metric expr dump from <addr-5>...
 expr node <addr-5> type=STAR left=<addr-6> right=<addr-7> save_last=0
 expr node <addr-6> type=INTEGER left=(nil) right=(nil) save_last=0 [3] master=1
@@ -559,7 +559,7 @@ expr node <addr-7> type=NAME left=(nil) right=(nil) save_last=0 [space] master=1
 pmRegisterDerived: name="myname.gcov.e" expr="tab"
 derive_lex() -> type=L_NAME "tab"
 derive_lex() -> type=L_EOS ""
-pmRegisterDerived: register metric[4] myname.gcov.e = tab
+pmRegisterDerived: global metric[4] myname.gcov.e = tab
 Derived metric expr dump from <addr-8>...
 expr node <addr-8> type=NAME left=(nil) right=(nil) save_last=0 [tab] master=1
 pmRegisterDerived: name="myname.gcov.f" expr="( 1 + foo + ( }"
@@ -650,8 +650,8 @@ pmGetChildren(name="event.missed") no regular children (Unknown metric name), de
 local_pmns_no_pmcd_connection
 event.flags
 event.missed
-pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
-pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
 Derived metric initialization from $PCP_DERIVED_CONFIG
 Warning: derived metrics path component: /no/such/file: No such file or directory
 Error: no.such.metric: Unknown metric name
