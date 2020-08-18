@@ -32,8 +32,8 @@ add_ctx_dm(char *filename)
     char	name[100];		/* no checks, assume big enough */
     char	expr[1000];		/* no checks, assume big enough */
     int		c;
-    char	*np;
-    char	*ep;
+    char	*np = NULL;
+    char	*ep = NULL;
     int		state = STATE_BEGIN;
     int		lineno = 1;
     int		nload = 0;

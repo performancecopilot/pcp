@@ -214,8 +214,8 @@ main(int argc, char **argv)
     int		lflag = 0;
     int		Mflag = 0;
     int		Pflag = 0;
-    int		limit;
-    int		Limit;
+    int		limit = -1;
+    int		Limit = -1;
 
     pmSetProgname(argv[0]);
     setlinebuf(stdout);
@@ -484,16 +484,16 @@ main(int argc, char **argv)
     /* 7. dup ctx[1] -> ctx[0] */
     printf("\n=== State 7 ===\n");
     if (cflag) {
-	sts = pmSetDerivedControl(PCP_DERIVED_DEBUG_PMNS, 1);
+	sts = pmSetDerivedControl(PCP_DERIVED_DEBUG_EVAL, 1);
 	if (sts < 0)
-	    printf("ctx[1]: pmSetDerivedControl(PCP_DERIVED_DEBUG_PMNS, ...): %s\n", pmErrStr(sts));
-	sts = pmGetDerivedControl(PCP_DERIVED_DEBUG_PMNS, &c);
+	    printf("ctx[1]: pmSetDerivedControl(PCP_DERIVED_DEBUG_EVAL, ...): %s\n", pmErrStr(sts));
+	sts = pmGetDerivedControl(PCP_DERIVED_DEBUG_EVAL, &c);
 	if (sts < 0)
-	    printf("ctx[1]: pmGetDerivedControl(PCP_DERIVED_DEBUG_PMNS, ...): %s\n", pmErrStr(sts));
+	    printf("ctx[1]: pmGetDerivedControl(PCP_DERIVED_DEBUG_EVAL, ...): %s\n", pmErrStr(sts));
 	else {
 	    if (c != 1)
-		printf("ctx[1]: pmGetDerivedControl(PCP_DERIVED_DEBUG_PMNS, ...) -> %d not 1 as expected\n", c);
-	    printf("ctx[1]: DEBUG_PMNS=%d (derive=%d appl2=%d)\n", c, pmDebugOptions.derive, pmDebugOptions.appl2);
+		printf("ctx[1]: pmGetDerivedControl(PCP_DERIVED_DEBUG_EVAL, ...) -> %d not 1 as expected\n", c);
+	    printf("ctx[1]: DEBUG_EVAL=%d (derive=%d appl2=%d)\n", c, pmDebugOptions.derive, pmDebugOptions.appl2);
 	}
     }
     sts = ctx[0] = pmDupContext();
@@ -505,16 +505,16 @@ main(int argc, char **argv)
 	set_context_limit(Limit);
     do_work();
     if (cflag) {
-	sts = pmSetDerivedControl(PCP_DERIVED_DEBUG_PMNS, 0);
+	sts = pmSetDerivedControl(PCP_DERIVED_DEBUG_EVAL, 0);
 	if (sts < 0)
-	    printf("ctx[0]: pmSetDerivedControl(PCP_DERIVED_DEBUG_PMNS, ...): %s\n", pmErrStr(sts));
-	sts = pmGetDerivedControl(PCP_DERIVED_DEBUG_PMNS, &c);
+	    printf("ctx[0]: pmSetDerivedControl(PCP_DERIVED_DEBUG_EVAL, ...): %s\n", pmErrStr(sts));
+	sts = pmGetDerivedControl(PCP_DERIVED_DEBUG_EVAL, &c);
 	if (sts < 0)
-	    printf("ctx[1]: pmGetDerivedControl(PCP_DERIVED_DEBUG_PMNS, ...): %s\n", pmErrStr(sts));
+	    printf("ctx[1]: pmGetDerivedControl(PCP_DERIVED_DEBUG_EVAL, ...): %s\n", pmErrStr(sts));
 	else {
 	    if (c != 0)
-		printf("ctx[1]: pmGetDerivedControl(PCP_DERIVED_DEBUG_PMNS, ...) -> %d not 1 as expected\n", c);
-	    printf("ctx[1]: DEBUG_PMNS=%d (derive=%d appl2=%d)\n", c, pmDebugOptions.derive, pmDebugOptions.appl2);
+		printf("ctx[1]: pmGetDerivedControl(PCP_DERIVED_DEBUG_EVAL, ...) -> %d not 1 as expected\n", c);
+	    printf("ctx[1]: DEBUG_EVAL=%d (derive=%d appl2=%d)\n", c, pmDebugOptions.derive, pmDebugOptions.appl2);
 	}
     }
 

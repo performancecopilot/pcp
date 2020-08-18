@@ -36,6 +36,9 @@ printf("%s() returns %d", str, sts);\
 if (sts < 0) printf(" (%s)", pmErrStr(sts));\
 putchar('\n');
 
+static char	*dm_config = NULL;	/* per-context derived metrics */
+extern int add_ctx_dm(char *);
+
 static int
 compar_str(const void *a, const void *b)
 {
@@ -123,13 +126,13 @@ parse_args(int argc, char **argv)
     extern int	optind;
     int		errflag = 0;
     int		c;
-    static char	*usage = "[-bcLmvx] [-a archive] [-D debugspec] [-h host] [-n namespace] [-s 1|2] metricname ...";
+    static char	*usage = "[-bcLmvx] [-a archive] [-C dmfile] [-D debugspec] [-h host] [-n namespace] [-s 1|2] metricname ...";
     char	*endnum;
     int		sts;
 
     pmSetProgname(argv[0]);
 
-    while ((c = getopt(argc, argv, "a:bcD:h:iLmn:s:vx")) != EOF) {
+    while ((c = getopt(argc, argv, "a:bcC:D:h:iLmn:s:vx")) != EOF) {
 	switch (c) {
 	case 'a':	/* archive name for context */
             if (context_type != 0) {
@@ -147,6 +150,10 @@ parse_args(int argc, char **argv)
 
 	case 'c':	/* only do the children of "" test */
 	    root_children = 1;
+	    break;
+
+	case 'C':	/* per-context derived metrics config file */
+	    dm_config = optarg;
 	    break;
 
 	case 'D':	/* debug options */
@@ -288,6 +295,12 @@ test_api(void)
 		   "local", 
 		   context_name,
 		   pmErrStr(sts));
+	}
+	if (dm_config != NULL) {
+	    if (add_ctx_dm(dm_config) < 0) {
+		/* fatal error reported earlier */
+		exit(1);
+	    }
 	}
     }
 
