@@ -1,4 +1,3 @@
-#!gmake
 #
 # Copyright (c) 2014 Ken McDonell.  All Rights Reserved.
 # 
@@ -18,7 +17,6 @@ include $(TOPDIR)/src/include/builddefs
 
 IAM	= whacko
 TESTDIR = $(PCP_VAR_DIR)/testsuite/pmdas/$(IAM)
-LSRCFILES = Install Remove GNUmakefile.install root pmns help
 LDIRT	= *.log help.dir help.pag domain.h pmdawhacko ../sample
 
 default default_pcp setup:
@@ -27,8 +25,8 @@ include $(BUILDRULES)
 
 install:
 	$(INSTALL) -m 755 -d $(TESTDIR)
-	$(INSTALL) -m 755 Install Remove $(TESTDIR)
-	$(INSTALL) -m 644 root pmns help $(TESTDIR)
-	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile
+	$(INSTALL) -m 755 -f Install Remove $(TESTDIR)
+	$(INSTALL) -m 644 -f root pmns help $(TESTDIR)
+	$(INSTALL) -m 644 -f GNUmakefile.install $(TESTDIR)/GNUmakefile
 
 install_pcp: install

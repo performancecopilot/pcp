@@ -5,7 +5,9 @@ import re
 import json
 import shutil
 from enum import Enum
+from collections import defaultdict
 from typing import List, Dict
+import requests
 
 
 class Test:
@@ -104,20 +106,22 @@ def read_testlog(qa_dir: str, testartifacts_dir: str, groups: Dict[str, List[str
 
 def read_hosts(qa_dir: str, artifacts_path: str) -> List[Test]:
     groups = read_test_groups(os.path.join(qa_dir, 'group'))
+    hosts = []
     tests = []
     for artifact_dir in os.listdir(artifacts_path):
-        testartifacts_dir = os.path.join(artifacts_path, artifact_dir)
-        test_timings_file = os.path.join(testartifacts_dir, 'check.timings')
-
-        # ignore build artifacts and test runs without any QA run (e.g. build failure)
-        if not artifact_dir.startswith('test-') or not os.path.exists(test_timings_file):
+        if not artifact_dir.startswith('test-'):
             continue
 
-        # e.g. test-fedora32-container
-        host = artifact_dir[5:]
-        test_durations = read_test_durations(test_timings_file)
-        tests.extend(read_testlog(qa_dir, testartifacts_dir, groups, test_durations, host))
-    return tests
+        testartifacts_dir = os.path.join(artifacts_path, artifact_dir)
+        test_timings_file = os.path.join(testartifacts_dir, 'check.timings')
+        host = artifact_dir[len('test-'):]
+        hosts.append(host)
+
+        # ignore test runs without any QA run (e.g. build failure)
+        if os.path.exists(test_timings_file):
+            test_durations = read_test_durations(test_timings_file)
+            tests.extend(read_testlog(qa_dir, testartifacts_dir, groups, test_durations, host))
+    return hosts, tests
 
 
 def write_allure_result(test: Test, commit: str, allure_results_path: str):
@@ -184,14 +188,12 @@ def write_allure_result(test: Test, commit: str, allure_results_path: str):
         json.dump(allure_result, f)
 
 
-def print_test_summary(all_tests: List[Test]):
+def print_test_summary(tests: List[Test]):
     print("TEST SUMMARY")
     print()
 
-    grouped_by_name = {}
-    for test in all_tests:
-        if test.name not in grouped_by_name:
-            grouped_by_name[test.name] = []
+    grouped_by_name = defaultdict(list)
+    for test in tests:
         grouped_by_name[test.name].append(test)
 
     print("Most failed tests:")
@@ -208,20 +210,90 @@ def print_test_summary(all_tests: List[Test]):
         print(f"\n::error::{num_failed_tests} unique QA test failures.")
 
 
+def send_slack_notification(slack_channel: str, github_run_url: str, qa_report_url: str, hosts: List[str],
+                            tests: List[Test]):
+    host_stats = defaultdict(lambda: {"passed": 0, "failed": 0, "skipped": 0})
+    for test in tests:
+        if test.status == Test.Status.Passed:
+            host_stats[test.host]["passed"] += 1
+        elif test.status == Test.Status.Skipped:
+            host_stats[test.host]["skipped"] += 1
+        elif test.status in [Test.Status.Failed, Test.Status.Broken]:
+            host_stats[test.host]["failed"] += 1
+
+    host_texts = []
+    for host in sorted(hosts):
+        if host in host_stats:
+            stats = host_stats[host]
+            host_texts.append(
+                f"*{host}*:\n"
+                f"Passed: {stats['passed']}, "
+                f"Failed: {stats['failed']}, "
+                f"Skipped: {stats['skipped']}"
+            )
+        else:
+            host_texts.append(f"*{host}*:\n:x: Build BROKEN")
+
+    host_blocks = []
+    # slack only allows max 10 fields inside one block
+    for i in range(0, len(host_texts), 10):
+        host_blocks.append({
+            "type": "section",
+            "fields": [{
+                "type": "mrkdwn",
+                "text": text
+            } for text in host_texts[i:i + 10]]
+        })
+
+    payload = {
+        "channel": slack_channel,
+        "attachments": [{
+            "blocks": [{
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": "*Daily QA:*"
+                }
+            }] + host_blocks + [{
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": f"*<{github_run_url}|View build logs>*\n*<{qa_report_url}|View QA report>*"
+                }
+            }]
+        }]
+    }
+
+    print("Sending slack notification...")
+    r = requests.post('https://slack.com/api/chat.postMessage', headers={
+        "Authorization": f"Bearer {os.environ['SLACK_BOT_TOKEN']}"
+    }, json=payload)
+    print(r.text)
+    r.raise_for_status()
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--qa', default='./qa')
     parser.add_argument('--artifacts', default='./artifacts')
     parser.add_argument('--commit', required=True)
-    parser.add_argument('--allure_results')
+    parser.add_argument('--allure-results', dest='allure_results')
+    parser.add_argument('--slack-channel', dest='slack_channel')
+    parser.add_argument('--github-run-url', dest='github_run_url')
+    parser.add_argument('--qa-report-url', dest='qa_report_url')
     args = parser.parse_args()
 
-    tests = read_hosts(args.qa, args.artifacts)
+    hosts, tests = read_hosts(args.qa, args.artifacts)
     print_test_summary(tests)
+
     if args.allure_results:
         os.makedirs(args.allure_results, exist_ok=True)
         for test in tests:
             write_allure_result(test, args.commit, args.allure_results)
+
+    if args.slack_channel:
+        print()
+        send_slack_notification(args.slack_channel, args.github_run_url, args.qa_report_url, hosts, tests)
 
 
 if __name__ == '__main__':

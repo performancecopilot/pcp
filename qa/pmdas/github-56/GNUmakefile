@@ -25,9 +25,9 @@ $(OBJECTS): domain.h
 
 install install_pcp:
 	$(INSTALL) -m 755 -d $(TESTDIR)
-	$(INSTALL) -m 644 $(CFILES) domain.h $(TESTDIR)
-	$(INSTALL) -m 755 $(CMDTARGET) $(TESTDIR)/$(CMDTARGET)
-	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile
+	$(INSTALL) -m 644 -f $(CFILES) domain.h $(TESTDIR)
+	$(INSTALL) -m 755 -f $(CMDTARGET) $(TESTDIR)/$(CMDTARGET)
+	$(INSTALL) -m 644 -f GNUmakefile.install $(TESTDIR)/GNUmakefile
 
 install install_pcp: default
 

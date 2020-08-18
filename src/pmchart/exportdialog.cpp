@@ -26,7 +26,7 @@ ExportFileDialog::ExportFileDialog(QWidget *parent) : QFileDialog(parent)
     setAcceptMode(QFileDialog::AcceptSave);
     setFileMode(QFileDialog::AnyFile);
     setIconProvider(fileIconProvider);
-    setConfirmOverwrite(true);
+    setOption(DontConfirmOverwrite, false);
 }
 
 ExportDialog::ExportDialog(QWidget* parent) : QDialog(parent)

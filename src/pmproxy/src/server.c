@@ -29,6 +29,7 @@ static struct {
 	{ .group = "discover" },	/* METRICS_DISCOVER */
 	{ .group = "series" },		/* METRICS_SERIES */
 	{ .group = "webgroup" },	/* METRICS_WEBGROUP */
+	{ .group = "search" },          /* METRICS_SEARCH */
 };
 
 void

@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2017-2020 Red Hat.
+ * Copyright (c) 2020 Yushan ZHANG.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -15,24 +16,18 @@
 #include <assert.h>
 #include <ctype.h>
 #include "util.h"
+#include "sha1.h"
 #include "query.h"
 #include "schema.h"
 #include "libpcp.h"
-#include "batons.h"
 #include "slots.h"
 #include "maps.h"
+#include <math.h>
 #include <fnmatch.h>
 
 #define SHA1SZ		20	/* internal sha1 hash buffer size in bytes */
-#define QUERY_PHASES	6
+#define QUERY_PHASES	8
 
-typedef struct seriesGetSID {
-    seriesBatonMagic	header;		/* MAGIC_SID */
-    sds			name;		/* series or source SID */
-    sds			metric;		/* back-pointer for instance series */
-    int			freed;		/* freed individually on completion */
-    void		*baton;
-} seriesGetSID;
 
 typedef struct seriesGetLabelMap {
     seriesBatonMagic	header;		/* MAGIC_LABELMAP */
@@ -79,6 +74,7 @@ static int series_intersect(series_set_t *, series_set_t *);
 static void series_lookup_services(void *);
 static void series_lookup_mapping(void *);
 static void series_lookup_finished(void *);
+static void series_query_mapping(void *arg);
 
 sds	cursorcount;	/* number of elements in each SCAN call */
 
@@ -90,11 +86,57 @@ initSeriesGetQuery(seriesQueryBaton *baton, node_t *root, timing_t *timing)
     baton->u.query.timing = *timing;
 }
 
+static int
+skip_free_value_set(node_t *np) {
+    // return 0 stands for skipping free this node's value_set.
+    if (np->type == N_RATE || np->type == N_NOOP 
+    	|| np->type == N_RESCALE || np->type == N_ABS 
+	|| np->type == N_SQRT || np->type == N_FLOOR
+	|| np->type == N_ROUND  || np->type == N_LOG
+	|| np->type == N_PLUS || np->type == N_MINUS
+	|| np->type == N_STAR || np->type == N_SLASH) 
+	return 0;
+    return 1;
+}
+
+static void
+freeSeriesQueryNode(node_t *np, int level)
+{
+    int		n_samples;
+    if (np == NULL)
+	return;
+    if (skip_free_value_set(np) != 0) {
+	int i, j, k;
+	for (i = 0; i < np->value_set.num_series; i++) {
+	    n_samples = np->value_set.series_values[i].num_samples;
+	    if (n_samples < 0) n_samples = -n_samples;
+	    for (j = 0; j < n_samples; j++) {
+		for (k=0; k < np->value_set.series_values[i].series_sample[j].num_instances; k++) {
+		    sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].timestamp);
+		    sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].series);
+		    sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].data);
+		}
+		free(np->value_set.series_values[i].series_sample[j].series_instance);
+	    }
+	    sdsfree(np->value_set.series_values[i].sid->name);
+	    free(np->value_set.series_values[i].sid);
+	    free(np->value_set.series_values[i].series_sample);
+	}
+	free(np->value_set.series_values);
+    }
+    freeSeriesQueryNode(np->left, level+1);
+    freeSeriesQueryNode(np->right, level+1);
+    if (level != 0) free(np);
+}
+
 static void
 freeSeriesGetQuery(seriesQueryBaton *baton)
 {
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "freeSeriesGetQuery");
     seriesBatonCheckCount(baton, "freeSeriesGetQuery");
+    if (baton->error == 0) {
+    	freeSeriesQueryNode(&baton->u.query.root, 0);
+    }
     memset(baton, 0, sizeof(seriesQueryBaton));
     free(baton);
 }
@@ -1129,6 +1171,43 @@ series_prepare_smembers(seriesQueryBaton *baton, sds kp, node_t *np)
 			series_prepare_smembers_reply, np);
 }
 
+static void
+series_set_function_expr_callback(
+	redisAsyncContext *c, redisReply *reply, const sds cmd, void *arg)
+{
+    redisSlotsBaton	*baton = (redisSlotsBaton *)arg;
+    int			sts;
+
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_set_function_expr_callback");
+
+    sts = redisSlotsRedirect(baton->slots, reply, baton->info, baton->userdata,
+			     cmd, series_set_function_expr_callback, arg);
+    if (sts > 0)
+	return;	/* short-circuit as command was re-submitted */
+    if (sts == 0)
+	checkStatusReplyOK(baton->info, baton->userdata, reply,
+			"%s", "pcp:expr");
+    series_query_end_phase(baton);
+}
+
+static void
+series_set_function_expr(seriesQueryBaton *baton, sds key, sds value)
+{
+    sds			cmd;
+
+    seriesBatonReference(baton, "series_prepare_set");
+    
+    key = key;
+    cmd = redis_command(3);
+    cmd = redis_param_str(cmd, SETS, SETS_LEN);
+    cmd = redis_param_sds(cmd, key);
+    cmd = redis_param_sds(cmd, value);
+    if (pmDebugOptions.query) {
+	fprintf(stderr, "Cmd:\n%s\n", cmd);
+    }
+    redisSlotsRequest(baton->slots, SETS, key, cmd, series_set_function_expr_callback, baton);
+}
+
 /*
  * Prepare evaluation of leaf nodes.
  */
@@ -1389,6 +1468,2068 @@ series_query_expr(void *arg)
     series_query_end_phase(baton);
 }
 
+static int
+series_instance_store_to_node(seriesQueryBaton *baton, sds series,
+	pmSeriesValue *value, int nelements, redisReply **elements, node_t *np, int idx_sample)
+{
+    char		hashbuf[42];
+    sds			inst;
+    int			i, sts = 0, idx_instance = 0, idx_series = np->value_set.num_series;
+
+    for (i = 0; i < nelements; i += 2) {
+	inst = value->series;
+	if (extract_string(baton, series, elements[i], &inst, "series") < 0) {
+	    sts = -EPROTO;
+	    continue;
+	}
+	if (sdslen(inst) == 0) {	/* no InDom, use series */
+	    inst = sdscpylen(inst, series, 40);
+	} else if (sdslen(inst) == 20) {
+	    pmwebapi_hash_str((const unsigned char *)inst, hashbuf, sizeof(hashbuf));
+	    inst = sdscpylen(inst, hashbuf, 40);
+	} else {
+	    /* TODO: propogate errors and mark records - separate callbacks? */
+	    continue;
+	}
+	value->series = inst;
+
+	if (extract_string(baton, series, elements[i+1], &value->data, "value") < 0)
+	    sts = -EPROTO;
+	else{
+	    np->value_set.series_values[idx_series].series_sample[idx_sample].series_instance[idx_instance] = *value;
+	    np->value_set.series_values[idx_series].series_sample[idx_sample].series_instance[idx_instance].timestamp = sdsnew(value->timestamp);
+	    np->value_set.series_values[idx_series].series_sample[idx_sample].series_instance[idx_instance].series = sdsnew(value->series);
+	    np->value_set.series_values[idx_series].series_sample[idx_sample].series_instance[idx_instance].data = sdsnew(value->data);
+	    ++idx_instance;
+	}
+    }
+    return sts;
+}
+
+/* Do something like memcpy */
+static void
+series_values_store_to_node(seriesQueryBaton *baton, sds series,
+		int nsamples, redisReply **samples, node_t *np)
+{
+    seriesSampling	sampling = {0};
+    redisReply		*reply, *sample, **elements;
+    timing_t		*tp = &baton->u.query.timing;
+    int			i, sts, next, nelements, idx_series = np->value_set.num_series, idx_sample = 0;
+    sds			msg, save_timestamp;
+
+    sampling.value.timestamp = sdsempty();
+    sampling.value.series = sdsempty();
+    sampling.value.data = sdsempty();
+
+    /* iterate over the 'samples' array */
+    for (i = 0; i < nsamples; i++) {
+	sample = samples[i];
+	if ((nelements = sample->elements) == 0)
+	    continue;
+	elements = sample->element;
+
+	/* expecting timestamp:valueset pairs, then instance:value pairs */
+	if (nelements % 2) {
+	    infofmt(msg, "expected time:valueset pairs in %s XRANGE", series);
+	    batoninfo(baton, PMLOG_RESPONSE, msg);
+	    sts = -EPROTO;
+	    break;
+	}
+
+	/* verify the instance:value pairs array before proceeding */
+	reply = elements[1];
+	if (reply->type != REDIS_REPLY_ARRAY) {
+	    infofmt(msg, "expected value array for series %s %s (type=%s)",
+			series, XRANGE, redis_reply_type(reply));
+	    batoninfo(baton, PMLOG_RESPONSE, msg);
+	    baton->error = -EPROTO;
+	    break;
+	}
+
+	/* setup state variables used internally during selection process */
+	if (sampling.setup == 0 && (tp->delta.tv_sec || tp->delta.tv_usec)) {
+	    /* 'next' is a nanosecond precision time interval to step with */
+	    sampling.delta.tv_sec = tp->delta.tv_sec;
+	    sampling.delta.tv_nsec = tp->delta.tv_usec * 1000;
+
+	    /* extract the first timestamp to kickstart the comparison process */
+	    if ((sts = extract_time(baton, series, elements[0],
+	    				&sampling.value.timestamp,
+					&sampling.value.ts)) < 0) {
+		baton->error = sts;
+		break;
+	    }
+	    /* 'goal' is the first target interval as an absolute timestamp */
+	    if (tp->start.tv_sec || tp->start.tv_usec) {
+		sampling.goal.tv_sec = tp->start.tv_sec;
+		sampling.goal.tv_nsec = tp->start.tv_usec * 1000;
+	    } else {
+		sampling.goal = sampling.value.ts;
+	    }
+	    sampling.next_timestamp = sdsempty();
+	    sampling.subsampling = 1;
+	}
+	sampling.setup = 1;
+
+	if (sampling.subsampling == 0) {
+	    if ((sts = extract_time(baton, series, elements[0],
+					&sampling.value.timestamp,
+					&sampling.value.ts)) < 0) {
+		baton->error = sts;
+		continue;
+	    }
+	} else if ((next = i + 1) < nsamples) {
+	    /*
+	     * Compare this point and the next to the ideal based on delta;
+	     * skip over returning this value if the next one looks better.
+	     */
+	    elements = samples[next]->element;
+	    if ((sts = extract_time(baton, series, elements[0],
+	    				&sampling.next_timestamp,
+					&sampling.next_timespec)) < 0) {
+		baton->error = sts;
+		continue;
+	    } else if ((sts = use_next_sample(&sampling)) == 1) {
+		goto next_sample;
+	    } else if (sts == -1) {		/* sampling reached the end */
+		goto last_sample;
+	    }
+	} /* else falls through and may call user-supplied callback */
+
+	/* check whether a user-requested sample count has been reached
+	 * Here copy the sample results(instance values) to the node.
+	 */
+	if (tp->count && sampling.count++ >= tp->count)
+	    break;
+	
+	idx_sample = i;
+	np->value_set.series_values[idx_series].series_sample[idx_sample].num_instances = reply->elements/2;
+	if ((np->value_set.series_values[idx_series].series_sample[idx_sample].series_instance = (pmSeriesValue*)calloc(reply->elements/2, sizeof(pmSeriesValue))) == NULL) {
+	    /* TODO: error report here */
+	    baton->error = -ENOMEM;
+	}
+	if ((sts = series_instance_store_to_node(baton, series, &sampling.value,
+				reply->elements, reply->element, np, idx_sample)) < 0) {
+	    baton->error = sts;
+	    goto last_sample;
+	}
+	
+	if (sampling.subsampling == 0)
+	    continue;
+next_sample:
+	/* carefully swap time strings to avoid leaking memory */
+	save_timestamp = sampling.next_timestamp;
+	sampling.next_timestamp = sampling.value.timestamp;
+	sampling.value.timestamp = save_timestamp;
+	sampling.value.ts = sampling.next_timespec;
+    }
+last_sample:
+    if (sampling.setup)
+	sdsfree(sampling.next_timestamp);
+    sdsfree(sampling.value.timestamp);
+    sdsfree(sampling.value.series);
+    sdsfree(sampling.value.data);
+}
+
+static int
+extract_series_desc(seriesQueryBaton *baton, pmSID series,
+		int nelements, redisReply **elements, pmSeriesDesc *desc)
+{
+    sds			msg;
+
+    if (nelements < 6) {
+	infofmt(msg, "bad reply from %s %s (%d)", series, HMGET, nelements);
+	batoninfo(baton, PMLOG_RESPONSE, msg);
+	return -EPROTO;
+    }
+
+    /* were we given a non-metric series identifier? (e.g. an instance) */
+    if (elements[0]->type == REDIS_REPLY_NIL) {
+	desc->indom = sdscpylen(desc->indom, "unknown", 7);
+	desc->pmid = sdscpylen(desc->pmid, "PM_ID_NULL", 10);
+	desc->semantics = sdscpylen(desc->semantics, "unknown", 7);
+	desc->source = sdscpylen(desc->source, "unknown", 7);
+	desc->type = sdscpylen(desc->type, "unknown", 7);
+	desc->units = sdscpylen(desc->units, "unknown", 7);
+	return 0;
+    }
+
+    if (extract_string(baton, series, elements[0], &desc->indom, "indom") < 0)
+	return -EPROTO;
+    if (extract_string(baton, series, elements[1], &desc->pmid, "pmid") < 0)
+	return -EPROTO;
+    if (extract_string(baton, series, elements[2], &desc->semantics, "semantics") < 0)
+	return -EPROTO;
+    if (extract_sha1(baton, series, elements[3], &desc->source, "source") < 0)
+	return -EPROTO;
+    if (extract_string(baton, series, elements[4], &desc->type, "type") < 0)
+	return -EPROTO;
+    if (extract_string(baton, series, elements[5], &desc->units, "units") < 0)
+	return -EPROTO;
+
+    return 0;
+}
+
+
+static void
+series_node_get_desc_reply(
+	redisAsyncContext *c, redisReply *reply, const sds cmd, void *arg)
+{
+    series_sample_set_t		*sample_set = (series_sample_set_t *) arg;
+    int				sts;
+    pmSeriesDesc		*desc = &sample_set->series_desc;
+    seriesQueryBaton		*baton = (seriesQueryBaton *)sample_set->baton;
+    sds				msg;
+
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_node_get_desc_reply");
+
+    sts = redisSlotsRedirect(baton->slots, reply, baton->info, baton->userdata,
+			     cmd, series_node_get_desc_reply, arg);
+    if (sts > 0)
+	return;	/* short-circuit as command was re-submitted */
+
+    desc->indom = sdsempty();
+    desc->pmid = sdsempty();
+    desc->semantics = sdsempty();
+    desc->source = sdsempty();
+    desc->type = sdsempty();
+    desc->units = sdsempty();
+
+    if (UNLIKELY(reply == NULL || reply->type != REDIS_REPLY_ARRAY)) {
+	if (sts < 0) {
+	    infofmt(msg, "expected array type from series %s %s (type=%s)",
+			sample_set->sid->name, HMGET, redis_reply_type(reply));
+	    batoninfo(baton, PMLOG_RESPONSE, msg);
+	}
+	baton->error = -EPROTO;
+    } else if ((sts = extract_series_desc(baton, sample_set->sid->name,
+			reply->elements, reply->element, desc)) < 0)
+	baton->error = sts;
+
+    series_query_end_phase(baton);
+}
+
+static void
+series_node_get_desc(seriesQueryBaton *baton, sds sid_name, series_sample_set_t *sample_set)
+{
+    sds			cmd, key;
+
+    seriesBatonReference(baton, "series_node_get_desc");
+
+    key = sdscatfmt(sdsempty(), "pcp:desc:series:%S", sid_name);
+    cmd = redis_command(8);
+    cmd = redis_param_str(cmd, HMGET, HMGET_LEN);
+    cmd = redis_param_sds(cmd, key);
+    cmd = redis_param_str(cmd, "indom", sizeof("indom")-1);
+    cmd = redis_param_str(cmd, "pmid", sizeof("pmid")-1);
+    cmd = redis_param_str(cmd, "semantics", sizeof("semantics")-1);
+    cmd = redis_param_str(cmd, "source", sizeof("source")-1);
+    cmd = redis_param_str(cmd, "type", sizeof("type")-1);
+    cmd = redis_param_str(cmd, "units", sizeof("units")-1);
+    redisSlotsRequest(baton->slots, HMGET, key, cmd, series_node_get_desc_reply, sample_set);
+}
+
+static int
+series_store_metric_name(seriesQueryBaton *baton, series_sample_set_t *sample_set,
+		sds series, int nelements, redisReply **elements)
+{
+    redisMapEntry	*entry;
+    redisReply		*reply;
+    sds			msg, key;
+    unsigned int	i;
+    int			sts = 0;
+
+    key = sdsnewlen(SDS_NOINIT, 20);
+    for (i = 0; i < nelements; i++) {
+	reply = elements[i];
+	if (reply->type == REDIS_REPLY_STRING) {
+	    sdsclear(key);
+	    key = sdscatlen(key, reply->str, reply->len);
+	    if ((entry = redisMapLookup(namesmap, key)) != NULL){
+		sample_set->metric_name = redisMapValue(entry);
+	    }else {
+		infofmt(msg, "%s - timeseries string map", series);
+		batoninfo(baton, PMLOG_CORRUPT, msg);
+		sts = -EINVAL;
+	    }
+	} else {
+	    infofmt(msg, "expected string in %s set (type=%s)",
+			series, redis_reply_type(reply));
+	    batoninfo(baton, PMLOG_RESPONSE, msg);
+	    sts = -EPROTO;
+	}
+    }
+    sdsfree(key);
+
+    return sts;
+}
+
+static void
+series_node_get_metric_name_reply(
+	redisAsyncContext *c, redisReply *reply, const sds cmd, void *arg)
+{
+    series_sample_set_t		*sample_set = (series_sample_set_t *) arg;
+    seriesQueryBaton		*baton = (seriesQueryBaton *)sample_set->baton;
+    int				sts;
+    sds				msg;
+
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_node_get_metric_name_reply");
+    sts = redisSlotsRedirect(baton->slots, reply, baton->info, baton->userdata,
+			     cmd, series_node_get_metric_name_reply, arg);
+    if (sts > 0)
+	return;	/* short-circuit as command was re-submitted */
+
+    /* unpack - extract names for this source via context name map */
+    if (UNLIKELY(reply == NULL || reply->type != REDIS_REPLY_ARRAY)) {
+	if (sts < 0) {
+	    infofmt(msg, "expected array from %s %s (type=%s)",
+			SMEMBERS, sample_set->sid->name, redis_reply_type(reply));
+	    batoninfo(baton, PMLOG_RESPONSE, msg);
+	}
+	baton->error = -EPROTO;
+    } else if ((sts = series_store_metric_name(baton, sample_set, sample_set->sid->name,
+			reply->elements, reply->element)) < 0) {
+	baton->error = sts;
+    }
+    series_query_end_phase(baton);
+}
+
+static void
+series_node_get_metric_name(
+	seriesQueryBaton *baton, seriesGetSID *sid, series_sample_set_t *sample_set)
+{
+    sds cmd, key;
+
+    seriesBatonReference(baton, "series_node_get_metric_name");
+    key = sdscatfmt(sdsempty(), "pcp:metric.name:series:%S", sid->name);
+    cmd = redis_command(2);
+    cmd = redis_param_str(cmd, SMEMBERS, SMEMBERS_LEN);
+	cmd = redis_param_sds(cmd, key);
+	redisSlotsRequest(baton->slots, SMEMBERS, key, cmd,
+			series_node_get_metric_name_reply, sample_set);
+}
+
+/* 
+ * Redis has returned replies about samples of series, save them into the corresponding node.
+ */
+static void
+series_node_prepare_time_reply(
+	redisAsyncContext *c, redisReply *reply, const sds cmd, void *arg)
+{
+    node_t			*np = (node_t *)arg;
+    seriesQueryBaton		*baton = (seriesQueryBaton *)np->baton;
+    sds				msg;
+    int				sts, idx = np->value_set.num_series;
+    seriesGetSID		*sid = np->value_set.series_values[idx].sid;
+
+    /* 
+     * Got an reply contains series values which need to be saved into the corresponding 
+     * node, but when this callback function be called, we need the information of SID of the
+     * series. Here we can not access SID unless store SIDs in node. That's why I add **SID into
+     * struct node_t in query.h
+     */
+    seriesBatonCheckMagic(sid, MAGIC_SID, "series_node_prepare_time_reply");
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_node_prepare_time_reply");
+    sts = redisSlotsRedirect(baton->slots, reply, baton->info, baton->userdata,
+			     cmd, series_node_prepare_time_reply, arg);
+
+    if (sts > 0)
+	return;	/* short-circuit as command was re-submitted */
+
+    if (UNLIKELY(reply == NULL || reply->type != REDIS_REPLY_ARRAY)) {
+	if (sts < 0) {
+	    infofmt(msg, "expected array from %s XSTREAM values (type=%s)",
+			sid->name, redis_reply_type(reply));
+	    batoninfo(baton, PMLOG_RESPONSE, msg);
+	}
+	baton->error = -EPROTO;
+    } else {
+	/* calloc space to store series samples */
+	np->value_set.series_values[idx].num_samples = reply->elements;
+	if ((np->value_set.series_values[idx].series_sample = (series_instance_set_t *)calloc(reply->elements, sizeof(series_instance_set_t))) == NULL) {
+	    /* TODO: error report here */
+	    baton->error = -ENOMEM;
+	}
+	/* Query for the desc of idx-th series */
+	np->value_set.series_values[idx].baton = baton;
+	series_node_get_desc(baton, sid->name, &np->value_set.series_values[idx]);
+	series_node_get_metric_name(baton, sid, &np->value_set.series_values[idx]);
+	
+	series_values_store_to_node(baton, sid->name, reply->elements, reply->element, np);
+	np->value_set.num_series++;
+    }
+    series_query_end_phase(baton);
+}
+
+static void
+series_node_prepare_time(seriesQueryBaton *baton, series_set_t *query_series_set, node_t *np)
+{
+    //timing_t			*tp = &baton->u.query.timing;
+    timing_t			*tp = &np->time;
+    unsigned char		*series = query_series_set->series;
+    seriesGetSID		*sid;
+    char			buffer[64], revbuf[64];
+    sds				start, end, key, cmd;
+    unsigned int		i, revlen = 0, reverse = 0;
+    int				nseries = query_series_set->nseries;
+
+    /* if only 'count' is requested, work back from most recent value */
+    if ((reverse = series_value_count_only(tp)) != 0) {
+	revlen = pmsprintf(revbuf, sizeof(revbuf), "%u", reverse);
+	start = sdsnew("+");
+    } else {
+	start = sdsnew(timeval_stream_str(&tp->start, buffer, sizeof(buffer)));
+    }
+
+    if (pmDebugOptions.series)
+	fprintf(stderr, "START: %s\n", start);
+
+    if (reverse)
+	end = sdsnew("-");
+    else if (tp->end.tv_sec)
+	end = sdsnew(timeval_stream_str(&tp->end, buffer, sizeof(buffer)));
+    else
+	end = sdsnew("+");	/* "+" means "no end" - to the most recent */
+
+    if (pmDebugOptions.series)
+	fprintf(stderr, "END: %s\n", end);
+    
+
+    /* calloc nseries samples store space */
+    if ((np->value_set.series_values = (series_sample_set_t *)calloc(nseries, sizeof(series_sample_set_t))) == NULL) {
+	/* TODO: error report here */
+	baton->error = -ENOMEM;
+    }
+
+    /*
+     * Query cache for the time series range (groups of instance:value
+     * pairs, with an associated timestamp).
+     */
+    for (i = 0; i < nseries; i++, series += SHA1SZ) {
+	sid = calloc(1, sizeof(seriesGetSID));
+	pmwebapi_hash_str(series, buffer, sizeof(buffer));
+
+	initSeriesGetSID(sid, buffer, 1, baton);
+	seriesBatonReference(baton, "series_prepare_time");
+
+	key = sdscatfmt(sdsempty(), "pcp:values:series:%S", sid->name);
+
+	/* X[REV]RANGE key t1 t2 [count N] */
+	if (reverse) {
+	    cmd = redis_command(6);
+	    cmd = redis_param_str(cmd, XREVRANGE, XREVRANGE_LEN);
+	} else {
+	    cmd = redis_command(4);
+	    cmd = redis_param_str(cmd, XRANGE, XRANGE_LEN);
+	}
+	cmd = redis_param_sds(cmd, key);
+	cmd = redis_param_sds(cmd, start);
+	cmd = redis_param_sds(cmd, end);
+	if (reverse) {
+	    cmd = redis_param_str(cmd, "COUNT", sizeof("COUNT")-1);
+	    cmd = redis_param_str(cmd, revbuf, revlen);
+	}
+	np->value_set.series_values[i].baton = baton;
+	np->value_set.series_values[i].sid = sid;
+	/* Note: np->series_set.num_series is not equal to nseries in this function */
+	redisSlotsRequest(baton->slots, XRANGE, key, cmd,
+				series_node_prepare_time_reply, np);
+	
+    }
+    sdsfree(start);
+    sdsfree(end);
+}
+static int
+series_process_func(seriesQueryBaton *baton, node_t *np, int level)
+{
+/* 
+ * Each time when meet a data node i.e. np->result.nseries!=0, query to Redis for actural
+ * values and store them into this node. Beacause time series idetifier will always be 
+ * described in the top node of a subtree at the parser tree's bottom. 
+ */
+    int				sts, nelements = 0;
+    if (np == NULL) {
+	return 0;
+    }
+    if (&np->result != NULL)
+	nelements = np->result.nseries;
+
+    if (nelements != 0) {
+	np->value_set.num_series = 0;
+	np->baton = baton;
+	series_node_prepare_time(baton, &np->result, np);
+	// TODO: should return error here. series_node_prepare_time should be int type.
+	return 0;
+    }
+
+    if ((sts = series_process_func(baton, np->left, level+1)) < 0)
+	return sts;
+    if ((sts = series_process_func(baton, np->right, level+1)) < 0)
+	return sts;
+
+    return sts;
+}
+
+static sds
+series_expr_canonical(node_t *np, int idx)
+{
+    sds		statement = sdsempty();
+    if (np == NULL)
+	return statement;
+    switch (np->type) {
+	case N_INTEGER:
+	    statement = np->value;
+	    break;
+	case N_NAME:
+	    statement = np->value;
+	    break;
+	case N_PLUS:
+	    statement = sdscatfmt(statement, "%s+%s", series_expr_canonical(np->left, idx), series_expr_canonical(np->right, idx));
+	    break;
+	case N_MINUS:
+	    statement = sdscatfmt(statement, "%s-%s", series_expr_canonical(np->left, idx), series_expr_canonical(np->right, idx));
+	    break;
+	case N_STAR:
+	    statement = sdscatfmt(statement, "%s*%s", series_expr_canonical(np->left, idx), series_expr_canonical(np->right, idx));
+	    break;
+	case N_SLASH:
+	    statement = sdscatfmt(statement, "%s/%s", series_expr_canonical(np->left, idx), series_expr_canonical(np->right, idx));
+	    break;
+	case N_AVG:
+	    statement = sdscatfmt(statement, "avg(%s)", series_expr_canonical(np->left, idx));
+	    break;
+	case N_COUNT:
+	    break;
+	case N_DELTA:
+	    break;
+	case N_MAX:
+	    statement = sdscatfmt(statement, "max(%s)", series_expr_canonical(np->left, idx));
+	    break;
+	case N_MIN:
+	    statement = sdscatfmt(statement, "min(%s)", series_expr_canonical(np->left, idx));
+	    break;
+	case N_SUM:
+	    break;
+	case N_ANON:
+	    break;
+	case N_RATE:
+	    statement = sdscatfmt(statement, "rate(%s)", series_expr_canonical(np->left, idx));
+	    break;
+	case N_INSTANT:
+	    break;
+	case N_DOUBLE:
+	    statement = np->value;
+	    break;
+	case N_LT:
+	    //statement = sdscatfmt(statement, "%s<%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
+	    break;
+	case N_LEQ:
+	    //statement = sdscatfmt(statement, "%s<=%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
+	    break;
+	case N_EQ:
+	    statement = sdscatfmt(statement, "%s==\"%s\"", series_expr_canonical(np->left, idx), series_expr_canonical(np->right, idx));
+	    break;
+	case N_GLOB:
+	    //statement = sdscatfmt(statement, "%s~~%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
+	    statement = sdscatfmt(
+		statement, "%s==\"%s\"", series_expr_canonical(np->left, idx), np->value_set.series_values[idx].metric_name);
+	    break;
+	case N_GEQ:
+	    //statement = sdscatfmt(statement, "%s>=%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
+	    break;
+	case N_GT:
+	    //statement = sdscatfmt(statement, "%s>%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
+	    break;
+	case N_NEQ:
+	    //statement = sdscatfmt(statement, "%s!=%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
+	    break;
+	case N_AND:
+	    //statement = sdscatfmt(statement, "%s&&%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
+	    break;
+	case N_OR:
+	    //statement = sdscatfmt(statement, "%s||%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
+	    break;
+	case N_REQ:
+	    //statement = sdscatfmt(statement, "%s=~%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
+	    break;
+	case N_RNE:
+	    //statement = sdscatfmt(statement, "%s!~%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
+	    break;
+	case N_NEG:
+	    break;
+	case N_STRING:
+	    statement = np->value;
+	    break;
+	case N_RESCALE:
+	    statement = sdscatfmt(statement, "rescale(%s,%s)", series_expr_canonical(np->left, idx), series_expr_canonical(np->right, idx));
+	    break;
+	case N_SCALE:
+	    statement = np->value;
+	    break;
+	case N_DEFINED:
+	    break;
+	case N_NOOP:
+	    statement = sdscatfmt(statement, "noop(%s)", series_expr_canonical(np->left, idx));
+	    break;
+	case N_ABS:
+	    statement = sdscatfmt(statement, "abs(%s)", series_expr_canonical(np->left, idx));
+	    break;
+	case N_FLOOR:
+	    statement = sdscatfmt(statement, "floor(%s)", series_expr_canonical(np->left, idx));
+	    break;
+	case N_LOG:
+	    statement = sdscatfmt(statement, "log(%s,%s)", series_expr_canonical(np->left, idx), series_expr_canonical(np->right, idx));
+	    break;
+	case N_SQRT:
+	    statement = sdscatfmt(statement, "sqrt(%s)", series_expr_canonical(np->left, idx));
+	    break;
+	case N_ROUND:
+	    statement = sdscatfmt(statement, "round(%s)", series_expr_canonical(np->left, idx));
+	    break;
+	default:
+	    break;
+    }
+    return statement;
+}
+
+static sds
+series_function_hash(unsigned char *hash, node_t *np, int idx)
+{
+    //SHA1_CTX	shactx;
+    sds			identifier = series_expr_canonical(np, idx);
+    if (pmDebugOptions.query) printf("expression %s\n", identifier);
+    SHA1_CTX		shactx;
+    const char		prefix[] = "{\"series\":\"expr\",\"expr\":\"";
+    const char		suffix[] = "\"}";
+    SHA1Init(&shactx);
+    SHA1Update(&shactx, (unsigned char *)prefix, sizeof(prefix)-1);
+    SHA1Update(&shactx, (unsigned char *)identifier, sdslen(identifier));
+    SHA1Update(&shactx, (unsigned char *)suffix, sizeof(suffix)-1);
+    SHA1Final(hash, &shactx);
+    return identifier;
+}
+
+/*
+ * Report a timeseries result - timestamps and (instance) values from a node
+ */
+static void
+series_node_values_report(seriesQueryBaton *baton, node_t *np, int has_function, char *hashbuf)
+{
+    sds series;
+    for (int i = 0; i < np->value_set.num_series; i++) {
+	if (has_function != 0)
+	    series = sdsnew(hashbuf);
+	else 
+	    series = np->value_set.series_values[i].sid->name;
+	for (int j = 0; j < np->value_set.series_values[i].num_samples; j++) {
+	    for (int k = 0; k < np->value_set.series_values[i].series_sample[j].num_instances; k++) {
+		pmSeriesValue value = np->value_set.series_values[i].series_sample[j].series_instance[k];
+		baton->callbacks->on_value(series, &value, baton->userdata);
+	    }
+	}
+    }
+}
+
+static void
+series_noop_traverse(seriesQueryBaton *baton, node_t *np, int level)
+{
+    if (np == NULL) {
+	return;
+    }
+    series_noop_traverse(baton, np->left, level+1);
+    series_noop_traverse(baton, np->right, level+1);
+}
+
+static int
+series_rate_check(pmSeriesDesc desc){
+    // TODO: Do type check for rate function. return 0 when success.
+    if (strncmp(desc.semantics, "counter", sizeof("counter")-1) != 0)
+    	return 1;
+    return 0;
+}
+
+static void
+series_calculate_rate(node_t *np)
+{
+/*
+ * Compute rate between samples for each metric. The number of samples in result is one less 
+ * than the original samples. 
+ */
+    seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
+    pmSeriesValue	s_pmval, t_pmval;
+    int			n_instances, n_samples;
+    double		s_data, t_data, d_data;
+    char		str[256];
+    sds			msg;
+
+    np->value_set = np->left->value_set;
+    for (int i = 0; i < np->value_set.num_series; i++) {
+	n_samples = np->value_set.series_values[i].num_samples;
+	if (series_rate_check(np->value_set.series_values[i].series_desc) == 0) {
+	    if (n_samples > 0) {
+		n_instances = np->value_set.series_values[i].series_sample[0].num_instances;
+	    }
+	    for (int j = 1; j < n_samples; j++) {
+		if (np->value_set.series_values[i].series_sample[j].num_instances != n_instances) {
+		    // TODO: number of instances in each sample are not equal, report error.
+		    if (pmDebugOptions.query)
+			fprintf(stderr, "TODO: number of instances in each sample are not equal, report error.\n");
+		}
+		for (int k = 0; k < n_instances; k++) {
+		    t_pmval = np->value_set.series_values[i].series_sample[j-1].series_instance[k];
+		    s_pmval = np->value_set.series_values[i].series_sample[j].series_instance[k];
+		    if (strcmp(s_pmval.series, t_pmval.series) != 0) {
+			// TODO: two SIDs of the instances' names between samples are different, report error.
+			if (pmDebugOptions.query) {
+			    fprintf(stderr, "TODO: two SIDs of the instances' names between samples are different, report error.");
+			    fprintf(stderr, "%s %s\n", s_pmval.series, t_pmval.series);
+			}
+		    }
+		    sscanf(s_pmval.data, "%lf", &s_data);
+		    sscanf(t_pmval.data, "%lf", &t_data);
+		    d_data = t_data - s_data;
+		    sprintf(str, "%.6lf", d_data);
+		    sdsfree(np->value_set.series_values[i].series_sample[j-1].series_instance[k].data);
+		    sdsfree(np->value_set.series_values[i].series_sample[j-1].series_instance[k].timestamp);
+		    np->value_set.series_values[i].series_sample[j-1].series_instance[k].data = sdsnew(str);
+		    np->value_set.series_values[i].series_sample[j-1].series_instance[k].timestamp = sdsnew(np->value_set.series_values[i].series_sample[j].series_instance[k].timestamp);
+		    np->value_set.series_values[i].series_sample[j-1].series_instance[k].ts = np->value_set.series_values[i].series_sample[j].series_instance[k].ts;
+		}
+		if (j == n_samples-1) {
+		    /* Free the last sample */
+		    for (int k = 0; k < n_instances; k++) {
+			sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].timestamp);
+			sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].series);
+			sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].data);
+		    }
+		    np->value_set.series_values[i].num_samples -= 1;
+		}
+	    }
+	} else {
+	    infofmt(msg, "Semantics of '%s' is not counter\n", series_expr_canonical(np->left, i));
+	    batoninfo(baton, PMLOG_ERROR, msg);
+	    baton->error = -EPROTO;
+	    np->value_set.series_values[i].num_samples = -n_samples;
+	}
+	sdsfree(np->value_set.series_values[i].series_desc.type);
+	sdsfree(np->value_set.series_values[i].series_desc.semantics);
+	np->value_set.series_values[i].series_desc.type = sdsnew("double");
+	np->value_set.series_values[i].series_desc.semantics = sdsnew("instant");
+    }
+}
+
+static void
+series_calculate_max(node_t *np)
+{
+/*
+ * Compare and pick the maximal instance value(s) among samples for each metric.
+ */
+    seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
+    int			n_series, n_samples, n_instances, max_pointer;
+    double		max_data, data;
+    sds			msg;
+
+    n_series = np->left->value_set.num_series;
+    np->value_set.num_series = n_series;
+    np->value_set.series_values = (series_sample_set_t *)calloc(n_series, sizeof(series_sample_set_t));
+    for (int i = 0; i < n_series; i++) {
+	n_samples = np->left->value_set.series_values[i].num_samples;
+	if (n_samples > 0) {
+	    np->value_set.series_values[i].num_samples = 1;
+	    np->value_set.series_values[i].series_sample = (series_instance_set_t *)calloc(1, sizeof(series_instance_set_t));
+	    n_instances = np->left->value_set.series_values[i].series_sample[0].num_instances;
+	    np->value_set.series_values[i].series_sample[0].num_instances = n_instances;
+	    np->value_set.series_values[i].series_sample[0].series_instance = (pmSeriesValue *)calloc(n_instances, sizeof(pmSeriesValue));
+	    for (int k = 0; k < n_instances; k++) {
+		max_pointer = 0;
+		max_data = atof(np->left->value_set.series_values[i].series_sample[0].series_instance[k].data);
+		for (int j = 1; j < n_samples; j++) {
+		    if (np->left->value_set.series_values[i].series_sample[j].num_instances != n_instances) {
+			// TODO: number of instances in each sample are not equal, report error.
+			infofmt(msg, "number of instances in each sample are not equal\n");
+			batoninfo(baton, PMLOG_ERROR, msg);
+			continue;
+		    }
+		    data = atof(np->left->value_set.series_values[i].series_sample[j].series_instance[k].data);
+		    if (max_data < data) {
+			max_data = data;
+			max_pointer = j;
+		    }
+		}
+		np->value_set.series_values[i].series_sample[0].series_instance[k].timestamp = 
+			sdsnew(np->left->value_set.series_values[i].series_sample[max_pointer].series_instance[k].timestamp);
+		np->value_set.series_values[i].series_sample[0].series_instance[k].series = 
+			sdsnew(np->left->value_set.series_values[i].series_sample[max_pointer].series_instance[k].series);
+		np->value_set.series_values[i].series_sample[0].series_instance[k].data = 
+			sdsnew(np->left->value_set.series_values[i].series_sample[max_pointer].series_instance[k].data);
+		np->value_set.series_values[i].series_sample[0].series_instance[k].ts = 
+			np->left->value_set.series_values[i].series_sample[max_pointer].series_instance[k].ts;
+	    }
+	} else {
+	    np->value_set.series_values[i].num_samples = 0;
+	}
+	np->value_set.series_values[i].sid = (seriesGetSID *)calloc(1, sizeof(seriesGetSID));
+	np->value_set.series_values[i].sid->name = sdsnew(np->left->value_set.series_values[i].sid->name);
+	np->value_set.series_values[i].baton = np->left->value_set.series_values[i].baton;
+	np->value_set.series_values[i].series_desc = np->left->value_set.series_values[i].series_desc;
+    }
+}
+
+static void
+series_calculate_min(node_t *np)
+{
+/*
+ * Compare and pick the minimal instance value(s) among samples for each metric.
+ */
+    seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
+    int			n_series, n_samples, n_instances, min_pointer;
+    double		min_data, data;
+    sds			msg;
+
+    n_series = np->left->value_set.num_series;
+    np->value_set.num_series = n_series;
+    np->value_set.series_values = (series_sample_set_t *)calloc(n_series, sizeof(series_sample_set_t));
+    for (int i = 0; i < n_series; i++) {
+	n_samples = np->left->value_set.series_values[i].num_samples;
+	if (n_samples > 0) {
+	    np->value_set.series_values[i].num_samples = 1;
+	    np->value_set.series_values[i].series_sample = (series_instance_set_t *)calloc(1, sizeof(series_instance_set_t));
+	    n_instances = np->left->value_set.series_values[i].series_sample[0].num_instances;
+	    np->value_set.series_values[i].series_sample[0].num_instances = n_instances;
+	    np->value_set.series_values[i].series_sample[0].series_instance = (pmSeriesValue *)calloc(n_instances, sizeof(pmSeriesValue));
+	    for (int k = 0; k < n_instances; k++) {
+		min_pointer = 0;
+		min_data = atof(np->left->value_set.series_values[i].series_sample[0].series_instance[k].data);
+		for (int j = 1; j < n_samples; j++) {
+		    if (np->left->value_set.series_values[i].series_sample[j].num_instances != n_instances) {
+			infofmt(msg, "number of instances in each sample are not equal\n");
+			batoninfo(baton, PMLOG_ERROR, msg);
+			continue;
+		    }
+		    data = atof(np->left->value_set.series_values[i].series_sample[j].series_instance[k].data);
+		    if (min_data > data) {
+			min_data = data;
+			min_pointer = j;
+		    }
+		}
+		np->value_set.series_values[i].series_sample[0].series_instance[k].timestamp = 
+			sdsnew(np->left->value_set.series_values[i].series_sample[min_pointer].series_instance[k].timestamp);
+		np->value_set.series_values[i].series_sample[0].series_instance[k].series = 
+			sdsnew(np->left->value_set.series_values[i].series_sample[min_pointer].series_instance[k].series);
+		np->value_set.series_values[i].series_sample[0].series_instance[k].data = 
+			sdsnew(np->left->value_set.series_values[i].series_sample[min_pointer].series_instance[k].data);
+		np->value_set.series_values[i].series_sample[0].series_instance[k].ts = 
+			np->left->value_set.series_values[i].series_sample[min_pointer].series_instance[k].ts;
+	    }
+	} else {
+	    np->value_set.series_values[i].num_samples = 0;
+	}
+	np->value_set.series_values[i].sid = (seriesGetSID *)calloc(1, sizeof(seriesGetSID));
+	np->value_set.series_values[i].sid->name = sdsnew(np->left->value_set.series_values[i].sid->name);
+	np->value_set.series_values[i].baton = np->left->value_set.series_values[i].baton;
+	np->value_set.series_values[i].series_desc = np->left->value_set.series_values[i].series_desc;
+    }
+}
+
+static int
+compare_pmUnits_dim(pmUnits *a, pmUnits *b)
+{
+    if (a->dimCount == b->dimCount && a->dimTime == b->dimTime && a->dimSpace == b->dimSpace) {
+	return 0;
+    }
+    return -1;
+}
+
+const int
+series_extract_type(char *typeStr) 
+{
+    if (strncmp("32", typeStr, sizeof("32")-1) == 0) {
+	return PM_TYPE_32;
+    } else if ((strncmp("U32", typeStr, sizeof("U32")-1) == 0) || (strncmp("u32", typeStr, sizeof("u32")-1) == 0)) {
+	return PM_TYPE_U32;
+    } else if (strncmp("64", typeStr, sizeof("64")-1) == 0) {
+	return PM_TYPE_64;
+    } else if ((strncmp("U64", typeStr, sizeof("U64")-1) == 0) || (strncmp("u64", typeStr, sizeof("u64")-1) == 0)) {
+	return PM_TYPE_U64;
+    } else if ((strncmp("FLOAT", typeStr, sizeof("FLOAT")-1) == 0) || (strncmp("float", typeStr, sizeof("float")-1) == 0)) {
+	return PM_TYPE_FLOAT;
+    } else if ((strncmp("DOUBLE", typeStr, sizeof("DOUBLE")-1) == 0) || (strncmp("double", typeStr, sizeof("double")-1) == 0)) {
+	return PM_TYPE_DOUBLE;
+    } else {
+	return PM_TYPE_UNKNOWN;
+    }
+}
+
+static int
+series_extract_value(int type, sds str, pmAtomValue *oval) 
+{
+    int		sts;
+    switch (type) {
+	case PM_TYPE_32:
+	    sts = sscanf(str, "%d", &oval->l);
+	    break;
+	case PM_TYPE_U32:
+	    sts = sscanf(str, "%u", &oval->ul);
+	    break;
+	case PM_TYPE_64:
+	    sts = sscanf(str, "%ld", &oval->ll);
+	    break;
+	case PM_TYPE_U64:
+	    sts = sscanf(str, "%lu", &oval->ull);
+	    break;
+	case PM_TYPE_FLOAT:
+	    sts = sscanf(str, "%f", &oval->f);
+	    break;
+	case PM_TYPE_DOUBLE:
+	    sts = sscanf(str, "%lf", &oval->d);
+	    break;
+	default:
+	    sts = 0;
+	    break;
+    }
+    if (sts == 1) {
+	return 0;
+    } else {
+	return PM_ERR_CONV;
+    }
+}
+
+static int
+series_pmAtomValue_conv_str(int type, char *str, pmAtomValue *val)
+{
+    int		sts;
+    switch (type) {
+	case PM_TYPE_32:
+	    sts = sprintf(str, "%d", val->l);
+	    break;
+	case PM_TYPE_U32:
+	    sts = sprintf(str, "%u", val->ul);
+	    break;
+	case PM_TYPE_64:
+	    sts = sprintf(str, "%ld", val->ll);
+	    break;
+	case PM_TYPE_U64:
+	    sts = sprintf(str, "%lu", val->ull);
+	    break;
+	case PM_TYPE_FLOAT:
+	    sts = sprintf(str, "%f", val->f);
+	    break;
+	case PM_TYPE_DOUBLE:
+	    sts = sprintf(str, "%lf", val->d);
+	    break;
+	default:
+	    sts = 0;
+	    break;
+    }
+    return sts;
+}
+
+static void
+series_calculate_rescale(node_t *np)
+{
+/* 
+ * The left child node of L_RESCALE should contains a set of time series values.
+ * And the right child node should be L_SCALE, which contains the target units information.
+ * This rescale() should only accept metrics with semantics instant. Compare the consistencies
+ * of 3 time/space/count dimensions between the pmUnits of input and metrics to be modified. 
+ */
+    seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
+    double			mult;
+    pmUnits			iunit;
+    char			*errmsg, str_val[255];
+    pmAtomValue			ival, oval;
+    int				type, sts, str_len;
+    sds				msg;
+
+
+    np->value_set = np->left->value_set;
+    for (int i = 0; i < np->value_set.num_series; i++) {
+	// if (strcmp(np->value_set.series_values[i].series_desc.semantics, "instant") != 0) {
+	//     // TODO: error report, only accept semantic instant
+	//     fprintf(stderr, "Only accpet semantic instant, the semantic of %s is %s\n", 
+	//     		np->value_set.series_values[i].sid->name, np->value_set.series_values[i].series_desc.semantics);
+	//     return;
+	// }
+	if (pmParseUnitsStr(np->value_set.series_values[i].series_desc.units, &iunit, &mult, &errmsg) < 0) {
+	    infofmt(msg, "Units string of %s parse error, %s\n", np->value_set.series_values[i].sid->name, errmsg);
+	    batoninfo(baton, PMLOG_ERROR, msg);
+	    baton->error = -EPROTO;
+	    np->value_set.series_values[i].num_samples = -np->value_set.series_values[i].num_samples;
+	    free(errmsg);
+	    return;
+	}
+	if (compare_pmUnits_dim(&iunit, &np->right->meta.units) != 0) {
+	    infofmt(msg, "Dimensions of units mismatch, for series %s the units is %s\n", 
+		np->value_set.series_values[i].sid->name, np->value_set.series_values[i].series_desc.units);
+	    batoninfo(baton, PMLOG_ERROR, msg);
+	    baton->error = -EPROTO;
+	    np->value_set.series_values[i].num_samples = -np->value_set.series_values[i].num_samples;
+	    return;
+	}
+	if ((type = series_extract_type(np->value_set.series_values[i].series_desc.type)) == PM_TYPE_UNKNOWN) {
+	    infofmt(msg, "Series values' Type extract fail, unsupport type\n");
+	    batoninfo(baton, PMLOG_ERROR, msg);
+	    baton->error = -EPROTO;
+	    np->value_set.series_values[i].num_samples = -np->value_set.series_values[i].num_samples;
+	    return;
+	}
+	type = PM_TYPE_DOUBLE;
+	for (int j = 0; j < np->value_set.series_values[i].num_samples; j++) {
+	    for (int k = 0; k < np->value_set.series_values[i].series_sample[j].num_instances; k++) {
+		if (series_extract_value(type, 
+			np->value_set.series_values[i].series_sample[j].series_instance[k].data, &ival) != 0 ) {
+		    // TODO: error report for extracting values from string fail
+		    fprintf(stderr, "Extract values from string fail\n");
+		    return;
+		}
+		if((sts = pmConvScale(type, &ival, &iunit, &oval, &np->right->meta.units)) != 0) {
+		    // TODO: rescale error report
+		    fprintf(stderr, "rescale error\n");
+		    return;
+		}
+		if((str_len = series_pmAtomValue_conv_str(type, str_val, &oval)) == 0) {
+		    // TODO: series values convert to string fail report
+		    fprintf(stderr, "series values convert to string fail\n");
+		    return;
+		}
+		sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].data);
+		np->value_set.series_values[i].series_sample[j].series_instance[k].data = sdsnewlen(str_val, str_len);
+	    }
+	}
+	sdsfree(np->value_set.series_values[i].series_desc.units);
+	np->value_set.series_values[i].series_desc.units = sdsnew(pmUnitsStr(&np->right->meta.units));
+    }
+}
+
+static int
+series_abs_pmAtomValue(int type, pmAtomValue *val)
+{
+    int			sts = 0;
+    switch (type) {
+	case PM_TYPE_32:
+	    if (val->l < 0) {
+		val->l =  -val->l;
+	    }
+	    break;
+	case PM_TYPE_U32:
+	    // No need to change value
+	    break;
+	case PM_TYPE_64:
+	    if (val->ll < 0) {
+		val->ll = val->ll;
+	    }
+	    break;
+	case PM_TYPE_U64:
+	    // No need to change value
+	    break;
+	case PM_TYPE_FLOAT:
+	    if (val->f < 0) {
+		val->f = -val->f;
+	    }
+	    break;
+	case PM_TYPE_DOUBLE:
+	    if (val->d < 0) {
+		val->d = -val->d;
+	    }
+	    break;
+	default:
+	    // Unsupport type
+	    sts = -1;
+	    break;
+    }
+    return sts;
+}
+
+static void
+series_calculate_abs(node_t *np)
+{
+/* 
+ * 
+ */
+    seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
+    pmAtomValue			val;
+    int				type, sts, str_len;
+    char			str_val[255];
+    sds				msg;
+
+    np->value_set = np->left->value_set;
+    for (int i = 0; i < np->value_set.num_series; i++) {
+	if ((type = series_extract_type(np->value_set.series_values[i].series_desc.type)) == PM_TYPE_UNKNOWN) {
+	    infofmt(msg, "Series values' Type extract fail, unsupport type\n");
+	    batoninfo(baton, PMLOG_ERROR, msg);
+	    baton->error = -EPROTO;
+	    np->value_set.series_values[i].num_samples = -np->value_set.series_values[i].num_samples;
+	    return;
+	}	
+	for (int j = 0; j < np->value_set.series_values[i].num_samples; j++) {
+	    for (int k = 0; k < np->value_set.series_values[i].series_sample[j].num_instances; k++) {
+		if (series_extract_value(type, 
+			np->value_set.series_values[i].series_sample[j].series_instance[k].data, &val) != 0 ) {
+		    // TODO: error report for extracting values from string fail
+		    fprintf(stderr, "Extract values from string fail\n");
+		    return;
+		}
+		if ((sts = series_abs_pmAtomValue(type, &val)) != 0) {
+		    // TODO: unsuport type
+		    fprintf(stderr, "Unsupport type to take abs()\n");
+		    return;
+		}
+		if((str_len = series_pmAtomValue_conv_str(type, str_val, &val)) == 0) {
+		    // TODO: series values convert to string fail report
+		    fprintf(stderr, "series values convert to string fail\n");
+		    return;
+		}
+		sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].data);
+		np->value_set.series_values[i].series_sample[j].series_instance[k].data = sdsnewlen(str_val, str_len);
+	    }
+	}
+    }
+}
+
+static int
+series_floor_pmAtomValue(int type, pmAtomValue *val)
+{
+    int			sts = 0;
+    switch (type) {
+	case PM_TYPE_32:
+	    // No change
+	    break;
+	case PM_TYPE_U32:
+	    // No change
+	    break;
+	case PM_TYPE_64:
+	    // No chage
+	    break;
+	case PM_TYPE_U64:
+	    // No change
+	    break;
+	case PM_TYPE_FLOAT:
+	    // TODO: The return type of floor() is double, will this cause loss of accuracy?
+	    val->f = floor(val->f);
+	    break;
+	case PM_TYPE_DOUBLE:
+	    val->d = floor(val->f);
+	    break;
+	default:
+	    // Unsupport type
+	    sts = -1;
+	    break;
+    }
+    return sts;
+}
+
+static void
+series_calculate_floor(node_t *np)
+{
+    seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
+    pmAtomValue			val;
+    int				type, sts, str_len;
+    char			str_val[255];
+    sds				msg;
+
+    np->value_set = np->left->value_set;
+    for (int i = 0; i < np->value_set.num_series; i++) {
+	if ((type = series_extract_type(np->value_set.series_values[i].series_desc.type)) == PM_TYPE_UNKNOWN) {
+	    infofmt(msg, "Series values' Type extract fail, unsupport type\n");
+	    batoninfo(baton, PMLOG_ERROR, msg);
+	    baton->error = -EPROTO;
+	    np->value_set.series_values[i].num_samples = -np->value_set.series_values[i].num_samples;
+	    return;
+	}	
+	for (int j = 0; j < np->value_set.series_values[i].num_samples; j++) {
+	    for (int k = 0; k < np->value_set.series_values[i].series_sample[j].num_instances; k++) {
+		if (series_extract_value(type, 
+			np->value_set.series_values[i].series_sample[j].series_instance[k].data, &val) != 0 ) {
+		    // TODO: error report for extracting values from string fail
+		    fprintf(stderr, "Extract values from string fail\n");
+		    return;
+		}
+		if ((sts = series_floor_pmAtomValue(type, &val)) != 0) {
+		    // TODO: unsuport type
+		    fprintf(stderr, "Unsupport type to take abs()\n");
+		    return;
+		}
+		if((str_len = series_pmAtomValue_conv_str(type, str_val, &val)) == 0) {
+		    // TODO: series values convert to string fail report
+		    fprintf(stderr, "series values convert to string fail\n");
+		    return;
+		}
+		sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].data);
+		np->value_set.series_values[i].series_sample[j].series_instance[k].data = sdsnewlen(str_val, str_len);
+	    }
+	}
+    }
+}
+
+static int
+series_log_pmAtomValue(int itype, int *otype, pmAtomValue *val, int is_natural_log, double base)
+{
+    int			sts = 0;
+    double		res;
+    switch (itype) {
+	case PM_TYPE_32:
+	    *otype = PM_TYPE_DOUBLE;
+	    res = val->l;
+	    if (is_natural_log == 1) {
+		val->d = log(res);
+	    } else {
+		val->d = log(res)/log(base);
+	    }
+	    break;
+	case PM_TYPE_U32:
+	    *otype = PM_TYPE_DOUBLE;
+	    res = val->ul;
+	    if (is_natural_log == 1) {
+		val->d = log(res);
+	    } else {
+		val->d = log(res)/log(base);
+	    }
+	    break;
+	case PM_TYPE_64:
+	    *otype = PM_TYPE_DOUBLE;
+	    res = val->ll;
+	    if (is_natural_log == 1) {
+		val->d = log(res);
+	    } else {
+		val->d = log(res)/log(base);
+	    }
+	    break;
+	case PM_TYPE_U64:
+	    *otype = PM_TYPE_DOUBLE;
+	    res = val->ull;
+	    if (is_natural_log == 1) {
+		val->d = log(res);
+	    } else {
+		val->d = log(res)/log(base);
+	    }
+	    break;
+	case PM_TYPE_FLOAT:
+	    *otype = PM_TYPE_DOUBLE;
+	    res = val->f;
+	    if (is_natural_log == 1) {
+		val->d = log(res);
+	    } else {
+		val->d = log(res)/log(base);
+	    }
+	    break;
+	case PM_TYPE_DOUBLE:
+	    if (is_natural_log == 1) {
+		val->d = log(val->d);
+	    } else {
+		val->d = log(val->d)/log(base);
+	    }
+	    break;
+	default:
+	    // Unsupport type
+	    sts = -1;
+	    break;
+    }
+    return sts;
+}
+
+static void
+series_calculate_log(node_t *np)
+{
+/*
+ * Return the logarithm of x to base b (log_b^x).
+ */
+    seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
+    double			base;
+    pmAtomValue			val;
+    int				itype, otype, sts, str_len, is_natural_log;
+    char			str_val[255];
+    sds				msg;
+
+
+    if (np->right != NULL) {
+	sscanf(np->right->value, "%lf", &base);
+	is_natural_log = 0;
+    } else {
+	is_natural_log = 1;
+    }
+    np->value_set = np->left->value_set;
+    for (int i = 0; i < np->value_set.num_series; i++) {
+	if ((itype = series_extract_type(np->value_set.series_values[i].series_desc.type)) == PM_TYPE_UNKNOWN) {
+	    infofmt(msg, "Series values' Type extract fail, unsupport type\n");
+	    batoninfo(baton, PMLOG_ERROR, msg);
+	    baton->error = -EPROTO;
+	    np->value_set.series_values[i].num_samples = -np->value_set.series_values[i].num_samples;
+	    return;
+	}
+	for (int j = 0; j < np->value_set.series_values[i].num_samples; j++) {
+	    for (int k = 0; k < np->value_set.series_values[i].series_sample[j].num_instances; k++) {
+		if (series_extract_value(itype, 
+			np->value_set.series_values[i].series_sample[j].series_instance[k].data, &val) != 0 ) {
+		    // TODO: error report for extracting values from string fail
+		    fprintf(stderr, "Extract values from string fail\n");
+		    return;
+		}
+		if ((sts = series_log_pmAtomValue(itype, &otype, &val, is_natural_log, base)) != 0) {
+		    // TODO: unsuport type
+		    fprintf(stderr, "Unsupport type to take sqrt()\n");
+		    return;
+		}
+		if((str_len = series_pmAtomValue_conv_str(otype, str_val, &val)) == 0) {
+		    // TODO: series values convert to string fail report
+		    fprintf(stderr, "series values convert to string fail\n");
+		    return;
+		}
+		sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].data);
+		np->value_set.series_values[i].series_sample[j].series_instance[k].data = sdsnewlen(str_val, str_len);
+	    }
+	}
+	sdsfree(np->value_set.series_values[i].series_desc.type);
+	np->value_set.series_values[i].series_desc.type = sdsnew(pmTypeStr(otype));
+    }
+}
+
+static int
+series_sqrt_pmAtomValue(int itype, int *otype, pmAtomValue *val)
+{
+    int			sts = 0;
+    double		res;
+    switch (itype) {
+	case PM_TYPE_32:
+	    *otype = PM_TYPE_DOUBLE;
+	    res = val->l;
+	    val->d = sqrt(res);
+	    break;
+	case PM_TYPE_U32:
+	    *otype = PM_TYPE_DOUBLE;
+	    res = val->ul;
+	    val->d = sqrt(res);
+	    break;
+	case PM_TYPE_64:
+	    *otype = PM_TYPE_DOUBLE;
+	    res = val->ll;
+	    val->d = sqrt(res);
+	    break;
+	case PM_TYPE_U64:
+	    *otype = PM_TYPE_DOUBLE;
+	    res = val->ull;
+	    val->d = sqrt(res);
+	    break;
+	case PM_TYPE_FLOAT:
+	    *otype = PM_TYPE_DOUBLE;
+	    res = val->f;
+	    val->d = sqrt(res);
+	    break;
+	case PM_TYPE_DOUBLE:
+	    val->d = sqrt(val->d);
+	    break;
+	default:
+	    // Unsupport type
+	    sts = -1;
+	    break;
+    }
+    return sts;
+}
+
+static void
+series_calculate_sqrt(node_t *np)
+{
+/* 
+ * 
+ */
+    seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
+    pmAtomValue			val;
+    int				itype, otype, sts, str_len;
+    char			str_val[255];
+    sds				msg;
+
+    np->value_set = np->left->value_set;
+    for (int i = 0; i < np->value_set.num_series; i++) {
+	if ((itype = series_extract_type(np->value_set.series_values[i].series_desc.type)) == PM_TYPE_UNKNOWN) {
+	    infofmt(msg, "Series values' Type extract fail, unsupport type\n");
+	    batoninfo(baton, PMLOG_ERROR, msg);
+	    baton->error = -EPROTO;
+	    np->value_set.series_values[i].num_samples = -np->value_set.series_values[i].num_samples;
+	    return;
+	}	
+	for (int j = 0; j < np->value_set.series_values[i].num_samples; j++) {
+	    for (int k = 0; k < np->value_set.series_values[i].series_sample[j].num_instances; k++) {
+		if (series_extract_value(itype, 
+			np->value_set.series_values[i].series_sample[j].series_instance[k].data, &val) != 0 ) {
+		    // TODO: error report for extracting values from string fail
+		    fprintf(stderr, "Extract values from string fail\n");
+		    return;
+		}
+		if ((sts = series_sqrt_pmAtomValue(itype, &otype, &val)) != 0) {
+		    // TODO: unsuport type
+		    fprintf(stderr, "Unsupport type to take sqrt()\n");
+		    return;
+		}
+		if((str_len = series_pmAtomValue_conv_str(otype, str_val, &val)) == 0) {
+		    // TODO: series values convert to string fail report
+		    fprintf(stderr, "series values convert to string fail\n");
+		    return;
+		}
+		sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].data);
+		np->value_set.series_values[i].series_sample[j].series_instance[k].data = sdsnewlen(str_val, str_len);
+	    }
+	}
+	sdsfree(np->value_set.series_values[i].series_desc.type);
+	np->value_set.series_values[i].series_desc.type = sdsnew(pmTypeStr(otype));
+    }
+}
+
+static int series_round_pmAtomValue(int type, pmAtomValue *val)
+{
+    int			sts = 0;
+    switch (type) {
+	case PM_TYPE_32:
+	    // No change
+	    break;
+	case PM_TYPE_U32:
+	    // No change
+	    break;
+	case PM_TYPE_64:
+	    // No chage
+	    break;
+	case PM_TYPE_U64:
+	    // No change
+	    break;
+	case PM_TYPE_FLOAT:
+	    val->f = roundf(val->f);
+	    break;
+	case PM_TYPE_DOUBLE:
+	    val->d = round(val->f);
+	    break;
+	default:
+	    // Unsupport type
+	    sts = -1;
+	    break;
+    }
+    return sts;
+}
+
+static void
+series_calculate_round(node_t *np)
+{
+    seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
+    pmAtomValue			val;
+    int				type, sts, str_len;
+    char			str_val[255];
+    sds				msg;
+
+    np->value_set = np->left->value_set;
+    for (int i = 0; i < np->value_set.num_series; i++) {
+	if ((type = series_extract_type(np->value_set.series_values[i].series_desc.type)) == PM_TYPE_UNKNOWN) {
+	    infofmt(msg, "Series values' Type extract fail, unsupport type\n");
+	    batoninfo(baton, PMLOG_ERROR, msg);
+	    baton->error = -EPROTO;
+	    np->value_set.series_values[i].num_samples = -np->value_set.series_values[i].num_samples;
+	    return;
+	}
+	for (int j = 0; j < np->value_set.series_values[i].num_samples; j++) {
+	    for (int k = 0; k < np->value_set.series_values[i].series_sample[j].num_instances; k++) {
+		if (series_extract_value(type, 
+			np->value_set.series_values[i].series_sample[j].series_instance[k].data, &val) != 0 ) {
+		    // TODO: error report for extracting values from string fail
+		    fprintf(stderr, "Extract values from string fail\n");
+		    return;
+		}
+		if ((sts = series_round_pmAtomValue(type, &val)) != 0) {
+		    // TODO: unsuport type
+		    fprintf(stderr, "Unsupport type to take abs()\n");
+		    return;
+		}
+		if((str_len = series_pmAtomValue_conv_str(type, str_val, &val)) == 0) {
+		    // TODO: series values convert to string fail report
+		    fprintf(stderr, "series values convert to string fail\n");
+		    return;
+		}
+		sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].data);
+		np->value_set.series_values[i].series_sample[j].series_instance[k].data = sdsnewlen(str_val, str_len);
+	    }
+	}
+	
+    }
+}
+
+const int
+pmStrSem(sds sem_str)
+{
+    if (strncmp("counter", sem_str, sizeof("counter")-1) == 0) {
+	return PM_SEM_COUNTER;
+    } else if (strncmp("instant", sem_str, sizeof("instant")-1) == 0) {
+	return PM_SEM_INSTANT;
+    } else if (strncmp("discrete", sem_str, sizeof("discrete")-1) == 0) {
+	return PM_SEM_DISCRETE;
+    } else {
+	return -1;
+    }
+}
+
+static int
+series_calculate_binary_check(
+	int ope_type, seriesQueryBaton *baton, node_t *left, node_t *right, int *l_type, int *r_type,
+	int *l_sem, int *r_sem, pmUnits *l_units, pmUnits *r_units, pmUnits *large_units)
+{
+    sds			msg;
+    int			num_samples;
+    double		mult;
+    char		*errmsg;
+
+    // For binary oepration, only support two single-metric operands
+    if (left->value_set.num_series != 1 || right->value_set.num_series != 1) {
+	infofmt(msg, "For binary oepration, only support two single-metric operands\n");
+	batoninfo(baton, PMLOG_ERROR, msg);
+	baton->error = -EPROTO;
+	return -1;
+    }
+    // For addition and subtraction all dimensions for each of the operands and result are identical.
+    if ((ope_type == N_PLUS || ope_type == N_MINUS) &&
+		compare_pmUnits_dim(&left->meta.units, &right->meta.units) != 0) {
+	infofmt(msg, "Dimensions of two operands mismatch\n");
+	batoninfo(baton, PMLOG_ERROR, msg);
+	baton->error = -EPROTO;
+	return -1;
+    }
+
+    // Number of samples of both operands should be identical.
+    num_samples = left->value_set.series_values[0].num_samples;
+    if (num_samples != right->value_set.series_values[0].num_samples) {
+	infofmt(msg, "Number of samples of two metrics are not identical, %s has %d but %s has %d\n",
+		left->value_set.series_values[0].sid->name, num_samples, 
+		right->value_set.series_values[0].sid->name, right->value_set.series_values[0].num_samples);
+	batoninfo(baton, PMLOG_ERROR, msg);
+	baton->error = -EPROTO;
+	return -1;
+    }
+
+    /* For an arithmetic expression, if both operands have the semantics of a counter, then only addition
+     * or subtraction is allowed, or if the left operand is a counter and the right operand is not,
+     * then only multiplication or division are allowed, or if the left operand is not a counter and 
+     * the right operand is a counter, then only multiplication is allowed.
+     */
+    *l_sem = pmStrSem(left->value_set.series_values[0].series_desc.semantics);
+    *r_sem = pmStrSem(right->value_set.series_values[0].series_desc.semantics);
+    if (*l_sem == PM_SEM_COUNTER && *r_sem == PM_SEM_COUNTER) {
+	if (ope_type != N_PLUS && ope_type != N_MINUS) {
+	    infofmt(msg, "For both operands have the semantis of counter, only addtion or subtraction is allowed.\n");
+	    batoninfo(baton, PMLOG_ERROR, msg);
+	    baton->error = -EPROTO;
+	    return -1;
+	}
+    }
+    if ((*l_sem == PM_SEM_COUNTER && *r_sem !=PM_SEM_COUNTER) || (*l_sem != PM_SEM_COUNTER && *r_sem ==PM_SEM_COUNTER)) {
+	if (ope_type != N_STAR && ope_type != N_SLASH) {
+	    infofmt(msg, "For one operand is a counter and the other one is not, only multiplication or division is allowed.\n");
+	    batoninfo(baton, PMLOG_ERROR, msg);
+	    baton->error = -EPROTO;
+	    return -1;
+	}
+    }
+
+    // Extract data tpyes of two operands
+    if ((*l_type = series_extract_type(left->value_set.series_values[0].series_desc.type)) == PM_TYPE_UNKNOWN) {
+	infofmt(msg, "Series values' Type extract fail, unsupport type\n");
+	batoninfo(baton, PMLOG_ERROR, msg);
+	baton->error = -EPROTO;
+	return -1;
+    }
+    if ((*r_type = series_extract_type(right->value_set.series_values[0].series_desc.type)) == PM_TYPE_UNKNOWN) {
+	infofmt(msg, "Series values' Type extract fail, unsupport type\n");
+	batoninfo(baton, PMLOG_ERROR, msg);
+	baton->error = -EPROTO;
+	return -1;
+    }
+    // Extract units of both operands
+    if (pmParseUnitsStr(left->value_set.series_values[0].series_desc.units, l_units, &mult, &errmsg) < 0 &&
+		strncmp(left->value_set.series_values[0].series_desc.units, "none", sizeof("none")-1) != 0) {
+	infofmt(msg, "Units string of %s parse error, %s\n", left->value_set.series_values[0].sid->name, errmsg);
+	batoninfo(baton, PMLOG_ERROR, msg);
+	baton->error = -EPROTO;
+	return -1;
+    }
+    if (pmParseUnitsStr(right->value_set.series_values[0].series_desc.units, r_units, &mult, &errmsg) < 0 &&
+		strncmp(right->value_set.series_values[0].series_desc.units, "none", sizeof("none")-1) != 0) {
+	infofmt(msg, "Units string of %s parse error, %s\n", right->value_set.series_values[0].sid->name, errmsg);
+	batoninfo(baton, PMLOG_ERROR, msg);
+	baton->error = -EPROTO;
+	return -1;
+    }
+    /* If both operands have a dimension of Count/Time/Space and the scales are not the same, use the
+     * larger scale and convert the values of the operand with the smaller scale. The result is promoted
+     * to type PM_TYPE_DOUBLE.
+     */
+    large_units->scaleCount = l_units->scaleCount > r_units->scaleCount ? l_units->scaleCount : r_units->scaleCount;
+    large_units->scaleSpace = l_units->scaleSpace > r_units->scaleSpace ? l_units->scaleSpace : r_units->scaleSpace;
+    large_units->scaleSpace = l_units->scaleTime > r_units->scaleTime ? l_units->scaleTime : r_units->scaleTime;
+    if (large_units->scaleCount != l_units->scaleCount ||
+	large_units->scaleSpace != l_units->scaleSpace ||
+	large_units->scaleTime != l_units->scaleTime) {
+	*l_type = PM_TYPE_DOUBLE;
+    }
+    if (large_units->scaleCount != r_units->scaleCount ||
+	large_units->scaleSpace != r_units->scaleSpace ||
+	large_units->scaleTime != r_units->scaleTime) {
+	*r_type = PM_TYPE_DOUBLE;
+    }
+
+    return 0;
+}
+
+int
+calculate_plus(int *type, pmAtomValue *l_val, pmAtomValue *r_val, pmAtomValue *res)
+{
+    switch (*type) {
+	case PM_TYPE_32:
+	    res->l = l_val->l + r_val->l;
+	case PM_TYPE_U32:
+	    res->ul = l_val->ul + r_val->ul;
+	case PM_TYPE_64:
+	    res->ll = l_val->ll + r_val->ll;
+	    break;
+	case PM_TYPE_U64:
+	    res->ull = l_val->ull + r_val->ull;
+	case PM_TYPE_FLOAT:
+	    res->f = l_val->f + r_val->f;
+	    break;
+	case PM_TYPE_DOUBLE:
+	    res->d = l_val->d + r_val->d;
+	    break;
+	default:
+	    break;
+    }
+    return 0;
+}
+
+int
+calculate_minus(int *type, pmAtomValue *l_val, pmAtomValue *r_val, pmAtomValue *res)
+{
+    switch (*type) {
+	case PM_TYPE_32:
+	    res->l = l_val->l - r_val->l;
+	case PM_TYPE_U32:
+	    if (l_val->ul >= r_val->ul) {
+		res->ul = l_val->ul - r_val->ul;
+	    } else {
+		return -1;
+	    }
+	case PM_TYPE_64:
+	    res->ll = l_val->ll + r_val->ll;
+	    break;
+	case PM_TYPE_U64:
+	    if (l_val->ull >= r_val->ull) {
+		res->ull = l_val->ull + r_val->ull;
+	    } else {
+		return -1;
+	    }
+	case PM_TYPE_FLOAT:
+	    res->f = l_val->f - r_val->f;
+	    break;
+	case PM_TYPE_DOUBLE:
+	    res->d = l_val->d - r_val->d;
+	    break;
+	default:
+	    break;
+    }
+    return 0;
+}
+
+int
+calculate_star(int *type, pmAtomValue *l_val, pmAtomValue *r_val, pmAtomValue *res)
+{
+    switch (*type) {
+	case PM_TYPE_32:
+	    res->l = l_val->l * r_val->l;
+	case PM_TYPE_U32:
+	    res->ul = l_val->ul * r_val->ul;
+	case PM_TYPE_64:
+	    res->ll = l_val->ll * r_val->ll;
+	    break;
+	case PM_TYPE_U64:
+	    res->ull = l_val->ull * r_val->ull;
+	case PM_TYPE_FLOAT:
+	    res->f = l_val->f * r_val->f;
+	    break;
+	case PM_TYPE_DOUBLE:
+	    res->d = l_val->d * r_val->d;
+	    break;
+	default:
+	    break;
+    }
+    return 0;
+}
+
+int
+calculate_slash(int *type, pmAtomValue *l_val, pmAtomValue *r_val, pmAtomValue *res)
+{
+        switch (*type) {
+	case PM_TYPE_32:
+	    res->l = l_val->l / r_val->l;
+	case PM_TYPE_U32:
+	    res->ul = l_val->ul / r_val->ul;
+	case PM_TYPE_64:
+	    res->ll = l_val->ll / r_val->ll;
+	    break;
+	case PM_TYPE_U64:
+	    res->ull = l_val->ull / r_val->ull;
+	case PM_TYPE_FLOAT:
+	    res->f = l_val->f / r_val->f;
+	    break;
+	case PM_TYPE_DOUBLE:
+	    res->d = l_val->d / r_val->d;
+	    break;
+	default:
+	    break;
+    }
+    return 0;
+}
+
+static void
+series_calculate_order_bianry(int ope_type, int l_type, int r_type, int *otype,
+	pmAtomValue *l_val, pmAtomValue *r_val, sds l_data, sds r_data,
+	pmUnits *l_units, pmUnits *r_units, pmUnits *large_units,
+	int (*operator)(int*, pmAtomValue*, pmAtomValue*, pmAtomValue*))
+{
+    pmAtomValue		res;
+    int			str_len;
+    char		str_val[255];
+
+    if (l_type == PM_TYPE_DOUBLE || r_type == PM_TYPE_DOUBLE) {
+	*otype = PM_TYPE_DOUBLE;
+    } else if (ope_type == N_STAR) {
+	*otype = PM_TYPE_DOUBLE;
+    } else if (l_type == PM_TYPE_FLOAT || r_type == PM_TYPE_FLOAT) {
+	*otype = PM_TYPE_FLOAT;
+    } else if (l_type == PM_TYPE_U64 || r_type == PM_TYPE_U64) {
+	*otype = PM_TYPE_U64;
+    } else if (l_type == PM_TYPE_64 || r_type == PM_TYPE_64) {
+	*otype = PM_TYPE_64;
+    } else if (l_type == PM_TYPE_U32 || r_type == PM_TYPE_U32) {
+	*otype = PM_TYPE_U32;
+    } else { // both are PM_TYPE_32
+	*otype = PM_TYPE_32;
+    }
+
+    // Extract series values
+    series_extract_value(*otype, r_data, r_val);
+    series_extract_value(*otype, l_data, l_val);
+
+    // Convert scale to larger one
+    pmConvScale(*otype, l_val, l_units, l_val, large_units);
+    pmConvScale(*otype, r_val, r_units, r_val, large_units);
+
+    if ((*operator)(otype, l_val, r_val, &res) != 0) {
+	sdsfree(l_data);
+	l_data = sdsnew("no value");
+    } else {
+	sdsfree(l_data);
+	str_len = series_pmAtomValue_conv_str(*otype, str_val, &res);
+	l_data = sdsnewlen(str_val, str_len);
+    }
+}
+
+static void
+series_bianry_meta_update(node_t *left, pmUnits *large_units, int *l_sem, int *r_sem)
+{
+    int			o_sem;
+    // Update units
+    sdsfree(left->value_set.series_values[0].series_desc.units);
+    left->value_set.series_values[0].series_desc.units = sdsnew(pmUnitsStr(large_units));
+
+    /* If the semantics of both operands is not a counter (i.e. PM_SEM_INSTANT or PM_SEM_DISCRETE) then the result
+     * will have semantics PM_SEM_INSTANT unless both operands are PM_SEM_DISCRETE in which case the result is 
+     * also PM_SEM_DISCRETE.
+    */
+    if (*l_sem != PM_SEM_COUNTER || *r_sem != PM_SEM_COUNTER) {
+	o_sem = PM_SEM_INSTANT;
+    } else if (*l_sem == PM_SEM_DISCRETE && *r_sem == PM_SEM_DISCRETE) {
+	o_sem = PM_SEM_DISCRETE;
+    } else {
+	o_sem = PM_SEM_COUNTER;
+    }
+    // Update semantics
+    sdsfree(left->value_set.series_values[0].series_desc.semantics);
+    left->value_set.series_values[0].series_desc.semantics = sdsnew(pmSemStr(o_sem));
+}
+
+static void
+series_calculate_plus(node_t *np)
+{
+    seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
+    node_t		*left = np->left, *right = np->right;
+    int			num_samples, num_instances, l_type, r_type, otype, l_sem, r_sem;
+    sds			msg;
+    pmAtomValue		l_val, r_val;
+    pmUnits		l_units, r_units, large_units;
+
+    if (series_calculate_binary_check(N_PLUS, baton, left, right, &l_type, &r_type, &l_sem, &r_sem,
+		 &l_units, &r_units, &large_units) != 0) {
+	return;
+    }
+    num_samples = left->value_set.series_values[0].num_samples;
+
+    for (int j = 0; j < num_samples; j++) {
+	num_instances = left->value_set.series_values[0].series_sample[j].num_instances;
+	if (num_instances != right->value_set.series_values[0].series_sample[j].num_instances) {
+	    infofmt(msg, "Number of instances of two metrics are inconsistent.\n");
+	    batoninfo(baton, PMLOG_ERROR, msg);
+	    baton->error = -EPROTO;
+	    return;
+	}
+	for (int k = 0; k < num_instances; k++) {
+	    series_calculate_order_bianry(N_PLUS, l_type, r_type, &otype, 
+		&l_val, &r_val, 
+		left->value_set.series_values[0].series_sample[j].series_instance[k].data,
+		right->value_set.series_values[0].series_sample[j].series_instance[k].data,
+		&l_units, &r_units, &large_units, calculate_plus);
+	}
+    }
+    // For addition and subtraction all dimensions for each of the operands and result are identical.
+    large_units.dimCount = l_units.dimCount;
+    large_units.dimSpace = l_units.dimSpace;
+    large_units.dimTime = l_units.dimTime;
+
+    series_bianry_meta_update(left, &large_units, &l_sem, &r_sem);
+    np->value_set = left->value_set;
+}
+
+static void
+series_calculate_minus(node_t *np)
+{
+    seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
+    node_t		*left = np->left, *right = np->right;
+    int			num_samples, num_instances, l_type, r_type, otype, l_sem, r_sem;
+    sds			msg;
+    pmAtomValue		l_val, r_val;
+    pmUnits		l_units, r_units, large_units;
+
+    if (series_calculate_binary_check(N_MINUS, baton, left, right, &l_type, &r_type, &l_sem, &r_sem,
+		 &l_units, &r_units, &large_units) != 0) {
+	return;
+    }
+    num_samples = left->value_set.series_values[0].num_samples;
+
+    for (int j = 0; j < num_samples; j++) {
+	num_instances = left->value_set.series_values[0].series_sample[j].num_instances;
+	if (num_instances != right->value_set.series_values[0].series_sample[j].num_instances) {
+	    infofmt(msg, "Number of instances of two metrics are inconsistent.\n");
+	    batoninfo(baton, PMLOG_ERROR, msg);
+	    baton->error = -EPROTO;
+	    return;
+	}
+	for (int k = 0; k < num_instances; k++) {
+	    series_calculate_order_bianry(N_MINUS, l_type, r_type, &otype, 
+		&l_val, &r_val, 
+		left->value_set.series_values[0].series_sample[j].series_instance[k].data,
+		right->value_set.series_values[0].series_sample[j].series_instance[k].data,
+		&l_units, &r_units, &large_units, calculate_minus);
+	}
+    }
+    // For addition and subtraction all dimensions for each of the operands and result are identical.
+    large_units.dimCount = l_units.dimCount;
+    large_units.dimSpace = l_units.dimSpace;
+    large_units.dimTime = l_units.dimTime;
+
+    series_bianry_meta_update(left, &large_units, &l_sem, &r_sem);
+    np->value_set = left->value_set;
+}
+
+static void
+series_calculate_star(node_t *np)
+{
+    seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
+    node_t		*left = np->left, *right = np->right;
+    int			num_samples, num_instances, l_type, r_type, otype, l_sem, r_sem;
+    sds			msg;
+    pmAtomValue		l_val, r_val;
+    pmUnits		l_units, r_units, large_units;
+
+    if (series_calculate_binary_check(N_STAR, baton, left, right, &l_type, &r_type, &l_sem, &r_sem,
+		 &l_units, &r_units, &large_units) != 0) {
+	return;
+    }
+    num_samples = left->value_set.series_values[0].num_samples;
+
+    for (int j = 0; j < num_samples; j++) {
+	num_instances = left->value_set.series_values[0].series_sample[j].num_instances;
+	if (num_instances != right->value_set.series_values[0].series_sample[j].num_instances) {
+	    infofmt(msg, "Number of instances of two metrics are inconsistent.\n");
+	    batoninfo(baton, PMLOG_ERROR, msg);
+	    baton->error = -EPROTO;
+	    return;
+	}
+	for (int k = 0; k < num_instances; k++) {
+	    series_calculate_order_bianry(N_STAR, l_type, r_type, &otype, 
+		&l_val, &r_val, 
+		left->value_set.series_values[0].series_sample[j].series_instance[k].data,
+		right->value_set.series_values[0].series_sample[j].series_instance[k].data,
+		&l_units, &r_units, &large_units, calculate_star);
+	}
+    }
+    // For multiplication, the dimensions of the result are the sum of the dimensions of the operands.
+    large_units.dimCount = l_units.dimCount + r_units.dimCount;
+    large_units.dimSpace = l_units.dimSpace + r_units.dimSpace;
+    large_units.dimTime = l_units.dimTime + r_units.dimTime;
+
+    series_bianry_meta_update(left, &large_units, &l_sem, &r_sem);
+    np->value_set = left->value_set;
+}
+
+static void
+series_calculate_slash(node_t *np)
+{
+    seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
+    node_t		*left = np->left, *right = np->right;
+    int			num_samples, num_instances, l_type, r_type, otype, l_sem, r_sem;
+    sds			msg;
+    pmAtomValue		l_val, r_val;
+    pmUnits		l_units, r_units, large_units;
+
+    if (series_calculate_binary_check(N_SLASH, baton, left, right, &l_type, &r_type, &l_sem, &r_sem,
+		 &l_units, &r_units, &large_units) != 0) {
+	return;
+    }
+    num_samples = left->value_set.series_values[0].num_samples;
+
+    for (int j = 0; j < num_samples; j++) {
+	num_instances = left->value_set.series_values[0].series_sample[j].num_instances;
+	if (num_instances != right->value_set.series_values[0].series_sample[j].num_instances) {
+	    infofmt(msg, "Number of instances of two metrics are inconsistent.\n");
+	    batoninfo(baton, PMLOG_ERROR, msg);
+	    baton->error = -EPROTO;
+	    return;
+	}
+	for (int k = 0; k < num_instances; k++) {
+	    series_calculate_order_bianry(N_SLASH, l_type, r_type, &otype, 
+		&l_val, &r_val, 
+		left->value_set.series_values[0].series_sample[j].series_instance[k].data,
+		right->value_set.series_values[0].series_sample[j].series_instance[k].data,
+		&l_units, &r_units, &large_units, calculate_slash);
+	}
+    }
+    // For division, the dimensions of the result are the difference of the dimensions of the operands.
+    large_units.dimCount = l_units.dimCount - r_units.dimCount;
+    large_units.dimSpace = l_units.dimSpace - r_units.dimSpace;
+    large_units.dimTime = l_units.dimTime - r_units.dimTime;
+
+    series_bianry_meta_update(left, &large_units, &l_sem, &r_sem);
+    np->value_set = left->value_set;
+
+}
+
+static int
+series_calculate(seriesQueryBaton *baton, node_t *np, int level)
+{
+/* 
+ * In this phase all time series values have been stored into nodes. Therefore we can 
+ * directly calculate values of a node accroding to the semantics of this node.
+ * Do dfs here. In the process of unstacking from bottom of the parser tree, each time
+ * meet a functino-type node, calculate the results and store them into this node.
+ */
+    int				sts;
+    if (np == NULL)
+	return 0;
+    if ((sts = series_calculate(baton, np->left, level+1)) < 0)
+	return sts;
+    if ((sts = series_calculate(baton, np->right, level+1)) < 0)
+	return sts;
+
+    np->baton = baton;
+    switch (np->type) {
+	case N_NOOP:
+	    /* Traverse the subtree of this node? */
+	    np->value_set = np->left->value_set;
+	    series_noop_traverse(baton, np, level);
+	    sts = N_NOOP;
+	    break;
+	case N_RATE:
+	    series_calculate_rate(np);
+	    sts = N_RATE;
+	    break;
+	case N_MAX:
+	    series_calculate_max(np);
+	    sts = N_MAX;
+	    break;
+	case N_MIN:
+	    series_calculate_min(np);
+	    sts = N_MIN;
+	    break;
+	case N_RESCALE:
+	    series_calculate_rescale(np);
+	    sts = N_RESCALE;
+	    break;
+	case N_ABS:
+	    series_calculate_abs(np);
+	    sts = N_ABS;
+	    break;
+	case N_FLOOR:
+	    series_calculate_floor(np);
+	    sts = N_FLOOR;
+	    break;
+	case N_LOG:
+	    series_calculate_log(np);
+	    sts = N_LOG;
+	    break;
+	case N_SQRT:
+	    series_calculate_sqrt(np);
+	    sts = N_SQRT;
+	    break;
+	case N_ROUND:
+	    series_calculate_round(np);
+	    sts = N_ROUND;
+	    break;
+	case N_PLUS:
+	    series_calculate_plus(np);
+	    sts = N_PLUS;
+	    break;
+	case N_MINUS:
+	    series_calculate_minus(np);
+	    sts = N_MINUS;
+	    break;
+	case N_STAR:
+	    series_calculate_star(np);
+	    sts = N_STAR;
+	    break;
+	case N_SLASH:
+	    series_calculate_slash(np);
+	    sts = N_SLASH;
+	    break;
+	default:
+	    break;
+    }
+    return sts;
+}
+
+void dfs(node_t *np, int level){
+    if(np==NULL) return;
+    printf("level: %d, type: %d, key: %s, value: %s\n", level, np->type, np->key, np->value);
+    printf("time %d, window.count: %s\n", np->time.count, np->time.window.count);
+    printf("num_series=%d\n\n", np->value_set.num_series);
+    if(np->value_set.num_series != 0){
+	for(int i=0; i<np->value_set.num_series; i++){
+	    printf("series: %s\n", np->value_set.series_values[i].sid->name);
+	    for(int j=0; j<np->value_set.series_values[i].num_samples; j++){
+		for(int k=0; k<np->value_set.series_values[i].series_sample[j].num_instances; k++){
+		    printf("%s\n", np->value_set.series_values[i].series_sample[j].series_instance[k].data);
+		}
+	    }
+	}
+    }
+    dfs(np->left, level+1);
+    dfs(np->right, level+1);
+}
+
+static void
+series_redis_hash_expression(seriesQueryBaton *baton, char *hashbuf, int len_hashbuf)
+{
+    unsigned char	hash[20];
+    sds			key, value;
+    node_t		*np = &baton->u.query.root;
+    int			num_series = np->value_set.num_series;
+
+    for (int i = 0; i < num_series; i++) {
+	value = series_function_hash(hash, np, i);
+	pmwebapi_hash_str(hash, hashbuf, len_hashbuf);
+	key = sdscatfmt(sdsempty(), "pcp:expr:%s", hashbuf);
+	//series_set_function_expr(baton, key, value);
+    }
+}
+
 static void
 series_query_report_values(void *arg)
 {
@@ -1399,6 +3540,47 @@ series_query_report_values(void *arg)
 
     seriesBatonReference(baton, "series_query_report_values");
     series_prepare_time(baton, &baton->u.query.root.result);
+    series_query_end_phase(baton);
+}
+
+static void
+series_query_funcs_report_values(void *arg)
+{
+    seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
+    int			has_function = 0;
+    char		hashbuf[42];
+
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_query_funcs_report_values");
+    seriesBatonCheckCount(baton, "series_query_funcs_report_values");
+
+    seriesBatonReference(baton, "series_query_funcs_report_values");
+
+    if (pmDebugOptions.query) dfs(&baton->u.query.root, 0);
+
+    /* For function-tpye nodes, calculate actual values */
+    has_function = series_calculate(baton, &baton->u.query.root, 0);
+
+    /* Store the canonical query to Redis if this query statement has function oepration */
+    if (has_function != 0)
+	series_redis_hash_expression(baton, hashbuf, sizeof(hashbuf));
+
+    // time series values have been saved in root node so report them directly.
+    series_node_values_report(baton, &baton->u.query.root, has_function, hashbuf);
+    
+    series_query_end_phase(baton);
+}
+
+static void
+series_query_funcs(void *arg)
+{
+    seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
+
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_query_funcs");
+    seriesBatonCheckCount(baton, "series_query_funcs");
+
+    seriesBatonReference(baton, "series_query_funcs");
+    // Process funtion-type node
+    series_process_func(baton, &baton->u.query.root, 0);
     series_query_end_phase(baton);
 }
 
@@ -1466,9 +3648,13 @@ series_solve(pmSeriesSettings *settings,
     if ((flags & PM_SERIES_FLAG_METADATA) || !series_time_window(timing))
 	/* Report matching series IDs, unless time windowing */
 	baton->phases[i++].func = series_query_report_matches;
-    else
-	/* Report actual values within the given time window */
-	baton->phases[i++].func = series_query_report_values;
+    else{
+	baton->phases[i++].func = series_query_mapping;
+	/* Store time series values into nodes */
+	baton->phases[i++].func = series_query_funcs;
+	/* Report actual values */
+	baton->phases[i++].func = series_query_funcs_report_values;
+    }
 
     /* final callback once everything is finished, free baton */
     baton->phases[i++].func = series_query_finished;
@@ -1926,44 +4112,6 @@ pmSeriesLabelValues(pmSeriesSettings *settings, int nlabels, pmSID *labels, void
     return 0;
 }
 
-static int
-extract_series_desc(seriesQueryBaton *baton, pmSID series,
-		int nelements, redisReply **elements, pmSeriesDesc *desc)
-{
-    sds			msg;
-
-    if (nelements < 6) {
-	infofmt(msg, "bad reply from %s %s (%d)", series, HMGET, nelements);
-	batoninfo(baton, PMLOG_RESPONSE, msg);
-	return -EPROTO;
-    }
-
-    /* were we given a non-metric series identifier? (e.g. an instance) */
-    if (elements[0]->type == REDIS_REPLY_NIL) {
-	desc->indom = sdscpylen(desc->indom, "unknown", 7);
-	desc->pmid = sdscpylen(desc->pmid, "PM_ID_NULL", 10);
-	desc->semantics = sdscpylen(desc->semantics, "unknown", 7);
-	desc->source = sdscpylen(desc->source, "unknown", 7);
-	desc->type = sdscpylen(desc->type, "unknown", 7);
-	desc->units = sdscpylen(desc->units, "unknown", 7);
-	return 0;
-    }
-
-    if (extract_string(baton, series, elements[0], &desc->indom, "indom") < 0)
-	return -EPROTO;
-    if (extract_string(baton, series, elements[1], &desc->pmid, "pmid") < 0)
-	return -EPROTO;
-    if (extract_string(baton, series, elements[2], &desc->semantics, "semantics") < 0)
-	return -EPROTO;
-    if (extract_sha1(baton, series, elements[3], &desc->source, "source") < 0)
-	return -EPROTO;
-    if (extract_string(baton, series, elements[4], &desc->type, "type") < 0)
-	return -EPROTO;
-    if (extract_string(baton, series, elements[5], &desc->units, "units") < 0)
-	return -EPROTO;
-
-    return 0;
-}
 
 static void
 redis_series_desc_reply(
@@ -2303,6 +4451,52 @@ series_lookup_mapping(void *arg)
     cmd = redis_param_sds(cmd, key);
     redisSlotsRequest(baton->slots, HGETALL, key, cmd,
 			redis_lookup_mapping_callback, baton);
+}
+
+static void
+series_query_mapping_callback(
+	redisAsyncContext *c, redisReply *reply, const sds cmd, void *arg)
+{
+    seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
+    sds			msg;
+    int			sts;
+
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_query_mapping_callback");
+    sts = redisSlotsRedirect(baton->slots, reply, baton->info, baton->userdata,
+			     cmd, series_query_mapping_callback, arg);
+    if (sts > 0)
+	return;	/* short-circuit as command was re-submitted */
+
+    /* unpack - produce reverse map of ids-to-names for each context */
+    if (LIKELY(reply && reply->type == REDIS_REPLY_ARRAY)) {
+	reverse_map(baton, namesmap, reply->elements, reply->element);
+    } else {
+	if (sts < 0) {
+	    infofmt(msg, "expected array from %s %s (type=%s)",
+		    HGETALL, "pcp:map:context.name", redis_reply_type(reply));
+	    batoninfo(baton, PMLOG_RESPONSE, msg);
+	}
+	baton->error = -EPROTO;
+    }
+
+    series_query_end_phase(baton);
+}
+
+static void
+series_query_mapping(void *arg){
+    seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
+    sds			cmd, key;
+
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_query_mapping");
+    seriesBatonCheckCount(baton, "series_query_mapping");
+    seriesBatonReference(baton, "series_query_mapping");
+
+    key = sdsnew("pcp:map:metric.name");
+    cmd = redis_command(2);
+    cmd = redis_param_str(cmd, HGETALL, HGETALL_LEN);
+    cmd = redis_param_sds(cmd, key);
+    redisSlotsRequest(baton->slots, HGETALL, key, cmd,
+			series_query_mapping_callback, baton);
 }
 
 static void

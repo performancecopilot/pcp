@@ -2,11 +2,12 @@ name: Daily QA
 on:
   schedule:
     - cron:  '0 19 * * *'
+  workflow_dispatch:
 
 jobs:
   qa:
     name: ${{ matrix.platform }}-${{ matrix.runner }}
-    if: github.repository == 'performancecopilot/pcp'
+    if: github.repository == 'performancecopilot/pcp' || github.event_name == 'workflow_dispatch'
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -37,20 +38,19 @@ jobs:
         run: |
           python3 -c 'import yaml' || pip3 install pyyaml
           mkdir -p artifacts/build artifacts/test
+          touch artifacts/test/.keep
 
-          for i in 1 2 3
+          for i in $(seq 1 10)
           do
             if [ $i -gt 1 ]; then
-              echo && echo "Probably network error, wait 5 min and try again ($i/3)..."
+              echo && echo "Probably network error, wait 5 min and try again ($i/10)..."
               sleep 300
+              sudo podman system prune -a -f
             fi
 
             ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} setup && exit 0 || true
           done
           exit 1
-
-      - name: Update packages
-        run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} task update
 
       - name: Install build dependencies
         run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} task install_build_dependencies
@@ -89,7 +89,7 @@ jobs:
 
   report:
     name: Publish Test Report
-    if: always() && github.repository == 'performancecopilot/pcp'
+    if: always() && (github.repository == 'performancecopilot/pcp' || github.event_name == 'workflow_dispatch')
     needs: qa
     runs-on: ubuntu-18.04
     steps:
@@ -105,7 +105,7 @@ jobs:
 
       - name: Setup
         run: |
-          wget -q -O allure-commandline.zip https://repo1.maven.org/maven2/io/qameta/allure/allure-commandline/2.13.3/allure-commandline-2.13.3.zip
+          wget -q -O allure-commandline.zip https://repo1.maven.org/maven2/io/qameta/allure/allure-commandline/2.13.5/allure-commandline-2.13.5.zip
           unzip -d /opt allure-commandline.zip
 
       - name: Download all artifacts
@@ -115,12 +115,20 @@ jobs:
 
       - name: Generate test report
         run: |
-          ./build/ci/test-report.py --commit ${GITHUB_SHA} --allure_results ./allure-results
+          ./build/ci/test-report.py \
+            --commit ${GITHUB_SHA} \
+            --allure-results ./allure-results \
+            --slack-channel ${SLACK_CHANNEL} \
+            --github-run-url "https://github.com/${{ github.repository_owner }}/pcp/actions/runs/${{ github.run_id }}" \
+            --qa-report-url "https://${{ github.repository_owner }}.github.io/qa-reports"
 
           # disable history, because the history.json file is getting bigger than 100 MB (max GitHub file size)
           # [ -d qa-reports/docs/history ] && cp -r qa-reports/docs/history ./allure-results
 
           /opt/allure-*/bin/allure generate
+        env:
+          SLACK_CHANNEL: C011ERBFQGN
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
 
       - name: Publish QA report
         run: |

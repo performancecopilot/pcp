@@ -1,5 +1,8 @@
 bintray:
-  repository: f32
+  repository:
+    type: rpm
+    name: f32
+    description: Performance Co-Pilot for Fedora 32
 
 vm:
   box: fedora/32-cloud-base
@@ -17,7 +20,9 @@ tasks:
     sudo dnf install -y which hostname
     sudo dnf -y -b --skip-broken install man python2-devel python2-setuptools ragel $(./pcp/qa/admin/check-vm -fp)
   build: |
-    cd ./pcp && ./Makepkgs --verbose --check
+    cd ./pcp
+    ./Makepkgs --verbose --check
+    rpm -qp --requires $(echo ./pcp-*/build/rpm/pcp-*.src.rpm | sed 's/src/x86_64/') | grep -q libuv.so
   copy_build_artifacts: |
     cp ./pcp/pcp-*/build/rpm/*.rpm ./artifacts/build
   install: |

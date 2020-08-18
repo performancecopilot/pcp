@@ -24,6 +24,7 @@
 #include <QWhatsThis>
 #include <QPainter>
 #include <QPrinter>
+#include <QScreen>
 
 #include "main.h"
 #include "pmchart.h"
@@ -195,7 +196,13 @@ void PmChart::updateHeight(int adjustment)
 {
     QSize newSize = size();
     int ideal = newSize.height() + adjustment;	// may be negative
-    int sized = QApplication::desktop()->availableGeometry().height();
+    int sized;
+
+#if QT_VERSION >= 0x050000
+    sized = QApplication::primaryScreen()->availableGeometry().height();
+#else
+    sized = QApplication::desktop()->availableGeometry().height();
+#endif
 
 #ifdef DESPERATE
     console->post(PmChart::DebugUi,
@@ -633,7 +640,7 @@ void PmChart::acceptEditTab()
 void PmChart::createNewTab(bool live)
 {
     setupDialogs();
-    my.newtab->reset(QString::null, live);
+    my.newtab->reset(QString(), live);
     my.newtab->show();
 }
 

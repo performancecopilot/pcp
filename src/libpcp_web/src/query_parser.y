@@ -3,6 +3,7 @@
  * query_parser.y - yacc/bison grammar for the PCP time series language
  *
  * Copyright (c) 2017-2019 Red Hat.
+ * Copyright (c) 2020 Yushan ZHANG.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -47,7 +48,7 @@ static int yyerror(PARSER *, const char *);
 
 static int series_lex(YYSTYPE *, PARSER *);
 static int series_error(PARSER *, const char *);
-//static void gramerr(PARSER *, const char *, const char *, char *);
+static void gramerr(PARSER *, const char *, const char *, char *);
 static node_t *newnode(int);
 static node_t *newmetric(char *);
 static node_t *newmetricquery(char *, node_t *);
@@ -108,6 +109,12 @@ static const char initial_str[]  = "Unexpected initial";
 %token      L_RBRACE
 %token      L_LSQUARE
 %token      L_RSQUARE
+%token      L_NOOP
+%token      L_ABS
+%token      L_FLOOR
+%token      L_LOG
+%token      L_SQRT
+%token      L_ROUND
 %token      L_AVG
 %token      L_COUNT
 %token      L_DELTA
@@ -155,13 +162,15 @@ static const char initial_str[]  = "Unexpected initial";
 
 %type  <n>  query
 %type  <n>  expr
-//%type  <n>  func
+%type  <n>  func
+%type  <n>  arithmetic_expression
 %type  <n>  exprlist
 %type  <n>  exprval
 %type  <n>  number
 %type  <n>  string
 %type  <s>  timespec
 %type  <n>  vector
+%type  <n>  val_vec
 
 %left  L_AND L_OR
 %left  L_LT L_LEQ L_EQ L_GLOB L_COLON L_ASSIGN L_GEQ L_GT L_NEQ L_REQ L_RNE
@@ -190,6 +199,7 @@ vector:	L_NAME L_LBRACE exprlist L_RBRACE L_EOS
 		}
 	| L_NAME L_LBRACE exprlist L_RBRACE L_LSQUARE timelist L_RSQUARE L_EOS
 		{ lp->yy_np = newmetricquery($1, $3);
+		  lp->yy_np->time = lp->yy_series.time;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		  YYACCEPT;
 		}
@@ -199,6 +209,7 @@ vector:	L_NAME L_LBRACE exprlist L_RBRACE L_EOS
 		{ lp->yy_np = lp->yy_series.expr = $2; YYACCEPT; }
 	| L_NAME L_LSQUARE timelist L_RSQUARE L_EOS
 		{ lp->yy_np = newmetric($1);
+		  lp->yy_np->time = lp->yy_series.time;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		  YYACCEPT;
 		}
@@ -207,6 +218,12 @@ vector:	L_NAME L_LBRACE exprlist L_RBRACE L_EOS
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		  YYACCEPT;
 		}
+	| func L_EOS
+		{ lp->yy_np = $1;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		  YYACCEPT;
+		}
+	;
 
 exprlist : exprlist L_COMMA expr
 		{ lp->yy_np = newnode(N_AND);
@@ -307,8 +324,261 @@ expr	: /* relational expressions */
 	/* TODO: error reporting */
 	;
 
+val_vec	: L_NAME L_LBRACE exprlist L_RBRACE L_LSQUARE timelist L_RSQUARE
+		{ lp->yy_np = newmetricquery($1, $3);
+		  lp->yy_np->time = lp->yy_series.time;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_NAME L_LSQUARE timelist L_RSQUARE
+		{ lp->yy_np = newmetric($1);
+		  lp->yy_np->time = lp->yy_series.time;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	;
 	/* TODO: functions */
-//func	: L_AVG L_LPAREN L_NAME L_RPAREN
+func	: L_RATE L_LPAREN val_vec L_RPAREN
+		{ lp->yy_np = newnode(N_RATE);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_RATE L_LPAREN func L_RPAREN
+		{ lp->yy_np = newnode(N_RATE);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_NOOP L_LPAREN val_vec L_RPAREN
+		{ lp->yy_np = newnode(N_NOOP);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_NOOP L_LPAREN func L_RPAREN
+		{ lp->yy_np = newnode(N_NOOP);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_MAX L_LPAREN val_vec L_RPAREN
+		{ lp->yy_np = newnode(N_MAX);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_MAX L_LPAREN func L_RPAREN
+		{ lp->yy_np = newnode(N_MAX);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_MIN L_LPAREN val_vec L_RPAREN
+		{ lp->yy_np = newnode(N_MIN);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_MIN L_LPAREN func L_RPAREN
+		{ lp->yy_np = newnode(N_MIN);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_RESCALE L_LPAREN val_vec L_COMMA L_STRING L_RPAREN
+		{ double		mult;
+		  struct pmUnits	units;
+		  char			*errmsg;
+		
+		  lp->yy_np = newnode(N_RESCALE);
+		  lp->yy_np->left = $3;
+		  if (pmParseUnitsStr($5, &units, &mult, &errmsg) < 0) {
+		      gramerr(lp, "Illegal units:", NULL, errmsg);
+		      free(errmsg);
+		      series_error(lp, NULL);
+		      return -1;
+		  }
+		  lp->yy_np->right = newnode(N_SCALE);
+		  lp->yy_np->right->meta.units = units;	/* struct assign */
+		  lp->yy_np->right->value = $5;
+		  //free($5); kyoma: why this causs free error?
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_RESCALE L_LPAREN func L_COMMA L_STRING L_RPAREN
+		{ double		mult;
+		  struct pmUnits	units;
+		  char			*errmsg;
+		
+		  lp->yy_np = newnode(N_RESCALE);
+		  lp->yy_np->left = $3;
+		  if (pmParseUnitsStr($5, &units, &mult, &errmsg) < 0) {
+		      gramerr(lp, "Illegal units:", NULL, errmsg);
+		      free(errmsg);
+		      series_error(lp, NULL);
+		      return -1;
+		  }
+		  lp->yy_np->right = newnode(N_SCALE);
+		  lp->yy_np->right->meta.units = units;	/* struct assign */
+		  lp->yy_np->right->value = $5;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_ABS L_LPAREN val_vec L_RPAREN
+		{ lp->yy_np = newnode(N_ABS);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_ABS L_LPAREN func L_RPAREN
+		{ lp->yy_np = newnode(N_ABS);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_FLOOR L_LPAREN val_vec L_RPAREN
+		{ lp->yy_np = newnode(N_FLOOR);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_FLOOR L_LPAREN func L_RPAREN
+		{ lp->yy_np = newnode(N_FLOOR);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_LOG L_LPAREN val_vec L_COMMA number L_RPAREN
+		{ lp->yy_np = newnode(N_LOG);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right = $5;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_LOG L_LPAREN func L_COMMA number L_RPAREN
+		{ lp->yy_np = newnode(N_LOG);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right = $5;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_LOG L_LPAREN val_vec L_RPAREN
+		{ lp->yy_np = newnode(N_LOG);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_LOG L_LPAREN func L_RPAREN
+		{ lp->yy_np = newnode(N_LOG);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_SQRT L_LPAREN val_vec L_RPAREN
+		{ lp->yy_np = newnode(N_SQRT);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_SQRT L_LPAREN func L_RPAREN
+		{ lp->yy_np = newnode(N_SQRT);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_ROUND L_LPAREN val_vec L_RPAREN
+		{ lp->yy_np = newnode(N_ROUND);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_ROUND L_LPAREN func L_RPAREN
+		{ lp->yy_np = newnode(N_ROUND);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| arithmetic_expression
+		{ lp->yy_np = $1;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	;
+arithmetic_expression
+	: val_vec L_PLUS val_vec
+		{ lp->yy_np = newnode(N_PLUS);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| val_vec L_PLUS func
+		{ lp->yy_np = newnode(N_PLUS);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| func L_PLUS val_vec
+		{ lp->yy_np = newnode(N_PLUS);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| func L_PLUS func
+		{ lp->yy_np = newnode(N_PLUS);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| val_vec L_MINUS val_vec
+		{ lp->yy_np = newnode(N_MINUS);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| val_vec L_MINUS func
+		{ lp->yy_np = newnode(N_MINUS);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| func L_MINUS val_vec
+		{ lp->yy_np = newnode(N_MINUS);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| func L_MINUS func
+		{ lp->yy_np = newnode(N_MINUS);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| val_vec L_STAR val_vec
+		{ lp->yy_np = newnode(N_STAR);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| val_vec L_STAR func
+		{ lp->yy_np = newnode(N_STAR);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| func L_STAR val_vec
+		{ lp->yy_np = newnode(N_STAR);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| func L_STAR func
+		{ lp->yy_np = newnode(N_STAR);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| val_vec L_SLASH val_vec
+		{ lp->yy_np = newnode(N_SLASH);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| val_vec L_SLASH func
+		{ lp->yy_np = newnode(N_SLASH);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| func L_SLASH val_vec
+		{ lp->yy_np = newnode(N_SLASH);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| func L_SLASH func
+		{ lp->yy_np = newnode(N_SLASH);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	;
+//	| L_AVG L_LPAREN L_NAME L_RPAREN
 //		{ lp->yy_np = newnode(N_AVG);
 //		  lp->yy_np->left = newnode(N_NAME);
 //		  lp->yy_np->left->value = sdsnew($3);
@@ -340,12 +610,6 @@ expr	: /* relational expressions */
 //		}
 //	| L_SUM L_LPAREN L_NAME L_RPAREN
 //		{ lp->yy_np = newnode(N_SUM);
-//		  lp->yy_np->left = newnode(N_NAME);
-//		  lp->yy_np->left->value = sdsnew($3);
-//		  $$ = lp->yy_np;
-//		}
-//	| L_RATE L_LPAREN L_NAME L_RPAREN
-//		{ lp->yy_np = newnode(N_RATE);
 //		  lp->yy_np->left = newnode(N_NAME);
 //		  lp->yy_np->left->value = sdsnew($3);
 //		  $$ = lp->yy_np;
@@ -410,13 +674,20 @@ static const struct {
     int		f_namelen;
     char	*f_name;
 } func[] = {
-    { L_AVG,	sizeof("avg")-1,	"avg" },
-    { L_COUNT,	sizeof("count")-1,	"count" },
-    { L_MAX,    sizeof("max")-1,	"max" },
-    { L_MIN,    sizeof("min")-1,	"min" },
-    { L_SUM,    sizeof("sum")-1,	"sum" },
-    { L_RATE,   sizeof("rate")-1,	"rate" },
-    { L_UNDEF,  0,			NULL }
+    { L_AVG,		sizeof("avg")-1,	"avg" },
+    { L_COUNT,		sizeof("count")-1,	"count" },
+    { L_MAX,		sizeof("max")-1,	"max" },
+    { L_MIN,		sizeof("min")-1,	"min" },
+    { L_SUM,		sizeof("sum")-1,	"sum" },
+    { L_RATE,		sizeof("rate")-1,	"rate" },
+    { L_NOOP,		sizeof("noop")-1,	"noop" },
+    { L_ABS,		sizeof("abs")-1,	"abs" },
+    { L_FLOOR,		sizeof("floor")-1,	"floor" },
+    { L_LOG,		sizeof("log")-1,	"log" },
+    { L_SQRT,		sizeof("sqrt")-1,	"sqrt" },
+    { L_ROUND,		sizeof("round")-1,	"round" },
+    { L_RESCALE,	sizeof("rescale")-1,	"rescale" },
+    { L_UNDEF,		0,			NULL }
 };
 
 static struct {
@@ -447,6 +718,12 @@ static struct {
     { L_ASSIGN,		0,		"ASSIGN",	"=" },
     { L_COMMA,		0,		"COMMA",	"," },
     { L_STRING,		0,		"STRING",	"\"" },
+    { L_NOOP,		N_NOOP,		"NOOP",		NULL },
+    { L_ABS,		N_ABS,		"ABS",		NULL },
+    { L_FLOOR,		N_FLOOR,	"FLOOR",	NULL },
+    { N_LOG,		N_LOG,		"LOG",		NULL },
+    { N_SQRT,		N_SQRT,		"SQRT",		NULL },
+    { N_ROUND,		N_ROUND,	"ROUND",	NULL },
     { L_AVG,		N_AVG,		"AVG",		NULL },
     { L_COUNT,		N_COUNT,	"COUNT",	NULL },
     { L_DELTA,		N_DELTA,	"DELTA",	NULL },
@@ -731,20 +1008,20 @@ newoffset(PARSER *lp, const char *string)
     }
 }
 
-//static void
-//gramerr(PARSER *lp, const char *phrase, const char *pos, char *arg)
-//{
-//    char errmsg[256];
-//
-//    /* unless lexer has already found something amiss ... */
-//    if (lp->yy_errstr == NULL) {
-//	if (pos == NULL)
-//	    pmsprintf(errmsg, sizeof(errmsg), "%s '%s'", phrase, arg);
-//	else
-//	    pmsprintf(errmsg, sizeof(errmsg), "%s expected to %s %s", phrase, pos, arg);
-//	lp->yy_errstr = sdsnew(errmsg);
-//    }
-//}
+static void
+gramerr(PARSER *lp, const char *phrase, const char *pos, char *arg)
+{
+   char errmsg[256];
+
+   /* unless lexer has already found something amiss ... */
+   if (lp->yy_errstr == NULL) {
+	if (pos == NULL)
+	    pmsprintf(errmsg, sizeof(errmsg), "%s '%s'", phrase, arg);
+	else
+	    pmsprintf(errmsg, sizeof(errmsg), "%s expected to %s %s", phrase, pos, arg);
+	lp->yy_errstr = sdsnew(errmsg);
+   }
+}
 
 /* Construct error message buffer for syntactic error */
 static char *

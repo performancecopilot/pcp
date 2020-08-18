@@ -1,8 +1,12 @@
 bintray:
-  repository: focal
-  deb_distribution: focal
-  deb_component: main
-  deb_architecture: amd64
+  repository:
+    type: debian
+    name: focal
+    description: Performance Co-Pilot for Ubuntu 20.04 (focal fossa)
+  params:
+    deb_distribution: focal
+    deb_component: main
+    deb_architecture: amd64
 
 container:
   init: /usr/bin/systemd
@@ -27,7 +31,9 @@ tasks:
       sudo ACCEPT_EULA=Y DEBIAN_FRONTEND=noninteractive apt-get install -y "$pkg" || true
     done
   build: |
-    cd ./pcp && ./Makepkgs --nonrpm --verbose
+    cd ./pcp
+    ./Makepkgs --nonrpm --verbose
+    dpkg -I ./build/deb/pcp_*.deb | grep Depends | grep -q libuv1
   copy_build_artifacts: |
     cp ./pcp/build/deb/*.deb artifacts/build
   install: |

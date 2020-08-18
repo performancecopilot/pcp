@@ -26,7 +26,7 @@ void TabDialog::languageChange()
 
 void TabDialog::reset(QString label, bool live)
 {
-    if (label == QString::null) {
+    if (label.isNull()) {
 	setWindowTitle(tr("Add Tab"));
 	labelLineEdit->setText(live ? tr("Live") : tr("Archive"));
     }

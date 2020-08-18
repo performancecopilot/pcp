@@ -1,8 +1,12 @@
 bintray:
-  repository: bionic
-  deb_distribution: bionic
-  deb_component: main
-  deb_architecture: amd64
+  repository:
+    type: debian
+    name: bionic
+    description: Performance Co-Pilot for Ubuntu 18.04 (bionic beaver)
+  params:
+    deb_distribution: bionic
+    deb_component: main
+    deb_architecture: amd64
 
 container:
   init: /bin/systemd
@@ -22,14 +26,16 @@ tasks:
     sudo ACCEPT_EULA=Y DEBIAN_FRONTEND=noninteractive apt-get -y dist-upgrade
   install_build_dependencies: |
     sudo apt-get -y update
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y zlib1g-dev
     for pkg in $(./pcp/qa/admin/check-vm -fp)
     do
       [ "$runner" = "container" ] && [ "$pkg" = "auditd" ] && continue
       sudo ACCEPT_EULA=Y DEBIAN_FRONTEND=noninteractive apt-get install -y "$pkg" || true
     done
-    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y zlib1g-dev
   build: |
-    cd ./pcp && ./Makepkgs --nonrpm --verbose
+    cd ./pcp
+    ./Makepkgs --nonrpm --verbose
+    dpkg -I ./build/deb/pcp_*.deb | grep Depends | grep -q libuv1
   copy_build_artifacts: |
     cp ./pcp/build/deb/*.deb artifacts/build
   install: |

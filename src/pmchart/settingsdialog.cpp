@@ -468,7 +468,7 @@ void SettingsDialog::colorButtonClicked(int n)
 void SettingsDialog::newScheme()
 {
     reset();
-    my.newScheme = QString::null;
+    my.newScheme = QString();
     settingsTab->setCurrentIndex(1);	// Colors Tab
 
     // Disable signals here and explicitly call the index changed
@@ -709,7 +709,7 @@ void SettingsDialog::hostButton_clicked()
 	QString hostspec = host->getHostSpecification();
 	int sts, flags = host->getContextFlags();
 
-	if (hostspec == QString::null || hostspec.length() == 0) {
+	if (hostspec.isNull() || hostspec.length() == 0) {
 	    hostspec.append(tr("Hostname not specified\n"));
 	    QMessageBox::warning(this, pmGetProgname(), hostspec,
 		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,

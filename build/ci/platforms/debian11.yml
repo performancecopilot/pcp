@@ -1,8 +1,12 @@
 bintray:
-  repository: bullseye
-  deb_distribution: bullseye
-  deb_component: main
-  deb_architecture: amd64
+  repository:
+    type: debian
+    name: bullseye
+    description: Performance Co-Pilot for Debian 11 (bullseye)
+  params:
+    deb_distribution: bullseye
+    deb_component: main
+    deb_architecture: amd64
 
 container:
   init: /bin/systemd
@@ -27,7 +31,9 @@ tasks:
       sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "$pkg" || true
     done
   build: |
-    cd ./pcp && ./Makepkgs --nonrpm --verbose
+    cd ./pcp
+    ./Makepkgs --nonrpm --verbose
+    dpkg -I ./build/deb/pcp_*.deb | grep Depends | grep -q libuv1
   copy_build_artifacts: |
     cp ./pcp/build/deb/*.deb artifacts/build
   install: |

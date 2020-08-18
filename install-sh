@@ -41,8 +41,8 @@
 _usage()
 {
     echo "Usage: $prog [-o owner] [-g group] [-m mode] -d directory"
-    echo "or     $prog [-o owner] [-g group] [-m mode] [-t path] file directory/file"
-    echo "or     $prog [-o owner] [-g group] [-m mode] [-t path] file file [file ...] directory"
+    echo "or     $prog [-o owner] [-g group] [-m mode] [-t path | -f] file directory/file"
+    echo "or     $prog [-o owner] [-g group] [-m mode] [-t path | -f] file file [file ...] directory"
     echo "or     $prog -S file target  (creates \"target\" symlink)"
     echo ""
     echo "The \$DIST_MANIFEST, \$DIST_TMPFILES and \$DIST_ROOT environment variables"
@@ -138,12 +138,12 @@ _tmpfiles()
 
 _varcheck()
 {
-    __path="$1"
+    __target=`echo "$1" | sed -e "s;^$DIST_ROOT;;"`
 
-    echo "$__path" | grep ^/var >/dev/null 2>&1
-    if [ $? -eq 0 ]
+    echo "$__target" | grep ^/var >/dev/null 2>&1
+    if [ $? -eq 0 -a $CHECK = "true" ]
     then
-	echo "ERROR: attempted /var install to location $__path"
+	echo "ERROR: attempted /var install below $__target"
 	_usage
 	exit 1
     fi
@@ -152,6 +152,10 @@ _varcheck()
 ID=id
 # Test to use the functional id on Solaris
 test -f /usr/xpg4/bin/id && ID=/usr/xpg4/bin/id
+
+# Allow for overridding /var files checking (for QA only);
+# default is failure when regular files installed to /var.
+CHECK=true
 
 prog=`basename $0`
 HERE=`pwd`
@@ -193,12 +197,15 @@ fi
 test $REAL_UID -ne 0 && CHOWN=true
 test "$NO_CHOWN" = "true" && CHOWN=true
 
-while getopts "d:g:m:o:S:t:" c
+while getopts "d:fg:m:o:S:t:" c
 do
    case $c in
    d)
 	dir=`echo "$DIST_ROOT/$OPTARG" | sed -e 's;//*;/;g'`
 	dflag=true
+	;;
+   f)
+	CHECK=false
 	;;
    g)
 	GROUP=$OPTARG

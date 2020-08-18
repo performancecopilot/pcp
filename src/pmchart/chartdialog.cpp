@@ -88,7 +88,7 @@ void ChartDialog::reset()
     antiAliasingAuto->setChecked(true);
     rateConvertCheckBox->setChecked(true);
     rateConvertCheckBox->setEnabled(true);
-    setCurrentScheme(QString::null);
+    setCurrentScheme(QString());
     my.sequence = 0;
 
     resetCompletely();
@@ -406,7 +406,7 @@ void ChartDialog::hostButtonClicked()
 	QString hostspec = host->getHostSpecification();
 	int sts, flags = host->getContextFlags();
 
-	if (hostspec == QString::null || hostspec.length() == 0) {
+	if (hostspec.isNull() || hostspec.length() == 0) {
 	    hostspec.append(tr("Hostname not specified\n"));
 	    QMessageBox::warning(this, pmGetProgname(), hostspec,
 		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
@@ -828,7 +828,7 @@ void ChartDialog::createChartPlot(Chart *cp, NameSpace *name)
     pmMetricSpec pms;
     QString label;
 
-    label = name->label().isEmpty() ? QString::null : name->label();
+    label = name->label().isEmpty() ? QString() : name->label();
     pms.isarch = (name->sourceType() == PM_CONTEXT_LOCAL) ? 2 :
 		((name->sourceType() == PM_CONTEXT_ARCHIVE) ? 1 : 0);
     pms.source = strdup((const char *)name->source().toLatin1());
@@ -850,17 +850,17 @@ void ChartDialog::createChartPlot(Chart *cp, NameSpace *name)
     if (m < 0) {
 	QString	msg;
 	if (pms.inst[0] != NULL)
-	    msg.sprintf("Error:\nFailed to plot metric \"%s[%s]\" for\n%s %s:\n",
-		pms.metric, pms.inst[0],
-		pms.isarch ? "archive" : "host",
-		pms.source);
+	    msg = QString("Error:\n"
+			  "Failed to plot metric \"%1[%2]\" for\n%3 %4\n")
+			.arg(pms.metric).arg(pms.inst[0])
+			.arg(pms.isarch ? "archive" : "host").arg(pms.source);
 	else
-	    msg.sprintf("Error:\nFailed to plot metric \"%s\" for\n%s %s:\n",
-		pms.metric, pms.isarch ? "archive" : "host",
-		pms.source);
-	if (m == PM_ERR_CONV) {
+	    msg = QString("Error:\n"
+			  "Failed to plot metric \"%1\" for\n%2 %3:\n")
+			.arg(pms.metric)
+			.arg(pms.isarch ? "archive" : "host").arg(pms.source);
+	if (m == PM_ERR_CONV)
 	    msg.append("Units for this metric are not compatible with other plots in this chart");
-	}
 	else
 	    msg.append(pmErrStr(m));
 	QMessageBox::critical(pmchart, pmGetProgname(),  msg);
@@ -908,7 +908,7 @@ void ChartDialog::setupSchemeComboBox()
 void ChartDialog::colorSchemeComboBox_currentIndexChanged(int index)
 {
     if (index == 0)
-	my.scheme = QString::null;
+	my.scheme = QString();
     else if (index == 1)
 	pmchart->newScheme();
     else

@@ -6,6 +6,9 @@ import argparse
 import yaml
 import requests
 
+PACKAGE_LICENSES = ['GPL-2.0']
+PACKAGE_VCS_URL = 'https://github.com/performancecopilot/pcp'
+
 
 class BintrayApi:
 
@@ -15,6 +18,45 @@ class BintrayApi:
         self.apikey = apikey
         self.gpg_passphrase = gpg_passphrase
         self.endpoint = endpoint
+
+    def setup_repository(self, repository, repository_type, repository_description):
+        r = requests.get(
+            f"{self.endpoint}/repos/{self.subject}/{repository}",
+            auth=(self.user, self.apikey)
+        )
+        if r.status_code == 404:
+            print(f"Creating repository bintray.com/{self.subject}/{repository}")
+            r = requests.post(
+                f"{self.endpoint}/repos/{self.subject}/{repository}",
+                auth=(self.user, self.apikey),
+                json={
+                    'type': repository_type,
+                    'desc': repository_description
+                }
+            )
+            print(r.text)
+            r.raise_for_status()
+            print()
+
+    def setup_package(self, repository, package):
+        r = requests.get(
+            f"{self.endpoint}/packages/{self.subject}/{repository}/{package}",
+            auth=(self.user, self.apikey)
+        )
+        if r.status_code == 404:
+            print(f"Creating package bintray.com/{self.subject}/{repository}/{package}")
+            r = requests.post(
+                f"{self.endpoint}/packages/{self.subject}/{repository}",
+                auth=(self.user, self.apikey),
+                json={
+                    'name': package,
+                    'licenses': PACKAGE_LICENSES,
+                    'vcs_url': PACKAGE_VCS_URL
+                }
+            )
+            print(r.text)
+            r.raise_for_status()
+            print()
 
     def upload(self, repository, package, version, params, path):
         file_name = os.path.basename(path)
@@ -105,8 +147,12 @@ def main():
             print(f"Skipping {platform_name}: bintray is not configured in {platform_name}.yml")
             continue
 
-        bintray_params = platform['bintray']
-        repository = bintray_params.pop('repository')
+        bintray_params = platform['bintray'].get('params', {})
+        repository_params = platform['bintray']['repository']
+        repository = repository_params['name']
+
+        bintray.setup_repository(repository, repository_params['type'], repository_params['description'])
+        bintray.setup_package(repository, args.package)
 
         for artifact_filename in os.listdir(artifact_dir):
             artifact_filepath = os.path.join(artifact_dir, artifact_filename)

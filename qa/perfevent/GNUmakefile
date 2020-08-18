@@ -13,9 +13,9 @@ default setup default_pcp: $(TESTHARNESS)
 install install_pcp: default $(MYFILES)
 	$(INSTALL) -m 755 -d $(TESTDIR)
 	$(INSTALL) -m 755 -d $(TESTDIR)/config
-	$(INSTALL) -m 644 $(MYFILES) $(TESTDIR)
-	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile
-	$(INSTALL) -m 755 $(TESTHARNESS) $(TESTDIR)
+	$(INSTALL) -m 644 -f $(MYFILES) $(TESTDIR)
+	$(INSTALL) -m 644 -f GNUmakefile.install $(TESTDIR)/GNUmakefile
+	$(INSTALL) -m 755 -f $(TESTHARNESS) $(TESTDIR)
 else
 default setup default_pcp:
 install install_pcp:

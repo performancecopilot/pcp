@@ -363,7 +363,7 @@ RecordFileDialog::RecordFileDialog(QWidget *parent) : QFileDialog(parent)
     setAcceptMode(QFileDialog::AcceptSave);
     setFileMode(QFileDialog::AnyFile);
     setIconProvider(fileIconProvider);
-    setConfirmOverwrite(true);
+    setOption(DontConfirmOverwrite, false);
 }
 
 void RecordFileDialog::setFileName(QString path)

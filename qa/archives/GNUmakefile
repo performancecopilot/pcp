@@ -79,12 +79,12 @@ default default_pcp setup: $(SUBDIRS)
 
 install install_pcp: $(SUBDIRS)
 	$(INSTALL) -m 755 -d $(TESTDIR)
-	$(INSTALL) -m 755 $(SCRIPTS) $(TESTDIR)
-	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile
-	$(INSTALL) -m 644 $(SRCARCH) $(SRCNOTI) $(SRCPART) $(TESTDIR)
-	$(INSTALL) -m 644 $(SRCMETA) $(SRCOTHER) $(TESTDIR)
-	$(INSTALL) -m 644 $(SRCIDX) $(DEFLATE) $(TESTDIR)
-	$(INSTALL) -m 644 $(OTHERS) $(CONFIGS) $(FOLIOS) $(TESTDIR)
+	$(INSTALL) -m 755 -f $(SCRIPTS) $(TESTDIR)
+	$(INSTALL) -m 644 -f GNUmakefile.install $(TESTDIR)/GNUmakefile
+	$(INSTALL) -m 644 -f $(SRCARCH) $(SRCNOTI) $(SRCPART) $(TESTDIR)
+	$(INSTALL) -m 644 -f $(SRCMETA) $(SRCOTHER) $(TESTDIR)
+	$(INSTALL) -m 644 -f $(SRCIDX) $(DEFLATE) $(TESTDIR)
+	$(INSTALL) -m 644 -f $(OTHERS) $(CONFIGS) $(FOLIOS) $(TESTDIR)
 	$(SUBDIRS_MAKERULE)
 
 include $(BUILDRULES)

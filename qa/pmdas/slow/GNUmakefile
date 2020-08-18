@@ -1,4 +1,3 @@
-#!gmake
 #
 # Copyright (c) 2014 Ken McDonell.  All Rights Reserved.
 # 
@@ -27,9 +26,9 @@ include $(BUILDRULES)
 
 install: default
 	$(INSTALL) -m 755 -d $(TESTDIR)
-	$(INSTALL) -m 755 Install Remove $(TESTDIR)
-	$(INSTALL) -m 644 pmda$(IAM).pl $(TESTDIR)/pmda$(IAM).pl
-	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile
+	$(INSTALL) -m 755 -f Install Remove $(TESTDIR)
+	$(INSTALL) -m 644 -f pmda$(IAM).pl $(TESTDIR)/pmda$(IAM).pl
+	$(INSTALL) -m 644 -f GNUmakefile.install $(TESTDIR)/GNUmakefile
 
 install_pcp: install
 
