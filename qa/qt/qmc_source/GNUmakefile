@@ -18,10 +18,10 @@ endif
 
 install install_pcp: default
 	$(INSTALL) -m 755 -d $(TESTDIR)
-	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile
-	$(INSTALL) -m 644 $(PROJECT) $(SOURCES) $(TESTDIR)
+	$(INSTALL) -m 644 -f GNUmakefile.install $(TESTDIR)/GNUmakefile
+	$(INSTALL) -m 644 -f $(PROJECT) $(SOURCES) $(TESTDIR)
 ifeq "$(ENABLE_QT)" "true"
-	$(INSTALL) -m 755 $(BINARY) $(TESTDIR)/$(COMMAND)
+	$(INSTALL) -m 755 -f $(BINARY) $(TESTDIR)/$(COMMAND)
 endif
 
 include $(BUILDRULES)

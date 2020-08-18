@@ -14,8 +14,8 @@ default setup default_pcp: $(SUBDIRS)
 
 install install_pcp: $(SUBDIRS)
 	$(INSTALL) -m 755 -d $(TESTDIR)
-	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile
-	$(INSTALL) -m 755 setup-executables $(TESTDIR)/setup-executables
+	$(INSTALL) -m 644 -f GNUmakefile.install $(TESTDIR)/GNUmakefile
+	$(INSTALL) -m 755 -f setup-executables $(TESTDIR)/setup-executables
 	$(SUBDIRS_MAKERULE)
 
 include $(BUILDRULES)

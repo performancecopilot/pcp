@@ -12,8 +12,8 @@ default setup default_pcp: $(PFILE) $(CFILE)
 
 install install_pcp: $(ROOTFILES)
 	$(INSTALL) -m 755 -d $(TESTDIR)
-	$(INSTALL) -m 644 $(PFILE) $(CFILE) $(MAKEFILE) $(TESTDIR)
-	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile
+	$(INSTALL) -m 644 -f $(PFILE) $(CFILE) $(MAKEFILE) $(TESTDIR)
+	$(INSTALL) -m 644 -f GNUmakefile.install $(TESTDIR)/GNUmakefile
 
 include $(BUILDRULES)
 

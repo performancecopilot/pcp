@@ -29,11 +29,11 @@ localconfig.h: ../localconfig
 
 install install_pcp:
 	$(INSTALL) -m 755 -d $(TESTDIR)
-	$(INSTALL) -m 644 $(CFILES) $(MYFILES) $(TESTDIR)
-	$(INSTALL) -m 755 $(PSCRIPTS) $(MYSCRIPTS) $(TESTDIR)
-	$(INSTALL) -m 755 $(NVIDIAQALIB) $(TESTDIR)/$(NVIDIAQALIB)
-	$(INSTALL) -m 644 GNUlocaldefs $(TESTDIR)/GNUlocaldefs
-	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile
+	$(INSTALL) -m 644 -f $(CFILES) $(MYFILES) $(TESTDIR)
+	$(INSTALL) -m 755 -f $(PSCRIPTS) $(MYSCRIPTS) $(TESTDIR)
+	$(INSTALL) -m 755 -f $(NVIDIAQALIB) $(TESTDIR)/$(NVIDIAQALIB)
+	$(INSTALL) -m 644 -f GNUlocaldefs $(TESTDIR)/GNUlocaldefs
+	$(INSTALL) -m 644 -f GNUmakefile.install $(TESTDIR)/GNUmakefile
 
 libpcp.h:	$(TOPDIR)/src/include/pcp/libpcp.h
 	rm -f libpcp.h

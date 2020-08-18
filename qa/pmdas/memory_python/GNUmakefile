@@ -30,9 +30,9 @@ include $(BUILDRULES)
 
 install_pcp install:	default 
 	$(INSTALL) -m 755 -d $(TESTDIR)
-	$(INSTALL) -m 755 Install Remove $(TESTDIR)
-	$(INSTALL) -m 644 $(PYSCRIPT) $(TESTDIR)/$(PYSCRIPT)
-	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile
+	$(INSTALL) -m 755 -f Install Remove $(TESTDIR)
+	$(INSTALL) -m 644 -f $(PYSCRIPT) $(TESTDIR)/$(PYSCRIPT)
+	$(INSTALL) -m 644 -f GNUmakefile.install $(TESTDIR)/GNUmakefile
 
 check_domain:	$(TOPDIR)/src/pmns/stdpmid
 	$(DOMAIN_PYTHONRULE)

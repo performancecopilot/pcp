@@ -8,8 +8,8 @@ default setup default_pcp:	$(SCRIPTS)
 
 install install_pcp:	$(SCRIPTS)
 	$(INSTALL) -m 755 -d $(TESTDIR)
-	$(INSTALL) -m 755 $(SCRIPTS) $(TESTDIR)/$(SCRIPTS)
-	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile
+	$(INSTALL) -m 755 -f $(SCRIPTS) $(TESTDIR)/$(SCRIPTS)
+	$(INSTALL) -m 644 -f GNUmakefile.install $(TESTDIR)/GNUmakefile
 
 include $(BUILDRULES)
 

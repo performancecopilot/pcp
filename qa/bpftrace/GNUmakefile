@@ -9,8 +9,8 @@ default setup default_pcp:
 
 install install_pcp: default $(PYTESTFILES)
 	$(INSTALL) -m 755 -d $(TESTDIR)
-	$(INSTALL) -m 644 $(PYTESTFILES) $(TESTDIR)
-	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile
+	$(INSTALL) -m 644 -f $(PYTESTFILES) $(TESTDIR)
+	$(INSTALL) -m 644 -f GNUmakefile.install $(TESTDIR)/GNUmakefile
 else
 default setup default_pcp:
 install install_pcp:
