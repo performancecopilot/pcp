@@ -3,6 +3,7 @@
  * query_parser.y - yacc/bison grammar for the PCP time series language
  *
  * Copyright (c) 2017-2019 Red Hat.
+ * Copyright (c) 2020 Yushan ZHANG.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
