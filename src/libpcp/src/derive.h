@@ -153,7 +153,7 @@ typedef struct {
 extern int __dmtraverse(__pmContext *, const char *, char ***) _PCP_HIDDEN;
 extern int __dmchildren(__pmContext *, int, const char *, char ***, int **) _PCP_HIDDEN;
 extern int __dmgetpmid(__pmContext *, int, const char *, pmID *) _PCP_HIDDEN;
-extern int __dmgetname(pmID, char **) _PCP_HIDDEN;
+extern int __dmgetname(__pmContext *, pmID, char **) _PCP_HIDDEN;
 extern void __dmopencontext(__pmContext *) _PCP_HIDDEN;
 extern void __dmbind(int, __pmContext *, int) _PCP_HIDDEN;
 extern void __dmclosecontext(__pmContext *) _PCP_HIDDEN;

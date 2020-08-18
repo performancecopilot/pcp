@@ -2618,7 +2618,7 @@ pmNameID(pmID pmid, char **name)
      * failed everything else, try derived metric, but if this fails
      * return last error from above ...
      */
-    lsts = __dmgetname(pmid, name);
+    lsts = __dmgetname(ctxp, pmid, name);
     if (lsts >= 0)
 	sts = lsts;
 
@@ -2790,7 +2790,7 @@ pmNameAll_ctx(__pmContext *ctxp, pmID pmid, char ***namelist)
 	sts = -oserror();
 	goto pmapi_return;
     }
-    n = __dmgetname(pmid, tmp);
+    n = __dmgetname(ctxp, pmid, tmp);
     if (n < 0) {
 	free(tmp);
 	if (sts >= 0)
