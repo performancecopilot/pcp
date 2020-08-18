@@ -1,0 +1,83 @@
+#!/bin/sh
+# PCP QA Test No. 1270
+# Use libpcp_fault to exercise allocated PMID limits in derived metric code
+#
+# Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+if [ $# -eq 0 ]
+then
+    echo "QA output created by $seq"
+else
+    echo "QA output created by $seq $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+src/check_fault_injection >/dev/null 2>&1 || \
+    _notrun "libpcp not built with fault injection enabled"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+export PM_FAULT_CONTROL=$tmp.control
+export LD_PRELOAD=$PCP_LIB_DIR/libpcp_fault.so
+
+# pmResult dump from 0x55df9bb635f0 timestamp: 1597614782.259451 07:53:02.259 numpmid: 5
+_filter()
+{
+    sed \
+	-e "s;$tmp;TMP;g" \
+	-e '/^pmResult/{
+s/0x[0-9a-f]*/ADDR/
+s/stamp: .* numpmid/stamp: DATESTAMP numpmid/
+}' \
+    # end
+}
+
+cat <<End-of-File >$tmp.config
+qa$seq.a = sampledso.long.one
+qa$seq.b = sampledso.long.ten
+qa$seq.c = sampledso.long.hundred
+qa$seq.d = sampledso.long.million
+End-of-File
+
+# real QA test starts here
+
+echo "force 2nd pmRegister to fail"
+# need 3 iter <= 2 for anon metrics, then 1 for 1st pmRegister
+#
+cat >$tmp.control <<End-of-File
+libpcp/derive.c:1	== 3
+End-of-File
+export PCP_DERIVED_CONFIG=$tmp.config
+src/torture_pmns -b -v qa$seq.a qa$seq.b qa$seq.c qa$seq.d  2>&1 \
+| _filter
+
+echo "force 3nd pmAdd to fail"
+# need 2 iter <= 2 for 1st & 2nd pmAdd
+#
+cat >$tmp.control <<End-of-File
+libpcp/derive.c:2	== 2
+End-of-File
+export PCP_DERIVED_CONFIG=""
+src/torture_pmns -b -v -C $tmp.config qa$seq.a qa$seq.b qa$seq.c qa$seq.d  2>&1 \
+| _filter
+
+# success, all done
+status=0
+
+exit

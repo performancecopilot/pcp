@@ -1,0 +1,57 @@
+QA output created by 1263
+pmLookupName() returns 0
+qa1263.a: id[0] = 511.2047.1023
+qa1263.sub.a: id[1] = 511.2047.1022
+qa1263.sub.sub.a: id[2] = 511.2047.1018
+qa1263.sub.sub.f: id[3] = 511.2047.1013
+qa1263.sub: id[4] = PM_ID_NULL
+
+=== metric 0 === name: qa1263.a pmid 511.2047.1023
+pmNameID() returns 0
+pmid: 511.2047.1023  name: qa1263.a
+pmNameAll() returns 1
+pmid: 511.2047.1023  name: qa1263.a
+pmLookupDesc() returns 0
+
+=== metric 1 === name: qa1263.sub.a pmid 511.2047.1022
+pmNameID() returns 0
+pmid: 511.2047.1022  name: qa1263.sub.a
+pmNameAll() returns 1
+pmid: 511.2047.1022  name: qa1263.sub.a
+pmLookupDesc() returns 0
+
+=== metric 2 === name: qa1263.sub.sub.a pmid 511.2047.1018
+pmNameID() returns 0
+pmid: 511.2047.1018  name: qa1263.sub.sub.a
+pmNameAll() returns 1
+pmid: 511.2047.1018  name: qa1263.sub.sub.a
+pmLookupDesc() returns 0
+
+=== metric 3 === name: qa1263.sub.sub.f pmid 511.2047.1013
+pmNameID() returns 0
+pmid: 511.2047.1013  name: qa1263.sub.sub.f
+pmNameAll() returns 1
+pmid: 511.2047.1013  name: qa1263.sub.sub.f
+pmLookupDesc() returns 0
+
+=== metric 4 === name: qa1263.sub pmid PM_ID_NULL
+pmGetChildren() returns 5
+pmGetChildrenStatus() returns 5
+children of "qa1263.sub" ...
+    a                   <s = 0>
+    b                   <s = 0>
+    c                   <s = 0>
+    d                   <s = 0>
+    sub                 <s = 1>
+
+Real-time result ...
+pmResult dump from ADDR timestamp: DATESTAMP numpmid: 5
+  511.2047.1023 (qa1263.a): numval: 1 valfmt: 0 vlist[]:
+   value 1
+  511.2047.1022 (qa1263.sub.a): numval: 1 valfmt: 0 vlist[]:
+   value 2
+  511.2047.1018 (qa1263.sub.sub.a): numval: 1 valfmt: 0 vlist[]:
+   value 6
+  511.2047.1013 (qa1263.sub.sub.f): numval: 1 valfmt: 0 vlist[]:
+   value 11
+  PM_ID_NULL (<noname>): No PMCD agent for domain of request
