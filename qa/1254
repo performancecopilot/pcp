@@ -1,0 +1,68 @@
+#!/bin/sh
+# PCP QA Test No. 1254
+# per-context derived metrics with pmDupContext() in the mix
+#
+# Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+if [ $# -eq 0 ]
+then
+    echo "QA output created by $seq"
+else
+    echo "QA output created by $seq $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+_filter()
+{
+    sed \
+	-e '/testme\.lights/{
+s/  *"red"/ <COLOR>/
+s/  *"yellow"/ <COLOR>/
+s/  *"green"/ <COLOR>/
+}' \
+    # end
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+cat <<End-of-File >$tmp.conf
+# these ones will get registered and be in every context
+testme.big = sampledso.long.million
+testme.lights = sampledso.lights
+# this one is bogus
+testme.bad = sample.no.such.metric
+End-of-File
+
+# real QA test starts here
+export PCP_DERIVED_CONFIG=$tmp.conf
+
+if [ "$1" = "--valgrind" ]
+then
+    _run_valgrind src/ctx_derive -P testme.big testme.lights testme.bad
+else
+    src/ctx_derive -P testme.big testme.lights testme.bad
+fi \
+| _filter
+
+# success, all done
+status=0
+exit

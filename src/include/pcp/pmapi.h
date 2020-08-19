@@ -988,6 +988,19 @@ PCP_CALL extern int pmLoadDerivedConfig(const char *);
 PCP_CALL extern int pmRegisterDerivedMetric(const char *, const char *, char **);
 PCP_CALL extern char *pmRegisterDerived(const char *, const char *);
 PCP_CALL extern char *pmDerivedErrStr(void);
+PCP_CALL extern int pmAddDerivedMetric(const char *, const char *, char **);
+PCP_CALL extern char *pmAddDerived(const char *, const char *);
+PCP_CALL extern int pmGetDerivedControl(int, int *);
+PCP_CALL extern int pmSetDerivedControl(int, int);
+
+/*
+ * pm{Get,Set}DerivedControl() information types ...
+ */
+#define PCP_DERIVED_GLOBAL_LIMIT	1
+#define PCP_DERIVED_CONTEXT_LIMIT	2
+#define PCP_DERIVED_DEBUG_SYNTAX	3
+#define PCP_DERIVED_DEBUG_SEMANTICS	4
+#define PCP_DERIVED_DEBUG_EVAL		5
 
 /*
  * Event Record support

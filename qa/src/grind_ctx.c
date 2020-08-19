@@ -15,6 +15,10 @@
 
 #define NUMCTX 10
 
+static char	*dm_config = NULL;	/* per-context derived metrics */
+
+extern int add_ctx_dm(char *);
+
 static void
 grind(int type, char *host)
 {
@@ -42,6 +46,12 @@ grind(int type, char *host)
 	    }
 	}
 	ctx[i] = sts;
+	if (dm_config != NULL) {
+	    if (add_ctx_dm(dm_config) < 0) {
+		/* fatal error reported earlier */
+		exit(1);
+	    }
+	}
     }
 
     for (i = NUMCTX-1; i >=0; i--) {
@@ -61,11 +71,11 @@ main(int argc, char **argv)
     int		iter = 5;
     char	*host = "local:";
     char	*endnum;
-    static char	*usage = "[-a archive] [-c dmfile] [-D debugspec] [-h hostname] [-L] [-n namespace] [-s iterations]";
+    static char	*usage = "[-a archive] [-c dmfile] [-C dmfile] [-D debugspec] [-h hostname] [-L] [-n namespace] [-s iterations]";
 
     pmSetProgname(argv[0]);
 
-    while ((c = getopt(argc, argv, "a:c:D:h:Ln:s:")) != EOF) {
+    while ((c = getopt(argc, argv, "a:c:C:D:h:Ln:s:")) != EOF) {
 	switch (c) {
 
 	case 'a':	/* archive name */
@@ -77,12 +87,16 @@ main(int argc, char **argv)
 	    host = optarg;
 	    break;
 
-	case 'c':	/* derived metrics config file */
+	case 'c':	/* global derived metrics config file */
 	    sts = pmLoadDerivedConfig(optarg);
 	    if (sts < 0) {
 		fprintf(stderr, "%s: -c error: %s\n", pmGetProgname(), pmErrStr(sts));
 		exit(1);
 	    }
+	    break;
+
+	case 'C':	/* per-context derived metrics config file */
+	    dm_config = optarg;
 	    break;
 
 	case 'D':	/* debug options */

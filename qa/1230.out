@@ -10,7 +10,7 @@ LOCALHOSTNAME <nrule> <neval> 1230 <pid> running
 localhost <nrule> <neval> 1230 <pid> running
 localhost <nrule> <neval> default <pid> running
 == -a restart localhost `hostname`
-Warning: /etc/pcp/pmie/control.d/local: cannot restart the primary pmie from pmiectl
+Warning: PCP_ETC_DIR/pcp/pmie/control.d/local: cannot restart the primary pmie from pmiectl
 pmcd Host Rules Evaluations Class PID State 
 LOCALHOSTNAME <nrule> <neval> 1230 <pid> running
 localhost <nrule> <neval> 1230 <pid> running

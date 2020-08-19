@@ -6,7 +6,23 @@
 #include <pcp/pmapi.h>
 
 static pmLongOptions longopts[] = {
-    PMAPI_GENERAL_OPTIONS,	/* -[AaDghnOpSsTtVZz?] */
+    PMAPI_OPTIONS_HEADER("General options"),
+    PMOPT_ALIGN,	/* -A */
+    PMOPT_ARCHIVE,	/* -a */
+    PMOPT_DEBUG,	/* -D */
+    PMOPT_GUIMODE,	/* -g */
+    PMOPT_HOST,		/* -h */
+    PMOPT_NAMESPACE,	/* -n */
+    PMOPT_ORIGIN,	/* -O */
+    PMOPT_GUIPORT,	/* -p */
+    PMOPT_START,	/* -S */
+    PMOPT_SAMPLES,	/* -s */
+    PMOPT_FINISH,	/* -T */
+    PMOPT_INTERVAL,	/* -t */
+    PMOPT_VERSION,	/* -V */
+    PMOPT_TIMEZONE,	/* -Z */
+    PMOPT_HOSTZONE,	/* -z */
+    PMOPT_HELP,		/* -? */
     PMOPT_HOSTSFILE,		/* -H */
     PMOPT_SPECLOCAL,		/* -K */
     PMOPT_LOCALPMDA,		/* -L */
@@ -23,7 +39,7 @@ static pmLongOptions longopts[] = {
 static int overrides(int, pmOptions *);
 static pmOptions opts = {
     .flags = PM_OPTFLAG_BOUNDARIES | PM_OPTFLAG_STDOUT_TZ,
-    .short_options = PMAPI_OPTIONS "H:K:LN:c:fi:l:",
+    .short_options = "A:a:D:gh:n:O:p:S:s:T:t:VZ:z?" "H:K:LN:c:fi:l:",
     .long_options = longopts,
     .short_usage = "[options] ...",
     .override = overrides,

@@ -1,0 +1,47 @@
+#!/bin/sh
+# PCP QA Test No. 1252
+# global derived metrics with pmDupContext() in the mix
+#
+# Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+if [ $# -eq 0 ]
+then
+    echo "QA output created by $seq"
+else
+    echo "QA output created by $seq $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+export PCP_DERIVED_CONFIG=
+if [ "$1" = "--valgrind" ]
+then
+    _run_valgrind src/ctx_derive
+else
+    src/ctx_derive
+fi
+
+# success, all done
+status=0
+exit

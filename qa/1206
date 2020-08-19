@@ -47,7 +47,7 @@ _filter()
 	-e "s;$PCP_ARCHIVE_DIR/;PCP_ARCHIVE_DIR/;g" \
 	-e "s;$PCP_TMP_DIR/;PCP_TMP_DIR/;g" \
 	-e "s;$PCP_TMPFILE_DIR/pmlogctl\.[^/]*;PCP_TMPFILE_DIR/pmlogctl.XXXXX;g" \
-	-e "s;$PCP_ETC_DIR/;PCP_ETC_DIR/;g" \
+	-e "s;$PCP_ETC_DIR/pcp;PCP_ETC_DIR/pcp;g" \
     # end
 }
 
@@ -71,6 +71,7 @@ _filter_status()
     tee -a $seq.full \
     | $PCP_AWK_PROG -f $tmp.awk \
     | sed >$tmp.tmp \
+	-e "s;$PCP_ETC_DIR/pcp;PCP_ETC_DIR/pcp;g" \
 	-e "/^`hostname` .* primary /d" \
 	-e 's/[ 	][ 	]*/ /g' \
 	-e 's/2[0-9][0-9][0-9][01][0-9][0-3][0-9]\...\.[^ ]*/<archivename>/' \
@@ -110,10 +111,12 @@ echo '== -a start localhost' | tee -a $seq.full
 $sudo pmlogctl -a start localhost | _filter
 pmlogctl status | _filter_status
 echo '== -a stop localhost `hostname`' | tee -a $seq.full
-$sudo pmlogctl -a stop localhost `hostname` | _filter_status
+$sudo pmlogctl -a stop localhost `hostname` 2>$tmp.err | _filter_status
+_filter <$tmp.err
 pmlogctl status | _filter_status
 echo '== -a start localhost `hostname`' | tee -a $seq.full
-$sudo pmlogctl -a start localhost `hostname` | _filter_status
+$sudo pmlogctl -a start localhost `hostname` 2>$tmp.err | _filter_status
+_filter <$tmp.err
 pmlogctl status | _filter_status
 echo '== -a -c stop' | tee -a $seq.full
 $sudo pmlogctl -a -c $seq stop | _filter_status

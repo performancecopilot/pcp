@@ -263,6 +263,7 @@ Linux Mint
 Mandriva
     https://wiki.openmandriva.org/en/Category:Releases
     4 Jun 2016: 2014.0 2014.1 2014.2
+    9 Aug 2020: 2014.2 3.3 4.0 4.1
     # package search recipe (name and info or description)
     $ urpmq -Y --fuzzy --summary <string>
     # which package installs a file/directory
@@ -350,6 +351,7 @@ OpenBSD
     https://en.wikipedia.org/wiki/OpenBSD_version_history
     26 Oct 2018: 6.2, 6.3, 6.4
     24 Oct 2019: 6.4, 6.5, 6.6
+    24 Aug 2020: 6.6, 6.7
     # package search recipe (name only, not info or description)
     $ pkg_info -Q <pattern>
     # which package installs a file/directory
@@ -362,15 +364,16 @@ OpenBSD
     $ sudo pkg_add -u
     # release upgrade recipe
     $ cd /tmp
-    $ wget https://mirror.vdms.com/pub/OpenBSD/6.4/i386/bsd.rd
-                                                   ^^^^ architecture
+    $ wget https://mirror.vdms.com/pub/OpenBSD/6.7/amd64/bsd.rd
+                                                   ^^^^^ architecture
 					       ^^^ new version		   
-    $ wget https://mirror.vdms.com/pub/OpenBSD/6.4/i386/SHA256.sig
-    $ signify -C -p /etc/signify/openbsd-64-base.pub -x SHA256.sig bsd.rd
+    $ wget https://mirror.vdms.com/pub/OpenBSD/6.7/amd64/SHA256.sig
+    $ signify -C -p /etc/signify/openbsd-67-base.pub -x SHA256.sig bsd.rd
+                                         ^^ new version, no "."
     $ sudo mv /bsd.rd /bsd.rd.6.3
     			      ^^^ old version
     $ sudo mv bsd.rd /bsd.rd
-    $ sudo ln /bsd.rd /bsd.rd.6.4
+    $ sudo ln /bsd.rd /bsd.rd.6.7
     			      ^^^ new version
     $ sudo reboot
     and in console window, when boot> prompt appears, enter
@@ -381,6 +384,7 @@ OpenBSD
     reboot
     $ sudo sysmerge
     $ sudo syspatch
+    $ sudo reboot (if instructed to do so)
     $ sudo pkg_add -u
 
 Template

@@ -165,9 +165,15 @@ End-of-File
 
 _script_make()
 {
-    # not needed - 4 Oct 2014
-    # echo "\${MAKE:-make} clean >>\$HOME/daily.log 2>&1"
     cat <<'End-of-File'
+if [ -f qa/admin/check-vm ]
+then
+    qa/admin/check-vm -p >$tmp.tmp
+    if [ -s $tmp.tmp ]
+    then
+	echo "Info: check-vm reports missing: `cat $tmp.tmp` " | tee -a $HOME/daily.log
+    fi
+fi
 ok=false
 # if needed, bump build number for pcp-daily
 if [ ! -f VERSION.pcp.daily ]

@@ -20,6 +20,8 @@ usr/lib/pcp/bin/install-sh
 usr/lib/pkgconfig/libpcp.pc
 usr/share/man/man3/LOGIMPORT.3.gz
 usr/share/man/man3/PCPIntro.3.gz
+usr/share/man/man3/pmAddDerived.3.gz
+usr/share/man/man3/pmAddDerivedMetric.3.gz
 usr/share/man/man3/__pmAddIPC.3.gz
 usr/share/man/man3/pmAddProfile.3.gz
 usr/share/man/man3/pmAF.3.gz
@@ -47,6 +49,7 @@ usr/share/man/man3/pmdaEventClient.3.gz
 usr/share/man/man3/pmdaEventQueue.3.gz
 usr/share/man/man3/pmdaHelp.3.gz
 usr/share/man/man3/pmDelProfile.3.gz
+usr/share/man/man3/pmDerivedControl.3.gz
 usr/share/man/man3/pmDerivedErrStr.3.gz
 usr/share/man/man3/pmDestroyContext.3.gz
 usr/share/man/man3/pmDestroyFetchGroup.3.gz
@@ -94,6 +97,7 @@ usr/share/man/man3/pmGetContextHostName.3.gz
 usr/share/man/man3/pmGetContextHostName_r.3.gz
 usr/share/man/man3/pmGetContextLabels.3.gz
 usr/share/man/man3/pmGetContextOptions.3.gz
+usr/share/man/man3/pmGetDerivedControl.3.gz
 usr/share/man/man3/pmGetDomainLabels.3.gz
 usr/share/man/man3/pmGetFetchGroupContext.3.gz
 usr/share/man/man3/pmGetHostName.3.gz
@@ -231,6 +235,7 @@ usr/share/man/man3/__pmServerNotifyServiceManagerReady.3.gz
 usr/share/man/man3/__pmServerNotifyServiceManagerStopping.3.gz
 usr/share/man/man3/pmSetDebug.3.gz
 usr/share/man/man3/__pmSetDebugBits.3.gz
+usr/share/man/man3/pmSetDerivedControl.3.gz
 usr/share/man/man3/pmSetMode.3.gz
 usr/share/man/man3/pmSetProcessIdentity.3.gz
 usr/share/man/man3/pmSetProgname.3.gz

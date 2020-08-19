@@ -14,10 +14,10 @@ LOCALHOSTNAME n n PCP_ARCHIVE_DIR/1210-LOCALHOSTNAME -c TMP.config
 --- end control file ---
 Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/1210-LOCALHOSTNAME
 === bogus class
-Warning: no host defined in class bogus for any pmlogger control file
 pmcd Host Archive Class PID State 
 LOCALHOSTNAME <archivename> <seq> <pid> running 
 localhost <archivename> <seq> <pid> running 
+Warning: no host defined in class bogus for any pmlogger control file
 
 === no control dir
 Warning: no host defined in any pmlogger control file

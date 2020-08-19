@@ -102,7 +102,7 @@ localhost <archivename> <seq> <pid> running
 localhost <archivename> default <pid> running 
 
 === missing "primary" field in control file
-Warning: /etc/pcp/pmlogger/control.d/1213-foo: insufficient fields in control line for host 1213-foo
+Warning: PCP_ETC_DIR/pcp/pmlogger/control.d/1213-foo: insufficient fields in control line for host 1213-foo
 Warning: host 1213-foo not defined in any pmlogger control file
 Error: no matching host(s) to start
 pmcd Host Archive Class PID State 
@@ -112,7 +112,7 @@ localhost <archivename> default <pid> running
 Warning: PCP_ETC_DIR/pcp/pmlogger/control.d/1213-foo: insufficient fields in control line for host 1213-foo
 
 === missing "directory" field in control file
-Warning: /etc/pcp/pmlogger/control.d/1213-foo: insufficient fields in control line for host 1213-foo
+Warning: PCP_ETC_DIR/pcp/pmlogger/control.d/1213-foo: insufficient fields in control line for host 1213-foo
 Warning: host 1213-foo not defined in any pmlogger control file
 Error: no matching host(s) to start
 pmcd Host Archive Class PID State 

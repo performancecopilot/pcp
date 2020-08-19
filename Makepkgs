@@ -315,6 +315,7 @@ in
     linux)
 	ARCH=`uname -m`
 	[ -f /etc/slackware-version -a "$ARCH" = x86_64 ] && configopts="$configopts --libdir=/usr/lib64"
+	[ -f /etc/gentoo-release ] && configopts="$configopts --without-python"
 	;;
     sunos|SunOS|solaris)
 	ARCH=`isainfo -k`

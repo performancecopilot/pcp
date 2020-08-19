@@ -1,0 +1,228 @@
+QA output created by 1252
+name[0] testme.one
+name[1] testme.two
+name[2] testme.sub.two
+name[3] testme.three
+name[4] testme.sub.three
+name[5] testme.sub.sub.three
+
+=== State 1 ===
+ctx[0]: testme.one: not in PMNS
+ctx[0]: testme.two: not in PMNS
+ctx[0]: testme.sub.two: not in PMNS
+ctx[0]: testme.three: not in PMNS
+ctx[0]: testme.sub.three: not in PMNS
+ctx[0]: testme.sub.sub.three: not in PMNS
+ctx[0]: No valid PMIDs, nothing to fetch
+ctx[1] < 0, skip work
+
+=== State 2 ===
+ctx[0]: pmTraversePMNS: Unknown metric name
+ctx[0]: testme.one: not in PMNS
+ctx[0]: testme.two: not in PMNS
+ctx[0]: testme.sub.two: not in PMNS
+ctx[0]: testme.three: not in PMNS
+ctx[0]: testme.sub.three: not in PMNS
+ctx[0]: testme.sub.sub.three: not in PMNS
+ctx[0]: No valid PMIDs, nothing to fetch
+ctx[1]: pmTraversePMNS: Unknown metric name
+ctx[1]: testme.one: not in PMNS
+ctx[1]: testme.two: not in PMNS
+ctx[1]: testme.sub.two: not in PMNS
+ctx[1]: testme.three: not in PMNS
+ctx[1]: testme.sub.three: not in PMNS
+ctx[1]: testme.sub.sub.three: not in PMNS
+ctx[1]: No valid PMIDs, nothing to fetch
+
+=== State 3 ===
+ctx[0]: pmGetChldren found: one
+ctx[0]: testme.one: 
+    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+ctx[0]: testme.two: not in PMNS
+ctx[0]: testme.sub.two: not in PMNS
+ctx[0]: testme.three: not in PMNS
+ctx[0]: testme.sub.three: not in PMNS
+ctx[0]: testme.sub.sub.three: not in PMNS
+ctx[0]: testme.one: 9 values:       50      150      250      350      450      550      650      750      850
+ctx[1]: pmGetChldren found: one
+ctx[1]: testme.one: 
+    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+ctx[1]: testme.two: not in PMNS
+ctx[1]: testme.sub.two: not in PMNS
+ctx[1]: testme.three: not in PMNS
+ctx[1]: testme.sub.three: not in PMNS
+ctx[1]: testme.sub.sub.three: not in PMNS
+ctx[1]: testme.one: 9 values:       50      150      250      350      450      550      650      750      850
+
+=== State 4 ===
+ctx[0]: testme.one: 
+    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+ctx[0]: testme.two: 
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+ctx[0]: testme.sub.two: 
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+ctx[0]: testme.three: not in PMNS
+ctx[0]: testme.sub.three: not in PMNS
+ctx[0]: testme.sub.sub.three: not in PMNS
+ctx[0]: testme.one: 9 values:       50      150      250      350      450      550      650      750      850
+ctx[0]: testme.two: 1 values:       13
+ctx[0]: testme.sub.two: 1 values: "hullo world!"
+ctx[1]: testme.one: 
+    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+ctx[1]: testme.two: 
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+ctx[1]: testme.sub.two: 
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+ctx[1]: testme.three: not in PMNS
+ctx[1]: testme.sub.three: not in PMNS
+ctx[1]: testme.sub.sub.three: not in PMNS
+ctx[1]: testme.one: 9 values:       50      150      250      350      450      550      650      750      850
+ctx[1]: testme.two: 1 values:       13
+ctx[1]: testme.sub.two: 1 values: "hullo world!"
+
+=== State 5 ===
+ctx[0]: pmUseContext: Attempt to use an illegal context, skip work
+pmTraversePMNS found: testme.one
+pmTraversePMNS found: testme.two
+pmTraversePMNS found: testme.sub.two
+ctx[1]: testme.one: 
+    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+ctx[1]: testme.two: 
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+ctx[1]: testme.sub.two: 
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+ctx[1]: testme.three: not in PMNS
+ctx[1]: testme.sub.three: not in PMNS
+ctx[1]: testme.sub.sub.three: not in PMNS
+ctx[1]: testme.one: 9 values:       50      150      250      350      450      550      650      750      850
+ctx[1]: testme.two: 1 values:       13
+ctx[1]: testme.sub.two: 1 values: "hullo world!"
+
+=== State 6 ===
+ctx[0]: pmUseContext: Attempt to use an illegal context, skip work
+ctx[1]: pmGetChldren found: one
+ctx[1]: pmGetChldren found: two
+ctx[1]: pmGetChldren found: sub
+ctx[1]: pmGetChldren found: three
+ctx[1]: testme.one: 
+    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+ctx[1]: testme.two: 
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+ctx[1]: testme.sub.two: 
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+ctx[1]: testme.three: 
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+ctx[1]: testme.sub.three: 
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+ctx[1]: testme.sub.sub.three: 
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+ctx[1]: testme.one: 9 values:       50      150      250      350      450      550      650      750      850
+ctx[1]: testme.two: 1 values:       13
+ctx[1]: testme.sub.two: 1 values: "hullo world!"
+ctx[1]: testme.three: 1 values:       42
+ctx[1]: testme.sub.three: 9 values:        0        0        0        0        0        0        0        0        0
+ctx[1]: testme.sub.sub.three: 1 values:   123456
+
+=== State 7 ===
+ctx[0]: testme.one: 
+    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+ctx[0]: testme.two: 
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+ctx[0]: testme.sub.two: 
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+ctx[0]: testme.three: 
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+ctx[0]: testme.sub.three: 
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+ctx[0]: testme.sub.sub.three: 
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+ctx[0]: testme.one: 9 values:       50      150      250      350      450      550      650      750      850
+ctx[0]: testme.two: 1 values:       13
+ctx[0]: testme.sub.two: 1 values: "hullo world!"
+ctx[0]: testme.three: 1 values:       42
+ctx[0]: testme.sub.three: 9 values:        0        0        0        0        0        0        0        0        0
+ctx[0]: testme.sub.sub.three: 1 values:   123456
+ctx[1]: testme.one: 
+    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+ctx[1]: testme.two: 
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+ctx[1]: testme.sub.two: 
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+ctx[1]: testme.three: 
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+ctx[1]: testme.sub.three: 
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+ctx[1]: testme.sub.sub.three: 
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+ctx[1]: testme.one: 9 values:       50      150      250      350      450      550      650      750      850
+ctx[1]: testme.two: 1 values:       13
+ctx[1]: testme.sub.two: 1 values: "hullo world!"
+ctx[1]: testme.three: 1 values:       42
+ctx[1]: testme.sub.three: 9 values:        0        0        0        0        0        0        0        0        0
+ctx[1]: testme.sub.sub.three: 1 values:   123456
+
+=== State 8 ===
+pmTraversePMNS found: testme.one
+pmTraversePMNS found: testme.two
+pmTraversePMNS found: testme.sub.two
+pmTraversePMNS found: testme.three
+pmTraversePMNS found: testme.sub.three
+pmTraversePMNS found: testme.sub.sub.three
+ctx[0]: testme.one: 
+    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+ctx[0]: testme.two: 
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+ctx[0]: testme.sub.two: 
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+ctx[0]: testme.three: 
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+ctx[0]: testme.sub.three: 
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+ctx[0]: testme.sub.sub.three: 
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+ctx[0]: testme.one: 9 values:       50      150      250      350      450      550      650      750      850
+ctx[0]: testme.two: 1 values:       13
+ctx[0]: testme.sub.two: 1 values: "hullo world!"
+ctx[0]: testme.three: 1 values:       42
+ctx[0]: testme.sub.three: 9 values:        0        0        0        0        0        0        0        0        0
+ctx[0]: testme.sub.sub.three: 1 values:   123456
+ctx[1]: pmUseContext: Attempt to use an illegal context, skip work
+
+=== State 8 ===
+ctx[0]: pmUseContext: Attempt to use an illegal context, skip work
+ctx[1]: pmUseContext: Attempt to use an illegal context, skip work

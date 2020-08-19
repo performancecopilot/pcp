@@ -32,7 +32,7 @@ CFILES = connect.c context.c desc.c err.c fetch.c fetchgroup.c freeresult.c \
 	fault.c access.c getopt.c io.c io_stdio.c exec.c \
 	shellprobe.c subnetprobe.c \
 	deprecated.c
-HFILES = derive.h internal.h compiler.h pmdbg.h jsonsl.c sort_r.h \
+HFILES = derive.h internal.h compiler.h pmdbg.h \
 	avahi.h subnetprobe.h shellprobe.h
 EXT_FILES = jsonsl.c jsonsl.h sort_r.h
 YFILES = getdate.y derive_parser.y
@@ -120,7 +120,7 @@ endif
 include $(BUILDRULES)
 
 *.o: internal.h compiler.h derive.h
-jsonsl.o: jsonsl.h
+jsonsl.o: jsonsl.c jsonsl.h
 rtime.o: getdate.h
 derive.o derive_fetch.o: derive.h derive_parser.tab.h
 util.o:	pmdbg.h

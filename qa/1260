@@ -1,0 +1,73 @@
+#!/bin/sh
+# PCP QA Test No. 1260
+# exercise pm{Get,Set}DerivedControl()
+#
+# Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+if [ $# -eq 0 ]
+then
+    echo "QA output created by $seq"
+else
+    echo "QA output created by $seq $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s;$tmp;TMP;g" \
+	-e '/testme\.lights/{
+s/  *"red"/ <COLOR>/
+s/  *"yellow"/ <COLOR>/
+s/  *"green"/ <COLOR>/
+}' \
+	-e '/__dmpostfetch/{
+s/cp=red .*/cp=<COLOR> .../
+s/cp=yellow .*/cp=<COLOR> .../
+s/cp=green .*/cp=<COLOR> .../
+}' \
+	-e 's/, val=red/, val=<COLOR>/' \
+	-e 's/, val=yellow/, val=<COLOR>/' \
+	-e 's/, val=green/, val=<COLOR>/' \
+	-e 's/=0x[0-9a-f]*/=ADDR/g' \
+	-e 's/ from 0x[0-9a-f]*/ from ADDR/g' \
+	-e 's/ node 0x[0-9a-f]*/ node ADDR/g' \
+    # end
+}
+
+cat <<End-of-File >$tmp.conf
+# these ones will get registered until the limit is hit
+# and then the winnders will be in every context
+#
+testme.big = sampledso.long.million
+testme.lights = sampledso.lights
+testme.bigbin = sample.bigbin
+End-of-File
+
+# real QA test starts here
+export PCP_DERIVED_CONFIG=$tmp.conf
+src/ctx_derive 2>&1 -c -l 2 -M 1 -P \
+    testme.big testme.lights testme.bigbin \
+| _filter
+
+# real QA test starts here
+
+# success, all done
+status=0
+exit

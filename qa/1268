@@ -1,0 +1,94 @@
+#!/bin/sh
+# PCP QA Test No. 1268
+# per-context derived metrics and metric name masking test
+#
+# Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+if [ $# -eq 0 ]
+then
+    echo "QA output created by $seq"
+else
+    echo "QA output created by $seq $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# pmResult dump from 0x55df9bb635f0 timestamp: 1597614782.259451 07:53:02.259 numpmid: 5
+_filter()
+{
+    sed \
+	-e "s;$tmp;TMP;g" \
+	-e '/^pmResult/{
+s/0x[0-9a-f]*/ADDR/
+s/stamp: .* numpmid/stamp: DATESTAMP numpmid/
+}' \
+    # end
+}
+
+# real QA test starts here
+cat <<End-of-File >$tmp.config.context
+qa$seq.a = 1
+qa$seq.sub.a = 2
+qa$seq.sub.b = 3
+qa$seq.sub.c = 4
+qa$seq.sub.d = 5
+qa$seq.sub.sub.a = 6
+qa$seq.sub.sub.b = 7
+qa$seq.sub.sub.c = 8
+qa$seq.sub.sub.d = 9
+qa$seq.sub.sub.e = 10
+qa$seq.sub.sub.f = 11
+End-of-File
+
+cat <<End-of-File >$tmp.config.global
+# same metric names, different values and pmids
+qa$seq.a = -10001
+qa$seq.sub.a = -10002
+qa$seq.sub.b = -10003
+qa$seq.sub.c = -10004
+qa$seq.sub.d = -10005
+qa$seq.sub.sub.a = -10006
+qa$seq.sub.sub.b = -10007
+qa$seq.sub.sub.c = -10008
+qa$seq.sub.sub.d = -10009
+qa$seq.sub.sub.e = -10010
+qa$seq.sub.sub.f = -10011
+End-of-File
+
+args="qa$seq.a qa$seq.sub.a qa$seq.sub.sub.a qa$seq.sub.sub.f qa$seq.sub"
+
+export PCP_DERIVED_CONFIG=$tmp.config.global
+
+if [ "$1" = "--valgrind" ]
+then
+    _run_valgrind src/torture_pmns -D derive -C $tmp.config.context -b -v $args
+else
+    src/torture_pmns -D derive -C $tmp.config.context -b -v $args 2>$tmp.err >$tmp.out
+    cat $tmp.out
+    cat $tmp.err
+fi \
+| _filter
+
+# success, all done
+status=0
+exit

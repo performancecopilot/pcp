@@ -1,14 +1,14 @@
 QA output created by 690
 === simple cases ===
-pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
-pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
 Derived metric initialization from $PCP_DERIVED_CONFIG
 pmLoadDerivedConfig("TMP.config")
-pmRegisterDerived: register metric[2] qa.a = matchinst(/100/, sample.bin)
-pmRegisterDerived: register metric[3] qa.b = matchinst(/[1-36-9]00/, sample.bin)
-pmRegisterDerived: register metric[4] qa.c = matchinst(!/bin-[1-5]00/, sample.bin)
-pmRegisterDerived: register metric[5] qa.d = sample.bin[bin-300] + sample.part_bin[bin-300]
-__dmopencontext(->ctx 0) called
+pmRegisterDerived: global metric[2] qa.a = matchinst(/100/, sample.bin)
+pmRegisterDerived: global metric[3] qa.b = matchinst(/[1-36-9]00/, sample.bin)
+pmRegisterDerived: global metric[4] qa.c = matchinst(!/bin-[1-5]00/, sample.bin)
+pmRegisterDerived: global metric[5] qa.d = sample.bin[bin-300] + sample.part_bin[bin-300]
+__dmopencontext(->ctx 0) called, 6 derived metrics
 __dmgetpmid: metric "qa.a" -> PMID 511.0.3
 __dmbind: bind metric[2] qa.a
 Derived metric expr dump from <addr-0>...
@@ -219,13 +219,13 @@ qa.d
     inst [300 or "bin-300"] value 600
 
 === some error cases ===
-pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
-pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
 Derived metric initialization from $PCP_DERIVED_CONFIG
 pmLoadDerivedConfig("TMP.config")
-pmRegisterDerived: register metric[2] qa.a = matchinst(/123/, sampledso.bin)
-pmRegisterDerived: register metric[3] qa.d = sample.bin[bin-345] + sample.part_bin[bin-345]
-__dmopencontext(->ctx 0) called
+pmRegisterDerived: global metric[2] qa.a = matchinst(/123/, sampledso.bin)
+pmRegisterDerived: global metric[3] qa.d = sample.bin[bin-345] + sample.part_bin[bin-345]
+__dmopencontext(->ctx 0) called, 4 derived metrics
 __dmgetpmid: metric "qa.a" -> PMID 511.0.3
 __dmbind: bind metric[2] qa.a
 Derived metric expr dump from <addr-0>...

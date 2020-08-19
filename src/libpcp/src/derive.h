@@ -70,25 +70,39 @@ typedef struct node {		/* expression tree node */
     } data;
 } node_t;
 
+/* bit-fields for flags below */
+#define DM_BIND		1	/* 0/1 if bind expr() has been called */
+#define DM_GLOBAL	2	/* 0 => per-context, 1 => global */
+#define DM_MASKED	4	/* 1 => global name masked by per-context name */
+#define DM_FREE		8	/* 1 => entry not used */
+
 typedef struct {		/* one derived metric */
     char	*name;
     int		anon;		/* 1 for anonymous derived metrics */
     pmID	pmid;
-    int		bind;		/* 0/1 if bind_expr() has been called */
+    int		flags;		/* bit-field flags, see DM_* macros above */
     node_t	*expr;		/* NULL => invalid, e.g. dup or missing operands */
     const char	*oneline;	/* help text for PM_TEXT_ONELINE */
     const char	*helptext;	/* help text for PM_TEXT_HELP */
 } dm_t;
 
+#define DM_UNLIMITED	-1	/* no limit on the # of derived metrics */
+
 /*
  * Control structure for a set of derived metrics.
  * This is used for the static definitions (registered) and the dynamic
- * tree of expressions maintained per context.
+ * array of expressions maintained per context.
  */
 typedef struct {
-    __pmMutex		mutex;
-    int			nmetric;	/* derived metrics */
-    dm_t		*mlist;
+/* --- common fields --- */
+    int			nmetric;	/* # of derived metrics (includes anon) */
+    int			nanon;		/* # of anon derived metrics */
+    dm_t		*mlist;		/* array of metrics */
+    int			limit;		/* max # of derived metrics allowed (excludes anon) */
+/* --- only used in registered for global derived metrics --- */
+    __pmMutex		mutex;		/* only for globals */
+/* --- only used in the context private copy (from ctxp->c_dm) --- */
+    int			glob_last;	/* last global metric added */
     int			fetch_has_dm;	/* ==1 if pmResult rewrite needed */
     int			numpmid;	/* from pmFetch before rewrite */
 } ctl_t;
@@ -138,8 +152,8 @@ typedef struct {
 
 extern int __dmtraverse(__pmContext *, const char *, char ***) _PCP_HIDDEN;
 extern int __dmchildren(__pmContext *, int, const char *, char ***, int **) _PCP_HIDDEN;
-extern int __dmgetpmid(int, const char *, pmID *) _PCP_HIDDEN;
-extern int __dmgetname(pmID, char **) _PCP_HIDDEN;
+extern int __dmgetpmid(__pmContext *, int, const char *, pmID *) _PCP_HIDDEN;
+extern int __dmgetname(__pmContext *, pmID, char **) _PCP_HIDDEN;
 extern void __dmopencontext(__pmContext *) _PCP_HIDDEN;
 extern void __dmbind(int, __pmContext *, int) _PCP_HIDDEN;
 extern void __dmclosecontext(__pmContext *) _PCP_HIDDEN;

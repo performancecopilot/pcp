@@ -1,8 +1,8 @@
 QA output created by 1233
 
 === config.1 ===
-pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
-pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
 Derived metric initialization from $PCP_DERIVED_CONFIG
 pmLoadDerivedConfig("TMP.config.1")
 [TMP.config.1:2] Error: pmLoadDerivedConfig: derived metric name missing
@@ -18,7 +18,7 @@ qa.a(oneline="foo"
 [TMP.config.1:11] Error: pmLoadDerivedConfig: illegal derived metric name ())
 [TMP.config.1:12] Error: pmLoadDerivedConfig: illegal derived metric name (qa))
 [TMP.config.1:13] Error: pmLoadDerivedConfig: illegal derived metric name (qa.a))
-pmRegisterDerived: register metric[2] qa.seconds = sample.milliseconds / 1000
+pmRegisterDerived: global metric[2] qa.seconds = sample.milliseconds / 1000
 [TMP.config.1:17] Error: pmLoadDerivedConfig: attribute name missing
 qa.seconds()="foo"
 [TMP.config.1:18] Error: pmLoadDerivedConfig: attribute name missing
@@ -46,11 +46,11 @@ bar
 fratz
 
 === config.2 ===
-pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
-pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
 Derived metric initialization from $PCP_DERIVED_CONFIG
 pmLoadDerivedConfig("TMP.config.2")
-pmRegisterDerived: register metric[2] qa.seconds = sample.milliseconds / 1000
+pmRegisterDerived: global metric[2] qa.seconds = sample.milliseconds / 1000
 [TMP.config.2:2] Warning: pmLoadDerivedConfig: extra text (extra stuff oneline) after attribute value will be ignored
 [TMP.config.2:5] Warning: pmLoadDerivedConfig: extra text (xtra stuff helptext) after attribute value will be ignored
 __dmgetpmid: metric "qa.seconds" -> PMID 511.0.3

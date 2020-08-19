@@ -44,7 +44,7 @@ localhost n n PCP_ARCHIVE_DIR/1209-localhost -c TMP.config
 --- end control file ---
 Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/1209-localhost
 == -a destroy localhost `hostname`
-Warning: /etc/pcp/pmlogger/control.d/local: cannot destroy the primary pmlogger from pmlogctl
+Warning: PCP_ETC_DIR/pcp/pmlogger/control.d/local: cannot destroy the primary pmlogger from pmlogctl
 pmcd Host Archive Class PID State 
 --- start control file ---
 # created by pmlogctl on DATE

@@ -1669,14 +1669,25 @@ not_in_container
 1249 pmlogctl local
 1250 selinux local
 1251 other local
+1252 derive local
+1253 derive local valgrind
+1254 derive local
 1255 libpcp local kernel
+1256 derive valgrind local
 1257 libpcp python local
 1258 pmda.linux local valgrind
+1259 derive valgrind local
+1260 derive local
+1261 derive local
+1262 derive valgrind local
+1263 derive local
 1264:retired pmcollect
 1265 pmda.linux local valgrind
 1266 atop pcp local
 1267 pmlogrewrite labels help pmdumplog local
+1268 derive local
 1269 libpcp local kernel
+1270 derive fault local
 1274 pmlogextract pmdumplog labels help local sanity
 1276:retired pmmgr containers local
 1287 pmda.install pmda.openmetrics local python

@@ -1,0 +1,154 @@
+'\"! tbl | mmdoc
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
+.TH PMADDDERIVED 3 "" "Performance Co-Pilot"
+.SH NAME
+\f3pmAddDerived\f1,
+\f3pmAddDerivedMetric\f1  \- register a per-context derived metric name and definition
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+char *pmAddDerived(char *\fIname\fP, char *\fIexpr\fP);
+.br
+int pmAddDerivedMetric(char *\fIname\fP, char *\fIexpr\fP, char **\fIerrmsg\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\fR\\$2
+.el \fI\\$1\fR\\$2
+..
+Derived metrics provide a way of extending the Performance Metrics
+Name Space (PMNS) with new metrics defined at the PCP client-side using
+expressions over the existing performance metrics.
+.PP
+The
+.B pmAddDerived
+and
+.B pmAddDerivedMetric
+routines may be used to create per-context derived metrics, and can
+only be used after the current PMAPI context has been created with
+.BR pmNewContext (3).
+.PP
+Per-context derived metrics are similar in all aspects except scope
+to
+global derived metrics.
+The latter are defined across all PMAPI contexts and
+are created with the associated
+.BR pmRegisterDerived (3),
+.BR pmRegisterDerivedMetric (3)
+and
+.BR pmRegisterLoadConfig (3)
+routines.
+.PP
+The arguments to
+.B pmAddDerived
+are the
+.I name
+of the new derived metric and
+.I expr
+is an expression defining how the values of
+.I name
+should be computed.
+.PP
+.B pmAddDerivedMetric
+is the exact functional equivalent to
+.B pmAddDerived
+except that it provides a simplified model of error handling, where
+a formatted message is returned via the
+.I errmsg
+parameter.
+.PP
+Refer to the
+.BR pmRegisterDerived (3)
+man page for a complete description of the syntactic rules for
+.IR name ,
+the syntactic and semantic rules for
+.IR expr ,
+return values and the associated error reporting mechanisms,
+and the expression evaluation rules.
+.PP
+There is no ``unregister''
+method, so once registered a per-context derived metric persists for the life
+of the PMAPI context, but it is destroyed as a side-effect of
+.BR pmDestroyContext (3).
+.SH DIAGNOSTICS
+On success,
+.B pmAddDerived
+returns NULL.
+.PP
+If a syntactic error is found at the time of calling, the
+value returned by
+.B pmAddDerived
+is a pointer into
+.I expr
+indicating
+.B where
+the error was found.
+To identify
+.B what
+the error was, the application should call
+.BR pmDerivedErrStr (3)
+to retrieve the corresponding parser error message.
+.PP
+.B pmAddDerivedMetric
+returns 0 and
+.I errmsg
+is undefined if the parsing is successful.
+.PP
+If the given
+.I expr
+does not conform to the required syntax
+.B pmAddDerivedMetric
+returns \-1 and a dynamically allocated error message string in
+.IR errmsg .
+The error message is terminated with a newline
+and includes both the input
+.I name
+and
+.IR expr ,
+along with an indicator of the position at which the
+error was detected.
+e.g.
+.br
+.in +1i
+Error: pmAddDerivedMetric("my.disk.rates", ...) syntax error
+.br
+.CW "\&4rat(disk.dev.read)"
+.br
+.CW "\&    ^"
+.in -1i
+.PP
+The position indicator line may be followed by an additional
+diagnostic line describing the nature of the error, when available.
+.PP
+In the case of an error, the caller is responsible for calling
+.BR free (3)
+to release the space allocated for
+.IR errmsg .
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR PMAPI (3),
+.BR pmDerivedErrStr (3),
+.BR pmDestroyContext (3),
+.BR pmLoadDerivedConfig (3),
+.BR pmNewContext (3),
+.BR pmRegisterDerived (3),
+.BR pmRegisterDerivedMetric (3)
+and
+.BR PMNS (5).
