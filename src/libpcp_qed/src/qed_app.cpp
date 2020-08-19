@@ -219,8 +219,10 @@ void QedApp::nomem(void)
 
 QPixmap QedApp::cached(const QString &image)
 {
-    if (QPixmap *p = QPixmapCache::find(image))
-	return *p;
+    QPixmap p;
+
+    if (QPixmapCache::find(image, &p))
+	return p;
 
     QPixmap pm;
     pm = QPixmap::fromImage(QImage(image),
