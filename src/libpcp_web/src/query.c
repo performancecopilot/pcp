@@ -3505,19 +3505,21 @@ series_calculate(seriesQueryBaton *baton, node_t *np, int level)
     return sts;
 }
 
-void dfs(node_t *np, int level)
+void
+dfs(node_t *np, int level)
 {
-    int			i;
+    int			i, j, k;
 
-    if(np==NULL) return;
+    if (np == NULL)
+        return;
     printf("level: %d, type: %d, key: %s, value: %s\n", level, np->type, np->key, np->value);
     printf("time %d, window.count: %s\n", np->time.count, np->time.window.count);
     printf("num_series=%d\n\n", np->value_set.num_series);
-    if(np->value_set.num_series != 0){
-	for(i=0; i<np->value_set.num_series; i++){
+    if (np->value_set.num_series != 0) {
+	for (i=0; i<np->value_set.num_series; i++) {
 	    printf("series: %s\n", np->value_set.series_values[i].sid->name);
-	    for(int j=0; j<np->value_set.series_values[i].num_samples; j++){
-		for(int k=0; k<np->value_set.series_values[i].series_sample[j].num_instances; k++){
+	    for (j=0; j<np->value_set.series_values[i].num_samples; j++) {
+		for (k=0; k<np->value_set.series_values[i].series_sample[j].num_instances; k++) {
 		    printf("%s\n", np->value_set.series_values[i].series_sample[j].series_instance[k].data);
 		}
 	    }
