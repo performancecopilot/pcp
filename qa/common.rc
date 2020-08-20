@@ -118,9 +118,9 @@ then
     #
     if [ -z "$seq" ]
     then
-	tmp=/tmp/$$
+	tmp=/var/tmp/$$
     else
-	tmp=/tmp/$seq-$$
+	tmp=/var/tmp/$seq-$$
     fi
 fi
 
