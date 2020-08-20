@@ -71,6 +71,8 @@ pcpqa.installed: pcpqa.pp
 
 pcpqa.pp: pcpqa.te
 	make -f /usr/share/selinux/devel/Makefile pcpqa.pp
+	@# cleanup temp files from selinux Makefile
+	@rm -f ./tmp/all_interfaces.conf ./tmp/iferror.m4 ./tmp/pcpqa.tmp
 
 pcpqa.te: pcpqa.te.in GNUmakefile GNUselinuxdefs
 	make pcpqa.te.in
