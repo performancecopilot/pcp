@@ -108,6 +108,16 @@ RedHat
     # sort packages on installed size, smallest to largest
     $ rpm -qa --qf '%{SIZE} %{NAME}\n' | sort -k1 -n
 
+    Update.  As of RHEL 8, dnf is preferred over yum.
+
+    Note on dnf modules.  To get libuv-devel installed on RHEL8 needed this
+    recipe from Andreas.
+    # dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+    # dnf install -y libuv
+    # dnf module install -y libuv/devel
+    # rpm -q libuv-devel
+    libuv-devel-1.23.1-2.module_el8+8698+518af944.x86_64
+
 CentOS
     https://en.wikipedia.org/wiki/CentOS#CentOS_releases
     17 Nov 2015: 5.0-5.11, 6.0-6.7, 7.0 and 7.1
