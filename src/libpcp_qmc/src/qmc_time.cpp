@@ -154,14 +154,14 @@ double QmcTime::deltaValue(QString delta, QmcTime::DeltaUnits units)
 
 QString QmcTime::deltaString(double value, QmcTime::DeltaUnits units)
 {
-    QString delta;
+    char	delta[64];
 
     value = QmcTime::secondsToUnits(value, units);
     if ((double)(int)value == value)
-	delta.sprintf("%.2f", value);
+	pmsprintf(delta, sizeof(delta), "%.2f", value);
     else
-	delta.sprintf("%.6f", value);
-    return delta;
+	pmsprintf(delta, sizeof(delta), "%.6f", value);
+    return QString(delta);
 }
 
 char *QmcTime::packetStr(QmcTime::Packet *packet)

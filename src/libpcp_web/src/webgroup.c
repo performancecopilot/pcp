@@ -363,16 +363,18 @@ ismarker(int c)
 }
 
 static int
-webgroup_derived_metrics(sds config, sds *errmsg)
+webgroup_derived_metrics(context_t *cp, sds config, sds *errmsg)
 {
     unsigned int	line = 0;
     char		*p, *end, *name = NULL, *expr, *error;
+
+    (void)cp;
 
     /*
      * Pick apart the derived metrics "configuration file" in expr.
      * - skip comments and blank lines
      * - split each line on name '=' expression
-     * - call pmRegisterDerivedMetric for each, propogating any errors
+     * - call pmAddDerivedMetric for each, propogating any errors
      *   (with an additional 'line number' and explanatory notes).
      */
     end = config + sdslen(config);
@@ -409,8 +411,8 @@ webgroup_derived_metrics(sds config, sds *errmsg)
 	    break;
 	*p = '\0';
 
-	/* register the derived metric and reset the parsing */
-	if (pmRegisterDerivedMetric(name, expr, &error) < 0) {
+	/* add the derived metric to this context and reset the parsing */
+	if (pmAddDerivedMetric(name, expr, &error) < 0) {
 	    infofmt(*errmsg, "failed to create derived metric \"%s\""
 			" on line %u from: %s\n%s", name, line, expr, error);
 	    free(error);
@@ -436,6 +438,7 @@ webgroup_derived_metrics(sds config, sds *errmsg)
 extern void
 pmWebGroupDerive(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 {
+    struct context	*cp;
     sds			msg = NULL, expr, metric, message;
     int			sts = 0;
 
@@ -445,17 +448,19 @@ pmWebGroupDerive(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
     } else {
 	metric = expr = NULL;
     }
+    if (!(cp = webgroup_lookup_context(settings, &id, params, &sts, &msg, arg)))
+	goto done;
+    id = cp->origin;
 
     if (expr && !metric) {	/* configuration file mode */
 	if (pmDebugOptions.libweb)
-	    fprintf(stderr, "%s: register metric group\n",
-			    "pmWebGroupDerive");
-	sts = webgroup_derived_metrics(expr, &msg);
+	    fprintf(stderr, "%s: register metric group\n", "pmWebGroupDerive");
+	sts = webgroup_derived_metrics(cp, expr, &msg);
     } else if (expr && metric) {
 	if (pmDebugOptions.libweb)
-	    fprintf(stderr, "%s: register metric %s\n",
-			    "pmWebGroupDerive", metric);
-	if ((sts = pmRegisterDerivedMetric(metric, expr, &message)) < 0) {
+	    fprintf(stderr, "%s: register metric %s\n", "pmWebGroupDerive",
+			    metric);
+	if ((sts = pmAddDerivedMetric(metric, expr, &message)) < 0) {
 	    infofmt(msg, "%s", message);
 	    free(message);
 	}
@@ -464,7 +469,8 @@ pmWebGroupDerive(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 	sts = -EINVAL;
     }
 
-    settings->callbacks.on_done(NULL, sts, msg, arg);
+done:
+    settings->callbacks.on_done(id, sts, msg, arg);
     sdsfree(msg);
 }
 

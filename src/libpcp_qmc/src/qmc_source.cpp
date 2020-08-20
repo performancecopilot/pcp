@@ -212,7 +212,6 @@ QmcSource::~QmcSource()
 QString
 QmcSource::timeString(const struct timeval *timeval)
 {
-    QString timestring;
     char timebuf[32], *ddmm, *year;
     struct tm tmp;
     time_t secs = (time_t)timeval->tv_sec;
@@ -223,8 +222,9 @@ QmcSource::timeString(const struct timeval *timeval)
     year[4] = '\0';
     pmLocaltime(&secs, &tmp);
 
-    timestring.sprintf("%02d:%02d:%02d.%03d",
+    pmsprintf(timebuf, sizeof(timebuf), "%02d:%02d:%02d.%03d",
 	tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (int)(timeval->tv_usec/1000));
+    QString timestring = QString(timebuf);
     timestring.prepend(" ");
     timestring.prepend(ddmm);
     timestring.append(" ");
@@ -235,14 +235,14 @@ QmcSource::timeString(const struct timeval *timeval)
 QString
 QmcSource::timeStringBrief(const struct timeval *timeval)
 {
-    QString timestring;
+    char timestring[32];
     struct tm tmp;
     time_t secs = (time_t)timeval->tv_sec;
 
     pmLocaltime(&secs, &tmp);
-    timestring.sprintf("%02d:%02d:%02d.%03d",
+    pmsprintf(timestring, sizeof(timestring), "%02d:%02d:%02d.%03d",
 	tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (int)(timeval->tv_usec/1000));
-    return timestring;
+    return QString(timestring);
 }
 
 bool

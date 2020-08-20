@@ -883,19 +883,40 @@ pmproxy check passed
 
 == derive by GET ==
 {
+    "context": "CONTEXT"
     "success": true
+}
+== check derived metric value ==
+{
+    "context": "CONTEXT"
+    "timestamp": TIME,
+    "values": [
+        {
+            "pmid": "511.2047.1023",
+            "name": "qa.metric",
+            "instances": [
+                {
+                    "instance": null,
+                    "value": 2
+                }
+            ]
+        }
+    ]
 }
 == derive by POST ==
 {
+    "context": "CONTEXT"
     "success": true
 }
 == missing derive expr parameter ==
 {
+    "context": "CONTEXT"
     "message": "invalid derive parameters",
     "success": false
 }
 == missing derive name parameter ==
 {
+    "context": "CONTEXT"
     "message": "failed to parse derived metric \u0022hinv.ncpu*42\u0022 on line 0 - incomplete expression\u000A",
     "success": false
 }

@@ -1,5 +1,13 @@
 QA output created by 1214
 
-== testing pmseries query to redis directly
+== testing pmseries query for kernel.all.load to redis directly
 
-== testing pmseries query to redis via pmproxy
+== testing pmseries query to redis for kernel.all.load via pmproxy
+
+== testing pmseries query for disk.dev.read to redis directly
+
+== testing pmseries query to redis for disk.dev.read via pmproxy
+
+== testing pmseries query for kernel.all.pswitch to redis directly
+
+== testing pmseries query to redis for kernel.all.pswitch via pmproxy

@@ -1118,8 +1118,9 @@ name	string	An individual metric name
 value	(any)	New value for the given metric instance(s)
 _
 hostspec	string	Host specification as described in \f(CBPCPIntro\fR(1)
-context	number	Web context number optional like hostspec)
+context	number	Web context number (optional like hostspec)
 polltimeout	number	Seconds of inactivity before context closed
+client	string	Request identifier sent back with response
 .TE
 .P
 Some performance metrics allow their value to be modified,
@@ -1145,7 +1146,7 @@ $ curl -s http://localhost:44322/pmapi/store?\\
   "success": true
 }
 .ESAMPLE
-.SS GET \fI/pmapi/derive\fR: \fBpmRegisterDerived\fR(3)
+.SS GET \fI/pmapi/derive\fR: \fBpmAddDerived\fR(3)
 .TS
 box;
 c | c | cw(2.4i)
@@ -1155,25 +1156,28 @@ _
 expr	string	Derived metric expression
 name	string	New derived metric name
 _
+hostspec	string	Host specification as described in \f(CBPCPIntro\fR(1)
+context	number	Web context number (optional like hostspec)
+polltimeout	number	Seconds of inactivity before context closed
 client	string	Request identifier sent back with response
 .TE
 .P
 Create a new derived metric, as defined by the
-.BR pmRegisterDerived (3)
+.BR pmAddDerived (3)
 metric interface.
-Derived metrics are not associated with any particular
-context and must be registered before creation (or reconnect)
-of any context wishing to use the new metric.
+Derived metrics are associated with the named context, or a new
+context is created and returned in the result.
 .PP
 This interface is one of the few that allows a POST to be used
 in place of a GET.
 In this case the HTTP POST request body may be used to provide
-one or more derived metrics specification (all at once, across
+one or more derived metrics specifications (all at once, across
 multiple lines, as a convenience).
 .SAMPLE
 $ curl -s http://localhost:44322/pmapi/derive?\\
 	name=blkio.avgsz&expr=disk.all.blktotal/disk.all.total | pmjson
 {
+  "context": 348734,
   "success": true
 }
 

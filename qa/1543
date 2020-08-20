@@ -337,11 +337,13 @@ else
 fi
 
 
-
 section "GET and POST /pmapi/derive"
 ## mandatory params: name, expr (or POST body)
-curl -s "http://localhost:$port/pmapi/derive?name=qa.metric&expr=hinv.ncpu*2" \
+curl -s "http://localhost:$port/pmapi/derive?name=qa.metric&expr=sample.long.one*2" \
 	| _filter_json "derive by GET"
+context=`cat $tmp.context`
+curl -s "http://localhost:$port/pmapi/$context/fetch?name=qa.metric" \
+        | _filter_json "check derived metric value"
 cat > $tmp.out <<EOF
 qa.one.metric = hinv.ncpu;
 qa.two.metric = hinv.ncpu * 2;
