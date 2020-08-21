@@ -12,54 +12,54 @@ pmie count after attempt without control file: 0
 Start: DATE
 # $version=1.0
 + export version; version=1.0
-Check pmie -h REMOTEHOST -l /tmp/SEQ-PID.log1 ...
-+ cd /tmp
+Check pmie -h REMOTEHOST -l TMP.log1 ...
++ cd TMPDIR
 No current pmie process exists for:
 host = REMOTEHOST
-log file = /tmp/SEQ-PID.log1
+log file = TMP.log1
 Restarting pmie for host "REMOTEHOST" ...
-+ $PCP_BIN_DIR/pmie -b -h REMOTEHOST -l /tmp/SEQ-PID.log1 -c /tmp/SEQ-PID.conf
-Check pmie -h REMOTEHOST -l /tmp/SEQ-PID.log2 ...
-+ cd /tmp
++ $PCP_BIN_DIR/pmie -b -h REMOTEHOST -l TMP.log1 -c TMP.conf
+Check pmie -h REMOTEHOST -l TMP.log2 ...
++ cd TMPDIR
 No current pmie process exists for:
 host = REMOTEHOST
-log file = /tmp/SEQ-PID.log2
+log file = TMP.log2
 Restarting pmie for host "REMOTEHOST" ...
-+ $PCP_BIN_DIR/pmie -b -h REMOTEHOST -l /tmp/SEQ-PID.log2 -c /tmp/SEQ-PID.conf
-Check pmie -h LOCALHOST -l /tmp/SEQ-PID.log0 ...
-+ cd /tmp
++ $PCP_BIN_DIR/pmie -b -h REMOTEHOST -l TMP.log2 -c TMP.conf
+Check pmie -h LOCALHOST -l TMP.log0 ...
++ cd TMPDIR
 No current pmie process exists for:
 host = LOCALHOST
-log file = /tmp/SEQ-PID.log0
+log file = TMP.log0
 Restarting pmie for host "LOCALHOST" ...
-+ $PCP_BIN_DIR/pmie -b -h LOCALHOST -l /tmp/SEQ-PID.log0 -c /tmp/SEQ-PID.conf
++ $PCP_BIN_DIR/pmie -b -h LOCALHOST -l TMP.log0 -c TMP.conf
 End: DATE
 
 --- v1.1 ---
 Start: DATE
 # $version=1.1
 + export version; version=1.1
-Check pmie -h REMOTEHOST -l /tmp/SEQ-PID.log1 ...
-+ cd /tmp
+Check pmie -h REMOTEHOST -l TMP.log1 ...
++ cd TMPDIR
 No current pmie process exists for:
 host = REMOTEHOST
-log file = /tmp/SEQ-PID.log1
+log file = TMP.log1
 Restarting pmie for host "REMOTEHOST" ...
-+ $PCP_BIN_DIR/pmie -b -h REMOTEHOST -l /tmp/SEQ-PID.log1 -c /tmp/SEQ-PID.conf
-Check pmie -h REMOTEHOST -l /tmp/SEQ-PID.log2 ...
-+ cd /tmp
++ $PCP_BIN_DIR/pmie -b -h REMOTEHOST -l TMP.log1 -c TMP.conf
+Check pmie -h REMOTEHOST -l TMP.log2 ...
++ cd TMPDIR
 No current pmie process exists for:
 host = REMOTEHOST
-log file = /tmp/SEQ-PID.log2
+log file = TMP.log2
 Restarting pmie for host "REMOTEHOST" ...
-+ $PCP_BIN_DIR/pmie -b -h REMOTEHOST -l /tmp/SEQ-PID.log2 -c /tmp/SEQ-PID.conf
-Check pmie -h LOCALHOST -l /tmp/SEQ-PID.log0 ...
-+ cd /tmp
++ $PCP_BIN_DIR/pmie -b -h REMOTEHOST -l TMP.log2 -c TMP.conf
+Check pmie -h LOCALHOST -l TMP.log0 ...
++ cd TMPDIR
 No current pmie process exists for:
 host = LOCALHOST
-log file = /tmp/SEQ-PID.log0
+log file = TMP.log0
 Restarting pmie for host "LOCALHOST" ...
-+ $PCP_BIN_DIR/pmie -b -F -P -l /tmp/SEQ-PID.log0 -c /tmp/SEQ-PID.conf
++ $PCP_BIN_DIR/pmie -b -F -P -l TMP.log0 -c TMP.conf
 End: DATE
 
 === warnings ... ===
@@ -67,45 +67,45 @@ End: DATE
 Start: DATE
 # $version=1.1
 + export version; version=1.1
-Check pmie -h LOCALHOST -l /tmp/SEQ-PID.locker/ok.1 ...
-+ cd /tmp/SEQ-PID.locker
-pmie_check [/tmp/SEQ-PID.warning.1:2]
+Check pmie -h LOCALHOST -l TMP.locker/ok.1 ...
++ cd TMP.locker
+pmie_check [TMP.warning.1:2]
 Warning: removing lock file older than 30 minutes
-... ls output ... tmp/SEQ-PID.locker/ok.1.lock
+... ls output ... TMP.locker/ok.1.lock
 No current pmie process exists for:
 host = LOCALHOST
-log file = /tmp/SEQ-PID.locker/ok.1
+log file = TMP.locker/ok.1
 Restarting pmie for host "LOCALHOST" ...
-+ $PCP_BIN_DIR/pmie -b -h LOCALHOST -l /tmp/SEQ-PID.locker/ok.1 -c /tmp/SEQ-PID.conf
++ $PCP_BIN_DIR/pmie -b -h LOCALHOST -l TMP.locker/ok.1 -c TMP.conf
 End: DATE
 
 --- existing lock file ---
 Start: DATE
 # $version=1.1
 + export version; version=1.1
-Check pmie -h LOCALHOST -l /tmp/SEQ-PID.locker/ok.2 ...
-+ cd /tmp/SEQ-PID.locker
-pmie_check [/tmp/SEQ-PID.warning.2:2]
+Check pmie -h LOCALHOST -l TMP.locker/ok.2 ...
++ cd TMP.locker
+pmie_check [TMP.warning.2:2]
 Warning: is another PCP cron job running concurrently?
-... ls output ... tmp/SEQ-PID.locker/ok.2.lock
-pmie_check [/tmp/SEQ-PID.warning.2:2]
-Warning: failed to acquire exclusive lock (/tmp/SEQ-PID.locker/ok.2.lock) ...
+... ls output ... TMP.locker/ok.2.lock
+pmie_check [TMP.warning.2:2]
+Warning: failed to acquire exclusive lock (TMP.locker/ok.2.lock) ...
 End: DATE
 
 --- can't create lock file ---
 Start: DATE
 # $version=1.1
 + export version; version=1.1
-Check pmie -h LOCALHOST -l /tmp/SEQ-PID.locker/ok.3 ...
-+ cd /tmp/SEQ-PID.locker
-pmie_check [/tmp/SEQ-PID.warning.3:2]
-Warning: no write access in /tmp/SEQ-PID.locker, skip lock file processing
-... ls output ... tmp/SEQ-PID.locker
+Check pmie -h LOCALHOST -l TMP.locker/ok.3 ...
++ cd TMP.locker
+pmie_check [TMP.warning.3:2]
+Warning: no write access in TMP.locker, skip lock file processing
+... ls output ... TMP.locker
 No current pmie process exists for:
 host = LOCALHOST
-log file = /tmp/SEQ-PID.locker/ok.3
+log file = TMP.locker/ok.3
 Restarting pmie for host "LOCALHOST" ...
-+ $PCP_BIN_DIR/pmie -b -h LOCALHOST -l /tmp/SEQ-PID.locker/ok.3 -c /tmp/SEQ-PID.conf
++ $PCP_BIN_DIR/pmie -b -h LOCALHOST -l TMP.locker/ok.3 -c TMP.conf
 End: DATE
 
 --- bad in-line shell commands ---
@@ -113,29 +113,29 @@ Start: DATE
 # $version=1.1
 + export version; version=1.1
 # $date
-pmie_check [/tmp/SEQ-PID.warning.4:2]
+pmie_check [TMP.warning.4:2]
 Warning: in-line command is not a variable assignment, line ignored
 # $PATH=/some/where/bad:$PATH
-pmie_check [/tmp/SEQ-PID.warning.4:3]
+pmie_check [TMP.warning.4:3]
 Warning: cannot change $PATH, line ignored
 # $IFS=a
-pmie_check [/tmp/SEQ-PID.warning.4:4]
+pmie_check [TMP.warning.4:4]
 Warning: cannot change $IFS, line ignored
-Check pmie -h LOCALHOST -l /tmp/SEQ-PID.ok.4 ...
-+ cd /tmp
+Check pmie -h LOCALHOST -l TMP.ok.4 ...
++ cd TMPDIR
 No current pmie process exists for:
 host = LOCALHOST
-log file = /tmp/SEQ-PID.ok.4
+log file = TMP.ok.4
 Restarting pmie for host "LOCALHOST" ...
-+ $PCP_BIN_DIR/pmie -b -h LOCALHOST -l /tmp/SEQ-PID.ok.4 -c /tmp/SEQ-PID.conf
++ $PCP_BIN_DIR/pmie -b -h LOCALHOST -l TMP.ok.4 -c TMP.conf
 End: DATE
 
 --- missing $version but really v1.1 ... original control.local issue ---
 Start: DATE
-pmie_check [/tmp/SEQ-PID.warning.5:1]
+pmie_check [TMP.warning.5:1]
 Warning: missing $version, assuming version 1.0 control format
-pmie_check: [/tmp/SEQ-PID.warning.5:1]
-Error: args field in control file must begin with a hyphen not "/tmp/SEQ-PID.ok.5 -c /tmp/SEQ-PID.conf"
+pmie_check: [TMP.warning.5:1]
+Error: args field in control file must begin with a hyphen not "TMP.ok.5 -c TMP.conf"
 ... automated performance reasoning for host "LOCALHOSTNAME" unchanged
 End: DATE
 
@@ -144,7 +144,7 @@ End: DATE
 Start: DATE
 # $version=0.0
 + export version; version=0.0
-pmie_check: [/tmp/SEQ-PID.error.1:2]
+pmie_check: [TMP.error.1:2]
 Error: bad version (0.0) in control file
 ... automated performance reasoning for host "LOCALHOSTNAME" unchanged
 End: DATE
@@ -153,7 +153,7 @@ End: DATE
 Start: DATE
 # $version=1.0
 + export version; version=1.0
-pmie_check: [/tmp/SEQ-PID.error.2:2]
+pmie_check: [TMP.error.2:2]
 Error: socks field in control file record must be y or n, not "x"
 ... automated performance reasoning for host "LOCALHOSTNAME" unchanged
 End: DATE
@@ -162,7 +162,7 @@ End: DATE
 Start: DATE
 # $version=1.1
 + export version; version=1.1
-pmie_check: [/tmp/SEQ-PID.error.3:2]
+pmie_check: [TMP.error.3:2]
 Error: socks field in control file record must be y or n, not "x"
 ... automated performance reasoning for host "LOCALHOSTNAME" unchanged
 End: DATE
@@ -171,7 +171,7 @@ End: DATE
 Start: DATE
 # $version=1.1
 + export version; version=1.1
-pmie_check: [/tmp/SEQ-PID.error.4:2]
+pmie_check: [TMP.error.4:2]
 Error: primary field in control file record must be y or n, not "x"
 ... automated performance reasoning for host "LOCALHOSTNAME" unchanged
 End: DATE
@@ -180,7 +180,7 @@ End: DATE
 Start: DATE
 # $version=1.0
 + export version; version=1.0
-pmie_check: [/tmp/SEQ-PID.error.5:2]
+pmie_check: [TMP.error.5:2]
 Error: insufficient fields in control file record
 ... automated performance reasoning for host "LOCALHOSTNAME" unchanged
 End: DATE
@@ -189,7 +189,7 @@ End: DATE
 Start: DATE
 # $version=1.1
 + export version; version=1.1
-pmie_check: [/tmp/SEQ-PID.error.6:2]
+pmie_check: [TMP.error.6:2]
 Error: insufficient fields in control file record
 ... automated performance reasoning for host "LOCALHOSTNAME" unchanged
 End: DATE
@@ -198,10 +198,10 @@ End: DATE
 Start: DATE
 # $version=1.1
 + export version; version=1.1
-Check pmie -h LOCALHOST -l /tmp/SEQ-PID.nogo/subdir/bad.7 ...
-mkdir_and_chown: /tmp/SEQ-PID.nogo/subdir: mkdir -m 755 failed
-pmie_check: [/tmp/SEQ-PID.error.7:2]
-Error: cannot create directory (/tmp/SEQ-PID.nogo/subdir) for pmie log file
+Check pmie -h LOCALHOST -l TMP.nogo/subdir/bad.7 ...
+mkdir_and_chown: TMP.nogo/subdir: mkdir -m 755 failed
+pmie_check: [TMP.error.7:2]
+Error: cannot create directory (TMP.nogo/subdir) for pmie log file
 ... automated performance reasoning for host "LOCALHOST" unchanged
 End: DATE
 
@@ -209,9 +209,9 @@ End: DATE
 Start: DATE
 # $version=1.1
 + export version; version=1.1
-Check pmie -h LOCALHOST -l /tmp/SEQ-PID.nogo/bad.8 ...
-pmie_check: [/tmp/SEQ-PID.error.8:2]
-Error: cannot chdir to directory (/tmp/SEQ-PID.nogo) for pmie log file
+Check pmie -h LOCALHOST -l TMP.nogo/bad.8 ...
+pmie_check: [TMP.error.8:2]
+Error: cannot chdir to directory (TMP.nogo) for pmie log file
 ... automated performance reasoning for host "LOCALHOST" unchanged
 End: DATE
 

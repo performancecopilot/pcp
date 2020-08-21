@@ -59,15 +59,15 @@ cp $tmp.ctl $tmp.relaydir/pmie.log.$FIVEMONTHS
 pmie_daily -V -N -x 3 -X compress -c $tmp.ctl >$tmp.log
 cat $tmp.log | \
 sed \
+	-e "s;$tmp;TMP;g" \
 	-e '/Error: no pmie instance running/d' \
 	-e '/inference engine for host .* unchanged/d' \
 	-e "s/$TODAY/TODAY/g" \
 	-e "s/$FIVEDAYS/FIVEDAYS/g" \
 	-e "s/$FIVEMONTHS/FIVEMONTHS/g" \
-	-e "s,$PCP_TMP_DIR,TMP,g" \
+	-e "s,$PCP_TMP_DIR,PCP_TMP_DIR,g" \
 	-e "s/$seq-$$/SEQ-PID/g" \
 	-e "s;/private/;/;g" \
-	-e "s,/tmp,TMP,g" \
 	-e '/^+ rm -f TMP\/pmie\/[0-9][0-9]*$/d' \
 
 # success, all done

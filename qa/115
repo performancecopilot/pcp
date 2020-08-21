@@ -66,6 +66,8 @@ rhost=`echo $remote | sed -e 's/\..*//'`
 [ -z "$remote" ] && _notrun `cat $tmp.out`
 echo "remote=$remote" >>$here/$seq.full
 
+tmpdir=`dirname $tmp`
+
 # Now that we have pmmgr in the mix, there is more than one pmie
 # potentially running, so lines like this
 # ... try /var/lib/pcp/tmp/pmie/25453: different logfile, skip
@@ -94,6 +96,8 @@ _filter()
 {
     tee -a $here/$seq.full \
     | sed \
+	-e "s;$tmp;TMP;g" \
+	-e "s;$tmpdir;TMPDIR;g" \
 	-e "s/$seq-$$/SEQ-PID/g" \
 	-e "s;$PCP_BIN_DIR/pmie;\$PCP_BIN_DIR/pmie;" \
 	-e 's/line [0-9][0-9]*:/line N:/' \
@@ -105,7 +109,7 @@ _filter()
 	-e "s;/private/tmp;/tmp;g" \
 	-e '/ try .* different logfile, skip/d' \
 	-e '/\/pmmgr\/.* differs to /d' \
-	-e '/^.r[-w][-x]r[-w][-x]/s/.* \//... ls output ... /' \
+	-e '/^.r[-w][-x]r[-w][-x]/s/.* TMP/... ls output ... TMP/' \
 	-e '/mkdir:/d' \
 	-e '/\/pmie_check:.*cd:/d' \
 	-e 's/[ 	]*$//' \
