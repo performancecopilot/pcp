@@ -84,7 +84,7 @@ __dmprefetch(__pmContext *ctxp, int numpmid, const pmID *pmidlist, pmID **newlis
 	for (i = 0; i < cp->nmetric; i++) {
 	    if (pmidlist[m] == cp->mlist[i].pmid) {
 		if ((cp->mlist[i].flags & DM_BIND) == 0)
-		    __dmbind(PM_NOT_LOCKED, ctxp, i);
+		    __dmbind(PM_NOT_LOCKED, ctxp, i, 1);
 		if (cp->mlist[i].expr != NULL) {
 		    get_pmids(cp->mlist[i].expr, &xtracnt, &xtralist);
 		    cp->fetch_has_dm = 1;

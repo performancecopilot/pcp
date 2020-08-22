@@ -199,6 +199,8 @@ derive_fetch.o
     ?promote			# const
 derive_parser.tab.o
     ?fmt			# const
+    ?fmt_nopos			# const
+    ?fmt_pmapi			# const
     ?func			# const
     ?promote			# const
     ?timefactor			# const
