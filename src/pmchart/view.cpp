@@ -87,7 +87,7 @@ const char *_style[] = { "None", "Line", "Bar", "Stack", "Area", "Util" };
 static void err(int severity, int do_where, QString msg)
 {
     if (do_where) {
-	QString	where = QString("%1[%s] ").arg(_fname).arg(_line);
+	QString	where = QString("%1[%2] ").arg(_fname).arg(_line);
 	msg.prepend(where);
     }
     if (Cflag) {
