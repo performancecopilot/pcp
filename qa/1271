@@ -1,0 +1,69 @@
+#!/bin/sh
+# PCP QA Test No. 1271
+# early binding for per-context derived metrics ... syntax and semantic
+# errors
+#
+# Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+if [ $# -eq 0 ]
+then
+    echo "QA output created by $seq"
+else
+    echo "QA output created by $seq $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# pmResult dump from 0x55df9bb635f0 timestamp: 1597614782.259451 07:53:02.259 numpmid: 5
+_filter()
+{
+    sed \
+	-e "s;$tmp;TMP;g" \
+	-e '/^pmResult/{
+s/0x[0-9a-f]*/ADDR/
+s/stamp: .* numpmid/stamp: DATESTAMP numpmid/
+}' \
+    # end
+}
+
+cat <<End-of-File >$tmp.conf
+# typical semantic error, this one from the discussion at:
+# https://github.com/performancecopilot/grafana-pcp/pull/62
+qa$seq.a = kernel.all.sysfork / disk.dev.read
+# simple syntactic error
+qa$seq.b = sample.bin - 100 +
+End-of-File
+
+# real QA test starts here
+echo "global derived metrics ..."
+export PCP_DERIVED_CONFIG=$tmp.conf
+export PCP_STDERR=$tmp.err
+rm -f $tmp.err
+src/torture_pmns -b -v qa$seq qa$seq.a qa$seq.b 2>&1 | _filter
+[ -f $tmp.err ] && _filter <$tmp.err
+
+echo
+echo "per-context derived metrics ..."
+export PCP_DERIVED_CONFIG=""
+rm -f $tmp.err
+src/torture_pmns -b -v -C $tmp.conf qa$seq qa$seq.a qa$seq.b 2>&1 | _filter
+[ -f $tmp.err ] && _filter <$tmp.err
+
+# success, all done
+status=0
+exit
