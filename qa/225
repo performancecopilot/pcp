@@ -97,8 +97,8 @@ myname.gcov.a = foo ^ bar
 # very long source lines to test buffer handling in parser
 myname.gcov.b = sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + 'bogus'
 myname.gcov.c = sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million + 'bogus'
-   myname.gcov.d = 3 * space
-	myname.gcov.e = tab
+   myname.gcov.d = 3   *   space   !
+	myname.gcov.e = 1	*	tab	!
 myname.gcov.f = ( 1 + foo + ( }
 myname.gcov.g = /
 

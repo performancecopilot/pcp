@@ -4,7 +4,7 @@ RuntimeError: pmGetOptions is not yet done
 == check setmode
 == check import
 == check derive
-Impossible value or scale conversion Error: pmRegisterDerivedMetric("fuu", ...) error
+Impossible value or scale conversion Error: pmRegisterDerivedMetric("fuu", ...)
 rat(disk.dev.read)
     ^
 Unexpected '('

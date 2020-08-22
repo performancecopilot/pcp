@@ -1,9 +1,9 @@
 QA output created by 803
-derived: Error: pmRegisterDerivedMetric("bad.metric", ...) error
+derived: Error: pmRegisterDerivedMetric("bad.metric", ...)
 a $ bad @ expression
   ^
 Illegal character
-derived: Error: pmRegisterDerivedMetric("new.metric", ...) error
+derived: Error: pmRegisterDerivedMetric("new.metric", ...)
 rat(disk.dev.read)
     ^
 Unexpected '('

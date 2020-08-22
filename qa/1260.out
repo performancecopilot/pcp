@@ -78,11 +78,22 @@ derive_lex() -> type=L_NAME "sample.bin"
 derive_lex() -> type=L_MINUS "-"
 derive_lex() -> type=L_INTEGER "50"
 derive_lex() -> type=L_EOS ""
+__dmgetpmid: metric "testme.one" -> PMID 511.2047.1023
+__dmbind: bind metric[4] testme.one
 pmAddDerived(ctx->0): per-context metric[4] testme.one = sample.bin - 50
 Derived metric expr dump from ADDR...
 expr node ADDR type=MINUS left=ADDR right=ADDR save_last=0
-expr node ADDR type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=1
-expr node ADDR type=INTEGER left=(nil) right=(nil) save_last=0 [50] master=1
+    PMID: PM_ID_NULL (511.2047.1023 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+expr node ADDR type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+    PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+expr node ADDR type=INTEGER left=(nil) right=(nil) save_last=0 [50] master=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
 ctx[0]: DEBUG_SYNTAX=0 (derive=0 appl0=0)
 ctx[0]: pmGetChldren found: big
 ctx[0]: pmGetChldren found: lights
@@ -125,10 +136,31 @@ ctx[1]: testme.lights: 1 values: <COLOR>
 
 === State 4 ===
 ctx[1]: DEBUG_SEMANTICS=1 (derive=1 appl1=1)
+__dmgetpmid: metric "testme.two" -> PMID 511.2047.1023
+__dmbind: bind metric[4] testme.two
+Derived metric expr dump from ADDR...
+expr node ADDR type=PLUS left=ADDR right=ADDR save_last=0
+    PMID: PM_ID_NULL (511.2047.1023 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node ADDR type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] master=0
+    PMID: 29.0.11 (29.0.11 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node ADDR type=STAR left=ADDR right=ADDR save_last=0
+    PMID: PM_ID_NULL (29.0.10 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node ADDR type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] master=0
+    PMID: 29.0.10 (29.0.10 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node ADDR type=INTEGER left=(nil) right=(nil) save_last=0 [3] master=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
 pmAddDerived(ctx->1): per-context metric[4] testme.two = sample.long.ten + sample.long.one * 3
-testme.sub.two: Error: pmAddDerivedMetric("testme.sub.two", ...) error
-sample.string.hullo
- ^
+testme.sub.two: Error: pmAddDerivedMetric("testme.sub.two", ...): returns -12409
 Too many per-context derived metrics
 
 __dmgetpmid: metric "testme.one" -> PMID 511.2047.1023
@@ -168,29 +200,6 @@ __dmgetpmid: metric "testme.big" -> PMID 511.0.3
 __dmgetpmid: metric "testme.lights" -> PMID 511.0.4
 __dmgetpmid: metric "testme.bigbin" -> Unknown metric name
 ctx[1]: testme.one: not in PMNS
-__dmgetpmid: metric "testme.two" -> PMID 511.2047.1023
-__dmbind: bind metric[4] testme.two
-Derived metric expr dump from ADDR...
-expr node ADDR type=PLUS left=ADDR right=ADDR save_last=0
-    PMID: PM_ID_NULL (511.2047.1023 from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-expr node ADDR type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] master=0
-    PMID: 29.0.11 (29.0.11 from pmDesc) numval: 0
-    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-expr node ADDR type=STAR left=ADDR right=ADDR save_last=0
-    PMID: PM_ID_NULL (29.0.10 from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-expr node ADDR type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] master=0
-    PMID: 29.0.10 (29.0.10 from pmDesc) numval: 0
-    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-expr node ADDR type=INTEGER left=(nil) right=(nil) save_last=0 [3] master=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
 ctx[1]: testme.two: 
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -235,19 +244,13 @@ ctx[1]: testme.big: 1 values:  1000000
 ctx[1]: testme.lights: 1 values: <COLOR>
 
 === State 6 ===
-testme.three: Error: pmAddDerivedMetric("testme.three", ...) error
-5*sample.long.ten - 8*sample.long.one
- ^
+testme.three: Error: pmAddDerivedMetric("testme.three", ...): returns -12409
 Too many per-context derived metrics
 
-testme.sub.three: Error: pmAddDerivedMetric("testme.sub.three", ...) error
-sample.bin - sample.bin
- ^
+testme.sub.three: Error: pmAddDerivedMetric("testme.sub.three", ...): returns -12409
 Too many per-context derived metrics
 
-testme.sub.sub.three: Error: pmAddDerivedMetric("testme.sub.sub.three", ...) error
-123456
- ^
+testme.sub.sub.three: Error: pmAddDerivedMetric("testme.sub.sub.three", ...): returns -12409
 Too many per-context derived metrics
 
 ctx[0]: pmUseContext: Attempt to use an illegal context, skip work
