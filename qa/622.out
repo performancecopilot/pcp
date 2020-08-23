@@ -1,5 +1,5 @@
 QA output created by 622
-load: using config file TMPFILE
+load: using config file TMP.rule
 yylex() -> IDENT "delta"
 yylex() -> TOKEN '=' (0x3d)
 yylex() -> NUMBER 1
