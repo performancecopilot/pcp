@@ -6,3 +6,15 @@
 width = 7
 colorstep = 10000
 tps = redis.instantaneous_ops_per_sec
+
+[redis-mem]
+width = 6
+label = redis memory
+lua = redis.used_memory_lua
+used = redis.used_memory
+
+[redis-client]
+width = 6
+label = redis clients
+blk = redis.blocked_clients
+conn = redis.connected_clients
