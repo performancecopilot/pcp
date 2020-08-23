@@ -15,6 +15,12 @@ Warning - failed to expand action for rule memory.exhausted
   string: "$syslog_prefix$$rule$^ $action_expand$"
 Warning - failed to expand action for rule memory.swap_low
   string: "$syslog_prefix$$rule$^ $action_expand$"
+Warning - failed to expand action for rule network.listenoverflows
+  string: "$syslog_prefix$$rule$^ $action_expand$"
+Warning - failed to expand action for rule network.tcpqfulldocookies
+  string: "$syslog_prefix$$rule$^ $action_expand$"
+Warning - failed to expand action for rule network.tcpqfulldrops
+  string: "$syslog_prefix$$rule$^ $action_expand$"
 Warning - failed to expand action for rule per_cpu.many_util
   string: "$syslog_prefix$$rule$^ $action_expand$"
 Warning - failed to expand action for rule per_cpu.some_util
