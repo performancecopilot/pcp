@@ -28,8 +28,9 @@ Fedora       2[89]    i.86    389-ds-base kubectl kubernetes-client kubernetes-n
 Fedora       .*       i.86    mssql-server mssql-tools
 Fedora       2.*      -       chan-devel HdrHistogram_c-devel
 Fedora       30       -       apache2 avahi-utils chan-devel HdrHistogram_c-devel kubectl libavahi-devel mariadb-client mozilla-nspr-devel mozilla-nss-devel mozilla-nss-tools perl-ldap perl-Spreadsheet-Read perl-Spreadsheet-ReadSXC python3-Pillow python3-rtslib-fb sensors zabbix22-agent
-Fedora       30       i.86    389-ds 389-ds-base Coin-devel kubernetes-client kubernetes-node libqt4-devel libqt5Core-devel libQt5Core-devel libqt5-qtsvg-devel libqt-devel python36-devel python3-bcc python3-libvirt-python
-Fedora       31       -       chan-devel HdrHistogram_c-devel
+Fedora       30       i.86    389-ds 389-ds-base Coin-devel kubernetes-client kubernetes-node libqt4-devel libqt5Core-devel libQt5Core-devel libqt5-qtsvg-devel libqt-devel perl(Spreadsheet::Read) perl-Spreadsheet-Read perl(Spreadsheet::ReadSXC) perl-Spreadsheet-ReadSXC python36-devel python3-bcc python3-libvirt-python
+Fedora       31       -       chan-devel HdrHistogram_c-devel perl(Spreadsheet::Read) perl-Spreadsheet-Read perl(Spreadsheet::ReadSXC) perl-Spreadsheet-ReadSXC
+Fedora       32       -       perl(Spreadsheet::Read) perl-Spreadsheet-Read perl(Spreadsheet::ReadSXC) perl-Spreadsheet-ReadSXC
 #-- FreeBSD
 FreeBSD      10\.4    -       lm_sensors py36-pillow
 FreeBSD      11\.[1-3] -      inventor libibmad libibumad lm_sensors py36-pillow zabbix34-agent
