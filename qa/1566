@@ -24,7 +24,8 @@ echo "QA output created by $seq"
 #
 _filter_log()
 {
-    sed \
+    tee -a $here/$seq.full \
+    | sed \
 	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9] [0-9][0-9][0-9][0-9]$/DATE/' \
 	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/DATE/' \
         -e 's/([0-9]*)/(PID)/' \
