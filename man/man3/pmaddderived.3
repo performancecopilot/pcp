@@ -83,6 +83,15 @@ the syntactic and semantic rules for
 return values and the associated error reporting mechanisms,
 and the expression evaluation rules.
 .PP
+Note that for per-context derived metrics, all syntactic and semantic
+checks are performed at the time
+.B pmAddDerived
+or
+.B pmAddDerivedMetric
+is called.
+This is different to global derived metrics where the semantic checks
+are delayed until the metric is used in a specific PMAPI context.
+.PP
 There is no ``unregister''
 method, so once registered a per-context derived metric persists for the life
 of the PMAPI context, but it is destroyed as a side-effect of

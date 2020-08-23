@@ -1,0 +1,77 @@
+QA output created by 1271
+global derived metrics ...
+pmLookupName() returns 0
+qa1271: id[0] = PM_ID_NULL
+qa1271.a: id[1] = 511.0.3
+qa1271.b: id[2] = PM_ID_NULL
+
+=== metric 0 === name: qa1271 pmid PM_ID_NULL
+pmGetChildren() returns 1
+pmGetChildrenStatus() returns 1
+children of "qa1271" ...
+    a                   <s = 0>
+
+=== metric 1 === name: qa1271.a pmid 511.0.3
+pmNameID() returns 0
+pmid: 511.0.3  name: qa1271.a
+pmNameAll() returns 1
+pmid: 511.0.3  name: qa1271.a
+pmLookupDesc() returns -12409 (Derived metric definition failed)
+pmGetChildren() returns -12357 (Unknown metric name)
+pmGetChildrenStatus() returns -12357 (Unknown metric name)
+
+=== metric 2 === name: qa1271.b pmid PM_ID_NULL
+pmGetChildren() returns -12357 (Unknown metric name)
+pmGetChildrenStatus() returns -12357 (Unknown metric name)
+
+Real-time result ...
+pmResult dump from ADDR timestamp: DATESTAMP numpmid: 3
+  PM_ID_NULL (<noname>): No PMCD agent for domain of request
+  511.0.3 (qa1271.a): No PMCD agent for domain of request
+  PM_ID_NULL (<noname>): No PMCD agent for domain of request
+[TMP.conf:5] Error: pmRegisterDerived(qa1271.b, ...) syntax error
+ sample.bin - 100 +
+                  ^
+Arithmetic expression expected to follow PLUS
+Semantic error: derived metric qa1271.a: kernel.all.sysfork / disk.dev.read: Illegal operator for counters
+
+per-context derived metrics ...
+TMP.conf:1 pmAddDerived("qa1271.a", "kernel.all.sysfork / disk.dev.read") failed
+Semantic Error: pmAddDerivedMetric("qa1271.a", ...)
+kernel.all.sysfork / disk.dev.read
+^
+Illegal operator for counters
+
+TMP.conf:2 pmAddDerived("qa1271.b", "sample.bin - 100 +") failed
+Syntax Error: pmAddDerivedMetric("qa1271.b", ...)
+sample.bin - 100 +
+                 ^
+Arithmetic expression expected to follow PLUS
+
+pmLookupName() returns 0
+qa1271: id[0] = PM_ID_NULL
+qa1271.a: id[1] = 511.2047.1023
+qa1271.b: id[2] = PM_ID_NULL
+
+=== metric 0 === name: qa1271 pmid PM_ID_NULL
+pmGetChildren() returns -12357 (Unknown metric name)
+pmGetChildrenStatus() returns -12357 (Unknown metric name)
+
+=== metric 1 === name: qa1271.a pmid 511.2047.1023
+pmNameID() returns 0
+pmid: 511.2047.1023  name: qa1271.a
+pmNameAll() returns 1
+pmid: 511.2047.1023  name: qa1271.a
+pmLookupDesc() returns -12409 (Derived metric definition failed)
+pmGetChildren() returns -12357 (Unknown metric name)
+pmGetChildrenStatus() returns -12357 (Unknown metric name)
+
+=== metric 2 === name: qa1271.b pmid PM_ID_NULL
+pmGetChildren() returns -12357 (Unknown metric name)
+pmGetChildrenStatus() returns -12357 (Unknown metric name)
+
+Real-time result ...
+pmResult dump from ADDR timestamp: DATESTAMP numpmid: 3
+  PM_ID_NULL (<noname>): No PMCD agent for domain of request
+  511.2047.1023 (qa1271.a): No PMCD agent for domain of request
+  PM_ID_NULL (<noname>): No PMCD agent for domain of request

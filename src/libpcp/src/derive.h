@@ -155,7 +155,7 @@ extern int __dmchildren(__pmContext *, int, const char *, char ***, int **) _PCP
 extern int __dmgetpmid(__pmContext *, int, const char *, pmID *) _PCP_HIDDEN;
 extern int __dmgetname(__pmContext *, pmID, char **) _PCP_HIDDEN;
 extern void __dmopencontext(__pmContext *) _PCP_HIDDEN;
-extern void __dmbind(int, __pmContext *, int) _PCP_HIDDEN;
+extern void __dmbind(int, __pmContext *, int, int) _PCP_HIDDEN;
 extern void __dmclosecontext(__pmContext *) _PCP_HIDDEN;
 extern int __dmdesc(__pmContext *, int, pmID, pmDesc *) _PCP_HIDDEN;
 extern int __dmprefetch(__pmContext *, int, const pmID *, pmID **) _PCP_HIDDEN;

@@ -515,6 +515,7 @@ s/\(value.*\) ".*"/\1 STRING/
 	-e '/inst /{
 s/inst \[[0-9][0-9]* or "dks..."]/inst [DISK]/
 s;inst \[[0-9][0-9]* or "/dev/[^"]*"];inst [DISK];
+s;inst 0 or "overlay"];inst [DISK];
 }'
 
 }

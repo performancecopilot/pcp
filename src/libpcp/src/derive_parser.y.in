@@ -535,8 +535,8 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, int lookup_err_ok, int is_global
     return new;
 }
 
-static
-void report_sem_error(char *name, node_t *np)
+static void
+report_sem_error(char *name, node_t *np)
 {
     pmprintf("Semantic error: derived metric %s: ", name);
     switch (np->type) {
@@ -780,8 +780,11 @@ map_units(node_t *np)
 
 }
 
+/*
+ * see __dmbind() for semantics of async parameter
+ */
 static int
-map_desc(dm_t *dmp, node_t *np)
+map_desc(dm_t *dmp, node_t *np, int async)
 {
     /*
      * pmDesc mapping for binary operators ...
@@ -860,7 +863,8 @@ map_desc(dm_t *dmp, node_t *np)
 		break;
 	    default:
 		PM_TPD(derive_errmsg) = "Non-arithmetic operand for function";
-		report_sem_error(dmp->name, np);
+		if (async)
+		    report_sem_error(dmp->name, np);
 		return -1;
 	}
 	sts = pmConvScale(np->desc.type, &in, &np->left->desc.units,
@@ -1076,12 +1080,16 @@ map_desc(dm_t *dmp, node_t *np)
     return 0;
 
 bad:
-    report_sem_error(dmp->name, np);
+    if (async)
+	report_sem_error(dmp->name, np);
     return -1;
 }
 
+/*
+ * see __dmbind() for semantics of async parameter
+ */
 static int
-check_expr(dm_t *dmp, node_t *np)
+check_expr(dm_t *dmp, node_t *np, int async)
 {
     int		sts;
 
@@ -1128,11 +1136,11 @@ check_expr(dm_t *dmp, node_t *np)
     /* otherwise, np->left is never NULL ... */
     assert(np->left != NULL);
 
-    if ((sts = check_expr(dmp, np->left)) < 0)
+    if ((sts = check_expr(dmp, np->left, async)) < 0)
 	return sts;
 
     if (np->right != NULL) {
-	if ((sts = check_expr(dmp, np->right)) < 0)
+	if ((sts = check_expr(dmp, np->right, async)) < 0)
 	    return sts;
 	switch (np->type) {
 
@@ -1155,7 +1163,8 @@ check_expr(dm_t *dmp, node_t *np)
 		    fprintf(stderr, " right=%s\n", strbuf);
 		}
 		PM_TPD(derive_errmsg) = "Different types for ternary operands";
-		report_sem_error(dmp->name, np);
+		if (async)
+		    report_sem_error(dmp->name, np);
 		return -1;
 	    }
 	    if (np->left->desc.indom != np->right->desc.indom &&
@@ -1170,7 +1179,8 @@ check_expr(dm_t *dmp, node_t *np)
 		    fprintf(stderr, " right=%s\n", strbuf);
 		}
 		PM_TPD(derive_errmsg) = "Different instance domains for ternary operands";
-		report_sem_error(dmp->name, np);
+		if (async)
+		    report_sem_error(dmp->name, np);
 		return -1;
 	    }
 	    if (np->left->desc.indom != PM_INDOM_NULL)
@@ -1187,7 +1197,8 @@ check_expr(dm_t *dmp, node_t *np)
 		    fprintf(stderr, " right=%s\n", strbuf);
 		}
 		PM_TPD(derive_errmsg) = "Different semantics for ternary operands";
-		report_sem_error(dmp->name, np);
+		if (async)
+		    report_sem_error(dmp->name, np);
 		return -1;
 	    }
 	    if (np->left->desc.units.dimSpace != np->right->desc.units.dimSpace ||
@@ -1202,7 +1213,8 @@ check_expr(dm_t *dmp, node_t *np)
 		    fprintf(stderr, " right=%s (dim=%d scale=%d)\n", strbuf, np->right->desc.units.dimSpace, np->right->desc.units.scaleSpace);
 		}
 		PM_TPD(derive_errmsg) = "Different units or scale (space) for ternary operands";
-		report_sem_error(dmp->name, np);
+		if (async)
+		    report_sem_error(dmp->name, np);
 		return -1;
 	    }
 	    if (np->left->desc.units.dimTime != np->right->desc.units.dimTime ||
@@ -1217,7 +1229,8 @@ check_expr(dm_t *dmp, node_t *np)
 		    fprintf(stderr, " right=%s\n", strbuf);
 		}
 		PM_TPD(derive_errmsg) = "Different units or scale (time) for ternary operands";
-		report_sem_error(dmp->name, np);
+		if (async)
+		    report_sem_error(dmp->name, np);
 		return -1;
 	    }
 	    if (np->left->desc.units.dimCount != np->right->desc.units.dimCount ||
@@ -1232,7 +1245,8 @@ check_expr(dm_t *dmp, node_t *np)
 		    fprintf(stderr, " right=%s\n", strbuf);
 		}
 		PM_TPD(derive_errmsg) = "Different units or scale (count) for ternary operands";
-		report_sem_error(dmp->name, np);
+		if (async)
+		    report_sem_error(dmp->name, np);
 		return -1;
 	    }
 	    return 0;
@@ -1248,14 +1262,16 @@ check_expr(dm_t *dmp, node_t *np)
 		    break;
 		default:
 		    PM_TPD(derive_errmsg) = "Non-arithmetic operand for ternary guard";
-		    report_sem_error(dmp->name, np);
+		    if (async)
+			report_sem_error(dmp->name, np);
 		    return -1;
 	    }
 	    if (np->right->left->desc.indom == PM_INDOM_NULL &&
 	        np->right->right->desc.indom == PM_INDOM_NULL &&
 		np->left->desc.indom != PM_INDOM_NULL) {
 		PM_TPD(derive_errmsg) = "Non-scalar ternary guard with scalar expressions";
-		report_sem_error(dmp->name, np);
+		if (async)
+		    report_sem_error(dmp->name, np);
 		return -1;
 	    }
 	    /* correct pmDesc promoted through COLON node at the right */
@@ -1269,7 +1285,7 @@ check_expr(dm_t *dmp, node_t *np)
 	
 	default:
 	    /* build pmDesc from pmDesc of both operands */
-	    return map_desc(dmp, np);
+	    return map_desc(dmp, np, async);
 	}
     }
 
@@ -1334,7 +1350,8 @@ check_expr(dm_t *dmp, node_t *np)
 			PM_TPD(derive_errmsg) = "Non-arithmetic operand for unary negation";
 		    else
 			PM_TPD(derive_errmsg) = "Non-arithmetic operand for function";
-		    report_sem_error(dmp->name, np);
+		    if (async)
+			report_sem_error(dmp->name, np);
 		    return -1;
 	    }
 	    if (np->type != N_SUM)
@@ -1349,7 +1366,8 @@ check_expr(dm_t *dmp, node_t *np)
 		     */
 		    if (np->left->desc.units.dimTime != 0 && np->left->desc.units.dimTime != 1) {
 			PM_TPD(derive_errmsg) = "Incorrect time dimension for operand";
-			report_sem_error(dmp->name, np);
+			if (async)
+			    report_sem_error(dmp->name, np);
 			return -1;
 		    }
 		}
@@ -1634,10 +1652,7 @@ PM_FAULT_POINT("libpcp/derive.c:1", PM_FAULT_MISC);
 	    pmid.item = 1;		/* item field == 0 is magic */
 	}
 	else {
-	    // run out of pmIDs ...
-	    // TODO this is non-testable at the moment because all the loops
-	    // over mlist[] are O(N), making creation O(N*N) and we'll never be
-	    // able to create this many pmIDs until I change to a hashing scheme
+	    /* run out of pmIDs ... */
 	    PM_TPD(derive_errmsg) = "global PMID space exhausted";
 	    if (derive_locked == PM_NOT_LOCKED)
 		PM_UNLOCK(registered.mutex);
@@ -1755,7 +1770,9 @@ pmRegisterDerivedMetric(const char *name, const char *expr, char **errmsg)
     char	*dmsg;
 
     static const char	fmt[] = \
-	"Error: pmRegisterDerivedMetric(\"%s\", ...) error\n%s\n%*s^\n";
+	"Error: pmRegisterDerivedMetric(\"%s\", ...)\n%s\n%*s^\n";
+    static const char	fmt_nopos[] = \
+	"Error: pmRegisterDerivedMetric(\"%s\", ...)\n%s\n^\n";
 
     *errmsg = NULL;
     if ((offset = registerderived(PM_NOT_LOCKED, name, expr, 0)) == NULL)
@@ -1771,7 +1788,10 @@ pmRegisterDerivedMetric(const char *name, const char *expr, char **errmsg)
 
     if ((error = malloc(length)) == NULL)
 	pmNoMem("pmRegisterDerivedMetric", length, PM_FATAL_ERR);
-    pmsprintf(error, length, fmt, name, expr, (int)(expr - offset), " ");
+    if (offset == expr)
+	pmsprintf(error, length, fmt_nopos, name, expr);
+    else
+	pmsprintf(error, length, fmt, name, expr, (int)(expr - offset), " ");
     if (dmsg) {
 	strcat(error, dmsg);
 	strcat(error, "\n");
@@ -2204,8 +2224,12 @@ pmDerivedErrStr(void)
     return PM_TPD(derive_errmsg);
 }
 
-static char *
-addderived(const char *name, const char *expr)
+#define NO_ERROR 0
+#define SYNTAX_ERROR 1
+#define SEMANTIC_ERROR 2
+
+static int
+addderived(const char *name, const char *expr, char **p)
 {
     int			ctx;
     __pmContext		*ctxp;
@@ -2215,13 +2239,15 @@ addderived(const char *name, const char *expr)
     dm_t		*tmp_mlist;
     int			i;
 
+    *p = (char *)expr;		/* safest, especially if errors encountered */
+
     if ((ctx = pmWhichContext()) < 0) {
 	PM_TPD(derive_errmsg) = "Attempt to use an illegal context";
-	return (char *)expr;
+	return PM_ERR_NOCONTEXT;
     }
     if ((ctxp = __pmHandleToPtr(ctx)) == NULL) {
 	PM_TPD(derive_errmsg) = "Attempt to use an illegal context handle";
-	return (char *)expr;
+	return PM_ERR_NOCONTEXT;
     }
     PM_ASSERT_IS_LOCKED(ctxp->c_lock);
     cp = (ctl_t *)ctxp->c_dm;
@@ -2234,7 +2260,7 @@ addderived(const char *name, const char *expr)
 	/* DoS prevention limit exceeded ... */
 	PM_TPD(derive_errmsg) = "Too many per-context derived metrics";
 	PM_UNLOCK(ctxp->c_lock);
-	return (char *)expr;
+	return PM_ERR_BADDERIVE;
     }
 
     for (i = 0; i < cp->nmetric; i++) {
@@ -2243,7 +2269,7 @@ addderived(const char *name, const char *expr)
 		/* oops, duplicate per-context name ... */
 		PM_TPD(derive_errmsg) = "Duplicate per-context derived metric name";
 		PM_UNLOCK(ctxp->c_lock);
-		return (char *)expr;
+		return PM_ERR_BADDERIVE;
 	    }
 	    else {
 		/*
@@ -2270,9 +2296,9 @@ addderived(const char *name, const char *expr)
     np = parse_tree;
     if (np == NULL) {
 	/* parser error */
-	char	*sts = (char *)lexicon;
+	*p = (char *)lexicon;
 	PM_UNLOCK(ctxp->c_lock);
-	return sts;
+	return SYNTAX_ERROR;
     }
 
     if (cp->nmetric - cp->glob_last == 0) {
@@ -2300,13 +2326,10 @@ PM_FAULT_POINT("libpcp/derive.c:2", PM_FAULT_MISC);
 	    pmid.item = 1024 - 1;
 	}
 	else {
-	    // run out of pmIDs ...
-	    // TODO this is non-testable at the moment because all the loops
-	    // over mlist[] are O(N), making creation O(N*N) and we'll never be
-	    // able to create this many pmIDs until I change to a hashing scheme
+	    /* run out of pmIDs ... */
 	    PM_TPD(derive_errmsg) = "per-context PMID space exhausted";
 	    PM_UNLOCK(ctxp->c_lock);
-	    return (char *)expr;
+	    return PM_ERR_BADDERIVE;
 	}
     }
 
@@ -2327,6 +2350,22 @@ PM_FAULT_POINT("libpcp/derive.c:2", PM_FAULT_MISC);
     cp->mlist[cp->nmetric-1].oneline = NULL;
     cp->mlist[cp->nmetric-1].helptext = NULL;
 
+    /*
+     * we must be in a context, and this derived metric is private to
+     * that context, so we can bind synchronously
+     */
+    __dmbind(PM_NOT_LOCKED, ctxp, cp->nmetric-1, 0);
+    if (PM_TPD(derive_errmsg) != NULL) {
+	/* oops, semantic error(s) ... */
+	if (pmDebugOptions.derive) {
+	    fprintf(stderr, "pmAddDerived(ctx->%d): %s: bind failed: %s\n", ctxp->c_handle, name, PM_TPD(derive_errmsg));
+	}
+	free_expr(cp->mlist[cp->nmetric-1].expr);
+	cp->mlist[cp->nmetric-1].expr = NULL;
+	PM_UNLOCK(ctxp->c_lock);
+	return SEMANTIC_ERROR;
+    }
+
     if (pmDebugOptions.derive) {
 	fprintf(stderr, "pmAddDerived(ctx->%d): per-context metric[%d] %s = %s\n", ctxp->c_handle, cp->nmetric-1, name, expr);
 	if (pmDebugOptions.appl0)
@@ -2334,14 +2373,20 @@ PM_FAULT_POINT("libpcp/derive.c:2", PM_FAULT_MISC);
     }
 
     PM_UNLOCK(ctxp->c_lock);
-    return NULL;
+    return NO_ERROR;
 }
 
 /* Global derived metrics - the original, and still the best. */
 char *
 pmAddDerived(const char *name, const char *expr)
 {
-    return addderived(name, expr);
+    char	*p;
+    int		sts;
+    sts = addderived(name, expr, &p);
+    if (sts == NO_ERROR)
+	return NULL;
+    else
+	return p;
 }
 
 /* Global derived metrics - variant including error handling. */
@@ -2352,33 +2397,54 @@ pmAddDerivedMetric(const char *name, const char *expr, char **errmsg)
     char	*offset;
     char	*error;
     char	*dmsg;
+    int		sts;
 
     static const char	fmt[] = \
-	"Error: pmAddDerivedMetric(\"%s\", ...) error\n%s\n%*s^\n";
+	"%s Error: pmAddDerivedMetric(\"%s\", ...)\n%s\n%*s^\n";
+    static const char	fmt_nopos[] = \
+	"%s Error: pmAddDerivedMetric(\"%s\", ...)\n%s\n^\n";
+    static const char	fmt_pmapi[] = \
+	"Error: pmAddDerivedMetric(\"%s\", ...): returns %d\n";
 
     *errmsg = NULL;
-    if ((offset = addderived(name, expr)) == NULL)
+    if ((sts = addderived(name, expr, &offset)) == NO_ERROR)
 	return 0;
 
-    /* failed to register name/expr - build an error string to pass back */
-    length = strlen(fmt);
-    length += strlen(name);
-    length += strlen(expr);
-    length += (offset - expr);
+    /*
+     * failed to add name/expr - build an error string to pass back
+     * ... length is maximum
+     */
+    if (sts < 0) {
+	/* PMAPI error */
+	length = strlen(fmt_pmapi) + strlen(name);
+	length += 6;	/* decimal PMAPI error code */
+    }
+    else {
+	/* Syntax or semantic error */
+	length = strlen(fmt) + strlen("Semantic") + strlen(name) + strlen(expr);
+	length += (offset - expr);
+    }
     if ((dmsg = PM_TPD(derive_errmsg)) != NULL)
 	length += strlen(dmsg) + 2;
 
     if ((error = malloc(length)) == NULL)
 	pmNoMem("pmAddDerivedMetric", length, PM_FATAL_ERR);
-    pmsprintf(error, length, fmt, name, expr, (int)(expr - offset), " ");
-    if (dmsg) {
+    if (sts < 0)
+	pmsprintf(error, length, fmt_pmapi, name, sts);
+    else {
+	if (offset == expr)
+	    pmsprintf(error, length, fmt_nopos, sts == SYNTAX_ERROR ? "Syntax" : "Semantic", name, expr);
+	else
+	    pmsprintf(error, length, fmt, sts == SYNTAX_ERROR ? "Syntax" : "Semantic", name, expr, (int)(expr - offset), " ");
+	sts = PM_ERR_BADDERIVE;
+    }
+    if (dmsg != NULL) {
 	strcat(error, dmsg);
 	strcat(error, "\n");
     }
-    error[length-1] = '\0';
 
     *errmsg = error;
-    return -1;
+    return sts;
 }
 
 int
@@ -2608,7 +2674,7 @@ __dmtraverse(__pmContext *ctxp, const char *name, char ***namelist)
 	     * will skip the metric
 	     */
 	    if ((cp->mlist[i].flags & DM_BIND) == 0) {
-		__dmbind(PM_LOCKED, ctxp, i);
+		__dmbind(PM_LOCKED, ctxp, i, 1);
 	    }
 	    /* skip invalid derived metrics, e.g. due to missing operands */
 	    if (!cp->mlist[i].anon) {
@@ -2677,17 +2743,7 @@ __dmchildren(__pmContext *ctxp, int derive_locked, const char *name, char ***off
 	 */
 	if (cp->mlist[i].flags & DM_MASKED)
 	    continue;
-	/* skip invalid derived metrics, e.g. due to missing operands */
-	if (!cp->mlist[i].anon) {
-	    if (ctxp == NULL ||
-	       ((cp->mlist[i].flags & DM_BIND) && cp->mlist[i].expr == NULL)) {
-		if (pmDebugOptions.derive) {
-		    fprintf(stderr, "__dmchildren: name=\"%s\", omitting invalid child \"%s\"\n",
-		    	name, cp->mlist[i].name);
-		}
-		continue;
-	    }
-	}
+
 	/*
 	 * prefix match ... pick off the unique next level names on match
 	 */
@@ -2695,6 +2751,21 @@ __dmchildren(__pmContext *ctxp, int derive_locked, const char *name, char ***off
 	    (strncmp(name, cp->mlist[i].name, matchlen) == 0 &&
 	     (cp->mlist[i].name[matchlen] == '.' ||
 	      cp->mlist[i].name[matchlen] == '\0'))) {
+	    /*
+	     * we have a match ... do not bind here as it causes nested
+	     * context locking when __dmbind() calls pmLookupName_ctx()
+	     */
+
+	    /* skip invalid derived metrics, e.g. due to missing operands */
+	    if (!cp->mlist[i].anon) {
+		if ((cp->mlist[i].flags & DM_BIND) && cp->mlist[i].expr == NULL) {
+		    if (pmDebugOptions.derive) {
+			fprintf(stderr, "__dmchildren: name=\"%s\", omitting invalid child \"%s\"\n",
+			    name, cp->mlist[i].name);
+		    }
+		    continue;
+		}
+	    }
 	    if (cp->mlist[i].name[matchlen] == '\0') {
 		/*
 		 * leaf node
@@ -2889,9 +2960,14 @@ __dmgetname(__pmContext *ctxp, pmID pmid, char ** name)
 /*
  * bind the ith derived metric expression in the current context ...
  * sets cp->mlist[i].expr as return value (NULL for error)
+ *
+ * async == 1 => bind is asynchronous and error reporting via pmprintf()
+ *               is needed
+ *       == 0 => bind is part of pmAddDerived*() and error code can be
+ *               returned directly to the caller
  */
 void
-__dmbind(int derive_locked, __pmContext *ctxp, int i)
+__dmbind(int derive_locked, __pmContext *ctxp, int i, int async)
 {
     int		sts;
     pmID	pmid;
@@ -2933,7 +3009,7 @@ __dmbind(int derive_locked, __pmContext *ctxp, int i)
     cp->mlist[i].expr = bind_expr(ctxp, i, cp->mlist[i].expr, 0, cp->mlist[i].flags & DM_GLOBAL);
     if (cp->mlist[i].expr != NULL) {
 	/* failures must be reported in check_expr() or below */
-	sts = check_expr(&cp->mlist[i], cp->mlist[i].expr);
+	sts = check_expr(&cp->mlist[i], cp->mlist[i].expr, async);
 	if (sts < 0) {
 	    free_expr(cp->mlist[i].expr);
 	    cp->mlist[i].expr = NULL;
@@ -3069,7 +3145,7 @@ __dmdesc(__pmContext *ctxp, int derive_locked, pmID pmid, pmDesc *desc)
 	if (cp->mlist[i].pmid == pmid) {
 	    if ((cp->mlist[i].flags & DM_BIND) == 0) {
 		/* ctxp->c_lock already locked at this point */
-		__dmbind(derive_locked, ctxp, i);
+		__dmbind(derive_locked, ctxp, i, 1);
 	    }
 	    if (cp->mlist[i].expr == NULL)
 		/* bind failed for some reason, reported earlier */

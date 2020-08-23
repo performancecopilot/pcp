@@ -51,7 +51,7 @@ add_ctx_dm(char *filename)
 		*ep = '\0';
 		sts = pmAddDerivedMetric(name, expr, &p);
 		if (sts < 0) {
-		    fprintf(stderr, "%s:%d pmAddDerived(%s, %s) failed: %s\n", filename, lineno, name, expr, p);
+		    fprintf(stderr, "%s:%d pmAddDerived(\"%s\", \"%s\") failed\n%s\n", filename, lineno, name, expr, p);
 		    free(p);
 		}
 		else

@@ -1,9 +1,9 @@
 QA output created by 1072
 == pmrep archive reporting and creation
 Writing output from the original archives to files
-Recording 19 metrics to /tmp/1072.new_archive1:
+Recording 19 metrics to TMP.new_archive1:
 5 samples(s) with 1.0 sec interval ~ 4 sec duration.
-Recording 58 metrics to /tmp/1072.new_archive2:
+Recording 58 metrics to TMP.new_archive2:
 5 samples(s) with 1.0 sec interval ~ 4 sec duration.
 Writing output from the created archives to files
 Diff of outputs start (only path / minor timestamp diff expected):
@@ -34,7 +34,7 @@ Diff of outputs start (only path / minor timestamp diff expected):
                                                                                                                                                                                                                                  1 minute      5 minute     15 minute                                                                                              cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1         node0         node0         node0         node0         node0         node0         node0         node0         node0         node0                                                                                    
 Diff of outputs end
 === pmrep archive creation with filtering
-Recording 1 metrics to /tmp/1072.new_archive3:
+Recording 1 metrics to TMP.new_archive3:
 5 samples(s) with 1.0 sec interval ~ 4 sec duration.
 
   archive: temp-archive
@@ -56,7 +56,7 @@ Recording 1 metrics to /tmp/1072.new_archive3:
 00:31:01       22.1338        2.8667
 00:32:01        6.8666        2.2000
 === pmrep archive creation with discrete values
-Recording 2 metrics to /tmp/1072.new_archive4:
+Recording 2 metrics to TMP.new_archive4:
 5 samples(s) with 1.0 sec interval ~ 4 sec duration.
   h.machine  m.u.used
                 Kbyte
