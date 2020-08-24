@@ -63,12 +63,8 @@ Ubuntu
 
 Fedora
     https://fedoraproject.org/wiki/Releases
-    6 Jun  2015: 20, 21 & 22
-    17 Nov 2015: 22 & 23
-    22 Jun 2016: 23 & 24
-    3 Apr 1017: 24 & 25
-    23 Aug 2017: 25 & 26
     23 Sep 2018: 27 & 28
+    23 Aug 2020: 31 & 32
     # which packages are installed
     $ rpm -qa --qf '%{NAME}\n'
     # package search recipe (name and info or description)
@@ -82,10 +78,17 @@ Fedora
     # upgrade recipe from Fedora 21 onwards
     $ sudo dnf update --refresh; sudo dnf install dnf-plugin-system-upgrade
     $ sudo dnf install fedora-gpg-keys
+    # if you get more than one release behind (I think) ... do this with
+    # "32" replaced by the desired version number
+    $ cd /etc/pki/rpm-gpg/
+    $ sudo wget https://src.fedoraproject.org/rpms/fedora-repos/raw/master/f/RPM-GPG-KEY-fedora-32-primary
+    $ sudo ln -s RPM-GPG-KEY-fedora-32-primary RPM-GPG-KEY-fedora-32-x86_64
     #                                                             for Fedora 26
     $ sudo dnf system-upgrade download --refresh --allowerasing --releasever=26
+    # 
     $ sudo dnf system-upgrade reboot
     # and then watch the console window ...
+
 
 RedHat
     https://access.redhat.com/articles/3078
@@ -428,10 +431,19 @@ are commonly installed and are not needed for PCP builds nor QA.
 
 === Miscellaneous Hints ===
 
---- expanding root fs volume with lvm ---
-
-Most succinct recipe is here
-https://rbgeek.wordpress.com/2013/01/27/how-to-extend-the-root-partition-in-lvm/
+Extending a roto LVM with oevice-mapper by adding a partition
+    From
+    https://serverfault.com/questions/810221/how-to-correctly-extend-a-linux-device-mapper-partition
+    or
+    https://rbgeek.wordpress.com/2013/01/27/how-to-extend-the-root-partition-in-lvm/
+    Assume device-mapper vgname fedora-server
+    Assume partiton to add is partiton 1 of /dev/vdb
+    $ sudo cfdisk /dev/vdb	<- make 1 partition, all of the disk
+    $ sudo pvcreate /dev/vdb1	<- initialize partition for use with LVM
+    $ sudo vgdisplay		<- get volume group name
+    $ sudo vgextend /dev/fedora-server /dev/vdb1	<- extend the volume group
+    $ sudo lvextend -l +100%FREE /dev/fedora-server/root	<- extend LVM
+    $ sudo resize2fs /dev/fedora-server/root		<- extend filesystem
 
 Just remember that if you're using XFS, you need xfs_growfs instead of
 resize2fs.
