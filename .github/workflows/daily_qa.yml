@@ -89,7 +89,7 @@ jobs:
 
   report:
     name: Publish Test Report
-    if: always() && (github.repository == 'performancecopilot/pcp' || github.event_name == 'workflow_dispatch')
+    if: always() && github.repository == 'performancecopilot/pcp'
     needs: qa
     runs-on: ubuntu-18.04
     steps:
