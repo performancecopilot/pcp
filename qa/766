@@ -98,7 +98,7 @@ do
 done
 
 addr=`cat $tmp.tmp`
-[ -z addr ] && _notrun "no active inet interfaces with DNS resolution"
+[ -z "$addr" ] && _notrun "no active inet interfaces with DNS resolution"
 
 echo "addr=$addr" >>$seq.full
 
