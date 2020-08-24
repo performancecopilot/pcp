@@ -58,7 +58,7 @@ install:	default
 	$(INSTALL) -m 755 -t $(PCP_PMNS_DIR)/Make.stdpmid Make.stdpmid $(PCP_PMNSADM_DIR)/Make.stdpmid
 	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR) $(STDPMID) $(PCP_PMNSADM_DIR)
 ifeq (, $(filter redhat debian suse, $(PACKAGE_DISTRIBUTION)))
-	$(INSTALL) -m 644 .NeedRebuild $(PCP_PMNS_DIR)/.NeedRebuild
+	$(INSTALL) -m 644 -t .NeedRebuild $(PCP_PMNS_DIR)/.NeedRebuild
 endif
 
 stdpmid:	$(STDPMID)
