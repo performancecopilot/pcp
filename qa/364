@@ -194,6 +194,9 @@ _filter_openbsd()
 	    -e '/^network\.udp .* Unknown metric name/d' \
 	    -e '/^network\.udplite .* Unknown metric name/d' \
 	    -e '/^network\.interface\.collisions .* Unknown metric name/d' \
+	    -e '/^network\.tcp\.listenoverflows .* Unknown metric name/d' \
+	    -e '/^network\.tcp\.reqqfulldocookies .* Unknown metric name/d' \
+	    -e '/^network\.tcp\.reqqfulldrop .* Unknown metric name/d' \
 	    -e '/^proc\..* Unknown metric name/d' \
 	# openbsd
     fi

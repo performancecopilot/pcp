@@ -18,6 +18,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+_check_valgrind
+
 _cleanup()
 {
     cd $here
