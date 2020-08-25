@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2019 Red Hat.  All Rights Reserved.
+.\" Copyright (c) 2019-2020 Red Hat.  All Rights Reserved.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -57,7 +57,13 @@ SQL Server socket connection string.
 Connection timeout setting, in seconds.
 .PP
 .B [authentication]
-section specifies values for the following settings
+section specifies values for the two supported
+modes of authentication with SQL Server.
+.P
+The default is to use SQL Server authentication,
+which requires a username and password to be
+provided.
+These are the following configuration settings
 (their default values are shown in parenthesis):
 .TP 15
 .B username \fR(\fP\fIsa\fP\fR)\fP
@@ -65,6 +71,21 @@ Username to connect to the database.
 .TP
 .B password \fR(unset)\fP
 Password to connect to the database.
+.PP
+The second option is Windows authentication mode,
+where logins are created in SQL Server that are not
+based on operating system user accounts.
+.TP 15
+.B trusted \fR(\fP\fIfalse\fP\fR)\fP
+Set to
+.I true
+to use Windows authentication when connecting to the
+database.
+.PP
+This is a Kerberos-style connection and credentials
+must be available before the PMDA is started (see
+.BR kinit (1)
+for further details).
 .PD
 .SH INSTALLATION
 To install, the following must be done as root:
@@ -123,6 +144,7 @@ file \fI/etc/pcp.conf\fR contains the local values for these variables.
 The \fB$PCP_CONF\fR variable may be used to specify an alternative
 configuration file, as described in \fBpcp.conf\fR(5).
 .SH SEE ALSO
-.BR PCPIntro (1)
+.BR PCPIntro (1),
+.BR kinit (1)
 and
 .BR pmcd (1).

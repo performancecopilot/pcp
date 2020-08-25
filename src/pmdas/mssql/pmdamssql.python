@@ -1002,10 +1002,23 @@ class MSSQLPMDA(PMDA):
         conf_vars = self.config(conf_file, ['authentication', 'connection'])
         self.driver = conf_vars["connection.driver"]
         self.server = conf_vars["connection.server"]
-        self.timeout = int(conf_vars["connection.timeout"])
-        self.username = conf_vars["authentication.username"]
+        try:
+            self.timeout = int(conf_vars["connection.timeout"])
+        except:
+            self.timeout = 2    # 2 second timeout by default
+        try:
+            self.trusted = bool(conf_vars["authentication.trusted"])
+        except:
+            self.trusted = False
+        try:
+            self.username = conf_vars["authentication.username"]
+        except:
+            self.username = pmContext.pmGetConfig('PCP_USER')
+        try:
+            self.password = str(conf_vars["authentication.password"])
+        except:
+            self.password = ''
         # need to escape backslashes, single quotes and semi colons
-        self.password = conf_vars["authentication.password"]
         self.password = self.password.replace("\\", "\\\\")
         self.password = self.password.replace("'", "\\'")
         self.password = self.password.replace(";", "\\;")
@@ -1252,10 +1265,16 @@ class MSSQLPMDA(PMDA):
 
     def mssql_connect(self):
         """ connect to SQL Server """
-        try:
+        self.set_user(pmContext.pmGetConfig('PCP_USER'))
+        if self.trusted:
+            parameters = 'DRIVER={0};SERVER={1};TRUSTED_CONNECTION=YES'
+            parameters = parameters.format(self.driver, self.server)
+        else:
             parameters = 'DRIVER={0};SERVER={1};UID={2};PWD={3}'
             parameters = parameters.format(self.driver, self.server,
                             self.username, self.password)
+
+        try:
             self.conn = pyodbc.connect(parameters, timeout=self.timeout)
             self.conn.timeout = self.timeout
         except pyodbc.InterfaceError as error:
