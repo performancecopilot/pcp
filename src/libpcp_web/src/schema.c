@@ -1905,7 +1905,12 @@ pmDiscoverSetup(pmDiscoverModule *module, pmDiscoverCallBacks *cbs, void *arg)
     if ((option = pmIniFileLookup(config, "discover", "exclude.metrics"))) {
 	if ((data->pmids = dictCreate(&intKeyDictCallBacks, NULL)) == NULL)
 	    return -ENOMEM;
-	/* parse regular expression string for matching on metric names */
+	/*
+	 * Parse excluded metric names as an extended regular expression.
+	 * For back-compat, also support a comma separated basic(Posix)
+	 * regex list.
+	 */
+	sdsmapchars(option, ", ", "||", 2);
 	regcomp(&data->exclude_names, option, REG_EXTENDED|REG_NOSUB);
     }
     if ((option = pmIniFileLookup(config, "discover", "exclude.indoms"))) {

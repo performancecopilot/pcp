@@ -249,7 +249,7 @@ ParseOptions(int argc, char *argv[], int *nports, int *maxpending)
     /*
      * Parse the configuration file, extracting a dictionary of key/value
      * pairs.  Each key is "section.name" and values are always strings.
-     * If no config given, default is /etc/pcp/pmproxy.conf (in addition,
+     * If no config given, default is /etc/pcp/pmproxy/pmproxy.conf (in addition,
      * local user path settings in $HOME/.pcp/pmproxy.conf are merged).
      */
     if ((config = pmIniFileSetup(inifile)) == NULL) {
