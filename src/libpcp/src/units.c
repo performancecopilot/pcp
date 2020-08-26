@@ -54,7 +54,7 @@ pmAtomStr_r(const pmAtomValue *avp, int type, char *buf, int buflen)
 	    pmsprintf(buf, buflen, "%u", avp->ul);
 	    break;
 	case PM_TYPE_64:
-	    pmsprintf(buf, buflen, "%" PRIi64, avp->ll);
+	    pmsprintf(buf, buflen, "%" PRId64, avp->ll);
 	    break;
 	case PM_TYPE_U64:
 	    pmsprintf(buf, buflen, "%" PRIu64, avp->ull);
