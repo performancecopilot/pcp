@@ -999,6 +999,26 @@ cntinst(pmInDom indom)
 }
 
 /*
+ * special "fake" PRNG ... need something that is platform
+ * independent (lrand48() is not), for sample.scramble
+ */
+static int32_t	seed = 44321;   /* always start the same way */
+
+void
+fakesrand(int32_t newseed)
+{
+    seed = newseed;
+}
+
+int32_t
+fakerand(void)
+{
+    /* used the ANSI C constants */
+    seed = ((int64_t)1103515245 * seed + 12345) & 0x7fffffff;
+    return seed;
+}
+
+/*
  * commence a new round of instance selection
  * flag == 1 for prefetch instance counting
  * flag == 0 for iteration over instances to retrieve values
@@ -1025,16 +1045,16 @@ startinst(pmInDom indom, int flag)
 		int	i;
 		int	k = 0;
 		int	maxnuminst = indomtab[BIN_INDOM].it_numinst;
-		srand48((scramble_ver << 10) + 13);
+		fakesrand((scramble_ver << 10) + 13);
 		scramble_ver++;
 		for (i = 0; i < maxnuminst; i++)
 		    indomtab[SCRAMBLE_INDOM].it_set[i].i_inst = PM_IN_NULL;
 		for (i = 0; i < maxnuminst; i++) {
 		    /* skip 1/3 of instances */
-		    if ((lrand48() % 100) < 33) continue;
+		    if ((fakerand() % 100) < 33) continue;
 		    /* order of instances is random */
 		    for ( ; ; ) {
-			k = lrand48() % maxnuminst;
+			k = fakerand() % maxnuminst;
 			if (indomtab[SCRAMBLE_INDOM].it_set[k].i_inst != PM_IN_NULL)
 			    continue;
 			indomtab[SCRAMBLE_INDOM].it_set[k].i_inst = indomtab[BIN_INDOM].it_set[i].i_inst;
