@@ -806,10 +806,10 @@ number_to_string(pmAtomValue *atom, int type)
 	pmsprintf(buffer, sizeof(buffer), "%u", atom->ul);
 	break;
     case PM_TYPE_64:
-	pmsprintf(buffer, sizeof(buffer), "%lld", (long long)atom->ll);
+	pmsprintf(buffer, sizeof(buffer), "%" PRId64, atom->ll);
 	break;
     case PM_TYPE_U64:
-	pmsprintf(buffer, sizeof(buffer), "%llu", (unsigned long long)atom->ull);
+	pmsprintf(buffer, sizeof(buffer), "%" PRIu64, atom->ull);
 	break;
     case PM_TYPE_FLOAT:
 	pmsprintf(buffer, sizeof(buffer), "%f", (double)atom->f);

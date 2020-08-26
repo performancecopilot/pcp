@@ -739,7 +739,7 @@ BEGIN	{ for (t='$start'; t<='$end'; t++) printf "%03d\n",t }' \
 		then
 		    echo $id >>$tmp.list
 		else
-		   echo "$id - retired test, ignored"
+		   $range || echo "$id - retired test, ignored"
 		fi
 	    elif egrep -s "^$id:reserved([ 	]|$)" group >/dev/null
 	    then
@@ -748,7 +748,7 @@ BEGIN	{ for (t='$start'; t<='$end'; t++) printf "%03d\n",t }' \
 		then
 		    echo $id >>$tmp.list
 		else
-		    echo "$id - reserved test, ignored"
+		    $range || echo "$id - reserved test, ignored"
 		fi
 	    else
 		# oops

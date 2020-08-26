@@ -85,10 +85,8 @@ Fedora
     $ sudo ln -s RPM-GPG-KEY-fedora-32-primary RPM-GPG-KEY-fedora-32-x86_64
     #                                                             for Fedora 26
     $ sudo dnf system-upgrade download --refresh --allowerasing --releasever=26
-    # 
     $ sudo dnf system-upgrade reboot
     # and then watch the console window ...
-
 
 RedHat
     https://access.redhat.com/articles/3078
@@ -113,8 +111,8 @@ RedHat
 
     Update.  As of RHEL 8, dnf is preferred over yum.
 
-    Note on dnf modules.  To get libuv-devel installed on RHEL8 needed this
-    recipe from Andreas.
+    Note on dnf modules.
+    To get libuv-devel installed on RHEL8 needed this recipe from Andreas.
     # dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
     # dnf install -y libuv
     # dnf module install -y libuv/devel

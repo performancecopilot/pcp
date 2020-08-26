@@ -88,7 +88,7 @@ initSeriesGetQuery(seriesQueryBaton *baton, node_t *root, timing_t *timing)
 
 static int
 skip_free_value_set(node_t *np) {
-    // return 0 stands for skipping free this node's value_set.
+    /* return 0 stands for skipping free this node's value_set. */
     if (np->type == N_RATE || np->type == N_NOOP 
     	|| np->type == N_RESCALE || np->type == N_ABS 
 	|| np->type == N_SQRT || np->type == N_FLOOR
@@ -2182,7 +2182,7 @@ series_calculate_rate(node_t *np)
 		    t_pmval = np->value_set.series_values[i].series_sample[j-1].series_instance[k];
 		    s_pmval = np->value_set.series_values[i].series_sample[j].series_instance[k];
 		    if (strcmp(s_pmval.series, t_pmval.series) != 0) {
-			// TODO: two SIDs of the instances' names between samples are different, report error.
+			/* TODO: two SIDs of the instances' names between samples are different, report error. */
 			if (pmDebugOptions.query) {
 			    fprintf(stderr, "TODO: two SIDs of the instances' names between samples are different, report error.");
 			    fprintf(stderr, "%s %s\n", s_pmval.series, t_pmval.series);
@@ -2378,10 +2378,10 @@ series_extract_value(int type, sds str, pmAtomValue *oval)
 	    sts = sscanf(str, "%u", &oval->ul);
 	    break;
 	case PM_TYPE_64:
-	    sts = sscanf(str, "%ld", &oval->ll);
+	    sts = sscanf(str, "%" PRId64, &oval->ll);
 	    break;
 	case PM_TYPE_U64:
-	    sts = sscanf(str, "%lu", &oval->ull);
+	    sts = sscanf(str, "%" PRIu64, &oval->ull);
 	    break;
 	case PM_TYPE_FLOAT:
 	    sts = sscanf(str, "%f", &oval->f);
@@ -2413,10 +2413,10 @@ series_pmAtomValue_conv_str(int type, char *str, pmAtomValue *val)
 	    sts = sprintf(str, "%u", val->ul);
 	    break;
 	case PM_TYPE_64:
-	    sts = sprintf(str, "%ld", val->ll);
+	    sts = sprintf(str, "%" PRId64, val->ll);
 	    break;
 	case PM_TYPE_U64:
-	    sts = sprintf(str, "%lu", val->ull);
+	    sts = sprintf(str, "%" PRIu64, val->ull);
 	    break;
 	case PM_TYPE_FLOAT:
 	    sts = sprintf(str, "%f", val->f);
