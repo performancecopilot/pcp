@@ -86,10 +86,24 @@ pipe	n	$here/$seq.pipe|
 # and reinstall PMDA Install script (if needed)
 cat >$tmp.input <<End-of-File
 1
+y
 End-of-File
 
 install_on_cleanup=false
-pminfo -v logger >>$here/$seq.full 2>&1 && install_on_cleanup=true
+if pminfo -v logger >>$here/$seq.full 2>&1
+then
+    if [ -f "$PCP_VAR_DIR/config/logger/logger.conf" ]
+    then
+	install_on_cleanup=true
+    else
+	# guard against a broken setup on entry ... the pminfo above
+	# will return with status 0 if the PMDA is installed (even if
+	# no metric values are available), but if logger.conf is not
+	# there the Install in _cleanup() is doomed ...
+	#
+	echo "Botched install at test startup ... $PCP_VAR_DIR/config/logger/logger.conf is missing" >>$here/$seq.full
+    fi
+fi
 echo "install_on_cleanup=$install_on_cleanup" >>$here/$seq.full
 
 status=1	# failure is the default!
@@ -97,6 +111,15 @@ _needclean=true
 trap "_cleanup" 0 1 2 3 15
 
 # real QA test starts here
+
+# need to save PMDA config (if it exists) now, before
+# _prepare_pmda_install() that runs make clobber and may
+# remove it
+#
+[ -d $PCP_VAR_DIR/config/logger ] || $sudo mkdir -p $PCP_VAR_DIR/config/logger
+[ -f $PCP_VAR_DIR/config/logger/logger.conf ] && \
+_save_config $PCP_VAR_DIR/config/logger/logger.conf
+
 _prepare_pmda_install logger
 
 # prepare test case files (see below)
@@ -125,9 +148,6 @@ chmod 777 $here/$seq.pipe.pid
 #debug# echo "--- end script ---" >>$here/$seq.full
 #debug# ls -l $here/$seq.pipe >>$here/$seq.full
 
-[ -d $PCP_VAR_DIR/config/logger ] || $sudo mkdir -p $PCP_VAR_DIR/config/logger
-[ -f $PCP_VAR_DIR/config/logger/logger.conf ] && \
-_save_config $PCP_VAR_DIR/config/logger/logger.conf
 $sudo cp $tmp.conf $PCP_VAR_DIR/config/logger/logger.conf
 
 # install PMDA accepting the defaults (esp config file)
