@@ -4,9 +4,11 @@
 #include "pmda.h"
 
 #include "zfs_arcstats.h"
+#include "zfs_abdstats.h"
 
 regex_t rgx_row;
 static zfs_arcstats_t arcstats;
+static zfs_abdstats_t abdstats;
 
 static pmdaMetric metrictab[] = {
 /*---------------------------------------------------------------------------*/
@@ -404,6 +406,9 @@ static pmdaMetric metrictab[] = {
 	{ &arcstats.arc_raw_size,
 	  { PMDA_PMID(0, 0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/*---------------------------------------------------------------------------*/
+/*  ABDSTATS  */
+/*---------------------------------------------------------------------------*/
 };
 
 static int
@@ -428,7 +433,7 @@ static int
 zfs_fetch(int numpid, pmID *pmidlist, pmResult **resp, pmdaExt *pmda)
 {
 	zfs_arcstats_fetch(&arcstats, &rgx_row);
-	//zfs_abdstats_fetch(pmda);
+	zfs_abdstats_fetch(&abdstats, &rgx_row);
 	//zfs_zil_fetch(pmda);
 	return pmdaFetch(numpid, pmidlist, resp, pmda);
 }
@@ -438,7 +443,6 @@ zfs_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
 	unsigned int	cluster = pmID_cluster(mdesc->m_desc.pmid);
 	unsigned int	item = pmID_item(mdesc->m_desc.pmid);
-	struct zfs_arcstats_t	*arcstats;
 	int		sts;
 
 	switch (mdesc->m_desc.type) {
