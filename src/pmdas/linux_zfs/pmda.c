@@ -5,10 +5,12 @@
 
 #include "zfs_arcstats.h"
 #include "zfs_abdstats.h"
+#include "zfs_dbufstats.h"
 
 regex_t rgx_row;
 static zfs_arcstats_t arcstats;
 static zfs_abdstats_t abdstats;
+static zfs_dbufstats_t dbufstats;
 
 static pmdaMetric metrictab[] = {
 /*---------------------------------------------------------------------------*/
@@ -493,7 +495,181 @@ static pmdaMetric metrictab[] = {
 	{ &abdstats.scatter_sg_table_retry,
 	  { PMDA_PMID(1, 20), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
-
+/*---------------------------------------------------------------------------*/
+/*  DBUFSTATS  */
+/*---------------------------------------------------------------------------*/
+/* cache_count */
+	{ &dbufstats.cache_count,
+	  { PMDA_PMID(2, 0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* cache_size_bytes */
+	{ &dbufstats.cache_size_bytes,
+	  { PMDA_PMID(2, 1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* cache_size_bytes_max */
+	{ &dbufstats.cache_size_bytes_max,
+	  { PMDA_PMID(2, 2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* cache_target_bytes */
+	{ &dbufstats.cache_target_bytes,
+	  { PMDA_PMID(2, 3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* cache_lowater_bytes */
+	{ &dbufstats.cache_lowater_bytes,
+	  { PMDA_PMID(2, 4), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* cache_hiwater_bytes */
+	{ &dbufstats.cache_hiwater_bytes,
+	  { PMDA_PMID(2, 5), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* cache_total_evicts */
+	{ &dbufstats.cache_total_evicts,
+	  { PMDA_PMID(2, 6), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* cache_level_0 */
+	{ &dbufstats.cache_level_0,
+	  { PMDA_PMID(2, 7), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* cache_level_1 */
+	{ &dbufstats.cache_level_1,
+	  { PMDA_PMID(2, 8), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* cache_level_2 */
+	{ &dbufstats.cache_level_2,
+	  { PMDA_PMID(2, 9), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* cache_level_3 */
+	{ &dbufstats.cache_level_3,
+	  { PMDA_PMID(2, 10), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* cache_level_4 */
+	{ &dbufstats.cache_level_4,
+	  { PMDA_PMID(2, 11), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* cache_level_5 */
+	{ &dbufstats.cache_level_5,
+	  { PMDA_PMID(2, 12), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* cache_level_6 */
+	{ &dbufstats.cache_level_6,
+	  { PMDA_PMID(2, 13), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* cache_level_7 */
+	{ &dbufstats.cache_level_7,
+	  { PMDA_PMID(2, 14), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* cache_level_8 */
+	{ &dbufstats.cache_level_8,
+	  { PMDA_PMID(2, 15), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* cache_level_9 */
+	{ &dbufstats.cache_level_9,
+	  { PMDA_PMID(2, 16), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* cache_level_10 */
+	{ &dbufstats.cache_level_10,
+	  { PMDA_PMID(2, 17), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* cache_level_11 */
+	{ &dbufstats.cache_level_11,
+	  { PMDA_PMID(2, 18), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* cache_level_0_bytes */
+	{ &dbufstats.cache_level_0_bytes,
+	  { PMDA_PMID(2, 19), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* cache_level_1_bytes */
+	{ &dbufstats.cache_level_1_bytes,
+	  { PMDA_PMID(2, 20), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* cache_level_2_bytes */
+	{ &dbufstats.cache_level_2_bytes,
+	  { PMDA_PMID(2, 21), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* cache_level_3_bytes */
+	{ &dbufstats.cache_level_3_bytes,
+	  { PMDA_PMID(2, 22), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* cache_level_4_bytes */
+	{ &dbufstats.cache_level_4_bytes,
+	  { PMDA_PMID(2, 23), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* cache_level_5_bytes */
+	{ &dbufstats.cache_level_5_bytes,
+	  { PMDA_PMID(2, 24), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* cache_level_6_bytes */
+	{ &dbufstats.cache_level_6_bytes,
+	  { PMDA_PMID(2, 25), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* cache_level_7_bytes */
+	{ &dbufstats.cache_level_7_bytes,
+	  { PMDA_PMID(2, 26), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* cache_level_8_bytes */
+	{ &dbufstats.cache_level_8_bytes,
+	  { PMDA_PMID(2, 27), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* cache_level_9_bytes */
+	{ &dbufstats.cache_level_9_bytes,
+	  { PMDA_PMID(2, 28), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* cache_level_10_bytes */
+	{ &dbufstats.cache_level_10_bytes,
+	  { PMDA_PMID(2, 29), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* cache_level_11_bytes */
+	{ &dbufstats.cache_level_11_bytes,
+	  { PMDA_PMID(2, 30), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* hash_hits */
+	{ &dbufstats.hash_hits,
+	  { PMDA_PMID(2, 31), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* hash_misses */
+	{ &dbufstats.hash_misses,
+	  { PMDA_PMID(2, 32), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* hash_collisions */
+	{ &dbufstats.hash_collisions,
+	  { PMDA_PMID(2, 34), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* hash_elements */
+	{ &dbufstats.hash_elements,
+	  { PMDA_PMID(2, 35), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* hash_elements_max */
+	{ &dbufstats.hash_elements_max,
+	  { PMDA_PMID(2, 36), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* hash_chains */
+	{ &dbufstats.hash_chains,
+	  { PMDA_PMID(2, 37), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* hash_chain_max */
+	{ &dbufstats.hash_chain_max,
+	  { PMDA_PMID(2, 38), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* hash_insert_race */
+	{ &dbufstats.hash_insert_race,
+	  { PMDA_PMID(2, 39), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* metadata_cache_count */
+	{ &dbufstats.metadata_cache_count,
+	  { PMDA_PMID(2, 40), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* metadata_cache_size_bytes */
+	{ &dbufstats.metadata_cache_size_bytes,
+	  { PMDA_PMID(2, 41), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* metadata_cache_size_bytes_max */
+	{ &dbufstats.metadata_cache_size_bytes_max,
+	  { PMDA_PMID(2, 42), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* metadata_cache_overflow */
+	{ &dbufstats.metadata_cache_overflow,
+	  { PMDA_PMID(2, 43), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
 };
 
 static int
@@ -519,7 +695,7 @@ zfs_fetch(int numpid, pmID *pmidlist, pmResult **resp, pmdaExt *pmda)
 {
 	zfs_arcstats_fetch(&arcstats, &rgx_row);
 	zfs_abdstats_fetch(&abdstats, &rgx_row);
-	//zfs_zil_fetch(pmda);
+	zfs_dbufstats_fetch(&dbufstats, &rgx_row);
 	return pmdaFetch(numpid, pmidlist, resp, pmda);
 }
 
