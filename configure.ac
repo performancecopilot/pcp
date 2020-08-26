@@ -800,7 +800,7 @@ AC_SUBST(PACKAGE_BUILD)
 
 if test -z "$PACKAGE_BUILD_DATE" ; then
     # use SOURCE_DATE_EPOCH for a deterministic builddate (reproducible builds)
-    PACKAGE_BUILD_DATE=`TZ=UTC date -d "@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y-%m-%d`
+    PACKAGE_BUILD_DATE=`TZ=UTC date -d "@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y-%m-%d 2>/dev/null`
     test $? -eq 0 || PACKAGE_BUILD_DATE=`date +%Y-%m-%d`
 fi
 AC_SUBST(PACKAGE_BUILD_DATE)
@@ -3276,19 +3276,19 @@ AC_SUBST(pcp_var_dir)
 
 pcp_pmns_dir=$pcp_var_dir/pmns
 AC_SUBST(pcp_pmns_dir)
-pcp_pmnsadm_dir=$libexecdir/pcp/pmns
+pcp_pmnsadm_dir=`eval echo $libexecdir/pcp/pmns`
 pcp_pmnsadm_dir=`eval echo $pcp_pmnsadm_dir`
 AC_SUBST(pcp_pmnsadm_dir)
 
 pcp_pmdas_dir=$pcp_var_dir/pmdas
 AC_SUBST(pcp_pmdas_dir)
-pcp_pmdasadm_dir=$libexecdir/pcp/pmdas
+pcp_pmdasadm_dir=`eval echo $libexecdir/pcp/pmdas`
 pcp_pmdasadm_dir=`eval echo $pcp_pmdasadm_dir`
 AC_SUBST(pcp_pmdasadm_dir)
 
 pcp_selinux_dir=$pcp_var_dir/selinux
 AC_SUBST(pcp_selinux_dir)
-pcp_selinuxadm_dir=$libexecdir/pcp/selinux
+pcp_selinuxadm_dir=`eval echo $libexecdir/pcp/selinux`
 pcp_selinuxadm_dir=`eval echo $pcp_selinuxadm_dir`
 AC_SUBST(pcp_selinuxadm_dir)
 
