@@ -212,11 +212,11 @@ QmcSource::~QmcSource()
 QString
 QmcSource::timeString(const struct timeval *timeval)
 {
-    char timebuf[32], *ddmm, *year;
+    char timebuf[32], datebuf[32], *ddmm, *year;
     struct tm tmp;
     time_t secs = (time_t)timeval->tv_sec;
 
-    ddmm = pmCtime(&secs, timebuf);
+    ddmm = pmCtime(&secs, datebuf);
     ddmm[10] = '\0';
     year = &ddmm[20];
     year[4] = '\0';
