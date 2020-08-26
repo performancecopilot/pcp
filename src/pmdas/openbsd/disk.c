@@ -61,8 +61,8 @@ refresh_disk_metrics(void)
 	    pmdaCacheOp(indomtab[DISK_INDOM].it_indom, PMDA_CACHE_LOAD);
 	}
 	else {
-	if (pmDebugOptions.appl0)
-	    fprintf(stderr, "Info: refresh_disk_metrics: ndisk changed from %d to %d\n", ndisk, (int)(buflen / sizeof(struct diskstats)));
+	    if (pmDebugOptions.appl0)
+		fprintf(stderr, "Info: refresh_disk_metrics: ndisk changed from %d to %d\n", ndisk, (int)(buflen / sizeof(struct diskstats)));
 	    pmdaCacheOp(indomtab[DISK_INDOM].it_indom, PMDA_CACHE_INACTIVE);
 	}
 	ndisk = buflen / sizeof(struct diskstats);

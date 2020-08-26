@@ -53,8 +53,8 @@ refresh_filesys_metrics(void)
 	    pmdaCacheOp(indomtab[FILESYS_INDOM].it_indom, PMDA_CACHE_LOAD);
 	}
 	else {
-	if (pmDebugOptions.appl0)
-	    fprintf(stderr, "Info: refresh_filesys_metrics: nfilesys changed from %d to %d\n", nfilesys, sts);
+	    if (pmDebugOptions.appl0)
+		fprintf(stderr, "Info: refresh_filesys_metrics: nfilesys changed from %d to %d\n", nfilesys, sts);
 	    nfilesys = sts;
 	    pmdaCacheOp(indomtab[FILESYS_INDOM].it_indom, PMDA_CACHE_INACTIVE);
 	}
