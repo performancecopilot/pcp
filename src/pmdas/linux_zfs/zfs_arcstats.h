@@ -99,4 +99,4 @@ typedef struct zfs_arcstats {
     unsigned int    arc_raw_size;
 } zfs_arcstats_t;
 
-void zfs_arcstats_fetch(zfs_arcstats_t *arcstats);
+void zfs_arcstats_fetch(zfs_arcstats_t *arcstats, regex_t *rgx_row);

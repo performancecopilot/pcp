@@ -1,9 +1,11 @@
+#include <regex.h>
 #include "pmapi.h"
 #include "libpcp.h"
 #include "pmda.h"
 
 #include "zfs_arcstats.h"
 
+regex_t rgx_row;
 static zfs_arcstats_t arcstats;
 
 static pmdaMetric metrictab[] = {
@@ -425,7 +427,7 @@ zfs_store(pmResult *result, pmdaExt *pmda)
 static int
 zfs_fetch(int numpid, pmID *pmidlist, pmResult **resp, pmdaExt *pmda)
 {
-	zfs_arcstats_fetch(&arcstats);
+	zfs_arcstats_fetch(&arcstats, &rgx_row);
 	//zfs_abdstats_fetch(pmda);
 	//zfs_zil_fetch(pmda);
 	return pmdaFetch(numpid, pmidlist, resp, pmda);
@@ -485,6 +487,7 @@ main(int argc, char **argv)
 	pmdaOpenLog(&dispatch);
 	pmdaConnect(&dispatch);
 	pmdaMain(&dispatch);
+	regfree(&rgx_row);
 	exit(0);
 }
 

@@ -6,21 +6,19 @@
 #include "zfs_arcstats.h"
 
 void
-zfs_arcstats_fetch(zfs_arcstats_t *arcstats)
+zfs_arcstats_fetch(zfs_arcstats_t *arcstats, regex_t *rgx_row)
 {
         int len_mn, len_mv, nmatch = 3;
-        regex_t rgx_row;
         regmatch_t pmatch[3];
         char *line, *mname, *mval;
 	char *fname = "/proc/spl/kstat/zfs/arcstats";
 	FILE *fp;
         size_t len = 0;
 
-        regcomp(&rgx_row, "^([^ ]+)[ ]+[0-9][ ]+([0-9]+)", REG_EXTENDED);
         fp = fopen(fname, "r");
 	if (fp != NULL) {
 		while (getline(&line, &len, fp) != -1) {
-                        if (regexec(&rgx_row, line, nmatch, pmatch, 0) == 0) {
+                        if (regexec(rgx_row, line, nmatch, pmatch, 0) == 0) {
                                 len_mn = pmatch[1].rm_eo - pmatch[1].rm_so + 1;
                                 len_mv = pmatch[2].rm_eo - pmatch[2].rm_so + 1;
                                 mname = (char *) malloc((size_t) (len_mn + 1) * sizeof(char));
@@ -133,6 +131,5 @@ zfs_arcstats_fetch(zfs_arcstats_t *arcstats)
                         free(mval);
                 }
         }
-        regfree(&rgx_row);
         fclose(fp);
 }
