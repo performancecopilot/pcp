@@ -9,6 +9,7 @@
 #include "zfs_dmu_tx.h"
 #include "zfs_dnodestats.h"
 #include "zfs_fmstats.h"
+#include "zfs_xuiostats.h"
 
 regex_t rgx_row;
 static zfs_arcstats_t arcstats;
@@ -17,6 +18,7 @@ static zfs_dbufstats_t dbufstats;
 static zfs_dmu_tx_t dmu_tx;
 static zfs_dnodestats_t dnodestats;
 static zfs_fmstats_t fmstats;
+static zfs_xuiostats_t xuiostats;
 
 static pmdaMetric metrictab[] = {
 /*---------------------------------------------------------------------------*/
@@ -860,6 +862,33 @@ static pmdaMetric metrictab[] = {
 /* payload_set_failed */
 	{ &fmstats.payload_set_failed,
 	  { PMDA_PMID(5, 3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/*---------------------------------------------------------------------------*/
+/*  XUIOSTATS  */
+/*---------------------------------------------------------------------------*/
+/* onloan_read_buf */
+	{ &xuiostats.onloan_read_buf,
+	  { PMDA_PMID(7, 0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* onloan_write_buf */
+	{ &xuiostats.onloan_write_buf,
+	  { PMDA_PMID(7, 1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* read_buf_copied */
+	{ &xuiostats.read_buf_copied,
+	  { PMDA_PMID(7, 2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* read_buf_nocopy */
+	{ &xuiostats.read_buf_nocopy,
+	  { PMDA_PMID(7, 3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* write_buf_copied */
+	{ &xuiostats.write_buf_copied,
+	  { PMDA_PMID(7, 4), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* write_buf_nocopy */
+	{ &xuiostats.write_buf_nocopy,
+	  { PMDA_PMID(7, 5), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
 };
 

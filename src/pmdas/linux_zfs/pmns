@@ -5,6 +5,7 @@ root {
     dmu_tx
     dnodestats
     fmstats
+    xuiostats
 }
 
 arcstats {
@@ -228,4 +229,13 @@ fmstats {
     erpt_set_failed                     ZFS:5:1 
     fmri_set_failed                     ZFS:5:2 
     payload_set_failed                  ZFS:5:3 
+}
+
+xuiostats {
+    onloan_read_buf                     ZFS:7:0 
+    onloan_write_buf                    ZFS:7:1 
+    read_buf_copied                     ZFS:7:2 
+    read_buf_nocopy                     ZFS:7:3 
+    write_buf_copied                    ZFS:7:4 
+    write_buf_nocopy                    ZFS:7:5 
 }
