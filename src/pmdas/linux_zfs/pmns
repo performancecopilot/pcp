@@ -1,14 +1,14 @@
 root {
-    arcstats
-    abdstats
-    dbufstats
+    arc
+    abd
+    dbuf
     dmu_tx
-    dnodestats
-    fmstats
-    xuiostats
+    dnode
+    fm
+    xuio
 }
 
-arcstats {
+arc {
     hits                                ZFS:0:1
     misses                              ZFS:0:2
     demand_data_hits                    ZFS:0:3
@@ -109,7 +109,7 @@ arcstats {
     arc_raw_size                        ZFS:0:98
 }
 
-abdstats {
+abd {
     struct_size                         ZFS:1:0 
     linear_cnt                          ZFS:1:1 
     linear_data_size                    ZFS:1:2 
@@ -133,7 +133,7 @@ abdstats {
     scatter_sg_table_retry              ZFS:1:20 
 }
 
-dbufstats {
+dbuf {
     cache_count                     ZFS:2:0 
     cache_size_bytes                ZFS:2:1 
     cache_size_bytes_max            ZFS:2:2 
@@ -194,7 +194,7 @@ dmu_tx {
     quota                               ZFS:3:11 
 }
 
-dnodestats {
+dnode {
     hold_dbuf_read                      ZFS:4:1 
     hold_alloc_hits                     ZFS:4:2 
     hold_alloc_misses                   ZFS:4:3 
@@ -224,7 +224,7 @@ dnodestats {
     move_active                         ZFS:4:27 
 }
 
-fmstats {
+fm {
     erpt_dropped                        ZFS:5:0 
     erpt_set_failed                     ZFS:5:1 
     fmri_set_failed                     ZFS:5:2 
@@ -233,18 +233,18 @@ fmstats {
 
 
 vdev {
-    cache.delegations                   ZFS:6:0
-    cache.hits                          ZFS:6:1
-    cache.misses                        ZFS:6:2
-    mirror.rotating_linear              ZFS:6:3
-    mirror.rotating_offset              ZFS:6:4
-    mirror.rotating_seek                ZFS:6:5
-    mirror.non_rotating_linear          ZFS:6:6
-    mirror.non_rotating_seek            ZFS:6:7
-    mirror.preferred_found              ZFS:6:8
-    mirror.preferred_not_found          ZFS:6:9
+    cache_delegations                   ZFS:6:0
+    cache_hits                          ZFS:6:1
+    cache_misses                        ZFS:6:2
+    mirror_rotating_linear              ZFS:6:3
+    mirror_rotating_offset              ZFS:6:4
+    mirror_rotating_seek                ZFS:6:5
+    mirror_non_rotating_linear          ZFS:6:6
+    mirror_non_rotating_seek            ZFS:6:7
+    mirror_preferred_found              ZFS:6:8
+    mirror_preferred_not_found          ZFS:6:9
 }
-xuiostats {
+xuio {
     onloan_read_buf                     ZFS:7:0 
     onloan_write_buf                    ZFS:7:1 
     read_buf_copied                     ZFS:7:2 
@@ -253,13 +253,13 @@ xuiostats {
     write_buf_nocopy                    ZFS:7:5 
 }
 
-zfetchstats {
+zfetch {
     hits                                ZFS:8:0
     misses                              ZFS:8:1
     max_streams                         ZFS:8:2
 }
 
-zilstats {
+zil {
     commit_count                        ZFS:9:0 
     commit_writer_count                 ZFS:9:1 
     itx_count                           ZFS:9:2 
