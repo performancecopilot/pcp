@@ -117,7 +117,7 @@ mybacktrace(void)
 static char
 *lockname(void *lock)
 {
-    static char locknamebuf[20];
+    static char locknamebuf[30];
     int		ctxid;
     char	*ctxlist;
 
@@ -171,7 +171,7 @@ static char
 	return locknamebuf;
     }
     else {
-	pmsprintf(locknamebuf, sizeof(locknamebuf), PRINTF_P_PFX "%p", lock);
+	pmsprintf(locknamebuf, sizeof(locknamebuf), "? " PRINTF_P_PFX "%p", lock);
 	return locknamebuf;
     }
 }
