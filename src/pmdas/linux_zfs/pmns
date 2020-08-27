@@ -13,10 +13,13 @@ zfs {
     dmu_tx
     dnode
     fm
+    vdev
     xuio
+    zfetch
+    zil
 }
 
-arc {
+zfs.arc {
     hits                                ZFS:0:1
     misses                              ZFS:0:2
     demand_data_hits                    ZFS:0:3
@@ -117,7 +120,7 @@ arc {
     arc_raw_size                        ZFS:0:98
 }
 
-abd {
+zfs.abd {
     struct_size                         ZFS:1:0 
     linear_cnt                          ZFS:1:1 
     linear_data_size                    ZFS:1:2 
@@ -141,7 +144,7 @@ abd {
     scatter_sg_table_retry              ZFS:1:20 
 }
 
-dbuf {
+zfs.dbuf {
     cache_count                     ZFS:2:0 
     cache_size_bytes                ZFS:2:1 
     cache_size_bytes_max            ZFS:2:2 
@@ -187,7 +190,7 @@ dbuf {
     metadata_cache_overflow         ZFS:2:42 
 }
 
-dmu_tx {
+zfs.dmu_tx {
     assigned                            ZFS:3:0 
     delay                               ZFS:3:1 
     error                               ZFS:3:2 
@@ -202,7 +205,7 @@ dmu_tx {
     quota                               ZFS:3:11 
 }
 
-dnode {
+zfs.dnode {
     hold_dbuf_read                      ZFS:4:1 
     hold_alloc_hits                     ZFS:4:2 
     hold_alloc_misses                   ZFS:4:3 
@@ -232,7 +235,7 @@ dnode {
     move_active                         ZFS:4:27 
 }
 
-fm {
+zfs.fm {
     erpt_dropped                        ZFS:5:0 
     erpt_set_failed                     ZFS:5:1 
     fmri_set_failed                     ZFS:5:2 
@@ -240,7 +243,7 @@ fm {
 }
 
 
-vdev {
+zfs.vdev {
     cache_delegations                   ZFS:6:0
     cache_hits                          ZFS:6:1
     cache_misses                        ZFS:6:2
@@ -252,7 +255,7 @@ vdev {
     mirror_preferred_found              ZFS:6:8
     mirror_preferred_not_found          ZFS:6:9
 }
-xuio {
+zfs.xuio {
     onloan_read_buf                     ZFS:7:0 
     onloan_write_buf                    ZFS:7:1 
     read_buf_copied                     ZFS:7:2 
@@ -261,13 +264,13 @@ xuio {
     write_buf_nocopy                    ZFS:7:5 
 }
 
-zfetch {
+zfs.zfetch {
     hits                                ZFS:8:0
     misses                              ZFS:8:1
     max_streams                         ZFS:8:2
 }
 
-zil {
+zfs.zil {
     commit_count                        ZFS:9:0 
     commit_writer_count                 ZFS:9:1 
     itx_count                           ZFS:9:2 
