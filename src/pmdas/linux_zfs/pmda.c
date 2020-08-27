@@ -12,6 +12,8 @@
 #include "zfs_xuiostats.h"
 #include "zfs_zfetchstats.h"
 #include "zfs_zilstats.h"
+#include "zfs_vdev_cachestats.h"
+#include "zfs_vdev_mirrorstats.h"
 
 regex_t rgx_row;
 static zfs_arcstats_t arcstats;
@@ -21,6 +23,8 @@ static zfs_dmu_tx_t dmu_tx;
 static zfs_dnodestats_t dnodestats;
 static zfs_fmstats_t fmstats;
 static zfs_xuiostats_t xuiostats;
+static zfs_vdev_cachestats_t vdev_cachestats;
+static zfs_vdev_mirrorstats_t vdev_mirrorstats;
 static zfs_zfetchstats_t zfetchstats;
 static zfs_zilstats_t zilstats;
 
@@ -868,6 +872,49 @@ static pmdaMetric metrictab[] = {
 	  { PMDA_PMID(5, 3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
 /*---------------------------------------------------------------------------*/
+/*  VDEVSTATS  */
+/*---------------------------------------------------------------------------*/
+/* delegations */
+	{ &vdev_cachestats.delegations,
+	  { PMDA_PMID(6, 0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* hits */
+	{ &vdev_cachestats.hits,
+	  { PMDA_PMID(6, 1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* misses */
+	{ &vdev_cachestats.misses,
+	  { PMDA_PMID(6, 2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* rotating_linear */
+	{ &vdev_mirrorstats.rotating_linear,
+	  { PMDA_PMID(6, 3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* rotating_offset */
+	{ &vdev_mirrorstats.rotating_offset,
+	  { PMDA_PMID(6, 4), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* rotating_seek */
+	{ &vdev_mirrorstats.rotating_seek,
+	  { PMDA_PMID(6, 5), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* non_rotating_linear */
+	{ &vdev_mirrorstats.non_rotating_linear,
+	  { PMDA_PMID(6, 6), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* non_rotating_seek */
+	{ &vdev_mirrorstats.non_rotating_seek,
+	  { PMDA_PMID(6, 7), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* preferred_found */
+	{ &vdev_mirrorstats.preferred_found,
+	  { PMDA_PMID(6, 8), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* preferred_not_found */
+	{ &vdev_mirrorstats.preferred_not_found,
+	  { PMDA_PMID(6, 9), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/*---------------------------------------------------------------------------*/
 /*  XUIOSTATS  */
 /*---------------------------------------------------------------------------*/
 /* onloan_read_buf */
@@ -995,6 +1042,8 @@ zfs_fetch(int numpid, pmID *pmidlist, pmResult **resp, pmdaExt *pmda)
 	zfs_xuiostats_fetch(&xuiostats, &rgx_row);
 	zfs_zfetchstats_fetch(&zfetchstats, &rgx_row);
 	zfs_zilstats_fetch(&zilstats, &rgx_row);
+	zfs_vdev_cachestats_fetch(&vdev_cachestats, &rgx_row);
+	zfs_vdev_mirrorstats_fetch(&vdev_mirrorstats, &rgx_row);
 	return pmdaFetch(numpid, pmidlist, resp, pmda);
 }
 
