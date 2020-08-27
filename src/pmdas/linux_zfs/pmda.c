@@ -634,43 +634,43 @@ static pmdaMetric metrictab[] = {
 	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
 /* hash_collisions */
 	{ &dbufstats.hash_collisions,
-	  { PMDA_PMID(2, 34), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	  { PMDA_PMID(2, 33), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
 /* hash_elements */
 	{ &dbufstats.hash_elements,
-	  { PMDA_PMID(2, 35), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	  { PMDA_PMID(2, 34), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
 /* hash_elements_max */
 	{ &dbufstats.hash_elements_max,
-	  { PMDA_PMID(2, 36), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	  { PMDA_PMID(2, 35), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
 /* hash_chains */
 	{ &dbufstats.hash_chains,
-	  { PMDA_PMID(2, 37), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	  { PMDA_PMID(2, 36), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
 /* hash_chain_max */
 	{ &dbufstats.hash_chain_max,
-	  { PMDA_PMID(2, 38), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	  { PMDA_PMID(2, 37), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
 /* hash_insert_race */
 	{ &dbufstats.hash_insert_race,
-	  { PMDA_PMID(2, 39), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	  { PMDA_PMID(2, 38), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
 /* metadata_cache_count */
 	{ &dbufstats.metadata_cache_count,
-	  { PMDA_PMID(2, 40), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	  { PMDA_PMID(2, 39), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
 /* metadata_cache_size_bytes */
 	{ &dbufstats.metadata_cache_size_bytes,
-	  { PMDA_PMID(2, 41), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	  { PMDA_PMID(2, 40), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
 /* metadata_cache_size_bytes_max */
 	{ &dbufstats.metadata_cache_size_bytes_max,
-	  { PMDA_PMID(2, 42), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	  { PMDA_PMID(2, 41), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
 /* metadata_cache_overflow */
 	{ &dbufstats.metadata_cache_overflow,
-	  { PMDA_PMID(2, 43), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	  { PMDA_PMID(2, 42), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
 /*---------------------------------------------------------------------------*/
 /*  DMU_TX  */
