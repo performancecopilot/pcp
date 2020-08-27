@@ -5,13 +5,13 @@
 # Copyright (c) 2012 Ken McDonell.  All Rights Reserved.
 #
 
+seq=`basename $0`
+echo "QA output created by $seq"
+
 # get standard filters
 . ./common.product
 . ./common.filter
 . ./common.check
-
-seq=`basename $0`
-echo "QA output created by $seq"
 
 src/check_fault_injection >/dev/null 2>&1 || \
     _notrun "libpcp not built with fault injection & lock tracing enabled"
@@ -25,7 +25,7 @@ fi
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full
-trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+trap "$sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # we need to run part of the make to get headers and libraries setup
 # in $SRC
@@ -134,7 +134,7 @@ echo | tee -a $seq.full
 echo "== dbpmda ==" | tee -a $seq.full
 _pre $SRC/dbpmda/src dbpmda
 # based on QA 137
-$SRC/dbpmda/src/dbpmda.debug -Dlock -n $PCP_PMDAS_DIR/simple/root -ie >$tmp.out 2>$tmp.err <<End-of-File
+cat <<End-of-File >$tmp.in
 open dso $PCP_PMDAS_DIR/simple/pmda_simple.$DSO_SUFFIX simple_init 253
 getdesc on
 desc simple.numfetch
@@ -149,6 +149,7 @@ desc simple.color
 fetch simple.color
 instance 253.0
 End-of-File
+$sudo -u $PCP_USER sh -c "export LD_PRELOAD=$PCP_LIB_DIR/libpcp_fault.so; $SRC/dbpmda/src/dbpmda.debug -Dlock -n $PCP_PMDAS_DIR/simple/root -ie" <$tmp.in >$tmp.out 2>$tmp.err
 _post $SRC/dbpmda/src dbpmda
 _filter <$tmp.out
 _filter <$tmp.err
