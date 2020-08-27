@@ -4,6 +4,7 @@ root {
     dbufstats
     dmu_tx
     dnodestats
+    fmstats
 }
 
 arcstats {
@@ -220,4 +221,11 @@ dnodestats {
     move_handle                         ZFS:4:25 
     move_rwlock                         ZFS:4:26 
     move_active                         ZFS:4:27 
+}
+
+fmstats {
+    erpt_dropped                        ZFS:5:0 
+    erpt_set_failed                     ZFS:5:1 
+    fmri_set_failed                     ZFS:5:2 
+    payload_set_failed                  ZFS:5:3 
 }

@@ -8,6 +8,7 @@
 #include "zfs_dbufstats.h"
 #include "zfs_dmu_tx.h"
 #include "zfs_dnodestats.h"
+#include "zfs_fmstats.h"
 
 regex_t rgx_row;
 static zfs_arcstats_t arcstats;
@@ -15,6 +16,7 @@ static zfs_abdstats_t abdstats;
 static zfs_dbufstats_t dbufstats;
 static zfs_dmu_tx_t dmu_tx;
 static zfs_dnodestats_t dnodestats;
+static zfs_fmstats_t fmstats;
 
 static pmdaMetric metrictab[] = {
 /*---------------------------------------------------------------------------*/
@@ -839,6 +841,25 @@ static pmdaMetric metrictab[] = {
 /* dnode_move_active */
 	{ &dnodestats.move_active,
 	  { PMDA_PMID(4, 27), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/*---------------------------------------------------------------------------*/
+/*  FMSTATS  */
+/*---------------------------------------------------------------------------*/
+/* erpt_dropped */
+	{ &fmstats.erpt_dropped,
+	  { PMDA_PMID(5, 0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* erpt_set_failed */
+	{ &fmstats.erpt_set_failed,
+	  { PMDA_PMID(5, 1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* fmri_set_failed */
+	{ &fmstats.fmri_set_failed,
+	  { PMDA_PMID(5, 2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* payload_set_failed */
+	{ &fmstats.payload_set_failed,
+	  { PMDA_PMID(5, 3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
 };
 
