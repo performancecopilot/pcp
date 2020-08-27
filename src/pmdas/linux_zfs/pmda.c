@@ -6,11 +6,13 @@
 #include "zfs_arcstats.h"
 #include "zfs_abdstats.h"
 #include "zfs_dbufstats.h"
+#include "zfs_dmu_tx.h"
 
 regex_t rgx_row;
 static zfs_arcstats_t arcstats;
 static zfs_abdstats_t abdstats;
 static zfs_dbufstats_t dbufstats;
+static zfs_dmu_tx_t dmu_tx;
 
 static pmdaMetric metrictab[] = {
 /*---------------------------------------------------------------------------*/
@@ -670,6 +672,57 @@ static pmdaMetric metrictab[] = {
 	{ &dbufstats.metadata_cache_overflow,
 	  { PMDA_PMID(2, 43), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/*---------------------------------------------------------------------------*/
+/*  DMU_TX  */
+/*---------------------------------------------------------------------------*/
+/* dmu_tx_assigned */
+	{ &dmu_tx.assigned,
+	  { PMDA_PMID(3, 0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* dmu_tx_delay */
+	{ &dmu_tx.delay,
+	  { PMDA_PMID(3, 1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* dmu_tx_error */
+	{ &dmu_tx.error,
+	  { PMDA_PMID(3, 2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* dmu_tx_suspended */
+	{ &dmu_tx.suspended,
+	  { PMDA_PMID(3, 3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* dmu_tx_group */
+	{ &dmu_tx.group,
+	  { PMDA_PMID(3, 4), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* dmu_tx_memory_reserve */
+	{ &dmu_tx.memory_reserve,
+	  { PMDA_PMID(3, 5), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* dmu_tx_memory_reclaim */
+	{ &dmu_tx.memory_reclaim,
+	  { PMDA_PMID(3, 6), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* dmu_tx_dirty_throttle */
+	{ &dmu_tx.dirty_throttle,
+	  { PMDA_PMID(3, 7), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* dmu_tx_dirty_delay */
+	{ &dmu_tx.dirty_delay,
+	  { PMDA_PMID(3, 8), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* dmu_tx_dirty_over_max */
+	{ &dmu_tx.dirty_over_max,
+	  { PMDA_PMID(3, 9), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* dmu_tx_dirty_frees_delay */
+	{ &dmu_tx.dirty_frees_delay,
+	  { PMDA_PMID(3, 10), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* dmu_tx_quota */
+	{ &dmu_tx.quota,
+	  { PMDA_PMID(3, 11), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
 };
 
 static int
@@ -696,6 +749,7 @@ zfs_fetch(int numpid, pmID *pmidlist, pmResult **resp, pmdaExt *pmda)
 	zfs_arcstats_fetch(&arcstats, &rgx_row);
 	zfs_abdstats_fetch(&abdstats, &rgx_row);
 	zfs_dbufstats_fetch(&dbufstats, &rgx_row);
+	zfs_dmu_tx_fetch(&dmu_tx, &rgx_row);
 	return pmdaFetch(numpid, pmidlist, resp, pmda);
 }
 

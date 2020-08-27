@@ -2,6 +2,7 @@ root {
     arcstats
     abdstats
     dbufstats
+    dmu_tx
 }
 
 arcstats {
@@ -173,4 +174,19 @@ dbufstats {
     metadata_cache_size_bytes       ZFS:2:40 
     metadata_cache_size_bytes_max   ZFS:2:41 
     metadata_cache_overflow         ZFS:2:42 
+}
+
+dmu_tx {
+    assigned                            ZFS:3:0 
+    delay                               ZFS:3:1 
+    error                               ZFS:3:2 
+    suspended                           ZFS:3:3 
+    group                               ZFS:3:4 
+    memory_reserve                      ZFS:3:5 
+    memory_reclaim                      ZFS:3:6 
+    dirty_throttle                      ZFS:3:7 
+    dirty_delay                         ZFS:3:8 
+    dirty_over_max                      ZFS:3:9 
+    dirty_frees_delay                   ZFS:3:10 
+    quota                               ZFS:3:11 
 }
