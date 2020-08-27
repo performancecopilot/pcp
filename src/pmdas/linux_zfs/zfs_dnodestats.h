@@ -1,0 +1,32 @@
+typedef struct zfs_dnodestats {
+    unsigned int hold_dbuf_hold;
+    unsigned int hold_dbuf_read;
+    unsigned int hold_alloc_hits;
+    unsigned int hold_alloc_misses;
+    unsigned int hold_alloc_interior;
+    unsigned int hold_alloc_lock_retry;
+    unsigned int hold_alloc_lock_misses;
+    unsigned int hold_alloc_type_none;
+    unsigned int hold_free_hits;
+    unsigned int hold_free_misses;
+    unsigned int hold_free_lock_misses;
+    unsigned int hold_free_lock_retry;
+    unsigned int hold_free_overflow;
+    unsigned int hold_free_refcount;
+    unsigned int free_interior_lock_retry;
+    unsigned int allocate;
+    unsigned int reallocate;
+    unsigned int buf_evict;
+    unsigned int alloc_next_chunk;
+    unsigned int alloc_race;
+    unsigned int alloc_next_block;
+    unsigned int move_invalid;
+    unsigned int move_recheck1;
+    unsigned int move_recheck2;
+    unsigned int move_special;
+    unsigned int move_handle;
+    unsigned int move_rwlock;
+    unsigned int move_active;
+} zfs_dnodestats_t;
+
+void zfs_dnodestats_fetch(zfs_dnodestats_t *dnodestats, regex_t *rgx_row);

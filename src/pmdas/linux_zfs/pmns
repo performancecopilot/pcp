@@ -3,6 +3,7 @@ root {
     abdstats
     dbufstats
     dmu_tx
+    dnodestats
 }
 
 arcstats {
@@ -189,4 +190,34 @@ dmu_tx {
     dirty_over_max                      ZFS:3:9 
     dirty_frees_delay                   ZFS:3:10 
     quota                               ZFS:3:11 
+}
+
+dnodestats {
+    hold_dbuf_read                      ZFS:4:1 
+    hold_alloc_hits                     ZFS:4:2 
+    hold_alloc_misses                   ZFS:4:3 
+    hold_alloc_interior                 ZFS:4:4 
+    hold_alloc_lock_retry               ZFS:4:5 
+    hold_alloc_lock_misses              ZFS:4:6 
+    hold_alloc_type_none                ZFS:4:7 
+    hold_free_hits                      ZFS:4:8 
+    hold_free_misses                    ZFS:4:9 
+    hold_free_lock_misses               ZFS:4:10 
+    hold_free_lock_retry                ZFS:4:11 
+    hold_free_overflow                  ZFS:4:12 
+    hold_free_refcount                  ZFS:4:13 
+    free_interior_lock_retry            ZFS:4:14 
+    allocate                            ZFS:4:15 
+    reallocate                          ZFS:4:16 
+    buf_evict                           ZFS:4:17 
+    alloc_next_chunk                    ZFS:4:18 
+    alloc_race                          ZFS:4:19 
+    alloc_next_block                    ZFS:4:20 
+    move_invalid                        ZFS:4:21 
+    move_recheck1                       ZFS:4:22 
+    move_recheck2                       ZFS:4:23 
+    move_special                        ZFS:4:24 
+    move_handle                         ZFS:4:25 
+    move_rwlock                         ZFS:4:26 
+    move_active                         ZFS:4:27 
 }

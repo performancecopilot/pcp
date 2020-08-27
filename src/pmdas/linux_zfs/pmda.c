@@ -7,12 +7,14 @@
 #include "zfs_abdstats.h"
 #include "zfs_dbufstats.h"
 #include "zfs_dmu_tx.h"
+#include "zfs_dnodestats.h"
 
 regex_t rgx_row;
 static zfs_arcstats_t arcstats;
 static zfs_abdstats_t abdstats;
 static zfs_dbufstats_t dbufstats;
 static zfs_dmu_tx_t dmu_tx;
+static zfs_dnodestats_t dnodestats;
 
 static pmdaMetric metrictab[] = {
 /*---------------------------------------------------------------------------*/
@@ -723,6 +725,121 @@ static pmdaMetric metrictab[] = {
 	{ &dmu_tx.quota,
 	  { PMDA_PMID(3, 11), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/*---------------------------------------------------------------------------*/
+/*  DNODESTATS */
+/*---------------------------------------------------------------------------*/
+/* dnode_hold_dbuf_hold */
+	{ &dnodestats.hold_dbuf_hold,
+	  { PMDA_PMID(4, 0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* dnode_hold_dbuf_read */
+	{ &dnodestats.hold_dbuf_read,
+	  { PMDA_PMID(4, 1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* dnode_hold_alloc_hits */
+	{ &dnodestats.hold_alloc_hits,
+	  { PMDA_PMID(4, 2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* dnode_hold_alloc_misses */
+	{ &dnodestats.hold_alloc_misses,
+	  { PMDA_PMID(4, 3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* dnode_hold_alloc_interior */
+	{ &dnodestats.hold_alloc_interior,
+	  { PMDA_PMID(4, 4), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* dnode_hold_alloc_lock_retry */
+	{ &dnodestats.hold_alloc_lock_retry,
+	  { PMDA_PMID(4, 5), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* dnode_hold_alloc_lock_misses */
+	{ &dnodestats.hold_alloc_lock_misses,
+	  { PMDA_PMID(4, 6), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* dnode_hold_alloc_type_none */
+	{ &dnodestats.hold_alloc_type_none,
+	  { PMDA_PMID(4, 7), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* dnode_hold_free_hits */
+	{ &dnodestats.hold_free_hits,
+	  { PMDA_PMID(4, 8), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* dnode_hold_free_misses */
+	{ &dnodestats.hold_free_misses,
+	  { PMDA_PMID(4, 9), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* dnode_hold_free_lock_misses */
+	{ &dnodestats.hold_free_lock_misses,
+	  { PMDA_PMID(4, 10), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* dnode_hold_free_lock_retry */
+	{ &dnodestats.hold_free_lock_retry,
+	  { PMDA_PMID(4, 11), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* dnode_hold_free_overflow */
+	{ &dnodestats.hold_free_overflow,
+	  { PMDA_PMID(4, 12), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* dnode_hold_free_refcount */
+	{ &dnodestats.hold_free_refcount,
+	  { PMDA_PMID(4, 13), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* dnode_free_interior_lock_retry */
+	{ &dnodestats.free_interior_lock_retry,
+	  { PMDA_PMID(4, 14), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* dnode_allocate */
+	{ &dnodestats.allocate,
+	  { PMDA_PMID(4, 15), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* dnode_reallocate */
+	{ &dnodestats.reallocate,
+	  { PMDA_PMID(4, 16), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* dnode_buf_evict */
+	{ &dnodestats.buf_evict,
+	  { PMDA_PMID(4, 17), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* dnode_alloc_next_chunk */
+	{ &dnodestats.alloc_next_chunk,
+	  { PMDA_PMID(4, 18), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* dnode_alloc_race */
+	{ &dnodestats.alloc_race,
+	  { PMDA_PMID(4, 19), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* dnode_alloc_next_block */
+	{ &dnodestats.alloc_next_block,
+	  { PMDA_PMID(4, 20), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* dnode_move_invalid */
+	{ &dnodestats.move_invalid,
+	  { PMDA_PMID(4, 21), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* dnode_move_recheck1 */
+	{ &dnodestats.move_recheck1,
+	  { PMDA_PMID(4, 22), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* dnode_move_recheck2 */
+	{ &dnodestats.move_recheck2,
+	  { PMDA_PMID(4, 23), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* dnode_move_special */
+	{ &dnodestats.move_special,
+	  { PMDA_PMID(4, 24), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* dnode_move_handle */
+	{ &dnodestats.move_handle,
+	  { PMDA_PMID(4, 25), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* dnode_move_rwlock */
+	{ &dnodestats.move_rwlock,
+	  { PMDA_PMID(4, 26), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* dnode_move_active */
+	{ &dnodestats.move_active,
+	  { PMDA_PMID(4, 27), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
 };
 
 static int
@@ -750,6 +867,7 @@ zfs_fetch(int numpid, pmID *pmidlist, pmResult **resp, pmdaExt *pmda)
 	zfs_abdstats_fetch(&abdstats, &rgx_row);
 	zfs_dbufstats_fetch(&dbufstats, &rgx_row);
 	zfs_dmu_tx_fetch(&dmu_tx, &rgx_row);
+	zfs_dnodestats_fetch(&dnodestats, &rgx_row);
 	return pmdaFetch(numpid, pmidlist, resp, pmda);
 }
 
