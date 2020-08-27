@@ -245,3 +245,19 @@ zfetchstats {
     misses                              ZFS:8:1
     max_streams                         ZFS:8:2
 }
+
+zilstats {
+    commit_count                        ZFS:9:0 
+    commit_writer_count                 ZFS:9:1 
+    itx_count                           ZFS:9:2 
+    itx_indirect_count                  ZFS:9:3 
+    itx_indirect_bytes                  ZFS:9:4 
+    itx_copied_count                    ZFS:9:5 
+    itx_copied_bytes                    ZFS:9:6 
+    itx_needcopy_count                  ZFS:9:7 
+    itx_needcopy_bytes                  ZFS:9:8 
+    itx_metaslab_normal_count           ZFS:9:9 
+    itx_metaslab_normal_bytes           ZFS:9:10 
+    itx_metaslab_slog_count             ZFS:9:11 
+    itx_metaslab_slog_bytes             ZFS:9:12
+}

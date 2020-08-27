@@ -11,6 +11,7 @@
 #include "zfs_fmstats.h"
 #include "zfs_xuiostats.h"
 #include "zfs_zfetchstats.h"
+#include "zfs_zilstats.h"
 
 regex_t rgx_row;
 static zfs_arcstats_t arcstats;
@@ -21,6 +22,7 @@ static zfs_dnodestats_t dnodestats;
 static zfs_fmstats_t fmstats;
 static zfs_xuiostats_t xuiostats;
 static zfs_zfetchstats_t zfetchstats;
+static zfs_zilstats_t zilstats;
 
 static pmdaMetric metrictab[] = {
 /*---------------------------------------------------------------------------*/
@@ -907,6 +909,61 @@ static pmdaMetric metrictab[] = {
 	{ &zfetchstats.max_streams,
 	  { PMDA_PMID(8, 2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/*---------------------------------------------------------------------------*/
+/*  ZILSTATS  */
+/*---------------------------------------------------------------------------*/
+/* commit_count */
+	{ &zilstats.commit_count,
+	  { PMDA_PMID(9, 0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* commit_writer_count */
+	{ &zilstats.commit_writer_count,
+	  { PMDA_PMID(9, 1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* itx_count */
+	{ &zilstats.itx_count,
+	  { PMDA_PMID(9, 2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* itx_indirect_count */
+	{ &zilstats.itx_indirect_count,
+	  { PMDA_PMID(9, 3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* itx_indirect_bytes */
+	{ &zilstats.itx_indirect_bytes,
+	  { PMDA_PMID(9, 4), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* itx_copied_count */
+	{ &zilstats.itx_copied_count,
+	  { PMDA_PMID(9, 5), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* itx_copied_bytes */
+	{ &zilstats.itx_copied_bytes,
+	  { PMDA_PMID(9, 6), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* itx_needcopy_count */
+	{ &zilstats.itx_needcopy_count,
+	  { PMDA_PMID(9, 7), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* itx_needcopy_bytes */
+	{ &zilstats.itx_needcopy_bytes,
+	  { PMDA_PMID(9, 8), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* itx_metaslab_normal_count */
+	{ &zilstats.itx_metaslab_normal_count,
+	  { PMDA_PMID(9, 9), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* itx_metaslab_normal_bytes */
+	{ &zilstats.itx_metaslab_normal_bytes,
+	  { PMDA_PMID(9, 10), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* itx_metaslab_slog_count */
+	{ &zilstats.itx_metaslab_slog_count,
+	  { PMDA_PMID(9, 11), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* itx_metaslab_slog_bytes */
+	{ &zilstats.itx_metaslab_slog_bytes,
+	  { PMDA_PMID(9, 12), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
 };
 
 static int
@@ -937,6 +994,7 @@ zfs_fetch(int numpid, pmID *pmidlist, pmResult **resp, pmdaExt *pmda)
 	zfs_dnodestats_fetch(&dnodestats, &rgx_row);
 	zfs_xuiostats_fetch(&xuiostats, &rgx_row);
 	zfs_zfetchstats_fetch(&zfetchstats, &rgx_row);
+	zfs_zilstats_fetch(&zilstats, &rgx_row);
 	return pmdaFetch(numpid, pmidlist, resp, pmda);
 }
 

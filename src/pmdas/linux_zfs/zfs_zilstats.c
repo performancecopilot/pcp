@@ -1,0 +1,49 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <regex.h>
+#include <string.h>
+
+#include "zfs_zilstats.h"
+
+void
+zfs_zilstats_fetch(zfs_zilstats_t *zilstats, regex_t *rgx_row)
+{
+        int len_mn, len_mv, nmatch = 3;
+        regmatch_t pmatch[3];
+        char *line, *mname, *mval;
+	char *fname = "/proc/spl/kstat/zfs/zilstats";
+	FILE *fp;
+        size_t len = 0;
+
+        fp = fopen(fname, "r");
+	if (fp != NULL) {
+		while (getline(&line, &len, fp) != -1) {
+                        if (regexec(rgx_row, line, nmatch, pmatch, 0) == 0) {
+                                len_mn = pmatch[1].rm_eo - pmatch[1].rm_so + 1;
+                                len_mv = pmatch[2].rm_eo - pmatch[2].rm_so + 1;
+                                mname = (char *) malloc((size_t) (len_mn + 1) * sizeof(char));
+                                mval  = (char *) malloc((size_t) (len_mv + 1) * sizeof(char));
+                                strncpy(mname, line + pmatch[1].rm_so, len_mn);
+                                strncpy(mval,  line + pmatch[2].rm_so, len_mv);
+                                mname[len_mn] = '\0';
+                                mval[len_mv] = '\0';
+				if (strcmp(mname, "zil_commit_count")) zilstats->commit_count = atoi(mval);
+				else if (strcmp(mname, "zil_commit_writer_count")) zilstats->commit_writer_count = atoi(mval);
+				else if (strcmp(mname, "zil_itx_count")) zilstats->itx_count = atoi(mval);
+				else if (strcmp(mname, "zil_itx_indirect_count")) zilstats->itx_indirect_count = atoi(mval);
+				else if (strcmp(mname, "zil_itx_indirect_bytes")) zilstats->itx_indirect_bytes = atoi(mval);
+				else if (strcmp(mname, "zil_itx_copied_count")) zilstats->itx_copied_count = atoi(mval);
+				else if (strcmp(mname, "zil_itx_copied_bytes")) zilstats->itx_copied_bytes = atoi(mval);
+				else if (strcmp(mname, "zil_itx_needcopy_count")) zilstats->itx_needcopy_count = atoi(mval);
+				else if (strcmp(mname, "zil_itx_needcopy_bytes")) zilstats->itx_needcopy_bytes = atoi(mval);
+				else if (strcmp(mname, "zil_itx_metaslab_normal_count")) zilstats->itx_metaslab_normal_count = atoi(mval);
+				else if (strcmp(mname, "zil_itx_metaslab_normal_bytes")) zilstats->itx_metaslab_normal_bytes = atoi(mval);
+				else if (strcmp(mname, "zil_itx_metaslab_slog_count")) zilstats->itx_metaslab_slog_count = atoi(mval);
+				else if (strcmp(mname, "zil_itx_metaslab_slog_bytes")) zilstats->itx_metaslab_slog_bytes = atoi(mval);
+                        }
+                        free(mname);
+                        free(mval);
+                }
+        }
+        fclose(fp);
+}
