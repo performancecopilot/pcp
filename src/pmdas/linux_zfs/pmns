@@ -3,6 +3,10 @@
 #endif
 
 root {
+    zfs
+}
+
+zfs {
     arc
     abd
     dbuf
