@@ -43,23 +43,35 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 #   instead of group-1, group-2, ...
 # - S field appears to be always empty, so no matching $N field
 # - CMD may contain multiple words separated y a single space
+# - as of Fedora 32, systemd broke all of this by adding multiple
+#   usernames that are not unique in the first 8 characters, in
+#   disregard of a "rule" that had been in place for 45 years ...
+#   we only have the first 8 characters of the username to work with
+#   in our output, so more than 1 uid maps to the same first 8
+#   characters of the username and this test failed ... changed to
+#   map all non-root uids to the name USER and all non-root gids to
+#   the name GROUP
+#   
 #
 _filter_uid_gid()
 {
     $PCP_AWK_PROG '
-BEGIN		{ user = 0 }
+BEGIN		{ state = 0; user = 0 }
 state == 0	{ print
 		  if ($3 == "RUID") state = 1
 		  next
 		}
-state == 1	{ if ($1 == "===") state = 2 }
+state == 1 && NF == 0	{
+		  state = 0
+		  print
+		  next
+		}
+state == 1	{ if ($1 == "===")
+		    state = 2
+		}
 state == 2	{ print; next }
-$3 != "root"	{ if (uidmap[$3] == "") { uidmap[$3] = "user-" user; user++ }
-		  $3 = uidmap[$3]
-		}
-$4 != "root"	{ if (gidmap[$4] == "") { gidmap[$4] = "group-N" }
-		  $4 = gidmap[$4]
-		}
+$3 != "root"	{ $3 = "USER" }
+$4 != "root"	{ $4 = "GROUP" }
 		{ printf "%7d %7d %-8.8s %-8.8s %10s %7s %3s    %s", $1, $2, $3, $4, $5, $6, $7, $8
 		  last = $9
 		  for (i = 10; i <= NF; i++) last = last " " $i
@@ -80,11 +92,11 @@ _logs()
 # real QA test starts here
 pcp_options="pcp -z --origin=+0.1 --archive $here/archives/pcp-atop-boot"
 
-echo "=== -v option:"
+echo "=== -v option:" | tee -a $here/$seq.full
 $pcp_options atop -v 2 3 >$tmp.out 2>$tmp.err
-_logs | _filter_uid_gid
+_logs | tee -a $here/$seq.full | _filter_uid_gid
 
-echo "=== -m option:"
+echo "=== -m option:" | tee -a $here/$seq.full
 $pcp_options atop -R -m 2 3 >$tmp.out 2>$tmp.err
 _logs
 
