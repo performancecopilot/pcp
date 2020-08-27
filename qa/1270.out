@@ -46,15 +46,11 @@ pmResult dump from ADDR timestamp: DATESTAMP numpmid: 4
   PM_ID_NULL (<noname>): No PMCD agent for domain of request
 force 3nd pmAdd to fail
 TMP.config:3 pmAddDerived("qa1270.c", "sampledso.long.hundred") failed
-Error: pmAddDerivedMetric("qa1270.c", ...)
-sampledso.long.hundred
-^
+Error: pmAddDerivedMetric("qa1270.c", ...): returns -12409
 per-context PMID space exhausted
 
 TMP.config:4 pmAddDerived("qa1270.d", "sampledso.long.million") failed
-Error: pmAddDerivedMetric("qa1270.d", ...)
-sampledso.long.million
-^
+Error: pmAddDerivedMetric("qa1270.d", ...): returns -12409
 per-context PMID space exhausted
 
 pmLookupName() returns 0
