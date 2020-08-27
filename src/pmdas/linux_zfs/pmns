@@ -239,3 +239,9 @@ xuiostats {
     write_buf_copied                    ZFS:7:4 
     write_buf_nocopy                    ZFS:7:5 
 }
+
+zfetchstats {
+    hits                                ZFS:8:0
+    misses                              ZFS:8:1
+    max_streams                         ZFS:8:2
+}

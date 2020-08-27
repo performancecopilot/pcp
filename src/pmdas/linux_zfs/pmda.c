@@ -10,6 +10,7 @@
 #include "zfs_dnodestats.h"
 #include "zfs_fmstats.h"
 #include "zfs_xuiostats.h"
+#include "zfs_zfetchstats.h"
 
 regex_t rgx_row;
 static zfs_arcstats_t arcstats;
@@ -19,6 +20,7 @@ static zfs_dmu_tx_t dmu_tx;
 static zfs_dnodestats_t dnodestats;
 static zfs_fmstats_t fmstats;
 static zfs_xuiostats_t xuiostats;
+static zfs_zfetchstats_t zfetchstats;
 
 static pmdaMetric metrictab[] = {
 /*---------------------------------------------------------------------------*/
@@ -890,6 +892,21 @@ static pmdaMetric metrictab[] = {
 	{ &xuiostats.write_buf_nocopy,
 	  { PMDA_PMID(7, 5), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/*---------------------------------------------------------------------------*/
+/*  ZFETCHSTATS  */
+/*---------------------------------------------------------------------------*/
+/* hits */
+	{ &zfetchstats.hits,
+	  { PMDA_PMID(8, 0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* misses */
+	{ &zfetchstats.misses,
+	  { PMDA_PMID(8, 1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+/* max_streams */
+	{ &zfetchstats.max_streams,
+	  { PMDA_PMID(8, 2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
 };
 
 static int
@@ -918,6 +935,8 @@ zfs_fetch(int numpid, pmID *pmidlist, pmResult **resp, pmdaExt *pmda)
 	zfs_dbufstats_fetch(&dbufstats, &rgx_row);
 	zfs_dmu_tx_fetch(&dmu_tx, &rgx_row);
 	zfs_dnodestats_fetch(&dnodestats, &rgx_row);
+	zfs_xuiostats_fetch(&xuiostats, &rgx_row);
+	zfs_zfetchstats_fetch(&zfetchstats, &rgx_row);
 	return pmdaFetch(numpid, pmidlist, resp, pmda);
 }
 
