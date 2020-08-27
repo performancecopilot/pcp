@@ -1,3 +1,7 @@
+#ifndef ZFS
+#define ZFS     153
+#endif
+
 root {
     arc
     abd
