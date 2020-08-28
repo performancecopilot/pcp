@@ -1023,7 +1023,7 @@ zfs_store(pmResult *result, pmdaExt *pmda)
 	__pmID_int *pmidp = NULL;
 
 	/*
-	for (i = 0; i < result->numpid; i++) {
+	for (i = 0; i < result->numpmid; i++) {
 		vsp = result->vset[i];
 		pmidp = (__pmID_int *)&vsp->pmid;
 		if (pmidp->cluster == CLUSTER_ZFS_ARCSTATS)
@@ -1032,7 +1032,7 @@ zfs_store(pmResult *result, pmdaExt *pmda)
 }
 
 static int
-zfs_fetch(int numpid, pmID *pmidlist, pmResult **resp, pmdaExt *pmda)
+zfs_fetch(int numpmid, pmID *pmidlist, pmResult **resp, pmdaExt *pmda)
 {
 	zfs_arcstats_fetch(&arcstats, &rgx_row);
 	zfs_abdstats_fetch(&abdstats, &rgx_row);
@@ -1044,7 +1044,7 @@ zfs_fetch(int numpid, pmID *pmidlist, pmResult **resp, pmdaExt *pmda)
 	zfs_zilstats_fetch(&zilstats, &rgx_row);
 	zfs_vdev_cachestats_fetch(&vdev_cachestats, &rgx_row);
 	zfs_vdev_mirrorstats_fetch(&vdev_mirrorstats, &rgx_row);
-	return pmdaFetch(numpid, pmidlist, resp, pmda);
+	return pmdaFetch(numpmid, pmidlist, resp, pmda);
 }
 
 static int
