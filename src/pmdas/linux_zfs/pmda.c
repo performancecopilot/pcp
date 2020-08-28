@@ -1034,16 +1034,16 @@ zfs_store(pmResult *result, pmdaExt *pmda)
 static int
 zfs_fetch(int numpmid, pmID *pmidlist, pmResult **resp, pmdaExt *pmda)
 {
-	zfs_arcstats_fetch(&arcstats, &rgx_row);
-	zfs_abdstats_fetch(&abdstats, &rgx_row);
-	zfs_dbufstats_fetch(&dbufstats, &rgx_row);
-	zfs_dmu_tx_fetch(&dmu_tx, &rgx_row);
-	zfs_dnodestats_fetch(&dnodestats, &rgx_row);
-	zfs_xuiostats_fetch(&xuiostats, &rgx_row);
-	zfs_zfetchstats_fetch(&zfetchstats, &rgx_row);
-	zfs_zilstats_fetch(&zilstats, &rgx_row);
-	zfs_vdev_cachestats_fetch(&vdev_cachestats, &rgx_row);
-	zfs_vdev_mirrorstats_fetch(&vdev_mirrorstats, &rgx_row);
+	zfs_arcstats_refresh(&arcstats, &rgx_row);
+	zfs_abdstats_refresh(&abdstats, &rgx_row);
+	zfs_dbufstats_refresh(&dbufstats, &rgx_row);
+	zfs_dmu_tx_refresh(&dmu_tx, &rgx_row);
+	zfs_dnodestats_refresh(&dnodestats, &rgx_row);
+	zfs_xuiostats_refresh(&xuiostats, &rgx_row);
+	zfs_zfetchstats_refresh(&zfetchstats, &rgx_row);
+	zfs_zilstats_refresh(&zilstats, &rgx_row);
+	zfs_vdev_cachestats_refresh(&vdev_cachestats, &rgx_row);
+	zfs_vdev_mirrorstats_refresh(&vdev_mirrorstats, &rgx_row);
 	return pmdaFetch(numpmid, pmidlist, resp, pmda);
 }
 

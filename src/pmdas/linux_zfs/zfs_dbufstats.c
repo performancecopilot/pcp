@@ -6,7 +6,7 @@
 #include "zfs_dbufstats.h"
 
 void
-zfs_dbufstats_fetch(zfs_dbufstats_t *dbufstats, regex_t *rgx_row)
+zfs_dbufstats_refresh(zfs_dbufstats_t *dbufstats, regex_t *rgx_row)
 {
         int len_mn, len_mv, nmatch = 3;
         regmatch_t pmatch[3];

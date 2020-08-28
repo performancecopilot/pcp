@@ -7,4 +7,4 @@ typedef struct zfs_xuiostats {
     unsigned int write_buf_nocopy;
 } zfs_xuiostats_t;
 
-void zfs_xuiostats_fetch(zfs_xuiostats_t *xuiostats, regex_t *rgx_row);
+void zfs_xuiostats_refresh(zfs_xuiostats_t *xuiostats, regex_t *rgx_row);

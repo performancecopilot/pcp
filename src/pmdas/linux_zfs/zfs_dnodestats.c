@@ -6,7 +6,7 @@
 #include "zfs_dnodestats.h"
 
 void
-zfs_dnodestats_fetch(zfs_dnodestats_t *dnodestats, regex_t *rgx_row)
+zfs_dnodestats_refresh(zfs_dnodestats_t *dnodestats, regex_t *rgx_row)
 {
         int len_mn, len_mv, nmatch = 3;
         regmatch_t pmatch[3];

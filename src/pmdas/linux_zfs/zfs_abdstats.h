@@ -22,4 +22,4 @@ typedef struct zfs_abdstats {
 	unsigned int scatter_sg_table_retry;
 } zfs_abdstats_t;
 
-void zfs_abdstats_fetch(zfs_abdstats_t *abdstats, regex_t *rgx_row);
+void zfs_abdstats_refresh(zfs_abdstats_t *abdstats, regex_t *rgx_row);

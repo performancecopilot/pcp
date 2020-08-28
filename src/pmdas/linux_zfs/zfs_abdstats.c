@@ -6,7 +6,7 @@
 #include "zfs_abdstats.h"
 
 void
-zfs_abdstats_fetch(zfs_abdstats_t *abdstats, regex_t *rgx_row)
+zfs_abdstats_refresh(zfs_abdstats_t *abdstats, regex_t *rgx_row)
 {
         int len_mn, len_mv, nmatch = 3;
         regmatch_t pmatch[3];

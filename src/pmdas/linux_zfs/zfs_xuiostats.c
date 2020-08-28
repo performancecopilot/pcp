@@ -6,7 +6,7 @@
 #include "zfs_xuiostats.h"
 
 void
-zfs_xuiostats_fetch(zfs_xuiostats_t *xuiostats, regex_t *rgx_row)
+zfs_xuiostats_refresh(zfs_xuiostats_t *xuiostats, regex_t *rgx_row)
 {
         int len_mn, len_mv, nmatch = 3;
         regmatch_t pmatch[3];

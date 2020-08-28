@@ -6,7 +6,7 @@
 #include "zfs_vdev_mirrorstats.h"
 
 void
-zfs_vdev_mirrorstats_fetch(zfs_vdev_mirrorstats_t *vdev_mirrorstats, regex_t *rgx_row)
+zfs_vdev_mirrorstats_refresh(zfs_vdev_mirrorstats_t *vdev_mirrorstats, regex_t *rgx_row)
 {
         int len_mn, len_mv, nmatch = 3;
         regmatch_t pmatch[3];

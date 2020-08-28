@@ -6,7 +6,7 @@
 #include "zfs_dmu_tx.h"
 
 void
-zfs_dmu_tx_fetch(zfs_dmu_tx_t *dmu_tx, regex_t *rgx_row)
+zfs_dmu_tx_refresh(zfs_dmu_tx_t *dmu_tx, regex_t *rgx_row)
 {
         int len_mn, len_mv, nmatch = 3;
         regmatch_t pmatch[3];

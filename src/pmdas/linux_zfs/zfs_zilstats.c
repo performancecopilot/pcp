@@ -6,7 +6,7 @@
 #include "zfs_zilstats.h"
 
 void
-zfs_zilstats_fetch(zfs_zilstats_t *zilstats, regex_t *rgx_row)
+zfs_zilstats_refresh(zfs_zilstats_t *zilstats, regex_t *rgx_row)
 {
         int len_mn, len_mv, nmatch = 3;
         regmatch_t pmatch[3];

@@ -6,7 +6,7 @@
 #include "zfs_vdev_cachestats.h"
 
 void
-zfs_vdev_cachestats_fetch(zfs_vdev_cachestats_t *vdev_cachestats, regex_t *rgx_row)
+zfs_vdev_cachestats_refresh(zfs_vdev_cachestats_t *vdev_cachestats, regex_t *rgx_row)
 {
         int len_mn, len_mv, nmatch = 3;
         regmatch_t pmatch[3];

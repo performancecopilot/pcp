@@ -6,7 +6,7 @@
 #include "zfs_fmstats.h"
 
 void
-zfs_fmstats_fetch(zfs_fmstats_t *fmstats, regex_t *rgx_row)
+zfs_fmstats_refresh(zfs_fmstats_t *fmstats, regex_t *rgx_row)
 {
         int len_mn, len_mv, nmatch = 3;
         regmatch_t pmatch[3];

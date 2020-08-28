@@ -6,7 +6,7 @@
 #include "zfs_zfetchstats.h"
 
 void
-zfs_zfetchstats_fetch(zfs_zfetchstats_t *zfetchstats, regex_t *rgx_row)
+zfs_zfetchstats_refresh(zfs_zfetchstats_t *zfetchstats, regex_t *rgx_row)
 {
         int len_mn, len_mv, nmatch = 3;
         regmatch_t pmatch[3];

@@ -5,4 +5,4 @@ typedef struct zfs_fmstats {
     unsigned int payload_set_failed;
 } zfs_fmstats_t;
 
-void zfs_fmstats_fetch(zfs_fmstats_t *fmstats, regex_t *rgx_row);
+void zfs_fmstats_refresh(zfs_fmstats_t *fmstats, regex_t *rgx_row);

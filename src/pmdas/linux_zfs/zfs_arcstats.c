@@ -6,7 +6,7 @@
 #include "zfs_arcstats.h"
 
 void
-zfs_arcstats_fetch(zfs_arcstats_t *arcstats, regex_t *rgx_row)
+zfs_arcstats_refresh(zfs_arcstats_t *arcstats, regex_t *rgx_row)
 {
         int len_mn, len_mv, nmatch = 3;
         regmatch_t pmatch[3];
