@@ -117,6 +117,7 @@ typedef struct series_sample_set {
     sds				metric_name;
     pmSeriesDesc		series_desc;
     void			*baton;
+    int				compatibility;
     /* Number of series samples */
     int				num_samples;
     series_instance_set_t	*series_sample;
