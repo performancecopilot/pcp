@@ -1504,6 +1504,7 @@ series_instance_store_to_node(seriesQueryBaton *baton, sds series,
 	if (extract_string(baton, series, elements[i+1], &value->data, "value") < 0)
 	    sts = -EPROTO;
 	else{
+	    np->value_set.series_values[idx_series].series_sample[idx_sample].series_instance[idx_instance] = *value;
 	    np->value_set.series_values[idx_series].series_sample[idx_sample].series_instance[idx_instance].timestamp = sdsnew(value->timestamp);
 	    np->value_set.series_values[idx_series].series_sample[idx_sample].series_instance[idx_instance].series = sdsnew(value->series);
 	    np->value_set.series_values[idx_series].series_sample[idx_sample].series_instance[idx_instance].data = sdsnew(value->data);
@@ -3057,9 +3058,17 @@ series_calculate_binary_check(
 	    return -1;
 	}
     }
-    if ((*l_sem == PM_SEM_COUNTER && *r_sem !=PM_SEM_COUNTER) || (*l_sem != PM_SEM_COUNTER && *r_sem ==PM_SEM_COUNTER)) {
+    if ((*l_sem == PM_SEM_COUNTER && *r_sem !=PM_SEM_COUNTER)) {
 	if (ope_type != N_STAR && ope_type != N_SLASH) {
-	    infofmt(msg, "For one operand is a counter and the other one is not, only multiplication or division is allowed.\n");
+	    infofmt(msg, "For the left operand is a counter and the right one is not, only multiplication or division is allowed.\n");
+	    batoninfo(baton, PMLOG_ERROR, msg);
+	    baton->error = -EPROTO;
+	    return -1;
+	}
+    }
+    if (*l_sem != PM_SEM_COUNTER && *r_sem ==PM_SEM_COUNTER) {
+	if (ope_type != N_STAR) {
+	    infofmt(msg, "For the left operand is not a counter and the right one is, only multiplication is allowed.\n");
 	    batoninfo(baton, PMLOG_ERROR, msg);
 	    baton->error = -EPROTO;
 	    return -1;
