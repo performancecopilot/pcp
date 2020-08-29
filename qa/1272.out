@@ -55,9 +55,9 @@ fool.index
 fool.meta
 
 === foo -> foo$ ===
-link foo.0 -> foo\$.0
-link foo.index -> foo\$.index
-link foo.meta -> foo\$.meta
+link foo.0 -> foo$.0
+link foo.index -> foo$.index
+link foo.meta -> foo$.meta
 remove foo.0
 remove foo.index
 remove foo.meta
