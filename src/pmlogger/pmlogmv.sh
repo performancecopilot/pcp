@@ -43,6 +43,7 @@ _usage()
 }
 
 verbose=false
+very_verbose=false
 showme=false
 LN=ln
 RM=rm
@@ -63,7 +64,12 @@ do
 	    RMF='echo >&2 + rm -f'
 	    ;;
 	-V)	# verbose
-	    verbose=true
+	    if $verbose
+	    then
+		very_verbose=true
+	    else
+		verbose=true
+	    fi
 	    ;;
 	--)
 	    shift
@@ -119,10 +125,39 @@ then
 	    exit
 	    ;;
     esac
+    $verbose && echo "strip archive suffix: $1 -> $old"
 else
     old="$1"
 fi
 new="$2"
+# don't even try if there of sh(1) special characters in the destination
+# name ...
+#
+if echo "$new" | grep '[<>;|&]' >/dev/null
+then
+    echo >&2 "$prog: Error: newname cannot contain '<', '>', ';', '|' or '&'"
+    exit
+fi
+# and escape the glob special characters
+#
+new=`echo "$2" | sed -e 's/\([?*[]\)/\\\\\1/g'`
+
+_get_part()
+{
+    fname="$1"
+    xtra=''
+    for suffix in `echo "$pat" | sed -e 's/^(//' -e 's/)$//' -e 's/|/ /g'`
+    do
+	if echo "$fname" | grep "\.$suffix\$" >/dev/null
+	then
+	    xtra=".$suffix"
+	    fname=`echo "$fname" | sed -e "s/\.$suffix\$//"`
+	    break
+	fi
+    done
+    part=`echo "$fname" | sed -e 's/.*\.\([^.][^.]*\)$/\1/'`$xtra
+    $very_verbose && echo "fname=$fname -> part=$part"
+}
 
 _cleanup()
 {
@@ -130,14 +165,14 @@ _cleanup()
     then
 	for f in `cat $tmp/old`
 	do
-	    if [ ! -f "$f" ]
+	    if eval [ ! -f "$f" ]
 	    then
-		part=`echo "$f" | sed -e "s@^$old.@@"`
+		_get_part "$f"
 		if [ ! -f "$new.$part" ]
 		then
 		    echo >&2 "$prog: Fatal: $f and $new.$part lost"
-		    ls -l "$old"* "$new"*
-		    rm -f $tmp/old
+		    eval ls -l "$old_noglob".* "$new".*
+		    rm -f $tmp/"$old".*
 		    return
 		fi
 		$verbose && echo >&2 "cleanup: recover $f from $new.$part"
@@ -146,8 +181,8 @@ _cleanup()
 		    :
 		else
 		    echo >&2 "$prog: Fatal: ln $new.$part $f failed!"
-		    ls -l "$old"* "$new"*
-		    rm -f $tmp/old
+		    eval ls -l "$old_noglob".* "$new".*
+		    rm -f $tmp/"$old".*
 		    return
 		fi
 	    fi
@@ -174,20 +209,33 @@ _count_links()
 	# for *BSD-base systems with a -f option to stat(1)
 	#
 	darwin|freebsd|netbsd|openbsd)
-	    stat -f '%l' $1
+	    stat -f '%l' "$1"
 	    ;;
 	# for Linux systems with a -c option to stat(1)
 	#
 	*)
-	    stat -c '%h' $1
+	    stat -c '%h' "$1"
 	    ;;
     esac
 }
 
-# get oldnames inventory check required files are present
+# Get oldnames inventory and check required files are present
+# ... be very careful here, if the ls expands $old.* into a filename
+# that contains _any_ egrep(1) regexp special characters we have to
+# escape 'em ... that's what $old_noregex is for.
 #
-ls "$old".* 2>&1 \
-| egrep '\.((index|meta|[0-9][0-9]*)|((index|meta|[0-9][0-9]*)\.'"$pat"'))$' >$tmp/old
+# Similarty we have to be careful of sh(1) glob characters in
+# $old ... that's what $old_noglob is for, and we use this in
+# lots of places with eval(1) to ensure they are handled correctly.
+#
+old_noregex=`echo "$old" | sed -e 's/\([?+*{\.^$|([]\)/\\\\\1/g'`
+$very_verbose && echo "old_noregex=$old_noregex"
+old_noglob=`echo "$old" | sed -e 's/\([?*[]\)/\\\\\1/g'`
+$very_verbose && echo "old_noglob=$old_noglob"
+
+eval ls "$old_noglob".* 2>&1 \
+| egrep "$old_noregex"'\.((index|meta|[0-9][0-9]*)|((index|meta|[0-9][0-9]*)\.'"$pat"'))$' \
+| sed -e 's/\([?*$[]\)/\\\1/g' >$tmp/old
 if [ -s $tmp/old ]
 then
     # $old may be an ambiguous suffix, e.g. 20140417.00 (with more than
@@ -237,7 +285,7 @@ then
     :
 else
     echo >&2 "$prog: Error: cannot find any data files for the input archive ($old)"
-    ls -l "$old"* >&2
+    eval ls -l "$old_noglob".* >&2
     echo "Inspecting files in this list ..." >&2
     cat $tmp/old >&2
     exit
@@ -251,39 +299,44 @@ then
     :
 else
     echo >&2 "$prog: Error: cannot find .meta file for the input archive ($old)"
-    ls -l "$old"* >&2
+    eval ls -l "$old_noglob".* >&2
     echo "Inspecting files in this list ..." >&2
     cat $tmp/old >&2
     exit
+fi
+
+if $very_verbose
+then
+    echo "source files: `tr '[\012]' ' ' <$tmp/old`"
 fi
 
 # (hard) link oldnames and newnames
 #
 for f in `cat $tmp/old`
 do
-    if [ ! -f "$f" ]
+    if eval [ ! -f "$f" ]
     then
 	echo >&2 "$prog: Error: ln-pass: input file vanished: $f"
-	ls -l "$old"* "$new"*
+	eval ls -l "$old_noglob".* "$new"*
 	_cleanup
 	# NOTREACHED
     fi
-    part=`echo "$f" | sed -e "s@^$old.@@"`
-    if [ -f "$new.$part" ]
+    _get_part "$f"
+    if eval [ -f "$new.$part" ]
     then
 	echo >&2 "$prog: Error: ln-pass: output file already exists: $new.$part"
-	ls -l "$old"* "$new"*
+	eval ls -l "$old_noglob".* "$new"*
 	_cleanup
 	# NOTREACHED
     fi
-    $verbose && echo >&2 "link $f -> $new.$part"
+    $verbose && ! $showme && echo >&2 "link $f -> $new.$part"
     echo "$new.$part" >>$tmp/new
     if eval $LN "$f" "$new.$part"
     then
 	:
     else
 	echo >&2 "$prog: Error: ln $f $new.$part failed!"
-	ls -l "$old"* "$new"*
+	eval ls -l "$old_noglob".* "$new"*
 	_cleanup
 	# NOTREACHED
     fi
@@ -293,23 +346,23 @@ done
 #
 for f in `cat $tmp/old`
 do
-    if [ ! -f "$f" ]
+    if eval [ ! -f "$f" ]
     then
 	echo >&2 "$prog: Error: rm-pass: input file vanished: $f"
-	ls -l "$old"* "$new"*
+	eval ls -l "$old_noglob".* "$new"*
 	_cleanup
 	# NOTREACHED
     fi
-    links=`_count_links $f`
+    links=`eval _count_links $f`
     xpect=2
     $showme && xpect=1
     if [ -z "$links" -o "$links" != $xpect ]
     then
 	echo >&2 "$prog: Error: rm-pass: link count "$links" (not $xpect): $f"
-	ls -l "$old"* "$new"*
+	eval ls -l "$old_noglob".* "$new"*
 	_cleanup
     fi
-    $verbose && echo >&2 "remove $f"
+    $verbose && ! $showme && echo >&2 "remove $f"
     if eval $RM "$f"
     then
 	:
