@@ -76,6 +76,7 @@ pmlc -ie <<End-of-File 2>&1 | _filter_pmlc
 connect $pid
 log mandatory on once hinv.ndisk
 End-of-File
+pmsleep 0.1sec
 pmlc -ie <<End-of-File 2>&1 | _filter_pmlc
 connect $pid
 log mandatory on 200 msec sample.bin
