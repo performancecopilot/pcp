@@ -33,12 +33,18 @@ p
 }'`
 case "$version"
 in
-    7.0.*)	# too old
-    	_notrun "sysstat version $version too old"
-	;;
-    '')		# not sysstat-based sar
-	_notrun "sar not from sysstat package"
-	;;
+    7.0.*)
+	    # too old
+	    _notrun "sysstat version $version too old"
+	    ;;
+    12.2.*)
+	    # broken, see https://github.com/performancecopilot/pcp/issues/945
+	    _notrun "iostat2pcp does not work with sysstat version $version"
+	    ;;
+    '')
+	    # not sysstat-based sar
+	    _notrun "sar not from sysstat package"
+	    ;;
 esac
 
 
