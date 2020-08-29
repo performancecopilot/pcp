@@ -109,9 +109,9 @@ pmseries $args 'min(kernel.all.load{instance.name == "5 minute"}[count:5])'
 echo;echo "== Verify min/max() functions for a singular metric"
 pmseries $args 'kernel.all.uptime[count:10]'
 echo Compared to max:
-pmseries $args 'min(kernel.all.uptime[count:10])'
-echo Compared to min:
 pmseries $args 'max(kernel.all.uptime[count:10])'
+echo Compared to min:
+pmseries $args 'min(kernel.all.uptime[count:10])'
 
 echo;echo "== Verify rescale() functions for a singular metric"
 pmseries $args 'kernel.all.uptime[count:2]'

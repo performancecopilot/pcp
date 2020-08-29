@@ -1504,7 +1504,6 @@ series_instance_store_to_node(seriesQueryBaton *baton, sds series,
 	if (extract_string(baton, series, elements[i+1], &value->data, "value") < 0)
 	    sts = -EPROTO;
 	else{
-	    np->value_set.series_values[idx_series].series_sample[idx_sample].series_instance[idx_instance] = *value;
 	    np->value_set.series_values[idx_series].series_sample[idx_sample].series_instance[idx_instance].timestamp = sdsnew(value->timestamp);
 	    np->value_set.series_values[idx_series].series_sample[idx_sample].series_instance[idx_instance].series = sdsnew(value->series);
 	    np->value_set.series_values[idx_series].series_sample[idx_sample].series_instance[idx_instance].data = sdsnew(value->data);
@@ -1684,32 +1683,20 @@ extract_series_node_desc(seriesQueryBaton *baton, pmSID series,
 {
     sds			msg;
 
-    if (nelements < 5) {
+    if (nelements < 4 || elements[0]->type == REDIS_REPLY_NIL) {
 	infofmt(msg, "bad reply from %s %s (%d)", series, HMGET, nelements);
 	batoninfo(baton, PMLOG_RESPONSE, msg);
 	return -EPROTO;
     }
 
-    /* were we given a non-metric series identifier? (e.g. an instance) */
-    if (elements[0]->type == REDIS_REPLY_NIL) {
-	desc->indom = sdscpylen(desc->indom, "unknown", 7);
-	desc->pmid = sdscpylen(desc->pmid, "PM_ID_NULL", 10);
-	desc->semantics = sdscpylen(desc->semantics, "unknown", 7);
-	desc->source = sdscpylen(desc->source, "unknown", 7);
-	desc->type = sdscpylen(desc->type, "unknown", 7);
-	desc->units = sdscpylen(desc->units, "unknown", 7);
-	return 0;
-    }
-
-    if (extract_string(baton, series, elements[0], &desc->indom, "indom") < 0)
-	return -EPROTO;
+    desc->indom = sdsnew("511.0");
     desc->pmid = sdsnew("511.0.0");
-    if (extract_string(baton, series, elements[1], &desc->semantics, "semantics") < 0)
+    if (extract_string(baton, series, elements[0], &desc->semantics, "semantics") < 0)
 	return -EPROTO;
-    desc->source = sdsnew(elements[2]->str);
-    if (extract_string(baton, series, elements[3], &desc->type, "type") < 0)
+    desc->source = sdsnew(elements[1]->str);
+    if (extract_string(baton, series, elements[2], &desc->type, "type") < 0)
 	return -EPROTO;
-    if (extract_string(baton, series, elements[4], &desc->units, "units") < 0)
+    if (extract_string(baton, series, elements[3], &desc->units, "units") < 0)
 	return -EPROTO;
     return 0;
 }
@@ -1760,10 +1747,9 @@ series_node_get_desc(seriesQueryBaton *baton, sds sid_name, series_sample_set_t 
     seriesBatonReference(baton, "series_node_get_desc");
 
     key = sdscatfmt(sdsempty(), "pcp:desc:series:%S", sid_name);
-    cmd = redis_command(7);
+    cmd = redis_command(6);
     cmd = redis_param_str(cmd, HMGET, HMGET_LEN);
     cmd = redis_param_sds(cmd, key);
-    cmd = redis_param_str(cmd, "indom", sizeof("indom")-1);
     cmd = redis_param_str(cmd, "semantics", sizeof("semantics")-1);
     cmd = redis_param_str(cmd, "source", sizeof("source")-1);
     cmd = redis_param_str(cmd, "type", sizeof("type")-1);
@@ -3500,7 +3486,8 @@ series_calculate(seriesQueryBaton *baton, node_t *np, int level)
 	    /* Traverse the subtree of this node? */
 	    np->value_set = np->left->value_set;
 	    series_noop_traverse(baton, np, level);
-	    sts = N_NOOP;
+	    // Consider noop is not a function
+	    sts = 0;
 	    break;
 	case N_RATE:
 	    series_calculate_rate(np);
