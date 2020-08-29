@@ -1,0 +1,69 @@
+#!/bin/sh
+# PCP QA Test No. 1272
+# pmlogmv with egrep meta chars in file names
+#
+# Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+if [ $# -eq 0 ]
+then
+    echo "QA output created by $seq"
+else
+    echo "QA output created by $seq $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+mkdir $tmp
+
+cp tmparch/foo.* $tmp
+pmlogmv $tmp/foo $tmp/fool
+cp tmparch/foo.* $tmp
+cd $tmp
+
+_do_it()
+{
+    echo
+    echo "=== foo -> foo$1 ==="
+    if pmlogmv -V foo "foo$1"
+    then
+	ls
+	echo "--- foo$1 -> foo ---"
+	if pmlogmv -V "foo$1" foo
+	then
+	    ls
+	else
+	    echo "Arrgh ... reverse rename failed, we're done here!"
+	    exit
+	fi
+    fi
+}
+
+_do_it '?'
+_do_it '*'
+_do_it '$'
+_do_it '[bar]'
+_do_it '+'
+_do_it '{bar}'
+_do_it '.'
+_do_it '^'
+_do_it '|'
+
+# success, all done
+status=0
+exit

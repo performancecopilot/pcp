@@ -1689,6 +1689,7 @@ not_in_container
 1269 libpcp local kernel
 1270 derive fault local
 1271 derive local
+1272 pmlogmv local
 1274 pmlogextract pmdumplog labels help local sanity
 1276:retired pmmgr containers local
 1287 pmda.install pmda.openmetrics local python

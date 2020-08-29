@@ -1,0 +1,220 @@
+QA output created by 1272
+
+=== foo -> foo? ===
+link foo.0 -> foo\?.0
+link foo.index -> foo\?.index
+link foo.meta -> foo\?.meta
+remove foo.0
+remove foo.index
+remove foo.meta
+foo?.0
+foo?.index
+foo?.meta
+fool.0
+fool.index
+fool.meta
+--- foo? -> foo ---
+link foo\?.0 -> foo.0
+link foo\?.index -> foo.index
+link foo\?.meta -> foo.meta
+remove foo\?.0
+remove foo\?.index
+remove foo\?.meta
+foo.0
+foo.index
+foo.meta
+fool.0
+fool.index
+fool.meta
+
+=== foo -> foo* ===
+link foo.0 -> foo\*.0
+link foo.index -> foo\*.index
+link foo.meta -> foo\*.meta
+remove foo.0
+remove foo.index
+remove foo.meta
+foo*.0
+foo*.index
+foo*.meta
+fool.0
+fool.index
+fool.meta
+--- foo* -> foo ---
+link foo\*.0 -> foo.0
+link foo\*.index -> foo.index
+link foo\*.meta -> foo.meta
+remove foo\*.0
+remove foo\*.index
+remove foo\*.meta
+foo.0
+foo.index
+foo.meta
+fool.0
+fool.index
+fool.meta
+
+=== foo -> foo$ ===
+link foo.0 -> foo\$.0
+link foo.index -> foo\$.index
+link foo.meta -> foo\$.meta
+remove foo.0
+remove foo.index
+remove foo.meta
+foo$.0
+foo$.index
+foo$.meta
+fool.0
+fool.index
+fool.meta
+--- foo$ -> foo ---
+link foo\$.0 -> foo.0
+link foo\$.index -> foo.index
+link foo\$.meta -> foo.meta
+remove foo\$.0
+remove foo\$.index
+remove foo\$.meta
+foo.0
+foo.index
+foo.meta
+fool.0
+fool.index
+fool.meta
+
+=== foo -> foo[bar] ===
+link foo.0 -> foo\[bar].0
+link foo.index -> foo\[bar].index
+link foo.meta -> foo\[bar].meta
+remove foo.0
+remove foo.index
+remove foo.meta
+foo[bar].0
+foo[bar].index
+foo[bar].meta
+fool.0
+fool.index
+fool.meta
+--- foo[bar] -> foo ---
+link foo\[bar].0 -> foo.0
+link foo\[bar].index -> foo.index
+link foo\[bar].meta -> foo.meta
+remove foo\[bar].0
+remove foo\[bar].index
+remove foo\[bar].meta
+foo.0
+foo.index
+foo.meta
+fool.0
+fool.index
+fool.meta
+
+=== foo -> foo+ ===
+link foo.0 -> foo+.0
+link foo.index -> foo+.index
+link foo.meta -> foo+.meta
+remove foo.0
+remove foo.index
+remove foo.meta
+foo+.0
+foo+.index
+foo+.meta
+fool.0
+fool.index
+fool.meta
+--- foo+ -> foo ---
+link foo+.0 -> foo.0
+link foo+.index -> foo.index
+link foo+.meta -> foo.meta
+remove foo+.0
+remove foo+.index
+remove foo+.meta
+foo.0
+foo.index
+foo.meta
+fool.0
+fool.index
+fool.meta
+
+=== foo -> foo{bar} ===
+link foo.0 -> foo{bar}.0
+link foo.index -> foo{bar}.index
+link foo.meta -> foo{bar}.meta
+remove foo.0
+remove foo.index
+remove foo.meta
+fool.0
+fool.index
+fool.meta
+foo{bar}.0
+foo{bar}.index
+foo{bar}.meta
+--- foo{bar} -> foo ---
+link foo{bar}.0 -> foo.0
+link foo{bar}.index -> foo.index
+link foo{bar}.meta -> foo.meta
+remove foo{bar}.0
+remove foo{bar}.index
+remove foo{bar}.meta
+foo.0
+foo.index
+foo.meta
+fool.0
+fool.index
+fool.meta
+
+=== foo -> foo. ===
+link foo.0 -> foo..0
+link foo.index -> foo..index
+link foo.meta -> foo..meta
+remove foo.0
+remove foo.index
+remove foo.meta
+foo..0
+foo..index
+foo..meta
+fool.0
+fool.index
+fool.meta
+--- foo. -> foo ---
+link foo..0 -> foo.0
+link foo..index -> foo.index
+link foo..meta -> foo.meta
+remove foo..0
+remove foo..index
+remove foo..meta
+foo.0
+foo.index
+foo.meta
+fool.0
+fool.index
+fool.meta
+
+=== foo -> foo^ ===
+link foo.0 -> foo^.0
+link foo.index -> foo^.index
+link foo.meta -> foo^.meta
+remove foo.0
+remove foo.index
+remove foo.meta
+foo^.0
+foo^.index
+foo^.meta
+fool.0
+fool.index
+fool.meta
+--- foo^ -> foo ---
+link foo^.0 -> foo.0
+link foo^.index -> foo.index
+link foo^.meta -> foo.meta
+remove foo^.0
+remove foo^.index
+remove foo^.meta
+foo.0
+foo.index
+foo.meta
+fool.0
+fool.index
+fool.meta
+
+=== foo -> foo| ===
+pmlogmv: Error: newname cannot contain '<', '>', ';', '|' or '&'
