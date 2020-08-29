@@ -82,17 +82,11 @@ foo.index
 foo.meta
 
 === simplest case ===
-link foo.0 -> bar.0
 + ln foo.0 bar.0
-link foo.index -> bar.index
 + ln foo.index bar.index
-link foo.meta -> bar.meta
 + ln foo.meta bar.meta
-remove foo.0
 + rm foo.0
-remove foo.index
 + rm foo.index
-remove foo.meta
 + rm foo.meta
 link foo.0 -> bar.0
 link foo.index -> bar.index
@@ -107,6 +101,7 @@ bar.meta
 
 === single oldfile name cases ===
 --- foo.meta ---
+strip archive suffix: foo.meta -> foo
 link foo.0 -> bar.0
 link foo.index -> bar.index
 link foo.meta -> bar.meta
@@ -118,6 +113,7 @@ bar.0
 bar.index
 bar.meta
 --- foo.0 ---
+strip archive suffix: foo.0 -> foo
 link foo.0 -> bar.0
 link foo.index -> bar.index
 link foo.meta -> bar.meta
@@ -129,6 +125,7 @@ bar.0
 bar.index
 bar.meta
 --- foo.index ---
+strip archive suffix: foo.index -> foo
 link foo.0 -> bar.0
 link foo.index -> bar.index
 link foo.meta -> bar.meta
