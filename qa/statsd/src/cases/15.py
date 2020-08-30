@@ -27,7 +27,7 @@ ip = "0.0.0.0"
 port = 8125
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 valgrind_out_dir = os.path.join(sys.argv[1])
-valgrind_out_path = os.path.join(sys.argv[1], "valgrind-%d.out")
+valgrind_out_path = os.path.join(sys.argv[1], "valgrind-%p.out")
 
 payloads = [
     "test_labels:0|c", # no label
@@ -157,7 +157,7 @@ def run_test():
         utils.send_INT_to_pid(pmdastatsd_pid)
         # again, wait for cleanup
         time.sleep(3)
-        valgrind_pmdastatsd_output = valgrind_out_path % int(pmdastatsd_pid)
+        valgrind_pmdastatsd_output = valgrind_out_path.replace("%p", pmdastatsd_pid)
         f = open(valgrind_pmdastatsd_output, "r")
         show_next_line = 0
         for line in f:
