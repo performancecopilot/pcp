@@ -140,7 +140,7 @@ testconfigs = [basic_parser_config, ragel_parser_config, duration_aggregation_ba
 def run_test():
     utils.pmdastatsd_remove()
     utils.setup_dbpmdarc()    
-    command = '(sleep 8;' + composed_command + '; cat) | sudo valgrind --trace-children=yes --leak-check=full --log-file=' + valgrind_out_path + ' dbpmda -i';
+    command = '(sleep 8;' + composed_command + '; cat) | sudo valgrind --trace-children=yes --leak-check=full --log-file=' + valgrind_out_path + ' dbpmda -q 60 -i';
     for config in testconfigs:
         utils.print_test_section_separator()
         utils.set_config(config)
