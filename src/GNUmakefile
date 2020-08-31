@@ -119,6 +119,7 @@ OTHER_SUBDIRS = \
 	selinux \
 	zeroconf \
 	find-filter \
+	pmlogmv \
 	#
 
 SUBDIRS = \
