@@ -47,6 +47,10 @@ static int	verbose = 0;
 static int	force = 0;
 static char	*oldname;		
 static char	*newname;
+/* need a sentinel that is < 0 and ! PM_LOG_VOL_TI amd ! PM_LOG_VOL_META */
+#define PM_LOG_VOL_NONE -100
+static int	lastvol = PM_LOG_VOL_NONE;
+static __pmContext	*ctxp = NULL;
 
 static int
 myoverrides(int opt, pmOptions *opts)
@@ -133,6 +137,7 @@ do_link(int vol)
 		    return -1;
 		}
 	    }
+	    lastvol = vol;
 	    return 1;
 	}
     }
@@ -196,14 +201,57 @@ do_unlink(int cleanup, char *name, int vol)
     return ;
 }
 
+static void
+cleanup(int sig)
+{
+    int		i;
+
+    if (sig != 0) {
+	fprintf(stderr, "Caught signal %d\n", sig);
+	verbose = 1;
+    }
+
+    /* order here is the _reverse_ order of creation in main() */
+    if (lastvol == PM_LOG_VOL_META) {
+	/* newname.meta was created */
+	do_unlink(1, newname, PM_LOG_VOL_META);
+	lastvol = PM_LOG_VOL_TI;
+    }
+    if (lastvol == PM_LOG_VOL_TI) {
+	/* newname.index was created */
+	do_unlink(1, newname, PM_LOG_VOL_TI);
+	if (ctxp == NULL)
+	    lastvol = PM_LOG_VOL_NONE;
+	else
+	    lastvol = ctxp->c_archctl->ac_log->l_maxvol;
+    }
+    if (lastvol != PM_LOG_VOL_NONE) {
+	/* newname vols were created */
+	for (i = ctxp->c_archctl->ac_log->l_minvol; i <= lastvol; i++) {
+	    do_unlink(1, newname, i);
+	}
+    }
+
+    exit(1);
+}
+
+#ifdef HAVE_SA_SIGINFO
+static void
+trap(int sig, siginfo_t *sip, void *x)
+{
+    cleanup(sig);
+}
+#endif
+
 int
 main(int argc, char **argv)
 {
     int		i;
     int		c;
     int		sts;
-    int		lastvol = -1;
-    __pmContext	*ctxp;
+#ifdef HAVE_SA_SIGINFO
+    static struct sigaction act;
+#endif
 
     setlinebuf(stdout);
     setlinebuf(stderr);
@@ -259,15 +307,28 @@ main(int argc, char **argv)
 	exit(1);
     }
 
+    /* install signal handler in case we're interrupted */
+#ifdef HAVE_SA_SIGINFO
+    act.sa_sigaction = trap;
+    act.sa_flags = SA_SIGINFO;
+    sigaction(SIGINT, &act, NULL);
+    sigaction(SIGTERM, &act, NULL);
+    sigaction(SIGHUP, &act, NULL);
+#else
+    __pmSetSignalHandler(SIGINT, cleanup);
+    __pmSetSignalHandler(SIGTERM, cleanup);
+    __pmSetSignalHandler(SIGHUP, cleanup);
+#endif
+
+
     for (i = ctxp->c_archctl->ac_log->l_minvol; i <= ctxp->c_archctl->ac_log->l_maxvol; i++) {
 	if (do_link(i) < 0)
-	    goto abandon_1;
-	lastvol = i;
+	    goto abandon;
     }
     if (do_link(PM_LOG_VOL_TI) < 0)
-	goto abandon_1;
+	goto abandon;
     if (do_link(PM_LOG_VOL_META) < 0)
-	goto abandon_0;
+	goto abandon;
 
     /* remove oldname files */
     for (i = ctxp->c_archctl->ac_log->l_minvol; i <= ctxp->c_archctl->ac_log->l_maxvol; i++) {
@@ -278,11 +339,7 @@ main(int argc, char **argv)
     return 0;
 
 /* fatal error once we're started ... remove any newname files */
-abandon_0:	/* newname TI was created */
-    do_unlink(1, newname, PM_LOG_VOL_TI);
-abandon_1:	/* newname vols were created */
-    for (i = ctxp->c_archctl->ac_log->l_minvol; i <= lastvol; i++) {
-	do_unlink(1, newname, i);
-    }
-    exit(1);
+abandon:
+    cleanup(0);
+    /* NOTREACHED */
 }
