@@ -18,7 +18,7 @@
 \f3pmlogmv\f1 \- move (rename) Performance Co-Pilot archive files
 .SH SYNOPSIS
 \f3pmlogmv\f1
-[\f3\-NV?\f1]
+[\f3\-fNV?\f1]
 \f2oldname\f1
 \f2newname\f1
 .SH DESCRIPTION
@@ -66,6 +66,30 @@ file system.
 .SH OPTIONS
 The available command line options are:
 .TP 5
+\fB\-f\fR, \fB\-\-force\fR
+Normally
+.B pmlogmv
+takes a conservative view in respect of
+.I newname
+and will not proceed if
+.I newname
+contains any characters that are likely to cause a problem for
+.BR sh (1).
+This includes ``glob'' characters like ``?'', ``*'' and ``['', shell
+syntax meta characters like ``('', ``|'', ``;'' and ``&'', shell
+I/O redirection characters like ``<'' and ``>'', the dollar sign,
+a space, etc.
+.RS
+.PP
+The
+.B \-f
+flag forces
+.B pmlogmv
+to proceed, even if
+.I newname
+contains any of these ``unsafe'' characters.
+.RE
+.TP
 \fB\-N\fR, \fB\-\-showme\fR
 Perform a dry-run, checking and reporting what changes would
 be made without making any changes.
