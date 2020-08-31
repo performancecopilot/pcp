@@ -18,7 +18,7 @@ include $(TOPDIR)/src/include/builddefs
 
 SUBDIRS = src
 OTHERS	= pmnewlog.sh control rc_pmlogger \
-	  pmlogger_daily.sh pmlogger_check.sh pmlogger_merge.sh pmlogmv.sh \
+	  pmlogger_daily.sh pmlogger_check.sh pmlogger_merge.sh \
 	  pmlogger_daily_report.sh pmlogger_rewrite.sh
 LDIRT	= crontab crontab.daily_report pmlogger.service \
 	  pmlogger_daily.service pmlogger_daily-poll.service \
@@ -56,7 +56,6 @@ endif
 	$(INSTALL) -m 755 pmlogger_check.sh $(PCP_BINADM_DIR)/pmlogger_check$(SHELLSUFFIX)
 	$(INSTALL) -m 755 pmlogger_merge.sh $(PCP_BINADM_DIR)/pmlogger_merge$(SHELLSUFFIX)
 	$(INSTALL) -m 755 pmlogger_rewrite.sh $(PCP_BINADM_DIR)/pmlogger_rewrite$(SHELLSUFFIX)
-	$(INSTALL) -m 755 pmlogmv.sh $(PCP_BIN_DIR)/pmlogmv$(SHELLSUFFIX)
 	$(INSTALL) -m 755 rc_pmlogger $(PCP_RC_DIR)/pmlogger
 ifeq ($(ENABLE_SYSTEMD),true)
 	$(INSTALL) -m 644 pmlogger.service $(PCP_SYSTEMDUNIT_DIR)/pmlogger.service
