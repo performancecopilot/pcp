@@ -1058,7 +1058,7 @@ not_in_container
 638 pmns local
 639 pmns local
 640 pmpost local
-641 logutil pmdumplog local pmlogrewrite
+641 logutil pmdumplog local pmlogrewrite pmlogmv
 642 pmda.trivial pmns local pmda.simple pmda.sample pmda.sendmail trace
 643 pmda.trivial pmns local
 644 pmns local
@@ -1075,20 +1075,20 @@ not_in_container
 655 pmda.gfs2 local pmstore
 656 pmda.cifs local valgrind
 657 pmda.dm local
-658 logutil local pmlogrewrite
+658 logutil local pmlogrewrite pmlogmv
 659 pmlogreduce local
 660:retired pmwebd local
 661:retired pmwebd local python kernel
 662 pmproxy pmda.sample local python pmda.sample
 663:retired pmwebd local python
-664 logutil local pmlogrewrite
+664 logutil local pmlogrewrite pmlogmv
 665 pmda.linux local
 666:retired pmmgr local slow valgrind pmrep python pmlogrewrite
 667 pcp2graphite python pcp2xxx local
 668:retired pmmgr local containers pmdumplog
 669:retired pmmgr local pmlogcheck
 670 libpcp local
-671 folio local pmlogrewrite
+671 folio local pmlogrewrite pmlogmv
 672 valgrind libpcp pmval local
 673 pmdumplog local decompress-xz
 674 pcp local
@@ -1096,7 +1096,7 @@ not_in_container
 676 logutil pmlogrewrite local
 677 pmprobe archive multi-archive decompress-xz local pmlogextract
 678 logutil pmlogrewrite local
-679 logutil local pmlogrewrite
+679 logutil local pmlogrewrite pmlogmv
 680 libpcp local
 681 valgrind libpcp local
 682 libpcp_mmv labels local valgrind

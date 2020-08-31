@@ -210,12 +210,12 @@ Info: pmlogrewrite all archives in TMP/oldsem2
 Error: no pmlogger instance running for host "localhost"
 ... logging for host "localhost" unchanged
 Warning: skipping log rotation because we don't know which pmlogger to signal
-link 20011005.00.10.0 -> 20011005.0
-link 20011005.00.10.index -> 20011005.index
-link 20011005.00.10.meta -> 20011005.meta
-remove 20011005.00.10.0
-remove 20011005.00.10.index
-remove 20011005.00.10.meta
+link ./20011005.00.10.0 -> 20011005.0
+link ./20011005.00.10.index -> 20011005.index
+link ./20011005.00.10.meta -> 20011005.meta
+remove ./20011005.00.10.0
+remove ./20011005.00.10.index
+remove ./20011005.00.10.meta
 
 === daily maintenance of PCP archives for host localhost ===
 

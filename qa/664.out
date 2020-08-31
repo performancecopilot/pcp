@@ -18,12 +18,12 @@ Output archive files:
 -rw-r--r-- ... 20011004.index
 -rw-r--r-- ... 20011004.0
 Removing input archive files ............... done
-link 20011006.00.10.0.xz -> 20011006.0.xz
-link 20011006.00.10.index.xz -> 20011006.index.xz
-link 20011006.00.10.meta.xz -> 20011006.meta.xz
-remove 20011006.00.10.0.xz
-remove 20011006.00.10.index.xz
-remove 20011006.00.10.meta.xz
+link ./20011006.00.10.0.xz -> 20011006.0.xz
+link ./20011006.00.10.index.xz -> 20011006.index.xz
+link ./20011006.00.10.meta.xz -> 20011006.meta.xz
+remove ./20011006.00.10.0.xz
+remove ./20011006.00.10.index.xz
+remove ./20011006.00.10.meta.xz
 pmlogger_daily: [TMP.control:3]
 Warning: current volume of current pmlogger not known, compression skipped
 
@@ -44,18 +44,18 @@ Output archive files:
 -rw-r--r-- ... 20011002.index
 -rw-r--r-- ... 20011002.0
 Removing input archive files ............ done
-link 20011003.00.10.0.xz -> 20011003.0.xz
-link 20011003.00.10.index.xz -> 20011003.index.xz
-link 20011003.00.10.meta.xz -> 20011003.meta.xz
-remove 20011003.00.10.0.xz
-remove 20011003.00.10.index.xz
-remove 20011003.00.10.meta.xz
-link 20011005.00.10.0.xz -> 20011005.0.xz
-link 20011005.00.10.index.xz -> 20011005.index.xz
-link 20011005.00.10.meta.xz -> 20011005.meta.xz
-remove 20011005.00.10.0.xz
-remove 20011005.00.10.index.xz
-remove 20011005.00.10.meta.xz
+link ./20011003.00.10.0.xz -> 20011003.0.xz
+link ./20011003.00.10.index.xz -> 20011003.index.xz
+link ./20011003.00.10.meta.xz -> 20011003.meta.xz
+remove ./20011003.00.10.0.xz
+remove ./20011003.00.10.index.xz
+remove ./20011003.00.10.meta.xz
+link ./20011005.00.10.0.xz -> 20011005.0.xz
+link ./20011005.00.10.index.xz -> 20011005.index.xz
+link ./20011005.00.10.meta.xz -> 20011005.meta.xz
+remove ./20011005.00.10.0.xz
+remove ./20011005.00.10.index.xz
+remove ./20011005.00.10.meta.xz
 pmlogger_daily: [TMP.control:4]
 Warning: current volume of current pmlogger not known, compression skipped
 
