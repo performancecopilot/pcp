@@ -1,3 +1,7 @@
+Note:
+    Do not use this script ... it is the old version and is
+    kept here simply for reference.  The C application works
+    much better.
 #!/bin/sh
 # 
 # Copyright (c) 1997,2003 Silicon Graphics, Inc.  All Rights Reserved.
