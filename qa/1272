@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 1272
-# pmlogmv with egrep meta chars in file names
+# pmlogmv with egrep and sh meta chars in file names
 #
 # Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
 #
@@ -40,7 +40,7 @@ _do_it()
 {
     echo
     echo "=== foo -> foo$1 ==="
-    if pmlogmv -V foo "foo$1"
+    if pmlogmv -V $2 foo "foo$1"
     then
 	ls
 	echo "--- foo$1 -> foo ---"
@@ -55,14 +55,27 @@ _do_it()
 }
 
 _do_it '?'
+_do_it '?' -f
 _do_it '*'
+_do_it '*' -f
 _do_it '$'
+_do_it '$' -f
 _do_it '[bar]'
+_do_it '[bar]' -f
 _do_it '+'
 _do_it '{bar}'
 _do_it '.'
 _do_it '^'
+_do_it '<x>'
+_do_it '<x>' -f
 _do_it '|'
+_do_it '|' -f
+_do_it ';'
+_do_it ';' -f
+_do_it '&'
+_do_it '&' -f
+_do_it 'foo bar'
+_do_it 'foo bar' -f
 
 # success, all done
 status=0

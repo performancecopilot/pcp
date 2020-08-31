@@ -1,12 +1,15 @@
 QA output created by 1272
 
 === foo -> foo? ===
-link foo.0 -> foo\?.0
-link foo.index -> foo\?.index
-link foo.meta -> foo\?.meta
-remove foo.0
-remove foo.index
-remove foo.meta
+pmlogmv: newname (foo?) unsafe [shell metacharacter '?']
+
+=== foo -> foo? ===
+link ./foo.0 -> foo?.0
+link ./foo.index -> foo?.index
+link ./foo.meta -> foo?.meta
+remove ./foo.0
+remove ./foo.index
+remove ./foo.meta
 foo?.0
 foo?.index
 foo?.meta
@@ -14,12 +17,12 @@ fool.0
 fool.index
 fool.meta
 --- foo? -> foo ---
-link foo\?.0 -> foo.0
-link foo\?.index -> foo.index
-link foo\?.meta -> foo.meta
-remove foo\?.0
-remove foo\?.index
-remove foo\?.meta
+link ./foo?.0 -> foo.0
+link ./foo?.index -> foo.index
+link ./foo?.meta -> foo.meta
+remove ./foo?.0
+remove ./foo?.index
+remove ./foo?.meta
 foo.0
 foo.index
 foo.meta
@@ -28,12 +31,15 @@ fool.index
 fool.meta
 
 === foo -> foo* ===
-link foo.0 -> foo\*.0
-link foo.index -> foo\*.index
-link foo.meta -> foo\*.meta
-remove foo.0
-remove foo.index
-remove foo.meta
+pmlogmv: newname (foo*) unsafe [shell metacharacter '*']
+
+=== foo -> foo* ===
+link ./foo.0 -> foo*.0
+link ./foo.index -> foo*.index
+link ./foo.meta -> foo*.meta
+remove ./foo.0
+remove ./foo.index
+remove ./foo.meta
 foo*.0
 foo*.index
 foo*.meta
@@ -41,12 +47,12 @@ fool.0
 fool.index
 fool.meta
 --- foo* -> foo ---
-link foo\*.0 -> foo.0
-link foo\*.index -> foo.index
-link foo\*.meta -> foo.meta
-remove foo\*.0
-remove foo\*.index
-remove foo\*.meta
+link ./foo*.0 -> foo.0
+link ./foo*.index -> foo.index
+link ./foo*.meta -> foo.meta
+remove ./foo*.0
+remove ./foo*.index
+remove ./foo*.meta
 foo.0
 foo.index
 foo.meta
@@ -55,12 +61,15 @@ fool.index
 fool.meta
 
 === foo -> foo$ ===
-link foo.0 -> foo$.0
-link foo.index -> foo$.index
-link foo.meta -> foo$.meta
-remove foo.0
-remove foo.index
-remove foo.meta
+pmlogmv: newname (foo$) unsafe [shell metacharacter '$']
+
+=== foo -> foo$ ===
+link ./foo.0 -> foo$.0
+link ./foo.index -> foo$.index
+link ./foo.meta -> foo$.meta
+remove ./foo.0
+remove ./foo.index
+remove ./foo.meta
 foo$.0
 foo$.index
 foo$.meta
@@ -68,12 +77,12 @@ fool.0
 fool.index
 fool.meta
 --- foo$ -> foo ---
-link foo\$.0 -> foo.0
-link foo\$.index -> foo.index
-link foo\$.meta -> foo.meta
-remove foo\$.0
-remove foo\$.index
-remove foo\$.meta
+link ./foo$.0 -> foo.0
+link ./foo$.index -> foo.index
+link ./foo$.meta -> foo.meta
+remove ./foo$.0
+remove ./foo$.index
+remove ./foo$.meta
 foo.0
 foo.index
 foo.meta
@@ -82,12 +91,15 @@ fool.index
 fool.meta
 
 === foo -> foo[bar] ===
-link foo.0 -> foo\[bar].0
-link foo.index -> foo\[bar].index
-link foo.meta -> foo\[bar].meta
-remove foo.0
-remove foo.index
-remove foo.meta
+pmlogmv: newname (foo[bar]) unsafe [shell metacharacter '[']
+
+=== foo -> foo[bar] ===
+link ./foo.0 -> foo[bar].0
+link ./foo.index -> foo[bar].index
+link ./foo.meta -> foo[bar].meta
+remove ./foo.0
+remove ./foo.index
+remove ./foo.meta
 foo[bar].0
 foo[bar].index
 foo[bar].meta
@@ -95,12 +107,12 @@ fool.0
 fool.index
 fool.meta
 --- foo[bar] -> foo ---
-link foo\[bar].0 -> foo.0
-link foo\[bar].index -> foo.index
-link foo\[bar].meta -> foo.meta
-remove foo\[bar].0
-remove foo\[bar].index
-remove foo\[bar].meta
+link ./foo[bar].0 -> foo.0
+link ./foo[bar].index -> foo.index
+link ./foo[bar].meta -> foo.meta
+remove ./foo[bar].0
+remove ./foo[bar].index
+remove ./foo[bar].meta
 foo.0
 foo.index
 foo.meta
@@ -109,12 +121,12 @@ fool.index
 fool.meta
 
 === foo -> foo+ ===
-link foo.0 -> foo+.0
-link foo.index -> foo+.index
-link foo.meta -> foo+.meta
-remove foo.0
-remove foo.index
-remove foo.meta
+link ./foo.0 -> foo+.0
+link ./foo.index -> foo+.index
+link ./foo.meta -> foo+.meta
+remove ./foo.0
+remove ./foo.index
+remove ./foo.meta
 foo+.0
 foo+.index
 foo+.meta
@@ -122,12 +134,12 @@ fool.0
 fool.index
 fool.meta
 --- foo+ -> foo ---
-link foo+.0 -> foo.0
-link foo+.index -> foo.index
-link foo+.meta -> foo.meta
-remove foo+.0
-remove foo+.index
-remove foo+.meta
+link ./foo+.0 -> foo.0
+link ./foo+.index -> foo.index
+link ./foo+.meta -> foo.meta
+remove ./foo+.0
+remove ./foo+.index
+remove ./foo+.meta
 foo.0
 foo.index
 foo.meta
@@ -136,12 +148,12 @@ fool.index
 fool.meta
 
 === foo -> foo{bar} ===
-link foo.0 -> foo{bar}.0
-link foo.index -> foo{bar}.index
-link foo.meta -> foo{bar}.meta
-remove foo.0
-remove foo.index
-remove foo.meta
+link ./foo.0 -> foo{bar}.0
+link ./foo.index -> foo{bar}.index
+link ./foo.meta -> foo{bar}.meta
+remove ./foo.0
+remove ./foo.index
+remove ./foo.meta
 fool.0
 fool.index
 fool.meta
@@ -149,12 +161,12 @@ foo{bar}.0
 foo{bar}.index
 foo{bar}.meta
 --- foo{bar} -> foo ---
-link foo{bar}.0 -> foo.0
-link foo{bar}.index -> foo.index
-link foo{bar}.meta -> foo.meta
-remove foo{bar}.0
-remove foo{bar}.index
-remove foo{bar}.meta
+link ./foo{bar}.0 -> foo.0
+link ./foo{bar}.index -> foo.index
+link ./foo{bar}.meta -> foo.meta
+remove ./foo{bar}.0
+remove ./foo{bar}.index
+remove ./foo{bar}.meta
 foo.0
 foo.index
 foo.meta
@@ -163,12 +175,12 @@ fool.index
 fool.meta
 
 === foo -> foo. ===
-link foo.0 -> foo..0
-link foo.index -> foo..index
-link foo.meta -> foo..meta
-remove foo.0
-remove foo.index
-remove foo.meta
+link ./foo.0 -> foo..0
+link ./foo.index -> foo..index
+link ./foo.meta -> foo..meta
+remove ./foo.0
+remove ./foo.index
+remove ./foo.meta
 foo..0
 foo..index
 foo..meta
@@ -176,12 +188,12 @@ fool.0
 fool.index
 fool.meta
 --- foo. -> foo ---
-link foo..0 -> foo.0
-link foo..index -> foo.index
-link foo..meta -> foo.meta
-remove foo..0
-remove foo..index
-remove foo..meta
+link ./foo..0 -> foo.0
+link ./foo..index -> foo.index
+link ./foo..meta -> foo.meta
+remove ./foo..0
+remove ./foo..index
+remove ./foo..meta
 foo.0
 foo.index
 foo.meta
@@ -190,12 +202,12 @@ fool.index
 fool.meta
 
 === foo -> foo^ ===
-link foo.0 -> foo^.0
-link foo.index -> foo^.index
-link foo.meta -> foo^.meta
-remove foo.0
-remove foo.index
-remove foo.meta
+link ./foo.0 -> foo^.0
+link ./foo.index -> foo^.index
+link ./foo.meta -> foo^.meta
+remove ./foo.0
+remove ./foo.index
+remove ./foo.meta
 foo^.0
 foo^.index
 foo^.meta
@@ -203,12 +215,42 @@ fool.0
 fool.index
 fool.meta
 --- foo^ -> foo ---
-link foo^.0 -> foo.0
-link foo^.index -> foo.index
-link foo^.meta -> foo.meta
-remove foo^.0
-remove foo^.index
-remove foo^.meta
+link ./foo^.0 -> foo.0
+link ./foo^.index -> foo.index
+link ./foo^.meta -> foo.meta
+remove ./foo^.0
+remove ./foo^.index
+remove ./foo^.meta
+foo.0
+foo.index
+foo.meta
+fool.0
+fool.index
+fool.meta
+
+=== foo -> foo<x> ===
+pmlogmv: newname (foo<x>) unsafe [shell metacharacter '<']
+
+=== foo -> foo<x> ===
+link ./foo.0 -> foo<x>.0
+link ./foo.index -> foo<x>.index
+link ./foo.meta -> foo<x>.meta
+remove ./foo.0
+remove ./foo.index
+remove ./foo.meta
+foo<x>.0
+foo<x>.index
+foo<x>.meta
+fool.0
+fool.index
+fool.meta
+--- foo<x> -> foo ---
+link ./foo<x>.0 -> foo.0
+link ./foo<x>.index -> foo.index
+link ./foo<x>.meta -> foo.meta
+remove ./foo<x>.0
+remove ./foo<x>.index
+remove ./foo<x>.meta
 foo.0
 foo.index
 foo.meta
@@ -217,4 +259,121 @@ fool.index
 fool.meta
 
 === foo -> foo| ===
-pmlogmv: Error: newname cannot contain '<', '>', ';', '|' or '&'
+pmlogmv: newname (foo|) unsafe [shell metacharacter '|']
+
+=== foo -> foo| ===
+link ./foo.0 -> foo|.0
+link ./foo.index -> foo|.index
+link ./foo.meta -> foo|.meta
+remove ./foo.0
+remove ./foo.index
+remove ./foo.meta
+fool.0
+fool.index
+fool.meta
+foo|.0
+foo|.index
+foo|.meta
+--- foo| -> foo ---
+link ./foo|.0 -> foo.0
+link ./foo|.index -> foo.index
+link ./foo|.meta -> foo.meta
+remove ./foo|.0
+remove ./foo|.index
+remove ./foo|.meta
+foo.0
+foo.index
+foo.meta
+fool.0
+fool.index
+fool.meta
+
+=== foo -> foo; ===
+pmlogmv: newname (foo;) unsafe [shell metacharacter ';']
+
+=== foo -> foo; ===
+link ./foo.0 -> foo;.0
+link ./foo.index -> foo;.index
+link ./foo.meta -> foo;.meta
+remove ./foo.0
+remove ./foo.index
+remove ./foo.meta
+foo;.0
+foo;.index
+foo;.meta
+fool.0
+fool.index
+fool.meta
+--- foo; -> foo ---
+link ./foo;.0 -> foo.0
+link ./foo;.index -> foo.index
+link ./foo;.meta -> foo.meta
+remove ./foo;.0
+remove ./foo;.index
+remove ./foo;.meta
+foo.0
+foo.index
+foo.meta
+fool.0
+fool.index
+fool.meta
+
+=== foo -> foo& ===
+pmlogmv: newname (foo&) unsafe [shell metacharacter '&']
+
+=== foo -> foo& ===
+link ./foo.0 -> foo&.0
+link ./foo.index -> foo&.index
+link ./foo.meta -> foo&.meta
+remove ./foo.0
+remove ./foo.index
+remove ./foo.meta
+foo&.0
+foo&.index
+foo&.meta
+fool.0
+fool.index
+fool.meta
+--- foo& -> foo ---
+link ./foo&.0 -> foo.0
+link ./foo&.index -> foo.index
+link ./foo&.meta -> foo.meta
+remove ./foo&.0
+remove ./foo&.index
+remove ./foo&.meta
+foo.0
+foo.index
+foo.meta
+fool.0
+fool.index
+fool.meta
+
+=== foo -> foofoo bar ===
+pmlogmv: newname (foofoo bar) unsafe [shell metacharacter ' ']
+
+=== foo -> foofoo bar ===
+link ./foo.0 -> foofoo bar.0
+link ./foo.index -> foofoo bar.index
+link ./foo.meta -> foofoo bar.meta
+remove ./foo.0
+remove ./foo.index
+remove ./foo.meta
+foofoo bar.0
+foofoo bar.index
+foofoo bar.meta
+fool.0
+fool.index
+fool.meta
+--- foofoo bar -> foo ---
+link ./foofoo bar.0 -> foo.0
+link ./foofoo bar.index -> foo.index
+link ./foofoo bar.meta -> foo.meta
+remove ./foofoo bar.0
+remove ./foofoo bar.index
+remove ./foofoo bar.meta
+foo.0
+foo.index
+foo.meta
+fool.0
+fool.index
+fool.meta

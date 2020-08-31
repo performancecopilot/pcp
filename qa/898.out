@@ -1,40 +1,40 @@
 QA output created by 898
 arg is .0 file name case
-+ ln 20140417.00.25.0 destination.0
-+ ln 20140417.00.25.index destination.index
-+ ln 20140417.00.25.meta destination.meta
-+ rm 20140417.00.25.0
-+ rm 20140417.00.25.index
-+ rm 20140417.00.25.meta
++ ln ./20140417.00.25.0 destination.0
++ ln ./20140417.00.25.index destination.index
++ ln ./20140417.00.25.meta destination.meta
++ rm ./20140417.00.25.0
++ rm ./20140417.00.25.index
++ rm ./20140417.00.25.meta
 
 arg is .index file name case
-+ ln 20140417.00.25.0 destination.0
-+ ln 20140417.00.25.index destination.index
-+ ln 20140417.00.25.meta destination.meta
-+ rm 20140417.00.25.0
-+ rm 20140417.00.25.index
-+ rm 20140417.00.25.meta
++ ln ./20140417.00.25.0 destination.0
++ ln ./20140417.00.25.index destination.index
++ ln ./20140417.00.25.meta destination.meta
++ rm ./20140417.00.25.0
++ rm ./20140417.00.25.index
++ rm ./20140417.00.25.meta
 
 arg is .meta file name case
-+ ln 20140417.00.25.0 destination.0
-+ ln 20140417.00.25.index destination.index
-+ ln 20140417.00.25.meta destination.meta
-+ rm 20140417.00.25.0
-+ rm 20140417.00.25.index
-+ rm 20140417.00.25.meta
++ ln ./20140417.00.25.0 destination.0
++ ln ./20140417.00.25.index destination.index
++ ln ./20140417.00.25.meta destination.meta
++ rm ./20140417.00.25.0
++ rm ./20140417.00.25.index
++ rm ./20140417.00.25.meta
 
 arg is unique prefix case
-+ ln 20140417.00.25.0 destination.0
-+ ln 20140417.00.25.index destination.index
-+ ln 20140417.00.25.meta destination.meta
-+ rm 20140417.00.25.0
-+ rm 20140417.00.25.index
-+ rm 20140417.00.25.meta
++ ln ./20140417.00.25.0 destination.0
++ ln ./20140417.00.25.index destination.index
++ ln ./20140417.00.25.meta destination.meta
++ rm ./20140417.00.25.0
++ rm ./20140417.00.25.index
++ rm ./20140417.00.25.meta
 
 arg is ambiguous prefix cases
-pmlogmv: Error: cannot find any files for the input archive (20140417.00)
-pmlogmv: Error: cannot find any files for the input archive (20140417.00)
-pmlogmv: Error: cannot find any files for the input archive (20140417.00)
+pmlogmv: Cannot open archive "20140417.00": No such file or directory
+pmlogmv: Cannot open archive "20140417.00": No such file or directory
+pmlogmv: Cannot open archive "20140417.00": No such file or directory
 
 bogus filename case
-pmlogmv: Error: oldname argument (20140417.00.25.bozo) is not a PCP archive
+pmlogmv: Cannot open archive "20140417.00.25.bozo": No such file or directory
