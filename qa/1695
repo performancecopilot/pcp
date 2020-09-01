@@ -98,6 +98,12 @@ grep "^curl" $tmp.tmp
 cat $tmp.tmp >>$seq.full
 
 date >>$seq.full
+echo "=== checking short-fuse scrape operation ===" | tee -a $seq.full
+curl --get "http://localhost:$port/metrics?polltimeout=1" >$tmp.tmp 2>&1
+grep "^curl" $tmp.tmp
+cat $tmp.tmp >>$seq.full
+
+date >>$seq.full
 echo "=== checking one client making multiple requests ===" | tee -a $seq.full
 context="http://localhost:$port/pmapi/context"
 curl --get --silent $context $context >$tmp.tmp 2>&1
