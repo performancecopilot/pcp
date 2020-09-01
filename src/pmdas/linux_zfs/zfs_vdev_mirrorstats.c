@@ -28,13 +28,13 @@ zfs_vdev_mirrorstats_refresh(zfs_vdev_mirrorstats_t *vdev_mirrorstats, regex_t *
                                 strncpy(mval,  line + pmatch[2].rm_so, len_mv);
                                 mname[len_mn] = '\0';
                                 mval[len_mv] = '\0';
-				if (strcmp(mname, "rotating_linear") == 0) vdev_mirrorstats->rotating_linear = atoi(mval);
-				else if (strcmp(mname, "rotating_offset") == 0) vdev_mirrorstats->rotating_offset = atoi(mval);
-				else if (strcmp(mname, "rotating_seek") == 0) vdev_mirrorstats->rotating_seek = atoi(mval);
-				else if (strcmp(mname, "non_rotating_linear") == 0) vdev_mirrorstats->non_rotating_linear = atoi(mval);
-				else if (strcmp(mname, "non_rotating_seek") == 0) vdev_mirrorstats->non_rotating_seek = atoi(mval);
-				else if (strcmp(mname, "preferred_found") == 0) vdev_mirrorstats->preferred_found = atoi(mval);
-				else if (strcmp(mname, "preferred_not_found") == 0) vdev_mirrorstats->preferred_not_found = atoi(mval);
+				if (strcmp(mname, "rotating_linear") == 0) vdev_mirrorstats->rotating_linear = strtoul(mval, NULL, 0);
+				else if (strcmp(mname, "rotating_offset") == 0) vdev_mirrorstats->rotating_offset = strtoul(mval, NULL, 0);
+				else if (strcmp(mname, "rotating_seek") == 0) vdev_mirrorstats->rotating_seek = strtoul(mval, NULL, 0);
+				else if (strcmp(mname, "non_rotating_linear") == 0) vdev_mirrorstats->non_rotating_linear = strtoul(mval, NULL, 0);
+				else if (strcmp(mname, "non_rotating_seek") == 0) vdev_mirrorstats->non_rotating_seek = strtoul(mval, NULL, 0);
+				else if (strcmp(mname, "preferred_found") == 0) vdev_mirrorstats->preferred_found = strtoul(mval, NULL, 0);
+				else if (strcmp(mname, "preferred_not_found") == 0) vdev_mirrorstats->preferred_not_found = strtoul(mval, NULL, 0);
                                 free(mname);
                                 free(mval);
                         }

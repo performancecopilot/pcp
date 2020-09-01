@@ -28,10 +28,10 @@ zfs_fmstats_refresh(zfs_fmstats_t *fmstats, regex_t *rgx_row)
                                 strncpy(mval,  line + pmatch[2].rm_so, len_mv);
                                 mname[len_mn] = '\0';
                                 mval[len_mv] = '\0';
-				if (strcmp(mname, "erpt-dropped") == 0) fmstats->erpt_dropped = atoi(mval);
-				else if (strcmp(mname, "erpt-set-failed") == 0) fmstats->erpt_set_failed = atoi(mval);
-				else if (strcmp(mname, "fmri-set-failed") == 0) fmstats->fmri_set_failed = atoi(mval);
-				else if (strcmp(mname, "payload-set-failed") == 0) fmstats->payload_set_failed = atoi(mval);
+				if (strcmp(mname, "erpt-dropped") == 0) fmstats->erpt_dropped = strtoul(mval, NULL, 0);
+				else if (strcmp(mname, "erpt-set-failed") == 0) fmstats->erpt_set_failed = strtoul(mval, NULL, 0);
+				else if (strcmp(mname, "fmri-set-failed") == 0) fmstats->fmri_set_failed = strtoul(mval, NULL, 0);
+				else if (strcmp(mname, "payload-set-failed") == 0) fmstats->payload_set_failed = strtoul(mval, NULL, 0);
                                 free(mname);
                                 free(mval);
                         }

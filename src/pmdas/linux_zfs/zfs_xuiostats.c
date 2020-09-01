@@ -28,12 +28,12 @@ zfs_xuiostats_refresh(zfs_xuiostats_t *xuiostats, regex_t *rgx_row)
                                 strncpy(mval,  line + pmatch[2].rm_so, len_mv);
                                 mname[len_mn] = '\0';
                                 mval[len_mv] = '\0';
-				if (strcmp(mname, "onloan_read_buf") == 0) xuiostats->onloan_read_buf = atoi(mval);
-				else if (strcmp(mname, "onloan_write_buf") == 0) xuiostats->onloan_write_buf = atoi(mval);
-				else if (strcmp(mname, "read_buf_copied") == 0) xuiostats->read_buf_copied = atoi(mval);
-				else if (strcmp(mname, "read_buf_nocopy") == 0) xuiostats->read_buf_nocopy = atoi(mval);
-				else if (strcmp(mname, "write_buf_copied") == 0) xuiostats->write_buf_copied = atoi(mval);
-				else if (strcmp(mname, "write_buf_nocopy") == 0) xuiostats->write_buf_nocopy = atoi(mval);
+				if (strcmp(mname, "onloan_read_buf") == 0) xuiostats->onloan_read_buf = strtoul(mval, NULL, 0);
+				else if (strcmp(mname, "onloan_write_buf") == 0) xuiostats->onloan_write_buf = strtoul(mval, NULL, 0);
+				else if (strcmp(mname, "read_buf_copied") == 0) xuiostats->read_buf_copied = strtoul(mval, NULL, 0);
+				else if (strcmp(mname, "read_buf_nocopy") == 0) xuiostats->read_buf_nocopy = strtoul(mval, NULL, 0);
+				else if (strcmp(mname, "write_buf_copied") == 0) xuiostats->write_buf_copied = strtoul(mval, NULL, 0);
+				else if (strcmp(mname, "write_buf_nocopy") == 0) xuiostats->write_buf_nocopy = strtoul(mval, NULL, 0);
                                 free(mname);
                                 free(mval);
                         }

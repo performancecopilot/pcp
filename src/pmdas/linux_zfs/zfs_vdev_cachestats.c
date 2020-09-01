@@ -28,9 +28,9 @@ zfs_vdev_cachestats_refresh(zfs_vdev_cachestats_t *vdev_cachestats, regex_t *rgx
                                 strncpy(mval,  line + pmatch[2].rm_so, len_mv);
                                 mname[len_mn] = '\0';
                                 mval[len_mv] = '\0';
-				if (strcmp(mname, "delegations ") == 0) vdev_cachestats->delegations  = atoi(mval);
-				else if (strcmp(mname, "hits ") == 0) vdev_cachestats->hits  = atoi(mval);
-				else if (strcmp(mname, "misses ") == 0) vdev_cachestats->misses  = atoi(mval);
+				if (strcmp(mname, "delegations ") == 0) vdev_cachestats->delegations  = strtoul(mval, NULL, 0);
+				else if (strcmp(mname, "hits ") == 0) vdev_cachestats->hits  = strtoul(mval, NULL, 0);
+				else if (strcmp(mname, "misses ") == 0) vdev_cachestats->misses  = strtoul(mval, NULL, 0);
                                 free(mname);
                                 free(mval);
                         }

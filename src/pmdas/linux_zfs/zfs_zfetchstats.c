@@ -28,9 +28,9 @@ zfs_zfetchstats_refresh(zfs_zfetchstats_t *zfetchstats, regex_t *rgx_row)
                                 strncpy(mval,  line + pmatch[2].rm_so, len_mv);
                                 mname[len_mn] = '\0';
                                 mval[len_mv] = '\0';
-				if (strcmp(mname, "hits") == 0) zfetchstats->hits = atoi(mval);
-				else if (strcmp(mname, "misses") == 0) zfetchstats->misses = atoi(mval);
-				else if (strcmp(mname, "max_streams") == 0) zfetchstats->max_streams = atoi(mval);
+				if (strcmp(mname, "hits") == 0) zfetchstats->hits = strtoul(mval, NULL, 0);
+				else if (strcmp(mname, "misses") == 0) zfetchstats->misses = strtoul(mval, NULL, 0);
+				else if (strcmp(mname, "max_streams") == 0) zfetchstats->max_streams = strtoul(mval, NULL, 0);
                                 free(mname);
                                 free(mval);
                         }
