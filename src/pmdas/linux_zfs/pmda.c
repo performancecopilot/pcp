@@ -1014,24 +1014,6 @@ static pmdaMetric metrictab[] = {
 };
 
 static int
-zfs_store(pmResult *result, pmdaExt *pmda)
-{
-	int i;
-	int sts = 0;
-	pmAtomValue av;
-	pmValueSet *vsp = NULL;
-	__pmID_int *pmidp = NULL;
-
-	/*
-	for (i = 0; i < result->numpmid; i++) {
-		vsp = result->vset[i];
-		pmidp = (__pmID_int *)&vsp->pmid;
-		if (pmidp->cluster == CLUSTER_ZFS_ARCSTATS)
-	*/
-	return sts;
-}
-
-static int
 zfs_fetch(int numpmid, pmID *pmidlist, pmResult **resp, pmdaExt *pmda)
 {
 	zfs_arcstats_refresh(&arcstats, &rgx_row);
@@ -1050,10 +1032,6 @@ zfs_fetch(int numpmid, pmID *pmidlist, pmResult **resp, pmdaExt *pmda)
 static int
 zfs_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-	unsigned int	cluster = pmID_cluster(mdesc->m_desc.pmid);
-	unsigned int	item = pmID_item(mdesc->m_desc.pmid);
-	int		sts;
-
 	switch (mdesc->m_desc.type) {
 	case PM_TYPE_U32:
 		atom->ul = *(__uint32_t *)mdesc->m_user;
@@ -1080,7 +1058,6 @@ zfs_init(pmdaInterface *dp)
 	pmdaDSO(dp, PMDA_INTERFACE_3, "ZFS DSO", helppath);
 	//dp->version.any.instance = zfs_instance;
 	dp->version.any.fetch = zfs_fetch;
-	dp->version.any.store = zfs_store;
 	pmdaSetFetchCallBack(dp, zfs_fetchCallBack);
 	pmdaInit(dp, 
 			//zfs_indomtab, sizeof(zfs_indomtab)/sizeof(zfs_indomtab[0]),
@@ -1101,15 +1078,3 @@ main(int argc, char **argv)
 	regfree(&rgx_row);
 	exit(0);
 }
-
-/*
- * Fetching:
- * zfs_fetch -> pmdaFetch -> zfs_fetchCallback
- *
- * zfs_fetch takes the content of the files from /proc and saves then in 
- * data structures, then calls pmdaFetch.
- *
- * pmdaFetch works through the metric domain and extracts the metric values from
- * the data structures created by zfs_fetch.
- *
- */
