@@ -42,7 +42,7 @@ in
     2.[0-2].*)
     		ln $seq.out.0 $seq.out
 		;;
-    2.4.*|3.*|4.*)
+    2.4.*|3.*|4.*|5.*)
     		ln $seq.out.1 $seq.out
     		;;
     *)		echo "Botch: need to know what output to expect for zabbix_agent version $version"
@@ -98,10 +98,15 @@ _filter_values()
 # pcp.sample.bad.novalues      [m|ZBX_NOTSUPPORTED] [No value available.]
     # d|u|s -> zabbix types;
     # m is error encodings -> allow through
+# pcp.sample.float.hundred                      [d|100.000000]
+# pcp.sample.double.ten                         [d|10.000000]
+#                 the decimal part may not be reported^^^^^^
 
     sed \
 	-e 's/\[[dus]|.*\]$/VALUE/g' \
 	-e '/sample\.scramble/d' \
+	-e '/pcp.sample.float.hundred/s/100\.00*/100/' \
+	-e '/pcp.sample.double.ten/s/10\.00*/10/' \
     #end
 }
 
