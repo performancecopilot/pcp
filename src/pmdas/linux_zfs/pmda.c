@@ -1049,8 +1049,8 @@ zfs_init(pmdaInterface *dp)
 	char helppath[MAXPATHLEN];
 	int sep = pmPathSeparator();
 
-	//if (dp->status != 0)
-	//	return;
+	if (dp->status != 0)
+	        return;
 	
         regcomp(&rgx_row, "^([^ ]+)[ ]+[0-9][ ]+([0-9]+)", REG_EXTENDED);
 	pmsprintf(helppath, sizeof(helppath), "%s%c" "zfs" "%c" "help",
