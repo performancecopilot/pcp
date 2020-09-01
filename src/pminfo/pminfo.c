@@ -611,12 +611,12 @@ mymetriclabels(pmDesc *dp)
 
 /* Input: 20-byte SHA1 hash, output: 40-byte representation */
 static const char *
-myhash(const unsigned char *hash, char *buffer)
+myhash(const unsigned char *hash, char *buffer, size_t buflen)
 {
     int		nbytes, off;
 
     for (nbytes = off = 0; nbytes < 20; nbytes++)
-	off += pmsprintf(buffer + off, 40 - off, "%02x", hash[nbytes]);
+	off += pmsprintf(buffer + off, buflen - off, "%02x", hash[nbytes]);
     buffer[40] = '\0';
     return buffer;
 }
@@ -682,14 +682,15 @@ mymetricseries(const char *name, pmDesc *dp)
 {
     pmLabelSet		*labels[5] = {0};
     char		buf[PM_MAXLABELJSONLEN];
-    char		hash[40+1];
-    unsigned char	id[20];
+    char		hash[40+2];
+    unsigned char	id[20], *idhash;
     int			sts;
 
     labels[0] = lookup_context_labels();
     sts = pmMergeLabelSets(labels, 1, buf, sizeof(buf), intrinsics, NULL);
     if (sts > 0) {
-	printf("    Source: %s\n", myhash(mysourcehash(id, buf), hash));
+	idhash = mysourcehash(id, buf);
+	printf("    Source: %s\n", myhash(idhash, hash, sizeof(hash)));
     } else if (sts < 0) {
 	fprintf(stderr, "%s: context labels merge failed: %s\n",
 		pmGetProgname(), pmErrStr(sts));
@@ -702,7 +703,8 @@ mymetricseries(const char *name, pmDesc *dp)
     labels[4] = lookup_item_labels(dp->pmid);
     sts = pmMergeLabelSets(labels, 5, buf, sizeof(buf), intrinsics, NULL);
     if (sts > 0) {
-	printf("    Series: %s\n", myhash(mymetrichash(id, name, dp, buf), hash));
+	idhash = mymetrichash(id, name, dp, buf);
+	printf("    Series: %s\n", myhash(idhash, hash, sizeof(hash)));
     } else if (sts < 0) {
 	fprintf(stderr, "%s: metric %s labels merge failed: %s\n",
 		pmGetProgname(), pmIDStr(dp->pmid), pmErrStr(sts));
@@ -712,7 +714,7 @@ mymetricseries(const char *name, pmDesc *dp)
 static void
 myinstanceseries(pmInDom indom)
 {
-    unsigned char	id[20];
+    unsigned char	id[20], *idhash;
     pmLabelSet		*labels[4] = {0}, *ilabels = NULL;
     char		buffer[PM_MAXLABELJSONLEN], hash[64], *iname;
     int			i, n, sts, inst, count;
@@ -737,9 +739,10 @@ myinstanceseries(pmInDom indom)
 	if (sts > 0) {
 	    inst = ilabels ? ilabels->inst : lookup_instance_inum(indom, i);
 	    iname = lookup_instance_name(indom, inst);
+	    idhash = myinstancehash(id, buffer, iname);
 	    printf("    inst [%d or \"%s\"] series %s\n",
-		    inst, iname ? iname : "DISAPPEARED",
-		    myhash(myinstancehash(id, buffer, iname), hash));
+			inst, iname ? iname : "DISAPPEARED",
+			myhash(idhash, hash, sizeof(hash)));
 	} else if (sts < 0) {
 	    fprintf(stderr, "%s: %s instances labels merge failed: %s\n",
 		    pmGetProgname(), pmInDomStr(indom), pmErrStr(sts));
