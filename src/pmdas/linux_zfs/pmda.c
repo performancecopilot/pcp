@@ -1077,6 +1077,7 @@ zfs_init(pmdaInterface *dp)
 	//if (dp->status != 0)
 	//	return;
 	
+        regcomp(&rgx_row, "^([^ ]+)[ ]+[0-9][ ]+([0-9]+)", REG_EXTENDED);
 	pmsprintf(helppath, sizeof(helppath), "%s%c" "zfs" "%c" "help",
 			pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_3, "ZFS DSO", helppath);
