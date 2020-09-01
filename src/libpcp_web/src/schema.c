@@ -1905,13 +1905,13 @@ pmDiscoverSetup(pmDiscoverModule *module, pmDiscoverCallBacks *cbs, void *arg)
     if ((option = pmIniFileLookup(config, "discover", "exclude.metrics"))) {
 	if ((data->pmids = dictCreate(&intKeyDictCallBacks, NULL)) == NULL)
 	    return -ENOMEM;
-	/*
-	 * Parse excluded metric names as an extended regular expression.
-	 * For back-compat, also support a comma separated basic(Posix)
-	 * regex list.
-	 */
-	sdsmapchars(option, ", ", "||", 2);
-	regcomp(&data->exclude_names, option, REG_EXTENDED|REG_NOSUB);
+	/* parse comma-separated metric name glob patterns, in 'option' */
+	if ((ids = sdssplitlen(option, sdslen(option), ",", 1, &nids))) {
+	    data->exclude_names = nids;
+	    for (i = 0; i < nids; i++)
+		ids[i] = sdstrim(ids[i], " ");
+	    data->patterns = ids;
+	}
     }
     if ((option = pmIniFileLookup(config, "discover", "exclude.indoms"))) {
 	if ((data->indoms = dictCreate(&intKeyDictCallBacks, NULL)) == NULL)
@@ -1953,11 +1953,20 @@ void
 pmDiscoverClose(pmDiscoverModule *module)
 {
     discoverModuleData	*discover = (discoverModuleData *)module->privdata;
+    unsigned int	i;
 
     if (discover) {
 	pmDiscoverUnregister(discover->handle);
 	if (!discover->shareslots)
 	    redisSlotsFree(discover->slots);
+	for (i = 0; i < discover->exclude_names; i++)
+	    sdsfree(discover->patterns[i]);
+	if (discover->patterns)
+	    free(discover->patterns);
+	if (discover->pmids)
+	    dictRelease(discover->pmids);
+	if (discover->indoms)
+	    dictRelease(discover->indoms);
 	memset(discover, 0, sizeof(*discover));
 	free(discover);
     }

@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2017-2019 Red Hat.
- * 
+ * Copyright (c) 2017-2020 Red Hat.
+ *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation; either version 2.1 of the License, or
@@ -38,12 +38,13 @@ typedef struct context {
     sds			realm;		/* authentication information */
     unsigned char	hostid[20];	/* SHA1 of host identifier */
     double		location[2];	/* latitude and longitude */
-    unsigned int	type	: 7;	/* PMAPI context type */
+    unsigned int	type	: 8;	/* PMAPI context type */
     unsigned int	setup	: 1;	/* context established */
     unsigned int	cached	: 1;	/* context/source in cache */
     unsigned int	garbage	: 1;	/* context pending removal */
     unsigned int	updated : 1;	/* context labels are updated */
-    unsigned int	padding : 21;	/* zero-filled struct padding */
+    unsigned int	padding : 4;	/* zero-filled struct padding */
+    unsigned int	refcount : 16;	/* currently-referenced counter */
     unsigned int	timeout;	/* context timeout in milliseconds */
     uv_timer_t		timer;
     int			context;	/* PMAPI context handle */

@@ -15,6 +15,7 @@
 #include "slots.h"
 #include "util.h"
 #include <dirent.h>
+#include <fnmatch.h>
 #include <sys/stat.h>
 
 /* Decode various archive metafile records (desc, indom, labels, helptext) */
@@ -709,7 +710,8 @@ pmDiscoverInvokeMetricCallBacks(pmDiscover *p, pmTimespec *ts, pmDesc *desc,
     pmDiscoverCallBacks	*callbacks;
     pmDiscoverEvent	event;
     char		buf[32];
-    int			i, sts;
+    char		*found = NULL;
+    int			i, j, sts;
 
     if (pmDebugOptions.discovery) {
 	fprintf(stderr, "%s[%s]: %s name%s", "pmDiscoverInvokeMetricCallBacks",
@@ -726,14 +728,16 @@ pmDiscoverInvokeMetricCallBacks(pmDiscover *p, pmTimespec *ts, pmDesc *desc,
     if (data->pmids) {
 	if (dictFind(data->pmids, &desc->pmid) != NULL)
 	    goto out;	/* metric contains an already excluded PMID */
-	for (i = 0; i < numnames; i++) {
-	    if (regexec(&data->exclude_names, names[i], 0, NULL, 0) == 0)
-		break;
+	for (i = 0; i < numnames && !found; i++) {
+	    for (j = 0; j < data->exclude_names && !found; j++) {
+		if (fnmatch(data->patterns[j], names[i], 0) == 0)
+		    found = names[i];
+	    }
 	}
-	if (i != numnames) {
+	if (found) {
 	    if (pmDebugOptions.discovery)
 		fprintf(stderr, "%s: excluding metric %s\n",
-				"pmDiscoverInvokeMetricCallBacks", names[i]);
+				"pmDiscoverInvokeMetricCallBacks", found);
 	    /* add this pmid to the exclusion list and return early */
 	    dictAdd(data->pmids, &desc->pmid, NULL);
 	    goto out;

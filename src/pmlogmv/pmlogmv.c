@@ -51,6 +51,7 @@ static char	*newname;
 #define PM_LOG_VOL_NONE -100
 static int	lastvol = PM_LOG_VOL_NONE;
 static __pmContext	*ctxp = NULL;
+static char	**sufftab;
 
 static int
 myoverrides(int opt, pmOptions *opts)
@@ -77,10 +78,39 @@ check_name(char *name)
     return 0;
 }
 
-// TODO ... is it worth building this on the fly from
-// pmGetAPIConfig("compress_suffixes"?
-//
-static char *sufftab[] = { "", ".xz", ".lzma", ".bz2", ".bz", ".gz", ".Z", ".z", NULL }; 
+static int
+setup_sufftab(void)
+{
+    char	**table;
+    char	*list;
+    char	*p;
+    int		n = 2;
+
+    if ((list = strdup(pmGetAPIConfig("compress_suffixes"))) == NULL) {
+	fprintf(stderr, "pmlogmv: cannot get archive suffix list\n");
+	return -1;
+    }
+
+    if ((table = malloc(n * sizeof(char *))) == NULL ||
+	(table[0] = strdup("")) == NULL) {
+	fprintf(stderr, "pmlogmv: cannot allocate suffix table\n");
+	return -1;
+    }
+
+    p = strtok(list, " ");
+    while (p) {
+	if ((table = realloc(table, sizeof(char *) * ++n)) == NULL) {
+	    fprintf(stderr, "pmlogmv: cannot allocate suffix table\n");
+	    return -1;
+	}
+	table[n-2] = p;
+	p = strtok(NULL, " ");
+    }
+
+    table[n-1] = NULL;
+    sufftab = table;
+    return 0;
+}
 
 /*
  * make link for one physical file
@@ -304,6 +334,11 @@ main(int argc, char **argv)
 
     if (!force && check_name(newname) < 0) {
 	/* error reported in check_name() */
+	exit(1);
+    }
+
+    if (setup_sufftab() < 0) {
+	/* error reported in setup_sufftab() */
 	exit(1);
     }
 

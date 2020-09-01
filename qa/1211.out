@@ -15,8 +15,8 @@ Verify pminfo and pmseries source and series match
 kernel.all.load PMID: 60.2.0
     Data Type: float  InDom: 60.2 0xf000002
     Semantics: instant  Units: none
-    Source: 2cd6a38f9339f2dd1f0b4775bda89a9e7244def
-    Series: fecd5a4b4c6e1273eaa001287a6dd57b7bbd19f
+    Source: 2cd6a38f9339f2dd1f0b4775bda89a9e7244def6
+    Series: fecd5a4b4c6e1273eaa001287a6dd57b7bbd19f7
 => pmseries
 
 fecd5a4b4c6e1273eaa001287a6dd57b7bbd19f7
