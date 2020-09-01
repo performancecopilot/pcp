@@ -44,6 +44,6 @@ zfs_dmu_tx_refresh(zfs_dmu_tx_t *dmu_tx, regex_t *rgx_row)
                                 free(mval);
                         }
                 }
+                fclose(fp);
         }
-        fclose(fp);
 }

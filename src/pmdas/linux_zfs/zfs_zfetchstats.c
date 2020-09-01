@@ -35,6 +35,6 @@ zfs_zfetchstats_refresh(zfs_zfetchstats_t *zfetchstats, regex_t *rgx_row)
                                 free(mval);
                         }
                 }
+                fclose(fp);
         }
-        fclose(fp);
 }

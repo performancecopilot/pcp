@@ -131,6 +131,6 @@ zfs_arcstats_refresh(zfs_arcstats_t *arcstats, regex_t *rgx_row)
                                 free(mval);
                         }
                 }
+                fclose(fp);
         }
-        fclose(fp);
 }

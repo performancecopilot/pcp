@@ -60,6 +60,6 @@ zfs_dnodestats_refresh(zfs_dnodestats_t *dnodestats, regex_t *rgx_row)
                                 free(mval);
                         }
                 }
+                fclose(fp);
         }
-        fclose(fp);
 }

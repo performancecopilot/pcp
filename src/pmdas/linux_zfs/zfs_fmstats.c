@@ -36,6 +36,6 @@ zfs_fmstats_refresh(zfs_fmstats_t *fmstats, regex_t *rgx_row)
                                 free(mval);
                         }
                 }
+                fclose(fp);
         }
-        fclose(fp);
 }

@@ -45,6 +45,6 @@ zfs_zilstats_refresh(zfs_zilstats_t *zilstats, regex_t *rgx_row)
                                 free(mval);
                         }
                 }
+                fclose(fp);
         }
-        fclose(fp);
 }

@@ -39,6 +39,6 @@ zfs_vdev_mirrorstats_refresh(zfs_vdev_mirrorstats_t *vdev_mirrorstats, regex_t *
                                 free(mval);
                         }
                 }
+                fclose(fp);
         }
-        fclose(fp);
 }

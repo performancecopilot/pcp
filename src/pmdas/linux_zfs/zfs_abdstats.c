@@ -53,6 +53,6 @@ zfs_abdstats_refresh(zfs_abdstats_t *abdstats, regex_t *rgx_row)
                                 free(mval);
                         }
                 }
+                fclose(fp);
         }
-        fclose(fp);
 }

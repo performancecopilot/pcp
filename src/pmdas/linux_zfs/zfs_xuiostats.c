@@ -38,6 +38,6 @@ zfs_xuiostats_refresh(zfs_xuiostats_t *xuiostats, regex_t *rgx_row)
                                 free(mval);
                         }
                 }
+                fclose(fp);
         }
-        fclose(fp);
 }

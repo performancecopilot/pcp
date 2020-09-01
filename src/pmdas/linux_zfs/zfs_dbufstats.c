@@ -76,6 +76,6 @@ zfs_dbufstats_refresh(zfs_dbufstats_t *dbufstats, regex_t *rgx_row)
                                 free(mval);
                         }
                 }
+                fclose(fp);
         }
-        fclose(fp);
 }
