@@ -1690,14 +1690,15 @@ extract_series_node_desc(seriesQueryBaton *baton, pmSID series,
 	return -EPROTO;
     }
 
-    desc->indom = sdsnew("511.0");
     desc->pmid = sdsnew("511.0.0");
-    if (extract_string(baton, series, elements[0], &desc->semantics, "semantics") < 0)
+    if (extract_string(baton, series, elements[0], &desc->indom, "indom") < 0)
 	return -EPROTO;
-    desc->source = sdsnew(elements[1]->str);
-    if (extract_string(baton, series, elements[2], &desc->type, "type") < 0)
+    if (extract_string(baton, series, elements[1], &desc->semantics, "semantics") < 0)
 	return -EPROTO;
-    if (extract_string(baton, series, elements[3], &desc->units, "units") < 0)
+    desc->source = sdsnew(elements[2]->str);
+    if (extract_string(baton, series, elements[3], &desc->type, "type") < 0)
+	return -EPROTO;
+    if (extract_string(baton, series, elements[4], &desc->units, "units") < 0)
 	return -EPROTO;
     return 0;
 }
@@ -1748,9 +1749,10 @@ series_node_get_desc(seriesQueryBaton *baton, sds sid_name, series_sample_set_t 
     seriesBatonReference(baton, "series_node_get_desc");
 
     key = sdscatfmt(sdsempty(), "pcp:desc:series:%S", sid_name);
-    cmd = redis_command(6);
+    cmd = redis_command(7);
     cmd = redis_param_str(cmd, HMGET, HMGET_LEN);
     cmd = redis_param_sds(cmd, key);
+    cmd = redis_param_str(cmd, "indom", sizeof("indom")-1);
     cmd = redis_param_str(cmd, "semantics", sizeof("semantics")-1);
     cmd = redis_param_str(cmd, "source", sizeof("source")-1);
     cmd = redis_param_str(cmd, "type", sizeof("type")-1);
@@ -3009,7 +3011,8 @@ pmStrSem(sds sem_str)
 static int
 series_calculate_binary_check(
 	int ope_type, seriesQueryBaton *baton, node_t *left, node_t *right, int *l_type, int *r_type,
-	int *l_sem, int *r_sem, pmUnits *l_units, pmUnits *r_units, pmUnits *large_units)
+	int *l_sem, int *r_sem, pmUnits *l_units, pmUnits *r_units, pmUnits *large_units,
+	sds l_indom, sds r_indom)
 {
     sds			msg;
     int			num_samples;
@@ -3019,6 +3022,13 @@ series_calculate_binary_check(
     // For binary oepration, only support two single-metric operands
     if (left->value_set.num_series != 1 || right->value_set.num_series != 1) {
 	infofmt(msg, "For binary oepration, only support two single-metric operands\n");
+	batoninfo(baton, PMLOG_ERROR, msg);
+	baton->error = -EPROTO;
+	return -1;
+    }
+    // Operands should have the same instance domain for all of the binary operators.
+    if (sdscmp(l_indom, r_indom) != 0) {
+	infofmt(msg, "Operands should have the same instance domain for all of the binary operators.\n");
 	batoninfo(baton, PMLOG_ERROR, msg);
 	baton->error = -EPROTO;
 	return -1;
@@ -3316,7 +3326,8 @@ series_calculate_plus(node_t *np)
     pmUnits		l_units, r_units, large_units;
 
     if (series_calculate_binary_check(N_PLUS, baton, left, right, &l_type, &r_type, &l_sem, &r_sem,
-		 &l_units, &r_units, &large_units) != 0) {
+		 &l_units, &r_units, &large_units, left->value_set.series_values[0].series_desc.indom,
+		 right->value_set.series_values[0].series_desc.indom) != 0) {
 	return;
     }
     num_samples = left->value_set.series_values[0].num_samples;
@@ -3359,7 +3370,8 @@ series_calculate_minus(node_t *np)
     pmUnits		l_units, r_units, large_units;
 
     if (series_calculate_binary_check(N_MINUS, baton, left, right, &l_type, &r_type, &l_sem, &r_sem,
-		 &l_units, &r_units, &large_units) != 0) {
+		 &l_units, &r_units, &large_units, left->value_set.series_values[0].series_desc.indom,
+		 right->value_set.series_values[0].series_desc.indom) != 0) {
 	return;
     }
     num_samples = left->value_set.series_values[0].num_samples;
@@ -3400,7 +3412,8 @@ series_calculate_star(node_t *np)
     pmUnits		l_units, r_units, large_units;
 
     if (series_calculate_binary_check(N_STAR, baton, left, right, &l_type, &r_type, &l_sem, &r_sem,
-		 &l_units, &r_units, &large_units) != 0) {
+		 &l_units, &r_units, &large_units, left->value_set.series_values[0].series_desc.indom,
+		 right->value_set.series_values[0].series_desc.indom) != 0) {
 	return;
     }
     num_samples = left->value_set.series_values[0].num_samples;
@@ -3441,7 +3454,8 @@ series_calculate_slash(node_t *np)
     pmUnits		l_units, r_units, large_units;
 
     if (series_calculate_binary_check(N_SLASH, baton, left, right, &l_type, &r_type, &l_sem, &r_sem,
-		 &l_units, &r_units, &large_units) != 0) {
+		 &l_units, &r_units, &large_units, left->value_set.series_values[0].series_desc.indom,
+		 right->value_set.series_values[0].series_desc.indom) != 0) {
 	return;
     }
     num_samples = left->value_set.series_values[0].num_samples;
