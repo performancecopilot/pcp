@@ -1,7 +1,7 @@
 typedef struct zfs_vdev_cachestats {
-    unsigned int delegations;
-    unsigned int hits;
-    unsigned int misses;
+    uint64_t delegations;
+    uint64_t hits;
+    uint64_t misses;
 } zfs_vdev_cachestats_t;
 
 void zfs_vdev_cachestats_refresh(zfs_vdev_cachestats_t *vdev_cachestats, regex_t *rgx_row);

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <regex.h>
 #include <string.h>
+#include <stdint.h>
 
 #include "zfs_zfetchstats.h"
 
