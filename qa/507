@@ -21,8 +21,18 @@ then
     echo "$seq: Arrgh: cannot determine fully qualified domain name for local host"
     exit 1
 fi
-
 local=`uname -n`
+
+# For CI debugging ...
+#
+echo "hostname -> `hostname`" >>$seq.full
+echo "hostname -f -> `hostname -f`" >>$seq.full
+ans=`hostname -f | grep '\.'`
+echo "ans -> $ans" >>$seq.full
+echo "nslookup $ans -> `nslookup $ans 2>&1`" >>$seq.full
+echo "host $ans -> `host $ans 2>&1`" >>$seq.full
+echo "local -> $local" >>$seq.full
+
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 

@@ -21,7 +21,6 @@
 #   are the union of the named classes ... unless this is allowed, a regex
 #   pattern for the -c arg (classname) makes no sense
 # - regex expansion for <class>
-# - pmfind integration
 # - other sections in the "policy" files, especially with pmfind to
 #   (a) at destroy, decide not to or wait some time before destroying
 #       (the latter is really hard)
@@ -1614,6 +1613,7 @@ VERY_VERY_VERBOSE=false
 CLASS=default
 POLICY=''
 EXPLICIT_CLASS=false
+ARGS=''
 while [ $# -gt 0 ]
 do
     case "$1"
@@ -1648,16 +1648,25 @@ do
 		    VERBOSE=true
 		fi
 		;;
-	--)	shift
-		break
+	--)	# we're not being POSIX conformant, want to allow -x options after command
+		# so skip this one
 		;;
 	-\?)	_usage
 		# NOTREACHED
+		;;
+	[^-]*)	# this is a non-option arg, gather them up for later
+		if [ -z "$ARGS" ]
+		then
+		    ARGS="\"$1\""
+		else
+		    ARGS="$ARGS \"$1\""
+		fi
 		;;
     esac
     shift
 done
 
+eval set -- $ARGS
 if [ $# -lt 1 ]
 then
     _usage
@@ -1675,18 +1684,6 @@ then
     then
 	_error "-i option may only be used with create or cond-create commands"
     fi
-fi
-
-# TODO - cull?
-if false
-then
-if [ "$ACTION" = cond-create ]
-then
-    if [ -z "$IDENT" ] && ! $EXPLICIT_CLASS
-    then
-	_error "cond-create command requires at least one of the -i or -c options"
-    fi
-fi
 fi
 
 if $VERY_VERBOSE
