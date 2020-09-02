@@ -25,6 +25,7 @@
 # The name of the PMDA
 #
 iam=perfevent
+perl_opt=true
 
 # Do it
 #
