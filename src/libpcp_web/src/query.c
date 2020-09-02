@@ -3019,13 +3019,6 @@ series_calculate_binary_check(
     double		mult;
     char		*errmsg;
 
-    // For binary oepration, only support two single-metric operands
-    if (left->value_set.num_series != 1 || right->value_set.num_series != 1) {
-	infofmt(msg, "For binary oepration, only support two single-metric operands\n");
-	batoninfo(baton, PMLOG_ERROR, msg);
-	baton->error = -EPROTO;
-	return -1;
-    }
     // Operands should have the same instance domain for all of the binary operators.
     if (sdscmp(l_indom, r_indom) != 0) {
 	infofmt(msg, "Operands should have the same instance domain for all of the binary operators.\n");
@@ -3298,10 +3291,10 @@ series_bianry_meta_update(node_t *left, pmUnits *large_units, int *l_sem, int *r
      * will have semantics PM_SEM_INSTANT unless both operands are PM_SEM_DISCRETE in which case the result is 
      * also PM_SEM_DISCRETE.
     */
-    if (*l_sem != PM_SEM_COUNTER || *r_sem != PM_SEM_COUNTER) {
-	o_sem = PM_SEM_INSTANT;
-    } else if (*l_sem == PM_SEM_DISCRETE && *r_sem == PM_SEM_DISCRETE) {
+    if (*l_sem == PM_SEM_DISCRETE && *r_sem == PM_SEM_DISCRETE) {
 	o_sem = PM_SEM_DISCRETE;
+    } else if (*l_sem != PM_SEM_COUNTER || *r_sem != PM_SEM_COUNTER) {
+	o_sem = PM_SEM_INSTANT;
     } else {
 	o_sem = PM_SEM_COUNTER;
     }
@@ -3325,6 +3318,7 @@ series_calculate_plus(node_t *np)
     pmAtomValue		l_val, r_val;
     pmUnits		l_units, r_units, large_units;
 
+    if (left->value_set.num_series == 0 || right->value_set.num_series == 0) return;
     if (series_calculate_binary_check(N_PLUS, baton, left, right, &l_type, &r_type, &l_sem, &r_sem,
 		 &l_units, &r_units, &large_units, left->value_set.series_values[0].series_desc.indom,
 		 right->value_set.series_values[0].series_desc.indom) != 0) {
@@ -3369,6 +3363,7 @@ series_calculate_minus(node_t *np)
     pmAtomValue		l_val, r_val;
     pmUnits		l_units, r_units, large_units;
 
+    if (left->value_set.num_series == 0 || right->value_set.num_series == 0) return;
     if (series_calculate_binary_check(N_MINUS, baton, left, right, &l_type, &r_type, &l_sem, &r_sem,
 		 &l_units, &r_units, &large_units, left->value_set.series_values[0].series_desc.indom,
 		 right->value_set.series_values[0].series_desc.indom) != 0) {
@@ -3411,6 +3406,7 @@ series_calculate_star(node_t *np)
     pmAtomValue		l_val, r_val;
     pmUnits		l_units, r_units, large_units;
 
+    if (left->value_set.num_series == 0 || right->value_set.num_series == 0) return;
     if (series_calculate_binary_check(N_STAR, baton, left, right, &l_type, &r_type, &l_sem, &r_sem,
 		 &l_units, &r_units, &large_units, left->value_set.series_values[0].series_desc.indom,
 		 right->value_set.series_values[0].series_desc.indom) != 0) {
@@ -3453,6 +3449,7 @@ series_calculate_slash(node_t *np)
     pmAtomValue		l_val, r_val;
     pmUnits		l_units, r_units, large_units;
 
+    if (left->value_set.num_series == 0 || right->value_set.num_series == 0) return;
     if (series_calculate_binary_check(N_SLASH, baton, left, right, &l_type, &r_type, &l_sem, &r_sem,
 		 &l_units, &r_units, &large_units, left->value_set.series_values[0].series_desc.indom,
 		 right->value_set.series_values[0].series_desc.indom) != 0) {
