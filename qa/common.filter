@@ -35,6 +35,7 @@ _filter_pmcd_log()
 	-e '/Info: CleanupAgent/d' \
 	-e '/using .* kmem interface/d' \
 	-e '/pmcd_wait failed: exit status:/d' \
+	-e '/Failed to create avahi client:/d' \
 	-e 's/: host-based access control/: access control/g' \
 	-e '/^User access list empty: user-based access control turned off$/d' \
 	-e '/^Group access list empty: group-based access control turned off$/d' \
@@ -158,6 +159,7 @@ _filter_pmproxy_log()
 	-e 's/pmproxy([1-9][0-9]*) Error:/pmproxy(PID) Error:/' \
 	-e '/^pmproxy: Signalled (signal=[1-9][0-9]*).*/d' \
 	-e '/^pmproxy: disabled time series,.*(missing)/d' \
+	-e '/Failed to create avahi client:/d' \
 	-e '/Info: connected to .*redis.*/d' \
 	-e '/Info: OpenSSL .*/d' \
 	-e '/Info: .* setup$/d' \
@@ -606,10 +608,7 @@ s/Performance Co-Pilot starting archive loggers .../Starting pmlogger ... /
 	-e '/^[ 	]*$/d' \
 	-e '/is not a native service, redirecting to .*chkconfig/d' \
 	-e '/^Executing .*chkconfig pm.* --level=5/d' \
-	-e '/\[.*] pmcd(.*) Error: Failed to create avahi client: Daemon not running/{
-s///
-/^$/d
-}' \
+	-e '/Failed to create avahi client:/d' \
     | _filter_pcp_start_distro \
     | _filter_init_distro
 }
