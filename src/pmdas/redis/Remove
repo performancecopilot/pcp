@@ -19,6 +19,7 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=redis
+perl_opt=true
 
 pmdaSetup
 pmdaRemove
