@@ -43,8 +43,8 @@ get_syms()
     | grep -v "^_" \
     | grep -v "^.MIPS." \
     | sed \
-	-e 's/_@@PCP_TRACE.*//' \
 	-e 's/@@PCP_TRACE.*//' \
+	-e 's/_$//' \
     | LC_COLLATE=POSIX sort \
     | uniq
 }
