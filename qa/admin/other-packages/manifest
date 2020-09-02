@@ -1518,6 +1518,9 @@ S_pkg?		mkfs.xfs	[N/A (QA optional)]
 slackpkg?	mkfs.xfs	[xfsprogs (QA optional)]
 pacman?		mkfs.xfs	[core/xfsprogs (QA optional)]
 brew?		mkfs.xfs	[N/A (QA optional)]
+# -- java (bcc PMDA QA)
+dpkg?		/usr/lib/jvm/java-*/lib/server/libjvm.so [openjdk-11-jre-headless (QA optional)]
+rpm?		/usr/lib/jvm/java-*/lib/server/libjvm.so [java-latest-openjdk-headless (QA optional)]
 # -- redis (pmproxy, pmseries QA)
 dpkg?		redis-server	[redis-server (QA optional)]
 dpkg?		redis-cli	[redis-cli or redis-tools (QA optional)]
