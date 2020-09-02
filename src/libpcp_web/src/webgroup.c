@@ -1396,8 +1396,10 @@ webmetric_lookup(const char *name, void *arg)
 
     pmwebapi_add_domain_labels(cp, mp->cluster->domain);
     pmwebapi_add_cluster_labels(cp, mp->cluster);
-    if (mp->indom)
+    if (mp->indom) {
+	pmwebapi_add_instances_labels(cp, mp->indom);
 	pmwebapi_add_indom_labels(mp->indom);
+    }
     pmwebapi_add_item_labels(cp, mp);
     pmwebapi_metric_hash(mp);
     pmwebapi_metric_help(cp, mp);

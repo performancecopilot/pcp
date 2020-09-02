@@ -78,7 +78,7 @@ Context successfully expired
 
 *****   GET /pmapi/metric   *****
 
-== metric name ==
+== metric name (single) ==
 {
     "context": "CONTEXT"
     "metrics": [
@@ -101,6 +101,32 @@ Context successfully expired
         }
     ]
 }
+Series checked (single)
+== metric name (indom) ==
+{
+    "context": "CONTEXT"
+    "metrics": [
+        {
+            "name": "sample.long.bin",
+            "series": "SERIES"
+            "pmid": "29.0.103",
+            "indom": "29.2",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "like sample.bin but type 32",
+            "text-help": "like sample.bin but type 32"
+        }
+    ]
+}
+Series checked (indom)
 == metric prefix ==
 {
     "context": "CONTEXT"
