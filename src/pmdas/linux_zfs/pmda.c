@@ -1017,6 +1017,7 @@ static pmdaMetric metrictab[] = {
 static int
 zfs_fetch(int numpmid, pmID *pmidlist, pmResult **resp, pmdaExt *pmda)
 {
+        regcomp(&rgx_row, "^([^ ]+)[ ]+[0-9][ ]+([0-9]+)", REG_EXTENDED);
 	zfs_arcstats_refresh(&arcstats, &rgx_row);
 	zfs_abdstats_refresh(&abdstats, &rgx_row);
 	zfs_dbufstats_refresh(&dbufstats, &rgx_row);
@@ -1027,6 +1028,7 @@ zfs_fetch(int numpmid, pmID *pmidlist, pmResult **resp, pmdaExt *pmda)
 	zfs_zilstats_refresh(&zilstats, &rgx_row);
 	zfs_vdev_cachestats_refresh(&vdev_cachestats, &rgx_row);
 	zfs_vdev_mirrorstats_refresh(&vdev_mirrorstats, &rgx_row);
+	regfree(&rgx_row);
 	return pmdaFetch(numpmid, pmidlist, resp, pmda);
 }
 
@@ -1053,13 +1055,13 @@ zfs_init(pmdaInterface *dp)
 	char helppath[MAXPATHLEN];
 	int sep = pmPathSeparator();
 
-	if (dp->status != 0)
-	        return;
-	
-        regcomp(&rgx_row, "^([^ ]+)[ ]+[0-9][ ]+([0-9]+)", REG_EXTENDED);
 	pmsprintf(helppath, sizeof(helppath), "%s%c" "zfs" "%c" "help",
 			pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_3, "ZFS DSO", helppath);
+
+	if (dp->status != 0)
+	        return;
+	
 	//dp->version.any.instance = zfs_instance;
 	dp->version.any.fetch = zfs_fetch;
 	pmdaSetFetchCallBack(dp, zfs_fetchCallBack);
@@ -1067,18 +1069,4 @@ zfs_init(pmdaInterface *dp)
 			//zfs_indomtab, sizeof(zfs_indomtab)/sizeof(zfs_indomtab[0]),
                         NULL, 0,
 			metrictab, sizeof(metrictab)/sizeof(metrictab[0]));
-}
-
-int
-main(int argc, char **argv)
-{
-	pmdaInterface dispatch;
-
-	pmSetProgname(argv[0]);
-	zfs_init(&dispatch);
-	pmdaOpenLog(&dispatch);
-	pmdaConnect(&dispatch);
-	pmdaMain(&dispatch);
-	regfree(&rgx_row);
-	exit(0);
 }
