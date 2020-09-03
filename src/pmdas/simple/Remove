@@ -20,6 +20,8 @@
 
 iam=simple
 perl_opt=true
+python_opt=true
+python_opt=true
 
 pmdaSetup
 pmdaRemove

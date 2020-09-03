@@ -25,6 +25,7 @@
 # The name of the PMDA
 #
 iam=openvswitch
+python_opt=true
 
 # Do it
 
