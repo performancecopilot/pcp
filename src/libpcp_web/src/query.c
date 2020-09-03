@@ -3165,11 +3165,11 @@ calculate_minus(int *type, pmAtomValue *l_val, pmAtomValue *r_val, pmAtomValue *
 		return -1;
 	    }
 	case PM_TYPE_64:
-	    res->ll = l_val->ll + r_val->ll;
+	    res->ll = l_val->ll - r_val->ll;
 	    break;
 	case PM_TYPE_U64:
 	    if (l_val->ull >= r_val->ull) {
-		res->ull = l_val->ull + r_val->ull;
+		res->ull = l_val->ull - r_val->ull;
 	    } else {
 		return -1;
 	    }
@@ -3213,7 +3213,7 @@ calculate_star(int *type, pmAtomValue *l_val, pmAtomValue *r_val, pmAtomValue *r
 int
 calculate_slash(int *type, pmAtomValue *l_val, pmAtomValue *r_val, pmAtomValue *res)
 {
-        switch (*type) {
+    switch (*type) {
 	case PM_TYPE_32:
 	    res->l = l_val->l / r_val->l;
 	case PM_TYPE_U32:
@@ -3247,7 +3247,7 @@ series_calculate_order_bianry(int ope_type, int l_type, int r_type, int *otype,
 
     if (l_type == PM_TYPE_DOUBLE || r_type == PM_TYPE_DOUBLE) {
 	*otype = PM_TYPE_DOUBLE;
-    } else if (ope_type == N_STAR) {
+    } else if (ope_type == N_SLASH) {
 	*otype = PM_TYPE_DOUBLE;
     } else if (l_type == PM_TYPE_FLOAT || r_type == PM_TYPE_FLOAT) {
 	*otype = PM_TYPE_FLOAT;
@@ -3497,17 +3497,17 @@ series_calculate(seriesQueryBaton *baton, node_t *np, int level)
 	return 0;
     if ((sts = series_calculate(baton, np->left, level+1)) < 0)
 	return sts;
-    if ((sts = series_calculate(baton, np->right, level+1)) < 0)
+    if (sts > 0)
+	series_calculate(baton, np->right, level+1);
+    else if ((sts = series_calculate(baton, np->right, level+1)) < 0)
 	return sts;
 
     np->baton = baton;
     switch (np->type) {
 	case N_NOOP:
-	    /* Traverse the subtree of this node? */
+	    /* Traverse the subtree of this node */
 	    np->value_set = np->left->value_set;
 	    series_noop_traverse(baton, np, level);
-	    // Consider noop is not a function
-	    sts = 0;
 	    break;
 	case N_RATE:
 	    series_calculate_rate(np);
