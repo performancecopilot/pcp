@@ -63,30 +63,6 @@ args="-p $redisport -Z UTC"
 echo "== Load metric data into this redis instance"
 pmseries $args --load "{source.path: \"$here/archives/proc\"}" | _filter_source
 
-echo;echo "== Verify noop() function for a singular metric"
-pmseries $args 'kernel.all.pswitch[count:2]'
-echo Compared to:
-pmseries $args 'noop(kernel.all.pswitch[count:2])'
-echo
-
-echo;echo "== Verify nested function noop(noop(...)) for a singular metric"
-pmseries $args 'kernel.all.pswitch[count:2]'
-echo Compared to:
-pmseries $args 'noop(noop(kernel.all.pswitch[count:2]))'
-echo
-
-echo;echo "== Verify noop() function for a non-singular metric, all instances"
-pmseries $args 'kernel.all.load[count:2]'
-echo Compared to:
-pmseries $args 'noop(kernel.all.load[count:2])'
-echo
-
-echo;echo "== Verify noop() function for a non-singular metric, only one instance"
-pmseries $args 'kernel.all.load{instance.name == "1 minute"}[count:2]'
-echo Compared to:
-pmseries $args 'noop(kernel.all.load{instance.name == "1 minute"}[count:2])'
-echo
-
 echo;echo "== Verify rate() function for a singular metric"
 pmseries $args 'kernel.all.pswitch[count:5]'
 echo Compared to:
@@ -182,10 +158,6 @@ echo;echo "== Verify subtraction functions for a non-singular metric, only one i
 pmseries $args 'kernel.all.load{instance.name == "5 minute"}[count:5]'
 echo 'Compared to series - series:'
 pmseries $args 'kernel.all.load{instance.name == "5 minute"}[count:5] - kernel.all.load{instance.name == "5 minute"}[count:5]'
-
-echo division operator is currently not working - work in progress
-status=0
-exit
 
 echo;echo "== Verify division functions for a singular metric"
 pmseries $args 'kernel.all.uptime[count:5]'
