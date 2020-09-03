@@ -23,7 +23,9 @@ int trace_jvm_object_alloc(struct pt_regs *ctx, long tid, char *name, int nlen, 
     long alloc = size * JVM_WORDSIZE;
 
     val = classes.lookup_or_init(&key, &zero);
-    (*val) += alloc;
+    if (val) {
+        (*val) += alloc;
+    }
 
     return 0;
 }

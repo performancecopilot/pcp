@@ -74,7 +74,9 @@ static int trace_event(struct pt_regs *ctx, struct sock *skp, int type)
         
         u64 zero = 0, *val;
         val = ipv4_count.lookup_or_init(&flow_key, &zero);
-        (*val)++;
+        if (val) {
+            (*val)++;
+        }
 
     } else if (family == AF_INET6) {
         
@@ -89,7 +91,9 @@ static int trace_event(struct pt_regs *ctx, struct sock *skp, int type)
         
         u64 zero = 0, *val;
         val = ipv6_count.lookup_or_init(&flow_key, &zero);
-        (*val)++;
+        if (val) {
+            (*val)++;
+        }
 
     }
     // else drop

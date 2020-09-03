@@ -39,7 +39,9 @@ TRACEPOINT_PROBE(TRACEPOINT_CATEGORY, TRACEPOINT_EVENT) {
     __builtin_memcpy(&key.tp, HASH_KEY, sizeof(key.tp));
     u64 zero = 0, *val;
     val = stats.lookup_or_init(&key, &zero);
-    (*val)++;
+    if (val) {
+      (*val)++;
+    }
     return 0;
 }
 """
