@@ -12,7 +12,6 @@ echo "QA output created by $seq"
 
 _pmdabcc_check
 _pmdabcc_require_kernel_version 4 7
-_bcc_debian_unstable && _notrun "bcc may be broken for Debian unstable"
 
 # If no PCP support for probes, also bail out
 _get_libpcp_config

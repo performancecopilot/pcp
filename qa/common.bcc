@@ -291,18 +291,3 @@ _bcc_check_ArgString()
     # OK
     return 0
 }
-
-# Some bcc PMDA tests have been observed to fail on the Debian unstable
-# stream.
-#
-_bcc_debian_unstable()
-{
-    if [ -f /etc/debian_version ]
-    then
-	if grep 'bullseye/sid' /etc/debian_version >/dev/null
-	then
-	    return 0
-	fi
-    fi
-    return 1
-}

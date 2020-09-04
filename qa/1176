@@ -12,7 +12,6 @@ echo "QA output created by $seq"
 
 _pmdabcc_check
 _bcc_check_ArgString || _notrun "bcc is broken (ArgString bug) on this platform"
-_bcc_debian_unstable && _notrun "bcc may be broken for Debian unstable"
 
 # Only ext4 seems to be working currently:
 # https://github.com/iovisor/bcc/issues/1993
