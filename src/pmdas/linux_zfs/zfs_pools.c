@@ -11,7 +11,7 @@
 #include "zfs_poolstats.h"
 
 void
-zfs_pools_init(zfs_pools *pools)
+zfs_pools_init(zfs_poolstats *poolstats, pmdaInstid *pools, pmdaIndom *indomtab)
 {
         DIR *zfs_dp;
         struct dirent *ep;
@@ -28,9 +28,9 @@ zfs_pools_init(zfs_pools *pools)
                                         size = (pool_num + 1) * sizeof(pmdaInstid);
                                         if ((pools = realloc(pools, size)) == NULL)
                                                 pmNoMem("process", size, PM_FATAL_ERR);
-                                        pools[pool_num].i_name = malloc(strlen(ep->d_name) + 1);
-                                        strcpy(pools[pool_num].i_name, ep->d_name);
-                                        pools[pool_num].i_inst = pool_num;
+                                        pools[pool_num]->i_name = malloc(strlen(ep->d_name) + 1);
+                                        strcpy(pools[pool_num]->i_name, ep->d_name);
+                                        pools[pool_num]->i_inst = pool_num;
                                         pool_num++;
                                 }
                         }
@@ -39,27 +39,30 @@ zfs_pools_init(zfs_pools *pools)
         }
         if (pools == NULL)
                 pmNotifyErr(LOG_WARNING, "no ZFS pools found, instance domain is empty.");
-        indomtab[POOLS_INDOM].it_set = pools;
-        indomtab[POOLS_INDOM].it_numinst = pool_num;
+        indomtab[ZFS_POOLS_INDOM]->it_set = pools;
+        indomtab[ZFS_POOLS_INDOM]->it_numinst = pool_num;
+        poolstats = malloc(pool_num*sizeof(zfs_poolstats));
 }
 
 void
-zfs_pools_clear(zfs_pools *pools)
+zfs_pools_clear(zfs_poolstats *poolstats, pmdaInstid *pools, pmdaIndom *indomtab)
 {
         int i;
 
-        for (i = 0; i < indomtab[POOLS_INDOM]; i++) {
-                free(pools[i].i_name);
-                pools[i].i_name = NULL;
+        for (i = 0; i < indomtab[ZFS_POOLS_INDOM]->it_numinst; i++) {
+                free(pools[i]->i_name);
+                pools[i]->i_name = NULL;
         }
         if (pools)
                 free(pools);
-        indomtab[POOLS_INDOM].it_set = pools = NULL;
-        indomtab[POOLS_INDOM].it_numinst = 0;
+        if (poolstats)
+                free(poolstats);
+        indomtab[ZFS_POOLS_INDOM]->it_set = pools = poolstats = NULL;
+        indomtab[ZFS_POOLS_INDOM]->it_numinst = 0;
 }
 
 void
-zfs_poolstats_refresh(zfs_pools *pools)
+zfs_poolstats_refresh(zfs_poolstats *poolstats, pmdaInstid *pools, pmdaIndom *indomtab)
 {
         int i, len;
         char *line, pool_dir[PATH_MAX], fname[PATH_MAX];
@@ -69,14 +72,14 @@ zfs_poolstats_refresh(zfs_pools *pools)
         regmatch_t pmatch[1];
         
         regcomp(&rgx_io, "^([0-9]+ ){11}[0-9]+$", REG_EXTENDED);
-        for (i = 0; i < indomtab[POOLS_INDOM].it_numinst; i++) {
+        for (i = 0; i < indomtab[ZFS_POOLS_INDOM]->it_numinst; i++) {
                 strcpy(pool_dir, ZFS_PROC_DIR);
-                strcat(pool_dir, pools[i].i_name);
+                strcat(pool_dir, pools[i]->i_name);
                 if (stat(pool_dir, (struct stat*) NULL) != 0) {
                         // Pools setup changed, the instance domain must follow
-                        zfs_pools_clear(pools);
-                        zfs_pools_init(pools);
-                        zfs_pools_refresh(pools);
+                        zfs_pools_clear(poolstats, pools, indomtab);
+                        zfs_pools_init(poolstats, pools, indomtab);
+                        zfs_pools_refresh(poolstats, pools, indomtab);
                         regfree(&rgx_io);
                         return;
                 }
@@ -117,4 +120,4 @@ zfs_poolstats_refresh(zfs_pools *pools)
                 }
         }
         regfree(&rgx_io);
-}
+/

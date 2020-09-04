@@ -17,6 +17,7 @@ zfs {
     xuio
     zfetch
     zil
+    pools
 }
 
 zfs.arc {
@@ -284,4 +285,20 @@ zfs.zil {
     itx_metaslab_normal_bytes           ZFS:9:10 
     itx_metaslab_slog_count             ZFS:9:11 
     itx_metaslab_slog_bytes             ZFS:9:12
+}
+
+zfs.pools {
+    state                               ZFS:10:0
+    nread                               ZFS:10:1
+    nwritten                            ZFS:10:2
+    reads                               ZFS:10:3
+    writes                              ZFS:10:4
+    wtime                               ZFS:10:5
+    wlentime                            ZFS:10:6
+    wupdate                             ZFS:10:7
+    rtime                               ZFS:10:8
+    rlentime                            ZFS:10:9
+    rupdate                             ZFS:10:10
+    wcnt                                ZFS:10:11
+    rcnt                                ZFS:10:12
 }
