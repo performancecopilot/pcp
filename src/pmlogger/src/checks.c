@@ -91,12 +91,35 @@ chk_one(task_t *tp, pmID pmid, int inst)
 	return 0;
 
     ctp = rqp->r_fetch->f_aux;
-    if (ctp == NULL || ctp == tp)
+    if (ctp == NULL)
+	return 0;
+    if (ctp == tp)
 	/*
 	 * can only happen if same metric+inst appears more than once
 	 * in the same group ... this can never be a conflict
+	 * return 1 => skip this one
 	 */
 	return 1;
+
+    if (pmDebugOptions.log) {
+	fprintf(stderr, "chk_one: pmid=%s task=" PRINTF_P_PFX "%p state=%s%s%s%s delta=%d.%06d\n",
+		pmIDStr(pmid), tp,
+		PMLC_GET_INLOG(tp->t_state) ? " " : "N",
+		PMLC_GET_AVAIL(tp->t_state) ? " " : "N",
+		PMLC_GET_MAND(tp->t_state) ? "M" : "A",
+		PMLC_GET_ON(tp->t_state) ? "Y" : "N",
+		(int)tp->t_delta.tv_sec, (int)tp->t_delta.tv_usec);
+	if (ctp == NULL)
+	    fprintf(stderr, "compared to: NULL\n");
+	else
+	    fprintf(stderr, "compared to: optreq task=" PRINTF_P_PFX "%p state=%s%s%s%s delta=%d.%06d\n",
+		    ctp,
+		    PMLC_GET_INLOG(ctp->t_state) ? " " : "N",
+		    PMLC_GET_AVAIL(ctp->t_state) ? " " : "N",
+		    PMLC_GET_MAND(ctp->t_state) ? "M" : "A",
+		    PMLC_GET_ON(ctp->t_state) ? "Y" : "N",
+		    (int)ctp->t_delta.tv_sec, (int)ctp->t_delta.tv_usec);
+    }
 
     if (PMLC_GET_MAND(ctp->t_state)) {
 	if (PMLC_GET_ON(ctp->t_state)) {
@@ -130,37 +153,86 @@ chk_one(task_t *tp, pmID pmid, int inst)
     return 0;
 }
 
+/*
+ * like chk_one() but we have to deal with the possibility that numinst
+ * (number of instances in the logging request) is 0 (=> all instances)
+ * in either this task, or some other task
+ */
 int
 chk_all(task_t *tp, pmID pmid)
 {
-    optreq_t	*rqp;
-    task_t	*ctp;
+    optreq_t		*rqp;
+    task_t		*ctp;
+    __pmHashNode	*hp;
 
-    rqp = findoptreq(pmid, 0);	/*TODO, not right!*/
-    if (rqp == NULL)
-	return 0;
+    for (hp = __pmHashSearch(pmid, &pm_hash); hp != NULL; hp = hp->next) {
+	if (pmid != (pmID)hp->key)
+            continue;
+	rqp = (optreq_t *)hp->data;
+	if (rqp == NULL)
+	    continue;
 
-    ctp = rqp->r_fetch->f_aux;
-
-    if (pmDebugOptions.log) {
-	fprintf(stderr, "chk_all: pmid=%s task=" PRINTF_P_PFX "%p state=%s%s%s%s delta=%d.%06d\n",
-		pmIDStr(pmid), tp,
-		PMLC_GET_INLOG(tp->t_state) ? " " : "N",
-		PMLC_GET_AVAIL(tp->t_state) ? " " : "N",
-		PMLC_GET_MAND(tp->t_state) ? "M" : "A",
-		PMLC_GET_ON(tp->t_state) ? "Y" : "N",
-		(int)tp->t_delta.tv_sec, (int)tp->t_delta.tv_usec);
+	ctp = rqp->r_fetch->f_aux;
 	if (ctp == NULL)
-	    fprintf(stderr, "compared to: NULL\n");
-	else
-	    fprintf(stderr, "compared to: optreq task=" PRINTF_P_PFX "%p state=%s%s%s%s delta=%d.%06d\n",
-		    ctp,
-		    PMLC_GET_INLOG(ctp->t_state) ? " " : "N",
-		    PMLC_GET_AVAIL(ctp->t_state) ? " " : "N",
-		    PMLC_GET_MAND(ctp->t_state) ? "M" : "A",
-		    PMLC_GET_ON(ctp->t_state) ? "Y" : "N",
-		    (int)ctp->t_delta.tv_sec, (int)ctp->t_delta.tv_usec);
+	    continue;
+	if (ctp == tp)
+	    /*
+	     * can only happen if same metric w/o instances appears more
+	     * than once in the same group ... this can never be a conflict
+	     * return 1 => skip this one
+	     */
+	    return 1;
+
+	if (pmDebugOptions.log) {
+	    fprintf(stderr, "chk_all: pmid=%s task=" PRINTF_P_PFX "%p state=%s%s%s%s delta=%d.%06d\n",
+		    pmIDStr(pmid), tp,
+		    PMLC_GET_INLOG(tp->t_state) ? " " : "N",
+		    PMLC_GET_AVAIL(tp->t_state) ? " " : "N",
+		    PMLC_GET_MAND(tp->t_state) ? "M" : "A",
+		    PMLC_GET_ON(tp->t_state) ? "Y" : "N",
+		    (int)tp->t_delta.tv_sec, (int)tp->t_delta.tv_usec);
+	    if (ctp == NULL)
+		fprintf(stderr, "compared to: NULL\n");
+	    else
+		fprintf(stderr, "compared to: optreq task=" PRINTF_P_PFX "%p state=%s%s%s%s delta=%d.%06d\n",
+			ctp,
+			PMLC_GET_INLOG(ctp->t_state) ? " " : "N",
+			PMLC_GET_AVAIL(ctp->t_state) ? " " : "N",
+			PMLC_GET_MAND(ctp->t_state) ? "M" : "A",
+			PMLC_GET_ON(ctp->t_state) ? "Y" : "N",
+			(int)ctp->t_delta.tv_sec, (int)ctp->t_delta.tv_usec);
+	}
+
+	if (PMLC_GET_MAND(ctp->t_state)) {
+	    if (PMLC_GET_ON(ctp->t_state)) {
+		if (PMLC_GET_MAND(tp->t_state) == 0 && PMLC_GET_MAYBE(tp->t_state) == 0) {
+		    if (PMLC_GET_ON(tp->t_state))
+			return -1;
+		    else
+			return -2;
+		}
+	    }
+	    else {
+		if (PMLC_GET_MAND(tp->t_state) == 0 && PMLC_GET_MAYBE(tp->t_state) == 0) {
+		    if (PMLC_GET_ON(tp->t_state))
+			return -3;
+		    else
+			return -4;
+		}
+	    }
+	    /*
+	     * new mandatory, over-rides the old mandatory
+	     */
+	    undo(ctp, rqp, PM_IN_NULL);
+	}
+	else {
+	    /*
+	     * new anything, over-rides the old advisory
+	     */
+	    undo(ctp, rqp, PM_IN_NULL);
+	}
     }
+
     return 0;
 }
 
