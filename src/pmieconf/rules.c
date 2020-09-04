@@ -810,7 +810,10 @@ append_string(char *s, char *append, int len)
 #endif
     if ((s = (char *)realloc(s, size)) == NULL)
 	return NULL;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-overflow="
     strncat(s, append, len);
+#pragma GCC diagnostic pop
     s[size-1] = '\0';
     return s;
 }
