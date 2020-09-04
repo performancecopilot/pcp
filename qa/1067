@@ -90,6 +90,18 @@ then
     _save_config $derived
 fi
 
+# pcp.sample.float.hundred                      [d|100.000000]
+# pcp.sample.double.ten                         [d|10.000000]
+#                 the decimal part may not be reported^^^^^^
+#
+_filter_float()
+{
+    sed \
+	-e '/pcp.sample.float.hundred/s/100\.00*/100/' \
+	-e '/pcp.sample.double.ten/s/10\.00*/10/' \
+    # end
+}
+
 _filter_values()
 {
     # expect lines like:
@@ -98,15 +110,10 @@ _filter_values()
 # pcp.sample.bad.novalues      [m|ZBX_NOTSUPPORTED] [No value available.]
     # d|u|s -> zabbix types;
     # m is error encodings -> allow through
-# pcp.sample.float.hundred                      [d|100.000000]
-# pcp.sample.double.ten                         [d|10.000000]
-#                 the decimal part may not be reported^^^^^^
 
     sed \
 	-e 's/\[[dus]|.*\]$/VALUE/g' \
 	-e '/sample\.scramble/d' \
-	-e '/pcp.sample.float.hundred/s/100\.00*/100/' \
-	-e '/pcp.sample.double.ten/s/10\.00*/10/' \
     #end
 }
 
@@ -123,8 +130,8 @@ echo "== request specific values"
 $zabbix_agentd -t pcp.sample.long.one
 $zabbix_agentd -t 'pcp.sample.long.bin[bin-100]'
 $zabbix_agentd -t pcp.sample.ulonglong.million
-$zabbix_agentd -t pcp.sample.float.hundred
-$zabbix_agentd -t pcp.sample.double.ten
+$zabbix_agentd -t pcp.sample.float.hundred | _filter_float
+$zabbix_agentd -t pcp.sample.double.ten | _filter_float
 
 # string metrics
 $zabbix_agentd -t pcp.sample.string.null

@@ -30,6 +30,7 @@
 #
 iam=trivial
 perl_opt=true
+python_opt=true
 
 # Do it
 #

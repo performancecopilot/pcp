@@ -160,7 +160,10 @@ _pmdabcc_remove()
     echo
     echo "=== remove bcc agent ==="
     $sudo ./Remove >$tmp.out 2>&1
-    _filter_pmda_remove <$tmp.out
+    _filter_pmda_remove <$tmp.out \
+    | sed \
+	-e '/ Info: /d' \
+    # end
 }
 
 _pmdabcc_cleanup()

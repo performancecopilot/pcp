@@ -20,6 +20,7 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=postgresql
+python_opt=true
 
 pmdaSetup
 pmdaRemove
