@@ -798,8 +798,24 @@ _setup()
 	    perl -e 'use PCP::PMDA' >$tmp/out 2>&1
 	    if test $? -eq 0
 	    then
-		eval PCP_PERL_DOMAIN=1 perl "$perl_name" > "$perl_dom"
-		eval PCP_PERL_PMNS=1 perl "$perl_name" > "$perl_pmns"
+		if eval PCP_PERL_DOMAIN=1 perl "$perl_name" >"$perl_dom" 2>$tmp/err
+		then
+		    :
+		else
+		    echo "Arrgh! failed to create $perl_dom from $perl_name"
+		    cat $tmp/err
+		    status=1
+		    exit
+		fi
+		if eval PCP_PERL_PMNS=1 perl "$perl_name" >"$perl_pmns" 2>$tmp/err
+		then
+		    :
+		else
+		    echo "Arrgh! failed to create $perl_pmns from $perl_name"
+		    cat $tmp/err
+		    status=1
+		    exit
+		fi
 	    elif $dso_opt || $daemon_opt
 	    then
 		:	# we have an alternative, so continue on
@@ -842,8 +858,24 @@ _setup()
 	    __syntax=$?
 	    if test $__module -eq 0 -a $__syntax -eq 0
 	    then
-		eval PCP_PYTHON_DOMAIN=1 $python "$python_name" > "$python_dom"
-		eval PCP_PYTHON_PMNS=1 $python "$python_name" > "$python_pmns"
+		if eval PCP_PYTHON_DOMAIN=1 $python "$python_name" >"$python_dom" 2>$tmp/err
+		then
+		    :
+		else
+		    echo "Arrgh! failed to create $python_dom from $python_name"
+		    cat $tmp/err
+		    status=1
+		    exit
+		fi
+		if eval PCP_PYTHON_PMNS=1 $python "$python_name" >"$python_pmns" 2>$tmp/err
+		then
+		    :
+		else
+		    echo "Arrgh! failed to create $python_pmns from $python_name"
+		    cat $tmp/err
+		    status=1
+		    exit
+		fi
 	    elif $dso_opt || $daemon_opt
 	    then
 		:	# we have an alternative, so continue on
