@@ -19,6 +19,23 @@ other
 ## NOTE: used by testing orgs beyond developers, must pass!
 sanity
 
+# not_in_ci ... tests that will not work in the fully automated
+# CI environment (github actions this week), where the following
+# analysis and protocols have been followed:
+# (a) the test has repeatedly failed on most hosts in the daily CI QA
+#     run
+# (b) the test is not a candidates for some _notrun medicine
+# (c) failures have been analyzed and it has been determined that the
+#     failure is an artifact of the CI setup (not the code and not
+#     the QA test)
+# (d) the test is passing universally elsewhere outside CI
+# and the test is annotated with a comment like
+# # :not_in_ci:
+# explaining the reason for assigning this one to the not_in_ci
+# group (./check-group not_in_ci can be used to check for the
+# presence of the explanation in the test)
+not_in_ci
+
 # local check ... runs on localhost alone, no remotes used
 ## NOTE: used by testing orgs beyond developers, do not add
 ## tests here that are known to fail - goal is for 100% pass
@@ -1603,7 +1620,7 @@ not_in_container
 1183 pmrep python archive local
 1184 pminfo pmseries local
 1185 pmrep python archive local
-1186 pmie local
+1186 pmie local not_in_ci
 1187 python pcp dstat local
 1188 pmda.dm local valgrind
 1189 find-filter local

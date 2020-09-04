@@ -114,6 +114,10 @@ do
 	    group_list="`echo $1 | sed -e 's/-/ /'`"
 	    ;;
 
+	not_in_ci)
+	    ( grep '^#.*:not_in_ci:' $seq >$tmp.debug  \
+	    )  && echo $seq >>$tmp.tmp
+	    ;;
 	*)
 	    ( grep -v '^#' $seq \
 	      | egrep "(^[ 	]*$1([ '\"]|$))|([ '\"\`]$1([ '\"\`]|$))" >$tmp.debug \
