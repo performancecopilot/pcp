@@ -44,10 +44,18 @@ tasks:
     sudo -i -u pcpqa ./check 002
   qa_sanity: |
     set -o pipefail
-    sudo -i -u pcpqa ./check -TT -g sanity -x not_in_ci -x not_in_container |& tee ./artifacts/test/test.log
+    if [ "$runner" = "container" ]; then
+      sudo -i -u pcpqa ./check -TT -g sanity -x not_in_ci -x not_in_container |& tee ./artifacts/test/test.log
+    else
+      sudo -i -u pcpqa ./check -TT -g sanity -x not_in_ci |& tee ./artifacts/test/test.log
+    fi
   qa: |
     set -o pipefail
-    sudo -i -u pcpqa ./check -TT -x not_in_ci -x not_in_container |& tee ./artifacts/test/test.log
+    if [ "$runner" = "container" ]; then
+      sudo -i -u pcpqa ./check -TT -x not_in_ci -x not_in_container |& tee ./artifacts/test/test.log
+    else
+      sudo -i -u pcpqa ./check -TT -x not_in_ci |& tee ./artifacts/test/test.log
+    fi
   copy_test_artifacts: |
     cp /var/lib/pcp/testsuite/check.timings ./artifacts/test
     [ $(awk 'END{print NF}' ./artifacts/test/check.timings) = 2 ] && date '+%s' >> ./artifacts/test/check.timings
