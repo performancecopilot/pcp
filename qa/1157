@@ -18,7 +18,6 @@ in
     		_notrun "Bad Linux 5.2 kernel headers will cause BPF to fail"
 		;;
 esac
-_bcc_debian_unstable && _notrun "bcc may be broken for Debian unstable"
 
 if [ -f /etc/lsb-release ]
 then
