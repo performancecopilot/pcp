@@ -549,10 +549,17 @@ activate_cached_metric(const char *name, int index)
 
 	    skip = 1;
 	}
+	else if (sts == 1)
+	    skip = 1;
     }
 
     if (!skip) {
 	__pmOptFetchAdd(&tp->t_fetch, rqp);
+	linkback(tp);
+	if (pmDebugOptions.optfetch && pmDebugOptions.desperate) {
+	    fprintf(stderr, "Task " PRINTF_P_PFX "%p -> t_fetch ...\n", tp);
+	    __pmOptFetchDump(stderr, tp->t_fetch);
+	}
 	if ((sts = __pmHashAdd(pmid, (void *)rqp, &pm_hash)) < 0) {
 	    pmsprintf(emess, sizeof(emess), "__pmHashAdd failed "
 		    "for metric \"%s\" ... logging not activated", name);
