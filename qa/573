@@ -30,10 +30,14 @@ _filter()
     seqnum=`pmprobe -v pmcd.seqnum | sed -n -e '/ 1 /s/.* //p'`
     if [ -z "$seqnum" ]
     then
-	echo "Arrgh: cannot pid from `pmprobe -v pmcd.seqnum`"
+	echo "Arrgh: cannot seqnum from `pmprobe -v pmcd.seqnum`"
 	seqnum=0
     fi
-    sed \
+    echo "pid=$pid" >>$here/$seq.full
+    echo "seqnum=$seqnum" >>$here/$seq.full
+    echo "HOSTNAME=`hostname -f`" >>$here/$seq.full
+    tee -a $here/$seq.full \
+    | sed \
 	-e "s@$tmp@TMP@g" \
 	-e "s/ $pid\$/ PID/" \
 	-e "s/ $seqnum\$/ SEQNUM/" \
