@@ -452,35 +452,26 @@ _ipaddr_to_host()
 
 _host_to_fqdn()
 {
-    ans=`hostname -f 2>/dev/null | grep '\.'`
-    if [ -z "$ans" ]
+    ans=''
+    if which nslookup >/dev/null 2>&1
     then
-	if which nslookup >/dev/null 2>&1
-	then
-	    ans=`nslookup $1 2>&1 | sed -n -e '/^Name:[ 	][ 	]*/{
+	ans=`nslookup $1 2>&1 | sed -n -e '/^Name:[ 	][ 	]*/{
 s///p
 q
 }'`
-	elif which host >/dev/null 2>&1
-	then
-	    ans=`host $1 2>&1 | sed -n -e '/ has address /{
+    elif which host >/dev/null 2>&1
+    then
+	ans=`host $1 2>&1 | sed -n -e '/ has address /{
 s/ .*//p
 q
 }'`
-	fi
     fi
+
     if [ -z "$ans" ]
     then
-	if which domainname >/dev/null 2>&1
-	then
-	    ans=`domainname | fgrep -v '(none)'`
-	    [ -z "$ans" ] || ans="$1.$ans"
-	fi
-    fi
-    if [ -z "$ans" ]
-    then
-	# fake out localhost.localdomain if no working DNS
-	ans=localhost.localdomain
+	# no working DNS ... just go with what we were given
+	#
+	ans=$1
     fi
     echo "$ans"
 }
