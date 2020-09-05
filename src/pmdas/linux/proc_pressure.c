@@ -24,18 +24,18 @@
  * format of each line is:
  *     TYPE avg10=NN.NN avg60=NN.NN avg300=NN.NN total=NN
  */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-truncation"
 static int
 read_pressure(FILE *fp, const char *type, pressure_t *pp)
 {
     static char	fmt[] = "TYPE avg10=%f avg60=%f avg300=%f total=%llu\n";
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wstringop-truncation"
     strncpy(fmt, type, 4);
-#pragma GCC diagnostic pop
     return fscanf(fp, fmt, &pp->avg[0], &pp->avg[1], &pp->avg[2],
 		(unsigned long long *)&pp->total) == 4;
 }
+#pragma GCC diagnostic pop
 
 int
 refresh_proc_pressure_cpu(proc_pressure_t *proc_pressure)
