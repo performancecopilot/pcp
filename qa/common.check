@@ -30,7 +30,8 @@ _notrun()
     echo $@ >$here/$seq.notrun
     echo "$seq: [not run] `cat $here/$seq.notrun`"
     rm -f $here/$seq.pre-avc
-    exit 0
+    status=0
+    exit $status
 }
 
 # common routine for failing a test in a standard way
@@ -39,7 +40,7 @@ _notrun()
 _fail()
 {
     echo FAIL: $@ 1>&2
-    status=1
+    status=0
     exit $status
 }
 
@@ -259,7 +260,8 @@ _service()
 	$sudo $PCP_RC_DIR/$1 $2
     else
 	echo "_service: $1 is not a systemctl service nor a $PCP_RC_DIR script!"
-	exit
+	status=0
+	exit $status
     fi
 }
 
@@ -452,35 +454,26 @@ _ipaddr_to_host()
 
 _host_to_fqdn()
 {
-    ans=`hostname -f 2>/dev/null | grep '\.'`
-    if [ -z "$ans" ]
+    ans=''
+    if which nslookup >/dev/null 2>&1
     then
-	if which nslookup >/dev/null 2>&1
-	then
-	    ans=`nslookup $1 2>&1 | sed -n -e '/^Name:[ 	][ 	]*/{
+	ans=`nslookup $1 2>&1 | sed -n -e '/^Name:[ 	][ 	]*/{
 s///p
 q
 }'`
-	elif which host >/dev/null 2>&1
-	then
-	    ans=`host $1 2>&1 | sed -n -e '/ has address /{
+    elif which host >/dev/null 2>&1
+    then
+	ans=`host $1 2>&1 | sed -n -e '/ has address /{
 s/ .*//p
 q
 }'`
-	fi
     fi
+
     if [ -z "$ans" ]
     then
-	if which domainname >/dev/null 2>&1
-	then
-	    ans=`domainname | fgrep -v '(none)'`
-	    [ -z "$ans" ] || ans="$1.$ans"
-	fi
-    fi
-    if [ -z "$ans" ]
-    then
-	# fake out localhost.localdomain if no working DNS
-	ans=localhost.localdomain
+	# no working DNS ... just go with what we were given
+	#
+	ans=$1
     fi
     echo "$ans"
 }
@@ -533,7 +526,8 @@ _check_metric()
 	:
     else
 	echo "Check failed for metric \"$1\" at host \"${2-local:}\" ... is PMDA installed?"
-	exit 1
+	status=0
+	exit $status
     fi
 }
 
@@ -624,7 +618,7 @@ _wait_for_pmcd()
 		ssh pcpqa@$_host "sh -c '. \$PCP_DIR/etc/pcp.env; echo; echo "=== pmcd.log ==="; [ -f \$PCP_LOG_DIR/pmcd/pmcd.log ] && cat \$PCP_LOG_DIR/pmcd/pmcd.log; [ -f \$PCP_LOG_DIR/pmcd.log ] && cat \$PCP_LOG_DIR/pmcd.log; echo; echo likely looking processes ...; ( ps \$PCP_PS_ALL_FLAGS | egrep \"[p]m|[P]ID\" )'" </dev/null
 		;;
 	esac
-	status=2
+	status=0
 	exit $status
     fi
 }
@@ -673,7 +667,7 @@ _wait_for_pmcd_stop()
 	pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd pmcd.numclients
 	echo "=== pmcd.log ==="
 	cat $PCP_LOG_DIR/pmcd/pmcd.log
-	status=2
+	status=0
 	exit $status
     fi
 }
@@ -709,7 +703,7 @@ _wait_for_pmlogger()
 	    ;;
 	*)
 	    echo "_wait_for_pmlogger(): wrong number of arguments"
-	    status=1
+	    status=0
 	    exit $status
 	    ;;
     esac
@@ -818,7 +812,7 @@ _wait_for_pmlogger()
 	echo
 	echo "Likely looking processes ..."
 	ps $PCP_PS_ALL_FLAGS | egrep '([p]m)|([P]ID)'
-	status=2
+	status=0
 	exit $status
     fi
     rm -f $tmp._wait_for_pmlogger.*
@@ -857,7 +851,8 @@ _wait_pmlogger_end()
     if [ -z "$1" ]
     then
 	echo "Usage botch: _wait_pmlogger_end() needs pid arg"
-	exit
+	status=0
+	exit $status
     fi
     _pid=$1
 
@@ -1075,7 +1070,7 @@ _wait_for_pmproxy()
 	    ;;
 	*)
 	    echo "_wait_for_pmproxy(): wrong number of arguments"
-	    status=1
+	    status=0
 	    exit $status
 	    ;;
     esac
@@ -1099,8 +1094,8 @@ _wait_for_pmproxy()
 	    else
 		echo "pmproxy logfile ($_logfile) not created"
 	    fi
-	    status=1
-	    exit
+	    status=0
+	    exit $status
 	fi
 	sleep 1
     done
@@ -1212,7 +1207,8 @@ EOF
     then
 	cat out
 	echo "Hmm ... purify failed to create $_prog.pure"
-	exit
+	status=0
+	exit $status
     fi
     cd $_here
 }
@@ -1818,8 +1814,8 @@ _get_endian()
     *)
 	echo "Arrgh ... od -x returned something odd ($check)"
 	echo a | od -x
-	status=1
-	exit
+	status=0
+	exit $status
 	;;
     esac
 }
@@ -1840,8 +1836,8 @@ _get_word_size()
 	;;
     *)
 	echo "uname gave machine type with unknown word size ($machine)"
-	status=1
-	exit
+	status=0
+	exit $status
 	;;
     esac
     echo $size
@@ -2062,7 +2058,8 @@ _change_config()
 		off)	act=disable ;;
 		*)
 		    echo "_change_config: Error: \$2=$2 not \"on\" or \"off\" as expected"
-		    exit 1
+		    status=0
+		    exit $status
 		    ;;
 	    esac
 	    if [ -n "$pat" ]
@@ -2096,7 +2093,8 @@ _change_config()
 		    off)	act=delete ;;
 		    *)
 			echo "_change_config: Error: \$2=$2 not \"on\" or \"off\" as expected"
-			exit 1
+			status=0
+			exit $status
 			;;
 		esac
 		$sudo rc-update $act $pat default >$tmp._tmp 2>&1
@@ -2110,7 +2108,8 @@ _change_config()
 	    # I have no clue!
 	    #
 	    echo "_change_config: Error: cannot change config \"$1 $2\""
-	    exit 1
+	    status=0
+	    exit $status
 	fi
     elif [ $PCP_PLATFORM = solaris ]
     then
@@ -2138,12 +2137,14 @@ _change_config()
 		    $sudo svcadm disable svc:/application/pcp/$pat
 		else
 		    echo "_change_config: Error: \$2=$2 not \"on\" or \"off\" as expected"
-		    exit 1
+		    status=0
+		    exit $status
 		fi
 	    fi
 	else
 	    echo "_change_config: Error: cannot find svcs for Solaris"
-	    exit 1
+	    status=0
+	    exit $status
 	fi
     elif [ $PCP_PLATFORM = darwin ]
     then
@@ -2167,7 +2168,8 @@ p
 	    then
 		echo "_change_config: Error: No $pat control line in /etc/hostconfig"
 		echo "You need to add a $pat=-YES- line to this file"
-		exit 1
+		status=0
+		exit $status
 	    fi
 	    if [ "$2" = "on" ]
 	    then
@@ -2177,7 +2179,8 @@ p
 		req_state=NO
 	    else
 		echo "_change_config: Error: bad state ($2) should be on or off"
-		exit 1
+		status=0
+		exit $status
 	    fi
 	    if [ "$state" != "$req_state" ]
 	    then
@@ -2202,7 +2205,8 @@ p
 	# I have no idea what to do for this platform!
 	#
 	echo "_change_config: Error: cannot \"$1 $2\" for $PCP_PLATFORM"
-	exit 1
+	status=0
+	exit $status
     fi 2>&1 \
     | _filter_init_distro
 }
@@ -2320,7 +2324,8 @@ _get_config()
 	    :
 	else
 	    echo "_change_config: Error: don't know how to change config for Linux"
-	    exit 1
+	    status=0
+	    exit $status
 	fi
     elif [ $PCP_PLATFORM = solaris ]
     then
@@ -2349,13 +2354,15 @@ _get_config()
 			;;
 		    *)
 			echo "_change_config: Error: smf ($state) from svcs not expected"
-			exit 1
+			status=0
+			exit $status
 			;;
 		esac
 	    fi
 	else
 	    echo "_change_config: Error: cannot find svcs for Solaris"
-	    exit 1
+	    status=0
+	    exit $status
 	fi
     elif [ $PCP_PLATFORM = darwin ]
     then
@@ -2378,7 +2385,8 @@ p
 	    then
 		echo "_change_config: Error: No $pat control line in /etc/hostconfig" >&2
 		echo "You need to add a $pat=-YES- line to this file" >&2
-		exit 1
+		status=0
+		exit $status
 	    fi
 	    if [ "$state" = "YES" ]
 	    then
@@ -2388,7 +2396,8 @@ p
 		echo off
 	    else
 		echo "_change_config: Error: bad state ($state) should be YES or NO" >&2
-		exit 1
+		status=0
+		exit $status
 	    fi
 	fi
     elif [ $PCP_PLATFORM = freebsd ]
@@ -2425,7 +2434,8 @@ _disable_loggers()
 	echo "_disable_loggers: Botch: $PCP_PMLOGGERCONTROL_PATH.$seq already exists"
 	date
 	ls -l $PCP_PMLOGGERCONTROL_PATH.$seq
-	exit
+	status=0
+	exit $status
     fi
     if [ -f $PCP_PMLOGGERCONTROL_PATH ]
     then
@@ -2438,7 +2448,8 @@ _disable_loggers()
 	echo "_disable_loggers: Botch: $PCP_PMLOGGERCONTROL_PATH.$seq.d already exists"
 	date
 	ls -ld $PCP_PMLOGGERCONTROL_PATH.$seq.d
-	exit
+	status=0
+	exit $status
     fi
     if [ -d $PCP_PMLOGGERCONTROL_PATH.d ]
     then
@@ -2504,7 +2515,7 @@ _check_core()
 	    $PCP_ECHO_PROG $PCP_ECHO_N " $seq.$d""$PCP_ECHO_C"
 	done
 	echo ")"
-	status=1
+	status=0
     fi
 }
 
@@ -2545,7 +2556,8 @@ _prepare_pmda_install()
 	else
 	    cat $tmp._tmp
 	    echo "Arrgh, ${MAKE:-make} clobber failed"
-	    exit
+	    status=1
+	    exit $status
 	fi
     fi
 
@@ -2631,7 +2643,8 @@ _get_primary_logger_pid()
 	then
 	    echo "Arrgh, cannot get symlink for device for root fs ..."
 	    ls -l "$root"
-	    exit
+	    status=0
+	    exit $status
 	fi
 	basename "$symroot"
     fi
@@ -2690,7 +2703,8 @@ _sighup_pmcd()
     if [ $_sighups_before -lt 0 ]
     then
 	echo _sighup_pmcd called but pmcd not running
-	exit 1
+	status=0
+	exit $status
     fi
 
     $sudo $PCP_BINADM_DIR/pmsignal -a -s HUP pmcd >/dev/null 2>&1
@@ -2713,7 +2727,8 @@ _sighup_pmcd()
     if [ $_sts -ne 0 ]
     then
 	echo _sighup_pmcd caused no change in pmcd sighup count
-	exit 1
+	status=0
+	exit $status
     fi
 
     # delay for $_signal_delay while pmcd actually does post-SIGHUP work

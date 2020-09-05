@@ -29,7 +29,10 @@ read_pressure(FILE *fp, const char *type, pressure_t *pp)
 {
     static char	fmt[] = "TYPE avg10=%f avg60=%f avg300=%f total=%llu\n";
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-truncation"
     strncpy(fmt, type, 4);
+#pragma GCC diagnostic pop
     return fscanf(fp, fmt, &pp->avg[0], &pp->avg[1], &pp->avg[2],
 		(unsigned long long *)&pp->total) == 4;
 }

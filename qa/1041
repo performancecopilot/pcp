@@ -119,6 +119,9 @@ pminfo -v libvirt 2>&1 \
 | tee -a $here/$seq.full \
 | _filter
 
-pmdalibvirt_remove
+pmdalibvirt_remove 2>&1 \
+| sed \
+    -e '/pmdalibvirt([0-9]*) Error: pmdaCacheOp: .* empty file?/d' \
+# end
 status=0
 exit
