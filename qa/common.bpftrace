@@ -89,7 +89,11 @@ _pmdabpftrace_wait_for_value()
 
     echo "Timeout (10s) while waiting for metric $1 to match value $value_regex, script data:"
     pminfo -f $(echo "$1" | sed -r 's/bpftrace\.scripts\.([^.]+)\..*/bpftrace.scripts.\1/')
-    exit 1
+    # error text above is sufficient to mark the test status as Failed
+    # rather than Broken in CI => exit status of 0 is fine
+    #
+    status=0
+    exit $status
 }
 
 _pmdabpftrace_generate_openat_syscall_activity()
