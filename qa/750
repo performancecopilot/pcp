@@ -133,7 +133,7 @@ else
     echo "Arrg ... rpm PMDA failed to get going after 20 seconds ..."
     pmprobe -v rpm.total.bytes
     cat $PCP_LOG_DIR/pmcd/rpm.log
-    status=1
+    status=0
     exit
 fi
 
