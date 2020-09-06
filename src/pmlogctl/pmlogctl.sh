@@ -1651,10 +1651,10 @@ do
 	--)	# we're not being POSIX conformant, want to allow -x options after command
 		# so skip this one
 		;;
-	-\?)	_usage
+	-*)	_usage
 		# NOTREACHED
 		;;
-	[^-]*)	# this is a non-option arg, gather them up for later
+	*)	# this is a non-option arg, gather them up for later
 		if [ -z "$ARGS" ]
 		then
 		    ARGS="\"$1\""

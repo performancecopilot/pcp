@@ -40,9 +40,12 @@ cleanup()
 }
 
 status=1	# failure is the default!
-hostname=`hostname`
 $sudo rm -rf $tmp.* $seq.full
 trap "cleanup; exit \$status" 0 1 2 3 15
+
+hostname=`hostname`
+echo "hostname -> $hostname" >>$seq.$full
+echo "hostname -f -> `hostname -f`" >>$seq.$full
 
 _filter_listusers2()
 {

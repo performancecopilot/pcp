@@ -120,6 +120,7 @@ _check_loggers()
 		cat $state | tee -a $here/$seq.full
 	    done
 	    echo "See $seq.full for details"
+	    status=0
 	    exit
 	fi
     done

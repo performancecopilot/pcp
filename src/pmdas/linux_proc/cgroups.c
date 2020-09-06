@@ -578,20 +578,20 @@ refresh_cgroups(const char *subsys, const char *container, size_t length,
     }
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-truncation"
 static void
 read_pressure(FILE *fp, const char *type, cgroup_pressure_t *pp)
 {
     static char fmt[] = "TYPE avg10=%f avg60=%f avg300=%f total=%llu\n";
     int		count;
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wstringop-truncation"
     strncpy(fmt, type, 4);
-#pragma GCC diagnostic pop
     count = fscanf(fp, fmt, &pp->avg10sec, &pp->avg1min, &pp->avg5min,
 		    (unsigned long long *)&pp->total);
     pp->updated = (count == 4);
 }
+#pragma GCC diagnostic pop
 
 static int
 read_pressures(const char *file, cgroup_pressures_t *pp, int full)

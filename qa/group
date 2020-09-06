@@ -1685,7 +1685,7 @@ not_in_container
 1248 pmlogctl local
 1249 pmlogctl local
 1250 selinux local
-1251 other local
+1251 man local
 1252 derive local
 1253 derive local valgrind
 1254 derive local
