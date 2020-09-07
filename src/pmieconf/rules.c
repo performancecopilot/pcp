@@ -799,6 +799,8 @@ value_change(rule_t *rule, char *param, char *value)
     return errmsg;
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-overflow="
 static char *
 append_string(char *s, char *append, int len)
 {
@@ -810,13 +812,11 @@ append_string(char *s, char *append, int len)
 #endif
     if ((s = (char *)realloc(s, size)) == NULL)
 	return NULL;
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wstringop-overflow="
     strncat(s, append, len);
-#pragma GCC diagnostic pop
     s[size-1] = '\0';
     return s;
 }
+#pragma GCC diagnostic pop
 
 /* fix up value strings by doing variable expansion */
 char *
