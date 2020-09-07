@@ -128,7 +128,8 @@ _rpm_prepare_check()
     if [ "X$rpm_name" = "X" -o "X$rpm_inst" = "X" ]
     then
 	echo "QA test bug - _rpm_package_prepare not yet done?"
-	exit 1
+	status=0
+	exit $status
     fi
 }
 
@@ -164,7 +165,8 @@ _rpm_package_install_await()
     done
 
     echo "rpm_package_install_await gave up awaiting $rpm_inst install!"
-    exit 1
+    status=0
+    exit $status
 }
 
 _rpm_package_remove()
@@ -192,7 +194,8 @@ _rpm_package_remove_await()
     done
 
     echo "rpm_package_remove_await gave up awaiting $rpm_name removal!"
-    exit 1
+    status=0
+    exit $status
 }
 
 

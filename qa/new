@@ -242,13 +242,14 @@ _cleanup()
     \$sudo rm -rf \$tmp \$tmp.*
 }
 
-status=1	# failure is the default!
+status=0	# success is the default!
 \$sudo rm -rf \$tmp \$tmp.* \$seq.full
 trap "_cleanup; exit \\\$status" 0 1 2 3 15
 
 # real QA test starts here
 
-# if error
+# if really bad error
+status=1
 exit
 
 # optional stuff if your test has verbose output to help resolve problems
@@ -256,7 +257,6 @@ exit
 #echo "If failure, check \$seq.full"
 
 # success, all done
-status=0
 exit
 End-of-File
 chmod 755 $id

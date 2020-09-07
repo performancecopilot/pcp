@@ -536,7 +536,7 @@ activate_cached_metric(const char *name, int index)
 	    else if (sts == 0)
 		rqp->r_instlist[j++] = inst;
 	    else	/* already have this instance */
-		skip = 1;
+		rqp->r_numinst--;
 	}
 	if (rqp->r_numinst == 0)
 	    skip = 1;
