@@ -1648,7 +1648,7 @@ not_in_container
 1211 pmseries local kernel
 1212 pmseries local
 1213 pmlogctl local
-1214 pmproxy pmseries libpcp_web local
+1214 pmproxy pmseries libpcp_web local not_in_ci
 1215 pmlogctl local
 1216 pmlogctl local
 1217 pmrep python local
