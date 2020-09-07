@@ -1001,8 +1001,9 @@ class PMReporter(object):
                                          inst,
                                          name,
                                          str(value))
-                except Exception as e:
-                    print("Error pmiPutLabel failed: %s" % e)
+                except Exception as error:
+                    sys.stderr.write("pmiPutLabel failed: %s\n" % str(error))
+                    sys.exit(1)
 
             if inst in (None, PM_IN_NULL):
                 self.pmi.pmiAddMetric(metric,
@@ -1046,7 +1047,7 @@ class PMReporter(object):
                                                 self.pmconfig.texts[i][3])
                 except pmi.pmiErr as error:
                     if error.errno() == PMI_ERR_DUPTEXT:
-                        # ignore duplicate help text exceptions
+                        # Ignore duplicate help texts
                         pass
 
         if self.pmi is None:
@@ -1080,7 +1081,7 @@ class PMReporter(object):
                         self.pmi.pmiAddInstance(self.pmconfig.descs[i].contents.indom, name, inst)
                     except pmi.pmiErr as error:
                         if error.errno() == PMI_ERR_DUPINSTNAME:
-                            # already added, ignore the error
+                            # Already added
                             pass
 
                 if self.pmconfig.descs[i].contents.sem == PM_SEM_DISCRETE and metric in self.prev_res:
