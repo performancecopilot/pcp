@@ -175,13 +175,31 @@ chk_all(task_t *tp, pmID pmid)
 	ctp = rqp->r_fetch->f_aux;
 	if (ctp == NULL)
 	    continue;
-	if (ctp == tp)
+	if (ctp == tp) {
 	    /*
-	     * can only happen if same metric w/o instances appears more
-	     * than once in the same group ... this can never be a conflict
-	     * return 1 => skip this one
+	     * can only happen if same metric appears more than once
+	     * in the same group ... this can never be a conflict
+	     * return 1 => skip this one, but first we may need to
+	     * expand the profile for the existing fetch to include
+	     * all instances
 	     */
+	    if (rqp->r_numinst != 0) {
+		indomctl_t	*idp;
+		for (idp = rqp->r_fetch->f_idp; idp != (indomctl_t *)0; idp = idp->i_next) {
+		    if (idp->i_indom == rqp->r_desc->indom) {
+
+			if (idp->i_numinst > 0) {
+			    idp->i_numinst = 0;
+			    free(idp->i_instlist);
+			}
+			break;
+		    }
+		}
+		rqp->r_numinst = 0;
+		free(rqp->r_instlist);
+	    }
 	    return 1;
+	}
 
 	if (pmDebugOptions.log) {
 	    fprintf(stderr, "chk_all: pmid=%s task=" PRINTF_P_PFX "%p state=%s%s%s%s delta=%d.%06d\n",

@@ -40,7 +40,7 @@ _cleanup()
 #
 _run_man_k()
 {
-     LANG=en_US.UTF-8 man -k "$1" 2>$tmp.err \
+     LANG=en_US.UTF-8 LC_MESSAGES=en_US.UTF-8 man -k "$1" 2>$tmp.err \
      | sed \
 	-e "/^$1: nothing appropriate/d" \
 	-e 's/_//g' \
@@ -194,7 +194,7 @@ do
 	echo "No matching man entry in any section!"
     fi
     echo "--- ($sect) ---" | tee -a $seq.full
-    TERM=dumb LANG=en_US.UTF-8 man $sect $key 2>&1 \
+    TERM=dumb LANG=en_US.UTF-8 LC_MESSAGES=en_US.UTF-8 man $sect $key 2>&1 \
     | sed -e 's/_//g' -e 's/.//g' -e 's/[ 	][ 	]*/ /g' >$tmp.out
     if egrep "$pat" $tmp.out >/dev/null
     then

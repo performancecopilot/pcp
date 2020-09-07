@@ -1,0 +1,398 @@
+QA output created by 1273
+sample.bin - simple - sample.bin
+Fetch Control [0]
+  PMID 253.2.4
+  PMID 253.0.1
+  PMID 253.1.3
+  PMID 253.1.2
+  PMID 253.0.0
+  PMID 29.0.6
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
+
+sample.bin - simple - disk.dev.read - sample.bin
+Fetch Control [0]
+  PMID 60.0.4
+  PMID 253.2.4
+  PMID 253.0.1
+  PMID 253.1.3
+  PMID 253.1.2
+  PMID 253.0.0
+  PMID 29.0.6
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
+
+sample.bin - simple - disk.dev.read - sampledso.long - sample.bin
+Fetch Control [0]
+  PMID 30.0.104
+  PMID 30.0.103
+  PMID 30.0.14
+  PMID 30.0.13
+  PMID 30.0.12
+  PMID 30.0.11
+  PMID 30.0.10
+Fetch Control [1]
+  PMID 60.0.4
+  PMID 253.2.4
+  PMID 253.0.1
+  PMID 253.1.3
+  PMID 253.1.2
+  PMID 253.0.0
+  PMID 29.0.6
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
+
+sampledso.long - sample.bin - simple - disk.dev.read - sample.bin
+Fetch Control [0]
+  PMID 60.0.4
+Fetch Control [1]
+  PMID 253.2.4
+  PMID 253.0.1
+  PMID 29.0.6
+  PMID 30.0.104
+  PMID 30.0.103
+  PMID 253.1.3
+  PMID 253.1.2
+  PMID 253.0.0
+  PMID 30.0.14
+  PMID 30.0.13
+  PMID 30.0.12
+  PMID 30.0.11
+  PMID 30.0.10
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
+
+sample.bin - sampledso.long - simple - disk.dev.read - sample.bin - sampledso.longlong
+Fetch Control [0]
+  PMID 30.0.110
+  PMID 30.0.109
+  PMID 30.0.24
+  PMID 30.0.23
+  PMID 30.0.22
+  PMID 30.0.21
+  PMID 30.0.20
+  PMID 60.0.4
+Fetch Control [1]
+  PMID 253.2.4
+  PMID 253.0.1
+  PMID 30.0.104
+  PMID 30.0.103
+  PMID 253.1.3
+  PMID 253.1.2
+  PMID 253.0.0
+  PMID 30.0.14
+  PMID 30.0.13
+  PMID 30.0.12
+  PMID 30.0.11
+  PMID 30.0.10
+  PMID 29.0.6
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
+
+sample.bin[i1] - simple - sample.bin[i2]
+i1 and i2 disjoint
+Fetch Control [0]
+  PMID 253.2.4
+  PMID 253.0.1
+  PMID 253.1.3
+  PMID 253.1.2
+  PMID 253.0.0
+  PMID 29.0.6
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+
+sample.bin[i1] - sampledso.long - simple - disk.dev.read - sample.bin[i2]
+i1 and i2 disjoint
+Fetch Control [0]
+  PMID 29.0.6
+  PMID 60.0.4
+Fetch Control [1]
+  PMID 253.2.4
+  PMID 253.0.1
+  PMID 30.0.104
+  PMID 30.0.103
+  PMID 253.1.3
+  PMID 253.1.2
+  PMID 253.0.0
+  PMID 30.0.14
+  PMID 30.0.13
+  PMID 30.0.12
+  PMID 30.0.11
+  PMID 30.0.10
+  PMID 29.0.6
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [200 or "bin-200"] value 200
+        inst [400 or "bin-400"] value 400
+        inst [600 or "bin-600"] value 600
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [300 or "bin-300"] value 300
+        inst [500 or "bin-500"] value 500
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [200 or "bin-200"] value 200
+        inst [400 or "bin-400"] value 400
+        inst [600 or "bin-600"] value 600
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [300 or "bin-300"] value 300
+        inst [500 or "bin-500"] value 500
+
+sample.bin[i1] - sampledso.long - simple - disk.dev.read - sample.bin[i2]
+i1 and i2 overlap
+Fetch Control [0]
+  PMID 29.0.6
+  PMID 60.0.4
+Fetch Control [1]
+  PMID 253.2.4
+  PMID 253.0.1
+  PMID 30.0.104
+  PMID 30.0.103
+  PMID 253.1.3
+  PMID 253.1.2
+  PMID 253.0.0
+  PMID 30.0.14
+  PMID 30.0.13
+  PMID 30.0.12
+  PMID 30.0.11
+  PMID 30.0.10
+  PMID 29.0.6
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+
+sample.bin - sampledso.long - simple - disk.dev.read - sample.bin[i2]
+Fetch Control [0]
+  PMID 60.0.4
+Fetch Control [1]
+  PMID 253.2.4
+  PMID 253.0.1
+  PMID 30.0.104
+  PMID 30.0.103
+  PMID 253.1.3
+  PMID 253.1.2
+  PMID 253.0.0
+  PMID 30.0.14
+  PMID 30.0.13
+  PMID 30.0.12
+  PMID 30.0.11
+  PMID 30.0.10
+  PMID 29.0.6
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
+
+sample.bin[i1] - sampledso.long - simple - disk.dev.read - sample.bin
+Fetch Control [0]
+  PMID 60.0.4
+Fetch Control [1]
+  PMID 253.2.4
+  PMID 253.0.1
+  PMID 30.0.104
+  PMID 30.0.103
+  PMID 253.1.3
+  PMID 253.1.2
+  PMID 253.0.0
+  PMID 30.0.14
+  PMID 30.0.13
+  PMID 30.0.12
+  PMID 30.0.11
+  PMID 30.0.10
+  PMID 29.0.6
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
