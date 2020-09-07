@@ -15,12 +15,14 @@ echo "QA output created by $seq"
 
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+rm -f $seq.full
 
 # real QA test starts here
 maxlen=84
 
 # assumes metric length (i.e. line with metric name) is less than $maxlen
 pminfo -T \
+| tee -a $seq.full \
 | $PCP_AWK_PROG -v maxlen=$maxlen '
 function skip_me(m)
 {
@@ -32,7 +34,7 @@ function skip_me(m)
     if (skip_me(metric)) next
     line = $0
     if (length(line) > maxlen && metric != lastone) {
-	printf "%s, full help text is too long: %d\n", metric, length(line)
+	printf "[%d] %s, full help text is too long: %d\n", NR, metric, length(line)
 	lastone = metric
     }
 }
