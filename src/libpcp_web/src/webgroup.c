@@ -1026,7 +1026,7 @@ profile:
 extern void
 pmWebGroupProfile(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 {
-    struct context	*cp;
+    struct context	*cp = NULL;
     struct metric	*mp;
     struct indom	*ip;
     enum profile	profile = PROFILE_DEL;
@@ -1231,7 +1231,7 @@ webgroup_instances(pmWebGroupSettings *settings,
 void
 pmWebGroupInDom(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 {
-    struct context	*cp;
+    struct context	*cp = NULL;
     struct domain	*dp;
     struct metric	*mp;
     struct indom	*ip;
