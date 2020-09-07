@@ -51,7 +51,7 @@ $PCP_BINADM_DIR/pmlogger -Cc $tmp.config 2>&1 | _filter
 
 echo
 echo "=== should be in man page ==="
-TERM=dumb LANG=en_US.UTF-8 LC_MESSAGES=en_US.UTF-8 man pmlogger \
+TERM=dumb LANG=POSIX LC_MESSAGES=POSIX man pmlogger \
 | sed -n \
     -e 's/.//g' \
     -e 's/  */ /g' \
