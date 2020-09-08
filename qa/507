@@ -27,9 +27,14 @@ local=`uname -n`
 #
 echo "hostname -> `hostname`" >>$seq.full
 ans=`hostname | grep '\.'`
-echo "ans -> $ans" >>$seq.full
-echo "nslookup $ans -> `nslookup $ans </dev/null 2>&1`" >>$seq.full
-echo "host $ans -> `host $ans 2>&1`" >>$seq.full
+if [ -z "$ans" ]
+then
+    echo "No . in hostname" >>$seq.full
+else
+    echo "ans -> $ans" >>$seq.full
+    echo "nslookup $ans -> `nslookup $ans </dev/null 2>&1`" >>$seq.full
+    echo "host $ans -> `host $ans 2>&1`" >>$seq.full
+fi
 echo "local -> $local" >>$seq.full
 
 status=1	# failure is the default!
