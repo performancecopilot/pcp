@@ -18,35 +18,92 @@ _check_series
 
 _cleanup()
 {
+    echo
     cd $here
+    echo == Shutdown local redis and pmproxy ...
+    [ -n "$proxypid" ] && kill -TERM "$proxypid"
+    [ -n "$options" ] && redis-cli $options shutdown
+    echo finished
     $sudo rm -rf $tmp $tmp.*
 }
 
 status=0
+hostname=`hostname`
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
-metrics="kernel.all.load disk.dev.read kernel.all.pswitch"
 
-for metric in $metrics; do
-    echo;echo == testing pmseries query for $metric to redis directly
-    nseries=`pmseries -p 6379 $metric | wc -l`
-    [ -z "$nseries" -o "$nseries" -le 0 ] && echo pmseries -p 6379 $metric FAILED && status=1
+# real QA test starts here
+echo "=== Start test redis-server ..."
+redisport=`_find_free_port`
+redis-server --port $redisport > $tmp.redis 2>&1 &
+echo "PING"
+pmsleep 0.125
+options="-p $redisport"
+redis-cli $options ping
+echo
+echo "=== Start test pmproxy ..."
+proxyport=`_find_free_port`
+username=`id -u -n`
+cat > $tmp.conf <<EOF
+[pmproxy]
+pcp.enabled = true
+http.enabled = true
+redis.enabled = true
+[pmseries]
+enabled = true
+servers = localhost:$redisport
+EOF
+$PCP_BINADM_DIR/pmproxy -f -p $proxyport -s $tmp.socket \
+	-U $username -l $tmp.log -c $tmp.conf &
+proxypid=$!
+pmsleep 0.5
+echo === initial pmproxy log === >> $seq.full
+cat $tmp.log >> $seq.full
 
-    echo;echo == testing pmseries query to redis for $metric via pmproxy
-    proxy_pid=`cat $PCP_RUN_DIR/pmproxy.pid`
-    proxy_nseries=`pmseries -p 44322 $metric | wc -l`
-    sleep 1
-    new_proxy_pid=`cat $PCP_RUN_DIR/pmproxy.pid`
-    [ -z "$proxy_nseries" -o "$proxy_nseries" -le 0 ] && echo pmseries -p 44322 $metric FAILED proxy_nseries=$proxy_nseries && status=2
-    [ "$proxy_pid" != "$new_proxy_pid" ] && echo FAILED, pmproxy unexpectedly restarted && status=3
+echo "== load test data for verification" | tee -a $here/$seq.full
+pmseries $options --load $here/archives/proc > $here/$seq.full
+echo === test data load complete === >> $seq.full
 
-    [ "$nseries" -ne "$proxy_nseries" ] && echo FAILED, redis=$nseries not same as via pmproxy=$proxy_nseries && status=3
+metrics="kernel.all.load disk.dev.read"
+for metric in $metrics
+do
+    echo === Verifying $metric series >> $seq.full
 
-    if [ $status -ne 0 ]; then
-	echo FAILED, look in $seq.full for failed assertion for metric $metric in pmproxy.log
-	echo === pmproxy log ===  >> $seq.full; cat $PCP_LOG_DIR/pmproxy/pmproxy.log.prev >> $seq.full 2>&1
-	[ $status -eq 1 ] && $_valgrind_clean_assert pmseries -p 6379 $metric >> $seq.full 2>&1
-	[ $status -ge 2 ] && $_valgrind_clean_assert pmseries -p 44322 $metric >> $seq.full 2>&1
+    echo
+    echo == pmseries query for $metric to redis directly
+    pmseries -p $redisport $metric | tee -a $here/$seq.full > $tmp.out
+    redis_nseries=`wc -l < $tmp.out`
+    if [ -z "$redis_nseries" -o "$redis_nseries" -le 0 ]
+    then
+	echo pmseries -p $redisport $metric failed
+	status=1
+    fi
+
+    echo
+    echo == pmseries query for $metric to redis via pmproxy
+    pmseries -p $proxyport $metric | tee -a $here/$seq.full > $tmp.out
+    proxy_nseries=`wc -l < $tmp.out`
+    if [ -z "$proxy_nseries" -o "$proxy_nseries" -le 0 ]
+    then
+	echo pmseries -p $proxyport $metric failed
+	echo proxy_nseries=$proxy_nseries
+	status=2
+    fi
+
+    if [ "$redis_nseries" -ne "$proxy_nseries" ]
+    then
+	echo redis=$redis_nseries differs to pmproxy=$proxy_nseries
+	status=3
+    fi
+
+    echo === pmproxy log === >> $seq.full
+    cat $tmp.log >> $seq.full
+    if [ $status -ne 0 ]
+    then
+	[ $status -eq 1 ] && $_valgrind_clean_assert \
+		pmseries -p $redisport $metric >> $seq.full 2>&1
+	[ $status -ge 2 ] && $_valgrind_clean_assert \
+		pmseries -p $proxyport $metric >> $seq.full 2>&1
     fi
 done
 
