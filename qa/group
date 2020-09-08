@@ -1833,6 +1833,7 @@ not_in_container
 1723 pmda.bpftrace local python
 1724 pmda.bpftrace local python
 1740 pmda.proc local
+1745 pmlogger libpcp pmval local
 1768 pmfind local
 1793 pmrep pcp2xxx python local
 1805 pmda.linux kernel local

@@ -1,6 +1,6 @@
 [Unit]
 Description=Proxy for Performance Metrics Collector Daemon
-Documentation=man:pmproxy(8)
+Documentation=man:pmproxy(1)
 After=network-online.target pmcd.service
 
 [Service]
