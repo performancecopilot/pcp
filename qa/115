@@ -68,12 +68,6 @@ echo "remote=$remote" >>$here/$seq.full
 
 tmpdir=`dirname $tmp`
 
-# Now that we have pmmgr in the mix, there is more than one pmie
-# potentially running, so lines like this
-# ... try /var/lib/pcp/tmp/pmie/25453: different logfile, skip
-#  /var/log/pcp/pmmgr/bozo/pmie.log differs to /tmp/SEQ-PID.log1
-# are now expected, and not a problem.
-#
 # mkdir: error lines ... not consistency in format, so cull 'em
 # ditto for cd errors reported from pmie_check
 #
@@ -108,7 +102,6 @@ _filter()
 	-e 's/\([ "]\)local:\([ "]\)/\1LOCALHOST\2/g' \
 	-e "s;/private/tmp;/tmp;g" \
 	-e '/ try .* different logfile, skip/d' \
-	-e '/\/pmmgr\/.* differs to /d' \
 	-e '/^.r[-w][-x]r[-w][-x]/s/.* TMP/... ls output ... TMP/' \
 	-e '/mkdir:/d' \
 	-e '/\/pmie_check:.*cd:/d' \

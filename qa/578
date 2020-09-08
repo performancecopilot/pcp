@@ -24,8 +24,6 @@ status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 rm -f $seq.full
 
-pmmgr_was_running=false
-[ -x "$PCP_BINADM_DIR/pmmgr" ] && pmmgr_was_running=true
 pmie_was_running=false
 [ -f $PCP_RUN_DIR/pmie.pid ] && pmie_was_running=true
 
@@ -88,11 +86,6 @@ _cleanup()
 	_service pmie stop >>$here/$seq.full 2>&1
 	$sudo $PCP_BINADM_DIR/pmsignal -a -s TERM pmie >>$here/$seq.full 2>&1
 	_wait_pmie_end
-    fi
-    if $pmmgr_was_running
-    then
-	_restore_auto_restart pmmgr
-	_service pmmgr start >>$here/$seq.full 2>&1
     fi
 
     rm -rf $tmp.*
@@ -169,11 +162,6 @@ if $pmie_was_running
 then
     _stop_auto_restart pmie
     _service pmie stop >>$here/$seq.full 2>&1
-fi
-if $pmmgr_was_running
-then
-    _stop_auto_restart pmmgr
-    _service pmmgr stop >>$here/$seq.full 2>&1
 fi
 
 # and we're starting a new pmcd ...
