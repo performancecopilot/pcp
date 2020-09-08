@@ -1709,6 +1709,7 @@ not_in_container
 1272 pmlogmv local
 1273 pmlogger fetch local
 1274 pmlogextract pmdumplog labels help local sanity
+1275 man pmlogger local
 1276:retired pmmgr containers local
 1287 pmda.install pmda.openmetrics local python
 1289 pmval archive multi-archive decompress-xz local pmlogextract

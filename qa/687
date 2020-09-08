@@ -1,6 +1,7 @@
 #!/bin/sh
 # PCP QA Test No. 687
 # pmlogger -C checkout
+# see qa/1275 for the man page part of this test
 #
 # Copyright (c) 2018 Ken McDonell.  All Rights Reserved.
 #
@@ -48,22 +49,6 @@ log mandatory on once {
 }
 End-of-File
 $PCP_BINADM_DIR/pmlogger -Cc $tmp.config 2>&1 | _filter
-
-echo
-echo "=== should be in man page ==="
-TERM=dumb LANG=POSIX LC_MESSAGES=POSIX man pmlogger \
-| sed -n \
-    -e 's/.//g' \
-    -e 's/  */ /g' \
-    -e '/\[-[^]]*C/{
-s//[-...C/
-s/C.*/C...] .../
-p
-}' \
-    -e '/The -C option/{
-s/configuration file.*/configuration file .../p
-}' \
-# end
 
 echo
 echo "=== should be in usage message ==="
