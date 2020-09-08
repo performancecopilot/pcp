@@ -1370,6 +1370,7 @@ webmetric_lookup(const char *name, void *arg)
     seriesname_t	*snp = NULL;
     context_t		*cp = lookup->context;
     metric_t		*mp;
+    indom_t		*ip;
 
     if (webgroup_use_context(cp, &lookup->status, &lookup->message, arg) == NULL)
 	return;
@@ -1396,9 +1397,10 @@ webmetric_lookup(const char *name, void *arg)
 
     pmwebapi_add_domain_labels(cp, mp->cluster->domain);
     pmwebapi_add_cluster_labels(cp, mp->cluster);
-    if (mp->indom) {
-	pmwebapi_add_instances_labels(cp, mp->indom);
-	pmwebapi_add_indom_labels(mp->indom);
+    if ((ip = mp->indom) != NULL) {
+	if (pmwebapi_add_indom_instances(cp, ip) > 0)
+	    pmwebapi_add_instances_labels(cp, ip);
+	pmwebapi_add_indom_labels(ip);
     }
     pmwebapi_add_item_labels(cp, mp);
     pmwebapi_metric_hash(mp);
@@ -1864,12 +1866,15 @@ store_add_instid(struct instore *store, int id)
 static void
 store_add_profile(struct instore *store)
 {
+    int		sts;
+
     if (store->insts) {
-	    int sts;
 	sts = pmDelProfile(store->indom, 0, NULL);
-	fprintf(stderr, "pmDelProfile: sts=%d\n", sts);
+	if (pmDebugOptions.libweb)
+	    fprintf(stderr, "pmDelProfile: sts=%d\n", sts);
 	sts = pmAddProfile(store->indom, store->count, store->insts);
-	fprintf(stderr, "pmAddProfile: sts=%d\n", sts);
+	if (pmDebugOptions.libweb)
+	    fprintf(stderr, "pmAddProfile: sts=%d\n", sts);
 	free(store->insts);
 	store->insts = NULL;
     }
