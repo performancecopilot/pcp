@@ -1379,6 +1379,31 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev, double inter
 	dev->www.iworkers  = cur->www.iworkers;
 }
 
+static void *
+resize_array(void *array, size_t entrysz, long oldsz, long newsz, const char *e)
+{
+	size_t		size, reset;
+	void		*ptr;
+
+	reset = newsz;
+	if (array)
+		reset -= oldsz;
+	size = newsz * entrysz;
+	ptr = realloc(array, size);
+	ptrverify(ptr, e, (long)size);
+
+	/* set any new entries (possibly all) to zero initially */
+	if (reset)
+	{
+		size = reset * sizeof(struct percpu);
+		if (array)
+			memset(ptr + reset, 0, size);
+		else
+			memset(ptr, 0, size);
+	}
+	return ptr;
+}
+
 /*
 ** add the values of a new sample to a structure holding the totals
 ** for the indicated category (c=cpu, m=memory, d=disk, n=network).
@@ -1388,7 +1413,6 @@ totalsyst(char category, struct sstat *new, struct sstat *tot)
 {
 	register int	i;
 	count_t		*ctot, *cnew;
-	size_t		size;
 
 	switch (category)
 	{
@@ -1410,9 +1434,12 @@ totalsyst(char category, struct sstat *new, struct sstat *tot)
 
 		if (tot->cpu.nrcpu < new->cpu.nrcpu || !tot->cpu.cpu)
 		{
-		    size = new->cpu.nrcpu * sizeof(struct percpu);
-		    tot->cpu.cpu = realloc(tot->cpu.cpu, size);
-		    ptrverify(tot->cpu.cpu, "totalsyst cpus [%ld]", (long)size);
+		    tot->cpu.cpu =
+			    resize_array(
+				tot->cpu.cpu, sizeof(struct percpu),
+				tot->cpu.nrcpu, new->cpu.nrcpu,
+				"totalsyst cpus [%ld]");
+		    tot->cpu.nrcpu = new->cpu.nrcpu;
 		}
 
 		if (new->cpu.nrcpu == 1)
@@ -1561,9 +1588,11 @@ totalsyst(char category, struct sstat *new, struct sstat *tot)
 	
 		if (tot->intf.nrintf < new->intf.nrintf || !tot->intf.intf)
 		{
-		    size = (new->intf.nrintf + 1) * sizeof(struct perintf);
-		    tot->intf.intf = realloc(tot->intf.intf, size);
-		    ptrverify(tot->intf.intf, "totalsyst intfs [%ld]", (long)size);
+		    tot->intf.intf =
+			    resize_array(
+				tot->intf.intf, sizeof(struct perintf),
+				tot->intf.nrintf, new->intf.nrintf + 1,
+				"totalsyst intfs [%ld]");
 		}
 
 		for (i=0; new->intf.intf[i].name[0]; i++)
@@ -1634,9 +1663,11 @@ totalsyst(char category, struct sstat *new, struct sstat *tot)
 	   case 'd':	/* accumulate disk-related counters */
 		if (tot->dsk.ndsk < new->dsk.ndsk || !tot->dsk.dsk)
 		{
-		    size = (new->dsk.ndsk + 1) * sizeof(struct perdsk);
-		    tot->dsk.dsk = realloc(tot->dsk.dsk, size);
-		    ptrverify(tot->dsk.dsk, "totalsyst disks [%ld]", (long)size);
+		    tot->dsk.dsk =
+			    resize_array(
+				tot->dsk.dsk, sizeof(struct perdsk),
+				tot->dsk.ndsk, new->dsk.ndsk + 1,
+				"totalsyst disks [%ld]");
 		}
 
 		for (i=0; new->dsk.dsk[i].name[0]; i++)
@@ -1656,9 +1687,11 @@ totalsyst(char category, struct sstat *new, struct sstat *tot)
 
 		if (tot->dsk.nlvm < new->dsk.nlvm || !tot->dsk.lvm)
 		{
-		    size = (new->dsk.nlvm + 1) * sizeof(struct perdsk);
-		    tot->dsk.lvm = realloc(tot->dsk.lvm, size);
-		    ptrverify(tot->dsk.lvm, "totalsyst LVs [%ld]", (long)size);
+		    tot->dsk.lvm =
+			    resize_array(
+				tot->dsk.lvm, sizeof(struct perdsk),
+				tot->dsk.nlvm, new->dsk.nlvm + 1,
+				"totalsyst LVs [%ld]");
 		}
 
 		for (i=0; new->dsk.lvm[i].name[0]; i++)
@@ -1678,9 +1711,11 @@ totalsyst(char category, struct sstat *new, struct sstat *tot)
 
 		if (tot->dsk.nmdd < new->dsk.nmdd || !tot->dsk.mdd)
 		{
-		    size = (new->dsk.nmdd + 1) * sizeof(struct perdsk);
-		    tot->dsk.mdd = realloc(tot->dsk.mdd, size);
-		    ptrverify(tot->dsk.mdd, "totalsyst MDs [%ld]", (long)size);
+		    tot->dsk.mdd =
+			    resize_array(
+				tot->dsk.mdd, sizeof(struct perdsk),
+				tot->dsk.nmdd, new->dsk.nmdd + 1,
+				"totalsyst MDs [%ld]");
 		}
 
 		for (i=0; new->dsk.mdd[i].name[0]; i++)
