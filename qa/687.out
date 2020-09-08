@@ -7,9 +7,5 @@ Specification error in configuration file (.config)
 preprocessor cmd: PCP_BINADM_DIR/pmcpp -rs .config -I PCP_VAR_DIR/config/pmlogger
 Config parsed
 
-=== should be in man page ===
- pmlogger [-...C...] ...
- The -C option will cause the configuration file ...
-
 === should be in usage message ===
   -C, --check           parse configuration and exit
