@@ -10,11 +10,13 @@ pmlc> query sample.drift
 sample.drift
     adv  off nl             
 
+pmlc> disconnect
 pmlc> connect port PORT 
 pmlc> status
 pmlogger [QA-PMLOGGER-PID] on host LOCAL-HOST is logging metrics from host ...
 ... status output ...
 pmlc> flush
+pmlc> disconnect
 pmlc> connect QA-PMLOGGER-PID 
 pmlc> status
 pmlogger [QA-PMLOGGER-PID] on host LOCAL-HOST is logging metrics from host ...
@@ -32,11 +34,13 @@ pmlc> query sample.drift
 sample.drift
     adv  off nl             
 
+pmlc> disconnect
 pmlc> connect port PORT 
 pmlc> status
 pmlogger [QA-PMLOGGER-PID] on host LOCAL-HOST is logging metrics from host ...
 ... status output ...
 pmlc> flush
+pmlc> disconnect
 pmlc> connect port PORT 
 pmlc> status
 pmlogger [QA-PMLOGGER-PID] on host LOCAL-HOST is logging metrics from host ...
@@ -54,11 +58,13 @@ pmlc> query sample.drift
 sample.drift
     adv  off nl             
 
+pmlc> disconnect
 pmlc> connect port PORT @LOCAL-HOST
 pmlc> status
 pmlogger [QA-PMLOGGER-PID] on host LOCAL-HOST is logging metrics from host ...
 ... status output ...
 pmlc> flush
+pmlc> disconnect
 pmlc> connect QA-PMLOGGER-PID @LOCAL-HOST
 pmlc> status
 pmlogger [QA-PMLOGGER-PID] on host LOCAL-HOST is logging metrics from host ...
@@ -76,11 +82,13 @@ pmlc> query sample.drift
 sample.drift
     adv  off nl             
 
+pmlc> disconnect
 pmlc> connect port PORT @LOCAL-HOST
 pmlc> status
 pmlogger [QA-PMLOGGER-PID] on host LOCAL-HOST is logging metrics from host ...
 ... status output ...
 pmlc> flush
+pmlc> disconnect
 pmlc> connect port PORT @LOCAL-HOST
 pmlc> status
 pmlogger [QA-PMLOGGER-PID] on host LOCAL-HOST is logging metrics from host ...
@@ -98,11 +106,13 @@ pmlc> query sample.drift
 sample.drift
     adv  off nl             
 
+pmlc> disconnect
 pmlc> connect port PORT @REMOTE-HOST
 pmlc> status
 pmlogger [PMLOGGER-PID] on host REMOTE-HOST is logging metrics from host ...
 ... status output ...
 pmlc> flush
+pmlc> disconnect
 pmlc> connect PID @REMOTE-HOST
 pmlc> status
 pmlogger [PMLOGGER-PID] on host REMOTE-HOST is logging metrics from host ...
@@ -121,11 +131,13 @@ Not connected to any pmlogger instance
 pmlc> query Error [<stdin>, line 3]
 Not connected to any pmlogger instance
 sample.drift
+pmlc> disconnect
 pmlc> connect port PORT 
 pmlc> status
 pmlogger [QA-PMLOGGER-PID] on host LOCAL-HOST is logging metrics from host ...
 ... status output ...
 pmlc> flush
+pmlc> disconnect
 pmlc> connect QA-PMLOGGER-PID 
 pmlc> status
 pmlogger [QA-PMLOGGER-PID] on host LOCAL-HOST is logging metrics from host ...
@@ -143,11 +155,13 @@ Not connected to any pmlogger instance
 pmlc> query Error [<stdin>, line 3]
 Not connected to any pmlogger instance
 sample.drift
+pmlc> disconnect
 pmlc> connect port PORT 
 pmlc> status
 pmlogger [QA-PMLOGGER-PID] on host LOCAL-HOST is logging metrics from host ...
 ... status output ...
 pmlc> flush
+pmlc> disconnect
 pmlc> connect port PORT 
 pmlc> status
 pmlogger [QA-PMLOGGER-PID] on host LOCAL-HOST is logging metrics from host ...
@@ -165,11 +179,13 @@ pmlc> query sample.drift
 sample.drift
     adv  off nl             
 
+pmlc> disconnect
 pmlc> connect port PORT @REMOTE-HOST
 pmlc> status
 pmlogger [PMLOGGER-PID] on host REMOTE-HOST is logging metrics from host ...
 ... status output ...
 pmlc> flush
+pmlc> disconnect
 pmlc> connect PID @REMOTE-HOST
 pmlc> status
 pmlogger [PMLOGGER-PID] on host REMOTE-HOST is logging metrics from host ...

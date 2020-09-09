@@ -206,6 +206,22 @@ all writes are unbuffered and aligned with the logical records in the external
 files, so this command achieves nothing, but is retained for backwards
 compatibility.
 .TP 4
+\f3disconnect\f1
+Disconnect
+.B pmlc
+from the current pmlogger instance, if any.
+.TP 4
+\f3sleep\f1 \f2delay\f1
+Pause
+.B pmlc
+for
+.I delay
+milliseconds.
+This may be helpful in scripted uses of
+.B pmlc
+to allow the current pmlogger instance to
+make progress on recent requests before interrogating the status.
+.TP 4
 \f3help\f1
 Displays a summary of the available commands.
 .sp 0.5v
@@ -470,6 +486,7 @@ show loggers	Any
 connect	Any of \fBenquire\fP, \fBadvisory\fP or \fBmandatory\fP
 status	Any of \fBenquire\fP, \fBadvisory\fP or \fBmandatory\fP
 query \fR...\fP	Any of \fBenquire\fP, \fBadvisory\fP or \fBmandatory\fP
+disconnect	Any
 log advisory \fR...\fP	\fBadvisory\fP
 log mandatory \fR...\fP	\fBmandatory\fP
 new volume	\fBmandatory\fP

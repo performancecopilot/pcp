@@ -17,6 +17,7 @@
 #include "libpcp.h"
 #include "pmlc.h"
 #include "gram.h"
+#include <time.h>
 
 char		*configfile;
 __pmLogCtl	logctl;
@@ -42,6 +43,7 @@ static char menu[] =
 "  status                             information about connected pmlogger\n"
 "  query metric-list                  show logging state of metrics\n"
 "  new volume                         start a new log volume\n"
+"  disconnect                         disconnect from pmlogger\n"
 "\n"
 "  log { mandatory | advisory } on <interval> _metric-list\n"
 "  log { mandatory | advisory } off _metric-list\n"
@@ -49,6 +51,7 @@ static char menu[] =
 "\n"
 "  timezone local|logger|'<timezone>' change reporting timezone\n"
 "  help                               print this help message\n"
+"  sleep <n>                          pause for <n> milliseconds\n"
 "  quit                               exit from pmlc\n"
 "\n"
 "  _logger_id   is  primary | <pid> | port <n>\n"
@@ -97,6 +100,7 @@ main(int argc, char **argv)
     int			primary;
     size_t		prefix_len;
     char		*prefix_end;
+    struct timespec	delay;
 
     iflag = isatty(0);
 
@@ -330,6 +334,21 @@ main(int argc, char **argv)
 		    tzchange |= (tztype == TZ_LOGGER);
 		break;		
 
+	    case DISCONNECT:
+		/*
+		 * don't need to check connected() ... if not connected
+		 * to a pmlogger, then "disconnect" is a no-op
+		 */
+		DisconnectLogger();
+		/*
+		 * give pmlogger a change to cleanup ... 100 msec
+		 * should be enough
+		 */
+		delay.tv_sec = 0;
+		delay.tv_nsec = 100 * 1000;
+		nanosleep(&delay, NULL);
+		break;
+
 	    case HELP:
 		puts(menu);
 		break;
@@ -374,6 +393,18 @@ fprintf(stderr, "Logging delta (%d msec) cannot be bigger than %d msec\n", logfr
 
 	    case SYNC:
 		Sync();
+		break;
+
+	    case SLEEP:
+		/*
+		 * this one is for QA so back-to-back connects can
+		 * be delayed for a short time to allow pmlogger to
+		 * cleanup after the disconnect and before the second
+		 * connect
+		 */
+		delay.tv_sec = sleep_msec / 1000;
+		delay.tv_nsec = 1000 * (sleep_msec % 1000);
+		nanosleep(&delay, NULL);
 		break;
 
 	    case QA:
