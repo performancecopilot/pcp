@@ -422,6 +422,12 @@ configuration files require the installation of optional
 Performance Metric Domain Agents, above and beyond the
 default installed set.
 .TP 5
+\fB\-\-gpfs\fR
+GPFS read/write I/O (needs the GPFS PMDA)
+.TP
+\fB\-\-gpfs\-ops\fR
+GPFS filesystem operations (needs the GPFS PMDA)
+.TP
 \fB\-\-innodb\-buffer\fR
 show innodb buffer stats (needs the MySQL PMDA)
 .TP
@@ -497,12 +503,6 @@ number of dbus connections (needs a python\-dbus PMDA)
 .TP
 \fB\-\-fan\fR
 fan speed (needs an ACPI PMDA)
-.TP
-\fB\-\-gpfs\fR
-GPFS read/write I/O (needs mmpmon and a GPFS PMDA)
-.TP
-\fB\-\-gpfs\-ops\fR
-GPFS filesystem operations (needs mmpmon and a GPFS PMDA)
 .TP
 \fB\-\-md\-status\fR
 show software raid (MD driver) progress and speed
