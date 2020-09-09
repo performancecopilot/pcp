@@ -34,6 +34,7 @@ char	*hostname;
 int	state;
 int	control;
 int	qa_case;
+int	sleep_msec;
 
 static int	sts;
 
@@ -64,11 +65,12 @@ extern int	is_socket_path;
 	EVERY ONCE
 	MSEC SECOND MINUTE HOUR
 
-	QUERY SHOW LOGGER CONNECT PRIMARY QUIT STATUS HELP
+	QUERY SHOW LOGGER CONNECT DISCONNECT PRIMARY QUIT STATUS HELP
 	TIMEZONE LOCAL PORT SOCK
 	NEW VOLUME
 
 	SYNC
+	SLEEP
 	QA
 
 %token<str>	NAME HOSTNAME STRING URL
@@ -111,6 +113,11 @@ stmt   		: dowhat
 		    parse_stmt = CONNECT;
 		    YYACCEPT;
 		}
+		| DISCONNECT EOL
+		{
+		    parse_stmt = DISCONNECT;
+		    YYACCEPT;
+		}
 		| HELP EOL
 		{
 		    parse_stmt = HELP;
@@ -139,6 +146,12 @@ stmt   		: dowhat
 		| SYNC EOL
 		{
 		    parse_stmt = SYNC;
+		    YYACCEPT;
+		}
+		| SLEEP NUMBER EOL
+		{
+		    parse_stmt = SLEEP;
+		    sleep_msec = $2;
 		    YYACCEPT;
 		}
 		| QA NUMBER EOL
