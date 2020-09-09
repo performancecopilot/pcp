@@ -183,6 +183,10 @@ username=`id -u -n`
 sudoopts="-u $username"
 id pcp >/dev/null 2>&1 && sudoopts="-u pcp"
 
+echo "sudoopts=$sudoopts" >>$here/$seq.full
+ls -ld $PCP_RUN_DIR >>$here/$seq.full
+ls -l $PCP_RUN_DIR >>$here/$seq.full
+
 cat >$tmp.sh <<END
 #!/bin/sh
 export PATH=$here/src:$PATH
