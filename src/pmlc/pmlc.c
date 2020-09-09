@@ -341,7 +341,7 @@ main(int argc, char **argv)
 		 */
 		DisconnectLogger();
 		/*
-		 * give pmlogger a change to cleanup ... 100 msec
+		 * give pmlogger a chance to cleanup ... 100 msec
 		 * should be enough
 		 */
 		delay.tv_sec = 0;
