@@ -24,7 +24,8 @@ fi
 _filter_log()
 {
     sleep 3
-    _filter_pmcd_log <./pmcd.log \
+    tee -a $here/$seq.full <./pmcd.log \
+    | _filter_pmcd_log \
     | sed \
 	-e '/^DATA: from client/d' \
 	-e '/cmd=.*pmdasample/s//cmd=...pmdasample/' \
