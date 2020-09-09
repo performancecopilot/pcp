@@ -101,7 +101,7 @@ status=1
 #
 NAMESPACE="-n $here/src/root_irix"
 
-rm -rf $tmp $tmp.*
+rm -rf $tmp $tmp.* $seq.full
 mkdir $tmp
 chmod ugo+rwx $tmp
 cd $tmp
