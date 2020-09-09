@@ -10,11 +10,12 @@
 #include "zfs_dmu_tx.h"
 #include "zfs_dnodestats.h"
 #include "zfs_fmstats.h"
+#include "zfs_vdev_cachestats.h"
+#include "zfs_vdev_mirrorstats.h"
 #include "zfs_xuiostats.h"
 #include "zfs_zfetchstats.h"
 #include "zfs_zilstats.h"
-#include "zfs_vdev_cachestats.h"
-#include "zfs_vdev_mirrorstats.h"
+#include "zfs_pools.h"
 
 regex_t rgx_row;
 static zfs_arcstats_t arcstats;
@@ -1023,55 +1024,55 @@ static pmdaMetric metrictab[] = {
 /* state */
 	{ NULL,
 	  { PMDA_PMID(10, ZFS_POOLS_STATE), PM_TYPE_STRING, ZFS_POOLS_INDOM, PM_SEM_DISCRETE,
-	    PMDA_PMUNITS(0, 0, 0, 0, 0) } },
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
 /* nread */
 	{ NULL,
 	  { PMDA_PMID(10, ZFS_POOLS_NREAD), PM_TYPE_U64, ZFS_POOLS_INDOM, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 0, 0, 0) } },
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
 /* nwritten */
 	{ NULL,
 	  { PMDA_PMID(10, ZFS_POOLS_NWRITTEN), PM_TYPE_U64, ZFS_POOLS_INDOM, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 0, 0, 0) } },
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
 /* reads */
 	{ NULL,
 	  { PMDA_PMID(10, ZFS_POOLS_READS), PM_TYPE_U64, ZFS_POOLS_INDOM, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 0, 0, 0) } },
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
 /* writes */
 	{ NULL,
 	  { PMDA_PMID(10, ZFS_POOLS_WRITES), PM_TYPE_U64, ZFS_POOLS_INDOM, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 0, 0, 0) } },
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
 /* wtime */
 	{ NULL,
 	  { PMDA_PMID(10, ZFS_POOLS_WTIME), PM_TYPE_U64, ZFS_POOLS_INDOM, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 0, 0, 0) } },
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
 /* wlentime */
 	{ NULL,
 	  { PMDA_PMID(10, ZFS_POOLS_WLENTIME), PM_TYPE_U64, ZFS_POOLS_INDOM, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 0, 0, 0) } },
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
 /* wupdate */
 	{ NULL,
 	  { PMDA_PMID(10, ZFS_POOLS_WUPDATE), PM_TYPE_U64, ZFS_POOLS_INDOM, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 0, 0, 0) } },
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
 /* rtime */
 	{ NULL,
 	  { PMDA_PMID(10, ZFS_POOLS_RTIME), PM_TYPE_U64, ZFS_POOLS_INDOM, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 0, 0, 0) } },
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
 /* rlentime */
 	{ NULL,
 	  { PMDA_PMID(10, ZFS_POOLS_RLENTIME), PM_TYPE_U64, ZFS_POOLS_INDOM, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 0, 0, 0) } },
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
 /* rupdate */
 	{ NULL,
 	  { PMDA_PMID(10, ZFS_POOLS_RUPDATE), PM_TYPE_U64, ZFS_POOLS_INDOM, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 0, 0, 0) } },
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
 /* wcnt */
 	{ NULL,
 	  { PMDA_PMID(10, ZFS_POOLS_WCNT), PM_TYPE_U64, ZFS_POOLS_INDOM, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 0, 0, 0) } },
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
 /* rcnt */
 	{ NULL,
 	  { PMDA_PMID(10, ZFS_POOLS_RCNT), PM_TYPE_U64, ZFS_POOLS_INDOM, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 0, 0, 0) } }
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }
 };
 
 static int
@@ -1089,7 +1090,7 @@ zfs_fetch(int numpmid, pmID *pmidlist, pmResult **resp, pmdaExt *pmda)
 	zfs_vdev_cachestats_refresh(&vdev_cachestats, &rgx_row);
 	zfs_vdev_mirrorstats_refresh(&vdev_mirrorstats, &rgx_row);
 	regfree(&rgx_row);
-        zfs_pools_refresh(&poolstats);
+        zfs_poolstats_refresh(poolstats, pools, &indomtab[ZFS_POOLS_INDOM]);
 	return pmdaFetch(numpmid, pmidlist, resp, pmda);
 }
 
@@ -1126,7 +1127,7 @@ zfs_init(pmdaInterface *dp)
 	if (dp->status != 0)
 	        return;
 	
-        zfs_pools_init(&poolstats);
+        zfs_pools_init(poolstats, pools, &indomtab[ZFS_POOLS_INDOM]);
 	//dp->version.any.instance = zfs_instance;
 	dp->version.any.fetch = zfs_fetch;
 	pmdaSetFetchCallBack(dp, zfs_fetchCallBack);

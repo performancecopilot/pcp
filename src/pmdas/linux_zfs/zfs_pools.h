@@ -1,6 +1,10 @@
-#define ZFS_PROC_DIR "/proc/spl/kstat/zfs/"
+#include "pmapi.h"
+#include "libpcp.h"
+#include "pmda.h"
 
-int ZFS_POOLS_INDOM = 0;
+#define ZFS_PROC_DIR "/proc/spl/kstat/zfs/"
+#define ZFS_POOLS_INDOM 0
+
 enum { /* metric item identifiers */
 	ZFS_POOLS_STATE = 0,
 	ZFS_POOLS_NREAD,
@@ -17,8 +21,8 @@ enum { /* metric item identifiers */
 	ZFS_POOLS_RCNT,
 };
 
-struct zfs_poolstats {
-        char state[32];
+typedef struct zfs_poolstats {
+        char *state;
 	uint64_t nread;
  	uint64_t nwritten;
  	uint64_t reads;
@@ -33,6 +37,6 @@ struct zfs_poolstats {
  	uint64_t rcnt;
 } zfs_poolstats_t;
 
-void zfs_pools_init(zfs_poolstats *, pmdaInstid *, pmdaIndom *);
-void zfs_pools_clear(zfs_poolstats *, pmdaInstid *, pmdaIndom *);
-void zfs_poolstats_refresh(zfs_poolstats *, pmdaInstid *, pmdaIndom *);
+void zfs_pools_init(zfs_poolstats_t *, pmdaInstid *, pmdaIndom *);
+void zfs_pools_clear(zfs_poolstats_t *, pmdaInstid *, pmdaIndom *);
+void zfs_poolstats_refresh(zfs_poolstats_t *, pmdaInstid *, pmdaIndom *);
