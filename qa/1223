@@ -32,6 +32,11 @@ $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 localhost=`hostname`
+echo "localhost -> $localhost" >>$seq.full
+echo "hostname -f -> `hostname -f`" >>$seq.full
+host localhost >>$seq.full
+host $localhost >>$seq.full
+host `hostname -f` >>$seq.full
 
 _filter()
 {
