@@ -35,14 +35,21 @@ _filter()
     fi
     echo "pid=$pid" >>$here/$seq.full
     echo "seqnum=$seqnum" >>$here/$seq.full
-    echo "HOSTNAME=`hostname -f`" >>$here/$seq.full
+    # in CI hostname looks like a FQDN, but hostname -f contains
+    # extra subdomains
+    #
+    HOSTNAME=`hostname`
+    HOSTNAME_F=`hostname -f`
+    echo "HOSTNAME=$HOSTNAME" >>$here/$seq.full
+    echo "HOSTNAME_F=$HOSTNAME_F" >>$here/$seq.full
     tee -a $here/$seq.full \
     | sed \
 	-e "s@$tmp@TMP@g" \
 	-e "s/ $pid\$/ PID/" \
 	-e "s/ $seqnum\$/ SEQNUM/" \
 	-e '/pmcd.*inst/s/\[.*]/[INST]/' \
-	-e "/pmcd\\.pmlogger\\.host/s/`hostname -f`/HOSTNAME/" \
+	-e "/pmcd\\.pmlogger\\.host/s/$HOSTNAME_F/HOSTNAME/" \
+	-e "/pmcd\\.pmlogger\\.host/s/$HOSTNAME/HOSTNAME/" \
 	-e '/pmcd\.pmlogger\.port/s/ [0-9][0-9]*$/ PORT/' \
     # end
 }

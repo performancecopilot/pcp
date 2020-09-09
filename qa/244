@@ -24,7 +24,8 @@ fi
 _filter_log()
 {
     sleep 3
-    _filter_pmcd_log <./pmcd.log \
+    tee -a $here/$seq.full <./pmcd.log \
+    | _filter_pmcd_log \
     | sed \
 	-e '/^DATA: from client/d' \
 	-e '/cmd=.*pmdasample/s//cmd=...pmdasample/' \
@@ -100,7 +101,7 @@ status=1
 #
 NAMESPACE="-n $here/src/root_irix"
 
-rm -rf $tmp $tmp.*
+rm -rf $tmp $tmp.* $seq.full
 mkdir $tmp
 chmod ugo+rwx $tmp
 cd $tmp
@@ -182,6 +183,10 @@ export PMCD_SOCKET=$tmp/pmcd.socket
 username=`id -u -n`
 sudoopts="-u $username"
 id pcp >/dev/null 2>&1 && sudoopts="-u pcp"
+
+echo "sudoopts=$sudoopts" >>$here/$seq.full
+ls -ld $PCP_RUN_DIR >>$here/$seq.full
+ls -l $PCP_RUN_DIR >>$here/$seq.full
 
 cat >$tmp.sh <<END
 #!/bin/sh
