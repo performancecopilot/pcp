@@ -1097,20 +1097,73 @@ zfs_fetch(int numpmid, pmID *pmidlist, pmResult **resp, pmdaExt *pmda)
 static int
 zfs_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-	switch (mdesc->m_desc.type) {
-	case PM_TYPE_U32:
-		atom->ul = *(__uint32_t *)mdesc->m_user;
-		break;
-	case PM_TYPE_U64:
-		atom->ull = *(__uint64_t *)mdesc->m_user;
-		break;
-        case PM_TYPE_STRING:
-                atom->cp = (char *)mdesc->m_user;
-                break;
-	default:
-		return PM_ERR_TYPE;
-	}
+        __pmID_int *idp = (__pmID_int *)&(mdesc->m_desc.pmid);
+        
+        if (idp->cluster == 10) {
+                switch (idp->item) {
+		case ZFS_POOLS_STATE:
+			atom->cp = (char *)poolstats[inst].state;
+			break;
+		case ZFS_POOLS_NREAD:
+			atom->ull = (__uint64_t)poolstats[inst].nread;
+			break;
+ 		case ZFS_POOLS_NWRITTEN:
+			atom->ull = (__uint64_t)poolstats[inst].nwritten;
+			break;
+ 		case ZFS_POOLS_READS:
+			atom->ull = (__uint64_t)poolstats[inst].reads;
+			break;
+ 		case ZFS_POOLS_WRITES:
+			atom->ull = (__uint64_t)poolstats[inst].writes;
+			break;
+ 		case ZFS_POOLS_WTIME:
+			atom->ull = (__uint64_t)poolstats[inst].wtime;
+			break;
+ 		case ZFS_POOLS_WLENTIME:
+			atom->ull = (__uint64_t)poolstats[inst].wlentime;
+			break;
+ 		case ZFS_POOLS_WUPDATE:
+			atom->ull = (__uint64_t)poolstats[inst].wupdate;
+			break;
+ 		case ZFS_POOLS_RTIME:
+			atom->ull = (__uint64_t)poolstats[inst].rtime;
+			break;
+ 		case ZFS_POOLS_RLENTIME:
+			atom->ull = (__uint64_t)poolstats[inst].rlentime;
+			break;
+ 		case ZFS_POOLS_RUPDATE:
+			atom->ull = (__uint64_t)poolstats[inst].rupdate;
+			break;
+ 		case ZFS_POOLS_WCNT:
+			atom->ull = (__uint64_t)poolstats[inst].wcnt;
+			break;
+ 		case ZFS_POOLS_RCNT:
+			atom->ull = (__uint64_t)poolstats[inst].rcnt;
+			break;
+                }
+        } else {
+		switch (mdesc->m_desc.type) {
+		case PM_TYPE_U32:
+			atom->ul = *(__uint32_t *)mdesc->m_user;
+			break;
+		case PM_TYPE_U64:
+			atom->ull = *(__uint64_t *)mdesc->m_user;
+			break;
+	        case PM_TYPE_STRING:
+	                atom->cp = (char *)mdesc->m_user;
+	                break;
+		default:
+			return PM_ERR_TYPE;
+		}
+        }
 	return 1;
+}
+
+static int
+zfs_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt *pmda)
+{
+        zfs_pools_init(poolstats, pools, &indomtab[ZFS_POOLS_INDOM]);
+        return pmdaInstance(indom, inst, name, result, pmda);
 }
 
 void
@@ -1127,8 +1180,8 @@ zfs_init(pmdaInterface *dp)
 	if (dp->status != 0)
 	        return;
 	
-        zfs_pools_init(poolstats, pools, &indomtab[ZFS_POOLS_INDOM]);
-	//dp->version.any.instance = zfs_instance;
+        //zfs_pools_init(poolstats, pools, &indomtab[ZFS_POOLS_INDOM]);
+	dp->version.any.instance = zfs_instance;
 	dp->version.any.fetch = zfs_fetch;
 	pmdaSetFetchCallBack(dp, zfs_fetchCallBack);
 	pmdaInit(dp, 
