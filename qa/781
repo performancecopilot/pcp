@@ -30,6 +30,7 @@ _filter()
 {
     # make verbose show-me mode pmlogger_check output deterministic
     sed \
+	-e '/\/NOTICES/d' \
 	-e "s,$tmp,LOGDIR,g" \
 	-e 's,/privateLOGDIR,LOGDIR,g' \
 	-e "s,$host,HOSTNAME,g" \
