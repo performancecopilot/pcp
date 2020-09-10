@@ -154,7 +154,7 @@ _rpm_package_install()
 
 _rpm_package_install_await()
 {
-    countdown=300	# 30 seconds
+    countdown=600	# 60 seconds
 
     _rpm_prepare_check
     while [ $countdown -gt 0 ]
@@ -165,6 +165,7 @@ _rpm_package_install_await()
     done
 
     echo "rpm_package_install_await gave up awaiting $rpm_inst install!"
+    pminfo -f rpm.arch
     status=0
     exit $status
 }

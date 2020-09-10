@@ -29,8 +29,18 @@ _cleanup()
 {
     $sudo rm -fr $PIPE_CONF_DIR/config-$seq
     [ -d $PIPE_CONF_DIR.$seq ] && _restore_config $PIPE_CONF_DIR
-    [ -f $PIPE_CONF_FILE.$seq ] && _restore_config $PIPE_CONF_FILE
-    [ -f $PIPE_INDOM_CACHE.$seq ] && _restore_config $PIPE_INDOM_CACHE
+    if [ -f $PIPE_CONF_FILE.$seq ]
+    then
+	_restore_config $PIPE_CONF_FILE
+    else
+	rm -f $PIPE_CONF_FILE
+    fi
+    if [ -f $PIPE_INDOM_CACHE.$seq ]
+    then
+	_restore_config $PIPE_INDOM_CACHE
+    else
+	rm -f $PIPE_INDOM_CACHE
+    fi
     # note: _restore_auto_restart pmcd done in _cleanup_pmda()
     _cleanup_pmda pipe
 }
@@ -50,6 +60,7 @@ _stop_auto_restart pmcd
 [ -f $PIPE_INDOM_CACHE ] && _save_config $PIPE_INDOM_CACHE
 
 cat <<EOF > $tmp.config
+# Installed by PCP QA test $seq on `date`
 # instance   user        command
 empty-line   $username   echo
 echo-all     $username   echo \$0

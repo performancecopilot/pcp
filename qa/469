@@ -40,6 +40,10 @@ function skip_me(m)
 }
 '
 
+# problem with some kernel.percpu.softirqs helptext in CI
+#
+[ -f /proc/interrupts ] && cat /proc/interrupts >>$here/$seq.full
+
 # success, all done
 status=0
 exit
