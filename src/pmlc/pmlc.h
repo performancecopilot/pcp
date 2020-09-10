@@ -35,6 +35,7 @@ extern int	state;
 extern int	control;
 extern int	mystate;
 extern int	qa_case;
+extern int	sleep_msec;
 
 extern void yyerror(char *);
 extern void yywarn(char *);
