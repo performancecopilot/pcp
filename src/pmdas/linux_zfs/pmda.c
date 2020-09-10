@@ -1099,7 +1099,7 @@ zfs_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
         __pmID_int *idp = (__pmID_int *)&(mdesc->m_desc.pmid);
         
-        if (idp->cluster == 10) {
+        if (idp->cluster == 10 && mdesc->m_desc.indom == ZFS_POOLS_INDOM) {
                 switch (idp->item) {
 		case ZFS_POOLS_STATE:
 			atom->cp = (char *)poolstats[inst].state;
@@ -1140,6 +1140,8 @@ zfs_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
  		case ZFS_POOLS_RCNT:
 			atom->ull = (__uint64_t)poolstats[inst].rcnt;
 			break;
+                default:
+                        return PM_ERR_PMID;
                 }
         } else {
 		switch (mdesc->m_desc.type) {
