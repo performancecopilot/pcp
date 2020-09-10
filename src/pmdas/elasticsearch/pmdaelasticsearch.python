@@ -71,7 +71,7 @@ class elasticsearchPMDA(PMDA):
             request.read()
             request.close()
         except Exception as error:
-            self.log("Failed to connection to Elasticsearch at %s: %s" % (connection, error))
+            self.log("Failed to connect to Elasticsearch at %s: %s" % (connection, error))
 
         # metrics setup
         self.cluster_indom = PM_INDOM_NULL
