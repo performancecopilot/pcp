@@ -11,9 +11,11 @@ bintray:
 container:
   containerfile: |
     FROM docker.io/library/ubuntu:16.04
-    RUN apt-get update && apt-get install -y sudo
+    RUN apt-get update && apt-get install -y sudo locales
     RUN useradd --create-home pcpbuild
     RUN echo 'pcpbuild ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/pcpbuild
+    RUN update-locale LANG=C.UTF-8
+    ENV LANG C.UTF-8
 
     # allow services to be started during installation
     # pmcd will create the file /var/lib/pcp/pmns/stdpmid, which is required by QA tests
