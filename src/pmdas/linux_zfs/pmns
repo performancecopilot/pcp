@@ -1,11 +1,3 @@
-#ifndef ZFS
-#define ZFS     153
-#endif
-
-root {
-    zfs
-}
-
 zfs {
     arc
     abd
