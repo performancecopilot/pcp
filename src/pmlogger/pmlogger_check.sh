@@ -220,9 +220,16 @@ then
     echo "Start: `date '+%F %T.%N'`"
     if which pstree >/dev/null 2>&1
     then
-	echo "Called from:"
-	pstree -spa $$
-	echo "--- end of pstree output ---"
+	if pstree -spa $$ >$tmp/tmp 2>&1
+	then
+	    echo "Called from:"
+	    cat $tmp/tmp
+	    echo "--- end of pstree output ---"
+	else
+	    # pstree not functional for us ... -s not supported in older
+	    # versions
+	    :
+	fi
     fi
 fi
 
