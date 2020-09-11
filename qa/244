@@ -185,12 +185,16 @@ sudoopts="-u $username"
 id pcp >/dev/null 2>&1 && sudoopts="-u pcp"
 
 echo "sudoopts=$sudoopts" >>$here/$seq.full
+echo "PMCD_PORT=$PMCD_PORT" >>$here/$seq.full
+echo "PMCD_SOCKET=$PMCD_SOCKET" >>$here/$seq.full
 ls -ld $PCP_RUN_DIR >>$here/$seq.full
 ls -l $PCP_RUN_DIR >>$here/$seq.full
 
 cat >$tmp.sh <<END
 #!/bin/sh
 export PATH=$here/src:$PATH
+export PMCD_PORT=$port
+export PMCD_SOCKET=$tmp/pmcd.socket
 $PCP_PMCD_PROG -f -t 2 2>>$tmp.full &
 echo \$!
 END

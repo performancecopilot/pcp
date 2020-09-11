@@ -799,8 +799,6 @@ value_change(rule_t *rule, char *param, char *value)
     return errmsg;
 }
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wstringop-overflow="
 static char *
 append_string(char *s, char *append, int len)
 {
@@ -812,11 +810,25 @@ append_string(char *s, char *append, int len)
 #endif
     if ((s = (char *)realloc(s, size)) == NULL)
 	return NULL;
+#ifdef __GNUC__
+#if __GNUC__ >= 10
+    /*
+     * gcc 10 on Fedora 32 and Debian unstable falsely report a problem
+     * with this strncat() ... it is safe
+     */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-truncation"
+#endif
+#endif
     strncat(s, append, len);
+#ifdef __GNUC__
+#if __GNUC__ >= 10
+#pragma GCC diagnostic pop
+#endif
+#endif
     s[size-1] = '\0';
     return s;
 }
-#pragma GCC diagnostic pop
 
 /* fix up value strings by doing variable expansion */
 char *

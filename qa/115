@@ -144,7 +144,7 @@ _count_pmies()
 	else
 	    count=`expr $count + 1`
 	    $PCP_PS_PROG $PCP_PS_ALL_FLAGS -p $process >>$here/$seq.full
-	    if `which pstree >/dev/null 2>&1`
+	    if which pstree >/dev/null 2>&1
 	    then
 		pstree $process >>$here/$seq.full
 	    fi

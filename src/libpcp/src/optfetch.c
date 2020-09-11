@@ -457,6 +457,7 @@ __pmOptFetchAdd(fetchctl_t **root, optreq_t *new)
     }
 
     tfp = NULL;
+    tj = -1;
     mincost = OPT_COST_INFINITY;
     for (j = 0, fp = *root; fp != NULL; j++, fp = fp->f_next) {
 	int		cost;

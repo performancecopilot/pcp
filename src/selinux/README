@@ -126,15 +126,28 @@ there's not much we can do about those.
 
 == Installing ==
 
+    $ sudo semodule -r pcpupstream.pp
     $ sudo semodule -X 400 -i pcpupstream.pp
+
+or if semodule is too old to understand -X 400
+
+    $ sudo semodule -i pcpupstream.pp
 
 verify installation with:
 
    $ sudo semodule --list=full | grep pcpupstream
 
+or if semodule is too old to understand --list=full
+
+   $ sudo semodule --list-modules | grep pcpupstream
+
+and to make sure QA is a happy camper
+
+   $ sudo make install
+
 == QA ==
 
-Next go over to qa and possibly modify tests 1622 and 917.
+Next go over to qa and possibly modify tests 1141, 1622 and 917.
 
 Add/delete/modify the matching AVC line changes from
 src/selinux/pcpupstream.te.in (without the comment # prefix) to the

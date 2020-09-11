@@ -1036,7 +1036,7 @@ p
 	    if [ "$_i" -ge 100 ]
 	    then
 		echo "_wait_pmie_end: failed to see pid(s) $_pidlist exit after 100 iterations"
-		$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep 'PID|[p]mie'
+		$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mie'
 		#debug# set +x
 		break
 	    fi

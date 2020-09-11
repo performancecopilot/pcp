@@ -33,13 +33,13 @@ _cleanup()
     then
 	_restore_config $PIPE_CONF_FILE
     else
-	rm -f $PIPE_CONF_FILE
+	$sudo rm -f $PIPE_CONF_FILE
     fi
     if [ -f $PIPE_INDOM_CACHE.$seq ]
     then
 	_restore_config $PIPE_INDOM_CACHE
     else
-	rm -f $PIPE_INDOM_CACHE
+	$sudo rm -f $PIPE_INDOM_CACHE
     fi
     # note: _restore_auto_restart pmcd done in _cleanup_pmda()
     _cleanup_pmda pipe

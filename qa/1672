@@ -46,6 +46,12 @@ trap "cleanup; exit \$status" 0 1 2 3 15
 hostname=`hostname`
 echo "hostname -> $hostname" >>$seq.full
 echo "hostname -f -> `hostname -f`" >>$seq.full
+if echo "$hostname" | grep '\.' >/dev/null
+then
+    :
+else
+    _notrun "hostname -> $hostname, no domain name part"
+fi
 
 _filter_listusers2()
 {
