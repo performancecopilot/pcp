@@ -121,6 +121,7 @@ jobs:
             --slack-channel ${SLACK_CHANNEL} \
             --github-run-url "https://github.com/${{ github.repository_owner }}/pcp/actions/runs/${{ github.run_id }}" \
             --qa-report-url "https://${{ github.repository_owner }}.github.io/qa-reports"
+          cp ./build/ci/allure/categories.json ./allure-results
 
           # disable history, because the history.json file is getting bigger than 100 MB (max GitHub file size)
           # [ -d qa-reports/docs/history ] && cp -r qa-reports/docs/history ./allure-results
