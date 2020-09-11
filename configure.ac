@@ -1985,6 +1985,7 @@ pcp_selinux_bpf=false
 pcp_selinux_files_list_non_auth_dirs=false
 pcp_selinux_rpm_var_lib=false
 pcp_selinux_virt_var_run=false
+pcp_selinux_proc_security=false
 pcp_selinux_cap2_syslog=false
 pcp_selinux_icmp_socket=false
 
@@ -2034,6 +2035,8 @@ AS_IF([test "x$enable_selinux" != "xfalse"], [
 	&& pcp_selinux_rpm_var_lib=true
     grep '^[[ 	]][[ 	]]*virt_var_run_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_virt_var_run=true
+    grep '^[[ 	]][[ 	]]*proc_security_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_proc_security=true
 
     dnl these ones are for pcpqa.te
 
@@ -2154,6 +2157,7 @@ AC_SUBST(pcp_selinux_bpf)
 AC_SUBST(pcp_selinux_files_list_non_auth_dirs)
 AC_SUBST(pcp_selinux_rpm_var_lib)
 AC_SUBST(pcp_selinux_virt_var_run)
+AC_SUBST(pcp_selinux_proc_security)
 AC_SUBST(pcp_selinux_cap2_syslog)
 AC_SUBST(pcp_selinux_icmp_socket)
 
