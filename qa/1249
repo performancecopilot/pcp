@@ -31,6 +31,11 @@ _cleanup()
     do
 	[ -d "$PCP_LOG_DIR/pmie/$dir" ] && $sudo rm -rf "$PCP_LOG_DIR/pmie/$dir"
     done
+    if [ "$pmie_state" = off ]
+    then
+	_change_config pmie off
+	_service pmie stop >>$here/$seq.full 2>&1
+    fi
 }
 
 status=1	# failure is the default!
@@ -116,6 +121,12 @@ cat <<End-of-File >$tmp.config
 delta = 0.1sec;
 some_inst sample.lights > 0 -> print "The lights are on!";
 End-of-File
+
+# Need primary pmie running so pmiectl status output is deterministic
+#
+pmie_state=`_get_config pmie`
+[ "$pmie_state" = off ] && _change_config pmie on
+_service pmie start >>$here/$seq.full 2>&1
 
 # real QA test starts here
 echo '== -NV expect pmfind class to be used' | tee -a $seq.full
