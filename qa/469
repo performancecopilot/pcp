@@ -40,9 +40,17 @@ function skip_me(m)
 }
 '
 
-# problem with some kernel.percpu.softirqs helptext in CI
+# problem with some kernel.percpu.softirqs helptext in CI, snag the files
 #
-[ -f /proc/interrupts ] && cat /proc/interrupts >>$here/$seq.full
+for intr in interrupts softirqs
+do
+    if [ -f /proc/$intr ]
+    then
+	echo "--- start /proc/$intr ---" >>$here/$seq.full
+	cat /proc/interrupts >>$here/$seq.full
+	echo "--- end /proc/$intr ---" >>$here/$seq.full
+    fi
+done
 
 # success, all done
 status=0
