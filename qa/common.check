@@ -664,7 +664,7 @@ _wait_for_pmcd_stop()
 	cat $tmp._wait_for_pmcd_stop.err.all
 	echo "... and now"
 	echo "+ pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd pmcd.numclients"
-	pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd pmcd.numclients
+	pmprobe -Dpdu,context -n $PCP_VAR_DIR/pmns/root_pmcd pmcd.numclients
 	echo "=== pmcd.log ==="
 	cat $PCP_LOG_DIR/pmcd/pmcd.log
 	status=0
