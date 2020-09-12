@@ -49,7 +49,7 @@ __dmtraverse: name="qa" added "qa.seconds"
 __dmgetpmid: metric "qa.seconds" -> PMID 511.0.3
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: /usr/bin/pminfo -dtT -Dderive qa
+Command: .../pminfo -dtT -Dderive qa
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -80,7 +80,7 @@ __dmtraverse: name="qa" added "qa.seconds"
 __dmgetpmid: metric "qa.seconds" -> PMID 511.0.3
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: /usr/bin/pminfo -dtT -Dderive qa
+Command: .../pminfo -dtT -Dderive qa
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
