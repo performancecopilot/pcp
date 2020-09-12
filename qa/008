@@ -12,6 +12,10 @@
 #		$ mv 008.out 008.out.`hostname | sed -e 's/\..*//'`
 #	and check that the comments and the output match up.
 #
+# :not_in_ci:
+# 	As the output is host-specific and we have no control over the
+# 	CI host configurations, don't bother running this one in CI
+#
 
 seq=`basename $0`
 echo "QA output created by $seq"
