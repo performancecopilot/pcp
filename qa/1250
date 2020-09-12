@@ -68,7 +68,7 @@ NF == 1 && $1 == "Description:"	{ exit }
 # real QA test starts here
 
 echo "============= bogus AVC ... expect output  =============="
-msg="type=AVC msg=audit(1484681301.812:174751): avc:  denied  { rmdir } for  pid=21999 comm=\"foobar\" name=\"foobar\" dev=\"foobar\" ino=1 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:pcp_log_t:s0 tclass=dir permissive=0"
+msg="type=AVC msg=audit(1484681301.812:174751): avc:  denied  { rmdir } for  pid=21999 comm=\"foobar\" name=\"foobar\" dev=\"foobar\" ino=1 scontext=system_u:object_r:etc_t:s0 tcontext=system_u:object_r:etc_t:s0 tclass=dir permissive=0"
 _doit 
 
 echo "============= init_t =============="
