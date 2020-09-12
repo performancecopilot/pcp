@@ -49,7 +49,7 @@ just quotes ...
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: /usr/bin/pminfo -tT qa
+Command: .../pminfo -tT qa
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks

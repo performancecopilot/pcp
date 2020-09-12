@@ -442,7 +442,7 @@ not_in_container
 005 context archive local ostest sanity
 006 libpcp local ostest
 007 fetch local ostest sanity
-008 pmda kernel ostest local
+008 pmda kernel ostest local not_in_ci
 009:retired kernel local ostest
 010 libpcp local ostest sanity
 011 mem_leak local ostest

@@ -49,17 +49,27 @@ main(int argc, char **argv)
 	    fprintf(stderr, "%s: gethostname failure\n", pmGetProgname());
 	    exit(1);
 	}
+	if (pmDebugOptions.appl0)
+	    fprintf(stderr, "gethostname() -> \"%s\"\n", host);
 	name = host;
     }
     else
 	name = argv[opts.optind];
 
     hep = __pmGetAddrInfo(name);
+    if (pmDebugOptions.appl0)
+	fprintf(stderr, "__pmGetAddrInfo() -> %p\n", hep);
     if (hep == NULL) {
         printf("%s\n", name);
     }
     else {
 	hename = __pmHostEntGetName(hep);
+	if (pmDebugOptions.appl0) {
+	    fprintf(stderr, "__pmHostEntGetName() -> %p", hep);
+	    if (hename != NULL)
+		fprintf(stderr, " \"%s\"", hename);
+	    fputc('\n', stderr);
+	}
         printf("%s\n", hename ? hename : name);
     }
 

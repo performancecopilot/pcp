@@ -127,12 +127,18 @@ _cleanup()
 	unset PMCD_PORT
 	unset PMCD_SOCKET
 	_restore_auto_restart pmcd
+	_restore_auto_restart pmlogger
 	_service pcp restart 2>&1 | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	pmprobe pmcd.control.debug
 	sleepers=`ps $PCP_PS_ALL_FLAGS | grep '[d]umb_pmda' | $PCP_AWK_PROG '$3 == 1 { print $2 }'`
 	[ ! -z "$sleepers" ] && $sudo $signal -s KILL $sleepers
+	if $pmie_was_running
+	then
+	    _restore_auto_restart pmie
+	    _service pmie start >>$here/$seq.full 2>&1
+	fi
     fi
     $sudo rm -rf $tmp $tmp.*
 }
@@ -140,6 +146,14 @@ _cleanup()
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _stop_auto_restart pmcd
+_stop_auto_restart pmlogger
+pmie_was_running=false
+if [ -f $PCP_RUN_DIR/pmie.pid ]
+then
+    pmie_was_running=true
+    _stop_auto_restart pmie
+    _service pmie stop >>$here/$seq.full 2>&1
+fi
 
 # real QA test starts here
 
@@ -199,6 +213,8 @@ $PCP_PMCD_PROG -f -t 2 2>>$tmp.full &
 echo \$!
 END
 pmcd=`$sudo $sudoopts sh $tmp.sh`
+echo "pmcd=$pmcd" >>$here/$seq.full
+ls -l $PCP_RUN_DIR >>$here/$seq.full
 
 # complete V1 PMDA timeouts, then wait for pmcd
 #

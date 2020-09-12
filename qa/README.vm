@@ -78,11 +78,13 @@ Fedora
     # upgrade recipe from Fedora 21 onwards
     $ sudo dnf update --refresh; sudo dnf install dnf-plugin-system-upgrade
     $ sudo dnf install fedora-gpg-keys
+
     # if you get more than one release behind (I think) ... do this with
     # "32" replaced by the desired version number
     $ cd /etc/pki/rpm-gpg/
     $ sudo wget https://src.fedoraproject.org/rpms/fedora-repos/raw/master/f/RPM-GPG-KEY-fedora-32-primary
     $ sudo ln -s RPM-GPG-KEY-fedora-32-primary RPM-GPG-KEY-fedora-32-x86_64
+
     #                                                             for Fedora 26
     $ sudo dnf system-upgrade download --refresh --allowerasing --releasever=26
     $ sudo dnf system-upgrade reboot
