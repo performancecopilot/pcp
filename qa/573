@@ -47,6 +47,7 @@ _filter()
     echo "hostname -> $HOSTNAME" >>$here/$seq.full
     echo "hostname -f -> $HOSTNAME_F" >>$here/$seq.full
     echo "pmhostname -> $PMHOSTNAME" >>$here/$seq.full
+    pmhostname -Dappl0 >>$here/$seq.full 2>&1
     cat <<End-of-File >$tmp.tmp
 $HOSTNAME
 $HOSTNAME_F
