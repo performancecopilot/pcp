@@ -428,6 +428,9 @@ BAD
 # these test don't work in containers (yet)
 not_in_container
 
+# need an accessible X11 server
+x11
+
 # test-group association ... one line per test
 # add :retired or :reserved as a tag immediately after the test number
 # to keep the test number allocated, but prevent the test from being run
@@ -759,7 +762,7 @@ not_in_container
 322 pmlc pmlogger remote pmdumplog kernel
 323 pmda.shping pmda.proc local pmda.install
 324 pmda.txmon pmda.proc local pmda.install
-325 libpcp local pmquery
+325 libpcp local pmquery x11
 326 pmlogger pmval libpcp pmcd local pmda.install folio pmdumplog pmlc timezone
 327 archive local pmdumplog pmloglabel timezone
 328 local pmlogextract pmdumplog
@@ -1762,8 +1765,8 @@ not_in_container
 1400 pcp free local
 1401 pmproxy local
 1403 pmda.linux local valgrind
-1407 pmchart derive local
-1408 pmchart libpcp_qmc local
+1407 pmchart derive local x11
+1408 pmchart libpcp_qmc local x11
 1415 pmda.mmv labels local
 1416 pmlogrewrite local
 1422 pmda.mmv local valgrind
