@@ -53,7 +53,6 @@ osuser=postgres
 EOF
     $sudo mv $tmp.conf $CONF
     $sudo ./Remove >/dev/null 2>&1
-    _service pmcd stop 2>&1 | _filter_pcp_stop
 
     echo | tee -a $here/$seq.full
     echo "=== postgresql agent installation ===" | tee -a $here/$seq.full
