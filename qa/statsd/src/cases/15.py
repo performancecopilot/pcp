@@ -169,9 +169,9 @@ def run_test():
                 show_next_line = 0        
         # sometimes agent hangs due to dbpmda exit probably? Doesn't happen when its './Remove'd
         p.kill()
-        for fname in os.listdir(valgrind_out_dir):
-            if fname.startswith("valgrind"):
-                os.remove(os.path.join(valgrind_out_dir, fname))
+        # don't clean up valgrind output files ... leave that to the
+        # QA test so we have a a chance to triage in the event of failure
+
         utils.restore_config()
 
 run_test()
