@@ -35,3 +35,17 @@ DATESTAMP
             1     3     0    2    0        0       0      0      1    94
             2     4     0    2    1        0       0      0      1    93
             3     3     0    1    0        0       0      0      0    95
+
+=== Argument handling issue:
+Passed - same output detected
+
+DATESTAMP
+
+-------------------------- analysis date: 2013/09/27 --------------------------
+
+06:14:35  cpu  %usr %nice %sys %irq %softirq  %steal %guest  %wait %idle  _cpu_
+06:14:35  all    13     0    6    2        1       0      0      3   374
+            0     4     0    2    1        0       0      0      3    91
+            1     2     0    2    0        0       0      0      0    95
+            2     4     0    2    1        0       0      0      0    93
+            3     3     0    1    1        0       0      0      0    95
