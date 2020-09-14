@@ -3,12 +3,13 @@
 # Each $remote_x must be assigned to a valid hostname that can be
 # looked up using the local DNS ... they do _not_ have to have PCP
 # installed nor pmcd(1) running ... but they _do_ need to map to five
-# unique IP addresses
+# unique IP addresses ... and we'd prefer the mapping to be stable, so
+# this rules out Akamai and AWS (for example)
 #
 # Used in setup.051 and 051.
 #
-remote_1=www.sgi.com
-remote_2=www.aconex.com
-remote_3=www.redhat.com
-remote_4=www.suse.com
-remote_5=sourceforge.net
+remote_1=netbsd.org
+remote_2=aconex.com
+remote_3=ietf.org
+remote_4=otaus.org
+remote_5=internode.on.net

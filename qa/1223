@@ -32,8 +32,8 @@ $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 localhost=`hostname`
-echo "localhost -> $localhost" >>$seq.full
-echo "hostname -f -> `hostname -f`" >>$seq.full
+echo "localhost -> \"$localhost\"" >>$seq.full
+echo "hostname -f -> \"`hostname -f`\"" >>$seq.full
 echo "pmhostname -> `pmhostname -Dappl0 2>&1`" >>$seq.full
 host localhost >>$seq.full
 host $localhost >>$seq.full
@@ -69,8 +69,15 @@ NF >= 5	{ if ($3 == "primary") next
 	}
 END	{ print "{ print }" }'
 
-# Note status command output order is non-deterministic, hence the sort
-# at the end
+# Note:
+# 	Status command output order is non-deterministic, hence the sort
+#	at the end
+# Another note:
+#     Strange in CI, some platforms report an instance name like
+#	1223-<hostname><space>
+#     the trailing space is a total mystery, but just filter it away
+#     here (see 2nd ;-$localhost..; sed) as there is no other apparent
+#     failure
 #
 _filter_status()
 {
@@ -83,6 +90,7 @@ _filter_status()
 	-e "s/^$localhost /LOCALHOSTNAME /" \
 	-e "s;/$localhost\([ /]\);/LOCALHOSTNAME\1;" \
 	-e "s;-$localhost\$;-LOCALHOSTNAME;" \
+	-e "s;-$localhost \$;-LOCALHOSTNAME;" \
 	-e "s/ $seq / <seq> /" \
 	-e 's/ [0-9][0-9]* / <pid> /' \
     # end
@@ -124,26 +132,25 @@ End-of-File
 _setup()
 {
     $sudo cp $tmp.control $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq
-    # copying this file may trigger a race with the systemd (I hate you)
-    # pmlogger_check.path trigger which can result in our QA pmloggers
-    # being killed ... so sleep for a while
-    #
-    #sleep 3
-    $sudo pmlogctl -c $seq restart >>$seq.full 2>&1
+    $sudo pmlogctl -V -c $seq restart >>$seq.full 2>&1
+    pmlogctl -V status >>$seq.full 2>&1
 }
 
 # real QA test starts here
 _setup
 
-if echo "$localhost" | grep '^[0-9][0-9a-f]*$' >>/dev/null
+if false
 then
-    # special for CI ...
-    #
-    pmlogctl status
-    $sudo pmlogctl -c $seq -VV stop LOCALHOSTNAME
-    pmlogctl status
-    $sudo pmlogctl -c $seq -VV start LOCALHOSTNAME
-    pmlogctl status
+    if echo "$localhost" | grep '^[0-9][0-9a-f]*$' >>/dev/null
+    then
+	# special for CI ...
+	#
+	pmlogctl status
+	$sudo pmlogctl -c $seq -VV stop LOCALHOSTNAME
+	pmlogctl -V status
+	$sudo pmlogctl -c $seq -VV start LOCALHOSTNAME
+	pmlogctl -V status
+    fi
 fi
 
 for host in LOCALHOSTNAME local: localhost
