@@ -1884,32 +1884,34 @@ fetch_proc_pid_cgroup(int id, proc_pid_t *proc_pid, int *sts)
 {
     __pmHashNode	*node = __pmHashSearch(id, &proc_pid->pidhash);
     proc_pid_entry_t	*ep = node ? (proc_pid_entry_t *)node->data : NULL;
+    static char		*cbuf1, *cbuf2;
+    static int		clen1, clen2;
 
     *sts = 0;
     if (!ep)
 	return NULL;
 
     if (!(ep->flags & PROC_PID_FLAG_CGROUP_FETCHED)) {
-	char	buf[1024];
-	char	fmt[1024];
-	char	cid[72];
-	int	n, fd;
+	char	cid[72], *tmp;
+	int	fd;
 
 	if ((fd = proc_open("cgroup", ep)) < 0)
 	    *sts = maperr();
-	else if ((n = read(fd, buf, sizeof(buf))) < 0)
-	    *sts = maperr();
-	else if (n == 0)
-	    *sts = -ENODATA;
 	else {
+	    *sts = read_proc_entry(fd, &clen1, &cbuf1);
+	    if (clen1 > clen2) {
+		if ((tmp = realloc(cbuf2, clen1)) != NULL) {
+		    clen2 = clen1;
+		    cbuf2 = tmp;
+		}
+	    }
 	    /* reformat the buffer to match "ps" output format and */
 	    /* try any container name heuristics, then hash (both) */
-	    proc_cgroup_reformat(buf, n, fmt, sizeof(fmt), cid, sizeof(cid));
+	    proc_cgroup_reformat(cbuf1, clen1, cbuf2, clen2, cid, sizeof(cid));
 	    ep->container_id = proc_strings_insert(cid);
-	    ep->cgroup_id = proc_strings_insert(fmt);
-	}
-	if (fd >= 0)
+	    ep->cgroup_id = proc_strings_insert(cbuf2);
 	    close(fd);
+	}
 	ep->flags |= PROC_PID_FLAG_CGROUP_FETCHED;
     }
 
