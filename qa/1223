@@ -132,12 +132,8 @@ End-of-File
 _setup()
 {
     $sudo cp $tmp.control $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq
-    # copying this file may trigger a race with the systemd (I hate you)
-    # pmlogger_check.path trigger which can result in our QA pmloggers
-    # being killed ... so sleep for a while
-    #
-    #sleep 3
-    $sudo pmlogctl -c $seq restart >>$seq.full 2>&1
+    $sudo pmlogctl -V -c $seq restart >>$seq.full 2>&1
+    pmlogctl -V status >>$seq.full 2>&1
 }
 
 # real QA test starts here
