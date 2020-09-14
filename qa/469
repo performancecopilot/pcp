@@ -49,6 +49,7 @@ do
 	echo "--- start /proc/$intr ---" >>$here/$seq.full
 	cat /proc/$intr >>$here/$seq.full
 	echo "--- end /proc/$intr ---" >>$here/$seq.full
+	pminfo -tT kernel.percpu.$intr >>$here/$seq.full
     fi
 done
 

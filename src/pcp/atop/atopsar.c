@@ -135,6 +135,12 @@ atopsar(int argc, char *argv[])
 	*/
 	setup_options(&opts, argv, saroptions());
 
+	/*
+	** detect archives passed in via environment (PCP_ARCHIVE)
+	*/
+	if (opts.narchives > 0)
+		rawreadflag++;
+
 	/* 
 	** interpret command-line arguments & flags 
 	*/
@@ -260,13 +266,15 @@ atopsar(int argc, char *argv[])
 					pratopsaruse(pmGetProgname(), &opts);
 			}
 		}
+		/* if no interval specified, read from logfile */
+		else if (!rawreadflag)
+		{
+			__pmAddOptArchivePath(&opts);
+			rawreadflag++;
+		}
 	}
-
-	if (opts.narchives > 0)
-		rawreadflag++;
-
 	/* if no flags specified at all, read from logfile */
-	if (argc <= 1 && !rawreadflag)
+	else if (!rawreadflag)
 	{
 		__pmAddOptArchivePath(&opts);
 		rawreadflag++;
