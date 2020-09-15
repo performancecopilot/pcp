@@ -74,6 +74,15 @@ labeltype = {c_api.PM_LABEL_CONTEXT: "PM_LABEL_CONTEXT",
              c_api.PM_LABEL_ITEM: "PM_LABEL_ITEM",
              c_api.PM_LABEL_INSTANCES: "PM_LABEL_INSTANCES"}
 
+typestrD = {'double': c_api.PM_TYPE_DOUBLE,
+            'float': c_api.PM_TYPE_FLOAT,
+            'u64': c_api.PM_TYPE_U64,
+            '64': c_api.PM_TYPE_64,
+            'u32': c_api.PM_TYPE_U32,
+            '32': c_api.PM_TYPE_32,
+            'string': c_api.PM_TYPE_STRING,
+            'aggregate': c_api.PM_TYPE_AGGREGATE}
+
 class Metric(object):
     ''' Metric information class '''
     def __init__(self, source, name, metricnum, instances, optional_instances, pcpline, helpline, typeline):
@@ -84,6 +93,8 @@ class Metric(object):
         self.indom_number = (MAX_CLUSTER+1 + (source.cluster * (MAX_METRIC+1)) + metricnum)
         self.pcpline = pcpline
         self.typeline = typeline
+        self.munits = pmUnits(0, 0, 0, 0, 0, 0)
+        self.multiplier = 1 # pmParseUnits returns a tuple of (pmUnits, multiplier)
         self.values = {} # instance-vector-to-value
         self.labels = {} # metric labels
         self.optional_labels = {} # optional labels
@@ -96,13 +107,26 @@ class Metric(object):
                 self.optional_labels[key] = val
 
         self.assign_metadata()
-        if instances:
-            self.mindom = self.source.pmda.indom(self.indom_number) # add domain#
-            self.indom_table = PersistentNameTable(self.source.pmda, self.indom_number, MAX_INDOM)
-        else:
+        self.singular = (instances is None) or (pcpline and "PM_INDOM_NULL" in pcpline.split(' '))
+
+        if self.singular:
+            # no labels in ingested data, *or* we have PCP5 metadata with PM_INDOM_NULL
             self.mindom = c_api.PM_INDOM_NULL
             self.indom_table = None
+        else:
+            self.mindom = self.source.pmda.indom(self.indom_number) # add domain#
+            self.indom_table = PersistentNameTable(self.source.pmda, self.indom_number, MAX_INDOM)
+
+        ## retained as an example
+        # if self.source.pmda.dbg:
+        #   c_units = c_api.pmUnits_int(self.munits.dimSpace, self.munits.dimTime, self.munits.dimCount,
+        #       self.munits.scaleSpace, self.munits.scaleTime, self.munits.scaleCount)
+
+        self.source.pmda.log("Metric: adding new metric %s pmid=%s type=%d sem=%d singular=%s mindom=0x%x labels=%s" %
+            (name, pmContext.pmIDStr(self.pmid), self.mtype, self.msem, self.singular, self.mindom, self.labels))
+
         self.obj = pmdaMetric(self.pmid, self.mtype, self.mindom, self.msem, self.munits)
+
         if helpline: # it could be None!
             unescaped = helpline.replace('\\\\', '\\').replace('\\n', '\n')
             split = unescaped.split('\n')
@@ -122,76 +146,127 @@ class Metric(object):
                     (self.pmid, self.mname, self.labels, self.optional_labels))
 
 
+    def decodeTypeStr(self, typestr):
+        try:
+            ret = typestrD[typestr]
+        except:
+            ret = c_api.PM_TYPE_DOUBLE
+
+        return ret
+
+    def parse_pcp_units(self, s):
+        ''' parse a PCP units string '''
+        mult = 1
+        units = pmUnits(0, 0, 0, 0, 0, 0)
+        if s != 'none':
+            try:
+                units, mult = pmContext.pmParseUnitsStr(s)
+            except Exception as e:
+                self.source.pmda.err('parse_pcp_units "%s" Error: %s' % (s, e))
+
+        self.source.pmda.debug('parse_pcp_units "%s": units=%s mult=%f' %
+            (s, str(units), mult)) if self.source.pmda.dbg else None
+
+        return units, mult
+
     def assign_metadata(self):
         ''' Compute metric metadata self.{mtype, mname, msem, munits}
         from the available information already stored in self.
         '''
-        self.mtype = c_api.PM_TYPE_DOUBLE # NB: allow overriding sometime
+        #
+        # Default metadata, unless overridden by PCP line or heuristics
+        #
+        self.mtype = self.decodeTypeStr("double")
+        self.munits = pmUnits(0, 0, 0, 0, 0, 0)
+        self.msem = c_api.PM_SEM_INSTANT # aka guage
 
-        # Split the openmetrics metric name by "_", to help
-        # decode convention for squishing unit/scale data.
-        pieces = self.name.split('_')
         if self.pcpline:
-            pcpline_pieces = self.pcpline.split(' ')
-        else:
-            pcpline_pieces = []
+            #
+            # Use PCP or PCP5 line for metadata
+            #
+            metadata = self.pcpline.split(' ')
+            len_metadata = len(metadata)
+            self.mname = 'openmetrics.' + self.source.name + '.' + metadata[1]
 
-        len_pcpline_pieces = len(pcpline_pieces)
-        if len_pcpline_pieces >= 2 and pcpline_pieces[1] == 'instant':
-            self.msem = c_api.PM_SEM_INSTANT
-        elif len_pcpline_pieces >= 2 and pcpline_pieces[1] == 'counter':
-            self.msem = c_api.PM_SEM_COUNTER
-        elif len_pcpline_pieces >= 2 and pcpline_pieces[1] == 'discrete':
-            self.msem = c_api.PM_SEM_DISCRETE
-        elif self.typeline == 'counter' or 'total' in pieces or 'count' in pieces or 'sum' in pieces:
-            self.msem = c_api.PM_SEM_COUNTER
-        elif self.typeline == 'histogram' and 'bucket' in pieces:
-            self.msem = c_api.PM_SEM_COUNTER
-        else:
-            self.msem = c_api.PM_SEM_INSTANT
+            if metadata[0] == 'PCP5':
+                # PCPv5 metadata, e.g.:
+                # PCP5 simple.time.user 253.1.2 double PM_INDOM_NULL counter sec
+                if self.source.pmda.dbg:
+                    self.source.pmda.debug("assign_metadata: %s" % metadata)
+                if metadata[5] == 'instant':
+                    self.msem = c_api.PM_SEM_INSTANT
+                elif metadata[5] == 'counter':
+                    self.msem = c_api.PM_SEM_COUNTER
+                elif metadata[5] == 'discrete':
+                    self.msem = c_api.PM_SEM_DISCRETE
+                # metric type (not semantics!)
+                self.mtype = self.decodeTypeStr(metadata[3])
+                if len_metadata >= 6:
+                    # units extends to the end of the line
+                    self.munits, self.multiplier = self.parse_pcp_units(' '.join(metadata[6:]))
 
-        if len_pcpline_pieces >= 1:
-            self.mname = 'openmetrics.' + self.source.name + '.' + pcpline_pieces[0]
+            elif metadata[0] == 'PCP':
+                # pre-PCPv5 metadata, e.g.:
+                # PCP cgroup.memory.stat.inactive_file instant byte
+                if self.source.pmda.dbg:
+                    self.source.pmda.debug("assign_metadata: %s" % metadata)
+                if len_metadata >= 3 and metadata[2] == 'instant':
+                    self.msem = c_api.PM_SEM_INSTANT
+                elif len_metadata >= 3 and metadata[2] == 'counter':
+                    self.msem = c_api.PM_SEM_COUNTER
+                elif len_metadata >= 3 and metadata[2] == 'discrete':
+                    self.msem = c_api.PM_SEM_DISCRETE
+                if len_metadata >= 4:
+                    # units extends to the end of the line
+                    self.munits, self.multiplier = self.parse_pcp_units(' '.join(metadata[3:]))
+                # note: PCP metadata doesn't include indom (only PCP5 does)
         else:
+            #
+            # No PCP metadata - we have to apply heuristics
+            #
+            # Split the openmetrics metric name by "_", to help
+            # decode convention for squishing unit/scale data.
+            pieces = self.name.split('_')
+            if self.source.pmda.dbg:
+                self.source.pmda.debug("assign_metadata: using heuristics %s" % pieces)
             self.mname = 'openmetrics.' + self.source.name + '.' + self.name.replace(":", ".")
 
-        # NB: ignore the PCP units suffix.
-        # we could do:
+            if self.typeline == 'counter' or 'total' in pieces or 'count' in pieces or 'sum' in pieces:
+                self.msem = c_api.PM_SEM_COUNTER
+            elif self.typeline == 'histogram' and 'bucket' in pieces:
+                self.msem = c_api.PM_SEM_COUNTER
+            else:
+                self.msem = c_api.PM_SEM_INSTANT
 
-        # self.munits = cpmapi.pmParseUnitsStr(pcpline_pieces[2])
+            if ((self.typeline == 'histogram' or self.typeline == 'summary')
+                and 'count' in pieces): # regardless of UNIT; *_sum peer has proper type
+                self.munits = pmUnits(0, 0, 1, 0, 0, 0) # simple count
+            elif self.typeline == 'histogram' and 'bucket' in pieces: # ditto
+                self.munits = pmUnits(0, 0, 1, 0, 0, 0) # simple count
+            elif 'seconds' in pieces:
+                self.munits = pmUnits(0, 1, 0, 0, 3, 0)
+            elif 'microseconds' in pieces:
+                self.munits = pmUnits(0, 1, 0, 0, 1, 0)
+            elif 'bytes' in pieces:
+                self.munits = pmUnits(1, 0, 0, 0, 0, 0)
+            self.multiplier = 1
 
-        # ... but we'd have to undo the base-scale conversion done by pmproxy.  So
-        # instead we use the inferred unit-scale (even though it doesn't match the
-        # original pcp source).  We don't preserve PM_TYPE_* either.
-
-        if ((self.typeline == 'histogram' or self.typeline == 'summary')
-            and 'count' in pieces): # regardless of UNIT; *_sum peer is has proper type
-            self.munits = pmUnits(0, 0, 1, 0, 0, 0) # simple count
-        elif self.typeline == 'histogram' and 'bucket' in pieces: # ditto
-            self.munits = pmUnits(0, 0, 1, 0, 0, 0) # simple count
-        elif 'seconds' in pieces:
-            self.munits = pmUnits(0, 1, 0, 0, 3, 0)
-        elif 'microseconds' in pieces:
-            self.munits = pmUnits(0, 1, 0, 0, 1, 0)
-        elif 'bytes' in pieces:
-            self.munits = pmUnits(1, 0, 0, 0, 0, 0)
-        else:
-            self.munits = pmUnits(0, 0, 0, 0, 0, 0) # default, dimensionless old-school count
-
-        assert self.munits and self.msem and self.mname and self.mtype
-
+        if self.source.pmda.dbg:
+            self.source.pmda.debug('assign_metadata: mname="%s" type="%s" msem="%s" munits="%s"' %
+                (self.mname, self.mtype, self.msem, self.munits))
 
     def clear_values(self):
         ''' Erase all stored instance/value pairs, in anticipation of a new set. '''
         self.values.clear()
 
-
     def store_inst(self, labels, value):
         ''' Store given new instance/value pair. '''
 
-        assert (labels is None) == (self.indom_table is None) # no metric indom flipflop
-        if labels is None:
-            self.values[c_api.PM_IN_NULL] = float(value)
+        # assert (labels is None) == (self.indom_table is None) # no metric indom flipflop
+        if self.singular:
+            inst = c_api.PM_IN_NULL
+            instname = "PM_IN_NULL"
+            self.source.pmda.debug('store_inst mname="%s" singular=True value="%s" labels=%s' % (self.mname, value, labels))
         else:
             instname = None
             if self.pcpline: # pmproxy
@@ -211,23 +286,39 @@ class Metric(object):
                     self.labels[key] = val
             inst = self.indom_table.intern_lookup_value(instname)
 
-            self.values[inst] = float(value)
-            self.inst_labels[inst] = labels
-            if self.source.pmda.dbg:
-                self.source.pmda.debug('store inst=%d instname="%s" value="%s"' % (inst, instname, value))
-                self.source.pmda.debug('store inst_labels[%d] = %s' % (inst, labels))
+        self.values[inst] = value
+        self.inst_labels[inst] = labels
+        if self.source.pmda.dbg:
+            self.source.pmda.debug('store_inst mname=%s inst=%d instname="%s" value="%s"' % (self.mname, inst, instname, value))
+            self.source.pmda.debug('store_inst mname=%s inst_labels[%d]=%s' % (self.mname, inst, labels))
 
     def save(self):
         if self.indom_table is not None:
             self.indom_table.save()
 
+    def str2value(self, valstr):
+        self.source.pmda.debug('str2value mname=%s type=%d valstr=%s' % (self.mname, self.mtype, valstr))
+        if self.mtype in [c_api.PM_TYPE_DOUBLE, c_api.PM_TYPE_FLOAT]:
+            return float(valstr) # float is actually a double in python3
+        if self.mtype in [c_api.PM_TYPE_U64, c_api.PM_TYPE_64, c_api.PM_TYPE_U32, c_api.PM_TYPE_32]:
+            return int(valstr) # int is actually a long in python3
+        return valstr
+
     def fetch_inst(self, inst): # fetch instance
+        self.source.pmda.debug('fetch_inst mname=%s inst=%d values=%s' % (self.mname, inst, self.values))
+        ret = [c_api.PM_ERR_INST, 0]
         if not self.values:
             # Metric may have disappeared
-            return [c_api.PM_ERR_AGAIN, 0]
-        if inst in self.values:
-            return [self.values[inst], 1]
-        return [c_api.PM_ERR_INST, 0]
+            if self.source.pmda.dbg:
+                self.source.pmda.debug('fetch_inst inst=%d has no values' % inst)
+            ret = [c_api.PM_ERR_AGAIN, 0]
+        elif self.singular or inst in self.values:
+            if self.source.pmda.dbg:
+                self.source.pmda.debug('fetch_inst returning type=%s value=%s' % (type(self.values[inst]), self.values[inst]))
+            ret = [self.str2value(self.values[inst]), 1]
+
+        self.source.pmda.debug('fetch_inst returning %s' % ret)
+        return ret
 
 
 class PersistentNameTable(object):
@@ -535,7 +626,7 @@ class Source(object):
             return None, None # singular; nothing to include or exclude
         for lname, lval in labelset.items():
             designation = self.check_filter(lname, "LABEL")
-            self.pmda.debug("... filter_labelset lname=%s lval=%s desig=%s" % (lname, lval, designation)) if self.pmda.dbg else None
+            self.pmda.debug("... filter_labelset lname=%s lval=%s => %s" % (lname, lval, designation)) if self.pmda.dbg else None
             if designation == "INCLUDE":
                 included_labels[lname] = lval
             elif designation == "OPTIONAL":
@@ -573,14 +664,18 @@ class Source(object):
             self.pmda.debug("parsed '%s' -> %s %s %s" % (line, sp.name, sp.labels, sp.value)) if self.pmda.dbg else None
             self.pmda.debug("parse_metric_line sp.labels=%s" % sp.labels) if self.pmda.dbg else None
             included_labels, optional_labels = self.filter_labelset(sp.labels)
-            naming_labels = self.instname_labels(included_labels, optional_labels)
+            naming_labels = self.instname_labels(included_labels, optional_labels) # not used if singular
             self.pmda.debug("included_labels '%s'" % (included_labels)) if self.pmda.dbg else None
             self.pmda.debug("optional_labels '%s'" % (optional_labels)) if self.pmda.dbg else None
-            self.pmda.debug("naming_labels '%s'" % (naming_labels)) if self.pmda.dbg else None
             if sp.name in self.metrics_by_name:
                 m = self.metrics_by_name[sp.name]
                 assert self.metrics_by_num[m.metricnum] == m
-                m.store_inst(naming_labels, sp.value)
+                if m.singular:
+                    # singular metrics have no naming labels
+                    m.store_inst(included_labels, sp.value)
+                else:
+                    m.store_inst(naming_labels, sp.value)
+                    self.pmda.debug("naming_labels '%s'" % (naming_labels)) if self.pmda.dbg else None
             else:
                 # check metric is not excluded by filters
                 fullname = "openmetrics.%s.%s" % (self.name, sp.name)
@@ -594,7 +689,10 @@ class Source(object):
                     m = Metric(self, sp.name, metricnum, included_labels, optional_labels, pcpline, helpline, typeline)
                     self.metrics_by_name[sp.name] = m
                     self.metrics_by_num[metricnum] = m  # not pmid!
-                    m.store_inst(naming_labels, sp.value)
+                    if m.singular:
+                        m.store_inst(included_labels, sp.value)
+                    else:
+                        m.store_inst(naming_labels, sp.value)
                     self.pmda.set_notify_change()
         except Exception as e:
             self.pmda.err("cannot parse/store %s: %s" % (line, e))
@@ -634,12 +732,12 @@ class Source(object):
                 # the # metadata blocks must precede
                 # the metric values; we can ignore
                 # lp[2].
-                if lp[1] == 'PCP':
-                    pcpline = ' '.join(lp[2:])
+                if lp[1] == 'PCP' or lp[1] == 'PCP5':
+                    pcpline = ' '.join(lp[1:])
                 elif lp[1] == 'HELP':
                     # assume lp[2] matches metric name
                     helpline = ' '.join(lp[3:])
-                elif lp[1] == 'TYPE':
+                elif lp[1] == 'TYPE': # actually, semantics (counter/instant/discrete)
                     # assume lp[2] matches metric name
                     typeline = ' '.join(lp[3:])
                 else:
@@ -707,6 +805,23 @@ class Source(object):
                 self.filterlist.append(header_filter)
             else:
                 self.pmda.log('Warning: %s ignored unrecognised config entry "%s"' % (self.url, line))
+
+        # METADATA: regex type indom semantics units ... to EOL
+        #
+        # Specifies the PCP metadata to use for metric names matching the regex.
+        # Metric names matching the regex will use this metadata (overriding PCP or PCP5 comments).
+        # If a metric name does not match any METADATA regex, it will use the '# PCP' or '# PCP5' line,
+        # falling back to an heuristic if there is no '# PCP' or '# PCP5' line.
+        #
+        # The METADATA: fields are as follows:
+        #   regex - an extended regex that matches metric names returned by the URL
+        #   type - one of 'PCP_TYPE_*' for one of DOUBLE FLOAT U64 64 U32 32
+        #   indom - 'PM_INDOM_NULL' or a name that will be added as an indom_name=name optional label
+        #   semantics - 'counter', 'instant' or 'discrete'
+        #   units - 'none' or a string (to end-of line) parseable by pmParseUnitsStr(3)
+        #
+        # Note this is for URL configs only (scripted configs should generate PCP5 metadata).
+        ## -- TODO --
 
         self.pmda.debug("DEBUG url: %s HEADERS: %s" % (self.url, self.headers)) if self.pmda.dbg else None
         self.pmda.debug("DEBUG url: %s FILTERS: %s" % (self.url, self.filterlist)) if self.pmda.dbg else None
@@ -810,6 +925,7 @@ class Source(object):
 
         try:
             m = self.metrics_by_num[item]
+            self.pmda.log("fetch: item=%d inst=%d m.mname=%s" % (item, inst, m.mname)) if self.pmda.dbg else None
             return m.fetch_inst(inst)
         except Exception as e:
             self.pmda.log("Warning: cannot fetch item %d inst %d: %s" % (item, inst, e))
@@ -984,7 +1100,7 @@ class OpenMetricsPMDA(PMDA):
         self.log("Config change detected, traversed %d config entries in %.04fs, rescanning ..." % (len(conf_filelist), traverse_time))
         nickname_regexp = self.lookup_regex(r"^[A-Za-z][A-Za-z0-9_.]*$")
 
-        # TODO: nuke sources related to removed files
+        # TODO: maybe nuke sources related to removed files
         save_cluster_table = False
         if sort_conf_list:
             # sorted for indom cluster consistency
@@ -1068,12 +1184,14 @@ class OpenMetricsPMDA(PMDA):
             return [c_api.PM_ERR_PMID, 0]
 
         self.assert_source_invariants(cluster=cluster)
+        self.debug("fetch_callback: cluster=%d item=%d inst=%d .. about to fetch" % (cluster, item, inst))
         try:
             if cluster in self.source_by_cluster: # end-points
                 return self.source_by_cluster[cluster].fetch(item, inst)
             else:
                 return [c_api.PM_ERR_PMID, 0]
-        except Exception:
+        except Exception as e:
+            self.err("Error: fetch_callback failed for cluster=%d item=%d inst=%d: %s" % (cluster, item, inst, e))
             return [c_api.PM_ERR_AGAIN, 0] # was there before
 
     def refresh1_worker(self, inqueue, outqueue):
@@ -1155,6 +1273,7 @@ class OpenMetricsPMDA(PMDA):
         '''
         return a JSONb formatted string (labelset) for given ident of given type
         '''
+        ret = "{}"
 
         self.debug('openmetrics_label(ident=%d (%#x), type=%s)' % (ident, ident, labeltype[typeid])) if self.dbg else None
         if typeid == c_api.PM_LABEL_INDOM:
@@ -1163,8 +1282,8 @@ class OpenMetricsPMDA(PMDA):
             for _, v in self.source_by_cluster.items():
                 for _, mv in v.metrics_by_name.items():
                     if mv.mindom == indom:
-                        return '{"source":"%s"}' % v.name
-            return '{}' # no indom labels
+                        ret = '{"source":"%s"}' % v.name
+                        break
 
         elif typeid == c_api.PM_LABEL_CLUSTER:
             # Labels for a cluster, i.e. an individual source.
@@ -1178,7 +1297,7 @@ class OpenMetricsPMDA(PMDA):
                     # label inserted by pmcd (at the context label level).  Details
                     # of the label hierarchy rules are in the "PRECEDENCE" section
                     # of the pmLookupLabels(3) man page.
-                    return '{"script":"%s", "source":"%s"}' % (s.path, s.name)
+                    ret = '{"script":"%s", "source":"%s"}' % (s.path, s.name)
                 else:
                     # extract hostname label from the URL
                     if s.url.startswith("http"):
@@ -1189,9 +1308,9 @@ class OpenMetricsPMDA(PMDA):
                         host = "localhost"
                     if host == "localhost":
                         host = gethostname()
-                    return '{"hostname":"%s", "source":"%s", "url":"%s"}' % (host, s.name, s.url)
+                    ret = '{"hostname":"%s", "source":"%s", "url":"%s"}' % (host, s.name, s.url)
             except:
-                return '{}' # ignore key error for unknown cluster number
+                pass # ignore key error for unknown cluster number
 
         elif typeid == c_api.PM_LABEL_ITEM:
             # item level (metric) labels, parsed from end-point URLs
@@ -1201,17 +1320,18 @@ class OpenMetricsPMDA(PMDA):
                 for _, mv in v.metrics_by_name.items():
                     if mv.pmid == ident:
                         self.debug('    FOUND pmid=%s labels=%s' %
-                            (pmContext.pmIDStr(mv.pmid), mv.labels)) if self.dbg else None
+                            (pmContext.pmIDStr(mv.pmid), mv.labels)) # if self.dbg else None
                         self.debug('    FOUND pmid=%s optional_labels=%s' %
-                            (pmContext.pmIDStr(mv.pmid), mv.optional_labels)) if self.dbg else None
+                            (pmContext.pmIDStr(mv.pmid), mv.optional_labels)) # if self.dbg else None
                         if mv.labels is not None:
-                            return self.jsonb_labelset(mv.labels, mv.optional_labels)
-                        else:
+                            ret = self.jsonb_labelset(mv.labels, mv.optional_labels)
                             break
-            return '{}'
 
         else: # empty label set for all other types
-            return '{}'
+            self.debug('openmetrics_label callback type=%d ("%s") NOT HANDLED' % (typeid, labeltype[typeid]))
+
+        self.debug('openmetrics_label callback type=%d ("%s") returning "%s"' % (typeid, labeltype[typeid], ret))
+        return ret
 
     def openmetrics_label_callback(self, indom, inst):
         '''
@@ -1223,21 +1343,21 @@ class OpenMetricsPMDA(PMDA):
             for _, v in self.source_by_cluster.items():
                 for _, mv in v.metrics_by_name.items():
                     if indom == mv.mindom:
-                        for i, n in enumerate(mv.indom_table.instances):
+                        for i, nm in enumerate(mv.indom_table.instances):
                             if inst == i:
-                                # found
-                                self.debug('openmetrics_label_callback: found inst label "%s"' % n) if self.dbg else None
-                                # first add the instname label, which matches the external instance name
-                                instlabels = '"instname": "%s %s"' % (i, n)
-                                # and now each label for this instance separately
-                                self.debug('openmetrics_label_callback: i=%d mv.inst_labels[%d]=%s' % (i, i, mv.inst_labels[i]))
+                                self.debug('openmetrics_label_callback: found inst label "%s"' % nm) if self.dbg else None
+                                # TODO: should we prefix PCP5 instname label with inst id
+                                # Since with PCP5 metadata, we can trust they are unique.
+                                instlabels = '"instname":"%s %s"' % (i, nm)
                                 if i in mv.inst_labels:
                                     for l, val in mv.inst_labels[i].items():
-                                        instlabels = instlabels + ", " + '"%s":"%s"' % (l, val)
+                                        if l != "instname":
+                                            instlabels = instlabels + "," + '"%s":"%s"' % (l, val)
         except Exception as e:
             self.debug("openmetrics_label_callback: exception %s" % e)
             self.debug(traceback.format_exc())
 
+        self.debug('openmetrics_label_callback returning "{%s}"' % instlabels) if self.dbg else None
         return '{%s}' % instlabels
 
     def openmetrics_store_callback(self, cluster, item, inst, val):

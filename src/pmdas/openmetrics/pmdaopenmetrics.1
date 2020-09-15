@@ -421,6 +421,21 @@ log mandatory on 2 second {
 .in
 .fi
 .ft 1
+.SH "METADATA"
+Metric data returned by URL or scripted configuration files may contain
+metadata that can be used by the
+.B openmetrics
+PMDA to specify the semantics, data type, scaling and units of dynamically created metrics.
+This metadata is prefixed with
+.B "# PCP5"
+or
+.B "# PCP"
+in the ingested metric data.
+For additional information about PCP metadata, see
+.BR pmLookupDesc (3)
+and
+.BR pmParseUnitsStr (3)
+and examples in shipped configuration files.
 .SH "CONTROL METRICS"
 The PMDA maintains special control metrics, as described below.
 Apart from

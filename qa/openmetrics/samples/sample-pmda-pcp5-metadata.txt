@@ -1,0 +1,41 @@
+# PCP5 sample.control 29.0.0 32 PM_INDOM_NULL instant none
+# HELP sample_control A control variable for the "sample" PMDA
+# TYPE sample_control gauge
+sample_control{hostname="goblin",machineid="5c9ffb4e076440ae9515b6f5ce11ca74",domainname="localdomain"} 0
+# PCP5 sample.float.one 29.0.15 float PM_INDOM_NULL instant none
+# HELP sample_float_one 1 as a 32-bit floating point value
+# TYPE sample_float_one gauge
+sample_float_one{hostname="goblin",machineid="5c9ffb4e076440ae9515b6f5ce11ca74",domainname="localdomain"} 1
+# PCP5 sample.double.bin_ctr 29.0.114 double 29.2 counter Kbyte
+# HELP sample_double_bin_ctr like sample.bin but type DOUBLE, SEM_COUNTER and SPACE_KBYTE
+# TYPE sample_double_bin_ctr counter
+sample_double_bin_ctr{instname="bin-100",instid="100",hostname="goblin",machineid="5c9ffb4e076440ae9515b6f5ce11ca74",domainname="localdomain",bin="100"} 100
+sample_double_bin_ctr{instname="bin-200",instid="200",hostname="goblin",machineid="5c9ffb4e076440ae9515b6f5ce11ca74",domainname="localdomain",bin="200"} 200
+sample_double_bin_ctr{instname="bin-300",instid="300",hostname="goblin",machineid="5c9ffb4e076440ae9515b6f5ce11ca74",domainname="localdomain",bin="300"} 300
+sample_double_bin_ctr{instname="bin-400",instid="400",hostname="goblin",machineid="5c9ffb4e076440ae9515b6f5ce11ca74",domainname="localdomain",bin="400"} 400
+sample_double_bin_ctr{instname="bin-500",instid="500",hostname="goblin",machineid="5c9ffb4e076440ae9515b6f5ce11ca74",domainname="localdomain",bin="500"} 500
+sample_double_bin_ctr{instname="bin-600",instid="600",hostname="goblin",machineid="5c9ffb4e076440ae9515b6f5ce11ca74",domainname="localdomain",bin="600"} 600
+sample_double_bin_ctr{instname="bin-700",instid="700",hostname="goblin",machineid="5c9ffb4e076440ae9515b6f5ce11ca74",domainname="localdomain",bin="700"} 700
+sample_double_bin_ctr{instname="bin-800",instid="800",hostname="goblin",machineid="5c9ffb4e076440ae9515b6f5ce11ca74",domainname="localdomain",bin="800"} 800
+sample_double_bin_ctr{instname="bin-900",instid="900",hostname="goblin",machineid="5c9ffb4e076440ae9515b6f5ce11ca74",domainname="localdomain",bin="900"} 900
+# PCP5 sample.colour 29.0.5 32 29.1 instant none
+# HELP sample_colour Metrics with a "saw-tooth" trend over time
+# TYPE sample_colour gauge
+sample_colour{instname="red",instid="0",model="RGB",hostname="goblin",machineid="5c9ffb4e076440ae9515b6f5ce11ca74",domainname="localdomain"} 117
+sample_colour{instname="green",instid="1",model="RGB",hostname="goblin",machineid="5c9ffb4e076440ae9515b6f5ce11ca74",domainname="localdomain"} 218
+sample_colour{instname="blue",instid="2",model="RGB",hostname="goblin",machineid="5c9ffb4e076440ae9515b6f5ce11ca74",domainname="localdomain"} 319
+# PCP5 sample.mirage_longlong 29.0.38 64 29.3 instant byte / millisec
+# HELP sample_mirage_longlong Simple saw-tooth rate, but instances come and go
+# TYPE sample_mirage_longlong gauge
+sample_mirage_longlong{instname="m-00",instid="0",hostname="goblin",machineid="5c9ffb4e076440ae9515b6f5ce11ca74",domainname="localdomain",transient="false"} 80000000
+sample_mirage_longlong{instname="m-33",instid="33",hostname="goblin",machineid="5c9ffb4e076440ae9515b6f5ce11ca74",domainname="localdomain",transient="true"} 3379000000
+sample_mirage_longlong{instname="m-36",instid="36",hostname="goblin",machineid="5c9ffb4e076440ae9515b6f5ce11ca74",domainname="localdomain",transient="true"} 3678000000
+sample_mirage_longlong{instname="m-37",instid="37",hostname="goblin",machineid="5c9ffb4e076440ae9515b6f5ce11ca74",domainname="localdomain",transient="true"} 3777000000
+sample_mirage_longlong{instname="m-38",instid="38",hostname="goblin",machineid="5c9ffb4e076440ae9515b6f5ce11ca74",domainname="localdomain",transient="true"} 3876000000
+sample_mirage_longlong{instname="m-39",instid="39",hostname="goblin",machineid="5c9ffb4e076440ae9515b6f5ce11ca74",domainname="localdomain",transient="true"} 3975000000
+sample_mirage_longlong{instname="m-40",instid="40",hostname="goblin",machineid="5c9ffb4e076440ae9515b6f5ce11ca74",domainname="localdomain",transient="true"} 4074000000
+sample_mirage_longlong{instname="m-41",instid="41",hostname="goblin",machineid="5c9ffb4e076440ae9515b6f5ce11ca74",domainname="localdomain",transient="true"} 4173000000
+# PCP5 sample.wrap.long 29.0.57 32 PM_INDOM_NULL counter none
+# HELP sample_wrap_long long counter that wraps
+# TYPE sample_wrap_long counter
+sample_wrap_long{hostname="goblin",machineid="5c9ffb4e076440ae9515b6f5ce11ca74",domainname="localdomain"} -344
