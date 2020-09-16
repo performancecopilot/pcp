@@ -43,3 +43,8 @@ test_python.some_indom.some_value 0
 test_python.loaded_indom.some_value
     inst [5 or "five"] value "FIVE"
     inst [9 or "nine"] value "NINE"
+
+=== Round Two ===
+
+test_python.some_value
+    labels {"agent":"test_python","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","label":true,"machineid":"MACHINE","notes":true,"userid":UID}
