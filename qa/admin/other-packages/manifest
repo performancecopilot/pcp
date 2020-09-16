@@ -1365,7 +1365,7 @@ brew?	libSoQt.so			[N/A (build optional)]
 #
 # python
 #
-dpkg?	/usr/include/python2.*/Python.h	[libpython-dev or python-dev]
+dpkg?	/usr/include/python2.*/Python.h	[libpython-dev or python-dev or python2-dev]
 dpkg?	/usr/include/python3.*/Python.h	[libpython3-dev]
 rpm?	/usr/include/python2.*/Python.h	[python-devel or python2-devel]
 rpm?	/usr/include/python3.*/Python.h	[python3-devel or python36-devel or platform-python-devel]

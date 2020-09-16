@@ -1483,27 +1483,27 @@ if which dpkg >/dev/null 2>&1
 then
     # Debian based
     #
-    # Borrowed from Makepkgs ... we don't use Python2 on some recent
-    # Ubuntu versions
+    # Borrowed from debian/fixcontrol.master ... we don't use Python2 on some recent
+    # Debian/Ubuntu versions
     #
     pkgs="python-all python-all-dev python3-all python3-all-dev"
-    if [ -f /etc/lsb-release ]
-    then
-	if grep -q 'DISTRIB_ID=Ubuntu' /etc/lsb-release
-	then
-	    eval `grep DISTRIB_RELEASE= /etc/lsb-release`
-	    XDISTRIB_RELEASE=`echo $DISTRIB_RELEASE | sed -e 's/[^0-9]//g' -e 's/\.//'`
-	    [ -z "$XDISTRIB_RELEASE" ] && XDISTRIB_RELEASE=0000
-	    if [ $XDISTRIB_RELEASE -ge 2004 ]
-	    then
-		# As of Ubuntu 20.04 the Python2 dependency packages have
-		# been renamed (at least python-dev -> python-dev-is-python2)
-		# so try building without Python2
-		#
-		pkgs=`echo "$pkgs" | sed -e 's/python-[^ ]*//g'`
-	    fi
-	fi
-    fi
+    (
+	. /etc/os-release
+	case "$ID"
+	in
+	    debian)
+		if [ -z "$VERSION_ID" ] || [ "$VERSION_ID" -ge 11 ]; then
+		    pkgs=`echo "$pkgs" | sed -e 's/python-[^ ]*//g'`
+		fi
+		;;
+	    ubuntu)
+		VERSION_NO=$(echo "$VERSION_ID" | sed 's/[^0-9]//')
+		if [ "$VERSION_NO" -ge 2004 ]; then
+		    pkgs=`echo "$pkgs" | sed -e 's/python-[^ ]*//g'`
+		fi
+		;;
+	esac
+    )
     dpkg -l >$tmp.tmp
     for pkg in $pkgs
     do

@@ -857,10 +857,42 @@ dnl check if python tools/packages wanted (need python >= 2.6)
 enable_python2=false
 AS_IF([test "x$do_python" != "xno"], [
     enable_python2=true
-    if test -z "$PYTHON"
+
+    if test "$do_python" = "check" -a -f /etc/os-release
+    then
+    (
+	. /etc/os-release
+	case "$ID"
+	in
+	    debian)
+		if test -z "$VERSION_ID" -o "$VERSION_ID" -ge 11; then
+		    touch config.python2_eol
+		fi
+		;;
+	    ubuntu)
+		VERSION_NO=`echo "$VERSION_ID" | sed 's/[[^0-9]]//'`
+		if test "$VERSION_NO" -ge 2004; then
+		    touch config.python2_eol
+		fi
+		;;
+	esac
+    )
+    fi
+
+    if test -f config.python2_eol
+    then
+	rm config.python2_eol
+	echo "WARNING: Python 2 is not supported anymore (EOL since 2020), please use Python 3 instead."
+	enable_python2=false
+    fi
+
+    if test "$enable_python2" = "true" -a -z "$PYTHON"
     then
 	enable_python2=false
-    else
+    fi
+
+    if $enable_python2
+    then
 	AC_MSG_CHECKING([Python2 version])
 	eval `$PYTHON -V 2>&1 | awk '/^Python/ { ver=2; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export PY_MAJOR=%d PY_MINOR=%d PY_POINT=%d\n",$major,$minor,$point }'`
 	AC_MSG_RESULT([$PY_MAJOR.$PY_MINOR.$PY_POINT])

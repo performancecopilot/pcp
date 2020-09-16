@@ -115,7 +115,27 @@ fi
 if $ENABLE_PYTHON2
 then
     echo "s/?{python-all}, /python-all, /" >>$tmp.sed
-    echo "s/?{python-dev}, /python-dev, /" >>$tmp.sed
+    (
+	. /etc/os-release
+	case "$ID"
+	in
+	    debian)
+		if [ -z "$VERSION_ID" ] || [ "$VERSION_ID" -ge 11 ]; then
+		    echo "s/?{python-dev}, /python2-dev, /" >>$tmp.sed
+		else
+		    echo "s/?{python-dev}, /python-dev, /" >>$tmp.sed
+		fi
+		;;
+	    ubuntu)
+		VERSION_NO=$(echo "$VERSION_ID" | sed 's/[^0-9]//')
+		if [ "$VERSION_NO" -ge 2004 ]; then
+		    echo "s/?{python-dev}, /python2-dev, /" >>$tmp.sed
+		else
+		    echo "s/?{python-dev}, /python-dev, /" >>$tmp.sed
+		fi
+		;;
+	esac
+    )
 else
     echo "s/?{python-dev}, //" >>$tmp.sed
     echo "s/?{python-all}, //" >>$tmp.sed
