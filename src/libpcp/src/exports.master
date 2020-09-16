@@ -711,3 +711,8 @@ PCP_3.29 {
     pmGetDerivedControl;
     pmSetDerivedControl;
 } PCP_3.28;
+
+PCP_3.30 {
+  global:
+    __pmFreeDerived;
+} PCP_3.29;

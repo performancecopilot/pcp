@@ -130,6 +130,7 @@ fix_dynamic_pmid(char *name, pmID *pmidp)
 	fname
 	arglist
 	inst
+	flag
 
 %%
 
@@ -526,9 +527,11 @@ fname	: NAME					{
 		    if ($1[0] == '/' ||
 		        (strlen($1) > 4 && $1[1] == ':' && $1[2] == '/'))
 			$$ = $1;
-		    else
+		    else {
 			/* relative path */
 			$$ = strcons("./", $1);
+			gc_add($$);
+		    }
 	    }
 	| PATHNAME				{ $$ = $1; }
 	;
@@ -688,7 +691,7 @@ debug   : NUMBER 			{
 			}
 			$$ = 0;
 		    }
-	| NAME					{
+	| flag					{
 			sts = pmSetDebug($1);
 			if (sts < 0) {
 			    pmsprintf(warnStr, MYWARNSTRSZ, "Bad debug flag (%s)", $1);
@@ -708,7 +711,18 @@ debug   : NUMBER 			{
 			}
 			$$ = 0;
 		    }
-	| debug NAME					{
+	| debug COMMA NUMBER				{
+			char	nbuf[12];
+			pmsprintf(nbuf, sizeof(nbuf), "%d", $3);
+			sts = pmSetDebug(nbuf);
+			if (sts < 0) {
+			    pmsprintf(warnStr, MYWARNSTRSZ, "Bad debug flag (%s)", nbuf);
+			    yyerror(warnStr);
+			    YYERROR;
+			}
+			$$ = 0;
+		    }
+	| debug flag					{
 			sts = pmSetDebug($2);
 			if (sts < 0) {
 			    pmsprintf(warnStr, MYWARNSTRSZ, "Bad debug flag (%s)", $2);
@@ -717,6 +731,28 @@ debug   : NUMBER 			{
 			}
 			$$ = 0;
 		    }
+	| debug COMMA flag					{
+			sts = pmSetDebug($3);
+			if (sts < 0) {
+			    pmsprintf(warnStr, MYWARNSTRSZ, "Bad debug flag (%s)", $3);
+			    yyerror(warnStr);
+			    YYERROR;
+			}
+			$$ = 0;
+		    }
+	;
+
+/*
+ * debug flags may collide with reserved words, need to special case each one
+ * ... and they need to be malloc'd to match the values returned from the
+ * lexer for type NAME
+ */
+flag	: NAME		{ $$ = $1; }
+	| FETCH		{ $$ = strdup("fetch"); gc_add($$); }
+	| PROFILE	{ $$ = strdup("profile"); gc_add($$); }
+	| CTXT		{ $$ = strdup("context"); gc_add($$); }
+	| INDOM		{ $$ = strdup("indom"); gc_add($$); }
+	| ATTR		{ $$ = strdup("attr"); gc_add($$); }
 	;
 
 %%

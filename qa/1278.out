@@ -1,0 +1,153 @@
+QA output created by 1278
+QA output created by 1277 --valgrind
+=== std out ===
+dbpmda> debug pdu
+dbpmda> status
+Debug options:          pdu
+dbpmda> debug fetch
+dbpmda> status
+Debug options:          pdu fetch
+dbpmda> debug profile
+dbpmda> status
+Debug options:          pdu fetch profile
+dbpmda> debug value
+dbpmda> status
+Debug options:          pdu fetch profile value
+dbpmda> debug context
+dbpmda> status
+Debug options:          pdu fetch profile value context
+dbpmda> debug indom
+dbpmda> status
+Debug options:          pdu fetch profile value context indom
+dbpmda> debug pdubuf
+dbpmda> status
+Debug options:          pdu fetch profile value context indom pdubuf
+dbpmda> debug log
+dbpmda> status
+Debug options:          pdu fetch profile value context indom pdubuf log
+dbpmda> debug logmeta
+dbpmda> status
+Debug options:          pdu fetch profile value context indom pdubuf log logmeta
+dbpmda> debug optfetch
+dbpmda> status
+Debug options:          pdu fetch profile value context indom pdubuf log logmeta optfetch
+dbpmda> debug af
+dbpmda> status
+Debug options:          pdu fetch profile value context indom pdubuf log logmeta optfetch af
+dbpmda> debug appl0
+dbpmda> status
+Debug options:          pdu fetch profile value context indom pdubuf log logmeta optfetch af appl0
+dbpmda> debug appl1
+dbpmda> status
+Debug options:          pdu fetch profile value context indom pdubuf log logmeta optfetch af appl0 appl1
+dbpmda> debug appl2
+dbpmda> status
+Debug options:          pdu fetch profile value context indom pdubuf log logmeta optfetch af appl0 appl1 appl2
+dbpmda> debug pmns
+dbpmda> status
+Debug options:          pdu fetch profile value context indom pdubuf log logmeta optfetch af appl0 appl1 appl2 pmns
+dbpmda> debug libpmda
+dbpmda> status
+Debug options:          pdu fetch profile value context indom pdubuf log logmeta optfetch af appl0 appl1 appl2 pmns libpmda
+dbpmda> debug timecontrol
+dbpmda> status
+Debug options:          pdu fetch profile value context indom pdubuf log logmeta optfetch af appl0 appl1 appl2 pmns libpmda timecontrol
+dbpmda> debug pmc
+dbpmda> status
+Debug options:          pdu fetch profile value context indom pdubuf log logmeta optfetch af appl0 appl1 appl2 pmns libpmda timecontrol pmc
+dbpmda> debug derive
+dbpmda> status
+Debug options:          pdu fetch profile value context indom pdubuf log logmeta optfetch af appl0 appl1 appl2 pmns libpmda timecontrol pmc derive
+dbpmda> debug lock
+dbpmda> status
+Debug options:          pdu fetch profile value context indom pdubuf log logmeta optfetch af appl0 appl1 appl2 pmns libpmda timecontrol pmc derive lock
+dbpmda> debug interp
+dbpmda> status
+Debug options:          pdu fetch profile value context indom pdubuf log logmeta optfetch af appl0 appl1 appl2 pmns libpmda timecontrol pmc derive lock interp
+dbpmda> debug config
+dbpmda> status
+Debug options:          pdu fetch profile value context indom pdubuf log logmeta optfetch af appl0 appl1 appl2 pmns libpmda timecontrol pmc derive lock interp config
+dbpmda> debug pmapi
+dbpmda> status
+Debug options:          pdu fetch profile value context indom pdubuf log logmeta optfetch af appl0 appl1 appl2 pmns libpmda timecontrol pmc derive lock interp config pmapi
+dbpmda> debug fault
+dbpmda> status
+Debug options:          pdu fetch profile value context indom pdubuf log logmeta optfetch af appl0 appl1 appl2 pmns libpmda timecontrol pmc derive lock interp config pmapi fault
+dbpmda> debug auth
+dbpmda> status
+Debug options:          pdu fetch profile value context indom pdubuf log logmeta optfetch af appl0 appl1 appl2 pmns libpmda timecontrol pmc derive lock interp config pmapi fault auth
+dbpmda> debug discovery
+dbpmda> status
+Debug options:          pdu fetch profile value context indom pdubuf log logmeta optfetch af appl0 appl1 appl2 pmns libpmda timecontrol pmc derive lock interp config pmapi fault auth discovery
+dbpmda> debug attr
+dbpmda> status
+Debug options:          pdu fetch profile value context indom pdubuf log logmeta optfetch af appl0 appl1 appl2 pmns libpmda timecontrol pmc derive lock interp config pmapi fault auth discovery attr
+dbpmda> debug http
+dbpmda> status
+Debug options:          pdu fetch profile value context indom pdubuf log logmeta optfetch af appl0 appl1 appl2 pmns libpmda timecontrol pmc derive lock interp config pmapi fault auth discovery attr http
+dbpmda> debug desperate
+dbpmda> status
+Debug options:          pdu fetch profile value context indom pdubuf log logmeta optfetch af appl0 appl1 appl2 pmns libpmda timecontrol pmc derive lock interp config pmapi fault auth discovery attr http desperate
+dbpmda> debug deprecated
+dbpmda> status
+Debug options:          pdu fetch profile value context indom pdubuf log logmeta optfetch af appl0 appl1 appl2 pmns libpmda timecontrol pmc derive lock interp config pmapi fault auth discovery attr http desperate deprecated
+dbpmda> debug exec
+dbpmda> status
+Debug options:          pdu fetch profile value context indom pdubuf log logmeta optfetch af appl0 appl1 appl2 pmns libpmda timecontrol pmc derive lock interp config pmapi fault auth discovery attr http desperate deprecated exec
+dbpmda> debug labels
+dbpmda> status
+Debug options:          pdu fetch profile value context indom pdubuf log logmeta optfetch af appl0 appl1 appl2 pmns libpmda timecontrol pmc derive lock interp config pmapi fault auth discovery attr http desperate deprecated exec labels
+dbpmda> debug series
+dbpmda> status
+Debug options:          pdu fetch profile value context indom pdubuf log logmeta optfetch af appl0 appl1 appl2 pmns libpmda timecontrol pmc derive lock interp config pmapi fault auth discovery attr http desperate deprecated exec labels series
+dbpmda> debug libweb
+dbpmda> status
+Debug options:          pdu fetch profile value context indom pdubuf log logmeta optfetch af appl0 appl1 appl2 pmns libpmda timecontrol pmc derive lock interp config pmapi fault auth discovery attr http desperate deprecated exec labels series libweb
+dbpmda> debug alloc
+dbpmda> status
+Debug options:          pdu fetch profile value context indom pdubuf log logmeta optfetch af appl0 appl1 appl2 pmns libpmda timecontrol pmc derive lock interp config pmapi fault auth discovery attr http desperate deprecated exec labels series libweb alloc
+dbpmda> debug services
+dbpmda> status
+Debug options:          pdu fetch profile value context indom pdubuf log logmeta optfetch af appl0 appl1 appl2 pmns libpmda timecontrol pmc derive lock interp config pmapi fault auth discovery attr http desperate deprecated exec labels series libweb alloc services
+dbpmda> debug appl3
+dbpmda> status
+Debug options:          pdu fetch profile value context indom pdubuf log logmeta optfetch af appl0 appl1 appl2 pmns libpmda timecontrol pmc derive lock interp config pmapi fault auth discovery attr http desperate deprecated exec labels series libweb alloc services appl3
+dbpmda> debug appl4
+dbpmda> status
+Debug options:          pdu fetch profile value context indom pdubuf log logmeta optfetch af appl0 appl1 appl2 pmns libpmda timecontrol pmc derive lock interp config pmapi fault auth discovery attr http desperate deprecated exec labels series libweb alloc services appl3 appl4
+dbpmda> debug appl5
+dbpmda> status
+Debug options:          pdu fetch profile value context indom pdubuf log logmeta optfetch af appl0 appl1 appl2 pmns libpmda timecontrol pmc derive lock interp config pmapi fault auth discovery attr http desperate deprecated exec labels series libweb alloc services appl3 appl4 appl5
+dbpmda> debug access
+dbpmda> status
+Debug options:          pdu fetch profile value context indom pdubuf log logmeta optfetch af appl0 appl1 appl2 pmns libpmda timecontrol pmc derive lock interp config pmapi fault auth discovery attr http desperate deprecated exec labels series libweb alloc services appl3 appl4 appl5 access
+dbpmda> debug qa
+dbpmda> status
+Debug options:          pdu fetch profile value context indom pdubuf log logmeta optfetch af appl0 appl1 appl2 pmns libpmda timecontrol pmc derive lock interp config pmapi fault auth discovery attr http desperate deprecated exec labels series libweb alloc services appl3 appl4 appl5 access qa
+dbpmda> debug search
+dbpmda> status
+Debug options:          pdu fetch profile value context indom pdubuf log logmeta optfetch af appl0 appl1 appl2 pmns libpmda timecontrol pmc derive lock interp config pmapi fault auth discovery attr http desperate deprecated exec labels series libweb alloc services appl3 appl4 appl5 access qa search
+dbpmda> debug query
+dbpmda> status
+Debug options:          (all)
+dbpmda> debug none
+dbpmda> status
+Debug options:          (none)
+dbpmda> debug  pdu fetch profile value context indom pdubuf log logmeta optfetch af appl0 appl1 appl2 pmns libpmda timecontrol pmc derive lock interp config pmapi fault auth discovery attr http desperate deprecated exec labels series libweb alloc services appl3 appl4 appl5 access qa search query
+dbpmda> status
+Debug options:          (all)
+dbpmda> debug none
+dbpmda> status
+Debug options:          (none)
+dbpmda> debug all
+dbpmda> status
+Debug options:          (all)
+dbpmda> 
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: dbpmda -ie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

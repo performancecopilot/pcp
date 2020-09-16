@@ -921,6 +921,13 @@ fillResult(pmResult *result, int type)
 	    printf(" -> ");
 	    pmPrintValue(stdout, vsp->valfmt, type, &vsp->vlist[i], 1);
 	    putchar('\n');
+	    if (vsp->valfmt == PM_VAL_DPTR) {
+		/*
+		 * pmValueBlock allocated in __pmStuffValue, keep track
+		 * so we can free it later
+		 */
+		gc_add(vsp->vlist[i].value.pval);
+	    }
 	}
     }
 
@@ -930,4 +937,3 @@ done:
 
     return sts;
 }
-

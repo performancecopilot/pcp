@@ -15,7 +15,6 @@
 
 #include "pmapi.h"
 #include "libpcp.h"
-#include "libpcp.h"
 #include "pmda.h"
 
 /* yacc/lex routines */
@@ -98,3 +97,7 @@ extern int get_desc;
 /* namespace pathnames */
 extern char *pmnsfile;
 extern char *cmd_namespace;
+
+/* garbage collection */
+extern void gc_add(void *);
+extern void gc_free(void);

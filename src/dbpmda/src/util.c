@@ -49,7 +49,13 @@ static int		argc;
 void
 reset_profile(void)
 {
-    if ((profile = (pmProfile *)realloc(profile, sizeof(pmProfile))) == NULL) {
+    if (pmDebugOptions.indom && ctxp->c_instprof != NULL) {
+	fprintf(stderr, "Before reset_profile ...\n");
+	__pmDumpProfile(stderr, PM_INDOM_NULL, ctxp->c_instprof);
+    }
+    if (ctxp->c_instprof != NULL)
+	__pmFreeProfile(ctxp->c_instprof);
+    if ((profile = (pmProfile *)malloc(sizeof(pmProfile))) == NULL) {
 	pmNoMem("reset_profile", sizeof(pmProfile), PM_FATAL_ERR);
 	exit(1);
     }
@@ -57,6 +63,10 @@ reset_profile(void)
     memset(profile, 0, sizeof(pmProfile));
     profile->state = PM_PROFILE_INCLUDE;        /* default global state */
     profile_changed = 1;
+    if (pmDebugOptions.indom) {
+	fprintf(stderr, "After reset_profile ...\n");
+	__pmDumpProfile(stderr, PM_INDOM_NULL, ctxp->c_instprof);
+    }
 }
 
 void
@@ -96,6 +106,9 @@ setup_context(void)
     /* need to be careful about the initialized lock */
     save_c_lock = ctxp->c_lock;
 #endif
+    if (ctxp->c_instprof != NULL)
+	__pmFreeProfile(ctxp->c_instprof);
+    __pmFreeDerived(ctxp);
     memset(ctxp, 0, sizeof(__pmContext));
 #ifdef PM_MULTI_THREAD
     ctxp->c_lock = save_c_lock;
@@ -627,3 +640,53 @@ _dbDumpResult(FILE *f, pmResult *resp, pmDesc *desc_list)
 	}/*for*/
     }/*for*/
 }/*_dbDumpResult*/
+
+static void	**gc = NULL;	/* for Garbage Collection (GC), see below */
+static int	gc_len = 0;	/* length of gc[] */
+static int	gc_have = 0;	/* elements of gc[] in use */
+
+/*
+ * accumulate garbage
+ */
+void
+gc_add(void *p)
+{
+    gc_have++;
+    if (gc_have >= gc_len) {
+	/* need more gc space, if this fails ignore GC */
+	void	**gc_tmp;
+	int	need;
+	if (gc_len == 0)
+	    need = 4;		/* start with 4 slots */
+	else
+	    need = 2 * gc_len;	/* then doubling */
+	if ((gc_tmp = (void **)realloc(gc, need * sizeof(void *))) != NULL) {
+	    gc = gc_tmp;
+	    gc_len = need;
+	}
+	else {
+	    /*
+	     * if realloc() fails, just forget about this one
+	     * or the previous last one
+	     */
+	    gc_have--;
+	}
+    }
+    if (gc_have < gc_len)
+	gc[gc_have - 1] = p;
+}
+
+/*
+ * free up all accumulated garbage
+ */
+void
+gc_free(void)
+{
+    int		j;
+    if (gc_have > 0) {
+	for (j = 0; j < gc_have; j++) {
+	    free(gc[j]);
+	}
+	gc_have = 0;
+    }
+}
