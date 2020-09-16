@@ -37,6 +37,7 @@ class Free(object):
         self.count = 0       # number of samples to report
         self.pause = None    # time interval to pause between samples
         self.shift = 10      # bitshift conversion between B/KB/MB/GB
+        self.show_wide = 0
         self.show_high = 0
         self.show_total = 0
         self.show_compat = 0
@@ -49,7 +50,7 @@ class Free(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.override)
-        opts.pmSetShortOptions("bc:gklmrots:V?")
+        opts.pmSetShortOptions("bc:gklmrots:Vw?")
         opts.pmSetLongOptionHeader("Options")
         opts.pmSetLongOption("bytes", 0, 'b', '', "show output in bytes")
         opts.pmSetLongOption("kilobytes", 0, 'k', '', "show output in KB")
@@ -57,13 +58,19 @@ class Free(object):
         opts.pmSetLongOption("gigabytes", 0, 'g', '', "show output in GB")
         opts.pmSetLongOption("terabytes", 0, 'r', '', "show output in TB")
         opts.pmSetLongOption("", 0, 'o', '',
-                             "use old format (no -/+buffers/cache line)")
-        opts.pmSetLongOption("", 0, 'l', '',
+                             "use old format (-/+buffers/cache line)")
+        opts.pmSetLongOption("lohi", 0, 'l', '',
                              "show detailed low and high memory statistics")
         opts.pmSetLongOption("total", 0, 't', '',
                              "display total for RAM + swap")
-        opts.pmSetLongOption("samples", 1, 'c', "COUNT", "number of samples")
-        opts.pmSetLongOption("interval", 1, 's', "DELTA", "sampling interval")
+        opts.pmSetLongOption("count", 1, 'c', "COUNT",
+                             "repeat printing COUNT times, then exit")
+        opts.pmSetLongOption("samples", 1, 'c', "COUNT",
+                             "number of samples (alias for --count)")
+        opts.pmSetLongOption("seconds", 1, 's', "DELTA",
+                             "repeat printing every DELTA seconds")
+        opts.pmSetLongOption("interval", 1, 's', "DELTA",
+                             "sampling interval (alias for --seconds)")
         opts.pmSetLongOptionVersion()
         opts.pmSetLongOptionHelp()
         return opts
@@ -90,6 +97,8 @@ class Free(object):
             self.shift = 40
         elif opt == 'o':
             self.show_compat = 1
+        elif opt == 'w':
+            self.show_wide = 1
         elif opt == 'l':
             self.show_high = 1
         elif opt == 't':
@@ -127,11 +136,12 @@ class Free(object):
             fetch and report a fixed set of values related to memory.
         """
         metrics = ('mem.physmem',
-                   'mem.util.free',        'mem.util.shared',
-                   'mem.util.bufmem',        'mem.util.cached',
-                   'mem.util.highFree',        'mem.util.highTotal',
-                   'mem.util.lowFree',        'mem.util.lowTotal',
-                   'mem.util.swapFree',        'mem.util.swapTotal')
+                   'mem.util.free',  'mem.util.shmem',
+                   'mem.util.bufmem',  'mem.util.cached',
+                   'mem.util.highFree',  'mem.util.highTotal',
+                   'mem.util.lowFree',  'mem.util.lowTotal',
+                   'mem.util.swapFree',  'mem.util.swapTotal',
+                   'mem.util.available',  'mem.util.slabReclaimable')
 
         pmids = self.context.pmLookupName(metrics)
         descs = self.context.pmLookupDescs(pmids)
@@ -162,19 +172,22 @@ class Free(object):
 
     def report(self, values):
         """ Given the set of metric values report them in free(1) form """
-        physmem   = values[0]
-        free      = values[1]
-        shared    = values[2]
-        buffers   = values[3]
-        cached    = values[4]
-        highfree  = values[5]
+        physmem = values[0]
+        free = values[1]
+        shared = values[2]
+        buffers = values[3]
+        cached = values[4]
+        highfree = values[5]
         hightotal = values[6]
-        lowfree   = values[7]
-        lowtotal  = values[8]
-        swapfree  = values[9]
+        lowfree = values[7]
+        lowtotal = values[8]
+        swapfree = values[9]
         swaptotal = values[10]
+        available = values[11]
+        slabreclaim = values[12]
 
-        used = physmem - free
+        used = physmem - free - buffers - cached - slabreclaim
+        cache = cached + slabreclaim
         swapused = swaptotal - swapfree
 
         # low == main memory, except with large-memory support
@@ -182,27 +195,36 @@ class Free(object):
             lowtotal = physmem
             lowfree = free
 
-        columns = ('total', 'used', 'free', 'shared', 'buffers', 'cached')
-        print("%18s %10s %10s %10s %10s %10s" % columns)
-        print("%-7s %10Lu %10Lu %10Lu %10Lu %10Lu %10Lu" % ('Mem:',
+        if self.show_wide:
+            columns = ('total', 'used', 'free', 'shared', 'buffers', 'cache', 'available')
+            print("%19s %11s %11s %11s %11s %11s %11s" % columns)
+            print("%-7s %11Lu %11Lu %11Lu %11Lu %11Lu %11Lu %11Lu" % ('Mem:',
                 self.scale(physmem), self.scale(used), self.scale(free),
-                self.scale(shared), self.scale(buffers), self.scale(cached)))
+                self.scale(shared), self.scale(buffers), self.scale(cache),
+                self.scale(available)))
+        else:
+            columns = ('total', 'used', 'free', 'shared', 'buff/cache', 'available')
+            print("%19s %11s %11s %11s %11s %11s" % columns)
+            print("%-7s %11Lu %11Lu %11Lu %11Lu %11Lu %11Lu" % ('Mem:',
+                self.scale(physmem), self.scale(used), self.scale(free),
+                self.scale(shared), self.scale(buffers + cache),
+                self.scale(available)))
 
         if self.show_high:
-            print("%-7s %10Lu %10Lu %10Lu" % ('Low:', self.scale(lowtotal),
+            print("%-7s %11Lu %11Lu %11Lu" % ('Low:', self.scale(lowtotal),
                     self.scale(lowtotal - lowfree), self.scale(lowtotal)))
-            print("%-7s %10Lu %10Lu %10Lu" % ('High:', self.scale(hightotal),
+            print("%-7s %11Lu %11Lu %11Lu" % ('High:', self.scale(hightotal),
                     self.scale(hightotal - highfree), self.scale(highfree)))
-        if self.show_compat != 1:
+        if self.show_compat != 0:
             cache = buffers + cached
-            print("%s: %10Lu %10Lu" % ('-/+ buffers/cache',
+            print("%s:  %11Lu %11Lu" % ('-/+ buffers/cache',
                     self.scale(used - cache), self.scale(free + cache)))
 
-        print("%-7s %10Lu %10Lu %10Lu" % ('Swap', self.scale(swaptotal),
+        print("%-7s %11Lu %11Lu %11Lu" % ('Swap', self.scale(swaptotal),
                 self.scale(swapused), self.scale(swapfree)))
 
         if self.show_total == 1:
-            print("%-7s %10Lu %10Lu %10Lu" % ('Total',
+            print("%-7s %11Lu %11Lu %11Lu" % ('Total',
                     self.scale(physmem + swaptotal),
                     self.scale(used + swapused), self.scale(free + swapfree)))
 

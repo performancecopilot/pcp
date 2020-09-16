@@ -1,41 +1,37 @@
 QA output created by 1400
 
 pcp-free output : Display the memory in kilobytes
-             total       used       free     shared    buffers     cached
-Mem:    4144381172   29524816 4114856356          0       2260    3639464
--/+ buffers/cache:   25883092 4118498080
-Swap       4194300          0    4194300
+              total        used        free      shared  buff/cache   available
+Mem:     4144381172    25383548  4114856356       12212     4141268  4117163740
+Swap        4194300           0     4194300
 
 pcp-free output : Display the memory in terabytes using -r flag
-             total       used       free     shared    buffers     cached
-Mem:             3          0          3          0          0          0
--/+ buffers/cache:          0          3
-Swap             0          0          0
+              total        used        free      shared  buff/cache   available
+Mem:              3           0           3           0           0           3
+Swap              0           0           0
 
 pcp-free output : Display the memory in terabytes using --terabytes flag
-             total       used       free     shared    buffers     cached
-Mem:             3          0          3          0          0          0
--/+ buffers/cache:          0          3
-Swap             0          0          0
+              total        used        free      shared  buff/cache   available
+Mem:              3           0           3           0           0           3
+Swap              0           0           0
 
 pcp-free output : Display the memory in terabytes along with other flags
-             total       used       free     shared    buffers     cached
-Mem:             3          0          3          0          0          0
--/+ buffers/cache:          0          3
-Swap             0          0          0
+              total        used        free      shared  buff/cache   available
+Mem:              3           0           3           0           0           3
+Swap              0           0           0
 
-             total       used       free     shared    buffers     cached
-Mem:             3          0          3          0          0          0
--/+ buffers/cache:          0          3
-Swap             0          0          0
+              total        used        free      shared  buff/cache   available
+Mem:              3           0           3           0           0           3
+Swap              0           0           0
 
-             total       used       free     shared    buffers     cached
-Mem:             3          0          3          0          0          0
--/+ buffers/cache:          0          3
-Swap             0          0          0
 
-             total       used       free     shared    buffers     cached
-Mem:             3          0          3          0          0          0
--/+ buffers/cache:          0          3
-Swap             0          0          0
+pcp-free output : Display the wide mode with split cache/buffer columns
+              total        used        free      shared     buffers       cache   available
+Mem:     4144381172    25383548  4114856356       12212        2260     4139008  4117163740
+Swap        4194300           0     4194300
 
+pcp-free output : Display compatibility mode with a buffers/cache line
+              total        used        free      shared  buff/cache   available
+Mem:     4144381172    25383548  4114856356       12212     4141268  4117163740
+-/+ buffers/cache:     21741824  4118498080
+Swap        4194300           0     4194300

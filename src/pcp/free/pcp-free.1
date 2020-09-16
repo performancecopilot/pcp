@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2014,2019 Red Hat.
+.\" Copyright (c) 2014,2019-2020 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -20,7 +20,7 @@
 \f3pcp\f1
 [\f2pcp\ options\f1]
 \f3free\f1
-[\f3\-bkmgroltV?\f1]
+[\f3\-bkmgroltVw?\f1]
 [\f3\-c\f1 \f2count\f1]
 [\f3\-s\f1 \f2interval\f1]
 .SH DESCRIPTION
@@ -50,6 +50,37 @@ and several other
 become indirectly available, see
 .BR PCPIntro (1)
 for their descriptions.
+.PP
+The displayed columns are:
+.TP
+\fBtotal\fR
+Total installed memory (MemTotal and SwapTotal in /proc/meminfo)
+.TP
+\fBused\fR
+Used memory (calculated as \fBtotal\fR - \fBfree\fR - \fBbuffers\fR - \fBcache\fR)
+.TP
+\fBfree\fR
+Unused memory (MemFree and SwapFree in /proc/meminfo)
+.TP
+\fBshared\fR
+Memory used (mostly) by tmpfs (Shmem in /proc/meminfo)
+.TP
+\fBbuffers\fR
+Memory used by kernel buffers (Buffers in /proc/meminfo)
+.TP
+\fBcache\fR
+Memory used by the page cache and slabs (Cached and SReclaimable in /proc/meminfo)
+.TP
+\fBbuff/cache\fR
+Sum of \fBbuffers\fR and \fBcache\fR
+.TP
+\fBavailable\fR
+Estimation of how much memory is available for starting
+new applications, without swapping.
+Unlike the data provided by the \fBcache\fR or \fBfree\fR
+fields, this field takes into account page cache and also
+that not all reclaimable memory slabs will be reclaimed
+due to items being in use (MemAvailable in /proc/meminfo).
 .SH OPTIONS
 The available command line options are:
 .TP 5
@@ -95,6 +126,12 @@ Display a line containing the totals.
 \fB\-V\fR, \fB\-\-version\fR
 Display version number and exit.
 .TP
+\fB\-w\fR, \fB\-\-wide\fR
+Switch to the wide mode.
+The wide mode produces lines longer than 80 characters.
+In this mode \fBbuffers\fR and \fBcache\fR are reported
+in two separate columns.
+.TP
 \fB\-?\fR, \fB\-\-help\fR
 Display usage message and exit.
 .SH NOTES
@@ -102,8 +139,6 @@ Display usage message and exit.
 is inspired by the
 .BR free (1)
 command and aims to be command line and output compatible with it.
-.PP
-The shared memory column should be ignored; it is obsolete.
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize
 the file and directory names used by PCP.
