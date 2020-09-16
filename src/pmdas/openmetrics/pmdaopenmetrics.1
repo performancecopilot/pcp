@@ -218,6 +218,13 @@ and trailing spaces are trimmed.
 A common use for headers is to configure a proxy agent
 and the assorted parameters it may require.
 .PP
+.SH "METRIC FILTERING"
+Metric filtering is a configuration file feature that allows
+ingested metrics to be included or excluded, i.e. filtered.
+This is useful because most end-points return multiple metrics,
+and usually only some are interesting for monitoring purposes.
+The syntax is:
+.br
 .BI "FILTER: INCLUDE METRIC" " regex"
 .br
 or
@@ -227,8 +234,12 @@ or
 Dynamically created metric names that match
 .I regex
 will be either included or excluded in the name space, as specified.
+Note that only the PMNS leaf component of the metric name (as ingested from the URL source)
+is compared with the
+.I regex
+pattern.
 The simple rule is that the \fIfirst matching\fP filter regex
-for a particular metric name is the rule that prevails.
+for a particular metric leaf name is the rule that prevails.
 If no filter regex matches (or there are no filters), then the metric
 is included by default, i.e. the default filter if none are specified is
 .BR "FILTER: INCLUDE METRIC .*"
@@ -246,15 +257,15 @@ In this case it's not necessary (though doesn't hurt) to specify the final
 .B "FILTER: INCLUDE METRIC .*"
 because, as stated above, any metric that does not match
 any filter regex will be included by default.
-.PP
+.SH "LABEL FILTERING"
 Label filtering uses similar
 .B FILTER:
-syntax and semantics as metric names.
+syntax and semantics as metric filtering.
 .BI "FILTER: EXCLUDE LABEL" " regex"
 will delete all labels with label name matching
 .I regex
 from all metrics defined by the configuration file.
-The same rules as for metrics apply for labels too - an implicit rule:
+The same rules as for metric filters apply for label filters too - an implicit rule:
 .BI "FILTER: INCLUDE LABEL .*"
 applies to all labels that do not match any earlier label filter rule.
 .BI "FILTER: OPTIONAL LABEL" " regex"
@@ -262,7 +273,9 @@ specifies that matching label names are to be included in the
 returned metric labelsets (i.e. included), but are
 .B not
 to be used as part of the the external instance names.
-All included labels that are not optional will be concatenated together
+All included labels that are not optional (i.e. the
+.I intrinsic
+labels) will be concatenated together
 and used for external instance naming.
 Note that external instance names begin with the unique numeric
 internal instance identifier followed by a space, so external instance

@@ -680,7 +680,8 @@ class Source(object):
                 # check metric is not excluded by filters
                 fullname = "openmetrics.%s.%s" % (self.name, sp.name)
                 self.pmda.debug("Checking metric '%s'" % (fullname)) if self.pmda.dbg else None
-                if self.check_filter(fullname, "METRIC") != "INCLUDE":
+                # Nb: filter pattern is applied only to the leaf component of the full metric name
+                if self.check_filter(sp.name, "METRIC") != "INCLUDE":
                     self.pmda.log("Metric %s excluded by config filters" % fullname)
                     return
                 else:
