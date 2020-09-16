@@ -448,6 +448,62 @@ For additional information about PCP metadata, see
 and
 .BR pmParseUnitsStr (3)
 and examples in shipped configuration files.
+.PP
+In-line "PCP5" metadata must be supplied by the metrics source end-pont (URL or script).
+An alternative is to specify this in the URL configuration file directly, which has the advantage
+of not having to modify the source/end-point if the metadata is incorrect or missing.
+Metadata specified in the URL configuration file over-rides any in-line metadata.
+.PP
+The configuration file syntax for specifying metadata is:
+.br
+\f3METADATA:\fP \f2regex\fP \f2type\fP \f2indom\fP \f2semantics\fP \f2units\fP ... to EOL
+.br
+Where:
+.br
+\f3METADATA:\fP is literal
+.br
+\f2regex\fP is an extended regular expression to match one or more metric names returned by the URL,
+.br
+\f2type\fP is one of the PCP numeric types (\f332\fP, \f3u32\fP, \f364\fP, \f3u64\fP, \f3float\fP or \f3double\fP),
+.br
+\f2indom\fP is an arbitrary instance domain name, or \f3PM_INDOM_NULL\fP,
+.br
+\f2semantics\fP is either \f3counter\fP, \f3instant\fP or \f3discrete\fP and
+.br
+\f2units\fP is either \f3none\fP or a string extending to end of line that is parseable by
+.BR pmParseUnitsStr(3),
+i.e. the units, dimensions and scaling to be used for matching metrics.
+.PP
+An example configuration file that ingests metrics from the Grafana /metrics end-point on localhost,
+filters out all metrics returned by that URL
+.I except
+for
+.B grafana_api_response_status_total
+and then specifies the metric
+.I type
+is an unsigned 32 bit integer with a non-singular instance domain named
+.B response
+and
+.B counter
+semantics with
+.I units
+of
+.BR count .
+.sp
+\f3http://localhost:3000/metrics\fP
+.br
+\f3FILTER: INCLUDE METRIC grafana_api_response_status_total\fP
+.br
+\f3FILTER: EXCLUDE METRIC .*\fP
+.br
+\f3METADATA: grafana_api_response_status_total u32 response counter count\fP
+.PP
+Note that the name in the
+.I indom
+field is presently ignored unless it is
+.BR PM_INDOM_NULL ,
+in which case the metric has no instance domain (i.e. singular),
+even if it has labels which would otherwise be used for instance naming.
 .SH "CONTROL METRICS"
 The PMDA maintains special control metrics, as described below.
 Apart from

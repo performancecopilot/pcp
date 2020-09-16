@@ -110,7 +110,7 @@ class Metric(object):
         self.singular = (instances is None) or (pcpline and "PM_INDOM_NULL" in pcpline.split(' '))
 
         if self.singular:
-            # no labels in ingested data, *or* we have PCP5 metadata with PM_INDOM_NULL
+            # no labels in ingested data, *or* we have PCP5 (or config METADATA) metadata with PM_INDOM_NULL
             self.mindom = c_api.PM_INDOM_NULL
             self.indom_table = None
         else:
@@ -188,22 +188,24 @@ class Metric(object):
             len_metadata = len(metadata)
             self.mname = 'openmetrics.' + self.source.name + '.' + metadata[1]
 
-            if metadata[0] == 'PCP5':
+            if metadata[0] == 'PCP5' or metadata[0] == 'METADATA':
                 # PCPv5 metadata, e.g.:
-                # PCP5 simple.time.user 253.1.2 double PM_INDOM_NULL counter sec
+                #    PCP5 simple.time.user double PM_INDOM_NULL counter sec
+                # or matching regex from config file, e.g. :
+                #    METADATA simple.time.user double PM_INDOM_NULL counter sec
                 if self.source.pmda.dbg:
                     self.source.pmda.debug("assign_metadata: %s" % metadata)
-                if metadata[5] == 'instant':
+                if metadata[4] == 'instant':
                     self.msem = c_api.PM_SEM_INSTANT
-                elif metadata[5] == 'counter':
+                elif metadata[4] == 'counter':
                     self.msem = c_api.PM_SEM_COUNTER
-                elif metadata[5] == 'discrete':
+                elif metadata[4] == 'discrete':
                     self.msem = c_api.PM_SEM_DISCRETE
                 # metric type (not semantics!)
-                self.mtype = self.decodeTypeStr(metadata[3])
-                if len_metadata >= 6:
+                self.mtype = self.decodeTypeStr(metadata[2])
+                if len_metadata >= 5:
                     # units extends to the end of the line
-                    self.munits, self.multiplier = self.parse_pcp_units(' '.join(metadata[6:]))
+                    self.munits, self.multiplier = self.parse_pcp_units(' '.join(metadata[5:]))
 
             elif metadata[0] == 'PCP':
                 # pre-PCPv5 metadata, e.g.:
@@ -569,14 +571,16 @@ class Source(object):
         self.requests = None
         self.headers = None
         self.filterlist = None
+        self.metadatalist = None
         self.document = None
 
         self.refresh_time = 0 # "never"
         if not is_scripted:
-            # source is a URL.  Create a session for it.
+            # source is a URL.  Create a session for it and initialize a few things
             self.requests = self.pmda.requests # allow persistent connections etc.
             self.headers = {} # dict of headers for the http get
-            self.filterlist = [] # list of filters
+            self.filterlist = [] # list of filters from URL config file
+            self.metadatalist = [] # list of metadata from URL config file.
 
         # persistently assign numeric id to our metrics
         self.pmids_table = PersistentNameTable(self.pmda, cluster, MAX_METRIC)
@@ -687,6 +691,15 @@ class Source(object):
                 else:
                     # new metric
                     metricnum = self.pmids_table.intern_lookup_value(sp.name)
+                    # check if the config specifies metadata for this metric
+                    if self.metadatalist:
+                        for metadata in self.metadatalist:
+                            rx = self.pmda.lookup_regex(metadata[0]) # no spaces allowed in metric name regex
+                            if rx.match(sp.name):
+                                # config metadata overrides the PCP or PCP5 line parsed from the inline metric data
+                                pcpline = "METADATA %s %s" % (sp.name, ' '.join(metadata[1:])) # to EOL
+                                self.pmda.log('metric "%s" config metadata matches "%s": pcpline = "%s"' % (sp.name, metadata[0], pcpline))
+                                break
                     m = Metric(self, sp.name, metricnum, included_labels, optional_labels, pcpline, helpline, typeline)
                     self.metrics_by_name[sp.name] = m
                     self.metrics_by_num[metricnum] = m  # not pmid!
@@ -731,10 +744,11 @@ class Source(object):
                     continue
                 # NB: for a well-formed exporter file,
                 # the # metadata blocks must precede
-                # the metric values; we can ignore
-                # lp[2].
-                if lp[1] == 'PCP' or lp[1] == 'PCP5':
+                # the metric values; we can ignore lp[2].
+                if lp[1] == 'PCP':
                     pcpline = ' '.join(lp[1:])
+                elif lp[1] == 'PCP5':
+                    pcpline = "%s %s %s" % (lp[1], lp[2], ' '.join(lp[4:])) # omit pmid
                 elif lp[1] == 'HELP':
                     # assume lp[2] matches metric name
                     helpline = ' '.join(lp[3:])
@@ -781,6 +795,22 @@ class Source(object):
         # but NOT used in instance names. All labels that are not excluded or
         # optional are otherwise used in instance names.
         FILTER: {INCLUDE|OPTIONAL|EXCLUDE} LABEL regex
+
+        # METADATA: regex type indom semantics units ... to EOL
+        #
+        # Specifies the PCP metadata to use for metric (leaf) names matching the regex.
+        # Metric names matching the regex will use this metadata (overriding PCP or PCP5 comments).
+        # If a metric name does not match any METADATA regex, it will use the '# PCP' or '# PCP5' line,
+        # falling back to an heuristic if there is no '# PCP' or '# PCP5' line.
+        #
+        # The METADATA: fields are as follows:
+        #   regex - an extended regex that matches metric names returned by the URL
+        #   type - one of the PCP numeric data types: double, float, u64, 64, u32 or 32
+        #   indom - 'PM_INDOM_NULL' or a name that will be added as an indom_name=name optional label
+        #   semantics - 'counter', 'instant' or 'discrete'
+        #   units - 'none' or a string (to end-of line) parseable by pmParseUnitsStr(3)
+        #
+        # Note this is for URL configs only (scripted configs should generate PCP5 metadata).
         '''
 
         conf = open(filepath, 'r').read().strip().split('\n')
@@ -804,28 +834,19 @@ class Source(object):
                 # Full string matches must be anchored, e.g. ^matchme$|*endswith$
                 header_filter = ''.join(line.split(':', 2)[1]).lstrip()
                 self.filterlist.append(header_filter)
+            elif line.startswith('METADATA:'):
+                # strip off 'METADATA:' and any leading space
+                # each list entry is (uppercase are literal) :
+                #     METADATA: regex metadata ... to EOL
+                # metadata = ''.join(line.split(':', 2)[1]).lstrip()
+                metadata = line.split(' ')[1:]
+                self.metadatalist.append(metadata)
             else:
                 self.pmda.log('Warning: %s ignored unrecognised config entry "%s"' % (self.url, line))
 
-        # METADATA: regex type indom semantics units ... to EOL
-        #
-        # Specifies the PCP metadata to use for metric names matching the regex.
-        # Metric names matching the regex will use this metadata (overriding PCP or PCP5 comments).
-        # If a metric name does not match any METADATA regex, it will use the '# PCP' or '# PCP5' line,
-        # falling back to an heuristic if there is no '# PCP' or '# PCP5' line.
-        #
-        # The METADATA: fields are as follows:
-        #   regex - an extended regex that matches metric names returned by the URL
-        #   type - one of 'PCP_TYPE_*' for one of DOUBLE FLOAT U64 64 U32 32
-        #   indom - 'PM_INDOM_NULL' or a name that will be added as an indom_name=name optional label
-        #   semantics - 'counter', 'instant' or 'discrete'
-        #   units - 'none' or a string (to end-of line) parseable by pmParseUnitsStr(3)
-        #
-        # Note this is for URL configs only (scripted configs should generate PCP5 metadata).
-        ## -- TODO --
-
         self.pmda.debug("DEBUG url: %s HEADERS: %s" % (self.url, self.headers)) if self.pmda.dbg else None
         self.pmda.debug("DEBUG url: %s FILTERS: %s" % (self.url, self.filterlist)) if self.pmda.dbg else None
+        self.pmda.debug("DEBUG url: %s METADATA: %s" % (self.url, self.metadatalist)) if self.pmda.dbg else None
 
     def refresh1(self, timeout):
         '''
