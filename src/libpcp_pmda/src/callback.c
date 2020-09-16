@@ -806,6 +806,7 @@ pmdaLabel(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
     if (extp->dispatch->comm.pmda_interface >= PMDA_INTERFACE_5)
 	__pmdaSetContext(pmda->e_context);
 
+    type &= ~(PM_LABEL_COMPOUND|PM_LABEL_OPTIONAL);
     switch (type) {
     case PM_LABEL_CONTEXT:
 	if (pmDebugOptions.labels)

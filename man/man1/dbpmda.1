@@ -340,7 +340,7 @@ This window must be closed by the user when no longer required.
 The
 .B wait
 command is equivalent to
-.B sleep (1)
+.BR sleep (1)
 and takes a single integer argument.
 .PP
 The introduction of dynamic subtrees in the
@@ -467,6 +467,25 @@ value pair sent to it in its
 Note that authentication checks have already been performed by PMCD
 by the time a PMDA is presented with these attributes, so no further
 verification is necessary by the PMDA.
+.PP
+The
+.B debug
+command takes one or more debug options separated by whitespace or a comma.
+This can be used to selectively enable or disable debugging output from various
+modules of the PCP libraries that the PMDA will be linked with.
+The options are the same debug names as reported by the
+.B \-l
+option to
+.BR pmdbg (1)
+and/or their deprecated equivalent numeric values as reported by the
+.B \-ol
+options to
+.BR pmdbg (1).
+The special ``option''
+.B none
+turns all debugging off and the special ``option''
+.B all
+enables all the debugging options.
 .SH CAVEATS
 A value cannot be stored into metrics of type
 .B PM_TYPE_AGGREGATE

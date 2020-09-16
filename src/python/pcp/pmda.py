@@ -1,6 +1,6 @@
 """Wrapper module for libpcp_pmda - Performace Co-Pilot Domain Agent API
 #
-# Copyright (C) 2013-2015,2017-2019 Red Hat.
+# Copyright (C) 2013-2015,2017-2020 Red Hat.
 #
 # This file is part of the "pcp" module, the python interfaces for the
 # Performance Co-Pilot toolkit.
@@ -61,6 +61,8 @@ LIBPCP_PMDA.pmdaAddLabels.restype = c_int
 LIBPCP_PMDA.pmdaAddLabels.argtypes = [POINTER(POINTER(pmLabelSet)), c_char_p]
 LIBPCP_PMDA.pmdaAddLabelFlags.restype = c_int
 LIBPCP_PMDA.pmdaAddLabelFlags.argtypes = [POINTER(pmLabelSet), c_int]
+LIBPCP_PMDA.pmdaAddNotes.restype = c_int
+LIBPCP_PMDA.pmdaAddNotes.argtypes = [POINTER(POINTER(pmLabelSet)), c_char_p]
 
 LIBPCP_PMDA.pmdaGetContext.restype = c_int
 LIBPCP_PMDA.pmdaGetContext.argtypes = []
@@ -77,6 +79,13 @@ def pmdaAddLabelFlags(labels, flags):
     if status < 0:
         raise pmErr(status)
     return status
+
+def pmdaAddNotes(label):
+    result_p = POINTER(pmLabelSet)()
+    status = LIBPCP_PMDA.pmdaAddNotes(byref(result_p), label)
+    if status < 0:
+        raise pmErr(status)
+    return result_p
 
 def pmdaGetContext():
     status = LIBPCP_PMDA.pmdaGetContext()
@@ -509,6 +518,10 @@ class PMDA(MetricDispatch):
         return cpmda.set_label(label)
 
     @staticmethod
+    def set_notes(notes):
+        return cpmda.set_notes(notes)
+
+    @staticmethod
     def set_refresh(refresh):
         return cpmda.set_refresh(refresh)
 
@@ -523,6 +536,10 @@ class PMDA(MetricDispatch):
     @staticmethod
     def set_label_callback(label_callback):
         return cpmda.set_label_callback(label_callback)
+
+    @staticmethod
+    def set_notes_callback(notes_callback):
+        return cpmda.set_notes_callback(notes_callback)
 
     @staticmethod
     def set_attribute_callback(attribute_callback):

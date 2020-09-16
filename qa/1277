@@ -1,0 +1,80 @@
+#!/bin/sh
+# PCP QA Test No. 1277
+# Check fixes to dbpmda's debug command.
+#
+# Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    tee -a $seq.full \
+    | sed \
+	-e '/^ *$/d' \
+	-e '/^Namespace:/d' \
+	-e '/^PMDA:/d' \
+	-e '/^Timer:/d' \
+	-e '/^Getdesc:/d' \
+	-e '/^Dump Instance/d' \
+    # end
+}
+
+# real QA test starts here
+pmdbg -l \
+| $PCP_AWK_PROG >$tmp.in '
+NR <= 2	{ next}			# skip 2 heading lines
+	{ print "debug " $1
+	  print "status"
+	  all = all " " $1
+	}
+END	{ print "debug none"		# clear all the flags
+	  print "status"
+	  print "debug " all		# explicitly set them all
+	  print "status"
+	  print "debug none"		# clear again
+	  print "status"
+	  print "debug all"		# implicitly set them all
+	  print "status"
+	}'
+
+cat $tmp.in >>$seq.full
+
+if [ "$1" = "--valgrind" ]
+then
+    _run_valgrind dbpmda -ie <$tmp.in
+else
+    dbpmda -ie <$tmp.in 2>&1
+fi \
+| _filter
+
+# success, all done
+exit

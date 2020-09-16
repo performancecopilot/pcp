@@ -2,7 +2,7 @@
 #
 # Copyright (c) 2014 Aconex
 # Copyright (c) 2014-2015,2017 Red Hat.
-# Copyright (c) 2019 Red Hat.
+# Copyright (c) 2019-2020 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -76,8 +76,12 @@ class TestPMDA(PMDA):
 
         self.set_refresh(self.test_update_status)
         self.set_refresh_all(self.test_refresh_all)
+        self.set_label(self.test_label)
+        self.set_notes(self.test_notes)
         self.set_fetch_callback(self.test_fetch_callback)
         self.set_store_callback(self.test_store_callback)
+        self.set_label_callback(self.test_label_callback)
+        self.set_notes_callback(self.test_notes_callback)
         self.set_attribute_callback(self.test_attribute_callback)
         self.set_endcontext_callback(self.test_endcontext_callback)
         self.set_user(PCP.pmGetConfig('PCP_USER'))
@@ -157,6 +161,29 @@ class TestPMDA(PMDA):
         return [c_api.PM_ERR_PMID, 0]
 
 
+    def test_label(self, ident, typeid):
+        self.log("label callback for ident=%d[type=%d]" % (ident, typeid))
+        if typeid == c_api.PM_LABEL_ITEM:
+           if ident == self.pmid(0, 0):
+               return '{"label":true}'
+        return '{}'
+
+    def test_notes(self, ident, typeid):
+        self.log("notes callback for ident=%d[type=%d]" % (ident, typeid))
+        if typeid == c_api.PM_LABEL_ITEM:
+           if ident == self.pmid(0, 0):
+               return '{"notes":true}'
+        return '{}'
+
+    def test_label_callback(self, indom, inst):
+        self.log("label callback for indom=%d[%d]" % (indom, inst))
+        return '{}'
+
+    def test_notes_callback(self, indom, inst):
+        self.log("notes callback for indom=%d[%d]" % (indom, inst))
+        return '{}'
+
+
     def test_store_callback(self, cluster, item, inst, value):
         self.log("store callback for %d.%d[%d]" % (cluster, item, inst))
         if cluster == 0 and item == 0:
@@ -171,6 +198,7 @@ class TestPMDA(PMDA):
             self.ctxtabval[ctx] = value
             return 0
         return c_api.PM_ERR_PERMISSION
+
 
     def test_attribute_callback(self, ctx, attr, value):
         self.log("attribute callback for ctx %d attr %d value %s" % (ctx, attr, repr(value)))

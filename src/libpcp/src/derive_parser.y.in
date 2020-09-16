@@ -3116,6 +3116,13 @@ __dmclosecontext(__pmContext *ctxp)
     ctxp->c_dm = NULL;
 }
 
+/* for dbpmda */
+void
+__pmFreeDerived(__pmContext *ctxp)
+{
+    __dmclosecontext(ctxp);
+}
+
 int
 __dmdesc(__pmContext *ctxp, int derive_locked, pmID pmid, pmDesc *desc)
 {
