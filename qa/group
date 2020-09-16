@@ -1714,6 +1714,9 @@ x11
 1274 pmlogextract pmdumplog labels help local sanity
 1275 man pmlogger local
 1276:retired pmmgr containers local
+1277 dbpmda local
+1278 dbpmda local
+1279 dbpmda local
 1287 pmda.install pmda.openmetrics local python
 1289 pmval archive multi-archive decompress-xz local pmlogextract
 1294 libpcp_mmv labels local valgrind
@@ -1831,7 +1834,7 @@ x11
 1717 pmda.statsd local
 1718 pmda.statsd local
 1719 pmda.statsd local
-1720 pmda.statsd local
+1720 pmda.statsd local valgrind dbpmda
 1721 pmda.bpftrace local python
 1722 pmda.bpftrace local python
 1723 pmda.bpftrace local python

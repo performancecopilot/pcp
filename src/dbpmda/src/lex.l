@@ -112,12 +112,14 @@ watch		{ BEGIN FNAME; return WATCH; }
 [A-Za-z][A-Za-z0-9_\./:-]* {
 	    yylval.y_str = (char *)malloc(yyleng+1);
 	    strcpy(yylval.y_str, yytext);
+	    gc_add(yylval.y_str);
 	    return NAME;
 	}
 
 \$[A-Za-z][A-Za-z0-9_-]* {
 	    yylval.y_str = (char *)malloc(yyleng+1);
 	    strcpy(yylval.y_str, yytext);
+	    gc_add(yylval.y_str);
 	    return MACRO;
 	}
 
@@ -153,6 +155,7 @@ watch		{ BEGIN FNAME; return WATCH; }
 	    yylval.y_str = (char *)malloc(yyleng-1);
 	    strncpy(yylval.y_str, &yytext[1], yyleng-2);
 	    yylval.y_str[yyleng-2] = '\0';
+	    gc_add(yylval.y_str);
 	    return STRING;
 	}
 
@@ -164,6 +167,7 @@ watch		{ BEGIN FNAME; return WATCH; }
 	    yylval.y_str = (char *)malloc(yyleng-1);
 	    strncpy(yylval.y_str, &yytext[1], yyleng-2);
 	    yylval.y_str[yyleng-2] = '\0';
+	    gc_add(yylval.y_str);
 	    return STRING;
 	}
 
@@ -180,6 +184,7 @@ watch		{ BEGIN FNAME; return WATCH; }
 <FNAME>[^\t \n]+ {
 	    yylval.y_str = (char *)malloc(yyleng+1);
 	    strcpy(yylval.y_str, yytext);
+	    gc_add(yylval.y_str);
 	    BEGIN 0;
 	    return PATHNAME;
 	}
@@ -332,11 +337,13 @@ dbpmdaFlexInput(char * inbuf, int ms)
     }
 
     if (linepos == linelen) {
+	char	*tmp_line;
 	linelen = (linelen) ? linelen * 2 : 128;
-	if ((line = (char *)realloc(line, linelen * sizeof(char))) == NULL) {
+	if ((tmp_line = (char *)realloc(line, linelen * sizeof(char))) == NULL) {
 	    fprintf(stderr, "%s: Lexer internal error\n", pmGetProgname());
 	    exit(1);
 	}
+	line = tmp_line;
     }
 
     if (ms > 0) {

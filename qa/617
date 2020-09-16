@@ -6,13 +6,25 @@
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
-seq=`basename $0`
-echo "QA output created by $seq"
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
 
 # get standard environment, filters and checks
 . ./common.filter
 . ./common.check
 . ./common.product
+
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+fi
 
 case "$PCP_PLATFORM"
 in
@@ -28,7 +40,7 @@ in
 esac
 export PMDADSO
 
-status=1	# failure is the default!
+status=0	# success is the default!
 trap "$sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -54,7 +66,7 @@ _filter()
 
 # real QA test starts here
 
-$sudo TERM=ansi dbpmda -ie 2>&1 <<End-of-File | _filter
+cat <<End-of-File >$tmp.in
 help
 status
 #a comment, this should be ignored
@@ -166,7 +178,14 @@ blah
 quit
 End-of-File
 
+if [ "$1" = "--valgrind" ]
+then
+    TERM=ansi _run_valgrind --sudo dbpmda -ie <$tmp.in
+else
+    TERM=ansi $sudo dbpmda -ie <$tmp.in 2>&1
+fi \
+| _filter
+
 cat $tmp.log >>$here/$seq.full
 
-status=0
 exit

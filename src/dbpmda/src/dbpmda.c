@@ -180,6 +180,7 @@ main(int argc, char **argv)
 
     for ( ; ; ) {
 	initmetriclist();
+	gc_free();
 	yyparse();
 	if (yywrap()) {
 	    if (iflag)
