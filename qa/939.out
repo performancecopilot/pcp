@@ -330,24 +330,23 @@ interval:  1.00 sec
 idle
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-Note: timezone set to local timezone of host "smash" from archive
+Note: timezone set to local timezone of host "shard" from archive
 
 metric:    idle
 archive:   archives/pcp-free
-host:      smash
-start:     Fri Apr  4 11:35:46 2014
-end:       Fri Apr  4 11:35:56 2014
+host:      shard
+start:     Wed Sep 16 18:30:18 2020
+end:       Wed Sep 16 18:30:26 2020
 semantics: instantaneous value
 units:     none
-samples:   10
+samples:   9
 interval:  1.00 sec
-11:35:46.566  No values available
-11:35:47.566          1
-11:35:48.566          1
-11:35:49.566          1
-11:35:50.566          1
-11:35:51.566          0
-11:35:52.566          0
-11:35:53.566          0
-11:35:54.566          0
-11:35:55.566          0
+18:30:18.348  No values available
+18:30:19.348          0
+18:30:20.348          1
+18:30:21.348          0
+18:30:22.348          0
+18:30:23.348          0
+18:30:24.348          1
+18:30:25.348          0
+18:30:26.348          0

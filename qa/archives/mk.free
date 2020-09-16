@@ -1,0 +1,26 @@
+#!/bin/sh
+#
+# remake the free archive ...
+# this archive is intended to be checked in and not remade, this script is
+# simply a record of how it was created
+#
+
+. /etc/pcp.env
+
+tmp=/var/tmp/$$
+rm -f $tmp.*
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+cat <<End-of-File >>$tmp.config
+log mandatory on once {
+    mem.physmem
+}
+
+log mandatory on 1 sec {
+    mem.util
+}
+End-of-File
+
+rm -f pcp-free.0 pcp-free.meta pcp-free.index
+
+pmlogger -s 10 -c $tmp.config pcp-free

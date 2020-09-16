@@ -1,57 +1,50 @@
 QA output created by 991
 
 === free output, at first sample
-             total       used       free     shared    buffers     cached
-Mem:      24535816   13443872   11091944          0     181080     741960
--/+ buffers/cache:   12520832   12014984
-Swap      12337144          0   12337144
+              total        used        free      shared  buff/cache   available
+Mem:       16010088     7817828     2956804      651076     5235456     7208668
+Swap        8093692     1785600     6308092
 
 === free output, at last sample
-             total       used       free     shared    buffers     cached
-Mem:      24535816   14903780    9632036          0     181136    2188308
--/+ buffers/cache:   12534336   12001480
-Swap      12337144          0   12337144
+              total        used        free      shared  buff/cache   available
+Mem:       16010088    16010088           0           0           0           0
+Swap              0           0           0
 
 === free output, bytes
-             total       used       free     shared    buffers     cached
-Mem:    25124675584 13766524928 11358150656          0  185425920  759767040
--/+ buffers/cache: 12821331968 12303343616
-Swap    12633235456          0 12633235456
+              total        used        free      shared  buff/cache   available
+Mem:    16394330112  8005455872  3027767296   666701824  5361106944  7381676032
+Swap     8287940608  1828454400  6459486208
 
 === free output, megabytes
-             total       used       free     shared    buffers     cached
-Mem:         23960      13128      10831          0        176        724
--/+ buffers/cache:      12227      11733
-Swap         12047          0      12047
+              total        used        free      shared  buff/cache   available
+Mem:          15634        7634        2887         635        5112        7039
+Swap           7903        1743        6160
 
 === free output, gigabytes
-             total       used       free     shared    buffers     cached
-Mem:            23         12         10          0          0          0
--/+ buffers/cache:         11         11
-Swap            11          0         11
+              total        used        free      shared  buff/cache   available
+Mem:             15           7           2           0           4           6
+Swap              7           1           6
 
 === free output, totals + in megabytes
-             total       used       free     shared    buffers     cached
-Mem:         23960      13128      10831          0        176        724
--/+ buffers/cache:      12227      11733
-Swap         12047          0      12047
-Total        36008      13128      22879
+              total        used        free      shared  buff/cache   available
+Mem:          15634        7634        2887         635        5112        7039
+Swap           7903        1743        6160
+Total         23538        9378        9047
 
 === free output, compat + low/high detail
-             total       used       free     shared    buffers     cached
-Mem:      24535816   13443872   11091944          0     181080     741960
-Low:      24535816   13443872   24535816
-High:            0          0          0
-Swap      12337144          0   12337144
+              total        used        free      shared  buff/cache   available
+Mem:       16010088     7817828     2956804      651076     5235456     7208668
+Low:       16010088    13053284    16010088
+High:             0           0           0
+-/+ buffers/cache:      3127288     7647344
+Swap        8093692     1785600     6308092
 
 === free output, multiple samples
-             total       used       free     shared    buffers     cached
-Mem:      24535816   13443872   11091944          0     181080     741960
--/+ buffers/cache:   12520832   12014984
-Swap      12337144          0   12337144
+              total        used        free      shared  buff/cache   available
+Mem:       16010088     7817828     2956804      651076     5235456     7208668
+Swap        8093692     1785600     6308092
 
-             total       used       free     shared    buffers     cached
-Mem:      24535816   13714396   10821420          0     181080    1004744
--/+ buffers/cache:   12528572   12007244
-Swap      12337144          0   12337144
+              total        used        free      shared  buff/cache   available
+Mem:       16010088     7804220     2970204      651076     5235664     7222260
+Swap        8093692     1785600     6308092
 
