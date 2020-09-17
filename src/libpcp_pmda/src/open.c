@@ -668,6 +668,14 @@ pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms,
     pmda->e_nindoms = nindoms;
     pmda->e_metrics = metrics;
     pmda->e_nmetrics = nmetrics;
+
+    /*
+     * Stamp the correct domain number in each of the PMIDs
+     */
+    for (m = 0; m < pmda->e_nmetrics; m++) {
+	pmidp = (__pmID_int *)&pmda->e_metrics[m].m_desc.pmid;
+	pmidp->domain = dispatch->domain;
+    }
     
     /* fix bit fields in indom for all instance domains */
     for (i = 0; i < pmda->e_nindoms; i++) {
@@ -737,14 +745,6 @@ pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms,
 	else
 	    if (pmDebugOptions.libpmda)
 		pmNotifyErr(LOG_DEBUG, "pmdaInit: PMDA %s: No help text path specified", pmda->e_name);
-    }
-
-    /*
-     * Stamp the correct domain number in each of the PMIDs
-     */
-    for (m = 0; m < pmda->e_nmetrics; m++) {
-	pmidp = (__pmID_int *)&pmda->e_metrics[m].m_desc.pmid;
-	pmidp->domain = dispatch->domain;
     }
 
     if (pmda->e_flags & PMDA_EXT_FLAG_HASHED)
