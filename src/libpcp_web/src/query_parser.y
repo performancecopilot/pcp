@@ -223,6 +223,10 @@ vector:	L_NAME L_LBRACE exprlist L_RBRACE L_EOS
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		  YYACCEPT;
 		}
+	| func_sid L_EOS
+		{
+		  YYACCEPT;
+		}
 	;
 
 exprlist : exprlist L_COMMA expr
@@ -324,7 +328,8 @@ expr	: /* relational expressions */
 	/* TODO: error reporting */
 	;
 
-val_vec	: L_NAME L_LBRACE exprlist L_RBRACE L_LSQUARE timelist L_RSQUARE
+val_vec
+	: L_NAME L_LBRACE exprlist L_RBRACE L_LSQUARE timelist L_RSQUARE
 		{ lp->yy_np = newmetricquery($1, $3);
 		  lp->yy_np->time = lp->yy_series.time;
 		  $$ = lp->yy_series.expr = lp->yy_np;
@@ -335,6 +340,172 @@ val_vec	: L_NAME L_LBRACE exprlist L_RBRACE L_LSQUARE timelist L_RSQUARE
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	;
+
+sid_vec 
+	: L_NAME L_LBRACE exprlist L_RBRACE
+		{
+		
+		}
+	| L_NAME
+		{
+		
+		}
+	;
+
+func_sid
+	: L_RATE L_LPAREN sid_vec L_RPAREN
+		{
+		
+		}
+	| L_RATE L_LPAREN func_sid L_RPAREN
+		{
+
+		}
+	| L_MAX L_LPAREN sid_vec L_RPAREN
+		{
+		
+		}
+	| L_MAX L_LPAREN func_sid L_RPAREN
+		{
+
+		}
+	| L_MIN L_LPAREN sid_vec L_RPAREN
+		{
+		
+		}
+	| L_MIN L_LPAREN func_sid L_RPAREN
+		{
+
+		}
+	| L_RESCALE L_LPAREN sid_vec L_RPAREN
+		{
+		
+		}
+	| L_RESCALE L_LPAREN func_sid L_RPAREN
+		{
+
+		}
+	| L_ABS L_LPAREN sid_vec L_RPAREN
+		{
+		
+		}
+	| L_ABS L_LPAREN func_sid L_RPAREN
+		{
+
+		}
+	| L_FLOOR L_LPAREN sid_vec L_RPAREN
+		{
+		
+		}
+	| L_FLOOR L_LPAREN func_sid L_RPAREN
+		{
+
+		}
+	| L_LOG L_LPAREN sid_vec L_COMMA number L_RPAREN
+		{
+		
+		}
+	| L_LOG L_LPAREN func_sid L_COMMA number L_RPAREN
+		{
+
+		}
+	| L_LOG L_LPAREN sid_vec L_RPAREN
+		{
+		
+		}
+	| L_LOG L_LPAREN func_sid L_RPAREN
+		{
+
+		}
+	| L_SQRT L_LPAREN sid_vec L_RPAREN
+		{
+		
+		}
+	| L_SQRT L_LPAREN func_sid L_RPAREN
+		{
+
+		}
+	| L_ROUND L_LPAREN sid_vec L_RPAREN
+		{
+		
+		}
+	| L_ROUND L_LPAREN func_sid L_RPAREN
+		{
+
+		}
+	| arithmetic_expr_sid
+		{
+		
+		}
+	;
+
+arithmetic_expr_sid
+	: sid_vec L_PLUS sid_vec
+		{
+
+		}
+	| sid_vec L_PLUS func_sid
+		{
+		
+		}
+	| func_sid L_PLUS sid_vec
+		{
+
+		}
+	| func_sid L_PLUS func_sid
+		{
+
+		}
+	| sid_vec L_MINUS sid_vec
+		{
+
+		}
+	| sid_vec L_MINUS func_sid
+		{
+		
+		}
+	| func_sid L_MINUS sid_vec
+		{
+
+		}
+	| func_sid L_MINUS func_sid
+		{
+
+		}
+	| sid_vec L_STAR sid_vec
+		{
+
+		}
+	| sid_vec L_STAR func_sid
+		{
+		
+		}
+	| func_sid L_STAR sid_vec
+		{
+
+		}
+	| func_sid L_STAR func_sid
+		{
+
+		}
+	| sid_vec L_SLASH sid_vec
+		{
+
+		}
+	| sid_vec L_SLASH func_sid
+		{
+		
+		}
+	| func_sid L_SLASH sid_vec
+		{
+
+		}
+	| func_sid L_SLASH func_sid
+		{
+
+		}
+	;
+
 	/* TODO: functions */
 func	: L_RATE L_LPAREN val_vec L_RPAREN
 		{ lp->yy_np = newnode(N_RATE);
