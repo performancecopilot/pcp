@@ -53,9 +53,9 @@ export PCP_ARCHIVE_DIR=$tmp.archives
 mkdir -p "$PCP_ARCHIVE_DIR/$hostname"
 cp $PCP_ARCHIVE.* "$PCP_ARCHIVE_DIR/$hostname"
 unset PCP_HOSTZONE PCP_ARCHIVE
-$PCP_BINADM_DIR/pcp-atopsar >& $tmp.noargs
-$PCP_BINADM_DIR/pcp-atopsar -H >& $tmp.-h-arg
-diff $tmp.noargs $tmp.-h-arg >/dev/null
+pcp -z atopsar >$tmp.noargs
+pcp -z atopsar -H >$tmp.-H-arg
+diff $tmp.noargs $tmp.-H-arg >/dev/null
 if [ $? -eq 0 ]
 then
     echo Passed - same output detected
@@ -64,8 +64,8 @@ else
     echo Bad, expected matching output
     echo === noargs:
     cat $tmp.noargs
-    echo === -h-arg:
-    cat $tmp.-h-arg
+    echo === -H-arg:
+    cat $tmp.-H-arg
 fi
 
 # success, all done
