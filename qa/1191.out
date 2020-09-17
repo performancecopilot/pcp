@@ -10876,10 +10876,3 @@ Help:
 GC Wall Time for b5be5b9f_b0f1_47de_b436_27f167daf396
     inst [0 or "0 collector_name:Copy"] value 24462465
     inst [1 or "1 collector_name:MSC"] value 49519
-
-=== remove openmetrics agent ===
-Culling the Performance Metrics Name Space ...
-openmetrics ... done
-Updating the PMCD control file, and notifying PMCD ...
-[...removing files...]
-Check openmetrics metrics have gone away ... OK
