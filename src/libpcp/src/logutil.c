@@ -2588,6 +2588,11 @@ __pmGetArchiveEnd_ctx(__pmContext *ctxp, struct timeval *tp)
     found = 0;
     sts = PM_ERR_LOGREC;	/* default error condition */
     f = NULL;
+
+    /*
+     * start at last volume and work backwards until success or
+     * failure
+     */
     for (vol = lcp->l_maxvol; vol >= lcp->l_minvol; vol--) {
 	if (acp->ac_curvol == vol) {
 	    f = acp->ac_mfp;
@@ -2601,11 +2606,7 @@ __pmGetArchiveEnd_ctx(__pmContext *ctxp, struct timeval *tp)
 
 	if (__pmFstat(f, &sbuf) < 0) {
 	    /* if we can't stat() this one, then try previous volume(s) */
-	    if (f != acp->ac_mfp) {
-		__pmFclose(f);
-		f = NULL;
-	    }
-	    continue;
+	    goto prior_vol;
 	}
 
 	if (vol == lcp->l_maxvol && sbuf.st_size == lcp->l_physend) {
@@ -2618,16 +2619,14 @@ __pmGetArchiveEnd_ctx(__pmContext *ctxp, struct timeval *tp)
 
 	/* if this volume is empty, try previous volume */
 	if (sbuf.st_size <= (int)sizeof(__pmLogLabel) + 2*(int)sizeof(int)) {
-	    if (f != acp->ac_mfp) {
-		__pmFclose(f);
-		f = NULL;
-	    }
-	    continue;
+	    goto prior_vol;
 	}
 
 	physend = (__pm_off_t)sbuf.st_size;
 	if (sizeof(off_t) > sizeof(__pm_off_t)) {
+	    /* 64-bit off_t */
 	    if (physend != sbuf.st_size) {
+		/* oops, 32-bit offset not the same */
 		pmNotifyErr(LOG_ERR, "pmGetArchiveEnd: PCP archive file"
 			" (meta) too big (%"PRIi64" bytes)\n",
 			(uint64_t)sbuf.st_size);
@@ -2651,17 +2650,16 @@ __pmGetArchiveEnd_ctx(__pmContext *ctxp, struct timeval *tp)
 	 */
 	logend = (int)sizeof(__pmLogLabel) + 2*(int)sizeof(int);
 	for (i = lcp->l_numti - 1; i >= 0; i--) {
-	    if (lcp->l_ti[i].ti_vol != vol) {
-		if (f != acp->ac_mfp) {
-		    __pmFclose(f);
-		    f = NULL;
-		}
+	    if (lcp->l_ti[i].ti_vol != vol)
 		continue;
-	    }
 	    if (lcp->l_ti[i].ti_log <= physend) {
 		logend = lcp->l_ti[i].ti_log;
 		break;
 	    }
+	}
+	if (i < 0) {
+	    /* no dice in the temporal index, try previous volume */
+	    goto prior_vol;
 	}
 
 	/*
@@ -2672,6 +2670,7 @@ __pmGetArchiveEnd_ctx(__pmContext *ctxp, struct timeval *tp)
 	 *	valid record, so if not at start of volume, back up one
 	 *	record, then scan forwards.
 	 */
+	assert(f != NULL);
 	__pmFseek(f, (long)logend, SEEK_SET);
 	if (logend > (int)sizeof(__pmLogLabel) + 2*(int)sizeof(int)) {
 	    if (paranoidLogRead(ctxp, PM_MODE_BACK, f, &rp) < 0) {
@@ -2711,10 +2710,17 @@ __pmGetArchiveEnd_ctx(__pmContext *ctxp, struct timeval *tp)
 	if (found)
 	    break;
 
+prior_vol:
 	/*
 	 * this probably means this volume contains no useful records,
 	 * try the previous volume
 	 */
+	if (f != acp->ac_mfp) {
+	    /* f comes from _logpeek(), close it */
+	    __pmFclose(f);
+	    f = NULL;
+	}
+
     }/*for*/
 
     if (f == acp->ac_mfp)
