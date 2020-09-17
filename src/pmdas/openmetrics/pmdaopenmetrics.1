@@ -30,8 +30,15 @@
 [\f3\-u\f1 \f2user\f1]
 .SH DESCRIPTION
 \fBpmdaopenmetrics\fR is a Performance Metrics Domain Agent (PMDA) which
-creates PCP metrics from OpenMetrics endpoints, which provide HTTP based
-access to application metrics.
+dynamically creates PCP metrics from configured OpenMetrics endpoints,
+which provide HTTP based access to application metrics.
+The PMDA essentially implements a bridge between
+.B Prometheus
+and
+.BR PCP ,
+allowing PCP to easily ingest performance data from more than 650 registered end-points
+and many other application specific end-points.
+.P
 The default \f2config\fP directory is
 .BR $PCP_PMDAS_DIR/openmetrics/config.d/ ,
 see ``CONFIGURATION SOURCES'' below.
@@ -276,6 +283,17 @@ All included labels that are not optional (i.e. the
 .I intrinsic
 labels) will be concatenated together
 and used for external instance naming.
+In addition, non-intrinsic labels (i.e. labels tagged as
+.BR OPTIONAL )
+will have the
+.B PM_LABEL_OPTIONAL
+flag set in the labelsets returned by
+.B notes
+callbacks.
+This flag affects how the labels are used in certain clients.
+For further details, see 
+.BR pmLookupLabels (3)
+and related man pages for further details.
 Note that external instance names begin with the unique numeric
 internal instance identifier followed by a space, so external instance
 names are always unique.
@@ -636,5 +654,6 @@ configuration file, as described in
 .BR pmstore (1),
 .BR PMWEBAPI (3),
 .BR pmFetch (3)
+.BR pmLookupLabels (3)
 and
-.IR https://openmetrics.io/docs/instrumenting/exposition_formats .
+.IR https://prometheus.io/docs/instrumenting/exposition_formats .

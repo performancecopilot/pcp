@@ -1062,6 +1062,10 @@ class OpenMetricsPMDA(PMDA):
         self.set_label(self.openmetrics_label)
         self.set_label_callback(self.openmetrics_label_callback)
 
+        # notes callbacks (for optional/extrinsic labels)
+        self.set_notes(self.openmetrics_notes) # ITEM level optional labels
+        self.set_notes_callback(self.openmetrics_notes_callback) # instances level optional labels
+
     def lookup_regex(self, pat):
         ''' cache of compiled regex '''
         if pat not in self.regex_cache.keys():
@@ -1276,19 +1280,19 @@ class OpenMetricsPMDA(PMDA):
         cpmda.set_need_refresh()
         self.pmns_refresh()
 
-    def jsonb_labelset(self, labelset, optional=None):
+    def jsonb_labelset(self, labelset):
         '''
-        Convert a dict of labels into a jsonb string. Tag optional labels (if any).
+        Convert a dict of labels into a jsonb string.
         '''
         ret = None
-        for name, val in labelset.items():
-            if optional is not None and name in optional:
-                name = ":OPTIONAL:%s" % name
-                self.debug("jsonb_labelset: TODO label '%s' is OPTIONAL" % name) if self.dbg else None
-            if ret is None:
-                ret = '"%s":"%s"' % (name, val)
-            else:
-                ret = ret + ', "%s":"%s"' % (name, val)
+        if labelset is not None:
+            for name, val in labelset.items():
+                if ret is None:
+                    ret = '"%s":"%s"' % (name, val)
+                else:
+                    ret = ret + ',"%s":"%s"' % (name, val)
+        if ret is None:
+            return '{}'
         return '{%s}' % ret
 
     def openmetrics_label(self, ident, typeid):
@@ -1342,24 +1346,30 @@ class OpenMetricsPMDA(PMDA):
                 for _, mv in v.metrics_by_name.items():
                     if mv.pmid == ident:
                         self.debug('    FOUND pmid=%s labels=%s' %
-                            (pmContext.pmIDStr(mv.pmid), mv.labels)) # if self.dbg else None
+                            (pmContext.pmIDStr(mv.pmid), mv.labels)) if self.dbg else None
                         self.debug('    FOUND pmid=%s optional_labels=%s' %
-                            (pmContext.pmIDStr(mv.pmid), mv.optional_labels)) # if self.dbg else None
+                            (pmContext.pmIDStr(mv.pmid), mv.optional_labels)) if self.dbg else None
                         if mv.labels is not None:
-                            ret = self.jsonb_labelset(mv.labels, mv.optional_labels)
+                            intrinsic_labels = {}
+                            for ln, lv in mv.labels.items():
+                                if ln not in mv.optional_labels:
+                                    intrinsic_labels[ln] = lv
+                            ret = self.jsonb_labelset(intrinsic_labels)
                             break
 
         else: # empty label set for all other types
-            self.debug('openmetrics_label callback type=%d ("%s") NOT HANDLED' % (typeid, labeltype[typeid]))
+            self.debug('openmetrics_label callback type=%d ("%s") NOT HANDLED' %
+                (typeid, labeltype[typeid])) if self.dbg else None
 
         self.debug('openmetrics_label callback type=%d ("%s") returning "%s"' % (typeid, labeltype[typeid], ret))
         return ret
+
 
     def openmetrics_label_callback(self, indom, inst):
         '''
         return label for given instance ID in given indom
         '''
-        instlabels = ''
+        instlabels = None
         try:
             self.debug('openmetrics_label_callback(indom=%#x, inst=%d)' % (indom, inst)) if self.dbg else None
             for _, v in self.source_by_cluster.items():
@@ -1368,19 +1378,78 @@ class OpenMetricsPMDA(PMDA):
                         for i, nm in enumerate(mv.indom_table.instances):
                             if inst == i:
                                 self.debug('openmetrics_label_callback: found inst label "%s"' % nm) if self.dbg else None
-                                # TODO: should we prefix PCP5 instname label with inst id
-                                # Since with PCP5 metadata, we can trust they are unique.
-                                instlabels = '"instname":"%s %s"' % (i, nm)
                                 if i in mv.inst_labels:
                                     for l, val in mv.inst_labels[i].items():
                                         if l != "instname":
-                                            instlabels = instlabels + "," + '"%s":"%s"' % (l, val)
+                                            if instlabels is None:
+                                                instlabels = '"%s":"%s"' % (l, val)
+                                            else:
+                                                instlabels = instlabels + "," + '"%s":"%s"' % (l, val)
         except Exception as e:
             self.debug("openmetrics_label_callback: exception %s" % e)
             self.debug(traceback.format_exc())
 
         self.debug('openmetrics_label_callback returning "{%s}"' % instlabels) if self.dbg else None
+        if instlabels is None:
+            return '{}'
         return '{%s}' % instlabels
+
+
+    def openmetrics_notes(self, ident, typeid):
+        '''
+        return a JSONb formatted string (labelset) for given ident of
+        given type for OPTIONAL labels (aka "notes")
+        '''
+        ret = "{}"
+
+        self.debug('openmetrics_notes(ident=%d (%#x), type=%s)' % (ident, ident, labeltype[typeid])) if self.dbg else None
+        if typeid == c_api.PM_LABEL_ITEM:
+            # item level (metric) optional labels, parsed from end-point URLs
+            self.debug('openmetrics_notes(ident=%d pmid=%s PM_LABEL_ITEM)' %
+                (ident, pmContext.pmIDStr(ident))) if self.dbg else None
+            for _, v in self.source_by_cluster.items():
+                for _, mv in v.metrics_by_name.items():
+                    if mv.pmid == ident:
+                        self.debug('    FOUND pmid=%s optional_labels=%s' %
+                            (pmContext.pmIDStr(mv.pmid), mv.optional_labels)) if self.dbg else None
+                        if mv.optional_labels is not None:
+                            ret = self.jsonb_labelset(mv.optional_labels)
+                            break
+
+        else: # empty label set for all other types
+            self.debug('openmetrics_notes callback type=%d ("%s") NOT HANDLED' % (typeid, labeltype[typeid]))
+
+        self.debug('openmetrics_notes callback type=%d ("%s") returning "%s"' % (typeid, labeltype[typeid], ret))
+        return ret
+
+    def openmetrics_notes_callback(self, indom, inst):
+        '''
+        return label for given instance ID in given indom for optional labels at instances level
+        '''
+        instlabels = None
+        try:
+            self.debug('openmetrics_notes_callback(indom=%#x, inst=%d)' % (indom, inst)) if self.dbg else None
+            for _, v in self.source_by_cluster.items():
+                for _, mv in v.metrics_by_name.items():
+                    if indom == mv.mindom:
+                        for i, nm in enumerate(mv.indom_table.instances):
+                            if inst == i:
+                                self.debug('openmetrics_notes_callback: found inst label "%s"' % nm) if self.dbg else None
+                                instlabels = '"instname":"%s %s"' % (i, nm)
+                                break # "instname" is the only optional label
+                    if instlabels is not None:
+                        break
+                if instlabels is not None:
+                    break
+        except Exception as e:
+            self.debug("openmetrics_notes_callback: exception %s" % e)
+            self.debug(traceback.format_exc())
+
+        self.debug('openmetrics_notes_callback returning "{%s}"' % instlabels) if self.dbg else None
+        if instlabels is None:
+            return '{}'
+        return '{%s}' % instlabels
+
 
     def openmetrics_store_callback(self, cluster, item, inst, val):
         '''
