@@ -441,7 +441,7 @@ class pcp2elasticsearch(object):
                     insts = pmns_leaf_dict[insts_key]
                     # Find a preexisting {@id: name} object in there, if any
                     found = False
-                    for j in range(1, len(insts)):
+                    for j in range(0, len(insts)):
                         if insts[j][inst_key] == name:
                             insts[j][last_part] = value
                             found = True
