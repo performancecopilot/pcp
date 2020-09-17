@@ -51,7 +51,7 @@ https://www.tutorialspoint.com/apache_spark/apache_spark_installation.htm
 
 Here we will use pcp2spark to import PCP metrics and print in Spark
 
-### PCP2SparkStreamCollector.python
+### PCP2SparkStreamCollector.py
 
 The example to run with python:
 
