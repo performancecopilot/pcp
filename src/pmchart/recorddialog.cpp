@@ -132,6 +132,17 @@ void RecordDialog::archivePushButton_clicked()
 	archiveLineEdit->setText(archive.selectedFiles().at(0));
 }
 
+// substitute "local:" or "localhost" with actual hostname
+QString RecordDialog::resolveLocalHostname(QString h)
+{
+    if (QString::compare(h, "local:") == 0 || QString::compare(h, "localhost") == 0) {
+    	static char localHostname[HOST_NAME_MAX];
+	gethostname(localHostname, sizeof(localHostname));
+	return localHostname;
+    }
+    return h;
+}
+
 bool RecordDialog::saveFolio(QString folioname, QString viewname)
 {
     QFile folio(folioname);
@@ -152,18 +163,18 @@ bool RecordDialog::saveFolio(QString folioname, QString viewname)
     stream << "PCPFolio\n";
     stream << "Version: 1\n";
     stream << "# use pmafm(1) to process this PCP archive folio\n" << "#\n";
-    stream << "Created: on " << QmcSource::localHost;
+    stream << "Created: on " << resolveLocalHostname("local:");
     stream << " at " << datetime << "\n";
     stream << "Creator: pmchart " << viewname << "\n";
     stream << "#\t\tHost\t\tBasename\n";
 
     for (int i = 0; i < my.hosts.size(); i++) {
-	QString host = my.hosts.at(i);
+	QString host = resolveLocalHostname(my.hosts.at(i));
 	QString archive = my.archives.at(i);
 	QFileInfo logFile(archive);
 	QDir logDir = logFile.dir();
 	logDir.mkpath(logDir.absolutePath());
-	stream << "Archive:\t" << my.hosts.at(i) << "\t\t" << archive << "\n";
+	stream << "Archive:\t" << host << "\t\t" << archive << "\n";
     }
     return true;
 }
@@ -240,7 +251,7 @@ void RecordDialog::buttonOk_clicked()
     QString view = viewLineEdit->text().trimmed();
     view.replace(QRegExp("^~"), QDir::toNativeSeparators(QDir::homePath()));
     view.replace(QRegExp("\\[date\\]"), today);
-    view.replace(QRegExp("\\[host\\]"), QmcSource::localHost);
+    view.replace(QRegExp("\\[host\\]"), resolveLocalHostname("local:"));
     QFileInfo viewFile(view);
     QDir viewDir = viewFile.dir();
     if (viewDir.mkpath(viewDir.absolutePath()) == false) {
@@ -254,7 +265,7 @@ void RecordDialog::buttonOk_clicked()
     QString folio = folioLineEdit->text().trimmed();
     folio.replace(QRegExp("^~"), QDir::toNativeSeparators(QDir::homePath()));
     folio.replace(QRegExp("\\[date\\]"), today);
-    folio.replace(QRegExp("\\[host\\]"), QmcSource::localHost);
+    folio.replace(QRegExp("\\[host\\]"), resolveLocalHostname("local:"));
     QFileInfo folioFile(folio);
     QDir folioDir = folioFile.dir();
     if (folioDir.mkpath(folioDir.absolutePath()) == false) {
@@ -285,10 +296,11 @@ void RecordDialog::buttonOk_clicked()
     }
 
     for (int h = 0; h < my.hosts.count(); h++) {
+	QString host = resolveLocalHostname(my.hosts.at(h));
 	QString archive = archiveLineEdit->text().trimmed();
 	QString rehomer = QDir::toNativeSeparators(QDir::homePath());
 	archive.replace(QRegExp("^~"), rehomer);
-	archive.replace(QRegExp("\\[host\\]"), my.hosts.at(h));
+	archive.replace(QRegExp("\\[host\\]"), host);
 	archive.replace(QRegExp("\\[date\\]"), today);
 	my.archives.append(archive);
     }
@@ -320,7 +332,7 @@ void RecordDialog::startLoggers()
     for (int i = 0; i < my.hosts.size(); i++) {
 	PmLogger *process = new PmLogger(pmchart);
 	QString archive = my.archives.at(i);
-	QString host = my.hosts.at(i);
+	QString host = resolveLocalHostname(my.hosts.at(i));
 	QString logfile, configfile;
 
 	configfile = archive;

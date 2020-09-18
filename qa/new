@@ -236,9 +236,11 @@ fi
 . ./common.filter
 . ./common.check
 
+do_valgrind=false
 if [ "\$1" = "--valgrind" ]
 then
     _check_valgrind
+    do_valgrind=true
 fi
 
 # test for-some-thing || _notrun No support for some-thing
@@ -262,11 +264,11 @@ _filter()
 
 # real QA test starts here
 
-if [ "\$1" = "--valgrind" ]
+if $do_valgrind
 then
-    _run_valgrind <your test goes here>
+    _run_valgrind ...your test goes here...
 else
-    <your test goes here> 2>&1
+    ...your test goes here... 2>&1
 fi \
 | _filter
 

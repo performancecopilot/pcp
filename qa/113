@@ -157,7 +157,7 @@ do
     fi
     echo "sym=$sym" >>$seq.full
     link=$sym
-    [ "$link" != "$dev" ] && echo "s;$dev;$link;" >>$tmp.map
+    [ "$link" != "$dev" ] && echo "s;\"$dev\";$link;" >>$tmp.map
 done
 
 if [ -f $tmp.map ]
@@ -169,7 +169,7 @@ then
     | sed -e 's/~/;/' >$tmp.tmp
     mv $tmp.tmp $tmp.map
 else
-    echo "s;$rootdev;/dev/root;" >>$tmp.map
+    echo "s;\"$rootdev\";/dev/root;" >>$tmp.map
 fi
 
 if grep "s;$rootdev;" $tmp.map >/dev/null
@@ -177,7 +177,7 @@ then
     # already have a mapping for this one
     :
 else
-    echo "s;$rootdev;/dev/root;" >>$tmp.map
+    echo "s;\"$rootdev\";/dev/root;" >>$tmp.map
 fi
 
 echo "-- map --" >>$seq.full
