@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018 Red Hat.
+# Copyright (c) 2018,2020 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -19,7 +19,7 @@ TARGET = pcp2spark
 MAN_SECTION = 1
 MAN_PAGES = $(TARGET).$(MAN_SECTION)
 MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
-DFILES = README.md PCP2SparkStreamCollector.python
+DFILES = README.md PCP2SparkStreamCollector.py
 EX_DIR = $(PCP_SHARE_DIR)/examples/pcp2spark
 
 default: $(TARGET).py $(MAN_PAGES)
