@@ -19,6 +19,7 @@
 
 """ Performance Metrics Domain Agent exporting Elasticsearch metrics. """
 
+import os
 import sys
 import json
 try:
