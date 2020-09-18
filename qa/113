@@ -157,7 +157,7 @@ do
     fi
     echo "sym=$sym" >>$seq.full
     link=$sym
-    [ "$link" != "$dev" ] && echo "s;$dev;$link;" >>$tmp.map
+    [ "$link" != "$dev" ] && echo "s;\"$dev\";$link;" >>$tmp.map
 done
 
 if [ -f $tmp.map ]
