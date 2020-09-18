@@ -169,7 +169,7 @@ then
     | sed -e 's/~/;/' >$tmp.tmp
     mv $tmp.tmp $tmp.map
 else
-    echo "s;$rootdev;/dev/root;" >>$tmp.map
+    echo "s;\"$rootdev\";/dev/root;" >>$tmp.map
 fi
 
 if grep "s;$rootdev;" $tmp.map >/dev/null
@@ -177,7 +177,7 @@ then
     # already have a mapping for this one
     :
 else
-    echo "s;$rootdev;/dev/root;" >>$tmp.map
+    echo "s;\"$rootdev\";/dev/root;" >>$tmp.map
 fi
 
 echo "-- map --" >>$seq.full
