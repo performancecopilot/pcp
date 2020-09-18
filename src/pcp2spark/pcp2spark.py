@@ -18,7 +18,7 @@
 # pylint: disable=too-many-boolean-expressions, too-many-statements
 # pylint: disable=too-many-instance-attributes, too-many-locals
 # pylint: disable=too-many-branches, too-many-nested-blocks
-# pylint: disable=broad-except
+# pylint: disable=broad-except, consider-using-enumerate
 
 """ PCP to Spark Bridge """
 
