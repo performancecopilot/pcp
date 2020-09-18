@@ -93,6 +93,7 @@ _filter_status()
 	-e "s;-$localhost \$;-LOCALHOSTNAME;" \
 	-e "s/ $seq / <seq> /" \
 	-e 's/ [0-9][0-9]* / <pid> /' \
+	-e 's/ $//' \
     # end
     head -1 $tmp.tmp
     sed -e '1d' $tmp.tmp | LC_COLLATE=POSIX sort
