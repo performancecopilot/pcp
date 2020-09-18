@@ -1,6 +1,8 @@
 #!/bin/sh
-# PCP QA Test No. 1280
+# PCP QA Test No. 1281
 # segv in __pmGetArchiveEnd_ctx()
+#
+# -- valgrind version of qa/1280
 #
 # Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
 #
@@ -27,13 +29,6 @@ then
     do_valgrind=true
 fi
 
-if which unxz >/dev/null
-then
-    :
-else
-    _notrun "need unxz application installed"
-fi
-
 _cleanup()
 {
     cd $here
@@ -44,43 +39,14 @@ status=0	# success is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
-_doit()
-{
-    if $do_valgrind
-    then
-	_run_valgrind pmdumplog -z -Dlog -L 20180416.10.00
-    else
-	pmdumplog -z -Dlog -L 20180416.10.00 2>>$here/$seq.full
-    fi
-}
-
 # real QA test starts here
-mkdir $tmp
-cp archives/20180416.10.00* $tmp
-cd $tmp
-for f in *.xz
-do
-    unxz $f
-done
-
-echo "=== full archive ==="
-_doit
-
-echo
-echo "=== volume 3 missing ==="
-rm 20180416.10.00.3
-_doit
-
-echo
-echo "=== volume 2 truncated ==="
-size=`stat 20180416.10.00.2 | sed -n -e '/Size:/{
-s/.*Size: *//
-s/ .*//
-p
-}'`
-size=`expr $size - 8`
-truncate -s $size 20180416.10.00.2
-_doit
+export seq
+./1280 --valgrind \
+| $PCP_AWK_PROG '
+skip == 1 && $1 == "==="	{ skip = 0 }
+/^=== std err ===/		{ skip = 1 }
+skip == 0		{ print }
+skip == 1		{ print >"'$here/$seq.full'" }'
 
 # success, all done
 exit
