@@ -14,6 +14,7 @@
 # for more details.
 #
 # pylint: disable=line-too-long, broad-except, bad-continuation
+# pylint: disable=consider-using-enumerate, too-many-nested-blocks
 #
 
 """ PCP to Elasticsearch Bridge """
