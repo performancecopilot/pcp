@@ -47,7 +47,7 @@ _filter()
 BEGIN				{ s = 0; summary = 0 }
 /are definitely lost/		{ s = NR; dso = 0; next }
 s > 0 && /by .* opendso/	{ dso = 1; next }
-s > 0 && $NF == "???"		{ dso = 1; next }
+s > 0 && /by .* ???$/		{ dso = 1; next }
 $1 == "}" && dso == 1		{ print s "," NR "d"; next }
 /^LEAK SUMMARY/			{ s = NR; summary = 1; next }
 END				{ if (summary) print s "," NR "d" }'
