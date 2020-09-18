@@ -32,7 +32,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 #
 # s-> ... are definitely lost in loss record 47 of 62
 #     ...
-#     by ... opendso
+#     by ... opendso (or ???<end-of-line> if no symbols)
 #     ...
 # e-> }
 #
@@ -47,6 +47,7 @@ _filter()
 BEGIN				{ s = 0; summary = 0 }
 /are definitely lost/		{ s = NR; dso = 0; next }
 s > 0 && /by .* opendso/	{ dso = 1; next }
+s > 0 && $NF == "???"		{ dso = 1; next }
 $1 == "}" && dso == 1		{ print s "," NR "d"; next }
 /^LEAK SUMMARY/			{ s = NR; summary = 1; next }
 END				{ if (summary) print s "," NR "d" }'
