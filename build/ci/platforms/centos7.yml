@@ -17,7 +17,7 @@ tasks:
     sudo yum update -y
   install_build_dependencies: |
     sudo yum install -y which
-    sudo yum -y --skip-broken install man $(./pcp/qa/admin/check-vm -fp)
+    sudo yum -y --skip-broken install man $(./pcp/qa/admin/check-vm -fpM)
   build: |
     cd ./pcp
     ./Makepkgs --verbose

@@ -10,7 +10,7 @@ tasks:
     sudo dnf update -y
   install_build_dependencies: |
     sudo dnf install -y which hostname
-    sudo dnf -y -b --skip-broken install man python2-devel python2-setuptools ragel $(./pcp/qa/admin/check-vm -fp)
+    sudo dnf -y -b --skip-broken install man python2-devel python2-setuptools ragel $(./pcp/qa/admin/check-vm -fpM)
   build: |
     cd ./pcp
     ./Makepkgs --verbose
