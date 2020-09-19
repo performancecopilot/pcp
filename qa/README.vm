@@ -127,6 +127,11 @@ CentOS
     19 Apr 2017: 6.0-6.7, 7.0-7.3
     25 Sep 2018: 6.*, 7.1-7.5
     # everything the same as RedHat
+    # promising CentOS 7 -> CentOS 8 upgrade recipe at
+      https://www.tecmint.com/upgrade-centos-7-to-centos-8/
+      but it does not work ... CentOS 8 needs to be a reinstall
+      then
+    # sudo dnf install epel-release -y
 
 openSUSE
     https://en.opensuse.org/Lifetime

@@ -115,6 +115,7 @@ _usage()
     echo "Usage: $0 [options]"
     echo "  -b           base package set, skip the N/A and optional ones"
     echo "  -f           force, don't try to guess the version of Python, Qt, ..."
+    echo "  -M           do not list the meta-package alternatives (cpan, perl, pip3)"
     echo "  -m manifest  use alternative manifest file"
     echo "  -o otherdir  use alternative other-packages directory"
     echo "  -p           generate list of likely packages that should be"
@@ -153,13 +154,15 @@ require="$home"/other-packages/require			# default, see -r
 skip="$home"/other-packages/skip			# default, see -s
 skipbase="$home"/other-packages/skip			# default, see -S
 unavailable="$home"/other-packages/unavailable		# default, see -u
-while getopts 'bcfm:o:pPr:s:S:u:v?' p
+include_meta=true
+while getopts 'bcfm:Mo:pPr:s:S:u:v?' p
 do
     case "$p"
     in
 	b)
 		basic=true
 		;;
+
 	c)	# exec check-manifest when manifest has been build
 		# ... expert only, so not even mentioned in Usage
 		#
@@ -168,6 +171,9 @@ do
 
 	f)
 		force=true
+		;;
+
+	M)	include_meta=false
 		;;
 
 	m)	# alternate manifest
@@ -431,6 +437,45 @@ _find_installer_cmd()
     then
 	echo "$0: Botch: don't recognize installcmd for: `cat $tmp.whatami`"
 	exit
+    fi
+}
+
+# Usage: _cull_from_manifest pkg msg
+# if [...] is empty afterwards, replace [] by [msg]
+# reads $tmp.manifest, writes $tmp.culled
+#
+_cull_from_manifest()
+{
+    _pkg="$1"
+    _msg="`echo $2 | sed -e 's;/;\\\\/;g'`"
+    # need to be careful ... pkg with foo.* needs to NOT skip
+    # blah.something from the line
+    # ... [ ... foo.* ... blah.something ... ]
+    # so .* -> [^] (]*
+    #
+    _pkg_pat=`echo "$_pkg" | sed -e 's/\.\*/[^] (]*/g'`
+    sed <$tmp.manifest >$tmp.culled -e "/[[ ]$_pkg_pat[] ]/"'{
+s/\([[ ]\)'"$_pkg_pat"'\([] (]\)/\1\2/g
+s/\[  */[/
+s/\[or  */[/
+s/  *]/]/
+s/  *or *]/]/
+s/  *or *(/ (/
+s/  *or  *or  */ or /
+s/\[ *or *]/[]/
+s/\[]/['"$_msg"']/
+s/\[([^)]*)]/['"$_msg"']/
+}'
+    if $very_verbose
+    then
+	echo "Culling $_pkg ($_pkg_pat)"
+	if cmp $tmp.manifest $tmp.culled >/dev/null
+	then
+	    : no diffs
+	else
+	    echo "Diffs applying manifest cull for package \"$_pkg\" ..."
+	    diff $tmp.manifest $tmp.culled
+	fi
     fi
 }
 
@@ -797,24 +842,13 @@ else
     then
 	for _pkg in $unavail_pkg
 	do
-	    sed <$tmp.manifest >$tmp.tmp -e "/[[ ]$_pkg[] ]/"'{
-s/\([[ ]\)'"$_pkg"'\([] ]\)/\1 \2/
-s/\(\[.*\) or/\1/g
-s/\(\[.*\) ([^)]*)/\1/g
-s/  */ /g
-}'
 	    if [ -z "$_version" ]
 	    then
-		sed <$tmp.tmp >$tmp.manifest \
-		    -e 's;\[  *\([](]\);[N/A on '"$_distro"' \1;' \
-		    -e 's/  *]/]/' \
-		#end
+		_cull_from_manifest "$_pkg" "N/A on $_distro"
 	    else
-		sed <$tmp.tmp >$tmp.manifest \
-		    -e 's;\[  *\([](]\);[N/A on '"$_distro"' '"$_version"' \1;' \
-		    -e 's/  *]/]/' \
-		#end
+		_cull_from_manifest "$_pkg" "N/A on $_distro $_version"
 	    fi
+	    mv $tmp.culled $tmp.manifest
 	    $very_verbose && echo >&2 "unavailable: $_pkg"
 	done
     fi
@@ -839,16 +873,14 @@ then
 	$very_verbose && echo >&2 "skip on host: $skip_pkg"
 	for _pkg in $skip_pkg
 	do
-	    sed <$tmp.manifest >$tmp.tmp -e "/[[ ]$_pkg[] ]/"'{
-s;\[[^]]*];[SKIP on host '"$_hostname"'];
-}'
-	    mv $tmp.tmp $tmp.manifest
+	    _cull_from_manifest "$_pkg" "SKIP on host $_hostname"
+	    mv $tmp.culled $tmp.manifest
 	done
     fi
 fi
 
-# the "skip" file records packages that should not be installed for a
-# particular distribution and version and archtecture ... 
+# the "skip" file records packages that should NOT be installed for a
+# particular distribution and version and architecture ... 
 #
 _parse_file $skip >$tmp.pkgs
 if [ -s $tmp.pkgs ]
@@ -857,10 +889,8 @@ then
     skip_pkg="$skip_pkg `cat $tmp.pkgs`"
     for _pkg in `cat $tmp.pkgs`
     do
-	sed <$tmp.manifest >$tmp.tmp -e "/[[ ]$_pkg[] ]/"'{
-s;\[[^]]*];[SKIP];
-}'
-	mv $tmp.tmp $tmp.manifest
+	_cull_from_manifest "$_pkg" SKIP
+	mv $tmp.culled $tmp.manifest
     done
 fi
 
@@ -1175,6 +1205,21 @@ then
     do
 	echo "$_pkg" >>$tmp.out
     done
+fi
+
+# for -M, remove all the meta-packages, like perl(...), cpan(...) and
+# pip3(...)
+#
+if $include_meta
+then
+    :
+else
+    sed <$tmp.out >$tmp.tmp \
+	-e '/^cpan(/d' \
+	-e '/^perl(/d' \
+	-e '/^pip3(/d' \
+    # end
+    mv $tmp.tmp $tmp.out
 fi
 
 if [ -s $tmp.out ]

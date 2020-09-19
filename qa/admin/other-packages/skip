@@ -21,10 +21,19 @@
 # we're using python3
 ArchLinux    -        -       python2-.* .*-python2
 #-- Centos
+# we're using python3
+# As of 8.2.2004 ...
+# mysql conflicst with mariadb
+# mandoc conflicts with man-pages
+# perl(Net::SNMP) has bad prereq on perl(Digest::SHA1), not perl(Digest::SHA)
+# perl(Spreadsheet::XLSX) has bad depends chain back to perl(IO::Scalar)
+# perl(Spreadsheet::WriteExcel) has bad depends chain back to perl(IO::Scalar)
+CentOS       8\.2\.   -       .*-python2 python2-.* python2[0-9]-.* python-.* mysql mandoc perl-Net-SNMP perl(Net::SNMP) perl-Spreadsheet-XLSX perl(Spreadsheet::XLSX) perl-Spreadsheet-WriteExcel perl(Spreadsheet::WriteExcel)
+CentOS       8\.1\.   -       .*-python2 python2-.* python2[0-9]-.* python-.*
+CentOS       7\.[5-7] -       .*-python2 python2-.* python2[0-9]-.* python-.*
 # we're using python2
 CentOS       6\.10    -       .*-python3 python3-.* python3[0-9]-.*
-# we're using python3
-CentOS       7\.[5-7] -       .*-python2 python2-.* python2[0-9]-.* python-.*
+# -- Debian
 # we're using python3 from Debian 9 onwards
 Debian       1.\..*   -       python-.*
 Debian       9\..*    -       python-.*
