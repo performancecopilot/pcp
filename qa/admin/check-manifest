@@ -116,7 +116,8 @@ case "`sed <$tmp.tmp -e 's/  */ /g' -e 's/ \[.*//' | cut -d ' ' -f 4-`"
 in
     *Ubuntu*|*Debian*|*LinuxMint*)
 	pkgtool=dpkg
-	searchtool=dpkg-query
+	searchtool=cached
+	apt-cache dumpavail | sed -n -e '/^Package: /s///p' >$tmp.cache
 	;;
     *RHEL*|*Fedora*|*CentOS*|*openSUSE*|*SUSE\ SLES*)
 	pkgtool=rpm
@@ -178,6 +179,15 @@ then
     echo "$0: Botch: don't recognize pkgtool for: `cat $tmp.tmp`"
     exit
 fi
+
+_undot()
+{
+    if [ -f $tmp.dots ]
+    then
+	echo
+	rm -f $tmp.dots
+    fi
+}
 
 _path_to_pkg()
 {
@@ -612,6 +622,30 @@ _hunt()
     rm -f $tmp.msg $tmp.ok
     for file in `echo "$target" | sed -e 's/|/ /g'`
     do
+	if [ -f "$tmp.cache" ]
+	then
+	    # we have a cache of available packages ... check all the
+	    # ones remaining really do exist
+	    #
+	    for pkg in $pkginfo
+	    do
+		case "$pkg"
+		in
+		    'cpan('*')')
+			    ;;
+		    *)
+			    if grep "^$pkg\$" $tmp.cache >/dev/null
+			    then
+				:
+			    else
+				_undot
+				echo "$line: package $pkg appears to be unavailable"
+			    fi
+			    ;;
+		esac
+	    done
+	fi
+
 	case "$file"
 	in
 	    /*)
@@ -676,6 +710,7 @@ _hunt()
     done
     if [ ! -f $tmp.ok -a -f $tmp.msg ]
     then
+	_undot
 	cat $tmp.msg
     fi
 }
@@ -696,9 +731,33 @@ sed <$tmp.manifest \
     -e '/^[ 	]*$/d' \
     -e '/\[N\/A/d' \
     -e '/\[SKIP]/d' \
-    -e '/\[SKIP on host/d' \
+    -e '/\[SKIP on host/d' >$tmp.tmp
+mv $tmp.tmp $tmp.manifest
+
+$PCP_ECHO_PROG $PCP_ECHO_N "Checking the `wc -l <$tmp.manifest | sed -e 's/ //g'` manifest entries for `hostname -s` ""$PCP_ECHO_C"
+if $verbose || $very_verbose
+then
+    $PCP_ECHO_PROG "..."
+else
+    _undot
+    echo
+fi
+
+cat $tmp.manifest \
 | while read guard target extra
 do
+    if $very_verbose
+    then
+	echo >&2 "check N/A for \"$pkg\""
+    elif $verbose
+    then
+	:
+    else
+	# may be slow, so emit dots for progress ...
+	#
+	$PCP_ECHO_PROG >&2 $PCP_ECHO_N ."$PCP_ECHO_C"
+	touch $tmp.dots
+    fi
     # most lines have no guard, but some do, e.g.
     # !pkg?   egcc|gcc        [gcc]
     # weird?  foobar          [foobar-dev]
@@ -757,7 +816,11 @@ do
     [ -z "$pkginfo" ] && pkginfo="$target base"
     # unknown ones warrant a warning
     #
-    [ "$pkginfo" = "?" ] && echo "$line: Warning: package for \"$target\" is not known"
+    if [ "$pkginfo" = "?" ]
+    then
+	_undot
+	echo "$line: Warning: package for \"$target\" is not known"
+    fi
     $very_verbose && echo >&2 target=\"$target\" extra=\"$extra\" pkginfo=\"$pkginfo\"
 
     case "$target"
@@ -771,6 +834,7 @@ do
 		     | sed -e 's/|$//'`
 	    if [ -z "$_target" ]
 	    then
+		_undot
 		echo "$line: Perl source \"$target\" not found"
 	    else
 		$very_verbose && echo >&2 "$line: Perl $target -> $_target"
@@ -790,6 +854,7 @@ do
 		     | sed -e 's/|$//'`
 	    if [ -z "$_target" ]
 	    then
+		_undot
 		echo "$line: Perl source \"$target\" not found"
 	    else
 		$very_verbose && echo >&2 "$line: Perl $target -> $_target"
@@ -810,6 +875,7 @@ do
 	    if [ -z "$_target" ]
 	    then
 		$very_verbose && echo >&2 "... looking for $_module/$_perl.* from candidates: `cat $tmp.debug`"
+		_undot
 		echo "$line: Perl source \"$target\" not found"
 	    else
 		$very_verbose && echo >&2 "$line: Perl $target -> $_target"
@@ -826,6 +892,7 @@ do
     esac
 
 done
+_undot
 
 # check the N/A packages list for this platform
 #
@@ -894,7 +961,8 @@ then
     then
 	$PCP_ECHO_PROG "..."
     else
-	touch $tmp.dots
+	_undot
+	echo
     fi
     cat $tmp.unavail \
     | while read pkg 
@@ -911,6 +979,13 @@ then
 	rm -f $tmp.avail
 	case "$searchtool"
 	in
+	    cached)
+		if grep "^$pkg\$" $tmp.cache >/dev/null
+		then
+		    touch $tmp.avail
+		fi
+		;;
+
 	    dpkg-query)
 		if dpkg-query -l "$pkg" >$tmp.out 2>&1
 		then
@@ -1049,11 +1124,7 @@ then
 		;;
 
 	    *)
-		if [ -f $tmp.dots ]
-		then
-		    echo
-		    rm -f $tmp.dots
-		fi
+		_undot
 		echo "_hunt: Botch: no rule for searchtool=$searchtool"
 		touch $tmp.botch
 		break
@@ -1061,11 +1132,7 @@ then
 	esac
 	if [ -f $tmp.avail ]
 	then
-	    if [ -f $tmp.dots ]
-	    then
-		echo
-		rm -f $tmp.dots
-	    fi
+	    _undot
 	    $verbose && cat >&2 $tmp.out
 	    if grep "^$pkg\$" $tmp.installed >/dev/null
 	    then
@@ -1077,13 +1144,7 @@ then
 	[ -f $tmp.botch ] && break
     done
 
-    if [ -f $tmp.dots ]
-    then
-	# done with dots ...
-	#
-	echo
-	rm -f $tmp.dots
-    fi
+    _undot
 fi
 
 sts=0
