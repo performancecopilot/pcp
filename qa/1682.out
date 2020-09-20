@@ -1,0 +1,46 @@
+QA output created by 1682
+QA output created by 1681 --valgrind
+
+=== Default pmrepconf options, new file ===
+=== std out ===
+Creating config file "TMP.config" using default settings ...
+...
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmrepconf TMP.config
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+Check pmrep syntax validity
+done
+
+=== Default pmrepconf options, rewriting ===
+=== std out ===
+
+No changes
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmrepconf TMP.config
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+Check pmrep syntax validity
+done
+
+=== Additional pmrepconf options, rewriting ===
+=== std out ===
+Creating config file "TMP.option" using default settings ...
+...
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmrepconf -o globals=yes -o timestamp=no TMP.option
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+Check options saved
+globals=yes
+timestamp=no
+done

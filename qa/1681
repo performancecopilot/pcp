@@ -1,0 +1,98 @@
+#!/bin/sh
+# PCP QA Test No. 1681
+# Exercise pmrepconf generating pmrep.conf(5) format.
+#
+# Copyright (c) 2020 Red Hat.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_log()
+{
+    echo
+    echo "=== $@ ===" | tee -a $here/$seq.full
+}
+
+_filter()
+{
+    sed \
+	-e "s,$tmp.config,TMP.config," \
+	-e "s,$tmp.option,TMP.option," \
+	-e 's,\.\.\.*,\.\.\.,' \
+	-e '/^Log this group/d' \
+	-e '/^Group/d' \
+    # end
+}
+
+# real QA test starts here
+_log "Default pmrepconf options, new file"
+if $do_valgrind
+then
+    _run_valgrind pmrepconf $tmp.config </dev/null
+else
+    pmrepconf $tmp.config </dev/null
+fi | _filter
+cat $tmp.config >> $here/$seq.full
+echo Check pmrep syntax validity | tee -a $here/$seq.full
+pmrep -c $tmp.config -C :metrics >> $here/$seq.full
+test $? -eq 0 || echo "Bad pmrep return code"
+echo done
+
+_log "Default pmrepconf options, rewriting"
+if $do_valgrind
+then
+    _run_valgrind pmrepconf $tmp.config </dev/null
+else
+    pmrepconf $tmp.config </dev/null
+fi | _filter
+cat $tmp.config >> $here/$seq.full
+echo Check pmrep syntax validity | tee -a $here/$seq.full
+pmrep -c $tmp.config -C :metrics >> $here/$seq.full
+test $? -eq 0 || echo "Bad pmrep return code"
+echo done
+
+_log "Additional pmrepconf options, rewriting"
+options="-o globals=yes -o timestamp=no"
+if $do_valgrind
+then
+    _run_valgrind pmrepconf $options $tmp.option </dev/null
+else
+    pmrepconf $options $tmp.option </dev/null
+fi | _filter
+cat $tmp.option >> $here/$seq.full
+echo Check options saved | tee -a $here/$seq.full
+egrep '^globals|^timestamp' $tmp.option
+echo done
+
+# success, all done
+exit
