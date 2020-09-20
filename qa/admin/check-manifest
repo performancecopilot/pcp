@@ -109,6 +109,11 @@ fi
 # $searchtool tells us how to search for packages by name
 # (including uninstalled packages)
 #
+# if you're able to produce a list of all available packages
+# (installed and not installed), then do this and save the resulting
+# list (one package name, no versions) to $tmp.cache and set $searchtool
+# to "cached"
+#
 pgktool=''
 searchtool=''
 $home/whatami >$tmp.tmp
@@ -126,7 +131,14 @@ in
 	    searchtool=zypper
 	elif which dnf >/dev/null 2>&1
 	then
-	    searchtool=dnf
+	    searchtool=cached
+	    dnf list \
+	    | sed >$tmp.cache \
+		-e '/^Last metadata/d' \
+		-e '/^Available Packages/d' \
+		-e 's/ .*//' \
+		-e 's/\.[^.]*$//' \
+	    # end
 	elif which yum >/dev/null 2>&1
 	then
 	    searchtool=yum

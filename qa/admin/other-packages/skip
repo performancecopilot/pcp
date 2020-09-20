@@ -28,7 +28,8 @@ ArchLinux    -        -       python2-.* .*-python2
 # perl(Net::SNMP) has bad prereq on perl(Digest::SHA1), not perl(Digest::SHA)
 # perl(Spreadsheet::XLSX) has bad depends chain back to perl(IO::Scalar)
 # perl(Spreadsheet::WriteExcel) has bad depends chain back to perl(IO::Scalar)
-CentOS       8\.2\.   -       .*-python2 python2-.* python2[0-9]-.* python-.* mysql mandoc perl-Net-SNMP perl(Net::SNMP) perl-Spreadsheet-XLSX perl(Spreadsheet::XLSX) perl-Spreadsheet-WriteExcel perl(Spreadsheet::WriteExcel)
+# cpan(Spreadsheet::WriteExcel) fails to build
+CentOS       8\.2\.   -       .*-python2 python2-.* python2[0-9]-.* python-.* mysql mandoc perl-Net-SNMP perl(Net::SNMP) perl-Spreadsheet-XLSX perl(Spreadsheet::XLSX) perl-Spreadsheet-WriteExcel perl(Spreadsheet::WriteExcel) cpan(Spreadsheet::WriteExcel)
 CentOS       8\.1\.   -       .*-python2 python2-.* python2[0-9]-.* python-.*
 CentOS       7\.[5-7] -       .*-python2 python2-.* python2[0-9]-.* python-.*
 # we're using python2
