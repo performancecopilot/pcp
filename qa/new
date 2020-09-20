@@ -257,19 +257,19 @@ trap "_cleanup; exit \\\$status" 0 1 2 3 15
 
 _filter()
 {
-    sed \
-	-e 's/<something>/<else>/' \
+    sed \\
+	-e 's/<something>/<else>/' \\
     # end
 }
 
 # real QA test starts here
 
-if $do_valgrind
+if \$do_valgrind
 then
     _run_valgrind ...your test goes here...
 else
     ...your test goes here... 2>&1
-fi \
+fi \\
 | _filter
 
 # if really bad error
