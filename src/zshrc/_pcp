@@ -121,6 +121,7 @@ _pcp () {
       "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]' \
       "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter=}'[set default limit filter]' \
       "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force=}'[set forced limit filter]' \
+      "(-m --include-labels -m --include-labels $exargs)"{-m,--include-labels}'[include labels]' \
       "(-n --invert-filter $exargs)"{-n,--invert-filter}'[perform ranking before live filtering]' \
       "(-N --predicate $exargs)"{-N+,--predicate=}'[specify predicate metric]:metric:->metrics' \
       "(-g --es-host $exargs)"{-g+,--es-host=}'[elasticsearch server]:host:_hosts' \
