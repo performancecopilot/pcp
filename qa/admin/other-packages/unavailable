@@ -5,7 +5,9 @@
 # Field 2	- Distro version, as reported by whatami, - for all versions
 # 		  (an alias for .*)
 # Field 3	- Distro architecture, - for all architectures (alias for .*)
-# Field 4 .. N	- packages that are not available
+# Field 4 .. N	- packages that are not available ... note that grep(1)
+#		  patterns in this field are matched literally (no regexp
+#		  matching) with package "names" in manifest
 #
 # grep(1) patterns allowed in all Fields.
 #
@@ -20,7 +22,7 @@ CentOS       8\.[0-1] -       389-ds 389-ds-base apache2 avahi-devel avahi-tools
 CentOS       7\.[5-7] -       bpftrace chan-devel HdrHistogram_c-devel libvarlink-devel libvirt-python3 python2-openpyxl python3-bcc python3-elasticsearch python3-jsonpointer python3-libvirt python3-libvirt-python python3-lxml python3-openpyxl python3-pillow python3-Pillow python3-prometheus_client python3-psycopg2 python3-pyodbc python3-requests python3-rtslib python3-rtslib-fb python3-six python-openpyxl python-prometheus_client python-pylint qtchooser redis-server system-python-libs zfs-fuse
 CentOS       6\.10    -       bpftrace chan-devel Coin-devel Coin4-devel cppcheck docker docker-common docker-io HdrHistogram_c-devel java-latest-openjdk-headless kubectl kubernetes-client kubernetes-node libpfm-devel libqt5Core-devel libQt5Core-devel libqt5-qtbase-devel libqt5-qtsvg-devel libuv-devel libvarlink-devel libvirt-daemon libvirt-daemon-driver-qemu mandoc mssql-server mssql-tools pylint python2-elasticsearch python2-openpyxl python2-pylint python-elasticsearch python-openpyxl python-prometheus_client python-pylint qt5-qtbase-devel qt5-qtsvg-devel qtchooser ragel redis RediSearch socat SoQt-devel statsd systemd-devel system-python-libs uic zabbix22-agent zabbix-agent zfs-fuse
 #-- Debian
-Debian       bullseye -       apache2-mpm-worker avahi-tools libicu libsoqt-dev libuv-dev mariadb-client-core mysql-client-core redis-cli
+Debian       bullseye -       apache2-mpm-worker avahi-tools libicu libsoqt-dev libuv-dev mariadb-client-core mysql-client-core mysql-client-core-[0-9][0-9.]* perl-modules redis-cli
 Debian       9\..*    -       bpftrace docker.io libsoqt5-dev libuv-dev python3-bpfcc redis-cli zfsutils-linux
 Debian       8\.[11]  - docker.io avahi-tools cpan(Spreadsheet::ReadSXC) cpan(Text::CSV_XS) libcoin-dev libsoqt5-dev libspreadsheet-readsxc-perl libuv1-dev mariadb-client-core mysql-client-core python3-bpfcc python3-openpyxl python3-prometheus-client python-prometheus-client
 #-- Fedora

@@ -440,6 +440,61 @@ _find_installer_cmd()
     fi
 }
 
+# need to be careful ... $1 uses an extended regexp notation where
+# things we want to match as regexps are enclosed in {...} but regexp
+# characters like ., [ and * elsewhere needed to be treated as literals
+# and then we have to do word-bounded matching so something like
+# foo.{.*} matches foo.bar only from the line
+# ... [ ... foo.bar ... foolbar ... blah.something ... ]
+#
+_safe_pattern()
+{
+    echo "$1" \
+    | $PCP_AWK_PROG '
+	{ len = length($0)
+	  out = ""
+	  inregexp = 0
+	  for (i = 1; i <= len; i++) {
+	    c = substr($0, i, 1)
+	    if (inregexp == 0 && c == "{") {
+		inregexp = 1
+		continue
+	    }
+	    if (inregexp == 1 && c == "}") {
+		inregexp = 0
+		continue
+	    }
+	    if (inregexp == 0) {
+		# not in { ... } so need to escape grep/sed regexp specials
+		if (c == "[" || c == "*" || c == ".") {
+		    if (out == "")
+			out = "\\"
+		    else
+			out = out "\\"
+		}
+	    }
+	    if (inregexp == 1) {
+		if (c == ".") {
+		    # . here needs to match a non-space character to avoid
+		    # matching more than one word and not consume the ]
+		    # at the end the list of packages from the the manifest
+		    # line
+		    if (out == "")
+			out = "[^] ]"
+		    else
+			out = out "[^] ]"
+		    continue
+		}
+	    }
+	    if (out == "")
+		out = c
+	    else
+		out = out c
+	  }
+	  print out
+	}'
+}
+
 # Usage: _cull_from_manifest pkg msg
 # if [...] is empty afterwards, replace [] by [msg]
 # reads $tmp.manifest, writes $tmp.culled
@@ -448,12 +503,7 @@ _cull_from_manifest()
 {
     _pkg="$1"
     _msg="`echo $2 | sed -e 's;/;\\\\/;g'`"
-    # need to be careful ... pkg with foo.* needs to NOT skip
-    # blah.something from the line
-    # ... [ ... foo.* ... blah.something ... ]
-    # so .* -> [^] (]*
-    #
-    _pkg_pat=`echo "$_pkg" | sed -e 's/\.\*/[^] (]*/g'`
+    _pkg_pat=`_safe_pattern "$_pkg"`
     sed <$tmp.manifest >$tmp.culled -e "/[[ ]$_pkg_pat[] ]/"'{
 s/\([[ ]\)'"$_pkg_pat"'\([] (]\)/\1\2/g
 s/\[  */[/
@@ -854,7 +904,6 @@ else
 		_cull_from_manifest "$_pkg" "N/A on $_distro $_version"
 	    fi
 	    mv $tmp.culled $tmp.manifest
-	    $very_verbose && echo >&2 "unavailable: $_pkg"
 	done
     fi
 fi
@@ -968,58 +1017,59 @@ case "`sed <$tmp.whatami -e 's/  */ /g' -e 's/ \[.*//' | cut -d ' ' -f 4-`"
 in
     *Ubuntu*|*Debian*|*LinuxMint*)
 	    rm -f $tmp.sed
-	    if grep '\[[^](]*\*' $tmp.manifest >$tmp.tmp
-	    then
-		sed <$tmp.tmp \
-		    -e 's/.*\[//' \
-		    -e 's/] *:/ /' \
-		    -e 's/([^)]*)//' \
-		| $PCP_AWK_PROG '{ for (i = 1; i < NF; i++) print $NF,$i }' \
-		| while read lineno pkg
-		do
-		    case "$pkg"
-		    in
-			*\**)
-			    # * -> N* or N*.N* or N*.N*.N* or ..
-			    #
-			    pat="`echo "$pkg" | sed -e 's/\./\\./g' -e 's/\*/[0-9][0-9.]*/g'`"
-			    if [ ! -f $tmp.cache ]
-			    then
-				apt-cache dumpavail | sed -n -e '/^Package: /s///p' >$tmp.cache
-			    fi
-			    real_pkg="`grep "^$pat\$" $tmp.cache | LC_COLLATE=POSIZ sort -nr | head -1`"
-			    if [ -n "$real_pkg" ]
-			    then
-				$verbose && echo >&2 "package pattern $pkg -> $real_pkg"
-				pat_pkg="`echo "$pkg" | sed -e 's/\./\\\\./g' -e 's/\*/\\\\*/g'`"
-				echo "s/ $pat_pkg \\\\(.*:$lineno\\\\)\$/ $real_pkg \\\\1/" >>$tmp.sed
-			    fi
-			    ;;
-		    esac
-		done
-		if [ -s $tmp.sed ]
-		then
-		    # need [foo-*] -> [ foo-* ] -> [foo-123] and this
-		    # requires some epilogue and prologue sed commands
-		    #
-		    echo 's/\[/[ /' >$tmp.tmp
-		    echo 's/]/ ]/' >>$tmp.tmp
-		    cat $tmp.sed >>$tmp.tmp
-		    echo 's/ ]/]/' >>$tmp.tmp
-		    echo 's/\[ /[/' >>$tmp.tmp
-		    mv $tmp.tmp $tmp.sed
-		    sed -f $tmp.sed <$tmp.manifest >$tmp.tmp
-		    if cmp $tmp.manifest $tmp.tmp >/dev/null
-		    then
-			: no differences
-		    else
-			if $very_verbose
+	    sed <$tmp.manifest \
+		-e 's/[^[]*\[//' \
+		-e 's/] *:/ /' \
+		-e 's/([^)]*)//' \
+	    | $PCP_AWK_PROG '{ for (i = 1; i < NF; i++) print $NF,$i }' \
+	    | while read lineno pkg
+	    do
+		case "$pkg"
+		in
+		    *\**|*\[*)
+			# $pkg includes regex me thinks
+			#
+			if [ ! -f $tmp.allpkgs ]
 			then
-			    echo "Diffs applying package pattern matching ..."
-			    diff $tmp.manifest $tmp.tmp
+			    apt-cache dumpavail | sed -n -e '/^Package: /s///p' >$tmp.allpkgs
 			fi
-			mv $tmp.tmp $tmp.manifest
+			real_pkg="`grep "^$pkg\$" $tmp.allpkgs | LC_COLLATE=POSIZ sort -nr | head -1`"
+			if [ -n "$real_pkg" ]
+			then
+			    $verbose && echo >&2 "package pattern $pkg -> $real_pkg"
+			    pkg_literal=`echo "$pkg" | sed -e 's/\[/\\\\[/g' -e 's/\*/\\\\*/g'`
+			    echo "s/ $pkg_literal \\\\(.*:$lineno\\\\)\$/ $real_pkg \\\\1/" >>$tmp.sed
+			fi
+			;;
+		esac
+	    done
+	    if [ -s $tmp.sed ]
+	    then
+		# need [foo-*] -> [ foo-* ] -> [foo-123] and this
+		# requires some epilogue and prologue sed commands
+		#
+		echo 's/\\[/[ /' >$tmp.tmp
+		echo 's/]\\( :[0-9][0-9]*\\)$/ ]\\1/' >>$tmp.tmp
+		cat $tmp.sed >>$tmp.tmp
+		echo 's/ ]\\( :[0-9][0-9]*\\)$/]\\1/' >>$tmp.tmp
+		echo 's/\\[ /[/' >>$tmp.tmp
+		mv $tmp.tmp $tmp.sed
+		if $very_verbose
+		then
+		    echo "Pattern expansion sed script ..."
+		    cat $tmp.sed
+		fi
+		sed -f $tmp.sed <$tmp.manifest >$tmp.tmp
+		if cmp $tmp.manifest $tmp.tmp >/dev/null
+		then
+		    : no differences
+		else
+		    if $very_verbose
+		    then
+			echo "Diffs applying package pattern matching ..."
+			diff $tmp.manifest $tmp.tmp
 		    fi
+		    mv $tmp.tmp $tmp.manifest
 		fi
 	    fi
 	    ;;
