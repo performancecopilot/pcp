@@ -788,8 +788,13 @@ do
     fi
 done
 
+# Strip comments ...
+#
+sed -e '/^#/d' <$tmp.manifest >$tmp.tmp
+mv $tmp.tmp $tmp.manifest
+
 # the "unavailable" file records packages that are not available for a
-# particular distribution and version and archtecture ... 
+# particular distribution and version and architecture ... 
 #
 _parse_file $unavailable >$tmp.pkgs
 if [ -s $tmp.pkgs ]
@@ -951,6 +956,74 @@ else
 	mv $tmp.tmp $tmp.manifest
     fi
 fi
+
+# For some packaging (in particular dpkg on the Debian line), there is
+# support for multiple versions of some packages in the same distro.
+# This is normally designated by foo-N.M or fooNM in the package name.
+# The manifest may contain the "glob" character "*" to indicate we're
+# looking for the "latest" version of the package, so snoop and rewrite
+# as appropriate.
+#
+case "`sed <$tmp.whatami -e 's/  */ /g' -e 's/ \[.*//' | cut -d ' ' -f 4-`"
+in
+    *Ubuntu*|*Debian*|*LinuxMint*)
+	    rm -f $tmp.sed
+	    if grep '\[[^](]*\*' $tmp.manifest >$tmp.tmp
+	    then
+		sed <$tmp.tmp \
+		    -e 's/.*\[//' \
+		    -e 's/] *:/ /' \
+		    -e 's/([^)]*)//' \
+		| $PCP_AWK_PROG '{ for (i = 1; i < NF; i++) print $NF,$i }' \
+		| while read lineno pkg
+		do
+		    case "$pkg"
+		    in
+			*\**)
+			    # * -> N* or N*.N* or N*.N*.N* or ..
+			    #
+			    pat="`echo "$pkg" | sed -e 's/\./\\./g' -e 's/\*/[0-9][0-9.]*/g'`"
+			    if [ ! -f $tmp.cache ]
+			    then
+				apt-cache dumpavail | sed -n -e '/^Package: /s///p' >$tmp.cache
+			    fi
+			    real_pkg="`grep "^$pat\$" $tmp.cache | LC_COLLATE=POSIZ sort -nr | head -1`"
+			    if [ -n "$real_pkg" ]
+			    then
+				$verbose && echo >&2 "package pattern $pkg -> $real_pkg"
+				pat_pkg="`echo "$pkg" | sed -e 's/\./\\\\./g' -e 's/\*/\\\\*/g'`"
+				echo "s/ $pat_pkg \\\\(.*:$lineno\\\\)\$/ $real_pkg \\\\1/" >>$tmp.sed
+			    fi
+			    ;;
+		    esac
+		done
+		if [ -s $tmp.sed ]
+		then
+		    # need [foo-*] -> [ foo-* ] -> [foo-123] and this
+		    # requires some epilogue and prologue sed commands
+		    #
+		    echo 's/\[/[ /' >$tmp.tmp
+		    echo 's/]/ ]/' >>$tmp.tmp
+		    cat $tmp.sed >>$tmp.tmp
+		    echo 's/ ]/]/' >>$tmp.tmp
+		    echo 's/\[ /[/' >>$tmp.tmp
+		    mv $tmp.tmp $tmp.sed
+		    sed -f $tmp.sed <$tmp.manifest >$tmp.tmp
+		    if cmp $tmp.manifest $tmp.tmp >/dev/null
+		    then
+			: no differences
+		    else
+			if $very_verbose
+			then
+			    echo "Diffs applying package pattern matching ..."
+			    diff $tmp.manifest $tmp.tmp
+			fi
+			mv $tmp.tmp $tmp.manifest
+		    fi
+		fi
+	    fi
+	    ;;
+esac
 
 if $check_manifest
 then

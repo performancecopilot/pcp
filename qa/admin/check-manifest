@@ -499,9 +499,6 @@ _match_pkg()
 			libcoin[0-9]*-dev)		# e.g. libcoin80-dev
 			    xpect=libcoin-dev
 			    ;;
-			libperl5.[0-9]*)		# e.g. libperl5.22
-			    xpect='libperl5.*'
-			    ;;
 			libpython2.[0-9]-dev)	# e.g. libpython2.7-dev
 			    xpect=libpython-dev
 			    ;;
