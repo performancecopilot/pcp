@@ -139,7 +139,9 @@ trap "rm -rf $tmp; exit" 0 1 2 3 15
 _archive2filename()
 {
     # Check for an archive file using all the supported compressions
-    for compression in "" .xz .lzma .bz .bz2 .gz .Z .z
+    pmconfig="$PCP_BINADM_DIR/pmconfig"
+    compress_suffixes=`$pmconfig -L compress_suffixes | sed -e 's/^.*=//g'`
+    for compression in "" $compress_suffixes
     do
         if [ -f "$1$compression" ]
 	then
