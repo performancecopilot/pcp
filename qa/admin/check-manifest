@@ -634,7 +634,9 @@ _hunt()
 		    'cpan('*')')
 			    ;;
 		    *)
-			    if grep "^$pkg\$" $tmp.cache >/dev/null
+			    # map glob * to regex .*
+			    pat=`echo "$pkg" | sed -e 's/\*/.*/g'`
+			    if grep "^$pat\$" $tmp.cache >/dev/null
 			    then
 				:
 			    else
@@ -696,9 +698,14 @@ _hunt()
 		rm -f $tmp.ok
 		for spec in $pkginfo
 		do
-		    if _match_pkg "$pkg" "$spec"
+		    if [ "$pkg" = "$spec" ]
 		    then
-			$verbose && echo >&2 "$line: OK target $file found in $spec"
+			$verbose && echo >&2 "$line: OK target \"$file\" found in  package \"$pkg\""
+			touch $tmp.ok
+
+		    elif _match_pkg "$pkg" "$spec"
+		    then
+			$verbose && echo >&2 "$line: OK target \"$file\" found in package \"$spec\" ($pkg)"
 			touch $tmp.ok
 		    else
 			echo "$line: target \"$file\" in package \"$pkg\" not \"$spec\"" >>$tmp.msg
@@ -980,7 +987,9 @@ then
 	case "$searchtool"
 	in
 	    cached)
-		if grep "^$pkg\$" $tmp.cache >/dev/null
+		# map glob * to regex .*
+		pat=`echo "$pkg" | sed -e 's/\*/.*/g'`
+		if grep "^$pat\$" $tmp.cache >/dev/null
 		then
 		    touch $tmp.avail
 		fi
