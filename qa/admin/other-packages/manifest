@@ -1611,7 +1611,7 @@ pkgin?		pstree		[?]
 pkg_add?	pstree		[pstree (QA optional)]
 F_pkg?		pstree		[?]
 S_pkg?		pstree		[?]
-slackpkg?	pstree		[?]
+slackpkg?	pstree		[procps-ng]
 pacman?		pstree		[?]
 brew?		pstree		[?]
 

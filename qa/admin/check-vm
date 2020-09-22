@@ -494,7 +494,21 @@ _build_allpkgs()
 	;;
 
     *Slackware*)
-	# TODO
+	# lines after awk look like ...
+	# ./aspell-word-lists/aspell-cs-20040614_1-x86_64-5.txz
+	# ./n/openldap-client-2.4.42-x86_64-1.txz
+	#
+	for f in /var/lib/slackpkg/slackware64-filelist.gz \
+		 /var/lib/slackpkg/extra-filelist.gz
+	do
+	    [ -f "$f" ] || continue
+	    zcat "$f" \
+	    | $PCP_AWK_PROG '{ print $1 }' \
+	    | sed \
+		-e 's/\-[0-9].*//' \
+		-e 's;.*/;;' \
+	    # end
+	done >$tmp.allpkgs
 	;;
 
     *Arch\ Linux*)
@@ -1293,8 +1307,8 @@ do
 	    echo "$apps" \
 	    | sed -n \
 		-e '/\[SKIP on host/s/on host.*/]/' \
-		-e 's/^[^ ][^ ]*[ 	][ 	]*\[//' \
-		-e 's/] *$//' \
+		-e 's/.*\[//' \
+		-e 's/]//' \
 		-e 's/ ([^)]*)//' \
 		-e 's/base [^ ]* install//' \
 		-e 's/^or //' \
@@ -1338,7 +1352,7 @@ do
 			rm -f $tmp.match
 			for _pkg in $unavail_pkg
 			do
-			    if [ "$_pkg" = "$_need" ]
+			    if echo " $_need " | grep " $_pkg " >/dev/null
 			    then
 				if $verbose
 				then
@@ -1351,18 +1365,7 @@ do
 			done
 			if [ ! -f $tmp.match ]
 			then
-			    if [ -f $tmp.allpkgs ]
-			    then
-				_need_expand="`grep "^$_need\$" <$tmp.allpkgs`"
-				if [ -n "$_need_expand" ]
-				then
-				    echo "$_need_expand"
-				else
-				    echo "$_need"
-				fi
-			    else
-				echo "$_need"
-			    fi
+			    echo "$_need"
 			fi
 		    fi
 		done
