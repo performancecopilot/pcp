@@ -1266,8 +1266,6 @@ class DstatTool(object):
 
     @staticmethod
     def instance_match(inst, plugin):
-        if plugin.cullinsts is not None and re.match(plugin.cullinsts, inst):
-            return False
         if plugin.instances and inst in plugin.instances:
             return True
         return plugin.grouptype == 1
