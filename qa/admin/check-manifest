@@ -109,6 +109,11 @@ fi
 # $searchtool tells us how to search for packages by name
 # (including uninstalled packages)
 #
+# if you're able to produce a list of all available packages
+# (installed and not installed), then do this and save the resulting
+# list (one package name, no versions) to $tmp.allpkgs and set $searchtool
+# to "cached"
+#
 pgktool=''
 searchtool=''
 $home/whatami >$tmp.tmp
@@ -116,8 +121,15 @@ case "`sed <$tmp.tmp -e 's/  */ /g' -e 's/ \[.*//' | cut -d ' ' -f 4-`"
 in
     *Ubuntu*|*Debian*|*LinuxMint*)
 	pkgtool=dpkg
-	searchtool=dpkg-query
+	searchtool=cached
+	if [ -f $tmp.allpkgs ]
+	then
+	    : assume it is good from check-vm
+	else
+	    apt-cache dumpavail | sed -n -e '/^Package: /s///p' >$tmp.allpkgs
+	fi
 	;;
+
     *RHEL*|*Fedora*|*CentOS*|*openSUSE*|*SUSE\ SLES*)
 	pkgtool=rpm
 	if which zypper >/dev/null 2>&1
@@ -125,7 +137,19 @@ in
 	    searchtool=zypper
 	elif which dnf >/dev/null 2>&1
 	then
-	    searchtool=dnf
+	    searchtool=cached
+	    if [ -f $tmp.allpkgs ]
+	    then
+		: assume it is good from check-vm
+	    else
+		dnf list \
+		| sed >$tmp.allpkgs \
+		    -e '/^Last metadata/d' \
+		    -e '/^Available Packages/d' \
+		    -e 's/ .*//' \
+		    -e 's/\.[^.]*$//' \
+		# end
+	    fi
 	elif which yum >/dev/null 2>&1
 	then
 	    searchtool=yum
@@ -144,7 +168,20 @@ in
 
     *OpenBSD*)
 	pkgtool=pkg_add
-	searchtool=pkg_info
+	searchtool=cached
+	# expect lines like this ...
+	# <tr>...<a href="libsysstat-0.4.1p1.tgz">libsysstat-0.4.1p1.tgz</a>...
+	#
+	url="`cat /etc/installurl`/`uname -r`/packages/`uname -m`/"
+	echo "Fetching list of available packages from $url ..."
+	curl -s $url \
+	| sed -n >$tmp.allpkgs \
+	    -e '/a href=".*tgz">/{
+s/\.tgz<\/a>.*/.tgz/
+s/.*>//
+s/-[0-9].*//
+p
+}'
 	;;
 
     *Gentoo*)
@@ -164,7 +201,22 @@ in
 
     *Slackware*)
 	pkgtool=slackpkg
-	searchtool=slackpkg
+	searchtool=cached
+	# lines after awk look like ...
+	# ./aspell-word-lists/aspell-cs-20040614_1-x86_64-5.txz
+	# ./n/openldap-client-2.4.42-x86_64-1.txz
+	#
+	for f in /var/lib/slackpkg/slackware64-filelist.gz \
+		 /var/lib/slackpkg/extra-filelist.gz
+	do
+	    [ -f "$f" ] || continue
+	    zcat "$f" \
+	    | $PCP_AWK_PROG '{ print $1 }' \
+	    | sed \
+		-e 's/\-[0-9].*//' \
+		-e 's;.*/;;' \
+	    # end
+	done >$tmp.allpkgs
 	;;
 
     *Arch\ Linux*)
@@ -178,6 +230,15 @@ then
     echo "$0: Botch: don't recognize pkgtool for: `cat $tmp.tmp`"
     exit
 fi
+
+_undot()
+{
+    if [ -f $tmp.dots ]
+    then
+	echo
+	rm -f $tmp.dots
+    fi
+}
 
 _path_to_pkg()
 {
@@ -474,15 +535,6 @@ _match_pkg()
 	    dpkg)
 		    case "$xpect"
 		    in
-			libcoin[0-9]*-dev)		# e.g. libcoin80-dev
-			    xpect=libcoin-dev
-			    ;;
-			libicu[0-9]*[0-9])		# e.g. libicu60
-			    xpect=libicu
-			    ;;
-			libperl5.[0-9]*)		# e.g. libperl5.22
-			    xpect='libperl5.*'
-			    ;;
 			libpython2.[0-9]-dev)	# e.g. libpython2.7-dev
 			    xpect=libpython-dev
 			    ;;
@@ -495,23 +547,8 @@ _match_pkg()
 			libpython3.[0-9]-stdlib)	# e.g. libpython3.6-stdlib
 			    xpect=libpython3-stdlib
 			    ;;
-			libreadline[0-9]*-dev)	# e.g. libreadline6-dev
-			    xpect=libreadline-dev
-			    ;;
 			libuv[0-9]*.[0-9]*-dev)	# e.g. libuv0.10-dev 
 			    xpect=libuv-dev
-			    ;;
-			mariadb-client-core-[0-9]*.[0-9]*)	# e.g. mariadb-client-core-10.1
-			    xpect=mariadb-client-core
-			    ;;
-			mysql-client-[0-9]*.[0-9]*)	# e.g. mysql-client-5.5
-			    xpect=mysql-client
-			    ;;
-			mysql-client-core-[0-9]*.[0-9]*)	# e.g. mysql-client-core-5.5
-			    xpect=mysql-client-core
-			    ;;
-			perl-modules-5.[0-9]*)	# e.g. perl-modules-5.26
-			    xpect=perl-modules
 			    ;;
 			python2.[0-9])		# e.g. python2.7
 			    xpect=python
@@ -524,9 +561,6 @@ _match_pkg()
 	    rpm)
 		    case "$xpect"
 		    in
-			Coin[0-9]*-devel)		# e.g. Coin3-devel
-			    xpect=Coin-devel
-			    ;;
 			postgresql[0-9]*)		# e.g. postgresql10
 			    xpect=postgresql
 			    ;;
@@ -554,10 +588,10 @@ _match_pkg()
 	    pkg_add)
 		    case "$xpect"
 		    in
-			base6[1-4]|comp6[1-4])
+			base6[0-9]|comp6[0-9])
 			    xpect=base
 			    ;;
-			xshare6[1-4])
+			xshare6[0-9])
 			    xpect=xshare
 			    ;;
 		    esac
@@ -612,6 +646,38 @@ _hunt()
     rm -f $tmp.msg $tmp.ok
     for file in `echo "$target" | sed -e 's/|/ /g'`
     do
+	if [ -f "$tmp.allpkgs" ]
+	then
+	    # we have a cache of available packages ... check all the
+	    # ones remaining really do exist
+	    #
+	    for pkg in $pkginfo
+	    do
+		case "$pkg"
+		in
+		    base|xshare)	# no packaging for these ones
+			    ;;
+
+		    'cpan('*')')	# skip cpan as we can't check 'em here
+			    ;;
+
+		    ?:[0-9]*)		# unknown
+			    _undot
+			    echo "$line: package \"?\" unknown for exec target \"$target\""
+			    ;;
+		    *)
+			    if grep "^$pkg\$" $tmp.allpkgs >/dev/null
+			    then
+				:
+			    else
+				_undot
+				echo "$line: package \"$pkg\" appears to be unavailable"
+			    fi
+			    ;;
+		esac
+	    done
+	fi
+
 	case "$file"
 	in
 	    /*)
@@ -667,7 +733,7 @@ _hunt()
 			$verbose && echo >&2 "$line: OK target $file found in $spec"
 			touch $tmp.ok
 		    else
-			echo "$line: target \"$file\" in package $pkg not $spec" >>$tmp.msg
+			echo "$line: target \"$file\" in package \"$pkg\" not \"$spec\"" >>$tmp.msg
 		    fi
 		done
 		[ -f $tmp.ok ] && break
@@ -676,6 +742,7 @@ _hunt()
     done
     if [ ! -f $tmp.ok -a -f $tmp.msg ]
     then
+	_undot
 	cat $tmp.msg
     fi
 }
@@ -696,9 +763,33 @@ sed <$tmp.manifest \
     -e '/^[ 	]*$/d' \
     -e '/\[N\/A/d' \
     -e '/\[SKIP]/d' \
-    -e '/\[SKIP on host/d' \
+    -e '/\[SKIP on host/d' >$tmp.tmp
+mv $tmp.tmp $tmp.manifest
+
+$PCP_ECHO_PROG $PCP_ECHO_N "Checking the `wc -l <$tmp.manifest | sed -e 's/ //g'` manifest entries for `hostname -s` ""$PCP_ECHO_C"
+if $verbose || $very_verbose
+then
+    $PCP_ECHO_PROG "..."
+else
+    _undot
+    echo
+fi
+
+cat $tmp.manifest \
 | while read guard target extra
 do
+    if $very_verbose
+    then
+	echo >&2 "check N/A for \"$guard\""
+    elif $verbose
+    then
+	:
+    else
+	# may be slow, so emit dots for progress ...
+	#
+	$PCP_ECHO_PROG >&2 $PCP_ECHO_N ."$PCP_ECHO_C"
+	touch $tmp.dots
+    fi
     # most lines have no guard, but some do, e.g.
     # !pkg?   egcc|gcc        [gcc]
     # weird?  foobar          [foobar-dev]
@@ -738,10 +829,10 @@ do
     #
     pkginfo=`echo "$extra" \
 	| sed \
-	    -e 's/:[0-9][0-9]*//' \
+	    -e 's/ :[0-9][0-9]*$//' \
 	    -e 's/#.*//' \
-	    -e 's/\[//' \
-	    -e 's/]//' \
+	    -e 's/^\[//' \
+	    -e 's/] *$//' \
 	    -e "s/'perl([^0]*)'//" \
 	    -e "s/perl([^0]*)//" \
 	    -e 's/([^)]* optional)//' \
@@ -757,7 +848,11 @@ do
     [ -z "$pkginfo" ] && pkginfo="$target base"
     # unknown ones warrant a warning
     #
-    [ "$pkginfo" = "?" ] && echo "$line: Warning: package for \"$target\" is not known"
+    if [ "$pkginfo" = "?" ]
+    then
+	_undot
+	echo "$line: Warning: package for \"$target\" is not known"
+    fi
     $very_verbose && echo >&2 target=\"$target\" extra=\"$extra\" pkginfo=\"$pkginfo\"
 
     case "$target"
@@ -771,6 +866,7 @@ do
 		     | sed -e 's/|$//'`
 	    if [ -z "$_target" ]
 	    then
+		_undot
 		echo "$line: Perl source \"$target\" not found"
 	    else
 		$very_verbose && echo >&2 "$line: Perl $target -> $_target"
@@ -790,6 +886,7 @@ do
 		     | sed -e 's/|$//'`
 	    if [ -z "$_target" ]
 	    then
+		_undot
 		echo "$line: Perl source \"$target\" not found"
 	    else
 		$very_verbose && echo >&2 "$line: Perl $target -> $_target"
@@ -810,6 +907,7 @@ do
 	    if [ -z "$_target" ]
 	    then
 		$very_verbose && echo >&2 "... looking for $_module/$_perl.* from candidates: `cat $tmp.debug`"
+		_undot
 		echo "$line: Perl source \"$target\" not found"
 	    else
 		$very_verbose && echo >&2 "$line: Perl $target -> $_target"
@@ -826,6 +924,7 @@ do
     esac
 
 done
+_undot
 
 # check the N/A packages list for this platform
 #
@@ -880,7 +979,7 @@ esac >$tmp.installed
 
 if [ -s $tmp.unavail ]
 then
-    rm -f $tmp.botch $tmp.allpkgs
+    rm -f $tmp.botch $tmp.pkginpkgs
     if grep '[[*^$]' $tmp.unavail >/dev/null
     then
 	# remove lines with grep patterns ... it is just too hard to
@@ -894,7 +993,8 @@ then
     then
 	$PCP_ECHO_PROG "..."
     else
-	touch $tmp.dots
+	_undot
+	echo
     fi
     cat $tmp.unavail \
     | while read pkg 
@@ -911,6 +1011,13 @@ then
 	rm -f $tmp.avail
 	case "$searchtool"
 	in
+	    cached)
+		if grep "^$pkg\$" $tmp.allpkgs >/dev/null
+		then
+		    touch $tmp.avail
+		fi
+		;;
+
 	    dpkg-query)
 		if dpkg-query -l "$pkg" >$tmp.out 2>&1
 		then
@@ -962,8 +1069,8 @@ then
 		;;
 
 	    pkgin)
-		[ ! -f $tmp.allpkgs ] && pkgin avail >$tmp.allpkgs
-		if grep "^$pkg-" $tmp.allpkgs >$tmp.out 2>&1
+		[ ! -f $tmp.pkginpkgs ] && pkgin avail >$tmp.pkginpkgs
+		if grep "^$pkg-" $tmp.pkginpkgs >$tmp.out 2>&1
 		then
 		    touch $tmp.avail
 		    $verbose && cat >&2 $tmp.out
@@ -1049,11 +1156,7 @@ then
 		;;
 
 	    *)
-		if [ -f $tmp.dots ]
-		then
-		    echo
-		    rm -f $tmp.dots
-		fi
+		_undot
 		echo "_hunt: Botch: no rule for searchtool=$searchtool"
 		touch $tmp.botch
 		break
@@ -1061,29 +1164,19 @@ then
 	esac
 	if [ -f $tmp.avail ]
 	then
-	    if [ -f $tmp.dots ]
-	    then
-		echo
-		rm -f $tmp.dots
-	    fi
+	    _undot
 	    $verbose && cat >&2 $tmp.out
 	    if grep "^$pkg\$" $tmp.installed >/dev/null
 	    then
-		echo "looks like package $pkg is already installed"
+		echo "looks like package \"$pkg\" is already installed"
 	    else
-		echo "looks like package $pkg may be available"
+		echo "looks like package \"$pkg\" may be available"
 	    fi
 	fi
 	[ -f $tmp.botch ] && break
     done
 
-    if [ -f $tmp.dots ]
-    then
-	# done with dots ...
-	#
-	echo
-	rm -f $tmp.dots
-    fi
+    _undot
 fi
 
 sts=0
