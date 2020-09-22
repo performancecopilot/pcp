@@ -5,8 +5,8 @@ You did not select any stats, using -cdngy by default.
 ----system---- ----total-usage---- -dsk/total- -net/total- ---paging-- ---system--
      time     |usr sys idl wai stl| read  writ| recv  send|  in   out | int   csw 
 25-07 16:08:19|                   |           |           |           |           
-25-07 16:08:20|  6   1  93   0   0|   0     0 |1044   551 |   0     0 |1753  7008 
-25-07 16:08:21| 11   1  88   0   0|   0     0 |  12k 1009 |   0     0 |2264  4872 
+25-07 16:08:20|  6   1  93   0   0|   0     0 |1044B  551B|   0     0 |1753  7008 
+25-07 16:08:21| 11   1  88   0   0|   0     0 |  12k 1009B|   0     0 |2264  4872 
 === std err
 === done
 
@@ -55,8 +55,8 @@ Zero Disks
 ----system---- ----total-usage----  -net/total- ---paging-- ---system--
      time     |usr sys idl wai stl|| recv  send|  in   out | int   csw 
 25-07 16:08:19|                   |           |           |           
-25-07 16:08:20|  6   1  93   0   0|1044   551 |   0     0 |1753  7008 
-25-07 16:08:21| 11   1  88   0   0|  12k 1009 |   0     0 |2264  4872 
+25-07 16:08:20|  6   1  93   0   0|1044B  551B|   0     0 |1753  7008 
+25-07 16:08:21| 11   1  88   0   0|  12k 1009B|   0     0 |2264  4872 
 === std err
 === done
 
@@ -84,9 +84,9 @@ Memory
 === std out
 ----system---- -------------advanced-memory-usage------------- ----swap---
      time     |total  used  free  buf   cach dirty shmem  recl| used  free
-25-07 16:08:19|  15G 6463M 5065M  820M 4078M 1664k 1204M  447M| 440M 7848M
-25-07 16:08:20|  15G 6472M 5056M  820M 4086M 1696k 1213M  447M| 440M 7848M
-25-07 16:08:21|  15G 6502M 5026M  820M 4094M 1756k 1221M  447M| 440M 7848M
+25-07 16:08:19|  15G 6463M 5065M  820M 4078M 1664k 1204M  447M| 419M 7485M
+25-07 16:08:20|  15G 6472M 5056M  820M 4086M 1696k 1213M  447M| 419M 7485M
+25-07 16:08:21|  15G 6502M 5026M  820M 4094M 1756k 1221M  447M| 419M 7485M
 === std err
 === done
 
@@ -95,8 +95,8 @@ Per Interface
 ----system---- net/enp0s25 --net/tun0- -net/wlp3s0
      time     | recv  send: recv  send: recv  send
 25-07 16:08:19|           :           :           
-25-07 16:08:20|1028   439 :  16   112 :   0     0 
-25-07 16:08:21|  12k 1009 : 228     0 :   0     0 
+25-07 16:08:20|1028B  439B:  16B  112B:   0     0 
+25-07 16:08:21|  12k 1009B: 228B    0 :   0     0 
 === std err
 === done
 
@@ -115,8 +115,8 @@ All Interfaces
 ----system---- -net/virbr0 --net/tun0- net/virbr0- ---net/lo-- net/enp0s25 -net/wlp3s0 net/docker0 -net/virbr1 net/virbr1-
      time     | recv  send: recv  send: recv  send: recv  send: recv  send: recv  send: recv  send: recv  send: recv  send
 25-07 16:08:19|           :           :           :           :           :           :           :           
-25-07 16:08:20|   0     0 :  16   112 :   0     0 :1028   439 :   0     0 :   0     0 :   0     0 :   0     0 
-25-07 16:08:21|   0     0 : 228     0 :   0     0 :  12k 1009 :   0     0 :   0     0 :   0     0 :   0     0 
+25-07 16:08:20|   0     0 :  16B  112B:   0     0 :1028B  439B:   0     0 :   0     0 :   0     0 :   0     0 
+25-07 16:08:21|   0     0 : 228B    0 :   0     0 :  12k 1009B:   0     0 :   0     0 :   0     0 :   0     0 
 === std err
 === done
 
@@ -175,8 +175,8 @@ Overlapping arguments
 ----system---- -dsk/total- ----total-usage---- -net/total- ---paging-- ---system-- ------memory-usage-----
      time     | read  writ|usr sys idl wai stl| recv  send|  in   out | int   csw | used  free  buf   cach
 25-07 16:08:19|           |                   |           |           |           |6463M 5065M  820M 4078M
-25-07 16:08:20|   0     0 |  6   1  93   0   0|1044   551 |   0     0 |1753  7008 |6472M 5056M  820M 4086M
-25-07 16:08:21|   0     0 | 11   1  88   0   0|  12k 1009 |   0     0 |2264  4872 |6502M 5026M  820M 4094M
+25-07 16:08:20|   0     0 |  6   1  93   0   0|1044B  551B|   0     0 |1753  7008 |6472M 5056M  820M 4086M
+25-07 16:08:21|   0     0 | 11   1  88   0   0|  12k 1009B|   0     0 |2264  4872 |6502M 5026M  820M 4094M
 === std err
 === done
 
