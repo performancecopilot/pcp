@@ -1425,7 +1425,7 @@ class DstatTool(object):
     @staticmethod
     def scale_space(value, scale):
         """ convert to canonical space units of bytes """
-        if (scale == 0):
+        if scale == 0:
             return value
         return value * pow(1024, scale)
 
