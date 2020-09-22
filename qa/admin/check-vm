@@ -1078,7 +1078,6 @@ fi
 # as appropriate.
 #
 _build_allpkgs
-ls -l $tmp.allpkgs
 rm -f $tmp.sed
 sed <$tmp.manifest \
     -e 's/[^[]*\[//' \

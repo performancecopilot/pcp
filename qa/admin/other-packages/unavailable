@@ -48,9 +48,9 @@ LinuxMint    18\.3    -       python3-bpfcc libsoqt5-dev
 NetBSD       6\.1\.5  -       QtSvg avahi avahi-tools avahi-utils docker json_reformat libibmad libibumad mkfs.gfs2 mysql-client nmap p5-DBD-mysql py36-bcc py36-imaging py36-libvirt py36-prometheus-client python3-jsonpointer qt5 qtchooser realpath sysstat uic valgrind zabbix-agent
 NetBSD       8\.0     -       QtSvg avahi-tools avahi-utils json_reformat libibmad libibumad mkfs.gfs2 py36-bcc py36-imaging py36-libvirt py36-prometheus-client python3-jsonpointer qtchooser realpath sysstat uic valgrind zabbix-agent
 #-- OpenBSD
-OpenBSD      6\.3     -       avahi-tools avahi-utils libibumad libvirt-python3 py3-bcc py3-elasticsearch py3-openpyxl py3-prometheus-client py3-jsonpointer qtchooser realpath
+OpenBSD      6\.7     -       libibumad libvirt-python3 py3-bcc py3-openpyxl py3-prometheus-client py3-jsonpointer qtchooser realpath sed grep ed make flex mandoc bc avahi-tools avahi-utils
 OpenBSD      6\.4     -       libibumad libvirt-python3 py3-bcc py3-openpyxl py3-prometheus-client py3-jsonpointer qtchooser realpath
-OpenBSD      6\.7     -       libibumad libvirt-python3 py3-bcc py3-openpyxl py3-prometheus-client py3-jsonpointer qtchooser realpath
+OpenBSD      6\.3     -       avahi-tools avahi-utils libibumad libvirt-python3 py3-bcc py3-elasticsearch py3-openpyxl py3-prometheus-client py3-jsonpointer qtchooser realpath
 #-- openSUSE
 openSUSE     15\.[01] -       389-ds-base avahi-devel avahi-tools chan-devel community-mysql docker-common docker-io HdrHistogram_c-devel kubectl kubernetes-client kubernetes-node libvarlink-devel libvirt-python libvirt-python3 mssql-server mssql-tools mysql perl-DBD-MySQL perl-LDAP perl-Spreadsheet-WriteExcel perl-XML-TokeParser pylint python2-libs python2-libvirt python2-rtslib python36-devel python3-libvirt python3-pillow python3-rtslib python-libs python-pylint python-rtslib python-setuptools qt5-qtsvg-devel qtchooser selinux-policy selinux-policy-devel selinux-policy-targeted statsd zabbix22-agent zabbix-agent zfs-fuse
 openSUSE     15.0     -       python3-prometheus_client python3-pyodbc

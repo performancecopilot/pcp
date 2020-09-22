@@ -168,7 +168,20 @@ in
 
     *OpenBSD*)
 	pkgtool=pkg_add
-	searchtool=pkg_info
+	searchtool=cached
+	# expect lines like this ...
+	# <tr>...<a href="libsysstat-0.4.1p1.tgz">libsysstat-0.4.1p1.tgz</a>...
+	#
+	url="`cat /etc/installurl`/`uname -r`/packages/`uname -m`/"
+	echo "Fetching list of available packages from $url ..."
+	curl -s $url \
+	| sed -n >$tmp.allpkgs \
+	    -e '/a href=".*tgz">/{
+s/\.tgz<\/a>.*/.tgz/
+s/.*>//
+s/-[0-9].*//
+p
+}'
 	;;
 
     *Gentoo*)
@@ -560,10 +573,10 @@ _match_pkg()
 	    pkg_add)
 		    case "$xpect"
 		    in
-			base6[1-4]|comp6[1-4])
+			base6[0-9]|comp6[0-9])
 			    xpect=base
 			    ;;
-			xshare6[1-4])
+			xshare6[0-9])
 			    xpect=xshare
 			    ;;
 		    esac
@@ -627,7 +640,15 @@ _hunt()
 	    do
 		case "$pkg"
 		in
-		    'cpan('*')')
+		    base|xshare)	# no packaging for these ones
+			    ;;
+
+		    'cpan('*')')	# skip cpan as we can't check 'em here
+			    ;;
+
+		    ?:[0-9]*)		# unknown
+			    _undot
+			    echo "$line: package \"?\" unknown for exec target \"$target\""
 			    ;;
 		    *)
 			    if grep "^$pkg\$" $tmp.allpkgs >/dev/null
@@ -744,7 +765,7 @@ cat $tmp.manifest \
 do
     if $very_verbose
     then
-	echo >&2 "check N/A for \"$pkg\""
+	echo >&2 "check N/A for \"$guard\""
     elif $verbose
     then
 	:
@@ -793,7 +814,7 @@ do
     #
     pkginfo=`echo "$extra" \
 	| sed \
-	    -e 's/:[0-9][0-9]*//' \
+	    -e 's/ :[0-9][0-9]*$//' \
 	    -e 's/#.*//' \
 	    -e 's/^\[//' \
 	    -e 's/] *$//' \
