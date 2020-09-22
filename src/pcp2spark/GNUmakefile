@@ -16,15 +16,13 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 TARGET = pcp2spark
+COLLECTOR = PCP2SparkStreamCollector
 MAN_SECTION = 1
 MAN_PAGES = $(TARGET).$(MAN_SECTION)
 MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
-DFILES = README.md PCP2SparkStreamCollector.py
 EX_DIR = $(PCP_SHARE_DIR)/examples/pcp2spark
 
-default: $(TARGET).py $(MAN_PAGES)
-
-default:
+default: $(TARGET).py $(COLLECTOR).py $(MAN_PAGES)
 
 include $(BUILDRULES)
 
@@ -32,7 +30,8 @@ install: default
 ifeq "$(HAVE_PYTHON)" "true"
 	$(INSTALL) -m 755 $(TARGET).py $(PCP_BIN_DIR)/$(TARGET)
 	$(INSTALL) -m 755 -d $(EX_DIR)
-	$(INSTALL) -m 644 $(DFILES) $(EX_DIR)
+	$(INSTALL) -m 644 README.md $(EX_DIR)/README.md
+	$(INSTALL) -m 644 $(COLLECTOR).py $(EX_DIR)/$(COLLECTOR).python
 	@$(INSTALL_MAN)
 endif
 
@@ -40,7 +39,7 @@ default_pcp: default
 
 install_pcp: install
 
-check:: $(TARGET).py
+check:: $(TARGET).py $(COLLECTOR).py
 	$(PYLINT) $^
 
 check :: $(MAN_PAGES)

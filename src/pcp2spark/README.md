@@ -99,6 +99,7 @@ $ pcp2spark -t 5 disk.all.write
 Open a shell and start the Spark worker script:
 
 ```shell
+$ sudo ln -s PCP2SparkStreamCollector.python PCP2SparkStreamCollector.py
 $ spark-submit PCP2SparkStreamCollector.py localhost 44325
 ```
 

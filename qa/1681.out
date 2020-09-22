@@ -1,0 +1,21 @@
+QA output created by 1681
+
+=== Default pmrepconf options, new file ===
+Creating config file "TMP.config" using default settings ...
+...
+Check pmrep syntax validity
+done
+
+=== Default pmrepconf options, rewriting ===
+
+No changes
+Check pmrep syntax validity
+done
+
+=== Additional pmrepconf options, rewriting ===
+Creating config file "TMP.option" using default settings ...
+...
+Check options saved
+globals=yes
+timestamp=no
+done
