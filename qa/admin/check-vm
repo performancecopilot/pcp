@@ -1293,8 +1293,8 @@ do
 	    echo "$apps" \
 	    | sed -n \
 		-e '/\[SKIP on host/s/on host.*/]/' \
-		-e 's/.*\[//' \
-		-e 's/]//' \
+		-e 's/^[^ ][^ ]*[ 	][ 	]*\[//' \
+		-e 's/] *$//' \
 		-e 's/ ([^)]*)//' \
 		-e 's/base [^ ]* install//' \
 		-e 's/^or //' \
@@ -1338,7 +1338,7 @@ do
 			rm -f $tmp.match
 			for _pkg in $unavail_pkg
 			do
-			    if echo " $_need " | grep " $_pkg " >/dev/null
+			    if [ "$_pkg" = "$_need" ]
 			    then
 				if $verbose
 				then
@@ -1351,7 +1351,18 @@ do
 			done
 			if [ ! -f $tmp.match ]
 			then
-			    echo "$_need"
+			    if [ -f $tmp.allpkgs ]
+			    then
+				_need_expand="`grep "^$_need\$" <$tmp.allpkgs`"
+				if [ -n "$_need_expand" ]
+				then
+				    echo "$_need_expand"
+				else
+				    echo "$_need"
+				fi
+			    else
+				echo "$_need"
+			    fi
 			fi
 		    fi
 		done
