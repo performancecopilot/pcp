@@ -129,6 +129,7 @@ in
 	    apt-cache dumpavail | sed -n -e '/^Package: /s///p' >$tmp.allpkgs
 	fi
 	;;
+
     *RHEL*|*Fedora*|*CentOS*|*openSUSE*|*SUSE\ SLES*)
 	pkgtool=rpm
 	if which zypper >/dev/null 2>&1
@@ -532,9 +533,6 @@ _match_pkg()
 	    rpm)
 		    case "$xpect"
 		    in
-			Coin[0-9]*-devel)		# e.g. Coin3-devel
-			    xpect=Coin-devel
-			    ;;
 			postgresql[0-9]*)		# e.g. postgresql10
 			    xpect=postgresql
 			    ;;

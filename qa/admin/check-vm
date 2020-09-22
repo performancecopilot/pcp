@@ -440,6 +440,70 @@ _find_installer_cmd()
     fi
 }
 
+# create $tmp.allpkgs if we know how to do that ...
+#
+_build_allpkgs()
+{
+    case "`sed <$tmp.whatami -e 's/  */ /g' -e 's/ \[.*//' | cut -d ' ' -f 4-`"
+    in
+    *Ubuntu*|*Debian*|*LinuxMint*)
+	apt-cache dumpavail | sed -n -e '/^Package: /s///p' >$tmp.allpkgs
+	;;
+
+    *RHEL*|*Fedora*|*CentOS*|*openSUSE*|*SUSE\ SLES*)
+	if which zypper >/dev/null 2>&1
+	then
+	    : TODO
+	elif which dnf >/dev/null 2>&1
+	then
+	    dnf list \
+	    | sed >$tmp.allpkgs \
+		-e '/^Last metadata/d' \
+		-e '/^Available Packages/d' \
+		-e 's/ .*//' \
+		-e 's/\.[^.]*$//' \
+	    # end
+	elif which yum >/dev/null 2>&1
+	then
+	    : TODO
+	fi
+	;;
+
+    *NetBSD*)
+	# TODO
+	;;
+
+    *FreeBSD*)
+	# TODO
+	;;
+
+    *OpenBSD*)
+	# TODO
+	;;
+
+    *Gentoo*)
+	# TODO
+	;;
+
+    *Darwin*)
+	# TODO
+	;;
+
+    *OpenIndiana*)
+	# TODO
+	;;
+
+    *Slackware*)
+	# TODO
+	;;
+
+    *Arch\ Linux*)
+	# TODO
+	;;
+
+esac
+}
+
 # need to be careful ... $1 uses an extended regexp notation where
 # things we want to match as regexps are enclosed in {...} but regexp
 # characters like ., [ and * elsewhere needed to be treated as literals
@@ -1013,67 +1077,71 @@ fi
 # looking for the "latest" version of the package, so snoop and rewrite
 # as appropriate.
 #
-case "`sed <$tmp.whatami -e 's/  */ /g' -e 's/ \[.*//' | cut -d ' ' -f 4-`"
-in
-    *Ubuntu*|*Debian*|*LinuxMint*)
-	    rm -f $tmp.sed
-	    sed <$tmp.manifest \
-		-e 's/[^[]*\[//' \
-		-e 's/] *:/ /' \
-		-e 's/([^)]*)//' \
-	    | $PCP_AWK_PROG '{ for (i = 1; i < NF; i++) print $NF,$i }' \
-	    | while read lineno pkg
-	    do
-		case "$pkg"
-		in
-		    *\**|*\[*)
-			# $pkg includes regex me thinks
-			#
-			if [ ! -f $tmp.allpkgs ]
-			then
-			    apt-cache dumpavail | sed -n -e '/^Package: /s///p' >$tmp.allpkgs
-			fi
-			real_pkg="`grep "^$pkg\$" $tmp.allpkgs | LC_COLLATE=POSIZ sort -nr | head -1`"
-			if [ -n "$real_pkg" ]
-			then
-			    $verbose && echo >&2 "package pattern $pkg -> $real_pkg"
-			    pkg_literal=`echo "$pkg" | sed -e 's/\[/\\\\[/g' -e 's/\*/\\\\*/g'`
-			    echo "s/ $pkg_literal \\\\(.*:$lineno\\\\)\$/ $real_pkg \\\\1/" >>$tmp.sed
-			fi
-			;;
-		esac
-	    done
-	    if [ -s $tmp.sed ]
+_build_allpkgs
+ls -l $tmp.allpkgs
+rm -f $tmp.sed
+sed <$tmp.manifest \
+    -e 's/[^[]*\[//' \
+    -e 's/] *:/ /' \
+    -e 's/([^)]*)//' \
+| $PCP_AWK_PROG '{ for (i = 1; i < NF; i++) print $NF,$i }' \
+| while read lineno pkg
+do
+    case "$pkg"
+    in
+	*\**|*\[*)
+	    # $pkg includes regex me thinks
+	    #
+	    if [ ! -f $tmp.allpkgs ]
 	    then
-		# need [foo-*] -> [ foo-* ] -> [foo-123] and this
-		# requires some epilogue and prologue sed commands
-		#
-		echo 's/\\[/[ /' >$tmp.tmp
-		echo 's/]\\( :[0-9][0-9]*\\)$/ ]\\1/' >>$tmp.tmp
-		cat $tmp.sed >>$tmp.tmp
-		echo 's/ ]\\( :[0-9][0-9]*\\)$/]\\1/' >>$tmp.tmp
-		echo 's/\\[ /[/' >>$tmp.tmp
-		mv $tmp.tmp $tmp.sed
-		if $very_verbose
+		echo >&2 "Warning: manifest:$lineno botch? contains pattern, but tmp.allpkgs not created from _build_allpkgs()"
+	    else
+		real_pkg="`grep "^$pkg\$" $tmp.allpkgs | LC_COLLATE=POSIZ sort -nr | head -1`"
+		if [ -n "$real_pkg" ]
 		then
-		    echo "Pattern expansion sed script ..."
-		    cat $tmp.sed
-		fi
-		sed -f $tmp.sed <$tmp.manifest >$tmp.tmp
-		if cmp $tmp.manifest $tmp.tmp >/dev/null
-		then
-		    : no differences
-		else
-		    if $very_verbose
-		    then
-			echo "Diffs applying package pattern matching ..."
-			diff $tmp.manifest $tmp.tmp
-		    fi
-		    mv $tmp.tmp $tmp.manifest
+		    $verbose && echo >&2 "package pattern $pkg -> $real_pkg"
+		    # special note ... echo (built into bash hiding as sh)
+		    # is busted on multiple platforms (like Fedora 32) ...
+		    # we're using /bin/sh here to get the same results
+		    # everywhere for \ interpretation (or not)
+		    #
+		    pkg_literal=`/bin/echo "$pkg" | sed -e 's/\[/\\\\[/g' -e 's/\*/\\\\*/g' -e 's/\./\\\\./g'`
+		    /bin/echo 's/ '"$pkg_literal"' \(.*:'"$lineno"'\)$/ '"$real_pkg"' \1/' >>$tmp.sed
 		fi
 	    fi
 	    ;;
-esac
+    esac
+done
+
+if [ -s $tmp.sed ]
+then
+    # need [foo-*] -> [ foo-* ] -> [foo-123] and this
+    # requires some epilogue and prologue sed commands
+    #
+    /bin/echo 's/\[/[ /' >$tmp.tmp
+    /bin/echo 's/]\( :[0-9][0-9]*\)$/ ]\1/' >>$tmp.tmp
+    cat $tmp.sed >>$tmp.tmp
+    /bin/echo 's/ ]\( :[0-9][0-9]*\)$/]\1/' >>$tmp.tmp
+    /bin/echo 's/\[ /[/' >>$tmp.tmp
+    mv $tmp.tmp $tmp.sed
+    if $very_verbose
+    then
+	echo "Pattern expansion sed script ..."
+	cat $tmp.sed
+    fi
+    sed -f $tmp.sed <$tmp.manifest >$tmp.tmp
+    if cmp $tmp.manifest $tmp.tmp >/dev/null
+    then
+	: no differences
+    else
+	if $very_verbose
+	then
+	    echo "Diffs applying package pattern matching ..."
+	    diff $tmp.manifest $tmp.tmp
+	fi
+	mv $tmp.tmp $tmp.manifest
+    fi
+fi
 
 if $check_manifest
 then

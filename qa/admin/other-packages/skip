@@ -56,7 +56,7 @@ Fedora       29       i.86    389-ds
 Fedora       2[6-9]   -       python-{.*} python2-{.*} mssql-server mssql-tools
 Fedora       3[0-9]   -       python-{.*} python2-{.*} 
 # and prefer mariadb over mysql
-Fedora       3[0-9]   -       community-mysql mysql
+Fedora       3[0-1]   -       community-mysql mysql
 #-- Gentoo
 # observed on vm05
 # I cannot figure out how to remake this package with USE=utils so that
