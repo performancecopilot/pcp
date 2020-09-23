@@ -37,6 +37,7 @@ class OpenvswitchPMDA(PMDA):
     def __init__(self, name, domain):
         """ (Constructor) Initialisation - register metrics, callbacks, drop privileges """
         PMDA.__init__(self, name, domain)
+        self.verbose = False # True for debugging diagnostics
         self.switch_info_json = dict()
         self.port_info_json = dict()
         self.flow_json = dict()
@@ -166,7 +167,7 @@ class OpenvswitchPMDA(PMDA):
                 self.switch_names.append(str(js["data"][idx][13]))
 
         except Exception as e:
-            self.log("Failed to get switch info: %s" % (str(e)))
+            self.debug("Failed to get switch info: %s" % (str(e)))
 
     def switch_instances(self):
         """ set names for openvswitch switch instances """
@@ -404,6 +405,11 @@ class OpenvswitchPMDA(PMDA):
                 return [PM_ERR_APPVERSION, 0]
 
         return [PM_ERR_PMID, 0]
+
+    def debug(self, msg):
+        """ print diagnostic message if verbose logging is enabled """
+        if self.verbose:
+            self.dbg(msg)
 
 if __name__ == '__main__':
     OpenvswitchPMDA('openvswitch', 126).run()
