@@ -172,9 +172,9 @@ refresh_cgroup_pidlist(int want_threads, proc_runq_t *runq_stats, proc_pid_list_
     if (want_threads && cgroup_version == 1)
 	pmsprintf(path, sizeof(path), "%s%s/tasks", proc_statspath, cgroup);
     else if (want_threads && cgroup_version > 1)
-	pmsprintf(path, sizeof(path), "%s%s/cgroup.threads", proc_statspath, cgroup);
+	pmsprintf(path, sizeof(path), "%s%s/container/cgroup.threads", proc_statspath, cgroup);
     else
-	pmsprintf(path, sizeof(path), "%s%s/cgroup.procs", proc_statspath, cgroup);
+	pmsprintf(path, sizeof(path), "%s%s/container/cgroup.procs", proc_statspath, cgroup);
 
     if ((fp = fopen(path, "r")) != NULL) {
 	while (fscanf(fp, "%d\n", &pid) == 1) {
