@@ -80,7 +80,7 @@ zfs_poolstats_refresh(zfs_poolstats_t *poolstats, pmdaInstid *pools, pmdaIndom *
                 pmNoMem("process", poolsindom->it_numinst * sizeof(zfs_poolstats_t), PM_FATAL_ERR);
         for (i = 0; i < poolsindom->it_numinst; i++) {
                 strcpy(pool_dir, ZFS_PROC_DIR);
-                strncat(pool_dir, poolsindom->it_set[i].i_name, strlen(poolsindom->it_set[i].i_name));
+                strcat(pool_dir, poolsindom->it_set[i].i_name);
                 if (stat(pool_dir, &sstat) != 0) {
                         // Pools setup changed, the instance domain must follow
                         regfree(&rgx_io);
