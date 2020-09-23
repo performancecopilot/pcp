@@ -458,14 +458,18 @@ _build_allpkgs()
 	then
 	    dnf list \
 	    | sed >$tmp.allpkgs \
-		-e '/^Last metadata/d' \
-		-e '/^Available Packages/d' \
+		-e '1,/^Available Packages/d' \
 		-e 's/ .*//' \
 		-e 's/\.[^.]*$//' \
 	    # end
 	elif which yum >/dev/null 2>&1
 	then
-	    : TODO
+	    ( yum list available; yum list installed ) \
+	    | sed >$tmp.allpkgs \
+		-e '1,/^Available Packages/d' \
+		-e 's/ .*//' \
+		-e 's/\.[^.]*$//' \
+	    # end
 	fi
 	;;
 
@@ -478,7 +482,19 @@ _build_allpkgs()
 	;;
 
     *OpenBSD*)
-	# TODO
+	# expect lines like this ...
+	# <tr>...<a href="libsysstat-0.4.1p1.tgz">libsysstat-0.4.1p1.tgz</a>...
+	#
+	url="`cat /etc/installurl`/`uname -r`/packages/`uname -m`/"
+	$verbose && echo >&2 "Fetching list of available packages from $url ..."
+	curl -s $url \
+	| sed -n >$tmp.allpkgs \
+	    -e '/a href=".*tgz">/{
+s/\.tgz<\/a>.*/.tgz/
+s/.*>//
+s/-[0-9].*//
+p
+}'
 	;;
 
     *Gentoo*)
@@ -1042,7 +1058,7 @@ else
 	    then
 		echo >&2 "Warning: cannot get Python version from: `$PCP_PYTHON_PROG --version`"
 	    else
-		$verbose && echo "Info: guessing Python version $pyver"
+		$verbose && echo >&2 "Info: guessing Python version $pyver"
 		sed <$tmp.manifest >$tmp.tmp -e '/\/python[0-9]/{
 /\/python'"$pyver"'[./-]/!d
 }'
@@ -1307,8 +1323,8 @@ do
 	    echo "$apps" \
 	    | sed -n \
 		-e '/\[SKIP on host/s/on host.*/]/' \
-		-e 's/.*\[//' \
-		-e 's/]//' \
+		-e 's/^[^ ][^ ]*[ 	][ 	]*\[//' \
+		-e 's/][ 	]*$//' \
 		-e 's/ ([^)]*)//' \
 		-e 's/base [^ ]* install//' \
 		-e 's/^or //' \
@@ -1352,7 +1368,7 @@ do
 			rm -f $tmp.match
 			for _pkg in $unavail_pkg
 			do
-			    if echo " $_need " | grep " $_pkg " >/dev/null
+			    if [ "$_need" = "$_pkg" ]
 			    then
 				if $verbose
 				then
@@ -1365,7 +1381,18 @@ do
 			done
 			if [ ! -f $tmp.match ]
 			then
-			    echo "$_need"
+			    if [ -f $tmp.allpkgs ]
+			    then
+				_need_expand="`grep "^$_need\$" <$tmp.allpkgs`"
+				if [ -n "$_need_expand" ]
+				then
+				    echo "$_need_expand"
+				else
+				    echo "$_need"
+				fi
+			    else
+				echo "$_need"
+			    fi
 			fi
 		    fi
 		done

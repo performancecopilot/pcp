@@ -1,0 +1,9 @@
+QA output created by 1282
+check-vm -fpM (CI case)
+
+check-vm -c
+Handing off to admin/check-manifest ...
+Checking the NN manifest entries for HOST
+DOTS
+Checking the NN N/A packages for HOST
+DOTS

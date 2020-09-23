@@ -95,13 +95,18 @@ trap "_cleanup; exit \$sts" 0 1 2 3 15
 
 if $very_verbose
 then
-    # clean up stuff left over from any previous runs
+    # clean up stuff left over from any previous runs, but be careful
+    # about the ones check-vm has just set up
     #
-    mv $tmp.manifest $tmp-manifest
-    mv $tmp.unavail $tmp-unavail
+    for suff in manifest unavail allpkgs
+    do
+	[ -f $tmp.$suff ] && mv $tmp.$suff $tmp-$suff
+    done
     rm -f $tmp.*
-    mv $tmp-manifest $tmp.manifest
-    mv $tmp-unavail $tmp.unavail
+    for suff in manifest unavail allpkgs
+    do
+	[ -f $tmp-$suff ] && mv $tmp-$suff $tmp.$suff
+    done
 fi
 
 # $pkgtool tells us what family of packaging tools we need
@@ -109,25 +114,19 @@ fi
 # $searchtool tells us how to search for packages by name
 # (including uninstalled packages)
 #
-# if you're able to produce a list of all available packages
-# (installed and not installed), then do this and save the resulting
-# list (one package name, no versions) to $tmp.allpkgs and set $searchtool
-# to "cached"
+# if check-vm was was able to produce a list of all available packages
+# (installed and not installed), then the resulting list (package name,
+# no versions) will be in $tmp.allpkgs and set $searchtool here to
+# "cached"
 #
 pgktool=''
 searchtool=''
+[ -f $tmp.allpkgs ] && searchtool=cached
 $home/whatami >$tmp.tmp
 case "`sed <$tmp.tmp -e 's/  */ /g' -e 's/ \[.*//' | cut -d ' ' -f 4-`"
 in
     *Ubuntu*|*Debian*|*LinuxMint*)
 	pkgtool=dpkg
-	searchtool=cached
-	if [ -f $tmp.allpkgs ]
-	then
-	    : assume it is good from check-vm
-	else
-	    apt-cache dumpavail | sed -n -e '/^Package: /s///p' >$tmp.allpkgs
-	fi
 	;;
 
     *RHEL*|*Fedora*|*CentOS*|*openSUSE*|*SUSE\ SLES*)
@@ -135,24 +134,6 @@ in
 	if which zypper >/dev/null 2>&1
 	then
 	    searchtool=zypper
-	elif which dnf >/dev/null 2>&1
-	then
-	    searchtool=cached
-	    if [ -f $tmp.allpkgs ]
-	    then
-		: assume it is good from check-vm
-	    else
-		dnf list \
-		| sed >$tmp.allpkgs \
-		    -e '/^Last metadata/d' \
-		    -e '/^Available Packages/d' \
-		    -e 's/ .*//' \
-		    -e 's/\.[^.]*$//' \
-		# end
-	    fi
-	elif which yum >/dev/null 2>&1
-	then
-	    searchtool=yum
 	fi
 	;;
 
@@ -168,20 +149,6 @@ in
 
     *OpenBSD*)
 	pkgtool=pkg_add
-	searchtool=cached
-	# expect lines like this ...
-	# <tr>...<a href="libsysstat-0.4.1p1.tgz">libsysstat-0.4.1p1.tgz</a>...
-	#
-	url="`cat /etc/installurl`/`uname -r`/packages/`uname -m`/"
-	echo "Fetching list of available packages from $url ..."
-	curl -s $url \
-	| sed -n >$tmp.allpkgs \
-	    -e '/a href=".*tgz">/{
-s/\.tgz<\/a>.*/.tgz/
-s/.*>//
-s/-[0-9].*//
-p
-}'
 	;;
 
     *Gentoo*)
@@ -201,22 +168,6 @@ p
 
     *Slackware*)
 	pkgtool=slackpkg
-	searchtool=cached
-	# lines after awk look like ...
-	# ./aspell-word-lists/aspell-cs-20040614_1-x86_64-5.txz
-	# ./n/openldap-client-2.4.42-x86_64-1.txz
-	#
-	for f in /var/lib/slackpkg/slackware64-filelist.gz \
-		 /var/lib/slackpkg/extra-filelist.gz
-	do
-	    [ -f "$f" ] || continue
-	    zcat "$f" \
-	    | $PCP_AWK_PROG '{ print $1 }' \
-	    | sed \
-		-e 's/\-[0-9].*//' \
-		-e 's;.*/;;' \
-	    # end
-	done >$tmp.allpkgs
 	;;
 
     *Arch\ Linux*)
@@ -262,12 +213,23 @@ _path_to_pkg()
 		    then
 			sudo cpan -l 2>/dev/null | sed -e 's/[ 	].*//' >$tmp.perlmodules
 		    fi
-		    if grep "^$module\$" $tmp.perlmodules >/dev/null
+		    if [ -s $tmp.perlmodules ]
 		    then
-			# found it!
+			if grep "^$module\$" $tmp.perlmodules >/dev/null
+			then
+			    # found it!
+			    echo "$info"
+			    $very_verbose && echo >&2 "found cpan info for $info"
+			    return
+			fi
+		    else
+			# either no modules installed by cpan, or cpan is
+			# too old to support the -l option ... since we
+			# cannot be sure, just pretent
 			echo "$info"
-			$very_verbose && echo >&2 "found cpan info for $info"
+			$very_verbose && echo >&2 "assume cpan install for $info"
 			return
+
 		    fi
 		elif [ ! -f $tmp.cpan.warn ]
 		then
@@ -646,7 +608,7 @@ _hunt()
     rm -f $tmp.msg $tmp.ok
     for file in `echo "$target" | sed -e 's/|/ /g'`
     do
-	if [ -f "$tmp.allpkgs" ]
+	if [ -f $tmp.allpkgs ]
 	then
 	    # we have a cache of available packages ... check all the
 	    # ones remaining really do exist
@@ -659,6 +621,12 @@ _hunt()
 			    ;;
 
 		    'cpan('*')')	# skip cpan as we can't check 'em here
+			    ;;
+
+		    'perl('*')')	# ditto
+			    ;;
+
+		    *'::'*)		# raw Perl module name, nothing to see here
 			    ;;
 
 		    ?:[0-9]*)		# unknown
@@ -711,7 +679,15 @@ _hunt()
 	    $very_verbose && echo >&2 "file=\"$file\" from pkg=\"$pkg\""
 	    if [ -z "$pkg" ]
 	    then
-		if echo " $pkginfo " | grep ' base ' >/dev/null
+		if echo " $pkginfo " | grep '::' >/dev/null
+		then
+		    # if a Perl module is specified as a possible provider
+		    # then this is probably a cpan install, but cpan is too
+		    # old to provide installed modules via cpan -l
+		    #
+		    $verbose && echo >&2 "$line: OK target $file assumed to be from cpan install"
+		    :
+		elif echo " $pkginfo " | grep ' base ' >/dev/null
 		then
 		    # if "base" is specified as a possible provider (which
 		    # may be from a line that contains no provider info,
