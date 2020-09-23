@@ -2628,30 +2628,24 @@ series_floor_pmAtomValue(int type, pmAtomValue *val)
     int			sts = 0;
 
     switch (type) {
-	case PM_TYPE_32:
-	    // No change
-	    break;
-	case PM_TYPE_U32:
-	    // No change
-	    break;
-	case PM_TYPE_64:
-	    // No chage
-	    break;
-	case PM_TYPE_U64:
-	    // No change
-	    break;
-	case PM_TYPE_FLOAT:
-	    // TODO: The return type of floor() is double, will this cause loss of accuracy?
-	    val->f = floor(val->f);
-	    break;
-	case PM_TYPE_DOUBLE:
-	    val->d = floor(val->f);
-	    break;
-	default:
-	    // Unsupport type
-	    sts = -1;
-	    break;
+    case PM_TYPE_32:
+    case PM_TYPE_U32:
+    case PM_TYPE_64:
+    case PM_TYPE_U64:
+	// No change
+	break;
+    case PM_TYPE_FLOAT:
+	val->f = floorf(val->f);
+	break;
+    case PM_TYPE_DOUBLE:
+	val->d = floor(val->d);
+	break;
+    default:
+	// Unsupport type
+	sts = -1;
+	break;
     }
+
     return sts;
 }
 
@@ -2702,63 +2696,38 @@ series_log_pmAtomValue(int itype, int *otype, pmAtomValue *val, int is_natural_l
     double		res;
 
     switch (itype) {
-	case PM_TYPE_32:
-	    *otype = PM_TYPE_DOUBLE;
-	    res = val->l;
-	    if (is_natural_log == 1) {
-		val->d = log(res);
-	    } else {
-		val->d = log(res)/log(base);
-	    }
-	    break;
-	case PM_TYPE_U32:
-	    *otype = PM_TYPE_DOUBLE;
-	    res = val->ul;
-	    if (is_natural_log == 1) {
-		val->d = log(res);
-	    } else {
-		val->d = log(res)/log(base);
-	    }
-	    break;
-	case PM_TYPE_64:
-	    *otype = PM_TYPE_DOUBLE;
-	    res = val->ll;
-	    if (is_natural_log == 1) {
-		val->d = log(res);
-	    } else {
-		val->d = log(res)/log(base);
-	    }
-	    break;
-	case PM_TYPE_U64:
-	    *otype = PM_TYPE_DOUBLE;
-	    res = val->ull;
-	    if (is_natural_log == 1) {
-		val->d = log(res);
-	    } else {
-		val->d = log(res)/log(base);
-	    }
-	    break;
-	case PM_TYPE_FLOAT:
-	    *otype = PM_TYPE_DOUBLE;
-	    res = val->f;
-	    if (is_natural_log == 1) {
-		val->d = log(res);
-	    } else {
-		val->d = log(res)/log(base);
-	    }
-	    break;
-	case PM_TYPE_DOUBLE:
-	    if (is_natural_log == 1) {
-		val->d = log(val->d);
-	    } else {
-		val->d = log(val->d)/log(base);
-	    }
-	    break;
-	default:
-	    // Unsupport type
-	    sts = -1;
-	    break;
+    case PM_TYPE_32:
+	res = val->l;
+	break;
+    case PM_TYPE_U32:
+	res = val->ul;
+	break;
+    case PM_TYPE_64:
+	res = val->ll;
+	break;
+    case PM_TYPE_U64:
+	res = val->ull;
+	break;
+    case PM_TYPE_FLOAT:
+	res = val->f;
+	break;
+    case PM_TYPE_DOUBLE:
+	res = val->d;
+	break;
+    default:
+	// Unsupport type
+	sts = -1;
+	break;
     }
+
+    if (sts == 0) {
+	*otype = PM_TYPE_DOUBLE;
+	if (is_natural_log == 1)
+	    val->d = log(res);
+	else
+	    val->d = log(res)/log(base);
+    }
+
     return sts;
 }
 
