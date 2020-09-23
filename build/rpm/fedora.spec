@@ -3063,6 +3063,7 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %files pmda-elasticsearch
 %{_pmdasdir}/elasticsearch
 %{_pmdasexecdir}/elasticsearch
+%{_confdir}/elasticsearch
 
 %files pmda-openvswitch
 %{_pmdasdir}/openvswitch
