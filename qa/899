@@ -32,6 +32,12 @@ filter_folios()
     # end
 }
 
+filter_host()
+{
+    host=`hostname`
+    sed -e "s/$host/HOST/g"
+}
+
 
 # real QA test starts here
 export PM_OPTFLAG_MULTI=true
@@ -91,6 +97,12 @@ PCPFolio
 Version: 1
 EOF
 $here/src/getoptions --archive-folio=$tmp.empty 2>&1 | filter_folios
+
+echo '== Check folio containing absolute paths to archives =='
+mkaf $PCP_ARCHIVE_DIR/`hostname` >$tmp.absolutepaths 2>/dev/null
+$here/src/getoptions --archive-folio=$tmp.absolutepaths | \
+grep ' archives:' | sed -e 's/archives: //' -e 's/,/ /g' >$tmp.archives
+for a in `cat $tmp.archives`; do [ -f "$a".index ] || echo archive not found \"$a\"; done
 
 # success, all done
 status=0
