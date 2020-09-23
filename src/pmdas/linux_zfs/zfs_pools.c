@@ -41,6 +41,7 @@ zfs_pools_init(zfs_poolstats_t *poolstats, pmdaInstid *pools, pmdaIndom *poolsin
         }
         if (pools == NULL)
                 pmNotifyErr(LOG_WARNING, "no ZFS pools found, instance domain is empty.");
+	poolsindom->it_indom = ZFS_POOL_INDOM;
         poolsindom->it_set = pools;
         poolsindom->it_numinst = pool_num;
         poolstats = (zfs_poolstats_t *) malloc(pool_num * sizeof(zfs_poolstats_t));
@@ -60,6 +61,7 @@ zfs_pools_clear(zfs_poolstats_t *poolstats, pmdaInstid *pools, pmdaIndom *poolsi
         if (poolstats)
                 free(poolstats);
         poolstats = NULL;
+	poolsindom->it_indom = ZFS_POOL_INDOM;
         poolsindom->it_set = pools = NULL;
         poolsindom->it_numinst = 0;
 }
