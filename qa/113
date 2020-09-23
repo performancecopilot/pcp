@@ -18,6 +18,8 @@ if [ $PCP_PLATFORM = linux ]
 then
     loopcount=`$sudo losetup -a | wc -l`
     [ $loopcount -eq 0 ] || _notrun "System has active loop devices, bailing"
+    overlayfs=`mount | grep '^overlay on / type overlay' | wc -l`
+    [ $overlayfs -eq 0 ] || _notrun "System has an overlay root fs, bailing"
 fi
 
 status=0
@@ -114,6 +116,9 @@ mount \
     -e '/ type cgroup/d' \
     -e '/ type hugetlbfs/d' \
     -e '/ type mqueue/d' \
+    -e '/ type configfs/d' \
+    -e '/ type tracefs/d' \
+    -e '/ type overlay/d' \
     -e '/ type rootfs/d' \
     -e 's/[ 	].*//' \
 | while read dev
