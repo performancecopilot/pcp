@@ -456,7 +456,7 @@ _build_allpkgs()
 	    : TODO
 	elif which dnf >/dev/null 2>&1
 	then
-	    dnf list \
+	    ( dnf list available; dnf list installed ) \
 	    | sed >$tmp.allpkgs \
 		-e '1,/^Available Packages/d' \
 		-e 's/ .*//' \

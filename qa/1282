@@ -30,21 +30,28 @@ status=0	# success is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+# odd cases to be filtered out ...
+# vm03:
+#    ... target: "/usr/lib*/redis/modules/redisearch.so" not found, but ...
+#    file/dir target "/usr/lib*/redis/modules/redisearch.so" not found
+#	- permissions issue in redis install
+#
 _filter()
 {
     sed \
-	-e 's/^\.\.*$/DOTS/' \
+	-e '/^\.\.*$/d' \
 	-e '/^Checking the/{
 s/[0-9][0-9]*/NN/
 s/ for .*/ for HOST/
 }' \
+	-e '/redisearch\.so" not found/d' \
     # end
 }
 
 # real QA test starts here
 
 echo "check-vm -fpM (CI case)"
-admin/check-vm -fpM
+admin/check-vm -fpM 2>&1 | _filter
 
 echo
 echo "check-vm -c"
