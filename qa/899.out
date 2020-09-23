@@ -277,3 +277,4 @@ Options structure dump:
     guiflag: 0
     tzflag: 0
     Lflag: 0
+== Check folio containing absolute paths to archives ==

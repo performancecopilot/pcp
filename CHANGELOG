@@ -43,6 +43,7 @@ pcp-5.2.1 (25 September 2020)
 	perl PMDAs: add perl_opt=true to Remove script
 	dbpmda: fixed memleaks, parser for debug command
     - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings
+	libpcp: handle absolute paths to archives when using --archive-folio
 	libpcp: new PMAPI methods for per-context derived metrics
 	libpcp: refactor __pmGetArchiveEnd_ctx() to fix segv on corrupt log
 	libpcp_web: add arithmetic expression to timeseries query language

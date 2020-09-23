@@ -1336,7 +1336,7 @@ x11
 896 pmlogger local pmdumplog kernel
 897 pmlc pmlogger local
 898 pmlogmv local
-899 libpcp getopt local
+899 libpcp getopt folio local
 900 libpcp sanity local timezone
 901 libpcp event local
 902 libpcp mem_leak valgrind event local
