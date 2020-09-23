@@ -32,7 +32,7 @@ static zfs_zilstats_t zilstats;
 static zfs_poolstats_t *poolstats;
 static pmdaInstid *pools;
 static pmdaIndom indomtab[] = {
-        { ZFS_POOLS_INDOM, 0, NULL }
+        { ZFS_POOL_INDOM, 0, NULL }
 };
 
 static pmdaMetric metrictab[] = {
@@ -1023,55 +1023,55 @@ static pmdaMetric metrictab[] = {
 /*---------------------------------------------------------------------------*/
 /* state */
 	{ NULL,
-	  { PMDA_PMID(10, ZFS_POOLS_STATE), PM_TYPE_STRING, ZFS_POOLS_INDOM, PM_SEM_DISCRETE,
+	  { PMDA_PMID(10, ZFS_POOL_STATE), PM_TYPE_STRING, ZFS_POOL_INDOM, PM_SEM_DISCRETE,
 	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
 /* nread */
 	{ NULL,
-	  { PMDA_PMID(10, ZFS_POOLS_NREAD), PM_TYPE_U64, ZFS_POOLS_INDOM, PM_SEM_COUNTER,
+	  { PMDA_PMID(10, ZFS_POOL_NREAD), PM_TYPE_U64, ZFS_POOL_INDOM, PM_SEM_COUNTER,
 	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
 /* nwritten */
 	{ NULL,
-	  { PMDA_PMID(10, ZFS_POOLS_NWRITTEN), PM_TYPE_U64, ZFS_POOLS_INDOM, PM_SEM_COUNTER,
+	  { PMDA_PMID(10, ZFS_POOL_NWRITTEN), PM_TYPE_U64, ZFS_POOL_INDOM, PM_SEM_COUNTER,
 	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
 /* reads */
 	{ NULL,
-	  { PMDA_PMID(10, ZFS_POOLS_READS), PM_TYPE_U64, ZFS_POOLS_INDOM, PM_SEM_COUNTER,
+	  { PMDA_PMID(10, ZFS_POOL_READS), PM_TYPE_U64, ZFS_POOL_INDOM, PM_SEM_COUNTER,
 	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
 /* writes */
 	{ NULL,
-	  { PMDA_PMID(10, ZFS_POOLS_WRITES), PM_TYPE_U64, ZFS_POOLS_INDOM, PM_SEM_COUNTER,
+	  { PMDA_PMID(10, ZFS_POOL_WRITES), PM_TYPE_U64, ZFS_POOL_INDOM, PM_SEM_COUNTER,
 	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
 /* wtime */
 	{ NULL,
-	  { PMDA_PMID(10, ZFS_POOLS_WTIME), PM_TYPE_U64, ZFS_POOLS_INDOM, PM_SEM_COUNTER,
+	  { PMDA_PMID(10, ZFS_POOL_WTIME), PM_TYPE_U64, ZFS_POOL_INDOM, PM_SEM_COUNTER,
 	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
 /* wlentime */
 	{ NULL,
-	  { PMDA_PMID(10, ZFS_POOLS_WLENTIME), PM_TYPE_U64, ZFS_POOLS_INDOM, PM_SEM_COUNTER,
+	  { PMDA_PMID(10, ZFS_POOL_WLENTIME), PM_TYPE_U64, ZFS_POOL_INDOM, PM_SEM_COUNTER,
 	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
 /* wupdate */
 	{ NULL,
-	  { PMDA_PMID(10, ZFS_POOLS_WUPDATE), PM_TYPE_U64, ZFS_POOLS_INDOM, PM_SEM_COUNTER,
+	  { PMDA_PMID(10, ZFS_POOL_WUPDATE), PM_TYPE_U64, ZFS_POOL_INDOM, PM_SEM_COUNTER,
 	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
 /* rtime */
 	{ NULL,
-	  { PMDA_PMID(10, ZFS_POOLS_RTIME), PM_TYPE_U64, ZFS_POOLS_INDOM, PM_SEM_COUNTER,
+	  { PMDA_PMID(10, ZFS_POOL_RTIME), PM_TYPE_U64, ZFS_POOL_INDOM, PM_SEM_COUNTER,
 	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
 /* rlentime */
 	{ NULL,
-	  { PMDA_PMID(10, ZFS_POOLS_RLENTIME), PM_TYPE_U64, ZFS_POOLS_INDOM, PM_SEM_COUNTER,
+	  { PMDA_PMID(10, ZFS_POOL_RLENTIME), PM_TYPE_U64, ZFS_POOL_INDOM, PM_SEM_COUNTER,
 	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
 /* rupdate */
 	{ NULL,
-	  { PMDA_PMID(10, ZFS_POOLS_RUPDATE), PM_TYPE_U64, ZFS_POOLS_INDOM, PM_SEM_COUNTER,
+	  { PMDA_PMID(10, ZFS_POOL_RUPDATE), PM_TYPE_U64, ZFS_POOL_INDOM, PM_SEM_COUNTER,
 	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
 /* wcnt */
 	{ NULL,
-	  { PMDA_PMID(10, ZFS_POOLS_WCNT), PM_TYPE_U64, ZFS_POOLS_INDOM, PM_SEM_COUNTER,
+	  { PMDA_PMID(10, ZFS_POOL_WCNT), PM_TYPE_U64, ZFS_POOL_INDOM, PM_SEM_COUNTER,
 	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
 /* rcnt */
 	{ NULL,
-	  { PMDA_PMID(10, ZFS_POOLS_RCNT), PM_TYPE_U64, ZFS_POOLS_INDOM, PM_SEM_COUNTER,
+	  { PMDA_PMID(10, ZFS_POOL_RCNT), PM_TYPE_U64, ZFS_POOL_INDOM, PM_SEM_COUNTER,
 	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }
 };
 
@@ -1090,7 +1090,7 @@ zfs_fetch(int numpmid, pmID *pmidlist, pmResult **resp, pmdaExt *pmda)
 	zfs_vdev_cachestats_refresh(&vdev_cachestats, &rgx_row);
 	zfs_vdev_mirrorstats_refresh(&vdev_mirrorstats, &rgx_row);
 	regfree(&rgx_row);
-        zfs_poolstats_refresh(poolstats, pools, &indomtab[ZFS_POOLS_INDOM]);
+        zfs_poolstats_refresh(poolstats, pools, &indomtab[ZFS_POOL_INDOM]);
 	return pmdaFetch(numpmid, pmidlist, resp, pmda);
 }
 
@@ -1099,45 +1099,45 @@ zfs_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
         __pmID_int *idp = (__pmID_int *)&(mdesc->m_desc.pmid);
         
-        if (idp->cluster == 10 && mdesc->m_desc.indom == ZFS_POOLS_INDOM) {
+        if (idp->cluster == 10 && mdesc->m_desc.indom == ZFS_POOL_INDOM) {
                 switch (idp->item) {
-		case ZFS_POOLS_STATE:
+		case ZFS_POOL_STATE:
 			atom->cp = (char *)poolstats[inst].state;
 			break;
-		case ZFS_POOLS_NREAD:
+		case ZFS_POOL_NREAD:
 			atom->ull = (__uint64_t)poolstats[inst].nread;
 			break;
- 		case ZFS_POOLS_NWRITTEN:
+ 		case ZFS_POOL_NWRITTEN:
 			atom->ull = (__uint64_t)poolstats[inst].nwritten;
 			break;
- 		case ZFS_POOLS_READS:
+ 		case ZFS_POOL_READS:
 			atom->ull = (__uint64_t)poolstats[inst].reads;
 			break;
- 		case ZFS_POOLS_WRITES:
+ 		case ZFS_POOL_WRITES:
 			atom->ull = (__uint64_t)poolstats[inst].writes;
 			break;
- 		case ZFS_POOLS_WTIME:
+ 		case ZFS_POOL_WTIME:
 			atom->ull = (__uint64_t)poolstats[inst].wtime;
 			break;
- 		case ZFS_POOLS_WLENTIME:
+ 		case ZFS_POOL_WLENTIME:
 			atom->ull = (__uint64_t)poolstats[inst].wlentime;
 			break;
- 		case ZFS_POOLS_WUPDATE:
+ 		case ZFS_POOL_WUPDATE:
 			atom->ull = (__uint64_t)poolstats[inst].wupdate;
 			break;
- 		case ZFS_POOLS_RTIME:
+ 		case ZFS_POOL_RTIME:
 			atom->ull = (__uint64_t)poolstats[inst].rtime;
 			break;
- 		case ZFS_POOLS_RLENTIME:
+ 		case ZFS_POOL_RLENTIME:
 			atom->ull = (__uint64_t)poolstats[inst].rlentime;
 			break;
- 		case ZFS_POOLS_RUPDATE:
+ 		case ZFS_POOL_RUPDATE:
 			atom->ull = (__uint64_t)poolstats[inst].rupdate;
 			break;
- 		case ZFS_POOLS_WCNT:
+ 		case ZFS_POOL_WCNT:
 			atom->ull = (__uint64_t)poolstats[inst].wcnt;
 			break;
- 		case ZFS_POOLS_RCNT:
+ 		case ZFS_POOL_RCNT:
 			atom->ull = (__uint64_t)poolstats[inst].rcnt;
 			break;
                 default:
@@ -1164,7 +1164,7 @@ zfs_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 static int
 zfs_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt *pmda)
 {
-        zfs_pools_init(poolstats, pools, &indomtab[ZFS_POOLS_INDOM]);
+        zfs_pools_init(poolstats, pools, &indomtab[ZFS_POOL_INDOM]);
         return pmdaInstance(indom, inst, name, result, pmda);
 }
 
@@ -1182,7 +1182,7 @@ zfs_init(pmdaInterface *dp)
 	if (dp->status != 0)
 	        return;
 	
-        //zfs_pools_init(poolstats, pools, &indomtab[ZFS_POOLS_INDOM]);
+        //zfs_pools_init(poolstats, pools, &indomtab[ZFS_POOL_INDOM]);
 	dp->version.any.instance = zfs_instance;
 	dp->version.any.fetch = zfs_fetch;
 	pmdaSetFetchCallBack(dp, zfs_fetchCallBack);
