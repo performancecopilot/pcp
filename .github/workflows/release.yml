@@ -5,10 +5,8 @@ on:
       - '*.*.*'
   workflow_dispatch:
     inputs:
-      publish_bintray:
-        description: 'Publish Release on Bintray'
-        default: 'no'
-        required: true
+      bintray_subject:
+        description: 'Bintray Subject (leave empty to not publish)'
 
 jobs:
   qa:
@@ -94,7 +92,7 @@ jobs:
 
   release:
     name: Release on Bintray
-    if: (github.event_name == 'push' && github.repository == 'performancecopilot/pcp') || (github.event_name == 'workflow_dispatch' && github.event.inputs.publish_bintray == 'yes')
+    if: (github.event_name == 'push' && github.repository == 'performancecopilot/pcp') || (github.event_name == 'workflow_dispatch' && github.event.inputs.bintray_subject != '')
     needs: qa
     runs-on: ubuntu-18.04
     steps:
@@ -110,8 +108,11 @@ jobs:
         run: ./Makepkgs --source --nonrpm
 
       - name: Release on Bintray
-        run: ./build/ci/release-bintray.py --version ${GITHUB_REF#refs/tags/} --source ./build/tar/*.src.tar.gz ./artifacts/build-*
+        run: |
+          . ./VERSION.pcp
+          ./build/ci/release-bintray.py --version "$PACKAGE_MAJOR.$PACKAGE_MINOR.$PACKAGE_REVISION" --source ./build/tar/*.src.tar.gz ./artifacts/build-*
         env:
+          BINTRAY_SUBJECT: ${{ github.event.inputs.bintray_subject || 'pcp' }}
           BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
           BINTRAY_APIKEY: ${{ secrets.BINTRAY_APIKEY }}
           BINTRAY_GPG_PASSPHRASE: ${{ secrets.BINTRAY_GPG_PASSPHRASE }}
