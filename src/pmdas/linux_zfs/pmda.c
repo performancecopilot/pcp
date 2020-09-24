@@ -1090,7 +1090,7 @@ zfs_fetch(int numpmid, pmID *pmidlist, pmResult **resp, pmdaExt *pmda)
 	zfs_vdev_cachestats_refresh(&vdev_cachestats, &rgx_row);
 	zfs_vdev_mirrorstats_refresh(&vdev_mirrorstats, &rgx_row);
 	regfree(&rgx_row);
-        zfs_poolstats_refresh(poolstats, pools, &indomtab[ZFS_POOL_INDOM]);
+        zfs_poolstats_refresh(&poolstats, &pools, &indomtab[ZFS_POOL_INDOM]);
 	return pmdaFetch(numpmid, pmidlist, resp, pmda);
 }
 
@@ -1099,7 +1099,7 @@ zfs_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
         __pmID_int *idp = (__pmID_int *)&(mdesc->m_desc.pmid);
         
-        if (idp->cluster == 10 && mdesc->m_desc.indom == ZFS_POOL_INDOM) {
+        if (idp->cluster == 10) { // && mdesc->m_desc.indom == ZFS_POOL_INDOM) {
                 switch (idp->item) {
 		case ZFS_POOL_STATE:
 			atom->cp = (char *)poolstats[inst].state;
@@ -1164,7 +1164,7 @@ zfs_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 static int
 zfs_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt *pmda)
 {
-        zfs_pools_init(poolstats, pools, &indomtab[ZFS_POOL_INDOM]);
+        zfs_pools_init(&poolstats, &pools, &indomtab[ZFS_POOL_INDOM]);
         return pmdaInstance(indom, inst, name, result, pmda);
 }
 
@@ -1182,7 +1182,7 @@ zfs_init(pmdaInterface *dp)
 	if (dp->status != 0)
 	        return;
 	
-        //zfs_pools_init(poolstats, pools, &indomtab[ZFS_POOL_INDOM]);
+        zfs_pools_init(&poolstats, &pools, &indomtab[ZFS_POOL_INDOM]);
 	dp->version.any.instance = zfs_instance;
 	dp->version.any.fetch = zfs_fetch;
 	pmdaSetFetchCallBack(dp, zfs_fetchCallBack);
