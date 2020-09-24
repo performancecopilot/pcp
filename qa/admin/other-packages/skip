@@ -52,7 +52,7 @@ Debian       bullseye -       libqt4-dev libsoqt4-dev
 Fedora       3[0-9]   -       mssql-server mssql-tools
 Fedora       2[6-9]   -       mssql-server mssql-tools
 # prefer mariadb over mysql
-Fedora       3[0-9]   -       community-mysql mysql
+Fedora       3[0-9]   -       community-mysql
 # we're using python3 from Fedora26 onwards
 Fedora       3[0-9]   -       python-{.*} python2-{.*} 
 Fedora       2[6-9]   -       python-{.*} python2-{.*}
