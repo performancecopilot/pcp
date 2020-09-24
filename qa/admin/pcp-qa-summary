@@ -307,12 +307,17 @@ p
 	cat $tmp.found >>$tmp.counts
 	numqahosts=`expr $numqahosts + 1`
     else
-	if [ -f $tmp.seen ]
+	if $recent
 	then
-	    printf "%-30s|%s\n" "Daily runs, but no QA" "$basevmname" | _what
-	elif [ ! -f $tmp.seen ]
-	then
-	    printf "%-30s|%s\n" "No daily runs" "$basevmname" | _what
+	    : be quiet
+	else
+	    if [ -f $tmp.seen ]
+	    then
+		printf "%-30s|%s\n" "Daily runs, but no QA" "$basevmname" | _what
+	    elif [ ! -f $tmp.seen ]
+	    then
+		printf "%-30s|%s\n" "No daily runs" "$basevmname" | _what
+	    fi
 	fi
     fi
 
