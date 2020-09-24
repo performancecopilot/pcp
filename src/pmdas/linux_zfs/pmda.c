@@ -1102,8 +1102,7 @@ zfs_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
         if (idp->cluster == 10) { // && mdesc->m_desc.indom == ZFS_POOL_INDOM) {
                 switch (idp->item) {
 		case ZFS_POOL_STATE:
-			//atom->cp = (char *)poolstats[inst].state;
-			atom->d = (int)poolstats[inst].state;
+			atom->l = (int)poolstats[inst].state;
 			break;
 		case ZFS_POOL_NREAD:
 			atom->ull = (__uint64_t)poolstats[inst].nread;
