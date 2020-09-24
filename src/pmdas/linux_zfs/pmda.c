@@ -29,8 +29,8 @@ static zfs_vdev_cachestats_t vdev_cachestats;
 static zfs_vdev_mirrorstats_t vdev_mirrorstats;
 static zfs_zfetchstats_t zfetchstats;
 static zfs_zilstats_t zilstats;
-static zfs_poolstats_t *poolstats;
-static pmdaInstid *pools;
+static zfs_poolstats_t *poolstats = NULL;
+static pmdaInstid *pools = NULL;
 static pmdaIndom indomtab[] = {
         { ZFS_POOL_INDOM, 0, NULL }
 };
@@ -1023,7 +1023,7 @@ static pmdaMetric metrictab[] = {
 /*---------------------------------------------------------------------------*/
 /* state */
 	{ NULL,
-	  { PMDA_PMID(10, ZFS_POOL_STATE), PM_TYPE_STRING, ZFS_POOL_INDOM, PM_SEM_DISCRETE,
+	  { PMDA_PMID(10, ZFS_POOL_STATE), PM_TYPE_32, ZFS_POOL_INDOM, PM_SEM_DISCRETE,
 	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
 /* nread */
 	{ NULL,
@@ -1102,7 +1102,8 @@ zfs_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
         if (idp->cluster == 10) { // && mdesc->m_desc.indom == ZFS_POOL_INDOM) {
                 switch (idp->item) {
 		case ZFS_POOL_STATE:
-			atom->cp = (char *)poolstats[inst].state;
+			//atom->cp = (char *)poolstats[inst].state;
+			atom->d = (int)poolstats[inst].state;
 			break;
 		case ZFS_POOL_NREAD:
 			atom->ull = (__uint64_t)poolstats[inst].nread;

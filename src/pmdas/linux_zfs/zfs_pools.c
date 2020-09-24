@@ -41,8 +41,8 @@ zfs_pools_init(zfs_poolstats_t **poolstats, pmdaInstid **pools, pmdaIndom *pools
         }
         if (*pools == NULL)
                 pmNotifyErr(LOG_WARNING, "no ZFS pools found, instance domain is empty.");
-        poolsindom->it_set = *pools;
-        poolsindom->it_numinst = pool_num;
+        (*poolsindom).it_set = *pools;
+        (*poolsindom).it_numinst = pool_num;
         *poolstats = (zfs_poolstats_t *) realloc(*poolstats, pool_num * sizeof(zfs_poolstats_t));
 }
 
@@ -51,7 +51,7 @@ zfs_pools_clear(zfs_poolstats_t **poolstats, pmdaInstid **pools, pmdaIndom *pool
 {
         int i;
 
-        for (i = 0; i < poolsindom->it_numinst; i++) {
+        for (i = 0; i < (*poolsindom).it_numinst; i++) {
                 free((*pools)[i].i_name);
                 (*pools)[i].i_name = NULL;
         }
@@ -60,8 +60,8 @@ zfs_pools_clear(zfs_poolstats_t **poolstats, pmdaInstid **pools, pmdaIndom *pool
         if (*poolstats)
                 free(*poolstats);
         *poolstats = NULL;
-        poolsindom->it_set = *pools = NULL;
-        poolsindom->it_numinst = 0;
+        (*poolsindom).it_set = *pools = NULL;
+        (*poolsindom).it_numinst = 0;
 }
 
 void
@@ -76,11 +76,11 @@ zfs_poolstats_refresh(zfs_poolstats_t **poolstats, pmdaInstid **pools, pmdaIndom
         regmatch_t pmatch[1];
         
         regcomp(&rgx_io, "^([0-9]+ ){11}[0-9]+$", REG_EXTENDED);
-        if ((*poolstats = realloc(*poolstats, poolsindom->it_numinst * sizeof(zfs_poolstats_t))) == NULL)
-                pmNoMem("process", poolsindom->it_numinst * sizeof(zfs_poolstats_t), PM_FATAL_ERR);
-        for (i = 0; i < poolsindom->it_numinst; i++) {
+        if ((*poolstats = realloc(*poolstats, (*poolsindom).it_numinst * sizeof(zfs_poolstats_t))) == NULL)
+                pmNoMem("process", (*poolsindom).it_numinst * sizeof(zfs_poolstats_t), PM_FATAL_ERR);
+        for (i = 0; i < (*poolsindom).it_numinst; i++) {
                 strcpy(pool_dir, ZFS_PROC_DIR);
-                strcat(pool_dir, poolsindom->it_set[i].i_name);
+                strcat(pool_dir, (*poolsindom).it_set[i].i_name);
                 if (stat(pool_dir, &sstat) != 0) {
                         // Pools setup changed, the instance domain must follow
                         regfree(&rgx_io);
@@ -90,6 +90,8 @@ zfs_poolstats_refresh(zfs_poolstats_t **poolstats, pmdaInstid **pools, pmdaIndom
                         return;
                 }
                 // Read the state if exists
+		(*poolstats)[i].state = -1;
+		/*
                 (*poolstats)[i].state = "UNKNOWN";
                 strcpy(fname, pool_dir);
                 strcat(fname, "state");
@@ -100,10 +102,10 @@ zfs_poolstats_refresh(zfs_poolstats_t **poolstats, pmdaInstid **pools, pmdaIndom
                                 free((*poolstats)[i].state);
                                 (*poolstats)[i].state = (char *) malloc((len+1)*sizeof(char));
                                 strcpy((*poolstats)[i].state, line);
-                                (*poolstats)[i].state[len] = '\0';
                         }
                         fclose(fp);
                 }
+		*/
                 // Read the IO stats
                 strcpy(fname, pool_dir);
                 strcat(fname, "io");

@@ -2,8 +2,9 @@
 #include "libpcp.h"
 #include "pmda.h"
 
-#define ZFS_PROC_DIR "/proc/spl/kstat/zfs/"
-#define ZFS_POOL_INDOM 0
+//DEBUG
+#define ZFS_PROC_DIR "/tmp/proc/spl/kstat/zfs/"
+enum { ZFS_POOL_INDOM = 0, };
 
 enum { /* metric item identifiers */
 	ZFS_POOL_STATE = 0,
@@ -22,7 +23,7 @@ enum { /* metric item identifiers */
 };
 
 typedef struct zfs_poolstats {
-        char *state;
+        int state;
 	uint64_t nread;
  	uint64_t nwritten;
  	uint64_t reads;
@@ -37,6 +38,6 @@ typedef struct zfs_poolstats {
  	uint64_t rcnt;
 } zfs_poolstats_t;
 
-void zfs_pools_init(zfs_poolstats_t *, pmdaInstid *, pmdaIndom *);
-void zfs_pools_clear(zfs_poolstats_t *, pmdaInstid *, pmdaIndom *);
-void zfs_poolstats_refresh(zfs_poolstats_t *, pmdaInstid *, pmdaIndom *);
+void zfs_pools_init(zfs_poolstats_t **, pmdaInstid **, pmdaIndom *);
+void zfs_pools_clear(zfs_poolstats_t **, pmdaInstid **, pmdaIndom *);
+void zfs_poolstats_refresh(zfs_poolstats_t **, pmdaInstid **, pmdaIndom *);
