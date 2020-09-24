@@ -68,14 +68,15 @@ void
 zfs_poolstats_refresh(zfs_poolstats_t **poolstats, pmdaInstid **pools, pmdaIndom *poolsindom)
 {
         int i;
-        char *line, pool_dir[PATH_MAX], fname[PATH_MAX];
+        char pool_dir[PATH_MAX], fname[PATH_MAX];
+	char *line = NULL, *token, delim[] = " ";
         FILE *fp;
         struct stat sstat;
         regex_t rgx_io;
         size_t nmatch = 1, len;
         regmatch_t pmatch[1];
         
-        regcomp(&rgx_io, "^([0-9]+ ){11}[0-9]+$", REG_EXTENDED);
+        regcomp(&rgx_io, "([0-9]+[ ]+){11}[0-9]+", REG_EXTENDED|REG_NOSUB);
         if ((*poolstats = realloc(*poolstats, (*poolsindom).it_numinst * sizeof(zfs_poolstats_t))) == NULL)
                 pmNoMem("process", (*poolsindom).it_numinst * sizeof(zfs_poolstats_t), PM_FATAL_ERR);
         for (i = 0; i < (*poolsindom).it_numinst; i++) {
@@ -94,7 +95,7 @@ zfs_poolstats_refresh(zfs_poolstats_t **poolstats, pmdaInstid **pools, pmdaIndom
 		/*
                 (*poolstats)[i].state = "UNKNOWN";
                 strcpy(fname, pool_dir);
-                strcat(fname, "state");
+                strcat(fname, "/state");
                 fp = fopen(fname, "r");
                 if (fp != NULL) {
                         if (getline(&line, &len, fp) != -1) {
@@ -108,24 +109,38 @@ zfs_poolstats_refresh(zfs_poolstats_t **poolstats, pmdaInstid **pools, pmdaIndom
 		*/
                 // Read the IO stats
                 strcpy(fname, pool_dir);
-                strcat(fname, "io");
+                strcat(fname, "/io");
                 fp = fopen(fname, "r");
                 if (fp != NULL) {
                         while (getline(&line, &len, fp) != -1) {
-                                if (regexec(&rgx_io, line, nmatch, pmatch, 0) == 0)
-                                        sscanf(line, "%" PRIu64 " %" PRIu64 " %" PRIu64 " %" PRIu64 " %" PRIu64 " %" PRIu64 " %" PRIu64 " %" PRIu64 " %" PRIu64 " %" PRIu64 " %" PRIu64 " %" PRIu64 "\n",
-						&(*poolstats)[i].nread,
-	 					&(*poolstats)[i].nwritten,
-	 					&(*poolstats)[i].reads,
-	 					&(*poolstats)[i].writes,
-	 					&(*poolstats)[i].wtime,
-	 					&(*poolstats)[i].wlentime,
-	 					&(*poolstats)[i].wupdate,
-	 					&(*poolstats)[i].rtime,
-	 					&(*poolstats)[i].rlentime,
-	 					&(*poolstats)[i].rupdate,
-	 					&(*poolstats)[i].wcnt,
-	 					&(*poolstats)[i].rcnt);
+                                if (regexec(&rgx_io, line, nmatch, pmatch, 0) == 0) {
+					// Tokenize the line to extract the metrics
+					token = strtok(line, delim);
+					(*poolstats)[i].nread = strtoul(token, NULL, 0);
+					token = strtok(NULL, delim);
+	 				(*poolstats)[i].nwritten = strtoul(token, NULL, 0);
+					token = strtok(NULL, delim);
+	 				(*poolstats)[i].reads = strtoul(token, NULL, 0);
+					token = strtok(NULL, delim);
+	 				(*poolstats)[i].writes = strtoul(token, NULL, 0);
+					token = strtok(NULL, delim);
+	 				(*poolstats)[i].wtime = strtoul(token, NULL, 0);
+					token = strtok(NULL, delim);
+	 				(*poolstats)[i].wlentime = strtoul(token, NULL, 0);
+					token = strtok(NULL, delim);
+	 				(*poolstats)[i].wupdate = strtoul(token, NULL, 0);
+					token = strtok(NULL, delim);
+	 				(*poolstats)[i].rtime = strtoul(token, NULL, 0);
+					token = strtok(NULL, delim);
+	 				(*poolstats)[i].rlentime = strtoul(token, NULL, 0);
+					token = strtok(NULL, delim);
+	 				(*poolstats)[i].rupdate = strtoul(token, NULL, 0);
+					token = strtok(NULL, delim);
+	 				(*poolstats)[i].wcnt = strtoul(token, NULL, 0);
+					token = strtok(NULL, delim);
+	 				(*poolstats)[i].rcnt = strtoul(token, NULL, 0);
+					token = strtok(NULL, delim);
+				}
                         }
                         fclose(fp);
                 }
