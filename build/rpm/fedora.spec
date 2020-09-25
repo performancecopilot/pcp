@@ -3431,7 +3431,6 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 
 %changelog
 * Fri Sep 25 2020 Nathan Scott <nathans@redhat.com> - 5.2.1-1
-- https://github.com/performancecopilot/pcp/projects/1
 - Update to latest PCP sources.
 
 * Sat Aug 08 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.2.0-1

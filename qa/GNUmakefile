@@ -1,6 +1,5 @@
-#!gmake
 #
-# Copyright (c) 2015-2019 Red Hat.
+# Copyright (c) 2015-2020 Red Hat.
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 # NB: this GNUmakefile is only for use from within the PCP build tree.  It governs
@@ -94,14 +93,12 @@ localconfig:
 	./mk.pcpversion $(PCP_VERSION) >> localconfig
 
 install_pcp install: $(SUBDIRS)
-ifeq (, $(filter mingw darwin freebsd netbsd openbsd solaris, $(TARGET_OS)))
 	$(INSTALL) -m 755 -d $(TESTDIR)
 	$(INSTALL) -m 755 -f $(TESTS) $(SCRIPTS) $(COMMON_SCRIPTS) $(TESTDIR)
 	$(INSTALL) -m 644 -f $(COMMON) $(OTHERS) $(TESTDIR)
 	$(INSTALL) -m 644 -f GNUmakefile.install $(TESTDIR)/GNUmakefile
 	$(INSTALL) -m 644 -f qa_outfiles $(DOTOUTFILES) $(TESTDIR)
 	$(SUBDIRS_MAKERULE)
-endif
 
 include $(BUILDRULES)
 
