@@ -1023,7 +1023,7 @@ static pmdaMetric metrictab[] = {
 /*---------------------------------------------------------------------------*/
 /* state */
 	{ NULL,
-	  { PMDA_PMID(10, ZFS_POOL_STATE), PM_TYPE_32, ZFS_POOL_INDOM, PM_SEM_DISCRETE,
+	  { PMDA_PMID(10, ZFS_POOL_STATE), PM_TYPE_U32, ZFS_POOL_INDOM, PM_SEM_DISCRETE,
 	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
 /* nread */
 	{ NULL,
@@ -1102,7 +1102,7 @@ zfs_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
         if (idp->cluster == 10) { // && mdesc->m_desc.indom == ZFS_POOL_INDOM) {
                 switch (idp->item) {
 		case ZFS_POOL_STATE:
-			atom->l = (int)poolstats[inst].state;
+			atom->l = (__int32_t)poolstats[inst].state;
 			break;
 		case ZFS_POOL_NREAD:
 			atom->ull = (__uint64_t)poolstats[inst].nread;

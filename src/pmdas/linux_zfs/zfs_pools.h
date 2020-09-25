@@ -23,7 +23,7 @@ enum { /* metric item identifiers */
 };
 
 typedef struct zfs_poolstats {
-        int state;
+        uint32_t state;
 	uint64_t nread;
  	uint64_t nwritten;
  	uint64_t reads;

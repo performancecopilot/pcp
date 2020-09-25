@@ -91,18 +91,18 @@ zfs_poolstats_refresh(zfs_poolstats_t **poolstats, pmdaInstid **pools, pmdaIndom
                         return;
                 }
                 // Read the state if exists
-		(*poolstats)[i].state = -3; // UNKNOWN
+		(*poolstats)[i].state = 13; // UNKNOWN
                 strcpy(fname, pool_dir);
                 strcat(fname, "/state");
                 fp = fopen(fname, "r");
                 if (fp != NULL) {
                         if (getline(&line, &len, fp) != -1) {
-				if (strncmp(line, "REMOVED", 7) == 0) (*poolstats)[i].state = -2;
-				else if (strncmp(line, "UNAVAIL", 7) == 0) (*poolstats)[i].state = -1;
-				else if (strncmp(line, "OFFLINE", 7) == 0) (*poolstats)[i].state = 0;
+				if (strncmp(line, "OFFLINE", 7) == 0) (*poolstats)[i].state = 0;
 				else if (strncmp(line, "ONLINE", 6) == 0) (*poolstats)[i].state = 1;
 				else if (strncmp(line, "DEGRADED", 8) == 0) (*poolstats)[i].state = 2;
 				else if (strncmp(line, "FAULTED", 7) == 0) (*poolstats)[i].state = 3;
+				else if (strncmp(line, "REMOVED", 7) == 0) (*poolstats)[i].state = 4;
+				else if (strncmp(line, "UNAVAIL", 7) == 0) (*poolstats)[i].state = 5;
 			}
                         fclose(fp);
                 }
