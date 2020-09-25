@@ -191,18 +191,24 @@ mode, the **-S** option may be used to specify a later time for the start of sam
 seconds.
 
 To specify an offset from the beginning of a set of PCP archives (in archive mode) simply specify the offset as the *duration*. For example, the following 
-entry retrieves the first sample of data at exactly 30 minutes from the beginning of a set of PCP archives::
+entry retrieves the first sample of data at exactly 30 minutes from the beginning of a set of PCP archives:
+
+.. sourcecode:: c
 
  -S 30min
 
 To specify an offset from the end of a set of PCP archives, prefix the *duration* with a minus sign. In this case, the first sample time precedes 
 the end of archived data by the given *duration*. For example, the following entry retrieves the first sample exactly one hour preceding the last sample 
-in a set of PCP archives::
+in a set of PCP archives:
+
+.. sourcecode:: c
 
  -S -1hour
 
 To specify the calendar date and time (local time in the reporting timezone) for the first sample, use the **ctime(3)** syntax preceded by an "at" 
-sign (@). For example, the following entry specifies the date and time to be used::
+sign (@). For example, the following entry specifies the date and time to be used:
+
+.. sourcecode:: c
 
  -S '@ Mon Mar 4 13:07:47 2017'
 
@@ -239,7 +245,9 @@ This is most useful with the **pmchart** command to display the tail-end of the 
 **-A**  *alignment*
 
 By default, performance data samples do not necessarily happen at any natural unit of measured time. The **-A** switch may be used to force the initial 
-sample to be on the specified *alignment*. For example, these three options specify alignment on seconds, half hours, and whole hours:: 
+sample to be on the specified *alignment*. For example, these three options specify alignment on seconds, half hours, and whole hours:
+
+.. sourcecode:: c
 
  -A 1sec 
  -A 30min 
@@ -346,7 +354,9 @@ TCP/IP ports used by PCP, namely 44321 (or the value of the **PMCD_PORT** enviro
 ======================
 
 The **pmproxy** service allows PCP clients running on hosts located on one side of a firewall to monitor remote hosts on the other side. The basic 
-connection syntax is as follows, where *tool* is an arbitrary PCP application, typically a monitoring tool::
+connection syntax is as follows, where *tool* is an arbitrary PCP application, typically a monitoring tool:
+
+.. sourcecode:: c
 
  pmprobe -h remotehost@proxyhost
 

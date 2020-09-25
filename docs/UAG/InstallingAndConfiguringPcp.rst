@@ -343,7 +343,7 @@ and restart the **pmcd** daemon; and an **Install** script to install the PMDA, 
 As a shortcut mechanism to support automated PMDA installation, a file named **.NeedInstall** can be created in a PMDA directory below ``${PCP_PMDAS_DIR}``. The next restart of PCP 
 services will invoke that PMDAs installation automatically, with default options taken.
 
-⁠PMDA Installation on a PCP Collector Host
+PMDA Installation on a PCP Collector Host
 ==========================================
 
 To install a PMDA you must perform a collector installation for each host on which the PMDA is required to export performance metrics. PCP provides a distributed metric namespace (PMNS) 
@@ -430,7 +430,9 @@ The PMNS needs to be updated, the PMDA unconfigured, and PMCD notified. The **Re
 
      ./Remove
 
-The following output illustrates the result::
+The following output illustrates the result:
+
+.. sourcecode:: none
 
      Culling the Performance Metrics Name Space ...
     elasticsearch ... done

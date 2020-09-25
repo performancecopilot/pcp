@@ -26,13 +26,13 @@ Chapter 3, :ref:`CommonConventionsAndArguments`, describes the user interface co
 
 Chapter 4, :ref:`MonitoringSystemPerformance`, describes the performance monitoring tools available in Performance Co-Pilot (PCP).
 
-Chapter 5, Performance Metrics Inference Engine, describes the Performance Metrics Inference Engine (pmie) tool that provides automated monitoring of, and reasoning about, system performance within the PCP framework.
+Chapter 5, :ref:`PerformanceMetricsInferenceEngine`, describes the Performance Metrics Inference Engine (pmie) tool that provides automated monitoring of, and reasoning about, system performance within the PCP framework.
 
-Chapter 6, Archive Logging, covers the PCP services and utilities that support archive logging for capturing accurate historical performance records.
+Chapter 6, :ref:`ArchiveLogging`, covers the PCP services and utilities that support archive logging for capturing accurate historical performance records.
 
-Chapter 7, Performance Co-Pilot Deployment Strategies, presents the various options for deploying PCP functionality across cooperating systems.
+Chapter 7, :ref:`Performance Co-Pilot Deployment Strategies`, presents the various options for deploying PCP functionality across cooperating systems.
 
-Chapter 8, Customizing and Extending PCP Services, describes the procedures necessary to ensure that the PCP configuration is customized in ways that maximize the coverage and quality of performance monitoring and management services.
+Chapter 8, :ref:`Customizing and Extending PCP Services`, describes the procedures necessary to ensure that the PCP configuration is customized in ways that maximize the coverage and quality of performance monitoring and management services.
 
 Appendix A, Acronyms, provides a comprehensive list of the acronyms used in this guide and in the man pages for Performance Co-Pilot.
 

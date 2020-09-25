@@ -14,28 +14,21 @@ makes it especially useful for those seeking centralized monitoring of distribut
 
 .. toctree::
    :caption: Guides
-   :titlesonly:
-   :maxdepth: 2
-
+   :hidden:
+   
    UAG/AboutThisGuide
 
 
 .. toctree::
    :caption: User's and Administrator's Guide
    :numbered:
-   :titlesonly:
-   :maxdepth: 2
+   :hidden:
 
    UAG/IntroductionToPcp
    UAG/InstallingAndConfiguringPcp
    UAG/CommonConventionsAndArguments
    UAG/MonitoringSystemPerformance
-
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   UAG/PerformanceMetricsInferenceEngine
+   UAG/ArchiveLogging
+   UAG/PcpDeploymentStrategies
+   UAG/CustomizingAndExtendingPcpServices

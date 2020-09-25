@@ -30,7 +30,9 @@ The pmstat Command
 
 The **pmstat** command provides a periodic, one-line summary of system performance. This command is intended to monitor system performance at the highest 
 level, after which other tools may be used for examining subsystems to observe potential performance problems in greater detail. After entering the 
-**pmstat** command, you see output similar to the following, with successive lines appearing periodically::
+**pmstat** command, you see output similar to the following, with successive lines appearing periodically:
+
+.. sourcecode:: none
 
  pmstat
  @ Thu Aug 15 09:25:56 2017
@@ -77,7 +79,9 @@ Percentage of CPU time spent executing user code (**us**), system and interrupt 
 As with most PCP utilities, real-time metric, and archive logs are interchangeable.
 
 For example, the following command uses a local system PCP archive log *20170731* and the timezone of the host (**smash**) from which performance metrics 
-in the archive were collected::
+in the archive were collected:
+
+.. sourcecode:: c
 
  pmstat -a ${PCP_LOG_DIR}/pmlogger/smash/20170731 -t 2hour -A 1hour -z
  Note: timezone set to local timezone of host "smash"
@@ -99,7 +103,9 @@ The pmrep Command
 ******************
 
 The **pmrep** command displays performance metrics in ASCII tables, suitable for export into databases or report generators. It is a flexible command. 
-For example, the following command provides continuous memory statistics on a host named **surf**::
+For example, the following command provides continuous memory statistics on a host named **surf**:
+
+.. sourcecode:: c
 
  pmrep -p -h surf kernel.all.load kernel.all.pswitch
            k.a.load  k.a.load  k.a.load  k.a.pswitch
@@ -118,7 +124,9 @@ The pmval Command
 ******************
 
 The **pmval** command dumps the current values for the named performance metrics. For example, the following command reports the value of performance 
-metric **proc.nprocs** once per second (by default), and produces output similar to this::
+metric **proc.nprocs** once per second (by default), and produces output similar to this:
+
+.. sourcecode:: none
 
  pmval proc.nprocs
  metric:    proc.nprocs
@@ -137,7 +145,9 @@ In this example, the number of running processes was reported once per second.
 Where the semantics of the underlying performance metrics indicate that it would be sensible, **pmval** reports the rate of change or resource utilization.
 
 For example, the following command reports idle processor utilization for each of four CPUs on the remote host **dove**, each five seconds apart, 
-producing output of this form:: 
+producing output of this form:
+
+.. sourcecode:: none
 
  pmval -h dove -t 5sec -s 4 kernel.percpu.cpu.idle
  metric:    kernel.percpu.cpu.idle
@@ -153,7 +163,9 @@ producing output of this form::
       0.8989      0.9987      0.9997      0.9995 
       0.9568      0.9998      0.9996      1.000
 
-Similarly, the following command reports disk I/O read rate every minute for just the disk **/dev/disk1**, and produces output similar to the following::
+Similarly, the following command reports disk I/O read rate every minute for just the disk **/dev/disk1**, and produces output similar to the following:
+
+.. sourcecode:: none
 
  pmval -t 1min -i disk1 disk.dev.read
  metric:    disk.dev.read
@@ -184,7 +196,9 @@ The pminfo Command
 
 The **pminfo** command displays various types of information about performance metrics available through the Performance Co-Pilot (PCP) facilities.
 
-The **-T** option is extremely useful; it provides help text about performance metrics::
+The **-T** option is extremely useful; it provides help text about performance metrics:
+
+.. sourcecode:: none
 
  pminfo -T mem.util.cached
  mem.util.cached
@@ -259,7 +273,9 @@ The following command and response show use of the **-d** option::
 
 The **-l** option causes **pminfo** to display labels about metrics (refer to the **pmLookupLabels(3)** man page for an explanation of this metadata 
 information). If the metric has an instance domain, the labels associated with each instance of the metric is printed. The following command and 
-response show use of the **-l** option::
+response show use of the **-l** option:
+
+.. sourcecode:: c
  
  pminfo -l -h shard kernel.pernode.cpu.user
  kernel.percpu.cpu.sys
@@ -281,7 +297,9 @@ response show use of the **-l** option::
  {"agent":"linux","cpu":7,"device_type":"cpu","domainname":"acme.com","groupid":1000,"hostname":"shard","indom_name":"per cpu","userid":1000}
 
 The **-f** option to **pminfo** forces the current value of each named metric to be fetched and printed. In the example below, all metrics in the group **hinv** 
-are selected::
+are selected:
+
+.. sourcecode:: none
 
  pminfo -f hinv
  hinv.physmem
@@ -355,7 +373,9 @@ are selected::
      inst [3 or "cpu:1.1.1.c"] value 1195.37
 
 The **-h** option directs **pminfo** to retrieve information from the specified host. If the metric has an instance domain, 
-the value associated with each instance of the metric is printed::
+the value associated with each instance of the metric is printed:
+
+.. sourcecode:: none
 
  pminfo -h dove -f filesys.mountdir
  filesys.mountdir
