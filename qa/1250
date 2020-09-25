@@ -26,6 +26,8 @@ policy_file="$PCP_VAR_DIR/selinux/$policy_name.pp"
 which audit2allow >/dev/null 2>&1 || _notrun "audit2allow tool not installed."
 [ -f "$policy_file" ] || _notrun "upstream policy package not installed"
 $sudo semodule -l 2>&1 | grep -q $policy_name || _notrun "upstream policy package not loaded"
+# on Fedora 32, audit2allow is broken
+[ audit2allow -w </dev/null >/dev/null 2>&1 ] || _notrun "audit2allow -w is broken"
 
 _cleanup()
 {
