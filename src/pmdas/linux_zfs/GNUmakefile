@@ -70,7 +70,7 @@ default_pcp : default
 install_pcp : install
 
 $(HELPTARGETS) : help
-	$(NEWHELP) -n pmns -v 2 -o help < help
+	$(NEWHELP) -n root_zfs -v 2 -o help < help
 
 $(VERSION_SCRIPT):
 	$(VERSION_SCRIPT_MAKERULE)
