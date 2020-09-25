@@ -35,6 +35,10 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 #    ... target: "/usr/lib*/redis/modules/redisearch.so" not found, but ...
 #    file/dir target "/usr/lib*/redis/modules/redisearch.so" not found
 #	- permissions issue in redis install
+# all:
+#    Perl source "Spreadsheet::...
+#	- likely that these wopuld have to come from cpan, not packaged
+#	  install
 #
 _filter()
 {
@@ -45,6 +49,7 @@ s/[0-9][0-9]*/NN/
 s/ for .*/ for HOST/
 }' \
 	-e '/redisearch\.so" not found/d' \
+	-e '/Perl source "Spreadsheet::/d' \
     # end
 }
 
