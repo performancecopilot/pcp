@@ -50,16 +50,10 @@ Debian       bullseye -       libqt4-dev libsoqt4-dev
 #-- Fedora
 # need non-standard repo for msssql-* pkgs
 Fedora       3[0-9]   -       mssql-server mssql-tools
-Fedora       2[6-9]   -       mssql-server mssql-tools
 # prefer mariadb over mysql
 Fedora       3[0-9]   -       community-mysql
-# we're using python3 from Fedora26 onwards
+# we're using python3
 Fedora       3[0-9]   -       python-{.*} python2-{.*} 
-Fedora       2[6-9]   -       python-{.*} python2-{.*}
-# observed on vm22
-# 389-ds is available but cannot be installed because nothing provides
-# 389-admin and 389-ds-base and 389-dsgw needed by 389-ds
-Fedora       29       i.86    389-ds
 #-- Gentoo
 # observed on vm05
 # I cannot figure out how to remake this package with USE=utils so that
