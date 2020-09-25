@@ -48,6 +48,10 @@ Debian       bullseye -       python-{.*}
 # using Qt5 for the other bits we need for pmview
 Debian       bullseye -       libqt4-dev libsoqt4-dev
 #-- Fedora
+# kubernetes-node pulls in moby-engine which is really bad for podman-docker
+# - expect Fedora to clean this up in alater release when moby-engine is
+# dropped
+Fedora       32       -       kubernetes-node
 # need non-standard repo for msssql-* pkgs
 Fedora       3[0-9]   -       mssql-server mssql-tools
 # prefer mariadb over mysql
