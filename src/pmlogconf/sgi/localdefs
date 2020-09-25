@@ -1,1 +1,0 @@
-FILES = cpu-evctr xbow hub craylink node-memory numa numa-summary xvm-ops xvm-stats xvm-all kaio efs xlv-activity xlv-stripe-io

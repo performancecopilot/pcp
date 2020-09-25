@@ -33,11 +33,9 @@ SUBDIRS = \
 	memory \
 	networking \
 	platform \
-	sgi \
 	statsd \
 	storage \
-	tools \
-	v1.0
+	tools
 
 # Only evaluate zeroconf configurations if we package that.
 # Otherwise zeroconf will be installed for all platforms as
