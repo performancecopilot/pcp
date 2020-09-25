@@ -10,49 +10,76 @@ PACKAGE_LICENSES = ['GPL-2.0']
 PACKAGE_VCS_URL = 'https://github.com/performancecopilot/pcp'
 
 
+class TimeoutHTTPAdapter(requests.adapters.HTTPAdapter):
+    """
+    https://findwork.dev/blog/advanced-usage-python-requests-timeouts-retries-hooks/
+    """
+
+    def __init__(self, *args, **kwargs):
+        if "timeout" in kwargs:
+            self.timeout = kwargs["timeout"]
+            del kwargs["timeout"]
+        else:
+            raise Exception('Please specify a timeout.')
+        super().__init__(*args, **kwargs)
+
+    def send(self, request, **kwargs):
+        timeout = kwargs.get("timeout")
+        if timeout is None:
+            kwargs["timeout"] = self.timeout
+        return super().send(request, **kwargs)
+
+
 class BintrayApi:
 
-    def __init__(self, subject: str, user: str, apikey: str, gpg_passphrase: str, endpoint='https://api.bintray.com'):
+    def __init__(self, subject: str, user: str, apikey: str, gpg_passphrase: str, endpoint='https://api.bintray.com',
+                 timeout=10*60):
         self.subject = subject
         self.user = user
         self.apikey = apikey
         self.gpg_passphrase = gpg_passphrase
         self.endpoint = endpoint
 
+        self.session = requests.Session()
+        retries = requests.packages.urllib3.util.retry.Retry(
+            total=3, backoff_factor=10, status_forcelist=[429, 500, 502, 503, 504])
+        self.session.mount(self.endpoint, TimeoutHTTPAdapter(timeout=timeout, max_retries=retries))
+
     def setup_repository(self, repository, repository_type, repository_description):
-        r = requests.get(
+        r = self.session.get(
             f"{self.endpoint}/repos/{self.subject}/{repository}",
-            auth=(self.user, self.apikey)
+            auth=(self.user, self.apikey),
         )
         if r.status_code == 404:
             print(f"Creating repository bintray.com/{self.subject}/{repository}")
-            r = requests.post(
+            r = self.session.post(
                 f"{self.endpoint}/repos/{self.subject}/{repository}",
                 auth=(self.user, self.apikey),
                 json={
                     'type': repository_type,
-                    'desc': repository_description
-                }
+                    'desc': repository_description,
+                    'gpg_use_owner_key': True,
+                },
             )
             print(r.text)
             r.raise_for_status()
             print()
 
     def setup_package(self, repository, package):
-        r = requests.get(
+        r = self.session.get(
             f"{self.endpoint}/packages/{self.subject}/{repository}/{package}",
-            auth=(self.user, self.apikey)
+            auth=(self.user, self.apikey),
         )
         if r.status_code == 404:
             print(f"Creating package bintray.com/{self.subject}/{repository}/{package}")
-            r = requests.post(
+            r = self.session.post(
                 f"{self.endpoint}/packages/{self.subject}/{repository}",
                 auth=(self.user, self.apikey),
                 json={
                     'name': package,
                     'licenses': PACKAGE_LICENSES,
                     'vcs_url': PACKAGE_VCS_URL
-                }
+                },
             )
             print(r.text)
             r.raise_for_status()
@@ -64,11 +91,11 @@ class BintrayApi:
 
         print(f"Uploading {file_name} to bintray.com/{self.subject}/{repository}/{package}/{version}")
         with open(path, 'rb') as f:
-            r = requests.put(
+            r = self.session.put(
                 f"{self.endpoint}/content/{self.subject}/{repository}/{package}/{version}/{file_name};{params}",
                 auth=(self.user, self.apikey),
                 headers={'X-GPG-PASSPHRASE': self.gpg_passphrase},
-                data=f
+                data=f,
             )
         print(r.text)
         if r.status_code not in [200, 409]:
@@ -78,10 +105,10 @@ class BintrayApi:
 
     def sign_version(self, repository, package, version):
         print(f"Signing version bintray.com/{self.subject}/{repository}/{package}/{version}")
-        r = requests.post(
+        r = self.session.post(
             f"{self.endpoint}/gpg/{self.subject}/{repository}/{package}/versions/{version}",
             auth=(self.user, self.apikey),
-            headers={'X-GPG-PASSPHRASE': self.gpg_passphrase}
+            headers={'X-GPG-PASSPHRASE': self.gpg_passphrase},
         )
         print(r.text)
         r.raise_for_status()
@@ -89,10 +116,10 @@ class BintrayApi:
 
     def sign_metadata(self, repository, package, version):
         print(f"Signing metadata of bintray.com/{self.subject}/{repository}")
-        r = requests.post(
+        r = self.session.post(
             f"{self.endpoint}/calc_metadata/{self.subject}/{repository}",
             auth=(self.user, self.apikey),
-            headers={'X-GPG-PASSPHRASE': self.gpg_passphrase}
+            headers={'X-GPG-PASSPHRASE': self.gpg_passphrase},
         )
         print(r.text)
         r.raise_for_status()
@@ -100,10 +127,10 @@ class BintrayApi:
 
     def publish(self, repository, package, version):
         print(f"Publish version bintray.com/{self.subject}/{repository}/{package}/{version}")
-        r = requests.post(
+        r = self.session.post(
             f"{self.endpoint}/content/{self.subject}/{repository}/{package}/{version}/publish",
             auth=(self.user, self.apikey),
-            headers={'X-GPG-PASSPHRASE': self.gpg_passphrase}
+            headers={'X-GPG-PASSPHRASE': self.gpg_passphrase},
         )
         print(r.text)
         r.raise_for_status()
