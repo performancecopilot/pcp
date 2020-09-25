@@ -49,11 +49,11 @@ Debian       bullseye -       python-{.*}
 Debian       bullseye -       libqt4-dev libsoqt4-dev
 #-- Fedora
 # kubernetes-node pulls in moby-engine which is really bad for podman-docker
-# - expect Fedora to clean this up in alater release when moby-engine is
-# dropped
+# - expect Fedora to clean this up in at a later release when moby-engine is
+#   dropped
 Fedora       32       -       kubernetes-node
 # need non-standard repo for msssql-* pkgs
-Fedora       3[0-9]   -       mssql-server mssql-tools
+Fedora       -        -       mssql-server mssql-tools
 # prefer mariadb over mysql
 Fedora       3[0-9]   -       community-mysql
 # we're using python3
@@ -87,15 +87,30 @@ NetBSD       8\.0     -       py27-{.*} dtrace
 OpenBSD      6\.[3-7] -       qtbase qtsvg valgrind python-{.*} {.*}-python cpan(Spreadsheet::ReadSXC) cpan(XML::TokeParser)
 #-- RedHat
 # we're using python2
-RHEL         6\.10    -       {.*}-python3 python3-{.*} python3{[0-9]-.*}
-RHEL         7\.[5-7] -       {.*}-python3 python3-{.*} python3{[0-9]-.*}
+# As of 8.2 ...
+# mysql conflicst with mariadb
+# mandoc conflicts with man-pages
+# perl(Net::SNMP) has bad prereq on perl(Digest::SHA1), not perl(Digest::SHA)
+# perl(Spreadsheet::XLSX) has bad depends chain back to perl(IO::Scalar)
+# perl(Spreadsheet::WriteExcel) has bad depends chain back to perl(IO::Scalar)
+# cpan(Spreadsheet::WriteExcel) fails to build
+RHEL         8\.2     -       {.*}-python2 python2-{.*} python2[0-9]-{.*} python-{.*} mysql mandoc perl-Net-SNMP perl(Net::SNMP) perl-Spreadsheet-XLSX perl(Spreadsheet::XLSX) perl-Spreadsheet-WriteExcel perl(Spreadsheet::WriteExcel) cpan(Spreadsheet::WriteExcel)
 RHEL         8\.[0-1] -       cpan(Net::LDAP) cpan(Spreadsheet::XLSX) cpan(Text::CSV_XS) cpan(XML::LibXML) cpan(XML::TokeParser) perl(autodie) perl(Date::Manip) perl(DBD::mysql) perl(Net::LDAP) perl(Net::SNMP) perl-Net-SNMP perl(Spreadsheet::WriteExcel) perl-Spreadsheet-WriteExcel perl(Spreadsheet::XLSX) perl(Text::CSV_XS) perl(XML::LibXML) perl(XML::TokeParser) {.*}-python2 python2-{.*} system-python-libs
+RHEL         7\.[5-7] -       {.*}-python3 python3-{.*} python3{[0-9]-.*}
+RHEL         6\.10    -       {.*}-python3 python3-{.*} python3{[0-9]-.*}
+# need non-standard repo for msssql-* pkgs
+RHEL         -        -       mssql-server mssql-tools
 #-- Slackware
 # we're using python2
 Slackware    14\.2    -       python3-{.*}
 #-- SuSE SLES
 # we're using python3
 SUSE         12-SP.*  -       python-{.*}
+# need non-standard repo for msssql-* pkgs
+SUSE         -        -       mssql-server mssql-tools
+#-- openSUSE
+# need non-standard repo for msssql-* pkgs
+openSUSE     -        -       mssql-server mssql-tools
 #-- Ubuntu
 # Python2 retired from PCP builds as of Ubunutu version 20.04
 Ubuntu       2.*      -       python-{.*}
