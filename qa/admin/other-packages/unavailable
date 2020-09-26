@@ -67,5 +67,5 @@ Ubuntu       20\.04   -       apache2-mpm-worker avahi-tools libicu libpython-de
 Ubuntu       19\.10   -       libsoqt5-dev libsoqt-dev-common redis-tools
 Ubuntu       19\.04   -       libsoqt5-dev libsoqt-dev libsoqt-dev-common libuv-dev
 Ubuntu       18\.04   -       apache2-mpm-worker avahi-tools bpftrace libicu libncurses-dev libsoqt520-dev libsoqt5-dev libsoqt-dev libuv-dev mariadb-client-core mysql-client-core perl-modules realpath redis-cli
-Ubuntu       16\.04   -       libsoqt5-dev libsoqt-dev libsoqt-dev-common libspreadsheet-readsxc-perl libuv1-dev python3-bpfcc
+Ubuntu       16\.04   -       apache2-mpm-worker avahi-tools bpftrace libncurses-dev libsoqt520-dev libsoqt5-dev libspreadsheet-readsxc-perl libuv-dev libvirt-daemon libvirt-daemon-system mandoc mariadb-client-core mysql-client-core openjdk-11-jre-headless perl-modules python3-bpfcc redis-cli redis-redisearch
 Ubuntu       14\.04   -       bpftrace libsoqt5-dev libsoqt-dev libsoqt-dev-common libspreadsheet-readsxc-perl libuv1-dev python3-bpfcc python3-elasticsearch python3-libvirt python3-openpyxl python3-prometheus-client redis-cli zfsutils-linux
