@@ -59,6 +59,7 @@ s/ for .*/ for HOST/
 }
 
 # real QA test starts here
+admin/whatami >>$seq.full
 
 echo "check-vm -fpM (CI case)"
 admin/check-vm -fpM 2>&1 | _filter
