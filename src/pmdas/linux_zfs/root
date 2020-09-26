@@ -1,9 +1,0 @@
-#include <stdpmid>
-
-root { zfs }
-
-#ifndef ZFS
-#define ZFS 153
-#endif
-
-#include "pmns"
