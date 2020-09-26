@@ -848,7 +848,7 @@ do
 	mv $tmp.tmp $tmp.manifest
 	touch $tmp.ok
     else
-	$very_verbose && echo >&2 "exclude ${pkgtype}? lines"
+	#debug# $very_verbose && echo >&2 "exclude ${pkgtype}? lines"
 	grep -v "^${pkgtype}?[ 	]" <$tmp.manifest >$tmp.tmp
 	mv $tmp.tmp $tmp.manifest
     fi
@@ -862,50 +862,47 @@ fi
 # Strip the distro-dependent lines that do not apply ...
 # this is an optimization remove checks from the main loop below
 #
-if [ -n "$PCP_PLATFORM" ]
+# tests here are copied from whatami
+#
+iam=''
+if [ -f /etc/SuSE-release ]
 then
-    iam="$PCP_PLATFORM"
-else
-    # tests here are copied from whatami
-    #
-    if [ -f /etc/SuSE-release ]
-    then
-	iam=suse
-    elif [ -f /etc/centos-release ]
-    then
-	iam=centos
-    elif [ -f /etc/redhat-release ]
-    then
-	iam=redhat
-    elif [ -f /etc/debian_version ]
-    then
-	iam=debian
-    elif [ -f /etc/mandriva-release ]
-    then
-	iam=mandriva
-    elif [ -f /etc/gentoo-release ]
-    then
-	iam=gentoo
-    elif [ -f /etc/fedora-release ]
-    then
-	iam=fedora
-    elif [ -f /etc/os-release ]
-    then
-	iam=opensuse
-    elif [ -f /etc/release ]
-    then
-	iam=openindiana
-    elif [ -f /etc/slackware-version ]
-    then
-	iam=slackware
-    elif [ -f /etc/arch-release ]
-    then
-	iam=arch
-    elif [ -f /etc/lsb-release ]
-    then
-	iam=`sed </etc/lsb-release -n -e '/^DISTRIB_ID *= */s///p' | tr '[A-Z]' '[a-z]'`
-    fi
+    iam=suse
+elif [ -f /etc/centos-release ]
+then
+    iam=centos
+elif [ -f /etc/redhat-release ]
+then
+    iam=redhat
+elif [ -f /etc/debian_version ]
+then
+    iam=debian
+elif [ -f /etc/mandriva-release ]
+then
+    iam=mandriva
+elif [ -f /etc/gentoo-release ]
+then
+    iam=gentoo
+elif [ -f /etc/fedora-release ]
+then
+    iam=fedora
+elif [ -f /etc/os-release ]
+then
+    iam=opensuse
+elif [ -f /etc/release ]
+then
+    iam=openindiana
+elif [ -f /etc/slackware-version ]
+then
+    iam=slackware
+elif [ -f /etc/arch-release ]
+then
+    iam=arch
+elif [ -f /etc/lsb-release ]
+then
+    iam=`sed </etc/lsb-release -n -e '/^DISTRIB_ID *= */s///p' | tr '[A-Z]' '[a-z]'`
 fi
+#debug# $very_verbose && echo >&2 "distro iam=$iam"
 
 for distro in $distros
 do
@@ -925,7 +922,7 @@ do
 	sed -e "s/^${distro}?[ 	]//" <$tmp.manifest >$tmp.tmp
 	mv $tmp.tmp $tmp.manifest
     else
-	$very_verbose && echo >&2 "exclude ${distro}? lines"
+	#debug# $very_verbose && echo >&2 "exclude ${distro}? lines"
 	grep -v "^${distro}?[ 	]" <$tmp.manifest >$tmp.tmp
 	mv $tmp.tmp $tmp.manifest
     fi
