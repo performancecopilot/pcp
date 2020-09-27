@@ -426,7 +426,7 @@ pacman?	g++				[core/gcc]
 brew?	g++				[base Darwin install]
 # files and libraries
 # -- libreadline
-dpkg?	/usr/include/readline/readline.h	[libreadline-dev]
+dpkg?	/usr/include/readline/readline.h	[libreadline-dev or libreadline6-dev]
 rpm?	/usr/include/readline/readline.h	[readline-devel]
 urpmi?	/usr/include/readline/readline.h	[lib64readline-devel]
 emerge?	/usr/include/readline/readline.h	[sys-libs/readline]

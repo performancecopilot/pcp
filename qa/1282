@@ -39,6 +39,10 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 #    Perl source "Spreadsheet::...
 #	- likely that these wopuld have to come from cpan, not packaged
 #	  install
+# vm39:
+#    looks like package "mssql-*" is already installed
+#       - the Microsoft repos for the mssql-* packages are non-standard
+#         but sometimes (like on vm39) they have been set up
 #
 _filter()
 {
@@ -50,10 +54,12 @@ s/ for .*/ for HOST/
 }' \
 	-e '/redisearch\.so" not found/d' \
 	-e '/Perl source "Spreadsheet::/d' \
+	-e '/looks like package "mssql-/d' \
     # end
 }
 
 # real QA test starts here
+admin/whatami >>$seq.full
 
 echo "check-vm -fpM (CI case)"
 admin/check-vm -fpM 2>&1 | _filter
