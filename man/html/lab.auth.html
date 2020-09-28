@@ -221,7 +221,7 @@ deleting users, setting their passwords, and so on.</P>
 PCP_SASLCONF_DIR=/etc/sasl2
 
 # cat <SPAN>$PCP_SASLCONF_DIR</SPAN>/sasl2/pmcd.conf
-mech_list: plain digest-md5 gssapi
+mech_list: plain scram-sha-256 gssapi
 sasldb_path: /etc/pcp/passwd.db
 </B></PRE>
 </TD></TR>
