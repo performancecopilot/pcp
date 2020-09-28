@@ -528,7 +528,7 @@ dostatus(void)
 	    printf("PMDA PMAPI Version:     %d\n", dispatch.comm.pmapi_version);
 	    break;
 	case CONN_DAEMON:
-	    printf("daemon\n");
+	    printf("daemon (pid: %" FMT_PID ")\n", pid);
 	    printf("PMDA PMAPI Version:     ");
 	    i = __pmVersionIPC(fromPMDA);
 	    if (i == UNKNOWN_VERSION)
