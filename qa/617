@@ -48,7 +48,7 @@ _filter()
     sed \
 	-e "s;$PMDADSO;PMDADSO;" \
 	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
-	-e 's;pcp/lib/mips_[^.]*\.;pcp/lib/ISA.;' \
+	-e 's/(pid: [0-9][0-9]*)/(pid: PID)/' \
 	-e 's/parse error/Syntax error/' \
 	-e 's/syntax error/Syntax error/' \
 	-e '/^dbpmda> $/d' \
