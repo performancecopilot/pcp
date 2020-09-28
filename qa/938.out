@@ -8,7 +8,7 @@ derive_lex() -> type=L_EOS ""
 pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
 Derived metric expr dump from <addr-0>...
 expr node <addr-0> type=ANON left=<addr-1> right=(nil) save_last=0
-expr node <addr-1> type=INTEGER left=(nil) right=(nil) save_last=0 [PM_TYPE_U32] master=1
+expr node <addr-1> type=INTEGER left=(nil) right=(nil) save_last=0 [PM_TYPE_U32] primary=1
 pmRegisterDerived: name="event.missed" expr="anon(PM_TYPE_U32)"
 derive_lex() -> type=L_ANON "anon"
 derive_lex() -> type=L_LPAREN "("
@@ -18,7 +18,7 @@ derive_lex() -> type=L_EOS ""
 pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
 Derived metric expr dump from <addr-2>...
 expr node <addr-2> type=ANON left=<addr-3> right=(nil) save_last=0
-expr node <addr-3> type=INTEGER left=(nil) right=(nil) save_last=0 [PM_TYPE_U32] master=1
+expr node <addr-3> type=INTEGER left=(nil) right=(nil) save_last=0 [PM_TYPE_U32] primary=1
 Derived metric initialization from $PCP_DERIVED_CONFIG
 pmLoadDerivedConfig("TMP.config")
 pmRegisterDerived: name="a.m1" expr="sample.long.one == 1 ? sample.ulonglong.ten : sample.ulonglong.hundred"
@@ -34,11 +34,11 @@ pmRegisterDerived: global metric[2] a.m1 = sample.long.one == 1 ? sample.ulonglo
 Derived metric expr dump from <addr-4>...
 expr node <addr-4> type=QUEST left=<addr-5> right=<addr-8> save_last=0
 expr node <addr-5> type=EQ left=<addr-6> right=<addr-7> save_last=0
-expr node <addr-6> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] master=1
-expr node <addr-7> type=INTEGER left=(nil) right=(nil) save_last=0 [1] master=1
+expr node <addr-6> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] primary=1
+expr node <addr-7> type=INTEGER left=(nil) right=(nil) save_last=0 [1] primary=1
 expr node <addr-8> type=COLON left=<addr-9> right=<addr-10> save_last=0
-expr node <addr-9> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.ten] master=1
-expr node <addr-10> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.hundred] master=1
+expr node <addr-9> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.ten] primary=1
+expr node <addr-10> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.hundred] primary=1
 pmRegisterDerived: name="a.m2" expr="sample.long.one != 1 ? sample.ulonglong.ten : sample.ulonglong.hundred"
 derive_lex() -> type=L_NAME "sample.long.one"
 derive_lex() -> type=L_NEQ "!="
@@ -52,11 +52,11 @@ pmRegisterDerived: global metric[3] a.m2 = sample.long.one != 1 ? sample.ulonglo
 Derived metric expr dump from <addr-11>...
 expr node <addr-11> type=QUEST left=<addr-12> right=<addr-15> save_last=0
 expr node <addr-12> type=NEQ left=<addr-13> right=<addr-14> save_last=0
-expr node <addr-13> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] master=1
-expr node <addr-14> type=INTEGER left=(nil) right=(nil) save_last=0 [1] master=1
+expr node <addr-13> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] primary=1
+expr node <addr-14> type=INTEGER left=(nil) right=(nil) save_last=0 [1] primary=1
 expr node <addr-15> type=COLON left=<addr-16> right=<addr-17> save_last=0
-expr node <addr-16> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.ten] master=1
-expr node <addr-17> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.hundred] master=1
+expr node <addr-16> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.ten] primary=1
+expr node <addr-17> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.hundred] primary=1
 pmRegisterDerived: name="a.m3" expr="sample.bin > 400 ? sample.bin-sample.bin : sample.bin"
 derive_lex() -> type=L_NAME "sample.bin"
 derive_lex() -> type=L_GT ">"
@@ -72,13 +72,13 @@ pmRegisterDerived: global metric[4] a.m3 = sample.bin > 400 ? sample.bin-sample.
 Derived metric expr dump from <addr-18>...
 expr node <addr-18> type=QUEST left=<addr-19> right=<addr-22> save_last=0
 expr node <addr-19> type=GT left=<addr-20> right=<addr-21> save_last=0
-expr node <addr-20> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=1
-expr node <addr-21> type=INTEGER left=(nil) right=(nil) save_last=0 [400] master=1
+expr node <addr-20> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=1
+expr node <addr-21> type=INTEGER left=(nil) right=(nil) save_last=0 [400] primary=1
 expr node <addr-22> type=COLON left=<addr-23> right=<addr-26> save_last=0
 expr node <addr-23> type=MINUS left=<addr-24> right=<addr-25> save_last=0
-expr node <addr-24> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=1
-expr node <addr-25> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=1
-expr node <addr-26> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=1
+expr node <addr-24> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=1
+expr node <addr-25> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=1
+expr node <addr-26> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=1
 pmRegisterDerived: name="a.m4" expr="sample.bin > 400 ? sample.long.ten : sample.bin"
 derive_lex() -> type=L_NAME "sample.bin"
 derive_lex() -> type=L_GT ">"
@@ -92,11 +92,11 @@ pmRegisterDerived: global metric[5] a.m4 = sample.bin > 400 ? sample.long.ten : 
 Derived metric expr dump from <addr-27>...
 expr node <addr-27> type=QUEST left=<addr-28> right=<addr-31> save_last=0
 expr node <addr-28> type=GT left=<addr-29> right=<addr-30> save_last=0
-expr node <addr-29> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=1
-expr node <addr-30> type=INTEGER left=(nil) right=(nil) save_last=0 [400] master=1
+expr node <addr-29> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=1
+expr node <addr-30> type=INTEGER left=(nil) right=(nil) save_last=0 [400] primary=1
 expr node <addr-31> type=COLON left=<addr-32> right=<addr-33> save_last=0
-expr node <addr-32> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] master=1
-expr node <addr-33> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=1
+expr node <addr-32> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] primary=1
+expr node <addr-33> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=1
 pmRegisterDerived: name="a.m5" expr="sample.long.one < 0 ? sample.bin-sample.bin : sample.bin"
 derive_lex() -> type=L_NAME "sample.long.one"
 derive_lex() -> type=L_LT "<"
@@ -112,13 +112,13 @@ pmRegisterDerived: global metric[6] a.m5 = sample.long.one < 0 ? sample.bin-samp
 Derived metric expr dump from <addr-34>...
 expr node <addr-34> type=QUEST left=<addr-35> right=<addr-38> save_last=0
 expr node <addr-35> type=LT left=<addr-36> right=<addr-37> save_last=0
-expr node <addr-36> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] master=1
-expr node <addr-37> type=INTEGER left=(nil) right=(nil) save_last=0 [0] master=1
+expr node <addr-36> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] primary=1
+expr node <addr-37> type=INTEGER left=(nil) right=(nil) save_last=0 [0] primary=1
 expr node <addr-38> type=COLON left=<addr-39> right=<addr-42> save_last=0
 expr node <addr-39> type=MINUS left=<addr-40> right=<addr-41> save_last=0
-expr node <addr-40> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=1
-expr node <addr-41> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=1
-expr node <addr-42> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=1
+expr node <addr-40> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=1
+expr node <addr-41> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=1
+expr node <addr-42> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=1
 pmRegisterDerived: name="a.m6" expr="sample.bin!=100 && sample.bin!=900 && sample.bin!=500 ? sample.long.ten : sample.bin"
 derive_lex() -> type=L_NAME "sample.bin"
 derive_lex() -> type=L_NEQ "!="
@@ -142,17 +142,17 @@ expr node <addr-43> type=QUEST left=<addr-44> right=<addr-55> save_last=0
 expr node <addr-44> type=AND left=<addr-45> right=<addr-52> save_last=0
 expr node <addr-45> type=AND left=<addr-46> right=<addr-49> save_last=0
 expr node <addr-46> type=NEQ left=<addr-47> right=<addr-48> save_last=0
-expr node <addr-47> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=1
-expr node <addr-48> type=INTEGER left=(nil) right=(nil) save_last=0 [100] master=1
+expr node <addr-47> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=1
+expr node <addr-48> type=INTEGER left=(nil) right=(nil) save_last=0 [100] primary=1
 expr node <addr-49> type=NEQ left=<addr-50> right=<addr-51> save_last=0
-expr node <addr-50> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=1
-expr node <addr-51> type=INTEGER left=(nil) right=(nil) save_last=0 [900] master=1
+expr node <addr-50> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=1
+expr node <addr-51> type=INTEGER left=(nil) right=(nil) save_last=0 [900] primary=1
 expr node <addr-52> type=NEQ left=<addr-53> right=<addr-54> save_last=0
-expr node <addr-53> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=1
-expr node <addr-54> type=INTEGER left=(nil) right=(nil) save_last=0 [500] master=1
+expr node <addr-53> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=1
+expr node <addr-54> type=INTEGER left=(nil) right=(nil) save_last=0 [500] primary=1
 expr node <addr-55> type=COLON left=<addr-56> right=<addr-57> save_last=0
-expr node <addr-56> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] master=1
-expr node <addr-57> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=1
+expr node <addr-56> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] primary=1
+expr node <addr-57> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=1
 pmRegisterDerived: name="a.m7" expr="sample.bin==100 || sample.bin==900 || sample.bin==500 ? sample.bin : sample.long.ten"
 derive_lex() -> type=L_NAME "sample.bin"
 derive_lex() -> type=L_EQ "=="
@@ -176,17 +176,17 @@ expr node <addr-58> type=QUEST left=<addr-59> right=<addr-70> save_last=0
 expr node <addr-59> type=OR left=<addr-60> right=<addr-67> save_last=0
 expr node <addr-60> type=OR left=<addr-61> right=<addr-64> save_last=0
 expr node <addr-61> type=EQ left=<addr-62> right=<addr-63> save_last=0
-expr node <addr-62> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=1
-expr node <addr-63> type=INTEGER left=(nil) right=(nil) save_last=0 [100] master=1
+expr node <addr-62> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=1
+expr node <addr-63> type=INTEGER left=(nil) right=(nil) save_last=0 [100] primary=1
 expr node <addr-64> type=EQ left=<addr-65> right=<addr-66> save_last=0
-expr node <addr-65> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=1
-expr node <addr-66> type=INTEGER left=(nil) right=(nil) save_last=0 [900] master=1
+expr node <addr-65> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=1
+expr node <addr-66> type=INTEGER left=(nil) right=(nil) save_last=0 [900] primary=1
 expr node <addr-67> type=EQ left=<addr-68> right=<addr-69> save_last=0
-expr node <addr-68> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=1
-expr node <addr-69> type=INTEGER left=(nil) right=(nil) save_last=0 [500] master=1
+expr node <addr-68> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=1
+expr node <addr-69> type=INTEGER left=(nil) right=(nil) save_last=0 [500] primary=1
 expr node <addr-70> type=COLON left=<addr-71> right=<addr-72> save_last=0
-expr node <addr-71> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=1
-expr node <addr-72> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] master=1
+expr node <addr-71> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=1
+expr node <addr-72> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] primary=1
 pmRegisterDerived: name="a.m8" expr="delta(disk.all.read_bytes) + delta(disk.all.write_bytes) == 0 ? mkconst(0, type="double", semantics="instant") : 100 * (delta(sample.byte_ctr) + delta(sample.kbyte_ctr) - delta(sampledso.byte_ctr)) / (delta(disk.all.read_bytes) + delta(disk.all.write_bytes))"
 derive_lex() -> type=L_DELTA "delta"
 derive_lex() -> type=L_LPAREN "("
@@ -250,28 +250,28 @@ expr node <addr-73> type=QUEST left=<addr-74> right=<addr-81> save_last=0
 expr node <addr-74> type=EQ left=<addr-75> right=<addr-80> save_last=0
 expr node <addr-75> type=PLUS left=<addr-76> right=<addr-78> save_last=0
 expr node <addr-76> type=DELTA left=<addr-77> right=(nil) save_last=0
-expr node <addr-77> type=NAME left=(nil) right=(nil) save_last=1 [disk.all.read_bytes] master=1
+expr node <addr-77> type=NAME left=(nil) right=(nil) save_last=1 [disk.all.read_bytes] primary=1
 expr node <addr-78> type=DELTA left=<addr-79> right=(nil) save_last=0
-expr node <addr-79> type=NAME left=(nil) right=(nil) save_last=1 [disk.all.write_bytes] master=1
-expr node <addr-80> type=INTEGER left=(nil) right=(nil) save_last=0 [0] master=1
+expr node <addr-79> type=NAME left=(nil) right=(nil) save_last=1 [disk.all.write_bytes] primary=1
+expr node <addr-80> type=INTEGER left=(nil) right=(nil) save_last=0 [0] primary=1
 expr node <addr-81> type=COLON left=<addr-82> right=<addr-83> save_last=0
-expr node <addr-82> type=INTEGER left=(nil) right=(nil) save_last=0 [0] master=1
+expr node <addr-82> type=INTEGER left=(nil) right=(nil) save_last=0 [0] primary=1
 expr node <addr-83> type=SLASH left=<addr-84> right=<addr-94> save_last=0
 expr node <addr-84> type=STAR left=<addr-85> right=<addr-86> save_last=0
-expr node <addr-85> type=INTEGER left=(nil) right=(nil) save_last=0 [100] master=1
+expr node <addr-85> type=INTEGER left=(nil) right=(nil) save_last=0 [100] primary=1
 expr node <addr-86> type=MINUS left=<addr-87> right=<addr-92> save_last=0
 expr node <addr-87> type=PLUS left=<addr-88> right=<addr-90> save_last=0
 expr node <addr-88> type=DELTA left=<addr-89> right=(nil) save_last=0
-expr node <addr-89> type=NAME left=(nil) right=(nil) save_last=1 [sample.byte_ctr] master=1
+expr node <addr-89> type=NAME left=(nil) right=(nil) save_last=1 [sample.byte_ctr] primary=1
 expr node <addr-90> type=DELTA left=<addr-91> right=(nil) save_last=0
-expr node <addr-91> type=NAME left=(nil) right=(nil) save_last=1 [sample.kbyte_ctr] master=1
+expr node <addr-91> type=NAME left=(nil) right=(nil) save_last=1 [sample.kbyte_ctr] primary=1
 expr node <addr-92> type=DELTA left=<addr-93> right=(nil) save_last=0
-expr node <addr-93> type=NAME left=(nil) right=(nil) save_last=1 [sampledso.byte_ctr] master=1
+expr node <addr-93> type=NAME left=(nil) right=(nil) save_last=1 [sampledso.byte_ctr] primary=1
 expr node <addr-94> type=PLUS left=<addr-95> right=<addr-97> save_last=0
 expr node <addr-95> type=DELTA left=<addr-96> right=(nil) save_last=0
-expr node <addr-96> type=NAME left=(nil) right=(nil) save_last=1 [disk.all.read_bytes] master=1
+expr node <addr-96> type=NAME left=(nil) right=(nil) save_last=1 [disk.all.read_bytes] primary=1
 expr node <addr-97> type=DELTA left=<addr-98> right=(nil) save_last=0
-expr node <addr-98> type=NAME left=(nil) right=(nil) save_last=1 [disk.all.write_bytes] master=1
+expr node <addr-98> type=NAME left=(nil) right=(nil) save_last=1 [disk.all.write_bytes] primary=1
 pmRegisterDerived: name="a.err.m1" expr="sample.bin > 400 ? sample.longlong.ten : sample.bin"
 derive_lex() -> type=L_NAME "sample.bin"
 derive_lex() -> type=L_GT ">"
@@ -285,11 +285,11 @@ pmRegisterDerived: global metric[10] a.err.m1 = sample.bin > 400 ? sample.longlo
 Derived metric expr dump from <addr-99>...
 expr node <addr-99> type=QUEST left=<addr-100> right=<addr-103> save_last=0
 expr node <addr-100> type=GT left=<addr-101> right=<addr-102> save_last=0
-expr node <addr-101> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=1
-expr node <addr-102> type=INTEGER left=(nil) right=(nil) save_last=0 [400] master=1
+expr node <addr-101> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=1
+expr node <addr-102> type=INTEGER left=(nil) right=(nil) save_last=0 [400] primary=1
 expr node <addr-103> type=COLON left=<addr-104> right=<addr-105> save_last=0
-expr node <addr-104> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.ten] master=1
-expr node <addr-105> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=1
+expr node <addr-104> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.ten] primary=1
+expr node <addr-105> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=1
 pmRegisterDerived: name="a.err.m2" expr="sample.long.one ? sample.byte_ctr : sample.kbyte_ctr"
 derive_lex() -> type=L_NAME "sample.long.one"
 derive_lex() -> type=L_QUEST "?"
@@ -300,10 +300,10 @@ derive_lex() -> type=L_EOS ""
 pmRegisterDerived: global metric[11] a.err.m2 = sample.long.one ? sample.byte_ctr : sample.kbyte_ctr
 Derived metric expr dump from <addr-106>...
 expr node <addr-106> type=QUEST left=<addr-107> right=<addr-108> save_last=0
-expr node <addr-107> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] master=1
+expr node <addr-107> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] primary=1
 expr node <addr-108> type=COLON left=<addr-109> right=<addr-110> save_last=0
-expr node <addr-109> type=NAME left=(nil) right=(nil) save_last=0 [sample.byte_ctr] master=1
-expr node <addr-110> type=NAME left=(nil) right=(nil) save_last=0 [sample.kbyte_ctr] master=1
+expr node <addr-109> type=NAME left=(nil) right=(nil) save_last=0 [sample.byte_ctr] primary=1
+expr node <addr-110> type=NAME left=(nil) right=(nil) save_last=0 [sample.kbyte_ctr] primary=1
 pmRegisterDerived: name="a.err.m3" expr="sample.long.one ? sample.bin : sample.lights"
 derive_lex() -> type=L_NAME "sample.long.one"
 derive_lex() -> type=L_QUEST "?"
@@ -314,10 +314,10 @@ derive_lex() -> type=L_EOS ""
 pmRegisterDerived: global metric[12] a.err.m3 = sample.long.one ? sample.bin : sample.lights
 Derived metric expr dump from <addr-111>...
 expr node <addr-111> type=QUEST left=<addr-112> right=<addr-113> save_last=0
-expr node <addr-112> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] master=1
+expr node <addr-112> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] primary=1
 expr node <addr-113> type=COLON left=<addr-114> right=<addr-115> save_last=0
-expr node <addr-114> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=1
-expr node <addr-115> type=NAME left=(nil) right=(nil) save_last=0 [sample.lights] master=1
+expr node <addr-114> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=1
+expr node <addr-115> type=NAME left=(nil) right=(nil) save_last=0 [sample.lights] primary=1
 pmRegisterDerived: name="a.err.m4" expr="sample.long.one ? sample.bin : sample.colour"
 derive_lex() -> type=L_NAME "sample.long.one"
 derive_lex() -> type=L_QUEST "?"
@@ -328,10 +328,10 @@ derive_lex() -> type=L_EOS ""
 pmRegisterDerived: global metric[13] a.err.m4 = sample.long.one ? sample.bin : sample.colour
 Derived metric expr dump from <addr-116>...
 expr node <addr-116> type=QUEST left=<addr-117> right=<addr-118> save_last=0
-expr node <addr-117> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] master=1
+expr node <addr-117> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] primary=1
 expr node <addr-118> type=COLON left=<addr-119> right=<addr-120> save_last=0
-expr node <addr-119> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=1
-expr node <addr-120> type=NAME left=(nil) right=(nil) save_last=0 [sample.colour] master=1
+expr node <addr-119> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=1
+expr node <addr-120> type=NAME left=(nil) right=(nil) save_last=0 [sample.colour] primary=1
 pmRegisterDerived: name="a.err.m5" expr="sample.long.one ? sample.seconds : sample.ulong.ten"
 derive_lex() -> type=L_NAME "sample.long.one"
 derive_lex() -> type=L_QUEST "?"
@@ -342,10 +342,10 @@ derive_lex() -> type=L_EOS ""
 pmRegisterDerived: global metric[14] a.err.m5 = sample.long.one ? sample.seconds : sample.ulong.ten
 Derived metric expr dump from <addr-121>...
 expr node <addr-121> type=QUEST left=<addr-122> right=<addr-123> save_last=0
-expr node <addr-122> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] master=1
+expr node <addr-122> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] primary=1
 expr node <addr-123> type=COLON left=<addr-124> right=<addr-125> save_last=0
-expr node <addr-124> type=NAME left=(nil) right=(nil) save_last=0 [sample.seconds] master=1
-expr node <addr-125> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.ten] master=1
+expr node <addr-124> type=NAME left=(nil) right=(nil) save_last=0 [sample.seconds] primary=1
+expr node <addr-125> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.ten] primary=1
 pmRegisterDerived: name="a.err.m6" expr="sample.long.one ? sample.byte_rate : sample.byte_rate_perhour"
 derive_lex() -> type=L_NAME "sample.long.one"
 derive_lex() -> type=L_QUEST "?"
@@ -356,10 +356,10 @@ derive_lex() -> type=L_EOS ""
 pmRegisterDerived: global metric[15] a.err.m6 = sample.long.one ? sample.byte_rate : sample.byte_rate_perhour
 Derived metric expr dump from <addr-126>...
 expr node <addr-126> type=QUEST left=<addr-127> right=<addr-128> save_last=0
-expr node <addr-127> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] master=1
+expr node <addr-127> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] primary=1
 expr node <addr-128> type=COLON left=<addr-129> right=<addr-130> save_last=0
-expr node <addr-129> type=NAME left=(nil) right=(nil) save_last=0 [sample.byte_rate] master=1
-expr node <addr-130> type=NAME left=(nil) right=(nil) save_last=0 [sample.byte_rate_perhour] master=1
+expr node <addr-129> type=NAME left=(nil) right=(nil) save_last=0 [sample.byte_rate] primary=1
+expr node <addr-130> type=NAME left=(nil) right=(nil) save_last=0 [sample.byte_rate_perhour] primary=1
 pmRegisterDerived: name="a.err.m7" expr="sample.long.one ? sample.long.hundred : sample.step"
 derive_lex() -> type=L_NAME "sample.long.one"
 derive_lex() -> type=L_QUEST "?"
@@ -370,10 +370,10 @@ derive_lex() -> type=L_EOS ""
 pmRegisterDerived: global metric[16] a.err.m7 = sample.long.one ? sample.long.hundred : sample.step
 Derived metric expr dump from <addr-131>...
 expr node <addr-131> type=QUEST left=<addr-132> right=<addr-133> save_last=0
-expr node <addr-132> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] master=1
+expr node <addr-132> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] primary=1
 expr node <addr-133> type=COLON left=<addr-134> right=<addr-135> save_last=0
-expr node <addr-134> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] master=1
-expr node <addr-135> type=NAME left=(nil) right=(nil) save_last=0 [sample.step] master=1
+expr node <addr-134> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] primary=1
+expr node <addr-135> type=NAME left=(nil) right=(nil) save_last=0 [sample.step] primary=1
 pmRegisterDerived: name="a.err.m8" expr="sample.colour > 200 ? sample.ulong.hundred : sample.ulong.ten"
 derive_lex() -> type=L_NAME "sample.colour"
 derive_lex() -> type=L_GT ">"
@@ -387,11 +387,11 @@ pmRegisterDerived: global metric[17] a.err.m8 = sample.colour > 200 ? sample.ulo
 Derived metric expr dump from <addr-136>...
 expr node <addr-136> type=QUEST left=<addr-137> right=<addr-140> save_last=0
 expr node <addr-137> type=GT left=<addr-138> right=<addr-139> save_last=0
-expr node <addr-138> type=NAME left=(nil) right=(nil) save_last=0 [sample.colour] master=1
-expr node <addr-139> type=INTEGER left=(nil) right=(nil) save_last=0 [200] master=1
+expr node <addr-138> type=NAME left=(nil) right=(nil) save_last=0 [sample.colour] primary=1
+expr node <addr-139> type=INTEGER left=(nil) right=(nil) save_last=0 [200] primary=1
 expr node <addr-140> type=COLON left=<addr-141> right=<addr-142> save_last=0
-expr node <addr-141> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.hundred] master=1
-expr node <addr-142> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.ten] master=1
+expr node <addr-141> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.hundred] primary=1
+expr node <addr-142> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.ten] primary=1
 pmRegisterDerived: name="a.err.m9" expr="sample.string.hullo ? 1 : 2"
 derive_lex() -> type=L_NAME "sample.string.hullo"
 derive_lex() -> type=L_QUEST "?"
@@ -402,10 +402,10 @@ derive_lex() -> type=L_EOS ""
 pmRegisterDerived: global metric[18] a.err.m9 = sample.string.hullo ? 1 : 2
 Derived metric expr dump from <addr-143>...
 expr node <addr-143> type=QUEST left=<addr-144> right=<addr-145> save_last=0
-expr node <addr-144> type=NAME left=(nil) right=(nil) save_last=0 [sample.string.hullo] master=1
+expr node <addr-144> type=NAME left=(nil) right=(nil) save_last=0 [sample.string.hullo] primary=1
 expr node <addr-145> type=COLON left=<addr-146> right=<addr-147> save_last=0
-expr node <addr-146> type=INTEGER left=(nil) right=(nil) save_last=0 [1] master=1
-expr node <addr-147> type=INTEGER left=(nil) right=(nil) save_last=0 [2] master=1
+expr node <addr-146> type=INTEGER left=(nil) right=(nil) save_last=0 [1] primary=1
+expr node <addr-147> type=INTEGER left=(nil) right=(nil) save_last=0 [2] primary=1
 __dmopencontext(->ctx 0) called, 19 derived metrics
 __dmgetpmid: metric "a.m1" -> PMID 511.0.3
 __dmbind: bind metric[2] a.m1
@@ -418,11 +418,11 @@ expr node <addr-149> type=EQ left=<addr-150> right=<addr-151> save_last=0
     PMID: PM_ID_NULL (29.0.10 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-expr node <addr-150> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] master=0
+expr node <addr-150> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] primary=0
     PMID: 29.0.10 (29.0.10 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-expr node <addr-151> type=INTEGER left=(nil) right=(nil) save_last=0 [1] master=0
+expr node <addr-151> type=INTEGER left=(nil) right=(nil) save_last=0 [1] primary=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
@@ -430,11 +430,11 @@ expr node <addr-152> type=COLON left=<addr-153> right=<addr-154> save_last=0
     PMID: PM_ID_NULL (29.0.99 from pmDesc) numval: 0
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-expr node <addr-153> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.ten] master=0
+expr node <addr-153> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.ten] primary=0
     PMID: 29.0.99 (29.0.99 from pmDesc) numval: 0
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-expr node <addr-154> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.hundred] master=0
+expr node <addr-154> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.hundred] primary=0
     PMID: 29.0.100 (29.0.100 from pmDesc) numval: 0
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -450,11 +450,11 @@ expr node <addr-156> type=NEQ left=<addr-157> right=<addr-158> save_last=0
     PMID: PM_ID_NULL (29.0.10 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-expr node <addr-157> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] master=0
+expr node <addr-157> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] primary=0
     PMID: 29.0.10 (29.0.10 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-expr node <addr-158> type=INTEGER left=(nil) right=(nil) save_last=0 [1] master=0
+expr node <addr-158> type=INTEGER left=(nil) right=(nil) save_last=0 [1] primary=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
@@ -462,11 +462,11 @@ expr node <addr-159> type=COLON left=<addr-160> right=<addr-161> save_last=0
     PMID: PM_ID_NULL (29.0.99 from pmDesc) numval: 0
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-expr node <addr-160> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.ten] master=0
+expr node <addr-160> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.ten] primary=0
     PMID: 29.0.99 (29.0.99 from pmDesc) numval: 0
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-expr node <addr-161> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.hundred] master=0
+expr node <addr-161> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.hundred] primary=0
     PMID: 29.0.100 (29.0.100 from pmDesc) numval: 0
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -482,11 +482,11 @@ expr node <addr-163> type=GT left=<addr-164> right=<addr-165> save_last=0
     PMID: PM_ID_NULL (29.0.6 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
-expr node <addr-164> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-164> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
-expr node <addr-165> type=INTEGER left=(nil) right=(nil) save_last=0 [400] master=0
+expr node <addr-165> type=INTEGER left=(nil) right=(nil) save_last=0 [400] primary=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
@@ -498,15 +498,15 @@ expr node <addr-167> type=MINUS left=<addr-168> right=<addr-169> save_last=0
     PMID: PM_ID_NULL (29.0.6 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
-expr node <addr-168> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-168> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
-expr node <addr-169> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-169> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
-expr node <addr-170> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-170> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
@@ -522,11 +522,11 @@ expr node <addr-172> type=GT left=<addr-173> right=<addr-174> save_last=0
     PMID: PM_ID_NULL (29.0.6 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
-expr node <addr-173> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-173> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
-expr node <addr-174> type=INTEGER left=(nil) right=(nil) save_last=0 [400] master=0
+expr node <addr-174> type=INTEGER left=(nil) right=(nil) save_last=0 [400] primary=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
@@ -534,11 +534,11 @@ expr node <addr-175> type=COLON left=<addr-176> right=<addr-177> save_last=0
     PMID: PM_ID_NULL (29.0.11 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
-expr node <addr-176> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] master=0
+expr node <addr-176> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] primary=0
     PMID: 29.0.11 (29.0.11 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-expr node <addr-177> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-177> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
@@ -554,11 +554,11 @@ expr node <addr-179> type=LT left=<addr-180> right=<addr-181> save_last=0
     PMID: PM_ID_NULL (29.0.10 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-expr node <addr-180> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] master=0
+expr node <addr-180> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] primary=0
     PMID: 29.0.10 (29.0.10 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-expr node <addr-181> type=INTEGER left=(nil) right=(nil) save_last=0 [0] master=0
+expr node <addr-181> type=INTEGER left=(nil) right=(nil) save_last=0 [0] primary=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
@@ -570,15 +570,15 @@ expr node <addr-183> type=MINUS left=<addr-184> right=<addr-185> save_last=0
     PMID: PM_ID_NULL (29.0.6 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
-expr node <addr-184> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-184> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
-expr node <addr-185> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-185> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
-expr node <addr-186> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-186> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
@@ -602,11 +602,11 @@ expr node <addr-190> type=NEQ left=<addr-191> right=<addr-192> save_last=0
     PMID: PM_ID_NULL (29.0.6 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
-expr node <addr-191> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-191> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
-expr node <addr-192> type=INTEGER left=(nil) right=(nil) save_last=0 [100] master=0
+expr node <addr-192> type=INTEGER left=(nil) right=(nil) save_last=0 [100] primary=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
@@ -614,11 +614,11 @@ expr node <addr-193> type=NEQ left=<addr-194> right=<addr-195> save_last=0
     PMID: PM_ID_NULL (29.0.6 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
-expr node <addr-194> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-194> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
-expr node <addr-195> type=INTEGER left=(nil) right=(nil) save_last=0 [900] master=0
+expr node <addr-195> type=INTEGER left=(nil) right=(nil) save_last=0 [900] primary=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
@@ -626,11 +626,11 @@ expr node <addr-196> type=NEQ left=<addr-197> right=<addr-198> save_last=0
     PMID: PM_ID_NULL (29.0.6 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
-expr node <addr-197> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-197> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
-expr node <addr-198> type=INTEGER left=(nil) right=(nil) save_last=0 [500] master=0
+expr node <addr-198> type=INTEGER left=(nil) right=(nil) save_last=0 [500] primary=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
@@ -638,11 +638,11 @@ expr node <addr-199> type=COLON left=<addr-200> right=<addr-201> save_last=0
     PMID: PM_ID_NULL (29.0.11 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
-expr node <addr-200> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] master=0
+expr node <addr-200> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] primary=0
     PMID: 29.0.11 (29.0.11 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-expr node <addr-201> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-201> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
@@ -666,11 +666,11 @@ expr node <addr-205> type=EQ left=<addr-206> right=<addr-207> save_last=0
     PMID: PM_ID_NULL (29.0.6 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
-expr node <addr-206> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-206> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
-expr node <addr-207> type=INTEGER left=(nil) right=(nil) save_last=0 [100] master=0
+expr node <addr-207> type=INTEGER left=(nil) right=(nil) save_last=0 [100] primary=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
@@ -678,11 +678,11 @@ expr node <addr-208> type=EQ left=<addr-209> right=<addr-210> save_last=0
     PMID: PM_ID_NULL (29.0.6 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
-expr node <addr-209> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-209> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
-expr node <addr-210> type=INTEGER left=(nil) right=(nil) save_last=0 [900] master=0
+expr node <addr-210> type=INTEGER left=(nil) right=(nil) save_last=0 [900] primary=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
@@ -690,11 +690,11 @@ expr node <addr-211> type=EQ left=<addr-212> right=<addr-213> save_last=0
     PMID: PM_ID_NULL (29.0.6 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
-expr node <addr-212> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-212> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
-expr node <addr-213> type=INTEGER left=(nil) right=(nil) save_last=0 [500] master=0
+expr node <addr-213> type=INTEGER left=(nil) right=(nil) save_last=0 [500] primary=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
@@ -702,11 +702,11 @@ expr node <addr-214> type=COLON left=<addr-215> right=<addr-216> save_last=0
     PMID: PM_ID_NULL (29.0.6 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
-expr node <addr-215> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-215> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
-expr node <addr-216> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] master=0
+expr node <addr-216> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] primary=0
     PMID: 29.0.11 (29.0.11 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -730,7 +730,7 @@ expr node <addr-220> type=DELTA left=<addr-221> right=(nil) save_last=0
     PMID: PM_ID_NULL (KERNEL_PMDA_PMID from pmDesc) numval: 0
     Data Type: N-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: Kbyte
-expr node <addr-221> type=NAME left=(nil) right=(nil) save_last=1 [disk.all.read_bytes] master=0
+expr node <addr-221> type=NAME left=(nil) right=(nil) save_last=1 [disk.all.read_bytes] primary=0
     PMID: KERNEL_PMDA_PMID (KERNEL_PMDA_PMID from pmDesc) numval: 0
     Data Type: N-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: Kbyte
@@ -738,11 +738,11 @@ expr node <addr-222> type=DELTA left=<addr-223> right=(nil) save_last=0
     PMID: PM_ID_NULL (KERNEL_PMDA_PMID from pmDesc) numval: 0
     Data Type: N-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: Kbyte
-expr node <addr-223> type=NAME left=(nil) right=(nil) save_last=1 [disk.all.write_bytes] master=0
+expr node <addr-223> type=NAME left=(nil) right=(nil) save_last=1 [disk.all.write_bytes] primary=0
     PMID: KERNEL_PMDA_PMID (KERNEL_PMDA_PMID from pmDesc) numval: 0
     Data Type: N-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: Kbyte
-expr node <addr-224> type=INTEGER left=(nil) right=(nil) save_last=0 [0] master=0
+expr node <addr-224> type=INTEGER left=(nil) right=(nil) save_last=0 [0] primary=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
@@ -750,7 +750,7 @@ expr node <addr-225> type=COLON left=<addr-226> right=<addr-227> save_last=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-expr node <addr-226> type=INTEGER left=(nil) right=(nil) save_last=0 [0] master=0
+expr node <addr-226> type=INTEGER left=(nil) right=(nil) save_last=0 [0] primary=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -762,7 +762,7 @@ expr node <addr-228> type=STAR left=<addr-229> right=<addr-230> save_last=0
     PMID: PM_ID_NULL (29.0.81 from pmDesc) numval: 0
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: Kbyte
-expr node <addr-229> type=INTEGER left=(nil) right=(nil) save_last=0 [100] master=0
+expr node <addr-229> type=INTEGER left=(nil) right=(nil) save_last=0 [100] primary=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
@@ -778,7 +778,7 @@ expr node <addr-232> type=DELTA left=<addr-233> right=(nil) save_last=0
     PMID: PM_ID_NULL (29.0.81 from pmDesc) numval: 0 div_scale: 1024
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: byte
-expr node <addr-233> type=NAME left=(nil) right=(nil) save_last=1 [sample.byte_ctr] master=0
+expr node <addr-233> type=NAME left=(nil) right=(nil) save_last=1 [sample.byte_ctr] primary=0
     PMID: 29.0.81 (29.0.81 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: byte
@@ -786,7 +786,7 @@ expr node <addr-234> type=DELTA left=<addr-235> right=(nil) save_last=0
     PMID: PM_ID_NULL (29.0.83 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: Kbyte
-expr node <addr-235> type=NAME left=(nil) right=(nil) save_last=1 [sample.kbyte_ctr] master=0
+expr node <addr-235> type=NAME left=(nil) right=(nil) save_last=1 [sample.kbyte_ctr] primary=0
     PMID: 29.0.83 (29.0.83 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: Kbyte
@@ -794,7 +794,7 @@ expr node <addr-236> type=DELTA left=<addr-237> right=(nil) save_last=0
     PMID: PM_ID_NULL (30.0.81 from pmDesc) numval: 0 div_scale: 1024
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: byte
-expr node <addr-237> type=NAME left=(nil) right=(nil) save_last=1 [sampledso.byte_ctr] master=0
+expr node <addr-237> type=NAME left=(nil) right=(nil) save_last=1 [sampledso.byte_ctr] primary=0
     PMID: 30.0.81 (30.0.81 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: byte
@@ -806,7 +806,7 @@ expr node <addr-239> type=DELTA left=<addr-240> right=(nil) save_last=0
     PMID: PM_ID_NULL (KERNEL_PMDA_PMID from pmDesc) numval: 0
     Data Type: N-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: Kbyte
-expr node <addr-240> type=NAME left=(nil) right=(nil) save_last=1 [disk.all.read_bytes] master=0
+expr node <addr-240> type=NAME left=(nil) right=(nil) save_last=1 [disk.all.read_bytes] primary=0
     PMID: KERNEL_PMDA_PMID (KERNEL_PMDA_PMID from pmDesc) numval: 0
     Data Type: N-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: Kbyte
@@ -814,7 +814,7 @@ expr node <addr-241> type=DELTA left=<addr-242> right=(nil) save_last=0
     PMID: PM_ID_NULL (KERNEL_PMDA_PMID from pmDesc) numval: 0
     Data Type: N-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: Kbyte
-expr node <addr-242> type=NAME left=(nil) right=(nil) save_last=1 [disk.all.write_bytes] master=0
+expr node <addr-242> type=NAME left=(nil) right=(nil) save_last=1 [disk.all.write_bytes] primary=0
     PMID: KERNEL_PMDA_PMID (KERNEL_PMDA_PMID from pmDesc) numval: 0
     Data Type: N-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: Kbyte

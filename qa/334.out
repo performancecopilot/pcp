@@ -58,7 +58,7 @@ expr node <addr-0> type=PLUS left=<addr-1> right=<addr-2> save_last=0
 [2] inst=500, val=1000
 [3] inst=700, val=1400
 [4] inst=900, val=1800
-expr node <addr-1> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-1> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 9
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
@@ -71,7 +71,7 @@ expr node <addr-1> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] mas
 [6] inst=700, val=700
 [7] inst=800, val=800
 [8] inst=900, val=900
-expr node <addr-2> type=NAME left=(nil) right=(nil) save_last=0 [sample.part_bin] master=0
+expr node <addr-2> type=NAME left=(nil) right=(nil) save_last=0 [sample.part_bin] primary=0
     PMID: 29.0.50 (29.0.50 from pmDesc) numval: 5
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
@@ -98,7 +98,7 @@ expr node <addr-3> type=PLUS left=<addr-4> right=<addr-5> save_last=0
 [2] inst=500, val=1000
 [3] inst=700, val=1400
 [4] inst=900, val=1800
-expr node <addr-4> type=NAME left=(nil) right=(nil) save_last=0 [sample.part_bin] master=0
+expr node <addr-4> type=NAME left=(nil) right=(nil) save_last=0 [sample.part_bin] primary=0
     PMID: 29.0.50 (29.0.50 from pmDesc) numval: 5
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
@@ -107,7 +107,7 @@ expr node <addr-4> type=NAME left=(nil) right=(nil) save_last=0 [sample.part_bin
 [2] inst=500, val=500
 [3] inst=700, val=700
 [4] inst=900, val=900
-expr node <addr-5> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-5> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 9
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
@@ -130,12 +130,12 @@ expr node <addr-6> type=STAR left=<addr-7> right=<addr-8> save_last=0
 [2] inst=500, val=1000
 [3] inst=700, val=1400
 [4] inst=900, val=1800
-expr node <addr-7> type=INTEGER left=(nil) right=(nil) save_last=0 [2] master=0
+expr node <addr-7> type=INTEGER left=(nil) right=(nil) save_last=0 [2] primary=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
 [0] inst=-1, val=2
-expr node <addr-8> type=NAME left=(nil) right=(nil) save_last=0 [sample.part_bin] master=0
+expr node <addr-8> type=NAME left=(nil) right=(nil) save_last=0 [sample.part_bin] primary=0
     PMID: 29.0.50 (29.0.50 from pmDesc) numval: 5
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
@@ -154,7 +154,7 @@ expr node <addr-9> type=STAR left=<addr-10> right=<addr-11> save_last=0
 [2] inst=500, val=1000
 [3] inst=700, val=1400
 [4] inst=900, val=1800
-expr node <addr-10> type=NAME left=(nil) right=(nil) save_last=0 [sample.part_bin] master=0
+expr node <addr-10> type=NAME left=(nil) right=(nil) save_last=0 [sample.part_bin] primary=0
     PMID: 29.0.50 (29.0.50 from pmDesc) numval: 5
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
@@ -163,7 +163,7 @@ expr node <addr-10> type=NAME left=(nil) right=(nil) save_last=0 [sample.part_bi
 [2] inst=500, val=500
 [3] inst=700, val=700
 [4] inst=900, val=900
-expr node <addr-11> type=INTEGER left=(nil) right=(nil) save_last=0 [2] master=0
+expr node <addr-11> type=INTEGER left=(nil) right=(nil) save_last=0 [2] primary=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
@@ -207,7 +207,7 @@ expr node <addr-13> type=PLUS left=<addr-14> right=<addr-15> save_last=0
 [2] inst=500, val=1000
 [3] inst=700, val=1400
 [4] inst=900, val=1800
-expr node <addr-14> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-14> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 9
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
@@ -220,7 +220,7 @@ expr node <addr-14> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] ma
 [6] inst=700, val=700
 [7] inst=800, val=800
 [8] inst=900, val=900
-expr node <addr-15> type=NAME left=(nil) right=(nil) save_last=0 [sample.part_bin] master=0
+expr node <addr-15> type=NAME left=(nil) right=(nil) save_last=0 [sample.part_bin] primary=0
     PMID: 29.0.50 (29.0.50 from pmDesc) numval: 5
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
@@ -238,7 +238,7 @@ expr node <addr-16> type=PLUS left=<addr-17> right=<addr-18> save_last=0
 [2] inst=500, val=1000
 [3] inst=700, val=1400
 [4] inst=900, val=1800
-expr node <addr-17> type=NAME left=(nil) right=(nil) save_last=0 [sample.part_bin] master=0
+expr node <addr-17> type=NAME left=(nil) right=(nil) save_last=0 [sample.part_bin] primary=0
     PMID: 29.0.50 (29.0.50 from pmDesc) numval: 5
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
@@ -247,7 +247,7 @@ expr node <addr-17> type=NAME left=(nil) right=(nil) save_last=0 [sample.part_bi
 [2] inst=500, val=500
 [3] inst=700, val=700
 [4] inst=900, val=900
-expr node <addr-18> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-18> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 9
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none

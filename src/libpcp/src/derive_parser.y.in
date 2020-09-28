@@ -1495,7 +1495,7 @@ __dmdumpexpr(node_t *np, int level)
     else {
 	fprintf(stderr, " left=" PRINTF_P_PFX "%p right=" PRINTF_P_PFX "%p save_last=%d", np->left, np->right, np->save_last);
 	if (np->type == N_NAME || np->type == N_INTEGER || np->type == N_DOUBLE)
-	    fprintf(stderr, " [%s] master=%d", np->value, np->data.info == NULL ? 1 : 0);
+	    fprintf(stderr, " [%s] primary=%d", np->value, np->data.info == NULL ? 1 : 0);
 	if (np->type == N_SCALE) {
 	    if (pmUnitsStr_r(&np->desc.units, strbuf, sizeof(strbuf)) == NULL) {
 		fprintf(stderr, " [bad units: %d %d %d %d %d %d]", 

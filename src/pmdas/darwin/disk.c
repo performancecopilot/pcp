@@ -220,12 +220,12 @@ refresh_disks(struct diskstats *stats, pmdaIndom *indom)
     CFMutableDictionaryRef	match;
     int				i, status;
     static int			inited = 0;
-    static mach_port_t		mach_master_port;
+    static mach_port_t		mach_port;
     static io_iterator_t	mach_device_list;
 
     if (!inited) {
 	/* Get ports and services for device statistics. */
-	if (IOMasterPort(bootstrap_port, &mach_master_port)) {
+	if (IOMasterPort(bootstrap_port, &mach_port)) {
 	    fprintf(stderr, "%s: IOMasterPort error\n", __FUNCTION__);
 	    return -oserror();
 	}
@@ -236,8 +236,7 @@ refresh_disks(struct diskstats *stats, pmdaIndom *indom)
     /* Get an interator for IOMedia objects (drives). */
     match = IOServiceMatching("IOMedia");
     CFDictionaryAddValue(match, CFSTR(kIOMediaWholeKey), kCFBooleanTrue);
-    status = IOServiceGetMatchingServices(mach_master_port,
-						match, &mach_device_list);
+    status = IOServiceGetMatchingServices(mach_port, match, &mach_device_list);
     if (status != KERN_SUCCESS) {
 	    fprintf(stderr, "%s: IOServiceGetMatchingServices error\n",
 			__FUNCTION__);
