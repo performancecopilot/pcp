@@ -34,6 +34,12 @@ trap "_cleanup; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 _cleanup()
 {
+    # cannot be sure what state pmcd is in if we take a signal, so restart
+    #
+    _service pmcd start >>$seq.full 2>&1
+    _restore_auto_restart pmcd
+    _wait_for_pmcd
+
     if $pmlogger_do_restore
     then
 	_service pmlogger start >>$seq.full 2>&1
@@ -125,6 +131,7 @@ mkdir -p $tmp.rundir
 export PCP_RUN_DIR=$tmp.rundir
 proxyargs="-Dcontext -U $username -d"
 $PCP_BINADM_DIR/pmproxy $proxyargs -l $tmp.log 2>&1 | _filter_pmproxy
+_wait_for_pmproxy 44322 $tmp.log
 
 # real QA test starts here
 export PMPROXY_HOST=localhost
@@ -167,6 +174,9 @@ export PCP_RUN_DIR=$OLD_PCP_RUN_DIR
 _service pmcd start >>$seq.full 2>&1
 _restore_auto_restart pmcd
 _wait_for_pmcd
+
+# need to see the reconnect
+sleep 2
 
 echo >>$seq.full
 echo "2nd pmproxy log" >>$seq.full

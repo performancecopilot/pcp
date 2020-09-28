@@ -39,6 +39,8 @@ CentOS       7\.[5-8] -       {.*}-python2 python2-{.*} python2{[0-9]-.*} python
 CentOS       7\..*    -       SoQt-devel
 # we're using python2
 CentOS       6\.10    -       {.*}-python3 python3-{.*} python3{[0-9]-.*}
+# need non-standard repo for msssql-* pkgs
+CentOS       -        -       mssql-server mssql-tools
 # -- Debian
 # we're using python3 from Debian 9 onwards
 Debian       1.\..*   -       python-{.*}
@@ -53,7 +55,7 @@ Debian       bullseye -       libqt4-dev libsoqt4-dev
 # kubernetes-node pulls in moby-engine which is really bad for podman-docker
 # - expect Fedora to clean this up in at a later release when moby-engine is
 #   dropped
-Fedora       32       -       kubernetes-node
+Fedora       3[2-4]   -       kubernetes-node
 # need non-standard repo for msssql-* pkgs
 Fedora       -        -       mssql-server mssql-tools
 # prefer mariadb over mysql

@@ -36,6 +36,7 @@ static pmTimeval	now;
 int			fromPMDA;
 int			toPMDA;
 char			*myPmdaName;
+pid_t			pid;
 
 extern int		_creds_timeout;
 
@@ -166,7 +167,7 @@ openpmda(char *fname)
 	printf(" %s", param.argv[i]);
     putchar('\n');
 
-    if (__pmProcessCreate(param.argv, &fromPMDA, &toPMDA) < (pid_t)0) {
+    if ((pid = __pmProcessCreate(param.argv, &fromPMDA, &toPMDA)) < (pid_t)0) {
 	fprintf(stderr, "openpmda: create process failed: %s\n", osstrerror());
     }
     else {

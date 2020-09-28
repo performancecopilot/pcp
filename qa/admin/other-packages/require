@@ -14,12 +14,13 @@
 # Comments prefixed by #
 #
 #Distro      Version  Arch    Required Packages
+CentOS       8\.[0-2] -       python2-devel
 CentOS       7\.[56]  -       python-devel
 Debian       -        -       python-setuptools python-all python-all-dev
 LinuxMint    -        -       python-setuptools python-all python-all-dev
 NetBSD       -        -       py27-setuptools
 RHEL         8\.[0-2] -       python2-devel
-Fedora       3[0-2]   -       python2-setuptools
+Fedora       3[0-4]   -       python2-setuptools
 Fedora       2[0-9]   -       python2-devel
 SUSE         -        -       python-setuptools
 # Python2 retired from PCP builds as of Ubunutu version 20.04

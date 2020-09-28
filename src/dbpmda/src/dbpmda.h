@@ -101,3 +101,6 @@ extern char *cmd_namespace;
 /* garbage collection */
 extern void gc_add(void *);
 extern void gc_free(void);
+
+/* pid for daemon PMDA */
+extern pid_t pid;
