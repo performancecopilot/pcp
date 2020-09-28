@@ -57,6 +57,7 @@ _filter()
 	-e 's/[0-9][0-9]:[0-9][0-9]:[0-9][0-9].[0-9][0-9]*[0-9]/TIMEZONE/g' \
 	-e 's/Permission denied/No permission to perform requested operation/' \
         -e '/Error PDU/s/One-line/Oneline/' \
+	-e '/^Connection:/s/pid:.*/pid: PID)/' \
 	-e "s@$tmp@TMP@g" \
     # end
 

@@ -138,7 +138,7 @@ dbpmda> status
 
 Namespace:              (default)
 PMDA:                   $PCP_PMDAS_DIR/sample/pmdasample
-Connection:             daemon
+Connection:             daemon (pid: PID)
 PMDA PMAPI Version:     2
 Debug options:          (none)
 Timer:                  off
@@ -198,7 +198,7 @@ dbpmda> status
 
 Namespace:              (default)
 PMDA:                   $PCP_PMDAS_DIR/sample/pmdasample
-Connection:             daemon
+Connection:             daemon (pid: PID)
 PMDA PMAPI Version:     2
 Debug options:          (none)
 Timer:                  on
@@ -211,7 +211,7 @@ dbpmda> status
 
 Namespace:              (default)
 PMDA:                   $PCP_PMDAS_DIR/sample/pmdasample
-Connection:             daemon
+Connection:             daemon (pid: PID)
 PMDA PMAPI Version:     2
 Debug options:          (none)
 Timer:                  off
@@ -273,7 +273,7 @@ dbpmda> status
 
 Namespace:              (default)
 PMDA:                   $PCP_PMDAS_DIR/sample/pmdasample
-Connection:             daemon
+Connection:             daemon (pid: PID)
 PMDA PMAPI Version:     2
 Debug options:          (none)
 Timer:                  off
@@ -291,7 +291,7 @@ dbpmda> status
 
 Namespace:              (default)
 PMDA:                   $PCP_PMDAS_DIR/sample/pmdasample
-Connection:             daemon
+Connection:             daemon (pid: PID)
 PMDA PMAPI Version:     2
 Debug options:          (none)
 Timer:                  off
@@ -311,7 +311,7 @@ dbpmda> status
 
 Namespace:              (default)
 PMDA:                   $PCP_PMDAS_DIR/sample/pmdasample
-Connection:             daemon
+Connection:             daemon (pid: PID)
 PMDA PMAPI Version:     2
 Debug options:          (none)
 Timer:                  off
@@ -331,7 +331,7 @@ dbpmda> status
 
 Namespace:              (default)
 PMDA:                   $PCP_PMDAS_DIR/sample/pmdasample
-Connection:             daemon
+Connection:             daemon (pid: PID)
 PMDA PMAPI Version:     2
 Debug options:          (none)
 Timer:                  off
@@ -352,7 +352,7 @@ dbpmda> status
 
 Namespace:              (default)
 PMDA:                   $PCP_PMDAS_DIR/sample/pmdasample
-Connection:             daemon
+Connection:             daemon (pid: PID)
 PMDA PMAPI Version:     2
 Debug options:          (none)
 Timer:                  off
@@ -372,7 +372,7 @@ dbpmda> status
 
 Namespace:              (default)
 PMDA:                   $PCP_PMDAS_DIR/sample/pmdasample
-Connection:             daemon
+Connection:             daemon (pid: PID)
 PMDA PMAPI Version:     2
 Debug options:          (none)
 Timer:                  off

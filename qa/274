@@ -32,7 +32,9 @@ _filter()
 	-e 's/ [0-9\.]*e-[0-9]* 0x/ REAL 0x/g' \
 	-e 's/ 0 0x/ REAL 0x/g' \
         -e '/dbpmda> $/d' \
-	-e '/Error PDU:/s/One-line/Oneline/'
+	-e '/^Connection:/s/pid:.*/pid: PID)/' \
+	-e '/Error PDU:/s/One-line/Oneline/' \
+    # end
 
 # last sed substitution thanks to pv:937345 which changed the wording
 # ... preserving the old form so QA passes
