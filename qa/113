@@ -44,7 +44,6 @@ if [ -z "$filesystems" ]
 then
     echo "Botch: cannot extract filesystems list from mount(1) output ..."
     mount
-    sts=1
     exit
 fi
 
@@ -272,7 +271,6 @@ NF == 9		{ printf "%s_%s %d\n", "filesys.maxfiles",  dev, $6+$7
 		}'
     else
 	echo "Blah, what sort df magic is needed for a PCP_PLATFORM $PCP_PLATFORM system?" >&2
-	status=1
 	exit
     fi
 done) | LC_COLLATE=POSIX sort > $tmp.2
@@ -306,14 +304,12 @@ END {
     exit err
 }'
 
-status=$?
-if [ $status != 0 ]
+if [ $? != 0 ]
 then
     echo $0 =========== pcp output ==============
     cat $tmp.1
     echo $0 =========== df output ==============
     cat $tmp.2
-    echo $0 exit status $status
 fi
 
-exit $status
+exit
