@@ -995,7 +995,7 @@ pricumproc(struct sstat *sstat, struct devtstat *devtstat,
         extra.nexit	= nexit;
         extra.noverflow	= noverflow;
         extra.avgval	= avgval;
-        extra.nsecs	= (int)(delta > 1.0 ? delta : 1.0);
+        extra.nsecs	= delta;
 
         move(1, 0);
         showsysline(sysprcline, sstat, &extra, "PRC", 0);
@@ -1222,7 +1222,7 @@ make_proc_dynamicgen()
 int
 priproc(struct tstat **proclist, int firstproc, int lastproc, int curline,
         int curlist, int totlist, char showtype, char showorder,
-        struct syscap *sb, int nsecs, int avgval)
+        struct syscap *sb, double nsecs, int avgval)
 {
         register int            i;
         register struct tstat   *curstat;
@@ -1408,7 +1408,7 @@ static void	pridisklike(extraparam *, struct perdsk *, char *,
 		      char *, int, unsigned int *, int *, int, regex_t *);
 
 int
-prisyst(struct sstat *sstat, int curline, int nsecs, int avgval,
+prisyst(struct sstat *sstat, int curline, double nsecs, int avgval,
         int fixedhead, struct sselection *selp, char *highorderp,
         int maxcpulines, int maxgpulines, int maxdsklines, int maxmddlines,
 	int maxlvmlines, int maxintlines, int maxifblines,

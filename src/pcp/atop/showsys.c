@@ -419,6 +419,8 @@ sysprt_CPUSYS(void *p, void *q, int badness, int *color)
         static char buf[16];
 	float perc	= (sstat->cpu.all.stime * 100.0) / as->percputot;
 
+	if (perc < 0.0)
+		perc = 0.0;
 	if (perc > 1.0)
 		*color = -1;
 
@@ -437,6 +439,8 @@ sysprt_CPUUSER(void *p, void *q, int badness, int *color)
 	float perc	= (sstat->cpu.all.utime + sstat->cpu.all.ntime)
                                         * 100.0 / as->percputot;
 
+	if (perc < 0.0)
+		perc = 0.0;
 	if (perc > 1.0)
 		*color = -1;
 
@@ -455,6 +459,8 @@ sysprt_CPUIRQ(void *p, void *q, int badness, int *color)
         float perc = (sstat->cpu.all.Itime + sstat->cpu.all.Stime)
                                     * 100.0 / as->percputot;
 
+	if (perc < 0.0)
+		perc = 0.0;
 	if (perc > 1.0)
 		*color = -1;
 
@@ -470,8 +476,11 @@ sysprt_CPUIDLE(void *p, void *q, int badness, int *color)
         struct sstat *sstat=p;
         extraparam *as=q;
         static char buf[16];
-        pmsprintf(buf, sizeof buf-1, "idle %6.0f%%", 
-                (sstat->cpu.all.itime * 100.0) / as->percputot);
+	float perc = (sstat->cpu.all.itime * 100.0) / as->percputot;
+
+	if (perc < 0.0)
+		perc = 0.0;
+        pmsprintf(buf, sizeof buf-1, "idle %6.0f%%", perc);
         return buf;
 }
 
@@ -483,8 +492,11 @@ sysprt_CPUWAIT(void *p, void *q, int badness, int *color)
         struct sstat *sstat=p;
         extraparam *as=q;
         static char buf[16];
-        pmsprintf(buf, sizeof buf-1, "wait %6.0f%%", 
-                (sstat->cpu.all.wtime * 100.0) / as->percputot);
+	float perc = (sstat->cpu.all.wtime * 100.0) / as->percputot;
+
+	if (perc < 0.0)
+		perc = 0.0;
+        pmsprintf(buf, sizeof buf-1, "wait %6.0f%%", perc);
         return buf;
 }
 
@@ -499,6 +511,8 @@ sysprt_CPUISYS(void *p, void *q, int badness, int *color)
 	float perc	= sstat->cpu.cpu[as->index].stime * 100.0
 							/ as->percputot;
 
+	if (perc < 0.0)
+		perc = 0.0;
 	if (perc > 1.0)
 		*color = -1;
 
@@ -518,6 +532,8 @@ sysprt_CPUIUSER(void *p, void *q, int badness, int *color)
                            sstat->cpu.cpu[as->index].ntime) 
 			   * 100.0 / as->percputot;
 
+	if (perc < 0.0)
+		perc = 0.0;
 	if (perc > 1.0)
 		*color = -1;
 
@@ -537,6 +553,8 @@ sysprt_CPUIIRQ(void *p, void *q, int badness, int *color)
 		  	   sstat->cpu.cpu[as->index].Stime)
 			   * 100.0 / as->percputot;
 
+	if (perc < 0.0)
+		perc = 0.0;
 	if (perc > 1.0)
 		*color = -1;
 
@@ -552,8 +570,11 @@ sysprt_CPUIIDLE(void *p, void *q, int badness, int *color)
         struct sstat *sstat=p;
         extraparam *as=q;
         static char buf[16];
-        pmsprintf(buf, sizeof buf-1, "idle %6.0f%%", 
-                (sstat->cpu.cpu[as->index].itime * 100.0) / as->percputot);
+	float perc = (sstat->cpu.cpu[as->index].itime * 100.0) / as->percputot;
+
+	if (perc < 0.0)
+		perc = 0.0;
+        pmsprintf(buf, sizeof buf-1, "idle %6.0f%%", perc);
         return buf;
 }
 
@@ -565,9 +586,12 @@ sysprt_CPUIWAIT(void *p, void *q, int badness, int *color)
         struct sstat *sstat=p;
         extraparam *as=q;
         static char buf[16];
+	float perc = (sstat->cpu.cpu[as->index].wtime * 100.0) / as->percputot;
+
+	if (perc < 0.0)
+		perc = 0.0;
         pmsprintf(buf, sizeof buf-1, "cpu%03d w%3.0f%%", 
-		 sstat->cpu.cpu[as->index].cpunr,
-                (sstat->cpu.cpu[as->index].wtime * 100.0) / as->percputot);
+		 sstat->cpu.cpu[as->index].cpunr, perc);
         return buf;
 }
 
@@ -724,6 +748,8 @@ sysprt_CPUSTEAL(void *p, void *q, int badness, int *color)
         static char buf[16];
 	float perc	= sstat->cpu.all.steal * 100.0 / as->percputot;
 
+	if (perc < 0.0)
+		perc = 0.0;
 	if (perc > 1.0)
 		*color = -1;
 
@@ -742,6 +768,8 @@ sysprt_CPUISTEAL(void *p, void *q, int badness, int *color)
 	float perc	= sstat->cpu.cpu[as->index].steal * 100.0
 							/ as->percputot;
 
+	if (perc < 0.0)
+		perc = 0.0;
 	if (perc > 1.0)
 		*color = -1;
 
@@ -759,6 +787,8 @@ sysprt_CPUGUEST(void *p, void *q, int badness, int *color)
         static char buf[16];
         float perc = sstat->cpu.all.guest * 100.0 / as->percputot;
 
+	if (perc < 0.0)
+		perc = 0.0;
 	if (perc > 1.0)
 		*color = -1;
 
@@ -776,6 +806,8 @@ sysprt_CPUIGUEST(void *p, void *q, int badness, int *color)
         static char buf[16];
         float perc = sstat->cpu.cpu[as->index].guest * 100.0 / as->percputot;
 
+	if (perc < 0.0)
+		perc = 0.0;
 	if (perc > 1.0)
 		*color = -1;
 
@@ -806,6 +838,8 @@ sysprt_CPUIPC(void *p, void *q, int badness, int *color)
 
 	   default:
 		ipc = sstat->cpu.all.instr * 100 / sstat->cpu.all.cycle / 100.0;
+		if (ipc < 0.0)
+			ipc = 0.0;
         	pmsprintf(buf, sizeof buf, "ipc %8.2f", ipc);
 	}
 
@@ -838,7 +872,8 @@ sysprt_CPUIIPC(void *p, void *q, int badness, int *color)
 		if (sstat->cpu.cpu[as->index].cycle)
 			ipc = sstat->cpu.cpu[as->index].instr * 100 /
 				sstat->cpu.cpu[as->index].cycle / 100.0;
-
+		if (ipc < 0.0)
+			ipc = 0.0;
         	pmsprintf(buf, sizeof buf, "ipc %8.2f", ipc);
 	}
 
@@ -1612,6 +1647,8 @@ sysprt_CONTCPU(void *p, void *q, int badness, int *color)
 	if (sstat->cfs.cont[as->index].uptime)
 	{
 		perc = used * 100.0 / sstat->cfs.cont[as->index].uptime;
+		if (perc < 0)
+			perc = 0;
         	pmsprintf(buf, sizeof buf, "cpubusy %3.0f%%", perc);
 	}
 	else
@@ -1801,6 +1838,8 @@ sysprt_DSKAVIO(void *p, void *q, int badness, int *color)
         }
         else 
         {
+	        if (tim < 0)
+                        tim = 0;
                 pmsprintf(buf+5, sizeof buf-5, "%4.2lf ms", tim);
         }
 
@@ -2067,6 +2106,8 @@ sysprt_NETNAME(void *p, void *q, int badness, int *color)
                 else
                         busy = (ival + oval) /
                                (sstat->intf.intf[as->index].speed *10);
+                if (busy < 0)
+                        busy = 0;
 
 		// especially with wireless, the speed might have dropped
 		// temporarily to a very low value (snapshot)
@@ -2138,13 +2179,15 @@ sys_printdef syspdef_NETPCKO = {"NETPCKO", sysprt_NETPCKO};
 ** convert bit-transfers  to kilobit-transfers (/ 1000)
 ** per second
 */
-char *makenetspeed(count_t val, int nsecs)
+char *makenetspeed(count_t val, double nsecs)
 {
         char 		c;
         static char	buf[16]="si      ?bps";
                               // 012345678901
 
         val=val/125/nsecs;	// convert to Kbps
+        if (val < 0)
+                val = 0;
 
         if (val < 10000)
         {
@@ -2180,6 +2223,9 @@ sysprt_NETSPEEDMAX(void *p, void *q, int badness, int *color)
         count_t speed = sstat->intf.intf[as->index].speed;
 
 	*color = -1;
+
+        if (speed < 0)
+                speed = 0;
 
 	if (speed < 10000)
 	{
@@ -2322,6 +2368,10 @@ sysprt_IFBNAME(void *p, void *q, int badness, int *color)
 
 	busy = (ival > oval ? ival : oval) * sstat->ifb.ifb[as->index].lanes /
                                (sstat->ifb.ifb[as->index].rate * 10);
+        if (busy < 0)
+                busy = 0;
+	else if (busy > 100)
+                busy = 100;
 
 	pmsprintf(tmp, sizeof tmp, "%s/%d",
                  sstat->ifb.ifb[as->index].ibname,
@@ -2376,6 +2426,9 @@ sysprt_IFBSPEEDMAX(void *p, void *q, int badness, int *color)
         extraparam *as = q;
         static char buf[16];
         count_t rate = sstat->ifb.ifb[as->index].rate;
+
+        if (rate < 0)
+                rate = 0;
 
 	*color = -1;
 
