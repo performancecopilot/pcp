@@ -21,6 +21,7 @@ DISTARGET = $(PCP_BIN_DIR)/$(CMDTARGET)
 CFILES = util.c pmlogconf.c pmrepconf.c
 NFILES = util.h pmlogconf.h
 LLDLIBS = $(PCPLIB)
+LDIRT = pmrepconf
 
 SUBDIRS = \
 	cpu \
