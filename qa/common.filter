@@ -345,6 +345,7 @@ _filter_optional_pmdas()
 	-e '/pmdawebping/d' \
 	-e '/pmdaxfs/d' \
 	-e '/pmdaxvm/d' \
+	-e '/pmdazfs/d' \
 	-e '/pmdazimbra/d' \
 	-e '/pmdazswap/d' \
     #end
