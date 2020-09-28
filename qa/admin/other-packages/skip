@@ -53,7 +53,7 @@ Debian       bullseye -       libqt4-dev libsoqt4-dev
 # kubernetes-node pulls in moby-engine which is really bad for podman-docker
 # - expect Fedora to clean this up in at a later release when moby-engine is
 #   dropped
-Fedora       32       -       kubernetes-node
+Fedora       3[2-4]   -       kubernetes-node
 # need non-standard repo for msssql-* pkgs
 Fedora       -        -       mssql-server mssql-tools
 # prefer mariadb over mysql
