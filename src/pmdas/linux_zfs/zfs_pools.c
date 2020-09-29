@@ -18,6 +18,8 @@ zfs_pools_init(zfs_poolstats_t **poolstats, pmdaInstid **pools, pmdaIndom *pools
         struct dirent *ep;
         int pool_num = 0;
         size_t size;
+	zfs_poolstats_t *poolstats_tmp;
+	static int seen_err = 0;
 
         // Discover the pools by looking for directories in /proc/spl/kstat/zfs
         if ((zfs_dp = opendir(ZFS_PROC_DIR)) != NULL) {
@@ -26,9 +28,11 @@ zfs_pools_init(zfs_poolstats_t **poolstats, pmdaInstid **pools, pmdaIndom *pools
                                 if (strcmp(ep->d_name, ".") == 0 || strcmp(ep->d_name, "..") == 0)
                                         continue;
                                 else {
+					pmdaInstid	*pools_tmp;
                                         size = (pool_num + 1) * sizeof(pmdaInstid);
-                                        if ((*pools = (pmdaInstid *) realloc(*pools, size)) == NULL)
-                                                pmNoMem("process", size, PM_FATAL_ERR);
+                                        if ((pools_tmp = (pmdaInstid *)realloc(*pools, size)) == NULL)
+                                                pmNoMem("pools", size, PM_FATAL_ERR);
+					*pools = pools_tmp;
                                         (*pools)[pool_num].i_name = (char *) malloc(strlen(ep->d_name) + 1);
                                         strcpy((*pools)[pool_num].i_name, ep->d_name);
                                         (*pools)[pool_num].i_name[strlen(ep->d_name)] = '\0';
@@ -38,12 +42,28 @@ zfs_pools_init(zfs_poolstats_t **poolstats, pmdaInstid **pools, pmdaIndom *pools
                         }
                 }
                 closedir(zfs_dp);
+	}
+	else {
+	    pmNotifyErr(LOG_WARNING, "Failed to open ZFS pools dir \"%s\": %s\n", ZFS_PROC_DIR, pmErrStr(-errno));
         }
-        if (*pools == NULL)
-                pmNotifyErr(LOG_WARNING, "no ZFS pools found, instance domain is empty.");
+        if (*pools == NULL) {
+		if (! seen_err) {
+		    pmNotifyErr(LOG_WARNING, "no ZFS pools found, instance domain is empty.");
+		    seen_err = 1;
+		}
+	}
+	else if (seen_err) {
+		pmNotifyErr(LOG_INFO, "%d ZFS pools found.", pool_num);
+		seen_err = 0;
+	}
         (*poolsindom).it_set = *pools;
         (*poolsindom).it_numinst = pool_num;
-        *poolstats = (zfs_poolstats_t *) realloc(*poolstats, pool_num * sizeof(zfs_poolstats_t));
+	if (pool_num > 0) {
+		if ((poolstats_tmp = (zfs_poolstats_t *)realloc(*poolstats, pool_num * sizeof(zfs_poolstats_t))) == NULL)
+			pmNoMem("poolstats init", pool_num * sizeof(zfs_poolstats_t), PM_FATAL_ERR);
+	fprintf(stderr, "poolstats_tmp=%p\n", poolstats_tmp);
+		*poolstats = poolstats_tmp;
+	}
 }
 
 void
@@ -73,12 +93,17 @@ zfs_poolstats_refresh(zfs_poolstats_t **poolstats, pmdaInstid **pools, pmdaIndom
         FILE *fp;
         struct stat sstat;
         regex_t rgx_io;
-        size_t nmatch = 1, len;
+        size_t nmatch = 1, len = 0;
         regmatch_t pmatch[1];
-        
+
+	if (poolsindom->it_numinst == 0) {
+	    /* no pools, nothing to do */
+	    return;
+	}
+
         regcomp(&rgx_io, "([0-9]+[ ]+){11}[0-9]+", REG_EXTENDED|REG_NOSUB);
         if ((*poolstats = realloc(*poolstats, (*poolsindom).it_numinst * sizeof(zfs_poolstats_t))) == NULL)
-                pmNoMem("process", (*poolsindom).it_numinst * sizeof(zfs_poolstats_t), PM_FATAL_ERR);
+                pmNoMem("poolstats refresh", (*poolsindom).it_numinst * sizeof(zfs_poolstats_t), PM_FATAL_ERR);
         for (i = 0; i < (*poolsindom).it_numinst; i++) {
                 strcpy(pool_dir, ZFS_PROC_DIR);
                 strcat(pool_dir, (*poolsindom).it_set[i].i_name);
@@ -105,6 +130,9 @@ zfs_poolstats_refresh(zfs_poolstats_t **poolstats, pmdaInstid **pools, pmdaIndom
 				else if (strncmp(line, "UNAVAIL", 7) == 0) (*poolstats)[i].state = 5;
 			}
                         fclose(fp);
+			free(line);
+			line = NULL;
+			len = 0;
                 }
                 // Read the IO stats
                 strcpy(fname, pool_dir);

@@ -4,6 +4,7 @@
 #include "libpcp.h"
 #include "pmda.h"
 
+#include "domain.h"
 #include "zfs_arcstats.h"
 #include "zfs_abdstats.h"
 #include "zfs_dbufstats.h"
@@ -17,6 +18,7 @@
 #include "zfs_zilstats.h"
 #include "zfs_pools.h"
 
+static int		_isDSO = 1; /* PMDA launched mode 1/0 for DSO/daemon */
 regex_t rgx_row;
 static zfs_arcstats_t arcstats;
 static zfs_abdstats_t abdstats;
@@ -1175,9 +1177,11 @@ zfs_init(pmdaInterface *dp)
 	char helppath[MAXPATHLEN];
 	int sep = pmPathSeparator();
 
-	pmsprintf(helppath, sizeof(helppath), "%s%c" "zfs" "%c" "help",
-			pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-	pmdaDSO(dp, PMDA_INTERFACE_7, "ZFS DSO", helppath);
+	if (_isDSO) {
+	    pmsprintf(helppath, sizeof(helppath), "%s%c" "zfs" "%c" "help",
+			    pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
+	    pmdaDSO(dp, PMDA_INTERFACE_7, "ZFS DSO", helppath);
+	}
 
 	if (dp->status != 0)
 	        return;
@@ -1189,4 +1193,45 @@ zfs_init(pmdaInterface *dp)
 	pmdaInit(dp, 
 			indomtab, sizeof(indomtab)/sizeof(indomtab[0]),
 			metrictab, sizeof(metrictab)/sizeof(metrictab[0]));
+}
+
+pmLongOptions   longopts[] = {
+    PMDA_OPTIONS_HEADER("Options"),
+    PMOPT_DEBUG,
+    PMDAOPT_DOMAIN,
+    PMDAOPT_LOGFILE,
+    PMOPT_HELP,
+    PMDA_OPTIONS_END
+};
+
+pmdaOptions     opts = {
+    .short_options = "D:d:l:?",
+    .long_options = longopts,
+};
+
+int
+main(int argc, char **argv)
+{
+    int			sep = pmPathSeparator();
+    pmdaInterface	dispatch;
+    char		helppath[MAXPATHLEN];
+
+    _isDSO = 0;
+    pmSetProgname(argv[0]);
+    pmsprintf(helppath, sizeof(helppath), "%s%c" "zfs" "%c" "help",
+		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_7, pmGetProgname(), ZFS, "zfs.log", helppath);
+
+    pmdaGetOptions(argc, argv, &opts, &dispatch);
+    if (opts.errors) {
+	pmdaUsageMessage(&opts);
+	exit(1);
+    }
+
+
+    pmdaOpenLog(&dispatch);
+    zfs_init(&dispatch);
+    pmdaConnect(&dispatch);
+    pmdaMain(&dispatch);
+    exit(0);
 }
