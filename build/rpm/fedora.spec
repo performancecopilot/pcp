@@ -2913,7 +2913,6 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %ghost %dir %attr(0775,pcp,pcp) %{_localstatedir}/run/pcp
 %{_localstatedir}/lib/pcp/config/pmafm
 %dir %attr(0775,pcp,pcp) %{_localstatedir}/lib/pcp/config/pmie
-%{_localstatedir}/lib/pcp/config/pmie
 %{_localstatedir}/lib/pcp/config/pmieconf
 %dir %attr(0775,pcp,pcp) %{_localstatedir}/lib/pcp/config/pmlogger
 %{_localstatedir}/lib/pcp/config/pmlogger/*
@@ -2940,7 +2939,7 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %config(noreplace) %{_logconfdir}/zeroconf
 %config(noreplace) %{_confdir}/pmlogconf/zeroconf
 %config(noreplace) %{_confdir}/pmieconf/zeroconf
-%{_logsdir}/sa
+%dir %attr(0775,pcp,pcp) %{_logsdir}/sa
 
 #additional pmlogger config files
 
