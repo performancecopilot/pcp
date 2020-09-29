@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 5.2.1
+Version: 5.2.2
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2+ and CC-BY
@@ -3432,11 +3432,14 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %endif
 
 %changelog
+* Wed Nov 11 2020 Nathan Scott <nathans@redhat.com> - 5.2.2-1
+- https://github.com/performancecopilot/pcp/projects/1
+
 * Fri Sep 25 2020 Nathan Scott <nathans@redhat.com> - 5.2.1-1
 - Update to latest PCP sources.
 
 * Sat Aug 08 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.2.0-1
-- Rearrange installed /var file layouts extensively (BZ 1827441)
+- FHS compliance in installed /var file locations (BZ 1827441)
 - pmproxy intermittently crashes at uv_timer_stop (BZ 1789312)
 - Update to latest PCP sources.
 - Re-enabled LTO.
@@ -3457,14 +3460,14 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 
 * Fri Apr 24 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.1.0-1
 - pmdakvm: debugfs access is restricted (BZ 1824297)
-- error starting pmlogger; pid file not owned by root (BZ 1761962)
+- Error starting pmlogger; pid file not owned by root (BZ 1761962)
 - Update to latest PCP sources.
 
 * Wed Mar 11 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.0.3-3
 - Resolve pcp-selinux issues causing services failures - (BZ 1810458)
 
 * Mon Mar 02 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.0.3-2
-- fix typo in Requires: perl-Time-HiRes affecting pcp-pmda-bind2
+- Fix typo in Requires: perl-Time-HiRes affecting pcp-pmda-bind2
 
 * Thu Feb 27 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.0.3-1
 - Avoid python ctypes bitfield struct on-stack (BZ 1800685)
@@ -3484,8 +3487,8 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 - Update to latest PCP sources.
 
 * Sun Oct 20 2019 Mark Goodwin <mgoodwin@redhat.com> - 5.0.0-2
-- various spec fixes for pmdastatsd
-- add patch1 to fix pmdastatsd build on rawhide
+- Various spec fixes for pmdastatsd
+- Add patch1 to fix pmdastatsd build on rawhide
 
 * Fri Oct 11 2019 Mark Goodwin <mgoodwin@redhat.com> - 5.0.0-1
 - Update to latest PCP sources.
