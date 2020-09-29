@@ -47,6 +47,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 # CI:
 #    auditd is excluded for some container-based platforms, e.g. ubuntu1804.yml,
 #    ubuntu1604.yml and debian10.yml
+#    docker.io is excluded from debian10.yml container
 #
 _filter()
 {
@@ -61,7 +62,8 @@ s/ for .*/ for HOST/
 	-e '/looks like package "mssql-/d' \
 	-e 's/^/ /' \
 	-e 's/$/ /' \
-	-e 's/ auditd//' \
+	-e 's/ auditd / /' \
+	-e 's/ docker.io / /' \
 	-e 's/^ //' \
 	-e 's/ $//' \
 	-e '/^ *$/d' \
