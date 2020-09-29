@@ -41,6 +41,7 @@ filesystems=`mount \
              | $PCP_AWK_PROG '
 $4 == "type" && ($5 == "efs" || $5 == "xfs" || $5 == "ext2" || $5 == "ext3" || $5 == "ext4" || $5 == "btrfs" || $5 == "ffs") { print $1 }
 $4 == "hfs" || $4 == "ufs" { print $1 }'`
+echo "filesystems=$filesystems" >>$seq.full
 
 if [ -z "$filesystems" ]
 then
@@ -49,7 +50,8 @@ then
     exit
 fi
 
-rootdev=`df / | $PCP_AWK_PROG 'NR == 2 { print $1 }'`
+echo "-- df / --" >>$seq.full
+rootdev=`df / | tee -a $seq.full | $PCP_AWK_PROG 'NR == 2 { print $1 }'`
 echo "rootdev=$rootdev" >>$seq.full
 if [ -z "$rootdev" ]
 then
@@ -127,7 +129,7 @@ do
     [ ! -L $dev ] && continue
     [ "$dev" = "/dev/root" ] && continue
     echo "mount device: $dev" >>$seq.full
-    if which realpathx >/dev/null 2>&1
+    if which realpath >/dev/null 2>&1
     then
 	sym=`realpath $dev`
     else
@@ -282,7 +284,7 @@ done) | LC_COLLATE=POSIX sort > $tmp.2
 sed -f $tmp.map $tmp.2 | LC_COLLATE=POSIX sort >$tmp.tmp
 mv $tmp.tmp $tmp.2
 
-echo "-- df --" >>$seq.full
+echo "-- df -li --" >>$seq.full
 $sudo df -li >>$seq.full 2>&1
 echo "-- df-filtered --" >>$seq.full
 cat $tmp.2 >>$seq.full
