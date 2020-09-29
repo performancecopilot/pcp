@@ -1007,7 +1007,7 @@ slackpkg?	netstat		[net-tools]
 pacman?		netstat		[core/net-tools]
 brew?		netstat		[base Darwin install]
 # -- kubectl
-dpkg?		kubectl		[N/A (build optional)]
+dpkg?		kubectl		[kubernetes-client (build optional)]
 rpm?		kubectl		[kubernetes-client or kubectl (build optional)]
 urpmi?		kubectl		[kubernetes-client (build optional)]
 emerge?		kubectl		[sys-cluster/kubectl (build optional)]
