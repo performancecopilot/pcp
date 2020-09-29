@@ -70,6 +70,7 @@ $sudo cp $tmp.options $PCP_PMCDOPTIONS_PATH
 
 # terminate any pmcds and get rid of core file to get to a sane starting place
 _service pcp stop >/dev/null 2>&1
+_wait_pmcd_end
 $sudo rm -f $PCP_LOG_DIR/core* $PCP_LOG_DIR/pmcd/core* $PCP_PMCDLOG_PATH
 
 _check
