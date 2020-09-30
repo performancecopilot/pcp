@@ -61,7 +61,7 @@ Debian       10\..*   -       python3-bpfcc
 # kubernetes-node pulls in moby-engine which is really bad for podman-docker
 # - expect Fedora to clean this up in at a later release when moby-engine is
 #   dropped
-Fedora       3[2-4]   -       kubernetes-node
+Fedora       3[1-4]   -       kubernetes-node
 # need non-standard repo for msssql-* pkgs
 Fedora       -        -       mssql-server mssql-tools
 # prefer mariadb over mysql

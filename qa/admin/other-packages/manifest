@@ -662,7 +662,7 @@ pacman?	Date::Parse		[extra/perl-timedate]
 brew?	Date::Parse		[base Darwin install]
 # -- Getopt::Std
 dpkg?		Getopt::Std	[perl-modules or perl-modules-[0-9][0-9.]*]
-rpm?		Getopt::Std	[perl or perl-base or perl-interpreter]
+rpm?		Getopt::Std	[perl or perl-base or perl-interpreter or perl-Getopt-Std]
 urpmi?		Getopt::Std	[?]
 emerge?		Getopt::Std	[dev-lang/perl]
 pkgin?		Getopt::Std	[perl]
