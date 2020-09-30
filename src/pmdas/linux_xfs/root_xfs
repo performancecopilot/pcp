@@ -150,8 +150,8 @@ xfs.quota {
     cachemisses		XFS:16:62
     cachehits		XFS:16:63
     wants		XFS:16:64
-    shake_reclaims	XFS:16:65
-    inact_reclaims	XFS:16:66
+    dquots		XFS:16:185
+    dquots_unused	XFS:16:186
 }
 
 xfs.vnodes {
@@ -186,6 +186,9 @@ xfs.btree {
     alloc_contig
     block_map
     inode
+    free_inode
+    reverse_mapping
+    refcount
 }
 
 xfs.btree.alloc_blocks {
@@ -258,6 +261,60 @@ xfs.btree.inode {
     alloc		XFS:16:137
     free		XFS:16:138
     moves		XFS:16:139
+}
+
+xfs.btree.free_inode {
+    lookup		XFS:16:140
+    compare		XFS:16:141
+    insrec		XFS:16:142
+    delrec		XFS:16:143
+    newroot		XFS:16:144
+    killroot		XFS:16:145
+    increment		XFS:16:146
+    decrement		XFS:16:147
+    lshift		XFS:16:148
+    rshift		XFS:16:149
+    split		XFS:16:150
+    join		XFS:16:151
+    alloc		XFS:16:152
+    free		XFS:16:153
+    moves		XFS:16:154
+}
+
+xfs.btree.reverse_mapping {
+    lookup		XFS:16:155
+    compare		XFS:16:156
+    insrec		XFS:16:157
+    delrec		XFS:16:158
+    newroot		XFS:16:159
+    killroot		XFS:16:160
+    increment		XFS:16:161
+    decrement		XFS:16:162
+    lshift		XFS:16:163
+    rshift		XFS:16:164
+    split		XFS:16:165
+    join		XFS:16:166
+    alloc		XFS:16:167
+    free		XFS:16:168
+    moves		XFS:16:169
+}
+
+xfs.btree.refcount {
+    lookup		XFS:16:170
+    compare		XFS:16:171
+    insrec		XFS:16:172
+    delrec		XFS:16:173
+    newroot		XFS:16:174
+    killroot		XFS:16:175
+    increment		XFS:16:176
+    decrement		XFS:16:177
+    lshift		XFS:16:178
+    rshift		XFS:16:179
+    split		XFS:16:180
+    join		XFS:16:181
+    alloc		XFS:16:182
+    free		XFS:16:183
+    moves		XFS:16:184
 }
 
 quota {
@@ -419,8 +476,8 @@ xfs.perdev.quota {
     cachemisses		XFS:18:62
     cachehits		XFS:18:63
     wants		XFS:18:64
-    shake_reclaims	XFS:18:65
-    inact_reclaims	XFS:18:66
+    dquots		XFS:18:185
+    dquots_unused	XFS:18:186
 }
 
 xfs.perdev.vnodes {
@@ -451,6 +508,9 @@ xfs.perdev.btree {
     alloc_contig
     block_map
     inode
+    free_inode
+    reverse_mapping
+    refcount
 }
 
 xfs.perdev.btree.alloc_blocks {
@@ -523,4 +583,58 @@ xfs.perdev.btree.inode {
     alloc		XFS:18:137
     free		XFS:18:138
     moves		XFS:18:139
+}
+
+xfs.perdev.btree.free_inode {
+    lookup		XFS:18:140
+    compare		XFS:18:141
+    insrec		XFS:18:142
+    delrec		XFS:18:143
+    newroot		XFS:18:144
+    killroot		XFS:18:145
+    increment		XFS:18:146
+    decrement		XFS:18:147
+    lshift		XFS:18:148
+    rshift		XFS:18:149
+    split		XFS:18:150
+    join		XFS:18:151
+    alloc		XFS:18:152
+    free		XFS:18:153
+    moves		XFS:18:154
+}
+
+xfs.perdev.btree.reverse_mapping {
+    lookup		XFS:18:155
+    compare		XFS:18:156
+    insrec		XFS:18:157
+    delrec		XFS:18:158
+    newroot		XFS:18:159
+    killroot		XFS:18:160
+    increment		XFS:18:161
+    decrement		XFS:18:162
+    lshift		XFS:18:163
+    rshift		XFS:18:164
+    split		XFS:18:165
+    join		XFS:18:166
+    alloc		XFS:18:167
+    free		XFS:18:168
+    moves		XFS:18:169
+}
+
+xfs.perdev.btree.refcount {
+    lookup		XFS:18:170
+    compare		XFS:18:171
+    insrec		XFS:18:172
+    delrec		XFS:18:173
+    newroot		XFS:18:174
+    killroot		XFS:18:175
+    increment		XFS:18:176
+    decrement		XFS:18:177
+    lshift		XFS:18:178
+    rshift		XFS:18:179
+    split		XFS:18:180
+    join		XFS:18:181
+    alloc		XFS:18:182
+    free		XFS:18:183
+    moves		XFS:18:184
 }

@@ -282,8 +282,8 @@ extended attributes associated with a file.
 @ xfs.quota.cachemisses value from xs_qm_dqcachemisses field of struct xfsstats
 @ xfs.quota.cachehits value from xs_qm_dqcachehits field of struct xfsstats
 @ xfs.quota.wants value from xs_qm_dqwants field of struct xfsstats
-@ xfs.quota.shake_reclaims value from xs_qm_dqshake_reclaims field of struct xfsstats
-@ xfs.quota.inact_reclaims value from xs_qm_dqinact_reclaims field of struct xfsstats
+@ xfs.quota.dquots value from xs_qm_dquots field of struct xfsstats
+@ xfs.quota.dquots_unused value from xs_qm_dquots_unused field of struct xfsstats
 
 @ xfs.iflush_count the number of calls to xfs_iflush
 This is the number of calls to xfs_iflush which gets called when an
@@ -470,3 +470,107 @@ Btree blocks freed during inode-allocation btree operations
 @ xfs.btree.inode.moves
 Records moved inside blocks during inode-allocation btree operations
 
+@ xfs.btree.free_inode.lookup
+Number of free-inode btree record lookups
+@ xfs.btree.free_inode.compare
+Number of free-inode btree record compares
+@ xfs.btree.free_inode.insrec
+Number of free-inode btree insert record operations executed
+@ xfs.btree.free_inode.delrec
+Number of free-inode btree delete record operations executed
+@ xfs.btree.free_inode.newroot
+Number of times a new level is added to a free-inode btree
+@ xfs.btree.free_inode.killroot
+Number of times a level is removed from a free-inode btree
+@ xfs.btree.free_inode.increment
+Number of times a cursor has been moved forward one free-inode
+btree record
+@ xfs.btree.free_inode.decrement
+Number of times a cursor has been moved backward one free-inode
+btree record
+@ xfs.btree.free_inode.lshift
+Left shift block operations to make space for a new free-inode
+btree record
+@ xfs.btree.free_inode.rshift
+Right shift block operations to make space for a new free-inode
+btree record
+@ xfs.btree.free_inode.split
+Split block operations to make space for a new free-inode btree record
+@ xfs.btree.free_inode.join
+Merge block operations when deleting free-inode btree records
+@ xfs.btree.free_inode.alloc
+Btree block allocations during free-inode btree operations
+@ xfs.btree.free_inode.free
+Btree blocks freed during free-inode btree operations
+@ xfs.btree.free_inode.moves
+Records moved inside blocks during free-inode btree operations
+
+@ xfs.btree.reverse_mapping.lookup
+Number of reverse-mapping btree record lookups
+@ xfs.btree.reverse_mapping.compare
+Number of reverse-mapping btree record compares
+@ xfs.btree.reverse_mapping.insrec
+Number of reverse-mapping btree insert record operations executed
+@ xfs.btree.reverse_mapping.delrec
+Number of reverse-mapping btree delete record operations executed
+@ xfs.btree.reverse_mapping.newroot
+Number of times a new level is added to a reverse-mapping btree
+@ xfs.btree.reverse_mapping.killroot
+Number of times a level is removed from a reverse-mapping btree
+@ xfs.btree.reverse_mapping.increment
+Number of times a cursor has been moved forward one reverse-mapping
+btree record
+@ xfs.btree.reverse_mapping.decrement
+Number of times a cursor has been moved backward one reverse-mapping
+btree record
+@ xfs.btree.reverse_mapping.lshift
+Left shift block operations to make space for a new reverse-mapping
+btree record
+@ xfs.btree.reverse_mapping.rshift
+Right shift block operations to make space for a new reverse-mapping
+btree record
+@ xfs.btree.reverse_mapping.split
+Split block operations to make space for a new reverse-mapping btree record
+@ xfs.btree.reverse_mapping.join
+Merge block operations when deleting reverse-mapping btree records
+@ xfs.btree.reverse_mapping.alloc
+Btree block allocations during reverse-mapping btree operations
+@ xfs.btree.reverse_mapping.free
+Btree blocks freed during reverse-mapping btree operations
+@ xfs.btree.reverse_mapping.moves
+Records moved inside blocks during reverse-mapping btree operations
+
+@ xfs.btree.refcount.lookup
+Number of reference-count btree record lookups
+@ xfs.btree.refcount.compare
+Number of reference-count btree record compares
+@ xfs.btree.refcount.insrec
+Number of reference-count btree insert record operations executed
+@ xfs.btree.refcount.delrec
+Number of reference-count btree delete record operations executed
+@ xfs.btree.refcount.newroot
+Number of times a new level is added to a reference-count btree
+@ xfs.btree.refcount.killroot
+Number of times a level is removed from a reference-count btree
+@ xfs.btree.refcount.increment
+Number of times a cursor has been moved forward one reference-count
+btree record
+@ xfs.btree.refcount.decrement
+Number of times a cursor has been moved backward one reference-count
+btree record
+@ xfs.btree.refcount.lshift
+Left shift block operations to make space for a new reference-count
+btree record
+@ xfs.btree.refcount.rshift
+Right shift block operations to make space for a new reference-count
+btree record
+@ xfs.btree.refcount.split
+Split block operations to make space for a new reference-count btree record
+@ xfs.btree.refcount.join
+Merge block operations when deleting reference-count btree records
+@ xfs.btree.refcount.alloc
+Btree block allocations during reference-count btree operations
+@ xfs.btree.refcount.free
+Btree blocks freed during reference-count btree operations
+@ xfs.btree.refcount.moves
+Records moved inside blocks during reference-count btree operations
