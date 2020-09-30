@@ -187,7 +187,7 @@ xfs.btree {
     block_map
     inode
     free_inode
-    reverse_mapping
+    reverse_map
     refcount
 }
 
@@ -281,7 +281,7 @@ xfs.btree.free_inode {
     moves		XFS:16:154
 }
 
-xfs.btree.reverse_mapping {
+xfs.btree.reverse_map {
     lookup		XFS:16:155
     compare		XFS:16:156
     insrec		XFS:16:157
@@ -509,7 +509,7 @@ xfs.perdev.btree {
     block_map
     inode
     free_inode
-    reverse_mapping
+    reverse_map
     refcount
 }
 
@@ -603,7 +603,7 @@ xfs.perdev.btree.free_inode {
     moves		XFS:18:154
 }
 
-xfs.perdev.btree.reverse_mapping {
+xfs.perdev.btree.reverse_map {
     lookup		XFS:18:155
     compare		XFS:18:156
     insrec		XFS:18:157

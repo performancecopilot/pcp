@@ -505,39 +505,39 @@ Btree blocks freed during free-inode btree operations
 @ xfs.btree.free_inode.moves
 Records moved inside blocks during free-inode btree operations
 
-@ xfs.btree.reverse_mapping.lookup
+@ xfs.btree.reverse_map.lookup
 Number of reverse-mapping btree record lookups
-@ xfs.btree.reverse_mapping.compare
+@ xfs.btree.reverse_map.compare
 Number of reverse-mapping btree record compares
-@ xfs.btree.reverse_mapping.insrec
+@ xfs.btree.reverse_map.insrec
 Number of reverse-mapping btree insert record operations executed
-@ xfs.btree.reverse_mapping.delrec
+@ xfs.btree.reverse_map.delrec
 Number of reverse-mapping btree delete record operations executed
-@ xfs.btree.reverse_mapping.newroot
+@ xfs.btree.reverse_map.newroot
 Number of times a new level is added to a reverse-mapping btree
-@ xfs.btree.reverse_mapping.killroot
+@ xfs.btree.reverse_map.killroot
 Number of times a level is removed from a reverse-mapping btree
-@ xfs.btree.reverse_mapping.increment
+@ xfs.btree.reverse_map.increment
 Number of times a cursor has been moved forward one reverse-mapping
 btree record
-@ xfs.btree.reverse_mapping.decrement
+@ xfs.btree.reverse_map.decrement
 Number of times a cursor has been moved backward one reverse-mapping
 btree record
-@ xfs.btree.reverse_mapping.lshift
+@ xfs.btree.reverse_map.lshift
 Left shift block operations to make space for a new reverse-mapping
 btree record
-@ xfs.btree.reverse_mapping.rshift
+@ xfs.btree.reverse_map.rshift
 Right shift block operations to make space for a new reverse-mapping
 btree record
-@ xfs.btree.reverse_mapping.split
+@ xfs.btree.reverse_map.split
 Split block operations to make space for a new reverse-mapping btree record
-@ xfs.btree.reverse_mapping.join
+@ xfs.btree.reverse_map.join
 Merge block operations when deleting reverse-mapping btree records
-@ xfs.btree.reverse_mapping.alloc
+@ xfs.btree.reverse_map.alloc
 Btree block allocations during reverse-mapping btree operations
-@ xfs.btree.reverse_mapping.free
+@ xfs.btree.reverse_map.free
 Btree blocks freed during reverse-mapping btree operations
-@ xfs.btree.reverse_mapping.moves
+@ xfs.btree.reverse_map.moves
 Records moved inside blocks during reverse-mapping btree operations
 
 @ xfs.btree.refcount.lookup

@@ -155,7 +155,7 @@ typedef struct sysfs_xfs {
     struct xfs_btree2	xs_bmbt_2;		/* btree.block_map.* */
     struct xfs_btree2	xs_ibt_2;		/* btree.inode.* */
     struct xfs_btree2	xs_fibt_2;		/* btree.free_inode.* */
-    struct xfs_btree2	xs_rmapbt;		/* btree.reverse_mapping.* */
+    struct xfs_btree2	xs_rmapbt;		/* btree.reverse_map.* */
     struct xfs_btree2	xs_refcntbt;		/* btree.refcount.* */
 
     struct xfs_vnodes	vnodes;

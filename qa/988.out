@@ -1270,49 +1270,49 @@ Help:
 Records moved inside blocks during free-inode btree operations
     value 4
 
-xfs.btree.reverse_mapping.lookup PMID: 11.16.155 []
+xfs.btree.reverse_map.lookup PMID: 11.16.155 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of reverse-mapping btree record lookups
     value 0
 
-xfs.btree.reverse_mapping.compare PMID: 11.16.156 []
+xfs.btree.reverse_map.compare PMID: 11.16.156 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of reverse-mapping btree record compares
     value 0
 
-xfs.btree.reverse_mapping.insrec PMID: 11.16.157 []
+xfs.btree.reverse_map.insrec PMID: 11.16.157 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of reverse-mapping btree insert record operations executed
     value 0
 
-xfs.btree.reverse_mapping.delrec PMID: 11.16.158 []
+xfs.btree.reverse_map.delrec PMID: 11.16.158 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of reverse-mapping btree delete record operations executed
     value 0
 
-xfs.btree.reverse_mapping.newroot PMID: 11.16.159 []
+xfs.btree.reverse_map.newroot PMID: 11.16.159 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of times a new level is added to a reverse-mapping btree
     value 0
 
-xfs.btree.reverse_mapping.killroot PMID: 11.16.160 []
+xfs.btree.reverse_map.killroot PMID: 11.16.160 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of times a level is removed from a reverse-mapping btree
     value 0
 
-xfs.btree.reverse_mapping.increment PMID: 11.16.161 []
+xfs.btree.reverse_map.increment PMID: 11.16.161 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -1320,7 +1320,7 @@ Number of times a cursor has been moved forward one reverse-mapping
 btree record
     value 0
 
-xfs.btree.reverse_mapping.decrement PMID: 11.16.162 []
+xfs.btree.reverse_map.decrement PMID: 11.16.162 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -1328,7 +1328,7 @@ Number of times a cursor has been moved backward one reverse-mapping
 btree record
     value 0
 
-xfs.btree.reverse_mapping.lshift PMID: 11.16.163 []
+xfs.btree.reverse_map.lshift PMID: 11.16.163 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -1336,7 +1336,7 @@ Left shift block operations to make space for a new reverse-mapping
 btree record
     value 0
 
-xfs.btree.reverse_mapping.rshift PMID: 11.16.164 []
+xfs.btree.reverse_map.rshift PMID: 11.16.164 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -1344,35 +1344,35 @@ Right shift block operations to make space for a new reverse-mapping
 btree record
     value 0
 
-xfs.btree.reverse_mapping.split PMID: 11.16.165 []
+xfs.btree.reverse_map.split PMID: 11.16.165 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Split block operations to make space for a new reverse-mapping btree record
     value 0
 
-xfs.btree.reverse_mapping.join PMID: 11.16.166 []
+xfs.btree.reverse_map.join PMID: 11.16.166 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Merge block operations when deleting reverse-mapping btree records
     value 0
 
-xfs.btree.reverse_mapping.alloc PMID: 11.16.167 []
+xfs.btree.reverse_map.alloc PMID: 11.16.167 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Btree block allocations during reverse-mapping btree operations
     value 0
 
-xfs.btree.reverse_mapping.free PMID: 11.16.168 []
+xfs.btree.reverse_map.free PMID: 11.16.168 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Btree blocks freed during reverse-mapping btree operations
     value 0
 
-xfs.btree.reverse_mapping.moves PMID: 11.16.169 []
+xfs.btree.reverse_map.moves PMID: 11.16.169 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -2746,49 +2746,49 @@ Help:
 Records moved inside blocks during free-inode btree operations
 No value(s) available!
 
-xfs.perdev.btree.reverse_mapping.lookup PMID: 11.18.155 []
+xfs.perdev.btree.reverse_map.lookup PMID: 11.18.155 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
 Number of reverse-mapping btree record lookups
 No value(s) available!
 
-xfs.perdev.btree.reverse_mapping.compare PMID: 11.18.156 []
+xfs.perdev.btree.reverse_map.compare PMID: 11.18.156 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
 Number of reverse-mapping btree record compares
 No value(s) available!
 
-xfs.perdev.btree.reverse_mapping.insrec PMID: 11.18.157 []
+xfs.perdev.btree.reverse_map.insrec PMID: 11.18.157 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
 Number of reverse-mapping btree insert record operations executed
 No value(s) available!
 
-xfs.perdev.btree.reverse_mapping.delrec PMID: 11.18.158 []
+xfs.perdev.btree.reverse_map.delrec PMID: 11.18.158 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
 Number of reverse-mapping btree delete record operations executed
 No value(s) available!
 
-xfs.perdev.btree.reverse_mapping.newroot PMID: 11.18.159 []
+xfs.perdev.btree.reverse_map.newroot PMID: 11.18.159 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
 Number of times a new level is added to a reverse-mapping btree
 No value(s) available!
 
-xfs.perdev.btree.reverse_mapping.killroot PMID: 11.18.160 []
+xfs.perdev.btree.reverse_map.killroot PMID: 11.18.160 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
 Number of times a level is removed from a reverse-mapping btree
 No value(s) available!
 
-xfs.perdev.btree.reverse_mapping.increment PMID: 11.18.161 []
+xfs.perdev.btree.reverse_map.increment PMID: 11.18.161 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
@@ -2796,7 +2796,7 @@ Number of times a cursor has been moved forward one reverse-mapping
 btree record
 No value(s) available!
 
-xfs.perdev.btree.reverse_mapping.decrement PMID: 11.18.162 []
+xfs.perdev.btree.reverse_map.decrement PMID: 11.18.162 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
@@ -2804,7 +2804,7 @@ Number of times a cursor has been moved backward one reverse-mapping
 btree record
 No value(s) available!
 
-xfs.perdev.btree.reverse_mapping.lshift PMID: 11.18.163 []
+xfs.perdev.btree.reverse_map.lshift PMID: 11.18.163 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
@@ -2812,7 +2812,7 @@ Left shift block operations to make space for a new reverse-mapping
 btree record
 No value(s) available!
 
-xfs.perdev.btree.reverse_mapping.rshift PMID: 11.18.164 []
+xfs.perdev.btree.reverse_map.rshift PMID: 11.18.164 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
@@ -2820,35 +2820,35 @@ Right shift block operations to make space for a new reverse-mapping
 btree record
 No value(s) available!
 
-xfs.perdev.btree.reverse_mapping.split PMID: 11.18.165 []
+xfs.perdev.btree.reverse_map.split PMID: 11.18.165 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
 Split block operations to make space for a new reverse-mapping btree record
 No value(s) available!
 
-xfs.perdev.btree.reverse_mapping.join PMID: 11.18.166 []
+xfs.perdev.btree.reverse_map.join PMID: 11.18.166 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
 Merge block operations when deleting reverse-mapping btree records
 No value(s) available!
 
-xfs.perdev.btree.reverse_mapping.alloc PMID: 11.18.167 []
+xfs.perdev.btree.reverse_map.alloc PMID: 11.18.167 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
 Btree block allocations during reverse-mapping btree operations
 No value(s) available!
 
-xfs.perdev.btree.reverse_mapping.free PMID: 11.18.168 []
+xfs.perdev.btree.reverse_map.free PMID: 11.18.168 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
 Btree blocks freed during reverse-mapping btree operations
 No value(s) available!
 
-xfs.perdev.btree.reverse_mapping.moves PMID: 11.18.169 []
+xfs.perdev.btree.reverse_map.moves PMID: 11.18.169 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
@@ -4245,49 +4245,49 @@ Help:
 Records moved inside blocks during free-inode btree operations
     value 4
 
-xfs.btree.reverse_mapping.lookup PMID: 11.16.155 []
+xfs.btree.reverse_map.lookup PMID: 11.16.155 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of reverse-mapping btree record lookups
     value 0
 
-xfs.btree.reverse_mapping.compare PMID: 11.16.156 []
+xfs.btree.reverse_map.compare PMID: 11.16.156 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of reverse-mapping btree record compares
     value 0
 
-xfs.btree.reverse_mapping.insrec PMID: 11.16.157 []
+xfs.btree.reverse_map.insrec PMID: 11.16.157 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of reverse-mapping btree insert record operations executed
     value 0
 
-xfs.btree.reverse_mapping.delrec PMID: 11.16.158 []
+xfs.btree.reverse_map.delrec PMID: 11.16.158 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of reverse-mapping btree delete record operations executed
     value 0
 
-xfs.btree.reverse_mapping.newroot PMID: 11.16.159 []
+xfs.btree.reverse_map.newroot PMID: 11.16.159 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of times a new level is added to a reverse-mapping btree
     value 0
 
-xfs.btree.reverse_mapping.killroot PMID: 11.16.160 []
+xfs.btree.reverse_map.killroot PMID: 11.16.160 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of times a level is removed from a reverse-mapping btree
     value 0
 
-xfs.btree.reverse_mapping.increment PMID: 11.16.161 []
+xfs.btree.reverse_map.increment PMID: 11.16.161 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -4295,7 +4295,7 @@ Number of times a cursor has been moved forward one reverse-mapping
 btree record
     value 0
 
-xfs.btree.reverse_mapping.decrement PMID: 11.16.162 []
+xfs.btree.reverse_map.decrement PMID: 11.16.162 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -4303,7 +4303,7 @@ Number of times a cursor has been moved backward one reverse-mapping
 btree record
     value 0
 
-xfs.btree.reverse_mapping.lshift PMID: 11.16.163 []
+xfs.btree.reverse_map.lshift PMID: 11.16.163 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -4311,7 +4311,7 @@ Left shift block operations to make space for a new reverse-mapping
 btree record
     value 0
 
-xfs.btree.reverse_mapping.rshift PMID: 11.16.164 []
+xfs.btree.reverse_map.rshift PMID: 11.16.164 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -4319,35 +4319,35 @@ Right shift block operations to make space for a new reverse-mapping
 btree record
     value 0
 
-xfs.btree.reverse_mapping.split PMID: 11.16.165 []
+xfs.btree.reverse_map.split PMID: 11.16.165 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Split block operations to make space for a new reverse-mapping btree record
     value 0
 
-xfs.btree.reverse_mapping.join PMID: 11.16.166 []
+xfs.btree.reverse_map.join PMID: 11.16.166 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Merge block operations when deleting reverse-mapping btree records
     value 0
 
-xfs.btree.reverse_mapping.alloc PMID: 11.16.167 []
+xfs.btree.reverse_map.alloc PMID: 11.16.167 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Btree block allocations during reverse-mapping btree operations
     value 0
 
-xfs.btree.reverse_mapping.free PMID: 11.16.168 []
+xfs.btree.reverse_map.free PMID: 11.16.168 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Btree blocks freed during reverse-mapping btree operations
     value 0
 
-xfs.btree.reverse_mapping.moves PMID: 11.16.169 []
+xfs.btree.reverse_map.moves PMID: 11.16.169 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -5884,7 +5884,7 @@ Records moved inside blocks during free-inode btree operations
     inst [0-or-1 or "/dev/loop3"] value 3
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 4
 
-xfs.perdev.btree.reverse_mapping.lookup PMID: 11.18.155 []
+xfs.perdev.btree.reverse_map.lookup PMID: 11.18.155 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
@@ -5892,7 +5892,7 @@ Number of reverse-mapping btree record lookups
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
-xfs.perdev.btree.reverse_mapping.compare PMID: 11.18.156 []
+xfs.perdev.btree.reverse_map.compare PMID: 11.18.156 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
@@ -5900,7 +5900,7 @@ Number of reverse-mapping btree record compares
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
-xfs.perdev.btree.reverse_mapping.insrec PMID: 11.18.157 []
+xfs.perdev.btree.reverse_map.insrec PMID: 11.18.157 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
@@ -5908,7 +5908,7 @@ Number of reverse-mapping btree insert record operations executed
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
-xfs.perdev.btree.reverse_mapping.delrec PMID: 11.18.158 []
+xfs.perdev.btree.reverse_map.delrec PMID: 11.18.158 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
@@ -5916,7 +5916,7 @@ Number of reverse-mapping btree delete record operations executed
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
-xfs.perdev.btree.reverse_mapping.newroot PMID: 11.18.159 []
+xfs.perdev.btree.reverse_map.newroot PMID: 11.18.159 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
@@ -5924,7 +5924,7 @@ Number of times a new level is added to a reverse-mapping btree
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
-xfs.perdev.btree.reverse_mapping.killroot PMID: 11.18.160 []
+xfs.perdev.btree.reverse_map.killroot PMID: 11.18.160 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
@@ -5932,7 +5932,7 @@ Number of times a level is removed from a reverse-mapping btree
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
-xfs.perdev.btree.reverse_mapping.increment PMID: 11.18.161 []
+xfs.perdev.btree.reverse_map.increment PMID: 11.18.161 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
@@ -5941,7 +5941,7 @@ btree record
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
-xfs.perdev.btree.reverse_mapping.decrement PMID: 11.18.162 []
+xfs.perdev.btree.reverse_map.decrement PMID: 11.18.162 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
@@ -5950,7 +5950,7 @@ btree record
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
-xfs.perdev.btree.reverse_mapping.lshift PMID: 11.18.163 []
+xfs.perdev.btree.reverse_map.lshift PMID: 11.18.163 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
@@ -5959,7 +5959,7 @@ btree record
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
-xfs.perdev.btree.reverse_mapping.rshift PMID: 11.18.164 []
+xfs.perdev.btree.reverse_map.rshift PMID: 11.18.164 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
@@ -5968,7 +5968,7 @@ btree record
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
-xfs.perdev.btree.reverse_mapping.split PMID: 11.18.165 []
+xfs.perdev.btree.reverse_map.split PMID: 11.18.165 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
@@ -5976,7 +5976,7 @@ Split block operations to make space for a new reverse-mapping btree record
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
-xfs.perdev.btree.reverse_mapping.join PMID: 11.18.166 []
+xfs.perdev.btree.reverse_map.join PMID: 11.18.166 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
@@ -5984,7 +5984,7 @@ Merge block operations when deleting reverse-mapping btree records
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
-xfs.perdev.btree.reverse_mapping.alloc PMID: 11.18.167 []
+xfs.perdev.btree.reverse_map.alloc PMID: 11.18.167 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
@@ -5992,7 +5992,7 @@ Btree block allocations during reverse-mapping btree operations
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
-xfs.perdev.btree.reverse_mapping.free PMID: 11.18.168 []
+xfs.perdev.btree.reverse_map.free PMID: 11.18.168 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
@@ -6000,7 +6000,7 @@ Btree blocks freed during reverse-mapping btree operations
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
-xfs.perdev.btree.reverse_mapping.moves PMID: 11.18.169 []
+xfs.perdev.btree.reverse_map.moves PMID: 11.18.169 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
