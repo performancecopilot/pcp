@@ -28,6 +28,7 @@ port = 8125
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 valgrind_out_dir = os.path.join(sys.argv[1])
 valgrind_out_path = os.path.join(sys.argv[1], "valgrind-%p.out")
+dbpmda_out_path = os.path.join(sys.argv[1], "dbpmda.out")
 
 payloads = [
     "test_labels:0|c", # no label
@@ -140,7 +141,7 @@ testconfigs = [basic_parser_config, ragel_parser_config, duration_aggregation_ba
 def run_test():
     utils.pmdastatsd_remove()
     utils.setup_dbpmdarc()    
-    command = '(sleep 8;' + composed_command + '; cat) | sudo valgrind --trace-children=yes --leak-check=full --log-file=' + valgrind_out_path + ' dbpmda -q 60 -i';
+    command = '(sleep 8;' + composed_command + '; cat) | sudo valgrind --trace-children=yes --leak-check=full --log-file=' + valgrind_out_path + ' dbpmda -e -q 60 -i 2>&1 >>' + dbpmda_out_path;
     for config in testconfigs:
         utils.print_test_section_separator()
         utils.set_config(config)
