@@ -332,7 +332,8 @@ void RecordDialog::startLoggers()
     for (int i = 0; i < my.hosts.size(); i++) {
 	PmLogger *process = new PmLogger(pmchart);
 	QString archive = my.archives.at(i);
-	QString host = resolveLocalHostname(my.hosts.at(i));
+	/* RHBZ#1824403: keep "local:" for PMCD_LOCAL=1, pmlogger handles it */
+	QString host = my.hosts.at(i);
 	QString logfile, configfile;
 
 	configfile = archive;
