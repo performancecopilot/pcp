@@ -151,6 +151,15 @@ update_processor(struct percpu *cpu, int id, pmResult *result, pmDesc *descs)
 	cpu->cycle = extract_count_t_inst(result, descs, PERCPU_PERF_CYCLE, id);
 }
 
+static int
+compare_interface(const void *a, const void *b)
+{
+	struct perintf	*aintf = (struct perintf *)a;
+	struct perintf	*bintf = (struct perintf *)b;
+
+	return strcmp(aintf->name, bintf->name);
+}
+
 static void
 update_interface(struct perintf *in, int id, char *name, pmResult *rp, pmDesc *dp)
 {
@@ -405,6 +414,7 @@ photosyst(struct sstat *si)
 				pmGetProgname(), ids[i], insts[i]);
 		update_interface(&si->intf.intf[i], ids[i], insts[i], result, descs);
 	}
+	qsort(si->intf.intf, nrintf, sizeof(struct perintf), compare_interface);
 	si->intf.intf[nrintf].name[0] = '\0';
 	si->intf.nrintf = nrintf;
 	free(insts);

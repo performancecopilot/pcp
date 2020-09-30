@@ -56,6 +56,18 @@ getifprop(struct ifprop *ifp)
 }
 
 /*
+** function compares two interface names for struct sorting
+ */
+static int
+cmpifprop(const void *a, const void *b)
+{
+    struct ifprop	*ifa = (struct ifprop *)a;
+    struct ifprop	*ifb = (struct ifprop *)b;
+
+    return strcmp(ifa->name, ifb->name);
+}
+
+/*
 ** function stores properties of all interfaces in a static
 ** table to be queried later on
 */
@@ -84,7 +96,7 @@ initifprop(void)
 	/* extract external interface names */
 	count = get_instances("ifprop", IF_SPEED, descs, &ids, &insts);
 
-	propsize = (count + 1) * sizeof(ifprops[0]);
+	propsize = (count + 1) * sizeof ifprops[0];
 	if ((new_ifprops = realloc(ifprops, propsize)) == NULL)
 	{
 		fprintf(stderr,
@@ -121,6 +133,7 @@ initifprop(void)
 				ip->type = '?';
 		}
 	}
+	qsort(ifprops, count, sizeof *ifprops, cmpifprop);
 	ifprops[i].name[0] = '\0';
 	pmFreeResult(result);
 	free(insts);
