@@ -25,3 +25,24 @@
    fun:__pmFindPDUBuf
    ...
 }
+
+# qa/720 on fedora31-container in CI
+# at 0x483980B: malloc (vg_replace_malloc.c:307)
+# by 0x4CBD886: sasl_client_new (in /usr/lib64/libsasl2.so.3.0.0)
+# by 0x48C997C: __pmSecureClientIPCFlags (secureconnect.c:955)
+# by 0x48C997C: __pmSecureClientHandshake (secureconnect.c:1238)
+# by 0x4873762: attributes_handshake (connect.c:207)
+# by 0x4873762: __pmConnectHandshake (connect.c:308)
+# by 0x4874030: __pmConnectPMCD (connect.c:467)
+# by 0x4876FDA: pmNewContext (context.c:1152)
+# by 0x10AF90: main (pminfo.c:1196)
+{
+   sasl_client_new
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sasl_client_new
+   ...
+   fun:pmNewContext
+   ...
+}
