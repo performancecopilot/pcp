@@ -1019,114 +1019,149 @@ class NFSCLIENTPMDA(PMDA):
                 pmdaMetric(self.pmid(5,6), c_api.PM_TYPE_U32,
                 self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
                 'NFSIOS_VFSLOOKUP',
-'incremented in nfs_lookup on every lookup')
+'Incremented in nfs_lookup on every lookup')
 
         self.add_metric(name + '.events.vfsaccess',
                 pmdaMetric(self.pmid(5,7), c_api.PM_TYPE_U32,
                 self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
-                '', '')
+               'NFSIOS_VFSACCESS',
+'Incremented in nfs_permission on every access check')
 
         self.add_metric(name + '.events.vfsupdatepage',
                 pmdaMetric(self.pmid(5,8), c_api.PM_TYPE_U32,
                 self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
-                '', '')
+                'NFSIOS_VFSUPDATEPAGE',
+"Incremented in nfs_updatepage when updating and possibly writing a cached\n" +
+"page of an NFS file.\n")
 
         self.add_metric(name + '.events.vfsreadpage',
                 pmdaMetric(self.pmid(5,9), c_api.PM_TYPE_U32,
                 self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
-                '', '')
+                'NFSIOS_VFSREADPAGE',
+'Incremented in nfs_readpage when reading a single page over NFS')
 
         self.add_metric(name + '.events.vfsreadpages',
                 pmdaMetric(self.pmid(5,10), c_api.PM_TYPE_U32,
                 self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
-                '', '')
+                'NFSIOS_VFSREADPAGES',
+'Incremented in nfs_readpages when reading a page range over NFS')
 
         self.add_metric(name + '.events.vfswritepage',
                 pmdaMetric(self.pmid(5,11), c_api.PM_TYPE_U32,
                 self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
-                '', '')
+                'NFSIOS_VFSWRITEPAGE',
+'Incremented in nfs_writepage_locked writing a mmapped page to the server')
 
         self.add_metric(name + '.events.vfswritepages',
                 pmdaMetric(self.pmid(5,12), c_api.PM_TYPE_U32,
                 self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
-                '', '')
+                'NFSIOS_VFSWRITEPAGES',
+'Incremented in nfs_writepages to write pages under VM writeback control')
 
         self.add_metric(name + '.events.vfsgetdents',
                 pmdaMetric(self.pmid(5,13), c_api.PM_TYPE_U32,
                 self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
-                '', '')
+                'NFSIOS_VFSGETDENTS',
+'Incremented in nfs_readdir when reading directory entries')
 
         self.add_metric(name + '.events.vfssetattr',
                 pmdaMetric(self.pmid(5,14), c_api.PM_TYPE_U32,
                 self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
-                '', '')
+                'NFSIOS_VFSSETATTR',
+'Incremented in nfs_setattr when changing attributes (metadata) of an inode')
 
         self.add_metric(name + '.events.vfsflush',
                 pmdaMetric(self.pmid(5,15), c_api.PM_TYPE_U32,
                 self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
-                '', '')
+                'NFSIOS_VFSFLUSH',
+'Incremented in nfs_file_flush when flushing dirty pages')
 
         self.add_metric(name + '.events.vfsfsync',
                 pmdaMetric(self.pmid(5,16), c_api.PM_TYPE_U32,
                 self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
-                '', '')
+                'NFSIOS_VFSFSYNC',
+'Incremented in nfs_file_fsync_commit when flushing dirty pages for a process')
 
         self.add_metric(name + '.events.vfslock',
                 pmdaMetric(self.pmid(5,17), c_api.PM_TYPE_U32,
                 self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
-                '', '')
+                'NFSIOS_VFSLOCK',
+'Incremented in nfs_lock when locking a (portion of a) file')
 
         self.add_metric(name + '.events.vfsrelease',
                 pmdaMetric(self.pmid(5,18), c_api.PM_TYPE_U32,
                 self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
-                '', '')
+                'NFSIOS_VFSRELEASE',
+'Incremented in nfs_file_release when closing and releasing a file')
 
         self.add_metric(name + '.events.congestionwait',
                 pmdaMetric(self.pmid(5,19), c_api.PM_TYPE_U32,
                 self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
-                '', '')
+                'No longer used in the kernel', '')
 
         self.add_metric(name + '.events.setattrtrunc',
                 pmdaMetric(self.pmid(5,20), c_api.PM_TYPE_U32,
                 self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
-                '', '')
+                'NFSIOS_SETATTRTRUNC',
+"Incremented in nfs_setattr_update_inode when updating inode size after a\n" +
+"setattr call (e.g. from a truncate(2) userspace operation)")
 
         self.add_metric(name + '.events.extendwrite',
                 pmdaMetric(self.pmid(5,21), c_api.PM_TYPE_U32,
                 self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
-                '', '')
+                'NFSIOS_EXTENDWRITE',
+"Incremented in nfs_grow_file when adjusting file length if writing beyond\n" +
+"the end")
 
         self.add_metric(name + '.events.sillyrename',
                 pmdaMetric(self.pmid(5,22), c_api.PM_TYPE_U32,
                 self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
-                '', '')
+                'NFSIOS_SILLYRENAME',
+"Incremented in nfs_sillyrename to handle rename of unlinked, open files.\n" +
+"NFSv2/3 is stateless and the server doesn't know when the client is\n" +
+"holding a file open. To prevent application problems when a file is\n" +
+"unlinked while it's still open, the client performs a \"silly-rename\".\n" +
+"That is, it renames the file to a hidden file in the same directory,\n" +
+"and only performs the unlink once the last reference to it is put.")
 
         self.add_metric(name + '.events.shortread',
                 pmdaMetric(self.pmid(5,23), c_api.PM_TYPE_U32,
                 self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
-                '', '')
+                'NFSIOS_SHORTREAD',
+"Incremented in nfs_readpage_retry to handle the situation where the NFS\n" +
+"server initially read only part of a requested range - the read may be\n" +
+"retried at the end of the header")
 
         self.add_metric(name + '.events.shortwrite',
                 pmdaMetric(self.pmid(5,24), c_api.PM_TYPE_U32,
                 self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
-                '', '')
+                'NFSIOS_SHORTWRITE',
+"Incremented in nfs_writeback_result when a server write result indicates\n" +
+"server initially wrote only part of a requested range - the write may be\n" +
+"continued where the server left off, but may also be resent as a stable\n" +
+"(sync) write in order to avoid headaches in the case of a server crash.")
 
         self.add_metric(name + '.events.delay',
                 pmdaMetric(self.pmid(5,25), c_api.PM_TYPE_U32,
                 self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
-                '', '')
+                'NFSIOS_DELAY',
+'Incremented in nfs3_async_handle_jukebox or nfs4_do_handle_exception')
 
         self.add_metric(name + '.events.pnfsread',
                 pmdaMetric(self.pmid(5,26), c_api.PM_TYPE_U32,
                 self.NFSCLIENT_INDOM,
                 c_api.PM_SEM_COUNTER, UNITS_COUNT),
-                '', '')
+                'NFSIOS_PNFS_READ',
+"Incremented in pnfs_try_to_read_data when calling through the parallel\n" +
+"I/O subsystem read function.")
 
         self.add_metric(name + '.events.pnfswrite',
                 pmdaMetric(self.pmid(5,27), c_api.PM_TYPE_U32,
                 self.NFSCLIENT_INDOM,
                 c_api.PM_SEM_COUNTER, UNITS_COUNT),
-                '', '')
+                'NFSIOS_PNFS_WRITE',
+"Incremented in pnfs_try_to_write_data when calling through the parallel\n" +
+"I/O subsystem write function.")
 
 # bytes - cluster 6
         self.add_metric(name + '.bytes.read.normal',
@@ -1265,102 +1300,102 @@ class NFSCLIENTPMDA(PMDA):
         self.add_metric(name + '.xprt.read_chunks',
                 pmdaMetric(self.pmid(7,11), PMDA_ULONG,
                 self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
-                '', '')
+                'RPCRDMA read chunk count', '')
 
         self.add_metric(name + '.xprt.write_chunks',
                 pmdaMetric(self.pmid(7,12), PMDA_ULONG,
                 self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
-                '', '')
+                'RPCRDMA write chunk count', '')
 
         self.add_metric(name + '.xprt.reply_chunks',
                 pmdaMetric(self.pmid(7,13), PMDA_ULONG,
                 self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
-                '', '')
+                'RPCRDMA reply chunk count', '')
 
         self.add_metric(name + '.xprt.total_rdma_req',
                 pmdaMetric(self.pmid(7,14), c_api.PM_TYPE_U64,
                 self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
-                '', '')
+                'RPCRDMA total requests', '')
 
         self.add_metric(name + '.xprt.total_rdma_rep',
                 pmdaMetric(self.pmid(7,15), c_api.PM_TYPE_U64,
                 self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
-                '', '')
+                'RPCRDMA total replies', '')
 
         self.add_metric(name + '.xprt.pullup',
                 pmdaMetric(self.pmid(7,16), c_api.PM_TYPE_U64,
                 self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
-                '', '')
+                'RPCRDMA pullup copy count', '')
 
         self.add_metric(name + '.xprt.fixup',
                 pmdaMetric(self.pmid(7,17), c_api.PM_TYPE_U64,
                 self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
-                '', '')
+                'RPCRDMA fixup copy count', '')
 
         self.add_metric(name + '.xprt.hardway',
                 pmdaMetric(self.pmid(7,18), PMDA_ULONG,
                 self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
-                '', '')
+                'RPCRDMA hardway register count', '')
 
         self.add_metric(name + '.xprt.failed_marshal',
                 pmdaMetric(self.pmid(7,19), PMDA_ULONG,
                 self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
-                '', '')
+                'RPCRDMA failed marshal count', '')
 
         self.add_metric(name + '.xprt.bad_reply',
                 pmdaMetric(self.pmid(7,20), PMDA_ULONG,
                 self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
-                '', '')
+                'RPCRDMA bad reply count', '')
 
         self.add_metric(name + '.xprt.max_slots',
                 pmdaMetric(self.pmid(7,21), PMDA_ULONG,
                 self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
-                'max rpc_slots used', '')
+                'RPCRDMA max RPC slots used', '')
 
         self.add_metric(name + '.xprt.sending_u',
                 pmdaMetric(self.pmid(7,22), c_api.PM_TYPE_U64,
                 self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
-                'send q utilization', '')
+                'RPCRDMA send queue utilization', '')
 
         self.add_metric(name + '.xprt.pending_u',
                 pmdaMetric(self.pmid(7,23), c_api.PM_TYPE_U64,
                 self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
-                'pend q utilization', '')
+                'RPCRDMA pending queue utilization', '')
 
         self.add_metric(name + '.xprt.nomsg_call',
                 pmdaMetric(self.pmid(7,24), PMDA_ULONG,
                 self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
-                'no msg count', '')
+                'RPCRDMA no msg count', '')
 
         self.add_metric(name + '.xprt.mrs_recycled',
                 pmdaMetric(self.pmid(7,25), PMDA_ULONG,
                 self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
-                'RDMA MRs Recycled', '')
+                'RPCRDMA MRs recycled', '')
 
         self.add_metric(name + '.xprt.mrs_orphaned',
                 pmdaMetric(self.pmid(7,26), PMDA_ULONG,
                 self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
-                'RDMA MRs Orphaned', '')
+                'RPCRDMA MRs orphaned', '')
 
         self.add_metric(name + '.xprt.mrs_allocated',
                 pmdaMetric(self.pmid(7,27), PMDA_ULONG,
                 self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
-                'RMDA MRs Allocated', '')
+                'RPCRDMA MRs allocated', '')
 
         self.add_metric(name + '.xprt.local_inv_needed',
                 pmdaMetric(self.pmid(7,28), PMDA_ULONG,
                 self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
-                'RDMA LOCAL_INV requests', '')
+                'RPCRDMA LOCAL_INV requests', '')
 
         self.add_metric(name + '.xprt.empty_sendctxq',
                 pmdaMetric(self.pmid(7,29), PMDA_ULONG,
                 self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
-                'RDMA Send Queue empty', '')
+                'RPCRDMA Send Queue empty', '')
 
         self.add_metric(name + '.xprt.reply_waits',
                 pmdaMetric(self.pmid(7,30), PMDA_ULONG,
                 self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
-                'RDMA reply waits for send', '')
+                'RPCRDMA reply waits for send', '')
 
 # ops - cluster 8
 #
