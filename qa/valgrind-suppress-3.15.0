@@ -110,6 +110,7 @@
 }
 
 # qa/720 on vm24 (openSUSE Leap 15.1)
+# qa/720 on ubuntu2004-direct in CI
 # at 0x4C2CE5F: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
 # by 0x5C4AFA2: sasl_client_new (in /usr/lib/libsasl2.so.3.0.0)
 # by 0x4E9C5EA: __pmSecureClientIPCFlags (secureconnect.c:949)
@@ -125,10 +126,7 @@
    match-leak-kinds: definite
    fun:malloc
    fun:sasl_client_new
-   fun:__pmSecureClientIPCFlags
-   fun:__pmSecureClientHandshake
-   fun:attributes_handshake
-   fun:__pmConnectHandshake
-   fun:__pmConnectPMCD
+   ...
+   fun:pmNewContext
    ...
 }

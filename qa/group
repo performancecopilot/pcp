@@ -1438,35 +1438,35 @@ x11
 998 threads libpcp local
 999 pmns local
 1000 pmdumptext local
-1001 pmchart local
-1002 pmchart local
-1003 pmchart local kernel
-1004 pmchart local kernel
-1005 pmchart local
-1006 pmchart local
-1007 pmchart local kernel
-1008 pmdumptext libpcp_qmc local kernel
-1009 pmdumptext libpcp_qmc local
-1010 pmdumptext pmlogger libpcp_qmc local
-1011 pmdumptext pmval libpcp_qmc local
-1012 pmdumptext libpcp_qmc local
-1013 libpcp_qmc local
-1014 libpcp_qmc local
-1015 libpcp_qmc local
-1016 libpcp_qmc local
-1017:retired libpcp_qmc local flakey kernel
-1018:retired libpcp_qmc local flakey
-1019:retired libpcp_qmc local flakey pmstore
-1020:retired libpcp_qmc local flakey pmstore
-1021 libpcp_qmc local
-1022 pmdumptext local kernel
-1023 pmdumptext local
+1001 pmchart local x11
+1002 pmchart local x11
+1003 pmchart local kernel x11
+1004 pmchart local kernel x11
+1005 pmchart local x11
+1006 pmchart local x11
+1007 pmchart local kernel x11
+1008 pmdumptext libpcp_qmc local kernel x11
+1009 pmdumptext libpcp_qmc local x11
+1010 pmdumptext pmlogger libpcp_qmc local x11
+1011 pmdumptext pmval libpcp_qmc local x11
+1012 pmdumptext libpcp_qmc local x11
+1013 libpcp_qmc local x11
+1014 libpcp_qmc local x11
+1015 libpcp_qmc local x11
+1016 libpcp_qmc local x11
+1017:retired libpcp_qmc local flakey kernel x11
+1018:retired libpcp_qmc local flakey x11
+1019:retired libpcp_qmc local flakey pmstore x11
+1020:retired libpcp_qmc local flakey pmstore x11
+1021 libpcp_qmc local x11
+1022 pmdumptext local kernel x11
+1023 pmdumptext local x11
 1024 pmda.linux local kernel
-1025 pmdumptext pmlogger pmdumplog pmloglabel local
-1026 pmdumptext remote kernel
-1027 pmdumptext local pmstore
-1028 pmdumptext local kernel
-1029 libpcp_qmc local pmstore
+1025 pmdumptext pmlogger pmdumplog pmloglabel local x11
+1026 pmdumptext remote kernel x11
+1027 pmdumptext local pmstore x11
+1028 pmdumptext local kernel x11
+1029 libpcp_qmc local pmstore x11
 1030 pmda.linux local
 1031 pmda.slurm perl local
 1032 pmproxy containers local python
@@ -1560,7 +1560,7 @@ x11
 1120 pmda.openmetrics local python
 1121 pmda.linux local kernel
 1122 pmie local
-1123 pmchart local kernel
+1123 pmchart local kernel x11
 1124 pmda.bcc local python
 1125:retired pmcollect
 1126 pmda.bcc local python

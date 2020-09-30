@@ -39,7 +39,12 @@ _cleanup()
 {
     $USE_SYSLOG && [ $status -ne 0 ] && \
     $PCP_SYSLOG_PROG -p daemon.error "$prog failed - see $PROGLOG"
-    [ -s "$PROGLOG" ] || rm -f "$PROGLOG"
+    if $SHOWME
+    then
+	:
+    else
+	[ -s "$PROGLOG" ] || rm -f "$PROGLOG"
+    fi
     rm -rf $tmp
 }
 trap "_cleanup; exit \$status" 0 1 2 3 15
