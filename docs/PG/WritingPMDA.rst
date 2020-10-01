@@ -367,9 +367,9 @@ Symbolic constants of the form **PM_TYPE\*, PM_SEM_\*, PM_SPACE_\*, PM_TIME_\***
 You may use them to initialize the elements of a **pmDesc** structure. The **pmID** type is an unsigned integer that can be safely cast to a **__pmID_int** 
 structure, which contains fields defining the metric's (PMDA's) domain, cluster, and item number as shown in `Example 2.3. __pmID_int Structure`_:
 
-.. _Example 2.3.  __pmID_int Structure:
+.. _Example 2.3. __pmID_int Structure:
 
-**Example 2.3.  __pmID_int Structure**
+**Example 2.3. __pmID_int Structure**
 
 .. sourcecode:: none
 
