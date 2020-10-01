@@ -175,6 +175,22 @@ dodso_desc(pmID pmid, pmDesc *desc)
     return sts;
 }/*dodso_desc*/
 
+char *
+dodso_iname(pmInDom indom, int inst)
+{
+    int		sts;
+    pmInResult	*inresult;
+    char	*iname = NULL;
+
+    sts = dispatch.version.any.instance(indom, inst, NULL, &inresult,
+					dispatch.version.any.ext);
+    if (sts >= 0)
+	iname = strdup(inresult->namelist[0]);
+    else
+	printf("Error: DSO instance() failed: %s\n", pmErrStr(sts));
+
+    return iname;
+}
 
 void
 dodso(int pdu)
@@ -215,7 +231,7 @@ dodso(int pdu)
 		printf(" %s", pmIDStr(param.pmidlist[i]));
 	    putchar('\n');
 
-	    if (get_desc) {
+	    if (get_desc || get_iname) {
 		desc_list = (pmDesc *)malloc(param.numpmid * sizeof(pmDesc));
 		if (desc_list == NULL) {
 	            printf("Error: DSO fetch() failed: %s\n", pmErrStr(ENOMEM));

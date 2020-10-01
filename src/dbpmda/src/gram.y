@@ -108,7 +108,7 @@ fix_dynamic_pmid(char *name, pmID *pmidp)
 	STRING
 
 %term	COMMA EQUAL
-	OPEN CLOSE DESC GETDESC FETCH INSTANCE PROFILE HELP 
+	OPEN CLOSE DESC GETDESC GETINAME FETCH INSTANCE PROFILE HELP 
 	WATCH DBG QUIT STATUS STORE INFO TIMER NAMESPACE WAIT
 	PMNS_NAME PMNS_PMID PMNS_CHILDREN PMNS_TRAVERSE ATTR
 	LABEL CTXT DOMAIN INDOM CLUSTER ITEM INSTANCES
@@ -390,6 +390,10 @@ stmt	: OPEN EOL				{
 		param.number = GETDESC; param.pmid = HELP_FULL; 
 		stmt_type = HELP; YYACCEPT;
 	    }
+	| HELP GETINAME EOL			{
+		param.number = GETINAME; param.pmid = HELP_FULL; 
+		stmt_type = HELP; YYACCEPT;
+	    }
 	| HELP INFO EOL				{
 		param.number = INFO; param.pmid = HELP_FULL;
 		stmt_type = HELP; YYACCEPT;
@@ -503,6 +507,16 @@ stmt	: OPEN EOL				{
 	    }
 	| GETDESC OFF EOL				{ 
 		get_desc = 0; stmt_type = EOL; YYACCEPT; 
+	    }
+	| GETINAME EOL				{
+		param.number = GETINAME; param.pmid = HELP_USAGE;
+		stmt_type = HELP; YYACCEPT;
+	    }
+	| GETINAME ON EOL				{ 
+		get_iname = 1; stmt_type = EOL; YYACCEPT; 
+	    }
+	| GETINAME OFF EOL				{ 
+		get_iname = 0; stmt_type = EOL; YYACCEPT; 
 	    }
 	| WAIT EOL				{
 		param.number = WAIT; param.pmid = HELP_USAGE;

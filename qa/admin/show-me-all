@@ -136,7 +136,7 @@ do
 	    fi
 	done
 	echo -n "$host-"
-	show-me $show_me_opts $seq
+	show-me -w $show_me_opts $seq
 	$full && [ -f $seq.full ] && less $seq.full </dev/tty
     fi
     echo $host $sum >>$tmp.sum
