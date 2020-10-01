@@ -34,7 +34,7 @@ of the PCP monitor tools make extensive use of visualization, this suggests the 
 
 .. _Figure 7.1. PCP Deployment for a Single System:
 
-.. figure:: ../images/remote-collector.png
+.. figure:: ../../images/remote-collector.png
 
    Figure 7.1. PCP Deployment for a Single System
 
@@ -43,7 +43,7 @@ of many common scenarios.
 
 .. _Figure 7.2. Basic PCP Deployment for Two Systems:
 
-.. figure:: ../images/remote-deploy.svg
+.. figure:: ../../images/remote-deploy.svg
 
     Figure 7.2. Basic PCP Deployment for Two Systems
 
@@ -56,7 +56,7 @@ services across multiple hosts. For example, in `Figure 7.3. General PCP Deploym
 
 .. _Figure 7.3. General PCP Deployment for Multiple Systems:
 
-.. figure:: ../images/multi-deploy.png
+.. figure:: ../../images/multi-deploy.png
 
    Figure 7.3. General PCP Deployment for Multiple Systems
      
@@ -94,7 +94,7 @@ The arrangement in `Figure 7.4. PCP Deployment to Measure Client-Server Quality 
 
 .. _Figure 7.4. PCP Deployment to Measure Client-Server Quality of Service:
 
-.. figure:: ../images/qos-deploy.png
+.. figure:: ../../images/qos-deploy.png
 
    Figure 7.4. PCP Deployment to Measure Client-Server Quality of Service
 
@@ -139,7 +139,7 @@ As an extension of the previous option, designate one system to act as the PCP a
 
 .. _Figure 7.5. Designated PCP Archive Site:
 
-.. figure:: ../images/designated-logger.png
+.. figure:: ../../images/designated-logger.png
 
     Figure 7.5. Designated PCP Archive Site
      
@@ -209,7 +209,7 @@ performance management (operations) and strategic performance management (capaci
 
 .. _Figure 7.6. PCP Management Site Deployment:
 
-.. figure:: ../images/designated-manager.png
+.. figure:: ../../images/designated-manager.png
 
     Figure 7.6. PCP Management Site Deployment
      
