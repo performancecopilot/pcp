@@ -171,11 +171,12 @@ $ dbpmda
 Namespace:              (default)
 PMDA:                   ./pmda_simple.so
 Connection:             dso
-DSO Interface Version:  2
+DSO Interface Version:  7
 PMDA PMAPI Version:     2
-pmDebug:                32768 ( libpmda )
+Debug options:          libpmda
 Timer:                  off
 Getdesc:                off
+Getiname:               off
 
 Dump Instance Profile state=INCLUDE, 0 profiles
 
@@ -183,14 +184,14 @@ Dump Instance Profile state=INCLUDE, 0 profiles
 .fi
 .in
 .PP
-To examine the metric and instance descriptors, the
+To examine the metric and instance domain metadata, the
 .B desc
 and
 .B instance
 commands can be used.
-Metrics may be identified either by name, or using the
+Metrics may be identified either by name, or using the numeric
 ``dotted'' notation to specify the domain, cluster and item fields of a PMID.
-Instance domains must be identified using a ``dotted'' notation to
+Instance domains must be identified using a numeric ``dotted'' notation to
 specify the domain and serial fields.
 The syntax for most commands will be
 displayed if the command is given without any arguments:
@@ -249,8 +250,59 @@ Setting
 .B getdesc
 to
 .B on
-would result in only integer values being dumped in the above fetch as the
-descriptor describes the metrics of 32-bit unsigned integers.
+also fetches the metric metadata (or
+.BR pmDesc )
+and this would result in only integer values being dumped in the above fetch as the
+metric metadata describes the metric type to be 32-bit unsigned integers.
+.PP
+Similarly, the
+.B getiname
+setting controls the lookup of external instance names for metrics with an
+associated instance domain.
+When
+.B off
+(the default)
+the output is as above.
+When
+.B on
+the instance ``names'' ??? are translated into their external instance names
+by the PMDA and reported as below:
+.PP
+.nf
+.ft CW
+.in +0.5i
+dbpmda> getiname on
+dbpmda> fetch simple.color
+PMID(s): 253.0.1
+pmResult dump from 0x100078e0 timestamp: 0.000000 11:00:00.000 numpmid: 1
+  253.0.1 (simple.color): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value 4
+    inst [1 or "green"] value 104
+    inst [2 or "blue"] value 204
+.fi
+.in
+.PP
+Because the metric metadata is required to do the instance name lookup, setting
+.B getiname
+to
+.B on
+implicitly sets
+.B getdesc
+to
+.BR on .
+.PP
+Note that if either
+.B getdesc
+or
+.B getiname
+are set
+.B on
+then each
+.B fetch
+involves additional calls on the PMDA.
+For a PMDA under development this may not be a good idea, which is why both
+settings default to
+.BR off .
 .PP
 The simple PMDA also supports the
 .B store
@@ -318,10 +370,15 @@ pmResult dump from 0x100078e0 timestamp: 0.000000 11:00:00.000 numpmid: 1
     inst [2 or ???] value 203
 dbpmda> status
 
-PMDA       = pmda_simple.so
-Connection = dso
-pmDebug    = 32768 ( libpmda )
-Timer      = off
+Namespace:              (default)
+PMDA:                   ./pmda_simple.so
+Connection:             dso
+DSO Interface Version:  7
+PMDA PMAPI Version:     2
+Debug options:          (none)
+Timer:                  off
+Getdesc:                off
+Getiname:               off
 
 Dump Instance Profile state=INCLUDE, 1 profiles
         Profile [0] indom=1061158913 [253.0] state=EXCLUDE 2 instances
@@ -341,7 +398,7 @@ The
 .B wait
 command is equivalent to
 .BR sleep (1)
-and takes a single integer argument.
+and takes a single integer argument (wait time in seconds).
 .PP
 The introduction of dynamic subtrees in the
 PMNS and PMDA_INTERFACE_4 in

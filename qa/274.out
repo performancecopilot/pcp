@@ -11,6 +11,7 @@ PMDA PMAPI Version:     2
 Debug options:          (none)
 Timer:                  off
 Getdesc:                off
+Getiname:               off
 
 Dump Instance Profile state=INCLUDE, 0 profiles
 
@@ -169,6 +170,7 @@ PMDA PMAPI Version:     2
 Debug options:          (none)
 Timer:                  off
 Getdesc:                off
+Getiname:               off
 
 Dump Instance Profile state=INCLUDE, 0 profiles
 
@@ -199,6 +201,7 @@ PMDA PMAPI Version:     2
 Debug options:          (none)
 Timer:                  off
 Getdesc:                off
+Getiname:               off
 
 Dump Instance Profile state=INCLUDE, 0 profiles
 
@@ -222,6 +225,7 @@ PMDA PMAPI Version:     2
 Debug options:          (none)
 Timer:                  off
 Getdesc:                off
+Getiname:               off
 
 Dump Instance Profile state=INCLUDE, 0 profiles
 
@@ -245,6 +249,7 @@ PMDA PMAPI Version:     2
 Debug options:          (none)
 Timer:                  off
 Getdesc:                off
+Getiname:               off
 
 Dump Instance Profile state=INCLUDE, 0 profiles
 
@@ -287,6 +292,7 @@ PMDA PMAPI Version:     unknown!
 Debug options:          (none)
 Timer:                  off
 Getdesc:                off
+Getiname:               off
 
 Dump Instance Profile state=INCLUDE, 0 profiles
 

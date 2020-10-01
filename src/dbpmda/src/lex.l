@@ -75,6 +75,7 @@ domain		{ return DOMAIN; }
 dso		{ BEGIN FNAME; return DSO; }
 exit		{ return QUIT; }
 fetch		{ return FETCH; }
+getiname	{ return GETINAME; }
 getdesc		{ return GETDESC; }
 help		{ return HELP; }
 indom		{ return INDOM; }

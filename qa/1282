@@ -80,5 +80,9 @@ echo
 echo "check-vm -c"
 admin/check-vm -c 2>&1 | _filter
 
+# for debugging especially in CI
+#
+admin/check-vm -c -vv >>$seq.full 2>&1
+
 # success, all done
 exit

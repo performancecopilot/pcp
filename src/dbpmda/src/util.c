@@ -38,6 +38,7 @@ pmProfile		*profile;
 int			profile_changed;
 int			timer;
 int			get_desc;
+int			get_iname;
 
 static pmID		*pmidlist;
 static int		numpmid;
@@ -265,6 +266,7 @@ dohelp(int command, int full)
 	dohelp(DESC, HELP_USAGE);
 	dohelp(FETCH, HELP_USAGE);
 	dohelp(GETDESC, HELP_USAGE);
+	dohelp(GETINAME, HELP_USAGE);
 	dohelp(INSTANCE, HELP_USAGE);
 	dohelp(LABEL, HELP_USAGE);
 	dohelp(PMNS_NAME, HELP_USAGE);
@@ -306,6 +308,9 @@ dohelp(int command, int full)
 	    break;
 	case GETDESC:
 	    puts("getdesc on | off");
+	    break;
+	case GETINAME:
+	    puts("getiname on | off");
 	    break;
 	case INFO:
 	    puts("text metric");
@@ -405,6 +410,12 @@ dohelp(int command, int full)
 		puts(
 "Before doing a fetch, get the descriptor so that the result of a fetch\n"
 "can be printed out correctly.\n");
+		break;
+	    case GETINAME:
+		puts(
+"After a fetch if the metric has an associated instance domain then lookup\n"
+"the external names of any instances returned, rather than reporting the\n"
+"instance name as ???.\n");
 		break;
 	    case INFO:
 		puts(
@@ -578,6 +589,12 @@ dostatus(void)
     else
 	printf("on\n");
 
+    printf("Getiname:               ");
+    if (get_iname == 0)
+	printf("off\n");
+    else
+	printf("on\n");
+
     putchar('\n');
     __pmDumpProfile(stdout, PM_INDOM_NULL, profile);
     putchar('\n');
@@ -629,7 +646,22 @@ _dbDumpResult(FILE *f, pmResult *resp, pmDesc *desc_list)
 	    pmValue	*vp = &vsp->vlist[j];
 	    if (vsp->numval > 1 || desc_list[i].indom != PM_INDOM_NULL) {
 		fprintf(f, "    inst [%d", vp->inst);
-		fprintf(f, " or ???]");
+		if (get_iname) {
+		    char	*iname;
+		    if (connmode == CONN_DSO)
+			iname = dodso_iname(desc_list[i].indom, vp->inst);
+		    else
+			/* safe to assume daemon as we must have an open PMDA */
+			iname = dopmda_iname(desc_list[i].indom, vp->inst);
+		    if (iname != NULL) {
+			fprintf(f, " or \"%s\"]", iname);
+			free(iname);
+		    }
+		    else
+			fprintf(f, " or ???]");
+		}
+		else
+		    fprintf(f, " or ???]");
 		fputc(' ', f);
 	    }
 	    else
