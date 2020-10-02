@@ -211,7 +211,16 @@ _path_to_pkg()
 		then
 		    if [ ! -f $tmp.perlmodules ]
 		    then
-			sudo cpan -l 2>/dev/null | sed -e 's/[ 	].*//' >$tmp.perlmodules
+			sudo cpan -l 2>/dev/null \
+			| sed -e 's/[ 	].*//' \
+			| LC_COLLATE=POSIX sort >$tmp.perlmodules
+			if $very_verbose
+			then
+			    echo >&2 "cpan -l -> `wc -l <$tmp.perlmodules | sed -e 's/  *//g'` lines"
+			    cat -n $tmp.perlmodules | head >&2 -3
+			    echo >&2 "  ..."
+			    cat -n $tmp.perlmodules | tail >&2 -3
+			fi
 		    fi
 		    if [ -s $tmp.perlmodules ]
 		    then
@@ -254,7 +263,7 @@ _path_to_pkg()
 		if `which "$tool"` >/dev/null
 		then
 		    $tool show -f "$module" >$tmp.tmp
-		    match=`echo $1 | sed -e 's;.*-packages/;;'`
+		    match=`echo "$1" | sed -e 's;.*-packages/;;'`
 		    if grep " $match\$" $tmp.tmp >/dev/null
 		    then
 			# found it!
@@ -277,14 +286,28 @@ _path_to_pkg()
 	    #
 	    if [ -s $tmp.tmp ]
 	    then
-		cat $tmp.tmp
+		:
 	    elif which realpath >/dev/null 2>&1
 	    then
-		_target=`realpath $1`
+		_target=`realpath "$1"`
 		if [ "$_target" != "$1" ]
 		then
-		    dpkg-query -S "$_target" 2>/dev/null | sed -e 's/:.*//'
+		    dpkg-query -S "$_target" 2>/dev/null | sed -e 's/:.*//' >$tmp.tmp
 		fi
+	    fi
+	    if [ -s $tmp.tmp ]
+	    then
+		cat $tmp.tmp
+	    else
+		case "$1"
+		in
+		    /usr/bin/*)
+			# failure on test-ubuntu2004-direct in CI
+			echo >&2 "+++ Bear Trap +++"
+			ls >&2 -ild /usr/bin /bin "$1" "`echo "$1" | sed -e 's;/usr;;'`"
+			echo >&2 "_target=$_target"
+			;;
+		esac
 	    fi
 	    ;;
 
@@ -300,7 +323,7 @@ _path_to_pkg()
 		cat $tmp.tmp
 	    elif which realpath >/dev/null 2>&1
 	    then
-		_target=`realpath $1`
+		_target=`realpath "$1"`
 		if [ "$_target" != "$1" ]
 		then
 		    rpm -qf "$_target" 2>/dev/null | sed -e '/is not owned by any/d' -e 's/-[0-9].*//'
@@ -837,13 +860,21 @@ do
 	    # special case Perl, no module name
 	    _perl=`echo "$target" | sed -e 's/:://'`
 	    _target=`find $_perl_dirs -name "$_perl.*" -print 2>/dev/null \
+		     | tee $tmp.debug \
 	             | egrep "/$_perl.(pm|so|dylib|bs)$" \
 		     | ( tr '\012' '|'; echo ) \
 		     | sed -e 's/|$//'`
 	    if [ -z "$_target" ]
 	    then
-		_undot
-		echo "$line: Perl source \"$target\" not found"
+		$very_verbose && echo >&2 "... looking for $_perl.* from candidates: `cat $tmp.debug`"
+		if [ "`expr "$pkginfo" : "cpan(.*"`" -gt 0 ]
+		then
+		    # say nothing if cpan() is the only package option
+		    :
+		else
+		    _undot
+		    echo "$line: Perl source \"$target\" not found"
+		fi
 	    else
 		$very_verbose && echo >&2 "$line: Perl $target -> $_target"
 		target="$_target"
@@ -857,13 +888,21 @@ do
 	    _submodule=`echo "$target" | sed -e 's/[^:]*::\([^:][^:]*\)::.*/\1/'`
 	    _perl=`echo "$target" | sed -e 's/.*:://'`
 	    _target=`find $_perl_dirs -name "$_perl.*" -print 2>/dev/null \
+		     | tee $tmp.debug \
 	             | egrep "/$_module/($_submodule|$_submodule/$_perl)/$_perl.(pm|so|dylib|bs)$" \
 		     | ( tr '\012' '|'; echo ) \
 		     | sed -e 's/|$//'`
 	    if [ -z "$_target" ]
 	    then
-		_undot
-		echo "$line: Perl source \"$target\" not found"
+		$very_verbose && echo >&2 "... looking for $_module/($_submodule|$_submodule/$_perl)/$_perl.* from candidates: `cat $tmp.debug`"
+		if [ "`expr "$pkginfo" : "cpan(.*"`" -gt 0 ]
+		then
+		    # say nothing if cpan() is the only package option
+		    :
+		else
+		    _undot
+		    echo "$line: Perl source \"$target\" not found"
+		fi
 	    else
 		$very_verbose && echo >&2 "$line: Perl $target -> $_target"
 		target="$_target"
@@ -883,8 +922,14 @@ do
 	    if [ -z "$_target" ]
 	    then
 		$very_verbose && echo >&2 "... looking for $_module/$_perl.* from candidates: `cat $tmp.debug`"
-		_undot
-		echo "$line: Perl source \"$target\" not found"
+		if [ "`expr "$pkginfo" : "cpan(.*"`" -gt 0 ]
+		then
+		    # say nothing if cpan() is the only package option
+		    :
+		else
+		    _undot
+		    echo "$line: Perl source \"$target\" not found"
+		fi
 	    else
 		$very_verbose && echo >&2 "$line: Perl $target -> $_target"
 		target="$_target"
