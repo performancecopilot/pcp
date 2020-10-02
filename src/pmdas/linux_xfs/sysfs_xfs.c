@@ -35,10 +35,10 @@ refresh_xfs(FILE *fp, sysfs_xfs_t *sysfs_xfs)
 		    &sysfs_xfs->xs_freeb);
 	else if (strncmp(buf, "abt ", 4) == 0)
 	    sscanf(buf, "abt %u %u %u %u",
-		    &sysfs_xfs->xs_abt_lookup,
-		    &sysfs_xfs->xs_abt_compare,
-		    &sysfs_xfs->xs_abt_insrec,
-		    &sysfs_xfs->xs_abt_delrec);
+		    &sysfs_xfs->xs_abt.lookup,
+		    &sysfs_xfs->xs_abt.compare,
+		    &sysfs_xfs->xs_abt.insrec,
+		    &sysfs_xfs->xs_abt.delrec);
 	else if (strncmp(buf, "blk_map ", 8) == 0)
 	    sscanf(buf, "blk_map %u %u %u %u %u %u %u", 
 		    &sysfs_xfs->xs_blk_mapr,
@@ -50,10 +50,10 @@ refresh_xfs(FILE *fp, sysfs_xfs_t *sysfs_xfs)
 		    &sysfs_xfs->xs_cmp_exlist);
 	else if (strncmp(buf, "bmbt ", 5) == 0)
 	    sscanf(buf, "bmbt %u %u %u %u",
-		    &sysfs_xfs->xs_bmbt_lookup,
-		    &sysfs_xfs->xs_bmbt_compare,
-		    &sysfs_xfs->xs_bmbt_insrec,
-		    &sysfs_xfs->xs_bmbt_delrec);
+		    &sysfs_xfs->xs_bmbt.lookup,
+		    &sysfs_xfs->xs_bmbt.compare,
+		    &sysfs_xfs->xs_bmbt.insrec,
+		    &sysfs_xfs->xs_bmbt.delrec);
 	else if (strncmp(buf, "dir ", 4) == 0)
 	    sscanf(buf, "dir %u %u %u %u",
 		    &sysfs_xfs->xs_dir_lookup,
@@ -109,14 +109,14 @@ refresh_xfs(FILE *fp, sysfs_xfs_t *sysfs_xfs)
 		    &sysfs_xfs->xs_attr_list);
 	else if (strncmp(buf, "qm ", 3) == 0)
 	    sscanf(buf, "qm %u %u %u %u %u %u %u %u",
-		    &sysfs_xfs->xs_qm_dqreclaims,
-		    &sysfs_xfs->xs_qm_dqreclaim_misses,
-		    &sysfs_xfs->xs_qm_dquot_dups,
-		    &sysfs_xfs->xs_qm_dqcachemisses,
-		    &sysfs_xfs->xs_qm_dqcachehits,
-		    &sysfs_xfs->xs_qm_dqwants,
-		    &sysfs_xfs->xs_qm_dqshake_reclaims,
-		    &sysfs_xfs->xs_qm_dqinact_reclaims);
+		    &sysfs_xfs->xs_qm.dqreclaims,
+		    &sysfs_xfs->xs_qm.dqreclaim_misses,
+		    &sysfs_xfs->xs_qm.dquot_dups,
+		    &sysfs_xfs->xs_qm.dqcachemisses,
+		    &sysfs_xfs->xs_qm.dqcachehits,
+		    &sysfs_xfs->xs_qm.dqwants,
+		    &sysfs_xfs->xs_qm.dquots,
+		    &sysfs_xfs->xs_qm.dquots_unused);
 	else if (strncmp(buf, "icluster ", 9) == 0)
 	    sscanf(buf, "icluster %u %u %u",
 		    &sysfs_xfs->xs_iflush_count,
@@ -145,77 +145,128 @@ refresh_xfs(FILE *fp, sysfs_xfs_t *sysfs_xfs)
 		    &sysfs_xfs->vnodes.vn_free);
 	else if (strncmp(buf, "abtb2 ", 6) == 0)
 	    sscanf(buf, "abtb2 %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u",
-		    &sysfs_xfs->xs_abtb_2_lookup,
-		    &sysfs_xfs->xs_abtb_2_compare,
-		    &sysfs_xfs->xs_abtb_2_insrec,
-		    &sysfs_xfs->xs_abtb_2_delrec,
-		    &sysfs_xfs->xs_abtb_2_newroot,
-		    &sysfs_xfs->xs_abtb_2_killroot,
-		    &sysfs_xfs->xs_abtb_2_increment,
-		    &sysfs_xfs->xs_abtb_2_decrement,
-		    &sysfs_xfs->xs_abtb_2_lshift,
-		    &sysfs_xfs->xs_abtb_2_rshift,
-		    &sysfs_xfs->xs_abtb_2_split,
-		    &sysfs_xfs->xs_abtb_2_join,
-		    &sysfs_xfs->xs_abtb_2_alloc,
-		    &sysfs_xfs->xs_abtb_2_free,
-		    &sysfs_xfs->xs_abtb_2_moves);
+		    &sysfs_xfs->xs_abtb_2.lookup,
+		    &sysfs_xfs->xs_abtb_2.compare,
+		    &sysfs_xfs->xs_abtb_2.insrec,
+		    &sysfs_xfs->xs_abtb_2.delrec,
+		    &sysfs_xfs->xs_abtb_2.newroot,
+		    &sysfs_xfs->xs_abtb_2.killroot,
+		    &sysfs_xfs->xs_abtb_2.increment,
+		    &sysfs_xfs->xs_abtb_2.decrement,
+		    &sysfs_xfs->xs_abtb_2.lshift,
+		    &sysfs_xfs->xs_abtb_2.rshift,
+		    &sysfs_xfs->xs_abtb_2.split,
+		    &sysfs_xfs->xs_abtb_2.join,
+		    &sysfs_xfs->xs_abtb_2.alloc,
+		    &sysfs_xfs->xs_abtb_2.free,
+		    &sysfs_xfs->xs_abtb_2.moves);
 	else if (strncmp(buf, "abtc2 ", 6) == 0)
 	    sscanf(buf, "abtc2 %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u",
-		    &sysfs_xfs->xs_abtc_2_lookup,
-		    &sysfs_xfs->xs_abtc_2_compare,
-		    &sysfs_xfs->xs_abtc_2_insrec,
-		    &sysfs_xfs->xs_abtc_2_delrec,
-		    &sysfs_xfs->xs_abtc_2_newroot,
-		    &sysfs_xfs->xs_abtc_2_killroot,
-		    &sysfs_xfs->xs_abtc_2_increment,
-		    &sysfs_xfs->xs_abtc_2_decrement,
-		    &sysfs_xfs->xs_abtc_2_lshift,
-		    &sysfs_xfs->xs_abtc_2_rshift,
-		    &sysfs_xfs->xs_abtc_2_split,
-		    &sysfs_xfs->xs_abtc_2_join,
-		    &sysfs_xfs->xs_abtc_2_alloc,
-		    &sysfs_xfs->xs_abtc_2_free,
-		    &sysfs_xfs->xs_abtc_2_moves);
+		    &sysfs_xfs->xs_abtc_2.lookup,
+		    &sysfs_xfs->xs_abtc_2.compare,
+		    &sysfs_xfs->xs_abtc_2.insrec,
+		    &sysfs_xfs->xs_abtc_2.delrec,
+		    &sysfs_xfs->xs_abtc_2.newroot,
+		    &sysfs_xfs->xs_abtc_2.killroot,
+		    &sysfs_xfs->xs_abtc_2.increment,
+		    &sysfs_xfs->xs_abtc_2.decrement,
+		    &sysfs_xfs->xs_abtc_2.lshift,
+		    &sysfs_xfs->xs_abtc_2.rshift,
+		    &sysfs_xfs->xs_abtc_2.split,
+		    &sysfs_xfs->xs_abtc_2.join,
+		    &sysfs_xfs->xs_abtc_2.alloc,
+		    &sysfs_xfs->xs_abtc_2.free,
+		    &sysfs_xfs->xs_abtc_2.moves);
 	else if (strncmp(buf, "bmbt2 ", 6) == 0)
 	    sscanf(buf, "bmbt2 %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u",
-		    &sysfs_xfs->xs_bmbt_2_lookup,
-		    &sysfs_xfs->xs_bmbt_2_compare,
-		    &sysfs_xfs->xs_bmbt_2_insrec,
-		    &sysfs_xfs->xs_bmbt_2_delrec,
-		    &sysfs_xfs->xs_bmbt_2_newroot,
-		    &sysfs_xfs->xs_bmbt_2_killroot,
-		    &sysfs_xfs->xs_bmbt_2_increment,
-		    &sysfs_xfs->xs_bmbt_2_decrement,
-		    &sysfs_xfs->xs_bmbt_2_lshift,
-		    &sysfs_xfs->xs_bmbt_2_rshift,
-		    &sysfs_xfs->xs_bmbt_2_split,
-		    &sysfs_xfs->xs_bmbt_2_join,
-		    &sysfs_xfs->xs_bmbt_2_alloc,
-		    &sysfs_xfs->xs_bmbt_2_free,
-		    &sysfs_xfs->xs_bmbt_2_moves);
+		    &sysfs_xfs->xs_bmbt_2.lookup,
+		    &sysfs_xfs->xs_bmbt_2.compare,
+		    &sysfs_xfs->xs_bmbt_2.insrec,
+		    &sysfs_xfs->xs_bmbt_2.delrec,
+		    &sysfs_xfs->xs_bmbt_2.newroot,
+		    &sysfs_xfs->xs_bmbt_2.killroot,
+		    &sysfs_xfs->xs_bmbt_2.increment,
+		    &sysfs_xfs->xs_bmbt_2.decrement,
+		    &sysfs_xfs->xs_bmbt_2.lshift,
+		    &sysfs_xfs->xs_bmbt_2.rshift,
+		    &sysfs_xfs->xs_bmbt_2.split,
+		    &sysfs_xfs->xs_bmbt_2.join,
+		    &sysfs_xfs->xs_bmbt_2.alloc,
+		    &sysfs_xfs->xs_bmbt_2.free,
+		    &sysfs_xfs->xs_bmbt_2.moves);
 	else if (strncmp(buf, "ibt2 ", 5) == 0)
 	    sscanf(buf, "ibt2 %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u",
-		    &sysfs_xfs->xs_ibt_2_lookup,
-		    &sysfs_xfs->xs_ibt_2_compare,
-		    &sysfs_xfs->xs_ibt_2_insrec,
-		    &sysfs_xfs->xs_ibt_2_delrec,
-		    &sysfs_xfs->xs_ibt_2_newroot,
-		    &sysfs_xfs->xs_ibt_2_killroot,
-		    &sysfs_xfs->xs_ibt_2_increment,
-		    &sysfs_xfs->xs_ibt_2_decrement,
-		    &sysfs_xfs->xs_ibt_2_lshift,
-		    &sysfs_xfs->xs_ibt_2_rshift,
-		    &sysfs_xfs->xs_ibt_2_split,
-		    &sysfs_xfs->xs_ibt_2_join,
-		    &sysfs_xfs->xs_ibt_2_alloc,
-		    &sysfs_xfs->xs_ibt_2_free,
-		    &sysfs_xfs->xs_ibt_2_moves);
+		    &sysfs_xfs->xs_ibt_2.lookup,
+		    &sysfs_xfs->xs_ibt_2.compare,
+		    &sysfs_xfs->xs_ibt_2.insrec,
+		    &sysfs_xfs->xs_ibt_2.delrec,
+		    &sysfs_xfs->xs_ibt_2.newroot,
+		    &sysfs_xfs->xs_ibt_2.killroot,
+		    &sysfs_xfs->xs_ibt_2.increment,
+		    &sysfs_xfs->xs_ibt_2.decrement,
+		    &sysfs_xfs->xs_ibt_2.lshift,
+		    &sysfs_xfs->xs_ibt_2.rshift,
+		    &sysfs_xfs->xs_ibt_2.split,
+		    &sysfs_xfs->xs_ibt_2.join,
+		    &sysfs_xfs->xs_ibt_2.alloc,
+		    &sysfs_xfs->xs_ibt_2.free,
+		    &sysfs_xfs->xs_ibt_2.moves);
+	else if (strncmp(buf, "fibt2 ", 6) == 0)
+	    sscanf(buf, "fibt2 %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u",
+		    &sysfs_xfs->xs_fibt_2.lookup,
+		    &sysfs_xfs->xs_fibt_2.compare,
+		    &sysfs_xfs->xs_fibt_2.insrec,
+		    &sysfs_xfs->xs_fibt_2.delrec,
+		    &sysfs_xfs->xs_fibt_2.newroot,
+		    &sysfs_xfs->xs_fibt_2.killroot,
+		    &sysfs_xfs->xs_fibt_2.increment,
+		    &sysfs_xfs->xs_fibt_2.decrement,
+		    &sysfs_xfs->xs_fibt_2.lshift,
+		    &sysfs_xfs->xs_fibt_2.rshift,
+		    &sysfs_xfs->xs_fibt_2.split,
+		    &sysfs_xfs->xs_fibt_2.join,
+		    &sysfs_xfs->xs_fibt_2.alloc,
+		    &sysfs_xfs->xs_fibt_2.free,
+		    &sysfs_xfs->xs_fibt_2.moves);
+	else if (strncmp(buf, "rmapbt ", 7) == 0)
+	    sscanf(buf, "rmapbt %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u",
+		    &sysfs_xfs->xs_rmapbt.lookup,
+		    &sysfs_xfs->xs_rmapbt.compare,
+		    &sysfs_xfs->xs_rmapbt.insrec,
+		    &sysfs_xfs->xs_rmapbt.delrec,
+		    &sysfs_xfs->xs_rmapbt.newroot,
+		    &sysfs_xfs->xs_rmapbt.killroot,
+		    &sysfs_xfs->xs_rmapbt.increment,
+		    &sysfs_xfs->xs_rmapbt.decrement,
+		    &sysfs_xfs->xs_rmapbt.lshift,
+		    &sysfs_xfs->xs_rmapbt.rshift,
+		    &sysfs_xfs->xs_rmapbt.split,
+		    &sysfs_xfs->xs_rmapbt.join,
+		    &sysfs_xfs->xs_rmapbt.alloc,
+		    &sysfs_xfs->xs_rmapbt.free,
+		    &sysfs_xfs->xs_rmapbt.moves);
+	else if (strncmp(buf, "refcntbt ", 9) == 0)
+	    sscanf(buf, "refcntbt %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u",
+		    &sysfs_xfs->xs_refcntbt.lookup,
+		    &sysfs_xfs->xs_refcntbt.compare,
+		    &sysfs_xfs->xs_refcntbt.insrec,
+		    &sysfs_xfs->xs_refcntbt.delrec,
+		    &sysfs_xfs->xs_refcntbt.newroot,
+		    &sysfs_xfs->xs_refcntbt.killroot,
+		    &sysfs_xfs->xs_refcntbt.increment,
+		    &sysfs_xfs->xs_refcntbt.decrement,
+		    &sysfs_xfs->xs_refcntbt.lshift,
+		    &sysfs_xfs->xs_refcntbt.rshift,
+		    &sysfs_xfs->xs_refcntbt.split,
+		    &sysfs_xfs->xs_refcntbt.join,
+		    &sysfs_xfs->xs_refcntbt.alloc,
+		    &sysfs_xfs->xs_refcntbt.free,
+		    &sysfs_xfs->xs_refcntbt.moves);
 	else if (strncmp(buf, "xpc", 3) == 0)
 		sscanf(buf, "xpc %llu %llu %llu",
-		    (unsigned long long *)&sysfs_xfs->xpc.xs_xstrat_bytes,
-		    (unsigned long long *)&sysfs_xfs->xpc.xs_write_bytes,
-		    (unsigned long long *)&sysfs_xfs->xpc.xs_read_bytes);
+		    (unsigned long long *)&sysfs_xfs->xpc.xstrat_bytes,
+		    (unsigned long long *)&sysfs_xfs->xpc.write_bytes,
+		    (unsigned long long *)&sysfs_xfs->xpc.read_bytes);
     }
 
     if (sysfs_xfs->xs_log_writes)
@@ -232,19 +283,19 @@ refresh_xfs(FILE *fp, sysfs_xfs_t *sysfs_xfs)
 static void
 refresh_xqm(FILE *fp, sysfs_xfs_t *sysfs_xfs)
 {
-    char buf[4096];
+    char buf[1024];
 
     while (fgets(buf, sizeof(buf), fp) != NULL) {
 	if (strncmp(buf, "qm", 2) == 0)
 	    sscanf(buf, "qm %u %u %u %u %u %u %u %u",
-			&sysfs_xfs->xs_qm_dqreclaims,
-			&sysfs_xfs->xs_qm_dqreclaim_misses,
-			&sysfs_xfs->xs_qm_dquot_dups,
-			&sysfs_xfs->xs_qm_dqcachemisses,
-			&sysfs_xfs->xs_qm_dqcachehits,
-			&sysfs_xfs->xs_qm_dqwants,
-			&sysfs_xfs->xs_qm_dqshake_reclaims,
-			&sysfs_xfs->xs_qm_dqinact_reclaims);
+			&sysfs_xfs->xs_qm.dqreclaims,
+			&sysfs_xfs->xs_qm.dqreclaim_misses,
+			&sysfs_xfs->xs_qm.dquot_dups,
+			&sysfs_xfs->xs_qm.dqcachemisses,
+			&sysfs_xfs->xs_qm.dqcachehits,
+			&sysfs_xfs->xs_qm.dqwants,
+			&sysfs_xfs->xs_qm.dquots,
+			&sysfs_xfs->xs_qm.dquots_unused);
     }
 }
 

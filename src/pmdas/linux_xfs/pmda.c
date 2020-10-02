@@ -54,19 +54,19 @@ static pmdaMetric xfs_metrictab[] = {
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* xfs.alloc_btree.lookup */
-    { &sysfs_xfs.xs_abt_lookup,
+    { &sysfs_xfs.xs_abt.lookup,
       { PMDA_PMID(CLUSTER_XFS,4), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.alloc_btree.compare */
-    { &sysfs_xfs.xs_abt_compare,
+    { &sysfs_xfs.xs_abt.compare,
       { PMDA_PMID(CLUSTER_XFS,5), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.alloc_btree.insrec */
-    { &sysfs_xfs.xs_abt_insrec,
+    { &sysfs_xfs.xs_abt.insrec,
       { PMDA_PMID(CLUSTER_XFS,6), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.alloc_btree.delrec */
-    { &sysfs_xfs.xs_abt_delrec,
+    { &sysfs_xfs.xs_abt.delrec,
       { PMDA_PMID(CLUSTER_XFS,7), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
@@ -100,19 +100,19 @@ static pmdaMetric xfs_metrictab[] = {
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* xfs.bmap_btree.lookup */
-    { &sysfs_xfs.xs_bmbt_lookup,
+    { &sysfs_xfs.xs_bmbt.lookup,
       { PMDA_PMID(CLUSTER_XFS,15), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.bmap_btree.compare */
-    { &sysfs_xfs.xs_bmbt_compare,
+    { &sysfs_xfs.xs_bmbt.compare,
       { PMDA_PMID(CLUSTER_XFS,16), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.bmap_btree.insrec */
-    { &sysfs_xfs.xs_bmbt_insrec,
+    { &sysfs_xfs.xs_bmbt.insrec,
       { PMDA_PMID(CLUSTER_XFS,17), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.bmap_btree.delrec */
-    { &sysfs_xfs.xs_bmbt_delrec,
+    { &sysfs_xfs.xs_bmbt.delrec,
       { PMDA_PMID(CLUSTER_XFS,18), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
@@ -238,7 +238,7 @@ static pmdaMetric xfs_metrictab[] = {
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* xfs.xstrat.bytes */
-    { &sysfs_xfs.xpc.xs_xstrat_bytes,
+    { &sysfs_xfs.xpc.xstrat_bytes,
       { PMDA_PMID(CLUSTER_XFS,48), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
 /* xfs.xstrat.quick */
@@ -255,7 +255,7 @@ static pmdaMetric xfs_metrictab[] = {
       { PMDA_PMID(CLUSTER_XFS,51), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.write_bytes */
-    { &sysfs_xfs.xpc.xs_write_bytes,
+    { &sysfs_xfs.xpc.write_bytes,
       { PMDA_PMID(CLUSTER_XFS,52), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
 /* xfs.read */
@@ -263,7 +263,7 @@ static pmdaMetric xfs_metrictab[] = {
       { PMDA_PMID(CLUSTER_XFS,53), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.read_bytes */
-    { &sysfs_xfs.xpc.xs_read_bytes,
+    { &sysfs_xfs.xpc.read_bytes,
       { PMDA_PMID(CLUSTER_XFS,54), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
 
@@ -285,36 +285,36 @@ static pmdaMetric xfs_metrictab[] = {
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* xfs.quota.reclaims */
-    { &sysfs_xfs.xs_qm_dqreclaims,
+    { &sysfs_xfs.xs_qm.dqreclaims,
       { PMDA_PMID(CLUSTER_XFS,59), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.quota.reclaim_misses */
-    { &sysfs_xfs.xs_qm_dqreclaim_misses,
+    { &sysfs_xfs.xs_qm.dqreclaim_misses,
       { PMDA_PMID(CLUSTER_XFS,60), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.quota.dquot_dups */
-    { &sysfs_xfs.xs_qm_dquot_dups,
+    { &sysfs_xfs.xs_qm.dquot_dups,
       { PMDA_PMID(CLUSTER_XFS,61), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.quota.cachemisses */
-    { &sysfs_xfs.xs_qm_dqcachemisses,
+    { &sysfs_xfs.xs_qm.dqcachemisses,
       { PMDA_PMID(CLUSTER_XFS,62), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.quota.cachehits */
-    { &sysfs_xfs.xs_qm_dqcachehits,
+    { &sysfs_xfs.xs_qm.dqcachehits,
       { PMDA_PMID(CLUSTER_XFS,63), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.quota.wants */
-    { &sysfs_xfs.xs_qm_dqwants,
+    { &sysfs_xfs.xs_qm.dqwants,
       { PMDA_PMID(CLUSTER_XFS,64), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
-/* xfs.quota.shake_reclaims */
-    { &sysfs_xfs.xs_qm_dqshake_reclaims,
-      { PMDA_PMID(CLUSTER_XFS,65), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+/* xfs.quota.dquots */
+    { &sysfs_xfs.xs_qm.dquots,
+      { PMDA_PMID(CLUSTER_XFS,185), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
-/* xfs.quota.inact_reclaims */
-    { &sysfs_xfs.xs_qm_dqinact_reclaims,
-      { PMDA_PMID(CLUSTER_XFS,66), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+/* xfs.quota.squots_unused */
+    { &sysfs_xfs.xs_qm.dquots_unused,
+      { PMDA_PMID(CLUSTER_XFS,186), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* xfs.iflush_count */
@@ -410,247 +410,430 @@ static pmdaMetric xfs_metrictab[] = {
       PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
 /* xfs.btree.alloc_blocks.lookup */
-    { &sysfs_xfs.xs_abtb_2_lookup,
+    { &sysfs_xfs.xs_abtb_2.lookup,
       { PMDA_PMID(CLUSTER_XFS,80), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.alloc_blocks.compare */
-    { &sysfs_xfs.xs_abtb_2_compare,
+    { &sysfs_xfs.xs_abtb_2.compare,
       { PMDA_PMID(CLUSTER_XFS,81), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.alloc_blocks.insrec */
-    { &sysfs_xfs.xs_abtb_2_insrec,
+    { &sysfs_xfs.xs_abtb_2.insrec,
       { PMDA_PMID(CLUSTER_XFS,82), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.alloc_blocks.delrec */
-    { &sysfs_xfs.xs_abtb_2_delrec,
+    { &sysfs_xfs.xs_abtb_2.delrec,
       { PMDA_PMID(CLUSTER_XFS,83), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.alloc_blocks.newroot */
-    { &sysfs_xfs.xs_abtb_2_newroot,
+    { &sysfs_xfs.xs_abtb_2.newroot,
       { PMDA_PMID(CLUSTER_XFS,84), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.alloc_blocks.killroot */
-    { &sysfs_xfs.xs_abtb_2_killroot,
+    { &sysfs_xfs.xs_abtb_2.killroot,
       { PMDA_PMID(CLUSTER_XFS,85), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.alloc_blocks.increment */
-    { &sysfs_xfs.xs_abtb_2_increment,
+    { &sysfs_xfs.xs_abtb_2.increment,
       { PMDA_PMID(CLUSTER_XFS,86), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.alloc_blocks.decrement */
-    { &sysfs_xfs.xs_abtb_2_decrement,
+    { &sysfs_xfs.xs_abtb_2.decrement,
       { PMDA_PMID(CLUSTER_XFS,87), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.alloc_blocks.lshift */
-    { &sysfs_xfs.xs_abtb_2_lshift,
+    { &sysfs_xfs.xs_abtb_2.lshift,
       { PMDA_PMID(CLUSTER_XFS,88), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.alloc_blocks.rshift */
-    { &sysfs_xfs.xs_abtb_2_rshift,
+    { &sysfs_xfs.xs_abtb_2.rshift,
       { PMDA_PMID(CLUSTER_XFS,89), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.alloc_blocks.split */
-    { &sysfs_xfs.xs_abtb_2_split,
+    { &sysfs_xfs.xs_abtb_2.split,
       { PMDA_PMID(CLUSTER_XFS,90), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.alloc_blocks.join */
-    { &sysfs_xfs.xs_abtb_2_join,
+    { &sysfs_xfs.xs_abtb_2.join,
       { PMDA_PMID(CLUSTER_XFS,91), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.alloc_blocks.alloc */
-    { &sysfs_xfs.xs_abtb_2_alloc,
+    { &sysfs_xfs.xs_abtb_2.alloc,
       { PMDA_PMID(CLUSTER_XFS,92), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.alloc_blocks.free */
-    { &sysfs_xfs.xs_abtb_2_free,
+    { &sysfs_xfs.xs_abtb_2.free,
       { PMDA_PMID(CLUSTER_XFS,93), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.alloc_blocks.moves */
-    { &sysfs_xfs.xs_abtb_2_moves,
+    { &sysfs_xfs.xs_abtb_2.moves,
       { PMDA_PMID(CLUSTER_XFS,94), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* xfs.btree.alloc_contig.lookup */
-    { &sysfs_xfs.xs_abtc_2_lookup,
+    { &sysfs_xfs.xs_abtc_2.lookup,
       { PMDA_PMID(CLUSTER_XFS,95), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.alloc_contig.compare */
-    { &sysfs_xfs.xs_abtc_2_compare,
+    { &sysfs_xfs.xs_abtc_2.compare,
       { PMDA_PMID(CLUSTER_XFS,96), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.alloc_contig.insrec */
-    { &sysfs_xfs.xs_abtc_2_insrec,
+    { &sysfs_xfs.xs_abtc_2.insrec,
       { PMDA_PMID(CLUSTER_XFS,97), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.alloc_contig.delrec */
-    { &sysfs_xfs.xs_abtc_2_delrec,
+    { &sysfs_xfs.xs_abtc_2.delrec,
       { PMDA_PMID(CLUSTER_XFS,98), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.alloc_contig.newroot */
-    { &sysfs_xfs.xs_abtc_2_newroot,
+    { &sysfs_xfs.xs_abtc_2.newroot,
       { PMDA_PMID(CLUSTER_XFS,99), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.alloc_contig.killroot */
-    { &sysfs_xfs.xs_abtc_2_killroot,
+    { &sysfs_xfs.xs_abtc_2.killroot,
       { PMDA_PMID(CLUSTER_XFS,100), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.alloc_contig.increment */
-    { &sysfs_xfs.xs_abtc_2_increment,
+    { &sysfs_xfs.xs_abtc_2.increment,
       { PMDA_PMID(CLUSTER_XFS,101), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.alloc_contig.decrement */
-    { &sysfs_xfs.xs_abtc_2_decrement,
+    { &sysfs_xfs.xs_abtc_2.decrement,
       { PMDA_PMID(CLUSTER_XFS,102), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.alloc_contig.lshift */
-    { &sysfs_xfs.xs_abtc_2_lshift,
+    { &sysfs_xfs.xs_abtc_2.lshift,
       { PMDA_PMID(CLUSTER_XFS,103), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.alloc_contig.rshift */
-    { &sysfs_xfs.xs_abtc_2_rshift,
+    { &sysfs_xfs.xs_abtc_2.rshift,
       { PMDA_PMID(CLUSTER_XFS,104), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.alloc_contig.split */
-    { &sysfs_xfs.xs_abtc_2_split,
+    { &sysfs_xfs.xs_abtc_2.split,
       { PMDA_PMID(CLUSTER_XFS,105), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.alloc_contig.join */
-    { &sysfs_xfs.xs_abtc_2_join,
+    { &sysfs_xfs.xs_abtc_2.join,
       { PMDA_PMID(CLUSTER_XFS,106), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.alloc_contig.alloc */
-    { &sysfs_xfs.xs_abtc_2_alloc,
+    { &sysfs_xfs.xs_abtc_2.alloc,
       { PMDA_PMID(CLUSTER_XFS,107), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.alloc_contig.free */
-    { &sysfs_xfs.xs_abtc_2_free,
+    { &sysfs_xfs.xs_abtc_2.free,
       { PMDA_PMID(CLUSTER_XFS,108), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.alloc_contig.moves */
-    { &sysfs_xfs.xs_abtc_2_moves,
+    { &sysfs_xfs.xs_abtc_2.moves,
       { PMDA_PMID(CLUSTER_XFS,109), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* xfs.btree.block_map.lookup */
-    { &sysfs_xfs.xs_bmbt_2_lookup,
+    { &sysfs_xfs.xs_bmbt_2.lookup,
       { PMDA_PMID(CLUSTER_XFS,110), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.block_map.compare */
-    { &sysfs_xfs.xs_bmbt_2_compare,
+    { &sysfs_xfs.xs_bmbt_2.compare,
       { PMDA_PMID(CLUSTER_XFS,111), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.block_map.insrec */
-    { &sysfs_xfs.xs_bmbt_2_insrec,
+    { &sysfs_xfs.xs_bmbt_2.insrec,
       { PMDA_PMID(CLUSTER_XFS,112), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.block_map.delrec */
-    { &sysfs_xfs.xs_bmbt_2_delrec,
+    { &sysfs_xfs.xs_bmbt_2.delrec,
       { PMDA_PMID(CLUSTER_XFS,113), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.block_map.newroot */
-    { &sysfs_xfs.xs_bmbt_2_newroot,
+    { &sysfs_xfs.xs_bmbt_2.newroot,
       { PMDA_PMID(CLUSTER_XFS,114), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.block_map.killroot */
-    { &sysfs_xfs.xs_bmbt_2_killroot,
+    { &sysfs_xfs.xs_bmbt_2.killroot,
       { PMDA_PMID(CLUSTER_XFS,115), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.block_map.increment */
-    { &sysfs_xfs.xs_bmbt_2_increment,
+    { &sysfs_xfs.xs_bmbt_2.increment,
       { PMDA_PMID(CLUSTER_XFS,116), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.block_map.decrement */
-    { &sysfs_xfs.xs_bmbt_2_decrement,
+    { &sysfs_xfs.xs_bmbt_2.decrement,
       { PMDA_PMID(CLUSTER_XFS,117), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.block_map.lshift */
-    { &sysfs_xfs.xs_bmbt_2_lshift,
+    { &sysfs_xfs.xs_bmbt_2.lshift,
       { PMDA_PMID(CLUSTER_XFS,118), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.block_map.rshift */
-    { &sysfs_xfs.xs_bmbt_2_rshift,
+    { &sysfs_xfs.xs_bmbt_2.rshift,
       { PMDA_PMID(CLUSTER_XFS,119), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.block_map.split */
-    { &sysfs_xfs.xs_bmbt_2_split,
+    { &sysfs_xfs.xs_bmbt_2.split,
       { PMDA_PMID(CLUSTER_XFS,120), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.block_map.join */
-    { &sysfs_xfs.xs_bmbt_2_join,
+    { &sysfs_xfs.xs_bmbt_2.join,
       { PMDA_PMID(CLUSTER_XFS,121), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.block_map.alloc */
-    { &sysfs_xfs.xs_bmbt_2_alloc,
+    { &sysfs_xfs.xs_bmbt_2.alloc,
       { PMDA_PMID(CLUSTER_XFS,122), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.block_map.free */
-    { &sysfs_xfs.xs_bmbt_2_free,
+    { &sysfs_xfs.xs_bmbt_2.free,
       { PMDA_PMID(CLUSTER_XFS,123), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.block_map.moves */
-    { &sysfs_xfs.xs_bmbt_2_moves,
+    { &sysfs_xfs.xs_bmbt_2.moves,
       { PMDA_PMID(CLUSTER_XFS,124), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* xfs.btree.inode.lookup */
-    { &sysfs_xfs.xs_ibt_2_compare,
+    { &sysfs_xfs.xs_ibt_2.compare,
       { PMDA_PMID(CLUSTER_XFS,125), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.inode.compare */
-    { &sysfs_xfs.xs_ibt_2_lookup,
+    { &sysfs_xfs.xs_ibt_2.lookup,
       { PMDA_PMID(CLUSTER_XFS,126), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.inode.insrec */
-    { &sysfs_xfs.xs_ibt_2_insrec,
+    { &sysfs_xfs.xs_ibt_2.insrec,
       { PMDA_PMID(CLUSTER_XFS,127), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.inode.delrec */
-    { &sysfs_xfs.xs_ibt_2_delrec,
+    { &sysfs_xfs.xs_ibt_2.delrec,
       { PMDA_PMID(CLUSTER_XFS,128), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.inode.newroot */
-    { &sysfs_xfs.xs_ibt_2_newroot,
+    { &sysfs_xfs.xs_ibt_2.newroot,
       { PMDA_PMID(CLUSTER_XFS,129), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.inode.killroot */
-    { &sysfs_xfs.xs_ibt_2_killroot,
+    { &sysfs_xfs.xs_ibt_2.killroot,
       { PMDA_PMID(CLUSTER_XFS,130), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.inode.increment */
-    { &sysfs_xfs.xs_ibt_2_increment,
+    { &sysfs_xfs.xs_ibt_2.increment,
       { PMDA_PMID(CLUSTER_XFS,131), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.inode.decrement */
-    { &sysfs_xfs.xs_ibt_2_decrement,
+    { &sysfs_xfs.xs_ibt_2.decrement,
       { PMDA_PMID(CLUSTER_XFS,132), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.inode.lshift */
-    { &sysfs_xfs.xs_ibt_2_lshift,
+    { &sysfs_xfs.xs_ibt_2.lshift,
       { PMDA_PMID(CLUSTER_XFS,133), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.inode.rshift */
-    { &sysfs_xfs.xs_ibt_2_rshift,
+    { &sysfs_xfs.xs_ibt_2.rshift,
       { PMDA_PMID(CLUSTER_XFS,134), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.inode.split */
-    { &sysfs_xfs.xs_ibt_2_split,
+    { &sysfs_xfs.xs_ibt_2.split,
       { PMDA_PMID(CLUSTER_XFS,135), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.inode.join */
-    { &sysfs_xfs.xs_ibt_2_join,
+    { &sysfs_xfs.xs_ibt_2.join,
       { PMDA_PMID(CLUSTER_XFS,136), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.inode.alloc */
-    { &sysfs_xfs.xs_ibt_2_alloc,
+    { &sysfs_xfs.xs_ibt_2.alloc,
       { PMDA_PMID(CLUSTER_XFS,137), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.inode.free */
-    { &sysfs_xfs.xs_ibt_2_free,
+    { &sysfs_xfs.xs_ibt_2.free,
       { PMDA_PMID(CLUSTER_XFS,138), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.btree.inode.moves */
-    { &sysfs_xfs.xs_ibt_2_moves,
+    { &sysfs_xfs.xs_ibt_2.moves,
       { PMDA_PMID(CLUSTER_XFS,139), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* xfs.btree.free_inode.lookup */
+    { &sysfs_xfs.xs_fibt_2.compare,
+      { PMDA_PMID(CLUSTER_XFS,140), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.btree.free_inode.compare */
+    { &sysfs_xfs.xs_fibt_2.lookup,
+      { PMDA_PMID(CLUSTER_XFS,141), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.btree.free_inode.insrec */
+    { &sysfs_xfs.xs_fibt_2.insrec,
+      { PMDA_PMID(CLUSTER_XFS,142), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.btree.free_inode.delrec */
+    { &sysfs_xfs.xs_fibt_2.delrec,
+      { PMDA_PMID(CLUSTER_XFS,143), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.btree.free_inode.newroot */
+    { &sysfs_xfs.xs_fibt_2.newroot,
+      { PMDA_PMID(CLUSTER_XFS,144), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.btree.free_inode.killroot */
+    { &sysfs_xfs.xs_fibt_2.killroot,
+      { PMDA_PMID(CLUSTER_XFS,145), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.btree.free_inode.increment */
+    { &sysfs_xfs.xs_fibt_2.increment,
+      { PMDA_PMID(CLUSTER_XFS,146), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.btree.free_inode.decrement */
+    { &sysfs_xfs.xs_fibt_2.decrement,
+      { PMDA_PMID(CLUSTER_XFS,147), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.btree.free_inode.lshift */
+    { &sysfs_xfs.xs_fibt_2.lshift,
+      { PMDA_PMID(CLUSTER_XFS,148), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.btree.free_inode.rshift */
+    { &sysfs_xfs.xs_fibt_2.rshift,
+      { PMDA_PMID(CLUSTER_XFS,149), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.btree.free_inode.split */
+    { &sysfs_xfs.xs_fibt_2.split,
+      { PMDA_PMID(CLUSTER_XFS,150), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.btree.free_inode.join */
+    { &sysfs_xfs.xs_fibt_2.join,
+      { PMDA_PMID(CLUSTER_XFS,151), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.btree.free_inode.alloc */
+    { &sysfs_xfs.xs_fibt_2.alloc,
+      { PMDA_PMID(CLUSTER_XFS,152), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.btree.free_inode.free */
+    { &sysfs_xfs.xs_fibt_2.free,
+      { PMDA_PMID(CLUSTER_XFS,153), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.btree.free_inode.moves */
+    { &sysfs_xfs.xs_fibt_2.moves,
+      { PMDA_PMID(CLUSTER_XFS,154), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* xfs.btree.reverse_map.lookup */
+    { &sysfs_xfs.xs_rmapbt.compare,
+      { PMDA_PMID(CLUSTER_XFS,155), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.btree.reverse_map.compare */
+    { &sysfs_xfs.xs_rmapbt.lookup,
+      { PMDA_PMID(CLUSTER_XFS,156), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.btree.reverse_map.insrec */
+    { &sysfs_xfs.xs_rmapbt.insrec,
+      { PMDA_PMID(CLUSTER_XFS,157), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.btree.reverse_map.delrec */
+    { &sysfs_xfs.xs_rmapbt.delrec,
+      { PMDA_PMID(CLUSTER_XFS,158), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.btree.reverse_map.newroot */
+    { &sysfs_xfs.xs_rmapbt.newroot,
+      { PMDA_PMID(CLUSTER_XFS,159), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.btree.reverse_map.killroot */
+    { &sysfs_xfs.xs_rmapbt.killroot,
+      { PMDA_PMID(CLUSTER_XFS,160), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.btree.reverse_map.increment */
+    { &sysfs_xfs.xs_rmapbt.increment,
+      { PMDA_PMID(CLUSTER_XFS,161), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.btree.reverse_map.decrement */
+    { &sysfs_xfs.xs_rmapbt.decrement,
+      { PMDA_PMID(CLUSTER_XFS,162), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.btree.reverse_map.lshift */
+    { &sysfs_xfs.xs_rmapbt.lshift,
+      { PMDA_PMID(CLUSTER_XFS,163), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.btree.reverse_map.rshift */
+    { &sysfs_xfs.xs_rmapbt.rshift,
+      { PMDA_PMID(CLUSTER_XFS,164), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.btree.reverse_map.split */
+    { &sysfs_xfs.xs_rmapbt.split,
+      { PMDA_PMID(CLUSTER_XFS,165), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.btree.reverse_map.join */
+    { &sysfs_xfs.xs_rmapbt.join,
+      { PMDA_PMID(CLUSTER_XFS,166), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.btree.reverse_map.alloc */
+    { &sysfs_xfs.xs_rmapbt.alloc,
+      { PMDA_PMID(CLUSTER_XFS,167), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.btree.reverse_map.free */
+    { &sysfs_xfs.xs_rmapbt.free,
+      { PMDA_PMID(CLUSTER_XFS,168), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.btree.reverse_map.moves */
+    { &sysfs_xfs.xs_rmapbt.moves,
+      { PMDA_PMID(CLUSTER_XFS,169), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* xfs.btree.refcount.lookup */
+    { &sysfs_xfs.xs_refcntbt.compare,
+      { PMDA_PMID(CLUSTER_XFS,170), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.btree.refcount.compare */
+    { &sysfs_xfs.xs_refcntbt.lookup,
+      { PMDA_PMID(CLUSTER_XFS,171), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.btree.refcount.insrec */
+    { &sysfs_xfs.xs_refcntbt.insrec,
+      { PMDA_PMID(CLUSTER_XFS,172), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.btree.refcount.delrec */
+    { &sysfs_xfs.xs_refcntbt.delrec,
+      { PMDA_PMID(CLUSTER_XFS,173), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.btree.refcount.newroot */
+    { &sysfs_xfs.xs_refcntbt.newroot,
+      { PMDA_PMID(CLUSTER_XFS,174), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.btree.refcount.killroot */
+    { &sysfs_xfs.xs_refcntbt.killroot,
+      { PMDA_PMID(CLUSTER_XFS,175), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.btree.refcount.increment */
+    { &sysfs_xfs.xs_refcntbt.increment,
+      { PMDA_PMID(CLUSTER_XFS,176), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.btree.refcount.decrement */
+    { &sysfs_xfs.xs_refcntbt.decrement,
+      { PMDA_PMID(CLUSTER_XFS,177), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.btree.refcount.lshift */
+    { &sysfs_xfs.xs_refcntbt.lshift,
+      { PMDA_PMID(CLUSTER_XFS,178), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.btree.refcount.rshift */
+    { &sysfs_xfs.xs_refcntbt.rshift,
+      { PMDA_PMID(CLUSTER_XFS,179), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.btree.refcount.split */
+    { &sysfs_xfs.xs_refcntbt.split,
+      { PMDA_PMID(CLUSTER_XFS,180), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.btree.refcount.join */
+    { &sysfs_xfs.xs_refcntbt.join,
+      { PMDA_PMID(CLUSTER_XFS,181), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.btree.refcount.alloc */
+    { &sysfs_xfs.xs_refcntbt.alloc,
+      { PMDA_PMID(CLUSTER_XFS,182), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.btree.refcount.free */
+    { &sysfs_xfs.xs_refcntbt.free,
+      { PMDA_PMID(CLUSTER_XFS,183), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.btree.refcount.moves */
+    { &sysfs_xfs.xs_refcntbt.moves,
+      { PMDA_PMID(CLUSTER_XFS,184), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* quota.state.project.accounting */
@@ -712,19 +895,19 @@ static pmdaMetric xfs_metrictab[] = {
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* xfs.perdev.alloc_btree.lookup */
-    { &sysfs_xfs.xs_abt_lookup,
+    { &sysfs_xfs.xs_abt.lookup,
       { PMDA_PMID(CLUSTER_PERDEV,4), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.alloc_btree.compare */
-    { &sysfs_xfs.xs_abt_compare,
+    { &sysfs_xfs.xs_abt.compare,
       { PMDA_PMID(CLUSTER_PERDEV,5), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.alloc_btree.insrec */
-    { &sysfs_xfs.xs_abt_insrec,
+    { &sysfs_xfs.xs_abt.insrec,
       { PMDA_PMID(CLUSTER_PERDEV,6), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.alloc_btree.delrec */
-    { &sysfs_xfs.xs_abt_delrec,
+    { &sysfs_xfs.xs_abt.delrec,
       { PMDA_PMID(CLUSTER_PERDEV,7), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
@@ -758,19 +941,19 @@ static pmdaMetric xfs_metrictab[] = {
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* xfs.perdev.bmap_btree.lookup */
-    { &sysfs_xfs.xs_bmbt_lookup,
+    { &sysfs_xfs.xs_bmbt.lookup,
       { PMDA_PMID(CLUSTER_PERDEV,15), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.bmap_btree.compare */
-    { &sysfs_xfs.xs_bmbt_compare,
+    { &sysfs_xfs.xs_bmbt.compare,
       { PMDA_PMID(CLUSTER_PERDEV,16), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.bmap_btree.insrec */
-    { &sysfs_xfs.xs_bmbt_insrec,
+    { &sysfs_xfs.xs_bmbt.insrec,
       { PMDA_PMID(CLUSTER_PERDEV,17), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.bmap_btree.delrec */
-    { &sysfs_xfs.xs_bmbt_delrec,
+    { &sysfs_xfs.xs_bmbt.delrec,
       { PMDA_PMID(CLUSTER_PERDEV,18), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
@@ -896,7 +1079,7 @@ static pmdaMetric xfs_metrictab[] = {
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* xfs.perdev.xstrat.bytes */
-    { &sysfs_xfs.xpc.xs_xstrat_bytes,
+    { &sysfs_xfs.xpc.xstrat_bytes,
       { PMDA_PMID(CLUSTER_PERDEV,48), PM_TYPE_U64, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
 /* xfs.perdev.xstrat.quick */
@@ -913,7 +1096,7 @@ static pmdaMetric xfs_metrictab[] = {
       { PMDA_PMID(CLUSTER_PERDEV,51), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.write_bytes */
-    { &sysfs_xfs.xpc.xs_write_bytes,
+    { &sysfs_xfs.xpc.write_bytes,
       { PMDA_PMID(CLUSTER_PERDEV,52), PM_TYPE_U64, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
 /* xfs.perdev.read */
@@ -921,7 +1104,7 @@ static pmdaMetric xfs_metrictab[] = {
       { PMDA_PMID(CLUSTER_PERDEV,53), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.read_bytes */
-    { &sysfs_xfs.xpc.xs_read_bytes,
+    { &sysfs_xfs.xpc.read_bytes,
       { PMDA_PMID(CLUSTER_PERDEV,54), PM_TYPE_U64, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
 
@@ -943,36 +1126,36 @@ static pmdaMetric xfs_metrictab[] = {
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* xfs.perdev.quota.reclaims */
-    { &sysfs_xfs.xs_qm_dqreclaims,
+    { &sysfs_xfs.xs_qm.dqreclaims,
       { PMDA_PMID(CLUSTER_PERDEV,59), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.quota.reclaim_misses */
-    { &sysfs_xfs.xs_qm_dqreclaim_misses,
+    { &sysfs_xfs.xs_qm.dqreclaim_misses,
       { PMDA_PMID(CLUSTER_PERDEV,60), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.quota.dquot_dups */
-    { &sysfs_xfs.xs_qm_dquot_dups,
+    { &sysfs_xfs.xs_qm.dquot_dups,
       { PMDA_PMID(CLUSTER_PERDEV,61), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.quota.cachemisses */
-    { &sysfs_xfs.xs_qm_dqcachemisses,
+    { &sysfs_xfs.xs_qm.dqcachemisses,
       { PMDA_PMID(CLUSTER_PERDEV,62), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.quota.cachehits */
-    { &sysfs_xfs.xs_qm_dqcachehits,
+    { &sysfs_xfs.xs_qm.dqcachehits,
       { PMDA_PMID(CLUSTER_PERDEV,63), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.quota.wants */
-    { &sysfs_xfs.xs_qm_dqwants,
+    { &sysfs_xfs.xs_qm.dqwants,
       { PMDA_PMID(CLUSTER_PERDEV,64), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
-/* xfs.perdev.quota.shake_reclaims */
-    { &sysfs_xfs.xs_qm_dqshake_reclaims,
-      { PMDA_PMID(CLUSTER_PERDEV,65), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+/* xfs.perdev.quota.dquots */
+    { &sysfs_xfs.xs_qm.dquots,
+      { PMDA_PMID(CLUSTER_PERDEV,185), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_INSTANT,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
-/* xfs.perdev.quota.inact_reclaims */
-    { &sysfs_xfs.xs_qm_dqinact_reclaims,
-      { PMDA_PMID(CLUSTER_PERDEV,66), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+/* xfs.perdev.quota.dquots_unused */
+    { &sysfs_xfs.xs_qm.dquots_unused,
+      { PMDA_PMID(CLUSTER_PERDEV,186), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_INSTANT,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* xfs.perdev.iflush_count */
@@ -1068,247 +1251,430 @@ static pmdaMetric xfs_metrictab[] = {
       PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
 /* xfs.perdev.btree.alloc_blocks.lookup */
-    { &sysfs_xfs.xs_abtb_2_lookup,
+    { &sysfs_xfs.xs_abtb_2.lookup,
       { PMDA_PMID(CLUSTER_PERDEV,80), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.alloc_blocks.compare */
-    { &sysfs_xfs.xs_abtb_2_compare,
+    { &sysfs_xfs.xs_abtb_2.compare,
       { PMDA_PMID(CLUSTER_PERDEV,81), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.alloc_blocks.insrec */
-    { &sysfs_xfs.xs_abtb_2_insrec,
+    { &sysfs_xfs.xs_abtb_2.insrec,
       { PMDA_PMID(CLUSTER_PERDEV,82), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.alloc_blocks.delrec */
-    { &sysfs_xfs.xs_abtb_2_delrec,
+    { &sysfs_xfs.xs_abtb_2.delrec,
       { PMDA_PMID(CLUSTER_PERDEV,83), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.alloc_blocks.newroot */
-    { &sysfs_xfs.xs_abtb_2_newroot,
+    { &sysfs_xfs.xs_abtb_2.newroot,
       { PMDA_PMID(CLUSTER_PERDEV,84), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.alloc_blocks.killroot */
-    { &sysfs_xfs.xs_abtb_2_killroot,
+    { &sysfs_xfs.xs_abtb_2.killroot,
       { PMDA_PMID(CLUSTER_PERDEV,85), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.alloc_blocks.increment */
-    { &sysfs_xfs.xs_abtb_2_increment,
+    { &sysfs_xfs.xs_abtb_2.increment,
       { PMDA_PMID(CLUSTER_PERDEV,86), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.alloc_blocks.decrement */
-    { &sysfs_xfs.xs_abtb_2_decrement,
+    { &sysfs_xfs.xs_abtb_2.decrement,
       { PMDA_PMID(CLUSTER_PERDEV,87), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.alloc_blocks.lshift */
-    { &sysfs_xfs.xs_abtb_2_lshift,
+    { &sysfs_xfs.xs_abtb_2.lshift,
       { PMDA_PMID(CLUSTER_PERDEV,88), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.alloc_blocks.rshift */
-    { &sysfs_xfs.xs_abtb_2_rshift,
+    { &sysfs_xfs.xs_abtb_2.rshift,
       { PMDA_PMID(CLUSTER_PERDEV,89), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.alloc_blocks.split */
-    { &sysfs_xfs.xs_abtb_2_split,
+    { &sysfs_xfs.xs_abtb_2.split,
       { PMDA_PMID(CLUSTER_PERDEV,90), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.alloc_blocks.join */
-    { &sysfs_xfs.xs_abtb_2_join,
+    { &sysfs_xfs.xs_abtb_2.join,
       { PMDA_PMID(CLUSTER_PERDEV,91), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.alloc_blocks.alloc */
-    { &sysfs_xfs.xs_abtb_2_alloc,
+    { &sysfs_xfs.xs_abtb_2.alloc,
       { PMDA_PMID(CLUSTER_PERDEV,92), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.alloc_blocks.free */
-    { &sysfs_xfs.xs_abtb_2_free,
+    { &sysfs_xfs.xs_abtb_2.free,
       { PMDA_PMID(CLUSTER_PERDEV,93), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.alloc_blocks.moves */
-    { &sysfs_xfs.xs_abtb_2_moves,
+    { &sysfs_xfs.xs_abtb_2.moves,
       { PMDA_PMID(CLUSTER_PERDEV,94), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* xfs.perdev.btree.alloc_contig.lookup */
-    { &sysfs_xfs.xs_abtc_2_lookup,
+    { &sysfs_xfs.xs_abtc_2.lookup,
       { PMDA_PMID(CLUSTER_PERDEV,95), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.alloc_contig.compare */
-    { &sysfs_xfs.xs_abtc_2_compare,
+    { &sysfs_xfs.xs_abtc_2.compare,
       { PMDA_PMID(CLUSTER_PERDEV,96), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.alloc_contig.insrec */
-    { &sysfs_xfs.xs_abtc_2_insrec,
+    { &sysfs_xfs.xs_abtc_2.insrec,
       { PMDA_PMID(CLUSTER_PERDEV,97), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.alloc_contig.delrec */
-    { &sysfs_xfs.xs_abtc_2_delrec,
+    { &sysfs_xfs.xs_abtc_2.delrec,
       { PMDA_PMID(CLUSTER_PERDEV,98), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.alloc_contig.newroot */
-    { &sysfs_xfs.xs_abtc_2_newroot,
+    { &sysfs_xfs.xs_abtc_2.newroot,
       { PMDA_PMID(CLUSTER_PERDEV,99), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.alloc_contig.killroot */
-    { &sysfs_xfs.xs_abtc_2_killroot,
+    { &sysfs_xfs.xs_abtc_2.killroot,
       { PMDA_PMID(CLUSTER_PERDEV,100), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.alloc_contig.increment */
-    { &sysfs_xfs.xs_abtc_2_increment,
+    { &sysfs_xfs.xs_abtc_2.increment,
       { PMDA_PMID(CLUSTER_PERDEV,101), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.alloc_contig.decrement */
-    { &sysfs_xfs.xs_abtc_2_decrement,
+    { &sysfs_xfs.xs_abtc_2.decrement,
       { PMDA_PMID(CLUSTER_PERDEV,102), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.alloc_contig.lshift */
-    { &sysfs_xfs.xs_abtc_2_lshift,
+    { &sysfs_xfs.xs_abtc_2.lshift,
       { PMDA_PMID(CLUSTER_PERDEV,103), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.alloc_contig.rshift */
-    { &sysfs_xfs.xs_abtc_2_rshift,
+    { &sysfs_xfs.xs_abtc_2.rshift,
       { PMDA_PMID(CLUSTER_PERDEV,104), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.alloc_contig.split */
-    { &sysfs_xfs.xs_abtc_2_split,
+    { &sysfs_xfs.xs_abtc_2.split,
       { PMDA_PMID(CLUSTER_PERDEV,105), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.alloc_contig.join */
-    { &sysfs_xfs.xs_abtc_2_join,
+    { &sysfs_xfs.xs_abtc_2.join,
       { PMDA_PMID(CLUSTER_PERDEV,106), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.alloc_contig.alloc */
-    { &sysfs_xfs.xs_abtc_2_alloc,
+    { &sysfs_xfs.xs_abtc_2.alloc,
       { PMDA_PMID(CLUSTER_PERDEV,107), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.alloc_contig.free */
-    { &sysfs_xfs.xs_abtc_2_free,
+    { &sysfs_xfs.xs_abtc_2.free,
       { PMDA_PMID(CLUSTER_PERDEV,108), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.alloc_contig.moves */
-    { &sysfs_xfs.xs_abtc_2_moves,
+    { &sysfs_xfs.xs_abtc_2.moves,
       { PMDA_PMID(CLUSTER_PERDEV,109), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* xfs.perdev.btree.block_map.lookup */
-    { &sysfs_xfs.xs_bmbt_2_lookup,
+    { &sysfs_xfs.xs_bmbt_2.lookup,
       { PMDA_PMID(CLUSTER_PERDEV,110), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.block_map.compare */
-    { &sysfs_xfs.xs_bmbt_2_compare,
+    { &sysfs_xfs.xs_bmbt_2.compare,
       { PMDA_PMID(CLUSTER_PERDEV,111), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.block_map.insrec */
-    { &sysfs_xfs.xs_bmbt_2_insrec,
+    { &sysfs_xfs.xs_bmbt_2.insrec,
       { PMDA_PMID(CLUSTER_PERDEV,112), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.block_map.delrec */
-    { &sysfs_xfs.xs_bmbt_2_delrec,
+    { &sysfs_xfs.xs_bmbt_2.delrec,
       { PMDA_PMID(CLUSTER_PERDEV,113), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.block_map.newroot */
-    { &sysfs_xfs.xs_bmbt_2_newroot,
+    { &sysfs_xfs.xs_bmbt_2.newroot,
       { PMDA_PMID(CLUSTER_PERDEV,114), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.block_map.killroot */
-    { &sysfs_xfs.xs_bmbt_2_killroot,
+    { &sysfs_xfs.xs_bmbt_2.killroot,
       { PMDA_PMID(CLUSTER_PERDEV,115), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.block_map.increment */
-    { &sysfs_xfs.xs_bmbt_2_increment,
+    { &sysfs_xfs.xs_bmbt_2.increment,
       { PMDA_PMID(CLUSTER_PERDEV,116), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.block_map.decrement */
-    { &sysfs_xfs.xs_bmbt_2_decrement,
+    { &sysfs_xfs.xs_bmbt_2.decrement,
       { PMDA_PMID(CLUSTER_PERDEV,117), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.block_map.lshift */
-    { &sysfs_xfs.xs_bmbt_2_lshift,
+    { &sysfs_xfs.xs_bmbt_2.lshift,
       { PMDA_PMID(CLUSTER_PERDEV,118), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.block_map.rshift */
-    { &sysfs_xfs.xs_bmbt_2_rshift,
+    { &sysfs_xfs.xs_bmbt_2.rshift,
       { PMDA_PMID(CLUSTER_PERDEV,119), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.block_map.split */
-    { &sysfs_xfs.xs_bmbt_2_split,
+    { &sysfs_xfs.xs_bmbt_2.split,
       { PMDA_PMID(CLUSTER_PERDEV,120), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.block_map.join */
-    { &sysfs_xfs.xs_bmbt_2_join,
+    { &sysfs_xfs.xs_bmbt_2.join,
       { PMDA_PMID(CLUSTER_PERDEV,121), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.block_map.alloc */
-    { &sysfs_xfs.xs_bmbt_2_alloc,
+    { &sysfs_xfs.xs_bmbt_2.alloc,
       { PMDA_PMID(CLUSTER_PERDEV,122), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.block_map.free */
-    { &sysfs_xfs.xs_bmbt_2_free,
+    { &sysfs_xfs.xs_bmbt_2.free,
       { PMDA_PMID(CLUSTER_PERDEV,123), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.block_map.moves */
-    { &sysfs_xfs.xs_bmbt_2_moves,
+    { &sysfs_xfs.xs_bmbt_2.moves,
       { PMDA_PMID(CLUSTER_PERDEV,124), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* xfs.perdev.btree.inode.lookup */
-    { &sysfs_xfs.xs_ibt_2_compare,
+    { &sysfs_xfs.xs_ibt_2.compare,
       { PMDA_PMID(CLUSTER_PERDEV,125), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.inode.compare */
-    { &sysfs_xfs.xs_ibt_2_lookup,
+    { &sysfs_xfs.xs_ibt_2.lookup,
       { PMDA_PMID(CLUSTER_PERDEV,126), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.inode.insrec */
-    { &sysfs_xfs.xs_ibt_2_insrec,
+    { &sysfs_xfs.xs_ibt_2.insrec,
       { PMDA_PMID(CLUSTER_PERDEV,127), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.inode.delrec */
-    { &sysfs_xfs.xs_ibt_2_delrec,
+    { &sysfs_xfs.xs_ibt_2.delrec,
       { PMDA_PMID(CLUSTER_PERDEV,128), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.inode.newroot */
-    { &sysfs_xfs.xs_ibt_2_newroot,
+    { &sysfs_xfs.xs_ibt_2.newroot,
       { PMDA_PMID(CLUSTER_PERDEV,129), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.inode.killroot */
-    { &sysfs_xfs.xs_ibt_2_killroot,
+    { &sysfs_xfs.xs_ibt_2.killroot,
       { PMDA_PMID(CLUSTER_PERDEV,130), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.inode.increment */
-    { &sysfs_xfs.xs_ibt_2_increment,
+    { &sysfs_xfs.xs_ibt_2.increment,
       { PMDA_PMID(CLUSTER_PERDEV,131), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.inode.decrement */
-    { &sysfs_xfs.xs_ibt_2_decrement,
+    { &sysfs_xfs.xs_ibt_2.decrement,
       { PMDA_PMID(CLUSTER_PERDEV,132), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.inode.lshift */
-    { &sysfs_xfs.xs_ibt_2_lshift,
+    { &sysfs_xfs.xs_ibt_2.lshift,
       { PMDA_PMID(CLUSTER_PERDEV,133), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.inode.rshift */
-    { &sysfs_xfs.xs_ibt_2_rshift,
+    { &sysfs_xfs.xs_ibt_2.rshift,
       { PMDA_PMID(CLUSTER_PERDEV,134), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.inode.split */
-    { &sysfs_xfs.xs_ibt_2_split,
+    { &sysfs_xfs.xs_ibt_2.split,
       { PMDA_PMID(CLUSTER_PERDEV,135), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.inode.join */
-    { &sysfs_xfs.xs_ibt_2_join,
+    { &sysfs_xfs.xs_ibt_2.join,
       { PMDA_PMID(CLUSTER_PERDEV,136), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.inode.alloc */
-    { &sysfs_xfs.xs_ibt_2_alloc,
+    { &sysfs_xfs.xs_ibt_2.alloc,
       { PMDA_PMID(CLUSTER_PERDEV,137), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.inode.free */
-    { &sysfs_xfs.xs_ibt_2_free,
+    { &sysfs_xfs.xs_ibt_2.free,
       { PMDA_PMID(CLUSTER_PERDEV,138), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.btree.inode.moves */
-    { &sysfs_xfs.xs_ibt_2_moves,
+    { &sysfs_xfs.xs_ibt_2.moves,
       { PMDA_PMID(CLUSTER_PERDEV,139), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* xfs.perdev.btree.free_inode.lookup */
+    { &sysfs_xfs.xs_fibt_2.compare,
+      { PMDA_PMID(CLUSTER_PERDEV,140), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.btree.free_inode.compare */
+    { &sysfs_xfs.xs_fibt_2.lookup,
+      { PMDA_PMID(CLUSTER_PERDEV,141), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.btree.free_inode.insrec */
+    { &sysfs_xfs.xs_fibt_2.insrec,
+      { PMDA_PMID(CLUSTER_PERDEV,142), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.btree.free_inode.delrec */
+    { &sysfs_xfs.xs_fibt_2.delrec,
+      { PMDA_PMID(CLUSTER_PERDEV,143), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.btree.free_inode.newroot */
+    { &sysfs_xfs.xs_fibt_2.newroot,
+      { PMDA_PMID(CLUSTER_PERDEV,144), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.btree.free_inode.killroot */
+    { &sysfs_xfs.xs_fibt_2.killroot,
+      { PMDA_PMID(CLUSTER_PERDEV,145), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.btree.free_inode.increment */
+    { &sysfs_xfs.xs_fibt_2.increment,
+      { PMDA_PMID(CLUSTER_PERDEV,146), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.btree.free_inode.decrement */
+    { &sysfs_xfs.xs_fibt_2.decrement,
+      { PMDA_PMID(CLUSTER_PERDEV,147), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.btree.free_inode.lshift */
+    { &sysfs_xfs.xs_fibt_2.lshift,
+      { PMDA_PMID(CLUSTER_PERDEV,148), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.btree.free_inode.rshift */
+    { &sysfs_xfs.xs_fibt_2.rshift,
+      { PMDA_PMID(CLUSTER_PERDEV,149), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.btree.free_inode.split */
+    { &sysfs_xfs.xs_fibt_2.split,
+      { PMDA_PMID(CLUSTER_PERDEV,150), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.btree.free_inode.join */
+    { &sysfs_xfs.xs_fibt_2.join,
+      { PMDA_PMID(CLUSTER_PERDEV,151), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.btree.free_inode.alloc */
+    { &sysfs_xfs.xs_fibt_2.alloc,
+      { PMDA_PMID(CLUSTER_PERDEV,152), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.btree.free_inode.free */
+    { &sysfs_xfs.xs_fibt_2.free,
+      { PMDA_PMID(CLUSTER_PERDEV,153), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.btree.free_inode.moves */
+    { &sysfs_xfs.xs_fibt_2.moves,
+      { PMDA_PMID(CLUSTER_PERDEV,154), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* xfs.perdev.btree.reverse_map.lookup */
+    { &sysfs_xfs.xs_rmapbt.compare,
+      { PMDA_PMID(CLUSTER_PERDEV,155), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.btree.reverse_map.compare */
+    { &sysfs_xfs.xs_rmapbt.lookup,
+      { PMDA_PMID(CLUSTER_PERDEV,156), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.btree.reverse_map.insrec */
+    { &sysfs_xfs.xs_rmapbt.insrec,
+      { PMDA_PMID(CLUSTER_PERDEV,157), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.btree.reverse_map.delrec */
+    { &sysfs_xfs.xs_rmapbt.delrec,
+      { PMDA_PMID(CLUSTER_PERDEV,158), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.btree.reverse_map.newroot */
+    { &sysfs_xfs.xs_rmapbt.newroot,
+      { PMDA_PMID(CLUSTER_PERDEV,159), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.btree.reverse_map.killroot */
+    { &sysfs_xfs.xs_rmapbt.killroot,
+      { PMDA_PMID(CLUSTER_PERDEV,160), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.btree.reverse_map.increment */
+    { &sysfs_xfs.xs_rmapbt.increment,
+      { PMDA_PMID(CLUSTER_PERDEV,161), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.btree.reverse_map.decrement */
+    { &sysfs_xfs.xs_rmapbt.decrement,
+      { PMDA_PMID(CLUSTER_PERDEV,162), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.btree.reverse_map.lshift */
+    { &sysfs_xfs.xs_rmapbt.lshift,
+      { PMDA_PMID(CLUSTER_PERDEV,163), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.btree.reverse_map.rshift */
+    { &sysfs_xfs.xs_rmapbt.rshift,
+      { PMDA_PMID(CLUSTER_PERDEV,164), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.btree.reverse_map.split */
+    { &sysfs_xfs.xs_rmapbt.split,
+      { PMDA_PMID(CLUSTER_PERDEV,165), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.btree.reverse_map.join */
+    { &sysfs_xfs.xs_rmapbt.join,
+      { PMDA_PMID(CLUSTER_PERDEV,166), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.btree.reverse_map.alloc */
+    { &sysfs_xfs.xs_rmapbt.alloc,
+      { PMDA_PMID(CLUSTER_PERDEV,167), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.btree.reverse_map.free */
+    { &sysfs_xfs.xs_rmapbt.free,
+      { PMDA_PMID(CLUSTER_PERDEV,168), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.btree.reverse_map.moves */
+    { &sysfs_xfs.xs_rmapbt.moves,
+      { PMDA_PMID(CLUSTER_PERDEV,169), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* xfs.perdev.btree.refcount.lookup */
+    { &sysfs_xfs.xs_refcntbt.compare,
+      { PMDA_PMID(CLUSTER_PERDEV,170), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.btree.refcount.compare */
+    { &sysfs_xfs.xs_refcntbt.lookup,
+      { PMDA_PMID(CLUSTER_PERDEV,171), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.btree.refcount.insrec */
+    { &sysfs_xfs.xs_refcntbt.insrec,
+      { PMDA_PMID(CLUSTER_PERDEV,172), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.btree.refcount.delrec */
+    { &sysfs_xfs.xs_refcntbt.delrec,
+      { PMDA_PMID(CLUSTER_PERDEV,173), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.btree.refcount.newroot */
+    { &sysfs_xfs.xs_refcntbt.newroot,
+      { PMDA_PMID(CLUSTER_PERDEV,174), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.btree.refcount.killroot */
+    { &sysfs_xfs.xs_refcntbt.killroot,
+      { PMDA_PMID(CLUSTER_PERDEV,175), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.btree.refcount.increment */
+    { &sysfs_xfs.xs_refcntbt.increment,
+      { PMDA_PMID(CLUSTER_PERDEV,176), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.btree.refcount.decrement */
+    { &sysfs_xfs.xs_refcntbt.decrement,
+      { PMDA_PMID(CLUSTER_PERDEV,177), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.btree.refcount.lshift */
+    { &sysfs_xfs.xs_refcntbt.lshift,
+      { PMDA_PMID(CLUSTER_PERDEV,178), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.btree.refcount.rshift */
+    { &sysfs_xfs.xs_refcntbt.rshift,
+      { PMDA_PMID(CLUSTER_PERDEV,179), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.btree.refcount.split */
+    { &sysfs_xfs.xs_refcntbt.split,
+      { PMDA_PMID(CLUSTER_PERDEV,180), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.btree.refcount.join */
+    { &sysfs_xfs.xs_refcntbt.join,
+      { PMDA_PMID(CLUSTER_PERDEV,181), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.btree.refcount.alloc */
+    { &sysfs_xfs.xs_refcntbt.alloc,
+      { PMDA_PMID(CLUSTER_PERDEV,182), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.btree.refcount.free */
+    { &sysfs_xfs.xs_refcntbt.free,
+      { PMDA_PMID(CLUSTER_PERDEV,183), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.btree.refcount.moves */
+    { &sysfs_xfs.xs_refcntbt.moves,
+      { PMDA_PMID(CLUSTER_PERDEV,184), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 };
 
@@ -1506,7 +1872,7 @@ xfs_text(int ident, int type, char **buf, pmdaExt *pmda)
 	/* share per-device help text with globals */
 	if (pmID_cluster(pmid) == CLUSTER_PERDEV) {
 	    if (pmID_item(pmid) >= 140 && pmID_item(pmid) <= 148)
-		ident = (int)pmID_build(pmID_domain(pmid), CLUSTER_XFSBUF, pmID_item(pmid));
+		ident = (int)pmID_build(pmID_domain(pmid), CLUSTER_XFSBUF, pmID_item(pmid)-140);
 	    else
 		ident = (int)pmID_build(pmID_domain(pmid), CLUSTER_XFS, pmID_item(pmid));
 	}

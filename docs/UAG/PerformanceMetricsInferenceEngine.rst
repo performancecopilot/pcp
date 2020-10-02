@@ -123,13 +123,13 @@ Use the **pmie** command line arguments to find out more about a particular metr
 
 **Example 5.1. pmie with the -f Option**
 
-.. sourcecode:: c
+.. sourcecode:: none
   
  pminfo -f -h dove disk.dev.total
 
 This produces the following response:
 
-.. sourcecode:: c
+.. sourcecode:: none
 
  disk.dev.total
      inst [0 or "xscsi/pci00.01.0/target81/lun0/disc"] value 131233
@@ -143,7 +143,7 @@ This reveals that on the host **dove**, the metric **disk.dev.total** has six in
 
 Use the following command to request help text (specified with the **-T** flag) to provide more information about performance metrics:
 
-.. sourcecode:: c
+.. sourcecode:: none
 
  pminfo -T network.interface.in.packets
 
@@ -154,7 +154,7 @@ the metadata by using the **-d** flag for **pminfo**, as shown in `Example 5.2. 
 
 **Example 5.2. pmie with the -d and -h Options**
 
-.. sourcecode:: c
+.. sourcecode:: none
 
  pminfo -d -h somehost mem.util.cached kernel.percpu.cpu.user
 
@@ -245,7 +245,7 @@ The value is true if the number of writes exceeds the number of reads, and if th
 
 **Example 5.4. Printed pmie Output**
 
-.. sourcecode:: c
+.. sourcecode:: none
 
  some_inst disk.dev.total > 60
            -> print "[%i] high disk i/o";
@@ -328,7 +328,7 @@ All **pmie** expressions are composed of the following lexical elements:
 Begins with an alphabetic character (either upper or lowercase), followed by zero or more letters, the numeric digits, and the special characters period (.) and 
 underscore (_), as shown in the following example:
 
-.. sourcecode:: c
+.. sourcecode:: none
 
  x, disk.dev.total and my_stuff
 
@@ -352,7 +352,7 @@ An arbitrary sequence of characters, enclosed by double quotation marks (**"x"**
 
 Within quotes of any sort, the backslash (\) may be used as an escape character as shown in the following example:
 
-.. sourcecode:: c
+.. sourcecode:: none
 
  "A \"gentle\" reminder"
 
@@ -374,17 +374,19 @@ Comments may be embedded anywhere in the source, in either of these forms:
 When they are fully specified, expressions in **pmie** tend to be verbose and repetitive. The use of macros can reduce repetition and improve readability and 
 modularity. Any statement of the following form associates the macro name **identifier** with the given string constant.
 
-:: 
+.. sourcecode:: none
 
  identifier = "string";
 
 Any subsequent occurrence of the macro name **identifier** is replaced by the string most recently associated with a macro definition for **identifier**.
 
-::
+.. sourcecode:: none
 
  $identifier 
 
-For example, start with the following macro definition::
+For example, start with the following macro definition:
+
+.. sourcecode:: none
 
  disk = "disk.all";
 
@@ -424,7 +426,7 @@ The identifier name **delta** is reserved to denote the interval of time between
 If present, **units** must be one of the time units described in the preceding section. If absent, **units** are assumed to be **seconds**. For example, the following 
 expression has the effect that any subsequent expressions (up to the next expression that assigns a value to **delta**) are scheduled for evaluation at a fixed frequency, once every five minutes.
 
-.. sourcecode:: c
+.. sourcecode:: none
 
  delta = 5 min;
 
@@ -448,7 +450,7 @@ This scheme is illustrated by the time line shown in `Figure 5.1. Sampling Time 
 
 .. _Figure 5.1. Sampling Time Line:
 
-.. figure:: ../images/sampling-timeline.png
+.. figure:: ../../images/sampling-timeline.png
 
     Figure 5.1. Sampling Time Line
 
@@ -468,7 +470,7 @@ In fact, this expression defines a point in the three-dimensional (3D) parameter
 
 .. _Figure 5.2. Three-Dimensional Parameter Space:
 
-.. figure:: ../images/parameter-space.png
+.. figure:: ../../images/parameter-space.png
 
     Figure 5.2. Three-Dimensional Parameter Space
 
@@ -1107,7 +1109,7 @@ of the output file and is not interpreted by **pmie** itself.
    that it is not associated with any particular rule; it has been defined as a global **pmieconf** variable. Global variables can be displayed using the **list global** 
    command to **pmieconf**, and can be modified either globally or local to a specific rule.
 
-   ::
+   .. sourcecode:: none
 
     pmieconf> modify memory.swap_low threshold 5
 

@@ -17,6 +17,7 @@ makes it especially useful for those seeking centralized monitoring of distribut
    :hidden:
    
    UAG/AboutThisGuide
+   PG/AboutThisGuide
 
 
 .. toctree::
@@ -32,3 +33,16 @@ makes it especially useful for those seeking centralized monitoring of distribut
    UAG/ArchiveLogging
    UAG/PcpDeploymentStrategies
    UAG/CustomizingAndExtendingPcpServices
+
+
+.. toctree::
+   :caption: Programmer's Guide
+   :numbered:
+   :hidden:
+
+   PG/ProgrammingPcp
+   PG/WritingPMDA
+   PG/PMAPI
+   PG/InstrumentingApplications
+
+

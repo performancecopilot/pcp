@@ -81,7 +81,7 @@ As with most PCP utilities, real-time metric, and archive logs are interchangeab
 For example, the following command uses a local system PCP archive log *20170731* and the timezone of the host (**smash**) from which performance metrics 
 in the archive were collected:
 
-.. sourcecode:: c
+.. sourcecode:: none
 
  pmstat -a ${PCP_LOG_DIR}/pmlogger/smash/20170731 -t 2hour -A 1hour -z
  Note: timezone set to local timezone of host "smash"
@@ -105,7 +105,7 @@ The pmrep Command
 The **pmrep** command displays performance metrics in ASCII tables, suitable for export into databases or report generators. It is a flexible command. 
 For example, the following command provides continuous memory statistics on a host named **surf**:
 
-.. sourcecode:: c
+.. sourcecode:: none
 
  pmrep -p -h surf kernel.all.load kernel.all.pswitch
            k.a.load  k.a.load  k.a.load  k.a.pswitch
@@ -256,7 +256,9 @@ full name is known. For example, this command returns the following response::
  nfs4.server.reqs
 
 The **-d** option causes **pminfo** to display descriptive information about metrics (refer to the **pmLookupDesc(3)** man page for an explanation of this metadata information). 
-The following command and response show use of the **-d** option::
+The following command and response show use of the **-d** option:
+
+.. sourcecode:: none
 
  pminfo -d proc.nprocs disk.dev.read filesys.free
  proc.nprocs
@@ -275,7 +277,7 @@ The **-l** option causes **pminfo** to display labels about metrics (refer to th
 information). If the metric has an instance domain, the labels associated with each instance of the metric is printed. The following command and 
 response show use of the **-l** option:
 
-.. sourcecode:: c
+.. sourcecode:: none
  
  pminfo -l -h shard kernel.pernode.cpu.user
  kernel.percpu.cpu.sys
