@@ -35,12 +35,16 @@ ArchLinux    -        -       python2-{.*} {.*}-python2
 CentOS       8\.2\.   -       {.*}-python2 python2-{.*} python2[0-9]-{.*} python-{.*} mysql mandoc perl-Net-SNMP perl(Net::SNMP) perl-Spreadsheet-XLSX perl(Spreadsheet::XLSX) perl-Spreadsheet-WriteExcel perl(Spreadsheet::WriteExcel) cpan(Spreadsheet::WriteExcel)
 CentOS       8\.1\.   -       {.*}-python2 python2-{.*} python2{[0-9]-.*} python-{.*}
 CentOS       7\.[5-8] -       {.*}-python2 python2-{.*} python2{[0-9]-.*} python-{.*}
+# For CentOS 6, 7 and 8 prefer infiniband-diags-devel over libibmad-devel
+CentOS       [6-8]    -       libibmad-devel
 # libSoQt is for Qt4 not Qt5
 CentOS       7\..*    -       SoQt-devel
 # we're using python2
 CentOS       6\.10    -       {.*}-python3 python3-{.*} python3{[0-9]-.*}
 # need non-standard repo for msssql-* pkgs
 CentOS       -        -       mssql-server mssql-tools
+# libqt4-devel is a SuSE invention, not in the RH ecosystem
+CentOS       -        -       libqt4-devel
 # -- Debian
 # we're using python3 from Debian 9 onwards
 Debian       1.\..*   -       python-{.*}
@@ -68,6 +72,8 @@ Fedora       -        -       mssql-server mssql-tools
 Fedora       3[0-9]   -       community-mysql
 # we're using python3
 Fedora       3[0-9]   -       python-{.*} python2-{.*} 
+# libqt4-devel is a SuSE invention, not in the RH ecosystem
+Fedora       -        -       libqt4-devel
 #-- Gentoo
 # observed on vm05
 # I cannot figure out how to remake this package with USE=utils so that
@@ -108,8 +114,12 @@ RHEL         8\.2     -       {.*}-python2 python2-{.*} python2[0-9]-{.*} python
 RHEL         8\.[0-1] -       cpan(Net::LDAP) cpan(Spreadsheet::XLSX) cpan(Text::CSV_XS) cpan(XML::LibXML) cpan(XML::TokeParser) perl(autodie) perl(Date::Manip) perl(DBD::mysql) perl(Net::LDAP) perl(Net::SNMP) perl-Net-SNMP perl(Spreadsheet::WriteExcel) perl-Spreadsheet-WriteExcel perl(Spreadsheet::XLSX) perl(Text::CSV_XS) perl(XML::LibXML) perl(XML::TokeParser) {.*}-python2 python2-{.*} system-python-libs
 RHEL         7\.[5-7] -       {.*}-python3 python3-{.*} python3{[0-9]-.*}
 RHEL         6\.10    -       {.*}-python3 python3-{.*} python3{[0-9]-.*}
+# For RHEL 7 prefer infiniband-diags-devel over libibmad-devel
+RHEL         7        -       libibmad-devel
 # need non-standard repo for msssql-* pkgs
 RHEL         -        -       mssql-server mssql-tools
+# libqt4-devel is a SuSE invention, not in the RH ecosystem
+RHEL         -        -       libqt4-devel
 #-- Slackware
 # we're using python2
 Slackware    14\.2    -       python3-{.*}
