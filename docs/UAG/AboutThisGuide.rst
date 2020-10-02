@@ -9,7 +9,7 @@ user applications and distributed architectures.
 
 PCP is a cross-platform, open source software package - customizations, extensions, source code inspection, and tinkering in general is actively encouraged.
 
-"About This Guide" includes short descriptions of the chapters in this book, directs you to additional sources of information, and explains typographical conventions.
+"About User's and Administrator's Guide" includes short descriptions of the chapters in this book, directs you to additional sources of information, and explains typographical conventions.
 
 .. contents::
 

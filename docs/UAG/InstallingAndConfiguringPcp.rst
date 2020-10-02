@@ -186,7 +186,9 @@ generated during the software build process and on Linux, for example, is simila
 
 Each entry in this configuration file contains rules that specify how to connect the PMCD to a particular PMDA and which metrics the PMDA monitors. A PMDA may be attached as a Dynamic Shared Object (DSO) or by using a socket or a pair of pipes. The distinction between these attachment methods is described below.
 
-An entry in the **pmcd.conf** file looks like this:: 
+An entry in the **pmcd.conf** file looks like this:
+
+.. sourcecode:: none
 
  label_name   domain_number   type   path
  
@@ -318,7 +320,9 @@ The operations that can be allowed or disallowed are as follows:
 * store : Allows the PMCD to store metric values in PMDAs that permit store operations. Be cautious in allowing this operation, because it may be a security opening in large networks, 
   although the PMDAs shipped with the PCP package typically reject store operations, except for selected performance metrics where the effect is benign.
 
-For example, here is a sample access control portion of a ``${PCP_PMCDCONF_PATH}`` file::
+For example, here is a sample access control portion of a ``${PCP_PMCDCONF_PATH}`` file:
+
+.. sourcecode:: none
 
  allow hosts babylon, moomba : all ; 
  disallow user sam : all ;
