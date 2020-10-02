@@ -46,3 +46,46 @@
    fun:pmNewContext
    ...
 }
+
+# qa/1457, qa/1695 and qa/1696 on test-debian11-container in CI
+# at 0x483AB65: calloc (vg_replace_malloc.c:760)
+# by 0x4C523BD: uv_loop_init (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+# by 0x4C4A3C3: uv_default_loop (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+# by 0x111DEE: ??? (in /usr/lib/pcp/bin/pmproxy)
+# by 0x110943: ??? (in /usr/lib/pcp/bin/pmproxy)
+# by 0x4D5FCC9: (below main) (libc-start.c:308)
+{
+   uv_loop_init
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   fun:uv_loop_init
+   fun:uv_default_loop
+   obj:/usr/lib/pcp/bin/pmproxy
+   ...
+}
+
+# qa/1457, qa/1695 and qa/1696 on test-debian11-container in CI
+# at 0x48386AF: malloc (vg_replace_malloc.c:306)
+# by 0x483ADE7: realloc (vg_replace_malloc.c:834)
+# by 0x4C47C77: ??? (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+# by 0x4C4C250: ??? (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+# by 0x4C557A8: uv_signal_init (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+# by 0x4C52567: uv_loop_init (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+# by 0x4C4A3C3: uv_default_loop (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+# by 0x111DEE: ??? (in /usr/lib/pcp/bin/pmproxy)
+# by 0x110943: ??? (in /usr/lib/pcp/bin/pmproxy)
+# by 0x4D5FCC9: (below main) (libc-start.c:308)
+{
+   uv_signal_init
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:realloc
+   ...
+   fun:uv_signal_init
+   fun:uv_loop_init
+   fun:uv_default_loop
+   obj:/usr/lib/pcp/bin/pmproxy
+   ...
+}
