@@ -387,6 +387,40 @@ _safe_pattern()
 	}'
 }
 
+# for some virgin installs, cmp(1) may not be there (yet), so this is
+# an attempt to resolve that issue ... we are only interested in a binary
+# outcome, namely if the two files ($1 and $2) are the same, return 0
+# else return 1
+#
+# try in order: sum, cmp, diff, stat (only size can be compared)
+#
+_cmp()
+{
+    sts=1
+    if which sum >/dev/null 2>&1
+    then
+	[ "`sum <"$1"`" = "`sum <"$2"`" ] && sts=0
+    elif which cmp >/dev/null 2>&1
+    then
+	cmp "$1" "$2" >/dev/null 2>&1 && sts=0
+    elif which diff >/dev/null 2>&1
+    then
+	diff "$1" "$2" >/dev/null 2>&1 && sts=0
+    elif which stat >/dev/null 2>&1
+    then
+	s1=`stat "$1" | sed -n -e '/^ *Size:/{
+s/^ *Size: *//
+s/ .*//p
+}'`
+	s2=`stat "$2" | sed -n -e '/^ *Size:/{
+s/^ *Size: *//
+s/ .*//p
+}'`
+	[ "$s1" = "$s2" ] && sts=0
+    fi
+    return $sts
+}
+
 # Usage: _cull_from_manifest pkg msg
 # if [...] is empty afterwards, replace [] by [msg]
 # reads $tmp.manifest, writes $tmp.culled
@@ -411,7 +445,7 @@ s/\[([^)]*)]/['"$_msg"']/
     if $very_verbose
     then
 	echo "Culling $_pkg ($_pkg_pat)"
-	if cmp $tmp.manifest $tmp.culled >/dev/null
+	if _cmp $tmp.manifest $tmp.culled >/dev/null
 	then
 	    : no diffs
 	else
@@ -1155,7 +1189,7 @@ then
 	cat $tmp.sed
     fi
     sed -f $tmp.sed <$tmp.manifest >$tmp.tmp
-    if cmp $tmp.manifest $tmp.tmp >/dev/null
+    if _cmp $tmp.manifest $tmp.tmp >/dev/null
     then
 	: no differences
     else
