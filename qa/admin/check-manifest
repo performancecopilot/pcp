@@ -297,18 +297,31 @@ _path_to_pkg()
 	    fi
 	    if [ -s $tmp.tmp ]
 	    then
-		cat $tmp.tmp
+		:
 	    else
+		# very odd failure on test-ubuntu2004-direct in CI where
+		# /bin is a symlink -> usr/bin, so targets installed from
+		# packages intended for /bin actually end up in /usr/bin,
+		# specifically bash, sed, grep and mktemp
+		#
 		case "$1"
 		in
 		    /usr/bin/*)
-			# failure on test-ubuntu2004-direct in CI
-			echo >&2 "+++ Bear Trap +++"
-			ls >&2 -ild /usr/bin /bin "$1" "`echo "$1" | sed -e 's;/usr;;'`"
-			echo >&2 "_target=$_target"
+			_target=`echo "$1" | sed -e 's;^/usr/bin/;/bin/;'`
+			dpkg-query -S "$_target" 2>/dev/null | sed -e 's/:.*//' >$tmp.tmp
 			;;
 		esac
+		if [ ! -s $tmp.tmp ]
+		then
+		    # still no dice, output some helpful diags
+		    #
+		    echo >&2 "+++ Bear Trap +++"
+	 	    ls >&2 -ild /usr/bin /bin "$1" "`echo "$1" | sed -e 's;/usr;;'`"
+		    which realpath >/dev/null 2>/&1 && echo >&2 "realpath -> `realpath "$1"`"
+		    echo >&2 "_target=$_target"
+		fi
 	    fi
+	    [ -s $tmp.tmp ] && cat $tmp.tmp
 	    ;;
 
 	rpm)
