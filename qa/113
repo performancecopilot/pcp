@@ -34,12 +34,15 @@ rm -f $seq.full
 # on OpenBSD mount output looks like (same as Linux)
 # /dev/wd0a on / type ffs (local)
 #
+# List of "types" (efs, xfs, ...) needs to match those filesystem types
+# that in the instance domain for the filesys.* metrics.
+#
 echo "-- mount --" >>$seq.full
 filesystems=`mount \
 	     | tee -a $seq.full \
 	     | sed -e 's/[(,)]//g' \
              | $PCP_AWK_PROG '
-$4 == "type" && ($5 == "efs" || $5 == "xfs" || $5 == "ext2" || $5 == "ext3" || $5 == "ext4" || $5 == "btrfs" || $5 == "ffs") { print $1 }
+$4 == "type" && ($5 == "efs" || $5 == "xfs" || $5 == "ext2" || $5 == "ext3" || $5 == "ext4" || $5 == "btrfs" || $5 == "ffs" || $5 == "vfat") { print $1 }
 $4 == "hfs" || $4 == "ufs" { print $1 }'`
 echo "filesystems=$filesystems" >>$seq.full
 
