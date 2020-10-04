@@ -225,6 +225,12 @@ else
 	echo "$f:" >>$seq.full
 	[ -f "$f" ] && ls -l "$f" >>$seq.full
     done
+    if [ -f /etc/rsyslog.conf ]
+    then
+	echo >>$seq.full
+	echo "critical info from /etc/rsyslog.conf ..." >>$seq.full
+	sed -n -e '/^#/d' -e '/[^ ]/p' </etc/rsyslog.conf >>$seq.full
+    fi
 fi
 
 # success, all done
