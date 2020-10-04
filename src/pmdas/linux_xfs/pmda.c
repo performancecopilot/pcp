@@ -308,11 +308,19 @@ static pmdaMetric xfs_metrictab[] = {
     { &sysfs_xfs.xs_qm.dqwants,
       { PMDA_PMID(CLUSTER_XFS,64), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.quota.shake_reclaims */
+    { NULL,	/* no longer supported by the kernel */
+      { PMDA_PMID(CLUSTER_XFS,65), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.quota.inact_reclaims */
+    { NULL,	/* no longer supported by the kernel */
+      { PMDA_PMID(CLUSTER_XFS,66), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.quota.dquots */
     { &sysfs_xfs.xs_qm.dquots,
       { PMDA_PMID(CLUSTER_XFS,185), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
-/* xfs.quota.squots_unused */
+/* xfs.quota.dquots_unused */
     { &sysfs_xfs.xs_qm.dquots_unused,
       { PMDA_PMID(CLUSTER_XFS,186), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
@@ -1149,6 +1157,14 @@ static pmdaMetric xfs_metrictab[] = {
     { &sysfs_xfs.xs_qm.dqwants,
       { PMDA_PMID(CLUSTER_PERDEV,64), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.quota.shake_reclaims */
+    { NULL,	/* no longer supported by the kernel */
+      { PMDA_PMID(CLUSTER_PERDEV,65), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.quota.inact_reclaims */
+    { NULL,	/* no longer supported by the kernel */
+      { PMDA_PMID(CLUSTER_PERDEV,66), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.quota.dquots */
     { &sysfs_xfs.xs_qm.dquots,
       { PMDA_PMID(CLUSTER_PERDEV,185), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_INSTANT,
@@ -1751,6 +1767,9 @@ xfs_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
     case CLUSTER_XFS:
 	switch (item) {
+	case 65: /* xfs.quota.shake_reclaims */
+	case 66: /* xfs.quota.inact_reclaims */
+	    return PM_ERR_APPVERSION;
 	case 79: /* xfs.control.reset */
 	    atom->ul = 0;
 	    break;
@@ -1760,6 +1779,11 @@ xfs_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	break;
 
     case CLUSTER_PERDEV:
+	switch (item) {
+	case 65: /* xfs.perdev.quota.shake_reclaims */
+	case 66: /* xfs.perdev.quota.inact_reclaims */
+	    return PM_ERR_APPVERSION;
+	}
 	if (mdesc->m_user == NULL)
 	    return PM_ERR_PMID;
 	if ((xfs = refresh_device(INDOM(DEVICES_INDOM), inst)) == NULL)
