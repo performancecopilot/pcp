@@ -56,7 +56,7 @@ _cleanup()
     $PCP_SYSLOG_PROG -p daemon.error "$prog failed - see $PROGLOG"
     [ -s "$PROGLOG" ] || rm -f "$PROGLOG"
     lockfile=`cat $tmp/lock 2>/dev/null`
-    rm -f "$lockfile"
+    [ -n "$lockfile" ] && rm -f "$lockfile"
     rm -rf $tmp
 }
 trap "_cleanup; exit \$status" 0 1 2 3 15
