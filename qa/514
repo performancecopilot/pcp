@@ -214,6 +214,18 @@ else
 fi
 echo "`wc -l <$tmp.syslog | sed -e 's/ //g'` lines ... expect 200" >>$seq.full
 cat $tmp.syslog >>$seq.full
+if $have_journalctl
+then
+    :
+else
+    echo >>$seq.full
+    date >>$seq.full
+    for f in /var/adm/SYSLOG /var/log/daemon.log /var/log/messages /var/log/syslog /var/log/system.log
+    do
+	echo "$f:" >>$seq.full
+	[ -f "$f" ] && ls -l "$f" >>$seq.full
+    done
+fi
 
 # success, all done
 status=0
