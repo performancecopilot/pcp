@@ -260,7 +260,7 @@ NF == 5		{ printf "%s_%s %d\n", "filesys.capacity",  dev, $1
 		  printf "%s_%s %d\n", "filesys.mountdir", dev, $5
 		}'
 	$sudo df -li \
-	| grep $f \
+	| grep "^$f " \
 	| $PCP_AWK_PROG '
 BEGIN		{ dev="'$f'" }
 NF == 1		{ next }
