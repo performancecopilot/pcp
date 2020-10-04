@@ -188,7 +188,7 @@ do
     sleep 1
 done
 
-if [ -f $tmp.log ]
+if [ ! -f $tmp.log ]
 then
     echo "Hmm, $tmp.log not created after 10 seconds ..."
     ls -l $tmp.*

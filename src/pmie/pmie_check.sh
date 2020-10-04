@@ -67,7 +67,7 @@ _cleanup()
     $USE_SYSLOG && [ $status -ne 0 ] && \
     $PCP_SYSLOG_PROG -p daemon.error "$prog failed - see $PROGLOG"
     lockfile=`cat $tmp/lock 2>/dev/null`
-    rm -f "$lockfile"
+    [ -n "$lockfile" ] && rm -f "$lockfile"
     rm -rf $tmp
     $VERY_VERBOSE && echo "End: `date '+%F %T.%N'`"
 }

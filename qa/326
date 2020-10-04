@@ -25,18 +25,9 @@ _cleanup()
     then
 	:
     else
-	echo
-	echo "Restore pmcd.conf and restart PMCD ..."
-	if [ -f $tmp.pmcd.conf ]
-	then
-	    $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
-	    rm -f $tmp.pmcd.conf
-	fi
-	_restore_primary_logger
+	_restore_config $PCP_PMCDCONF_PATH
 	_service pcp restart 2>&1 | _filter_pcp_start
-	_restore_auto_restart pmcd
 	_wait_for_pmcd
-	_wait_for_pmlogger
 	rm -f $tmp.*
 	done_clean=true
     fi
@@ -68,15 +59,13 @@ _filter_pmval()
 }
 
 trap "_cleanup" 0 1 2 3 15
-_stop_auto_restart pmcd
+
+_save_config $PCP_PMCDCONF_PATH
 
 rm -f $seq.full
 
 # real QA test starts here
 PMDA_PMCD_PATH=$PCP_PMDAS_DIR/pmcd/pmda_pmcd.$DSO_SUFFIX
-
-# copy the pmcd config file to restore state later.
-cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
 
 # start from a known starting point
 _service pcp stop >/dev/null 2>&1
@@ -88,36 +77,28 @@ sample	29	pipe	binary 		$PCP_PMDAS_DIR/sample/pmdasample -d 29
 End-of-File
 $sudo cp $tmp.tmp $PCP_PMCDCONF_PATH
 
-_writable_primary_logger
 _service pcp restart 2>&1 | _filter_pcp_start
 _wait_for_pmcd
-if [ -d $PCP_LOG_DIR/pmlogger ]
-then
-    LOGGING_DIR=$PCP_LOG_DIR/pmlogger
-else
-    LOGGING_DIR=$PCP_LOG_DIR
-fi
-_wait_for_pmlogger -P $LOGGING_DIR/$LOCALHOST/pmlogger.log
 
-echo 'connect primary
-log mandatory on 500 msec { pmcd.numagents sample.milliseconds }' \
-| pmlc
+cat <<End-of-File >$tmp.config
+log mandatory on 500 msec { pmcd.numagents sample.milliseconds }
+End-of-File
 
-# run for 25 seconds
-pmval -s 50 -t 0.5 -Z "$timezone" -D fetch pmcd.numagents >$tmp.pmval 2>&1 &
+# run pmlogger and pmval for 15 seconds
+pmlogger -s 30 -l $tmp.log -c $tmp.config $tmp &
+pmval -s 30 -t 0.5 -Z "$timezone" -D fetch pmcd.numagents >$tmp.pmval 2>&1 &
 
-sleep 3
+sleep 2
 
 echo "=== kill sample PMDA process ==="
 $sudo $signal -a -s TERM pmdasample
-sleep 3 # enough time for pmcd to restart it - once only
+sleep 2 # enough time for pmcd to restart it - once only
 $sudo $signal -a -s TERM pmdasample
-pminfo -v sample >/dev/null 2>&1
-sleep 3
+sleep 2 # and again
 
 echo "=== SIGHUP PMCD ==="
 $sudo $signal -a -s HUP pmcd
-sleep 3
+sleep 2
 
 echo "=== drop sample PMDA, like Remove ==="
 cat <<End-of-File >$tmp.tmp
@@ -126,7 +107,7 @@ pmcd	2	dso	pmcd_init	$PMDA_PMCD_PATH
 End-of-File
 $sudo cp $tmp.tmp $PCP_PMCDCONF_PATH
 $sudo $signal -a -s HUP pmcd
-sleep 3
+sleep 2
 
 echo "=== add sample PMDA, like Install ==="
 cat <<End-of-File >$tmp.tmp
@@ -136,7 +117,7 @@ sample	29	pipe	binary 		$PCP_PMDAS_DIR/sample/pmdasample -d 29
 End-of-File
 $sudo cp $tmp.tmp $PCP_PMCDCONF_PATH
 $sudo $signal -a -s HUP pmcd
-sleep 3
+sleep 2
 
 wait
 
@@ -150,20 +131,13 @@ egrep '(state changes)|( value )' $tmp.pmval \
 | _filter_host \
 | uniq
 
-echo
-echo "primary logger ..."
-echo 'connect primary
-log mandatory off { pmcd.numagents sample.milliseconds }
-flush' \
-| pmlc
-sleep 2
-
 echo >>$seq.full
 echo "pmlogger log ..." >>$seq.full
-cat $LOGGING_DIR/$LOCALHOST/pmlogger.log >>$seq.full
+cat $tmp.log >>$seq.full
 
+echo
 echo "archive contents ..."
-pmafm $LOGGING_DIR/$LOCALHOST/Latest pmdumplog >$tmp.out 2>&1
+pmdumplog $tmp >$tmp.out 2>&1
 egrep '(<mark>)|(pmcd.numagents)' $tmp.out \
 | _filter_pmdumplog \
 | uniq
@@ -173,7 +147,7 @@ egrep '(<mark>)|(pmcd.numagents)' $tmp.out \
 #
 echo
 echo "sanity check with pmval | filter ..."
-pmafm $LOGGING_DIR/$LOCALHOST/Latest pmval -t 1 sample.milliseconds 2>&1 \
+pmval -t 1 -a $tmp sample.milliseconds 2>&1 \
 | _filter_pmval \
 | sed -e 4q
 
@@ -183,7 +157,7 @@ cat $tmp.pmval >>$seq.full
 
 echo >>$seq.full
 echo "unfiltered pmval archive output" >>$seq.full
-pmafm $LOGGING_DIR/$LOCALHOST/Latest pmval -t 1 sample.milliseconds >>$seq.full 2>&1
+pmval -t 1 -a $tmp sample.milliseconds >>$seq.full 2>&1
 
 status=0
 exit
