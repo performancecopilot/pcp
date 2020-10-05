@@ -326,7 +326,8 @@ p
 	;;
 
     *Arch\ Linux*)
-	# TODO
+	pacman -Ss . \
+	| sed -n >$tmp.allpkgs -e '/^[^ ]/s/ .*//p'
 	;;
 
     esac

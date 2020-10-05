@@ -460,7 +460,15 @@ p
 	    # expecting output like
 	    # /usr/bin/bash is owned by core/bash 4.4.023-1
 	    #
-	    pacman -Qo "$1" | sed -e 's/.* is owned by //' -e 's/ .*//'
+	    if $very_verbose
+	    then
+		echo >&2 "_path_to_pkg: arg=\"$1\""
+	    fi
+	    pacman -Qo "$1" 2>/dev/null | sed -e 's/.* is owned by //' -e 's/ .*//' >$tmp.tmp
+	    if [ -s $tmp.tmp ]
+	    then
+		cat $tmp.tmp
+	    fi
 	    ;;
 
 	brew)
@@ -613,6 +621,18 @@ _match_pkg()
 			touch $tmp.match
 			break
 		    fi
+		    ;;
+
+	    pacman)
+		    if [ "$xpect" != "$2" ]
+		    then
+			# may have module/package from manifest,
+			# but only package from pacman -Qo
+			#
+			__pkg=`echo "$2" | sed -e 's;.*/;;'`
+			[ "$xpect" = "$__pkg" ] && xpect="$2"
+		    fi
+		    ;;
 
 	esac
 	if [ "$xpect" = "$2" ]
