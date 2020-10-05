@@ -737,27 +737,29 @@ interrupts_text(pmdaExt *pmda, pmID pmid, int type, char **buf)
 
     switch (cluster) {
 	case CLUSTER_INTERRUPT_LINES:
-	    if (!lines_count)
+	    if (!lines_count || !(type & PM_TEXT_ONELINE))
 		return PM_ERR_TEXT;
 	    if (item > lines_count || item > MAX_INTERRUPT_LINES)
 		return PM_ERR_PMID;
 	    text = interrupt_lines[item].text;
 	    if (text == NULL || text[0] == '\0')
-		return PM_ERR_TEXT;
-	    *buf = text;
+		*buf = "Per-processor interrupts values from /proc/interrupts";
+	    else
+		*buf = text;
 	    return 0;
 	case CLUSTER_INTERRUPT_OTHER:
-	    if (!other_count)
+	    if (!other_count || !(type & PM_TEXT_ONELINE))
 		return PM_ERR_TEXT;
 	    if (!(ip = dynamic_data_lookup(item, INTERRUPT_NAMES_INDOM)))
 		return PM_ERR_PMID;
 	    text = ip->text;
 	    if (text == NULL || text[0] == '\0')
-		return PM_ERR_TEXT;
-	    *buf = text;
+		*buf = "Per-processor interrupts values from /proc/interrupts";
+	    else
+		*buf = text;
 	    return 0;
 	case CLUSTER_SOFTIRQS:
-	    if (!softirqs_count)
+	    if (!softirqs_count || !(type & PM_TEXT_ONELINE))
 		return PM_ERR_TEXT;
 	    *buf = "percpu deferrals to outside of hardware interrupt handling";
 	    return 0;
