@@ -30,6 +30,8 @@ which sheet2pcp >/dev/null 2>&1
 	_notrun "No support for libpcp_import"
 perl -e "use PCP::LogImport" 2>/dev/null || \
 	_notrun "Perl PCP::LogImport module is not installed"
+perl -e "use Text::CSV_XS" 2>/dev/null || \
+	_notrun "Perl Text::CSV_XS module is not installed"
 
 status=1        # failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
