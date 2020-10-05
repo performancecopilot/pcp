@@ -244,7 +244,7 @@ kvm_trace_refresh(void)
     size_t		bufsize = ksize + sizeof(unsigned long long);
     int			i, sts, changed = 0;
 
-    if (ntrace == 0 || group_fd == NULL)
+    if (ntrace == 0 || group_fd == NULL || kernel_lockdown)
 	return;
 
     if (buffer == NULL) {
@@ -427,6 +427,31 @@ kvm_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	return PM_ERR_PMID;
     }
     return 1;
+}
+
+static int
+kvm_text(int ident, int type, char **buf, pmdaExt *pmda)
+{
+    if ((type & PM_TEXT_PMID) == PM_TEXT_PMID) {
+	static char	text[1024];
+	pmID		pmid = (pmID)ident;
+
+	if (pmID_cluster(pmid) == CLUSTER_TRACE) {
+	    if (!(type & PM_TEXT_ONELINE))
+                return PM_ERR_TEXT;
+	    if (pmID_item(pmid) == 0)	/* kvm.trace.count */
+		pmsprintf(text, sizeof(text),
+			"Number of KVM trace points from %s/kvm/kvm.conf",
+				pmGetOptionalConfig("PCP_PMDAS_DIR"));
+	    else
+		pmsprintf(text, sizeof(text),
+			"KVM trace point values from %s/events/kvm files",
+				tracefs);
+	    *buf = text;
+	    return 0;
+	}
+    }
+    return pmdaText(ident, type, buf, pmda);
 }
 
 static int
@@ -651,6 +676,7 @@ kvm_init(pmdaInterface *dp)
 
     dp->version.seven.fetch = kvm_fetch;
     dp->version.seven.label = kvm_label;
+    dp->version.seven.text = kvm_text;
     dp->version.seven.pmid = kvm_pmid;
     dp->version.seven.name = kvm_name;
     dp->version.seven.children = kvm_children;

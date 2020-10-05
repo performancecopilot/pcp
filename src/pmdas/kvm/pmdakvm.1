@@ -1,5 +1,6 @@
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2020 Red Hat.
 .\" Copyright (c) 2008 Aconex.  All Rights Reserved.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
@@ -18,12 +19,18 @@
 \f3pmdakvm\f1 \- Linux virtualization performance metrics domain agent (PMDA)
 .SH DESCRIPTION
 \f3pmdakvm\f1 is a Performance Metrics Domain Agent (\s-1PMDA\s0) which
-exports metric values from the Linux KVM virtualisation subsystem.
+exports metric values from the Linux KVM (Kernel Virtual Machine)
+virtualization subsystem.
 .PP
-Unlike many PMDAs it dynamically enumerates its metric hierarchy,
-based entirely on the contents of /sys/kernel/debug/kvm.
+Per-processor KVM trace metrics from the kernel events enumerated below
+.I /sys/kernel/debug/tracing/events/kvm
+can be configured statically using the
+.B pmdakvm
+configuration file,
+.IR /etc/pcp/kvm/kvm.conf .
 .SH INSTALLATION
-Install the kvm PMDA by using the Install script as root:
+Optionally configure trace points in the configuration file,
+then install the KVM PMDA by using the Install script as root:
 .sp 1
 .RS +4
 .ft B
@@ -49,6 +56,8 @@ To uninstall, do the following as root:
 directly. The Install and Remove scripts notify \fIpmcd\fR(1) when the
 agent is installed or removed.
 .SH FILES
+.IP "\fB$PCP_SYSCONF_DIR/kvm/kvm.conf\fR" 4
+configuration file for the \fBpmdakvm\fR agent
 .IP "\fB$PCP_PMDAS_DIR/kvm/Install\fR" 4
 installation script for the \fBpmdakvm\fR agent
 .IP "\fB$PCP_PMDAS_DIR/kvm/Remove\fR" 4
