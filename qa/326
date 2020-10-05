@@ -14,6 +14,18 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+if [ -f /etc/redhat-release ]
+then
+    # Don't even bother on CentOS release 6.10 (Final) ... we've tried
+    # repeatedly to make this test work on this platform and it is not worth
+    # investing any more effort on.
+    #
+    if egrep -q '^CentOS .* 6\.[0-9]|^Red Hat .* 6\.[0-9]' </etc/redhat-release
+    then
+	_notrun "don't bother on CentOS/RHEL 6"
+    fi
+fi
+
 signal=$PCP_BINADM_DIR/pmsignal
 status=1
 done_clean=false
