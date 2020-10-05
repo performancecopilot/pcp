@@ -147,13 +147,8 @@ do
     done
 done
 
+# get $compress_suffixes variable
 eval `pmconfig -L -s compress_suffixes`
-if [ -z "$compress_suffixes" ]
-then
-    # should not happen, fallback to a fixed list
-    #
-    compress_suffixes='.xz .lzma .bz2 .bz .gz .Z .z'
-fi
 
 # For each input archive, need to have at least .0 and .meta and
 # warn if .index is missing.

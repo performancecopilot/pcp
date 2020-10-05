@@ -2137,7 +2137,8 @@ class pmContext(object):
         status = LIBPCP.pmUseContext(self.ctx)
         if status < 0:
             raise pmErr(status)
-
+        if indom == c_api.PM_INDOM_NULL:
+            return instlabelsD
         result_p = POINTER(pmLabelSet)()
         status = LIBPCP.pmGetInstancesLabels(indom, byref(result_p))
         if status < 0:
@@ -2189,18 +2190,20 @@ class pmContext(object):
         """PMAPI - Get labels of a given instance domain
            On success, this returns a dict of the labels in a single pmLabelSet
         """
+        indomLabelsD = {}
         result_p = POINTER(pmLabelSet)()
         status = LIBPCP.pmUseContext(self.ctx)
         if status < 0:
             raise pmErr(status)
+        if indom == c_api.PM_INDOM_NULL:
+            return indomLabelsD
         status = LIBPCP.pmGetInDomLabels(indom, byref(result_p))
         if status < 0:
             raise pmErr(status)
-        if status == 0:
-            return {}
-        ret = self.pmlabelset_to_dict(result_p[0])
-        self.pmFreeLabelSets(result_p, 1)
-        return ret
+        if status > 0:
+            indomLabelsD = self.pmlabelset_to_dict(result_p[0])
+            self.pmFreeLabelSets(result_p, 1)
+        return indomLabelsD
 
     def pmGetDomainLabels(self, domain):
         """PMAPI - Get labels of a given performance domain

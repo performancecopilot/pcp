@@ -10,6 +10,7 @@ debug option [ option ... ] (option is a symbolic name or a decimal number)
 desc metric
 fetch metric [ metric ... ]
 getdesc on | off
+getiname on | off
 instance indom# [ number | name | "name" ]
 label context
 label domain
@@ -93,6 +94,14 @@ getdesc on | off
 
 Before doing a fetch, get the descriptor so that the result of a fetch
 can be printed out correctly.
+
+dbpmda> help getiname
+
+getiname on | off
+
+After a fetch if the metric has an associated instance domain then lookup
+the external names of any instances returned, rather than reporting the
+instance name as ???.
 
 dbpmda> help instance
 

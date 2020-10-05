@@ -140,13 +140,20 @@ _script_git_pull()
 # not needed any longer - 26 Mar 2013
 #\${MAKE:-make} clean >>\$HOME/daily.log 2>&1
 # only VERSION.pcp is expected to be modified, sometimes!
-rm -f VERSION.pcp
+mv VERSION.pcp VERSION.tmp
 git checkout -- VERSION.pcp
 if git checkout $pcp_branch >>\$HOME/daily.log 2>&1
 then
     echo "Info: pcp git checkout $pcp_branch" | tee -a \$HOME/daily.log
+    rm VERSION.tmp
 else
     echo "Error: pcp git checkout $pcp_branch failed!" | tee -a \$HOME/daily.log
+    if [ -f VERSION.pcp ]
+    then
+	rm VERSION.tmp
+    else
+	mv VERSION.tmp VERSION.pcp
+    fi
     exit 1
 fi
 # on some VMs, there is a problem with the shutdown that deletes

@@ -20,9 +20,11 @@ fi
 . ./common.filter
 . ./common.check
 
+do_valgrind=false
 if [ "$1" = "--valgrind" ]
 then
     _check_valgrind
+    do_valgrind=true
 fi
 
 if which unxz >/dev/null
@@ -42,9 +44,14 @@ status=0	# success is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
-_filter()
+_doit()
 {
-    sed 	-e 's/<something>/<else>/'     # end
+    if $do_valgrind
+    then
+	_run_valgrind pmdumplog -z -Dlog -L 20180416.10.00
+    else
+	pmdumplog -z -Dlog -L 20180416.10.00 2>>$here/$seq.full
+    fi
 }
 
 # real QA test starts here
@@ -57,22 +64,12 @@ do
 done
 
 echo "=== full archive ==="
-if [ "$1" = "--valgrind" ]
-then
-    _run_valgrind "your test goes here"
-else
-    pmloglabel -Dlog -L 20180416.10.00 2>>$here/$seq.full
-fi | _filter
+_doit
 
 echo
 echo "=== volume 3 missing ==="
 rm 20180416.10.00.3
-if [ "$1" = "--valgrind" ]
-then
-    _run_valgrind "your test goes here"
-else
-    pmloglabel -Dlog -L 20180416.10.00 2>>$here/$seq.full
-fi | _filter
+_doit
 
 echo
 echo "=== volume 2 truncated ==="
@@ -83,12 +80,7 @@ p
 }'`
 size=`expr $size - 8`
 truncate -s $size 20180416.10.00.2
-if [ "$1" = "--valgrind" ]
-then
-    _run_valgrind "your test goes here"
-else
-    pmloglabel -Dlog -L 20180416.10.00 2>>$here/$seq.full
-fi | _filter
+_doit
 
 # success, all done
 exit

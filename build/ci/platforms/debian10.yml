@@ -26,7 +26,7 @@ tasks:
   install_build_dependencies: |
     sudo apt-get -y update
     sudo apt-get install -y zlib1g-dev
-    for pkg in $(./pcp/qa/admin/check-vm -fp)
+    for pkg in $(./pcp/qa/admin/check-vm -fpM)
     do
       [[ "$runner" = "container" && ( "$pkg" = "auditd" || "$pkg" = "docker.io" ) ]] && continue
       sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "$pkg" || true
@@ -59,4 +59,5 @@ tasks:
   copy_test_artifacts: |
     cp /var/lib/pcp/testsuite/check.timings ./artifacts/test
     [ $(awk 'END{print NF}' ./artifacts/test/check.timings) = 2 ] && date '+%s' >> ./artifacts/test/check.timings
+    shopt -s nullglob
     for test in /var/lib/pcp/testsuite/*.out.bad; do cp $test ${test/.out.bad/.full} ./artifacts/test || true; done

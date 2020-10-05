@@ -1,0 +1,134 @@
+#!/bin/sh
+#
+# Run show-me across CI hosts
+#
+
+tmp=/var/tmp/$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+verbose=false
+
+# we need to find the base of your pcp repo ... this is needed to
+# provide the qa/show-me script, qa/common* and qa/*.out files that
+# show-me needs
+# Add to dir_list as required ...
+#
+dir_list="$HOME/src/pcp $HOME/pcp"
+base=''
+for dir in $dir_list
+do
+    if [ -d "$dir/qa" ]
+    then
+	# use qa/common.rc as a proxy for everything
+	#
+	if [ -f "$dir/qa/common.rc" ]
+	then
+	    base="$dir/qa"
+	    break
+	fi
+    fi
+done
+if [ -z "$base" ]
+then
+    echo "Error: cannot find the base of your pcp repo."
+    echo "dir_list=$dir_list"
+    exit 1
+fi
+
+# setup symlinks for scripts and common files so that show-me works
+#
+_setup()
+{
+    for file in \
+	group show-me localconfig \
+	common common.rc common.check common.setup
+    do
+	if [ -f "$base/$file" ]
+	then
+	    if [ ! -L "$dir/$file" ]
+	    then
+		$verbose && echo link $dir/$file
+		ln -s "$base/$file" "$dir/$file"
+	    fi
+	else
+	    echo "Botch: $base/$file does not exist"
+	    exit 1
+	fi
+    done
+}
+
+while [ $# -gt 0 ]
+do
+    case "$1"
+    in
+	-c)
+	    # cleanup ... remove all the old .out symlinks
+	    #
+	    find test-* -type l -name "*.out" >$tmp.tmp
+	    [ -s $tmp.tmp ] && ( cat $tmp.tmp | xargs rm )
+	    rm -f $tmp.tmp
+	    shift
+	    ;;
+	*)
+	    break
+	    ;;
+    esac
+done
+
+if [ $# -eq 0 ]
+then
+    # use all failing tests from all platforms
+    #
+    find test-* -name "*.out.bad" >$tmp.tmp
+else
+    # use all platforms for the nominated tests
+    #
+    for seq
+    do
+	for platform in test-*
+	do
+	    [ -f $platform/$seq.out.bad ] && echo $platform/$seq.out.bad >>$tmp.tmp
+	done
+    done
+fi
+if [ ! -s $tmp.tmp ]
+then
+    echo "Eh? no {`for seq do echo $seq; done | tr '\012' ',' | sed -e 's/,$//'`}.out.bad files found"
+    exit 0
+fi
+
+# now sort by test number then platform name
+#
+sed <$tmp.tmp -e 's;/; ;' -e 's/\.out\.bad//' \
+| sort -k2,2n -k1,1 \
+| while read dir seq
+do
+    if [ -f $dir/show-me ]
+    then
+	:
+    else
+	# setup the required symlinks for scripts and common files
+	#
+	_setup "$dir"
+    fi
+
+    # now need symlink for the failing test's .out file
+    #
+    if [ -L $dir/$seq.out ]
+    then
+	:
+    else
+	if [ -f $base/$seq.out ]
+	then
+	    if ln -s $base/$seq.out $dir/$seq.out
+	    then
+		$verbose && echo link $dir/$seq.out
+	    else
+		echo "Warning: failed to link reference $seq.out from $base"
+	    fi
+	fi
+    fi
+
+    cd $dir
+    ./show-me -w $seq
+    cd ..
+done

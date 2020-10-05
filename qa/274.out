@@ -6,11 +6,12 @@ dbpmda> status
 
 Namespace:              (default)
 PMDA:                   ./pmdas/broken/broken_pmda_2_0
-Connection:             daemon
+Connection:             daemon (pid: PID)
 PMDA PMAPI Version:     2
 Debug options:          (none)
 Timer:                  off
 Getdesc:                off
+Getiname:               off
 
 Dump Instance Profile state=INCLUDE, 0 profiles
 
@@ -164,11 +165,12 @@ dbpmda> status
 
 Namespace:              (default)
 PMDA:                   ./pmdas/broken/broken_pmda_2_1
-Connection:             daemon
+Connection:             daemon (pid: PID)
 PMDA PMAPI Version:     2
 Debug options:          (none)
 Timer:                  off
 Getdesc:                off
+Getiname:               off
 
 Dump Instance Profile state=INCLUDE, 0 profiles
 
@@ -194,11 +196,12 @@ dbpmda> status
 
 Namespace:              (default)
 PMDA:                   ./pmdas/broken/broken_pmda_2_2
-Connection:             daemon
+Connection:             daemon (pid: PID)
 PMDA PMAPI Version:     2
 Debug options:          (none)
 Timer:                  off
 Getdesc:                off
+Getiname:               off
 
 Dump Instance Profile state=INCLUDE, 0 profiles
 
@@ -217,11 +220,12 @@ dbpmda> status
 
 Namespace:              (default)
 PMDA:                   ./pmdas/broken/broken_pmda_2_3
-Connection:             daemon
+Connection:             daemon (pid: PID)
 PMDA PMAPI Version:     2
 Debug options:          (none)
 Timer:                  off
 Getdesc:                off
+Getiname:               off
 
 Dump Instance Profile state=INCLUDE, 0 profiles
 
@@ -240,11 +244,12 @@ dbpmda> status
 
 Namespace:              (default)
 PMDA:                   ./pmdas/broken/broken_pmda_2_4
-Connection:             daemon
+Connection:             daemon (pid: PID)
 PMDA PMAPI Version:     2
 Debug options:          (none)
 Timer:                  off
 Getdesc:                off
+Getiname:               off
 
 Dump Instance Profile state=INCLUDE, 0 profiles
 
@@ -282,11 +287,12 @@ dbpmda> status
 
 Namespace:              (default)
 PMDA:                   ./pmdas/broken/broken_pmda_2_5
-Connection:             daemon
+Connection:             daemon (pid: PID)
 PMDA PMAPI Version:     unknown!
 Debug options:          (none)
 Timer:                  off
 Getdesc:                off
+Getiname:               off
 
 Dump Instance Profile state=INCLUDE, 0 profiles
 

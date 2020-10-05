@@ -763,7 +763,7 @@ x11
 323 pmda.shping pmda.proc local pmda.install
 324 pmda.txmon pmda.proc local pmda.install
 325 libpcp local pmquery x11
-326 pmlogger pmval libpcp pmcd local pmda.install folio pmdumplog pmlc timezone
+326 pmlogger pmval libpcp pmcd local pmda.install pmdumplog timezone
 327 archive local pmdumplog pmloglabel timezone
 328 local pmlogextract pmdumplog
 329:retired archive mem_leak local purify
@@ -1336,7 +1336,7 @@ x11
 896 pmlogger local pmdumplog kernel
 897 pmlc pmlogger local
 898 pmlogmv local
-899 libpcp getopt local
+899 libpcp getopt folio local
 900 libpcp sanity local timezone
 901 libpcp event local
 902 libpcp mem_leak valgrind event local
@@ -1438,35 +1438,35 @@ x11
 998 threads libpcp local
 999 pmns local
 1000 pmdumptext local
-1001 pmchart local
-1002 pmchart local
-1003 pmchart local kernel
-1004 pmchart local kernel
-1005 pmchart local
-1006 pmchart local
-1007 pmchart local kernel
-1008 pmdumptext libpcp_qmc local kernel
-1009 pmdumptext libpcp_qmc local
-1010 pmdumptext pmlogger libpcp_qmc local
-1011 pmdumptext pmval libpcp_qmc local
-1012 pmdumptext libpcp_qmc local
-1013 libpcp_qmc local
-1014 libpcp_qmc local
-1015 libpcp_qmc local
-1016 libpcp_qmc local
-1017:retired libpcp_qmc local flakey kernel
-1018:retired libpcp_qmc local flakey
-1019:retired libpcp_qmc local flakey pmstore
-1020:retired libpcp_qmc local flakey pmstore
-1021 libpcp_qmc local
-1022 pmdumptext local kernel
-1023 pmdumptext local
+1001 pmchart local x11
+1002 pmchart local x11
+1003 pmchart local kernel x11
+1004 pmchart local kernel x11
+1005 pmchart local x11
+1006 pmchart local x11
+1007 pmchart local kernel x11
+1008 pmdumptext libpcp_qmc local kernel x11
+1009 pmdumptext libpcp_qmc local x11
+1010 pmdumptext pmlogger libpcp_qmc local x11
+1011 pmdumptext pmval libpcp_qmc local x11
+1012 pmdumptext libpcp_qmc local x11
+1013 libpcp_qmc local x11
+1014 libpcp_qmc local x11
+1015 libpcp_qmc local x11
+1016 libpcp_qmc local x11
+1017:retired libpcp_qmc local flakey kernel x11
+1018:retired libpcp_qmc local flakey x11
+1019:retired libpcp_qmc local flakey pmstore x11
+1020:retired libpcp_qmc local flakey pmstore x11
+1021 libpcp_qmc local x11
+1022 pmdumptext local kernel x11
+1023 pmdumptext local x11
 1024 pmda.linux local kernel
-1025 pmdumptext pmlogger pmdumplog pmloglabel local
-1026 pmdumptext remote kernel
-1027 pmdumptext local pmstore
-1028 pmdumptext local kernel
-1029 libpcp_qmc local pmstore
+1025 pmdumptext pmlogger pmdumplog pmloglabel local x11
+1026 pmdumptext remote kernel x11
+1027 pmdumptext local pmstore x11
+1028 pmdumptext local kernel x11
+1029 libpcp_qmc local pmstore x11
 1030 pmda.linux local
 1031 pmda.slurm perl local
 1032 pmproxy containers local python
@@ -1560,7 +1560,7 @@ x11
 1120 pmda.openmetrics local python
 1121 pmda.linux local kernel
 1122 pmie local
-1123 pmchart local kernel
+1123 pmchart local kernel x11
 1124 pmda.bcc local python
 1125:retired pmcollect
 1126 pmda.bcc local python
@@ -1568,7 +1568,7 @@ x11
 1128 pmie local
 1129 derive local kernel
 1130 pcp2elasticsearch python pcp2xxx local BAD @vm27
-1131 pcp2json python pcp2xxx local BAD @vm14 @vm28
+1131 pcp2json python pcp2xxx local BAD @vm28
 1132 pcp2xlsx python pcp2xxx local kernel BAD @vm11 @vm36
 1133 pcp2xml python pcp2xxx local
 1134 pmrep pcp2json pcp2xml python pcp2xxx local python kernel
@@ -1717,7 +1717,9 @@ x11
 1277 dbpmda local
 1278 dbpmda local
 1279 dbpmda local
-1280 archive pmloglabel local
+1280 archive pmdumplog local
+1281 archive pmdumplog valgrind local
+1282 other local
 1287 pmda.install pmda.openmetrics local python
 1289 pmval archive multi-archive decompress-xz local pmlogextract
 1294 libpcp_mmv labels local valgrind
@@ -1810,6 +1812,8 @@ x11
 1671 multi-archive archive libpcp pmrep local python
 1672 secure pmcd local
 1680 openvswitch local
+1681 pmrep pcp2xxx pmlogconf local
+1682 pmrep pcp2xxx pmlogconf valgrind local
 1690 pmseries local
 1692 pmda.pmcd local
 1694 pidstat local python pcp

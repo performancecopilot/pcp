@@ -30,7 +30,8 @@ import termios, struct, atexit, fcntl, sched, errno, time, re, sys, os
 from pcp import pmapi, pmconfig
 from cpmapi import PM_CONTEXT_ARCHIVE, PM_CONTEXT_HOST, PM_CONTEXT_LOCAL
 from cpmapi import PM_TYPE_32, PM_TYPE_U32, PM_TYPE_64, PM_TYPE_U64
-from cpmapi import PM_TYPE_DOUBLE, PM_TYPE_FLOAT
+from cpmapi import PM_TYPE_DOUBLE, PM_TYPE_FLOAT, PM_TIME_MIN, PM_TIME_HOUR
+from cpmapi import PM_TIME_NSEC, PM_TIME_USEC, PM_TIME_MSEC
 from cpmapi import PM_ERR_EOL, PM_IN_NULL, pmUsageMessage
 
 if sys.version >= '3':
@@ -1265,8 +1266,6 @@ class DstatTool(object):
 
     @staticmethod
     def instance_match(inst, plugin):
-        if plugin.cullinsts is not None and re.match(plugin.cullinsts, inst):
-            return False
         if plugin.instances and inst in plugin.instances:
             return True
         return plugin.grouptype == 1
@@ -1406,6 +1405,30 @@ class DstatTool(object):
         #sys.stderr.write("gshowcsv result line:\n%s%s\n" % (line, THEME['default']))
         return line
 
+    @staticmethod
+    def scale_time(value, scale):
+        """ convert to canonical time units of seconds """
+        div = 1.0
+        mul = 1.0
+        if scale == PM_TIME_NSEC:
+            div = 1000000000.0
+        elif scale == PM_TIME_USEC:
+            div = 1000000.0
+        elif scale == PM_TIME_MSEC:
+            div = 1000.0
+        elif scale == PM_TIME_MIN:
+            mul = 60.0
+        elif scale == PM_TIME_HOUR:
+            mul = 3600.0
+        return (float(value) / div) * mul
+
+    @staticmethod
+    def scale_space(value, scale):
+        """ convert to canonical space units of bytes """
+        if scale == 0:
+            return value
+        return value * pow(1024, scale)
+
     def cprintlist(self, values, units, prtype, pmtype, width, colorstep):
         """Return all columns color printed"""
         ret = sep = ''
@@ -1435,12 +1458,12 @@ class DstatTool(object):
             else:
                 printtype = 's'
         base = 1000
-        if units.dimTime:
-            value *= base * units.scaleTime
-        if units.dimSpace and units.scaleSpace:
+        if units.dimTime and printtype != 's':
+            value = self.scale_time(value, units.scaleTime)
+        if units.dimSpace and printtype != 's':
             base = 1024
-            value *= base * units.scaleSpace
-        if units.dimCount and units.scaleCount:
+            value = self.scale_space(value, units.scaleSpace)
+        if units.dimCount and units.scaleCount and printtype != 's':
             value *= units.scaleCount
 
         ### Display units when base is exact 1000 or 1024

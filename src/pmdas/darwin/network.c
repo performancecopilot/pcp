@@ -24,8 +24,6 @@
 #include "pmda.h"
 #include "network.h"
 
-extern mach_port_t mach_master_port;
-
 void
 init_network(void)
 {

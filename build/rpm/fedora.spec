@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 5.2.1
+Version: 5.2.2
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2+ and CC-BY
@@ -2058,10 +2058,13 @@ collecting metrics about web server logs.
 License: GPLv2+
 Summary: Performance Co-Pilot (PCP) Zeroconf Package
 URL: https://pcp.io
-Requires: pcp pcp-doc pcp-system-tools
-Requires: pcp-pmda-dm
+Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
+Requires: pcp-system-tools = %{version}-%{release}
+Requires: pcp-doc = %{version}-%{release}
+Requires: pcp-pmda-dm = %{version}-%{release}
 %if !%{disable_python2} || !%{disable_python3}
-Requires: pcp-pmda-nfsclient pcp-pmda-openmetrics
+Requires: pcp-pmda-nfsclient = %{version}-%{release}
+Requires: pcp-pmda-openmetrics = %{version}-%{release}
 %endif
 %description zeroconf
 This package contains configuration tweaks and files to increase metrics
@@ -2913,7 +2916,6 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %ghost %dir %attr(0775,pcp,pcp) %{_localstatedir}/run/pcp
 %{_localstatedir}/lib/pcp/config/pmafm
 %dir %attr(0775,pcp,pcp) %{_localstatedir}/lib/pcp/config/pmie
-%{_localstatedir}/lib/pcp/config/pmie
 %{_localstatedir}/lib/pcp/config/pmieconf
 %dir %attr(0775,pcp,pcp) %{_localstatedir}/lib/pcp/config/pmlogger
 %{_localstatedir}/lib/pcp/config/pmlogger/*
@@ -2940,7 +2942,7 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %config(noreplace) %{_logconfdir}/zeroconf
 %config(noreplace) %{_confdir}/pmlogconf/zeroconf
 %config(noreplace) %{_confdir}/pmieconf/zeroconf
-%{_logsdir}/sa
+%dir %attr(0775,pcp,pcp) %{_logsdir}/sa
 
 #additional pmlogger config files
 
@@ -3063,6 +3065,7 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %files pmda-elasticsearch
 %{_pmdasdir}/elasticsearch
 %{_pmdasexecdir}/elasticsearch
+%{_confdir}/elasticsearch
 
 %files pmda-openvswitch
 %{_pmdasdir}/openvswitch
@@ -3429,13 +3432,17 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %endif
 
 %changelog
-* Fri Sep 25 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.2.1-1
+* Wed Nov 11 2020 Nathan Scott <nathans@redhat.com> - 5.2.2-1
 - https://github.com/performancecopilot/pcp/projects/1
 
+* Fri Sep 25 2020 Nathan Scott <nathans@redhat.com> - 5.2.1-1
+- Update to latest PCP sources.
+
 * Sat Aug 08 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.2.0-1
-- rearrange installed /var file layouts extensively (BZ 1827441)
+- FHS compliance in installed /var file locations (BZ 1827441)
 - pmproxy intermittently crashes at uv_timer_stop (BZ 1789312)
 - Update to latest PCP sources.
+- Re-enabled LTO.
 
 * Tue Jul 28 2020 Fedora Release Engineering <releng@fedoraproject.org> - 5.1.1-4
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_33_Mass_Rebuild
@@ -3453,14 +3460,14 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 
 * Fri Apr 24 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.1.0-1
 - pmdakvm: debugfs access is restricted (BZ 1824297)
-- error starting pmlogger; pid file not owned by root (BZ 1761962)
+- Error starting pmlogger; pid file not owned by root (BZ 1761962)
 - Update to latest PCP sources.
 
 * Wed Mar 11 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.0.3-3
 - Resolve pcp-selinux issues causing services failures - (BZ 1810458)
 
 * Mon Mar 02 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.0.3-2
-- fix typo in Requires: perl-Time-HiRes affecting pcp-pmda-bind2
+- Fix typo in Requires: perl-Time-HiRes affecting pcp-pmda-bind2
 
 * Thu Feb 27 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.0.3-1
 - Avoid python ctypes bitfield struct on-stack (BZ 1800685)
@@ -3480,8 +3487,8 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 - Update to latest PCP sources.
 
 * Sun Oct 20 2019 Mark Goodwin <mgoodwin@redhat.com> - 5.0.0-2
-- various spec fixes for pmdastatsd
-- add patch1 to fix pmdastatsd build on rawhide
+- Various spec fixes for pmdastatsd
+- Add patch1 to fix pmdastatsd build on rawhide
 
 * Fri Oct 11 2019 Mark Goodwin <mgoodwin@redhat.com> - 5.0.0-1
 - Update to latest PCP sources.

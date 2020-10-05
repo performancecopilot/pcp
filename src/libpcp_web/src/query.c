@@ -87,7 +87,8 @@ initSeriesGetQuery(seriesQueryBaton *baton, node_t *root, timing_t *timing)
 }
 
 static int
-skip_free_value_set(node_t *np) {
+skip_free_value_set(node_t *np)
+{
     /* return 0 stands for skipping free this node's value_set. */
     if (np->type == N_RATE || np->type == N_NOOP 
     	|| np->type == N_RESCALE || np->type == N_ABS 
@@ -126,7 +127,8 @@ freeSeriesQueryNode(node_t *np, int level)
     }
     freeSeriesQueryNode(np->left, level+1);
     freeSeriesQueryNode(np->right, level+1);
-    if (level != 0) free(np);
+    if (level != 0)
+        free(np);
 }
 
 static void
@@ -336,12 +338,13 @@ const char *
 node_subtype(node_t *np)
 {
     switch (np->subtype) {
-	case N_QUERY: return "query";
-	case N_LABEL: return "label";
-	case N_METRIC: return "metric";
-	case N_CONTEXT: return "context";
-	case N_INSTANCE: return "instance";
-	default: break;
+    case N_QUERY: return "query";
+    case N_LABEL: return "label";
+    case N_METRIC: return "metric";
+    case N_CONTEXT: return "context";
+    case N_INSTANCE: return "instance";
+    default:
+        break;
     }
     return NULL;
 }
@@ -434,7 +437,7 @@ series_instance_reply(seriesQueryBaton *baton, sds series,
 	    pmwebapi_hash_str((const unsigned char *)inst, hashbuf, sizeof(hashbuf));
 	    inst = sdscpylen(inst, hashbuf, 40);
 	} else {
-	    /* TODO: propogate errors and mark records - separate callbacks? */
+	    /* TODO: propagate errors and mark records - separate callbacks? */
 	    continue;
 	}
 	value->series = inst;
@@ -2444,34 +2447,29 @@ series_extract_value(int type, sds str, pmAtomValue *oval)
 }
 
 static int
-series_pmAtomValue_conv_str(int type, char *str, pmAtomValue *val)
+series_pmAtomValue_conv_str(int type, char *str, pmAtomValue *val, int max_len)
 {
-    int		sts;
+    char *s;
 
     switch (type) {
-	case PM_TYPE_32:
-	    sts = sprintf(str, "%d", val->l);
-	    break;
-	case PM_TYPE_U32:
-	    sts = sprintf(str, "%u", val->ul);
-	    break;
-	case PM_TYPE_64:
-	    sts = sprintf(str, "%" PRId64, val->ll);
-	    break;
-	case PM_TYPE_U64:
-	    sts = sprintf(str, "%" PRIu64, val->ull);
-	    break;
-	case PM_TYPE_FLOAT:
-	    sts = sprintf(str, "%f", val->f);
-	    break;
-	case PM_TYPE_DOUBLE:
-	    sts = sprintf(str, "%lf", val->d);
-	    break;
-	default:
-	    sts = 0;
-	    break;
+    case PM_TYPE_32:
+    case PM_TYPE_U32:
+    case PM_TYPE_64:
+    case PM_TYPE_U64:
+    case PM_TYPE_FLOAT:
+    case PM_TYPE_DOUBLE:
+        s = pmAtomStr_r(val, type, str, max_len);
+        break;
+    default:
+        s = NULL;
     }
-    return sts;
+
+    if (s && (isdigit(*s) || *s == '-' || *s == '+'))
+        return (strlen(str) + 1);
+
+    pmNotifyErr(LOG_ERR, "series_pmAtomValue_conv_str: type=%s failed: %s\n",
+            pmTypeStr(type), s ? s : "only numeric types supported");
+    return 0;
 }
 
 static void
@@ -2525,16 +2523,13 @@ series_calculate_rescale(node_t *np)
 		    fprintf(stderr, "Extract values from string fail\n");
 		    return;
 		}
-		if((sts = pmConvScale(type, &ival, &iunit, &oval, &np->right->meta.units)) != 0) {
+		if ((sts = pmConvScale(type, &ival, &iunit, &oval, &np->right->meta.units)) != 0) {
 		    // TODO: rescale error report
 		    fprintf(stderr, "rescale error\n");
 		    return;
 		}
-		if((str_len = series_pmAtomValue_conv_str(type, str_val, &oval)) == 0) {
-		    // TODO: series values convert to string fail report
-		    fprintf(stderr, "series values convert to string fail\n");
+		if ((str_len = series_pmAtomValue_conv_str(type, str_val, &oval, sizeof(str_val))) == 0)
 		    return;
-		}
 		sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].data);
 		np->value_set.series_values[i].series_sample[j].series_instance[k].data = sdsnewlen(str_val, str_len);
 	    }
@@ -2618,11 +2613,8 @@ series_calculate_abs(node_t *np)
 		    fprintf(stderr, "Unsupport type to take abs()\n");
 		    return;
 		}
-		if((str_len = series_pmAtomValue_conv_str(type, str_val, &val)) == 0) {
-		    // TODO: series values convert to string fail report
-		    fprintf(stderr, "series values convert to string fail\n");
+		if ((str_len = series_pmAtomValue_conv_str(type, str_val, &val, sizeof(str_val))) == 0)
 		    return;
-		}
 		sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].data);
 		np->value_set.series_values[i].series_sample[j].series_instance[k].data = sdsnewlen(str_val, str_len);
 	    }
@@ -2636,30 +2628,24 @@ series_floor_pmAtomValue(int type, pmAtomValue *val)
     int			sts = 0;
 
     switch (type) {
-	case PM_TYPE_32:
-	    // No change
-	    break;
-	case PM_TYPE_U32:
-	    // No change
-	    break;
-	case PM_TYPE_64:
-	    // No chage
-	    break;
-	case PM_TYPE_U64:
-	    // No change
-	    break;
-	case PM_TYPE_FLOAT:
-	    // TODO: The return type of floor() is double, will this cause loss of accuracy?
-	    val->f = floor(val->f);
-	    break;
-	case PM_TYPE_DOUBLE:
-	    val->d = floor(val->f);
-	    break;
-	default:
-	    // Unsupport type
-	    sts = -1;
-	    break;
+    case PM_TYPE_32:
+    case PM_TYPE_U32:
+    case PM_TYPE_64:
+    case PM_TYPE_U64:
+	// No change
+	break;
+    case PM_TYPE_FLOAT:
+	val->f = floorf(val->f);
+	break;
+    case PM_TYPE_DOUBLE:
+	val->d = floor(val->d);
+	break;
+    default:
+	// Unsupport type
+	sts = -1;
+	break;
     }
+
     return sts;
 }
 
@@ -2694,11 +2680,8 @@ series_calculate_floor(node_t *np)
 		    fprintf(stderr, "Unsupport type to take abs()\n");
 		    return;
 		}
-		if((str_len = series_pmAtomValue_conv_str(type, str_val, &val)) == 0) {
-		    // TODO: series values convert to string fail report
-		    fprintf(stderr, "series values convert to string fail\n");
+		if ((str_len = series_pmAtomValue_conv_str(type, str_val, &val, sizeof(str_val))) == 0)
 		    return;
-		}
 		sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].data);
 		np->value_set.series_values[i].series_sample[j].series_instance[k].data = sdsnewlen(str_val, str_len);
 	    }
@@ -2713,63 +2696,38 @@ series_log_pmAtomValue(int itype, int *otype, pmAtomValue *val, int is_natural_l
     double		res;
 
     switch (itype) {
-	case PM_TYPE_32:
-	    *otype = PM_TYPE_DOUBLE;
-	    res = val->l;
-	    if (is_natural_log == 1) {
-		val->d = log(res);
-	    } else {
-		val->d = log(res)/log(base);
-	    }
-	    break;
-	case PM_TYPE_U32:
-	    *otype = PM_TYPE_DOUBLE;
-	    res = val->ul;
-	    if (is_natural_log == 1) {
-		val->d = log(res);
-	    } else {
-		val->d = log(res)/log(base);
-	    }
-	    break;
-	case PM_TYPE_64:
-	    *otype = PM_TYPE_DOUBLE;
-	    res = val->ll;
-	    if (is_natural_log == 1) {
-		val->d = log(res);
-	    } else {
-		val->d = log(res)/log(base);
-	    }
-	    break;
-	case PM_TYPE_U64:
-	    *otype = PM_TYPE_DOUBLE;
-	    res = val->ull;
-	    if (is_natural_log == 1) {
-		val->d = log(res);
-	    } else {
-		val->d = log(res)/log(base);
-	    }
-	    break;
-	case PM_TYPE_FLOAT:
-	    *otype = PM_TYPE_DOUBLE;
-	    res = val->f;
-	    if (is_natural_log == 1) {
-		val->d = log(res);
-	    } else {
-		val->d = log(res)/log(base);
-	    }
-	    break;
-	case PM_TYPE_DOUBLE:
-	    if (is_natural_log == 1) {
-		val->d = log(val->d);
-	    } else {
-		val->d = log(val->d)/log(base);
-	    }
-	    break;
-	default:
-	    // Unsupport type
-	    sts = -1;
-	    break;
+    case PM_TYPE_32:
+	res = val->l;
+	break;
+    case PM_TYPE_U32:
+	res = val->ul;
+	break;
+    case PM_TYPE_64:
+	res = val->ll;
+	break;
+    case PM_TYPE_U64:
+	res = val->ull;
+	break;
+    case PM_TYPE_FLOAT:
+	res = val->f;
+	break;
+    case PM_TYPE_DOUBLE:
+	res = val->d;
+	break;
+    default:
+	// Unsupport type
+	sts = -1;
+	break;
     }
+
+    if (sts == 0) {
+	*otype = PM_TYPE_DOUBLE;
+	if (is_natural_log == 1)
+	    val->d = log(res);
+	else
+	    val->d = log(res)/log(base);
+    }
+
     return sts;
 }
 
@@ -2779,7 +2737,7 @@ series_calculate_log(node_t *np)
 /*
  * Return the logarithm of x to base b (log_b^x).
  */
-    seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
+    seriesQueryBaton	        *baton = (seriesQueryBaton *)np->baton;
     double			base;
     pmAtomValue			val;
     int				i, j, k, itype, otype, sts, str_len, is_natural_log;
@@ -2812,14 +2770,11 @@ series_calculate_log(node_t *np)
 		}
 		if ((sts = series_log_pmAtomValue(itype, &otype, &val, is_natural_log, base)) != 0) {
 		    // TODO: unsuport type
-		    fprintf(stderr, "Unsupport type to take sqrt()\n");
+		    fprintf(stderr, "Unsupport type to take log()\n");
 		    return;
 		}
-		if((str_len = series_pmAtomValue_conv_str(otype, str_val, &val)) == 0) {
-		    // TODO: series values convert to string fail report
-		    fprintf(stderr, "series values convert to string fail\n");
+		if ((str_len = series_pmAtomValue_conv_str(otype, str_val, &val, sizeof(str_val))) == 0)
 		    return;
-		}
 		sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].data);
 		np->value_set.series_values[i].series_sample[j].series_instance[k].data = sdsnewlen(str_val, str_len);
 	    }
@@ -2905,11 +2860,8 @@ series_calculate_sqrt(node_t *np)
 		    fprintf(stderr, "Unsupport type to take sqrt()\n");
 		    return;
 		}
-		if((str_len = series_pmAtomValue_conv_str(otype, str_val, &val)) == 0) {
-		    // TODO: series values convert to string fail report
-		    fprintf(stderr, "series values convert to string fail\n");
+		if ((str_len = series_pmAtomValue_conv_str(otype, str_val, &val, sizeof(str_val))) == 0)
 		    return;
-		}
 		sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].data);
 		np->value_set.series_values[i].series_sample[j].series_instance[k].data = sdsnewlen(str_val, str_len);
 	    }
@@ -2981,11 +2933,8 @@ series_calculate_round(node_t *np)
 		    fprintf(stderr, "Unsupport type to take abs()\n");
 		    return;
 		}
-		if((str_len = series_pmAtomValue_conv_str(type, str_val, &val)) == 0) {
-		    // TODO: series values convert to string fail report
-		    fprintf(stderr, "series values convert to string fail\n");
+		if ((str_len = series_pmAtomValue_conv_str(type, str_val, &val, sizeof(str_val))) == 0)
 		    return;
-		}
 		sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].data);
 		np->value_set.series_values[i].series_sample[j].series_instance[k].data = sdsnewlen(str_val, str_len);
 	    }
@@ -3236,7 +3185,7 @@ calculate_slash(int *type, pmAtomValue *l_val, pmAtomValue *r_val, pmAtomValue *
 }
 
 static void
-series_calculate_order_bianry(int ope_type, int l_type, int r_type, int *otype,
+series_calculate_order_binary(int ope_type, int l_type, int r_type, int *otype,
 	pmAtomValue *l_val, pmAtomValue *r_val, sds l_data, sds r_data,
 	pmUnits *l_units, pmUnits *r_units, pmUnits *large_units,
 	int (*operator)(int*, pmAtomValue*, pmAtomValue*, pmAtomValue*))
@@ -3274,13 +3223,13 @@ series_calculate_order_bianry(int ope_type, int l_type, int r_type, int *otype,
 	l_data = sdsnew("no value");
     } else {
 	sdsfree(l_data);
-	str_len = series_pmAtomValue_conv_str(*otype, str_val, &res);
+	str_len = series_pmAtomValue_conv_str(*otype, str_val, &res, sizeof(str_val));
 	l_data = sdsnewlen(str_val, str_len);
     }
 }
 
 static void
-series_bianry_meta_update(node_t *left, pmUnits *large_units, int *l_sem, int *r_sem, int *otype)
+series_binary_meta_update(node_t *left, pmUnits *large_units, int *l_sem, int *r_sem, int *otype)
 {
     int			o_sem;
     // Update units
@@ -3337,7 +3286,7 @@ series_calculate_plus(node_t *np)
 	    return;
 	}
 	for (k = 0; k < num_instances; k++) {
-	    series_calculate_order_bianry(N_PLUS, l_type, r_type, &otype, 
+	    series_calculate_order_binary(N_PLUS, l_type, r_type, &otype, 
 		&l_val, &r_val, 
 		left->value_set.series_values[0].series_sample[j].series_instance[k].data,
 		right->value_set.series_values[0].series_sample[j].series_instance[k].data,
@@ -3349,7 +3298,7 @@ series_calculate_plus(node_t *np)
     large_units.dimSpace = l_units.dimSpace;
     large_units.dimTime = l_units.dimTime;
 
-    series_bianry_meta_update(left, &large_units, &l_sem, &r_sem, &otype);
+    series_binary_meta_update(left, &large_units, &l_sem, &r_sem, &otype);
     np->value_set = left->value_set;
 }
 
@@ -3380,7 +3329,7 @@ series_calculate_minus(node_t *np)
 	    return;
 	}
 	for (k = 0; k < num_instances; k++) {
-	    series_calculate_order_bianry(N_MINUS, l_type, r_type, &otype, 
+	    series_calculate_order_binary(N_MINUS, l_type, r_type, &otype, 
 		&l_val, &r_val, 
 		left->value_set.series_values[0].series_sample[j].series_instance[k].data,
 		right->value_set.series_values[0].series_sample[j].series_instance[k].data,
@@ -3392,7 +3341,7 @@ series_calculate_minus(node_t *np)
     large_units.dimSpace = l_units.dimSpace;
     large_units.dimTime = l_units.dimTime;
 
-    series_bianry_meta_update(left, &large_units, &l_sem, &r_sem, &otype);
+    series_binary_meta_update(left, &large_units, &l_sem, &r_sem, &otype);
     np->value_set = left->value_set;
 }
 
@@ -3423,7 +3372,7 @@ series_calculate_star(node_t *np)
 	    return;
 	}
 	for (k = 0; k < num_instances; k++) {
-	    series_calculate_order_bianry(N_STAR, l_type, r_type, &otype, 
+	    series_calculate_order_binary(N_STAR, l_type, r_type, &otype, 
 		&l_val, &r_val, 
 		left->value_set.series_values[0].series_sample[j].series_instance[k].data,
 		right->value_set.series_values[0].series_sample[j].series_instance[k].data,
@@ -3435,7 +3384,7 @@ series_calculate_star(node_t *np)
     large_units.dimSpace = l_units.dimSpace + r_units.dimSpace;
     large_units.dimTime = l_units.dimTime + r_units.dimTime;
 
-    series_bianry_meta_update(left, &large_units, &l_sem, &r_sem, &otype);
+    series_binary_meta_update(left, &large_units, &l_sem, &r_sem, &otype);
     np->value_set = left->value_set;
 }
 
@@ -3466,7 +3415,7 @@ series_calculate_slash(node_t *np)
 	    return;
 	}
 	for (k = 0; k < num_instances; k++) {
-	    series_calculate_order_bianry(N_SLASH, l_type, r_type, &otype, 
+	    series_calculate_order_binary(N_SLASH, l_type, r_type, &otype, 
 		&l_val, &r_val, 
 		left->value_set.series_values[0].series_sample[j].series_instance[k].data,
 		right->value_set.series_values[0].series_sample[j].series_instance[k].data,
@@ -3478,7 +3427,7 @@ series_calculate_slash(node_t *np)
     large_units.dimSpace = l_units.dimSpace - r_units.dimSpace;
     large_units.dimTime = l_units.dimTime - r_units.dimTime;
 
-    series_bianry_meta_update(left, &large_units, &l_sem, &r_sem, &otype);
+    series_binary_meta_update(left, &large_units, &l_sem, &r_sem, &otype);
     np->value_set = left->value_set;
 
 }
@@ -3599,7 +3548,7 @@ series_compatibility_convert(
 		series_extract_value(type0, set0->series_sample[j].series_instance[k].data, &val0);
 		pmConvScale(type0, &val0, units0, &val0, large_units);
 		sdsfree(set0->series_sample[j].series_instance[k].data);
-		str_len = series_pmAtomValue_conv_str(type0, str_val, &val0);
+		str_len = series_pmAtomValue_conv_str(type0, str_val, &val0, sizeof(str_val));
 		set0->series_sample[j].series_instance[k].data = sdsnewlen(str_val, str_len);
 	    }
 	}
@@ -3663,9 +3612,9 @@ series_redis_hash_expression(seriesQueryBaton *baton, char *hashbuf, int len_has
 		break;
 	    } else {
 		/* 
-		 * Fot sereis with the same metric names, if they have same dimensions but different scales,
-		 * use the larger scale and convert the values with the smaller scale. The result's
-		 * type is promoted to type PM_TYPE_DOUBLE.
+		 * For series with the same metric names, if they have same dimensions but different
+		 * scales, use the larger scale and convert the values with the smaller scale. The
+		 * result is promoted to type PM_TYPE_DOUBLE.
 		 */
 		series_compatibility_convert(&np->value_set.series_values[i], &np->value_set.series_values[j],
 			&units0, &units1, &large_units);

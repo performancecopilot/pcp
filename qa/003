@@ -318,6 +318,8 @@ do
 	    -e "/swapdev\.vlength: $unavailable/d" \
 	    -e "/swap\.in: $nosupport/d" \
 	    -e "/swap\.out: $nosupport/d" \
+	    -e "/xfs\..*quota.inact_reclaims: $nosupport/d" \
+	    -e "/xfs\..*quota.shake_reclaims: $nosupport/d" \
 	    -e "/xfs\..*: $unavailable/d" \
 	# end
     elif [ "$PCP_PLATFORM" = darwin ]

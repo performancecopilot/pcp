@@ -20,7 +20,7 @@ expr node <addr-1> type=FILTERINST left=<addr-2> right=<addr-3> save_last=0
     Data Type: 32-bit int  InDom: 29.2 0x....
     Semantics: instant  Units: none
 expr node <addr-2> type=PATTERN pattern: bin-300 type: exact match inst=-1
-expr node <addr-3> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-3> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 29.2 0x....
     Semantics: instant  Units: none
@@ -49,7 +49,7 @@ expr node <addr-8> type=FILTERINST left=<addr-9> right=<addr-10> save_last=0
     Data Type: 32-bit int  InDom: 29.2 0x....
     Semantics: instant  Units: none
 expr node <addr-9> type=PATTERN pattern: bin-100 type: exact match inst=-1
-expr node <addr-10> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-10> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 29.2 0x....
     Semantics: instant  Units: none
@@ -62,7 +62,7 @@ expr node <addr-12> type=FILTERINST left=<addr-13> right=<addr-14> save_last=0
     Data Type: 32-bit int  InDom: 29.2 0x....
     Semantics: instant  Units: none
 expr node <addr-13> type=PATTERN pattern: bin-200 type: exact match inst=-1
-expr node <addr-14> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-14> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 29.2 0x....
     Semantics: instant  Units: none
@@ -75,11 +75,11 @@ expr node <addr-16> type=FILTERINST left=<addr-17> right=<addr-18> save_last=0
     Data Type: 32-bit int  InDom: 29.2 0x....
     Semantics: instant  Units: none
 expr node <addr-17> type=PATTERN pattern: bin-300 type: exact match inst=-1
-expr node <addr-18> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-18> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 29.2 0x....
     Semantics: instant  Units: none
-expr node <addr-19> type=INTEGER left=(nil) right=(nil) save_last=0 [3] master=0
+expr node <addr-19> type=INTEGER left=(nil) right=(nil) save_last=0 [3] primary=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0x....
     Semantics: discrete  Units: none
@@ -108,7 +108,7 @@ expr node <addr-24> type=FILTERINST left=<addr-25> right=<addr-26> save_last=0
     Data Type: 32-bit int  InDom: 29.2 0x....
     Semantics: instant  Units: none
 expr node <addr-25> type=PATTERN pattern: bin-100 type: exact match inst=-1
-expr node <addr-26> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-26> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 29.2 0x....
     Semantics: instant  Units: none
@@ -121,7 +121,7 @@ expr node <addr-28> type=FILTERINST left=<addr-29> right=<addr-30> save_last=0
     Data Type: 32-bit int  InDom: 29.2 0x....
     Semantics: instant  Units: none
 expr node <addr-29> type=PATTERN pattern: ^bin-200$ type: regex used=0
-expr node <addr-30> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-30> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 29.2 0x....
     Semantics: instant  Units: none
@@ -134,11 +134,11 @@ expr node <addr-32> type=FILTERINST left=<addr-33> right=<addr-34> save_last=0
     Data Type: 32-bit int  InDom: 29.2 0x....
     Semantics: instant  Units: none
 expr node <addr-33> type=PATTERN pattern: bin-300 type: exact match inst=-1
-expr node <addr-34> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-34> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 29.2 0x....
     Semantics: instant  Units: none
-expr node <addr-35> type=INTEGER left=(nil) right=(nil) save_last=0 [3] master=0
+expr node <addr-35> type=INTEGER left=(nil) right=(nil) save_last=0 [3] primary=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0x....
     Semantics: discrete  Units: none
@@ -159,7 +159,7 @@ expr node <addr-1> type=FILTERINST left=<addr-2> right=<addr-3> save_last=0
     Semantics: instant  Units: none
 [0] inst=300, val=300
 expr node <addr-2> type=PATTERN pattern: bin-300 type: exact match inst=300
-expr node <addr-3> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-3> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 9
     Data Type: 32-bit int  InDom: 29.2 0x....
     Semantics: instant  Units: none
@@ -199,7 +199,7 @@ expr node <addr-8> type=FILTERINST left=<addr-9> right=<addr-10> save_last=0
     Semantics: instant  Units: none
 [0] inst=100, val=100
 expr node <addr-9> type=PATTERN pattern: bin-100 type: exact match inst=100
-expr node <addr-10> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-10> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 9
     Data Type: 32-bit int  InDom: 29.2 0x....
     Semantics: instant  Units: none
@@ -223,7 +223,7 @@ expr node <addr-12> type=FILTERINST left=<addr-13> right=<addr-14> save_last=0
     Semantics: instant  Units: none
 [0] inst=200, val=200
 expr node <addr-13> type=PATTERN pattern: bin-200 type: exact match inst=200
-expr node <addr-14> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-14> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 9
     Data Type: 32-bit int  InDom: 29.2 0x....
     Semantics: instant  Units: none
@@ -247,7 +247,7 @@ expr node <addr-16> type=FILTERINST left=<addr-17> right=<addr-18> save_last=0
     Semantics: instant  Units: none
 [0] inst=300, val=300
 expr node <addr-17> type=PATTERN pattern: bin-300 type: exact match inst=300
-expr node <addr-18> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-18> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 9
     Data Type: 32-bit int  InDom: 29.2 0x....
     Semantics: instant  Units: none
@@ -260,7 +260,7 @@ expr node <addr-18> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] ma
 [6] inst=700, val=700
 [7] inst=800, val=800
 [8] inst=900, val=900
-expr node <addr-19> type=INTEGER left=(nil) right=(nil) save_last=0 [3] master=0
+expr node <addr-19> type=INTEGER left=(nil) right=(nil) save_last=0 [3] primary=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0x....
     Semantics: discrete  Units: none
@@ -292,7 +292,7 @@ expr node <addr-24> type=FILTERINST left=<addr-25> right=<addr-26> save_last=0
     Semantics: instant  Units: none
 [0] inst=100, val=100
 expr node <addr-25> type=PATTERN pattern: bin-100 type: exact match inst=100
-expr node <addr-26> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-26> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 9
     Data Type: 32-bit int  InDom: 29.2 0x....
     Semantics: instant  Units: none
@@ -316,7 +316,7 @@ expr node <addr-28> type=FILTERINST left=<addr-29> right=<addr-30> save_last=0
     Semantics: instant  Units: none
 [0] inst=200, val=200
 expr node <addr-29> type=PATTERN pattern: ^bin-200$ type: regex used=1 (9 instances, 1 matches)
-expr node <addr-30> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-30> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 9
     Data Type: 32-bit int  InDom: 29.2 0x....
     Semantics: instant  Units: none
@@ -340,7 +340,7 @@ expr node <addr-32> type=FILTERINST left=<addr-33> right=<addr-34> save_last=0
     Semantics: instant  Units: none
 [0] inst=300, val=300
 expr node <addr-33> type=PATTERN pattern: bin-300 type: exact match inst=300
-expr node <addr-34> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-34> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 9
     Data Type: 32-bit int  InDom: 29.2 0x....
     Semantics: instant  Units: none
@@ -353,7 +353,7 @@ expr node <addr-34> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] ma
 [6] inst=700, val=700
 [7] inst=800, val=800
 [8] inst=900, val=900
-expr node <addr-35> type=INTEGER left=(nil) right=(nil) save_last=0 [3] master=0
+expr node <addr-35> type=INTEGER left=(nil) right=(nil) save_last=0 [3] primary=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0x....
     Semantics: discrete  Units: none

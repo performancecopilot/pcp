@@ -11,6 +11,14 @@ echo "QA output created by $seq"
 . ./common.secure
 nss_notrun_checks
 
+hostname=`hostname`
+if echo "$hostname" | grep '\.' >/dev/null
+then
+    :
+else
+    _notrun "hostname -> $hostname, no domain name part"
+fi
+
 _cleanup()
 {
     nss_cleanup

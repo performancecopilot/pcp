@@ -172,9 +172,9 @@ refresh_cgroup_pidlist(int want_threads, proc_runq_t *runq_stats, proc_pid_list_
     if (want_threads && cgroup_version == 1)
 	pmsprintf(path, sizeof(path), "%s%s/tasks", proc_statspath, cgroup);
     else if (want_threads && cgroup_version > 1)
-	pmsprintf(path, sizeof(path), "%s%s/cgroup.threads", proc_statspath, cgroup);
+	pmsprintf(path, sizeof(path), "%s%s/container/cgroup.threads", proc_statspath, cgroup);
     else
-	pmsprintf(path, sizeof(path), "%s%s/cgroup.procs", proc_statspath, cgroup);
+	pmsprintf(path, sizeof(path), "%s%s/container/cgroup.procs", proc_statspath, cgroup);
 
     if ((fp = fopen(path, "r")) != NULL) {
 	while (fscanf(fp, "%d\n", &pid) == 1) {
@@ -1899,17 +1899,19 @@ fetch_proc_pid_cgroup(int id, proc_pid_t *proc_pid, int *sts)
 	    *sts = maperr();
 	else {
 	    *sts = read_proc_entry(fd, &clen1, &cbuf1);
-	    if (clen1 > clen2) {
-		if ((tmp = realloc(cbuf2, clen1)) != NULL) {
-		    clen2 = clen1;
-		    cbuf2 = tmp;
+	    if (*sts >= 0) {
+		if (clen1 > clen2) {
+		    if ((tmp = realloc(cbuf2, clen1)) != NULL) {
+			clen2 = clen1;
+			cbuf2 = tmp;
+		    }
 		}
+		/* reformat the buffer to match "ps" output format and */
+		/* try any container name heuristics, then hash (both) */
+		proc_cgroup_reformat(cbuf1, clen1, cbuf2, clen2, cid, sizeof(cid));
+		ep->container_id = proc_strings_insert(cid);
+		ep->cgroup_id = proc_strings_insert(cbuf2);
 	    }
-	    /* reformat the buffer to match "ps" output format and */
-	    /* try any container name heuristics, then hash (both) */
-	    proc_cgroup_reformat(cbuf1, clen1, cbuf2, clen2, cid, sizeof(cid));
-	    ep->container_id = proc_strings_insert(cid);
-	    ep->cgroup_id = proc_strings_insert(cbuf2);
 	    close(fd);
 	}
 	ep->flags |= PROC_PID_FLAG_CGROUP_FETCHED;

@@ -1,0 +1,88 @@
+#!/bin/sh
+# PCP QA Test No. 1282
+# check check-vm ...
+#
+# Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# odd cases to be filtered out ...
+# vm03:
+#    ... target: "/usr/lib*/redis/modules/redisearch.so" not found, but ...
+#    file/dir target "/usr/lib*/redis/modules/redisearch.so" not found
+#	- permissions issue in redis install
+# all:
+#    Perl source "Spreadsheet::...
+#	- likely that these wopuld have to come from cpan, not packaged
+#	  install
+# vm39:
+#    looks like package "mssql-*" is already installed
+#       - the Microsoft repos for the mssql-* packages are non-standard
+#         but sometimes (like on vm39) they have been set up
+#
+# CI:
+#    auditd is excluded for some container-based platforms, e.g. ubuntu1804.yml,
+#    ubuntu1604.yml and debian10.yml
+#    docker.io is excluded from debian10.yml container
+#
+_filter()
+{
+    sed \
+	-e '/^\.\.*$/d' \
+	-e '/^Checking the/{
+s/[0-9][0-9]*/NN/
+s/ for .*/ for HOST/
+}' \
+	-e '/redisearch\.so" not found/d' \
+	-e '/Perl source "Spreadsheet::/d' \
+	-e '/looks like package "mssql-/d' \
+	-e 's/^/ /' \
+	-e 's/$/ /' \
+	-e 's/ auditd / /' \
+	-e 's/ docker.io / /' \
+	-e 's/^ //' \
+	-e 's/ $//' \
+	-e '/^ *$/d' \
+    # end
+}
+
+# real QA test starts here
+admin/whatami >>$seq.full
+
+echo "check-vm -fpM (CI case)"
+admin/check-vm -fpM 2>&1 | _filter
+
+echo
+echo "check-vm -c"
+admin/check-vm -c 2>&1 | _filter
+
+# for debugging especially in CI
+#
+admin/check-vm -c -vv >>$seq.full 2>&1
+
+# success, all done
+exit

@@ -1,0 +1,55 @@
+QA output created by 1281
+QA output created by 1280 --valgrind
+=== full archive ===
+=== std out ===
+Note: timezone set to local timezone of host "brolley-t530" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host brolley-t530
+    commencing Mon Apr 16 10:01:25.325401 2018
+    ending     Mon Apr 16 14:32:47.409469 2018
+Archive timezone: EDT+4
+PID for pmlogger: 7047
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmdumplog -z -Dlog -L 20180416.10.00
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== volume 3 missing ===
+=== std out ===
+Note: timezone set to local timezone of host "brolley-t530" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host brolley-t530
+    commencing Mon Apr 16 10:01:25.325401 2018
+    ending     Mon Apr 16 14:26:25.396920 2018
+Archive timezone: EDT+4
+PID for pmlogger: 7047
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmdumplog -z -Dlog -L 20180416.10.00
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== volume 2 truncated ===
+=== std out ===
+Note: timezone set to local timezone of host "brolley-t530" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host brolley-t530
+    commencing Mon Apr 16 10:01:25.325401 2018
+    ending     Mon Apr 16 14:26:25.380430 2018
+Archive timezone: EDT+4
+PID for pmlogger: 7047
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmdumplog -z -Dlog -L 20180416.10.00
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

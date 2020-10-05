@@ -134,7 +134,11 @@ done \
 wait
 
 echo "Filtered pmval output ..."
-grep '^[a-z]' $tmp.out | sed -e '/^host:.*$/s/.*/HOST/'
+grep '^[a-z]' $tmp.out \
+| sed \
+    -e '/^host:.*$/s/.*/HOST/' \
+    -e '/pmval: pmFetch: Unknown or illegal metric identifier/d' \
+# end
 grep '^[^a-z]' $tmp.out | LC_COLLATE=POSIX sort -u
 
 # success, all done

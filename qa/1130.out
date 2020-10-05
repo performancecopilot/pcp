@@ -26,8 +26,6 @@ Found proper hostid in output
                     "@id": "000001 /usr/lib/systemd/systemd --switched-root --system --deserialize 21"
                     "@id": "1 minute"
                     "@id": "cpu0"
-                    "@id": "cpu0"
-                    "@id": "enp0s25"
                     "@id": "enp0s25"
                     "baudrate": 3168713760
                     "bogomips": 5587.42
@@ -39,10 +37,6 @@ Found proper hostid in output
                 {
                 {
                 {
-                {
-                {
-                }
-                }
                 }
                 }
                 }
@@ -113,8 +107,6 @@ Found proper hostid in output
                     "@id": "000001 /usr/lib/systemd/systemd --switched-root --system --deserialize 21"
                     "@id": "1 minute"
                     "@id": "cpu0"
-                    "@id": "cpu0"
-                    "@id": "enp0s25"
                     "@id": "enp0s25"
                     "baudrate": 3168713760
                     "bogomips": 5587.42
@@ -130,10 +122,6 @@ Found proper hostid in output
                 {
                 {
                 {
-                {
-                {
-                }
-                }
                 }
                 }
                 }
@@ -214,8 +202,6 @@ Found proper hostid in output
                     "@id": "000001 /usr/lib/systemd/systemd --switched-root --system --deserialize 21"
                     "@id": "1 minute"
                     "@id": "cpu0"
-                    "@id": "cpu0"
-                    "@id": "enp0s25"
                     "@id": "enp0s25"
                     "baudrate": 3168713760
                     "bogomips": 5587.42
@@ -231,10 +217,6 @@ Found proper hostid in output
                 {
                 {
                 {
-                {
-                {
-                }
-                }
                 }
                 }
                 }
@@ -315,8 +297,6 @@ Found proper hostid in output
                     "@id": "000001 /usr/lib/systemd/systemd --switched-root --system --deserialize 21"
                     "@id": "1 minute"
                     "@id": "cpu0"
-                    "@id": "cpu0"
-                    "@id": "enp0s25"
                     "@id": "enp0s25"
                     "baudrate": 3168713760
                     "bogomips": 5587.42
@@ -332,10 +312,6 @@ Found proper hostid in output
                 {
                 {
                 {
-                {
-                {
-                }
-                }
                 }
                 }
                 }
@@ -416,8 +392,6 @@ Found proper hostid in output
                     "@id": "000001 /usr/lib/systemd/systemd --switched-root --system --deserialize 21"
                     "@id": "1 minute"
                     "@id": "cpu0"
-                    "@id": "cpu0"
-                    "@id": "enp0s25"
                     "@id": "enp0s25"
                     "baudrate": 3168713760
                     "bogomips": 5587.42
@@ -433,10 +407,6 @@ Found proper hostid in output
                 {
                 {
                 {
-                {
-                {
-                }
-                }
                 }
                 }
                 }

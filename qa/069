@@ -253,19 +253,25 @@ sleep 5
 
 echo
 echo "expect two access control errors:"
-# for Linux sometimes see "Connection reset by peer" ... this is believed
+# For Linux sometimes see "Connection reset by peer" ... this is believed
 # to be a timing issue, and the results are semantically equivalent for
 # the purposes of this test, so ...
+# Ditto for "Connection refused" on more recent platform versions.
+#
 pminfo -f pmcd.numclients 2>&1 \
 | sed \
     -e "s/\"local:\"/\"LOCALHOST\"/" \
     -e 's/"'$LOCALHOST'"/"LOCALHOST"/' \
-    -e 's/Connection reset by peer/No permission to perform requested operation/'
+    -e 's/Connection reset by peer/No permission to perform requested operation/' \
+    -e 's/Connection refused/No permission to perform requested operation/' \
+# end
 pminfo -f pmcd.numclients 2>&1 \
 | sed \
     -e "s/\"local:\"/\"LOCALHOST\"/" \
     -e 's/"'$LOCALHOST'"/"LOCALHOST"/' \
-    -e 's/Connection reset by peer/No permission to perform requested operation/'
+    -e 's/Connection reset by peer/No permission to perform requested operation/' \
+    -e 's/Connection refused/No permission to perform requested operation/' \
+# end
 echo
 
 echo "expect two connection limit errors:"

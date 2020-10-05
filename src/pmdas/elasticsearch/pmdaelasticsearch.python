@@ -19,6 +19,7 @@
 
 """ Performance Metrics Domain Agent exporting Elasticsearch metrics. """
 
+import os
 import sys
 import json
 try:
@@ -322,9 +323,12 @@ class elasticsearchPMDA(PMDA):
     def read_config(self):
         """ Read Configuration file """
 
-        configfile = PCP.pmGetConfig('PCP_PMDAS_DIR')
+        configdir = PCP.pmGetConfig('PCP_PMDAS_DIR')
+        configdir += '/' + self.read_name()
         # Retain es.conf name from original version of the PMDA
-        configfile += '/' + self.read_name() + '/es.conf'
+        configfile = configdir + '/' + 'es.conf'
+        if not os.path.exists(configfile):
+            configfile = configdir + '/' + 'elasticsearch.conf'
         # Python < 3.2 compat
         if sys.version_info[0] >= 3 and sys.version_info[1] >= 2:
             config = ConfigParser.ConfigParser()
@@ -342,8 +346,7 @@ class elasticsearchPMDA(PMDA):
                 elif opt == 'password':
                     self.password = config.get('pmda', opt)
                 else:
-                    self.err("Invalid directrive '%s' in %s." % (opt, configfile))
-                    sys.exit(1)
+                    self.log("Ignoring directive '%s' in %s." % (opt, configfile))
 
     def setup_urllib(self, url, auth, pasw):
         """ Setup urllib """

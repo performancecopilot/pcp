@@ -13,6 +13,7 @@ debug option [ option ... ] (option is a symbolic name or a decimal number)
 desc metric
 fetch metric [ metric ... ]
 getdesc on | off
+getiname on | off
 instance indom# [ number | name | "name" ]
 label context
 label domain
@@ -47,6 +48,7 @@ PMDA:                   none
 Debug options:          (none)
 Timer:                  off
 Getdesc:                off
+Getiname:               off
 
 Dump Instance Profile state=INCLUDE, 0 profiles
 
@@ -75,6 +77,7 @@ PMDA:                   none
 Debug options:          (all)
 Timer:                  off
 Getdesc:                off
+Getiname:               off
 
 Dump Instance Profile state=INCLUDE, 0 profiles
 
@@ -87,6 +90,7 @@ PMDA:                   none
 Debug options:          appl0 timecontrol
 Timer:                  off
 Getdesc:                off
+Getiname:               off
 
 Dump Instance Profile state=INCLUDE, 0 profiles
 
@@ -98,6 +102,7 @@ PMDA:                   none
 Debug options:          (none)
 Timer:                  off
 Getdesc:                off
+Getiname:               off
 
 Dump Instance Profile state=INCLUDE, 0 profiles
 
@@ -118,6 +123,7 @@ PMDA:                   none
 Debug options:          (none)
 Timer:                  off
 Getdesc:                off
+Getiname:               off
 
 Dump Instance Profile state=INCLUDE, 0 profiles
 
@@ -129,6 +135,7 @@ PMDA:                   none
 Debug options:          (none)
 Timer:                  off
 Getdesc:                off
+Getiname:               off
 
 Dump Instance Profile state=INCLUDE, 0 profiles
 
@@ -138,11 +145,12 @@ dbpmda> status
 
 Namespace:              (default)
 PMDA:                   $PCP_PMDAS_DIR/sample/pmdasample
-Connection:             daemon
+Connection:             daemon (pid: PID)
 PMDA PMAPI Version:     2
 Debug options:          (none)
 Timer:                  off
 Getdesc:                off
+Getiname:               off
 
 Dump Instance Profile state=INCLUDE, 0 profiles
 
@@ -198,11 +206,12 @@ dbpmda> status
 
 Namespace:              (default)
 PMDA:                   $PCP_PMDAS_DIR/sample/pmdasample
-Connection:             daemon
+Connection:             daemon (pid: PID)
 PMDA PMAPI Version:     2
 Debug options:          (none)
 Timer:                  on
 Getdesc:                off
+Getiname:               off
 
 Dump Instance Profile state=INCLUDE, 0 profiles
 
@@ -211,11 +220,12 @@ dbpmda> status
 
 Namespace:              (default)
 PMDA:                   $PCP_PMDAS_DIR/sample/pmdasample
-Connection:             daemon
+Connection:             daemon (pid: PID)
 PMDA PMAPI Version:     2
 Debug options:          (none)
 Timer:                  off
 Getdesc:                off
+Getiname:               off
 
 Dump Instance Profile state=INCLUDE, 0 profiles
 
@@ -273,11 +283,12 @@ dbpmda> status
 
 Namespace:              (default)
 PMDA:                   $PCP_PMDAS_DIR/sample/pmdasample
-Connection:             daemon
+Connection:             daemon (pid: PID)
 PMDA PMAPI Version:     2
 Debug options:          (none)
 Timer:                  off
 Getdesc:                on
+Getiname:               off
 
 Dump Instance Profile state=INCLUDE, 1 profiles
 	Profile [0] indom=121634818 [29.2] state=EXCLUDE 0 instances
@@ -291,11 +302,12 @@ dbpmda> status
 
 Namespace:              (default)
 PMDA:                   $PCP_PMDAS_DIR/sample/pmdasample
-Connection:             daemon
+Connection:             daemon (pid: PID)
 PMDA PMAPI Version:     2
 Debug options:          (none)
 Timer:                  off
 Getdesc:                on
+Getiname:               off
 
 Dump Instance Profile state=INCLUDE, 1 profiles
 	Profile [0] indom=121634818 [29.2] state=EXCLUDE 1 instances
@@ -311,11 +323,12 @@ dbpmda> status
 
 Namespace:              (default)
 PMDA:                   $PCP_PMDAS_DIR/sample/pmdasample
-Connection:             daemon
+Connection:             daemon (pid: PID)
 PMDA PMAPI Version:     2
 Debug options:          (none)
 Timer:                  off
 Getdesc:                on
+Getiname:               off
 
 Dump Instance Profile state=INCLUDE, 1 profiles
 	Profile [0] indom=121634818 [29.2] state=EXCLUDE 2 instances
@@ -331,11 +344,12 @@ dbpmda> status
 
 Namespace:              (default)
 PMDA:                   $PCP_PMDAS_DIR/sample/pmdasample
-Connection:             daemon
+Connection:             daemon (pid: PID)
 PMDA PMAPI Version:     2
 Debug options:          (none)
 Timer:                  off
 Getdesc:                on
+Getiname:               off
 
 Dump Instance Profile state=INCLUDE, 1 profiles
 	Profile [0] indom=121634818 [29.2] state=EXCLUDE 3 instances
@@ -352,11 +366,12 @@ dbpmda> status
 
 Namespace:              (default)
 PMDA:                   $PCP_PMDAS_DIR/sample/pmdasample
-Connection:             daemon
+Connection:             daemon (pid: PID)
 PMDA PMAPI Version:     2
 Debug options:          (none)
 Timer:                  off
 Getdesc:                on
+Getiname:               off
 
 Dump Instance Profile state=INCLUDE, 1 profiles
 	Profile [0] indom=121634818 [29.2] state=EXCLUDE 2 instances
@@ -372,11 +387,12 @@ dbpmda> status
 
 Namespace:              (default)
 PMDA:                   $PCP_PMDAS_DIR/sample/pmdasample
-Connection:             daemon
+Connection:             daemon (pid: PID)
 PMDA PMAPI Version:     2
 Debug options:          (none)
 Timer:                  off
 Getdesc:                on
+Getiname:               off
 
 Dump Instance Profile state=INCLUDE, 1 profiles
 	Profile [0] indom=121634818 [29.2] state=INCLUDE 0 instances
@@ -520,6 +536,7 @@ PMDA:                   none
 Debug options:          (none)
 Timer:                  off
 Getdesc:                on
+Getiname:               off
 
 Dump Instance Profile state=INCLUDE, 1 profiles
 	Profile [0] indom=121634818 [29.2] state=INCLUDE 0 instances
@@ -535,6 +552,7 @@ PMDA PMAPI Version:     2
 Debug options:          (none)
 Timer:                  off
 Getdesc:                on
+Getiname:               off
 
 Dump Instance Profile state=INCLUDE, 0 profiles
 
@@ -546,6 +564,7 @@ PMDA:                   none
 Debug options:          (none)
 Timer:                  off
 Getdesc:                on
+Getiname:               off
 
 Dump Instance Profile state=INCLUDE, 0 profiles
 

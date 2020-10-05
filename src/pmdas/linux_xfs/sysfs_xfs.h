@@ -16,6 +16,59 @@
  * for more details.
  */
 
+struct xfs_btree1 {
+    unsigned int	lookup;
+    unsigned int	compare;
+    unsigned int	insrec;
+    unsigned int	delrec;
+};
+
+struct xfs_btree2 {
+    unsigned int	lookup;
+    unsigned int	compare;
+    unsigned int	insrec;	/* btree.alloc_blocks.insrec */
+    unsigned int	delrec;	/* btree.alloc_blocks.delrec */
+    unsigned int	newroot;	/* btree.alloc_blocks.newroot */
+    unsigned int	killroot;	/* btree.alloc_blocks.killroot */
+    unsigned int	increment;	/* btree.alloc_blocks.increment */
+    unsigned int	decrement;	/* btree.alloc_blocks.decrement */
+    unsigned int	lshift;	/* btree.alloc_blocks.lshift */
+    unsigned int	rshift;	/* btree.alloc_blocks.rshift */
+    unsigned int	split;	/* btree.alloc_blocks.split */
+    unsigned int	join;		/* btree.alloc_blocks.join */
+    unsigned int	alloc;	/* btree.alloc_blocks.alloc */
+    unsigned int	free;		/* btree.alloc_blocks.free */
+    unsigned int	moves;	/* btree.alloc_blocks.moves */
+};
+
+struct xfs_vnodes {
+    unsigned int	vn_active;
+    unsigned int	vn_alloc;
+    unsigned int	vn_get;
+    unsigned int	vn_hold;
+    unsigned int	vn_rele;
+    unsigned int	vn_reclaim;
+    unsigned int	vn_remove;
+    unsigned int	vn_free;
+};
+
+struct xfs_quota {
+    unsigned int	dqreclaims;
+    unsigned int	dqreclaim_misses;
+    unsigned int	dquot_dups;
+    unsigned int	dqcachemisses;
+    unsigned int	dqcachehits;
+    unsigned int	dqwants;
+    unsigned int	dquots;
+    unsigned int	dquots_unused;
+};
+
+struct xfs_xpc	{
+    __uint64_t		write_bytes;
+    __uint64_t		read_bytes;
+    __uint64_t		xstrat_bytes;
+};
+
 typedef struct sysfs_xfs {
     int			errcode;	/* error from previous refresh */
     int			uptodate;	/* values up-to-date this fetch */
@@ -24,10 +77,8 @@ typedef struct sysfs_xfs {
     unsigned int	xs_freex;		/* allocs.free_extent */
     unsigned int	xs_freeb;		/* allocs.free_block */
 
-    unsigned int	xs_abt_lookup;		/* alloc_btree.lookup */
-    unsigned int	xs_abt_compare;		/* alloc_btree.compare */
-    unsigned int	xs_abt_insrec;		/* alloc_btree.insrec */
-    unsigned int	xs_abt_delrec;		/* alloc_btree.delrec */
+    struct xfs_btree1	xs_abt;			/* alloc_btree.* */
+
     unsigned int	xs_blk_mapr;		/* block_map.read_ops */
     unsigned int	xs_blk_mapw;		/* block_map.write_ops */
     unsigned int	xs_blk_unmap;		/* block_map.unmap */
@@ -35,10 +86,8 @@ typedef struct sysfs_xfs {
     unsigned int	xs_del_exlist;		/* block_map.del_exlist */
     unsigned int	xs_look_exlist;		/* block_map.look_exlist */
     unsigned int	xs_cmp_exlist;		/* block_map.cmp_exlist */
-    unsigned int	xs_bmbt_lookup;		/* bmap_btree.lookup */
-    unsigned int	xs_bmbt_compare;	/* bmap_btree.compare */
-    unsigned int	xs_bmbt_insrec;		/* bmap_btree.insrec */
-    unsigned int	xs_bmbt_delrec;		/* bmap_btree.delrec */
+
+    struct xfs_btree1	xs_bmbt;		/* bmap_btree.* */
 
     unsigned int	xs_dir_lookup;		/* dir_ops.lookup */
     unsigned int	xs_dir_create;		/* dir_ops.create */
@@ -85,14 +134,7 @@ typedef struct sysfs_xfs {
     unsigned int	xs_push_ail_restarts;	/* log_tail.push_ail.restarts */
     unsigned int	xs_push_ail_flush;	/* log_tail.push_ail.flush */
 
-    unsigned int	xs_qm_dqreclaims;	/* quota.reclaims */
-    unsigned int	xs_qm_dqreclaim_misses;	/* quota.reclaim_misses */
-    unsigned int	xs_qm_dquot_dups;	/* quota.dquot_dups */
-    unsigned int	xs_qm_dqcachemisses;	/* quota.cachemisses */
-    unsigned int	xs_qm_dqcachehits;	/* quota.cachehits */
-    unsigned int	xs_qm_dqwants;		/* quota.wants */
-    unsigned int	xs_qm_dqshake_reclaims;	/* quota.shake_reclaims */
-    unsigned int	xs_qm_dqinact_reclaims;	/* quota.inact_reclaims */
+    struct xfs_quota	xs_qm;			/* quota.* */
 
     unsigned int	xs_iflush_count;	/* iflush_count */
     unsigned int	xs_icluster_flushcnt;	/* icluster_flushcnt */
@@ -108,82 +150,17 @@ typedef struct sysfs_xfs {
     unsigned int	xs_buf_page_found;	/* buffer.page_found */
     unsigned int	xs_buf_get_read;	/* buffer.get_read */
 
-    unsigned int	xs_abtb_2_lookup;	/* btree.alloc_blocks.lookup */
-    unsigned int	xs_abtb_2_compare;	/* btree.alloc_blocks.compare */
-    unsigned int	xs_abtb_2_insrec;	/* btree.alloc_blocks.insrec */
-    unsigned int	xs_abtb_2_delrec;	/* btree.alloc_blocks.delrec */
-    unsigned int	xs_abtb_2_newroot;	/* btree.alloc_blocks.newroot */
-    unsigned int	xs_abtb_2_killroot;	/* btree.alloc_blocks.killroot */
-    unsigned int	xs_abtb_2_increment;	/* btree.alloc_blocks.increment */
-    unsigned int	xs_abtb_2_decrement;	/* btree.alloc_blocks.decrement */
-    unsigned int	xs_abtb_2_lshift;	/* btree.alloc_blocks.lshift */
-    unsigned int	xs_abtb_2_rshift;	/* btree.alloc_blocks.rshift */
-    unsigned int	xs_abtb_2_split;	/* btree.alloc_blocks.split */
-    unsigned int	xs_abtb_2_join;		/* btree.alloc_blocks.join */
-    unsigned int	xs_abtb_2_alloc;	/* btree.alloc_blocks.alloc */
-    unsigned int	xs_abtb_2_free;		/* btree.alloc_blocks.free */
-    unsigned int	xs_abtb_2_moves;	/* btree.alloc_blocks.moves */
-    unsigned int	xs_abtc_2_lookup;	/* btree.alloc_contig.lookup */
-    unsigned int	xs_abtc_2_compare;	/* btree.alloc_contig.compare */
-    unsigned int	xs_abtc_2_insrec;	/* btree.alloc_contig.insrec */
-    unsigned int	xs_abtc_2_delrec;	/* btree.alloc_contig.delrec */
-    unsigned int	xs_abtc_2_newroot;	/* btree.alloc_contig.newroot */
-    unsigned int	xs_abtc_2_killroot;	/* btree.alloc_contig.killroot */
-    unsigned int	xs_abtc_2_increment;	/* btree.alloc_contig.increment */
-    unsigned int	xs_abtc_2_decrement;	/* btree.alloc_contig.decrement */
-    unsigned int	xs_abtc_2_lshift;	/* btree.alloc_contig.lshift */
-    unsigned int	xs_abtc_2_rshift;	/* btree.alloc_contig.rshift */
-    unsigned int	xs_abtc_2_split;	/* btree.alloc_contig.split */
-    unsigned int	xs_abtc_2_join;		/* btree.alloc_contig.join */
-    unsigned int	xs_abtc_2_alloc;	/* btree.alloc_contig.alloc */
-    unsigned int	xs_abtc_2_free;		/* btree.alloc_contig.free */
-    unsigned int	xs_abtc_2_moves;	/* btree.alloc_contig.moves */
-    unsigned int	xs_bmbt_2_lookup;	/* btree.block_map.lookup */
-    unsigned int	xs_bmbt_2_compare;	/* btree.block_map.compare */
-    unsigned int	xs_bmbt_2_insrec;	/* btree.block_map.insrec */
-    unsigned int	xs_bmbt_2_delrec;	/* btree.block_map.delrec */
-    unsigned int	xs_bmbt_2_newroot;	/* btree.block_map.newroot */
-    unsigned int	xs_bmbt_2_killroot;	/* btree.block_map.killroot */
-    unsigned int	xs_bmbt_2_increment;	/* btree.block_map.increment */
-    unsigned int	xs_bmbt_2_decrement;	/* btree.block_map.decrement */
-    unsigned int	xs_bmbt_2_lshift;	/* btree.block_map.lshift */
-    unsigned int	xs_bmbt_2_rshift;	/* btree.block_map.rshift */
-    unsigned int	xs_bmbt_2_split;	/* btree.block_map.split */
-    unsigned int	xs_bmbt_2_join;		/* btree.block_map.join */
-    unsigned int	xs_bmbt_2_alloc;	/* btree.block_map.alloc */
-    unsigned int	xs_bmbt_2_free;		/* btree.block_map.free */
-    unsigned int	xs_bmbt_2_moves;	/* btree.block_map.moves */
-    unsigned int	xs_ibt_2_lookup;	/* btree.inode.lookup */
-    unsigned int	xs_ibt_2_compare;	/* btree.inode.compare */
-    unsigned int	xs_ibt_2_insrec;	/* btree.inode.insrec */
-    unsigned int	xs_ibt_2_delrec;	/* btree.inode.delrec */
-    unsigned int	xs_ibt_2_newroot;	/* btree.inode.newroot */
-    unsigned int	xs_ibt_2_killroot;	/* btree.inode.killroot */
-    unsigned int	xs_ibt_2_increment;	/* btree.inode.increment */
-    unsigned int	xs_ibt_2_decrement;	/* btree.inode.decrement */
-    unsigned int	xs_ibt_2_lshift;	/* btree.inode.lshift */
-    unsigned int	xs_ibt_2_rshift;	/* btree.inode.rshift */
-    unsigned int	xs_ibt_2_split;		/* btree.inode.split */
-    unsigned int	xs_ibt_2_join;		/* btree.inode.join */
-    unsigned int	xs_ibt_2_alloc;		/* btree.inode.alloc */
-    unsigned int	xs_ibt_2_free;		/* btree.inode.free */
-    unsigned int	xs_ibt_2_moves;		/* btree.inode.moves */
+    struct xfs_btree2	xs_abtb_2;		/* btree.alloc_blocks.* */
+    struct xfs_btree2	xs_abtc_2;		/* btree.alloc_contig.* */
+    struct xfs_btree2	xs_bmbt_2;		/* btree.block_map.* */
+    struct xfs_btree2	xs_ibt_2;		/* btree.inode.* */
+    struct xfs_btree2	xs_fibt_2;		/* btree.free_inode.* */
+    struct xfs_btree2	xs_rmapbt;		/* btree.reverse_map.* */
+    struct xfs_btree2	xs_refcntbt;		/* btree.refcount.* */
 
-    struct vnodes {
-	unsigned int	vn_active;		/* vnodes.active */
-	unsigned int	vn_alloc;		/* vnodes.alloc */
-	unsigned int	vn_get;			/* vnodes.get */
-	unsigned int	vn_hold;		/* vnodes.hold */
-	unsigned int	vn_rele;		/* vnodes.rele */
-	unsigned int	vn_reclaim;		/* vnodes.reclaim */
-	unsigned int	vn_remove;		/* vnodes.remove */
-	unsigned int	vn_free;		/* vnodes.free */
-    } vnodes;
-    struct xpc {
-	__uint64_t	xs_write_bytes;		/* write_bytes */
-	__uint64_t	xs_read_bytes;		/* read_bytes */
-	__uint64_t	xs_xstrat_bytes;	/* xstrat_bytes */
-    } xpc;
+    struct xfs_vnodes	vnodes;
+
+    struct xfs_xpc	xpc;
 } sysfs_xfs_t;
 
 extern FILE *xfs_statsfile(const char *, const char *);

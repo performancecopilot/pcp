@@ -116,6 +116,7 @@ The following options are common with
 .BR invert_filter ,
 .BR predicate ,
 .BR omit_flat ,
+.BR include_labels ,
 .BR precision ,
 .BR precision_force ,
 .BR count_scale ,
@@ -140,6 +141,8 @@ Default is \fBno\fP.
 everything (boolean)
 .RS 4
 Write everything known about metrics, including PCP internal IDs.
+Labels are, however, omitted for backward compatibility,
+use \fBinclude_labels yes\fP to include them as well.
 Corresponding command line option is \fB\-X\fP.
 Default is \fBno\fP.
 .RE
@@ -560,6 +563,8 @@ Write extended information.
 .TP
 \fB\-X\fR, \fB\-\-with\-everything\fR
 Write everything known about metrics, including PCP internal IDs.
+Labels are, however, omitted for backward compatibility,
+use \fB\-m\fP to include them as well.
 .TP
 \fB\-y\fR \fIscale\fR, \fB\-\-time\-scale\fR=\fIscale\fR
 .I Unit/scale

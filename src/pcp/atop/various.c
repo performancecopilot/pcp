@@ -843,10 +843,10 @@ setup_globals(pmOptions *opts)
 		pidmax = (1 << 15);
 	if ((pagesize = extract_integer(result, descs, HOST_PAGESIZE)) <= 0)
 		pagesize = getpagesize();
-	extract_string(result, descs, HOST_RELEASE, sysname.release, sizeof(sysname.release));
-	extract_string(result, descs, HOST_VERSION, sysname.version, sizeof(sysname.version));
-	extract_string(result, descs, HOST_MACHINE, sysname.machine, sizeof(sysname.machine));
-	extract_string(result, descs, HOST_NODENAME, sysname.nodename, sizeof(sysname.nodename));
+	extract_string(result, descs, HOST_RELEASE, sysname.release, sizeof sysname.release);
+	extract_string(result, descs, HOST_VERSION, sysname.version, sizeof sysname.version);
+	extract_string(result, descs, HOST_MACHINE, sysname.machine, sizeof sysname.machine);
+	extract_string(result, descs, HOST_NODENAME, sysname.nodename, sizeof sysname.nodename);
 	nodenamelen = strlen(sysname.nodename);
 
 	/* default hardware inventory - used as fallbacks only if other metrics missing */
@@ -1257,15 +1257,15 @@ rawarchive(pmOptions *opts, const char *name)
 	}
 
 	/* see if a valid folio exists as specified */
-	strncpy(tmp, name, sizeof(tmp));
-	tmp[sizeof(tmp)-1] = '\0';
+	strncpy(tmp, name, sizeof tmp);
+	tmp[sizeof tmp-1] = '\0';
 	if (access(tmp, R_OK) == 0)
 	{
 		__pmAddOptArchiveFolio(opts, tmp);
 		return;
 	}
-	pmsprintf(path, sizeof(path), "%s/%s.folio", name, basename(tmp));
-	path[sizeof(path)-1] = '\0';
+	pmsprintf(path, sizeof path, "%s/%s.folio", name, basename(tmp));
+	path[sizeof path-1] = '\0';
 	if (access(path, R_OK) == 0)
 	{
 		__pmAddOptArchiveFolio(opts, path);
@@ -1287,7 +1287,7 @@ rawarchive(pmOptions *opts, const char *name)
 
 	if (len == 8 && lookslikedatetome(name))
 	{
-		pmsprintf(path, sizeof(path), "%s%c%s%c%s%c%s",
+		pmsprintf(path, sizeof path, "%s%c%s%c%s%c%s",
 			logdir, sep, "pmlogger", sep, host, sep, name);
 		__pmAddOptArchive(opts, (char * )path);
 	}
@@ -1314,7 +1314,7 @@ rawarchive(pmOptions *opts, const char *name)
 			timenow -= len*3600*24;
 			tp       = localtime(&timenow);
 
-			pmsprintf(path, sizeof(path), "%s%c%s%c%s%c%04u%02u%02u",
+			pmsprintf(path, sizeof path, "%s%c%s%c%s%c%04u%02u%02u",
 				logdir, sep, "pmlogger", sep, host, sep,
 				tp->tm_year+1900, tp->tm_mon+1, tp->tm_mday);
 			__pmAddOptArchive(opts, (char * )path);
@@ -1419,8 +1419,8 @@ rawwrite(pmOptions *opts, const char *name,
 	*/
 	putenv("PCP_XCONFIRM_PROG=/bin/true");
 
-	pmsprintf(args, sizeof(args), "%s.folio", basename((char *)name));
-	args[sizeof(args)-1] = '\0';
+	pmsprintf(args, sizeof args, "%s.folio", basename((char *)name));
+	args[sizeof args-1] = '\0';
 	if (pmRecordSetup(args, pmGetProgname(), 1) == NULL)
 	{
 		fprintf(stderr, "%s: cannot setup recording to %s: %s\n",
@@ -1440,8 +1440,8 @@ rawwrite(pmOptions *opts, const char *name,
 	** start pmlogger with a deadhand timer, ensuring it will stop
 	*/
 	if (opts->samples || midnightflag) {
-	    pmsprintf(args, sizeof(args), "-T%.3fseconds", duration);
-	    args[sizeof(args)-1] = '\0';
+	    pmsprintf(args, sizeof args, "-T%.3fseconds", duration);
+	    args[sizeof args-1] = '\0';
 	    if ((sts = pmRecordControl(record, PM_REC_SETARG, args)) < 0)
 		{
 		    fprintf(stderr, "%s: setting loggers arguments: %s\n",

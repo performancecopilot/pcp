@@ -1,4 +1,5 @@
 pmlogconf
+pmrepconf
 cpu/GNUmakefile
 disk/GNUmakefile
 filesystem/GNUmakefile

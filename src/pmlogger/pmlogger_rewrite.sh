@@ -111,13 +111,8 @@ then
     exit
 fi
 
+# get $compress_suffixes variable
 eval `pmconfig -L -s compress_suffixes`
-if [ -z "$compress_suffixes" ]
-then
-    # should not happen, fallback to a fixed list
-    #
-    compress_suffixes='.xz .lzma .bz2 .bz .gz .Z .z'
-fi
 
 # For each command line argument, if it is a directory descent to find
 # all files and insert these into the command line arguments list in

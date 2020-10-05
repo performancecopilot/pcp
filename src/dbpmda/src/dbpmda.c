@@ -21,8 +21,6 @@
 char		*configfile;
 __pmLogCtl	logctl;
 int		parse_done;
-int		primary;		/* Non-zero for primary pmlc */
-pid_t		pid = (pid_t) -1;
 char		*pmnsfile = PM_NS_DEFAULT;
 char		*cmd_namespace = NULL; /* namespace given from command */
 int             _creds_timeout = 3;     /* Timeout for agents credential PDU */
@@ -127,26 +125,8 @@ main(int argc, char **argv)
 	}
     }
 
-    if ((c = argc - opts.optind) > 0) {
-	if (c > 1)
-	    opts.errors++;
-	else {
-	    /* pid was specified */
-	    if (primary) {
-		pmprintf("%s: you may not specify both -P and a pid\n",
-			pmGetProgname());
-		opts.errors++;
-	    }
-	    else {
-		pid = (int)strtol(argv[opts.optind], &endnum, 10);
-		if (*endnum != '\0') {
-		    pmprintf("%s: pid must be a numeric process id\n",
-			    pmGetProgname());
-		    opts.errors++;
-		}
-	    }
-	}
-    }
+    if ((c = argc - opts.optind) > 0)
+	opts.errors++;
 
     if (opts.errors) {
 	pmUsageMessage(&opts);

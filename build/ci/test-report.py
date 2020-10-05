@@ -229,10 +229,18 @@ def send_slack_notification(slack_channel: str, github_run_url: str, qa_report_u
             stats = host_stats[host]
             host_stats_text = f"Passed: {stats['passed']}, Failed: {stats['failed']}, Skipped: {stats['skipped']}"
             if stats['cancelled'] > 0:
-                host_stats_text = f":warning: CANCELLED ({host_stats_text})"
+                host_stats_text = f"CANCELLED ({host_stats_text})"
+
+            if stats['cancelled'] > 0 or stats['passed'] < 1000:
+                symbol = ":x:"
+            elif stats['failed'] > 0:
+                symbol = ":warning:"
+            else:
+                symbol = ":heavy_check_mark:"
         else:
-            host_stats_text = ":x: Build BROKEN"
-        host_texts.append(f"*{host}*:\n{host_stats_text}")
+            host_stats_text = "Build BROKEN"
+            symbol = ":x:"
+        host_texts.append(f"*{host}*:\n{symbol} {host_stats_text}")
 
     host_blocks = []
     # slack only allows max 10 fields inside one block

@@ -90,17 +90,14 @@ remote hosts running the
 .BR pmcd (1)
 process.
 .PP
-Additionally, this version introduces configuration files similar to
-.BR pmrep.conf (5)
-from the
-.BR pmrep (1)
-utility.
 The original Dstat notion of ``plugins'' is replaced by use of named
 metrics in a Performance Metric Name Space (\c
 .BR PMNS (5))
 supplied by Performance Metric Domain Agents (PMDAs).
 Metrics and other formatting information is now specified as plugin
-configuration files.
+configuration files in
+.BR pcp-dstat (5)
+format.
 This new style of plugin is either built-in (time-related reporting
 only), or sourced from the system-wide location (\c
 .BR $PCP_ETC_DIR/dstat )
@@ -653,12 +650,11 @@ The PCP homepage is at
 .BR pminfo (1),
 .BR pmlogger (1),
 .BR pmprobe (1),
-.BR pmrep (1),
 .BR vmstat (1),
 .BR pmGetOptions (3),
 .BR strftime (3),
 .BR PMNS (5),
 .BR pcp.conf (5),
-.BR pmrep.conf (5)
+.BR pcp-dstat (5)
 and
 .BR utmp (5).

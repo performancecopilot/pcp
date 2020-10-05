@@ -45,8 +45,14 @@ _cleanup()
     fi
     $USE_SYSLOG && [ $status -ne 0 ] && \
     $PCP_SYSLOG_PROG -p daemon.error "$prog failed - see $PROGLOG"
+    if $SHOWME
+    then
+	: no pid file created
+    else
+	rm -f "$PCP_RUN_DIR/pmlogger_daily.pid"
+    fi
     lockfile=`cat $tmp/lock 2>/dev/null`
-    rm -f "$lockfile" "$PCP_RUN_DIR/pmlogger_daily.pid"
+    [ -n "$lockfile" ] && rm -f "$lockfile"
     rm -rf $tmp
     $VERY_VERBOSE && echo >&2 "End: `date '+%F %T.%N'`"
 }

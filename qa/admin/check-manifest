@@ -95,13 +95,18 @@ trap "_cleanup; exit \$sts" 0 1 2 3 15
 
 if $very_verbose
 then
-    # clean up stuff left over from any previous runs
+    # clean up stuff left over from any previous runs, but be careful
+    # about the ones check-vm has just set up
     #
-    mv $tmp.manifest $tmp-manifest
-    mv $tmp.unavail $tmp-unavail
+    for suff in manifest unavail allpkgs
+    do
+	[ -f $tmp.$suff ] && mv $tmp.$suff $tmp-$suff
+    done
     rm -f $tmp.*
-    mv $tmp-manifest $tmp.manifest
-    mv $tmp-unavail $tmp.unavail
+    for suff in manifest unavail allpkgs
+    do
+	[ -f $tmp-$suff ] && mv $tmp-$suff $tmp.$suff
+    done
 fi
 
 # $pkgtool tells us what family of packaging tools we need
@@ -109,26 +114,26 @@ fi
 # $searchtool tells us how to search for packages by name
 # (including uninstalled packages)
 #
+# if check-vm was was able to produce a list of all available packages
+# (installed and not installed), then the resulting list (package name,
+# no versions) will be in $tmp.allpkgs and set $searchtool here to
+# "cached"
+#
 pgktool=''
 searchtool=''
+[ -f $tmp.allpkgs ] && searchtool=cached
 $home/whatami >$tmp.tmp
 case "`sed <$tmp.tmp -e 's/  */ /g' -e 's/ \[.*//' | cut -d ' ' -f 4-`"
 in
     *Ubuntu*|*Debian*|*LinuxMint*)
 	pkgtool=dpkg
-	searchtool=dpkg-query
 	;;
+
     *RHEL*|*Fedora*|*CentOS*|*openSUSE*|*SUSE\ SLES*)
 	pkgtool=rpm
 	if which zypper >/dev/null 2>&1
 	then
 	    searchtool=zypper
-	elif which dnf >/dev/null 2>&1
-	then
-	    searchtool=dnf
-	elif which yum >/dev/null 2>&1
-	then
-	    searchtool=yum
 	fi
 	;;
 
@@ -144,7 +149,6 @@ in
 
     *OpenBSD*)
 	pkgtool=pkg_add
-	searchtool=pkg_info
 	;;
 
     *Gentoo*)
@@ -164,7 +168,6 @@ in
 
     *Slackware*)
 	pkgtool=slackpkg
-	searchtool=slackpkg
 	;;
 
     *Arch\ Linux*)
@@ -178,6 +181,15 @@ then
     echo "$0: Botch: don't recognize pkgtool for: `cat $tmp.tmp`"
     exit
 fi
+
+_undot()
+{
+    if [ -f $tmp.dots ]
+    then
+	echo
+	rm -f $tmp.dots
+    fi
+}
 
 _path_to_pkg()
 {
@@ -199,14 +211,34 @@ _path_to_pkg()
 		then
 		    if [ ! -f $tmp.perlmodules ]
 		    then
-			sudo cpan -l 2>/dev/null | sed -e 's/[ 	].*//' >$tmp.perlmodules
+			sudo cpan -l 2>/dev/null \
+			| sed -e 's/[ 	].*//' \
+			| LC_COLLATE=POSIX sort >$tmp.perlmodules
+			if $very_verbose
+			then
+			    echo >&2 "cpan -l -> `wc -l <$tmp.perlmodules | sed -e 's/  *//g'` lines"
+			    cat -n $tmp.perlmodules | head >&2 -3
+			    echo >&2 "  ..."
+			    cat -n $tmp.perlmodules | tail >&2 -3
+			fi
 		    fi
-		    if grep "^$module\$" $tmp.perlmodules >/dev/null
+		    if [ -s $tmp.perlmodules ]
 		    then
-			# found it!
+			if grep "^$module\$" $tmp.perlmodules >/dev/null
+			then
+			    # found it!
+			    echo "$info"
+			    $very_verbose && echo >&2 "found cpan info for $info"
+			    return
+			fi
+		    else
+			# either no modules installed by cpan, or cpan is
+			# too old to support the -l option ... since we
+			# cannot be sure, just pretent
 			echo "$info"
-			$very_verbose && echo >&2 "found cpan info for $info"
+			$very_verbose && echo >&2 "assume cpan install for $info"
 			return
+
 		    fi
 		elif [ ! -f $tmp.cpan.warn ]
 		then
@@ -231,7 +263,7 @@ _path_to_pkg()
 		if `which "$tool"` >/dev/null
 		then
 		    $tool show -f "$module" >$tmp.tmp
-		    match=`echo $1 | sed -e 's;.*-packages/;;'`
+		    match=`echo "$1" | sed -e 's;.*-packages/;;'`
 		    if grep " $match\$" $tmp.tmp >/dev/null
 		    then
 			# found it!
@@ -254,15 +286,42 @@ _path_to_pkg()
 	    #
 	    if [ -s $tmp.tmp ]
 	    then
-		cat $tmp.tmp
+		:
 	    elif which realpath >/dev/null 2>&1
 	    then
-		_target=`realpath $1`
+		_target=`realpath "$1"`
 		if [ "$_target" != "$1" ]
 		then
-		    dpkg-query -S "$_target" 2>/dev/null | sed -e 's/:.*//'
+		    dpkg-query -S "$_target" 2>/dev/null | sed -e 's/:.*//' >$tmp.tmp
 		fi
 	    fi
+	    if [ -s $tmp.tmp ]
+	    then
+		:
+	    else
+		# very odd failure on test-ubuntu2004-direct in CI where
+		# /bin is a symlink -> usr/bin, so targets installed from
+		# packages intended for /bin actually end up in /usr/bin,
+		# specifically bash, sed, grep and mktemp
+		#
+		case "$1"
+		in
+		    /usr/bin/*)
+			_target=`echo "$1" | sed -e 's;^/usr/bin/;/bin/;'`
+			dpkg-query -S "$_target" 2>/dev/null | sed -e 's/:.*//' >$tmp.tmp
+			;;
+		esac
+		if [ ! -s $tmp.tmp ]
+		then
+		    # still no dice, output some helpful diags
+		    #
+		    echo >&2 "+++ Bear Trap +++"
+	 	    ls >&2 -ild /usr/bin /bin "$1" "`echo "$1" | sed -e 's;/usr;;'`"
+		    which realpath >/dev/null 2>/&1 && echo >&2 "realpath -> `realpath "$1"`"
+		    echo >&2 "_target=$_target"
+		fi
+	    fi
+	    [ -s $tmp.tmp ] && cat $tmp.tmp
 	    ;;
 
 	rpm)
@@ -277,7 +336,7 @@ _path_to_pkg()
 		cat $tmp.tmp
 	    elif which realpath >/dev/null 2>&1
 	    then
-		_target=`realpath $1`
+		_target=`realpath "$1"`
 		if [ "$_target" != "$1" ]
 		then
 		    rpm -qf "$_target" 2>/dev/null | sed -e '/is not owned by any/d' -e 's/-[0-9].*//'
@@ -474,15 +533,6 @@ _match_pkg()
 	    dpkg)
 		    case "$xpect"
 		    in
-			libcoin[0-9]*-dev)		# e.g. libcoin80-dev
-			    xpect=libcoin-dev
-			    ;;
-			libicu[0-9]*[0-9])		# e.g. libicu60
-			    xpect=libicu
-			    ;;
-			libperl5.[0-9]*)		# e.g. libperl5.22
-			    xpect='libperl5.*'
-			    ;;
 			libpython2.[0-9]-dev)	# e.g. libpython2.7-dev
 			    xpect=libpython-dev
 			    ;;
@@ -495,23 +545,8 @@ _match_pkg()
 			libpython3.[0-9]-stdlib)	# e.g. libpython3.6-stdlib
 			    xpect=libpython3-stdlib
 			    ;;
-			libreadline[0-9]*-dev)	# e.g. libreadline6-dev
-			    xpect=libreadline-dev
-			    ;;
 			libuv[0-9]*.[0-9]*-dev)	# e.g. libuv0.10-dev 
 			    xpect=libuv-dev
-			    ;;
-			mariadb-client-core-[0-9]*.[0-9]*)	# e.g. mariadb-client-core-10.1
-			    xpect=mariadb-client-core
-			    ;;
-			mysql-client-[0-9]*.[0-9]*)	# e.g. mysql-client-5.5
-			    xpect=mysql-client
-			    ;;
-			mysql-client-core-[0-9]*.[0-9]*)	# e.g. mysql-client-core-5.5
-			    xpect=mysql-client-core
-			    ;;
-			perl-modules-5.[0-9]*)	# e.g. perl-modules-5.26
-			    xpect=perl-modules
 			    ;;
 			python2.[0-9])		# e.g. python2.7
 			    xpect=python
@@ -524,9 +559,6 @@ _match_pkg()
 	    rpm)
 		    case "$xpect"
 		    in
-			Coin[0-9]*-devel)		# e.g. Coin3-devel
-			    xpect=Coin-devel
-			    ;;
 			postgresql[0-9]*)		# e.g. postgresql10
 			    xpect=postgresql
 			    ;;
@@ -554,10 +586,10 @@ _match_pkg()
 	    pkg_add)
 		    case "$xpect"
 		    in
-			base6[1-4]|comp6[1-4])
+			base6[0-9]|comp6[0-9])
 			    xpect=base
 			    ;;
-			xshare6[1-4])
+			xshare6[0-9])
 			    xpect=xshare
 			    ;;
 		    esac
@@ -612,6 +644,44 @@ _hunt()
     rm -f $tmp.msg $tmp.ok
     for file in `echo "$target" | sed -e 's/|/ /g'`
     do
+	if [ -f $tmp.allpkgs ]
+	then
+	    # we have a cache of available packages ... check all the
+	    # ones remaining really do exist
+	    #
+	    for pkg in $pkginfo
+	    do
+		case "$pkg"
+		in
+		    base|xshare)	# no packaging for these ones
+			    ;;
+
+		    'cpan('*')')	# skip cpan as we can't check 'em here
+			    ;;
+
+		    'perl('*')')	# ditto
+			    ;;
+
+		    *'::'*)		# raw Perl module name, nothing to see here
+			    ;;
+
+		    ?:[0-9]*)		# unknown
+			    _undot
+			    echo "$line: package \"?\" unknown for exec target \"$target\""
+			    ;;
+		    *)
+			    if grep "^$pkg\$" $tmp.allpkgs >/dev/null
+			    then
+				:
+			    else
+				_undot
+				echo "$line: package \"$pkg\" appears to be unavailable"
+			    fi
+			    ;;
+		esac
+	    done
+	fi
+
 	case "$file"
 	in
 	    /*)
@@ -645,7 +715,15 @@ _hunt()
 	    $very_verbose && echo >&2 "file=\"$file\" from pkg=\"$pkg\""
 	    if [ -z "$pkg" ]
 	    then
-		if echo " $pkginfo " | grep ' base ' >/dev/null
+		if echo " $pkginfo " | grep '::' >/dev/null
+		then
+		    # if a Perl module is specified as a possible provider
+		    # then this is probably a cpan install, but cpan is too
+		    # old to provide installed modules via cpan -l
+		    #
+		    $verbose && echo >&2 "$line: OK target $file assumed to be from cpan install"
+		    :
+		elif echo " $pkginfo " | grep ' base ' >/dev/null
 		then
 		    # if "base" is specified as a possible provider (which
 		    # may be from a line that contains no provider info,
@@ -667,7 +745,7 @@ _hunt()
 			$verbose && echo >&2 "$line: OK target $file found in $spec"
 			touch $tmp.ok
 		    else
-			echo "$line: target \"$file\" in package $pkg not $spec" >>$tmp.msg
+			echo "$line: target \"$file\" in package \"$pkg\" not \"$spec\"" >>$tmp.msg
 		    fi
 		done
 		[ -f $tmp.ok ] && break
@@ -676,6 +754,7 @@ _hunt()
     done
     if [ ! -f $tmp.ok -a -f $tmp.msg ]
     then
+	_undot
 	cat $tmp.msg
     fi
 }
@@ -696,9 +775,33 @@ sed <$tmp.manifest \
     -e '/^[ 	]*$/d' \
     -e '/\[N\/A/d' \
     -e '/\[SKIP]/d' \
-    -e '/\[SKIP on host/d' \
+    -e '/\[SKIP on host/d' >$tmp.tmp
+mv $tmp.tmp $tmp.manifest
+
+$PCP_ECHO_PROG $PCP_ECHO_N "Checking the `wc -l <$tmp.manifest | sed -e 's/ //g'` manifest entries for `hostname -s` ""$PCP_ECHO_C"
+if $verbose || $very_verbose
+then
+    $PCP_ECHO_PROG "..."
+else
+    _undot
+    echo
+fi
+
+cat $tmp.manifest \
 | while read guard target extra
 do
+    if $very_verbose
+    then
+	echo >&2 "check N/A for \"$guard\""
+    elif $verbose
+    then
+	:
+    else
+	# may be slow, so emit dots for progress ...
+	#
+	$PCP_ECHO_PROG >&2 $PCP_ECHO_N ."$PCP_ECHO_C"
+	touch $tmp.dots
+    fi
     # most lines have no guard, but some do, e.g.
     # !pkg?   egcc|gcc        [gcc]
     # weird?  foobar          [foobar-dev]
@@ -738,10 +841,10 @@ do
     #
     pkginfo=`echo "$extra" \
 	| sed \
-	    -e 's/:[0-9][0-9]*//' \
+	    -e 's/ :[0-9][0-9]*$//' \
 	    -e 's/#.*//' \
-	    -e 's/\[//' \
-	    -e 's/]//' \
+	    -e 's/^\[//' \
+	    -e 's/] *$//' \
 	    -e "s/'perl([^0]*)'//" \
 	    -e "s/perl([^0]*)//" \
 	    -e 's/([^)]* optional)//' \
@@ -757,7 +860,11 @@ do
     [ -z "$pkginfo" ] && pkginfo="$target base"
     # unknown ones warrant a warning
     #
-    [ "$pkginfo" = "?" ] && echo "$line: Warning: package for \"$target\" is not known"
+    if [ "$pkginfo" = "?" ]
+    then
+	_undot
+	echo "$line: Warning: package for \"$target\" is not known"
+    fi
     $very_verbose && echo >&2 target=\"$target\" extra=\"$extra\" pkginfo=\"$pkginfo\"
 
     case "$target"
@@ -766,12 +873,21 @@ do
 	    # special case Perl, no module name
 	    _perl=`echo "$target" | sed -e 's/:://'`
 	    _target=`find $_perl_dirs -name "$_perl.*" -print 2>/dev/null \
+		     | tee $tmp.debug \
 	             | egrep "/$_perl.(pm|so|dylib|bs)$" \
 		     | ( tr '\012' '|'; echo ) \
 		     | sed -e 's/|$//'`
 	    if [ -z "$_target" ]
 	    then
-		echo "$line: Perl source \"$target\" not found"
+		$very_verbose && echo >&2 "... looking for $_perl.* from candidates: `cat $tmp.debug`"
+		if [ "`expr "$pkginfo" : "cpan(.*"`" -gt 0 ]
+		then
+		    # say nothing if cpan() is the only package option
+		    :
+		else
+		    _undot
+		    echo "$line: Perl source \"$target\" not found"
+		fi
 	    else
 		$very_verbose && echo >&2 "$line: Perl $target -> $_target"
 		target="$_target"
@@ -785,12 +901,21 @@ do
 	    _submodule=`echo "$target" | sed -e 's/[^:]*::\([^:][^:]*\)::.*/\1/'`
 	    _perl=`echo "$target" | sed -e 's/.*:://'`
 	    _target=`find $_perl_dirs -name "$_perl.*" -print 2>/dev/null \
+		     | tee $tmp.debug \
 	             | egrep "/$_module/($_submodule|$_submodule/$_perl)/$_perl.(pm|so|dylib|bs)$" \
 		     | ( tr '\012' '|'; echo ) \
 		     | sed -e 's/|$//'`
 	    if [ -z "$_target" ]
 	    then
-		echo "$line: Perl source \"$target\" not found"
+		$very_verbose && echo >&2 "... looking for $_module/($_submodule|$_submodule/$_perl)/$_perl.* from candidates: `cat $tmp.debug`"
+		if [ "`expr "$pkginfo" : "cpan(.*"`" -gt 0 ]
+		then
+		    # say nothing if cpan() is the only package option
+		    :
+		else
+		    _undot
+		    echo "$line: Perl source \"$target\" not found"
+		fi
 	    else
 		$very_verbose && echo >&2 "$line: Perl $target -> $_target"
 		target="$_target"
@@ -810,7 +935,14 @@ do
 	    if [ -z "$_target" ]
 	    then
 		$very_verbose && echo >&2 "... looking for $_module/$_perl.* from candidates: `cat $tmp.debug`"
-		echo "$line: Perl source \"$target\" not found"
+		if [ "`expr "$pkginfo" : "cpan(.*"`" -gt 0 ]
+		then
+		    # say nothing if cpan() is the only package option
+		    :
+		else
+		    _undot
+		    echo "$line: Perl source \"$target\" not found"
+		fi
 	    else
 		$very_verbose && echo >&2 "$line: Perl $target -> $_target"
 		target="$_target"
@@ -826,6 +958,7 @@ do
     esac
 
 done
+_undot
 
 # check the N/A packages list for this platform
 #
@@ -880,7 +1013,7 @@ esac >$tmp.installed
 
 if [ -s $tmp.unavail ]
 then
-    rm -f $tmp.botch $tmp.allpkgs
+    rm -f $tmp.botch $tmp.pkginpkgs
     if grep '[[*^$]' $tmp.unavail >/dev/null
     then
 	# remove lines with grep patterns ... it is just too hard to
@@ -894,7 +1027,8 @@ then
     then
 	$PCP_ECHO_PROG "..."
     else
-	touch $tmp.dots
+	_undot
+	echo
     fi
     cat $tmp.unavail \
     | while read pkg 
@@ -911,6 +1045,13 @@ then
 	rm -f $tmp.avail
 	case "$searchtool"
 	in
+	    cached)
+		if grep "^$pkg\$" $tmp.allpkgs >/dev/null
+		then
+		    touch $tmp.avail
+		fi
+		;;
+
 	    dpkg-query)
 		if dpkg-query -l "$pkg" >$tmp.out 2>&1
 		then
@@ -962,8 +1103,8 @@ then
 		;;
 
 	    pkgin)
-		[ ! -f $tmp.allpkgs ] && pkgin avail >$tmp.allpkgs
-		if grep "^$pkg-" $tmp.allpkgs >$tmp.out 2>&1
+		[ ! -f $tmp.pkginpkgs ] && pkgin avail >$tmp.pkginpkgs
+		if grep "^$pkg-" $tmp.pkginpkgs >$tmp.out 2>&1
 		then
 		    touch $tmp.avail
 		    $verbose && cat >&2 $tmp.out
@@ -1049,11 +1190,7 @@ then
 		;;
 
 	    *)
-		if [ -f $tmp.dots ]
-		then
-		    echo
-		    rm -f $tmp.dots
-		fi
+		_undot
 		echo "_hunt: Botch: no rule for searchtool=$searchtool"
 		touch $tmp.botch
 		break
@@ -1061,29 +1198,19 @@ then
 	esac
 	if [ -f $tmp.avail ]
 	then
-	    if [ -f $tmp.dots ]
-	    then
-		echo
-		rm -f $tmp.dots
-	    fi
+	    _undot
 	    $verbose && cat >&2 $tmp.out
 	    if grep "^$pkg\$" $tmp.installed >/dev/null
 	    then
-		echo "looks like package $pkg is already installed"
+		echo "looks like package \"$pkg\" is already installed"
 	    else
-		echo "looks like package $pkg may be available"
+		echo "looks like package \"$pkg\" may be available"
 	    fi
 	fi
 	[ -f $tmp.botch ] && break
     done
 
-    if [ -f $tmp.dots ]
-    then
-	# done with dots ...
-	#
-	echo
-	rm -f $tmp.dots
-    fi
+    _undot
 fi
 
 sts=0

@@ -660,18 +660,55 @@ int
 __pmConnect(int fd, void *addr, __pmSockLen addrlen)
 {
     __pmSockAddr *sock = (__pmSockAddr *)addr;
+    int		sts;
     if (sock->sockaddr.raw.sa_family == AF_INET)
-        return connect(fd, &sock->sockaddr.raw, sizeof(sock->sockaddr.inet));
-    if (sock->sockaddr.raw.sa_family == AF_INET6)
-        return connect(fd, &sock->sockaddr.raw, sizeof(sock->sockaddr.ipv6));
+        sts = connect(fd, &sock->sockaddr.raw, sizeof(sock->sockaddr.inet));
+    else if (sock->sockaddr.raw.sa_family == AF_INET6)
+        sts = connect(fd, &sock->sockaddr.raw, sizeof(sock->sockaddr.ipv6));
 #if defined(HAVE_STRUCT_SOCKADDR_UN)
-    if (sock->sockaddr.raw.sa_family == AF_UNIX)
-        return connect(fd, &sock->sockaddr.raw, sizeof(sock->sockaddr.local));
+    else if (sock->sockaddr.raw.sa_family == AF_UNIX)
+        sts = connect(fd, &sock->sockaddr.raw, sizeof(sock->sockaddr.local));
 #endif
-    pmNotifyErr(LOG_ERR,
+    else {
+	pmNotifyErr(LOG_ERR,
 		"%s:__pmConnect: Invalid address family: %d\n", __FILE__, sock->sockaddr.raw.sa_family);
-    errno = EAFNOSUPPORT;
-    return -1; /* failure */
+	errno = EAFNOSUPPORT;
+	return -1; /* failure */
+    }
+
+    if (sts >= 0)
+	return sts;
+
+    /* something bad happened ... */
+    sts = neterror();
+    if (sts == EINPROGRESS) {
+	/*
+	 * not sure if connect() is done, wait on select() ... 5 secs seems
+	 * long enough to wait given that for EINPROGRESS it seems safe
+	 * to assume select() will return "real soon now"
+	 */
+	__pmFdSet	fdset;
+	struct timeval	wait = { 5,0 };
+	int		lsts;
+
+	__pmFD_ZERO(&fdset);
+	__pmFD_SET(fd, &fdset);
+	if ((lsts = __pmSelectWrite(fd+1, &fdset, &wait)) == 1) {
+	    sts = __pmConnectCheckError(fd);
+	}
+	else if (lsts == 0)
+	    sts = ETIMEDOUT;
+	else 
+	    sts = neterror();
+    }
+
+    if (sts == 0)
+	/* OK now ... */
+	return 0;
+
+    /* persistent badness ... */
+    errno = sts;
+    return -1;
 }
 
 int

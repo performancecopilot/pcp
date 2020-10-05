@@ -21,7 +21,7 @@ tasks:
   install_build_dependencies: |
     sudo dnf install -y which libuv # see BZ 1809314
     sudo dnf module install -y libuv/devel
-    sudo dnf -y -b --skip-broken install man $(./pcp/qa/admin/check-vm -fp)
+    sudo dnf -y -b --skip-broken install man $(./pcp/qa/admin/check-vm -fpM)
   build: |
     cd ./pcp
     ./Makepkgs --verbose
@@ -54,4 +54,5 @@ tasks:
   copy_test_artifacts: |
     cp /var/lib/pcp/testsuite/check.timings ./artifacts/test
     [ $(awk 'END{print NF}' ./artifacts/test/check.timings) = 2 ] && date '+%s' >> ./artifacts/test/check.timings
+    shopt -s nullglob
     for test in /var/lib/pcp/testsuite/*.out.bad; do cp $test ${test/.out.bad/.full} ./artifacts/test || true; done
