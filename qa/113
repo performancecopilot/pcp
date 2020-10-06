@@ -245,7 +245,7 @@ do
     if [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = darwin -o $PCP_PLATFORM = freebsd -o $PCP_PLATFORM = netbsd -o $PCP_PLATFORM = openbsd ]
     then
 	$sudo df -lk \
-	| grep $f \
+	| grep "^$f " \
 	| $PCP_AWK_PROG '
 BEGIN		{ dev="'$f'" }
 NF == 1		{ next }
