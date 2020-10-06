@@ -2032,9 +2032,11 @@ series_expr_canonical(node_t *np, int idx)
     case N_ROUND:
 	left = series_expr_canonical(np->left, idx);
 	right = NULL;
+	break;
     case N_LOG:
 	left = series_expr_canonical(np->left, idx);
 	right = np->right? series_expr_canonical(np->right, idx) : NULL;
+	break;
     default: 
 	left = right = NULL;
 	break;
