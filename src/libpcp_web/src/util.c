@@ -126,7 +126,7 @@ timeval_stream_str(struct timeval *stamp, char *buffer, int buflen)
     __uint64_t	fractions;
     __uint64_t	crossover = stamp->tv_usec / 1000;
 
-    millipart = stamp->tv_sec * 1000;
+    millipart = ((__uint64_t)stamp->tv_sec) * 1000;
     millipart += crossover;
     fractions = stamp->tv_usec % 1000;
     pmsprintf(buffer, buflen, "%" FMT_UINT64 "-%"FMT_UINT64,
