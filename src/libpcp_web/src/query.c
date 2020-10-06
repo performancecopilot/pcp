@@ -2051,34 +2051,34 @@ series_expr_canonical(node_t *np, int idx)
 	statement = sdsdup(np->value);
 	break;
     case N_PLUS:
-	statement = sdscatfmt(sdsempty(), "%s+%s", left, right);
+	statement = sdscatfmt(sdsempty(), "%S+%S", left, right);
 	break;
     case N_MINUS:
-	statement = sdscatfmt(sdsempty(), "%s-%s", left, right);
+	statement = sdscatfmt(sdsempty(), "%S-%S", left, right);
 	break;
     case N_STAR:
-	statement = sdscatfmt(sdsempty(), "%s*%s", left, right);
+	statement = sdscatfmt(sdsempty(), "%S*%S", left, right);
 	break;
     case N_SLASH:
-	statement = sdscatfmt(sdsempty(), "%s/%s", left, right);
+	statement = sdscatfmt(sdsempty(), "%S/%S", left, right);
 	break;
     case N_AVG:
-	statement = sdscatfmt(sdsempty(), "avg(%s)", left);
+	statement = sdscatfmt(sdsempty(), "avg(%S)", left);
 	break;
     case N_COUNT:
     case N_DELTA:
 	break;
     case N_MAX:
-	statement = sdscatfmt(sdsempty(), "max(%s)", left);
+	statement = sdscatfmt(sdsempty(), "max(%S)", left);
 	break;
     case N_MIN:
-	statement = sdscatfmt(sdsempty(), "min(%s)", left);
+	statement = sdscatfmt(sdsempty(), "min(%S)", left);
 	    break;
     case N_SUM:
     case N_ANON:
 	break;
     case N_RATE:
-	statement = sdscatfmt(sdsempty(), "rate(%s)", left);
+	statement = sdscatfmt(sdsempty(), "rate(%S)", left);
 	break;
     case N_INSTANT:
 	break;
@@ -2086,40 +2086,40 @@ series_expr_canonical(node_t *np, int idx)
 	statement = sdsdup(np->value);
 	break;
     case N_LT:
-	//statement = sdscatfmt(sdsempty(), "%s<%s", left, right);
+	//statement = sdscatfmt(sdsempty(), "%S<%S", left, right);
 	break;
     case N_LEQ:
-	//statement = sdscatfmt(sdsempty(), "%s<=%s", left, right);
+	//statement = sdscatfmt(sdsempty(), "%S<=%S", left, right);
 	break;
     case N_EQ:
-	//statement = sdscatfmt(sdsempty(), "%s==%s", left, right);
+	//statement = sdscatfmt(sdsempty(), "%S==%S", left, right);
 	break;
     case N_GLOB:
-	//statement = sdscatfmt(sdsempty(), "%s~~%s", left, right);
+	//statement = sdscatfmt(sdsempty(), "%S~~%S", left, right);
 	break;
     case N_GEQ:
-	//statement = sdscatfmt(sdsempty(), "%s>=%s", left, right);
+	//statement = sdscatfmt(sdsempty(), "%S>=%S", left, right);
 	break;
     case N_GT:
-	//statement = sdscatfmt(sdsempty(), "%s>%s", left, right);
+	//statement = sdscatfmt(sdsempty(), "%S>%S", left, right);
 	break;
     case N_NEQ:
-	//statement = sdscatfmt(sdsempty(), "%s!=%s", left, right);
+	//statement = sdscatfmt(sdsempty(), "%S!=%S", left, right);
 	break;
     case N_AND:
-	//statement = sdscatfmt(sdsempty(), "%s&&%s", left, right);
+	//statement = sdscatfmt(sdsempty(), "%S&&%S", left, right);
 	// Only reserve series' name (TODO: ???)
-	statement = sdscatfmt(sdsempty(), "\"%s\"",
+	statement = sdscatfmt(sdsempty(), "\"%S\"",
 			np->value_set.series_values[idx].metric_name);
 	break;
     case N_OR:
-	//statement = sdscatfmt(sdsempty(), "%s||%s", left, right);
+	//statement = sdscatfmt(sdsempty(), "%S||%S", left, right);
 	break;
     case N_REQ:
-	//statement = sdscatfmt(sdsempty(), "%s=~%s", left, right);
+	//statement = sdscatfmt(sdsempty(), "%S=~%S", left, right);
 	break;
     case N_RNE:
-	//statement = sdscatfmt(sdsempty(), "%s!~%s", left, right);
+	//statement = sdscatfmt(sdsempty(), "%S!~%S", left, right);
 	break;
     case N_NEG:
 	break;
@@ -2127,7 +2127,7 @@ series_expr_canonical(node_t *np, int idx)
 	statement = sdsdup(np->value);
 	break;
     case N_RESCALE:
-	statement = sdscatfmt(sdsempty(), "rescale(%s,%s)", left, right);
+	statement = sdscatfmt(sdsempty(), "rescale(%S,%S)", left, right);
 	break;
     case N_SCALE:
 	statement = sdsdup(np->value);
@@ -2135,25 +2135,25 @@ series_expr_canonical(node_t *np, int idx)
     case N_DEFINED:
 	break;
     case N_NOOP:
-	statement = sdscatfmt(sdsempty(), "noop(%s)", left);
+	statement = sdscatfmt(sdsempty(), "noop(%S)", left);
 	break;
     case N_ABS:
-	statement = sdscatfmt(sdsempty(), "abs(%s)", left);
+	statement = sdscatfmt(sdsempty(), "abs(%S)", left);
 	break;
     case N_FLOOR:
-	statement = sdscatfmt(sdsempty(), "floor(%s)", left);
+	statement = sdscatfmt(sdsempty(), "floor(%S)", left);
 	break;
     case N_LOG:
 	if (np->right == NULL)
-	    statement = sdscatfmt(sdsempty(), "log(%s)", left);
+	    statement = sdscatfmt(sdsempty(), "log(%S)", left);
 	else
-	    statement = sdscatfmt(sdsempty(), "log(%s,%s)", left, right);
+	    statement = sdscatfmt(sdsempty(), "log(%S,%S)", left, right);
 	break;
     case N_SQRT:
-	statement = sdscatfmt(sdsempty(), "sqrt(%s)", left);
+	statement = sdscatfmt(sdsempty(), "sqrt(%S)", left);
 	break;
     case N_ROUND:
-	statement = sdscatfmt(sdsempty(), "round(%s)", left);
+	statement = sdscatfmt(sdsempty(), "round(%S)", left);
 	break;
     default:
 	break;
