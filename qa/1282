@@ -56,6 +56,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 #    the package is not visible from
 #    $ dnf search libuv-devel
 #
+#
 _filter()
 {
     sed \
@@ -76,7 +77,29 @@ s/ for .*/ for HOST/
 	-e 's/^ //' \
 	-e 's/ $//' \
 	-e '/^ *$/d' \
-    # end
+    | if [ -f /etc/redhat-release ]
+    then
+	# platform-specific ...
+	#
+	# realpath
+	#    on CentOS 6 there is no realpath package and realpath is not in the
+	#    coreutils package, but we need coreutils for mktemp
+	#
+	case "`cat /etc/redhat-release`"
+	in
+	    *"release 6.10"*)
+		sed \
+		    -e '/"realpath" not found, .* "coreutils" already installed/'d \
+		    -e '/exec target "realpath" not found/d' \
+		# end
+		;;
+	    *)
+		cat
+		;;
+	esac
+    else
+	cat
+    fi
 }
 
 # real QA test starts here
