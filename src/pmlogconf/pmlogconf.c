@@ -1398,9 +1398,12 @@ update_pmlogger_tempfile(FILE *tempfile)
      * modified - either by the user or by new pmlogconf groups arriving.
      */
     if (rewrite) {
-	ftruncate(fileno(tempfile), 0L);
-	fseek(tempfile, 0L, SEEK_SET);
-
+	if (ftruncate(fileno(tempfile), 0L) < 0)
+	    fprintf(stderr, "%s: cannot truncate temporary file: %s\n",
+			pmGetProgname(), osstrerror());
+	if (fseek(tempfile, 0L, SEEK_SET) < 0)
+	    fprintf(stderr, "%s: cannot fseek to temporary file start: %s\n",
+			pmGetProgname(), osstrerror());
 	prompt = 0;
 	pmlogger_header(tempfile);
 	for (i = 0; i < ngroups; i++)
