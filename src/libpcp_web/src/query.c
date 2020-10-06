@@ -1499,7 +1499,7 @@ series_instance_store_to_node(seriesQueryBaton *baton, sds series,
 	    pmwebapi_hash_str((const unsigned char *)inst, hashbuf, sizeof(hashbuf));
 	    inst = sdscpylen(inst, hashbuf, 40);
 	} else {
-	    /* TODO: propogate errors and mark records - separate callbacks? */
+	    /* TODO: propagate errors and mark records - separate callbacks? */
 	    continue;
 	}
 	value->series = inst;
@@ -1973,18 +1973,21 @@ series_node_prepare_time(seriesQueryBaton *baton, series_set_t *query_series_set
     sdsfree(start);
     sdsfree(end);
 }
+
+/* 
+ * When we encounter a data node (i.e. np->result.nseries!=0),
+ * query Redis for actual values and store them into this node
+ * because time series identifier will always be described in
+ * the top node of a subtree at the parser tree's bottom. 
+ */
 static int
 series_process_func(seriesQueryBaton *baton, node_t *np, int level)
 {
-/* 
- * Each time when meet a data node i.e. np->result.nseries!=0, query to Redis for actural
- * values and store them into this node. Beacause time series idetifier will always be 
- * described in the top node of a subtree at the parser tree's bottom. 
- */
-    int				sts, nelements = 0;
-    if (np == NULL) {
+    int		sts, nelements = 0;
+
+    if (np == NULL)
 	return 0;
-    }
+
     if (&np->result != NULL)
 	nelements = np->result.nseries;
 
@@ -1992,161 +1995,188 @@ series_process_func(seriesQueryBaton *baton, node_t *np, int level)
 	np->value_set.num_series = 0;
 	np->baton = baton;
 	series_node_prepare_time(baton, &np->result, np);
-	// TODO: should return error here. series_node_prepare_time should be int type.
-	return 0;
+	return baton->error;
     }
 
     if ((sts = series_process_func(baton, np->left, level+1)) < 0)
 	return sts;
-    if ((sts = series_process_func(baton, np->right, level+1)) < 0)
-	return sts;
-
-    return sts;
+    return series_process_func(baton, np->right, level+1);
 }
 
 static sds
 series_expr_canonical(node_t *np, int idx)
 {
-    sds		statement = sdsempty();
+    sds		left, right, statement = NULL;
+
     if (np == NULL)
-	return statement;
+	return sdsempty();
+
+    /* first find each of the left and right hand sides, if any */
     switch (np->type) {
-	case N_INTEGER:
-	    statement = np->value;
-	    break;
-	case N_NAME:
-	    statement = np->value;
-	    break;
-	case N_PLUS:
-	    statement = sdscatfmt(statement, "%s+%s", series_expr_canonical(np->left, idx), series_expr_canonical(np->right, idx));
-	    break;
-	case N_MINUS:
-	    statement = sdscatfmt(statement, "%s-%s", series_expr_canonical(np->left, idx), series_expr_canonical(np->right, idx));
-	    break;
-	case N_STAR:
-	    statement = sdscatfmt(statement, "%s*%s", series_expr_canonical(np->left, idx), series_expr_canonical(np->right, idx));
-	    break;
-	case N_SLASH:
-	    statement = sdscatfmt(statement, "%s/%s", series_expr_canonical(np->left, idx), series_expr_canonical(np->right, idx));
-	    break;
-	case N_AVG:
-	    statement = sdscatfmt(statement, "avg(%s)", series_expr_canonical(np->left, idx));
-	    break;
-	case N_COUNT:
-	    break;
-	case N_DELTA:
-	    break;
-	case N_MAX:
-	    statement = sdscatfmt(statement, "max(%s)", series_expr_canonical(np->left, idx));
-	    break;
-	case N_MIN:
-	    statement = sdscatfmt(statement, "min(%s)", series_expr_canonical(np->left, idx));
-	    break;
-	case N_SUM:
-	    break;
-	case N_ANON:
-	    break;
-	case N_RATE:
-	    statement = sdscatfmt(statement, "rate(%s)", series_expr_canonical(np->left, idx));
-	    break;
-	case N_INSTANT:
-	    break;
-	case N_DOUBLE:
-	    statement = np->value;
-	    break;
-	case N_LT:
-	    //statement = sdscatfmt(statement, "%s<%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
-	    break;
-	case N_LEQ:
-	    //statement = sdscatfmt(statement, "%s<=%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
-	    break;
-	case N_EQ:
-	    statement = sdscatfmt(statement, "\"%s\"", np->value_set.series_values[idx].metric_name);
-	    break;
-	case N_GLOB:
-	    //statement = sdscatfmt(statement, "%s~~%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
-	    statement = sdscatfmt(
-		statement, "\"%s\"", series_expr_canonical(np->left, idx), np->value_set.series_values[idx].metric_name);
-	    break;
-	case N_GEQ:
-	    //statement = sdscatfmt(statement, "%s>=%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
-	    break;
-	case N_GT:
-	    //statement = sdscatfmt(statement, "%s>%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
-	    break;
-	case N_NEQ:
-	    //statement = sdscatfmt(statement, "%s!=%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
-	    break;
-	case N_AND:
-	    //statement = sdscatfmt(statement, "%s&&%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
-	    // Only reserve series' name
-	    statement = sdscatfmt(statement, "\"%s\"",
-		np->value_set.series_values[idx].metric_name);
-	    break;
-	case N_OR:
-	    //statement = sdscatfmt(statement, "%s||%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
-	    break;
-	case N_REQ:
-	    //statement = sdscatfmt(statement, "%s=~%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
-	    break;
-	case N_RNE:
-	    //statement = sdscatfmt(statement, "%s!~%s", series_expr_canonical(np->left), series_expr_canonical(np->right));
-	    break;
-	case N_NEG:
-	    break;
-	case N_STRING:
-	    statement = np->value;
-	    break;
-	case N_RESCALE:
-	    statement = sdscatfmt(statement, "rescale(%s,%s)", series_expr_canonical(np->left, idx), series_expr_canonical(np->right, idx));
-	    break;
-	case N_SCALE:
-	    statement = np->value;
-	    break;
-	case N_DEFINED:
-	    break;
-	case N_NOOP:
-	    statement = sdscatfmt(statement, "noop(%s)", series_expr_canonical(np->left, idx));
-	    break;
-	case N_ABS:
-	    statement = sdscatfmt(statement, "abs(%s)", series_expr_canonical(np->left, idx));
-	    break;
-	case N_FLOOR:
-	    statement = sdscatfmt(statement, "floor(%s)", series_expr_canonical(np->left, idx));
-	    break;
-	case N_LOG:
-	    if (np->right == NULL)
-		statement = sdscatfmt(statement, "log(%s)", series_expr_canonical(np->left, idx));
-	    else
-		statement = sdscatfmt(statement, "log(%s,%s)", series_expr_canonical(np->left, idx), series_expr_canonical(np->right, idx));
-	    break;
-	case N_SQRT:
-	    statement = sdscatfmt(statement, "sqrt(%s)", series_expr_canonical(np->left, idx));
-	    break;
-	case N_ROUND:
-	    statement = sdscatfmt(statement, "round(%s)", series_expr_canonical(np->left, idx));
-	    break;
-	default:
-	    break;
+    case N_PLUS:
+    case N_MINUS:
+    case N_STAR:
+    case N_SLASH:
+    case N_RESCALE:
+	left = series_expr_canonical(np->left, idx);
+	right = series_expr_canonical(np->right, idx);
+	break;
+    case N_AVG:
+    case N_MAX:
+    case N_MIN:
+    case N_RATE:
+    case N_NOOP:
+    case N_ABS:
+    case N_FLOOR:
+    case N_SQRT:
+    case N_ROUND:
+	left = series_expr_canonical(np->left, idx);
+	right = NULL;
+    case N_LOG:
+	left = series_expr_canonical(np->left, idx);
+	right = np->right? series_expr_canonical(np->right, idx) : NULL;
+    default: 
+	left = right = NULL;
+	break;
     }
-    return statement;
+
+    /* form a merged canonical expression from component parts */
+    switch (np->type) {
+    case N_INTEGER:
+	statement = sdsdup(np->value);
+	break;
+    case N_NAME:
+	statement = sdsdup(np->value);
+	break;
+    case N_PLUS:
+	statement = sdscatfmt(sdsempty(), "%s+%s", left, right);
+	break;
+    case N_MINUS:
+	statement = sdscatfmt(sdsempty(), "%s-%s", left, right);
+	break;
+    case N_STAR:
+	statement = sdscatfmt(sdsempty(), "%s*%s", left, right);
+	break;
+    case N_SLASH:
+	statement = sdscatfmt(sdsempty(), "%s/%s", left, right);
+	break;
+    case N_AVG:
+	statement = sdscatfmt(sdsempty(), "avg(%s)", left);
+	break;
+    case N_COUNT:
+    case N_DELTA:
+	break;
+    case N_MAX:
+	statement = sdscatfmt(sdsempty(), "max(%s)", left);
+	break;
+    case N_MIN:
+	statement = sdscatfmt(sdsempty(), "min(%s)", left);
+	    break;
+    case N_SUM:
+    case N_ANON:
+	break;
+    case N_RATE:
+	statement = sdscatfmt(sdsempty(), "rate(%s)", left);
+	break;
+    case N_INSTANT:
+	break;
+    case N_DOUBLE:
+	statement = sdsdup(np->value);
+	break;
+    case N_LT:
+	//statement = sdscatfmt(sdsempty(), "%s<%s", left, right);
+	break;
+    case N_LEQ:
+	//statement = sdscatfmt(sdsempty(), "%s<=%s", left, right);
+	break;
+    case N_EQ:
+	//statement = sdscatfmt(sdsempty(), "%s==%s", left, right);
+	break;
+    case N_GLOB:
+	//statement = sdscatfmt(sdsempty(), "%s~~%s", left, right);
+	break;
+    case N_GEQ:
+	//statement = sdscatfmt(sdsempty(), "%s>=%s", left, right);
+	break;
+    case N_GT:
+	//statement = sdscatfmt(sdsempty(), "%s>%s", left, right);
+	break;
+    case N_NEQ:
+	//statement = sdscatfmt(sdsempty(), "%s!=%s", left, right);
+	break;
+    case N_AND:
+	//statement = sdscatfmt(sdsempty(), "%s&&%s", left, right);
+	// Only reserve series' name (TODO: ???)
+	statement = sdscatfmt(sdsempty(), "\"%s\"",
+			np->value_set.series_values[idx].metric_name);
+	break;
+    case N_OR:
+	//statement = sdscatfmt(sdsempty(), "%s||%s", left, right);
+	break;
+    case N_REQ:
+	//statement = sdscatfmt(sdsempty(), "%s=~%s", left, right);
+	break;
+    case N_RNE:
+	//statement = sdscatfmt(sdsempty(), "%s!~%s", left, right);
+	break;
+    case N_NEG:
+	break;
+    case N_STRING:
+	statement = sdsdup(np->value);
+	break;
+    case N_RESCALE:
+	statement = sdscatfmt(sdsempty(), "rescale(%s,%s)", left, right);
+	break;
+    case N_SCALE:
+	statement = sdsdup(np->value);
+	break;
+    case N_DEFINED:
+	break;
+    case N_NOOP:
+	statement = sdscatfmt(sdsempty(), "noop(%s)", left);
+	break;
+    case N_ABS:
+	statement = sdscatfmt(sdsempty(), "abs(%s)", left);
+	break;
+    case N_FLOOR:
+	statement = sdscatfmt(sdsempty(), "floor(%s)", left);
+	break;
+    case N_LOG:
+	if (np->right == NULL)
+	    statement = sdscatfmt(sdsempty(), "log(%s)", left);
+	else
+	    statement = sdscatfmt(sdsempty(), "log(%s,%s)", left, right);
+	break;
+    case N_SQRT:
+	statement = sdscatfmt(sdsempty(), "sqrt(%s)", left);
+	break;
+    case N_ROUND:
+	statement = sdscatfmt(sdsempty(), "round(%s)", left);
+	break;
+    default:
+	break;
+    }
+    sdsfree(left);
+    sdsfree(right);
+    return statement ? statement : sdsempty();
 }
 
-static sds
+static void
 series_function_hash(unsigned char *hash, node_t *np, int idx)
 {
-    //SHA1_CTX	shactx;
-    sds			identifier = series_expr_canonical(np, idx);
-    if (pmDebugOptions.query) printf("expression %s\n", identifier);
-    SHA1_CTX		shactx;
-    const char		prefix[] = "{\"series\":\"expr\",\"expr\":\"";
-    const char		suffix[] = "\"}";
+    sds		identifier = series_expr_canonical(np, idx);
+    SHA1_CTX	shactx;
+    const char	prefix[] = "{\"series\":\"expr\",\"expr\":\"";
+    const char	suffix[] = "\"}";
+
+    if (pmDebugOptions.query)
+	fprintf(stderr, "%s: canonical expr:\n%s\n", __FUNCTION__, identifier);
     SHA1Init(&shactx);
     SHA1Update(&shactx, (unsigned char *)prefix, sizeof(prefix)-1);
     SHA1Update(&shactx, (unsigned char *)identifier, sdslen(identifier));
     SHA1Update(&shactx, (unsigned char *)suffix, sizeof(suffix)-1);
     SHA1Final(hash, &shactx);
-    return identifier;
+    sdsfree(identifier);
 }
 
 /*
@@ -2155,13 +2185,16 @@ series_function_hash(unsigned char *hash, node_t *np, int idx)
 static void
 series_node_values_report(seriesQueryBaton *baton, node_t *np, int has_function, char *hashbuf)
 {
-    sds		series;
+    sds		series, series_hash;
     int		i, j, k;
 
+    if (has_function)
+	series_hash = series = sdsnew(hashbuf);
+    else
+	series_hash = NULL;
+
     for (i = 0; i < np->value_set.num_series; i++) {
-	if (has_function != 0)
-	    series = sdsnew(hashbuf);
-	else 
+	if (has_function == 0)
 	    series = np->value_set.series_values[i].sid->name;
 	for (j = 0; j < np->value_set.series_values[i].num_samples; j++) {
 	    for (k = 0; k < np->value_set.series_values[i].series_sample[j].num_instances; k++) {
@@ -2170,6 +2203,8 @@ series_node_values_report(seriesQueryBaton *baton, node_t *np, int has_function,
 	    }
 	}
     }
+
+    sdsfree(series_hash);
 }
 
 static void
@@ -2190,21 +2225,21 @@ series_rate_check(pmSeriesDesc desc){
     return 0;
 }
 
+/*
+ * Compute rate between samples for each metric.
+ * The number of samples in result is one less than the original samples. 
+ */
 static void
 series_calculate_rate(node_t *np)
 {
-/*
- * Compute rate between samples for each metric. The number of samples in result is one less 
- * than the original samples. 
- */
     seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
     pmSeriesValue	s_pmval, t_pmval;
     int			n_instances, n_samples;
     double		s_data, t_data, d_data, mult;
     char		str[256];
-    sds			msg;
-    int			i, j, k;
-    pmUnits		units;
+    sds			msg, expr;
+    int			i, j, k, sts;
+    pmUnits		units = {0};
 
     np->value_set = np->left->value_set;
     for (i = 0; i < np->value_set.num_series; i++) {
@@ -2250,14 +2285,20 @@ series_calculate_rate(node_t *np)
 		}
 	    }
 	} else {
-	    infofmt(msg, "Semantics of '%s' is not counter\n", series_expr_canonical(np->left, i));
+	    expr = series_expr_canonical(np->left, i);
+	    infofmt(msg, "Semantics of '%s' is not counter\n", expr);
+	    sdsfree(expr);
 	    batoninfo(baton, PMLOG_ERROR, msg);
 	    baton->error = -EPROTO;
 	    np->value_set.series_values[i].num_samples = -n_samples;
 	}
 	sdsfree(np->value_set.series_values[i].series_desc.type);
 	sdsfree(np->value_set.series_values[i].series_desc.semantics);
-	pmParseUnitsStr(np->value_set.series_values[i].series_desc.units, &units, &mult, &msg);
+	if ((sts = pmParseUnitsStr(
+			np->value_set.series_values[i].series_desc.units,
+			&units, &mult, &msg)) < 0) {
+	    free(msg);
+	}
 	sdsfree(np->value_set.series_values[i].series_desc.units);
 	units.dimTime -= 1;
 	units.scaleTime = PM_TIME_SEC;
@@ -2966,7 +3007,7 @@ series_calculate_binary_check(
     sds			msg;
     int			num_samples;
     double		mult;
-    char		*errmsg;
+    char		*errmsg = NULL;
 
     // Operands should have the same instance domain for all of the binary operators.
     if (sdscmp(l_indom, r_indom) != 0) {
@@ -3004,7 +3045,7 @@ series_calculate_binary_check(
     *r_sem = pmStrSem(right->value_set.series_values[0].series_desc.semantics);
     if (*l_sem == PM_SEM_COUNTER && *r_sem == PM_SEM_COUNTER) {
 	if (ope_type != N_PLUS && ope_type != N_MINUS) {
-	    infofmt(msg, "Both operands have the semantics of counter, only addtion or subtraction is allowed.\n");
+	    infofmt(msg, "Both operands have the semantics of counter, only addition or subtraction is allowed.\n");
 	    batoninfo(baton, PMLOG_ERROR, msg);
 	    baton->error = -EPROTO;
 	    return -1;
@@ -3046,14 +3087,23 @@ series_calculate_binary_check(
 	infofmt(msg, "Units string of %s parse error, %s\n", left->value_set.series_values[0].sid->name, errmsg);
 	batoninfo(baton, PMLOG_ERROR, msg);
 	baton->error = -EPROTO;
+	free(errmsg);
 	return -1;
+    } else if (errmsg) {
+	free(errmsg);
+	errmsg = NULL;
     }
     if (pmParseUnitsStr(right->value_set.series_values[0].series_desc.units, r_units, &mult, &errmsg) < 0 &&
 		strncmp(right->value_set.series_values[0].series_desc.units, "none", sizeof("none")-1) != 0) {
 	infofmt(msg, "Units string of %s parse error, %s\n", right->value_set.series_values[0].sid->name, errmsg);
 	batoninfo(baton, PMLOG_ERROR, msg);
 	baton->error = -EPROTO;
+	free(errmsg);
+	errmsg = NULL;
 	return -1;
+    } else if (errmsg) {
+	free(errmsg);
+	errmsg = NULL;
     }
     /* If both operands have a dimension of Count/Time/Space and the scales are not the same, use the
      * larger scale and convert the values of the operand with the smaller scale. The result is promoted
@@ -3433,16 +3483,17 @@ series_calculate_slash(node_t *np)
 }
 
 /* 
- * In this phase all time series values have been stored into nodes. Therefore we can 
- * directly calculate values of a node according to the semantics of this node.
- * Do dfs here. In the process of unstacking from bottom of the parser tree, each
- * time we meet a functin-type node, calculate the results and store them into
- * this node.
+ * In this phase all time series values have been stored into nodes.
+ * Therefore we can directly calculate values of a node according to
+ * the semantics of this node.  Do dfs here.
+ * In the process of unstacking from bottom of the parser tree, each
+ * time we encounter a function-type node, calculate the results and
+ * store them into this node.
  */
 static int
 series_calculate(seriesQueryBaton *baton, node_t *np, int level)
 {
-    int				sts;
+    int		sts;
 
     if (np == NULL)
 	return 0;
@@ -3614,13 +3665,14 @@ series_redis_hash_expression(seriesQueryBaton *baton, char *hashbuf, int len_has
 		break;
 	    } else {
 		/* 
-		 * For series with the same metric names, if they have same dimensions but different
-		 * scales, use the larger scale and convert the values with the smaller scale. The
-		 * result is promoted to type PM_TYPE_DOUBLE.
+		 * For series with the same metric names, if they have
+		 * same dimensions but different scales, use the larger
+		 * scale and convert the values with the smaller scale.
+		 * The result is promoted to type PM_TYPE_DOUBLE.
 		 */
-		series_compatibility_convert(&np->value_set.series_values[i], &np->value_set.series_values[j],
-			&units0, &units1, &large_units);
-		
+		series_compatibility_convert(&np->value_set.series_values[i],
+				&np->value_set.series_values[j],
+				&units0, &units1, &large_units);
 	    }
 	}
 	series_function_hash(hash, np, i);
@@ -3658,7 +3710,7 @@ series_query_funcs_report_values(void *arg)
     /* For function-tpye nodes, calculate actual values */
     has_function = series_calculate(baton, &baton->u.query.root, 0);
 
-    /* Store the canonical query to Redis if this query statement has function oepration */
+    /* Store the canonical query to Redis if this query statement has function operation */
     if (has_function != 0)
 	series_redis_hash_expression(baton, hashbuf, sizeof(hashbuf));
 
@@ -3677,7 +3729,7 @@ series_query_funcs(void *arg)
     seriesBatonCheckCount(baton, "series_query_funcs");
 
     seriesBatonReference(baton, "series_query_funcs");
-    // Process funtion-type node
+    /* Process function-type node */
     series_process_func(baton, &baton->u.query.root, 0);
     series_query_end_phase(baton);
 }
