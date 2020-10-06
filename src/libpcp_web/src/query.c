@@ -3598,8 +3598,8 @@ series_redis_hash_expression(seriesQueryBaton *baton, char *hashbuf, int len_has
 		baton->error = -EPROTO;
 	    continue;
 	}
-	for (j = i + 1; j < num_series; j++) {
-	    if (!np->value_set.series_values[j].compatibility) continue;
+	for (j = 0; j < num_series; j++) {
+	    if (!np->value_set.series_values[j].compatibility || i == j) continue;
 
 	    pmParseUnitsStr(np->value_set.series_values[i].series_desc.units, &units0, &mult, &errmsg);
 	    pmParseUnitsStr(np->value_set.series_values[j].series_desc.units, &units1, &mult, &errmsg);
