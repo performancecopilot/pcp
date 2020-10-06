@@ -737,7 +737,7 @@ interrupts_text(pmdaExt *pmda, pmID pmid, int type, char **buf)
 
     switch (cluster) {
 	case CLUSTER_INTERRUPT_LINES:
-	    if (!lines_count || !(type & PM_TEXT_ONELINE))
+	    if (!lines_count)
 		return PM_ERR_TEXT;
 	    if (item > lines_count || item > MAX_INTERRUPT_LINES)
 		return PM_ERR_PMID;
@@ -748,7 +748,7 @@ interrupts_text(pmdaExt *pmda, pmID pmid, int type, char **buf)
 		*buf = text;
 	    return 0;
 	case CLUSTER_INTERRUPT_OTHER:
-	    if (!other_count || !(type & PM_TEXT_ONELINE))
+	    if (!other_count)
 		return PM_ERR_TEXT;
 	    if (!(ip = dynamic_data_lookup(item, INTERRUPT_NAMES_INDOM)))
 		return PM_ERR_PMID;
@@ -759,7 +759,7 @@ interrupts_text(pmdaExt *pmda, pmID pmid, int type, char **buf)
 		*buf = text;
 	    return 0;
 	case CLUSTER_SOFTIRQS:
-	    if (!softirqs_count || !(type & PM_TEXT_ONELINE))
+	    if (!softirqs_count)
 		return PM_ERR_TEXT;
 	    *buf = "percpu deferrals to outside of hardware interrupt handling";
 	    return 0;

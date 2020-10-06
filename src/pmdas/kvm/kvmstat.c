@@ -437,8 +437,6 @@ kvm_text(int ident, int type, char **buf, pmdaExt *pmda)
 	pmID		pmid = (pmID)ident;
 
 	if (pmID_cluster(pmid) == CLUSTER_TRACE) {
-	    if (!(type & PM_TEXT_ONELINE))
-                return PM_ERR_TEXT;
 	    if (pmID_item(pmid) == 0)	/* kvm.trace.count */
 		pmsprintf(text, sizeof(text),
 			"Number of KVM trace points from %s/kvm/kvm.conf",
