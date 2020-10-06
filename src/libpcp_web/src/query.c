@@ -3004,7 +3004,7 @@ series_calculate_binary_check(
     *r_sem = pmStrSem(right->value_set.series_values[0].series_desc.semantics);
     if (*l_sem == PM_SEM_COUNTER && *r_sem == PM_SEM_COUNTER) {
 	if (ope_type != N_PLUS && ope_type != N_MINUS) {
-	    infofmt(msg, "For both operands have the semantis of counter, only addtion or subtraction is allowed.\n");
+	    infofmt(msg, "Both operands have the semantics of counter, only addtion or subtraction is allowed.\n");
 	    batoninfo(baton, PMLOG_ERROR, msg);
 	    baton->error = -EPROTO;
 	    return -1;
@@ -3012,7 +3012,7 @@ series_calculate_binary_check(
     }
     if ((*l_sem == PM_SEM_COUNTER && *r_sem !=PM_SEM_COUNTER)) {
 	if (ope_type != N_STAR && ope_type != N_SLASH) {
-	    infofmt(msg, "For the left operand is a counter and the right one is not, only multiplication or division is allowed.\n");
+	    infofmt(msg, "Left operand is a counter and the right one is not, only multiplication or division is allowed.\n");
 	    batoninfo(baton, PMLOG_ERROR, msg);
 	    baton->error = -EPROTO;
 	    return -1;
@@ -3020,7 +3020,7 @@ series_calculate_binary_check(
     }
     if (*l_sem != PM_SEM_COUNTER && *r_sem ==PM_SEM_COUNTER) {
 	if (ope_type != N_STAR) {
-	    infofmt(msg, "For the left operand is not a counter and the right one is, only multiplication is allowed.\n");
+	    infofmt(msg, "Left operand is not a counter and the right one is, only multiplication is allowed.\n");
 	    batoninfo(baton, PMLOG_ERROR, msg);
 	    baton->error = -EPROTO;
 	    return -1;
@@ -3186,7 +3186,7 @@ calculate_slash(int *type, pmAtomValue *l_val, pmAtomValue *r_val, pmAtomValue *
 
 static void
 series_calculate_order_binary(int ope_type, int l_type, int r_type, int *otype,
-	pmAtomValue *l_val, pmAtomValue *r_val, sds l_data, sds r_data,
+	pmAtomValue *l_val, pmAtomValue *r_val, pmSeriesValue *l_data, pmSeriesValue *r_data,
 	pmUnits *l_units, pmUnits *r_units, pmUnits *large_units,
 	int (*operator)(int*, pmAtomValue*, pmAtomValue*, pmAtomValue*))
 {
@@ -3211,20 +3211,20 @@ series_calculate_order_binary(int ope_type, int l_type, int r_type, int *otype,
     }
 
     // Extract series values
-    series_extract_value(*otype, r_data, r_val);
-    series_extract_value(*otype, l_data, l_val);
+    series_extract_value(*otype, r_data->data, r_val);
+    series_extract_value(*otype, l_data->data, l_val);
 
     // Convert scale to larger one
     pmConvScale(*otype, l_val, l_units, l_val, large_units);
     pmConvScale(*otype, r_val, r_units, r_val, large_units);
 
     if ((*operator)(otype, l_val, r_val, &res) != 0) {
-	sdsfree(l_data);
-	l_data = sdsnew("no value");
+	sdsfree(l_data->data);
+	l_data->data = sdsnew("no value"); /* TODO - error code or something? */
     } else {
-	sdsfree(l_data);
+	sdsfree(l_data->data);
 	str_len = series_pmAtomValue_conv_str(*otype, str_val, &res, sizeof(str_val));
-	l_data = sdsnewlen(str_val, str_len);
+	l_data->data = sdsnewlen(str_val, str_len);
     }
 }
 
@@ -3265,7 +3265,7 @@ series_calculate_plus(node_t *np)
     int			num_samples, num_instances, l_type, r_type, otype, l_sem, r_sem, j, k;
     sds			msg;
     pmAtomValue		l_val, r_val;
-    pmUnits		l_units, r_units, large_units;
+    pmUnits		l_units = {0}, r_units = {0}, large_units = {0};
 
     if (left->value_set.num_series == 0 || right->value_set.num_series == 0) return;
     if (series_calculate_binary_check(N_PLUS, baton, left, right, &l_type, &r_type, &l_sem, &r_sem,
@@ -3288,8 +3288,8 @@ series_calculate_plus(node_t *np)
 	for (k = 0; k < num_instances; k++) {
 	    series_calculate_order_binary(N_PLUS, l_type, r_type, &otype, 
 		&l_val, &r_val, 
-		left->value_set.series_values[0].series_sample[j].series_instance[k].data,
-		right->value_set.series_values[0].series_sample[j].series_instance[k].data,
+		left->value_set.series_values[0].series_sample[j].series_instance + k,
+		right->value_set.series_values[0].series_sample[j].series_instance + k,
 		&l_units, &r_units, &large_units, calculate_plus);
 	}
     }
@@ -3310,7 +3310,7 @@ series_calculate_minus(node_t *np)
     int			num_samples, num_instances, l_type, r_type, otype, l_sem, r_sem, j, k;
     sds			msg;
     pmAtomValue		l_val, r_val;
-    pmUnits		l_units, r_units, large_units;
+    pmUnits		l_units = {0}, r_units = {0}, large_units = {0};
 
     if (left->value_set.num_series == 0 || right->value_set.num_series == 0) return;
     if (series_calculate_binary_check(N_MINUS, baton, left, right, &l_type, &r_type, &l_sem, &r_sem,
@@ -3331,8 +3331,8 @@ series_calculate_minus(node_t *np)
 	for (k = 0; k < num_instances; k++) {
 	    series_calculate_order_binary(N_MINUS, l_type, r_type, &otype, 
 		&l_val, &r_val, 
-		left->value_set.series_values[0].series_sample[j].series_instance[k].data,
-		right->value_set.series_values[0].series_sample[j].series_instance[k].data,
+		left->value_set.series_values[0].series_sample[j].series_instance + k,
+		right->value_set.series_values[0].series_sample[j].series_instance + k,
 		&l_units, &r_units, &large_units, calculate_minus);
 	}
     }
@@ -3353,7 +3353,7 @@ series_calculate_star(node_t *np)
     int			num_samples, num_instances, l_type, r_type, otype, l_sem, r_sem, j, k;
     sds			msg;
     pmAtomValue		l_val, r_val;
-    pmUnits		l_units, r_units, large_units;
+    pmUnits		l_units = {0}, r_units = {0}, large_units = {0};
 
     if (left->value_set.num_series == 0 || right->value_set.num_series == 0) return;
     if (series_calculate_binary_check(N_STAR, baton, left, right, &l_type, &r_type, &l_sem, &r_sem,
@@ -3374,8 +3374,8 @@ series_calculate_star(node_t *np)
 	for (k = 0; k < num_instances; k++) {
 	    series_calculate_order_binary(N_STAR, l_type, r_type, &otype, 
 		&l_val, &r_val, 
-		left->value_set.series_values[0].series_sample[j].series_instance[k].data,
-		right->value_set.series_values[0].series_sample[j].series_instance[k].data,
+		left->value_set.series_values[0].series_sample[j].series_instance + k,
+		right->value_set.series_values[0].series_sample[j].series_instance + k,
 		&l_units, &r_units, &large_units, calculate_star);
 	}
     }
@@ -3396,7 +3396,7 @@ series_calculate_slash(node_t *np)
     int			num_samples, num_instances, l_type, r_type, otype, l_sem, r_sem, j, k;
     sds			msg;
     pmAtomValue		l_val, r_val;
-    pmUnits		l_units, r_units, large_units;
+    pmUnits		l_units = {0}, r_units = {0}, large_units = {0};
 
     if (left->value_set.num_series == 0 || right->value_set.num_series == 0) return;
     if (series_calculate_binary_check(N_SLASH, baton, left, right, &l_type, &r_type, &l_sem, &r_sem,
@@ -3417,8 +3417,8 @@ series_calculate_slash(node_t *np)
 	for (k = 0; k < num_instances; k++) {
 	    series_calculate_order_binary(N_SLASH, l_type, r_type, &otype, 
 		&l_val, &r_val, 
-		left->value_set.series_values[0].series_sample[j].series_instance[k].data,
-		right->value_set.series_values[0].series_sample[j].series_instance[k].data,
+		left->value_set.series_values[0].series_sample[j].series_instance + k,
+		right->value_set.series_values[0].series_sample[j].series_instance + k,
 		&l_units, &r_units, &large_units, calculate_slash);
 	}
     }
@@ -3432,16 +3432,18 @@ series_calculate_slash(node_t *np)
 
 }
 
+/* 
+ * In this phase all time series values have been stored into nodes. Therefore we can 
+ * directly calculate values of a node according to the semantics of this node.
+ * Do dfs here. In the process of unstacking from bottom of the parser tree, each
+ * time we meet a functin-type node, calculate the results and store them into
+ * this node.
+ */
 static int
 series_calculate(seriesQueryBaton *baton, node_t *np, int level)
 {
-/* 
- * In this phase all time series values have been stored into nodes. Therefore we can 
- * directly calculate values of a node accroding to the semantics of this node.
- * Do dfs here. In the process of unstacking from bottom of the parser tree, each time
- * meet a functino-type node, calculate the results and store them into this node.
- */
     int				sts;
+
     if (np == NULL)
 	return 0;
     if ((sts = series_calculate(baton, np->left, level+1)) < 0)
