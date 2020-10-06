@@ -2218,10 +2218,11 @@ series_noop_traverse(seriesQueryBaton *baton, node_t *np, int level)
 }
 
 static int
-series_rate_check(pmSeriesDesc desc){
-    // TODO: Do type check for rate function. return 0 when success.
+series_rate_check(pmSeriesDesc desc)
+{
+    /* TODO: Do type check for rate function. return 0 when success. */
     if (strncmp(desc.semantics, "counter", sizeof("counter")-1) != 0)
-    	return 1;
+	return 1;
     return 0;
 }
 
@@ -2234,11 +2235,11 @@ series_calculate_rate(node_t *np)
 {
     seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
     pmSeriesValue	s_pmval, t_pmval;
-    int			n_instances, n_samples;
+    unsigned int	n_instances, n_samples, i, j, k;
     double		s_data, t_data, d_data, mult;
     char		str[256];
     sds			msg, expr;
-    int			i, j, k, sts;
+    int			sts;
     pmUnits		units = {0};
 
     np->value_set = np->left->value_set;
@@ -2308,17 +2309,17 @@ series_calculate_rate(node_t *np)
     }
 }
 
-static void
-series_calculate_max(node_t *np)
-{
 /*
  * Compare and pick the maximal instance value(s) among samples for each metric.
  */
+static void
+series_calculate_max(node_t *np)
+{
     seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
-    int			n_series, n_samples, n_instances, max_pointer;
+    unsigned int	n_series, n_samples, n_instances, i, j, k;
     double		max_data, data;
+    int			max_pointer;
     sds			msg;
-    int			i, j, k;
 
     n_series = np->left->value_set.num_series;
     np->value_set.num_series = n_series;
@@ -2366,17 +2367,17 @@ series_calculate_max(node_t *np)
     }
 }
 
-static void
-series_calculate_min(node_t *np)
-{
 /*
  * Compare and pick the minimal instance value(s) among samples for each metric.
  */
+static void
+series_calculate_min(node_t *np)
+{
     seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
-    int			n_series, n_samples, n_instances, min_pointer;
+    unsigned int	n_series, n_samples, n_instances, i, j, k;
     double		min_data, data;
+    int			min_pointer;
     sds			msg;
-    int			i, j, k;
 
     n_series = np->left->value_set.num_series;
     np->value_set.num_series = n_series;
@@ -2426,9 +2427,10 @@ series_calculate_min(node_t *np)
 static int
 compare_pmUnits_dim(pmUnits *a, pmUnits *b)
 {
-    if (a->dimCount == b->dimCount && a->dimTime == b->dimTime && a->dimSpace == b->dimSpace) {
+    if (a->dimCount == b->dimCount &&
+	a->dimTime == b->dimTime &&
+	a->dimSpace == b->dimSpace)
 	return 0;
-    }
     return -1;
 }
 
@@ -2458,39 +2460,35 @@ series_extract_value(int type, sds str, pmAtomValue *oval)
     int		sts;
 
     switch (type) {
-	case PM_TYPE_32:
-	    sts = sscanf(str, "%d", &oval->l);
-	    break;
-	case PM_TYPE_U32:
-	    sts = sscanf(str, "%u", &oval->ul);
-	    break;
-	case PM_TYPE_64:
-	    sts = sscanf(str, "%" PRId64, &oval->ll);
-	    break;
-	case PM_TYPE_U64:
-	    sts = sscanf(str, "%" PRIu64, &oval->ull);
-	    break;
-	case PM_TYPE_FLOAT:
-	    sts = sscanf(str, "%f", &oval->f);
-	    break;
-	case PM_TYPE_DOUBLE:
-	    sts = sscanf(str, "%lf", &oval->d);
-	    break;
-	default:
-	    sts = 0;
-	    break;
+    case PM_TYPE_32:
+	sts = sscanf(str, "%d", &oval->l);
+	break;
+    case PM_TYPE_U32:
+	sts = sscanf(str, "%u", &oval->ul);
+	break;
+    case PM_TYPE_64:
+	sts = sscanf(str, "%" PRId64, &oval->ll);
+	break;
+    case PM_TYPE_U64:
+	sts = sscanf(str, "%" PRIu64, &oval->ull);
+	break;
+    case PM_TYPE_FLOAT:
+	sts = sscanf(str, "%f", &oval->f);
+	break;
+    case PM_TYPE_DOUBLE:
+	sts = sscanf(str, "%lf", &oval->d);
+	break;
+    default:
+	sts = 0;
+	break;
     }
-    if (sts == 1) {
-	return 0;
-    } else {
-	return PM_ERR_CONV;
-    }
+    return (sts == 1) ? 0 : PM_ERR_CONV;
 }
 
 static int
 series_pmAtomValue_conv_str(int type, char *str, pmAtomValue *val, int max_len)
 {
-    char *s;
+    char	*s;
 
     switch (type) {
     case PM_TYPE_32:
@@ -2503,6 +2501,7 @@ series_pmAtomValue_conv_str(int type, char *str, pmAtomValue *val, int max_len)
         break;
     default:
         s = NULL;
+        break;
     }
 
     if (s && (isdigit(*s) || *s == '-' || *s == '+'))
@@ -2513,22 +2512,24 @@ series_pmAtomValue_conv_str(int type, char *str, pmAtomValue *val, int max_len)
     return 0;
 }
 
+/* 
+ * The left child node of L_RESCALE should contains a set of time
+ * series values.  And the right child node should be L_SCALE, which
+ * contains the target units information.  This rescale() should only
+ * accept metrics with semantics instant.  Compare the consistencies
+ * of 3 time/space/count dimensions between the pmUnits of input and
+ * metrics to be modified. 
+ */
 static void
 series_calculate_rescale(node_t *np)
 {
-/* 
- * The left child node of L_RESCALE should contains a set of time series values.
- * And the right child node should be L_SCALE, which contains the target units information.
- * This rescale() should only accept metrics with semantics instant. Compare the consistencies
- * of 3 time/space/count dimensions between the pmUnits of input and metrics to be modified. 
- */
     seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
-    double			mult;
-    pmUnits			iunit;
-    char			*errmsg, str_val[255];
-    pmAtomValue			ival, oval;
-    int				type, sts, str_len, i, j, k;
-    sds				msg;
+    double		mult;
+    pmUnits		iunit;
+    char		*errmsg, str_val[256];
+    pmAtomValue		ival, oval;
+    int			type, sts, str_len, i, j, k;
+    sds			msg;
 
     np->value_set = np->left->value_set;
     for (i = 0; i < np->value_set.num_series; i++) {
@@ -2583,39 +2584,33 @@ series_calculate_rescale(node_t *np)
 static int
 series_abs_pmAtomValue(int type, pmAtomValue *val)
 {
-    int			sts = 0;
+    int		sts = 0;
 
     switch (type) {
-	case PM_TYPE_32:
-	    if (val->l < 0) {
-		val->l =  -val->l;
-	    }
-	    break;
-	case PM_TYPE_U32:
-	    // No need to change value
-	    break;
-	case PM_TYPE_64:
-	    if (val->ll < 0) {
-		val->ll = val->ll;
-	    }
-	    break;
-	case PM_TYPE_U64:
-	    // No need to change value
-	    break;
-	case PM_TYPE_FLOAT:
-	    if (val->f < 0) {
-		val->f = -val->f;
-	    }
-	    break;
-	case PM_TYPE_DOUBLE:
-	    if (val->d < 0) {
-		val->d = -val->d;
-	    }
-	    break;
-	default:
-	    // Unsupport type
-	    sts = -1;
-	    break;
+    case PM_TYPE_32:
+	if (val->l < 0)
+	    val->l = -val->l;
+	break;
+    case PM_TYPE_64:
+	if (val->ll < 0)
+	    val->ll = val->ll;
+	break;
+    case PM_TYPE_U32:
+    case PM_TYPE_U64:
+	/* No need to change value */
+	break;
+    case PM_TYPE_FLOAT:
+	if (val->f < 0)
+	    val->f = -val->f;
+	break;
+    case PM_TYPE_DOUBLE:
+	if (val->d < 0)
+	    val->d = -val->d;
+	break;
+    default:
+	/* Unsupported type */
+	sts = -1;
+	break;
     }
     return sts;
 }
@@ -2623,14 +2618,11 @@ series_abs_pmAtomValue(int type, pmAtomValue *val)
 static void
 series_calculate_abs(node_t *np)
 {
-/* 
- * 
- */
     seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
-    pmAtomValue			val;
-    int				type, sts, str_len, i, j, k;
-    char			str_val[255];
-    sds				msg;
+    pmAtomValue		val;
+    int			type, sts, str_len, i, j, k;
+    char		str_val[256];
+    sds			msg;
 
     np->value_set = np->left->value_set;
     for (i = 0; i < np->value_set.num_series; i++) {
@@ -2673,7 +2665,7 @@ series_floor_pmAtomValue(int type, pmAtomValue *val)
     case PM_TYPE_U32:
     case PM_TYPE_64:
     case PM_TYPE_U64:
-	// No change
+	/* No change */
 	break;
     case PM_TYPE_FLOAT:
 	val->f = floorf(val->f);
@@ -2682,7 +2674,7 @@ series_floor_pmAtomValue(int type, pmAtomValue *val)
 	val->d = floor(val->d);
 	break;
     default:
-	// Unsupport type
+	/* Unsupported type */
 	sts = -1;
 	break;
     }
@@ -2694,10 +2686,10 @@ static void
 series_calculate_floor(node_t *np)
 {
     seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
-    pmAtomValue			val;
-    int				type, sts, str_len, i, j, k;
-    char			str_val[255];
-    sds				msg;
+    pmAtomValue		val;
+    int			type, sts, str_len, i, j, k;
+    char		str_val[256];
+    sds			msg;
 
     np->value_set = np->left->value_set;
     for (i = 0; i < np->value_set.num_series; i++) {
@@ -2756,7 +2748,7 @@ series_log_pmAtomValue(int itype, int *otype, pmAtomValue *val, int is_natural_l
 	res = val->d;
 	break;
     default:
-	// Unsupport type
+	/* Unsupported type */
 	sts = -1;
 	break;
     }
@@ -2772,18 +2764,18 @@ series_log_pmAtomValue(int itype, int *otype, pmAtomValue *val, int is_natural_l
     return sts;
 }
 
-static void
-series_calculate_log(node_t *np)
-{
 /*
  * Return the logarithm of x to base b (log_b^x).
  */
-    seriesQueryBaton	        *baton = (seriesQueryBaton *)np->baton;
-    double			base;
-    pmAtomValue			val;
-    int				i, j, k, itype, otype, sts, str_len, is_natural_log;
-    char			str_val[255];
-    sds				msg;
+static void
+series_calculate_log(node_t *np)
+{
+    seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
+    double		base;
+    pmAtomValue		val;
+    int			i, j, k, itype, otype, sts, str_len, is_natural_log;
+    char		str_val[256];
+    sds			msg;
 
 
     if (np->right != NULL) {
@@ -2830,39 +2822,40 @@ series_sqrt_pmAtomValue(int itype, int *otype, pmAtomValue *val)
 {
     int			sts = 0;
     double		res;
+
     switch (itype) {
-	case PM_TYPE_32:
-	    *otype = PM_TYPE_DOUBLE;
-	    res = val->l;
-	    val->d = sqrt(res);
-	    break;
-	case PM_TYPE_U32:
-	    *otype = PM_TYPE_DOUBLE;
-	    res = val->ul;
-	    val->d = sqrt(res);
-	    break;
-	case PM_TYPE_64:
-	    *otype = PM_TYPE_DOUBLE;
-	    res = val->ll;
-	    val->d = sqrt(res);
-	    break;
-	case PM_TYPE_U64:
-	    *otype = PM_TYPE_DOUBLE;
-	    res = val->ull;
-	    val->d = sqrt(res);
-	    break;
-	case PM_TYPE_FLOAT:
-	    *otype = PM_TYPE_DOUBLE;
-	    res = val->f;
-	    val->d = sqrt(res);
-	    break;
-	case PM_TYPE_DOUBLE:
-	    val->d = sqrt(val->d);
-	    break;
-	default:
-	    // Unsupport type
-	    sts = -1;
-	    break;
+    case PM_TYPE_32:
+	*otype = PM_TYPE_DOUBLE;
+	res = val->l;
+	val->d = sqrt(res);
+	break;
+    case PM_TYPE_U32:
+	*otype = PM_TYPE_DOUBLE;
+	res = val->ul;
+	val->d = sqrt(res);
+	break;
+    case PM_TYPE_64:
+	*otype = PM_TYPE_DOUBLE;
+	res = val->ll;
+	val->d = sqrt(res);
+	break;
+    case PM_TYPE_U64:
+	*otype = PM_TYPE_DOUBLE;
+	res = val->ull;
+	val->d = sqrt(res);
+	break;
+    case PM_TYPE_FLOAT:
+	*otype = PM_TYPE_DOUBLE;
+	res = val->f;
+	val->d = sqrt(res);
+	break;
+    case PM_TYPE_DOUBLE:
+	val->d = sqrt(val->d);
+	break;
+    default:
+	/* Unsupported type */
+	sts = -1;
+	break;
     }
     return sts;
 }
@@ -2870,14 +2863,11 @@ series_sqrt_pmAtomValue(int itype, int *otype, pmAtomValue *val)
 static void
 series_calculate_sqrt(node_t *np)
 {
-/* 
- * 
- */
     seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
-    pmAtomValue			val;
-    int				i, j, k, itype, otype, sts, str_len;
-    char			str_val[255];
-    sds				msg;
+    pmAtomValue		val;
+    int			i, j, k, itype, otype, sts, str_len;
+    char		str_val[256];
+    sds			msg;
 
     np->value_set = np->left->value_set;
     for (i = 0; i < np->value_set.num_series; i++) {
@@ -2897,7 +2887,7 @@ series_calculate_sqrt(node_t *np)
 		    return;
 		}
 		if ((sts = series_sqrt_pmAtomValue(itype, &otype, &val)) != 0) {
-		    // TODO: unsuport type
+		    // TODO: unsupported type
 		    fprintf(stderr, "Unsupport type to take sqrt()\n");
 		    return;
 		}
@@ -2912,33 +2902,28 @@ series_calculate_sqrt(node_t *np)
     }
 }
 
-static int series_round_pmAtomValue(int type, pmAtomValue *val)
+static int
+series_round_pmAtomValue(int type, pmAtomValue *val)
 {
     int			sts = 0;
 
     switch (type) {
-	case PM_TYPE_32:
-	    // No change
-	    break;
-	case PM_TYPE_U32:
-	    // No change
-	    break;
-	case PM_TYPE_64:
-	    // No chage
-	    break;
-	case PM_TYPE_U64:
-	    // No change
-	    break;
-	case PM_TYPE_FLOAT:
-	    val->f = roundf(val->f);
-	    break;
-	case PM_TYPE_DOUBLE:
-	    val->d = round(val->f);
-	    break;
-	default:
-	    // Unsupport type
-	    sts = -1;
-	    break;
+    case PM_TYPE_32:
+    case PM_TYPE_U32:
+    case PM_TYPE_64:
+    case PM_TYPE_U64:
+	/* No change */
+	break;
+    case PM_TYPE_FLOAT:
+	val->f = roundf(val->f);
+	break;
+    case PM_TYPE_DOUBLE:
+	val->d = round(val->f);
+	break;
+    default:
+	/* Unsupported type */
+	sts = -1;
+	break;
     }
     return sts;
 }
@@ -2947,10 +2932,10 @@ static void
 series_calculate_round(node_t *np)
 {
     seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
-    pmAtomValue			val;
-    int				i, j, k, type, sts, str_len;
-    char			str_val[255];
-    sds				msg;
+    pmAtomValue		val;
+    int			i, j, k, type, sts, str_len;
+    char		str_val[256];
+    sds			msg;
 
     np->value_set = np->left->value_set;
     for (i = 0; i < np->value_set.num_series; i++) {
@@ -2987,36 +2972,40 @@ series_calculate_round(node_t *np)
 const int
 pmStrSem(sds sem_str)
 {
-    if (strncmp("counter", sem_str, sizeof("counter")-1) == 0) {
+    if (strncmp("counter", sem_str, sizeof("counter")-1) == 0)
 	return PM_SEM_COUNTER;
-    } else if (strncmp("instant", sem_str, sizeof("instant")-1) == 0) {
+    if (strncmp("instant", sem_str, sizeof("instant")-1) == 0)
 	return PM_SEM_INSTANT;
-    } else if (strncmp("discrete", sem_str, sizeof("discrete")-1) == 0) {
+    if (strncmp("discrete", sem_str, sizeof("discrete")-1) == 0)
 	return PM_SEM_DISCRETE;
-    } else {
-	return -1;
-    }
+    return -1;
 }
 
 static int
-series_calculate_binary_check(
-	int ope_type, seriesQueryBaton *baton, node_t *left, node_t *right, int *l_type, int *r_type,
-	int *l_sem, int *r_sem, pmUnits *l_units, pmUnits *r_units, pmUnits *large_units,
-	sds l_indom, sds r_indom)
+series_calculate_binary_check(int ope_type, seriesQueryBaton *baton,
+	node_t *left, node_t *right, int *l_type, int *r_type,
+	int *l_sem, int *r_sem, pmUnits *l_units, pmUnits *r_units,
+	pmUnits *large_units, sds l_indom, sds r_indom)
 {
     sds			msg;
     int			num_samples;
     double		mult;
     char		*errmsg = NULL;
 
-    // Operands should have the same instance domain for all of the binary operators.
+    /*
+     * Operands should have the same instance domain for all of
+     * the binary operators.
+     */
     if (sdscmp(l_indom, r_indom) != 0) {
 	infofmt(msg, "Operands should have the same instance domain for all of the binary operators.\n");
 	batoninfo(baton, PMLOG_ERROR, msg);
 	baton->error = -EPROTO;
 	return -1;
     }
-    // For addition and subtraction all dimensions for each of the operands and result are identical.
+    /*
+     * For addition and subtraction all dimensions for each of
+     * the operands and result are identical.
+     */
     if ((ope_type == N_PLUS || ope_type == N_MINUS) &&
 		compare_pmUnits_dim(&left->meta.units, &right->meta.units) != 0) {
 	infofmt(msg, "Dimensions of two operands mismatch\n");
@@ -3025,7 +3014,7 @@ series_calculate_binary_check(
 	return -1;
     }
 
-    // Number of samples of both operands should be identical.
+    /* Number of samples of both operands should be identical. */
     num_samples = left->value_set.series_values[0].num_samples;
     if (num_samples != right->value_set.series_values[0].num_samples) {
 	infofmt(msg, "Number of samples of two metrics are not identical, %s has %d but %s has %d\n",
@@ -3036,10 +3025,14 @@ series_calculate_binary_check(
 	return -1;
     }
 
-    /* For an arithmetic expression, if both operands have the semantics of a counter, then only addition
-     * or subtraction is allowed, or if the left operand is a counter and the right operand is not,
-     * then only multiplication or division are allowed, or if the left operand is not a counter and 
-     * the right operand is a counter, then only multiplication is allowed.
+    /*
+     * For an arithmetic expression:
+     * - if both operands have the semantics of a counter, then only
+     *   addition or subtraction is allowed
+     * - if the left operand is a counter and the right operand is not,
+     *   then only multiplication or division are allowed
+     * - if the left operand is not a counter and the right operand is
+     *   a counter, then only multiplication is allowed.
      */
     *l_sem = pmStrSem(left->value_set.series_values[0].series_desc.semantics);
     *r_sem = pmStrSem(right->value_set.series_values[0].series_desc.semantics);
@@ -3068,7 +3061,7 @@ series_calculate_binary_check(
 	}
     }
 
-    // Extract data tpyes of two operands
+    /* Extract data tpyes of two operands */
     if ((*l_type = series_extract_type(left->value_set.series_values[0].series_desc.type)) == PM_TYPE_UNKNOWN) {
 	infofmt(msg, "Series values' Type extract fail, unsupport type\n");
 	batoninfo(baton, PMLOG_ERROR, msg);
@@ -3081,7 +3074,7 @@ series_calculate_binary_check(
 	baton->error = -EPROTO;
 	return -1;
     }
-    // Extract units of both operands
+    /* Extract units of both operands */
     if (pmParseUnitsStr(left->value_set.series_values[0].series_desc.units, l_units, &mult, &errmsg) < 0 &&
 		strncmp(left->value_set.series_values[0].series_desc.units, "none", sizeof("none")-1) != 0) {
 	infofmt(msg, "Units string of %s parse error, %s\n", left->value_set.series_values[0].sid->name, errmsg);
@@ -3105,9 +3098,11 @@ series_calculate_binary_check(
 	free(errmsg);
 	errmsg = NULL;
     }
-    /* If both operands have a dimension of Count/Time/Space and the scales are not the same, use the
-     * larger scale and convert the values of the operand with the smaller scale. The result is promoted
-     * to type PM_TYPE_DOUBLE.
+    /*
+     * If both operands have a dimension of Count/Time/Space and the scales
+     * are not the same, use the larger scale and convert the values of the
+     * operand with the smaller scale.
+     * The result is promoted to type PM_TYPE_DOUBLE.
      */
     large_units->scaleCount = l_units->scaleCount > r_units->scaleCount ? l_units->scaleCount : r_units->scaleCount;
     large_units->scaleSpace = l_units->scaleSpace > r_units->scaleSpace ? l_units->scaleSpace : r_units->scaleSpace;
@@ -3130,23 +3125,26 @@ int
 calculate_plus(int *type, pmAtomValue *l_val, pmAtomValue *r_val, pmAtomValue *res)
 {
     switch (*type) {
-	case PM_TYPE_32:
-	    res->l = l_val->l + r_val->l;
-	case PM_TYPE_U32:
-	    res->ul = l_val->ul + r_val->ul;
-	case PM_TYPE_64:
-	    res->ll = l_val->ll + r_val->ll;
-	    break;
-	case PM_TYPE_U64:
-	    res->ull = l_val->ull + r_val->ull;
-	case PM_TYPE_FLOAT:
-	    res->f = l_val->f + r_val->f;
-	    break;
-	case PM_TYPE_DOUBLE:
-	    res->d = l_val->d + r_val->d;
-	    break;
-	default:
-	    break;
+    case PM_TYPE_32:
+	res->l = l_val->l + r_val->l;
+	break;
+    case PM_TYPE_U32:
+	res->ul = l_val->ul + r_val->ul;
+	break;
+    case PM_TYPE_64:
+	res->ll = l_val->ll + r_val->ll;
+	break;
+    case PM_TYPE_U64:
+	res->ull = l_val->ull + r_val->ull;
+	break;
+    case PM_TYPE_FLOAT:
+	res->f = l_val->f + r_val->f;
+	break;
+    case PM_TYPE_DOUBLE:
+	res->d = l_val->d + r_val->d;
+	break;
+    default:
+	break;
     }
     return 0;
 }
@@ -3155,31 +3153,30 @@ int
 calculate_minus(int *type, pmAtomValue *l_val, pmAtomValue *r_val, pmAtomValue *res)
 {
     switch (*type) {
-	case PM_TYPE_32:
-	    res->l = l_val->l - r_val->l;
-	case PM_TYPE_U32:
-	    if (l_val->ul >= r_val->ul) {
-		res->ul = l_val->ul - r_val->ul;
-	    } else {
-		return -1;
-	    }
-	case PM_TYPE_64:
-	    res->ll = l_val->ll - r_val->ll;
-	    break;
-	case PM_TYPE_U64:
-	    if (l_val->ull >= r_val->ull) {
-		res->ull = l_val->ull - r_val->ull;
-	    } else {
-		return -1;
-	    }
-	case PM_TYPE_FLOAT:
-	    res->f = l_val->f - r_val->f;
-	    break;
-	case PM_TYPE_DOUBLE:
-	    res->d = l_val->d - r_val->d;
-	    break;
-	default:
-	    break;
+    case PM_TYPE_32:
+	res->l = l_val->l - r_val->l;
+	break;
+    case PM_TYPE_U32:
+	if (l_val->ul < r_val->ul)
+	    return -1;
+	res->ul = l_val->ul - r_val->ul;
+	break;
+    case PM_TYPE_64:
+	res->ll = l_val->ll - r_val->ll;
+	break;
+    case PM_TYPE_U64:
+	if (l_val->ull < r_val->ull)
+	    return -1;
+	res->ull = l_val->ull - r_val->ull;
+	break;
+    case PM_TYPE_FLOAT:
+	res->f = l_val->f - r_val->f;
+	break;
+    case PM_TYPE_DOUBLE:
+	res->d = l_val->d - r_val->d;
+	break;
+    default:
+	break;
     }
     return 0;
 }
@@ -3188,23 +3185,26 @@ int
 calculate_star(int *type, pmAtomValue *l_val, pmAtomValue *r_val, pmAtomValue *res)
 {
     switch (*type) {
-	case PM_TYPE_32:
-	    res->l = l_val->l * r_val->l;
-	case PM_TYPE_U32:
-	    res->ul = l_val->ul * r_val->ul;
-	case PM_TYPE_64:
-	    res->ll = l_val->ll * r_val->ll;
-	    break;
-	case PM_TYPE_U64:
-	    res->ull = l_val->ull * r_val->ull;
-	case PM_TYPE_FLOAT:
-	    res->f = l_val->f * r_val->f;
-	    break;
-	case PM_TYPE_DOUBLE:
-	    res->d = l_val->d * r_val->d;
-	    break;
-	default:
-	    break;
+    case PM_TYPE_32:
+	res->l = l_val->l * r_val->l;
+	break;
+    case PM_TYPE_U32:
+	res->ul = l_val->ul * r_val->ul;
+	break;
+    case PM_TYPE_64:
+	res->ll = l_val->ll * r_val->ll;
+	break;
+    case PM_TYPE_U64:
+	res->ull = l_val->ull * r_val->ull;
+	break;
+    case PM_TYPE_FLOAT:
+	res->f = l_val->f * r_val->f;
+	break;
+    case PM_TYPE_DOUBLE:
+	res->d = l_val->d * r_val->d;
+	break;
+    default:
+	break;
     }
     return 0;
 }
@@ -3213,36 +3213,40 @@ int
 calculate_slash(int *type, pmAtomValue *l_val, pmAtomValue *r_val, pmAtomValue *res)
 {
     switch (*type) {
-	case PM_TYPE_32:
-	    res->l = l_val->l / r_val->l;
-	case PM_TYPE_U32:
-	    res->ul = l_val->ul / r_val->ul;
-	case PM_TYPE_64:
-	    res->ll = l_val->ll / r_val->ll;
-	    break;
-	case PM_TYPE_U64:
-	    res->ull = l_val->ull / r_val->ull;
-	case PM_TYPE_FLOAT:
-	    res->f = l_val->f / r_val->f;
-	    break;
-	case PM_TYPE_DOUBLE:
-	    res->d = l_val->d / r_val->d;
-	    break;
-	default:
-	    break;
+    case PM_TYPE_32:
+	res->l = l_val->l / r_val->l;
+	break;
+    case PM_TYPE_U32:
+	res->ul = l_val->ul / r_val->ul;
+	break;
+    case PM_TYPE_64:
+	res->ll = l_val->ll / r_val->ll;
+	break;
+    case PM_TYPE_U64:
+	res->ull = l_val->ull / r_val->ull;
+	break;
+    case PM_TYPE_FLOAT:
+	res->f = l_val->f / r_val->f;
+	break;
+    case PM_TYPE_DOUBLE:
+	res->d = l_val->d / r_val->d;
+	break;
+    default:
+	break;
     }
     return 0;
 }
 
 static void
 series_calculate_order_binary(int ope_type, int l_type, int r_type, int *otype,
-	pmAtomValue *l_val, pmAtomValue *r_val, pmSeriesValue *l_data, pmSeriesValue *r_data,
+	pmAtomValue *l_val, pmAtomValue *r_val,
+	pmSeriesValue *l_data, pmSeriesValue *r_data,
 	pmUnits *l_units, pmUnits *r_units, pmUnits *large_units,
 	int (*operator)(int*, pmAtomValue*, pmAtomValue*, pmAtomValue*))
 {
     pmAtomValue		res;
     int			str_len;
-    char		str_val[255];
+    char		str_val[256];
 
     if (l_type == PM_TYPE_DOUBLE || r_type == PM_TYPE_DOUBLE) {
 	*otype = PM_TYPE_DOUBLE;
@@ -3256,21 +3260,21 @@ series_calculate_order_binary(int ope_type, int l_type, int r_type, int *otype,
 	*otype = PM_TYPE_64;
     } else if (l_type == PM_TYPE_U32 || r_type == PM_TYPE_U32) {
 	*otype = PM_TYPE_U32;
-    } else { // both are PM_TYPE_32
+    } else { /* both are PM_TYPE_32 */
 	*otype = PM_TYPE_32;
     }
 
-    // Extract series values
+    /* Extract series values */
     series_extract_value(*otype, r_data->data, r_val);
     series_extract_value(*otype, l_data->data, l_val);
 
-    // Convert scale to larger one
+    /* Convert scale to larger one */
     pmConvScale(*otype, l_val, l_units, l_val, large_units);
     pmConvScale(*otype, r_val, r_units, r_val, large_units);
 
     if ((*operator)(otype, l_val, r_val, &res) != 0) {
 	sdsfree(l_data->data);
-	l_data->data = sdsnew("no value"); /* TODO - error code or something? */
+	l_data->data = sdsnew("no value"); /* TODO - error handling */
     } else {
 	sdsfree(l_data->data);
 	str_len = series_pmAtomValue_conv_str(*otype, str_val, &res, sizeof(str_val));
@@ -3281,15 +3285,19 @@ series_calculate_order_binary(int ope_type, int l_type, int r_type, int *otype,
 static void
 series_binary_meta_update(node_t *left, pmUnits *large_units, int *l_sem, int *r_sem, int *otype)
 {
-    int			o_sem;
-    // Update units
+    int		o_sem;
+
+    /* Update units */
     sdsfree(left->value_set.series_values[0].series_desc.units);
     left->value_set.series_values[0].series_desc.units = sdsnew(pmUnitsStr(large_units));
 
-    /* If the semantics of both operands is not a counter (i.e. PM_SEM_INSTANT or PM_SEM_DISCRETE) then the result
-     * will have semantics PM_SEM_INSTANT unless both operands are PM_SEM_DISCRETE in which case the result is 
-     * also PM_SEM_DISCRETE.
-    */
+    /*
+     * If the semantics of both operands is not a counter
+     * (i.e. PM_SEM_INSTANT or PM_SEM_DISCRETE) then the
+     * result will have semantics PM_SEM_INSTANT unless both
+     * operands are PM_SEM_DISCRETE in which case the result
+     * is also PM_SEM_DISCRETE.
+     */
     if (*l_sem == PM_SEM_DISCRETE && *r_sem == PM_SEM_DISCRETE) {
 	o_sem = PM_SEM_DISCRETE;
     } else if (*l_sem != PM_SEM_COUNTER || *r_sem != PM_SEM_COUNTER) {
@@ -3298,11 +3306,11 @@ series_binary_meta_update(node_t *left, pmUnits *large_units, int *l_sem, int *r
 	o_sem = PM_SEM_COUNTER;
     }
 
-    // Update data type
+    /* Update data type */
     sdsfree(left->value_set.series_values[0].series_desc.type);
     left->value_set.series_values[0].series_desc.type = sdsnew(pmTypeStr(*otype));
 
-    // Update semantics
+    /* Update semantics */
     sdsfree(left->value_set.series_values[0].series_desc.semantics);
     left->value_set.series_values[0].series_desc.semantics = sdsnew(pmSemStr(o_sem));
 }
@@ -3312,20 +3320,23 @@ series_calculate_plus(node_t *np)
 {
     seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
     node_t		*left = np->left, *right = np->right;
-    int			num_samples, num_instances, l_type, r_type, otype, l_sem, r_sem, j, k;
-    sds			msg;
+    int			l_type, r_type, otype, l_sem, r_sem, j, k;
+    unsigned int	num_samples, num_instances;
     pmAtomValue		l_val, r_val;
     pmUnits		l_units = {0}, r_units = {0}, large_units = {0};
+    sds			msg;
 
-    if (left->value_set.num_series == 0 || right->value_set.num_series == 0) return;
-    if (series_calculate_binary_check(N_PLUS, baton, left, right, &l_type, &r_type, &l_sem, &r_sem,
-		 &l_units, &r_units, &large_units, left->value_set.series_values[0].series_desc.indom,
-		 right->value_set.series_values[0].series_desc.indom) != 0) {
+    if (left->value_set.num_series == 0 || right->value_set.num_series == 0)
 	return;
-    }
-    num_samples = left->value_set.series_values[0].num_samples;
 
-    
+    if (series_calculate_binary_check(N_PLUS, baton, left, right,
+		&l_type, &r_type, &l_sem, &r_sem,
+		&l_units, &r_units, &large_units,
+		left->value_set.series_values[0].series_desc.indom,
+		right->value_set.series_values[0].series_desc.indom) != 0)
+	return;
+
+    num_samples = left->value_set.series_values[0].num_samples;
 
     for (j = 0; j < num_samples; j++) {
 	num_instances = left->value_set.series_values[0].series_sample[j].num_instances;
@@ -3343,7 +3354,10 @@ series_calculate_plus(node_t *np)
 		&l_units, &r_units, &large_units, calculate_plus);
 	}
     }
-    // For addition and subtraction all dimensions for each of the operands and result are identical.
+    /*
+     * For addition and subtraction all dimensions for
+     * each of the operands and result are identical.
+     */
     large_units.dimCount = l_units.dimCount;
     large_units.dimSpace = l_units.dimSpace;
     large_units.dimTime = l_units.dimTime;
@@ -3357,17 +3371,22 @@ series_calculate_minus(node_t *np)
 {
     seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
     node_t		*left = np->left, *right = np->right;
-    int			num_samples, num_instances, l_type, r_type, otype, l_sem, r_sem, j, k;
-    sds			msg;
+    unsigned int	num_samples, num_instances, j, k;
     pmAtomValue		l_val, r_val;
     pmUnits		l_units = {0}, r_units = {0}, large_units = {0};
+    int			l_type, r_type, otype, l_sem, r_sem;
+    sds			msg;
 
-    if (left->value_set.num_series == 0 || right->value_set.num_series == 0) return;
-    if (series_calculate_binary_check(N_MINUS, baton, left, right, &l_type, &r_type, &l_sem, &r_sem,
-		 &l_units, &r_units, &large_units, left->value_set.series_values[0].series_desc.indom,
-		 right->value_set.series_values[0].series_desc.indom) != 0) {
+    if (left->value_set.num_series == 0 || right->value_set.num_series == 0)
 	return;
-    }
+
+    if (series_calculate_binary_check(N_MINUS, baton, left, right,
+		&l_type, &r_type, &l_sem, &r_sem,
+		&l_units, &r_units, &large_units,
+		left->value_set.series_values[0].series_desc.indom,
+		right->value_set.series_values[0].series_desc.indom) != 0)
+	return;
+
     num_samples = left->value_set.series_values[0].num_samples;
 
     for (j = 0; j < num_samples; j++) {
@@ -3386,7 +3405,10 @@ series_calculate_minus(node_t *np)
 		&l_units, &r_units, &large_units, calculate_minus);
 	}
     }
-    // For addition and subtraction all dimensions for each of the operands and result are identical.
+    /*
+     * For addition and subtraction all dimensions for each of
+     * the operands and result are identical.
+     */
     large_units.dimCount = l_units.dimCount;
     large_units.dimSpace = l_units.dimSpace;
     large_units.dimTime = l_units.dimTime;
@@ -3400,17 +3422,22 @@ series_calculate_star(node_t *np)
 {
     seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
     node_t		*left = np->left, *right = np->right;
-    int			num_samples, num_instances, l_type, r_type, otype, l_sem, r_sem, j, k;
-    sds			msg;
+    unsigned int	num_samples, num_instances, j, k;
     pmAtomValue		l_val, r_val;
     pmUnits		l_units = {0}, r_units = {0}, large_units = {0};
+    int			l_type, r_type, otype, l_sem, r_sem;
+    sds			msg;
 
-    if (left->value_set.num_series == 0 || right->value_set.num_series == 0) return;
-    if (series_calculate_binary_check(N_STAR, baton, left, right, &l_type, &r_type, &l_sem, &r_sem,
-		 &l_units, &r_units, &large_units, left->value_set.series_values[0].series_desc.indom,
-		 right->value_set.series_values[0].series_desc.indom) != 0) {
+    if (left->value_set.num_series == 0 || right->value_set.num_series == 0)
 	return;
-    }
+
+    if (series_calculate_binary_check(N_STAR, baton, left, right,
+		&l_type, &r_type, &l_sem, &r_sem,
+		&l_units, &r_units, &large_units,
+		left->value_set.series_values[0].series_desc.indom,
+		right->value_set.series_values[0].series_desc.indom) != 0)
+	return;
+
     num_samples = left->value_set.series_values[0].num_samples;
 
     for (j = 0; j < num_samples; j++) {
@@ -3429,7 +3456,10 @@ series_calculate_star(node_t *np)
 		&l_units, &r_units, &large_units, calculate_star);
 	}
     }
-    // For multiplication, the dimensions of the result are the sum of the dimensions of the operands.
+    /*
+     * For multiplication, the dimensions of the result are the
+     * sum of the dimensions of the operands.
+     */
     large_units.dimCount = l_units.dimCount + r_units.dimCount;
     large_units.dimSpace = l_units.dimSpace + r_units.dimSpace;
     large_units.dimTime = l_units.dimTime + r_units.dimTime;
@@ -3443,10 +3473,11 @@ series_calculate_slash(node_t *np)
 {
     seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
     node_t		*left = np->left, *right = np->right;
-    int			num_samples, num_instances, l_type, r_type, otype, l_sem, r_sem, j, k;
-    sds			msg;
+    unsigned int	num_samples, num_instances, j, k;
     pmAtomValue		l_val, r_val;
     pmUnits		l_units = {0}, r_units = {0}, large_units = {0};
+    int			l_type, r_type, otype, l_sem, r_sem;
+    sds			msg;
 
     if (left->value_set.num_series == 0 || right->value_set.num_series == 0) return;
     if (series_calculate_binary_check(N_SLASH, baton, left, right, &l_type, &r_type, &l_sem, &r_sem,
@@ -3472,7 +3503,10 @@ series_calculate_slash(node_t *np)
 		&l_units, &r_units, &large_units, calculate_slash);
 	}
     }
-    // For division, the dimensions of the result are the difference of the dimensions of the operands.
+    /*
+     * For division, the dimensions of the result are the
+     * difference of the dimensions of the operands.
+     */
     large_units.dimCount = l_units.dimCount - r_units.dimCount;
     large_units.dimSpace = l_units.dimSpace - r_units.dimSpace;
     large_units.dimTime = l_units.dimTime - r_units.dimTime;
@@ -3583,7 +3617,7 @@ series_compatibility_convert(
 {
     unsigned int	j, k;
     int			type0, type1, str_len;
-    char		str_val[255];
+    char		str_val[256];
     pmAtomValue		val0, val1;
 
     large_units->scaleCount = units0->scaleCount > units1->scaleCount ? units0->scaleCount : units1->scaleCount;
@@ -3640,7 +3674,9 @@ series_redis_hash_expression(seriesQueryBaton *baton, char *hashbuf, int len_has
     pmUnits		units0, units1, large_units;
     double		mult;
 
-    for (i = 0; i < num_series; i++) np->value_set.series_values[i].compatibility = 1;
+    for (i = 0; i < num_series; i++)
+	np->value_set.series_values[i].compatibility = 1;
+
     for (i = 0; i < num_series; i++) {
 	if (!np->value_set.series_values[i].compatibility) {
 	    infofmt(msg, "Descriptors of metric %s can not satisfy compatibility between different hosts/sources.\n",
@@ -3707,14 +3743,17 @@ series_query_funcs_report_values(void *arg)
 
     seriesBatonReference(baton, "series_query_funcs_report_values");
 
-    /* For function-tpye nodes, calculate actual values */
+    /* For function-type nodes, calculate actual values */
     has_function = series_calculate(baton, &baton->u.query.root, 0);
 
-    /* Store the canonical query to Redis if this query statement has function operation */
+    /*
+     * Store the canonical query to Redis if this query statement has
+     * function operation.
+     */
     if (has_function != 0)
 	series_redis_hash_expression(baton, hashbuf, sizeof(hashbuf));
 
-    // time series values have been saved in root node so report them directly.
+    /* time series values saved in root node so report them directly. */
     series_node_values_report(baton, &baton->u.query.root, has_function, hashbuf);
     
     series_query_end_phase(baton);
