@@ -989,7 +989,6 @@ create_tempfile(FILE *file, FILE **tempfile, struct stat *stat)
     FILE		*fp;
     char		bytes[BUFSIZ];
     mode_t		cur_umask;
-    int			sts;
 
     /* create a temporary file in the same directory as config (for rename) */
     pmsprintf(bytes, sizeof(bytes), "%s.new", config);
@@ -1012,11 +1011,11 @@ create_tempfile(FILE *file, FILE **tempfile, struct stat *stat)
     umask(cur_umask);
 
     if (stat) {
-	if ((sts = fchown(fd, stat->st_uid, stat->st_gid)) < 0) {
+	if (fchown(fd, stat->st_uid, stat->st_gid) < 0) {
 	    fprintf(stderr, "%s: Warning: fchown() failed: %s\n",
 			pmGetProgname(), osstrerror());
 	}
-	if ((sts = fchmod(fd, stat->st_mode)) < 0) {
+	if (fchmod(fd, stat->st_mode) < 0) {
 	    fprintf(stderr, "%s: Warning: fchmod() failed: %s\n",
 			pmGetProgname(), osstrerror());
 	}
@@ -1398,9 +1397,12 @@ update_pmlogger_tempfile(FILE *tempfile)
      * modified - either by the user or by new pmlogconf groups arriving.
      */
     if (rewrite) {
-	ftruncate(fileno(tempfile), 0L);
-	fseek(tempfile, 0L, SEEK_SET);
-
+	if (ftruncate(fileno(tempfile), 0L) < 0)
+	    fprintf(stderr, "%s: cannot truncate temporary file: %s\n",
+			pmGetProgname(), osstrerror());
+	if (fseek(tempfile, 0L, SEEK_SET) < 0)
+	    fprintf(stderr, "%s: cannot fseek to temporary file start: %s\n",
+			pmGetProgname(), osstrerror());
 	prompt = 0;
 	pmlogger_header(tempfile);
 	for (i = 0; i < ngroups; i++)

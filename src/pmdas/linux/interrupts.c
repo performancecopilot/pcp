@@ -743,8 +743,9 @@ interrupts_text(pmdaExt *pmda, pmID pmid, int type, char **buf)
 		return PM_ERR_PMID;
 	    text = interrupt_lines[item].text;
 	    if (text == NULL || text[0] == '\0')
-		return PM_ERR_TEXT;
-	    *buf = text;
+		*buf = "Per-processor interrupts values from /proc/interrupts";
+	    else
+		*buf = text;
 	    return 0;
 	case CLUSTER_INTERRUPT_OTHER:
 	    if (!other_count)
@@ -753,8 +754,9 @@ interrupts_text(pmdaExt *pmda, pmID pmid, int type, char **buf)
 		return PM_ERR_PMID;
 	    text = ip->text;
 	    if (text == NULL || text[0] == '\0')
-		return PM_ERR_TEXT;
-	    *buf = text;
+		*buf = "Per-processor interrupts values from /proc/interrupts";
+	    else
+		*buf = text;
 	    return 0;
 	case CLUSTER_SOFTIRQS:
 	    if (!softirqs_count)

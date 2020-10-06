@@ -327,7 +327,7 @@ Arch Linux
     $ sudo pacman -F -y (refresh files database) then
     $         pacman -F -l <package> (files in a package)
     $         pacman -F -o <fullpath> (package(s) owning a file)
-    $         pacman -F -s <regexp> (package(s) owning matching files)
+    $         pacman -F -x <regexp> (package(s) owning matching files)
     # package install recipe, always do 
     $ sudo pacman -Syu
     # then install the package ... never try to upgrade a package

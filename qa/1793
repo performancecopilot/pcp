@@ -15,15 +15,28 @@ echo "QA output created by $seq"
 which pmrep >/dev/null 2>&1 || _notrun pmrep not installed
 $python -c "from collections import OrderedDict" >/dev/null 2>&1  || _notrun no OrderedDict
 
+_cleanup()
+{
+    cd $here
+    if $need_restore
+    then
+	need_restore=false
+	$sudo rm -rf $PCP_ETC_DIR/pcp/labels/*
+	_restore_config $PCP_ETC_DIR/pcp/labels
+	_sighup_pmcd
+    fi
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1       # failure is the default!
 userid=`id -u`
 groupid=`id -g`
 hostname=`hostname`
 machineid=`_machine_id`
 domainname=`_domain_name`
-
-status=1       # failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
-trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+trap "_cleanup; exit \$status" 0 1 2 3 15
+need_restore=true
 
 _filter()
 {
@@ -41,6 +54,10 @@ _filter()
 }
 
 # real QA test starts here
+_save_config $PCP_ETC_DIR/pcp/labels
+$sudo rm -rf $PCP_ETC_DIR/pcp/labels/*
+_sighup_pmcd
+
 mkdir -p $tmp
 
 echo === check pmrep writing an archive with labels | tee -a $seq.full

@@ -422,13 +422,13 @@ main(int argc, char *argv[])
 	 * Push command line options into the configuration, and ensure
 	 * we have some default for attemping Redis server connections.
 	 */
-	if ((option = pmIniFileLookup(config, "pmsearch", "count")) == NULL ||
+	if ((pmIniFileLookup(config, "pmsearch", "count")) == NULL ||
 	    (search_count > 0)) {
 	    option = sdscatfmt(sdsempty(), "%u", search_count);
 	    pmIniFileUpdate(config, "pmsearch", "count", option);
 	}
 
-	if ((option = pmIniFileLookup(config, "pmseries", "servers")) == NULL ||
+	if ((pmIniFileLookup(config, "pmseries", "servers")) == NULL ||
 	    (redis_host != NULL || redis_port != 6379)) {
 	    option = sdscatfmt(sdsempty(), "%s:%u",
 			redis_host? redis_host : "localhost", redis_port);

@@ -141,6 +141,14 @@ Per-CPU time spent running (virtual) guest operating systems.
 @ kernel.percpu.cpu.guest_nice percpu nice guest CPU time
 Per-CPU nice time spent running (virtual) guest operating systems.
 
+@ kernel.all.softirqs.total total interrupts counts from /proc/softirqs
+Aggregated interrupt counts for each type of interrupt reported
+by the kernel in /proc/softirqs.
+
+@ kernel.all.interrupts.total total interrupts counts from /proc/interrupts
+Aggregated interrupt counts for each type of interrupt reported
+by the kernel in /proc/interrupts.
+
 @ kernel.all.interrupts.errors interrupt error count from /proc/interrupts
 This is a global counter (normally converted to a count/second)
 for any and all errors that occur while handling interrupts.
