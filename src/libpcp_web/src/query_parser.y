@@ -1764,6 +1764,12 @@ pmSeriesQuery(pmSeriesSettings *settings, sds query, pmSeriesFlags flags, void *
 	return yp.yy_error;
     }
 
+    if (sp->expr == NULL) {
+	if (pmDebugOptions.series || pmDebugOptions.query)
+	    fprintf(stderr, "Error: parsing query '%s'\n", query);
+	return PM_ERR_NYI;
+    }
+
     if (pmDebugOptions.series)
 	series_dumpexpr(sp->expr, 0);
 
