@@ -377,4 +377,5 @@ main(int argc, char **argv)
 abandon:
     cleanup(0);
     /* NOTREACHED */
+    return(1);		/* never reached, to keep some compilers happy, sigh */
 }

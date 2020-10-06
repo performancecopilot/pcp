@@ -34,7 +34,7 @@ ArchLinux    -        -       python2-{.*} {.*}-python2
 # cpan(Spreadsheet::WriteExcel) fails to build
 CentOS       8\.2\.   -       {.*}-python2 python2-{.*} python2[0-9]-{.*} python-{.*} mysql mandoc perl-Net-SNMP perl(Net::SNMP) perl-Spreadsheet-XLSX perl(Spreadsheet::XLSX) perl-Spreadsheet-WriteExcel perl(Spreadsheet::WriteExcel) cpan(Spreadsheet::WriteExcel)
 CentOS       8\.1\.   -       {.*}-python2 python2-{.*} python2{[0-9]-.*} python-{.*}
-CentOS       7\.[5-8]\. -       {.*}-python2 python2-{.*} python2{[0-9]-.*} python-{.*}
+CentOS       7\.[5-9]\. -       {.*}-python2 python2-{.*} python2{[0-9]-.*} python-{.*}
 # For CentOS 7 and 8 prefer infiniband-diags-devel over libibmad-devel
 CentOS       [7-8]\.  -       libibmad-devel
 # For CentOS 6 infiniband-diags-devel does not provide all the headers
@@ -114,10 +114,13 @@ OpenBSD      6\.[3-7] -       qtbase qtsvg valgrind python-{.*} {.*}-python cpan
 # cpan(Spreadsheet::WriteExcel) fails to build
 RHEL         8\.2     -       {.*}-python2 python2-{.*} python2[0-9]-{.*} python-{.*} mysql mandoc perl-Net-SNMP perl(Net::SNMP) perl-Spreadsheet-XLSX perl(Spreadsheet::XLSX) perl-Spreadsheet-WriteExcel perl(Spreadsheet::WriteExcel) cpan(Spreadsheet::WriteExcel)
 RHEL         8\.[0-1] -       cpan(Net::LDAP) cpan(Spreadsheet::XLSX) cpan(Text::CSV_XS) cpan(XML::LibXML) cpan(XML::TokeParser) perl(autodie) perl(Date::Manip) perl(DBD::mysql) perl(Net::LDAP) perl(Net::SNMP) perl-Net-SNMP perl(Spreadsheet::WriteExcel) perl-Spreadsheet-WriteExcel perl(Spreadsheet::XLSX) perl(Text::CSV_XS) perl(XML::LibXML) perl(XML::TokeParser) {.*}-python2 python2-{.*} system-python-libs
-RHEL         7\.[5-7] -       {.*}-python3 python3-{.*} python3{[0-9]-.*}
+# broken dependencies - perl(Parse::RecDescent) and/or perl(Crypt::DES)
+RHEL         7\.9     -       perl-Spreadsheet-WriteExcel perl(Spreadsheet::WriteExcel) perl-Spreadsheet-XLSX perl(Spreadsheet::XLSX) perl-Net-SNMP perl(Net::SNMP)
+RHEL         7\.[5-9] -       {.*}-python3 python3-{.*} python3{[0-9]-.*} 
 RHEL         6\.10    -       {.*}-python3 python3-{.*} python3{[0-9]-.*}
-# For RHEL 7 prefer infiniband-diags-devel over libibmad-devel
-RHEL         7        -       libibmad-devel
+# for RHEL 7, no way to get infiniband/mad.h installed, so rdma-core-devel
+# is collateral damage, and libibumad-devel is obsoleted
+RHEL         7\.       -       infiniband-diags-devel libibmad-devel rdma-core-devel libibumad-devel
 # need non-standard repo for msssql-* pkgs
 RHEL         -        -       mssql-server mssql-tools
 # these ones are SuSE packages, not in the RH ecosystem

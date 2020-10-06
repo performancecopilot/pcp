@@ -37,7 +37,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 #	- permissions issue in redis install
 # all:
 #    Perl source "Spreadsheet::...
-#	- likely that these wopuld have to come from cpan, not packaged
+#	- likely that these would have to come from cpan, not packaged
 #	  install
 # vm39:
 #    looks like package "mssql-*" is already installed
@@ -48,6 +48,14 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 #    auditd is excluded for some container-based platforms, e.g. ubuntu1804.yml,
 #    ubuntu1604.yml and debian10.yml
 #    docker.io is excluded from debian10.yml container
+#
+# libuv-devel
+#    on CentOS 8 (and may be others), the package may be masked by module
+#    restrictions ... unless one has done
+#    $ sudo dnf module install libuv/devel
+#    the package is not visible from
+#    $ dnf search libuv-devel
+#
 #
 _filter()
 {
@@ -64,10 +72,34 @@ s/ for .*/ for HOST/
 	-e 's/$/ /' \
 	-e 's/ auditd / /' \
 	-e 's/ docker.io / /' \
+	-e 's/ libuv-devel / /' \
+	-e '/file\/dir target ".*\/uv.h" not found/d' \
 	-e 's/^ //' \
 	-e 's/ $//' \
 	-e '/^ *$/d' \
-    # end
+    | if [ -f /etc/redhat-release ]
+    then
+	# platform-specific ...
+	#
+	# realpath
+	#    on CentOS 6 there is no realpath package and realpath is not in the
+	#    coreutils package, but we need coreutils for mktemp
+	#
+	case "`cat /etc/redhat-release`"
+	in
+	    *"release 6.10"*)
+		sed \
+		    -e '/"realpath" not found, .* "coreutils" already installed/'d \
+		    -e '/exec target "realpath" not found/d' \
+		# end
+		;;
+	    *)
+		cat
+		;;
+	esac
+    else
+	cat
+    fi
 }
 
 # real QA test starts here
