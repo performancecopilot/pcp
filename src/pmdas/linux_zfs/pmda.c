@@ -135,11 +135,11 @@ static pmdaMetric metrictab[] = {
 	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
 /* hash_elements */
 	{ &arcstats.hash_elements,
-	  { PMDA_PMID(0, 23), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	  { PMDA_PMID(0, 23), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
 	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
 /* hash_elements_max */
 	{ &arcstats.hash_elements_max,
-	  { PMDA_PMID(0, 24), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	  { PMDA_PMID(0, 24), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
 	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
 /* hash_collisions */
 	{ &arcstats.hash_collisions,
@@ -147,128 +147,128 @@ static pmdaMetric metrictab[] = {
 	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
 /* hash_chains */
 	{ &arcstats.hash_chains,
-	  { PMDA_PMID(0, 26), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	  { PMDA_PMID(0, 26), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
 	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
 /* hash_chain_max */
 	{ &arcstats.hash_chain_max,
-	  { PMDA_PMID(0, 27), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	  { PMDA_PMID(0, 27), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
 	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
 /* p */
 	{ &arcstats.p,
-	  { PMDA_PMID(0, 28), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(0, 28), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* c */
 	{ &arcstats.c,
-	  { PMDA_PMID(0, 29), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(0, 29), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* c_min */
 	{ &arcstats.c_min,
-	  { PMDA_PMID(0, 30), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(0, 30), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* c_max */
 	{ &arcstats.c_max,
-	  { PMDA_PMID(0, 31), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(0, 31), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* size */
 	{ &arcstats.size,
-	  { PMDA_PMID(0, 32), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(0, 32), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* compressed_size */
 	{ &arcstats.compressed_size,
-	  { PMDA_PMID(0, 33), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(0, 33), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* uncompressed_size */
 	{ &arcstats.uncompressed_size,
-	  { PMDA_PMID(0, 34), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(0, 34), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* overhead_size */
 	{ &arcstats.overhead_size,
-	  { PMDA_PMID(0, 35), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(0, 35), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* hdr_size */
 	{ &arcstats.hdr_size,
-	  { PMDA_PMID(0, 36), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(0, 36), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* data_size */
 	{ &arcstats.data_size,
-	  { PMDA_PMID(0, 37), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(0, 37), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* metadata_size */
 	{ &arcstats.metadata_size,
-	  { PMDA_PMID(0, 38), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(0, 38), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* dbuf_size */
 	{ &arcstats.dbuf_size,
-	  { PMDA_PMID(0, 39), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(0, 39), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* dnode_size */
 	{ &arcstats.dnode_size,
-	  { PMDA_PMID(0, 40), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(0, 40), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* bonus_size */
 	{ &arcstats.bonus_size,
-	  { PMDA_PMID(0, 41), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(0, 41), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* anon_size */
 	{ &arcstats.anon_size,
-	  { PMDA_PMID(0, 42), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(0, 42), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* anon_evictable_data */
 	{ &arcstats.anon_evictable_data,
-	  { PMDA_PMID(0, 43), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(0, 43), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* anon_evictable_metadata */
 	{ &arcstats.anon_evictable_metadata,
-	  { PMDA_PMID(0, 44), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(0, 44), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* mru_size */
 	{ &arcstats.mru_size,
-	  { PMDA_PMID(0, 45), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(0, 45), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* mru_evictable_data */
 	{ &arcstats.mru_evictable_data,
-	  { PMDA_PMID(0, 46), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(0, 46), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* mru_evictable_metadata */
 	{ &arcstats.mru_evictable_metadata,
-	  { PMDA_PMID(0, 47), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(0, 47), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* mru_ghost_size */
 	{ &arcstats.mru_ghost_size,
-	  { PMDA_PMID(0, 48), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(0, 48), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* mru_ghost_evictable_data */
 	{ &arcstats.mru_ghost_evictable_data,
-	  { PMDA_PMID(0, 49), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(0, 49), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* mru_ghost_evictable_metadata */
 	{ &arcstats.mru_ghost_evictable_metadata,
-	  { PMDA_PMID(0, 50), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(0, 50), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* mfu_size */
 	{ &arcstats.mfu_size,
-	  { PMDA_PMID(0, 51), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(0, 51), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* mfu_evictable_data */
 	{ &arcstats.mfu_evictable_data,
-	  { PMDA_PMID(0, 52), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(0, 52), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* mfu_evictable_metadata */
 	{ &arcstats.mfu_evictable_metadata,
-	  { PMDA_PMID(0, 53), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(0, 53), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* mfu_ghost_size */
 	{ &arcstats.mfu_ghost_size,
-	  { PMDA_PMID(0, 54), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(0, 54), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* mfu_ghost_evictable_data */
 	{ &arcstats.mfu_ghost_evictable_data,
-	  { PMDA_PMID(0, 55), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(0, 55), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* mfu_ghost_evictable_metadata */
 	{ &arcstats.mfu_ghost_evictable_metadata,
-	  { PMDA_PMID(0, 56), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(0, 56), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* l2_hits */
 	{ &arcstats.l2_hits,
 	  { PMDA_PMID(0, 57), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
@@ -288,11 +288,11 @@ static pmdaMetric metrictab[] = {
 /* l2_read_bytes */
 	{ &arcstats.l2_read_bytes,
 	  { PMDA_PMID(0, 61), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* l2_write_bytes */
 	{ &arcstats.l2_write_bytes,
 	  { PMDA_PMID(0, 62), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* l2_writes_sent */
 	{ &arcstats.l2_writes_sent,
 	  { PMDA_PMID(0, 63), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
@@ -339,16 +339,16 @@ static pmdaMetric metrictab[] = {
 	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
 /* l2_size */
 	{ &arcstats.l2_size,
-	  { PMDA_PMID(0, 74), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(0, 74), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* l2_asize */
 	{ &arcstats.l2_asize,
-	  { PMDA_PMID(0, 75), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(0, 75), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* l2_hdr_size */
 	{ &arcstats.l2_hdr_size,
-	  { PMDA_PMID(0, 76), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(0, 76), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* memory_throttle_count */
 	{ &arcstats.memory_throttle_count,
 	  { PMDA_PMID(0, 77), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
@@ -363,52 +363,52 @@ static pmdaMetric metrictab[] = {
 	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
 /* memory_all_bytes */
 	{ &arcstats.memory_all_bytes,
-	  { PMDA_PMID(0, 80), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(0, 80), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* memory_free_bytes */
 	{ &arcstats.memory_free_bytes,
-	  { PMDA_PMID(0, 81), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(0, 81), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* memory_available_bytes */
 	{ &arcstats.memory_available_bytes,
-	  { PMDA_PMID(0, 82), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(0, 82), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* arc_no_grow */
 	{ &arcstats.arc_no_grow,
-	  { PMDA_PMID(0, 83), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	  { PMDA_PMID(0, 83), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
 	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
 /* arc_tempreserve */
 	{ &arcstats.arc_tempreserve,
-	  { PMDA_PMID(0, 84), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(0, 84), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* arc_loaned_bytes */
 	{ &arcstats.arc_loaned_bytes,
-	  { PMDA_PMID(0, 85), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(0, 85), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* arc_prune */
 	{ &arcstats.arc_prune,
-	  { PMDA_PMID(0, 86), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(0, 86), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* arc_meta_used */
 	{ &arcstats.arc_meta_used,
-	  { PMDA_PMID(0, 87), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(0, 87), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* arc_meta_limit */
 	{ &arcstats.arc_meta_limit,
-	  { PMDA_PMID(0, 88), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(0, 88), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* arc_dnode_limit */
 	{ &arcstats.arc_dnode_limit,
-	  { PMDA_PMID(0, 89), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(0, 89), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* arc_meta_max */
 	{ &arcstats.arc_meta_max,
-	  { PMDA_PMID(0, 90), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(0, 90), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* arc_meta_min */
 	{ &arcstats.arc_meta_min,
-	  { PMDA_PMID(0, 91), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(0, 91), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* async_upgrade_sync */
 	{ &arcstats.async_upgrade_sync,
 	  { PMDA_PMID(0, 92), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
@@ -423,16 +423,16 @@ static pmdaMetric metrictab[] = {
 	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
 /* arc_need_free */
 	{ &arcstats.arc_need_free,
-	  { PMDA_PMID(0, 95), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(0, 95), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* arc_sys_free */
 	{ &arcstats.arc_sys_free,
-	  { PMDA_PMID(0, 96), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(0, 96), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* arc_raw_size */
 	{ &arcstats.arc_raw_size,
-	  { PMDA_PMID(0, 97), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(0, 97), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /*---------------------------------------------------------------------------*/
 /*  ABDSTATS  */
 /*---------------------------------------------------------------------------*/
