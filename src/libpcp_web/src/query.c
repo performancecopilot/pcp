@@ -2201,7 +2201,7 @@ series_node_values_report(seriesQueryBaton *baton, node_t *np, int has_function,
     if (has_function)
 	series_hash = series = sdsnew(hashbuf);
     else
-	series_hash = NULL;
+	series_hash = series = NULL;
 
     for (i = 0; i < np->value_set.num_series; i++) {
 	if (has_function == 0)
