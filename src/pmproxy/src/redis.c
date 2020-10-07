@@ -50,7 +50,7 @@ redisfmt(redisReply *reply)
 
     switch (reply->type) {
     case REDIS_REPLY_STRING:
-	return sdscatfmt(command, "$%U\r\n%s\r\n", reply->len, reply->str);
+	return sdscatfmt(command, "$%U\r\n%s\r\n", (uint64_t)reply->len, reply->str);
     case REDIS_REPLY_ARRAY:
     case REDIS_REPLY_MAP:
     case REDIS_REPLY_SET:
