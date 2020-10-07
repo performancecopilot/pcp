@@ -504,6 +504,14 @@ pmTimespec_add(pmTimespec *t1, pmTimespec *t2)
     t1->tv_nsec = nsec;
 }
 
+/* t1 - t2 as a double */
+static inline double
+pmTimespec_delta(pmTimespec *t1, pmTimespec *t2)
+{
+    return (double)(t1->tv_sec - t2->tv_sec) +
+    	(long double)(t1->tv_nsec - t2->tv_nsec) / (long double)1000000000;
+}
+
 typedef struct seriesSampling {
     unsigned int	setup;		/* one-pass calculation flag */
     unsigned int	subsampling;	/* sample interval requested */
@@ -2238,7 +2246,7 @@ series_calculate_rate(node_t *np)
     seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
     pmSeriesValue	s_pmval, t_pmval;
     unsigned int	n_instances, n_samples, i, j, k;
-    double		s_data, t_data, d_data, mult;
+    double		s_data, t_data, mult;
     char		str[256];
     sds			msg, expr;
     int			sts;
@@ -2267,15 +2275,19 @@ series_calculate_rate(node_t *np)
 			    fprintf(stderr, "%s %s\n", s_pmval.series, t_pmval.series);
 			}
 		    }
-		    sscanf(s_pmval.data, "%lf", &s_data);
-		    sscanf(t_pmval.data, "%lf", &t_data);
-		    d_data = t_data - s_data;
-		    sprintf(str, "%.6lf", d_data);
+
+		    /* compute rate/sec from delta value and delta timestamp */
+		    s_data = strtod(s_pmval.data, NULL);
+		    t_data = strtod(t_pmval.data, NULL);
+		    pmsprintf(str, sizeof(str), "%.6lf", (t_data - s_data) / pmTimespec_delta(&t_pmval.ts, &s_pmval.ts));
+
 		    sdsfree(np->value_set.series_values[i].series_sample[j-1].series_instance[k].data);
 		    sdsfree(np->value_set.series_values[i].series_sample[j-1].series_instance[k].timestamp);
 		    np->value_set.series_values[i].series_sample[j-1].series_instance[k].data = sdsnew(str);
-		    np->value_set.series_values[i].series_sample[j-1].series_instance[k].timestamp = sdsnew(np->value_set.series_values[i].series_sample[j].series_instance[k].timestamp);
-		    np->value_set.series_values[i].series_sample[j-1].series_instance[k].ts = np->value_set.series_values[i].series_sample[j].series_instance[k].ts;
+		    np->value_set.series_values[i].series_sample[j-1].series_instance[k].timestamp =
+		    	sdsnew(np->value_set.series_values[i].series_sample[j].series_instance[k].timestamp);
+		    np->value_set.series_values[i].series_sample[j-1].series_instance[k].ts =
+		    	np->value_set.series_values[i].series_sample[j].series_instance[k].ts;
 		}
 		if (j == n_samples-1) {
 		    /* Free the last sample */
