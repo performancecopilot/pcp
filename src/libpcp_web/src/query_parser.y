@@ -163,6 +163,7 @@ static const char initial_str[]  = "Unexpected initial";
 %type  <n>  query
 %type  <n>  expr
 %type  <n>  func
+%type  <n>  func_sid
 %type  <n>  arithmetic_expression
 %type  <n>  exprlist
 %type  <n>  exprval
@@ -171,6 +172,7 @@ static const char initial_str[]  = "Unexpected initial";
 %type  <s>  timespec
 %type  <n>  vector
 %type  <n>  val_vec
+%type  <n>  sid_vec
 
 %left  L_AND L_OR
 %left  L_LT L_LEQ L_EQ L_GLOB L_COLON L_ASSIGN L_GEQ L_GT L_NEQ L_REQ L_RNE
@@ -224,7 +226,8 @@ vector:	L_NAME L_LBRACE exprlist L_RBRACE L_EOS
 		  YYACCEPT;
 		}
 	| func_sid L_EOS
-		{
+		{ lp->yy_np = $1;
+		  $$ = lp->yy_series.expr = lp->yy_np;
 		  YYACCEPT;
 		}
 	;
@@ -343,23 +346,25 @@ val_vec
 
 sid_vec 
 	: L_NAME L_LBRACE exprlist L_RBRACE
-		{
-		
-		}
+                { lp->yy_np = newmetricquery($1, $3);
+                  $$ = lp->yy_series.expr = lp->yy_np;
+                }
 	| L_NAME
-		{
-		
-		}
+                { lp->yy_np = newmetric($1); /* TODO: perhaps newsidexpr()? */
+                  $$ = lp->yy_series.expr = lp->yy_np;
+                }
 	;
 
 func_sid
 	: L_RATE L_LPAREN sid_vec L_RPAREN
-		{
-		
+		{ lp->yy_np = newnode(N_RATE);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_RATE L_LPAREN func_sid L_RPAREN
-		{
-
+		{ lp->yy_np = newnode(N_RATE);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_MAX L_LPAREN sid_vec L_RPAREN
 		{
