@@ -171,10 +171,9 @@ on_pmsearch_text_result(pmSearchTextResult *search, void *arg)
 	}
 	if (search->helptext != NULL) {
 	    helptext = search->helptext;
-	    helptext=  sdscatrepr(sdsempty(), helptext, sdslen(helptext));
+	    helptext = sdscatrepr(sdsempty(), helptext, sdslen(helptext));
 	    result = sdscatfmt(result, "%s\"helptext\":%S", prefix, helptext);
 	    sdsfree(helptext);
-	    prefix = ",";
 	}
 	result = sdscat(result, "}");
 	break;
