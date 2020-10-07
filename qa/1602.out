@@ -6,6 +6,10 @@ PONG
 PING2
 PONG
 
+== start pmproxy
+PING_PROXY
+PONG
+
 == redis-cli set two keys
 OK
 OK
