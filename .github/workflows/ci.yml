@@ -15,17 +15,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
-# kenj
           - {platform: ubuntu1604,     runner: container, os: ubuntu-18.04}
           - {platform: ubuntu1804,     runner: direct,    os: ubuntu-18.04}
           - {platform: ubuntu2004,     runner: direct,    os: ubuntu-20.04}
-# kenj
           - {platform: debian10,       runner: container, os: ubuntu-18.04}
-# kenj
           - {platform: debian11,       runner: container, os: ubuntu-18.04}
-#kenj - {platform: fedora32,       runner: container, os: ubuntu-18.04}
-#kenj - {platform: fedora_rawhide, runner: container, os: ubuntu-18.04}
-#kenj - {platform: centos8,        runner: container, os: ubuntu-18.04}
     steps:
       - name: Checkout sources
         uses: actions/checkout@v2
