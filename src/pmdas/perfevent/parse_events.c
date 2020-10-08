@@ -494,6 +494,44 @@ static int parse_event_string(char *buf, struct pmu_event *event,
 			    break;
 			}
 		    }
+		}
+		else if ((!strcmp(nptr, "?")) && (!strcmp(pi->name, "domain"))) {
+		    for (pmctmp = dynamicpmc; pmctmp; pmctmp = pmctmp->next) {
+		        if (!strncmp(eventname, pmctmp->name, strlen(pmctmp->name)))
+			{
+			    pmsprintf(ev_str, sizeof(ev_str), "%s_domain_%d", event->name,pmctmp->domain);
+			    event->name = strdup(ev_str);
+			    pmsprintf(pmc_str, sizeof(pmc_str), "%s_domain_%d", pmctmp->name,pmctmp->domain);
+			    pmctmp->name = strdup(pmc_str);
+			    pi->value = pmctmp->domain;
+			    break;
+			}
+		    }
+		}
+		else if ((!strcmp(nptr, "?")) && (!strcmp(pi->name, "core"))) {
+		    for (pmctmp = dynamicpmc; pmctmp; pmctmp = pmctmp->next) {
+		        if (!strncmp(eventname, pmctmp->name, strlen(pmctmp->name)))
+			{
+			    pmsprintf(ev_str, sizeof(ev_str), "%s_core_%d", event->name,pmctmp->core);
+			    event->name = strdup(ev_str);
+			    pmsprintf(pmc_str, sizeof(pmc_str), "%s_core_%d", pmctmp->name,pmctmp->core);
+			    pmctmp->name = strdup(pmc_str);
+			    pi->value = pmctmp->core;
+			    break;
+			}
+		    }
+		} else if (!strcmp(pi->name, "lpar") && (pmctmp->domain > 2) && pmctmp->lpar) {
+		    for (pmctmp = dynamicpmc; pmctmp; pmctmp = pmctmp->next) {
+		        if (!strncmp(eventname, pmctmp->name, strlen(pmctmp->name)))
+			{
+			    pmsprintf(ev_str, sizeof(ev_str), "%s_lpar_%d", event->name,pmctmp->lpar);
+			    event->name = strdup(ev_str);
+			    pmsprintf(pmc_str, sizeof(pmc_str), "%s_lpar_%d", pmctmp->name,pmctmp->lpar);
+			    pmctmp->name = strdup(pmc_str);
+			    pi->value = pmctmp->lpar;
+			    break;
+			}
+		    }
 		} else
 		    pi->value = strtoull(nptr, endptr, 16);
 		if (!head) {
@@ -520,6 +558,43 @@ static int parse_event_string(char *buf, struct pmu_event *event,
 			    pmsprintf(pmc_str, sizeof(pmc_str), "%s_chip_%d", pmctmp->name,pmctmp->chip);
 			    pmctmp->name = strdup(pmc_str);
 			    pi->value = pmctmp->chip;
+			    break;
+			}
+		    }
+		}
+		else if ((!strcmp(nptr, "?")) && (!strcmp(pi->name, "domain"))) {
+		    for (pmctmp = dynamicpmc; pmctmp; pmctmp = pmctmp->next) {
+		        if (!strncmp(eventname, pmctmp->name, strlen(pmctmp->name)))
+			{
+			    pmsprintf(ev_str, sizeof(ev_str), "%s_domain_%d", event->name,pmctmp->domain);
+			    event->name = strdup(ev_str);
+			    pmsprintf(pmc_str, sizeof(pmc_str), "%s_domain_%d", pmctmp->name,pmctmp->domain);
+			    pmctmp->name = strdup(pmc_str);
+			    pi->value = pmctmp->domain;
+			    break;
+			}
+		    }
+		} else if ((!strcmp(nptr, "?")) && (!strcmp(pi->name, "core"))) {
+		    for (pmctmp = dynamicpmc; pmctmp; pmctmp = pmctmp->next) {
+		        if (!strncmp(eventname, pmctmp->name, strlen(pmctmp->name)))
+			{
+			    pmsprintf(ev_str, sizeof(ev_str), "%s_core_%d", event->name,pmctmp->core);
+			    event->name = strdup(ev_str);
+			    pmsprintf(pmc_str, sizeof(pmc_str), "%s_core_%d", pmctmp->name,pmctmp->core);
+			    pmctmp->name = strdup(pmc_str);
+			    pi->value = pmctmp->core;
+			    break;
+			}
+		    }
+		} else if (!strcmp(pi->name, "lpar")  && (pmctmp->domain > 2) && pmctmp->lpar) {
+		    for (pmctmp = dynamicpmc; pmctmp; pmctmp = pmctmp->next) {
+		        if (!strncmp(eventname, pmctmp->name, strlen(pmctmp->name)))
+			{
+			    pmsprintf(ev_str, sizeof(ev_str), "%s_lpar_%d", event->name,pmctmp->lpar);
+			    event->name = strdup(ev_str);
+			    pmsprintf(pmc_str, sizeof(pmc_str), "%s_lpar_%d", pmctmp->name,pmctmp->lpar);
+			    pmctmp->name = strdup(pmc_str);
+			    pi->value = pmctmp->lpar;
 			    break;
 			}
 		    }
