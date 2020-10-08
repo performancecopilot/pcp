@@ -57,10 +57,21 @@ class elasticsearchPMDA(PMDA):
         self.auth = None
         self.password = None
         self.request = None
+        self.error = False
         self.version = DEFAULT_VERSION
         self.read_config()
+        # statistics dicts
+        self.cluster = {}
+        self.nodes = {}
+        self.node_info = {}
+        self.info = {}
+        self.stat = {}
+        self.search = {}
+        self.perindex = {}
+        self.master_node = ()
+        self.index = {}
 
-        if not self.user:
+        if self.user != DEFAULT_USER:
             self.log("Switching to user '%s'" % self.user)
             self.set_user(self.user)
 
@@ -71,8 +82,8 @@ class elasticsearchPMDA(PMDA):
             request = self.request.urlopen(self.baseurl)
             request.read()
             request.close()
-        except Exception as error:
-            self.log("Failed to connect to Elasticsearch at %s: %s" % (connection, error))
+        except (BaseException, Exception):
+            self.log("Failed Elasticsearch connection attempt at %s" % (connection))
 
         # metrics setup
         self.cluster_indom = PM_INDOM_NULL
@@ -359,11 +370,16 @@ class elasticsearchPMDA(PMDA):
 
     def get_url(self, url):
         """ Perform HTTP GET """
-        self.log(str("url: " + str(url)))
+        # self.log(str("url: " + str(url)))
+        req = None
         try:
             req = self.request.urlopen(url)
-        except Exception as error:
-            self.log("Failed to connect to %s - %s" % (url, error))
+            self.error = False
+        except (BaseException, Exception):
+            if not self.error:
+                self.log("Failed to get URL %s" % (url))
+            self.error = True
+        if not req:
             if self.cluster:
                 self.cluster = {}
             if self.nodes:
@@ -382,24 +398,29 @@ class elasticsearchPMDA(PMDA):
                 self.master_node = ()
             if self.index:
                 self.index = {}
-            return None
         return req
 
     def elasticsearch_refresh(self, cluster):
         """ Refresh """
         if cluster == self.cluster_cluster:
             request = self.get_url(self.baseurl + "_cluster/health")
-            self.cluster = json.loads(request.read())
+            if request:
+                self.cluster = json.loads(request.read())
+                request.close()
 
         if cluster == self.nodes_cluster:
             temp = {}
             insts = {}
             request = self.get_url(self.baseurl + "_nodes/stats")
-            temp = json.loads(request.read())
-            request.close()
-            self.nodes = temp['nodes']
-            for nodes in temp['nodes']:
-                insts[nodes] = c_int(1)
+            if request:
+                temp = json.loads(request.read())
+                request.close()
+            try:
+                self.nodes = temp['nodes']
+                for nodes in temp['nodes']:
+                    insts[nodes] = c_int(1)
+            except KeyError:
+                pass
             self.nodes_insts.set_instances(self.nodes_indom, insts)
             self.replace_indom(self.nodes_indom, insts)
 
@@ -407,31 +428,40 @@ class elasticsearchPMDA(PMDA):
             temp = {}
             insts = {}
             request = self.get_url(self.baseurl + "_nodes")
-            temp = json.loads(request.read())
-            request.close()
-            self.node_info = temp['nodes']
-            for nodes in temp['nodes']:
-                insts[nodes] = c_int(1)
+            if request:
+                temp = json.loads(request.read())
+                request.close()
+            try:
+                self.node_info = temp['nodes']
+                for nodes in temp['nodes']:
+                    insts[nodes] = c_int(1)
+            except KeyError:
+                pass
             self.node_info_insts.set_instances(self.node_info_indom, insts)
             self.replace_indom(self.node_info_indom, insts)
 
         if cluster == self.version_cluster:
             request = self.get_url(self.baseurl)
-            self.info = json.loads(request.read())
-            request.close()
+            if request:
+                self.info = json.loads(request.read())
+                request.close()
 
         if cluster in (self.search_cluster, self.perindex_cluster):
             temp = {}
             insts = {}
             request = self.get_url(self.baseurl + "_stats/search")
-            temp = json.loads(request.read())
-            request.close()
+            if request:
+                temp = json.loads(request.read())
+                request.close()
             if cluster == self.search_cluster:
                 self.search = temp
             else:
-                self.perindex = temp['indices']
-                for index in temp['indices']:
-                    insts[index] = c_int(1)
+                try:
+                    self.perindex = temp['indices']
+                    for index in temp['indices']:
+                        insts[index] = c_int(1)
+                except KeyError:
+                    pass
                 self.perindex_insts.set_instances(self.perindex_indom, insts)
                 self.replace_indom(self.perindex_indom, insts)
 
@@ -439,14 +469,18 @@ class elasticsearchPMDA(PMDA):
             temp = {}
             insts = {}
             request = self.get_url(self.baseurl + "_cluster/state")
-            temp = json.loads(request.read())
-            request.close()
+            if request:
+                temp = json.loads(request.read())
+                request.close()
             if cluster == self.master_node_cluster:
                 self.master_node = temp
             else:
-                self.index = temp['metadata']['indices']
-                for index in temp['metadata']['indices']:
-                    insts[index] = c_int(1)
+                try:
+                    self.index = temp['metadata']['indices']
+                    for index in temp['metadata']['indices']:
+                        insts[index] = c_int(1)
+                except KeyError:
+                    pass
                 self.index_insts.set_instances(self.index_indom, insts)
                 self.replace_indom(self.index_indom, insts)
 
@@ -483,7 +517,7 @@ class elasticsearchPMDA(PMDA):
                         return [1, 1]
                     elif self.cluster['status'] == 'red':
                         return [2, 1]
-            except Exception:
+            except KeyError:
                 return [PM_ERR_APPVERSION, 0]
 
         if cluster == self.nodes_cluster:
@@ -621,7 +655,7 @@ class elasticsearchPMDA(PMDA):
                     return [self.nodes[node]['http']['current_open'], 1]
                 elif item == 64:
                     return [self.nodes[node]['http']['total_opened'], 1]
-            except Exception:
+            except KeyError:
                 return [PM_ERR_APPVERSION, 0]
 
         if cluster == self.node_info_cluster:
@@ -647,7 +681,7 @@ class elasticsearchPMDA(PMDA):
                     return [self.node_info[node]['jvm']['mem']['non_heap_max_in_bytes'], 1]
                 elif item == 8:
                     return [self.node_info[node]['process']['max_file_descriptors'], 1]
-            except Exception:
+            except KeyError:
                 return [PM_ERR_APPVERSION, 0]
 
         if cluster == self.version_cluster:
@@ -655,7 +689,7 @@ class elasticsearchPMDA(PMDA):
                 return [PMDA_FETCH_NOVALUES, 0]
             try:
                 return [str(self.info['version']['number']), 1]
-            except Exception:
+            except KeyError:
                 return [PM_ERR_APPVERSION, 0]
 
         if cluster == self.search_cluster:
@@ -682,7 +716,7 @@ class elasticsearchPMDA(PMDA):
                     return [self.search['_all']['total']['search']['fetch_total'], 1]
                 elif item == 9:
                     return [self.search['_all']['total']['search']['fetch_time_in_millis'], 1]
-            except Exception:
+            except KeyError:
                 return [PM_ERR_APPVERSION, 0]
 
         if cluster == self.perindex_cluster:
@@ -706,7 +740,7 @@ class elasticsearchPMDA(PMDA):
                     return [self.perindex[index]['total']['search']['fetch_total'], 1]
                 elif item == 7:
                     return [self.perindex[index]['total']['search']['fetch_time_in_millis'], 1]
-            except Exception:
+            except KeyError:
                 return [PM_ERR_APPVERSION, 0]
 
         if cluster == self.master_node_cluster:
@@ -715,7 +749,7 @@ class elasticsearchPMDA(PMDA):
             try:
                 if item == 0:
                     return [str(self.master_node['master_node']), 1]
-            except Exception:
+            except KeyError:
                 return [PM_ERR_APPVERSION, 0]
 
         if cluster == self.index_cluster:
@@ -731,7 +765,7 @@ class elasticsearchPMDA(PMDA):
                     return [int(self.index[index]['settings']['index']['number_of_shards']), 1]
                 elif item == 3:
                     return [int(self.index[index]['settings']['index']['version_created']), 1]
-            except Exception:
+            except KeyError:
                 return [PM_ERR_APPVERSION, 0]
 
         return [PM_ERR_PMID, 0]
