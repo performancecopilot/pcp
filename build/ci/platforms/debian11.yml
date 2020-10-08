@@ -26,7 +26,16 @@ tasks:
     sudo apt-get -y dist-upgrade
   install_build_dependencies: |
     sudo apt-get -y update
-    pkgs=`./pcp/qa/admin/check-vm -fpM`
+    pkgs=`./pcp/qa/admin/check-vm -fpM \
+          | if [ "$runner" = "container" ]
+	    then
+	        sed -e '/^/ /' \
+		    -e 's/$/ /' \
+		    -e 's/ $//' \
+		    -e 's/^ //'
+	    else
+		cat
+	    fi`
     sudo DEBIAN_FRONTEND=noninteractive apt-get install -y $pkgs || true
   build: |
     cd ./pcp
