@@ -25,7 +25,6 @@ tasks:
     sudo apt-get -y dist-upgrade
   install_build_dependencies: |
     sudo apt-get -y update
-    sudo apt-get install -y zlib1g-dev
     for pkg in $(./pcp/qa/admin/check-vm -fpM)
     do
       [[ "$runner" = "container" && ( "$pkg" = "auditd" || "$pkg" = "docker.io" ) ]] && continue
