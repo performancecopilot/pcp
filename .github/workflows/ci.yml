@@ -20,6 +20,7 @@ jobs:
           - {platform: fedora32,       runner: container, os: ubuntu-18.04}
           - {platform: fedora_rawhide, runner: container, os: ubuntu-18.04}
           - {platform: centos8,        runner: container, os: ubuntu-18.04}
+          - {platform: debian11_i386,  runner: container, os: ubuntu-18.04}
     steps:
       - name: Checkout sources
         uses: actions/checkout@v2
