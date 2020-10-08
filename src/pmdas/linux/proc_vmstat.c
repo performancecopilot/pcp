@@ -1,7 +1,7 @@
 /*
  * Linux /proc/vmstat metrics cluster
  *
- * Copyright (c) 2013-2014,2016-2017 Red Hat.
+ * Copyright (c) 2013-2014,2016-2017,2020 Red Hat.
  * Copyright (c) 2007,2011 Aconex.  All Rights Reserved.
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -51,11 +51,11 @@ static struct {
     { .field = "compact_stall",
      .offset = &_pm_proc_vmstat.compact_stall },
     { .field = "compact_success",
-     .offset = &_pm_proc_vmstat.drop_pagecache },
-    { .field = "drop_pagecache",
-     .offset = &_pm_proc_vmstat.drop_slab },
-    { .field = "drop_slab",
      .offset = &_pm_proc_vmstat.compact_success },
+    { .field = "drop_pagecache",
+     .offset = &_pm_proc_vmstat.drop_pagecache },
+    { .field = "drop_slab",
+     .offset = &_pm_proc_vmstat.drop_slab },
     { .field = "htlb_buddy_alloc_fail",
      .offset = &_pm_proc_vmstat.htlb_buddy_alloc_fail },
     { .field = "htlb_buddy_alloc_success",
