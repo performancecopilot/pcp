@@ -52,7 +52,7 @@ CentOS       -        -       kubectl libqt4-devel
 Debian       1.\.     -       python-{.*}
 Debian       9\.      -       python-{.*}
 Debian       buster   -       python-{.*}
-Debian       bullseye -       python-{.*} python libpython-dev libpython-stdlib
+Debian       bullseye -       python-{.*} python libpython-dev libpython2-dev libpython-stdlib libpython2-stdlib
 # observed on bozo
 # libqt4-dev and libsoqt4 are all for Qt4, but we're
 # using Qt5 for the other bits we need for pmview, but even the Qt5
