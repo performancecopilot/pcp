@@ -2021,22 +2021,114 @@ series_expr_canonical(node_t *np, int idx)
 
     /* first find each of the left and right hand sides, if any */
     switch (np->type) {
+    case N_INTEGER:
+	statement = np->value;
+	left = right = NULL;
+	break;
+    case N_NAME:
+	statement = sdsdup(np->value);
+	left = right = NULL;
+	break;
+    case N_DOUBLE:
+	statement = sdsdup(np->value);
+	left = right = NULL;
+	break;
+    case N_STRING:
+	statement = sdsdup(np->value);
+	left = right = NULL;
+	break;
+    case N_SCALE:
+	statement = sdsdup(np->value);
+	left = right = NULL;
+	break;
+    case N_LT:
+	left = series_expr_canonical(np->left, idx);
+	right = series_expr_canonical(np->right, idx);
+	break;
+    case N_LEQ:
+	left = series_expr_canonical(np->left, idx);
+	right = series_expr_canonical(np->right, idx);
+	break;
+    case N_EQ:
+	if (np->left->type == N_NAME && sdscmp(np->left->value, sdsnew("metric.name")) == 0) {
+	    left = sdsempty();
+	} else {
+	    left = series_expr_canonical(np->left, idx);
+	}
+	right = series_expr_canonical(np->right, idx);
+	break;
+    case N_GLOB:
+	left = series_expr_canonical(np->left, idx);
+	right = series_expr_canonical(np->right, idx);
+	break;
+    case N_GEQ:
+	left = series_expr_canonical(np->left, idx);
+	right = series_expr_canonical(np->right, idx);
+	break;
+    case N_GT:
+	left = series_expr_canonical(np->left, idx);
+	right = series_expr_canonical(np->right, idx);
+	break;
+    case N_NEQ:
+	left = series_expr_canonical(np->left, idx);
+	right = series_expr_canonical(np->right, idx);
+	break;
+    case N_AND:
+	left = series_expr_canonical(np->left, idx);
+	right = series_expr_canonical(np->right, idx);
+	break;
+    case N_OR:
+	left = series_expr_canonical(np->left, idx);
+	right = series_expr_canonical(np->right, idx);
+	break;
+    case N_REQ:
+	left = series_expr_canonical(np->left, idx);
+	right = series_expr_canonical(np->right, idx);
+	break;
+    case N_RNE:
+	left = series_expr_canonical(np->left, idx);
+	right = series_expr_canonical(np->right, idx);
+	break;
     case N_PLUS:
+	left = series_expr_canonical(np->left, idx);
+	right = series_expr_canonical(np->right, idx);
     case N_MINUS:
+	left = series_expr_canonical(np->left, idx);
+	right = series_expr_canonical(np->right, idx);
     case N_STAR:
+	left = series_expr_canonical(np->left, idx);
+	right = series_expr_canonical(np->right, idx);
     case N_SLASH:
+	left = series_expr_canonical(np->left, idx);
+	right = series_expr_canonical(np->right, idx);
     case N_RESCALE:
 	left = series_expr_canonical(np->left, idx);
 	right = series_expr_canonical(np->right, idx);
 	break;
     case N_AVG:
+	left = series_expr_canonical(np->left, idx);
+	right = NULL;
     case N_MAX:
+	left = series_expr_canonical(np->left, idx);
+	right = NULL;
     case N_MIN:
+	left = series_expr_canonical(np->left, idx);
+	right = NULL;
     case N_RATE:
+	left = series_expr_canonical(np->left, idx);
+	right = NULL;
     case N_NOOP:
+	left = series_expr_canonical(np->left, idx);
+	right = NULL;
     case N_ABS:
+	left = series_expr_canonical(np->left, idx);
+	right = NULL;
     case N_FLOOR:
+	left = series_expr_canonical(np->left, idx);
+	right = NULL;
     case N_SQRT:
+	left = series_expr_canonical(np->left, idx);
+	right = NULL;
     case N_ROUND:
 	left = series_expr_canonical(np->left, idx);
 	right = NULL;
@@ -2052,12 +2144,6 @@ series_expr_canonical(node_t *np, int idx)
 
     /* form a merged canonical expression from component parts */
     switch (np->type) {
-    case N_INTEGER:
-	statement = sdsdup(np->value);
-	break;
-    case N_NAME:
-	statement = sdsdup(np->value);
-	break;
     case N_PLUS:
 	statement = sdscatfmt(sdsempty(), "%S+%S", left, right);
 	break;
@@ -2090,55 +2176,55 @@ series_expr_canonical(node_t *np, int idx)
 	break;
     case N_INSTANT:
 	break;
-    case N_DOUBLE:
-	statement = sdsdup(np->value);
-	break;
     case N_LT:
-	//statement = sdscatfmt(sdsempty(), "%S<%S", left, right);
+	statement = sdscatfmt(sdsempty(), "%S<%S", left, right);
 	break;
     case N_LEQ:
-	//statement = sdscatfmt(sdsempty(), "%S<=%S", left, right);
+	statement = sdscatfmt(sdsempty(), "%S<=%S", left, right);
 	break;
     case N_EQ:
-	//statement = sdscatfmt(sdsempty(), "%S==%S", left, right);
+	if (np->left->type == N_NAME && sdscmp(np->left->value, sdsnew("metric.name")) == 0) {
+	    statement = sdsdup(right);
+	} else
+	    statement = sdscatfmt(sdsempty(), "%S==\"%S\"", left, right);
 	break;
     case N_GLOB:
-	//statement = sdscatfmt(sdsempty(), "%S~~%S", left, right);
+	if (np->left->type == N_NAME && sdscmp(np->left->value, sdsnew("metric.name")) == 0) {
+	    statement = sdscatfmt(sdsempty(), "%S", np->value_set.series_values[idx].metric_name);
+	} else
+	    statement = sdscatfmt(sdsempty(), "%S~~\"%S\"", left, right);
 	break;
     case N_GEQ:
-	//statement = sdscatfmt(sdsempty(), "%S>=%S", left, right);
+	statement = sdscatfmt(sdsempty(), "%S>=%S", left, right);
 	break;
     case N_GT:
-	//statement = sdscatfmt(sdsempty(), "%S>%S", left, right);
+	statement = sdscatfmt(sdsempty(), "%S>%S", left, right);
 	break;
     case N_NEQ:
-	//statement = sdscatfmt(sdsempty(), "%S!=%S", left, right);
+	statement = sdscatfmt(sdsempty(), "%S!=\"%S\"", left, right);
 	break;
     case N_AND:
-	//statement = sdscatfmt(sdsempty(), "%S&&%S", left, right);
-	// Only reserve series' name (TODO: ???)
-	statement = sdscatfmt(sdsempty(), "\"%S\"",
-			np->value_set.series_values[idx].metric_name);
+	if ((np->left->type == N_EQ || np->left->type == N_GLOB)
+		&& sdscmp(np->left->left->value, sdsnew("metric.name")) == 0) {
+	    statement = sdscatfmt(sdsempty(), "%S{%S}", np->value_set.series_values[idx].metric_name,
+			right);
+	} else {
+	    statement = sdscatfmt(sdsempty(), "%S&&%S", left, right);
+	}
 	break;
     case N_OR:
-	//statement = sdscatfmt(sdsempty(), "%S||%S", left, right);
+	statement = sdscatfmt(sdsempty(), "%S||%S", left, right);
 	break;
     case N_REQ:
-	//statement = sdscatfmt(sdsempty(), "%S=~%S", left, right);
+	statement = sdscatfmt(sdsempty(), "%S=~%S", left, right);
 	break;
     case N_RNE:
-	//statement = sdscatfmt(sdsempty(), "%S!~%S", left, right);
+	statement = sdscatfmt(sdsempty(), "%S!~%S", left, right);
 	break;
     case N_NEG:
 	break;
-    case N_STRING:
-	statement = sdsdup(np->value);
-	break;
     case N_RESCALE:
-	statement = sdscatfmt(sdsempty(), "rescale(%S,%S)", left, right);
-	break;
-    case N_SCALE:
-	statement = sdsdup(np->value);
+	statement = sdscatfmt(sdsempty(), "rescale(%S,\"%S\")", left, right);
 	break;
     case N_DEFINED:
 	break;
@@ -2193,19 +2279,13 @@ series_function_hash(unsigned char *hash, node_t *np, int idx)
  * Report a timeseries result - timestamps and (instance) values from a node
  */
 static void
-series_node_values_report(seriesQueryBaton *baton, node_t *np, int has_function, char *hashbuf)
+series_node_values_report(seriesQueryBaton *baton, node_t *np)
 {
-    sds		series, series_hash;
+    sds		series;
     int		i, j, k;
 
-    if (has_function)
-	series_hash = series = sdsnew(hashbuf);
-    else
-	series_hash = series = NULL;
-
     for (i = 0; i < np->value_set.num_series; i++) {
-	if (has_function == 0)
-	    series = np->value_set.series_values[i].sid->name;
+	series = np->value_set.series_values[i].sid->name;
 	for (j = 0; j < np->value_set.series_values[i].num_samples; j++) {
 	    for (k = 0; k < np->value_set.series_values[i].series_sample[j].num_instances; k++) {
 		pmSeriesValue value = np->value_set.series_values[i].series_sample[j].series_instance[k];
@@ -2213,8 +2293,6 @@ series_node_values_report(seriesQueryBaton *baton, node_t *np, int has_function,
 	    }
 	}
     }
-
-    sdsfree(series_hash);
 }
 
 static void
@@ -3656,8 +3734,7 @@ series_compatibility_convert(
 	sdsfree(set0->series_desc.type);
 	sdsfree(set0->series_desc.units);
 	set0->series_desc.type = sdsnew(pmTypeStr(type0));
-	set0->series_desc.units = sdsnew(pmUnitsStr(units0));
-
+	set0->series_desc.units = sdsnew(pmUnitsStr(large_units));
     }
     if (large_units->scaleCount != units1->scaleCount ||
 	large_units->scaleSpace != units1->scaleSpace ||
@@ -3667,12 +3744,15 @@ series_compatibility_convert(
 	    for (k = 0; k < set1->series_sample[j].num_instances; k++) {
 		series_extract_value(type1, set1->series_sample[j].series_instance[k].data, &val1);
 		pmConvScale(type1, &val1, units1, &val1, large_units);
+		sdsfree(set1->series_sample[j].series_instance[k].data);
+		str_len = series_pmAtomValue_conv_str(type1, str_val, &val1, sizeof(str_val));
+		set1->series_sample[j].series_instance[k].data = sdsnewlen(str_val, str_len);
 	    }
 	}
 	sdsfree(set1->series_desc.type);
 	sdsfree(set1->series_desc.units);
-	set0->series_desc.type = sdsnew(pmTypeStr(type1));
-	set0->series_desc.units = sdsnew(pmUnitsStr(units1));
+	set1->series_desc.type = sdsnew(pmTypeStr(type1));
+	set1->series_desc.units = sdsnew(pmUnitsStr(large_units));
     }
 
 }
@@ -3706,27 +3786,31 @@ series_redis_hash_expression(seriesQueryBaton *baton, char *hashbuf, int len_has
 	    pmParseUnitsStr(np->value_set.series_values[j].series_desc.units, &units1, &mult, &errmsg);
 
 	    if (sdscmp(np->value_set.series_values[i].metric_name,
-		np->value_set.series_values[j].metric_name) == 0 && check_compatibility(&units0, &units1) != 0) {
-		np->value_set.series_values[j].compatibility = 0;
-		infofmt(msg, "Descriptors of metric %s can not satisfy compatibility between different hosts/sources.\n",
-			np->value_set.series_values[i].metric_name);
-		batoninfo(baton, PMLOG_ERROR, msg);
-		baton->error = -EPROTO;
-		break;
-	    } else {
+		np->value_set.series_values[j].metric_name) == 0) {
+		if (check_compatibility(&units0, &units1) != 0) {
+		    np->value_set.series_values[j].compatibility = 0;
+		    infofmt(msg, "Descriptors of metric %s can not satisfy compatibility between different hosts/sources.\n",
+				np->value_set.series_values[i].metric_name);
+		    batoninfo(baton, PMLOG_ERROR, msg);
+		    baton->error = -EPROTO;
+		    break;
+		} else {
 		/* 
 		 * For series with the same metric names, if they have
 		 * same dimensions but different scales, use the larger
 		 * scale and convert the values with the smaller scale.
 		 * The result is promoted to type PM_TYPE_DOUBLE.
 		 */
-		series_compatibility_convert(&np->value_set.series_values[i],
+		    series_compatibility_convert(&np->value_set.series_values[i],
 				&np->value_set.series_values[j],
 				&units0, &units1, &large_units);
+		}
 	    }
 	}
 	series_function_hash(hash, np, i);
 	pmwebapi_hash_str(hash, hashbuf, len_hashbuf);
+	sdsfree(np->value_set.series_values[i].sid->name);
+	np->value_set.series_values[i].sid->name = sdsnew(hashbuf);
 	key = sdscatfmt(sdsempty(), "pcp:desc:series:%s", hashbuf);
 	series_hmset_function_desc(baton, key, &np->value_set.series_values[i].series_desc);
     }
@@ -3768,7 +3852,7 @@ series_query_funcs_report_values(void *arg)
 	series_redis_hash_expression(baton, hashbuf, sizeof(hashbuf));
 
     /* time series values saved in root node so report them directly. */
-    series_node_values_report(baton, &baton->u.query.root, has_function, hashbuf);
+    series_node_values_report(baton, &baton->u.query.root);
     
     series_query_end_phase(baton);
 }
