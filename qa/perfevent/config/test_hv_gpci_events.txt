@@ -1,0 +1,13 @@
+[pmuname ]
+INSTRUCTIONS_RETIRED cpu
+UNHALTED_REFERENCE_CYCLES cpu_rr
+
+[dynamic]
+pmu1.event1
+pmu1.event2 phys_processor_idx:0
+pmu1.event3
+pmu1.event4 partition_id:4
+pmu1.event5
+pmu1.event6 hw_chip_id:1
+pmu1.event7
+pmu1.event8 sibling_part_id:0
