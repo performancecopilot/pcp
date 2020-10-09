@@ -52,7 +52,7 @@ CentOS       -        -       kubectl libqt4-devel
 Debian       1.\.     -       python-{.*}
 Debian       9\.      -       python-{.*}
 Debian       buster   -       python-{.*}
-Debian       bullseye -       python-{.*} python
+Debian       bullseye -       python-{.*} python libpython-dev
 # observed on bozo
 # libqt4-dev and libsoqt4 are all for Qt4, but we're
 # using Qt5 for the other bits we need for pmview, but even the Qt5
@@ -156,5 +156,6 @@ Ubuntu       18\.04   i.86    python3-bpfcc
 # using Qt5 for the other bits we need for pmview
 Ubuntu       16\.04   -       libcoin-dev libsoqt-dev libsoqt-dev-common libsoqt4-dev
 # observed in CI for Ubuntu 16.04
-# need mysql over mariadb
-Ubuntu       16\.04   -       mariadb-client-core mariadb-client-core-{[0-9][0-9.]*}
+# need mysql over mariadb, and pick an explicit latest mysql-client-core
+# version, not the generic meta package
+Ubuntu       16\.04   -       mariadb-client-core mariadb-client-core-[0-9][0-9.]* mysql-client-core
