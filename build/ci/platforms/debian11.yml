@@ -26,10 +26,8 @@ tasks:
     sudo apt-get -y dist-upgrade
   install_build_dependencies: |
     sudo apt-get -y update
-    for pkg in $(./pcp/qa/admin/check-vm -fpM)
-    do
-      sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "$pkg" || true
-    done
+    pkgs=$(./pcp/qa/admin/check-vm -fpM)
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y $pkgs || true
   build: |
     cd ./pcp
     ./Makepkgs --nonrpm --verbose

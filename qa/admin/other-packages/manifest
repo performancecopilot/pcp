@@ -241,6 +241,7 @@ dpkg?   /usr/share/man/man1/python3-config.1.gz [python3-dev]
 dpkg?	/usr/share/doc/python3-all-dev	[python3-all-dev]
 dpkg?	/usr/share/doc/libdbd-pg-perl	[libdbd-pg-perl]
 dpkg?	/usr/share/doc/libclass-dbi-perl	[libclass-dbi-perl]
+dpkg?	/usr/lib/*/libz.so		[zlib1g-dev]
 rpm?	ragel				[ragel]
 
 # -- perl-interpreter (Fedora 24 or later, but we don't have release
