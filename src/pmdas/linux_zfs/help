@@ -1,1 +1,70 @@
-# TODO
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# Linux ZFS PMDA help file in the ASCII format
+#
+# lines beginning with a # are ignored
+# lines beginning @ introduce a new entry of the form
+#  @ metric_name oneline-text
+#  help text goes
+#  here over multiple lines
+#  ...
+#
+# the metric_name is decoded against the default PMNS -- as a special case,
+# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
+# instance domain identification, and the text describes the instance domain
+#
+# blank lines before the @ line are ignored
+
+@ zfs.abd.struct_size
+Amount of memory occupied by all of the abd_t struct allocations 
+	
+@ zfs.abd.linear_cnt
+The number of linear ABDs which are currently allocated, excluding
+ABDs which don't own their data (for instance the ones which were
+allocated through abd_get_offset() and abd_get_from_buf()). If an
+ABD takes ownership of its buf then it will become tracked.
+	 
+@ zfs.abd.linear_data_size
+Amount of data stored in all linear ABDs tracked by linear_cnt 
+	
+@ zfs.abd.scatter_cnt
+The number of scatter ABDs which are currently allocated, excluding
+ABDs which don't own their data (for instance the ones which were
+allocated through abd_get_offset()).
+	 
+@ zfs.abd.scatter_data_size
+Amount of data stored in all scatter ABDs tracked by scatter_cnt 
+	
+@ zfs.abd.scatter_chunk_waste
+The amount of space wasted at the end of the last chunk across all
+scatter ABDs tracked by scatter_cnt.
+	 
+@ zfs.abd.scatter_order_N
+The number of compound allocations of a given order.  These
+allocations are spread over all currently allocated ABDs, and
+act as a measure of memory fragmentation.
+	 
+@ zfs.abd.scatter_page_multi_chunk
+The number of scatter ABDs which contain multiple chunks.
+ABDs are preferentially allocated from the minimum number of
+contiguous multi-page chunks, a single chunk is optimal.
+	 
+@ zfs.abd.scatter_page_multi_zone
+The number of scatter ABDs which are split across memory zones.
+ABDs are preferentially allocated using pages from a single zone.
+
+@ zfs.abd.scatter_page_alloc_retry
+The total number of retries encountered when attempting to
+allocate the pages to populate the scatter ABD.
+
+@ zfs.abd.scatter_sg_table_retry
+The total number of retries encountered when attempting to
+allocate the sg table for an ABD.

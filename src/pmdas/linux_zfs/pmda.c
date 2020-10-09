@@ -438,28 +438,28 @@ static pmdaMetric metrictab[] = {
 /*---------------------------------------------------------------------------*/
 /* struct_size */
 	{ &abdstats.struct_size,
-	  { PMDA_PMID(1, 0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(1, 0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* linear_cnt */
 	{ &abdstats.linear_cnt,
 	  { PMDA_PMID(1, 1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
 /* linear_data_size */
 	{ &abdstats.linear_data_size,
-	  { PMDA_PMID(1, 2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(1, 2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* scatter_cnt */
 	{ &abdstats.scatter_cnt,
 	  { PMDA_PMID(1, 3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
 /* scatter_data_size */
 	{ &abdstats.scatter_data_size,
-	  { PMDA_PMID(1, 4), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(1, 4), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* scatter_chunk_waste */
 	{ &abdstats.scatter_chunk_waste,
-	  { PMDA_PMID(1, 5), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(1, 5), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* scatter_order_0 */
 	{ &abdstats.scatter_order_0,
 	  { PMDA_PMID(1, 6), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
