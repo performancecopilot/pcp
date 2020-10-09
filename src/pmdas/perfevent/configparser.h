@@ -42,6 +42,11 @@ typedef struct pmcsetting {
     int core;
     int lpar;
     unsigned long rawcode;  /* Currently, only used by raw events */
+    /* Currently, only used by hv_gpci dynamic events */
+    int phys_processor_idx;
+    int partition_id;
+    int hw_chip_id;
+    int sibling_part_id;
     struct pmcsetting *next;
 } pmcsetting_t; 
 
