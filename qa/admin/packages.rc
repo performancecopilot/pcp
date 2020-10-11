@@ -1,26 +1,15 @@
 # common shell scripts functions for packaging list scripts
 #
 
-# Need directory where qa/admin scripts are located so we can find
-# the default other-packages/* or package-list/* files and the whatami
-# script
-#
-home=`pwd`
-while [ "$home" != "/" ]
-do
-    [ -f $home/whatami ] && break
-    home=`realpath $home/..`
-done
-
-if [ "$home" = "/" -o ! -d "$home" ]
+if [ -z "$home" ]
 then
-    echo >&2 "Botch: pwd=`pwd` -> bad \$home=$home ?"
-    exit 1
+    echo >&2 "packages.rc: Botch: \$home not set"
+    exit
 fi
 
 if [ ! -x $home/whatami ]
 then
-    echo >&2 "Botch: cannot find executable ../whatami"
+    echo >&2 "packages.rc: Botch: cannot find executable ../whatami"
     exit
 fi
 
