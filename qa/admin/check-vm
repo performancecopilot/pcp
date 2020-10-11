@@ -1489,8 +1489,7 @@ then
     done
 fi
 
-# for -M, remove all the meta-packages, like perl(...), cpan(...) and
-# pip3(...)
+# for -M, remove all the meta-packages, like cpan(...) and pip3(...)
 #
 if $include_meta
 then
@@ -1498,7 +1497,6 @@ then
 else
     sed <$tmp.out >$tmp.tmp \
 	-e '/^cpan(/d' \
-	-e '/^perl(/d' \
 	-e '/^pip3(/d' \
     # end
     mv $tmp.tmp $tmp.out
