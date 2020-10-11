@@ -1,0 +1,53 @@
+# common shell scripts functions for packaging list scripts
+#
+
+# Need directory where qa/admin scripts are located so we can find
+# the default other-packages/* or package-list/* files and the whatami
+# script
+#
+home=`pwd`
+while [ "$home" != "/" ]
+do
+    [ -f $home/whatami ] && break
+    home=`realpath $home/..`
+done
+
+if [ "$home" = "/" -o ! -d "$home" ]
+then
+    echo >&2 "Botch: pwd=`pwd` -> bad \$home=$home ?"
+    exit 1
+fi
+
+if [ ! -x $home/whatami ]
+then
+    echo >&2 "Botch: cannot find executable ../whatami"
+    exit
+fi
+
+_setversions()
+{
+    $home/whatami \
+    | awk '{ for (i = 3; i <= NF; i++) printf $i " "; print "" }' \
+    | sed \
+	-e 's/ \[.*//' \
+	-e 's/ ([^)]*)//' \
+	-e 's/RHEL Server/RHEL/' \
+	-e 's/Arch Linux/ArchLinux /' \
+	-e '/CentOS/{
+s/CentOS Linux/CentOS/
+s/CentOS\([0-9]\)/CentOS \1/
+}' \
+	-e '/FreeBSD/s/-RELEASE//' \
+	-e '/SLES\([0-9][0-9]*\) SP/s//\1-SP/' \
+	-e '/openSUSE/s/ Leap//' \
+	-e '/OpenIndiana/s/Hipster //' \
+	-e 's/^/arch=/' \
+	-e 's/ /+distro=/' \
+	-e 's/ / version="/' \
+	-e 's/+distro/ distro/' \
+	-e 's/$/"/' \
+    | tr ' ' '\012' >$tmp.eval
+    $very_verbose && echo >&2 "vars: `tr '\012' ' ' <$tmp.eval`"
+    eval `cat $tmp.eval`
+}
+

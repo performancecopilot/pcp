@@ -1,0 +1,140 @@
+#!/bin/sh
+#
+# Replacement for check-vm using (almost) explicit package lists for
+# each distro-version-architecture combination
+#
+
+_usage()
+{
+    echo >&2 "Usage: $0 [options]"
+    echo >&2 
+    echo >&2 "  -i tag       include only lines with a tag"
+    echo >&2 "  -n           show me, change nothing"
+    echo >&2 "  -v           verbose (debugging)"
+    echo >&2 "  -x tag       exclude lines with a tag"
+    exit 1
+}
+
+showme=false
+verbose=false
+very_verbose=false
+include=''
+exclude=''
+while getopts 'i:nvx:?' p
+do
+    case "$p"
+    in
+	i)
+		if [ -n "$exclude" ]
+		then
+		    echo >&2 "Error: -x and -i are mutually exclusive"
+		    exit
+		fi
+		include="$include $OPTARG"
+		;;
+	n)
+		showme=true
+		;;
+
+	v)	if $verbose
+		then
+		    very_verbose=true
+		else
+		    verbose=true
+		fi
+		;;
+
+	x)
+		if [ -n "$include" ]
+		then
+		    echo >&2 "Error: -i and -x are mutually exclusive"
+		    exit
+		fi
+		exclude="$exclude $OPTARG"
+		;;
+
+	n)
+		showme=true
+		;;
+
+	?)	_usage
+		# NOTREACHED
+    esac
+done
+shift `expr $OPTIND - 1`
+[ $# -eq 0 ] || _usage
+
+status=1		# failure is the default
+if $very_verbose
+then
+    tmp=tmp
+else
+    tmp=/var/tmp/$$
+    trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+fi
+rm -f $tmp.*
+
+# Need directory where this script is located so we can find the other
+# scripts and control files
+#
+home=`echo $0 | sed -e 's/\/*list-packages$//'`
+if [ ! -f $home/whatami ]
+then
+    echo >&2 "Botch: \$0=$0 -> bad \$home=$home ?"
+    exit 1
+fi
+
+if [ ! -f $home/packages.rc ]
+then
+    echo >&2 "Botch: cannot find $home/packages.rc"
+    exit
+fi
+
+. $home/packages.rc
+
+_setversions
+# $distro, $version and $arch now set
+
+if [ ! -f "$home/package-lists/${distro}:${version}:$arch" ]
+then
+    if [ ! -f "$home/package-lists/${distro}:${version}:any" ]
+    then
+	echo >&2 "Botch: $home/package-lists/${distro}:${version}:$arch: not found"
+	exit
+    else
+	# use arch=any in lieu of arch=$arch
+	#
+	$verbose && echo >&2 "Info: using arch \"any\" instead of \"$arch\""
+	arch=any
+    fi
+fi
+
+if [ -n "$exclude" ]
+then
+    $very_verbose && [ -n "$exclude" ] && echo >&1 "Excluding tags:$exclude"
+    echo 's/$/ /' >$tmp.sed
+    for pkg in $exclude
+    do
+	echo "/ $pkg /d" >>$tmp.sed
+    done
+    sed -f $tmp.sed <"$home/package-lists/${distro}:${version}:$arch"
+elif [ -n "$include" ]
+then
+    $very_verbose && [ -n "$include" ] && echo >&1 "Including only tags:$include"
+    echo 's/$/ /' >$tmp.sed
+    for pkg in $include
+    do
+	echo "/ $pkg /p" >>$tmp.sed
+    done
+    sed -n -f $tmp.sed <"$home/package-lists/${distro}:${version}:$arch"
+else
+    cat "$home/package-lists/${distro}:${version}:$arch"
+fi \
+| sed -n \
+    -e 's/#.*//' \
+    -e 's/[ 	].*//' \
+    -e 's/[ 	][ 	]*//g' \
+    -e '/./p' \
+| ( tr '\012' ' ' ; echo )
+
+status=0
