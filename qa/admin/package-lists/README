@@ -23,7 +23,7 @@ Some standard "tags" and their meaning:
 
 cpan	package needs to be installed with cpan(1)
 pip3	package needs to be installed with pip3(1)
-notci	do not install this package in CI (usually a container or
+not4ci	do not install this package in CI (usually a container or
 	VM conflict)
 
 The ./new script may be used to generate/regenerate a file for the
