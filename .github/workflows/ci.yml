@@ -17,6 +17,7 @@ jobs:
         include:
 #          - {platform: ubuntu1804,     runner: direct,    os: ubuntu-18.04}
           - {platform: ubuntu2004,     runner: direct,    os: ubuntu-20.04}
+          - {platform: debian11,       runner: container, os: ubuntu-latest}
 #          - {platform: fedora32,       runner: container, os: ubuntu-18.04}
 #          - {platform: fedora_rawhide, runner: container, os: ubuntu-18.04}
 #          - {platform: centos8,        runner: container, os: ubuntu-18.04}
