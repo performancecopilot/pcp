@@ -27,12 +27,12 @@ tasks:
     sudo apt-get -y dist-upgrade
   install_build_dependencies: |
     sudo apt-get -y update
-    sudo apt-get install -y libuv1-dev
-    for pkg in $(./pcp/qa/admin/check-vm -fpM)
-    do
-      [ "$runner" = "container" ] && [ "$pkg" = "auditd" ] && continue
-      sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "$pkg" || true
-    done
+    pkgs=$(./pcp/qa/admin/check-vm -fpM)
+    if [ "$runner" = "container" ]
+    then
+        pkgs=$(echo " $pkgs " | sed -e 's/ auditd / /')
+    fi
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y $pkgs || true
   build: |
     cd ./pcp
     ./Makepkgs --nonrpm --verbose

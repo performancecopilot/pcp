@@ -255,6 +255,7 @@ echo '== -i, 2 explicit configs, expect concat config file for one pmfind instan
 $sudo pmiectl -i $seq cond-create localhost 2>&1 | _filter
 pmiectl -V status | _filter_status
 grep sample.lights $PCP_LOG_DIR/pmie/$seq/$seq.config
+pmsleep 0.5		# give pmie a chance to warm up
 _filter_pmie <$PCP_LOG_DIR/pmie/$seq/pmie.log | sort | uniq
 echo "--- start pmie config file ---" >>$seq.full
 cat $PCP_LOG_DIR/pmie/$seq/$seq.config >>$seq.full
@@ -284,6 +285,7 @@ do
     echo "check $metric ..."
     egrep "$metric( |\$)" $PCP_LOG_DIR/pmie/$seq-a/$seq-a.config
 done
+pmsleep 0.5		# give pmie a chance to warm up
 _filter_pmie <$PCP_LOG_DIR/pmie/$seq-a/pmie.log | sort | uniq
 echo "--- start pmie config file ---" >>$seq.full
 cat $PCP_LOG_DIR/pmie/$seq-a/$seq-a.config >>$seq.full
@@ -300,6 +302,7 @@ do
     echo "check $metric ..."
     egrep "$metric( |\$)" $PCP_LOG_DIR/pmie/$seq-b/$seq-b.config
 done
+pmsleep 0.5		# give pmie a chance to warm up
 _filter_pmie <$PCP_LOG_DIR/pmie/$seq-b/pmie.log | sort | uniq
 echo "--- start pmie config file ---" >>$seq.full
 cat $PCP_LOG_DIR/pmie/$seq-b/$seq-b.config >>$seq.full
@@ -316,6 +319,7 @@ do
     echo "check $metric ..."
     egrep "$metric( |\$)" $PCP_LOG_DIR/pmie/$seq-c/$seq-c.config
 done
+pmsleep 0.5		# give pmie a chance to warm up
 _filter_pmie <$PCP_LOG_DIR/pmie/$seq-c/pmie.log | sort | uniq
 echo "--- start pmie config file ---" >>$seq.full
 cat $PCP_LOG_DIR/pmie/$seq-c/$seq-c.config >>$seq.full
