@@ -90,6 +90,7 @@ _getnetworkaddr()
 _usage()
 {
     echo "Usage: $0 [options]"
+    echo "  -a           (all) ignore packages already installed"
     echo "  -b           base package set, skip the N/A and optional ones"
     echo "  -f           force, don't try to guess the version of Python, Qt, ..."
     echo "  -M           do not list the meta-package alternatives (cpan, perl, pip3)"
@@ -393,20 +394,20 @@ _safe_pattern()
 # outcome, namely if the two files ($1 and $2) are the same, return 0
 # else return 1
 #
-# try in order: sum, cmp, diff, stat (only size can be compared)
+# try in order: cmp, diff, sum, stat (only size can be compared)
 #
 _cmp()
 {
     sts=1
-    if which sum >/dev/null 2>&1
-    then
-	[ "`sum <"$1"`" = "`sum <"$2"`" ] && sts=0
-    elif which cmp >/dev/null 2>&1
+    if which cmp >/dev/null 2>&1
     then
 	cmp "$1" "$2" >/dev/null 2>&1 && sts=0
     elif which diff >/dev/null 2>&1
     then
 	diff "$1" "$2" >/dev/null 2>&1 && sts=0
+    elif which sum >/dev/null 2>&1
+    then
+	[ "`sum <"$1"`" = "`sum <"$2"`" ] && sts=0
     elif which stat >/dev/null 2>&1
     then
 	s1=`stat "$1" | sed -n -e '/^ *Size:/{
@@ -555,6 +556,7 @@ then
     exit 1
 fi
 
+all=false
 basic=false
 force=false
 pkglist=false
@@ -570,10 +572,14 @@ skip="$home"/other-packages/skip			# default, see -s
 skipbase="$home"/other-packages/skip			# default, see -S
 unavailable="$home"/other-packages/unavailable		# default, see -u
 include_meta=true
-while getopts 'bcfm:Mo:pPr:s:S:u:v?' p
+while getopts 'abcfm:Mo:pPr:s:S:u:v?' p
 do
     case "$p"
     in
+	a)
+		all=true
+		;;
+
 	b)
 		basic=true
 		;;
@@ -1234,118 +1240,127 @@ do
     lineno=`echo "$line" | sed -e 's/.* :\([0-9][0-9]*\)$/\\1/'`
     rm -f $tmp.ok
     rm -f $tmp.echo
-    for app in $apps
-    do
-	# leading ! negates the guard
-	case $app
-	in
-	    !*)
-		app=`echo "$app" | sed -e 's/^!//'`
-		negate=true
-		;;
-	    *)
-		negate=false
-		;;
-	esac
-	case $app
-	in
-	    \[*)
-	    	break
-		;;
-	    *\?)
-	    	app=`echo $app | sed -e 's/?$//'`
-		optional=true
-		;;
-	    *)
-		optional=false
-		;;
-	esac
-	case $app
-	in
-	    F_pkg|S_pkg)
-		app=pkg
-		;;
-	esac
-	case $app
-	in
-	    \[*)
-	    	break
-		;;
-	    *::)
-		# special case Perl, no module name
-		echo "use `echo $app | sed -e 's/::$//'`;" | perl >/dev/null 2>&1
-		ok=$?
-		;;
 
-	    *::*)
-		# normal case Perl, with module name
-		echo "use $app;" | perl >/dev/null 2>&1
-		ok=$?
-		;;
-	    *)  # file, directory or executable tests, separated by |
-		rm -f $tmp.tmp
-		for obj in `echo "$app" | sed -e 's/|/ /g'`
-		do
-		    case "$obj"
-		    in
-			/*)
-			    if [ -f "$obj" -o -d "$obj" ]
-			    then
-				touch $tmp.tmp
-				break
-			    fi
-			    ;;
-			*)
-			    if which $obj >/dev/null 2>&1
-			    then
-				touch $tmp.tmp
-				break
-			    fi
-			    ;;
-		    esac
-		done
-		[ -f $tmp.tmp ]
-		ok=$?
-		;;
-	esac
-	if $negate
-	then
-	    ok=`expr 1 - $ok`
-	fi
-	if $verbose
-	then
-	    $PCP_ECHO_PROG >&2 $PCP_ECHO_N "$app ... "$PCP_ECHO_C
-	    $optional && $PCP_ECHO_PROG >&2 $PCP_ECHO_N "[optional] "$PCP_ECHO_C
+    if $all
+    then
+	# don't do any of this ...
+	#
+	:
+    else
+	for app in $apps
+	do
+	    # leading ! negates the guard
+	    case $app
+	    in
+		!*)
+		    app=`echo "$app" | sed -e 's/^!//'`
+		    negate=true
+		    ;;
+		*)
+		    negate=false
+		    ;;
+	    esac
+	    case $app
+	    in
+		\[*)
+		    break
+		    ;;
+		*\?)
+		    app=`echo $app | sed -e 's/?$//'`
+		    optional=true
+		    ;;
+		*)
+		    optional=false
+		    ;;
+	    esac
+	    case $app
+	    in
+		F_pkg|S_pkg)
+		    app=pkg
+		    ;;
+	    esac
+	    case $app
+	    in
+		\[*)
+		    break
+		    ;;
+		*::)
+		    # special case Perl, no module name
+		    echo "use `echo $app | sed -e 's/::$//'`;" | perl >/dev/null 2>&1
+		    ok=$?
+		    ;;
+
+		*::*)
+		    # normal case Perl, with module name
+		    echo "use $app;" | perl >/dev/null 2>&1
+		    ok=$?
+		    ;;
+		*)  # file, directory or executable tests, separated by |
+		    rm -f $tmp.tmp
+		    for obj in `echo "$app" | sed -e 's/|/ /g'`
+		    do
+			case "$obj"
+			in
+			    /*)
+				if [ -f "$obj" -o -d "$obj" ]
+				then
+				    touch $tmp.tmp
+				    break
+				fi
+				;;
+			    *)
+				if which $obj >/dev/null 2>&1
+				then
+				    touch $tmp.tmp
+				    break
+				fi
+				;;
+			esac
+		    done
+		    [ -f $tmp.tmp ]
+		    ok=$?
+		    ;;
+	    esac
+	    if $negate
+	    then
+		ok=`expr 1 - $ok`
+	    fi
+	    if $verbose
+	    then
+		$PCP_ECHO_PROG >&2 $PCP_ECHO_N "$app ... "$PCP_ECHO_C
+		$optional && $PCP_ECHO_PROG >&2 $PCP_ECHO_N "[optional] "$PCP_ECHO_C
+		if [ $ok = 0 ]
+		then
+		    $PCP_ECHO_PROG >&2 $PCP_ECHO_N "yes "$PCP_ECHO_C
+		else
+		    $PCP_ECHO_PROG >&2 $PCP_ECHO_N "no "$PCP_ECHO_C
+		fi
+		touch $tmp.echo
+	    fi
 	    if [ $ok = 0 ]
 	    then
-		$PCP_ECHO_PROG >&2 $PCP_ECHO_N "yes "$PCP_ECHO_C
-	    else
-		$PCP_ECHO_PROG >&2 $PCP_ECHO_N "no "$PCP_ECHO_C
-	    fi
-	    touch $tmp.echo
-	fi
-	if [ $ok = 0 ]
-	then
-	    if $optional
-	    then
-		if [ -f $tmp.echo ]
+		if $optional
 		then
-		    echo >&2
-		    rm -f $tmp.echo
+		    if [ -f $tmp.echo ]
+		    then
+			echo >&2
+			rm -f $tmp.echo
+		    fi
+		    continue
 		fi
-		continue
-	    fi
-	    touch $tmp.ok
-	    break
-	else
-	    if $optional
-	    then
-		# guard not true, skip checks for other apps
 		touch $tmp.ok
 		break
+	    else
+		if $optional
+		then
+		    # guard not true, skip checks for other apps
+		    touch $tmp.ok
+		    break
+		fi
 	    fi
-	fi
-    done
+	done
+    fi
+
     if [ ! -f $tmp.ok ]
     then
 	if $pkglist
@@ -1367,7 +1382,7 @@ do
 	    | while read _missing
 	    do
 		# don't list the unavailable packages nor the skipped ones
-		# nor the ones already installed
+		# nor (if $all is false) the ones already installed
 		#
 		for _need in $_missing
 		do
@@ -1389,7 +1404,7 @@ do
 			fi
 			continue
 		    fi
-		    if grep "^$_need\$" $tmp.installed >/dev/null
+		    if ! $all && grep "^$_need\$" $tmp.installed >/dev/null
 		    then
 			[ -f $tmp.echo ] && echo >&2
 			echo >&2 "Warning: manifest:$lineno botch? target: \"`echo "$apps" | sed -e 's/[ 	].*//'`\" not found, but package \"$_need\" already installed"
@@ -1432,7 +1447,13 @@ do
 	    # nothing to report
 	    :
 	else
-	    echo "Missing: `echo "$apps" \
+	    if $all
+	    then
+		tag=''
+	    else
+		tag='Missing: '
+	    fi
+	    echo "$tag`echo "$apps" \
 		| sed \
 		    -e 's/[ 	][ 	]*/ /g' \
 		    -e '/ /{
@@ -1532,90 +1553,6 @@ for _pkg in $require_pkg
 do
     echo "Missing: $_pkg [required package not installed]"
 done
-
-# Some platform-specific and special case tests
-#
-if which dpkg >/dev/null 2>&1
-then
-    # Debian based
-    #
-    # Borrowed from debian/fixcontrol.master ... we don't use Python2 on some recent
-    # Debian/Ubuntu versions
-    #
-    pkgs="python-all python-all-dev python3-all python3-all-dev"
-    (
-	. /etc/os-release
-	case "$ID"
-	in
-	    debian)
-		if [ -z "$VERSION_ID" ] || [ "$VERSION_ID" -ge 11 ]; then
-		    pkgs=`echo "$pkgs" | sed -e 's/python-[^ ]*//g'`
-		fi
-		;;
-	    ubuntu)
-		VERSION_NO=$(echo "$VERSION_ID" | sed 's/[^0-9]//')
-		if [ "$VERSION_NO" -ge 2004 ]; then
-		    pkgs=`echo "$pkgs" | sed -e 's/python-[^ ]*//g'`
-		fi
-		;;
-	esac
-    )
-    dpkg -l >$tmp.tmp
-    for pkg in $pkgs
-    do
-	if grep "^ii *$pkg" <$tmp.tmp >/dev/null
-	then
-	    :
-	else
-	    if $pkglist
-	    then
-		echo "$pkg"
-	    else
-		echo "Need # apt-get install $pkg"
-	    fi
-	fi
-    done
-    # There are some version dependencies in the debian/control file
-    # (see Build-Depends and *-Version lines) and some are found in
-    # configure.ac ... both need to be mirrored here
-    #
-    cat <<End-of-File >$tmp.dpkg
-# one line per package
-# pkg-name	relop	version
-# text after # is treated as a comment
-# debian/control
-debhelper	>=	5
-perl		>=	5.6
-python		>=	2.6
-# configure.ac
-libuv-dev	>=	1.0
-End-of-File
-    cat $tmp.dpkg \
-    | sed -e 's/#.*//' -e '/^[ 	]*$/d' \
-    | while read pkg relop ctlversion
-    do
-	# dpkg -l lines like ...
-	# ii  debhelper      9.20131227ub all          ...
-	#
-	if grep "ii[ 	][ 	]*$pkg[ 	]" $tmp.tmp >/dev/null 2>&1
-	then
-	    version=`awk <$tmp.tmp '$2 == "'"$pkg"'" { print $3 }'`
-	    if [ -z "$version" ]
-	    then
-		echo "Arrgh ... failed to get version for $pkg from ..."
-		cat $tmp.tmp
-		continue
-	    fi
-	    ( echo $version; echo $ctlversion ) | _compare $relop
-	    if [ $? = 0 ]
-	    then
-		$verbose && echo >&2 "$pkg: version installed $version, need $relop $ctlversion, OK"
-	    else
-		echo >&2 "Warning: $pkg version installed $version, need $relop $ctlversion"
-	    fi
-	fi
-    done
-fi
 
 if which slackpkg >/dev/null 2>&1
 then
