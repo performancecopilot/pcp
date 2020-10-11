@@ -95,11 +95,11 @@ fi
 _setversions
 # $distro, $version and $arch now set
 
-if [ ! -f "$home/package-lists/${distro}:${version}:$arch" ]
+if [ ! -f "$home/package-lists/${distro}+${version}+$arch" ]
 then
-    if [ ! -f "$home/package-lists/${distro}:${version}:any" ]
+    if [ ! -f "$home/package-lists/${distro}+${version}+any" ]
     then
-	echo >&2 "Botch: $home/package-lists/${distro}:${version}:$arch: not found"
+	echo >&2 "Botch: $home/package-lists/${distro}+${version}+$arch: not found"
 	exit
     else
 	# use arch=any in lieu of arch=$arch
@@ -117,7 +117,7 @@ then
     do
 	echo "/ $pkg /d" >>$tmp.sed
     done
-    sed -f $tmp.sed <"$home/package-lists/${distro}:${version}:$arch"
+    sed -f $tmp.sed <"$home/package-lists/${distro}+${version}+$arch"
 elif [ -n "$include" ]
 then
     $very_verbose && [ -n "$include" ] && echo >&1 "Including only tags:$include"
@@ -126,9 +126,9 @@ then
     do
 	echo "/ $pkg /p" >>$tmp.sed
     done
-    sed -n -f $tmp.sed <"$home/package-lists/${distro}:${version}:$arch"
+    sed -n -f $tmp.sed <"$home/package-lists/${distro}+${version}+$arch"
 else
-    cat "$home/package-lists/${distro}:${version}:$arch"
+    cat "$home/package-lists/${distro}+${version}+$arch"
 fi \
 | sed -n \
     -e 's/#.*//' \

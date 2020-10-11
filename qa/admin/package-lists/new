@@ -6,20 +6,31 @@
 _usage()
 {
     echo "Usage: $0 [options]"
+    echo "  -A arch      override platform arch"
+    echo "  -D distro    override platform distro"
     echo "  -n           show me, change nothing"
     echo "  -v           verbose (debugging)"
+    echo "  -V version   override platform version"
     exit 1
 }
 
 showme=false
 verbose=false
 very_verbose=false
-while getopts 'nv?' p
+Distro=''
+Version=''
+Arch=''
+while getopts 'A:D:nvV:?' p
 do
     case "$p"
     in
-	n)
-		showme=true
+	A)	Arch="$OPTARG"
+		;;
+
+	D)	Distro="$OPTARG"
+		;;
+
+	n)	showme=true
 		;;
 
 	v)	if $verbose
@@ -28,6 +39,9 @@ do
 		else
 		    verbose=true
 		fi
+		;;
+
+	V)	Version="$OPTARG"
 		;;
 
 	?)	_usage
@@ -72,6 +86,12 @@ fi
 _setversions
 # $distro, $version and $arch now set
 
+# optionally over-ridden from the comand line ...
+#
+[ -n "$Distro" ] && distro="$Distro"
+[ -n "$Version" ] && version="$Version"
+[ -n "$Arch" ] && arch="$Arch"
+
 echo "# PCP required package list for $distro $version $arch" >$tmp.list
 echo "# created by `id -un` on `hostname` `date`" >>$tmp.list
 echo "#" >>$tmp.list
@@ -84,36 +104,36 @@ $home/check-vm -fap \
     -e 's/\(.*\)(\(.*\))/\2 \1/' \
 # end
 
-if [ -f "${distro}:${version}:$arch" ]
+if [ -f "${distro}+${version}+$arch" ]
 then
     grep -v '^# created' <$tmp.list >$tmp.new
-    grep -v '^# created' <"${distro}:${version}:$arch" >$tmp.old
+    grep -v '^# created' <"${distro}+${version}+$arch" >$tmp.old
     if cmp $tmp.new $tmp.old >/dev/null
     then
-	echo "${distro}:${version}:$arch: no change"
+	echo "${distro}+${version}+$arch: no change"
     else
 	if $verbose
 	then
-	    echo "${distro}:${version}:$arch: exists, diffs"
-	    diff -u "${distro}:${version}:$arch" $tmp.list
+	    echo "${distro}+${version}+$arch: exists, diffs"
+	    diff -u "${distro}+${version}+$arch" $tmp.list
 	fi
 	if $showme
 	then
-	    echo "+ mv ${distro}:${version}:$arch ${distro}:${version}:$arch.old"
-	    echo "+ install new ${distro}:${version}:$arch"
+	    echo "+ mv ${distro}+${version}+$arch ${distro}+${version}+$arch.old"
+	    echo "+ install new ${distro}+${version}+$arch"
 	else
-	    mv "${distro}:${version}:$arch" "${distro}:${version}:$arch.old"
-	    mv $tmp.list "${distro}:${version}:$arch"
-	    echo "${distro}:${version}:$arch: updated"
+	    mv "${distro}+${version}+$arch" "${distro}+${version}+$arch.old"
+	    mv $tmp.list "${distro}+${version}+$arch"
+	    echo "${distro}+${version}+$arch: updated"
 	fi
     fi
 else
     if $showme
     then
-	echo "+ install new ${distro}:${version}:$arch"
+	echo "+ install new ${distro}+${version}+$arch"
 	cat $tmp.list
     else
-	mv $tmp.list "${distro}:${version}:$arch"
-	echo "${distro}:${version}:$arch: created"
+	mv $tmp.list "${distro}+${version}+$arch"
+	echo "${distro}+${version}+$arch: created"
     fi
 fi

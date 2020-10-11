@@ -26,6 +26,9 @@ _setversions()
 s/CentOS Linux/CentOS/
 s/CentOS\([0-9]\)/CentOS \1/
 }' \
+	-e '/Debian/{
+s;bullseye/sid;11;
+}' \
 	-e '/FreeBSD/s/-RELEASE//' \
 	-e '/SLES\([0-9][0-9]*\) SP/s//\1-SP/' \
 	-e '/openSUSE/s/ Leap//' \
