@@ -90,11 +90,9 @@ static int
 skip_free_value_set(node_t *np)
 {
     /* return 0 stands for skipping free this node's value_set. */
-    if (np->type == N_RATE || np->type == N_NOOP 
-    	|| np->type == N_RESCALE || np->type == N_ABS 
-	|| np->type == N_SQRT || np->type == N_FLOOR
-	|| np->type == N_ROUND  || np->type == N_LOG
-	|| np->type == N_PLUS || np->type == N_MINUS
+    if (np->type == N_RATE || np->type == N_RESCALE || np->type == N_ABS 
+	|| np->type == N_SQRT || np->type == N_FLOOR || np->type == N_ROUND
+	|| np->type == N_LOG || np->type == N_PLUS || np->type == N_MINUS
 	|| np->type == N_STAR || np->type == N_SLASH) 
 	return 0;
     return 1;
@@ -2062,7 +2060,6 @@ series_expr_canonical(node_t *np, int idx)
     case N_MAX:
     case N_MIN:
     case N_RATE:
-    case N_NOOP:
     case N_ABS:
     case N_FLOOR:
     case N_SQRT:
@@ -2166,9 +2163,6 @@ series_expr_canonical(node_t *np, int idx)
 	break;
     case N_DEFINED:
 	break;
-    case N_NOOP:
-	statement = sdscatfmt(sdsempty(), "noop(%S)", left);
-	break;
     case N_ABS:
 	statement = sdscatfmt(sdsempty(), "abs(%S)", left);
 	break;
@@ -2231,16 +2225,6 @@ series_node_values_report(seriesQueryBaton *baton, node_t *np)
 	    }
 	}
     }
-}
-
-static void
-series_noop_traverse(seriesQueryBaton *baton, node_t *np, int level)
-{
-    if (np == NULL) {
-	return;
-    }
-    series_noop_traverse(baton, np->left, level+1);
-    series_noop_traverse(baton, np->right, level+1);
 }
 
 static int
@@ -3570,11 +3554,6 @@ series_calculate(seriesQueryBaton *baton, node_t *np, int level)
 
     np->baton = baton;
     switch (np->type) {
-	case N_NOOP:
-	    /* Traverse the subtree of this node */
-	    np->value_set = np->left->value_set;
-	    series_noop_traverse(baton, np, level);
-	    break;
 	case N_RATE:
 	    series_calculate_rate(np);
 	    sts = N_RATE;
