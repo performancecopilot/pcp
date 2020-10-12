@@ -23,6 +23,7 @@ cron
 curl
 debhelper
 dh-python
+docker.io not4ci
 dpkg-dev
 ed
 flex
@@ -123,6 +124,7 @@ socat
 sysstat
 systemtap-sdt-dev
 time
+unbound
 valgrind
 xfsprogs
 xkb-data

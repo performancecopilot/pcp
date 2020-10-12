@@ -22,7 +22,7 @@ cron
 curl
 debhelper
 dh-python
-docker.io
+docker.io not4ci
 dpkg-dev
 ed
 flex
