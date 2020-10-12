@@ -2022,120 +2022,58 @@ series_expr_canonical(node_t *np, int idx)
     /* first find each of the left and right hand sides, if any */
     switch (np->type) {
     case N_INTEGER:
-	statement = np->value;
-	left = right = NULL;
-	break;
     case N_NAME:
-	statement = sdsdup(np->value);
-	left = right = NULL;
-	break;
     case N_DOUBLE:
-	statement = sdsdup(np->value);
-	left = right = NULL;
-	break;
     case N_STRING:
-	statement = sdsdup(np->value);
-	left = right = NULL;
-	break;
     case N_SCALE:
 	statement = sdsdup(np->value);
-	left = right = NULL;
+	left = right = NULL; /* statement is a leaf in the expr tree */
 	break;
-    case N_LT:
-	left = series_expr_canonical(np->left, idx);
-	right = series_expr_canonical(np->right, idx);
-	break;
-    case N_LEQ:
-	left = series_expr_canonical(np->left, idx);
-	right = series_expr_canonical(np->right, idx);
-	break;
+
     case N_EQ:
-	if (np->left->type == N_NAME && sdscmp(np->left->value, sdsnew("metric.name")) == 0) {
+	if (np->left->type == N_NAME &&
+	    strncmp(np->left->value, "metric.name", sdslen(np->left->value)) == 0) {
 	    left = sdsempty();
-	} else {
+	} else
 	    left = series_expr_canonical(np->left, idx);
-	}
 	right = series_expr_canonical(np->right, idx);
 	break;
+
+    case N_LT:
+    case N_LEQ:
     case N_GLOB:
-	left = series_expr_canonical(np->left, idx);
-	right = series_expr_canonical(np->right, idx);
-	break;
     case N_GEQ:
-	left = series_expr_canonical(np->left, idx);
-	right = series_expr_canonical(np->right, idx);
-	break;
     case N_GT:
-	left = series_expr_canonical(np->left, idx);
-	right = series_expr_canonical(np->right, idx);
-	break;
     case N_NEQ:
-	left = series_expr_canonical(np->left, idx);
-	right = series_expr_canonical(np->right, idx);
-	break;
     case N_AND:
-	left = series_expr_canonical(np->left, idx);
-	right = series_expr_canonical(np->right, idx);
-	break;
     case N_OR:
-	left = series_expr_canonical(np->left, idx);
-	right = series_expr_canonical(np->right, idx);
-	break;
     case N_REQ:
-	left = series_expr_canonical(np->left, idx);
-	right = series_expr_canonical(np->right, idx);
-	break;
     case N_RNE:
-	left = series_expr_canonical(np->left, idx);
-	right = series_expr_canonical(np->right, idx);
-	break;
     case N_PLUS:
-	left = series_expr_canonical(np->left, idx);
-	right = series_expr_canonical(np->right, idx);
     case N_MINUS:
-	left = series_expr_canonical(np->left, idx);
-	right = series_expr_canonical(np->right, idx);
     case N_STAR:
-	left = series_expr_canonical(np->left, idx);
-	right = series_expr_canonical(np->right, idx);
     case N_SLASH:
-	left = series_expr_canonical(np->left, idx);
-	right = series_expr_canonical(np->right, idx);
     case N_RESCALE:
 	left = series_expr_canonical(np->left, idx);
 	right = series_expr_canonical(np->right, idx);
 	break;
+
     case N_AVG:
-	left = series_expr_canonical(np->left, idx);
-	right = NULL;
     case N_MAX:
-	left = series_expr_canonical(np->left, idx);
-	right = NULL;
     case N_MIN:
-	left = series_expr_canonical(np->left, idx);
-	right = NULL;
     case N_RATE:
-	left = series_expr_canonical(np->left, idx);
-	right = NULL;
     case N_NOOP:
-	left = series_expr_canonical(np->left, idx);
-	right = NULL;
     case N_ABS:
-	left = series_expr_canonical(np->left, idx);
-	right = NULL;
     case N_FLOOR:
-	left = series_expr_canonical(np->left, idx);
-	right = NULL;
     case N_SQRT:
-	left = series_expr_canonical(np->left, idx);
-	right = NULL;
     case N_ROUND:
 	left = series_expr_canonical(np->left, idx);
 	right = NULL;
 	break;
+
     case N_LOG:
 	left = series_expr_canonical(np->left, idx);
-	right = np->right? series_expr_canonical(np->right, idx) : NULL;
+	right = np->right ? series_expr_canonical(np->right, idx) : NULL;
 	break;
     default: 
 	left = right = NULL;
@@ -3754,7 +3692,6 @@ series_compatibility_convert(
 	set1->series_desc.type = sdsnew(pmTypeStr(type1));
 	set1->series_desc.units = sdsnew(pmUnitsStr(large_units));
     }
-
 }
 
 static void
@@ -3773,14 +3710,15 @@ series_redis_hash_expression(seriesQueryBaton *baton, char *hashbuf, int len_has
 
     for (i = 0; i < num_series; i++) {
 	if (!np->value_set.series_values[i].compatibility) {
-	    infofmt(msg, "Descriptors of metric %s can not satisfy compatibility between different hosts/sources.\n",
+	    infofmt(msg, "Descriptors for metric '%s' do not satisfy compatibility between different hosts/sources.\n",
 		np->value_set.series_values[i].metric_name);
-		batoninfo(baton, PMLOG_ERROR, msg);
-		baton->error = -EPROTO;
+	    batoninfo(baton, PMLOG_ERROR, msg);
+	    baton->error = -EPROTO;
 	    continue;
 	}
 	for (j = 0; j < num_series; j++) {
-	    if (!np->value_set.series_values[j].compatibility || i == j) continue;
+	    if (!np->value_set.series_values[j].compatibility || i == j)
+	    	continue;
 
 	    pmParseUnitsStr(np->value_set.series_values[i].series_desc.units, &units0, &mult, &errmsg);
 	    pmParseUnitsStr(np->value_set.series_values[j].series_desc.units, &units1, &mult, &errmsg);
@@ -3789,18 +3727,18 @@ series_redis_hash_expression(seriesQueryBaton *baton, char *hashbuf, int len_has
 		np->value_set.series_values[j].metric_name) == 0) {
 		if (check_compatibility(&units0, &units1) != 0) {
 		    np->value_set.series_values[j].compatibility = 0;
-		    infofmt(msg, "Descriptors of metric %s can not satisfy compatibility between different hosts/sources.\n",
-				np->value_set.series_values[i].metric_name);
+		    infofmt(msg, "Descriptors for metric '%s' do not satisfy compatibility between different hosts/sources.\n",
+			np->value_set.series_values[i].metric_name);
 		    batoninfo(baton, PMLOG_ERROR, msg);
 		    baton->error = -EPROTO;
 		    break;
 		} else {
-		/* 
-		 * For series with the same metric names, if they have
-		 * same dimensions but different scales, use the larger
-		 * scale and convert the values with the smaller scale.
-		 * The result is promoted to type PM_TYPE_DOUBLE.
-		 */
+		    /* 
+		     * For series with the same metric names, if they have
+		     * same dimensions but different scales, use the larger
+		     * scale and convert the values with the smaller scale.
+		     * The result is promoted to type PM_TYPE_DOUBLE.
+		     */
 		    series_compatibility_convert(&np->value_set.series_values[i],
 				&np->value_set.series_values[j],
 				&units0, &units1, &large_units);
