@@ -372,6 +372,7 @@ _filter_optional_pmda_instances()
 	-e '/inst \[95 or "kvm"]/d' \
 	-e '/inst \[98 or "zimbra"]/d' \
 	-e '/inst \[106 or "logger"]/d' \
+	-e '/inst \[108 or "elasticsearch"]/d' \
 	-e '/inst \[109 or "mssql"]/d' \
 	-e '/inst \[110 or "postgresql"]/d' \
 	-e '/inst \[114 or "systemd"]/d' \
