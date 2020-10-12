@@ -157,8 +157,8 @@ Ubuntu       18\.04   i.86    python3-bpfcc
 Ubuntu       16\.04   -       libcoin-dev libsoqt-dev libsoqt-dev-common libsoqt4-dev
 # prefer mariadb over mysql for the more recent versions
 #
-Ubuntu       20\.04   -       mysql-client-core mysql-client-core-[0-9][0-9.]* mysql-client-core
-Ubuntu       18\.04   -       mysql-client-core mysql-client-core-[0-9][0-9.]* mysql-client-core
+Ubuntu       20\.04   -       mysql-client-core mysql-client-core-[0-9][0-9.]*
+Ubuntu       18\.04   -       mysql-client-core mysql-client-core-[0-9][0-9.]*
 # observed in CI for Ubuntu 16.04
 # need mysql over mariadb, and pick an explicit latest mysql-client-core
 # version, not the generic meta package
