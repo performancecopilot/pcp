@@ -1277,9 +1277,13 @@ class MSSQLPMDA(PMDA):
         try:
             self.conn = pyodbc.connect(parameters, timeout=self.timeout)
             self.conn.timeout = self.timeout
-        except pyodbc.InterfaceError as error:
-            self.error("mssql_connect", "connecting as user %s: %s" %
-                       (self.username, error))
+        except (pyodbc.InterfaceError, pyodbc.Error) as error:
+            if self.trusted:
+                self.error("mssql_connect", "connecting using trusted connection: %s" %
+                    (error,))
+            else:
+                self.error("mssql_connect", "connecting as user %s: %s" %
+                    (self.username, error))
             self.conn = None
             return False
         # success
