@@ -15,6 +15,7 @@ fi
 
 _setversions()
 {
+    [ -z "$tmp" ] && tmp=/var/tmp/$$
     $home/whatami \
     | awk '{ for (i = 3; i <= NF; i++) printf $i " "; print "" }' \
     | sed \
@@ -41,6 +42,7 @@ s;bullseye/sid;11;
     | tr ' ' '\012' >$tmp.eval
     $very_verbose && echo >&2 "vars: `tr '\012' ' ' <$tmp.eval`"
     eval `cat $tmp.eval`
+    rm -f $tmp.eval
 }
 
 # The require, unavailable and skip files have the same format,
@@ -52,6 +54,7 @@ s;bullseye/sid;11;
 #
 _parse_file()
 {
+    [ -z "$tmp" ] && tmp=/var/tmp/$$
     rm -f $tmp.matches
     sed <$1 \
 	-e 's/#.*//' \
@@ -101,5 +104,6 @@ _parse_file()
     else
 	$very_verbose && echo >&2 "_parse_file: $1: no matches"
     fi
+    rm -f $tmp.matches
 }
 
