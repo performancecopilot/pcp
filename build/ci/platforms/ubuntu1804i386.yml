@@ -12,7 +12,7 @@ container:
   init: /bin/systemd
   containerfile: |
     FROM docker.io/i386/ubuntu:bionic
-    RUN linux32 apt-get update && linux32 apt-get install -y systemd sudo
+    RUN linux32 apt-get update && linux32 apt-get install -y systemd sudo git
     RUN useradd --create-home pcpbuild
     RUN echo 'pcpbuild ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/pcpbuild
 
@@ -26,7 +26,7 @@ tasks:
     sudo ACCEPT_EULA=Y DEBIAN_FRONTEND=noninteractive linux32 apt-get -y dist-upgrade
   install_build_dependencies: |
     sudo linux32 apt-get -y update
-    pkgs=$(./pcp/qa/admin/check-vm -fpM)
+    pkgs=$(linux32 ./pcp/qa/admin/check-vm -fpM)
     if [ "$runner" = "container" ]
     then
         pkgs=$(echo " $pkgs " | sed -e 's/ auditd / /')
