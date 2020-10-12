@@ -94,6 +94,7 @@ python
 python-all
 python-all-dev
 python-dev
+python-setuptools
 python3-all
 python3-all-dev
 python3-dev
