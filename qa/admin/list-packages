@@ -106,7 +106,7 @@ do
     do
 	if [ -f "$home/package-lists/${distro}+${_version}+${_arch}" ]
 	then
-	    echo "version=\"$_version\" arch=\"$arch\"" >$tmp.found
+	    echo "version=\"$_version\" arch=\"$_arch\"" >$tmp.found
 	    break
 	fi
     done
