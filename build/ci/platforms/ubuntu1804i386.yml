@@ -12,7 +12,7 @@ container:
   init: /bin/systemd
   containerfile: |
     FROM docker.io/i386/ubuntu:bionic
-    RUN linux32 apt-get update && linux32 apt-get install -y systemd sudo git
+    RUN linux32 apt-get update && linux32 apt-get install -y python-dev systemd sudo git
     RUN useradd --create-home pcpbuild
     RUN echo 'pcpbuild ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/pcpbuild
 
