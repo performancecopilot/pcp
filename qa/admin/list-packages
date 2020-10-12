@@ -8,32 +8,200 @@ _usage()
 {
     echo >&2 "Usage: $0 [options]"
     echo >&2 
+    echo >&2 "  -c           check packing list"
     echo >&2 "  -i tag       include only lines with a tag"
+    echo >&2 "  -m           list only missing packages"
     echo >&2 "  -n           show me, change nothing"
     echo >&2 "  -v           verbose (debugging)"
     echo >&2 "  -x tag       exclude lines with a tag"
     exit 1
 }
 
+# on entry we have ...
+# $tmp.list - packages from packing list, with optional -x and -i processing
+# 	done
+# $tmp.allpkgs - all available packages for this platform
+#
+_do_check()
+{
+    # dredge manifest for ALL packages for this distro
+    #
+
+    # First get any required packages
+    #
+    _parse_file $home/other-packages/require \
+    | sed >$tmp.require \
+	-e 's/{//g' \
+	-e 's/}//g' \
+    # end
+
+    # And then any skipped packages
+    #
+    _parse_file $home/other-packages/skip \
+    | sed >$tmp.skip \
+	-e 's/{//g' \
+	-e 's/}//g' \
+    # end
+
+    # And then process the manifest.
+    # The packaging types (tags @ start of manifest lines) we know about.
+    #
+    cat <<End-of-File >$tmp.tags
+dpkg	Ubuntu Debian LinuxMint
+rpm	RHEL Fedora CentOS openSUSE SUSE SLES
+emerge	Gentoo
+pkgin	NetBSD
+pkg_add	OpenBSD
+F_pkg	FreeBSD
+S_pkg	OpenIndiana
+slackpkg	Slackware
+pacman	Arch Linux
+brew	Darwin
+urpmi	OpenMandriva
+End-of-File
+    tag=`sed -n <$tmp.tags -e 's/	/ /g' -e 's/$/ /' -e "/ $distro /s/ .*//p"`
+    if [ -z "$tag" ]
+    then
+	echo >&2 "Botch: can't get manifest tag for \"$distro\""
+	exit
+    fi
+
+    awk <$home/other-packages/manifest '{ print NR ":" $0 }' \
+    | grep ":$tag?" \
+    | sed \
+	-e 's/:[^[]*\[/ /' \
+	-e 's/  *$//' \
+	-e 's/ *]$//' \
+	-e 's/ cpan([^)]*) / /' \
+	-e 's/ pip3([^)]*) / /' \
+	-e 's/([^)]*)//' \
+	-e 's/ or / /g' \
+    | while read lineno pkgs
+    do
+	$very_verbose && echo >&2 "manifest:$lineno $pkgs"
+	rm -f $tmp.havereq
+	for pkg in $pkgs
+	do
+	    for req_pkg in `cat $tmp.require`
+	    do
+		if echo "$pkg" | grep "^$req_pkg$" >/dev/null
+		then
+		    # one of the packages mentioned on this manifest line
+		    # is required, so assume that's a tie-breaker amongst
+		    # the alternatives
+		    #
+		    touch $tmp.havereq
+		    break
+		fi
+	    done
+	done
+
+	for pkg in $pkgs
+	do
+	    [ "$pkg" = "N/A" ] && continue
+	    if awk <$tmp.list '
+BEGIN					{ sts=1 }
+$1 == "'$pkg'" || $1 ~ /^'$pkg'$/	{ sts=0; exit }
+END					{ exit sts }'
+	    then
+		# included in list, is it available?
+		#
+		avail="`grep "^$pkg\$" <$tmp.allpkgs`"
+		if [ -z "$avail" ]
+		then
+		    echo "manifest:$lineno $pkg: in packing list, but not available?"
+		fi
+	    else
+		# not in list, unless it is to be skipped, or we have
+		# a required package for this manifest line, is it available?
+		#
+		rm -f $tmp.skipme
+		for skip_pkg in `cat $tmp.skip`
+		do
+		    if echo "$pkg" | awk '
+BEGIN						{ sts=1 }
+$1 == "'$skip_pkg'" || $1 ~ /^'$skip_pkg'$/	{ sts=0; exit }
+END						{ exit sts }'
+		    then
+			$very_verbose && echo >&2 "$pkg ($skip_pkg): skipped"
+			touch $tmp.skipme
+			break
+		    fi
+		done
+		if [ ! -f $tmp.skipme ]
+		then
+		    if [ ! -f $tmp.havereq ]
+		    then
+			avail="`grep "^$pkg\$" <$tmp.allpkgs`"
+			if [ -n "$avail" ]
+			then
+			    if [ "$pkg" = "$avail" ]
+			    then
+				echo "manifest:$lineno $pkg: not in packing list, but available?"
+			    else
+				echo "manifest:$lineno $pkg: not in packing list, but $avail available?"
+			    fi
+			fi
+		    fi
+		fi
+	    fi
+	done
+    done
+
+    # are the required ones all there?
+    #
+    for pkg in `cat $tmp.require`
+    do
+	if egrep "(^$pkg )|(^$pkg$)" <$tmp.list >/dev/null
+	then
+	    : OK
+	else
+	    echo "$pkg: required but not in packing list"
+	fi
+    done
+
+    # and are all the packages in the packing list really available?
+    #
+    sed <$tmp.list -e '/cpan(/d' -e '/pip3(/d' \
+    | while read pkg
+    do
+	avail="`grep "^$pkg\$" <$tmp.allpkgs`"
+	if [ -z "$avail" ]
+	then
+	    echo "$pkg: in packing list but not available"
+	fi
+    done
+
+}
+
+export LC_COLLATE=POSIX
+
 showme=false
 verbose=false
 very_verbose=false
 include=''
 exclude=''
-while getopts 'i:nvx:?' p
+missing=false
+check=false
+while getopts 'ci:mnvx:?' p
 do
     case "$p"
     in
-	i)
-		if [ -n "$exclude" ]
+	c)	check=true
+		;;
+
+	i)	if [ -n "$exclude" ]
 		then
 		    echo >&2 "Error: -x and -i are mutually exclusive"
 		    exit
 		fi
 		include="$include $OPTARG"
 		;;
-	n)
-		showme=true
+
+	n)	showme=true
+		;;
+
+	m)	missing=true
 		;;
 
 	v)	if $verbose
@@ -44,8 +212,7 @@ do
 		fi
 		;;
 
-	x)
-		if [ -n "$include" ]
+	x)	if [ -n "$include" ]
 		then
 		    echo >&2 "Error: -i and -x are mutually exclusive"
 		    exit
@@ -53,8 +220,7 @@ do
 		exclude="$exclude $OPTARG"
 		;;
 
-	n)
-		showme=true
+	n)	showme=true
 		;;
 
 	?)	_usage
@@ -140,7 +306,7 @@ fi
 
 if [ -n "$exclude" ]
 then
-    $very_verbose && [ -n "$exclude" ] && echo >&1 "Excluding tags:$exclude"
+    $very_verbose && [ -n "$exclude" ] && echo >&2 "Excluding tags:$exclude"
     echo 's/$/ /' >$tmp.sed
     for pkg in $exclude
     do
@@ -149,7 +315,7 @@ then
     sed -f $tmp.sed <"$home/package-lists/${distro}+${version}+${arch}"
 elif [ -n "$include" ]
 then
-    $very_verbose && [ -n "$include" ] && echo >&1 "Including only tags:$include"
+    $very_verbose && [ -n "$include" ] && echo >&2 "Including only tags:$include"
     echo 's/$/ /' >$tmp.sed
     for pkg in $include
     do
@@ -158,12 +324,190 @@ then
     sed -n -f $tmp.sed <"$home/package-lists/${distro}+${version}+${arch}"
 else
     cat "$home/package-lists/${distro}+${version}+${arch}"
-fi \
-| sed -n \
+fi >$tmp.list
+
+if $missing || $check
+then
+    # Base on distro info, generate a list of currently installed packages
+    # in $tmp.installed and a list of all available packages in $tmp.allpkgs
+    #
+    rm -f $tmp.installed $tmp.allpkgs
+    case "$distro"
+    in
+	Ubuntu|Debian|LinuxMint)
+	    dpkg-query -W -f '${package} ${status}\n' \
+	    | sed -n -e '/ installed$/s/ .*//p' >$tmp.installed
+	    apt-cache dumpavail | sed -n -e '/^Package: /s///p' >$tmp.allpkgs
+	    ;;
+
+	RHEL|Fedora|CentOS|openSUSE|SUSE\ SLES)
+	    rpm -qa --qf '%{NAME}\n' >$tmp.installed
+	    if which zypper >/dev/null 2>&1
+	    then
+		: TODO
+	    elif which dnf >/dev/null 2>&1
+	    then
+		( dnf list available; dnf list installed ) 2>&1 \
+		| sed >$tmp.allpkgs \
+		    -e '1,/^[^ ]* Packages/d' \
+		    -e 's/ .*//' \
+		    -e 's/\.[^.]*$//' \
+		# end
+	    elif which yum >/dev/null 2>&1
+	    then
+		( yum list available; yum list installed ) 2>&1 \
+		| sed >$tmp.allpkgs \
+		    -e '1,/^[^ ]* Packages/d' \
+		    -e 's/ .*//' \
+		    -e 's/\.[^.]*$//' \
+		# end
+	    fi
+	    ;;
+
+	Gentoo)
+	    equery list '*' | sed -e 's/.*].*] //' -e 's/-[0-9].*//' >$tmp.installed
+	    # TODO $tmp.allpkgs
+	    ;;
+
+	NetBSD)
+	    pkgin list | sed -e 's/-[0-9].*//' >$tmp.installed
+	    # TODO $tmp.allpkgs
+	    ;;
+
+	OpenBSD)
+	    pkg_info -a | sed -e 's/-[0-9].*//' >$tmp.installed
+	    # expect lines like this ...
+	    # <tr>...<a href="libsysstat-0.4.1p1.tgz">libsysstat-0.4.1p1.tgz</a>...
+	    #
+	    url="`cat /etc/installurl`/`uname -r`/packages/`uname -m`/"
+	    $verbose && echo >&2 "Fetching list of available packages from $url ..."
+	    curl -s $url \
+	    | sed -n >$tmp.allpkgs \
+		-e '/a href=".*tgz">/{
+s/\.tgz<\/a>.*/.tgz/
+s/.*>//
+s/-[0-9].*//
+p
+}'
+	    ;;
+
+	FreeBSD)
+	    pkg info -a | sed -e 's/-[0-9].*//' >$tmp.installed
+	    # TODO $tmp.allpkgs
+	    ;;
+
+	OpenIndiana)
+	    pkg list -H | sed -e 's/ .*//' >$tmp.installed
+	    # TODO $tmp.allpkgs
+	    ;;
+
+	Slackware)
+	    ls /var/log/packages | sed -e 's/-[0-9].*//' >$tmp.installed
+	    # lines after awk look like ...
+	    # ./aspell-word-lists/aspell-cs-20040614_1-x86_64-5.txz
+	    # ./n/openldap-client-2.4.42-x86_64-1.txz
+	    #
+	    for f in /var/lib/slackpkg/slackware64-filelist.gz \
+		     /var/lib/slackpkg/extra-filelist.gz
+	    do
+		[ -f "$f" ] || continue
+		zcat "$f" \
+		| $PCP_AWK_PROG '{ print $1 }' \
+		| sed \
+		    -e 's/\-[0-9].*//' \
+		    -e 's;.*/;;' \
+		# end
+	    done >$tmp.allpkgs
+	    ;;
+
+	Arch\ Linux)
+	    pacman -Q -i | sed -n -e '/^Name /s/.* : //p' >$tmp.installed
+	    pacman -Ss . \
+	    | sed -n >$tmp.allpkgs -e '/^[^ ]/s/ .*//p'
+	    ;;
+
+	Darwin)
+	    # TODO $tmp.installed
+	    # TODO $tmp.allpkgs
+	    :
+	    ;;
+
+	OpenMandriva)
+	    urpmi -qa --qf '%{NAME}\n' >$tmp.installed
+	    # TODO $tmp.allpkgs
+	    ;;
+    esac
+    if $missing && [ ! -f $tmp.installed ]
+    then
+	echo >&2 "Botch: can't generate tmp.installed for $distro"
+	exit
+    fi
+    if [ -f $tmp.allpkgs ]
+    then
+	sort <$tmp.allpkgs | uniq >$tmp.tmp
+	mv $tmp.tmp $tmp.allpkgs
+    else
+	if $check
+	then
+	    echo >&2 "Botch: can't generate tmp.installed for $distro"
+	    exit
+	fi
+    fi
+fi
+
+# map cpan and pip3 tags => cpan(...) and pip3(...)
+#
+sed <$tmp.list >$tmp.tmp \
+    -e 's/$/ /' \
+    -e 's/\(.*\) cpan/cpan(\1)/' \
+    -e 's/\(.*\) pip3/pip3(\1)/' \
+    -e 's/ $//' \
+# end
+mv $tmp.tmp $tmp.list
+
+# strip comments, remaining tags, white space and empty lines
+#
+sed -n <$tmp.list >$tmp.tmp \
     -e 's/#.*//' \
     -e 's/[ 	].*//' \
     -e 's/[ 	][ 	]*//g' \
     -e '/./p' \
-| ( tr '\012' ' ' ; echo )
+# end
+mv $tmp.tmp $tmp.list
+
+if $missing
+then
+    # special handling for cpan() packages
+    #
+    $very_verbose && cp $tmp.list $tmp.pkglist
+    rm -f $tmp.sed
+    grep '^cpan(' $tmp.list \
+    | sed -e 's/cpan(//' -e 's/)//' \
+    | while read module
+    do
+	if echo "use $module;" | perl >/dev/null 2>&1
+	then
+	    echo "/cpan($module)/d" >>$tmp.sed
+	fi
+    done
+    if [ -f $tmp.sed ]
+    then
+	sed -f $tmp.sed <$tmp.list >$tmp.tmp
+	mv $tmp.tmp $tmp.list
+    fi
+    # strip all packages in both $tmp.list and $tmp.installed and
+    # leave the result in $tmp.list
+    #
+    sort <$tmp.list >$tmp.1
+    sort <$tmp.installed >$tmp.2
+    comm -23 $tmp.1 $tmp.2 >$tmp.list
+fi
+
+if $check
+then
+    _do_check
+else
+    ( tr '\012' ' ' <$tmp.list ; echo )
+fi
 
 status=0
