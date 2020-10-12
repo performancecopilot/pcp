@@ -114,7 +114,7 @@ pmrep_create_group(FILE *file, group_t *group)
 {
     evaluate_state(group);
 
-    if (!prompt && group->probe_state != STATE_EXCLUDE &&
+    if (!prompt && !autocreate && group->probe_state != STATE_EXCLUDE &&
 	(group->pmid != PM_ID_NULL || group->metric == NULL))
 	fputc('.', stdout);
 
@@ -153,8 +153,8 @@ pmrep_header(FILE *f)
 "#\n", groupdir);
 
     fputs("\n[options]\n", f);
-    fputs("version = 1\n", f);
-    fputs("ignore_unknown = yes\n", f);
+    fputs("version=1\n", f);
+    fputs("ignore_unknown=yes\n", f);
     for (i = 0; i < noptions; i++)
 	fprintf(f, "%s\n", options[i]);
     fputs("\n", f);
