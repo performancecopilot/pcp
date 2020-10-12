@@ -157,99 +157,17 @@ NR == 2	{ nf = NF
     return $ret
 }
 
-# The require, unavailable and skip files have the same format,
-# listing packages and package patterns that apply to a particular
-# distribution, version and architecture.
-#
-# This function parses one of these files (specified as $1) and the
-# selected packages (if any) are written on std output
-#
-_parse_file()
-{
-    $PCP_AWK_PROG '{ for (i = 3; i <= NF; i++) printf $i " "; print "" }' <$tmp.whatami \
-    | sed \
-	-e 's/ \[.*//' \
-	-e 's/ ([^)]*)//' \
-	-e 's/RHEL Server/RHEL/' \
-	-e 's/Arch Linux/ArchLinux /' \
-	-e '/CentOS/{
-s/CentOS Linux/CentOS/
-s/CentOS\([0-9]\)/CentOS \1/
-}' \
-	-e '/FreeBSD/s/-RELEASE//' \
-	-e '/SLES\([0-9][0-9]*\) SP/s//\1-SP/' \
-	-e '/openSUSE/s/ Leap//' \
-	-e '/OpenIndiana/s/Hipster //' \
-	-e 's/^/_arch=/' \
-	-e 's/ /+_distro=/' \
-	-e 's/ / _version="/' \
-	-e 's/+_/ _/' \
-	-e 's/$/"/' \
-    | tr ' ' '\012' >$tmp.eval
-    $very_verbose && echo >&2 "_parse_file($1): vars: `tr '\012' ' ' <$tmp.eval`"
-    eval `cat $tmp.eval`
-    rm -f $tmp.matches
-    sed <$1 \
-	-e 's/#.*//' \
-	-e '/^[ 	]*$/d' \
-    | while read distro_pat version_pat arch_pat packages
-    do
-	if echo "$_distro" | grep "^$distro_pat" >/dev/null
-	then
-	    # Distro matches, check versions
-	    #
-	    _match=true
-	    if [ "X$version_pat" = "X-" -o -z "$_version" ]
-	    then
-		:
-	    else
-		if echo "$_version" | grep "^$version_pat" >/dev/null
-		then
-		    :
-		else
-		    _match=false
-		fi
-	    fi
-	    if $_match
-	    then
-		# Distro and version matches, check architecture
-		if [ "X$arch_pat" = "X-" -o -z "$_arch" ]
-		then
-		    :
-		else
-		    if echo "$_arch" | grep "^$arch_pat" >/dev/null
-		    then
-			:
-		    else
-			_match=false
-		    fi
-		fi
-	    fi
-	    if $_match
-	    then
-		echo "$packages" >>$tmp.matches
-	    fi
-	fi
-    done
-    if [ -s $tmp.matches ]
-    then
-	tr '\012' ' ' <$tmp.matches
-    else
-	$very_verbose && echo >&2 "_parse_file: $1: no matches"
-    fi
-}
-
 # create $tmp.allpkgs if we know how to do that ...
 #
 _build_allpkgs()
 {
-    case "`sed <$tmp.whatami -e 's/  */ /g' -e 's/ \[.*//' | cut -d ' ' -f 4-`"
+    case "$distro"
     in
-    *Ubuntu*|*Debian*|*LinuxMint*)
+    Ubuntu|Debian|LinuxMint)
 	apt-cache dumpavail | sed -n -e '/^Package: /s///p' >$tmp.allpkgs
 	;;
 
-    *RHEL*|*Fedora*|*CentOS*|*openSUSE*|*SUSE\ SLES*)
+    RHEL|Fedora|CentOS|openSUSE|SUSE\ SLES)
 	if which zypper >/dev/null 2>&1
 	then
 	    : TODO
@@ -272,15 +190,15 @@ _build_allpkgs()
 	fi
 	;;
 
-    *NetBSD*)
+    NetBSD)
 	# TODO
 	;;
 
-    *FreeBSD*)
+    FreeBSD)
 	# TODO
 	;;
 
-    *OpenBSD*)
+    OpenBSD)
 	# expect lines like this ...
 	# <tr>...<a href="libsysstat-0.4.1p1.tgz">libsysstat-0.4.1p1.tgz</a>...
 	#
@@ -296,19 +214,19 @@ p
 }'
 	;;
 
-    *Gentoo*)
+    Gentoo)
 	# TODO
 	;;
 
-    *Darwin*)
+    Darwin)
 	# TODO
 	;;
 
-    *OpenIndiana*)
+    OpenIndiana)
 	# TODO
 	;;
 
-    *Slackware*)
+    Slackware)
 	# lines after awk look like ...
 	# ./aspell-word-lists/aspell-cs-20040614_1-x86_64-5.txz
 	# ./n/openldap-client-2.4.42-x86_64-1.txz
@@ -326,7 +244,7 @@ p
 	done >$tmp.allpkgs
 	;;
 
-    *Arch\ Linux*)
+    Arch\ Linux)
 	pacman -Ss . \
 	| sed -n >$tmp.allpkgs -e '/^[^ ]/s/ .*//p'
 	;;
@@ -545,16 +463,26 @@ else
     esac
 fi
 
-# Need directory where check-vm script is located so we can find
-# the default other-packages/manifest and other-packages/unavailable
-# files and the whatami script
+# Need directory where this script is located so we can find the other
+# scripts and control files
 #
 home=`echo $0 | sed -e 's/\/*check-vm$//'`
-if [ -z "$home" -o ! -d "$home" ]
+if [ ! -f $home/whatami ]
 then
-    echo "Botch: \$0=$0 -> bad \$home=$home ?"
+    echo >&2 "Botch: \$0=$0 -> bad \$home=$home ?"
     exit 1
 fi
+
+if [ ! -f $home/packages.rc ]
+then
+    echo >&2 "Botch: cannot find $home/packages.rc"
+    exit
+fi
+
+. $home/packages.rc
+
+_setversions
+# $distro, $version and $arch now set
 
 all=false
 basic=false
@@ -704,12 +632,6 @@ then
     echo "Botch: cannot find skip: $skip"
     exit 1
 fi
-if [ ! -f "$home"/whatami ]
-then
-    echo "Botch: cannot find whatami :$home/whatami"
-    exit 1
-fi
-$home/whatami >$tmp.whatami
 
 # Packaging types we know about.
 #	dpkg - Debian-based
@@ -734,9 +656,9 @@ pkgtypes="dpkg rpm urpmi emerge pkgin pkg_add F_pkg S_pkg slackpkg pacman brew"
 mytype=''
 installcmd=''
 rm -f $tmp.installed
-case "`sed <$tmp.whatami -e 's/  */ /g' -e 's/ \[.*//' | cut -d ' ' -f 4-`"
+case "$distro"
 in
-    *Ubuntu*|*Debian*|*LinuxMint*)
+    Ubuntu|Debian|LinuxMint)
 	mytype=dpkg
 	installcmd="apt install"
 	# just ones like
@@ -748,7 +670,7 @@ in
 	| sed -n -e '/ installed$/s/ .*//p' >$tmp.installed
 	;;
 
-    *RHEL*|*Fedora*|*CentOS*|*openSUSE*|*SUSE\ SLES*)
+    RHEL|Fedora|CentOS|openSUSE|SUSE\ SLES)
 	mytype=rpm
 	if which zypper >/dev/null 2>&1
 	then
@@ -763,55 +685,55 @@ in
 	rpm -qa --qf '%{NAME}\n' >$tmp.installed
 	;;
 
-    *Gentoo*)
+    Gentoo)
 	mytype=emerge
 	installcmd="emerge --ask"
 	equery list '*' | sed -e 's/.*].*] //' -e 's/-[0-9].*//' >$tmp.installed
 	;;
 
-    *NetBSD*)
+    NetBSD)
 	mytype=pkgin
 	installcmd="pkgin -y install"
 	pkgin list | sed -e 's/-[0-9].*//' >$tmp.installed
 	;;
 
-    *OpenBSD*)
+    OpenBSD)
 	mytype=pkg_add
 	installcmd="pkg_add"
 	pkg_info -a | sed -e 's/-[0-9].*//' >$tmp.installed
 	;;
 
-    *FreeBSD*)
+    FreeBSD)
 	mytype=F_pkg
 	installcmd="pkg install"
 	pkg info -a | sed -e 's/-[0-9].*//' >$tmp.installed
 	;;
 
-    *OpenIndiana*)
+    OpenIndiana)
 	mytype=S_pkg
 	installcmd="pkg install"
 	pkg list -H | sed -e 's/ .*//' >$tmp.installed
 	;;
 
-    *Slackware*)
+    Slackware)
 	mytype=slackpkg
 	installcmd="slackpkg install"
 	ls /var/log/packages | sed -e 's/-[0-9].*//' >$tmp.installed
 	;;
 
-    *Arch\ Linux*)
+    Arch\ Linux)
 	mytype=pacman
 	installcmd="pacman -S"
 	pacman -Q -i | sed -n -e '/^Name /s/.* : //p' >$tmp.installed
 	;;
 
-    *Darwin*)
+    Darwin)
 	mytype=brew
 	installcmd="brew install"
 	echo >&2 "TODO: no list all packages method for brew"
 	;;
 
-    *OpenMandriva*)
+    OpenMandriva)
 	mytype=urpmi
 	installcmd="urpmi install"
 	urpmi -qa --qf '%{NAME}\n' >$tmp.installed
@@ -819,17 +741,17 @@ in
 esac
 if [ -z "$mytype" ]
 then
-    echo "$0: Botch: don't recognize mytype for: `cat $tmp.whatami`"
+    echo "$0: Botch: don't recognize mytype for: $distro"
     exit
 fi
 if [ -z "$installcmd" ]
 then
-    echo "$0: Botch: don't recognize installcmd for: `cat $tmp.whatami`"
+    echo "$0: Botch: don't recognize installcmd for: $distro"
     exit
 fi
 if [ ! -f $tmp.installed ]
 then
-    echo "$0: Botch: can't generate tmp.installed for: `cat $tmp.whatami`"
+    echo "$0: Botch: can't generate tmp.installed for: $distro"
     exit
 fi
 
@@ -846,7 +768,7 @@ fi
 #	netbsd		NetBSD
 #	openbsd		OpenBSD
 #
-distros="debian redhat centos suse arch mandriva freebsd netbsd openbsd"
+tags="debian redhat centos suse arch mandriva freebsd netbsd openbsd"
 
 # Append original line numbers for non-blank lines in the manifest.
 # Also rewrite [? ...] (package unknown) to [?:<original line number> ...]
@@ -945,26 +867,26 @@ then
 fi
 #debug# $very_verbose && echo >&2 "distro iam=$iam"
 
-for distro in $distros
+for tag in $tags
 do
     pick=false
     case "$iam"
     in
 	redhat|fedora)
-	    [ "$distro" = redhat ] && pick=true
+	    [ "$tag" = redhat ] && pick=true
 	    ;;
 	*)
-	    [ "$distro" = "$iam" ] && pick=true
+	    [ "$tag" = "$iam" ] && pick=true
 	    ;;
     esac
     if $pick
     then
-	$very_verbose && echo >&2 "include ${distro}? lines"
-	sed -e "s/^${distro}?[ 	]//" <$tmp.manifest >$tmp.tmp
+	$very_verbose && echo >&2 "include ${tag}? lines"
+	sed -e "s/^${tag}?[ 	]//" <$tmp.manifest >$tmp.tmp
 	mv $tmp.tmp $tmp.manifest
     else
-	#debug# $very_verbose && echo >&2 "exclude ${distro}? lines"
-	grep -v "^${distro}?[ 	]" <$tmp.manifest >$tmp.tmp
+	#debug# $very_verbose && echo >&2 "exclude ${tag}? lines"
+	grep -v "^${tag}?[ 	]" <$tmp.manifest >$tmp.tmp
 	mv $tmp.tmp $tmp.manifest
     fi
 done
@@ -1028,11 +950,11 @@ else
     then
 	for _pkg in $unavail_pkg
 	do
-	    if [ -z "$_version" ]
+	    if [ -z "$version" ]
 	    then
-		_cull_from_manifest "$_pkg" "N/A on $_distro"
+		_cull_from_manifest "$_pkg" "N/A on $distro"
 	    else
-		_cull_from_manifest "$_pkg" "N/A on $_distro $_version"
+		_cull_from_manifest "$_pkg" "N/A on $distro $version"
 	    fi
 	    mv $tmp.culled $tmp.manifest
 	done
@@ -1160,7 +1082,7 @@ do
 	    #
 	    if [ ! -f $tmp.allpkgs ]
 	    then
-		echo >&2 "Warning: manifest:$lineno botch? contains pattern, but tmp.allpkgs not created from _build_allpkgs()"
+		echo >&2 "Warning: manifest:$lineno botch? contains pattern $pkg, but tmp.allpkgs not created from _build_allpkgs()"
 	    else
 		real_pkg="`grep "^$pkg\$" $tmp.allpkgs | LC_COLLATE=POSIZ sort -nr | head -1`"
 		if [ -n "$real_pkg" ]
@@ -1697,9 +1619,9 @@ fi
 
 # Now some platform-specific tests
 #
-case "`sed <$tmp.whatami -e 's/  */ /g' -e 's/ \[.*//' | cut -d ' ' -f 4-`"
+case "$distro"
 in
-    *OpenBSD*)
+    OpenBSD)
 	if false
 	then
 	    # redundant now the openbsd PMDA no longer reads /dev/mem

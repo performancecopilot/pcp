@@ -43,3 +43,63 @@ s;bullseye/sid;11;
     eval `cat $tmp.eval`
 }
 
+# The require, unavailable and skip files have the same format,
+# listing packages and package patterns that apply to a particular
+# distribution, version and architecture.
+#
+# This function parses one of these files (specified as $1) and the
+# selected packages (if any) are written on std output
+#
+_parse_file()
+{
+    rm -f $tmp.matches
+    sed <$1 \
+	-e 's/#.*//' \
+	-e '/^[ 	]*$/d' \
+    | while read distro_pat version_pat arch_pat packages
+    do
+	if echo "$distro" | grep "^$distro_pat" >/dev/null
+	then
+	    # Distro matches, check versions
+	    #
+	    _match=true
+	    if [ "X$version_pat" = "X-" -o -z "$version" ]
+	    then
+		:
+	    else
+		if echo "$version" | grep "^$version_pat" >/dev/null
+		then
+		    :
+		else
+		    _match=false
+		fi
+	    fi
+	    if $_match
+	    then
+		# Distro and version matches, check architecture
+		if [ "X$arch_pat" = "X-" -o -z "$arch" ]
+		then
+		    :
+		else
+		    if echo "$arch" | grep "^$arch_pat" >/dev/null
+		    then
+			:
+		    else
+			_match=false
+		    fi
+		fi
+	    fi
+	    if $_match
+	    then
+		echo "$packages" >>$tmp.matches
+	    fi
+	fi
+    done
+    if [ -s $tmp.matches ]
+    then
+	tr '\012' ' ' <$tmp.matches
+    else
+	$very_verbose && echo >&2 "_parse_file: $1: no matches"
+    fi
+}
+
