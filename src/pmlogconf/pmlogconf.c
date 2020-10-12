@@ -1029,7 +1029,7 @@ create_group(FILE *file, group_t *group)
 {
     evaluate_state(group);
 
-    if (!prompt && group->probe_state != STATE_EXCLUDE &&
+    if (!prompt && !autocreate && group->probe_state != STATE_EXCLUDE &&
 	(group->pmid != PM_ID_NULL || group->metric == NULL))
 	fputc('.', stdout);
 
@@ -1255,20 +1255,26 @@ update_groups(FILE *tempfile, const char *pattern)
 	group = &groups[i];
 	if (!group->valid || group->saved_state == STATE_EXCLUDE)
 	    continue;
-	if (prompt == 0) {
-	    putc('.', stdout);
+	if (!prompt) {
+	    if (!autocreate)
+		putc('.', stdout);
 	    continue;
 	}
 	if (group->force)
 	    continue;
-	if (group->saved_state == STATE_INCLUDE)
+	if (autocreate)
+	    state = "\n";
+	else if (group->saved_state == STATE_INCLUDE)
 	    state = "y";
 	else
 	    state = "n";
-	putc('\n', stdout);
-	fmt(group->ident, buffer, sizeof(buffer), 64, 75, update_callback, &count);
-	printf("Log this group? [%s] ", state);
-	if (fgets(answer, sizeof(answer), stdin) == NULL)
+	if (!autocreate) {
+	    putc('\n', stdout);
+	    fmt(group->ident, buffer, sizeof(buffer), 64, 75,
+			    update_callback, &count);
+	    printf("Log this group? [%s] ", state);
+	}
+	if (autocreate || fgets(answer, sizeof(answer), stdin) == NULL)
 	    answer[0] = *state;
 
 	switch (answer[0]) {
@@ -1323,6 +1329,9 @@ y         log this group\n\
 	    i--;
 	    continue;
 	}
+
+	if (autocreate)
+	    continue;
 
 	if (prompt && deltas && group->saved_state == STATE_INCLUDE) {
 	    if (quick) {
@@ -1513,8 +1522,9 @@ diff_tempfile(FILE *tempfile)
 	} while (fgets(bytes, sizeof(bytes), diff) != NULL);
 	__pmProcessPipeClose(diff);
 	for (;;) {
-	    printf("Keep changes? [y] ");
-	    if (fgets(answer, sizeof(answer), stdin) == NULL)
+	    if (!autocreate)
+		printf("Keep changes? [y] ");
+	    if (fgets(answer, sizeof(answer), stdin) == NULL || autocreate)
 		answer[0] = 'y';
 	    if (answer[0] == '\n' || answer[0] == '\0')
 		answer[0] = 'y';

@@ -238,6 +238,10 @@ _filter()
        -e '/^rpc.* Unknown metric name/d' \
        -e '/^nfsclient.* Unknown metric name/d' \
        -e '/^elasticsearch.search.all.* Metric not supported/d' \
+       -e '/^elasticsearch.nodes.jvm.* Metric not supported/d' \
+       -e '/^elasticsearch.nodes.process.* Metric not supported/d' \
+       -e '/^elasticsearch.nodes.indices.cache.* Metric not supported/d' \
+       -e '/^elasticsearch.nodes.indices.docs.num_docs .* not supported/d' \
        -e '/^oracle.* Information not currently available/d' \
        -e '/^swap.in .* Metric not supported/d' \
        -e '/^swap.out .* Metric not supported/d' \

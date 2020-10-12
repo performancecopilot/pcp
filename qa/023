@@ -95,6 +95,7 @@ $1 == "y" && $2 = "y" && $8 == "localhost" {
 s/^6 /N-OK /
 s/^8 /N-OK /
 s/^9 /N-OK /
+s/^15 /N-OK /
 s/^16 /N-OK /
 s/^17 /N-OK /
 s/^18 /N-OK /

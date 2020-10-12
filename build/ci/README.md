@@ -1,7 +1,7 @@
 # GitHub Actions CI
 
 ## Workflows
-Workflow descriptions are located in `./github/workflows`, platform specific PCP build tasks are stored in `./build/ci/platforms`.
+Workflow descriptions are located in `.github/workflows`, platform specific PCP build tasks are stored in `./build/ci/platforms`.
 
 * CI: Triggered on push and on pull requests, runs the sanity QA group on assorted platforms
 * Daily CI: Runs a full QA run daily at 19:00 UTC and publishes the results at https://pcp.io/qa-reports/
