@@ -96,7 +96,9 @@ postgresql-client-common
 psmisc
 pylint
 python
-python2-dev
+python-all
+python-all-dev
+python-dev
 python3-all
 python3-all-dev
 python3-dev
