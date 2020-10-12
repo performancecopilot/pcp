@@ -26,7 +26,7 @@ tasks:
     sudo ACCEPT_EULA=Y DEBIAN_FRONTEND=noninteractive apt-get -y dist-upgrade
   install_build_dependencies: |
     sudo apt-get -y update
-    pkgs=$(./pcp/qa/admin/list-packages -x cpan -x pip3 -x not4ci)
+    pkgs=$(./pcp/qa/admin/list-packages -v -x cpan -x pip3 -x not4ci)
     sudo DEBIAN_FRONTEND=noninteractive apt-get install -y $pkgs || true
   build: |
     cd ./pcp

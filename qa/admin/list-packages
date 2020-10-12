@@ -95,18 +95,39 @@ fi
 _setversions
 # $distro, $version and $arch now set
 
-if [ ! -f "$home/package-lists/${distro}+${version}+$arch" ]
+# This gets a bit tricky as the match may be for a prefix of the ${version}
+# and/or "any" in lieu of ${arch}
+#
+rm -f $tmp.found
+_version="$version"
+while true
+do
+    for _arch in "${arch}" "any"
+    do
+	if [ -f "$home/package-lists/${distro}+${_version}+${_arch}" ]
+	then
+	    echo "version=\"$_version\" arch=\"$arch\"" >$tmp.found
+	    break
+	fi
+    done
+    [ -s $tmp.found ] && break
+    _check="`echo $_version | sed -e 's/\.[0-9][0-9]*$//'`"
+    [ "$_check" = "$_version" ] && break
+    _version="$_check"
+done
+
+if [ -s $tmp.found ]
 then
-    if [ ! -f "$home/package-lists/${distro}+${version}+any" ]
+    if $verbose
     then
-	echo >&2 "Botch: $home/package-lists/${distro}+${version}+$arch: not found"
-	exit
-    else
-	# use arch=any in lieu of arch=$arch
-	#
-	$verbose && echo >&2 "Info: using arch \"any\" instead of \"$arch\""
-	arch=any
+	v_version="$version"
+	v_arch="$arch"
     fi
+    eval `cat $tmp.found`
+    $verbose && echo >&2 "Info: fuzzy match platform $distro+$v_version+$v_arch => packaging $distro+$version+$arch"
+else
+    echo >&2 "Botch: $home/package-lists/${distro}+${version}+${arch}: no match found"
+    exit
 fi
 
 if [ -n "$exclude" ]
@@ -117,7 +138,7 @@ then
     do
 	echo "/ $pkg /d" >>$tmp.sed
     done
-    sed -f $tmp.sed <"$home/package-lists/${distro}+${version}+$arch"
+    sed -f $tmp.sed <"$home/package-lists/${distro}+${version}+${arch}"
 elif [ -n "$include" ]
 then
     $very_verbose && [ -n "$include" ] && echo >&1 "Including only tags:$include"
@@ -126,9 +147,9 @@ then
     do
 	echo "/ $pkg /p" >>$tmp.sed
     done
-    sed -n -f $tmp.sed <"$home/package-lists/${distro}+${version}+$arch"
+    sed -n -f $tmp.sed <"$home/package-lists/${distro}+${version}+${arch}"
 else
-    cat "$home/package-lists/${distro}+${version}+$arch"
+    cat "$home/package-lists/${distro}+${version}+${arch}"
 fi \
 | sed -n \
     -e 's/#.*//' \
