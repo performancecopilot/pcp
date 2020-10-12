@@ -124,7 +124,15 @@ then
 	v_arch="$arch"
     fi
     eval `cat $tmp.found`
-    $verbose && echo >&2 "Info: fuzzy match platform $distro+$v_version+$v_arch => packaging $distro+$version+$arch"
+    if $verbose
+    then
+	if [ "$v_version+$v_arch" = "$version+$arch" ]
+	then
+	    echo >&2 "Info: exact match => packaging $distro+$version+$arch"
+	else
+	    echo >&2 "Info: fuzzy match platform $distro+$v_version+$v_arch => packaging $distro+$version+$arch"
+	fi
+    fi
 else
     echo >&2 "Botch: $home/package-lists/${distro}+${version}+${arch}: no match found"
     exit
