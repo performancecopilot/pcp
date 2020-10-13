@@ -1,7 +1,5 @@
-# PCP required package list for Fedora 31 x86_64
+# PCP required package list for Fedora 32 x86_64
 # created by kenj on vm03.localdomain Mon 12 Oct 2020 14:03:26 AEDT
-# and then hand-modified for Fedora 31 using differences in the
-# ../other-packages/unavailable file
 #
 389-ds-base
 Coin4-devel
@@ -51,7 +49,6 @@ git
 git-core
 grep
 httpd
-infiniband-diags-devel
 initscripts
 java-latest-openjdk-headless
 kubernetes-client
@@ -105,6 +102,7 @@ postgresql
 psmisc
 pylint
 python2-devel
+python2-setuptools
 python3-bcc
 python3-devel
 python3-elasticsearch
@@ -131,7 +129,6 @@ ragel
 rdma-core-devel
 readline-devel
 redis
-RediSearch
 rpm-build
 rpm-devel
 rrdtool

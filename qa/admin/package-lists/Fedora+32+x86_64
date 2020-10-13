@@ -62,6 +62,7 @@ libvirt-daemon-driver-qemu
 lm_sensors
 mailx
 make
+man
 mandoc
 mariadb
 memcached
@@ -101,6 +102,8 @@ postfix-perl-scripts
 postgresql
 psmisc
 pylint
+python2-devel
+python2-setuptools
 python3-bcc
 python3-devel
 python3-elasticsearch
