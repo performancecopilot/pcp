@@ -6,18 +6,9 @@
 389-ds-base
 Coin4-devel
 HdrHistogram_c-devel
-List::MoreUtils cpan
-Net::SNMP cpan
 SoQt-devel
 Spreadsheet::Read cpan
 Spreadsheet::ReadSXC cpan
-Spreadsheet::WriteExcel cpan
-Spreadsheet::XLSX cpan
-Text::CSV_XS cpan
-XML::LibXML cpan
-XML::TokeParser cpan
-YAML::LibYAML cpan
-audit
 autoconf
 avahi-devel
 avahi-tools
