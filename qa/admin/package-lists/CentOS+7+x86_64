@@ -1,0 +1,135 @@
+# PCP required package list for CentOS 7.8.2003 x86_64
+# created by kenj on vm08.localdomain Tue Oct 13 14:02:16 AEDT 2020
+#
+389-ds
+389-ds-base
+Coin3-devel
+List::MoreUtils cpan
+Net::SNMP cpan
+Spreadsheet::Read cpan
+Spreadsheet::ReadSXC cpan
+Spreadsheet::WriteExcel cpan
+Spreadsheet::XLSX cpan
+Text::CSV_XS cpan
+XML::LibXML cpan
+XML::TokeParser cpan
+YAML::LibYAML cpan
+audit
+autoconf
+avahi-devel
+avahi-tools
+bash
+bc
+bind-utils
+bison
+ccache
+coreutils
+cppcheck
+cronie
+curl
+cyrus-sasl
+cyrus-sasl-devel
+cyrus-sasl-lib
+cyrus-sasl-md5
+cyrus-sasl-plain
+device-mapper-devel
+docker
+docker-common
+ed
+flex
+gawk
+gcc
+gcc-c++
+gdb
+gfs2-utils
+git
+grep
+httpd
+infiniband-diags-devel
+initscripts
+java-latest-openjdk-headless
+kubernetes-client
+kubernetes-node
+libicu-devel
+libpfm-devel
+libuv-devel
+libvirt-daemon
+libvirt-daemon-driver-qemu
+libvirt-python
+lm_sensors
+mailx
+make
+mandoc
+mariadb
+memcached
+mesa-dri-drivers
+ncurses-devel
+net-tools
+nmap
+nspr-devel
+nss-devel
+nss-tools
+openssl
+openssl-devel
+perl
+perl-CPAN
+perl-DBD-MySQL
+perl-Date-Manip
+perl-ExtUtils-MakeMaker
+perl-File-Slurp
+perl-JSON
+perl-LDAP
+perl-List-MoreUtils
+perl-Net-SNMP
+perl-Spreadsheet-WriteExcel
+perl-Spreadsheet-XLSX
+perl-Text-CSV_XS
+perl-Time-HiRes
+perl-TimeDate
+perl-XML-LibXML
+perl-XML-TokeParser
+perl-YAML-LibYAML
+perl-autodie
+perl-libwww-perl
+pkgconfig
+postfix-perl-scripts
+postgresql
+psmisc
+pylint
+python3-devel
+python3-libs
+python3-psycopg2
+python3-setuptools
+python36-lxml
+python36-pillow
+python36-requests
+python36-six
+qt-devel
+qt5-qtbase-devel
+qt5-qtsvg-devel
+ragel
+rdma-core-devel
+readline-devel
+redis
+rpm-build
+rpm-devel
+rrdtool
+rrdtool-perl
+sed
+selinux-policy
+selinux-policy-devel
+selinux-policy-targeted
+setools
+setools-console
+smartmontools
+socat
+sqlite
+sysstat
+systemd-devel
+systemtap-sdt-devel
+time
+valgrind
+xfsprogs
+xkeyboard-config
+xz-devel
+zabbix22-agent

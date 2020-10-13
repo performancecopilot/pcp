@@ -16,7 +16,7 @@ tasks:
     sudo yum update -y
   install_build_dependencies: |
     sudo yum install -y which
-    sudo yum -y --skip-broken install man $(./pcp/qa/admin/check-vm -fpM)
+    sudo yum -y install $(./pcp/qa/admin/list-packages -m -v -x cpan -x pip3 -x not4ci)
   build: |
     cd ./pcp && ./Makepkgs --verbose
   copy_build_artifacts: |
