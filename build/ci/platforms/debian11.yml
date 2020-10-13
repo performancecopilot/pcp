@@ -27,7 +27,7 @@ tasks:
   install_build_dependencies: |
     sudo apt-get -y update
     pkgs=$(./pcp/qa/admin/list-packages -m -v -x cpan -x pip3 -x not4ci)
-    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y $pkgs || true
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y $pkgs
   build: |
     cd ./pcp
     ./Makepkgs --nonrpm --verbose
