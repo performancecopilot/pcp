@@ -6,8 +6,17 @@
 389-ds-base
 Coin4-devel
 HdrHistogram_c-devel
-RediSearch
+List::MoreUtils cpan
+Net::SNMP cpan
 SoQt-devel
+Spreadsheet::Read cpan
+Spreadsheet::ReadSXC cpan
+Spreadsheet::WriteExcel cpan
+Spreadsheet::XLSX cpan
+Text::CSV_XS cpan
+XML::LibXML cpan
+XML::TokeParser cpan
+YAML::LibYAML cpan
 audit
 autoconf
 avahi-devel
@@ -20,17 +29,6 @@ bpftrace
 ccache
 chan-devel
 coreutils
-coreutils-single
-List::MoreUtils cpan
-Net::SNMP cpan
-Spreadsheet::Read cpan
-Spreadsheet::ReadSXC cpan
-Spreadsheet::WriteExcel cpan
-Spreadsheet::XLSX cpan
-Text::CSV_XS cpan
-XML::LibXML cpan
-XML::TokeParser cpan
-YAML::LibYAML cpan
 cppcheck
 cronie
 curl
@@ -131,7 +129,6 @@ ragel
 rdma-core-devel
 readline-devel
 redis
-RediSearch
 rpm-build
 rpm-devel
 rrdtool
