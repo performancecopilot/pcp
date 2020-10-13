@@ -40,7 +40,7 @@ s;bullseye/sid;11;
 	-e 's/+distro/ distro/' \
 	-e 's/$/"/' \
     | tr ' ' '\012' >$tmp.eval
-    $very_verbose && echo >&2 "vars: `tr '\012' ' ' <$tmp.eval`"
+    [ "$very_verbose" = "true" ] && echo >&2 "Info: `tr '\012' ' ' <$tmp.eval`"
     eval `cat $tmp.eval`
     full_version="$version"
     full_arch="$arch"
