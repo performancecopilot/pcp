@@ -188,10 +188,16 @@ include=''
 exclude=''
 missing=false
 check=false
-while getopts 'ci:mnvx:?' p
+while getopts 'A:cD:i:mnvV:x:?' p
 do
     case "$p"
     in
+	A)	Arch="$OPTARG"
+		;;
+
+	D)	Distro="$OPTARG"
+		;;
+
 	c)	check=true
 		;;
 
@@ -215,6 +221,9 @@ do
 		else
 		    verbose=true
 		fi
+		;;
+
+	V)	Version="$OPTARG"
 		;;
 
 	x)	if [ -n "$include" ]
