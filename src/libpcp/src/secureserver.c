@@ -300,6 +300,7 @@ __pmSecureServerInit(void)
     SECStatus secsts;
     int pathSpecified;
     int sts = 0;
+    char *pcp_nss_init_mode = getenv("PCP_NSS_INIT_MODE");
 
     PM_INIT_LOCKS();
     PM_LOCK(secureserver_lock);
@@ -343,14 +344,23 @@ __pmSecureServerInit(void)
     /*
      * pmproxy acts as both a client and server. Since the
      * server init path happens first, the db previously
-     * got opened readonly.  Instead try to open RW.
-     * Fallback if there is an error.
+     * got opened readonly.  Instead try to open RW, but
+     * only if PCP_NSS_INIT_MODE is NOT set in the environment
+     * OR is set to "readwrite". See RHBZ#1857396, where pmcd
+     * only needs to open the db read-only. Fallback if there
+     * is an error.
      */
 
-    secsts = NSS_InitReadWrite(secure_server.database_path);
+    secsts = SECFailure;
+    if (!pcp_nss_init_mode || strncmp(pcp_nss_init_mode, "readwrite", 9) == 0) {
+	/* try read-write first */
+	secsts = NSS_InitReadWrite(secure_server.database_path);
+    }
 
-    if( secsts != SECSuccess )
+    if (secsts != SECSuccess) {
+	/* fallback to read-only */
     	secsts = NSS_Init(secure_server.database_path);
+    }
 
     if (secsts != SECSuccess && !pathSpecified) {
 	/* fallback, older versions of NSS do not support sql: */
