@@ -59,6 +59,7 @@ libvirt-python
 lm_sensors
 mailx
 make
+man
 mandoc
 mariadb
 memcached
@@ -96,6 +97,7 @@ postfix-perl-scripts
 postgresql
 psmisc
 pylint
+python-devel
 python3-devel
 python3-libs
 python3-psycopg2

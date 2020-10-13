@@ -35,6 +35,8 @@ ArchLinux    -        -       python2-{.*} {.*}-python2
 CentOS       8\.2\.   -       {.*}-python2 python2-{.*} python2[0-9]-{.*} python-{.*} mysql mandoc perl-Net-SNMP perl-Spreadsheet-XLSX perl-Spreadsheet-WriteExcel cpan(Spreadsheet::WriteExcel)
 CentOS       8\.1\.   -       {.*}-python2 python2-{.*} python2{[0-9]-.*} python-{.*}
 CentOS       7\.[5-9]\. -       {.*}-python2 python2-{.*} python2{[0-9]-.*} python-{.*}
+# For CentOS 8, mktemp and realpath are in coreutils, not coreutils-single
+CentOS       8\.      -       coreutils-single
 # For CentOS 7 and 8 prefer infiniband-diags-devel over libibmad-devel
 CentOS       [7-8]\.  -       libibmad-devel
 # For CentOS 6 infiniband-diags-devel does not provide all the headers

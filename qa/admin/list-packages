@@ -509,7 +509,10 @@ if $check
 then
     _do_check
 else
-    ( tr '\012' ' ' <$tmp.list ; echo )
+    if [ -s $tmp.list ]
+    then
+	( tr '\012' ' ' <$tmp.list ; echo )
+    fi
 fi
 
 status=0
