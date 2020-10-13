@@ -17,7 +17,7 @@ bind-utils
 bison
 bpftrace
 ccache
-coreutils
+coreutils-single
 cronie
 curl
 cyrus-sasl

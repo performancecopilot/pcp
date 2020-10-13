@@ -8,11 +8,14 @@ _usage()
 {
     echo >&2 "Usage: $0 [options]"
     echo >&2 
+    echo >&2 "  -A arch      override platform arch"
+    echo >&2 "  -D distro    override platform distro"
     echo >&2 "  -c           check packing list"
     echo >&2 "  -i tag       include only lines with a tag"
     echo >&2 "  -m           list only missing packages"
     echo >&2 "  -n           show me, change nothing"
     echo >&2 "  -v           verbose (debugging)"
+    echo >&2 "  -V version   override platform version"
     echo >&2 "  -x tag       exclude lines with a tag"
     exit 1
 }
@@ -262,6 +265,24 @@ fi
 
 _setversions
 # $distro, $version $full_version, $arch and $full_arch now set
+
+# optionally over-ridden from the comand line ...
+#
+if [ -n "$Distro" ]
+then
+    $verbose && echo >&2 "Info: forcing distro=$Distro (not $distro)"
+    distro="$Distro"
+fi
+if [ -n "$Version" ]
+then
+    $verbose && echo >&2 "Info: forcing version=$Version (not $version)"
+    version="$Version"
+fi
+if [ -n "$Arch" ]
+then
+    $verbose && echo >&2 "Info: forcing arch=$Arch (not $arch)"
+    arch="$Arch"
+fi
 
 # This gets a bit tricky as the match may be for a prefix of the ${version}
 # and/or "any" in lieu of ${arch}

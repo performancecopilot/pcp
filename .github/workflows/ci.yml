@@ -27,8 +27,8 @@ jobs:
 #          - {platform: debian10,       runner: container, os: ubuntu-latest}
 #          - {platform: debian11,       runner: container, os: ubuntu-latest}
 #          - {platform: fedora31,       runner: container, os: ubuntu-latest}
-          - {platform: centos6,        runner: container, os: ubuntu-latest}
-          - {platform: centos7,        runner: container, os: ubuntu-latest}
+#          - {platform: centos6,        runner: container, os: ubuntu-latest}
+#          - {platform: centos7,        runner: container, os: ubuntu-latest}
     steps:
       - name: Checkout sources
         uses: actions/checkout@v2

@@ -79,7 +79,6 @@ libvirt-daemon-system
 libxml-libxml-perl
 libxml-tokeparser-perl
 libyaml-libyaml-perl
-linux32
 lm-sensors
 make
 mandoc
