@@ -26,7 +26,6 @@ bc
 bind-utils
 bison
 bpftrace
-ccache
 chan-devel
 coreutils
 cppcheck

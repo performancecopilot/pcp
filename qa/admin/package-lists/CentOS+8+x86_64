@@ -16,7 +16,6 @@ bc
 bind-utils
 bison
 bpftrace
-ccache
 coreutils-single
 cronie
 curl
