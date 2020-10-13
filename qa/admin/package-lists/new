@@ -65,7 +65,7 @@ rm -f $tmp.*
 # scripts and control files
 #
 home=`echo $0 | sed -e 's/\/*new$//'`
-home=`realpath $home/..`
+home=`cd $home/..; /bin/pwd`
 if [ ! -f $home/whatami ]
 then
     echo "Botch: \$0=$0 -> bad \$home=$home ?"
@@ -98,11 +98,10 @@ echo "#" >>$tmp.list
 
 $home/check-vm -fap \
 | tr ' ' '\012' \
-| LC_COLLATE=POSIX sort \
-| uniq \
-| sed >>$tmp.list \
+| sed \
     -e 's/\(.*\)(\(.*\))/\2 \1/' \
-# end
+| LC_COLLATE=POSIX sort \
+| uniq >>$tmp.list
 
 if [ -f "${distro}+${version}+$arch" ]
 then

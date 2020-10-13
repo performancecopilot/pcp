@@ -34,6 +34,7 @@ _do_check()
 	-e 's/{//g' \
 	-e 's/}//g' \
     # end
+    [ -s $tmp.require ] && $very_verbose && echo >&2 "require: `cat $tmp.require`"
 
     # And then any skipped packages
     #
@@ -42,6 +43,7 @@ _do_check()
 	-e 's/{//g' \
 	-e 's/}//g' \
     # end
+    [ -s $tmp.skip ] && $very_verbose && echo >&2 "skip: `cat $tmp.skip`"
 
     # And then process the manifest.
     # The packaging types (tags @ start of manifest lines) we know about.
@@ -259,7 +261,7 @@ fi
 . $home/packages.rc
 
 _setversions
-# $distro, $version and $arch now set
+# $distro, $version $full_version, $arch and $full_arch now set
 
 # This gets a bit tricky as the match may be for a prefix of the ${version}
 # and/or "any" in lieu of ${arch}

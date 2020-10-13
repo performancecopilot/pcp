@@ -42,6 +42,8 @@ s;bullseye/sid;11;
     | tr ' ' '\012' >$tmp.eval
     $very_verbose && echo >&2 "vars: `tr '\012' ' ' <$tmp.eval`"
     eval `cat $tmp.eval`
+    full_version="$version"
+    full_arch="$arch"
     rm -f $tmp.eval
 }
 
@@ -66,11 +68,11 @@ _parse_file()
 	    # Distro matches, check versions
 	    #
 	    _match=true
-	    if [ "X$version_pat" = "X-" -o -z "$version" ]
+	    if [ "X$version_pat" = "X-" -o -z "$full_version" ]
 	    then
 		:
 	    else
-		if echo "$version" | grep "^$version_pat" >/dev/null
+		if echo "$full_version" | grep "^$version_pat" >/dev/null
 		then
 		    :
 		else
@@ -80,11 +82,11 @@ _parse_file()
 	    if $_match
 	    then
 		# Distro and version matches, check architecture
-		if [ "X$arch_pat" = "X-" -o -z "$arch" ]
+		if [ "X$arch_pat" = "X-" -o -z "$full_arch" ]
 		then
 		    :
 		else
-		    if echo "$arch" | grep "^$arch_pat" >/dev/null
+		    if echo "$full_arch" | grep "^$arch_pat" >/dev/null
 		    then
 			:
 		    else
