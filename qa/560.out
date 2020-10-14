@@ -11,7 +11,7 @@ Use Internet, IPv6 or Unix domain sockets? [Internet] Unix
 Unix FIFO name? 
 Must provide a name, please try again
 Use Internet, IPv6 or Unix domain sockets? [Internet] Internet
-Internet port number or service name? [2078] 
+Internet port number or service name? [2078] PORT
 Installing files ...
 [...install files, make output...]
 Updating the Performance Metrics Name Space (PMNS) ...

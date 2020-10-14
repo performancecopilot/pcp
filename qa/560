@@ -17,14 +17,15 @@ echo "QA output created by $seq"
 
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+$sudo rm -f $seq.full
 
 # real QA test starts here
 cd $PCP_PMDAS_DIR/simple
 
 unset ROOT MAKEFLAGS
 
-$sudo $PCP_MAKE_PROG clobber >/dev/null 2>&1
-$sudo $PCP_MAKE_PROG >/dev/null 2>&1
+$sudo $PCP_MAKE_PROG clobber >>$here/$seq.full 2>&1
+$sudo $PCP_MAKE_PROG >>$here/$seq.full 2>&1
 
 _filter_make()
 {
@@ -34,6 +35,13 @@ _filter_make()
 	-e '/make: Nothing to be done/d'
 }
 
+port=`_get_port tcp 2078 2127`
+if [ -z "$port" ]
+then
+    echo "Arrgh ... no free TCP port in the range 2078 ... 2127"
+    exit
+fi
+echo "port=$port" >>$here/$seq.full
 cat <<End-of-File | $sudo ./Install -e >$tmp.out 2>&1
 foo
 daemon
@@ -43,15 +51,17 @@ foo
 Unix
 
 Internet
-
+$port
 End-of-File
 
-sed <$tmp.out \
+tee -a $here/$seq.full <$tmp.out \
+| sed \
+    -e "s/ $port\$/ PORT/" \
     -e 's/or perl //g' \
     -e 's/or python //g' \
     -e 's/daemon or dso,/"daemon" or "dso",/g' \
-    | _filter_pmda_install \
-    | _filter_make
+| _filter_pmda_install \
+| _filter_make
 
 echo "in \$PCP_PMCDCONF_PATH ..."
 sed -n <$PCP_PMCDCONF_PATH \
@@ -70,7 +80,16 @@ else
     echo "make prior to Install failed!"
 fi
 $sudo ./Install </dev/null >$tmp.out 2>&1
-grep 'Check' $tmp.out
+tee -a $here/$seq.full <$tmp.out \
+| grep 'Check'
+
+if [ -f "$PCP_LOG_DIR/pmcd/simple.log" ]
+then
+    cat "$PCP_LOG_DIR/pmcd/simple.log" >>$here/$seq.full
+else
+    echo "$PCP_LOG_DIR/pmcd/simple.log: missing?"
+fi
+
 
 # success, all done
 status=0
