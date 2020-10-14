@@ -98,6 +98,7 @@ fi
 
 # now sort by test number then platform name
 #
+touch $tmp.sum
 sed <$tmp.tmp -e 's;/; ;' -e 's/\.out\.bad//' \
 | sort -k2,2n -k1,1 \
 | while read dir seq
@@ -129,6 +130,14 @@ do
     fi
 
     cd $dir
-    ./show-me -w $seq
+    sum=`shasum <$seq.out.bad | sed -e 's/ .*//'`
+    match_dir=`grep " $seq $sum\$" $tmp.sum | sed -e 's/ .*//'`
+    if [ -n "$match_dir" ]
+    then
+	echo "$dir/$seq: same failure as $match_dir/$seq"
+    else
+	./show-me -w $seq
+	echo "$dir $seq $sum" >>$tmp.sum
+    fi
     cd ..
 done
