@@ -325,3 +325,16 @@ already created and in the dbuf hash table.
 For diagnostic purposes, this is incremented whenever we can't add
 something to the metadata cache because it's full, and instead put
 the data in the regular dbuf cache.
+
+@ zfs.dmu_tx.assigned
+@ zfs.dmu_tx.delay
+@ zfs.dmu_tx.error
+@ zfs.dmu_tx.suspended
+@ zfs.dmu_tx.group
+@ zfs.dmu_tx.memory_reserve
+@ zfs.dmu_tx.memory_reclaim
+@ zfs.dmu_tx.dirty_throttle
+@ zfs.dmu_tx.dirty_delay
+@ zfs.dmu_tx.dirty_over_max
+@ zfs.dmu_tx.dirty_frees_delay
+@ zfs.dmu_tx.quota

@@ -703,8 +703,8 @@ static pmdaMetric metrictab[] = {
 	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
 /* dmu_tx_delay */
 	{ &dmu_tx.delay,
-	  { PMDA_PMID(3, 1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(3, 1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_MSEC, 0) } },
 /* dmu_tx_error */
 	{ &dmu_tx.error,
 	  { PMDA_PMID(3, 2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
@@ -719,32 +719,32 @@ static pmdaMetric metrictab[] = {
 	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
 /* dmu_tx_memory_reserve */
 	{ &dmu_tx.memory_reserve,
-	  { PMDA_PMID(3, 5), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(3, 5), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* dmu_tx_memory_reclaim */
 	{ &dmu_tx.memory_reclaim,
-	  { PMDA_PMID(3, 6), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(3, 6), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* dmu_tx_dirty_throttle */
 	{ &dmu_tx.dirty_throttle,
-	  { PMDA_PMID(3, 7), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(3, 7), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_MSEC, 0) } },
 /* dmu_tx_dirty_delay */
 	{ &dmu_tx.dirty_delay,
-	  { PMDA_PMID(3, 8), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(3, 8), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_MSEC, 0) } },
 /* dmu_tx_dirty_over_max */
 	{ &dmu_tx.dirty_over_max,
-	  { PMDA_PMID(3, 9), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(3, 9), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* dmu_tx_dirty_frees_delay */
 	{ &dmu_tx.dirty_frees_delay,
-	  { PMDA_PMID(3, 10), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(3, 10), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_MSEC, 0) } },
 /* dmu_tx_quota */
 	{ &dmu_tx.quota,
-	  { PMDA_PMID(3, 11), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(3, 11), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /*---------------------------------------------------------------------------*/
 /*  DNODESTATS */
 /*---------------------------------------------------------------------------*/
