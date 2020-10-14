@@ -51,6 +51,7 @@ libvirt-daemon-driver-qemu
 lm_sensors
 mailx
 make
+man
 mandoc
 mariadb
 memcached
