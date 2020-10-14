@@ -247,6 +247,6 @@ void		netatop_exitfind(unsigned long, struct tstat *, struct tstat *);
 int 		acctswon(void);
 void		acctswoff(void);
 unsigned long 	acctprocnt(void);
-int 		acctphotoproc(struct tstat *, int);
+int		acctphotoproc(struct tstat **, unsigned int *, double, double);
 void 		acctrepos(unsigned int);
 void		do_pacctdir(char *, char *);
