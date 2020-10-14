@@ -244,7 +244,7 @@ p
 	done >$tmp.allpkgs
 	;;
 
-    Arch\ Linux)
+    ArchLinux)
 	pacman -Ss . \
 	| sed -n >$tmp.allpkgs -e '/^[^ ]/s/ .*//p'
 	;;
@@ -721,7 +721,7 @@ in
 	ls /var/log/packages | sed -e 's/-[0-9].*//' >$tmp.installed
 	;;
 
-    Arch\ Linux)
+    ArchLinux)
 	mytype=pacman
 	installcmd="pacman -S"
 	pacman -Q -i | sed -n -e '/^Name /s/.* : //p' >$tmp.installed
