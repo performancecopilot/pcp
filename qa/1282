@@ -44,26 +44,7 @@ _filter()
 	-e 's/^ //' \
 	-e 's/ $//' \
 	-e '/^ *$/d' \
-    | if [ -f /etc/redhat-release ]
-    then
-	# platform-specific ...
-	#
-	case "`cat /etc/redhat-release`"
-	in
-	    Fedora\ release\ 32\ *)
-		sed \
-		    -e '/ coreutils-single: not in packing list, but available/d' \
-		    -e '/ infiniband-diags-devel: not in packing list, but available/d' \
-		# end
-		;;
-
-	    *)
-		cat
-		;;
-	esac
-    else
-	cat
-    fi
+    # end
 }
 
 # real QA test starts here

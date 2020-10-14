@@ -176,4 +176,5 @@ RHEL         7\.       -      389-ds ccache python2-requests python2-six
 RHEL         6\.       -      389-ds ccache perl-interpreter python2-requests python2-setuptools python2-six zabbix22-agent
 CentOS       7\.       -      389-ds
 CentOS       -         -      ccache
+Fedora       32        -      coreutils-single infiniband-diags-devel
 Fedora       -         -      ccache
