@@ -1,4 +1,5 @@
-# PCP required package list for Debian 10.6 i686
+# PCP required package list for Debian 10 i686
+# hand editied from the Debian 10.6 x86_64 packing list
 # created by kenj on vm11.localdomain Mon 12 Oct 10:03:49 AEDT 2020
 #
 apache2

@@ -167,3 +167,14 @@ Ubuntu       18\.04   -       mysql-client-core mysql-client-core-[0-9][0-9.]*
 # need mysql over mariadb, and pick an explicit latest mysql-client-core
 # version, not the generic meta package
 Ubuntu       16\.04   -       mariadb-client-core mariadb-client-core-[0-9][0-9.]* mysql-client-core
+#
+# preferences where check-vm -a lists all options ... from list-packages
+# analysis
+#
+RHEL         8\.       -      ccache coreutils-single perl
+RHEL         7\.       -      389-ds ccache python2-requests python2-six
+RHEL         6\.       -      389-ds ccache perl-interpreter python2-requests python2-setuptools python2-six zabbix22-agent
+CentOS       7\.       -      389-ds
+CentOS       -         -      ccache
+Fedora       32        -      coreutils-single infiniband-diags-devel
+Fedora       -         -      ccache

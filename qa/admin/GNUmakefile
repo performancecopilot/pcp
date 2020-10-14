@@ -2,9 +2,10 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 TESTDIR = $(PCP_VAR_DIR)/testsuite/admin
-SCRIPTS = allow-pmlc-access check-vm check-manifest get_osname whatami
+SCRIPTS = allow-pmlc-access check-vm check-manifest get_osname whatami \
+	  list-packages
 FILES	= dailyrc packages.rc README
-SUBDIRS	= other-packages
+SUBDIRS	= other-packages package-lists
 
 default default_pcp setup: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)

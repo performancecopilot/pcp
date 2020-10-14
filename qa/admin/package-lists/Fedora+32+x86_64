@@ -4,18 +4,10 @@
 389-ds-base
 Coin4-devel
 HdrHistogram_c-devel
-List::MoreUtils cpan
-Net::SNMP cpan
 RediSearch
 SoQt-devel
 Spreadsheet::Read cpan
 Spreadsheet::ReadSXC cpan
-Spreadsheet::WriteExcel cpan
-Spreadsheet::XLSX cpan
-Text::CSV_XS cpan
-XML::LibXML cpan
-XML::TokeParser cpan
-YAML::LibYAML cpan
 audit
 autoconf
 avahi-devel
@@ -25,7 +17,6 @@ bc
 bind-utils
 bison
 bpftrace
-ccache
 chan-devel
 coreutils
 cppcheck
@@ -48,7 +39,6 @@ git
 git-core
 grep
 httpd
-infiniband-diags-devel
 initscripts
 java-latest-openjdk-headless
 kubernetes-client
@@ -101,7 +91,6 @@ postfix-perl-scripts
 postgresql
 psmisc
 pylint
-python2-devel
 python2-setuptools
 python3-bcc
 python3-devel
@@ -121,7 +110,6 @@ python3-rtslib
 python3-setuptools
 python3-six
 qt-devel
-qt4-devel
 qt5-qtbase-devel
 qt5-qtsvg-devel
 qtchooser

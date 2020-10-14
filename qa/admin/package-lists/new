@@ -92,6 +92,8 @@ _setversions
 [ -n "$Version" ] && version="$Version"
 [ -n "$Arch" ] && arch="$Arch"
 
+echo >&2 "Info: distro=$distro version=$version arch=$arch"
+
 echo "# PCP required package list for $distro $version $arch" >$tmp.list
 echo "# created by `id -un` on `hostname` `date`" >>$tmp.list
 echo "#" >>$tmp.list

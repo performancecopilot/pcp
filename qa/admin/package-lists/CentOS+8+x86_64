@@ -6,9 +6,6 @@ Net::SNMP cpan
 Spreadsheet::Read cpan
 Spreadsheet::ReadSXC cpan
 Spreadsheet::XLSX cpan
-Text::CSV_XS cpan
-XML::LibXML cpan
-XML::TokeParser cpan
 audit
 autoconf
 bash
@@ -16,7 +13,6 @@ bc
 bind-utils
 bison
 bpftrace
-ccache
 coreutils-single
 cronie
 curl
