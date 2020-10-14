@@ -50,11 +50,13 @@ _filter()
 	#
 	case "`cat /etc/redhat-release`"
 	in
-	    *"release 6.10"*)
-		sed
-		    -e 's/a/a/' \
+	    Fedora\ release\ 32\ *)
+		sed \
+		    -e '/ coreutils-single: not in packing list, but available/d' \
+		    -e '/ infiniband-diags-devel: not in packing list, but available/d' \
 		# end
 		;;
+
 	    *)
 		cat
 		;;
