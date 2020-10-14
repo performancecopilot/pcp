@@ -39,7 +39,6 @@ git
 git-core
 grep
 httpd
-infiniband-diags-devel
 initscripts
 java-latest-openjdk-headless
 kubernetes-client
@@ -52,7 +51,6 @@ libvirt-daemon-driver-qemu
 lm_sensors
 mailx
 make
-man
 mandoc
 mariadb
 memcached
@@ -92,7 +90,6 @@ postfix-perl-scripts
 postgresql
 psmisc
 pylint
-python2-devel
 python2-setuptools
 python3-bcc
 python3-devel
@@ -112,7 +109,6 @@ python3-rtslib
 python3-setuptools
 python3-six
 qt-devel
-qt4-devel
 qt5-qtbase-devel
 qt5-qtsvg-devel
 qtchooser
