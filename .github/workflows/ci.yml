@@ -23,12 +23,12 @@ jobs:
           - {platform: fedora_rawhide, runner: container, os: ubuntu-latest}
           - {platform: centos8,        runner: container, os: ubuntu-latest}
 # other platforms that may be used for testing in developer repos
-#          - {platform: ubuntu1804,     runner: direct,    os: ubuntu-18.04}
-#          - {platform: debian10,       runner: container, os: ubuntu-latest}
-#          - {platform: debian11,       runner: container, os: ubuntu-latest}
-#          - {platform: fedora31,       runner: container, os: ubuntu-latest}
-#          - {platform: centos6,        runner: container, os: ubuntu-latest}
-#          - {platform: centos7,        runner: container, os: ubuntu-latest}
+          - {platform: ubuntu1804,     runner: direct,    os: ubuntu-18.04}
+          - {platform: debian10,       runner: container, os: ubuntu-latest}
+          - {platform: debian11,       runner: container, os: ubuntu-latest}
+          - {platform: fedora31,       runner: container, os: ubuntu-latest}
+          - {platform: centos6,        runner: container, os: ubuntu-latest}
+          - {platform: centos7,        runner: container, os: ubuntu-latest}
     steps:
       - name: Checkout sources
         uses: actions/checkout@v2
