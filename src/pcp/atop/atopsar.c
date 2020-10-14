@@ -1925,7 +1925,7 @@ ifline(struct sstat *ss, struct tstat *ts, struct tstat **ps, int nactproc,
 		preprint(badness);
 
 		printf("%-6s %4s %7.1lf %7.1lf %8.0lf %8.0lf "
-		       "%5lld %5lld %7ld %c", 
+		       "%5lld %5lld %7lld %c", 
 			pn, busyval,
 			(double)ss->intf.intf[i].rpack / deltasec,
 			(double)ss->intf.intf[i].spack / deltasec,

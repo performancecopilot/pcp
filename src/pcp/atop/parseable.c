@@ -561,7 +561,7 @@ print_NET(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 
 	for (i=0; ss->intf.intf[i].name[0]; i++)
 	{
-		printf(	"%s %s %lld %lld %lld %lld %ld %d\n",
+		printf(	"%s %s %lld %lld %lld %lld %lld %d\n",
 			hp,
 			ss->intf.intf[i].name,
 			ss->intf.intf[i].rpack,
