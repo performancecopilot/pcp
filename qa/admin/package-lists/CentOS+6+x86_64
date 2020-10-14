@@ -44,7 +44,6 @@ libvirt-python
 lm_sensors
 mailx
 make
-man
 memcached
 mesa-dri-drivers
 mysql
