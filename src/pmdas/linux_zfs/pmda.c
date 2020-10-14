@@ -529,24 +529,24 @@ static pmdaMetric metrictab[] = {
 	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
 /* cache_size_bytes */
 	{ &dbufstats.cache_size_bytes,
-	  { PMDA_PMID(2, 1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(2, 1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* cache_size_bytes_max */
 	{ &dbufstats.cache_size_bytes_max,
 	  { PMDA_PMID(2, 2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* cache_target_bytes */
 	{ &dbufstats.cache_target_bytes,
 	  { PMDA_PMID(2, 3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* cache_lowater_bytes */
 	{ &dbufstats.cache_lowater_bytes,
 	  { PMDA_PMID(2, 4), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* cache_hiwater_bytes */
 	{ &dbufstats.cache_hiwater_bytes,
 	  { PMDA_PMID(2, 5), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* cache_total_evicts */
 	{ &dbufstats.cache_total_evicts,
 	  { PMDA_PMID(2, 6), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
@@ -601,52 +601,51 @@ static pmdaMetric metrictab[] = {
 	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
 /* cache_level_0_bytes */
 	{ &dbufstats.cache_level_0_bytes,
-	  { PMDA_PMID(2, 19), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(2, 19), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
 /* cache_level_1_bytes */
 	{ &dbufstats.cache_level_1_bytes,
-	  { PMDA_PMID(2, 20), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(2, 20), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* cache_level_2_bytes */
 	{ &dbufstats.cache_level_2_bytes,
-	  { PMDA_PMID(2, 21), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(2, 21), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* cache_level_3_bytes */
 	{ &dbufstats.cache_level_3_bytes,
-	  { PMDA_PMID(2, 22), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(2, 22), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* cache_level_4_bytes */
 	{ &dbufstats.cache_level_4_bytes,
-	  { PMDA_PMID(2, 23), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(2, 23), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* cache_level_5_bytes */
 	{ &dbufstats.cache_level_5_bytes,
-	  { PMDA_PMID(2, 24), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(2, 24), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* cache_level_6_bytes */
 	{ &dbufstats.cache_level_6_bytes,
-	  { PMDA_PMID(2, 25), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(2, 25), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* cache_level_7_bytes */
 	{ &dbufstats.cache_level_7_bytes,
-	  { PMDA_PMID(2, 26), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(2, 26), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* cache_level_8_bytes */
 	{ &dbufstats.cache_level_8_bytes,
-	  { PMDA_PMID(2, 27), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(2, 27), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* cache_level_9_bytes */
 	{ &dbufstats.cache_level_9_bytes,
-	  { PMDA_PMID(2, 28), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(2, 28), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* cache_level_10_bytes */
 	{ &dbufstats.cache_level_10_bytes,
-	  { PMDA_PMID(2, 29), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(2, 29), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* cache_level_11_bytes */
 	{ &dbufstats.cache_level_11_bytes,
-	  { PMDA_PMID(2, 30), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(2, 30), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* hash_hits */
 	{ &dbufstats.hash_hits,
 	  { PMDA_PMID(2, 31), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
@@ -685,16 +684,16 @@ static pmdaMetric metrictab[] = {
 	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
 /* metadata_cache_size_bytes */
 	{ &dbufstats.metadata_cache_size_bytes,
-	  { PMDA_PMID(2, 40), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(2, 40), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* metadata_cache_size_bytes_max */
 	{ &dbufstats.metadata_cache_size_bytes_max,
-	  { PMDA_PMID(2, 41), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(2, 41), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* metadata_cache_overflow */
 	{ &dbufstats.metadata_cache_overflow,
-	  { PMDA_PMID(2, 42), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(2, 42), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /*---------------------------------------------------------------------------*/
 /*  DMU_TX  */
 /*---------------------------------------------------------------------------*/
