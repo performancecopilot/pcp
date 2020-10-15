@@ -60,7 +60,7 @@ pkg_add	OpenBSD
 F_pkg	FreeBSD
 S_pkg	OpenIndiana
 slackpkg	Slackware
-pacman	Arch Linux
+pacman	ArchLinux
 brew	Darwin
 urpmi	OpenMandriva
 End-of-File
@@ -104,10 +104,11 @@ End-of-File
 	for pkg in $pkgs
 	do
 	    [ "$pkg" = "N/A" ] && continue
+	    pkg_re=`echo "$pkg" | sed -e 's;/;\\\\/;g'`
 	    if awk <$tmp.list '
-BEGIN					{ sts=1 }
-$1 == "'$pkg'" || $1 ~ /^'$pkg'$/	{ sts=0; exit }
-END					{ exit sts }'
+BEGIN						{ sts=1 }
+$1 == "'"$pkg"'" || $1 ~ /^'"$pkg_re"'$/	{ sts=0; exit }
+END						{ exit sts }'
 	    then
 		# included in list, is it available?
 		#
@@ -123,10 +124,11 @@ END					{ exit sts }'
 		rm -f $tmp.skipme
 		for skip_pkg in `cat $tmp.skip`
 		do
+		    skip_pkg_re=`echo "$skip_pkg" | sed -e 's;/;\\\\/;g'`
 		    if echo "$pkg" | awk '
-BEGIN						{ sts=1 }
-$1 == "'$skip_pkg'" || $1 ~ /^'$skip_pkg'$/	{ sts=0; exit }
-END						{ exit sts }'
+BEGIN							{ sts=1 }
+$1 == "'"$skip_pkg"'" || $1 ~ /^'"$skip_pkg_re"'$/	{ sts=0; exit }
+END							{ exit sts }'
 		    then
 			$very_verbose && echo >&2 "$pkg ($skip_pkg): skipped"
 			touch $tmp.skipme
@@ -452,8 +454,8 @@ p
 	    done >$tmp.allpkgs
 	    ;;
 
-	Arch\ Linux)
-	    pacman -Q -i | sed -n -e '/^Name /s/.* : //p' >$tmp.installed
+	ArchLinux)
+	    pacman -Qi | sed -n -e '/^Name /s/.* : //p' >$tmp.installed
 	    pacman -Ss . \
 	    | sed -n >$tmp.allpkgs -e '/^[^ ]/s/ .*//p'
 	    ;;
@@ -507,11 +509,18 @@ sed -n <$tmp.list >$tmp.tmp \
 # end
 mv $tmp.tmp $tmp.list
 
+if $check
+then
+    _do_check
+    status=0
+    exit
+fi
+
 if $missing
 then
     # special handling for cpan() packages
     #
-    $very_verbose && cp $tmp.list $tmp.pkglist
+    $very_verbose && cp $tmp.list $tmp.list.before
     rm -f $tmp.sed
     grep '^cpan(' $tmp.list \
     | sed -e 's/cpan(//' -e 's/)//' \
@@ -526,23 +535,50 @@ then
     then
 	sed -f $tmp.sed <$tmp.list >$tmp.tmp
 	mv $tmp.tmp $tmp.list
+	if $very_verbose
+	then
+	    echo >&2 "Diffs after cpan() mangling ..."
+	    diff $tmp.list.before $tmp.list
+	fi
     fi
-    # strip all packages in both $tmp.list and $tmp.installed and
-    # leave the result in $tmp.list
-    #
-    sort <$tmp.list >$tmp.1
-    sort <$tmp.installed >$tmp.2
-    comm -23 $tmp.1 $tmp.2 >$tmp.list
+
+    if [ "$distro" = "ArchLinux" ]
+    then
+	# special handling for Arch Linux (pacman) naming of packages
+	# pacman -Qi (for tmp.installed) => gcc
+	# pacman -Ss (for tmp.allpkgs) => core/gcc
+	# and our packing list (tmp.list) uses the longer form ... so cull
+	# the prefix on the assumption that the probability of a name
+	# collision is really small, but then we need to do the matching
+	# the hard way to generate a list with the full package names
+	#
+	mv $tmp.list $tmp.tmp
+	cat $tmp.tmp \
+	| while read full_pkg
+	do
+	    pkg=`echo $full_pkg | sed -e 's;^.*/;;'`
+	    if grep "^$pkg\$" $tmp.installed >/dev/null
+	    then
+		:
+	    else
+		echo "$full_pkg" >>$tmp.list
+	    fi
+	done
+    else
+	# strip all packages in both $tmp.list and $tmp.installed and
+	# leave the result in $tmp.list
+	#
+	sort <$tmp.list >$tmp.1
+	sort <$tmp.installed >$tmp.2
+	comm -23 $tmp.1 $tmp.2 >$tmp.list
+    fi
 fi
 
-if $check
+# list selected packages (if any) on a single line
+#
+if [ -s $tmp.list ]
 then
-    _do_check
-else
-    if [ -s $tmp.list ]
-    then
-	( tr '\012' ' ' <$tmp.list ; echo )
-    fi
+    ( tr '\012' ' ' <$tmp.list ; echo )
 fi
 
 status=0

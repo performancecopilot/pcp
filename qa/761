@@ -58,6 +58,8 @@ _check()
     done
 }
 
+echo zero
+
 _prepare_pmda root containers
 trap "root_cleanup; exit \$status" 0 1 2 3 15
 
@@ -79,8 +81,11 @@ chmod 755 $here/$seq.test-lxc-info.sh
 export PCP_LXC_DIR=$root/var/lib/lxc
 
 # real QA test starts here
+echo one
 _service pmcd stop | _filter_pcp_stop
+echo two
 _wait_pmcd_end
+echo three
 
 # systemd needs may not have caught up with the state change,
 # and the restart that comes below can cause a
@@ -99,6 +104,7 @@ echo PCP_PODMAN_RUNDIR=$root/var/run/containers >> $tmp.conf
 echo PCP_PODMAN_DATADIR=$root/var/lib/containers >> $tmp.conf
 $sudo cp $tmp.conf $PCP_DIR/etc/pcp.conf
 _service pcp restart 2>&1 | _filter_pcp_start
+echo four
 _wait_for_pmcd
 _wait_for_pmlogger
 
