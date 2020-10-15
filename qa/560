@@ -69,6 +69,14 @@ sed -n <$PCP_PMCDCONF_PATH \
     -e "/^simple/s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;p"
 # end
 
+if [ -f "$PCP_LOG_DIR/pmcd/simple.log" ]
+then
+    cat "$PCP_LOG_DIR/pmcd/simple.log" >>$here/$seq.full
+else
+    echo "$PCP_LOG_DIR/pmcd/simple.log: missing?"
+fi
+pminfo -f simple pmcd.agent.status >>$here/$seq.full
+
 $sudo ./Remove
 
 echo
@@ -89,7 +97,7 @@ then
 else
     echo "$PCP_LOG_DIR/pmcd/simple.log: missing?"
 fi
-
+pminfo -f simple pmcd.agent.status >>$here/$seq.full
 
 # success, all done
 status=0
