@@ -338,6 +338,7 @@ _prepare_pmda()
     done_clean=false
     install_on_cleanup=false
     pminfo $__names >/dev/null 2>&1 && install_on_cleanup=true
+    echo "_prepare_pmda($__agent,$__names) install_on_cleanup=$install_on_cleanup" >>$here/$seq.full
     # copy the pmcd config file to restore state later.
     _save_config $PCP_PMCDCONF_PATH
     unset ROOT MAKEFLAGS
@@ -350,7 +351,7 @@ _cleanup_pmda()
 
     if $done_clean
     then
-	:
+	echo "_cleanup_pmda($__agent,$__iopts) called twice?" >>$here/$seq.full
     else
 	_restore_config $PCP_PMCDCONF_PATH
 	_service pcp restart | _filter_pcp_start
@@ -361,8 +362,10 @@ _cleanup_pmda()
 	then
 	    [ "X$__iopts" = "X" ] && __iopts=/dev/null
 	    ( cd $PCP_PMDAS_DIR/$__agent; $sudo ./Install <$__iopts >/dev/null 2>&1 )
+	    echo "_cleanup_pmda($__agent,$__iopts) reinstall PMDA" >>$here/$seq.full
 	else
 	    ( cd $PCP_PMDAS_DIR/$__agent; $sudo ./Remove >/dev/null 2>&1 )
+	    echo "_cleanup_pmda($__agent,$__iopts) remove PMDA" >>$here/$seq.full
 	fi
 	_wait_for_pmcd
 	_wait_for_pmlogger
