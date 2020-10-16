@@ -180,7 +180,7 @@ _rpm_package_install_await()
     else
 	echo "$PCP_LOG_DIR/pmcd/rpm.log: missing?"
     fi
-}
+
     status=0
     exit $status
 }
