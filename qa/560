@@ -35,10 +35,12 @@ _filter_make()
 	-e '/make: Nothing to be done/d'
 }
 
-port=`_get_port tcp 2078 2127`
+# see note below on bind: Address already in use issue
+#
+port=`_get_port tcp 12078 12127`
 if [ -z "$port" ]
 then
-    echo "Arrgh ... no free TCP port in the range 2078 ... 2127"
+    echo "Arrgh ... no free TCP port in the range 12078 ... 12127"
     exit
 fi
 echo "port=$port" >>$here/$seq.full
@@ -65,9 +67,14 @@ tee -a $here/$seq.full <$tmp.out \
 
 echo "in \$PCP_PMCDCONF_PATH ..."
 sed -n <$PCP_PMCDCONF_PATH \
-    -e '/^simple/s@/private/@/@' \
-    -e "/^simple/s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;p"
-# end
+    -e '/^simple/{
+s;/private/;/;
+s;'"$PCP_PMDAS_DIR"';$PCP_PMDAS_DIR;
+s/$/ /
+s/\([ 	]\)'"$port"'\([ 	]\)/\1PORT\2/g
+s/ $//
+p
+}'
 
 if [ -f "$PCP_LOG_DIR/pmcd/simple.log" ]
 then
@@ -78,6 +85,14 @@ fi
 pminfo -f simple pmcd.agent.status >>$here/$seq.full
 
 $sudo ./Remove
+
+# need to be sure these back-to-back installs use a different
+# port ... otherwise the second install risks smacking into a
+# "bind: Address already in use" issue if the previous PMDA
+# process has not cleaned up ... this is why the first install
+# uses a port in the range starting at 1000+2078, so the second
+# install below can use the default 2078 port
+#
 
 echo
 if $sudo $PCP_MAKE_PROG >$tmp.tmp 2>$tmp.err
