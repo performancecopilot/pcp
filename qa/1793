@@ -41,16 +41,32 @@ need_restore=true
 _filter()
 {
     echo "===filter:" >> /tmp/cat
-    tee -a /tmp/cat | \
     sed \
-	-e s/\'/\"/g \
+	-e "s/'/\"/g" \
 	-e "s/\(\"userid\"\):\"$userid\"/\1:\"USERID\"/g" \
 	-e "s/\(\"groupid\"\):\"$groupid\"/\1:\"GROUPID\"/g" \
 	-e "s/\(\"hostname\"\):\"$hostname\"/\1:\"HOSTNAME\"/g" \
 	-e "s/\(\"machineid\"\):\"$machineid\"/\1:\"MACHINEID\"/g" \
 	-e "s/\(\"domainname\"\):\"$domainname\"/\1:\"DOMAINNAME\"/g" \
+    | tee -a $seq.full \
     | pmjson \
     | sed -e 's/^[\{\}]$//' -e '/^$/d' -e 's/,$//' | LC_COLLATE=POSIX sort
+}
+
+# Take pcp2csv output like ...
+# Time,"sample.colour-red","{'domainname':'localdomain';'groupid':'1000';'hostname':'bozo.localdomain';'machineid':'6c78e37f87514105b535e855a43de6ac';'userid':'1000';'agent':'sample';'role':'testing';'model':'RGB';'cluster':'zero'}","sample.colour-green",...
+# and turn it something pmjson can grok, like ...
+# {'domainname':'localdomain','groupid':'1000','hostname':'bozo.localdomain','machineid':'6c78e37f87514105b535e855a43de6ac','userid':'1000','agent':'sample','role':'testing','model':'RGB','cluster':'zero'} {...
+#
+_pre_json()
+{
+    sed -n -e '/{/{
+s/^[^{]*{/{/
+s/}"[^{]*{/} {/g
+s/}"/}/
+s/'"'"';'"'"'/'"'"','"'"'/g
+p
+}'
 }
 
 # real QA test starts here
@@ -75,19 +91,22 @@ pcp2json -m -s1 -a $tmp/pmrep_sample_colour sample.colour | \
     sed -e s/\'/\"/g -e 's/,$//' -e 's/^"//' -e 's/"$//' | _filter
 
 echo === check pcp2csv replaying an archive with labels | tee -a $seq.full
-pcp2csv -m -s1 -a $tmp/pmrep_sample_colour sample.colour | \
-    tee -a $seq.full | grep '{' | $PCP_AWK_PROG '{print $1}' | tee -a $seq.full |\
-    sed -e "s/^.*agent/{'agent/" -e 's/;/,/g' -e 's/"$//' | _filter
+pcp2csv -m -s1 -a $tmp/pmrep_sample_colour sample.colour \
+| tee -a $seq.full \
+| _pre_json \
+| _filter
 
 echo === check pmrep outputting labels live | tee -a $seq.full
-pmrep -m -w 1024 -s1 -i "red" sample.colour | \
-    tee -a $seq.full | grep '{' | $PCP_AWK_PROG '{print $1}' | tee -a $seq.full |\
-    sed -e "s/^.*agent/{'agent/" | _filter
+pmrep -m -w 1024 -s1 -i "red" sample.colour \
+| tee -a $seq.full \
+| grep '{' \
+| _filter
 
 echo === check pcp2csv outputting labels live | tee -a $seq.full
-pcp2csv -m -s1 sample.colour | \
-    tee -a $seq.full | grep '{' | $PCP_AWK_PROG '{print $1}' | tee -a $seq.full |\
-    sed -e "s/^.*agent/{'agent/" -e 's/;/,/g' -e 's/"$//' | _filter
+pcp2csv -m -s1 sample.colour \
+| tee -a $seq.full \
+| _pre_json \
+| _filter
 
 # success, all done
 echo "== done"
