@@ -21,7 +21,7 @@ $PCP_BINADM_DIR/telnet-probe -c localhost $redis_port \
 _cleanup()
 {
     _restore_config $PCP_PMDAS_DIR/redis/redis.conf
-    _restore_pmda_install $iam
+    _cleanup_pmda $iam
     $sudo rm -f $tmp.*
     exit $status
 }
@@ -41,7 +41,11 @@ trap "_cleanup" 0 1 2 3 15
 
 # real QA test starts here
 _save_config $PCP_PMDAS_DIR/redis/redis.conf
-_prepare_pmda_install $iam
+_prepare_pmda $iam
+cd $PCP_PMDAS_DIR/redis
+
+# get to a known starting place
+$sudo ./Remove >>$here/$seq.full 2>&1
 
 echo
 echo "=== $iam agent installation ==="
