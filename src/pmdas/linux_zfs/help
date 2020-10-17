@@ -451,3 +451,49 @@ Preferred child vdev not found or equal load
 @ zfs.zfetch.hits
 @ zfs.zfetch.misses
 @ zfs.zfetch.max_streams maximum number of streams per zfetch
+
+@ zfs.zil.commit_count
+Number of times a ZIL commit (e.g. fsync) has been requested.
+@ zfs.zil.commit_writer_count
+Number of times the ZIL has been flushed to stable storage.
+This is less than zil_commit_count when commits are merged
+(see the documentation above zil_commit()).
+@ zfs.zil.itx_count
+Number of transactions (reads, writes, renames, etc.)
+that have been committed.
+@ zfs.zil.itx_indirect_count
+The number of indirect transactions.
+@ zfs.zil.itx_indirect_bytes
+The size of the the large data portions to write.
+Note that bytes accumulates the length of the transactions
+(i.e. data), not the actual log record sizes.
+@ zfs.zil.itx_copied_count
+The number of transactions copied into lr_write_t.
+@ zfs.zil.itx_copied_bytes
+The size of the data copied into lr_write_t.
+Note that bytes accumulates the length of the transactions
+(i.e. data), not the actual log record sizes.
+@ zfs.zil.itx_needcopy_count
+The number of transactions that need to be copied if pushed.
+@ zfs.zil.itx_needcopy_bytes
+The size of the data that needs to be copied if pushed.
+Note that bytes accumulates the length of the transactions
+(i.e. data), not the actual log record sizes.
+@ zfs.zil.itx_metaslab_normal_count
+The number of transactions which have been allocated to the normal
+(i.e. not slog) storage pool. Note that bytes accumulate
+the actual log record sizes - which do not include the actual
+data in case of indirect writes.
+@ zfs.zil.itx_metaslab_normal_bytes
+The size of transactions which have been allocated to the normal
+(i.e. not slog) storage pool. Note that bytes accumulate
+the actual log record sizes - which do not include the actual
+data in case of indirect writes.
+@ zfs.zil.itx_metaslab_slog_count
+The number of transactions which have been allocated to the slog storage pool.
+If there are no separate log devices, this is the same as the
+normal pool.
+@ zfs.zil.itx_metaslab_slog_bytes
+The size of transactions which have been allocated to the slog storage pool.
+If there are no separate log devices, this is the same as the
+normal pool.

@@ -985,40 +985,40 @@ static pmdaMetric metrictab[] = {
 	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
 /* itx_indirect_bytes */
 	{ &zilstats.itx_indirect_bytes,
-	  { PMDA_PMID(9, 4), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(9, 4), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* itx_copied_count */
 	{ &zilstats.itx_copied_count,
 	  { PMDA_PMID(9, 5), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
 /* itx_copied_bytes */
 	{ &zilstats.itx_copied_bytes,
-	  { PMDA_PMID(9, 6), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(9, 6), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* itx_needcopy_count */
 	{ &zilstats.itx_needcopy_count,
 	  { PMDA_PMID(9, 7), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
 /* itx_needcopy_bytes */
 	{ &zilstats.itx_needcopy_bytes,
-	  { PMDA_PMID(9, 8), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(9, 8), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* itx_metaslab_normal_count */
 	{ &zilstats.itx_metaslab_normal_count,
 	  { PMDA_PMID(9, 9), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
 /* itx_metaslab_normal_bytes */
 	{ &zilstats.itx_metaslab_normal_bytes,
-	  { PMDA_PMID(9, 10), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(9, 10), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* itx_metaslab_slog_count */
 	{ &zilstats.itx_metaslab_slog_count,
 	  { PMDA_PMID(9, 11), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
 /* itx_metaslab_slog_bytes */
 	{ &zilstats.itx_metaslab_slog_bytes,
-	  { PMDA_PMID(9, 12), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+	  { PMDA_PMID(9, 12), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	    PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /*---------------------------------------------------------------------------*/
 /*  POOLSTATS  */
 /*---------------------------------------------------------------------------*/
