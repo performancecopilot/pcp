@@ -338,3 +338,82 @@ the data in the regular dbuf cache.
 @ zfs.dmu_tx.dirty_over_max
 @ zfs.dmu_tx.dirty_frees_delay
 @ zfs.dmu_tx.quota
+
+@ zfs.dnode.hold_dbuf_hold
+Number of failed attempts to hold a meta dnode dbuf.
+@ zfs.dnode.hold_dbuf_read
+Number of failed attempts to read a meta dnode dbuf.
+@ zfs.dnode.hold_alloc_hits
+Number of times dnode_hold(..., DNODE_MUST_BE_ALLOCATED) was able
+to hold the requested object number which was allocated.  This is
+the common case when looking up any allocated object number.
+@ zfs.dnode.hold_alloc_misses
+Number of times dnode_hold(..., DNODE_MUST_BE_ALLOCATED) was not
+able to hold the request object number because it was not allocated.
+@ zfs.dnode.hold_alloc_interior
+Number of times dnode_hold(..., DNODE_MUST_BE_ALLOCATED) was not
+able to hold the request object number because the object number
+refers to an interior large dnode slot.
+@ zfs.dnode.hold_alloc_lock_retry
+Number of times dnode_hold(..., DNODE_MUST_BE_ALLOCATED) needed
+to retry acquiring slot zrl locks due to contention.
+@ zfs.dnode.hold_alloc_lock_misses
+Number of times dnode_hold(..., DNODE_MUST_BE_ALLOCATED) did not
+need to create the dnode because another thread did so after
+dropping the read lock but before acquiring the write lock.
+@ zfs.dnode.hold_alloc_type_none
+Number of times dnode_hold(..., DNODE_MUST_BE_ALLOCATED) found
+a free dnode instantiated by dnode_create() but not yet allocated
+by dnode_allocate().
+@ zfs.dnode.hold_free_hits
+Number of times dnode_hold(..., DNODE_MUST_BE_FREE) was able
+to hold the requested range of free dnode slots.
+@ zfs.dnode.hold_free_misses
+Number of times dnode_hold(..., DNODE_MUST_BE_FREE) was not
+able to hold the requested range of free dnode slots because
+at least one slot was allocated.
+@ zfs.dnode.hold_free_lock_misses
+Number of times dnode_hold(..., DNODE_MUST_BE_FREE) was not
+able to hold the requested range of free dnode slots because
+after acquiring the zrl lock at least one slot was allocated.
+@ zfs.dnode.hold_free_lock_retry
+Number of times dnode_hold(..., DNODE_MUST_BE_FREE) needed
+to retry acquiring slot zrl locks due to contention.
+@ zfs.dnode.hold_free_refcount
+Number of times dnode_hold(..., DNODE_MUST_BE_FREE) requested
+a range of dnode slots which were held by another thread.
+@ zfs.dnode.hold_free_overflow
+Number of times dnode_hold(..., DNODE_MUST_BE_FREE) requested
+a range of dnode slots which would overflow the dnode_phys_t.
+@ zfs.dnode.free_interior_lock_retry
+Number of times dnode_free_interior_slots() needed to retry
+acquiring a slot zrl lock due to contention.
+@ zfs.dnode.allocate
+Number of new dnodes allocated by dnode_allocate().
+@ zfs.dnode.reallocate
+Number of dnodes re-allocated by dnode_reallocate().
+@ zfs.dnode.buf_evict
+Number of meta dnode dbufs evicted.
+@ zfs.dnode.alloc_next_chunk
+Number of times dmu_object_alloc*() reached the end of the existing
+object ID chunk and advanced to a new one.
+@ zfs.dnode.alloc_race
+Number of times multiple threads attempted to allocate a dnode
+from the same block of free dnodes.
+@ zfs.dnode.alloc_next_block
+Number of times dmu_object_alloc*() was forced to advance to the
+next meta dnode dbuf due to an error from  dmu_object_next().
+@ zfs.dnode.move_invalid
+Statistics for tracking dnodes which have been moved.
+@ zfs.dnode.move_recheck1
+Statistics for tracking dnodes which have been moved.
+@ zfs.dnode.move_recheck2
+Statistics for tracking dnodes which have been moved.
+@ zfs.dnode.move_special
+Statistics for tracking dnodes which have been moved.
+@ zfs.dnode.move_handle
+Statistics for tracking dnodes which have been moved.
+@ zfs.dnode.move_rwlock
+Statistics for tracking dnodes which have been moved.
+@ zfs.dnode.move_active
+Statistics for tracking dnodes which have been moved.
