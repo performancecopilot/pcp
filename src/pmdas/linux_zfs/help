@@ -497,3 +497,16 @@ normal pool.
 The size of transactions which have been allocated to the slog storage pool.
 If there are no separate log devices, this is the same as the
 normal pool.
+
+@ zfs.pool.nread number of bytes read
+@ zfs.pool.nwritten number of bytes written
+@ zfs.pool.reads number of read operations
+@ zfs.pool.writes number of write operations
+@ zfs.pool.wtime cumulative wait (pre-service) time
+@ zfs.pool.wlentime cumulative wait len*time product
+@ zfs.pool.wlastupdate last time wait queue changed
+@ zfs.pool.rtime cumulative run (service) time
+@ zfs.pool.rlentime cumulative run length*time product
+@ zfs.pool.rlastupdate last time run queue changed
+@ zfs.pool.wcnt count of elements in wait state
+@ zfs.pool.rcnt count of elements in run state
