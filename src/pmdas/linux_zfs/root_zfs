@@ -17,7 +17,7 @@ zfs {
     xuio
     zfetch
     zil
-    pools
+    pool
 }
 
 zfs.arc {
@@ -295,7 +295,7 @@ zfs.zil {
     itx_metaslab_slog_bytes             ZFS:9:12
 }
 
-zfs.pools {
+zfs.pool {
     state                               ZFS:10:0
     nread                               ZFS:10:1
     nwritten                            ZFS:10:2
