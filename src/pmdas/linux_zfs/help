@@ -440,3 +440,10 @@ New IO requires random seek (nonrot)
 Preferred child vdev found 
 @ zfs.vdev.mirror_preferred_not_found
 Preferred child vdev not found or equal load  
+
+@ zfs.xuio.stat_onloan_rbuf loaned yet not returned arc_buf read
+@ zfs.xuio.stat_onloan_wbuf loaned yet not returned arc_buf written
+@ zfs.xuio.stat_rbuf_copied whether a copy is made when loaning out a read buffer 
+@ zfs.xuio.stat_rbuf_nocopy whether a copy is made when loaning out a read buffer 
+@ zfs.xuio.stat_wbuf_copied whether a copy is made when assigning a write buffer 
+@ zfs.xuio.stat_wbuf_nocopy whether a copy is made when assigning a write buffer 
