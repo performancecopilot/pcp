@@ -49,7 +49,7 @@ __pmdaOpenSocket(char *sockname, int port, int family, int *infd, int *outfd)
     if (sockname != NULL) {	/* Translate port name to port num */
 	service = getservbyname(sockname, NULL);
 	if (service == NULL) {
-	    pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: getservbyname(%s): %s\n", 
+	    pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: getservbyname(%s): %s", 
 		    sockname, netstrerror());
 	    exit(1);
 	}
@@ -59,7 +59,8 @@ __pmdaOpenSocket(char *sockname, int port, int family, int *infd, int *outfd)
     if (family != AF_INET6) {
 	sfd = __pmCreateSocket();
 	if (sfd < 0) {
-	    pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: inet socket: %s\n",
+	    pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket(%s,%d,%d): inet socket: %s",
+			  sockname == NULL ? "" : sockname, port, family,
 			  netstrerror());
 	    exit(1);
 	}
@@ -67,7 +68,8 @@ __pmdaOpenSocket(char *sockname, int port, int family, int *infd, int *outfd)
     else {
 	sfd = __pmCreateIPv6Socket();
 	if (sfd < 0) {
-	    pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: ipv6 socket: %s\n",
+	    pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket(%s,%d,%d): ipv6 socket: %s",
+			  sockname == NULL ? "" : sockname, port, family,
 			  netstrerror());
 	    exit(1);
 	}
@@ -79,7 +81,8 @@ __pmdaOpenSocket(char *sockname, int port, int family, int *infd, int *outfd)
      */
     if (__pmSetSockOpt(sfd, SOL_SOCKET, SO_REUSEADDR, (char *)&one,
 		(__pmSockLen)sizeof(one)) < 0) {
-	pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: __pmSetSockOpt(reuseaddr): %s\n",
+	pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket(%s,%d,%d): __pmSetSockOpt(reuseaddr): %s",
+			sockname == NULL ? "" : sockname, port, family,
 			netstrerror());
 	exit(1);
     }
@@ -87,21 +90,24 @@ __pmdaOpenSocket(char *sockname, int port, int family, int *infd, int *outfd)
     /* see MSDN tech note: "Using SO_REUSEADDR and SO_EXCLUSIVEADDRUSE" */
     if (__pmSetSockOpt(sfd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *)&one,
 		(__pmSockLen)sizeof(one)) < 0) {
-	pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: __pmSetSockOpt(excladdruse): %s\n",
+	pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket(%s,%d,%d): __pmSetSockOpt(excladdruse): %s",
+			sockname == NULL ? "" : sockname, port, family,
 			netstrerror());
 	exit(1);
     }
 #endif
 
     if ((myaddr =__pmSockAddrAlloc()) == NULL) {
-	pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: sock addr alloc failed\n");
+	pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket(%s,%d,%d): sock addr alloc failed",
+			sockname == NULL ? "" : sockname, port, family);
 	exit(1);
     }
     __pmSockAddrInit(myaddr, family, INADDR_LOOPBACK, port);
     sts = __pmBind(sfd, (void *)myaddr, __pmSockAddrSize());
     if (sts < 0) {
 	__pmSockAddrFree(myaddr);
-	pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: bind: %s\n",
+	pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket(%s,%d,%d): bind: %s",
+			sockname == NULL ? "" : sockname, port, family,
 			netstrerror());
 	exit(1);
     }
@@ -109,7 +115,8 @@ __pmdaOpenSocket(char *sockname, int port, int family, int *infd, int *outfd)
     sts = __pmListen(sfd, 1);	/* Max. 1 pending connection request (pmcd) */
     if (sts == -1) {
         __pmSockAddrFree(myaddr);
-	pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: listen: %s\n",
+	pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket(%s,%d,%d): listen: %s",
+			sockname == NULL ? "" : sockname, port, family,
 			netstrerror());
 	exit(1);
     }
@@ -122,15 +129,17 @@ __pmdaOpenSocket(char *sockname, int port, int family, int *infd, int *outfd)
     }
     if (sts < 0) {
         __pmSockAddrFree(myaddr);
-        pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: select: %s\n",
-                        pmErrStr(sts));
+        pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket(%s,%d,%d): select: %s",
+                        sockname == NULL ? "" : sockname, port, family,
+			pmErrStr(sts));
         exit(1);
     }
 
     addrlen = __pmSockAddrSize();
     if ((*infd = __pmAccept(sfd, myaddr, &addrlen)) < 0) {
         __pmSockAddrFree(myaddr);
-	pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: accept: %s\n",
+	pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket(%s,%d,%d): accept: %s",
+			sockname == NULL ? "" : sockname, port, family,
 			netstrerror());
 	exit(1);
     }
@@ -174,21 +183,21 @@ socket_ownership(char *sockname)
 
     setoserror(0);
     if ((pw = getpwnam(username)) == NULL)
-	pmNotifyErr(LOG_WARNING, "__pmdaOpenUnix: getpwnam(%s) failed: %s\n",
+	pmNotifyErr(LOG_WARNING, "__pmdaOpenUnix: getpwnam(%s) failed: %s",
 		username, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
 
     sts = chmod(sockname, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
     if (sts == -1 && pmDebugOptions.libpmda)
-	pmNotifyErr(LOG_WARNING, "__pmdaOpenUnix: chmod(%s,...) failed: %s\n",
+	pmNotifyErr(LOG_WARNING, "__pmdaOpenUnix: chmod(%s,...) failed: %s",
 			sockname, osstrerror());
     if (pw != NULL) {
 	sts = chown(sockname, pw->pw_uid, pw->pw_gid);
 	if (sts == -1 && pmDebugOptions.libpmda)
-	    pmNotifyErr(LOG_WARNING, "__pmdaOpenUnix: chown(%s, ...) failed: %s\n",
+	    pmNotifyErr(LOG_WARNING, "__pmdaOpenUnix: chown(%s, ...) failed: %s",
 			    sockname, osstrerror());
     }
     else if (pmDebugOptions.libpmda)
-	    pmNotifyErr(LOG_WARNING, "__pmdaOpenUnix: chown(%s, ...) skipped\n",
+	    pmNotifyErr(LOG_WARNING, "__pmdaOpenUnix: chown(%s, ...) skipped",
 			    sockname);
 }
 
@@ -207,8 +216,8 @@ __pmdaOpenUnix(char *sockname, int *infd, int *outfd)
 
     sfd = socket(AF_UNIX, SOCK_STREAM, 0);
     if (sfd < 0) {
-	pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: Unix domain socket: %s",
-		     netstrerror());
+	pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix(%s): socket() failed: %s",
+		     sockname, netstrerror());
 	exit(1);
     }
     /* Sockets in the Unix domain are named pipes in the file system.
@@ -217,13 +226,13 @@ __pmdaOpenUnix(char *sockname, int *infd, int *outfd)
      * connection because the reference count is non-zero.
      */
     if ((sts = unlink(sockname)) == 0)
-    	pmNotifyErr(LOG_WARNING, "__pmdaOpenUnix: Unix domain socket '%s' existed, unlinked it\n",
+    	pmNotifyErr(LOG_WARNING, "__pmdaOpenUnix(%s): socket exists, unlinked it",
 		     sockname);
     else if (sts < 0 && oserror() != ENOENT) {
 	/* If can't unlink socket, give up.  We might end up with an
 	 * unwanted connection to some other socket (from outer space)
 	 */
-	pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: Unlinking Unix domain socket '%s': %s\n",
+	pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix(%s): unlink() failed: %s",
 		     sockname, osstrerror());
 	exit(1);
     }
@@ -233,23 +242,23 @@ __pmdaOpenUnix(char *sockname, int *infd, int *outfd)
     len = (int)offsetof(struct sockaddr_un, sun_path) + (int)strlen(myaddr.sun_path);
     sts = bind(sfd, (struct sockaddr*) &myaddr, len);
     if (sts < 0) {
-	pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: unix bind: %s\n",
-			netstrerror());
+	pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix(%s): bind() failed: %s",
+			sockname, netstrerror());
 	exit(1);
     }
     socket_ownership(sockname);
 
     sts = listen(sfd, 5);	/* Max. of 5 pending connection requests */
     if (sts == -1) {
-	pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: unix listen: %s\n",
-			netstrerror());
+	pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix(%s): listen() failed: %s",
+			sockname, netstrerror());
 	exit(1);
     }
     addrlen = sizeof(from);
     /* block here, waiting for a connection */
     if ((*infd = accept(sfd, (struct sockaddr *)&from, &addrlen)) < 0) {
-	pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: unix accept: %s\n",
-			netstrerror());
+	pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix(%s): accept() failed: %s",
+			sockname, netstrerror());
 	exit(1);
     }
     close(sfd);
@@ -259,7 +268,8 @@ __pmdaOpenUnix(char *sockname, int *infd, int *outfd)
 static void
 __pmdaOpenUnix(char *sockname, int *infd, int *outfd)
 {
-    pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: UNIX domain sockets unsupported\n");
+    pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix(%s): UNIX domain sockets unsupported",
+    			sockname);
     exit(1);
 }
 #endif
@@ -517,7 +527,7 @@ pmdaRehash(pmdaExt *pmda, pmdaMetric *metrics, int nmetrics)
     if (m == pmda->e_nmetrics) {
 	pmda->e_flags |= PMDA_EXT_FLAG_HASHED;
 	if (pmDebugOptions.libpmda)
-	    pmNotifyErr(LOG_DEBUG, "pmdaRehash: PMDA %s: successful rebuild\n",
+	    pmNotifyErr(LOG_DEBUG, "pmdaRehash: PMDA %s: successful rebuild",
 			pmda->e_name);
     }
     else {
@@ -732,11 +742,11 @@ pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms,
     if (pmda->e_helptext != NULL) {
 	pmda->e_help = pmdaOpenHelp(pmda->e_helptext);
 	if (pmda->e_help < 0) {
-	    pmNotifyErr(LOG_WARNING, "pmdaInit: PMDA %s: Unable to open help text file(s) from \"%s\": %s\n",
+	    pmNotifyErr(LOG_WARNING, "pmdaInit: PMDA %s: Unable to open help text file(s) from \"%s\": %s",
 		    pmda->e_name, pmda->e_helptext, pmErrStr(pmda->e_help));
 	}
 	else if (pmDebugOptions.libpmda) {
-	    pmNotifyErr(LOG_DEBUG, "pmdaInit: PMDA %s: help file %s opened\n", pmda->e_name, pmda->e_helptext);
+	    pmNotifyErr(LOG_DEBUG, "pmdaInit: PMDA %s: help file %s opened", pmda->e_name, pmda->e_helptext);
 	}
     }
     else {
@@ -753,14 +763,14 @@ pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms,
 	pmdaDirect(pmda, metrics, nmetrics);
 
     if (pmDebugOptions.libpmda) {
-    	pmNotifyErr(LOG_INFO, "name        = %s\n", pmda->e_name);
-        pmNotifyErr(LOG_INFO, "domain      = %d\n", dispatch->domain);
+    	pmNotifyErr(LOG_INFO, "name        = %s", pmda->e_name);
+        pmNotifyErr(LOG_INFO, "domain      = %d", dispatch->domain);
         if (dispatch->comm.flags)
-    	    pmNotifyErr(LOG_INFO, "comm flags  = %x\n", dispatch->comm.flags);
-	pmNotifyErr(LOG_INFO, "ext flags  = %x\n", pmda->e_flags);
-    	pmNotifyErr(LOG_INFO, "num metrics = %d\n", pmda->e_nmetrics);
-    	pmNotifyErr(LOG_INFO, "num indom   = %d\n", pmda->e_nindoms);
-    	pmNotifyErr(LOG_INFO, "metric map  = %s\n",
+    	    pmNotifyErr(LOG_INFO, "comm flags  = %x", dispatch->comm.flags);
+	pmNotifyErr(LOG_INFO, "ext flags  = %x", pmda->e_flags);
+    	pmNotifyErr(LOG_INFO, "num metrics = %d", pmda->e_nmetrics);
+    	pmNotifyErr(LOG_INFO, "num indom   = %d", pmda->e_nindoms);
+    	pmNotifyErr(LOG_INFO, "metric map  = %s",
 		(pmda->e_flags & PMDA_EXT_FLAG_HASHED) ? "hashed" :
 		(pmda->e_direct ? "direct" : "linear"));
     }
@@ -785,18 +795,18 @@ __pmdaSetupPDU(int infd, int outfd, int flags, const char *agentname)
     handshake.c_version = PDU_VERSION;
     handshake.c_flags = flags;
     if ((sts = __pmSendCreds(outfd, (int)getpid(), 1, (__pmCred *)&handshake)) < 0) {
-	pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s send creds: %s\n", agentname, pmErrStr(sts));
+	pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s send creds: %s", agentname, pmErrStr(sts));
 	return -1;
     }
 
     if ((pinpdu = sts = __pmGetPDU(infd, ANY_SIZE, TIMEOUT_NEVER, &pb)) < 0) {
-	pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s getting creds: %s\n", agentname, pmErrStr(sts));
+	pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s getting creds: %s", agentname, pmErrStr(sts));
 	return -1;
     }
 
     if (sts == PDU_CREDS) {
 	if ((sts = __pmDecodeCreds(pb, &sender, &credcount, &credlist)) < 0) {
-	    pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s decode creds: %s\n", agentname, pmErrStr(sts));
+	    pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s decode creds: %s", agentname, pmErrStr(sts));
 	    __pmUnpinPDUBuf(pb);
 	    return -1;
 	}
@@ -808,7 +818,7 @@ __pmdaSetupPDU(int infd, int outfd, int flags, const char *agentname)
 		vflag = 1;
 		break;
 	    default:
-		pmNotifyErr(LOG_WARNING, "__pmdaSetupPDU: PMDA %s: unexpected creds PDU\n", agentname);
+		pmNotifyErr(LOG_WARNING, "__pmdaSetupPDU: PMDA %s: unexpected creds PDU", agentname);
 	    }
 	}
 	if (vflag) {
@@ -820,7 +830,7 @@ __pmdaSetupPDU(int infd, int outfd, int flags, const char *agentname)
     }
     else {
 	char	strbuf[20];
-	pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s: version exchange failure, got PDU type %s expecting PDU_CREDS)\n",
+	pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s: version exchange failure, got PDU type %s expecting PDU_CREDS)",
 	    agentname,
 	    __pmPDUTypeStr_r(sts, strbuf, sizeof(strbuf)));
     }
@@ -875,7 +885,7 @@ pmdaConnect(pmdaInterface *dispatch)
 #endif
 
 	    if (pmDebugOptions.libpmda) {
-	    	pmNotifyErr(LOG_DEBUG, "pmdaConnect: PMDA %s: opened pipe to pmcd, infd = %d, outfd = %d\n",
+	    	pmNotifyErr(LOG_DEBUG, "pmdaConnect: PMDA %s: opened pipe to pmcd, infd = %d, outfd = %d",
 			     pmda->e_name, pmda->e_infd, pmda->e_outfd);
 	    }
 	    break;
@@ -886,7 +896,7 @@ pmdaConnect(pmdaInterface *dispatch)
 			   &(pmda->e_outfd));
 
 	    if (pmDebugOptions.libpmda) {
-	    	pmNotifyErr(LOG_DEBUG, "pmdaConnect: PMDA %s: opened inet connection, infd = %d, outfd = %d\n",
+	    	pmNotifyErr(LOG_DEBUG, "pmdaConnect: PMDA %s: opened inet connection, infd = %d, outfd = %d",
 			     pmda->e_name, pmda->e_infd, pmda->e_outfd);
 	    }
 
@@ -898,7 +908,7 @@ pmdaConnect(pmdaInterface *dispatch)
 			   &(pmda->e_outfd));
 
 	    if (pmDebugOptions.libpmda) {
-	    	pmNotifyErr(LOG_DEBUG, "pmdaConnect: PMDA %s: opened ipv6 connection, infd = %d, outfd = %d\n",
+	    	pmNotifyErr(LOG_DEBUG, "pmdaConnect: PMDA %s: opened ipv6 connection, infd = %d, outfd = %d",
 			     pmda->e_name, pmda->e_infd, pmda->e_outfd);
 	    }
 
@@ -909,13 +919,13 @@ pmdaConnect(pmdaInterface *dispatch)
 	    __pmdaOpenUnix(pmda->e_sockname, &(pmda->e_infd), &(pmda->e_outfd));
 
 	    if (pmDebugOptions.libpmda) {
-	    	pmNotifyErr(LOG_DEBUG, "pmdaConnect: PMDA %s: Opened unix connection, infd = %d, outfd = %d\n",
+	    	pmNotifyErr(LOG_DEBUG, "pmdaConnect: PMDA %s: Opened unix connection, infd = %d, outfd = %d",
 			     pmda->e_name, pmda->e_infd, pmda->e_outfd);
 	    }
 
 	    break;
 	default:
-	    pmNotifyErr(LOG_CRIT, "pmdaConnect: PMDA %s: Illegal iotype: %d\n", pmda->e_name, pmda->e_io);
+	    pmNotifyErr(LOG_CRIT, "pmdaConnect: PMDA %s: Illegal iotype: %d", pmda->e_name, pmda->e_io);
 	    exit(1);
     }
 
