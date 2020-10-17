@@ -417,3 +417,8 @@ Statistics for tracking dnodes which have been moved.
 Statistics for tracking dnodes which have been moved.
 @ zfs.dnode.move_active
 Statistics for tracking dnodes which have been moved.
+
+@ zfs.fm.erpt_dropped number of erpts dropped on post
+@ zfs.fm.erpt_set_failed number of erpt set failures
+@ zfs.fm.fmri_set_failed number of fmri set failures
+@ zfs.fm.payload_set_failed number of payload set failures
