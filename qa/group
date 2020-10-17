@@ -998,7 +998,7 @@ x11
 558 pmie local kernel
 559 pmlogsummary local
 560 pmda.simple local pmda.install
-561 libpcp python labels local sanity BAD @vm13 @vm33
+561 libpcp python labels local sanity
 562 pmcd pmda.sample dbpmda pminfo labels libpcp local sanity
 563 pmcd pmda.pmcd pminfo labels libpcp local
 564 logutil local pmlogextract
@@ -1567,9 +1567,9 @@ x11
 1127 pmda.bcc local python
 1128 pmie local
 1129 derive local kernel
-1130 pcp2elasticsearch python pcp2xxx local BAD @vm27
-1131 pcp2json python pcp2xxx local BAD @vm28
-1132 pcp2xlsx python pcp2xxx local kernel BAD @vm11 @vm36
+1130 pcp2elasticsearch python pcp2xxx local
+1131 pcp2json python pcp2xxx local
+1132 pcp2xlsx python pcp2xxx local kernel
 1133 pcp2xml python pcp2xxx local
 1134 pmrep pcp2json pcp2xml python pcp2xxx local python kernel
 1135 pmrep python pmda.sample archive local kernel
