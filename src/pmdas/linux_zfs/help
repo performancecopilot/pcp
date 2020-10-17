@@ -422,3 +422,21 @@ Statistics for tracking dnodes which have been moved.
 @ zfs.fm.erpt_set_failed number of erpt set failures
 @ zfs.fm.fmri_set_failed number of fmri set failures
 @ zfs.fm.payload_set_failed number of payload set failures
+
+@ zfs.vdev.cache_delegations
+@ zfs.vdev.cache_hits
+@ zfs.vdev.cache_misses
+@ zfs.vdev.mirror_rotating_linear
+New IO follows directly the last IO 
+@ zfs.vdev.mirror_rotating_offset
+New IO is within zfs_vdev_mirror_rotating_seek_offset of the last 
+@ zfs.vdev.mirror_rotating_seek
+New IO requires random seek 
+@ zfs.vdev.mirror_non_rotating_linear
+New IO follows directly the last IO  (nonrot) 
+@ zfs.vdev.mirror_non_rotating_seek
+New IO requires random seek (nonrot) 
+@ zfs.vdev.mirror_preferred_found
+Preferred child vdev found 
+@ zfs.vdev.mirror_preferred_not_found
+Preferred child vdev not found or equal load  

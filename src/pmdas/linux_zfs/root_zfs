@@ -243,19 +243,27 @@ zfs.fm {
     payload_set_failed                  ZFS:5:3 
 }
 
-
 zfs.vdev {
-    cache_delegations                   ZFS:6:0
-    cache_hits                          ZFS:6:1
-    cache_misses                        ZFS:6:2
-    mirror_rotating_linear              ZFS:6:3
-    mirror_rotating_offset              ZFS:6:4
-    mirror_rotating_seek                ZFS:6:5
-    mirror_non_rotating_linear          ZFS:6:6
-    mirror_non_rotating_seek            ZFS:6:7
-    mirror_preferred_found              ZFS:6:8
-    mirror_preferred_not_found          ZFS:6:9
+    cache
+    mirror
 }
+
+zfs.vdev.cache {
+    delegations                   	ZFS:6:0
+    hits                          	ZFS:6:1
+    misses                        	ZFS:6:2
+}
+
+zfs.vdev.mirror {
+    rotating_linear              	ZFS:6:3
+    rotating_offset              	ZFS:6:4
+    rotating_seek                	ZFS:6:5
+    non_rotating_linear          	ZFS:6:6
+    non_rotating_seek            	ZFS:6:7
+    preferred_found              	ZFS:6:8
+    preferred_not_found          	ZFS:6:9
+}
+
 zfs.xuio {
     onloan_read_buf                     ZFS:7:0 
     onloan_write_buf                    ZFS:7:1 
