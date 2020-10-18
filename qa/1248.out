@@ -93,7 +93,7 @@ Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/1248-localhost
 + sudo -u pcp -g pcp PCP_BINADM_DIR/pmlogger_check -c PCP_ETC_DIR/pcp/pmlogger/control.d/1248-localhost
 
 == -NV -p -c condition() false (bad expr), expect no instance to be created
-[PCP_TMPFILE_DIR/pmlogctl.XXXXX/derived:1] Error: pmRegisterDerived(pmlogctl.check, ...) syntax error
+[PCP_TMPFILE_DIR/pmlogctl.XXXXX/derived:1] Error: pmRegisterDerived(pm_ctl.check, ...) syntax error
  hinv.ncpu >
            ^
 Arithmetic expression expected to follow GT

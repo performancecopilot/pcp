@@ -405,8 +405,13 @@ Options:\n\
 	sts = system("systemctl restart pmlogger");
     else
 	sts = system(". $PCP_DIR/etc/pcp.env; $PCP_RC_DIR/pmlogger restart");
-    if (sts != 0)
+    if (sts != 0) {
 	fprintf(stderr, "Warning: pmlogger restart returns %d\n", sts);
+	if (use_systemd) {
+	    system("systemctl status pmlogger.service");
+	    system("journalctl -xe");
+	}
+    }
 
     sts = system(". $PCP_DIR/etc/pcp.env; ( cat common.check; echo _wait_for_pmlogger -P $PCP_LOG_DIR/pmlogger/`hostname`/pmlogger.log ) | sh");
     if (sts != 0)
