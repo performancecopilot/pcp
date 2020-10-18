@@ -1,0 +1,102 @@
+#!/bin/sh
+#
+# find all the empty installed dirs from the GNUmakefiles and make sure
+# we do the same thing in the postinstall script
+#
+
+# for debugging, set to true
+#
+verbose=false
+
+if $verbose
+then
+    tmp=`pwd`/tmp
+else
+    tmp=/var/tmp/checkdirs.$$
+    trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+fi
+
+if [ ! -f ../../src/include/pcp.conf ]
+then
+    echo "Error: ../../src/include/pcp.conf not found"
+    echo "... need to run qa/admin/myconfigure from ../.."
+    exit
+fi
+
+. ../../src/include/pcp.conf
+
+pkg_tarball=`echo ../../pcp-*/build/tar/pcp-*.tar.gz`
+if [ ! -f "$pkg_tarball" ]
+then
+    echo "Error: ../../pcp-*/build/tar/pcp-*.tar.gz: not found"
+    echo "... need to run Makepkgs from ../.."
+    exit
+fi
+tar -tzf $pkg_tarball >$tmp.toc
+
+if [ ! -f ../../Logs/pcp ]
+then
+    echo "Error: ../Logs/pcp not found"
+    echo "... need to run Makepkgs from ../.."
+    exit
+fi
+grep '/install-sh .* -d ' ../../Logs/pcp >$tmp.all
+
+if [ ! -x ./postinstall ]
+then
+    echo "Error: ./postinstall not found"
+    echo "... need to run ./make"
+    exit
+fi
+./postinstall -n >$tmp.post
+
+here=`pwd`
+
+sed <$tmp.all \
+    -e 's/.*install-sh //' \
+    -e 's/  *$//' \
+    -e 's/\(.*\) -d \(.*\)/\2 \1/' \
+    -e 's/`dirname /`dirname+/' \
+    -e 's;^/;;' \
+| while read dir args
+do
+    $verbose && echo dir=$dir args=$args
+
+    # some special cases ...
+    #
+    if echo "$dir" | grep '`dirname+' >/dev/null
+    then
+	dir=`echo "$dir" | sed -e 's/.*+//' -e 's/\`//g'`
+	dir=`dirname $dir | sed -e 's;^/;;'`
+    elif echo "$dir" | grep '/pcp/\.\./' >/dev/null
+    then
+	dir=`echo "$dir" | sed -e 's;/pcp/../;/;'`
+    fi
+
+    # expect it to be in the tarball ...
+    #
+    if grep "^$dir/" $tmp.toc >/dev/null
+    then
+	$verbose && echo "$dir: in tarball"
+    else
+	# else handled by ./postinstall
+	#
+	if grep "mkdir .* /$dir\$" $tmp.post >/dev/null
+	then
+	    $verbose && echo "$dir: created by postinstall"
+	else
+	    case "$dir"
+	    in
+		var/tmp)
+				# ones we can't really claim!
+				;;
+		*)
+				echo "$dir: missing"
+				;;
+	    esac
+	fi
+    fi
+done
+
+exit 0
+
