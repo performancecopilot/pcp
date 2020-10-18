@@ -457,8 +457,8 @@ _get_matching_hosts()
 
 # get class for a specific ${IAM} instance
 # $1 = control
-# $2 = host (expanded)
-# $3 = directory (expanded)
+# $2 = host (expanded) [need to match either expanded or unexpanded names]
+# $3 = directory (expanded) [need to match unexpanded name]
 #
 _get_class()
 {
@@ -469,9 +469,10 @@ _get_class()
     class=`$PCP_AWK_PROG <"$control" '
 BEGIN			{ class = "" }
 /^[$]class=/		{ class = $1; sub(/[$]class=/,"",class) }
-$4 == "'"$dir"'" 	{ if ($1 == "'"$host"'" || $1 == "#!#'"$host"'") {
-			      print class
-			      exit
+$4 == "'"$dir"'" 	{ if ($1 == "'"$host"'" || $1 == "#!#'"$host"'" ||
+			      $1 == "'"$2"'" || $1 == "#!#'"$2"'") {
+				  print class
+				  exit
 			  }
 			}'`
     [ -z "$class" ] && class=default
@@ -1124,8 +1125,8 @@ END	{ exit(sts) }'
 			    ;;
 
 			condition)
-			    echo "pmlogctl.check = $args" >$tmp/derived
-			    PCP_DERIVED_CONFIG=$tmp/derived pmprobe -v -h "$host" pmlogctl.check >$tmp/tmp
+			    echo "pm_ctl.check = $args" >$tmp/derived
+			    PCP_DERIVED_CONFIG=$tmp/derived pmprobe -v -h "$host" pm_ctl.check >$tmp/tmp
 			    numval=`cut -d ' ' -f 2 <$tmp/tmp`
 			    val=`cut -d ' ' -f 3 <$tmp/tmp`
 			    if [ "$numval" -gt 1 ]
@@ -1401,7 +1402,12 @@ _do_destroy()
 	fi
 	dir=`echo "$args_dir" | _unexpand_control`
 	host=`echo "$args_host " | _unexpand_control | sed -e 's/ $//'`
+	# need to match either expanded or unexpanded host name, with
+	# or without #!# prefix
+	#
 	$PCP_AWK_PROG <"$control" >$tmp/control '
+$1 == "'"$args_host"'" && $4 == "'"$dir"'"	{ next }
+$1 == "'"#!#$args_host"'" && $4 == "'"$dir"'"	{ next }
 $1 == "'"$host"'" && $4 == "'"$dir"'"		{ next }
 $1 == "'"#!#$host"'" && $4 == "'"$dir"'"	{ next }
 						{ print }'

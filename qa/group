@@ -1686,7 +1686,7 @@ x11
 1246:reserved pmlogreduce local
 1247 pmlogrewrite labels pmdumplog local
 1248 pmlogctl local
-1249 pmlogctl local
+1249 pmiectl local
 1250 selinux local
 1251 man local
 1252 derive local
@@ -1846,6 +1846,7 @@ x11
 1724 pmda.bpftrace local python
 1740 pmda.proc local
 1745 pmlogger libpcp pmval local
+1763 pmlogctl local
 1768 pmfind local
 1793 pmrep pcp2xxx python local
 1805 pmda.linux kernel local

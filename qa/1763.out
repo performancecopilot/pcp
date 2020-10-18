@@ -1,0 +1,14 @@
+QA output created by 1763
+=== LOCALHOSTNAME ===
+Expect installed and running ...
+pmcd Host Archive Class PID State Instance Id
+HOSTNAME <archivename> <seq> <pid> running 1763
+Expect no longer present ...
+pmcd Host Archive Class PID State Instance Id
+
+=== hostname(1) ===
+Expect installed and running ...
+pmcd Host Archive Class PID State Instance Id
+HOSTNAME <archivename> <seq> <pid> running 1763
+Expect no longer present ...
+pmcd Host Archive Class PID State Instance Id

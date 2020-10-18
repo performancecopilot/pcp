@@ -9,7 +9,7 @@ $class=pmfind
 localhost n n PCP_LOG_DIR/pmie/pmfind-localhost/pmie.log -c ./pmfind-localhost.config
 --- end control file ---
 Installing control file: PCP_ETC_DIR/pcp/pmie/control.d/pmfind-localhost
-+ cp PCP_TMPFILE_DIR/pmlogctl.XXXXX/control PCP_ETC_DIR/pcp/pmie/control.d/pmfind-localhost
++ cp PCP_TMPFILE_DIR/pmiectl.XXXXX/control PCP_ETC_DIR/pcp/pmie/control.d/pmfind-localhost
 + sudo -u pcp -g pcp PCP_BINADM_DIR/pmie_check -c PCP_ETC_DIR/pcp/pmie/control.d/pmfind-localhost
 
 == -NV -p, no [create] section, expect on instance to be created
@@ -31,7 +31,7 @@ $version=1.1
 localhost n n PCP_LOG_DIR/pmie/1249-localhost/pmie.log -c TMP.config
 --- end control file ---
 Installing control file: PCP_ETC_DIR/pcp/pmie/control.d/1249-localhost
-+ cp PCP_TMPFILE_DIR/pmlogctl.XXXXX/control PCP_ETC_DIR/pcp/pmie/control.d/1249-localhost
++ cp PCP_TMPFILE_DIR/pmiectl.XXXXX/control PCP_ETC_DIR/pcp/pmie/control.d/1249-localhost
 + sudo -u pcp -g pcp PCP_BINADM_DIR/pmie_check -c PCP_ETC_DIR/pcp/pmie/control.d/1249-localhost
 
 == -NV -p -c exists() true (non-leaf in PMNS), expect instance to be created
@@ -44,7 +44,7 @@ $version=1.1
 localhost n n PCP_LOG_DIR/pmie/1249-localhost/pmie.log -c TMP.config
 --- end control file ---
 Installing control file: PCP_ETC_DIR/pcp/pmie/control.d/1249-localhost
-+ cp PCP_TMPFILE_DIR/pmlogctl.XXXXX/control PCP_ETC_DIR/pcp/pmie/control.d/1249-localhost
++ cp PCP_TMPFILE_DIR/pmiectl.XXXXX/control PCP_ETC_DIR/pcp/pmie/control.d/1249-localhost
 + sudo -u pcp -g pcp PCP_BINADM_DIR/pmie_check -c PCP_ETC_DIR/pcp/pmie/control.d/1249-localhost
 
 == -NV -p -c values() false (bad metric), expect no instance to be created
@@ -63,7 +63,7 @@ $version=1.1
 localhost n n PCP_LOG_DIR/pmie/1249-localhost/pmie.log -c TMP.config
 --- end control file ---
 Installing control file: PCP_ETC_DIR/pcp/pmie/control.d/1249-localhost
-+ cp PCP_TMPFILE_DIR/pmlogctl.XXXXX/control PCP_ETC_DIR/pcp/pmie/control.d/1249-localhost
++ cp PCP_TMPFILE_DIR/pmiectl.XXXXX/control PCP_ETC_DIR/pcp/pmie/control.d/1249-localhost
 + sudo -u pcp -g pcp PCP_BINADM_DIR/pmie_check -c PCP_ETC_DIR/pcp/pmie/control.d/1249-localhost
 
 == -NV -p -c values() true (leaf & indom), expect instance to be created
@@ -76,7 +76,7 @@ $version=1.1
 localhost n n PCP_LOG_DIR/pmie/1249-localhost/pmie.log -c TMP.config
 --- end control file ---
 Installing control file: PCP_ETC_DIR/pcp/pmie/control.d/1249-localhost
-+ cp PCP_TMPFILE_DIR/pmlogctl.XXXXX/control PCP_ETC_DIR/pcp/pmie/control.d/1249-localhost
++ cp PCP_TMPFILE_DIR/pmiectl.XXXXX/control PCP_ETC_DIR/pcp/pmie/control.d/1249-localhost
 + sudo -u pcp -g pcp PCP_BINADM_DIR/pmie_check -c PCP_ETC_DIR/pcp/pmie/control.d/1249-localhost
 
 == -NV -p -c values() true (non-leaf & indom), expect instance to be created
@@ -89,11 +89,11 @@ $version=1.1
 localhost n n PCP_LOG_DIR/pmie/1249-localhost/pmie.log -c TMP.config
 --- end control file ---
 Installing control file: PCP_ETC_DIR/pcp/pmie/control.d/1249-localhost
-+ cp PCP_TMPFILE_DIR/pmlogctl.XXXXX/control PCP_ETC_DIR/pcp/pmie/control.d/1249-localhost
++ cp PCP_TMPFILE_DIR/pmiectl.XXXXX/control PCP_ETC_DIR/pcp/pmie/control.d/1249-localhost
 + sudo -u pcp -g pcp PCP_BINADM_DIR/pmie_check -c PCP_ETC_DIR/pcp/pmie/control.d/1249-localhost
 
 == -NV -p -c condition() false (bad expr), expect no instance to be created
-[PCP_TMPFILE_DIR/pmlogctl.XXXXX/derived:1] Error: pmRegisterDerived(pmlogctl.check, ...) syntax error
+[PCP_TMPFILE_DIR/pmiectl.XXXXX/derived:1] Error: pmRegisterDerived(pm_ctl.check, ...) syntax error
  hinv.ncpu >
            ^
 Arithmetic expression expected to follow GT
@@ -116,7 +116,7 @@ $version=1.1
 localhost n n PCP_LOG_DIR/pmie/1249-localhost/pmie.log -c TMP.config
 --- end control file ---
 Installing control file: PCP_ETC_DIR/pcp/pmie/control.d/1249-localhost
-+ cp PCP_TMPFILE_DIR/pmlogctl.XXXXX/control PCP_ETC_DIR/pcp/pmie/control.d/1249-localhost
++ cp PCP_TMPFILE_DIR/pmiectl.XXXXX/control PCP_ETC_DIR/pcp/pmie/control.d/1249-localhost
 + sudo -u pcp -g pcp PCP_BINADM_DIR/pmie_check -c PCP_ETC_DIR/pcp/pmie/control.d/1249-localhost
 
 == -NV -p -c hostname() false, expect no instance to be created
@@ -132,7 +132,7 @@ $version=1.1
 localhost n n PCP_LOG_DIR/pmie/1249-localhost/pmie.log -c TMP.config
 --- end control file ---
 Installing control file: PCP_ETC_DIR/pcp/pmie/control.d/1249-localhost
-+ cp PCP_TMPFILE_DIR/pmlogctl.XXXXX/control PCP_ETC_DIR/pcp/pmie/control.d/1249-localhost
++ cp PCP_TMPFILE_DIR/pmiectl.XXXXX/control PCP_ETC_DIR/pcp/pmie/control.d/1249-localhost
 + sudo -u pcp -g pcp PCP_BINADM_DIR/pmie_check -c PCP_ETC_DIR/pcp/pmie/control.d/1249-localhost
 
 == -NV, expect simple instance to be created
@@ -145,7 +145,7 @@ $version=1.1
 localhost n n PCP_LOG_DIR/pmie/1249-localhost/pmie.log -c TMP.config
 --- end control file ---
 Installing control file: PCP_ETC_DIR/pcp/pmie/control.d/1249-localhost
-+ cp PCP_TMPFILE_DIR/pmlogctl.XXXXX/control PCP_ETC_DIR/pcp/pmie/control.d/1249-localhost
++ cp PCP_TMPFILE_DIR/pmiectl.XXXXX/control PCP_ETC_DIR/pcp/pmie/control.d/1249-localhost
 + sudo -u pcp -g pcp PCP_BINADM_DIR/pmie_check -c PCP_ETC_DIR/pcp/pmie/control.d/1249-localhost
 
 == -i, 2 explicit configs, expect concat config file for one pmfind instance
