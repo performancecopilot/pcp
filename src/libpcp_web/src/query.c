@@ -71,6 +71,10 @@ typedef struct seriesQueryBaton {
 static void series_pattern_match(seriesQueryBaton *, node_t *);
 static int series_union(series_set_t *, series_set_t *);
 static int series_intersect(series_set_t *, series_set_t *);
+static int series_calculate(seriesQueryBaton *, node_t *, int);
+static void series_redis_hash_expression(seriesQueryBaton *, char *, int);
+static void series_node_get_metric_name(seriesQueryBaton *, seriesGetSID *, series_sample_set_t *);
+static void series_node_get_desc(seriesQueryBaton *, sds, series_sample_set_t *);
 static void series_lookup_services(void *);
 static void series_lookup_mapping(void *);
 static void series_lookup_finished(void *);
@@ -1415,6 +1419,53 @@ series_prepare_time(seriesQueryBaton *baton, series_set_t *result)
 }
 
 static void
+series_expr_query_desc(seriesQueryBaton *baton, series_set_t *query_series_set, node_t *np)
+{
+    unsigned int		i;
+    int				nseries = query_series_set->nseries;
+    unsigned char		*series = query_series_set->series;
+    char			hashbuf[42];
+    seriesGetSID		*sid;
+
+    /* calloc nseries samples store space */
+    if ((np->value_set.series_values = (series_sample_set_t *)calloc(nseries, sizeof(series_sample_set_t))) == NULL) {
+	/* TODO: error report here */
+	baton->error = -ENOMEM;
+    }
+    for (i = 0; i < nseries; i++, series += SHA1SZ) {
+	sid = calloc(1, sizeof(seriesGetSID));
+	pmwebapi_hash_str(series, hashbuf, sizeof(hashbuf));
+	initSeriesGetSID(sid, hashbuf, 1, baton);
+	np->value_set.series_values[i].baton = baton;
+	np->value_set.series_values[i].sid = sid;
+	np->value_set.series_values[i].num_samples = 0;
+	series_node_get_desc(baton, sid->name, &np->value_set.series_values[i]);
+	series_node_get_metric_name(baton, sid, &np->value_set.series_values[i]);
+    }
+}
+
+static int
+series_expr_node_desc(seriesQueryBaton *baton, node_t *np){
+    int		sts, nelements = 0;
+
+    if (np == NULL)
+	return 0;
+    if (&np->result != NULL)
+	nelements = np->result.nseries;
+
+    if (nelements != 0) {
+	np->value_set.num_series = nelements;
+	np->baton = baton;
+	series_expr_query_desc(baton, &np->result, np);
+	return baton->error;
+    }
+
+    if ((sts = series_expr_node_desc(baton, np->left)) < 0)
+	return sts;
+    return series_expr_node_desc(baton, np->right);
+}
+
+/*static void
 series_report_set(seriesQueryBaton *baton, series_set_t *set)
 {
     unsigned char	*series = set->series;
@@ -1431,18 +1482,37 @@ series_report_set(seriesQueryBaton *baton, series_set_t *set)
     }
     if (sid)
 	sdsfree(sid);
+}*/
+
+static void
+series_report_set(seriesQueryBaton *baton, node_t *np)
+{
+    int		i;
+    sds		series;
+
+    for (i = 0; i < np->value_set.num_series; i++) {
+	series = np->value_set.series_values[i].sid->name;
+	baton->callbacks->on_match(series, baton->userdata);
+    }
 }
 
 static void
 series_query_report_matches(void *arg)
 {
     seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
+    int			has_function = 0;
+    char		hashbuf[42];
 
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_query_report_matches");
     seriesBatonCheckCount(baton, "series_query_report_matches");
 
     seriesBatonReference(baton, "series_query_report_matches");
-    series_report_set(baton, &baton->u.query.root.result);
+
+    has_function = series_calculate(baton, &baton->u.query.root, 0);
+    
+    if(has_function != 0)
+	series_redis_hash_expression(baton, hashbuf, sizeof(hashbuf));
+    series_report_set(baton, &baton->u.query.root);
     series_query_end_phase(baton);
 }
 
@@ -3788,6 +3858,19 @@ series_query_funcs(void *arg)
     series_query_end_phase(baton);
 }
 
+static void
+series_query_desc(void *arg)
+{
+    seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
+
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_query_desc");
+    seriesBatonCheckCount(baton, "series_query_desc");
+
+    seriesBatonReference(baton, "series_query_desc");
+    series_expr_node_desc(baton, &baton->u.query.root);
+    series_query_end_phase(baton);
+}
+
 static int
 series_time_window(timing_t *tp)
 {
@@ -3849,11 +3932,13 @@ series_solve(pmSeriesSettings *settings,
     /* Perform final matching (set of) series solving */
     baton->phases[i++].func = series_query_expr;
 
-    if ((flags & PM_SERIES_FLAG_METADATA) || !series_time_window(timing))
+    baton->phases[i++].func = series_query_mapping;
+    if ((flags & PM_SERIES_FLAG_METADATA) || !series_time_window(timing)) {
+	/* Store series descriptors into nodes */
+	baton->phases[i++].func = series_query_desc;
 	/* Report matching series IDs, unless time windowing */
 	baton->phases[i++].func = series_query_report_matches;
-    else{
-	baton->phases[i++].func = series_query_mapping;
+    } else{
 	/* Store time series values into nodes */
 	baton->phases[i++].func = series_query_funcs;
 	/* Report actual values */
