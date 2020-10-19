@@ -38,34 +38,42 @@ class PCPNetcheckModule(PCPNetcheckModuleBase):
         """Constructor"""
         PCPNetcheckModuleBase.__init__(self, MODULE, config, dbg, log, err, params)
 
+        self.command = 'ping'
+        self.cmdargs = ''
         self.count = 5
         self.timeout = 2.0
 
-        self.prereq_check()
+        self.onetrip = 1
+
+        self.prereq_check(self)
 
         for opt in self.config.options(MODULE):
-            if opt == 'count':
+            if opt == 'command':
+                self.command = self.config.get(MODULE, opt)
+            elif opt == 'cmdargs':
+                self.cmdargs = self.config.get(MODULE, opt)
+            elif opt == 'count':
                 self.count = int(self.config.get(MODULE, opt))
                 self.assert_positive(opt, self.count)
             elif opt not in self.common_opts:
                 self.err("Invalid directive '%s' in %s, aborting." % (opt, MODULE))
                 sys.exit(1)
 
-        self.log("Module parameters: count: %s, timeout: %s." % (self.count, self.timeout))
+        self.log("Module parameters: command: %s, cmdargs: %s, count: %s, timeout: %s." % (self.command, self.cmdargs, self.count, self.timeout))
 
         self.log("Initialized.")
 
     @staticmethod
-    def prereq_check():
+    def prereq_check(self):
         """Check module prerequisities"""
         try:
-            cmd = ['ping', '-c', '1', '-W', '1', 'localhost']
+            cmd = [self.command, '-c', '1', '-W', '1', 'localhost']
             proc = Popen(cmd, stdout=PIPE, stderr=PIPE)
             proc.communicate()
             if proc.returncode:
                 raise RuntimeError("Can't ping the loopback interface!")
         except OSError:  # pylint: disable=broad-except
-            raise RuntimeError("Can't run the ping(1) command!")
+            raise RuntimeError("Can't run the " + self.command + "(1) command!")
 
     def metrics(self):
         """Get metric definitions"""
@@ -78,9 +86,16 @@ class PCPNetcheckModule(PCPNetcheckModuleBase):
 
     def do_check(self):
         """Do net check"""
-        cmd_template = ['ping', '-c', str(self.count), '-W', str(self.timeout),
-                        self.SIX_OPT, self.HOST_TMPL_STR]
-        outputs = self._run_check_commands(cmd_template, '-6')[0]
+        cmd_template = [self.command, '-c', str(self.count), '-W', str(self.timeout)]
+        if self.cmdargs != '': cmd_template.append(self.cmdargs)
+        cmd_template.append(self.HOST_TMPL_STR)
+        if self.onetrip == 1:
+            # log real shell command
+            msg = 'shell command:'
+            for arg in cmd_template: msg = msg + ' ' + arg
+            self.log(msg)
+            self.onetrip = 0
+        outputs = self._run_check_commands(cmd_template)[0]
         for host in self.hosts:
             try:
                 self.hosts[host] = \

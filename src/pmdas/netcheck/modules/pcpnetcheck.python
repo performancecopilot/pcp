@@ -56,7 +56,6 @@ class PCPNetcheckModuleBase(object):
     """PCP Netcheck Module Base Class"""
     HOST_TMPL_STR = '%HOST'
     HOST_FAIL_STR = "<err>"
-    SIX_OPT = "SIX_OPT"
 
     def __init__(self, module, config, dbg, log, err, params):
         """Constructor"""
@@ -70,6 +69,10 @@ class PCPNetcheckModuleBase(object):
         self.check_hosts_parallel = params.check_hosts_parallel
         self.check_interval = params.check_interval
         self.align_interval = params.align_interval
+
+        self.errcnt = OrderedDict()
+        for host in self.hosts:
+            self.errcnt[host] = 0
 
         self.dgw = params.dgw
         self.dns = params.dns
@@ -214,20 +217,26 @@ class PCPNetcheckModuleBase(object):
                     self.hosts[host] = -1
 
     @staticmethod
-    def _generate_command(cmd_template, host, six_opt):
+    def _generate_command(cmd_template, host):
         """Generate command"""
         cmd = [item.replace(PCPNetcheckModuleBase.HOST_TMPL_STR, host) for item in cmd_template]
-        if six_opt and PCPNetcheckModuleBase.is_ipv6(host):
-            cmd = [item.replace(PCPNetcheckModuleBase.SIX_OPT, six_opt) for item in cmd]
-        else:
-            cmd.remove(PCPNetcheckModuleBase.SIX_OPT)
         return cmd
 
-    def _run_check_commands(self, cmd_template, six_opt, timed=False):
+    def _run_check_commands(self, cmd_template, timed=False):
         """Run check commands"""
         if self.check_hosts_parallel:
-            return self._run_check_commands_parallel(cmd_template, six_opt, timed)
-        return self._run_check_commands_sequential(cmd_template, six_opt, timed)
+            results = self._run_check_commands_parallel(cmd_template, timed)
+        else:
+            results = self._run_check_commands_sequential(cmd_template, timed)
+        # results[0]: output, results[1]: exit status, results[2]: timings
+        for host in self.hosts:
+            if results[1][host] != 0:
+                # command had non-zero exit status
+                self.errcnt[host] += 1
+                if self.errcnt[host] <= 3:
+                    # log first 3 such errors for each host
+                    self.log(host + ' failed, exit=' + str(results[1][host]) + ', output=' + str(list(results[0][host])))
+        return results
 
     @staticmethod
     def _collect_results(proc):
@@ -236,14 +245,14 @@ class PCPNetcheckModuleBase(object):
         return_code = -2 if proc.returncode == -15 else proc.returncode
         return output, return_code
 
-    def _run_check_commands_sequential(self, cmd_template, six_opt, timed):
+    def _run_check_commands_sequential(self, cmd_template, timed):
         """Run check commands sequentially"""
         procs = OrderedDict()
         outputs = OrderedDict()
         return_codes = OrderedDict()
         timings = OrderedDict() if timed else {}
         for host in self.hosts:
-            cmd = self._generate_command(cmd_template, host, six_opt)
+            cmd = self._generate_command(cmd_template, host)
             if timed:
                 timings[host] = time()
             procs[host] = Popen(cmd, stdout=PIPE, stderr=PIPE)
@@ -252,14 +261,14 @@ class PCPNetcheckModuleBase(object):
             del procs[host]
         return outputs, return_codes, timings
 
-    def _run_check_commands_parallel(self, cmd_template, six_opt, timed):
+    def _run_check_commands_parallel(self, cmd_template, timed):
         """Run check commands in parallel"""
         procs = OrderedDict()
         outputs = OrderedDict()
         return_codes = OrderedDict()
         timings = OrderedDict() if timed else {}
         for host in self.hosts:
-            cmd = self._generate_command(cmd_template, host, six_opt)
+            cmd = self._generate_command(cmd_template, host)
             if timed:
                 timings[host] = time()
             procs[host] = Popen(cmd, stdout=PIPE, stderr=PIPE)
