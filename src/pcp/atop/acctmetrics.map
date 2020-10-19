@@ -1,8 +1,5 @@
 #
 # metric names and access macros for acctmetrics.h and modules.c
-# use the acct variants here, and at runtime we
-# switch metrics (acct.*) via pointer
-# manipulation.
 #
 acctmetrics {
 	acct.psinfo.exitcode	ACCT_GEN_EXCODE

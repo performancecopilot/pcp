@@ -606,8 +606,8 @@ engine(void)
 		ntaskpres = photoproc(&curtpres, &curtlen);
 
 		memset(curpexit, 0, curtexitlen * sizeof(struct tstat));
-		nprocexit = acctphotoproc(&curpexit, &curtexitlen, pmtimevalToReal(&cursstat->stamp),
-								   pmtimevalSub(&cursstat->stamp, &interval));
+		nprocexit = acctphotoproc(&curpexit, &curtexitlen,
+					&cursstat->stamp, &interval);
 
 		/*
 		** register processes that exited during last sample;

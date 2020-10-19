@@ -720,8 +720,8 @@ setup_origin(pmOptions *opts)
 		pmResult	*result = calloc(1, sizeof(pmResult));
 		pmValueSet	*vset = calloc(1, sizeof(pmValueSet));
 
-		ptrverify(vset, "Malloc vset failed for thread enabling\n");
-		ptrverify(result, "Malloc result failed for thread enabling\n");
+		ptrverify(vset, "Malloc vset failed for %s enabling\n", "thread");
+		ptrverify(result, "Malloc result failed for %s enabling\n", "thread");
 
 		vset->vlist[0].inst = PM_IN_NULL;
 		vset->vlist[0].value.lval = 1;

@@ -246,7 +246,5 @@ void		netatop_exitfind(unsigned long, struct tstat *, struct tstat *);
 #define MAXACCTPROCS	(50*1024*1024/sizeof(struct tstat))
 int 		acctswon(void);
 void		acctswoff(void);
-unsigned long 	acctprocnt(void);
-int		acctphotoproc(struct tstat **, unsigned int *, double, double);
-void 		acctrepos(unsigned int);
+int		acctphotoproc(struct tstat **, unsigned int *, struct timeval *, struct timeval *);
 void		do_pacctdir(char *, char *);
