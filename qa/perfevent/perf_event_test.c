@@ -1124,6 +1124,99 @@ void test_hv_24x7_events_on_multinode_system(void)
     /* software events will be initialized in any case */
     assert(ev_count == (4 + 9));
 }
+
+void test_parse_hv_24x7_core_events(void)
+{
+    struct pmcsetting *pmctmp;
+    const char *configfile = "config/test_hv_24x7_core_events.txt";
+    configuration_t *config;
+    struct pmu *pmu_list = NULL, *tmp;
+    struct pmu_event *event;
+    int ev_count = 0;
+
+    config = parse_configfile(configfile);
+    assert(config != NULL);
+
+    printf( " ===== %s ==== \n", __FUNCTION__) ;
+
+    for (pmctmp = config->dynamicpmc->dynamicSettingList; pmctmp; pmctmp = pmctmp->next) {
+        printf("event = %s core = %d domain = %d lpar = %d\n", pmctmp->name, pmctmp->core, pmctmp->domain, pmctmp->lpar ? pmctmp->lpar : -1);
+        if (!(strcmp(pmctmp->name, "pmu1.event1")))
+                assert((pmctmp->core == -1) && (pmctmp->domain == -1) && !pmctmp->lpar);
+        if (!(strcmp(pmctmp->name, "pmu1.event2")))
+                assert((pmctmp->core == 3) && (pmctmp->domain == -1) && !pmctmp->lpar);
+        if (!(strcmp(pmctmp->name, "pmu1.event3")))
+                assert((pmctmp->core == -1) && (pmctmp->domain == 4) && !pmctmp->lpar);
+        if (!(strcmp(pmctmp->name, "pmu1.event4")))
+                assert((pmctmp->core == -1) && (pmctmp->domain == -1) && (pmctmp->lpar == 1));
+        if (!(strcmp(pmctmp->name, "pmu1.event5")))
+                assert((pmctmp->core == 1) && (pmctmp->domain == 4) && (pmctmp->lpar == 1));
+    }
+
+    setenv("SYSFS_PREFIX", "./fakefs/syspmu_core", 1);
+    init_dynamic_events(&pmu_list, config->dynamicpmc->dynamicSettingList);
+    for (tmp = pmu_list; tmp; tmp = tmp->next) {
+    printf("PMU name: %s \n", tmp->name);
+        for (event = tmp->ev; event; event = event->next) {
+        ev_count++;
+        printf(" event name: %s\n", event->name);
+        }
+    }
+
+    printf("%d events found\n", ev_count);
+    /* software events will be initialized in any case */
+    assert(ev_count == (7 + 9));
+}
+
+void test_parse_hv_gpci_events(void)
+{
+    struct pmcsetting *pmctmp;
+    const char *configfile = "config/test_hv_gpci_events.txt";
+    configuration_t *config;
+    struct pmu *pmu_list = NULL, *tmp;
+    struct pmu_event *event;
+    int ev_count = 0;
+
+    config = parse_configfile(configfile);
+    assert(config != NULL);
+
+    printf( " ===== %s ==== \n", __FUNCTION__) ;
+
+    for (pmctmp = config->dynamicpmc->dynamicSettingList; pmctmp; pmctmp = pmctmp->next) {
+        printf("event = %s\n", pmctmp->name);
+        if (!(strcmp(pmctmp->name, "pmu1.event1")))
+                assert(pmctmp->phys_processor_idx == -1);
+        if (!(strcmp(pmctmp->name, "pmu1.event2")))
+                assert(pmctmp->phys_processor_idx == 0);
+        if (!(strcmp(pmctmp->name, "pmu1.event3")))
+                assert(pmctmp->partition_id == -1);
+        if (!(strcmp(pmctmp->name, "pmu1.event4")))
+                assert(pmctmp->partition_id == 4);
+        if (!(strcmp(pmctmp->name, "pmu1.event5")))
+                assert(pmctmp->hw_chip_id == -1);
+        if (!(strcmp(pmctmp->name, "pmu1.event6")))
+                assert(pmctmp->hw_chip_id == 1);
+        if (!(strcmp(pmctmp->name, "pmu1.event7")))
+                assert(pmctmp->sibling_part_id == -1);
+        if (!(strcmp(pmctmp->name, "pmu1.event8")))
+                assert(pmctmp->sibling_part_id == 0);
+    }
+
+    setenv("SYSFS_PREFIX", "./fakefs/syspmu_hvgpci", 1);
+    init_dynamic_events(&pmu_list, config->dynamicpmc->dynamicSettingList);
+    for (tmp = pmu_list; tmp; tmp = tmp->next) {
+    printf("PMU name: %s \n", tmp->name);
+        for (event = tmp->ev; event; event = event->next) {
+        ev_count++;
+        printf(" event name: %s\n", event->name);
+        }
+    }
+
+    printf("%d events found\n", ev_count);
+    /* software events will be initialized in any case */
+    assert(ev_count == (8 + 9));
+}
+
 int runtest(int n)
 {
     init_mock();
@@ -1235,6 +1328,12 @@ int runtest(int n)
             break;
 	case 34:
 	    test_hv_24x7_events_on_multinode_system();
+	    break;
+	case 35:
+	    test_parse_hv_24x7_core_events();
+	    break;
+	case 36:
+	    test_parse_hv_gpci_events();
 	    break;
         default:
             ret = -1;
