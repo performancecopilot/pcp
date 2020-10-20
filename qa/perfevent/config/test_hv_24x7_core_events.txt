@@ -1,0 +1,12 @@
+[pmuname ]
+INSTRUCTIONS_RETIRED cpu
+UNHALTED_REFERENCE_CYCLES cpu_rr
+
+[dynamic]
+pmu1.event1
+pmu1.event2 core:3
+pmu1.event3 domain:4
+pmu1.event4 lpar:1
+pmu1.event5 core:1 domain:4 lpar:1
+pmu1.event6 core:1 domain:2 lpar:2
+pmu1.event6 core:2 domain:4 lpar:4

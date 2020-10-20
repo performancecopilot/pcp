@@ -36,8 +36,17 @@ typedef struct pmcsetting {
     int cpuConfig;
     double scale;    /* Currently, only used by derived events */
     int need_perf_scale;  /* Currently, only used by derived events */
-    int chip;	/* Currently, only used by hv_24x7 dynamic events */
+    /* Currently, only used by hv_24x7 dynamic events */
+    int chip;
+    int domain;
+    int core;
+    int lpar;
     unsigned long rawcode;  /* Currently, only used by raw events */
+    /* Currently, only used by hv_gpci dynamic events */
+    int phys_processor_idx;
+    int partition_id;
+    int hw_chip_id;
+    int sibling_part_id;
     struct pmcsetting *next;
 } pmcsetting_t; 
 

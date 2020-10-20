@@ -145,6 +145,12 @@ static void add_pmc_setting_name_derived(configuration_t *config, char *name)
     newpmcderivedsetting->scale = 1.0;
     newpmcderivedsetting->need_perf_scale = 0;
     newpmcderivedsetting->chip = -1;
+    newpmcderivedsetting->domain = -1;
+    newpmcderivedsetting->core = -1;
+    newpmcderivedsetting->phys_processor_idx = -1;
+    newpmcderivedsetting->partition_id = -1;
+    newpmcderivedsetting->hw_chip_id = -1;
+    newpmcderivedsetting->sibling_part_id = -1;
     newpmcderivedsetting->next = NULL;
 
     setting_lists = entry->setting_lists;
@@ -203,6 +209,12 @@ static void add_pmc_setting_name_dynamic(configuration_t *config, char *name)
     newpmcdynamicsetting->scale = 1.0;
     newpmcdynamicsetting->need_perf_scale = 0;
     newpmcdynamicsetting->chip = -1;
+    newpmcdynamicsetting->domain = -1;
+    newpmcdynamicsetting->core = -1;
+    newpmcdynamicsetting->phys_processor_idx = -1;
+    newpmcdynamicsetting->partition_id = -1;
+    newpmcdynamicsetting->hw_chip_id = -1;
+    newpmcdynamicsetting->sibling_part_id = -1;
     newpmcdynamicsetting->next = NULL;
 
     slist = entry->dynamicSettingList;
@@ -371,6 +383,216 @@ static void set_pmcsetting_cpuconfig(configuration_t *config, int cpuconfig)
     }
 
     pmcsetting->cpuConfig = cpuconfig;
+}
+
+static void set_pmcsetting_core(configuration_t *config, char *core)
+{
+    pmcsetting_t *pmcsetting, *setting_lists;
+
+    if( (NULL == config) || (0 == config->nConfigEntries) )
+    {
+        return;
+    }
+    if (context_dynamic)
+    {
+        setting_lists = config->dynamicpmc->dynamicSettingList;
+        if (NULL == setting_lists)
+        {
+          return;
+        }
+        while (setting_lists->next)
+        {
+          setting_lists = setting_lists->next;
+        }
+
+        pmcsetting = setting_lists;
+	if( NULL == pmcsetting )
+        {
+          return;
+        }
+
+	pmcsetting->core = atoi(core);
+    }
+}
+
+static void set_pmcsetting_domain(configuration_t *config, char *domain)
+{
+    pmcsetting_t *pmcsetting, *setting_lists;
+
+    if( (NULL == config) || (0 == config->nConfigEntries) )
+    {
+        return;
+    }
+    if (context_dynamic)
+    {
+        setting_lists = config->dynamicpmc->dynamicSettingList;
+        if (NULL == setting_lists)
+        {
+          return;
+        }
+        while (setting_lists->next)
+        {
+          setting_lists = setting_lists->next;
+        }
+
+        pmcsetting = setting_lists;
+	if( NULL == pmcsetting )
+        {
+          return;
+        }
+
+	pmcsetting->domain = atoi(domain);
+    }
+}
+
+static void set_pmcsetting_lpar(configuration_t *config, char *lpar)
+{
+    pmcsetting_t *pmcsetting, *setting_lists;
+
+    if( (NULL == config) || (0 == config->nConfigEntries) )
+    {
+        return;
+    }
+    if (context_dynamic)
+    {
+        setting_lists = config->dynamicpmc->dynamicSettingList;
+        if (NULL == setting_lists)
+        {
+          return;
+        }
+        while (setting_lists->next)
+        {
+          setting_lists = setting_lists->next;
+        }
+
+        pmcsetting = setting_lists;
+	if( NULL == pmcsetting )
+        {
+          return;
+        }
+
+	pmcsetting->lpar = atoi(lpar);
+    }
+}
+
+static void set_pmcsetting_phys_processor_idx(configuration_t *config, char *phys_processor_idx)
+{
+    pmcsetting_t *pmcsetting, *setting_lists;
+
+    if( (NULL == config) || (0 == config->nConfigEntries) )
+    {
+        return;
+    }
+    if (context_dynamic)
+    {
+        setting_lists = config->dynamicpmc->dynamicSettingList;
+        if (NULL == setting_lists)
+        {
+          return;
+        }
+        while (setting_lists->next)
+        {
+          setting_lists = setting_lists->next;
+        }
+
+        pmcsetting = setting_lists;
+	if( NULL == pmcsetting )
+        {
+          return;
+        }
+
+	pmcsetting->phys_processor_idx = atoi(phys_processor_idx);
+    }
+}
+
+static void set_pmcsetting_partition_id(configuration_t *config, char *partition_id)
+{
+    pmcsetting_t *pmcsetting, *setting_lists;
+
+    if( (NULL == config) || (0 == config->nConfigEntries) )
+    {
+        return;
+    }
+    if (context_dynamic)
+    {
+        setting_lists = config->dynamicpmc->dynamicSettingList;
+        if (NULL == setting_lists)
+        {
+          return;
+        }
+        while (setting_lists->next)
+        {
+          setting_lists = setting_lists->next;
+        }
+
+        pmcsetting = setting_lists;
+	if( NULL == pmcsetting )
+        {
+          return;
+        }
+
+	pmcsetting->partition_id = atoi(partition_id);
+    }
+}
+
+static void set_pmcsetting_hw_chip_id(configuration_t *config, char *hw_chip_id)
+{
+    pmcsetting_t *pmcsetting, *setting_lists;
+
+    if( (NULL == config) || (0 == config->nConfigEntries) )
+    {
+        return;
+    }
+    if (context_dynamic)
+    {
+        setting_lists = config->dynamicpmc->dynamicSettingList;
+        if (NULL == setting_lists)
+        {
+          return;
+        }
+        while (setting_lists->next)
+        {
+          setting_lists = setting_lists->next;
+        }
+
+        pmcsetting = setting_lists;
+	if( NULL == pmcsetting )
+        {
+          return;
+        }
+
+	pmcsetting->hw_chip_id = atoi(hw_chip_id);
+    }
+}
+
+static void set_pmcsetting_sibling_part_id(configuration_t *config, char *sibling_part_id)
+{
+    pmcsetting_t *pmcsetting, *setting_lists;
+
+    if( (NULL == config) || (0 == config->nConfigEntries) )
+    {
+        return;
+    }
+    if (context_dynamic)
+    {
+        setting_lists = config->dynamicpmc->dynamicSettingList;
+        if (NULL == setting_lists)
+        {
+          return;
+        }
+        while (setting_lists->next)
+        {
+          setting_lists = setting_lists->next;
+        }
+
+        pmcsetting = setting_lists;
+	if( NULL == pmcsetting )
+        {
+          return;
+        }
+
+	pmcsetting->sibling_part_id = atoi(sibling_part_id);
+    }
 }
 
 static void set_pmcsetting_chip(configuration_t *config, char *chip)
@@ -563,6 +785,13 @@ node_rr       set_pmcsetting_cpuconfig(yyextra, CPUCONFIG_ROUNDROBIN_NUMANODE);
 perf_scale    set_pmcsetting_derived_scale(yyextra, strtod(yytext, NULL), 1);
 ([0-9]*\.[0-9]+([eE][-+]?[0-9]+)?)  set_pmcsetting_derived_scale(yyextra, strtod(yytext, NULL), 0);
 (chip:)[0-9]*	set_pmcsetting_chip(yyextra, &yytext[5]);
+(domain:)[1-6]	set_pmcsetting_domain(yyextra, &yytext[7]);
+(core:)[0-9]*	set_pmcsetting_core(yyextra, &yytext[5]);
+(lpar:)[0-9]*	set_pmcsetting_lpar(yyextra, &yytext[5]);
+(phys_processor_idx:)[0-9]*	set_pmcsetting_phys_processor_idx(yyextra, &yytext[19]);
+(partition_id:)[0-9]*	set_pmcsetting_partition_id(yyextra, &yytext[13]);
+(hw_chip_id:)[0-9]*	set_pmcsetting_hw_chip_id(yyextra, &yytext[11]);
+(sibling_part_id:)[0-9]*	set_pmcsetting_sibling_part_id(yyextra, &yytext[15]);
 rawcode\=0x([0-9a-fA-F]+)           set_pmcsetting_rawcode(yyextra, strtoul(yytext+10, NULL, 16));
 }
 

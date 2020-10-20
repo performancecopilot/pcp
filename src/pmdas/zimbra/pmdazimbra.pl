@@ -12,6 +12,12 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
+# Note on metrics.
+#	The various Zimbra CSV files used to export stats are documented
+#	here: https://wiki.zimbra.com/index.php?title=Zmstats
+#	This gives column names and help text ... the semantics are guessed
+#	from there based on observation.
+#
 
 use strict;
 use warnings;
@@ -271,7 +277,52 @@ sub zimbra_mailboxd_mapper
     '((mempool)|(mpool))_perm_gen_space_used',			# pmid(3,57)
     '((mempool)|(mpool))_perm_gen_space_free',			# pmid(3,58)
     'heap_used',						# pmid(3,59)
-    'heap_free'							# pmid(3,60)
+    'heap_free',						# pmid(3,60)
+    'lmtp_conn',						# pmid(3,61)
+    'lmtp_threads',						# pmid(3,62)
+    'account_cache_hit_rate',					# pmid(3,63)
+    'account_cache_size',					# pmid(3,64)
+    'acl_cache_hit_rate',					# pmid(3,65)
+    'cos_cache_hit_rate',					# pmid(3,66)
+    'cos_cache_size',						# pmid(3,67)
+    'domain_cache_hit_rate',					# pmid(3,68)
+    'domain_cache_size',					# pmid(3,69)
+    'ews_syncstate_cache_hit_rate',				# pmid(3,70)
+    'ews_syncstate_cache_size',					# pmid(3,71)
+    'fd_cache_hit_rate',					# pmid(3,72)
+    'fd_cache_size',						# pmid(3,73)
+    'group_cache_hit_rate',					# pmid(3,74)
+    'group_cache_size',						# pmid(3,75)
+    'mobile_ping_cache_hit_rate',				# pmid(3,76)
+    'mobile_ping_cache_size',					# pmid(3,77)
+    'mbox_cache_size',						# pmid(3,78)
+    'mobile_syncstate_cache_hit_rate',				# pmid(3,79)
+    'mobile_syncstate_cache_size',				# pmid(3,80)
+    'server_cache_hit_rate',					# pmid(3,81)
+    'server_cache_size',					# pmid(3,82)
+    'ucservice_cache_hit_rate',					# pmid(3,83)
+    'ucservice_cache_size',					# pmid(3,84)
+    'xmpp_cache_hit_rate',					# pmid(3,85)
+    'xmpp_cache_size',						# pmid(3,86)
+    'zimlet_cache_hit_rate',					# pmid(3,87)
+    'zimlet_cache_size',					# pmid(3,88)
+    'msg_cache_size',						# pmid(3,89)
+    'http_idle_threads',					# pmid(3,90)
+    'http_threads',						# pmid(3,91)
+    'imap_ssl_threads',						# pmid(3,92)
+    'imap_threads',						# pmid(3,93)
+    'lmtp_conn',						# pmid(3,94)
+    'lmtp_threads',						# pmid(3,95)
+    'pop_ssl_threads',						# pmid(3,96)
+    'pop_threads',						# pmid(3,97)
+    'mpool_compressed_class_space_free',			# pmid(3,98)
+    'mpool_compressed_class_space_used',			# pmid(3,99)
+    'mpool_metaspace_free',					# pmid(3,100)
+    'mpool_metaspace_used',					# pmid(3,101)
+    'gc_concurrentmarksweep_count',				# pmid(3,102)
+    'gc_concurrentmarksweep_ms',				# pmid(3,103)
+    'gc_parnew_count',						# pmid(3,104)
+    'gc_parnew_ms'						# pmid(3,105)
     );
 
     for ($t = 1; $t <= $#values; $t++) {
@@ -474,7 +525,7 @@ sub zimbra_fetch_callback
 	}
     }
     elsif ($cluster == 3) {			# mailboxd.csv
-	if ($item >= 0 && $item <= 60) {
+	if ($item >= 0 && $item <= 105) {
 	    #debug# if (!defined($mailboxd_values[$item])) {
 	    #debug#     $pmda->log("mailboxd_values[$item] not defined");
 	    #debug# }
@@ -589,11 +640,11 @@ $pmda->add_metric(pmda_pmid(3,12), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,1,0,0,PM_TIME_MSEC,0), 'zimbra.mailboxd.mbox.get_time',
 	'/opt/zimbra/zmstat/mailboxd.csv', 'Mailbox average get time');
 $pmda->add_metric(pmda_pmid(3,13), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	pmda_units(0,0,0,0,0,0), 'zimbra.mailboxd.mbox_cache',
-	'/opt/zimbra/zmstat/mailboxd.csv', 'Mailbox cache');
+	pmda_units(0,0,0,0,0,0), 'zimbra.mailboxd.mbox_cache.hit_ratio',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'Mailbox cache hit ratio');
 $pmda->add_metric(pmda_pmid(3,14), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	pmda_units(0,0,0,0,0,0), 'zimbra.mailboxd.mbox_msg_cache',
-	'/opt/zimbra/zmstat/mailboxd.csv', 'Mailbox message cache');
+	pmda_units(0,0,0,0,0,0), 'zimbra.mailboxd.mbox_msg_cache.hit_rate',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'Mailbox message cache hit rate');
 $pmda->add_metric(pmda_pmid(3,15), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,0,0,0,0), 'zimbra.mailboxd.mbox_item_cache',
 	'/opt/zimbra/zmstat/mailboxd.csv', 'Mailbox item cache');
@@ -721,6 +772,141 @@ $pmda->add_metric(pmda_pmid(3,59), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
 $pmda->add_metric(pmda_pmid(3,60), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(1,0,0,PM_SPACE_BYTE,0,0), 'zimbra.mailboxd.heap.free',
 	'/opt/zimbra/zmstat/mailboxd.csv', 'Java heap space free');
+$pmda->add_metric(pmda_pmid(3,61), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.mailboxd.lmtp.conn',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'Number of LMTP connections');
+$pmda->add_metric(pmda_pmid(3,62), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.mailboxd.lmtp.threads',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'Number of LMTP threads');
+$pmda->add_metric(pmda_pmid(3,63), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.mailboxd.account_cache.hit_rate',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'LDAP account cache hit rate');
+$pmda->add_metric(pmda_pmid(3,64), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.mailboxd.account_cache.size',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'LDAP account cache size');
+$pmda->add_metric(pmda_pmid(3,65), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.mailboxd.acl_cache.hit_rate',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'LDAP ACL cache hit rate');
+$pmda->add_metric(pmda_pmid(3,66), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.mailboxd.cos_cache.hit_rate',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'LDAP COS cache hit rate');
+$pmda->add_metric(pmda_pmid(3,67), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.mailboxd.cos_cache.size',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'LDAP COS cache size');
+$pmda->add_metric(pmda_pmid(3,68), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.mailboxd.domain_cache.hit_rate',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'LDAP domain cache hit rate');
+$pmda->add_metric(pmda_pmid(3,69), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.mailboxd.domain_cache.size',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'LDAP domain cache size');
+$pmda->add_metric(pmda_pmid(3,70), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.mailboxd.ews_syncstate_cache.hit_rate',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'EWS Syncstate cache hit rate');
+$pmda->add_metric(pmda_pmid(3,71), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.mailboxd.ews_syncstate_cache.size',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'EWS Syncstate cache size');
+$pmda->add_metric(pmda_pmid(3,72), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.mailboxd.fd_cache.hit_rate',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'File descriptor cache hit rate');
+$pmda->add_metric(pmda_pmid(3,73), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.mailboxd.fd_cache.size',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'File descriptor cache size');
+$pmda->add_metric(pmda_pmid(3,74), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.mailboxd.group_cache.hit_rate',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'LDAP group cache hit rate');
+$pmda->add_metric(pmda_pmid(3,75), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.mailboxd.group_cache.size',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'LDAP group cache size');
+$pmda->add_metric(pmda_pmid(3,76), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.mailboxd.mobile_ping_cache.hit_rate',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'Mobile ping cache hit rate');
+$pmda->add_metric(pmda_pmid(3,77), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.mailboxd.mobile_ping_cache.size',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'Mobile ping cache size');
+$pmda->add_metric(pmda_pmid(3,78), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.mailboxd.mbox_cache.size',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'Number of mailboxes cached in memory');
+$pmda->add_metric(pmda_pmid(3,79), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.mailboxd.mobile_syncstate_cache.hit_rate',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'Mobile syncstate cache hit rate');
+$pmda->add_metric(pmda_pmid(3,80), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.mailboxd.mobile_syncstate_cache.size',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'Mobile syncstate cache size');
+$pmda->add_metric(pmda_pmid(3,81), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.mailboxd.server_cache.hit_rate',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'LDAP server cache hit rate');
+$pmda->add_metric(pmda_pmid(3,82), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.mailboxd.server_cache.size',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'LDAP server cache size');
+$pmda->add_metric(pmda_pmid(3,83), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.mailboxd.ucservice_cache.hit_rate',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'Ucservice cache hit rate');
+$pmda->add_metric(pmda_pmid(3,84), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.mailboxd.ucservice_cache.size',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'Ucservice cache size');
+$pmda->add_metric(pmda_pmid(3,85), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.mailboxd.xmpp_cache.hit_rate',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'LDAP XMPP cache hit rate');
+$pmda->add_metric(pmda_pmid(3,86), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.mailboxd.xmpp_cache.size',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'LDAP XMPP cache size');
+$pmda->add_metric(pmda_pmid(3,87), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.mailboxd.zimlet_cache.hit_rate',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'LDAP zimlet cache hit rate');
+$pmda->add_metric(pmda_pmid(3,88), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.mailboxd.zimlet_cache.size',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'LDAP zimlet cache size');
+$pmda->add_metric(pmda_pmid(3,89), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.mailboxd.mbox_msg_cache.size',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'Number of message structures cached in memory');
+$pmda->add_metric(pmda_pmid(3,90), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.mailboxd.http_idle_threads',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'Number of HTTP idle threads');
+$pmda->add_metric(pmda_pmid(3,91), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.mailboxd.http_threads',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'Number of HTTP threads');
+$pmda->add_metric(pmda_pmid(3,92), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.mailboxd.imap_ssl_threads',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'Number of SSL IMAP threads');
+$pmda->add_metric(pmda_pmid(3,93), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.mailboxd.imap_threads',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'Number of IMAP threads');
+$pmda->add_metric(pmda_pmid(3,94), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.mailboxd.lmtp_conn',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'Number of LMTP connections');
+$pmda->add_metric(pmda_pmid(3,95), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.mailboxd.lmtp_threads',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'Number of LMTP threads');
+$pmda->add_metric(pmda_pmid(3,96), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.mailboxd.pop_ssl_threads',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'Number of SSL POP3 threads');
+$pmda->add_metric(pmda_pmid(3,97), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.mailboxd.pop_threads',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'Number of POP3 idle threads');
+$pmda->add_metric(pmda_pmid(3,98), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(1,0,0,PM_SPACE_BYTE,0,0), 'zimbra.mailboxd.mempool.compressed_class_space.free',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'Java compressed class space free');
+$pmda->add_metric(pmda_pmid(3,99), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(1,0,0,PM_SPACE_BYTE,0,0), 'zimbra.mailboxd.mempool.compressed_class_space.used',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'Java compressed class space used');
+$pmda->add_metric(pmda_pmid(3,100), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(1,0,0,PM_SPACE_BYTE,0,0), 'zimbra.mailboxd.mempool.metaspace.free',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'Java metaspace free');
+$pmda->add_metric(pmda_pmid(3,101), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(1,0,0,PM_SPACE_BYTE,0,0), 'zimbra.mailboxd.mempool.metaspace.used',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'Java metaspace used');
+$pmda->add_metric(pmda_pmid(3,102), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.mailboxd.gc.concurrentmarksweep_count',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'Java concurrentmarksweep garbage collection count');
+$pmda->add_metric(pmda_pmid(3,103), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	pmda_units(0,1,0,0,PM_TIME_MSEC,0), 'zimbra.mailboxd.gc.concurrentmarksweep_time',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'Java concurrentmarksweep garbage collection time');
+$pmda->add_metric(pmda_pmid(3,104), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.mailboxd.gc.parnew_count',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'Java parnew garbage collection count');
+$pmda->add_metric(pmda_pmid(3,105), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	pmda_units(0,1,0,0,PM_TIME_MSEC,0), 'zimbra.mailboxd.gc.parnew_time',
+	'/opt/zimbra/zmstat/mailboxd.csv', 'Java parnew garbage collection time');
 
 $pmda->add_metric(pmda_pmid(4,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(1,0,0,PM_SPACE_KBYTE,0,0), 'zimbra.mtaqueue.size',

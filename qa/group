@@ -998,7 +998,7 @@ x11
 558 pmie local kernel
 559 pmlogsummary local
 560 pmda.simple local pmda.install
-561 libpcp python labels local sanity BAD @vm13 @vm33
+561 libpcp python labels local sanity
 562 pmcd pmda.sample dbpmda pminfo labels libpcp local sanity
 563 pmcd pmda.pmcd pminfo labels libpcp local
 564 logutil local pmlogextract
@@ -1567,9 +1567,9 @@ x11
 1127 pmda.bcc local python
 1128 pmie local
 1129 derive local kernel
-1130 pcp2elasticsearch python pcp2xxx local BAD @vm27
-1131 pcp2json python pcp2xxx local BAD @vm28
-1132 pcp2xlsx python pcp2xxx local kernel BAD @vm11 @vm36
+1130 pcp2elasticsearch python pcp2xxx local
+1131 pcp2json python pcp2xxx local
+1132 pcp2xlsx python pcp2xxx local kernel
 1133 pcp2xml python pcp2xxx local
 1134 pmrep pcp2json pcp2xml python pcp2xxx local python kernel
 1135 pmrep python pmda.sample archive local kernel
@@ -1686,7 +1686,7 @@ x11
 1246:reserved pmlogreduce local
 1247 pmlogrewrite labels pmdumplog local
 1248 pmlogctl local
-1249 pmlogctl local
+1249 pmiectl local
 1250 selinux local
 1251 man local
 1252 derive local
@@ -1719,7 +1719,7 @@ x11
 1279 dbpmda local
 1280 archive pmdumplog local
 1281 archive pmdumplog valgrind local
-1282 other local
+1282:retired other local
 1287 pmda.install pmda.openmetrics local python
 1289 pmval archive multi-archive decompress-xz local pmlogextract
 1294 libpcp_mmv labels local valgrind
@@ -1846,9 +1846,11 @@ x11
 1724 pmda.bpftrace local python
 1740 pmda.proc local
 1745 pmlogger libpcp pmval local
+1763 pmlogctl local
 1768 pmfind local
 1793 pmrep pcp2xxx python local
 1805 pmda.linux kernel local
+1813:reserved python labels local
 1820 atop local
 1821 pmlogpaste local
 1824 pmproxy local
@@ -1856,6 +1858,7 @@ x11
 1855 pmda.rabbitmq local
 1871 pmsearch local
 1872 pmproxy local
+1876 pmcd secure local
 1886 pmseries local libpcp_web local
 1896 pmlogger logutil pmlc local
 4751 libpcp threads valgrind local pcp

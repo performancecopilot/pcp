@@ -1,0 +1,11 @@
+#!/usr/bin/env pmpython
+
+from pcp import pmapi
+ctx = pmapi.pmContext()
+pmid = ctx.pmLookupName("hinv.cpu.clock")[0]
+desc = ctx.pmLookupDescs(pmid)[0]
+inst = ctx.pmGetInDom(desc)
+lbls = ctx.pmLookupLabels(pmid)
+inls = ctx.pmGetInstancesLabels(desc.contents.indom)
+print(lbls)
+print(inls)

@@ -25,12 +25,8 @@ tasks:
     sudo apt-get -y dist-upgrade
   install_build_dependencies: |
     sudo apt-get -y update
-    sudo apt-get install -y zlib1g-dev
-    for pkg in $(./pcp/qa/admin/check-vm -fpM)
-    do
-      [[ "$runner" = "container" && ( "$pkg" = "auditd" || "$pkg" = "docker.io" ) ]] && continue
-      sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "$pkg" || true
-    done
+    pkgs=$(./pcp/qa/admin/list-packages -m -v -x cpan -x pip3 -x not4ci)
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y $pkgs
   build: |
     cd ./pcp
     ./Makepkgs --nonrpm --verbose

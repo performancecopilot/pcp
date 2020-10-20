@@ -28,19 +28,23 @@ ArchLinux    -        -       python2-{.*} {.*}-python2
 # As of 8.2.2004 ...
 # mysql conflicst with mariadb
 # mandoc conflicts with man-pages
-# perl(Net::SNMP) has bad prereq on perl(Digest::SHA1), not perl(Digest::SHA)
-# perl(Spreadsheet::XLSX) has bad depends chain back to perl(IO::Scalar)
-# perl(Spreadsheet::WriteExcel) has bad depends chain back to perl(IO::Scalar)
+# perl-Net-SNMP) has bad prereq on perl-Digest-SHA1, not perl-Digest-SHA
+# perl-Spreadsheet-XLSX has bad depends chain back to perl-IO-Scalar
+# perl-Spreadsheet-WriteExcel has bad depends chain back to perl-IO-Scalar
 # cpan(Spreadsheet::WriteExcel) fails to build
-CentOS       8\.2\.   -       {.*}-python2 python2-{.*} python2[0-9]-{.*} python-{.*} mysql mandoc perl-Net-SNMP perl(Net::SNMP) perl-Spreadsheet-XLSX perl(Spreadsheet::XLSX) perl-Spreadsheet-WriteExcel perl(Spreadsheet::WriteExcel) cpan(Spreadsheet::WriteExcel)
+CentOS       8\.2\.   -       {.*}-python2 python2-{.*} python2[0-9]-{.*} python-{.*} mysql mandoc perl-Net-SNMP perl-Spreadsheet-XLSX perl-Spreadsheet-WriteExcel cpan(Spreadsheet::WriteExcel)
 CentOS       8\.1\.   -       {.*}-python2 python2-{.*} python2{[0-9]-.*} python-{.*}
 CentOS       7\.[5-9]\. -       {.*}-python2 python2-{.*} python2{[0-9]-.*} python-{.*}
+# For CentOS 8, mktemp and realpath are in coreutils, not coreutils-single
+CentOS       8\.      -       coreutils-single
 # For CentOS 7 and 8 prefer infiniband-diags-devel over libibmad-devel
 CentOS       [7-8]\.  -       libibmad-devel
 # For CentOS 6 infiniband-diags-devel does not provide all the headers
 CentOS       6\.      -       infiniband-diags-devel
 # libSoQt is for Qt4 not Qt5
 CentOS       7\.      -       SoQt-devel
+# prefer docker over podman-docker
+CentOS       7\.      -       podman-docker
 # we're using python2
 CentOS       6\.10    -       {.*}-python3 python3-{.*} python3{[0-9]-.*}
 # need non-standard repo for msssql-* pkgs
@@ -52,7 +56,7 @@ CentOS       -        -       kubectl libqt4-devel
 Debian       1.\.     -       python-{.*}
 Debian       9\.      -       python-{.*}
 Debian       buster   -       python-{.*}
-Debian       bullseye -       python-{.*}
+Debian       bullseye -       python-{.*} python libpython-dev libpython2-dev libpython-stdlib libpython2-stdlib
 # observed on bozo
 # libqt4-dev and libsoqt4 are all for Qt4, but we're
 # using Qt5 for the other bits we need for pmview, but even the Qt5
@@ -108,14 +112,14 @@ OpenBSD      6\.[3-7] -       qtbase qtsvg valgrind python-{.*} {.*}-python cpan
 # As of 8.2 ...
 # mysql conflicst with mariadb
 # mandoc conflicts with man-pages
-# perl(Net::SNMP) has bad prereq on perl(Digest::SHA1), not perl(Digest::SHA)
-# perl(Spreadsheet::XLSX) has bad depends chain back to perl(IO::Scalar)
-# perl(Spreadsheet::WriteExcel) has bad depends chain back to perl(IO::Scalar)
+# perl-Net-SNMP) has bad prereq on perl-Digest-SHA1, not perl-Digest-SHA
+# perl-Spreadsheet-XLSX has bad depends chain back to perl-IO-Scalar
+# perl-Spreadsheet-WriteExcel has bad depends chain back to perl-IO-Scalar
 # cpan(Spreadsheet::WriteExcel) fails to build
-RHEL         8\.2     -       {.*}-python2 python2-{.*} python2[0-9]-{.*} python-{.*} mysql mandoc perl-Net-SNMP perl(Net::SNMP) perl-Spreadsheet-XLSX perl(Spreadsheet::XLSX) perl-Spreadsheet-WriteExcel perl(Spreadsheet::WriteExcel) cpan(Spreadsheet::WriteExcel)
-RHEL         8\.[0-1] -       cpan(Net::LDAP) cpan(Spreadsheet::XLSX) cpan(Text::CSV_XS) cpan(XML::LibXML) cpan(XML::TokeParser) perl(autodie) perl(Date::Manip) perl(DBD::mysql) perl(Net::LDAP) perl(Net::SNMP) perl-Net-SNMP perl(Spreadsheet::WriteExcel) perl-Spreadsheet-WriteExcel perl(Spreadsheet::XLSX) perl(Text::CSV_XS) perl(XML::LibXML) perl(XML::TokeParser) {.*}-python2 python2-{.*} system-python-libs
-# broken dependencies - perl(Parse::RecDescent) and/or perl(Crypt::DES)
-RHEL         7\.9     -       perl-Spreadsheet-WriteExcel perl(Spreadsheet::WriteExcel) perl-Spreadsheet-XLSX perl(Spreadsheet::XLSX) perl-Net-SNMP perl(Net::SNMP)
+RHEL         8\.2     -       {.*}-python2 python2-{.*} python2[0-9]-{.*} python-{.*} mysql mandoc perl-ldap perl-Net-SNMP perl-Spreadsheet-XLSX perl-Spreadsheet-WriteExcel cpan(Spreadsheet::WriteExcel)
+RHEL         8\.[0-1] -       cpan(Net::LDAP) cpan(Spreadsheet::XLSX) cpan(Text::CSV_XS) cpan(XML::LibXML) cpan(XML::TokeParser) perl-autodie perl-Date-Manip perl-DBD-MySQL perl-LDAP perl-Net-SNMP perl-Spreadsheet-WriteExcel perl-Spreadsheet-XLSX perl-Text-CSV_XS perl-XML-LibXML perl-XML-TokeParser {.*}-python2 python2-{.*} system-python-libs
+# broken dependencies - perl-Parse-RecDescent and/or perl-Crypt-DES
+RHEL         7\.9     -       perl-Spreadsheet-WriteExcel perl-Spreadsheet-XLSX perl-Net-SNMP
 RHEL         7\.[5-9] -       {.*}-python3 python3-{.*} python3{[0-9]-.*} 
 RHEL         6\.10    -       {.*}-python3 python3-{.*} python3{[0-9]-.*}
 # for RHEL 7, no way to get infiniband/mad.h installed, so rdma-core-devel
@@ -138,9 +142,9 @@ SUSE         -        -       mssql-server mssql-tools
 openSUSE     -        -       mssql-server mssql-tools
 #-- Ubuntu
 # Python2 retired from PCP builds as of Ubunutu version 20.04
-Ubuntu       2.\.     -       python-{.*}
+Ubuntu       2.\.     -       python-{.*} python libpython-dev libpython2-dev libpython-stdlib libpython2-stdlib
 Ubuntu       1[89]\.. -       python-{.*}
-Ubuntu       1[67]\.. -       python-{.*}
+Ubuntu       1[67]\.. -       python-{.*} python2-dev
 # we're using python3 from 14.04 on
 Ubuntu       1[45]\.. -       python-{.*}
 # observed on bozo
@@ -155,3 +159,22 @@ Ubuntu       18\.04   i.86    python3-bpfcc
 # libsoqt-dev, libsoqt-dev-common and libcoin-dev are all for Qt4, but we're
 # using Qt5 for the other bits we need for pmview
 Ubuntu       16\.04   -       libcoin-dev libsoqt-dev libsoqt-dev-common libsoqt4-dev
+# prefer mariadb over mysql for the more recent versions
+#
+Ubuntu       20\.04   -       mysql-client-core mysql-client-core-[0-9][0-9.]*
+Ubuntu       18\.04   -       mysql-client-core mysql-client-core-[0-9][0-9.]*
+# observed in CI for Ubuntu 16.04
+# need mysql over mariadb, and pick an explicit latest mysql-client-core
+# version, not the generic meta package
+Ubuntu       16\.04   -       mariadb-client-core mariadb-client-core-[0-9][0-9.]* mysql-client-core
+#
+# preferences where check-vm -a lists all options ... from list-packages
+# analysis
+#
+RHEL         8\.       -      ccache coreutils-single perl
+RHEL         7\.       -      389-ds ccache python2-requests python2-six
+RHEL         6\.       -      389-ds ccache perl-interpreter python2-requests python2-setuptools python2-six zabbix22-agent
+CentOS       7\.       -      389-ds
+CentOS       -         -      ccache
+Fedora       32        -      coreutils-single infiniband-diags-devel
+Fedora       -         -      ccache

@@ -125,7 +125,6 @@ do_link(int vol)
     char	src[MAXPATHLEN];
     char	dst[MAXPATHLEN];
     char	**suff;
-    int		sts;
 
     for (suff = sufftab; *suff != NULL; suff++) {
 	switch (vol) {
@@ -162,7 +161,7 @@ do_link(int vol)
 	    else {
 		if (verbose)
 		    printf("link %s -> %s\n", src, dst);
-		if ((sts = link(src, dst)) < 0) {
+		if (link(src, dst) < 0) {
 		    fprintf(stderr, "pmlogmv: link %s -> %s failed: %s\n", src, dst, strerror(errno));
 		    return -1;
 		}
@@ -188,7 +187,6 @@ do_link(int vol)
     }
 
     return 0;
-
 }
 
 /*
@@ -199,7 +197,6 @@ do_unlink(int cleanup, char *name, int vol)
 {
     char	src[MAXPATHLEN];
     char	**suff;
-    int		sts;
 
     for (suff = sufftab; *suff != NULL; suff++) {
 	switch (vol) {
@@ -220,15 +217,13 @@ do_unlink(int cleanup, char *name, int vol)
 	    else {
 		if (verbose)
 		    printf("%sremove %s\n", cleanup ? "cleanup: " : "", src);
-		if ((sts = unlink(src)) < 0) {
+		if (unlink(src) < 0) {
 		    fprintf(stderr, "pmlogmv: unlink %s failed: %s\n", src, strerror(errno));
 		}
 	    }
-	    return;
+	    break;
 	}
     }
-
-    return ;
 }
 
 static void

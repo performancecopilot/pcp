@@ -60,7 +60,6 @@ typedef enum nodetype {
     N_RESCALE,
     N_SCALE,
     N_DEFINED,
-    N_NOOP,
     N_ABS,
     N_FLOOR,
     N_LOG,

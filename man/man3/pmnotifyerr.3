@@ -83,6 +83,12 @@ with
 .I onoff
 having a zero value, and this is the starting state for each PCP
 application.
+.PP
+In the style of
+.BR syslog (3)
+.I message
+need not include a terminating newline character (one will be added if
+required).
 .SH SEE ALSO
 .BR getpid (2),
 .BR ctime (3),

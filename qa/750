@@ -65,6 +65,8 @@ package_totals_before()
 	cat $tmp.tmp
 	pre_count=0
     fi
+
+    ls -l /var/lib/rpm/Packages >>$here/$seq.full 2>&1
 }
 
 package_totals_after()
@@ -105,6 +107,8 @@ package_totals_after()
     else
 	echo Total count check: FAIL - $diff_count delta
     fi
+
+    ls -l /var/lib/rpm/Packages >>$here/$seq.full 2>&1
 }
 
 # real QA test starts here

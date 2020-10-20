@@ -1143,6 +1143,16 @@ Similar to the action of the -C option for
 and
 .BR pmproxy (1).
 .TP
+.B PCP_NSS_INIT_MODE
+Mode to use to initialize the NSS certificate database when using
+secure connections.
+This variable may be set to either
+.B readonly
+or
+.BR readwrite .
+If unset, the default is
+.BR readwrite .
+.TP
 .B PCP_STDERR
 Many PCP tools support the environment variable
 .BR PCP_STDERR ,

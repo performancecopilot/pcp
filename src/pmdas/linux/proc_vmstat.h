@@ -22,10 +22,17 @@
 typedef struct {
 	/* sorted by name to make maintenance easier */
 	__uint64_t allocstall;
+	__uint64_t allocstall_dma;
+	__uint64_t allocstall_dma32;
+	__uint64_t allocstall_high;
+	__uint64_t allocstall_movable;
+	__uint64_t allocstall_normal;
 	__uint64_t balloon_deflate;
 	__uint64_t balloon_inflate;
 	__uint64_t balloon_migrate;
 	__uint64_t compact_blocks_moved;
+	__uint64_t compact_daemon_free_scanned;
+	__uint64_t compact_daemon_migrate_scanned;
 	__uint64_t compact_daemon_wake;
 	__uint64_t compact_fail;
 	__uint64_t compact_free_scanned;
@@ -53,13 +60,18 @@ typedef struct {
 	__uint64_t nr_dirty;
 	__uint64_t nr_dirty_background_threshold;
 	__uint64_t nr_dirty_threshold;
+	__uint64_t nr_file_hugepages;
 	__uint64_t nr_file_pages;
+	__uint64_t nr_file_pmdmapped;
+	__uint64_t nr_foll_pin_acquired;
+	__uint64_t nr_foll_pin_released;
 	__uint64_t nr_free_cma;
 	__uint64_t nr_free_pages;
 	__uint64_t nr_inactive_anon;
 	__uint64_t nr_inactive_file;
 	__uint64_t nr_isolated_anon;
 	__uint64_t nr_isolated_file;
+	__uint64_t nr_kernel_misc_reclaimable;
 	__uint64_t nr_kernel_stack;
 	__uint64_t nr_mapped;
 	__uint64_t nr_mlock;
@@ -96,6 +108,7 @@ typedef struct {
 	__uint64_t numa_other;
 	__uint64_t numa_pages_migrated;
 	__uint64_t numa_pte_updates;
+	__uint64_t oom_kill;
 	__uint64_t pageoutrun;
 	__uint64_t pgactivate;
 	__uint64_t pgalloc_dma;
@@ -139,6 +152,7 @@ typedef struct {
 	__uint64_t pgsteal_direct_normal;
 	__uint64_t pgsteal_dma;
 	__uint64_t pgsteal_dma32;
+	__uint64_t pgsteal_file;
 	__uint64_t pgsteal_high;
 	__uint64_t pgsteal_kswapd;
 	__uint64_t pgsteal_kswapd_dma;
@@ -150,17 +164,23 @@ typedef struct {
 	__uint64_t pswpin;
 	__uint64_t pswpout;
 	__uint64_t slabs_scanned;
+	__uint64_t swap_ra;
+	__uint64_t swap_ra_hit;
 	__uint64_t thp_collapse_alloc;
 	__uint64_t thp_collapse_alloc_failed;
 	__uint64_t thp_deferred_split_page;
 	__uint64_t thp_fault_alloc;
 	__uint64_t thp_fault_fallback;
+	__uint64_t thp_fault_fallback_charge;
 	__uint64_t thp_file_alloc;
 	__uint64_t thp_file_mapped;
 	__uint64_t thp_split;
 	__uint64_t thp_split_page;
 	__uint64_t thp_split_page_failed;
 	__uint64_t thp_split_pmd;
+	__uint64_t thp_split_pud;
+	__uint64_t thp_swpout;
+	__uint64_t thp_swpout_fallback;
 	__uint64_t thp_zero_page_alloc;
 	__uint64_t thp_zero_page_alloc_failed;
 	__uint64_t unevictable_pgs_cleared;
@@ -172,8 +192,10 @@ typedef struct {
 	__uint64_t unevictable_pgs_scanned;
 	__uint64_t unevictable_pgs_stranded;
 	__uint64_t workingset_activate;
+	__uint64_t workingset_nodes;
 	__uint64_t workingset_nodereclaim;
 	__uint64_t workingset_refault;
+	__uint64_t workingset_restore;
 	__uint64_t zone_reclaim_failed;
 } proc_vmstat_t;
 

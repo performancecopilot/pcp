@@ -580,11 +580,13 @@ kernel.percpu.interrupts.PIN [Posted-interrupt notification event]
 Help:
 Posted-interrupt notification event
 
-kernel.percpu.interrupts.MIS One-line Help: Error: One-line or help text is not available
-Full Help: Error: One-line or help text is not available
+kernel.percpu.interrupts.MIS [Per-processor interrupts values from /proc/interrupts]
+Help:
+Per-processor interrupts values from /proc/interrupts
 
-kernel.percpu.interrupts.ERR One-line Help: Error: One-line or help text is not available
-Full Help: Error: One-line or help text is not available
+kernel.percpu.interrupts.ERR [Per-processor interrupts values from /proc/interrupts]
+Help:
+Per-processor interrupts values from /proc/interrupts
 
 kernel.percpu.interrupts.HYP [Hypervisor callback interrupts]
 Help:
@@ -994,11 +996,13 @@ kernel.percpu.interrupts.PIN [Posted-interrupt notification event]
 Help:
 Posted-interrupt notification event
 
-kernel.percpu.interrupts.MIS One-line Help: Error: One-line or help text is not available
-Full Help: Error: One-line or help text is not available
+kernel.percpu.interrupts.MIS [Per-processor interrupts values from /proc/interrupts]
+Help:
+Per-processor interrupts values from /proc/interrupts
 
-kernel.percpu.interrupts.ERR One-line Help: Error: One-line or help text is not available
-Full Help: Error: One-line or help text is not available
+kernel.percpu.interrupts.ERR [Per-processor interrupts values from /proc/interrupts]
+Help:
+Per-processor interrupts values from /proc/interrupts
 
 kernel.percpu.interrupts.HVS [Hyper-V stimer0 interrupts]
 Help:

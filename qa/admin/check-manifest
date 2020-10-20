@@ -679,7 +679,7 @@ _hunt()
 		    'cpan('*')')	# skip cpan as we can't check 'em here
 			    ;;
 
-		    'perl('*')')	# ditto
+		    'pip3('*')')	# ditto
 			    ;;
 
 		    *'::'*)		# raw Perl module name, nothing to see here
@@ -855,7 +855,7 @@ do
     line=`echo $extra | sed -e 's/.*:\([0-9][0-9]*\)$/\1/'`
     # reduce things like "[lm-sensors (QA optional)]:1189" down to
     # "lm-sensors"
-    # and "[perl-Spreadsheet-ReadSXC or perl(Spreadsheet::ReadSXC) or from cpan(Spreadsheet::ReadSXC) (QA optional)]:601
+    # and "[perl-Spreadsheet-ReadSXC or cpan(Spreadsheet::ReadSXC) (QA optional)]:601
     # down to "perl-Spreadsheet-ReadSXC cpan(Spreadsheet::ReadSXC)"
     # and cull the [N/A...] lines
     #
@@ -865,8 +865,6 @@ do
 	    -e 's/#.*//' \
 	    -e 's/^\[//' \
 	    -e 's/] *$//' \
-	    -e "s/'perl([^0]*)'//" \
-	    -e "s/perl([^0]*)//" \
 	    -e 's/([^)]* optional)//' \
 	    -e 's/base [^ ][^ ]* install/base/' \
 	    -e 's/ or / /g' \

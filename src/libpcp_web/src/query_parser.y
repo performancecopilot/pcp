@@ -109,7 +109,6 @@ static const char initial_str[]  = "Unexpected initial";
 %token      L_RBRACE
 %token      L_LSQUARE
 %token      L_RSQUARE
-%token      L_NOOP
 %token      L_ABS
 %token      L_FLOOR
 %token      L_LOG
@@ -163,6 +162,7 @@ static const char initial_str[]  = "Unexpected initial";
 %type  <n>  query
 %type  <n>  expr
 %type  <n>  func
+%type  <n>  func_sid
 %type  <n>  arithmetic_expression
 %type  <n>  exprlist
 %type  <n>  exprval
@@ -171,6 +171,7 @@ static const char initial_str[]  = "Unexpected initial";
 %type  <s>  timespec
 %type  <n>  vector
 %type  <n>  val_vec
+%type  <n>  sid_vec
 
 %left  L_AND L_OR
 %left  L_LT L_LEQ L_EQ L_GLOB L_COLON L_ASSIGN L_GEQ L_GT L_NEQ L_REQ L_RNE
@@ -219,6 +220,11 @@ vector:	L_NAME L_LBRACE exprlist L_RBRACE L_EOS
 		  YYACCEPT;
 		}
 	| func L_EOS
+		{ lp->yy_np = $1;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		  YYACCEPT;
+		}
+	| func_sid L_EOS
 		{ lp->yy_np = $1;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		  YYACCEPT;
@@ -324,7 +330,8 @@ expr	: /* relational expressions */
 	/* TODO: error reporting */
 	;
 
-val_vec	: L_NAME L_LBRACE exprlist L_RBRACE L_LSQUARE timelist L_RSQUARE
+val_vec
+	: L_NAME L_LBRACE exprlist L_RBRACE L_LSQUARE timelist L_RSQUARE
 		{ lp->yy_np = newmetricquery($1, $3);
 		  lp->yy_np->time = lp->yy_series.time;
 		  $$ = lp->yy_series.expr = lp->yy_np;
@@ -335,6 +342,174 @@ val_vec	: L_NAME L_LBRACE exprlist L_RBRACE L_LSQUARE timelist L_RSQUARE
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	;
+
+sid_vec 
+	: L_NAME L_LBRACE exprlist L_RBRACE
+                { lp->yy_np = newmetricquery($1, $3);
+                  $$ = lp->yy_series.expr = lp->yy_np;
+                }
+	| L_NAME
+                { lp->yy_np = newmetric($1); /* TODO: perhaps newsidexpr()? */
+                  $$ = lp->yy_series.expr = lp->yy_np;
+                }
+	;
+
+func_sid
+	: L_RATE L_LPAREN sid_vec L_RPAREN
+		{ lp->yy_np = newnode(N_RATE);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_RATE L_LPAREN func_sid L_RPAREN
+		{ lp->yy_np = newnode(N_RATE);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_MAX L_LPAREN sid_vec L_RPAREN
+		{
+		
+		}
+	| L_MAX L_LPAREN func_sid L_RPAREN
+		{
+
+		}
+	| L_MIN L_LPAREN sid_vec L_RPAREN
+		{
+		
+		}
+	| L_MIN L_LPAREN func_sid L_RPAREN
+		{
+
+		}
+	| L_RESCALE L_LPAREN sid_vec L_RPAREN
+		{
+		
+		}
+	| L_RESCALE L_LPAREN func_sid L_RPAREN
+		{
+
+		}
+	| L_ABS L_LPAREN sid_vec L_RPAREN
+		{
+		
+		}
+	| L_ABS L_LPAREN func_sid L_RPAREN
+		{
+
+		}
+	| L_FLOOR L_LPAREN sid_vec L_RPAREN
+		{
+		
+		}
+	| L_FLOOR L_LPAREN func_sid L_RPAREN
+		{
+
+		}
+	| L_LOG L_LPAREN sid_vec L_COMMA number L_RPAREN
+		{
+		
+		}
+	| L_LOG L_LPAREN func_sid L_COMMA number L_RPAREN
+		{
+
+		}
+	| L_LOG L_LPAREN sid_vec L_RPAREN
+		{
+		
+		}
+	| L_LOG L_LPAREN func_sid L_RPAREN
+		{
+
+		}
+	| L_SQRT L_LPAREN sid_vec L_RPAREN
+		{
+		
+		}
+	| L_SQRT L_LPAREN func_sid L_RPAREN
+		{
+
+		}
+	| L_ROUND L_LPAREN sid_vec L_RPAREN
+		{
+		
+		}
+	| L_ROUND L_LPAREN func_sid L_RPAREN
+		{
+
+		}
+	| arithmetic_expr_sid
+		{
+		
+		}
+	;
+
+arithmetic_expr_sid
+	: sid_vec L_PLUS sid_vec
+		{
+
+		}
+	| sid_vec L_PLUS func_sid
+		{
+		
+		}
+	| func_sid L_PLUS sid_vec
+		{
+
+		}
+	| func_sid L_PLUS func_sid
+		{
+
+		}
+	| sid_vec L_MINUS sid_vec
+		{
+
+		}
+	| sid_vec L_MINUS func_sid
+		{
+		
+		}
+	| func_sid L_MINUS sid_vec
+		{
+
+		}
+	| func_sid L_MINUS func_sid
+		{
+
+		}
+	| sid_vec L_STAR sid_vec
+		{
+
+		}
+	| sid_vec L_STAR func_sid
+		{
+		
+		}
+	| func_sid L_STAR sid_vec
+		{
+
+		}
+	| func_sid L_STAR func_sid
+		{
+
+		}
+	| sid_vec L_SLASH sid_vec
+		{
+
+		}
+	| sid_vec L_SLASH func_sid
+		{
+		
+		}
+	| func_sid L_SLASH sid_vec
+		{
+
+		}
+	| func_sid L_SLASH func_sid
+		{
+
+		}
+	;
+
 	/* TODO: functions */
 func	: L_RATE L_LPAREN val_vec L_RPAREN
 		{ lp->yy_np = newnode(N_RATE);
@@ -343,16 +518,6 @@ func	: L_RATE L_LPAREN val_vec L_RPAREN
 		}
 	| L_RATE L_LPAREN func L_RPAREN
 		{ lp->yy_np = newnode(N_RATE);
-		  lp->yy_np->left = $3;
-		  $$ = lp->yy_series.expr = lp->yy_np;
-		}
-	| L_NOOP L_LPAREN val_vec L_RPAREN
-		{ lp->yy_np = newnode(N_NOOP);
-		  lp->yy_np->left = $3;
-		  $$ = lp->yy_series.expr = lp->yy_np;
-		}
-	| L_NOOP L_LPAREN func L_RPAREN
-		{ lp->yy_np = newnode(N_NOOP);
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
@@ -680,7 +845,6 @@ static const struct {
     { L_MIN,		sizeof("min")-1,	"min" },
     { L_SUM,		sizeof("sum")-1,	"sum" },
     { L_RATE,		sizeof("rate")-1,	"rate" },
-    { L_NOOP,		sizeof("noop")-1,	"noop" },
     { L_ABS,		sizeof("abs")-1,	"abs" },
     { L_FLOOR,		sizeof("floor")-1,	"floor" },
     { L_LOG,		sizeof("log")-1,	"log" },
@@ -718,7 +882,6 @@ static struct {
     { L_ASSIGN,		0,		"ASSIGN",	"=" },
     { L_COMMA,		0,		"COMMA",	"," },
     { L_STRING,		0,		"STRING",	"\"" },
-    { L_NOOP,		N_NOOP,		"NOOP",		NULL },
     { L_ABS,		N_ABS,		"ABS",		NULL },
     { L_FLOOR,		N_FLOOR,	"FLOOR",	NULL },
     { N_LOG,		N_LOG,		"LOG",		NULL },
@@ -1591,6 +1754,12 @@ pmSeriesQuery(pmSeriesSettings *settings, sds query, pmSeriesFlags flags, void *
     if (yyparse(&yp)) {
 	moduleinfo(&settings->module, PMLOG_ERROR, yp.yy_errstr, arg);
 	return yp.yy_error;
+    }
+
+    if (sp->expr == NULL) {
+	if (pmDebugOptions.series || pmDebugOptions.query)
+	    fprintf(stderr, "Error: parsing query '%s'\n", query);
+	return PM_ERR_NYI;
     }
 
     if (pmDebugOptions.series)

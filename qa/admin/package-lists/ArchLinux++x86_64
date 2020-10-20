@@ -1,0 +1,90 @@
+# PCP required package list for ArchLinux  x86_64
+# created by kenj on vm34 Thu Oct 15 07:25:24 AM AEDT 2020
+#
+File::Slurp cpan
+LWP::UserAgent cpan
+List::MoreUtils cpan
+Spreadsheet::Read cpan
+Spreadsheet::ReadSXC cpan
+Spreadsheet::WriteExcel cpan
+Spreadsheet::XLSX cpan
+Text::CSV_XS cpan
+XML::LibXML cpan
+XML::TokeParser cpan
+community/cppcheck
+community/docker
+community/libvirt
+community/libvirt-python
+community/perl-json
+community/perl-net-snmp
+community/perl-yaml-libyaml
+community/python-elasticsearch
+community/python-jsonpointer
+community/python-openpyxl
+community/python-pillow
+community/python-psycopg2
+community/redis
+community/sysstat
+community/unbound
+core/audit
+core/autoconf
+core/bash
+core/bison
+core/coreutils
+core/cronie
+core/curl
+core/device-mapper
+core/ed
+core/flex
+core/gawk
+core/gcc
+core/grep
+core/icu
+core/libsasl
+core/make
+core/ncurses
+core/net-tools
+core/nspr
+core/nss
+core/perl
+core/pkgconf
+core/psmisc
+core/readline
+core/s-nail
+core/sed
+core/sqlite
+core/systemd
+core/xfsprogs
+core/xz
+extra/apache
+extra/avahi
+extra/bc
+extra/bind
+extra/gdb
+extra/git
+extra/libmad
+extra/libuv
+extra/lm_sensors
+extra/mariadb-clients
+extra/memcached
+extra/mesa
+extra/nmap
+extra/perl-dbd-mysql
+extra/perl-timedate
+extra/postgresql
+extra/postgresql-libs
+extra/python
+extra/python-defusedxml
+extra/python-prometheus_client
+extra/python-pylint
+extra/python-requests
+extra/python-setuptools
+extra/python-six
+extra/qt5-base
+extra/qt5-svg
+extra/rrdtool
+extra/smartmontools
+extra/socat
+extra/time
+extra/valgrind
+extra/xkeyboard-config

@@ -34,7 +34,7 @@ trap "_cleanup_pmda statsd; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
 
 cd $here/statsd/src
-$sudo $python cases/09.py
+$sudo $python cases/09.py 2>>$here/$seq.full
 cd $here
 status=0
 exit

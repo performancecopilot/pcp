@@ -989,7 +989,6 @@ create_tempfile(FILE *file, FILE **tempfile, struct stat *stat)
     FILE		*fp;
     char		bytes[BUFSIZ];
     mode_t		cur_umask;
-    int			sts;
 
     /* create a temporary file in the same directory as config (for rename) */
     pmsprintf(bytes, sizeof(bytes), "%s.new", config);
@@ -1012,11 +1011,11 @@ create_tempfile(FILE *file, FILE **tempfile, struct stat *stat)
     umask(cur_umask);
 
     if (stat) {
-	if ((sts = fchown(fd, stat->st_uid, stat->st_gid)) < 0) {
+	if (fchown(fd, stat->st_uid, stat->st_gid) < 0) {
 	    fprintf(stderr, "%s: Warning: fchown() failed: %s\n",
 			pmGetProgname(), osstrerror());
 	}
-	if ((sts = fchmod(fd, stat->st_mode)) < 0) {
+	if (fchmod(fd, stat->st_mode) < 0) {
 	    fprintf(stderr, "%s: Warning: fchmod() failed: %s\n",
 			pmGetProgname(), osstrerror());
 	}
@@ -1030,7 +1029,7 @@ create_group(FILE *file, group_t *group)
 {
     evaluate_state(group);
 
-    if (!prompt && group->probe_state != STATE_EXCLUDE &&
+    if (!prompt && !autocreate && group->probe_state != STATE_EXCLUDE &&
 	(group->pmid != PM_ID_NULL || group->metric == NULL))
 	fputc('.', stdout);
 
@@ -1256,20 +1255,26 @@ update_groups(FILE *tempfile, const char *pattern)
 	group = &groups[i];
 	if (!group->valid || group->saved_state == STATE_EXCLUDE)
 	    continue;
-	if (prompt == 0) {
-	    putc('.', stdout);
+	if (!prompt) {
+	    if (!autocreate)
+		putc('.', stdout);
 	    continue;
 	}
 	if (group->force)
 	    continue;
-	if (group->saved_state == STATE_INCLUDE)
+	if (autocreate)
+	    state = "\n";
+	else if (group->saved_state == STATE_INCLUDE)
 	    state = "y";
 	else
 	    state = "n";
-	putc('\n', stdout);
-	fmt(group->ident, buffer, sizeof(buffer), 64, 75, update_callback, &count);
-	printf("Log this group? [%s] ", state);
-	if (fgets(answer, sizeof(answer), stdin) == NULL)
+	if (!autocreate) {
+	    putc('\n', stdout);
+	    fmt(group->ident, buffer, sizeof(buffer), 64, 75,
+			    update_callback, &count);
+	    printf("Log this group? [%s] ", state);
+	}
+	if (autocreate || fgets(answer, sizeof(answer), stdin) == NULL)
 	    answer[0] = *state;
 
 	switch (answer[0]) {
@@ -1324,6 +1329,9 @@ y         log this group\n\
 	    i--;
 	    continue;
 	}
+
+	if (autocreate)
+	    continue;
 
 	if (prompt && deltas && group->saved_state == STATE_INCLUDE) {
 	    if (quick) {
@@ -1398,9 +1406,12 @@ update_pmlogger_tempfile(FILE *tempfile)
      * modified - either by the user or by new pmlogconf groups arriving.
      */
     if (rewrite) {
-	ftruncate(fileno(tempfile), 0L);
-	fseek(tempfile, 0L, SEEK_SET);
-
+	if (ftruncate(fileno(tempfile), 0L) < 0)
+	    fprintf(stderr, "%s: cannot truncate temporary file: %s\n",
+			pmGetProgname(), osstrerror());
+	if (fseek(tempfile, 0L, SEEK_SET) < 0)
+	    fprintf(stderr, "%s: cannot fseek to temporary file start: %s\n",
+			pmGetProgname(), osstrerror());
 	prompt = 0;
 	pmlogger_header(tempfile);
 	for (i = 0; i < ngroups; i++)
@@ -1511,8 +1522,9 @@ diff_tempfile(FILE *tempfile)
 	} while (fgets(bytes, sizeof(bytes), diff) != NULL);
 	__pmProcessPipeClose(diff);
 	for (;;) {
-	    printf("Keep changes? [y] ");
-	    if (fgets(answer, sizeof(answer), stdin) == NULL)
+	    if (!autocreate)
+		printf("Keep changes? [y] ");
+	    if (fgets(answer, sizeof(answer), stdin) == NULL || autocreate)
 		answer[0] = 'y';
 	    if (answer[0] == '\n' || answer[0] == '\0')
 		answer[0] = 'y';

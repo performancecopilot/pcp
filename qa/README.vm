@@ -16,16 +16,11 @@ These notes should be read in conjunction with the README notes.
 (g) make sure there is no firewall, or if there is one the ports mentioned
     in qa/README (pmcd, pmlogger control, pmproxy, etc) are open
 (h) git clone the PCP tree
-(i) cd qa/admin and run check-vm until you're tired ...
-    - beware that check-vm -p only lists the first package ... there
-      may be more that one alternative, so check the output from check-vm
-      (without -p) for more details
-    - packages.manifest is a moving feast, so be prepared to take the
-      information there as a suggestion, rather than gospel truth
-    - the N/A packages are in two forms; generic for the platform
-      (in packages.manifest) and per-host in check-vm ... for a new
-      VM you'll only have the first and may need to make updates for
-      the second
+(i) cd qa/admin and run list-packages -p until you're tired ...
+    - the files in qa/admin/package-lists are the inventories for each
+      distribution, version and architecture we know about ... see the
+      README in that directory if you need to create a new package-list
+      file ... and send it back to us for inclusion, please
 
 If you're NOT going to run any of the -g remote tests, then you don't need
 steps (c) or (d).

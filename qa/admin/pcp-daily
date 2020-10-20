@@ -173,12 +173,12 @@ End-of-File
 _script_make()
 {
     cat <<'End-of-File'
-if [ -f qa/admin/check-vm ]
+if [ -f qa/admin/list-packages ]
 then
-    qa/admin/check-vm -p >$tmp.tmp
+    qa/admin/list-packages -m >$tmp.tmp
     if [ -s $tmp.tmp ]
     then
-	echo "Info: check-vm reports missing: `cat $tmp.tmp` " | tee -a $HOME/daily.log
+	echo "Info: list-packages reports missing: `cat $tmp.tmp` " | tee -a $HOME/daily.log
     fi
 fi
 ok=false

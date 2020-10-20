@@ -25,6 +25,24 @@ dso_opt=true
 pipe_opt=true
 daemon_opt=true
 
+if [ ! -f /var/lib/rpm/Packages ]
+then
+    # As of Fedora Rawhide circa Oct 2020 the RPM DB is being converted
+    # from Berkeley DB to sqlite and the name of the file has changed
+    #
+    if [ -f /var/lib/rpm/rpmdb.sqlite ]
+    then
+	args="-r /var/lib/rpm/rpmdb.sqlite"
+    else
+	# if not either of these files is found then rpm provides no "conf"
+	# file to help locate the RPM DB and there is no point continuing
+	# with the PMDA installation
+	#
+	echo >&2 "Error: cannot find the RPM DB"
+	exit
+    fi
+fi
+
 pmdaSetup
 pmdaInstall
 exit

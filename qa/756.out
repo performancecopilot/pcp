@@ -149,4 +149,60 @@ PMU name: software
  event name: page-faults
  event name: task-clock
 13 events found
+===== test_parse_hv_24x7_core_events ==== 
+event = pmu1.event1 core = -1 domain = -1 lpar = -1
+event = pmu1.event2 core = 3 domain = -1 lpar = -1
+event = pmu1.event3 core = -1 domain = 4 lpar = -1
+event = pmu1.event4 core = -1 domain = -1 lpar = 1
+event = pmu1.event5 core = 1 domain = 4 lpar = 1
+event = pmu1.event6 core = 1 domain = 2 lpar = 2
+event = pmu1.event6 core = 2 domain = 4 lpar = 4
+PMU name: pmu1 
+ event name: event1_domain_-1_core_-1
+ event name: event2_domain_-1_core_3
+ event name: event3_domain_4_core_-1
+ event name: event4_domain_-1_core_-1
+ event name: event5_domain_4_core_1_lpar_1
+ event name: event6_domain_2_core_1
+ event name: event6_domain_4_core_2_lpar_4
+PMU name: software 
+ event name: alignment-faults
+ event name: context-switches
+ event name: cpu-clock
+ event name: cpu-migrations
+ event name: emulation-faults
+ event name: major-faults
+ event name: minor-faults
+ event name: page-faults
+ event name: task-clock
+16 events found
+===== test_parse_hv_gpci_events ==== 
+event = pmu1.event1
+event = pmu1.event2
+event = pmu1.event3
+event = pmu1.event4
+event = pmu1.event5
+event = pmu1.event6
+event = pmu1.event7
+event = pmu1.event8
+PMU name: pmu1 
+ event name: event1_phys_processor_idx_-1
+ event name: event2_phys_processor_idx_0
+ event name: event3_partition_id_-1
+ event name: event4_partition_id_4
+ event name: event5_hw_chip_id_-1
+ event name: event6_hw_chip_id_1
+ event name: event7_sibling_part_id_-1
+ event name: event8_sibling_part_id_0
+PMU name: software 
+ event name: alignment-faults
+ event name: context-switches
+ event name: cpu-clock
+ event name: cpu-migrations
+ event name: emulation-faults
+ event name: major-faults
+ event name: minor-faults
+ event name: page-faults
+ event name: task-clock
+17 events found
 Unit tests Passed

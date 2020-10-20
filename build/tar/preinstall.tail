@@ -34,7 +34,14 @@ do
     #
     pids=`_get_pids_by_name -a $svc`
     [ -n "$pids" ] && kill -TERM $pids
-    if which rc-update >/dev/null 2>&1
+    if which systemctl >/dev/null 2>&1
+    then
+	if systemctl list-unit-files $svc.service 2>&1 | grep "^$svc.service" >/dev/null
+	then
+	    systemctl stop $svc.service
+	    systemctl disable $svc.service
+	fi
+    elif which rc-update >/dev/null 2>&1
     then
 	if rc-update show | grep " $svc " >/dev/null 2>&1
 	then

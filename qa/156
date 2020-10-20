@@ -41,7 +41,19 @@ _check_pmda_gone()
     rm -f $tmp.tmp
 }
 
+_snag_log()
+{
+    if [ -f "$PCP_LOG_DIR/pmcd/sample.log" ]
+    then
+	cat "$PCP_LOG_DIR/pmcd/sample.log" >>$here/$seq.full
+    else
+	echo "$PCP_LOG_DIR/pmcd/sample.log: missing?"
+    fi
+}
+
 status=1
+
+$sudo rm -f $seq.full
 
 # save pmcd.conf and restore it after the test
 cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
@@ -76,16 +88,18 @@ cat $tmp.out
 _check_pmda_gone $iam
 
 echo
-echo "=== pipe agent ==="
+echo "=== pipe agent ===" | tee -a $here/$seq.full
 echo pipe | $sudo ./Install -e >$tmp.out 2>&1
 _filter <$tmp.out
 pminfo -v sample || echo "... failed!"
+_snag_log
 echo pipe | $sudo ./Install -e >$tmp.out 2>&1
 _filter <$tmp.out
 pminfo -v sample || echo "... failed!"
+_snag_log
 
-echo
-echo "=== socket Internet agent ==="
+echo | tee -a $here/$seq.full
+echo "=== socket Internet agent ===" | tee -a $here/$seq.full
 
 # pick a tcp port that is not in use
 #
@@ -93,7 +107,7 @@ port1=`_get_port tcp 5670 5689`
 if [ -z "$port1" ]
 then
     echo "Arrgh ... no free TCP port in the range 5670 ... 5689"
-    exit 1
+    exit
 fi
 
 echo 'socket
@@ -101,6 +115,7 @@ Internet
 '$port1 | $sudo ./Install -e >$tmp.out 2>&1
 _filter <$tmp.out
 pminfo -v sample || echo "... failed!"
+_snag_log
 
 # use next port this time
 port2=`expr $port1 + 1`
@@ -110,19 +125,22 @@ Internet
 '$port2 | $sudo ./Install -e >$tmp.out 2>&1
 _filter <$tmp.out
 pminfo -v sample || echo "... failed!"
+_snag_log
 
-echo
-echo "=== socket Unix agent ==="
+echo | tee -a $here/$seq.full
+echo "=== socket Unix agent ===" | tee -a $here/$seq.full
 echo 'socket
 Unix
 '"$tmp.fifo" | $sudo ./Install -e >$tmp.out 2>&1
 _filter <$tmp.out
 pminfo -v sample || echo "... failed!"
+_snag_log
 echo 'socket
 Unix
 '"$tmp.fifo" | $sudo ./Install -e >$tmp.out 2>&1
 _filter <$tmp.out
 pminfo -v sample || echo "... failed!"
+_snag_log
 
 $sudo ./Remove >$tmp.out 2>&1
 cat $tmp.out

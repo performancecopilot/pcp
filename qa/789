@@ -30,6 +30,16 @@ _cleanup()
     $sudo rm -rf $tmp $tmp.*
 }
 
+# to find these puppies, for example the mailboxd metrics,
+#	sudo head -1 /opt/zimbra/zmstat/mailboxd.csv
+# this gives the column names, e.g.
+#	timestamp,lmtp_rcvd_msgs,lmtp_rcvd_bytes, .... heap_used,heap_free
+#	sudo tail -1 /opt/zimbra/zmstat/mailboxd.csv
+# this gives the last values, e.g.
+# 	10/08/2020 17:15:37,0,0, ... 98768824,162981960
+# So below, zimbra.mailboxd.lmtp.rcvd_msgs is the first metric from a
+# row and zimbra.mailboxd.heap.free is last metric from a row.
+#	
 _check_values()
 {
     cat <<End-of-File | while read metric table regex
@@ -81,6 +91,17 @@ End-of-File
     done
 }
 
+# the PMDA supports some columns that may not be present, either because
+# of a different zimbra version or optional modules ... filter out the
+# mismatch warnings
+#
+_filter()
+{
+    sed \
+	-e '/missing from CSV$/d' \
+    # end
+}
+
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 
@@ -107,6 +128,7 @@ echo "=== default $iam agent installation ==="
 $sudo ./Remove >$tmp.out 2>&1
 $sudo ./Install </dev/null >>$tmp.out 2>&1
 _filter_pmda_install <$tmp.out \
+| _filter \
 | $PCP_AWK_PROG '
 /Check zimbra metrics have appeared/ { if ($7 >= 0 && $7 <= 200) $7 = "N"
                                          if ($10 >= 10 && $10 <= 200) $10 = "X"
@@ -114,9 +136,11 @@ _filter_pmda_install <$tmp.out \
                                        { print }'
 
 # CSV files only updated every 30 seconds, so need to wait a while to
-# reduce chances of seeing "No values available"
+# reduce chances of seeing "No values available", and the zimbra java
+# apps on vm29 use >80% of the CPU when zimbra is idle (!), so 30 seconds
+# ain't long enough
 #
-sleep 30
+sleep 60
 
 echo
 echo "=== validate values ==="
@@ -125,7 +149,8 @@ _check_values
 echo
 echo "=== remove $iam agent ==="
 $sudo ./Remove >$tmp.out 2>&1
-_filter_pmda_install <$tmp.out
+_filter_pmda_install <$tmp.out \
+| _filter
 
 # success, all done
 status=0

@@ -87,6 +87,9 @@ pmgenmap.sh:
 procmetrics.h:	pmgenmap.sh procmetrics.map
 	$(PMGENMAP) procmetrics.map > procmetrics.h
 
+acctmetrics.h:	pmgenmap.sh acctmetrics.map
+	$(PMGENMAP) acctmetrics.map > acctmetrics.h
+
 systmetrics.h:	pmgenmap.sh systmetrics.map
 	$(PMGENMAP) systmetrics.map > systmetrics.h
 
@@ -100,6 +103,7 @@ photoproc.o:	procmetrics.h
 photosyst.o:	systmetrics.h
 ifprop.o:	ifpropmetrics.h
 various.o:	hostmetrics.h
+modules.o:	acctmetrics.h
 
 atop.o atopsar.o various.o:	$(TOPDIR)/src/include/pcp/libpcp.h
 

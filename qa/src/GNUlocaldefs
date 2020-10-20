@@ -148,7 +148,7 @@ PYTHONFILES = \
 	test_pmfg.python pmproxy_load_test.python \
 	mergelabels.python mergelabelsets.python \
 	bcc_version_check.python sort_xml.python labelsets.python \
-	labelsets_memleak.python
+	labelsets_memleak.python labels_changing.python
 # not installed:
 PYFILES = $(shell echo $(PYTHONFILES) | sed -e 's/\.python/.py/g')
 LDIRT += $(PYFILES)
