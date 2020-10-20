@@ -16,6 +16,8 @@
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
+import os
+import pkg_resources
 
 # -- Project information -----------------------------------------------------
 
@@ -38,7 +40,7 @@ release = ''
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = [ 'sphinx.ext.autosectionlabel'
+extensions = [ 'sphinx.ext.autosectionlabel','sphinxcontrib.redoc', 'sphinxcontrib.openapi'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -75,6 +77,26 @@ pygments_style = None
 # a list of builtin themes.
 #
 html_theme = 'sphinx_rtd_theme'
+
+redoc = [
+    {
+        'name': 'PMWEBAPI',
+        'page': 'api/index',
+        'spec': 'specs/openapi.yaml',
+        'opts': {
+            'lazy-rendering': True,
+
+        },
+    },
+]
+
+redoc_uri = 'https://cdn.jsdelivr.net/npm/redoc@next/bundles/redoc.standalone.js'
+
+if not os.environ.get('READTHEDOCS') == 'True':
+    import sphinx_rtd_theme
+    html_theme = 'sphinx_rtd_theme'
+    html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -171,3 +193,7 @@ epub_title = project
 
 # A list of files that should not be packed into the epub file.
 epub_exclude_files = ['search.html']
+
+from docutils.parsers.rst import directives
+from sphinx.directives.code import CodeBlock
+directives.register_directive('code', CodeBlock)
