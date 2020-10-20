@@ -153,7 +153,8 @@ curl --get --silent "$url" | tee -a $seq.full | pmjson
 curl --get --silent "$url&client=pcp-qa-$seq" | tee -a $seq.full | pmjson
 
 echo "== verify metric values by query" | tee -a  $seq.full
-url="http://localhost:$proxyport/series/query?expr=disk.dev.read[samples:2]"
+# URL encoding: [ == %5B, ] == %5D, : == %3A
+url="http://localhost:$proxyport/series/query?expr=disk.dev.read%5Bsamples%3A2%5D"
 echo "$url" >> $seq.full
 curl --get --silent "$url" | tee -a $seq.full | pmjson
 curl --get --silent "$url&client=pcp-qa-$seq" | tee -a $seq.full | pmjson
