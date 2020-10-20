@@ -43,8 +43,6 @@ class PCPNetcheckModule(PCPNetcheckModuleBase):
         self.count = 5
         self.timeout = 2.0
 
-        self.onetrip = 1
-
         self.prereq_check(self.command)
 
         for opt in self.config.options(MODULE):
@@ -91,13 +89,7 @@ class PCPNetcheckModule(PCPNetcheckModuleBase):
         if self.cmdargs != '':
             cmd_template.append(self.cmdargs)
         cmd_template.append(self.HOST_TMPL_STR)
-        if self.onetrip == 1:
-            # log real shell command
-            msg = 'shell command:'
-            for arg in cmd_template:
-                msg = msg + ' ' + arg
-            self.log(msg)
-            self.onetrip = 0
+        self.log_command_once(cmd_template)
         outputs = self._run_check_commands(cmd_template)[0]
         for host in self.hosts:
             try:

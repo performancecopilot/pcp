@@ -79,6 +79,7 @@ class PCPNetcheckModuleBase(object):
         self.ntp = params.ntp
 
         self.count = 1
+        self.onetrip = 1
         self.timeout = 1.0
 
         self.timings = {}
@@ -150,6 +151,15 @@ class PCPNetcheckModuleBase(object):
     def err(self, msg):
         """Log an error"""
         self._err(self._who + ": " + msg)
+
+    def log_command_once(self, cmd_template):
+        """Log command line to be used, once only at startup"""
+        if self.onetrip == 1:
+            msg = 'shell command:'
+            for arg in cmd_template:
+                msg = msg + ' ' + arg
+            self.log(msg)
+            self.onetrip = 0
 
     def metrics(self):
         """Get metric definitions"""

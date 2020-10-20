@@ -41,8 +41,6 @@ class PCPNetcheckModule(PCPNetcheckModuleBase):
         self.cmdargs = ''
         self.count = 1
 
-        self.onetrip = 1
-
         self.log(str(list(self.hosts)))
 
         self.prereq_check(self.command)
@@ -91,11 +89,5 @@ class PCPNetcheckModule(PCPNetcheckModuleBase):
         if self.cmdargs != '':
             cmd_template.append(self.cmdargs)
         cmd_template.append(self.HOST_TMPL_STR)
-        if self.onetrip == 1:
-            # log real shell command
-            msg = 'shell command:'
-            for arg in cmd_template:
-                msg = msg + ' ' + arg
-            self.log(msg)
-            self.onetrip = 0
+        self.log_command_once(cmd_template)
         self.hosts = self._run_check_commands(cmd_template)[1]
