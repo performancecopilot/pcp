@@ -26,10 +26,9 @@ info:
     The PMWEBAPI is a collection of interfaces providing Performance Co-Pilot services for web applications. It consists of APIs for web applications querying and analysing both live and historical performance data, as well as APIs used by web servers.
 
     The usual HTTP URL-encoded optional parameter rules apply and PMWEBAPI REST requests always follow the convention:
-    ```
+    ```bash
     /api/endpoint ? parameter1 = value1 & parameter2 = value2
     ```
-
     Examples in all following sections use the [curl](https://man7.org/linux/man-pages/man1/curl.1.html)(1) command line utility with a local [pmproxy](https://pcp.io/man/man1/pmproxy.1.html)(1) server listening on port 44322 (default port). The [pmjson](https://pcp.io/man/man1/pmjson.1.html)(1) utility is used to neatly format any JSON output, as opposed to the compact (minimal whitespace) form provided by default. The examples in the scalable time series section use historical data recorded by the [pmlogger](https://pcp.io/man/man1/pmlogger.1.html)(1) service, in conjunction with a local [redis-server](https://man7.org/linux/man-pages/man1/redis-server.1.html)(1).
   version: ""
 servers:
@@ -59,41 +58,49 @@ tags:
     The timeout interval is configurable at context creation time, and as such the *polltime* parameter can be used anywhere the *hostspec* is specified. It sets the context timeout in terms of length of inactive time. The unit for the timeout value is seconds and the default is 5.
 
     To specify a specific existing context in any PMAPI web request, the endpoints can be accessed with either the *context* parameter or enbedded in the endpoint URL itself, such as **/pmapi/[number]/fetch**.
+
 paths:
   /metrics:
     get:
       tags:
       - OPEN METRICS
       summary: Fetches current values and metadata 
-      description: " `Get metrics` fetches current values and metadata for all metrics, or only metrics\
-        \ indicated by a comma-separated list of names. For all numeric metrics with the given NAME prefixes, create an\
-        \ Open Metrics (Prometheus) text export format giving their current value\
-        \ and related metadata.\n\nThe response has plain text type rather than JSON\
-        \ commonly used elsewhere in the REST API. This format can be injested by\
-        \ many open source monitoring tools, including Prometheus and [pmdaopenmetrics](https://pcp.io/man/man1/pmdaopenmetrics.1.html)(1).\n\
-        \nThe native PCP metric metadata (metric name, type, indom, semantics and\
-        \ units) is first output for each metric with **# PCP** prefix. The metadata\
-        \ reported is of the form described on [pmTypeStr](https://pcp.io/man/man3/pmtypestr.3.html)(3),\
-        \ [pmInDomStr](https://pcp.io/man/man3/pmindomstr.3.html)(3), [pmSemStr](https://pcp.io/man/man3/pmsemstr.3.html)(3)\
-        \ and [pmUnitsStr](https://pcp.io/man/man3/pmunitsstr.3.html)(3) respectively.\
-        \ If the [pmUnitsStr](https://pcp.io/man/man3/pmunitsstr.3.html)(3) units\
-        \ string is empty, then **none** is output. The units metadata string may\
-        \ contain spaces and extends to the end of the line.\n\nPCP metric names are\
-        \ mapped so that the **.** separators are exchanged with **\\_** (':' in back-compatibility\
-        \ mode, where \"# PCP\" is the identifying line suffix). Both metric labels\
-        \ and instances are represented as Prometheus labels, with external instance\
-        \ names being quoted and the flattened PCP metric hierarchy being presented\
-        \ with each value.\n```\n$ curl -s http://localhost:44322/metrics?names=proc.nprocs,kernel.pernode.cpu.intr,filesys.blocksize\n\
-        \n# PCP5 proc.nprocs 3.8.99 u32 PM_INDOM_NULL instant none  \n# HELP proc_nprocs\
-        \ instantaneous number of processes\n# TYPE proc_nprocs gauge\nproc_nprocs\
-        \ {hostname=\"app1\"} 7\n\n# PCP5 kernel.pernode.cpu.intr 60.0.66 u64 60.19\
-        \ counter millisec\n# HELP kernel_pernode_cpu_intr total interrupt CPU [...]\n\
-        # TYPE kernel_pernode_cpu_intr counter\nkernel_pernode_cpu_intr{hostname=\"\
-        app1\",instname=\"node0\"} 25603\n\n# PCP5 filesys.blocksize 60.5.9 u32 60.5\
-        \ instant byte\n# HELP filesys_blocksize Size of each block on mounted file[...]\n\
-        # TYPE filesys_blocksize gauge\nfilesys_blocksize{hostname=\"app1\",instname=\"\
-        /dev/sda1\"} 4096\nfilesys_blocksize{hostname=\"app1\",instname=\"/dev/sda2\"\
-        } 4096\n\n```\n"
+      description: |
+        `Get Metrics` fetches current values and metadata for all metrics, or only metrics indicated by a comma-separated list of *names*.
+        
+        For all numeric metrics with the given NAME prefixes, create an Open Metrics (Prometheus) text export format giving their current value and related metadata.
+        
+        The response has plain text type rather than JSON commonly used elsewhere in the REST API. This format can be injested by many open source monitoring tools, 
+        including Prometheus and [pmdaopenmetrics](https://pcp.io/man/man1/pmdaopenmetrics.1.html)(1).
+        
+        The native PCP metric metadata (metric name, type, indom, semantics and units) is first output for each metric with **\# PCP** prefix. The metadata reported 
+        is of the form described on [pmTypeStr](https://pcp.io/man/man3/pmtypestr.3.html)(3), [pmInDomStr](https://pcp.io/man/man3/pmindomstr.3.html)(3), 
+        [pmSemStr](https://pcp.io/man/man3/pmsemstr.3.html)(3) and [pmUnitsStr](https://pcp.io/man/man3/pmunitsstr.3.html)(3) respectively. If the [pmUnitsStr](https://pcp.io/man/man3/pmunitsstr.3.html)(3) 
+        units string is empty, then **none** is output. The units metadata string may contain spaces and extends to the end of the line.
+        
+        PCP metric names are mapped so that the **.** separators are exchanged with **_** (':' in back-compatibility mode, where "# PCP" is the identifying line suffix). 
+        Both metric labels and instances are represented as Prometheus labels, with external instance names being quoted and the flattened PCP metric hierarchy being 
+        presented with each value.
+
+        ```bash
+          $ curl -s http://localhost:44322/metrics?names=proc.nprocs,kernel.pernode.cpu.intr,filesys.blocksize
+
+          # PCP5 proc.nprocs 3.8.99 u32 PM_INDOM_NULL instant none
+          # HELP proc_nprocs instantaneous number of processes
+          # TYPE proc_nprocs gauge
+          proc_nprocs {hostname="app1"} 7
+
+          # PCP5 kernel.pernode.cpu.intr 60.0.66 u64 60.19 counter millisec
+          # HELP kernel_pernode_cpu_intr total interrupt CPU [...]
+          # TYPE kernel_pernode_cpu_intr counter
+          kernel_pernode_cpu_intr{hostname="app1",instname="node0"} 25603
+
+          # PCP5 filesys.blocksize 60.5.9 u32 60.5 instant byte
+          # HELP filesys_blocksize Size of each block on mounted file[...]
+          # TYPE filesys_blocksize gauge
+          filesys_blocksize{hostname="app1",instname="/dev/sda1"} 4096
+          filesys_blocksize{hostname="app1",instname="/dev/sda2"} 4096
+        ```   
       parameters:
       - name: names
         in: query
@@ -105,6 +112,7 @@ paths:
         description: Append sample times (milliseconds since epoch)
         schema:
           type: boolean
+
   /series/query:
     get:
       tags:
@@ -114,11 +122,11 @@ paths:
         The query is in the format described in [pmseries](https://pcp.io/man/man1/pmseries.1.html)(1) and is passed to the server via either the *expr* parameter (HTTP GET) or via the message body (HTTP POST).
 
         When querying for time series matches only, no time window options are specified and matching series identifiers are returned in a JSON array.
-        ```
+        ```bash
         $ curl -s http://localhost:44322/series/query?expr=disk.dev.read* | pmjson
         ```
         When querying for time series values as well, a time window must be specified as part of the query string. The simplest form is to just request the most recent sample.
-        ```
+        ```bash
         $ curl -s http://localhost:44322/series/query?expr=disk.dev.read*[samples:1] | pmjson
         ```
         **References:** [pmSeriesQuery](https://man7.org/linux/man-pages/man3/pmSeriesQuery.3.html)(3)
@@ -126,7 +134,7 @@ paths:
       parameters:
       - name: expr
         in: query
-        description: Query string in pmseries (1) format
+        description: Query string in [pmseries](https://pcp.io/man/man1/pmseries.1.html)(1) format
         schema:
           type: string
       - name: client
@@ -141,10 +149,9 @@ paths:
             pmjson:
               schema:
                 anyOf:
-                - $ref: '#/components/schemas/response1'
-                - $ref: '#/components/schemas/response2'
+                - $ref: '#/components/schemas/seriesIDs'
+                - $ref: '#/components/schemas/seriesValues'
 
-                
   /series/values:
     get:
       tags:
@@ -152,7 +159,7 @@ paths:
       summary: Performs values retrievals for one or more time series identifiers
       description: |
         The JSON response contains the same information as the **pmseries - q /-- query** option using any of the time window parameters described on [pmseries](https://pcp.io/man/man1/pmseries.1.html)(1). If no time window parameters are specified, the single most recent value observed is retrieved.
-        ```
+        ```bash
         $ curl -s http://localhost:44322/series/values?series=605fc77742cd0317597291329561ac4e50c0dd12 | pmjson
         ```
         **References:** [pmSeriesValues](https://man7.org/linux/man-pages/man3/pmSeriesValues.3.html)(3)
@@ -224,6 +231,7 @@ paths:
                       type: integer
                     value:
                       type: string
+  
   /series/descs:
     get:
       tags:
@@ -231,7 +239,7 @@ paths:
       summary: Performs a descriptor lookup for one or more time series identifiers
       description: |
         The JSON response contains the same information as the **pmseries - d /-- desc** option.
-        ```
+        ```bash
         $ curl -s http://localhost:44322/series/descs?series=605fc77742cd0317597291329561ac4e50c0dd12 | pmjson
         ```
         **References:** [pmSeriesDescs](https://man7.org/linux/man-pages/man3/pmSeriesDescs.3.html)(3)
@@ -277,6 +285,7 @@ paths:
                   semantics: counter
                   type: u32
                   units: count
+  
   /series/labels:
     get:
       tags:
@@ -286,15 +295,15 @@ paths:
         This command operates in one of three modes.
 
         It can perform a label set lookup for one or more time series identifiers, when given the series parameter. The JSON response for this mode contains the same information as the **pmseries - I /-- labels** option.
-        ```
+        ```bash
         $ curl -s http://localhost:44322/series/labels?series=605fc77742cd0317597291329561ac4e50c0dd12 | pmjson
         ```
         It can produce a list of all known label names, in the absense of name , names or series parameters. The JSON responses for this mode contains the same information as the **pmseries - l /-- labels** option.        
-        ```
+        ```bash
         $ curl -s http://localhost:44322/series/labels | pmjson
         ```
         It can produce a list of all known label values for a given label name or names . The JSON response for this mode contains the same information as the **pmseries - v /-- values** option.
-        ```
+        ```bash
         $ curl -s http://localhost:44322/series/labels?names=hostname,domainname | pmjson
         ```
         **References:** [pmSeriesLabels](https://man7.org/linux/man-pages/man3/pmSeriesLabels.3.html)(3), [pmSeriesLabelValues](https://man7.org/linux/man-pages/man3/pmSeriesLabelValues.3.html)(3)
@@ -332,9 +341,9 @@ paths:
             pmjson:
               schema:
                 anyOf:
-                - $ref: '#/components/schemas/response3'
-                - $ref: '#/components/schemas/response4'
-                - $ref: '#/components/schemas/response5'
+                - $ref: '#/components/schemas/seriesParam'
+                - $ref: '#/components/schemas/noParam'
+                - $ref: '#/components/schemas/namesParam'
                 
   /series/metrics:
     get:
@@ -343,11 +352,11 @@ paths:
       summary: Performs a metric name lookup for one or more time series identifiers
       description: |
         The JSON response contains the same information as the **pmseries - m /-- metrics** option.
-        ```
+        ```bash
         $ curl -s http://localhost:44322/series/metrics?series=605fc77742cd0317597291329561ac4e50c0dd12 | pmjson
         ```
         Alternatively, with no *series* argument, this request will return the list of all known metric names.
-        ```
+        ```bash
         $ curl -s http://localhost:44322/series/metrics | pmjson
         ```
         **References:** [pmSeriesMetrics](https://man7.org/linux/man-pages/man3/pmSeriesMetrics.3.html)(3)
@@ -375,8 +384,8 @@ paths:
             pmjson:
               schema:
                 anyOf:
-                - $ref: '#/components/schemas/response6'
-                - $ref: '#/components/schemas/response7'
+                - $ref: '#/components/schemas/series_metricName'
+                - $ref: '#/components/schemas/all_metricNames'
                 
   /series/sources:
     get:
@@ -386,7 +395,7 @@ paths:
       description: |
         It returns an array of all PMAPI context names used to access the time series from that
         source.The JSON response contains the same information as the **pmseries - S /-- source** option.
-        ```
+        ```bash
         $ curl -s http://localhost:44322/series/sources?source=2cd6a38f9339f2dd1f0b4775bda89a9e7244def6 | pmjson
         ```
         **References:** [pmSeriesSources](https://man7.org/linux/man-pages/man3/pmSeriesSources.3.html)(3)
@@ -428,6 +437,7 @@ paths:
                       type: array
                       items:
                         type: string
+  
   /series/instances:
     get:
       tags:
@@ -436,11 +446,11 @@ paths:
         identifiers
       description: |
         The JSON response contains the same information as the **pmseries - i /-- instance** option.
-        ```
+        ```bash
         $ curl -s http://localhost:44322/series/instances?series=605fc77742cd0317597291329561ac4e50c0dd12 | pmjson
         ```
         Alternatively, with no *series* argument, this request will return the list of all known instance names.
-        ```
+        ```bash
         $ curl -s http://localhost:44322/series/instances | pmjson
         ```
         **References:** [pmSeriesInstances](https://man7.org/linux/man-pages/man3/pmSeriesInstances.3.html)(3)
@@ -468,8 +478,8 @@ paths:
             pmjson:
               schema:
                 anyOf:
-                - $ref: '#/components/schemas/response8'
-                - $ref: '#/components/schemas/response9'
+                - $ref: '#/components/schemas/series_instanceName'
+                - $ref: '#/components/schemas/all_instanceNames'
                 
   /series/load:
     get:
@@ -479,7 +489,7 @@ paths:
       description: |
         It loads time series performance data from the specified source into the
         **redis-server** cache. This request is equivalent to the **pmseries - l /-- load** option.
-        ```
+        ```bash
         $ curl -s http://localhost:44322/series/load&expr={source.name:"/var/log/pcp/pmlogger/acme"}
         ```
         **References:** [pmSeriesLoad](https://man7.org/linux/man-pages/man3/pmSeriesLoad.3.html)(3)
@@ -487,7 +497,7 @@ paths:
       parameters:
       - name: expr
         in: query
-        description: Source load string in pmseries (1) format
+        description: Source load string in [pmseries](https://pcp.io/man/man1/pmseries.1.html)(1) format
         schema:
           type: string
       - name: client
@@ -517,7 +527,7 @@ paths:
         It performs a text search query across metrics and instance domains - all forms of names and help texts.
         
         The mandatory search string is further described in [pmsearch](https://pcp.io/man/man1/pmsearch.1.html)(1) and is passed to the server via the *query* parameter (HTTP GET).
-        ```
+        ```bash
         $ curl -s http://localhost:44322/search/text?query=halt | pmjson
         ```
         The available search entity *types* are *metric*, *indom* and *instance*. Query parameters *highlight* and *field* take *name*, *oneline* and *helptext*.
@@ -530,7 +540,7 @@ paths:
       parameters:
       - name: query
         in: query
-        description: Query string in pmsearch (1) format
+        description: Query string in [pmsearch](https://pcp.io/man/man1/pmsearch.1.html)(1) format
         schema:
           type: string
       - name: highlight
@@ -594,7 +604,6 @@ paths:
                           type: string
                         helptext:
                           type: string
-                        
                 example:
                   total : 2
                   offset: 0
@@ -618,7 +627,7 @@ paths:
       summary: Provides search query suggestions, that is, metric and instance names
       description: | 
         The mandatory search string is further described in [pmsearch](https://pcp.io/man/man1/pmsearch.1.html)(1) and is passed to the server via the *query* parameter (HTTP GET).
-        ```
+        ```bash
         $ curl -s http://localhost:44322/search/suggest?query=disk&limit=4 | pmjson
         ```
         **Reference:** [pmSearchTextSuggest](https://man7.org/linux/man-pages/man3/pmSearchTextSuggest.3.html)(3)
@@ -683,7 +692,7 @@ paths:
       summary: Provides metrics relating to operation
       description: | 
         It provides metrics relating to operation of the search engine, in particular showing document and text record counts.
-        ```
+        ```bash
         $ curl -s http://localhost:44322/search/info | pmjson
         ```
         **Reference:** [pmSearchInfo](https://man7.org/linux/man-pages/man3/pmSearchInfo.3.html)(3)
@@ -734,32 +743,9 @@ paths:
                   offsets_per_term_avg: 9.41
                   offset_bits_per_record_avg: 8.00
     
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 components:
   schemas:
-    response1:
+    seriesIDs:
       title: Without Time Window
       type: array
       items:
@@ -769,7 +755,7 @@ components:
         - ddff1bfe286a3b18cebcbadc1678a68a964fbe9d
         - 605fc77742cd0317597291329561ac4e50c0dd12
 
-    response2:
+    seriesValues:
       title: With Time Window
       type: array
       items:
@@ -797,7 +783,7 @@ components:
           timestamp: 1.5474836462147431E9
           value: 71661
 
-    response3:
+    seriesParam:
       title: With series parameter
       type: object
       properties:
@@ -837,7 +823,7 @@ components:
             platform: dev
             userid: 1000
                 
-    response4:
+    noParam:
       title: Without any parameter
       type: array
       items:
@@ -855,7 +841,7 @@ components:
         - platform
         - userid
                 
-    response5:
+    namesParam:
       title: With name/names parameter
       type: object
       properties:
@@ -874,7 +860,7 @@ components:
         domainname:
           - acme.com
         
-    response6:
+    series_metricName:
       title: With series parameter
       type: array
       items:
@@ -888,7 +874,7 @@ components:
         - series: 605fc77742cd0317597291329561ac4e50c0dd12
           name: disk.dev.read_bytes
                 
-    response7:
+    all_metricNames:
       title: Without series parameter
       type: array
       items:
@@ -900,7 +886,7 @@ components:
         - kernel.all.load
         - kernel.all.pswitch
 
-    response8:
+    series_instanceName:
       title: With series parameter
       type: array
       items:
@@ -928,7 +914,7 @@ components:
           id: 2
           name: sdb
 
-    response9:
+    all_instanceNames:
       title: Without series parameter
       type: array
       items:
@@ -945,4 +931,3 @@ components:
         - node1
         - sda
         - sdb
-

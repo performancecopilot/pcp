@@ -193,7 +193,3 @@ epub_title = project
 
 # A list of files that should not be packed into the epub file.
 epub_exclude_files = ['search.html']
-
-from docutils.parsers.rst import directives
-from sphinx.directives.code import CodeBlock
-directives.register_directive('code', CodeBlock)
