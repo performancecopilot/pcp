@@ -13,18 +13,18 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - {platform: ubuntu1604,     runner: container, os: ubuntu-18.04}
+          - {platform: ubuntu1604,     runner: container, os: ubuntu-latest}
           - {platform: ubuntu1804,     runner: direct,    os: ubuntu-18.04}
-          - {platform: ubuntu1804i386, runner: container, os: ubuntu-18.04}
+          - {platform: ubuntu1804i386, runner: container, os: ubuntu-latest}
           - {platform: ubuntu2004,     runner: direct,    os: ubuntu-20.04}
-          - {platform: debian10,       runner: container, os: ubuntu-18.04}
-          - {platform: debian11,       runner: container, os: ubuntu-18.04}
-          - {platform: fedora31,       runner: container, os: ubuntu-18.04}
-          - {platform: fedora32,       runner: container, os: ubuntu-18.04}
-          - {platform: fedora_rawhide, runner: container, os: ubuntu-18.04}
-          - {platform: centos6,        runner: container, os: ubuntu-18.04}
-          - {platform: centos7,        runner: container, os: ubuntu-18.04}
-          - {platform: centos8,        runner: container, os: ubuntu-18.04}
+          - {platform: debian10,       runner: container, os: ubuntu-latest}
+          - {platform: debian11,       runner: container, os: ubuntu-latest}
+          - {platform: fedora31,       runner: container, os: ubuntu-latest}
+          - {platform: fedora32,       runner: container, os: ubuntu-latest}
+          - {platform: fedora_rawhide, runner: container, os: ubuntu-latest}
+          - {platform: centos6,        runner: container, os: ubuntu-latest}
+          - {platform: centos7,        runner: container, os: ubuntu-latest}
+          - {platform: centos8,        runner: container, os: ubuntu-latest}
     steps:
       - name: Checkout sources
         uses: actions/checkout@v2
@@ -92,7 +92,7 @@ jobs:
     name: Publish Test Report
     if: always() && github.repository == 'performancecopilot/pcp'
     needs: qa
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
         uses: actions/checkout@v2
