@@ -45,6 +45,7 @@ def run_test():
     for k, v in output.items():
         status = False
         number_value = float(v)
+        sys.stderr.write(k + ' = ' + str(number_value) + '\n')
         if k == "/average":
             if utils.check_is_in_bounds(expected_average, number_value):
                 status = True
