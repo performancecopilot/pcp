@@ -206,16 +206,3 @@ PMU name: software
  event name: task-clock
 17 events found
 Unit tests Passed
-
-+++ check.callback output +++
---- start pre-check ---
---- running 941 --check @ Mon 19 Oct 2020 15:31:53 AEDT ---
-_get_pids_by_name pmcd ...
-2395251
-ps -efw | grep pmcd ...
-UID          PID    PPID  C STIME TTY          TIME CMD
-pcp      2395251       1  0 15:25 ?        00:00:00 /usr/libexec/pcp/bin/pmcd -T 3
-num_pmcds=1 (should be 1)
-before 0 AVC errors
---- end pre-check ---
-Error: mssql.: Unknown metric name
