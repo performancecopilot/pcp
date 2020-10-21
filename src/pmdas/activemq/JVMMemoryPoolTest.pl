@@ -27,7 +27,7 @@ BEGIN {
 
 my $user_agent = mock;
 
-my $jvm_memory_pool = JVMMemoryPool->new( $user_agent );
+my $jvm_memory_pool = PCP::JVMMemoryPool->new( $user_agent );
 
 when($user_agent)->get('/api/jolokia/read/java.lang:type=MemoryPool,name=PS%20Survivor%20Space?ignoreErrors=true')->then_return({'value' => {'PeakUsage' => { 'max' => 1234 } }});
 is($jvm_memory_pool->attribute_for('ps_survivor_space', 'peak_usage', 'max'), 1234, "memory pool attribute from a ps_survivor_space");

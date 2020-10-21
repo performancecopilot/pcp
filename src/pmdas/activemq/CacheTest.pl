@@ -15,7 +15,7 @@ BEGIN {
 
 my $time_source = mock;
 
-my $cache = Cache->new( $time_source, 1); # TTL of 1 second
+my $cache = PCP::Cache->new( $time_source, 1); # TTL of 1 second
 
 # undefined when attempting to fetch something from the cache that does not exist
 is($cache->get("test"), undef);
