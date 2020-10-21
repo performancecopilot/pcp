@@ -20,14 +20,15 @@ use lib dirname (__FILE__);
 use Test::More;
 use Test::Magpie qw(mock when verify);
 use PCP::ActiveMQ;
+use PCP::Queue;
 
 BEGIN {
     plan(tests => 9)
 }
 
 my $user_agent = mock;
-my $queue1 = Queue->new('org.apache.activemq:brokerName=gG,destinationName=queue1,destinationType=Queue,type=Broker', $user_agent);
-my $queue2 = Queue->new('org.apache.activemq:brokerName=localhost,destinationName=queue2,destinationType=Queue,type=Broker', $user_agent);
+my $queue1 = PCP::Queue->new('org.apache.activemq:brokerName=gG,destinationName=queue1,destinationType=Queue,type=Broker', $user_agent);
+my $queue2 = PCP::Queue->new('org.apache.activemq:brokerName=localhost,destinationName=queue2,destinationType=Queue,type=Broker', $user_agent);
 my $actual_queue_response = {
     'value' => {
 	'Queues' => [
