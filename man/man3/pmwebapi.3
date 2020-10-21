@@ -134,8 +134,7 @@ Both metric labels and instances are represented as Prometheus
 labels, with external instance names being quoted and the
 flattened PCP metric hierarchy being presented with each value.
 .SAMPLE
-$ curl -s http://localhost:44322/metrics?\\
-	names=proc.nprocs,kernel.pernode.cpu.intr,filesys.blocksize
+$ curl -s http://localhost:44322/metrics?names=proc.nprocs,kernel.pernode.cpu.intr,filesys.blocksize
 
 # PCP5 proc.nprocs 3.8.99 u32 PM_INDOM_NULL instant none
 # HELP proc_nprocs instantaneous number of processes
@@ -193,8 +192,7 @@ When querying for time series matches only, no time window
 options are specified and matching series identifiers are
 returned in a JSON array.
 .SAMPLE
-$ curl -s http://localhost:44322/series/query?\\
-	expr=disk.dev.read* | pmjson
+$ curl -s http://localhost:44322/series/query?expr=disk.dev.read* | pmjson
 [
   "9d8c7fb51ce160eb82e3669aac74ba675dfa8900",
   "ddff1bfe286a3b18cebcbadc1678a68a964fbe9d",
@@ -207,8 +205,7 @@ window must be specified as part of the query string.
 The simplest form is to just request the most recent
 sample.
 .SAMPLE
-$ curl -s http://localhost:44322/series/query?\\
-	expr=disk.dev.read*[samples:1] | pmjson
+$ curl -s http://localhost:44322/series/query?expr=disk.dev.read*[samples:1] | pmjson
 [
   {
     "series": "9d8c7fb51ce160eb82e3669aac74ba675dfa8900",
@@ -256,8 +253,7 @@ any of the time window parameters described on
 If no time window parameters are specified, the single
 most recent value observed is retrieved.
 .SAMPLE
-$ curl -s http://localhost:44322/series/values?\\
-	series=605fc77742cd0317597291329561ac4e50c0dd12 | pmjson
+$ curl -s http://localhost:44322/series/values?series=605fc77742cd0317597291329561ac4e50c0dd12 | pmjson
 [
   {
     "series": "605fc77742cd0317597291329561ac4e50c0dd12",
@@ -282,8 +278,7 @@ identifiers.
 The JSON response contains the same information as the
 \fBpmseries\fR \-\fBd\fR/\-\-\fBdesc\fR option.
 .SAMPLE
-$ curl -s http://localhost:44322/series/descs?\\
-	series=605fc77742cd0317597291329561ac4e50c0dd12 | pmjson
+$ curl -s http://localhost:44322/series/descs?series=605fc77742cd0317597291329561ac4e50c0dd12 | pmjson
 [
   {
     "series": "605fc77742cd0317597291329561ac4e50c0dd12",
@@ -316,7 +311,7 @@ series identifiers, when given the
 .I series
 parameter).
 It can produce a list of all known label names, in the
-absense of
+absence of
 .IR name ,
 .I names
 or
@@ -333,8 +328,7 @@ or
 The JSON response for this mode contains the same information
 as the \fBpmseries\fR \-\fBv\fR/\-\-\fBvalues\fR option.
 .SAMPLE
-$ curl -s http://localhost:44322/series/labels?\\
-	series=605fc77742cd0317597291329561ac4e50c0dd12 | pmjson
+$ curl -s http://localhost:44322/series/labels?series=605fc77742cd0317597291329561ac4e50c0dd12 | pmjson
 [
   {
     "series": "605fc77742cd0317597291329561ac4e50c0dd12",
@@ -382,8 +376,7 @@ or
 .I names
 parameters to find all possible label values for the given name(s).
 .SAMPLE
-$ curl -s http://localhost:44322/series/labels?\\
-	names=hostname,domainname | pmjson
+$ curl -s http://localhost:44322/series/labels?names=hostname,domainname | pmjson
 {
     "hostname": [ "app", "nas" ],
     "domainname": [ "acme.com" ]
@@ -406,8 +399,7 @@ identifiers.
 The JSON response contains the same information as the
 \fBpmseries\fR \-\fBm\fR/\-\-\fBmetrics\fR option.
 .SAMPLE
-$ curl -s http://localhost:44322/series/metrics?\\
-	series=605fc77742cd0317597291329561ac4e50c0dd12 | pmjson
+$ curl -s http://localhost:44322/series/metrics?series=605fc77742cd0317597291329561ac4e50c0dd12 | pmjson
 [
   {
     "series": "605fc77742cd0317597291329561ac4e50c0dd12",
@@ -449,8 +441,7 @@ access the time series from that source.
 The JSON response contains the same information as the
 \fBpmseries\fR \-\fBS\fR/\-\-\fBsource\fR option.
 .SAMPLE
-$ curl -s http://localhost:44322/series/sources?\\
-	source=2cd6a38f9339f2dd1f0b4775bda89a9e7244def6 | pmjson
+$ curl -s http://localhost:44322/series/sources?source=2cd6a38f9339f2dd1f0b4775bda89a9e7244def6 | pmjson
 [
   {
     "source": "2cd6a38f9339f2dd1f0b4775bda89a9e7244def6",
@@ -478,8 +469,7 @@ time series identifiers.
 The JSON response contains the same information as the
 \fBpmseries\fR \-\fBi\fR/\-\-\fBinstance\fR option.
 .SAMPLE
-$ curl -s http://localhost:44322/series/instances?\\
-	series=605fc77742cd0317597291329561ac4e50c0dd12 | pmjson
+$ curl -s http://localhost:44322/series/instances?series=605fc77742cd0317597291329561ac4e50c0dd12 | pmjson
 [
   {
     "series": "605fc77742cd0317597291329561ac4e50c0dd12",
@@ -536,8 +526,7 @@ cache.
 This request is equivalent to the \fBpmseries\fR \-\fBl\fR/\-\-\fBload\fR
 option.
 .SAMPLE
-$ curl -s http://localhost:44322/series/load&\\
-	expr={source.name:"/var/log/pcp/pmlogger/acme"}
+$ curl -s http://localhost:44322/series/load?expr={source.name:"/var/log/pcp/pmlogger/acme"}
 {
   "success": true
 }
@@ -586,8 +575,7 @@ and is passed to the server via the
 .I query
 parameter (HTTP GET).
 .SAMPLE
-$ curl -s http://localhost:44322/search/text?\\
-	query=halt | pmjson
+$ curl -s http://localhost:44322/search/text?query=halt | pmjson
 {
   "total": 2,
   "offset": 0,
@@ -660,8 +648,7 @@ and is passed to the server via the
 .I query
 parameter (HTTP GET).
 .SAMPLE
-$ curl -s http://localhost:44322/search/suggest?\\
-	query=disk&limit=4 | pmjson
+$ curl -s http://localhost:44322/search/suggest?query=disk&limit=4 | pmjson
 [
     "disk.all.avactive",
     "disk.all.aveq",
@@ -738,7 +725,7 @@ The unit for the timeout value is seconds and the default is 5.
 To specify a specific existing context in any PMAPI web request,
 the endpoints can be accessed with either the
 .I context
-parameter or enbedded in the endpoint URL itself, such as
+parameter or embedded in the endpoint URL itself, such as
 .BR /pmapi/[number]/fetch .
 .SS GET \fI/pmapi/context\fR \- \fBpmNewContext\fR(3)
 .TS
@@ -770,8 +757,7 @@ explicitly create the contexts they use.
 If successful, the server responds with a HTTP 200 (OK) code
 and JSON message body of the form:
 .SAMPLE
-$ curl -s http://localhost:44322/pmapi/context?\\
-	hostspec=www.acme.com&polltime=500 | pmjson
+$ curl -s http://localhost:44322/pmapi/context?hostspec=www.acme.com&polltime=500 | pmjson
 {
   "context": 348734,
   "source": "05af7f3eb840277fd3cfa91f90ef0067199743c",
@@ -837,8 +823,7 @@ or
 The server response is a JSON document that provides metric
 metadata as an array.
 .SAMPLE
-$ curl -s http://localhost:44322/pmapi/metric?\\
-	names=kernel.all.load,disk.all.read | pmjson
+$ curl -s http://localhost:44322/pmapi/metric?names=kernel.all.load,disk.all.read | pmjson
 {
   "context": 348734,
   "metrics": [
@@ -920,8 +905,7 @@ document that provides the values for all instances of the metrics, unless
 a instance profile has been set for the web context (see section on InDom
 profiles below).
 .SAMPLE
-$ curl -s http://localhost:44322/pmapi/fetch?\\
-	names=kernel.all.load,disk.all.read | pmjson
+$ curl -s http://localhost:44322/pmapi/fetch?names=kernel.all.load,disk.all.read | pmjson
 {
   "context": 348734,
   "timestamp": 1547483646.2147431,
@@ -1045,8 +1029,7 @@ regular expression or glob pattern matching should be used instead.
 The response is a JSON document that provides the instance domain
 metadata as an array.
 .SAMPLE
-$ curl -s http://localhost:44322/pmapi/indom?\\
-	name=kernel.all.load | pmjson
+$ curl -s http://localhost:44322/pmapi/indom?name=kernel.all.load | pmjson
 {
   "context": 348734,
   "indom": "60.2",
@@ -1101,8 +1084,7 @@ domain profile which restricts (filters) the set of resulting
 instances returned, as described on
 .BR pmAddProfile (3).
 .SAMPLE
-$ curl -s http://localhost:44322/pmapi/profile?\\
-	expr=add,indom=60.2,iname=1%20minute
+$ curl -s http://localhost:44322/pmapi/profile?expr=add,indom=60.2,iname=1%20minute
 { "context": 348734, "success": true }
 .ESAMPLE
 .SS GET \fI/pmapi/store\fR \- \fBpmStore\fR(3)
@@ -1139,8 +1121,7 @@ being modified.
 .PP
 If successful, the response from these requests is a JSON document of the form:
 .SAMPLE
-$ curl -s http://localhost:44322/pmapi/store?\\
-	name=pmcd.control.timeout&value=10
+$ curl -s http://localhost:44322/pmapi/store?name=pmcd.control.timeout&value=10
 {
   "context": 348734,
   "success": true
@@ -1174,15 +1155,13 @@ In this case the HTTP POST request body may be used to provide
 one or more derived metrics specifications (all at once, across
 multiple lines, as a convenience).
 .SAMPLE
-$ curl -s http://localhost:44322/pmapi/derive?\\
-	name=blkio.avgsz&expr=disk.all.blktotal/disk.all.total | pmjson
+$ curl -s http://localhost:44322/pmapi/derive?name=blkio.avgsz&expr=disk.all.blktotal/disk.all.total | pmjson
 {
   "context": 348734,
   "success": true
 }
 
-$ curl -s http://localhost:44322/pmapi/fetch?\\
-	name=blkio.avgsz&samples=2 | pmjson
+$ curl -s http://localhost:44322/pmapi/fetch?name=blkio.avgsz&samples=2 | pmjson
 {
   "context": 348734,
   "timestamp": 1547483648.2147428,
