@@ -1,4 +1,4 @@
-.. _AboutThisGuide:
+.. _AboutUAGGuide:
 
 About User's and Administrator's Guide
 #######################################
@@ -110,7 +110,7 @@ The following conventions are used throughout this document:
    * - ALL CAPS
      - All capital letters denote environment variables, operator names, directives, defined constants, and macros in C programs.                         
    * - ()
-     - Parentheses that follow function names surround function arguments or are empty if the function has no arguments; parentheses that follow commands surround man page section numbers.                                                                                                                 |
+     - Parentheses that follow function names surround function arguments or are empty if the function has no arguments; parentheses that follow commands surround man page section numbers.
 
 
 Reader Comments
