@@ -57,7 +57,7 @@ tags:
 
     The timeout interval is configurable at context creation time, and as such the *polltime* parameter can be used anywhere the *hostspec* is specified. It sets the context timeout in terms of length of inactive time. The unit for the timeout value is seconds and the default is 5.
 
-    To specify a specific existing context in any PMAPI web request, the endpoints can be accessed with either the *context* parameter or enbedded in the endpoint URL itself, such as **/pmapi/[number]/fetch**.
+    To specify a specific existing context in any PMAPI web request, the endpoints can be accessed with either the *context* parameter or embedded in the endpoint URL itself, such as **/pmapi/[number]/fetch**.
 - name: NOTES
   description: |
     For the REST APIs, errors generally result in HTTP-level error responses. Wherever possible, any PMAPI error string will also be provided in a message along 
@@ -307,7 +307,7 @@ paths:
         ```bash
         $ curl -s http://localhost:44322/series/labels?series=605fc77742cd0317597291329561ac4e50c0dd12 | pmjson
         ```
-        It can produce a list of all known label names, in the absense of name , names or series parameters. The JSON responses for this mode contains the same information as the **pmseries - l /-- labels** option.        
+        It can produce a list of all known label names, in the absence of name , names or series parameters. The JSON responses for this mode contains the same information as the **pmseries - l /-- labels** option.        
         ```bash
         $ curl -s http://localhost:44322/series/labels | pmjson
         ```
