@@ -58,6 +58,15 @@ tags:
     The timeout interval is configurable at context creation time, and as such the *polltime* parameter can be used anywhere the *hostspec* is specified. It sets the context timeout in terms of length of inactive time. The unit for the timeout value is seconds and the default is 5.
 
     To specify a specific existing context in any PMAPI web request, the endpoints can be accessed with either the *context* parameter or enbedded in the endpoint URL itself, such as **/pmapi/[number]/fetch**.
+- name: NOTES
+  description: |
+    For the REST APIs, errors generally result in HTTP-level error responses. Wherever possible, any PMAPI error string will also be provided in a message along 
+    with the response.
+    
+    All responses will be returned using HTTP 1.1 protocol and with chunked encoding being used to stream responses that are larger than a configured maximum size. 
+    Compression will be used on responses whenever the client indicates appropriate support.
+    
+    An *Access-Control-Allow-Origin: \** header is added to all REST API responses.
 
 paths:
   /metrics:
@@ -742,6 +751,824 @@ paths:
                   score_index_size_mb: 0.00
                   offsets_per_term_avg: 9.41
                   offset_bits_per_record_avg: 8.00
+
+  /pmapi/context:
+    get:
+      tags:
+      - PMAPI HOST SERVICES
+      summary: Creates a context for live sampling
+      description: | 
+        To create a context for live sampling, a web client can access any */pmapi* URL (optionally using the *hostspec* or *context* parameter). If no 
+        context exists, a new one will be created for that web client, and its identifier returned for future accesses.
+        
+        However, */pmapi/context* is provided as a dedicated URL for applications wishing to explicitly create the contexts they use.
+        ```
+        $ curl -s http://localhost:44322/pmapi/context?hostspec=www.acme.com&polltime=500 | pmjson
+        ```
+        The context (a 32-bit unsigned decimal number) can then be used with all later requests.
+
+        In the case of a *hostspec* containing authentication information, such as a username, the server will follow the HTTP Basic Authentication 
+        protocol to ascertain necessary authentication details from the user, providing the client web application an opportunity to request these from 
+        the user.
+
+        **Reference:** [pmNewContext](https://man7.org/linux/man-pages/man3/pmNewContext.3.html)(3)
+      operationID: get/pmapi/context
+      parameters:
+      - name: hostspec
+        in: query
+        description: Host specification as described in [PCPIntro](https://pcp.io/man/man1/pcpintro.1.html)(1)
+        schema:
+          type: string
+      - name: polltimeout
+        in: query
+        description: Seconds of inactivity before closing context
+        schema:
+          type: number
+      - name: client
+        in: query
+        description: Request identifier sent back with response
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            pmjson:
+              schema:
+                type: object
+                properties:
+                  context:
+                    type: number
+                  source:
+                    type: string
+                  hostspec:
+                    type: string
+                  labels:
+                    properties:
+                      domainname:
+                        type: string
+                      groupid:
+                        type: number
+                      hostname:
+                        type: string
+                      machineid:
+                        type: string
+                      platform:
+                        type: string
+                      userid:
+                        type: number
+                example:
+                  context: 348734
+                  source: 05af7f3eb840277fd3cfa91f90ef0067199743c
+                  hostspec: www.acme.com
+                  labels:
+                    domainname: acme.com
+                    groupid: 1000
+                    hostname: www.acme.com
+                    machineid: 295b7623b6074cc8bdbda8bf96f6930a
+                    platform: dev
+                    userid: 1000
+
+  /pmapi/metric:
+    get:
+      tags:
+      - PMAPI HOST SERVICES
+      summary: Provides detailed PMAPI metric metadata
+      description: | 
+        The *metric* endpoint provides detailed PMAPI metric metadata for one or more metrics. If no parameters are supplied, the response will be for 
+        all metrics found when traversing the entire Performance Metrics Name Space (PMNS).
+        
+        The *prefix* parameter can be used to specify a subtree of the PMNS for traversal. Alternatively, a specific metric or comma-separated list of 
+        metrics can be specified using either *name* or *names*.
+        
+        The server response is a JSON document that provides metric metadata as an array.
+        ```
+        $ curl -s http://localhost:44322/pmapi/metric?names=kernel.all.load,disk.all.read | pmjson
+        ```
+        Most of the fields are directly transcribed from the PMAPI calls for metric descriptors, labels and help text mentioned above and are exactly as 
+        would be observed using the [pminfo](https://pcp.io/man/man1/pminfo.1.html)(1) command with the - **dlmstT** options.
+        
+        The semantics, type and units fields are as returned by [pmTypeStr](https://man7.org/linux/man-pages/man3/pmTypeStr.3.html)(3), 
+        [pmUnitsStr](https://man7.org/linux/man-pages/man3/pmUnitsStr.3.html)(3) and [pmSemStr](https://man7.org/linux/man-pages/man3/pmSemStr.3.html)(3).
+        
+        **Reference:** [pmLookupDesc](https://man7.org/linux/man-pages/man3/pmLookupDesc.3.html)(3),
+                       [pmLookupLabels](https://man7.org/linux/man-pages/man3/pmLookupLabels.3.html)(3),
+                       [pmLookupName](https://man7.org/linux/man-pages/man3/pmLookupName.3.html)(3),
+                       [pmLookupText](https://man7.org/linux/man-pages/man3/pmLookupText.3.html)(3)
+      operationID: get/pmapi/metric
+      parameters:
+      - name: name
+        in: query
+        description: An individual metric name
+        schema:
+          type: string
+      - name: names
+        in: query
+        description: Comma-separated list of metric names
+        schema:
+          type: string
+      - name: pmid
+        in: query
+        description: Numeric or [pmIDStr](https://man7.org/linux/man-pages/man3/pmIDStr.3.html)(3) metric identifier
+        schema:
+          type: pmID
+      - name: pmids
+        in: query
+        description: Comma-separated numeric or [pmIDStr](https://man7.org/linux/man-pages/man3/pmIDStr.3.html)(3) pmIDs
+        schema:
+          type: string
+      - name: prefix
+        in: query
+        description: Metric namespace component as in [PMNS](https://man7.org/linux/man-pages/man5/PMNS.5.html)(5)
+        schema:
+          type: string
+      - name: hostspec
+        in: query
+        description: Host specification as described in [PCPIntro](https://pcp.io/man/man1/pcpintro.1.html)(1)
+        schema:
+          type: string
+      - name: context
+        in: query
+        description: Web context number (optional like hostspec)
+        schema:
+          type: number
+      - name: polltimeout
+        in: query
+        description: Seconds of inactivity before closing context
+        schema:
+          type: number
+      - name: client
+        in: query
+        description: Request identifier sent back with response
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            pmjson:
+              schema:
+                type: object
+                properties:
+                  context:
+                    type: number
+                  metrics:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        pmid:
+                          type: string
+                        indom:
+                          type: string
+                        type:
+                          type: string
+                        sem:
+                          type: string
+                        units:
+                          type: string
+                        series:
+                          type: string
+                        source:
+                          type: string
+                        labels:
+                          type: object
+                          properties:
+                            agent:
+                              type: string
+                            domainname:
+                              type: string
+                            groupid:
+                              type: number
+                            hostname:
+                              type: string
+                            platform:
+                              type: string
+                            userid:
+                              type: number
+                        text-oneline:
+                          type: string
+                        text-help:
+                          type: string
+                example:
+                  context: 348734,
+                  metrics:
+                    - name: kernel.all.load
+                      pmid: 60.2.0
+                      indom: 60.2
+                      type: FLOAT
+                      sem: instant
+                      units: none
+                      series: d2b28c7f6dc0d69ffd21dba7ba955e78c37719b
+                      source: 05af7f3eb840277fd3cfa91f90ef0067199743c
+                      labels:
+                        agent: linux
+                        domainname: acme.com
+                        groupid: 1000
+                        hostname: www.acme.com
+                        platform: dev
+                        userid: 1000
+                      text-oneline: 1, 5 and 15 minute load average"
+                    - name: disk.all.read
+                      pmid: 60.0.24
+                      type: U64
+                      sem: counter
+                      units: count
+                      series: d2b28c7f6dc0d69ffd21dba7ba955e78c37719b
+                      source: 05af7f3eb840277fd3cfa91f90ef0067199743c
+                      labels:
+                        agent: linux
+                        domainname: acme.com
+                        groupid: 1000
+                        hostname: www.acme.com
+                        platform: dev
+                        userid: 1000
+                      text-oneline: total read operations, summed for all disks
+                      text-help: Cumulative number of disk read operations [...]
+  
+  /pmapi/fetch:
+    get:
+      tags:
+      - PMAPI HOST SERVICES
+      summary: Fetches (samples) current values for given metrics
+      description: | 
+        If any of the names or pmids provided are valid, the response is a JSON document that provides the values for all instances of the metrics, unless a instance profile has been 
+        set for the web context (see section on InDom profiles below).
+        ```
+        $ curl -s http://localhost:44322/pmapi/fetch?names=kernel.all.load,disk.all.read | pmjson
+        ```
+        The response fields map directly to fields from the underlying [pmFetch](https://man7.org/linux/man-pages/man3/pmFetch.3.html)(3) sampling interface.
+        
+        Numeric metric types are represented as JSON integer or floating-point values. Strings are passed verbatim, except that non-ASCII values are replaced with a Unicode 0xFFFD 
+        replacement character code.
+        
+        In backward compatibility mode the timestamp is presented as a JSON map with second (sec) and microsecond (us) fields, instead of using the more compact floating point 
+        representation shown above.
+        
+        **Reference:** [pmFetch](https://man7.org/linux/man-pages/man3/pmFetch.3.html)(3)
+      operationID: get/pmapi/fetch
+      parameters:
+      - name: delta
+        in: query
+        description: Sampling interval in [pmParseInterval](https://man7.org/linux/man-pages/man3/pmParseInterval.3.html)(3) form
+        schema:
+          type: string
+      - name: name
+        in: query
+        description: An individual metric name
+        schema:
+          type: string
+      - name: names
+        in: query
+        description: Comma-separated list of metric names
+        schema:
+          type: string
+      - name: pmid
+        in: query
+        description: Numeric or [pmIDStr](https://man7.org/linux/man-pages/man3/pmIDStr.3.html)(3) metric identifier
+        schema:
+          type: pmID
+      - name: pmids
+        in: query
+        description: Comma-separated numeric or [pmIDStr](https://man7.org/linux/man-pages/man3/pmIDStr.3.html)(3) pmIDs
+        schema:
+          type: string
+      - name: prefix
+        in: query
+        description: Metric namespace component as in [PMNS](https://man7.org/linux/man-pages/man5/PMNS.5.html)(5)
+        schema:
+          type: string
+      - name: hostspec
+        in: query
+        description: Host specification as described in [PCPIntro](https://pcp.io/man/man1/pcpintro.1.html)(1)
+        schema:
+          type: string
+      - name: context
+        in: query
+        description: Web context number (optional like hostspec)
+        schema:
+          type: number
+      - name: polltimeout
+        in: query
+        description: Seconds of inactivity before closing context
+        schema:
+          type: number
+      - name: client
+        in: query
+        description: Request identifier sent back with response
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            pmjson:
+              schema:
+                type: object
+                properties:
+                  context:
+                    type: number
+                  timestamp:
+                    type: number
+                  values:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        pmid:
+                          type: string
+                        name:
+                          type: string
+                        instances:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              instance:
+                                type: number
+                              value:
+                                type: number
+                example:
+                  context: 348734,
+                  timestamp: 1547483646.2147431
+                  values: 
+                    - pmid: 60.2.0
+                      name: kernel.all.load
+                      instances:
+                        - instance: 1 
+                          value: 0.1 
+                        - instance: 5 
+                          value: 0.17 
+                        - instance: 15 
+                          value: 0.22 
+                    - pmid: 60.0.24
+                      name: disk.all.read
+                      instances:
+                        - instance: null
+                          value: 639231 
+  
+  /pmapi/children:
+    get:
+      tags:
+      - PMAPI HOST SERVICES
+      summary: Provides iterative namespace traversal for a context
+      description: | 
+        The *children* endpoint provides iterative namespace traversal for a context. If no parameters are supplied, the response will describe the direct descendants of the 
+        Performance Metrics Name Space (PMNS) root.
+        
+        The *prefix* parameter can be used to specify a subtree of the PMNS for traversal.
+        
+        The server response is a JSON document that provides the set of leaf and non-leaf nodes below the given namespace node or root.
+        ```
+        $ curl -s http://localhost:44322/pmapi/children?prefix=mem | pmjson
+        ```
+        **Reference:** [pmGetChildren](https://man7.org/linux/man-pages/man3/pmGetChildren.3.html)(3), [pmGetChildrenStatus](https://man7.org/linux/man-pages/man3/pmGetChildrenStatus.3.html)(3)
+      operationID: get/pmapi/children
+      parameters:
+      - name: prefix
+        in: query
+        description: Metric namespace component as in [PMNS](https://man7.org/linux/man-pages/man5/PMNS.5.html)(5)
+        schema:
+          type: string
+      - name: hostspec
+        in: query
+        description: Host specification as described in [PCPIntro](https://pcp.io/man/man1/pcpintro.1.html)(1)
+        schema:
+          type: string
+      - name: context
+        in: query
+        description: Web context number (optional like hostspec)
+        schema:
+          type: number
+      - name: polltimeout
+        in: query
+        description: Seconds of inactivity before closing context
+        schema:
+          type: number
+      - name: client
+        in: query
+        description: Request identifier sent back with response
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            pmjson:
+              schema:
+                type: object
+                properties:
+                  context:
+                    type: number
+                  name:
+                    type: string
+                  leaf:
+                    type: array
+                    items:
+                      type: string
+                  nonleaf:
+                    type: array
+                    items:
+                      type: string
+                example:
+                  context: 348734
+                  name: mem
+                  leaf: 
+                    - physmem
+                    - freemem
+                  nonleaf:
+                    - util
+                    - numa
+                    - vmstat
+                    - buddyinfo
+                    - slabinfo
+                    - zoneinfo
+                    - ksm
+
+  /pmapi/indom:
+    get:
+      tags:
+      - PMAPI HOST SERVICES
+      summary: Lists the current instances of an instance domain
+      description: | 
+        This request lists the current instances of an instance domain. The instance domain is either specified directly (in numeric or string form) or 
+        indirectly, by association with the specified metric.
+        
+        The request can be further qualified with a comma-separated list of the instances to report on, either by name or number, using the *instance* and 
+        *iname* parameters.
+        
+        In the case of instance name qualifiers, these will be matched by exact string comparison by default. Alternatively, the match parameter can be used to 
+        specify that regular expression or glob pattern matching should be used instead.
+        
+        The response is a JSON document that provides the instance domain metadata as an array.
+        ```bash
+        $ curl -s http://localhost:44322/pmapi/indom?name=kernel.all.load | pmjson
+        ```
+
+        **Reference:** [pmGetInDom](https://man7.org/linux/man-pages/man3/pmGetInDom.3.html)(3), [pmNameInDom](https://man7.org/linux/man-pages/man3/pmNameInDom.3.html)(3),
+        [pmLookupInDom](https://man7.org/linux/man-pages/man3/pmLookupInDom.3.html)(3)
+      operationID: get/pmapi/indom
+      parameters:
+      - name: iname
+        in: query
+        description: Comma-separated list of instance names
+        schema:
+          type: string
+      - name: indom
+        in: query
+        description: Numeric or [pmInDomStr](https://man7.org/linux/man-pages/man3/pmInDomStr.3.html)(3) instance domain
+        schema:
+          type: pmInDom
+      - name: instance
+        in: query
+        description: Comma-separated list of instance numbers
+        schema:
+          type: number
+      - name: match
+        in: query
+        description: Pattern matching style (exact, glob or regex)
+        schema:
+          type: string
+      - name: name
+        in: query
+        description: An individual metric name
+        schema:
+          type: string
+      - name: hostspec
+        in: query
+        description: Host specification as described in [PCPIntro](https://pcp.io/man/man1/pcpintro.1.html)(1)
+        schema:
+          type: string
+      - name: context
+        in: query
+        description: Web context number (optional like hostspec)
+        schema:
+          type: number
+      - name: polltimeout
+        in: query
+        description: Seconds of inactivity before closing context
+        schema:
+          type: number
+      - name: client
+        in: query
+        description: Request identifier sent back with response
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            pmjson:
+              schema:
+                type: object
+                properties:
+                  context:
+                    type: number
+                  indom:
+                    type: string
+                  labels:
+                    type: object
+                    properties:
+                      domainname:
+                        type: string
+                      groupid:
+                        type: number
+                      hostname:
+                        type: string
+                      machineid:
+                        type: string
+                      platform:
+                        type: string
+                      userid:
+                        type: number
+                  instances:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        instance:
+                          type: number
+                        name:
+                          type: string
+                        labels:
+                          type: object
+                example:
+                  context: 348734
+                  indom: 60.2
+                  labels:
+                    domainname: acme.com
+                    groupid: 1000
+                    hostname: www.acme.com
+                    machineid: 295b7623b6074cc8bdbda8bf96f6930a
+                    platform: dev
+                    userid: 1000
+                  instances:
+                    - instance: 1
+                      name: 1 minute
+                      labels: 
+                    - instance: 5
+                      name: 5 minute
+                      labels: 
+                    - instance: 15
+                      name: 15 minute
+                      labels: 
+          
+  /pmapi/profile:
+    get:
+      tags:
+      - PMAPI HOST SERVICES
+      summary: Filters the set of resulting instances returned
+      description: | 
+        Some PMAPI operations can be performed with an active instance domain profile which restricts (filters) the set of resulting instances returned, as 
+        described on [pmAddProfile](https://man7.org/linux/man-pages/man3/pmAddProfile.3.html)(3).
+        
+        ```bash
+        $ curl -s http://localhost:44322/pmapi/profile?expr=add,indom=60.2,iname=1%20minute
+        ```
+        **Reference:** [pmAddProfile](https://man7.org/linux/man-pages/man3/pmAddProfile.3.html)(3), [pmDelProfile](https://man7.org/linux/man-pages/man3/pmDelProfile.3.html)(3)
+      operationID: get/pmapi/profile
+      parameters:
+      - name: iname
+        in: query
+        description: Comma-separated list of instance names
+        schema:
+          type: string
+      - name: indom
+        in: query
+        description: Numeric or [pmInDomStr](https://man7.org/linux/man-pages/man3/pmInDomStr.3.html)(3) instance domain
+        schema:
+          type: pmInDom
+      - name: instance
+        in: query
+        description: Comma-separated list of instance numbers
+        schema:
+          type: number
+      - name: expr
+        in: query
+        description: One of "add" or "del" (mandatory)
+        schema:
+          type: string
+      - name: match
+        in: query
+        description: Pattern matching style (exact, glob or regex)
+        schema:
+          type: string
+      - name: hostspec
+        in: query
+        description: Host specification as described in [PCPIntro](https://pcp.io/man/man1/pcpintro.1.html)(1)
+        schema:
+          type: string
+      - name: context
+        in: query
+        description: Web context number (optional like hostspec)
+        schema:
+          type: number
+      - name: polltimeout
+        in: query
+        description: Seconds of inactivity before closing context
+        schema:
+          type: number
+      - name: client
+        in: query
+        description: Request identifier sent back with response
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            pmjson:
+              schema:
+                type: object
+                properties:
+                  context:
+                    type: number
+                  success:
+                    type: boolean
+                example:
+                  context: 348734
+                  success: true
+
+  /pmapi/store:
+    get:
+      tags:
+      - PMAPI HOST SERVICES
+      summary: Modifies values of performance metrics
+      description: | 
+        Some performance metrics allow their value to be modified, for example to re-initialize counters or to modify control variables.
+        
+        This operation takes a single metric *name* to modify, and optionally specific *instances*. The mandatory *value* will be interpreted according to the 
+        type of the metric being modified.
+        
+        If successful, the response from these requests is a JSON document.
+        
+        ```bash
+        $ curl -s http://localhost:44322/pmapi/store?name=pmcd.control.timeout&value=10
+        ```
+        **Reference:** [pmStore](https://man7.org/linux/man-pages/man3/pmStore.3.html)(3)
+      operationID: get/pmapi/store
+      parameters:
+      - name: iname
+        in: query
+        description: Comma-separated list of instance names
+        schema:
+          type: string
+      - name: instance
+        in: query
+        description: Comma-separated list of instance numbers
+        schema:
+          type: number
+      - name: name
+        in: query
+        description: An individual metric name
+        schema:
+          type: string
+      - name: value
+        in: query
+        description: New value for the given metric instance(s)
+        schema:
+          type: (any)
+      - name: hostspec
+        in: query
+        description: Host specification as described in [PCPIntro](https://pcp.io/man/man1/pcpintro.1.html)(1)
+        schema:
+          type: string
+      - name: context
+        in: query
+        description: Web context number (optional like hostspec)
+        schema:
+          type: number
+      - name: polltimeout
+        in: query
+        description: Seconds of inactivity before closing context
+        schema:
+          type: number
+      - name: client
+        in: query
+        description: Request identifier sent back with response
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            pmjson:
+              schema:
+                type: object
+                properties:
+                  context:
+                    type: number
+                  success:
+                    type: boolean
+                example:
+                  context: 348734
+                  success: true
+
+  /pmapi/derive:
+    get:
+      tags:
+      - PMAPI HOST SERVICES
+      summary: Creates a new derived metric
+      description: | 
+        Create a new derived metric, as defined by the [pmAddDerived](https://man7.org/linux/man-pages/man3/pmAddDerived.3.html)(3) metric interface. Derived 
+        metrics are associated with the named context, or a new context is created and returned in the result.
+        ```bash
+        $ curl -s http://localhost:44322/pmapi/derive?name=blkio.avgsz&expr=disk.all.blktotal/disk.all.total | pmjson
+        ```
+        This interface is one of the few that allows a POST to be used in place of a GET. In this case the HTTP POST request body may be used to provide one or 
+        more derived metrics specifications (all at once, across multiple lines, as a convenience).
+        ```bash
+        $ curl -s http://localhost:44322/pmapi/fetch?name=blkio.avgsz&samples=2 | pmjson
+        ```
+        **Reference:** [pmAddDerived](https://man7.org/linux/man-pages/man3/pmAddDerived.3.html)(3)
+      operationID: get/pmapi/derive
+      parameters:
+      - name: expr
+        in: query
+        description: Derived metric expression
+        schema:
+          type: string
+      - name: name
+        in: query
+        description: New derived metric name
+        schema:
+          type: string
+      - name: hostspec
+        in: query
+        description: Host specification as described in [PCPIntro](https://pcp.io/man/man1/pcpintro.1.html)(1)
+        schema:
+          type: string
+      - name: context
+        in: query
+        description: Web context number (optional like hostspec)
+        schema:
+          type: number
+      - name: polltimeout
+        in: query
+        description: Seconds of inactivity before closing context
+        schema:
+          type: number
+      - name: client
+        in: query
+        description: Request identifier sent back with response
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            pmjson:
+              schema:
+                anyOf:
+                - $ref: '#/components/schemas/derive'
+                - $ref: '#/components/schemas/fetch'
+
+  /pmapi/metrics:
+    get:
+      tags:
+      - PMAPI HOST SERVICES
+      summary: Allows a web context identifier to be passed as a parameter
+      description: | 
+        This request is a subset of the style described in the ``OPEN METRICS`` section, allowing a web context identifier to be passed as a parameter. It is 
+        otherwise very similar in terms of parameters and response handling, please refer to the earlier section for details.
+
+        **Reference:** [pmLookupDesc](https://man7.org/linux/man-pages/man3/pmLookupDesc.3.html)(3),
+                       [pmLookupLabels](https://man7.org/linux/man-pages/man3/pmLookupLabels.3.html)(3),
+                       [pmFetch](https://man7.org/linux/man-pages/man3/pmFetch.3.html)(3)
+      operationID: get/pmapi/metrics
+      parameters:
+      - name: names
+        in: query
+        description: Comma-separated list of metric names
+        schema:
+          type: string
+      - name: times
+        in: query
+        description: Append sample times (milliseconds since epoch)
+        schema:
+          type: boolean
+      - name: context
+        in: query
+        description: Web context number (optional like hostspec)
+        schema:
+          type: number
+      - name: hostspec
+        in: query
+        description: Host specification as described in [PCPIntro](https://pcp.io/man/man1/pcpintro.1.html)(1)
+        schema:
+          type: string
+      - name: polltimeout
+        in: query
+        description: Seconds of inactivity before closing context
+        schema:
+          type: number
+      - name: client
+        in: query
+        description: Request identifier sent back with response
+        schema:
+          type: string
     
 components:
   schemas:
@@ -931,3 +1758,51 @@ components:
         - node1
         - sda
         - sdb
+      
+    derive:
+      title: Derive
+      type: object
+      properties:
+        context:
+          type: number
+        success:
+          type: boolean
+      example:
+          context: 348734
+          success: true
+        
+    fetch:
+      title: Fetch
+      type: object
+      properties:
+        context:
+          type: number
+        timestamp:
+          type: number
+        values:
+          type: array
+          items:
+            type: object
+            properties:
+              pmid:
+                type: string
+              name:
+                type: string
+              instances:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    instance:
+                      type: string
+                    value:
+                      type: number
+      example:
+        context: 348734
+        timestamp: 1547483648.2147428
+        values: 
+          - pmid: 511.0.2
+            name: blkio.avgsz
+            instances:
+              - instance: 
+                value: 9231
