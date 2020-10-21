@@ -27,7 +27,7 @@ BEGIN {
 
 my $user_agent = mock;
 
-my $jvm_garbage_collection = JVMGarbageCollection->new( $user_agent );
+my $jvm_garbage_collection = PCP::JVMGarbageCollection->new( $user_agent );
 
 when($user_agent)->get('/api/jolokia/read/java.lang:type=GarbageCollector,name=PS%20Scavenge?ignoreErrors=true')->then_return({'value' => {'CollectionCount' => 1234 }});
 is($jvm_garbage_collection->attribute_for('ps_scavenge', 'collection_count'), 1234, "gc attribute from ps_scavenge");
