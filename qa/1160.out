@@ -18,13 +18,14 @@ Info: ping_loss
 Info: Module setup configurations read.
 Info: Initializing modules:
 Info: ping, cluster ID: 1804
-Info: ping: Module parameters: count: 1, timeout: 1.0.
+Info: ping: ['localhost']
+Info: ping: Module parameters: command: ping, cmdargs: , count: 1, timeout: 1.0.
 Info: ping: Initialized.
 Info: ping_latency, cluster ID: 248
-Info: ping_latency: Module parameters: count: 1, timeout: 2.0.
+Info: ping_latency: Module parameters: command: ping, cmdargs: , count: 1, timeout: 2.0.
 Info: ping_latency: Initialized.
 Info: ping_loss, cluster ID: 1339
-Info: ping_loss: Module parameters: count: 1, timeout: 2.0.
+Info: ping_loss: Module parameters: command: ping, cmdargs: , count: 1, timeout: 2.0.
 Info: ping_loss: Initialized.
 Info: Modules initialized.
 Info: Registering metrics:
@@ -49,13 +50,14 @@ Info: ping_loss
 Info: Module setup configurations read.
 Info: Initializing modules:
 Info: ping, cluster ID: 1804
-Info: ping: Module parameters: count: 1, timeout: 1.0.
+Info: ping: ['localhost']
+Info: ping: Module parameters: command: ping, cmdargs: , count: 1, timeout: 1.0.
 Info: ping: Initialized.
 Info: ping_latency, cluster ID: 248
-Info: ping_latency: Module parameters: count: 1, timeout: 2.0.
+Info: ping_latency: Module parameters: command: ping, cmdargs: , count: 1, timeout: 2.0.
 Info: ping_latency: Initialized.
 Info: ping_loss, cluster ID: 1339
-Info: ping_loss: Module parameters: count: 1, timeout: 2.0.
+Info: ping_loss: Module parameters: command: ping, cmdargs: , count: 1, timeout: 2.0.
 Info: ping_loss: Initialized.
 Info: Modules initialized.
 Info: Registering metrics:

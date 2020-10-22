@@ -186,10 +186,17 @@ variable, set in either the environment or in a control file.
 If both
 .B $PCP_CULLAFTER
 and
-.B \-x
+.B \-k
 specify different values for
 .I time
 then the environment variable value is used and a warning is issued.
+I.e., if
+.B $PCP_CULLAFTER
+is set in the
+.I control
+file, it overrides
+.B \-k
+given on the command line.
 .PP
 Note that the semantics of
 .I time
@@ -243,6 +250,25 @@ scheduled invocation of
 then this will compress all volumes except the ones being currently
 written by
 .BR pmlogger (1).
+If
+.B $PCP_COMPRESSAFTER
+is set to a value greater than zero, then manually running
+.B pmlogger_daily with the
+.B \-x
+option may be used to compress volumes that are younger than the
+.B $PCP_COMPRESSAFTER
+time.
+This may be used to reclaim filesystem space by compressing volumes
+earlier than they would have otherwise been compressed.
+Note that since the default value of
+.B $PCP_COMPRESSAFTER
+is 0 days, the
+.B \-x
+option has no effect unless the
+.B control
+file has been edited and
+.B $PCP_COMPRESSAFTER
+has been set to a value greater than 0.
 .TP
 \fB\-l\fR \fIfile\fR, \fB\-\-logfile\fR=\fIfile\fR
 In order to ensure that mail is not unintentionally sent when these
@@ -518,6 +544,11 @@ and
 specify different values for
 .I time
 then the environment variable value is used and a warning is issued.
+For important other detailed notes concerning volume compression, see the
+.B \-K
+and
+.B \-k
+options (above).
 .RE
 .TP
 \fB\-X\fR \fIprogram\fR, \fB\-\-compressor\fR=\fIprogram\fR

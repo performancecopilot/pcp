@@ -1,0 +1,18 @@
+#
+# metric names and access macros for acctmetrics.h and modules.c
+#
+acctmetrics {
+	acct.psinfo.exitcode	ACCT_GEN_EXCODE
+	acct.id.uid		ACCT_GEN_UID
+	acct.id.gid		ACCT_GEN_GID
+	acct.psinfo.ppid	ACCT_GEN_PPID
+	acct.psinfo.btime	ACCT_GEN_BTIME
+	acct.psinfo.etime	ACCT_GEN_ETIME
+	acct.psinfo.utime	ACCT_CPU_UTIME
+	acct.psinfo.stime	ACCT_CPU_STIME
+	acct.psinfo.rw		ACCT_DSK_RIO
+	acct.psinfo.minflt	ACCT_MEM_MINFLT
+	acct.psinfo.majflt	ACCT_MEM_MAJFLT
+	# end marker - provides count
+	.			ACCT_NMETRICS
+}

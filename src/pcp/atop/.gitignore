@@ -4,6 +4,7 @@ pcp-atopsar
 pmgenmap.sh
 hostmetrics.h
 procmetrics.h
+acctmetrics.h
 systmetrics.h
 ifpropmetrics.h
 pcp-atop.1.*

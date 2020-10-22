@@ -507,7 +507,8 @@ engine(void)
 	*/
 	static struct tstat	*curtpres;	/* current present list      */
 	static unsigned int	curtlen;	/* size of present list      */
-	struct tstat		*curpexit;	/* exited process list	     */
+	static struct tstat	*curpexit;	/* exited process list	     */
+	static unsigned int	curtexitlen;	/* size of exited proc list  */
 
 	static struct devtstat	devtstat;	/* deviation info	     */
 
@@ -604,6 +605,10 @@ engine(void)
 		memset(curtpres, 0, curtlen * sizeof(struct tstat));
 		ntaskpres = photoproc(&curtpres, &curtlen);
 
+		memset(curpexit, 0, curtexitlen * sizeof(struct tstat));
+		nprocexit = acctphotoproc(&curpexit, &curtexitlen,
+					&cursstat->stamp, &interval);
+
 		/*
 		** register processes that exited during last sample;
 		** first determine how many processes exited
@@ -611,8 +616,6 @@ engine(void)
 		** the number of exited processes is limited to avoid
 		** that atop explodes in memory and introduces OOM killing
 		*/
-		nprocexit = acctprocnt();	/* number of exited processes */
-
 		if (nprocexit > MAXACCTPROCS)
 		{
 			noverflow = nprocexit - MAXACCTPROCS;
@@ -630,32 +633,6 @@ engine(void)
 			nprocexitnet = netatop_exitstore();
 		else
 			nprocexitnet = 0;
-
-		/*
-		** reserve space for the exited processes and read them
-		*/
-		if (nprocexit > 0)
-		{
-			curpexit = calloc(nprocexit, sizeof(struct tstat));
-
-			ptrverify(curpexit,
-			          "Malloc failed for %lu exited processes\n",
-			          nprocexit);
-
-			nprocexit = acctphotoproc(curpexit, nprocexit);
-
-			/*
- 			** reposition offset in accounting file when not
-			** all exited processes have been read (i.e. skip
-			** those processes)
-			*/
-			if (noverflow)
-				acctrepos(noverflow);
-		}
-		else
-		{
-			curpexit    = NULL;
-		}
 
 		/*
 		** calculate the deviations (i.e. calculate the activity
@@ -702,11 +679,6 @@ engine(void)
                 */
                 (*vis.prep)();
 
-		/*
-		** release dynamically allocated memory
-		*/
-		if (nprocexit > 0)
-			free(curpexit);
 
 		if (nprocexitnet > 0)
 			netatop_exiterase();
@@ -736,6 +708,12 @@ reset:
 
 		sampflags = 0;
 	} /* end of main-loop */
+
+	/*
+	** release dynamically allocated memory
+	*/
+	if (curtexitlen > 0)
+		free(curpexit);
 }
 
 /*

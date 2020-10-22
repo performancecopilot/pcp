@@ -12,12 +12,18 @@ abstraction for all of the performance data in a system, and many tools for inte
 PCP is a feature-rich, mature, extensible, cross-platform toolkit supporting both live and retrospective analysis. The distributed PCP architecture 
 makes it especially useful for those seeking centralized monitoring of distributed processing.
 
+**Table of Contents**
+
+* :doc:`UAG/AboutUAGGuide`
+* :doc:`PG/AboutPGGuide`
+* `REST API - PMWEBAPI <api/>`__
+
 .. toctree::
    :caption: Guides
    :hidden:
    
-   UAG/AboutThisGuide
-   PG/AboutThisGuide
+   UAG/AboutUAGGuide
+   PG/AboutPGGuide
 
 
 .. toctree::
@@ -44,5 +50,4 @@ makes it especially useful for those seeking centralized monitoring of distribut
    PG/WritingPMDA
    PG/PMAPI
    PG/InstrumentingApplications
-
 

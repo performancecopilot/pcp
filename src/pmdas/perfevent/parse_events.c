@@ -494,6 +494,92 @@ static int parse_event_string(char *buf, struct pmu_event *event,
 			    break;
 			}
 		    }
+		}
+		else if ((!strcmp(nptr, "?")) && (!strcmp(pi->name, "domain"))) {
+		    for (pmctmp = dynamicpmc; pmctmp; pmctmp = pmctmp->next) {
+		        if (!strncmp(eventname, pmctmp->name, strlen(pmctmp->name)))
+			{
+			    pmsprintf(ev_str, sizeof(ev_str), "%s_domain_%d", event->name,pmctmp->domain);
+			    event->name = strdup(ev_str);
+			    pmsprintf(pmc_str, sizeof(pmc_str), "%s_domain_%d", pmctmp->name,pmctmp->domain);
+			    pmctmp->name = strdup(pmc_str);
+			    pi->value = pmctmp->domain;
+			    break;
+			}
+		    }
+		}
+		else if ((!strcmp(nptr, "?")) && (!strcmp(pi->name, "core"))) {
+		    for (pmctmp = dynamicpmc; pmctmp; pmctmp = pmctmp->next) {
+		        if (!strncmp(eventname, pmctmp->name, strlen(pmctmp->name)))
+			{
+			    pmsprintf(ev_str, sizeof(ev_str), "%s_core_%d", event->name,pmctmp->core);
+			    event->name = strdup(ev_str);
+			    pmsprintf(pmc_str, sizeof(pmc_str), "%s_core_%d", pmctmp->name,pmctmp->core);
+			    pmctmp->name = strdup(pmc_str);
+			    pi->value = pmctmp->core;
+			    break;
+			}
+		    }
+		} else if (!strcmp(pi->name, "lpar") && (pmctmp->domain > 2) && pmctmp->lpar) {
+		    for (pmctmp = dynamicpmc; pmctmp; pmctmp = pmctmp->next) {
+		        if (!strncmp(eventname, pmctmp->name, strlen(pmctmp->name)))
+			{
+			    pmsprintf(ev_str, sizeof(ev_str), "%s_lpar_%d", event->name,pmctmp->lpar);
+			    event->name = strdup(ev_str);
+			    pmsprintf(pmc_str, sizeof(pmc_str), "%s_lpar_%d", pmctmp->name,pmctmp->lpar);
+			    pmctmp->name = strdup(pmc_str);
+			    pi->value = pmctmp->lpar;
+			    break;
+			}
+		    }
+		} else if ((!strcmp(nptr, "?")) && (!strcmp(pi->name, "phys_processor_idx"))) {
+		    for (pmctmp = dynamicpmc; pmctmp; pmctmp = pmctmp->next) {
+		        if (!strncmp(eventname, pmctmp->name, strlen(pmctmp->name)))
+			{
+			    pmsprintf(ev_str, sizeof(ev_str), "%s_phys_processor_idx_%d", event->name,pmctmp->phys_processor_idx);
+			    event->name = strdup(ev_str);
+			    pmsprintf(pmc_str, sizeof(pmc_str), "%s_phys_processor_idx_%d", pmctmp->name,pmctmp->phys_processor_idx);
+			    pmctmp->name = strdup(pmc_str);
+			    pi->value = pmctmp->core;
+			    break;
+			}
+		    }
+		} else if ((!strcmp(nptr, "?")) && (!strcmp(pi->name, "partition_id"))) {
+		    for (pmctmp = dynamicpmc; pmctmp; pmctmp = pmctmp->next) {
+		        if (!strncmp(eventname, pmctmp->name, strlen(pmctmp->name)))
+			{
+			    pmsprintf(ev_str, sizeof(ev_str), "%s_partition_id_%d", event->name,pmctmp->partition_id);
+			    event->name = strdup(ev_str);
+			    pmsprintf(pmc_str, sizeof(pmc_str), "%s_partition_id_%d", pmctmp->name,pmctmp->partition_id);
+			    pmctmp->name = strdup(pmc_str);
+			    pi->value = pmctmp->core;
+			    break;
+			}
+		    }
+		} else if ((!strcmp(nptr, "?")) && (!strcmp(pi->name, "hw_chip_id"))) {
+		    for (pmctmp = dynamicpmc; pmctmp; pmctmp = pmctmp->next) {
+		        if (!strncmp(eventname, pmctmp->name, strlen(pmctmp->name)))
+			{
+			    pmsprintf(ev_str, sizeof(ev_str), "%s_hw_chip_id_%d", event->name,pmctmp->hw_chip_id);
+			    event->name = strdup(ev_str);
+			    pmsprintf(pmc_str, sizeof(pmc_str), "%s_hw_chip_id_%d", pmctmp->name,pmctmp->hw_chip_id);
+			    pmctmp->name = strdup(pmc_str);
+			    pi->value = pmctmp->core;
+			    break;
+			}
+		    }
+		} else if ((!strcmp(nptr, "?")) && (!strcmp(pi->name, "sibling_part_id"))) {
+		    for (pmctmp = dynamicpmc; pmctmp; pmctmp = pmctmp->next) {
+		        if (!strncmp(eventname, pmctmp->name, strlen(pmctmp->name)))
+			{
+			    pmsprintf(ev_str, sizeof(ev_str), "%s_sibling_part_id_%d", event->name,pmctmp->sibling_part_id);
+			    event->name = strdup(ev_str);
+			    pmsprintf(pmc_str, sizeof(pmc_str), "%s_sibling_part_id_%d", pmctmp->name,pmctmp->sibling_part_id);
+			    pmctmp->name = strdup(pmc_str);
+			    pi->value = pmctmp->core;
+			    break;
+			}
+		    }
 		} else
 		    pi->value = strtoull(nptr, endptr, 16);
 		if (!head) {
@@ -520,6 +606,91 @@ static int parse_event_string(char *buf, struct pmu_event *event,
 			    pmsprintf(pmc_str, sizeof(pmc_str), "%s_chip_%d", pmctmp->name,pmctmp->chip);
 			    pmctmp->name = strdup(pmc_str);
 			    pi->value = pmctmp->chip;
+			    break;
+			}
+		    }
+		}
+		else if ((!strcmp(nptr, "?")) && (!strcmp(pi->name, "domain"))) {
+		    for (pmctmp = dynamicpmc; pmctmp; pmctmp = pmctmp->next) {
+		        if (!strncmp(eventname, pmctmp->name, strlen(pmctmp->name)))
+			{
+			    pmsprintf(ev_str, sizeof(ev_str), "%s_domain_%d", event->name,pmctmp->domain);
+			    event->name = strdup(ev_str);
+			    pmsprintf(pmc_str, sizeof(pmc_str), "%s_domain_%d", pmctmp->name,pmctmp->domain);
+			    pmctmp->name = strdup(pmc_str);
+			    pi->value = pmctmp->domain;
+			    break;
+			}
+		    }
+		} else if ((!strcmp(nptr, "?")) && (!strcmp(pi->name, "core"))) {
+		    for (pmctmp = dynamicpmc; pmctmp; pmctmp = pmctmp->next) {
+		        if (!strncmp(eventname, pmctmp->name, strlen(pmctmp->name)))
+			{
+			    pmsprintf(ev_str, sizeof(ev_str), "%s_core_%d", event->name,pmctmp->core);
+			    event->name = strdup(ev_str);
+			    pmsprintf(pmc_str, sizeof(pmc_str), "%s_core_%d", pmctmp->name,pmctmp->core);
+			    pmctmp->name = strdup(pmc_str);
+			    pi->value = pmctmp->core;
+			    break;
+			}
+		    }
+		} else if (!strcmp(pi->name, "lpar")  && (pmctmp->domain > 2) && pmctmp->lpar) {
+		    for (pmctmp = dynamicpmc; pmctmp; pmctmp = pmctmp->next) {
+		        if (!strncmp(eventname, pmctmp->name, strlen(pmctmp->name)))
+			{
+			    pmsprintf(ev_str, sizeof(ev_str), "%s_lpar_%d", event->name,pmctmp->lpar);
+			    event->name = strdup(ev_str);
+			    pmsprintf(pmc_str, sizeof(pmc_str), "%s_lpar_%d", pmctmp->name,pmctmp->lpar);
+			    pmctmp->name = strdup(pmc_str);
+			    pi->value = pmctmp->lpar;
+			    break;
+			}
+		    }
+		} else if ((!strcmp(nptr, "?")) && (!strcmp(pi->name, "phys_processor_idx"))) {
+		    for (pmctmp = dynamicpmc; pmctmp; pmctmp = pmctmp->next) {
+		        if (!strncmp(eventname, pmctmp->name, strlen(pmctmp->name)))
+			{
+			    pmsprintf(ev_str, sizeof(ev_str), "%s_phys_processor_idx_%d", event->name,pmctmp->phys_processor_idx);
+			    event->name = strdup(ev_str);
+			    pmsprintf(pmc_str, sizeof(pmc_str), "%s_phys_processor_idx_%d", pmctmp->name,pmctmp->phys_processor_idx);
+			    pmctmp->name = strdup(pmc_str);
+			    pi->value = pmctmp->core;
+			    break;
+			}
+		    }
+		} else if ((!strcmp(nptr, "?")) && (!strcmp(pi->name, "partition_id"))) {
+		    for (pmctmp = dynamicpmc; pmctmp; pmctmp = pmctmp->next) {
+		        if (!strncmp(eventname, pmctmp->name, strlen(pmctmp->name)))
+			{
+			    pmsprintf(ev_str, sizeof(ev_str), "%s_partition_id_%d", event->name,pmctmp->partition_id);
+			    event->name = strdup(ev_str);
+			    pmsprintf(pmc_str, sizeof(pmc_str), "%s_partition_id_%d", pmctmp->name,pmctmp->partition_id);
+			    pmctmp->name = strdup(pmc_str);
+			    pi->value = pmctmp->core;
+			    break;
+			}
+		    }
+		} else if ((!strcmp(nptr, "?")) && (!strcmp(pi->name, "hw_chip_id"))) {
+		    for (pmctmp = dynamicpmc; pmctmp; pmctmp = pmctmp->next) {
+		        if (!strncmp(eventname, pmctmp->name, strlen(pmctmp->name)))
+			{
+			    pmsprintf(ev_str, sizeof(ev_str), "%s_hw_chip_id_%d", event->name,pmctmp->hw_chip_id);
+			    event->name = strdup(ev_str);
+			    pmsprintf(pmc_str, sizeof(pmc_str), "%s_hw_chip_id_%d", pmctmp->name,pmctmp->hw_chip_id);
+			    pmctmp->name = strdup(pmc_str);
+			    pi->value = pmctmp->core;
+			    break;
+			}
+		    }
+		} else if ((!strcmp(nptr, "?")) && (!strcmp(pi->name, "sibling_part_id"))) {
+		    for (pmctmp = dynamicpmc; pmctmp; pmctmp = pmctmp->next) {
+		        if (!strncmp(eventname, pmctmp->name, strlen(pmctmp->name)))
+			{
+			    pmsprintf(ev_str, sizeof(ev_str), "%s_sibling_part_id_%d", event->name,pmctmp->sibling_part_id);
+			    event->name = strdup(ev_str);
+			    pmsprintf(pmc_str, sizeof(pmc_str), "%s_sibling_part_id_%d", pmctmp->name,pmctmp->sibling_part_id);
+			    pmctmp->name = strdup(pmc_str);
+			    pi->value = pmctmp->core;
 			    break;
 			}
 		    }
