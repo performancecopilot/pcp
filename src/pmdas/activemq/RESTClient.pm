@@ -41,8 +41,8 @@ sub get {
 	$json = $cached_json;
     }
     else {
-        my $header = ('Origin' => 'http://localhost',);
-	my $response = $self->{_http_client}->get("http://" . $self->{_host} . ":" . $self->{_port} . $url, $header);
+	my @header = ('Origin' => 'http://localhost',);
+	my $response = $self->{_http_client}->get("http://" . $self->{_host} . ":" . $self->{_port} . $url, @header);
 	return undef unless defined($response);
 	return undef unless $response->is_success;
 	$json = decode_json($response->decoded_content);
