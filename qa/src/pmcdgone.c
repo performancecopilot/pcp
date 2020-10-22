@@ -374,23 +374,29 @@ Options:\n\
 
     /*
      * tricky part begins (easier if using systemd) ...
-     * 1. get rid of the archive folio to avoid timestamp clashes with last
-     *    created folio
+     * 0. stop pmlogger
+     * 1. get rid of the archive folio to avoid timestamp clashes
+     *    with the last created folio
      * 2. re-start pmcd
      * 3. wait for pmcd to be accepting connections
-     * 4. wait for pmlogger to be accepting connections from pmlc
+     * 4. restart pmlogger and wait for pmlogger to be accepting
+     *    connections from pmlc
      * 5. connect to pmlogger
      */
-    fprintf(stderr, "Restart pmcd ...\n");
+    fprintf(stderr, "About to stop pmlogger ...\n");
     __pmCloseSocket(ctlport);
-    if (use_systemd) {
+    if (use_systemd)
+	sts = system("systemctl stop pmlogger");
+    else
+	sts = system(". $PCP_DIR/etc/pcp.env; $PCP_RC_DIR/pmlogger stop");
+    fprintf(stderr, "About to restart pmcd ...\n");
+    if (use_systemd)
 	sts = system("systemctl restart pmcd");
-    }
     else {
 	sts = system(". $PCP_DIR/etc/pcp.env; path_opt=''; if [ $PCP_PLATFORM = linux ]; then path_opt=pmlogger/; fi; pmafm $PCP_LOG_DIR/$path_opt`hostname`/Latest remove 2>/dev/null | sh");
 	if (sts != 0)
 	    fprintf(stderr, "Warning: folio removal returns %d\n", sts);
-	sts = system(". $PCP_DIR/etc/pcp.env; $PCP_RC_DIR/pmcd start");
+	sts = system(". $PCP_DIR/etc/pcp.env; $PCP_RC_DIR/pmcd restart");
     }
     if (sts != 0)
 	fprintf(stderr, "Warning: pmcd start returns %d\n", sts);
@@ -401,6 +407,7 @@ Options:\n\
 	if (sts != 0)
 	    fprintf(stderr, "Warning: pmcd_wait returns %d\n", sts);
     }
+    fprintf(stderr, "About to restart pmlogger ...\n");
     if (use_systemd)
 	sts = system("systemctl restart pmlogger");
     else
