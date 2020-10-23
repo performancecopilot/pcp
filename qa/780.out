@@ -3,6 +3,7 @@ QA output created by 780
 
 Access-Control-Allow-Headers: Accept, Accept-Language, Content-Language, Content-Type
 Access-Control-Allow-Origin: *
+Access-Control-Max-Age: 86400
 Content-Type: application/json
 Date: DATE
 HTTP/1.1 200 OK
@@ -10,6 +11,7 @@ Transfer-encoding: chunked
 === Preflight
 
 Access-Control-Allow-Methods: GET, HEAD, POST, TRACE, OPTIONS
+Access-Control-Max-Age: 86400
 Content-Length: 0
 Date: DATE
 HTTP/1.1 200 OK
@@ -17,6 +19,7 @@ HTTP/1.1 200 OK
 
 Access-Control-Allow-Methods: GET, HEAD, TRACE, OPTIONS
 Access-Control-Allow-Origin: http://example.com
+Access-Control-Max-Age: 86400
 Content-Length: 0
 Date: DATE
 HTTP/1.1 200 OK
