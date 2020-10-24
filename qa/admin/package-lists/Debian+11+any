@@ -33,7 +33,6 @@ gdb
 gfs2-utils
 git
 grep
-kubernetes-client
 libavahi-common-dev
 libclass-dbi-perl
 libcoin-dev
