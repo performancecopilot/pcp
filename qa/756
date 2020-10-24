@@ -55,8 +55,19 @@ cd perfevent
 
 if [ -f perf_event_test.c ]
 then
-    # we're in the git tree, rebuild the binary to be sure, to be sure
+    # we're in the git tree, rebuild the binary to be sure, to be sure ...
+    # but perfevent_test includes .o files from the perfevent PMDAs dir,
+    # so need to make over there first
     #
+    cd $here/../src/pmdas/perfevent
+    if $PCP_MAKE_PROG >>$here/$seq.full 2>&1
+    then
+	:
+    else
+	echo "Arrg, failed to rebuild perfevent PMDA ... see $seq.full"
+	exit
+    fi
+    cd $here/perfevent
     rm -f perfevent_test
     if $PCP_MAKE_PROG perfevent_test >>$here/$seq.full 2>&1
     then

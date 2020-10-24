@@ -62,8 +62,8 @@ if [ $PMDA -eq $SENS ]; then
 else
     echo -n "number of sensors from '/usr/bin/sensors -u' and from 'pminfo "
     echo "lmsensors' does not match."
-    echo "pminfo lmsensors|wc -l:" >>$here/seq.full
-    pminfo lmsensors |wc -l >>$here/seq.full
+    echo "pminfo lmsensors|wc -l:" >>$here/$seq.full
+    pminfo lmsensors |wc -l >>$here/$seq.full
     echo "/usr/bin/sensors -u|egrep '_input: '|wc -l" >>$here/$seq.full
     /usr/bin/sensors -u 2>/dev/null|egrep '_input: '|wc -l >>$here/$seq.full
 fi

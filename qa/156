@@ -101,13 +101,30 @@ _snag_log
 echo | tee -a $here/$seq.full
 echo "=== socket Internet agent ===" | tee -a $here/$seq.full
 
-# pick a tcp port that is not in use
+# pick two tcp ports that are not in use
 #
-port1=`_get_port tcp 5670 5689`
+port1=`_find_free_port 5670`
 if [ -z "$port1" ]
 then
-    echo "Arrgh ... no free TCP port in the range 5670 ... 5689"
+    echo "Arrgh ... port1: no free TCP port in the range 5670 ... "
     exit
+fi
+echo "port1=$port1" >>$here/$seq.full
+if which netstat >/dev/null 2>&1
+then
+    netstat -a | grep $port1 >>$here/$seq.full
+fi
+try=`expr $port1 + 1`
+port2=`_find_free_port $try`
+if [ -z "$port2" ]
+then
+    echo "Arrgh ... port2: no free TCP port in the range $try ... "
+    exit
+fi
+echo "port2=$port2" >>$here/$seq.full
+if which netstat >/dev/null 2>&1
+then
+    netstat -a | grep $port2 >>$here/$seq.full
 fi
 
 echo 'socket
@@ -116,9 +133,6 @@ Internet
 _filter <$tmp.out
 pminfo -v sample || echo "... failed!"
 _snag_log
-
-# use next port this time
-port2=`expr $port1 + 1`
 
 echo 'socket
 Internet
