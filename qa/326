@@ -94,10 +94,10 @@ cat <<End-of-File >$tmp.config
 log mandatory on 500 msec { pmcd.numagents sample.milliseconds }
 End-of-File
 
-# run pmlogger and pmval for 15 seconds
-pmlogger -h localhost -s 30 -l $tmp.log -c $tmp.config $tmp &
+# run pmlogger and pmval for 20 seconds
+pmlogger -h localhost -s 40 -l $tmp.log -c $tmp.config $tmp &
 pmlogger_pid=$!
-pmval -h localhost -s 30 -t 0.5 -Z "$timezone" -D fetch pmcd.numagents >$tmp.pmval 2>&1 &
+pmval -h localhost -s 40 -t 0.5 -Z "$timezone" -D fetch pmcd.numagents >$tmp.pmval 2>&1 &
 pmval_pid=$!
 
 sleep 2
@@ -185,14 +185,14 @@ egrep '(<mark>)|(pmcd.numagents)' $tmp.out \
 | _filter_pmdumplog \
 | uniq
 
-# note clip after 4 filtered lines to avoid extra values that sometimes
+# note clip after 6 filtered lines to avoid extra values that sometimes
 # appear due to non-determinism in pmlogger fetch samples
 #
 echo
 echo "sanity check with pmval | filter ..."
 pmval -t 1 -a $tmp sample.milliseconds 2>&1 \
 | _filter_pmval \
-| sed -e 4q
+| sed -e 6q
 
 echo >>$seq.full
 echo "unfiltered pmval live output" >>$seq.full
