@@ -445,12 +445,12 @@ DoLabel(ClientInfo *cp, __pmPDU *pb)
 		return PM_ERR_NOAGENT;
 	    break;
 	case PM_LABEL_INDOM:
+	case PM_LABEL_INSTANCES:
 	    if (!(ap = pmcd_agent(((__pmInDom_int *)&ident)->domain)))
 		return PM_ERR_INDOM;
 	    break;
 	case PM_LABEL_CLUSTER:
 	case PM_LABEL_ITEM:
-	case PM_LABEL_INSTANCES:
 	    if (!(ap = pmcd_agent(((__pmID_int *)&ident)->domain)))
 		return PM_ERR_PMID;
 	    break;
