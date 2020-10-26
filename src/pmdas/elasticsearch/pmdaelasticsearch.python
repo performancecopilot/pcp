@@ -71,19 +71,21 @@ class elasticsearchPMDA(PMDA):
         self.master_node = ()
         self.index = {}
 
-        if self.user != DEFAULT_USER:
+        if self.user != DEFAULT_USER and not self.is_pmda_setup():
             self.log("Switching to user '%s'" % self.user)
             self.set_user(self.user)
 
         self.connect_pmcd()
-        try:
-            connection = self.baseurl
-            self.request = self.setup_urllib(self.baseurl, self.auth, self.password)
-            request = self.request.urlopen(self.baseurl)
-            request.read()
-            request.close()
-        except (BaseException, Exception):
-            self.log("Failed Elasticsearch connection attempt at %s" % (connection))
+
+        if not self.is_pmda_setup():
+            try:
+                connection = self.baseurl
+                self.request = self.setup_urllib(self.baseurl, self.auth, self.password)
+                request = self.request.urlopen(self.baseurl)
+                request.read()
+                request.close()
+            except (BaseException, Exception):
+                self.log("Failed Elasticsearch connection attempt at %s" % (connection))
 
         # metrics setup
         self.cluster_indom = PM_INDOM_NULL
@@ -330,6 +332,10 @@ class elasticsearchPMDA(PMDA):
                             self.index_metrics[item][4])
         self.set_refresh(self.elasticsearch_refresh)
         self.set_fetch_callback(self.elasticsearch_fetch_callback)
+
+    def is_pmda_setup(self):
+        """checks if PMDA is in setup state"""
+        return os.environ.get('PCP_PYTHON_DOMAIN') or os.environ.get('PCP_PYTHON_PMNS')
 
     def read_config(self):
         """ Read Configuration file """
