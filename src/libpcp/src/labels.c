@@ -1237,9 +1237,9 @@ lookup_domain(int ident, int type)
 	return 0;
     if (type & PM_LABEL_DOMAIN)
 	return ident;
-    if (type & PM_LABEL_INDOM)
+    if (type & (PM_LABEL_INDOM | PM_LABEL_INSTANCES))
 	return pmInDom_domain(ident);
-    if (type & (PM_LABEL_CLUSTER | PM_LABEL_ITEM | PM_LABEL_INSTANCES))
+    if (type & (PM_LABEL_CLUSTER | PM_LABEL_ITEM))
 	return pmID_domain(ident);
     return -EINVAL;
 }
