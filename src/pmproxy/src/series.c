@@ -540,8 +540,14 @@ on_pmseries_done(int status, void *arg)
 	    switch (baton->restkey) {
 	    case RESTKEY_LABELS:
 		if (baton->names != NULL) {
-		    // the label values API method always returns an object { labelName: [labelValues] }
-		    msg = sdsnewlen("{}\r\n", 4);
+		    /* the label values API method always returns an */
+		    /* object { labelName: [labelValues] } */
+		    if (baton->clientid)
+			msg = sdscatfmt(sdsempty(),
+				    "{\"client\":%S,\"result\":{}}\r\n",
+				    baton->clientid);
+		    else
+			msg = sdsnewlen("{}\r\n", 4);
 		    break;
 		}
 	    case RESTKEY_DESC:

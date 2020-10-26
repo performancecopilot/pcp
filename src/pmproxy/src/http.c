@@ -26,7 +26,7 @@ static int smallest_buffer_size = 128;
 #define MAX_PARAMS_SIZE 8000
 #define MAX_HEADERS_SIZE 128
 
-#define HEADER_ACCESS_CONTROL_MAX_AGE_VALUE 86400 // 24h
+#define HEADER_ACCESS_CONTROL_MAX_AGE_VALUE 86400 /* 24h */
 
 static sds HEADER_ACCESS_CONTROL_REQUEST_HEADERS,
 	   HEADER_ACCESS_CONTROL_REQUEST_METHOD,
@@ -246,7 +246,7 @@ http_response_header(struct client *client, unsigned int length, http_code sts, 
     header = sdscatfmt(header,
 		"%S: *\r\n"
 		"%S: %S\r\n"
-		"%S: %i\r\n",
+		"%S: %u\r\n",
 		HEADER_ACCESS_CONTROL_ALLOW_ORIGIN,
 		HEADER_ACCESS_CONTROL_ALLOW_HEADERS,
 		HEADER_ACCESS_CONTROL_ALLOWED_HEADERS,
@@ -391,7 +391,7 @@ http_response_access(struct client *client, http_code sts, http_options options)
 
 	header = sdscatfmt(header,
 			    "%S: %s\r\n"
-			    "%S: %i\r\n",
+			    "%S: %u\r\n",
 			    HEADER_ACCESS_CONTROL_ALLOW_METHODS,
 			    http_methods_string(buffer, sizeof(buffer), options),
 			    HEADER_ACCESS_CONTROL_MAX_AGE,
