@@ -538,9 +538,14 @@ on_pmseries_done(int status, void *arg)
 	/* complete current response with JSON suffix if needed */
 	if ((msg = baton->suffix) == NULL) {	/* empty OK response */
 	    switch (baton->restkey) {
+	    case RESTKEY_LABELS:
+		if (baton->names != NULL) {
+		    // the label values API method always returns an object { labelName: [labelValues] }
+		    msg = sdsnewlen("{}\r\n", 4);
+		    break;
+		}
 	    case RESTKEY_DESC:
 	    case RESTKEY_INSTS:
-	    case RESTKEY_LABELS:
 	    case RESTKEY_METRIC:
 	    case RESTKEY_VALUES:
 	    case RESTKEY_SOURCE:

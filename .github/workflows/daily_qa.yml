@@ -139,7 +139,7 @@ jobs:
           mv allure-report qa-reports/docs
 
           cd qa-reports
-          git config --local user.name "GitHub Action"
+          git config --local user.name "GitHub Actions"
           git config --local user.email "action@github.com"
           git add .
           git commit -m "QA Report of ${{ github.repository_owner }}/pcp@${GITHUB_SHA}"
