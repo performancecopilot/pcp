@@ -2,7 +2,7 @@
 # PCP QA Test No. 1601
 # Exercise pmseries REST API endpoints using curl(1).
 #
-# Copyright (c) 2019 Red Hat.
+# Copyright (c) 2019-2020 Red Hat.
 #
 
 seq=`basename $0`
@@ -42,6 +42,11 @@ domainname=`_domain_name`
 need_restore=false
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter_error()
+{
+    _webapi_response_filter
+}
 
 _filter_source()
 {
@@ -109,6 +114,18 @@ url="http://localhost:$proxyport/series/query?expr=disk.all.read*"
 echo "$url" >> $seq.full
 curl --get --silent "$url" | tee -a $seq.full | pmjson
 curl --get --silent "$url&client=pcp-qa-$seq" | tee -a $seq.full | pmjson
+
+echo "== verify bad series query" | tee -a $seq.full
+url="http://localhost:$proxyport/series/query?expr=(disk.all.re"
+echo "$url" >> $seq.full
+curl --get --silent "$url" | tee -a $seq.full | pmjson
+curl --get --silent "$url&client=pcp-qa-$seq" | tee -a $seq.full | pmjson
+
+echo "== verify missing series query" | tee -a $seq.full
+url="http://localhost:$proxyport/series/query?expr="
+echo "$url" >> $seq.full
+curl --get --silent "$url" | tee -a $seq.full | _filter_error
+curl --get --silent "$url&client=pcp-qa-$seq" | tee -a $seq.full | _filter_error
 
 echo "== verify metric descs" | tee -a $seq.full
 url="http://localhost:$proxyport/series/descs?series=$series1"
