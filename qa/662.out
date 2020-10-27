@@ -60,15 +60,20 @@ timestamps fields:2 len(values[]):1
   with instances
 context #### fetch pmid=blargh response code 400
 context #### metadata prefix=no.such.metric response code 400
-context #### metadata prefix=no.such.metric1,pmcd.client.whoami,no.such.metric2 response code 400
+context #### metadata prefix=no.such.metric1,pmcd.client.whoami,no.such.metric2 response code 200
+len(metrics[]):3
+  metric:no.such.metric1 metadata:3
+  metric:no.such.metric2 metadata:3
+  metric:pmcd.client.whoami metadata:10
 context #### metadata prefix=sample response code 200
-len(metrics[]):176
+len(metrics[]):177
   metric:sample.aggregate.hullo metadata:9
   metric:sample.aggregate.null metadata:9
   metric:sample.aggregate.write_me metadata:9
   metric:sample.bad.fetch.again metadata:9
   metric:sample.bad.nosupport metadata:9
   metric:sample.bad.novalues metadata:9
+  metric:sample.bad.unknown metadata:3
   metric:sample.bigid metadata:9
   metric:sample.bin metadata:10
   metric:sample.bogus_bin metadata:10
