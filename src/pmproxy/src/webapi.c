@@ -202,6 +202,15 @@ on_pmwebapi_metric(sds context, pmWebMetric *metric, void *arg)
 
     baton->numpmids++;
 
+    if (metric->pmid == PM_ID_NULL) {
+	quoted = sdscatrepr(sdsempty(), metric->name, sdslen(metric->name));
+	result = sdscatfmt(result,
+			"{\"name\":%S,\"message\":\"%S\",\"success\":false}",
+			quoted, metric->oneline);
+	sdsfree(quoted);
+	goto transfer;
+    }
+
     result = sdscatfmt(result, "{\"name\":\"%S\",\"series\":\"%S\"",
 			metric->name, metric->series);
     if (baton->compat == 0) {
@@ -239,6 +248,7 @@ on_pmwebapi_metric(sds context, pmWebMetric *metric, void *arg)
     }
     result = sdscatlen(result, "}", 1);
 
+transfer:
     http_set_buffer(client, result, HTTP_FLAG_JSON);
     http_transfer(client);
 }
