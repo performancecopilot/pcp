@@ -22,6 +22,10 @@ _cleanup()
 {
     _restore_auto_restart pmcd
     _restore_auto_restart pmlogger
+   # these come from src/pmcdgone running _wait_for_pmlogger w/out $tmp
+   # being set ...
+   #
+   rm -f ._wait_for_pmlogger.host ._wait_for_pmlogger.pmlc
 }
 
 use_systemd=''
