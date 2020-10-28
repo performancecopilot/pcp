@@ -70,6 +70,15 @@ else
     echo "s/?{libpfm4-dev}, //" >>$tmp.sed
 fi
 
+if $PMDA_INFINIBAND
+then
+    echo "s/?{libibumad-dev}, /libibumad-dev [amd64 arm64 mips64el ppc64el s390x], /" >>$tmp.sed
+    echo "s/?{libibmad-dev}, /libibmad-dev [amd64 arm64 mips64el ppc64el s390x], /" >>$tmp.sed
+else
+    echo "s/?{libibumad-dev}, //" >>$tmp.sed
+    echo "s/?{libibmad-dev}, //" >>$tmp.sed
+fi
+
 if $PMDA_BCC
 then
     echo "s/?{python3-bpfcc}, /python3-bpfcc | python3-bcc, /" >>$tmp.sed
@@ -79,7 +88,7 @@ fi
 
 if $PMDA_BPFTRACE
 then
-    echo "s/?{bpftrace}, /bpftrace (>= 0.9.2), /" >>$tmp.sed
+    echo "s/?{bpftrace}, /bpftrace (>= 0.9.2) [amd64 arm64 ppc64el], /" >>$tmp.sed
 else
     echo "s/?{bpftrace}, //" >>$tmp.sed
 fi
