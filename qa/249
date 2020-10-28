@@ -61,10 +61,23 @@ BEGIN			{ n = 0 }
 want == 1 && $3 == "val"	{ if (seen[$4] != "y") {
 				    print "s/ val=" $4 "$/ val=<value-" n ">/"
 				    if ($4 > 100000) {
-					# deal with possible scientific
-					# notation from %g in libpcp
+					# deal with possible scientific notation from
+					# diagnostic %g printfs in libpcp and then
+					# possible suppression of trailing zeroes in
+					# the fractional part in libc
 					#
+					printf "s/ val=%.6fe+06$/ val=<value-%d>/\n",$4/1000000,n
 					printf "s/ val=%.5fe+06$/ val=<value-%d>/\n",$4/1000000,n
+					if (n % 100 == 0)
+					    printf "s/ val=%.4fe+06$/ val=<value-%d>/\n",$4/1000000,n
+					if (n % 1000 == 0)
+					    printf "s/ val=%.3fe+06$/ val=<value-%d>/\n",$4/1000000,n
+					if (n % 10000 == 0)
+					    printf "s/ val=%.2fe+06$/ val=<value-%d>/\n",$4/1000000,n
+					if (n % 100000 == 0)
+					    printf "s/ val=%.1fe+06$/ val=<value-%d>/\n",$4/1000000,n
+					if (n % 1000000 == 0)
+					    printf "s/ val=%.0fe+06$/ val=<value-%d>/\n",$4/1000000,n
 				    }
 				    n++
 				    seen[$4] = "y"

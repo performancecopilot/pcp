@@ -182,7 +182,7 @@ _egrep()
     # skip errors from find(1) and egrep(1), only interested in matches for
     # real, existing files
     #
-    find $* -type f 2>/dev/null \
+    find "$@" -type f 2>/dev/null \
     | while read __f
     do
 	# possible race here with async execution of ${IAM}_check removing
@@ -1168,7 +1168,6 @@ END	{ exit(sts) }'
 		    then
 			# on success $tmp/control is the control file for
 			# this class
-			# TODO
 			#
 			n=`cat $tmp/condition-true`
 			n=`expr $n + 1`
@@ -1361,7 +1360,15 @@ $1 == "'"$host"'"	{ print $4 }'`
 	    cat $tmp/control
 	    _error "cannot find directory field from control file"
 	fi
-	_egrep -rl "^($host|#!#$host)[ 	].*[ 	]$dir([ 	]|$)" $CONTROLFILE $CONTROLDIR >$tmp/out
+	if [ "$host" = "$LOCALHOST" ]
+	then
+	    pat_host="($host|LOCALHOSTNAME)"
+	    pat_dir="($dir|`echo "$dir" | sed -e "s;$host;LOCALHOSTNAME;"`)"
+	else
+	    pat_host="$host"
+	    pat_dir="$dir"
+	fi
+	_egrep -rl "^($pat_host|#!#$pat_host)[ 	].*[ 	]$pat_dir([ 	]|$)" $CONTROLFILE $CONTROLDIR >$tmp/out
 	[ -s $tmp/out ] && _error "host $host and directory $dir already defined in `cat $tmp/out`"
 	if $FROM_COND_CREATE
 	then
@@ -1776,7 +1783,7 @@ in
 	    _lock
 	    if [ "$ACTION" != create -a "$ACTION" != cond-create ]
 	    then
-		_get_matching_hosts $*
+		_get_matching_hosts "$@"
 		if [ ! -f $tmp/args ]
 		then
 		    _error "no matching host(s) to $ACTION"
@@ -1797,7 +1804,7 @@ in
 
     status)
 	    [ $# -eq 0 ] && FIND_ALL_HOSTS=true
-	    _get_matching_hosts $*
+	    _get_matching_hosts "$@"
 	    _do_status
 	    ;;
 
