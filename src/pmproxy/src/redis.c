@@ -60,11 +60,11 @@ redisfmt(redisReply *reply)
 	for (i = 0; i < reply->elements; i++)
 	    c = sdscatsds(c, redisfmt(reply->element[i]));
 	if (reply->type == REDIS_REPLY_ARRAY)
-	    command = sdscatfmt(command, "*%u\r\n%S", reply->elements, c);
+	    command = sdscatfmt(command, "*%U\r\n%S", (uint64_t)reply->elements, c);
 	else if (reply->type == REDIS_REPLY_MAP)
-	    command = sdscatfmt(command, "%%%u\r\n%S", reply->elements, c);
+	    command = sdscatfmt(command, "%%%U\r\n%S", (uint64_t)reply->elements, c);
 	else /* (reply->type == REDIS_REPLY_SET) */
-	    command = sdscatfmt(command, "~%u\r\n%S", reply->elements, c);
+	    command = sdscatfmt(command, "~%U\r\n%S", (uint64_t)reply->elements, c);
 	sdsfree(c);
 	return command;
     case REDIS_REPLY_INTEGER:
