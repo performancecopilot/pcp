@@ -142,7 +142,7 @@ jobs:
           git config --local user.name "GitHub Actions"
           git config --local user.email "action@github.com"
           git add .
-          git commit -m "QA Report of ${{ github.repository_owner }}/pcp@${GITHUB_SHA}"
+          git commit --amend -m "QA Report of ${{ github.repository_owner }}/pcp@${GITHUB_SHA}"
           git push
 
           echo "::warning::Complete test report is available at https://${{ github.repository_owner }}.github.io/qa-reports/"
