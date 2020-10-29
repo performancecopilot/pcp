@@ -334,14 +334,17 @@ on_write_callback(uv_callback_t *handle, void *data)
 {
     stream_write_baton	*request = (stream_write_baton *)data;
     struct client	*client = (struct client *)request->writer.data;
+    int			sts;
 
     if (pmDebugOptions.af)
 	fprintf(stderr, "%s: client=%p\n", "on_write_callback", client);
 
-    if (client->stream.secure == 0)
-	uv_write(&request->writer, (uv_stream_t *)&client->stream,
+    if (client->stream.secure == 0) {
+	sts = uv_write(&request->writer, (uv_stream_t *)&client->stream,
 		 &request->buffer[0], request->nbuffers, request->callback);
-    else
+	if (sts != 0)
+	    fprintf(stderr, "%s: ERROR uv_write failed\n", "on_write_callback");
+    } else
 	secure_client_write(client, request);
     (void)handle;
     return 0;

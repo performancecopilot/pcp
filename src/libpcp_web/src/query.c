@@ -260,12 +260,17 @@ static void
 series_query_end_phase(void *arg)
 {
     seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
+    char                error[PM_MAXERRMSGLEN];
 
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_query_end_phase");
 
     if (baton->error == 0) {
 	seriesPassBaton(&baton->current, baton, "series_query_end_phase");
     } else {	/* fail after waiting on outstanding I/O */
+	if (pmDebugOptions.series || pmDebugOptions.query) {
+	    fprintf(stderr, "%s: ERROR: %d %s\n", "series_query_end_phase",
+		baton->error, pmErrStr_r(baton->error, error, sizeof(error)));
+	}
 	if (seriesBatonDereference(baton, "series_query_end_phase"))
 	    series_query_finished(baton);
     }
@@ -937,7 +942,7 @@ node_pattern_reply(seriesQueryBaton *baton, node_t *np, const char *name, int ne
 	return -EPROTO;
     }
 
-    /* result array sanity checking */
+    /* result array checking */
     if ((nelements = reply->elements) % 2) {
 	infofmt(msg, "expected even number of results from %s (not %d)",
 		    HSCAN, nelements);
@@ -1295,7 +1300,7 @@ series_prepare_expr(seriesQueryBaton *baton, node_t *np, int level)
 
     switch (np->type) {
     case N_LT: case N_LEQ: case N_GEQ: case N_GT: case N_NEQ: case N_NEG:
-	/* TODO */
+	/* TODO - relational operators */
 	break;
 
     case N_AND:
@@ -1465,25 +1470,6 @@ series_expr_node_desc(seriesQueryBaton *baton, node_t *np){
     return series_expr_node_desc(baton, np->right);
 }
 
-/*static void
-series_report_set(seriesQueryBaton *baton, series_set_t *set)
-{
-    unsigned char	*series = set->series;
-    char		hashbuf[42];
-    sds			sid = NULL;
-    int			i;
-
-    if (set->nseries)
-	sid = sdsempty();
-    for (i = 0; i < set->nseries; series += SHA1SZ, i++) {
-	pmwebapi_hash_str(series, hashbuf, sizeof(hashbuf));
-	sid = sdscpylen(sid, hashbuf, 40);
-	baton->callbacks->on_match(sid, baton->userdata);
-    }
-    if (sid)
-	sdsfree(sid);
-}*/
-
 static void
 series_report_set(seriesQueryBaton *baton, node_t *np)
 {
@@ -1561,7 +1547,9 @@ series_instance_store_to_node(seriesQueryBaton *baton, sds series,
 {
     char		hashbuf[42];
     sds			inst;
-    int			i, sts = 0, idx_instance = 0, idx_series = np->value_set.num_series;
+    int			i, sts = 0;
+    int			idx_instance = 0;
+    int			idx_series = np->value_set.num_series;
 
     for (i = 0; i < nelements; i += 2) {
 	inst = value->series;
@@ -1582,11 +1570,14 @@ series_instance_store_to_node(seriesQueryBaton *baton, sds series,
 
 	if (extract_string(baton, series, elements[i+1], &value->data, "value") < 0)
 	    sts = -EPROTO;
-	else{
-	    np->value_set.series_values[idx_series].series_sample[idx_sample].series_instance[idx_instance] = *value;
-	    np->value_set.series_values[idx_series].series_sample[idx_sample].series_instance[idx_instance].timestamp = sdsnew(value->timestamp);
-	    np->value_set.series_values[idx_series].series_sample[idx_sample].series_instance[idx_instance].series = sdsnew(value->series);
-	    np->value_set.series_values[idx_series].series_sample[idx_sample].series_instance[idx_instance].data = sdsnew(value->data);
+	else {
+	    /* update value instance */
+	    pmSeriesValue *valinst = &np->value_set.series_values[idx_series].series_sample[idx_sample].series_instance[idx_instance];
+
+	    valinst->ts = value->ts; /* struct pmTimespec assign */
+	    valinst->timestamp = sdsnew(value->timestamp);
+	    valinst->series = sdsnew(value->series);
+	    valinst->data = sdsnew(value->data);
 	    ++idx_instance;
 	}
     }
@@ -1601,7 +1592,9 @@ series_values_store_to_node(seriesQueryBaton *baton, sds series,
     seriesSampling	sampling = {0};
     redisReply		*reply, *sample, **elements;
     timing_t		*tp = &baton->u.query.timing;
-    int			i, sts, next, nelements, idx_series = np->value_set.num_series, idx_sample = 0;
+    int			i, sts, next, nelements;
+    int			idx_series = np->value_set.num_series;
+    int			idx_sample = 0;
     sds			msg, save_timestamp;
 
     sampling.value.timestamp = sdsempty();
@@ -1691,7 +1684,8 @@ series_values_store_to_node(seriesQueryBaton *baton, sds series,
 	
 	idx_sample = i;
 	np->value_set.series_values[idx_series].series_sample[idx_sample].num_instances = reply->elements/2;
-	if ((np->value_set.series_values[idx_series].series_sample[idx_sample].series_instance = (pmSeriesValue*)calloc(reply->elements/2, sizeof(pmSeriesValue))) == NULL) {
+	if ((np->value_set.series_values[idx_series].series_sample[idx_sample].series_instance =
+		(pmSeriesValue *)calloc(reply->elements/2, sizeof(pmSeriesValue))) == NULL) {
 	    /* TODO: error report here */
 	    baton->error = -ENOMEM;
 	}
@@ -1703,6 +1697,7 @@ series_values_store_to_node(seriesQueryBaton *baton, sds series,
 	
 	if (sampling.subsampling == 0)
 	    continue;
+
 next_sample:
 	/* carefully swap time strings to avoid leaking memory */
 	save_timestamp = sampling.next_timestamp;
@@ -1710,6 +1705,7 @@ next_sample:
 	sampling.value.timestamp = save_timestamp;
 	sampling.value.ts = sampling.next_timespec;
     }
+
 last_sample:
     if (sampling.setup)
 	sdsfree(sampling.next_timestamp);
@@ -1857,7 +1853,7 @@ series_store_metric_name(seriesQueryBaton *baton, series_sample_set_t *sample_se
 	    key = sdscatlen(key, reply->str, reply->len);
 	    if ((entry = redisMapLookup(namesmap, key)) != NULL){
 		sample_set->metric_name = redisMapValue(entry);
-	    }else {
+	    } else {
 		infofmt(msg, "%s - timeseries string map", series);
 		batoninfo(baton, PMLOG_CORRUPT, msg);
 		sts = -EINVAL;
@@ -1914,9 +1910,9 @@ series_node_get_metric_name(
     key = sdscatfmt(sdsempty(), "pcp:metric.name:series:%S", sid->name);
     cmd = redis_command(2);
     cmd = redis_param_str(cmd, SMEMBERS, SMEMBERS_LEN);
-	cmd = redis_param_sds(cmd, key);
-	redisSlotsRequest(baton->slots, SMEMBERS, key, cmd,
-			series_node_get_metric_name_reply, sample_set);
+    cmd = redis_param_sds(cmd, key);
+    redisSlotsRequest(baton->slots, SMEMBERS, key, cmd,
+		    series_node_get_metric_name_reply, sample_set);
 }
 
 /* 
@@ -1956,7 +1952,8 @@ series_node_prepare_time_reply(
     } else {
 	/* calloc space to store series samples */
 	np->value_set.series_values[idx].num_samples = reply->elements;
-	if ((np->value_set.series_values[idx].series_sample = (series_instance_set_t *)calloc(reply->elements, sizeof(series_instance_set_t))) == NULL) {
+	if ((np->value_set.series_values[idx].series_sample =
+	    (series_instance_set_t *)calloc(reply->elements, sizeof(series_instance_set_t))) == NULL) {
 	    /* TODO: error report here */
 	    baton->error = -ENOMEM;
 	}
@@ -1974,7 +1971,6 @@ series_node_prepare_time_reply(
 static void
 series_node_prepare_time(seriesQueryBaton *baton, series_set_t *query_series_set, node_t *np)
 {
-    //timing_t			*tp = &baton->u.query.timing;
     timing_t			*tp = &np->time;
     unsigned char		*series = query_series_set->series;
     seriesGetSID		*sid;
@@ -2006,7 +2002,8 @@ series_node_prepare_time(seriesQueryBaton *baton, series_set_t *query_series_set
     
 
     /* calloc nseries samples store space */
-    if ((np->value_set.series_values = (series_sample_set_t *)calloc(nseries, sizeof(series_sample_set_t))) == NULL) {
+    if ((np->value_set.series_values =
+    	(series_sample_set_t *)calloc(nseries, sizeof(series_sample_set_t))) == NULL) {
 	/* TODO: error report here */
 	baton->error = -ENOMEM;
     }
@@ -2331,7 +2328,7 @@ series_calculate_rate(node_t *np)
 	    }
 	    for (j = 1; j < n_samples; j++) {
 		if (np->value_set.series_values[i].series_sample[j].num_instances != n_instances) {
-		    // TODO: number of instances in each sample are not equal, report error.
+		    /* TODO: number of instances in each sample are not equal, report error. */
 		    if (pmDebugOptions.query)
 			fprintf(stderr, "TODO: number of instances in each sample are not equal, report error.\n");
 		}
@@ -2421,7 +2418,7 @@ series_calculate_max(node_t *np)
 		max_data = atof(np->left->value_set.series_values[i].series_sample[0].series_instance[k].data);
 		for (j = 1; j < n_samples; j++) {
 		    if (np->left->value_set.series_values[i].series_sample[j].num_instances != n_instances) {
-			// TODO: number of instances in each sample are not equal, report error.
+			/* TODO: number of instances in each sample are not equal, report error. */
 			infofmt(msg, "number of instances in each sample are not equal\n");
 			batoninfo(baton, PMLOG_ERROR, msg);
 			continue;
@@ -2634,7 +2631,7 @@ series_calculate_rescale(node_t *np)
 	    return;
 	}
 	if ((type = series_extract_type(np->value_set.series_values[i].series_desc.type)) == PM_TYPE_UNKNOWN) {
-	    infofmt(msg, "Series values' Type extract fail, unsupport type\n");
+	    infofmt(msg, "Series values' Type extract fail, unsupported type\n");
 	    batoninfo(baton, PMLOG_ERROR, msg);
 	    baton->error = -EPROTO;
 	    np->value_set.series_values[i].num_samples = -np->value_set.series_values[i].num_samples;
@@ -2645,12 +2642,12 @@ series_calculate_rescale(node_t *np)
 	    for (k = 0; k < np->value_set.series_values[i].series_sample[j].num_instances; k++) {
 		if (series_extract_value(type, 
 			np->value_set.series_values[i].series_sample[j].series_instance[k].data, &ival) != 0 ) {
-		    // TODO: error report for extracting values from string fail
+		    /* TODO: error report for extracting values from string fail */
 		    fprintf(stderr, "Extract values from string fail\n");
 		    return;
 		}
 		if ((sts = pmConvScale(type, &ival, &iunit, &oval, &np->right->meta.units)) != 0) {
-		    // TODO: rescale error report
+		    /* TODO: rescale error report */
 		    fprintf(stderr, "rescale error\n");
 		    return;
 		}
@@ -2711,7 +2708,7 @@ series_calculate_abs(node_t *np)
     np->value_set = np->left->value_set;
     for (i = 0; i < np->value_set.num_series; i++) {
 	if ((type = series_extract_type(np->value_set.series_values[i].series_desc.type)) == PM_TYPE_UNKNOWN) {
-	    infofmt(msg, "Series values' Type extract fail, unsupport type\n");
+	    infofmt(msg, "Series values' Type extract fail, unsupported type\n");
 	    batoninfo(baton, PMLOG_ERROR, msg);
 	    baton->error = -EPROTO;
 	    np->value_set.series_values[i].num_samples = -np->value_set.series_values[i].num_samples;
@@ -2721,12 +2718,12 @@ series_calculate_abs(node_t *np)
 	    for (k = 0; k < np->value_set.series_values[i].series_sample[j].num_instances; k++) {
 		if (series_extract_value(type, 
 			np->value_set.series_values[i].series_sample[j].series_instance[k].data, &val) != 0 ) {
-		    // TODO: error report for extracting values from string fail
+		    /* TODO: error report for extracting values from string fail */
 		    fprintf(stderr, "Extract values from string fail\n");
 		    return;
 		}
 		if ((sts = series_abs_pmAtomValue(type, &val)) != 0) {
-		    // TODO: unsuport type
+		    /* TODO: unsupported type */
 		    fprintf(stderr, "Unsupport type to take abs()\n");
 		    return;
 		}
@@ -2778,7 +2775,7 @@ series_calculate_floor(node_t *np)
     np->value_set = np->left->value_set;
     for (i = 0; i < np->value_set.num_series; i++) {
 	if ((type = series_extract_type(np->value_set.series_values[i].series_desc.type)) == PM_TYPE_UNKNOWN) {
-	    infofmt(msg, "Series values' Type extract fail, unsupport type\n");
+	    infofmt(msg, "Series values' Type extract fail, unsupported type\n");
 	    batoninfo(baton, PMLOG_ERROR, msg);
 	    baton->error = -EPROTO;
 	    np->value_set.series_values[i].num_samples = -np->value_set.series_values[i].num_samples;
@@ -2788,12 +2785,12 @@ series_calculate_floor(node_t *np)
 	    for (k = 0; k < np->value_set.series_values[i].series_sample[j].num_instances; k++) {
 		if (series_extract_value(type, 
 			np->value_set.series_values[i].series_sample[j].series_instance[k].data, &val) != 0 ) {
-		    // TODO: error report for extracting values from string fail
+		    /* TODO: error report for extracting values from string fail */
 		    fprintf(stderr, "Extract values from string fail\n");
 		    return;
 		}
 		if ((sts = series_floor_pmAtomValue(type, &val)) != 0) {
-		    // TODO: unsuport type
+		    /* TODO: unsupported type */
 		    fprintf(stderr, "Unsupport type to take abs()\n");
 		    return;
 		}
@@ -2871,7 +2868,7 @@ series_calculate_log(node_t *np)
     np->value_set = np->left->value_set;
     for (i = 0; i < np->value_set.num_series; i++) {
 	if ((itype = series_extract_type(np->value_set.series_values[i].series_desc.type)) == PM_TYPE_UNKNOWN) {
-	    infofmt(msg, "Series values' Type extract fail, unsupport type\n");
+	    infofmt(msg, "Series values' Type extract fail, unsupported type\n");
 	    batoninfo(baton, PMLOG_ERROR, msg);
 	    baton->error = -EPROTO;
 	    np->value_set.series_values[i].num_samples = -np->value_set.series_values[i].num_samples;
@@ -2881,12 +2878,12 @@ series_calculate_log(node_t *np)
 	    for (k = 0; k < np->value_set.series_values[i].series_sample[j].num_instances; k++) {
 		if (series_extract_value(itype, 
 			np->value_set.series_values[i].series_sample[j].series_instance[k].data, &val) != 0 ) {
-		    // TODO: error report for extracting values from string fail
+		    /* TODO: error report for extracting values from string fail */
 		    fprintf(stderr, "Extract values from string fail\n");
 		    return;
 		}
 		if ((sts = series_log_pmAtomValue(itype, &otype, &val, is_natural_log, base)) != 0) {
-		    // TODO: unsuport type
+		    /* TODO: unsupported type */
 		    fprintf(stderr, "Unsupport type to take log()\n");
 		    return;
 		}
@@ -2956,7 +2953,7 @@ series_calculate_sqrt(node_t *np)
     np->value_set = np->left->value_set;
     for (i = 0; i < np->value_set.num_series; i++) {
 	if ((itype = series_extract_type(np->value_set.series_values[i].series_desc.type)) == PM_TYPE_UNKNOWN) {
-	    infofmt(msg, "Series values' Type extract fail, unsupport type\n");
+	    infofmt(msg, "Series values' Type extract fail, unsupported type\n");
 	    batoninfo(baton, PMLOG_ERROR, msg);
 	    baton->error = -EPROTO;
 	    np->value_set.series_values[i].num_samples = -np->value_set.series_values[i].num_samples;
@@ -2966,12 +2963,12 @@ series_calculate_sqrt(node_t *np)
 	    for (k = 0; k < np->value_set.series_values[i].series_sample[j].num_instances; k++) {
 		if (series_extract_value(itype, 
 			np->value_set.series_values[i].series_sample[j].series_instance[k].data, &val) != 0 ) {
-		    // TODO: error report for extracting values from string fail
+		    /* TODO: error report for extracting values from string fail */
 		    fprintf(stderr, "Extract values from string fail\n");
 		    return;
 		}
 		if ((sts = series_sqrt_pmAtomValue(itype, &otype, &val)) != 0) {
-		    // TODO: unsupported type
+		    /* TODO: unsupported type */
 		    fprintf(stderr, "Unsupport type to take sqrt()\n");
 		    return;
 		}
@@ -3024,7 +3021,7 @@ series_calculate_round(node_t *np)
     np->value_set = np->left->value_set;
     for (i = 0; i < np->value_set.num_series; i++) {
 	if ((type = series_extract_type(np->value_set.series_values[i].series_desc.type)) == PM_TYPE_UNKNOWN) {
-	    infofmt(msg, "Series values' Type extract fail, unsupport type\n");
+	    infofmt(msg, "Series values' Type extract fail, unsupported type\n");
 	    batoninfo(baton, PMLOG_ERROR, msg);
 	    baton->error = -EPROTO;
 	    np->value_set.series_values[i].num_samples = -np->value_set.series_values[i].num_samples;
@@ -3034,12 +3031,12 @@ series_calculate_round(node_t *np)
 	    for (k = 0; k < np->value_set.series_values[i].series_sample[j].num_instances; k++) {
 		if (series_extract_value(type, 
 			np->value_set.series_values[i].series_sample[j].series_instance[k].data, &val) != 0 ) {
-		    // TODO: error report for extracting values from string fail
+		    /* TODO: error report for extracting values from string fail */
 		    fprintf(stderr, "Extract values from string fail\n");
 		    return;
 		}
 		if ((sts = series_round_pmAtomValue(type, &val)) != 0) {
-		    // TODO: unsuport type
+		    /* TODO: unsupported type */
 		    fprintf(stderr, "Unsupport type to take abs()\n");
 		    return;
 		}
@@ -3147,13 +3144,13 @@ series_calculate_binary_check(int ope_type, seriesQueryBaton *baton,
 
     /* Extract data tpyes of two operands */
     if ((*l_type = series_extract_type(left->value_set.series_values[0].series_desc.type)) == PM_TYPE_UNKNOWN) {
-	infofmt(msg, "Series values' Type extract fail, unsupport type\n");
+	infofmt(msg, "Series values' Type extract fail, unsupported type\n");
 	batoninfo(baton, PMLOG_ERROR, msg);
 	baton->error = -EPROTO;
 	return -1;
     }
     if ((*r_type = series_extract_type(right->value_set.series_values[0].series_desc.type)) == PM_TYPE_UNKNOWN) {
-	infofmt(msg, "Series values' Type extract fail, unsupport type\n");
+	infofmt(msg, "Series values' Type extract fail, unsupported type\n");
 	batoninfo(baton, PMLOG_ERROR, msg);
 	baton->error = -EPROTO;
 	return -1;
