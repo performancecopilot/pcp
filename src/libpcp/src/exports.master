@@ -715,4 +715,7 @@ PCP_3.29 {
 PCP_3.30 {
   global:
     __pmFreeDerived;
+    __pmGetLabelConfigHostName;
+    __pmGetLabelConfigMachineID;
+    __pmGetLabelConfigDomainName;
 } PCP_3.29;

@@ -210,7 +210,7 @@ bozo! need to find where MAXNAMELEN is defined for this platform
 #endif
 
 #ifndef MAXMACHINEIDLEN
-#define MAXMACHINEIDLEN 64
+#define MAXMACHINEIDLEN 256
 #endif
 
 #ifndef HAVE_FLOG10

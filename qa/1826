@@ -1,0 +1,117 @@
+#!/bin/sh
+# PCP QA Test No. 1826
+# Exercise machineid labels (/etc/pcp/labels.conf)
+#
+# Copyright (c) 2020 Red Hat.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+fi
+
+which sha256sum >/dev/null 2>&1 || _notrun "sha256sum tool not found"
+test -f /etc/machine-id || _notrun "/etc/machine-id file unavailable"
+
+_cleanup()
+{
+    cd $here
+    if $need_restore
+    then
+	need_restore=false
+	$sudo rm -rf $PCP_ETC_DIR/pcp/labels/*
+	_restore_config $PCP_ETC_DIR/pcp/labels
+	_restore_config $PCP_ETC_DIR/pcp/labels.conf
+	_sighup_pmcd
+    fi
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+userid=`id -u`
+groupid=`id -g`
+username=`id -u -n`
+hostname=`hostname`
+machineid=`_machine_id`
+domainname=`_domain_name`
+sha256id=`echo -n $machineid | sha256sum | awk '{ print $1 }'`
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+need_restore=true
+
+_filter_pminfo()
+{
+    sed \
+        -e "s/.machineid_sha256.:.${sha256id}./\"machineid_sha256\":\"SHA256ID\"/g" \
+        -e "s/.domainname.:.${domainname}./\"domainname\":\"DOMAIN\"/g" \
+        -e "s/.machineid.:.${machineid}./\"machineid\":\"MACHINE\"/g" \
+        -e "s/.hostname.:.${hostname}./\"hostname\":\"HOSTNAME\"/g" \
+        -e "s/.groupid.:$groupid/\"groupid\":GID/g" \
+        -e "s/.userid.:$userid/\"userid\":UID/g" \
+    # end
+}
+
+# real QA test starts here
+_save_config $PCP_ETC_DIR/pcp/labels
+$sudo rm -rf $PCP_ETC_DIR/pcp/labels/*
+_save_config $PCP_ETC_DIR/pcp/labels.conf
+
+echo machineid = $machineid >> $here/$seq.full
+echo sha256id = $sha256id >> $here/$seq.full
+
+cat >$tmp.empty <<EOF
+EOF
+
+cat >$tmp.none <<EOF
+# default (comment)
+machineid_hash = none
+EOF
+
+cat >$tmp.sha256 <<EOF
+[global]
+machineid_hash = sha256
+EOF
+
+if $do_valgrind
+then
+    for file in $tmp.empty $tmp.none $tmp.sha256
+    do
+	echo; echo $file | sed -e 's/.*\.//g' | tee -a $here/$seq.full
+	$sudo cp $file $PCP_SYSCONF_DIR/labels.conf
+	# use local context - for valgrind
+        _run_valgrind pminfo -Ll hinv.ncpu | tee -a $here/$seq.full
+    done
+else
+    for file in $tmp.empty $tmp.none $tmp.sha256
+    do
+	name=`echo $file | sed -e 's/.*\.//g'`
+	echo; echo $name | tee -a $here/$seq.full
+	echo "{\"$name\":$seq}" > $tmp.braces
+	$sudo cp $tmp.braces $PCP_SYSCONF_DIR/labels/change
+	$sudo cp $file $PCP_SYSCONF_DIR/labels.conf
+        _sighup_pmcd
+	# use pmcd - output should be same
+	pminfo -l hinv.ncpu | tee -a $here/$seq.full
+    done
+fi \
+| _filter_pminfo
+
+# success, all done
+exit
