@@ -80,7 +80,11 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
 === /search/text - no match response ===
 == verify request - http://localhost:54322/search/text?query=bazinga
 {
-    "success": true
+    "total": 0,
+    "elapsed": 0,
+    "offset": 0,
+    "limit": 10,
+    "results": [    ]
 }
 === /search/text - query param is required ===
 == verify request - http://localhost:54322/search/text
@@ -219,11 +223,19 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
 === /search/text - its possible to query only specific fields (name, oneline, helptext, indom) using 'field' param ===
 == verify request - http://localhost:54322/search/text?query=99&field=name
 {
-    "success": true
+    "total": 0,
+    "elapsed": 0,
+    "offset": 0,
+    "limit": 10,
+    "results": [    ]
 }
 == verify request - http://localhost:54322/search/text?query=99&field=oneline
 {
-    "success": true
+    "total": 0,
+    "elapsed": 0,
+    "offset": 0,
+    "limit": 10,
+    "results": [    ]
 }
 == verify request - http://localhost:54322/search/text?query=99&field=helptext
 {
@@ -356,7 +368,11 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
 }
 == verify request - http://localhost:54322/search/text?query=random&type=instance
 {
-    "success": true
+    "total": 0,
+    "elapsed": 0,
+    "offset": 0,
+    "limit": 10,
+    "results": [    ]
 }
 == verify request - http://localhost:54322/search/text?query=random&type=metric,indom
 {
@@ -405,9 +421,7 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
 400
 === /search/suggest - no match response ===
 == verify request - http://localhost:54322/search/suggest?query=xxx
-{
-    "success": true
-}
+[]
 === /search/indom - generic request ===
 == verify request - http://localhost:54322/search/indom?query=29.1
 {
@@ -488,7 +502,11 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
 === /search/indom - no match response ===
 == verify request - http://localhost:54322/search/indom?query=x
 {
-    "success": true
+    "total": 0,
+    "elapsed": 0,
+    "offset": 0,
+    "limit": 10,
+    "results": [    ]
 }
 === /search/indom - query param is required ===
 == verify request - http://localhost:54322/search/indom
