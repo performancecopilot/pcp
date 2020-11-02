@@ -23,4 +23,4 @@ def asyncio_get_all_tasks(loop):
     if sys.version_info >= (3, 7):
         return asyncio.all_tasks(loop)
     else:
-        return asyncio.Task.all_tasks(loop)
+        return asyncio.Task.all_tasks(loop) # pylint: disable=no-member

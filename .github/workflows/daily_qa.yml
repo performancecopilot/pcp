@@ -21,6 +21,7 @@ jobs:
           - {platform: debian11,       runner: container, os: ubuntu-latest}
           - {platform: fedora31,       runner: container, os: ubuntu-latest}
           - {platform: fedora32,       runner: container, os: ubuntu-latest}
+          - {platform: fedora33,       runner: container, os: ubuntu-latest}
           - {platform: fedora_rawhide, runner: container, os: ubuntu-latest}
           - {platform: centos6,        runner: container, os: ubuntu-latest}
           - {platform: centos7,        runner: container, os: ubuntu-latest}

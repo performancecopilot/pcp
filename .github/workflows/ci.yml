@@ -19,7 +19,7 @@ jobs:
           - {platform: ubuntu1604,     runner: container, os: ubuntu-latest}
           - {platform: ubuntu1804i386, runner: container, os: ubuntu-latest}
           - {platform: ubuntu2004,     runner: direct,    os: ubuntu-20.04}
-          - {platform: fedora32,       runner: container, os: ubuntu-latest}
+          - {platform: fedora33,       runner: container, os: ubuntu-latest}
           - {platform: fedora_rawhide, runner: container, os: ubuntu-latest}
           - {platform: centos8,        runner: container, os: ubuntu-latest}
 # other platforms that may be used for testing in developer repos
