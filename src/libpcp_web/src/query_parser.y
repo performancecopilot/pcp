@@ -164,6 +164,7 @@ static const char initial_str[]  = "Unexpected initial";
 %type  <n>  func
 %type  <n>  func_sid
 %type  <n>  arithmetic_expression
+%type  <n>  arithmetic_expr_sid
 %type  <n>  exprlist
 %type  <n>  exprval
 %type  <n>  number
@@ -366,147 +367,225 @@ func_sid
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_MAX L_LPAREN sid_vec L_RPAREN
-		{
-		
+		{ lp->yy_np = newnode(N_MAX);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_MAX L_LPAREN func_sid L_RPAREN
-		{
-
+		{ lp->yy_np = newnode(N_MAX);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_MIN L_LPAREN sid_vec L_RPAREN
-		{
-		
+		{ lp->yy_np = newnode(N_MIN);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_MIN L_LPAREN func_sid L_RPAREN
-		{
-
+		{ lp->yy_np = newnode(N_MIN);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
-	| L_RESCALE L_LPAREN sid_vec L_RPAREN
-		{
+	| L_RESCALE L_LPAREN sid_vec L_COMMA L_STRING L_RPAREN
+		{ double		mult;
+		  struct pmUnits	units;
+		  char			*errmsg;
 		
+		  lp->yy_np = newnode(N_RESCALE);
+		  lp->yy_np->left = $3;
+		  if (pmParseUnitsStr($5, &units, &mult, &errmsg) < 0) {
+		      gramerr(lp, "Illegal units:", NULL, errmsg);
+		      free(errmsg);
+		      series_error(lp, NULL);
+		      return -1;
+		  }
+		  lp->yy_np->right = newnode(N_SCALE);
+		  lp->yy_np->right->meta.units = units;	/* struct assign */
+		  lp->yy_np->right->value = $5;
+		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
-	| L_RESCALE L_LPAREN func_sid L_RPAREN
-		{
-
+	| L_RESCALE L_LPAREN func_sid L_COMMA L_STRING L_RPAREN
+		{ double		mult;
+		  struct pmUnits	units;
+		  char			*errmsg;
+		
+		  lp->yy_np = newnode(N_RESCALE);
+		  lp->yy_np->left = $3;
+		  if (pmParseUnitsStr($5, &units, &mult, &errmsg) < 0) {
+		      gramerr(lp, "Illegal units:", NULL, errmsg);
+		      free(errmsg);
+		      series_error(lp, NULL);
+		      return -1;
+		  }
+		  lp->yy_np->right = newnode(N_SCALE);
+		  lp->yy_np->right->meta.units = units;	/* struct assign */
+		  lp->yy_np->right->value = $5;
+		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_ABS L_LPAREN sid_vec L_RPAREN
-		{
-		
+		{ lp->yy_np = newnode(N_ABS);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_ABS L_LPAREN func_sid L_RPAREN
-		{
-
+		{ lp->yy_np = newnode(N_ABS);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_FLOOR L_LPAREN sid_vec L_RPAREN
-		{
-		
+		{ lp->yy_np = newnode(N_FLOOR);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_FLOOR L_LPAREN func_sid L_RPAREN
-		{
-
+		{ lp->yy_np = newnode(N_FLOOR);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_LOG L_LPAREN sid_vec L_COMMA number L_RPAREN
-		{
-		
+		{ lp->yy_np = newnode(N_LOG);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right = $5;
+		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_LOG L_LPAREN func_sid L_COMMA number L_RPAREN
-		{
-
+		{ lp->yy_np = newnode(N_LOG);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right = $5;
+		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_LOG L_LPAREN sid_vec L_RPAREN
-		{
-		
+		{ lp->yy_np = newnode(N_LOG);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_LOG L_LPAREN func_sid L_RPAREN
-		{
-
+		{ lp->yy_np = newnode(N_LOG);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_SQRT L_LPAREN sid_vec L_RPAREN
-		{
-		
+		{ lp->yy_np = newnode(N_SQRT);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_SQRT L_LPAREN func_sid L_RPAREN
-		{
-
+		{ lp->yy_np = newnode(N_SQRT);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_ROUND L_LPAREN sid_vec L_RPAREN
-		{
-		
+		{ lp->yy_np = newnode(N_ROUND);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_ROUND L_LPAREN func_sid L_RPAREN
-		{
-
+		{ lp->yy_np = newnode(N_ROUND);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| arithmetic_expr_sid
-		{
-		
+		{ lp->yy_np = $1;
+		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	;
 
 arithmetic_expr_sid
 	: sid_vec L_PLUS sid_vec
-		{
-
+		{ lp->yy_np = newnode(N_PLUS);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| sid_vec L_PLUS func_sid
-		{
-		
+		{ lp->yy_np = newnode(N_PLUS);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| func_sid L_PLUS sid_vec
-		{
-
+		{ lp->yy_np = newnode(N_PLUS);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| func_sid L_PLUS func_sid
-		{
-
+		{ lp->yy_np = newnode(N_PLUS);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| sid_vec L_MINUS sid_vec
-		{
-
+		{ lp->yy_np = newnode(N_MINUS);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| sid_vec L_MINUS func_sid
-		{
-		
+		{ lp->yy_np = newnode(N_MINUS);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| func_sid L_MINUS sid_vec
-		{
-
+		{ lp->yy_np = newnode(N_MINUS);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| func_sid L_MINUS func_sid
-		{
-
+		{ lp->yy_np = newnode(N_MINUS);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| sid_vec L_STAR sid_vec
-		{
-
+		{ lp->yy_np = newnode(N_STAR);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| sid_vec L_STAR func_sid
-		{
-		
+		{ lp->yy_np = newnode(N_STAR);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| func_sid L_STAR sid_vec
-		{
-
+		{ lp->yy_np = newnode(N_STAR);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| func_sid L_STAR func_sid
-		{
-
+		{ lp->yy_np = newnode(N_STAR);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| sid_vec L_SLASH sid_vec
-		{
-
+		{ lp->yy_np = newnode(N_SLASH);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| sid_vec L_SLASH func_sid
-		{
-		
+		{ lp->yy_np = newnode(N_SLASH);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| func_sid L_SLASH sid_vec
-		{
-
+		{ lp->yy_np = newnode(N_SLASH);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| func_sid L_SLASH func_sid
-		{
-
+		{ lp->yy_np = newnode(N_SLASH);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	;
 
@@ -557,7 +636,6 @@ func	: L_RATE L_LPAREN val_vec L_RPAREN
 		  lp->yy_np->right = newnode(N_SCALE);
 		  lp->yy_np->right->meta.units = units;	/* struct assign */
 		  lp->yy_np->right->value = $5;
-		  //free($5); kyoma: why this causs free error?
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_RESCALE L_LPAREN func L_COMMA L_STRING L_RPAREN

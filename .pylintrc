@@ -148,7 +148,11 @@ disable=print-statement,
         too-many-return-statements,
         bad-option-value, # older pylint versions don't recognize options from newer pylint versions
         no-else-continue,
-        wrong-import-order
+        wrong-import-order,
+        super-with-arguments, # Python 2 doesn't support this
+        raise-missing-from, # Python 2 doesn't support this
+        relative-beyond-top-level,
+        unsubscriptable-object # https://github.com/PyCQA/pylint/issues/3882
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option

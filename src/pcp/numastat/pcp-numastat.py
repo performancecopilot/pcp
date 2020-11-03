@@ -48,7 +48,7 @@ class NUMAStat(object):
 		# popen() is SAFE, command is a literal string
                 (_, width) = os.popen('stty size', 'r').read().split()
                 self.width = int(width)
-            self.width = int(os.getenv('NUMASTAT_WIDTH', self.width))
+            self.width = int(os.getenv('NUMASTAT_WIDTH', str(self.width)))
         if self.width < 32:
             self.width = 32
 

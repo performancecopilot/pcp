@@ -21,6 +21,7 @@ jobs:
           - {platform: debian11,       runner: container, os: ubuntu-latest}
           - {platform: fedora31,       runner: container, os: ubuntu-latest}
           - {platform: fedora32,       runner: container, os: ubuntu-latest}
+          - {platform: fedora33,       runner: container, os: ubuntu-latest}
           - {platform: fedora_rawhide, runner: container, os: ubuntu-latest}
           - {platform: centos6,        runner: container, os: ubuntu-latest}
           - {platform: centos7,        runner: container, os: ubuntu-latest}
@@ -142,7 +143,7 @@ jobs:
           git config --local user.name "GitHub Actions"
           git config --local user.email "action@github.com"
           git add .
-          git commit -m "QA Report of ${{ github.repository_owner }}/pcp@${GITHUB_SHA}"
-          git push
+          git commit --amend -m "QA Report of ${{ github.repository_owner }}/pcp@${GITHUB_SHA}"
+          git push -f
 
           echo "::warning::Complete test report is available at https://${{ github.repository_owner }}.github.io/qa-reports/"
