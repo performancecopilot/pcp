@@ -57,11 +57,15 @@ EOF
 # real QA test starts here
 
 mkPMIEConfig
+pcpqa_hyphen_host_no_domain=`echo "$PCPQA_HYPHEN_HOST" | sed -e 's/\..*//'`
 pmie -D APPL0 -C -c $tmp.rule 2>&1 \
+| tee -a $seq.full \
 | sed \
     -e "s;$tmp;TMP;g" \
     -e '/pmLookupName failed: /d' \
-    -e "s/$PCPQA_HYPHEN_HOST/PCPQA_HYPHEN_HOST/g"
+    -e "s/$PCPQA_HYPHEN_HOST/PCPQA_HYPHEN_HOST/g" \
+    -e "s/$pcpqa_hyphen_host_no_domain/PCPQA_HYPHEN_HOST/g" \
+# end
 
 # success, all done
 status=0
