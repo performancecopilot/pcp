@@ -557,7 +557,7 @@ class DstatTool(object):
             pidfile.write(str(os.getpid()))
             pidfile.close()
         except Exception as e:
-            sys.stderr.write('Failed to create pidfile %s\n' % self.pidfile, e)
+            sys.stderr.write('Failed to create pidfile %s\n%s\n' % (self.pidfile, e))
             self.pidfile = False
 
     def create_time_plugins(self):
