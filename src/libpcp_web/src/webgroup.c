@@ -1515,8 +1515,10 @@ pmWebGroupMetric(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
     for (i = 0; i < numnames; i++) {
 	sts = pmTraversePMNS_r(names[i], webmetric_lookup, &lookup);
 	if (sts >= 0) {
-	    if (numnames != 1)	/* we've already started a response */
+	    if (numnames != 1) {	/* already started with response */
+		sts = 0;
 		continue;
+	    }
 	    msg = lookup.message;
 	    if ((sts = (lookup.status < 0) ? lookup.status : 0) < 0)
 		break;
