@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/usr/bin/sh
 # PCP QA Test No. 326
 # Check PMCD state change notification, aka PMCD reset
 #
@@ -39,6 +39,7 @@ _cleanup()
 	:
     else
 	[ -n "$pmcd_pid" ] && $signal -s TERM $pmcd_pid
+	_restore_config $PCP_SYSCONF_DIR/labels
 	rm -f $tmp.*
 	done_clean=true
     fi
@@ -74,6 +75,9 @@ trap "_cleanup" 0 1 2 3 15
 rm -f $seq.full
 
 # real QA test starts here
+_save_config $PCP_SYSCONF_DIR/labels
+$sudo rm -rf $PCP_SYSCONF_DIR/labels/*
+
 PMDA_PMCD_PATH=$PCP_PMDAS_DIR/pmcd/pmda_pmcd.$DSO_SUFFIX
 
 cat <<End-of-File >$tmp.pmcd.config
