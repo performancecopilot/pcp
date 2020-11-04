@@ -1003,17 +1003,17 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case 38: /* disk.dev.read_bytes */
 	    if (p == NULL)
 		return PM_ERR_INST;
-	    atom->ul = p->rd_sectors / 2;
+	    _pm_assign_ulong(atom, p->rd_sectors / 2);
 	    break;
 	case 39: /* disk.dev.write_bytes */
 	    if (p == NULL)
 		return PM_ERR_INST;
-	    atom->ul = p->wr_sectors / 2;
+	    _pm_assign_ulong(atom, p->wr_sectors / 2);
 	    break;
 	case 40: /* disk.dev.total_bytes */
 	    if (p == NULL)
 		return PM_ERR_INST;
-	    atom->ul = (p->rd_sectors + p->wr_sectors) / 2;
+	    _pm_assign_ulong(atom, (p->rd_sectors + p->wr_sectors) / 2);
 	    break;
 	case 46: /* disk.dev.avactive ... already msec from /proc/diskstats */
 	    if (p == NULL)
