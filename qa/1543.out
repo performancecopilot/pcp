@@ -288,6 +288,46 @@ Series checked (indom)
         }
     ]
 }
+== good metric names ==
+{
+    "context": "CONTEXT"
+    "metrics": [
+        {
+            "name": "sample.long.one",
+            "series": "SERIES"
+            "pmid": "29.0.10",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "1 as a 32-bit integer",
+            "text-help": "1 as a 32-bit integer"
+        },
+        {
+            "name": "sample.long.ten",
+            "series": "SERIES"
+            "pmid": "29.0.11",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "10 as a 32-bit integer",
+            "text-help": "10 as a 32-bit integer"
+        }
+    ]
+}
 
 *****   GET /pmapi/fetch   *****
 

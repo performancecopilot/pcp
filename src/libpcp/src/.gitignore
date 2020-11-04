@@ -4,6 +4,8 @@ exports
 sort_r.h
 jsonsl.h
 jsonsl.c
+sha256.h
+sha256.c
 getdate.h
 getdate.tab.?
 derive_parser.y

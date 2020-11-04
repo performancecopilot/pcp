@@ -238,6 +238,8 @@ curl -s "http://localhost:$port/pmapi/metric?name=bad.metric" \
 	| _filter_json "bad metric name"
 curl -s "http://localhost:$port/pmapi/metric?name=sample.long.ten,bad.metric" \
 	| _filter_json "good and bad metric names"
+curl -s "http://localhost:$port/pmapi/metric?name=sample.long.one,sample.long.ten" \
+	| _filter_json "good metric names"
 
 
 section "GET /pmapi/fetch"

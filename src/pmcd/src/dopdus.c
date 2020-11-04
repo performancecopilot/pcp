@@ -379,46 +379,17 @@ GetContextLabels(ClientInfo *cp, pmLabelSet **sets)
     const char		*userid;
     const char		*groupid;
     const char		*container;
-    static const char	func[] = "GetContextLabels";
     static char		host[MAXHOSTNAMELEN];
     static char		domain[MAXDOMAINNAMELEN];
     static char		machineid[MAXMACHINEIDLEN];
+    static const char	*host_label, *domain_label, *machineid_label;
     char		buf[PM_MAXLABELJSONLEN];
-    char		*hostname;
     int			sts, flags;
 
     if ((sts = GetChangedContextLabels(sets, &labelChanged)) >= 0) {
-	if ((hostname = pmcd_hostname) == NULL) {
-	    if ((sts = gethostname(host, MAXHOSTNAMELEN)) < 0) {
-		if (pmDebugOptions.labels)
-		    fprintf(stderr, "%s: gethostname() -> %d (%s)\n",
-			    func, sts, pmErrStr(sts));
-		host[0] = '\0';
-	    }
-	    if (host[0] == '\0')
-		pmsprintf(host, sizeof(host), "localhost");
-	    hostname = pmcd_hostname = host;
-	}
-	if (domain[0] == '\0') {
-	    if ((sts = getdomainname(domain, MAXDOMAINNAMELEN)) < 0) {
-		if (pmDebugOptions.labels)
-		    fprintf(stderr, "%s: getdomainname() -> %d (%s)\n",
-			    func, sts, pmErrStr(sts));
-		domain[0] = '\0';
-	    }
-	    if (domain[0] == '\0' || strcmp(domain, "(none)") == 0)
-		pmsprintf(domain, sizeof(domain), "localdomain");
-	}
-	if (machineid[0] == '\0') {
-	    if ((sts = getmachineid(machineid, MAXMACHINEIDLEN)) < 0) {
-		if (pmDebugOptions.labels)
-		    fprintf(stderr, "%s: getmachineid() -> %d (%s)\n",
-			    func, sts, pmErrStr(sts));
-		machineid[0] = '\0';
-	    }
-	    if (machineid[0] == '\0')
-		pmsprintf(machineid, sizeof(machineid), "localmachine");
-	}
+	host_label = __pmGetLabelConfigHostName(host, sizeof(host));
+	domain_label = __pmGetLabelConfigDomainName(domain, sizeof(domain));
+	machineid_label = __pmGetLabelConfigMachineID(machineid, sizeof(machineid));
 	userid = ((node = __pmHashSearch(PCP_ATTR_USERID, &cp->attrs)) ?
 			(const char *)node->data : NULL);
 	groupid = ((node = __pmHashSearch(PCP_ATTR_GROUPID, &cp->attrs)) ?
@@ -426,17 +397,15 @@ GetContextLabels(ClientInfo *cp, pmLabelSet **sets)
 	container = ((node = __pmHashSearch(PCP_ATTR_CONTAINER, &cp->attrs)) ?
 			(const char *)node->data : NULL);
 
-	sts = pmsprintf(buf, sizeof(buf), "{\"hostname\":\"%s\"", hostname);
+	sts = pmsprintf(buf, sizeof(buf), "{\"%s\":\"%s\"",
+			host_label, host);
 	if (container)
 	    sts += pmsprintf(buf+sts, sizeof(buf)-sts, ",\"container\":\"%s\"",
 			    container);
-	if (domain[0] != '\0')
-	    sts += pmsprintf(buf+sts, sizeof(buf)-sts, ",\"domainname\":\"%s\"",
-			    domain);
-	if (machineid[0] != '\0')
-	    sts += pmsprintf(buf+sts, sizeof(buf)-sts, ",\"machineid\":\"%s\"",
-			    machineid);
-	pmsprintf(buf+sts, sizeof(buf)-sts, "}");
+	sts += pmsprintf(buf+sts, sizeof(buf)-sts, ",\"%s\":\"%s\"",
+			 domain_label, domain);
+	sts += pmsprintf(buf+sts, sizeof(buf)-sts, ",\"%s\":\"%s\"}",
+			 machineid_label, machineid);
 
 	flags = PM_LABEL_CONTEXT;
 	if ((sts = __pmAddLabels(sets, buf, flags)) <= 0)

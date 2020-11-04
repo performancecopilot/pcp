@@ -29,12 +29,12 @@ CFILES = connect.c context.c desc.c err.c fetch.c fetchgroup.c freeresult.c \
 	stuffvalue.c endian.c config.c auxconnect.c auxserver.c discovery.c \
 	p_lcontrol.c p_lrequest.c p_lstatus.c logconnect.c logcontrol.c \
 	connectlocal.c derive_fetch.c events.c lock.c hash.c jsonsl.c \
-	fault.c access.c getopt.c io.c io_stdio.c exec.c \
+	fault.c access.c getopt.c io.c io_stdio.c exec.c sha256.c \
 	shellprobe.c subnetprobe.c \
 	deprecated.c
-HFILES = derive.h internal.h compiler.h pmdbg.h \
+HFILES = derive.h internal.h compiler.h pmdbg.h jsonsl.h sha256.h sort_r.h \
 	avahi.h subnetprobe.h shellprobe.h
-EXT_FILES = jsonsl.c jsonsl.h sort_r.h
+EXT_FILES = jsonsl.c jsonsl.h sha256.c sha256.h sort_r.h
 YFILES = getdate.y derive_parser.y
 OTHERS	= fix_derive_parser_y derive_parser.y.in
 VERSION_SCRIPT = exports
@@ -121,10 +121,11 @@ include $(BUILDRULES)
 
 *.o: internal.h compiler.h derive.h
 jsonsl.o: jsonsl.c jsonsl.h
+sha256.o: sha256.c sha256.h
 rtime.o: getdate.h
 derive.o derive_fetch.o: derive.h derive_parser.tab.h
 util.o:	pmdbg.h
-labels.o: jsonsl.h sort_r.h
+labels.o: jsonsl.h sha256.h sort_r.h
 fault.o:	$(TOPDIR)/src/include/pcp/fault.h
 
 $(OBJECTS):	$(TOPDIR)/src/include/pcp/pmapi.h \

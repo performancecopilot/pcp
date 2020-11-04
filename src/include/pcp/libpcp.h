@@ -1324,6 +1324,9 @@ PCP_CALL extern int __pmAttrKeyStr_r(__pmAttrKey, char *, size_t);
 PCP_CALL extern int __pmAttrStr_r(__pmAttrKey, const char *, char *, size_t);
 PCP_CALL extern char *__pmLabelIdentString(int, int, char *, size_t);
 PCP_CALL extern const char *__pmLabelTypeString(int);
+PCP_CALL extern const char *__pmGetLabelConfigHostName(char *, size_t);
+PCP_CALL extern const char *__pmGetLabelConfigMachineID(char *, size_t);
+PCP_CALL extern const char *__pmGetLabelConfigDomainName(char *, size_t);
 
 /* log file rotation */
 PCP_CALL extern FILE *__pmRotateLog(const char *, const char *, FILE *, int *);
