@@ -1,0 +1,105 @@
+QA output created by 1874
+Start test Redis server ...
+PING
+PONG
+
+pmseries: [Info] processed 5 archive records from PATH/archives/proc
+== verify series sum (a + b) SID lookup
+[
+    "16aa36d93e5cd0733499eee7dafc07dbb2ad7067"
+]
+== verify series sum (a + b) with samples
+[
+    {
+        "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
+        "instance": "59181b1de54ff2b383cfd1cdd8636f86c880b69b",
+        "timestamp": 1317633024305.845,
+        "value": "0.000000e+00"
+    },
+    {
+        "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
+        "instance": "ab010c7d45145aa33c8f8fa681a68c9d4102ae19",
+        "timestamp": 1317633024305.845,
+        "value": "4.000000e-02"
+    },
+    {
+        "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
+        "instance": "9d418095c9f971ff4fd44d6828ead27f9d021dc3",
+        "timestamp": 1317633024305.845,
+        "value": "1.000000e-01"
+    }
+]
+== verify series sum (a + b) with samples by SID
+[]
+== verify series difference (a - b) SID lookup
+[
+    "f29c38f54d5a3cb928496439760634617688036b"
+]
+== verify series difference (a - b) with samples
+[
+    {
+        "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
+        "instance": "59181b1de54ff2b383cfd1cdd8636f86c880b69b",
+        "timestamp": 1317633024305.845,
+        "value": "0.000000e+00"
+    },
+    {
+        "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
+        "instance": "ab010c7d45145aa33c8f8fa681a68c9d4102ae19",
+        "timestamp": 1317633024305.845,
+        "value": "4.000000e-02"
+    },
+    {
+        "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
+        "instance": "9d418095c9f971ff4fd44d6828ead27f9d021dc3",
+        "timestamp": 1317633024305.845,
+        "value": "1.000000e-01"
+    }
+]
+== verify series difference (a - b) with samples by SID
+[]
+== verify series function (floor(a)) SID lookup
+[
+    "f2dbf7a113932b3371c8871df932603856d1d7b6"
+]
+== verify series function (floor(a)) with samples
+[
+    {
+        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
+        "instance": "59181b1de54ff2b383cfd1cdd8636f86c880b69b",
+        "timestamp": 1317633024305.845,
+        "value": "0.000000e+00"
+    },
+    {
+        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
+        "instance": "ab010c7d45145aa33c8f8fa681a68c9d4102ae19",
+        "timestamp": 1317633024305.845,
+        "value": "0.000000e+00"
+    },
+    {
+        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
+        "instance": "9d418095c9f971ff4fd44d6828ead27f9d021dc3",
+        "timestamp": 1317633024305.845,
+        "value": "0.000000e+00"
+    },
+    {
+        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
+        "instance": "59181b1de54ff2b383cfd1cdd8636f86c880b69b",
+        "timestamp": 1317633023802.930,
+        "value": "0.000000e+00"
+    },
+    {
+        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
+        "instance": "ab010c7d45145aa33c8f8fa681a68c9d4102ae19",
+        "timestamp": 1317633023802.930,
+        "value": "0.000000e+00"
+    },
+    {
+        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
+        "instance": "9d418095c9f971ff4fd44d6828ead27f9d021dc3",
+        "timestamp": 1317633023802.930,
+        "value": "0.000000e+00"
+    }
+]
+== verify series function (floor(a)) with samples by SID
+[]
