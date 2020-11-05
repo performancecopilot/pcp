@@ -538,6 +538,25 @@ message have had their logging state updated successfully
 Usually this warning results from requesting advisory logging when a
 mandatory control is already in place, or requesting logging for specific
 instances when all instances are already being logged.
+.SH PMLC ENVIRONMENT
+If the
+.B PMLOGGER_REQUEST_TIMEOUT
+environment variable is not set or set to 0 (zero), then
+.B pmlc
+will block until a connection is established with
+.BR pmlogger (1)
+on the requested \f2port\fP.
+If
+.B PMLOGGER_REQUEST_TIMEOUT
+is set to a value greater than zero, then
+.B pmlc
+will fail with an error after that many seconds
+if a connection isn't established.
+This may be used by administrative scripts such as
+.BR pmlogger_daily (1)
+to poll
+.B pmlogger
+when is starting up until it is ready and listening on it's control \f2port\fP.
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize
 the file and directory names used by PCP.
