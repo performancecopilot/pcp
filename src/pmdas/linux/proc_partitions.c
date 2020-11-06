@@ -1075,7 +1075,7 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case 90: /* disk.dev.discard_bytes */
 	    if (p == NULL)
 		return PM_ERR_INST;
-	    atom->ul = p->ds_sectors / 2;
+	    _pm_assign_ulong(atom, p->ds_sectors / 2);
 	    break;
 	case 91: /* disk.dev.discard_merge */
 	    if (p == NULL)
@@ -1125,13 +1125,13 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		    atom->ull += p->rd_sectors + p->wr_sectors;
 		    break;
 		case 41: /* disk.all.read_bytes */
-		    atom->ul += p->rd_sectors / 2;
+		    _pm_append_ulong(atom, p->rd_sectors / 2);
 		    break;
 		case 42: /* disk.all.write_bytes */
-		    atom->ul += p->wr_sectors / 2;
+		    _pm_append_ulong(atom, p->wr_sectors / 2);
 		    break;
 		case 43: /* disk.all.total_bytes */
-		    atom->ul += (p->rd_sectors + p->wr_sectors) / 2;
+		    _pm_append_ulong(atom, (p->rd_sectors + p->wr_sectors) / 2);
 		    break;
 		case 44: /* disk.all.avactive ... already msec from /proc/diskstats */
 		    atom->ull += p->io_ticks;
@@ -1155,25 +1155,25 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		    atom->ull += p->rd_ticks + p->wr_ticks;
 		    break;
 		case 96: /* disk.all.discard */
-		    atom->ull += p->ds_ios;
+		    _pm_append_ulong(atom, p->ds_ios);
 		    break;
 		case 97: /* disk.all.blkdiscard */
-		    atom->ull += p->ds_sectors;
+		    _pm_append_ulong(atom, p->ds_sectors);
 		    break;
 		case 98: /* disk.all.discard_bytes */
-		    atom->ul += p->ds_sectors / 2;
+		    _pm_append_ulong(atom, p->ds_sectors / 2);
 		    break;
 		case 99: /* disk.all.discard_merge */
-		    atom->ull += p->ds_merges;
+		    _pm_append_ulong(atom, p->ds_merges);
 		    break;
 		case 100: /* disk.all.discard_rawactive ... already msec from /proc/diskstats */
-		    atom->ull += p->ds_ticks;
+		    atom->ul += p->ds_ticks;
 		    break;
 		case 101: /* disk.all.flush */
-		    atom->ull += p->fl_ios;
+		    _pm_append_ulong(atom, p->fl_ios);
 		    break;
 		case 102: /* disk.all.flush_rawactive ... already msec from /proc/diskstats */
-		    atom->ull += p->fl_ticks;
+		    atom->ul += p->fl_ticks;
 		    break;
 		default:
 		    return PM_ERR_PMID;
@@ -1194,7 +1194,7 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		_pm_assign_ulong(atom, p->wr_ios);
 		break;
 	    case 2: /* {disk.partitions,zram}.total */
-		atom->ul = p->wr_ios + p->rd_ios;
+		_pm_assign_ulong(atom, p->wr_ios + p->rd_ios);
 		break;
 	    case 3: /* {disk.partitions,zram}.blkread */
 		_pm_assign_ulong(atom, p->rd_sectors);
@@ -1203,59 +1203,51 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		_pm_assign_ulong(atom, p->wr_sectors);
 		break;
 	    case 5: /* {disk.partitions,zram}.blktotal */
-		atom->ul = p->rd_sectors + p->wr_sectors;
+		_pm_assign_ulong(atom, p->rd_sectors + p->wr_sectors);
 		break;
 	    case 6: /* {disk.partitions,zram}.read_bytes */
-		atom->ul = p->rd_sectors / 2;
+		_pm_assign_ulong(atom, p->rd_sectors / 2);
 		break;
 	    case 7: /* {disk.partitions,zram}.write_bytes */
-		atom->ul = p->wr_sectors / 2;
+		_pm_assign_ulong(atom, p->wr_sectors / 2);
 		break;
 	    case 8: /* {disk.partitions,zram}.total_bytes */
-		atom->ul = (p->rd_sectors +
-			   p->wr_sectors) / 2;
+		_pm_assign_ulong(atom, (p->rd_sectors + p->wr_sectors) / 2);
 		break;
             case 9: /* {disk.partitions,zram}.read_merge */
                 if (_pm_have_kernel_2_6_partition_stats)
                     return PM_ERR_APPVERSION; /* no read_merge for partition in 2.6 */
-                else
-                    _pm_assign_ulong(atom, p->rd_merges);
+                _pm_assign_ulong(atom, p->rd_merges);
                 break;
             case 10: /* {disk.partitions,zram}.write_merge */
                 if (_pm_have_kernel_2_6_partition_stats)
                     return PM_ERR_APPVERSION; /* no write_merge for partition in 2.6 */
-                else
-                    _pm_assign_ulong(atom, p->wr_merges);
+                _pm_assign_ulong(atom, p->wr_merges);
                 break;
             case 11: /* {disk.partitions,zram}.avactive */
                 if (_pm_have_kernel_2_6_partition_stats)
                     return PM_ERR_APPVERSION; /* no avactive for partition in 2.6 */
-                else
-                    atom->ul = p->io_ticks;
+                atom->ul = p->io_ticks;
                 break;
             case 12: /* {disk.partitions,zram}.aveq */
                 if (_pm_have_kernel_2_6_partition_stats)
                     return PM_ERR_APPVERSION; /* no aveq for partition in 2.6 */
-                else
-                    atom->ul = p->aveq;
+                atom->ul = p->aveq;
                 break;
             case 13: /* {disk.partitions,zram}.read_rawactive */
                 if (_pm_have_kernel_2_6_partition_stats)
                     return PM_ERR_APPVERSION; /* no read_rawactive for partition in 2.6 */
-                else
-                    atom->ul = p->rd_ticks;
+                atom->ul = p->rd_ticks;
                 break;
             case 14: /* {disk.partitions,zram}.write_rawactive */
                 if (_pm_have_kernel_2_6_partition_stats)
                     return PM_ERR_APPVERSION; /* no write_rawactive for partition in 2.6 */
-                else
-                    atom->ul = p->wr_ticks;
+                atom->ul = p->wr_ticks;
                 break;
             case 15: /* {disk.partitions,zram}.total_rawactive */
                 if (_pm_have_kernel_2_6_partition_stats)
                     return PM_ERR_APPVERSION; /* no read_rawactive or write_rawactive for partition in 2.6 */
-                else
-                    atom->ul = p->rd_ticks + p->wr_ticks;
+                atom->ul = p->rd_ticks + p->wr_ticks;
                 break;
 	    case 16: /* {disk.partitions,zram}.capacity */
 		if (cluster == CLUSTER_ZRAM_DEVICES)
@@ -1271,7 +1263,7 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		_pm_assign_ulong(atom, p->ds_sectors);
 		break;
 	    case 19: /* {disk.partitions,zram}.discard_bytes */
-		atom->ul = p->ds_sectors / 2;
+		_pm_assign_ulong(atom, p->ds_sectors / 2);
 		break;
 	    case 20: /* {disk.partitions,zram}.discard_merge */
 		_pm_assign_ulong(atom, p->ds_merges);
@@ -1358,7 +1350,7 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    _pm_assign_ulong(atom, p->ds_sectors);
 	    break;
 	case 20: /* disk.{dm,md}.discard_bytes */
-	    atom->ul = p->ds_sectors / 2;
+	    _pm_assign_ulong(atom, p->ds_sectors / 2);
 	    break;
 	case 21: /* disk.{dm,md}.discard_merge */
 	    _pm_assign_ulong(atom, p->ds_merges);
