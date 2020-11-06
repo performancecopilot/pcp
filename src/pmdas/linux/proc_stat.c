@@ -160,6 +160,8 @@ find_line_format(const char *fmt, int fmtlen, char **bufindex, int nbufindex, in
     return -1;
 }
 
+#define WAITIO_SLOP 100
+
 /*
  * We use /proc/stat as a single source of truth regarding online/offline
  * state for CPUs (its per-CPU stats are for online CPUs only).
@@ -176,6 +178,7 @@ refresh_proc_stat(proc_stat_t *proc_stat)
     char	buf[MAXPATHLEN], *name, *sp, **bp;
     char	cpuname[32];
     int		n = 0, i, size;
+    static unsigned long long	prev_wait;
 
     static int fd = -1; /* kept open until exit(), unless testing */
     static char *statbuf;
@@ -259,6 +262,23 @@ refresh_proc_stat(proc_stat_t *proc_stat)
 	&proc_stat->all.wait, &proc_stat->all.irq,
 	&proc_stat->all.sirq, &proc_stat->all.steal,
 	&proc_stat->all.guest, &proc_stat->all.guest_nice);
+    if (proc_stat->all.prev_wait > 0 &&
+	    proc_stat->all.wait < proc_stat->all.prev_wait &&
+	    proc_stat->all.wait > proc_stat->all.prev_wait - WAITIO_SLOP) {
+	/*
+	 * waitio from /proc/stat can in fact go backwards ... see 
+	 * https://www.kernel.org/doc/Documentation/filesystems/proc.txt
+	 * so if the decrease is small (less than WAITIO_SLOP) we wait
+	 * for the kernel to catch up and this forces the value to be
+	 * monotonic increasing.
+	 * The setting of WAITIO_SLOP is small enough to catch kernel
+	 * imprecision, but should allow any counter overflow to pass
+	 * through.
+	 */
+	proc_stat->all.wait = proc_stat->all.prev_wait;
+    }
+    else
+	proc_stat->all.prev_wait = proc_stat->all.wait;
 
 #define PERCPU_FMT "cpu%u %llu %llu %llu %llu %llu %llu %llu %llu %llu %llu"
     /*
@@ -288,12 +308,24 @@ refresh_proc_stat(proc_stat_t *proc_stat)
 	    pmsprintf(cpuname, sizeof(cpuname), "cpu%u", i); /* instance name */
 	    if (pmdaCacheLookupName(cpus, cpuname, &i, (void **)&cp) < 0 || !cp)
 		continue;
+	    /* need to NOT zero out the prev_wait field, as it is used below */
+	    prev_wait = cp->stat.prev_wait;
 	    memset(&cp->stat, 0, sizeof(cp->stat));
+	    cp->stat.prev_wait = prev_wait;
 	    sscanf(bufindex[n], PERCPU_FMT, &i,
 		    &cp->stat.user, &cp->stat.nice, &cp->stat.sys,
 		    &cp->stat.idle, &cp->stat.wait, &cp->stat.irq,
 		    &cp->stat.sirq, &cp->stat.steal, &cp->stat.guest,
 		    &cp->stat.guest_nice);
+	    /* see comment above re kernel waitio */
+	    if (cp->stat.prev_wait > 0 &&
+		    cp->stat.wait < cp->stat.prev_wait &&
+		    cp->stat.wait > cp->stat.prev_wait - WAITIO_SLOP) {
+		cp->stat.wait = cp->stat.prev_wait;
+	    }
+	    else
+		cp->stat.prev_wait = cp->stat.wait;
+
 	    pmdaCacheStore(cpus, PMDA_CACHE_ADD, cpuname, (void *)cp);
 
 	    /* update per-node aggregate CPU utilisation stats as well */
