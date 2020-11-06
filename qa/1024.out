@@ -4474,3 +4474,471 @@ No value(s) available!
 
 == done
 
+== Checking metric values - blkdev-root-007.tgz
+
+disk.all.avactive
+    value 35343
+
+disk.all.aveq
+    value 67946
+
+disk.all.blkdiscard
+    value 0
+
+disk.all.blkread
+    value 3157138
+
+disk.all.blktotal
+    value 5033547
+
+disk.all.blkwrite
+    value 1876409
+
+disk.all.discard
+    value 0
+
+disk.all.discard_bytes
+    value 0
+
+disk.all.discard_merge
+    value 0
+
+disk.all.discard_rawactive
+    value 0
+
+disk.all.flush
+    value 2532
+
+disk.all.flush_rawactive
+    value 10786
+
+disk.all.read
+    value 21600
+
+disk.all.read_bytes
+    value 1578567
+
+disk.all.read_merge
+    value 90
+
+disk.all.read_rawactive
+    value 14541
+
+disk.all.total
+    value 48685
+
+disk.all.total_bytes
+    value 2516772
+
+disk.all.total_rawactive
+    value 57155
+
+disk.all.write
+    value 27085
+
+disk.all.write_bytes
+    value 938204
+
+disk.all.write_merge
+    value 2670
+
+disk.all.write_rawactive
+    value 42614
+
+disk.dev.avactive
+    inst [N or "sda"] value 54
+    inst [N or "sdb"] value 66
+    inst [N or "sdc"] value 156
+    inst [N or "vda"] value 35067
+
+disk.dev.aveq
+    inst [N or "sda"] value 16
+    inst [N or "sdb"] value 61
+    inst [N or "sdc"] value 88
+    inst [N or "vda"] value 67781
+
+disk.dev.blkdiscard
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
+    inst [N or "sdc"] value 0
+    inst [N or "vda"] value 0
+
+disk.dev.blkread
+    inst [N or "sda"] value 7137
+    inst [N or "sdb"] value 8569
+    inst [N or "sdc"] value 9673
+    inst [N or "vda"] value 3131759
+
+disk.dev.blktotal
+    inst [N or "sda"] value 7137
+    inst [N or "sdb"] value 8569
+    inst [N or "sdc"] value 13769
+    inst [N or "vda"] value 5004072
+
+disk.dev.blkwrite
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
+    inst [N or "sdc"] value 4096
+    inst [N or "vda"] value 1872313
+
+disk.dev.capacity
+No value(s) available!
+
+disk.dev.discard
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
+    inst [N or "sdc"] value 0
+    inst [N or "vda"] value 0
+
+disk.dev.discard_bytes
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
+    inst [N or "sdc"] value 0
+    inst [N or "vda"] value 0
+
+disk.dev.discard_merge
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
+    inst [N or "sdc"] value 0
+    inst [N or "vda"] value 0
+
+disk.dev.discard_rawactive
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
+    inst [N or "sdc"] value 0
+    inst [N or "vda"] value 0
+
+disk.dev.flush
+    inst [N or "sda"] value 2
+    inst [N or "sdb"] value 2
+    inst [N or "sdc"] value 6
+    inst [N or "vda"] value 2522
+
+disk.dev.flush_rawactive
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
+    inst [N or "sdc"] value 0
+    inst [N or "vda"] value 10786
+
+disk.dev.read
+    inst [N or "sda"] value 101
+    inst [N or "sdb"] value 126
+    inst [N or "sdc"] value 307
+    inst [N or "vda"] value 21066
+
+disk.dev.read_bytes
+    inst [N or "sda"] value 3568
+    inst [N or "sdb"] value 4284
+    inst [N or "sdc"] value 4836
+    inst [N or "vda"] value 1565879
+
+disk.dev.read_merge
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
+    inst [N or "sdc"] value 0
+    inst [N or "vda"] value 90
+
+disk.dev.read_rawactive
+    inst [N or "sda"] value 15
+    inst [N or "sdb"] value 59
+    inst [N or "sdc"] value 81
+    inst [N or "vda"] value 14386
+
+disk.dev.scheduler
+    inst [N or "sda"] value "unknown"
+    inst [N or "sdb"] value "unknown"
+    inst [N or "sdc"] value "unknown"
+    inst [N or "vda"] value "unknown"
+
+disk.dev.total
+    inst [N or "sda"] value 103
+    inst [N or "sdb"] value 128
+    inst [N or "sdc"] value 316
+    inst [N or "vda"] value 48138
+
+disk.dev.total_bytes
+    inst [N or "sda"] value 3568
+    inst [N or "sdb"] value 4284
+    inst [N or "sdc"] value 6884
+    inst [N or "vda"] value 2502036
+
+disk.dev.total_rawactive
+    inst [N or "sda"] value 15
+    inst [N or "sdb"] value 59
+    inst [N or "sdc"] value 87
+    inst [N or "vda"] value 56994
+
+disk.dev.write
+    inst [N or "sda"] value 2
+    inst [N or "sdb"] value 2
+    inst [N or "sdc"] value 9
+    inst [N or "vda"] value 27072
+
+disk.dev.write_bytes
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
+    inst [N or "sdc"] value 2048
+    inst [N or "vda"] value 936156
+
+disk.dev.write_merge
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
+    inst [N or "sdc"] value 0
+    inst [N or "vda"] value 2670
+
+disk.dev.write_rawactive
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
+    inst [N or "sdc"] value 6
+    inst [N or "vda"] value 42608
+
+disk.dm.avactive
+No value(s) available!
+
+disk.dm.aveq
+No value(s) available!
+
+disk.dm.blkdiscard
+No value(s) available!
+
+disk.dm.blkread
+No value(s) available!
+
+disk.dm.blktotal
+No value(s) available!
+
+disk.dm.blkwrite
+No value(s) available!
+
+disk.dm.capacity
+No value(s) available!
+
+disk.dm.discard
+No value(s) available!
+
+disk.dm.discard_bytes
+No value(s) available!
+
+disk.dm.discard_merge
+No value(s) available!
+
+disk.dm.discard_rawactive
+No value(s) available!
+
+disk.dm.flush
+No value(s) available!
+
+disk.dm.flush_rawactive
+No value(s) available!
+
+disk.dm.read
+No value(s) available!
+
+disk.dm.read_bytes
+No value(s) available!
+
+disk.dm.read_merge
+No value(s) available!
+
+disk.dm.read_rawactive
+No value(s) available!
+
+disk.dm.total
+No value(s) available!
+
+disk.dm.total_bytes
+No value(s) available!
+
+disk.dm.total_rawactive
+No value(s) available!
+
+disk.dm.write
+No value(s) available!
+
+disk.dm.write_bytes
+No value(s) available!
+
+disk.dm.write_merge
+No value(s) available!
+
+disk.dm.write_rawactive
+No value(s) available!
+
+disk.md.avactive
+No value(s) available!
+
+disk.md.aveq
+No value(s) available!
+
+disk.md.blkdiscard
+No value(s) available!
+
+disk.md.blkread
+No value(s) available!
+
+disk.md.blktotal
+No value(s) available!
+
+disk.md.blkwrite
+No value(s) available!
+
+disk.md.capacity
+No value(s) available!
+
+disk.md.discard
+No value(s) available!
+
+disk.md.discard_bytes
+No value(s) available!
+
+disk.md.discard_merge
+No value(s) available!
+
+disk.md.discard_rawactive
+No value(s) available!
+
+disk.md.flush
+No value(s) available!
+
+disk.md.flush_rawactive
+No value(s) available!
+
+disk.md.read
+No value(s) available!
+
+disk.md.read_bytes
+No value(s) available!
+
+disk.md.read_merge
+No value(s) available!
+
+disk.md.read_rawactive
+No value(s) available!
+
+disk.md.status
+No value(s) available!
+
+disk.md.total
+No value(s) available!
+
+disk.md.total_bytes
+No value(s) available!
+
+disk.md.total_rawactive
+No value(s) available!
+
+disk.md.write
+No value(s) available!
+
+disk.md.write_bytes
+No value(s) available!
+
+disk.md.write_merge
+No value(s) available!
+
+disk.md.write_rawactive
+No value(s) available!
+
+disk.partitions.avactive
+    inst [N or "vda1"] value 79
+    inst [N or "vda2"] value 28112
+
+disk.partitions.aveq
+    inst [N or "vda1"] value 21
+    inst [N or "vda2"] value 41864
+
+disk.partitions.blkdiscard
+    inst [N or "vda1"] value 0
+    inst [N or "vda2"] value 0
+
+disk.partitions.blkread
+    inst [N or "vda1"] value 10874
+    inst [N or "vda2"] value 3117525
+
+disk.partitions.blktotal
+    inst [N or "vda1"] value 10898
+    inst [N or "vda2"] value 4989814
+
+disk.partitions.blkwrite
+    inst [N or "vda1"] value 24
+    inst [N or "vda2"] value 1872289
+
+disk.partitions.capacity
+No value(s) available!
+
+disk.partitions.discard
+    inst [N or "vda1"] value 0
+    inst [N or "vda2"] value 0
+
+disk.partitions.discard_bytes
+    inst [N or "vda1"] value 0
+    inst [N or "vda2"] value 0
+
+disk.partitions.discard_merge
+    inst [N or "vda1"] value 0
+    inst [N or "vda2"] value 0
+
+disk.partitions.discard_rawactive
+    inst [N or "vda1"] value 0
+    inst [N or "vda2"] value 0
+
+disk.partitions.flush
+    inst [N or "vda1"] value 0
+    inst [N or "vda2"] value 0
+
+disk.partitions.flush_rawactive
+    inst [N or "vda1"] value 0
+    inst [N or "vda2"] value 0
+
+disk.partitions.read
+    inst [N or "vda1"] value 141
+    inst [N or "vda2"] value 20877
+
+disk.partitions.read_bytes
+    inst [N or "vda1"] value 5437
+    inst [N or "vda2"] value 1558762
+
+disk.partitions.read_merge
+    inst [N or "vda1"] value 23
+    inst [N or "vda2"] value 67
+
+disk.partitions.read_rawactive
+    inst [N or "vda1"] value 18
+    inst [N or "vda2"] value 14354
+
+disk.partitions.total
+    inst [N or "vda1"] value 144
+    inst [N or "vda2"] value 46551
+
+disk.partitions.total_bytes
+    inst [N or "vda1"] value 5449
+    inst [N or "vda2"] value 2494907
+
+disk.partitions.total_rawactive
+    inst [N or "vda1"] value 20
+    inst [N or "vda2"] value 41863
+
+disk.partitions.write
+    inst [N or "vda1"] value 3
+    inst [N or "vda2"] value 25674
+
+disk.partitions.write_bytes
+    inst [N or "vda1"] value 12
+    inst [N or "vda2"] value 936144
+
+disk.partitions.write_merge
+    inst [N or "vda1"] value 0
+    inst [N or "vda2"] value 2670
+
+disk.partitions.write_rawactive
+    inst [N or "vda1"] value 2
+    inst [N or "vda2"] value 27509
+
+hinv.map.dmname
+No value(s) available!
+
+hinv.map.mdname
+No value(s) available!
+
+== done
+

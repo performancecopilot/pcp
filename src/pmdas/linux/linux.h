@@ -221,10 +221,12 @@ int linux_strings_insert(const char *);
 #if defined(HAVE_64BIT_LONG)
 #define KERNEL_ULONG PM_TYPE_U64
 #define _pm_assign_ulong(atomp, val) do { (atomp)->ull = (val); } while (0)
+#define _pm_append_ulong(atomp, val) do { (atomp)->ull += (val); } while (0)
 #define __pm_kernel_ulong_t __uint64_t
 #else
 #define KERNEL_ULONG PM_TYPE_U32
 #define _pm_assign_ulong(atomp, val) do { (atomp)->ul = (val); } while (0)
+#define _pm_append_ulong(atomp, val) do { (atomp)->ul += (val); } while (0)
 #define __pm_kernel_ulong_t __uint32_t
 #endif
 
