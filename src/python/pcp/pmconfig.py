@@ -410,8 +410,10 @@ class pmConfig(object):
 
     def get_labels_str(self, metric, inst=None, curr=True, combine=True):
         """ Return labels as string """
-        i = None if curr else list(self.util.metrics.keys()).index(metric)
-        ref = self.res_labels[metric] if curr else self.labels[i]
+        if curr:
+            ref = self.res_labels[metric]
+        else:
+            ref = self.labels[list(self.util.metrics.keys()).index(metric)]
         if inst in (None, pmapi.c_api.PM_IN_NULL):
             labels = ref[0]
         else:

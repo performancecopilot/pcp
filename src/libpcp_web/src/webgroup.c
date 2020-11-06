@@ -1360,6 +1360,34 @@ typedef struct weblookup {
     void		*arg;
 } weblookup_t;
 
+/* Metric namespace failure callback for use after pmTraversePMNS_r(3) */
+static void
+badname(const char *name, const char *errmsg, struct weblookup *lookup)
+{
+    pmWebGroupSettings	*settings = lookup->settings;
+    pmWebMetric		*metric = &lookup->metric;
+    context_t		*cp = lookup->context;
+    void		*arg = lookup->arg;
+
+    /* clear buffer contents from any previous call(s) */
+    sdsclear(metric->series);
+    sdsclear(metric->name);
+    sdsclear(metric->sem);
+    sdsclear(metric->type);
+    sdsclear(metric->units);
+    sdsclear(metric->labels);
+    sdsclear(metric->oneline);
+    sdsclear(metric->helptext);
+
+    /* inform caller (callback) about failure via ID_NULL and oneline */
+    metric->pmid = PM_ID_NULL;
+    metric->indom = PM_INDOM_NULL;
+    metric->name = sdscat(metric->name, name);
+    metric->oneline = sdscat(metric->oneline, errmsg);
+
+    settings->callbacks.on_metric(cp->origin, metric, arg);
+}
+
 /* Metric namespace traversal callback for use with pmTraversePMNS_r(3) */
 static void
 webmetric_lookup(const char *name, void *arg)
@@ -1389,8 +1417,10 @@ webmetric_lookup(const char *name, void *arg)
 
     metric->name = sdscat(metric->name, name);
     mp = webgroup_lookup_metric(settings, cp, metric->name, arg);
-    if (mp == NULL)
+    if (mp == NULL) {
+	badname(name, "failed to lookup metric name", lookup);
 	return;
+    }
     snp = webgroup_lookup_series(mp->numnames, mp->names, name);
     if (snp == NULL)	/* a 'redirect' - pick the first series */
 	snp = &mp->names[0];
@@ -1433,7 +1463,7 @@ pmWebGroupMetric(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
     struct context	*cp;
     pmWebMetric		*metric = &lookup.metric;
     size_t		length;
-    char		errmsg[PM_MAXERRMSGLEN];
+    char		errmsg[PM_MAXERRMSGLEN], *error;
     sds			msg = NULL, prefix = NULL, *names = NULL;
     int			i, sts = 0, numnames = 0;
 
@@ -1485,14 +1515,24 @@ pmWebGroupMetric(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
     for (i = 0; i < numnames; i++) {
 	sts = pmTraversePMNS_r(names[i], webmetric_lookup, &lookup);
 	if (sts >= 0) {
+	    if (numnames != 1) {	/* already started with response */
+		sts = 0;
+		continue;
+	    }
 	    msg = lookup.message;
 	    if ((sts = (lookup.status < 0) ? lookup.status : 0) < 0)
 		break;
 	} else {
 	    if (sts == PM_ERR_IPC)
 		cp->setup = 0;
-	    infofmt(msg, "%s traversal failed - %s", names[i],
-			    pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	    error = pmErrStr_r(sts, errmsg, sizeof(errmsg));
+	    if (numnames != 1) {
+		badname(names[i], error, &lookup);
+		sts = 0;
+	    } else {
+		infofmt(msg, "%s traversal failed - %s", names[i], error);
+		break;
+	    }
 	}
     }
 

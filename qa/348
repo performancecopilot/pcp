@@ -60,6 +60,11 @@ _cleanup()
 
 trap "_cleanup" 0 1 2 3 15
 
+_filter()
+{
+    _filter_pmcd_log | sed -e 's/pmdakvm([1-9][0-9]*)/pmdakvm(PID)/g'
+}
+
 # real QA test starts here
 iam=kvm
 cd $PCP_PMDAS_DIR/$iam
@@ -114,6 +119,7 @@ _filter_pmda_install <$tmp.out \
 					  if ($9 >= 30) $9 = "Y"
 					}
 					{ print }'
+grep lockdown $PCP_LOG_DIR/pmcd/kvm.log | _filter
 
 echo
 echo "=== $iam agent installation (kernel locked down for confidentiality) ==="
@@ -126,6 +132,7 @@ _filter_pmda_install <$tmp.out \
 					  if ($9 >= 30) $9 = "Y"
 					}
 					{ print }'
+grep lockdown $PCP_LOG_DIR/pmcd/kvm.log | _filter
 
 echo
 echo "=== $iam agent installation (normal kernel mode) ==="
@@ -138,6 +145,7 @@ _filter_pmda_install <$tmp.out \
 					  if ($10 >= 30) $10 = "Y"
 					}
 					{ print }'
+grep lockdown $PCP_LOG_DIR/pmcd/kvm.log | _filter
 
 if pminfo -v $iam
 then

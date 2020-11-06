@@ -1469,6 +1469,9 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
 		    i=1
 		    while true
 		    do
+			# pmlc may race with pmlogger starting here - a timeout is required
+			# to avoid pmlc blocking forever and hanging pmlogger_daily.
+			[ -z "$PMLOGGER_REQUEST_TIMEOUT" ] && export PMLOGGER_REQUEST_TIMEOUT=2
 			echo status | pmlc $pid >$tmp/out 2>&1
 			if egrep "Connection refused|Transport endpoint is not connected" <$tmp/out >/dev/null
 			then

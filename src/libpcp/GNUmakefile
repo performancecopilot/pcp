@@ -16,12 +16,14 @@ TOPDIR = ../..
 
 include $(TOPDIR)/src/include/builddefs
 
-LSRCFILES = GNUlocaldefs.32
-
 SUBDIRS = src $(PCP_ALTLIBS)
 
-default install : $(SUBDIRS)
+default: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
+
+install : $(SUBDIRS)
+	$(SUBDIRS_MAKERULE)
+	$(INSTALL) -m 644 labels.conf $(PCP_SYSCONF_DIR)/labels.conf
 
 include $(BUILDRULES)
 

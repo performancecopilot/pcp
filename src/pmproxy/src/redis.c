@@ -50,31 +50,42 @@ redisfmt(redisReply *reply)
 
     switch (reply->type) {
     case REDIS_REPLY_STRING:
-	return sdscatfmt(command, "$%U\r\n%s\r\n", (uint64_t)reply->len, reply->str);
+	command = sdscatfmt(command, "$%U\r\n", (uint64_t)reply->len);
+	command = sdscatlen(command, reply->str, reply->len);
+	return sdscatlen(command, "\r\n", 2);
     case REDIS_REPLY_ARRAY:
     case REDIS_REPLY_MAP:
     case REDIS_REPLY_SET:
 	c = sdsempty();
-	for (i = 0; i < reply->elements; i++)
-	    c = sdscat(c, redisfmt(reply->element[i]));
+	for (i = 0; i < reply->elements; i++) {
+	    sds e = redisfmt(reply->element[i]);
+	    c = sdscatsds(c, e);
+	    sdsfree(e);
+	}
 	if (reply->type == REDIS_REPLY_ARRAY)
-	    command = sdscatfmt(command, "*%u\r\n%S", reply->elements, c);
+	    command = sdscatfmt(command, "*%U\r\n%S", (uint64_t)reply->elements, c);
 	else if (reply->type == REDIS_REPLY_MAP)
-	    command = sdscatfmt(command, "%%%u\r\n%S", reply->elements, c);
+	    command = sdscatfmt(command, "%%%U\r\n%S", (uint64_t)reply->elements, c);
 	else /* (reply->type == REDIS_REPLY_SET) */
-	    command = sdscatfmt(command, "~%u\r\n%S", reply->elements, c);
+	    command = sdscatfmt(command, "~%U\r\n%S", (uint64_t)reply->elements, c);
 	sdsfree(c);
 	return command;
     case REDIS_REPLY_INTEGER:
 	return sdscatfmt(command, ":%I\r\n", reply->integer);
     case REDIS_REPLY_DOUBLE:
-	return sdscatfmt(command, ",%s\r\n", reply->str);
+	command = sdscatlen(command, ",", 1);
+	command = sdscatlen(command, reply->str, reply->len);
+	return sdscatlen(command, "\r\n", 2);
     case REDIS_REPLY_STATUS:
-	return sdscatfmt(command, "+%s\r\n", reply->str);
+	command = sdscatlen(command, "+", 1);
+	command = sdscatlen(command, reply->str, reply->len);
+	return sdscatlen(command, "\r\n", 2);
     case REDIS_REPLY_ERROR:
-	return sdscatfmt(command, "-%s\r\n", reply->str);
+	command = sdscatlen(command, "-", 1);
+	command = sdscatlen(command, reply->str, reply->len);
+	return sdscatlen(command, "\r\n", 2);
     case REDIS_REPLY_BOOL:
-	return sdscatfmt(command, "#%c\r\n", reply->integer ? 't' : 'f');
+	return sdscatfmt(command, "#%s\r\n", reply->integer ? "t" : "f");
     case REDIS_REPLY_NIL:
     default:
 	break;

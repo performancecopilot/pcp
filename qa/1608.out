@@ -10,6 +10,7 @@ QA output created by 1608
 <p><small><i>PMPROXY/VERSION</i></small></p>
 Access-Control-Allow-Headers: Accept, Accept-Language, Content-Language, Content-Type
 Access-Control-Allow-Origin: *
+Access-Control-Max-Age: 86400
 Content-Length: SIZE
 Content-Type: text/html
 Date: DATE

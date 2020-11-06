@@ -451,6 +451,8 @@ rtime.o
     ?months			# const (MinGW)
     ?wdays			# const (MinGW)
     ?startend_relative_terms	# const
+sha256.o
+    ?k				# const
 shellprobe.o
     ?againWait			# const (LLVM)
 sortinst.o
