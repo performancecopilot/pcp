@@ -256,6 +256,7 @@ typedef struct {
     unsigned long long	steal;
     unsigned long long	guest;
     unsigned long long	guest_nice;
+    unsigned long long	prev_wait;	/* remember previous wait value */
 } cpuacct_t;
 
 typedef struct {
