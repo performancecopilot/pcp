@@ -57,8 +57,11 @@ redisfmt(redisReply *reply)
     case REDIS_REPLY_MAP:
     case REDIS_REPLY_SET:
 	c = sdsempty();
-	for (i = 0; i < reply->elements; i++)
-	    c = sdscatsds(c, redisfmt(reply->element[i]));
+	for (i = 0; i < reply->elements; i++) {
+	    sds e = redisfmt(reply->element[i]);
+	    c = sdscatsds(c, e);
+	    sdsfree(e);
+	}
 	if (reply->type == REDIS_REPLY_ARRAY)
 	    command = sdscatfmt(command, "*%U\r\n%S", (uint64_t)reply->elements, c);
 	else if (reply->type == REDIS_REPLY_MAP)
