@@ -1347,12 +1347,31 @@ getlabels(int ident, int type, pmLabelSet **sets, int *nsets)
 
 	if (!(__pmFeaturesIPC(fd) & PDU_FLAG_LABELS))
 	    sts = PM_ERR_NOLABELS;	/* lack pmcd support */
-	else if ((sts = __pmSendLabelReq(fd, handle, ident, type)) < 0)
-	    sts = __pmMapErrno(sts);
 	else {
-	    int x_ident = ident, x_type = type;
-	    PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
-	    sts = __pmRecvLabel(fd, ctxp, tout, &x_ident, &x_type, sets, nsets);
+	    sts = 0;
+	    if ((type & PM_LABEL_INSTANCES) && ctxp->c_sent == 0) {
+	    	/* profile not current for label instances request */
+		if (pmDebugOptions.indom || pmDebugOptions.labels) {
+		    fprintf(stderr, "dolabels: sent profile, indom=%d\n", ident);
+		    __pmDumpProfile(stderr, ident, ctxp->c_instprof);
+		}
+		if ((sts = __pmSendProfile(fd, __pmPtrToHandle(ctxp),
+                                   ctxp->c_slot, ctxp->c_instprof)) < 0)
+		    sts = __pmMapErrno(sts);
+		else {
+		    /* no reply expected for profile */
+		    ctxp->c_sent = 1;
+		}
+	    }
+	    if (sts >= 0) {
+		if ((sts = __pmSendLabelReq(fd, handle, ident, type)) < 0)
+		    sts = __pmMapErrno(sts);
+		else {
+		    int x_ident = ident, x_type = type;
+		    PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
+		    sts = __pmRecvLabel(fd, ctxp, tout, &x_ident, &x_type, sets, nsets);
+		}
+	    }
 	}
     }
     else if (ctxp->c_type == PM_CONTEXT_LOCAL) {

@@ -426,6 +426,10 @@ GetContextLabels(ClientInfo *cp, pmLabelSet **sets)
 int
 DoLabel(ClientInfo *cp, __pmPDU *pb)
 {
+    __pmHashCtl		*hcp;
+    __pmHashNode	*hp;
+    pmProfile		*profile, defprofile = {PM_PROFILE_INCLUDE, 0, NULL};
+    int			ctxnum;
     int			sts, s;
     int			ident, type, nsets = 0;
     pmLabelSet		*sets = NULL;
@@ -482,6 +486,42 @@ DoLabel(ClientInfo *cp, __pmPDU *pb)
     else {
 	if (ap->status.notReady)
 	    return PM_ERR_AGAIN;
+
+	/* status.madeDsoResult is only used for DSO agents so don't waste time by
+	 * checking that the agent is a DSO first.
+	 */
+	ap->status.madeDsoResult = 0;
+	ctxnum = cp - client;
+
+	if (ap->profClient != cp || ctxnum != ap->profIndex) {
+	    hcp = &cp->profile;
+	    hp = __pmHashSearch(ctxnum, hcp);
+	    if (hp != NULL)
+		profile = (pmProfile *)hp->data;
+	    else
+		profile = &defprofile;
+	    if (ap->ipcType == AGENT_DSO) {
+		if (ap->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
+		    ap->ipc.dso.dispatch.version.four.ext->e_context = cp - client;
+		sts = ap->ipc.dso.dispatch.version.any.profile(profile,
+					 ap->ipc.dso.dispatch.version.any.ext);
+	    }
+	    else {
+		if (ap->status.notReady == 0) {
+		    pmcd_trace(TR_XMIT_PDU, ap->inFd, PDU_PROFILE, ctxnum);
+		    if (profile && (sts = __pmSendProfile(ap->inFd, cp - client,
+					       ctxnum, profile)) < 0) {
+			pmcd_trace(TR_XMIT_ERR, ap->inFd, PDU_PROFILE, sts);
+		    }
+		} else {
+		    sts = PM_ERR_AGAIN;
+		}
+	    }
+	    if (sts >= 0) {
+		ap->profClient = cp;
+		ap->profIndex = ctxnum;
+	    }
+	}
 
 	pmcd_trace(TR_XMIT_PDU, ap->inFd, PDU_LABEL_REQ, ident);
 	sts = __pmSendLabelReq(ap->inFd, cp - client, ident, type);

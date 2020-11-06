@@ -33,15 +33,8 @@ status=0	# success is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
-_filter()
-{
-    sed \
-	-e 's/<something>/<else>/' \
-    # end
-}
-
 # real QA test starts here
-(src/labels_changing.py ; pmrep -s 1 -o csv mem.util.free -m; src/labels_changing.py) |\
+(src/labels_changing.py ; pmrep -t 0.2 -s 4 -o csv mem.util.free -m; src/labels_changing.py) |\
 grep -s 4294967295 || echo passed
 
 exit
