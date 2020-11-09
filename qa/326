@@ -1,4 +1,4 @@
-#!/usr/bin/sh
+#!/bin/sh
 # PCP QA Test No. 326
 # Check PMCD state change notification, aka PMCD reset
 #
