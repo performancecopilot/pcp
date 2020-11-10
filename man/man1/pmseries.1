@@ -328,22 +328,25 @@ RESTAPI calls, along with a specific time window.
 .B pmseries
 support addition, subtraction, division and multiplication on each value in the
 time series of a binary pair of operands.
-No urnary or tertiary operators are supported (yet).
+No unary or ternary operators are supported (yet).
 In all cases, the instance domain and the number of samples of
 time series operands must be the same.
 The metadata (units and dimensions) must also be compatible.
 Depending on the function, the result will usually have the same
 instance domain and (unless noted otherwise), the same units as
 the operands.
-The metadata dimensions (space, time, count) of the result may differ (see below).
+The metadata dimensions (space, time, count) of the result may
+differ (see below).
 .PP
-Expression operands may have different qualifiers, e.g. you can perform binary arithmetic
-on metrics qualified by different labels (such as \fBhostname\fP), or metric names.
-E.g. add the two most recents samples of the context switching counter metric for hosts
+Expression operands may have different qualifiers, e.g. you can perform binary
+arithmetic on metrics qualified by different labels (such as \fBhostname\fP),
+or metric names.
+For example, to add the two most recents samples of the process context
+switch (pswitch) counter metric for hosts
 .B node88
 and
-.B node89
-and then perform rate conversion
+.BR node89 ,
+and then perform rate conversion:
 .P
 .SAMPLE
 $ pmseries 'rate(kernel.all.pswitch{hostname:\fBnode88\fP}[count:2] +
@@ -358,18 +361,18 @@ operand passed to the
 function.
 .PP
 Other rules for arithmetic expressions:
-.br
-- if both operands have the semantics of a counter, then only addition and subtraction are allowed
-.br
-- if the left operand is a counter and the right operand is not, then only multiplication or division are allowed
-.br
-- if the left operand is not a counter and the right operand is a counter, then only multiplication is allowed.
-.br
-addition and subtraction - the dimensions of the result are the same as the dimensions of the operands.
-.br
-multiplication - the dimensions of the result are the sum of the dimensions of the operands.
-.br
-division - the dimensions of the result are the difference of the dimensions of the operands.
+.TP
+1. if both operands have the semantics of a counter, then only addition and subtraction are allowed
+.TP
+2. if the left operand is a counter and the right operand is not, then only multiplication or division are allowed
+.TP
+3. if the left operand is not a counter and the right operand is a counter, then only multiplication is allowed.
+.TP
+4. addition and subtraction - the dimensions of the result are the same as the dimensions of the operands.
+.TP
+5. multiplication - the dimensions of the result are the sum of the dimensions of the operands.
+.TP
+6. division - the dimensions of the result are the difference of the dimensions of the operands.
 .SS Functions
 Expression functions operate on vectors of time series values,
 and may be nested with other functions or expressions as described above.
@@ -427,8 +430,8 @@ $ pmseries 'min(kernel.all.pswitch[count:5])'
 .P
 Future versions of
 .B pmseries
-may provide functions that perform aggregation, interpolation, filtering or transforms in other ways,
-e.g. across instances instead of time.
+may provide functions that perform aggregation, interpolation, filtering
+or transforms in other ways, e.g. across instances instead of time.
 .SS Function Reference
 .BR max(\f2expr\fP)
 the maximum value in the time series for each instance of \fIexpr\fP
@@ -468,7 +471,8 @@ and
 .I scale
 must be compatible.
 Example:
-rate convert the read thruput counter for each disk instance and then rescale to mbytes per second.
+rate convert the read throughput counter for each disk instance
+and then rescale to mbytes per second.
 Note the native units of
 .B disk.dev.read_bytes
 is a
@@ -480,14 +484,16 @@ $ pmseries 'rescale(rate(disk.dev.read_bytes[count:4]), "mbytes/s")'
 .ESAMPLE
 .P
 .BR abs(\f2expr\fP)
-the absolute value of each value in the time series for each instance of \fIexpr\fP.
+the absolute value of each value in the time series for each instance
+of \fIexpr\fP.
 This has no effect if the type of \fIexpr\fP is unsigned.
 .P
 .BR floor(\f2expr\fP)
-rounded down to the nearest integer value of the time series for each instance of \fIexpr\fP.
+rounded down to the nearest integer value of the time series for each
+instance of \fIexpr\fP.
 .P
 .BR round(\f2expr\fP)
-rounded up or down to the nerest integer for each value in the time series
+rounded up or down to the nearest integer for each value in the time series
 for each instance of \fIexpr\fP.
 .P
 .BR log(\f2expr\fP)
