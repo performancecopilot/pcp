@@ -1,3 +1,90 @@
+pcp-5.2.2 (11 November 2020)
+    - Client tools and utilities:
+	pcp-atop: add support for process accounting
+	pcp-atop: use floating point (not integer) delta in more places
+	pcp-atop: sort interface names for output determinism
+	pmchart: record mode, keep "local:" arg for launched pmloggers
+    - Server-side utilities and log management scripts:
+	pmcd: init NSS read-only when using secure connections
+	pmproxy: move forward to most recent http_parser update
+	pmproxy: fix redisfmt reply length mismatch on 32bit platforms
+	pmproxy: Access-Control-Max-Age header, CORS preflight request caching
+	pmproxy: make no-label-values response consistent with regular response
+	pmproxy: handle proxying of Redis binary strings
+	pmproxy: improve /pmapi/metrics error handling with mixed requests
+	pmproxy: improve /pmapi/query error condition handling
+	pmproxy: fix incorrect use of %u in redisfmt for reply element count
+	pmproxy: consistent empty response for /search/{text,indom,suggest}
+	pmproxy: fix handling of multiple names in metrics API
+	pmproxy: plug mem leak in redisfmt
+	pmieconf: remove integrations with software that no longer exists
+	pmlogconf: remove pmlogconf templates specific to IRIX
+	pmlogconf: produce less verbosity when running automated
+	pmrepconf: produce less verbosity when running automated
+	pmlogctl: fix a couple of small corner-case issues
+	pmfind_check: with -N option, don't try to remove log file
+	pmie, pmlogger scripts: defensive changes for temp file removal
+	pmlogger scripts: fix pmlc/pmlogger race causing pmlogger_daily to hang
+    - PMDA additions, enhancements and bug fixes:
+	pmdalinux: additional mem.vmstat metrics from /proc/vmstat
+	pmdalinux: fix drop_pagecache and drop_slabs metrics
+	pmdalinux, pmdakvm: help texts fallback to short-form
+	pmdalinux: use _pm_assign_ulong for disk.dev.read_bytes and co
+	pmdalinux: fix cases where /proc/stat waitio counters go backwards
+	pmdaperfevent: add support for hv_24x7 core-level events
+	pmdaperfevent: add support for hv_gpci perf events
+	pmdanetcheck: rework to accommodate some QA failures
+	pmdaactivemq: fix several runtime and compile issues
+	pmdakvm: install kvm.conf in /etc, help text for trace metrics
+	pmdakvm: fix detection of kernel lockdown mode
+	pmdaelasticsearch: improve diagnostics and error handling
+	pmdaelasticsearch: add short-circuit checking to constructor
+	pmdaxfs: free_inode, rmap and refcount btree stats, dquots
+	pmdamssql: improved error handling on failed SQL Server connection
+	pmdarpm: add logic to deal with the location of the RPM DB
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings
+	libpcp: handle EINPROGRESS from connect() in __pmConnect
+	libpcp: add labels.conf file initially controlling machineid
+	libpcp: send instance profile for instances level labels requests
+	libpcp_web: fix query rate() function
+	libpcp_web: merge updated query grammar, add rate() actions
+	libpcp_web: use more efficient sds formatting in places
+	libpcp_web: fix 32bit int overflow in timeval_stream_str()
+	libpcp_web: fix double-free in binary query/expr functions
+	libpcp_web: fix query.c memory leaks found by coverity scan
+	libpcp_web: keep meta-data qualifiers in canonical expressions
+	libpcp_web: drop noop() from /series/query language
+	libpcp_web: functions/expr without time window return SID
+	python api: fix pylint error from undefinied __init__ names
+    - Misc build, infrastructure and packaging updates:
+	build: drop IRIX files from pmlogconf
+	dbpmda: small fixes, add getiname command
+	build: fix rpm spec permissions for pmie and sa directories
+	build: add versioned rpm spec dependencies for pcp-zeroconf
+	build: add more missing empty directories to tar packages
+	build: add pylint static checking for the nfsclient PMDA
+	build: resolve Debian build dependency on -all- py3 package
+	build: update debian build deps for arch-dependent packages
+	build: make the python odbc package dep explicit for mssql
+    - Documentation and QA infrastructure:
+	Numerous changes to the books for https//pcp.readthedocs.io
+        Numerous changes to the platform package detection logic for QA
+	ci: implement timeout and retry for bintray release script,
+	ci: show symbols in slack channel (green, warning, error)
+	ci: add a 32bit build and continuous integration setup
+	ci: add CodeQL
+	docs: switch pmcd from digest-md5 to scram-sha-256 authentication
+	docs: update pmlogger_daily(1) for -x, -K, -k; $PCP_COMPRESSAFTER
+	docs: document that trailing \n is not needed for pmNotifyErr
+	docs: add final help text entries for interrupts metrics
+	docs: add missing help text for nfsclient metrics
+	docs: add help text for mssql derived metrics
+	docs: add help text for event.* metrics
+	docs: fix a couple of minor REST API typos
+	docs: make the curl REST API examples cut+paste friendly
+	docs: add a man page describing /etc/pcp/labels.conf
+	docs: update pmseries(1) for query expressions and functions
+
 pcp-5.2.1 (25 September 2020)
     - Client tools and utilities:
 	pcp-atopsar: fix accumulation (-R) mode
