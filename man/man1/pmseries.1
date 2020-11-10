@@ -136,7 +136,7 @@ ed2bf325ff6dc7589ec966698e5404b67252306a
 dcb2a032a308b5717bf605ba8f8737e9c6e1ed19
 .ESAMPLE
 .PP
-To identify timeseries, the query language uses the general
+To identify timeseries expression operands, the query language uses the general
 syntax:
 .PP
 .SAMPLE
@@ -155,9 +155,16 @@ syntax extends on that of
 and allows for
 .BR glob (7)
 based pattern matching within the metric name.
-.SH METADATA QUALIFIERS AND OPERATORS
+The above describes operands available as the leaves of
+.B pmseries
+expressions,
+which may include functions, arithmetic operators and other features.
+See the
+.B EXPRESSIONS
+section below for further details.
+.SH METADATA QUALIFIERS AND METADATA OPERATORS
 Metadata qualifiers are enclosed by ``curly'' braces (\fB{}\fR),
-and further restrict the query results to timeseries with various
+and further restrict the query results to timeseries operands with various
 metadata properties.
 These qualifiers are based on metric or instance names, and
 metric label values, and take the general form
@@ -210,7 +217,7 @@ Each component specifies some aspect related to time, taking
 the general form: \fBkeyword\fR: \fIvalue\fR, such as:
 .P
 .SAMPLE
-samples: 10
+samples:10
 .ESAMPLE
 .SS Sample count
 The number of samples to return, specified via either the
@@ -274,6 +281,241 @@ and when set to
 .B true
 this has the same effect as described by
 .BR pmNewContextZone (3).
+.SH EXPRESSIONS
+As described above, operands are the leaves of a query expression tree.
+.P
+.SAMPLE
+[\fImetric.name\fR] '\fB{\fImetadata qualifiers\fB}\fR' '\fB[\fItime specification\fB]\fR'
+.ESAMPLE
+Note in most of the query expression examples below, the \fImetadata qualifiers\fP
+have been omitted for brevity.
+In all cases, multiple time series may qualify, particularly for the \fBhostname\fP label.
+.PP
+In the simple case, a query expression consists of a single operand
+and may just be a metric name.
+In the more general case, a query expression is either an operand
+or the argument to a function, or two operands in a binary arithmetic or logical expression.
+Most functions take a single argument (an expression), though some require additional
+arguments, e.g.
+.BR rescale .
+.P
+.SAMPLE
+\fIoperand\fP | \fIexpr\fP \fIoperator\fP \fIexpr\fP | \fIfunc\fP(\fIexpr\fP[, \fIarg\fP])
+.ESAMPLE
+.P
+This grammar shows expressions may be nested, e.g. using the addition (\fB+\fP) operator as an example,
+.P
+.SAMPLE
+\fIfunc1\fP\fB(\fP\fIfunc2\fP\fB(\fP\fIexpr\fP\fB))\fP
+\fIfunc1\fP\fB(\fP\fIexpr\fP\fB)\fP \fB+\fP \fIfunc2\fP\fB(\fP\fIexpr\fP\fB)\fP
+\fIexpr\fP \fB+\fP \fIfunc\fP\fB(\fP\fIexpr\fP\fB)\fP
+\fIfunc\fP\fB(\fP\fIexpr\fP\fB)\fP \fB+\fP \fIexpr\fP
+\fIexpr\fP \fB+\fP \fIexpr\fP
+.ESAMPLE
+.PP
+Rules governing compatibility of operands in an expression generally depend on
+the function and/or operators and are described below individually.
+An important rule is that if any time windows are specified, then
+all operands must cover the same number of samples,
+though the time windows may differ individually.
+If no time windows or sample counts are given, then
+.B pmseries
+will return a series identifier (SID) instead of a series of timestamps and values.
+This SID may be used in subsequent
+.B /series/values?series=\fISID\fP
+RESTAPI calls, along with a specific time window.
+.SS Arithmetic Operators
+.B pmseries
+support addition, subtraction, division and multiplication on each value in the
+time series of a binary pair of operands.
+No urnary or tertiary operators are supported (yet).
+In all cases, the instance domain and the number of samples of
+time series operands must be the same.
+The metadata (units and dimensions) must also be compatible.
+Depending on the function, the result will usually have the same
+instance domain and (unless noted otherwise), the same units as
+the operands.
+The metadata dimensions (space, time, count) of the result may differ (see below).
+.PP
+Expression operands may have different qualifiers, e.g. you can perform binary arithmetic
+on metrics qualified by different labels (such as \fBhostname\fP), or metric names.
+E.g. add the two most recents samples of the context switching counter metric for hosts
+.B node88
+and
+.B node89
+and then perform rate conversion
+.P
+.SAMPLE
+$ pmseries 'rate(kernel.all.pswitch{hostname:\fBnode88\fP}[count:2] +
+                 kernel.all.pswitch{hostname:\fBnode89\fP}[count:2])'
+1cf1a85d5978640ef94c68264d3ae8866cc11f7c
+    [Tue Nov 10 14:39:48.771868000 2020] 71.257509 8e0a59304eb99237b89593a3e839b5bb8b9a9924
+.ESAMPLE
+.P
+Note the resulting time series of values has one less sample than the expression
+operand passed to the
+.B rate
+function.
+.PP
+Other rules for arithmetic expressions:
+.br
+- if both operands have the semantics of a counter, then only addition and subtraction are allowed
+.br
+- if the left operand is a counter and the right operand is not, then only multiplication or division are allowed
+.br
+- if the left operand is not a counter and the right operand is a counter, then only multiplication is allowed.
+.br
+addition and subtraction - the dimensions of the result are the same as the dimensions of the operands.
+.br
+multiplication - the dimensions of the result are the sum of the dimensions of the operands.
+.br
+division - the dimensions of the result are the difference of the dimensions of the operands.
+.SS Functions
+Expression functions operate on vectors of time series values,
+and may be nested with other functions or expressions as described above.
+When an operand has multiple instances, there will generally be one result
+for each series of instances.
+For example, the result for
+.P
+.SAMPLE
+$ pmseries 'min(kernel.all.load[count:100])'
+.ESAMPLE
+.P
+will be the smallest value of the 100 most recent samples,
+treating each of the three load average instances as a separate time series.
+As an example, for the two most recent samples for each of the
+three instances of the load average metric:
+.P
+.SAMPLE
+$ pmseries 'kernel.all.load[count:2]'
+726a325c4c1ba4339ecffcdebd240f441ea77848
+    [Tue Nov 10 11:52:30.833379000 2020] 1.100000e+00 a7c96e5e2e0431a12279756d11590fa9fed8f306
+    [Tue Nov 10 11:52:30.833379000 2020] 9.900000e-01 ee9b506935fd0976a893dc27242926f49326b9a1
+    [Tue Nov 10 11:52:30.833379000 2020] 1.070000e+00 d5e1c360d13064c461169091997e1e8be7488133
+    [Tue Nov 10 11:52:20.827134000 2020] 1.120000e+00 a7c96e5e2e0431a12279756d11590fa9fed8f306
+    [Tue Nov 10 11:52:20.827134000 2020] 9.900000e-01 ee9b506935fd0976a893dc27242926f49326b9a1
+    [Tue Nov 10 11:52:20.827134000 2020] 1.070000e+00 d5e1c360d13064c461169091997e1e8be7488133
+.ESAMPLE
+.P
+Using the \fBmin\fP function :
+.P
+.SAMPLE
+$ pmseries 'min(kernel.all.load[count:2])'
+11b965bc5f9598034ed9139fb3a78c6c0b7065ba
+    [Tue Nov 10 11:52:30.833379000 2020] 1.100000e+00 a7c96e5e2e0431a12279756d11590fa9fed8f306
+    [Tue Nov 10 11:52:30.833379000 2020] 9.900000e-01 ee9b506935fd0976a893dc27242926f49326b9a1
+    [Tue Nov 10 11:52:30.833379000 2020] 1.070000e+00 d5e1c360d13064c461169091997e1e8be7488133
+.ESAMPLE
+.P
+For singular metrics (with no instance domain), a single value will result,
+e.g. for the five most recent samples of the context switching metric:
+.P
+.SAMPLE
+$ pmseries 'kernel.all.pswitch[count:5]'
+d7832c4fba33bcc980b1a1b614e0508043288480
+    [Tue Nov 10 12:44:59.380666000 2020] 460774294
+    [Tue Nov 10 12:44:49.382070000 2020] 460747232
+    [Tue Nov 10 12:44:39.378545000 2020] 460722370
+    [Tue Nov 10 12:44:29.379029000 2020] 460697388
+    [Tue Nov 10 12:44:19.379096000 2020] 460657412
+
+$ pmseries 'min(kernel.all.pswitch[count:5])'
+1b6e92fb5bc012372f54452734dd03f0f131fa06
+    [Tue Nov 10 12:44:19.379096000 2020] 460657412 d7832c4fba33bcc980b1a1b614e0508043288480
+
+.ESAMPLE
+.P
+Future versions of
+.B pmseries
+may provide functions that perform aggregation, interpolation, filtering or transforms in other ways,
+e.g. across instances instead of time.
+.SS Function Reference
+.BR max(\f2expr\fP)
+the maximum value in the time series for each instance of \fIexpr\fP
+.P
+.BR min(\f2expr\fP)
+the minimum value in the time series for each instance of \fIexpr\fP
+.P
+.BR rate(\f2expr\fP)
+the rate with respect to time of each sample.
+The given \fIexpr\fP must have
+.B counter
+semantics
+and the result will have
+.B instant
+semantics (the time dimension reduced by one).
+In addition, the result will have one less sample than the operand - this
+is because the first sample cannot be rate converted (two samples are required).
+.P
+.BR rescale(\f2expr\fP, \f2scale\fP)
+rescale the values in the time series for each instance of
+.I expr
+to
+.I scale
+(units).
+Note that
+.I expr
+should have
+.B instant
+or
+.B discrete
+semantics (not
+.B counter
+- rate conversion should be done first if needed).
+The time, space and count dimensions between
+.I expr
+and
+.I scale
+must be compatible.
+Example:
+rate convert the read thruput counter for each disk instance and then rescale to mbytes per second.
+Note the native units of
+.B disk.dev.read_bytes
+is a
+.B counter
+of kbytes read from each device instance since boot.
+.P
+.SAMPLE
+$ pmseries 'rescale(rate(disk.dev.read_bytes[count:4]), "mbytes/s")'
+.ESAMPLE
+.P
+.BR abs(\f2expr\fP)
+the absolute value of each value in the time series for each instance of \fIexpr\fP.
+This has no effect if the type of \fIexpr\fP is unsigned.
+.P
+.BR floor(\f2expr\fP)
+rounded down to the nearest integer value of the time series for each instance of \fIexpr\fP.
+.P
+.BR round(\f2expr\fP)
+rounded up or down to the nerest integer for each value in the time series
+for each instance of \fIexpr\fP.
+.P
+.BR log(\f2expr\fP)
+logarithm of the values in the time series for each instance of \fIexpr\fP
+.P
+.BR sqrt(\f2expr\fP)
+square root of the values in the time series for each instance of \fIexpr\fP
+.SS Compatibility
+All operands in an expression must have the same number of samples,
+but not necessarily the same time window. e.g. you could subtract some
+metric time series from today from that of yesterday by giving different
+time windows and different metrics or qualifiers, ensuring the same number
+of samples are given as the operands.
+.PP
+Operands in an expression must either all have a time window, or none.
+If no operands have a time window, then instead of a series of time stamps
+and values, the result will be a time series identifier (\f2SID\fP)
+that may be passed to the
+.B /series/values?series=\f2SID\fP
+REST API function, along with a time window.
+For further details, see
+.BR PMWEBAPI (3).
+.PP
+If the semantics of both operands in an arithmetic expression
+are not counter (i.e. \fBPM_SEM_INSTANT\fP or \fBPM_SEM_DISCRETE\fP) then the
+result will have semantics \fBPM_SEM_INSTANT\fP unless both
+operands are \fBPM_SEM_DISCRETE\fP in which case the result
+is also \fBPM_SEM_DISCRETE\fP.
 .SH TIMESERIES METADATA
 Using command line options,
 .B pmseries
