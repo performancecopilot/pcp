@@ -621,7 +621,8 @@ slackpkg?	/usr/lib*/python2.*/*-packages/psycopg2	[python-psycopg2]
 pacman?	/usr/lib/python3.*/*-packages/psycopg2/sql.py	[community/python-psycopg2 (build optional)]
 brew?	/usr/local/lib/python3.*/*-packages/psycopg2	[pip3(psycopg2)]
 # -- python pyodbc (mssql)
-rpm?    /usr/lib*/python3.*/*-packages/pyodbc*          [python3-pyodbc (QA optional)]
+rpm?    /usr/lib*/python2.*/*-packages/pyodbc*          [python-pyodbc]
+rpm?    /usr/lib*/python3.*/*-packages/pyodbc*          [python3-pyodbc]
 # perl modules
 # -- Time::HiRes
 dpkg?	Time::HiRes		[libperl[0-9][0-9.]*]

@@ -1777,8 +1777,14 @@ URL: https://pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
 %if !%{disable_python3}
 Requires: python3-pcp
+%if 0%{?rhel} == 0
+Requires: python3-pyodbc
+%endif
 %else
 Requires: %{__python2}-pcp
+%if 0%{?rhel} == 0
+Requires: %{__python2}-pyodbc
+%endif
 %endif
 %description pmda-mssql
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
