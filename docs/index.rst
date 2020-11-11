@@ -16,7 +16,7 @@ makes it especially useful for those seeking centralized monitoring of distribut
 
 * :doc:`UAG/AboutUAGGuide`
 * :doc:`PG/AboutPGGuide`
-* `REST API - PMWEBAPI <api/>`__
+* `REST API Guide <api/>`__
 
 .. toctree::
    :caption: Guides
@@ -51,3 +51,9 @@ makes it especially useful for those seeking centralized monitoring of distribut
    PG/PMAPI
    PG/InstrumentingApplications
 
+.. toctree::
+   :caption: REST API Guide
+   :numbered:
+   :hidden:
+
+   REST API Guide <https://pcp.readthedocs.io/en/latest/api/>
