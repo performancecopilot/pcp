@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 5.2.2
+Version: 5.2.3
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2+ and CC-BY
@@ -2895,6 +2895,7 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %config %{_sysconfdir}/pcp.env
 %dir %{_confdir}/labels
 %dir %{_confdir}/labels/optional
+%config(noreplace) %{_confdir}/labels.conf
 %dir %{_confdir}/pipe.conf.d
 %dir %{_confdir}/pmcd
 %config(noreplace) %{_confdir}/pmcd/pmcd.conf
@@ -3438,6 +3439,9 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %endif
 
 %changelog
+* Wed Dec 16 2020 Nathan Scott <nathans@redhat.com> - 5.2.3-1
+- Update to latest PCP sources.
+
 * Wed Nov 11 2020 Nathan Scott <nathans@redhat.com> - 5.2.2-1
 - Update to latest PCP sources.
 
