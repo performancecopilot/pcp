@@ -510,6 +510,8 @@ _check_logger()
     x=5
     [ ! -z "$PMCD_REQUEST_TIMEOUT" ] && x=$PMCD_REQUEST_TIMEOUT
 
+    [ -z "$PMLOGGER_REQUEST_TIMEOUT" ] && export PMLOGGER_REQUEST_TIMEOUT=2
+
     # wait for maximum time of a connection and 20 requests
     #
     delay=`expr \( $delay + 20 \* $x \) \* 10`	# tenths of a second

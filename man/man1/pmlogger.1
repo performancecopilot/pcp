@@ -1067,6 +1067,19 @@ to run in a localhost-only mode of operation, where it binds only
 to the loopback interface.
 .PP
 The
+.B PMLOGGER_REQUEST_TIMEOUT
+variable may be set by applications such as
+.BR pmlc (1)
+to specify a timeout in seconds for connection requests
+to the
+.B pmlogger
+control port.
+If not set, connections may block indefinitely.
+This variable would not normally be set by
+.B pmlogger
+itself.
+.PP
+The
 .B PMLOGGER_MAXPENDING
 variable can be set to indicate the maximum length to which the queue
 of pending

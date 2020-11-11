@@ -2579,14 +2579,14 @@ series_pmAtomValue_conv_str(int type, char *str, pmAtomValue *val, int max_len)
     case PM_TYPE_FLOAT:
     case PM_TYPE_DOUBLE:
         s = pmAtomStr_r(val, type, str, max_len);
+	if (s && (isdigit(*s) || *s == '-' || *s == '+'))
+            return strlen(str);
         break;
+
     default:
         s = NULL;
         break;
     }
-
-    if (s && (isdigit(*s) || *s == '-' || *s == '+'))
-        return (strlen(str) + 1);
 
     pmNotifyErr(LOG_ERR, "series_pmAtomValue_conv_str: type=%s failed: %s\n",
             pmTypeStr(type), s ? s : "only numeric types supported");

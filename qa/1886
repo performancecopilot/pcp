@@ -1,7 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 1886
 # Test function evaluation in pmseries queries
-# -- Note: this test is work in progress --
 #
 # Copyright (c) 2020 Red Hat.  All Rights Reserved.
 #

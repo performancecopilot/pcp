@@ -682,10 +682,17 @@ dopmda(int pdu)
 	    else if (param.number & PM_LABEL_INSTANCES) {
 		printf("Instances of pmInDom: %s\n", pmInDomStr(param.indom));
 		ident = param.indom;
+		if (profile_changed) {
+		    if ((sts = __pmSendProfile(toPMDA, FROM_ANON, 0, profile)) < 0)
+			printf("Error: __pmSendProfile() failed: %s\n", pmErrStr(sts));
+		    else
+			profile_changed = 0;
+		}
 	    }
 	    else /* param.number & (PM_LABEL_DOMAIN|PM_LABEL_CONTEXT) */
 		ident = PM_IN_NULL;
 
+	    sts = 0;
 	    if ((sts = __pmSendLabelReq(toPMDA, FROM_ANON, ident, param.number)) >= 0) {
 		if ((pinpdu = sts = __pmGetPDU(fromPMDA, ANY_SIZE, TIMEOUT_NEVER, &pb)) == PDU_LABEL) {
 		    if ((sts = __pmDecodeLabel(pb, &ident, &type, &labelset, &numsets)) >= 0) {

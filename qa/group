@@ -1721,6 +1721,7 @@ x11
 1281 archive pmdumplog valgrind local
 1282:retired other local
 1283 dbpmda local
+1284 pmrep pmda.linux local
 1287 pmda.install pmda.openmetrics local python
 1289 pmval archive multi-archive decompress-xz local pmlogextract
 1294 libpcp_mmv labels local valgrind
@@ -1851,7 +1852,7 @@ x11
 1768 pmfind local
 1793 pmrep pcp2xxx python local
 1805 pmda.linux kernel local
-1813:reserved python labels local
+1813 python labels local
 1820 atop local
 1821 pmlogpaste local
 1824 pmproxy local
@@ -1861,6 +1862,7 @@ x11
 1855 pmda.rabbitmq local
 1871 pmsearch local
 1872 pmproxy local
+1874 pmseries pmproxy local
 1876 pmcd secure local
 1886 pmseries local libpcp_web local
 1896 pmlogger logutil pmlc local
