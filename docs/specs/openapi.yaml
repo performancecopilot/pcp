@@ -153,7 +153,7 @@ paths:
           type: string
       responses:
         200:
-          description: successful operation
+          description: OK
           content:
             pmjson:
               schema:
@@ -222,7 +222,7 @@ paths:
           type: string
       responses:
         200:
-          description: successful operation
+          description: OK
           content:
             pmjson:
               schema:
@@ -266,7 +266,7 @@ paths:
           type: string
       responses:
         200:
-          description: successful operation
+          description: OK
           content:
             pmjson:
               schema:
@@ -345,7 +345,7 @@ paths:
           type: string
       responses:
         200:
-          description: successful operation
+          description: OK
           content:
             pmjson:
               schema:
@@ -388,7 +388,7 @@ paths:
           type: string
       responses:
         200:
-          description: successful operation
+          description: OK
           content:
             pmjson:
               schema:
@@ -427,7 +427,7 @@ paths:
           type: string
       responses:
         200:
-          description: successful operation
+          description: OK
           content:
             pmjson:
               schema:
@@ -482,7 +482,7 @@ paths:
           type: string
       responses:
         200:
-          description: successful operation
+          description: OK
           content:
             pmjson:
               schema:
@@ -516,7 +516,7 @@ paths:
           type: string
       responses:
         200:
-          description: successful operation
+          description: OK
           content:
             pmjson:
               schema:
@@ -584,7 +584,7 @@ paths:
           type: types
       responses:
         200:
-          description: successful operation
+          description: OK
           content:
             pmjson:
               schema:
@@ -654,7 +654,7 @@ paths:
           type: number
       responses:
         200:
-          description: successful operation
+          description: OK
           content:
             pmjson:
               schema:
@@ -708,7 +708,7 @@ paths:
       operationID: get/search/info
       responses:
         200:
-          description: successful operation
+          description: OK
           content:
             pmjson:
               schema:
@@ -791,7 +791,7 @@ paths:
           type: string
       responses:
         200:
-          description: successful operation
+          description: OK
           content:
             pmjson:
               schema:
@@ -904,7 +904,7 @@ paths:
           type: string
       responses:
         200:
-          description: successful operation
+          description: OK
           content:
             pmjson:
               schema:
@@ -1062,7 +1062,7 @@ paths:
           type: string
       responses:
         200:
-          description: successful operation
+          description: OK
           content:
             pmjson:
               schema:
@@ -1154,7 +1154,7 @@ paths:
           type: string
       responses:
         200:
-          description: successful operation
+          description: OK
           content:
             pmjson:
               schema:
@@ -1258,7 +1258,7 @@ paths:
           type: string
       responses:
         200:
-          description: successful operation
+          description: OK
           content:
             pmjson:
               schema:
@@ -1377,7 +1377,7 @@ paths:
           type: string
       responses:
         200:
-          description: successful operation
+          description: OK
           content:
             pmjson:
               schema:
@@ -1452,7 +1452,7 @@ paths:
           type: string
       responses:
         200:
-          description: successful operation
+          description: OK
           content:
             pmjson:
               schema:
@@ -1517,7 +1517,7 @@ paths:
           type: string
       responses:
         200:
-          description: successful operation
+          description: OK
           content:
             pmjson:
               schema:
