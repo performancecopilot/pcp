@@ -326,7 +326,7 @@ For example, refer to the PMNS shown in `Figure 8.1. Small Performance Metrics N
 
 .. _Figure 8.1. Small Performance Metrics Name Space (PMNS):
 
-.. figure:: ../../images/pmns-small2.png
+.. figure:: ../../images/pmns-small2.svg
 
    Figure 8.1. Small Performance Metrics Name Space (PMNS)
 

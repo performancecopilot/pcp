@@ -56,7 +56,7 @@ services across multiple hosts. For example, in `Figure 7.3. General PCP Deploym
 
 .. _Figure 7.3. General PCP Deployment for Multiple Systems:
 
-.. figure:: ../../images/multi-deploy.png
+.. figure:: ../../images/multi-deploy.svg
 
    Figure 7.3. General PCP Deployment for Multiple Systems
      
@@ -94,7 +94,7 @@ The arrangement in `Figure 7.4. PCP Deployment to Measure Client-Server Quality 
 
 .. _Figure 7.4. PCP Deployment to Measure Client-Server Quality of Service:
 
-.. figure:: ../../images/qos-deploy.png
+.. figure:: ../../images/qos-deploy.svg
 
    Figure 7.4. PCP Deployment to Measure Client-Server Quality of Service
 
@@ -139,7 +139,7 @@ As an extension of the previous option, designate one system to act as the PCP a
 
 .. _Figure 7.5. Designated PCP Archive Site:
 
-.. figure:: ../../images/designated-logger.png
+.. figure:: ../../images/designated-logger.svg
 
     Figure 7.5. Designated PCP Archive Site
      

@@ -450,7 +450,7 @@ This scheme is illustrated by the time line shown in `Figure 5.1. Sampling Time 
 
 .. _Figure 5.1. Sampling Time Line:
 
-.. figure:: ../../images/sampling-timeline.png
+.. figure:: ../../images/sampling-timeline.svg
 
     Figure 5.1. Sampling Time Line
 
