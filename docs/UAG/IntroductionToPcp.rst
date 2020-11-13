@@ -137,7 +137,7 @@ Instrumentation for the purpose of performance monitoring typically consists of 
 
 .. _Figure 1.1. Performance Metric Domains as Autonomous Collections of Data:
 
-.. figure:: ../../images/metric-domains.png
+.. figure:: ../../images/metric-domains.svg
 
    Figure 1.1. Performance Metric Domains as Autonomous Collections of Data
 
@@ -191,7 +191,7 @@ A metric name is formed by traversing the tree from the root to a leaf node with
 
 .. _Figure 1.3. Small Performance Metrics Name Space (PMNS):
 
-.. figure:: ../../images/pmns-small.png
+.. figure:: ../../images/pmns-small.svg
 
     Figure 1.3. Small Performance Metrics Name Space (PMNS)
 
@@ -276,7 +276,7 @@ The PMAPI also supports delivery of performance metrics from a historical source
 
 .. _Figure 1.4. Architecture for Retrospective Analysis:
 
-.. figure:: ../../images/retrospective-architecture.png
+.. figure:: ../../images/retrospective-architecture.svg
 
             Figure 1.4. Architecture for Retrospective Analysis  
 

@@ -200,7 +200,7 @@ For example, consider the filesystem and naming structure shown in `Figure 6.1. 
 
 .. _Figure 6.1. Archive Log Directory Structure:
 
-.. figure:: ../../images/log-directory.png
+.. figure:: ../../images/log-directory.svg
 
     Figure 6.1. Archive Log Directory Structure
 
