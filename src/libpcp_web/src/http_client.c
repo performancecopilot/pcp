@@ -498,6 +498,8 @@ on_header_value(http_parser *pp, const char *offset, size_t length)
 	if (cp->type_length > 0) {
 	    if (length + 1 > cp->type_length) {
 		cp->error_code = -E2BIG;
+        if (pmDebugOptions.http)
+	    fprintf(stderr, "on_header_value: Setting error E2BIG");
 		return 1;
 	    }
 	    strncpy(cp->type_buffer, offset, length);
@@ -518,6 +520,8 @@ on_body(http_parser *pp, const char *offset, size_t length)
 
     if (length > cp->body_length - cp->offset) {
 	cp->error_code = -E2BIG;
+    if (pmDebugOptions.http)
+	    fprintf(stderr, "on_body: Setting error E2BIG");
 	return 1;
     }
     strncpy(cp->body_buffer + cp->offset, offset, length);
@@ -580,25 +584,45 @@ http_client_response(http_client *cp)
     cp->offset = 0;
 
     do {
+	if (pmDebugOptions.http)
+	fprintf(stderr, "Reading data from buffer\n");
 	if ((sts = __pmRecv(cp->fd, buffer, sizeof(buffer), 0)) <= 0) {
+        if (pmDebugOptions.http)
+        fprintf(stderr, "Disconnecting sts=%d\n", sts);
 	    http_client_disconnect(cp);
 	    return sts ? sts : -EAGAIN;
 	}
+    if (pmDebugOptions.http)
+    fprintf(stderr, "http_client error code=%d", cp->error_code);
+
 	bytes = http_parser_execute(&cp->parser, &settings, buffer, sts);
+    if (pmDebugOptions.http){
+        fprintf(stderr, "http_parser_execute bytes=%u flags=%d error_code=%d\n", bytes, cp->flags, cp->error_code);
+        fprintf(stderr, "While loop condition=%d\n", (bytes && !(cp->flags & F_MESSAGE_END)));
+    }
 
     } while (bytes && !(cp->flags & F_MESSAGE_END));
 
     if (http_should_client_disconnect(cp))
 	http_client_disconnect(cp);
 
-    if (http_should_client_redirect(cp))
-	return -EMLINK;
+    if (http_should_client_redirect(cp)){
+        if (pmDebugOptions.http)
+        fprintf(stderr, "returning redirect required\n");
+	    return -EMLINK;
+    }
 
     if (http_should_keep_alive(&cp->parser) == 0)
 	http_client_disconnect(cp);
 
-    if (cp->error_code)
-	return cp->error_code;
+    if (cp->error_code){
+        if (pmDebugOptions.http)
+        fprintf(stderr, "returning error code=%d\n", cp->error_code);
+	    return cp->error_code;
+    }
+
+    if (pmDebugOptions.http)
+	    fprintf(stderr, "returning offset=%u\n", cp->offset);
 
     return cp->offset;
 }
@@ -743,12 +767,19 @@ pmhttpClientFetch(http_client *cp, const char *url,
 
 	/* parse, extract body, handle redirect */
 	if ((sts = http_client_response(cp)) < 0) {
-	    if (sts == -EAGAIN)		/* server closed */
+	    if (sts == -EAGAIN){		/* server closed */
+	    if (pmDebugOptions.http)
+	    fprintf(stderr, "Got server closed, trying again\n");
 		continue;
+        }
 	    if (sts == -EMLINK) {	/* http redirect */
-		redirected++;
+	    if (pmDebugOptions.http)
+	    fprintf(stderr, "Got redirect, trying again, attempt: %d\n", redirected);
+        redirected++;
 		continue;
 	    }
+        if (pmDebugOptions.http)
+	    fprintf(stderr, "Got error value: %d\n", sts);
 	    break;	/* propogate errors */
 	}
 	break;	/* successful exchange */
