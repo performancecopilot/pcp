@@ -204,7 +204,7 @@ static void dumpData(void)
  */
 static int refreshData(void)
 {
-    char	res[BUFSIZ];
+    char	res[BUFSIZ * 4];
     int		len;
     char	*s,*s2,*s3;
 
