@@ -597,7 +597,7 @@ http_client_response(http_client *cp)
 
 	bytes = http_parser_execute(&cp->parser, &settings, buffer, sts);
     if (pmDebugOptions.http){
-        fprintf(stderr, "http_parser_execute bytes=%d flags=%d error_code=%d\n", bytes, cp->flags, cp->error_code);
+        fprintf(stderr, "http_parser_execute bytes=%u flags=%d error_code=%d\n", bytes, cp->flags, cp->error_code);
         fprintf(stderr, "While loop condition=%d\n", (bytes && !(cp->flags & F_MESSAGE_END)));
     }
 
@@ -622,7 +622,7 @@ http_client_response(http_client *cp)
     }
 
     if (pmDebugOptions.http)
-	    fprintf(stderr, "returning offset=%d\n", cp->offset);
+	    fprintf(stderr, "returning offset=%u\n", cp->offset);
 
     return cp->offset;
 }
