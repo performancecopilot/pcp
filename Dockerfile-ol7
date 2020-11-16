@@ -1,0 +1,21 @@
+FROM oraclelinux:7
+
+ADD ./build-extra/repos /etc/yum.repos.d/
+ADD ./build-extra/keys /etc/pki/rpm-gpg/
+
+RUN rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7
+RUN rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-oracle
+
+RUN yum install -y ncurses-devel.x86_64 gcc.x86_64 autoconf rpm-build tar wget make \
+                    git perl-devel python-devel which flex bison readline-devel man \
+                    libibumad libibumad3 libuv rdma-core-devel libibumad-devel  \
+                    qt-devel qt4-devel libqt4-devel lib64qt4-devel libpfm-devel \
+                    libpfm libpfm4 libibmad-devel infiniband-diags-devel \
+                    crontab netstat ifconfig host hostname sadf time gcc ragel ed cpan \
+                    perl-LDAP perl-JSON rrdtool rrdtool-perl perl-XML-TokeParser \
+                    perl-YAML-LibYAML perl-Date-Manip perl-TimeDate rpm-build
+
+WORKDIR /src/pcp-build
+
+# ENTRYPOINT [ "./Makepkgs", "--verbose" ]
+ENTRYPOINT [ "./Makepkgs", "" ]

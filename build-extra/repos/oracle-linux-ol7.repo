@@ -1,0 +1,123 @@
+[ol7_latest]
+name=Oracle Linux $releasever Latest ($basearch)
+baseurl=https://yum$ociregion.oracle.com/repo/OracleLinux/OL7/latest/$basearch/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-oracle
+gpgcheck=1
+enabled=1
+skip_if_unavailable=1
+
+[ol7_u0_base]
+name=Oracle Linux $releasever GA installation media copy ($basearch)
+baseurl=https://yum$ociregion.oracle.com/repo/OracleLinux/OL7/0/base/$basearch/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-oracle
+gpgcheck=1
+enabled=0
+skip_if_unavailable=1
+
+[ol7_u1_base]
+name=Oracle Linux $releasever Update 1 installation media copy ($basearch)
+baseurl=https://yum$ociregion.oracle.com/repo/OracleLinux/OL7/1/base/$basearch/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-oracle
+gpgcheck=1
+enabled=0
+skip_if_unavailable=1
+
+[ol7_u2_base]
+name=Oracle Linux $releasever Update 2 installation media copy ($basearch)
+baseurl=https://yum$ociregion.oracle.com/repo/OracleLinux/OL7/2/base/$basearch/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-oracle
+gpgcheck=1
+enabled=0
+skip_if_unavailable=1
+
+[ol7_u3_base]
+name=Oracle Linux $releasever Update 3 installation media copy ($basearch)
+baseurl=https://yum$ociregion.oracle.com/repo/OracleLinux/OL7/3/base/$basearch/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-oracle
+gpgcheck=1
+enabled=0
+skip_if_unavailable=1
+
+[ol7_u4_base]
+name=Oracle Linux $releasever Update 4 installation media copy ($basearch)
+baseurl=https://yum$ociregion.oracle.com/repo/OracleLinux/OL7/4/base/$basearch/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-oracle
+gpgcheck=1
+enabled=0
+skip_if_unavailable=1
+
+[ol7_u5_base]
+name=Oracle Linux $releasever Update 5 installation media copy ($basearch)
+baseurl=https://yum$ociregion.oracle.com/repo/OracleLinux/OL7/5/base/$basearch/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-oracle
+gpgcheck=1
+enabled=0
+skip_if_unavailable=1
+
+[ol7_u6_base]
+name=Oracle Linux $releasever Update 6 installation media copy ($basearch)
+baseurl=https://yum$ociregion.oracle.com/repo/OracleLinux/OL7/6/base/$basearch/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-oracle
+gpgcheck=1
+enabled=0
+skip_if_unavailable=1
+
+[ol7_u7_base]
+name=Oracle Linux $releasever Update 7 installation media copy ($basearch)
+baseurl=https://yum$ociregion.oracle.com/repo/OracleLinux/OL7/7/base/$basearch/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-oracle
+gpgcheck=1
+enabled=0
+skip_if_unavailable=1
+
+
+[ol7_optional_latest]
+name=Oracle Linux $releasever Optional Latest ($basearch)
+baseurl=https://yum$ociregion.oracle.com/repo/OracleLinux/OL7/optional/latest/$basearch/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-oracle
+gpgcheck=1
+enabled=1
+skip_if_unavailable=1
+
+[ol7_addons]
+name=Oracle Linux $releasever Add ons ($basearch)
+baseurl=https://yum$ociregion.oracle.com/repo/OracleLinux/OL7/addons/$basearch/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-oracle
+gpgcheck=1
+enabled=0
+skip_if_unavailable=1
+
+[ol7_MODRHCK]
+name=Latest RHCK with fixes from Oracle for Oracle Linux $releasever ($basearch)
+baseurl=https://yum$ociregion.oracle.com/repo/OracleLinux/OL7/MODRHCK/$basearch/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-oracle
+gpgcheck=1
+priority=20
+enabled=0
+skip_if_unavailable=1
+
+[ol7_latest_archive]
+name=Oracle Linux $releasever Latest ($basearch) - Archive 
+baseurl=https://yum$ociregion.oracle.com/repo/OracleLinux/OL7/latest/archive/$basearch/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-oracle
+gpgcheck=1
+enabled=0
+skip_if_unavailable=1
+
+[ol7_optional_archive]
+name=Oracle Linux $releasever Optional ($basearch) - Archive
+baseurl=https://yum$ociregion.oracle.com/repo/OracleLinux/OL7/optional/archive/$basearch/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-oracle
+gpgcheck=1
+enabled=0
+skip_if_unavailable=1
+
+
+[ol7_security_validation]
+name=Oracle Linux $releasever ($basearch) Security Validations
+baseurl=https://yum$ociregion.oracle.com/repo/OracleLinux/OL7/security/validation/$basearch/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-oracle
+gpgcheck=1
+enabled=0
+skip_if_unavailable=1
+
