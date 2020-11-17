@@ -20,11 +20,6 @@ string	rule
 	modify	= no
 	display	= no;
 
-string	delta
-	default = "2 min"
-	help =
-"Sample interval between evaluations of this rule.";
-
 string	action_expand
 	default	= "%v/sec@%h"
 	display	= no
