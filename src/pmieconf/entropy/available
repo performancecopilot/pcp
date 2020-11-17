@@ -45,5 +45,5 @@ string	email_expand
 	display	= no
 	modify	= no;
 
-# 
+#
 # --- DO NOT MODIFY THIS FILE --- see pmieconf(5)

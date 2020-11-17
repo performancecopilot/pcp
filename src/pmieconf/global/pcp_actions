@@ -78,12 +78,5 @@ string	global.syslog_prefix
 	modify	= no
 	default	= "";
 
-# for SGI Embedded Support Partner integration, use:
-#	$ pmieconf modify global syslog_prefix '$esp_prefix$'
-string	global.esp_prefix
-	display	= no
-	modify	= no
-	default = "|\\\\$($esp_type$)";
-
-# 
+#
 # --- DO NOT MODIFY THIS FILE --- see pmieconf(5)

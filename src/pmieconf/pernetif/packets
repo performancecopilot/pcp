@@ -59,25 +59,5 @@ string	email_expand
 	display	= no
 	modify	= no;
 
-
-# Configuration info specific to non-PCP tools follows...
-# 
-
-# for SGI Embedded Support Partner integration:
-string	esp_type
-	default	= "0x200050"
-	display	= no
-	modify	= no;
-
-# for EnlightenDSM integration:
-string	enln_test
-	default	= per_netif.packets
-	display	= no
-	modify = no;
-string	enln_units
-	default	= pkt/s[%i]
-	display	= no
-	modify = no;
-
-# 
+#
 # --- DO NOT MODIFY THIS FILE --- see pmieconf(5)

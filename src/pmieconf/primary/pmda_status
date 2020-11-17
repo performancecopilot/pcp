@@ -39,5 +39,5 @@ shell	pmcd_sighup_action
 "The Performance Metrics Collector Daemon will be sent SIGHUP
 when the rule condition is true.";
 
-# 
+#
 # --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
