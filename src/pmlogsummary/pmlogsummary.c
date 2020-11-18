@@ -294,7 +294,7 @@ printsummary(const char *name)
 	    /* counter metric doesn't cover 90% of log */
 	    star = (avedata->desc.sem == PM_SEM_COUNTER && metricspan / logspan <= 0.1);
 
-	    if ((sts = pmNameInDom(avedata->desc.indom, instdata->inst, &str)) < 0) {
+	    if ((sts = pmNameInDomArchive(avedata->desc.indom, instdata->inst, &str)) < 0) {
 		if (msp && msp->ninst > 0 && avedata->desc.indom == PM_INDOM_NULL)
 		    break;
 		if (star)
@@ -866,7 +866,7 @@ calcaverage(pmResult *result)
 				char	*istr = NULL;
 
 				numnames = pmNameAll(avedata->desc.pmid, &names);
-				if (pmNameInDom(avedata->desc.indom,
+				if (pmNameInDomArchive(avedata->desc.indom,
 				    instdata->inst, &istr) < 0)
 				    istr = NULL;
 				if (rate < instdata->min) {
