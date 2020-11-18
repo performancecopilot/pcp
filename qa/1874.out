@@ -5,10 +5,14 @@ PONG
 
 pmseries: [Info] processed 5 archive records from PATH/archives/proc
 == verify series sum (a + b) SID lookup
+kernel.all.load + kernel.all.load
+http://localhost:54322/series/query?expr=kernel.all.load%20%2B%20kernel.all.load
 [
     "16aa36d93e5cd0733499eee7dafc07dbb2ad7067"
 ]
 == verify series sum (a + b) with samples
+kernel.all.load[samples:1] + kernel.all.load[samples:1]
+http://localhost:54322/series/query?expr=kernel.all.load%5Bsamples%3A1%5D%20%2B%20kernel.all.load%5Bsamples%3A1%5D
 [
     {
         "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
@@ -30,12 +34,37 @@ pmseries: [Info] processed 5 archive records from PATH/archives/proc
     }
 ]
 == verify series sum (a + b) with samples by SID
+kernel.all.load + kernel.all.load
+http://localhost:54322/series/values?series=16aa36d93e5cd0733499eee7dafc07dbb2ad7067&samples=1
 []
+http://localhost:54322/series/descs?series=16aa36d93e5cd0733499eee7dafc07dbb2ad7067
+[
+    {
+        "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
+        "source": "2cd6a38f9339f2dd1f0b4775bda89a9e7244def6",
+        "pmid": "511.0.0",
+        "indom": "60.2",
+        "semantics": "instant",
+        "type": "FLOAT",
+        "units": ""
+    }
+]
+http://localhost:54322/series/exprs?series=16aa36d93e5cd0733499eee7dafc07dbb2ad7067
+[
+    {
+        "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
+        "query": "kernel.all.load+kernel.all.load"
+    }
+]
 == verify series difference (a - b) SID lookup
+kernel.all.load - kernel.all.load
+http://localhost:54322/series/query?expr=kernel.all.load%20-%20kernel.all.load
 [
     "f29c38f54d5a3cb928496439760634617688036b"
 ]
 == verify series difference (a - b) with samples
+kernel.all.load[samples:1] - kernel.all.load[samples:1]
+http://localhost:54322/series/query?expr=kernel.all.load%5Bsamples%3A1%5D%20%2B%20kernel.all.load%5Bsamples%3A1%5D
 [
     {
         "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
@@ -57,12 +86,37 @@ pmseries: [Info] processed 5 archive records from PATH/archives/proc
     }
 ]
 == verify series difference (a - b) with samples by SID
+kernel.all.load - kernel.all.load
+http://localhost:54322/series/values?series=f29c38f54d5a3cb928496439760634617688036b&samples=1
 []
+http://localhost:54322/series/descs?series=f29c38f54d5a3cb928496439760634617688036b
+[
+    {
+        "series": "f29c38f54d5a3cb928496439760634617688036b",
+        "source": "2cd6a38f9339f2dd1f0b4775bda89a9e7244def6",
+        "pmid": "511.0.0",
+        "indom": "60.2",
+        "semantics": "instant",
+        "type": "???",
+        "units": ""
+    }
+]
+http://localhost:54322/series/exprs?series=f29c38f54d5a3cb928496439760634617688036b
+[
+    {
+        "series": "f29c38f54d5a3cb928496439760634617688036b",
+        "query": "kernel.all.load-kernel.all.load"
+    }
+]
 == verify series function (floor(a)) SID lookup
+floor(kernel.all.load)
+http://localhost:54322/series/query?expr=floor%28kernel.all.load%29
 [
     "f2dbf7a113932b3371c8871df932603856d1d7b6"
 ]
 == verify series function (floor(a)) with samples
+floor(kernel.all.load[samples:2])
+http://localhost:54322/series/query?expr=floor%28kernel.all.load%5Bsamples%3A2%5D%29
 [
     {
         "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
@@ -102,4 +156,25 @@ pmseries: [Info] processed 5 archive records from PATH/archives/proc
     }
 ]
 == verify series function (floor(a)) with samples by SID
+floor(kernel.all.load)
+http://localhost:54322/series/values?series=f2dbf7a113932b3371c8871df932603856d1d7b6&samples=2
 []
+http://localhost:54322/series/descs?series=f2dbf7a113932b3371c8871df932603856d1d7b6
+[
+    {
+        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
+        "source": "2cd6a38f9339f2dd1f0b4775bda89a9e7244def6",
+        "pmid": "511.0.0",
+        "indom": "60.2",
+        "semantics": "instant",
+        "type": "float",
+        "units": "none"
+    }
+]
+http://localhost:54322/series/exprs?series=f2dbf7a113932b3371c8871df932603856d1d7b6
+[
+    {
+        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
+        "query": "floor(kernel.all.load)"
+    }
+]

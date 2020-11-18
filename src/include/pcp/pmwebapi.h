@@ -73,6 +73,10 @@ typedef enum pmSeriesFlags {
     PM_SERIES_FLAG_ALL		= ((unsigned int)~PM_SERIES_FLAG_NONE)
 } pmSeriesFlags;
 
+typedef struct pmSeriesExpr {
+    sds		query;		/* canonical expression string */
+} pmSeriesExpr;
+
 typedef struct pmSeriesDesc {
     sds		indom;		/* dotted-pair instance domain identifier */
     sds		pmid;		/* dotted-triple metric identifier */
@@ -116,6 +120,7 @@ typedef void (*pmSeriesSetupCallBack)(void *);
 typedef int (*pmSeriesMatchCallBack)(pmSID, void *);
 typedef int (*pmSeriesStringCallBack)(pmSID, sds, void *);
 typedef int (*pmSeriesDescCallBack)(pmSID, pmSeriesDesc *, void *);
+typedef int (*pmSeriesExprCallBack)(pmSID, pmSeriesExpr *, void *);
 typedef int (*pmSeriesInstCallBack)(pmSID, pmSeriesInst *, void *);
 typedef int (*pmSeriesValueCallBack)(pmSID, pmSeriesValue *, void *);
 typedef int (*pmSeriesLabelCallBack)(pmSID, pmSeriesLabel *, void *);
@@ -124,6 +129,7 @@ typedef void (*pmSeriesDoneCallBack)(int, void *);
 typedef struct pmSeriesCallBacks {
     pmSeriesMatchCallBack	on_match;	/* one series identifier */
     pmSeriesDescCallBack	on_desc;	/* metric descriptor */
+    pmSeriesExprCallBack	on_expr;	/* query expression */
     pmSeriesInstCallBack	on_inst;	/* instance details */
     pmSeriesLabelCallBack	on_labelmap;	/* label name value pair */
     pmSeriesStringCallBack	on_instance;	/* one instance name */
@@ -153,6 +159,7 @@ extern int pmSeriesSetMetricRegistry(pmSeriesModule *, struct mmv_registry *);
 extern void pmSeriesClose(pmSeriesModule *);
 
 extern int pmSeriesDescs(pmSeriesSettings *, int, sds *, void *);
+extern int pmSeriesExprs(pmSeriesSettings *, int, sds *, void *);
 extern int pmSeriesLabels(pmSeriesSettings *, int, sds *, void *);
 extern int pmSeriesLabelValues(pmSeriesSettings *, int, sds *, void *);
 extern int pmSeriesInstances(pmSeriesSettings *, int, sds *, void *);
