@@ -37,15 +37,5 @@ string	email_expand
 	display = no
 	modify  = no;
 
-
-# Configuration info specific to non-PCP tools follows...
-# 
-
-# for SGI Embedded Support Partner integration:
-string  esp_type
-	default	= "0x2000A9"
-	display	= no
-	modify	= no;
-
-# 
+#
 # --- DO NOT MODIFY THIS FILE --- see pmieconf(5)

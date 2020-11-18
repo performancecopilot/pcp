@@ -13,6 +13,8 @@ Warning - failed to expand action for rule filesys.filling
   string: "$syslog_prefix$$rule$^ $action_expand$"
 Warning - failed to expand action for rule memory.exhausted
   string: "$syslog_prefix$$rule$^ $action_expand$"
+Warning - failed to expand action for rule memory.oom_kill
+  string: "$syslog_prefix$$rule$^ $action_expand$"
 Warning - failed to expand action for rule memory.swap_low
   string: "$syslog_prefix$$rule$^ $action_expand$"
 Warning - failed to expand action for rule network.listenoverflows

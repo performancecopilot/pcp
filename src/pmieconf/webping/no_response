@@ -1,6 +1,6 @@
 #pmieconf-rules 1
 # --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
-# 
+#
 
 rule	webping.no_response
 	default	= "$rule$"
@@ -32,25 +32,5 @@ string	email_expand
 	display = no
 	modify  = no;
 
-
-# Configuration info specific to non-PCP tools follows...
-# 
-
-# for SGI Embedded Support Partner integration:
-string  esp_type
-	default	= "0x2000AB"
-	display	= no
-	modify	= no;
-
-# for HP OpenView integration:
-string	ov_severity
-	display = no
-	default	= "Critical";
-
-# for CA/Unicenter TNG integration:
-string	tngfw_color
-	display	= no
-	default	= "Red";
-
-# 
+#
 # --- DO NOT MODIFY THIS FILE --- see pmieconf(5)

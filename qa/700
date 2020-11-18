@@ -30,7 +30,10 @@ rpm -qa | egrep '(pcp-|-pcp)' >$tmp.rpms
 [ -s $tmp.rpms ] || _notrun "No PCP rpms installed"
 
 # filter packages that are known to not be part of PCP
-sed -i '/^grafana-pcp/d' $tmp.rpms
+sed -i \
+	-e '/^ansible-pcp/d' \
+	-e '/^grafana-pcp/d' \
+	$tmp.rpms
 
 # real QA test starts here
 echo "Silence is golden ..."

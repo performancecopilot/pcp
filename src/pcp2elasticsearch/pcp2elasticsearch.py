@@ -22,6 +22,7 @@
 # Common imports
 from collections import OrderedDict
 import errno
+import math
 import time
 import sys
 
@@ -51,6 +52,7 @@ class pcp2elasticsearch(object):
         """ Construct object, prepare for command line handling """
         self.context = None
         self.daemonize = 0
+        self.maxlong = pow(2, 63) # java long limit, applied by elasticsearch
         self.pmconfig = pmconfig.pmConfig(self)
         self.opts = self.options()
 
@@ -437,7 +439,14 @@ class pcp2elasticsearch(object):
                 labels = None
                 if self.include_labels:
                     labels = self.pmconfig.get_labels_str(metric, inst)
-                value = round(value, self.metrics[metric][6]) if isinstance(value, float) else value
+                if isinstance(value, long):
+                    if value > (self.maxlong - 1) or value < (-self.maxlong):
+                        value = round(float(value), self.metrics[metric][6])
+                if isinstance(value, float):
+                    if math.isnan(value):
+                        value = None
+                    else:
+                        value = round(value, self.metrics[metric][6])
                 pmns_leaf_dict = es_doc
 
                 for pmns_part in pmns_parts[:-1]:

@@ -1,3 +1,9 @@
+pcp (5.2.3-1) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 16 Dec 2020 08:11:33 +1100
+
 pcp (5.2.2-1) unstable; urgency=low
 
   * Remove python3-all-dev dependency (closes: #972330)

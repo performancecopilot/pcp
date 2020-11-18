@@ -72,8 +72,8 @@ fi
 
 if $PMDA_INFINIBAND
 then
-    echo "s/?{libibumad-dev}, /libibumad-dev [amd64 arm64 mips64el ppc64el s390x], /" >>$tmp.sed
-    echo "s/?{libibmad-dev}, /libibmad-dev [amd64 arm64 mips64el ppc64el s390x], /" >>$tmp.sed
+    echo "s/?{libibumad-dev}, /libibumad-dev, /" >>$tmp.sed
+    echo "s/?{libibmad-dev}, /libibmad-dev, /" >>$tmp.sed
 else
     echo "s/?{libibumad-dev}, //" >>$tmp.sed
     echo "s/?{libibmad-dev}, //" >>$tmp.sed

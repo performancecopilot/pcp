@@ -1,4 +1,5 @@
-ident	SQL Server summary information
+#pmlogconf-setup 2.0
+ident	Linux SQL Server summary information
 probe	mssql.access_methods.full_scans values ? include : exclude
 	mssql.access_methods.full_scans
 	mssql.general.user_connections
