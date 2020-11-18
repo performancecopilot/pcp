@@ -1,6 +1,14 @@
-ALL_RULES	= swap_low exhausted
+ALL_RULES	= swap_low exhausted oom_kill
 
-LOCAL_RULES = $(ALL_RULES)
+LOCAL_RULES = swap_low exhausted
+
+# Out-of-memory killer is Linux specific
+#
+# rule: oom_kill
+#   mem.vmstat.oom_kill -12357 Unknown metric name
+ifeq ($(TARGET_OS), linux)
+LOCAL_RULES += oom_kill
+endif
 
 # Metrics missing from Mac OS X
 #

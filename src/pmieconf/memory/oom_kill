@@ -1,0 +1,34 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
+#
+
+rule	memory.oom_kill
+	summary	= "$rule$"
+	enumerate = hosts
+	predicate =
+"some_host (
+        mem.vmstat.oom_kill $hosts$ > 0
+)"
+	enabled	= yes
+	version	= 1
+	help	=
+"The kernel out-of-memory killer functionality has sent a signal
+to at least one process during the previous sampling interval.";
+
+string	rule
+	default	= "OOM kill"
+	modify	= no
+	display	= no;
+
+string	action_expand
+	default	= "%v/sec@%h"
+	display	= no
+	modify	= no;
+
+string	email_expand
+	default	= "host: %h out-of-memory kills: %v%"
+	display	= no
+	modify	= no;
+
+#
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
