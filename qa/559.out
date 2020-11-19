@@ -12,5 +12,5 @@ sample.dynamic.instant ["one"] 338.500 328.012 280.000 397.000 6 count
 sample.dynamic.instant ["two"] 338.500 328.012 280.000 397.000 6 count
 sample.dynamic.discrete ["one"] 295.500 295.525 258.000 333.000 2 count
 sample.dynamic.discrete ["two"] 295.500 295.525 258.000 333.000 2 count
-pmcd.pmlogger.port [12796] 4331.000 4331.000 4331.000 4331.000 1 none
+pmcd.pmlogger.port ["12796"] 4331.000 4331.000 4331.000 4331.000 1 none
 pmcd.pmlogger.port ["12797"] 4331.000 4331.000 4331.000 4331.000 1 none
