@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2019 Red Hat.
+.\" Copyright (c) 2019-2020 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -15,6 +15,7 @@
 .TH PMSERIESDESCS 3 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmSeriesDescs\f1,
+\f3pmSeriesExprs\f1,
 \f3pmSeriesLabels\f1,
 \f3pmSeriesLabelValues\f1,
 \f3pmSeriesInstances\f1,
@@ -29,6 +30,9 @@
 .in +8n
 .ti -8n
 int pmSeriesDescs(pmSeriesSettings *\fIsp\fP, int \fIcount\fP, sds *\fIseries\fP, void *\fIarg\fP);
+.br
+.ti -8n
+int pmSeriesExprs(pmSeriesSettings *\fIsp\fP, int \fIcount\fP, sds *\fIseries\fP, void *\fIarg\fP);
 .br
 .ti -8n
 int pmSeriesLabels(pmSeriesSettings *\fIsp\fP, int \fIcount\fP, sds *\fIseries\fP, void *\fIarg\fP);
@@ -93,6 +97,25 @@ When this call is issued with a zero value for
 It is an error to pass a zero or negative value of
 .I count
 into this interface.
+.PP
+To extract the expression associated with one or more prior time series queries, the
+.B pmSeriesExprs
+interface is used.
+For each valid
+.I series
+identifier provided, the callback will be invoked to provide the
+expression string associated with that identifier, if any.
+Note that expressions are only persistently associated with queries
+that include arithmetic operators or functions, not simple metric names.
+For further details, see the \fB/series/exprs\fP and \fB/series/query\fP
+RESTAPI calls in
+.BR PMWEBAPI (3)
+and the
+.B \-e
+and
+.B \-q
+options to
+.BR pmseries (1).
 .PP
 To extract label names and values, the
 .B pmSeriesLabels
