@@ -218,6 +218,7 @@ usr/share/man/man3/pmSemStr.3.gz
 usr/share/man/man3/pmSemStr_r.3.gz
 usr/share/man/man3/pmSeriesClose.3.gz
 usr/share/man/man3/pmSeriesDescs.3.gz
+usr/share/man/man3/pmSeriesExprs.3.gz
 usr/share/man/man3/pmSeriesInstances.3.gz
 usr/share/man/man3/pmSeriesLabels.3.gz
 usr/share/man/man3/pmSeriesLabelValues.3.gz
