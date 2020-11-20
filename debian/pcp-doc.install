@@ -108,8 +108,6 @@ usr/share/doc/pcp-doc/html/pmview/godzilla.web.view
 usr/share/doc/pcp-doc/html/qwtlicense.html
 usr/share/doc/pcp-doc/html/timecontrol.html
 usr/share/doc/pcp-doc/html/views.html
-usr/share/doc/pcp-doc/pcp-programmers-guide.pdf
-usr/share/doc/pcp-doc/pcp-users-and-administrators-guide.pdf
 usr/share/pcp/demos/tutorials/cpuperf.tar.gz
 usr/share/pcp/demos/tutorials/diskmodel.tar.gz
 usr/share/pcp/demos/tutorials/diskperf.tar.gz
