@@ -76,6 +76,22 @@ These identifiers are returned via the
 .I on_match
 callback registered using
 .BR pmSeriesSetup .
+If the
+.I query
+expression includes function calls or arithmetic operators (rather than simple metric names),
+then the returned identifier is dynamically created and persistently associated with the
+expression.
+The
+.B query
+expression may be retrieved with the
+.BR pmSeriesExprs (3)
+API call.
+See also
+.BR PMWEBAPI (3)
+and the
+.B \-e
+option to
+.BR pmseries (1).
 .PP
 The second mode is where a time window specification is used in the
 .I query

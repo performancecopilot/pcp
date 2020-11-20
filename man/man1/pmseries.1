@@ -18,7 +18,7 @@
 \f3pmseries\f1 \- display information about performance metric timeseries
 .SH SYNOPSIS
 \fBpmseries\fR
-[\fB\-adFiIlLmMnqsStvV?\fR]
+[\fB\-adeFiIlLmMnqsStvV?\fR]
 [\fB\-c\fR \fIconfig\fR]
 [\fB\-g\fR \fIpattern\fR]
 [\fB\-h\fR \fIhost\fR]
@@ -551,12 +551,23 @@ metadata reporting options are:
 .TP 5
 \fB\-a\fR, \fB\-\-all\fR
 Convenience option to report all metadata for the given timeseries,
-equivalent to \fB\-dilms\fR.
+equivalent to \fB\-deilms\fR.
 .TP
 \fB\-d\fR, \fB\-\-desc\fR
 Metric descriptions detailing the PMID, data type, data semantics, units,
 scale and associated instance domain.
 This option has a direct \fBpminfo\fR(1) equivalent.
+.TP
+\fB\-e\fP, \fB\-\-expr\fP
+The expression associated with one or more
+\fIseries\fP SHA-1 identifiers given on the command line.
+These identifiers are created and persistently associated with
+the \fIquery\fP expression argument to
+.B pmseries
+queries (see \fB\-\-query\fP) when a time window is not included as part of the query.
+They are also created by RESTAPI
+\fB/series/query\fP calls that do not specify a time window, see
+.BR PMWEBAPI (3).
 .TP
 \fB\-g\fR \fIpattern\fR, \fB\-\-glob\fR=\fIpattern\fR
 Provide a
