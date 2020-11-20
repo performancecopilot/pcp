@@ -19,8 +19,8 @@ default:
 include $(BUILDRULES)
 
 install: default
-	$(INSTALL) -m 755 -d $(PCP_BOOKS_DIR)/html/images
-	$(INSTALL) -m 644 $(INSTFILES) $(PCP_BOOKS_DIR)/html/images
+	$(INSTALL) -m 755 -d $(PCP_HTML_DIR)/images
+	$(INSTALL) -m 644 $(INSTFILES) $(PCP_HTML_DIR)/images
 
 default_pcp : default
 

@@ -49,46 +49,4 @@ AC_DEFUN([AC_PACKAGE_GLOBALS],
     test -f /etc/debian_version && pkg_distribution=debian
     test -z "$DISTRIBUTION" || pkg_distribution="$DISTRIBUTION"
     AC_SUBST(pkg_distribution)
-
-    pkg_doc_dir=`eval echo $datadir`
-    pkg_doc_dir=`eval echo $pkg_doc_dir/doc/pcp-gui`
-    if test "`echo $pkg_doc_dir | sed 's;/.*\$;;'`" = NONE
-    then
-	if test -d /usr/share/doc
-	then
-	    pkg_doc_dir=/usr/share/doc/pcp-gui
-	else
-	    pkg_doc_dir=/usr/share/pcp-gui
-	fi
-    fi
-    test -z "$DOCDIR" || pkg_doc_dir="$DOCDIR"
-    AC_SUBST(pkg_doc_dir)
-
-    pkg_books_dir=`eval echo $datadir`
-    pkg_books_dir=`eval echo $pkg_books_dir/doc/pcp-doc`
-    if test "`echo $pkg_books_dir | sed 's;/.*\$;;'`" = NONE
-    then
-	if test -d /usr/share/doc
-	then
-	    pkg_books_dir=/usr/share/doc/pcp-doc
-	else
-	    pkg_books_dir=/usr/share/pcp-doc
-	fi
-    fi
-    test -z "$BOOKSDIR" || pkg_books_dir="$BOOKSDIR"
-    AC_SUBST(pkg_books_dir)
-
-    pkg_icon_dir=`eval echo $datadir`
-    pkg_icon_dir=`eval echo $pkg_icon_dir/pixmaps`
-    if test "`echo $pkg_icon_dir | sed 's;/.*\$;;'`" = NONE
-    then
-	if test -d /usr/share/doc
-	then
-	    pkg_icon_dir=/usr/share/doc/pcp-gui/pixmaps
-	else
-	    pkg_icon_dir=/usr/share/pcp-gui/pixmaps
-	fi
-    fi
-    test -z "$ICONDIR" || pkg_icon_dir="$ICONDIR"
-    AC_SUBST(pkg_icon_dir)
   ])

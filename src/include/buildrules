@@ -122,18 +122,6 @@ endif
 	rm -f $@
 	$(LN_S) $< $@
 
-# Suffix rule to support transition for XML to PDF (books)
-%.pdf:	%.xml
-ifeq ($(BOOK_TOOLCHAIN),publican)
-	$(PUBLICAN) build --langs=en-US --formats=pdf
-endif
-ifeq ($(BOOK_TOOLCHAIN),xmlto)
-	$(XMLTO) --with-fop pdf $^
-endif
-ifeq ($(BOOK_TOOLCHAIN),dblatex)
-	$(DBLATEX) --type pdf $^
-endif
-
 ifeq ($(TARGET_OS), mingw)
 #
 # .exe rule for Windows

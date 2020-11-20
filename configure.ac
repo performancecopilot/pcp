@@ -117,18 +117,6 @@ AC_ARG_WITH([dstat-symlink],
     [do_dstat_symlink=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-dstat-symlink=$withval"],
     [do_dstat_symlink=check])
 
-AC_ARG_WITH([books],
-    [AC_HELP_STRING([--with-books],
-                    [enable building of the PCP books (default is off)])],
-    [do_books=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-books=$withval"],
-    [do_books=no])
-
-AC_ARG_WITH([books-brand],
-    [AC_HELP_STRING([--with-books-brand=BRAND],
-                    [choose the docbook brand when building the PCP books (default is common)])],
-    [do_books_brand=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-books-brand=$withval"],
-    [do_books_brand=common])
-
 AC_ARG_WITH([perfevent],
     [AC_HELP_STRING([--with-perfevent],
 		   [enable perfevent pmda (default is on)])],
@@ -1646,34 +1634,6 @@ if test -z "$MAKEPKG"; then
 fi
 makepkg=$MAKEPKG
 AC_SUBST(makepkg)
-
-dnl check if a toolchain is available for the books
-test -z "$PUBLICAN" && AC_PATH_PROG(PUBLICAN, publican)
-publican=$PUBLICAN
-AC_SUBST(publican)
-
-book_toolchain=""
-if test "$do_books" = "check" -o "$do_books" = "yes"
-then
-    if test "$BOOK_TOOLCHAIN" != ""
-    then
-        book_toolchain=$BOOK_TOOLCHAIN
-    elif test "$PUBLICAN" != ""
-    then
-        book_toolchain=publican
-    elif test "$do_books" = "yes"
-    then
-	AC_MSG_ERROR([cannot enable books build - no toolchain found])
-    fi
-fi
-AC_SUBST(book_toolchain)
-
-book_brand="common"
-if test "$do_books_brand" != ""
-then
-    book_brand=$do_books_brand
-fi
-AC_SUBST(book_brand)
 
 dnl check if symbolic links are supported
 AC_PROG_LN_S
@@ -3475,15 +3435,13 @@ pcp_inc_dir=`eval echo $includedir/pcp`
 pcp_inc_dir=`eval echo $pcp_inc_dir`
 AC_SUBST(pcp_inc_dir)
 
-dnl books - pdfs, html
+dnl html files (GUI online help, tutorials)
 if test $target_os = linux; then
-    pcp_books_dir=`eval echo $datarootdir/doc/pcp-doc`
+    pcp_html_dir=`eval echo $datarootdir/doc/pcp-doc/html`
 else
-    pcp_books_dir=`eval echo $datarootdir/doc/pcp`
+    pcp_html_dir=`eval echo $datarootdir/doc/pcp/html`
 fi
-pcp_books_dir=`eval echo $pcp_books_dir`
-pcp_html_dir=`eval echo $pcp_books_dir/html`
-AC_SUBST(pcp_books_dir)
+pcp_html_dir=`eval echo $pcp_html_dir`
 AC_SUBST(pcp_html_dir)
 
 dnl icon pixmap files

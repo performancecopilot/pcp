@@ -23,8 +23,8 @@ include $(BUILDRULES)
 install install-dev: default
 	$(INSTALL) -m 755 -d $(PCP_DEMOS_DIR)/tutorials
 	$(INSTALL) -m 644 $(BINTAR) $(PCP_DEMOS_DIR)/tutorials/$(BINTAR)
-	$(INSTALL) -m 755 -d $(PCP_BOOKS_DIR)/html/$(BUNDLE)
-	$(INSTALL) -m 644 $(CONFIGS) $(PCP_BOOKS_DIR)/html/$(BUNDLE)
+	$(INSTALL) -m 755 -d $(PCP_HTML_DIR)/$(BUNDLE)
+	$(INSTALL) -m 644 $(CONFIGS) $(PCP_HTML_DIR)/$(BUNDLE)
 
 default_pcp : default
 

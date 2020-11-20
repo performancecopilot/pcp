@@ -39,7 +39,7 @@ SUBDIRS = src
 ifneq ($(TARGET_OS),mingw)
 SUBDIRS += qa
 endif
-SUBDIRS += man books images build debian
+SUBDIRS += man images build debian
 
 default :: default_pcp
 
