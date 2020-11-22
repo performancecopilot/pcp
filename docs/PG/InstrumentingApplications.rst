@@ -50,7 +50,7 @@ infrastructure is shown in `Figure 4.1. Application and PCP Relationship`_:
 
 .. _Figure 4.1. Application and PCP Relationship:
 
-.. figure:: ../../images/instrumentation.png
+.. figure:: ../../images/instrumentation.svg
 
      Figure 4.1. Application and PCP Relationship
 
@@ -81,7 +81,7 @@ API, are shown in `Figure 4.2. Memory Mapped Page Sharing`_.
 
 .. _Figure 4.2. Memory Mapped Page Sharing:
 
-.. figure:: ../../images/pmdammv.png
+.. figure:: ../../images/pmdammv.svg
 
      Figure 4.2. Memory Mapped Page Sharing
 
@@ -385,7 +385,7 @@ Application Interaction
 
 .. _Figure 4.3. Trace PMDA Overview:
 
-.. figure:: ../../images/trace.png
+.. figure:: ../../images/trace.svg
 
    Figure 4.3. Trace PMDA Overview
 
@@ -450,7 +450,7 @@ during the most recently completed sample duration than simple periodic sampling
 
 .. _Figure 4.4. Sample Duration Comparison:
 
-.. figure:: ../../images/trace-sampling.png
+.. figure:: ../../images/trace-sampling.svg
 
    Figure 4.4. Sample Duration Comparison
 
@@ -470,7 +470,7 @@ It has a calculation subinterval of 2 seconds as shown in `Figure 4.5. Sampling 
 
 .. _Figure 4.5. Sampling Intervals:
 
-.. figure:: ../../images/trace-example.png
+.. figure:: ../../images/trace-example.svg
 
    Figure 4.5. Sampling Intervals
 

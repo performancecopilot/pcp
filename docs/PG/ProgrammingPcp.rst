@@ -53,7 +53,7 @@ performance metrics it knows how to collect.
 
 .. _Figure 1.1. PCP Global Process Architecture:
 
-.. figure:: ../../images/local-collector.png
+.. figure:: ../../images/local-collector.svg
 
    Figure 1.1. PCP Global Process Architecture
    
