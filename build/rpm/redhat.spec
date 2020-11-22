@@ -2701,6 +2701,10 @@ then
        %systemd_preun pmie.service
        %systemd_preun pmproxy.service
        %systemd_preun pmcd.service
+       %systemd_preun pmlogger_daily.timer
+       %systemd_preun pmlogger_daily-poll.timer
+       %systemd_preun pmlogger_check.timer
+
        systemctl stop pmlogger.service >/dev/null 2>&1
        systemctl stop pmie.service >/dev/null 2>&1
        systemctl stop pmproxy.service >/dev/null 2>&1
