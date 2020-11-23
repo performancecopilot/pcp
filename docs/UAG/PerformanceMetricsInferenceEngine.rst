@@ -470,7 +470,7 @@ In fact, this expression defines a point in the three-dimensional (3D) parameter
 
 .. _Figure 5.2. Three-Dimensional Parameter Space:
 
-.. figure:: ../../images/parameter-space.png
+.. figure:: ../../images/parameter-space.svg
 
     Figure 5.2. Three-Dimensional Parameter Space
 

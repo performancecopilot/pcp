@@ -334,7 +334,7 @@ is illustrated in `Figure 3.1. A Structured Result for Performance Metrics from 
  
 .. _Figure 3.1. A Structured Result for Performance Metrics from pmFetch:
 
-.. figure:: ../../images/pmresult.png
+.. figure:: ../../images/pmresult.svg
 
    Figure 3.1. A Structured Result for Performance Metrics from pmFetch
 
@@ -438,7 +438,7 @@ recorded by **pmlogger** for subsequent replay.
 
 .. _Figure 3.2. Sample write(2) syscall entry point encoding:
 
-.. figure:: ../../images/syscallevent.png
+.. figure:: ../../images/syscallevent.svg
 
    Figure 3.2. Sample write(2) syscall entry point encoding
 
@@ -452,7 +452,7 @@ The encoding of the series of events involves a compound data structure within t
 
 .. _Figure 3.3. Result Format for Event Performance Metrics from pmFetch:
 
-.. figure:: ../../images/pmevents.png
+.. figure:: ../../images/pmevents.svg
 
   Figure 3.3. Result Format for Event Performance Metrics from pmFetch
 
