@@ -1860,6 +1860,7 @@ x11
 1825 libpcp pmcd local valgrind
 1826 libpcp pmcd local
 1837 pmproxy local
+1850 pmseries libpcp_web local
 1855 pmda.rabbitmq local
 1871 pmsearch local
 1872 pmproxy local

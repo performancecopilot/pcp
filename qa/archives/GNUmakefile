@@ -68,7 +68,8 @@ CONFIGS = config.verify config.shping YWhcCi.toium.config \
 	  coverage.config
 
 OTHERS = README ds390-access.gz collectl-qa bigace.pmns \
-	 crontab-sar-report.tar.xz cputime.mpstat cputime.sar
+	 crontab-sar-report.tar.xz cputime.mpstat cputime.sar \
+	 farm.tar.xz
 
 LDIRT = pmlogger.log
 LDIRDIRT = tmp
