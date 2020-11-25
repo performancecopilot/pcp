@@ -3791,6 +3791,11 @@ series_redis_hash_expression(seriesQueryBaton *baton, char *hashbuf, int len_has
     for (i = 0; i < num_series; i++)
 	np->value_set.series_values[i].compatibility = 1;
 
+    if (num_series > 0) {
+	expr.query = series_function_hash(hash, np, 0);
+	pmwebapi_hash_str(hash, hashbuf, len_hashbuf);
+    }
+
     for (i = 0; i < num_series; i++) {
 	if (!np->value_set.series_values[i].compatibility) {
 	    infofmt(msg, "Descriptors for metric '%s' do not satisfy compatibility between different hosts/sources.\n",
@@ -3826,17 +3831,23 @@ series_redis_hash_expression(seriesQueryBaton *baton, char *hashbuf, int len_has
 				&np->value_set.series_values[j],
 				&units0, &units1, &large_units);
 		}
+	    } else {
+		infofmt(msg, "Time series functions can not take multiple metrics as parameters.\n");
+		batoninfo(baton, PMLOG_ERROR, msg);
+		baton->error = -EPROTO;
+		break;
 	    }
 	}
 
-	expr.query = series_function_hash(hash, np, i);
-	pmwebapi_hash_str(hash, hashbuf, len_hashbuf);
 	sdsfree(np->value_set.series_values[i].sid->name);
 	np->value_set.series_values[i].sid->name = sdsnew(hashbuf);
-
-	/* descriptor */
+    }
+    if (num_series > 0 && np->value_set.series_values[0].compatibility) {
+	/* descriptor, after the O(N^2) checking the descriptor of 1st series has been 
+	 * converted to the largest one.
+	 */
 	key = sdscatfmt(sdsempty(), "pcp:desc:series:%s", hashbuf);
-	series_hmset_function_desc(baton, key, &np->value_set.series_values[i].series_desc);
+	series_hmset_function_desc(baton, key, &np->value_set.series_values[0].series_desc);
 
 	/* expression */
 	key = sdscatfmt(sdsempty(), "pcp:expr:series:%s", hashbuf);
