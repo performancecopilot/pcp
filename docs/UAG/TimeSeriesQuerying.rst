@@ -214,7 +214,7 @@ operators are supported (yet). In all cases, the instance domain and the number 
 otherwise), the same units as the operands. The metadata dimensions (space, time, count) of the result may differ (see below).
 
 Expression operands may have different qualifiers, e.g. you can perform binary arithmetic on metrics qualified by different labels (such as **hostname**), 
-or metric names. For example, to add the two most recents samples of the process context switch (pswitch) counter metric for hosts **node88** and **node89**, 
+or metric names. For example, to add the two most recent samples of the process context switch (pswitch) counter metric for hosts **node88** and **node89**, 
 and then perform rate conversion:
 
 .. sourcecode:: none
