@@ -529,7 +529,7 @@ of metric label metadata - arbitrary key/value pairs - allows the implementer to
 
 In certain special cases (for example, such as for a histogram), it may be appropriate to export an array of values as raw binary data (the type encoding in the 
 descriptor is **PM_TYPE_AGGREGATE**). However, this requires the development of special PMAPI client tools, because the standard PCP tools have no knowledge of 
-the structure and interpretation of the binary data. The usual issues of platform-depdendence must also be kept in mind for this case - endianness, word-size, 
+the structure and interpretation of the binary data. The usual issues of platform-dependence must also be kept in mind for this case - endianness, word-size, 
 alignment and so on - the (possibly remote) special PMAPI client tools may need this information in order to decode the data successfully.
 
 Data Structures
@@ -700,7 +700,7 @@ Label Hierarchy
 ----------------
 
 The set of labels associated with any singleton metric or instance is formed by merging the sets of labels at each level of a hierarchy. The lower levels of the 
-hierarchy have highest precendence when merging overlapping (duplicate) label names:
+hierarchy have highest precedence when merging overlapping (duplicate) label names:
 
 * Global context labels (as reported by the **pmcd.labels** metric) are the lowest precedence. The PMDA implementor has no influence over labels at this level of 
   the hierarchy, and these labels are typically supplied by **pmcd** from **/etc/pcp/labels** files.
@@ -760,7 +760,7 @@ an actual instance identifier instead of PM_IN_NULL.
 
 For information about how a label can be associated with each level of the hierarchy, see the **pmdaLabel(3)** man page.
 
-The simple PMDA, shown in `Example 2.14. Simple PMDA`_, associates labels at the domain, indom and instance levels of the hierarhy.
+The simple PMDA, shown in `Example 2.14. Simple PMDA`_, associates labels at the domain, indom and instance levels of the hierarchy.
 
 .. _Example 2.14. Simple PMDA:
 
@@ -1415,7 +1415,7 @@ PMDA Structures
 =================
 
 PMDA structures used with the **pcp_pmda** library are defined in **<pcp/pmda.h>**. `Example 2.30. pmdaInterface Structure Header`_ and 
-`Example 2.32. pmdaExt Stucture`_ describe the **pmdaInterface** and **pmdaExt** structures.
+`Example 2.32. pmdaExt Structure`_ describe the **pmdaInterface** and **pmdaExt** structures.
 
 .. _Example 2.30. pmdaInterface Structure Header:
 
@@ -1492,9 +1492,9 @@ To date there have been six revisions of the interface structure:
    versions still exist, build, and function. In other words, PMDAs built against earlier versions of this header structure (and PMDA library) function correctly 
    with the latest version of the PMDA library.
    
-.. _Example 2.32. pmdaExt Stucture:
+.. _Example 2.32. pmdaExt Structure:
 
-**Example 2.32. pmdaExt Stucture**
+**Example 2.32. pmdaExt Structure**
 
 Additional PMDA information must be specified in a **pmdaExt** structure:
 
