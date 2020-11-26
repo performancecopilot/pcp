@@ -38,6 +38,7 @@ makes it especially useful for those seeking centralized monitoring of distribut
    UAG/ArchiveLogging
    UAG/PcpDeploymentStrategies
    UAG/CustomizingAndExtendingPcpServices
+   UAG/TimeSeriesQuerying
 
 
 .. toctree::
