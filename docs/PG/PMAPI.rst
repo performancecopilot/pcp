@@ -3,6 +3,8 @@
 PMAPI--The Performance Metrics API
 ######################################
 
+.. contents::
+
 This chapter describes the Performance Metrics Application Programming Interface (PMAPI) provided with Performance Co-Pilot (PCP).
 
 The PMAPI is a set of functions and data structure definitions that allow client applications to access performance data from one or more Performance Metrics 
@@ -18,8 +20,6 @@ the development of PCP.
 
 It will be convenient to differentiate between code that uses the PMAPI and code that implements the services of the PMAPI. The former will be termed “above the 
 PMAPI” and the latter “below the PMAPI.”
-
-.. contents::
 
 Naming and Identifying Performance Metrics
 *******************************************
@@ -446,7 +446,7 @@ Event metrics and their associated information (parameters, timestamps, flags, a
 the **pmResult** structure seen previously in `Example 3.9. pmResult Structure`_.
 
 The semantics of **pmFetch(3)** specifying an event metric PMID are such that all events observed on the collector since the previous fetch (by this specific 
-monitor client) are to transfered to the monitor. Each event will have the metadata described earlier encoded with it (timestamps, flags, and so on) for each event. 
+monitor client) are to transferred to the monitor. Each event will have the metadata described earlier encoded with it (timestamps, flags, and so on) for each event. 
 The encoding of the series of events involves a compound data structure within the **pmValueSet** associated with the event metric PMID, as illustrated in 
 `Figure 3.3. Result Format for Event Performance Metrics from pmFetch`_.
 

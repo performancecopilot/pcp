@@ -3,6 +3,8 @@
 Installing and Configuring Performance Co-Pilot
 ################################################
 
+.. contents::
+
 The sections in this chapter describe the basic installation and configuration steps necessary to run Performance Co-Pilot (PCP) on your systems. The following major sections are included:
 
 Section 2.1, “`Product Structure`_” describes the main packages of PCP software and how they must be installed on each system.
@@ -12,8 +14,6 @@ Section 2.2, “`Performance Metrics Collection Daemon (PMCD)`_”, describes th
 Section 2.3, “`Managing Optional PMDAs`_”, describes the basics of installing a new Performance Metrics Domain Agent (PMDA) to collect metric data and pass it to the PMCD.
 
 Section 2.4, “`Troubleshooting`_”, offers advice on problems involving the PMCD.
-
-.. contents::
 
 Product Structure
 ******************

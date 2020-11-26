@@ -3,6 +3,8 @@
 Fast, Scalable Time Series Querying - pmseries
 ################################################
 
+.. contents::
+
 **pmseries** is a fast, scalable time series querying which displays information about performance metrics.
 
 The major sections in this chapter are as follows:
@@ -22,8 +24,6 @@ Section 9.6, “`Timeseries Options`_”, explains the various timeseries option
 Section 9.7, “`PCP Environment`_”, describes environment variables used to parameterize the file and directory names used by PCP.
 
 Section 9.8, “`PCP Grafana Plugin`_”, explains the PCP Redis data source and lays out the path to the PCP Grafana Plugin.
-
-.. contents::
 
 Introduction to pmseries
 *************************
@@ -364,25 +364,27 @@ The complete set of **pmseries** metadata reporting options are:
 options                                    Description
 ========================================== ===============================================================================================================================
 **-a** , **--all**                         | Convenience option to report all metadata for the given timeseries, equivalent to **-dilms**.
-**-d** , **--desc**                        | Metric descriptions detailing the PMID, data type, data semantics, units, scale and associated instance domain. This 
-                                           | option has a direct `pminfo(1) <https://pcp.io/man/man1/pminfo.1.html>`_ equivalent.
-**-g** *pattern* , **--glob** = *pattern*  | Provide a `glob(7) <https://man7.org/linux/man-pages/man7/glob.7.html>`_ pattern to restrict the report provided by the 
-                                           | **-i** , **-l** , **-m** and **-S**.
+**-d** , **--desc**                        | Metric descriptions detailing the PMID, data type, data semantics, units, scale 
+                                           | and associated instance domain. This option has a direct pminfo(1) equivalent.
+**-g** *pattern* , **--glob** = *pattern*  | Provide a glob(7) pattern to restrict the report provided by the **-i** , **-l** , **-m** and **-S**.
 **-i** , **--instances**                   | Metric descriptions detailing the PMID, data type, data semantics, units, scale and associated instance domain.
-**-I** , **--fullindom**                   | Print the InDom in verbose mode. This option has a direct `pminfo(1) <https://pcp.io/man/man1/pminfo.1.html>`_ equivalent.
-**-l** , **--labels**                      | Print label sets associated with metrics and instances. Labels are optional metric metadata described in detail in 
-                                           | `pmLookupLabels(3) <https://man7.org/linux/man-pages/man3/pmLookupLabels.3.html>`_.  This option has a direct 
-                                           | `pminfo(1) <https://pcp.io/man/man1/pminfo.1.html>`_ equivalent.
+**-I** , **--fullindom**                   | Print the InDom in verbose mode. This option has a direct pminfo(1) equivalent.
+**-l** , **--labels**                      | Print label sets associated with metrics and instances. Labels are optional 
+                                           | metric metadata described in detail in pmLookupLabels(3). This option has a 
+                                           | direct pminfo(1) equivalent.
 **-m** , **--metrics**                     | Print metric names.
-**-M** , **--fullpmid**                    | Print the PMID in verbose mode. This option has a direct `pminfo(1) <https://pcp.io/man/man1/pminfo.1.html>`_ equivalent.
+**-M** , **--fullpmid**                    | Print the PMID in verbose mode. This option has a direct pminfo(1) equivalent.
 **-n** , **--names**                       | Print comma-separated label names only (not values) for the labels associated with metrics and instances.
-**-s** , **--series**                      | Print timeseries identifiers associated with metrics, instances and sources. These unique identifiers are calculated 
-                                           | from intrinsic (non-optional) labels and other metric metadata associated with each PMAPI context (sources), metrics 
-                                           | and instances. Archive, local context or `pmcd(1) <https://man7.org/linux/man-pages/man1/pmcd.1.html>`_ connections for 
-                                           | the same host all produce the same source identifier. This option has a direct 
-                                           | `pminfo(1) <https://pcp.io/man/man1/pminfo.1.html>`_ equivalent. See also 
-                                           | `pmLookupLabels(3) <https://man7.org/linux/man-pages/man3/pmLookupLabels.3.html>`_ and the **-l/--labels** option.
+**-s** , **--series**                      | Print timeseries identifiers associated with metrics, instances and sources. 
+                                           | These unique identifiers are calculated from intrinsic (non-optional) 
+                                           | labels and other metric metadata associated with each PMAPI context 
+                                           | (sources), metrics and instances. Archive, local context or pmcd(1) 
+                                           | connections for the same host all produce the same source identifier. 
+                                           | This option has a direct pminfo(1) equivalent. See also pmLookupLabels(3) 
+                                           | and the **-l/--labels** option.
 ========================================== ===============================================================================================================================
+
+*References* : `pminfo(1) <https://pcp.io/man/man1/pminfo.1.html>`_ , `glob(7) <https://man7.org/linux/man-pages/man7/glob.7.html>`_ , `pmLookupLabels(3) <https://man7.org/linux/man-pages/man3/pmLookupLabels.3.html>`_ , `pmcd(1) <https://man7.org/linux/man-pages/man1/pmcd.1.html>`_
 
 Timeseries Sources
 ====================
@@ -421,9 +423,9 @@ Options
 
 The available command line options, in addition to timeseries metadata and sources options described above, are:
 
-=============================================== ==================================================================================================
+=============================================== =====================================================================================================================
 options                                         Description
-=============================================== ==================================================================================================
+=============================================== =====================================================================================================================
 **-c** *config* , **--config** = *config*       | Specify the *config* file to use.
 **-h** *host* , **--host** = *host*             | Connect Redis server at *host*, rather than the one the localhost.
 **-L** , **--load**                             | Load timeseries metadata and data into the Redis cluster.
@@ -432,10 +434,10 @@ options                                         Description
 **-t** , **--times**                            | Report time stamps numerically (in milliseconds) instead of the default human readable form.
 **-v** , **--values**                           | Report all of the known values for given *label* name(s).
 **-V** , **--version**                          | Display version number and exit.
-**-Z** *timezone* , **--timezone** = *timezone* | Use timezone for the date and time. Timezone is in the format of the environment variable TZ as 
-                                                | described in `environ(7) <https://man7.org/linux/man-pages/man7/environ.7.html>`_.
+**-Z** *timezone* , **--timezone** = *timezone* | Use timezone for the date and time. Timezone is in the format of the 
+                                                | environment variable TZ as described in `environ(7) <https://man7.org/linux/man-pages/man7/environ.7.html>`_.
 **-?** , **--help**                             | Display usage message and exit.
-=============================================== ==================================================================================================
+=============================================== =====================================================================================================================
 
 Examples
 ==========

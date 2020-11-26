@@ -3,6 +3,8 @@
 Monitoring System Performance
 #############################
 
+.. contents::
+
 This chapter describes the performance monitoring tools available in Performance Co-Pilot (PCP). This product provides a group of commands and tools 
 for measuring system performance. Each tool is described completely by its own man page. The man pages are accessible through the **man** command. 
 For example, the man page for the tool **pmrep** is viewed by entering the following command::
@@ -22,8 +24,6 @@ Section 4.4, “`The pminfo Command`_”, describes **pminfo**, a utility that d
 Section 4.5, “`The pmstore Command`_”, describes the use of the **pmstore** utility to arbitrarily set or reset selected performance metric values.
 
 The following sections describe the various graphical and text-based PCP tools used to monitor local or remote system performance.
-
-.. contents::
 
 The pmstat Command
 ******************
