@@ -21,7 +21,7 @@ Section 9.6, “`Timeseries Options`_”, explains the various timeseries option
 
 Section 9.7, “`PCP Environment`_”, describes environment variables used to parameterize the file and directory names used by PCP.
 
-Section 9.8, “`PCP Grafana Plugin`_”, explains the PCP Redis data source and laids off a path for PCP Grafana Plugin.
+Section 9.8, “`PCP Grafana Plugin`_”, explains the PCP Redis data source and lays out the path to the PCP Grafana Plugin.
 
 .. contents::
 
