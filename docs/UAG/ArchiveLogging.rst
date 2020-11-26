@@ -13,7 +13,7 @@ Section 6.2, “`Using Archive Logs with Performance Tools`_”, describes the i
 
 Section 6.3, “`Cookbook for Archive Logging`_”, shows some shortcuts for setting up useful PCP archive logs.
 
-Section 6.4, “`Other Archive Logging Features and Services`_”, provides information about other archive logging features and sevices.
+Section 6.4, “`Other Archive Logging Features and Services`_”, provides information about other archive logging features and services.
 
 Section 6.5, “`Archive Logging Troubleshooting`_”, presents helpful directions if your archive logging implementation is not functioning correctly.
 
@@ -481,7 +481,7 @@ See the **pmlogextract(1)** man page for full information on this command.
 The **pmlogsummary** tool provides statistical summaries of archives, or specific metrics within archives, or specific time windows of interest in a set of archives. 
 These summaries include various averages, minima, maxima, sample counts, histogram bins, and so on.
 
-As an example, for Linux host **pluto**, report on its use of anonymous huge pages - average use, maximum, time at which maximum occured, total number of samples in 
+As an example, for Linux host **pluto**, report on its use of anonymous huge pages - average use, maximum, time at which maximum occurred, total number of samples in 
 the set of archives, and the units used for the values - as shown in `Example 6.2. Using pmlogsummary to Summarize Archive Information`_: 
 
 .. _Example 6.2. Using pmlogsummary to Summarize Archive Information:

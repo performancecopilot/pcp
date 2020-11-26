@@ -68,7 +68,7 @@ Once the application performance metrics are exported into the PCP framework, al
 Performance Instrumentation and Sampling
 ******************************************
 
-The **pcp_mmv** library provides function calls to assist with extracing important performance metrics from a program into a shared, in-memory location such that 
+The **pcp_mmv** library provides function calls to assist with extracting important performance metrics from a program into a shared, in-memory location such that 
 the MMV PMDA can examine and serve that information on behalf of PCP client tool requests. The **pcp_mmv** library is described in the **mmv_stats_init(3)**, 
 **mmv_lookup_value_desc(3)**, **mmv_inc_value(3)** man pages. Additionally, the format of the shared memory mappings is described in detail in **mmv(5)**.
 
@@ -119,7 +119,7 @@ to not disable the prefix - doing so requires the applications to ensure naming 
 The *cluster* identifier is used by the MMV PMDA to further distinguish different applications, and is directly used for the MMV PMDA PMID cluster field described in 
 :ref:`Example 2.3. __pmID_int Structure <Example 2.3. __pmID_int Structure>`, for all MMV PMDA metrics.
 
-All remaining parameters to **mmv_stats_init** define the metrics and instance domains that exist within the application. These are somewhat analagous to the final 
+All remaining parameters to **mmv_stats_init** define the metrics and instance domains that exist within the application. These are somewhat analogous to the final 
 parameters of **pmdaInit(3)**, and are best explained using `Example 4.1. Memory Mapped Value Instance Structures`_ and `Example 4.2. Memory Mapped Value Metrics Structures`_. 
 As mentioned earlier, the full source code for this example instrumented application can be found in ``${PCP_DEMOS_DIR}/mmv``.
 
@@ -342,7 +342,7 @@ Elapsed Time Measures
 
 One problem with the instrumentation model embodied by the **pcp_mmv** library is providing timing information for long-running operations. For instrumenting 
 long-running operations, like uploading downloading a file, the overall operation may be broken into smaller, discrete units of work which can be easily 
-instrumented in terms of operations and througput measures. In other cases, there are no divisible units for long-running operations (for example a black-box 
+instrumented in terms of operations and throughput measures. In other cases, there are no divisible units for long-running operations (for example a black-box 
 library call) and instrumenting these operations presents a challenge. Sometimes the best that can be done is adding the instrumentation point at the completion 
 of the operation, and simply accept the "bursty" nature of this approach. In these problematic cases, the work completed in one sampling-interval may have begun 
 several intervals before, from the point of view of the monitoring tool, which can lead to misleading results.
@@ -614,7 +614,7 @@ The trace library is configurable through the use of environment variables liste
    * - **PCP_TRACE_TIMEOUT**	
      - The number of seconds to wait until assuming that the initial connection is not going to be made, and timeout will occur. The default is three seconds.
    * - **PCP_TRACE_REQTIMEOUT**	
-     - The number of seconds to allow before timing out on awaiting acknowledgment from the trace PMDA after trace data has been sent to it. This variable has no 
+     - The number of seconds to allow before timing out on awaiting acknowledgement from the trace PMDA after trace data has been sent to it. This variable has no 
        effect in the asynchronous trace protocol (refer to `Table 4.6. State Flags`_).
    * - **PCP_TRACE_RECONNECT**	
      - A list of values which represents the backoff approach that the **libpcp_trace** library routines take when attempting to reconnect to the trace PMDA after 
@@ -648,5 +648,5 @@ can be set either individually or together.
      - Interprocess communication control. If this flag is set, it causes interprocess communication between the instrumented application and the trace PMDA to be 
        skipped. This flag is a debugging aid for applications using **libpcp_trace**.
    * - **PMTRACE_STATE_ASYNC**	
-     - Asynchronous trace protocol. This flag enables the asynchronous trace protocol so that the application does not block awaiting acknowledgment PDUs from the 
+     - Asynchronous trace protocol. This flag enables the asynchronous trace protocol so that the application does not block awaiting acknowledgement PDUs from the 
        trace PMDA. In order for the flag to be effective, it must be set before using the other **libpcp_trace** entry points.

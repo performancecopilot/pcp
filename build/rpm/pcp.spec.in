@@ -1626,7 +1626,7 @@ URL: https://pcp.io
 Requires: pcp = @package_version@ pcp-libs = @package_version@
 %if "@enable_python3@" == "true"
 Requires: python3-pcp
-%if 0%{?rhel} == 0
+%if 0%{?rhel} == 0 || 0%{?rhel} > 7
 Requires: python3-pyodbc
 %endif
 %else

@@ -192,7 +192,7 @@ When querying for time series matches only, no time window
 options are specified and matching series identifiers are
 returned in a JSON array.
 .SAMPLE
-$ curl -s http://localhost:44322/series/query?expr=disk.dev.read* | pmjson
+$ curl -s 'http://localhost:44322/series/query?expr=disk.dev.read*' | pmjson
 [
   "9d8c7fb51ce160eb82e3669aac74ba675dfa8900",
   "ddff1bfe286a3b18cebcbadc1678a68a964fbe9d",
@@ -205,7 +205,7 @@ window must be specified as part of the query string.
 The simplest form is to just request the most recent
 sample.
 .SAMPLE
-$ curl -s http://localhost:44322/series/query?expr=disk.dev.read*[samples:1] | pmjson
+$ curl -s 'http://localhost:44322/series/query?expr=disk.dev.read*[samples:1]' | pmjson
 [
   {
     "series": "9d8c7fb51ce160eb82e3669aac74ba675dfa8900",

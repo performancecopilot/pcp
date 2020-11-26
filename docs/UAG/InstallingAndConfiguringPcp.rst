@@ -515,7 +515,7 @@ to the host is over a slow network, then successful establishment of the connect
 
 Alternatively, there may be a firewall in-between the client tool and PMCD which is blocking the connection attempt.
 
-Finally, PMCD may be running in a mode where it does not acept remote connections, or only listening on certain interface.
+Finally, PMCD may be running in a mode where it does not accept remote connections, or only listening on certain interface.
 
 **Resolution:**
 

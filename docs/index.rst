@@ -1,7 +1,5 @@
 .. pcp documentation master file, created by
    sphinx-quickstart on Wed Sep 16 15:12:41 2020.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
 
 Performance Co-Pilot Books
 ###########################
@@ -24,6 +22,7 @@ makes it especially useful for those seeking centralized monitoring of distribut
    
    UAG/AboutUAGGuide
    PG/AboutPGGuide
+   REST API Guide <https://pcp.readthedocs.io/en/latest/api/>
 
 
 .. toctree::
@@ -39,6 +38,7 @@ makes it especially useful for those seeking centralized monitoring of distribut
    UAG/ArchiveLogging
    UAG/PcpDeploymentStrategies
    UAG/CustomizingAndExtendingPcpServices
+   UAG/TimeSeriesQuerying
 
 
 .. toctree::
@@ -50,10 +50,3 @@ makes it especially useful for those seeking centralized monitoring of distribut
    PG/WritingPMDA
    PG/PMAPI
    PG/InstrumentingApplications
-
-.. toctree::
-   :caption: REST API Guide
-   :numbered:
-   :hidden:
-
-   REST API Guide <https://pcp.readthedocs.io/en/latest/api/>

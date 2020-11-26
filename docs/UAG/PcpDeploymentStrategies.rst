@@ -3,8 +3,7 @@
 Performance Co-Pilot Deployment Strategies
 ###########################################
 
-Performance Co-Pilot (PCP) is a coordinated suite of tools and utilities allowing you to monitor performance and make automated judgments and initiate actions based on 
-those judgments. PCP is designed to be fully configurable for custom implementation and deployed to meet specific needs in a variety of operational environments.
+Performance Co-Pilot (PCP) is a coordinated suite of tools and utilities allowing you to monitor performance and make automated judgements and initiate actions based on those judgements. PCP is designed to be fully configurable for custom implementation and deployed to meet specific needs in a variety of operational environments.
 
 Because each enterprise and site is different and PCP represents a new way of managing performance information, some discussion of deployment strategies is useful.
 
