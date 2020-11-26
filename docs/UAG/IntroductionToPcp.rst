@@ -3,6 +3,8 @@
 Introduction to PCP
 ####################
 
+.. contents::
+
 This chapter provides an introduction to Performance Co-Pilot (PCP), an overview of its individual components, and conceptual information to help you use this software.  
 
 The following sections are included:
@@ -12,8 +14,6 @@ Section 1.1, “`Objectives`_” covers the intended purposes of PCP.
 Section 1.2, “`Conceptual Foundations`_”, discusses the design theories behind PCP.  
 
 Section 1.3, “`Overview of Component Software`_”, describes PCP tools and agents.  
-
-.. contents::
 
 Objectives
 **********

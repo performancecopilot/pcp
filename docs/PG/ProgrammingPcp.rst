@@ -3,6 +3,8 @@
 Programming Performance Co-Pilot
 ##################################
 
+.. contents::
+
 Performance Co-Pilot (PCP) provides a systems-level suite of tools that cooperate to deliver distributed, integrated performance management services. PCP is 
 designed for the in-depth analysis and sophisticated control that are needed to understand and manage the hardest performance problems in the most complex systems.
 
@@ -20,8 +22,6 @@ There are several ways to extend PCP by programming certain of its components:
 * By adding performance instrumentation to an application using facilities from PCP libraries, which offer both sampling and event tracing models.
 
 Finally, the topic of customizing an installation is covered in the chapter on customizing and extending PCP service in the *Performance Co-Pilot User's and Administrator's Guide*.
-
-.. contents::
 
 PCP Architecture
 *****************

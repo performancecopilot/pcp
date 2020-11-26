@@ -3,6 +3,8 @@
 Common Conventions and Arguments
 #################################
 
+.. contents::
+
 This chapter deals with the user interface components that are common to most text-based utilities that make up the monitor portion of Performance Co-Pilot (PCP). 
 These are the major sections in this chapter:
 
@@ -27,8 +29,6 @@ In all cases, the man pages for each utility fully describe the supported comman
 
 Command line options are also relevant when starting PCP applications from the desktop using the **Alt** double-click method. This technique 
 launches the **pmrun** program to collect additional arguments to pass along when starting a PCP application.
-
-.. contents::
 
 Alternate Metrics Source Options
 **********************************

@@ -3,6 +3,8 @@
 Performance Metrics Inference Engine
 #####################################
 
+.. contents::
+
 The Performance Metrics Inference Engine (**pmie**) is a tool that provides automated monitoring of, and reasoning about, system performance within the 
 Performance Co-Pilot (PCP) framework.
 
@@ -23,8 +25,6 @@ Section 5.6, “`Caveats and Notes on pmie`_”, presents some important informa
 Section 5.7, “`Creating pmie Rules with pmieconf`_”, describes how to use the **pmieconf** command to generate **pmie** rules.
 
 Section 5.8, “`Management of pmie Processes`_”, provides support for running **pmie** as a daemon.
-
-.. contents::
 
 Introduction to pmie
 *********************

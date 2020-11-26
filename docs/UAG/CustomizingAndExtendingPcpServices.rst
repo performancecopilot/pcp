@@ -3,6 +3,8 @@
 Customizing and Extending PCP Services
 ########################################
 
+.. contents::
+
 Performance Co-Pilot (PCP) has been developed to be fully extensible. The following sections summarize the various facilities provided to allow you to extend and 
 customize PCP for your site:
 

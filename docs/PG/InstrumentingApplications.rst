@@ -3,6 +3,8 @@
 Instrumenting Applications
 ############################
 
+.. contents::
+
 This chapter provides an introduction to ways of instrumenting applications using PCP.
 
 The first section covers the use of the Memory Mapped Value (MMV) Performance Metrics Domain Agent (PMDA) to generate customized metrics from an application. 
@@ -314,7 +316,7 @@ live values letting us explore simple queueing effects in products being created
 
 .. sourcecode:: none
 
-               pminfo -m mmv.acme
+ pminfo -m mmv.acme
  mmv.acme.products.queuetime PMID: 70.321.10
  mmv.acme.products.time PMID: 70.321.8
  mmv.acme.products.count PMID: 70.321.7

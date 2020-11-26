@@ -1,33 +1,15 @@
 openapi: 3.0.1
 info:
   title: PMWEBAPI
+  x-logo:
+    url: 'https://pcp.io/images/pcp-logo.png'
   description: |
     ## ABOUT PMWEBAPI
-    ### PMWEBAPI
-    Introduction to the Performance Metrics Web Application Programming Interface
-
-    ### HTTP SYNOPSIS
-    *  **GET /metrics**
-
-    *  **GET /series/...**
-      
-    *  **GET /search/...**
-      
-    *  **GET /pmapi/...**
-
-    ### C SYNOPSIS
-    &nbsp;&nbsp;&nbsp;&nbsp;**\#include <[pcp/pmwebapi.h](https://github.com/performancecopilot/pcp/blob/master/src/include/pcp/pmwebapi.h)>**
-    
-    &nbsp;&nbsp;&nbsp;&nbsp;... assorted routines ...
-    
-    &nbsp;&nbsp;&nbsp;&nbsp;cc ... -lpcp_web -lpcp
-
-    ### DESCRIPTION
-    The PMWEBAPI is a collection of interfaces providing Performance Co-Pilot services for web applications. It consists of APIs for web applications querying and analysing both live and historical performance data, as well as APIs used by web servers.
+    The PMWEBAPI (Performance Metrics Web Application Programming Interface) is a collection of interfaces providing Performance Co-Pilot services for web applications. It consists of APIs for web applications querying and analysing both live and historical performance data, as well as APIs used by web servers.
 
     The usual HTTP URL-encoded optional parameter rules apply and PMWEBAPI REST requests always follow the convention:
     ```bash
-    /api/endpoint ? parameter1 = value1 & parameter2 = value2
+    /api/endpoint?parameter1=value1&parameter2=value2
     ```
     Examples in all following sections use the [curl](https://man7.org/linux/man-pages/man1/curl.1.html)(1) command line utility with a local [pmproxy](https://pcp.io/man/man1/pmproxy.1.html)(1) server listening on port 44322 (default port). The [pmjson](https://pcp.io/man/man1/pmjson.1.html)(1) utility is used to neatly format any JSON output, as opposed to the compact (minimal whitespace) form provided by default. The examples in the scalable time series section use historical data recorded by the [pmlogger](https://pcp.io/man/man1/pmlogger.1.html)(1) service, in conjunction with a local [redis-server](https://man7.org/linux/man-pages/man1/redis-server.1.html)(1).
   version: ""
@@ -132,11 +114,11 @@ paths:
 
         When querying for time series matches only, no time window options are specified and matching series identifiers are returned in a JSON array.
         ```bash
-        $ curl -s http://localhost:44322/series/query?expr=disk.dev.read* | pmjson
+        $ curl -s 'http://localhost:44322/series/query?expr=disk.dev.read*' | pmjson
         ```
         When querying for time series values as well, a time window must be specified as part of the query string. The simplest form is to just request the most recent sample.
         ```bash
-        $ curl -s http://localhost:44322/series/query?expr=disk.dev.read*[samples:1] | pmjson
+        $ curl -s 'http://localhost:44322/series/query?expr=disk.dev.read*[samples:1]' | pmjson
         ```
         **References:** [pmSeriesQuery](https://man7.org/linux/man-pages/man3/pmSeriesQuery.3.html)(3)
       operationId: get/series/query

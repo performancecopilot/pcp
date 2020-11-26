@@ -78,6 +78,12 @@ pygments_style = None
 #
 html_theme = 'sphinx_rtd_theme'
 
+html_logo = '../images/pcp_icon.png'
+html_theme_options = {
+        'logo_only': True,
+        'display_version': False,
+}
+
 redoc = [
     {
         'name': 'PMWEBAPI',
