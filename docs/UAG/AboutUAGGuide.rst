@@ -34,7 +34,7 @@ Chapter 7, :ref:`Performance Co-Pilot Deployment Strategies`, presents the vario
 
 Chapter 8, :ref:`Customizing and Extending PCP Services`, describes the procedures necessary to ensure that the PCP configuration is customized in ways that maximize the coverage and quality of performance monitoring and management services.
 
-Appendix A, Acronyms, provides a comprehensive list of the acronyms used in this guide and in the man pages for Performance Co-Pilot.
+Chapter 9, :ref:`TimeSeriesQuerying`, describes the concepts of pmseries and laids off a path for Performance Co-Pilot (PCP) Grafana Plugin.
 
 Audience for This Guide
 ************************
