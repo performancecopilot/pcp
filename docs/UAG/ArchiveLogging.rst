@@ -3,6 +3,8 @@
 Archive Logging
 ################
 
+.. contents::
+
 Performance monitoring and management in complex systems demands the ability to accurately capture performance characteristics for subsequent review, analysis, and comparison. Performance Co-Pilot (PCP) provides extensive support for the creation and management of archive logs that capture a user-specified profile of performance information to support retrospective performance analysis.
 
 The following major sections are included in this chapter:
@@ -16,8 +18,6 @@ Section 6.3, “`Cookbook for Archive Logging`_”, shows some shortcuts for set
 Section 6.4, “`Other Archive Logging Features and Services`_”, provides information about other archive logging features and services.
 
 Section 6.5, “`Archive Logging Troubleshooting`_”, presents helpful directions if your archive logging implementation is not functioning correctly.
-
-.. contents::
 
 Introduction to Archive Logging
 ********************************
