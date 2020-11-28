@@ -1231,7 +1231,7 @@ series_hmset_function_desc(seriesQueryBaton *baton, sds key, pmSeriesDesc *desc)
     cmd = redis_param_str(cmd, "units", sizeof("units")-1);
     cmd = redis_param_str(cmd, desc->units, sdslen(desc->units));
 
-    redisSlotsRequest(baton->slots, SETS, key, cmd, series_hmset_function_desc_callback, baton);
+    redisSlotsRequest(baton->slots, HMSET, key, cmd, series_hmset_function_desc_callback, baton);
 }
 
 static void
@@ -1266,7 +1266,7 @@ series_hmset_function_expr(seriesQueryBaton *baton, sds key, sds expr)
     cmd = redis_param_str(cmd, "query", sizeof("query")-1);
     cmd = redis_param_sds(cmd, expr);
 
-    redisSlotsRequest(baton->slots, SETS, key, cmd, series_hmset_function_expr_callback, baton);
+    redisSlotsRequest(baton->slots, HMSET, key, cmd, series_hmset_function_expr_callback, baton);
 }
 
 /*
@@ -3847,6 +3847,8 @@ series_redis_hash_expression(seriesQueryBaton *baton, char *hashbuf, int len_has
 	 * converted to the largest one.
 	 */
 	key = sdscatfmt(sdsempty(), "pcp:desc:series:%s", hashbuf);
+	sdsfree(np->value_set.series_values[0].series_desc.source);
+	np->value_set.series_values[0].series_desc.source = sdsnewlen(NULL, SHA1SZ);
 	series_hmset_function_desc(baton, key, &np->value_set.series_values[0].series_desc);
 
 	/* expression */
