@@ -1219,17 +1219,18 @@ series_hmset_function_desc(seriesQueryBaton *baton, sds key, pmSeriesDesc *desc)
     cmd = redis_param_str(cmd, HMSET, HMSET_LEN);
     cmd = redis_param_sds(cmd, key);
     cmd = redis_param_str(cmd, "indom", sizeof("indom")-1);
-    cmd = redis_param_str(cmd, desc->indom, sdslen(desc->indom));
+    cmd = redis_param_sds(cmd, desc->indom);
     cmd = redis_param_str(cmd, "pmid", sizeof("pmid")-1);
-    cmd = redis_param_str(cmd, desc->pmid, sdslen(desc->pmid));
+    cmd = redis_param_sds(cmd, desc->pmid);
     cmd = redis_param_str(cmd, "semantics", sizeof("semantics")-1);
-    cmd = redis_param_str(cmd, desc->semantics, sdslen(desc->semantics));
+    cmd = redis_param_sds(cmd, desc->semantics);
     cmd = redis_param_str(cmd, "source", sizeof("source")-1);
-    cmd = redis_param_str(cmd, desc->source, sdslen(desc->source));
+    /* for fabricated SIDs, this is a binary string of 20 zero (NULL) bytes */
+    cmd = redis_param_sds(cmd, desc->source);
     cmd = redis_param_str(cmd, "type", sizeof("type")-1);
-    cmd = redis_param_str(cmd, desc->type, sdslen(desc->type));
+    cmd = redis_param_sds(cmd, desc->type);
     cmd = redis_param_str(cmd, "units", sizeof("units")-1);
-    cmd = redis_param_str(cmd, desc->units, sdslen(desc->units));
+    cmd = redis_param_sds(cmd, desc->units);
 
     redisSlotsRequest(baton->slots, HMSET, key, cmd, series_hmset_function_desc_callback, baton);
 }
