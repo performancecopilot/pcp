@@ -41,7 +41,7 @@ http://localhost:54322/series/descs?series=16aa36d93e5cd0733499eee7dafc07dbb2ad7
 [
     {
         "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
-        "source": "2cd6a38f9339f2dd1f0b4775bda89a9e7244def6",
+        "source": "0000000000000000000000000000000000000000",
         "pmid": "511.0.0",
         "indom": "60.2",
         "semantics": "instant",
@@ -93,7 +93,7 @@ http://localhost:54322/series/descs?series=f29c38f54d5a3cb9284964397606346176880
 [
     {
         "series": "f29c38f54d5a3cb928496439760634617688036b",
-        "source": "2cd6a38f9339f2dd1f0b4775bda89a9e7244def6",
+        "source": "0000000000000000000000000000000000000000",
         "pmid": "511.0.0",
         "indom": "60.2",
         "semantics": "instant",
@@ -163,7 +163,7 @@ http://localhost:54322/series/descs?series=f2dbf7a113932b3371c8871df932603856d1d
 [
     {
         "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
-        "source": "2cd6a38f9339f2dd1f0b4775bda89a9e7244def6",
+        "source": "0000000000000000000000000000000000000000",
         "pmid": "511.0.0",
         "indom": "60.2",
         "semantics": "instant",
