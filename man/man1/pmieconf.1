@@ -43,16 +43,30 @@ When run from automated
 .B pmie
 setup processes, this option is used to add a specific message and
 timestamp indicating that this is the case.
-It is not appropriate when using the tool interactively.
+Unless over-ridden by the
+.B \-f
+flag, the default configuration file to be written or updated when the
+.B \-c
+flag is given and
+.B pmieconf
+is run by the root user, is
+.IR $PCP_VAR_DIR/config/pmie/config.default .
+This is also the default configuration file used by the
+.B pmie
+service, see
+.BR pmie_daily (1).
+This flag is not appropriate when using the tool interactively.
 .TP
 \fB\-f\fR \fIfile\fR, \fB\-\-config\fR=\fIfile\fR
 Any rule modifications resulting from
 .B pmieconf
 manipulation of variable values will be written to \f2file\f1.
 The default value of \f2file\f1 is dependent on the user ID \- for the root
-user, the file
-.I $PCP_SYSCONF_DIR/pmie/config.pmie
-is used, for other users the default is
+user (when the
+.B \-c
+flag is \fBnot\fP also given, see above) the file is
+.IR $PCP_SYSCONF_DIR/pmie/config.default .
+For other users the default is
 .IR $HOME/.pcp/pmie/config.pmie .
 .TP
 \fB\-F\fR

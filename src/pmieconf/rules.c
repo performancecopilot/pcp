@@ -2209,7 +2209,7 @@ read_pmiefile(char *warning, size_t warnlen)
 
 /*  ####  setup global data structures; return NULL/failure message  ####  */
 char *
-initialise(char *in_rules, char *in_pmie, char *warning, size_t warnlen)
+initialise(char *in_rules, char *in_pmie, int autocreate, char *warning, size_t warnlen)
 {
     char	*p;
     char	*home;
@@ -2229,8 +2229,16 @@ initialise(char *in_rules, char *in_pmie, char *warning, size_t warnlen)
     rule_path_sep = ";";
 #else
     if (getuid() == 0) {
-	if (in_pmie == NULL)
-	    pmsprintf(pmiefile, sizeof(pmiefile), "%s%c%s", pmGetConfig("PCP_SYSCONF_DIR"), SEP, DEFAULT_ROOT_PMIE);
+	if (in_pmie == NULL) {
+	    if (autocreate) {
+		/* -c flag: automated pmie configuration, used by the pmie service */
+		pmsprintf(pmiefile, sizeof(pmiefile), "%s%c%s%c%s%c%s",
+			pmGetConfig("PCP_VAR_DIR"), SEP, "config", SEP, "pmie", SEP, DEFAULT_CONFIG);
+	    } else {
+		pmsprintf(pmiefile, sizeof(pmiefile), "%s%c%s%c%s",
+			pmGetConfig("PCP_SYSCONF_DIR"), SEP, "pmie", SEP, DEFAULT_CONFIG);
+	    }
+	}
 	else if (realpath(in_pmie, pmiefile) == NULL && oserror() != ENOENT) {
 	    pmsprintf(errmsg, sizeof(errmsg), "failed to resolve realpath for %s: %s",
 		    in_pmie, osstrerror());
