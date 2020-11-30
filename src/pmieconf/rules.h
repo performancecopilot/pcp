@@ -24,7 +24,7 @@
 #define DEFAULT_ROOT_PMIE      "pmie\\config.default"
 #else 
 #define DEFAULT_RULES		"config/pmieconf"
-#define DEFAULT_ROOT_PMIE	"pmie/config.default"
+#define DEFAULT_CONFIG		"config.default"
 #endif
 
 /* default relative to $HOME */
@@ -97,7 +97,7 @@ extern char		errmsg[];	/* error message buffer */
  * routines below returning char*, on success return NULL else failure message
  */
 
-char *initialise(char *, char *, char *, size_t);    /* setup global data */
+char *initialise(char *, char *, int, char *, size_t);    /* setup global data */
 
 char *get_pmiefile(void);
 char *get_rules(void);

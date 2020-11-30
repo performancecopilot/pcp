@@ -813,7 +813,7 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    if ((p = initialise(in_rules, in_pmie, warn, sizeof(warn))) != NULL) {
+    if ((p = initialise(in_rules, in_pmie, autocreate, warn, sizeof(warn))) != NULL) {
 	error(p);
 	exit(1);
     }
