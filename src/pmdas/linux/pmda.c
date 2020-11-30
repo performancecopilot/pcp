@@ -6848,7 +6848,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&cp) < 0)
 		return PM_ERR_INST;
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * ((double)cp->stat.user - (double)cp->stat.guest) / hz);
+			1000 * (double)(cp->stat.user - cp->stat.guest) / hz);
 	    break;
 	case 83: /* kernel.percpu.cpu.guest_nice */
 	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&cp) < 0)
@@ -6860,7 +6860,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&cp) < 0)
 		return PM_ERR_INST;
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * ((double)cp->stat.nice - (double)cp->stat.guest_nice) / hz);
+			1000 * (double)(cp->stat.nice - cp->stat.guest_nice) / hz);
 	    break;
 	case 62: /* kernel.pernode.cpu.user */
 	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&np) < 0)
@@ -6917,7 +6917,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&np) < 0)
 		return PM_ERR_INST;
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * ((double)np->stat.user - (double)np->stat.guest) / hz);
+			1000 * (double)(np->stat.user - np->stat.guest) / hz);
 	    break;
 	case 85: /* kernel.pernode.cpu.guest_nice */
 	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&np) < 0)
@@ -6929,7 +6929,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&np) < 0)
 		return PM_ERR_INST;
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * ((double)np->stat.nice - (double)np->stat.guest_nice) / hz);
+			1000 * (double)(np->stat.nice - np->stat.guest_nice) / hz);
 	    break;
 
 	case 8: /* swap.pagesin */
@@ -7018,8 +7018,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 	case 78: /* kernel.all.cpu.vuser */
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * ((double)proc_stat.all.user - (double)proc_stat.all.guest)
-				/ hz);
+			1000 * (double)(proc_stat.all.user - proc_stat.all.guest) / hz);
 	    break;
 	case 81: /* kernel.all.cpu.guest_nice */
 	    _pm_assign_utype(_pm_cputime_size, atom,
@@ -7027,8 +7026,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 	case 82: /* kernel.all.cpu.vnice */
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * ((double)proc_stat.all.nice - (double)proc_stat.all.guest_nice)
-				/ hz);
+			1000 * (double)(proc_stat.all.nice - proc_stat.all.guest_nice) / hz);
 	    break;
 	case 19: /* hinv.nnode */
 	    atom->ul = pmdaCacheOp(INDOM(NODE_INDOM), PMDA_CACHE_SIZE_ACTIVE);
