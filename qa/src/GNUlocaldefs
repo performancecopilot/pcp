@@ -173,7 +173,7 @@ MYFILES += \
 	qa_libpcp_compat.c addctxdm.c
 
 MYSCRIPTS = grind-tools show-args fixhosts mkpermslist \
-	memcachestats.pl
+	memcachestats.pl indomdelta
 
 PSCRIPTS = $(PERLFILES) $(PYTHONFILES)
 

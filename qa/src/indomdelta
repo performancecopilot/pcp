@@ -1,0 +1,115 @@
+#!/bin/sh
+#
+# report changes instances for an indom
+#
+# Usage: indomdelta [indom ...] archive
+#
+
+tmp=/var/tmp/indomdelta$$
+sts=0
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+
+if [ $# -eq 0 ]
+then
+    echo "Usage: indomdelta [indom ...] archive"
+    sts=1
+    exit
+fi
+
+while [ $# -gt 1 ]
+do
+    echo "$1" >>$tmp.indoms
+    shift
+done
+
+if pmdumplog -i "$1" >$tmp.out 2>$tmp.err
+then
+    :
+else
+    echo "indomdelta: pmdumplog -i failed ..."
+    cat $tmp.err
+    sts=1
+    exit
+fi
+
+if [ -s $tmp.indoms ]
+then
+    # indoms from command line ...
+    #
+    :
+else
+    # use all indoms ...
+    #
+    sed -n -e 's/^InDom: //p' <$tmp.out \
+    > $tmp.indoms
+    # | sort -n >$tmp.indoms
+fi
+
+for indom in `cat $tmp.indoms`
+do
+    echo "InDom: $indom"
+    ( awk <$tmp.out '
+/^InDom: '$indom'$/		{ want=1; next }
+/^InDom: / && want == 1		{ exit }
+want == 1			{ print }' \
+    | sed -e '/^ *[0-9][0-9]* or "/{
+s///
+s/"//
+s/ .*//
+}' \
+     ; echo " 9999 instances" ) \
+    | awk '
+# inst[] values are bits
+# 1 . in current indom
+# 2 . in previous indom
+BEGIN	{ first = 1 }
+/ [0-9][0-9]* instances$/	{ if (NR > 1) {
+				    if (first) {
+					printf "Initially: "
+					for (i in inst) printf "%s ",i
+					printf "\n"
+					first = 0
+				    }
+				    else {
+					reported = 0
+					for (i in inst) {
+					    if (inst[i] == 1) {
+						if (!reported) {
+						    printf "Added: "
+						    reported = 1
+						}
+						printf "%s ",i
+					    }
+					}
+					if (reported)
+					    printf "\n"
+					reported = 0
+					for (i in inst) {
+					    if (inst[i] == 2) {
+						if (!reported) {
+						    printf "Dropped: "
+						    reported = 1
+						}
+						printf "%s ",i
+					    }
+					}
+					if (reported)
+					    printf "\n"
+				    }
+				    for (i in inst) {
+					if (inst[i] == 1 || inst[i] == 3)
+					    inst[i] = 2
+					else
+					    inst[i] = 0
+				    }
+				  }
+				  if ($1 == 9999)
+				    exit
+				  print
+				  next
+				}
+				{ inst[$1] += 1 }'
+
+done
+
+exit
