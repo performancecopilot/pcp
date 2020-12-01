@@ -5,4 +5,4 @@
 #	$ sudo make install
 # this one turns profiling on
 #
-CFLAGS_OPT = -pg
+CFLAGS_OPT = -g -O0 -pg
