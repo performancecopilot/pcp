@@ -746,9 +746,12 @@ typedef struct {
     __pmFILE	*l_mdfp;	/* meta data */
     int		l_state;	/* (when writing) log state */
     __pmHashCtl	l_hashpmid;	/* PMID hashed access */
-    __pmHashCtl	l_hashindom;	/* instance domain hashed access */
     __pmHashCtl	l_hashrange;	/* ptr to first and last value in log for */
 				/* each metric */
+    __pmHashCtl	l_hashindom;	/* instance domain hashed access */
+    __pmHashCtl	l_trimindom;	/* timestamps for first and last value per */
+    				/* instance per indom (nested hashing, lazy */
+				/* loading) */
     __pmHashCtl	l_hashlabels;	/* maps the various metadata label types */
     __pmHashCtl l_hashtext;	/* maps the various help text types */
     int		l_minvol;	/* (when reading) lowest known volume no. */
@@ -806,6 +809,34 @@ typedef struct {
     int			ac_cur_log;	/* The currently open archive */
     __pmMultiLogCtl	**ac_log_list;	/* Current set of archives */
 } __pmArchCtl;
+
+/*
+ * Instance trimming control structures for archive replay ...
+ * we use the timestamps from the indom metadata to establish time
+ * boundaries (calipers) for individual instances in specific indoms.
+ *
+ * These structures are only built if required, and then only for "large"
+ * indoms, see the HASH_THRESHOLD #define before time_caliper() in interp.c
+ *
+ * Top-level per-indom trimming control, which is accessed as a hash
+ * using the indom as the key from l_trimindom.
+ */
+typedef struct {
+    __pmHashCtl	hashinst;		/* nested hash on inst for this indom */
+} __pmLogTrimInDom;
+
+/*
+ * Nested per-instance trimming control (potentially one of these for
+ * _every_ instance in _every_ "large" indom), accessed as a hash using
+ * the internal instance identifier as the key from hashinst.
+ *
+ * Note: times are relative to the start of the archive, so the same as
+ *       those used in interp.c for t_req et al
+ */
+typedef struct {
+    double	t_first;		/* no values before this time */
+    double	t_last;			/* no values after this time */
+} __pmLogTrimInst;
 
 /*
  * PMAPI context. We keep an array of these,
