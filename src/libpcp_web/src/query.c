@@ -48,6 +48,7 @@ typedef struct seriesGetLookup {
 } seriesGetLookup;
 
 typedef struct seriesGetQuery {
+    pmSeriesExpr	expr;
     node_t		root;
     timing_t		timing;
 } seriesGetQuery;
@@ -176,7 +177,7 @@ initSeriesGetSID(seriesGetSID *sid, const char *name, int needfree, void *baton)
 {
     initSeriesBatonMagic(sid, MAGIC_SID);
     sid->name = sdsnew(name);
-    sid->freed = needfree;
+    sid->freed = needfree ? 1 : 0;
     sid->baton = baton;
 }
 
@@ -1353,12 +1354,86 @@ series_prepare_expr(seriesQueryBaton *baton, node_t *np, int level)
     return sts;
 }
 
+/*
+ * Called from /series/values?series=SID for a fabricated SID expression.
+ * Parse and series_solve the expression with samples/timing then add
+ * the resulting reply elements to the series values for original baton.
+ */
+static void
+series_solve_sid_expr(pmSeriesExpr *expr, void *arg)
+{
+    seriesGetSID	*sid = (seriesGetSID *)arg;
+    seriesQueryBaton	*sidbaton = (seriesQueryBaton *)sid->baton;
+    pmSeriesSettings	settings = {0};
+    series_t		sp = {0}; /* root of parsed expression tree and timing */
+    char		*errstr;
+    int			parse_sts;
+
+    if (pmDebugOptions.series||pmDebugOptions.query) {
+	fprintf(stderr, "series_solve_sid_expr: /series/values "
+		"fabricated SID %s, sidbaton=%p, expr=\"%s\"\n",
+		sid->name, sidbaton, expr->query);
+    }
+    parse_sts = series_parse(expr->query, &sp, &errstr, arg);
+    if (pmDebugOptions.series) {
+    	fprintf(stderr, "series_solve_sid_expr: parsed \"%s\" sts=%d\n",
+		expr->query, parse_sts);
+    }
+
+    /*
+     * TODO series_solve the expr tree with timing from the sid baton,
+     * and then report the reply values into the response for this query.
+     *
+     * settings.module = *sidbaton->module;
+     * settings.callbacks = ???;
+     * series_solve(&settings, sp.expr, &sidbaton->u.query.timing, PM_SERIES_FLAG_NONE, arg);
+     */
+
+    if (pmDebugOptions.series||pmDebugOptions.query)
+	fprintf(stderr, "TODO series_solve_sid_expr: series_solve(%s)\n", expr->query);
+}
+
+static void
+series_query_expr_reply(redisAsyncContext *c, redisReply *reply, const sds cmd, void *arg)
+{
+    seriesGetSID	*sid = (seriesGetSID *)arg;
+    seriesQueryBaton	*baton = (seriesQueryBaton *)sid->baton;
+    pmSeriesExpr	expr = {0};
+    sds			msg;
+    int			sts;
+
+    seriesBatonCheckMagic(sid, MAGIC_SID, "series_query_expr_reply");
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_query_expr_reply");
+    sts = redisSlotsRedirect(baton->slots, reply, baton->info, baton->userdata,
+			     cmd, series_query_expr_reply, arg);
+    if (sts > 0)
+	return;	/* short-circuit as command was re-submitted */
+    if (UNLIKELY(reply == NULL || reply->type != REDIS_REPLY_ARRAY)) {
+    	if (sts < 0) {
+	    infofmt(msg, "expected array of one string element (got %lu) from series %s %s (type=%s)",
+   		reply->elements, sid->name, HMGET, redis_reply_type(reply));
+	    batoninfo(baton, PMLOG_RESPONSE, msg);
+	}
+    } else if (reply->element[0]->type == REDIS_REPLY_STRING) {
+	expr.query = sdsempty();
+    	if ((sts = extract_string(baton, sid->name, reply->element[0], &expr.query, "query")) < 0) {
+	    baton->error = sts;
+	} else {
+	    /* Parse the expr (with timing) and series solve the resulting expr tree */
+	    series_solve_sid_expr(&expr, arg);
+	}
+    }
+    series_query_end_phase(baton);
+}
+
 static void
 series_prepare_time_reply(
 	redisAsyncContext *c, redisReply *reply, const sds cmd, void *arg)
 {
     seriesGetSID	*sid = (seriesGetSID *)arg;
     seriesQueryBaton	*baton = (seriesQueryBaton *)sid->baton;
+    seriesGetSID	*expr;
+    sds			key, exprcmd;
     sds			msg;
     int			sts;
 
@@ -1377,10 +1452,30 @@ series_prepare_time_reply(
 	}
 	baton->error = -EPROTO;
     } else {
-	series_values_reply(baton, sid->name, reply->elements, reply->element, arg);
+	if (reply->elements > 0) {
+	    /* reply is a normal time series */
+	    series_values_reply(baton, sid->name, reply->elements, reply->element, arg);
+	} else {
+	    /* Handle fabricated/expression SID in /series/values :
+	     * - get the expr for sid->name from redis. In the callback for that,
+	     *   parse the expr and then solve the expression tree with timing from
+	     *   this series query baton. Then merge the values in the reply elements.
+	     */
+	    if (pmDebugOptions.series)
+		fprintf(stderr, "series_prepare_time_reply: sid %s is fabricated\n", sid->name);
+	    expr = calloc(1, sizeof(seriesGetSID));
+	    initSeriesGetSID(expr, sid->name, 1, baton);
+	    seriesBatonReference(baton, "series_query_expr_reply");
+
+	    key = sdscatfmt(sdsempty(), "pcp:expr:series:%S", expr->name);
+	    exprcmd = redis_command(3);
+	    exprcmd = redis_param_str(exprcmd, HMGET, HMGET_LEN);
+	    exprcmd = redis_param_sds(exprcmd, key);
+	    exprcmd = redis_param_str(exprcmd, "query", sizeof("query")-1);
+	    redisSlotsRequest(baton->slots, HMGET, key, exprcmd, series_query_expr_reply, expr);
+	}
     }
     freeSeriesGetSID(sid);
-
     series_query_end_phase(baton);
 }
 
@@ -2301,7 +2396,7 @@ series_function_hash(unsigned char *hash, node_t *np, int idx)
     const char	suffix[] = "\"}";
 
     if (pmDebugOptions.query)
-	fprintf(stderr, "%s: canonical expr:\n%s\n", __FUNCTION__, identifier);
+	fprintf(stderr, "%s: canonical expr: \"%s\"\n", __FUNCTION__, identifier);
     SHA1Init(&shactx);
     SHA1Update(&shactx, (unsigned char *)prefix, sizeof(prefix)-1);
     SHA1Update(&shactx, (unsigned char *)identifier, sdslen(identifier));
@@ -2367,7 +2462,9 @@ series_calculate_rate(node_t *np)
 		if (np->value_set.series_values[i].series_sample[j].num_instances != n_instances) {
 		    /* TODO: number of instances in each sample are not equal, report error. */
 		    if (pmDebugOptions.query)
-			fprintf(stderr, "TODO: number of instances in each sample are not equal, report error.\n");
+			fprintf(stderr, "Error: number of instances in each sample are not equal %d != %d.\n",
+				np->value_set.series_values[i].series_sample[j].num_instances, n_instances);
+		    continue;
 		}
 		for (k = 0; k < n_instances; k++) {
 		    t_pmval = np->value_set.series_values[i].series_sample[j-1].series_instance[k];
@@ -3890,7 +3987,7 @@ series_query_funcs_report_values(void *arg)
      * Store the canonical query to Redis if this query statement has
      * function operation.
      */
-    if (has_function != 0)
+    if (has_function)
 	series_redis_hash_expression(baton, hashbuf, sizeof(hashbuf));
 
     /* time series values saved in root node so report them directly. */
@@ -4619,7 +4716,7 @@ series_lookup_expr(void *arg)
     }
 }
 
-/* return the expression string for given SID */
+/* return the expression string for given SIDs */
 int
 pmSeriesExprs(pmSeriesSettings *settings, int nseries, pmSID *series, void *arg)
 {

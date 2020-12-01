@@ -90,7 +90,10 @@ typedef struct seriesGetSID {
     seriesBatonMagic	header;		/* MAGIC_SID */
     sds			name;		/* series or source SID */
     sds			metric;		/* back-pointer for instance series */
-    int			freed;		/* freed individually on completion */
+    sds			expr;		/* expression for fabricated sid */
+    /* various flags */
+    int			freed : 1;	/* freed individually on completion */
+    int			fabricated : 1;	/* SID is an expression */
     void		*baton;
 } seriesGetSID;
 
@@ -178,6 +181,7 @@ typedef struct series {
     timing_t		time;
 } series_t;
 
+extern int series_parse(sds, series_t *, char **, void *);
 extern int series_solve(pmSeriesSettings *, node_t *, timing_t *, pmSeriesFlags, void *);
 extern int series_load(pmSeriesSettings *, node_t *, timing_t *, pmSeriesFlags, void *);
 
