@@ -880,6 +880,162 @@ do_roll(__pmContext *ctxp, double t_req, int *seen_mark)
     } \
 }
 
+#define HASH_THRESHOLD 16
+
+/*
+ * use the instance domain metadata to set t_first and t_last for an
+ * instance if the instance domain ever has more than HASH_THRESHOLD
+ * instances
+ */
+static void
+time_caliper(__pmContext *ctxp, instcntl_t *icp)
+{
+    int			sts;
+    int			j;
+    double		t_indom;
+    double		t_indom_prior;
+    __pmLogCtl		*lcp;
+    __pmHashNode	*hp;
+    __pmHashNode	*ip;
+    __pmHashNode	*jp;
+    __pmLogTrimInDom	*indomp;
+    __pmLogTrimInst	*instp;
+    __pmLogInDom	*idp;
+
+    /* default state, we know nothing */
+    icp->t_first = icp->t_last = -1;
+    if (icp->metric->desc.indom == PM_INDOM_NULL) {
+	/* no instance domain, nothing to see here */
+	return;
+    }
+
+    lcp = ctxp->c_archctl->ac_log;
+    if ((hp = __pmHashSearch((unsigned int)icp->metric->desc.indom, &lcp->l_trimindom)) == NULL) {
+	/*
+	 * assume first time for this indom ...
+	 * - add indom to l_trimindom hash
+	 * - walk all instances
+	 *   + add to histinst hash if not already there
+	 *   + update t_first if this is the earliest observation
+	 * - at the end of each timestamped snapshot of the indom,
+	 *   update t_last if this the last time an instance was NOT
+	 *   observed
+	 */
+	int	maxinst;
+	if (pmDebugOptions.qa) {
+	    char	strbuf[20];
+	    fprintf(stderr, "time_caliper: build hashes for indom %s\n", pmInDomStr_r(icp->metric->desc.indom, strbuf, sizeof(strbuf)));
+	}
+	if ((indomp = (__pmLogTrimInDom *)malloc(sizeof(__pmLogTrimInDom))) == NULL) {
+	    pmNoMem("time_caliper.__pmLogTrimInDom", sizeof(__pmLogTrimInDom), PM_FATAL_ERR);
+	    /*NOTREACHED*/
+	}
+	indomp->hashinst.nodes = indomp->hashinst.hsize = 0;
+	sts = __pmHashAdd((unsigned int)icp->metric->desc.indom, (void *)indomp, &lcp->l_trimindom);
+	if (sts < 0) {
+	    char	strbuf[20];
+	    fprintf(stderr, "time_caliper: Botch: indom %s trimindom __pmHashAdd failed: %d\n", pmInDomStr_r(icp->metric->desc.indom, strbuf, sizeof(strbuf)), sts);
+	    free(indomp);
+	    return;
+	}
+	if ((hp = __pmHashSearch((unsigned int)icp->metric->desc.indom, &lcp->l_trimindom)) == NULL) {
+	    char	strbuf[20];
+	    fprintf(stderr, "time_caliper: Botch: indom %s: trimindom __pmHashSearch failed\n", pmInDomStr_r(icp->metric->desc.indom, strbuf, sizeof(strbuf)));
+	    return;
+	}
+	if ((jp = __pmHashSearch((unsigned int)icp->metric->desc.indom, &lcp->l_hashindom)) == NULL) {
+	    char	strbuf[20];
+	    fprintf(stderr, "time_caliper: Botch: indom %s: l_hashindom __pmHashSearch failed\n", pmInDomStr_r(icp->metric->desc.indom, strbuf, sizeof(strbuf)));
+	    return;
+	}
+	/*
+	 * only do the work of building the per-instance time limits
+	 * for big indoms ...
+	 */
+	maxinst = 0;
+	for (idp = (__pmLogInDom *)jp->data; idp != NULL; idp = idp->next) {
+	    if (idp->numinst > maxinst) {
+		maxinst = idp->numinst;
+		if (maxinst >= HASH_THRESHOLD)
+		    break;
+	    }
+	}
+	if (maxinst < HASH_THRESHOLD)
+	    return;
+
+	if (pmDebugOptions.qa) {
+	    char	strbuf[20];
+	    fprintf(stderr, "time_caliper: indom %s maxinst=%d\n", pmInDomStr_r(icp->metric->desc.indom, strbuf, sizeof(strbuf)), maxinst);
+	}
+
+	t_indom_prior = -1;
+	for (idp = (__pmLogInDom *)jp->data; idp != NULL; idp = idp->next) {
+	    t_indom = __pmTimevalSub(&idp->stamp, __pmLogStartTime(ctxp->c_archctl));
+
+	    for (j = 0; j < idp->numinst; j++) {
+		if ((ip = __pmHashSearch((unsigned int)idp->instlist[j], &indomp->hashinst)) == NULL) {
+		    /*
+		     * this instance has not been seen before (remember we
+		     * are going backwards in time)
+		     */
+		    if ((instp = (__pmLogTrimInst *)malloc(sizeof(__pmLogTrimInst))) == NULL) {
+			pmNoMem("time_caliper.__pmLogTrimInst", sizeof(__pmLogTrimInDom), PM_FATAL_ERR);
+			/*NOTREACHED*/
+		    }
+		    instp->t_first = t_indom;
+		    instp->t_last = t_indom_prior;
+		    sts = __pmHashAdd((unsigned int)idp->instlist[j], (void *)instp, &indomp->hashinst);
+		    if (sts < 0) {
+			char	strbuf[20];
+			fprintf(stderr, "time_caliper: Botch: indom %s inst %d hashinst __pmHashAdd failed: %d\n", pmInDomStr_r(icp->metric->desc.indom, strbuf, sizeof(strbuf)), idp->instlist[j], sts);
+			free(instp);
+			return;
+		    }
+		    if ((ip = __pmHashSearch((unsigned int)idp->instlist[j], &indomp->hashinst)) == NULL) {
+			char	strbuf[20];
+			fprintf(stderr, "time_caliper: Botch: indom %s inst %d hashinst __pmHashSearch failed\n", pmInDomStr_r(icp->metric->desc.indom, strbuf, sizeof(strbuf)), idp->instlist[j]);
+			return;
+		    }
+		}
+		else {
+		    instp = (__pmLogTrimInst *)ip->data;
+		    instp->t_first = t_indom;
+		}
+	    }
+	    t_indom_prior = t_indom;
+	}
+    }
+
+    if (hp != NULL) {
+	/* found indom, now for instance ... */
+	indomp = (__pmLogTrimInDom *)hp->data;
+	if ((ip = __pmHashSearch((unsigned int)icp->inst, &indomp->hashinst)) != NULL) {
+	    instp = (__pmLogTrimInst *)ip->data;
+	    icp->t_first = instp->t_first;
+	    icp->t_last = instp->t_last;
+	    if (pmDebugOptions.qa) {
+		char	strbuf[20];
+		fprintf(stderr, "time_caliper: indom %s and inst %d -> %.6f .. %.6f\n", pmInDomStr_r(icp->metric->desc.indom, strbuf, sizeof(strbuf)), icp->inst, icp->t_first, icp->t_last);
+	    }
+	}
+    }
+
+    return;
+}
+
+/*
+ * classes of "unbound" list instcntl_t scanning effort ...
+ * counted in nuis[] below
+ */
+#define NUIS_PASS2 		0
+#define NUIS_FIRST 		1
+#define NUIS_FIRST_FORGET	2
+#define NUIS_FIRST_TRIM		3
+#define NUIS_PASS3		4
+#define NUIS_LAST		5
+#define NUIS_LAST_FORGET	6
+#define NUIS_LAST_TRIM		7
+
 int
 __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **result)
 {
@@ -905,6 +1061,8 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
     static int	dowrap = -1;
     pmTimeval	tmp;
     struct timeval delta_tv = {0};
+    				/* number of unbound items scanned */
+    long	nuis[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
     PM_LOCK(__pmLock_extcall);
     if (dowrap == -1) {
@@ -1025,6 +1183,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		    SET_UNDEFINED(icp->s_prior);
 		    SET_UNDEFINED(icp->s_next);
 		    icp->v_prior.pval = icp->v_next.pval = NULL;
+		    time_caliper(ctxp, icp);
 		    hsts = __pmHashAdd((int)instlist[i], (void *)icp, &pcp->hc);
 		    if (hsts < 0) {
 			free(icp);
@@ -1161,10 +1320,13 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
     ctxp->c_archctl->ac_unbound = NULL;
     for (icp = (instcntl_t *)ctxp->c_archctl->ac_want; icp != NULL; icp = icp->want) {
 	assert(icp->inresult);
+	nuis[NUIS_PASS2]++;
+	if (icp->t_last >= 0 && t_req > icp->t_last)
+	    /* after latest, don't bother */
+	    continue;
 	if (icp->t_first >= 0 && t_req < icp->t_first)
 	    /* before earliest, don't bother */
 	    continue;
-
 	if (icp->t_prior < 0 || icp->t_prior > t_req) {
 	    if (back == 0 && !done_roll) {
 		done_roll = 1;
@@ -1200,6 +1362,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	    for (ub = (instcntl_t *)ctxp->c_archctl->ac_unbound;
 		 ub != NULL;
 		 ub = ub->unbound) {
+		nuis[NUIS_FIRST]++;
 		if (icp->t_first >= ub->t_first)
 		    break;
 		ub_prev = ub;
@@ -1261,6 +1424,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	     */
 	    ub_prev = NULL;
 	    for (icp = (instcntl_t *)ctxp->c_archctl->ac_unbound; icp != NULL; icp = icp->unbound) {
+		nuis[NUIS_FIRST_FORGET]++;
 		if (icp->t_first < t_this)
 		    break;
 		if (icp->search) {
@@ -1279,6 +1443,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	}
 	/* end of search, trim t_first as required */
 	for (icp = (instcntl_t *)ctxp->c_archctl->ac_unbound; icp != NULL; icp = icp->unbound) {
+	    nuis[NUIS_FIRST_TRIM]++;
 	    if ((IS_UNDEFINED(icp->s_prior) || icp->t_prior > t_req) &&
 		icp->t_first < t_req) {
 		icp->t_first = t_req;
@@ -1295,12 +1460,14 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
      */
     ctxp->c_archctl->ac_unbound = NULL;
     for (icp = (instcntl_t *)ctxp->c_archctl->ac_want; icp != NULL; icp = icp->want) {
+	nuis[NUIS_PASS3]++;
 	assert(icp->inresult);
-
 	if (icp->t_last >= 0 && t_req > icp->t_last)
 	    /* after latest, don't bother */
 	    continue;
-
+	if (icp->t_first >= 0 && t_req < icp->t_first)
+	    /* before earliest, don't bother */
+	    continue;
 	if (icp->t_next < 0 || icp->t_next < t_req) {
 	    if (forw == 0 && !done_roll) {
 		done_roll = 1;
@@ -1337,6 +1504,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	    for (ub = (instcntl_t *)ctxp->c_archctl->ac_unbound;
 		 ub != NULL;
 		 ub = ub->unbound) {
+		nuis[NUIS_LAST]++;
 		if (icp->t_last <= ub->t_last)
 		    break;
 		ub_prev = ub;
@@ -1399,6 +1567,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	     */
 	    ub_prev = NULL;
 	    for (icp = (instcntl_t *)ctxp->c_archctl->ac_unbound; icp != NULL; icp = icp->unbound) {
+		nuis[NUIS_LAST_FORGET]++;
 		if (icp->t_last > t_this)
 		    break;
 		if (icp->search && icp->t_last >= 0) {
@@ -1418,6 +1587,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 
 	/* end of search, trim t_last as required */
 	for (icp = (instcntl_t *)ctxp->c_archctl->ac_unbound; icp != NULL; icp = icp->unbound) {
+	    nuis[NUIS_LAST_TRIM]++;
 	    if (icp->t_next < t_req &&
 		(icp->t_last < 0 || t_req < icp->t_last)) {
 		icp->t_last = t_req;
@@ -1952,6 +2122,17 @@ all_done:
 	if (nr_cache[PM_MODE_BACK])
 	    fprintf(stderr, " (+%ld cached)", nr_cache[PM_MODE_BACK]);
 	fprintf(stderr, "\n");
+    }
+    if (pmDebugOptions.interp && pmDebugOptions.desperate) {
+	fprintf(stderr, "__pmLogFetchInterp: unbound items scanned:");
+	fprintf(stderr, " pass2: %ld", nuis[NUIS_PASS2]);
+	fprintf(stderr, " first: %ld", nuis[NUIS_FIRST]);
+	fprintf(stderr, " forget: %ld", nuis[NUIS_FIRST_FORGET]);
+	fprintf(stderr, " trim: %ld", nuis[NUIS_FIRST_TRIM]);
+	fprintf(stderr, " pass3: %ld", nuis[NUIS_PASS3]);
+	fprintf(stderr, " last: %ld", nuis[NUIS_LAST]);
+	fprintf(stderr, " forget: %ld", nuis[NUIS_LAST_FORGET]);
+	fprintf(stderr, " trim: %ld\n", nuis[NUIS_LAST_TRIM]);
     }
 
     return sts;
