@@ -1,0 +1,53 @@
+// Based on the tcptop BCC tool by Brendan Gregg:
+// https://github.com/iovisor/bcc/blob/master/tools/tcptop.py
+#include <uapi/linux/ptrace.h>
+#include <net/sock.h>
+
+struct netstats {
+    u64 tcp_send_packets;
+    u64 tcp_send_bytes;
+    u64 tcp_recv_packets;
+    u64 tcp_recv_bytes;
+
+    u64 udp_send_packets;
+    u64 udp_send_bytes;
+    u64 udp_recv_packets;
+    u64 udp_recv_bytes;
+};
+BPF_HASH(netstats_per_pid, u32, struct netstats);
+
+int kprobe__tcp_sendmsg(struct pt_regs *ctx, struct sock *sk,
+    struct msghdr *msg, size_t size)
+{
+    u32 pid = bpf_get_current_pid_tgid();
+
+    struct netstats *statp, zero = {};
+    statp = netstats_per_pid.lookup_or_try_init(&pid, &zero);
+    if (statp) {
+        statp->tcp_send_bytes += size;
+    }
+
+    return 0;
+}
+
+/*
+ * tcp_recvmsg() would be obvious to trace, but is less suitable because:
+ * - we'd need to trace both entry and return, to have both sock and size
+ * - misses tcp_read_sock() traffic
+ * we'd much prefer tracepoints once they are available.
+ */
+int kprobe__tcp_cleanup_rbuf(struct pt_regs *ctx, struct sock *sk, int copied)
+{
+    u32 pid = bpf_get_current_pid_tgid();
+
+    if (copied <= 0)
+        return 0;
+
+    struct netstats *statp, zero = {};
+    statp = netstats_per_pid.lookup_or_try_init(&pid, &zero);
+    if (statp) {
+        statp->tcp_recv_bytes += copied;
+    }
+
+    return 0;
+}
