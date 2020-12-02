@@ -43,6 +43,7 @@ main(int argc, char **argv)
     int		type = 0;
     int 	verbose = 0;
     char	*host = NULL;			/* pander to gcc */
+    const char	**names;
     char	local[MAXHOSTNAMELEN];
     char	*namespace = PM_NS_DEFAULT;
 
@@ -142,7 +143,8 @@ Options:\n\
 	    printf("... no metrics in PMNS ... skip tests\n");
 	    goto next;
 	}
-	sts = pmLookupName(todolist[todo].numpmid, todolist[todo].namelist, todolist[todo].pmidlist);
+	names = (const char **)todolist[todo].namelist;
+	sts = pmLookupName(todolist[todo].numpmid, names, todolist[todo].pmidlist);
 	if (sts != todolist[todo].numpmid) {
 	    int		i;
 	    putchar('\n');
@@ -152,7 +154,7 @@ Options:\n\
 		fprintf(stderr, "%s: pmLookupName: returned %d, expected %d\n", pmGetProgname(), sts, todolist[todo].numpmid);
 	    for (i = 0; i < todolist[todo].numpmid; i++) {
 		if (todolist[todo].pmidlist[i] == PM_ID_NULL)
-		    fprintf(stderr, "   %s is bad\n", todolist[todo].namelist[i]);
+		    fprintf(stderr, "   %s is bad\n", names[i]);
 	    }
 	    exit(1);
 	}

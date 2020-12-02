@@ -180,6 +180,7 @@ initinsts(Context *x)
 static void
 initapi(Context *x, pmMetricSpec *msp, int argc, char **argv)
 {
+    const char *name;
     int e;
 
     x->metric = msp->metric;
@@ -190,9 +191,10 @@ initapi(Context *x, pmMetricSpec *msp, int argc, char **argv)
     }
     x->handle = pmWhichContext();
 
-    if ((e = pmLookupName(1, &(x->metric), &(x->pmid))) < 0) {
-	fprintf(stderr, "%s: pmLookupName(%s): %s\n", pmGetProgname(), x->metric,
-		pmErrStr(e));
+    name = (const char *)x->metric;
+    if ((e = pmLookupName(1, &name, &(x->pmid))) < 0) {
+	fprintf(stderr, "%s: pmLookupName(%s): %s\n", pmGetProgname(),
+		name, pmErrStr(e));
 	exit(EXIT_FAILURE);
     }
 

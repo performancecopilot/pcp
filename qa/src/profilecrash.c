@@ -51,7 +51,7 @@ static pmOptions opts = {
 
 int		verbose;	/* number of times -v seen on command line */
 				/* target metric */
-char		*metric;
+const char	*metric;
 pmID		pmid;
 pmDesc		desc;
 				/* target instance domain */

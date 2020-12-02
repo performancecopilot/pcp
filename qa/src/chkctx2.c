@@ -17,7 +17,7 @@ static int inst_bin[] = { 100, 200, 300, 400, 500, 600, 700, 800, 900 };
 static int xpect_bin[] = { 1 };
 static int xpect_colour[] = { 0 };
 
-static char *namelist[] = {
+static const char *namelist[] = {
     "sampledso.bin",
     "sampledso.colour"
 };

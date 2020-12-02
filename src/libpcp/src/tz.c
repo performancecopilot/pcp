@@ -447,7 +447,7 @@ pmNewContextZone(void)
     }
     else {
 	/* assume PM_CONTEXT_HOST */
-	char		*name = "pmcd.timezone";
+	const char	*name = "pmcd.timezone";
 	pmID		pmid;
 	pmResult	*rp;
 

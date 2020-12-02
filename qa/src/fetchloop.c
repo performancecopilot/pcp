@@ -12,7 +12,7 @@
 #endif
 #include <unistd.h>
 
-static char	**namelist;
+static const char **namelist;
 static pmID	*pmidlist;
 static int	numpmid;
 
@@ -21,7 +21,7 @@ dometric(const char *name)
 {
     numpmid++;
 
-    namelist = (char **)realloc(namelist, numpmid*sizeof(char *));
+    namelist = (const char **)realloc(namelist, numpmid*sizeof(char *));
     if (namelist == NULL) {
 	pmNoMem("dometric: namelist", numpmid*sizeof(char *), PM_FATAL_ERR);
 	/* NOTREACHED */

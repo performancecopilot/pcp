@@ -132,6 +132,7 @@ main(int argc, char **argv)
     int		batch;
     int		batchidx;
     int		batchbytes;
+    const char	**batchnamelist;
     char	*endnum;
     int		ceiling = PDU_CHUNK * 64;
     int		newnumpmid;
@@ -266,7 +267,8 @@ main(int argc, char **argv)
 	    pmprintf("%s: name lookup, batchidx=%d batchbytes=%d b=%d\n",
 		pmGetProgname(), batchidx, batchbytes, b);
 	}
-	if (b > 0 && (sts = pmLookupName(b, namelist + batchidx, pmidlist + batchidx)) < 0) {
+	batchnamelist = (const char **)(namelist + batchidx);
+	if (b > 0 && (sts = pmLookupName(b, batchnamelist, pmidlist + batchidx)) < 0) {
 	    for (i = j = 0; i < b; i++) {
 		if (pmidlist[batchidx + i] == PM_ID_NULL) {
 		    printf("%s %d %s\n", namelist[batchidx + i], sts, pmErrStr(sts));

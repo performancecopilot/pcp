@@ -350,9 +350,9 @@ setup_event_derived_metrics(void)
 	 * __pmRegisterAnon(), so the anonymous metrics
 	 * should now be in the PMNS
 	 */
-	char	*name_flags = "event.flags";
-	char	*name_missed = "event.missed";
-	int	sts;
+	const char	*name_flags = "event.flags";
+	const char	*name_missed = "event.missed";
+	int		sts;
 
 	sts = pmLookupName(1, &name_flags, &pmid_flags);
 	if (sts < 0) {
@@ -833,7 +833,7 @@ report(void)
      * However, it is unlikely to fail because names come from a traverse PMNS. 
      */
     if (need_pmid) {
-        if ((sts = pmLookupName(batchidx, namelist, pmidlist)) < 0) {
+        if ((sts = pmLookupName(batchidx, (const char **)namelist, pmidlist)) < 0) {
 	    int j = 0;
 	    for (i = 0; i < batchidx; i++) {
 		if (pmidlist[i] == PM_ID_NULL) {

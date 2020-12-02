@@ -90,7 +90,7 @@ load_prepare_metric(const char *name, void *arg)
     sds			msg;
     int			sts;
 
-    if ((sts = pmLookupName(1, (char **)&name, &pmid)) < 0) {
+    if ((sts = pmLookupName(1, &name, &pmid)) < 0) {
 	if (sts == PM_ERR_IPC)
 	    cp->setup = 0;
 	infofmt(msg, "failed to lookup metric name (pmid=%s): %s",

@@ -47,7 +47,7 @@ int		*ctx;		/* one PMAPI context per worker thread */
 pthread_t	*tid;		/* thread id for each thread */
 
 /* target metric */
-char		*metric = "sampledso.bin";
+const char	*metric = "sampledso.bin";
 pmID		pmid;
 pmDesc		desc;
 

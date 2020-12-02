@@ -12,7 +12,7 @@ main(int argc, char **argv)
     int		j;
     int		numpmid;
     int		numval;
-    char	*namelist[20];
+    const char	*namelist[20];
     pmID	pmidlist[20];
     pmResult	*result;
     int		c;

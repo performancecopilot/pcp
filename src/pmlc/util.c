@@ -270,7 +270,7 @@ addmetric(const char *name)
 	return;
 
     /* Cast const away as pmLookUpName should not modify name */
-    if ((sts = pmLookupName(1, (char **)&name, &pmid)) < 0) {
+    if ((sts = pmLookupName(1, &name, &pmid)) < 0) {
 	metric_cnt = sts;
 	return;
     }

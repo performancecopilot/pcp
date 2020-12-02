@@ -228,7 +228,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	if (sts < 0)
 	    __pmSendError(pmda->e_outfd, FROM_ANON, sts);
 	else
-	    __pmSendNameList(pmda->e_outfd, FROM_ANON, sts, offspring, statuslist);
+	    __pmSendNameList(pmda->e_outfd, FROM_ANON, sts, (const char **)offspring, statuslist);
 	if (offspring) free(offspring);
 	if (statuslist) free(statuslist);
 	break;
@@ -254,7 +254,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	if (sts < 0)
 	    __pmSendError(pmda->e_outfd, FROM_ANON, sts);
 	else
-	    __pmSendNameList(pmda->e_outfd, FROM_ANON, sts, offspring, NULL);
+	    __pmSendNameList(pmda->e_outfd, FROM_ANON, sts, (const char **)offspring, NULL);
 	if (offspring) free(offspring);
 	break;
 
@@ -274,7 +274,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	if (sts < 0)
 	    __pmSendError(pmda->e_outfd, FROM_ANON, sts);
 	else
-	    __pmSendNameList(pmda->e_outfd, FROM_ANON, sts, namelist, NULL);
+	    __pmSendNameList(pmda->e_outfd, FROM_ANON, sts, (const char **)namelist, NULL);
 	if (namelist) free(namelist);
 	break;
 

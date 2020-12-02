@@ -6,7 +6,7 @@
 #include <pcp/pmapi.h>
 
 int
-dometric(char *name)
+dometric(const char *name)
 {
     int		i;
     pmID	pmidlist[] = { PM_ID_NULL };

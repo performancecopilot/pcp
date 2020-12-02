@@ -57,7 +57,7 @@ main(int argc, char **argv)
     int		pct;
     int		numpmid = 3;
     pmID	pmid[3];
-    char	*name[] = { "sample.seconds", "sample.drift", "sample.milliseconds" };
+    const char	*name[] = { "sample.seconds", "sample.drift", "sample.milliseconds" };
 
     pmSetProgname(argv[0]);
 

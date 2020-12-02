@@ -16,7 +16,7 @@
 
 #define NMETRIC 5
 
-static char	*namelist[NMETRIC] = {
+static const char *namelist[NMETRIC] = {
     "sample.colour",
     "pmcd.control.register",
     "sampledso.bin",

@@ -436,7 +436,7 @@ pmGetPMNSLocation(void)
  * linked-list structures)
  */
 static void
-dumptree(FILE *f, int level, __pmnsNode *rp, int verbosity)
+dumptree(FILE *f, int level, const __pmnsNode *rp, int verbosity)
 {
     int		i;
     __pmID_int	*pp;
@@ -1690,7 +1690,7 @@ pmUnloadNameSpace(void)
  * current context is not locked.
  */
 int
-pmLookupName_ctx(__pmContext *ctxp, int derive_locked, int numpmid, char *namelist[], pmID pmidlist[])
+pmLookupName_ctx(__pmContext *ctxp, int derive_locked, int numpmid, const char *namelist[], pmID pmidlist[])
 {
     int		pmns_location;
     int		sts = 0;
@@ -2001,7 +2001,7 @@ pmapi_return:
 }
 
 int
-pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
+pmLookupName(int numpmid, const char *namelist[], pmID pmidlist[])
 {
     int	sts;
     sts = pmLookupName_ctx(NULL, PM_NOT_LOCKED, numpmid, namelist, pmidlist);
@@ -2418,7 +2418,7 @@ report:
 	    if (statuslist != NULL)
 		__pmDumpNameAndStatusList(stderr, num, *offspring, *statuslist);
 	    else
-		__pmDumpNameList(stderr, num, *offspring);
+		__pmDumpNameList(stderr, num, (const char **)*offspring);
 	}
 	else {
 	    char	errmsg[PM_MAXERRMSGLEN];
@@ -3190,7 +3190,7 @@ __pmDumpNameSpace(FILE *f, int verbosity)
  * helper method ... linux_proc PMDA seems to be the only caller
  */
 void
-__pmDumpNameNode(FILE *f, __pmnsNode *node, int verbosity)
+__pmDumpNameNode(FILE *f, const __pmnsNode *node, int verbosity)
 {
     dumptree(f, 0, node, verbosity);
 }

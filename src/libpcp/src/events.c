@@ -402,7 +402,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 	static pmID	pmid_flags = 0;
 
 	if (pmid_flags == 0) {
-	    char	*name = "event.flags";
+	    const char	*name = "event.flags";
 	    if ((sts = pmLookupName(1, &name, &pmid_flags)) < 0) {
 		fprintf(stderr, "%s: Warning: failed to get PMID for %s: %s\n",
 			caller, name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
@@ -422,7 +422,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 	static pmID	pmid_missed = 0;
 
 	if (pmid_missed == 0) {
-	    char	*name = "event.missed";
+	    const char	*name = "event.missed";
 	    if ((sts = pmLookupName(1, &name, &pmid_missed)) < 0) {
 		fprintf(stderr, "%s: Warning: failed to get PMID for %s: %s\n",
 			caller, name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));

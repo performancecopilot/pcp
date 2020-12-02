@@ -57,7 +57,7 @@ func1(void *arg)
     int		*status;
     int		i;
     int		j;
-    char	*namelist[] = { "b", "a.three.foo", "d.f.fumble" };
+    const char	*namelist[] = { "b", "a.three.foo", "d.f.fumble" };
     pmID	pmidlist[3];
 
     pthread_barrier_wait(&barrier);

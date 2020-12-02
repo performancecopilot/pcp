@@ -20,7 +20,7 @@
 static pthread_barrier_t barrier;
 
 static int		ctx = -1;
-static char		*namelist[] = { "sampledso.colour" };
+static const char	*namelist[] = { "sampledso.colour" };
 static pmID		pmidlist[] = { 0 };
 static pmDesc		desc;
 static char		**instname;

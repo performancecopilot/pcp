@@ -31,7 +31,7 @@ static int		instlist[] = {
 	1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024
 };
 
-static char		*namelist[] = {
+static const char	*namelist[] = {
     /* 1 */	"alpha",
     /* 2 */	"beta",
     /* 4 */	"gamma",
@@ -118,8 +118,8 @@ _z(void)
     int			nsets;
     int			num;
     pmID		*pmidp;
-    pmInResult	inres;
-    pmInResult	*inresp;
+    pmInResult		inres;
+    pmInResult		*inresp;
     pmLabelSet		*labels;
     pmLabelSet		*rlabels;
     pmInDom		indom;
@@ -704,11 +704,11 @@ _z(void)
 
 	if (k == 0) {
 	    inres.instlist = instlist;
-	    inres.namelist = namelist;
+	    inres.namelist = (char **)namelist;
 	}
 	else if (k == 1) {
 	    inres.instlist = NULL;
-	    inres.namelist = namelist;
+	    inres.namelist = (char **)namelist;
 	}
 	else {
 	    inres.instlist = instlist;

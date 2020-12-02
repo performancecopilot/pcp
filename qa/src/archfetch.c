@@ -24,6 +24,7 @@ main(int argc, char **argv)
     int		numpmid = 0;
     pmID	*pmidlist = NULL;
     pmResult	*rp;
+    const char	*name;
     char	timebuf[26];
     time_t	clock;
 
@@ -145,9 +146,10 @@ Options:\n\
 	    pmNoMem("pmidlist[]", (numpmid+1)*sizeof(pmidlist[0]), PM_FATAL_ERR);
 	    /* NOTREACHED */
 	}
-	sts = pmLookupName(1, &argv[optind], &pmidlist[numpmid]);
+	name = (const char *)argv[optind];
+	sts = pmLookupName(1, &name, &pmidlist[numpmid]);
 	if (sts < 0) {
-	    fprintf(stderr, "%s: pmLookupName(..., %s, ...): %s\n", pmGetProgname(), argv[optind], pmErrStr(sts));
+	    fprintf(stderr, "%s: pmLookupName(..., %s, ...): %s\n", pmGetProgname(), name, pmErrStr(sts));
 	    exit(1);
 	}
 	numpmid++;

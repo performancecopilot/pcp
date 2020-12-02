@@ -74,7 +74,7 @@ main(int argc, char **argv)
     int		i;
     char	*p;
     char	*source;
-    char	*namelist[1];
+    const char	*namelist[1];
     pmID	pmidlist[1];
     pmResult	*old;
     pmResult	*new;

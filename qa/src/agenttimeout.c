@@ -15,7 +15,7 @@ main(int argc, char *argv[])
     int		domain;
     char	*endPtr;
     time_t	tBegin, tEnd;
-    char	*name;
+    const char	*name;
     pmID	timeoutPmid;
     pmResult	*result;
     pmID	pmid;

@@ -22,7 +22,7 @@ main(int argc, char **argv)
     struct timeval	then;
     pmResult	*rp;
     int		i;
-    char	*namelist[4];
+    const char	*namelist[4];
     pmID	pmidlist[4];
     int		numpmid;
     int		ctx;

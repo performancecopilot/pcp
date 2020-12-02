@@ -25,7 +25,7 @@ dometric(const char *name)
     char	**nameset;
 
     /* cast const away as pmLookUpName will not modify this string */
-    n = pmLookupName(1, (char **)&name, &pmid);
+    n = pmLookupName(1, &name, &pmid);
     if (n < 0) {
 	printf("pmLookupName(%s): %s\n", name, pmErrStr(n));
 	return;

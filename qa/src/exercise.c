@@ -34,7 +34,7 @@ dometric(const char *name)
     _metrics++;
 
     /* cast const away as pmLookupName will not modify this string */
-    if ((n = pmLookupName(1, (char **)&name, pmidlist)) < 0) {
+    if ((n = pmLookupName(1, &name, pmidlist)) < 0) {
 	printf("%s: pmLookupName: %s\n", name, pmErrStr(n));
 	return;
     }

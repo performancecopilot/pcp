@@ -376,7 +376,7 @@ __pmLogFindPort(const char *host, int pid, __pmLogPort **lpp)
     int			bytes;
     pmDesc		desc;
     pmResult		*res;
-    char		*namelist[] = {"pmcd.pmlogger.port"};
+    const char		*namelist[] = {"pmcd.pmlogger.port"};
     pmID		pmid;
 
     if (PM_MULTIPLE_THREADS(PM_SCOPE_LOGPORT))

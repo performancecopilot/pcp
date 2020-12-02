@@ -212,7 +212,7 @@ static void zbx_module_pcp_add_params(const char *prefix)
 
 	for (n = 0; n < batchsize; n++)
 	    names[n] = metrics[i+n].key + prefixlen;
-	sts = pmLookupName(batchsize, (char **)&names, pmid);
+	sts = pmLookupName(batchsize, (const char **)&names, pmid);
 	if (sts < 0) {
 	    i -= batchsize;
 	    continue;
@@ -255,7 +255,7 @@ static void zbx_module_pcp_add_params(const char *prefix)
 static int zbx_module_pcp_fetch_metric(AGENT_REQUEST *request, int *type, pmAtomValue *atom, char **errmsg)
 {
     int sts;
-    char *metric[] = { request->key + strlen(ZBX_PCP_METRIC_PREFIX) };
+    const char *metric[] = {request->key + strlen(ZBX_PCP_METRIC_PREFIX)};
     char *inst;
     pmID pmid[1];
     pmDesc desc[1];
