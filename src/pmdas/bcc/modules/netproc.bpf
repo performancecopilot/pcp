@@ -14,6 +14,8 @@ struct netstats {
     u64 udp_recv_packets;
     u64 udp_recv_bytes;
 };
+
+// TODO: limit size of map, FIFO?
 BPF_HASH(netstats_per_pid, u32, struct netstats);
 
 int kprobe__tcp_sendmsg(struct pt_regs *ctx, struct sock *sk,
@@ -24,6 +26,7 @@ int kprobe__tcp_sendmsg(struct pt_regs *ctx, struct sock *sk,
     struct netstats *statp, zero = {};
     statp = netstats_per_pid.lookup_or_try_init(&pid, &zero);
     if (statp) {
+        statp->tcp_send_packets++; // TODO
         statp->tcp_send_bytes += size;
     }
 
@@ -46,6 +49,7 @@ int kprobe__tcp_cleanup_rbuf(struct pt_regs *ctx, struct sock *sk, int copied)
     struct netstats *statp, zero = {};
     statp = netstats_per_pid.lookup_or_try_init(&pid, &zero);
     if (statp) {
+        statp->tcp_recv_packets++; // TODO
         statp->tcp_recv_bytes += copied;
     }
 
