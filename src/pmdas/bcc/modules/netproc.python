@@ -1,7 +1,5 @@
 #
 # Copyright (C) 2020 Red Hat.
-# Based on the tcptop BCC tool by Brendan Gregg:
-# https://github.com/iovisor/bcc/blob/master/tools/tcptop.py
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,7 +21,13 @@ import os
 from bcc import BPF
 
 from pcp.pmapi import pmUnits
-from cpmapi import PM_TYPE_U32, PM_TYPE_U64, PM_TYPE_STRING, PM_COUNT_ONE, PM_SEM_COUNTER
+from cpmapi import (
+    PM_TYPE_U32,
+    PM_TYPE_U64,
+    PM_TYPE_STRING,
+    PM_COUNT_ONE,
+    PM_SEM_COUNTER,
+)
 from cpmapi import PM_SEM_INSTANT, PM_SPACE_BYTE, PM_TIME_USEC
 from cpmda import PMDA_FETCH_NOVALUES
 
@@ -37,25 +41,43 @@ bpf_src = "modules/netproc.bpf"
 #
 # PCP BCC PMDA constants
 #
-MODULE = 'netproc'
-BASENS = 'proc.io.net.perpid.'
+MODULE = "netproc"
+BASENS = "proc.io.net.perpid."
 units_bytes = pmUnits(1, 0, 0, PM_SPACE_BYTE, 0, 0)
 units_count = pmUnits(0, 0, 1, 0, 0, PM_COUNT_ONE)
 units_none = pmUnits(0, 0, 0, 0, 0, 0)
 
 # use tuple here instead of a dict or class to access the fields by index in the bpfdata method
-Netstats = namedtuple('Netstats', ['tcp_send_packets', 'tcp_send_bytes', 'tcp_recv_packets', 'tcp_recv_bytes', 'udp_send_packets', 'udp_send_bytes', 'udp_recv_packets', 'udp_recv_bytes'])
+Netstats = namedtuple(
+    "Netstats",
+    [
+        "tcp_send_packets",
+        "tcp_send_bytes",
+        "tcp_recv_packets",
+        "tcp_recv_bytes",
+        "udp_send_packets",
+        "udp_send_bytes",
+        "udp_recv_packets",
+        "udp_recv_bytes",
+    ],
+)
 
 #
 # PCP BCC Module
 #
 class PCPBCCModule(PCPBCCBase):
     """ PCP BCC netproc module """
+
     def __init__(self, config, log, err):
         """ Constructor """
         PCPBCCBase.__init__(self, MODULE, config, log, err)
 
-        self.cache = defaultdict(lambda: Netstats(0,0,0,0,0,0,0,0))
+        self.remove_stopped_processes = True
+        for opt in self.config.options(MODULE):
+            if opt == "remove_stopped_processes":
+                self.remove_stopped_processes = self.config.getboolean(MODULE, opt)
+
+        self.cache = defaultdict(lambda: Netstats(0, 0, 0, 0, 0, 0, 0, 0))
         self.insts = {}
 
         self.log("Initialized.")
@@ -66,14 +88,70 @@ class PCPBCCModule(PCPBCCBase):
         self.items = (
             # Name - reserved - type - semantics - units - help
             # note: ordering of these metrics must match ordering of the Netstats named tuple
-            (name + 'tcp.out.packets', None, PM_TYPE_U64, PM_SEM_COUNTER, units_count, 'packets sent'),
-            (name + 'tcp.out.bytes', None, PM_TYPE_U64, PM_SEM_COUNTER, units_bytes, 'bytes sent'),
-            (name + 'tcp.in.packets', None, PM_TYPE_U64, PM_SEM_COUNTER, units_count, 'packets received'),
-            (name + 'tcp.in.bytes', None, PM_TYPE_U64, PM_SEM_COUNTER, units_bytes, 'bytes received'),
-            (name + 'udp.out.packets', None, PM_TYPE_U64, PM_SEM_COUNTER, units_count, 'packets sent'),
-            (name + 'udp.out.bytes', None, PM_TYPE_U64, PM_SEM_COUNTER, units_bytes, 'bytes sent'),
-            (name + 'udp.in.packets', None, PM_TYPE_U64, PM_SEM_COUNTER, units_count, 'packets received'),
-            (name + 'udp.in.bytes', None, PM_TYPE_U64, PM_SEM_COUNTER, units_bytes, 'bytes received'),
+            (
+                name + "tcp.out.packets",
+                None,
+                PM_TYPE_U64,
+                PM_SEM_COUNTER,
+                units_count,
+                "packets sent",
+            ),
+            (
+                name + "tcp.out.bytes",
+                None,
+                PM_TYPE_U64,
+                PM_SEM_COUNTER,
+                units_bytes,
+                "bytes sent",
+            ),
+            (
+                name + "tcp.in.packets",
+                None,
+                PM_TYPE_U64,
+                PM_SEM_COUNTER,
+                units_count,
+                "packets received",
+            ),
+            (
+                name + "tcp.in.bytes",
+                None,
+                PM_TYPE_U64,
+                PM_SEM_COUNTER,
+                units_bytes,
+                "bytes received",
+            ),
+            (
+                name + "udp.out.packets",
+                None,
+                PM_TYPE_U64,
+                PM_SEM_COUNTER,
+                units_count,
+                "packets sent",
+            ),
+            (
+                name + "udp.out.bytes",
+                None,
+                PM_TYPE_U64,
+                PM_SEM_COUNTER,
+                units_bytes,
+                "bytes sent",
+            ),
+            (
+                name + "udp.in.packets",
+                None,
+                PM_TYPE_U64,
+                PM_SEM_COUNTER,
+                units_count,
+                "packets received",
+            ),
+            (
+                name + "udp.in.bytes",
+                None,
+                PM_TYPE_U64,
+                PM_SEM_COUNTER,
+                units_bytes,
+                "bytes received",
+            ),
         )
         return True, self.items
 
@@ -82,7 +160,7 @@ class PCPBCCModule(PCPBCCBase):
         try:
             self.bpf = BPF(src_file=bpf_src)
             self.log("Compiled.")
-        except Exception as error: # pylint: disable=broad-except
+        except Exception as error:  # pylint: disable=broad-except
             self.bpf = None
             self.err(str(error))
             self.err("Module NOT active!")
@@ -93,30 +171,35 @@ class PCPBCCModule(PCPBCCBase):
         if self.bpf is None:
             return None
 
-        netstats_per_pid = self.bpf['netstats_per_pid']
+        netstats_per_pid = self.bpf["netstats_per_pid"]
         for pid_ct, cur_netstat in netstats_per_pid.items():
             pid = pid_ct.value
             prev_netstat = self.cache[pid]
             self.cache[pid] = Netstats(
-                tcp_send_packets=prev_netstat.tcp_send_packets + cur_netstat.tcp_send_packets,
+                tcp_send_packets=prev_netstat.tcp_send_packets
+                + cur_netstat.tcp_send_packets,
                 tcp_send_bytes=prev_netstat.tcp_send_bytes + cur_netstat.tcp_send_bytes,
-                tcp_recv_packets=prev_netstat.tcp_recv_packets + cur_netstat.tcp_recv_packets,
+                tcp_recv_packets=prev_netstat.tcp_recv_packets
+                + cur_netstat.tcp_recv_packets,
                 tcp_recv_bytes=prev_netstat.tcp_recv_bytes + cur_netstat.tcp_recv_bytes,
-                udp_send_packets=prev_netstat.udp_send_packets + cur_netstat.udp_send_packets,
+                udp_send_packets=prev_netstat.udp_send_packets
+                + cur_netstat.udp_send_packets,
                 udp_send_bytes=prev_netstat.udp_send_bytes + cur_netstat.udp_send_bytes,
-                udp_recv_packets=prev_netstat.udp_recv_packets + cur_netstat.udp_recv_packets,
+                udp_recv_packets=prev_netstat.udp_recv_packets
+                + cur_netstat.udp_recv_packets,
                 udp_recv_bytes=prev_netstat.udp_recv_bytes + cur_netstat.udp_recv_bytes,
             )
             self.insts[str(pid)] = ct.c_int(1)
         netstats_per_pid.clear()
 
         # remove stopped processes
-        current_pids = frozenset(os.listdir("/proc"))
-        cached_pids = frozenset(self.insts.keys())
-        stopped_pids = cached_pids - current_pids
-        for pid in stopped_pids:
-            del self.cache[int(pid)]
-            del self.insts[pid]
+        if self.remove_stopped_processes:
+            current_pids = frozenset(os.listdir("/proc"))
+            cached_pids = frozenset(self.insts.keys())
+            stopped_pids = cached_pids - current_pids
+            for pid in stopped_pids:
+                del self.cache[int(pid)]
+                del self.insts[pid]
 
         return self.insts
 
@@ -126,5 +209,5 @@ class PCPBCCModule(PCPBCCBase):
             key = int(self.pmdaIndom.inst_name_lookup(inst))
             value = self.cache[key][item]
             return [value, 1]
-        except Exception: # pylint: disable=broad-except
+        except Exception:  # pylint: disable=broad-except
             return [PMDA_FETCH_NOVALUES, 0]
