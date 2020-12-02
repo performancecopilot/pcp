@@ -9,7 +9,7 @@
 int main(int argc, char **argv) {
     int ctx;
     char *new_value_str;
-    char *namelist[1];
+    const char *namelist[1];
     pmID pmidlist[1];
     pmResult *result;
     pmAtomValue atomValue;

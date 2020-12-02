@@ -267,6 +267,7 @@ validate_metrics(void)
     pmID		*new_pmids;
     const pmDesc	*old_desc;
     pmDesc		new_desc;
+    const char		**names;
     int			index;
     int			error;
     int			sts;
@@ -299,7 +300,8 @@ validate_metrics(void)
 	    pmNoMem("allocating pmID array for validating metrice",
 		      tp->t_numpmid * sizeof(*tp->t_pmidlist), PM_FATAL_ERR);
 	}
-	if ((sts = pmLookupName(tp->t_numpmid, tp->t_namelist, new_pmids)) < 0) {
+	names = (const char **)tp->t_namelist;
+	if ((sts = pmLookupName(tp->t_numpmid, names, new_pmids)) < 0) {
 	    fprintf(stderr, "Error looking up metrics: Reason: %s\n",
 		    pmErrStr(sts));
 	    exit(1);
@@ -312,8 +314,8 @@ validate_metrics(void)
 	     * (possible), then the needed pmID will be fetched.
 	     */
 	    if (new_pmids[index] == PM_ID_NULL) {
-		if ((sts = pmLookupName(1, &tp->t_namelist[index],
-					&new_pmids[index])) < 0) {
+		names = (const char **)&tp->t_namelist[index];
+		if ((sts = pmLookupName(1, names, &new_pmids[index])) < 0) {
 		    /* The lookup of the metric is still in error. */
 		    fprintf(stderr, "Error looking up %s: Reason: %s\n",
 			    tp->t_namelist[index], pmErrStr(sts));
@@ -402,7 +404,7 @@ add_dynamic_metric(const char *name, void *data)
     pmResult	*logreq;
     __pmHashNode *hp;
 
-    if ((sts = pmLookupName(1, (char **)&name, &pmid)) < 0 || pmid == PM_ID_NULL) {
+    if ((sts = pmLookupName(1, &name, &pmid)) < 0 || pmid == PM_ID_NULL) {
 	/* hmm, that metric has gone away, or something went wrong  - ignore it */
 	return;
     }

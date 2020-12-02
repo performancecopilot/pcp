@@ -1840,7 +1840,7 @@ pmsprintf(char *str, size_t size, const char *fmt, ...)
 int
 __pmSetClientId(const char *id)
 {
-    char		*name = "pmcd.client.whoami";
+    const char		*name = "pmcd.client.whoami";
     pmID		pmid;
     int			sts;
     pmResult		store;

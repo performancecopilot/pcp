@@ -39,8 +39,8 @@ main(int argc, char **argv)
     int		nsets;
     int		exitsts;
     int		nmetrics;
-    char	*metric;
-    char	*source;
+    const char	*metric;
+    const char	*source;
     pmID	pmid;
     pmLabelSet	*lsp;
     pmLabelSet	*sets;

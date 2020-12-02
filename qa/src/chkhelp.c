@@ -16,7 +16,7 @@ main()
 {
     int		i;
     int		j;
-    char	*namelist[2];
+    const char	*namelist[2];
     pmID	pmidlist[2];
     int		n;
     int		numpmid;

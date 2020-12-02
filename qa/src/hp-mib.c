@@ -7,7 +7,7 @@
 #include <pcp/pmapi.h>
 #include "libpcp.h"
 
-static char *metrics[] = {
+static const char *metrics[] = {
     "proc.nprocs",
     "proc.psinfo.pid",
     "proc.psinfo.uid",

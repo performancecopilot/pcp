@@ -15,7 +15,7 @@
 #include "pthread_barrier.h"
 #endif
 
-static char	*namelist[] = {
+static const char *namelist[] = {
     "pmcd.control.register",
     "pmcd.version",
     "sampledso.bin",

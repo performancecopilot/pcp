@@ -328,7 +328,7 @@ void NameSpace::expandMetricNames(QString parent, bool show)
     }
 
     pmidlist = (pmID *)malloc(nleaf * sizeof(*pmidlist));
-    if ((sts = pmLookupName(nleaf, offspring, pmidlist)) < 0) {
+    if ((sts = pmLookupName(nleaf, (const char **)offspring, pmidlist)) < 0) {
 	if (!show)
 	    goto done;
 	failmsg = QString("Cannot find PMIDs: %1.\n").arg(pmErrStr(sts));

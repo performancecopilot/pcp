@@ -775,7 +775,7 @@ main(int argc, char **argv)
     pid_t               target_pid = 0;
     int			exit_code = 0;
     char		*exit_msg;
-    char		*name = "pmcd.timezone";
+    const char		*name = "pmcd.timezone";
     pmID		pmid;
     pmResult		*resp;
 

@@ -663,7 +663,7 @@ DoPMNSIDs(ClientInfo *cp, __pmPDU *pb)
     numnames = sts;
 
     pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_PMNS_NAMES, numnames);
-    if ((sts = __pmSendNameList(cp->fd, FROM_ANON, numnames, namelist, NULL)) < 0){
+    if ((sts = __pmSendNameList(cp->fd, FROM_ANON, numnames, (const char **)namelist, NULL)) < 0){
 	pmcd_trace(TR_XMIT_ERR, cp->fd, PDU_PMNS_NAMES, sts);
 	CleanupClient(cp, sts);
     	goto fail;
@@ -703,7 +703,7 @@ DoPMNSNames(ClientInfo *cp, __pmPDU *pb)
 	goto done;
     }
 
-    sts = pmLookupName(numids, namelist, idlist);
+    sts = pmLookupName(numids, (const char **)namelist, idlist);
     /*
      * even if this fails, or looks up fewer than numids, we have to
      * check each PMID looking for dynamic metrics and process them
@@ -749,7 +749,7 @@ DoPMNSNames(ClientInfo *cp, __pmPDU *pb)
 		    lsts = PM_ERR_AGAIN;
 		else {
 		    pmcd_trace(TR_XMIT_PDU, ap->inFd, PDU_PMNS_NAMES, 1);
-		    lsts = __pmSendNameList(ap->inFd, cp - client, 1, &namelist[i], NULL);
+		    lsts = __pmSendNameList(ap->inFd, cp - client, 1, (const char **)&namelist[i], NULL);
 		    if (lsts >= 0) {
 			int		pinpdu;
 			pinpdu = lsts = __pmGetPDU(ap->outFd, ANY_SIZE, pmcd_timeout, &pb);
@@ -840,7 +840,7 @@ DoPMNSChild(ClientInfo *cp, __pmPDU *pb)
 	goto done;
 
     namelist[0] = name;
-    sts = pmLookupName(1, namelist, idlist);
+    sts = pmLookupName(1, (const char **)namelist, idlist);
     if (sts == 1 && IS_DYNAMIC_ROOT(idlist[0])) {
 	int		domain = pmID_cluster(idlist[0]);
 	AgentInfo	*ap = NULL;
@@ -936,7 +936,7 @@ DoPMNSChild(ClientInfo *cp, __pmPDU *pb)
 
     numnames = sts;
     pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_PMNS_NAMES, numnames);
-    if ((sts = __pmSendNameList(cp->fd, FROM_ANON, numnames, offspring, statuslist)) < 0) {
+    if ((sts = __pmSendNameList(cp->fd, FROM_ANON, numnames, (const char **)offspring, statuslist)) < 0) {
 	pmcd_trace(TR_XMIT_ERR, cp->fd, PDU_PMNS_NAMES, sts);
 	CleanupClient(cp, sts);
     }
@@ -1019,7 +1019,7 @@ traverse_dynamic(ClientInfo *cp, char *start, int *num_names, char ***names)
     for (i = *num_names-1; i >= 0; i--) {
 	offspring = NULL;
 	namelist[0] = (*names)[i];
-	sts = pmLookupName(1, namelist, idlist);
+	sts = pmLookupName(1, (const char **)namelist, idlist);
 	if (sts < 1)
 	    continue;
 	if (IS_DYNAMIC_ROOT(idlist[0])) {
@@ -1229,7 +1229,7 @@ check:
 	goto done;
 
     pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_PMNS_NAMES, travNL_num);
-    if ((sts = __pmSendNameList(cp->fd, FROM_ANON, travNL_num, travNL, NULL)) < 0) {
+    if ((sts = __pmSendNameList(cp->fd, FROM_ANON, travNL_num, (const char **)travNL, NULL)) < 0) {
 	pmcd_trace(TR_XMIT_ERR, cp->fd, PDU_PMNS_NAMES, sts);
 	CleanupClient(cp, sts);
 	goto done;

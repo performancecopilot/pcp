@@ -18,7 +18,7 @@ main(int argc, char **argv)
     int		sts;
     int		bflag = 0;
     int		errflag = 0;
-    char	*metrics[] = {
+    const char	*metrics[] = {
 	"sampledso.long.one",
 	"sampledso.ulonglong.one",
 	"sampledso.float.one",

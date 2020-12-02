@@ -31,6 +31,11 @@
 #include "atop.h"
 #include "hostmetrics.h"
 
+extern const char *hostmetrics[];
+extern const char *ifpropmetrics[];
+extern const char *systmetrics[];
+extern const char *procmetrics[];
+
 /*
 ** Add the PCP long option and environment variable handling into
 ** the mix, along with regular atop short option handling, ready
@@ -1044,7 +1049,7 @@ extract_float_inst(pmResult *result, pmDesc *descs, int value, int inst)
 
 
 void
-setup_metrics(char **metrics, pmID *pmidlist, pmDesc *desclist, int nmetrics)
+setup_metrics(const char **metrics, pmID *pmidlist, pmDesc *desclist, int nmetrics)
 {
 	int	i, sts;
 
@@ -1336,12 +1341,8 @@ rawarchive(pmOptions *opts, const char *name)
 static void
 rawconfig(FILE *fp, double interval)
 {
-	char		**p;
-	unsigned int	delta, offset;
-	extern char	*hostmetrics[];
-	extern char	*ifpropmetrics[];
-	extern char	*systmetrics[];
-	extern char	*procmetrics[];
+	const char		**p;
+	unsigned int		delta, offset;
 
 	fprintf(fp, "log mandatory on once {\n");
 	for (p = hostmetrics; (*p)[0] != '.'; p++)

@@ -94,7 +94,7 @@ dometric(const char *name)
     pmID	pmid;
     char	*tp;
 
-    sts = pmLookupName(1, (char **)&name, &pmid);
+    sts = pmLookupName(1, &name, &pmid);
     if (sts < 0) {
 	fprintf(stderr, "pmLookupName: failed for \"%s\": %s\n", name, pmErrStr(sts));
 	return;
@@ -128,9 +128,9 @@ main(int argc, char **argv)
     int		eflag = 0;
     int		allpmid = 0;
     int		allindom = 0;
-    char	*filename;
+    const char	*filename;
+    const char	*name;
     char	*tp;
-    char	*name;
     int		id;
     int		next_type;
     char	*endnum;

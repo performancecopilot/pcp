@@ -17,7 +17,7 @@ dometric(const char *name)
     pmDesc	desc;
     pmResult	*rp;
 
-    if ((n = pmLookupName(1, (char **)&name, &pmid)) < 0) {
+    if ((n = pmLookupName(1, &name, &pmid)) < 0) {
 	printf("pmLookupName(%s): %s\n", name, pmErrStr(n));
 	return;
     }

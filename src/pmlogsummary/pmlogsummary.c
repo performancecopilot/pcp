@@ -263,7 +263,7 @@ printsummary(const char *name)
     struct timeval	metrictimespan;
 
     /* cast away const, pmLookupName should never modify name */
-    if ((sts = pmLookupName(1, (char **)&name, &pmid)) < 0) {
+    if ((sts = pmLookupName(1, &name, &pmid)) < 0) {
 	fprintf(stderr, "%s: failed to lookup metric name (pmid=%s): %s\n",
 		pmGetProgname(), name, pmErrStr(sts));
 	return;

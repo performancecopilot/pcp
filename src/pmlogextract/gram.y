@@ -127,7 +127,7 @@ dometric(const char *name)
     /*
      * Cast away const, pmLookUpName should not modify name
      */
-    if ((sts = pmLookupName(1,(char **)&name,&pmid)) < 0 || pmid == PM_ID_NULL){
+    if ((sts = pmLookupName(1, &name, &pmid)) < 0 || pmid == PM_ID_NULL){
 	/*
 	 * should not happen ... if name is a leaf, we've already called
 	 * pmLookupName once earlier, otherwise the PMNS is botched

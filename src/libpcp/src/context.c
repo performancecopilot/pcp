@@ -233,7 +233,7 @@ int
 pmGetHostName(int handle, char *buf, int buflen)
 {
     __pmContext *ctxp;
-    char	*name;
+    const char	*name;
     pmID	pmid;
     pmResult	*resp;
     int		save_handle;

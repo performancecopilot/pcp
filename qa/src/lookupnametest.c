@@ -20,7 +20,7 @@ main(int argc, char **argv)
     int		numpmid;
     char	*host = NULL;			/* pander to gcc */
     char	*pmnsfile = PM_NS_DEFAULT;
-    char	**namelist;
+    const char	**namelist;
     pmID	*pmidlist;
     char	*name;
 
@@ -162,7 +162,7 @@ Options:\n\
 
     /* metricname args are argv[optind] ... argv[argc-1] */
     numpmid = argc - optind;
-    namelist = (char **)malloc(numpmid*sizeof(namelist[0]));
+    namelist = (const char **)malloc(numpmid*sizeof(namelist[0]));
     if (namelist == NULL) {
 	fprintf(stderr, "%s: namelist malloc(%d) failed\n", pmGetProgname(), (int)(numpmid*sizeof(namelist[0])));
 	exit(1);

@@ -134,8 +134,8 @@ setup_event_derived_metrics(void)
 	 * __pmRegisterAnon(), so the anon metrics
 	 * should now be in the PMNS
 	 */
-	char	*name_flags = "event.flags";
-	char	*name_missed = "event.missed";
+	const char	*name_flags = "event.flags";
+	const char	*name_missed = "event.missed";
 
 	if ((sts = pmLookupName(1, &name_flags, &pmid_flags)) < 0) {
 	    /* should not happen! */
@@ -913,7 +913,7 @@ dometric(const char *name)
     }
     numpmid++;
     pmid = (pmID *)realloc(pmid, numpmid * sizeof(pmID));
-    if ((sts = pmLookupName(1, (char **)&name, &pmid[numpmid-1])) < 0) {
+    if ((sts = pmLookupName(1, &name, &pmid[numpmid-1])) < 0) {
 	fprintf(stderr, "%s: pmLookupName(%s): %s\n", pmGetProgname(), name, pmErrStr(sts));
 	numpmid--;
     }
@@ -1088,9 +1088,10 @@ main(int argc, char *argv[])
 	numpmid = 0;
 	pmid = NULL;
 	for (i = 0; opts.optind < argc; i++, opts.optind++) {
+	    const char *name = argv[opts.optind];
 	    numpmid++;
 	    pmid = (pmID *)realloc(pmid, numpmid * sizeof(pmID));
-	    if ((sts = pmLookupName(1, &argv[opts.optind], &pmid[numpmid-1])) < 0) {
+	    if ((sts = pmLookupName(1, &name, &pmid[numpmid-1])) < 0) {
 		if (sts == PM_ERR_NONLEAF) {
 		    numpmid--;
 		    if ((sts = pmTraversePMNS(argv[opts.optind], dometric)) < 0)

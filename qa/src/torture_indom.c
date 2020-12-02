@@ -74,7 +74,7 @@ do_test(char *name)
     pmDesc desc;
     pmID pmid;
     int err;
-    char *metriclist[1];
+    const char *metriclist[1];
     char **namelist;
     int *instlist;
     int n_instlist;

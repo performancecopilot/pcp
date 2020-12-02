@@ -15,7 +15,7 @@ main(int argc, char **argv)
     char	*namespace = PM_NS_DEFAULT;
     int		iterations = 2000;
     int		iter;
-    char	*metric;
+    const char	*metric;
     pmID	pmid;
     pmResult	*result;
     struct timeval      before, after;

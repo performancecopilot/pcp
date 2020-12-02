@@ -10,7 +10,6 @@
 int
 main(int argc, char **argv)
 {
-
     int		c;
     int		sts;
     int		errflag = 0;
@@ -19,7 +18,7 @@ main(int argc, char **argv)
     static char	*usage = "[-D debugspec] [-h hostname] [-n namespace]";
     int		i;
     int		n;
-    char	*namelist[20];
+    const char	*namelist[20];
     pmID	midlist[20];
     int		numpmid;
     pmResult	*rslt;

@@ -20,7 +20,7 @@ main(int argc, char **argv)
     pmDesc	desc;
     int		type = 0;
     char	*host = NULL;
-    char	*metric = "kernel.all.cpu.idle";
+    const char	*metric = "kernel.all.cpu.idle";
 
     pmSetProgname(argv[0]);
 

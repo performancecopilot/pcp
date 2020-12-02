@@ -162,7 +162,7 @@ typedef struct {
  */ 
 
 void
-__pmDumpNameList(FILE *f, int numnames, char *namelist[])
+__pmDumpNameList(FILE *f, int numnames, const char *namelist[])
 {
     int i;
 
@@ -196,7 +196,7 @@ __pmDumpNameAndStatusList(FILE *f, int numnames, char *namelist[], int statuslis
  * Send a PDU_PMNS_NAMES across socket.
  */
 int
-__pmSendNameList(int fd, int from, int numnames, char *namelist[],
+__pmSendNameList(int fd, int from, int numnames, const char *namelist[],
 		 const int statuslist[])
 {
     namelist_t		*nlistp;
@@ -403,7 +403,7 @@ __pmDecodeNameList(__pmPDU *pdubuf, int *numnamesp,
 
     if (pmDebugOptions.pmns) {
 	fprintf(stderr, "__pmDecodeNameList\n");
-	__pmDumpNameList(stderr, numnames, names);
+	__pmDumpNameList(stderr, numnames, (const char **)names);
 	if (status != NULL)
 	    __pmDumpStatusList(stderr, numstatus, status);
     }
