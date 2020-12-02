@@ -73,7 +73,7 @@ QmcContext::lookupName(pmID pmid, QString **name)
 	if (pmDebugOptions.pmc) {
 	    QTextStream cerr(stderr);
 	    cerr << "QmcContext::lookupName: Matched id "
-		 << pmIDStr(pmid) << " to \"" << *np << "\"" << endl;
+		 << pmIDStr(pmid) << " to \"" << *np << "\"" << Qt::endl;
 	}
 	*name = np;
     }
@@ -90,14 +90,14 @@ QmcContext::lookupPMID(const char *name, pmID& id)
 	return sts;
 
     if (my.nameCache.contains(key) == false) {
-        if ((sts = pmLookupName(1, (char **)(&name), &id)) >= 0)
+        if ((sts = pmLookupName(1, &name, &id)) >= 0)
 	    my.nameCache.insert(key, id);
     } else {
 	id = my.nameCache.value(key);
 	if (pmDebugOptions.pmc) {
 	    QTextStream cerr(stderr);
 	    cerr << "QmcContext::lookupPMID: Matched \"" << name
-		 << "\" to id " << pmIDStr(id) << endl;
+		 << "\" to id " << pmIDStr(id) << Qt::endl;
 	}
 	sts = 1;
     }
@@ -134,7 +134,7 @@ QmcContext::lookupDesc(pmID pmid, QmcDesc **descriptor)
 	if (pmDebugOptions.pmc) {
 	    QTextStream cerr(stderr);
 	    cerr << "QmcContext::lookupDesc: Add descriptor for "
-		 << pmIDStr(descPtr->id()) << endl;
+		 << pmIDStr(descPtr->id()) << Qt::endl;
 	}
     }
     else {
@@ -142,7 +142,7 @@ QmcContext::lookupDesc(pmID pmid, QmcDesc **descriptor)
 	if (pmDebugOptions.pmc) {
 	    QTextStream cerr(stderr);
 	    cerr << "QmcContext::lookupDesc: Reusing descriptor "
-		 << pmIDStr(descPtr->id()) << endl;
+		 << pmIDStr(descPtr->id()) << Qt::endl;
 	}
     }
     *descriptor = descPtr;
@@ -202,7 +202,7 @@ QmcContext::lookupInDom(QmcDesc *descPtr, uint32_t& indom)
 	    if (pmDebugOptions.pmc) {
 		QTextStream cerr(stderr);
 		cerr << "QmcContext::lookupInDom: Add indom for "
-		     << pmInDomStr(indomPtr->id()) << endl;
+		     << pmInDomStr(indomPtr->id()) << Qt::endl;
 	    }
 	}
 	else {
@@ -211,7 +211,7 @@ QmcContext::lookupInDom(QmcDesc *descPtr, uint32_t& indom)
 	    if (pmDebugOptions.pmc) {
 		QTextStream cerr(stderr);
 		cerr << "QmcContext::lookupInDom: Reusing indom "
-		     << pmInDomStr(indomPtr->id()) << endl;
+		     << pmInDomStr(indomPtr->id()) << Qt::endl;
 	    }
 	}
     }
@@ -238,7 +238,7 @@ void
 QmcContext::dump(QTextStream &stream)
 {
     stream << "Context " << my.context << " has " << my.nameCache.size()
-       << " metric names for source:" << endl;
+       << " metric names for source:" << Qt::endl;
     my.source->dump(stream);
 }
 
@@ -247,7 +247,7 @@ QmcContext::dumpMetrics(QTextStream &stream)
 {
     for (int i = 0; i < my.metrics.size(); i++)
 	stream << "        [" << i << "] "
-	       << my.metrics[i]->spec(false, true) << endl;
+	       << my.metrics[i]->spec(false, true) << Qt::endl;
 }
 
 void
@@ -296,7 +296,7 @@ QmcContext::fetch(bool update)
     else if (pmDebugOptions.optfetch) {
 	QTextStream cerr(stderr);
 	cerr << "QmcContext::fetch: Unable to switch to this context: "
-	     << pmErrStr(sts) << endl;
+	     << pmErrStr(sts) << Qt::endl;
     }
 
     if (sts >= 0 && my.needReconnect) {
@@ -306,20 +306,20 @@ QmcContext::fetch(bool update)
 	    if (pmDebugOptions.pmc) {
 		QTextStream cerr(stderr);
 		cerr << "QmcContext::fetch: Reconnected context \""
-		     << *my.source << endl;
+		     << *my.source << Qt::endl;
 	    }
 	}
 	else if (pmDebugOptions.pmc) {
 	    QTextStream cerr(stderr);
 	    cerr << "QmcContext::fetch: Reconnect failed: "
-		 << pmErrStr(sts) << endl;
+		 << pmErrStr(sts) << Qt::endl;
 	}
     }
 
     if (sts >= 0 && my.pmids.size()) {
 	if (pmDebugOptions.optfetch) {
 	    QTextStream cerr(stderr);
-	    cerr << "QmcContext::fetch: fetching context " << *this << endl;
+	    cerr << "QmcContext::fetch: fetching context " << *this << Qt::endl;
 	}
 
 	sts = pmFetch(my.pmids.size(), 
@@ -340,7 +340,7 @@ QmcContext::fetch(bool update)
 	else {
 	    if (pmDebugOptions.optfetch) {
 		QTextStream cerr(stderr);
-		cerr << "QmcContext::fetch: pmFetch: " << pmErrStr(sts) << endl;
+		cerr << "QmcContext::fetch: pmFetch: " << pmErrStr(sts) << Qt::endl;
 	    }
 	    for (i = 0; i < my.metrics.size(); i++) {
 		QmcMetric *metric = my.metrics[i];
@@ -355,7 +355,7 @@ QmcContext::fetch(bool update)
 	if (update) {
 	    if (pmDebugOptions.optfetch) {
 		QTextStream cerr(stderr);
-		cerr << "QmcContext::fetch: Updating metrics" << endl;
+		cerr << "QmcContext::fetch: Updating metrics" << Qt::endl;
 	    }
 	    for (i = 0; i < my.metrics.size(); i++) {
 		QmcMetric *metric = my.metrics[i];
@@ -367,7 +367,7 @@ QmcContext::fetch(bool update)
     }
     else if (pmDebugOptions.optfetch) {
 	QTextStream cerr(stderr);
-	cerr << "QmcContext::fetch: nothing to fetch" << endl;
+	cerr << "QmcContext::fetch: nothing to fetch" << Qt::endl;
     }
 
     return sts;
@@ -396,11 +396,11 @@ QmcContext::traverse(const char *name, QStringList &list)
 	QTextStream cerr(stderr);
 	if (sts >= 0) {
 	    cerr << "QmcContext::traverse: Found " << list.size()
-		<< " names from " << name << endl;
+		<< " names from " << name << Qt::endl;
 	}
 	else
 	    cerr << "QmcContext::traverse: Failed: " << pmErrStr(sts)
-		<< endl;
+		<< Qt::endl;
     }	    
 
     return sts;
