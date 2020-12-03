@@ -1,0 +1,17 @@
+#
+# metric names and access macros for netatopif.c
+#
+netprocmetrics {
+	bcc.proc.io.net.perpid.tcp.out.packets	TASK_NET_TCPSND
+	bcc.proc.io.net.perpid.tcp.out.bytes	TASK_NET_TCPSSZ
+	bcc.proc.io.net.perpid.tcp.in.packets	TASK_NET_TCPRCV
+	bcc.proc.io.net.perpid.tcp.in.bytes	TASK_NET_TCPRSZ
+
+	bcc.proc.io.net.perpid.udp.out.packets	TASK_NET_UDPSND
+	bcc.proc.io.net.perpid.udp.out.bytes	TASK_NET_UDPSSZ
+	bcc.proc.io.net.perpid.udp.in.packets	TASK_NET_UDPRCV
+	bcc.proc.io.net.perpid.udp.in.bytes	TASK_NET_UDPRSZ
+
+	# end marker - provides count
+	.					TASK_NET_NMETRICS
+}

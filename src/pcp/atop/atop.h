@@ -239,6 +239,7 @@ unsigned int	netatop_exitstore(void);
 void		netatop_exiterase(void);
 void		netatop_exithash(char);
 void		netatop_exitfind(unsigned long, struct tstat *, struct tstat *);
+void		netproc_update_tasks(struct tstat **tasks, unsigned long taskslen);
 
 /*
 ** Optional process accounting module interfaces

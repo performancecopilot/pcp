@@ -32,6 +32,7 @@ CFILES = \
 	ifprop.c \
 	parseable.c \
 	photoproc.c \
+	netproc.c \
 	photosyst.c \
 	procdbase.c \
 	showgeneric.c \
@@ -90,6 +91,9 @@ procmetrics.h:	pmgenmap.sh procmetrics.map
 acctmetrics.h:	pmgenmap.sh acctmetrics.map
 	$(PMGENMAP) acctmetrics.map > acctmetrics.h
 
+netprocmetrics.h:	pmgenmap.sh netprocmetrics.map
+	$(PMGENMAP) netprocmetrics.map > netprocmetrics.h
+
 systmetrics.h:	pmgenmap.sh systmetrics.map
 	$(PMGENMAP) systmetrics.map > systmetrics.h
 
@@ -100,6 +104,7 @@ hostmetrics.h:	pmgenmap.sh hostmetrics.map
 	$(PMGENMAP) hostmetrics.map > hostmetrics.h
 
 photoproc.o:	procmetrics.h
+netproc.o:	netprocmetrics.h
 photosyst.o:	systmetrics.h
 ifprop.o:	ifpropmetrics.h
 various.o:	hostmetrics.h

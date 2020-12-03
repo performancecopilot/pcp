@@ -189,7 +189,7 @@ class PCPBCCModule(PCPBCCBase):
                 + cur_netstat.udp_recv_packets,
                 udp_recv_bytes=prev_netstat.udp_recv_bytes + cur_netstat.udp_recv_bytes,
             )
-            self.insts[str(pid)] = ct.c_int(1)
+            self.insts[str(pid)] = ct.c_int(pid)
         netstats_per_pid.clear()
 
         # remove stopped processes
@@ -206,8 +206,7 @@ class PCPBCCModule(PCPBCCBase):
     def bpfdata(self, item, inst):
         """ Return BPF data as PCP metric value """
         try:
-            key = int(self.pmdaIndom.inst_name_lookup(inst))
-            value = self.cache[key][item]
+            value = self.cache[inst][item]
             return [value, 1]
         except Exception:  # pylint: disable=broad-except
             return [PMDA_FETCH_NOVALUES, 0]

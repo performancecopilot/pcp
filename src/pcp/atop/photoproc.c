@@ -145,6 +145,9 @@ photoproc(struct tstat **tasks, unsigned int *taskslen)
 		setup = 1;
 	}
 
+	/* check if per-process network metrics are available */
+	netatop_probe();
+
 	if (!calcpss)
 		pmids[TASK_MEM_PMEM] = PM_ID_NULL;
 	else
@@ -172,6 +175,10 @@ photoproc(struct tstat **tasks, unsigned int *taskslen)
 				pmGetProgname(), pids[i], insts[i]);
 		update_task(&(*tasks)[i], pids[i], insts[i], result, descs);
 	}
+
+	if (supportflags & NETATOP)
+		netproc_update_tasks(tasks, count);
+
 	if (pmDebugOptions.appl0)
 		fprintf(stderr, "%s: done %lu processes\n", pmGetProgname(), count);
 
