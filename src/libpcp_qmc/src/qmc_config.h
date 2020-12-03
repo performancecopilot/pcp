@@ -19,10 +19,10 @@
 #include <qstring.h>
 #include <qtextstream.h>
 
-#if QT_VERSION < 0x050000
-# define QT_ENDL endl
-#else
+#if QT_VERSION >= 0x050104
 # define QT_ENDL Qt::endl
+#else
+# define QT_ENDL endl
 #endif
 
 #endif	// QMC_CONFIG_H
