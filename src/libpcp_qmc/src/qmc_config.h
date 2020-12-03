@@ -19,7 +19,7 @@
 #include <qstring.h>
 #include <qtextstream.h>
 
-#if QT_VERSION >= 0x050104
+#if QT_VERSION >= 0x051400
 # define QT_ENDL Qt::endl
 #else
 # define QT_ENDL endl
