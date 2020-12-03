@@ -19,12 +19,10 @@
 #include "qmc.h"
 #include "qmc_desc.h"
 #include "qmc_group.h"
+#include "qmc_config.h"
 #include "qmc_context.h"
 
-#include <qlist.h>
 #include <qvector.h>
-#include <qstring.h>
-#include <qtextstream.h>
 
 class QmcMetricValue;
 

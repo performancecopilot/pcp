@@ -16,10 +16,7 @@
 #define QMC_INDOM_H
 
 #include "qmc.h"
-
-#include <qlist.h>
-#include <qstring.h>
-#include <qtextstream.h>
+#include "qmc_config.h"
 
 class QmcInstance
 {
