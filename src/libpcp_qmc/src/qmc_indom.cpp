@@ -27,6 +27,15 @@ QmcInstance::QmcInstance()
     my.active = false;
 }
 
+QmcInstance::QmcInstance(const QmcInstance &base)
+{
+    my.inst = base.inst();
+    my.name = base.name();
+    my.refCount = base.refCount();
+    my.index = base.index();
+    my.active = base.active();
+}
+
 QmcInstance::QmcInstance(int id, const char* name)
 {
     my.inst = id;

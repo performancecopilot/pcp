@@ -98,6 +98,7 @@ class QmcMetricValue
 {
 public:
     QmcMetricValue();
+    QmcMetricValue(const QmcMetricValue &);
     QmcMetricValue const& operator=(QmcMetricValue const& rhs);
 
     int instance() const { return my.instance; }
