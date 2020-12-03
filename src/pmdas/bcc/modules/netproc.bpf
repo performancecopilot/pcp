@@ -15,7 +15,7 @@ struct netstats {
     u64 udp_recv_bytes;
 };
 
-// TODO: limit size of map, FIFO?
+// TODO: limit size of map, FIFO? approx max map size: PID_MAX * 8 * 8 bytes
 BPF_HASH(netstats_per_pid, u32, struct netstats);
 
 int kprobe__tcp_sendmsg(struct pt_regs *ctx, struct sock *sk,
@@ -51,6 +51,36 @@ int kprobe__tcp_cleanup_rbuf(struct pt_regs *ctx, struct sock *sk, int copied)
     if (statp) {
         statp->tcp_recv_packets++; // TODO
         statp->tcp_recv_bytes += copied;
+    }
+
+    return 0;
+}
+
+int kprobe__udp_sendmsg(struct pt_regs *ctx, struct sock *sk,
+    struct msghdr *msg, size_t len)
+{
+    u32 pid = bpf_get_current_pid_tgid();
+
+    struct netstats *statp, zero = {};
+    statp = netstats_per_pid.lookup_or_try_init(&pid, &zero);
+    if (statp) {
+        statp->udp_send_packets++; // TODO
+        statp->udp_send_bytes += len;
+    }
+
+    return 0;
+}
+
+int kprobe__udp_recvmsg(struct pt_regs *ctx, struct sock *sk,
+    struct msghdr *msg, size_t len, int noblock, int flags, int *addr_len)
+{
+    u32 pid = bpf_get_current_pid_tgid();
+
+    struct netstats *statp, zero = {};
+    statp = netstats_per_pid.lookup_or_try_init(&pid, &zero);
+    if (statp) {
+        statp->udp_recv_packets++; // TODO
+        statp->udp_recv_bytes += len;
     }
 
     return 0;
