@@ -47,6 +47,14 @@ OK
 OK
 === report metric values for bcc.proc.io.net.perpid.tcp.out.bytes ===
 OK
+=== report metric values for bcc.proc.io.net.perpid.udp.in.packets ===
+OK
+=== report metric values for bcc.proc.io.net.perpid.udp.in.bytes ===
+OK
+=== report metric values for bcc.proc.io.net.perpid.udp.out.packets ===
+OK
+=== report metric values for bcc.proc.io.net.perpid.udp.out.bytes ===
+OK
 
 === remove bcc agent ===
 Culling the Performance Metrics Name Space ...
