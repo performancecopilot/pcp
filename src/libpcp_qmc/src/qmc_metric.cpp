@@ -341,7 +341,7 @@ QmcMetric::dumpSampledMetric(QTextStream &stream, bool srcFlag, uint instance) c
 	dumpSource(stream);
 
     if (my.status < 0)
-	stream << ": " << pmErrStr(my.status) << Qt::endl;
+	stream << ": " << pmErrStr(my.status) << QT_ENDL;
     else if (hasInstances()) {
 	if (instance == UINT_MAX) {
 	    if (numInst() == 1)
@@ -350,26 +350,26 @@ QmcMetric::dumpSampledMetric(QTextStream &stream, bool srcFlag, uint instance) c
 		stream << ": " << numInst() << " instances";
 	    if (indom()->changed())
 		stream << " (indom has changed)";
-	    stream << Qt::endl;
+	    stream << QT_ENDL;
 
 	    for (int i = 0; i < numInst(); i++) {
 		stream << "  [" << instID(i) << " or \"" << instName(i)
 		       << "\" (" << my.values[i].instance() << ")] = ";
 		dumpValue(stream, i);
-		stream << Qt::endl;
+		stream << QT_ENDL;
 	    }
 	}
 	else {
 	    stream << '[' << instID(instance) << " or \"" << instName(instance) 
 		   << "\" (" << my.values[instance].instance() << ")] = ";
 	    dumpValue(stream, instance);
-	    stream << Qt::endl;
+	    stream << QT_ENDL;
 	}
     }
     else {
 	stream << " = ";
 	dumpValue(stream, 0);
-	stream << Qt::endl;
+	stream << QT_ENDL;
     }
 }
 
@@ -420,7 +420,7 @@ QmcMetric::update()
 	    QTextStream cerr(stderr);
 	    if (my.values[i].error() < 0)
 		cerr << "QmcMetric::update: " << spec(true, true, i) 
-		     << ": " << pmErrStr(my.values[i].error()) << Qt::endl;
+		     << ": " << pmErrStr(my.values[i].error()) << QT_ENDL;
 	}
     }
 
@@ -443,7 +443,7 @@ QmcMetric::update()
 		    QTextStream cerr(stderr);
 		    cerr << "QmcMetric::update: Previous: " 
 			 << spec(true, true, i) << ": "
-			 << pmErrStr(value.error()) << Qt::endl;
+			 << pmErrStr(value.error()) << QT_ENDL;
 		}
 		continue;
 	    }
@@ -532,7 +532,7 @@ QmcMetric::update()
 		    QTextStream cerr(stderr);
 		    cerr << "QmcMetric::update: scaled " << my.name
 			 << " from " << ival.d << " to " << oval.d
-			 << Qt::endl;
+			 << QT_ENDL;
 		}
 	    }
 	}
@@ -547,7 +547,7 @@ QmcMetric::dumpAll() const
     QTextStream cerr(stderr);
     cerr << *this << " from " << context()->source().desc() 
 	 << " with scale = "  << my.scale << " and units = " << desc().units() 
-	 << Qt::endl;
+	 << QT_ENDL;
 }
 
 void
@@ -644,7 +644,7 @@ QmcMetric::extractValues(pmValueSet const* set)
 		    cerr << "QmcMetric::extractValues: implicit indom "
 			 << pmInDomStr(indomPtr->id()) << " changed ("
 			 << set->numval << " != " << my.values.size() << ')'
-			 << Qt::endl;
+			 << QT_ENDL;
 		}
 		indomPtr->hasChanged();
 		updateIndom();
@@ -688,7 +688,7 @@ QmcMetric::extractValues(pmValueSet const* set)
 			QTextStream cerr(stderr);
 			cerr << "QmcMetric::extractValues: "
 			     << spec(true, true, i) << ": "
-			     << pmErrStr(PM_ERR_VALUE) << Qt::endl;
+			     << pmErrStr(PM_ERR_VALUE) << QT_ENDL;
 		    }
 
 		    if (valueRef.previousError() != PM_ERR_VALUE)
@@ -719,7 +719,7 @@ QmcMetric::extractValues(pmValueSet const* set)
 		QTextStream cerr(stderr);
 		cerr << "QmcMetric::extractValues: " << spec(true) 
 		     << " is a singular metric but result contained "
-		     << set->numval << " values" << Qt::endl;
+		     << set->numval << " values" << QT_ENDL;
 	    }
 	    setError(PM_ERR_VALUE);
 	}
@@ -730,7 +730,7 @@ QmcMetric::extractValues(pmValueSet const* set)
 		QTextStream cerr(stderr);
 		cerr << "QmcMetric::extractValues: numval == 0: "
 		     << spec(true, false) << ": " << pmErrStr(PM_ERR_VALUE)
-		     << Qt::endl;
+		     << QT_ENDL;
 	    }
 	    setError(PM_ERR_VALUE);
 	    if (hasInstances())
@@ -742,7 +742,7 @@ QmcMetric::extractValues(pmValueSet const* set)
 	    QTextStream cerr(stderr);
 	    cerr << "QmcMetric::extractValues: numval < 0: "
 		 << spec(true, false)
-		 << ": " << pmErrStr(set->numval) << Qt::endl;
+		 << ": " << pmErrStr(set->numval) << QT_ENDL;
 	}
 	setError(set->numval);
 	if (hasInstances())
@@ -1035,7 +1035,7 @@ QmcEventParameter::dump(QTextStream &os, int instID) const
 	os << "    " << *my.name;
 	if (desc.indom != PM_INDOM_NULL) {
 	    if (my.values.size() > 1)
-		os << Qt::endl << "        ";
+		os << QT_ENDL << "        ";
 	    QString name = my.indom->name(instID);
 	    if (name == QString())
 		os << "[" << instID << "]";
@@ -1050,7 +1050,7 @@ QmcEventParameter::dump(QTextStream &os, int instID) const
 	    os << "[" << value.stringValue() << "]";
 	else if (QmcMetric::event(desc.type) == false)
 	    os << "\"" << value.stringValue() << "\"";
-	os << Qt::endl;
+	os << QT_ENDL;
     }
 }
 
@@ -1064,9 +1064,9 @@ QmcEventRecord::dump(QTextStream &os, int instID, uint recordID) const
 	os << " flags 0x" << (uint)my.flags << " (" << pmEventFlagsStr(my.flags) << ")";
 	os.setIntegerBase(10);
     }
-    os << " ---" << Qt::endl;
+    os << " ---" << QT_ENDL;
     if (my.flags & PM_EVENT_FLAG_MISSED)
-	os << " ==> " << my.missed << " missed event records" << Qt::endl;
+	os << " ==> " << my.missed << " missed event records" << QT_ENDL;
     for (int i = 0; i < my.parameters.size(); i++)
 	my.parameters.at(i).dump(os, instID);
 }
@@ -1074,7 +1074,7 @@ QmcEventRecord::dump(QTextStream &os, int instID, uint recordID) const
 void
 QmcMetricValue::dumpEventRecords(QTextStream &os, int instID) const
 {
-    os << my.eventRecords.size() << " event records" << Qt::endl;
+    os << my.eventRecords.size() << " event records" << QT_ENDL;
     for (int i = 0; i < my.eventRecords.size(); i++)
 	my.eventRecords.at(i).dump(os, instID, i);
 }
@@ -1165,7 +1165,7 @@ QmcMetric::updateIndom(void)
 	if (!my.active || i == my.values.size()) {
 	    if (pmDebugOptions.indom) {
 		QTextStream cerr(stderr);
-		cerr << "QmcMetric::updateIndom: No change required" << Qt::endl;
+		cerr << "QmcMetric::updateIndom: No change required" << QT_ENDL;
 	    }
 	    return false;
 	}
@@ -1223,7 +1223,7 @@ QmcMetric::updateIndom(void)
     if (pmDebugOptions.pmc) {
 	QTextStream cerr(stderr);
 	cerr << "QmcMetric::updateIndom: " << spec(true) << ": Had " 
-	     << oldNum << " instances, now have " << numInst() << Qt::endl;
+	     << oldNum << " instances, now have " << numInst() << QT_ENDL;
     }
 
     indomPtr->update();

@@ -17,11 +17,8 @@
 #define QMC_GROUP_H
 
 #include "qmc.h"
+#include "qmc_config.h"
 #include "qmc_context.h"
-
-#include <qlist.h>
-#include <qstring.h>
-#include <qtextstream.h>
 
 class QmcGroup
 {
