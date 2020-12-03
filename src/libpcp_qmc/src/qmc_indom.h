@@ -22,6 +22,7 @@ class QmcInstance
 {
 public:
     QmcInstance();
+    QmcInstance(const QmcInstance &);
     QmcInstance(int id, const char* name);
     QmcInstance const& operator=(QmcInstance const&);
 

@@ -28,6 +28,18 @@ QmcMetricValue::QmcMetricValue()
     my.instance = PM_ERR_INST;
 }
 
+QmcMetricValue::QmcMetricValue(QmcMetricValue const& base)
+{
+    my.instance = base.my.instance;
+    my.value = base.my.value;
+    my.currentValue = base.my.currentValue;
+    my.previousValue = base.my.previousValue;
+    my.stringValue = base.my.stringValue;
+    my.error = base.my.error;
+    my.currentError = base.my.currentError;
+    my.previousError = base.my.previousError;
+}
+
 QmcMetricValue const&
 QmcMetricValue::operator=(QmcMetricValue const& rhs)
 {
