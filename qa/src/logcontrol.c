@@ -31,7 +31,7 @@ main(int argc, char **argv)
     int		control;
     char	*state_arg;
     int		state;
-    const char	*name;
+    const char	**name;
     pmResult	*request;
     pmDesc	desc;
     int		inst;
@@ -161,8 +161,8 @@ USAGE:
     numpmid = argc - optind;
     pmidlist = (pmID *)malloc(numpmid * sizeof(pmID));
 
-    name = argv[optind];
-    if ((sts = pmLookupName(numpmid, &name, pmidlist)) < 0) {
+    name = (const char **)&argv[optind];
+    if ((sts = pmLookupName(numpmid, name, pmidlist)) < 0) {
 	printf("pmLookupName: %s\n", pmErrStr(sts));
 	exit(1);
     }
