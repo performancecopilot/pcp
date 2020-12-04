@@ -23,7 +23,7 @@ static int	dump_metrics; /* just dump the metrics and exit */
 static int pmns_style = 2;
 
 static int	numpmid = 0;
-static char 	**namelist;	/* The list of metrics to test out */
+static const char **namelist;	/* The list of metrics to test out */
 static pmID	*midlist;
 
 typedef struct name_status {
@@ -56,7 +56,7 @@ compar_name_status(const void *a, const void *b)
 }
 
 void
-do_chn(char *name)
+do_chn(const char *name)
 {
     int		n;
     int		j;
@@ -237,7 +237,7 @@ parse_args(int argc, char **argv)
 	    fprintf(stderr, "malloc failed for midlist[]: %s\n", strerror(errno));
 	    exit(1);
 	}
-	if ((namelist = (char **)malloc(numpmid*sizeof(char *))) == NULL) {
+	if ((namelist = (const char **)malloc(numpmid*sizeof(char *))) == NULL) {
 	    fprintf(stderr, "malloc failed for namelist[]: %s\n", strerror(errno));
 	    exit(1);
 	}

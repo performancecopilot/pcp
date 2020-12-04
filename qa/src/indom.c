@@ -28,7 +28,7 @@ static pmOptions opts = {
 static int	inst;
 
 int
-dometric(char *name)
+dometric(const char *name)
 {
     pmID	pmid;
     pmDesc	desc;

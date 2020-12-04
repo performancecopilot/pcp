@@ -472,7 +472,7 @@ int
 fetch_groups(void)
 {
     static pmResult	*result;
-    char		**names;
+    const char		**names;
     pmID		*pmids;
     int			i, n, sts;
 
@@ -488,7 +488,7 @@ fetch_groups(void)
     for (i = n = 0; i < ngroups; i++) {
 	if (!groups[i].valid || groups[i].metric == NULL)
 	    continue;
-	names[n++] = groups[i].metric;
+	names[n++] = (const char *)groups[i].metric;
     }
 
     if ((sts = pmLookupName(n, names, pmids)) < 0) {

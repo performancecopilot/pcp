@@ -994,7 +994,7 @@ done_tab:
 		    // notice in addPlot() and report the error below,
 		    // so no need to do anything special here
 		    //
-		    if (pmLookupName(1, &pms.metric, &pmid) < 0)
+		    if (pmLookupName(1, (const char **)&pms.metric, &pmid) < 0)
 			goto try_plot;
 		    if (pmLookupDesc(pmid, &desc) < 0)
 			goto try_plot;

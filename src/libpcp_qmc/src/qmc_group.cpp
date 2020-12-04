@@ -121,7 +121,7 @@ QmcGroup::use(int type, const QString &theSource, int flags)
 	if (pmDebugOptions.pmc) {
 	    QTextStream cerr(stderr);
 	    cerr << "QmcGroup::use: No direct match for context \"" << source
-		 << "\" (type " << type << ")." << endl;
+		 << "\" (type " << type << ")." << QT_ENDL;
 	}
 
 	// Determine live or archive mode by the first source
@@ -163,7 +163,7 @@ QmcGroup::use(int type, const QString &theSource, int flags)
 	if (pmDebugOptions.pmc) {
 	    QTextStream cerr(stderr);
 	    cerr << "QmcGroup::use: Creating new context for \"" << source
-		 << '\"' << endl;
+		 << '\"' << QT_ENDL;
 	}
 
 	QmcSource *src = QmcSource::getSource(type, source, flags, false);
@@ -208,7 +208,7 @@ QmcGroup::use(int type, const QString &theSource, int flags)
 	if (pmDebugOptions.pmc) {
 	    QTextStream cerr(stderr);
 	    cerr << "QmcGroup::use: Added context " << my.use << ": "
-		 << *newContext << endl;
+		 << *newContext << QT_ENDL;
 	}
     }
 
@@ -225,14 +225,14 @@ QmcGroup::use(int type, const QString &theSource, int flags)
 	if (pmDebugOptions.pmc) {
 	    QTextStream cerr(stderr);
 	    cerr << "QmcGroup::use: Using existing context " << my.use
-		 << " for " << context()->source().desc() << endl;
+		 << " for " << context()->source().desc() << QT_ENDL;
 	}
     }
     else if (pmDebugOptions.pmc) {
 	QTextStream cerr(stderr);
 	cerr << "QmcGroup::use: Using current context " << my.use
 	     << " (handle = " << context()->handle() << ") for " 
-	     << context()->source().desc() << endl;
+	     << context()->source().desc() << QT_ENDL;
     }
 
     return context()->handle();
@@ -251,7 +251,7 @@ QmcGroup::useTZ()
 	    QTextStream cerr(stderr);
 	    cerr << "QmcGroup::useTZ: Using timezone of "
 		 << context()->source().desc()
-		 << " (" << my.tzGroupIndex << ')' << endl;
+		 << " (" << my.tzGroupIndex << ')' << QT_ENDL;
 	}
     }
     return sts;
@@ -271,7 +271,7 @@ QmcGroup::useTZ(const QString &tz)
 	if (pmDebugOptions.pmc) {
 	    QTextStream cerr(stderr);
 	    cerr << "QmcGroup::useTZ: Switching timezones to \"" << tz
-		 << "\" (" << my.tzUserString << ')' << endl;
+		 << "\" (" << my.tzUserString << ')' << QT_ENDL;
 	}
     }
     return sts;
@@ -288,7 +288,7 @@ QmcGroup::useLocalTZ()
 	    if (pmDebugOptions.pmc) {
 		QTextStream cerr(stderr);
 		cerr << "QmcGroup::useTZ: Using timezone of host \"localhost\""
-		     << endl;
+		     << QT_ENDL;
 	    }
 	}
 	return sts;
@@ -342,10 +342,10 @@ QmcGroup::createLocalContext()
 	if (localSource->status() < 0 && pmDebugOptions.pmc)
 	    cerr << "QmcGroup::createLocalContext: Default context to "
 		 << localSource->desc() << " failed: " 
-		 << pmErrStr(localSource->status()) << endl;
+		 << pmErrStr(localSource->status()) << QT_ENDL;
 	else if (pmDebugOptions.pmc)
 	    cerr << "QmcGroup::createLocalContext: Default context to "
-		 << localSource->desc() << endl;
+		 << localSource->desc() << QT_ENDL;
 
 	QmcContext *newContext = new QmcContext(localSource);
 	if (newContext->handle() < 0) {
@@ -393,7 +393,7 @@ QmcGroup::updateBounds()
 	QTextStream cerr(stderr);
         cerr << "QmcGroup::updateBounds: start = " << my.timeStart.tv_sec 
 	     << '.' << my.timeStart.tv_usec << ", end = "
-             << my.timeEnd.tv_sec << '.' << my.timeEnd.tv_usec << endl;
+             << my.timeEnd.tv_sec << '.' << my.timeEnd.tv_usec << QT_ENDL;
     }
 }
 
@@ -429,11 +429,11 @@ QmcGroup::dump(QTextStream &stream)
 	stream << "unknown = \"???";
 	break;
     }
-    stream << "\": " << endl;
+    stream << "\": " << QT_ENDL;
 
-    stream << "  " << numContexts() << " contexts:" << endl;
+    stream << "  " << numContexts() << " contexts:" << QT_ENDL;
     for (unsigned int i = 0; i < numContexts(); i++) {
-	stream << "    [" << i << "] " << *(my.contexts[i]) << endl;
+	stream << "    [" << i << "] " << *(my.contexts[i]) << QT_ENDL;
 	my.contexts[i]->dumpMetrics(stream);
     }
 }
@@ -475,7 +475,7 @@ QmcGroup::fetch(bool update)
 
     if (pmDebugOptions.pmc) {
 	QTextStream cerr(stderr);
-	cerr << "QmcGroup::fetch: " << numContexts() << " contexts" << endl;
+	cerr << "QmcGroup::fetch: " << numContexts() << " contexts" << QT_ENDL;
     }
 
     for (unsigned int i = 0; i < numContexts(); i++)
@@ -486,7 +486,7 @@ QmcGroup::fetch(bool update)
 
     if (pmDebugOptions.pmc) {
 	QTextStream cerr(stderr);
-	cerr << "QmcGroup::fetch: Done" << endl;
+	cerr << "QmcGroup::fetch: Done" << QT_ENDL;
     }
 
     return sts;

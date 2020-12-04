@@ -74,7 +74,7 @@ main(int argc, char **argv)
     static char	*usage = "[-x] [-D debugspec] [-h hostname] [-n namespace]";
     int			i;
     int			n;
-    char		*namelist[20];
+    const char		*namelist[20];
     pmID		midlist[20];
     int			numpmid;
     pmResult		*old;

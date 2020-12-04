@@ -50,7 +50,7 @@ parse_args(int argc, char **argv)
 }
 
 typedef struct {
-  char *name;
+  const char *name;
   pmID pmid;
 }Metric;
 
@@ -88,7 +88,7 @@ main(int argc, char **argv)
 
   for(i = 0; i < num_metrics; i++) {
       pmID pmid = metric_list[i].pmid;
-      char *name = metric_list[i].name;
+      const char *name = metric_list[i].name;
       sts = __pmAddPMNSNode(pmns, pmid, name);
       printf("Adding node: \"%s\"[%d]\n", name, pmid);
       if (sts < 0) {
@@ -113,8 +113,8 @@ main(int argc, char **argv)
 
   printf("\n--- Test out pmLookupName ---\n");
   for(i = 0; i < num_metrics; i++) {
+      const char *name = metric_list[i].name;
       pmID pmid = metric_list[i].pmid;
-      char *name = metric_list[i].name;
       pmID thepmid = 0;
 
       if ((sts = pmLookupName(1, &name, &thepmid)) < 0) {
@@ -131,8 +131,8 @@ main(int argc, char **argv)
 
   printf("\n--- Test out pmNameID for matches ---\n");
   for(i = 0; i < num_metrics; i++) {
+      const char *name = metric_list[i].name;
       pmID pmid = metric_list[i].pmid;
-      char *name = metric_list[i].name;
       char *thename = NULL;
 
       if ((sts = pmNameID(pmid, &thename)) < 0) {

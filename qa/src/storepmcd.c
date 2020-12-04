@@ -18,7 +18,7 @@ enum {
     num_metrics
 };
 
-char *namelist[] = {
+const char *namelist[] = {
     "pmcd.hostname",
     "pmcd.client.whoami",
     "pmcd.client.container"

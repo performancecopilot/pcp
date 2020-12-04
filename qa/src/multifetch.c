@@ -23,7 +23,7 @@ main(int argc, char **argv)
     double	delta = 1.0;
     int		i;
     int		j;
-    char	*namelist[20];
+    const char	*namelist[20];
     pmID	pmidlist[20];
     int		n;
     int		numpmid;

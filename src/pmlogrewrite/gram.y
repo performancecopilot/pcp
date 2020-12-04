@@ -1359,7 +1359,7 @@ pmid_or_name	: pmid_int
 		    {
 			int	sts;
 			pmID	pmid;
-			sts = pmLookupName(1, &$1, &pmid);
+			sts = pmLookupName(1, (const char **)&$1, &pmid);
 			if (sts < 0) {
 			    if (wflag) {
 				pmsprintf(mess, sizeof(mess), "Metric: %s: %s", $1, pmErrStr(sts));
@@ -1477,7 +1477,7 @@ metricopt	: TOK_PMID TOK_ASSIGN pmid_int
 			    else {
 				int	sts;
 				pmID	pmid;
-				sts = pmLookupName(1, &$3, &pmid);
+				sts = pmLookupName(1, (const char **)&$3, &pmid);
 				if (sts >= 0) {
 				    pmsprintf(mess, sizeof(mess), "Metric name %s already assigned for PMID %s", $3, pmIDStr(pmid));
 				    yyerror(mess);

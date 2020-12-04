@@ -47,7 +47,7 @@ main(int argc, char *argv[])
     int ctx;
     int sts;
     char buf[1024];
-    char *name = buf;
+    const char *name = buf;
     char *p;
     pmID pmid;
     pmDesc desc;

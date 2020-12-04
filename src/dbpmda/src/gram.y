@@ -43,7 +43,7 @@ param_t	param;
  * translate name if possible
  */
 static int
-fix_dynamic_pmid(char *name, pmID *pmidp)
+fix_dynamic_pmid(const char *name, pmID *pmidp)
 {
     int		sts;
     __pmPDU	*pb;
@@ -630,7 +630,7 @@ metric	: NUMBER				{
 		$$ = (int)pmid.whole;
 	    }
 	| NAME					{
-		sts = pmLookupName(1, &$1, &pmid.whole);
+		sts = pmLookupName(1, (const char **)&$1, &pmid.whole);
 		if (sts < 0) {
 		    yyerror(pmErrStr(sts));
 		    YYERROR;

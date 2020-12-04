@@ -512,7 +512,7 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, int lookup_err_ok, int is_global
     if (new->type == N_NAME) {
 	int	sts;
 	/* get pmID and pmDesc from context */
-	sts = pmLookupName_ctx(ctxp, PM_LOCKED, 1, &new->value, &new->data.info->pmid);
+	sts = pmLookupName_ctx(ctxp, PM_LOCKED, 1, (const char **)&new->value, &new->data.info->pmid);
 	if (sts < 0) {
 	    if (lookup_err_ok) {
 		/* derived(x) -> false case */
@@ -3006,7 +3006,7 @@ __dmbind(int derive_locked, __pmContext *ctxp, int i, int async)
 	 * derived metric searching is performed if the name is valid
 	 * for a real metric in the current context.
 	 */
-	sts = pmLookupName_ctx(ctxp, PM_LOCKED, 1, &cp->mlist[i].name, &pmid);
+	sts = pmLookupName_ctx(ctxp, PM_LOCKED, 1, (const char **)&cp->mlist[i].name, &pmid);
 	if (sts >= 0 && !IS_DERIVED(pmid)) {
 	    if (pmDebugOptions.derive) {
 		char	strbuf[20];

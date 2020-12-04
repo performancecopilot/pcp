@@ -22,7 +22,7 @@ dometric(const char *name)
 		pmGetProgname(), numpmid+1);
 	exit(1);
     }
-    if ((sts = pmLookupName(1, (char **)&name, &pmidlist[numpmid])) < 0) {
+    if ((sts = pmLookupName(1, &name, &pmidlist[numpmid])) < 0) {
 	fprintf(stderr,
 	    "%s: dometric: Error: cannot lookup pmID for metric \"%s\": %s\n",
 		pmGetProgname(), name, pmErrStr(sts));

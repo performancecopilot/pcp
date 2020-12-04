@@ -506,7 +506,7 @@ newTask(RealTime delta, int nth)
 
 /* translate new metric name to internal pmid for agent mode */
 static pmID
-agentId(char *name)
+agentId(const char *name)
 {
     int		sts;
     pmID	pmid;

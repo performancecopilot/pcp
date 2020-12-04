@@ -74,7 +74,7 @@ newentry(char *buf)
     *p = '\0';	/* terminate metric name */
     end_name = p;
 
-    if ((n = pmLookupName(1, &name, &pmid)) < 0) {
+    if ((n = pmLookupName(1, (const char **)&name, &pmid)) < 0) {
 	/* apparently not a metric name */
 	int	domain;
 	int	cluster;

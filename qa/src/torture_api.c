@@ -25,7 +25,7 @@ static int	dump_metrics; /* just dump the metrics and exit */
 static int pmns_style = 1;
 
 /* The list of metrics to test out */
-static char *namelist[] = {
+static const char *namelist[] = {
     "disk.all.total",
     "pmcd",
     "kernel.all.pswitch",
@@ -65,7 +65,7 @@ compar_name_status(const void *a, const void *b)
 }
 
 void
-do_chn(char *name)
+do_chn(const char *name)
 {
     int		n;
     int		j;

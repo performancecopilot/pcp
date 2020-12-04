@@ -709,7 +709,7 @@ webgroup_lookup_metric(pmWebGroupSettings *settings, context_t *cp, sds name, vo
 
     if ((mp = dictFetchValue(cp->metrics, name)) != NULL)
 	return mp;
-    if ((sts = pmLookupName(1, &name, &pmid)) < 0) {
+    if ((sts = pmLookupName(1, (const char **)&name, &pmid)) < 0) {
 	if (sts == PM_ERR_IPC)
 	    cp->setup = 0;
 	if (pmDebugOptions.libweb)

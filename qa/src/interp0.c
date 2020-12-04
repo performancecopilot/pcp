@@ -32,7 +32,7 @@ main(int argc, char **argv)
     int		i;
     int		numpmid = 3;
     pmID	pmid[3];
-    char	*name[] = { "sample.seconds", "sample.drift", "sample.milliseconds" };
+    const char	*name[] = { "sample.seconds", "sample.drift", "sample.milliseconds" };
     pmDesc	desc;
     int		type[3];
 

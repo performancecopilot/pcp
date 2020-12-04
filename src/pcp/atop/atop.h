@@ -208,7 +208,7 @@ char 		*abstime(char *);
 void		setup_step_mode(int);
 void		setup_globals(struct pmOptions *);
 void		setup_process(void);
-void		setup_metrics(char **, unsigned int *, struct pmDesc *, int);
+void		setup_metrics(const char **, unsigned int *, struct pmDesc *, int);
 int		fetch_metrics(const char *, int, unsigned int *, struct pmResult **);
 int		get_instances(const char *, int, struct pmDesc *, int **, char ***);
 

@@ -22,8 +22,8 @@ static char	*archive_B;
 static char	*archive_C;
 static char	*archive_D;
 
-static char	*metric_B = "sample.bin";
-static char	*metric_C = "sample.colour";
+static const char *metric_B = "sample.bin";
+static const char *metric_C = "sample.colour";
 
 static int	count_A;
 static int	count_B[2];
@@ -41,7 +41,7 @@ dometric_A(const char *name, void *f)
     pmDesc	desc;
     char	strbuf[PM_MAXERRMSGLEN];
 
-    sts = pmLookupName(1, (char **)&name, &pmid);
+    sts = pmLookupName(1, &name, &pmid);
     if (sts < 0) {
 	fprintf((FILE *)f, "Error: thread_A: pmLookupName(%s) -> %s\n", name, pmErrStr_r(sts, strbuf, sizeof(strbuf)));
 	pthread_exit("botch A.3");
@@ -138,7 +138,7 @@ thread_B(void *arg)
 	    pthread_exit("botch B.3");
 	}
 
-	sts = pmLookupName(1, (char **)&metric_B, &pmid);
+	sts = pmLookupName(1, &metric_B, &pmid);
 	if (sts < 0) {
 	    fprintf(f, "Error: thread_B: iter %d: pmLookupName(%s) -> %s\n", i, metric_B, pmErrStr_r(sts, strbuf, sizeof(strbuf)));
 	    pthread_exit("botch B.4");
@@ -203,7 +203,7 @@ thread_C(void *arg)
 	    pthread_exit("botch C.2");
 	}
 
-	sts = pmLookupName(1, (char **)&metric_C, &pmid);
+	sts = pmLookupName(1, &metric_C, &pmid);
 	if (sts < 0) {
 	    fprintf(f, "Error: thread_C: iter %d: pmLookupName(%s) -> %s\n", i, metric_C, pmErrStr_r(sts, strbuf, sizeof(strbuf)));
 	    pthread_exit("botch C.3");
@@ -260,7 +260,7 @@ dometric_D(const char *name, void *f)
     char	**namelist;
     char	strbuf[PM_MAXERRMSGLEN];
 
-    sts = pmLookupName(1, (char **)&name, &pmid);
+    sts = pmLookupName(1, &name, &pmid);
     if (sts < 0) {
 	fprintf((FILE *)f, "Error: thread_D: pmLookupName(%s) -> %s\n", name, pmErrStr_r(sts, strbuf, sizeof(strbuf)));
 	pthread_exit("botch D.3");

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2019 Red Hat.
+ * Copyright (c) 2012-2020 Red Hat.
  * Copyright (c) 1997,2004 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -263,7 +263,7 @@ PCP_CALL extern int pmTrimNameSpace(void);
 /*
  * Expand a list of names to a list of metrics ids
  */
-PCP_CALL extern int pmLookupName(int, char **, pmID *);
+PCP_CALL extern int pmLookupName(int, const char **, pmID *);
 
 /*
  * Find the names of descendent nodes in the PMNS

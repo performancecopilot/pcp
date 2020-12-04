@@ -21,7 +21,7 @@
 #include <pcp/pmapi.h>
 .sp
 .nf
-int pmLookupName(int \fInumpmid\fP, char **\fInamelist\fP, pmID *\fIpmidlist\fP);
+int pmLookupName(int \fInumpmid\fP, const char **\fInamelist\fP, pmID *\fIpmidlist\fP);
 .fi
 .sp
 cc ... \-lpcp
@@ -93,14 +93,15 @@ sized array for
 .ft CW
 #include <pcp/pmapi.h>
 
-#define NUMPMID 5
-char 	*names[] = { "sample.bin",
+#define NUMPMID (sizeof(names)/sizeof(const char *))
+const char *names[] = {
+		     "sample.bin",
 		     "sample",
 		     "sample.bog",
 		     "sample.secret.bar",
 		     "sample.secret.bar.bad"
 		   };
-pmID	pmids[NUMPMID];
+pmID pmids[NUMPMID];
 
 int
 main(int argc, char **argv)

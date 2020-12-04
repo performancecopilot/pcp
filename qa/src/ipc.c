@@ -16,7 +16,7 @@
 int shm_list[IPC_N], shm_n=0, shmindom;
 int sem_list[IPC_N * NSEMS], sem_n=0, semindom;
 
-static char *metrics[] = {
+static const char *metrics[] = {
     "ipc.shm.nattch",
     "ipc.shm.segsz",
     "ipc.sem.nsems",

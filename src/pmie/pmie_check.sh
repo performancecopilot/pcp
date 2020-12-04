@@ -442,6 +442,7 @@ _configure_pmie()
 		cat "$tmpconfig"
 		echo "=== end pmieconf file ==="
 	    fi
+	    rm -f "$tmpconfig"
 	fi
     elif [ ! -e "$configfile" ]
     then

@@ -74,7 +74,7 @@ NF == 2 && $2 == "{"	{ if (state != 0) {
 				printf "[%s:%d] nested group?\n","'$1'",NR
 				exit 1
 			  }
-			  printf "char *%s[] = {\n",$1
+			  printf "const char *%s[] = {\n",$1
 			  state = 1
 			  ord = 0
 			  next

@@ -26,7 +26,7 @@ main(int argc, char **argv)
     int		ctlport;
     int		pid = PM_LOG_PRIMARY_PID;
     int		port = PM_LOG_NO_PORT;
-    char	*namelist[20];
+    const char	*namelist[20];
     pmID	pmidlist[20];
     int		*instlist;
     char	**inamelist;

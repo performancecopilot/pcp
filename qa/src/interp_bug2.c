@@ -12,16 +12,16 @@
 #define N_PMID_B sizeof(metrics_b)/sizeof(metrics_b[0])
 #define N_PMID_C sizeof(metrics_c)/sizeof(metrics_c[0])
 
-static char *metrics_a[] = {
+static const char *metrics_a[] = {
     "proc.nprocs",
 };
 
-static char *metrics_b[] = {
+static const char *metrics_b[] = {
     "proc.nprocs",
     "kernel.all.syscall"
 };
 
-static char *metrics_c[] = {
+static const char *metrics_c[] = {
     "proc.nprocs",
     "kernel.all.sysexec"
 };

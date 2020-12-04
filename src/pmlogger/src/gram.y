@@ -268,7 +268,7 @@ metricspec	: NAME
 			 * sts > 1                   : non-leaf with children
 			 * sts == 1 and not a leaf   : non-leaf with exactly one child
 			 */
-			if (sts <= 0 || sts > 1 || pmLookupName(1, &metricName, &id) != 1) {
+			if (sts <= 0 || sts > 1 || pmLookupName(1, (const char **)&metricName, &id) != 1) {
 			    /*
 			     * Add it to the list for future traversal when a fetch returns
 			     * with the PMCD_NAMES_CHANGE flag set.
@@ -450,7 +450,7 @@ activate_cached_metric(const char *name, int index)
 	goto nomem;
 
     if (index < 0) {
-	if ((sts = pmLookupName(1, (char **)&name, &pmid)) < 0 || pmid == PM_ID_NULL) {
+	if ((sts = pmLookupName(1, &name, &pmid)) < 0 || pmid == PM_ID_NULL) {
 	    pmsprintf(emess, sizeof(emess),
 		    "Metric \"%s\" is unknown ... not logged", name);
 	    goto snarf;

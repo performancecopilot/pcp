@@ -17,7 +17,7 @@ static int xpect_colour[] = { 3, 3, 0, 1, 2 };
 
 #define MAXC (sizeof(xpect_bin)/sizeof(xpect_bin[0]))
 
-static char *namelist[] = {
+static const char *namelist[] = {
     "sample.bin",
     "sample.colour"
 };

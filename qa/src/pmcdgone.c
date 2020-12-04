@@ -244,7 +244,7 @@ main(int argc, char **argv)
     int		sts;
     int		i;
     int		j;
-    char	*namelist[4];
+    const char	*namelist[4];
     pmID	pmidlist[4];
     int		n;
     int		numpmid;
