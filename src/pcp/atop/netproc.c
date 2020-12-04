@@ -54,7 +54,8 @@ netproc_update_tasks(struct tstat **tasks, unsigned long taskslen)
 	int		*pids;
 	int		netproc_insts_len, i, j;
 
-	if(!setup) {
+	if (!setup)
+	{
 		setup_metrics(netprocmetrics, pmids, descs, TASK_NET_NMETRICS);
 		setup = 1;
 	}
@@ -70,10 +71,16 @@ netproc_update_tasks(struct tstat **tasks, unsigned long taskslen)
 
 		// for each instance of the netproc metrics, we need to find the index inside the tasks array
 		// TODO: better algorithm to avoid O(m*n) complexity?
-		for(j=0; j < taskslen; j++) {
-			if ((*tasks)[j].gen.pid == pids[i]) {
+		for (j=0; j < taskslen; j++)
+		{
+			if ((*tasks)[j].gen.pid == pids[i])
 				netproc_update_task(&(*tasks)[j], pids[i], result, descs);
-			}
 		}
+	}
+
+	pmFreeResult(result);
+	if (netproc_insts_len > 0) {
+	    free(insts);
+	    free(pids);
 	}
 }
