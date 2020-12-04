@@ -1354,43 +1354,87 @@ series_prepare_expr(seriesQueryBaton *baton, node_t *np, int level)
     return sts;
 }
 
-/*
- * Called from /series/values?series=SID for a fabricated SID expression.
- * Parse and series_solve the expression with samples/timing then add
- * the resulting reply elements to the series values for original baton.
- */
 static void
+on_series_solve_setup(void *arg)
+{
+    if (pmDebugOptions.query)
+	fprintf(stderr, "on_series_solve_setup\n");
+}
+
+static void
+on_series_solve_log(pmLogLevel level, sds message, void *arg)
+{
+    if (pmDebugOptions.query)
+	fprintf(stderr, "on_series_solve_log: %s\n", message);
+}
+
+static int
+on_series_solve_value(pmSID sid, pmSeriesValue *value, void *arg)
+{
+    seriesQueryBaton	*baton = arg;
+
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "on_series_solve_value");
+    if (pmDebugOptions.query)
+	fprintf(stderr, "on_series_solve_value: arg=%p %s %s %s\n",
+		arg, value->timestamp, value->data, value->series);
+    return baton->callbacks->on_value(sid, value, baton->userdata);
+}
+
+static void
+on_series_solve_done(int status, void *arg)
+{
+    seriesQueryBaton	*baton = arg;
+
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "on_series_solve_done");
+    if (pmDebugOptions.query)
+	fprintf(stderr, "on_series_solve_done: arg=%p status=%d\n", arg, status);
+    baton->callbacks->on_done(status, baton->userdata);
+    seriesBatonDereference(baton, "series_solve_sid_expr");
+}
+
+static pmSeriesSettings	series_solve_settings = {
+    .callbacks.on_value		= on_series_solve_value,
+    .callbacks.on_done		= on_series_solve_done,
+    .module.on_setup		= on_series_solve_setup,
+    .module.on_info		= on_series_solve_log,
+};
+
+/*
+ * Called from /series/values?series=SID[, ...] for a fabricated
+ * SID expression. Parse and series_solve the expression with
+ * samples/timing then via callbacks, add the resulting reply
+ * elements to the response series for original pmSeriesBaton.
+ */
+static int
 series_solve_sid_expr(pmSeriesExpr *expr, void *arg)
 {
     seriesGetSID	*sid = (seriesGetSID *)arg;
-    seriesQueryBaton	*sidbaton = (seriesQueryBaton *)sid->baton;
-    pmSeriesSettings	settings = {0};
-    series_t		sp = {0}; /* root of parsed expression tree and timing */
+    seriesQueryBaton	*baton = (seriesQueryBaton *)sid->baton;
+    series_t		sp = {0}; /* root of parsed expression tree, with timing */
     char		*errstr;
-    int			parse_sts;
+    int			sts;
 
-    if (pmDebugOptions.series||pmDebugOptions.query) {
+    seriesBatonCheckMagic(sid, MAGIC_SID, "series_query_expr_reply");
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_query_expr_reply");
+
+    if (pmDebugOptions.query) {
 	fprintf(stderr, "series_solve_sid_expr: /series/values "
-		"fabricated SID %s, sidbaton=%p, expr=\"%s\"\n",
-		sid->name, sidbaton, expr->query);
-    }
-    parse_sts = series_parse(expr->query, &sp, &errstr, arg);
-    if (pmDebugOptions.series) {
-    	fprintf(stderr, "series_solve_sid_expr: parsed \"%s\" sts=%d\n",
-		expr->query, parse_sts);
+		"SID %s, seriesQueryBaton=%p, pmSeriesBaton=userdata=%p expr=\"%s\"\n",
+		sid->name, baton, baton->userdata, expr->query);
     }
 
-    /*
-     * TODO series_solve the expr tree with timing from the sid baton,
-     * and then report the reply values into the response for this query.
-     *
-     * settings.module = *sidbaton->module;
-     * settings.callbacks = ???;
-     * series_solve(&settings, sp.expr, &sidbaton->u.query.timing, PM_SERIES_FLAG_NONE, arg);
-     */
+    /* ref baton until on_series_solve_done */
+    seriesBatonReference(baton, "series_solve_sid_expr");
 
-    if (pmDebugOptions.series||pmDebugOptions.query)
-	fprintf(stderr, "TODO series_solve_sid_expr: series_solve(%s)\n", expr->query);
+    if ((sts = series_parse(expr->query, &sp, &errstr, arg)) == 0) {
+	pmSeriesSetSlots(&series_solve_settings.module, baton->slots);
+	series_solve_settings.module = *baton->module; /* struct cpy */
+
+	sts = series_solve(&series_solve_settings, sp.expr, &baton->u.query.timing,
+	    PM_SERIES_FLAG_NONE, baton);
+    }
+
+    return sts;
 }
 
 static void
@@ -1420,7 +1464,7 @@ series_query_expr_reply(redisAsyncContext *c, redisReply *reply, const sds cmd, 
 	    baton->error = sts;
 	} else {
 	    /* Parse the expr (with timing) and series solve the resulting expr tree */
-	    series_solve_sid_expr(&expr, arg);
+	    baton->error = series_solve_sid_expr(&expr, arg);
 	}
     }
     series_query_end_phase(baton);
@@ -1460,6 +1504,7 @@ series_prepare_time_reply(
 	     * - get the expr for sid->name from redis. In the callback for that,
 	     *   parse the expr and then solve the expression tree with timing from
 	     *   this series query baton. Then merge the values in the reply elements.
+	     *   TODO (maybe) - also get the desc and check source hash is zero.
 	     */
 	    if (pmDebugOptions.series)
 		fprintf(stderr, "series_prepare_time_reply: sid %s is fabricated\n", sid->name);
@@ -2460,8 +2505,7 @@ series_calculate_rate(node_t *np)
 	    }
 	    for (j = 1; j < n_samples; j++) {
 		if (np->value_set.series_values[i].series_sample[j].num_instances != n_instances) {
-		    /* TODO: number of instances in each sample are not equal, report error. */
-		    if (pmDebugOptions.query)
+		    if (pmDebugOptions.query && pmDebugOptions.desperate)
 			fprintf(stderr, "Error: number of instances in each sample are not equal %d != %d.\n",
 				np->value_set.series_values[i].series_sample[j].num_instances, n_instances);
 		    continue;
@@ -2552,9 +2596,10 @@ series_calculate_max(node_t *np)
 		max_data = atof(np->left->value_set.series_values[i].series_sample[0].series_instance[k].data);
 		for (j = 1; j < n_samples; j++) {
 		    if (np->left->value_set.series_values[i].series_sample[j].num_instances != n_instances) {
-			/* TODO: number of instances in each sample are not equal, report error. */
-			infofmt(msg, "number of instances in each sample are not equal\n");
-			batoninfo(baton, PMLOG_ERROR, msg);
+			if (pmDebugOptions.query && pmDebugOptions.desperate) {
+			    infofmt(msg, "number of instances in each sample are not equal\n");
+			    batoninfo(baton, PMLOG_ERROR, msg);
+			}
 			continue;
 		    }
 		    data = atof(np->left->value_set.series_values[i].series_sample[j].series_instance[k].data);
@@ -2610,8 +2655,10 @@ series_calculate_min(node_t *np)
 		min_data = atof(np->left->value_set.series_values[i].series_sample[0].series_instance[k].data);
 		for (j = 1; j < n_samples; j++) {
 		    if (np->left->value_set.series_values[i].series_sample[j].num_instances != n_instances) {
-			infofmt(msg, "number of instances in each sample are not equal\n");
-			batoninfo(baton, PMLOG_ERROR, msg);
+			if (pmDebugOptions.query && pmDebugOptions.desperate) {
+			    infofmt(msg, "number of instances in each sample are not equal\n");
+			    batoninfo(baton, PMLOG_ERROR, msg);
+			}
 			continue;
 		    }
 		    data = atof(np->left->value_set.series_values[i].series_sample[j].series_instance[k].data);

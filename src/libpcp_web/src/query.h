@@ -93,7 +93,6 @@ typedef struct seriesGetSID {
     sds			expr;		/* expression for fabricated sid */
     /* various flags */
     int			freed : 1;	/* freed individually on completion */
-    int			fabricated : 1;	/* SID is an expression */
     void		*baton;
 } seriesGetSID;
 
