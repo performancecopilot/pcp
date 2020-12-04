@@ -36,7 +36,26 @@ http://localhost:54322/series/query?expr=kernel.all.load%5Bsamples%3A1%5D%20%2B%
 == verify series sum (a + b) with samples by SID
 kernel.all.load + kernel.all.load
 http://localhost:54322/series/values?series=16aa36d93e5cd0733499eee7dafc07dbb2ad7067&samples=1
-[]
+[
+    {
+        "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
+        "instance": "59181b1de54ff2b383cfd1cdd8636f86c880b69b",
+        "timestamp": 1317633022959.242,
+        "value": "0.000000e+00"
+    },
+    {
+        "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
+        "instance": "ab010c7d45145aa33c8f8fa681a68c9d4102ae19",
+        "timestamp": 1317633022959.242,
+        "value": "4.000000e-02"
+    },
+    {
+        "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
+        "instance": "9d418095c9f971ff4fd44d6828ead27f9d021dc3",
+        "timestamp": 1317633022959.242,
+        "value": "1.000000e-01"
+    }
+]
 http://localhost:54322/series/descs?series=16aa36d93e5cd0733499eee7dafc07dbb2ad7067
 [
     {
@@ -88,7 +107,26 @@ http://localhost:54322/series/query?expr=kernel.all.load%5Bsamples%3A1%5D%20%2B%
 == verify series difference (a - b) with samples by SID
 kernel.all.load - kernel.all.load
 http://localhost:54322/series/values?series=f29c38f54d5a3cb928496439760634617688036b&samples=1
-[]
+[
+    {
+        "series": "f29c38f54d5a3cb928496439760634617688036b",
+        "instance": "59181b1de54ff2b383cfd1cdd8636f86c880b69b",
+        "timestamp": 1317633022959.242,
+        "value": "0.000000e+00"
+    },
+    {
+        "series": "f29c38f54d5a3cb928496439760634617688036b",
+        "instance": "ab010c7d45145aa33c8f8fa681a68c9d4102ae19",
+        "timestamp": 1317633022959.242,
+        "value": "0.000000e+00"
+    },
+    {
+        "series": "f29c38f54d5a3cb928496439760634617688036b",
+        "instance": "9d418095c9f971ff4fd44d6828ead27f9d021dc3",
+        "timestamp": 1317633022959.242,
+        "value": "0.000000e+00"
+    }
+]
 http://localhost:54322/series/descs?series=f29c38f54d5a3cb928496439760634617688036b
 [
     {
@@ -97,7 +135,7 @@ http://localhost:54322/series/descs?series=f29c38f54d5a3cb9284964397606346176880
         "pmid": "511.0.0",
         "indom": "60.2",
         "semantics": "instant",
-        "type": "???",
+        "type": "FLOAT",
         "units": ""
     }
 ]
@@ -158,7 +196,44 @@ http://localhost:54322/series/query?expr=floor%28kernel.all.load%5Bsamples%3A2%5
 == verify series function (floor(a)) with samples by SID
 floor(kernel.all.load)
 http://localhost:54322/series/values?series=f2dbf7a113932b3371c8871df932603856d1d7b6&samples=2
-[]
+[
+    {
+        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
+        "instance": "59181b1de54ff2b383cfd1cdd8636f86c880b69b",
+        "timestamp": 1317633022959.242,
+        "value": "0.000000e+00"
+    },
+    {
+        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
+        "instance": "ab010c7d45145aa33c8f8fa681a68c9d4102ae19",
+        "timestamp": 1317633022959.242,
+        "value": "0.000000e+00"
+    },
+    {
+        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
+        "instance": "9d418095c9f971ff4fd44d6828ead27f9d021dc3",
+        "timestamp": 1317633022959.242,
+        "value": "0.000000e+00"
+    },
+    {
+        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
+        "instance": "59181b1de54ff2b383cfd1cdd8636f86c880b69b",
+        "timestamp": 1317633023300.460,
+        "value": "0.000000e+00"
+    },
+    {
+        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
+        "instance": "ab010c7d45145aa33c8f8fa681a68c9d4102ae19",
+        "timestamp": 1317633023300.460,
+        "value": "0.000000e+00"
+    },
+    {
+        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
+        "instance": "9d418095c9f971ff4fd44d6828ead27f9d021dc3",
+        "timestamp": 1317633023300.460,
+        "value": "0.000000e+00"
+    }
+]
 http://localhost:54322/series/descs?series=f2dbf7a113932b3371c8871df932603856d1d7b6
 [
     {
