@@ -14,6 +14,7 @@ _pmdabcc_check
 _pmdabcc_require_kernel_version 4 6
 which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
 which dig >/dev/null 2>&1 || _notrun "No dig binary installed"
+which strace >/dev/null 2>&1 || _notrun "No strace binary installed"
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
