@@ -757,10 +757,10 @@ series_intersect(series_set_t *a, series_set_t *b)
 	    continue;		/* no match, continue advancing cp only */
 	if (saved != cp)
 	    memcpy(saved, cp, SHA1SZ);
-	saved++;		/* stashed, advance cp & saved pointers */
+	saved += SHA1SZ;		/* stashed, advance cp & saved pointers */
     }
 
-    if ((total = (saved - small)) < nsmall) {
+    if ((total = (saved - small)/SHA1SZ) < nsmall) {
 	/* shrink the smaller set down further */
 	if ((small = realloc(small, total * SHA1SZ)) == NULL)
 	    return -ENOMEM;
