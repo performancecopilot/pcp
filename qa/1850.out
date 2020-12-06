@@ -44,11 +44,23 @@ f91cd337e38ea1e444be3e81e4969aad689deafe
 
 
 == Verify rate() function for a singular metric, hostname:node80||hostname:node81
-pmseries: [Bad response] bad reply from 1ef91cd337e38ea1e444be3e81e4969aad689dea HMGET (5)
-pmseries: [Bad response] bad reply from fe1cd337e38ea1e444be3e81e4969aad689deafe HMGET (5)
+
+1ef81375c0b3315e2b643be597b996bd04dcf49e
+    [Mon Nov 23 13:47:51.367406000 2020] 3092804
+    [Mon Nov 23 13:46:51.370659000 2020] 3090705
+
+f91cd337e38ea1e444be3e81e4969aad689deafe
+    [Mon Nov 23 13:47:55.665424000 2020] 4762460
+    [Mon Nov 23 13:46:54.817000000 2020] 3704178
 
 
 == Verify rate() function for a singular metric, regex qualifier
-pmseries: [Bad response] bad reply from 1ef91cd337e38ea1e444be3e81e4969aad689dea HMGET (5)
-pmseries: [Bad response] bad reply from fe1cd337e38ea1e444be3e81e4969aad689deafe HMGET (5)
+
+1ef81375c0b3315e2b643be597b996bd04dcf49e
+    [Mon Nov 23 13:47:51.367406000 2020] 3092804
+    [Mon Nov 23 13:46:51.370659000 2020] 3090705
+
+f91cd337e38ea1e444be3e81e4969aad689deafe
+    [Mon Nov 23 13:47:55.665424000 2020] 4762460
+    [Mon Nov 23 13:46:54.817000000 2020] 3704178
 
