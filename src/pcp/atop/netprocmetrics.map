@@ -1,5 +1,5 @@
 #
-# metric names and access macros for netatopif.c
+# metric names and access macros for netproc.c
 #
 netprocmetrics {
 	bcc.proc.io.net.perpid.tcp.out.packets	TASK_NET_TCPSND

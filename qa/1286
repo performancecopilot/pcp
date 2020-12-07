@@ -40,6 +40,7 @@ prefix = bcc.
 [netproc]
 module = netproc
 cluster = 40
+pmda_indom_cache = False
 remove_stopped_processes = False
 EOF
 _pmdabcc_wait_for_metric
@@ -53,7 +54,7 @@ wait ${pid_curl}
 
 # UDP
 # dig performs the DNS request from the first forked process
-pid_dig=$(strace -f -e 'trace=!all' dig @$target_dns -x $target_dns 2>&1 | awk '/Process .* attached/ { print $3; exit }')
+pid_dig=`strace -f -e 'trace=!all' dig @$target_dns -x $target_dns 2>&1 | awk '/Process .* attached/ { print $3; exit }'`
 echo "dig pid: ${pid_dig}" >> "$seq.full"
 
 for metric in bcc.proc.io.net.perpid.tcp.in.packets \
