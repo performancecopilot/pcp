@@ -16,7 +16,7 @@
 import ctypes as ct
 from threading import Lock, Thread
 from time import sleep
-from collections import defaultdict, namedtuple
+from collections import namedtuple
 import os
 from bcc import BPF
 
@@ -77,7 +77,7 @@ class PCPBCCModule(PCPBCCBase):
             if opt == "remove_stopped_processes":
                 self.remove_stopped_processes = self.config.getboolean(MODULE, opt)
 
-        self.cache = defaultdict(lambda: Netstats(0, 0, 0, 0, 0, 0, 0, 0))
+        self.cache = {}
         self.insts = {}
 
         self.log("Initialized.")
@@ -174,7 +174,7 @@ class PCPBCCModule(PCPBCCBase):
         netstats_per_pid = self.bpf["netstats_per_pid"]
         for pid_ct, cur_netstat in netstats_per_pid.items():
             pid = pid_ct.value
-            prev_netstat = self.cache[pid]
+            prev_netstat = self.cache.get(pid, Netstats(0, 0, 0, 0, 0, 0, 0, 0))
             self.cache[pid] = Netstats(
                 tcp_send_packets=prev_netstat.tcp_send_packets
                 + cur_netstat.tcp_send_packets,
