@@ -98,7 +98,8 @@ skip_free_value_set(node_t *np)
     if (np->type == N_RATE || np->type == N_RESCALE || np->type == N_ABS 
 	|| np->type == N_SQRT || np->type == N_FLOOR || np->type == N_ROUND
 	|| np->type == N_LOG || np->type == N_PLUS || np->type == N_MINUS
-	|| np->type == N_STAR || np->type == N_SLASH) 
+	|| np->type == N_STAR || np->type == N_SLASH || np->type == N_AVG
+	|| np->type == N_SUM) 
 	return 0;
     return 1;
 }
@@ -2300,6 +2301,7 @@ series_expr_canonical(node_t *np, int idx)
 	break;
 
     case N_AVG:
+    case N_SUM:
     case N_MAX:
     case N_MIN:
     case N_RATE:
@@ -2338,6 +2340,8 @@ series_expr_canonical(node_t *np, int idx)
 	statement = sdscatfmt(sdsempty(), "avg(%S)", left);
 	break;
     case N_COUNT:
+	statement = sdscatfmt(sdsempty(), "count(%S)", left);
+	break;
     case N_DELTA:
 	break;
     case N_MAX:
@@ -2345,8 +2349,10 @@ series_expr_canonical(node_t *np, int idx)
 	break;
     case N_MIN:
 	statement = sdscatfmt(sdsempty(), "min(%S)", left);
-	    break;
+	break;
     case N_SUM:
+	statement = sdscatfmt(sdsempty(), "sum(%S)", left);
+	break;
     case N_ANON:
 	break;
     case N_RATE:
@@ -2914,6 +2920,78 @@ series_calculate_abs(node_t *np)
 		np->value_set.series_values[i].series_sample[j].series_instance[k].data = sdsnewlen(str_val, str_len);
 	    }
 	}
+    }
+}
+
+/*
+ * calculate sum or avg series per-instance over time samples
+ */
+static void
+series_calculate_statistical(node_t *np, nodetype_t func)
+{
+    seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
+    unsigned int	n_series, n_samples, n_instances, i, j, k;
+    double		sum_data, data;
+    char		sum_data_str[64];
+    sds			msg;
+
+    assert(func == N_SUM || func == N_AVG);
+
+    n_series = np->left->value_set.num_series;
+    np->value_set.num_series = n_series;
+    np->value_set.series_values = (series_sample_set_t *)calloc(n_series, sizeof(series_sample_set_t));
+    for (i = 0; i < n_series; i++) {
+	n_samples = np->left->value_set.series_values[i].num_samples;
+	if (n_samples > 0) {
+	    np->value_set.series_values[i].num_samples = 1;
+	    np->value_set.series_values[i].series_sample = (series_instance_set_t *)calloc(1, sizeof(series_instance_set_t));
+	    n_instances = np->left->value_set.series_values[i].series_sample[0].num_instances;
+	    np->value_set.series_values[i].series_sample[0].num_instances = n_instances;
+	    np->value_set.series_values[i].series_sample[0].series_instance = (pmSeriesValue *)calloc(n_instances, sizeof(pmSeriesValue));
+	    for (k = 0; k < n_instances; k++) {
+		sum_data = 0.0;
+		for (j = 0; j < n_samples; j++) {
+		    if (np->left->value_set.series_values[i].series_sample[j].num_instances != n_instances) {
+			if (pmDebugOptions.query && pmDebugOptions.desperate) {
+			    infofmt(msg, "number of instances in each sample are not equal\n");
+			    batoninfo(baton, PMLOG_ERROR, msg);
+			}
+			continue;
+		    }
+		    data = strtod(np->left->value_set.series_values[i].series_sample[j].series_instance[k].data, NULL);
+		    sum_data += data;
+		}
+		np->value_set.series_values[i].series_sample[0].series_instance[k].timestamp = 
+			sdsnew(np->left->value_set.series_values[i].series_sample[0].series_instance[k].timestamp);
+		np->value_set.series_values[i].series_sample[0].series_instance[k].series = 
+			sdsnew(np->left->value_set.series_values[i].series_sample[0].series_instance[k].series);
+		switch (func) {
+		case N_SUM:
+		    pmsprintf(sum_data_str, sizeof(sum_data_str), "%le", sum_data);
+		    break;
+		case N_AVG:
+		    pmsprintf(sum_data_str, sizeof(sum_data_str), "%le", sum_data / n_samples);
+		    break;
+		default:
+		    /* .. TODO any other statistical functions such as stddev, variance, mode, median etc */
+		    break;
+		}
+
+		np->value_set.series_values[i].series_sample[0].series_instance[k].data = sdsnew(sum_data_str);
+		np->value_set.series_values[i].series_sample[0].series_instance[k].ts = 
+			np->left->value_set.series_values[i].series_sample[0].series_instance[k].ts;
+	    }
+	} else {
+	    np->value_set.series_values[i].num_samples = 0;
+	}
+	np->value_set.series_values[i].sid = (seriesGetSID *)calloc(1, sizeof(seriesGetSID));
+	np->value_set.series_values[i].sid->name = sdsnew(np->left->value_set.series_values[i].sid->name);
+	np->value_set.series_values[i].baton = np->left->value_set.series_values[i].baton;
+	np->value_set.series_values[i].series_desc = np->left->value_set.series_values[i].series_desc;
+
+	/* statistical result values are type double, but maybe this depends on the function and args */
+	sdsfree(np->value_set.series_values[i].series_desc.type);
+	np->value_set.series_values[i].series_desc.type = sdsnew("double");
     }
 }
 
@@ -3853,6 +3931,14 @@ series_calculate(seriesQueryBaton *baton, node_t *np, int level)
 	case N_SLASH:
 	    series_calculate_slash(np);
 	    sts = N_SLASH;
+	    break;
+	case N_AVG:
+	    series_calculate_statistical(np, N_AVG);
+	    sts = N_AVG;
+	    break;
+	case N_SUM:
+	    series_calculate_statistical(np, N_SUM);
+	    sts = N_SUM;
 	    break;
 	default:
 	    break;
