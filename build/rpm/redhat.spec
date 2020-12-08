@@ -2901,6 +2901,7 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %dir %{_confdir}/labels
 %dir %{_confdir}/labels/optional
 %config(noreplace) %{_confdir}/labels.conf
+%config(noreplace) %{_confdir}/linux/interfaces.conf
 %dir %{_confdir}/pipe.conf.d
 %dir %{_confdir}/pmcd
 %config(noreplace) %{_confdir}/pmcd/pmcd.conf

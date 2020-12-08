@@ -74,6 +74,7 @@
 static proc_stat_t		proc_stat;
 static proc_meminfo_t		proc_meminfo;
 static proc_loadavg_t		proc_loadavg;
+static proc_net_all_t		proc_net_all;
 static proc_net_rpc_t		proc_net_rpc;
 static proc_net_tcp_t		proc_net_tcp;
 static proc_net_tcp6_t		proc_net_tcp6;
@@ -1621,6 +1622,70 @@ static pmdaMetric metrictab[] = {
     { NULL, 
       { PMDA_PMID(CLUSTER_NET_ADDR,3), PM_TYPE_STRING, NET_ADDR_INDOM, PM_SEM_DISCRETE, 
       PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/*
+ * aggregate network interface metrics cluster
+ */
+
+/* network.all.in.bytes */
+    { &proc_net_all.in.bytes,
+      { PMDA_PMID(CLUSTER_NET_ALL,0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(1,0,0,0,PM_SPACE_BYTE,0) }, },
+
+/* network.all.in.packets */
+    { &proc_net_all.in.packets,
+      { PMDA_PMID(CLUSTER_NET_ALL,1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* network.all.in.errors */
+    { &proc_net_all.in.errors,
+      { PMDA_PMID(CLUSTER_NET_ALL,2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* network.all.in.drops */
+    { &proc_net_all.in.drops,
+      { PMDA_PMID(CLUSTER_NET_ALL,3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* network.all.out.bytes */
+    { &proc_net_all.out.bytes,
+      { PMDA_PMID(CLUSTER_NET_ALL,4), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(1,0,0,0,PM_SPACE_BYTE,0) }, },
+
+/* network.all.out.packets */
+    { &proc_net_all.out.packets,
+      { PMDA_PMID(CLUSTER_NET_ALL,5), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* network.all.out.errors */
+    { &proc_net_all.out.errors,
+      { PMDA_PMID(CLUSTER_NET_ALL,6), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* network.all.out.drops */
+    { &proc_net_all.out.drops,
+      { PMDA_PMID(CLUSTER_NET_ALL,7), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* network.all.total.bytes */
+    { &proc_net_all.total.bytes,
+      { PMDA_PMID(CLUSTER_NET_ALL,8), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(1,0,0,0,PM_SPACE_BYTE,0) }, },
+
+/* network.all.total.packets */
+    { &proc_net_all.total.packets,
+      { PMDA_PMID(CLUSTER_NET_ALL,9), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* network.all.total.errors */
+    { &proc_net_all.total.errors,
+      { PMDA_PMID(CLUSTER_NET_ALL,10), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* network.all.total.drops */
+    { &proc_net_all.total.drops,
+      { PMDA_PMID(CLUSTER_NET_ALL,11), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /*
  * filesys cluster
@@ -6394,6 +6459,9 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
 	    if (need_refresh[CLUSTER_NET_DEV])
 		refresh_proc_net_dev(netdev, cp);
 
+	    if (need_refresh[CLUSTER_NET_DEV])
+		refresh_proc_net_all(netdev, &proc_net_all);
+
 	    if (need_refresh[CLUSTER_NET_SOCKSTAT])
 		refresh_proc_net_sockstat(&proc_net_sockstat);
 
@@ -6705,17 +6773,16 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	 * don't have NULL for the m_user field in their respective
          * metrictab slot.
 	 */
-	if (cluster == CLUSTER_VMSTAT) {
+	switch (cluster) {
+	case CLUSTER_VMSTAT:
 	    if (!(_pm_have_proc_vmstat) ||
 		*(__uint64_t *)mdesc->m_user == (__uint64_t)-1)
 	    	return 0; /* no value available on this kernel */
-	}
-	else
-	if (cluster == CLUSTER_NET_SNMP) {
-	    __uint64_t value;
-
+	    break;
+	case CLUSTER_NET_SNMP:
 	    /* network.icmpmsg has an indom - deal with it now */
 	    if (item == 88 || item == 89) {
+		__uint64_t value;
 		if (inst > NR_ICMPMSG_COUNTERS)
 		    return PM_ERR_INST;
 		value = *((__uint64_t *)mdesc->m_user + inst);
@@ -6727,37 +6794,33 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if (*(__uint64_t *)mdesc->m_user == (__uint64_t)-1)
 		if (item != 53)	/* tcp.maxconn is special */
 		    return 0; /* no value available on this kernel */
-	}
-	else
-	if (cluster == CLUSTER_NET_NETSTAT) {
+	    break;
+	case CLUSTER_NET_NETSTAT:
 	    if (*(__uint64_t *)mdesc->m_user == (__uint64_t)-1)
 	        return 0; /* no value available on this kernel */
-	}
-	else
-	if (cluster == CLUSTER_NET_NFS) {
+	    break;
+	case CLUSTER_NET_NFS:
 	    /*
 	     * check if rpc stats are available
 	     */
 	    if (item >= 20 && item <= 27 && proc_net_rpc.client.errcode != 0)
-		/* no values available for client rpc/nfs - this is expected <= 2.0.36 */
+		/* no values available for client rpc/nfs; expected <= 2.0.36 */
 	    	return 0;
-	    else
 	    if (item >= 30 && item <= 47 && proc_net_rpc.server.errcode != 0)
 		/* no values available - expected without /proc/net/rpc/nfsd */
 	    	return 0; /* no values available */
 	    if (item >= 51 && item <= 57 && proc_net_rpc.server.errcode != 0)
 		/* no values available - expected without /proc/net/rpc/nfsd */
 	    	return 0; /* no values available */
-	    if (item >= 71 && item <= 76 && proc_fs_nfsd.errcode != 0) {
+	    if (item >= 71 && item <= 76 && proc_fs_nfsd.errcode != 0)
 		/* no values available - expected without /proc/fs/nfsd */
 	    	return 0; /* no values available */
-	    }
-	}
-	if (cluster == CLUSTER_SYSFS_KERNEL) {
+	    break;
+	case CLUSTER_SYSFS_KERNEL:
 	    /* no values available for udev metrics */
-	    if (item == 0 && !sysfs_kernel.valid_uevent_seqnum) {
+	    if (item == 0 && !sysfs_kernel.valid_uevent_seqnum)
 		return 0;
-	    }
+	    break;
 	}
 
 	switch (mdesc->m_desc.type) {
@@ -6785,8 +6848,9 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	default:
 	    return 0;
 	}
+	return PMDA_FETCH_STATIC;
     }
-    else
+
     switch (cluster) {
     case CLUSTER_STAT:
 	/*
@@ -8764,8 +8828,10 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	    need_refresh[CLUSTER_MEMINFO]++;
 	    break;
 
+	case CLUSTER_NET_ALL:
 	case CLUSTER_NET_DEV:
 	    need_refresh[cluster]++;
+	    need_refresh[CLUSTER_NET_DEV]++;
 	    switch (item) {
 	    case 21:	/* network.interface.mtu */
 		need_refresh[REFRESH_NET_MTU]++;

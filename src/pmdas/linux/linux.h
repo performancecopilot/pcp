@@ -111,6 +111,7 @@ enum {
 	CLUSTER_ZRAM_IO_STAT,	/* 87 /sys/block/zram[0-9]/io_stat metrics */
 	CLUSTER_ZRAM_MM_STAT,	/* 88 /sys/block/zram[0-9]/mm_stat metrics */
 	CLUSTER_ZRAM_BD_STAT,	/* 89 /sys/block/zram[0-9]/bd_stat metrics */
+	CLUSTER_NET_ALL,	/* 90 /proc/net/dev aggregate metrics */
 
 	NUM_CLUSTERS		/* one more than highest numbered cluster */
 };

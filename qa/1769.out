@@ -1,0 +1,7 @@
+QA output created by 1769
+
+=== Comparing network.all.in.bytes to network.interface.in.bytes ===
+
+=== Comparing network.all.out.packets to network.interface.out.packets ===
+
+=== Comparing network.all.total.errors to network.interface.total.errors ===

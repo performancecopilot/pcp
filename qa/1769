@@ -1,0 +1,87 @@
+#!/bin/sh
+# PCP QA Test No. 1769
+# Exercise network.all metrics.
+#
+# Copyright (c) 2020 Red Hat.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+fi
+
+[ $PCP_PLATFORM = linux ] || _notrun "No network.all metrics support"
+pmprobe -I network.interface.in.bytes | grep -q '"lo"' \
+	|| _notrun "No loopback interface (lo) found"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+#
+# Extract 'loop' (lo) and 'sum' (everything) values from output like:
+# network.interface.in.bytes
+#    inst [0 or "lo"] value 65498439750
+#    inst [1 or "enp0s25"] value 27156917162
+# 
+_extract()
+{
+    $PCP_AWK_PROG 'BEGIN { lo = 0; sum = 0; }
+	/"lo"] value / { lo += $NF }
+	/] value / { sum += $NF }
+    END { printf("lo=%d\nsum=%d\n", lo, sum); }'
+}
+
+# real QA test starts here
+for suffix in "in.bytes" "out.packets" "total.errors"
+do
+    echo
+    all="network.all.$suffix"
+    int="network.interface.$suffix"
+    echo "=== Comparing $all to $int ===" | tee -a $here/$seq.full
+
+    if $do_valgrind
+    then
+	_run_valgrind pmprobe -v -L $all > $tmp.all
+    else
+	pmprobe -v -L $all > $tmp.all
+    fi
+    eval `$PCP_AWK_PROG '{ print "all="$NF }' < $tmp.all`
+
+    pminfo -L -f $int > $tmp.int
+    eval `_extract < $tmp.int`
+
+    echo "lo=$lo" >> $here/$seq.full
+    echo "sum=$sum" >> $here/$seq.full
+    echo "all=$all" >> $here/$seq.full
+
+    [ $sum -lt $all ] && echo "$suffix: sum is less than all ($sum -lt $all)"
+    sum=`expr $sum - $lo`
+    [ $sum -lt $all ] && echo "$suffix: sum-lo less than all ($sum -lt $all)"
+done
+
+# success, all done
+exit
