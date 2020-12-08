@@ -671,8 +671,12 @@ acct_store(pmResult *result, pmdaExt *pmda, pmValueSet *vsp)
     case CONTROL_ACCT_ENABLE: /* acct.control.enable_acct */
 	if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
 			PM_TYPE_U32, &av, PM_TYPE_U32)) >= 0) {
-	    acct_enable_private_acct = av.ul ? 1 : 0;
-	    reopen_pacct_file();
+	    int state_changed = !acct_enable_private_acct != !av.ul;
+	    if (pmDebugOptions.libpmda && pmDebugOptions.desperate)
+		pmNotifyErr(LOG_DEBUG, "acct: store enable_acct old=%d new=%d\n", acct_enable_private_acct, av.ul);
+	    acct_enable_private_acct = av.ul;
+	    if (state_changed)
+		reopen_pacct_file();
 	}
 	break;
     default:
