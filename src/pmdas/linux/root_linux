@@ -751,6 +751,7 @@ swap {
 }
 
 network {
+    all
     interface
     sockstat
     ip
@@ -772,6 +773,33 @@ network {
     rawconn6
     tcpconn6
     mptcp
+}
+
+network.all {
+    in
+    out
+    total
+}
+
+network.all.in {
+    bytes		60:90:0
+    packets		60:90:1
+    errors		60:90:2
+    drops		60:90:3
+}
+
+network.all.out {
+    bytes		60:90:4
+    packets		60:90:5
+    errors		60:90:6
+    drops		60:90:7
+}
+
+network.all.total {
+    bytes		60:90:8
+    packets		60:90:9
+    errors		60:90:10
+    drops		60:90:11
 }
 
 network.interface {

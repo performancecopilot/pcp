@@ -2270,3 +2270,63 @@ zram.mm_stat.data_size.compressed and this statistic.
 @ zram.bd_stat.count size of data written in backing device
 @ zram.bd_stat.reads the number of reads from backing device
 @ zram.bd_stat.writes the number of writes to backing device
+
+@ network.all.in.bytes network recv bytes from physical network interfaces
+Sum of bytes column on the "Receive" side of /proc/net/dev for network
+interfaces deemed to be 'physical' interfaces, using regular expression
+pattern described in the $PCP_SYSCONF_DIR/linux/interfaces.conf file.
+@ network.all.in.packets network recv packets from physical network interfaces
+Sum of packets column on the "Receive" side of /proc/net/dev for network
+interfaces deemed to be 'physical' interfaces, using regular expression
+pattern described in the $PCP_SYSCONF_DIR/linux/interfaces.conf file.
+@ network.all.in.errors network recv errors from physical network interfaces
+Sum of errors column on the "Receive" side of /proc/net/dev for network
+interfaces deemed to be 'physical' interfaces, using regular expression
+pattern described in the $PCP_SYSCONF_DIR/linux/interfaces.conf file.
+@ network.all.in.drops network recv drops from physical network interfaces
+Sum of drop column on the "Receive" side of /proc/net/dev for network
+interfaces deemed to be 'physical' interfaces, using regular expression
+pattern described in the $PCP_SYSCONF_DIR/linux/interfaces.conf file.
+
+@ network.all.out.bytes network recv bytes from physical network interfaces
+Sum of bytes column on the "Transmit" side of /proc/net/dev for network
+interfaces deemed to be 'physical' interfaces, using regular expression
+pattern described in the $PCP_SYSCONF_DIR/linux/interfaces.conf file.
+@ network.all.in.packets network recv packets from physical network interfaces
+Sum of packets column on the "Transmit" side of /proc/net/dev for network
+interfaces deemed to be 'physical' interfaces, using regular expression
+pattern described in the $PCP_SYSCONF_DIR/linux/interfaces.conf file.
+@ network.all.in.errors network recv errors from physical network interfaces
+Sum of errors column on the "Transmit" side of /proc/net/dev for network
+interfaces deemed to be 'physical' interfaces, using regular expression
+pattern described in the $PCP_SYSCONF_DIR/linux/interfaces.conf file.
+@ network.all.in.drops network recv drops from physical network interfaces
+Sum of drop column on the "Transmit" side of /proc/net/dev for network
+interfaces deemed to be 'physical' interfaces, using regular expression
+pattern described in the $PCP_SYSCONF_DIR/linux/interfaces.conf file.
+
+@ network.all.in.bytes network send bytes from physical network interfaces
+Sum of bytes column on the "Transmit" side of /proc/net/dev for network
+interfaces deemed to be 'physical' interfaces, using regular expression
+pattern described in the $PCP_SYSCONF_DIR/linux/interfaces.conf file.
+@ network.all.in.packets network send packets from physical network interfaces
+Sum of packets column on the "Transmit" side of /proc/net/dev for network
+interfaces deemed to be 'physical' interfaces, using regular expression
+pattern described in the $PCP_SYSCONF_DIR/linux/interfaces.conf file.
+@ network.all.in.errors network send errors from physical network interfaces
+Sum of errors column on the "Transmit" side of /proc/net/dev for network
+interfaces deemed to be 'physical' interfaces, using regular expression
+pattern described in the $PCP_SYSCONF_DIR/linux/interfaces.conf file.
+@ network.all.in.drops network send drops from physical network interfaces
+Sum of drop column on the "Transmit" side of /proc/net/dev for network
+interfaces deemed to be 'physical' interfaces, using regular expression
+pattern described in the $PCP_SYSCONF_DIR/linux/interfaces.conf file.
+
+@ network.all.total.bytes total bytes on physical network interfaces
+Sum of network.all.in.bytes and network.all.out.bytes metrics.
+@ network.all.total.packets total packets on physical network interfaces
+Sum of network.all.in.packets and network.all.out.packets metrics.
+@ network.all.total.errors network errors on physical network interfaces
+Sum of network.all.in.errors and network.all.out.errors metrics.
+@ network.all.total.drops network drops on physical network interfaces
+Sum of network.all.in.drops and network.all.out.drops metrics.
