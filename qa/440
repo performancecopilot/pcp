@@ -28,7 +28,7 @@ SECS_TOL=2	# number of seconds tolerance
 #
 _clean_archive()
 {
-rm -f $tmp.log $tmp.[0-9]* $tmp.index $tmp.meta
+  rm -f $tmp.log $tmp.[0-9]* $tmp.index $tmp.meta
 }
 
 # Is given value within tolerance of expected value
@@ -84,7 +84,7 @@ _test_sample_size()
     cat $tmp.log
     $pmdumplog -dilmst $tmp >>$seq.full
   fi
- _clean_archive
+  _clean_archive
 }
 
 # Find out number of records, n,  for given size
@@ -182,7 +182,7 @@ _test_time_size()
   echo "_test_time_size $@" >>$seq.full
   time=`_time_me $pmlogger -v $vol_arg -s $size_arg -c $tmp.config -l $tmp.log $tmp`
   [ -z "$time" ] && time=-1
-  cat $tmp.log >>$seq.full
+  [ -f "$tmp.log" ] && cat "$tmp.log" >>$seq.full
   ls -l $tmp.* >>$seq.full
   if [ -f $tmp.0 ]
   then
