@@ -422,6 +422,26 @@ func_sid
 		  lp->yy_np->right->value = $5;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
+	| L_SUM L_LPAREN sid_vec L_RPAREN
+		{ lp->yy_np = newnode(N_SUM);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_SUM L_LPAREN func_sid L_RPAREN
+		{ lp->yy_np = newnode(N_SUM);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_AVG L_LPAREN sid_vec L_RPAREN
+		{ lp->yy_np = newnode(N_AVG);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_AVG L_LPAREN func_sid L_RPAREN
+		{ lp->yy_np = newnode(N_AVG);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
 	| L_ABS L_LPAREN sid_vec L_RPAREN
 		{ lp->yy_np = newnode(N_ABS);
 		  lp->yy_np->left = $3;
@@ -715,6 +735,26 @@ func	: L_RATE L_LPAREN val_vec L_RPAREN
 		}
 	| L_ROUND L_LPAREN func L_RPAREN
 		{ lp->yy_np = newnode(N_ROUND);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_SUM L_LPAREN val_vec L_RPAREN
+		{ lp->yy_np = newnode(N_SUM);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_SUM L_LPAREN func L_RPAREN
+		{ lp->yy_np = newnode(N_SUM);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_AVG L_LPAREN val_vec L_RPAREN
+		{ lp->yy_np = newnode(N_AVG);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_AVG L_LPAREN func L_RPAREN
+		{ lp->yy_np = newnode(N_AVG);
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}

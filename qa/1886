@@ -173,6 +173,30 @@ pmseries $args 'kernel.all.load{instance.name == "5 minute"}[count:5]'
 echo 'Compared to series / series:'
 pmseries $args 'kernel.all.load{instance.name == "5 minute"}[count:5] / kernel.all.load{instance.name == "5 minute"}[count:5]'
 
+echo;echo "== Verify sum/avg() functions for a non-sigular metric"
+echo Original with no function:
+pmseries $args 'kernel.all.load[count:5]'
+echo Compared to sum:
+pmseries $args 'sum(kernel.all.load[count:5])'
+echo Compared to avg:
+pmseries $args 'avg(kernel.all.load[count:5])'
+
+echo;echo "== Verify sum/avg() functions for a non-sigular metric, only one instance"
+echo Original with no function:
+pmseries $args 'kernel.all.load{instance.name == "5 minute"}[count:5]'
+echo Compared to sum:
+pmseries $args 'sum(kernel.all.load{instance.name == "5 minute"}[count:5])'
+echo Compared to avg:
+pmseries $args 'avg(kernel.all.load{instance.name == "5 minute"}[count:5])'
+
+echo;echo "== Verify sum/avg() functions for a singular metric"
+echo Original with no function:
+pmseries $args 'rate(kernel.all.pswitch[count:10])'
+echo Compared to sum:
+pmseries $args 'sum(rate(kernel.all.pswitch[count:10]))'
+echo Compared to avg:
+pmseries $args 'avg(rate(kernel.all.pswitch[count:10]))'
+
 # success, all done
 status=0
 exit
