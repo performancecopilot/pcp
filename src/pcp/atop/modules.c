@@ -66,19 +66,49 @@ netatop_exitfind(unsigned long x, struct tstat *a, struct tstat *b)
 	(void)b;
 }
 
+static int
+get_current_enable_acct(void)
+{
+	int ret = 0;
+	pmID	pmid = pmID_build(3, 70, 28);
+	pmResult	*result;
+	int		sts;
+
+	sts = pmFetch(1, &pmid, &result);
+	if (sts < 0)
+	{
+		if (pmDebugOptions.appl0)
+			fprintf(stderr, "%s: %s pmFetch failed: %s\n",
+				pmGetProgname(), "acctsw", pmErrStr(sts));
+		return -1;
+	}
+	ret = result->vset[0]->numval == 1 ? result->vset[0]->vlist[0].value.lval : -1;
+	pmFreeResult(result);
+	return ret;
+}
+
 /* set acct.control.enable_acct to unsigned integer value */
 static int
 acctsw(unsigned int enable)
 {
-	pmResult	*result = calloc(1, sizeof(pmResult));
-	pmValueSet	*vset = calloc(1, sizeof(pmValueSet));
+	int prev_val;
+	pmResult	*result;
+	pmValueSet	*vset;
 	int		sts;
+
+	prev_val = get_current_enable_acct();
+	if (prev_val < 0) {
+		return 1;
+	}
+
+	result = calloc(1, sizeof(pmResult));
+	vset = calloc(1, sizeof(pmValueSet));
 
 	ptrverify(vset, "Malloc vset failed for %s enabling\n", "acct");
 	ptrverify(result, "Malloc result failed for %s enabling\n", "acct");
 
 	vset->vlist[0].inst = PM_IN_NULL;
-	vset->vlist[0].value.lval = enable;
+	vset->vlist[0].value.lval = enable ? (prev_val + 1) : (prev_val > 0 ? (prev_val - 1) : 0);
 	vset->valfmt = PM_VAL_INSITU;
 	vset->numval = 1;
 	vset->pmid = pmID_build(3, 70, 28);
