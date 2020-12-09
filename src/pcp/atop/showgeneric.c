@@ -960,20 +960,15 @@ generic_samp(double sampletime, double nsecs,
 			   ** sort in network-activity order
 			   */
 			   case MSORTNET:
-#if 1
-				statmsg = "Not yet supported in this atop!";
-				beep();
-#else
 				if ( !(supportflags & NETATOP) )
 				{
-					statmsg = "Kernel module 'netatop' not "
-					          "active or no root privs; "
+					statmsg = "BCC PMDA not active or "
+					          "'netproc' module not enabled; "
 					          "request ignored!";
 					break;
 				}
 				showorder = MSORTNET;
 				firstproc = 0;
-#endif
 				break;
 
 			   /*
@@ -1037,14 +1032,10 @@ generic_samp(double sampletime, double nsecs,
 			   ** network-specific figures per process
 			   */
 			   case MPROCNET:
-#if 1
-				statmsg = "Not yet supported in this atop!";
-				beep();
-#else
 				if ( !(supportflags & NETATOP) )
 				{
-					statmsg = "Kernel module 'netatop' not "
-					          "active or no root privs; "
+					statmsg = "BCC PMDA not active or "
+					          "'netproc' module not enabled; "
 					          "request ignored!";
 					break;
 				}
@@ -1055,7 +1046,6 @@ generic_samp(double sampletime, double nsecs,
 					showorder = MSORTNET;
 
 				firstproc = 0;
-#endif
 				break;
 
 			   /*
@@ -2512,8 +2502,9 @@ generic_init(void)
 		   case MPROCNET:
 			if ( !(supportflags & NETATOP) )
 			{
-				fprintf(stderr, "Kernel module 'netatop' not "
-					          "active; request ignored!");
+				fprintf(stderr, "BCC PMDA not active or "
+					        "'netproc' module not enabled; "
+					        "request ignored!");
 				sleep(3);
 				break;
 			}

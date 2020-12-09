@@ -29,11 +29,6 @@ netatop_ipopen(void)
 }
 
 void
-netatop_probe(void)
-{
-}
-
-void
 netatop_signoff(void)
 {
 }
