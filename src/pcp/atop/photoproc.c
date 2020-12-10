@@ -143,10 +143,10 @@ photoproc(struct tstat **tasks, unsigned int *taskslen)
 		setup_metrics(procmetrics, pmids, descs, TASK_NMETRICS);
 		pssid = pmids[TASK_MEM_PMEM];
 		setup = 1;
-	}
 
-	/* check if per-process network metrics are available */
-	netatop_probe();
+		/* check if per-process network metrics are available */
+		netproc_probe();
+	}
 
 	if (!calcpss)
 		pmids[TASK_MEM_PMEM] = PM_ID_NULL;
