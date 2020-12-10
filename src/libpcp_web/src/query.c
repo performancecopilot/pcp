@@ -4042,8 +4042,10 @@ series_redis_hash_expression(seriesQueryBaton *baton, char *hashbuf, int len_has
 	    pmParseUnitsStr(np->value_set.series_values[i].series_desc.units, &units0, &mult, &errmsg);
 	    pmParseUnitsStr(np->value_set.series_values[j].series_desc.units, &units1, &mult, &errmsg);
 
-	    if (sdscmp(np->value_set.series_values[i].metric_name,
-		np->value_set.series_values[j].metric_name) == 0) {
+	    if (np->value_set.series_values[i].metric_name && 
+	        np->value_set.series_values[j].metric_name &&
+	        sdscmp(np->value_set.series_values[i].metric_name,
+		       np->value_set.series_values[j].metric_name) == 0) {
 		if (check_compatibility(&units0, &units1) != 0) {
 		    np->value_set.series_values[j].compatibility = 0;
 		    infofmt(msg, "Descriptors for metric '%s' do not satisfy compatibility between different hosts/sources.\n",
@@ -4070,10 +4072,14 @@ series_redis_hash_expression(seriesQueryBaton *baton, char *hashbuf, int len_has
 	    }
 	}
 
+	if (baton->error != 0)
+	    break;
+
 	sdsfree(np->value_set.series_values[i].sid->name);
 	np->value_set.series_values[i].sid->name = sdsnew(hashbuf);
     }
-    if (num_series > 0 && np->value_set.series_values[0].compatibility) {
+
+    if (baton->error == 0 && num_series > 0 && np->value_set.series_values[0].compatibility) {
 	/* descriptor, after the O(N^2) checking the descriptor of 1st series has been 
 	 * converted to the largest one.
 	 */
