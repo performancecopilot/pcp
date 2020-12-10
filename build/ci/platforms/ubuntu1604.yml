@@ -21,6 +21,8 @@ container:
     # pmcd will create the file /var/lib/pcp/pmns/stdpmid, which is required by QA tests
     RUN printf '#!/bin/sh\nexit 0\n' > /usr/sbin/policy-rc.d
 
+    CMD ["/sbin/init"]
+
 tasks:
   update: |
     sudo apt-get -y update

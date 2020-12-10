@@ -10,6 +10,7 @@ container:
     RUN yum install -y upstart sudo
     RUN useradd --create-home pcpbuild
     RUN echo 'pcpbuild ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/pcpbuild
+    CMD ["/sbin/init"]
 
 tasks:
   update: |

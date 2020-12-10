@@ -9,7 +9,6 @@ bintray:
     deb_architecture: i386
 
 container:
-  init: /bin/systemd
   containerfile: |
     FROM docker.io/i386/ubuntu:bionic
     RUN linux32 apt-get update && linux32 apt-get install -y python-dev systemd sudo git
@@ -19,6 +18,8 @@ container:
     # allow services to be started during installation
     # pmcd will create the file /var/lib/pcp/pmns/stdpmid, which is required by QA tests
     RUN printf '#!/bin/sh\nexit 0\n' > /usr/sbin/policy-rc.d
+
+    CMD ["/bin/systemd"]
 
 tasks:
   update: |

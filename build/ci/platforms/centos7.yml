@@ -11,6 +11,7 @@ container:
     RUN yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm # libuv-devel
     RUN useradd --create-home pcpbuild
     RUN echo 'pcpbuild ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/pcpbuild
+    CMD ["/usr/sbin/init"]
 
 tasks:
   update: |
