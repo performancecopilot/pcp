@@ -131,24 +131,24 @@ sstat_reset(struct sstat *sstat)
 }
 
 static void
-update_processor(struct percpu *cpu, int id, pmResult *result, pmDesc *descs)
+update_processor(struct percpu *cpu, int id, pmResult *result, pmDesc *descs, int offset)
 {
 	cpu->cpunr = id;
 
-	cpu->stime = extract_count_t_inst(result, descs, PERCPU_STIME, id);
-	cpu->utime = extract_count_t_inst(result, descs, PERCPU_UTIME, id);
-	cpu->ntime = extract_count_t_inst(result, descs, PERCPU_NTIME, id);
-	cpu->itime = extract_count_t_inst(result, descs, PERCPU_ITIME, id);
-	cpu->wtime = extract_count_t_inst(result, descs, PERCPU_WTIME, id);
-	cpu->Itime = extract_count_t_inst(result, descs, PERCPU_HARDIRQ, id);
-	cpu->Stime = extract_count_t_inst(result, descs, PERCPU_SOFTIRQ, id);
-	cpu->steal = extract_count_t_inst(result, descs, PERCPU_STEAL, id);
-	cpu->guest = extract_count_t_inst(result, descs, PERCPU_GUEST, id);
+	cpu->stime = extract_count_t_inst(result, descs, PERCPU_STIME, id, offset);
+	cpu->utime = extract_count_t_inst(result, descs, PERCPU_UTIME, id, offset);
+	cpu->ntime = extract_count_t_inst(result, descs, PERCPU_NTIME, id, offset);
+	cpu->itime = extract_count_t_inst(result, descs, PERCPU_ITIME, id, offset);
+	cpu->wtime = extract_count_t_inst(result, descs, PERCPU_WTIME, id, offset);
+	cpu->Itime = extract_count_t_inst(result, descs, PERCPU_HARDIRQ, id, offset);
+	cpu->Stime = extract_count_t_inst(result, descs, PERCPU_SOFTIRQ, id, offset);
+	cpu->steal = extract_count_t_inst(result, descs, PERCPU_STEAL, id, offset);
+	cpu->guest = extract_count_t_inst(result, descs, PERCPU_GUEST, id, offset);
 
 	memset(&cpu->freqcnt, 0, sizeof(cpu->freqcnt));
-	cpu->freqcnt.cnt = extract_count_t_inst(result, descs, PERCPU_FREQCNT_CNT, id);
-	cpu->instr = extract_count_t_inst(result, descs, PERCPU_PERF_INSTR, id);
-	cpu->cycle = extract_count_t_inst(result, descs, PERCPU_PERF_CYCLE, id);
+	cpu->freqcnt.cnt = extract_count_t_inst(result, descs, PERCPU_FREQCNT_CNT, id, offset);
+	cpu->instr = extract_count_t_inst(result, descs, PERCPU_PERF_INSTR, id, offset);
+	cpu->cycle = extract_count_t_inst(result, descs, PERCPU_PERF_CYCLE, id, offset);
 }
 
 static int
@@ -161,104 +161,104 @@ compare_interface(const void *a, const void *b)
 }
 
 static void
-update_interface(struct perintf *in, int id, char *name, pmResult *rp, pmDesc *dp)
+update_interface(struct perintf *in, int id, char *name, pmResult *rp, pmDesc *dp, int offset)
 {
 	strncpy(in->name, name, sizeof(in->name));
 	in->name[sizeof(in->name)-1] = '\0';
 
-	in->rbyte = extract_count_t_inst(rp, dp, PERINTF_RBYTE, id);
-	in->rpack = extract_count_t_inst(rp, dp, PERINTF_RPACK, id);
-	in->rerrs = extract_count_t_inst(rp, dp, PERINTF_RERRS, id);
-	in->rdrop = extract_count_t_inst(rp, dp, PERINTF_RDROP, id);
-	in->rfifo = extract_count_t_inst(rp, dp, PERINTF_RFIFO, id);
-	in->rframe = extract_count_t_inst(rp, dp, PERINTF_RFRAME, id);
-	in->rcompr = extract_count_t_inst(rp, dp, PERINTF_RCOMPR, id);
-	in->rmultic = extract_count_t_inst(rp, dp, PERINTF_RMULTIC, id);
-	in->sbyte = extract_count_t_inst(rp, dp, PERINTF_SBYTE, id);
-	in->spack = extract_count_t_inst(rp, dp, PERINTF_SPACK, id);
-	in->serrs = extract_count_t_inst(rp, dp, PERINTF_SERRS, id);
-	in->sdrop = extract_count_t_inst(rp, dp, PERINTF_SDROP, id);
-	in->sfifo = extract_count_t_inst(rp, dp, PERINTF_SFIFO, id);
-	in->scollis = extract_count_t_inst(rp, dp, PERINTF_SCOLLIS, id);
-	in->scarrier = extract_count_t_inst(rp, dp, PERINTF_SCARRIER, id);
-	in->scompr = extract_count_t_inst(rp, dp, PERINTF_SCOMPR, id);
+	in->rbyte = extract_count_t_inst(rp, dp, PERINTF_RBYTE, id, offset);
+	in->rpack = extract_count_t_inst(rp, dp, PERINTF_RPACK, id, offset);
+	in->rerrs = extract_count_t_inst(rp, dp, PERINTF_RERRS, id, offset);
+	in->rdrop = extract_count_t_inst(rp, dp, PERINTF_RDROP, id, offset);
+	in->rfifo = extract_count_t_inst(rp, dp, PERINTF_RFIFO, id, offset);
+	in->rframe = extract_count_t_inst(rp, dp, PERINTF_RFRAME, id, offset);
+	in->rcompr = extract_count_t_inst(rp, dp, PERINTF_RCOMPR, id, offset);
+	in->rmultic = extract_count_t_inst(rp, dp, PERINTF_RMULTIC, id, offset);
+	in->sbyte = extract_count_t_inst(rp, dp, PERINTF_SBYTE, id, offset);
+	in->spack = extract_count_t_inst(rp, dp, PERINTF_SPACK, id, offset);
+	in->serrs = extract_count_t_inst(rp, dp, PERINTF_SERRS, id, offset);
+	in->sdrop = extract_count_t_inst(rp, dp, PERINTF_SDROP, id, offset);
+	in->sfifo = extract_count_t_inst(rp, dp, PERINTF_SFIFO, id, offset);
+	in->scollis = extract_count_t_inst(rp, dp, PERINTF_SCOLLIS, id, offset);
+	in->scarrier = extract_count_t_inst(rp, dp, PERINTF_SCARRIER, id, offset);
+	in->scompr = extract_count_t_inst(rp, dp, PERINTF_SCOMPR, id, offset);
 }
 
 static void
-update_ibport(struct perifb *ib, int id, char *name, pmResult *rp, pmDesc *dp)
+update_ibport(struct perifb *ib, int id, char *name, pmResult *rp, pmDesc *dp, int offset)
 {
 	strncpy(ib->ibname, name, sizeof(ib->ibname));
 	ib->ibname[sizeof(ib->ibname)-1] = '\0';
 
-	ib->portnr = extract_integer_inst(rp, dp, PERIFB_PORT_LID, id);
-	ib->lanes = extract_integer_inst(rp, dp, PERIFB_PORT_WIDTH, id);
-	ib->rate = extract_count_t_inst(rp, dp, PERIFB_PORT_RATE, id);
-	ib->rcvb = extract_count_t_inst(rp, dp, PERIFB_PORT_INB, id);
-	ib->sndb = extract_count_t_inst(rp, dp, PERIFB_PORT_OUTB, id);
-	ib->rcvp = extract_count_t_inst(rp, dp, PERIFB_PORT_INPKT, id);
-	ib->sndp = extract_count_t_inst(rp, dp, PERIFB_PORT_OUTPKT, id);
+	ib->portnr = extract_integer_inst(rp, dp, PERIFB_PORT_LID, id, offset);
+	ib->lanes = extract_integer_inst(rp, dp, PERIFB_PORT_WIDTH, id, offset);
+	ib->rate = extract_count_t_inst(rp, dp, PERIFB_PORT_RATE, id, offset);
+	ib->rcvb = extract_count_t_inst(rp, dp, PERIFB_PORT_INB, id, offset);
+	ib->sndb = extract_count_t_inst(rp, dp, PERIFB_PORT_OUTB, id, offset);
+	ib->rcvp = extract_count_t_inst(rp, dp, PERIFB_PORT_INPKT, id, offset);
+	ib->sndp = extract_count_t_inst(rp, dp, PERIFB_PORT_OUTPKT, id, offset);
 }
 
 static void
-update_disk(struct perdsk *dsk, int id, char *name, pmResult *rp, pmDesc *dp)
+update_disk(struct perdsk *dsk, int id, char *name, pmResult *rp, pmDesc *dp, int offset)
 {
 	strncpy(dsk->name, name, sizeof(dsk->name));
 	dsk->name[sizeof(dsk->name)-1] = '\0';
 
-	dsk->nread = extract_count_t_inst(rp, dp, PERDISK_NREAD, id);
-	dsk->nrsect = extract_count_t_inst(rp, dp, PERDISK_NRSECT, id);
-	dsk->nwrite = extract_count_t_inst(rp, dp, PERDISK_NWRITE, id);
-	dsk->nwsect = extract_count_t_inst(rp, dp, PERDISK_NWSECT, id);
-	dsk->io_ms = extract_count_t_inst(rp, dp, PERDISK_IO_MS, id);
-	dsk->avque = extract_count_t_inst(rp, dp, PERDISK_AVEQ, id);
+	dsk->nread = extract_count_t_inst(rp, dp, PERDISK_NREAD, id, offset);
+	dsk->nrsect = extract_count_t_inst(rp, dp, PERDISK_NRSECT, id, offset);
+	dsk->nwrite = extract_count_t_inst(rp, dp, PERDISK_NWRITE, id, offset);
+	dsk->nwsect = extract_count_t_inst(rp, dp, PERDISK_NWSECT, id, offset);
+	dsk->io_ms = extract_count_t_inst(rp, dp, PERDISK_IO_MS, id, offset);
+	dsk->avque = extract_count_t_inst(rp, dp, PERDISK_AVEQ, id, offset);
 }
 
 static void
-update_lvm(struct perdsk *dsk, int id, char *name, pmResult *rp, pmDesc *dp)
+update_lvm(struct perdsk *dsk, int id, char *name, pmResult *rp, pmDesc *dp, int offset)
 {
 	strncpy(dsk->name, name, sizeof(dsk->name));
 	dsk->name[sizeof(dsk->name)-1] = '\0';
 
-	dsk->nread = extract_count_t_inst(rp, dp, PERDM_NREAD, id);
-	dsk->nrsect = extract_count_t_inst(rp, dp, PERDM_NRSECT, id);
-	dsk->nwrite = extract_count_t_inst(rp, dp, PERDM_NWRITE, id);
-	dsk->nwsect = extract_count_t_inst(rp, dp, PERDM_NWSECT, id);
+	dsk->nread = extract_count_t_inst(rp, dp, PERDM_NREAD, id, offset);
+	dsk->nrsect = extract_count_t_inst(rp, dp, PERDM_NRSECT, id, offset);
+	dsk->nwrite = extract_count_t_inst(rp, dp, PERDM_NWRITE, id, offset);
+	dsk->nwsect = extract_count_t_inst(rp, dp, PERDM_NWSECT, id, offset);
 	dsk->io_ms = 0;
 	dsk->avque = 0;
 }
 
 static void
-update_mdd(struct perdsk *dsk, int id, char *name, pmResult *rp, pmDesc *dp)
+update_mdd(struct perdsk *dsk, int id, char *name, pmResult *rp, pmDesc *dp, int offset)
 {
 	strncpy(dsk->name, name, sizeof(dsk->name));
 	dsk->name[sizeof(dsk->name)-1] = '\0';
 
-	dsk->nread = extract_count_t_inst(rp, dp, PERMD_NREAD, id);
-	dsk->nrsect = extract_count_t_inst(rp, dp, PERMD_NRSECT, id);
-	dsk->nwrite = extract_count_t_inst(rp, dp, PERMD_NWRITE, id);
-	dsk->nwsect = extract_count_t_inst(rp, dp, PERMD_NWSECT, id);
+	dsk->nread = extract_count_t_inst(rp, dp, PERMD_NREAD, id, offset);
+	dsk->nrsect = extract_count_t_inst(rp, dp, PERMD_NRSECT, id, offset);
+	dsk->nwrite = extract_count_t_inst(rp, dp, PERMD_NWRITE, id, offset);
+	dsk->nwsect = extract_count_t_inst(rp, dp, PERMD_NWSECT, id, offset);
 	dsk->io_ms = 0;
 	dsk->avque = 0;
 }
 
 static void
-update_mnt(struct pernfsmount *mp, int id, char *name, pmResult *rp, pmDesc *dp)
+update_mnt(struct pernfsmount *mp, int id, char *name, pmResult *rp, pmDesc *dp, int offset)
 {
 	/* use local client mount unless server export is available */
 	strncpy(mp->mountdev, name, sizeof(mp->mountdev)-1);
 	extract_string_inst(rp, dp, PERNFS_EXPORT, &mp->mountdev[0],
-				sizeof(mp->mountdev)-1, id);
+				sizeof(mp->mountdev)-1, id, offset);
 	mp->mountdev[sizeof(mp->mountdev)-1] = '\0';
 
-	mp->age = extract_count_t_inst(rp, dp, PERNFS_AGE, id);
-	mp->bytesread = extract_count_t_inst(rp, dp, PERNFS_RDBYTES, id);
-	mp->byteswrite = extract_count_t_inst(rp, dp, PERNFS_WRBYTES, id);
-	mp->bytesdread = extract_count_t_inst(rp, dp, PERNFS_DRDBYTES, id);
-	mp->bytesdwrite = extract_count_t_inst(rp, dp, PERNFS_DWRBYTES, id);
-	mp->bytestotread = extract_count_t_inst(rp, dp, PERNFS_TOTRDBYTES, id);
-	mp->bytestotwrite = extract_count_t_inst(rp, dp, PERNFS_TOTWRBYTES, id);
-	mp->pagesmread = extract_count_t_inst(rp, dp, PERNFS_RDPAGES, id);
-	mp->pagesmwrite = extract_count_t_inst(rp, dp, PERNFS_WRPAGES, id);
+	mp->age = extract_count_t_inst(rp, dp, PERNFS_AGE, id, offset);
+	mp->bytesread = extract_count_t_inst(rp, dp, PERNFS_RDBYTES, id, offset);
+	mp->byteswrite = extract_count_t_inst(rp, dp, PERNFS_WRBYTES, id, offset);
+	mp->bytesdread = extract_count_t_inst(rp, dp, PERNFS_DRDBYTES, id, offset);
+	mp->bytesdwrite = extract_count_t_inst(rp, dp, PERNFS_DWRBYTES, id, offset);
+	mp->bytestotread = extract_count_t_inst(rp, dp, PERNFS_TOTRDBYTES, id, offset);
+	mp->bytestotwrite = extract_count_t_inst(rp, dp, PERNFS_TOTWRBYTES, id, offset);
+	mp->pagesmread = extract_count_t_inst(rp, dp, PERNFS_RDPAGES, id, offset);
+	mp->pagesmwrite = extract_count_t_inst(rp, dp, PERNFS_WRPAGES, id, offset);
 }
 
 char
@@ -298,9 +298,9 @@ photosyst(struct sstat *si)
 	si->stamp = result->timestamp;
 
 	/* /proc/loadavg */
-	si->cpu.lavg1 = extract_float_inst(result, descs, CPU_LOAD, 1);
-	si->cpu.lavg5 = extract_float_inst(result, descs, CPU_LOAD, 5);
-	si->cpu.lavg15 = extract_float_inst(result, descs, CPU_LOAD, 15);
+	si->cpu.lavg1 = extract_float_inst(result, descs, CPU_LOAD, 1, 0);
+	si->cpu.lavg5 = extract_float_inst(result, descs, CPU_LOAD, 5, 1);
+	si->cpu.lavg15 = extract_float_inst(result, descs, CPU_LOAD, 15, 2);
 
 	/* /proc/stat */
 	si->cpu.csw = extract_count_t(result, descs, CPU_CSW);
@@ -337,7 +337,7 @@ photosyst(struct sstat *si)
 		if (pmDebugOptions.appl0)
 			fprintf(stderr, "%s: updating processor %d: %s\n",
 				pmGetProgname(), ids[i], insts[i]);
-		update_processor(percpu, ids[i], result, descs);
+		update_processor(percpu, ids[i], result, descs, i);
 
 		si->cpu.all.instr += percpu->instr;
 		si->cpu.all.cycle += percpu->cycle;
@@ -412,7 +412,7 @@ photosyst(struct sstat *si)
 		if (pmDebugOptions.appl0)
 			fprintf(stderr, "%s: updating interface %d: %s\n",
 				pmGetProgname(), ids[i], insts[i]);
-		update_interface(&si->intf.intf[i], ids[i], insts[i], result, descs);
+		update_interface(&si->intf.intf[i], ids[i], insts[i], result, descs, i);
 	}
 	qsort(si->intf.intf, nrintf, sizeof(struct perintf), compare_interface);
 	si->intf.intf[nrintf].name[0] = '\0';
@@ -562,7 +562,7 @@ photosyst(struct sstat *si)
 		if (pmDebugOptions.appl0)
 			fprintf(stderr, "%s: updating disk %d: %s\n",
 				pmGetProgname(), ids[i], insts[i]);
-		update_disk(&si->dsk.dsk[i], ids[i], insts[i], result, descs);
+		update_disk(&si->dsk.dsk[i], ids[i], insts[i], result, descs, i);
 	}
 	si->dsk.dsk[nrdisk].name[0] = '\0';
 	si->dsk.ndsk = nrdisk;
@@ -584,7 +584,7 @@ photosyst(struct sstat *si)
 		if (pmDebugOptions.appl0)
 			fprintf(stderr, "%s: updating lvm %d: %s\n",
 				pmGetProgname(), ids[i], insts[i]);
-		update_lvm(&si->dsk.lvm[i], ids[i], insts[i], result, descs);
+		update_lvm(&si->dsk.lvm[i], ids[i], insts[i], result, descs, i);
 	}
 	si->dsk.lvm[nrlvm].name[0] = '\0';
 	si->dsk.nlvm = nrlvm;
@@ -607,7 +607,7 @@ photosyst(struct sstat *si)
 		if (pmDebugOptions.appl0)
 			fprintf(stderr, "%s: updating md %d: %s\n",
 				pmGetProgname(), ids[i], insts[i]);
-		update_mdd(&si->dsk.mdd[i], ids[i], insts[i], result, descs);
+		update_mdd(&si->dsk.mdd[i], ids[i], insts[i], result, descs, i);
 	}
 	si->dsk.mdd[nrmdd].name[0] = '\0'; 
 	si->dsk.nmdd = nrmdd;
@@ -629,23 +629,23 @@ photosyst(struct sstat *si)
 	si->nfs.server.rpcbadaut = extract_count_t(result, descs, NFS_RPCBADAUTH);
 	si->nfs.server.rpcbadcln = extract_count_t(result, descs, NFS_RPCBADCLNT);
 
-	si->nfs.server.rpcread += extract_count_t_inst(result, descs, NFS_REQS, 6 /*read*/);
-	si->nfs.server.rpcwrite += extract_count_t_inst(result, descs, NFS_REQS, 8 /*write*/);
-	si->nfs.server.rpcread += extract_count_t_inst(result, descs, NFS3_REQS, 6 /*read*/);
-	si->nfs.server.rpcwrite += extract_count_t_inst(result, descs, NFS3_REQS, 7 /*write*/);
-	si->nfs.server.rpcread += extract_count_t_inst(result, descs, NFS4_REQS, 26 /*read*/);
-	si->nfs.server.rpcwrite += extract_count_t_inst(result, descs, NFS4_REQS, 39 /*write*/);
+	si->nfs.server.rpcread += extract_count_t_inst(result, descs, NFS_REQS, 6 /*read*/, 6);
+	si->nfs.server.rpcwrite += extract_count_t_inst(result, descs, NFS_REQS, 8 /*write*/, 8);
+	si->nfs.server.rpcread += extract_count_t_inst(result, descs, NFS3_REQS, 6 /*read*/, 6);
+	si->nfs.server.rpcwrite += extract_count_t_inst(result, descs, NFS3_REQS, 7 /*write*/, 7);
+	si->nfs.server.rpcread += extract_count_t_inst(result, descs, NFS4_REQS, 26 /*read*/, 26-1 /* no null instance */);
+	si->nfs.server.rpcwrite += extract_count_t_inst(result, descs, NFS4_REQS, 39 /*write*/, 39-1 /* no null instance */);
 
 	/* NFS client statistics */
 	si->nfs.client.rpccnt = extract_count_t(result, descs, NFC_RPCCNT);
 	si->nfs.client.rpcretrans = extract_count_t(result, descs, NFC_RETRANS);
 	si->nfs.client.rpcautrefresh = extract_count_t(result, descs, NFC_AUTHREFRESH);
-	si->nfs.client.rpcread += extract_count_t_inst(result, descs, NFC_REQS, 6/*read*/);
-	si->nfs.client.rpcwrite += extract_count_t_inst(result, descs, NFC_REQS, 8/*write*/);
-	si->nfs.client.rpcread += extract_count_t_inst(result, descs, NFC3_REQS, 6/*read*/);
-	si->nfs.client.rpcwrite += extract_count_t_inst(result, descs, NFC3_REQS, 7/*write*/);
-	si->nfs.client.rpcread += extract_count_t_inst(result, descs, NFC4_REQS, 1/*read*/);
-	si->nfs.client.rpcwrite += extract_count_t_inst(result, descs, NFC4_REQS, 2/*write*/);
+	si->nfs.client.rpcread += extract_count_t_inst(result, descs, NFC_REQS, 6/*read*/, 6);
+	si->nfs.client.rpcwrite += extract_count_t_inst(result, descs, NFC_REQS, 8/*write*/, 8);
+	si->nfs.client.rpcread += extract_count_t_inst(result, descs, NFC3_REQS, 6/*read*/, 6);
+	si->nfs.client.rpcwrite += extract_count_t_inst(result, descs, NFC3_REQS, 7/*write*/, 7);
+	si->nfs.client.rpcread += extract_count_t_inst(result, descs, NFC4_REQS, 1/*read*/, 1);
+	si->nfs.client.rpcwrite += extract_count_t_inst(result, descs, NFC4_REQS, 2/*write*/, 2);
 
 	/* NFS client mount statistics */
 	insts = NULL;
@@ -663,7 +663,7 @@ photosyst(struct sstat *si)
 		if (pmDebugOptions.appl0)
 			fprintf(stderr, "%s: updating nfsmnt %d: %s\n",
 				pmGetProgname(), ids[i], insts[i]);
-		update_mnt(&si->nfs.nfsmounts.nfsmnt[i], ids[i], insts[i], result, descs);
+		update_mnt(&si->nfs.nfsmounts.nfsmnt[i], ids[i], insts[i], result, descs, i);
 	}
 	si->nfs.nfsmounts.nfsmnt[nrnfs].mountdev[0] = '\0'; 
 	si->nfs.nfsmounts.nrmounts = nrnfs;
@@ -674,25 +674,25 @@ photosyst(struct sstat *si)
 	** pressure statistics in /proc/pressure (>= 4.20)
 	*/
 	si->psi.present = present_metric_value(result, PSI_CPUSOME_TOTAL);
-	si->psi.cpusome.avg10 = extract_count_t_inst(result, descs, PSI_CPUSOME_AVG, 10);
-	si->psi.cpusome.avg60 = extract_count_t_inst(result, descs, PSI_CPUSOME_AVG, 60);
-	si->psi.cpusome.avg300 = extract_count_t_inst(result, descs, PSI_CPUSOME_AVG, 300);
+	si->psi.cpusome.avg10 = extract_count_t_inst(result, descs, PSI_CPUSOME_AVG, 10, 0);
+	si->psi.cpusome.avg60 = extract_count_t_inst(result, descs, PSI_CPUSOME_AVG, 60, 1);
+	si->psi.cpusome.avg300 = extract_count_t_inst(result, descs, PSI_CPUSOME_AVG, 300, 2);
 	si->psi.cpusome.total = extract_count_t(result, descs, PSI_CPUSOME_TOTAL);
-	si->psi.memsome.avg10 = extract_count_t_inst(result, descs, PSI_MEMSOME_AVG, 10);
-	si->psi.memsome.avg60 = extract_count_t_inst(result, descs, PSI_MEMSOME_AVG, 60);
-	si->psi.memsome.avg300 = extract_count_t_inst(result, descs, PSI_MEMSOME_AVG, 300);
+	si->psi.memsome.avg10 = extract_count_t_inst(result, descs, PSI_MEMSOME_AVG, 10, 0);
+	si->psi.memsome.avg60 = extract_count_t_inst(result, descs, PSI_MEMSOME_AVG, 60, 1);
+	si->psi.memsome.avg300 = extract_count_t_inst(result, descs, PSI_MEMSOME_AVG, 300, 2);
 	si->psi.memsome.total = extract_count_t(result, descs, PSI_MEMSOME_TOTAL);
-	si->psi.memfull.avg10 = extract_count_t_inst(result, descs, PSI_MEMFULL_AVG, 10);
-	si->psi.memfull.avg60 = extract_count_t_inst(result, descs, PSI_MEMFULL_AVG, 60);
-	si->psi.memfull.avg300 = extract_count_t_inst(result, descs, PSI_MEMFULL_AVG, 300);
+	si->psi.memfull.avg10 = extract_count_t_inst(result, descs, PSI_MEMFULL_AVG, 10, 0);
+	si->psi.memfull.avg60 = extract_count_t_inst(result, descs, PSI_MEMFULL_AVG, 60, 1);
+	si->psi.memfull.avg300 = extract_count_t_inst(result, descs, PSI_MEMFULL_AVG, 300, 2);
 	si->psi.memfull.total = extract_count_t(result, descs, PSI_MEMFULL_TOTAL);
-	si->psi.iosome.avg10 = extract_count_t_inst(result, descs, PSI_IOSOME_AVG, 10);
-	si->psi.iosome.avg60 = extract_count_t_inst(result, descs, PSI_IOSOME_AVG, 60);
-	si->psi.iosome.avg300 = extract_count_t_inst(result, descs, PSI_IOSOME_AVG, 300);
+	si->psi.iosome.avg10 = extract_count_t_inst(result, descs, PSI_IOSOME_AVG, 10, 0);
+	si->psi.iosome.avg60 = extract_count_t_inst(result, descs, PSI_IOSOME_AVG, 60, 1);
+	si->psi.iosome.avg300 = extract_count_t_inst(result, descs, PSI_IOSOME_AVG, 300, 2);
 	si->psi.iosome.total = extract_count_t(result, descs, PSI_IOSOME_TOTAL);
-	si->psi.iofull.avg10 = extract_count_t_inst(result, descs, PSI_IOFULL_AVG, 10);
-	si->psi.iofull.avg60 = extract_count_t_inst(result, descs, PSI_IOFULL_AVG, 60);
-	si->psi.iofull.avg300 = extract_count_t_inst(result, descs, PSI_IOFULL_AVG, 300);
+	si->psi.iofull.avg10 = extract_count_t_inst(result, descs, PSI_IOFULL_AVG, 10, 0);
+	si->psi.iofull.avg60 = extract_count_t_inst(result, descs, PSI_IOFULL_AVG, 60, 1);
+	si->psi.iofull.avg300 = extract_count_t_inst(result, descs, PSI_IOFULL_AVG, 300, 2);
 	si->psi.iofull.total = extract_count_t(result, descs, PSI_IOFULL_TOTAL);
 
 	/* Infiniband statistics */
@@ -711,7 +711,7 @@ photosyst(struct sstat *si)
 		if (pmDebugOptions.appl0)
 			fprintf(stderr, "%s: updating Infiniband port %d: %s\n",
 				pmGetProgname(), ids[i], insts[i]);
-		update_ibport(&si->ifb.ifb[i], ids[i], insts[i], result, descs);
+		update_ibport(&si->ifb.ifb[i], ids[i], insts[i], result, descs, i);
 	}
 	si->ifb.ifb[nrports].ibname[0] = '\0';
 	si->ifb.nrports = nrports;

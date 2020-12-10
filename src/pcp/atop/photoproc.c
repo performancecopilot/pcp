@@ -23,7 +23,7 @@
 ** sampled proc values into task structure, for one process/thread
 */
 static void
-update_task(struct tstat *task, int pid, char *name, pmResult *rp, pmDesc *dp)
+update_task(struct tstat *task, int pid, char *name, pmResult *rp, pmDesc *dp, int offset)
 {
 	char *nametail = name;
 	memset(task, 0, sizeof(struct tstat));
@@ -37,62 +37,62 @@ update_task(struct tstat *task, int pid, char *name, pmResult *rp, pmDesc *dp)
 	if (!calcpss)
 	    task->mem.pmem = (unsigned long long)-1;
 	else
-	    task->mem.pmem = extract_ucount_t_inst(rp, dp, TASK_MEM_PMEM, pid);
+	    task->mem.pmem = extract_ucount_t_inst(rp, dp, TASK_MEM_PMEM, pid, offset);
 
 	/* /proc/pid/cgroup */
 	extract_string_inst(rp, dp, TASK_GEN_CONTAINER, &task->gen.container[0],
-				sizeof(task->gen.container), pid);
+				sizeof(task->gen.container), pid, offset);
         if (task->gen.container[0] != '\0')
 		supportflags |= DOCKSTAT;
 
 	/* /proc/pid/stat */
 	extract_string_inst(rp, dp, TASK_GEN_NAME, &task->gen.name[0],
-				sizeof(task->gen.name), pid);
+				sizeof(task->gen.name), pid, offset);
 	extract_string_inst(rp, dp, TASK_GEN_STATE, &task->gen.state,
-				sizeof(task->gen.state), pid);
+				sizeof(task->gen.state), pid, offset);
 
-	task->gen.pid = extract_integer_inst(rp, dp, TASK_GEN_PID, pid);
-	task->gen.ppid = extract_integer_inst(rp, dp, TASK_GEN_PPID, pid);
+	task->gen.pid = extract_integer_inst(rp, dp, TASK_GEN_PID, pid, offset);
+	task->gen.ppid = extract_integer_inst(rp, dp, TASK_GEN_PPID, pid, offset);
 	if (task->gen.ppid <= 0 && pid != 1)
 		task->gen.ppid = 1;
-	task->mem.minflt = extract_count_t_inst(rp, dp, TASK_MEM_MINFLT, pid);
-	task->mem.majflt = extract_count_t_inst(rp, dp, TASK_MEM_MAJFLT, pid);
-	task->cpu.utime = extract_count_t_inst(rp, dp, TASK_CPU_UTIME, pid);
-	task->cpu.stime = extract_count_t_inst(rp, dp, TASK_CPU_STIME, pid);
-	task->cpu.prio = extract_integer_inst(rp, dp, TASK_CPU_PRIO, pid);
-	task->cpu.nice = extract_integer_inst(rp, dp, TASK_CPU_NICE, pid);
-	task->gen.btime = extract_integer_inst(rp, dp, TASK_GEN_BTIME, pid);
-	task->mem.vmem = extract_count_t_inst(rp, dp, TASK_MEM_VMEM, pid);
-	task->mem.rmem = extract_count_t_inst(rp, dp, TASK_MEM_RMEM, pid);
-	task->cpu.curcpu = extract_integer_inst(rp, dp, TASK_CPU_CURCPU, pid);
-	task->cpu.rtprio = extract_integer_inst(rp, dp, TASK_CPU_RTPRIO, pid);
-	task->cpu.policy = extract_integer_inst(rp, dp, TASK_CPU_POLICY, pid);
+	task->mem.minflt = extract_count_t_inst(rp, dp, TASK_MEM_MINFLT, pid, offset);
+	task->mem.majflt = extract_count_t_inst(rp, dp, TASK_MEM_MAJFLT, pid, offset);
+	task->cpu.utime = extract_count_t_inst(rp, dp, TASK_CPU_UTIME, pid, offset);
+	task->cpu.stime = extract_count_t_inst(rp, dp, TASK_CPU_STIME, pid, offset);
+	task->cpu.prio = extract_integer_inst(rp, dp, TASK_CPU_PRIO, pid, offset);
+	task->cpu.nice = extract_integer_inst(rp, dp, TASK_CPU_NICE, pid, offset);
+	task->gen.btime = extract_integer_inst(rp, dp, TASK_GEN_BTIME, pid, offset);
+	task->mem.vmem = extract_count_t_inst(rp, dp, TASK_MEM_VMEM, pid, offset);
+	task->mem.rmem = extract_count_t_inst(rp, dp, TASK_MEM_RMEM, pid, offset);
+	task->cpu.curcpu = extract_integer_inst(rp, dp, TASK_CPU_CURCPU, pid, offset);
+	task->cpu.rtprio = extract_integer_inst(rp, dp, TASK_CPU_RTPRIO, pid, offset);
+	task->cpu.policy = extract_integer_inst(rp, dp, TASK_CPU_POLICY, pid, offset);
 
 	/* /proc/pid/status */
-	task->gen.nthr = extract_integer_inst(rp, dp, TASK_GEN_NTHR, pid);
-	task->gen.tgid = extract_integer_inst(rp, dp, TASK_GEN_TGID, pid);
+	task->gen.nthr = extract_integer_inst(rp, dp, TASK_GEN_NTHR, pid, offset);
+	task->gen.tgid = extract_integer_inst(rp, dp, TASK_GEN_TGID, pid, offset);
 	if (task->gen.tgid <= 0)
 		task->gen.tgid = pid;
-	task->gen.ctid = extract_integer_inst(rp, dp, TASK_GEN_ENVID, pid);
-	task->gen.vpid = extract_integer_inst(rp, dp, TASK_GEN_VPID, pid);
-	task->gen.ruid = extract_integer_inst(rp, dp, TASK_GEN_RUID, pid);
-	task->gen.euid = extract_integer_inst(rp, dp, TASK_GEN_EUID, pid);
-	task->gen.suid = extract_integer_inst(rp, dp, TASK_GEN_SUID, pid);
-	task->gen.fsuid = extract_integer_inst(rp, dp, TASK_GEN_FSUID, pid);
-	task->gen.rgid = extract_integer_inst(rp, dp, TASK_GEN_RGID, pid);
-	task->gen.egid = extract_integer_inst(rp, dp, TASK_GEN_EGID, pid);
-	task->gen.sgid = extract_integer_inst(rp, dp, TASK_GEN_SGID, pid);
-	task->gen.fsgid = extract_integer_inst(rp, dp, TASK_GEN_FSGID, pid);
-	task->mem.vdata = extract_count_t_inst(rp, dp, TASK_MEM_VDATA, pid);
-	task->mem.vstack = extract_count_t_inst(rp, dp, TASK_MEM_VSTACK, pid);
-	task->mem.vexec = extract_count_t_inst(rp, dp, TASK_MEM_VEXEC, pid);
-	task->mem.vlibs = extract_count_t_inst(rp, dp, TASK_MEM_VLIBS, pid);
-	task->mem.vswap = extract_count_t_inst(rp, dp, TASK_MEM_VSWAP, pid);
+	task->gen.ctid = extract_integer_inst(rp, dp, TASK_GEN_ENVID, pid, offset);
+	task->gen.vpid = extract_integer_inst(rp, dp, TASK_GEN_VPID, pid, offset);
+	task->gen.ruid = extract_integer_inst(rp, dp, TASK_GEN_RUID, pid, offset);
+	task->gen.euid = extract_integer_inst(rp, dp, TASK_GEN_EUID, pid, offset);
+	task->gen.suid = extract_integer_inst(rp, dp, TASK_GEN_SUID, pid, offset);
+	task->gen.fsuid = extract_integer_inst(rp, dp, TASK_GEN_FSUID, pid, offset);
+	task->gen.rgid = extract_integer_inst(rp, dp, TASK_GEN_RGID, pid, offset);
+	task->gen.egid = extract_integer_inst(rp, dp, TASK_GEN_EGID, pid, offset);
+	task->gen.sgid = extract_integer_inst(rp, dp, TASK_GEN_SGID, pid, offset);
+	task->gen.fsgid = extract_integer_inst(rp, dp, TASK_GEN_FSGID, pid, offset);
+	task->mem.vdata = extract_count_t_inst(rp, dp, TASK_MEM_VDATA, pid, offset);
+	task->mem.vstack = extract_count_t_inst(rp, dp, TASK_MEM_VSTACK, pid, offset);
+	task->mem.vexec = extract_count_t_inst(rp, dp, TASK_MEM_VEXEC, pid, offset);
+	task->mem.vlibs = extract_count_t_inst(rp, dp, TASK_MEM_VLIBS, pid, offset);
+	task->mem.vswap = extract_count_t_inst(rp, dp, TASK_MEM_VSWAP, pid, offset);
 
 	/* /proc/pid/io */
-	task->dsk.rsz = extract_count_t_inst(rp, dp, TASK_DSK_RSZ, pid);
-	task->dsk.wsz = extract_count_t_inst(rp, dp, TASK_DSK_WSZ, pid);
-	task->dsk.cwsz = extract_count_t_inst(rp, dp, TASK_DSK_CWSZ, pid);
+	task->dsk.rsz = extract_count_t_inst(rp, dp, TASK_DSK_RSZ, pid, offset);
+	task->dsk.wsz = extract_count_t_inst(rp, dp, TASK_DSK_WSZ, pid, offset);
+	task->dsk.cwsz = extract_count_t_inst(rp, dp, TASK_DSK_CWSZ, pid, offset);
 
 	/*
  	** normalization
@@ -132,7 +132,7 @@ photoproc(struct tstat **tasks, unsigned int *taskslen)
 	static pmDesc	descs[TASK_NMETRICS];
 	pmResult	*result;
 	char		**insts;
-	int		*pids;
+	int		*pids, offset;
 	unsigned long	count, i;
 
 	if (!setup)
@@ -173,7 +173,8 @@ photoproc(struct tstat **tasks, unsigned int *taskslen)
 		if (pmDebugOptions.appl0)
 			fprintf(stderr, "%s: updating process %d: %s\n",
 				pmGetProgname(), pids[i], insts[i]);
-		update_task(&(*tasks)[i], pids[i], insts[i], result, descs);
+		offset = get_instance_index(result, TASK_GEN_PID, pids[i]);
+		update_task(&(*tasks)[i], pids[i], insts[i], result, descs, offset);
 	}
 
 	if (supportflags & NETATOP)
