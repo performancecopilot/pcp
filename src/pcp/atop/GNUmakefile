@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015,2019 Red Hat.
+# Copyright (c) 2015,2019-2020 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -27,6 +27,7 @@ LDIRT = pmgenmap.sh $(GENMAPS)
 CFILES = \
 	atop.c \
 	atopsar.c \
+	acctproc.c \
 	deviate.c \
 	gpucom.c \
 	ifprop.c \
@@ -39,7 +40,6 @@ CFILES = \
 	showlinux.c \
 	showprocs.c \
 	showsys.c \
-	modules.c \
 	various.c \
 	version.c
 
@@ -108,7 +108,7 @@ netproc.o:	netprocmetrics.h
 photosyst.o:	systmetrics.h
 ifprop.o:	ifpropmetrics.h
 various.o:	hostmetrics.h
-modules.o:	acctmetrics.h
+acctproc.o:	acctmetrics.h
 
 atop.o atopsar.o various.o:	$(TOPDIR)/src/include/pcp/libpcp.h
 
