@@ -1,0 +1,18 @@
+QA output created by 1775
+
+Instance: "000001" First: 09:00:04.333004 Last: -
+Mon Nov  9 09:01:04: first value: 0.000
+Values: 118 present, 2 missing
+
+Instance: "1632727" First: 09:55:34.331026 Last: 09:55:34.380851
+Values: 0 present, 120 missing
+
+Instance: "1631847" First: 09:46:04.432786 Last: 09:55:44.334059
+Mon Nov  9 09:47:04: first value: 0.000
+Mon Nov  9 09:55:34: last value: 0.000
+Values: 18 present, 102 missing
+
+Instance: "1628405" First: 09:06:34.372106 Last: 09:29:04.370139
+Mon Nov  9 09:07:34: first value: 0.000
+Mon Nov  9 09:29:04: last value: 0.000
+Values: 44 present, 76 missing
