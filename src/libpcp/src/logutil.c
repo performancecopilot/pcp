@@ -524,6 +524,7 @@ __pmLogCreate(const char *host, const char *base, int log_version,
     lcp->l_minvol = lcp->l_maxvol = acp->ac_curvol = 0;
     lcp->l_hashpmid.nodes = lcp->l_hashpmid.hsize = 0;
     lcp->l_hashindom.nodes = lcp->l_hashindom.hsize = 0;
+    lcp->l_trimindom.nodes = lcp->l_trimindom.hsize = 0;
     lcp->l_hashlabels.nodes = lcp->l_hashlabels.hsize = 0;
     lcp->l_hashtext.nodes = lcp->l_hashtext.hsize = 0;
     lcp->l_tifp = lcp->l_mdfp = acp->ac_mfp = NULL;
@@ -637,6 +638,47 @@ logFreeHashInDom(__pmHashCtl *hcp)
 }
 
 static void
+logFreeTrimInDom(__pmHashCtl *hcp)
+{
+    __pmHashNode	*hp;
+    __pmHashNode	*prior_hp;
+    __pmHashCtl		*icp;
+    __pmHashNode	*ip;
+    __pmHashNode	*prior_ip;
+    __pmLogTrimInDom	*indomp;
+    int			h;
+    int			i;
+
+    /* loop over all indoms */
+    for (h = 0; h < hcp->hsize; h++) {
+	for (hp = hcp->hash[h], prior_hp = NULL; hp != NULL; hp = hp->next) {
+	    indomp = (__pmLogTrimInDom *)hp->data;
+	    icp = &indomp->hashinst;
+	    /* loop over all instances for this indom */
+	    for (i = 0; i < icp->hsize; i++) {
+		for (ip = icp->hash[h], prior_ip = NULL; ip != NULL; ip = ip->next) {
+		    free((__pmLogTrimInst *)ip->data);
+		    if (prior_ip != NULL)
+			free(prior_ip);
+		    prior_ip = ip;
+		}
+		if (prior_ip != NULL)
+		    free(prior_ip);
+	    }
+	    if (icp->hsize > 0)
+		free(icp->hash);
+	    free(indomp);
+	    if (prior_hp != NULL)
+		free(prior_hp);
+	    prior_hp = hp;
+	}
+	if (prior_hp != NULL)
+	    free(prior_hp);
+    }
+    free(hcp->hash);
+}
+
+static void
 logFreeHashLabels(__pmHashCtl *type_ctl)
 {
     __pmHashCtl		*ident_ctl;
@@ -733,6 +775,9 @@ logFreeMeta(__pmLogCtl *lcp)
 
     if (lcp->l_hashindom.hsize != 0)
 	logFreeHashInDom(&lcp->l_hashindom);
+
+    if (lcp->l_trimindom.hsize != 0)
+	logFreeTrimInDom(&lcp->l_trimindom);
 
     if (lcp->l_hashlabels.hsize != 0)
 	logFreeHashLabels(&lcp->l_hashlabels);
