@@ -20,49 +20,6 @@
 /* construct the PMID for acct.control.enable_acct */
 #define ACCT_CONTROL_ENABLE	pmID_build(3, 70, 28)
 
-void
-netatop_ipopen(void)
-{
-}
-
-void
-netatop_signoff(void)
-{
-}
-
-void
-netatop_gettask(pid_t pid, char c, struct tstat *tstat)
-{
-	(void)pid;
-	(void)c;
-	(void)tstat;
-}
-
-unsigned int
-netatop_exitstore(void)
-{
-	return 0;
-}
-
-void
-netatop_exiterase(void)
-{
-}
-
-void
-netatop_exithash(char p)
-{
-	(void)p;
-}
-
-void
-netatop_exitfind(unsigned long x, struct tstat *a, struct tstat *b)
-{
-	(void)x;
-	(void)a;
-	(void)b;
-}
-
 static int
 get_current_enable_acct(void)
 {

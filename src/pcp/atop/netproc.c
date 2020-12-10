@@ -18,7 +18,7 @@
 #include "netprocmetrics.h"
 
 void
-netatop_probe(void)
+netproc_probe(void)
 {
 	pmID	pmids[TASK_NET_NMETRICS];
 

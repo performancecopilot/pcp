@@ -229,17 +229,14 @@ char *		extract_string_index(struct pmResult *, struct pmDesc *, int, char *, in
 int		present_metric_value(struct pmResult *, int);
 
 /*
-** Optional netatop module interfaces
+** Optional pmdabcc(1) netproc module interfaces
  */
-void		netatop_ipopen(void);
-void		netatop_probe(void);
-void		netatop_signoff(void);
-void		netatop_gettask(pid_t, char, struct tstat *);
-unsigned int	netatop_exitstore(void);
-void		netatop_exiterase(void);
-void		netatop_exithash(char);
-void		netatop_exitfind(unsigned long, struct tstat *, struct tstat *);
-void		netproc_update_tasks(struct tstat **tasks, unsigned long taskslen);
+void		netproc_probe(void);
+void		netproc_update_tasks(struct tstat **, unsigned long);
+#define	netatop_signoff() do { } while (0)
+#define netatop_exiterase() do { } while (0)
+#define netatop_exithash(hash) do { (void)(hash); } while (0)
+#define netatop_exitfind(find,a,b) do { (void)(find); } while (0)
 
 /*
 ** Optional process accounting module interfaces

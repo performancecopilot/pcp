@@ -470,11 +470,6 @@ main(int argc, char *argv[])
 	initifprop();
 
 	/*
- 	** open socket to the IP layer to issue getsockopt() calls later on
-	*/
-	netatop_ipopen();
-
-	/*
 	** start the engine now .....
 	*/
 	engine();
@@ -514,8 +509,6 @@ engine(void)
 
 	unsigned long		ntaskpres;	/* number of tasks present   */
 	unsigned long		nprocexit;	/* number of exited procs    */
-	unsigned long		nprocexitnet;	/* number of exited procs    */
-						/* via netatopd daemon       */
 
 	unsigned long		noverflow;
 
@@ -625,16 +618,6 @@ engine(void)
 			noverflow = 0;
 
 		/*
-		** determine how many processes have been exited
-		** for the netatop module (only processes that have
-		** used the network)
-		*/
-		if (nprocexit > 0 && (supportflags & NETATOPD))
-			nprocexitnet = netatop_exitstore();
-		else
-			nprocexitnet = 0;
-
-		/*
 		** calculate the deviations (i.e. calculate the activity
 		** during the last sample).  Note for PMAPI calls we had
 		** to delay changing curtime until after sampling due to
@@ -679,9 +662,6 @@ engine(void)
                 */
                 (*vis.prep)();
 
-
-		if (nprocexitnet > 0)
-			netatop_exiterase();
 
 		if (gp)
 			free(gp);
