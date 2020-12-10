@@ -316,6 +316,7 @@ NET | lo      ---- | pcki       2 | pcko       2 | si    1 Kbps | so    1 Kbps |
   462  0.00s  0.00s     0K     0K     0K     0K    1 D     2   0% rtsx_usb_ms_1  
 12870  0.00s  0.00s     0K     0K     0K     0K    1 S     0   0% kworker/u16:2  
 22844  0.00s  0.00s     0K     0K     0K     0K    1 S     2   0% kworker/u16:1  
+  670  0.00s  0.00s     0K     0K     0K     0K    0      0   0%                
 
 
 ATOP - slick        2015/09/25  11:03:22        --------------        1s elapsed
@@ -1492,6 +1493,7 @@ NET | lo      ---- | pcki       2 | pcko       2 | si    1 Kbps | so    1 Kbps |
   462     -     0K     0K     0K   0% rtsx_usb_ms_1  
 12870     -     0K     0K     0K   0% kworker/u16:2  
 22844     -     0K     0K     0K   0% kworker/u16:1  
+  670     -     0K     0K     0K   0%                
 
 
 ATOP - slick        2015/09/25  11:03:22        --------------        1s elapsed
@@ -1843,6 +1845,7 @@ NET | lo      ---- | pcki       2 | pcko       2 | si    1 Kbps | so    1 Kbps |
   462    0     0     1 norm    0 120    0     2 --   - D   0% rtsx_usb_ms_1  
 12870    0     1     0 norm    0 120    0     0 --   - S   0% kworker/u16:2  
 22844    0     1     0 norm    0 120    0     2 --   - S   0% kworker/u16:1  
+  670    0     0     0 norm    0 100    0     0 --   -    0%                
 
 
 ATOP - slick        2015/09/25  11:03:22        --------------        1s elapsed
@@ -2453,6 +2456,7 @@ NET | p2p1    ---- | pcki       3 | pcko       0 | si    1 Kbps | so    0 Kbps |
   462  0.00s  0.00s     0K     0K     0K     0K    1 D     2   0% rtsx_usb_ms_1  
 12870  0.00s  0.00s     0K     0K     0K     0K    1 S     0   0% kworker/u16:2  
 22844  0.00s  0.00s     0K     0K     0K     0K    1 S     2   0% kworker/u16:1  
+  670  0.00s  0.00s     0K     0K     0K     0K    0      0   0%                
 
 
 ATOP - slick        2015/09/25  11:03:23        --------------        1s elapsed
