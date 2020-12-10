@@ -134,8 +134,8 @@ acctphotoproc(struct tstat **accproc, unsigned int *taskslen, struct timeval *cu
 		** fill process info from accounting-record
 		*/
 		pid = pids[i];
-		time_t acct_btime = extract_count_t_inst(result, descs, ACCT_GEN_BTIME, pid);
-		float  acct_etime = extract_float_inst(result, descs, ACCT_GEN_ETIME, pid);
+		time_t acct_btime = extract_count_t_inst(result, descs, ACCT_GEN_BTIME, pid, i);
+		float  acct_etime = extract_float_inst(result, descs, ACCT_GEN_ETIME, pid, i);
 		double pexit_time = (double)acct_btime + acct_etime;
 		if (pexit_time <= prev_time || curr_time < pexit_time)
 			continue;
@@ -145,19 +145,19 @@ acctphotoproc(struct tstat **accproc, unsigned int *taskslen, struct timeval *cu
 		api->gen.state  = 'E';
 		api->gen.pid    = pid;
 		api->gen.tgid   = pid;
-		api->gen.ppid   = extract_integer_inst(result, descs, ACCT_GEN_PPID, pid);
+		api->gen.ppid   = extract_integer_inst(result, descs, ACCT_GEN_PPID, pid, i);
 		api->gen.nthr   = 1;
 		api->gen.isproc = 1;
-		api->gen.excode = extract_integer_inst(result, descs, ACCT_GEN_EXCODE, pid);
-		api->gen.ruid   = extract_integer_inst(result, descs, ACCT_GEN_UID, pid);
-		api->gen.rgid   = extract_integer_inst(result, descs, ACCT_GEN_GID, pid);
+		api->gen.excode = extract_integer_inst(result, descs, ACCT_GEN_EXCODE, pid, i);
+		api->gen.ruid   = extract_integer_inst(result, descs, ACCT_GEN_UID, pid, i);
+		api->gen.rgid   = extract_integer_inst(result, descs, ACCT_GEN_GID, pid, i);
 		api->gen.btime  = (acct_btime - system_boottime) * 1000;
 		api->gen.elaps  = acct_etime;
-		api->cpu.stime  = extract_float_inst(result, descs, ACCT_CPU_STIME, pid) * 1000;
-		api->cpu.utime  = extract_float_inst(result, descs, ACCT_CPU_UTIME, pid) * 1000;
-		api->mem.minflt = extract_count_t_inst(result, descs, ACCT_MEM_MINFLT, pid);
-		api->mem.majflt = extract_count_t_inst(result, descs, ACCT_MEM_MAJFLT, pid);
-		api->dsk.rio    = extract_count_t_inst(result, descs, ACCT_DSK_RIO, pid);
+		api->cpu.stime  = extract_float_inst(result, descs, ACCT_CPU_STIME, pid, i) * 1000;
+		api->cpu.utime  = extract_float_inst(result, descs, ACCT_CPU_UTIME, pid, i) * 1000;
+		api->mem.minflt = extract_count_t_inst(result, descs, ACCT_MEM_MINFLT, pid, i);
+		api->mem.majflt = extract_count_t_inst(result, descs, ACCT_MEM_MAJFLT, pid, i);
+		api->dsk.rio    = extract_count_t_inst(result, descs, ACCT_DSK_RIO, pid, i);
 
 		strcpy(api->gen.name, insts[i]);
 	}

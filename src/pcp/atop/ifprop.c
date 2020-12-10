@@ -115,16 +115,16 @@ initifprop(void)
 		ip->name[MAXINTNM-1] = '\0';
 
 		/* extract duplex/speed from result for given inst id */
-		speed = extract_count_t_inst(result, descs, IF_SPEED, ids[i]);
+		speed = extract_count_t_inst(result, descs, IF_SPEED, ids[i], i);
 		ip->speed = speed < 0 ? 0 : BTOMBIT(speed); /* Mbits/second */
-		sts = extract_integer_inst(result, descs, IF_DUPLEX, ids[i]);
+		sts = extract_integer_inst(result, descs, IF_DUPLEX, ids[i], i);
 		ip->fullduplex = sts < 0 ? 0 : sts;
-		sts = extract_integer_inst(result, descs, IF_WIRELESS, ids[i]);
+		sts = extract_integer_inst(result, descs, IF_WIRELESS, ids[i], i);
 		if (sts == 1)
 			ip->type = 'w';
 		else
 		{
-			sts = extract_integer_inst(result, descs, IF_TYPE, ids[i]);
+			sts = extract_integer_inst(result, descs, IF_TYPE, ids[i], i);
 			if (sts == 0)
 				ip->type = 'w';
 			else if (sts == 1)

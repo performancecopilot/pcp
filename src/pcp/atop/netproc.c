@@ -30,17 +30,17 @@ netproc_probe(void)
 }
 
 static void
-netproc_update_task(struct tstat *task, int pid, pmResult *rp, pmDesc *dp)
+netproc_update_task(struct tstat *task, int pid, pmResult *rp, pmDesc *dp, int offset)
 {
-	task->net.tcpsnd = extract_count_t_inst(rp, dp, TASK_NET_TCPSND, pid);
-	task->net.tcprcv = extract_count_t_inst(rp, dp, TASK_NET_TCPRCV, pid);
-	task->net.tcpssz = extract_count_t_inst(rp, dp, TASK_NET_TCPSSZ, pid);
-	task->net.tcprsz = extract_count_t_inst(rp, dp, TASK_NET_TCPRSZ, pid);
+	task->net.tcpsnd = extract_count_t_inst(rp, dp, TASK_NET_TCPSND, pid, offset);
+	task->net.tcprcv = extract_count_t_inst(rp, dp, TASK_NET_TCPRCV, pid, offset);
+	task->net.tcpssz = extract_count_t_inst(rp, dp, TASK_NET_TCPSSZ, pid, offset);
+	task->net.tcprsz = extract_count_t_inst(rp, dp, TASK_NET_TCPRSZ, pid, offset);
 
-	task->net.udpsnd = extract_count_t_inst(rp, dp, TASK_NET_UDPSND, pid);
-	task->net.udprcv = extract_count_t_inst(rp, dp, TASK_NET_UDPRCV, pid);
-	task->net.udpssz = extract_count_t_inst(rp, dp, TASK_NET_UDPSSZ, pid);
-	task->net.udprsz = extract_count_t_inst(rp, dp, TASK_NET_UDPRSZ, pid);
+	task->net.udpsnd = extract_count_t_inst(rp, dp, TASK_NET_UDPSND, pid, offset);
+	task->net.udprcv = extract_count_t_inst(rp, dp, TASK_NET_UDPRCV, pid, offset);
+	task->net.udpssz = extract_count_t_inst(rp, dp, TASK_NET_UDPSSZ, pid, offset);
+	task->net.udprsz = extract_count_t_inst(rp, dp, TASK_NET_UDPRSZ, pid, offset);
 }
 
 void
@@ -74,7 +74,7 @@ netproc_update_tasks(struct tstat **tasks, unsigned long taskslen)
 		for (j=0; j < taskslen; j++)
 		{
 			if ((*tasks)[j].gen.pid == pids[i])
-				netproc_update_task(&(*tasks)[j], pids[i], result, descs);
+				netproc_update_task(&(*tasks)[j], pids[i], result, descs, i);
 		}
 	}
 

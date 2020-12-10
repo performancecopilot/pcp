@@ -870,19 +870,31 @@ setup_globals(pmOptions *opts)
 	setup_step_mode(0);
 }
 
+int
+get_instance_index(pmResult *result, int value, int inst)
+{
+	pmValueSet *values = result->vset[value];
+	int i;
+
+	for (i = 0; i < values->numval; i++)
+		if (values->vlist[i].inst == inst)
+			return i;
+	return 0;	/* not found, pick the start */
+}
+
 /*
 ** extract values from a pmResult structure using given offset(s)
 ** "value" is always a macro identifier from a metric map file.
 */
 int
-extract_integer_index(pmResult *result, pmDesc *descs, int value, int i)
+extract_integer_index(pmResult *result, pmDesc *descs, int value, int offset)
 {
 	pmAtomValue atom = { 0 };
 	pmValueSet *values = result->vset[value];
 
-	if (values->numval <= 0 || values->numval <= i)
+	if (values->numval <= 0 || values->numval <= offset)
 		return 0;
-	pmExtractValue(values->valfmt, &values->vlist[i],
+	pmExtractValue(values->valfmt, &values->vlist[offset],
 			descs[value].type, &atom, PM_TYPE_32);
 	return atom.l;
 }
@@ -894,11 +906,20 @@ extract_integer(pmResult *result, pmDesc *descs, int value)
 }
 
 int
-extract_integer_inst(pmResult *result, pmDesc *descs, int value, int inst)
+extract_integer_inst(pmResult *result, pmDesc *descs, int value, int inst, int offset)
 {
 	pmAtomValue atom = { 0 };
 	pmValueSet *values = result->vset[value];
 	int i;
+
+	if (values->numval <= 0)
+		return 0;
+	if (offset < values->numval && values->vlist[offset].inst == inst)
+	{
+		pmExtractValue(values->valfmt, &values->vlist[offset],
+			descs[value].type, &atom, PM_TYPE_32);
+		return atom.l;
+	}
 
 	for (i = 0; i < values->numval; i++)
 	{
@@ -908,7 +929,7 @@ extract_integer_inst(pmResult *result, pmDesc *descs, int value, int inst)
 			descs[value].type, &atom, PM_TYPE_32);
 		break;
 	}
-	if (values->numval <= 0 || i == values->numval)
+	if (i == values->numval)
 		return 0;
 	return atom.l;
 }
@@ -940,11 +961,20 @@ present_metric_value(pmResult *result, int value)
 }
 
 unsigned long long
-extract_ucount_t_inst(pmResult *result, pmDesc *descs, int value, int inst)
+extract_ucount_t_inst(pmResult *result, pmDesc *descs, int value, int inst, int offset)
 {
 	pmAtomValue atom = { 0 };
 	pmValueSet *values = result->vset[value];
 	int i;
+
+	if (values->numval <= 0)
+		return (unsigned long long)-1;
+	if (offset < values->numval && values->vlist[offset].inst == inst)
+	{
+		pmExtractValue(values->valfmt, &values->vlist[offset],
+			descs[value].type, &atom, PM_TYPE_U64);
+		return atom.ull;
+	}
 
 	for (i = 0; i < values->numval; i++)
 	{
@@ -954,17 +984,26 @@ extract_ucount_t_inst(pmResult *result, pmDesc *descs, int value, int inst)
 			descs[value].type, &atom, PM_TYPE_U64);
 		break;
 	}
-	if (values->numval <= 0 || i == values->numval)
+	if (i == values->numval)
 		return (unsigned long long)-1;
 	return atom.ull;
 }
 
 count_t
-extract_count_t_inst(pmResult *result, pmDesc *descs, int value, int inst)
+extract_count_t_inst(pmResult *result, pmDesc *descs, int value, int inst, int offset)
 {
 	pmAtomValue atom = { 0 };
 	pmValueSet *values = result->vset[value];
 	int i;
+
+	if (values->numval <= 0)
+		return 0;
+	if (offset < values->numval && values->vlist[offset].inst == inst)
+	{
+		pmExtractValue(values->valfmt, &values->vlist[offset],
+			descs[value].type, &atom, PM_TYPE_U64);
+		return atom.ll;
+	}
 
 	for (i = 0; i < values->numval; i++)
 	{
@@ -974,7 +1013,7 @@ extract_count_t_inst(pmResult *result, pmDesc *descs, int value, int inst)
 			descs[value].type, &atom, PM_TYPE_64);
 		break;
 	}
-	if (values->numval <= 0 || i == values->numval)
+	if (i == values->numval)
 		return 0;
 	return atom.ll;
 }
@@ -1004,11 +1043,20 @@ extract_string(pmResult *result, pmDesc *descs, int value, char *buffer, int buf
 }
 
 char *
-extract_string_inst(pmResult *result, pmDesc *descs, int value, char *buffer, int buflen, int inst)
+extract_string_inst(pmResult *result, pmDesc *descs, int value, char *buffer, int buflen, int inst, int offset)
 {
 	pmAtomValue atom = { 0 };
 	pmValueSet *values = result->vset[value];
 	int i;
+
+	if (values->numval <= 0)
+		return NULL;
+	if (offset < values->numval && values->vlist[offset].inst == inst)
+	{
+		pmExtractValue(values->valfmt, &values->vlist[offset],
+			descs[value].type, &atom, PM_TYPE_STRING);
+		goto copyout;
+	}
 
 	for (i = 0; i < values->numval; i++)
 	{
@@ -1018,8 +1066,9 @@ extract_string_inst(pmResult *result, pmDesc *descs, int value, char *buffer, in
 			descs[value].type, &atom, PM_TYPE_STRING);
 		break;
 	}
-	if (values->numval <= 0 || values->numval == i)
+	if (values->numval == i)
 		return NULL;
+copyout:
 	strncpy(buffer, atom.cp, buflen);
 	free(atom.cp);
 	if (buflen > 1)	/* might be a single character - e.g. process state */
@@ -1028,11 +1077,20 @@ extract_string_inst(pmResult *result, pmDesc *descs, int value, char *buffer, in
 }
 
 float
-extract_float_inst(pmResult *result, pmDesc *descs, int value, int inst)
+extract_float_inst(pmResult *result, pmDesc *descs, int value, int inst, int offset)
 {
 	pmAtomValue atom = { 0 };
 	pmValueSet *values = result->vset[value];
 	int i;
+
+	if (values->numval <= 0)
+		return -1;
+	if (offset < values->numval && values->vlist[offset].inst == inst)
+	{
+		pmExtractValue(values->valfmt, &values->vlist[offset],
+			descs[value].type, &atom, PM_TYPE_FLOAT);
+		return atom.f;
+	}
 
 	for (i = 0; i < values->numval; i++)
 	{
@@ -1042,7 +1100,7 @@ extract_float_inst(pmResult *result, pmDesc *descs, int value, int inst)
 			descs[value].type, &atom, PM_TYPE_FLOAT);
 		break;
 	}
-	if (values->numval <= 0 || i == values->numval)
+	if (i == values->numval)
 		return -1;
 	return atom.f;
 }

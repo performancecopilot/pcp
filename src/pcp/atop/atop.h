@@ -211,20 +211,21 @@ void		setup_process(void);
 void		setup_metrics(const char **, unsigned int *, struct pmDesc *, int);
 int		fetch_metrics(const char *, int, unsigned int *, struct pmResult **);
 int		get_instances(const char *, int, struct pmDesc *, int **, char ***);
+int		get_instance_index(pmResult *, int, int);
 
 struct sstat	*sstat_alloc(const char *);
 void		sstat_reset(struct sstat *);
 
-float		extract_float_inst(struct pmResult *, struct pmDesc *, int, int);
+float		extract_float_inst(struct pmResult *, struct pmDesc *, int, int, int);
 int		extract_integer(struct pmResult *, struct pmDesc *, int);
-int		extract_integer_inst(struct pmResult *, struct pmDesc *, int, int);
+int		extract_integer_inst(struct pmResult *, struct pmDesc *, int, int, int);
 int		extract_integer_index(struct pmResult *, struct pmDesc *, int, int);
 count_t		extract_count_t(struct pmResult *, struct pmDesc *, int);
-count_t		extract_count_t_inst(struct pmResult *, struct pmDesc *, int, int);
+count_t		extract_count_t_inst(struct pmResult *, struct pmDesc *, int, int, int);
 count_t		extract_count_t_index(struct pmResult *, struct pmDesc *, int, int);
-ucount_t	extract_ucount_t_inst(struct pmResult *, struct pmDesc *, int, int);
+ucount_t	extract_ucount_t_inst(struct pmResult *, struct pmDesc *, int, int, int);
 char *		extract_string(struct pmResult *, struct pmDesc *, int, char *, int);
-char *		extract_string_inst(struct pmResult *, struct pmDesc *, int, char *, int, int);
+char *		extract_string_inst(struct pmResult *, struct pmDesc *, int, char *, int, int, int);
 char *		extract_string_index(struct pmResult *, struct pmDesc *, int, char *, int, int);
 int		present_metric_value(struct pmResult *, int);
 
