@@ -1723,6 +1723,7 @@ x11
 1283 dbpmda local
 1284 pmrep pmda.linux local
 1285 pmlogsummary local
+1286 pmda.bcc local python
 1287 pmda.install pmda.openmetrics local python
 1289 pmval archive multi-archive decompress-xz local pmlogextract
 1294 libpcp_mmv labels local valgrind

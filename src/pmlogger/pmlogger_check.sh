@@ -601,7 +601,8 @@ _parse_control()
     controlfile="$1"
     line=0
 
-    if echo "$controlfile" | grep -q -e '\.rpmsave' -e '\.rpmnew'
+    if echo "$controlfile" | grep -q -e '\.rpmsave$' -e '\.rpmnew$' -e '\.rpmorig$' \
+	-e '\.dpkg-dist$' -e '\.dpkg-old$' -e '\.dpkg-new$' >/dev/null 2>&1
     then
 	_warning "ignored backup control file \"$controlfile\""
 	return

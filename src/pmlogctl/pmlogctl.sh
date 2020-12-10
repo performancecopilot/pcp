@@ -185,6 +185,12 @@ _egrep()
     find "$@" -type f 2>/dev/null \
     | while read __f
     do
+	if echo "$__f" | grep -q -e '\.rpmsave$' -e '\.rpmnew$' -e '\.rpmorig$' \
+	    -e '\.dpkg-dist$' -e '\.dpkg-old$' -e '\.dpkg-new$' >/dev/null 2>&1
+	then
+	    # ignore backup packaging files (daily and check scripts warn).
+	    continue
+	fi
 	# possible race here with async execution of ${IAM}_check removing
 	# the file after find saw it ... so check again for existance
 	#
