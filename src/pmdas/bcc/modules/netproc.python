@@ -14,21 +14,17 @@
 """ PCP BCC PMDA netproc module """
 
 import ctypes as ct
-from threading import Lock, Thread
-from time import sleep
 from collections import namedtuple
 import os
 from bcc import BPF
 
 from pcp.pmapi import pmUnits
 from cpmapi import (
-    PM_TYPE_U32,
     PM_TYPE_U64,
-    PM_TYPE_STRING,
     PM_COUNT_ONE,
+    PM_SPACE_BYTE,
     PM_SEM_COUNTER,
 )
-from cpmapi import PM_SEM_INSTANT, PM_SPACE_BYTE, PM_TIME_USEC
 from cpmda import PMDA_FETCH_NOVALUES
 
 from modules.pcpbcc import PCPBCCBase
