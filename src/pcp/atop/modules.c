@@ -17,11 +17,8 @@
 #include "photoproc.h"
 #include "acctmetrics.h"
 
-/*
-** Stub functions, disabling functionality that we're not supporting from
-** the original atop (not necessarily because there's anything wrong with
-** it, more because it needs to be re-thought in a distributed PCP world).
-*/
+/* construct the PMID for acct.control.enable_acct */
+#define ACCT_CONTROL_ENABLE	pmID_build(3, 70, 28)
 
 void
 netatop_ipopen(void)
@@ -69,8 +66,7 @@ netatop_exitfind(unsigned long x, struct tstat *a, struct tstat *b)
 static int
 get_current_enable_acct(void)
 {
-	int ret = 0;
-	pmID	pmid = pmID_build(3, 70, 28);
+	pmID		pmid = ACCT_CONTROL_ENABLE;
 	pmResult	*result;
 	int		sts;
 
@@ -82,24 +78,22 @@ get_current_enable_acct(void)
 				pmGetProgname(), "acctsw", pmErrStr(sts));
 		return -1;
 	}
-	ret = result->vset[0]->numval == 1 ? result->vset[0]->vlist[0].value.lval : -1;
+	sts = result->vset[0]->numval == 1 ? result->vset[0]->vlist[0].value.lval : -1;
 	pmFreeResult(result);
-	return ret;
+	return sts;
 }
 
 /* set acct.control.enable_acct to unsigned integer value */
 static int
 acctsw(unsigned int enable)
 {
-	int prev_val;
 	pmResult	*result;
 	pmValueSet	*vset;
-	int		sts;
+	int		sts, prev_val;
 
 	prev_val = get_current_enable_acct();
-	if (prev_val < 0) {
+	if (prev_val < 0)
 		return 1;
-	}
 
 	result = calloc(1, sizeof(pmResult));
 	vset = calloc(1, sizeof(pmValueSet));
@@ -111,7 +105,7 @@ acctsw(unsigned int enable)
 	vset->vlist[0].value.lval = enable ? (prev_val + 1) : (prev_val > 0 ? (prev_val - 1) : 0);
 	vset->valfmt = PM_VAL_INSITU;
 	vset->numval = 1;
-	vset->pmid = pmID_build(3, 70, 28);
+	vset->pmid = ACCT_CONTROL_ENABLE;
 
 	result->vset[0] = vset;
 	result->numpmid = 1;
