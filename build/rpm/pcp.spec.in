@@ -2317,7 +2317,7 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/nfsclient' > pmda_n
 awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/openvswitch' > pmda_openvswitch_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/rabbitmq' > pmda_rabbitmq_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmiostat|pmrep|dstat|pcp2csv' \
-      -e 'pcp-atop|pcp-dmcache|pcp-dstat|pcp-free|pcp-ipcs' \
+      -e 'pcp-atop|pcp-dmcache|pcp-dstat|pcp-free|pcp-htop|pcp-ipcs' \
       -e 'pcp-iostat|pcp-lvmcache|pcp-mpstat|pcp-numastat|pcp-pidstat' \
       -e 'pcp-shping|pcp-tapestat|pcp-uptime|pcp-verify' |\
 egrep -v 'testsuite|selinux|pmlogconf|pmieconf' > system_tools_files
