@@ -222,8 +222,3 @@ PCP_WEB_1.15 {
     pmSearchTextInDom;
     pmSearchTextTypeStr;
 } PCP_WEB_1.14;
-
-PCP_WEB_1.16 {
-  global:
-    pmSeriesExprs;
-} PCP_WEB_1.15;

@@ -24,7 +24,6 @@ typedef enum pmSeriesRestKey {
     RESTKEY_LOAD,
     RESTKEY_QUERY,
     RESTKEY_PING,
-    RESTKEY_EXPR,
 } pmSeriesRestKey;
 
 typedef struct pmSeriesRestCommand {
@@ -75,8 +74,6 @@ static pmSeriesRestCommand commands[] = {
 	    .name = "load", .namelen = sizeof("load")-1 },
     { .key = RESTKEY_PING, .options = HTTP_OPTIONS_GET,
 	    .name = "ping", .namelen = sizeof("ping")-1 },
-    { .key = RESTKEY_EXPR, .options = HTTP_OPTIONS_GET | HTTP_OPTIONS_POST,
-	    .name = "exprs", .namelen = sizeof("exprs")-1 },
     { .name = NULL }	/* sentinel */
 };
 
@@ -235,37 +232,6 @@ on_pmseries_desc(pmSID sid, pmSeriesDesc *desc, void *arg)
 		"\"semantics\":\"%S\",\"type\":\"%S\",\"units\":\"%S\"}",
 		prefix, sid, desc->source, desc->pmid, desc->indom,
 		desc->semantics, desc->type, desc->units);
-    baton->series++;
-
-    http_set_buffer(client, result, HTTP_FLAG_JSON);
-    http_transfer(client);
-    return 0;
-}
-
-static int
-on_pmseries_expr(pmSID sid, pmSeriesExpr *expr, void *arg)
-{
-    pmSeriesBaton	*baton = (pmSeriesBaton *)arg;
-    struct client	*client = baton->client;
-    const char		*prefix;
-    sds			s, result = http_get_buffer(baton->client);
-
-    if ((s = baton->sid) == NULL) {
-	result = push_client_identifier(baton, result);
-	baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_ARRAY);
-	baton->sid = sdsdup(sid);
-	prefix = "[";
-    }
-    else {
-	if (sdscmp(s, sid) != 0) {
-	    assert(sdslen(s) == sdslen(sid));
-	    baton->sid = sdscpylen(s, sid, sdslen(sid));
-	}
-	prefix = ",";
-    }
-
-    result = sdscatfmt(result, "%s{\"series\":\"%S\",\"query\":\"%S\"}",
-		prefix, sid, expr->query);
     baton->series++;
 
     http_set_buffer(client, result, HTTP_FLAG_JSON);
@@ -592,7 +558,6 @@ on_pmseries_done(int status, void *arg)
 		    break;
 		}
 	    case RESTKEY_DESC:
-	    case RESTKEY_EXPR:
 	    case RESTKEY_INSTS:
 	    case RESTKEY_METRIC:
 	    case RESTKEY_VALUES:
@@ -672,7 +637,6 @@ pmseries_log(pmLogLevel level, sds message, void *arg)
 static pmSeriesSettings pmseries_settings = {
     .callbacks.on_match		= on_pmseries_match,
     .callbacks.on_desc		= on_pmseries_desc,
-    .callbacks.on_expr		= on_pmseries_expr,
     .callbacks.on_inst		= on_pmseries_inst,
     .callbacks.on_labelmap	= on_pmseries_labelmap,
     .callbacks.on_instance	= on_pmseries_instance,
@@ -747,7 +711,6 @@ pmseries_setup_request_parameters(struct client *client,
 	break;
 
     case RESTKEY_DESC:
-    case RESTKEY_EXPR:
 	/* expect comma-separated series identifier(s) for these commands */
 	if (parameters == NULL && method != HTTP_POST) {
 	    client->u.http.parser.status_code = HTTP_STATUS_BAD_REQUEST;
@@ -990,12 +953,6 @@ pmseries_request_done(struct client *client)
 
     case RESTKEY_SOURCE:
 	if ((sts = pmSeriesSources(&pmseries_settings,
-					baton->nsids, baton->sids, baton)) < 0)
-	    on_pmseries_done(sts, baton);
-	break;
-
-    case RESTKEY_EXPR:
-	if ((sts = pmSeriesExprs(&pmseries_settings,
 					baton->nsids, baton->sids, baton)) < 0)
 	    on_pmseries_done(sts, baton);
 	break;

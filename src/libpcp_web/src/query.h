@@ -90,7 +90,6 @@ typedef struct seriesGetSID {
     seriesBatonMagic	header;		/* MAGIC_SID */
     sds			name;		/* series or source SID */
     sds			metric;		/* back-pointer for instance series */
-    sds			expr;		/* expression for fabricated sid */
     /* various flags */
     int			freed : 1;	/* freed individually on completion */
     void		*baton;

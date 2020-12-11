@@ -39,12 +39,10 @@ typedef enum series_flags {
     PMSERIES_OPT_METRIC	= (1<<22),	/* -m, --metric option */
     PMSERIES_OPT_QUERY	= (1<<23),	/* -q, --query option (default) */
     PMSERIES_OPT_VALUES = (1<<24),	/* -v, --values option */
-    PMSERIES_OPT_EXPR	= (1<<25),	/* -e, --expr option */
 } series_flags;
 
 #define PMSERIES_META_OPTS	(PMSERIES_OPT_DESC | PMSERIES_OPT_INSTS | \
-				 PMSERIES_OPT_LABELS | PMSERIES_OPT_METRIC | \
-				 PMSERIES_OPT_EXPR)
+				 PMSERIES_OPT_LABELS | PMSERIES_OPT_METRIC)
 
 struct series_data;
 typedef void (*series_callback)(struct series_data *, void *);
@@ -78,7 +76,6 @@ typedef struct series_inst {
 
 typedef struct series_data {
     sds			query;
-    sds			expr;		/* canonical */
     uv_loop_t		*loop;
     pmSeriesSettings	settings;
     series_command	args;		/* detailed command line arguments */
@@ -478,27 +475,6 @@ on_series_desc(pmSID series, pmSeriesDesc *desc, void *arg)
 }
 
 static int
-on_series_expr(pmSID series, pmSeriesExpr *expr, void *arg)
-{
-    series_data		*dp = (series_data *)arg;
-    sds			query;
-
-    query = expr->query;
-
-    if (series_next(dp, series)) {
-	printf("\n%s", series);
-    } else {
-	printf("   ");
-    }
-
-    if (dp->flags & PMSERIES_OPT_EXPR)
-	printf(" Expr: %s\n", query);
-    dp->flags &= ~PMSERIES_NEED_EOL;
-
-    return 0;
-}
-
-static int
 on_series_instance(pmSID series, sds name, void *arg)
 {
     series_data		*dp = (series_data *)arg;
@@ -872,16 +848,6 @@ series_desc_report(series_data *dp, void *arg)
 	on_series_done(sts, dp);
 }
 
-static void
-series_expr_report(series_data *dp, void *arg)
-{
-    pmSID	sid = (pmSID)arg;
-    int		sts;
-
-    if ((sts = pmSeriesExprs(&dp->settings, sid? 1 : 0, &sid, dp)) < 0)
-	on_series_done(sts, dp);
-}
-
 /* pass series identifier (one count) or pattern (zero count) */
 #define SERIES_PARAMS(dp, arg, count, param) \
 	if (arg) { count = 1; param = arg; } \
@@ -962,11 +928,6 @@ series_data_report(series_data *dp, int nseries, pmSID series)
 
     if (dp->flags & (PMSERIES_OPT_DESC|PMSERIES_NEED_DESCS)) {
 	series_link_report(dp, series_desc_report, series);
-	series_link_report(dp, series_done_report, series);
-    }
-
-    if (dp->flags & PMSERIES_OPT_EXPR) {
-	series_link_report(dp, series_expr_report, series);
 	series_link_report(dp, series_done_report, series);
     }
 
@@ -1140,14 +1101,13 @@ static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Reporting Options"),
     { "all", 0, 'a', 0, "report all metadata (-dilms) for time series" },
     { "desc", 0, 'd', 0, "metric descriptor for time series" },
-    { "expr", 0, 'e', 0, "query expression for time series" },
     { "fullindom", 0, 'I', 0, "print InDom in verbose format" },
     { "instances", 0, 'i', 0, "report names for time series instances" },
     { "fast", 0, 'F', 0, "query or load series metadata, not values" },
     { "glob", 1, 'g', "PATTERN", "glob pattern to restrict matches" },
     { "labels", 0, 'l', 0, "list all labels for time series" },
     { "fullpmid", 0, 'M', 0, "print PMID in verbose format" },
-    { "metrics", 0, 'm', 0, "report names for time series metrics" },
+    { "metrics", 0, 'm', 0, "report names for time series metrics and expressions" },
     { "names", 0, 'n', 0, "print label names only, not values" },
     { "sources", 0, 'S', 0, "report names for time series sources" },
     { "series", 0, 's', 0, "print series ID for metrics, instances and sources" },
@@ -1194,10 +1154,6 @@ main(int argc, char *argv[])
 
 	case 'd':	/* command line contains series identifiers */
 	    flags |= PMSERIES_OPT_DESC;
-	    break;
-
-	case 'e':	/* command line contains series identifiers */
-	    flags |= PMSERIES_OPT_EXPR;
 	    break;
 
 	case 'F':	/* perform metadata-only --load, or --query */
@@ -1392,7 +1348,6 @@ main(int argc, char *argv[])
 
     dp->settings.callbacks.on_match = on_series_match;
     dp->settings.callbacks.on_desc = on_series_desc;
-    dp->settings.callbacks.on_expr = on_series_expr;
     dp->settings.callbacks.on_inst = on_series_inst;
     dp->settings.callbacks.on_labelmap = on_series_labelmap;
     dp->settings.callbacks.on_instance = on_series_instance;

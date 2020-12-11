@@ -290,37 +290,6 @@ $ curl -s http://localhost:44322/series/descs?series=605fc77742cd031759729132956
     "units": "count",
   }
 ]
-.ESAMPLE
-.SS GET \fI/series/exprs\fR \- \fBpmSeriesExprs\fR(3)
-.TS
-box;
-c | c | cw(2.4i)
-lf(CW) | l | l.
-Parameters	Type	Explanation
-_
-series	string	Comma-separated list of series identifiers
-client	string	Request identifier sent back with response
-.TE
-.P
-Performs an expression lookup for one or more dynamically created time series
-identifiers (see \fB/series/query\fP).
-The JSON response contains the same information as the
-\fBpmseries\fR \-\fBe\fR/\-\-\fBexpr\fR option.
-.SAMPLE
-$ curl -s 'http://localhost:44322/series/query?expr=rate(kernel.all.pswitch)'
-["79cc71e91ffd9f5a6adbcb8c7ee8d01164677f71"]
-
-$ curl -s 'http://localhost:44322/series/exprs?series=79cc71e91ffd9f5a6adbcb8c7ee8d01164677f71' | pmjson
-[
-    {
-        "series": "79cc71e91ffd9f5a6adbcb8c7ee8d01164677f71",
-        "query": "rate(kernel.all.pswitch)"
-    }
-]
-.ESAMPLE
-Note that dynamic series identifiers are only created for expressions
-that include arithmetic operators or function calls, such as in the above example.
-Query expressions that are just a metric name do not create dynamic series identifiers.
 .SS GET \fI/series/labels\fR \- \fBpmSeriesLabels\fR(3), \fBpmSeriesLabelValues\fR(3)
 .TS
 box;
