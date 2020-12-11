@@ -1107,7 +1107,7 @@ static pmLongOptions longopts[] = {
     { "glob", 1, 'g', "PATTERN", "glob pattern to restrict matches" },
     { "labels", 0, 'l', 0, "list all labels for time series" },
     { "fullpmid", 0, 'M', 0, "print PMID in verbose format" },
-    { "metrics", 0, 'm', 0, "report names for time series metrics and expressions" },
+    { "metrics", 0, 'm', 0, "report names and expressions for time series" },
     { "names", 0, 'n', 0, "print label names only, not values" },
     { "sources", 0, 'S', 0, "report names for time series sources" },
     { "series", 0, 's', 0, "print series ID for metrics, instances and sources" },
