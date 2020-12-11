@@ -160,7 +160,7 @@ $(DISTLINKS):	$(CMDTARGET)
 	@$(LN_S) -f $(CMDTARGET) $@
 
 $(CMDTARGET).1:	htop.1.in
-	sed -e 's;@PACKAGE_STRING@;"Performance Co-Pilot";g' \
+	sed -e 's;@PACKAGE_STRING@;Performance Co-Pilot;g' \
 	    -e 's;@sysconfdir@;'$(PCP_SYSCONF_DIR)';g' \
 	    -e 's;HTOP;PCP-HTOP;g' -e 's;htop;pcp-htop;g' \
 		< $^ > $@
