@@ -113,7 +113,6 @@ echo "kernel.all.load + kernel.all.load"
 sid="16aa36d93e5cd0733499eee7dafc07dbb2ad7067"
 _curl_get "http://localhost:$proxyport/series/values?series=$sid&samples=1"
 _curl_get "http://localhost:$proxyport/series/descs?series=$sid"
-_curl_get "http://localhost:$proxyport/series/exprs?series=$sid"
 
 # For debugging
 # echo === pause for gdb -p $pmproxy_pid Log is $tmp.pmproxy.log ===
@@ -134,7 +133,6 @@ echo "kernel.all.load - kernel.all.load"
 sid="f29c38f54d5a3cb928496439760634617688036b"
 _curl_get "http://localhost:$proxyport/series/values?series=$sid&samples=1"
 _curl_get "http://localhost:$proxyport/series/descs?series=$sid"
-_curl_get "http://localhost:$proxyport/series/exprs?series=$sid"
 
 
 echo "== verify series function (floor(a)) SID lookup" | tee -a $seq.full
@@ -152,7 +150,6 @@ echo "floor(kernel.all.load)"
 sid="f2dbf7a113932b3371c8871df932603856d1d7b6"
 _curl_get "http://localhost:$proxyport/series/values?series=$sid&samples=2"
 _curl_get "http://localhost:$proxyport/series/descs?series=$sid"
-_curl_get "http://localhost:$proxyport/series/exprs?series=$sid"
 
 
 # success, all done

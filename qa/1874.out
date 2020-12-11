@@ -68,13 +68,6 @@ http://localhost:54322/series/descs?series=16aa36d93e5cd0733499eee7dafc07dbb2ad7
         "units": ""
     }
 ]
-http://localhost:54322/series/exprs?series=16aa36d93e5cd0733499eee7dafc07dbb2ad7067
-[
-    {
-        "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
-        "query": "kernel.all.load+kernel.all.load"
-    }
-]
 == verify series difference (a - b) SID lookup
 kernel.all.load - kernel.all.load
 http://localhost:54322/series/query?expr=kernel.all.load%20-%20kernel.all.load
@@ -137,13 +130,6 @@ http://localhost:54322/series/descs?series=f29c38f54d5a3cb9284964397606346176880
         "semantics": "instant",
         "type": "FLOAT",
         "units": ""
-    }
-]
-http://localhost:54322/series/exprs?series=f29c38f54d5a3cb928496439760634617688036b
-[
-    {
-        "series": "f29c38f54d5a3cb928496439760634617688036b",
-        "query": "kernel.all.load-kernel.all.load"
     }
 ]
 == verify series function (floor(a)) SID lookup
@@ -244,12 +230,5 @@ http://localhost:54322/series/descs?series=f2dbf7a113932b3371c8871df932603856d1d
         "semantics": "instant",
         "type": "float",
         "units": "none"
-    }
-]
-http://localhost:54322/series/exprs?series=f2dbf7a113932b3371c8871df932603856d1d7b6
-[
-    {
-        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
-        "query": "floor(kernel.all.load)"
     }
 ]
