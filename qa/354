@@ -39,7 +39,7 @@ BEGIN	{ numpid = 0; pid[""] = 1 }
 	  }
 	  numpid++
 	  pid[numpid] = $6
-	  print "s/ " $6 " / pmlogger-pid-" numpid " /g"
+	  print "s/ " $6 "\\b/ pmlogger-pid-" numpid "/g"
 	}'
 }
 
@@ -54,12 +54,6 @@ BEGIN	{ numpid = 0; pid[""] = 1 }
 _filter()
 {
     sed <$1 \
-	-e 's/$/ /' \
-	-e 's/^/ /' \
-    | sed -f $tmp.sed \
-    | sed \
-	-e 's/ $//' \
-	-e 's/^ //' \
 	-e "s/$MKTEMP/MKTEMP/" \
 	-e "s/$host/HOST/" \
 	-e 's/[0-9][^ ]* [kmKM]*bytes/SOME bytes/g' \
@@ -68,6 +62,7 @@ _filter()
 	-e '/xconfirm: Not found/d' \
 	-e '/pmRecordControl/s/Bad file descriptor/Invalid argument/' \
 	-e 's/ f_ipc: [0-9][0-9]*/ f_ipc: N/' \
+	| sed -f $tmp.sed \
     | _filter_pmlogger_log \
     | sed \
         -e 's/\/[A-Z]*\/tmp/\/tmp/' \
