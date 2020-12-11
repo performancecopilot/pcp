@@ -694,7 +694,6 @@ _pcp () {
       "(-q --query $exargs)"{-q,--query}'[perform timeseries query]' \
       "(-a --all $exargs)"{-a,--all}'[report all metadata, same as -dilms]' \
       "(-d --desc $exargs)"{-d,--desc}'[report metric descriptions]' \
-      "(-e --expr $exargs)"{-e,--expr}'[report query expressions]' \
       "(-I --fullindom $exargs)"{-I,--fullindom}'[print verbose InDom]' \
       "(-i --instances $exargs)"{-i,--instances}'[report instance names]' \
       "(-F --fast $exargs)"{-F,--fast}'[request metadata only]' \
