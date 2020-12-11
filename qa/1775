@@ -43,7 +43,7 @@ if $do_valgrind
 then
     _run_valgrind ...your test goes here...
 else
-    pmdumptext -l -t 30sec -a archives/20201109 proc.psinfo.utime 2>&1
+    pmdumptext -z -l -t 30sec -a archives/20201109 proc.psinfo.utime 2>&1
 fi \
 >$tmp.out
 
