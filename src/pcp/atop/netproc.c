@@ -13,6 +13,7 @@
 */
 
 #include <pcp/pmapi.h>
+#include <pcp/libpcp.h>
 #include "atop.h"
 #include "photoproc.h"
 #include "netprocmetrics.h"
@@ -43,6 +44,14 @@ netproc_update_task(struct tstat *task, int pid, pmResult *rp, pmDesc *dp, int o
 	task->net.udprsz = extract_count_t_inst(rp, dp, TASK_NET_UDPRSZ, pid, offset);
 }
 
+static __pmHashWalkState
+tasks_ctl_destroy_callback(const __pmHashNode *tp, void *cp)
+{
+	(void)tp;
+	(void)cp;
+	return PM_HASH_WALK_DELETE_NEXT;
+}
+
 void
 netproc_update_tasks(struct tstat **tasks, unsigned long taskslen)
 {
@@ -51,8 +60,12 @@ netproc_update_tasks(struct tstat **tasks, unsigned long taskslen)
 	static pmDesc	descs[TASK_NET_NMETRICS];
 	pmResult	*result;
 	char		**insts;
-	int		*pids;
-	int		netproc_insts_len, i, j;
+	int		*instids;
+	int		netproc_insts_len;
+	__pmHashCtl	tasks_ctl; // mapping from pid to struct tstat*
+	__pmHashNode	*task_node;
+	struct tstat	*task;
+	int		i, sts;
 
 	if (!setup)
 	{
@@ -61,26 +74,49 @@ netproc_update_tasks(struct tstat **tasks, unsigned long taskslen)
 	}
 
 	fetch_metrics("task_netproc", TASK_NET_NMETRICS, pmids, &result);
-	netproc_insts_len = get_instances("task_netproc", TASK_NET_TCPSND, descs, &pids, &insts);
+	netproc_insts_len = get_instances("task_netproc", TASK_NET_TCPSND, descs, &instids, &insts);
 
-	for (i=0; i < netproc_insts_len; i++)
+	__pmHashInit(&tasks_ctl);
+	sts = __pmHashPreAlloc(taskslen, &tasks_ctl);
+	if (sts != 0)
 	{
-		if (pmDebugOptions.appl0)
-			fprintf(stderr, "%s: updating net info of process %d: %s\n",
-				pmGetProgname(), pids[i], insts[i]);
+		fprintf(stderr, "%s: __pmHashPreAlloc failed: %s\n",
+			pmGetProgname(), pmErrStr(sts));
+		cleanstop(1);
+	}
 
-		// for each instance of the netproc metrics, we need to find the index inside the tasks array
-		// TODO: better algorithm to avoid O(m*n) complexity?
-		for (j=0; j < taskslen; j++)
+	for (i=0; i < taskslen; i++)
+	{
+		sts = __pmHashAdd((*tasks)[i].gen.pid, &(*tasks)[i], &tasks_ctl);
+		if (sts < 0)
 		{
-			if ((*tasks)[j].gen.pid == pids[i])
-				netproc_update_task(&(*tasks)[j], pids[i], result, descs, i);
+			fprintf(stderr, "%s: __pmHashAdd failed: %s\n",
+				pmGetProgname(), pmErrStr(sts));
+			cleanstop(1);
+			return;
 		}
 	}
 
+	for (i=0; i < netproc_insts_len; i++)
+	{
+		task_node = __pmHashSearch(instids[i], &tasks_ctl);
+		if (task_node)
+		{
+			task = task_node->data;
+			if (pmDebugOptions.appl0)
+				fprintf(stderr, "%s: updating net info of process %d: %s\n",
+					pmGetProgname(), task->gen.pid, task->gen.name);
+
+			netproc_update_task(task, instids[i], result, descs, i);
+		}
+	}
+
+	__pmHashWalkCB(tasks_ctl_destroy_callback, NULL, &tasks_ctl);
+	__pmHashClear(&tasks_ctl);
 	pmFreeResult(result);
-	if (netproc_insts_len > 0) {
+	if (netproc_insts_len > 0)
+	{
 	    free(insts);
-	    free(pids);
+	    free(instids);
 	}
 }
