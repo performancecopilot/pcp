@@ -18,3 +18,9 @@ Lightweight .ini file parser
 
 Callback functions on main libuv thread
     - https://github.com/litesync/uv_callback
+
+atop (system and process monitor)
+    - https://github.com/Atoptool/atop
+
+htop (interactive process viewer)
+    - https://github.com/htop-dev/htop

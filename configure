@@ -765,6 +765,9 @@ SYSTEMD_CFLAGS
 HAVE_DEVMAPPER
 DEVMAPPER_LIBS
 DEVMAPPER_CFLAGS
+HAVE_NCURSESW
+ncursesw_LIBS
+ncursesw_CFLAGS
 HAVE_NCURSES
 ncurses_LIBS
 ncurses_CFLAGS
@@ -1071,6 +1074,8 @@ libvarlink_CFLAGS
 libvarlink_LIBS
 ncurses_CFLAGS
 ncurses_LIBS
+ncursesw_CFLAGS
+ncursesw_LIBS
 DEVMAPPER_CFLAGS
 DEVMAPPER_LIBS
 SYSTEMD_CFLAGS
@@ -1804,6 +1809,10 @@ Some influential environment variables:
               C compiler flags for ncurses, overriding pkg-config
   ncurses_LIBS
               linker flags for ncurses, overriding pkg-config
+  ncursesw_CFLAGS
+              C compiler flags for ncursesw, overriding pkg-config
+  ncursesw_LIBS
+              linker flags for ncursesw, overriding pkg-config
   DEVMAPPER_CFLAGS
               C compiler flags for DEVMAPPER, overriding pkg-config
   DEVMAPPER_LIBS
@@ -10067,12 +10076,13 @@ fi
 
 done
 
-for ac_header in ncurses/curses.h
+for ac_header in ncurses/curses.h ncursesw/curses.h
 do :
-  ac_fn_c_check_header_mongrel "$LINENO" "ncurses/curses.h" "ac_cv_header_ncurses_curses_h" "$ac_includes_default"
-if test "x$ac_cv_header_ncurses_curses_h" = xyes; then :
+  as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
+ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
+if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
   cat >>confdefs.h <<_ACEOF
-#define HAVE_NCURSES_CURSES_H 1
+#define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
 _ACEOF
 
 fi
@@ -10829,6 +10839,80 @@ $as_echo "yes" >&6; }
 	have_ncurses=true
 fi
 HAVE_NCURSES=$have_ncurses
+
+
+
+pkg_failed=no
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for ncursesw" >&5
+$as_echo_n "checking for ncursesw... " >&6; }
+
+if test -n "$ncursesw_CFLAGS"; then
+    pkg_cv_ncursesw_CFLAGS="$ncursesw_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"ncursesw\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "ncursesw") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_ncursesw_CFLAGS=`$PKG_CONFIG --cflags "ncursesw" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$ncursesw_LIBS"; then
+    pkg_cv_ncursesw_LIBS="$ncursesw_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"ncursesw\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "ncursesw") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_ncursesw_LIBS=`$PKG_CONFIG --libs "ncursesw" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+	        ncursesw_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "ncursesw" 2>&1`
+        else
+	        ncursesw_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "ncursesw" 2>&1`
+        fi
+	# Put the nasty error message in config.log where it belongs
+	echo "$ncursesw_PKG_ERRORS" >&5
+
+	have_ncursesw=false
+elif test $pkg_failed = untried; then
+     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+	have_ncursesw=false
+else
+	ncursesw_CFLAGS=$pkg_cv_ncursesw_CFLAGS
+	ncursesw_LIBS=$pkg_cv_ncursesw_LIBS
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+	have_ncursesw=true
+fi
+HAVE_NCURSESW=$have_ncursesw
 
 
 
