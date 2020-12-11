@@ -1703,7 +1703,7 @@ AC_CHECK_HEADERS(iphlpapi.h, [], [], [#include <winsock2.h>])
 AC_CHECK_HEADERS(netioapi.h, [], [], [#include <winsock2.h>])
 AC_CHECK_HEADERS(fts.h libzfs.h)
 AC_CHECK_HEADERS(sys/statvfs.h sys/statfs.h sys/mount.h)
-AC_CHECK_HEADERS(ncurses/curses.h)
+AC_CHECK_HEADERS(ncurses/curses.h ncursesw/curses.h)
 AC_CHECK_HEADERS(linux/perf_event.h)
 
 dnl Check if we have <sys/endian.h> ... standard way
@@ -1779,6 +1779,9 @@ AC_SUBST(HAVE_LIBVARLINK, [$have_libvarlink])
 
 PKG_CHECK_MODULES([ncurses], [ncurses], [have_ncurses=true], [have_ncurses=false])
 AC_SUBST(HAVE_NCURSES, [$have_ncurses])
+
+PKG_CHECK_MODULES([ncursesw], [ncursesw], [have_ncursesw=true], [have_ncursesw=false])
+AC_SUBST(HAVE_NCURSESW, [$have_ncursesw])
 
 PKG_CHECK_MODULES([DEVMAPPER], [devmapper], [have_devmapper=true], [have_devmapper=false])
 if $have_devmapper
