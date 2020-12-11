@@ -4275,6 +4275,59 @@ reverse_map(seriesQueryBaton *baton, redisMap *map, int nkeys, redisReply **elem
     }
 }
 
+static void
+series_map_lookup_expr_reply(redisAsyncContext *c, redisReply *reply, const sds cmd, void *arg)
+{
+    seriesGetSID	*sid = (seriesGetSID *)arg;
+    seriesQueryBaton	*baton = (seriesQueryBaton *)sid->baton;
+    sds			query;
+    sds			msg;
+    int			sts;
+
+    seriesBatonCheckMagic(sid, MAGIC_SID, "series_map_lookup_expr_reply");
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_map_lookup_expr_reply");
+    sts = redisSlotsRedirect(baton->slots, reply, baton->info, baton->userdata,
+			     cmd, series_query_expr_reply, arg);
+    if (sts > 0)
+	return;	/* short-circuit as command was re-submitted */
+    if (UNLIKELY(reply == NULL || reply->type != REDIS_REPLY_ARRAY || reply->elements == 0)) {
+    	if (sts < 0) {
+	    infofmt(msg, "expected array of one string element (got %lu) from series %s %s (type=%s)",
+   		reply->elements, sid->name, HMGET, redis_reply_type(reply));
+	    batoninfo(baton, PMLOG_RESPONSE, msg);
+	}
+    } else if (reply->element[0]->type == REDIS_REPLY_STRING) {
+	query = sdsempty();
+    	if ((sts = extract_string(baton, sid->name, reply->element[0], &query, "query")) < 0) {
+	    baton->error = sts;
+	} else {
+	    /* call the on_metric callback, whatever it's set to by the caller */
+	    baton->u.lookup.func(sid->name, query, baton->userdata);
+	}
+    }
+    series_query_end_phase(baton);
+}
+
+static void
+series_map_lookup_expr(seriesQueryBaton *baton, sds series, void *arg)
+{
+    seriesGetSID	*sidexpr;
+    sds			key;
+    sds			exprcmd;
+
+    sidexpr = calloc(1, sizeof(seriesGetSID));
+    initSeriesGetSID(sidexpr, series, 1, baton);
+
+    seriesBatonReference(baton, "series_map_lookup_expr");
+
+    key = sdscatfmt(sdsempty(), "pcp:expr:series:%S", sidexpr->name);
+    exprcmd = redis_command(3);
+    exprcmd = redis_param_str(exprcmd, HMGET, HMGET_LEN);
+    exprcmd = redis_param_sds(exprcmd, key);
+    exprcmd = redis_param_str(exprcmd, "query", sizeof("query")-1);
+    redisSlotsRequest(baton->slots, HMGET, key, exprcmd, series_map_lookup_expr_reply, sidexpr);
+}
+
 /*
  * Produce the list of mapped names (requires reverse mapping from IDs)
  */
@@ -4287,25 +4340,32 @@ series_map_reply(seriesQueryBaton *baton, sds series,
     sds			msg, key;
     unsigned int	i;
     int			sts = 0;
-
     key = sdsnewlen(SDS_NOINIT, 20);
-    for (i = 0; i < nelements; i++) {
-	reply = elements[i];
-	if (reply->type == REDIS_REPLY_STRING) {
-	    sdsclear(key);
-	    key = sdscatlen(key, reply->str, reply->len);
-	    if ((entry = redisMapLookup(baton->u.lookup.map, key)) != NULL)
-		baton->u.lookup.func(series, redisMapValue(entry), baton->userdata);
-	    else {
-		infofmt(msg, "%s - timeseries string map", series);
-		batoninfo(baton, PMLOG_CORRUPT, msg);
-		sts = -EINVAL;
+    if (nelements == 0) {
+	/* expression - not mapped */
+	if (pmDebugOptions.series || pmDebugOptions.query)
+	    fprintf(stderr, "series_map_reply: fabricated SID %s\n", series);
+	series_map_lookup_expr(baton, series, baton->userdata);
+    } else {
+	/* name - get the mapped value */
+	for (i = 0; i < nelements; i++) {
+	    reply = elements[i];
+	    if (reply->type == REDIS_REPLY_STRING) {
+		sdsclear(key);
+		key = sdscatlen(key, reply->str, reply->len);
+		if ((entry = redisMapLookup(baton->u.lookup.map, key)) != NULL)
+		    baton->u.lookup.func(series, redisMapValue(entry), baton->userdata);
+		else {
+		    infofmt(msg, "%s - timeseries string map", series);
+		    batoninfo(baton, PMLOG_CORRUPT, msg);
+		    sts = -EINVAL;
+		}
+	    } else {
+		infofmt(msg, "expected string in %s set (type=%s)",
+			    series, redis_reply_type(reply));
+		batoninfo(baton, PMLOG_RESPONSE, msg);
+		sts = -EPROTO;
 	    }
-	} else {
-	    infofmt(msg, "expected string in %s set (type=%s)",
-			series, redis_reply_type(reply));
-	    batoninfo(baton, PMLOG_RESPONSE, msg);
-	    sts = -EPROTO;
 	}
     }
     sdsfree(key);
