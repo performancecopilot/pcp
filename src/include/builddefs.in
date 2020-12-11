@@ -69,6 +69,7 @@ PCP_LIBS = $(PCPLIB_LDFLAGS)
 TARGET_OS = @target_os@
 CROSS_COMPILING = @cross_compiling@
 CASE_INSENSITIVE_FS = no
+C99_CFLAGS = @C99_CFLAGS@
 PCFLAGS = @PCFLAGS@
 PLDFLAGS = @PLDFLAGS@
 ifneq (, $(filter linux kfreebsd gnu, $(TARGET_OS)))
