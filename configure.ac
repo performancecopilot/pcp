@@ -486,6 +486,23 @@ AS_IF([test "x$cc_is_gcc" = xyes -a "$enable_visibility" != no],[
 ])
 AC_SUBST(INVISIBILITY)
 
+dnl Check for (opt-in) support for --std=c99
+AC_MSG_CHECKING([for --std=c99 support])
+AS_IF([test "x$cc_is_gcc" = xyes],[
+    C99_CFLAGS="--std=c99"
+    save_CFLAGS="$CFLAGS"
+    CFLAGS="$CFLAGS $C99_CFLAGS"
+AC_COMPILE_IFELSE(
+   [AC_LANG_PROGRAM([[#include <stdio.h>]],
+		    [[for (int i=0; i<1; i++)]])],
+   [AC_MSG_RESULT([yes])],
+   [AC_MSG_RESULT([no])
+    C99_CFLAGS=""])
+   CFLAGS="$save_CFLAGS"
+])
+AC_SUBST(C99_CFLAGS)
+
+dnl Check for a C++ compiler
 AC_PROG_CXX(eg++ g++ c++ clang++)
 cxx=$CXX
 AC_SUBST(cxx)

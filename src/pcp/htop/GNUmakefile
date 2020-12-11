@@ -18,7 +18,7 @@ include $(TOPDIR)/src/include/builddefs
 CMDTARGET = pcp-htop
 DISTARGET = $(PCP_BINADM_DIR)/$(CMDTARGET)
 LLDLIBS = $(PCPLIB) $(LIB_FOR_NCURSESW) $(LIB_FOR_MATH)
-LCFLAGS = $(NCURSES_CFLAGS) -Ipcp -I.
+LCFLAGS = $(NCURSES_CFLAGS) $(C99_CFLAGS) -Ipcp -I.
 LDIRT = config.h
 
 CFILES = \

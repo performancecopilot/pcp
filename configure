@@ -922,6 +922,7 @@ cxx
 ac_ct_CXX
 CXXFLAGS
 CXX
+C99_CFLAGS
 INVISIBILITY
 PIECFLAGS
 PIELDFLAGS
@@ -4181,6 +4182,38 @@ else
 $as_echo "$as_me: Compiler does not support -fvisibility." >&6;}
        INVISIBILITY=""
 
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+   CFLAGS="$save_CFLAGS"
+
+fi
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for --std=c99 support" >&5
+$as_echo_n "checking for --std=c99 support... " >&6; }
+if test "x$cc_is_gcc" = xyes; then :
+
+    C99_CFLAGS="--std=c99"
+    save_CFLAGS="$CFLAGS"
+    CFLAGS="$CFLAGS $C99_CFLAGS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <stdio.h>
+int
+main ()
+{
+for (int i=0; i<1; i++)
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+    C99_CFLAGS=""
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
    CFLAGS="$save_CFLAGS"
