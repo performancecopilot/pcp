@@ -177,7 +177,7 @@ on_pmseries_value(pmSID sid, pmSeriesValue *value, void *arg)
     sds			timestamp, series, quoted;
     sds			result = http_get_buffer(baton->client);
 
-    if (pmDebugOptions.query)
+    if (pmDebugOptions.query && pmDebugOptions.desperate)
 	fprintf(stderr, "on_pmseries_value: arg=%p %s %s %s\n",
 	    arg, value->timestamp, value->data, value->series);
 
@@ -538,7 +538,7 @@ on_pmseries_done(int status, void *arg)
     http_code		code;
     sds			msg;
 
-    if (pmDebugOptions.query)
+    if (pmDebugOptions.query && pmDebugOptions.desperate)
 	fprintf(stderr, "on_pmseries_done: arg=%p status=%d\n", arg, status);
     if (status == 0) {
 	code = HTTP_STATUS_OK;
