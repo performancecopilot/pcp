@@ -1909,12 +1909,6 @@ pmSeriesQuery(pmSeriesSettings *settings, sds query, pmSeriesFlags flags, void *
 	return PM_ERR_NYI;
     }
 
-    if (pmDebugOptions.query) {
-	fprintf(stderr, "pmSeriesQuery: %s\n", query);
-	series_dumpexpr(sp.expr, 0);
-	fputc('\n', stderr);
-    }
-
     return series_solve(settings, sp.expr, &sp.time, flags, arg);
 }
 
