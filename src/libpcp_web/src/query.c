@@ -1374,7 +1374,7 @@ on_series_solve_value(pmSID sid, pmSeriesValue *value, void *arg)
     seriesQueryBaton	*baton = arg;
 
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "on_series_solve_value");
-    if (pmDebugOptions.query)
+    if (pmDebugOptions.query && pmDebugOptions.desperate)
 	fprintf(stderr, "on_series_solve_value: arg=%p %s %s %s\n",
 		arg, value->timestamp, value->data, value->series);
     return baton->callbacks->on_value(sid, value, baton->userdata);
@@ -1386,7 +1386,7 @@ on_series_solve_done(int status, void *arg)
     seriesQueryBaton	*baton = arg;
 
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "on_series_solve_done");
-    if (pmDebugOptions.query)
+    if (pmDebugOptions.query && pmDebugOptions.desperate)
 	fprintf(stderr, "on_series_solve_done: arg=%p status=%d\n", arg, status);
     baton->callbacks->on_done(status, baton->userdata);
     seriesBatonDereference(baton, "series_solve_sid_expr");
@@ -1672,7 +1672,7 @@ series_query_report_matches(void *arg)
 
     has_function = series_calculate(baton, &baton->u.query.root, 0);
     
-    if(has_function != 0)
+    if (has_function != 0)
 	series_redis_hash_expression(baton, hashbuf, sizeof(hashbuf));
     series_report_set(baton, &baton->u.query.root);
     series_query_end_phase(baton);
@@ -3112,7 +3112,8 @@ series_calculate_log(node_t *np)
     seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
     double		base;
     pmAtomValue		val;
-    int			i, j, k, itype, otype, sts, str_len, is_natural_log;
+    int			i, j, k, itype, otype=PM_TYPE_UNKNOWN;
+    int			sts, str_len, is_natural_log;
     char		str_val[256];
     sds			msg;
 
@@ -3204,7 +3205,8 @@ series_calculate_sqrt(node_t *np)
 {
     seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
     pmAtomValue		val;
-    int			i, j, k, itype, otype, sts, str_len;
+    int			i, j, k, itype, otype=PM_TYPE_UNKNOWN;
+    int			sts, str_len;
     char		str_val[256];
     sds			msg;
 
@@ -3645,9 +3647,11 @@ series_binary_meta_update(node_t *left, pmUnits *large_units, int *l_sem, int *r
 	o_sem = PM_SEM_COUNTER;
     }
 
-    /* Update data type */
-    sdsfree(left->value_set.series_values[0].series_desc.type);
-    left->value_set.series_values[0].series_desc.type = sdsnew(pmTypeStr(*otype));
+    /* override type of result value (if it's been set) */
+    if (*otype != PM_TYPE_UNKNOWN) {
+	sdsfree(left->value_set.series_values[0].series_desc.type);
+	left->value_set.series_values[0].series_desc.type = sdsnew(pmTypeStr(*otype));
+    }
 
     /* Update semantics */
     sdsfree(left->value_set.series_values[0].series_desc.semantics);
@@ -3659,7 +3663,8 @@ series_calculate_plus(node_t *np)
 {
     seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
     node_t		*left = np->left, *right = np->right;
-    int			l_type, r_type, otype, l_sem, r_sem, j, k;
+    int			l_type, r_type, otype=PM_TYPE_UNKNOWN;
+    int			l_sem, r_sem, j, k;
     unsigned int	num_samples, num_instances;
     pmAtomValue		l_val, r_val;
     pmUnits		l_units = {0}, r_units = {0}, large_units = {0};
@@ -3713,7 +3718,8 @@ series_calculate_minus(node_t *np)
     unsigned int	num_samples, num_instances, j, k;
     pmAtomValue		l_val, r_val;
     pmUnits		l_units = {0}, r_units = {0}, large_units = {0};
-    int			l_type, r_type, otype, l_sem, r_sem;
+    int			l_type, r_type, otype=PM_TYPE_UNKNOWN;
+    int			l_sem, r_sem;
     sds			msg;
 
     if (left->value_set.num_series == 0 || right->value_set.num_series == 0)
@@ -3764,7 +3770,8 @@ series_calculate_star(node_t *np)
     unsigned int	num_samples, num_instances, j, k;
     pmAtomValue		l_val, r_val;
     pmUnits		l_units = {0}, r_units = {0}, large_units = {0};
-    int			l_type, r_type, otype, l_sem, r_sem;
+    int			l_type, r_type, otype=PM_TYPE_UNKNOWN;
+    int			l_sem, r_sem;
     sds			msg;
 
     if (left->value_set.num_series == 0 || right->value_set.num_series == 0)
@@ -3815,7 +3822,8 @@ series_calculate_slash(node_t *np)
     unsigned int	num_samples, num_instances, j, k;
     pmAtomValue		l_val, r_val;
     pmUnits		l_units = {0}, r_units = {0}, large_units = {0};
-    int			l_type, r_type, otype, l_sem, r_sem;
+    int			l_type, r_type, otype=PM_TYPE_UNKNOWN;
+    int			l_sem, r_sem;
     sds			msg;
 
     if (left->value_set.num_series == 0 || right->value_set.num_series == 0) return;
