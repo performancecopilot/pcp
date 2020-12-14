@@ -134,9 +134,9 @@ typedef enum Metric_ {
    PCP_PROC_TTYPGRP,		/* proc.psinfo.tty_pgrp */
    PCP_PROC_FLAGS,		/* proc.psinfo.flags */
    PCP_PROC_MINFLT,		/* proc.psinfo.minflt */
-   PCP_PROC_MAJFLT,		/* proc.psinfo.majflt */
-   PCP_PROC_CMINFLT,		/* proc.psinfo.cminflt */
-   PCP_PROC_CMAJFLT,		/* proc.psinfo.cmajflt */
+   PCP_PROC_MAJFLT,		/* proc.psinfo.maj_flt */
+   PCP_PROC_CMINFLT,		/* proc.psinfo.cmin_flt */
+   PCP_PROC_CMAJFLT,		/* proc.psinfo.cmaj_flt */
    PCP_PROC_UTIME,		/* proc.psinfo.utime */
    PCP_PROC_STIME,		/* proc.psinfo.stime */
    PCP_PROC_CUTIME,		/* proc.psinfo.cutime */
