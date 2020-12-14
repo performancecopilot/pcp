@@ -12,9 +12,9 @@ force	available
 	proc.psinfo.tty_pgrp
 	proc.psinfo.flags
 	proc.psinfo.minflt
-	proc.psinfo.majflt
-	proc.psinfo.cminflt
-	proc.psinfo.cmajflt
+	proc.psinfo.maj_flt
+	proc.psinfo.cmin_flt
+	proc.psinfo.cmaj_flt
 	proc.psinfo.utime
 	proc.psinfo.stime
 	proc.psinfo.cutime
