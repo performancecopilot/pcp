@@ -970,7 +970,7 @@ on_http_client_read(struct proxy *proxy, struct client *client,
     http_parser		*parser = &client->u.http.parser;
     size_t		bytes;
 
-    if (pmDebugOptions.http)
+    if (pmDebugOptions.http || pmDebugOptions.query)
 	fprintf(stderr, "%s: %lld bytes from HTTP client %p\n%.*s",
 		"on_http_client_read", (long long)nread, client,
 		(int)nread, buf->base);
