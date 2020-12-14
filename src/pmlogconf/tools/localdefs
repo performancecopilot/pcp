@@ -17,6 +17,9 @@ FILES = \
 	free \
 	free-summary \
 	hotproc \
+	htop \
+	htop-proc \
+	htop-summary \
 	iostat \
 	ip \
 	ipcs \
