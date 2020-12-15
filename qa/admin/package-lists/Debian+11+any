@@ -82,7 +82,7 @@ libyaml-libyaml-perl
 lm-sensors
 make
 mandoc
-mariadb-client-core-10.3
+mariadb-client-core-10.5
 memcached
 net-tools
 nmap
