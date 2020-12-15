@@ -76,19 +76,19 @@ echo "== extract descriptor for kernel.all.pswitch for each host"
 pmseries $args -a 1ef81375c0b3315e2b643be597b996bd04dcf49e
 pmseries $args -a f91cd337e38ea1e444be3e81e4969aad689deafe
 
-echo;echo "== Verify rate() function for a singular metric, no qualifier"
+echo;echo "== Verify singular metric, no qualifier"
 pmseries $args 'kernel.all.pswitch[count:2]'
 echo
 
-echo;echo "== Verify rate() function for a singular metric, hostname:node80 qualifier"
+echo;echo "== Verify singular metric, hostname:node80 qualifier"
 pmseries $args 'kernel.all.pswitch{hostname:"node80"}[count:2]'
 echo
 
-echo;echo "== Verify rate() function for a singular metric, hostname:node80||hostname:node81"
+echo;echo "== Verify singular metric, hostname:node80||hostname:node81"
 pmseries $args 'kernel.all.pswitch{hostname:"node80" || hostname:"node81"}[count:2]'
 echo
 
-echo;echo "== Verify rate() function for a singular metric, regex qualifier"
+echo;echo "== Verify singular metric, regex qualifier"
 pmseries $args 'kernel.all.pswitch{hostname~~"node*"}[count:2]'
 echo
 

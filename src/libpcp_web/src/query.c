@@ -79,6 +79,7 @@ static void series_lookup_services(void *);
 static void series_lookup_mapping(void *);
 static void series_lookup_finished(void *);
 static void series_query_mapping(void *arg);
+static void series_instances_reply_callback(redisAsyncContext *, redisReply *, const sds, void *);
 
 sds	cursorcount;	/* number of elements in each SCAN call */
 
@@ -1368,33 +1369,90 @@ on_series_solve_log(pmLogLevel level, sds message, void *arg)
 	fprintf(stderr, "on_series_solve_log: %s\n", message);
 }
 
-static int
-on_series_solve_value(pmSID sid, pmSeriesValue *value, void *arg)
-{
-    seriesQueryBaton	*baton = arg;
-
-    seriesBatonCheckMagic(baton, MAGIC_QUERY, "on_series_solve_value");
-    if (pmDebugOptions.query)
-	fprintf(stderr, "on_series_solve_value: arg=%p %s %s %s\n",
-		arg, value->timestamp, value->data, value->series);
-    return baton->callbacks->on_value(sid, value, baton->userdata);
-}
-
 static void
 on_series_solve_done(int status, void *arg)
 {
     seriesQueryBaton	*baton = arg;
 
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "on_series_solve_done");
-    if (pmDebugOptions.query)
+    if (pmDebugOptions.query && pmDebugOptions.desperate)
 	fprintf(stderr, "on_series_solve_done: arg=%p status=%d\n", arg, status);
     baton->callbacks->on_done(status, baton->userdata);
-    seriesBatonDereference(baton, "series_solve_sid_expr");
 }
 
-static pmSeriesSettings	series_solve_settings = {
+static int
+on_series_solve_value(pmSID sid, pmSeriesValue *value, void *arg)
+{
+    seriesQueryBaton	*baton = arg;
+
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "on_series_solve_value");
+    if (pmDebugOptions.query && pmDebugOptions.desperate)
+	fprintf(stderr, "on_series_solve_value: arg=%p %s %s %s\n",
+		arg, value->timestamp, value->data, value->series);
+    return baton->callbacks->on_value(sid, value, baton->userdata);
+}
+
+
+static void
+on_series_solve_inst_done(int status, void *arg)
+{
+    seriesQueryBaton	*baton = arg;
+
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "on_series_solve_done");
+    if (pmDebugOptions.query && pmDebugOptions.desperate)
+	fprintf(stderr, "on_series_solve_done: arg=%p status=%d\n", arg, status);
+    /* on_done is called by series_query_finished */
+    seriesBatonDereference(baton, "on_series_solve_inst_done");
+}
+
+/*
+ * HMGETALL pcp:inst:series:(value->series)
+ * re-using series_instances_reply_callback as the callback.
+ */
+static int
+on_series_solve_inst_value(pmSID sid, pmSeriesValue *value, void *arg)
+{
+    seriesQueryBaton	*baton = arg;
+    seriesGetSID	*sidbat;
+    sds			key, cmd;
+
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "on_series_solve_inst_value");
+    if (pmDebugOptions.query) {
+	fprintf(stderr, "on_series_solve_inst_value: arg=%p %s %s %s\n",
+		arg, value->timestamp, value->data, value->series);
+    }
+
+    sidbat = calloc(1, sizeof(seriesGetSID));
+    initSeriesGetSID(sidbat, value->series, 1, baton);
+    sidbat->metric = sdsdup(sid);
+
+    seriesBatonReference(baton, "on_series_solve_inst_value");
+    seriesBatonReference(sidbat, "on_series_solve_inst_value");
+
+    key = sdscatfmt(sdsempty(), "pcp:inst:series:%S", value->series);
+    cmd = redis_command(5);
+    cmd = redis_param_str(cmd, HMGET, HMGET_LEN);
+    cmd = redis_param_sds(cmd, key);
+    cmd = redis_param_str(cmd, "inst", sizeof("inst")-1);
+    cmd = redis_param_str(cmd, "name", sizeof("name")-1);
+    cmd = redis_param_str(cmd, "source", sizeof("source")-1);
+    redisSlotsRequest(baton->slots, HMGET, key, cmd,
+			    series_instances_reply_callback, sidbat);
+    return 0;
+}
+
+/* settings and callbacks for /series/values with fabricated SID */
+static pmSeriesSettings	series_solve_values_settings = {
     .callbacks.on_value		= on_series_solve_value,
     .callbacks.on_done		= on_series_solve_done,
+    .module.on_setup		= on_series_solve_setup,
+    .module.on_info		= on_series_solve_log,
+};
+
+/* settings and callbacks for /series/instances with fabricated SID */
+static pmSeriesSettings	series_solve_inst_settings = {
+    .callbacks.on_value		= on_series_solve_inst_value,
+    .callbacks.on_done		= on_series_solve_inst_done,
     .module.on_setup		= on_series_solve_setup,
     .module.on_info		= on_series_solve_log,
 };
@@ -1406,7 +1464,7 @@ static pmSeriesSettings	series_solve_settings = {
  * elements to the response series for original pmSeriesBaton.
  */
 static int
-series_solve_sid_expr(pmSeriesExpr *expr, void *arg)
+series_solve_sid_expr(pmSeriesSettings *settings, pmSeriesExpr *expr, void *arg)
 {
     seriesGetSID	*sid = (seriesGetSID *)arg;
     seriesQueryBaton	*baton = (seriesQueryBaton *)sid->baton;
@@ -1418,8 +1476,8 @@ series_solve_sid_expr(pmSeriesExpr *expr, void *arg)
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_query_expr_reply");
 
     if (pmDebugOptions.query) {
-	fprintf(stderr, "series_solve_sid_expr: /series/values "
-		"SID %s, seriesQueryBaton=%p, pmSeriesBaton=userdata=%p expr=\"%s\"\n",
+	fprintf(stderr, "series_solve_sid_expr: SID %s, "
+		"seriesQueryBaton=%p, pmSeriesBaton=userdata=%p expr=\"%s\"\n",
 		sid->name, baton, baton->userdata, expr->query);
     }
 
@@ -1427,10 +1485,10 @@ series_solve_sid_expr(pmSeriesExpr *expr, void *arg)
     seriesBatonReference(baton, "series_solve_sid_expr");
 
     if ((sts = series_parse(expr->query, &sp, &errstr, arg)) == 0) {
-	pmSeriesSetSlots(&series_solve_settings.module, baton->slots);
-	series_solve_settings.module = *baton->module; /* struct cpy */
+	pmSeriesSetSlots(&settings->module, baton->slots);
+	settings->module = *baton->module; /* struct cpy */
 
-	sts = series_solve(&series_solve_settings, sp.expr, &baton->u.query.timing,
+	sts = series_solve(settings, sp.expr, &baton->u.query.timing,
 	    PM_SERIES_FLAG_NONE, baton);
     }
 
@@ -1464,7 +1522,7 @@ series_query_expr_reply(redisAsyncContext *c, redisReply *reply, const sds cmd, 
 	    baton->error = sts;
 	} else {
 	    /* Parse the expr (with timing) and series solve the resulting expr tree */
-	    baton->error = series_solve_sid_expr(&expr, arg);
+	    baton->error = series_solve_sid_expr(&series_solve_values_settings, &expr, arg);
 	}
     }
     series_query_end_phase(baton);
@@ -1654,7 +1712,8 @@ series_report_set(seriesQueryBaton *baton, node_t *np)
 
     for (i = 0; i < np->value_set.num_series; i++) {
 	series = np->value_set.series_values[i].sid->name;
-	baton->callbacks->on_match(series, baton->userdata);
+	if (baton->callbacks->on_match)
+	    baton->callbacks->on_match(series, baton->userdata);
     }
 }
 
@@ -1672,7 +1731,7 @@ series_query_report_matches(void *arg)
 
     has_function = series_calculate(baton, &baton->u.query.root, 0);
     
-    if(has_function != 0)
+    if (has_function != 0)
 	series_redis_hash_expression(baton, hashbuf, sizeof(hashbuf));
     series_report_set(baton, &baton->u.query.root);
     series_query_end_phase(baton);
@@ -3112,7 +3171,8 @@ series_calculate_log(node_t *np)
     seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
     double		base;
     pmAtomValue		val;
-    int			i, j, k, itype, otype, sts, str_len, is_natural_log;
+    int			i, j, k, itype, otype=PM_TYPE_UNKNOWN;
+    int			sts, str_len, is_natural_log;
     char		str_val[256];
     sds			msg;
 
@@ -3204,7 +3264,8 @@ series_calculate_sqrt(node_t *np)
 {
     seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
     pmAtomValue		val;
-    int			i, j, k, itype, otype, sts, str_len;
+    int			i, j, k, itype, otype=PM_TYPE_UNKNOWN;
+    int			sts, str_len;
     char		str_val[256];
     sds			msg;
 
@@ -3645,9 +3706,11 @@ series_binary_meta_update(node_t *left, pmUnits *large_units, int *l_sem, int *r
 	o_sem = PM_SEM_COUNTER;
     }
 
-    /* Update data type */
-    sdsfree(left->value_set.series_values[0].series_desc.type);
-    left->value_set.series_values[0].series_desc.type = sdsnew(pmTypeStr(*otype));
+    /* override type of result value (if it's been set) */
+    if (*otype != PM_TYPE_UNKNOWN) {
+	sdsfree(left->value_set.series_values[0].series_desc.type);
+	left->value_set.series_values[0].series_desc.type = sdsnew(pmTypeStr(*otype));
+    }
 
     /* Update semantics */
     sdsfree(left->value_set.series_values[0].series_desc.semantics);
@@ -3659,7 +3722,8 @@ series_calculate_plus(node_t *np)
 {
     seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
     node_t		*left = np->left, *right = np->right;
-    int			l_type, r_type, otype, l_sem, r_sem, j, k;
+    int			l_type, r_type, otype=PM_TYPE_UNKNOWN;
+    int			l_sem, r_sem, j, k;
     unsigned int	num_samples, num_instances;
     pmAtomValue		l_val, r_val;
     pmUnits		l_units = {0}, r_units = {0}, large_units = {0};
@@ -3713,7 +3777,8 @@ series_calculate_minus(node_t *np)
     unsigned int	num_samples, num_instances, j, k;
     pmAtomValue		l_val, r_val;
     pmUnits		l_units = {0}, r_units = {0}, large_units = {0};
-    int			l_type, r_type, otype, l_sem, r_sem;
+    int			l_type, r_type, otype=PM_TYPE_UNKNOWN;
+    int			l_sem, r_sem;
     sds			msg;
 
     if (left->value_set.num_series == 0 || right->value_set.num_series == 0)
@@ -3764,7 +3829,8 @@ series_calculate_star(node_t *np)
     unsigned int	num_samples, num_instances, j, k;
     pmAtomValue		l_val, r_val;
     pmUnits		l_units = {0}, r_units = {0}, large_units = {0};
-    int			l_type, r_type, otype, l_sem, r_sem;
+    int			l_type, r_type, otype=PM_TYPE_UNKNOWN;
+    int			l_sem, r_sem;
     sds			msg;
 
     if (left->value_set.num_series == 0 || right->value_set.num_series == 0)
@@ -3815,7 +3881,8 @@ series_calculate_slash(node_t *np)
     unsigned int	num_samples, num_instances, j, k;
     pmAtomValue		l_val, r_val;
     pmUnits		l_units = {0}, r_units = {0}, large_units = {0};
-    int			l_type, r_type, otype, l_sem, r_sem;
+    int			l_type, r_type, otype=PM_TYPE_UNKNOWN;
+    int			l_sem, r_sem;
     sds			msg;
 
     if (left->value_set.num_series == 0 || right->value_set.num_series == 0) return;
@@ -4164,7 +4231,7 @@ series_query_desc(void *arg)
 static int
 series_time_window(timing_t *tp)
 {
-    if (tp->window.range ||
+    if (tp->count || tp->window.range ||
 	tp->window.start || tp->window.end ||
 	tp->window.count || tp->window.delta)
 	return 1;
@@ -4964,12 +5031,48 @@ series_instances_reply(seriesQueryBaton *baton,
     sdsfree(name);
 }
 
+static void
+series_inst_expr_reply(redisAsyncContext *c, redisReply *reply, const sds cmd, void *arg)
+{
+    seriesGetSID	*sid = (seriesGetSID *)arg;
+    seriesQueryBaton	*baton = (seriesQueryBaton *)sid->baton;
+    pmSeriesExpr	expr = {0};
+    sds			msg;
+    int			sts;
+
+    seriesBatonCheckMagic(sid, MAGIC_SID, "series_inst_expr_reply");
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_inst_expr_reply");
+    sts = redisSlotsRedirect(baton->slots, reply, baton->info, baton->userdata,
+			     cmd, series_query_expr_reply, arg);
+    if (sts > 0)
+	return;	/* short-circuit as command was re-submitted */
+    if (UNLIKELY(reply == NULL || reply->type != REDIS_REPLY_ARRAY)) {
+    	if (sts < 0) {
+	    infofmt(msg, "expected array of one string element (got %lu) from series %s %s (type=%s)",
+   		reply->elements, sid->name, HMGET, redis_reply_type(reply));
+	    batoninfo(baton, PMLOG_RESPONSE, msg);
+	}
+    } else if (reply->element[0]->type == REDIS_REPLY_STRING) {
+	expr.query = sdsempty();
+    	if ((sts = extract_string(baton, sid->name, reply->element[0], &expr.query, "query")) < 0) {
+	    baton->error = sts;
+	} else {
+	    /* Parse the expr (with timing) and series solve the resulting expr tree */
+	    baton->u.query.timing.count = 1;
+	    baton->error = series_solve_sid_expr(&series_solve_inst_settings, &expr, arg);
+	}
+    }
+    series_query_end_phase(baton);
+}
+
 void
 series_lookup_instances_callback(
 	redisAsyncContext *c, redisReply *reply, const sds cmd, void *arg)
 {
     seriesGetSID	*sid = (seriesGetSID *)arg;
     seriesQueryBaton	*baton = (seriesQueryBaton *)sid->baton;
+    seriesGetSID	*expr;
+    sds			key, exprcmd;
     sds			msg;
     int			sts;
 
@@ -4981,7 +5084,28 @@ series_lookup_instances_callback(
 	return;	/* short-circuit as command was re-submitted */
 
     if (LIKELY(reply && reply->type == REDIS_REPLY_ARRAY)) {
-	series_instances_reply(baton, sid->name, reply->elements, reply->element);
+	if (reply->elements > 0) {
+	    /* regular series */
+	    series_instances_reply(baton, sid->name, reply->elements, reply->element);
+	} else {
+	    /* Handle fabricated/expression SID in /series/instances :
+	     * - get the expr for sid->name from redis. In the callback for that,
+	     *   parse the expr and then solve the expression tree with timing from
+	     *   this series query baton, then merge the instances into the reply.
+	     */
+	    if (pmDebugOptions.query)
+		fprintf(stderr, "series_lookup_instances_callback: sid %s is fabricated\n", sid->name);
+	    expr = calloc(1, sizeof(seriesGetSID));
+	    initSeriesGetSID(expr, sid->name, 1, baton);
+	    seriesBatonReference(baton, "series_lookup_instances_callback");
+
+	    key = sdscatfmt(sdsempty(), "pcp:expr:series:%S", expr->name);
+	    exprcmd = redis_command(3);
+	    exprcmd = redis_param_str(exprcmd, HMGET, HMGET_LEN);
+	    exprcmd = redis_param_sds(exprcmd, key);
+	    exprcmd = redis_param_str(exprcmd, "query", sizeof("query")-1);
+	    redisSlotsRequest(baton->slots, HMGET, key, exprcmd, series_inst_expr_reply, expr);
+	}
     } else {
 	if (sts < 0) {
 	    infofmt(msg, "expected array from series %s %s (type=%s)",
