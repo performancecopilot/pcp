@@ -102,6 +102,8 @@ const MeterClass* const Platform_meterTypes[] = {
 };
 
 static const char *Platform_metricNames[] = {
+   [PCP_CONTROL_THREADS] = "proc.control.perclient.threads",
+
    [PCP_HINV_NCPU] = "hinv.ncpu",
    [PCP_HINV_CPUCLOCK] = "hinv.cpu.clock",
    [PCP_LOAD_AVERAGE] = "kernel.all.load",
@@ -322,6 +324,25 @@ bool Metric_enabled(Metric metric) {
    return pcp->fetch[metric] != PM_ID_NULL;
 }
 
+void Metric_enableThreads(void) {
+   pmValueSet* vset = xCalloc(1, sizeof(pmValueSet));
+   vset->vlist[0].inst = PM_IN_NULL;
+   vset->vlist[0].value.lval = 0;
+   vset->valfmt = PM_VAL_INSITU;
+   vset->numval = 1;
+   vset->pmid = pcp->pmids[PCP_CONTROL_THREADS];
+
+   pmResult* result = xCalloc(1, sizeof(pmResult));
+   result->vset[0] = vset;
+   result->numpmid = 1;
+
+   int sts = pmStore(result);
+   if (sts < 0 && pmDebugOptions.appl0)
+      fprintf(stderr, "Error: cannot enable threads: %s\n", pmErrStr(sts));
+
+   pmFreeResult(result);
+}
+
 bool Metric_fetch(struct timeval *timestamp) {
    int sts = pmFetch(pcp->total, pcp->fetch, &pcp->result);
    if (sts < 0) {
@@ -354,8 +375,6 @@ static int Platform_addMetric(Metric id, const char *name) {
 }
 
 void Platform_init(void) {
-   /* TODO: add argument parsing here */
-
    int sts = pmNewContext(PM_CONTEXT_HOST, "local:");
    if (sts < 0)
       sts = pmNewContext(PM_CONTEXT_LOCAL, NULL);
@@ -372,8 +391,6 @@ void Platform_init(void) {
 
    for (unsigned int i = 0; i < PCP_METRIC_COUNT; i++)
       Platform_addMetric(i, Platform_metricNames[i]);
-
-   /* TODO: insert configuration file parsing here adding metrics dynamically */
 
    sts = pmLookupName(pcp->total, pcp->names, pcp->pmids);
    if (sts < 0) {
@@ -397,6 +414,9 @@ void Platform_init(void) {
          continue;
       }
    }
+
+   /* set proc.control.perclient.threads to 1 for live contexts */
+   Metric_enableThreads();
 
    /* extract values needed for setup - e.g. cpu count, pid_max */
    Metric_enable(PCP_PID_MAX, true);
