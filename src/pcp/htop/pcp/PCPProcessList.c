@@ -523,6 +523,8 @@ static void PCPProcessList_updateMemoryInfo(ProcessList* super) {
       super->totalMem = value.ull;
    if (Metric_values(PCP_MEM_USED, &value, 1, PM_TYPE_U64) != NULL)
       super->usedMem = value.ull;
+   if (Metric_values(PCP_MEM_BUFFERS, &value, 1, PM_TYPE_U64) != NULL)
+      super->buffersMem = value.ull;
    if (Metric_values(PCP_MEM_SRECLAIM, &value, 1, PM_TYPE_U64) != NULL)
       sreclaimable = value.ull;
    if (Metric_values(PCP_MEM_SHARED, &value, 1, PM_TYPE_U64) != NULL)

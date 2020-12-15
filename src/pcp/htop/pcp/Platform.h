@@ -74,6 +74,8 @@ bool Platform_getNetworkIO(unsigned long int* bytesReceived,
 void Platform_getBattery(double *percent, ACPresence *isOnAC);
 
 typedef enum Metric_ {
+   PCP_CONTROL_THREADS,		/* proc.control.perclient.threads */
+
    PCP_HINV_NCPU,		/* hinv.ncpu */
    PCP_HINV_CPUCLOCK,		/* hinv.cpu.clock */
    PCP_LOAD_AVERAGE, 		/* kernel.all.load */
@@ -186,6 +188,8 @@ typedef enum Metric_ {
 void Metric_enable(Metric metric, bool enable);
 
 bool Metric_enabled(Metric metric);
+
+void Metric_enableThreads(void);
 
 bool Metric_fetch(struct timeval *timestamp);
 
