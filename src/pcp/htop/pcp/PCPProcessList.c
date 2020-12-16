@@ -422,14 +422,14 @@ static void PCPProcessList_updateCmdline(Process* process, int pid, int offset) 
    }
 }
 
-static bool PCPProcessList_updateProcesses(PCPProcessList* this, double period, struct timeval tv) {
+static bool PCPProcessList_updateProcesses(PCPProcessList* this, double period, struct timeval* tv) {
    ProcessList* pl = (ProcessList*) this;
    const Settings* settings = pl->settings;
 
    bool hideKernelThreads = settings->hideKernelThreads;
    bool hideUserlandThreads = settings->hideUserlandThreads;
 
-   unsigned long long now = tv.tv_sec * 1000LL + tv.tv_usec / 1000LL;
+   unsigned long long now = tv->tv_sec * 1000LL + tv->tv_usec / 1000LL;
    int pid = -1, offset = -1;
 
    /* for every process ... */
@@ -543,8 +543,8 @@ static void PCPProcessList_updateMemoryInfo(ProcessList* super) {
 /* make copies of previously sampled values to avoid overwrite */
 static inline void PCPProcessList_backupCPUTime(pmAtomValue* values) {
    /* the PERIOD fields (must) mirror the TIME fields */
-   for (unsigned int metric = 0; metric < CPU_TOTAL_PERIOD; metric++) {
-      values[metric + CPU_TOTAL_TIME] = values[metric];
+   for (int metric = CPU_TOTAL_TIME; metric < CPU_TOTAL_PERIOD; metric++) {
+      values[metric + CPU_TOTAL_PERIOD] = values[metric];
    }
 }
 
@@ -593,7 +593,6 @@ static void PCPProcessList_deriveCPUTime(pmAtomValue* values) {
    totaltime->ull = usertime->ull + nicetime->ull + systalltime->ull +
                     idlealltime->ull + stealtime->ull + virtalltime->ull;
 
-#if 0
    PCPProcessList_saveCPUTimePeriod(values, CPU_USER_PERIOD, usertime);
    PCPProcessList_saveCPUTimePeriod(values, CPU_NICE_PERIOD, nicetime);
    PCPProcessList_saveCPUTimePeriod(values, CPU_SYSTEM_PERIOD, systemtime);
@@ -606,7 +605,6 @@ static void PCPProcessList_deriveCPUTime(pmAtomValue* values) {
    PCPProcessList_saveCPUTimePeriod(values, CPU_STEAL_PERIOD, stealtime);
    PCPProcessList_saveCPUTimePeriod(values, CPU_GUEST_PERIOD, virtalltime);
    PCPProcessList_saveCPUTimePeriod(values, CPU_TOTAL_PERIOD, totaltime);
-#endif
 }
 
 static void PCPProcessList_updateAllCPUTime(PCPProcessList* this, Metric metric, CPUMetric cpumetric)
@@ -711,6 +709,6 @@ void ProcessList_goThroughEntries(ProcessList* super, bool pauseProcessUpdate) {
    if (pauseProcessUpdate)
       return;
 
-   double period = sample - this->timestamp;
-   PCPProcessList_updateProcesses(this, period, timestamp);
+   double period = this->timestamp - sample;
+   PCPProcessList_updateProcesses(this, period, &timestamp);
 }

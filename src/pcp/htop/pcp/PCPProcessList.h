@@ -57,7 +57,7 @@ typedef struct PCPProcessList_ {
    long long btime;		/* kernel.all.boottime timestamp */
    pmAtomValue* cpu;		/* aggregate values for each metric */
    pmAtomValue** percpu;	/* per-processor values for each metric */
-   pmAtomValue* values;		/* per-processor values for just one metric */
+   pmAtomValue* values;		/* per-processor buffer for just one metric */
 } PCPProcessList;
 
 ProcessList* ProcessList_new(UsersTable* usersTable, Hashtable* pidMatchList, uid_t userId);
