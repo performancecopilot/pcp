@@ -25,8 +25,13 @@ bpftrace.scripts.script100.data.bytes
     inst [6 or "16-31"] value 98
 ```
 
+## The autostart folder
+bpftrace scripts in the `autostart` folder get executed and exported as PCP metrics on PMDA startup. Note that these scripts must be **exclusive writeable by the root user** for security reasons.
+
+This is the **recommended usage for production systems**. Please note that bpftrace scripts can have a performance impact, therefore it is advisable to measure the performance impact before running bpftrace scripts on production systems.
+
 ## Features
-* Start and stop multiple bpftrace scripts.
+* Start and stop multiple bpftrace scripts on demand.
 * Export bpftrace variables (eBPF maps) as PCP metrics:
   * single values, counters
   * maps, histograms
@@ -35,6 +40,8 @@ bpftrace.scripts.script100.data.bytes
 
 ## Configuration
 The configuration of this PMDA is stored in `bpftrace.conf`.
+
+**Note:** for production systems, it is recommended to not enable dynamic scripts (this feature is disabled by default) and use the `autostart` folder instead.
 
 ### Scripts Metadata
 This PMDA supports the following metadata annotations, to be included in the bpftrace script as comments:
