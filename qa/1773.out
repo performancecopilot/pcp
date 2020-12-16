@@ -1,2 +1,83 @@
 QA output created by 1773
-[skeleton from qa/new, replace me]
+Start test Redis server ...
+PING
+PONG
+
+pmseries: [Info] processed 40 archive records from TMP/farm/node80/20201124.0
+pmseries: [Info] processed 40 archive records from TMP/farm/node81/20201124.0
+
+== NOTE: Due to json sorting issues, see 1773.full.ok for full curl output ==
+
+
+== verify basic two host pmseries checks
+== pmseries hinv.ncpu : should return 2 SIDs
+193b1fa265d370a3727cb212ca11b6c0ecaa0932
+200bd62f839e362e14141507b62f93c1a33fd822
+== pmseries kernel.all.load : should return 2 SIDs
+43c1e8638236f7deebb79638390e02b665e95dd0
+6a02ccc0f1b5f0a115a2749ebb52204360241a32
+== pmseries kernel.all.load+kernel.all.load : should return one fabricated SID
+16aa36d93e5cd0733499eee7dafc07dbb2ad7067
+
+== verify two host series sum (a + b) SID lookup
+kernel.all.load + kernel.all.load
+http://localhost:54322/series/query?expr=kernel.all.load%20%2B%20kernel.all.load
+ .. 4 lines with 0 json { structs }
+
+== verify two host series sum (a + b) with samples
+kernel.all.load[samples:1] + kernel.all.load[samples:1]
+http://localhost:54322/series/query?expr=kernel.all.load%5Bsamples%3A1%5D%20%2B%20kernel.all.load%5Bsamples%3A1%5D
+ .. 38 lines with 6 json { structs }
+
+== verify two host series sum (a + b) with samples by SID
+kernel.all.load + kernel.all.load, SID=16aa36d93e5cd0733499eee7dafc07dbb2ad7067
+http://localhost:54322/series/values?series=16aa36d93e5cd0733499eee7dafc07dbb2ad7067&samples=1
+ .. 38 lines with 6 json { structs }
+http://localhost:54322/series/descs?series=16aa36d93e5cd0733499eee7dafc07dbb2ad7067
+ .. 11 lines with 1 json { structs }
+http://localhost:54322/series/metrics?series=16aa36d93e5cd0733499eee7dafc07dbb2ad7067
+ .. 6 lines with 1 json { structs }
+http://localhost:54322/series/instances?series=16aa36d93e5cd0733499eee7dafc07dbb2ad7067
+ .. 44 lines with 6 json { structs }
+
+== verify two host series difference (a - b) SID lookup
+kernel.all.load - kernel.all.load
+http://localhost:54322/series/query?expr=kernel.all.load%20-%20kernel.all.load
+ .. 4 lines with 0 json { structs }
+
+== verify two host series difference (a - b) with samples
+kernel.all.load[samples:1] - kernel.all.load[samples:1]
+http://localhost:54322/series/query?expr=kernel.all.load%5Bsamples%3A1%5D%20%2B%20kernel.all.load%5Bsamples%3A1%5D
+ .. 38 lines with 6 json { structs }
+
+== verify two host series difference (a - b) with samples by SID
+kernel.all.load - kernel.all.load, SID=f29c38f54d5a3cb928496439760634617688036b
+http://localhost:54322/series/values?series=f29c38f54d5a3cb928496439760634617688036b&samples=1
+ .. 38 lines with 6 json { structs }
+http://localhost:54322/series/descs?series=f29c38f54d5a3cb928496439760634617688036b
+ .. 11 lines with 1 json { structs }
+http://localhost:54322/series/metrics?series=f29c38f54d5a3cb928496439760634617688036b
+ .. 6 lines with 1 json { structs }
+http://localhost:54322/series/instances?series=f29c38f54d5a3cb928496439760634617688036b
+ .. 44 lines with 6 json { structs }
+
+== verify two host series function (floor(a)) SID lookup
+floor(kernel.all.load)
+http://localhost:54322/series/query?expr=floor%28kernel.all.load%29
+ .. 4 lines with 0 json { structs }
+
+== verify two host series function (floor(a)) with samples
+floor(kernel.all.load[samples:2])
+http://localhost:54322/series/query?expr=floor%28kernel.all.load%5Bsamples%3A2%5D%29
+ .. 74 lines with 12 json { structs }
+
+== verify two host series function (floor(a)) with samples by SID
+floor(kernel.all.load), SID=f2dbf7a113932b3371c8871df932603856d1d7b6
+http://localhost:54322/series/values?series=f2dbf7a113932b3371c8871df932603856d1d7b6&samples=2
+ .. 74 lines with 12 json { structs }
+http://localhost:54322/series/descs?series=f2dbf7a113932b3371c8871df932603856d1d7b6
+ .. 11 lines with 1 json { structs }
+http://localhost:54322/series/metrics?series=f2dbf7a113932b3371c8871df932603856d1d7b6
+ .. 6 lines with 1 json { structs }
+http://localhost:54322/series/instances?series=f2dbf7a113932b3371c8871df932603856d1d7b6
+ .. 44 lines with 6 json { structs }
