@@ -70,6 +70,10 @@ ProcessList* ProcessList_new(UsersTable* usersTable, Hashtable* pidMatchList, ui
    if (Metric_values(PCP_BOOTTIME, &value, 1, PM_TYPE_64) != NULL)
       this->btime = value.ll;
 
+   struct timeval timestamp;
+   gettimeofday(&timestamp, NULL);
+   this->timestamp = pmtimevalToReal(&timestamp);
+
    this->cpu = xCalloc(CPU_METRIC_COUNT, sizeof(pmAtomValue));
    PCPProcessList_updateCPUcount(this);
 
@@ -85,6 +89,10 @@ void ProcessList_delete(ProcessList* pl) {
    free(this->percpu);
    free(this->cpu);
    free(this);
+}
+
+static inline unsigned long long PCPProcessList_adjustTime(unsigned long long t) {
+   return t / 10;
 }
 
 static void PCPProcessList_updateProcInfo(Process* process, int pid, int offset, char* command, int* commLen, long long boottime) {
@@ -164,23 +172,23 @@ static void PCPProcessList_updateProcInfo(Process* process, int pid, int offset,
    else
       pp->cmajflt = 0;
 
-   if (Metric_instance(PCP_PROC_UTIME, pid, offset, &value, PM_TYPE_U32))
-      pp->utime = value.ul;
+   if (Metric_instance(PCP_PROC_UTIME, pid, offset, &value, PM_TYPE_U64))
+      pp->utime = PCPProcessList_adjustTime(value.ull);
    else
       pp->utime = 0;
 
-   if (Metric_instance(PCP_PROC_STIME, pid, offset, &value, PM_TYPE_U32))
-      pp->stime = value.ul;
+   if (Metric_instance(PCP_PROC_STIME, pid, offset, &value, PM_TYPE_U64))
+      pp->stime = PCPProcessList_adjustTime(value.ull);
    else
       pp->stime = 0;
 
-   if (Metric_instance(PCP_PROC_CUTIME, pid, offset, &value, PM_TYPE_U32))
-      pp->cutime = value.ul;
+   if (Metric_instance(PCP_PROC_CUTIME, pid, offset, &value, PM_TYPE_U64))
+      pp->cutime = PCPProcessList_adjustTime(value.ull);
    else
       pp->cutime = 0;
 
-   if (Metric_instance(PCP_PROC_CSTIME, pid, offset, &value, PM_TYPE_U32))
-      pp->cstime = value.ul;
+   if (Metric_instance(PCP_PROC_CSTIME, pid, offset, &value, PM_TYPE_U64))
+      pp->cstime = PCPProcessList_adjustTime(value.ull);
    else
       pp->cstime = 0;
 
@@ -200,7 +208,7 @@ static void PCPProcessList_updateProcInfo(Process* process, int pid, int offset,
       process->nlwp = 0;
 
    if (Metric_instance(PCP_PROC_STARTTIME, pid, offset, &value, PM_TYPE_U64))
-      process->starttime_ctime = value.ull;
+      process->starttime_ctime = PCPProcessList_adjustTime(value.ull);
    else
       process->starttime_ctime = 0;
 
@@ -456,13 +464,13 @@ static bool PCPProcessList_updateProcesses(PCPProcessList* this, double period, 
       char command[MAX_NAME + 1];
       int commLen = sizeof(command);
       unsigned int tty_nr = proc->tty_nr;
+      unsigned long long int lasttimes = pp->utime + pp->stime;
 
       PCPProcessList_updateProcInfo(proc, pid, offset, command, &commLen, this->btime);
 
       if (tty_nr != proc->tty_nr)
          PCPProcessList_updateTTY(pp, pid, offset);
 
-      unsigned long long int lasttimes = pp->utime + pp->stime;
       float percent_cpu = (pp->utime + pp->stime - lasttimes) / period * 100.0;
       proc->percent_cpu = isnan(percent_cpu) ?
                           0.0 : CLAMP(percent_cpu, 0.0, pl->cpuCount * 100.0);
@@ -709,6 +717,6 @@ void ProcessList_goThroughEntries(ProcessList* super, bool pauseProcessUpdate) {
    if (pauseProcessUpdate)
       return;
 
-   double period = this->timestamp - sample;
+   double period = (this->timestamp - sample) * 100;
    PCPProcessList_updateProcesses(this, period, &timestamp);
 }
