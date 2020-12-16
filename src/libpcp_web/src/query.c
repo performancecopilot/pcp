@@ -1707,12 +1707,16 @@ series_expr_node_desc(seriesQueryBaton *baton, node_t *np){
 static void
 series_report_set(seriesQueryBaton *baton, node_t *np)
 {
-    int		i;
+    int		i, j;
     sds		series;
 
     for (i = 0; i < np->value_set.num_series; i++) {
 	series = np->value_set.series_values[i].sid->name;
-	if (baton->callbacks->on_match)
+	for (j=0; j < i; j++) {
+	    if (strncmp(series, np->value_set.series_values[j].sid->name, SHA1SZ) == 0)
+	    	break;
+	}
+	if (i == j && baton->callbacks->on_match)
 	    baton->callbacks->on_match(series, baton->userdata);
     }
 }
@@ -2610,7 +2614,7 @@ series_calculate_rate(node_t *np)
 	    }
 	} else {
 	    expr = series_expr_canonical(np->left, i);
-	    infofmt(msg, "Semantics of '%s' is not counter\n", expr);
+	    infofmt(msg, "Can't rate convert '%s', counter semantics required\n", expr);
 	    sdsfree(expr);
 	    batoninfo(baton, PMLOG_ERROR, msg);
 	    baton->error = -EPROTO;

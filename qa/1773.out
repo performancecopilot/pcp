@@ -22,7 +22,7 @@ pmseries: [Info] processed 40 archive records from TMP/farm/node81/20201124.0
 == verify two host series sum (a + b) SID lookup
 kernel.all.load + kernel.all.load
 http://localhost:54322/series/query?expr=kernel.all.load%20%2B%20kernel.all.load
- .. 4 lines with 0 json { structs }
+ .. 3 lines with 0 json { structs }
 
 == verify two host series sum (a + b) with samples
 kernel.all.load[samples:1] + kernel.all.load[samples:1]
@@ -43,7 +43,7 @@ http://localhost:54322/series/instances?series=16aa36d93e5cd0733499eee7dafc07dbb
 == verify two host series difference (a - b) SID lookup
 kernel.all.load - kernel.all.load
 http://localhost:54322/series/query?expr=kernel.all.load%20-%20kernel.all.load
- .. 4 lines with 0 json { structs }
+ .. 3 lines with 0 json { structs }
 
 == verify two host series difference (a - b) with samples
 kernel.all.load[samples:1] - kernel.all.load[samples:1]
@@ -64,7 +64,7 @@ http://localhost:54322/series/instances?series=f29c38f54d5a3cb928496439760634617
 == verify two host series function (floor(a)) SID lookup
 floor(kernel.all.load)
 http://localhost:54322/series/query?expr=floor%28kernel.all.load%29
- .. 4 lines with 0 json { structs }
+ .. 3 lines with 0 json { structs }
 
 == verify two host series function (floor(a)) with samples
 floor(kernel.all.load[samples:2])
