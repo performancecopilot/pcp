@@ -1,0 +1,38 @@
+#!/bin/sh
+# PCP QA Test No. 1725
+# Exercise the bpftrace PMDA - list tracepoints
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.bpftrace
+
+_pmdabpftrace_check
+
+status=1       # failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+
+_prepare_pmda bpftrace
+trap "_pmdabpftrace_cleanup; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
+
+
+# real QA test starts here
+_pmdabpftrace_clean_autostart_scripts
+cat <<EOF | _pmdabpftrace_install
+# Installed by PCP QA test $seq on `date`
+EOF
+
+echo "=== check tracepoint metric ==="
+pminfo -dmtT bpftrace.info.tracepoints
+
+echo
+echo "=== check example tracepoint metric value ==="
+pminfo -f bpftrace.info.tracepoints | tr ',' '\n' \
+| grep kprobe:version_show
+
+
+_pmdabpftrace_remove
+status=0
+exit
