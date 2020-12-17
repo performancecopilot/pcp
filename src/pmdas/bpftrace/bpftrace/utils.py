@@ -16,7 +16,10 @@ def get_bpftrace_version(bpftrace_path: str) -> Optional[Tuple]:
 
 
 def get_tracepoints_csv(bpftrace_path: str) -> str:
-    return subprocess.check_output([bpftrace_path, '-l'], encoding='utf8').strip().replace('\n', ',')
+    # use a set to prevent duplicate probes
+    # see https://github.com/iovisor/bpftrace/issues/1581
+    tracepoints = frozenset(subprocess.check_output([bpftrace_path, '-l'], encoding='utf8').split())
+    return ','.join(tracepoints)
 
 
 def asyncio_get_all_tasks(loop):

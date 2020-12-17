@@ -1849,6 +1849,7 @@ x11
 1722 pmda.bpftrace local python
 1723 pmda.bpftrace local python
 1724 pmda.bpftrace local python
+1725 pmda.bpftrace local python
 1740 pmda.proc local
 1745 pmlogger libpcp pmval local
 1763 pmlogctl local
