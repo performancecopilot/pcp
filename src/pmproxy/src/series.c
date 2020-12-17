@@ -245,8 +245,9 @@ on_pmseries_metric(pmSID sid, sds name, void *arg)
     pmSeriesBaton	*baton = (pmSeriesBaton *)arg;
     struct client	*client = baton->client;
     const char		*prefix;
-    sds			s, result = http_get_buffer(client);
+    sds			s, quoted, result = http_get_buffer(client);
 
+    quoted = sdscatrepr(sdsempty(), name, sdslen(name));
     if (sid == NULL) {	/* request for all metric names globally */
 	if (baton->values == 0) {
 	    result = push_client_identifier(baton, result);
@@ -255,7 +256,7 @@ on_pmseries_metric(pmSID sid, sds name, void *arg)
 	} else {
 	    prefix = ",";
 	}
-	result = sdscatfmt(result, "%s\"%S\"", prefix, name);
+	result = sdscatfmt(result, "%s\"%S\"", prefix, quoted);
     } else {
 	if ((s = baton->sid) == NULL) {	/* first series seem */
 	    baton->sid = sdsdup(sid);
@@ -273,9 +274,10 @@ on_pmseries_metric(pmSID sid, sds name, void *arg)
 	    }
 	    prefix = ",";
 	}
-	result = sdscatfmt(result, "%s{\"series\":\"%S\",\"name\":\"%S\"}",
-				prefix, sid, name);
+	result = sdscatfmt(result, "%s{\"series\":\"%S\",\"name\":%S}",
+				prefix, sid, quoted);
     }
+    sdsfree(quoted);
     baton->values++;	/* count of names for this series/request */
 
     http_set_buffer(client, result, HTTP_FLAG_JSON);
