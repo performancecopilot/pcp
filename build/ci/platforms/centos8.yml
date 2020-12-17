@@ -34,7 +34,7 @@ tasks:
   init_qa: |
     sudo systemctl start pmcd
     systemctl status pmcd
-    journalctl -u pmcd
+    sudo journalctl -u pmcd
     cat /var/log/pcp/pmcd/pmcd.log
     sudo -i -u pcpqa ./check 002
   qa_sanity: |
