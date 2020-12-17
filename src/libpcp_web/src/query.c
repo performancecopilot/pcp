@@ -4112,33 +4112,22 @@ series_redis_hash_expression(seriesQueryBaton *baton, char *hashbuf, int len_has
 	    pmParseUnitsStr(np->value_set.series_values[i].series_desc.units, &units0, &mult, &errmsg);
 	    pmParseUnitsStr(np->value_set.series_values[j].series_desc.units, &units1, &mult, &errmsg);
 
-	    if (np->value_set.series_values[i].metric_name && 
-	        np->value_set.series_values[j].metric_name &&
-	        sdscmp(np->value_set.series_values[i].metric_name,
-		       np->value_set.series_values[j].metric_name) == 0) {
-		if (check_compatibility(&units0, &units1) != 0) {
-		    np->value_set.series_values[j].compatibility = 0;
-		    infofmt(msg, "Descriptors for metric '%s' do not satisfy compatibility between different hosts/sources.\n",
-			np->value_set.series_values[i].metric_name);
-		    batoninfo(baton, PMLOG_ERROR, msg);
-		    baton->error = -EPROTO;
-		    break;
-		} else {
-		    /* 
-		     * For series with the same metric names, if they have
-		     * same dimensions but different scales, use the larger
-		     * scale and convert the values with the smaller scale.
-		     * The result is promoted to type PM_TYPE_DOUBLE.
-		     */
-		    series_compatibility_convert(&np->value_set.series_values[i],
-				&np->value_set.series_values[j],
-				&units0, &units1, &large_units);
-		}
-	    } else {
-		infofmt(msg, "Time series functions can not take multiple metrics as parameters.\n");
+	    if (check_compatibility(&units0, &units1) != 0) {
+		np->value_set.series_values[j].compatibility = 0;
+		infofmt(msg, "Incompatible units between operand metrics or expressions\n");
 		batoninfo(baton, PMLOG_ERROR, msg);
 		baton->error = -EPROTO;
 		break;
+	    } else {
+		/* 
+		 * For series with the same metric names, if they have
+		 * same dimensions but different scales, use the larger
+		 * scale and convert the values with the smaller scale.
+		 * The result is promoted to type PM_TYPE_DOUBLE.
+		 */
+		series_compatibility_convert(&np->value_set.series_values[i],
+			    &np->value_set.series_values[j],
+			    &units0, &units1, &large_units);
 	    }
 	}
 
