@@ -327,7 +327,7 @@ bool Metric_enabled(Metric metric) {
 void Metric_enableThreads(void) {
    pmValueSet* vset = xCalloc(1, sizeof(pmValueSet));
    vset->vlist[0].inst = PM_IN_NULL;
-   vset->vlist[0].value.lval = 0;
+   vset->vlist[0].value.lval = 1;
    vset->valfmt = PM_VAL_INSITU;
    vset->numval = 1;
    vset->pmid = pcp->pmids[PCP_CONTROL_THREADS];

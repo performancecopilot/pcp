@@ -197,8 +197,8 @@ static void PCPProcessList_updateProcInfo(Process* process, int pid, int offset,
    else
       process->priority = 0;
 
-   if (Metric_instance(PCP_PROC_NICE, pid, offset, &value, PM_TYPE_U32))
-      process->nice = value.ul;
+   if (Metric_instance(PCP_PROC_NICE, pid, offset, &value, PM_TYPE_32))
+      process->nice = value.l;
    else
       process->nice = 0;
 
@@ -700,7 +700,7 @@ void ProcessList_goThroughEntries(ProcessList* super, bool pauseProcessUpdate) {
 
    /* Sample smaps metrics on every second pass to improve performance */
    static int smaps_flag;
-   smaps_flag = !smaps_flag;
+   smaps_flag = !!smaps_flag;
    Metric_enable(PCP_PROC_SMAPS_PSS, smaps_flag && enabled);
    Metric_enable(PCP_PROC_SMAPS_SWAP, smaps_flag && enabled);
    Metric_enable(PCP_PROC_SMAPS_SWAPPSS, smaps_flag && enabled);
