@@ -3,7 +3,7 @@ pcp (5.2.3-1) unstable; urgency=low
   * Fix sub-package dependencies for upgrades (closes: #975997)
   * New release (full details in CHANGELOG).
 
- -- Nathan Scott <nathans@debian.org>  Wed, 16 Dec 2020 08:11:33 +1100
+ -- Nathan Scott <nathans@debian.org>  Fri, 18 Dec 2020 08:11:33 +1100
 
 pcp (5.2.2-1) unstable; urgency=low
 

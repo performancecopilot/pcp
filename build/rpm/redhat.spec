@@ -3445,7 +3445,7 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %endif
 
 %changelog
-* Wed Dec 16 2020 Nathan Scott <nathans@redhat.com> - 5.2.3-1
+* Fri Dec 18 2020 Nathan Scott <nathans@redhat.com> - 5.2.3-1
 - Update to latest PCP sources.
 
 * Wed Nov 11 2020 Nathan Scott <nathans@redhat.com> - 5.2.2-1
