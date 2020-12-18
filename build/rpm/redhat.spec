@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 5.2.3
+Version: 5.2.4
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2+ and CC-BY
@@ -3217,6 +3217,7 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %files pmda-bcc
 %{_pmdasdir}/bcc
 %{_pmdasexecdir}/bcc
+%{_confdir}/bcc
 %endif
 
 %if !%{disable_bpftrace}
@@ -3445,6 +3446,9 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %endif
 
 %changelog
+* Wed Feb 10 2021 Nathan Scott <nathans@redhat.com> - 5.2.4-1
+- https://github.com/performancecopilot/pcp/projects/1
+
 * Fri Dec 18 2020 Nathan Scott <nathans@redhat.com> - 5.2.3-1
 - Update to latest PCP sources.
 
