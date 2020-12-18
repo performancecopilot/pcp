@@ -1,0 +1,64 @@
+QA output created by 1286
+
+=== bcc agent installation ===
+Info: Initializing, currently in 'notready' state.
+Info: Enabled modules:
+Info: ['netproc']
+Info: Configuring modules:
+Info: netproc
+Info: Modules configured.
+Info: Initializing modules:
+Info: netproc
+Info: netproc: Initialized.
+Info: Modules initialized.
+Info: Registering metrics:
+Info: netproc
+Info: Metrics registered.
+Info: Registering helpers:
+Info: netproc
+Info: Helpers registered.
+Info: Initializing, currently in 'notready' state.
+Info: Enabled modules:
+Info: ['netproc']
+Info: Configuring modules:
+Info: netproc
+Info: Modules configured.
+Info: Initializing modules:
+Info: netproc
+Info: netproc: Initialized.
+Info: Modules initialized.
+Info: Registering metrics:
+Info: netproc
+Info: Metrics registered.
+Info: Registering helpers:
+Info: netproc
+Info: Helpers registered.
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check bcc metrics have appeared ... X metrics and X values
+
+=== report metric values for bcc.proc.io.net.perpid.tcp.in.packets ===
+OK
+=== report metric values for bcc.proc.io.net.perpid.tcp.in.bytes ===
+OK
+=== report metric values for bcc.proc.io.net.perpid.tcp.out.packets ===
+OK
+=== report metric values for bcc.proc.io.net.perpid.tcp.out.bytes ===
+OK
+=== report metric values for bcc.proc.io.net.perpid.udp.in.packets ===
+OK
+=== report metric values for bcc.proc.io.net.perpid.udp.in.bytes ===
+OK
+=== report metric values for bcc.proc.io.net.perpid.udp.out.packets ===
+OK
+=== report metric values for bcc.proc.io.net.perpid.udp.out.bytes ===
+OK
+
+=== remove bcc agent ===
+Culling the Performance Metrics Name Space ...
+bcc ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check bcc metrics have gone away ... OK
