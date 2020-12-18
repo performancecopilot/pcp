@@ -22,7 +22,7 @@ pmseries: [Info] processed 40 archive records from TMP/farm/node81/20201124.0
 == verify two host series sum (a + b) SID lookup
 kernel.all.load + kernel.all.load
 http://localhost:54322/series/query?expr=kernel.all.load%20%2B%20kernel.all.load
- .. 3 lines with 0 json { structs }
+ .. 3 lines with 0 json { objects }
 [
     "16aa36d93e5cd0733499eee7dafc07dbb2ad7067"
 ]
@@ -30,19 +30,13 @@ http://localhost:54322/series/query?expr=kernel.all.load%20%2B%20kernel.all.load
 == verify two host series sum (a + b) with samples
 kernel.all.load[samples:1] + kernel.all.load[samples:1]
 http://localhost:54322/series/query?expr=kernel.all.load%5Bsamples%3A1%5D%20%2B%20kernel.all.load%5Bsamples%3A1%5D
- .. 38 lines with 6 json { structs }
+ .. 38 lines with 6 json { objects }
 [
     {
         "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
         "instance": "21ffdae1756f882eed12a8eaaa5159bab8e413ca",
         "timestamp": 1606139271367.406,
         "value": "2.000000e-02"
-    },
-    {
-        "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
-        "instance": "91309d0d0b39671f59acd40d31348f9e1175702b",
-        "timestamp": 1606139271367.406,
-        "value": "0.000000e+00"
     },
     {
         "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
@@ -58,32 +52,32 @@ http://localhost:54322/series/query?expr=kernel.all.load%5Bsamples%3A1%5D%20%2B%
     },
     {
         "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
-        "instance": "e8985e0951c3241ad23a2b3b5eacbb9c955eaf3a",
-        "timestamp": 1606139275665.424,
-        "value": "3.400000e-01"
+        "instance": "91309d0d0b39671f59acd40d31348f9e1175702b",
+        "timestamp": 1606139271367.406,
+        "value": "0.000000e+00"
     },
     {
         "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
         "instance": "9c6193a8bcb74c22526efac6e047a8b5f8287f28",
         "timestamp": 1606139275665.424,
         "value": "1.200000e-01"
+    },
+    {
+        "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
+        "instance": "e8985e0951c3241ad23a2b3b5eacbb9c955eaf3a",
+        "timestamp": 1606139275665.424,
+        "value": "3.400000e-01"
     }
 ]
 
 == verify two host series sum (a + b) with samples by SID
 kernel.all.load + kernel.all.load, SID=16aa36d93e5cd0733499eee7dafc07dbb2ad7067
 http://localhost:54322/series/values?series=16aa36d93e5cd0733499eee7dafc07dbb2ad7067&samples=1
- .. 38 lines with 6 json { structs }
+ .. 38 lines with 6 json { objects }
 [
     {
         "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
         "instance": "21ffdae1756f882eed12a8eaaa5159bab8e413ca",
-        "timestamp": 1606137051497.722,
-        "value": "0.000000e+00"
-    },
-    {
-        "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
-        "instance": "91309d0d0b39671f59acd40d31348f9e1175702b",
         "timestamp": 1606137051497.722,
         "value": "0.000000e+00"
     },
@@ -101,8 +95,8 @@ http://localhost:54322/series/values?series=16aa36d93e5cd0733499eee7dafc07dbb2ad
     },
     {
         "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
-        "instance": "e8985e0951c3241ad23a2b3b5eacbb9c955eaf3a",
-        "timestamp": 1606137054928.229,
+        "instance": "91309d0d0b39671f59acd40d31348f9e1175702b",
+        "timestamp": 1606137051497.722,
         "value": "0.000000e+00"
     },
     {
@@ -110,10 +104,16 @@ http://localhost:54322/series/values?series=16aa36d93e5cd0733499eee7dafc07dbb2ad
         "instance": "9c6193a8bcb74c22526efac6e047a8b5f8287f28",
         "timestamp": 1606137054928.229,
         "value": "0.000000e+00"
+    },
+    {
+        "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
+        "instance": "e8985e0951c3241ad23a2b3b5eacbb9c955eaf3a",
+        "timestamp": 1606137054928.229,
+        "value": "0.000000e+00"
     }
 ]
 http://localhost:54322/series/descs?series=16aa36d93e5cd0733499eee7dafc07dbb2ad7067
- .. 11 lines with 1 json { structs }
+ .. 11 lines with 1 json { objects }
 [
     {
         "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
@@ -126,7 +126,7 @@ http://localhost:54322/series/descs?series=16aa36d93e5cd0733499eee7dafc07dbb2ad7
     }
 ]
 http://localhost:54322/series/metrics?series=16aa36d93e5cd0733499eee7dafc07dbb2ad7067
- .. 6 lines with 1 json { structs }
+ .. 6 lines with 1 json { objects }
 [
     {
         "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
@@ -134,29 +134,8 @@ http://localhost:54322/series/metrics?series=16aa36d93e5cd0733499eee7dafc07dbb2a
     }
 ]
 http://localhost:54322/series/instances?series=16aa36d93e5cd0733499eee7dafc07dbb2ad7067
- .. 44 lines with 6 json { structs }
+ .. 44 lines with 6 json { objects }
 [
-    {
-        "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
-        "source": "6057bc0fdd93cd146793be12edc2751d79745c54",
-        "instance": "21ffdae1756f882eed12a8eaaa5159bab8e413ca",
-        "id": 1,
-        "name": "1 minute"
-    },
-    {
-        "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
-        "source": "6057bc0fdd93cd146793be12edc2751d79745c54",
-        "instance": "91309d0d0b39671f59acd40d31348f9e1175702b",
-        "id": 5,
-        "name": "5 minute"
-    },
-    {
-        "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
-        "source": "6057bc0fdd93cd146793be12edc2751d79745c54",
-        "instance": "2d6dd71e17cb71a14e33ff6c4ecca2454e3b900c",
-        "id": 15,
-        "name": "15 minute"
-    },
     {
         "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
         "source": "39046d0e66a323e7e3602f113fe8b2c41a202f67",
@@ -167,23 +146,44 @@ http://localhost:54322/series/instances?series=16aa36d93e5cd0733499eee7dafc07dbb
     {
         "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
         "source": "39046d0e66a323e7e3602f113fe8b2c41a202f67",
+        "instance": "9c6193a8bcb74c22526efac6e047a8b5f8287f28",
+        "id": 15,
+        "name": "15 minute"
+    },
+    {
+        "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
+        "source": "39046d0e66a323e7e3602f113fe8b2c41a202f67",
         "instance": "e8985e0951c3241ad23a2b3b5eacbb9c955eaf3a",
         "id": 5,
         "name": "5 minute"
     },
     {
         "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
-        "source": "39046d0e66a323e7e3602f113fe8b2c41a202f67",
-        "instance": "9c6193a8bcb74c22526efac6e047a8b5f8287f28",
+        "source": "6057bc0fdd93cd146793be12edc2751d79745c54",
+        "instance": "21ffdae1756f882eed12a8eaaa5159bab8e413ca",
+        "id": 1,
+        "name": "1 minute"
+    },
+    {
+        "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
+        "source": "6057bc0fdd93cd146793be12edc2751d79745c54",
+        "instance": "2d6dd71e17cb71a14e33ff6c4ecca2454e3b900c",
         "id": 15,
         "name": "15 minute"
+    },
+    {
+        "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
+        "source": "6057bc0fdd93cd146793be12edc2751d79745c54",
+        "instance": "91309d0d0b39671f59acd40d31348f9e1175702b",
+        "id": 5,
+        "name": "5 minute"
     }
 ]
 
 == verify two host series difference (a - b) SID lookup
 kernel.all.load - kernel.all.load
 http://localhost:54322/series/query?expr=kernel.all.load%20-%20kernel.all.load
- .. 3 lines with 0 json { structs }
+ .. 3 lines with 0 json { objects }
 [
     "f29c38f54d5a3cb928496439760634617688036b"
 ]
@@ -191,17 +191,11 @@ http://localhost:54322/series/query?expr=kernel.all.load%20-%20kernel.all.load
 == verify two host series difference (a - b) with samples
 kernel.all.load[samples:1] - kernel.all.load[samples:1]
 http://localhost:54322/series/query?expr=kernel.all.load%5Bsamples%3A1%5D%20-%20kernel.all.load%5Bsamples%3A1%5D
- .. 38 lines with 6 json { structs }
+ .. 38 lines with 6 json { objects }
 [
     {
         "series": "f29c38f54d5a3cb928496439760634617688036b",
         "instance": "21ffdae1756f882eed12a8eaaa5159bab8e413ca",
-        "timestamp": 1606139271367.406,
-        "value": "0.000000e+00"
-    },
-    {
-        "series": "f29c38f54d5a3cb928496439760634617688036b",
-        "instance": "91309d0d0b39671f59acd40d31348f9e1175702b",
         "timestamp": 1606139271367.406,
         "value": "0.000000e+00"
     },
@@ -219,32 +213,32 @@ http://localhost:54322/series/query?expr=kernel.all.load%5Bsamples%3A1%5D%20-%20
     },
     {
         "series": "f29c38f54d5a3cb928496439760634617688036b",
-        "instance": "e8985e0951c3241ad23a2b3b5eacbb9c955eaf3a",
-        "timestamp": 1606139275665.424,
-        "value": "3.400000e-01"
+        "instance": "91309d0d0b39671f59acd40d31348f9e1175702b",
+        "timestamp": 1606139271367.406,
+        "value": "0.000000e+00"
     },
     {
         "series": "f29c38f54d5a3cb928496439760634617688036b",
         "instance": "9c6193a8bcb74c22526efac6e047a8b5f8287f28",
         "timestamp": 1606139275665.424,
         "value": "1.200000e-01"
+    },
+    {
+        "series": "f29c38f54d5a3cb928496439760634617688036b",
+        "instance": "e8985e0951c3241ad23a2b3b5eacbb9c955eaf3a",
+        "timestamp": 1606139275665.424,
+        "value": "3.400000e-01"
     }
 ]
 
 == verify two host series difference (a - b) with samples by SID
 kernel.all.load - kernel.all.load, SID=f29c38f54d5a3cb928496439760634617688036b
 http://localhost:54322/series/values?series=f29c38f54d5a3cb928496439760634617688036b&samples=1
- .. 38 lines with 6 json { structs }
+ .. 38 lines with 6 json { objects }
 [
     {
         "series": "f29c38f54d5a3cb928496439760634617688036b",
         "instance": "21ffdae1756f882eed12a8eaaa5159bab8e413ca",
-        "timestamp": 1606137051497.722,
-        "value": "0.000000e+00"
-    },
-    {
-        "series": "f29c38f54d5a3cb928496439760634617688036b",
-        "instance": "91309d0d0b39671f59acd40d31348f9e1175702b",
         "timestamp": 1606137051497.722,
         "value": "0.000000e+00"
     },
@@ -262,8 +256,8 @@ http://localhost:54322/series/values?series=f29c38f54d5a3cb928496439760634617688
     },
     {
         "series": "f29c38f54d5a3cb928496439760634617688036b",
-        "instance": "e8985e0951c3241ad23a2b3b5eacbb9c955eaf3a",
-        "timestamp": 1606137054928.229,
+        "instance": "91309d0d0b39671f59acd40d31348f9e1175702b",
+        "timestamp": 1606137051497.722,
         "value": "0.000000e+00"
     },
     {
@@ -271,10 +265,16 @@ http://localhost:54322/series/values?series=f29c38f54d5a3cb928496439760634617688
         "instance": "9c6193a8bcb74c22526efac6e047a8b5f8287f28",
         "timestamp": 1606137054928.229,
         "value": "0.000000e+00"
+    },
+    {
+        "series": "f29c38f54d5a3cb928496439760634617688036b",
+        "instance": "e8985e0951c3241ad23a2b3b5eacbb9c955eaf3a",
+        "timestamp": 1606137054928.229,
+        "value": "0.000000e+00"
     }
 ]
 http://localhost:54322/series/descs?series=f29c38f54d5a3cb928496439760634617688036b
- .. 11 lines with 1 json { structs }
+ .. 11 lines with 1 json { objects }
 [
     {
         "series": "f29c38f54d5a3cb928496439760634617688036b",
@@ -287,7 +287,7 @@ http://localhost:54322/series/descs?series=f29c38f54d5a3cb9284964397606346176880
     }
 ]
 http://localhost:54322/series/metrics?series=f29c38f54d5a3cb928496439760634617688036b
- .. 6 lines with 1 json { structs }
+ .. 6 lines with 1 json { objects }
 [
     {
         "series": "f29c38f54d5a3cb928496439760634617688036b",
@@ -295,29 +295,8 @@ http://localhost:54322/series/metrics?series=f29c38f54d5a3cb92849643976063461768
     }
 ]
 http://localhost:54322/series/instances?series=f29c38f54d5a3cb928496439760634617688036b
- .. 44 lines with 6 json { structs }
+ .. 44 lines with 6 json { objects }
 [
-    {
-        "series": "f29c38f54d5a3cb928496439760634617688036b",
-        "source": "6057bc0fdd93cd146793be12edc2751d79745c54",
-        "instance": "21ffdae1756f882eed12a8eaaa5159bab8e413ca",
-        "id": 1,
-        "name": "1 minute"
-    },
-    {
-        "series": "f29c38f54d5a3cb928496439760634617688036b",
-        "source": "6057bc0fdd93cd146793be12edc2751d79745c54",
-        "instance": "91309d0d0b39671f59acd40d31348f9e1175702b",
-        "id": 5,
-        "name": "5 minute"
-    },
-    {
-        "series": "f29c38f54d5a3cb928496439760634617688036b",
-        "source": "6057bc0fdd93cd146793be12edc2751d79745c54",
-        "instance": "2d6dd71e17cb71a14e33ff6c4ecca2454e3b900c",
-        "id": 15,
-        "name": "15 minute"
-    },
     {
         "series": "f29c38f54d5a3cb928496439760634617688036b",
         "source": "39046d0e66a323e7e3602f113fe8b2c41a202f67",
@@ -328,23 +307,44 @@ http://localhost:54322/series/instances?series=f29c38f54d5a3cb928496439760634617
     {
         "series": "f29c38f54d5a3cb928496439760634617688036b",
         "source": "39046d0e66a323e7e3602f113fe8b2c41a202f67",
+        "instance": "9c6193a8bcb74c22526efac6e047a8b5f8287f28",
+        "id": 15,
+        "name": "15 minute"
+    },
+    {
+        "series": "f29c38f54d5a3cb928496439760634617688036b",
+        "source": "39046d0e66a323e7e3602f113fe8b2c41a202f67",
         "instance": "e8985e0951c3241ad23a2b3b5eacbb9c955eaf3a",
         "id": 5,
         "name": "5 minute"
     },
     {
         "series": "f29c38f54d5a3cb928496439760634617688036b",
-        "source": "39046d0e66a323e7e3602f113fe8b2c41a202f67",
-        "instance": "9c6193a8bcb74c22526efac6e047a8b5f8287f28",
+        "source": "6057bc0fdd93cd146793be12edc2751d79745c54",
+        "instance": "21ffdae1756f882eed12a8eaaa5159bab8e413ca",
+        "id": 1,
+        "name": "1 minute"
+    },
+    {
+        "series": "f29c38f54d5a3cb928496439760634617688036b",
+        "source": "6057bc0fdd93cd146793be12edc2751d79745c54",
+        "instance": "2d6dd71e17cb71a14e33ff6c4ecca2454e3b900c",
         "id": 15,
         "name": "15 minute"
+    },
+    {
+        "series": "f29c38f54d5a3cb928496439760634617688036b",
+        "source": "6057bc0fdd93cd146793be12edc2751d79745c54",
+        "instance": "91309d0d0b39671f59acd40d31348f9e1175702b",
+        "id": 5,
+        "name": "5 minute"
     }
 ]
 
 == verify two host series function (floor(a)) SID lookup
 floor(kernel.all.load)
 http://localhost:54322/series/query?expr=floor%28kernel.all.load%29
- .. 3 lines with 0 json { structs }
+ .. 3 lines with 0 json { objects }
 [
     "f2dbf7a113932b3371c8871df932603856d1d7b6"
 ]
@@ -352,42 +352,36 @@ http://localhost:54322/series/query?expr=floor%28kernel.all.load%29
 == verify two host series function (floor(a)) with samples
 floor(kernel.all.load[samples:2])
 http://localhost:54322/series/query?expr=floor%28kernel.all.load%5Bsamples%3A2%5D%29
- .. 74 lines with 12 json { structs }
+ .. 74 lines with 12 json { objects }
 [
     {
         "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
         "instance": "21ffdae1756f882eed12a8eaaa5159bab8e413ca",
-        "timestamp": 1606139271367.406,
-        "value": "0.000000e+00"
-    },
-    {
-        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
-        "instance": "91309d0d0b39671f59acd40d31348f9e1175702b",
-        "timestamp": 1606139271367.406,
-        "value": "0.000000e+00"
-    },
-    {
-        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
-        "instance": "2d6dd71e17cb71a14e33ff6c4ecca2454e3b900c",
-        "timestamp": 1606139271367.406,
+        "timestamp": 1606139211370.659,
         "value": "0.000000e+00"
     },
     {
         "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
         "instance": "21ffdae1756f882eed12a8eaaa5159bab8e413ca",
-        "timestamp": 1606139211370.659,
-        "value": "0.000000e+00"
-    },
-    {
-        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
-        "instance": "91309d0d0b39671f59acd40d31348f9e1175702b",
-        "timestamp": 1606139211370.659,
+        "timestamp": 1606139271367.406,
         "value": "0.000000e+00"
     },
     {
         "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
         "instance": "2d6dd71e17cb71a14e33ff6c4ecca2454e3b900c",
         "timestamp": 1606139211370.659,
+        "value": "0.000000e+00"
+    },
+    {
+        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
+        "instance": "2d6dd71e17cb71a14e33ff6c4ecca2454e3b900c",
+        "timestamp": 1606139271367.406,
+        "value": "0.000000e+00"
+    },
+    {
+        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
+        "instance": "55faa1778377ccd483126f1669d5a6bee5197a21",
+        "timestamp": 1606139214817.0,
         "value": "0.000000e+00"
     },
     {
@@ -398,8 +392,20 @@ http://localhost:54322/series/query?expr=floor%28kernel.all.load%5Bsamples%3A2%5
     },
     {
         "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
-        "instance": "e8985e0951c3241ad23a2b3b5eacbb9c955eaf3a",
-        "timestamp": 1606139275665.424,
+        "instance": "91309d0d0b39671f59acd40d31348f9e1175702b",
+        "timestamp": 1606139211370.659,
+        "value": "0.000000e+00"
+    },
+    {
+        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
+        "instance": "91309d0d0b39671f59acd40d31348f9e1175702b",
+        "timestamp": 1606139271367.406,
+        "value": "0.000000e+00"
+    },
+    {
+        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
+        "instance": "9c6193a8bcb74c22526efac6e047a8b5f8287f28",
+        "timestamp": 1606139214817.0,
         "value": "0.000000e+00"
     },
     {
@@ -410,20 +416,14 @@ http://localhost:54322/series/query?expr=floor%28kernel.all.load%5Bsamples%3A2%5
     },
     {
         "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
-        "instance": "55faa1778377ccd483126f1669d5a6bee5197a21",
-        "timestamp": 1606139214817.0,
-        "value": "0.000000e+00"
-    },
-    {
-        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
         "instance": "e8985e0951c3241ad23a2b3b5eacbb9c955eaf3a",
         "timestamp": 1606139214817.0,
         "value": "0.000000e+00"
     },
     {
         "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
-        "instance": "9c6193a8bcb74c22526efac6e047a8b5f8287f28",
-        "timestamp": 1606139214817.0,
+        "instance": "e8985e0951c3241ad23a2b3b5eacbb9c955eaf3a",
+        "timestamp": 1606139275665.424,
         "value": "0.000000e+00"
     }
 ]
@@ -431,7 +431,7 @@ http://localhost:54322/series/query?expr=floor%28kernel.all.load%5Bsamples%3A2%5
 == verify two host series function (floor(a)) with samples by SID
 floor(kernel.all.load), SID=f2dbf7a113932b3371c8871df932603856d1d7b6
 http://localhost:54322/series/values?series=f2dbf7a113932b3371c8871df932603856d1d7b6&samples=2
- .. 74 lines with 12 json { structs }
+ .. 74 lines with 12 json { objects }
 [
     {
         "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
@@ -441,26 +441,14 @@ http://localhost:54322/series/values?series=f2dbf7a113932b3371c8871df932603856d1
     },
     {
         "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
-        "instance": "91309d0d0b39671f59acd40d31348f9e1175702b",
-        "timestamp": 1606137051497.722,
-        "value": "0.000000e+00"
-    },
-    {
-        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
-        "instance": "2d6dd71e17cb71a14e33ff6c4ecca2454e3b900c",
-        "timestamp": 1606137051497.722,
-        "value": "0.000000e+00"
-    },
-    {
-        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
         "instance": "21ffdae1756f882eed12a8eaaa5159bab8e413ca",
         "timestamp": 1606137111325.177,
         "value": "0.000000e+00"
     },
     {
         "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
-        "instance": "91309d0d0b39671f59acd40d31348f9e1175702b",
-        "timestamp": 1606137111325.177,
+        "instance": "2d6dd71e17cb71a14e33ff6c4ecca2454e3b900c",
+        "timestamp": 1606137051497.722,
         "value": "0.000000e+00"
     },
     {
@@ -477,26 +465,26 @@ http://localhost:54322/series/values?series=f2dbf7a113932b3371c8871df932603856d1
     },
     {
         "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
-        "instance": "e8985e0951c3241ad23a2b3b5eacbb9c955eaf3a",
-        "timestamp": 1606137054928.229,
-        "value": "0.000000e+00"
-    },
-    {
-        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
-        "instance": "9c6193a8bcb74c22526efac6e047a8b5f8287f28",
-        "timestamp": 1606137054928.229,
-        "value": "0.000000e+00"
-    },
-    {
-        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
         "instance": "55faa1778377ccd483126f1669d5a6bee5197a21",
         "timestamp": 1606137114777.17,
         "value": "0.000000e+00"
     },
     {
         "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
-        "instance": "e8985e0951c3241ad23a2b3b5eacbb9c955eaf3a",
-        "timestamp": 1606137114777.17,
+        "instance": "91309d0d0b39671f59acd40d31348f9e1175702b",
+        "timestamp": 1606137051497.722,
+        "value": "0.000000e+00"
+    },
+    {
+        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
+        "instance": "91309d0d0b39671f59acd40d31348f9e1175702b",
+        "timestamp": 1606137111325.177,
+        "value": "0.000000e+00"
+    },
+    {
+        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
+        "instance": "9c6193a8bcb74c22526efac6e047a8b5f8287f28",
+        "timestamp": 1606137054928.229,
         "value": "0.000000e+00"
     },
     {
@@ -504,10 +492,22 @@ http://localhost:54322/series/values?series=f2dbf7a113932b3371c8871df932603856d1
         "instance": "9c6193a8bcb74c22526efac6e047a8b5f8287f28",
         "timestamp": 1606137114777.17,
         "value": "0.000000e+00"
+    },
+    {
+        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
+        "instance": "e8985e0951c3241ad23a2b3b5eacbb9c955eaf3a",
+        "timestamp": 1606137054928.229,
+        "value": "0.000000e+00"
+    },
+    {
+        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
+        "instance": "e8985e0951c3241ad23a2b3b5eacbb9c955eaf3a",
+        "timestamp": 1606137114777.17,
+        "value": "0.000000e+00"
     }
 ]
 http://localhost:54322/series/descs?series=f2dbf7a113932b3371c8871df932603856d1d7b6
- .. 11 lines with 1 json { structs }
+ .. 11 lines with 1 json { objects }
 [
     {
         "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
@@ -520,7 +520,7 @@ http://localhost:54322/series/descs?series=f2dbf7a113932b3371c8871df932603856d1d
     }
 ]
 http://localhost:54322/series/metrics?series=f2dbf7a113932b3371c8871df932603856d1d7b6
- .. 6 lines with 1 json { structs }
+ .. 6 lines with 1 json { objects }
 [
     {
         "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
@@ -528,29 +528,8 @@ http://localhost:54322/series/metrics?series=f2dbf7a113932b3371c8871df932603856d
     }
 ]
 http://localhost:54322/series/instances?series=f2dbf7a113932b3371c8871df932603856d1d7b6
- .. 44 lines with 6 json { structs }
+ .. 44 lines with 6 json { objects }
 [
-    {
-        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
-        "source": "6057bc0fdd93cd146793be12edc2751d79745c54",
-        "instance": "21ffdae1756f882eed12a8eaaa5159bab8e413ca",
-        "id": 1,
-        "name": "1 minute"
-    },
-    {
-        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
-        "source": "6057bc0fdd93cd146793be12edc2751d79745c54",
-        "instance": "91309d0d0b39671f59acd40d31348f9e1175702b",
-        "id": 5,
-        "name": "5 minute"
-    },
-    {
-        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
-        "source": "6057bc0fdd93cd146793be12edc2751d79745c54",
-        "instance": "2d6dd71e17cb71a14e33ff6c4ecca2454e3b900c",
-        "id": 15,
-        "name": "15 minute"
-    },
     {
         "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
         "source": "39046d0e66a323e7e3602f113fe8b2c41a202f67",
@@ -561,23 +540,44 @@ http://localhost:54322/series/instances?series=f2dbf7a113932b3371c8871df93260385
     {
         "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
         "source": "39046d0e66a323e7e3602f113fe8b2c41a202f67",
+        "instance": "9c6193a8bcb74c22526efac6e047a8b5f8287f28",
+        "id": 15,
+        "name": "15 minute"
+    },
+    {
+        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
+        "source": "39046d0e66a323e7e3602f113fe8b2c41a202f67",
         "instance": "e8985e0951c3241ad23a2b3b5eacbb9c955eaf3a",
         "id": 5,
         "name": "5 minute"
     },
     {
         "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
-        "source": "39046d0e66a323e7e3602f113fe8b2c41a202f67",
-        "instance": "9c6193a8bcb74c22526efac6e047a8b5f8287f28",
+        "source": "6057bc0fdd93cd146793be12edc2751d79745c54",
+        "instance": "21ffdae1756f882eed12a8eaaa5159bab8e413ca",
+        "id": 1,
+        "name": "1 minute"
+    },
+    {
+        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
+        "source": "6057bc0fdd93cd146793be12edc2751d79745c54",
+        "instance": "2d6dd71e17cb71a14e33ff6c4ecca2454e3b900c",
         "id": 15,
         "name": "15 minute"
+    },
+    {
+        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
+        "source": "6057bc0fdd93cd146793be12edc2751d79745c54",
+        "instance": "91309d0d0b39671f59acd40d31348f9e1175702b",
+        "id": 5,
+        "name": "5 minute"
     }
 ]
 
 == verify two host series function rescale(rate(kernel.percpu.cpu.idle), "millisec/s") SID lookup
 rescale(rate(kernel.percpu.cpu.idle), "millisec/s")
 http://localhost:54322/series/query?expr=rescale%28rate%28kernel.percpu.cpu.idle%29,%22millisec/s%22%29
- .. 3 lines with 0 json { structs }
+ .. 3 lines with 0 json { objects }
 [
     "7c31a987c26c610b4e26876c6ea7c78c8f0be3b4"
 ]
@@ -585,7 +585,7 @@ http://localhost:54322/series/query?expr=rescale%28rate%28kernel.percpu.cpu.idle
 == verify two host series function rescale(rate(kernel.percpu.cpu.idle), "millisec/s") with samples
 rescale(rate(kernel.percpu.cpu.idle[samples:2]),"millisec/s")
 http://localhost:54322/series/query?expr=rescale%28rate%28kernel.percpu.cpu.idle%5Bsamples%3A2%5D%29,%22millisec/s%22%29
- .. 14 lines with 2 json { structs }
+ .. 14 lines with 2 json { objects }
 [
     {
         "series": "7c31a987c26c610b4e26876c6ea7c78c8f0be3b4",
@@ -604,14 +604,8 @@ http://localhost:54322/series/query?expr=rescale%28rate%28kernel.percpu.cpu.idle
 == verify two host series function rescale(kernel.percpu.cpu.idle, "millisec/s") with samples by SID
 rescale(rate(kernel.percpu.cpu.idle), "millisec/s"), SID=7c31a987c26c610b4e26876c6ea7c78c8f0be3b4
 http://localhost:54322/series/values?series=7c31a987c26c610b4e26876c6ea7c78c8f0be3b4&samples=2
- .. 26 lines with 4 json { structs }
+ .. 26 lines with 4 json { objects }
 [
-    {
-        "series": "7c31a987c26c610b4e26876c6ea7c78c8f0be3b4",
-        "instance": "2f051c6fd15e4108bce6c97152325945f28390f0",
-        "timestamp": 1606137114777.17,
-        "value": "9.930026e+02"
-    },
     {
         "series": "7c31a987c26c610b4e26876c6ea7c78c8f0be3b4",
         "instance": "2f051c6fd15e4108bce6c97152325945f28390f0",
@@ -620,19 +614,25 @@ http://localhost:54322/series/values?series=7c31a987c26c610b4e26876c6ea7c78c8f0b
     },
     {
         "series": "7c31a987c26c610b4e26876c6ea7c78c8f0be3b4",
-        "instance": "a2a580a2d749a2b3264f7dea09518151709ec419",
-        "timestamp": 1606137111325.177,
-        "value": "9.933566e+02"
+        "instance": "2f051c6fd15e4108bce6c97152325945f28390f0",
+        "timestamp": 1606137114777.17,
+        "value": "9.930026e+02"
     },
     {
         "series": "7c31a987c26c610b4e26876c6ea7c78c8f0be3b4",
         "instance": "a2a580a2d749a2b3264f7dea09518151709ec419",
         "timestamp": 1606137111325.177,
         "value": "6.006995e+07"
+    },
+    {
+        "series": "7c31a987c26c610b4e26876c6ea7c78c8f0be3b4",
+        "instance": "a2a580a2d749a2b3264f7dea09518151709ec419",
+        "timestamp": 1606137111325.177,
+        "value": "9.933566e+02"
     }
 ]
 http://localhost:54322/series/descs?series=7c31a987c26c610b4e26876c6ea7c78c8f0be3b4
- .. 11 lines with 1 json { structs }
+ .. 11 lines with 1 json { objects }
 [
     {
         "series": "7c31a987c26c610b4e26876c6ea7c78c8f0be3b4",
@@ -645,7 +645,7 @@ http://localhost:54322/series/descs?series=7c31a987c26c610b4e26876c6ea7c78c8f0be
     }
 ]
 http://localhost:54322/series/metrics?series=7c31a987c26c610b4e26876c6ea7c78c8f0be3b4
- .. 6 lines with 1 json { structs }
+ .. 6 lines with 1 json { objects }
 [
     {
         "series": "7c31a987c26c610b4e26876c6ea7c78c8f0be3b4",
@@ -653,7 +653,7 @@ http://localhost:54322/series/metrics?series=7c31a987c26c610b4e26876c6ea7c78c8f0
     }
 ]
 http://localhost:54322/series/instances?series=7c31a987c26c610b4e26876c6ea7c78c8f0be3b4
- .. 16 lines with 2 json { structs }
+ .. 16 lines with 2 json { objects }
 [
     {
         "series": "7c31a987c26c610b4e26876c6ea7c78c8f0be3b4",
