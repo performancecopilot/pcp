@@ -11946,7 +11946,7 @@ if test "x$enable_selinux" != "xfalse"; then :
     && pcp_selinux_dir_class=true
 
     seinfo -x --class=rawip_socket $seinfo_common_flag 2>/dev/null \
-    | grep '^[ 	][ 	]*(class |)rawip_socket$' >/dev/null \
+    | egrep '^[ 	][ 	]*(class |)rawip_socket$' >/dev/null \
     && pcp_selinux_rawip_socket_class=true
 
 
