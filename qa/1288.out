@@ -1,0 +1,70 @@
+QA output created by 1288
+
+proc.psinfo.utime
+    Data Type: 64-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: counter  Units: millisec
+Note: timezone set to local timezone of host "shard" from archive
+
+metric:    proc.psinfo.utime
+archive:   archives/pcp-atop-boot
+host:      shard
+start:     Wed Jul 22 17:32:49 2020
+end:       Wed Jul 22 17:32:54 2020
+semantics: cumulative counter (converting to rate)
+units:     millisec (converting to time utilization)
+samples:   6
+interval:  1.00 sec
+17:32:49.542  No values available
+17:32:50.542  No values available
+
+                       2956902               2956910    
+17:32:51.542  No values available
+17:32:52.542  No values available
+17:32:53.542  No values available
+17:32:54.542  No values available
+
+proc.psinfo.sname
+    Data Type: string  InDom: 3.9 0xc00009
+    Semantics: instant  Units: none
+Note: timezone set to local timezone of host "shard" from archive
+
+metric:    proc.psinfo.sname
+archive:   archives/pcp-atop-boot
+host:      shard
+start:     Wed Jul 22 17:32:49 2020
+end:       Wed Jul 22 17:32:54 2020
+semantics: instantaneous value
+units:     none
+samples:   6
+interval:  1.00 sec
+17:32:49.542  No values available
+17:32:50.542  No values available
+
+                          2956902               2956910 
+17:32:51.542                    ?                   "S" 
+17:32:52.542  No values available
+17:32:53.542  No values available
+17:32:54.542  No values available
+
+proc.psinfo.cmd
+    Data Type: string  InDom: 3.9 0xc00009
+    Semantics: discrete  Units: none
+Note: timezone set to local timezone of host "shard" from archive
+
+metric:    proc.psinfo.cmd
+archive:   archives/pcp-atop-boot
+host:      shard
+start:     Wed Jul 22 17:32:49 2020
+end:       Wed Jul 22 17:32:54 2020
+semantics: discrete instantaneous value
+units:     none
+samples:   6
+interval:  1.00 sec
+17:32:49.542  No values available
+
+                          2956902               2956910 
+17:32:50.542            "pmsleep"                     ? 
+17:32:51.542                    ?             "pmsleep" 
+17:32:52.542                    ?             "pmsleep" 
+17:32:53.542  No values available
+17:32:54.542  No values available
