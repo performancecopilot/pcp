@@ -1,0 +1,55 @@
+#!/bin/sh
+# PCP QA Test No. 1288
+# libpcp archive mode and discrete metrics with dynamic indoms
+# ... this is the kernel of the issue with qa/1347 (which is really
+# a pcp-atop problem, but the libpcp changes triggered different
+# wrong output from pcp-atop for -v and -m)
+#
+# Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e 's/<something>/<else>/' \
+    # end
+}
+
+# real QA test starts here
+
+# need metrics with counter, instant and discrete semantics, and the
+# two instances that come and go are 2956902 and 2956910
+#
+for m in proc.psinfo.utime proc.psinfo.sname proc.psinfo.cmd
+do
+    pminfo -d -a archives/pcp-atop-boot $m
+    pmval -z -i 2956902,2956910 -t 1sec -a archives/pcp-atop-boot $m
+done
+
+# success, all done
+exit
