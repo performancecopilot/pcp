@@ -265,7 +265,7 @@ main(int argc, char **argv)
     int		n;
     int		c;
     int		i;
-    int		sts;
+    int		skip;
     char	*pmnsfile = PM_NS_DEFAULT;
     char	*fname = NULL;
     char	pathname[MAXPATHLEN];
@@ -274,14 +274,13 @@ main(int argc, char **argv)
     char	*endnum;
     char	*bp;
     char	*p;
-    int		skip;
     help_idx_t	hdr;
 
     while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
 	switch (c) {
 
 	case 'D':	/* debug options */
-	    if ((sts = pmSetDebug(opts.optarg)) < 0) {
+	    if (pmSetDebug(opts.optarg) < 0) {
 		pmprintf("%s: unrecognized debug options specification (%s)\n",
 		    pmGetProgname(), opts.optarg);
 		opts.errors++;
