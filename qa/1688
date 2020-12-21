@@ -45,7 +45,9 @@ _filter()
         -e '/enabled/s/:.*$/: N/' \
 	-e '/PID/s/:.*$/: PID/' \
 	-e 's;'$HOME';HOME;' \
-	-e 's;'$PCP_VAR_DIR';PCP_VAR_DIR;'
+	-e 's;'$PCP_VAR_DIR';PCP_VAR_DIR;' \
+	-e 's/processes (PIDs)/process (PID)/' \
+    # end
 }
 
 # real QA test starts here
