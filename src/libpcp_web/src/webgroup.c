@@ -1986,10 +1986,10 @@ webgroup_store(struct context *context, struct metric *metric,
     bytes = sizeof(pmValueSet) + sizeof(pmValue) * (count - 1);
     if ((result = (pmResult *)calloc(1, sizeof(pmResult))) == NULL ||
 	(valueset = (pmValueSet *)calloc(1, bytes)) == NULL) {
-	if (atom.cp && metric->desc.type == PM_TYPE_STRING) {
-	    if (result) free(result);
+	if (atom.cp && metric->desc.type == PM_TYPE_STRING)
 	    free(atom.cp);
-	}
+	if (result)
+	    free(result);
 	return -ENOMEM;
     }
     result->vset[0] = valueset;
