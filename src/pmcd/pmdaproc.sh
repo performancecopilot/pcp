@@ -266,36 +266,33 @@ END					{ exit status }'
     done
 }
 
+__filter_journalctl_pmcd()
+{
+    grep " pmcd\\[" \ | sed -e 's/\.\.*done$//'
+}
+
+__journalctl_pmcd()
+{
+    if `which journalctl >/dev/null 2>&1`
+    then
+	journalctl -n 10 -u pmcd 2>/dev/null | __filter_journalctl_pmcd
+    elif `which systemd-journalctl >/dev/null 2>&1`
+    then
+	systemd-journalctl -q -n 100 2>/dev/null | __filter_journalctl_pmcd
+    fi
+}
+
 __pmda_restart_pmcd()
 {
     if [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/pmcd.service -a "$PCPQA_SYSTEMD" != no ]
     then
 	# smells like systemctl is the go ...
 	#
-	if `which journalctl >/dev/null 2>&1`
-	then
-	    journalctl -n 10 -u pmcd \
-	    | grep " pmcd\\[" \
-	    | sed -e 's/\.\.*done$//' >$tmp.journal.pre
-	elif `which systemd-journalctl >/dev/null 2>&1`
-	then
-	    systemd-journalctl -q -n 100 \
-	    | grep " pmcd\\[" \
-	    | sed -e 's/\.\.*done$//' >$tmp.journal.pre
-	fi
+	__journalctl_pmcd > $tmp.journal.pre
 	systemctl restart pmcd.service
         sleep 2
-	if `which journalctl >/dev/null 2>&1`
-	then
-	    journalctl -n 10 -u pmcd \
-	    | grep " pmcd\\["  \
-	    | sed -e 's/\.\.*done$//' >$tmp.journal.post
-	elif `which systemd-journalctl >/dev/null 2>&1`
-	then
-	    systemd-journalctl -q -n 100 \
-	    | grep " pmcd\\[" \
-	    | sed -e 's/\.\.*done$//' >$tmp.journal.post
-	fi
+	__journalctl_pmcd > $tmp.journal.post
+
 	# diff the pre and post journal lines to find those most recently
 	# added:
 	#	- lines beginning with a digit are ed(1) commands, ignore
