@@ -2288,36 +2288,19 @@ Sum of drop column on the "Receive" side of /proc/net/dev for network
 interfaces deemed to be 'physical' interfaces, using regular expression
 pattern described in the $PCP_SYSCONF_DIR/linux/interfaces.conf file.
 
-@ network.all.out.bytes network recv bytes from physical network interfaces
+@ network.all.out.bytes network bytes sent from physical network interfaces
 Sum of bytes column on the "Transmit" side of /proc/net/dev for network
 interfaces deemed to be 'physical' interfaces, using regular expression
 pattern described in the $PCP_SYSCONF_DIR/linux/interfaces.conf file.
-@ network.all.in.packets network recv packets from physical network interfaces
+@ network.all.out.packets network packets sent from physical network interfaces
 Sum of packets column on the "Transmit" side of /proc/net/dev for network
 interfaces deemed to be 'physical' interfaces, using regular expression
 pattern described in the $PCP_SYSCONF_DIR/linux/interfaces.conf file.
-@ network.all.in.errors network recv errors from physical network interfaces
+@ network.all.out.errors network send errors from physical network interfaces
 Sum of errors column on the "Transmit" side of /proc/net/dev for network
 interfaces deemed to be 'physical' interfaces, using regular expression
 pattern described in the $PCP_SYSCONF_DIR/linux/interfaces.conf file.
-@ network.all.in.drops network recv drops from physical network interfaces
-Sum of drop column on the "Transmit" side of /proc/net/dev for network
-interfaces deemed to be 'physical' interfaces, using regular expression
-pattern described in the $PCP_SYSCONF_DIR/linux/interfaces.conf file.
-
-@ network.all.in.bytes network send bytes from physical network interfaces
-Sum of bytes column on the "Transmit" side of /proc/net/dev for network
-interfaces deemed to be 'physical' interfaces, using regular expression
-pattern described in the $PCP_SYSCONF_DIR/linux/interfaces.conf file.
-@ network.all.in.packets network send packets from physical network interfaces
-Sum of packets column on the "Transmit" side of /proc/net/dev for network
-interfaces deemed to be 'physical' interfaces, using regular expression
-pattern described in the $PCP_SYSCONF_DIR/linux/interfaces.conf file.
-@ network.all.in.errors network send errors from physical network interfaces
-Sum of errors column on the "Transmit" side of /proc/net/dev for network
-interfaces deemed to be 'physical' interfaces, using regular expression
-pattern described in the $PCP_SYSCONF_DIR/linux/interfaces.conf file.
-@ network.all.in.drops network send drops from physical network interfaces
+@ network.all.out.drops network send drops from physical network interfaces
 Sum of drop column on the "Transmit" side of /proc/net/dev for network
 interfaces deemed to be 'physical' interfaces, using regular expression
 pattern described in the $PCP_SYSCONF_DIR/linux/interfaces.conf file.
