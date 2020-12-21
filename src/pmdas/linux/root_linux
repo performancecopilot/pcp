@@ -73,10 +73,26 @@ hinv.cpu {
     flags		60:18:10
     cache_alignment	60:18:11
     online		60:55:0
+    thermal_throttle
 }
 
 hinv.node {
     online		60:55:1
+}
+
+hinv.cpu.thermal_throttle {
+    core
+    package
+}
+
+hinv.cpu.thermal_throttle.core {
+    count		60:55:2
+    time		60:55:3
+}
+
+hinv.cpu.thermal_throttle.package {
+    count		60:55:4
+    time		60:55:5
 }
 
 kernel {

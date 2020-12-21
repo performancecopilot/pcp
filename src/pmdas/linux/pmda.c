@@ -4574,6 +4574,26 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_SYSFS_DEVICES, 1), PM_TYPE_U32, NODE_INDOM, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,0,0,0,0) } },
 
+/* hinv.cpu.thermal_throttle.core.count */
+  { NULL,
+    { PMDA_PMID(CLUSTER_SYSFS_DEVICES, 2), KERNEL_ULONG, CPU_INDOM, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* hinv.cpu.thermal_throttle.core.time */
+  { NULL,
+    { PMDA_PMID(CLUSTER_SYSFS_DEVICES, 3), KERNEL_ULONG, CPU_INDOM, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0)}},
+
+/* hinv.cpu.thermal_throttle.package.count */
+  { NULL,
+    { PMDA_PMID(CLUSTER_SYSFS_DEVICES, 4), KERNEL_ULONG, CPU_INDOM, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* hinv.cpu.thermal_throttle.package.time */
+  { NULL,
+    { PMDA_PMID(CLUSTER_SYSFS_DEVICES, 5), KERNEL_ULONG, CPU_INDOM, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
 /*
  * semaphore limits cluster
  * Cluster added by Mike Mason <mmlnx@us.ibm.com>
@@ -7991,16 +8011,35 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	break;
 
     case CLUSTER_SYSFS_DEVICES:
+	if (item == 1)	/* hinv.node.online */
+	    sts = pmdaCacheLookup(INDOM(NODE_INDOM), inst, &name, NULL);
+	else		/* hinv.cpu metrics */
+	    sts = pmdaCacheLookup(INDOM(CPU_INDOM), inst, &name, NULL);
+	if (sts < 0)
+	    return PM_ERR_INST;
 	switch (item) {
 	case 0: /* hinv.cpu.online */
-	    if (pmdaCacheLookup(INDOM(CPU_INDOM), inst, &name, NULL) < 0)
-		return PM_ERR_INST;
 	    atom->ul = refresh_sysfs_online(name, "cpu");
 	    break;
 	case 1: /* hinv.node.online */
-	    if (pmdaCacheLookup(INDOM(NODE_INDOM), inst, &name, NULL) < 0)
-		return PM_ERR_INST;
 	    atom->ul = refresh_sysfs_online(name, "node");
+	    break;
+
+	case 2: /* hinv.cpu.thermal_throttle.core.count */
+	    _pm_assign_ulong(atom, refresh_sysfs_thermal_throttle(
+				name, "core", "count"));
+	    break;
+	case 3: /* hinv.cpu.thermal_throttle.core.time */
+	    _pm_assign_ulong(atom, refresh_sysfs_thermal_throttle(
+				name, "core", "total_time_ms"));
+	    break;
+	case 4: /* hinv.cpu.thermal_throttle.package.count */
+	    _pm_assign_ulong(atom, refresh_sysfs_thermal_throttle(
+				name, "package", "count"));
+	    break;
+	case 5: /* hinv.cpu.thermal_throttle.package.time */
+	    _pm_assign_ulong(atom, refresh_sysfs_thermal_throttle(
+				name, "package", "total_time_ms"));
 	    break;
 
 	default:

@@ -1947,6 +1947,10 @@ See also the kernel.uname.* metrics
 @ hinv.cpu.cache_alignment Cache alignment for each CPU as reported by /proc/cpuinfo
 @ hinv.cpu.online CPU online state from /sys/devices/system/cpu/*/online
 @ hinv.node.online NUMA node online state from /sys/devices/system/node/*/online
+@ hinv.cpu.thermal_throttle.core.count CPU core throttles from /sys/devices/system/cpu/*/thermal_throttle
+@ hinv.cpu.thermal_throttle.core.time CPU core throttle time from /sys/devices/system/cpu/*/thermal_throttle
+@ hinv.cpu.thermal_throttle.package.count CPU package throttles from /sys/devices/system/cpu/*/thermal_throttle
+@ hinv.cpu.thermal_throttle.package.time CPU package throttle time from /sys/devices/system/cpu/*/thermal_throttle
 @ kernel.all.hz value of HZ (jiffies/second) for the currently running kernel
 @ kernel.all.uptime time the current kernel has been running
 @ kernel.all.idletime time the current kernel has been idle since boot

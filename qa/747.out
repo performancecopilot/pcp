@@ -1,5 +1,5 @@
 QA output created by 747
-== Checking hinv metric values - sysdev-root-001.tgz
+== Checking hinv online metric values - sysdev-root-001.tgz
 hinv.cpu.online
    "cpu0" 1
    "cpu1" 1
@@ -152,7 +152,280 @@ kernel.pernode.cpu.wait.total
 
 == done
 
-== Checking hinv metric values - sysfs-numa-001.tgz
+== Checking hinv thermal_throttle values - sysdev-root-001.tgz
+hinv.cpu.thermal_throttle.core.count
+   "cpu0" 0
+   "cpu1" 0
+   "cpu2" 0
+   "cpu3" 0
+hinv.cpu.thermal_throttle.core.time
+   "cpu0" 0
+   "cpu1" 0
+   "cpu2" 0
+   "cpu3" 0
+hinv.cpu.thermal_throttle.package.count
+   "cpu0" 0
+   "cpu1" 0
+   "cpu2" 0
+   "cpu3" 0
+hinv.cpu.thermal_throttle.package.time
+   "cpu0" 0
+   "cpu1" 0
+   "cpu2" 0
+   "cpu3" 0
+
+== done
+
+== Checking hinv online metric values - sysdev-root-002.tgz
+hinv.cpu.online
+   "cpu0" 1
+   "cpu1" 1
+   "cpu2" 1
+   "cpu3" 1
+   "cpu4" 1
+   "cpu5" 1
+   "cpu6" 1
+   "cpu7" 1
+hinv.node.online
+   "node0" 1
+
+== done
+
+== Checking aggregate CPU metric values - sysdev-root-002.tgz
+
+kernel.all.cpu.guest
+    value 0
+
+kernel.all.cpu.guest_nice
+    value 0
+
+kernel.all.cpu.idle
+    value 3334308090
+
+kernel.all.cpu.intr
+    value 104587540
+
+kernel.all.cpu.irq.hard
+    value 90272110
+
+kernel.all.cpu.irq.soft
+    value 14315430
+
+kernel.all.cpu.nice
+    value 141730
+
+kernel.all.cpu.steal
+    value 0
+
+kernel.all.cpu.sys
+    value 35548590
+
+kernel.all.cpu.user
+    value 77674070
+
+kernel.all.cpu.vnice
+    value 141730
+
+kernel.all.cpu.vuser
+    value 77674070
+
+kernel.all.cpu.wait.total
+    value 6673960
+
+== done
+
+== Checking per-CPU metric values - sysdev-root-002.tgz
+kernel.percpu.cpu.guest
+   "cpu0" 0
+   "cpu1" 0
+   "cpu2" 0
+   "cpu3" 0
+   "cpu4" 0
+   "cpu5" 0
+   "cpu6" 0
+   "cpu7" 0
+kernel.percpu.cpu.guest_nice
+   "cpu0" 0
+   "cpu1" 0
+   "cpu2" 0
+   "cpu3" 0
+   "cpu4" 0
+   "cpu5" 0
+   "cpu6" 0
+   "cpu7" 0
+kernel.percpu.cpu.idle
+   "cpu0" 414343100
+   "cpu1" 419824520
+   "cpu2" 413943530
+   "cpu3" 418798340
+   "cpu4" 414480770
+   "cpu5" 420041650
+   "cpu6" 414981020
+   "cpu7" 417895130
+kernel.percpu.cpu.intr
+   "cpu0" 12936100
+   "cpu1" 12937600
+   "cpu2" 12987650
+   "cpu3" 13523230
+   "cpu4" 12806300
+   "cpu5" 12871010
+   "cpu6" 13081230
+   "cpu7" 13444350
+kernel.percpu.cpu.irq.hard
+   "cpu0" 11149080
+   "cpu1" 11262050
+   "cpu2" 11197230
+   "cpu3" 11733940
+   "cpu4" 11025860
+   "cpu5" 11201730
+   "cpu6" 11265670
+   "cpu7" 11436510
+kernel.percpu.cpu.irq.soft
+   "cpu0" 1787020
+   "cpu1" 1675550
+   "cpu2" 1790420
+   "cpu3" 1789290
+   "cpu4" 1780440
+   "cpu5" 1669280
+   "cpu6" 1815560
+   "cpu7" 2007840
+kernel.percpu.cpu.nice
+   "cpu0" 22390
+   "cpu1" 10950
+   "cpu2" 19220
+   "cpu3" 22680
+   "cpu4" 20720
+   "cpu5" 9440
+   "cpu6" 14230
+   "cpu7" 22070
+kernel.percpu.cpu.steal
+   "cpu0" 0
+   "cpu1" 0
+   "cpu2" 0
+   "cpu3" 0
+   "cpu4" 0
+   "cpu5" 0
+   "cpu6" 0
+   "cpu7" 0
+kernel.percpu.cpu.sys
+   "cpu0" 5108790
+   "cpu1" 3797000
+   "cpu2" 5043510
+   "cpu3" 3830710
+   "cpu4" 5029840
+   "cpu5" 3786900
+   "cpu6" 5008890
+   "cpu7" 3942920
+kernel.percpu.cpu.user
+   "cpu0" 11386810
+   "cpu1" 7914960
+   "cpu2" 11154420
+   "cpu3" 8161630
+   "cpu4" 11636220
+   "cpu5" 7859920
+   "cpu6" 11052040
+   "cpu7" 8508020
+kernel.percpu.cpu.vnice
+   "cpu0" 22390
+   "cpu1" 10950
+   "cpu2" 19220
+   "cpu3" 22680
+   "cpu4" 20720
+   "cpu5" 9440
+   "cpu6" 14230
+   "cpu7" 22070
+kernel.percpu.cpu.vuser
+   "cpu0" 11386810
+   "cpu1" 7914960
+   "cpu2" 11154420
+   "cpu3" 8161630
+   "cpu4" 11636220
+   "cpu5" 7859920
+   "cpu6" 11052040
+   "cpu7" 8508020
+kernel.percpu.cpu.wait.total
+   "cpu0" 979270
+   "cpu1" 477460
+   "cpu2" 1568990
+   "cpu3" 458460
+   "cpu4" 834320
+   "cpu5" 419190
+   "cpu6" 739030
+   "cpu7" 1197220
+
+== done
+
+== Checking per-node CPU metric values - sysdev-root-002.tgz
+kernel.pernode.cpu.guest
+   "node0" 0
+kernel.pernode.cpu.guest_nice
+   "node0" 0
+kernel.pernode.cpu.idle
+   "node0" 3334308060
+kernel.pernode.cpu.intr
+   "node0" 104587470
+kernel.pernode.cpu.irq.hard
+   "node0" 90272070
+kernel.pernode.cpu.irq.soft
+   "node0" 14315400
+kernel.pernode.cpu.nice
+   "node0" 141700
+kernel.pernode.cpu.steal
+   "node0" 0
+kernel.pernode.cpu.sys
+   "node0" 35548560
+kernel.pernode.cpu.user
+   "node0" 77674020
+kernel.pernode.cpu.vnice
+   "node0" 141700
+kernel.pernode.cpu.vuser
+   "node0" 77674020
+kernel.pernode.cpu.wait.total
+   "node0" 6673940
+
+== done
+
+== Checking hinv thermal_throttle values - sysdev-root-002.tgz
+hinv.cpu.thermal_throttle.core.count
+   "cpu0" 55899
+   "cpu1" 55899
+   "cpu2" 22937
+   "cpu3" 22937
+   "cpu4" 37321
+   "cpu5" 37321
+   "cpu6" 1005
+   "cpu7" 1005
+hinv.cpu.thermal_throttle.core.time
+   "cpu0" 80959
+   "cpu1" 80958
+   "cpu2" 28477
+   "cpu3" 28477
+   "cpu4" 50430
+   "cpu5" 50430
+   "cpu6" 1673
+   "cpu7" 1673
+hinv.cpu.thermal_throttle.package.count
+   "cpu0" 104791
+   "cpu1" 104791
+   "cpu2" 104791
+   "cpu3" 104791
+   "cpu4" 104791
+   "cpu5" 104791
+   "cpu6" 104791
+   "cpu7" 104791
+hinv.cpu.thermal_throttle.package.time
+   "cpu0" 140954
+   "cpu1" 140963
+   "cpu2" 140986
+   "cpu3" 141006
+   "cpu4" 140949
+   "cpu5" 140977
+   "cpu6" 141033
+   "cpu7" 141011
+
+== done
+
+== Checking hinv online metric values - sysfs-numa-001.tgz
 hinv.cpu.online
    "cpu0" 1
    "cpu1" 1
@@ -400,6 +673,46 @@ kernel.pernode.cpu.wait.total
    "node1" 168360
    "node2" 362750
    "node3" 163130
+
+== done
+
+== Checking hinv thermal_throttle values - sysfs-numa-001.tgz
+hinv.cpu.thermal_throttle.core.count
+   "cpu0" 0
+   "cpu1" 0
+   "cpu2" 0
+   "cpu3" 0
+   "cpu4" 0
+   "cpu5" 0
+   "cpu6" 0
+   "cpu7" 0
+hinv.cpu.thermal_throttle.core.time
+   "cpu0" 0
+   "cpu1" 0
+   "cpu2" 0
+   "cpu3" 0
+   "cpu4" 0
+   "cpu5" 0
+   "cpu6" 0
+   "cpu7" 0
+hinv.cpu.thermal_throttle.package.count
+   "cpu0" 0
+   "cpu1" 0
+   "cpu2" 0
+   "cpu3" 0
+   "cpu4" 0
+   "cpu5" 0
+   "cpu6" 0
+   "cpu7" 0
+hinv.cpu.thermal_throttle.package.time
+   "cpu0" 0
+   "cpu1" 0
+   "cpu2" 0
+   "cpu3" 0
+   "cpu4" 0
+   "cpu5" 0
+   "cpu6" 0
+   "cpu7" 0
 
 == done
 
