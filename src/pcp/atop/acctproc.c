@@ -159,7 +159,8 @@ acctphotoproc(struct tstat **accproc, unsigned int *taskslen, struct timeval *cu
 		api->mem.majflt = extract_count_t_inst(result, descs, ACCT_MEM_MAJFLT, pid, i);
 		api->dsk.rio    = extract_count_t_inst(result, descs, ACCT_DSK_RIO, pid, i);
 
-		strcpy(api->gen.name, insts[i]);
+		strncpy(api->gen.name, insts[i], sizeof(api->gen.name));
+		api->gen.name[sizeof(api->gen.name)-1] = '\0';
 	}
 
 	pmFreeResult(result);
