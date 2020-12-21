@@ -311,6 +311,7 @@ setup_proc_net_all(proc_net_all_t *all)
 		length++;
 	}
     }
+    fclose(file);
     if (pattern != NULL)
 	pattern = appendc(pattern, length, '\0');
     if (pattern == NULL)
