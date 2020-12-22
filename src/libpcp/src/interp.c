@@ -1336,11 +1336,6 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	if (icp->t_first >= 0 && t_req < icp->t_first)
 	    /* before earliest observation, don't bother */
 	    continue;
-#if 0
-	if (icp->t_last >= 0 && t_req > icp->t_last)
-	    /* after latest observation, don't bother */
-	    continue;
-#endif
 	if (icp->t_birth >= 0 && t_req < icp->t_birth)
 	    /* from time_caliper(): before instance appears, don't bother */
 	    continue;
@@ -1482,11 +1477,6 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
     for (icp = (instcntl_t *)ctxp->c_archctl->ac_want; icp != NULL; icp = icp->want) {
 	assert(icp->inresult);
 	nuis[NUIS_PASS3]++;
-#if 0
-	if (icp->t_first >= 0 && t_req < icp->t_first)
-	    /* before earliest observation, don't bother */
-	    continue;
-#endif
 	if (icp->t_last >= 0 && t_req > icp->t_last)
 	    /* after latest observation, don't bother */
 	    continue;
