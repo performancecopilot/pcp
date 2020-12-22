@@ -143,7 +143,7 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(HAVE_NCURSESW)" "true"
-build-me: config.h $(CMDTARGET).1 $(CMDTARGET) $(DISTLINKS)
+build-me: config.h $(CMDTARGET) $(DISTLINKS)
 
 install: default
 	$(INSTALL) -m 755 $(CMDTARGET) $(DISTARGET)
@@ -163,7 +163,7 @@ $(DISTLINKS):	$(CMDTARGET)
 $(CMDTARGET).1:	htop.1.in
 	sed -e 's;@PACKAGE_STRING@;Performance Co-Pilot;g' \
 	    -e 's;@sysconfdir@;'$(PCP_SYSCONF_DIR)';g' \
-	    -e 's;HTOP;PCP-HTOP;g' -e 's;htop;pcp-htop;g' \
+	    -e 's;HTOP;PCP-HTOP;g' -e 's; htop; pcp-htop;g' \
 		< $^ > $@
 
 config.h: config.h.in
