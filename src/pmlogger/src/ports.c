@@ -563,16 +563,17 @@ init_ports(void)
 	pmNoMem("port file name", n, PM_FATAL_ERR);
     strcpy(ctlfile, path);
 
-    /* try to create the port file directory. OK if it already exists */
-    sts = mkdir2(ctlfile, S_IRWXU | S_IRWXG | S_IRWXO);
+    /*
+     * try to create the port file directory. OK if it already exists
+     * - mode is 775 to match GNUmakefile
+     */
+    sts = mkdir2(ctlfile, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     if (sts < 0) {
 	if (oserror() != EEXIST) {
 	    fprintf(stderr, "%s: error creating port file dir %s: %s\n",
 		pmGetProgname(), ctlfile, osstrerror());
 	    exit(1);
 	}
-    } else {
-	chmod(ctlfile, S_IRWXU | S_IRWXG | S_IRWXO | S_ISVTX);
     }
 
     /* remove any existing port file with my name (it's old) */
