@@ -15,7 +15,9 @@ echo "QA output created by $seq"
 
 arch=archives/bigace_v2
 
-trap "rm -f $tmp.*; exit" 0 1 2 3 15
+$sudo rm -rf $tmp $tmp.* $seq.full
+status=0
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _do_cpu()
 {
@@ -34,10 +36,6 @@ root {
 }
 End-of-File
 
-DEBUG=-D386
-DEBUG=-D128
-DEBUG=
-
 DELTA=20
 time=`which time 2>/dev/null`
 
@@ -53,8 +51,9 @@ cat $tmp.out
 echo
 echo "samples: `grep '^[0-9][0-9]:' $tmp.out | wc -l | sed -e 's/  *//g'`"
 egrep '^(user|sys)' $tmp.err | _do_cpu
-pmval -z -D128 -n $tmp.pmns -a $arch -t $DELTA foo 2>$tmp.err >/dev/null
+pmval -z -Dlog -n $tmp.pmns -a $arch -t $DELTA foo 2>$tmp.err >/dev/null
 echo "__pmLogReads: `grep __pmLogRead $tmp.err | wc -l | sed -e 's/  *//g'`"
+cat $tmp.err >>$seq.full
 
 echo
 echo "=== just instance #4653127 (always there) ==="
@@ -68,5 +67,5 @@ cat $tmp.out
 echo
 echo "samples: `grep '^[0-9][0-9]:' $tmp.out | wc -l | sed -e 's/  *//g'`"
 egrep '^(user|sys)' $tmp.err | _do_cpu
-pmval -z -D128 -i 4653127 -n $tmp.pmns -a $arch -t $DELTA foo 2>$tmp.err >/dev/null
+pmval -z -Dlog -i 4653127 -n $tmp.pmns -a $arch -t $DELTA foo 2>$tmp.err >/dev/null
 echo "__pmLogReads: `grep __pmLogRead $tmp.err | wc -l | sed -e 's/  *//g'`"
