@@ -139,6 +139,12 @@ echo "$url" >> $seq.full
 curl --get --silent "$url" | tee -a $seq.full | pmjson
 curl --get --silent "$url&client=pcp-qa-$seq" | tee -a $seq.full | pmjson
 
+echo "== verify metric name match" | tee -a $seq.full
+url="http://localhost:$proxyport/series/metrics?match=kernel.all.n*"
+echo "$url" >> $seq.full
+curl --get --silent "$url" | tee -a $seq.full | pmjson
+curl --get --silent "$url&client=pcp-qa-$seq" | tee -a $seq.full | pmjson
+
 echo "== verify metric insts" | tee -a $seq.full
 url="http://localhost:$proxyport/series/instances?series=$series2"
 echo "$url" >> $seq.full

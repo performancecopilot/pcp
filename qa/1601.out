@@ -90,6 +90,18 @@ Using series 01d8bc7fa75aaff98a08aa0b1c0f2394368d5183 for kernel.all.uptime
         }
     ]
 }
+== verify metric name match
+[
+    "kernel.all.nusers",
+    "kernel.all.nprocs"
+]
+{
+    "client": "pcp-qa-1601",
+    "result": [
+        "kernel.all.nusers",
+        "kernel.all.nprocs"
+    ]
+}
 == verify metric insts
 [
     {

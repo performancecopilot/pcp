@@ -256,7 +256,7 @@ on_pmseries_metric(pmSID sid, sds name, void *arg)
 	} else {
 	    prefix = ",";
 	}
-	result = sdscatfmt(result, "%s\"%S\"", prefix, quoted);
+	result = sdscatfmt(result, "%s%S", prefix, quoted);
     } else {
 	if ((s = baton->sid) == NULL) {	/* first series seem */
 	    baton->sid = sdsdup(sid);
