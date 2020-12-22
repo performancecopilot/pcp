@@ -268,7 +268,7 @@ END					{ exit status }'
 
 __filter_journalctl_pmcd()
 {
-    grep " pmcd\\[" \ | sed -e 's/\.\.*done$//'
+    grep " pmcd\\[" | sed -e 's/\.\.*done$//'
 }
 
 __journalctl_pmcd()
