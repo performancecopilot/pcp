@@ -45,16 +45,23 @@ _filter()
 	-e '/^real /d' \
 	-e '/^user /d' \
 	-e '/^sys /d' \
+	-e '/^time_caliper: /d' \
     # end
 }
 
 # real QA test starts here
-$TIME pcp -z -a archives/20201109 -Dqa atop 10 2 >$tmp.out 2>$tmp.err
+$TIME pcp -z -a archives/20201109 -Dqa atop 10 3 >$tmp.out 2>$tmp.err
 
 cat $tmp.out
 _filter <$tmp.err
 
-grep '^user ' $tmp.err
+grep '^user ' $tmp.err \
+| $PCP_AWK_PROG '
+    { if ($2 < 5.0)
+	print "user <5.0"
+      else
+        print
+    }'
 
 # success, all done
 exit
