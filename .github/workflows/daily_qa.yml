@@ -107,7 +107,7 @@ jobs:
 
       - name: Setup
         run: |
-          wget -q -O allure-commandline.zip https://repo1.maven.org/maven2/io/qameta/allure/allure-commandline/2.13.5/allure-commandline-2.13.5.zip
+          wget -q -O allure-commandline.zip https://repo1.maven.org/maven2/io/qameta/allure/allure-commandline/2.13.8/allure-commandline-2.13.8.zip
           unzip -d /opt allure-commandline.zip
 
       - name: Download all artifacts
