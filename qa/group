@@ -967,7 +967,7 @@ x11
 527 libpcp_import perl local timezone
 528 pmimport pmdumplog perl local
 529 pmie local pmdumplog
-530 logutil local pmlogextract local
+530 logutil pmlogextract local
 531 dbpmda local pmda.sample
 532 logutil pmlogextract local pmdumplog
 533 dbpmda local pmda.sample
@@ -1232,7 +1232,7 @@ x11
 792 libpcp local pmdbg
 793 logutil local kernel
 794 containers pmcd pmda.pmcd local
-795 pmimport local pmdumplog perl local
+795 pmimport pmdumplog perl local
 796 pmda.elasticsearch local
 797 pmlogrewrite local pmdumplog
 798 pmda.nfsclient local python
@@ -1283,7 +1283,7 @@ x11
 843 pmda local python
 844 pmda.linux local
 845 pmda.mounts local python
-846 pmimport local pmdumplog perl local
+846 pmimport pmdumplog perl local
 847 containers local
 848 pmcd secure local kernel
 849 pmie local
@@ -1422,8 +1422,8 @@ x11
 982 pmda.proc pmda.hotproc local pmstore
 983 pmie local
 984 cgroups local pmlogrewrite
-985 pmimport local pmdumplog perl local
-986 pmimport local pmdumplog perl local
+985 pmimport pmdumplog perl local
+986 pmimport pmdumplog perl local
 987 pmda.xfs local
 988 pmda.xfs local valgrind
 989 archive local
@@ -1533,7 +1533,7 @@ x11
 1093 pmcpp local
 1094 other local
 1095 derive local kernel
-1096:retired libpcp threads local pmmgr local
+1096:retired libpcp threads pmmgr local
 1097 pmlogconf local
 1098 python local pmstore sanity
 1099 archive iostat local pmie pcp python
@@ -1727,7 +1727,6 @@ x11
 1287 pmda.install pmda.openmetrics local python
 1288 archive pmval local
 1289 pmval archive multi-archive decompress-xz local pmlogextract
-1290 archive pmdumptext local
 1291 atop archive local
 1294 libpcp_mmv labels local valgrind
 1297 pmieutil local
@@ -1859,7 +1858,7 @@ x11
 1768 pmfind local
 1769 pmda.linux local
 1773 pmseries pmproxy libpcp_web local
-1775 pmdumptext archive local local
+1775 pmdumptext archive local
 1793 pmrep pcp2xxx python local
 1801 dstat python pcp local
 1805 pmda.linux kernel local
@@ -1876,6 +1875,6 @@ x11
 1872 pmproxy local
 1874 pmseries pmproxy local
 1876 pmcd secure local
-1886 pmseries local libpcp_web local
+1886 pmseries libpcp_web local
 1896 pmlogger logutil pmlc local
 4751 libpcp threads valgrind local pcp
