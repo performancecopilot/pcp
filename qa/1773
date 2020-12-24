@@ -16,13 +16,6 @@ echo "QA output created by $seq"
 
 _check_series
 
-<<<<<<< HEAD
-=======
-# Note: For debugging, set $show_curl_output=true in the environment
-# to show curl output for each subtest
-# show_curl_output=true
-
->>>>>>> 8f34e25a966005f368a2f9a1bb75dfc1e8f811e7
 _cleanup()
 {
     cd $here
@@ -63,17 +56,10 @@ _curl_get()
 {
     url="$1"
     echo "$url" | tee -a $seq.full
-<<<<<<< HEAD
     curl --get --silent "$url" | pmjson | tee $tmp.out |\
     awk '$1 == "{" {n++} END { printf(" .. %d lines with %d json { objects }\n", NR, n); }'
     if grep -q -s '}$' $tmp.out; then src/pmjson_array_sort <$tmp.out; else cat $tmp.out; fi \
     | tee -a $seq.full
-=======
-    curl --get --silent "$url" | pmjson | tee -a $seq.full \
-    | awk '$1 == "{" {n++} END { printf(" .. %d lines with %d json { structs }\n", NR, n); }'
-
-    $show_curl_output && curl --get --silent "$url" | pmjson
->>>>>>> 8f34e25a966005f368a2f9a1bb75dfc1e8f811e7
 }
 
 # real QA test starts here
