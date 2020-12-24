@@ -12,15 +12,20 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 
+NEEDREWRITE=$PCP_LOG_DIR/pmlogger/.NeedRewrite
+
 _cleanup()
 {
     [ -d $tmp.distdir ] && rm -fr $tmp.distdir
     [ -d $tmp.relaydir ] && rm -fr $tmp.relaydir
     $sudo rm -f $tmp.*
+    [ -f $NEEDREWRITE.$seq ] && $sudo mv $NEEDREWRITE.$seq $NEEDREWRITE
 }
 
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
+
+[ -f $NEEDREWRITE ] && $sudo mv $NEEDREWRITE $NEEDREWRITE.$seq
 
 # create test control file, directories and populate with dummy archives
 cat >$tmp.ctl<<EOF

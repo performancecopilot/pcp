@@ -14,10 +14,14 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+NEEDREWRITE=$PCP_LOG_DIR/pmlogger/.NeedRewrite
+
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; $sudo rm -rf $tmp $tmp.*; _cleanup; exit \$status" 0 1 2 3 15
 signal=$PCP_BINADM_DIR/pmsignal
+
+[ -f $NEEDREWRITE ] && $sudo mv $NEEDREWRITE $NEEDREWRITE.$seq
 
 _stop_auto_restart pmlogger
 
@@ -64,6 +68,8 @@ _cleanup()
 {
     echo
     echo "Cleaning up"
+
+    [ -f $NEEDREWRITE.$seq ] && $sudo mv $NEEDREWRITE.$seq $NEEDREWRITE
 
     _stop_loggers >/dev/null 2>&1
 

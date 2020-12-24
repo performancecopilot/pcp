@@ -16,6 +16,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+NEEDREWRITE=$PCP_LOG_DIR/pmlogger/.NeedRewrite
+
 _cleanup()
 {
     # restore yesterday's files
@@ -32,11 +34,14 @@ _cleanup()
     test -f $PCP_LOG_DIR/NOTICES.orig && \
 	$sudo mv $PCP_LOG_DIR/NOTICES.orig $PCP_LOG_DIR/NOTICES
     $sudo rm -f $tmp.*
+    [ -f $NEEDREWRITE.$seq ] && $sudo mv $NEEDREWRITE.$seq $NEEDREWRITE
 }
 
 status=0	# success is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 $sudo rm -f $tmp.* $seq.full
+
+[ -f $NEEDREWRITE ] && $sudo mv $NEEDREWRITE $NEEDREWRITE.$seq
 
 # don't need to regenerate config.default with pmlogconf
 #

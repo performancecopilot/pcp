@@ -22,6 +22,9 @@ FULLLOCALHOST=`hostname`
 hostsfile="/etc/hosts"
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+NEEDREWRITE=$PCP_LOG_DIR/pmlogger/.NeedRewrite
+[ -f $NEEDREWRITE ] && $sudo mv $NEEDREWRITE $NEEDREWRITE.$seq
+
 _filter()
 {
     sed \
@@ -55,6 +58,7 @@ _cleanup()
     $sudo rm -rf $tmp
 
     $sudo $PCP_BINADM_DIR/pmlogger_check
+    [ -f $NEEDREWRITE.$seq ] && $sudo mv $NEEDREWRITE.$seq $NEEDREWRITE
 }
 
 _setup()
