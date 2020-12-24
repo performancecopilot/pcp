@@ -16,9 +16,20 @@ echo "QA output created by $seq"
 PMLOGREWRITE=`which pmlogrewrite 2>/dev/null`
 [ -n "$PMLOGREWRITE" ] || _notrun "pmlogrewrite not installed"
 
+NEEDREWRITE=$PCP_LOG_DIR/pmlogger/.NeedRewrite
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp.*
+    [ -f $NEEDREWRITE.$seq ] && $sudo mv $NEEDREWRITE.$seq $NEEDREWRITE
+}
+
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full
-trap "$sudo rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+[ -f $NEEDREWRITE ] && $sudo mv $NEEDREWRITE $NEEDREWRITE.$seq
 
 hostname=`hostname | sed -e 's/\..*//'`
 

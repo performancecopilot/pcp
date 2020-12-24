@@ -105,17 +105,22 @@ _fixperms()
     $sudo chown $PCP_USER:$PCP_GROUP $tmp
 }
 
+NEEDREWRITE=$PCP_LOG_DIR/pmlogger/.NeedRewrite
+
 _cleanup()
 {
     cd $here
     $sudo rm -f $tmp.*
     $sudo rm -rf $tmp
     $sudo mv $PCP_LOG_DIR/NOTICES.$$ $PCP_LOG_DIR/NOTICES
+    [ -f $NEEDREWRITE.$seq ] && $sudo mv $NEEDREWRITE.$seq $NEEDREWRITE
 }
 
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 $sudo rm -rf $tmp $tmp.*
+
+[ -f $NEEDREWRITE ] && $sudo mv $NEEDREWRITE $NEEDREWRITE.$seq
 
 # take explicit control of the umask
 umask 022
