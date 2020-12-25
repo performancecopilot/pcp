@@ -100,6 +100,7 @@ zfs_poolstats_refresh(zfs_poolstats_t **poolstats, pmdaInstid **pools, pmdaIndom
     size_t nmatch = 1, len = 0;
     regmatch_t pmatch[1];
 
+    zfs_pools_init(poolstats, pools, poolsindom);
     if (poolsindom->it_numinst == 0) {
         /* no pools, nothing to do */
         return;
@@ -111,12 +112,7 @@ zfs_poolstats_refresh(zfs_poolstats_t **poolstats, pmdaInstid **pools, pmdaIndom
     for (i = 0; i < (*poolsindom).it_numinst; i++) {
 	sprintf(pool_dir, "%s%c%s", ZFS_PATH, pmPathSeparator(), (*poolsindom).it_set[i].i_name);
         if (stat(pool_dir, &sstat) != 0) {
-            // Pools setup changed, the instance domain must follow
-            regfree(&rgx_io);
-            zfs_pools_clear(poolstats, pools, poolsindom);
-            zfs_pools_init(poolstats, pools, poolsindom);
-            zfs_poolstats_refresh(poolstats, pools, poolsindom);
-            return;
+            continue;
         }
         // Read the state if exists
         (*poolstats)[i].state = 13; // UNKNOWN
