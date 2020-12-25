@@ -6,13 +6,13 @@ PONG
 pmseries: [Info] processed 5 archive records from PATH/archives/proc
 == verify series sum (a + b) SID lookup
 kernel.all.load + kernel.all.load
-http://localhost:54322/series/query?expr=kernel.all.load%20%2B%20kernel.all.load
+http://localhost:PROXYPORT/series/query?expr=kernel.all.load%20%2B%20kernel.all.load
 [
     "16aa36d93e5cd0733499eee7dafc07dbb2ad7067"
 ]
 == verify series sum (a + b) with samples
 kernel.all.load[samples:1] + kernel.all.load[samples:1]
-http://localhost:54322/series/query?expr=kernel.all.load%5Bsamples%3A1%5D%20%2B%20kernel.all.load%5Bsamples%3A1%5D
+http://localhost:PROXYPORT/series/query?expr=kernel.all.load%5Bsamples%3A1%5D%20%2B%20kernel.all.load%5Bsamples%3A1%5D
 [
     {
         "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
@@ -35,7 +35,7 @@ http://localhost:54322/series/query?expr=kernel.all.load%5Bsamples%3A1%5D%20%2B%
 ]
 == verify series sum (a + b) with samples by SID
 kernel.all.load + kernel.all.load
-http://localhost:54322/series/values?series=16aa36d93e5cd0733499eee7dafc07dbb2ad7067&samples=1
+http://localhost:PROXYPORT/series/values?series=16aa36d93e5cd0733499eee7dafc07dbb2ad7067&samples=1
 [
     {
         "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
@@ -56,7 +56,7 @@ http://localhost:54322/series/values?series=16aa36d93e5cd0733499eee7dafc07dbb2ad
         "value": "1.000000e-01"
     }
 ]
-http://localhost:54322/series/descs?series=16aa36d93e5cd0733499eee7dafc07dbb2ad7067
+http://localhost:PROXYPORT/series/descs?series=16aa36d93e5cd0733499eee7dafc07dbb2ad7067
 [
     {
         "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
@@ -68,14 +68,14 @@ http://localhost:54322/series/descs?series=16aa36d93e5cd0733499eee7dafc07dbb2ad7
         "units": ""
     }
 ]
-http://localhost:54322/series/metrics?series=16aa36d93e5cd0733499eee7dafc07dbb2ad7067
+http://localhost:PROXYPORT/series/metrics?series=16aa36d93e5cd0733499eee7dafc07dbb2ad7067
 [
     {
         "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
         "name": "kernel.all.load+kernel.all.load"
     }
 ]
-http://localhost:54322/series/instances?series=16aa36d93e5cd0733499eee7dafc07dbb2ad7067
+http://localhost:PROXYPORT/series/instances?series=16aa36d93e5cd0733499eee7dafc07dbb2ad7067
 [
     {
         "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
@@ -101,13 +101,13 @@ http://localhost:54322/series/instances?series=16aa36d93e5cd0733499eee7dafc07dbb
 ]
 == verify series difference (a - b) SID lookup
 kernel.all.load - kernel.all.load
-http://localhost:54322/series/query?expr=kernel.all.load%20-%20kernel.all.load
+http://localhost:PROXYPORT/series/query?expr=kernel.all.load%20-%20kernel.all.load
 [
     "f29c38f54d5a3cb928496439760634617688036b"
 ]
 == verify series difference (a - b) with samples
 kernel.all.load[samples:1] - kernel.all.load[samples:1]
-http://localhost:54322/series/query?expr=kernel.all.load%5Bsamples%3A1%5D%20%2B%20kernel.all.load%5Bsamples%3A1%5D
+http://localhost:PROXYPORT/series/query?expr=kernel.all.load%5Bsamples%3A1%5D%20%2B%20kernel.all.load%5Bsamples%3A1%5D
 [
     {
         "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
@@ -130,7 +130,7 @@ http://localhost:54322/series/query?expr=kernel.all.load%5Bsamples%3A1%5D%20%2B%
 ]
 == verify series difference (a - b) with samples by SID
 kernel.all.load - kernel.all.load
-http://localhost:54322/series/values?series=f29c38f54d5a3cb928496439760634617688036b&samples=1
+http://localhost:PROXYPORT/series/values?series=f29c38f54d5a3cb928496439760634617688036b&samples=1
 [
     {
         "series": "f29c38f54d5a3cb928496439760634617688036b",
@@ -151,7 +151,7 @@ http://localhost:54322/series/values?series=f29c38f54d5a3cb928496439760634617688
         "value": "0.000000e+00"
     }
 ]
-http://localhost:54322/series/descs?series=f29c38f54d5a3cb928496439760634617688036b
+http://localhost:PROXYPORT/series/descs?series=f29c38f54d5a3cb928496439760634617688036b
 [
     {
         "series": "f29c38f54d5a3cb928496439760634617688036b",
@@ -163,14 +163,14 @@ http://localhost:54322/series/descs?series=f29c38f54d5a3cb9284964397606346176880
         "units": ""
     }
 ]
-http://localhost:54322/series/metrics?series=f29c38f54d5a3cb928496439760634617688036b
+http://localhost:PROXYPORT/series/metrics?series=f29c38f54d5a3cb928496439760634617688036b
 [
     {
         "series": "f29c38f54d5a3cb928496439760634617688036b",
         "name": "kernel.all.load-kernel.all.load"
     }
 ]
-http://localhost:54322/series/instances?series=f29c38f54d5a3cb928496439760634617688036b
+http://localhost:PROXYPORT/series/instances?series=f29c38f54d5a3cb928496439760634617688036b
 [
     {
         "series": "f29c38f54d5a3cb928496439760634617688036b",
@@ -196,13 +196,13 @@ http://localhost:54322/series/instances?series=f29c38f54d5a3cb928496439760634617
 ]
 == verify series function (floor(a)) SID lookup
 floor(kernel.all.load)
-http://localhost:54322/series/query?expr=floor%28kernel.all.load%29
+http://localhost:PROXYPORT/series/query?expr=floor%28kernel.all.load%29
 [
     "f2dbf7a113932b3371c8871df932603856d1d7b6"
 ]
 == verify series function (floor(a)) with samples
 floor(kernel.all.load[samples:2])
-http://localhost:54322/series/query?expr=floor%28kernel.all.load%5Bsamples%3A2%5D%29
+http://localhost:PROXYPORT/series/query?expr=floor%28kernel.all.load%5Bsamples%3A2%5D%29
 [
     {
         "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
@@ -243,7 +243,7 @@ http://localhost:54322/series/query?expr=floor%28kernel.all.load%5Bsamples%3A2%5
 ]
 == verify series function (floor(a)) with samples by SID
 floor(kernel.all.load)
-http://localhost:54322/series/values?series=f2dbf7a113932b3371c8871df932603856d1d7b6&samples=2
+http://localhost:PROXYPORT/series/values?series=f2dbf7a113932b3371c8871df932603856d1d7b6&samples=2
 [
     {
         "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
@@ -282,7 +282,7 @@ http://localhost:54322/series/values?series=f2dbf7a113932b3371c8871df932603856d1
         "value": "0.000000e+00"
     }
 ]
-http://localhost:54322/series/descs?series=f2dbf7a113932b3371c8871df932603856d1d7b6
+http://localhost:PROXYPORT/series/descs?series=f2dbf7a113932b3371c8871df932603856d1d7b6
 [
     {
         "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
@@ -294,14 +294,14 @@ http://localhost:54322/series/descs?series=f2dbf7a113932b3371c8871df932603856d1d
         "units": "none"
     }
 ]
-http://localhost:54322/series/metrics?series=f2dbf7a113932b3371c8871df932603856d1d7b6
+http://localhost:PROXYPORT/series/metrics?series=f2dbf7a113932b3371c8871df932603856d1d7b6
 [
     {
         "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
         "name": "floor(kernel.all.load)"
     }
 ]
-http://localhost:54322/series/instances?series=f2dbf7a113932b3371c8871df932603856d1d7b6
+http://localhost:PROXYPORT/series/instances?series=f2dbf7a113932b3371c8871df932603856d1d7b6
 [
     {
         "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
