@@ -1082,17 +1082,48 @@ static pmdaMetric metrictab[] = {
 static int
 zfs_fetch(int numpmid, pmID *pmidlist, pmResult **resp, pmdaExt *pmda)
 {
-    zfs_arcstats_refresh(&arcstats);
-    zfs_abdstats_refresh(&abdstats);
-    zfs_dbufstats_refresh(&dbufstats);
-    zfs_dmu_tx_refresh(&dmu_tx);
-    zfs_dnodestats_refresh(&dnodestats);
-    zfs_xuiostats_refresh(&xuiostats);
-    zfs_zfetchstats_refresh(&zfetchstats);
-    zfs_zilstats_refresh(&zilstats);
-    zfs_vdev_cachestats_refresh(&vdev_cachestats);
-    zfs_vdev_mirrorstats_refresh(&vdev_mirrorstats);
-    zfs_poolstats_refresh(&poolstats, &pools, &indomtab[ZFS_POOL_INDOM]);
+    int i;
+    __pmID_int *idp;
+
+    for (i = 0; i < numpmid; i++) {
+        idp = (__pmID_int *)&(pmidlist[i]);	
+        switch (idp->cluster) {
+        case ZFS_ARC_CLUST:
+            zfs_arcstats_refresh(&arcstats);
+            break;
+        case ZFS_ABD_CLUST:
+            zfs_abdstats_refresh(&abdstats);
+            break;
+        case ZFS_DBUF_CLUST:
+            zfs_dbufstats_refresh(&dbufstats);
+            break;
+        case ZFS_DMUTX_CLUST:
+            zfs_dmu_tx_refresh(&dmu_tx);
+            break;
+        case ZFS_DNODE_CLUST:
+            zfs_dnodestats_refresh(&dnodestats);
+            break;
+        case ZFS_FM_CLUST:
+            zfs_fmstats_refresh(&fmstats);
+            break;
+        case ZFS_VDEV_CLUST:
+            zfs_vdev_cachestats_refresh(&vdev_cachestats);
+            zfs_vdev_mirrorstats_refresh(&vdev_mirrorstats);
+            break;
+        case ZFS_XUIO_CLUST:
+            zfs_xuiostats_refresh(&xuiostats);
+            break;
+        case ZFS_ZFETCH_CLUST:
+            zfs_zfetchstats_refresh(&zfetchstats);
+            break;
+        case ZFS_ZIL_CLUST:
+            zfs_zilstats_refresh(&zilstats);
+            break;
+        case ZFS_POOL_CLUST:
+            zfs_poolstats_refresh(&poolstats, &pools, &indomtab[ZFS_POOL_INDOM]);
+            break;
+        }
+    }
     return pmdaFetch(numpmid, pmidlist, resp, pmda);
 }
 
@@ -1101,7 +1132,7 @@ zfs_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
     __pmID_int *idp = (__pmID_int *)&(mdesc->m_desc.pmid);
         
-    if (idp->cluster == 10) { // && mdesc->m_desc.indom == ZFS_POOL_INDOM) {
+    if (idp->cluster == ZFS_POOL_CLUST) { // && mdesc->m_desc.indom == ZFS_POOL_INDOM) {
         switch (idp->item) {
         case ZFS_POOL_STATE:
             atom->l = (__int32_t)poolstats[inst].state;
