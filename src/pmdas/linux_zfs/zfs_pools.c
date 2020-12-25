@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <regex.h>
 #include <string.h>
 #include <stdint.h>
 #include <dirent.h>
@@ -91,14 +90,12 @@ zfs_pools_clear(zfs_poolstats_t **poolstats, pmdaInstid **pools, pmdaIndom *pool
 void
 zfs_poolstats_refresh(zfs_poolstats_t **poolstats, pmdaInstid **pools, pmdaIndom *poolsindom)
 {
-    int i;
-    char pool_dir[MAXPATHLEN], fname[MAXPATHLEN];
+    int i, nread_seen;
+    char pool_dir[MAXPATHLEN+64], fname[MAXPATHLEN+128];
     char *line = NULL, *token, delim[] = " ";
     FILE *fp;
     struct stat sstat;
-    regex_t rgx_io;
-    size_t nmatch = 1, len = 0;
-    regmatch_t pmatch[1];
+    size_t len = 0;
 
     zfs_pools_init(poolstats, pools, poolsindom);
     if (poolsindom->it_numinst == 0) {
@@ -106,10 +103,10 @@ zfs_poolstats_refresh(zfs_poolstats_t **poolstats, pmdaInstid **pools, pmdaIndom
         return;
     }
 
-    regcomp(&rgx_io, "([0-9]+[ ]+){11}[0-9]+", REG_EXTENDED|REG_NOSUB);
     if ((*poolstats = realloc(*poolstats, (*poolsindom).it_numinst * sizeof(zfs_poolstats_t))) == NULL)
         pmNoMem("poolstats refresh", (*poolsindom).it_numinst * sizeof(zfs_poolstats_t), PM_FATAL_ERR);
     for (i = 0; i < (*poolsindom).it_numinst; i++) {
+        pool_dir[0] = 0;	
 	sprintf(pool_dir, "%s%c%s", ZFS_PATH, pmPathSeparator(), (*poolsindom).it_set[i].i_name);
         if (stat(pool_dir, &sstat) != 0) {
             continue;
@@ -138,38 +135,31 @@ zfs_poolstats_refresh(zfs_poolstats_t **poolstats, pmdaInstid **pools, pmdaIndom
         strcat(fname, "/io");
         fp = fopen(fname, "r");
         if (fp != NULL) {
+            nread_seen = 0;
             while (getline(&line, &len, fp) != -1) {
-                if (regexec(&rgx_io, line, nmatch, pmatch, 0) == 0) {
+                if (nread_seen == 1) {
                     // Tokenize the line to extract the metrics
-                    token = strtok(line, delim);
-                    (*poolstats)[i].nread = strtoul(token, NULL, 0);
-                    token = strtok(NULL, delim);
-                     (*poolstats)[i].nwritten = strtoul(token, NULL, 0);
-                    token = strtok(NULL, delim);
-                     (*poolstats)[i].reads = strtoul(token, NULL, 0);
-                    token = strtok(NULL, delim);
-                     (*poolstats)[i].writes = strtoul(token, NULL, 0);
-                    token = strtok(NULL, delim);
-                     (*poolstats)[i].wtime = strtoul(token, NULL, 0);
-                    token = strtok(NULL, delim);
-                     (*poolstats)[i].wlentime = strtoul(token, NULL, 0);
-                    token = strtok(NULL, delim);
-                     (*poolstats)[i].wupdate = strtoul(token, NULL, 0);
-                    token = strtok(NULL, delim);
-                     (*poolstats)[i].rtime = strtoul(token, NULL, 0);
-                    token = strtok(NULL, delim);
-                     (*poolstats)[i].rlentime = strtoul(token, NULL, 0);
-                    token = strtok(NULL, delim);
-                     (*poolstats)[i].rupdate = strtoul(token, NULL, 0);
-                    token = strtok(NULL, delim);
-                     (*poolstats)[i].wcnt = strtoul(token, NULL, 0);
-                    token = strtok(NULL, delim);
-                     (*poolstats)[i].rcnt = strtoul(token, NULL, 0);
-                    token = strtok(NULL, delim);
+                    (*poolstats)[i].nread	= strtoul(strtok(line, delim), NULL, 0);
+                    (*poolstats)[i].nwritten	= strtoul(strtok(NULL, delim), NULL, 0);
+                    (*poolstats)[i].reads	= strtoul(strtok(NULL, delim), NULL, 0);
+                    (*poolstats)[i].writes	= strtoul(strtok(NULL, delim), NULL, 0);
+                    (*poolstats)[i].wtime	= strtoul(strtok(NULL, delim), NULL, 0);
+                    (*poolstats)[i].wlentime	= strtoul(strtok(NULL, delim), NULL, 0);
+                    (*poolstats)[i].wupdate	= strtoul(strtok(NULL, delim), NULL, 0);
+                    (*poolstats)[i].rtime	= strtoul(strtok(NULL, delim), NULL, 0);
+                    (*poolstats)[i].rlentime	= strtoul(strtok(NULL, delim), NULL, 0);
+                    (*poolstats)[i].rupdate	= strtoul(strtok(NULL, delim), NULL, 0);
+                    (*poolstats)[i].wcnt	= strtoul(strtok(NULL, delim), NULL, 0);
+                    (*poolstats)[i].rcnt	= strtoul(strtok(NULL, delim), NULL, 0);
                 }
+		else {
+                    // Search for the header line
+                    token = strtok(line, delim);
+		    if (strcmp(token, "nread"))
+                        nread_seen++;
+		}
             }
             fclose(fp);
         }
     }
-    regfree(&rgx_io);
 }
