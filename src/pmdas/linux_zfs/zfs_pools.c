@@ -66,7 +66,6 @@ zfs_pools_init(zfs_poolstats_t **poolstats, pmdaInstid **pools, pmdaIndom *pools
     if (pool_num > 0) {
         if ((poolstats_tmp = (zfs_poolstats_t *)realloc(*poolstats, pool_num * sizeof(zfs_poolstats_t))) == NULL)
             pmNoMem("poolstats init", pool_num * sizeof(zfs_poolstats_t), PM_FATAL_ERR);
-        fprintf(stderr, "poolstats_tmp=%p\n", poolstats_tmp);
         *poolstats = poolstats_tmp;
     }
 }
