@@ -52,10 +52,17 @@ _filter_source()
     # end
 }
 
+_filter_url()
+{
+    sed \
+	-e "s,localhost:$proxyport/,localhost:PROXYPORT/," \
+    # end
+}
+
 _curl_get()
 {
     url="$1"
-    echo "$url" | tee -a $seq.full
+    echo "$url" | tee -a $seq.full | _filter_url
     curl --get --silent "$url" | pmjson | tee $tmp.out |\
     awk '$1 == "{" {n++} END { printf(" .. %d lines with %d json { objects }\n", NR, n); }'
     if grep -q -s '}$' $tmp.out; then src/pmjson_array_sort <$tmp.out; else cat $tmp.out; fi \
@@ -88,12 +95,19 @@ done
 
 # start pmproxy 
 proxyport=`_find_free_port`
+echo "proxyport=$proxyport" >>$seq.full
 proxyopts="-p $proxyport -r $redisport -t"  # -Dseries,http,af
-pmproxy -f -U $username -x $seq.full -Dseries,query -l $tmp.pmproxy.log $proxyopts &
+pmproxy -f -U $username -x $tmp.err -Dseries,query -l $tmp.pmproxy.log $proxyopts &
 pmproxy_pid=$!
 
 # check pmproxy has started and is available for requests
 pmcd_wait -h localhost@localhost:$proxyport -v -t 5sec
+
+if [ -f $tmp.err ]
+then
+    echo "Arrgh: errors from Redis server startup ..."
+    cat $tmp.err
+fi
 
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep pmproxy >> $seq.full
 redis-cli $options keys pcp:* >>$seq.full

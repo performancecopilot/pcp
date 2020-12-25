@@ -21,7 +21,7 @@ pmseries: [Info] processed 40 archive records from TMP/farm/node81/20201124.0
 
 == verify two host series sum (a + b) SID lookup
 kernel.all.load + kernel.all.load
-http://localhost:54322/series/query?expr=kernel.all.load%20%2B%20kernel.all.load
+http://localhost:PROXYPORT/series/query?expr=kernel.all.load%20%2B%20kernel.all.load
  .. 3 lines with 0 json { objects }
 [
     "16aa36d93e5cd0733499eee7dafc07dbb2ad7067"
@@ -29,7 +29,7 @@ http://localhost:54322/series/query?expr=kernel.all.load%20%2B%20kernel.all.load
 
 == verify two host series sum (a + b) with samples
 kernel.all.load[samples:1] + kernel.all.load[samples:1]
-http://localhost:54322/series/query?expr=kernel.all.load%5Bsamples%3A1%5D%20%2B%20kernel.all.load%5Bsamples%3A1%5D
+http://localhost:PROXYPORT/series/query?expr=kernel.all.load%5Bsamples%3A1%5D%20%2B%20kernel.all.load%5Bsamples%3A1%5D
  .. 38 lines with 6 json { objects }
 [
     {
@@ -72,7 +72,7 @@ http://localhost:54322/series/query?expr=kernel.all.load%5Bsamples%3A1%5D%20%2B%
 
 == verify two host series sum (a + b) with samples by SID
 kernel.all.load + kernel.all.load, SID=16aa36d93e5cd0733499eee7dafc07dbb2ad7067
-http://localhost:54322/series/values?series=16aa36d93e5cd0733499eee7dafc07dbb2ad7067&samples=1
+http://localhost:PROXYPORT/series/values?series=16aa36d93e5cd0733499eee7dafc07dbb2ad7067&samples=1
  .. 38 lines with 6 json { objects }
 [
     {
@@ -112,7 +112,7 @@ http://localhost:54322/series/values?series=16aa36d93e5cd0733499eee7dafc07dbb2ad
         "value": "0.000000e+00"
     }
 ]
-http://localhost:54322/series/descs?series=16aa36d93e5cd0733499eee7dafc07dbb2ad7067
+http://localhost:PROXYPORT/series/descs?series=16aa36d93e5cd0733499eee7dafc07dbb2ad7067
  .. 11 lines with 1 json { objects }
 [
     {
@@ -125,7 +125,7 @@ http://localhost:54322/series/descs?series=16aa36d93e5cd0733499eee7dafc07dbb2ad7
         "units": ""
     }
 ]
-http://localhost:54322/series/metrics?series=16aa36d93e5cd0733499eee7dafc07dbb2ad7067
+http://localhost:PROXYPORT/series/metrics?series=16aa36d93e5cd0733499eee7dafc07dbb2ad7067
  .. 6 lines with 1 json { objects }
 [
     {
@@ -133,7 +133,7 @@ http://localhost:54322/series/metrics?series=16aa36d93e5cd0733499eee7dafc07dbb2a
         "name": "kernel.all.load+kernel.all.load"
     }
 ]
-http://localhost:54322/series/instances?series=16aa36d93e5cd0733499eee7dafc07dbb2ad7067
+http://localhost:PROXYPORT/series/instances?series=16aa36d93e5cd0733499eee7dafc07dbb2ad7067
  .. 44 lines with 6 json { objects }
 [
     {
@@ -182,7 +182,7 @@ http://localhost:54322/series/instances?series=16aa36d93e5cd0733499eee7dafc07dbb
 
 == verify two host series difference (a - b) SID lookup
 kernel.all.load - kernel.all.load
-http://localhost:54322/series/query?expr=kernel.all.load%20-%20kernel.all.load
+http://localhost:PROXYPORT/series/query?expr=kernel.all.load%20-%20kernel.all.load
  .. 3 lines with 0 json { objects }
 [
     "f29c38f54d5a3cb928496439760634617688036b"
@@ -190,7 +190,7 @@ http://localhost:54322/series/query?expr=kernel.all.load%20-%20kernel.all.load
 
 == verify two host series difference (a - b) with samples
 kernel.all.load[samples:1] - kernel.all.load[samples:1]
-http://localhost:54322/series/query?expr=kernel.all.load%5Bsamples%3A1%5D%20-%20kernel.all.load%5Bsamples%3A1%5D
+http://localhost:PROXYPORT/series/query?expr=kernel.all.load%5Bsamples%3A1%5D%20-%20kernel.all.load%5Bsamples%3A1%5D
  .. 38 lines with 6 json { objects }
 [
     {
@@ -233,7 +233,7 @@ http://localhost:54322/series/query?expr=kernel.all.load%5Bsamples%3A1%5D%20-%20
 
 == verify two host series difference (a - b) with samples by SID
 kernel.all.load - kernel.all.load, SID=f29c38f54d5a3cb928496439760634617688036b
-http://localhost:54322/series/values?series=f29c38f54d5a3cb928496439760634617688036b&samples=1
+http://localhost:PROXYPORT/series/values?series=f29c38f54d5a3cb928496439760634617688036b&samples=1
  .. 38 lines with 6 json { objects }
 [
     {
@@ -273,7 +273,7 @@ http://localhost:54322/series/values?series=f29c38f54d5a3cb928496439760634617688
         "value": "0.000000e+00"
     }
 ]
-http://localhost:54322/series/descs?series=f29c38f54d5a3cb928496439760634617688036b
+http://localhost:PROXYPORT/series/descs?series=f29c38f54d5a3cb928496439760634617688036b
  .. 11 lines with 1 json { objects }
 [
     {
@@ -286,7 +286,7 @@ http://localhost:54322/series/descs?series=f29c38f54d5a3cb9284964397606346176880
         "units": ""
     }
 ]
-http://localhost:54322/series/metrics?series=f29c38f54d5a3cb928496439760634617688036b
+http://localhost:PROXYPORT/series/metrics?series=f29c38f54d5a3cb928496439760634617688036b
  .. 6 lines with 1 json { objects }
 [
     {
@@ -294,7 +294,7 @@ http://localhost:54322/series/metrics?series=f29c38f54d5a3cb92849643976063461768
         "name": "kernel.all.load-kernel.all.load"
     }
 ]
-http://localhost:54322/series/instances?series=f29c38f54d5a3cb928496439760634617688036b
+http://localhost:PROXYPORT/series/instances?series=f29c38f54d5a3cb928496439760634617688036b
  .. 44 lines with 6 json { objects }
 [
     {
@@ -343,7 +343,7 @@ http://localhost:54322/series/instances?series=f29c38f54d5a3cb928496439760634617
 
 == verify two host series function (floor(a)) SID lookup
 floor(kernel.all.load)
-http://localhost:54322/series/query?expr=floor%28kernel.all.load%29
+http://localhost:PROXYPORT/series/query?expr=floor%28kernel.all.load%29
  .. 3 lines with 0 json { objects }
 [
     "f2dbf7a113932b3371c8871df932603856d1d7b6"
@@ -351,7 +351,7 @@ http://localhost:54322/series/query?expr=floor%28kernel.all.load%29
 
 == verify two host series function (floor(a)) with samples
 floor(kernel.all.load[samples:2])
-http://localhost:54322/series/query?expr=floor%28kernel.all.load%5Bsamples%3A2%5D%29
+http://localhost:PROXYPORT/series/query?expr=floor%28kernel.all.load%5Bsamples%3A2%5D%29
  .. 74 lines with 12 json { objects }
 [
     {
@@ -430,7 +430,7 @@ http://localhost:54322/series/query?expr=floor%28kernel.all.load%5Bsamples%3A2%5
 
 == verify two host series function (floor(a)) with samples by SID
 floor(kernel.all.load), SID=f2dbf7a113932b3371c8871df932603856d1d7b6
-http://localhost:54322/series/values?series=f2dbf7a113932b3371c8871df932603856d1d7b6&samples=2
+http://localhost:PROXYPORT/series/values?series=f2dbf7a113932b3371c8871df932603856d1d7b6&samples=2
  .. 74 lines with 12 json { objects }
 [
     {
@@ -506,7 +506,7 @@ http://localhost:54322/series/values?series=f2dbf7a113932b3371c8871df932603856d1
         "value": "0.000000e+00"
     }
 ]
-http://localhost:54322/series/descs?series=f2dbf7a113932b3371c8871df932603856d1d7b6
+http://localhost:PROXYPORT/series/descs?series=f2dbf7a113932b3371c8871df932603856d1d7b6
  .. 11 lines with 1 json { objects }
 [
     {
@@ -519,7 +519,7 @@ http://localhost:54322/series/descs?series=f2dbf7a113932b3371c8871df932603856d1d
         "units": "none"
     }
 ]
-http://localhost:54322/series/metrics?series=f2dbf7a113932b3371c8871df932603856d1d7b6
+http://localhost:PROXYPORT/series/metrics?series=f2dbf7a113932b3371c8871df932603856d1d7b6
  .. 6 lines with 1 json { objects }
 [
     {
@@ -527,7 +527,7 @@ http://localhost:54322/series/metrics?series=f2dbf7a113932b3371c8871df932603856d
         "name": "floor(kernel.all.load)"
     }
 ]
-http://localhost:54322/series/instances?series=f2dbf7a113932b3371c8871df932603856d1d7b6
+http://localhost:PROXYPORT/series/instances?series=f2dbf7a113932b3371c8871df932603856d1d7b6
  .. 44 lines with 6 json { objects }
 [
     {
@@ -576,7 +576,7 @@ http://localhost:54322/series/instances?series=f2dbf7a113932b3371c8871df93260385
 
 == verify two host series function rescale(rate(kernel.percpu.cpu.idle), "millisec/s") SID lookup
 rescale(rate(kernel.percpu.cpu.idle), "millisec/s")
-http://localhost:54322/series/query?expr=rescale%28rate%28kernel.percpu.cpu.idle%29,%22millisec/s%22%29
+http://localhost:PROXYPORT/series/query?expr=rescale%28rate%28kernel.percpu.cpu.idle%29,%22millisec/s%22%29
  .. 3 lines with 0 json { objects }
 [
     "7c31a987c26c610b4e26876c6ea7c78c8f0be3b4"
@@ -584,7 +584,7 @@ http://localhost:54322/series/query?expr=rescale%28rate%28kernel.percpu.cpu.idle
 
 == verify two host series function rescale(rate(kernel.percpu.cpu.idle), "millisec/s") with samples
 rescale(rate(kernel.percpu.cpu.idle[samples:2]),"millisec/s")
-http://localhost:54322/series/query?expr=rescale%28rate%28kernel.percpu.cpu.idle%5Bsamples%3A2%5D%29,%22millisec/s%22%29
+http://localhost:PROXYPORT/series/query?expr=rescale%28rate%28kernel.percpu.cpu.idle%5Bsamples%3A2%5D%29,%22millisec/s%22%29
  .. 14 lines with 2 json { objects }
 [
     {
@@ -603,7 +603,7 @@ http://localhost:54322/series/query?expr=rescale%28rate%28kernel.percpu.cpu.idle
 
 == verify two host series function rescale(kernel.percpu.cpu.idle, "millisec/s") with samples by SID
 rescale(rate(kernel.percpu.cpu.idle), "millisec/s"), SID=7c31a987c26c610b4e26876c6ea7c78c8f0be3b4
-http://localhost:54322/series/values?series=7c31a987c26c610b4e26876c6ea7c78c8f0be3b4&samples=2
+http://localhost:PROXYPORT/series/values?series=7c31a987c26c610b4e26876c6ea7c78c8f0be3b4&samples=2
  .. 26 lines with 4 json { objects }
 [
     {
@@ -631,7 +631,7 @@ http://localhost:54322/series/values?series=7c31a987c26c610b4e26876c6ea7c78c8f0b
         "value": "9.933566e+02"
     }
 ]
-http://localhost:54322/series/descs?series=7c31a987c26c610b4e26876c6ea7c78c8f0be3b4
+http://localhost:PROXYPORT/series/descs?series=7c31a987c26c610b4e26876c6ea7c78c8f0be3b4
  .. 11 lines with 1 json { objects }
 [
     {
@@ -644,7 +644,7 @@ http://localhost:54322/series/descs?series=7c31a987c26c610b4e26876c6ea7c78c8f0be
         "units": ""
     }
 ]
-http://localhost:54322/series/metrics?series=7c31a987c26c610b4e26876c6ea7c78c8f0be3b4
+http://localhost:PROXYPORT/series/metrics?series=7c31a987c26c610b4e26876c6ea7c78c8f0be3b4
  .. 6 lines with 1 json { objects }
 [
     {
@@ -652,7 +652,7 @@ http://localhost:54322/series/metrics?series=7c31a987c26c610b4e26876c6ea7c78c8f0
         "name": "rescale(rate(kernel.percpu.cpu.idle),\"millisec/s\")"
     }
 ]
-http://localhost:54322/series/instances?series=7c31a987c26c610b4e26876c6ea7c78c8f0be3b4
+http://localhost:PROXYPORT/series/instances?series=7c31a987c26c610b4e26876c6ea7c78c8f0be3b4
  .. 16 lines with 2 json { objects }
 [
     {
