@@ -9,6 +9,11 @@
 #include <sys/stat.h>
 #include <linux/limits.h>
 
+#include "pmapi.h"
+#include "libpcp.h"
+#include "pmda.h"
+
+#include "zfs_utils.h"
 #include "zfs_pools.h"
 
 void
@@ -22,7 +27,7 @@ zfs_pools_init(zfs_poolstats_t **poolstats, pmdaInstid **pools, pmdaIndom *pools
     static int seen_err = 0;
 
     // Discover the pools by looking for directories in /proc/spl/kstat/zfs
-    if ((zfs_dp = opendir(ZFS_PROC_DIR)) != NULL) {
+    if ((zfs_dp = opendir(ZFS_PATH)) != NULL) {
         while ((ep = readdir(zfs_dp))) {
             if (ep->d_type == DT_DIR) {
                 if (strcmp(ep->d_name, ".") == 0 || strcmp(ep->d_name, "..") == 0)
@@ -44,7 +49,7 @@ zfs_pools_init(zfs_poolstats_t **poolstats, pmdaInstid **pools, pmdaIndom *pools
         closedir(zfs_dp);
     }
     else {
-        pmNotifyErr(LOG_WARNING, "Failed to open ZFS pools dir \"%s\": %s\n", ZFS_PROC_DIR, pmErrStr(-errno));
+        pmNotifyErr(LOG_WARNING, "Failed to open ZFS pools dir \"%s\": %s\n", ZFS_PATH, pmErrStr(-errno));
     }
     if (*pools == NULL) {
         if (! seen_err) {
@@ -88,7 +93,7 @@ void
 zfs_poolstats_refresh(zfs_poolstats_t **poolstats, pmdaInstid **pools, pmdaIndom *poolsindom)
 {
     int i;
-    char pool_dir[PATH_MAX], fname[PATH_MAX];
+    char pool_dir[MAXPATHLEN], fname[MAXPATHLEN];
     char *line = NULL, *token, delim[] = " ";
     FILE *fp;
     struct stat sstat;
@@ -105,8 +110,7 @@ zfs_poolstats_refresh(zfs_poolstats_t **poolstats, pmdaInstid **pools, pmdaIndom
     if ((*poolstats = realloc(*poolstats, (*poolsindom).it_numinst * sizeof(zfs_poolstats_t))) == NULL)
         pmNoMem("poolstats refresh", (*poolsindom).it_numinst * sizeof(zfs_poolstats_t), PM_FATAL_ERR);
     for (i = 0; i < (*poolsindom).it_numinst; i++) {
-        strcpy(pool_dir, ZFS_PROC_DIR);
-        strcat(pool_dir, (*poolsindom).it_set[i].i_name);
+	sprintf(pool_dir, "%s%c%s", ZFS_PATH, pmPathSeparator(), (*poolsindom).it_set[i].i_name);
         if (stat(pool_dir, &sstat) != 0) {
             // Pools setup changed, the instance domain must follow
             regfree(&rgx_io);

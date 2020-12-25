@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdint.h>
 
+#include "zfs_utils.h"
 #include "zfs_arcstats.h"
 
 void
@@ -15,10 +16,13 @@ zfs_arcstats_refresh(zfs_arcstats_t *arcstats, regex_t *rgx_row)
     char *line = NULL, *mname, *mval;
     int lineno = 0;
     static int seen_err = 0;
-    char *fname = "/proc/spl/kstat/zfs/arcstats";
+    char fname[MAXPATHLEN];
     FILE *fp;
     size_t len = 0;
 
+    if (zfs_stats_file_check(fname, "arcstats") != 0)
+        return;
+    
     fp = fopen(fname, "r");
     if (fp != NULL) {
         while (getline(&line, &len, fp) != -1) {

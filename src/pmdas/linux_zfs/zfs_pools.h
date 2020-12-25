@@ -2,8 +2,6 @@
 #include "libpcp.h"
 #include "pmda.h"
 
-//DEBUG
-#define ZFS_PROC_DIR "/tmp/proc/spl/kstat/zfs/"
 enum { ZFS_POOL_INDOM = 0, };
 
 enum { /* metric item identifiers */

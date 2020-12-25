@@ -1,10 +1,12 @@
 #include <stdint.h>
 #include <regex.h>
+
 #include "pmapi.h"
 #include "libpcp.h"
 #include "pmda.h"
 
 #include "domain.h"
+#include "zfs_utils.h"
 #include "zfs_arcstats.h"
 #include "zfs_abdstats.h"
 #include "zfs_dbufstats.h"
@@ -20,6 +22,7 @@
 
 static int _isDSO = 1; /* PMDA launched mode 1/0 for DSO/daemon */
 regex_t rgx_row;
+char   ZFS_PATH[MAXPATHLEN];
 static zfs_arcstats_t arcstats;
 static zfs_abdstats_t abdstats;
 static zfs_dbufstats_t dbufstats;
@@ -602,6 +605,7 @@ static pmdaMetric metrictab[] = {
 /* cache_level_0_bytes */
     { &dbufstats.cache_level_0_bytes,
       { PMDA_PMID(2, 19), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+        PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 /* cache_level_1_bytes */
     { &dbufstats.cache_level_1_bytes,
       { PMDA_PMID(2, 20), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
@@ -1200,12 +1204,13 @@ pmLongOptions   longopts[] = {
     PMOPT_DEBUG,
     PMDAOPT_DOMAIN,
     PMDAOPT_LOGFILE,
+    { "", 1, 'z', "PATH", "path to ZFS stats files (default /proc/spl/kstat/zfs)" },
     PMOPT_HELP,
     PMDA_OPTIONS_END
 };
 
 pmdaOptions     opts = {
-    .short_options = "D:d:l:?",
+    .short_options = "D:d:l:z:?",
     .long_options = longopts,
 };
 
@@ -1214,20 +1219,28 @@ main(int argc, char **argv)
 {
     int            sep = pmPathSeparator();
     pmdaInterface  dispatch;
-    char           helppath[MAXPATHLEN];
+    char           helppath[MAXPATHLEN], c;
 
     _isDSO = 0;
     pmSetProgname(argv[0]);
     pmsprintf(helppath, sizeof(helppath), "%s%c" "zfs" "%c" "help",
-    pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
+            pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_7, pmGetProgname(), ZFS, "zfs.log", helppath);
 
-    pmdaGetOptions(argc, argv, &opts, &dispatch);
+    while ((c = pmdaGetOptions(argc, argv, &opts, &dispatch)) != EOF) {
+        switch(c) {
+        case 'z':
+            strcpy(ZFS_PATH, opts.optarg);
+            break;
+        }
+    }
+    if (strlen(ZFS_PATH) == 0)
+        strcpy(ZFS_PATH, "/proc/spl/kstat/zfs");
+
     if (opts.errors) {
         pmdaUsageMessage(&opts);
         exit(1);
     }
-
 
     pmdaOpenLog(&dispatch);
     zfs_init(&dispatch);

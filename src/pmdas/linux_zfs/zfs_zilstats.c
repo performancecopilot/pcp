@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdint.h>
 
+#include "zfs_utils.h"
 #include "zfs_zilstats.h"
 
 void
@@ -15,9 +16,12 @@ zfs_zilstats_refresh(zfs_zilstats_t *zilstats, regex_t *rgx_row)
     char *line = NULL, *mname, *mval;
     int lineno = 0;
     static int seen_err = 0;
-    char *fname = "/proc/spl/kstat/zfs/zilstats";
+    char fname[MAXPATHLEN];
     FILE *fp;
     size_t len = 0;
+
+    if (zfs_stats_file_check(fname, "zil") != 0)
+        return;
 
     fp = fopen(fname, "r");
     if (fp != NULL) {

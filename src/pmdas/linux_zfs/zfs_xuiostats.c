@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdint.h>
 
+#include "zfs_utils.h"
 #include "zfs_xuiostats.h"
 
 void
@@ -15,9 +16,12 @@ zfs_xuiostats_refresh(zfs_xuiostats_t *xuiostats, regex_t *rgx_row)
     char *line = NULL, *mname, *mval;
     int lineno = 0;
     static int seen_err = 0;
-    char *fname = "/proc/spl/kstat/zfs/xuio_stats";
+    char fname[MAXPATHLEN];
     FILE *fp;
     size_t len = 0;
+
+    if (zfs_stats_file_check(fname, "xuio_stats") != 0)
+        return;
 
     fp = fopen(fname, "r");
     if (fp != NULL) {
