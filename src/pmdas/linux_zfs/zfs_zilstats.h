@@ -14,4 +14,4 @@ typedef struct zfs_zilstats {
     uint64_t itx_metaslab_slog_bytes;
 } zfs_zilstats_t;
 
-void zfs_zilstats_refresh(zfs_zilstats_t *zilstats, regex_t *rgx_row);
+void zfs_zilstats_refresh(zfs_zilstats_t *zilstats);

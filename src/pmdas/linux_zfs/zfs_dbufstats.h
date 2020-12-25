@@ -44,4 +44,4 @@ typedef struct zfs_dbufstats {
     uint64_t metadata_cache_overflow;
 } zfs_dbufstats_t;
 
-void zfs_dbufstats_refresh(zfs_dbufstats_t *dbufstats, regex_t *rgx_row);
+void zfs_dbufstats_refresh(zfs_dbufstats_t *dbufstats);

@@ -8,4 +8,4 @@ typedef struct zfs_vdev_mirrorstats {
     uint64_t preferred_not_found;
 } zfs_vdev_mirrorstats_t;
 
-void zfs_vdev_mirrorstats_refresh(zfs_vdev_mirrorstats_t *vdev_mirrorstats, regex_t *rgx_row);
+void zfs_vdev_mirrorstats_refresh(zfs_vdev_mirrorstats_t *vdev_mirrorstats);

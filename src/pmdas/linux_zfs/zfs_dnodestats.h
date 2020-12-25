@@ -29,4 +29,4 @@ typedef struct zfs_dnodestats {
     uint64_t move_active;
 } zfs_dnodestats_t;
 
-void zfs_dnodestats_refresh(zfs_dnodestats_t *dnodestats, regex_t *rgx_row);
+void zfs_dnodestats_refresh(zfs_dnodestats_t *dnodestats);

@@ -1,5 +1,4 @@
 #include <stdint.h>
-#include <regex.h>
 
 #include "pmapi.h"
 #include "libpcp.h"
@@ -21,7 +20,6 @@
 #include "zfs_pools.h"
 
 static int _isDSO = 1; /* PMDA launched mode 1/0 for DSO/daemon */
-regex_t rgx_row;
 char   ZFS_PATH[MAXPATHLEN];
 static zfs_arcstats_t arcstats;
 static zfs_abdstats_t abdstats;
@@ -1083,18 +1081,16 @@ static pmdaMetric metrictab[] = {
 static int
 zfs_fetch(int numpmid, pmID *pmidlist, pmResult **resp, pmdaExt *pmda)
 {
-    regcomp(&rgx_row, "^([^ ]+)[ ]+[0-9][ ]+([0-9]+)", REG_EXTENDED);
-    zfs_arcstats_refresh(&arcstats, &rgx_row);
-    zfs_abdstats_refresh(&abdstats, &rgx_row);
-    zfs_dbufstats_refresh(&dbufstats, &rgx_row);
-    zfs_dmu_tx_refresh(&dmu_tx, &rgx_row);
-    zfs_dnodestats_refresh(&dnodestats, &rgx_row);
-    zfs_xuiostats_refresh(&xuiostats, &rgx_row);
-    zfs_zfetchstats_refresh(&zfetchstats, &rgx_row);
-    zfs_zilstats_refresh(&zilstats, &rgx_row);
-    zfs_vdev_cachestats_refresh(&vdev_cachestats, &rgx_row);
-    zfs_vdev_mirrorstats_refresh(&vdev_mirrorstats, &rgx_row);
-    regfree(&rgx_row);
+    zfs_arcstats_refresh(&arcstats);
+    zfs_abdstats_refresh(&abdstats);
+    zfs_dbufstats_refresh(&dbufstats);
+    zfs_dmu_tx_refresh(&dmu_tx);
+    zfs_dnodestats_refresh(&dnodestats);
+    zfs_xuiostats_refresh(&xuiostats);
+    zfs_zfetchstats_refresh(&zfetchstats);
+    zfs_zilstats_refresh(&zilstats);
+    zfs_vdev_cachestats_refresh(&vdev_cachestats);
+    zfs_vdev_mirrorstats_refresh(&vdev_mirrorstats);
     zfs_poolstats_refresh(&poolstats, &pools, &indomtab[ZFS_POOL_INDOM]);
     return pmdaFetch(numpmid, pmidlist, resp, pmda);
 }
