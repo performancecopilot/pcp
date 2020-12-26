@@ -160,6 +160,7 @@ zfs_poolstats_refresh(zfs_poolstats_t **poolstats, pmdaInstid **pools, pmdaIndom
 		}
             }
             fclose(fp);
+            free(line);
         }
     }
 }
