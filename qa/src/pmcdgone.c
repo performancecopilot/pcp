@@ -415,8 +415,12 @@ Options:\n\
     if (sts != 0) {
 	fprintf(stderr, "Warning: pmlogger restart returns %d\n", sts);
 	if (use_systemd) {
-	    system("systemctl status pmlogger.service");
-	    system("journalctl -xe");
+	    sts = system("systemctl status pmlogger.service");
+	    if (sts != 0)
+		fprintf(stderr, "Warning: systemctl returns %d\n", sts);
+	    sts = system("journalctl -xe");
+	    if (sts != 0)
+		fprintf(stderr, "Warning: jounralctl returns %d\n", sts);
 	}
     }
 

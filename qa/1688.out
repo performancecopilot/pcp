@@ -9,4 +9,4 @@ QA output created by 1688
   verbose:  off
   enabled rules: N
   pmie configuration file:  HOME/.pcp/pmie/config.pmie
-  pmie processes (PIDs) using this file: PID
+  pmie process (PID) using this file: PID

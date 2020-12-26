@@ -257,25 +257,29 @@ PM_FAULT_POINT("libpcp/derive.c:7", PM_FAULT_PMAPI);
 	    fprintf(stderr, "%s: Warning: failed to register event.flags: %s\n",
 		    pmGetProgname(), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	}
-	registered.mlist[registered.nmetric-1].oneline =
+	else {
+	    registered.mlist[registered.nmetric-1].oneline =
 "Flags for event records";
-	registered.mlist[registered.nmetric-1].helptext =
+	    registered.mlist[registered.nmetric-1].helptext =
 "An anonymous derived metric that is used to encode the event flags\n"
 "associated with event records.   See pmUnpackEventRecords(3).";
 PM_FAULT_POINT("libpcp/derive.c:8", PM_FAULT_PMAPI);
+	}
 	sts = registeranon(PM_LOCKED, "event.missed", PM_TYPE_U32);
 	if (sts < 0) {
 	    char	errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "%s: Warning: failed to register event.missed: %s\n",
 		    pmGetProgname(), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	}
-	registered.mlist[registered.nmetric-1].oneline =
+	else {
+	    registered.mlist[registered.nmetric-1].oneline =
 "Count of missed event records";
-	registered.mlist[registered.nmetric-1].helptext =
+	    registered.mlist[registered.nmetric-1].helptext =
 "An anonymous derived metric that is used to encode the number of\n"
 "event records missed because either the PMDA could not keep up\n"
 "or the PMAPI client did not collect the event records fast\n"
 "enough.  See pmUnpackEventRecords(3).";
+	}
 
 	/*
 	 * If PCP_DERIVED_CONFIG is NOT set, then by default we load global

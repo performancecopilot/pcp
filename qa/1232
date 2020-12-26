@@ -18,6 +18,8 @@ then
     _notrun "at least one pmlogger already defined for \"default\" class"
 fi
 
+NEEDREWRITE=$PCP_LOG_DIR/pmlogger/.NeedRewrite
+
 _cleanup()
 {
     echo "_cleanup: ..." >>$seq.full
@@ -25,12 +27,15 @@ _cleanup()
     $sudo pmlogctl -f -c default destroy localhost >>$seq.full 2>&1
     $sudo rm -rf $tmp $tmp.*
     $sudo rm -rf $PCP_ARCHIVE_DIR/localhost
+    [ -f $NEEDREWRITE.$seq ] && $sudo mv $NEEDREWRITE.$seq $NEEDREWRITE
 
 }
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
+
+[ -f $NEEDREWRITE ] && $sudo mv $NEEDREWRITE $NEEDREWRITE.$seq
 
 _filter()
 {

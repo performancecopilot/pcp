@@ -94,6 +94,8 @@ typedef struct instcntl {		/* metric-instance control */
     value		v_next;
     double		t_first;	/* no records before this */
     double		t_last;		/* no records after this */
+    double		t_birth;	/* (optional) instance first seen */
+    double		t_death;	/* (optional) instance last seen */
     struct pmidcntl	*metric;	/* back to metric control */
 } instcntl_t;
 
@@ -358,11 +360,20 @@ dumpicp(const char *tag, instcntl_t *icp)
     fprintf(stderr, "%s: pmid %s", tag, pmIDStr_r(icp->metric->desc.pmid, strbuf, sizeof(strbuf)));
     if (icp->inst != PM_IN_NULL)
 	fprintf(stderr, "[inst=%d]", icp->inst);
-    fprintf(stderr, ": t_first=%.6f t_prior=%.6f", icp->t_first, icp->t_prior);
+    fputc(':', stderr);
+    if (icp->t_first >= 0)
+	fprintf(stderr, " t_first=%.6f", icp->t_first);
+    fprintf(stderr, " t_prior=%.6f", icp->t_prior);
     dumpval(stderr, icp->metric->desc.type, icp->metric->valfmt, 1, icp);
     fprintf(stderr, " t_next=%.6f", icp->t_next);
     dumpval(stderr, icp->metric->desc.type, icp->metric->valfmt, 0, icp);
-    fprintf(stderr, " t_last=%.6f\n", icp->t_last);
+    if (icp->t_last >= 0)
+	fprintf(stderr, " t_last=%.6f", icp->t_last);
+    if (icp->t_birth >= 0)
+	fprintf(stderr, " t_birth=%.6f", icp->t_birth);
+    if (icp->t_death >= 0)
+	fprintf(stderr, " t_death=%.6f", icp->t_death);
+    fputc('\n', stderr);
 }
 
 /*
@@ -883,7 +894,7 @@ do_roll(__pmContext *ctxp, double t_req, int *seen_mark)
 #define HASH_THRESHOLD 16
 
 /*
- * use the instance domain metadata to set t_first and t_last for an
+ * use the instance domain metadata to set t_birth and t_death for an
  * instance if the instance domain ever has more than HASH_THRESHOLD
  * instances
  */
@@ -903,7 +914,7 @@ time_caliper(__pmContext *ctxp, instcntl_t *icp)
     __pmLogInDom	*idp;
 
     /* default state, we know nothing */
-    icp->t_first = icp->t_last = -1;
+    icp->t_birth = icp->t_death = -1;
     if (icp->metric->desc.indom == PM_INDOM_NULL) {
 	/* no instance domain, nothing to see here */
 	return;
@@ -916,10 +927,11 @@ time_caliper(__pmContext *ctxp, instcntl_t *icp)
 	 * - add indom to l_trimindom hash
 	 * - walk all instances
 	 *   + add to histinst hash if not already there
-	 *   + update t_first if this is the earliest observation
-	 * - at the end of each timestamped snapshot of the indom,
-	 *   update t_last if this the last time an instance was NOT
-	 *   observed
+	 *   + update t_birth if this is the earliest observation for this
+	 *     instance
+	 * - at the end of each timestamped snapshot of the indom, update
+	 *   t_death the instance is present now, but is not present at the
+	 *   next (later) timestamp for this indom
 	 */
 	int	maxinst;
 	if (pmDebugOptions.qa) {
@@ -982,8 +994,8 @@ time_caliper(__pmContext *ctxp, instcntl_t *icp)
 			pmNoMem("time_caliper.__pmLogTrimInst", sizeof(__pmLogTrimInDom), PM_FATAL_ERR);
 			/*NOTREACHED*/
 		    }
-		    instp->t_first = t_indom;
-		    instp->t_last = t_indom_prior;
+		    instp->t_birth = t_indom;
+		    instp->t_death = t_indom_prior;
 		    sts = __pmHashAdd((unsigned int)idp->instlist[j], (void *)instp, &indomp->hashinst);
 		    if (sts < 0) {
 			char	strbuf[20];
@@ -999,7 +1011,7 @@ time_caliper(__pmContext *ctxp, instcntl_t *icp)
 		}
 		else {
 		    instp = (__pmLogTrimInst *)ip->data;
-		    instp->t_first = t_indom;
+		    instp->t_birth = t_indom;
 		}
 	    }
 	    t_indom_prior = t_indom;
@@ -1011,11 +1023,11 @@ time_caliper(__pmContext *ctxp, instcntl_t *icp)
 	indomp = (__pmLogTrimInDom *)hp->data;
 	if ((ip = __pmHashSearch((unsigned int)icp->inst, &indomp->hashinst)) != NULL) {
 	    instp = (__pmLogTrimInst *)ip->data;
-	    icp->t_first = instp->t_first;
-	    icp->t_last = instp->t_last;
+	    icp->t_birth = instp->t_birth;
+	    icp->t_death = instp->t_death;
 	    if (pmDebugOptions.qa) {
 		char	strbuf[20];
-		fprintf(stderr, "time_caliper: indom %s and inst %d -> %.6f .. %.6f\n", pmInDomStr_r(icp->metric->desc.indom, strbuf, sizeof(strbuf)), icp->inst, icp->t_first, icp->t_last);
+		fprintf(stderr, "time_caliper: indom %s and inst %d -> %.6f .. %.6f\n", pmInDomStr_r(icp->metric->desc.indom, strbuf, sizeof(strbuf)), icp->inst, icp->t_birth, icp->t_death);
 	    }
 	}
     }
@@ -1321,11 +1333,14 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
     for (icp = (instcntl_t *)ctxp->c_archctl->ac_want; icp != NULL; icp = icp->want) {
 	assert(icp->inresult);
 	nuis[NUIS_PASS2]++;
-	if (icp->t_last >= 0 && t_req > icp->t_last)
-	    /* after latest, don't bother */
-	    continue;
 	if (icp->t_first >= 0 && t_req < icp->t_first)
-	    /* before earliest, don't bother */
+	    /* before earliest observation, don't bother */
+	    continue;
+	if (icp->t_birth >= 0 && t_req < icp->t_birth)
+	    /* from time_caliper(): before instance appears, don't bother */
+	    continue;
+	if (icp->t_death >= 0 && t_req > icp->t_death)
+	    /* from time_caliper(): after instance vanishes, don't bother */
 	    continue;
 	if (icp->t_prior < 0 || icp->t_prior > t_req) {
 	    if (back == 0 && !done_roll) {
@@ -1460,13 +1475,16 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
      */
     ctxp->c_archctl->ac_unbound = NULL;
     for (icp = (instcntl_t *)ctxp->c_archctl->ac_want; icp != NULL; icp = icp->want) {
-	nuis[NUIS_PASS3]++;
 	assert(icp->inresult);
+	nuis[NUIS_PASS3]++;
 	if (icp->t_last >= 0 && t_req > icp->t_last)
-	    /* after latest, don't bother */
+	    /* after latest observation, don't bother */
 	    continue;
-	if (icp->t_first >= 0 && t_req < icp->t_first)
-	    /* before earliest, don't bother */
+	if (icp->t_birth >= 0 && t_req < icp->t_birth)
+	    /* from time_caliper(): before instance appears, don't bother */
+	    continue;
+	if (icp->t_death >= 0 && t_req > icp->t_death)
+	    /* from time_caliper(): after instance vanishes, don't bother */
 	    continue;
 	if (icp->t_next < 0 || icp->t_next < t_req) {
 	    if (forw == 0 && !done_roll) {
@@ -1610,8 +1628,14 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	pcp = (pmidcntl_t *)icp->metric;
 	if (pcp->desc.sem == PM_SEM_DISCRETE) {
 	    if (IS_MARK(icp->s_prior) || IS_UNDEFINED(icp->s_prior) ||
-		icp->t_prior > t_req) {
+		icp->t_prior > t_req ||
+		(icp->t_birth != -1 && icp->t_birth > t_req)) {
 		/* no earlier value, so no value */
+		pcp->numval--;
+		icp->inresult = 0;
+	    }
+	    else if (icp->t_death != -1 && t_req > icp->t_death) {
+		/* instance has gone away, so no value */
 		pcp->numval--;
 		icp->inresult = 0;
 	    }
@@ -2123,7 +2147,7 @@ all_done:
 	    fprintf(stderr, " (+%ld cached)", nr_cache[PM_MODE_BACK]);
 	fprintf(stderr, "\n");
     }
-    if (pmDebugOptions.interp && pmDebugOptions.desperate) {
+    if (pmDebugOptions.qa) {
 	fprintf(stderr, "__pmLogFetchInterp: unbound items scanned:");
 	fprintf(stderr, " pass2: %ld", nuis[NUIS_PASS2]);
 	fprintf(stderr, " first: %ld", nuis[NUIS_FIRST]);

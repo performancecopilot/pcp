@@ -767,7 +767,7 @@ dopmda(int pdu)
 
 	case PDU_PMNS_NAMES:
             printf("Metric: %s\n", param.name);
-	    if ((sts = __pmSendNameList(toPMDA, FROM_ANON, 1, &param.name, NULL)) >= 0) {
+	    if ((sts = __pmSendNameList(toPMDA, FROM_ANON, 1, (const char **)&param.name, NULL)) >= 0) {
 		if ((pinpdu = sts = __pmGetPDU(fromPMDA, ANY_SIZE, TIMEOUT_NEVER, &pb)) == PDU_PMNS_IDS) {
 		    int		xsts;
 

@@ -1,8 +1,8 @@
 #!/bin/sh
-# PCP QA Test No. 1688
-# test issue #1149 - pmieconf default config file location
+# PCP QA Test No. 1291
+# effectiveness of time_caliper() in interp.c
 #
-# Copyright (c) 2020 Red Hat.  All Rights Reserved.
+# Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
 #
 
 if [ $# -eq 0 ]
@@ -20,15 +20,6 @@ fi
 . ./common.filter
 . ./common.check
 
-do_valgrind=false
-if [ "$1" = "--valgrind" ]
-then
-    _check_valgrind
-    do_valgrind=true
-fi
-
-# test for-some-thing || _notrun No support for some-thing
-
 _cleanup()
 {
     cd $here
@@ -39,23 +30,38 @@ status=0	# success is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+TIME=`which time`
+$TIME --help >$tmp.err 2>&1
+if grep '.--portability' $tmp.err >/dev/null
+then
+    TIME=$TIME' --portability'
+fi
+
+echo "TIME=$TIME" >>$seq.full
+
 _filter()
 {
     sed \
-        -e '/enabled/s/:.*$/: N/' \
-	-e '/PID/s/:.*$/: PID/' \
-	-e 's;'$HOME';HOME;' \
-	-e 's;'$PCP_VAR_DIR';PCP_VAR_DIR;' \
-	-e 's/processes (PIDs)/process (PID)/' \
+	-e '/^real /d' \
+	-e '/^user /d' \
+	-e '/^sys /d' \
+	-e '/^time_caliper: /d' \
     # end
 }
 
 # real QA test starts here
-echo == runing as root
-$sudo pmieconf -c status 2>&1 | _filter
+$TIME pcp -z -a archives/20201109 -Dqa atop 10 3 >$tmp.out 2>$tmp.err
 
-echo; echo === running as user
-pmieconf -c status 2>&1 | _filter
+cat $tmp.out
+_filter <$tmp.err
+
+grep '^user ' $tmp.err \
+| $PCP_AWK_PROG '
+    { if ($2 < 5.0)
+	print "user <5.0"
+      else
+        print
+    }'
 
 # success, all done
 exit

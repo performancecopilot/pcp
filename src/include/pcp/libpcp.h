@@ -834,8 +834,8 @@ typedef struct {
  *       those used in interp.c for t_req et al
  */
 typedef struct {
-    double	t_first;		/* no values before this time */
-    double	t_last;			/* no values after this time */
+    double	t_birth;		/* instance first present */
+    double	t_death;		/* instance no longer present */
 } __pmLogTrimInst;
 
 /*
