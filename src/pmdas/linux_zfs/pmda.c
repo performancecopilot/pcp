@@ -1259,7 +1259,6 @@ main(int argc, char **argv)
     pmdaDaemon(&dispatch, PMDA_INTERFACE_7, pmGetProgname(), ZFS, "zfs.log", helppath);
 
     strcpy(ZFS_PATH, getenv("ZFS_PATH"));
-    pmNotifyErr(LOG_WARNING, "ZFS_PATH=%s\n", ZFS_PATH);
     while ((c = pmdaGetOptions(argc, argv, &opts, &dispatch)) != EOF) {
         switch(c) {
         case 'z':
