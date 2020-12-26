@@ -1210,6 +1210,9 @@ zfs_init(pmdaInterface *dp)
     int sep = pmPathSeparator();
 
     if (_isDSO) {
+        strcpy(ZFS_PATH, getenv("ZFS_PATH"));
+        if (strlen(ZFS_PATH) == 0)
+            strcpy(ZFS_PATH, ZFS_DEFAULT_PATH);
         pmsprintf(helppath, sizeof(helppath), "%s%c" "zfs" "%c" "help",
                 pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
         pmdaDSO(dp, PMDA_INTERFACE_7, "ZFS DSO", helppath);
@@ -1255,6 +1258,8 @@ main(int argc, char **argv)
             pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_7, pmGetProgname(), ZFS, "zfs.log", helppath);
 
+    strcpy(ZFS_PATH, getenv("ZFS_PATH"));
+    pmNotifyErr(LOG_WARNING, "ZFS_PATH=%s\n", ZFS_PATH);
     while ((c = pmdaGetOptions(argc, argv, &opts, &dispatch)) != EOF) {
         switch(c) {
         case 'z':
@@ -1263,7 +1268,7 @@ main(int argc, char **argv)
         }
     }
     if (strlen(ZFS_PATH) == 0)
-        strcpy(ZFS_PATH, "/proc/spl/kstat/zfs");
+        strcpy(ZFS_PATH, ZFS_DEFAULT_PATH);
 
     if (opts.errors) {
         pmdaUsageMessage(&opts);
