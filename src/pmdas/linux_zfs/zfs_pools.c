@@ -113,8 +113,8 @@ zfs_poolstats_refresh(zfs_poolstats_t **poolstats, pmdaInstid **pools, pmdaIndom
         }
         // Read the state if exists
         (*poolstats)[i].state = 13; // UNKNOWN
-        strcpy(fname, pool_dir);
-        strcat(fname, "/state");
+	fname[0] = 0;
+	sprintf(fname, "%s%c%s", pool_dir, pmPathSeparator(), "state");
         fp = fopen(fname, "r");
         if (fp != NULL) {
             if (getline(&line, &len, fp) != -1) {
@@ -131,8 +131,8 @@ zfs_poolstats_refresh(zfs_poolstats_t **poolstats, pmdaInstid **pools, pmdaIndom
             len = 0;
         }
         // Read the IO stats
-        strcpy(fname, pool_dir);
-        strcat(fname, "/io");
+	fname[0] = 0;
+	sprintf(fname, "%s%c%s", pool_dir, pmPathSeparator(), "io");
         fp = fopen(fname, "r");
         if (fp != NULL) {
             nread_seen = 0;

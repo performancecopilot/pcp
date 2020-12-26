@@ -21,7 +21,6 @@
 #include "zfs_pools.h"
 
 static int _isDSO = 1; /* PMDA launched mode 1/0 for DSO/daemon */
-char   ZFS_PATH[MAXPATHLEN];
 static zfs_arcstats_t arcstats;
 static zfs_abdstats_t abdstats;
 static zfs_dbufstats_t dbufstats;
