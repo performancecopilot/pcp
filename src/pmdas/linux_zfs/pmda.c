@@ -20,6 +20,9 @@
 #include "zfs_zilstats.h"
 #include "zfs_pools.h"
 
+char ZFS_DEFAULT_PATH[] = "/proc/spl/kstat/zfs";
+char ZFS_PATH[MAXPATHLEN];
+
 static int _isDSO = 1; /* PMDA launched mode 1/0 for DSO/daemon */
 static zfs_arcstats_t arcstats;
 static zfs_abdstats_t abdstats;
