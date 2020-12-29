@@ -1200,7 +1200,7 @@ zfs_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 static int
 zfs_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt *pmda)
 {
-    zfs_pools_init(&poolstats, &pools, &indomtab[ZFS_POOL_INDOM]);
+    //zfs_pools_init(&poolstats, &pools, &indomtab[ZFS_POOL_INDOM]);
     return pmdaInstance(indom, inst, name, result, pmda);
 }
 
@@ -1223,7 +1223,6 @@ zfs_init(pmdaInterface *dp)
     if (dp->status != 0)
         return;
     
-    zfs_pools_init(&poolstats, &pools, &indomtab[ZFS_POOL_INDOM]);
     dp->version.any.instance = zfs_instance;
     dp->version.any.fetch = zfs_fetch;
     pmdaSetFetchCallBack(dp, zfs_fetchCallBack);

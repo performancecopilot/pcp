@@ -97,6 +97,8 @@ zfs_poolstats_refresh(zfs_poolstats_t **poolstats, pmdaInstid **pools, pmdaIndom
     struct stat sstat;
     size_t len = 0;
 
+    if (poolstats != NULL)
+        zfs_pools_clear(poolstats, pools, poolsindom);
     zfs_pools_init(poolstats, pools, poolsindom);
     if (poolsindom->it_numinst == 0) {
         /* no pools, nothing to do */
@@ -117,7 +119,7 @@ zfs_poolstats_refresh(zfs_poolstats_t **poolstats, pmdaInstid **pools, pmdaIndom
 	sprintf(fname, "%s%c%s", pool_dir, pmPathSeparator(), "state");
         fp = fopen(fname, "r");
         if (fp != NULL) {
-            if (getline(&line, &len, fp) != -1) {
+            while (getline(&line, &len, fp) != -1) {
                 if (strncmp(line, "OFFLINE", 7) == 0) (*poolstats)[i].state = 0;
                 else if (strncmp(line, "ONLINE", 6) == 0) (*poolstats)[i].state = 1;
                 else if (strncmp(line, "DEGRADED", 8) == 0) (*poolstats)[i].state = 2;
@@ -126,9 +128,6 @@ zfs_poolstats_refresh(zfs_poolstats_t **poolstats, pmdaInstid **pools, pmdaIndom
                 else if (strncmp(line, "UNAVAIL", 7) == 0) (*poolstats)[i].state = 5;
             }
             fclose(fp);
-            free(line);
-            line = NULL;
-            len = 0;
         }
         // Read the IO stats
 	fname[0] = 0;
@@ -160,7 +159,8 @@ zfs_poolstats_refresh(zfs_poolstats_t **poolstats, pmdaInstid **pools, pmdaIndom
 		}
             }
             fclose(fp);
-            free(line);
         }
     }
+    if (line != NULL)
+        free(line);
 }
