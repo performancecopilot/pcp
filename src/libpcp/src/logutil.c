@@ -656,7 +656,7 @@ logFreeTrimInDom(__pmHashCtl *hcp)
 	    icp = &indomp->hashinst;
 	    /* loop over all instances for this indom */
 	    for (i = 0; i < icp->hsize; i++) {
-		for (ip = icp->hash[h], prior_ip = NULL; ip != NULL; ip = ip->next) {
+		for (ip = icp->hash[i], prior_ip = NULL; ip != NULL; ip = ip->next) {
 		    free((__pmLogTrimInst *)ip->data);
 		    if (prior_ip != NULL)
 			free(prior_ip);
