@@ -20,6 +20,34 @@ status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
 $sudo rm -rf $tmp.* $seq.full
 
+# The netproc BCC module uses the lookup_or_try_init() method that was
+# introduced in bcc v0.12.0 (released 11 Dec 2019), so determine the
+# bcc version and _notrun as appropriate.
+#
+# Like most things in Pythonland, it would appear there are many (more
+# that 6 according to google) ways to determine the version of a module,
+# but none of them are guaranteed to work!  The recipe below seems robust
+# for the bcc module.
+#
+cat <<'End-of-File' >$tmp.py
+import bcc
+print(bcc.__version__)
+End-of-File
+echo "bcc version ..." >>$seq.full
+version=`pmpython $tmp.py 2>>$seq.full`
+echo "$version" >>$seq.full
+case "$version"
+in
+    '')
+	    # failed to extract version ($seq.full may help) ... but punt
+	    # on running the test
+	    ;;
+
+    0.0.*|0.1[0-1].*)
+	    _notrun "need version >= 0.12.0 (not $version) for bcc Python module"
+	    ;;
+esac
+
 target_http=http://1.1.1.1
 target_dns=1.1.1.1
 
