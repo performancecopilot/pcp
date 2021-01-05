@@ -166,38 +166,60 @@ _filter_openbsd()
 	    -e '/^disk\.all\.blkread .* Unknown metric name/d' \
 	    -e '/^disk\.all\.blkwrite .* Unknown metric name/d' \
 	    -e '/^disk\.dev\.avactive .* Unknown metric name/d' \
-	    -e '/^filesys.* Unknown metric name/d' \
 	    -e '/^disk\.partitions\..* Unknown metric name/d' \
+	    -e '/^filesys.* Unknown metric name/d' \
+	    -e '/^hinv\.cpu\.clock .* Unknown metric name/d' \
 	    -e '/^hinv\.nnode .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.boottime .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.cpu\.guest .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.cpu\.guest_nice .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.cpu\.irq\.soft .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.cpu\.steal .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.cpu\.wait\.total .* Unknown metric name/d' \
 	    -e '/^kernel\.all\.io\..* Unknown metric name/d' \
 	    -e '/^kernel\.all\.kpreempt .* Unknown metric name/d' \
 	    -e '/^kernel\.all\.kswitch .* Unknown metric name/d' \
 	    -e '/^kernel\.all\.nusers .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.pid_max .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.pressure\..* Unknown metric name/d' \
+	    -e '/^kernel\.all\.pswitch .* Unknown metric name/d' \
 	    -e '/^kernel\.all\.sysexec .* Unknown metric name/d' \
 	    -e '/^kernel\.all\.sysfork .* Unknown metric name/d' \
 	    -e '/^kernel\.all\.sysioctl .* Unknown metric name/d' \
 	    -e '/^kernel\.all\.sysread .* Unknown metric name/d' \
 	    -e '/^kernel\.all\.syswrite .* Unknown metric name/d' \
 	    -e '/^kernel\.all\.uptime .* Unknown metric name/d' \
-	    -e '/^kernel\.all\.pswitch .* Unknown metric name/d' \
+	    -e '/^kernel\.percpu\.cpu\.guest .* Unknown metric name/d' \
+	    -e '/^kernel\.percpu\.cpu\.guest_nice .* Unknown metric name/d' \
+	    -e '/^kernel\.percpu\.cpu\.irq\.soft .* Unknown metric name/d' \
+	    -e '/^kernel\.percpu\.cpu\.steal .* Unknown metric name/d' \
+	    -e '/^kernel\.percpu\.cpu\.wait\.total .* Unknown metric name/d' \
 	    -e '/^kernel\.percpu\.pswitch .* Unknown metric name/d' \
 	    -e '/^kernel\.percpu\.syscall .* Unknown metric name/d' \
+	    -e '/^mem\.physmem .* Unknown metric name/d' \
 	    -e '/^mem\.util\.bufmem .* Unknown metric name/d' \
+	    -e '/^mem\.util\.shmem .* Unknown metric name/d' \
+	    -e '/^mem\.util\.slabReclaimable .* Unknown metric name/d' \
 	    -e '/^name_cache\.enters .* Unknown metric name/d' \
 	    -e '/^name_cache\.misses .* Unknown metric name/d' \
 	    -e '/^name_cache\.removes .* Unknown metric name/d' \
 	    -e '/^name_cache\.searches .* Unknown metric name/d' \
+	    -e '/^network\.all\.in\.bytes .* Unknown metric name/d' \
+	    -e '/^network\.all\.in\.packets .* Unknown metric name/d' \
+	    -e '/^network\.all\.out\.bytes .* Unknown metric name/d' \
+	    -e '/^network\.all\.out\.packets .* Unknown metric name/d' \
 	    -e '/^network\.icmp .* Unknown metric name/d' \
 	    -e '/^network\.igmp .* Unknown metric name/d' \
+	    -e '/^network\.interface\.collisions .* Unknown metric name/d' \
 	    -e '/^network\.ip .* Unknown metric name/d' \
 	    -e '/^network\.tcp .* Unknown metric name/d' \
-	    -e '/^network\.udp .* Unknown metric name/d' \
-	    -e '/^network\.udplite .* Unknown metric name/d' \
-	    -e '/^network\.interface\.collisions .* Unknown metric name/d' \
 	    -e '/^network\.tcp\.listenoverflows .* Unknown metric name/d' \
 	    -e '/^network\.tcp\.reqqfulldocookies .* Unknown metric name/d' \
 	    -e '/^network\.tcp\.reqqfulldrop .* Unknown metric name/d' \
+	    -e '/^network\.udp .* Unknown metric name/d' \
+	    -e '/^network\.udplite .* Unknown metric name/d' \
 	    -e '/^proc\..* Unknown metric name/d' \
+	    -e '/^zram\..* Unknown metric name/d' \
 	# openbsd
     fi
 }
@@ -205,19 +227,22 @@ _filter_openbsd()
 _filter_linux()
 {
     # pcp-atop uses metrics not supported on some kernels
+    # proc.smaps.* metrics are not present for older kernels
+    #
     if [ $PCP_PLATFORM != linux ]
     then
 	cat
     else
 	sed \
-	    -e '/^network.softnet.* Metric not supported/d' \
-	    -e '/^nfsclient.options.* Metric not supported/d' \
-	    -e '/^proc.namespaces.* Metric not supported/d' \
-	    -e '/^proc.psinfo.cgroups.* No data available/d' \
-	    -e '/^cgroup..*.container.* No data available/d' \
-	    -e '/^proc.id.container.* No data available/d' \
-	    -e '/^nfsclient.options.* Unknown metric name/d' \
-	    -e '/^perfevent.hwcounters.* Unknown metric name/d' \
+	    -e '/^network\.softnet.* Metric not supported/d' \
+	    -e '/^nfsclient\.options.* Metric not supported/d' \
+	    -e '/^proc\.namespaces.* Metric not supported/d' \
+	    -e '/^proc\.psinfo\.cgroups.* No data available/d' \
+	    -e '/^cgroup\..*\.container.* No data available/d' \
+	    -e '/^proc\.id\.container.* No data available/d' \
+	    -e '/^nfsclient\.options.* Unknown metric name/d' \
+	    -e '/^perfevent\.hwcounters.* Unknown metric name/d' \
+	    -e '/^proc\.smaps\..* Metric not supported/d' \
 	# linux
     fi
 }
@@ -229,22 +254,22 @@ _filter()
 {
     # these are always-on in older oss versions of pcp
     sed \
-       -e '/^disk.dev.avg_disk.active .* metric name/d' \
-       -e '/^disk.all.avg_disk.active .* metric name/d' \
-       -e '/^disk.dev.bytes .* Unknown metric name/d' \
-       -e '/^disk.all.bytes .* Unknown metric name/d' \
-       -e '/^network.igmp .* Unknown metric name/d' \
+       -e '/^disk\.dev\.avg_disk\.active .* metric name/d' \
+       -e '/^disk\.all\.avg_disk\.active .* metric name/d' \
+       -e '/^disk\.dev\.bytes .* Unknown metric name/d' \
+       -e '/^disk\.all\.bytes .* Unknown metric name/d' \
+       -e '/^network\.igmp .* Unknown metric name/d' \
        -e '/^nfs.* Unknown metric name/d' \
        -e '/^rpc.* Unknown metric name/d' \
        -e '/^nfsclient.* Unknown metric name/d' \
-       -e '/^elasticsearch.search.all.* Metric not supported/d' \
-       -e '/^elasticsearch.nodes.jvm.* Metric not supported/d' \
-       -e '/^elasticsearch.nodes.process.* Metric not supported/d' \
-       -e '/^elasticsearch.nodes.indices.cache.* Metric not supported/d' \
-       -e '/^elasticsearch.nodes.indices.docs.num_docs .* not supported/d' \
+       -e '/^elasticsearch\.search\.all.* Metric not supported/d' \
+       -e '/^elasticsearch\.nodes\.jvm.* Metric not supported/d' \
+       -e '/^elasticsearch\.nodes\.process.* Metric not supported/d' \
+       -e '/^elasticsearch\.nodes\.indices\.cache.* Metric not supported/d' \
+       -e '/^elasticsearch\.nodes\.indices\.docs\.num_docs .* not supported/d' \
        -e '/^oracle.* Information not currently available/d' \
-       -e '/^swap.in .* Metric not supported/d' \
-       -e '/^swap.out .* Metric not supported/d' \
+       -e '/^swap\.in .* Metric not supported/d' \
+       -e '/^swap\.out .* Metric not supported/d' \
     | _filter_linux \
     | _filter_solaris \
     | _filter_darwin \
