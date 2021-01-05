@@ -112,7 +112,7 @@ cpu_node_setup(void)
 
     pmsprintf(path, sizeof(path), "%s/%s", linux_statspath, node_path);
     count = scandir(path, &node_files, NULL, versionsort);
-    if (!node_files || (linux_test_mode & LINUX_TEST_NCPUS)) {
+    if (!node_files || (linux_test_mode & LINUX_TEST_NNODES)) {
 	/* QA mode or no sysfs support, assume single NUMA node */
 	np = node_add(nodes, 0);	/* default to just node zero */
 	for (cpu = 0; cpu < _pm_ncpus; cpu++)

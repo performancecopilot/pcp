@@ -47,6 +47,22 @@ do
     $sudo tar xzf $tgz
     base=`basename $tgz`
 
+    echo "=== $base ===" >>$here/$seq.full
+
+    # need the number of cpus in this data set ... from the number of
+    # lines like
+    # cpu7 850802 2207 394292 41789513 119722 1143651 200784 0 0 0
+    # in proc/stat
+    #
+    if [ ! -f proc/stat ]
+    then
+	echo "Arrgh, proc/stat not included in $base stats tarball"
+	exit
+    fi
+    LINUX_NCPUS=`grep '^cpu[0-9][0-9]* ' proc/stat | wc -l | sed -e 's/ //g'`
+    export LINUX_NCPUS
+    echo "LINUX_NCPUS=$LINUX_NCPUS" >>$here/$seq.full
+
     echo "== Checking hinv online metric values - $base"
     for m in $online_metrics
     do

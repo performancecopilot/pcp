@@ -9238,30 +9238,73 @@ linux_init(pmdaInterface *dp)
 
     /* optional overrides of some globals for testing */
     if ((envpath = getenv("LINUX_HERTZ")) != NULL) {
+	/*
+	 * If $LINUX_HERTZ is set, this is a QA setting that
+	 * pretends the clock rate is $LINUX_HERTZ (assumed to
+	 * match the contents of a QA stats tarball), rather than
+	 * the value from sysconf() on the running system.
+	 */
 	linux_test_mode |= LINUX_TEST_MODE;
 	hz = atoi(envpath);
     } else
 	hz = sysconf(_SC_CLK_TCK);
     if ((envpath = getenv("LINUX_NCPUS")) != NULL) {
+	/*
+	 * If $LINUX_NCPUS is set, this is a QA setting that
+	 * pretends there are $LINUX_NCPUS CPUs (assumed to match
+	 * the contents of a QA stats tarball), rather than the
+	 * value from sysconf() on the running system.
+	 */
 	linux_test_mode |= (LINUX_TEST_MODE|LINUX_TEST_NCPUS);
 	_pm_ncpus = atoi(envpath);
     } else
 	_pm_ncpus = sysconf(_SC_NPROCESSORS_CONF);
+    if ((envpath = getenv("LINUX_NNODES")) != NULL) {
+	/*
+	 * If $LINUX_NNODES is set, this is a QA setting that
+	 * forces all CPUs into node0 (the value of $LINUX_NNODES
+	 * is ignored).
+	 */
+	linux_test_mode |= (LINUX_TEST_MODE|LINUX_TEST_NNODES);
+    }
     if ((envpath = getenv("LINUX_PAGESIZE")) != NULL) {
+	/*
+	 * If $LINUX_PAGESIZE is set, this is a QA setting that
+	 * pretends the page size is $LINUX_PAGESIZE (assumed to
+	 * match the contents of a QA stats tarball), rather than
+	 * the value from getpagesize() on the running system.
+	 */
 	linux_test_mode |= LINUX_TEST_MODE;
 	_pm_pageshift = ffs(atoi(envpath)) - 1;
     } else
 	_pm_pageshift = ffs(getpagesize()) - 1;
     if ((envpath = getenv("LINUX_STATSPATH")) != NULL) {
+	/*
+	 * If $LINUX_STATSPATH is set, this is a QA setting that
+	 * points to the root directory holding stats files
+	 * unpacked from a QA stats tarball, rather than "/".
+	 */
 	linux_test_mode |= (LINUX_TEST_MODE|LINUX_TEST_STATSPATH);
 	linux_statspath = envpath;
     }
     if ((envpath = getenv("LINUX_MDADM")) != NULL) {
+	/*
+	 * If $LINUX_MDADM is set, this is a QA setting that
+	 * points an alternative version of the /sbin/mdadm
+	 * program used to extract MD RAID stats.
+	 */
 	linux_test_mode |= LINUX_TEST_MODE;
 	linux_mdadm = envpath;
     }
-    if (getenv("PCP_QA_ESTIMATE_MEMAVAILABLE") != NULL)
+    if (getenv("PCP_QA_ESTIMATE_MEMAVAILABLE") != NULL) {
+	/*
+	 * If $PCP_QA_ESTIMATE_MEMAVAILABLE is set, force the
+	 * calculation of "mem available" stats, even if the
+	 * kernel on the running system does not export these
+	 * directly.
+	 */
 	linux_test_mode |= (LINUX_TEST_MODE|LINUX_TEST_MEMINFO);
+    }
 
     if (_isDSO) {
 	char helppath[MAXPATHLEN];
