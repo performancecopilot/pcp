@@ -2628,6 +2628,27 @@ _restore_pmda_install()
             $sudo $signal -a -s HUP pmcd
         fi
     fi
+
+    # Potential problem here if pmcd's PMDA config has changed for
+    # metrics that the primary pmlogger is logging, then that pmlogger
+    # may exit and not have been restarted before the QA test bumps
+    # into either (a) an assumption that the primary pmlogger is
+    # running (unlikely, as we usually get here as a result an exit
+    # trap at the end of QA test, or (b) check is running with
+    # a check.callback that checks if the primary pmlogger is alive
+    # ... it is (b) this is the real problem.
+    #
+    # Only safe thing to do is to silently force a restart of the
+    # primary pmlogger.
+    #
+    if [ -n "$here" -a -n "$seq" ]
+    then
+	echo "_restore_pmda_install: restarting primary pmlogger" >>$here/$seq.full
+	_service pmlogger restart >>$here/$seq.full 2>&1
+    else
+	_service pmlogger restart >/dev/null 2>&1
+    fi
+    _wait_for_pmlogger
 }
 
 # find a local port that is not in use, optionally starting from a suggested port
