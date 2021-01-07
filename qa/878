@@ -151,6 +151,10 @@ _filter_pipe()
 # real QA test starts here
 pmdapipe_install
 
+# avoid race and try to make sure data is ready before the pminfo below
+#
+sleep 2
+
 # pmcd should have been started by the Install process - check
 # a sub-tree that is known-good for all pipe versions
 # and setup states.
