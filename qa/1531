@@ -27,7 +27,7 @@ _filter()
 
 root=$tmp.root
 pmda=$PCP_PMDAS_DIR/zfs/pmda_zfs.so,zfs_init
-tgz=$here/linux/zfs-stats.tgz
+tgz=$here/linux/zfs-stats.v0.tgz
 $sudo rm -fr $root
 mkdir $root || _fail "root in use when processing $tgz"
 cd $root
