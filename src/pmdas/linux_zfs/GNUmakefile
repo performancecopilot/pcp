@@ -48,11 +48,6 @@ include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
 build-me: $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS)
-	@if [ -f ../pmcd.conf ]; then \
-	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
-		echo $(CONF_LINE) >> ../pmcd.conf ; \
-	    fi; \
-	fi
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)
