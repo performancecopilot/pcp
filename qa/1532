@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 1530
-# Test Linux ZFS PMDA against a dummy pool with valgrind
+# Test Linux ZFS PMDA against a live ZFS pool
 #
 
 seq=`basename $0`
