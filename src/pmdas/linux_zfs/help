@@ -257,8 +257,48 @@ Amount of data stored in all scatter ABDs tracked by scatter_cnt
 @ zfs.abd.scatter_chunk_waste
 The amount of space wasted at the end of the last chunk across all
 scatter ABDs tracked by scatter_cnt.
-@ zfs.abd.scatter_order_N
-The number of compound allocations of a given order.  These
+@ zfs.abd.scatter_order_0
+The number of compound allocations of the 0th order.  These
+allocations are spread over all currently allocated ABDs, and
+act as a measure of memory fragmentation.
+@ zfs.abd.scatter_order_1
+The number of compound allocations of the 1st order.  These
+allocations are spread over all currently allocated ABDs, and
+act as a measure of memory fragmentation.
+@ zfs.abd.scatter_order_2
+The number of compound allocations of the 2nd order.  These
+allocations are spread over all currently allocated ABDs, and
+act as a measure of memory fragmentation.
+@ zfs.abd.scatter_order_3
+The number of compound allocations of the 3rd order.  These
+allocations are spread over all currently allocated ABDs, and
+act as a measure of memory fragmentation.
+@ zfs.abd.scatter_order_4
+The number of compound allocations of the 4th order.  These
+allocations are spread over all currently allocated ABDs, and
+act as a measure of memory fragmentation.
+@ zfs.abd.scatter_order_5
+The number of compound allocations of the 5th order.  These
+allocations are spread over all currently allocated ABDs, and
+act as a measure of memory fragmentation.
+@ zfs.abd.scatter_order_6
+The number of compound allocations of the 6th order.  These
+allocations are spread over all currently allocated ABDs, and
+act as a measure of memory fragmentation.
+@ zfs.abd.scatter_order_7
+The number of compound allocations of the 7th order.  These
+allocations are spread over all currently allocated ABDs, and
+act as a measure of memory fragmentation.
+@ zfs.abd.scatter_order_8
+The number of compound allocations of the 8th order.  These
+allocations are spread over all currently allocated ABDs, and
+act as a measure of memory fragmentation.
+@ zfs.abd.scatter_order_9
+The number of compound allocations of the 9th order.  These
+allocations are spread over all currently allocated ABDs, and
+act as a measure of memory fragmentation.
+@ zfs.abd.scatter_order_10
+The number of compound allocations of the 10th order.  These
 allocations are spread over all currently allocated ABDs, and
 act as a measure of memory fragmentation.
 @ zfs.abd.scatter_page_multi_chunk
@@ -423,30 +463,30 @@ Statistics for tracking dnodes which have been moved.
 @ zfs.fm.fmri_set_failed number of fmri set failures
 @ zfs.fm.payload_set_failed number of payload set failures
 
-@ zfs.vdev.cache_delegations
-@ zfs.vdev.cache_hits
-@ zfs.vdev.cache_misses
-@ zfs.vdev.mirror_rotating_linear
+@ zfs.vdev.cache.delegations
+@ zfs.vdev.cache.hits
+@ zfs.vdev.cache.misses
+@ zfs.vdev.mirror.rotating_linear
 New IO follows directly the last IO 
-@ zfs.vdev.mirror_rotating_offset
+@ zfs.vdev.mirror.rotating_offset
 New IO is within zfs_vdev_mirror_rotating_seek_offset of the last 
-@ zfs.vdev.mirror_rotating_seek
+@ zfs.vdev.mirror.rotating_seek
 New IO requires random seek 
-@ zfs.vdev.mirror_non_rotating_linear
+@ zfs.vdev.mirror.non_rotating_linear
 New IO follows directly the last IO  (nonrot) 
-@ zfs.vdev.mirror_non_rotating_seek
+@ zfs.vdev.mirror.non_rotating_seek
 New IO requires random seek (nonrot) 
-@ zfs.vdev.mirror_preferred_found
+@ zfs.vdev.mirror.preferred_found
 Preferred child vdev found 
-@ zfs.vdev.mirror_preferred_not_found
+@ zfs.vdev.mirror.preferred_not_found
 Preferred child vdev not found or equal load  
 
-@ zfs.xuio.stat_onloan_rbuf loaned yet not returned arc_buf read
-@ zfs.xuio.stat_onloan_wbuf loaned yet not returned arc_buf written
-@ zfs.xuio.stat_rbuf_copied whether a copy is made when loaning out a read buffer 
-@ zfs.xuio.stat_rbuf_nocopy whether a copy is made when loaning out a read buffer 
-@ zfs.xuio.stat_wbuf_copied whether a copy is made when assigning a write buffer 
-@ zfs.xuio.stat_wbuf_nocopy whether a copy is made when assigning a write buffer 
+@ zfs.xuio.onloan_rbuf loaned yet not returned arc_buf read
+@ zfs.xuio.onloan_wbuf loaned yet not returned arc_buf written
+@ zfs.xuio.rbuf_copied whether a copy is made when loaning out a read buffer 
+@ zfs.xuio.rbuf_nocopy whether a copy is made when loaning out a read buffer 
+@ zfs.xuio.wbuf_copied whether a copy is made when assigning a write buffer 
+@ zfs.xuio.wbuf_nocopy whether a copy is made when assigning a write buffer 
 
 @ zfs.zfetch.hits
 @ zfs.zfetch.misses
@@ -498,6 +538,10 @@ The size of transactions which have been allocated to the slog storage pool.
 If there are no separate log devices, this is the same as the
 normal pool.
 
+@ zfs.pool.state number corresponding to the pool state
+OFFLINE  = 0, ONLINE  = 1, 
+DEGRADED = 2, FAULTED = 3, REMOVED = 4, 
+UNAVAIL  = 5, UNKNOWN = 13
 @ zfs.pool.nread number of bytes read
 @ zfs.pool.nwritten number of bytes written
 @ zfs.pool.reads number of read operations
