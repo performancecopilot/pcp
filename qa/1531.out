@@ -1,0 +1,455 @@
+QA output created by 1531
+== Valgrind checking metric descriptors and values with 1 pool
+=== std out ===
+
+zfs.pool.state PMID: 153.10.0 [number corresponding to the pool state]
+    Data Type: 32-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: discrete  Units: count
+Help:
+OFFLINE  = 0, ONLINE  = 1, 
+DEGRADED = 2, FAULTED = 3, REMOVED = 4, 
+UNAVAIL  = 5, UNKNOWN = 13
+    inst [0-or-1 or "pool1"] value 1
+
+zfs.pool.nread PMID: 153.10.1 [number of bytes read]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: byte
+Help:
+number of bytes read
+    inst [0-or-1 or "pool1"] value 153
+
+zfs.pool.nwritten PMID: 153.10.2 [number of bytes written]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: byte
+Help:
+number of bytes written
+    inst [0-or-1 or "pool1"] value 153
+
+zfs.pool.reads PMID: 153.10.3 [number of read operations]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: count
+Help:
+number of read operations
+    inst [0-or-1 or "pool1"] value 153
+
+zfs.pool.writes PMID: 153.10.4 [number of write operations]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: count
+Help:
+number of write operations
+    inst [0-or-1 or "pool1"] value 153
+
+zfs.pool.wtime PMID: 153.10.5 [cumulative wait (pre-service) time]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: nanosec
+Help:
+cumulative wait (pre-service) time
+    inst [0-or-1 or "pool1"] value 153
+
+zfs.pool.wlentime PMID: 153.10.6 [cumulative wait len*time product]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: nanosec
+Help:
+cumulative wait len*time product
+    inst [0-or-1 or "pool1"] value 153
+
+zfs.pool.wupdate PMID: 153.10.7 [last time wait queue changed]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: nanosec
+Help:
+last time wait queue changed
+    inst [0-or-1 or "pool1"] value 153
+
+zfs.pool.rtime PMID: 153.10.8 [cumulative run (service) time]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: nanosec
+Help:
+cumulative run (service) time
+    inst [0-or-1 or "pool1"] value 153
+
+zfs.pool.rlentime PMID: 153.10.9 [cumulative run length*time product]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: nanosec
+Help:
+cumulative run length*time product
+    inst [0-or-1 or "pool1"] value 153
+
+zfs.pool.rupdate PMID: 153.10.10 [last time run queue changed]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: nanosec
+Help:
+last time run queue changed
+    inst [0-or-1 or "pool1"] value 153
+
+zfs.pool.wcnt PMID: 153.10.11 [count of elements in wait state]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: count
+Help:
+count of elements in wait state
+    inst [0-or-1 or "pool1"] value 153
+
+zfs.pool.rcnt PMID: 153.10.12 [count of elements in run state]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: count
+Help:
+count of elements in run state
+    inst [0-or-1 or "pool1"] value 153
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -K clear -K add,153,/var/lib/pcp/pmdas/zfs/pmda_zfs.so,zfs_init -dfmtT zfs.pool
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+== Valgrind checking metric descriptors and values with 2 pools
+=== std out ===
+
+zfs.pool.state PMID: 153.10.0 [number corresponding to the pool state]
+    Data Type: 32-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: discrete  Units: count
+Help:
+OFFLINE  = 0, ONLINE  = 1, 
+DEGRADED = 2, FAULTED = 3, REMOVED = 4, 
+UNAVAIL  = 5, UNKNOWN = 13
+    inst [0-or-1 or "pool1"] value 1
+    inst [0-or-1 or "pool2"] value 1
+
+zfs.pool.nread PMID: 153.10.1 [number of bytes read]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: byte
+Help:
+number of bytes read
+    inst [0-or-1 or "pool1"] value 153
+    inst [0-or-1 or "pool2"] value 153
+
+zfs.pool.nwritten PMID: 153.10.2 [number of bytes written]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: byte
+Help:
+number of bytes written
+    inst [0-or-1 or "pool1"] value 153
+    inst [0-or-1 or "pool2"] value 153
+
+zfs.pool.reads PMID: 153.10.3 [number of read operations]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: count
+Help:
+number of read operations
+    inst [0-or-1 or "pool1"] value 153
+    inst [0-or-1 or "pool2"] value 153
+
+zfs.pool.writes PMID: 153.10.4 [number of write operations]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: count
+Help:
+number of write operations
+    inst [0-or-1 or "pool1"] value 153
+    inst [0-or-1 or "pool2"] value 153
+
+zfs.pool.wtime PMID: 153.10.5 [cumulative wait (pre-service) time]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: nanosec
+Help:
+cumulative wait (pre-service) time
+    inst [0-or-1 or "pool1"] value 153
+    inst [0-or-1 or "pool2"] value 153
+
+zfs.pool.wlentime PMID: 153.10.6 [cumulative wait len*time product]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: nanosec
+Help:
+cumulative wait len*time product
+    inst [0-or-1 or "pool1"] value 153
+    inst [0-or-1 or "pool2"] value 153
+
+zfs.pool.wupdate PMID: 153.10.7 [last time wait queue changed]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: nanosec
+Help:
+last time wait queue changed
+    inst [0-or-1 or "pool1"] value 153
+    inst [0-or-1 or "pool2"] value 153
+
+zfs.pool.rtime PMID: 153.10.8 [cumulative run (service) time]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: nanosec
+Help:
+cumulative run (service) time
+    inst [0-or-1 or "pool1"] value 153
+    inst [0-or-1 or "pool2"] value 153
+
+zfs.pool.rlentime PMID: 153.10.9 [cumulative run length*time product]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: nanosec
+Help:
+cumulative run length*time product
+    inst [0-or-1 or "pool1"] value 153
+    inst [0-or-1 or "pool2"] value 153
+
+zfs.pool.rupdate PMID: 153.10.10 [last time run queue changed]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: nanosec
+Help:
+last time run queue changed
+    inst [0-or-1 or "pool1"] value 153
+    inst [0-or-1 or "pool2"] value 153
+
+zfs.pool.wcnt PMID: 153.10.11 [count of elements in wait state]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: count
+Help:
+count of elements in wait state
+    inst [0-or-1 or "pool1"] value 153
+    inst [0-or-1 or "pool2"] value 153
+
+zfs.pool.rcnt PMID: 153.10.12 [count of elements in run state]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: count
+Help:
+count of elements in run state
+    inst [0-or-1 or "pool1"] value 153
+    inst [0-or-1 or "pool2"] value 153
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -K clear -K add,153,/var/lib/pcp/pmdas/zfs/pmda_zfs.so,zfs_init -dfmtT zfs.pool
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+== Valgrind checking metric descriptors and values with 3 pools
+=== std out ===
+
+zfs.pool.state PMID: 153.10.0 [number corresponding to the pool state]
+    Data Type: 32-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: discrete  Units: count
+Help:
+OFFLINE  = 0, ONLINE  = 1, 
+DEGRADED = 2, FAULTED = 3, REMOVED = 4, 
+UNAVAIL  = 5, UNKNOWN = 13
+    inst [0-or-1 or "pool1"] value 1
+    inst [0-or-1 or "pool2"] value 1
+    inst [2 or "pool3"] value 1
+
+zfs.pool.nread PMID: 153.10.1 [number of bytes read]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: byte
+Help:
+number of bytes read
+    inst [0-or-1 or "pool1"] value 153
+    inst [0-or-1 or "pool2"] value 153
+    inst [2 or "pool3"] value 153
+
+zfs.pool.nwritten PMID: 153.10.2 [number of bytes written]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: byte
+Help:
+number of bytes written
+    inst [0-or-1 or "pool1"] value 153
+    inst [0-or-1 or "pool2"] value 153
+    inst [2 or "pool3"] value 153
+
+zfs.pool.reads PMID: 153.10.3 [number of read operations]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: count
+Help:
+number of read operations
+    inst [0-or-1 or "pool1"] value 153
+    inst [0-or-1 or "pool2"] value 153
+    inst [2 or "pool3"] value 153
+
+zfs.pool.writes PMID: 153.10.4 [number of write operations]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: count
+Help:
+number of write operations
+    inst [0-or-1 or "pool1"] value 153
+    inst [0-or-1 or "pool2"] value 153
+    inst [2 or "pool3"] value 153
+
+zfs.pool.wtime PMID: 153.10.5 [cumulative wait (pre-service) time]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: nanosec
+Help:
+cumulative wait (pre-service) time
+    inst [0-or-1 or "pool1"] value 153
+    inst [0-or-1 or "pool2"] value 153
+    inst [2 or "pool3"] value 153
+
+zfs.pool.wlentime PMID: 153.10.6 [cumulative wait len*time product]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: nanosec
+Help:
+cumulative wait len*time product
+    inst [0-or-1 or "pool1"] value 153
+    inst [0-or-1 or "pool2"] value 153
+    inst [2 or "pool3"] value 153
+
+zfs.pool.wupdate PMID: 153.10.7 [last time wait queue changed]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: nanosec
+Help:
+last time wait queue changed
+    inst [0-or-1 or "pool1"] value 153
+    inst [0-or-1 or "pool2"] value 153
+    inst [2 or "pool3"] value 153
+
+zfs.pool.rtime PMID: 153.10.8 [cumulative run (service) time]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: nanosec
+Help:
+cumulative run (service) time
+    inst [0-or-1 or "pool1"] value 153
+    inst [0-or-1 or "pool2"] value 153
+    inst [2 or "pool3"] value 153
+
+zfs.pool.rlentime PMID: 153.10.9 [cumulative run length*time product]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: nanosec
+Help:
+cumulative run length*time product
+    inst [0-or-1 or "pool1"] value 153
+    inst [0-or-1 or "pool2"] value 153
+    inst [2 or "pool3"] value 153
+
+zfs.pool.rupdate PMID: 153.10.10 [last time run queue changed]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: nanosec
+Help:
+last time run queue changed
+    inst [0-or-1 or "pool1"] value 153
+    inst [0-or-1 or "pool2"] value 153
+    inst [2 or "pool3"] value 153
+
+zfs.pool.wcnt PMID: 153.10.11 [count of elements in wait state]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: count
+Help:
+count of elements in wait state
+    inst [0-or-1 or "pool1"] value 153
+    inst [0-or-1 or "pool2"] value 153
+    inst [2 or "pool3"] value 153
+
+zfs.pool.rcnt PMID: 153.10.12 [count of elements in run state]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: count
+Help:
+count of elements in run state
+    inst [0-or-1 or "pool1"] value 153
+    inst [0-or-1 or "pool2"] value 153
+    inst [2 or "pool3"] value 153
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -K clear -K add,153,/var/lib/pcp/pmdas/zfs/pmda_zfs.so,zfs_init -dfmtT zfs.pool
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+== Valgrind checking metric descriptors and values with 1 pool
+=== std out ===
+
+zfs.pool.state PMID: 153.10.0 [number corresponding to the pool state]
+    Data Type: 32-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: discrete  Units: count
+Help:
+OFFLINE  = 0, ONLINE  = 1, 
+DEGRADED = 2, FAULTED = 3, REMOVED = 4, 
+UNAVAIL  = 5, UNKNOWN = 13
+    inst [0-or-1 or "pool1"] value 1
+
+zfs.pool.nread PMID: 153.10.1 [number of bytes read]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: byte
+Help:
+number of bytes read
+    inst [0-or-1 or "pool1"] value 153
+
+zfs.pool.nwritten PMID: 153.10.2 [number of bytes written]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: byte
+Help:
+number of bytes written
+    inst [0-or-1 or "pool1"] value 153
+
+zfs.pool.reads PMID: 153.10.3 [number of read operations]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: count
+Help:
+number of read operations
+    inst [0-or-1 or "pool1"] value 153
+
+zfs.pool.writes PMID: 153.10.4 [number of write operations]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: count
+Help:
+number of write operations
+    inst [0-or-1 or "pool1"] value 153
+
+zfs.pool.wtime PMID: 153.10.5 [cumulative wait (pre-service) time]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: nanosec
+Help:
+cumulative wait (pre-service) time
+    inst [0-or-1 or "pool1"] value 153
+
+zfs.pool.wlentime PMID: 153.10.6 [cumulative wait len*time product]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: nanosec
+Help:
+cumulative wait len*time product
+    inst [0-or-1 or "pool1"] value 153
+
+zfs.pool.wupdate PMID: 153.10.7 [last time wait queue changed]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: nanosec
+Help:
+last time wait queue changed
+    inst [0-or-1 or "pool1"] value 153
+
+zfs.pool.rtime PMID: 153.10.8 [cumulative run (service) time]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: nanosec
+Help:
+cumulative run (service) time
+    inst [0-or-1 or "pool1"] value 153
+
+zfs.pool.rlentime PMID: 153.10.9 [cumulative run length*time product]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: nanosec
+Help:
+cumulative run length*time product
+    inst [0-or-1 or "pool1"] value 153
+
+zfs.pool.rupdate PMID: 153.10.10 [last time run queue changed]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: nanosec
+Help:
+last time run queue changed
+    inst [0-or-1 or "pool1"] value 153
+
+zfs.pool.wcnt PMID: 153.10.11 [count of elements in wait state]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: count
+Help:
+count of elements in wait state
+    inst [0-or-1 or "pool1"] value 153
+
+zfs.pool.rcnt PMID: 153.10.12 [count of elements in run state]
+    Data Type: 64-bit unsigned int  InDom: 153.0 0x26400000
+    Semantics: counter  Units: count
+Help:
+count of elements in run state
+    inst [0-or-1 or "pool1"] value 153
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -K clear -K add,153,/var/lib/pcp/pmdas/zfs/pmda_zfs.so,zfs_init -dfmtT zfs.pool
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== done
+
