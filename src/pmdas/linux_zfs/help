@@ -248,120 +248,120 @@ allocated through abd_get_offset() and abd_get_from_buf()). If an
 ABD takes ownership of its buf then it will become tracked.
 @ zfs.abd.linear_data_size
 Amount of data stored in all linear ABDs tracked by linear_cnt 
-@ zfs.abd.scatter_cnt
+@ zfs.abd.scatter.cnt
 The number of scatter ABDs which are currently allocated, excluding
 ABDs which don't own their data (for instance the ones which were
 allocated through abd_get_offset()).
-@ zfs.abd.scatter_data_size
+@ zfs.abd.scatter.data_size
 Amount of data stored in all scatter ABDs tracked by scatter_cnt 
-@ zfs.abd.scatter_chunk_waste
+@ zfs.abd.scatter.chunk_waste
 The amount of space wasted at the end of the last chunk across all
 scatter ABDs tracked by scatter_cnt.
-@ zfs.abd.scatter_order_0
+@ zfs.abd.scatter.order_0
 The number of compound allocations of the 0th order.  These
 allocations are spread over all currently allocated ABDs, and
 act as a measure of memory fragmentation.
-@ zfs.abd.scatter_order_1
+@ zfs.abd.scatter.order_1
 The number of compound allocations of the 1st order.  These
 allocations are spread over all currently allocated ABDs, and
 act as a measure of memory fragmentation.
-@ zfs.abd.scatter_order_2
+@ zfs.abd.scatter.order_2
 The number of compound allocations of the 2nd order.  These
 allocations are spread over all currently allocated ABDs, and
 act as a measure of memory fragmentation.
-@ zfs.abd.scatter_order_3
+@ zfs.abd.scatter.order_3
 The number of compound allocations of the 3rd order.  These
 allocations are spread over all currently allocated ABDs, and
 act as a measure of memory fragmentation.
-@ zfs.abd.scatter_order_4
+@ zfs.abd.scatter.order_4
 The number of compound allocations of the 4th order.  These
 allocations are spread over all currently allocated ABDs, and
 act as a measure of memory fragmentation.
-@ zfs.abd.scatter_order_5
+@ zfs.abd.scatter.order_5
 The number of compound allocations of the 5th order.  These
 allocations are spread over all currently allocated ABDs, and
 act as a measure of memory fragmentation.
-@ zfs.abd.scatter_order_6
+@ zfs.abd.scatter.order_6
 The number of compound allocations of the 6th order.  These
 allocations are spread over all currently allocated ABDs, and
 act as a measure of memory fragmentation.
-@ zfs.abd.scatter_order_7
+@ zfs.abd.scatter.order_7
 The number of compound allocations of the 7th order.  These
 allocations are spread over all currently allocated ABDs, and
 act as a measure of memory fragmentation.
-@ zfs.abd.scatter_order_8
+@ zfs.abd.scatter.order_8
 The number of compound allocations of the 8th order.  These
 allocations are spread over all currently allocated ABDs, and
 act as a measure of memory fragmentation.
-@ zfs.abd.scatter_order_9
+@ zfs.abd.scatter.order_9
 The number of compound allocations of the 9th order.  These
 allocations are spread over all currently allocated ABDs, and
 act as a measure of memory fragmentation.
-@ zfs.abd.scatter_order_10
+@ zfs.abd.scatter.order_10
 The number of compound allocations of the 10th order.  These
 allocations are spread over all currently allocated ABDs, and
 act as a measure of memory fragmentation.
-@ zfs.abd.scatter_page_multi_chunk
+@ zfs.abd.scatter.page_multi_chunk
 The number of scatter ABDs which contain multiple chunks.
 ABDs are preferentially allocated from the minimum number of
 contiguous multi-page chunks, a single chunk is optimal.
-@ zfs.abd.scatter_page_multi_zone
+@ zfs.abd.scatter.page_multi_zone
 The number of scatter ABDs which are split across memory zones.
 ABDs are preferentially allocated using pages from a single zone.
-@ zfs.abd.scatter_page_alloc_retry
+@ zfs.abd.scatter.page_alloc_retry
 The total number of retries encountered when attempting to
 allocate the pages to populate the scatter ABD.
-@ zfs.abd.scatter_sg_table_retry
+@ zfs.abd.scatter.sg_table_retry
 The total number of retries encountered when attempting to
 allocate the sg table for an ABD.
 
-@ zfs.dbuf.cache_count statistics about the size of the dbuf cache
-@ zfs.dbuf.cache_size_bytes statistics about the size of the dbuf cache
-@ zfs.dbuf.cache_size_bytes_max statistics about the size of the dbuf cache
-@ zfs.dbuf.cache_target_bytes statistics regarding the bounds on the dbuf cache size
-@ zfs.dbuf.cache_lowater_bytes statistics regarding the bounds on the dbuf cache size
-@ zfs.dbuf.cache_hiwater_bytes statistics regarding the bounds on the dbuf cache size
-@ zfs.dbuf.cache_total_evicts total number of dbuf cache evictions that have occurred
-@ zfs.dbuf.cache_level_0 the distribution of dbufs level 0 in the cache
-@ zfs.dbuf.cache_level_1 the distribution of dbufs level 1 in the cache
-@ zfs.dbuf.cache_level_2 the distribution of dbufs level 2 in the cache
-@ zfs.dbuf.cache_level_3 the distribution of dbufs level 3 in the cache
-@ zfs.dbuf.cache_level_4 the distribution of dbufs level 4 in the cache
-@ zfs.dbuf.cache_level_5 the distribution of dbufs level 5 in the cache
-@ zfs.dbuf.cache_level_6 the distribution of dbufs level 6 in the cache
-@ zfs.dbuf.cache_level_7 the distribution of dbufs level 7 in the cache
-@ zfs.dbuf.cache_level_8 the distribution of dbufs level 8 in the cache
-@ zfs.dbuf.cache_level_9 the distribution of dbufs level 9 in the cache
-@ zfs.dbuf.cache_level_10 the distribution of dbufs level 10 in the cache
-@ zfs.dbuf.cache_level_11 the distribution of dbufs level 11 in the cache
-@ zfs.dbuf.cache_level_0_bytes the total size of dbufs level 0 in the cache
-@ zfs.dbuf.cache_level_1_bytes the total size of dbufs level 1 in the cache
-@ zfs.dbuf.cache_level_2_bytes the total size of dbufs level 2 in the cache
-@ zfs.dbuf.cache_level_3_bytes the total size of dbufs level 3 in the cache
-@ zfs.dbuf.cache_level_4_bytes the total size of dbufs level 4 in the cache
-@ zfs.dbuf.cache_level_5_bytes the total size of dbufs level 5 in the cache
-@ zfs.dbuf.cache_level_6_bytes the total size of dbufs level 6 in the cache
-@ zfs.dbuf.cache_level_7_bytes the total size of dbufs level 7 in the cache
-@ zfs.dbuf.cache_level_8_bytes the total size of dbufs level 8 in the cache
-@ zfs.dbuf.cache_level_9_bytes the total size of dbufs level 9 in the cache
-@ zfs.dbuf.cache_level_10_bytes the total size of dbufs level 10 in the cache
-@ zfs.dbuf.cache_level_11_bytes the total size of dbufs level 11 in the cache
-@ zfs.dbuf.hash_hits statistics about the dbuf hash table
-@ zfs.dbuf.hash_misses statistics about the dbuf hash table 
-@ zfs.dbuf.hash_collisions statistics about the dbuf hash table
-@ zfs.dbuf.hash_elements statistics about the dbuf hash table
-@ zfs.dbuf.hash_elements_max statistics about the dbuf hash table
-@ zfs.dbuf.hash_chains
+@ zfs.dbuf.cache.count statistics about the size of the dbuf cache
+@ zfs.dbuf.cache.size_bytes statistics about the size of the dbuf cache
+@ zfs.dbuf.cache.size_bytes_max statistics about the size of the dbuf cache
+@ zfs.dbuf.cache.target_bytes statistics regarding the bounds on the dbuf cache size
+@ zfs.dbuf.cache.lowater_bytes statistics regarding the bounds on the dbuf cache size
+@ zfs.dbuf.cache.hiwater_bytes statistics regarding the bounds on the dbuf cache size
+@ zfs.dbuf.cache.total_evicts total number of dbuf cache evictions that have occurred
+@ zfs.dbuf.cache.level_0 the distribution of dbufs level 0 in the cache
+@ zfs.dbuf.cache.level_1 the distribution of dbufs level 1 in the cache
+@ zfs.dbuf.cache.level_2 the distribution of dbufs level 2 in the cache
+@ zfs.dbuf.cache.level_3 the distribution of dbufs level 3 in the cache
+@ zfs.dbuf.cache.level_4 the distribution of dbufs level 4 in the cache
+@ zfs.dbuf.cache.level_5 the distribution of dbufs level 5 in the cache
+@ zfs.dbuf.cache.level_6 the distribution of dbufs level 6 in the cache
+@ zfs.dbuf.cache.level_7 the distribution of dbufs level 7 in the cache
+@ zfs.dbuf.cache.level_8 the distribution of dbufs level 8 in the cache
+@ zfs.dbuf.cache.level_9 the distribution of dbufs level 9 in the cache
+@ zfs.dbuf.cache.level_10 the distribution of dbufs level 10 in the cache
+@ zfs.dbuf.cache.level_11 the distribution of dbufs level 11 in the cache
+@ zfs.dbuf.cache.level_0_bytes the total size of dbufs level 0 in the cache
+@ zfs.dbuf.cache.level_1_bytes the total size of dbufs level 1 in the cache
+@ zfs.dbuf.cache.level_2_bytes the total size of dbufs level 2 in the cache
+@ zfs.dbuf.cache.level_3_bytes the total size of dbufs level 3 in the cache
+@ zfs.dbuf.cache.level_4_bytes the total size of dbufs level 4 in the cache
+@ zfs.dbuf.cache.level_5_bytes the total size of dbufs level 5 in the cache
+@ zfs.dbuf.cache.level_6_bytes the total size of dbufs level 6 in the cache
+@ zfs.dbuf.cache.level_7_bytes the total size of dbufs level 7 in the cache
+@ zfs.dbuf.cache.level_8_bytes the total size of dbufs level 8 in the cache
+@ zfs.dbuf.cache.level_9_bytes the total size of dbufs level 9 in the cache
+@ zfs.dbuf.cache.level_10_bytes the total size of dbufs level 10 in the cache
+@ zfs.dbuf.cache.level_11_bytes the total size of dbufs level 11 in the cache
+@ zfs.dbuf.hash.hits statistics about the dbuf hash table
+@ zfs.dbuf.hash.misses statistics about the dbuf hash table 
+@ zfs.dbuf.hash.collisions statistics about the dbuf hash table
+@ zfs.dbuf.hash.elements statistics about the dbuf hash table
+@ zfs.dbuf.hash.elements_max statistics about the dbuf hash table
+@ zfs.dbuf.hash.chains
 Number of sublists containing more than one dbuf in the dbuf
 hash table. Keep track of the longest hash chain.
-@ zfs.dbuf.hash_chain_max
-@ zfs.dbuf.hash_insert_race
+@ zfs.dbuf.hash.chain_max
+@ zfs.dbuf.hash.insert_race
 Number of times a dbuf_create() discovers that a dbuf was
 already created and in the dbuf hash table.
-@ zfs.dbuf.metadata_cache_count statistics about the size of the metadata dbuf cache
-@ zfs.dbuf.metadata_cache_size_bytes statistics about the size of the metadata dbuf cache
-@ zfs.dbuf.metadata_cache_size_bytes_max statistics about the size of the metadata dbuf cache
-@ zfs.dbuf.metadata_cache_overflow
+@ zfs.dbuf.metadata_cache.count statistics about the size of the metadata dbuf cache
+@ zfs.dbuf.metadata_cache.size_bytes statistics about the size of the metadata dbuf cache
+@ zfs.dbuf.metadata_cache.size_bytes_max statistics about the size of the metadata dbuf cache
+@ zfs.dbuf.metadata_cache.overflow
 For diagnostic purposes, this is incremented whenever we can't add
 something to the metadata cache because it's full, and instead put
 the data in the regular dbuf cache.
@@ -379,50 +379,50 @@ the data in the regular dbuf cache.
 @ zfs.dmu_tx.dirty_frees_delay
 @ zfs.dmu_tx.quota
 
-@ zfs.dnode.hold_dbuf_hold
+@ zfs.dnode.hold.dbuf_hold
 Number of failed attempts to hold a meta dnode dbuf.
-@ zfs.dnode.hold_dbuf_read
+@ zfs.dnode.hold.dbuf_read
 Number of failed attempts to read a meta dnode dbuf.
-@ zfs.dnode.hold_alloc_hits
+@ zfs.dnode.hold.alloc_hits
 Number of times dnode_hold(..., DNODE_MUST_BE_ALLOCATED) was able
 to hold the requested object number which was allocated.  This is
 the common case when looking up any allocated object number.
-@ zfs.dnode.hold_alloc_misses
+@ zfs.dnode.hold.alloc_misses
 Number of times dnode_hold(..., DNODE_MUST_BE_ALLOCATED) was not
 able to hold the request object number because it was not allocated.
-@ zfs.dnode.hold_alloc_interior
+@ zfs.dnode.hold.alloc_interior
 Number of times dnode_hold(..., DNODE_MUST_BE_ALLOCATED) was not
 able to hold the request object number because the object number
 refers to an interior large dnode slot.
-@ zfs.dnode.hold_alloc_lock_retry
+@ zfs.dnode.hold.alloc_lock_retry
 Number of times dnode_hold(..., DNODE_MUST_BE_ALLOCATED) needed
 to retry acquiring slot zrl locks due to contention.
-@ zfs.dnode.hold_alloc_lock_misses
+@ zfs.dnode.hold.alloc_lock_misses
 Number of times dnode_hold(..., DNODE_MUST_BE_ALLOCATED) did not
 need to create the dnode because another thread did so after
 dropping the read lock but before acquiring the write lock.
-@ zfs.dnode.hold_alloc_type_none
+@ zfs.dnode.hold.alloc_type_none
 Number of times dnode_hold(..., DNODE_MUST_BE_ALLOCATED) found
 a free dnode instantiated by dnode_create() but not yet allocated
 by dnode_allocate().
-@ zfs.dnode.hold_free_hits
+@ zfs.dnode.hold.free_hits
 Number of times dnode_hold(..., DNODE_MUST_BE_FREE) was able
 to hold the requested range of free dnode slots.
-@ zfs.dnode.hold_free_misses
+@ zfs.dnode.hold.free_misses
 Number of times dnode_hold(..., DNODE_MUST_BE_FREE) was not
 able to hold the requested range of free dnode slots because
 at least one slot was allocated.
-@ zfs.dnode.hold_free_lock_misses
+@ zfs.dnode.hold.free_lock_misses
 Number of times dnode_hold(..., DNODE_MUST_BE_FREE) was not
 able to hold the requested range of free dnode slots because
 after acquiring the zrl lock at least one slot was allocated.
-@ zfs.dnode.hold_free_lock_retry
+@ zfs.dnode.hold.free_lock_retry
 Number of times dnode_hold(..., DNODE_MUST_BE_FREE) needed
 to retry acquiring slot zrl locks due to contention.
-@ zfs.dnode.hold_free_refcount
+@ zfs.dnode.hold.free_refcount
 Number of times dnode_hold(..., DNODE_MUST_BE_FREE) requested
 a range of dnode slots which were held by another thread.
-@ zfs.dnode.hold_free_overflow
+@ zfs.dnode.hold.free_overflow
 Number of times dnode_hold(..., DNODE_MUST_BE_FREE) requested
 a range of dnode slots which would overflow the dnode_phys_t.
 @ zfs.dnode.free_interior_lock_retry
@@ -434,28 +434,28 @@ Number of new dnodes allocated by dnode_allocate().
 Number of dnodes re-allocated by dnode_reallocate().
 @ zfs.dnode.buf_evict
 Number of meta dnode dbufs evicted.
-@ zfs.dnode.alloc_next_chunk
+@ zfs.dnode.alloc.next_chunk
 Number of times dmu_object_alloc*() reached the end of the existing
 object ID chunk and advanced to a new one.
-@ zfs.dnode.alloc_race
+@ zfs.dnode.alloc.race
 Number of times multiple threads attempted to allocate a dnode
 from the same block of free dnodes.
-@ zfs.dnode.alloc_next_block
+@ zfs.dnode.alloc.next_block
 Number of times dmu_object_alloc*() was forced to advance to the
 next meta dnode dbuf due to an error from  dmu_object_next().
-@ zfs.dnode.move_invalid
+@ zfs.dnode.move.invalid
 Statistics for tracking dnodes which have been moved.
-@ zfs.dnode.move_recheck1
+@ zfs.dnode.move.recheck1
 Statistics for tracking dnodes which have been moved.
-@ zfs.dnode.move_recheck2
+@ zfs.dnode.move.recheck2
 Statistics for tracking dnodes which have been moved.
-@ zfs.dnode.move_special
+@ zfs.dnode.move.special
 Statistics for tracking dnodes which have been moved.
-@ zfs.dnode.move_handle
+@ zfs.dnode.move.handle
 Statistics for tracking dnodes which have been moved.
-@ zfs.dnode.move_rwlock
+@ zfs.dnode.move.rwlock
 Statistics for tracking dnodes which have been moved.
-@ zfs.dnode.move_active
+@ zfs.dnode.move.active
 Statistics for tracking dnodes which have been moved.
 
 @ zfs.fm.erpt_dropped number of erpts dropped on post
@@ -492,48 +492,48 @@ Preferred child vdev not found or equal load
 @ zfs.zfetch.misses
 @ zfs.zfetch.max_streams maximum number of streams per zfetch
 
-@ zfs.zil.commit_count
+@ zfs.zil.commit.count
 Number of times a ZIL commit (e.g. fsync) has been requested.
-@ zfs.zil.commit_writer_count
+@ zfs.zil.commit.writer_count
 Number of times the ZIL has been flushed to stable storage.
 This is less than zil_commit_count when commits are merged
 (see the documentation above zil_commit()).
-@ zfs.zil.itx_count
+@ zfs.zil.itx.count
 Number of transactions (reads, writes, renames, etc.)
 that have been committed.
-@ zfs.zil.itx_indirect_count
+@ zfs.zil.itx.indirect_count
 The number of indirect transactions.
-@ zfs.zil.itx_indirect_bytes
+@ zfs.zil.itx.indirect_bytes
 The size of the the large data portions to write.
 Note that bytes accumulates the length of the transactions
 (i.e. data), not the actual log record sizes.
-@ zfs.zil.itx_copied_count
+@ zfs.zil.itx.copied_count
 The number of transactions copied into lr_write_t.
-@ zfs.zil.itx_copied_bytes
+@ zfs.zil.itx.copied_bytes
 The size of the data copied into lr_write_t.
 Note that bytes accumulates the length of the transactions
 (i.e. data), not the actual log record sizes.
-@ zfs.zil.itx_needcopy_count
+@ zfs.zil.itx.needcopy_count
 The number of transactions that need to be copied if pushed.
-@ zfs.zil.itx_needcopy_bytes
+@ zfs.zil.itx.needcopy_bytes
 The size of the data that needs to be copied if pushed.
 Note that bytes accumulates the length of the transactions
 (i.e. data), not the actual log record sizes.
-@ zfs.zil.itx_metaslab_normal_count
+@ zfs.zil.itx.metaslab.normal_count
 The number of transactions which have been allocated to the normal
 (i.e. not slog) storage pool. Note that bytes accumulate
 the actual log record sizes - which do not include the actual
 data in case of indirect writes.
-@ zfs.zil.itx_metaslab_normal_bytes
+@ zfs.zil.itx.metaslab.normal_bytes
 The size of transactions which have been allocated to the normal
 (i.e. not slog) storage pool. Note that bytes accumulate
 the actual log record sizes - which do not include the actual
 data in case of indirect writes.
-@ zfs.zil.itx_metaslab_slog_count
+@ zfs.zil.itx.metaslab.slog_count
 The number of transactions which have been allocated to the slog storage pool.
 If there are no separate log devices, this is the same as the
 normal pool.
-@ zfs.zil.itx_metaslab_slog_bytes
+@ zfs.zil.itx.metaslab.slog_bytes
 The size of transactions which have been allocated to the slog storage pool.
 If there are no separate log devices, this is the same as the
 normal pool.

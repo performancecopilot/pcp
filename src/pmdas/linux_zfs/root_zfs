@@ -157,70 +157,86 @@ zfs.abd {
     struct_size                         ZFS:1:0 
     linear_cnt                          ZFS:1:1 
     linear_data_size                    ZFS:1:2 
-    scatter_cnt                         ZFS:1:3 
-    scatter_data_size                   ZFS:1:4 
-    scatter_chunk_waste                 ZFS:1:5 
-    scatter_order_0                     ZFS:1:6 
-    scatter_order_1                     ZFS:1:7 
-    scatter_order_2                     ZFS:1:8 
-    scatter_order_3                     ZFS:1:9 
-    scatter_order_4                     ZFS:1:10 
-    scatter_order_5                     ZFS:1:11 
-    scatter_order_6                     ZFS:1:12 
-    scatter_order_7                     ZFS:1:13 
-    scatter_order_8                     ZFS:1:14 
-    scatter_order_9                     ZFS:1:15 
-    scatter_order_10                    ZFS:1:16 
-    scatter_page_multi_chunk            ZFS:1:17 
-    scatter_page_multi_zone             ZFS:1:18 
-    scatter_page_alloc_retry            ZFS:1:19 
-    scatter_sg_table_retry              ZFS:1:20 
+    scatter
+}
+
+zfs.abd.scatter {
+    cnt                                 ZFS:1:3 
+    data_size                           ZFS:1:4 
+    chunk_waste                         ZFS:1:5 
+    order_0                             ZFS:1:6 
+    order_1                             ZFS:1:7 
+    order_2                             ZFS:1:8 
+    order_3                             ZFS:1:9 
+    order_4                             ZFS:1:10 
+    order_5                             ZFS:1:11 
+    order_6                             ZFS:1:12 
+    order_7                             ZFS:1:13 
+    order_8                             ZFS:1:14 
+    order_9                             ZFS:1:15 
+    order_10                            ZFS:1:16 
+    page_multi_chunk                    ZFS:1:17 
+    page_multi_zone                     ZFS:1:18 
+    page_alloc_retry                    ZFS:1:19 
+    sg_table_retry                      ZFS:1:20 
 }
 
 zfs.dbuf {
-    cache_count                     ZFS:2:0 
-    cache_size_bytes                ZFS:2:1 
-    cache_size_bytes_max            ZFS:2:2 
-    cache_target_bytes              ZFS:2:3 
-    cache_lowater_bytes             ZFS:2:4 
-    cache_hiwater_bytes             ZFS:2:5 
-    cache_total_evicts              ZFS:2:6 
-    cache_level_0                   ZFS:2:7 
-    cache_level_1                   ZFS:2:8 
-    cache_level_2                   ZFS:2:9 
-    cache_level_3                   ZFS:2:10 
-    cache_level_4                   ZFS:2:11 
-    cache_level_5                   ZFS:2:12 
-    cache_level_6                   ZFS:2:13 
-    cache_level_7                   ZFS:2:14 
-    cache_level_8                   ZFS:2:15 
-    cache_level_9                   ZFS:2:16 
-    cache_level_10                  ZFS:2:17 
-    cache_level_11                  ZFS:2:18 
-    cache_level_0_bytes             ZFS:2:19 
-    cache_level_1_bytes             ZFS:2:20 
-    cache_level_2_bytes             ZFS:2:21 
-    cache_level_3_bytes             ZFS:2:22 
-    cache_level_4_bytes             ZFS:2:23 
-    cache_level_5_bytes             ZFS:2:24 
-    cache_level_6_bytes             ZFS:2:25 
-    cache_level_7_bytes             ZFS:2:26 
-    cache_level_8_bytes             ZFS:2:27 
-    cache_level_9_bytes             ZFS:2:28 
-    cache_level_10_bytes            ZFS:2:29 
-    cache_level_11_bytes            ZFS:2:30 
-    hash_hits                       ZFS:2:31 
-    hash_misses                     ZFS:2:32 
-    hash_collisions                 ZFS:2:33 
-    hash_elements                   ZFS:2:34 
-    hash_elements_max               ZFS:2:35 
-    hash_chains                     ZFS:2:36 
-    hash_chain_max                  ZFS:2:37 
-    hash_insert_race                ZFS:2:38 
-    metadata_cache_count            ZFS:2:39 
-    metadata_cache_size_bytes       ZFS:2:40 
-    metadata_cache_size_bytes_max   ZFS:2:41 
-    metadata_cache_overflow         ZFS:2:42 
+    cache
+    hash
+    metadata_cache
+}
+
+zfs.dbuf.cache {
+    count                           ZFS:2:0 
+    size_bytes                      ZFS:2:1 
+    size_bytes_max                  ZFS:2:2 
+    target_bytes                    ZFS:2:3 
+    lowater_bytes                   ZFS:2:4 
+    hiwater_bytes                   ZFS:2:5 
+    total_evicts                    ZFS:2:6 
+    level_0                         ZFS:2:7 
+    level_1                         ZFS:2:8 
+    level_2                         ZFS:2:9 
+    level_3                         ZFS:2:10 
+    level_4                         ZFS:2:11 
+    level_5                         ZFS:2:12 
+    level_6                         ZFS:2:13 
+    level_7                         ZFS:2:14 
+    level_8                         ZFS:2:15 
+    level_9                         ZFS:2:16 
+    level_10                        ZFS:2:17 
+    level_11                        ZFS:2:18 
+    level_0_bytes                   ZFS:2:19 
+    level_1_bytes                   ZFS:2:20 
+    level_2_bytes                   ZFS:2:21 
+    level_3_bytes                   ZFS:2:22 
+    level_4_bytes                   ZFS:2:23 
+    level_5_bytes                   ZFS:2:24 
+    level_6_bytes                   ZFS:2:25 
+    level_7_bytes                   ZFS:2:26 
+    level_8_bytes                   ZFS:2:27 
+    level_9_bytes                   ZFS:2:28 
+    level_10_bytes                  ZFS:2:29 
+    level_11_bytes                  ZFS:2:30 
+}
+
+zfs.dbuf.hash {
+    hits                            ZFS:2:31 
+    misses                          ZFS:2:32 
+    collisions                      ZFS:2:33 
+    elements                        ZFS:2:34 
+    elements_max                    ZFS:2:35 
+    chains                          ZFS:2:36 
+    chain_max                       ZFS:2:37 
+    insert_race                     ZFS:2:38 
+}
+
+zfs.dbuf.metadata_cache {
+    count                           ZFS:2:39 
+    size_bytes                      ZFS:2:40 
+    size_bytes_max                  ZFS:2:41 
+    overflow                        ZFS:2:42 
 }
 
 zfs.dmu_tx {
@@ -239,34 +255,46 @@ zfs.dmu_tx {
 }
 
 zfs.dnode {
-    hold_dbuf_hold                      ZFS:4:0
-    hold_dbuf_read                      ZFS:4:1 
-    hold_alloc_hits                     ZFS:4:2 
-    hold_alloc_misses                   ZFS:4:3 
-    hold_alloc_interior                 ZFS:4:4 
-    hold_alloc_lock_retry               ZFS:4:5 
-    hold_alloc_lock_misses              ZFS:4:6 
-    hold_alloc_type_none                ZFS:4:7 
-    hold_free_hits                      ZFS:4:8 
-    hold_free_misses                    ZFS:4:9 
-    hold_free_lock_misses               ZFS:4:10 
-    hold_free_lock_retry                ZFS:4:11 
-    hold_free_overflow                  ZFS:4:12 
-    hold_free_refcount                  ZFS:4:13 
+    hold
+    alloc
+    move
     free_interior_lock_retry            ZFS:4:14 
     allocate                            ZFS:4:15 
     reallocate                          ZFS:4:16 
     buf_evict                           ZFS:4:17 
-    alloc_next_chunk                    ZFS:4:18 
-    alloc_race                          ZFS:4:19 
-    alloc_next_block                    ZFS:4:20 
-    move_invalid                        ZFS:4:21 
-    move_recheck1                       ZFS:4:22 
-    move_recheck2                       ZFS:4:23 
-    move_special                        ZFS:4:24 
-    move_handle                         ZFS:4:25 
-    move_rwlock                         ZFS:4:26 
-    move_active                         ZFS:4:27 
+}
+
+zfs.dnode.hold {
+    dbuf_hold                           ZFS:4:0
+    dbuf_read                           ZFS:4:1 
+    alloc_hits                          ZFS:4:2 
+    alloc_misses                        ZFS:4:3 
+    alloc_interior                      ZFS:4:4 
+    alloc_lock_retry                    ZFS:4:5 
+    alloc_lock_misses                   ZFS:4:6 
+    alloc_type_none                     ZFS:4:7 
+    free_hits                           ZFS:4:8 
+    free_misses                         ZFS:4:9 
+    free_lock_misses                    ZFS:4:10 
+    free_lock_retry                     ZFS:4:11 
+    free_overflow                       ZFS:4:12 
+    free_refcount                       ZFS:4:13 
+}
+
+zfs.dnode.alloc {
+    next_chunk                          ZFS:4:18 
+    race                                ZFS:4:19 
+    next_block                          ZFS:4:20 
+}
+
+zfs.dnode.move {
+    invalid                             ZFS:4:21 
+    recheck1                            ZFS:4:22 
+    recheck2                            ZFS:4:23 
+    special                             ZFS:4:24 
+    handle                              ZFS:4:25 
+    rwlock                              ZFS:4:26 
+    active                              ZFS:4:27 
 }
 
 zfs.fm {
@@ -313,19 +341,31 @@ zfs.zfetch {
 }
 
 zfs.zil {
-    commit_count                        ZFS:9:0 
-    commit_writer_count                 ZFS:9:1 
-    itx_count                           ZFS:9:2 
-    itx_indirect_count                  ZFS:9:3 
-    itx_indirect_bytes                  ZFS:9:4 
-    itx_copied_count                    ZFS:9:5 
-    itx_copied_bytes                    ZFS:9:6 
-    itx_needcopy_count                  ZFS:9:7 
-    itx_needcopy_bytes                  ZFS:9:8 
-    itx_metaslab_normal_count           ZFS:9:9 
-    itx_metaslab_normal_bytes           ZFS:9:10 
-    itx_metaslab_slog_count             ZFS:9:11 
-    itx_metaslab_slog_bytes             ZFS:9:12
+    commit
+    itx
+}
+
+zfs.zil.commit {
+    count                               ZFS:9:0 
+    writer_count                        ZFS:9:1 
+}
+
+zfs.zil.itx {
+    count                               ZFS:9:2 
+    indirect_count                      ZFS:9:3 
+    indirect_bytes                      ZFS:9:4 
+    copied_count                        ZFS:9:5 
+    copied_bytes                        ZFS:9:6 
+    needcopy_count                      ZFS:9:7 
+    needcopy_bytes                      ZFS:9:8 
+    metaslab
+}
+
+zfs.zil.itx.metaslab {
+    normal_count                        ZFS:9:9 
+    normal_bytes                        ZFS:9:10 
+    slog_count                          ZFS:9:11 
+    slog_bytes                          ZFS:9:12
 }
 
 zfs.pool {
