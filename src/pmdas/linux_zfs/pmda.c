@@ -1214,7 +1214,7 @@ zfs_init(pmdaInterface *dp)
     if (_isDSO) {
         if (getenv("ZFS_PATH") != NULL)
             strcpy(ZFS_PATH, getenv("ZFS_PATH"));
-        else
+        if (strlen(ZFS_PATH) == 0)
             strcpy(ZFS_PATH, ZFS_DEFAULT_PATH);
         pmsprintf(helppath, sizeof(helppath), "%s%c" "zfs" "%c" "help",
                 pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
