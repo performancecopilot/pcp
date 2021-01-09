@@ -1212,8 +1212,9 @@ zfs_init(pmdaInterface *dp)
     int sep = pmPathSeparator();
 
     if (_isDSO) {
-        strcpy(ZFS_PATH, getenv("ZFS_PATH"));
-        if (strlen(ZFS_PATH) == 0)
+        if (getenv("ZFS_PATH") != NULL)
+            strcpy(ZFS_PATH, getenv("ZFS_PATH"));
+        else
             strcpy(ZFS_PATH, ZFS_DEFAULT_PATH);
         pmsprintf(helppath, sizeof(helppath), "%s%c" "zfs" "%c" "help",
                 pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
@@ -1236,7 +1237,7 @@ pmLongOptions   longopts[] = {
     PMOPT_DEBUG,
     PMDAOPT_DOMAIN,
     PMDAOPT_LOGFILE,
-    { "", 1, 'z', "PATH", "path to ZFS stats files (default /proc/spl/kstat/zfs)" },
+    { "", 1, 'z', "ZFS_PATH", "path to ZFS stats files (default /proc/spl/kstat/zfs)" },
     PMOPT_HELP,
     PMDA_OPTIONS_END
 };
@@ -1259,7 +1260,8 @@ main(int argc, char **argv)
             pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_7, pmGetProgname(), ZFS, "zfs.log", helppath);
 
-    strcpy(ZFS_PATH, getenv("ZFS_PATH"));
+    if (getenv("ZFS_PATH") != NULL)
+        strcpy(ZFS_PATH, getenv("ZFS_PATH"));
     while ((c = pmdaGetOptions(argc, argv, &opts, &dispatch)) != EOF) {
         switch(c) {
         case 'z':
