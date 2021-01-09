@@ -21,34 +21,19 @@ zfs {
 }
 
 zfs.arc {
+    demand
+    prefetch
+    evict
+    hash
+    mru
+    mfu
+    l2
+    memory
     hits                                ZFS:0:0
     misses                              ZFS:0:1
-    demand_data_hits                    ZFS:0:2
-    demand_data_misses                  ZFS:0:3
-    demand_metadata_hits                ZFS:0:4
-    demand_metadata_misses              ZFS:0:5
-    prefetch_data_hits                  ZFS:0:6
-    prefetch_data_misses                ZFS:0:7
-    prefetch_metadata_hits              ZFS:0:8
-    prefetch_metadata_misses            ZFS:0:9
-    mru_hits                            ZFS:0:10
-    mru_ghost_hits                      ZFS:0:11
-    mfu_hits                            ZFS:0:12
-    mfu_ghost_hits                      ZFS:0:13
     deleted                             ZFS:0:14
     mutex_miss                          ZFS:0:15
     access_skip                         ZFS:0:16
-    evict_skip                          ZFS:0:17
-    evict_not_enough                    ZFS:0:18
-    evict_l2_cached                     ZFS:0:19
-    evict_l2_eligible                   ZFS:0:20
-    evict_l2_ineligible                 ZFS:0:21
-    evict_l2_skip                       ZFS:0:22
-    hash_elements                       ZFS:0:23
-    hash_elements_max                   ZFS:0:24
-    hash_collisions                     ZFS:0:25
-    hash_chains                         ZFS:0:26
-    hash_chain_max                      ZFS:0:27
     p                                   ZFS:0:28
     c                                   ZFS:0:29
     c_min                               ZFS:0:30
@@ -66,59 +51,106 @@ zfs.arc {
     anon_size                           ZFS:0:42
     anon_evictable_data                 ZFS:0:43
     anon_evictable_metadata             ZFS:0:44
-    mru_size                            ZFS:0:45
-    mru_evictable_data                  ZFS:0:46
-    mru_evictable_metadata              ZFS:0:47
-    mru_ghost_size                      ZFS:0:48
-    mru_ghost_evictable_data            ZFS:0:49
-    mru_ghost_evictable_metadata        ZFS:0:50
-    mfu_size                            ZFS:0:51
-    mfu_evictable_data                  ZFS:0:52
-    mfu_evictable_metadata              ZFS:0:53
-    mfu_ghost_size                      ZFS:0:54
-    mfu_ghost_evictable_data            ZFS:0:55
-    mfu_ghost_evictable_metadata        ZFS:0:56
-    l2_hits                             ZFS:0:57
-    l2_misses                           ZFS:0:58
-    l2_feeds                            ZFS:0:59
-    l2_rw_clash                         ZFS:0:60
-    l2_read_bytes                       ZFS:0:61
-    l2_write_bytes                      ZFS:0:62
-    l2_writes_sent                      ZFS:0:63
-    l2_writes_done                      ZFS:0:64
-    l2_writes_error                     ZFS:0:65
-    l2_writes_lock_retry                ZFS:0:66
-    l2_evict_lock_retry                 ZFS:0:67
-    l2_evict_reading                    ZFS:0:68
-    l2_evict_l1cached                   ZFS:0:69
-    l2_free_on_write                    ZFS:0:70
-    l2_abort_lowmem                     ZFS:0:71
-    l2_cksum_bad                        ZFS:0:72
-    l2_io_error                         ZFS:0:73
-    l2_size                             ZFS:0:74
-    l2_asize                            ZFS:0:75
-    l2_hdr_size                         ZFS:0:76
-    memory_throttle_count               ZFS:0:77
-    memory_direct_count                 ZFS:0:78
-    memory_indirect_count               ZFS:0:79
-    memory_all_bytes                    ZFS:0:80
-    memory_free_bytes                   ZFS:0:81
-    memory_available_bytes              ZFS:0:82
-    arc_no_grow                         ZFS:0:83
-    arc_tempreserve                     ZFS:0:84
-    arc_loaned_bytes                    ZFS:0:85
-    arc_prune                           ZFS:0:86
-    arc_meta_used                       ZFS:0:87
-    arc_meta_limit                      ZFS:0:88
-    arc_dnode_limit                     ZFS:0:89
-    arc_meta_max                        ZFS:0:90
-    arc_meta_min                        ZFS:0:91
+    no_grow                             ZFS:0:83
+    tempreserve                         ZFS:0:84
+    loaned_bytes                        ZFS:0:85
+    prune                               ZFS:0:86
+    meta_used                           ZFS:0:87
+    meta_limit                          ZFS:0:88
+    dnode_limit                         ZFS:0:89
+    meta_max                            ZFS:0:90
+    meta_min                            ZFS:0:91
     async_upgrade_sync                  ZFS:0:92
-    demand_hit_predictive_prefetch      ZFS:0:93
-    demand_hit_prescient_prefetch       ZFS:0:94
-    arc_need_free                       ZFS:0:95
-    arc_sys_free                        ZFS:0:96
-    arc_raw_size                        ZFS:0:97
+    need_free                           ZFS:0:95
+    sys_free                            ZFS:0:96
+    raw_size                            ZFS:0:97
+}
+
+zfs.arc.demand {
+    data_hits                           ZFS:0:2
+    data_misses                         ZFS:0:3
+    metadata_hits                       ZFS:0:4
+    metadata_misses                     ZFS:0:5
+    hit_predictive_prefetch             ZFS:0:93
+    hit_prescient_prefetch              ZFS:0:94
+}
+
+zfs.arc.prefetch {
+    data_hits                           ZFS:0:6
+    data_misses                         ZFS:0:7
+    metadata_hits                       ZFS:0:8
+    metadata_misses                     ZFS:0:9
+}
+
+zfs.arc.evict {
+    skip                                ZFS:0:17
+    not_enough                          ZFS:0:18
+    l2_cached                           ZFS:0:19
+    l2_eligible                         ZFS:0:20
+    l2_ineligible                       ZFS:0:21
+    l2_skip                             ZFS:0:22
+}
+
+zfs.arc.mru {
+    hits                                ZFS:0:10
+    ghost_hits                          ZFS:0:11
+    size                                ZFS:0:45
+    evictable_data                      ZFS:0:46
+    evictable_metadata                  ZFS:0:47
+    ghost_size                          ZFS:0:48
+    ghost_evictable_data                ZFS:0:49
+    ghost_evictable_metadata            ZFS:0:50
+}
+
+zfs.arc.mfu {
+    hits                                ZFS:0:12
+    ghost_hits                          ZFS:0:13
+    size                                ZFS:0:51
+    evictable_data                      ZFS:0:52
+    evictable_metadata                  ZFS:0:53
+    ghost_size                          ZFS:0:54
+    ghost_evictable_data                ZFS:0:55
+    ghost_evictable_metadata            ZFS:0:56
+}
+
+zfs.arc.hash {
+    elements                            ZFS:0:23
+    elements_max                        ZFS:0:24
+    collisions                          ZFS:0:25
+    chains                              ZFS:0:26
+    chain_max                           ZFS:0:27
+}
+
+zfs.arc.l2 {
+    hits                                ZFS:0:57
+    misses                              ZFS:0:58
+    feeds                               ZFS:0:59
+    rw_clash                            ZFS:0:60
+    read_bytes                          ZFS:0:61
+    write_bytes                         ZFS:0:62
+    writes_sent                         ZFS:0:63
+    writes_done                         ZFS:0:64
+    writes_error                        ZFS:0:65
+    writes_lock_retry                   ZFS:0:66
+    evict_lock_retry                    ZFS:0:67
+    evict_reading                       ZFS:0:68
+    evict_l1cached                      ZFS:0:69
+    free_on_write                       ZFS:0:70
+    abort_lowmem                        ZFS:0:71
+    cksum_bad                           ZFS:0:72
+    io_error                            ZFS:0:73
+    size                                ZFS:0:74
+    asize                               ZFS:0:75
+    hdr_size                            ZFS:0:76
+}
+
+zfs.arc.memory {
+    throttle_count                      ZFS:0:77
+    direct_count                        ZFS:0:78
+    indirect_count                      ZFS:0:79
+    all_bytes                           ZFS:0:80
+    free_bytes                          ZFS:0:81
+    available_bytes                     ZFS:0:82
 }
 
 zfs.abd {

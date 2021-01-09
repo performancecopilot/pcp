@@ -25,18 +25,18 @@
 
 @ zfs.arc.hits
 @ zfs.arc.misses
-@ zfs.arc.demand_data_hits
-@ zfs.arc.demand_data_misses
-@ zfs.arc.demand_metadata_hits
-@ zfs.arc.demand_metadata_misses
-@ zfs.arc.prefetch_data_hits
-@ zfs.arc.prefetch_data_misses
-@ zfs.arc.prefetch_metadata_hits
-@ zfs.arc.prefetch_metadata_misses
-@ zfs.arc.mru_hits
-@ zfs.arc.mru_ghost_hits
-@ zfs.arc.mfu_hits
-@ zfs.arc.mfu_ghost_hits
+@ zfs.arc.demand.data_hits
+@ zfs.arc.demand.data_misses
+@ zfs.arc.demand.metadata_hits
+@ zfs.arc.demand.metadata_misses
+@ zfs.arc.prefetch.data_hits
+@ zfs.arc.prefetch.data_misses
+@ zfs.arc.prefetch.metadata_hits
+@ zfs.arc.prefetch.metadata_misses
+@ zfs.arc.mru.hits
+@ zfs.arc.mru.ghost_hits
+@ zfs.arc.mfu.hits
+@ zfs.arc.mfu.ghost_hits
 @ zfs.arc.deleted
 @ zfs.arc.mutex_miss
 Number of buffers that could not be evicted because the hash lock
@@ -46,22 +46,22 @@ by multiple buffers.
 @ zfs.arc.access_skip
 Number of buffers skipped when updating the access state due to the
 header having already been released after acquiring the hash lock.
-@ zfs.arc.evict_skip
+@ zfs.arc.evict.skip
 Number of buffers skipped because they have I/O in progress, are
 indirect prefetch buffers that have not lived long enough, or are
 not from the spa we're trying to evict from.
-@ zfs.arc.evict_not_enough
+@ zfs.arc.evict.not_enough
 Number of times arc_evict_state() was unable to evict enough
 buffers to reach its target amount.
-@ zfs.arc.evict_l2_cached
-@ zfs.arc.evict_l2_eligible
-@ zfs.arc.evict_l2_ineligible
-@ zfs.arc.evict_l2_skip
-@ zfs.arc.hash_elements
-@ zfs.arc.hash_elements_max
-@ zfs.arc.hash_collisions
-@ zfs.arc.hash_chains
-@ zfs.arc.hash_chain_max
+@ zfs.arc.evict.l2_cached
+@ zfs.arc.evict.l2_eligible
+@ zfs.arc.evict.l2_ineligible
+@ zfs.arc.evict.l2_skip
+@ zfs.arc.hash.elements
+@ zfs.arc.hash.elements_max
+@ zfs.arc.hash.collisions
+@ zfs.arc.hash.chains
+@ zfs.arc.hash.chain_max
 @ zfs.arc.p target size of MRU
 @ zfs.arc.c target size of cache
 @ zfs.arc.c_min min target cache size
@@ -128,25 +128,25 @@ following criteria: backing buffers of type ARC_BUFC_METADATA,
 residing in the arc_anon state, and are eligible for eviction
 (e.g. have no outstanding holds on the buffer).
 Not updated directly; only synced in arc_kstat_update.
-@ zfs.arc.mru_size
+@ zfs.arc.mru.size
 Total number of bytes consumed by ARC buffers residing in the
 arc_mru state. This includes *all* buffers in the arc_mru
 state; e.g. data, metadata, evictable, and unevictable buffers
 are all included in this value.
 Not updated directly; only synced in arc_kstat_update.
-@ zfs.arc.mru_evictable_data
+@ zfs.arc.mru.evictable_data
 Number of bytes consumed by ARC buffers that meet the
 following criteria: backing buffers of type ARC_BUFC_DATA,
 residing in the arc_mru state, and are eligible for eviction
 (e.g. have no outstanding holds on the buffer).
 Not updated directly; only synced in arc_kstat_update.
-@ zfs.arc.mru_evictable_metadata
+@ zfs.arc.mru.evictable_metadata
 Number of bytes consumed by ARC buffers that meet the
 following criteria: backing buffers of type ARC_BUFC_METADATA,
 residing in the arc_mru state, and are eligible for eviction
 (e.g. have no outstanding holds on the buffer).
 Not updated directly; only synced in arc_kstat_update.
-@ zfs.arc.mru_ghost_size
+@ zfs.arc.mru.ghost_size
 Total number of bytes that *would have been* consumed by ARC
 buffers in the arc_mru_ghost state. The key thing to note
 here, is the fact that this size doesn't actually indicate
@@ -154,90 +154,90 @@ RAM consumption. The ghost lists only consist of headers and
 don't actually have ARC buffers linked off of these headers.
 Thus, *if* the headers had associated ARC buffers, these
 buffers *would have* consumed this number of bytes.
-@ zfs.arc.mru_ghost_evictable_data
+@ zfs.arc.mru.ghost_evictable_data
 Number of bytes that *would have been* consumed by ARC
 buffers that are eligible for eviction, of type
 ARC_BUFC_DATA, and linked off the arc_mru_ghost state.
 Not updated directly; only synced in arc_kstat_update.
-@ zfs.arc.mru_ghost_evictable_metadata
+@ zfs.arc.mru.ghost_evictable_metadata
 Number of bytes that *would have been* consumed by ARC
 buffers that are eligible for eviction, of type
 ARC_BUFC_METADATA, and linked off the arc_mru_ghost state.
 Not updated directly; only synced in arc_kstat_update.
-@ zfs.arc.mfu_size
+@ zfs.arc.mfu.size
 Total number of bytes consumed by ARC buffers residing in the
 arc_mfu state. This includes *all* buffers in the arc_mfu
 state; e.g. data, metadata, evictable, and unevictable buffers
 are all included in this value.
 Not updated directly; only synced in arc_kstat_update.
-@ zfs.arc.mfu_evictable_data
+@ zfs.arc.mfu.evictable_data
 Number of bytes consumed by ARC buffers that are eligible for
 eviction, of type ARC_BUFC_DATA, and reside in the arc_mfu
 state.
 Not updated directly; only synced in arc_kstat_update
-@ zfs.arc.mfu_evictable_metadata
+@ zfs.arc.mfu.evictable_metadata
 Number of bytes consumed by ARC buffers that are eligible for
 eviction, of type ARC_BUFC_METADATA, and reside in the
 arc_mfu state.
 Not updated directly; only synced in arc_kstat_update.
-@ zfs.arc.mfu_ghost_size
+@ zfs.arc.mfu.ghost_size
 Total number of bytes that *would have been* consumed by ARC
 buffers in the arc_mfu_ghost state. See the comment above
 arcstat_mru_ghost_size for more details.
 Not updated directly; only synced in arc_kstat_update.
-@ zfs.arc.mfu_ghost_evictable_data
+@ zfs.arc.mfu.ghost_evictable_data
 Number of bytes that *would have been* consumed by ARC
 buffers that are eligible for eviction, of type
 ARC_BUFC_DATA, and linked off the arc_mfu_ghost state.
 Not updated directly; only synced in arc_kstat_update.
-@ zfs.arc.mfu_ghost_evictable_metadata
+@ zfs.arc.mfu.ghost_evictable_metadata
 Number of bytes that *would have been* consumed by ARC
 buffers that are eligible for eviction, of type
 ARC_BUFC_METADATA, and linked off the arc_mru_ghost state.
 Not updated directly; only synced in arc_kstat_update.
-@ zfs.arc.l2_hits
-@ zfs.arc.l2_misses
-@ zfs.arc.l2_feeds
-@ zfs.arc.l2_rw_clash
-@ zfs.arc.l2_read_bytes
-@ zfs.arc.l2_write_bytes
-@ zfs.arc.l2_writes_sent
-@ zfs.arc.l2_writes_done
-@ zfs.arc.l2_writes_error
-@ zfs.arc.l2_writes_lock_retry
-@ zfs.arc.l2_evict_lock_retry
-@ zfs.arc.l2_evict_reading
-@ zfs.arc.l2_evict_l1cached
-@ zfs.arc.l2_free_on_write
-@ zfs.arc.l2_abort_lowmem
-@ zfs.arc.l2_cksum_bad
-@ zfs.arc.l2_io_error
-@ zfs.arc.l2_size
-@ zfs.arc.l2_asize
-@ zfs.arc.l2_hdr_size
-@ zfs.arc.memory_throttle_count
-@ zfs.arc.memory_direct_count
-@ zfs.arc.memory_indirect_count
-@ zfs.arc.memory_all_bytes
-@ zfs.arc.memory_free_bytes
-@ zfs.arc.memory_available_bytes
-@ zfs.arc.arc_no_grow
-@ zfs.arc.arc_tempreserve
-@ zfs.arc.arc_loaned_bytes
-@ zfs.arc.arc_prune
-@ zfs.arc.arc_meta_used
-@ zfs.arc.arc_meta_limit
+@ zfs.arc.l2.hits
+@ zfs.arc.l2.misses
+@ zfs.arc.l2.feeds
+@ zfs.arc.l2.rw_clash
+@ zfs.arc.l2.read_bytes
+@ zfs.arc.l2.write_bytes
+@ zfs.arc.l2.writes_sent
+@ zfs.arc.l2.writes_done
+@ zfs.arc.l2.writes_error
+@ zfs.arc.l2.writes_lock_retry
+@ zfs.arc.l2.evict_lock_retry
+@ zfs.arc.l2.evict_reading
+@ zfs.arc.l2.evict_l1cached
+@ zfs.arc.l2.free_on_write
+@ zfs.arc.l2.abort_lowmem
+@ zfs.arc.l2.cksum_bad
+@ zfs.arc.l2.io_error
+@ zfs.arc.l2.size
+@ zfs.arc.l2.asize
+@ zfs.arc.l2.hdr_size
+@ zfs.arc.memory.throttle_count
+@ zfs.arc.memory.direct_count
+@ zfs.arc.memory.indirect_count
+@ zfs.arc.memory.all_bytes
+@ zfs.arc.memory.free_bytes
+@ zfs.arc.memory.available_bytes
+@ zfs.arc.no_grow
+@ zfs.arc.tempreserve
+@ zfs.arc.loaned_bytes
+@ zfs.arc.prune
+@ zfs.arc.meta_used
+@ zfs.arc.meta_limit
 ARC will evict meta buffers that exceed arc_meta_limit. This
 tunable make arc_meta_limit adjustable for different workloads.
-@ zfs.arc.arc_dnode_limit
-@ zfs.arc.arc_meta_max max size of metadata
-@ zfs.arc.arc_meta_min min size for metadata
+@ zfs.arc.dnode_limit
+@ zfs.arc.meta_max max size of metadata
+@ zfs.arc.meta_min min size for metadata
 @ zfs.arc.async_upgrade_sync
-@ zfs.arc.demand_hit_predictive_prefetch
-@ zfs.arc.demand_hit_prescient_prefetch
-@ zfs.arc.arc_need_free bytes to be freed
-@ zfs.arc.arc_sys_free target system free bytes
-@ zfs.arc.arc_raw_size size of all b_rabd's in entire arc
+@ zfs.arc.demand.hit_predictive_prefetch
+@ zfs.arc.demand.hit_prescient_prefetch
+@ zfs.arc.need_free bytes to be freed
+@ zfs.arc.sys_free target system free bytes
+@ zfs.arc.raw_size size of all b_rabd's in entire arc
 
 @ zfs.abd.struct_size
 Amount of memory occupied by all of the abd_t struct allocations 
