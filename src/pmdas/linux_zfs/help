@@ -481,12 +481,12 @@ Preferred child vdev found
 @ zfs.vdev.mirror.preferred_not_found
 Preferred child vdev not found or equal load  
 
-@ zfs.xuio.onloan_rbuf loaned yet not returned arc_buf read
-@ zfs.xuio.onloan_wbuf loaned yet not returned arc_buf written
-@ zfs.xuio.rbuf_copied whether a copy is made when loaning out a read buffer 
-@ zfs.xuio.rbuf_nocopy whether a copy is made when loaning out a read buffer 
-@ zfs.xuio.wbuf_copied whether a copy is made when assigning a write buffer 
-@ zfs.xuio.wbuf_nocopy whether a copy is made when assigning a write buffer 
+@ zfs.xuio.onloan_read_buf loaned yet not returned arc_buf read
+@ zfs.xuio.onloan_write_buf loaned yet not returned arc_buf written
+@ zfs.xuio.read_buf_copied whether a copy is made when loaning out a read buffer 
+@ zfs.xuio.read_buf_nocopy whether a copy is made when loaning out a read buffer 
+@ zfs.xuio.write_buf_copied whether a copy is made when assigning a write buffer 
+@ zfs.xuio.write_buf_nocopy whether a copy is made when assigning a write buffer 
 
 @ zfs.zfetch.hits
 @ zfs.zfetch.misses
@@ -548,9 +548,9 @@ UNAVAIL  = 5, UNKNOWN = 13
 @ zfs.pool.writes number of write operations
 @ zfs.pool.wtime cumulative wait (pre-service) time
 @ zfs.pool.wlentime cumulative wait len*time product
-@ zfs.pool.wlastupdate last time wait queue changed
+@ zfs.pool.wupdate last time wait queue changed
 @ zfs.pool.rtime cumulative run (service) time
 @ zfs.pool.rlentime cumulative run length*time product
-@ zfs.pool.rlastupdate last time run queue changed
+@ zfs.pool.rupdate last time run queue changed
 @ zfs.pool.wcnt count of elements in wait state
 @ zfs.pool.rcnt count of elements in run state

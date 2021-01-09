@@ -207,6 +207,7 @@ zfs.dmu_tx {
 }
 
 zfs.dnode {
+    hold_dbuf_hold                      ZFS:4:0
     hold_dbuf_read                      ZFS:4:1 
     hold_alloc_hits                     ZFS:4:2 
     hold_alloc_misses                   ZFS:4:3 
