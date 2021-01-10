@@ -278,6 +278,18 @@ Help:
 size of all b_rabd's in entire arc
     value 153
 
+zfs.arc.cached_only_in_progress PMID: 153.0.114 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+zfs.arc.abd_chunk_waste_size PMID: 153.0.115 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: byte
+Help: <empty entry>
+    value 0
+
 zfs.arc.demand.data_hits PMID: 153.0.2 []
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
@@ -679,6 +691,104 @@ zfs.arc.l2.hdr_size PMID: 153.0.76 []
     Semantics: discrete  Units: byte
 Help: <empty entry>
     value 153
+
+zfs.arc.l2.data_to_meta_ratio PMID: 153.0.102 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+zfs.arc.l2.log.blk_writes PMID: 153.0.98 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+zfs.arc.l2.log.blk_avg_asize PMID: 153.0.99 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: byte
+Help: <empty entry>
+    value 0
+
+zfs.arc.l2.log.blk_asize PMID: 153.0.100 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: byte
+Help: <empty entry>
+    value 0
+
+zfs.arc.l2.log.blk_count PMID: 153.0.101 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+zfs.arc.l2.rebuild.success PMID: 153.0.103 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+zfs.arc.l2.rebuild.unsupported PMID: 153.0.104 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+zfs.arc.l2.rebuild.io_errors PMID: 153.0.105 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+zfs.arc.l2.rebuild.dh_errors PMID: 153.0.106 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+zfs.arc.l2.rebuild.cksum_lb_errors PMID: 153.0.107 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+zfs.arc.l2.rebuild.lowmem PMID: 153.0.108 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+zfs.arc.l2.rebuild.size PMID: 153.0.109 [Logical size of restored buffers in the L2ARC]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: byte
+Help:
+Logical size of restored buffers in the L2ARC
+    value 0
+
+zfs.arc.l2.rebuild.asize PMID: 153.0.110 [Aligned size of restored buffers in the L2ARC]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: byte
+Help:
+Aligned size of restored buffers in the L2ARC
+    value 0
+
+zfs.arc.l2.rebuild.bufs PMID: 153.0.111 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+zfs.arc.l2.rebuild.bufs_precached PMID: 153.0.112 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+zfs.arc.l2.rebuild.log_blks PMID: 153.0.113 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
 
 zfs.arc.memory.throttle_count PMID: 153.0.77 []
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff

@@ -1,6 +1,6 @@
 QA output created by 1532
 == Checking metric count for ZFS ARC
-98
+116
 == Checking metric count for ZFS ABD
 21
 == Checking metric count for ZFS DBUF
