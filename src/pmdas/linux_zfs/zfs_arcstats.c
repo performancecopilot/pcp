@@ -122,6 +122,25 @@ zfs_arcstats_refresh(zfs_arcstats_t *arcstats)
             else if (strcmp(mname, "arc_need_free") == 0) arcstats->arc_need_free = strtoul(mval, NULL, 0);
             else if (strcmp(mname, "arc_sys_free") == 0) arcstats->arc_sys_free = strtoul(mval, NULL, 0);
             else if (strcmp(mname, "arc_raw_size") == 0) arcstats->arc_raw_size = strtoul(mval, NULL, 0);
+	    /* Metrics available in OpenZFS v. 2 only */
+            else if (strcmp(mname, "l2_log_blk_writes") == 0) arcstats->l2_log_blk_writes = strtoul(mval, NULL, 0);
+            else if (strcmp(mname, "l2_log_blk_avg_asize") == 0) arcstats->l2_log_blk_avg_asize = strtoul(mval, NULL, 0);
+            else if (strcmp(mname, "l2_log_blk_asize") == 0) arcstats->l2_log_blk_asize = strtoul(mval, NULL, 0);
+            else if (strcmp(mname, "l2_log_blk_count") == 0) arcstats->l2_log_blk_count = strtoul(mval, NULL, 0);
+            else if (strcmp(mname, "l2_data_to_meta_ratio") == 0) arcstats->l2_data_to_meta_ratio = strtoul(mval, NULL, 0);
+            else if (strcmp(mname, "l2_rebuild_success") == 0) arcstats->l2_rebuild_success = strtoul(mval, NULL, 0);
+            else if (strcmp(mname, "l2_rebuild_unsupported") == 0) arcstats->l2_rebuild_unsupported = strtoul(mval, NULL, 0);
+            else if (strcmp(mname, "l2_rebuild_io_errors") == 0) arcstats->l2_rebuild_io_errors = strtoul(mval, NULL, 0);
+            else if (strcmp(mname, "l2_rebuild_dh_errors") == 0) arcstats->l2_rebuild_dh_errors = strtoul(mval, NULL, 0);
+            else if (strcmp(mname, "l2_rebuild_cksum_lb_errors") == 0) arcstats->l2_rebuild_cksum_lb_errors = strtoul(mval, NULL, 0);
+            else if (strcmp(mname, "l2_rebuild_lowmem") == 0) arcstats->l2_rebuild_lowmem = strtoul(mval, NULL, 0);
+            else if (strcmp(mname, "l2_rebuild_size") == 0) arcstats->l2_rebuild_size = strtoul(mval, NULL, 0);
+            else if (strcmp(mname, "l2_rebuild_asize") == 0) arcstats->l2_rebuild_asize = strtoul(mval, NULL, 0);
+            else if (strcmp(mname, "l2_rebuild_bufs") == 0) arcstats->l2_rebuild_bufs = strtoul(mval, NULL, 0);
+            else if (strcmp(mname, "l2_rebuild_bufs_precached") == 0) arcstats->l2_rebuild_bufs_precached = strtoul(mval, NULL, 0);
+            else if (strcmp(mname, "l2_rebuild_log_blks") == 0) arcstats->l2_rebuild_log_blks = strtoul(mval, NULL, 0);
+            else if (strcmp(mname, "cached_only_in_progress") == 0) arcstats->cached_only_in_progress = strtoul(mval, NULL, 0);
+            else if (strcmp(mname, "abd_chunk_waste_size") == 0) arcstats->abd_chunk_waste_size = strtoul(mval, NULL, 0);
         }
         free(line);
     }

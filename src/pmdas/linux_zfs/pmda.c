@@ -1078,7 +1078,82 @@ static pmdaMetric metrictab[] = {
 /* rcnt */
     { NULL,
       { PMDA_PMID(ZFS_POOL_CLUST, ZFS_POOL_RCNT), PM_TYPE_U64, ZFS_POOL_INDOM, PM_SEM_COUNTER,
-        PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } }
+        PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+/*---------------------------------------------------------------------------*/
+/*  ARCSTATS introduced in OpenZFS v. 2  */
+/*---------------------------------------------------------------------------*/
+/* l2_log_blk_writes */
+    { &arcstats.l2_log_blk_writes,
+      { PMDA_PMID(ZFS_ARC_CLUST, 98), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+/* l2_log_blk_avg_asize */
+    { &arcstats.l2_log_blk_avg_asize,
+      { PMDA_PMID(ZFS_ARC_CLUST, 99), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+        PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
+/* l2_log_blk_asize */
+    { &arcstats.l2_log_blk_asize,
+      { PMDA_PMID(ZFS_ARC_CLUST, 100), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+        PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
+/* l2_log_blk_count */
+    { &arcstats.l2_log_blk_count,
+      { PMDA_PMID(ZFS_ARC_CLUST, 101), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+/* l2_data_to_meta_ratio */
+    { &arcstats.l2_data_to_meta_ratio,
+      { PMDA_PMID(ZFS_ARC_CLUST, 102), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+/* l2_rebuild_success */
+    { &arcstats.l2_rebuild_success,
+      { PMDA_PMID(ZFS_ARC_CLUST, 103), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+/* l2_rebuild_unsupported */
+    { &arcstats.l2_rebuild_unsupported,
+      { PMDA_PMID(ZFS_ARC_CLUST, 104), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+/* l2_rebuild_io_errors */
+    { &arcstats.l2_rebuild_io_errors,
+      { PMDA_PMID(ZFS_ARC_CLUST, 105), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+/* l2_rebuild_dh_errors */
+    { &arcstats.l2_rebuild_dh_errors,
+      { PMDA_PMID(ZFS_ARC_CLUST, 106), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+/* l2_rebuild_cksum_lb_errors */
+    { &arcstats.l2_rebuild_cksum_lb_errors,
+      { PMDA_PMID(ZFS_ARC_CLUST, 107), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+/* l2_rebuild_lowmem */
+    { &arcstats.l2_rebuild_lowmem,
+      { PMDA_PMID(ZFS_ARC_CLUST, 108), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+/* l2_rebuild_size */
+    { &arcstats.l2_rebuild_size,
+      { PMDA_PMID(ZFS_ARC_CLUST, 109), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+        PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
+/* l2_rebuild_asize */
+    { &arcstats.l2_rebuild_asize,
+      { PMDA_PMID(ZFS_ARC_CLUST, 110), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+        PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
+/* l2_rebuild_bufs */
+    { &arcstats.l2_rebuild_bufs,
+      { PMDA_PMID(ZFS_ARC_CLUST, 111), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+/* l2_rebuild_bufs_precached */
+    { &arcstats.l2_rebuild_bufs_precached,
+      { PMDA_PMID(ZFS_ARC_CLUST, 112), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+/* l2_rebuild_log_blks */
+    { &arcstats.l2_rebuild_log_blks,
+      { PMDA_PMID(ZFS_ARC_CLUST, 113), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+/* cached_only_in_progress */
+    { &arcstats.cached_only_in_progress,
+      { PMDA_PMID(ZFS_ARC_CLUST, 114), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+/* abd_chunk_waste_size */
+    { &arcstats.abd_chunk_waste_size,
+      { PMDA_PMID(ZFS_ARC_CLUST, 115), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+        PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 };
 
 static int
@@ -1224,6 +1299,28 @@ zfs_init(pmdaInterface *dp)
     if (dp->status != 0)
         return;
     
+    /* Initialize ARC metrics only present in OpenZFS v. 2 to 0s
+       to avoid missing values on older systems.
+    */
+    arcstats.l2_log_blk_writes = 0;
+    arcstats.l2_log_blk_avg_asize = 0;
+    arcstats.l2_log_blk_asize = 0;
+    arcstats.l2_log_blk_count = 0;
+    arcstats.l2_data_to_meta_ratio = 0;
+    arcstats.l2_rebuild_success = 0;
+    arcstats.l2_rebuild_unsupported = 0;
+    arcstats.l2_rebuild_io_errors = 0;
+    arcstats.l2_rebuild_dh_errors = 0;
+    arcstats.l2_rebuild_cksum_lb_errors = 0;
+    arcstats.l2_rebuild_lowmem = 0;
+    arcstats.l2_rebuild_size = 0;
+    arcstats.l2_rebuild_asize = 0;
+    arcstats.l2_rebuild_bufs = 0;
+    arcstats.l2_rebuild_bufs_precached = 0;
+    arcstats.l2_rebuild_log_blks = 0;
+    arcstats.cached_only_in_progress = 0;
+    arcstats.abd_chunk_waste_size = 0;
+
     dp->version.any.instance = zfs_instance;
     dp->version.any.fetch = zfs_fetch;
     pmdaSetFetchCallBack(dp, zfs_fetchCallBack);

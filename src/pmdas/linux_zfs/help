@@ -239,6 +239,26 @@ tunable make arc_meta_limit adjustable for different workloads.
 @ zfs.arc.sys_free target system free bytes
 @ zfs.arc.raw_size size of all b_rabd's in entire arc
 
+# Arcstats introduced in OpenZFS v. 2
+@ zfs.arc.l2.log.blk_writes
+@ zfs.arc.l2.log.blk_avg_asize
+@ zfs.arc.l2.log.blk_asize
+@ zfs.arc.l2.log.blk_count
+@ zfs.arc.l2.data_to_meta_ratio
+@ zfs.arc.l2.rebuild.success
+@ zfs.arc.l2.rebuild.unsupported
+@ zfs.arc.l2.rebuild.io_errors
+@ zfs.arc.l2.rebuild.dh_errors
+@ zfs.arc.l2.rebuild.cksum_lb_errors
+@ zfs.arc.l2.rebuild.lowmem
+@ zfs.arc.l2.rebuild.size Logical size of restored buffers in the L2ARC
+@ zfs.arc.l2.rebuild.asize Aligned size of restored buffers in the L2ARC
+@ zfs.arc.l2.rebuild.bufs
+@ zfs.arc.l2.rebuild.bufs_precached
+@ zfs.arc.l2.rebuild.log_blks
+@ zfs.arc.cached_only_in_progress
+@ zfs.arc.abd_chunk_waste_size
+
 @ zfs.abd.struct_size
 Amount of memory occupied by all of the abd_t struct allocations 
 @ zfs.abd.linear_cnt

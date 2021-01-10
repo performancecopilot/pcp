@@ -64,6 +64,8 @@ zfs.arc {
     need_free                           ZFS:0:95
     sys_free                            ZFS:0:96
     raw_size                            ZFS:0:97
+    cached_only_in_progress             ZFS:0:114
+    abd_chunk_waste_size                ZFS:0:115
 }
 
 zfs.arc.demand {
@@ -142,6 +144,30 @@ zfs.arc.l2 {
     size                                ZFS:0:74
     asize                               ZFS:0:75
     hdr_size                            ZFS:0:76
+    data_to_meta_ratio                  ZFS:0:102
+    log
+    rebuild
+}
+
+zfs.arc.l2.log {
+    blk_writes                          ZFS:0:98
+    blk_avg_asize                       ZFS:0:99
+    blk_asize                           ZFS:0:100
+    blk_count                           ZFS:0:101
+}
+
+zfs.arc.l2.rebuild {
+    success                             ZFS:0:103
+    unsupported                         ZFS:0:104
+    io_errors                           ZFS:0:105
+    dh_errors                           ZFS:0:106
+    cksum_lb_errors                     ZFS:0:107
+    lowmem                              ZFS:0:108
+    size                                ZFS:0:109
+    asize                               ZFS:0:110
+    bufs                                ZFS:0:111
+    bufs_precached                      ZFS:0:112
+    log_blks                            ZFS:0:113
 }
 
 zfs.arc.memory {

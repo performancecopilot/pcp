@@ -97,6 +97,27 @@ typedef struct zfs_arcstats {
     uint64_t arc_need_free;
     uint64_t arc_sys_free;
     uint64_t arc_raw_size;
+    /*--
+      Metrics introduced in OpenZFS v. 2
+    --*/
+    uint64_t cached_only_in_progress;
+    uint64_t abd_chunk_waste_size;
+    uint64_t l2_log_blk_writes;
+    uint64_t l2_log_blk_avg_asize;
+    uint64_t l2_log_blk_asize;
+    uint64_t l2_log_blk_count;
+    uint64_t l2_data_to_meta_ratio;
+    uint64_t l2_rebuild_success;
+    uint64_t l2_rebuild_unsupported;
+    uint64_t l2_rebuild_io_errors;
+    uint64_t l2_rebuild_dh_errors;
+    uint64_t l2_rebuild_cksum_lb_errors;
+    uint64_t l2_rebuild_lowmem;
+    uint64_t l2_rebuild_size;
+    uint64_t l2_rebuild_asize;
+    uint64_t l2_rebuild_bufs;
+    uint64_t l2_rebuild_bufs_precached;
+    uint64_t l2_rebuild_log_blks;
 } zfs_arcstats_t;
 
 void zfs_arcstats_refresh(zfs_arcstats_t *arcstats);
