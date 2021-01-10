@@ -1,5 +1,5 @@
 #!/bin/sh
-# PCP QA Test No. 1530
+# PCP QA Test No. 1531
 # Test Linux ZFS PMDA pool metrics with valgrind
 #
 
