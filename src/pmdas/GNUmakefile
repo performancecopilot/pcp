@@ -18,7 +18,7 @@ include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
 CPMDAS = root pmcd \
-	linux_proc linux_xfs linux \
+	linux_proc linux_xfs linux_zfs linux \
 	darwin freebsd netbsd solaris aix windows \
 	sample simple trivial sendmail mailq txmon \
 	apache cisco trace shping mounts weblog \

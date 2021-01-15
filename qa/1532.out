@@ -1,0 +1,24 @@
+QA output created by 1532
+== Checking metric count for ZFS ARC
+116
+== Checking metric count for ZFS ABD
+21
+== Checking metric count for ZFS DBUF
+43
+== Checking metric count for ZFS DMU TX
+12
+== Checking metric count for ZFS DNode
+28
+== Checking metric count for ZFS VDev
+10
+== Checking metric count for ZFS XUIO
+6
+== Checking metric count for ZFS ZFetch
+3
+== Checking metric count for ZFS ZIL
+13
+== Checking metric count for ZFS pool pmdazfs_test
+13
+
+== done
+
