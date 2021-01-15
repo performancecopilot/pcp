@@ -23,6 +23,12 @@
 #
 # blank lines before the @ line are ignored
 
+@ 153.0 set of ZFS storage pools
+ZFS aggregates devices into a storage pool.  The storage pool
+describes the physical characteristics of the storage (device
+layout, data redundancy, and so on) and acts as an arbitrary
+data store from which file systems can be created.
+
 @ zfs.arc.hits
 @ zfs.arc.misses
 @ zfs.arc.demand.data_hits
