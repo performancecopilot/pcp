@@ -23,9 +23,6 @@ LIBTARGET	= pmda_$(IAM).$(DSOSUFFIX)
 PMDAINIT	= $(IAM)_init
 PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
 PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
-REWRITEDIR	= $(PCP_SYSCONF_DIR)/pmlogrewrite
-REWRITEVARDIR	= $(PCP_VAR_DIR)/config/pmlogrewrite
-CONF_LINE	= "zfs	153	pipe	binary		$(PMDATMPDIR)/$(CMDTARGET) -d 153"
 
 CFILES		= zfs_utils.c zfs_pools.c zfs_zilstats.c zfs_zfetchstats.c zfs_xuiostats.c zfs_vdev_mirrorstats.c zfs_vdev_cachestats.c zfs_fmstats.c zfs_dnodestats.c zfs_dmu_tx.c zfs_dbufstats.c zfs_arcstats.c zfs_abdstats.c pmda.c
 HFILES		= zfs_utils.h zfs_pools.h zfs_zilstats.h zfs_zfetchstats.h zfs_xuiostats.h zfs_vdev_mirrorstats.h zfs_vdev_cachestats.h zfs_fmstats.h zfs_dnodestats.h zfs_dmu_tx.h zfs_dbufstats.h zfs_arcstats.h zfs_abdstats.h clusters.h
