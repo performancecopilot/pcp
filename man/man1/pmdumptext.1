@@ -48,6 +48,9 @@ Unless directed to another host by the
 option, or to one or more sets of archives by the
 .B \-a
 option,
+or an explict host: or archive/ prefix in the
+.I metric
+(see below for more information),
 .B pmdumptext
 will contact the Performance Metrics Collector Daemon (PMCD)
 on the local host to obtain the required information.
@@ -98,8 +101,46 @@ myhost:kernel.all.cpu.idle[cpu0,cpu3]
 .ft R
 .in
 .PP
-The format of a metric is further described in
-.BR PCPIntro (1).
+When a
+.I metric
+does not contain a host: or archive/ prefix, e.g.
+\f(CWkernel.all.cpu.idle\fP above, then the source of the metric
+is determined by the following rules:
+.PD 0
+.TP 4n
+(a)
+PMCD on
+.I host
+from the
+.B \-h
+option if any, else
+.TP
+(b)
+the
+.I archive
+from the first
+.B \-a
+option if any, else
+.TP
+(c)
+the host from the first
+.I metric
+prior to this one with a host: prefix if any, else
+.TP
+(d)
+the archive from the first
+.I metric
+prior to this one with an archive/ prefix if any, else
+.TP
+(e)
+PMCD on the local host, which is equivalent to local::\fImetric\fP.
+.PD
+.PP
+The format of a
+.I metric
+is further described in
+.BR PCPIntro (1)
+in the PERFORMANCE METRIC SPECIFICATIONS section.
 A normalization value may optionally follow a metric name in a
 .I config
 file or on
