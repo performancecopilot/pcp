@@ -1,0 +1,82 @@
+QA output created by 1844
+
+=== pmcd.pid ===
+local::pmcd.pid
+LOCAL_PID
+
+=== localhost:pmcd.pid ===
+localhost:pmcd.pid
+LOCAL_PID
+
+=== -h localhost pmcd.pid ===
+localhost:pmcd.pid
+LOCAL_PID
+
+=== -h local: pmcd.pid ===
+local::pmcd.pid
+LOCAL_PID
+
+=== REMOTE:pmcd.pid ===
+REMOTE:pmcd.pid
+REMOTE_PID
+
+=== -h REMOTE pmcd.pid ===
+REMOTE:pmcd.pid
+REMOTE_PID
+
+=== archives/pcp-free/pmcd.pid ===
+archives/pcp-free/pmcd.pid
+ARCHIVE_PID
+
+=== -a archives/pcp-free pmcd.pid ===
+archives/pcp-free/pmcd.pid
+ARCHIVE_PID
+
+=== pmcd.pid REMOTE:pmcd.pid ===
+local::pmcd.pid REMOTE:pmcd.pid
+LOCAL_PID REMOTE_PID
+
+=== REMOTE:pmcd.pid pmcd.pid ===
+!!! this is Marco's odd one from BZ 1132429
+REMOTE:pmcd.pid REMOTE:pmcd.pid
+REMOTE_PID REMOTE_PID
+
+=== archives/pcp-free/pmcd.pid pmcd.pid ===
+archives/pcp-free/pmcd.pid archives/pcp-free/pmcd.pid
+ARCHIVE_PID ARCHIVE_PID
+
+=== localhost:pmcd.pid REMOTE:pmcd.pid localhost:pmcd.pid ===
+localhost:pmcd.pid REMOTE:pmcd.pid localhost:pmcd.pid
+LOCAL_PID REMOTE_PID LOCAL_PID
+
+=== pmcd.pid REMOTE:pmcd.pid pmcd.pid ===
+local::pmcd.pid REMOTE:pmcd.pid local::pmcd.pid
+LOCAL_PID REMOTE_PID LOCAL_PID
+
+=== REMOTE:pmcd.pid localhost:pmcd.pid REMOTE:pmcd.pid ===
+REMOTE:pmcd.pid localhost:pmcd.pid REMOTE:pmcd.pid
+REMOTE_PID LOCAL_PID REMOTE_PID
+
+=== REMOTE:pmcd.pid pmcd.pid REMOTE:pmcd.pid ===
+REMOTE:pmcd.pid REMOTE:pmcd.pid REMOTE:pmcd.pid
+REMOTE_PID REMOTE_PID REMOTE_PID
+
+Some error cases ...
+
+=== localhost:pmcd.pid archives/pcp-free/pmcd.pid ===
+pmdumptext: Error: Archive "archives/pcp-free" requested after live mode was assumed.
+pmdumptext: Warning: Some metrics ignored, continuing with valid metrics
+localhost:pmcd.pid
+LOCAL_PID
+
+=== archives/pcp-free/pmcd.pid localhost:pmcd.pid ===
+pmdumptext: Error: No archives were specified for host "localhost"
+pmdumptext: Warning: Some metrics ignored, continuing with valid metrics
+archives/pcp-free/pmcd.pid
+ARCHIVE_PID
+
+=== pmcd.pid archives/pcp-free/pmcd.pid ===
+pmdumptext: Error: Archive "archives/pcp-free" requested after live mode was assumed.
+pmdumptext: Warning: Some metrics ignored, continuing with valid metrics
+local::pmcd.pid
+LOCAL_PID
