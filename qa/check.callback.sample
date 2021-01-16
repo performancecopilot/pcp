@@ -55,9 +55,17 @@ in
 	    bozo|bozo-vm|vm01|vm03|vm36)
 		    if [ ! -f $PCP_LOG_DIR/pmlogger/$host/$yesterday.meta.xz -a ! -f $PCP_LOG_DIR/pmlogger/$host/$yesterday.meta ]
 		    then
-			echo "check.callback: fail: pmlogger_daily not well!"
-			echo "Missing $yesterday archive ..."
-			ls -l $PCP_LOG_DIR/pmlogger/$host/$yesterday.*
+			# after a virgin install, or cleaning out the directory,
+			# or a hostname change, there will be NO $yesterday files
+			# at all, so be quiet if this is the case ...
+			#
+			nfile=`find  $PCP_LOG_DIR/pmlogger/$host -type f | grep "^$PCP_LOG_DIR/pmlogger/$host/$yesterday.*\\.meta" | wc -l | sed -e 's/ //g'`
+			if [ "$nfile" -gt 0 ]
+			then
+			    echo "check.callback: fail: pmlogger_daily not well!"
+			    echo "Missing $yesterday archive but $nfile component archives ..."
+			    ls -l $PCP_LOG_DIR/pmlogger/$host/$yesterday.*
+			fi
 		    fi
 		    ;;
 	esac
