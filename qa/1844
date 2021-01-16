@@ -1,0 +1,190 @@
+#!/bin/sh
+# PCP QA Test No. 1844
+# pmdumptext and default context
+# - see https://bugzilla.redhat.com/show_bug.cgi?id=1132429
+#
+# Copyright (c) 2021 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+local_pid=`pmprobe -v -h local: pmcd.pid | $PCP_AWK_PROG '$2 == 1 { print $3}'`
+if [ -z "$local_pid" ]
+then
+    echo "Arrgh, cannot get local pmcd's PID"
+    exit
+fi
+echo "local: pid=$local_pid" >>$seq.full
+
+remote=`getpmcdhosts -L -n 1 2>$tmp.err`
+if [ -z "$remote" ]
+then
+    _notrun "`cat $tmp.err`"
+    # NOTREACHED
+fi
+
+remote_pid=`pmprobe -v -h $remote pmcd.pid | $PCP_AWK_PROG '$2 == 1 { print $3}'`
+if [ -z "$remote_pid" ]
+then
+    echo "Arrgh, cannot get pmcd's PID from remote ($remote)"
+    exit
+fi
+echo "remote: $remote pid=$remote_pid" >>$seq.full
+
+if [ "$local_pid" = "$remote_pid" ]
+then
+    # bad luck, test and filtering depend on these NOT being the same
+    _notrun "local and remote ($remote) pmcd's PID are the same ($local_pid)"
+    # NOTREACHED
+fi
+
+archive=archives/pcp-free
+archive_pid=`pmprobe -v -a $archive pmcd.pid | $PCP_AWK_PROG '$2 == 1 { print $3}'`
+if [ -z "$archive_pid" ]
+then
+    echo "Arrgh, cannot get pmcd's PID from archive $archive"
+    exit
+fi
+echo "archive: $archive pid=$archive_pid" >>$seq.full
+
+if [ "$local_pid" = "$archive_pid" ]
+then
+    # bad luck, test and filtering depend on these NOT being the same
+    _notrun "local and archive ($archive) pmcd's PID are the same ($local_pid)"
+    # NOTREACHED
+fi
+
+if [ "$remote_pid" = "$archive_pid" ]
+then
+    # bad luck, test and filtering depend on these NOT being the same
+    _notrun "remote ($remote) and archive ($archive) pmcd's PID are the same ($remote_pid)"
+    # NOTREACHED
+fi
+
+_filter()
+{
+    # Note: <space><pid><space> replacement patterns overlap, so if
+    # there are up to N PID's in one line of output, and they could
+    # _all_ be the same PID, then we need a pipeline of N sed's not
+    # just one sed
+    # For the moment N = 3 will suffice.
+    #
+    sed \
+	-e 's/^/ /' \
+	-e 's/$/ /' \
+	-e 's/	/ /g' \
+	-e 's/\.00*//g' \
+	-e "s/ $remote\([ :]\)/ REMOTE\1/g" \
+	-e "s/ $local_pid / LOCAL_PID /g" \
+	-e "s/ $remote_pid / REMOTE_PID /g" \
+	-e "s/ $archive_pid / ARCHIVE_PID /g" \
+    | sed \
+	-e "s/ $local_pid / LOCAL_PID /g" \
+	-e "s/ $remote_pid / REMOTE_PID /g" \
+	-e "s/ $archive_pid / ARCHIVE_PID /g" \
+    | sed \
+	-e "s/ $local_pid / LOCAL_PID /g" \
+	-e "s/ $remote_pid / REMOTE_PID /g" \
+	-e "s/ $archive_pid / ARCHIVE_PID /g" \
+	-e 's/^ //' \
+	-e 's/ $//' \
+    # end
+}
+
+# real QA test starts here
+if $do_valgrind
+then
+    # just try the most stressful test case ...
+    #
+    _run_valgrind pmdumptext -l -s 1 -f ''
+else
+    # no error cases
+    #
+    cat <<End-of-File | while read line
+# one metric, local host
+pmcd.pid
+localhost:pmcd.pid
+-h localhost pmcd.pid
+-h local: pmcd.pid
+# one metric, remote host
+$remote:pmcd.pid
+-h $remote pmcd.pid
+# one metric, archive
+$archive/pmcd.pid
+-a $archive pmcd.pid
+
+# two metrics, local and remote
+pmcd.pid $remote:pmcd.pid
+# vice versa
+# https://bugzilla.redhat.com/show_bug.cgi?id=1132429
+$remote:pmcd.pid pmcd.pid	# this is Marco's odd one from BZ 1132429
+
+# two metrics, archive and implied archive
+$archive/pmcd.pid pmcd.pid
+
+# three metrics, alternating local and remote
+localhost:pmcd.pid $remote:pmcd.pid localhost:pmcd.pid
+pmcd.pid $remote:pmcd.pid pmcd.pid
+$remote:pmcd.pid localhost:pmcd.pid $remote:pmcd.pid
+$remote:pmcd.pid pmcd.pid $remote:pmcd.pid
+End-of-File
+    do
+	[ -z "$line" ] && continue
+	args=`echo "$line" | sed -e 's/[ 	]*#.*//'`
+	[ -z "$args" ] && continue
+	note=`echo "$line" | sed -n -e '/#/s/.*#[ 	]*//p'`
+	( echo \
+	  ; echo "=== $args ===" \
+	  ; if [ -n "$note" ]; then echo "!!! $note"; fi \
+	  ; pmdumptext -l -s 1 -f '' $args 2>&1 \
+	) | _filter
+    done
+
+    # error cases
+    #
+    echo
+    echo "Some error cases ..."
+    for args in \
+	"localhost:pmcd.pid $archive/pmcd.pid" "$archive/pmcd.pid localhost:pmcd.pid" \
+	"pmcd.pid $archive/pmcd.pid" \
+
+    do
+	( echo \
+	  ; echo "=== $args ===" \
+	  ; pmdumptext -l -s 1 -f '' $args 2>&1 \
+	) | _filter
+    done
+fi
+
+# success, all done
+exit
