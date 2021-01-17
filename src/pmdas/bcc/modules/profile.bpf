@@ -51,6 +51,8 @@ int do_perf_event(struct bpf_perf_event_data *ctx) {
         }
     }
     val = counts.lookup_or_init(&key, &zero);
-    (*val)++;
+    if (val) {
+        (*val)++;
+    }
     return 0;
 }

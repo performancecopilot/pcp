@@ -382,7 +382,7 @@ PCP_CALL extern int __pmSendCreds(int, int, int, const __pmCred *);
 PCP_CALL extern int __pmDecodeCreds(__pmPDU *, int *, int *, __pmCred **);
 PCP_CALL extern int __pmSendIDList(int, int, int, const pmID *, int);
 PCP_CALL extern int __pmDecodeIDList(__pmPDU *, int, pmID *, int *);
-PCP_CALL extern int __pmSendNameList(int, int, int, char **, const int *);
+PCP_CALL extern int __pmSendNameList(int, int, int, const char **, const int *);
 PCP_CALL extern int __pmDecodeNameList(__pmPDU *, int *, char ***, int **);
 PCP_CALL extern int __pmSendChildReq(int, int, const char *, int);
 PCP_CALL extern int __pmDecodeChildReq(__pmPDU *, char **, int *);
@@ -746,9 +746,12 @@ typedef struct {
     __pmFILE	*l_mdfp;	/* meta data */
     int		l_state;	/* (when writing) log state */
     __pmHashCtl	l_hashpmid;	/* PMID hashed access */
-    __pmHashCtl	l_hashindom;	/* instance domain hashed access */
     __pmHashCtl	l_hashrange;	/* ptr to first and last value in log for */
 				/* each metric */
+    __pmHashCtl	l_hashindom;	/* instance domain hashed access */
+    __pmHashCtl	l_trimindom;	/* timestamps for first and last value per */
+    				/* instance per indom (nested hashing, lazy */
+				/* loading) */
     __pmHashCtl	l_hashlabels;	/* maps the various metadata label types */
     __pmHashCtl l_hashtext;	/* maps the various help text types */
     int		l_minvol;	/* (when reading) lowest known volume no. */
@@ -806,6 +809,34 @@ typedef struct {
     int			ac_cur_log;	/* The currently open archive */
     __pmMultiLogCtl	**ac_log_list;	/* Current set of archives */
 } __pmArchCtl;
+
+/*
+ * Instance trimming control structures for archive replay ...
+ * we use the timestamps from the indom metadata to establish time
+ * boundaries (calipers) for individual instances in specific indoms.
+ *
+ * These structures are only built if required, and then only for "large"
+ * indoms, see the HASH_THRESHOLD #define before time_caliper() in interp.c
+ *
+ * Top-level per-indom trimming control, which is accessed as a hash
+ * using the indom as the key from l_trimindom.
+ */
+typedef struct {
+    __pmHashCtl	hashinst;		/* nested hash on inst for this indom */
+} __pmLogTrimInDom;
+
+/*
+ * Nested per-instance trimming control (potentially one of these for
+ * _every_ instance in _every_ "large" indom), accessed as a hash using
+ * the internal instance identifier as the key from hashinst.
+ *
+ * Note: times are relative to the start of the archive, so the same as
+ *       those used in interp.c for t_req et al
+ */
+typedef struct {
+    double	t_birth;		/* instance first present */
+    double	t_death;		/* instance no longer present */
+} __pmLogTrimInst;
 
 /*
  * PMAPI context. We keep an array of these,
@@ -1298,6 +1329,7 @@ PCP_CALL extern void __pmFreeInResult(pmInResult *);
 PCP_CALL extern void __pmFreePMNS(__pmnsTree *);
 PCP_CALL extern void __pmFreeProfile(pmProfile *);
 PCP_CALL extern void __pmFreeResultValues(pmResult *);
+PCP_CALL extern void __pmFreeDerived(__pmContext *);
 
 /* diagnostics for formatting or printing miscellaneous data structures */
 PCP_CALL extern void __pmDumpContext(FILE *, int, pmInDom);
@@ -1309,8 +1341,8 @@ PCP_CALL extern void __pmDumpHighResResult(FILE *, const pmHighResResult *);
 PCP_CALL extern void __pmDumpIDList(FILE *, int, const pmID *);
 PCP_CALL extern void __pmDumpInResult(FILE *, const pmInResult *);
 PCP_CALL extern void __pmDumpLabelSets(FILE *, const pmLabelSet *, int);
-PCP_CALL extern void __pmDumpNameList(FILE *, int, char **);
-PCP_CALL extern void __pmDumpNameNode(FILE *, __pmnsNode *, int);
+PCP_CALL extern void __pmDumpNameList(FILE *, int, const char **);
+PCP_CALL extern void __pmDumpNameNode(FILE *, const __pmnsNode *, int);
 PCP_CALL extern void __pmDumpNameSpace(FILE *, int);
 PCP_CALL extern void __pmDumpResult(FILE *, const pmResult *);
 PCP_CALL extern void __pmDumpStack(FILE *);
@@ -1323,6 +1355,9 @@ PCP_CALL extern int __pmAttrKeyStr_r(__pmAttrKey, char *, size_t);
 PCP_CALL extern int __pmAttrStr_r(__pmAttrKey, const char *, char *, size_t);
 PCP_CALL extern char *__pmLabelIdentString(int, int, char *, size_t);
 PCP_CALL extern const char *__pmLabelTypeString(int);
+PCP_CALL extern const char *__pmGetLabelConfigHostName(char *, size_t);
+PCP_CALL extern const char *__pmGetLabelConfigMachineID(char *, size_t);
+PCP_CALL extern const char *__pmGetLabelConfigDomainName(char *, size_t);
 
 /* log file rotation */
 PCP_CALL extern FILE *__pmRotateLog(const char *, const char *, FILE *, int *);

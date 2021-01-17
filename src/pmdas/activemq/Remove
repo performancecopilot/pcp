@@ -17,6 +17,7 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=activemq
+perl_opt=true
 
 pmdaSetup
 pmdaRemove

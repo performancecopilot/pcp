@@ -31,6 +31,11 @@
 #include "atop.h"
 #include "hostmetrics.h"
 
+extern const char *hostmetrics[];
+extern const char *ifpropmetrics[];
+extern const char *systmetrics[];
+extern const char *procmetrics[];
+
 /*
 ** Add the PCP long option and environment variable handling into
 ** the mix, along with regular atop short option handling, ready
@@ -720,8 +725,8 @@ setup_origin(pmOptions *opts)
 		pmResult	*result = calloc(1, sizeof(pmResult));
 		pmValueSet	*vset = calloc(1, sizeof(pmValueSet));
 
-		ptrverify(vset, "Malloc vset failed for thread enabling\n");
-		ptrverify(result, "Malloc result failed for thread enabling\n");
+		ptrverify(vset, "Malloc vset failed for %s enabling\n", "thread");
+		ptrverify(result, "Malloc result failed for %s enabling\n", "thread");
 
 		vset->vlist[0].inst = PM_IN_NULL;
 		vset->vlist[0].value.lval = 1;
@@ -843,10 +848,10 @@ setup_globals(pmOptions *opts)
 		pidmax = (1 << 15);
 	if ((pagesize = extract_integer(result, descs, HOST_PAGESIZE)) <= 0)
 		pagesize = getpagesize();
-	extract_string(result, descs, HOST_RELEASE, sysname.release, sizeof(sysname.release));
-	extract_string(result, descs, HOST_VERSION, sysname.version, sizeof(sysname.version));
-	extract_string(result, descs, HOST_MACHINE, sysname.machine, sizeof(sysname.machine));
-	extract_string(result, descs, HOST_NODENAME, sysname.nodename, sizeof(sysname.nodename));
+	extract_string(result, descs, HOST_RELEASE, sysname.release, sizeof sysname.release);
+	extract_string(result, descs, HOST_VERSION, sysname.version, sizeof sysname.version);
+	extract_string(result, descs, HOST_MACHINE, sysname.machine, sizeof sysname.machine);
+	extract_string(result, descs, HOST_NODENAME, sysname.nodename, sizeof sysname.nodename);
 	nodenamelen = strlen(sysname.nodename);
 
 	/* default hardware inventory - used as fallbacks only if other metrics missing */
@@ -865,19 +870,31 @@ setup_globals(pmOptions *opts)
 	setup_step_mode(0);
 }
 
+int
+get_instance_index(pmResult *result, int value, int inst)
+{
+	pmValueSet *values = result->vset[value];
+	int i;
+
+	for (i = 0; i < values->numval; i++)
+		if (values->vlist[i].inst == inst)
+			return i;
+	return 0;	/* not found, pick the start */
+}
+
 /*
 ** extract values from a pmResult structure using given offset(s)
 ** "value" is always a macro identifier from a metric map file.
 */
 int
-extract_integer_index(pmResult *result, pmDesc *descs, int value, int i)
+extract_integer_index(pmResult *result, pmDesc *descs, int value, int offset)
 {
 	pmAtomValue atom = { 0 };
 	pmValueSet *values = result->vset[value];
 
-	if (values->numval <= 0 || values->numval <= i)
+	if (values->numval <= 0 || values->numval <= offset)
 		return 0;
-	pmExtractValue(values->valfmt, &values->vlist[i],
+	pmExtractValue(values->valfmt, &values->vlist[offset],
 			descs[value].type, &atom, PM_TYPE_32);
 	return atom.l;
 }
@@ -889,11 +906,20 @@ extract_integer(pmResult *result, pmDesc *descs, int value)
 }
 
 int
-extract_integer_inst(pmResult *result, pmDesc *descs, int value, int inst)
+extract_integer_inst(pmResult *result, pmDesc *descs, int value, int inst, int offset)
 {
 	pmAtomValue atom = { 0 };
 	pmValueSet *values = result->vset[value];
 	int i;
+
+	if (values->numval <= 0)
+		return 0;
+	if (offset < values->numval && values->vlist[offset].inst == inst)
+	{
+		pmExtractValue(values->valfmt, &values->vlist[offset],
+			descs[value].type, &atom, PM_TYPE_32);
+		return atom.l;
+	}
 
 	for (i = 0; i < values->numval; i++)
 	{
@@ -903,7 +929,7 @@ extract_integer_inst(pmResult *result, pmDesc *descs, int value, int inst)
 			descs[value].type, &atom, PM_TYPE_32);
 		break;
 	}
-	if (values->numval <= 0 || i == values->numval)
+	if (i == values->numval)
 		return 0;
 	return atom.l;
 }
@@ -935,11 +961,20 @@ present_metric_value(pmResult *result, int value)
 }
 
 unsigned long long
-extract_ucount_t_inst(pmResult *result, pmDesc *descs, int value, int inst)
+extract_ucount_t_inst(pmResult *result, pmDesc *descs, int value, int inst, int offset)
 {
 	pmAtomValue atom = { 0 };
 	pmValueSet *values = result->vset[value];
 	int i;
+
+	if (values->numval <= 0)
+		return (unsigned long long)-1;
+	if (offset < values->numval && values->vlist[offset].inst == inst)
+	{
+		pmExtractValue(values->valfmt, &values->vlist[offset],
+			descs[value].type, &atom, PM_TYPE_U64);
+		return atom.ull;
+	}
 
 	for (i = 0; i < values->numval; i++)
 	{
@@ -949,17 +984,26 @@ extract_ucount_t_inst(pmResult *result, pmDesc *descs, int value, int inst)
 			descs[value].type, &atom, PM_TYPE_U64);
 		break;
 	}
-	if (values->numval <= 0 || i == values->numval)
+	if (i == values->numval)
 		return (unsigned long long)-1;
 	return atom.ull;
 }
 
 count_t
-extract_count_t_inst(pmResult *result, pmDesc *descs, int value, int inst)
+extract_count_t_inst(pmResult *result, pmDesc *descs, int value, int inst, int offset)
 {
 	pmAtomValue atom = { 0 };
 	pmValueSet *values = result->vset[value];
 	int i;
+
+	if (values->numval <= 0)
+		return 0;
+	if (offset < values->numval && values->vlist[offset].inst == inst)
+	{
+		pmExtractValue(values->valfmt, &values->vlist[offset],
+			descs[value].type, &atom, PM_TYPE_U64);
+		return atom.ll;
+	}
 
 	for (i = 0; i < values->numval; i++)
 	{
@@ -969,7 +1013,7 @@ extract_count_t_inst(pmResult *result, pmDesc *descs, int value, int inst)
 			descs[value].type, &atom, PM_TYPE_64);
 		break;
 	}
-	if (values->numval <= 0 || i == values->numval)
+	if (i == values->numval)
 		return 0;
 	return atom.ll;
 }
@@ -999,11 +1043,20 @@ extract_string(pmResult *result, pmDesc *descs, int value, char *buffer, int buf
 }
 
 char *
-extract_string_inst(pmResult *result, pmDesc *descs, int value, char *buffer, int buflen, int inst)
+extract_string_inst(pmResult *result, pmDesc *descs, int value, char *buffer, int buflen, int inst, int offset)
 {
 	pmAtomValue atom = { 0 };
 	pmValueSet *values = result->vset[value];
 	int i;
+
+	if (values->numval <= 0)
+		return NULL;
+	if (offset < values->numval && values->vlist[offset].inst == inst)
+	{
+		pmExtractValue(values->valfmt, &values->vlist[offset],
+			descs[value].type, &atom, PM_TYPE_STRING);
+		goto copyout;
+	}
 
 	for (i = 0; i < values->numval; i++)
 	{
@@ -1013,8 +1066,9 @@ extract_string_inst(pmResult *result, pmDesc *descs, int value, char *buffer, in
 			descs[value].type, &atom, PM_TYPE_STRING);
 		break;
 	}
-	if (values->numval <= 0 || values->numval == i)
+	if (values->numval == i)
 		return NULL;
+copyout:
 	strncpy(buffer, atom.cp, buflen);
 	free(atom.cp);
 	if (buflen > 1)	/* might be a single character - e.g. process state */
@@ -1023,11 +1077,20 @@ extract_string_inst(pmResult *result, pmDesc *descs, int value, char *buffer, in
 }
 
 float
-extract_float_inst(pmResult *result, pmDesc *descs, int value, int inst)
+extract_float_inst(pmResult *result, pmDesc *descs, int value, int inst, int offset)
 {
 	pmAtomValue atom = { 0 };
 	pmValueSet *values = result->vset[value];
 	int i;
+
+	if (values->numval <= 0)
+		return -1;
+	if (offset < values->numval && values->vlist[offset].inst == inst)
+	{
+		pmExtractValue(values->valfmt, &values->vlist[offset],
+			descs[value].type, &atom, PM_TYPE_FLOAT);
+		return atom.f;
+	}
 
 	for (i = 0; i < values->numval; i++)
 	{
@@ -1037,14 +1100,14 @@ extract_float_inst(pmResult *result, pmDesc *descs, int value, int inst)
 			descs[value].type, &atom, PM_TYPE_FLOAT);
 		break;
 	}
-	if (values->numval <= 0 || i == values->numval)
+	if (i == values->numval)
 		return -1;
 	return atom.f;
 }
 
 
 void
-setup_metrics(char **metrics, pmID *pmidlist, pmDesc *desclist, int nmetrics)
+setup_metrics(const char **metrics, pmID *pmidlist, pmDesc *desclist, int nmetrics)
 {
 	int	i, sts;
 
@@ -1257,15 +1320,15 @@ rawarchive(pmOptions *opts, const char *name)
 	}
 
 	/* see if a valid folio exists as specified */
-	strncpy(tmp, name, sizeof(tmp));
-	tmp[sizeof(tmp)-1] = '\0';
+	strncpy(tmp, name, sizeof tmp);
+	tmp[sizeof tmp-1] = '\0';
 	if (access(tmp, R_OK) == 0)
 	{
 		__pmAddOptArchiveFolio(opts, tmp);
 		return;
 	}
-	pmsprintf(path, sizeof(path), "%s/%s.folio", name, basename(tmp));
-	path[sizeof(path)-1] = '\0';
+	pmsprintf(path, sizeof path, "%s/%s.folio", name, basename(tmp));
+	path[sizeof path-1] = '\0';
 	if (access(path, R_OK) == 0)
 	{
 		__pmAddOptArchiveFolio(opts, path);
@@ -1287,7 +1350,7 @@ rawarchive(pmOptions *opts, const char *name)
 
 	if (len == 8 && lookslikedatetome(name))
 	{
-		pmsprintf(path, sizeof(path), "%s%c%s%c%s%c%s",
+		pmsprintf(path, sizeof path, "%s%c%s%c%s%c%s",
 			logdir, sep, "pmlogger", sep, host, sep, name);
 		__pmAddOptArchive(opts, (char * )path);
 	}
@@ -1314,7 +1377,7 @@ rawarchive(pmOptions *opts, const char *name)
 			timenow -= len*3600*24;
 			tp       = localtime(&timenow);
 
-			pmsprintf(path, sizeof(path), "%s%c%s%c%s%c%04u%02u%02u",
+			pmsprintf(path, sizeof path, "%s%c%s%c%s%c%04u%02u%02u",
 				logdir, sep, "pmlogger", sep, host, sep,
 				tp->tm_year+1900, tp->tm_mon+1, tp->tm_mday);
 			__pmAddOptArchive(opts, (char * )path);
@@ -1336,12 +1399,8 @@ rawarchive(pmOptions *opts, const char *name)
 static void
 rawconfig(FILE *fp, double interval)
 {
-	char		**p;
-	unsigned int	delta, offset;
-	extern char	*hostmetrics[];
-	extern char	*ifpropmetrics[];
-	extern char	*systmetrics[];
-	extern char	*procmetrics[];
+	const char		**p;
+	unsigned int		delta, offset;
 
 	fprintf(fp, "log mandatory on once {\n");
 	for (p = hostmetrics; (*p)[0] != '.'; p++)
@@ -1419,8 +1478,8 @@ rawwrite(pmOptions *opts, const char *name,
 	*/
 	putenv("PCP_XCONFIRM_PROG=/bin/true");
 
-	pmsprintf(args, sizeof(args), "%s.folio", basename((char *)name));
-	args[sizeof(args)-1] = '\0';
+	pmsprintf(args, sizeof args, "%s.folio", basename((char *)name));
+	args[sizeof args-1] = '\0';
 	if (pmRecordSetup(args, pmGetProgname(), 1) == NULL)
 	{
 		fprintf(stderr, "%s: cannot setup recording to %s: %s\n",
@@ -1440,8 +1499,8 @@ rawwrite(pmOptions *opts, const char *name,
 	** start pmlogger with a deadhand timer, ensuring it will stop
 	*/
 	if (opts->samples || midnightflag) {
-	    pmsprintf(args, sizeof(args), "-T%.3fseconds", duration);
-	    args[sizeof(args)-1] = '\0';
+	    pmsprintf(args, sizeof args, "-T%.3fseconds", duration);
+	    args[sizeof args-1] = '\0';
 	    if ((sts = pmRecordControl(record, PM_REC_SETARG, args)) < 0)
 		{
 		    fprintf(stderr, "%s: setting loggers arguments: %s\n",

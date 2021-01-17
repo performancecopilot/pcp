@@ -17,7 +17,6 @@ PMCD state changes: agent(s) dropped
 PMCD state changes: agent(s) added
    value 2
 
-primary logger ...
 archive contents ...
     2.0.2 (pmcd.numagents): value 2
 TIMESTAMP  <mark>
@@ -34,5 +33,5 @@ TIMESTAMP  No values available
 TIMESTAMP non-negative number, less than 1.1
 TIMESTAMP  No values available
 TIMESTAMP non-negative number, less than 1.1
-
-Restore pmcd.conf and restart PMCD ...
+TIMESTAMP  No values available
+TIMESTAMP non-negative number, less than 1.1

@@ -60,7 +60,7 @@ HEADER: Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
 
 # Filter to include metric1 and exclude all other metrics
 # note: these are anchored regex matches (whole metric name must match)
-FILTER: INCLUDE METRIC openmetrics.*metric1
+FILTER: INCLUDE METRIC metric1
 FILTER: EXCLUDE METRIC .*
 
 # unrecognized keyword

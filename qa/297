@@ -20,6 +20,11 @@ which pmproxy >/dev/null 2>&1 || \
 
 PMCDLOG=$PCP_LOG_DIR/pmcd/pmcd.log
 
+pmlogger_do_restore=false
+pmproxy_was_running=false
+[ -f $PCP_RUN_DIR/pmproxy.pid ] && pmproxy_was_running=true
+echo "pmproxy_was_running=$pmproxy_was_running" >>$here/$seq.full
+
 status=0	# success is the default!
 signal=$PCP_BINADM_DIR/pmsignal
 killpid=""
@@ -27,15 +32,21 @@ username=`id -u -n`
 $sudo rm -rf $tmp.* $seq.full
 trap "_cleanup; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
-pmproxy_was_running=false
-[ -f $PCP_RUN_DIR/pmproxy.pid ] && pmproxy_was_running=true
-echo "pmproxy_was_running=$pmproxy_was_running" >>$here/$seq.full
-
-_stop_auto_restart pmcd
-_stop_auto_restart pmlogger
-
 _cleanup()
 {
+    # cannot be sure what state pmcd is in if we take a signal, so restart
+    #
+    _service pmcd start >>$seq.full 2>&1
+    _restore_auto_restart pmcd
+    _wait_for_pmcd
+
+    if $pmlogger_do_restore
+    then
+	_service pmlogger start >>$seq.full 2>&1
+	_restore_auto_restart pmlogger
+	_wait_for_pmlogger
+    fi
+
     $sudo $signal -a pmproxy >>$seq.full 2>&1
     [ -n "$killpid" ] && $signal $killpid
     if $pmproxy_was_running
@@ -48,6 +59,10 @@ _cleanup()
 	_service pmproxy stop >>$here/$seq.full 2>&1
     fi
 }
+
+_stop_auto_restart pmcd
+_stop_auto_restart pmlogger
+pmlogger_do_restore=true
 
 realname=`hostname`
 chopname=`echo $realname | sed -e 's/\..*//'`
@@ -116,6 +131,7 @@ mkdir -p $tmp.rundir
 export PCP_RUN_DIR=$tmp.rundir
 proxyargs="-Dcontext -U $username -d"
 $PCP_BINADM_DIR/pmproxy $proxyargs -l $tmp.log 2>&1 | _filter_pmproxy
+_wait_for_pmproxy 44322 $tmp.log
 
 # real QA test starts here
 export PMPROXY_HOST=localhost
@@ -157,10 +173,10 @@ echo "re-starting pmcd ..." | tee -a $seq.full
 export PCP_RUN_DIR=$OLD_PCP_RUN_DIR
 _service pmcd start >>$seq.full 2>&1
 _restore_auto_restart pmcd
-_service pmlogger start >>$seq.full 2>&1
-_restore_auto_restart pmlogger
 _wait_for_pmcd
-_wait_for_pmlogger
+
+# need to see the reconnect
+sleep 2
 
 echo >>$seq.full
 echo "2nd pmproxy log" >>$seq.full

@@ -74,6 +74,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
     static int	numpmidlist;
     static pmID	*pmidlist;
     int		numlist;
+    const char	**names;
     char	**namelist;
     int		*statlist;
     __pmLoggerStatus	*lsp;
@@ -422,14 +423,15 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		fprintf(stderr, "%s: Error: DecodeNameList: %s\n", pmGetProgname(), pmErrStr(e));
 		break;
 	    }
+	    names = (const char **)namelist;
 	    if (pmDebugOptions.appl0) {
 		fprintf(stderr, "+ PDU_PMNS_NAMES:\n");
 		if (namelist != NULL)
-		    __pmDumpNameList(stderr, numlist, namelist);
+		    __pmDumpNameList(stderr, numlist, names);
 		if (statlist != NULL)
 		    __pmDumpStatusList(stderr, numlist, statlist);
 	    }
-	    e = __pmSendNameList(fd, mypid, numlist, namelist, statlist);
+	    e = __pmSendNameList(fd, mypid, numlist, names, statlist);
 	    if (namelist != NULL)
 		free(namelist);
 	    if (statlist != NULL)

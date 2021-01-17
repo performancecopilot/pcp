@@ -21,6 +21,33 @@ Using series 01d8bc7fa75aaff98a08aa0b1c0f2394368d5183 for kernel.all.uptime
         "1440b8b8bfe69465340eb934e9086ae8212f3cff"
     ]
 }
+== verify bad series query
+{
+    "message": "cannot parse given string\n\n(disk.all.re\n^ -- syntax error\n",
+    "success": false
+}
+{
+    "client": "pcp-qa-1601",
+    "message": "cannot parse given string\n\n(disk.all.re\n^ -- syntax error\n",
+    "success": false
+}
+== verify missing series query
+<html>
+<head><title>400 Bad Request</title></head>
+<body>
+<h1>400 Bad Request</h1>
+<p><b>series servlet</b>: failed to process URL</p><hr>
+<p><small><i>pmproxy/VERSION<\i></small></p>
+</body>
+</html>
+<html>
+<head><title>400 Bad Request</title></head>
+<body>
+<h1>400 Bad Request</h1>
+<p><b>series servlet</b>: failed to process URL</p><hr>
+<p><small><i>pmproxy/VERSION<\i></small></p>
+</body>
+</html>
 == verify metric descs
 [
     {
@@ -61,6 +88,18 @@ Using series 01d8bc7fa75aaff98a08aa0b1c0f2394368d5183 for kernel.all.uptime
             "series": "1440b8b8bfe69465340eb934e9086ae8212f3cff",
             "name": "disk.all.read"
         }
+    ]
+}
+== verify metric name match
+[
+    "kernel.all.nusers",
+    "kernel.all.nprocs"
+]
+{
+    "client": "pcp-qa-1601",
+    "result": [
+        "kernel.all.nusers",
+        "kernel.all.nprocs"
     ]
 }
 == verify metric insts

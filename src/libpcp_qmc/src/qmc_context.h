@@ -20,11 +20,9 @@
 #include "qmc_desc.h"
 #include "qmc_indom.h"
 #include "qmc_source.h"
+#include "qmc_config.h"
 
 #include <qhash.h>
-#include <qlist.h>
-#include <qstring.h>
-#include <qtextstream.h>
 
 class QmcContext
 {

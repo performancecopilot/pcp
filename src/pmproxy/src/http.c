@@ -26,12 +26,15 @@ static int smallest_buffer_size = 128;
 #define MAX_PARAMS_SIZE 8000
 #define MAX_HEADERS_SIZE 128
 
+#define HEADER_ACCESS_CONTROL_MAX_AGE_VALUE 86400 /* 24h */
+
 static sds HEADER_ACCESS_CONTROL_REQUEST_HEADERS,
 	   HEADER_ACCESS_CONTROL_REQUEST_METHOD,
 	   HEADER_ACCESS_CONTROL_ALLOW_METHODS,
 	   HEADER_ACCESS_CONTROL_ALLOW_HEADERS,
 	   HEADER_ACCESS_CONTROL_ALLOW_ORIGIN,
 	   HEADER_ACCESS_CONTROL_ALLOWED_HEADERS,
+	   HEADER_ACCESS_CONTROL_MAX_AGE,
 	   HEADER_CONNECTION, HEADER_CONTENT_LENGTH,
 	   HEADER_ORIGIN, HEADER_WWW_AUTHENTICATE;
 
@@ -242,10 +245,13 @@ http_response_header(struct client *client, unsigned int length, http_code sts, 
 		sts, http_status_mapping(sts), HEADER_CONNECTION);
     header = sdscatfmt(header,
 		"%S: *\r\n"
-		"%S: %S\r\n",
+		"%S: %S\r\n"
+		"%S: %u\r\n",
 		HEADER_ACCESS_CONTROL_ALLOW_ORIGIN,
 		HEADER_ACCESS_CONTROL_ALLOW_HEADERS,
-		HEADER_ACCESS_CONTROL_ALLOWED_HEADERS);
+		HEADER_ACCESS_CONTROL_ALLOWED_HEADERS,
+		HEADER_ACCESS_CONTROL_MAX_AGE,
+		HEADER_ACCESS_CONTROL_MAX_AGE_VALUE);
 
     if (sts == HTTP_STATUS_UNAUTHORIZED && client->u.http.realm)
 	header = sdscatfmt(header, "%S: Basic realm=\"%S\"\r\n",
@@ -383,9 +389,13 @@ http_response_access(struct client *client, http_code sts, http_options options)
 	    header = sdscatfmt(header, "%S: %S\r\n",
 			        HEADER_ACCESS_CONTROL_ALLOW_ORIGIN, value);
 
-	header = sdscatfmt(header, "%S: %s\r\n",
+	header = sdscatfmt(header,
+			    "%S: %s\r\n"
+			    "%S: %u\r\n",
 			    HEADER_ACCESS_CONTROL_ALLOW_METHODS,
-			    http_methods_string(buffer, sizeof(buffer), options));
+			    http_methods_string(buffer, sizeof(buffer), options),
+			    HEADER_ACCESS_CONTROL_MAX_AGE,
+			    HEADER_ACCESS_CONTROL_MAX_AGE_VALUE);
 
 	value = http_header_value(client, HEADER_ACCESS_CONTROL_REQUEST_HEADERS);
 	if (value && (result = http_headers_allowed(value)) != NULL) {
@@ -960,7 +970,7 @@ on_http_client_read(struct proxy *proxy, struct client *client,
     http_parser		*parser = &client->u.http.parser;
     size_t		bytes;
 
-    if (pmDebugOptions.http)
+    if (pmDebugOptions.http || pmDebugOptions.query)
 	fprintf(stderr, "%s: %lld bytes from HTTP client %p\n%.*s",
 		"on_http_client_read", (long long)nread, client,
 		(int)nread, buf->base);
@@ -1024,6 +1034,7 @@ setup_http_module(struct proxy *proxy)
     HEADER_ACCESS_CONTROL_ALLOW_HEADERS = sdsnew("Access-Control-Allow-Headers");
     HEADER_ACCESS_CONTROL_ALLOW_ORIGIN = sdsnew("Access-Control-Allow-Origin");
     HEADER_ACCESS_CONTROL_ALLOWED_HEADERS = sdsnew("Accept, Accept-Language, Content-Language, Content-Type");
+    HEADER_ACCESS_CONTROL_MAX_AGE = sdsnew("Access-Control-Max-Age");
     HEADER_CONNECTION = sdsnew("Connection");
     HEADER_CONTENT_LENGTH = sdsnew("Content-Length");
     HEADER_ORIGIN = sdsnew("Origin");
@@ -1050,6 +1061,7 @@ close_http_module(struct proxy *proxy)
     sdsfree(HEADER_ACCESS_CONTROL_ALLOW_HEADERS);
     sdsfree(HEADER_ACCESS_CONTROL_ALLOW_ORIGIN);
     sdsfree(HEADER_ACCESS_CONTROL_ALLOWED_HEADERS);
+    sdsfree(HEADER_ACCESS_CONTROL_MAX_AGE);
     sdsfree(HEADER_CONNECTION);
     sdsfree(HEADER_CONTENT_LENGTH);
     sdsfree(HEADER_ORIGIN);

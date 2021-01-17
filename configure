@@ -659,7 +659,6 @@ inkscape
 INKSCAPE
 pcp_icons_dir
 pcp_html_dir
-pcp_books_dir
 pcp_inc_dir
 pcp_sbin_dir
 pcp_bin_dir
@@ -732,6 +731,7 @@ pcp_selinux_sudo_exec
 pcp_selinux_initrc_tmp
 pcp_selinux_icmp_socket
 pcp_selinux_cap2_syslog
+pcp_selinux_proc_security
 pcp_selinux_virt_var_run
 pcp_selinux_rpm_var_lib
 pcp_selinux_files_list_non_auth_dirs
@@ -765,6 +765,9 @@ SYSTEMD_CFLAGS
 HAVE_DEVMAPPER
 DEVMAPPER_LIBS
 DEVMAPPER_CFLAGS
+HAVE_NCURSESW
+ncursesw_LIBS
+ncursesw_CFLAGS
 HAVE_NCURSES
 ncurses_LIBS
 ncurses_CFLAGS
@@ -782,10 +785,6 @@ grep
 pcp_syslog_prog
 pcp_ps_prog
 LN_S
-book_brand
-book_toolchain
-publican
-PUBLICAN
 makepkg
 MAKEPKG
 dpkg
@@ -923,6 +922,7 @@ cxx
 ac_ct_CXX
 CXXFLAGS
 CXX
+C99_CFLAGS
 INVISIBILITY
 PIECFLAGS
 PIELDFLAGS
@@ -1018,8 +1018,6 @@ with_perl
 with_python
 with_python3
 with_dstat_symlink
-with_books
-with_books_brand
 with_perfevent
 with_pmdastatsd
 with_pmdapodman
@@ -1078,6 +1076,8 @@ libvarlink_CFLAGS
 libvarlink_LIBS
 ncurses_CFLAGS
 ncurses_LIBS
+ncursesw_CFLAGS
+ncursesw_LIBS
 DEVMAPPER_CFLAGS
 DEVMAPPER_LIBS
 SYSTEMD_CFLAGS
@@ -1747,10 +1747,6 @@ Optional Packages:
                           is on)
   --with-dstat-symlink    enable support for /usr/bin/dstat symlink (default
                           is on)
-  --with-books            enable building of the PCP books (default is off)
-  --with-books-brand=BRAND
-                          choose the docbook brand when building the PCP books
-                          (default is common)
   --with-perfevent        enable perfevent pmda (default is on)
   --with-pmdastatsd       enable statds pmda (default is on)
   --with-pmdapodman       enable podman pmda (default is on)
@@ -1826,6 +1822,10 @@ Some influential environment variables:
               C compiler flags for ncurses, overriding pkg-config
   ncurses_LIBS
               linker flags for ncurses, overriding pkg-config
+  ncursesw_CFLAGS
+              C compiler flags for ncursesw, overriding pkg-config
+  ncursesw_LIBS
+              linker flags for ncursesw, overriding pkg-config
   DEVMAPPER_CFLAGS
               C compiler flags for DEVMAPPER, overriding pkg-config
   DEVMAPPER_LIBS
@@ -2854,24 +2854,6 @@ if test "${with_dstat_symlink+set}" = set; then :
   withval=$with_dstat_symlink; do_dstat_symlink=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-dstat-symlink=$withval"
 else
   do_dstat_symlink=check
-fi
-
-
-
-# Check whether --with-books was given.
-if test "${with_books+set}" = set; then :
-  withval=$with_books; do_books=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-books=$withval"
-else
-  do_books=no
-fi
-
-
-
-# Check whether --with-books-brand was given.
-if test "${with_books_brand+set}" = set; then :
-  withval=$with_books_brand; do_books_brand=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-books-brand=$withval"
-else
-  do_books_brand=common
 fi
 
 
@@ -4212,6 +4194,38 @@ else
 $as_echo "$as_me: Compiler does not support -fvisibility." >&6;}
        INVISIBILITY=""
 
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+   CFLAGS="$save_CFLAGS"
+
+fi
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for --std=c99 support" >&5
+$as_echo_n "checking for --std=c99 support... " >&6; }
+if test "x$cc_is_gcc" = xyes; then :
+
+    C99_CFLAGS="--std=c99"
+    save_CFLAGS="$CFLAGS"
+    CFLAGS="$CFLAGS $C99_CFLAGS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <stdio.h>
+int
+main ()
+{
+for (int i=0; i<1; i++)
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+    C99_CFLAGS=""
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
    CFLAGS="$save_CFLAGS"
@@ -7416,10 +7430,42 @@ enable_python2=false
 if test "x$do_python" != "xno"; then :
 
     enable_python2=true
-    if test -z "$PYTHON"
+
+    if test "$do_python" = "check" -a -f /etc/os-release
+    then
+    (
+	. /etc/os-release
+	case "$ID"
+	in
+	    debian)
+		if test -z "$VERSION_ID" -o "$VERSION_ID" -ge 11; then
+		    touch config.python2_eol
+		fi
+		;;
+	    ubuntu)
+		VERSION_NO=`echo "$VERSION_ID" | sed 's/[^0-9]//'`
+		if test "$VERSION_NO" -ge 2004; then
+		    touch config.python2_eol
+		fi
+		;;
+	esac
+    )
+    fi
+
+    if test -f config.python2_eol
+    then
+	rm config.python2_eol
+	echo "WARNING: Python 2 is not supported anymore (EOL since 2020), please use Python 3 instead."
+	enable_python2=false
+    fi
+
+    if test "$enable_python2" = "true" -a -z "$PYTHON"
     then
 	enable_python2=false
-    else
+    fi
+
+    if $enable_python2
+    then
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking Python2 version" >&5
 $as_echo_n "checking Python2 version... " >&6; }
 	eval `$PYTHON -V 2>&1 | awk '/^Python/ { ver=2; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export PY_MAJOR=%d PY_MINOR=%d PY_POINT=%d\n",$major,$minor,$point }'`
@@ -9444,72 +9490,6 @@ fi
 makepkg=$MAKEPKG
 
 
-test -z "$PUBLICAN" && # Extract the first word of "publican", so it can be a program name with args.
-set dummy publican; ac_word=$2
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-$as_echo_n "checking for $ac_word... " >&6; }
-if ${ac_cv_path_PUBLICAN+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  case $PUBLICAN in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_PUBLICAN="$PUBLICAN" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_path_PUBLICAN="$as_dir/$ac_word$ac_exec_ext"
-    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-  ;;
-esac
-fi
-PUBLICAN=$ac_cv_path_PUBLICAN
-if test -n "$PUBLICAN"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $PUBLICAN" >&5
-$as_echo "$PUBLICAN" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-
-
-publican=$PUBLICAN
-
-
-book_toolchain=""
-if test "$do_books" = "check" -o "$do_books" = "yes"
-then
-    if test "$BOOK_TOOLCHAIN" != ""
-    then
-        book_toolchain=$BOOK_TOOLCHAIN
-    elif test "$PUBLICAN" != ""
-    then
-        book_toolchain=publican
-    elif test "$do_books" = "yes"
-    then
-	as_fn_error $? "cannot enable books build - no toolchain found" "$LINENO" 5
-    fi
-fi
-
-
-book_brand="common"
-if test "$do_books_brand" != ""
-then
-    book_brand=$do_books_brand
-fi
-
-
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether ln -s works" >&5
 $as_echo_n "checking whether ln -s works... " >&6; }
 LN_S=$as_ln_s
@@ -10141,12 +10121,38 @@ fi
 
 done
 
-for ac_header in ncurses/curses.h
+for ac_header in curses.h ncurses.h
 do :
-  ac_fn_c_check_header_mongrel "$LINENO" "ncurses/curses.h" "ac_cv_header_ncurses_curses_h" "$ac_includes_default"
-if test "x$ac_cv_header_ncurses_curses_h" = xyes; then :
+  as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
+ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
+if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
   cat >>confdefs.h <<_ACEOF
-#define HAVE_NCURSES_CURSES_H 1
+#define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+
+done
+
+for ac_header in ncurses/curses.h ncurses/ncurses.h
+do :
+  as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
+ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
+if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+
+done
+
+for ac_header in ncursesw/curses.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "ncursesw/curses.h" "ac_cv_header_ncursesw_curses_h" "$ac_includes_default"
+if test "x$ac_cv_header_ncursesw_curses_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_NCURSESW_CURSES_H 1
 _ACEOF
 
 fi
@@ -10903,6 +10909,80 @@ $as_echo "yes" >&6; }
 	have_ncurses=true
 fi
 HAVE_NCURSES=$have_ncurses
+
+
+
+pkg_failed=no
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for ncursesw" >&5
+$as_echo_n "checking for ncursesw... " >&6; }
+
+if test -n "$ncursesw_CFLAGS"; then
+    pkg_cv_ncursesw_CFLAGS="$ncursesw_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"ncursesw\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "ncursesw") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_ncursesw_CFLAGS=`$PKG_CONFIG --cflags "ncursesw" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$ncursesw_LIBS"; then
+    pkg_cv_ncursesw_LIBS="$ncursesw_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"ncursesw\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "ncursesw") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_ncursesw_LIBS=`$PKG_CONFIG --libs "ncursesw" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+	        ncursesw_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "ncursesw" 2>&1`
+        else
+	        ncursesw_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "ncursesw" 2>&1`
+        fi
+	# Put the nasty error message in config.log where it belongs
+	echo "$ncursesw_PKG_ERRORS" >&5
+
+	have_ncursesw=false
+elif test $pkg_failed = untried; then
+     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+	have_ncursesw=false
+else
+	ncursesw_CFLAGS=$pkg_cv_ncursesw_CFLAGS
+	ncursesw_LIBS=$pkg_cv_ncursesw_LIBS
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+	have_ncursesw=true
+fi
+HAVE_NCURSESW=$have_ncursesw
 
 
 
@@ -11770,6 +11850,7 @@ pcp_selinux_bpf=false
 pcp_selinux_files_list_non_auth_dirs=false
 pcp_selinux_rpm_var_lib=false
 pcp_selinux_virt_var_run=false
+pcp_selinux_proc_security=false
 pcp_selinux_cap2_syslog=false
 pcp_selinux_icmp_socket=false
 
@@ -11816,6 +11897,8 @@ if test "x$enable_selinux" != "xfalse"; then :
 	&& pcp_selinux_rpm_var_lib=true
     grep '^[ 	][ 	]*virt_var_run_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_virt_var_run=true
+    grep '^[ 	][ 	]*proc_security_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_proc_security=true
 
 
     grep '^[ 	][ 	]*initrc_tmp_t$' <conftest.out >/dev/null \
@@ -11900,11 +11983,12 @@ if test "x$enable_selinux" != "xfalse"; then :
     && pcp_selinux_dir_class=true
 
     seinfo -x --class=rawip_socket $seinfo_common_flag 2>/dev/null \
-    | grep '^[ 	][ 	]*(class |)rawip_socket$' >/dev/null \
+    | egrep '^[ 	][ 	]*(class |)rawip_socket$' >/dev/null \
     && pcp_selinux_rawip_socket_class=true
 
 
 fi
+
 
 
 
@@ -15228,13 +15312,11 @@ pcp_inc_dir=`eval echo $pcp_inc_dir`
 
 
 if test $target_os = linux; then
-    pcp_books_dir=`eval echo $datarootdir/doc/pcp-doc`
+    pcp_html_dir=`eval echo $datarootdir/doc/pcp-doc/html`
 else
-    pcp_books_dir=`eval echo $datarootdir/doc/pcp`
+    pcp_html_dir=`eval echo $datarootdir/doc/pcp/html`
 fi
-pcp_books_dir=`eval echo $pcp_books_dir`
-pcp_html_dir=`eval echo $pcp_books_dir/html`
-
+pcp_html_dir=`eval echo $pcp_html_dir`
 
 
 if test $target_os = linux; then

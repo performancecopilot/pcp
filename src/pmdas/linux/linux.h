@@ -111,6 +111,7 @@ enum {
 	CLUSTER_ZRAM_IO_STAT,	/* 87 /sys/block/zram[0-9]/io_stat metrics */
 	CLUSTER_ZRAM_MM_STAT,	/* 88 /sys/block/zram[0-9]/mm_stat metrics */
 	CLUSTER_ZRAM_BD_STAT,	/* 89 /sys/block/zram[0-9]/bd_stat metrics */
+	CLUSTER_NET_ALL,	/* 90 /proc/net/dev aggregate metrics */
 
 	NUM_CLUSTERS		/* one more than highest numbered cluster */
 };
@@ -197,6 +198,7 @@ extern pmdaIndom *linux_pmda_indom(int);
 #define	LINUX_TEST_STATSPATH	(1<<1)
 #define	LINUX_TEST_MEMINFO	(1<<2)
 #define	LINUX_TEST_NCPUS	(1<<3)
+#define	LINUX_TEST_NNODES	(1<<4)
 extern int linux_test_mode;
 
 /*  
@@ -221,10 +223,12 @@ int linux_strings_insert(const char *);
 #if defined(HAVE_64BIT_LONG)
 #define KERNEL_ULONG PM_TYPE_U64
 #define _pm_assign_ulong(atomp, val) do { (atomp)->ull = (val); } while (0)
+#define _pm_append_ulong(atomp, val) do { (atomp)->ull += (val); } while (0)
 #define __pm_kernel_ulong_t __uint64_t
 #else
 #define KERNEL_ULONG PM_TYPE_U32
 #define _pm_assign_ulong(atomp, val) do { (atomp)->ul = (val); } while (0)
+#define _pm_append_ulong(atomp, val) do { (atomp)->ul += (val); } while (0)
 #define __pm_kernel_ulong_t __uint32_t
 #endif
 
@@ -256,6 +260,7 @@ typedef struct {
     unsigned long long	steal;
     unsigned long long	guest;
     unsigned long long	guest_nice;
+    unsigned long long	prev_wait;	/* remember previous wait value */
 } cpuacct_t;
 
 typedef struct {

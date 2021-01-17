@@ -21,7 +21,6 @@
 #   are the union of the named classes ... unless this is allowed, a regex
 #   pattern for the -c arg (classname) makes no sense
 # - regex expansion for <class>
-# - pmfind integration
 # - other sections in the "policy" files, especially with pmfind to
 #   (a) at destroy, decide not to or wait some time before destroying
 #       (the latter is really hard)
@@ -183,9 +182,15 @@ _egrep()
     # skip errors from find(1) and egrep(1), only interested in matches for
     # real, existing files
     #
-    find $* -type f 2>/dev/null \
+    find "$@" -type f 2>/dev/null \
     | while read __f
     do
+	if echo "$__f" | grep -q -e '\.rpmsave$' -e '\.rpmnew$' -e '\.rpmorig$' \
+	    -e '\.dpkg-dist$' -e '\.dpkg-old$' -e '\.dpkg-new$' >/dev/null 2>&1
+	then
+	    # ignore backup packaging files (daily and check scripts warn).
+	    continue
+	fi
 	# possible race here with async execution of ${IAM}_check removing
 	# the file after find saw it ... so check again for existance
 	#
@@ -458,8 +463,8 @@ _get_matching_hosts()
 
 # get class for a specific ${IAM} instance
 # $1 = control
-# $2 = host (expanded)
-# $3 = directory (expanded)
+# $2 = host (expanded) [need to match either expanded or unexpanded names]
+# $3 = directory (expanded) [need to match unexpanded name]
 #
 _get_class()
 {
@@ -470,9 +475,10 @@ _get_class()
     class=`$PCP_AWK_PROG <"$control" '
 BEGIN			{ class = "" }
 /^[$]class=/		{ class = $1; sub(/[$]class=/,"",class) }
-$4 == "'"$dir"'" 	{ if ($1 == "'"$host"'" || $1 == "#!#'"$host"'") {
-			      print class
-			      exit
+$4 == "'"$dir"'" 	{ if ($1 == "'"$host"'" || $1 == "#!#'"$host"'" ||
+			      $1 == "'"$2"'" || $1 == "#!#'"$2"'") {
+				  print class
+				  exit
 			  }
 			}'`
     [ -z "$class" ] && class=default
@@ -1125,8 +1131,8 @@ END	{ exit(sts) }'
 			    ;;
 
 			condition)
-			    echo "pmlogctl.check = $args" >$tmp/derived
-			    PCP_DERIVED_CONFIG=$tmp/derived pmprobe -v -h "$host" pmlogctl.check >$tmp/tmp
+			    echo "pm_ctl.check = $args" >$tmp/derived
+			    PCP_DERIVED_CONFIG=$tmp/derived pmprobe -v -h "$host" pm_ctl.check >$tmp/tmp
 			    numval=`cut -d ' ' -f 2 <$tmp/tmp`
 			    val=`cut -d ' ' -f 3 <$tmp/tmp`
 			    if [ "$numval" -gt 1 ]
@@ -1168,7 +1174,6 @@ END	{ exit(sts) }'
 		    then
 			# on success $tmp/control is the control file for
 			# this class
-			# TODO
 			#
 			n=`cat $tmp/condition-true`
 			n=`expr $n + 1`
@@ -1361,7 +1366,15 @@ $1 == "'"$host"'"	{ print $4 }'`
 	    cat $tmp/control
 	    _error "cannot find directory field from control file"
 	fi
-	_egrep -rl "^($host|#!#$host)[ 	].*[ 	]$dir([ 	]|$)" $CONTROLFILE $CONTROLDIR >$tmp/out
+	if [ "$host" = "$LOCALHOST" ]
+	then
+	    pat_host="($host|LOCALHOSTNAME)"
+	    pat_dir="($dir|`echo "$dir" | sed -e "s;$host;LOCALHOSTNAME;"`)"
+	else
+	    pat_host="$host"
+	    pat_dir="$dir"
+	fi
+	_egrep -rl "^($pat_host|#!#$pat_host)[ 	].*[ 	]$pat_dir([ 	]|$)" $CONTROLFILE $CONTROLDIR >$tmp/out
 	[ -s $tmp/out ] && _error "host $host and directory $dir already defined in `cat $tmp/out`"
 	if $FROM_COND_CREATE
 	then
@@ -1402,7 +1415,12 @@ _do_destroy()
 	fi
 	dir=`echo "$args_dir" | _unexpand_control`
 	host=`echo "$args_host " | _unexpand_control | sed -e 's/ $//'`
+	# need to match either expanded or unexpanded host name, with
+	# or without #!# prefix
+	#
 	$PCP_AWK_PROG <"$control" >$tmp/control '
+$1 == "'"$args_host"'" && $4 == "'"$dir"'"	{ next }
+$1 == "'"#!#$args_host"'" && $4 == "'"$dir"'"	{ next }
 $1 == "'"$host"'" && $4 == "'"$dir"'"		{ next }
 $1 == "'"#!#$host"'" && $4 == "'"$dir"'"	{ next }
 						{ print }'
@@ -1614,6 +1632,7 @@ VERY_VERY_VERBOSE=false
 CLASS=default
 POLICY=''
 EXPLICIT_CLASS=false
+ARGS=''
 while [ $# -gt 0 ]
 do
     case "$1"
@@ -1648,16 +1667,25 @@ do
 		    VERBOSE=true
 		fi
 		;;
-	--)	shift
-		break
+	--)	# we're not being POSIX conformant, want to allow -x options after command
+		# so skip this one
 		;;
-	-\?)	_usage
+	-*)	_usage
 		# NOTREACHED
+		;;
+	*)	# this is a non-option arg, gather them up for later
+		if [ -z "$ARGS" ]
+		then
+		    ARGS="\"$1\""
+		else
+		    ARGS="$ARGS \"$1\""
+		fi
 		;;
     esac
     shift
 done
 
+eval set -- $ARGS
 if [ $# -lt 1 ]
 then
     _usage
@@ -1675,18 +1703,6 @@ then
     then
 	_error "-i option may only be used with create or cond-create commands"
     fi
-fi
-
-# TODO - cull?
-if false
-then
-if [ "$ACTION" = cond-create ]
-then
-    if [ -z "$IDENT" ] && ! $EXPLICIT_CLASS
-    then
-	_error "cond-create command requires at least one of the -i or -c options"
-    fi
-fi
 fi
 
 if $VERY_VERBOSE
@@ -1773,7 +1789,7 @@ in
 	    _lock
 	    if [ "$ACTION" != create -a "$ACTION" != cond-create ]
 	    then
-		_get_matching_hosts $*
+		_get_matching_hosts "$@"
 		if [ ! -f $tmp/args ]
 		then
 		    _error "no matching host(s) to $ACTION"
@@ -1794,7 +1810,7 @@ in
 
     status)
 	    [ $# -eq 0 ] && FIND_ALL_HOSTS=true
-	    _get_matching_hosts $*
+	    _get_matching_hosts "$@"
 	    _do_status
 	    ;;
 

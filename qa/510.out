@@ -8,6 +8,7 @@ pmlc commands
   status                             information about connected pmlogger
   query metric-list                  show logging state of metrics
   new volume                         start a new log volume
+  disconnect                         disconnect from pmlogger
 
   log { mandatory | advisory } on <interval> _metric-list
   log { mandatory | advisory } off _metric-list
@@ -15,6 +16,7 @@ pmlc commands
 
   timezone local|logger|'<timezone>' change reporting timezone
   help                               print this help message
+  sleep <n>                          pause for <n> milliseconds
   quit                               exit from pmlc
 
   _logger_id   is  primary | <pid> | port <n>

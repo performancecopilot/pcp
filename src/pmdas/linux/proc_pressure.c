@@ -29,7 +29,22 @@ read_pressure(FILE *fp, const char *type, pressure_t *pp)
 {
     static char	fmt[] = "TYPE avg10=%f avg60=%f avg300=%f total=%llu\n";
 
+#ifdef __GNUC__
+#if __GNUC__ >= 10
+    /*
+     * gcc 10 on Fedora 32 and Debian unstable falsely report a problem
+     * with this strncpy() ... it is safe
+     */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-truncation"
+#endif
+#endif
     strncpy(fmt, type, 4);
+#ifdef __GNUC__
+#if __GNUC__ >= 10
+#pragma GCC diagnostic pop
+#endif
+#endif
     return fscanf(fp, fmt, &pp->avg[0], &pp->avg[1], &pp->avg[2],
 		(unsigned long long *)&pp->total) == 4;
 }

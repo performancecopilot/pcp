@@ -49,19 +49,42 @@ main(int argc, char **argv)
 	    fprintf(stderr, "%s: gethostname failure\n", pmGetProgname());
 	    exit(1);
 	}
+	if (pmDebugOptions.appl0)
+	    fprintf(stderr, "gethostname() -> \"%s\"\n", host);
 	name = host;
     }
     else
 	name = argv[opts.optind];
 
     hep = __pmGetAddrInfo(name);
+    if (pmDebugOptions.appl0)
+	fprintf(stderr, "__pmGetAddrInfo() -> %p\n", hep);
     if (hep == NULL) {
         printf("%s\n", name);
     }
     else {
 	hename = __pmHostEntGetName(hep);
+	if (pmDebugOptions.appl0) {
+	    __pmSockAddr	*addr;
+	    void		*enumIx = NULL;
+	    fprintf(stderr, "__pmHostEntGetName() -> %p", hep);
+	    if (hename != NULL)
+		fprintf(stderr, " \"%s\"", hename);
+	    /* just report the first IP addresss */
+	    for (addr = __pmHostEntGetSockAddr(hep, &enumIx);
+	         addr != NULL;
+		 addr = __pmHostEntGetSockAddr(hep, &enumIx)) {
+		char	*dot = __pmSockAddrToString(addr);
+		if (dot != NULL) {
+		    fprintf(stderr, " %s", dot);
+		    free(dot);
+		    break;
+		}
+	    }
+	    fputc('\n', stderr);
+	}
         printf("%s\n", hename ? hename : name);
-    }
+	}
 
     exit(0);
 }

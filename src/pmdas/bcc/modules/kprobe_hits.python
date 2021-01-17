@@ -56,10 +56,14 @@ int trace_exit_KPROBE_NAME(struct pt_regs *ctx) {
     __builtin_memcpy(&k.kprobe, KPROBE_NAME, sizeof(k.kprobe));
     u64 zero = 0, *val;
     val = stats_ok.lookup_or_init(&k, &zero);
-    ++(*val);
+    if (val) {
+      ++(*val);
+    }
     if (PT_REGS_RC(ctx) RET_CHECK) {
       val = stats_fail.lookup_or_init(&k, &zero);
-      ++(*val);
+      if (val) {
+        ++(*val);
+      }
     }
 #if defined(DETAILS) || defined(LATENCY)
     struct details_t d = {.pid = pid >> 32};
@@ -67,7 +71,9 @@ int trace_exit_KPROBE_NAME(struct pt_regs *ctx) {
 #endif
 #ifdef DETAILS
     val = pidstats.lookup_or_init(&d, &zero);
-    ++(*val);
+    if (val) {
+      ++(*val);
+    }
 #endif
 #ifdef LATENCY
     u64 *start_ns = start.lookup(&pid);

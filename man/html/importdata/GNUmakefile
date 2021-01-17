@@ -12,8 +12,8 @@ default:
 include $(BUILDRULES)
 
 install install-dev: default
-	$(INSTALL) -m 755 -d $(PCP_BOOKS_DIR)/html/$(BUNDLE)
-	$(INSTALL) -m 644 $(SCRIPT) $(PCP_BOOKS_DIR)/html/$(BUNDLE)/$(SCRIPT)
+	$(INSTALL) -m 755 -d $(PCP_HTML_DIR)/$(BUNDLE)
+	$(INSTALL) -m 644 $(SCRIPT) $(PCP_HTML_DIR)/$(BUNDLE)/$(SCRIPT)
 
 default_pcp : default
 

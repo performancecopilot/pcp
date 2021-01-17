@@ -14,10 +14,14 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+NEEDREWRITE=$PCP_LOG_DIR/pmlogger/.NeedRewrite
+
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
-trap "cd $here; rm -rf $tmp.*; _cleanup; exit \$status" 0 1 2 3 15
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; $sudo rm -rf $tmp $tmp.*; _cleanup; exit \$status" 0 1 2 3 15
 signal=$PCP_BINADM_DIR/pmsignal
+
+[ -f $NEEDREWRITE ] && $sudo mv $NEEDREWRITE $NEEDREWRITE.$seq
 
 _stop_auto_restart pmlogger
 
@@ -65,10 +69,9 @@ _cleanup()
     echo
     echo "Cleaning up"
 
-    _stop_loggers >/dev/null 2>&1
+    [ -f $NEEDREWRITE.$seq ] && $sudo mv $NEEDREWRITE.$seq $NEEDREWRITE
 
-    cd # get out of tmp directory so we can delete it
-    $sudo rm -rf $tmp
+    _stop_loggers >/dev/null 2>&1
 
     _service pmlogger restart 2>&1 \
     | _filter_pcp_start \
@@ -81,10 +84,6 @@ _setup()
     _service pmlogger stop | _filter_pcp_stop
     _stop_loggers >/dev/null 2>&1
     cd
-    rm -rf $tmp
-    mkdir $tmp
-    qatmp=$tmp
-    export qatmp
 }
 
 _check_loggers()
@@ -98,7 +97,15 @@ _check_loggers()
 	rm -f $tmp.found
 	while [ "$z" -lt 30 ]
 	do
-	    pid=`grep -l $qatmp/$x $PCP_TMP_DIR/pmlogger/[0-9]* | sed -e 's/.*pmlogger.//'`
+	    # Cannot use $qatmp as the path prefix, because on some systems
+	    # /var/tmp (what qatmp is set to) and /tmp are symlinked, and
+	    # pmlogger reports the path in the control file using the real
+	    # name (/tmp) not the symlink name (/var/tmp)
+	    # ... spotted on vm37 (OpenBSD 6.7)
+	    # Fortunately /$x/ is sufficient to identify the desired
+	    # pmlogger control file.
+	    #
+	    pid=`grep -l "/$x/" $PCP_TMP_DIR/pmlogger/[0-9]* | sed -e 's/.*pmlogger.//'`
 	    if [ -n "$pid" ]
 	    then
 		echo "Found pid $pid for $qatmp/$x after $z iterations" >>$here/$seq.full
@@ -115,10 +122,11 @@ _check_loggers()
 	    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mlogger' >>$here/$seq.full
 	    for state in $PCP_TMP_DIR/pmlogger/[0-9]*
 	    do
-		echo "=== $state ==="
-		cat $state
+		echo "=== $state ===" | tee -a $here/$seq.full
+		cat $state | tee -a $here/$seq.full
 	    done
 	    echo "See $seq.full for details"
+	    status=0
 	    exit
 	fi
     done
@@ -135,6 +143,12 @@ End-of-File
 
 _setup
 
+mkdir $tmp
+
+# this one is set via the environment
+#
+export qatmp=$tmp
+
 # control file
 #
 cat >$tmp/control <<End-of-File
@@ -142,14 +156,18 @@ cat >$tmp/control <<End-of-File
 \$A=A
 #
 # $qatmp from the caller's environment
-# $A from the control file above
+# $A from the control line above
 LOCALHOSTNAME	n   n	\$qatmp/\$A -c $tmp.config
 LOCALHOSTNAME	n   n	\$(echo $qatmp/B) -c $tmp.config
 LOCALHOSTNAME	n   n	"$qatmp/\`echo c | tr '[a-z]' '[A-Z]'\`" -c $tmp.config
 End-of-File
 
+cat $tmp/control >>$here/$seq.full
+echo "qatmp=$qatmp" >>$here/$seq.full
+echo "PCP_TMP_DIR=$PCP_TMP_DIR" >>$here/$seq.full
+
 echo "pmlogger_check #1" | tee -a $here/$seq.full
-$sudo $PCP_BINADM_DIR/pmlogger_check -V -c $tmp/control -l $tmp/log
+$sudo sh -c "qatmp=$qatmp $PCP_BINADM_DIR/pmlogger_check -V -c $tmp/control -l $tmp/log"
 [ -s $tmp/log ] && $sudo cat $tmp/log | tee -a $here/$seq.full | _filter
 _check_loggers
 for x in A B C
@@ -162,7 +180,7 @@ sleep 2
 _stop_loggers >/dev/null 2>&1
 
 echo "pmlogger_check #2" | tee -a $here/$seq.full
-$sudo $PCP_BINADM_DIR/pmlogger_check -V -c $tmp/control -l $tmp/log
+$sudo sh -c "qatmp=$qatmp $PCP_BINADM_DIR/pmlogger_check -V -c $tmp/control -l $tmp/log"
 [ -s $tmp/log ] && $sudo cat $tmp/log | tee -a $here/$seq.full | _filter
 _check_loggers
 for x in A B C
@@ -176,7 +194,7 @@ $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mlogger' >>$here/$seq.full
 
 echo
 echo "pmlogger_daily"
-$sudo $PCP_BINADM_DIR/pmlogger_daily -V -x never -c $tmp/control -l $tmp/log
+$sudo sh -c "qatmp=$qatmp $PCP_BINADM_DIR/pmlogger_daily -V -x never -c $tmp/control -l $tmp/log"
 [ -s $tmp/log ] && $sudo cat $tmp/log | tee -a $here/$seq.full | _filter
 _check_loggers
 for x in A B C

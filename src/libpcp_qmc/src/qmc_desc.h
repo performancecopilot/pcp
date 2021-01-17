@@ -16,7 +16,7 @@
 #define QMC_DESC_H
 
 #include "qmc.h"
-#include <qstring.h>
+#include "qmc_config.h"
 
 class QmcDesc
 {

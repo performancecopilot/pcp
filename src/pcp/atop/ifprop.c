@@ -56,6 +56,18 @@ getifprop(struct ifprop *ifp)
 }
 
 /*
+** function compares two interface names for struct sorting
+ */
+static int
+cmpifprop(const void *a, const void *b)
+{
+    struct ifprop	*ifa = (struct ifprop *)a;
+    struct ifprop	*ifb = (struct ifprop *)b;
+
+    return strcmp(ifa->name, ifb->name);
+}
+
+/*
 ** function stores properties of all interfaces in a static
 ** table to be queried later on
 */
@@ -84,7 +96,7 @@ initifprop(void)
 	/* extract external interface names */
 	count = get_instances("ifprop", IF_SPEED, descs, &ids, &insts);
 
-	propsize = (count + 1) * sizeof(ifprops[0]);
+	propsize = (count + 1) * sizeof ifprops[0];
 	if ((new_ifprops = realloc(ifprops, propsize)) == NULL)
 	{
 		fprintf(stderr,
@@ -103,16 +115,16 @@ initifprop(void)
 		ip->name[MAXINTNM-1] = '\0';
 
 		/* extract duplex/speed from result for given inst id */
-		speed = extract_count_t_inst(result, descs, IF_SPEED, ids[i]);
+		speed = extract_count_t_inst(result, descs, IF_SPEED, ids[i], i);
 		ip->speed = speed < 0 ? 0 : BTOMBIT(speed); /* Mbits/second */
-		sts = extract_integer_inst(result, descs, IF_DUPLEX, ids[i]);
+		sts = extract_integer_inst(result, descs, IF_DUPLEX, ids[i], i);
 		ip->fullduplex = sts < 0 ? 0 : sts;
-		sts = extract_integer_inst(result, descs, IF_WIRELESS, ids[i]);
+		sts = extract_integer_inst(result, descs, IF_WIRELESS, ids[i], i);
 		if (sts == 1)
 			ip->type = 'w';
 		else
 		{
-			sts = extract_integer_inst(result, descs, IF_TYPE, ids[i]);
+			sts = extract_integer_inst(result, descs, IF_TYPE, ids[i], i);
 			if (sts == 0)
 				ip->type = 'w';
 			else if (sts == 1)
@@ -121,6 +133,7 @@ initifprop(void)
 				ip->type = '?';
 		}
 	}
+	qsort(ifprops, count, sizeof *ifprops, cmpifprop);
 	ifprops[i].name[0] = '\0';
 	pmFreeResult(result);
 	free(insts);

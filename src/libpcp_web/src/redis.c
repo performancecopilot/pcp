@@ -36,6 +36,7 @@
 #include "zmalloc.h"
 #include "pmapi.h"
 #include "redis.h"
+#include "util.h"
 #include "dict.h"
 #include "net.h"
 #include "sds.h"
@@ -1661,6 +1662,10 @@ __redisAsyncDisconnect(redisAsyncContext *ac)
         /* Disconnection is caused by an error, make sure that pending
          * callbacks cannot call new commands. */
         c->flags |= REDIS_DISCONNECTING;
+	if (pmDebugOptions.series) {
+	    fprintf(stderr, "%s: ERROR %d \"%s\"\n", "__redisAsyncDisconnect",
+	    	ac->err, ac->errstr);
+	}
     }
 
     /* cleanup event library on disconnect.
@@ -1757,15 +1762,58 @@ __redisGetSubscribeCallBack(redisAsyncContext *ac, redisReply *reply, redisCallB
 }
 
 void
+redisPrintReply(FILE *fp, redisReply *reply, int level)
+{
+    int		i;
+    char	hashbuf[42];
+
+    if (reply == NULL)
+    	return;
+    for(i=0; i < level; i++)
+    	fputc('|', fp);
+    fprintf(fp, "REPLY type=%s ", redis_reply_type(reply));
+    switch (reply->type) {
+    case REDIS_REPLY_STRING:
+    case REDIS_REPLY_ERROR:
+    	fprintf(fp, "len=%d ", (int)reply->len);
+	if (reply->len == 20) {
+	    pmwebapi_hash_str((unsigned char *)reply->str, hashbuf, sizeof(hashbuf));
+	    fprintf(fp, "SID %s\n", hashbuf);
+	}
+	else 
+	    fprintf(fp, "\"%s\"\n", reply->str);
+	break;
+    case REDIS_REPLY_ARRAY:
+    case REDIS_REPLY_MAP:
+    case REDIS_REPLY_SET:
+	fprintf(fp, "elements=%ld\n", reply->elements);
+    	for (i = 0; i < reply->elements; i++) {
+	    fprintf(fp, "[%d]", i);
+	    redisPrintReply(fp, reply->element[i], level+1);
+	}
+	break;
+    default:
+    	fprintf(fp, "\n");
+	break;
+    }
+}
+
+void
 redisProcessCallBacks(redisAsyncContext *ac)
 {
     redisContext	*c = &(ac->c);
     redisCallBack	cb;
-    void		*reply = NULL;
+    redisReply		*reply = NULL;
     int			status;
 
+    if (pmDebugOptions.series)
+	fprintf(stderr, "CALLBACK %s: flags=0x%04x replies=%p\n", "redisProcessCallBacks",
+		c->flags, ac->replies.head);
+
     memset(&cb, 0, sizeof(cb));
-    while ((status = redisGetReply(c, &reply)) == REDIS_OK) {
+    while ((status = redisGetReply(c, (void **)&reply)) == REDIS_OK) {
+	if (pmDebugOptions.series)
+	    redisPrintReply(stderr, reply, 1);
         if (reply == NULL) {
             /*
              * When the connection is being disconnected and there are
@@ -1809,9 +1857,9 @@ redisProcessCallBacks(redisAsyncContext *ac)
              * In this case we also want to close the connection, and have the
              * user wait until the server is ready to take our request.
              */
-            if (((redisReply *)reply)->type == REDIS_REPLY_ERROR) {
+            if (reply->type == REDIS_REPLY_ERROR) {
                 c->err = REDIS_ERR_OTHER;
-                pmsprintf(c->errstr, sizeof(c->errstr), "%s", ((redisReply *)reply)->str);
+                pmsprintf(c->errstr, sizeof(c->errstr), "%s", reply->str);
                 c->reader->fn->freeObject(reply);
                 __redisAsyncDisconnect(ac);
                 return;

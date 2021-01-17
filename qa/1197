@@ -75,7 +75,14 @@ cd $here
 
 pmdumplog -a tmparch/foo | sed -e '/PID for pmlogger:/d' >$tmp.ref
 echo "=== foo:tmp expect no diffs ==="
-pmdumplog -a $tmp.0 | sed -e '/PID for pmlogger:/d' | diff - $tmp.ref
+pmdumplog -a $tmp.0 | sed -e '/PID for pmlogger:/d' >$tmp.xtract
+if diff $tmp.ref $tmp.xtract
+then
+    :
+else
+    diff -u  $tmp.ref $tmp.xtract >>$here/$seq.full
+    ls -l tmparch/foo.* $tmp.* >>$here/$seq.full
+fi
 
 echo
 echo "=== only empty archive(s) cases ==="

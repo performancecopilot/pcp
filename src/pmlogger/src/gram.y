@@ -268,7 +268,7 @@ metricspec	: NAME
 			 * sts > 1                   : non-leaf with children
 			 * sts == 1 and not a leaf   : non-leaf with exactly one child
 			 */
-			if (sts <= 0 || sts > 1 || pmLookupName(1, &metricName, &id) != 1) {
+			if (sts <= 0 || sts > 1 || pmLookupName(1, (const char **)&metricName, &id) != 1) {
 			    /*
 			     * Add it to the list for future traversal when a fetch returns
 			     * with the PMCD_NAMES_CHANGE flag set.
@@ -450,7 +450,7 @@ activate_cached_metric(const char *name, int index)
 	goto nomem;
 
     if (index < 0) {
-	if ((sts = pmLookupName(1, (char **)&name, &pmid)) < 0 || pmid == PM_ID_NULL) {
+	if ((sts = pmLookupName(1, &name, &pmid)) < 0 || pmid == PM_ID_NULL) {
 	    pmsprintf(emess, sizeof(emess),
 		    "Metric \"%s\" is unknown ... not logged", name);
 	    goto snarf;
@@ -536,7 +536,7 @@ activate_cached_metric(const char *name, int index)
 	    else if (sts == 0)
 		rqp->r_instlist[j++] = inst;
 	    else	/* already have this instance */
-		skip = 1;
+		rqp->r_numinst--;
 	}
 	if (rqp->r_numinst == 0)
 	    skip = 1;
@@ -549,10 +549,17 @@ activate_cached_metric(const char *name, int index)
 
 	    skip = 1;
 	}
+	else if (sts == 1)
+	    skip = 1;
     }
 
     if (!skip) {
 	__pmOptFetchAdd(&tp->t_fetch, rqp);
+	linkback(tp);
+	if (pmDebugOptions.optfetch && pmDebugOptions.desperate) {
+	    fprintf(stderr, "Task " PRINTF_P_PFX "%p -> t_fetch ...\n", tp);
+	    __pmOptFetchDump(stderr, tp->t_fetch);
+	}
 	if ((sts = __pmHashAdd(pmid, (void *)rqp, &pm_hash)) < 0) {
 	    pmsprintf(emess, sizeof(emess), "__pmHashAdd failed "
 		    "for metric \"%s\" ... logging not activated", name);

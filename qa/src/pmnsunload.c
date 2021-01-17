@@ -18,7 +18,7 @@ void
 do_PMNS_op(char *msg)
 {
     int sts;
-    char *name = "pmcd.control.debug";
+    const char *name = "pmcd.control.debug";
     pmID pmid;
 
     printf("---%s---\n", msg);

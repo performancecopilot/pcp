@@ -29,6 +29,29 @@ do
 done
 export PATH
 
+# -n (show-me) is the only command line option ...
+#
+if [ $# -eq 1 -a X"$1" = X"-n" ]
+then
+    show_me=true
+    RM="echo + rm"
+    MV="echo + mv"
+    MKDIR="echo + mkdir"
+    CHMOD="echo + chmod"
+    CHOWN="echo + chown"
+    SYSTEMCTL="echo + systemctl"
+    RC_UPDATE="echo + rc-update"
+else
+    show_me=false
+    RM=rm
+    MV=mv
+    MKDIR=mkdir
+    CHMOD=chmod
+    CHOWN=chown
+    SYSTEMCTL=systemctl
+    RC_UPDATE=rc-update
+fi
+
 # no need to touch $PCP_VAR_DIR/pmns/.NeedRebuild as this file
 # is included in the tarball
 #
@@ -42,10 +65,10 @@ do
     then
 	if diff "$conf" "$conf.pre" >/dev/null 2>&1
 	then
-	    rm -f "$conf.pre"
+	    $RM -f "$conf.pre"
 	else
-	    mv "$conf" "$conf.dist"
-	    mv "$conf.pre" "$conf"
+	    $MV "$conf" "$conf.dist"
+	    $MV "$conf.pre" "$conf"
 	    echo "Warning: $conf: original restored, new version in $conf.dist"
 	fi
     fi
@@ -194,9 +217,14 @@ fi
 _do_dir()
 {
     dir="$3"
-    [ -d "$dir" ] || mkdir -p "$dir"
-    chown "$1" "$dir"
-    chmod "$2" "$dir"
+    if $show_me
+    then
+	$MKDIR -p "$dir"
+    else
+	[ -d "$dir" ] || $MKDIR -p "$dir"
+    fi
+    $CHOWN "$1" "$dir"
+    $CHMOD "$2" "$dir"
 }
 
 # permissions ...
@@ -213,25 +241,25 @@ in
 esac
 for daemon in pmlogger pmie
 do
-    chown root:"$grp" "$PCP_SYSCONF_DIR"/"$daemon"
-    chmod 755 "$PCP_SYSCONF_DIR"/"$daemon"
+    $CHOWN root:"$grp" "$PCP_SYSCONF_DIR"/"$daemon"
+    $CHMOD 755 "$PCP_SYSCONF_DIR"/"$daemon"
     if [ -f "$PCP_SYSCONF_DIR"/"$daemon"/config.default ]
     then
 	if [ -f "$PCP_VAR_DIR"/config/"$daemon"/config.default ]
 	then
-	    mv "$PCP_SYSCONF_DIR"/"$daemon"/config.default "$PCP_VAR_DIR"/config/"$daemon"/config.default.old
+	    $MV "$PCP_SYSCONF_DIR"/"$daemon"/config.default "$PCP_VAR_DIR"/config/"$daemon"/config.default.old
 	else
-	    mv "$PCP_SYSCONF_DIR"/"$daemon"/config.default "$PCP_VAR_DIR"/config/"$daemon"/config.default
+	    $MV "$PCP_SYSCONF_DIR"/"$daemon"/config.default "$PCP_VAR_DIR"/config/"$daemon"/config.default
 	fi
     fi
 done
-chown "root:$grp" "$PCP_SYSCONF_DIR"/pmcd/pmcd.conf
-chmod 644 "$PCP_SYSCONF_DIR"/pmcd/pmcd.conf
+$CHOWN "root:$grp" "$PCP_SYSCONF_DIR"/pmcd/pmcd.conf
+$CHMOD 644 "$PCP_SYSCONF_DIR"/pmcd/pmcd.conf
 
 # /etc/pcp.conf and /etc/pcp.env should be owned by root (for consistency,
 # no functional reason)
 #
-chown "root:$grp" /etc/pcp.conf /etc/pcp.env
+$CHOWN "root:$grp" /etc/pcp.conf /etc/pcp.env
 
 # if $PCP_SYSCONFIG_DIR is defined, all the PCP files below there should
 # to be owned by root
@@ -241,7 +269,7 @@ then
     for daemon in pmcd pmlogger pmproxy
     do
 	[ -f "$PCP_SYSCONFIG_DIR/$daemon" ] || continue
-	chown "root:$grp" "$PCP_SYSCONFIG_DIR/$daemon"
+	$CHOWN "root:$grp" "$PCP_SYSCONFIG_DIR/$daemon"
     done
 fi
 
@@ -253,7 +281,7 @@ then
     for service in pmcd pmlogger pmie pmproxy
     do
 	[ -f "$PCP_SYSTEMDUNIT_DIR/$service.service" ] || continue
-	chown "root:$grp" "$PCP_SYSTEMDUNIT_DIR/$service.service"
+	$CHOWN "root:$grp" "$PCP_SYSTEMDUNIT_DIR/$service.service"
     done
 fi
 
@@ -262,14 +290,14 @@ fi
 #
 if [ -n "$PCP_SASLCONF_DIR" ]
 then
-    [ -f "$PCP_SASLCONF_DIR/pmcd.conf" ] && chown "root:$grp" "$PCP_SASLCONF_DIR/pmcd.conf"
+    [ -f "$PCP_SASLCONF_DIR/pmcd.conf" ] && $CHOWN "root:$grp" "$PCP_SASLCONF_DIR/pmcd.conf"
 fi
 
 # all the /etc/cron.d PCP files MUST be owned my root
 #
 for file in /etc/cron.d/pcp-*
 do
-    [ -f "$file" ] && chown "root:$grp" "$file"
+    [ -f "$file" ] && $CHOWN "root:$grp" "$file"
 done
 
 # directories that may be empty and hence not in the tarball
@@ -278,11 +306,21 @@ done
 _do_dir "root:$grp" 700 "$PCP_TMP_DIR"/pmcd
 # from GNUmakefile
 _do_dir "root:$grp" 755 "$PCP_SYSCONF_DIR"/labels
+_do_dir "root:$grp" 755 "$PCP_SYSCONF_DIR"/labels/optional
 if [ -d "$PCP_PMDAS_DIR"/openmetrics ]
 then
     # from src/pmdas/openmetrics
     _do_dir "root:$grp" 755 "$PCP_PMDAS_DIR"/openmetrics/config.d
 fi
+# from src/pmfind/GNUmakefile
+_do_dir "pcp:pcp" 775 "$PCP_LOG_DIR"/pmfind
+_do_dir "root:$grp" 755 "$PCP_SYSCONF_DIR"/pmfind
+# from src/pmdas/pipe/GNUmakefile
+_do_dir "root:$grp" 755 "$PCP_SYSCONF_DIR"/pipe.conf.d
+# from src/pmdas/bash/GNUmakefile
+_do_dir "pcp:pcp" 775 "$PCP_TMP_DIR"/bash
+# from src/pmdas/json/GNUmakefile
+_do_dir "pcp:pcp" 775 "$PCP_TMP_DIR"/json
 
 # Expect only root owned things below $PCP_SYSCONF_DIR
 #
@@ -293,9 +331,9 @@ do
     then
 	# change the symlink, not what it points to
 	#
-	chown -h "root:$grp" "$f"
+	$CHOWN -h "root:$grp" "$f"
     else
-	chown "root:$grp" "$f"
+	$CHOWN "root:$grp" "$f"
     fi
 done
 
@@ -320,14 +358,14 @@ done
 for file in "$PCP_VAR_DIR"/config/pmie/config.default "$PCP_VAR_DIR"/config/pmlogger/config.default
 do
     [ -f "$file" ] || continue
-    chmod 644 "$file"
-    chown pcp:pcp "$file"
+    $CHMOD 644 "$file"
+    $CHOWN pcp:pcp "$file"
 done
 
 # pcpqa:pcpqa and mode 775 dir and all below there
 #
 _do_dir "pcpqa:pcpqa" 775 "$PCP_VAR_DIR"/testsuite
-chown -R pcpqa:pcpqa "$PCP_VAR_DIR"/testsuite
+$CHOWN -R pcpqa:pcpqa "$PCP_VAR_DIR"/testsuite
 
 # Note:
 #   Do not start daemons other than: pmcd, pmlogger, pmie,
@@ -344,40 +382,31 @@ then
 	svccfg import ../sun/pcp.xml
     fi
 else
-    for svc in pcp pmcd pmie pmlogger pmproxy pmmgr
+    for svc in pmcd pmie pmlogger pmproxy pmfind
     do
-	[ -f /etc/init.d/"$svc" ] || continue
-	if which rc-update >/dev/null 2>&1
+	if which systemctl >/dev/null 2>&1
 	then
-	    if rc-update show | grep " $svc " >/dev/null 2>&1
+	    $SYSTEMCTL daemon-reload
+	    case "$svc"
+	    in
+		pmcd|pmlogger|pmie|pmproxy)
+		    $SYSTEMCTL enable $svc.service
+		    $SYSTEMCTL start $svc.service
+		    ;;
+	    esac
+	elif which rc-update >/dev/null 2>&1
+	then
+	    if [ -f /etc/init.d/"$svc" ]
 	    then
-		# service is already installed ...
-		#
-		rc-update delete "$svc"
+		if $RC_UPDATE show | grep " $svc " >/dev/null 2>&1
+		then
+		    # service is already installed ...
+		    #
+		    $RC_UPDATE delete "$svc"
+		fi
+		$RC_UPDATE add "$svc"
 	    fi
-	    rc-update add "$svc"
 	fi
-
-	# disable or enable and start as required by default policy
-	case "$svc"
-	in
-	    pmcd|pmlogger|pmproxy|pmie)
-		if which rc-update >/dev/null 2>&1
-		then
-		    : TODO?
-		fi
-		"$PCP_RC_DIR"/"$svc" start
-		;;
-	    pmmgr)	# retired, do nothing
-	    	;;
-	    *)
-		if which rc-update >/dev/null 2>&1
-		then
-		    : TODO?
-		fi
-		;;
-	esac
-
     done
 fi
 
@@ -396,16 +425,20 @@ fi
 for file in "$PCP_VAR_DIR"/config/pmieconf/pcp/pmda_status \
 	    "$PCP_BINADM_DIR/pmmgr" "$PCP_RC_DIR/pmmgr" /etc/init.d/pmmgr
 do
-    [ -f "$file" ] && rm -f "$file"
+    [ -f "$file" ] && $RM -f "$file"
 done
 if [ -n "$PCP_SYSTEMDUNIT_DIR" ]
 then
-    [ -f "$PCP_SYSTEMDUNIT_DIR/pmmgr.service" ] && rm -f "$PCP_SYSTEMDUNIT_DIR/$service.service"
+    for file in pmmgr.service pmfind.path pmie_check.path pmlogger_check.path \
+	pmmgr.service pmwebd.service
+    do
+	[ -f "$PCP_SYSTEMDUNIT_DIR/$file" ] && $RM -f "$PCP_SYSTEMDUNIT_DIR/$file"
+    done
 fi
 for dir in "$PCP_VAR_DIR"/config/pmieconf/pcp \
 	   "$PCP_LOG_DIR"/pmmgr "$PCP_ETC_DIR/pcp/pmmgr"
 do
-    [ -d "$dir" ] && rm -rf "$dir"
+    [ -d "$dir" ] && $RM -rf "$dir"
 done
 
 exit 0

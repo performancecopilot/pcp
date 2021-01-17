@@ -1,0 +1,30 @@
+QA output created by 1280
+=== full archive ===
+Note: timezone set to local timezone of host "brolley-t530" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host brolley-t530
+    commencing Mon Apr 16 10:01:25.325401 2018
+    ending     Mon Apr 16 14:32:47.409469 2018
+Archive timezone: EDT+4
+PID for pmlogger: 7047
+
+=== volume 3 missing ===
+Note: timezone set to local timezone of host "brolley-t530" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host brolley-t530
+    commencing Mon Apr 16 10:01:25.325401 2018
+    ending     Mon Apr 16 14:26:25.396920 2018
+Archive timezone: EDT+4
+PID for pmlogger: 7047
+
+=== volume 2 truncated ===
+Note: timezone set to local timezone of host "brolley-t530" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host brolley-t530
+    commencing Mon Apr 16 10:01:25.325401 2018
+    ending     Mon Apr 16 14:26:25.380430 2018
+Archive timezone: EDT+4
+PID for pmlogger: 7047

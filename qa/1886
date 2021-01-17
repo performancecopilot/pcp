@@ -1,7 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 1886
 # Test function evaluation in pmseries queries
-# -- Note: this test is work in progress --
 #
 # Copyright (c) 2020 Red Hat.  All Rights Reserved.
 #
@@ -19,7 +18,7 @@ _check_series
 
 _cleanup()
 {
-    [ -n "$port" ] && redis-cli $port shutdown
+    [ -n "$redisport" ] && redis-cli -p $redisport shutdown
     _restore_config $PCP_SYSCONF_DIR/pmseries
     cd $here
     $sudo rm -rf $tmp $tmp.*
@@ -55,38 +54,13 @@ echo "Start test Redis server ..."
 redis-server --port $redisport > $tmp.redis 2>&1 &
 echo "PING"
 pmsleep 0.125
-port="-p $redisport"
-redis-cli $port ping
+redis-cli -p $redisport ping
 echo
 
-args="$port -Z UTC"
+args="-p $redisport -Z UTC"
 
 echo "== Load metric data into this redis instance"
 pmseries $args --load "{source.path: \"$here/archives/proc\"}" | _filter_source
-
-echo;echo "== Verify noop() function for a singular metric"
-pmseries $args 'kernel.all.pswitch[count:2]'
-echo Compared to:
-pmseries $args 'noop(kernel.all.pswitch[count:2])'
-echo
-
-# echo;echo "== Verify nested function noop(noop(...)) for a singular metric"
-pmseries $args 'kernel.all.pswitch[count:2]'
-echo Compared to:
-pmseries $args 'noop(noop(kernel.all.pswitch[count:2]))'
-echo
-
-echo;echo "== Verify noop() function for a non-singular metric, all instances"
-pmseries $args 'kernel.all.load[count:2]'
-echo Compared to:
-pmseries $args 'noop(kernel.all.load[count:2])'
-echo
-
-echo;echo "== Verify noop() function for a non-singular metric, only one instance"
-pmseries $args 'kernel.all.load{instance.name == "1 minute"}[count:2]'
-echo Compared to:
-pmseries $args 'noop(kernel.all.load{instance.name == "1 minute"}[count:2])'
-echo
 
 echo;echo "== Verify rate() function for a singular metric"
 pmseries $args 'kernel.all.pswitch[count:5]'
@@ -109,9 +83,9 @@ pmseries $args 'min(kernel.all.load{instance.name == "5 minute"}[count:5])'
 echo;echo "== Verify min/max() functions for a singular metric"
 pmseries $args 'kernel.all.uptime[count:10]'
 echo Compared to max:
-pmseries $args 'min(kernel.all.uptime[count:10])'
-echo Compared to min:
 pmseries $args 'max(kernel.all.uptime[count:10])'
+echo Compared to min:
+pmseries $args 'min(kernel.all.uptime[count:10])'
 
 echo;echo "== Verify rescale() functions for a singular metric"
 pmseries $args 'kernel.all.uptime[count:2]'
@@ -198,6 +172,30 @@ echo;echo "== Verify division functions for a non-singular metric, only one inst
 pmseries $args 'kernel.all.load{instance.name == "5 minute"}[count:5]'
 echo 'Compared to series / series:'
 pmseries $args 'kernel.all.load{instance.name == "5 minute"}[count:5] / kernel.all.load{instance.name == "5 minute"}[count:5]'
+
+echo;echo "== Verify sum/avg() functions for a non-sigular metric"
+echo Original with no function:
+pmseries $args 'kernel.all.load[count:5]'
+echo Compared to sum:
+pmseries $args 'sum(kernel.all.load[count:5])'
+echo Compared to avg:
+pmseries $args 'avg(kernel.all.load[count:5])'
+
+echo;echo "== Verify sum/avg() functions for a non-sigular metric, only one instance"
+echo Original with no function:
+pmseries $args 'kernel.all.load{instance.name == "5 minute"}[count:5]'
+echo Compared to sum:
+pmseries $args 'sum(kernel.all.load{instance.name == "5 minute"}[count:5])'
+echo Compared to avg:
+pmseries $args 'avg(kernel.all.load{instance.name == "5 minute"}[count:5])'
+
+echo;echo "== Verify sum/avg() functions for a singular metric"
+echo Original with no function:
+pmseries $args 'rate(kernel.all.pswitch[count:10])'
+echo Compared to sum:
+pmseries $args 'sum(rate(kernel.all.pswitch[count:10]))'
+echo Compared to avg:
+pmseries $args 'avg(rate(kernel.all.pswitch[count:10]))'
 
 # success, all done
 status=0

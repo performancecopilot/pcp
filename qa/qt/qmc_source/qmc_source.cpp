@@ -104,7 +104,7 @@ main(int argc, char* argv[])
     }
 
     fprintf(stderr,"\n*** Create a local context ***\n");
-    source = QString::null;
+    source = QString();
     QmcSource* src5 = QmcSource::getSource(PM_CONTEXT_LOCAL, source);
     
     if (src5->status() < 0) {

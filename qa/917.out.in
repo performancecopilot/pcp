@@ -26,7 +26,7 @@ Checking policies.
 ! allow [pcp_pmcd_t] [pcp_pmie_exec_t] : [file] { execute execute_no_trans open read map };
   allow [pcp_pmcd_t] [pcp_var_lib_t] : [fifo_file] { getattr read open unlink };
   allow [pcp_pmcd_t] [proc_kcore_t] : [file] { getattr };
-  allow [pcp_pmcd_t] [proc_security_t] : [file] { getattr open read };
+! allow [pcp_pmcd_t] [proc_security_t] : [file] { getattr open read };
   allow [pcp_pmcd_t] self : [capability] { kill sys_pacct chown sys_chroot ipc_lock sys_resource };
 ! allow [pcp_pmcd_t] [nsfs_t] : [file] { getattr open read };
 ! allow [pcp_pmcd_t] [unreserved_port_t] : [tcp_socket] { name_bind name_connect };
@@ -67,6 +67,8 @@ Checking policies.
   allow [pcp_pmlogger_t] [unconfined_service_t] : [process] { signal };
   allow [pcp_pmlogger_t] [user_tmp_t] : [file] { setattr unlink };
   allow [pcp_pmlogger_t] [setfiles_exec_t] : [file] { execute };
+  allow [pcp_pmlogger_t] [initrc_tmp_t] : [dir] { add_name read write };
+  allow [pcp_pmlogger_t] [initrc_tmp_t] : [file] { create };
 ! allow [pcp_pmie_t] [hostname_exec_t] : [file] { execute execute_no_trans getattr open read map };
   allow [pcp_pmie_t] self : [capability] { kill dac_override sys_ptrace net_admin chown fowner fsetid };
   allow [pcp_pmie_t] [proc_net_t] : [file] { read };
@@ -74,6 +76,8 @@ Checking policies.
   allow [pcp_pmie_t] self : [process] { setrlimit };
   allow [pcp_pmie_t] [unconfined_t] : [process] { signal };
   allow [pcp_pmie_t] [unconfined_service_t] : [process] { signal };
+  allow [pcp_pmie_t] [initrc_tmp_t] : [dir] { add_name read write };
+  allow [pcp_pmie_t] [initrc_tmp_t] : [file] { create };
   allow [pcp_pmcd_t] [configfs_t] : [dir] { open read search write };
   allow [pcp_pmcd_t] [configfs_t] : [file] { getattr ioctl open read };
   allow [pcp_pmcd_t] [configfs_t] : [lnk_file] { read getattr };

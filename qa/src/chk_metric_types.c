@@ -260,7 +260,7 @@ checkMetric(const char *metric)
 {
     int sts;
     int i;
-    char *nameList[] = { NULL };
+    const char *nameList[] = { NULL };
     pmID pmidList[] = { PM_IN_NULL };
     pmDesc desc;
     pmResult *result;

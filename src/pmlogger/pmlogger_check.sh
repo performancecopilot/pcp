@@ -51,7 +51,7 @@ _cleanup()
     $USE_SYSLOG && [ $status -ne 0 ] && \
     $PCP_SYSLOG_PROG -p daemon.error "$prog failed - see $PROGLOG"
     lockfile=`cat $tmp/lock 2>/dev/null`
-    rm -f "$lockfile"
+    [ -n "$lockfile" ] && rm -f "$lockfile"
     rm -rf $tmp
     $VERY_VERBOSE && echo "End: `date '+%F %T.%N'`"
 }
@@ -220,9 +220,16 @@ then
     echo "Start: `date '+%F %T.%N'`"
     if which pstree >/dev/null 2>&1
     then
-	echo "Called from:"
-	pstree -spa $$
-	echo "--- end of pstree output ---"
+	if pstree -spa $$ >$tmp/tmp 2>&1
+	then
+	    echo "Called from:"
+	    cat $tmp/tmp
+	    echo "--- end of pstree output ---"
+	else
+	    # pstree not functional for us ... -s not supported in older
+	    # versions
+	    :
+	fi
     fi
 fi
 
@@ -503,6 +510,8 @@ _check_logger()
     x=5
     [ ! -z "$PMCD_REQUEST_TIMEOUT" ] && x=$PMCD_REQUEST_TIMEOUT
 
+    [ -z "$PMLOGGER_REQUEST_TIMEOUT" ] && export PMLOGGER_REQUEST_TIMEOUT=2
+
     # wait for maximum time of a connection and 20 requests
     #
     delay=`expr \( $delay + 20 \* $x \) \* 10`	# tenths of a second
@@ -592,7 +601,8 @@ _parse_control()
     controlfile="$1"
     line=0
 
-    if echo "$controlfile" | grep -q -e '\.rpmsave' -e '\.rpmnew'
+    if echo "$controlfile" | grep -q -e '\.rpmsave$' -e '\.rpmnew$' -e '\.rpmorig$' \
+	-e '\.dpkg-dist$' -e '\.dpkg-old$' -e '\.dpkg-new$' >/dev/null 2>&1
     then
 	_warning "ignored backup control file \"$controlfile\""
 	return

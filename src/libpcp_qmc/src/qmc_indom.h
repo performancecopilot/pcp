@@ -16,15 +16,13 @@
 #define QMC_INDOM_H
 
 #include "qmc.h"
-
-#include <qlist.h>
-#include <qstring.h>
-#include <qtextstream.h>
+#include "qmc_config.h"
 
 class QmcInstance
 {
 public:
     QmcInstance();
+    QmcInstance(const QmcInstance &);
     QmcInstance(int id, const char* name);
     QmcInstance const& operator=(QmcInstance const&);
 

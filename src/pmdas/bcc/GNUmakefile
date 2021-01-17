@@ -22,8 +22,10 @@ LDIRT    = domain.h root pmns $(IAM).log
 
 DOMAIN   = BCC
 SUBDIRS  = modules
-PMDATMPDIR  = $(PCP_PMDAS_DIR)/$(IAM)
-PMDAADMDIR  = $(PCP_PMDASADM_DIR)/$(IAM)
+
+PMDAADMDIR = $(PCP_PMDASADM_DIR)/$(IAM)
+PMDACONFIG = $(PCP_SYSCONF_DIR)/$(IAM)
+PMDATMPDIR = $(PCP_PMDAS_DIR)/$(IAM)
 
 MAN_SECTION = 1
 MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
@@ -40,8 +42,9 @@ install_pcp install ::	default
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)
 	$(INSTALL) -m 755 -d $(PMDATMPDIR)
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove Upgrade $(PYSCRIPT) $(PMDAADMDIR)
-	$(INSTALL) -m 644 -t $(PMDATMPDIR)/pmdautil.python pmdautil.python $(PMDAADMDIR)/pmdautil.python
-	$(INSTALL) -m 644 -t $(PMDATMPDIR) README.md $(CONFIGS) $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) pmdautil.python README.md $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMDACONFIG)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) $(CONFIGS) $(PMDACONFIG)
 	@$(INSTALL_MAN)
 
 default_pcp default ::	$(SUBDIRS)

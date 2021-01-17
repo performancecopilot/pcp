@@ -551,8 +551,8 @@ Error: pmcd control file '"$PCP_PMCDCONF_PATH"' is missing, cannot start pmcd.'
 	    [ "$1" = "start-systemd" ] ||\
 	    $ECHO $PCP_ECHO_N "Starting pmcd ..." "$PCP_ECHO_C"
 
-	    # only consider variables which start with PMCD
-	    `sed -n 's/^PMCD/export PMCD/p' < $PMCDENVS 2>/dev/null`
+	    # only consider variables which start with PMCD or PCP
+	    `$PCP_AWK_PROG '/^PMCD/||/^PCP/ {print("export", $0)}' < $PMCDENVS 2>/dev/null`
 
 	    # only consider lines which start with a hyphen
 	    # get rid of the -f option

@@ -8,7 +8,7 @@
 static int listOne[2];
 #define LEN(l) (sizeof(l)/sizeof(l[0]))
 
-static char *namelist[] = {
+static const char *namelist[] = {
     "disk.dev.read"
 };
 

@@ -9,7 +9,7 @@ QA output created by 021
  */
 
 /* leading single line comment */
-char *foo[] = {
+const char *foo[] = {
 #define ONE	0
 	"a.b.c",
 #define TWO	1
@@ -39,7 +39,7 @@ char *foo[] = {
  * multi-lines
  * comments
  */
-char *foo[] = {
+const char *foo[] = {
 #define ONE	0
 	"a.b.c",
 #define TWO	1

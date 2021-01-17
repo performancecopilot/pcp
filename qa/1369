@@ -32,7 +32,8 @@ _cleanup()
 
 _filter_labels()
 {
-    sed \
+    tee -a $here/$seq.full \
+    | sed \
 	-e "s/-U ${username}/-U USERNAME/g" \
 	-e "s/.domainname.:.${domainname}./\"domainname\":\"DOMAINNAME\"/g" \
 	-e "s/.machineid.:.${machineid}./\"machineid\":\"MACHINEID\"/g" \
@@ -93,6 +94,8 @@ $sudo rm $PCP_ETC_DIR/pcp/labels/$seq.1.json
 $sudo $signal -a -s HUP pmcd
 wait $pid
 
+pmloglabel -l $tmp >>$here/$seq.full
+
 # echo debug final pmcd labels
 # echo && pminfo -f pmcd.labels
 
@@ -103,7 +106,10 @@ pmdumplog -e $tmp | _filter_labels
 echo
 echo "=== Report labels using PMAPI - initially ONE, later TWO"
 pminfo -a $tmp -l -O0 sample | _filter_labels
-pminfo -a $tmp -l -O-0.5 sample | _filter_labels
+# Note: -O-0.3 is a bit of a punt ... we're assuming the SIGHUP happened
+# at least 0.3sec before the end of the archive
+#
+pminfo -a $tmp -l -O-0.3 sample | _filter_labels
 
 # success, all done
 status=0

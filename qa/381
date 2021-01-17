@@ -68,9 +68,11 @@ _speak_to_me()
 connect primary $1
 status
 query sample.drift
+disconnect
 connect port $_port $1
 status
 flush
+disconnect
 connect $2 $1
 status
 flush

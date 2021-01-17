@@ -38,6 +38,8 @@ smtp_port=25
 $PCP_BINADM_DIR/telnet-probe -c localhost $smtp_port \
 	|| _notrun "Noone listening on smtp port $smtp_port"
 
+NEEDREWRITE=$PCP_LOG_DIR/pmlogger/.NeedRewrite
+
 _cleanup()
 {
     # put stuff we moved back in place
@@ -45,6 +47,7 @@ _cleanup()
     [ -f $tmp.mail ] && $sudo mv $tmp.mail $MAIL
     [ -f $tmp.forward ] && $sudo mv $tmp.forward $FORWARD
     rm -f $tmp.*
+    [ -f $NEEDREWRITE.$seq ] && $sudo mv $NEEDREWRITE.$seq $NEEDREWRITE
 }
 
 _filter()
@@ -57,6 +60,8 @@ _filter()
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 rm -f $seq.full
+
+[ -f $NEEDREWRITE ] && $sudo mv $NEEDREWRITE $NEEDREWRITE.$seq
 
 # create a fake NOTICES file containing time-boundary entries
 # 

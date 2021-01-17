@@ -1,0 +1,111 @@
+# common shell scripts functions for packaging list scripts
+#
+
+if [ -z "$home" ]
+then
+    echo >&2 "packages.rc: Botch: \$home not set"
+    exit
+fi
+
+if [ ! -x $home/whatami ]
+then
+    echo >&2 "packages.rc: Botch: cannot find executable ../whatami"
+    exit
+fi
+
+_setversions()
+{
+    [ -z "$tmp" ] && tmp=/var/tmp/$$
+    $home/whatami \
+    | awk '{ for (i = 3; i <= NF; i++) printf $i " "; print "" }' \
+    | sed \
+	-e 's/ \[.*//' \
+	-e 's/ ([^)]*)//' \
+	-e 's/RHEL Server/RHEL/' \
+	-e 's/Arch Linux/ArchLinux /' \
+	-e '/CentOS/{
+s/CentOS Linux/CentOS/
+s/CentOS\([0-9]\)/CentOS \1/
+}' \
+	-e '/Debian/{
+s;bullseye/sid;11;
+}' \
+	-e '/FreeBSD/s/-RELEASE//' \
+	-e '/SLES\([0-9][0-9]*\) SP/s//\1-SP/' \
+	-e '/openSUSE/s/ Leap//' \
+	-e '/OpenIndiana/s/Hipster //' \
+	-e 's/^/arch=/' \
+	-e 's/ /+distro=/' \
+	-e 's/ / version="/' \
+	-e 's/+distro/ distro/' \
+	-e 's/$/"/' \
+    | tr ' ' '\012' >$tmp.eval
+    [ "$very_verbose" = "true" ] && echo >&2 "Info: `tr '\012' ' ' <$tmp.eval`"
+    eval `cat $tmp.eval`
+    full_version="$version"
+    full_arch="$arch"
+    rm -f $tmp.eval
+}
+
+# The require, unavailable and skip files have the same format,
+# listing packages and package patterns that apply to a particular
+# distribution, version and architecture.
+#
+# This function parses one of these files (specified as $1) and the
+# selected packages (if any) are written on std output
+#
+_parse_file()
+{
+    [ -z "$tmp" ] && tmp=/var/tmp/$$
+    rm -f $tmp.matches
+    sed <$1 \
+	-e 's/#.*//' \
+	-e '/^[ 	]*$/d' \
+    | while read distro_pat version_pat arch_pat packages
+    do
+	if echo "$distro" | grep "^$distro_pat" >/dev/null
+	then
+	    # Distro matches, check versions
+	    #
+	    _match=true
+	    if [ "X$version_pat" = "X-" -o -z "$full_version" ]
+	    then
+		:
+	    else
+		if echo "$full_version" | grep "^$version_pat" >/dev/null
+		then
+		    :
+		else
+		    _match=false
+		fi
+	    fi
+	    if $_match
+	    then
+		# Distro and version matches, check architecture
+		if [ "X$arch_pat" = "X-" -o -z "$full_arch" ]
+		then
+		    :
+		else
+		    if echo "$full_arch" | grep "^$arch_pat" >/dev/null
+		    then
+			:
+		    else
+			_match=false
+		    fi
+		fi
+	    fi
+	    if $_match
+	    then
+		echo "$packages" >>$tmp.matches
+	    fi
+	fi
+    done
+    if [ -s $tmp.matches ]
+    then
+	tr '\012' ' ' <$tmp.matches
+    else
+	$very_verbose && echo >&2 "_parse_file: $1: no matches"
+    fi
+    rm -f $tmp.matches
+}
+

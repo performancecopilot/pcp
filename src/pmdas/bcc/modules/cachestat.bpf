@@ -16,6 +16,8 @@ int do_count(struct pt_regs *ctx) {
 
     key.ip = PT_REGS_IP(ctx);
     val = counts.lookup_or_init(&key, &zero);  // update counter
-    (*val)++;
+    if (val) {
+        (*val)++;
+    }
     return 0;
 }

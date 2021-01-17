@@ -93,7 +93,10 @@ do
     pmsleep 0.0005
 done
 
-_pmdaopenmetrics_remove
+_pmdaopenmetrics_remove \
+| sed \
+    -e '/ Info: /d' \
+# end
 
 # success, all done
 status=0

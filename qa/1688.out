@@ -1,0 +1,12 @@
+QA output created by 1688
+== runing as root
+  verbose:  off
+  enabled rules: N
+  pmie configuration file:  PCP_VAR_DIR/config/pmie/config.default
+  pmie process (PID) using this file: PID
+
+=== running as user
+  verbose:  off
+  enabled rules: N
+  pmie configuration file:  HOME/.pcp/pmie/config.pmie
+  pmie process (PID) using this file: PID

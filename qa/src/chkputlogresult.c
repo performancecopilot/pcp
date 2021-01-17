@@ -18,7 +18,7 @@ main(int argc, char **argv)
     int		sts;
     int		bflag = 0;
     int		errflag = 0;
-    char	*metrics[] = {
+    const char	*metrics[] = {
 	"sampledso.long.one",
 	"sampledso.ulonglong.one",
 	"sampledso.float.one",
@@ -133,7 +133,7 @@ Options:\n\
 	    fprintf(stderr, "%s: pmLookupDesc(\"%s\") failed: %s\n", pmGetProgname(), pmIDStr(pmids[i]), pmErrStr(sts));
 	    exit(1);
 	}
-	if ((sts = __pmLogPutDesc(&archctl, &desc, 1, &metrics[i])) < 0) {
+	if ((sts = __pmLogPutDesc(&archctl, &desc, 1, (char **)&metrics[i])) < 0) {
 	    fprintf(stderr, "%s: __pmLogPutDesc(\"%s\") failed: %s\n", pmGetProgname(), pmIDStr(pmids[i]), pmErrStr(sts));
 	    exit(1);
 	}

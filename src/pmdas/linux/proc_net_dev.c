@@ -247,6 +247,121 @@ refresh_net_hw_addr(char *name, net_addr_t *netip)
     }
 }
 
+static void
+refresh_net_all(proc_net_all_t *all, net_interface_t *net, const char *name)
+{
+    int		physical;
+
+    physical = (regexec(&all->regex, name, 0, NULL, 0) == REG_NOMATCH);
+    if (physical) {
+	all->in.bytes += net->counters[0];
+	all->in.packets += net->counters[1];
+	all->in.errors += net->counters[2];
+	all->in.drops += net->counters[3];
+	all->out.bytes += net->counters[8];
+	all->out.packets += net->counters[9];
+	all->out.errors += net->counters[10];
+	all->out.drops += net->counters[11];
+	all->total.bytes = all->in.bytes + all->out.bytes;
+	all->total.packets = all->in.packets + all->out.packets;
+	all->total.errors = all->in.errors + all->out.errors;
+	all->total.drops = all->in.drops + all->out.drops;
+    }
+    if (pmDebugOptions.libpmda)
+	fprintf(stderr, "%s: %s interface %s\n",
+		"refresh_net_all", physical? "keep" : "cull", name);
+}
+
+static char *
+appendc(char *string, size_t length, int c)
+{
+    char	*result;
+
+    if ((result = realloc(string, length + 1)) != NULL) {
+	result[length] = (char) c;
+	return result;
+    }
+    free(string);
+    return NULL;
+}
+
+static void
+setup_proc_net_all(proc_net_all_t *all)
+{
+    const char	*default_pattern = "^(lo|bond[0-9]+|team[0-9]+|face)$";
+    char	filename[MAXPATHLEN], buffer[128];
+    char	*pattern = NULL, *p;
+    size_t	length = 0;
+    FILE	*file;
+    int		skip = 0, sts;
+
+    pmsprintf(filename, sizeof(filename), "%s/linux/interfaces.conf",
+			pmGetConfig("PCP_SYSCONF_DIR"));
+    if ((file = fopen(filename, "r")) == NULL)
+	goto defaults;
+
+    while (fgets(buffer, sizeof(buffer), file)) {
+	for (p = buffer; *p; p++) {
+	    if (*p == '#')		/* skip over comments */
+		skip = 1;
+	    else if (*p == '\n')	/* finish the comment */
+		skip = 0;
+	    else if (!skip && !isspace(*p) &&	/* cull space */
+		((pattern = appendc(pattern, length, *p)) != NULL))
+		length++;
+	}
+    }
+    fclose(file);
+    if (pattern != NULL)
+	pattern = appendc(pattern, length, '\0');
+    if (pattern == NULL)
+	goto defaults;
+
+    if ((sts = regcomp(&all->regex, pattern, REG_EXTENDED|REG_NOSUB)) != 0) {
+	regerror(sts, &all->regex, buffer, sizeof(buffer));
+	pmNotifyErr(LOG_ERR, "%s: ignoring \"%s\" pattern from %s: %s\n",
+		    pmGetProgname(), pattern, filename, buffer);
+defaults:
+	regcomp(&all->regex, default_pattern, REG_EXTENDED|REG_NOSUB);
+	if (pmDebugOptions.libpmda)
+	    fprintf(stderr, "%s: %s interface regular expression:\n%s\n",
+		    "setup_proc_net_all", "default", default_pattern);
+    } else {
+	if (pmDebugOptions.libpmda)
+	    fprintf(stderr, "%s: %s interface regular expression:\n%s\n",
+		    "setup_proc_net_all", filename, pattern);
+    }
+    if (pattern)
+	free(pattern);
+}
+
+int
+refresh_proc_net_all(pmInDom indom, proc_net_all_t *all)
+{
+    net_interface_t	*netip;
+    static int		setup;
+    int			sts = 0;
+    char		*name;
+
+    if (!setup) {
+	setup_proc_net_all(all);
+	setup = 1;
+    }
+
+    memset(&all->in, 0, sizeof(net_all_t));
+    memset(&all->out, 0, sizeof(net_all_t));
+    memset(&all->total, 0, sizeof(net_all_t));
+
+    for (pmdaCacheOp(indom, PMDA_CACHE_WALK_REWIND);;) {
+        if ((sts = pmdaCacheOp(indom, PMDA_CACHE_WALK_NEXT)) < 0)
+            break;
+        if (!pmdaCacheLookup(indom, sts, &name, (void **)&netip) || !netip)
+            continue;
+	refresh_net_all(all, netip, name);
+    }
+    return sts;
+}
+
 int
 refresh_proc_net_dev(pmInDom indom, linux_container_t *container)
 {

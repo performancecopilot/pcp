@@ -122,7 +122,7 @@ class ProcessManager():
             self.logger.info(f"script: stopped {script}")
 
     async def start_bpftrace(self, script: Script, script_tasks: ScriptTasks):
-        """starts a bpftrace process. *does not wait until its finished*"""
+        """starts a bpftrace process. *does not wait until it is finished*"""
         self.logger.info(f"script: starting {script}...")
         script.state.reset()
         script.state.status = Status.Starting
@@ -133,14 +133,35 @@ class ProcessManager():
                                     for var_name, var_def in script.variables.items()
                                     if var_def.metrictype != MetricType.Output])
             code = script.code + f"\ninterval:s:1 {{ {print_stmts} }}"
-        script_tasks.process = await asyncio.subprocess.create_subprocess_exec(
-            self.config.bpftrace_path, '-f', 'json', '-e', code,
-            limit=self.config.max_throughput, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
-        )
-        script.state.status = Status.Started
-        script.state.pid = script_tasks.process.pid
-        script_tasks.run_bpftrace_task = asyncio.ensure_future(self.run_bpftrace(script, script_tasks))
-        self.logger.info(f"script: started {script}")
+
+        try:
+            # support for reading scripts on stdin arrived in bpftrace v0.11.0
+            if self.runtime_info.bpftrace_version >= (0, 11, 0):
+                # read scripts from stdin to not clobber ps(1) output
+                script_tasks.process = await asyncio.subprocess.create_subprocess_exec(
+                    self.config.bpftrace_path, '-f', 'json', '-',
+                    limit=self.config.max_throughput, stdin=asyncio.subprocess.PIPE,
+                    stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
+                )
+                script_tasks.process.stdin.write(code.encode('utf-8'))
+                await script_tasks.process.stdin.drain()
+                script_tasks.process.stdin.close()
+            else:
+                script_tasks.process = await asyncio.subprocess.create_subprocess_exec(
+                    self.config.bpftrace_path, '-f', 'json', '-e', code,
+                    limit=self.config.max_throughput, stdout=asyncio.subprocess.PIPE,
+                    stderr=asyncio.subprocess.PIPE
+                )
+        except OSError as e:
+            script.state.error = str(e)
+            script.state.exit_code = script_tasks.process.returncode if script_tasks.process else 1
+            script.state.status = Status.Error
+            self.logger.info(f"script: failed to start {script} due to error: {script.state.error.rstrip()}")
+        else:
+            script.state.status = Status.Started
+            script.state.pid = script_tasks.process.pid
+            script_tasks.run_bpftrace_task = asyncio.ensure_future(self.run_bpftrace(script, script_tasks))
+            self.logger.info(f"script: started {script}")
 
     def register(self, script: Script):
         try:
@@ -280,7 +301,7 @@ class ProcessManager():
             await self.deregister(script.script_id)
 
     def run(self):
-        self.logger.info(f"manager: started pmdabpftrace process manager")
+        self.logger.info("manager: started pmdabpftrace process manager")
         if self.runtime_info.bpftrace_version == (999, 999, 999):
             self.logger.info(f"manager: WARNING: unrecognized bpftrace version "
                              f"{self.runtime_info.bpftrace_version_str}, assuming latest version")

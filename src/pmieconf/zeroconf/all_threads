@@ -33,5 +33,5 @@ shell	all_threads_action
 "The pmdaproc(1) Performance Metrics Domain Agent will receive a
 metric store to via pmstore(1) to export threads values as well.";
 
-# 
+#
 # --- DO NOT MODIFY THIS FILE --- see pmieconf(5)

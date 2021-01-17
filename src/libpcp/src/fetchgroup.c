@@ -180,7 +180,7 @@ pmfg_lookup_item(const char *metric, const char *instance, pmFGI item)
     assert(item != NULL);
     assert(item->type == pmfg_item);
 
-    sts = pmLookupName(1, (char **)&metric, &item->u.item.metric_pmid);
+    sts = pmLookupName(1, &metric, &item->u.item.metric_pmid);
     if (sts != 1)
 	return sts;
     sts = pmLookupDesc(item->u.item.metric_pmid, &item->u.item.metric_desc);
@@ -219,7 +219,7 @@ pmfg_lookup_indom(const char *metric, pmFGI item)
     assert(item != NULL);
     assert(item->type == pmfg_indom);
 
-    sts = pmLookupName(1, (char **)&metric, &item->u.indom.metric_pmid);
+    sts = pmLookupName(1, &metric, &item->u.indom.metric_pmid);
     if (sts != 1)
 	return sts;
     sts = pmLookupDesc(item->u.indom.metric_pmid, &item->u.indom.metric_desc);
@@ -252,7 +252,7 @@ pmfg_lookup_event(const char *metric, const char *instance, const char *field, p
     assert(item != NULL);
     assert(item->type == pmfg_event);
 
-    sts = pmLookupName(1, (char **)&metric, &item->u.event.metric_pmid);
+    sts = pmLookupName(1, &metric, &item->u.event.metric_pmid);
     if (sts != 1)
 	return sts;
     sts = pmLookupDesc(item->u.event.metric_pmid, &item->u.event.metric_desc);
@@ -275,7 +275,7 @@ pmfg_lookup_event(const char *metric, const char *instance, const char *field, p
     }
 
     /* Look up event field. */
-    sts = pmLookupName(1, (char **)&field, &item->u.event.field_pmid);
+    sts = pmLookupName(1, &field, &item->u.event.field_pmid);
     if (sts != 1)
 	return sts;
     sts = pmLookupDesc(item->u.event.field_pmid, &item->u.event.field_desc);

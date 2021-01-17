@@ -20,6 +20,9 @@ IAM	= openmetrics
 PYSCRIPT = pmda$(IAM).python
 LDIRT	= domain.h root pmns $(IAM).log
 DOMAIN	= $(IAM)
+# common endpoint URLs (on: enabled, off: available)
+ONURLS	= grafana.url
+OFFURLS	= collectd.url etcd.url spark.url
 
 MAN_SECTION = 1
 MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
@@ -41,10 +44,14 @@ build-me:	check_domain
 install_pcp install :: default
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)
 	$(INSTALL) -m 755 -d $(PMDATMPDIR)
+	$(INSTALL) -m 755 -d $(PMDATMPDIR)/config.d
 	$(INSTALL) -m 755 -d $(PMDACONFIG)
-	$(INSTALL) -m 755 -d $(PMDACONFIG)/config.d
-	$(INSTALL) -m 644 collectd.url etcd.url $(PMDACONFIG)/config.d
-	$(INSTALL) -m 644 -t $(PMDATMPDIR)/config.d/grafana.url grafana.url $(PMDACONFIG)/config.d/grafana.url
+	@for url in $(ONURLS); do \
+	    $(INSTALL) -m 644 -t $(PMDATMPDIR)/config.d/$$url $$url $(PMDACONFIG)/$$url; \
+	done
+	@for url in $(OFFURLS); do \
+	    $(INSTALL) -m 644 $$url $(PMDACONFIG)/$$url; \
+	done
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove Upgrade $(PYSCRIPT) $(PMDAADMDIR)
 	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
 	$(INSTALL) -m 755 -d $(LOGCONFDIR)

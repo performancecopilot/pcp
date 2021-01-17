@@ -21,10 +21,10 @@ authentication failure
 pmcd.feature.authentication
     value 1
 
-=== method: digest-md5, authentication with invalid password ===
+=== method: scram-sha-256, authentication with invalid password ===
 authentication failure
 
-=== method: digest-md5, authentication with correct password ===
+=== method: scram-sha-256, authentication with correct password ===
 
 pmcd.feature.authentication
     value 1

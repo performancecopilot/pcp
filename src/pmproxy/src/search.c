@@ -56,8 +56,8 @@ static sds PARAM_FIELD, PARAM_LIMIT, PARAM_OFFSET, PARAM_TEXT;
 static sds PARAM_TYPE;
 
 /* constant global strings (read-only) */
-static const char pmsearch_success[] = "{\"success\":true}\r\n";
-static const char pmsearch_failure[] = "{\"success\":false}\r\n";
+static const char pmsearch_success[] = "\"success\":true";
+static const char pmsearch_failure[] = "\"success\":false";
 
 static pmSearchRestCommand *
 pmsearch_lookup_rest_command(sds url)
@@ -171,10 +171,9 @@ on_pmsearch_text_result(pmSearchTextResult *search, void *arg)
 	}
 	if (search->helptext != NULL) {
 	    helptext = search->helptext;
-	    helptext=  sdscatrepr(sdsempty(), helptext, sdslen(helptext));
+	    helptext = sdscatrepr(sdsempty(), helptext, sdslen(helptext));
 	    result = sdscatfmt(result, "%s\"helptext\":%S", prefix, helptext);
 	    sdsfree(helptext);
-	    prefix = ",";
 	}
 	result = sdscat(result, "}");
 	break;
@@ -216,23 +215,41 @@ on_pmsearch_done(int status, void *arg)
 	code = HTTP_STATUS_OK;
 	/* complete current response with JSON suffix if needed */
 	if ((msg = baton->suffix) == NULL) {	/* empty OK response */
-	    if (baton->clientid)
-		msg = sdscatfmt(sdsempty(),
-				"{\"client\":%S,\"success\":%s}\r\n",
-				baton->clientid, "true");
-	    else
-		msg = sdsnewlen(pmsearch_success, sizeof(pmsearch_success) - 1);
+	    switch (baton->restkey) {
+	    case RESTKEY_TEXT:
+	    case RESTKEY_INDOM:
+		msg = sdsnewlen("{", 1);
+		if (baton->clientid)
+		    msg = sdscatfmt(msg, "\"client\":%S,", baton->clientid);
+		/* keep in sync with on_pmsearch_text_result */
+		msg = sdscat(msg, "\"total\":0,\"elapsed\":0");
+		msg = sdscatfmt(msg, ",\"offset\":%u,\"limit\":%u", baton->request.offset, baton->request.count);
+		msg = sdscat(msg, ",\"results\":[]}\r\n");
+		break;
+	    case RESTKEY_SUGGEST:
+		if (baton->clientid)
+		    msg = sdscatfmt(sdsempty(),
+				"{\"client\":%S,\"result\":[]}\r\n",
+				baton->clientid);
+		else
+		    msg = sdsnewlen("[]\r\n", 4);
+		break;
+	    default:			/* use success:true default */
+		msg = sdsnewlen("{", 1);
+		if (baton->clientid)
+		    msg = sdscatfmt(msg, "\"client\":%S,", baton->clientid);
+		msg = sdscatfmt(msg, "%s}\r\n", pmsearch_success);
+		break;
+	    }
 	}
 	baton->suffix = NULL;
     } else {
 	if (((code = client->u.http.parser.status_code)) == 0)
 	    code = HTTP_STATUS_BAD_REQUEST;
+	msg = sdsnewlen("{", 1);
 	if (baton->clientid)
-	    msg = sdscatfmt(sdsempty(),
-				"{\"client\":%S,\"success\":%s}\r\n",
-				baton->clientid, "false");
-	else
-	    msg = sdsnewlen(pmsearch_failure, sizeof(pmsearch_failure) - 1);
+	    msg = sdscatfmt(msg, "\"client\":%S,", baton->clientid);
+	msg = sdscatfmt(msg, "%s}\r\n", pmsearch_failure);
 	flags |= HTTP_FLAG_JSON;
     }
     http_reply(client, msg, code, flags, options);

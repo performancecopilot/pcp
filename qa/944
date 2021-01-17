@@ -47,7 +47,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _start_local_pmcd()
 {
-    pmcd -Dauth -f -x $seq.full -l $tmp.log &
+    pmcd -Dauth -f -x $seq.full -l $tmp.log 2>>$here/$seq.full &
     pid=$!
     sleep 2
     pmcd_wait -h unix:$PMCD_SOCKET -v -t 5sec

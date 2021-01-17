@@ -18,7 +18,7 @@
 # pylint: disable=too-many-boolean-expressions, too-many-statements
 # pylint: disable=too-many-instance-attributes, too-many-locals
 # pylint: disable=too-many-branches, too-many-nested-blocks
-# pylint: disable=broad-except
+# pylint: disable=broad-except, consider-using-enumerate
 
 """ PCP to Spark Bridge """
 
@@ -66,7 +66,7 @@ class PCP2Spark(object):
                      'type_prefer', 'precision_force', 'limit_filter', 'limit_filter_force',
                      'live_filter', 'rank', 'invert_filter', 'predicate', 'names_change',
                      'speclocal', 'instances', 'ignore_incompat', 'ignore_unknown',
-                     'omit_flat')
+                     'omit_flat', 'include_labels')
 
         # The order of preference for options (as present):
         # 1 - command line options
@@ -97,6 +97,7 @@ class PCP2Spark(object):
         self.invert_filter = 0
         self.predicate = None
         self.omit_flat = 0
+        self.include_labels = 0
         self.precision = 3 # .3f
         self.precision_force = None
         self.timefmt = "%H:%M:%S" # For compat only
@@ -136,7 +137,7 @@ class PCP2Spark(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:rRIi:jJ:4:58:9:nN:vP:0:q:b:y:Q:B:Y:g:p:")
+        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:rRIi:jJ:4:58:9:nN:vmP:0:q:b:y:Q:B:Y:g:p:")
         opts.pmSetShortUsage("[option...] metricspec [...]")
 
         opts.pmSetLongOptionHeader("General options")
@@ -176,6 +177,7 @@ class PCP2Spark(object):
         opts.pmSetLongOption("invert-filter", 0, "n", "", "perform ranking before live filtering")
         opts.pmSetLongOption("predicate", 1, "N", "METRIC", "set predicate filter reference metric")
         opts.pmSetLongOption("omit-flat", 0, "v", "", "omit single-valued metrics")
+        opts.pmSetLongOption("include-labels", 0, "m", "", "incldue metric label info")
         opts.pmSetLongOption("precision", 1, "P", "N", "prefer N digits after decimal separator (default: 3)")
         opts.pmSetLongOption("precision-force", 1, "0", "N", "force N digits after decimal separator")
         opts.pmSetLongOption("count-scale", 1, "q", "SCALE", "default count unit")
@@ -252,6 +254,8 @@ class PCP2Spark(object):
             self.predicate = optarg
         elif opt == 'v':
             self.omit_flat = 1
+        elif opt == 'm':
+            self.include_labels = 1
         elif opt == 'P':
             self.precision = optarg
         elif opt == '0':
@@ -399,6 +403,7 @@ class PCP2Spark(object):
 
         insts_key = "@instances"
         inst_key = "@id"
+        labels_key = "@labels"
 
         results = self.pmconfig.get_ranked_results(valid_only=True)
 
@@ -407,10 +412,17 @@ class PCP2Spark(object):
             # foo.bar.baz=value    =>  foo: { bar: { baz: value ...} }
             # foo.bar.noo[0]=value =>  foo: { bar: { @instances:[{@id: 0, noo: value ...} ... ]}
 
+            # If include_labels is selected:
+            # foo.bar.baz=value labels    =>  foo: { bar: { baz: value ... labels ...} }
+            # foo.bar.noo[0]=value labels=labels =>  foo: { bar: { @instances:[{@id: 0, noo: value ...., @labels: labels ...]}
+
             pmns_parts = metric.split(".")
 
             # Find/create the parent dictionary into which to insert the final component
             for inst, name, value in results[metric]:
+                labels = None
+                if self.include_labels:
+                    labels = self.pmconfig.get_labels_str(metric, inst)
                 value = round(value, self.metrics[metric][6]) if isinstance(value, float) else value
                 pmns_leaf_dict = data
 
@@ -421,6 +433,8 @@ class PCP2Spark(object):
                 last_part = pmns_parts[-1]
 
                 if inst == PM_IN_NULL:
+                    if self.include_labels:
+                        value = value, labels
                     pmns_leaf_dict[last_part] = value
                 else:
                     if insts_key not in pmns_leaf_dict:
@@ -428,12 +442,17 @@ class PCP2Spark(object):
                     insts = pmns_leaf_dict[insts_key]
                     # Find a preexisting {@id: name} object in there, if any
                     found = False
-                    for j in range(1, len(insts)):
+                    for j in range(0, len(insts)):
                         if insts[j][inst_key] == name:
                             insts[j][last_part] = value
+                            if self.include_labels:
+                                insts[j][labels_key] = labels
                             found = True
                     if not found:
-                        insts.append({inst_key: name, last_part: value})
+                        if self.include_labels:
+                            insts.append({inst_key: name, last_part: value, labels_key: labels})
+                        else:
+                            insts.append({inst_key: name, last_part: value})
 
         # Python 3 requires us to encode our data before we can send
         # Also send a trailing newline between records

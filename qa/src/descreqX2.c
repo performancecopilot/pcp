@@ -22,7 +22,7 @@ main(int argc, char **argv)
     __pmContext	*ctxp;
     __pmPDU	*pb;
     pmID	pmid;
-    char	*name = "sample.seconds";
+    const char	*name = "sample.seconds";
 
     pmSetProgname(argv[0]);
 

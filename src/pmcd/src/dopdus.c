@@ -379,46 +379,17 @@ GetContextLabels(ClientInfo *cp, pmLabelSet **sets)
     const char		*userid;
     const char		*groupid;
     const char		*container;
-    static const char	func[] = "GetContextLabels";
     static char		host[MAXHOSTNAMELEN];
     static char		domain[MAXDOMAINNAMELEN];
     static char		machineid[MAXMACHINEIDLEN];
+    static const char	*host_label, *domain_label, *machineid_label;
     char		buf[PM_MAXLABELJSONLEN];
-    char		*hostname;
     int			sts, flags;
 
     if ((sts = GetChangedContextLabels(sets, &labelChanged)) >= 0) {
-	if ((hostname = pmcd_hostname) == NULL) {
-	    if ((sts = gethostname(host, MAXHOSTNAMELEN)) < 0) {
-		if (pmDebugOptions.labels)
-		    fprintf(stderr, "%s: gethostname() -> %d (%s)\n",
-			    func, sts, pmErrStr(sts));
-		host[0] = '\0';
-	    }
-	    if (host[0] == '\0')
-		pmsprintf(host, sizeof(host), "localhost");
-	    hostname = pmcd_hostname = host;
-	}
-	if (domain[0] == '\0') {
-	    if ((sts = getdomainname(domain, MAXDOMAINNAMELEN)) < 0) {
-		if (pmDebugOptions.labels)
-		    fprintf(stderr, "%s: getdomainname() -> %d (%s)\n",
-			    func, sts, pmErrStr(sts));
-		domain[0] = '\0';
-	    }
-	    if (domain[0] == '\0' || strcmp(domain, "(none)") == 0)
-		pmsprintf(domain, sizeof(domain), "localdomain");
-	}
-	if (machineid[0] == '\0') {
-	    if ((sts = getmachineid(machineid, MAXMACHINEIDLEN)) < 0) {
-		if (pmDebugOptions.labels)
-		    fprintf(stderr, "%s: getmachineid() -> %d (%s)\n",
-			    func, sts, pmErrStr(sts));
-		machineid[0] = '\0';
-	    }
-	    if (machineid[0] == '\0')
-		pmsprintf(machineid, sizeof(machineid), "localmachine");
-	}
+	host_label = __pmGetLabelConfigHostName(host, sizeof(host));
+	domain_label = __pmGetLabelConfigDomainName(domain, sizeof(domain));
+	machineid_label = __pmGetLabelConfigMachineID(machineid, sizeof(machineid));
 	userid = ((node = __pmHashSearch(PCP_ATTR_USERID, &cp->attrs)) ?
 			(const char *)node->data : NULL);
 	groupid = ((node = __pmHashSearch(PCP_ATTR_GROUPID, &cp->attrs)) ?
@@ -426,17 +397,15 @@ GetContextLabels(ClientInfo *cp, pmLabelSet **sets)
 	container = ((node = __pmHashSearch(PCP_ATTR_CONTAINER, &cp->attrs)) ?
 			(const char *)node->data : NULL);
 
-	sts = pmsprintf(buf, sizeof(buf), "{\"hostname\":\"%s\"", hostname);
+	sts = pmsprintf(buf, sizeof(buf), "{\"%s\":\"%s\"",
+			host_label, host);
 	if (container)
 	    sts += pmsprintf(buf+sts, sizeof(buf)-sts, ",\"container\":\"%s\"",
 			    container);
-	if (domain[0] != '\0')
-	    sts += pmsprintf(buf+sts, sizeof(buf)-sts, ",\"domainname\":\"%s\"",
-			    domain);
-	if (machineid[0] != '\0')
-	    sts += pmsprintf(buf+sts, sizeof(buf)-sts, ",\"machineid\":\"%s\"",
-			    machineid);
-	pmsprintf(buf+sts, sizeof(buf)-sts, "}");
+	sts += pmsprintf(buf+sts, sizeof(buf)-sts, ",\"%s\":\"%s\"",
+			 domain_label, domain);
+	sts += pmsprintf(buf+sts, sizeof(buf)-sts, ",\"%s\":\"%s\"}",
+			 machineid_label, machineid);
 
 	flags = PM_LABEL_CONTEXT;
 	if ((sts = __pmAddLabels(sets, buf, flags)) <= 0)
@@ -457,6 +426,10 @@ GetContextLabels(ClientInfo *cp, pmLabelSet **sets)
 int
 DoLabel(ClientInfo *cp, __pmPDU *pb)
 {
+    __pmHashCtl		*hcp;
+    __pmHashNode	*hp;
+    pmProfile		*profile, defprofile = {PM_PROFILE_INCLUDE, 0, NULL};
+    int			ctxnum;
     int			sts, s;
     int			ident, type, nsets = 0;
     pmLabelSet		*sets = NULL;
@@ -476,12 +449,12 @@ DoLabel(ClientInfo *cp, __pmPDU *pb)
 		return PM_ERR_NOAGENT;
 	    break;
 	case PM_LABEL_INDOM:
+	case PM_LABEL_INSTANCES:
 	    if (!(ap = pmcd_agent(((__pmInDom_int *)&ident)->domain)))
 		return PM_ERR_INDOM;
 	    break;
 	case PM_LABEL_CLUSTER:
 	case PM_LABEL_ITEM:
-	case PM_LABEL_INSTANCES:
 	    if (!(ap = pmcd_agent(((__pmID_int *)&ident)->domain)))
 		return PM_ERR_PMID;
 	    break;
@@ -513,6 +486,42 @@ DoLabel(ClientInfo *cp, __pmPDU *pb)
     else {
 	if (ap->status.notReady)
 	    return PM_ERR_AGAIN;
+
+	/* status.madeDsoResult is only used for DSO agents so don't waste time by
+	 * checking that the agent is a DSO first.
+	 */
+	ap->status.madeDsoResult = 0;
+	ctxnum = cp - client;
+
+	if (ap->profClient != cp || ctxnum != ap->profIndex) {
+	    hcp = &cp->profile;
+	    hp = __pmHashSearch(ctxnum, hcp);
+	    if (hp != NULL)
+		profile = (pmProfile *)hp->data;
+	    else
+		profile = &defprofile;
+	    if (ap->ipcType == AGENT_DSO) {
+		if (ap->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
+		    ap->ipc.dso.dispatch.version.four.ext->e_context = cp - client;
+		sts = ap->ipc.dso.dispatch.version.any.profile(profile,
+					 ap->ipc.dso.dispatch.version.any.ext);
+	    }
+	    else {
+		if (ap->status.notReady == 0) {
+		    pmcd_trace(TR_XMIT_PDU, ap->inFd, PDU_PROFILE, ctxnum);
+		    if (profile && (sts = __pmSendProfile(ap->inFd, cp - client,
+					       ctxnum, profile)) < 0) {
+			pmcd_trace(TR_XMIT_ERR, ap->inFd, PDU_PROFILE, sts);
+		    }
+		} else {
+		    sts = PM_ERR_AGAIN;
+		}
+	    }
+	    if (sts >= 0) {
+		ap->profClient = cp;
+		ap->profIndex = ctxnum;
+	    }
+	}
 
 	pmcd_trace(TR_XMIT_PDU, ap->inFd, PDU_LABEL_REQ, ident);
 	sts = __pmSendLabelReq(ap->inFd, cp - client, ident, type);
@@ -654,7 +663,7 @@ DoPMNSIDs(ClientInfo *cp, __pmPDU *pb)
     numnames = sts;
 
     pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_PMNS_NAMES, numnames);
-    if ((sts = __pmSendNameList(cp->fd, FROM_ANON, numnames, namelist, NULL)) < 0){
+    if ((sts = __pmSendNameList(cp->fd, FROM_ANON, numnames, (const char **)namelist, NULL)) < 0){
 	pmcd_trace(TR_XMIT_ERR, cp->fd, PDU_PMNS_NAMES, sts);
 	CleanupClient(cp, sts);
     	goto fail;
@@ -694,7 +703,7 @@ DoPMNSNames(ClientInfo *cp, __pmPDU *pb)
 	goto done;
     }
 
-    sts = pmLookupName(numids, namelist, idlist);
+    sts = pmLookupName(numids, (const char **)namelist, idlist);
     /*
      * even if this fails, or looks up fewer than numids, we have to
      * check each PMID looking for dynamic metrics and process them
@@ -740,7 +749,7 @@ DoPMNSNames(ClientInfo *cp, __pmPDU *pb)
 		    lsts = PM_ERR_AGAIN;
 		else {
 		    pmcd_trace(TR_XMIT_PDU, ap->inFd, PDU_PMNS_NAMES, 1);
-		    lsts = __pmSendNameList(ap->inFd, cp - client, 1, &namelist[i], NULL);
+		    lsts = __pmSendNameList(ap->inFd, cp - client, 1, (const char **)&namelist[i], NULL);
 		    if (lsts >= 0) {
 			int		pinpdu;
 			pinpdu = lsts = __pmGetPDU(ap->outFd, ANY_SIZE, pmcd_timeout, &pb);
@@ -831,7 +840,7 @@ DoPMNSChild(ClientInfo *cp, __pmPDU *pb)
 	goto done;
 
     namelist[0] = name;
-    sts = pmLookupName(1, namelist, idlist);
+    sts = pmLookupName(1, (const char **)namelist, idlist);
     if (sts == 1 && IS_DYNAMIC_ROOT(idlist[0])) {
 	int		domain = pmID_cluster(idlist[0]);
 	AgentInfo	*ap = NULL;
@@ -927,7 +936,7 @@ DoPMNSChild(ClientInfo *cp, __pmPDU *pb)
 
     numnames = sts;
     pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_PMNS_NAMES, numnames);
-    if ((sts = __pmSendNameList(cp->fd, FROM_ANON, numnames, offspring, statuslist)) < 0) {
+    if ((sts = __pmSendNameList(cp->fd, FROM_ANON, numnames, (const char **)offspring, statuslist)) < 0) {
 	pmcd_trace(TR_XMIT_ERR, cp->fd, PDU_PMNS_NAMES, sts);
 	CleanupClient(cp, sts);
     }
@@ -1010,7 +1019,7 @@ traverse_dynamic(ClientInfo *cp, char *start, int *num_names, char ***names)
     for (i = *num_names-1; i >= 0; i--) {
 	offspring = NULL;
 	namelist[0] = (*names)[i];
-	sts = pmLookupName(1, namelist, idlist);
+	sts = pmLookupName(1, (const char **)namelist, idlist);
 	if (sts < 1)
 	    continue;
 	if (IS_DYNAMIC_ROOT(idlist[0])) {
@@ -1220,7 +1229,7 @@ check:
 	goto done;
 
     pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_PMNS_NAMES, travNL_num);
-    if ((sts = __pmSendNameList(cp->fd, FROM_ANON, travNL_num, travNL, NULL)) < 0) {
+    if ((sts = __pmSendNameList(cp->fd, FROM_ANON, travNL_num, (const char **)travNL, NULL)) < 0) {
 	pmcd_trace(TR_XMIT_ERR, cp->fd, PDU_PMNS_NAMES, sts);
 	CleanupClient(cp, sts);
 	goto done;

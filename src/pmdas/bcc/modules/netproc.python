@@ -1,0 +1,208 @@
+#
+# Copyright (C) 2020 Red Hat.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+""" PCP BCC PMDA netproc module """
+
+import ctypes as ct
+from collections import namedtuple
+import os
+from bcc import BPF
+
+from pcp.pmapi import pmUnits
+from cpmapi import (
+    PM_TYPE_U64,
+    PM_COUNT_ONE,
+    PM_SPACE_BYTE,
+    PM_SEM_COUNTER,
+)
+from cpmda import PMDA_FETCH_NOVALUES
+
+from modules.pcpbcc import PCPBCCBase
+
+#
+# BPF program
+#
+bpf_src = "modules/netproc.bpf"
+
+#
+# PCP BCC PMDA constants
+#
+MODULE = "netproc"
+BASENS = "proc.io.net.perpid."
+units_bytes = pmUnits(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+units_count = pmUnits(0, 0, 1, 0, 0, PM_COUNT_ONE)
+units_none = pmUnits(0, 0, 0, 0, 0, 0)
+
+# use tuple here instead of a dict or class to access the fields by index in the bpfdata method
+Netstats = namedtuple(
+    "Netstats",
+    [
+        "tcp_send_packets",
+        "tcp_send_bytes",
+        "tcp_recv_packets",
+        "tcp_recv_bytes",
+        "udp_send_packets",
+        "udp_send_bytes",
+        "udp_recv_packets",
+        "udp_recv_bytes",
+    ],
+)
+
+#
+# PCP BCC Module
+#
+class PCPBCCModule(PCPBCCBase):
+    """ PCP BCC netproc module """
+
+    def __init__(self, config, log, err):
+        """ Constructor """
+        PCPBCCBase.__init__(self, MODULE, config, log, err)
+
+        self.remove_stopped_processes = True
+        for opt in self.config.options(MODULE):
+            if opt == "remove_stopped_processes":
+                self.remove_stopped_processes = self.config.getboolean(MODULE, opt)
+
+        self.cache = {}
+        self.insts = {}
+
+        self.log("Initialized.")
+
+    def metrics(self):
+        """ Get metric definitions """
+        name = BASENS
+        self.items = (
+            # Name - reserved - type - semantics - units - help
+            # note: ordering of these metrics must match ordering of the Netstats named tuple
+            (
+                name + "tcp.out.packets",
+                None,
+                PM_TYPE_U64,
+                PM_SEM_COUNTER,
+                units_count,
+                "packets sent",
+            ),
+            (
+                name + "tcp.out.bytes",
+                None,
+                PM_TYPE_U64,
+                PM_SEM_COUNTER,
+                units_bytes,
+                "bytes sent",
+            ),
+            (
+                name + "tcp.in.packets",
+                None,
+                PM_TYPE_U64,
+                PM_SEM_COUNTER,
+                units_count,
+                "packets received",
+            ),
+            (
+                name + "tcp.in.bytes",
+                None,
+                PM_TYPE_U64,
+                PM_SEM_COUNTER,
+                units_bytes,
+                "bytes received",
+            ),
+            (
+                name + "udp.out.packets",
+                None,
+                PM_TYPE_U64,
+                PM_SEM_COUNTER,
+                units_count,
+                "packets sent",
+            ),
+            (
+                name + "udp.out.bytes",
+                None,
+                PM_TYPE_U64,
+                PM_SEM_COUNTER,
+                units_bytes,
+                "bytes sent",
+            ),
+            (
+                name + "udp.in.packets",
+                None,
+                PM_TYPE_U64,
+                PM_SEM_COUNTER,
+                units_count,
+                "packets received",
+            ),
+            (
+                name + "udp.in.bytes",
+                None,
+                PM_TYPE_U64,
+                PM_SEM_COUNTER,
+                units_bytes,
+                "bytes received",
+            ),
+        )
+        return True, self.items
+
+    def compile(self):
+        """ Compile BPF """
+        try:
+            self.bpf = BPF(src_file=bpf_src)
+            self.log("Compiled.")
+        except Exception as error:  # pylint: disable=broad-except
+            self.bpf = None
+            self.err(str(error))
+            self.err("Module NOT active!")
+            raise
+
+    def refresh(self):
+        """ Refresh BPF data """
+        if self.bpf is None:
+            return None
+
+        netstats_per_pid = self.bpf["netstats_per_pid"]
+        for pid_ct, cur_netstat in netstats_per_pid.items():
+            pid = pid_ct.value
+            prev_netstat = self.cache.get(pid, Netstats(0, 0, 0, 0, 0, 0, 0, 0))
+            self.cache[pid] = Netstats(
+                tcp_send_packets=prev_netstat.tcp_send_packets
+                + cur_netstat.tcp_send_packets,
+                tcp_send_bytes=prev_netstat.tcp_send_bytes + cur_netstat.tcp_send_bytes,
+                tcp_recv_packets=prev_netstat.tcp_recv_packets
+                + cur_netstat.tcp_recv_packets,
+                tcp_recv_bytes=prev_netstat.tcp_recv_bytes + cur_netstat.tcp_recv_bytes,
+                udp_send_packets=prev_netstat.udp_send_packets
+                + cur_netstat.udp_send_packets,
+                udp_send_bytes=prev_netstat.udp_send_bytes + cur_netstat.udp_send_bytes,
+                udp_recv_packets=prev_netstat.udp_recv_packets
+                + cur_netstat.udp_recv_packets,
+                udp_recv_bytes=prev_netstat.udp_recv_bytes + cur_netstat.udp_recv_bytes,
+            )
+            self.insts[str(pid)] = ct.c_int(pid)
+        netstats_per_pid.clear()
+
+        # remove stopped processes
+        if self.remove_stopped_processes:
+            current_pids = frozenset(os.listdir("/proc"))
+            cached_pids = frozenset(self.insts.keys())
+            stopped_pids = cached_pids - current_pids
+            for pid in stopped_pids:
+                del self.cache[int(pid)]
+                del self.insts[pid]
+
+        return self.insts
+
+    def bpfdata(self, item, inst):
+        """ Return BPF data as PCP metric value """
+        try:
+            value = self.cache[inst][item]
+            return [value, 1]
+        except Exception:  # pylint: disable=broad-except
+            return [PMDA_FETCH_NOVALUES, 0]

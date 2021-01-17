@@ -1,6 +1,6 @@
 #pmieconf-rules 1
 # --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
-# 
+#
 
 rule	filesys.filling
 	summary	= "$rule$"
@@ -62,38 +62,5 @@ string	email_expand
 	display	= no
 	modify	= no;
 
-
-# Configuration info specific to non-PCP tools follows...
-# 
-
-# for SGI Embedded Support Partner integration:
-string	esp_type
-	default	= "0x20004A"
-	display	= no
-	modify	= no;
-
-# for HP OpenView integration:
-string	ov_severity
-	display	= no
-	default	= "Critical";
-
-# for CA/Unicenter TNG integration:
-string	tngfw_color
-	display	= no
-	default	= "Red";
-
-# for EnlightenDSM integration:
-string	enln_test
-	default	= filesys.filling
-	display	= no
-	modify = no;
-string	enln_units
-	default	= %used[%i]
-	display	= no
-	modify = no;
-unsigned	enln_severity
-	display = no
-	default = 5;
-
-# 
+#
 # --- DO NOT MODIFY THIS FILE --- see pmieconf(5)

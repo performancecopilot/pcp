@@ -293,7 +293,7 @@ _havepmcdtrace()
 	      PCP_PMCDOPTIONS_PATH="$PCP_SYSCONF_DIR/pmcd/pmcd.options"
 	PCPQA_PMCDOPTIONS="$PCP_PMCDOPTIONS_PATH"
 	sed <$PCPQA_PMCDOPTIONS >$tmp.tmp -e '/^-T/s/^/#/'
-	cat >>$tmp.tmp <<'End-of-File'
+	cat >>$tmp.tmp <<End-of-File
 
 # Installed by PCP QA common on `date`
 -T 3

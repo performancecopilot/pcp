@@ -117,7 +117,7 @@ echo "export PMCD_PORT=$PMCD_PORT" >$tmp.start
 echo "export PMLOGGER_PORT=$PMLOGGER_PORT" >>$tmp.start
 echo "$PCP_RC_DIR/pcp restart" >>$tmp.start
 
-$sudo sh $tmp.start | _filter_pcp_start
+$sudo sh $tmp.start 2>&1 | _filter_pcp_start
 _wait_for_pmlogger -P $LOGGING_DIR/$LOCALHOST/pmlogger.log
 
 echo

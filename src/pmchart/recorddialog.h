@@ -41,6 +41,7 @@ public slots:
     virtual void folioPushButton_clicked();
     virtual void archivePushButton_clicked();
     virtual void buttonOk_clicked();
+    virtual QString resolveLocalHostname(QString);
 
 protected slots:
     virtual void languageChange();

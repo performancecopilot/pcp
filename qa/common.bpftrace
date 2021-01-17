@@ -7,6 +7,8 @@
 
 _pmdabpftrace_check()
 {
+    [ -d /lib/modules/$(uname -r) ] || _notrun "kernel headers for kernel $(uname -r) not found"
+
     $python -c "from pcp import pmda" >/dev/null 2>&1 || _notrun "python pcp pmda module not installed"
     $python -c "import sys; sys.exit(0 if sys.version_info >= (3, 6) else 1)" || _notrun "python 3.6+ is required for this PMDA"
 
@@ -75,10 +77,14 @@ _pmdabpftrace_cleanup()
     _cleanup_pmda bpftrace
 }
 
+# Usage: _pmdabpftrace_wait_for_value [value_regex [timeout_sec]]
+#
 _pmdabpftrace_wait_for_value()
 {
     value_regex=${2:-".*"}
-    for i in `seq 1 20`
+    wait_sec=${3:-"10"}
+    wait_iter=`expr $wait_sec \* 2`
+    for i in `seq 1 $wait_iter`
     do
         if pminfo -f $1 2>/dev/null | grep -q "value $value_regex"; then
             echo "found metric $1 with matching value $value_regex"
@@ -87,9 +93,13 @@ _pmdabpftrace_wait_for_value()
         sleep 0.5
     done
 
-    echo "Timeout (10s) while waiting for metric $1 to match value $value_regex, script data:"
+    echo "Timeout (${wait_sec}s) while waiting for metric $1 to match value $value_regex, script data:"
     pminfo -f $(echo "$1" | sed -r 's/bpftrace\.scripts\.([^.]+)\..*/bpftrace.scripts.\1/')
-    exit 1
+    # error text above is sufficient to mark the test status as Failed
+    # rather than Broken in CI => exit status of 0 is fine
+    #
+    status=0
+    exit $status
 }
 
 _pmdabpftrace_generate_openat_syscall_activity()

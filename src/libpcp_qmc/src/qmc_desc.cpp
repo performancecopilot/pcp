@@ -14,7 +14,6 @@
  */
 
 #include "qmc_desc.h"
-#include <QTextStream>
 
 QmcDesc::QmcDesc(pmID pmid)
 {
@@ -28,7 +27,7 @@ QmcDesc::QmcDesc(pmID pmid)
     else if (pmDebugOptions.pmc) {
 	QTextStream cerr(stderr);
 	cerr << "QmcDesc::QmcDesc: unable to lookup "
-	     << pmIDStr(my.pmid) << ": " << pmErrStr(my.status) << endl;
+	     << pmIDStr(my.pmid) << ": " << pmErrStr(my.status) << QT_ENDL;
     }
 }
 

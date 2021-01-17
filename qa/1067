@@ -42,7 +42,7 @@ in
     2.[0-2].*)
     		ln $seq.out.0 $seq.out
 		;;
-    2.4.*|3.*|4.*)
+    2.4.*|3.*|4.*|5.*)
     		ln $seq.out.1 $seq.out
     		;;
     *)		echo "Botch: need to know what output to expect for zabbix_agent version $version"
@@ -90,6 +90,18 @@ then
     _save_config $derived
 fi
 
+# pcp.sample.float.hundred                      [d|100.000000]
+# pcp.sample.double.ten                         [d|10.000000]
+#                 the decimal part may not be reported^^^^^^
+#
+_filter_float()
+{
+    sed \
+	-e '/pcp.sample.float.hundred/s/100\.00*/100/' \
+	-e '/pcp.sample.double.ten/s/10\.00*/10/' \
+    # end
+}
+
 _filter_values()
 {
     # expect lines like:
@@ -108,7 +120,12 @@ _filter_values()
 cat <<EOF > $tmp.conf
 LoadModulePath=$PCP_LIB_DIR/zabbix/modules
 LoadModule=$ZBXPCP
+# for rpm -qa if repo cache needs refreshing
+Timeout=30
 EOF
+
+echo "zabbix_agentd config:" >>$seq.full
+cat $tmp.conf >>$seq.full
 
 # real QA test starts here
 zabbix_agentd="zabbix_agentd -c $tmp.conf"
@@ -118,8 +135,8 @@ echo "== request specific values"
 $zabbix_agentd -t pcp.sample.long.one
 $zabbix_agentd -t 'pcp.sample.long.bin[bin-100]'
 $zabbix_agentd -t pcp.sample.ulonglong.million
-$zabbix_agentd -t pcp.sample.float.hundred
-$zabbix_agentd -t pcp.sample.double.ten
+$zabbix_agentd -t pcp.sample.float.hundred | _filter_float
+$zabbix_agentd -t pcp.sample.double.ten | _filter_float
 
 # string metrics
 $zabbix_agentd -t pcp.sample.string.null
@@ -134,12 +151,15 @@ $zabbix_agentd -t pcp.sample.bad.nosupport
 $zabbix_agentd -t pcp.sample.bad.novalues
 
 # verify enumeration of all metrics
-echo "== enumerated names and filtered values"
+echo "== enumerated names and filtered values" | tee -a $seq.full
 $sudo rm -f $control	# control the dynamic indom
 echo '1 one' >$tmp.indom
 echo '2 two' >>$tmp.indom
 $sudo cp $tmp.indom $control
-$zabbix_agentd -p | fgrep pcp.sample. | _filter_values
+$zabbix_agentd -p \
+| tee -a $seq.full \
+| fgrep pcp.sample. \
+| _filter_values
 
 # derived metrics
 echo "== check derived metric configuration"

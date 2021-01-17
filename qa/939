@@ -90,7 +90,7 @@ do
 done
 
 cat <<End-of-File >$tmp.config
-idle = mem.util.free > mkconst(10485760, units=Kbyte)
+idle = mem.util.free > mkconst(2972000, units=Kbyte)
 End-of-File
 
 pminfo -a archives/pcp-free -d idle

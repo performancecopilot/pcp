@@ -56,7 +56,7 @@ _cleanup()
     $PCP_SYSLOG_PROG -p daemon.error "$prog failed - see $PROGLOG"
     [ -s "$PROGLOG" ] || rm -f "$PROGLOG"
     lockfile=`cat $tmp/lock 2>/dev/null`
-    rm -f "$lockfile"
+    [ -n "$lockfile" ] && rm -f "$lockfile"
     rm -rf $tmp
 }
 trap "_cleanup; exit \$status" 0 1 2 3 15
@@ -321,7 +321,8 @@ _parse_control()
     controlfile="$1"
     line=0
 
-    if echo "$controlfile" | grep -q -e '\.rpmsave' -e '\.rpmnew'
+    if echo "$controlfile" | grep -q -e '\.rpmsave$' -e '\.rpmnew$' -e '\.rpmorig$' \
+	-e '\.dpkg-dist$' -e '\.dpkg-old$' -e '\.dpkg-new$' >/dev/null 2>&1
     then
 	echo "Warning: ignored backup control file \"$controlfile\""
 	return

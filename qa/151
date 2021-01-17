@@ -47,18 +47,30 @@ _filter()
     | _filter_cron_scripts
 }
 
+NEEDREWRITE=$PCP_LOG_DIR/pmlogger/.NeedRewrite
+
+_cleanup()
+{
+    $sudo rm -rf $tmp $tmp.*
+    [ -f $PCP_LOG_DIR/NOTICES.$seq ] \
+	&& $sudo mv $PCP_LOG_DIR/NOTICES.$seq $PCP_LOG_DIR/NOTICES
+    [ -f $NEEDREWRITE.$seq ] && $sudo mv $NEEDREWRITE.$seq $NEEDREWRITE
+}
+
 status=1	# failure is the default!
-trap "cd $here; $sudo rm -rf $tmp $tmp.*; $sudo mv $PCP_LOG_DIR/NOTICES.$$ $PCP_LOG_DIR/NOTICES; exit \$status" 0 1 2 3 15
+trap "cd $here; _cleanup; exit \$status" 0 1 2 3 15
 
 # take explicit control of the umask
 #
 umask 022
 
-$sudo mv $PCP_LOG_DIR/NOTICES $PCP_LOG_DIR/NOTICES.$$
+$sudo mv $PCP_LOG_DIR/NOTICES $PCP_LOG_DIR/NOTICES.$seq
 rm -f $seq.full
 rm -rf $tmp $tmp.*
 mkdir $tmp
 mkdir $tmp/foo
+
+[ -f $NEEDREWRITE ] && $sudo mv $NEEDREWRITE $NEEDREWRITE.$seq
 
 # real QA test starts here
 

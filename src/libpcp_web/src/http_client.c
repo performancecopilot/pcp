@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014,2016-2017 Red Hat.
+ * Copyright (c) 2014,2016-2017,2020 Red Hat.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -315,16 +315,18 @@ http_client_get(http_client *cp)
 	version = "1.0";
     if ((path = url + up->field_data[UF_PATH].off) == NULL ||
 	up->field_data[UF_PATH].off == 0 ||
-	strchr(path, '/') == NULL){
+	strchr(path, '/') == NULL) {
 	path = "/";	/* assume root-level request */
     }
     hostlen = up->field_data[UF_HOST].len;
     strncpy(host, url + up->field_data[UF_HOST].off, hostlen);
     host[hostlen] = '\0';
+#if 0
     //    strncpy(host, "localhost", sizeof("localhost"));
     //    host[sizeof("localhost")] = '\0';
     //    strncpy(path, "/containers/8d70f8a47a6b6e515fb8e40d31da7928de70e883c235ba16b132e6a3b4f8267d/json", sizeof("/containers/8d70f8a47a6b6e515fb8e40d31da7928de70e883c235ba16b132e6a3b4f8267d/json"));
     //    pmNotifyErr(LOG_DEBUG, "hit here: %s", cp->type_buffer);
+#endif
     
     protocol = url + up->field_data[UF_SCHEMA].off;
     length = up->field_data[UF_SCHEMA].len;
@@ -498,6 +500,8 @@ on_header_value(http_parser *pp, const char *offset, size_t length)
 	if (cp->type_length > 0) {
 	    if (length + 1 > cp->type_length) {
 		cp->error_code = -E2BIG;
+		if (pmDebugOptions.http)
+		    fprintf(stderr, "on_header_value: Setting error E2BIG");
 		return 1;
 	    }
 	    strncpy(cp->type_buffer, offset, length);
@@ -518,6 +522,8 @@ on_body(http_parser *pp, const char *offset, size_t length)
 
     if (length > cp->body_length - cp->offset) {
 	cp->error_code = -E2BIG;
+	if (pmDebugOptions.http)
+	    fprintf(stderr, "on_body: Setting error E2BIG");
 	return 1;
     }
     strncpy(cp->body_buffer + cp->offset, offset, length);
@@ -580,25 +586,46 @@ http_client_response(http_client *cp)
     cp->offset = 0;
 
     do {
+	if (pmDebugOptions.http)
+	    fprintf(stderr, "Reading data from buffer\n");
 	if ((sts = __pmRecv(cp->fd, buffer, sizeof(buffer), 0)) <= 0) {
+	    if (pmDebugOptions.http)
+		fprintf(stderr, "Disconnecting sts=%d\n", sts);
 	    http_client_disconnect(cp);
 	    return sts ? sts : -EAGAIN;
 	}
+	if (pmDebugOptions.http)
+	    fprintf(stderr, "http_client error code=%d", cp->error_code);
+
 	bytes = http_parser_execute(&cp->parser, &settings, buffer, sts);
+	if (pmDebugOptions.http) {
+	    fprintf(stderr, "http_parser_execute bytes=%lu flags=%d error_code=%d\n",
+	    	bytes, cp->flags, cp->error_code);
+	    fprintf(stderr, "While loop condition=%d\n", (bytes && !(cp->flags & F_MESSAGE_END)));
+	}
 
     } while (bytes && !(cp->flags & F_MESSAGE_END));
 
     if (http_should_client_disconnect(cp))
 	http_client_disconnect(cp);
 
-    if (http_should_client_redirect(cp))
+    if (http_should_client_redirect(cp)) {
+        if (pmDebugOptions.http)
+	    fprintf(stderr, "returning redirect required\n");
 	return -EMLINK;
+    }
 
     if (http_should_keep_alive(&cp->parser) == 0)
 	http_client_disconnect(cp);
 
-    if (cp->error_code)
+    if (cp->error_code) {
+        if (pmDebugOptions.http)
+	    fprintf(stderr, "returning error code=%d\n", cp->error_code);
 	return cp->error_code;
+    }
+
+    if (pmDebugOptions.http)
+	fprintf(stderr, "returning offset=%lu\n", cp->offset);
 
     return cp->offset;
 }
@@ -743,13 +770,20 @@ pmhttpClientFetch(http_client *cp, const char *url,
 
 	/* parse, extract body, handle redirect */
 	if ((sts = http_client_response(cp)) < 0) {
-	    if (sts == -EAGAIN)		/* server closed */
+	    if (sts == -EAGAIN) {		/* server closed */
+		if (pmDebugOptions.http)
+		    fprintf(stderr, "Got server closed, trying again\n");
 		continue;
+	    }
 	    if (sts == -EMLINK) {	/* http redirect */
+		if (pmDebugOptions.http)
+		    fprintf(stderr, "Got redirect, trying again, attempt: %d\n", redirected);
 		redirected++;
 		continue;
 	    }
-	    break;	/* propogate errors */
+	    if (pmDebugOptions.http)
+		fprintf(stderr, "Got error value: %d\n", sts);
+	    break;	/* propagate errors */
 	}
 	break;	/* successful exchange */
     }

@@ -60,7 +60,6 @@ typedef enum nodetype {
     N_RESCALE,
     N_SCALE,
     N_DEFINED,
-    N_NOOP,
     N_ABS,
     N_FLOOR,
     N_LOG,
@@ -91,7 +90,8 @@ typedef struct seriesGetSID {
     seriesBatonMagic	header;		/* MAGIC_SID */
     sds			name;		/* series or source SID */
     sds			metric;		/* back-pointer for instance series */
-    int			freed;		/* freed individually on completion */
+    /* various flags */
+    int			freed : 1;	/* freed individually on completion */
     void		*baton;
 } seriesGetSID;
 
@@ -117,6 +117,7 @@ typedef struct series_sample_set {
     sds				metric_name;
     pmSeriesDesc		series_desc;
     void			*baton;
+    int				compatibility;
     /* Number of series samples */
     int				num_samples;
     series_instance_set_t	*series_sample;
@@ -178,6 +179,7 @@ typedef struct series {
     timing_t		time;
 } series_t;
 
+extern int series_parse(sds, series_t *, char **, void *);
 extern int series_solve(pmSeriesSettings *, node_t *, timing_t *, pmSeriesFlags, void *);
 extern int series_load(pmSeriesSettings *, node_t *, timing_t *, pmSeriesFlags, void *);
 

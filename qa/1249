@@ -31,6 +31,11 @@ _cleanup()
     do
 	[ -d "$PCP_LOG_DIR/pmie/$dir" ] && $sudo rm -rf "$PCP_LOG_DIR/pmie/$dir"
     done
+    if [ "$pmie_state" = off ]
+    then
+	_change_config pmie off
+	_service pmie stop >>$here/$seq.full 2>&1
+    fi
 }
 
 status=1	# failure is the default!
@@ -49,7 +54,7 @@ _filter()
 	-e "s;$PCP_ARCHIVE_DIR/;PCP_ARCHIVE_DIR/;g" \
 	-e "s;$PCP_LOG_DIR/;PCP_LOG_DIR/;g" \
 	-e "s;$PCP_TMP_DIR/;PCP_TMP_DIR/;g" \
-	-e "s;$PCP_TMPFILE_DIR/pmiectl\.[^/]*;PCP_TMPFILE_DIR/pmlogctl.XXXXX;g" \
+	-e "s;$PCP_TMPFILE_DIR/pmiectl\.[^/]*;PCP_TMPFILE_DIR/pmiectl.XXXXX;g" \
 	-e "s;$PCP_ETC_DIR/;PCP_ETC_DIR/;g" \
 	-e '/^Host:/{
 s/Host: '$localhost' /Host: LOCALHOSTNAME /
@@ -116,6 +121,12 @@ cat <<End-of-File >$tmp.config
 delta = 0.1sec;
 some_inst sample.lights > 0 -> print "The lights are on!";
 End-of-File
+
+# Need primary pmie running so pmiectl status output is deterministic
+#
+pmie_state=`_get_config pmie`
+[ "$pmie_state" = off ] && _change_config pmie on
+_service pmie start >>$here/$seq.full 2>&1
 
 # real QA test starts here
 echo '== -NV expect pmfind class to be used' | tee -a $seq.full
@@ -244,6 +255,7 @@ echo '== -i, 2 explicit configs, expect concat config file for one pmfind instan
 $sudo pmiectl -i $seq cond-create localhost 2>&1 | _filter
 pmiectl -V status | _filter_status
 grep sample.lights $PCP_LOG_DIR/pmie/$seq/$seq.config
+pmsleep 0.5		# give pmie a chance to warm up
 _filter_pmie <$PCP_LOG_DIR/pmie/$seq/pmie.log | sort | uniq
 echo "--- start pmie config file ---" >>$seq.full
 cat $PCP_LOG_DIR/pmie/$seq/$seq.config >>$seq.full
@@ -273,6 +285,7 @@ do
     echo "check $metric ..."
     egrep "$metric( |\$)" $PCP_LOG_DIR/pmie/$seq-a/$seq-a.config
 done
+pmsleep 0.5		# give pmie a chance to warm up
 _filter_pmie <$PCP_LOG_DIR/pmie/$seq-a/pmie.log | sort | uniq
 echo "--- start pmie config file ---" >>$seq.full
 cat $PCP_LOG_DIR/pmie/$seq-a/$seq-a.config >>$seq.full
@@ -289,6 +302,7 @@ do
     echo "check $metric ..."
     egrep "$metric( |\$)" $PCP_LOG_DIR/pmie/$seq-b/$seq-b.config
 done
+pmsleep 0.5		# give pmie a chance to warm up
 _filter_pmie <$PCP_LOG_DIR/pmie/$seq-b/pmie.log | sort | uniq
 echo "--- start pmie config file ---" >>$seq.full
 cat $PCP_LOG_DIR/pmie/$seq-b/$seq-b.config >>$seq.full
@@ -305,6 +319,7 @@ do
     echo "check $metric ..."
     egrep "$metric( |\$)" $PCP_LOG_DIR/pmie/$seq-c/$seq-c.config
 done
+pmsleep 0.5		# give pmie a chance to warm up
 _filter_pmie <$PCP_LOG_DIR/pmie/$seq-c/pmie.log | sort | uniq
 echo "--- start pmie config file ---" >>$seq.full
 cat $PCP_LOG_DIR/pmie/$seq-c/$seq-c.config >>$seq.full

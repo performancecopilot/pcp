@@ -46,7 +46,7 @@ sub queues {
 
     my @queues = @{$query_result};
     my @queue_instances = map {
-	Queue->new($_->{'objectName'}, $self->{_rest_client});
+	PCP::Queue->new($_->{'objectName'}, $self->{_rest_client});
     } @queues;
     return @queue_instances;
 }

@@ -30,7 +30,8 @@ _notrun()
     echo $@ >$here/$seq.notrun
     echo "$seq: [not run] `cat $here/$seq.notrun`"
     rm -f $here/$seq.pre-avc
-    exit 0
+    status=0
+    exit $status
 }
 
 # common routine for failing a test in a standard way
@@ -39,7 +40,7 @@ _notrun()
 _fail()
 {
     echo FAIL: $@ 1>&2
-    status=1
+    status=0
     exit $status
 }
 
@@ -230,7 +231,6 @@ _service()
 		# not a systemd service but a wrapper for the pmcd and pmlogger
 		# services, so a little different ...
 		#
-		$_verbose && echo "_service: using $PCP_RC_DIR/pcp $2"
 		if [ "$2" = start -o "$2" = restart ]
 		then
 		    $_verbose && echo "_service: using systemctl $2 $pmcd.service then pmlogger.service"
@@ -242,6 +242,16 @@ _service()
 		    $_verbose && echo "_service: using systemctl $2 pmlogger.service then pmcd.service"
 		    $sudo systemctl $2 pmlogger.service
 		    $sudo systemctl $2 pmcd.service
+		    if [ "$2" = stop ]
+		    then
+			# stop pmlogger_check ... it gets started as a
+			# by-product of start pmlogger, but is not stopped
+			# by stop pmlogger (there is a long and complicated
+			# good reason for this)
+			#
+			$_verbose && echo "_service: also stop pmlogger_check"
+			$sudo systemctl stop pmlogger_check.timer pmlogger_check.service
+		    fi
 		fi
 		;;
 	    *)
@@ -251,6 +261,13 @@ _service()
 		    $sudo systemctl reset-failed $1.service 2>>$here/$seq.full
 		fi
 		$sudo systemctl $2 $1.service
+		if [ "$1" = pmlogger -a "$2" = stop ]
+		then
+		    # stop pmlogger_check ... see note above
+		    #
+		    $_verbose && echo "_service: also stop pmlogger_check"
+		    $sudo systemctl stop pmlogger_check.timer pmlogger_check.service
+		fi
 		;;
 	esac
     elif [ -f $PCP_RC_DIR/$1 ]
@@ -259,7 +276,8 @@ _service()
 	$sudo $PCP_RC_DIR/$1 $2
     else
 	echo "_service: $1 is not a systemctl service nor a $PCP_RC_DIR script!"
-	exit
+	status=0
+	exit $status
     fi
 }
 
@@ -320,6 +338,7 @@ _prepare_pmda()
     done_clean=false
     install_on_cleanup=false
     pminfo $__names >/dev/null 2>&1 && install_on_cleanup=true
+    echo "_prepare_pmda($__agent,$__names) install_on_cleanup=$install_on_cleanup" >>$here/$seq.full
     # copy the pmcd config file to restore state later.
     _save_config $PCP_PMCDCONF_PATH
     unset ROOT MAKEFLAGS
@@ -332,7 +351,7 @@ _cleanup_pmda()
 
     if $done_clean
     then
-	:
+	echo "_cleanup_pmda($__agent,$__iopts) called twice?" >>$here/$seq.full
     else
 	_restore_config $PCP_PMCDCONF_PATH
 	_service pcp restart | _filter_pcp_start
@@ -343,8 +362,10 @@ _cleanup_pmda()
 	then
 	    [ "X$__iopts" = "X" ] && __iopts=/dev/null
 	    ( cd $PCP_PMDAS_DIR/$__agent; $sudo ./Install <$__iopts >/dev/null 2>&1 )
+	    echo "_cleanup_pmda($__agent,$__iopts) reinstall PMDA" >>$here/$seq.full
 	else
 	    ( cd $PCP_PMDAS_DIR/$__agent; $sudo ./Remove >/dev/null 2>&1 )
+	    echo "_cleanup_pmda($__agent,$__iopts) remove PMDA" >>$here/$seq.full
 	fi
 	_wait_for_pmcd
 	_wait_for_pmlogger
@@ -452,35 +473,26 @@ _ipaddr_to_host()
 
 _host_to_fqdn()
 {
-    ans=`hostname -f 2>/dev/null | grep '\.'`
-    if [ -z "$ans" ]
+    ans=''
+    if which nslookup >/dev/null 2>&1
     then
-	if which nslookup >/dev/null 2>&1
-	then
-	    ans=`nslookup $1 2>&1 | sed -n -e '/^Name:[ 	][ 	]*/{
+	ans=`nslookup $1 2>&1 | sed -n -e '/^Name:[ 	][ 	]*/{
 s///p
 q
 }'`
-	elif which host >/dev/null 2>&1
-	then
-	    ans=`host $1 2>&1 | sed -n -e '/ has address /{
+    elif which host >/dev/null 2>&1
+    then
+	ans=`host $1 2>&1 | sed -n -e '/ has address /{
 s/ .*//p
 q
 }'`
-	fi
     fi
+
     if [ -z "$ans" ]
     then
-	if which domainname >/dev/null 2>&1
-	then
-	    ans=`domainname | fgrep -v '(none)'`
-	    [ -z "$ans" ] || ans="$1.$ans"
-	fi
-    fi
-    if [ -z "$ans" ]
-    then
-	# fake out localhost.localdomain if no working DNS
-	ans=localhost.localdomain
+	# no working DNS ... just go with what we were given
+	#
+	ans=$1
     fi
     echo "$ans"
 }
@@ -533,7 +545,8 @@ _check_metric()
 	:
     else
 	echo "Check failed for metric \"$1\" at host \"${2-local:}\" ... is PMDA installed?"
-	exit 1
+	status=0
+	exit $status
     fi
 }
 
@@ -624,7 +637,7 @@ _wait_for_pmcd()
 		ssh pcpqa@$_host "sh -c '. \$PCP_DIR/etc/pcp.env; echo; echo "=== pmcd.log ==="; [ -f \$PCP_LOG_DIR/pmcd/pmcd.log ] && cat \$PCP_LOG_DIR/pmcd/pmcd.log; [ -f \$PCP_LOG_DIR/pmcd.log ] && cat \$PCP_LOG_DIR/pmcd.log; echo; echo likely looking processes ...; ( ps \$PCP_PS_ALL_FLAGS | egrep \"[p]m|[P]ID\" )'" </dev/null
 		;;
 	esac
-	status=2
+	status=0
 	exit $status
     fi
 }
@@ -670,10 +683,10 @@ _wait_for_pmcd_stop()
 	cat $tmp._wait_for_pmcd_stop.err.all
 	echo "... and now"
 	echo "+ pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd pmcd.numclients"
-	pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd pmcd.numclients
+	pmprobe -Dpdu,context -n $PCP_VAR_DIR/pmns/root_pmcd pmcd.numclients
 	echo "=== pmcd.log ==="
 	cat $PCP_LOG_DIR/pmcd/pmcd.log
-	status=2
+	status=0
 	exit $status
     fi
 }
@@ -709,7 +722,7 @@ _wait_for_pmlogger()
 	    ;;
 	*)
 	    echo "_wait_for_pmlogger(): wrong number of arguments"
-	    status=1
+	    status=0
 	    exit $status
 	    ;;
     esac
@@ -818,7 +831,7 @@ _wait_for_pmlogger()
 	echo
 	echo "Likely looking processes ..."
 	ps $PCP_PS_ALL_FLAGS | egrep '([p]m)|([P]ID)'
-	status=2
+	status=0
 	exit $status
     fi
     rm -f $tmp._wait_for_pmlogger.*
@@ -857,7 +870,8 @@ _wait_pmlogger_end()
     if [ -z "$1" ]
     then
 	echo "Usage botch: _wait_pmlogger_end() needs pid arg"
-	exit
+	status=0
+	exit $status
     fi
     _pid=$1
 
@@ -1041,7 +1055,7 @@ p
 	    if [ "$_i" -ge 100 ]
 	    then
 		echo "_wait_pmie_end: failed to see pid(s) $_pidlist exit after 100 iterations"
-		$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep 'PID|[p]mie'
+		$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mie'
 		#debug# set +x
 		break
 	    fi
@@ -1075,7 +1089,7 @@ _wait_for_pmproxy()
 	    ;;
 	*)
 	    echo "_wait_for_pmproxy(): wrong number of arguments"
-	    status=1
+	    status=0
 	    exit $status
 	    ;;
     esac
@@ -1099,8 +1113,8 @@ _wait_for_pmproxy()
 	    else
 		echo "pmproxy logfile ($_logfile) not created"
 	    fi
-	    status=1
-	    exit
+	    status=0
+	    exit $status
 	fi
 	sleep 1
     done
@@ -1212,7 +1226,8 @@ EOF
     then
 	cat out
 	echo "Hmm ... purify failed to create $_prog.pure"
-	exit
+	status=0
+	exit $status
     fi
     cd $_here
 }
@@ -1818,8 +1833,8 @@ _get_endian()
     *)
 	echo "Arrgh ... od -x returned something odd ($check)"
 	echo a | od -x
-	status=1
-	exit
+	status=0
+	exit $status
 	;;
     esac
 }
@@ -1840,8 +1855,8 @@ _get_word_size()
 	;;
     *)
 	echo "uname gave machine type with unknown word size ($machine)"
-	status=1
-	exit
+	status=0
+	exit $status
 	;;
     esac
     echo $size
@@ -2062,7 +2077,8 @@ _change_config()
 		off)	act=disable ;;
 		*)
 		    echo "_change_config: Error: \$2=$2 not \"on\" or \"off\" as expected"
-		    exit 1
+		    status=0
+		    exit $status
 		    ;;
 	    esac
 	    if [ -n "$pat" ]
@@ -2096,7 +2112,8 @@ _change_config()
 		    off)	act=delete ;;
 		    *)
 			echo "_change_config: Error: \$2=$2 not \"on\" or \"off\" as expected"
-			exit 1
+			status=0
+			exit $status
 			;;
 		esac
 		$sudo rc-update $act $pat default >$tmp._tmp 2>&1
@@ -2110,7 +2127,8 @@ _change_config()
 	    # I have no clue!
 	    #
 	    echo "_change_config: Error: cannot change config \"$1 $2\""
-	    exit 1
+	    status=0
+	    exit $status
 	fi
     elif [ $PCP_PLATFORM = solaris ]
     then
@@ -2138,12 +2156,14 @@ _change_config()
 		    $sudo svcadm disable svc:/application/pcp/$pat
 		else
 		    echo "_change_config: Error: \$2=$2 not \"on\" or \"off\" as expected"
-		    exit 1
+		    status=0
+		    exit $status
 		fi
 	    fi
 	else
 	    echo "_change_config: Error: cannot find svcs for Solaris"
-	    exit 1
+	    status=0
+	    exit $status
 	fi
     elif [ $PCP_PLATFORM = darwin ]
     then
@@ -2167,7 +2187,8 @@ p
 	    then
 		echo "_change_config: Error: No $pat control line in /etc/hostconfig"
 		echo "You need to add a $pat=-YES- line to this file"
-		exit 1
+		status=0
+		exit $status
 	    fi
 	    if [ "$2" = "on" ]
 	    then
@@ -2177,7 +2198,8 @@ p
 		req_state=NO
 	    else
 		echo "_change_config: Error: bad state ($2) should be on or off"
-		exit 1
+		status=0
+		exit $status
 	    fi
 	    if [ "$state" != "$req_state" ]
 	    then
@@ -2202,7 +2224,8 @@ p
 	# I have no idea what to do for this platform!
 	#
 	echo "_change_config: Error: cannot \"$1 $2\" for $PCP_PLATFORM"
-	exit 1
+	status=0
+	exit $status
     fi 2>&1 \
     | _filter_init_distro
 }
@@ -2320,7 +2343,8 @@ _get_config()
 	    :
 	else
 	    echo "_change_config: Error: don't know how to change config for Linux"
-	    exit 1
+	    status=0
+	    exit $status
 	fi
     elif [ $PCP_PLATFORM = solaris ]
     then
@@ -2349,13 +2373,15 @@ _get_config()
 			;;
 		    *)
 			echo "_change_config: Error: smf ($state) from svcs not expected"
-			exit 1
+			status=0
+			exit $status
 			;;
 		esac
 	    fi
 	else
 	    echo "_change_config: Error: cannot find svcs for Solaris"
-	    exit 1
+	    status=0
+	    exit $status
 	fi
     elif [ $PCP_PLATFORM = darwin ]
     then
@@ -2378,7 +2404,8 @@ p
 	    then
 		echo "_change_config: Error: No $pat control line in /etc/hostconfig" >&2
 		echo "You need to add a $pat=-YES- line to this file" >&2
-		exit 1
+		status=0
+		exit $status
 	    fi
 	    if [ "$state" = "YES" ]
 	    then
@@ -2388,7 +2415,8 @@ p
 		echo off
 	    else
 		echo "_change_config: Error: bad state ($state) should be YES or NO" >&2
-		exit 1
+		status=0
+		exit $status
 	    fi
 	fi
     elif [ $PCP_PLATFORM = freebsd ]
@@ -2425,7 +2453,8 @@ _disable_loggers()
 	echo "_disable_loggers: Botch: $PCP_PMLOGGERCONTROL_PATH.$seq already exists"
 	date
 	ls -l $PCP_PMLOGGERCONTROL_PATH.$seq
-	exit
+	status=0
+	exit $status
     fi
     if [ -f $PCP_PMLOGGERCONTROL_PATH ]
     then
@@ -2438,7 +2467,8 @@ _disable_loggers()
 	echo "_disable_loggers: Botch: $PCP_PMLOGGERCONTROL_PATH.$seq.d already exists"
 	date
 	ls -ld $PCP_PMLOGGERCONTROL_PATH.$seq.d
-	exit
+	status=0
+	exit $status
     fi
     if [ -d $PCP_PMLOGGERCONTROL_PATH.d ]
     then
@@ -2504,7 +2534,7 @@ _check_core()
 	    $PCP_ECHO_PROG $PCP_ECHO_N " $seq.$d""$PCP_ECHO_C"
 	done
 	echo ")"
-	status=1
+	status=0
     fi
 }
 
@@ -2545,7 +2575,8 @@ _prepare_pmda_install()
 	else
 	    cat $tmp._tmp
 	    echo "Arrgh, ${MAKE:-make} clobber failed"
-	    exit
+	    status=1
+	    exit $status
 	fi
     fi
 
@@ -2597,6 +2628,27 @@ _restore_pmda_install()
             $sudo $signal -a -s HUP pmcd
         fi
     fi
+
+    # Potential problem here if pmcd's PMDA config has changed for
+    # metrics that the primary pmlogger is logging, then that pmlogger
+    # may exit and not have been restarted before the QA test bumps
+    # into either (a) an assumption that the primary pmlogger is
+    # running (unlikely, as we usually get here as a result an exit
+    # trap at the end of QA test, or (b) check is running with
+    # a check.callback that checks if the primary pmlogger is alive
+    # ... it is (b) this is the real problem.
+    #
+    # Only safe thing to do is to silently force a restart of the
+    # primary pmlogger.
+    #
+    if [ -n "$here" -a -n "$seq" ]
+    then
+	echo "_restore_pmda_install: restarting primary pmlogger" >>$here/$seq.full
+	_service pmlogger restart >>$here/$seq.full 2>&1
+    else
+	_service pmlogger restart >/dev/null 2>&1
+    fi
+    _wait_for_pmlogger
 }
 
 # find a local port that is not in use, optionally starting from a suggested port
@@ -2631,7 +2683,8 @@ _get_primary_logger_pid()
 	then
 	    echo "Arrgh, cannot get symlink for device for root fs ..."
 	    ls -l "$root"
-	    exit
+	    status=0
+	    exit $status
 	fi
 	basename "$symroot"
     fi
@@ -2690,7 +2743,8 @@ _sighup_pmcd()
     if [ $_sighups_before -lt 0 ]
     then
 	echo _sighup_pmcd called but pmcd not running
-	exit 1
+	status=0
+	exit $status
     fi
 
     $sudo $PCP_BINADM_DIR/pmsignal -a -s HUP pmcd >/dev/null 2>&1
@@ -2713,7 +2767,8 @@ _sighup_pmcd()
     if [ $_sts -ne 0 ]
     then
 	echo _sighup_pmcd caused no change in pmcd sighup count
-	exit 1
+	status=0
+	exit $status
     fi
 
     # delay for $_signal_delay while pmcd actually does post-SIGHUP work
@@ -2748,9 +2803,9 @@ _webapi_response_filter()
         -e '/Curl_[\.a-zA-Z0-9]*:/d' \
         -e 's/::1/LOCALADDR/g' \
         -e 's/127\.0\.0\.1/LOCALADDR/g' \
-        -e 's/PMWEBD error, .*/PMWEBD error, XXX/g' \
         -e 's/localhost[\.a-zA-Z0-9]*/LOCALHOST/g' \
-        -e 's/Date:.*/Date: DATE/' \
+        -e 's/\(Date:\).*/\1 DATE/' \
+        -e 's,\(i>pmproxy\)/.*<.i,\1/VERSION<\\i,g' \
 	-e 's/\[[0-9][0-9]* bytes data]/[data not shown]/' \
         -e '/> User-Agent: /d' \
 	-e '/Connection: Keep-Alive/d' \

@@ -74,6 +74,8 @@ sample.colour
   inst [2 or "blue"]  0 (adv off)
 Log for pmlogger on HOST started DATE
 
+chk_one: pmid=29.0.5 task=ADDR state=NNAN delta=0.000000
+compared to: optreq task=ADDR state=NNMY delta=0.000000
 Config parsed
 optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
 
@@ -136,6 +138,8 @@ sample.colour
   inst [2 or "blue"]  2 (mand off)
 Log for pmlogger on HOST started DATE
 
+chk_one: pmid=29.0.5 task=ADDR state=NNMN delta=0.000000
+compared to: optreq task=ADDR state=NNMY delta=0.000000
 Config parsed
 optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
 
@@ -198,6 +202,8 @@ sample.colour
   inst [2 or "blue"]  15 (mand on, delta=0 msec, inlog, avail)
 Log for pmlogger on HOST started DATE
 
+chk_one: pmid=29.0.5 task=ADDR state=NNAY delta=0.000000
+compared to: optreq task=ADDR state=NNMY delta=0.000000
 Warning [TMP.config, line 6]
 Incompatible request for metric "sample.colour" and instance "blue"
 Request for (advisory) ON conflicts with current (mandatory) ON state
@@ -269,6 +275,8 @@ sample.colour
   inst [2 or "blue"]  15 (mand on, delta=0 msec, inlog, avail)
 Log for pmlogger on HOST started DATE
 
+chk_one: pmid=29.0.5 task=ADDR state=NNAN delta=0.000000
+compared to: optreq task=ADDR state=NNMY delta=0.000000
 Warning [TMP.config, line 6]
 Incompatible request for metric "sample.colour" and instance "blue"
 Request for (advisory) OFF conflicts with current (mandatory) ON state
@@ -340,6 +348,8 @@ sample.colour
   inst [2 or "blue"]  15 (mand on, delta=0 msec, inlog, avail)
 Log for pmlogger on HOST started DATE
 
+chk_one: pmid=29.0.5 task=ADDR state=NNMY delta=0.000000
+compared to: optreq task=ADDR state=NNAN delta=0.000000
 Config parsed
 optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
 
@@ -469,6 +479,8 @@ sample.colour
   inst [2 or "blue"]  2 (mand off)
 Log for pmlogger on HOST started DATE
 
+chk_one: pmid=29.0.5 task=ADDR state=NNMN delta=0.000000
+compared to: optreq task=ADDR state=NNAN delta=0.000000
 Config parsed
 optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
 
@@ -531,6 +543,8 @@ sample.colour
   inst [2 or "blue"]  13 (adv on, delta=0 msec, inlog, avail)
 Log for pmlogger on HOST started DATE
 
+chk_one: pmid=29.0.5 task=ADDR state=NNAY delta=0.000000
+compared to: optreq task=ADDR state=NNAN delta=0.000000
 Config parsed
 optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
 
@@ -598,6 +612,8 @@ sample.colour
   inst [2 or "blue"]  0 (adv off)
 Log for pmlogger on HOST started DATE
 
+chk_one: pmid=29.0.5 task=ADDR state=NNAN delta=0.000000
+compared to: optreq task=ADDR state=NNAN delta=0.000000
 Config parsed
 optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
 
@@ -660,6 +676,8 @@ sample.colour
   inst [2 or "blue"]  15 (mand on, delta=0 msec, inlog, avail)
 Log for pmlogger on HOST started DATE
 
+chk_one: pmid=29.0.5 task=ADDR state=NNMY delta=0.000000
+compared to: optreq task=ADDR state=NNMN delta=0.000000
 Config parsed
 optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
 
@@ -727,6 +745,8 @@ sample.colour
   inst [2 or "blue"]  0 (adv off)
 Log for pmlogger on HOST started DATE
 
+chk_one: pmid=29.0.5 task=ADDR state=NNAN delta=0.000000
+compared to: optreq task=ADDR state=NNMN delta=0.000000
 Config parsed
 optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
 
@@ -851,6 +871,8 @@ sample.colour
   inst [2 or "blue"]  2 (mand off)
 Log for pmlogger on HOST started DATE
 
+chk_one: pmid=29.0.5 task=ADDR state=NNAY delta=0.000000
+compared to: optreq task=ADDR state=NNMN delta=0.000000
 Warning [TMP.config, line 6]
 Incompatible request for metric "sample.colour" and instance "blue"
 Request for (advisory) ON conflicts with current (mandatory) OFF state
@@ -917,6 +939,8 @@ sample.colour
   inst [2 or "blue"]  2 (mand off)
 Log for pmlogger on HOST started DATE
 
+chk_one: pmid=29.0.5 task=ADDR state=NNAN delta=0.000000
+compared to: optreq task=ADDR state=NNMN delta=0.000000
 Warning [TMP.config, line 6]
 Incompatible request for metric "sample.colour" and instance "blue"
 Request for (advisory) OFF conflicts with current (mandatory) OFF state
@@ -983,6 +1007,8 @@ sample.colour
   inst [2 or "blue"]  15 (mand on, delta=0 msec, inlog, avail)
 Log for pmlogger on HOST started DATE
 
+chk_one: pmid=29.0.5 task=ADDR state=NNMY delta=0.000000
+compared to: optreq task=ADDR state=NNAY delta=0.000000
 Config parsed
 optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
 
@@ -1050,6 +1076,8 @@ sample.colour
   inst [2 or "blue"]  0 (adv off)
 Log for pmlogger on HOST started DATE
 
+chk_one: pmid=29.0.5 task=ADDR state=NNAN delta=0.000000
+compared to: optreq task=ADDR state=NNAY delta=0.000000
 Config parsed
 optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
 
@@ -1112,6 +1140,8 @@ sample.colour
   inst [2 or "blue"]  2 (mand off)
 Log for pmlogger on HOST started DATE
 
+chk_one: pmid=29.0.5 task=ADDR state=NNMN delta=0.000000
+compared to: optreq task=ADDR state=NNAY delta=0.000000
 Config parsed
 optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
 
@@ -1241,6 +1271,8 @@ sample.colour
   inst [2 or "blue"]  0 (adv off)
 Log for pmlogger on HOST started DATE
 
+chk_one: pmid=29.0.5 task=ADDR state=NNAN delta=0.000000
+compared to: optreq task=ADDR state=NNAY delta=0.000000
 Config parsed
 optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
 
@@ -1303,6 +1335,8 @@ sample.colour
   inst [2 or "blue"]  15 (mand on, delta=0 msec, inlog, avail)
 Log for pmlogger on HOST started DATE
 
+chk_one: pmid=29.0.5 task=ADDR state=NNMY delta=0.000000
+compared to: optreq task=ADDR state=NNAN delta=0.000000
 Config parsed
 optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
 
@@ -1370,6 +1404,8 @@ sample.colour
   inst [2 or "blue"]  0 (adv off)
 Log for pmlogger on HOST started DATE
 
+chk_one: pmid=29.0.5 task=ADDR state=NNAN delta=0.000000
+compared to: optreq task=ADDR state=NNAN delta=0.000000
 Config parsed
 optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
 
@@ -1432,6 +1468,8 @@ sample.colour
   inst [2 or "blue"]  2 (mand off)
 Log for pmlogger on HOST started DATE
 
+chk_one: pmid=29.0.5 task=ADDR state=NNMN delta=0.000000
+compared to: optreq task=ADDR state=NNAN delta=0.000000
 Config parsed
 optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
 
@@ -1494,6 +1532,8 @@ sample.colour
   inst [2 or "blue"]  13 (adv on, delta=0 msec, inlog, avail)
 Log for pmlogger on HOST started DATE
 
+chk_one: pmid=29.0.5 task=ADDR state=NNAY delta=0.000000
+compared to: optreq task=ADDR state=NNAN delta=0.000000
 Config parsed
 optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
 

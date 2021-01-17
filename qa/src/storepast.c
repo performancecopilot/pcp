@@ -19,7 +19,7 @@ main(int argc, char **argv)
     char	local[MAXHOSTNAMELEN];
     char	*namespace = PM_NS_DEFAULT;
     pmResult	req;
-    char	*name = "sample.write_me";
+    const char	*name = "sample.write_me";
     pmID	pmid;
 
     pmSetProgname(argv[0]);

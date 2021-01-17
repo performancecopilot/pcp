@@ -16,15 +16,7 @@
 # source the PCP configuration environment variables
 . $PCP_DIR/etc/pcp.env
 
-if [ -d "$PCP_TMPFILE_DIR" ]
-then
-    tmp=`mktemp -d "$PCP_TMPFILE_DIR/pmns_stdpmid.XXXXXXXXX"` || exit 1
-else
-    # if configure --prefix is used in a the build, then $PCP_TMPFILE_DIR
-    # may not yet exist ... /tmp is a safe bet
-    #
-    tmp=`mktemp -d "$PCP_TMPFILE_DIR/pmns_stdpmid.XXXXXXXXX"` || exit 1
-fi
+tmp=`mktemp -d "$PCP_TMPFILE_DIR/pmns_stdpmid.XXXXXXXXX"` || exit 1
 status=1
 trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
 

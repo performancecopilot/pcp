@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015,2019 Red Hat.
+# Copyright (c) 2015,2019-2020 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -27,18 +27,19 @@ LDIRT = pmgenmap.sh $(GENMAPS)
 CFILES = \
 	atop.c \
 	atopsar.c \
+	acctproc.c \
 	deviate.c \
 	gpucom.c \
 	ifprop.c \
 	parseable.c \
 	photoproc.c \
+	netproc.c \
 	photosyst.c \
 	procdbase.c \
 	showgeneric.c \
 	showlinux.c \
 	showprocs.c \
 	showsys.c \
-	modules.c \
 	various.c \
 	version.c
 
@@ -87,6 +88,12 @@ pmgenmap.sh:
 procmetrics.h:	pmgenmap.sh procmetrics.map
 	$(PMGENMAP) procmetrics.map > procmetrics.h
 
+acctmetrics.h:	pmgenmap.sh acctmetrics.map
+	$(PMGENMAP) acctmetrics.map > acctmetrics.h
+
+netprocmetrics.h:	pmgenmap.sh netprocmetrics.map
+	$(PMGENMAP) netprocmetrics.map > netprocmetrics.h
+
 systmetrics.h:	pmgenmap.sh systmetrics.map
 	$(PMGENMAP) systmetrics.map > systmetrics.h
 
@@ -97,9 +104,11 @@ hostmetrics.h:	pmgenmap.sh hostmetrics.map
 	$(PMGENMAP) hostmetrics.map > hostmetrics.h
 
 photoproc.o:	procmetrics.h
+netproc.o:	netprocmetrics.h
 photosyst.o:	systmetrics.h
 ifprop.o:	ifpropmetrics.h
 various.o:	hostmetrics.h
+acctproc.o:	acctmetrics.h
 
 atop.o atopsar.o various.o:	$(TOPDIR)/src/include/pcp/libpcp.h
 

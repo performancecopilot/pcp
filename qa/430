@@ -59,7 +59,7 @@ _filter()
 	-e '/^End: /s/ .*/ .../' \
 	-e 's/^----------.*\/lock/.../' \
     | $PCP_AWK_PROG '
-/^Called from:/			{ print; print "..."; skip = 1; next }
+/^Called from:/			{ skip = 1; next }
 /^Contents of /			{ print; print "..."; skip = 1; next }
 skip == 1 && /^--- end of/	{ skip = 0; next }
 skip == 1			{ next }

@@ -36,6 +36,7 @@ static pmTimeval	now;
 int			fromPMDA;
 int			toPMDA;
 char			*myPmdaName;
+pid_t			pid;
 
 extern int		_creds_timeout;
 
@@ -166,7 +167,7 @@ openpmda(char *fname)
 	printf(" %s", param.argv[i]);
     putchar('\n');
 
-    if (__pmProcessCreate(param.argv, &fromPMDA, &toPMDA) < (pid_t)0) {
+    if ((pid = __pmProcessCreate(param.argv, &fromPMDA, &toPMDA)) < (pid_t)0) {
 	fprintf(stderr, "openpmda: create process failed: %s\n", osstrerror());
     }
     else {
@@ -315,13 +316,11 @@ closepmda(void)
     }
 }
 
-
 int
 dopmda_desc(pmID pmid, pmDesc *desc, int print)
 {
     int		sts;
     __pmPDU	*pb;
-    int		i;
     int		pinpdu;
 
     if ((sts = __pmSendDescReq(toPMDA, FROM_ANON, pmid)) >= 0) {
@@ -336,10 +335,11 @@ dopmda_desc(pmID pmid, pmDesc *desc, int print)
 		printf("Error: __pmDecodeDesc() failed: %s\n", pmErrStr(sts));
 	}
 	else if (sts == PDU_ERROR) {
-	    if ((i = __pmDecodeError(pb, &sts)) >= 0)
+	    int		lsts;
+	    if ((lsts = __pmDecodeError(pb, &sts)) >= 0)
 		printf("Error PDU: %s\n", pmErrStr(sts));
 	    else
-		printf("Error: __pmDecodeError() failed: %s\n", pmErrStr(i));
+		printf("Error: __pmDecodeError() failed: %s\n", pmErrStr(lsts));
 	}
 	else if (sts == 0)
 	    printf("Error: __pmGetPDU() failed: PDU empty, PMDA may have died\n");
@@ -353,6 +353,46 @@ dopmda_desc(pmID pmid, pmDesc *desc, int print)
 	printf("Error: __pmSendDescReq() failed: %s\n", pmErrStr(sts));
 
     return sts;
+}
+
+char *
+dopmda_iname(pmInDom indom, int inst)
+{
+    int		sts;
+    int		pinpdu;
+    char	*iname = NULL;
+    pmInResult	*inresult;
+    __pmPDU	*pb;
+
+    if ((sts = __pmSendInstanceReq(toPMDA, FROM_ANON, &now, indom, inst, NULL)) >= 0) {
+	if ((pinpdu = sts = __pmGetPDU(fromPMDA, ANY_SIZE, TIMEOUT_NEVER, &pb)) == PDU_INSTANCE) {
+	    if ((sts = __pmDecodeInstance(pb, &inresult)) >= 0) {
+		/* success */
+		iname = strdup(inresult->namelist[0]);
+		__pmFreeInResult(inresult);
+	    }
+	    else
+		printf("Error: __pmDecodeInstance() failed: %s\n", pmErrStr(sts));
+	}
+	else if (sts == PDU_ERROR) {
+	    int		lsts;
+	    if ((lsts = __pmDecodeError(pb, &sts)) >= 0)
+		printf("Error PDU: %s\n", pmErrStr(sts));
+	    else
+		printf("Error: __pmDecodeError() failed: %s\n", pmErrStr(lsts));
+	}
+	else if (sts == 0)
+	    printf("Error: __pmGetPDU() failed: PDU empty, PMDA may have died\n");
+	else
+	    printf("Error: __pmGetPDU() failed: %s\n", pmErrStr(sts));
+
+	if (pinpdu > 0)
+	    __pmUnpinPDUBuf(pb);
+    }
+    else
+	printf("Error: __pmSendInstanceReq() failed: %s\n", pmErrStr(sts));
+
+    return iname;
 }
 
 void
@@ -397,7 +437,7 @@ dopmda(int pdu)
 		printf(" %s", pmIDStr(param.pmidlist[i]));
 	    putchar('\n');
 
-	    if (get_desc) {
+	    if (get_desc || get_iname) {
 		desc_list = (pmDesc *)malloc(param.numpmid * sizeof(pmDesc));
 		if (desc_list == NULL) {
 	            printf("Error: PDU fetch() failed: %s\n", pmErrStr(ENOMEM));
@@ -422,7 +462,7 @@ dopmda(int pdu)
 		if ((sts = __pmSendFetch(toPMDA, FROM_ANON, 0, NULL, param.numpmid, param.pmidlist)) >= 0) {
 		    if ((pinpdu = sts = __pmGetPDU(fromPMDA, ANY_SIZE, TIMEOUT_NEVER, &pb)) == PDU_RESULT) {
 			if ((sts = __pmDecodeResult(pb, &result)) >= 0) {
-			    if (get_desc) 
+			    if (desc_list) 
 				_dbDumpResult(stdout, result, desc_list);
 			    else
 				__pmDumpResult(stdout, result);
@@ -642,10 +682,17 @@ dopmda(int pdu)
 	    else if (param.number & PM_LABEL_INSTANCES) {
 		printf("Instances of pmInDom: %s\n", pmInDomStr(param.indom));
 		ident = param.indom;
+		if (profile_changed) {
+		    if ((sts = __pmSendProfile(toPMDA, FROM_ANON, 0, profile)) < 0)
+			printf("Error: __pmSendProfile() failed: %s\n", pmErrStr(sts));
+		    else
+			profile_changed = 0;
+		}
 	    }
 	    else /* param.number & (PM_LABEL_DOMAIN|PM_LABEL_CONTEXT) */
 		ident = PM_IN_NULL;
 
+	    sts = 0;
 	    if ((sts = __pmSendLabelReq(toPMDA, FROM_ANON, ident, param.number)) >= 0) {
 		if ((pinpdu = sts = __pmGetPDU(fromPMDA, ANY_SIZE, TIMEOUT_NEVER, &pb)) == PDU_LABEL) {
 		    if ((sts = __pmDecodeLabel(pb, &ident, &type, &labelset, &numsets)) >= 0) {
@@ -720,7 +767,7 @@ dopmda(int pdu)
 
 	case PDU_PMNS_NAMES:
             printf("Metric: %s\n", param.name);
-	    if ((sts = __pmSendNameList(toPMDA, FROM_ANON, 1, &param.name, NULL)) >= 0) {
+	    if ((sts = __pmSendNameList(toPMDA, FROM_ANON, 1, (const char **)&param.name, NULL)) >= 0) {
 		if ((pinpdu = sts = __pmGetPDU(fromPMDA, ANY_SIZE, TIMEOUT_NEVER, &pb)) == PDU_PMNS_IDS) {
 		    int		xsts;
 
@@ -921,6 +968,13 @@ fillResult(pmResult *result, int type)
 	    printf(" -> ");
 	    pmPrintValue(stdout, vsp->valfmt, type, &vsp->vlist[i], 1);
 	    putchar('\n');
+	    if (vsp->valfmt == PM_VAL_DPTR) {
+		/*
+		 * pmValueBlock allocated in __pmStuffValue, keep track
+		 * so we can free it later
+		 */
+		gc_add(vsp->vlist[i].value.pval);
+	    }
 	}
     }
 
@@ -930,4 +984,3 @@ done:
 
     return sts;
 }
-

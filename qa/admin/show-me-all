@@ -15,7 +15,7 @@ trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 
 _usage()
 {
-    echo "Usage: $0 [options] seq"
+    echo "Usage: $0 [options] [seq ...]"
     echo "Options:"
     echo "  -f    show me seq.full if it exists"
     echo "  -g    path to base of PCP git tree [default: $HOME/src/pcp]"
@@ -51,8 +51,11 @@ do
     esac
 done
 shift `expr $OPTIND - 1`
-[ $# -ne 1 ] && _usage
-seq="$1"
+if $prepare_mail && [ $# -ne 1 ]
+then
+    echo "Error: -m needs exatly one seq argument"
+    exit
+fi
 
 if [ ! -d $pcpdir/qa ]
 then
@@ -63,84 +66,99 @@ fi
 if [ -d $HOME/Logs/by-vm ]
 then
     cd $HOME/Logs/by-vm
+    here=`pwd`
+else
+    echo "Error: $HOME/Logs/by-vm does not exist"
+    exit
 fi
 
-case "$seq"
-in
-    [0-9])
-	    seq=00$seq
-	    ;;
-    [0-9][0-9])
-	    seq=0$seq
-	    ;;
-esac
-base=''
-echo >$tmp.sum
-here=`pwd`
-find * -name "$seq.out.bad" \
-| sort \
-| while read bad
+if [ $# -eq 0 ]
+then
+    set -- `find * -name "*.out.bad" \
+            | sed -e 's;.*/;;' -e 's/\.out.bad$//' \
+	    | sort -n \
+	    | uniq`
+fi
+    
+for seq
 do
-    cd $here
-    sum=`shasum <$bad | sed -e 's/ .*//'`
-    host=`echo "$bad" | sed -e 's/\/.*//'`
-    if [ ! -d `dirname $bad` ]
-    then
-	echo "Arrgh: bad=$bad but dir=`dirname $bad` is not a directory!"
-	exit
-    fi
-    cd `dirname $bad`
-    rm -f $tmp.ok
-    for log in `ls -r ../????-??-??`
+    case "$seq"
+    in
+	[0-9])
+		seq=00$seq
+		;;
+	[0-9][0-9])
+		seq=0$seq
+		;;
+    esac
+    base=''
+    echo >$tmp.sum
+    find * -name "$seq.out.bad" \
+    | sort \
+    | while read bad
     do
-	if grep '^Failures: ' $log >$tmp.fail
+	cd $here
+	sum=`shasum <$bad | sed -e 's/ .*//'`
+	host=`echo "$bad" | sed -e 's/\/.*//'`
+	if [ ! -d `dirname $bad` ]
 	then
-	    # found a Failures: line ... is our test included in the
-	    # last Failures: line?
-	    #
-	    if tail -1 $tmp.fail | grep " $seq" >/dev/null
-	    then
-		touch $tmp.ok
-	    fi
-	    break
+	    echo "Arrgh: bad=$bad but dir=`dirname $bad` is not a directory!"
+	    exit
 	fi
-    done
-    if [ ! -f $tmp.ok ]
-    then
-	# cleanup because test was subsequently made to pass?
-	#
-	echo -n "$seq: not a failure in any $host daily log ... clean up? [n] "
-	read ans </dev/tty
-	if [ -n "$ans" -a "$ans" = y ]
-	then
-	    rm $seq.*
-	fi
-	continue
-    fi
-    if grep " $sum" <$tmp.sum >/dev/null 2>&1
-    then
-	match_host=`grep " $sum" <$tmp.sum | sed -e 's/ .*//' -e 1q`
-	echo "$host: same $seq.out.bad as $match_host"
-    else
-	for qabits in \
-	    common common.check common.config common.filter common.install.cisco \
-	    common.pcpweb common.product common.rc common.setup localconfig \
-	    group show-me
+	cd `dirname $bad`
+	rm -f $tmp.ok
+	for log in `ls -r ../????-??-??`
 	do
-	    if [ -L $qabits ]
+	    if grep '^Failures: ' $log >$tmp.fail
 	    then
-		:
-	    else
-		rm -f $qabits
-		ln -s $pcpdir/qa/$qabits $qabits
+		# found a Failures: line ... is our test included in the
+		# last Failures: line?
+		#
+		if tail -1 $tmp.fail | grep " $seq" >/dev/null
+		then
+		    touch $tmp.ok
+		fi
+		break
 	    fi
 	done
-	echo -n "$host-"
-	show-me $show_me_opts $seq
-	$full && [ -f $seq.full ] && less $seq.full </dev/tty
-    fi
-    echo $host $sum >>$tmp.sum
-    #debug# cat $tmp.sum
+	if [ ! -f $tmp.ok ]
+	then
+	    # cleanup because test was subsequently made to pass?
+	    #
+	    echo -n "$seq: not a failure in any $host daily log ... clean up? [n] "
+	    read ans </dev/tty
+	    if [ -n "$ans" -a "$ans" = y ]
+	    then
+		rm $seq.*
+	    fi
+	    continue
+	fi
+	if grep " $sum" <$tmp.sum >/dev/null 2>&1
+	then
+	    match_host=`grep " $sum" <$tmp.sum | sed -e 's/ .*//' -e 1q`
+	    echo "$host: same $seq.out.bad as $match_host"
+	else
+	    for qabits in \
+		common common.check common.config common.filter common.install.cisco \
+		common.pcpweb common.product common.rc common.setup localconfig \
+		group show-me
+	    do
+		if [ -L $qabits ]
+		then
+		    :
+		else
+		    rm -f $qabits
+		    ln -s $pcpdir/qa/$qabits $qabits
+		fi
+	    done
+	    echo -n "$host-"
+	    show-me -w $show_me_opts $seq
+	    $full && [ -f $seq.full ] && less $seq.full </dev/tty
+	fi
+	echo $host $sum >>$tmp.sum
+	#debug# cat $tmp.sum
+    done
+
 done
 
 if $prepare_mail

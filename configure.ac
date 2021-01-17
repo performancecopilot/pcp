@@ -117,18 +117,6 @@ AC_ARG_WITH([dstat-symlink],
     [do_dstat_symlink=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-dstat-symlink=$withval"],
     [do_dstat_symlink=check])
 
-AC_ARG_WITH([books],
-    [AC_HELP_STRING([--with-books],
-                    [enable building of the PCP books (default is off)])],
-    [do_books=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-books=$withval"],
-    [do_books=no])
-
-AC_ARG_WITH([books-brand],
-    [AC_HELP_STRING([--with-books-brand=BRAND],
-                    [choose the docbook brand when building the PCP books (default is common)])],
-    [do_books_brand=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-books-brand=$withval"],
-    [do_books_brand=common])
-
 AC_ARG_WITH([perfevent],
     [AC_HELP_STRING([--with-perfevent],
 		   [enable perfevent pmda (default is on)])],
@@ -498,6 +486,23 @@ AS_IF([test "x$cc_is_gcc" = xyes -a "$enable_visibility" != no],[
 ])
 AC_SUBST(INVISIBILITY)
 
+dnl Check for (opt-in) support for --std=c99
+AC_MSG_CHECKING([for --std=c99 support])
+AS_IF([test "x$cc_is_gcc" = xyes],[
+    C99_CFLAGS="--std=c99"
+    save_CFLAGS="$CFLAGS"
+    CFLAGS="$CFLAGS $C99_CFLAGS"
+AC_COMPILE_IFELSE(
+   [AC_LANG_PROGRAM([[#include <stdio.h>]],
+		    [[for (int i=0; i<1; i++)]])],
+   [AC_MSG_RESULT([yes])],
+   [AC_MSG_RESULT([no])
+    C99_CFLAGS=""])
+   CFLAGS="$save_CFLAGS"
+])
+AC_SUBST(C99_CFLAGS)
+
+dnl Check for a C++ compiler
 AC_PROG_CXX(eg++ g++ c++ clang++)
 cxx=$CXX
 AC_SUBST(cxx)
@@ -857,10 +862,42 @@ dnl check if python tools/packages wanted (need python >= 2.6)
 enable_python2=false
 AS_IF([test "x$do_python" != "xno"], [
     enable_python2=true
-    if test -z "$PYTHON"
+
+    if test "$do_python" = "check" -a -f /etc/os-release
+    then
+    (
+	. /etc/os-release
+	case "$ID"
+	in
+	    debian)
+		if test -z "$VERSION_ID" -o "$VERSION_ID" -ge 11; then
+		    touch config.python2_eol
+		fi
+		;;
+	    ubuntu)
+		VERSION_NO=`echo "$VERSION_ID" | sed 's/[[^0-9]]//'`
+		if test "$VERSION_NO" -ge 2004; then
+		    touch config.python2_eol
+		fi
+		;;
+	esac
+    )
+    fi
+
+    if test -f config.python2_eol
+    then
+	rm config.python2_eol
+	echo "WARNING: Python 2 is not supported anymore (EOL since 2020), please use Python 3 instead."
+	enable_python2=false
+    fi
+
+    if test "$enable_python2" = "true" -a -z "$PYTHON"
     then
 	enable_python2=false
-    else
+    fi
+
+    if $enable_python2
+    then
 	AC_MSG_CHECKING([Python2 version])
 	eval `$PYTHON -V 2>&1 | awk '/^Python/ { ver=2; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export PY_MAJOR=%d PY_MINOR=%d PY_POINT=%d\n",$major,$minor,$point }'`
 	AC_MSG_RESULT([$PY_MAJOR.$PY_MINOR.$PY_POINT])
@@ -1615,34 +1652,6 @@ fi
 makepkg=$MAKEPKG
 AC_SUBST(makepkg)
 
-dnl check if a toolchain is available for the books
-test -z "$PUBLICAN" && AC_PATH_PROG(PUBLICAN, publican)
-publican=$PUBLICAN
-AC_SUBST(publican)
-
-book_toolchain=""
-if test "$do_books" = "check" -o "$do_books" = "yes"
-then
-    if test "$BOOK_TOOLCHAIN" != ""
-    then
-        book_toolchain=$BOOK_TOOLCHAIN
-    elif test "$PUBLICAN" != ""
-    then
-        book_toolchain=publican
-    elif test "$do_books" = "yes"
-    then
-	AC_MSG_ERROR([cannot enable books build - no toolchain found])
-    fi
-fi
-AC_SUBST(book_toolchain)
-
-book_brand="common"
-if test "$do_books_brand" != ""
-then
-    book_brand=$do_books_brand
-fi
-AC_SUBST(book_brand)
-
 dnl check if symbolic links are supported
 AC_PROG_LN_S
 if test $target_os = mingw; then
@@ -1711,7 +1720,9 @@ AC_CHECK_HEADERS(iphlpapi.h, [], [], [#include <winsock2.h>])
 AC_CHECK_HEADERS(netioapi.h, [], [], [#include <winsock2.h>])
 AC_CHECK_HEADERS(fts.h libzfs.h)
 AC_CHECK_HEADERS(sys/statvfs.h sys/statfs.h sys/mount.h)
-AC_CHECK_HEADERS(ncurses/curses.h)
+AC_CHECK_HEADERS(curses.h ncurses.h)
+AC_CHECK_HEADERS(ncurses/curses.h ncurses/ncurses.h)
+AC_CHECK_HEADERS(ncursesw/curses.h)
 AC_CHECK_HEADERS(linux/perf_event.h)
 
 dnl Check if we have <sys/endian.h> ... standard way
@@ -1787,6 +1798,9 @@ AC_SUBST(HAVE_LIBVARLINK, [$have_libvarlink])
 
 PKG_CHECK_MODULES([ncurses], [ncurses], [have_ncurses=true], [have_ncurses=false])
 AC_SUBST(HAVE_NCURSES, [$have_ncurses])
+
+PKG_CHECK_MODULES([ncursesw], [ncursesw], [have_ncursesw=true], [have_ncursesw=false])
+AC_SUBST(HAVE_NCURSESW, [$have_ncursesw])
 
 PKG_CHECK_MODULES([DEVMAPPER], [devmapper], [have_devmapper=true], [have_devmapper=false])
 if $have_devmapper
@@ -1985,6 +1999,7 @@ pcp_selinux_bpf=false
 pcp_selinux_files_list_non_auth_dirs=false
 pcp_selinux_rpm_var_lib=false
 pcp_selinux_virt_var_run=false
+pcp_selinux_proc_security=false
 pcp_selinux_cap2_syslog=false
 pcp_selinux_icmp_socket=false
 
@@ -2034,6 +2049,8 @@ AS_IF([test "x$enable_selinux" != "xfalse"], [
 	&& pcp_selinux_rpm_var_lib=true
     grep '^[[ 	]][[ 	]]*virt_var_run_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_virt_var_run=true
+    grep '^[[ 	]][[ 	]]*proc_security_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_proc_security=true
 
     dnl these ones are for pcpqa.te
 
@@ -2135,7 +2152,7 @@ AS_IF([test "x$enable_selinux" != "xfalse"], [
     && pcp_selinux_dir_class=true
 
     seinfo -x --class=rawip_socket $seinfo_common_flag 2>/dev/null \
-    | grep '^[[ 	]][[ 	]]*(class |)rawip_socket$' >/dev/null \
+    | egrep '^[[ 	]][[ 	]]*(class |)rawip_socket$' >/dev/null \
     && pcp_selinux_rawip_socket_class=true
 
 ])
@@ -2154,6 +2171,7 @@ AC_SUBST(pcp_selinux_bpf)
 AC_SUBST(pcp_selinux_files_list_non_auth_dirs)
 AC_SUBST(pcp_selinux_rpm_var_lib)
 AC_SUBST(pcp_selinux_virt_var_run)
+AC_SUBST(pcp_selinux_proc_security)
 AC_SUBST(pcp_selinux_cap2_syslog)
 AC_SUBST(pcp_selinux_icmp_socket)
 
@@ -3439,15 +3457,13 @@ pcp_inc_dir=`eval echo $includedir/pcp`
 pcp_inc_dir=`eval echo $pcp_inc_dir`
 AC_SUBST(pcp_inc_dir)
 
-dnl books - pdfs, html
+dnl html files (GUI online help, tutorials)
 if test $target_os = linux; then
-    pcp_books_dir=`eval echo $datarootdir/doc/pcp-doc`
+    pcp_html_dir=`eval echo $datarootdir/doc/pcp-doc/html`
 else
-    pcp_books_dir=`eval echo $datarootdir/doc/pcp`
+    pcp_html_dir=`eval echo $datarootdir/doc/pcp/html`
 fi
-pcp_books_dir=`eval echo $pcp_books_dir`
-pcp_html_dir=`eval echo $pcp_books_dir/html`
-AC_SUBST(pcp_books_dir)
+pcp_html_dir=`eval echo $pcp_html_dir`
 AC_SUBST(pcp_html_dir)
 
 dnl icon pixmap files

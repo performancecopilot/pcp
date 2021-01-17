@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014,2016,2019 Red Hat.
+ * Copyright (c) 2012-2014,2016,2019-2020 Red Hat.
  * Copyright (c) 2011 Aconex.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -411,17 +411,17 @@ extract_interrupt_other(char *buffer, int ncolumns, int nlines)
 static int
 extract_softirqs(char *buffer, int ncolumns, int nlines)
 {
-    char *name, *end, *values;
+    char *name, *values;
     int resize = (nlines >= softirqs_count);
 
     name = extract_interrupt_name(buffer, &values);
     if (resize &&
 	!extend_interrupts(&softirqs, SOFTIRQS_INDOM, &softirqs_count))
 	return 0;
-    end = extract_values(values, &softirqs[nlines], ncolumns, 0);
+    extract_values(values, &softirqs[nlines], ncolumns, 0);
     if (resize) {
 	initialise_named_interrupt(&softirqs[nlines],
-				    SOFTIRQS_NAMES_INDOM, name, end);
+				    SOFTIRQS_NAMES_INDOM, name, NULL);
 	reset_indom_cache(SOFTIRQS_INDOM, softirqs, nlines+1);
 	return 2;
     }
@@ -743,8 +743,9 @@ interrupts_text(pmdaExt *pmda, pmID pmid, int type, char **buf)
 		return PM_ERR_PMID;
 	    text = interrupt_lines[item].text;
 	    if (text == NULL || text[0] == '\0')
-		return PM_ERR_TEXT;
-	    *buf = text;
+		*buf = "Per-processor interrupts values from /proc/interrupts";
+	    else
+		*buf = text;
 	    return 0;
 	case CLUSTER_INTERRUPT_OTHER:
 	    if (!other_count)
@@ -753,18 +754,14 @@ interrupts_text(pmdaExt *pmda, pmID pmid, int type, char **buf)
 		return PM_ERR_PMID;
 	    text = ip->text;
 	    if (text == NULL || text[0] == '\0')
-		return PM_ERR_TEXT;
-	    *buf = text;
+		*buf = "Per-processor interrupts values from /proc/interrupts";
+	    else
+		*buf = text;
 	    return 0;
 	case CLUSTER_SOFTIRQS:
 	    if (!softirqs_count)
 		return PM_ERR_TEXT;
-	    if (!(ip = dynamic_data_lookup(item, SOFTIRQS_NAMES_INDOM)))
-		return PM_ERR_PMID;
-	    text = ip->text;
-	    if (text == NULL || text[0] == '\0')
-		return PM_ERR_TEXT;
-	    *buf = text;
+	    *buf = "percpu deferrals to outside of hardware interrupt handling";
 	    return 0;
     }
     return PM_ERR_PMID;

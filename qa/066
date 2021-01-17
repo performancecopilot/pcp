@@ -54,7 +54,6 @@ _filter_log()
 	-e '/^00[08]:/d' \
 	-e '/^linux/s/\/var\//\/usr\//' \
 	-e '/^sample/s/.*/sample agent.../' \
-	-e 's;pcp/lib/mips_[^.]*\.;pcp/lib/ISA.;' \
 	-e '/client connection from/,/^$/d' \
 	-e 's/1 dso/X dso/' \
 	-e 's/2 dso/X dso/' \

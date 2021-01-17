@@ -376,6 +376,8 @@ __pmOptFetchAdd(fetchctl_t **root, optreq_t *new)
     pmidctl_t		*pmp = NULL;
     int			mincost;
     int			change;
+    int			j;
+    int			tj;
     pmInDom		indom = new->r_desc->indom;
     pmID		pmid = new->r_desc->pmid;
 
@@ -388,7 +390,7 @@ __pmOptFetchAdd(fetchctl_t **root, optreq_t *new)
     fp->f_next = *root;
     *root = fp;
 
-    for (fp = *root; fp != NULL; fp = fp->f_next) {
+    for (j = 0, fp = *root; fp != NULL; j++, fp = fp->f_next) {
 	fp->f_cost = optCost(fp);
 
 	change = OPT_STATE_XINDOM | OPT_STATE_XPMID | OPT_STATE_XREQ;
@@ -437,7 +439,7 @@ __pmOptFetchAdd(fetchctl_t **root, optreq_t *new)
 	    fp->f_newcost += optcost.c_fetch;
 	if (pmDebugOptions.optfetch && pmDebugOptions.desperate) {
 	    char	strbuf[100];
-	    fprintf(stderr, "__pmOptFetchAdd: fp=" PRINTF_P_PFX "%p cost=", fp);
+	    fprintf(stderr, "__pmOptFetchAdd: [%d] fp=" PRINTF_P_PFX "%p cost=", j, fp);
 	    if (fp->f_cost == OPT_COST_INFINITY)
 		fprintf(stderr, "INFINITY");
 	    else
@@ -447,16 +449,17 @@ __pmOptFetchAdd(fetchctl_t **root, optreq_t *new)
 		fprintf(stderr, "INFINITY");
 	    else
 		fprintf(stderr, "%d", fp->f_newcost);
-	    fprintf(stderr, ", for %s @ grp " PRINTF_P_PFX "%p,",
-		pmIDStr_r(pmid, strbuf, sizeof(strbuf)), fp);
+	    fprintf(stderr, " for %s,",
+		pmIDStr_r(pmid, strbuf, sizeof(strbuf)));
 	    fprintf(stderr, " state %s\n",
 		statestr(fp->f_state, strbuf));
 	}
     }
 
     tfp = NULL;
+    tj = -1;
     mincost = OPT_COST_INFINITY;
-    for (fp = *root; fp != NULL; fp = fp->f_next) {
+    for (j = 0, fp = *root; fp != NULL; j++, fp = fp->f_next) {
 	int		cost;
 	if (optcost.c_scope)
 	    /* global */
@@ -467,13 +470,14 @@ __pmOptFetchAdd(fetchctl_t **root, optreq_t *new)
 	if (cost < mincost) {
 	    mincost = cost;
 	    tfp = fp;
+	    tj = j;
 	}
     }
     if (pmDebugOptions.optfetch && pmDebugOptions.desperate) {
 	char	strbuf[100];
-	fprintf(stderr, "__pmOptFetchAdd: fp=" PRINTF_P_PFX "%p chose %s cost=%d for %s @ grp " PRINTF_P_PFX "%p,",
-		tfp, optcost.c_scope ? "global" : "incremental",
-		mincost, pmIDStr_r(pmid, strbuf, sizeof(strbuf)), tfp);
+	fprintf(stderr, "__pmOptFetchAdd: choose [%d] fp=" PRINTF_P_PFX "%p, %s cost=%d for %s",
+		tj, tfp, optcost.c_scope ? "global" : "incremental",
+		mincost, pmIDStr_r(pmid, strbuf, sizeof(strbuf)));
 	fprintf(stderr, " change %s\n", statestr(tfp->f_state, strbuf));
     }
 
@@ -497,6 +501,9 @@ __pmOptFetchAdd(fetchctl_t **root, optreq_t *new)
 	    /*
 	     * The chosen one ...
 	     */
+	    if (pmDebugOptions.optfetch && pmDebugOptions.desperate) {
+		fprintf(stderr, "__pmOptFetchAdd: chosen one is OK\n");
+	    }
 	    if (fp->f_state & OPT_STATE_XFETCH)
 		fp->f_state |= OPT_STATE_NEW;
 	    if (addpmid(tfp, pmid))

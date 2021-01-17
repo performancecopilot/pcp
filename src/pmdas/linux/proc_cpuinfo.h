@@ -1,7 +1,7 @@
 /*
  * Linux /proc/cpuinfo metrics cluster
  *
- * Copyright (c) 2013-2015,2017 Red Hat.
+ * Copyright (c) 2013-2015,2017,2020 Red Hat.
  * Copyright (c) 2001 Gilly Ran (gilly@exanet.com) for the
  * portions of the code supporting the Alpha platform.
  * All rights reserved.
@@ -20,3 +20,4 @@
 
 extern int refresh_proc_cpuinfo(void);
 extern int refresh_sysfs_online(char *, const char *);
+extern unsigned long refresh_sysfs_thermal_throttle(char *, const char *, const char *);

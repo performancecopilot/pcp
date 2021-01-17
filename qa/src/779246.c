@@ -23,7 +23,7 @@ dometric(void)
     pmID		pmid;
     pmDesc		desc;
     pmResult		*result;
-    char 		*namelist[NUM] = { "sample.sysinfo" };
+    const char 		*namelist[NUM] = { "sample.sysinfo" };
     pmID		pmidlist[NUM] = { 0 };
 
     if ((n = pmLookupName(NUM, namelist, pmidlist)) < 0) {

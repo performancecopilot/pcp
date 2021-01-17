@@ -28,6 +28,7 @@ except ImportError:
     import ConfigParser
 import signal
 import time
+import math
 import csv
 import sys
 import os
@@ -410,8 +411,10 @@ class pmConfig(object):
 
     def get_labels_str(self, metric, inst=None, curr=True, combine=True):
         """ Return labels as string """
-        i = None if curr else list(self.util.metrics.keys()).index(metric)
-        ref = self.res_labels[metric] if curr else self.labels[i]
+        if curr:
+            ref = self.res_labels[metric]
+        else:
+            ref = self.labels[list(self.util.metrics.keys()).index(metric)]
         if inst in (None, pmapi.c_api.PM_IN_NULL):
             labels = ref[0]
         else:
@@ -560,6 +563,10 @@ class pmConfig(object):
             """ Retrieve the items """
             return self._items
 
+    def integer_roundup(self, value, upper):
+        """ Round an integer value up to the nearest upper integer """
+        return int(math.ceil(value / float(upper))) * upper
+
     def validate_common_options(self):
         """ Validate common utility options """
         try:
@@ -697,6 +704,10 @@ class pmConfig(object):
                 print(self.util.instances)
             sys.exit(1)
 
+        # Dynamically set fetchgroup max instances
+        # if not specified explicitly by the caller
+        dynamic_insts = not max_insts
+
         # Finalize metricset
         incompat_metrics = OrderedDict()
         for i, metric in enumerate(self.util.metrics):
@@ -722,10 +733,9 @@ class pmConfig(object):
                     self.util.metrics[metric][1] = self.util.instances
             if self.insts[i][0][0] == pmapi.c_api.PM_IN_NULL:
                 self.util.metrics[metric][1] = []
-            # Dynamically set fetchgroup max instances
-            # if not specified explicitly by the caller
-            if not max_insts:
-                max_insts = len(self.insts[i][0]) + 1024
+
+            if dynamic_insts:
+                max_insts = self.integer_roundup(len(self.insts[i][0]), 1000)
 
             # Rawness
             if hasattr(self.util, 'type_prefer') and not self.util.metrics[metric][3]:

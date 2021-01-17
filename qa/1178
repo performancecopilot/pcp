@@ -20,7 +20,6 @@ in
     		_notrun "Bad Linux 5.2 kernel headers will cause BPF to fail"
 		;;
 esac
-_bcc_debian_unstable && _notrun "bcc may be broken for Debian unstable"
 
 if [ -f /etc/lsb-release ]
 then
@@ -94,12 +93,25 @@ pmsleep 3
 
 echo "=== report metric values ==="
 pminfo -dfmtT bcc.proc.io.net.total.rx 2>&1 | grep $curl_pid\" | tee -a $here/$seq.full \
-| _value_filter_nonzero
-# Twice as the old kprobe based BPF seems to provide
-# results occasionally with some delay.
-# Safe to remove when no kernel < 4.16 / bcc < 0.6 in use anywhere
-pminfo -dfmtT bcc.proc.io.net.total.rx 2>&1 | grep $curl_pid\" | tee -a $here/$seq.full \
-| _value_filter_nonzero
+| _value_filter_nonzero >$tmp.1
+if grep OK <$tmp.1 >/dev/null
+then
+    cat $tmp.1
+else
+    # Twice as the old kprobe based BPF seems to provide
+    # results occasionally with some delay.
+    # Safe to remove when no kernel < 4.16 / bcc < 0.6 in use anywhere
+    pmsleep 2
+    pminfo -dfmtT bcc.proc.io.net.total.rx 2>&1 | grep $curl_pid\" | tee -a $here/$seq.full \
+    | _value_filter_nonzero >$tmp.2
+    if grep OK <$tmp.2 >/dev/null
+    then
+	cat $tmp.2
+    else
+	cat $tmp.1
+	cat $tmp.2
+    fi
+fi
 
 _pmdabcc_remove
 

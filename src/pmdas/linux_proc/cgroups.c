@@ -531,7 +531,7 @@ cgroup_scan(const char *mnt, const char *path, cgroup_refresh_t refresh,
 
     /* descend into subdirectories to find all cgroups */
     while ((dp = readdir(dirp)) != NULL) {
-	if (dp->d_name[0] == '.' || dp->d_type != DT_DIR)
+	if (dp->d_name[0] == '.' || dp->d_type == DT_REG)
 	    continue;
 	if (path[0] == '\0')
 	    pmsprintf(cgpath, sizeof(cgpath), "%s%s/%s",
@@ -539,6 +539,25 @@ cgroup_scan(const char *mnt, const char *path, cgroup_refresh_t refresh,
 	else
 	    pmsprintf(cgpath, sizeof(cgpath), "%s%s/%s/%s",
 			proc_statspath, mnt, path, dp->d_name);
+	if (dp->d_type == DT_UNKNOWN) {
+	    /*
+	     * This a bit sad, and probably only seen in QA where
+	     * PROC_STATSPATH is set and the test "/proc" files are
+	     * on a file system that does not support d_type from
+	     * readdir() ... go the old-style way with stat()
+	     */
+	    int		lsts;
+	    struct stat	statbuf;
+	    if ((lsts = stat(cgpath, &statbuf)) != 0) {
+		if (pmDebugOptions.appl0)
+		    fprintf(stderr, "cgroup_scan: stat(%s) -> %d\n", cgpath, lsts);
+		continue;
+	    }
+	    if ((statbuf.st_mode & S_IFMT) != S_IFDIR)
+		continue;
+	}
+	else if (dp->d_type != DT_DIR)
+	    continue;
 
 	cgname = cgroup_name(cgpath, length);
 	if (check_refresh(cgpath + mntlen, container, container_length))
@@ -584,7 +603,22 @@ read_pressure(FILE *fp, const char *type, cgroup_pressure_t *pp)
     static char fmt[] = "TYPE avg10=%f avg60=%f avg300=%f total=%llu\n";
     int		count;
 
+#ifdef __GNUC__
+#if __GNUC__ >= 10
+    /*
+     * gcc 10 on Fedora 32 and Debian unstable falsely report a problem
+     * with this strncpy() ... it is safe
+     */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-truncation"
+#endif
+#endif
     strncpy(fmt, type, 4);
+#ifdef __GNUC__
+#if __GNUC__ >= 10
+#pragma GCC diagnostic pop
+#endif
+#endif
     count = fscanf(fp, fmt, &pp->avg10sec, &pp->avg1min, &pp->avg5min,
 		    (unsigned long long *)&pp->total);
     pp->updated = (count == 4);

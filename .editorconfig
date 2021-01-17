@@ -3,16 +3,18 @@ root = true
 
 [*]
 charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+
+[*.c]
 # unfortunately editorconfig doesn't support the project style of mixed tabs
 # and spaces yet
 indent_style = tabs
 indent_size = 8
-end_of_line = lf
-insert_final_newline = true
 
-[*.py]
-indent_size = 4
+[*.{py,python,bpf}]
 indent_style = spaces
+indent_size = 4
 trim_trailing_whitespace = true
 
 [*.{yml,json,sh}]

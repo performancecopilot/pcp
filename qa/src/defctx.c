@@ -24,7 +24,7 @@ main(int argc, char **argv)
     char	*namespace = PM_NS_DEFAULT;
     pmDesc	desc;
     pmID	pmid;
-    char	*name = "sample.colour";
+    const char	*name = "sample.colour";
     pmResult	*resp;
 
     pmSetProgname(argv[0]);

@@ -65,7 +65,7 @@ int	verbose = 0;
 char	*host = "localhost";
 char	*pmnsfile = PM_NS_DEFAULT;
 int	nmetrics;
-char	*metrics[MAXMETRICS];
+const char *metrics[MAXMETRICS];
 pmID	pmids[MAXMETRICS];
 pmInDom	indom;
 int	iterations = 1;

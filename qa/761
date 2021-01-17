@@ -79,7 +79,22 @@ chmod 755 $here/$seq.test-lxc-info.sh
 export PCP_LXC_DIR=$root/var/lib/lxc
 
 # real QA test starts here
+echo zero | tee -a $here/$seq.full
+_service pmcd status >>$here/$seq.full
+# systemd needs may not have caught up with a previous stop
+# and the stop that comes below can cause a
+#	Job for pmcd.service canceled.
+# message.  So sleep a little in the hope that this fixes it ...
+#
+sleep 2
+_service pmcd status >>$here/$seq.full
+echo one | tee -a $here/$seq.full
 _service pmcd stop | _filter_pcp_stop
+echo two | tee -a $here/$seq.full
+_service pmcd status >>$here/$seq.full
+_wait_pmcd_end
+echo three | tee -a $here/$seq.full
+
 echo >> $tmp.conf
 echo "# from QA $seq ..." >> $tmp.conf
 echo PCP_LXC_DIR=$root/var/lib/lxc >> $tmp.conf
@@ -90,6 +105,8 @@ echo PCP_PODMAN_RUNDIR=$root/var/run/containers >> $tmp.conf
 echo PCP_PODMAN_DATADIR=$root/var/lib/containers >> $tmp.conf
 $sudo cp $tmp.conf $PCP_DIR/etc/pcp.conf
 _service pcp restart 2>&1 | _filter_pcp_start
+echo four | tee -a $here/$seq.full
+_service pmcd status >>$here/$seq.full
 _wait_for_pmcd
 _wait_for_pmlogger
 

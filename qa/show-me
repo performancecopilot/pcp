@@ -39,7 +39,8 @@ mkdir $tmp
 not_me=false
 local=true
 keep=false
-while getopts d:h:klu: c
+where=false
+while getopts d:h:klu:w c
 do
    case $c in
    d)       QA_DIR=$OPTARG
@@ -60,7 +61,11 @@ do
 	    not_me=true
 	    ;;
 
-   \?)      echo "Usage: show-me [-l] [-k] [-d dir] [-h host] [-u user] [test ...]"
+   w)       where=true
+	    wdir=`pwd | sed -e "s;.*/;;"`
+   	    ;;
+
+   \?)      echo "Usage: show-me [-lw] [-k] [-d dir] [-h host] [-u user] [test ...]"
 	    exit 2;;
    esac
 done
@@ -156,7 +161,12 @@ do
 	    exit 1
 	fi
     fi
-    $PCP_ECHO_PROG $PCP_ECHO_N "$id: ""$PCP_ECHO_C"
+    if $where
+    then
+	$PCP_ECHO_PROG $PCP_ECHO_N "$wdir/$id: ""$PCP_ECHO_C"
+    else
+	$PCP_ECHO_PROG $PCP_ECHO_N "$id: ""$PCP_ECHO_C"
+    fi
     if [ ! -f $id.out ]
     then
 	echo "Could not find $id.out in `pwd`"

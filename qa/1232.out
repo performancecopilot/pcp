@@ -30,7 +30,7 @@ Check pmlogger -h localhost ... in PCP_ARCHIVE_DIR/localhost ...
 non-primary pmlogger process(es) PID identified, OK
 [control.d/localhost:5] skip cull for current DATE archive
 Archive files older than 0 days being removed ...
-    DATE.0.xz DATE.index DATE.meta.xz
+    DATE.0 DATE.index DATE.meta
 
 two archives, cull 'em
 
@@ -40,4 +40,4 @@ pmlogger_daily: [control.d/localhost:5]
 pmlogger_daily: [control.d/localhost:5]
 Archive files older than 0 days being removed ...
     DATE.0 DATE.index DATE.meta
-    DATE.0.xz DATE.index DATE.meta.xz
+    DATE.0 DATE.index DATE.meta

@@ -257,12 +257,28 @@ PM_FAULT_POINT("libpcp/derive.c:7", PM_FAULT_PMAPI);
 	    fprintf(stderr, "%s: Warning: failed to register event.flags: %s\n",
 		    pmGetProgname(), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	}
+	else {
+	    registered.mlist[registered.nmetric-1].oneline =
+"Flags for event records";
+	    registered.mlist[registered.nmetric-1].helptext =
+"An anonymous derived metric that is used to encode the event flags\n"
+"associated with event records.   See pmUnpackEventRecords(3).";
 PM_FAULT_POINT("libpcp/derive.c:8", PM_FAULT_PMAPI);
+	}
 	sts = registeranon(PM_LOCKED, "event.missed", PM_TYPE_U32);
 	if (sts < 0) {
 	    char	errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "%s: Warning: failed to register event.missed: %s\n",
 		    pmGetProgname(), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+	else {
+	    registered.mlist[registered.nmetric-1].oneline =
+"Count of missed event records";
+	    registered.mlist[registered.nmetric-1].helptext =
+"An anonymous derived metric that is used to encode the number of\n"
+"event records missed because either the PMDA could not keep up\n"
+"or the PMAPI client did not collect the event records fast\n"
+"enough.  See pmUnpackEventRecords(3).";
 	}
 
 	/*
@@ -500,7 +516,7 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, int lookup_err_ok, int is_global
     if (new->type == N_NAME) {
 	int	sts;
 	/* get pmID and pmDesc from context */
-	sts = pmLookupName_ctx(ctxp, PM_LOCKED, 1, &new->value, &new->data.info->pmid);
+	sts = pmLookupName_ctx(ctxp, PM_LOCKED, 1, (const char **)&new->value, &new->data.info->pmid);
 	if (sts < 0) {
 	    if (lookup_err_ok) {
 		/* derived(x) -> false case */
@@ -1495,7 +1511,7 @@ __dmdumpexpr(node_t *np, int level)
     else {
 	fprintf(stderr, " left=" PRINTF_P_PFX "%p right=" PRINTF_P_PFX "%p save_last=%d", np->left, np->right, np->save_last);
 	if (np->type == N_NAME || np->type == N_INTEGER || np->type == N_DOUBLE)
-	    fprintf(stderr, " [%s] master=%d", np->value, np->data.info == NULL ? 1 : 0);
+	    fprintf(stderr, " [%s] primary=%d", np->value, np->data.info == NULL ? 1 : 0);
 	if (np->type == N_SCALE) {
 	    if (pmUnitsStr_r(&np->desc.units, strbuf, sizeof(strbuf)) == NULL) {
 		fprintf(stderr, " [bad units: %d %d %d %d %d %d]", 
@@ -2994,7 +3010,7 @@ __dmbind(int derive_locked, __pmContext *ctxp, int i, int async)
 	 * derived metric searching is performed if the name is valid
 	 * for a real metric in the current context.
 	 */
-	sts = pmLookupName_ctx(ctxp, PM_LOCKED, 1, &cp->mlist[i].name, &pmid);
+	sts = pmLookupName_ctx(ctxp, PM_LOCKED, 1, (const char **)&cp->mlist[i].name, &pmid);
 	if (sts >= 0 && !IS_DERIVED(pmid)) {
 	    if (pmDebugOptions.derive) {
 		char	strbuf[20];
@@ -3114,6 +3130,13 @@ __dmclosecontext(__pmContext *ctxp)
     free(cp->mlist);
     free(cp);
     ctxp->c_dm = NULL;
+}
+
+/* for dbpmda */
+void
+__pmFreeDerived(__pmContext *ctxp)
+{
+    __dmclosecontext(ctxp);
 }
 
 int

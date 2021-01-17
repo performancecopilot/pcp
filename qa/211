@@ -81,7 +81,7 @@ log mandatory on 100 msec {
     sample.secret.foo.bar.grunt
 }
 End-of-File
-pmlogger -T 0.3 -c $tmp.config -l $tmp.log $tmp
+pmlogger -s 3 -c $tmp.config -l $tmp.log $tmp
 cat $tmp.log >>$seq.full
 pmdumplog $tmp 2>&1 \
 | tee -a $seq.full \

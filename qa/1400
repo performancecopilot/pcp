@@ -1,9 +1,8 @@
 #!/bin/sh
 # PCP QA Test No. 1400
-# Exercise the pcp-free(1) command's -r/--terabytes which displays amount of memory 
-# in terabytes using an archive
+# Exercise various pcp-free(1) command options.
 #
-# Copyright (c) 2019 Red Hat.
+# Copyright (c) 2019-2020 Red Hat.
 #
 
 seq=`basename $0`
@@ -32,8 +31,13 @@ echo && echo pcp-free output : Display the memory in terabytes using --terabytes
 pcp $archive_first free --terabytes
 
 echo && echo pcp-free output : Display the memory in terabytes along with other flags
-pcp $archive_first free -r -c 2 -s 2.5
-
 pcp $archive_first free --terabytes -c 2 -s 2.5
+
+echo && echo pcp-free output : Display the wide mode with split cache/buffer columns
+pcp $archive_first free -w
+
+echo && echo pcp-free output : Display compatibility mode with a buffers/cache line
+pcp $archive_first free -o
+
 status=0
 exit

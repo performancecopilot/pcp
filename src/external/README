@@ -1,9 +1,6 @@
 Lightweight JSON parser
     - https://github.com/mnunberg/jsonsl
 
-Previously (now being deprecated, do not use)
-    - https://github.com/zserge/jsmn/
-
 Lightweight HTTP parser
     - https://github.com/nodejs/http-parser/
 
@@ -11,13 +8,19 @@ sort_r (portable quicksort with closure)
     - https://github.com/noporpoise/sort_r
 
 hash (portable performant hash function)
-    - http://burlteburtle.net/bob/hash/evahash.html
+    - https://burtleburtle.net/bob/hash/evahash.html
 
-sha1, crc16, dict, sds (hash and string helpers)
-    - https://github.com/antirez/redis/blob/5.0/src
+crc16, dict, sds, sha1, sha256 (hash and string helpers)
+    - https://github.com/redis/redis/blob/6.0/src
 
 Lightweight .ini file parser
     - https://github.com/benhoyt/inih/
 
 Callback functions on main libuv thread
     - https://github.com/litesync/uv_callback
+
+atop (system and process monitor)
+    - https://github.com/Atoptool/atop
+
+htop (interactive process viewer)
+    - https://github.com/htop-dev/htop

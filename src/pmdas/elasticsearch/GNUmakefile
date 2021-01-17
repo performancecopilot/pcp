@@ -17,10 +17,12 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 IAM	= elasticsearch
+CONF	= $(IAM).conf
 DOMAIN	= ELASTICSEARCH
 PYSCRIPT = pmda$(IAM).python
 
 PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
+PMDACONFIG	= $(PCP_SYSCONF_DIR)/$(IAM)
 PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
 PMLOGCONFDIR	= $(PCP_SYSCONF_DIR)/pmlogconf/$(IAM)
 PMLOGCONFVARDIR	= $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
@@ -41,6 +43,8 @@ install_pcp install: default
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)
 	$(INSTALL) -m 755 -d $(PMDATMPDIR)
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove Upgrade $(PYSCRIPT) $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMDACONFIG)
+	$(INSTALL) -m 600 -t $(PMDATMPDIR)/$(CONF) $(CONF) $(PMDACONFIG)/$(CONF)
 	$(INSTALL) -m 755 -d $(PMLOGCONFDIR)
 	$(INSTALL) -m 755 -d $(PMLOGCONFVARDIR)
 	$(INSTALL) -m 644 -t $(PMLOGCONFVARDIR)/summary pmlogconf.summary $(PMLOGCONFDIR)/summary

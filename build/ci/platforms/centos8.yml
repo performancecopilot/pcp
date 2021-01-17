@@ -11,9 +11,9 @@ container:
     RUN dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm # libuv-devel
     RUN useradd --create-home pcpbuild
     RUN echo 'pcpbuild ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/pcpbuild
-
-    # https://bugzilla.redhat.com/show_bug.cgi?id=1814337
-    RUN systemctl mask dnf-makecache.service
+    RUN systemctl mask dnf-makecache.service # https://bugzilla.redhat.com/show_bug.cgi?id=1814337
+    RUN systemctl mask kdump.service
+    CMD ["/usr/sbin/init"]
 
 tasks:
   update: |
@@ -21,7 +21,7 @@ tasks:
   install_build_dependencies: |
     sudo dnf install -y which libuv # see BZ 1809314
     sudo dnf module install -y libuv/devel
-    sudo dnf -y -b --skip-broken install man $(./pcp/qa/admin/check-vm -fp)
+    sudo dnf -y -b install $(./pcp/qa/admin/list-packages -m -v -x cpan -x pip3 -x not4ci)
   build: |
     cd ./pcp
     ./Makepkgs --verbose
@@ -34,16 +34,25 @@ tasks:
   init_qa: |
     sudo systemctl start pmcd
     systemctl status pmcd
-    journalctl -u pmcd
+    sudo journalctl -u pmcd
     cat /var/log/pcp/pmcd/pmcd.log
     sudo -i -u pcpqa ./check 002
   qa_sanity: |
     set -o pipefail
-    sudo -i -u pcpqa ./check -TT -g sanity -x not_in_container |& tee ./artifacts/test/test.log
+    if [ "$runner" = "container" ]; then
+      sudo -i -u pcpqa ./check -TT -g sanity -x not_in_ci -x not_in_container |& tee ./artifacts/test/test.log
+    else
+      sudo -i -u pcpqa ./check -TT -g sanity -x not_in_ci |& tee ./artifacts/test/test.log
+    fi
   qa: |
     set -o pipefail
-    sudo -i -u pcpqa ./check -TT -x not_in_container |& tee ./artifacts/test/test.log
+    if [ "$runner" = "container" ]; then
+      sudo -i -u pcpqa ./check -TT -x x11 -x remote -x not_in_ci -x not_in_container |& tee ./artifacts/test/test.log
+    else
+      sudo -i -u pcpqa ./check -TT -x x11 -x remote -x not_in_ci |& tee ./artifacts/test/test.log
+    fi
   copy_test_artifacts: |
     cp /var/lib/pcp/testsuite/check.timings ./artifacts/test
     [ $(awk 'END{print NF}' ./artifacts/test/check.timings) = 2 ] && date '+%s' >> ./artifacts/test/check.timings
+    shopt -s nullglob
     for test in /var/lib/pcp/testsuite/*.out.bad; do cp $test ${test/.out.bad/.full} ./artifacts/test || true; done

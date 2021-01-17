@@ -994,7 +994,7 @@ done_tab:
 		    // notice in addPlot() and report the error below,
 		    // so no need to do anything special here
 		    //
-		    if (pmLookupName(1, &pms.metric, &pmid) < 0)
+		    if (pmLookupName(1, (const char **)&pms.metric, &pmid) < 0)
 			goto try_plot;
 		    if (pmLookupDesc(pmid, &desc) < 0)
 			goto try_plot;
@@ -1236,9 +1236,15 @@ void SaveViewDialog::saveChart(FILE *f, Chart *cp, bool hostDynamic)
 	if (legend != QString())
 	    fprintf(f, " legend \"%s\"", (const char *)legend.toLatin1());
 	fprintf(f, " color %s", (const char *)cp->color(m).name().toLatin1());
-	if (hostDynamic == false)
-	    fprintf(f, " host %s", (const char *)
-			cp->metricContext(m)->source().host().toLatin1());
+	if (hostDynamic == false) {
+	    char localHostname[HOST_NAME_MAX];
+	    QString host = cp->metricContext(m)->source().host();
+	    if (QString::compare(host, "local:") == 0 || QString::compare(host, "localhost") == 0) {
+		gethostname(localHostname, sizeof(localHostname));
+		host = localHostname;
+	    }
+	    fprintf(f, " host %s", (const char *)host.toLatin1());
+	}
         fprintf(f, " metric %s", (const char *)
                 cp->metricName(m).toLatin1());
 	if (cp->metricPtr(m)->explicitInsts())

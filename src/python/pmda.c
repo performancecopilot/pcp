@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2015,2017-2019 Red Hat.
+ * Copyright (C) 2013-2015,2017-2020 Red Hat.
  *
  * This file is part of the "pcp" module, the python interfaces for the
  * Performance Co-Pilot toolkit.
@@ -56,11 +56,13 @@ static PyObject *indom_longtext_dict;	/* indom pmid:long help */
 
 static PyObject *fetch_func;
 static PyObject *label_func;
+static PyObject *notes_func;
 static PyObject *refresh_func;
 static PyObject *instance_func;
 static PyObject *store_cb_func;
 static PyObject *fetch_cb_func;
 static PyObject *label_cb_func;
+static PyObject *notes_cb_func;
 static PyObject *attribute_cb_func;
 static PyObject *endcontext_cb_func;
 static PyObject *refresh_all_func;
@@ -498,36 +500,64 @@ label(int ident, int type, pmLabelSet **lp, pmdaExt *ep)
     int id, sts = 0;
     char *s = NULL;
 
-    if (label_func) {
-	PyObject *arglist, *result;
+    if (label_func || notes_func) {
+	PyObject *arglist, *label_result, *notes_result;
 
 	id = (type == PM_LABEL_CLUSTER) ? (int)pmID_cluster(ident) : ident;
 
 	arglist = Py_BuildValue("(ii)", id, type);
 	if (arglist == NULL)
 	    return -ENOMEM;
-	result = PyEval_CallObject(label_func, arglist);
+	if (label_func)
+	   label_result = PyEval_CallObject(label_func, arglist);
+	else
+	   label_result = NULL;
+	if (notes_func)
+	   notes_result = PyEval_CallObject(notes_func, arglist);
+	else
+	   notes_result = NULL;
 	Py_DECREF(arglist);
 
-	if (!result) {
-	    PyErr_Print();
-	    return -EAGAIN;
+	if (label_func) {
+	    if (!label_result) {
+		PyErr_Print();
+		return -EAGAIN;
+	    }
+
+	    if (PyArg_Parse(label_result, "s:label", &s) == 0 || s == NULL) {
+		pmNotifyErr(LOG_ERR, "bad labels result (expected string)");
+		Py_DECREF(label_result);
+		return -EINVAL;
+	    }
+
+	    if (!empty_labelset(s) && (sts = __pmAddLabels(lp, s, type)) < 0)
+		pmNotifyErr(LOG_ERR, "__pmAddLabels failed: %s", pmErrStr(sts));
+
+	    Py_DECREF(label_result);
 	}
 
-	if (PyArg_Parse(result, "s:label", &s) == 0 || s == NULL) {
-	    pmNotifyErr(LOG_ERR, "label gave bad result (expected string)");
-	    Py_DECREF(result);
-	    return -EINVAL;
+	if (notes_func) {
+	    if (!notes_result) {
+		PyErr_Print();
+		return -EAGAIN;
+	    }
+
+	    if (PyArg_Parse(notes_result, "s:notes", &s) == 0 || s == NULL) {
+		pmNotifyErr(LOG_ERR, "bad notes result (expected string)");
+		Py_DECREF(notes_result);
+		return -EINVAL;
+	    }
+
+	    type |= PM_LABEL_OPTIONAL;
+	    if (!empty_labelset(s) && (sts = __pmAddLabels(lp, s, type)) < 0)
+		pmNotifyErr(LOG_ERR, "__pmAddLabels failed: %s", pmErrStr(sts));
+
+	    Py_DECREF(notes_result);
 	}
-
-	if (!empty_labelset(s) && (sts = __pmAddLabels(lp, s, type)) < 0)
-	    pmNotifyErr(LOG_ERR, "__pmAddLabels failed: %s", pmErrStr(sts));
-
-	Py_DECREF(result);
-
-	if (sts < 0)
-   	    return sts;
     }
+
+    if (sts < 0)
+	return sts;
 
     return pmdaLabel(ident, type, lp, ep);
 }
@@ -657,32 +687,61 @@ label_callback(pmInDom indom, unsigned int inst, pmLabelSet **lp)
     int sts = 0;
     int type = PM_LABEL_INSTANCES;
     char *s = NULL;
-    PyObject *arglist, *result;
+    PyObject *arglist, *label_result, *notes_result;
 
-    if (label_cb_func == NULL)
+    if (label_cb_func == NULL && notes_cb_func == NULL)
 	return PM_ERR_VALUE;
 
     arglist = Py_BuildValue("(II)", indom, inst);
     if (arglist == NULL) {
-	pmNotifyErr(LOG_ERR, "fetch callback cannot alloc parameters");
+	pmNotifyErr(LOG_ERR, "label callback cannot alloc parameters");
 	return -EINVAL;
     }
-    result = PyEval_CallObject(label_cb_func, arglist);
+    if (label_cb_func)
+	label_result = PyEval_CallObject(label_cb_func, arglist);
+    else
+	label_result = NULL;
+    if (notes_cb_func)
+	notes_result = PyEval_CallObject(notes_cb_func, arglist);
+    else
+	notes_result = NULL;
     Py_DECREF(arglist);
-    if (result == NULL) {
-	PyErr_Print();
-	return -EAGAIN; /* exception thrown */
-    }
-    if (PyArg_Parse(result, "s:label_callback", &s) == 0 || s == NULL) {
-	pmNotifyErr(LOG_ERR, "label callback gave bad result (expected string)");
-	Py_DECREF(result);
-	return -EINVAL;
+
+    if (label_cb_func) {
+	if (label_result == NULL) {
+	    PyErr_Print();
+	    return -EAGAIN; /* exception thrown */
+	}
+	if (PyArg_Parse(label_result, "s:label_callback", &s) == 0 || !s) {
+	    pmNotifyErr(LOG_ERR, "bad label callback result (expected string)");
+	    Py_DECREF(label_result);
+	    return -EINVAL;
+	}
+
+	if (!empty_labelset(s) && (sts = __pmAddLabels(lp, s, type)) < 0)
+	    pmNotifyErr(LOG_ERR, "__pmAddLabels failed: %s", pmErrStr(sts));
+
+	Py_DECREF(label_result);
     }
 
-    if (!empty_labelset(s) && (sts = __pmAddLabels(lp, s, type)) < 0)
-	pmNotifyErr(LOG_ERR, "__pmAddLabels failed: %s", pmErrStr(sts));
+    if (sts >= 0 && notes_cb_func) {
+	if (notes_result == NULL) {
+	    PyErr_Print();
+	    return -EAGAIN; /* exception thrown */
+	}
+	if (PyArg_Parse(notes_result, "s:notes_callback", &s) == 0 || !s) {
+	    pmNotifyErr(LOG_ERR, "bad notes callback result (expected string)");
+	    Py_DECREF(notes_result);
+	    return -EINVAL;
+	}
 
-    Py_DECREF(result);
+	type |= PM_LABEL_OPTIONAL;
+	if (!empty_labelset(s) && (sts = __pmAddLabels(lp, s, type)) < 0)
+	    pmNotifyErr(LOG_ERR, "__pmAddLabels failed: %s", pmErrStr(sts));
+
+	Py_DECREF(notes_result);
+    }
+
     return sts;
 }
 
@@ -1473,6 +1532,12 @@ set_label(PyObject *self, PyObject *args)
 }
 
 static PyObject *
+set_notes(PyObject *self, PyObject *args)
+{
+    return set_callback(self, args, "O:set_notes", &notes_func);
+}
+
+static PyObject *
 set_refresh(PyObject *self, PyObject *args)
 {
     return set_callback(self, args, "O:set_refresh", &refresh_func);
@@ -1500,6 +1565,12 @@ static PyObject *
 set_label_callback(PyObject *self, PyObject *args)
 {
     return set_callback(self, args, "O:set_label_callback", &label_cb_func);
+}
+
+static PyObject *
+set_notes_callback(PyObject *self, PyObject *args)
+{
+    return set_callback(self, args, "O:set_notes_callback", &notes_cb_func);
 }
 
 static PyObject *
@@ -1580,11 +1651,15 @@ static PyMethodDef methods[] = {
 	.ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "set_label", .ml_meth = (PyCFunction)set_label,
 	.ml_flags = METH_VARARGS|METH_KEYWORDS },
+    { .ml_name = "set_notes", .ml_meth = (PyCFunction)set_notes,
+	.ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "set_store_callback", .ml_meth = (PyCFunction)set_store_callback,
 	.ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "set_fetch_callback", .ml_meth = (PyCFunction)set_fetch_callback,
 	.ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "set_label_callback", .ml_meth = (PyCFunction)set_label_callback,
+	.ml_flags = METH_VARARGS|METH_KEYWORDS },
+    { .ml_name = "set_notes_callback", .ml_meth = (PyCFunction)set_notes_callback,
 	.ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "set_attribute_callback", .ml_meth = (PyCFunction)set_attribute_callback,
 	.ml_flags = METH_VARARGS|METH_KEYWORDS },

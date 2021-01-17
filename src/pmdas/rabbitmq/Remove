@@ -25,6 +25,7 @@
 # The name of the PMDA
 #
 iam=rabbitmq
+python_opt=true
 
 # Do it
 #

@@ -32,7 +32,7 @@ pmdapostgresql_remove()
 {
     echo | tee -a $here/$seq.full
     echo "=== remove postgresql agent ===" | tee -a $here/$seq.full
-    $sudo ./Remove >$tmp.out 2>&1
+    $sudo ./Remove >$tmp.out 2>>$here/$seq.full
     cat $tmp.out >>$here/$seq.full
     _filter_pmda_remove <$tmp.out
 }
@@ -53,7 +53,6 @@ osuser=postgres
 EOF
     $sudo mv $tmp.conf $CONF
     $sudo ./Remove >/dev/null 2>&1
-    _service pmcd stop 2>&1 | _filter_pcp_stop
 
     echo | tee -a $here/$seq.full
     echo "=== postgresql agent installation ===" | tee -a $here/$seq.full

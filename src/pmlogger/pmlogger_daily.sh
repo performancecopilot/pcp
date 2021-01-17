@@ -45,8 +45,14 @@ _cleanup()
     fi
     $USE_SYSLOG && [ $status -ne 0 ] && \
     $PCP_SYSLOG_PROG -p daemon.error "$prog failed - see $PROGLOG"
+    if $SHOWME
+    then
+	: no pid file created
+    else
+	rm -f "$PCP_RUN_DIR/pmlogger_daily.pid"
+    fi
     lockfile=`cat $tmp/lock 2>/dev/null`
-    rm -f "$lockfile" "$PCP_RUN_DIR/pmlogger_daily.pid"
+    [ -n "$lockfile" ] && rm -f "$lockfile"
     rm -rf $tmp
     $VERY_VERBOSE && echo >&2 "End: `date '+%F %T.%N'`"
 }
@@ -534,8 +540,15 @@ then
     echo >&2 "Start: `date '+%F %T.%N'`"
     if which pstree >/dev/null 2>&1
     then
-	echo >&2 "Called from:"
-	pstree >&2 -spa $$
+	if pstree -spa $$ >$tmp/tmp 2>&1
+	then
+	    echo >&2 "Called from:"
+	    cat >&2 $tmp/tmp
+	else
+	    # pstree not functional for us ... -s not supported in older
+	    # versions
+	    :
+	fi
     fi
 fi
 
@@ -1456,8 +1469,11 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
 		    i=1
 		    while true
 		    do
+			# pmlc may race with pmlogger starting up here - a timeout is required
+			# to avoid pmlc blocking forever and hanging pmlogger_daily. RHBZ#1892326
+			[ -z "$PMLOGGER_REQUEST_TIMEOUT" ] && export PMLOGGER_REQUEST_TIMEOUT=2
 			echo status | pmlc $pid >$tmp/out 2>&1
-			if egrep "Connection refused|Transport endpoint is not connected" <$tmp/out >/dev/null
+			if egrep "Connection refused|Transport endpoint is not connected|Timeout, closed connection" <$tmp/out >/dev/null
 			then
 			    [ $i -eq 20 ] && break
 			    i=`expr $i + 1`

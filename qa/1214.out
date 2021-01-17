@@ -1,13 +1,18 @@
 QA output created by 1214
+=== Start test redis-server ...
+PING
+PONG
 
-== testing pmseries query for kernel.all.load to redis directly
+=== Start test pmproxy ...
+== load test data for verification
 
-== testing pmseries query to redis for kernel.all.load via pmproxy
+== pmseries query for kernel.all.load to redis directly
 
-== testing pmseries query for disk.dev.read to redis directly
+== pmseries query for kernel.all.load to redis via pmproxy
 
-== testing pmseries query to redis for disk.dev.read via pmproxy
+== pmseries query for disk.dev.read to redis directly
 
-== testing pmseries query for kernel.all.pswitch to redis directly
+== pmseries query for disk.dev.read to redis via pmproxy
 
-== testing pmseries query to redis for kernel.all.pswitch via pmproxy
+== Shutdown local redis and pmproxy ...
+finished

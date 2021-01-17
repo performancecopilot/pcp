@@ -38,7 +38,15 @@ trap "$sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
 get_syms()
 {
     # gets all code symbols, prints the name, & strips internal names
-    nm $NM_ARG $1 | grep " T " | $PCP_AWK_PROG '{print $3}' | grep -v "_" | grep -v "^.MIPS."
+    nm $NM_ARG $1 \
+    | $PCP_AWK_PROG '/ T / {print $3}' \
+    | grep -v "^_" \
+    | grep -v "^.MIPS." \
+    | sed \
+	-e 's/@@PCP_TRACE.*//' \
+	-e 's/_$//' \
+    | LC_COLLATE=POSIX sort \
+    | uniq
 }
 
 # real QA test starts here

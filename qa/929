@@ -13,11 +13,14 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 
+NEEDREWRITE=$PCP_LOG_DIR/pmlogger/.NeedRewrite
+
 _cleanup()
 {
     [ -d $tmp.one ] && rm -fr $tmp.one
     [ -d $tmp.two ] && rm -fr $tmp.two
     $sudo rm -f $tmp.*
+    [ -f $NEEDREWRITE.$seq ] && $sudo mv $NEEDREWRITE.$seq $NEEDREWRITE
 }
 
 _filter()
@@ -36,6 +39,8 @@ _filter()
 	-e '/date-and-timestamp/d' \
 	-e '/^Roll .*\/NOTICES/d' \
 	-e '/^Start .*\/NOTICES/d' \
+	-e '/^+ mv .*NOTICES/d' \
+	-e '/^+ touch .*NOTICES/d' \
 	-e "s,$tmp,TMP,g" \
 	-e "s,/privateTMP,TMP,g" \
 	-e "s,$PCP_TMP_DIR,PCP_TMP_DIR,g" \
@@ -46,6 +51,8 @@ _filter()
 
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
+
+[ -f $NEEDREWRITE ] && $sudo mv $NEEDREWRITE $NEEDREWRITE.$seq
 
 # create test control file
 #

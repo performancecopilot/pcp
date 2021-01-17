@@ -150,9 +150,9 @@ __pmSendLabelReq(int fd, int from, int ident, int type)
 	nid = htonl(PM_ID_NULL);
     else if (type & PM_LABEL_DOMAIN)
 	nid = htonl(ident);
-    else if (type & PM_LABEL_INDOM)
+    else if (type & (PM_LABEL_INDOM|PM_LABEL_INSTANCES))
 	nid = __htonpmInDom((pmInDom)ident);
-    else if (type & (PM_LABEL_CLUSTER|PM_LABEL_ITEM|PM_LABEL_INSTANCES))
+    else if (type & (PM_LABEL_CLUSTER|PM_LABEL_ITEM))
 	nid = __htonpmID((pmID)ident);
     else
 	return -EINVAL;
@@ -186,9 +186,9 @@ __pmDecodeLabelReq(__pmPDU *pdubuf, int *ident, int *otype)
     type = *otype = ntohl(pp->type);
     if (type & PM_LABEL_DOMAIN)
         *ident = ntohl(pp->ident);
-    else if (type & (PM_LABEL_CLUSTER|PM_LABEL_ITEM|PM_LABEL_INSTANCES))
+    else if (type & (PM_LABEL_CLUSTER|PM_LABEL_ITEM))
 	*ident = __ntohpmID(pp->ident);
-    else if (type & PM_LABEL_INDOM)
+    else if (type & (PM_LABEL_INDOM|PM_LABEL_INSTANCES))
         *ident = __ntohpmInDom(pp->ident);
     else
         *ident = PM_ID_NULL;
@@ -248,9 +248,9 @@ __pmSendLabel(int fd, int from, int ident, int type, pmLabelSet *sets, int nsets
 
     if (type & PM_LABEL_DOMAIN)
 	pp->ident = htonl(ident);
-    else if (type & (PM_LABEL_CLUSTER | PM_LABEL_ITEM | PM_LABEL_INSTANCES))
+    else if (type & (PM_LABEL_CLUSTER | PM_LABEL_ITEM))
 	pp->ident = __htonpmID((pmID)ident);
-    else if (type & PM_LABEL_INDOM)
+    else if (type & (PM_LABEL_INDOM | PM_LABEL_INSTANCES))
 	pp->ident = __htonpmInDom((pmInDom)ident);
     else
 	pp->ident = htonl(PM_ID_NULL);

@@ -79,6 +79,14 @@ pmdumplog -a $tmp/2 | diff - $tmp.ref
 echo "=== foo:5 expect no diffs ==="
 pmdumplog -a $tmp/5 | diff - $tmp.ref
 
+# diags for CI failure
+#
+echo "--- TI tmparch/foo --" >>$here/$seq.full
+pmdumplog -t tmparch/foo >>$here/$seq.full
+echo "--- TI 2 --" >>$here/$seq.full
+pmdumplog -t $tmp/2 >>$here/$seq.full
+echo "--- TI 5 --" >>$here/$seq.full
+pmdumplog -t $tmp/5 >>$here/$seq.full
 
 # success, all done
 status=0

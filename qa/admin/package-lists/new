@@ -1,0 +1,140 @@
+#!/bin/sh
+#
+# Generate a new package list file using ../check-vm
+#
+
+_usage()
+{
+    echo "Usage: $0 [options]"
+    echo "  -A arch      override platform arch"
+    echo "  -D distro    override platform distro"
+    echo "  -n           show me, change nothing"
+    echo "  -v           verbose (debugging)"
+    echo "  -V version   override platform version"
+    exit 1
+}
+
+showme=false
+verbose=false
+very_verbose=false
+Distro=''
+Version=''
+Arch=''
+while getopts 'A:D:nvV:?' p
+do
+    case "$p"
+    in
+	A)	Arch="$OPTARG"
+		;;
+
+	D)	Distro="$OPTARG"
+		;;
+
+	n)	showme=true
+		;;
+
+	v)	if $verbose
+		then
+		    very_verbose=true
+		else
+		    verbose=true
+		fi
+		;;
+
+	V)	Version="$OPTARG"
+		;;
+
+	?)	_usage
+		# NOTREACHED
+    esac
+done
+shift `expr $OPTIND - 1`
+[ $# -eq 0 ] || _usage
+
+status=1		# failure is the default
+if $very_verbose
+then
+    tmp=tmp
+else
+    tmp=/var/tmp/$$
+    trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+fi
+rm -f $tmp.*
+
+# Need directory where this script is located so we can find the other
+# scripts and control files
+#
+home=`echo $0 | sed -e 's/\/*new$//'`
+home=`cd $home/..; /bin/pwd`
+if [ ! -f $home/whatami ]
+then
+    echo "Botch: \$0=$0 -> bad \$home=$home ?"
+    exit 1
+fi
+
+# Use the same algorithm as ../check-vm and ../list-packages to identify the
+# correct package list file
+#
+if [ ! -f $home/packages.rc ]
+then
+    echo "Botch: cannot find $home/packages.rc"
+    exit
+fi
+
+. $home/packages.rc
+
+_setversions
+# $distro, $version and $arch now set
+
+# optionally over-ridden from the comand line ...
+#
+[ -n "$Distro" ] && distro="$Distro"
+[ -n "$Version" ] && version="$Version"
+[ -n "$Arch" ] && arch="$Arch"
+
+echo >&2 "Info: distro=$distro version=$version arch=$arch"
+
+echo "# PCP required package list for $distro $version $arch" >$tmp.list
+echo "# created by `id -un` on `hostname` `date`" >>$tmp.list
+echo "#" >>$tmp.list
+
+$home/check-vm -fap \
+| tr ' ' '\012' \
+| sed \
+    -e 's/\(.*\)(\(.*\))/\2 \1/' \
+| LC_COLLATE=POSIX sort \
+| uniq >>$tmp.list
+
+if [ -f "${distro}+${version}+$arch" ]
+then
+    grep -v '^# created' <$tmp.list >$tmp.new
+    grep -v '^# created' <"${distro}+${version}+$arch" >$tmp.old
+    if cmp $tmp.new $tmp.old >/dev/null
+    then
+	echo "${distro}+${version}+$arch: no change"
+    else
+	if $verbose
+	then
+	    echo "${distro}+${version}+$arch: exists, diffs"
+	    diff -u "${distro}+${version}+$arch" $tmp.list
+	fi
+	if $showme
+	then
+	    echo "+ mv ${distro}+${version}+$arch ${distro}+${version}+$arch.old"
+	    echo "+ install new ${distro}+${version}+$arch"
+	else
+	    mv "${distro}+${version}+$arch" "${distro}+${version}+$arch.old"
+	    mv $tmp.list "${distro}+${version}+$arch"
+	    echo "${distro}+${version}+$arch: updated"
+	fi
+    fi
+else
+    if $showme
+    then
+	echo "+ install new ${distro}+${version}+$arch"
+	cat $tmp.list
+    else
+	mv $tmp.list "${distro}+${version}+$arch"
+	echo "${distro}+${version}+$arch: created"
+    fi
+fi

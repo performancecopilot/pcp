@@ -26,7 +26,7 @@ when($successful_response)->is_success->then_return(1);
 when($successful_response)->decoded_content->then_return('{"status": 200}');
 when($failed_response)->is_success->then_return(0);
 
-my $rest_client = RESTClient->new( $http_client, $cache, "localhost", "1234", "myuser", "mypass", "myrealm" );
+my $rest_client = PCP::RESTClient->new( $http_client, $cache, "localhost", "1234", "myuser", "mypass", "myrealm" );
 
 # successful requests return valid JSON
 is_deeply($rest_client->get("/success"), $decoded_json);

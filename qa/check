@@ -310,6 +310,9 @@ $timings_file && $PCP_ECHO_PROG $PCP_ECHO_N > check.timings
 # Remove automated PMDA install/remove that will interfere with tests
 $sudo rm -f $PCP_PMDAS_DIR/*/.NeedInstall $PCP_PMDAS_DIR/*/.NeedRemove
 
+# Remove automated pmlogger log checks that will interfere with tests
+$sudo rm -f $PCP_PMLOGGER_DIR/.NeedRewrite
+
 [ "`_get_config pmcd`" != on ] && _change_config pmcd on
 
 torun=`echo $list | wc -w | sed -e 's/ //g'`

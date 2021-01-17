@@ -1274,6 +1274,9 @@ additional environment variables that will be set when
 executes.
 Only settings of the form "PMCD_VARIABLE=value" will be honoured.
 .TP
+.I $PCP_SYSCONF_DIR/labels.conf
+settings related to labels used globally throughout the PMCS.
+.TP
 .I $PCP_SYSCONF_DIR/labels
 directory of files containing the global metric labels that will be
 set for every client context created by
@@ -1396,6 +1399,7 @@ For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .BR pmval (1),
 .BR getpwent (3),
 .BR getgrent (3),
+.BR labels.conf (5),
 .BR pcp.conf (5),
 .BR pcp.env (5)
 and

@@ -19,6 +19,7 @@
 #include "pmda.h"
 #include "internal.h"
 #include "jsonsl.h"
+#include "sha256.h"
 #include "sort_r.h"
 #include "fault.h"
 
@@ -1061,6 +1062,8 @@ labelfile(const char *path, const char *file, char *buf, int buflen)
 	buf[bytes] = '\0';
 	if (pmDebugOptions.labels)
 	    fprintf(stderr, "labelfile: loaded from %s:\n%s", file, buf);
+    } else {
+	buf[0] = '\0';
     }
 }
 
@@ -1145,28 +1148,110 @@ archive_context_labels(__pmContext *ctxp, pmLabelSet **sets)
     return 1;
 }
 
+const char * 
+__pmGetLabelConfigHostName(char *host, size_t length)
+{
+    if (gethostname(host, length) < 0)
+	pmsprintf(host, length, "localhost");
+    else
+	host[length-1] = '\0';
+    return "hostname";
+}
+
+const char *
+__pmGetLabelConfigDomainName(char *domain, size_t length)
+{
+    if ((getdomainname(domain, length) < 0) ||
+	(domain[0] == '\0') || (strcmp(domain, "(none)") == 0))
+	pmsprintf(domain, length, "localdomain");
+    else
+	domain[length-1] = '\0';
+    return "domainname";
+}
+
+/*
+ * Extract name and value for the local machine ID label.
+ * Supported forms are 'machineid' and 'machineid_sha256'
+ * based on 'machineid_hash' setting in labels.conf file.
+ */
+const char *
+__pmGetLabelConfigMachineID(char *machineid, size_t length)
+{
+    FILE		*fp;
+    char		buf[BUFSIZ], *p;
+    int			sha256 = 0;
+
+    if (getmachineid(machineid, length) < 0)
+	pmsprintf(machineid, length, "localmachine");
+    else
+	machineid[length-1] = '\0';
+
+    pmsprintf(buf, sizeof(buf), "%s%c%s", pmGetConfig("PCP_SYSCONF_DIR"),
+			pmPathSeparator(), "labels.conf");
+    if ((fp = fopen(buf, "r")) == NULL)
+	return "machineid";
+
+    /* cheap and cheerful ini-style labels.conf parsing */
+    while ((p = fgets(buf, sizeof(buf), fp)) != NULL) {
+	while (isspace(*p))
+	    p++;
+	if (*p == '\0' || *p == '#')	/* comment or nothing */
+	    continue;
+	if (strncmp(p, "[global]", 8) == 0)  /* global section */
+	    continue;
+	if (strncmp(p, "[", 1) == 0)	/* a new section header */
+	    break;
+
+	/* only the one configurable global setting at this time */
+	if (strncmp(p, "machineid_hash", 14) != 0)
+	    continue;
+	p += 15;
+	while (isspace(*p) || *p == ':' || *p == '=')
+	    p++;
+	if (strncmp(p, "sha256", 6) == 0)
+	    sha256 = 1;
+	else if (strncmp(p, "none", 4) != 0)
+	    pmNotifyErr(LOG_INFO, "Ignoring unknown %s %s value \"%s\"\n",
+			"labels.conf", "machineid_hash", p);
+	break;
+    }
+    fclose(fp);
+
+    if (sha256) {
+	const char	*cset = "0123456789abcdef";
+	unsigned char	hash[SHA256_BLOCK_SIZE];
+	SHA256_CTX	ctx;
+	int		i;
+
+	sha256_init(&ctx);
+	sha256_update(&ctx, (unsigned char *)machineid, strlen(machineid));
+	sha256_final(&ctx, hash);
+
+	assert(length >= SHA256_BLOCK_SIZE*2 + 1);
+	for (i = 0; i < SHA256_BLOCK_SIZE; i++) {
+	    machineid[i*2] = cset[((hash[i]&0xF0)>>4)];
+	    machineid[i*2+1] = cset[(hash[i]&0xF)];
+	}
+	machineid[SHA256_BLOCK_SIZE*2] = '\0';
+	return "machineid_sha256";
+    }
+    return "machineid";
+}
+
 static char *
 local_host_labels(char *buffer, int buflen)
 {
     char	host[MAXHOSTNAMELEN];
     char	domain[MAXDOMAINNAMELEN];
     char	machineid[MAXMACHINEIDLEN];
+    const char	*host_label, *domain_label, *machineid_label;
 
-    if (gethostname(host, sizeof(host)) < 0)
-	pmsprintf(host, sizeof(host), "localhost");
-    else
-	host[sizeof(host)-1] = '\0';
-    if (getdomainname(domain, sizeof(domain)) < 0 || domain[0] == '\0' || strcmp(domain, "(none)") == 0)
-	pmsprintf(domain, sizeof(domain), "localdomain");
-    else
-	domain[sizeof(domain)-1] = '\0';
-    if (getmachineid(machineid, sizeof(machineid)) < 0)
-	pmsprintf(machineid, sizeof(machineid), "localmachine");
-    else
-	machineid[sizeof(machineid)-1] = '\0';
-    pmsprintf(buffer, buflen,
-	    "{\"hostname\":\"%s\",\"domainname\":\"%s\",\"machineid\":\"%s\"}",
-	    host, domain, machineid);
+    host_label = __pmGetLabelConfigHostName(host, sizeof(host));
+    domain_label = __pmGetLabelConfigDomainName(domain, sizeof(domain));
+    machineid_label = __pmGetLabelConfigMachineID(machineid, sizeof(machineid));
+
+    pmsprintf(buffer, buflen, "{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\"}",
+	    host_label, host, domain_label, domain, machineid_label, machineid);
     return buffer;
 }
 
@@ -1237,9 +1322,9 @@ lookup_domain(int ident, int type)
 	return 0;
     if (type & PM_LABEL_DOMAIN)
 	return ident;
-    if (type & PM_LABEL_INDOM)
+    if (type & (PM_LABEL_INDOM | PM_LABEL_INSTANCES))
 	return pmInDom_domain(ident);
-    if (type & (PM_LABEL_CLUSTER | PM_LABEL_ITEM | PM_LABEL_INSTANCES))
+    if (type & (PM_LABEL_CLUSTER | PM_LABEL_ITEM))
 	return pmID_domain(ident);
     return -EINVAL;
 }
@@ -1262,12 +1347,31 @@ getlabels(int ident, int type, pmLabelSet **sets, int *nsets)
 
 	if (!(__pmFeaturesIPC(fd) & PDU_FLAG_LABELS))
 	    sts = PM_ERR_NOLABELS;	/* lack pmcd support */
-	else if ((sts = __pmSendLabelReq(fd, handle, ident, type)) < 0)
-	    sts = __pmMapErrno(sts);
 	else {
-	    int x_ident = ident, x_type = type;
-	    PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
-	    sts = __pmRecvLabel(fd, ctxp, tout, &x_ident, &x_type, sets, nsets);
+	    sts = 0;
+	    if ((type & PM_LABEL_INSTANCES) && ctxp->c_sent == 0) {
+	    	/* profile not current for label instances request */
+		if (pmDebugOptions.indom || pmDebugOptions.labels) {
+		    fprintf(stderr, "dolabels: sent profile, indom=%d\n", ident);
+		    __pmDumpProfile(stderr, ident, ctxp->c_instprof);
+		}
+		if ((sts = __pmSendProfile(fd, __pmPtrToHandle(ctxp),
+                                   ctxp->c_slot, ctxp->c_instprof)) < 0)
+		    sts = __pmMapErrno(sts);
+		else {
+		    /* no reply expected for profile */
+		    ctxp->c_sent = 1;
+		}
+	    }
+	    if (sts >= 0) {
+		if ((sts = __pmSendLabelReq(fd, handle, ident, type)) < 0)
+		    sts = __pmMapErrno(sts);
+		else {
+		    int x_ident = ident, x_type = type;
+		    PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
+		    sts = __pmRecvLabel(fd, ctxp, tout, &x_ident, &x_type, sets, nsets);
+		}
+	    }
 	}
     }
     else if (ctxp->c_type == PM_CONTEXT_LOCAL) {

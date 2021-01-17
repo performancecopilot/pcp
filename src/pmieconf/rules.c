@@ -810,7 +810,22 @@ append_string(char *s, char *append, int len)
 #endif
     if ((s = (char *)realloc(s, size)) == NULL)
 	return NULL;
+#ifdef __GNUC__
+#if __GNUC__ >= 10
+    /*
+     * gcc 10 on Fedora 32 and Debian unstable falsely report a problem
+     * with this strncat() ... it is safe
+     */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-truncation"
+#endif
+#endif
     strncat(s, append, len);
+#ifdef __GNUC__
+#if __GNUC__ >= 10
+#pragma GCC diagnostic pop
+#endif
+#endif
     s[size-1] = '\0';
     return s;
 }
@@ -2194,7 +2209,7 @@ read_pmiefile(char *warning, size_t warnlen)
 
 /*  ####  setup global data structures; return NULL/failure message  ####  */
 char *
-initialise(char *in_rules, char *in_pmie, char *warning, size_t warnlen)
+initialise(char *in_rules, char *in_pmie, int autocreate, char *warning, size_t warnlen)
 {
     char	*p;
     char	*home;
@@ -2214,8 +2229,16 @@ initialise(char *in_rules, char *in_pmie, char *warning, size_t warnlen)
     rule_path_sep = ";";
 #else
     if (getuid() == 0) {
-	if (in_pmie == NULL)
-	    pmsprintf(pmiefile, sizeof(pmiefile), "%s%c%s", pmGetConfig("PCP_SYSCONF_DIR"), SEP, DEFAULT_ROOT_PMIE);
+	if (in_pmie == NULL) {
+	    if (autocreate) {
+		/* -c flag: automated pmie configuration, used by the pmie service */
+		pmsprintf(pmiefile, sizeof(pmiefile), "%s%c%s%c%s%c%s",
+			pmGetConfig("PCP_VAR_DIR"), SEP, "config", SEP, "pmie", SEP, DEFAULT_CONFIG);
+	    } else {
+		pmsprintf(pmiefile, sizeof(pmiefile), "%s%c%s%c%s",
+			pmGetConfig("PCP_SYSCONF_DIR"), SEP, "pmie", SEP, DEFAULT_CONFIG);
+	    }
+	}
 	else if (realpath(in_pmie, pmiefile) == NULL && oserror() != ENOENT) {
 	    pmsprintf(errmsg, sizeof(errmsg), "failed to resolve realpath for %s: %s",
 		    in_pmie, osstrerror());

@@ -28,7 +28,7 @@
 #include <string.h>
 
 typedef struct {
-    char	*name;
+    const char	*name;
     pmID	pmid;
     pmDesc	desc;
     int		ctx;

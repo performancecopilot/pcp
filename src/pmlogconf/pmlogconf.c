@@ -11,7 +11,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#include "util.h"
+#include "pmlogconf.h"
 
 static pmLongOptions longopts[] = {
     PMOPT_DEBUG,
@@ -35,56 +35,33 @@ override(int opt, pmOptions *opts)
 }
 
 static pmOptions opts = {
-    .short_options = "D:h:cd:g:qrs:vV",
+    .short_options = "D:h:cd:g:qrs:vV?",
     .long_options = longopts,
     .short_usage = "[options] ...",
     .override = override,
 };
 
-static int	autocreate;		/* generate message+timestamp */
-static int	prompt = 1;		/* user interaction */
-static int	quick;			/* quiet, no interval dialog */
-static int	reprobe;
-static int	rewrite;		/* pmlogger file is modified */
-static int	verbose;
-static int	existing;		/* new file or updating existing */
-static char	groupdir[MAXPATHLEN];	/* path to pmlogconf groups files */
-static char	*tmpconfig;		/* in-situ configuration file */
-static char	*trailer;		/* immutable trailer section */
-static char	*header;		/* immutable header section */
-static char	*config;		/* pmlogger configuration file */
-static char	*host;			/* pmcd host specification */
-static char	*setupfile;
-static char	*finaltag;
+int	autocreate;		/* generate message+timestamp */
+int	prompt = 1;		/* user interaction */
+int	deltas = 1;		/* support interval setting */
+int	quick;			/* quiet, no interval dialog */
+int	reprobe;
+int	rewrite;		/* pmlogger file is modified */
+int	verbose;
+int	existing;		/* new file or updating existing */
+char	groupdir[MAXPATHLEN];	/* path to pmlogconf groups files */
+char	*tmpconfig;		/* in-situ configuration file */
+char	*trailer;		/* immutable trailer section */
+char	*header;		/* immutable header section */
+char	*config;		/* pmlogger configuration file */
+char	*host;			/* pmcd host specification */
+char	*setupfile;
+char	*finaltag;
 
-typedef struct group {
-    char		*tag;		/* path component identifier */
-    char		*ident;		/* description (ident strings) */
-    char		*delta;		/* optional logging interval */
-    char		*metric;	/* metric name to probe, if probing */
-    unsigned int	valid: 1;	/* was group successfully parsed? */
-    unsigned int	success: 1;	/* was group successfully probed? */
-    unsigned int	logging: 1;	/* log group mandatory or advisory */
-    unsigned int	pmlogger: 1;	/* was group in pmlogger config? */
-    unsigned int	pmlogconf: 1;	/* was group in pmlogconf configs? */
-    pmID		pmid;		/* identifier for probed metric */
-    char		*force;		/* force expression, if forcing */
-    char		*probe;		/* probe expression, if probing */
-    char		*value;		/* probe expression condition value */
-    unsigned int	probe_style;	/* parse state */
-    unsigned int	true_state;	/* parse state */
-    unsigned int	false_state;	/* parse state */
-    unsigned int	nmetrics;	/* number of elements in metric array */
-    char		**metrics;	/* array of metrics for this group */
-    char		*saved_delta;	/* previously configured log interval */
-    unsigned int	saved_state;	/* previously configured enable state */
-    unsigned int	probe_state;	/* result of evaluating probe */
-} group_t;
+unsigned	ngroups;
+group_t	*groups;
 
-static unsigned	ngroups;
-static group_t	*groups;
-
-static int
+int
 resize_groups(unsigned int extras)
 {
     size_t		size = (ngroups + extras) * sizeof(group_t);
@@ -106,7 +83,7 @@ group_compare(const void *p, const void *q)
     return strcmp(pp->tag, qq->tag);
 }
 
-static group_t *
+group_t *
 group_free(group_t *group)
 {
     unsigned int	i;
@@ -136,7 +113,7 @@ group_free(group_t *group)
 }
 
 static group_t *
-group_create(const char *state, unsigned int line)
+group_create_pmlogger(const char *state, unsigned int line)
 {
     char		*errmsg;
     size_t		length;
@@ -232,7 +209,7 @@ group_create(const char *state, unsigned int line)
     return group_free(group);
 }
 
-static void
+void
 group_ident(group_t *group, const char *bytes)
 {
     /* trim and add this ident line to group */
@@ -287,7 +264,7 @@ static group_t *
 group_insert(group_t *group)
 {
     if (resize_groups(1) < 0) {
-	fprintf(stderr, "%s: out-of-memory adding pmlogger group %s\n",
+	fprintf(stderr, "%s: out-of-memory adding logged group %s\n",
 		pmGetProgname(), group->tag);
 	exit(EXIT_FAILURE);
     }
@@ -313,7 +290,7 @@ group_merge(group_t *found, group_t *group)
     return NULL;	/* this group update is now complete */
 }
 
-static group_t *
+group_t *
 group_finish(group_t *group, unsigned int *hint)
 {
     group_t		*found;
@@ -366,7 +343,7 @@ cullv1(const_dirent *dep)
     return strcmp("v1.0", dep->d_name);
 }
 
-static int
+int
 parse_groupfile(FILE *file, const char *tag)
 {
     struct group	group;
@@ -429,7 +406,7 @@ parse_groupfile(FILE *file, const char *tag)
 }
 
 /* recursive descent below groups dir (find 'tags'), sort, drop non-v2 files */
-static int
+int
 parse_groups(const char *path, const char *subdir)
 {
     struct dirent	**files = NULL;
@@ -491,11 +468,11 @@ parse_groups(const char *path, const char *subdir)
     return 0;
 }
 
-static int
+int
 fetch_groups(void)
 {
     static pmResult	*result;
-    char		**names;
+    const char		**names;
     pmID		*pmids;
     int			i, n, sts;
 
@@ -511,7 +488,7 @@ fetch_groups(void)
     for (i = n = 0; i < ngroups; i++) {
 	if (!groups[i].valid || groups[i].metric == NULL)
 	    continue;
-	names[n++] = groups[i].metric;
+	names[n++] = (const char *)groups[i].metric;
     }
 
     if ((sts = pmLookupName(n, names, pmids)) < 0) {
@@ -563,7 +540,7 @@ pmlogger_group_ident(FILE *file, group_t *group)
     fmt(group->ident, buffer, sizeof(buffer), 65, 75, ident_callback, file);
 }
 
-static int
+int
 parse_group(group_t *group)
 {
     size_t		length;
@@ -879,7 +856,7 @@ evaluate_values(group_t *group, numeric_cmp_t ncmp, string_cmp_t scmp)
     return evaluate_number_values(group, type, ncmp);
 }
 
-static int
+int
 evaluate_group(group_t *group)
 {
     pmValueSet		*vp;
@@ -915,7 +892,7 @@ evaluate_group(group_t *group)
     return group->pmid != PM_ID_NULL;
 }
 
-static unsigned int
+unsigned int
 evaluate_state(group_t *group)
 {
     unsigned int	state;
@@ -933,7 +910,7 @@ evaluate_state(group_t *group)
 	group->success = 1;
 	return STATE_INCLUDE; /* STATE_INCLUDE || available */
     }
-    if (group->pmlogger && !group->pmlogconf) {
+    if ((group->pmlogger || group->pmrep) && !group->pmlogconf) {
 	state = group->saved_state;
     } else if (evaluate_group(group)) {	/* probe */
 	if (reprobe == 0 && group->saved_state != 0)
@@ -1005,14 +982,13 @@ sigintproc(int sig)
     exit(1);
 }
 
-static void
+void
 create_tempfile(FILE *file, FILE **tempfile, struct stat *stat)
 {
     int			fd, mode = S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH;
     FILE		*fp;
     char		bytes[BUFSIZ];
     mode_t		cur_umask;
-    int			sts;
 
     /* create a temporary file in the same directory as config (for rename) */
     pmsprintf(bytes, sizeof(bytes), "%s.new", config);
@@ -1035,11 +1011,11 @@ create_tempfile(FILE *file, FILE **tempfile, struct stat *stat)
     umask(cur_umask);
 
     if (stat) {
-	if ((sts = fchown(fd, stat->st_uid, stat->st_gid)) < 0) {
+	if (fchown(fd, stat->st_uid, stat->st_gid) < 0) {
 	    fprintf(stderr, "%s: Warning: fchown() failed: %s\n",
 			pmGetProgname(), osstrerror());
 	}
-	if ((sts = fchmod(fd, stat->st_mode)) < 0) {
+	if (fchmod(fd, stat->st_mode) < 0) {
 	    fprintf(stderr, "%s: Warning: fchmod() failed: %s\n",
 			pmGetProgname(), osstrerror());
 	}
@@ -1053,7 +1029,7 @@ create_group(FILE *file, group_t *group)
 {
     evaluate_state(group);
 
-    if (!prompt && group->probe_state != STATE_EXCLUDE &&
+    if (!prompt && !autocreate && group->probe_state != STATE_EXCLUDE &&
 	(group->pmid != PM_ID_NULL || group->metric == NULL))
 	fputc('.', stdout);
 
@@ -1113,7 +1089,7 @@ pmlogger_trailer(FILE *f)
 }
 
 static void
-report_group(group_t *group)
+pmlogger_report_group(group_t *group)
 {
     unsigned int	state;
     char		*delta = NULL;
@@ -1193,11 +1169,11 @@ pmlogconf_setup(void)
     fetch_groups();
     evaluate_group(group);
     evaluate_state(group);
-    report_group(group);
+    pmlogger_report_group(group);
     return 0;
 }
 
-static void
+void
 setup_groups(void)
 {
     unsigned int	i;
@@ -1220,7 +1196,7 @@ pmlogger_create(FILE *file)
 
     if (finaltag) {
 	for (i = 0; i < ngroups; i++)
-	    report_group(&groups[i]);
+	    pmlogger_report_group(&groups[i]);
 	return;
     }
 
@@ -1229,7 +1205,7 @@ pmlogger_create(FILE *file)
     for (i = 0; i < ngroups; i++) {
 	create_group(tempfile, &groups[i]);
 	if (verbose)
-	    report_group(&groups[i]);
+	    pmlogger_report_group(&groups[i]);
     }
     pmlogger_trailer(tempfile);
 
@@ -1243,7 +1219,7 @@ pmlogger_create(FILE *file)
 }
 
 static void
-update_group(FILE *file, group_t *group)
+pmlogger_update_group(FILE *file, group_t *group)
 {
     if (group->valid) {
 	evaluate_state(group);
@@ -1264,7 +1240,7 @@ update_callback(const char *line, int length, void *arg)
 	printf("       %.*s\n", length, line);
 }
 
-static char *
+char *
 update_groups(FILE *tempfile, const char *pattern)
 {
     group_t		*group;
@@ -1279,20 +1255,26 @@ update_groups(FILE *tempfile, const char *pattern)
 	group = &groups[i];
 	if (!group->valid || group->saved_state == STATE_EXCLUDE)
 	    continue;
-	if (prompt == 0) {
-	    putc('.', stdout);
+	if (!prompt) {
+	    if (!autocreate)
+		putc('.', stdout);
 	    continue;
 	}
 	if (group->force)
 	    continue;
-	if (group->saved_state == STATE_INCLUDE)
+	if (autocreate)
+	    state = "\n";
+	else if (group->saved_state == STATE_INCLUDE)
 	    state = "y";
 	else
 	    state = "n";
-	putc('\n', stdout);
-	fmt(group->ident, buffer, sizeof(buffer), 64, 75, update_callback, &count);
-	printf("Log this group? [%s] ", state);
-	if (fgets(answer, sizeof(answer), stdin) == NULL)
+	if (!autocreate) {
+	    putc('\n', stdout);
+	    fmt(group->ident, buffer, sizeof(buffer), 64, 75,
+			    update_callback, &count);
+	    printf("Log this group? [%s] ", state);
+	}
+	if (autocreate || fgets(answer, sizeof(answer), stdin) == NULL)
 	    answer[0] = *state;
 
 	switch (answer[0]) {
@@ -1348,7 +1330,10 @@ y         log this group\n\
 	    continue;
 	}
 
-	if (prompt && group->saved_state == STATE_INCLUDE) {
+	if (autocreate)
+	    continue;
+
+	if (prompt && deltas && group->saved_state == STATE_INCLUDE) {
 	    if (quick) {
 		printf("Logging interval: %s\n", pmlogger_group_delta(group));
 	    } else {
@@ -1375,7 +1360,7 @@ y         log this group\n\
 }
 
 static void
-update(FILE *tempfile)
+update_pmlogger_tempfile(FILE *tempfile)
 {
     unsigned int	i;
     char		*pattern = NULL;
@@ -1421,19 +1406,22 @@ update(FILE *tempfile)
      * modified - either by the user or by new pmlogconf groups arriving.
      */
     if (rewrite) {
-	ftruncate(fileno(tempfile), 0L);
-	fseek(tempfile, 0L, SEEK_SET);
-
+	if (ftruncate(fileno(tempfile), 0L) < 0)
+	    fprintf(stderr, "%s: cannot truncate temporary file: %s\n",
+			pmGetProgname(), osstrerror());
+	if (fseek(tempfile, 0L, SEEK_SET) < 0)
+	    fprintf(stderr, "%s: cannot fseek to temporary file start: %s\n",
+			pmGetProgname(), osstrerror());
 	prompt = 0;
 	pmlogger_header(tempfile);
 	for (i = 0; i < ngroups; i++)
-	    update_group(tempfile, &groups[i]);
+	    pmlogger_update_group(tempfile, &groups[i]);
 	pmlogger_trailer(tempfile);
 	fflush(tempfile);
     }
 }
 
-static void
+void
 group_dircheck(const char *path)
 {
     size_t		length;
@@ -1476,11 +1464,9 @@ copy_and_parse_tempfile(FILE *file, FILE *tempfile)
 	} else if (strncmp("#+ groupdir ", bytes, 12) == 0) {
 	    group_dircheck(bytes + 12);
 	} else if (strncmp("#+ ", bytes, 3) == 0) {
-	    if (group) {
-		/* reported by COVERITY RESOURCE LEAK */
+	    if (group)
 	    	group_free(group);
-	    }
-	    group = group_create(bytes + 3, line);
+	    group = group_create_pmlogger(bytes + 3, line);
 	    head = 0;
 	} else if (group) {
 	    if (strncmp("#----", bytes, 5) == 0)
@@ -1504,7 +1490,7 @@ copy_and_parse_tempfile(FILE *file, FILE *tempfile)
     fflush(tempfile);
 }
 
-static void
+void
 diff_tempfile(FILE *tempfile)
 {
     char		bytes[512];
@@ -1536,8 +1522,9 @@ diff_tempfile(FILE *tempfile)
 	} while (fgets(bytes, sizeof(bytes), diff) != NULL);
 	__pmProcessPipeClose(diff);
 	for (;;) {
-	    printf("Keep changes? [y] ");
-	    if (fgets(answer, sizeof(answer), stdin) == NULL)
+	    if (!autocreate)
+		printf("Keep changes? [y] ");
+	    if (fgets(answer, sizeof(answer), stdin) == NULL || autocreate)
 		answer[0] = 'y';
 	    if (answer[0] == '\n' || answer[0] == '\0')
 		answer[0] = 'y';
@@ -1573,30 +1560,72 @@ pmlogger_update(FILE *file, struct stat *stat)
 
     if (finaltag) {
 	for (i = 0; i < ngroups; i++)
-	    report_group(&groups[i]);
+	    pmlogger_report_group(&groups[i]);
 	unlink(tmpconfig);
 	fclose(tempfile);
 	return;
     }
 
-    update(tempfile);
+    update_pmlogger_tempfile(tempfile);
 
     if (verbose) {
 	for (i = 0; i < ngroups; i++)
-	    report_group(&groups[i]);
+	    pmlogger_report_group(&groups[i]);
     }
     diff_tempfile(tempfile);
 }
 
+void
+pmapi_setup(pmOptions *opts)
+{
+    const char	*hostspec;
+    int		sts;
+
+    /* prepare the environment - no derived metrics, POSIX sorting */
+    unsetenv("PCP_DERIVED_CONFIG");
+    setenv("LC_COLLATE", "POSIX", 1);
+
+    /* setup connection to pmcd in order to query metric states */
+    if (opts->nhosts > 0)
+	hostspec = opts->hosts[0];
+    else
+	hostspec = "local:";
+    if ((sts = pmNewContext(PM_CONTEXT_HOST, hostspec)) < 0) {
+	fprintf(stderr, "%s: Cannot connect to pmcd on host \"%s\": %s\n",
+		pmGetProgname(), hostspec,  pmErrStr(sts));
+	exit(EXIT_FAILURE);
+    }
+}
+
+void
+group_setup(void)
+{
+    struct stat	sbuf;
+    int		c, sts;
+
+    /* location of pmlogconf template files we will be using */
+    if (groupdir[0] == '\0') {
+	c = pmPathSeparator();
+	pmsprintf(groupdir, sizeof(groupdir), "%s%cconfig%cpmlogconf",
+			pmGetConfig("PCP_VAR_DIR"), c, c);
+    }
+    if ((sts = stat(groupdir, &sbuf)) < 0)
+	sts = -oserror();
+    else if (!S_ISDIR(sbuf.st_mode))
+	sts = -ENOTDIR;
+    if (sts < 0) {
+	fprintf(stderr, "%s: Cannot open pmlogconf groups path \"%s\": %s\n",
+		    pmGetProgname(), groupdir, pmErrStr(sts));
+	exit(EXIT_FAILURE);
+    }
+}
+
 int
-main(int argc, char **argv)
+pmlogconf(int argc, char **argv)
 {
     struct stat	sbuf;
     FILE	*file;
-    char	*hostspec;
-    int		c, ctx, sts;
-
-    pmSetProgname(argv[0]);
+    int		c;
 
     while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {
@@ -1607,7 +1636,7 @@ main(int argc, char **argv)
 	    break;
 
 	case 'd':
-	    pmsprintf(groupdir, sizeof(groupdir), "%s", opts.optarg);
+	    pmsprintf(groupdir, MAXPATHLEN, "%s", opts.optarg);
 	    break;
 
 	case 'g':	/* group (report final configured states) */
@@ -1660,43 +1689,15 @@ main(int argc, char **argv)
 	exit(0);
     }
 
-    /* prepare the environment - no derived metrics, POSIX sorting */
-    unsetenv("PCP_DERIVED_CONFIG");
-    setenv("LC_COLLATE", "POSIX", 1);
-
-    /* setup connection to pmcd in order to query metric states */
-    if (opts.nhosts > 0)
-	hostspec = opts.hosts[0];
-    else
-	hostspec = "local:";
-    if ((ctx = sts = pmNewContext(PM_CONTEXT_HOST, hostspec)) < 0) {
-	fprintf(stderr, "%s: Cannot connect to pmcd on host \"%s\": %s\n",
-		pmGetProgname(), hostspec,  pmErrStr(sts));
-	exit(EXIT_FAILURE);
-    }
+    pmapi_setup(&opts);
 
     if (setupfile)
 	return pmlogconf_setup();
 
-    /* location of pmlogconf template files we will be using */
-    if (groupdir[0] == '\0') {
-	c = pmPathSeparator();
-	pmsprintf(groupdir, sizeof(groupdir), "%s%cconfig%cpmlogconf",
-			pmGetConfig("PCP_VAR_DIR"), c, c);
-    }
-    if ((sts = stat(groupdir, &sbuf)) < 0)
-	sts = -oserror();
-    else if (!S_ISDIR(sbuf.st_mode))
-	sts = -ENOTDIR;
-    if (sts < 0) {
-	fprintf(stderr, "%s: Cannot open pmlogconf groups path \"%s\": %s\n",
-		    pmGetProgname(), groupdir, pmErrStr(sts));
-	exit(EXIT_FAILURE);
-    }
+    group_setup();
 
     /* given pmlogger configuration file to be created or modified */
     config = argv[opts.optind];
-
     setoserror(0);
     if ((file = fopen(config, finaltag ? "r" : "r+")) == NULL) {
 	if (oserror() == ENOENT)
@@ -1723,4 +1724,15 @@ main(int argc, char **argv)
     fsync(fileno(file));
     fclose(file);
     return 0;
+}
+
+int
+main(int argc, char **argv)
+{
+    pmSetProgname(argv[0]);
+
+    if (strcmp(pmGetProgname(), "pmrepconf") == 0)
+	return pmrepconf(argc, argv);
+
+    return pmlogconf(argc, argv);
 }

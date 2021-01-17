@@ -30,8 +30,15 @@
 [\f3\-u\f1 \f2user\f1]
 .SH DESCRIPTION
 \fBpmdaopenmetrics\fR is a Performance Metrics Domain Agent (PMDA) which
-creates PCP metrics from OpenMetrics endpoints, which provide HTTP based
-access to application metrics.
+dynamically creates PCP metrics from configured OpenMetrics endpoints,
+which provide HTTP based access to application metrics.
+The PMDA essentially implements a bridge between
+.B Prometheus
+and
+.BR PCP ,
+allowing PCP to easily ingest performance data from more than 650 registered end-points
+and many other application specific end-points.
+.P
 The default \f2config\fP directory is
 .BR $PCP_PMDAS_DIR/openmetrics/config.d/ ,
 see ``CONFIGURATION SOURCES'' below.
@@ -217,7 +224,13 @@ Multiple spaces will be collapsed to a single space, and leading
 and trailing spaces are trimmed.
 A common use for headers is to configure a proxy agent
 and the assorted parameters it may require.
-.PP
+.SH "METRIC FILTERING"
+Metric filtering is a configuration file feature that allows
+ingested metrics to be included or excluded, i.e. filtered.
+This is useful because most end-points return multiple metrics,
+and usually only some are interesting for monitoring purposes.
+The syntax is:
+.br
 .BI "FILTER: INCLUDE METRIC" " regex"
 .br
 or
@@ -227,8 +240,12 @@ or
 Dynamically created metric names that match
 .I regex
 will be either included or excluded in the name space, as specified.
+Note that only the PMNS leaf component of the metric name (as ingested from the URL source)
+is compared with the
+.I regex
+pattern.
 The simple rule is that the \fIfirst matching\fP filter regex
-for a particular metric name is the rule that prevails.
+for a particular metric leaf name is the rule that prevails.
 If no filter regex matches (or there are no filters), then the metric
 is included by default, i.e. the default filter if none are specified is
 .BR "FILTER: INCLUDE METRIC .*"
@@ -246,30 +263,55 @@ In this case it's not necessary (though doesn't hurt) to specify the final
 .B "FILTER: INCLUDE METRIC .*"
 because, as stated above, any metric that does not match
 any filter regex will be included by default.
-.PP
+.SH "LABEL FILTERING"
 Label filtering uses similar
 .B FILTER:
-syntax and semantics.
+syntax and semantics as metric filtering.
 .BI "FILTER: EXCLUDE LABEL" " regex"
-will delete all labels matching
+will delete all labels with label name matching
 .I regex
-from all metrics defined in the configuration file.
-The same rules as for metrics apply for labels too - an implicit rule:
+from all metrics defined by the configuration file.
+The same rules as for metric filters apply for label filters too - an implicit rule:
 .BI "FILTER: INCLUDE LABEL .*"
-applies to all labels that do not match any earlier filter rule.
+applies to all labels that do not match any earlier label filter rule.
+.BI "FILTER: OPTIONAL LABEL" " regex"
+specifies that matching label names are to be included in the
+returned metric labelsets (i.e. included), but are
+.B not
+to be used as part of the the external instance names.
+All included labels that are not optional (i.e. the
+.I intrinsic
+labels) will be concatenated together
+and used for external instance naming.
+In addition, non-intrinsic labels (i.e. labels tagged as
+.BR OPTIONAL )
+will have the
+.B PM_LABEL_OPTIONAL
+flag set in the labelsets returned by
+.B notes
+callbacks.
+This flag affects how the labels are used in certain clients.
+For further details, see
+.BR pmLookupLabels (3)
+and related man pages for further details.
+Note that external instance names begin with the unique numeric
+internal instance identifier followed by a space, so external instance
+names are always unique.
 .P
 Caution is needed with label filtering because by default, all
 labels are used to construct the PCP instance name.
-By excluding some labels, the instance names will change.
-Excluding all labels for a particular metric changes that metric to be singular,
-i.e. have no instance domain.
-In addition, by excluding some labels, different instances of the same metric may become duplicates.
-When such duplicates occur, the last duplicate instance returned by the end-point URL prevails
-over any earlier instances.
+By excluding some labels (or changing them to optional),
+the instance names will change.
+In addition, excluding all labels for a particular metric changes that
+metric to be singular, i.e. have no instance domain.
+By excluding some labels, different instances returned by the URL
+or scripted configuration entry for the same metric may become duplicates.
+When such duplicates occur, the last duplicate instance returned by the end-point
+URL or script prevails over any earlier instances.
 For these reasons, it is recommended that label filtering rules be configured when the configuration file
 is first defined, and not changed thereafter.
 If a label filtering change is required, the configuration file should be renamed, which effectively
-defines a new metric, with the new (or changed) instance naming.
+defines a new metric (or set of peer metrics as returned by the URL or script), with the new (or changed) instance naming.
 .P
 Unrecognized keywords in configuration files are reported in the PMDA log file but otherwise ignored.
 .SH "SCRIPTED SOURCES"
@@ -409,6 +451,77 @@ log mandatory on 2 second {
 .in
 .fi
 .ft 1
+.SH "METADATA"
+Metric data returned by URL or scripted configuration files may contain
+metadata that can be used by the
+.B openmetrics
+PMDA to specify the semantics, data type, scaling and units of dynamically created metrics.
+This metadata is prefixed with
+.B "# PCP5"
+or
+.B "# PCP"
+in the ingested metric data.
+For additional information about PCP metadata, see
+.BR pmLookupDesc (3)
+and
+.BR pmParseUnitsStr (3)
+and examples in shipped configuration files.
+.PP
+In-line "PCP5" metadata must be supplied by the metrics source end-pont (URL or script).
+An alternative is to specify this in the URL configuration file directly, which has the advantage
+of not having to modify the source/end-point if the metadata is incorrect or missing.
+Metadata specified in the URL configuration file over-rides any in-line metadata.
+.PP
+The configuration file syntax for specifying metadata is:
+.br
+\f3METADATA:\fP \f2regex\fP \f2type\fP \f2indom\fP \f2semantics\fP \f2units\fP ... to EOL
+.br
+Where:
+.br
+\f3METADATA:\fP is literal
+.br
+\f2regex\fP is an extended regular expression to match one or more metric names returned by the URL,
+.br
+\f2type\fP is one of the PCP numeric types (\f332\fP, \f3u32\fP, \f364\fP, \f3u64\fP, \f3float\fP or \f3double\fP),
+.br
+\f2indom\fP is an arbitrary instance domain name, or \f3PM_INDOM_NULL\fP,
+.br
+\f2semantics\fP is either \f3counter\fP, \f3instant\fP or \f3discrete\fP and
+.br
+\f2units\fP is either \f3none\fP or a string extending to end of line that is parseable by
+.BR pmParseUnitsStr(3),
+i.e. the units, dimensions and scaling to be used for matching metrics.
+.PP
+An example configuration file that ingests metrics from the Grafana /metrics end-point on localhost,
+filters out all metrics returned by that URL
+.I except
+for
+.B grafana_api_response_status_total
+and then specifies the metric
+.I type
+is an unsigned 32 bit integer with a non-singular instance domain named
+.B response
+and
+.B counter
+semantics with
+.I units
+of
+.BR count .
+.sp
+\f3http://localhost:3000/metrics\fP
+.br
+\f3FILTER: INCLUDE METRIC grafana_api_response_status_total\fP
+.br
+\f3FILTER: EXCLUDE METRIC .*\fP
+.br
+\f3METADATA: grafana_api_response_status_total u32 response counter count\fP
+.PP
+Note that the name in the
+.I indom
+field is presently ignored unless it is
+.BR PM_INDOM_NULL ,
+in which case the metric has no instance domain (i.e. singular),
+even if it has labels which would otherwise be used for instance naming.
 .SH "CONTROL METRICS"
 The PMDA maintains special control metrics, as described below.
 Apart from
@@ -447,12 +560,17 @@ This metric can also be used for service availability monitoring, with the same 
 .IP \fBopenmetrics.control.calls\fP
 total number of times each configured metric source has been fetched (if it's a URL)
 or executed (if it's a script), since the PMDA started.
+This metric has counter semantics and would normally be converted to a rate/second by client tools.
 .IP \fBopenmetrics.control.fetch_time\fP
 Total time in milliseconds that each configured metric source has taken to return a document,
 excluding the time to parse the document.
+This metric has counter semantics and would normally be rate converted by client tools
+but is also useful in raw form as the accumulated parse time since the PMDA was started.
 .IP \fBopenmetrics.control.parse_time\fP
 Total time in milliseconds that each configured metric source has taken to parse each document,
 excluding the time to fetch the document.
+This metric has counter semantics and would normally be rate converted by client tools but
+is also useful in raw form as the accumulated parse time since the PMDA was started.
 .PP
 When converted to a rate, the \fBcalls\fP metric represents the average fetch rate of each source
 over the sampling interval (time delta between samples).
@@ -536,5 +654,6 @@ configuration file, as described in
 .BR pmstore (1),
 .BR PMWEBAPI (3),
 .BR pmFetch (3)
+.BR pmLookupLabels (3)
 and
-.IR https://openmetrics.io/docs/instrumenting/exposition_formats .
+.IR https://prometheus.io/docs/instrumenting/exposition_formats .

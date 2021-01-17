@@ -1,7 +1,7 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2000-2018 Gerlof Langeveld.
-.\" Copyright (c) 2017-2019 Red Hat.
+.\" Copyright (c) 2017-2020 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -350,7 +350,9 @@ the current virtual and resident memory space consumed by active processes
 .br
 When "storage accounting" is active in the kernel,
 the accumulated read and write throughput on disk is shown.
-When the kernel module `netatop' has been installed,
+When the
+.BR pmdabcc (1)
+module `netproc' has been installed,
 the number of received and sent network packets are shown.
 .br
 The last columns contain the accumulated occupation percentage for the
@@ -367,8 +369,10 @@ the current virtual and resident memory space consumed by active processes
 .br
 When "storage accounting" is active in the kernel,
 the accumulated read and write throughput on disk is shown.
-.\" When the kernel module `netatop' has been installed,
-.\" the number of received and sent network packets are shown.
+When the
+.BR pmdabcc (1)
+module `netproc' has been installed,
+the number of received and sent network packets are shown.
 .br
 The last columns contain the accumulated occupation percentage for the
 chosen resource (default: cpu) and the program name.
@@ -384,8 +388,10 @@ the current virtual and resident memory space consumed by active processes
 .br
 When "storage accounting" is active in the kernel,
 the accumulated read and write throughput on disk is shown.
-.\" When the kernel module `netatop' has been installed,
-.\" the number of received and sent network packets are shown.
+When the
+.BR pmdabcc (1)
+module `netproc' has been installed,
+the number of received and sent network packets are shown.
 .br
 The last columns contain the accumulated occupation percentage for the
 chosen resource (default: cpu) and the Docker container id (CID).
@@ -431,8 +437,9 @@ This option remains valid until
 another sorting-order is explicitly selected again.
 .br
 A sorting-order for disk is only possible when "storage accounting" is active.
-.\" A sorting-order for network is only possible when the kernel module `netatop'
-.\" is loaded.
+A sorting-order for network is only possible when the
+.BR pmdabcc (1)
+module `netproc' has been installed.
 .PP
 Miscellaneous interactive commands:
 .TP 5
@@ -1232,13 +1239,15 @@ Memory occupation at the moment of the sample on all used GPUs.
 .B MINFLT
 The number of page faults issued by this process that have been solved
 by reclaiming the requested memory page from the free list of pages.
-.\" .TP 9
-.\" .B NET
-.\" The occupation percentage of this process related to the total load that
-.\" is produced by all processes (i.e. consumed network bandwidth
-.\" of all processes during the last interval).
-.\" .br
-.\" This information will only be shown when kernel module `netatop' is loaded.
+.TP 9
+.B NET
+The occupation percentage of this process related to the total load that
+is produced by all processes (i.e. consumed network bandwidth
+of all processes during the last interval).
+.br
+This information will only be shown when the
+.BR pmdabcc (1)
+module `netproc' has been installed.
 .TP 9
 .B NICE
 The more or less static priority that can be given to a process on a
@@ -1793,7 +1802,8 @@ For every process one line is shown.
 .br
 Subsequent fields:
 PID, name (between brackets), state,
-kernel module 'netatop' loaded ('y' or 'n'),
+.BR pmdabcc (1)
+module `netproc' loaded ('y' or 'n'),
 number of TCP-packets transmitted,
 cumulative size of TCP-packets transmitted,
 number of TCP-packets received,
@@ -1905,6 +1915,7 @@ For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .BR pcp (1),
 .BR pcp-atopsar (1),
 .BR pmdaapache (1),
+.BR pmdabcc (1),
 .BR pmdainfiniband (1),
 .BR pmdanfsclient (1),
 .BR pmdanvidia (1),

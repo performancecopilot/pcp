@@ -212,12 +212,14 @@ def print_test_summary(tests: List[Test]):
 
 def send_slack_notification(slack_channel: str, github_run_url: str, qa_report_url: str, hosts: List[str],
                             tests: List[Test]):
-    host_stats = defaultdict(lambda: {"passed": 0, "failed": 0, "skipped": 0})
+    host_stats = defaultdict(lambda: {"passed": 0, "failed": 0, "skipped": 0, "cancelled": 0})
     for test in tests:
         if test.status == Test.Status.Passed:
             host_stats[test.host]["passed"] += 1
         elif test.status == Test.Status.Skipped:
             host_stats[test.host]["skipped"] += 1
+        elif test.status == Test.Status.Broken and test.message == "test cancelled":
+            host_stats[test.host]["cancelled"] += 1
         elif test.status in [Test.Status.Failed, Test.Status.Broken]:
             host_stats[test.host]["failed"] += 1
 
@@ -225,14 +227,20 @@ def send_slack_notification(slack_channel: str, github_run_url: str, qa_report_u
     for host in sorted(hosts):
         if host in host_stats:
             stats = host_stats[host]
-            host_texts.append(
-                f"*{host}*:\n"
-                f"Passed: {stats['passed']}, "
-                f"Failed: {stats['failed']}, "
-                f"Skipped: {stats['skipped']}"
-            )
+            host_stats_text = f"Passed: {stats['passed']}, Failed: {stats['failed']}, Skipped: {stats['skipped']}"
+            if stats['cancelled'] > 0:
+                host_stats_text = f"CANCELLED ({host_stats_text})"
+
+            if stats['cancelled'] > 0 or stats['passed'] < 1000:
+                symbol = ":x:"
+            elif stats['failed'] > 0:
+                symbol = ":warning:"
+            else:
+                symbol = ":heavy_check_mark:"
         else:
-            host_texts.append(f"*{host}*:\n:x: Build BROKEN")
+            host_stats_text = "Build BROKEN"
+            symbol = ":x:"
+        host_texts.append(f"*{host}*:\n{symbol} {host_stats_text}")
 
     host_blocks = []
     # slack only allows max 10 fields inside one block

@@ -1,0 +1,86 @@
+#!/bin/sh
+# PCP QA Test No. 1280
+# segv in __pmGetArchiveEnd_ctx()
+#
+# Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+fi
+
+if which unxz >/dev/null
+then
+    :
+else
+    _notrun "need unxz application installed"
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_doit()
+{
+    if $do_valgrind
+    then
+	_run_valgrind pmdumplog -z -Dlog -L 20180416.10.00
+    else
+	pmdumplog -z -Dlog -L 20180416.10.00 2>>$here/$seq.full
+    fi
+}
+
+# real QA test starts here
+mkdir $tmp
+cp archives/20180416.10.00* $tmp
+cd $tmp
+for f in *.xz
+do
+    unxz $f
+done
+
+echo "=== full archive ==="
+_doit
+
+echo
+echo "=== volume 3 missing ==="
+rm 20180416.10.00.3
+_doit
+
+echo
+echo "=== volume 2 truncated ==="
+size=`stat 20180416.10.00.2 | sed -n -e '/Size:/{
+s/.*Size: *//
+s/ .*//
+p
+}'`
+size=`expr $size - 8`
+truncate -s $size 20180416.10.00.2
+_doit
+
+# success, all done
+exit

@@ -30,7 +30,7 @@ __dmbind: bind metric[2] myname.const
 __dmtraverse: name="myname.const" added "myname.const"
 __dmgetpmid: metric "myname.const" -> PMID 511.0.3
 __dmpostfetch: [0] root node 511.0.3: numval=1 vset[0]: inst=-1 u=123456
-expr node <addr-0> type=INTEGER left=(nil) right=(nil) save_last=0 [123456] master=0
+expr node <addr-0> type=INTEGER left=(nil) right=(nil) save_last=0 [123456] primary=0
     PMID: PM_ID_NULL (511.0.3 from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
@@ -50,7 +50,7 @@ __dmtraverse: name="myname.a" added "myname.a"
 __dmgetpmid: metric "myname.a" -> PMID 511.0.4
 derived metrics prefetch added 1 metrics: 29.0.13
 __dmpostfetch: [0] root node 511.0.4: numval=1 vset[0]: inst=-1 l=1000000
-expr node <addr-0> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.million] master=0
+expr node <addr-0> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.million] primary=0
     PMID: 29.0.13 (511.0.4 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -134,49 +134,49 @@ __dmgetpmid: metric "myname.o" -> PMID 511.0.18
 __dmgetpmid: metric "myname.p" -> PMID 511.0.19
 derived metrics prefetch added 20 metrics: 29.0.13 29.0.23 29.0.18 29.0.28 29.0.30 29.0.31 29.0.32 29.0.12 29.0.11 29.0.10 29.0.22 29.0.21 29.0.20 29.0.17 29.0.16 29.0.15 29.0.27 29.0.6 29.0.48 29.0.26
 __dmpostfetch: [0] root node 511.0.3: numval=1 vset[0]: inst=-1 u=123456
-expr node <addr-0> type=INTEGER left=(nil) right=(nil) save_last=0 [123456] master=0
+expr node <addr-0> type=INTEGER left=(nil) right=(nil) save_last=0 [123456] primary=0
     PMID: PM_ID_NULL (511.0.3 from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
 [0] inst=-1, val=123456
 __dmpostfetch: [1] root node 511.0.4: numval=1 vset[0]: inst=-1 l=1000000
-expr node <addr-1> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.million] master=0
+expr node <addr-1> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.million] primary=0
     PMID: 29.0.13 (511.0.4 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=1000000
 __dmpostfetch: [2] root node 511.0.5: numval=1 vset[0]: inst=-1 ll=1000000
-expr node <addr-2> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.million] master=0
+expr node <addr-2> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.million] primary=0
     PMID: 29.0.23 (511.0.5 from pmDesc) numval: 1
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=1000000
 __dmpostfetch: [3] root node 511.0.6: numval=1 vset[0]: inst=-1 f=1000000.000000
-expr node <addr-3> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.million] master=0
+expr node <addr-3> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.million] primary=0
     PMID: 29.0.18 (511.0.6 from pmDesc) numval: 1
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=1e+06
 __dmpostfetch: [4] root node 511.0.7: numval=1 vset[0]: inst=-1 d=1000000.000000
-expr node <addr-4> type=NAME left=(nil) right=(nil) save_last=0 [sample.double.million] master=0
+expr node <addr-4> type=NAME left=(nil) right=(nil) save_last=0 [sample.double.million] primary=0
     PMID: 29.0.28 (511.0.7 from pmDesc) numval: 1
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=1e+06
 __dmpostfetch: [5] root node 511.0.8: numval=1 vset[0]: inst=-1 cp= (len=1)
-expr node <addr-5> type=NAME left=(nil) right=(nil) save_last=0 [sample.string.null] master=0
+expr node <addr-5> type=NAME left=(nil) right=(nil) save_last=0 [sample.string.null] primary=0
     PMID: 29.0.30 (511.0.8 from pmDesc) numval: 1
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=
 __dmpostfetch: [6] root node 511.0.9: numval=1 vset[0]: inst=-1 cp=hullo world! (len=13)
-expr node <addr-6> type=NAME left=(nil) right=(nil) save_last=0 [sample.string.hullo] master=0
+expr node <addr-6> type=NAME left=(nil) right=(nil) save_last=0 [sample.string.hullo] primary=0
     PMID: 29.0.31 (511.0.9 from pmDesc) numval: 1
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=hullo world!
 __dmpostfetch: [7] root node 511.0.10: numval=1 vset[0]: inst=-1 cp=13 (len=3)
-expr node <addr-7> type=NAME left=(nil) right=(nil) save_last=0 [sample.string.write_me] master=0
+expr node <addr-7> type=NAME left=(nil) right=(nil) save_last=0 [sample.string.write_me] primary=0
     PMID: 29.0.32 (511.0.10 from pmDesc) numval: 1
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -197,22 +197,22 @@ expr node <addr-10> type=PLUS left=<addr-11> right=<addr-12> save_last=0
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=1000100
-expr node <addr-11> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.million] master=0
+expr node <addr-11> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.million] primary=0
     PMID: 29.0.13 (29.0.13 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=1000000
-expr node <addr-12> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] master=0
+expr node <addr-12> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] primary=0
     PMID: 29.0.12 (29.0.12 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=100
-expr node <addr-13> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] master=0
+expr node <addr-13> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] primary=0
     PMID: 29.0.11 (29.0.11 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=10
-expr node <addr-14> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] master=0
+expr node <addr-14> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] primary=0
     PMID: 29.0.10 (29.0.10 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -233,22 +233,22 @@ expr node <addr-17> type=MINUS left=<addr-18> right=<addr-19> save_last=0
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=999900
-expr node <addr-18> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.million] master=0
+expr node <addr-18> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.million] primary=0
     PMID: 29.0.23 (29.0.23 from pmDesc) numval: 1
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=1000000
-expr node <addr-19> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.hundred] master=0
+expr node <addr-19> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.hundred] primary=0
     PMID: 29.0.22 (29.0.22 from pmDesc) numval: 1
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=100
-expr node <addr-20> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.ten] master=0
+expr node <addr-20> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.ten] primary=0
     PMID: 29.0.21 (29.0.21 from pmDesc) numval: 1
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=10
-expr node <addr-21> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.one] master=0
+expr node <addr-21> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.one] primary=0
     PMID: 29.0.20 (29.0.20 from pmDesc) numval: 1
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -259,7 +259,7 @@ expr node <addr-22> type=MINUS left=<addr-23> right=<addr-24> save_last=0
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=999000
-expr node <addr-23> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.million] master=0
+expr node <addr-23> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.million] primary=0
     PMID: 29.0.18 (29.0.18 from pmDesc) numval: 1
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -274,17 +274,17 @@ expr node <addr-25> type=STAR left=<addr-26> right=<addr-27> save_last=0
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=1000
-expr node <addr-26> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.hundred] master=0
+expr node <addr-26> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.hundred] primary=0
     PMID: 29.0.17 (29.0.17 from pmDesc) numval: 1
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=100
-expr node <addr-27> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.ten] master=0
+expr node <addr-27> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.ten] primary=0
     PMID: 29.0.16 (29.0.16 from pmDesc) numval: 1
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=10
-expr node <addr-28> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.one] master=0
+expr node <addr-28> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.one] primary=0
     PMID: 29.0.15 (29.0.15 from pmDesc) numval: 1
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -300,7 +300,7 @@ expr node <addr-30> type=MINUS left=<addr-31> right=<addr-32> save_last=0
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=0
-expr node <addr-31> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.million] master=0
+expr node <addr-31> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.million] primary=0
     PMID: 29.0.13 (29.0.13 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -315,22 +315,22 @@ expr node <addr-33> type=STAR left=<addr-34> right=<addr-35> save_last=0
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=10000
-expr node <addr-34> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.hundred] master=0
+expr node <addr-34> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.hundred] primary=0
     PMID: 29.0.17 (29.0.17 from pmDesc) numval: 1
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=100
-expr node <addr-35> type=NAME left=(nil) right=(nil) save_last=0 [sample.double.hundred] master=0
+expr node <addr-35> type=NAME left=(nil) right=(nil) save_last=0 [sample.double.hundred] primary=0
     PMID: 29.0.27 (29.0.27 from pmDesc) numval: 1
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=100
-expr node <addr-36> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.hundred] master=0
+expr node <addr-36> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.hundred] primary=0
     PMID: 29.0.22 (29.0.22 from pmDesc) numval: 1
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=100
-expr node <addr-37> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] master=0
+expr node <addr-37> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] primary=0
     PMID: 29.0.10 (29.0.10 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -349,7 +349,7 @@ expr node <addr-38> type=SLASH left=<addr-39> right=<addr-40> save_last=0
 [6] inst=700, val=14
 [7] inst=800, val=16
 [8] inst=900, val=18
-expr node <addr-39> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-39> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 9
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
@@ -362,7 +362,7 @@ expr node <addr-39> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] ma
 [6] inst=700, val=700
 [7] inst=800, val=800
 [8] inst=900, val=900
-expr node <addr-40> type=INTEGER left=(nil) right=(nil) save_last=0 [50] master=0
+expr node <addr-40> type=INTEGER left=(nil) right=(nil) save_last=0 [50] primary=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
@@ -381,12 +381,12 @@ expr node <addr-41> type=STAR left=<addr-42> right=<addr-43> save_last=0
 [6] inst=700, val=2100
 [7] inst=800, val=2400
 [8] inst=900, val=2700
-expr node <addr-42> type=INTEGER left=(nil) right=(nil) save_last=0 [3] master=0
+expr node <addr-42> type=INTEGER left=(nil) right=(nil) save_last=0 [3] primary=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
 [0] inst=-1, val=3
-expr node <addr-43> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-43> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 9
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
@@ -439,7 +439,7 @@ expr node <addr-46> type=PLUS left=<addr-47> right=<addr-48> save_last=0
 [6] inst=700, val=2100
 [7] inst=800, val=2400
 [8] inst=900, val=2700
-expr node <addr-47> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-47> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 9
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
@@ -465,7 +465,7 @@ expr node <addr-48> type=STAR left=<addr-49> right=<addr-50> save_last=0
 [6] inst=700, val=1400
 [7] inst=800, val=1600
 [8] inst=900, val=1800
-expr node <addr-49> type=NAME left=(nil) right=(nil) save_last=0 [sample.bucket] master=0
+expr node <addr-49> type=NAME left=(nil) right=(nil) save_last=0 [sample.bucket] primary=0
     PMID: 29.0.48 (29.0.48 from pmDesc) numval: 9
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
@@ -478,7 +478,7 @@ expr node <addr-49> type=NAME left=(nil) right=(nil) save_last=0 [sample.bucket]
 [6] inst=700, val=700
 [7] inst=800, val=800
 [8] inst=900, val=900
-expr node <addr-50> type=INTEGER left=(nil) right=(nil) save_last=0 [2] master=0
+expr node <addr-50> type=INTEGER left=(nil) right=(nil) save_last=0 [2] primary=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
@@ -496,7 +496,7 @@ expr node <addr-51> type=PLUS left=<addr-52> right=<addr-53> save_last=0
 [6] inst=700, val=800
 [7] inst=800, val=900
 [8] inst=900, val=1000
-expr node <addr-52> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-52> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 9
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
@@ -509,12 +509,12 @@ expr node <addr-52> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] ma
 [6] inst=700, val=700
 [7] inst=800, val=800
 [8] inst=900, val=900
-expr node <addr-53> type=INTEGER left=(nil) right=(nil) save_last=0 [100] master=0
+expr node <addr-53> type=INTEGER left=(nil) right=(nil) save_last=0 [100] primary=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
 [0] inst=-1, val=100
-expr node <addr-54> type=NAME left=(nil) right=(nil) save_last=0 [sample.bucket] master=0
+expr node <addr-54> type=NAME left=(nil) right=(nil) save_last=0 [sample.bucket] primary=0
     PMID: 29.0.48 (29.0.48 from pmDesc) numval: 9
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
@@ -541,7 +541,7 @@ expr node <addr-55> type=STAR left=<addr-56> right=<addr-57> save_last=0
 [6] inst=700, val=7000
 [7] inst=800, val=8000
 [8] inst=900, val=9000
-expr node <addr-56> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-56> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 9
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
@@ -554,7 +554,7 @@ expr node <addr-56> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] ma
 [6] inst=700, val=700
 [7] inst=800, val=800
 [8] inst=900, val=900
-expr node <addr-57> type=NAME left=(nil) right=(nil) save_last=0 [sample.double.ten] master=0
+expr node <addr-57> type=NAME left=(nil) right=(nil) save_last=0 [sample.double.ten] primary=0
     PMID: 29.0.26 (29.0.26 from pmDesc) numval: 1
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -573,12 +573,12 @@ expr node <addr-58> type=STAR left=<addr-59> right=<addr-60> save_last=0
 [6] inst=700, val=7000
 [7] inst=800, val=8000
 [8] inst=900, val=9000
-expr node <addr-59> type=NAME left=(nil) right=(nil) save_last=0 [sample.double.ten] master=0
+expr node <addr-59> type=NAME left=(nil) right=(nil) save_last=0 [sample.double.ten] primary=0
     PMID: 29.0.26 (29.0.26 from pmDesc) numval: 1
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=10
-expr node <addr-60> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-60> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 9
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
@@ -765,7 +765,7 @@ __dmbind: bind metric[3] myname.a
 __dmtraverse: name="myname.a" added "myname.a"
 __dmgetpmid: metric "myname.a" -> PMID 511.0.4
 __dmpostfetch: [0] root node 511.0.4: numval=1 vset[0]: inst=-1 l=1000000
-expr node <addr-0> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.million] master=0
+expr node <addr-0> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.million] primary=0
     PMID: 29.0.13 (511.0.4 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -851,7 +851,7 @@ __dmbind: bind metric[3] myname.a
 __dmtraverse: name="myname.a" added "myname.a"
 __dmgetpmid: metric "myname.a" -> PMID 511.0.4
 __dmpostfetch: [7] root node 511.0.4: numval=1 vset[0]: inst=-1 l=1000000
-expr node <addr-0> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.million] master=0
+expr node <addr-0> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.million] primary=0
     PMID: 29.0.13 (511.0.4 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -941,13 +941,13 @@ __dmtraverse: name="myname.b" added "myname.b"
 __dmgetpmid: metric "myname.a" -> PMID 511.0.4
 __dmgetpmid: metric "myname.b" -> PMID 511.0.5
 __dmpostfetch: [7] root node 511.0.4: numval=1 vset[0]: inst=-1 l=1000000
-expr node <addr-0> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.million] master=0
+expr node <addr-0> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.million] primary=0
     PMID: 29.0.13 (511.0.4 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=1000000
 __dmpostfetch: [8] root node 511.0.5: numval=1 vset[0]: inst=-1 ll=1000000
-expr node <addr-1> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.million] master=0
+expr node <addr-1> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.million] primary=0
     PMID: 29.0.23 (511.0.5 from pmDesc) numval: 1
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -1172,55 +1172,55 @@ __dmgetpmid: metric "myname.o" -> PMID 511.0.18
 __dmgetpmid: metric "myname.p" -> PMID 511.0.19
 derived metrics prefetch added 16 metrics: 29.0.13 29.0.23 29.0.18 29.0.28 29.0.12 29.0.11 29.0.10 29.0.22 29.0.21 29.0.20 29.0.17 29.0.16 29.0.15 29.0.27 29.0.48 29.0.26
 __dmpostfetch: [4] root node 511.0.9: numval=1 vset[0]: inst=-1 cp=hullo world! (len=13)
-expr node <addr-0> type=NAME left=(nil) right=(nil) save_last=0 [sample.string.hullo] master=0
+expr node <addr-0> type=NAME left=(nil) right=(nil) save_last=0 [sample.string.hullo] primary=0
     PMID: 29.0.31 (511.0.9 from pmDesc) numval: 1
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=hullo world!
 __dmpostfetch: [6] root node 511.0.3: numval=1 vset[0]: inst=-1 u=123456
-expr node <addr-1> type=INTEGER left=(nil) right=(nil) save_last=0 [123456] master=0
+expr node <addr-1> type=INTEGER left=(nil) right=(nil) save_last=0 [123456] primary=0
     PMID: PM_ID_NULL (511.0.3 from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
 [0] inst=-1, val=123456
 __dmpostfetch: [7] root node 511.0.4: numval=1 vset[0]: inst=-1 l=1000000
-expr node <addr-2> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.million] master=0
+expr node <addr-2> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.million] primary=0
     PMID: 29.0.13 (511.0.4 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=1000000
 __dmpostfetch: [8] root node 511.0.5: numval=1 vset[0]: inst=-1 ll=1000000
-expr node <addr-3> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.million] master=0
+expr node <addr-3> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.million] primary=0
     PMID: 29.0.23 (511.0.5 from pmDesc) numval: 1
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=1000000
 __dmpostfetch: [9] root node 511.0.6: numval=1 vset[0]: inst=-1 f=1000000.000000
-expr node <addr-4> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.million] master=0
+expr node <addr-4> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.million] primary=0
     PMID: 29.0.18 (511.0.6 from pmDesc) numval: 1
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=1e+06
 __dmpostfetch: [10] root node 511.0.7: numval=1 vset[0]: inst=-1 d=1000000.000000
-expr node <addr-5> type=NAME left=(nil) right=(nil) save_last=0 [sample.double.million] master=0
+expr node <addr-5> type=NAME left=(nil) right=(nil) save_last=0 [sample.double.million] primary=0
     PMID: 29.0.28 (511.0.7 from pmDesc) numval: 1
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=1e+06
 __dmpostfetch: [11] root node 511.0.8: numval=1 vset[0]: inst=-1 cp= (len=1)
-expr node <addr-6> type=NAME left=(nil) right=(nil) save_last=0 [sample.string.null] master=0
+expr node <addr-6> type=NAME left=(nil) right=(nil) save_last=0 [sample.string.null] primary=0
     PMID: 29.0.30 (511.0.8 from pmDesc) numval: 1
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=
 __dmpostfetch: [12] root node 511.0.9: numval=1 vset[0]: inst=-1 cp=hullo world! (len=13)
-expr node <addr-0> type=NAME left=(nil) right=(nil) save_last=0 [sample.string.hullo] master=0
+expr node <addr-0> type=NAME left=(nil) right=(nil) save_last=0 [sample.string.hullo] primary=0
     PMID: 29.0.31 (511.0.9 from pmDesc) numval: 1
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=hullo world!
 __dmpostfetch: [13] root node 511.0.10: numval=1 vset[0]: inst=-1 cp=13 (len=3)
-expr node <addr-8> type=NAME left=(nil) right=(nil) save_last=0 [sample.string.write_me] master=0
+expr node <addr-8> type=NAME left=(nil) right=(nil) save_last=0 [sample.string.write_me] primary=0
     PMID: 29.0.32 (511.0.10 from pmDesc) numval: 1
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -1241,22 +1241,22 @@ expr node <addr-11> type=PLUS left=<addr-12> right=<addr-13> save_last=0
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=1000100
-expr node <addr-12> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.million] master=0
+expr node <addr-12> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.million] primary=0
     PMID: 29.0.13 (29.0.13 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=1000000
-expr node <addr-13> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] master=0
+expr node <addr-13> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] primary=0
     PMID: 29.0.12 (29.0.12 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=100
-expr node <addr-14> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] master=0
+expr node <addr-14> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] primary=0
     PMID: 29.0.11 (29.0.11 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=10
-expr node <addr-15> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] master=0
+expr node <addr-15> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] primary=0
     PMID: 29.0.10 (29.0.10 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -1277,22 +1277,22 @@ expr node <addr-18> type=MINUS left=<addr-19> right=<addr-20> save_last=0
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=999900
-expr node <addr-19> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.million] master=0
+expr node <addr-19> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.million] primary=0
     PMID: 29.0.23 (29.0.23 from pmDesc) numval: 1
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=1000000
-expr node <addr-20> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.hundred] master=0
+expr node <addr-20> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.hundred] primary=0
     PMID: 29.0.22 (29.0.22 from pmDesc) numval: 1
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=100
-expr node <addr-21> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.ten] master=0
+expr node <addr-21> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.ten] primary=0
     PMID: 29.0.21 (29.0.21 from pmDesc) numval: 1
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=10
-expr node <addr-22> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.one] master=0
+expr node <addr-22> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.one] primary=0
     PMID: 29.0.20 (29.0.20 from pmDesc) numval: 1
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -1303,7 +1303,7 @@ expr node <addr-23> type=MINUS left=<addr-24> right=<addr-25> save_last=0
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=999000
-expr node <addr-24> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.million] master=0
+expr node <addr-24> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.million] primary=0
     PMID: 29.0.18 (29.0.18 from pmDesc) numval: 1
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -1318,17 +1318,17 @@ expr node <addr-26> type=STAR left=<addr-27> right=<addr-28> save_last=0
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=1000
-expr node <addr-27> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.hundred] master=0
+expr node <addr-27> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.hundred] primary=0
     PMID: 29.0.17 (29.0.17 from pmDesc) numval: 1
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=100
-expr node <addr-28> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.ten] master=0
+expr node <addr-28> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.ten] primary=0
     PMID: 29.0.16 (29.0.16 from pmDesc) numval: 1
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=10
-expr node <addr-29> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.one] master=0
+expr node <addr-29> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.one] primary=0
     PMID: 29.0.15 (29.0.15 from pmDesc) numval: 1
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -1344,7 +1344,7 @@ expr node <addr-31> type=MINUS left=<addr-32> right=<addr-33> save_last=0
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=0
-expr node <addr-32> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.million] master=0
+expr node <addr-32> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.million] primary=0
     PMID: 29.0.13 (29.0.13 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -1359,22 +1359,22 @@ expr node <addr-34> type=STAR left=<addr-35> right=<addr-36> save_last=0
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=10000
-expr node <addr-35> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.hundred] master=0
+expr node <addr-35> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.hundred] primary=0
     PMID: 29.0.17 (29.0.17 from pmDesc) numval: 1
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=100
-expr node <addr-36> type=NAME left=(nil) right=(nil) save_last=0 [sample.double.hundred] master=0
+expr node <addr-36> type=NAME left=(nil) right=(nil) save_last=0 [sample.double.hundred] primary=0
     PMID: 29.0.27 (29.0.27 from pmDesc) numval: 1
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=100
-expr node <addr-37> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.hundred] master=0
+expr node <addr-37> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.hundred] primary=0
     PMID: 29.0.22 (29.0.22 from pmDesc) numval: 1
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=100
-expr node <addr-38> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] master=0
+expr node <addr-38> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] primary=0
     PMID: 29.0.10 (29.0.10 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -1393,7 +1393,7 @@ expr node <addr-39> type=SLASH left=<addr-40> right=<addr-41> save_last=0
 [6] inst=700, val=14
 [7] inst=800, val=16
 [8] inst=900, val=18
-expr node <addr-40> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-40> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 9
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
@@ -1406,7 +1406,7 @@ expr node <addr-40> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] ma
 [6] inst=700, val=700
 [7] inst=800, val=800
 [8] inst=900, val=900
-expr node <addr-41> type=INTEGER left=(nil) right=(nil) save_last=0 [50] master=0
+expr node <addr-41> type=INTEGER left=(nil) right=(nil) save_last=0 [50] primary=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
@@ -1425,12 +1425,12 @@ expr node <addr-42> type=STAR left=<addr-43> right=<addr-44> save_last=0
 [6] inst=700, val=2100
 [7] inst=800, val=2400
 [8] inst=900, val=2700
-expr node <addr-43> type=INTEGER left=(nil) right=(nil) save_last=0 [3] master=0
+expr node <addr-43> type=INTEGER left=(nil) right=(nil) save_last=0 [3] primary=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
 [0] inst=-1, val=3
-expr node <addr-44> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-44> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 9
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
@@ -1483,7 +1483,7 @@ expr node <addr-47> type=PLUS left=<addr-48> right=<addr-49> save_last=0
 [6] inst=700, val=2100
 [7] inst=800, val=2400
 [8] inst=900, val=2700
-expr node <addr-48> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-48> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 9
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
@@ -1509,7 +1509,7 @@ expr node <addr-49> type=STAR left=<addr-50> right=<addr-51> save_last=0
 [6] inst=700, val=1400
 [7] inst=800, val=1600
 [8] inst=900, val=1800
-expr node <addr-50> type=NAME left=(nil) right=(nil) save_last=0 [sample.bucket] master=0
+expr node <addr-50> type=NAME left=(nil) right=(nil) save_last=0 [sample.bucket] primary=0
     PMID: 29.0.48 (29.0.48 from pmDesc) numval: 9
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
@@ -1522,7 +1522,7 @@ expr node <addr-50> type=NAME left=(nil) right=(nil) save_last=0 [sample.bucket]
 [6] inst=700, val=700
 [7] inst=800, val=800
 [8] inst=900, val=900
-expr node <addr-51> type=INTEGER left=(nil) right=(nil) save_last=0 [2] master=0
+expr node <addr-51> type=INTEGER left=(nil) right=(nil) save_last=0 [2] primary=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
@@ -1540,7 +1540,7 @@ expr node <addr-52> type=PLUS left=<addr-53> right=<addr-54> save_last=0
 [6] inst=700, val=800
 [7] inst=800, val=900
 [8] inst=900, val=1000
-expr node <addr-53> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-53> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 9
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
@@ -1553,12 +1553,12 @@ expr node <addr-53> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] ma
 [6] inst=700, val=700
 [7] inst=800, val=800
 [8] inst=900, val=900
-expr node <addr-54> type=INTEGER left=(nil) right=(nil) save_last=0 [100] master=0
+expr node <addr-54> type=INTEGER left=(nil) right=(nil) save_last=0 [100] primary=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
 [0] inst=-1, val=100
-expr node <addr-55> type=NAME left=(nil) right=(nil) save_last=0 [sample.bucket] master=0
+expr node <addr-55> type=NAME left=(nil) right=(nil) save_last=0 [sample.bucket] primary=0
     PMID: 29.0.48 (29.0.48 from pmDesc) numval: 9
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
@@ -1585,7 +1585,7 @@ expr node <addr-56> type=STAR left=<addr-57> right=<addr-58> save_last=0
 [6] inst=700, val=7000
 [7] inst=800, val=8000
 [8] inst=900, val=9000
-expr node <addr-57> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-57> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 9
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
@@ -1598,7 +1598,7 @@ expr node <addr-57> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] ma
 [6] inst=700, val=700
 [7] inst=800, val=800
 [8] inst=900, val=900
-expr node <addr-58> type=NAME left=(nil) right=(nil) save_last=0 [sample.double.ten] master=0
+expr node <addr-58> type=NAME left=(nil) right=(nil) save_last=0 [sample.double.ten] primary=0
     PMID: 29.0.26 (29.0.26 from pmDesc) numval: 1
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -1617,12 +1617,12 @@ expr node <addr-59> type=STAR left=<addr-60> right=<addr-61> save_last=0
 [6] inst=700, val=7000
 [7] inst=800, val=8000
 [8] inst=900, val=9000
-expr node <addr-60> type=NAME left=(nil) right=(nil) save_last=0 [sample.double.ten] master=0
+expr node <addr-60> type=NAME left=(nil) right=(nil) save_last=0 [sample.double.ten] primary=0
     PMID: 29.0.26 (29.0.26 from pmDesc) numval: 1
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=10
-expr node <addr-61> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+expr node <addr-61> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 9
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
@@ -2024,12 +2024,12 @@ expr node <addr-2> type=MINUS left=<addr-3> right=<addr-4> save_last=0
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=0
-expr node <addr-3> type=NAME left=(nil) right=(nil) save_last=0 [sample.load] master=0
+expr node <addr-3> type=NAME left=(nil) right=(nil) save_last=0 [sample.load] primary=0
     PMID: 29.0.4 (29.0.4 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-0>
-expr node <addr-4> type=NAME left=(nil) right=(nil) save_last=0 [sample.load] master=0
+expr node <addr-4> type=NAME left=(nil) right=(nil) save_last=0 [sample.load] primary=0
     PMID: 29.0.4 (29.0.4 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -2044,22 +2044,22 @@ expr node <addr-6> type=SLASH left=<addr-7> right=<addr-8> save_last=0
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-3>
-expr node <addr-7> type=NAME left=(nil) right=(nil) save_last=0 [sample.load] master=0
+expr node <addr-7> type=NAME left=(nil) right=(nil) save_last=0 [sample.load] primary=0
     PMID: 29.0.4 (29.0.4 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-0>
-expr node <addr-8> type=NAME left=(nil) right=(nil) save_last=0 [sample.load] master=0
+expr node <addr-8> type=NAME left=(nil) right=(nil) save_last=0 [sample.load] primary=0
     PMID: 29.0.4 (29.0.4 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-0>
-expr node <addr-9> type=NAME left=(nil) right=(nil) save_last=0 [sample.load] master=0
+expr node <addr-9> type=NAME left=(nil) right=(nil) save_last=0 [sample.load] primary=0
     PMID: 29.0.4 (29.0.4 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-0>
-expr node <addr-10> type=NAME left=(nil) right=(nil) save_last=0 [sample.load] master=0
+expr node <addr-10> type=NAME left=(nil) right=(nil) save_last=0 [sample.load] primary=0
     PMID: 29.0.4 (29.0.4 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -2080,12 +2080,12 @@ expr node <addr-13> type=MINUS left=<addr-14> right=<addr-15> save_last=0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=0
-expr node <addr-14> type=NAME left=(nil) right=(nil) save_last=0 [sample.daemon_pid] master=0
+expr node <addr-14> type=NAME left=(nil) right=(nil) save_last=0 [sample.daemon_pid] primary=0
     PMID: 29.0.1 (29.0.1 from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-1>
-expr node <addr-15> type=NAME left=(nil) right=(nil) save_last=0 [sample.daemon_pid] master=0
+expr node <addr-15> type=NAME left=(nil) right=(nil) save_last=0 [sample.daemon_pid] primary=0
     PMID: 29.0.1 (29.0.1 from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -2100,22 +2100,22 @@ expr node <addr-17> type=SLASH left=<addr-18> right=<addr-19> save_last=0
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-3>
-expr node <addr-18> type=NAME left=(nil) right=(nil) save_last=0 [sample.daemon_pid] master=0
+expr node <addr-18> type=NAME left=(nil) right=(nil) save_last=0 [sample.daemon_pid] primary=0
     PMID: 29.0.1 (29.0.1 from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-1>
-expr node <addr-19> type=NAME left=(nil) right=(nil) save_last=0 [sample.daemon_pid] master=0
+expr node <addr-19> type=NAME left=(nil) right=(nil) save_last=0 [sample.daemon_pid] primary=0
     PMID: 29.0.1 (29.0.1 from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-1>
-expr node <addr-20> type=NAME left=(nil) right=(nil) save_last=0 [sample.daemon_pid] master=0
+expr node <addr-20> type=NAME left=(nil) right=(nil) save_last=0 [sample.daemon_pid] primary=0
     PMID: 29.0.1 (29.0.1 from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-1>
-expr node <addr-21> type=NAME left=(nil) right=(nil) save_last=0 [sample.daemon_pid] master=0
+expr node <addr-21> type=NAME left=(nil) right=(nil) save_last=0 [sample.daemon_pid] primary=0
     PMID: 29.0.1 (29.0.1 from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -2136,12 +2136,12 @@ expr node <addr-24> type=MINUS left=<addr-25> right=<addr-26> save_last=0
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=0
-expr node <addr-25> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.hundred] master=0
+expr node <addr-25> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.hundred] primary=0
     PMID: 29.0.22 (29.0.22 from pmDesc) numval: 1
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-2>
-expr node <addr-26> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.hundred] master=0
+expr node <addr-26> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.hundred] primary=0
     PMID: 29.0.22 (29.0.22 from pmDesc) numval: 1
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -2156,22 +2156,22 @@ expr node <addr-28> type=SLASH left=<addr-29> right=<addr-30> save_last=0
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-3>
-expr node <addr-29> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.hundred] master=0
+expr node <addr-29> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.hundred] primary=0
     PMID: 29.0.22 (29.0.22 from pmDesc) numval: 1
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-2>
-expr node <addr-30> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.hundred] master=0
+expr node <addr-30> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.hundred] primary=0
     PMID: 29.0.22 (29.0.22 from pmDesc) numval: 1
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-2>
-expr node <addr-31> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.hundred] master=0
+expr node <addr-31> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.hundred] primary=0
     PMID: 29.0.22 (29.0.22 from pmDesc) numval: 1
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-2>
-expr node <addr-32> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.hundred] master=0
+expr node <addr-32> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.hundred] primary=0
     PMID: 29.0.22 (29.0.22 from pmDesc) numval: 1
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -2192,12 +2192,12 @@ expr node <addr-35> type=MINUS left=<addr-36> right=<addr-37> save_last=0
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=0
-expr node <addr-36> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.hundred] master=0
+expr node <addr-36> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.hundred] primary=0
     PMID: 29.0.100 (29.0.100 from pmDesc) numval: 1
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-2>
-expr node <addr-37> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.hundred] master=0
+expr node <addr-37> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.hundred] primary=0
     PMID: 29.0.100 (29.0.100 from pmDesc) numval: 1
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -2212,22 +2212,22 @@ expr node <addr-39> type=SLASH left=<addr-40> right=<addr-41> save_last=0
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-3>
-expr node <addr-40> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.hundred] master=0
+expr node <addr-40> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.hundred] primary=0
     PMID: 29.0.100 (29.0.100 from pmDesc) numval: 1
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-2>
-expr node <addr-41> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.hundred] master=0
+expr node <addr-41> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.hundred] primary=0
     PMID: 29.0.100 (29.0.100 from pmDesc) numval: 1
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-2>
-expr node <addr-42> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.hundred] master=0
+expr node <addr-42> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.hundred] primary=0
     PMID: 29.0.100 (29.0.100 from pmDesc) numval: 1
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-2>
-expr node <addr-43> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.hundred] master=0
+expr node <addr-43> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.hundred] primary=0
     PMID: 29.0.100 (29.0.100 from pmDesc) numval: 1
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -2248,12 +2248,12 @@ expr node <addr-46> type=MINUS left=<addr-47> right=<addr-48> save_last=0
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=0
-expr node <addr-47> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.hundred] master=0
+expr node <addr-47> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.hundred] primary=0
     PMID: 29.0.17 (29.0.17 from pmDesc) numval: 1
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-2>
-expr node <addr-48> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.hundred] master=0
+expr node <addr-48> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.hundred] primary=0
     PMID: 29.0.17 (29.0.17 from pmDesc) numval: 1
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -2268,22 +2268,22 @@ expr node <addr-50> type=SLASH left=<addr-51> right=<addr-52> save_last=0
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-3>
-expr node <addr-51> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.hundred] master=0
+expr node <addr-51> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.hundred] primary=0
     PMID: 29.0.17 (29.0.17 from pmDesc) numval: 1
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-2>
-expr node <addr-52> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.hundred] master=0
+expr node <addr-52> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.hundred] primary=0
     PMID: 29.0.17 (29.0.17 from pmDesc) numval: 1
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-2>
-expr node <addr-53> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.hundred] master=0
+expr node <addr-53> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.hundred] primary=0
     PMID: 29.0.17 (29.0.17 from pmDesc) numval: 1
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-2>
-expr node <addr-54> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.hundred] master=0
+expr node <addr-54> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.hundred] primary=0
     PMID: 29.0.17 (29.0.17 from pmDesc) numval: 1
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -2304,12 +2304,12 @@ expr node <addr-57> type=MINUS left=<addr-58> right=<addr-59> save_last=0
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=0
-expr node <addr-58> type=NAME left=(nil) right=(nil) save_last=0 [sample.double.hundred] master=0
+expr node <addr-58> type=NAME left=(nil) right=(nil) save_last=0 [sample.double.hundred] primary=0
     PMID: 29.0.27 (29.0.27 from pmDesc) numval: 1
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-2>
-expr node <addr-59> type=NAME left=(nil) right=(nil) save_last=0 [sample.double.hundred] master=0
+expr node <addr-59> type=NAME left=(nil) right=(nil) save_last=0 [sample.double.hundred] primary=0
     PMID: 29.0.27 (29.0.27 from pmDesc) numval: 1
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -2324,22 +2324,22 @@ expr node <addr-61> type=SLASH left=<addr-62> right=<addr-63> save_last=0
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-3>
-expr node <addr-62> type=NAME left=(nil) right=(nil) save_last=0 [sample.double.hundred] master=0
+expr node <addr-62> type=NAME left=(nil) right=(nil) save_last=0 [sample.double.hundred] primary=0
     PMID: 29.0.27 (29.0.27 from pmDesc) numval: 1
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-2>
-expr node <addr-63> type=NAME left=(nil) right=(nil) save_last=0 [sample.double.hundred] master=0
+expr node <addr-63> type=NAME left=(nil) right=(nil) save_last=0 [sample.double.hundred] primary=0
     PMID: 29.0.27 (29.0.27 from pmDesc) numval: 1
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-2>
-expr node <addr-64> type=NAME left=(nil) right=(nil) save_last=0 [sample.double.hundred] master=0
+expr node <addr-64> type=NAME left=(nil) right=(nil) save_last=0 [sample.double.hundred] primary=0
     PMID: 29.0.27 (29.0.27 from pmDesc) numval: 1
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-2>
-expr node <addr-65> type=NAME left=(nil) right=(nil) save_last=0 [sample.double.hundred] master=0
+expr node <addr-65> type=NAME left=(nil) right=(nil) save_last=0 [sample.double.hundred] primary=0
     PMID: 29.0.27 (29.0.27 from pmDesc) numval: 1
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -2350,12 +2350,12 @@ expr node <addr-66> type=PLUS left=<addr-67> right=<addr-68> save_last=0
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=101
-expr node <addr-67> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] master=0
+expr node <addr-67> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] primary=0
     PMID: 29.0.10 (29.0.10 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-3>
-expr node <addr-68> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.hundred] master=0
+expr node <addr-68> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.hundred] primary=0
     PMID: 29.0.22 (29.0.22 from pmDesc) numval: 1
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -2366,12 +2366,12 @@ expr node <addr-69> type=PLUS left=<addr-70> right=<addr-71> save_last=0
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=101
-expr node <addr-70> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.hundred] master=0
+expr node <addr-70> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.hundred] primary=0
     PMID: 29.0.22 (29.0.22 from pmDesc) numval: 1
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-2>
-expr node <addr-71> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] master=0
+expr node <addr-71> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] primary=0
     PMID: 29.0.10 (29.0.10 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -2382,12 +2382,12 @@ expr node <addr-72> type=PLUS left=<addr-73> right=<addr-74> save_last=0
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=101
-expr node <addr-73> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.hundred] master=0
+expr node <addr-73> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.hundred] primary=0
     PMID: 29.0.22 (29.0.22 from pmDesc) numval: 1
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-2>
-expr node <addr-74> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.one] master=0
+expr node <addr-74> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.one] primary=0
     PMID: 29.0.93 (29.0.93 from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -2398,12 +2398,12 @@ expr node <addr-75> type=PLUS left=<addr-76> right=<addr-77> save_last=0
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=101
-expr node <addr-76> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.hundred] master=0
+expr node <addr-76> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.hundred] primary=0
     PMID: 29.0.100 (29.0.100 from pmDesc) numval: 1
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-2>
-expr node <addr-77> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] master=0
+expr node <addr-77> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] primary=0
     PMID: 29.0.10 (29.0.10 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -2414,12 +2414,12 @@ expr node <addr-78> type=PLUS left=<addr-79> right=<addr-80> save_last=0
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=101
-expr node <addr-79> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] master=0
+expr node <addr-79> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] primary=0
     PMID: 29.0.10 (29.0.10 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-3>
-expr node <addr-80> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.hundred] master=0
+expr node <addr-80> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.hundred] primary=0
     PMID: 29.0.100 (29.0.100 from pmDesc) numval: 1
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -2430,12 +2430,12 @@ expr node <addr-81> type=PLUS left=<addr-82> right=<addr-83> save_last=0
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=101
-expr node <addr-82> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.one] master=0
+expr node <addr-82> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.one] primary=0
     PMID: 29.0.93 (29.0.93 from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-3>
-expr node <addr-83> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.hundred] master=0
+expr node <addr-83> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.hundred] primary=0
     PMID: 29.0.100 (29.0.100 from pmDesc) numval: 1
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -2446,12 +2446,12 @@ expr node <addr-84> type=PLUS left=<addr-85> right=<addr-86> save_last=0
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=101
-expr node <addr-85> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.hundred] master=0
+expr node <addr-85> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.hundred] primary=0
     PMID: 29.0.100 (29.0.100 from pmDesc) numval: 1
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-2>
-expr node <addr-86> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.one] master=0
+expr node <addr-86> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.one] primary=0
     PMID: 29.0.93 (29.0.93 from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -2462,12 +2462,12 @@ expr node <addr-87> type=PLUS left=<addr-88> right=<addr-89> save_last=0
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=101
-expr node <addr-88> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] master=0
+expr node <addr-88> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] primary=0
     PMID: 29.0.10 (29.0.10 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-3>
-expr node <addr-89> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.hundred] master=0
+expr node <addr-89> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.hundred] primary=0
     PMID: 29.0.17 (29.0.17 from pmDesc) numval: 1
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -2478,12 +2478,12 @@ expr node <addr-90> type=PLUS left=<addr-91> right=<addr-92> save_last=0
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=101
-expr node <addr-91> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.one] master=0
+expr node <addr-91> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.one] primary=0
     PMID: 29.0.93 (29.0.93 from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-3>
-expr node <addr-92> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.hundred] master=0
+expr node <addr-92> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.hundred] primary=0
     PMID: 29.0.17 (29.0.17 from pmDesc) numval: 1
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -2494,12 +2494,12 @@ expr node <addr-93> type=PLUS left=<addr-94> right=<addr-95> save_last=0
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=101
-expr node <addr-94> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.one] master=0
+expr node <addr-94> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.one] primary=0
     PMID: 29.0.20 (29.0.20 from pmDesc) numval: 1
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-3>
-expr node <addr-95> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.hundred] master=0
+expr node <addr-95> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.hundred] primary=0
     PMID: 29.0.17 (29.0.17 from pmDesc) numval: 1
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -2510,12 +2510,12 @@ expr node <addr-96> type=PLUS left=<addr-97> right=<addr-98> save_last=0
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=101
-expr node <addr-97> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.one] master=0
+expr node <addr-97> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.one] primary=0
     PMID: 29.0.98 (29.0.98 from pmDesc) numval: 1
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-3>
-expr node <addr-98> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.hundred] master=0
+expr node <addr-98> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.hundred] primary=0
     PMID: 29.0.17 (29.0.17 from pmDesc) numval: 1
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -2526,12 +2526,12 @@ expr node <addr-99> type=PLUS left=<addr-100> right=<addr-101> save_last=0
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=101
-expr node <addr-100> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.hundred] master=0
+expr node <addr-100> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.hundred] primary=0
     PMID: 29.0.17 (29.0.17 from pmDesc) numval: 1
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-2>
-expr node <addr-101> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] master=0
+expr node <addr-101> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] primary=0
     PMID: 29.0.10 (29.0.10 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -2542,12 +2542,12 @@ expr node <addr-102> type=PLUS left=<addr-103> right=<addr-104> save_last=0
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=101
-expr node <addr-103> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.hundred] master=0
+expr node <addr-103> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.hundred] primary=0
     PMID: 29.0.17 (29.0.17 from pmDesc) numval: 1
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-2>
-expr node <addr-104> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.one] master=0
+expr node <addr-104> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.one] primary=0
     PMID: 29.0.93 (29.0.93 from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -2558,12 +2558,12 @@ expr node <addr-105> type=PLUS left=<addr-106> right=<addr-107> save_last=0
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=101
-expr node <addr-106> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.hundred] master=0
+expr node <addr-106> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.hundred] primary=0
     PMID: 29.0.17 (29.0.17 from pmDesc) numval: 1
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-2>
-expr node <addr-107> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.one] master=0
+expr node <addr-107> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.one] primary=0
     PMID: 29.0.20 (29.0.20 from pmDesc) numval: 1
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -2574,12 +2574,12 @@ expr node <addr-108> type=PLUS left=<addr-109> right=<addr-110> save_last=0
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=101
-expr node <addr-109> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.hundred] master=0
+expr node <addr-109> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.hundred] primary=0
     PMID: 29.0.17 (29.0.17 from pmDesc) numval: 1
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-2>
-expr node <addr-110> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.one] master=0
+expr node <addr-110> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.one] primary=0
     PMID: 29.0.98 (29.0.98 from pmDesc) numval: 1
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -2590,12 +2590,12 @@ expr node <addr-111> type=STAR left=<addr-112> right=<addr-113> save_last=0
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=1000
-expr node <addr-112> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] master=0
+expr node <addr-112> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] primary=0
     PMID: 29.0.11 (29.0.11 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-4>
-expr node <addr-113> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] master=0
+expr node <addr-113> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] primary=0
     PMID: 29.0.12 (29.0.12 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -2606,12 +2606,12 @@ expr node <addr-114> type=STAR left=<addr-115> right=<addr-116> save_last=0
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=1000
-expr node <addr-115> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.ten] master=0
+expr node <addr-115> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.ten] primary=0
     PMID: 29.0.99 (29.0.99 from pmDesc) numval: 1
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-4>
-expr node <addr-116> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.hundred] master=0
+expr node <addr-116> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.hundred] primary=0
     PMID: 29.0.100 (29.0.100 from pmDesc) numval: 1
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -2622,12 +2622,12 @@ expr node <addr-117> type=SLASH left=<addr-118> right=<addr-119> save_last=0
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-4>
-expr node <addr-118> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.hundred] master=0
+expr node <addr-118> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.hundred] primary=0
     PMID: 29.0.17 (29.0.17 from pmDesc) numval: 1
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<value-2>
-expr node <addr-119> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.ten] master=0
+expr node <addr-119> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.ten] primary=0
     PMID: 29.0.16 (29.0.16 from pmDesc) numval: 1
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -2638,12 +2638,12 @@ expr node <addr-120> type=SLASH left=<addr-121> right=<addr-122> save_last=0
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=0
-expr node <addr-121> type=INTEGER left=(nil) right=(nil) save_last=0 [0] master=0
+expr node <addr-121> type=INTEGER left=(nil) right=(nil) save_last=0 [0] primary=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
 [0] inst=-1, val=0
-expr node <addr-122> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.ten] master=0
+expr node <addr-122> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.ten] primary=0
     PMID: 29.0.16 (29.0.16 from pmDesc) numval: 1
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -2654,12 +2654,12 @@ expr node <addr-123> type=SLASH left=<addr-124> right=<addr-125> save_last=0
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=0
-expr node <addr-124> type=INTEGER left=(nil) right=(nil) save_last=0 [0] master=0
+expr node <addr-124> type=INTEGER left=(nil) right=(nil) save_last=0 [0] primary=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
 [0] inst=-1, val=0
-expr node <addr-125> type=NAME left=(nil) right=(nil) save_last=0 [sample.double.ten] master=0
+expr node <addr-125> type=NAME left=(nil) right=(nil) save_last=0 [sample.double.ten] primary=0
     PMID: 29.0.26 (29.0.26 from pmDesc) numval: 1
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -2669,11 +2669,11 @@ expr node <addr-126> type=PLUS left=<addr-127> right=<addr-128> save_last=0
     PMID: PM_ID_NULL (511.0.29 from pmDesc) numval: 0
     Data Type: float  InDom: 29.4 0x7400004
     Semantics: discrete  Units: none
-expr node <addr-127> type=NAME left=(nil) right=(nil) save_last=0 [sample.needprofile] master=0
+expr node <addr-127> type=NAME left=(nil) right=(nil) save_last=0 [sample.needprofile] primary=0
     PMID: 29.0.49 (29.0.49 from pmDesc) numval: -12365
     Data Type: float  InDom: 29.4 0x7400004
     Semantics: discrete  Units: none
-expr node <addr-128> type=INTEGER left=(nil) right=(nil) save_last=0 [1] master=0
+expr node <addr-128> type=INTEGER left=(nil) right=(nil) save_last=0 [1] primary=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
@@ -2682,12 +2682,12 @@ expr node <addr-129> type=PLUS left=<addr-130> right=<addr-131> save_last=0
     PMID: PM_ID_NULL (511.0.30 from pmDesc) numval: 0
     Data Type: float  InDom: 29.4 0x7400004
     Semantics: discrete  Units: none
-expr node <addr-130> type=INTEGER left=(nil) right=(nil) save_last=0 [1] master=0
+expr node <addr-130> type=INTEGER left=(nil) right=(nil) save_last=0 [1] primary=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
 [0] inst=-1, val=<value-3>
-expr node <addr-131> type=NAME left=(nil) right=(nil) save_last=0 [sample.needprofile] master=0
+expr node <addr-131> type=NAME left=(nil) right=(nil) save_last=0 [sample.needprofile] primary=0
     PMID: 29.0.49 (29.0.49 from pmDesc) numval: -12365
     Data Type: float  InDom: 29.4 0x7400004
     Semantics: discrete  Units: none
@@ -2812,7 +2812,7 @@ __dmgetpmid: metric "myname.e" -> PMID 511.0.7
 __dmgetpmid: metric "myname.f" -> PMID 511.0.8
 derived metrics prefetch added 5 metrics: 29.0.49 29.0.12 29.0.56 29.0.9 29.0.10
 __dmpostfetch: [0] root node 511.0.3: numval=-12365
-expr node <addr-0> type=NAME left=(nil) right=(nil) save_last=0 [sample.needprofile] master=0
+expr node <addr-0> type=NAME left=(nil) right=(nil) save_last=0 [sample.needprofile] primary=0
     PMID: 29.0.49 (511.0.3 from pmDesc) numval: -12365
     Data Type: float  InDom: 29.4 0x7400004
     Semantics: discrete  Units: none
@@ -2821,7 +2821,7 @@ expr node <addr-1> type=PLUS left=<addr-2> right=<addr-3> save_last=0
     PMID: PM_ID_NULL (511.0.4 from pmDesc) numval: 0
     Data Type: float  InDom: 29.4 0x7400004
     Semantics: instant  Units: none
-expr node <addr-2> type=INTEGER left=(nil) right=(nil) save_last=0 [100] master=0
+expr node <addr-2> type=INTEGER left=(nil) right=(nil) save_last=0 [100] primary=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
@@ -2830,7 +2830,7 @@ expr node <addr-3> type=STAR left=<addr-4> right=<addr-5> save_last=0
     PMID: PM_ID_NULL (29.0.12 from pmDesc) numval: 0
     Data Type: float  InDom: 29.4 0x7400004
     Semantics: instant  Units: none
-expr node <addr-4> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] master=0
+expr node <addr-4> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] primary=0
     PMID: 29.0.12 (29.0.12 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -2839,12 +2839,12 @@ expr node <addr-5> type=MINUS left=<addr-6> right=<addr-7> save_last=0
     PMID: PM_ID_NULL (29.0.49 from pmDesc) numval: 0
     Data Type: float  InDom: 29.4 0x7400004
     Semantics: discrete  Units: none
-expr node <addr-6> type=INTEGER left=(nil) right=(nil) save_last=0 [2] master=0
+expr node <addr-6> type=INTEGER left=(nil) right=(nil) save_last=0 [2] primary=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
 [0] inst=-1, val=2
-expr node <addr-7> type=NAME left=(nil) right=(nil) save_last=0 [sample.needprofile] master=0
+expr node <addr-7> type=NAME left=(nil) right=(nil) save_last=0 [sample.needprofile] primary=0
     PMID: 29.0.49 (29.0.49 from pmDesc) numval: -12365
     Data Type: float  InDom: 29.4 0x7400004
     Semantics: discrete  Units: none
@@ -2853,11 +2853,11 @@ expr node <addr-8> type=MINUS left=<addr-9> right=<addr-10> save_last=0
     PMID: PM_ID_NULL (511.0.5 from pmDesc) numval: 0
     Data Type: float  InDom: 29.4 0x7400004
     Semantics: instant  Units: none
-expr node <addr-9> type=NAME left=(nil) right=(nil) save_last=0 [sample.needprofile] master=0
+expr node <addr-9> type=NAME left=(nil) right=(nil) save_last=0 [sample.needprofile] primary=0
     PMID: 29.0.49 (29.0.49 from pmDesc) numval: -12365
     Data Type: float  InDom: 29.4 0x7400004
     Semantics: discrete  Units: none
-expr node <addr-10> type=NAME left=(nil) right=(nil) save_last=0 [sample.not_ready] master=0
+expr node <addr-10> type=NAME left=(nil) right=(nil) save_last=0 [sample.not_ready] primary=0
     PMID: 29.0.56 (29.0.56 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -2866,17 +2866,17 @@ expr node <addr-11> type=MINUS left=<addr-12> right=<addr-13> save_last=0
     PMID: PM_ID_NULL (511.0.6 from pmDesc) numval: 0
     Data Type: float  InDom: 29.4 0x7400004
     Semantics: instant  Units: none
-expr node <addr-12> type=NAME left=(nil) right=(nil) save_last=0 [sample.not_ready] master=0
+expr node <addr-12> type=NAME left=(nil) right=(nil) save_last=0 [sample.not_ready] primary=0
     PMID: 29.0.56 (29.0.56 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=0
-expr node <addr-13> type=NAME left=(nil) right=(nil) save_last=0 [sample.needprofile] master=0
+expr node <addr-13> type=NAME left=(nil) right=(nil) save_last=0 [sample.needprofile] primary=0
     PMID: 29.0.49 (29.0.49 from pmDesc) numval: -12365
     Data Type: float  InDom: 29.4 0x7400004
     Semantics: discrete  Units: none
 __dmpostfetch: [4] root node 511.0.7: numval=0
-expr node <addr-14> type=NAME left=(nil) right=(nil) save_last=0 [sample.noinst] master=0
+expr node <addr-14> type=NAME left=(nil) right=(nil) save_last=0 [sample.noinst] primary=0
     PMID: 29.0.9 (511.0.7 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -2890,12 +2890,12 @@ expr node <addr-16> type=PLUS left=<addr-17> right=<addr-18> save_last=0
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=101
-expr node <addr-17> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] master=0
+expr node <addr-17> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] primary=0
     PMID: 29.0.12 (29.0.12 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=100
-expr node <addr-18> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] master=0
+expr node <addr-18> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] primary=0
     PMID: 29.0.10 (29.0.10 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -2904,11 +2904,11 @@ expr node <addr-19> type=MINUS left=<addr-20> right=<addr-21> save_last=0
     PMID: PM_ID_NULL (29.0.9 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-expr node <addr-20> type=NAME left=(nil) right=(nil) save_last=0 [sample.noinst] master=0
+expr node <addr-20> type=NAME left=(nil) right=(nil) save_last=0 [sample.noinst] primary=0
     PMID: 29.0.9 (29.0.9 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-expr node <addr-21> type=INTEGER left=(nil) right=(nil) save_last=0 [1] master=0
+expr node <addr-21> type=INTEGER left=(nil) right=(nil) save_last=0 [1] primary=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none

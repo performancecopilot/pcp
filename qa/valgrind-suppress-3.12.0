@@ -58,10 +58,7 @@
    match-leak-kinds: definite
    fun:malloc
    fun:sasl_client_new
-   fun:__pmSecureClientIPCFlags
-   fun:__pmSecureClientHandshake
-   fun:attributes_handshake
-   fun:__pmConnectHandshake
-   fun:__pmConnectPMCD
+   ...
+   fun:pmNewContext
    ...
 }

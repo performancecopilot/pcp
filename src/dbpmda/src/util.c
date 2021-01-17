@@ -38,6 +38,7 @@ pmProfile		*profile;
 int			profile_changed;
 int			timer;
 int			get_desc;
+int			get_iname;
 
 static pmID		*pmidlist;
 static int		numpmid;
@@ -49,7 +50,13 @@ static int		argc;
 void
 reset_profile(void)
 {
-    if ((profile = (pmProfile *)realloc(profile, sizeof(pmProfile))) == NULL) {
+    if (pmDebugOptions.indom && ctxp->c_instprof != NULL) {
+	fprintf(stderr, "Before reset_profile ...\n");
+	__pmDumpProfile(stderr, PM_INDOM_NULL, ctxp->c_instprof);
+    }
+    if (ctxp->c_instprof != NULL)
+	__pmFreeProfile(ctxp->c_instprof);
+    if ((profile = (pmProfile *)malloc(sizeof(pmProfile))) == NULL) {
 	pmNoMem("reset_profile", sizeof(pmProfile), PM_FATAL_ERR);
 	exit(1);
     }
@@ -57,6 +64,10 @@ reset_profile(void)
     memset(profile, 0, sizeof(pmProfile));
     profile->state = PM_PROFILE_INCLUDE;        /* default global state */
     profile_changed = 1;
+    if (pmDebugOptions.indom) {
+	fprintf(stderr, "After reset_profile ...\n");
+	__pmDumpProfile(stderr, PM_INDOM_NULL, ctxp->c_instprof);
+    }
 }
 
 void
@@ -96,6 +107,9 @@ setup_context(void)
     /* need to be careful about the initialized lock */
     save_c_lock = ctxp->c_lock;
 #endif
+    if (ctxp->c_instprof != NULL)
+	__pmFreeProfile(ctxp->c_instprof);
+    __pmFreeDerived(ctxp);
     memset(ctxp, 0, sizeof(__pmContext));
 #ifdef PM_MULTI_THREAD
     ctxp->c_lock = save_c_lock;
@@ -252,6 +266,7 @@ dohelp(int command, int full)
 	dohelp(DESC, HELP_USAGE);
 	dohelp(FETCH, HELP_USAGE);
 	dohelp(GETDESC, HELP_USAGE);
+	dohelp(GETINAME, HELP_USAGE);
 	dohelp(INSTANCE, HELP_USAGE);
 	dohelp(LABEL, HELP_USAGE);
 	dohelp(PMNS_NAME, HELP_USAGE);
@@ -293,6 +308,9 @@ dohelp(int command, int full)
 	    break;
 	case GETDESC:
 	    puts("getdesc on | off");
+	    break;
+	case GETINAME:
+	    puts("getiname on | off");
 	    break;
 	case INFO:
 	    puts("text metric");
@@ -392,6 +410,12 @@ dohelp(int command, int full)
 		puts(
 "Before doing a fetch, get the descriptor so that the result of a fetch\n"
 "can be printed out correctly.\n");
+		break;
+	    case GETINAME:
+		puts(
+"After a fetch if the metric has an associated instance domain then lookup\n"
+"the external names of any instances returned, rather than reporting the\n"
+"instance name as ???.\n");
 		break;
 	    case INFO:
 		puts(
@@ -515,7 +539,7 @@ dostatus(void)
 	    printf("PMDA PMAPI Version:     %d\n", dispatch.comm.pmapi_version);
 	    break;
 	case CONN_DAEMON:
-	    printf("daemon\n");
+	    printf("daemon (pid: %" FMT_PID ")\n", pid);
 	    printf("PMDA PMAPI Version:     ");
 	    i = __pmVersionIPC(fromPMDA);
 	    if (i == UNKNOWN_VERSION)
@@ -561,6 +585,12 @@ dostatus(void)
 
     printf("Getdesc:                ");
     if (get_desc == 0)
+	printf("off\n");
+    else
+	printf("on\n");
+
+    printf("Getiname:               ");
+    if (get_iname == 0)
 	printf("off\n");
     else
 	printf("on\n");
@@ -616,7 +646,22 @@ _dbDumpResult(FILE *f, pmResult *resp, pmDesc *desc_list)
 	    pmValue	*vp = &vsp->vlist[j];
 	    if (vsp->numval > 1 || desc_list[i].indom != PM_INDOM_NULL) {
 		fprintf(f, "    inst [%d", vp->inst);
-		fprintf(f, " or ???]");
+		if (get_iname) {
+		    char	*iname;
+		    if (connmode == CONN_DSO)
+			iname = dodso_iname(desc_list[i].indom, vp->inst);
+		    else
+			/* safe to assume daemon as we must have an open PMDA */
+			iname = dopmda_iname(desc_list[i].indom, vp->inst);
+		    if (iname != NULL) {
+			fprintf(f, " or \"%s\"]", iname);
+			free(iname);
+		    }
+		    else
+			fprintf(f, " or ???]");
+		}
+		else
+		    fprintf(f, " or ???]");
 		fputc(' ', f);
 	    }
 	    else
@@ -627,3 +672,53 @@ _dbDumpResult(FILE *f, pmResult *resp, pmDesc *desc_list)
 	}/*for*/
     }/*for*/
 }/*_dbDumpResult*/
+
+static void	**gc = NULL;	/* for Garbage Collection (GC), see below */
+static int	gc_len = 0;	/* length of gc[] */
+static int	gc_have = 0;	/* elements of gc[] in use */
+
+/*
+ * accumulate garbage
+ */
+void
+gc_add(void *p)
+{
+    gc_have++;
+    if (gc_have >= gc_len) {
+	/* need more gc space, if this fails ignore GC */
+	void	**gc_tmp;
+	int	need;
+	if (gc_len == 0)
+	    need = 4;		/* start with 4 slots */
+	else
+	    need = 2 * gc_len;	/* then doubling */
+	if ((gc_tmp = (void **)realloc(gc, need * sizeof(void *))) != NULL) {
+	    gc = gc_tmp;
+	    gc_len = need;
+	}
+	else {
+	    /*
+	     * if realloc() fails, just forget about this one
+	     * or the previous last one
+	     */
+	    gc_have--;
+	}
+    }
+    if (gc_have < gc_len)
+	gc[gc_have - 1] = p;
+}
+
+/*
+ * free up all accumulated garbage
+ */
+void
+gc_free(void)
+{
+    int		j;
+    if (gc_have > 0) {
+	for (j = 0; j < gc_have; j++) {
+	    free(gc[j]);
+	}
+	gc_have = 0;
+    }
+}

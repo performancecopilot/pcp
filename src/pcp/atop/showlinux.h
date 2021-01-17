@@ -27,6 +27,7 @@
 typedef struct {
         count_t		totut;
         count_t		totst;
+        int		index;
         int		nact; 
         int		nproc;
         int		ntrun;
@@ -36,11 +37,10 @@ typedef struct {
         int		nexit;
         int		noverflow;
         int		avgval;
-        int		nsecs;
+        double		nsecs;
         count_t		mstot;
         count_t		iotot;
-	struct perdsk	*perdsk;
-        int		index;
+        struct perdsk	*perdsk;
         count_t		cputot;
         count_t		percputot;
 } extraparam;
@@ -76,10 +76,10 @@ typedef struct
 {
         char *head;                      // column header
         char *configname;                // name as used to config print line
-        char *(*doactiveconvert)(struct tstat *,int,int); 
+        char *(*doactiveconvert)(struct tstat *,int,double); 
                                          // pointer to conv function
                                          // for active process
-        char *(*doexitconvert)  (struct tstat *,int,int);   
+        char *(*doexitconvert)  (struct tstat *,int,double);   
                                          // pointer to conv function
                                          // for exited process
         int  width;                      // required width
@@ -101,7 +101,7 @@ void showsysline(sys_printpair* elemptr,
 void showhdrline(proc_printpair* elemptr, int curlist, int totlist, 
                   char showorder, char autosort);
 void showprocline(proc_printpair* elemptr, struct tstat *curstat, 
-                  double perc, int nsecs, int avgval);
+                  double perc, double nsecs, int avgval);
 
 extern sys_printdef *prcsyspdefs[];
 extern sys_printdef *cpusyspdefs[];
@@ -276,10 +276,10 @@ extern sys_printdef syspdef_BLANKBOX;
 /*
 ** functions that print ???? for unavailable data
 */
-char *procprt_NOTAVAIL_4(struct tstat *curstat, int avgval, int nsecs);
-char *procprt_NOTAVAIL_5(struct tstat *curstat, int avgval, int nsecs);
-char *procprt_NOTAVAIL_6(struct tstat *curstat, int avgval, int nsecs);
-char *procprt_NOTAVAIL_7(struct tstat *curstat, int avgval, int nsecs);
+char *procprt_NOTAVAIL_4(struct tstat *curstat, int avgval, double nsecs);
+char *procprt_NOTAVAIL_5(struct tstat *curstat, int avgval, double nsecs);
+char *procprt_NOTAVAIL_6(struct tstat *curstat, int avgval, double nsecs);
+char *procprt_NOTAVAIL_7(struct tstat *curstat, int avgval, double nsecs);
 
 extern proc_printdef *allprocpdefs[];
 extern proc_printdef procprt_PID;
@@ -354,28 +354,28 @@ extern proc_printdef procprt_SORTITEM;
 
 
 
-//extern char *procprt_NRDDSK_ae(struct tstat *, int, int);
-//extern char *procprt_NWRDSK_a(struct tstat *, int, int);
-//extern char *procprt_NRDDSK_e(struct tstat *, int, int);
-//extern char *procprt_NWRDSK_e(struct tstat *, int, int);
+//extern char *procprt_NRDDSK_ae(struct tstat *, int, double);
+//extern char *procprt_NWRDSK_a(struct tstat *, int, double);
+//extern char *procprt_NRDDSK_e(struct tstat *, int, double);
+//extern char *procprt_NWRDSK_e(struct tstat *, int, double);
 
-extern char *procprt_SNET_a(struct tstat *, int, int);
-extern char *procprt_SNET_e(struct tstat *, int, int);
-extern char *procprt_RNET_a(struct tstat *, int, int);
-extern char *procprt_RNET_e(struct tstat *, int, int);
-extern char *procprt_TCPSND_a(struct tstat *, int, int);
-extern char *procprt_TCPRCV_a(struct tstat *, int, int);
-extern char *procprt_UDPSND_a(struct tstat *, int, int);
-extern char *procprt_UDPRCV_a(struct tstat *, int, int);
-extern char *procprt_TCPSASZ_a(struct tstat *, int, int);
-extern char *procprt_TCPRASZ_a(struct tstat *, int, int);
-extern char *procprt_UDPSASZ_a(struct tstat *, int, int);
-extern char *procprt_UDPRASZ_a(struct tstat *, int, int);
-extern char *procprt_TCPSND_e(struct tstat *, int, int);
-extern char *procprt_TCPRCV_e(struct tstat *, int, int);
-extern char *procprt_UDPSND_e(struct tstat *, int, int);
-extern char *procprt_UDPRCV_e(struct tstat *, int, int);
-extern char *procprt_TCPSASZ_e(struct tstat *, int, int);
-extern char *procprt_TCPRASZ_e(struct tstat *, int, int);
-extern char *procprt_UDPSASZ_e(struct tstat *, int, int);
-extern char *procprt_UDPRASZ_e(struct tstat *, int, int);
+extern char *procprt_SNET_a(struct tstat *, int, double);
+extern char *procprt_SNET_e(struct tstat *, int, double);
+extern char *procprt_RNET_a(struct tstat *, int, double);
+extern char *procprt_RNET_e(struct tstat *, int, double);
+extern char *procprt_TCPSND_a(struct tstat *, int, double);
+extern char *procprt_TCPRCV_a(struct tstat *, int, double);
+extern char *procprt_UDPSND_a(struct tstat *, int, double);
+extern char *procprt_UDPRCV_a(struct tstat *, int, double);
+extern char *procprt_TCPSASZ_a(struct tstat *, int, double);
+extern char *procprt_TCPRASZ_a(struct tstat *, int, double);
+extern char *procprt_UDPSASZ_a(struct tstat *, int, double);
+extern char *procprt_UDPRASZ_a(struct tstat *, int, double);
+extern char *procprt_TCPSND_e(struct tstat *, int, double);
+extern char *procprt_TCPRCV_e(struct tstat *, int, double);
+extern char *procprt_UDPSND_e(struct tstat *, int, double);
+extern char *procprt_UDPRCV_e(struct tstat *, int, double);
+extern char *procprt_TCPSASZ_e(struct tstat *, int, double);
+extern char *procprt_TCPRASZ_e(struct tstat *, int, double);
+extern char *procprt_UDPSASZ_e(struct tstat *, int, double);
+extern char *procprt_UDPRASZ_e(struct tstat *, int, double);

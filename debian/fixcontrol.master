@@ -70,6 +70,15 @@ else
     echo "s/?{libpfm4-dev}, //" >>$tmp.sed
 fi
 
+if $PMDA_INFINIBAND
+then
+    echo "s/?{libibumad-dev}, /libibumad-dev, /" >>$tmp.sed
+    echo "s/?{libibmad-dev}, /libibmad-dev, /" >>$tmp.sed
+else
+    echo "s/?{libibumad-dev}, //" >>$tmp.sed
+    echo "s/?{libibmad-dev}, //" >>$tmp.sed
+fi
+
 if $PMDA_BCC
 then
     echo "s/?{python3-bpfcc}, /python3-bpfcc | python3-bcc, /" >>$tmp.sed
@@ -79,7 +88,7 @@ fi
 
 if $PMDA_BPFTRACE
 then
-    echo "s/?{bpftrace}, /bpftrace (>= 0.9.2), /" >>$tmp.sed
+    echo "s/?{bpftrace}, /bpftrace (>= 0.9.2) [amd64 arm64 ppc64el], /" >>$tmp.sed
 else
     echo "s/?{bpftrace}, //" >>$tmp.sed
 fi
@@ -115,7 +124,27 @@ fi
 if $ENABLE_PYTHON2
 then
     echo "s/?{python-all}, /python-all, /" >>$tmp.sed
-    echo "s/?{python-dev}, /python-dev, /" >>$tmp.sed
+    (
+	. /etc/os-release
+	case "$ID"
+	in
+	    debian)
+		if [ -z "$VERSION_ID" ] || [ "$VERSION_ID" -ge 11 ]; then
+		    echo "s/?{python-dev}, /python2-dev, /" >>$tmp.sed
+		else
+		    echo "s/?{python-dev}, /python-dev, /" >>$tmp.sed
+		fi
+		;;
+	    ubuntu)
+		VERSION_NO=$(echo "$VERSION_ID" | sed 's/[^0-9]//')
+		if [ "$VERSION_NO" -ge 2004 ]; then
+		    echo "s/?{python-dev}, /python2-dev, /" >>$tmp.sed
+		else
+		    echo "s/?{python-dev}, /python-dev, /" >>$tmp.sed
+		fi
+		;;
+	esac
+    )
 else
     echo "s/?{python-dev}, //" >>$tmp.sed
     echo "s/?{python-all}, //" >>$tmp.sed

@@ -609,10 +609,10 @@ pmcd.agent.status ["xfs"] 0.000 0.000 0.000 0.000 4 none
 pmcd.agent.status ["linux"] 0.000 0.000 0.000 0.000 4 none
 pmcd.agent.status ["mmv"] 0.000 0.000 0.000 0.000 4 none
 pmcd.agent.status ["jbd2"] 0.000 0.000 0.000 0.000 4 none
-pmcd.pmlogger.port [374] 4330.000 4330.000 4330.000 4330.000 2 none
+pmcd.pmlogger.port ["374"] 4330.000 4330.000 4330.000 4330.000 2 none
 pmcd.pmlogger.port ["primary"] 4330.000 4330.000 4330.000 4330.000 4 none
-pmcd.pmlogger.port [2555] 4330.000 4330.000 4330.000 4330.000 2 none
-pmcd.pmlogger.port [4516] 4330.000 4330.000 4330.000 4330.000 2 none
+pmcd.pmlogger.port ["2555"] 4330.000 4330.000 4330.000 4330.000 2 none
+pmcd.pmlogger.port ["4516"] 4330.000 4330.000 4330.000 4330.000 2 none
 pmcd.pmlogger.port ["6819"] 4330.000 4330.000 4330.000 4330.000 2 none
 Running pmlogsummary -z -a archives/multi/20150508.11.44,archives/multi/20150508.11.46,archives/multi/20150508.11.50,archives/multi/20150508.11.57
 Note: timezone set to local timezone of host "brolley-t530" from archive
@@ -1223,10 +1223,10 @@ pmcd.agent.status ["xfs"] 0.000 0.000 0.000 0.000 4 none
 pmcd.agent.status ["linux"] 0.000 0.000 0.000 0.000 4 none
 pmcd.agent.status ["mmv"] 0.000 0.000 0.000 0.000 4 none
 pmcd.agent.status ["jbd2"] 0.000 0.000 0.000 0.000 4 none
-pmcd.pmlogger.port [374] 4330.000 4330.000 4330.000 4330.000 2 none
+pmcd.pmlogger.port ["374"] 4330.000 4330.000 4330.000 4330.000 2 none
 pmcd.pmlogger.port ["primary"] 4330.000 4330.000 4330.000 4330.000 4 none
-pmcd.pmlogger.port [2555] 4330.000 4330.000 4330.000 4330.000 2 none
-pmcd.pmlogger.port [4516] 4330.000 4330.000 4330.000 4330.000 2 none
+pmcd.pmlogger.port ["2555"] 4330.000 4330.000 4330.000 4330.000 2 none
+pmcd.pmlogger.port ["4516"] 4330.000 4330.000 4330.000 4330.000 2 none
 pmcd.pmlogger.port ["6819"] 4330.000 4330.000 4330.000 4330.000 2 none
 Running diff TMP.44+46+50+57.pmlogextract.pmlogsummary.txt TMP.44+46+50+57.pmlogsummary.txt
 Running pmlogsummary -z -a archives/multi
@@ -1838,9 +1838,9 @@ pmcd.agent.status ["xfs"] 0.000 0.000 0.000 0.000 4 none
 pmcd.agent.status ["linux"] 0.000 0.000 0.000 0.000 4 none
 pmcd.agent.status ["mmv"] 0.000 0.000 0.000 0.000 4 none
 pmcd.agent.status ["jbd2"] 0.000 0.000 0.000 0.000 4 none
-pmcd.pmlogger.port [374] 4330.000 4330.000 4330.000 4330.000 2 none
+pmcd.pmlogger.port ["374"] 4330.000 4330.000 4330.000 4330.000 2 none
 pmcd.pmlogger.port ["primary"] 4330.000 4330.000 4330.000 4330.000 4 none
-pmcd.pmlogger.port [2555] 4330.000 4330.000 4330.000 4330.000 2 none
-pmcd.pmlogger.port [4516] 4330.000 4330.000 4330.000 4330.000 2 none
+pmcd.pmlogger.port ["2555"] 4330.000 4330.000 4330.000 4330.000 2 none
+pmcd.pmlogger.port ["4516"] 4330.000 4330.000 4330.000 4330.000 2 none
 pmcd.pmlogger.port ["6819"] 4330.000 4330.000 4330.000 4330.000 2 none
 Running diff TMP.44+46+50+57.pmlogextract.pmlogsummary.txt TMP.archives/multi.pmlogsummary.txt

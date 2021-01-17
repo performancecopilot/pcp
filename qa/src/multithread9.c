@@ -14,7 +14,7 @@
 #include "pthread_barrier.h"
 #endif
 
-static char	*namelist[] = {
+static const char *namelist[] = {
     "sample.secret",		// non-leaf
     "sampledso.bin",
     "sample.longlong.one",

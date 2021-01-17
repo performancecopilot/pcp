@@ -10,42 +10,11 @@
 # by 0x4E4AF8A: pmNewContext (context.c:1085)
 # ...
 {
-   libsasl-bad-0
+   sasl_client_new
    Memcheck:Leak
    match-leak-kinds: definite
    fun:malloc
    fun:sasl_client_new
-   fun:__pmSecureClientIPCFlags
-   fun:__pmSecureClientHandshake
-   fun:attributes_handshake
-   fun:__pmConnectHandshake
-   fun:__pmConnectPMCD
-   fun:pmNewContext
-   ...
-}
-
-# and similar, just different compiler options for the build
-{
-   libsasl-bad-1
-   Memcheck:Leak
-   match-leak-kinds: definite
-   fun:malloc
-   fun:sasl_client_new
-   fun:__pmSecureClientHandshake
-   ...
-   fun:__pmConnectPMCD
-   fun:pmNewContext
-   ...
-}
-
-# and yet another variant from bozo-vm and qa/720 ...
-{
-   libsasl-bad-2
-   Memcheck:Leak
-   match-leak-kinds: definite
-   fun:malloc
-   fun:sasl_client_new
-   fun:__pmSecureClientHandshake
    ...
    fun:pmNewContext
    ...

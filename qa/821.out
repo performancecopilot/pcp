@@ -425,6 +425,21 @@ mem.util.writeback
 mem.vmstat.allocstall
     value 0
 
+mem.vmstat.allocstall_dma
+No value(s) available!
+
+mem.vmstat.allocstall_dma32
+No value(s) available!
+
+mem.vmstat.allocstall_high
+No value(s) available!
+
+mem.vmstat.allocstall_movable
+No value(s) available!
+
+mem.vmstat.allocstall_normal
+No value(s) available!
+
 mem.vmstat.balloon_deflate
     value 0
 
@@ -435,6 +450,12 @@ mem.vmstat.balloon_migrate
     value 0
 
 mem.vmstat.compact_blocks_moved
+No value(s) available!
+
+mem.vmstat.compact_daemon_free_scanned
+No value(s) available!
+
+mem.vmstat.compact_daemon_migrate_scanned
 No value(s) available!
 
 mem.vmstat.compact_daemon_wake
@@ -518,6 +539,21 @@ mem.vmstat.nr_dirty_background_threshold
 mem.vmstat.nr_dirty_threshold
     value 588487
 
+mem.vmstat.nr_file_hugepages
+No value(s) available!
+
+mem.vmstat.nr_file_pages
+    value 1908448
+
+mem.vmstat.nr_file_pmdmapped
+No value(s) available!
+
+mem.vmstat.nr_foll_pin_acquired
+No value(s) available!
+
+mem.vmstat.nr_foll_pin_released
+No value(s) available!
+
 mem.vmstat.nr_free_cma
     value 0
 
@@ -535,6 +571,9 @@ mem.vmstat.nr_isolated_anon
 
 mem.vmstat.nr_isolated_file
     value 0
+
+mem.vmstat.nr_kernel_misc_reclaimable
+No value(s) available!
 
 mem.vmstat.nr_kernel_stack
     value 827
@@ -643,6 +682,9 @@ mem.vmstat.numa_pages_migrated
 
 mem.vmstat.numa_pte_updates
     value 0
+
+mem.vmstat.oom_kill
+No value(s) available!
 
 mem.vmstat.pageoutrun
     value 1
@@ -773,6 +815,9 @@ No value(s) available!
 mem.vmstat.pgsteal_dma32
 No value(s) available!
 
+mem.vmstat.pgsteal_file
+No value(s) available!
+
 mem.vmstat.pgsteal_high
 No value(s) available!
 
@@ -806,6 +851,12 @@ mem.vmstat.pswpout
 mem.vmstat.slabs_scanned
     value 0
 
+mem.vmstat.swap_ra
+No value(s) available!
+
+mem.vmstat.swap_ra_hit
+No value(s) available!
+
 mem.vmstat.thp_collapse_alloc
     value 0
 
@@ -820,6 +871,9 @@ mem.vmstat.thp_fault_alloc
 
 mem.vmstat.thp_fault_fallback
     value 0
+
+mem.vmstat.thp_fault_fallback_charge
+No value(s) available!
 
 mem.vmstat.thp_file_alloc
 No value(s) available!
@@ -837,6 +891,15 @@ mem.vmstat.thp_split_page_failed
 No value(s) available!
 
 mem.vmstat.thp_split_pmd
+No value(s) available!
+
+mem.vmstat.thp_split_pud
+No value(s) available!
+
+mem.vmstat.thp_swpout
+No value(s) available!
+
+mem.vmstat.thp_swpout_fallback
 No value(s) available!
 
 mem.vmstat.thp_zero_page_alloc
@@ -875,8 +938,14 @@ mem.vmstat.workingset_activate
 mem.vmstat.workingset_nodereclaim
     value 0
 
+mem.vmstat.workingset_nodes
+No value(s) available!
+
 mem.vmstat.workingset_refault
     value 0
+
+mem.vmstat.workingset_restore
+No value(s) available!
 
 mem.vmstat.zone_reclaim_failed
     value 0
@@ -2956,6 +3025,21 @@ mem.util.writeback
 mem.vmstat.allocstall
     value 0
 
+mem.vmstat.allocstall_dma
+No value(s) available!
+
+mem.vmstat.allocstall_dma32
+No value(s) available!
+
+mem.vmstat.allocstall_high
+No value(s) available!
+
+mem.vmstat.allocstall_movable
+No value(s) available!
+
+mem.vmstat.allocstall_normal
+No value(s) available!
+
 mem.vmstat.balloon_deflate
 No value(s) available!
 
@@ -2966,6 +3050,12 @@ mem.vmstat.balloon_migrate
 No value(s) available!
 
 mem.vmstat.compact_blocks_moved
+No value(s) available!
+
+mem.vmstat.compact_daemon_free_scanned
+No value(s) available!
+
+mem.vmstat.compact_daemon_migrate_scanned
 No value(s) available!
 
 mem.vmstat.compact_daemon_wake
@@ -3049,6 +3139,21 @@ mem.vmstat.nr_dirty_background_threshold
 mem.vmstat.nr_dirty_threshold
     value 11702906
 
+mem.vmstat.nr_file_hugepages
+No value(s) available!
+
+mem.vmstat.nr_file_pages
+    value 7811013
+
+mem.vmstat.nr_file_pmdmapped
+No value(s) available!
+
+mem.vmstat.nr_foll_pin_acquired
+No value(s) available!
+
+mem.vmstat.nr_foll_pin_released
+No value(s) available!
+
 mem.vmstat.nr_free_cma
     value 0
 
@@ -3066,6 +3171,9 @@ mem.vmstat.nr_isolated_anon
 
 mem.vmstat.nr_isolated_file
     value 0
+
+mem.vmstat.nr_kernel_misc_reclaimable
+No value(s) available!
 
 mem.vmstat.nr_kernel_stack
     value 772
@@ -3174,6 +3282,9 @@ mem.vmstat.numa_pages_migrated
 
 mem.vmstat.numa_pte_updates
     value 3569108086
+
+mem.vmstat.oom_kill
+No value(s) available!
 
 mem.vmstat.pageoutrun
     value 2
@@ -3304,6 +3415,9 @@ No value(s) available!
 mem.vmstat.pgsteal_dma32
 No value(s) available!
 
+mem.vmstat.pgsteal_file
+No value(s) available!
+
 mem.vmstat.pgsteal_high
 No value(s) available!
 
@@ -3337,6 +3451,12 @@ mem.vmstat.pswpout
 mem.vmstat.slabs_scanned
     value 0
 
+mem.vmstat.swap_ra
+No value(s) available!
+
+mem.vmstat.swap_ra_hit
+No value(s) available!
+
 mem.vmstat.thp_collapse_alloc
     value 6198
 
@@ -3351,6 +3471,9 @@ mem.vmstat.thp_fault_alloc
 
 mem.vmstat.thp_fault_fallback
     value 0
+
+mem.vmstat.thp_fault_fallback_charge
+No value(s) available!
 
 mem.vmstat.thp_file_alloc
 No value(s) available!
@@ -3368,6 +3491,15 @@ mem.vmstat.thp_split_page_failed
 No value(s) available!
 
 mem.vmstat.thp_split_pmd
+No value(s) available!
+
+mem.vmstat.thp_split_pud
+No value(s) available!
+
+mem.vmstat.thp_swpout
+No value(s) available!
+
+mem.vmstat.thp_swpout_fallback
 No value(s) available!
 
 mem.vmstat.thp_zero_page_alloc
@@ -3406,8 +3538,14 @@ mem.vmstat.workingset_activate
 mem.vmstat.workingset_nodereclaim
     value 0
 
+mem.vmstat.workingset_nodes
+No value(s) available!
+
 mem.vmstat.workingset_refault
     value 0
+
+mem.vmstat.workingset_restore
+No value(s) available!
 
 mem.vmstat.zone_reclaim_failed
     value 0
@@ -5467,6 +5605,21 @@ mem.util.writeback
 mem.vmstat.allocstall
     value 0
 
+mem.vmstat.allocstall_dma
+No value(s) available!
+
+mem.vmstat.allocstall_dma32
+No value(s) available!
+
+mem.vmstat.allocstall_high
+No value(s) available!
+
+mem.vmstat.allocstall_movable
+No value(s) available!
+
+mem.vmstat.allocstall_normal
+No value(s) available!
+
 mem.vmstat.balloon_deflate
 No value(s) available!
 
@@ -5477,6 +5630,12 @@ mem.vmstat.balloon_migrate
 No value(s) available!
 
 mem.vmstat.compact_blocks_moved
+No value(s) available!
+
+mem.vmstat.compact_daemon_free_scanned
+No value(s) available!
+
+mem.vmstat.compact_daemon_migrate_scanned
 No value(s) available!
 
 mem.vmstat.compact_daemon_wake
@@ -5560,6 +5719,21 @@ mem.vmstat.nr_dirty_background_threshold
 mem.vmstat.nr_dirty_threshold
     value 11702906
 
+mem.vmstat.nr_file_hugepages
+No value(s) available!
+
+mem.vmstat.nr_file_pages
+    value 7811013
+
+mem.vmstat.nr_file_pmdmapped
+No value(s) available!
+
+mem.vmstat.nr_foll_pin_acquired
+No value(s) available!
+
+mem.vmstat.nr_foll_pin_released
+No value(s) available!
+
 mem.vmstat.nr_free_cma
     value 0
 
@@ -5577,6 +5751,9 @@ mem.vmstat.nr_isolated_anon
 
 mem.vmstat.nr_isolated_file
     value 0
+
+mem.vmstat.nr_kernel_misc_reclaimable
+No value(s) available!
 
 mem.vmstat.nr_kernel_stack
     value 772
@@ -5685,6 +5862,9 @@ mem.vmstat.numa_pages_migrated
 
 mem.vmstat.numa_pte_updates
     value 3569108086
+
+mem.vmstat.oom_kill
+No value(s) available!
 
 mem.vmstat.pageoutrun
     value 2
@@ -5815,6 +5995,9 @@ No value(s) available!
 mem.vmstat.pgsteal_dma32
 No value(s) available!
 
+mem.vmstat.pgsteal_file
+No value(s) available!
+
 mem.vmstat.pgsteal_high
 No value(s) available!
 
@@ -5848,6 +6031,12 @@ mem.vmstat.pswpout
 mem.vmstat.slabs_scanned
     value 0
 
+mem.vmstat.swap_ra
+No value(s) available!
+
+mem.vmstat.swap_ra_hit
+No value(s) available!
+
 mem.vmstat.thp_collapse_alloc
     value 6198
 
@@ -5862,6 +6051,9 @@ mem.vmstat.thp_fault_alloc
 
 mem.vmstat.thp_fault_fallback
     value 0
+
+mem.vmstat.thp_fault_fallback_charge
+No value(s) available!
 
 mem.vmstat.thp_file_alloc
 No value(s) available!
@@ -5879,6 +6071,15 @@ mem.vmstat.thp_split_page_failed
 No value(s) available!
 
 mem.vmstat.thp_split_pmd
+No value(s) available!
+
+mem.vmstat.thp_split_pud
+No value(s) available!
+
+mem.vmstat.thp_swpout
+No value(s) available!
+
+mem.vmstat.thp_swpout_fallback
 No value(s) available!
 
 mem.vmstat.thp_zero_page_alloc
@@ -5917,8 +6118,14 @@ mem.vmstat.workingset_activate
 mem.vmstat.workingset_nodereclaim
     value 0
 
+mem.vmstat.workingset_nodes
+No value(s) available!
+
 mem.vmstat.workingset_refault
     value 0
+
+mem.vmstat.workingset_restore
+No value(s) available!
 
 mem.vmstat.zone_reclaim_failed
     value 0
@@ -7941,6 +8148,21 @@ mem.util.writeback
 mem.vmstat.allocstall
 No value(s) available!
 
+mem.vmstat.allocstall_dma
+    value 0
+
+mem.vmstat.allocstall_dma32
+    value 0
+
+mem.vmstat.allocstall_high
+No value(s) available!
+
+mem.vmstat.allocstall_movable
+    value 0
+
+mem.vmstat.allocstall_normal
+    value 0
+
 mem.vmstat.balloon_deflate
     value 0
 
@@ -7951,6 +8173,12 @@ mem.vmstat.balloon_migrate
     value 0
 
 mem.vmstat.compact_blocks_moved
+No value(s) available!
+
+mem.vmstat.compact_daemon_free_scanned
+No value(s) available!
+
+mem.vmstat.compact_daemon_migrate_scanned
 No value(s) available!
 
 mem.vmstat.compact_daemon_wake
@@ -8034,6 +8262,21 @@ mem.vmstat.nr_dirty_background_threshold
 mem.vmstat.nr_dirty_threshold
     value 172515
 
+mem.vmstat.nr_file_hugepages
+No value(s) available!
+
+mem.vmstat.nr_file_pages
+    value 77146
+
+mem.vmstat.nr_file_pmdmapped
+No value(s) available!
+
+mem.vmstat.nr_foll_pin_acquired
+No value(s) available!
+
+mem.vmstat.nr_foll_pin_released
+No value(s) available!
+
 mem.vmstat.nr_free_cma
     value 0
 
@@ -8051,6 +8294,9 @@ mem.vmstat.nr_isolated_anon
 
 mem.vmstat.nr_isolated_file
     value 0
+
+mem.vmstat.nr_kernel_misc_reclaimable
+No value(s) available!
 
 mem.vmstat.nr_kernel_stack
     value 4992
@@ -8159,6 +8405,9 @@ mem.vmstat.numa_pages_migrated
 
 mem.vmstat.numa_pte_updates
     value 0
+
+mem.vmstat.oom_kill
+No value(s) available!
 
 mem.vmstat.pageoutrun
     value 0
@@ -8289,6 +8538,9 @@ No value(s) available!
 mem.vmstat.pgsteal_dma32
 No value(s) available!
 
+mem.vmstat.pgsteal_file
+No value(s) available!
+
 mem.vmstat.pgsteal_high
 No value(s) available!
 
@@ -8322,6 +8574,12 @@ mem.vmstat.pswpout
 mem.vmstat.slabs_scanned
     value 0
 
+mem.vmstat.swap_ra
+No value(s) available!
+
+mem.vmstat.swap_ra_hit
+No value(s) available!
+
 mem.vmstat.thp_collapse_alloc
     value 0
 
@@ -8336,6 +8594,9 @@ mem.vmstat.thp_fault_alloc
 
 mem.vmstat.thp_fault_fallback
     value 0
+
+mem.vmstat.thp_fault_fallback_charge
+No value(s) available!
 
 mem.vmstat.thp_file_alloc
     value 0
@@ -8354,6 +8615,15 @@ mem.vmstat.thp_split_page_failed
 
 mem.vmstat.thp_split_pmd
     value 0
+
+mem.vmstat.thp_split_pud
+No value(s) available!
+
+mem.vmstat.thp_swpout
+No value(s) available!
+
+mem.vmstat.thp_swpout_fallback
+No value(s) available!
 
 mem.vmstat.thp_zero_page_alloc
     value 0
@@ -8391,8 +8661,14 @@ mem.vmstat.workingset_activate
 mem.vmstat.workingset_nodereclaim
     value 0
 
+mem.vmstat.workingset_nodes
+No value(s) available!
+
 mem.vmstat.workingset_refault
     value 0
+
+mem.vmstat.workingset_restore
+No value(s) available!
 
 mem.vmstat.zone_reclaim_failed
     value 0
@@ -10249,6 +10525,21 @@ mem.util.writeback
 mem.vmstat.allocstall
 No value(s) available!
 
+mem.vmstat.allocstall_dma
+    value 0
+
+mem.vmstat.allocstall_dma32
+    value 0
+
+mem.vmstat.allocstall_high
+No value(s) available!
+
+mem.vmstat.allocstall_movable
+    value 125
+
+mem.vmstat.allocstall_normal
+    value 0
+
 mem.vmstat.balloon_deflate
     value 0
 
@@ -10260,6 +10551,12 @@ mem.vmstat.balloon_migrate
 
 mem.vmstat.compact_blocks_moved
 No value(s) available!
+
+mem.vmstat.compact_daemon_free_scanned
+    value 0
+
+mem.vmstat.compact_daemon_migrate_scanned
+    value 0
 
 mem.vmstat.compact_daemon_wake
     value 0
@@ -10342,6 +10639,21 @@ mem.vmstat.nr_dirty_background_threshold
 mem.vmstat.nr_dirty_threshold
     value 518246
 
+mem.vmstat.nr_file_hugepages
+No value(s) available!
+
+mem.vmstat.nr_file_pages
+    value 2128488
+
+mem.vmstat.nr_file_pmdmapped
+No value(s) available!
+
+mem.vmstat.nr_foll_pin_acquired
+No value(s) available!
+
+mem.vmstat.nr_foll_pin_released
+No value(s) available!
+
 mem.vmstat.nr_free_cma
     value 0
 
@@ -10359,6 +10671,9 @@ mem.vmstat.nr_isolated_anon
 
 mem.vmstat.nr_isolated_file
     value 0
+
+mem.vmstat.nr_kernel_misc_reclaimable
+No value(s) available!
 
 mem.vmstat.nr_kernel_stack
     value 19076
@@ -10467,6 +10782,9 @@ mem.vmstat.numa_pages_migrated
 
 mem.vmstat.numa_pte_updates
     value 0
+
+mem.vmstat.oom_kill
+No value(s) available!
 
 mem.vmstat.pageoutrun
     value 1021
@@ -10597,6 +10915,9 @@ No value(s) available!
 mem.vmstat.pgsteal_dma32
 No value(s) available!
 
+mem.vmstat.pgsteal_file
+No value(s) available!
+
 mem.vmstat.pgsteal_high
 No value(s) available!
 
@@ -10630,6 +10951,12 @@ mem.vmstat.pswpout
 mem.vmstat.slabs_scanned
     value 5647703
 
+mem.vmstat.swap_ra
+No value(s) available!
+
+mem.vmstat.swap_ra_hit
+No value(s) available!
+
 mem.vmstat.thp_collapse_alloc
     value 0
 
@@ -10644,6 +10971,9 @@ mem.vmstat.thp_fault_alloc
 
 mem.vmstat.thp_fault_fallback
     value 0
+
+mem.vmstat.thp_fault_fallback_charge
+No value(s) available!
 
 mem.vmstat.thp_file_alloc
     value 0
@@ -10662,6 +10992,15 @@ mem.vmstat.thp_split_page_failed
 
 mem.vmstat.thp_split_pmd
     value 0
+
+mem.vmstat.thp_split_pud
+    value 0
+
+mem.vmstat.thp_swpout
+No value(s) available!
+
+mem.vmstat.thp_swpout_fallback
+No value(s) available!
 
 mem.vmstat.thp_zero_page_alloc
     value 0
@@ -10699,8 +11038,14 @@ mem.vmstat.workingset_activate
 mem.vmstat.workingset_nodereclaim
     value 0
 
+mem.vmstat.workingset_nodes
+No value(s) available!
+
 mem.vmstat.workingset_refault
     value 1029558
+
+mem.vmstat.workingset_restore
+No value(s) available!
 
 mem.vmstat.zone_reclaim_failed
     value 0
@@ -12809,6 +13154,21 @@ mem.util.writeback
 mem.vmstat.allocstall
 No value(s) available!
 
+mem.vmstat.allocstall_dma
+    value 0
+
+mem.vmstat.allocstall_dma32
+    value 0
+
+mem.vmstat.allocstall_high
+No value(s) available!
+
+mem.vmstat.allocstall_movable
+    value 0
+
+mem.vmstat.allocstall_normal
+    value 0
+
 mem.vmstat.balloon_deflate
     value 0
 
@@ -12820,6 +13180,12 @@ mem.vmstat.balloon_migrate
 
 mem.vmstat.compact_blocks_moved
 No value(s) available!
+
+mem.vmstat.compact_daemon_free_scanned
+    value 0
+
+mem.vmstat.compact_daemon_migrate_scanned
+    value 0
 
 mem.vmstat.compact_daemon_wake
     value 0
@@ -12902,6 +13268,21 @@ mem.vmstat.nr_dirty_background_threshold
 mem.vmstat.nr_dirty_threshold
     value 218360
 
+mem.vmstat.nr_file_hugepages
+No value(s) available!
+
+mem.vmstat.nr_file_pages
+    value 177829
+
+mem.vmstat.nr_file_pmdmapped
+No value(s) available!
+
+mem.vmstat.nr_foll_pin_acquired
+No value(s) available!
+
+mem.vmstat.nr_foll_pin_released
+No value(s) available!
+
 mem.vmstat.nr_free_cma
     value 0
 
@@ -12919,6 +13300,9 @@ mem.vmstat.nr_isolated_anon
 
 mem.vmstat.nr_isolated_file
     value 0
+
+mem.vmstat.nr_kernel_misc_reclaimable
+No value(s) available!
 
 mem.vmstat.nr_kernel_stack
     value 2192
@@ -13026,6 +13410,9 @@ mem.vmstat.numa_pages_migrated
     value 0
 
 mem.vmstat.numa_pte_updates
+    value 0
+
+mem.vmstat.oom_kill
     value 0
 
 mem.vmstat.pageoutrun
@@ -13157,6 +13544,9 @@ No value(s) available!
 mem.vmstat.pgsteal_dma32
 No value(s) available!
 
+mem.vmstat.pgsteal_file
+No value(s) available!
+
 mem.vmstat.pgsteal_high
 No value(s) available!
 
@@ -13190,6 +13580,12 @@ mem.vmstat.pswpout
 mem.vmstat.slabs_scanned
     value 0
 
+mem.vmstat.swap_ra
+    value 0
+
+mem.vmstat.swap_ra_hit
+    value 0
+
 mem.vmstat.thp_collapse_alloc
     value 53356
 
@@ -13204,6 +13600,9 @@ mem.vmstat.thp_fault_alloc
 
 mem.vmstat.thp_fault_fallback
     value 0
+
+mem.vmstat.thp_fault_fallback_charge
+No value(s) available!
 
 mem.vmstat.thp_file_alloc
     value 0
@@ -13222,6 +13621,15 @@ mem.vmstat.thp_split_page_failed
 
 mem.vmstat.thp_split_pmd
     value 371
+
+mem.vmstat.thp_split_pud
+    value 0
+
+mem.vmstat.thp_swpout
+    value 0
+
+mem.vmstat.thp_swpout_fallback
+    value 0
 
 mem.vmstat.thp_zero_page_alloc
     value 1
@@ -13259,8 +13667,14 @@ mem.vmstat.workingset_activate
 mem.vmstat.workingset_nodereclaim
     value 0
 
+mem.vmstat.workingset_nodes
+No value(s) available!
+
 mem.vmstat.workingset_refault
     value 0
+
+mem.vmstat.workingset_restore
+No value(s) available!
 
 mem.vmstat.zone_reclaim_failed
     value 0

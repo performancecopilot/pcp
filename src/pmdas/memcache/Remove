@@ -23,6 +23,7 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=memcache
+perl_opt=true
 pmdaSetup
 pmdaRemove
 exit

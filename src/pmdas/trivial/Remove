@@ -29,6 +29,8 @@
 # The name of the PMDA
 #
 iam=trivial
+perl_opt=true
+python_opt=true
 
 # Do it
 #

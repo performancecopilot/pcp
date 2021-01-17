@@ -17,6 +17,7 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=ds389log
+perl_opt=true
 
 pmdaSetup
 pmdaRemove

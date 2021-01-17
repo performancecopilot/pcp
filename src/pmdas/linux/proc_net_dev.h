@@ -1,7 +1,7 @@
 /*
  * Linux /proc/net/dev metrics cluster
  *
- * Copyright (c) 2013,2018 Red Hat.
+ * Copyright (c) 2013,2018,2020 Red Hat.
  * Copyright (c) 1995,2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -14,6 +14,24 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <regex.h>
+
+typedef struct {
+    uint64_t	bytes;
+    uint64_t	packets;
+    uint64_t	errors;
+    uint64_t	drops;
+} net_all_t;
+
+typedef struct {
+    net_all_t	in;
+    net_all_t	out;
+    net_all_t	total;
+    regex_t	regex;
+} proc_net_all_t;
 
 typedef struct {
     uint32_t	mtu;
@@ -129,6 +147,7 @@ extern void refresh_net_addr_ioctl(pmInDom, struct linux_container *, int *);
 extern int refresh_net_ioctl(pmInDom, struct linux_container *, int *);
 extern void refresh_net_addr_sysfs(pmInDom, int *);
 extern int refresh_net_sysfs(pmInDom, int *);
+extern int refresh_proc_net_all(pmInDom, proc_net_all_t *);
 
 extern void refresh_net_addr_sysfs(pmInDom, int *);
 extern void refresh_net_addr_ioctl(pmInDom, struct linux_container *, int *);

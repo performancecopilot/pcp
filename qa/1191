@@ -60,7 +60,7 @@ else
 fi
 cat $tmp.info $tmp.err
 
-_pmdaopenmetrics_remove
+_pmdaopenmetrics_remove >/dev/null 2>&1
 
 # success, all done
 status=0

@@ -50,7 +50,9 @@ TRACEPOINT_PROBE(raw_syscalls, sys_exit) {
     u64 zero = 0;
     struct key_t key = {.pid = pid >> 32, .id = id};
     val = pidstats.lookup_or_init(&key, &zero);
-    ++(*val);
+    if (val) {
+        ++(*val);
+    }
 #endif
 #ifdef LATENCY
     u64 *start_ns = start.lookup(&pid);

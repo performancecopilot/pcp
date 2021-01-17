@@ -29,6 +29,7 @@ extern int add_ctx_dm(char *);
 void
 dometric(const char *new_name)
 {
+    const char	*metric;
     int		sts;
 
     nmetric++;
@@ -45,11 +46,12 @@ dometric(const char *new_name)
 	fprintf(stderr, "desc[%d] malloc failed @ %s\n", nmetric-1, new_name);
 	exit(1);
     }
-    if ((sts = pmLookupName(1, &name[nmetric-1], &pmid[nmetric-1])) < 0) {
-	fprintf(stderr, "Warning: pmLookupName(\"%s\",...) failed: %s\n", name[nmetric-1], pmErrStr(sts));
+    metric = name[nmetric-1];
+    if ((sts = pmLookupName(1, &metric, &pmid[nmetric-1])) < 0) {
+	fprintf(stderr, "Warning: pmLookupName(\"%s\",...) failed: %s\n", metric, pmErrStr(sts));
     }
     if ((sts = pmLookupDesc(pmid[nmetric-1], &desc[nmetric-1])) < 0) {
-	fprintf(stderr, "Warning: pmLookupDesc(\"%s\",...) failed: %s\n", name[nmetric-1], pmErrStr(sts));
+	fprintf(stderr, "Warning: pmLookupDesc(\"%s\",...) failed: %s\n", metric, pmErrStr(sts));
     }
     if (desc[nmetric-1].indom != PM_INDOM_NULL && ninst > 0 && inst == NULL) {
 	/*

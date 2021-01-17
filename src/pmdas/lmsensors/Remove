@@ -29,6 +29,7 @@
 # The name of the PMDA
 #
 iam=lmsensors
+python_opt=true
 
 # Do it
 #

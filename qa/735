@@ -45,7 +45,10 @@ else
     echo "Mismatch on control group list:"
     echo "PCP cgroups: $pcpcgroups"
     echo "SYS cgroups: $syscgroups"
-    status=1
+    # exit with 0 status so it is not marked as Broken in CI, but the output
+    # difference will ensure it is marked as Failed
+    #
+    status=0
     exit
 fi
 

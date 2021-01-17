@@ -30,6 +30,16 @@ then
     # NOTREACHED
 fi
 
+NEEDREWRITE=$PCP_LOG_DIR/pmlogger/.NeedRewrite
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp.*
+    $sudo mv $PCP_LOG_DIR/NOTICES.$seq $PCP_LOG_DIR/NOTICES
+    [ -f $NEEDREWRITE.$seq ] && $sudo mv $NEEDREWRITE.$seq $NEEDREWRITE
+}
+
 _filter()
 {
     tee -a $seq.full \
@@ -71,13 +81,15 @@ END				{ if ( eatlines ) {
 }
 
 status=1	# failure is the default!
-trap "cd $here; $sudo rm -rf $tmp $tmp.*; $sudo mv $PCP_LOG_DIR/NOTICES.$$ $PCP_LOG_DIR/NOTICES; exit \$status" 0 1 2 3 15
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+[ -f $NEEDREWRITE ] && $sudo mv $NEEDREWRITE $NEEDREWRITE.$seq
 
 # take explicit control of the umask
 #
 umask 022
 
-$sudo mv $PCP_LOG_DIR/NOTICES $PCP_LOG_DIR/NOTICES.$$
+$sudo mv $PCP_LOG_DIR/NOTICES $PCP_LOG_DIR/NOTICES.$seq
 rm -f $seq.full
 
 # real QA test starts here

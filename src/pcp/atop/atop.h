@@ -208,37 +208,36 @@ char 		*abstime(char *);
 void		setup_step_mode(int);
 void		setup_globals(struct pmOptions *);
 void		setup_process(void);
-void		setup_metrics(char **, unsigned int *, struct pmDesc *, int);
+void		setup_metrics(const char **, unsigned int *, struct pmDesc *, int);
 int		fetch_metrics(const char *, int, unsigned int *, struct pmResult **);
 int		get_instances(const char *, int, struct pmDesc *, int **, char ***);
+int		get_instance_index(pmResult *, int, int);
 
 struct sstat	*sstat_alloc(const char *);
 void		sstat_reset(struct sstat *);
 
-float		extract_float_inst(struct pmResult *, struct pmDesc *, int, int);
+float		extract_float_inst(struct pmResult *, struct pmDesc *, int, int, int);
 int		extract_integer(struct pmResult *, struct pmDesc *, int);
-int		extract_integer_inst(struct pmResult *, struct pmDesc *, int, int);
+int		extract_integer_inst(struct pmResult *, struct pmDesc *, int, int, int);
 int		extract_integer_index(struct pmResult *, struct pmDesc *, int, int);
 count_t		extract_count_t(struct pmResult *, struct pmDesc *, int);
-count_t		extract_count_t_inst(struct pmResult *, struct pmDesc *, int, int);
+count_t		extract_count_t_inst(struct pmResult *, struct pmDesc *, int, int, int);
 count_t		extract_count_t_index(struct pmResult *, struct pmDesc *, int, int);
-ucount_t	extract_ucount_t_inst(struct pmResult *, struct pmDesc *, int, int);
+ucount_t	extract_ucount_t_inst(struct pmResult *, struct pmDesc *, int, int, int);
 char *		extract_string(struct pmResult *, struct pmDesc *, int, char *, int);
-char *		extract_string_inst(struct pmResult *, struct pmDesc *, int, char *, int, int);
+char *		extract_string_inst(struct pmResult *, struct pmDesc *, int, char *, int, int, int);
 char *		extract_string_index(struct pmResult *, struct pmDesc *, int, char *, int, int);
 int		present_metric_value(struct pmResult *, int);
 
 /*
-** Optional netatop module interfaces
+** Optional pmdabcc(1) netproc module interfaces
  */
-void		netatop_ipopen(void);
-void		netatop_probe(void);
-void		netatop_signoff(void);
-void		netatop_gettask(pid_t, char, struct tstat *);
-unsigned int	netatop_exitstore(void);
-void		netatop_exiterase(void);
-void		netatop_exithash(char);
-void		netatop_exitfind(unsigned long, struct tstat *, struct tstat *);
+void		netproc_probe(void);
+void		netproc_update_tasks(struct tstat **, unsigned long);
+#define	netatop_signoff() do { } while (0)
+#define netatop_exiterase() do { } while (0)
+#define netatop_exithash(hash) do { (void)(hash); } while (0)
+#define netatop_exitfind(find,a,b) do { (void)(find); } while (0)
 
 /*
 ** Optional process accounting module interfaces
@@ -246,7 +245,5 @@ void		netatop_exitfind(unsigned long, struct tstat *, struct tstat *);
 #define MAXACCTPROCS	(50*1024*1024/sizeof(struct tstat))
 int 		acctswon(void);
 void		acctswoff(void);
-unsigned long 	acctprocnt(void);
-int 		acctphotoproc(struct tstat *, int);
-void 		acctrepos(unsigned int);
+int		acctphotoproc(struct tstat **, unsigned int *, struct timeval *, struct timeval *);
 void		do_pacctdir(char *, char *);

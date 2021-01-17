@@ -28,9 +28,9 @@ typedef struct perf_event_attr perf_event_attr_t;
 #endif
 
 #define INTEGRITY		"[integrity]"
-#define INTEGRITY_LEN		(sizeof("[integrity]")-1)
+#define INTEGRITY_LEN		(sizeof(INTEGRITY)-1)
 #define CONFIDENTIALITY		"[confidentiality]"
-#define CONFIDENTIALITY_LEN	(sizeof("[confidentiality]")-1)
+#define CONFIDENTIALITY_LEN	(sizeof(CONFIDENTIALITY)-1)
 
 static int _isDSO;
 static pmdaNameSpace *pmns;
@@ -244,7 +244,7 @@ kvm_trace_refresh(void)
     size_t		bufsize = ksize + sizeof(unsigned long long);
     int			i, sts, changed = 0;
 
-    if (ntrace == 0 || group_fd == NULL)
+    if (ntrace == 0 || group_fd == NULL || kernel_lockdown)
 	return;
 
     if (buffer == NULL) {
@@ -430,6 +430,29 @@ kvm_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 }
 
 static int
+kvm_text(int ident, int type, char **buf, pmdaExt *pmda)
+{
+    if ((type & PM_TEXT_PMID) == PM_TEXT_PMID) {
+	static char	text[1024];
+	pmID		pmid = (pmID)ident;
+
+	if (pmID_cluster(pmid) == CLUSTER_TRACE) {
+	    if (pmID_item(pmid) == 0)	/* kvm.trace.count */
+		pmsprintf(text, sizeof(text),
+			"Number of KVM trace points from %s/kvm/kvm.conf",
+				pmGetOptionalConfig("PCP_PMDAS_DIR"));
+	    else
+		pmsprintf(text, sizeof(text),
+			"KVM trace point values from %s/events/kvm files",
+				tracefs);
+	    *buf = text;
+	    return 0;
+	}
+    }
+    return pmdaText(ident, type, buf, pmda);
+}
+
+static int
 kvm_pmid(const char *name, pmID *pmid, pmdaExt *pmda)
 {
     return pmdaTreePMID(pmns, name, pmid);
@@ -494,6 +517,7 @@ kvm_config(void)
 {
     char		*p;
     char		buf[BUFSIZ];
+    char		path[MAXPATHLEN];
     void		*table;
     FILE		*fp;
     enum { STATE_UNKNOWN, STATE_PATHS, STATE_TRACE } state = 0;
@@ -524,12 +548,18 @@ kvm_config(void)
 	}
 
 	if (state == STATE_PATHS) {
-	    if (sscanf(p, "tracefs=%s", tracefs) != 0)
+	    if (sscanf(p, "tracefs=%s", path) == 1) {
+		strcpy(tracefs, path);
 	        continue;
-	    if (sscanf(p, "debugfs=%s", debugfs) != 0)
+	    }
+	    if (sscanf(p, "debugfs=%s", path) == 1) {
+		strcpy(debugfs, path);
 		continue;
-	    if (sscanf(p, "lockdown=%s", lockdown) != 0)
+	    }
+	    if (sscanf(p, "lockdown=%s", path) == 1) {
+		strcpy(lockdown, path);
 		continue;
+	    }
 	}
 	if (state == STATE_TRACE) {
 	    if (!(table = realloc(trace_nametab, (ntrace+1) * sizeof(char*)))) {
@@ -546,13 +576,16 @@ kvm_config(void)
     }
     fclose(fp);
 
+    if (pmDebugOptions.libpmda)
+	fprintf(stderr, "Checking kernel lockdown state in %s\n", lockdown);
+
     if ((fp = fopen(lockdown, "r")) == NULL)
 	return 0;
     while (fgets(buf, sizeof(buf), fp) != NULL) {
 	if ((p = strchr(buf, '[')) == NULL)
 	    continue;
-	if (strncmp(p, CONFIDENTIALITY, CONFIDENTIALITY_LEN) != 0 ||
-	    strncmp(p, INTEGRITY, INTEGRITY_LEN) != 0) {
+	if (strncmp(p, CONFIDENTIALITY, CONFIDENTIALITY_LEN) == 0 ||
+	    strncmp(p, INTEGRITY, INTEGRITY_LEN) == 0) {
 	    pmNotifyErr(LOG_INFO,
 		    "disabling KVM metrics: kernel running in lockdown mode");
 	    kernel_lockdown = 1;
@@ -590,6 +623,25 @@ kvm_init(pmdaInterface *dp)
     if (dp->status != 0)
 	return;
 
+    if ((envpath = getenv("KVM_NCPUS")))
+	ncpus = atoi(envpath);
+    else
+	ncpus = sysconf(_SC_NPROCESSORS_CONF);
+    if (ncpus <= 0)
+	ncpus = 1;
+    if ((envpath = getenv("KVM_DEBUGFS_PATH")))
+	pmsprintf(debugfs, sizeof(debugfs), "%s", envpath);
+    else
+	pmsprintf(debugfs, sizeof(debugfs), "/sys/kernel/debug");
+    if ((envpath = getenv("KVM_TRACEFS_PATH")))
+	pmsprintf(tracefs, sizeof(tracefs), "%s", envpath);
+    else
+	pmsprintf(tracefs, sizeof(tracefs), "/sys/kernel/debug/tracing");
+    if ((envpath = getenv("KVM_LOCKDOWN_PATH")))
+	pmsprintf(lockdown, sizeof(lockdown), "%s", envpath);
+    else
+	pmsprintf(lockdown, sizeof(lockdown), "/sys/kernel/security/lockdown");
+
     /* get paths and any specified KVM trace metrics */ 
     kvm_config();
 
@@ -620,25 +672,6 @@ kvm_init(pmdaInterface *dp)
 	tmetrics = nmetrics;
     }
 
-    if ((envpath = getenv("KVM_NCPUS")))
-	ncpus = atoi(envpath);
-    else
-	ncpus = sysconf(_SC_NPROCESSORS_CONF);
-    if (ncpus <= 0)
-	ncpus = 1;
-    if ((envpath = getenv("KVM_DEBUGFS_PATH")))
-	pmsprintf(debugfs, sizeof(debugfs), "%s", envpath);
-    else
-	pmsprintf(debugfs, sizeof(debugfs), "/sys/kernel/debug");
-    if ((envpath = getenv("KVM_TRACEFS_PATH")))
-	pmsprintf(tracefs, sizeof(tracefs), "%s", envpath);
-    else
-	pmsprintf(tracefs, sizeof(tracefs), "/sys/kernel/debug/tracing");
-    if ((envpath = getenv("KVM_LOCKDOWN_PATH")))
-	pmsprintf(lockdown, sizeof(lockdown), "%s", envpath);
-    else
-	pmsprintf(lockdown, sizeof(lockdown), "/sys/kernel/security/lockdown");
-
     if (tmetrictab != metrictab) {
 	group_fd = malloc(ncpus * sizeof(int));
 	if ((sts = perf_event(ncpus, group_fd)) < 0) {
@@ -651,6 +684,7 @@ kvm_init(pmdaInterface *dp)
 
     dp->version.seven.fetch = kvm_fetch;
     dp->version.seven.label = kvm_label;
+    dp->version.seven.text = kvm_text;
     dp->version.seven.pmid = kvm_pmid;
     dp->version.seven.name = kvm_name;
     dp->version.seven.children = kvm_children;

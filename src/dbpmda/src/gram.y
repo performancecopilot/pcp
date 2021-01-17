@@ -43,7 +43,7 @@ param_t	param;
  * translate name if possible
  */
 static int
-fix_dynamic_pmid(char *name, pmID *pmidp)
+fix_dynamic_pmid(const char *name, pmID *pmidp)
 {
     int		sts;
     __pmPDU	*pb;
@@ -108,7 +108,7 @@ fix_dynamic_pmid(char *name, pmID *pmidp)
 	STRING
 
 %term	COMMA EQUAL
-	OPEN CLOSE DESC GETDESC FETCH INSTANCE PROFILE HELP 
+	OPEN CLOSE DESC GETDESC GETINAME FETCH INSTANCE PROFILE HELP 
 	WATCH DBG QUIT STATUS STORE INFO TIMER NAMESPACE WAIT
 	PMNS_NAME PMNS_PMID PMNS_CHILDREN PMNS_TRAVERSE ATTR
 	LABEL CTXT DOMAIN INDOM CLUSTER ITEM INSTANCES
@@ -130,6 +130,7 @@ fix_dynamic_pmid(char *name, pmID *pmidp)
 	fname
 	arglist
 	inst
+	flag
 
 %%
 
@@ -389,6 +390,10 @@ stmt	: OPEN EOL				{
 		param.number = GETDESC; param.pmid = HELP_FULL; 
 		stmt_type = HELP; YYACCEPT;
 	    }
+	| HELP GETINAME EOL			{
+		param.number = GETINAME; param.pmid = HELP_FULL; 
+		stmt_type = HELP; YYACCEPT;
+	    }
 	| HELP INFO EOL				{
 		param.number = INFO; param.pmid = HELP_FULL;
 		stmt_type = HELP; YYACCEPT;
@@ -503,6 +508,16 @@ stmt	: OPEN EOL				{
 	| GETDESC OFF EOL				{ 
 		get_desc = 0; stmt_type = EOL; YYACCEPT; 
 	    }
+	| GETINAME EOL				{
+		param.number = GETINAME; param.pmid = HELP_USAGE;
+		stmt_type = HELP; YYACCEPT;
+	    }
+	| GETINAME ON EOL				{ 
+		get_iname = 1; stmt_type = EOL; YYACCEPT; 
+	    }
+	| GETINAME OFF EOL				{ 
+		get_iname = 0; stmt_type = EOL; YYACCEPT; 
+	    }
 	| WAIT EOL				{
 		param.number = WAIT; param.pmid = HELP_USAGE;
 		stmt_type = HELP; YYACCEPT;
@@ -526,9 +541,11 @@ fname	: NAME					{
 		    if ($1[0] == '/' ||
 		        (strlen($1) > 4 && $1[1] == ':' && $1[2] == '/'))
 			$$ = $1;
-		    else
+		    else {
 			/* relative path */
 			$$ = strcons("./", $1);
+			gc_add($$);
+		    }
 	    }
 	| PATHNAME				{ $$ = $1; }
 	;
@@ -613,7 +630,7 @@ metric	: NUMBER				{
 		$$ = (int)pmid.whole;
 	    }
 	| NAME					{
-		sts = pmLookupName(1, &$1, &pmid.whole);
+		sts = pmLookupName(1, (const char **)&$1, &pmid.whole);
 		if (sts < 0) {
 		    yyerror(pmErrStr(sts));
 		    YYERROR;
@@ -688,7 +705,7 @@ debug   : NUMBER 			{
 			}
 			$$ = 0;
 		    }
-	| NAME					{
+	| flag					{
 			sts = pmSetDebug($1);
 			if (sts < 0) {
 			    pmsprintf(warnStr, MYWARNSTRSZ, "Bad debug flag (%s)", $1);
@@ -708,7 +725,18 @@ debug   : NUMBER 			{
 			}
 			$$ = 0;
 		    }
-	| debug NAME					{
+	| debug COMMA NUMBER				{
+			char	nbuf[12];
+			pmsprintf(nbuf, sizeof(nbuf), "%d", $3);
+			sts = pmSetDebug(nbuf);
+			if (sts < 0) {
+			    pmsprintf(warnStr, MYWARNSTRSZ, "Bad debug flag (%s)", nbuf);
+			    yyerror(warnStr);
+			    YYERROR;
+			}
+			$$ = 0;
+		    }
+	| debug flag					{
 			sts = pmSetDebug($2);
 			if (sts < 0) {
 			    pmsprintf(warnStr, MYWARNSTRSZ, "Bad debug flag (%s)", $2);
@@ -717,6 +745,28 @@ debug   : NUMBER 			{
 			}
 			$$ = 0;
 		    }
+	| debug COMMA flag					{
+			sts = pmSetDebug($3);
+			if (sts < 0) {
+			    pmsprintf(warnStr, MYWARNSTRSZ, "Bad debug flag (%s)", $3);
+			    yyerror(warnStr);
+			    YYERROR;
+			}
+			$$ = 0;
+		    }
+	;
+
+/*
+ * debug flags may collide with reserved words, need to special case each one
+ * ... and they need to be malloc'd to match the values returned from the
+ * lexer for type NAME
+ */
+flag	: NAME		{ $$ = $1; }
+	| FETCH		{ $$ = strdup("fetch"); gc_add($$); }
+	| PROFILE	{ $$ = strdup("profile"); gc_add($$); }
+	| CTXT		{ $$ = strdup("context"); gc_add($$); }
+	| INDOM		{ $$ = strdup("indom"); gc_add($$); }
+	| ATTR		{ $$ = strdup("attr"); gc_add($$); }
 	;
 
 %%

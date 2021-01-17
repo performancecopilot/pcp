@@ -39,7 +39,7 @@ SUBDIRS = src
 ifneq ($(TARGET_OS),mingw)
 SUBDIRS += qa
 endif
-SUBDIRS += man books images build debian
+SUBDIRS += man images build debian
 
 default :: default_pcp
 
@@ -107,7 +107,6 @@ endif
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_VAR_DIR)/config/pmda
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_LOG_DIR)
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_SECURE_DB_PATH)
-	$(INSTALL) -m 755 -d $(PCP_SHARE_DIR)/pmns
 	$(INSTALL) -m 755 -d $(PCP_PMDAS_DIR)
 	$(INSTALL) -m 755 -d $(PCP_DOC_DIR)
 	$(INSTALL) -m 755 -d $(PCP_DEMOS_DIR)

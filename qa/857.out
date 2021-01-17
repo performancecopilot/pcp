@@ -580,11 +580,13 @@ kernel.percpu.interrupts.PIN [Posted-interrupt notification event]
 Help:
 Posted-interrupt notification event
 
-kernel.percpu.interrupts.MIS One-line Help: Error: One-line or help text is not available
-Full Help: Error: One-line or help text is not available
+kernel.percpu.interrupts.MIS [Per-processor interrupts values from /proc/interrupts]
+Help:
+Per-processor interrupts values from /proc/interrupts
 
-kernel.percpu.interrupts.ERR One-line Help: Error: One-line or help text is not available
-Full Help: Error: One-line or help text is not available
+kernel.percpu.interrupts.ERR [Per-processor interrupts values from /proc/interrupts]
+Help:
+Per-processor interrupts values from /proc/interrupts
 
 kernel.percpu.interrupts.HYP [Hypervisor callback interrupts]
 Help:
@@ -722,35 +724,45 @@ kernel.percpu.interrupts.line0 [IR-IO-APIC 2-edge timer]
 Help:
 IR-IO-APIC 2-edge timer
 
-kernel.percpu.softirqs.RCU One-line Help: Error: One-line or help text is not available
-Full Help: Error: One-line or help text is not available
+kernel.percpu.softirqs.RCU [percpu deferrals to outside of hardware interrupt handling]
+Help:
+percpu deferrals to outside of hardware interrupt handling
 
-kernel.percpu.softirqs.HRTIMER One-line Help: Error: One-line or help text is not available
-Full Help: Error: One-line or help text is not available
+kernel.percpu.softirqs.HRTIMER [percpu deferrals to outside of hardware interrupt handling]
+Help:
+percpu deferrals to outside of hardware interrupt handling
 
-kernel.percpu.softirqs.SCHED One-line Help: Error: One-line or help text is not available
-Full Help: Error: One-line or help text is not available
+kernel.percpu.softirqs.SCHED [percpu deferrals to outside of hardware interrupt handling]
+Help:
+percpu deferrals to outside of hardware interrupt handling
 
-kernel.percpu.softirqs.TASKLET One-line Help: Error: One-line or help text is not available
-Full Help: Error: One-line or help text is not available
+kernel.percpu.softirqs.TASKLET [percpu deferrals to outside of hardware interrupt handling]
+Help:
+percpu deferrals to outside of hardware interrupt handling
 
-kernel.percpu.softirqs.BLOCK_IOPOLL One-line Help: Error: One-line or help text is not available
-Full Help: Error: One-line or help text is not available
+kernel.percpu.softirqs.BLOCK_IOPOLL [percpu deferrals to outside of hardware interrupt handling]
+Help:
+percpu deferrals to outside of hardware interrupt handling
 
-kernel.percpu.softirqs.BLOCK One-line Help: Error: One-line or help text is not available
-Full Help: Error: One-line or help text is not available
+kernel.percpu.softirqs.BLOCK [percpu deferrals to outside of hardware interrupt handling]
+Help:
+percpu deferrals to outside of hardware interrupt handling
 
-kernel.percpu.softirqs.NET_RX One-line Help: Error: One-line or help text is not available
-Full Help: Error: One-line or help text is not available
+kernel.percpu.softirqs.NET_RX [percpu deferrals to outside of hardware interrupt handling]
+Help:
+percpu deferrals to outside of hardware interrupt handling
 
-kernel.percpu.softirqs.NET_TX One-line Help: Error: One-line or help text is not available
-Full Help: Error: One-line or help text is not available
+kernel.percpu.softirqs.NET_TX [percpu deferrals to outside of hardware interrupt handling]
+Help:
+percpu deferrals to outside of hardware interrupt handling
 
-kernel.percpu.softirqs.TIMER One-line Help: Error: One-line or help text is not available
-Full Help: Error: One-line or help text is not available
+kernel.percpu.softirqs.TIMER [percpu deferrals to outside of hardware interrupt handling]
+Help:
+percpu deferrals to outside of hardware interrupt handling
 
-kernel.percpu.softirqs.HI One-line Help: Error: One-line or help text is not available
-Full Help: Error: One-line or help text is not available
+kernel.percpu.softirqs.HI [percpu deferrals to outside of hardware interrupt handling]
+Help:
+percpu deferrals to outside of hardware interrupt handling
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
@@ -984,11 +996,13 @@ kernel.percpu.interrupts.PIN [Posted-interrupt notification event]
 Help:
 Posted-interrupt notification event
 
-kernel.percpu.interrupts.MIS One-line Help: Error: One-line or help text is not available
-Full Help: Error: One-line or help text is not available
+kernel.percpu.interrupts.MIS [Per-processor interrupts values from /proc/interrupts]
+Help:
+Per-processor interrupts values from /proc/interrupts
 
-kernel.percpu.interrupts.ERR One-line Help: Error: One-line or help text is not available
-Full Help: Error: One-line or help text is not available
+kernel.percpu.interrupts.ERR [Per-processor interrupts values from /proc/interrupts]
+Help:
+Per-processor interrupts values from /proc/interrupts
 
 kernel.percpu.interrupts.HVS [Hyper-V stimer0 interrupts]
 Help:
@@ -1102,35 +1116,45 @@ kernel.percpu.interrupts.line0 [IO-APIC 2-edge timer]
 Help:
 IO-APIC 2-edge timer
 
-kernel.percpu.softirqs.RCU One-line Help: Error: One-line or help text is not available
-Full Help: Error: One-line or help text is not available
+kernel.percpu.softirqs.RCU [percpu deferrals to outside of hardware interrupt handling]
+Help:
+percpu deferrals to outside of hardware interrupt handling
 
-kernel.percpu.softirqs.HRTIMER One-line Help: Error: One-line or help text is not available
-Full Help: Error: One-line or help text is not available
+kernel.percpu.softirqs.HRTIMER [percpu deferrals to outside of hardware interrupt handling]
+Help:
+percpu deferrals to outside of hardware interrupt handling
 
-kernel.percpu.softirqs.SCHED One-line Help: Error: One-line or help text is not available
-Full Help: Error: One-line or help text is not available
+kernel.percpu.softirqs.SCHED [percpu deferrals to outside of hardware interrupt handling]
+Help:
+percpu deferrals to outside of hardware interrupt handling
 
-kernel.percpu.softirqs.TASKLET One-line Help: Error: One-line or help text is not available
-Full Help: Error: One-line or help text is not available
+kernel.percpu.softirqs.TASKLET [percpu deferrals to outside of hardware interrupt handling]
+Help:
+percpu deferrals to outside of hardware interrupt handling
 
-kernel.percpu.softirqs.IRQ_POLL One-line Help: Error: One-line or help text is not available
-Full Help: Error: One-line or help text is not available
+kernel.percpu.softirqs.IRQ_POLL [percpu deferrals to outside of hardware interrupt handling]
+Help:
+percpu deferrals to outside of hardware interrupt handling
 
-kernel.percpu.softirqs.BLOCK One-line Help: Error: One-line or help text is not available
-Full Help: Error: One-line or help text is not available
+kernel.percpu.softirqs.BLOCK [percpu deferrals to outside of hardware interrupt handling]
+Help:
+percpu deferrals to outside of hardware interrupt handling
 
-kernel.percpu.softirqs.NET_RX One-line Help: Error: One-line or help text is not available
-Full Help: Error: One-line or help text is not available
+kernel.percpu.softirqs.NET_RX [percpu deferrals to outside of hardware interrupt handling]
+Help:
+percpu deferrals to outside of hardware interrupt handling
 
-kernel.percpu.softirqs.NET_TX One-line Help: Error: One-line or help text is not available
-Full Help: Error: One-line or help text is not available
+kernel.percpu.softirqs.NET_TX [percpu deferrals to outside of hardware interrupt handling]
+Help:
+percpu deferrals to outside of hardware interrupt handling
 
-kernel.percpu.softirqs.TIMER One-line Help: Error: One-line or help text is not available
-Full Help: Error: One-line or help text is not available
+kernel.percpu.softirqs.TIMER [percpu deferrals to outside of hardware interrupt handling]
+Help:
+percpu deferrals to outside of hardware interrupt handling
 
-kernel.percpu.softirqs.HI One-line Help: Error: One-line or help text is not available
-Full Help: Error: One-line or help text is not available
+kernel.percpu.softirqs.HI [percpu deferrals to outside of hardware interrupt handling]
+Help:
+percpu deferrals to outside of hardware interrupt handling
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector

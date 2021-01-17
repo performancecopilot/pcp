@@ -64,10 +64,9 @@ other_node                     0
  08:59:48 up 88 days, 21:35, 1 user,  load average: 3.42, 3.04, 3.32
 
 === testing pcp-free on pcp-zeroconf archive
-             total       used       free     shared    buffers     cached
-Mem:      16064800   15386252     678548          0        120    1983312
--/+ buffers/cache:   13402820    2661980
-Swap      16773116   10526772    6246344
+              total        used        free      shared  buff/cache   available
+Mem:       16064800    12347308      678548     1069560     3038944     2308256
+Swap       16773116    10526772     6246344
 
 === testing pcp-vmstat on pcp-zeroconf archive
 Note: timezone set to local timezone of host "shack" from archive

@@ -1,0 +1,61 @@
+#!/bin/sh
+# PCP QA Test No. 1282
+# check list-packages ...
+#
+# Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# odd cases to be filtered out ...
+# - docker.io not helpful on machines hosting VMs
+# - unbound not helpful on machines running real DNS, e.g. with bind9
+#
+_filter()
+{
+    sed \
+	-e 's/^/ /' \
+	-e 's/$/ /' \
+	-e 's/ docker.io / /' \
+	-e 's/ unbound / /' \
+	-e 's/^ //' \
+	-e 's/ $//' \
+	-e '/^ *$/d' \
+    # end
+}
+
+# real QA test starts here
+admin/whatami >>$seq.full
+
+echo "list-packages -m (CI case)"
+admin/list-packages -m -x notci -x cpan -x pip3 2>&1 | _filter
+
+echo
+echo "list-packages -c"
+admin/list-packages -c 2>&1 | _filter
+
+# success, all done
+exit

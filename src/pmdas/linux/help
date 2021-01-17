@@ -141,6 +141,14 @@ Per-CPU time spent running (virtual) guest operating systems.
 @ kernel.percpu.cpu.guest_nice percpu nice guest CPU time
 Per-CPU nice time spent running (virtual) guest operating systems.
 
+@ kernel.all.softirqs.total total interrupts counts from /proc/softirqs
+Aggregated interrupt counts for each type of interrupt reported
+by the kernel in /proc/softirqs.
+
+@ kernel.all.interrupts.total total interrupts counts from /proc/interrupts
+Aggregated interrupt counts for each type of interrupt reported
+by the kernel in /proc/interrupts.
+
 @ kernel.all.interrupts.errors interrupt error count from /proc/interrupts
 This is a global counter (normally converted to a count/second)
 for any and all errors that occur while handling interrupts.
@@ -963,6 +971,11 @@ Instantaneous number of pages in dirty state, from /proc/vmstat
 @ mem.vmstat.nr_dirty_threshold dirty throttling threshold
 @ mem.vmstat.nr_dirtied count of pages dirtied
 Count of pages entering dirty state, from /proc/vmstat
+@ mem.vmstat.nr_file_hugepages count of hugepages used for files
+@ mem.vmstat.nr_file_pages count of pages used for files
+@ mem.vmstat.nr_file_pmdmapped count of PMD mappings used for files
+@ mem.vmstat.nr_foll_pin_acquired count of pinned user memory acquisitions
+@ mem.vmstat.nr_foll_pin_released count of pinned user memory releases
 @ mem.vmstat.nr_writeback number of pages in writeback state
 Instantaneous number of pages in writeback state, from /proc/vmstat
 @ mem.vmstat.nr_unstable number of pages in unstable state
@@ -1031,6 +1044,8 @@ from /proc/vmstat
 Count of mem pages directly reclaimed since boot, from /proc/vmstat
 @ mem.vmstat.pgsteal_kswapd mem pages reclaimed by kswapd
 Count of mem pages reclaimed by kswapd since boot, from /proc/vmstat
+@ mem.vmstat.pgsteal_file file memory pages reclaimed
+Count of file memory pages reclaimed since boot, from /proc/vmstat
 @ mem.vmstat.pgsteal_high high mem pages reclaimed
 Count of high mem pages reclaimed since boot, from /proc/vmstat
 @ mem.vmstat.pgsteal_normal normal mem pages reclaimed
@@ -1098,6 +1113,8 @@ Count of movable mem pages scanned since boot, from /proc/vmstat
 Count of pages reclaimed via inode freeing since boot, from /proc/vmstat
 @ mem.vmstat.slabs_scanned slab pages scanned
 Count of slab pages scanned since boot, from /proc/vmstat
+@ mem.vmstat.swap_ra count of swap pages readahead
+@ mem.vmstat.swap_ra_hit count of swap pages readahead that were used
 @ mem.vmstat.kswapd_steal pages reclaimed by kswapd
 Count of pages reclaimed by kswapd since boot, from /proc/vmstat
 @ mem.vmstat.kswapd_low_wmark_hit_quickly count of times low watermark reached quickly
@@ -1114,6 +1131,16 @@ Count of pages reclaimed via kswapd inode freeing since boot, from
 Count of kswapd calls to page reclaim since boot, from /proc/vmstat
 @ mem.vmstat.allocstall direct reclaim calls
 Count of direct reclaim calls since boot, from /proc/vmstat
+@ mem.vmstat.allocstall_dma direct dma memory reclaim calls
+Count of direct dma reclaim calls since boot, from /proc/vmstat
+@ mem.vmstat.allocstall_dma32 direct dma32 memory reclaim calls
+Count of direct dma32 reclaim calls since boot, from /proc/vmstat
+@ mem.vmstat.allocstall_high direct high memory reclaim calls
+Count of direct high mem reclaim calls since boot, from /proc/vmstat
+@ mem.vmstat.allocstall_movable direct movable memory reclaim calls
+Count of direct movable mem reclaim calls since boot, from /proc/vmstat
+@ mem.vmstat.allocstall_normal direct normal memory reclaim calls
+Count of direct normal mem reclaim calls since boot, from /proc/vmstat
 @ mem.vmstat.pgrotated pages rotated to tail of the LRU
 Count of pages rotated to tail of the LRU since boot, from /proc/vmstat
 @mem.vmstat.nr_anon_pages number of anonymous mapped pagecache pages
@@ -1138,11 +1165,13 @@ Count of huge TLB page buddy allocation failures, from /proc/vmstat
 Count of huge TLB page buddy allocation successes, from /proc/vmstat
 @ mem.vmstat.nr_active_anon number of active anonymous memory pages
 @ mem.vmstat.nr_active_file number of active file memory memory pages
+@ mem.vmstat.nr_file_pages number of file pages
 @ mem.vmstat.nr_free_pages number of free pages
 @ mem.vmstat.nr_inactive_anon number of inactive anonymous memory pages
 @ mem.vmstat.nr_inactive_file number of inactive file memory pages
 @ mem.vmstat.nr_isolated_anon number of isolated anonymous memory pages
 @ mem.vmstat.nr_isolated_file number of isolated file memory pages
+@ mem.vmstat.nr_kernel_misc_reclaimable number of misc reclaimable kernel pages
 @ mem.vmstat.nr_kernel_stack number of pages of kernel stack
 @ mem.vmstat.nr_mlock number of pages under mlock
 @ mem.vmstat.nr_shmem number of shared memory pages
@@ -1156,6 +1185,9 @@ Count of huge TLB page buddy allocation successes, from /proc/vmstat
 @ mem.vmstat.compact_success count of successful compactions for high order allocations
 @ mem.vmstat.thp_fault_alloc transparent huge page fault allocations
 @ mem.vmstat.thp_fault_fallback transparent huge page fault fallbacks
+@ mem.vmstat.thp_fault_fallback_charge transparent huge page fault fallback charges
+@ mem.vmstat.thp_file_alloc transparent huge page file allocations
+@ mem.vmstat.thp_file_mapped transparent huge page file mappings
 @ mem.vmstat.thp_collapse_alloc transparent huge page collapse allocations
 @ mem.vmstat.thp_collapse_alloc_failed transparent huge page collapse failures
 @ mem.vmstat.thp_split count of transparent huge page splits
@@ -1174,8 +1206,11 @@ Count of huge TLB page buddy allocation successes, from /proc/vmstat
 @ mem.vmstat.balloon_deflate number of virt guest balloon page deflations
 @ mem.vmstat.balloon_migrate number of virt guest balloon page migrations
 @ mem.vmstat.compact_daemon_wake number of times the memory compaction daemon was woken
-@ mem.vmstat.compact_free_scanned count of pages scanned for freeing by compaction daemon
-@ mem.vmstat.compact_migrate_scanned count of pages scanned for migration by compaction daemon
+@ mem.vmstat.compact_daemon_free_scanned count of pages scanned for migration by compaction daemon
+@ mem.vmstat.compact_daemon_migrate_scanned count of pages scanned for migration by compaction daemon
+@ mem.vmstat.compact_free_scanned count of pages scanned for freeing
+@ mem.vmstat.compact_isolated count of isolated compaction pages
+@ mem.vmstat.compact_migrate_scanned count of pages scanned for migration
 @ mem.vmstat.drop_pagecache count of calls to drop page cache pages
 @ mem.vmstat.drop_slab count of calls to drop slab cache pages
 @ mem.vmstat.nr_free_cma count of free Contiguous Memory Allocator pages
@@ -1186,6 +1221,7 @@ Count of huge TLB page buddy allocation successes, from /proc/vmstat
 @ mem.vmstat.numa_huge_pte_updates count of NUMA huge page table entry updates
 @ mem.vmstat.numa_hint_faults count of page migrations from NUMA PTE fault hints
 @ mem.vmstat.numa_hint_faults_local count of NUMA PTE fault hints satisfied locally
+@ mem.vmstat.oom_kill count of out-of-memory kills
 @ mem.vmstat.pglazyfreed count of pages lazily freed
 @ mem.vmstat.pgmigrate_fail count of unsuccessful NUMA page migrations
 @ mem.vmstat.pgmigrate_success count of successful NUMA page migrations
@@ -1194,14 +1230,19 @@ Count of huge TLB page buddy allocation successes, from /proc/vmstat
 @ mem.vmstat.thp_split_page_failed count of failures to split a huge page
 @ mem.vmstat.thp_split_pmd count of times a PMD was split into table of PTEs
 This can happen, for instance, when an application calls mprotect() or
-munmap() on part of huge page. It doesn't split huge page, only the page
-table entry.
+munmap() on part of huge page. It doesn't split the huge page, only the
+page table entry.
+@ mem.vmstat.thp_split_pud count of times a huge page PUD was split
+@ mem.vmstat.thp_swpout count of transparent huge page swapouts
+@ mem.vmstat.thp_swpout_fallback count of transparent huge page swapout fallbacks
 @ mem.vmstat.workingset_activate count of page activations to form the working set
+@ mem.vmstat.workingset_nodes count of NUMA nodes holding the working set
 @ mem.vmstat.workingset_nodereclaim count of NUMA node working set page reclaims
 @ mem.vmstat.workingset_refault count of refaults of previously evicted pages
+@ mem.vmstat.workingset_restore count of restored of previously evicted pages
 @ mem.vmstat.compact_isolated count of page isolations for memory compaction
 @ mem.vmstat.nr_shmem_hugepages number of huge pages used for shared memory
-@ mem.vmstat.nr_shmem_pmdmapped number of huge page PMD mappings
+@ mem.vmstat.nr_shmem_pmdmapped number of PMD mappings used for shared memory
 @ mem.vmstat.nr_zone_inactive_anon number of inactive anonymous memory pages in zones
 @ mem.vmstat.nr_zone_active_anon number of inactive file memory pages in zones
 @ mem.vmstat.nr_zone_inactive_file number of isolated anonymous memory pages in zones
@@ -1906,6 +1947,10 @@ See also the kernel.uname.* metrics
 @ hinv.cpu.cache_alignment Cache alignment for each CPU as reported by /proc/cpuinfo
 @ hinv.cpu.online CPU online state from /sys/devices/system/cpu/*/online
 @ hinv.node.online NUMA node online state from /sys/devices/system/node/*/online
+@ hinv.cpu.thermal_throttle.core.count CPU core throttles from /sys/devices/system/cpu/*/thermal_throttle
+@ hinv.cpu.thermal_throttle.core.time CPU core throttle time from /sys/devices/system/cpu/*/thermal_throttle
+@ hinv.cpu.thermal_throttle.package.count CPU package throttles from /sys/devices/system/cpu/*/thermal_throttle
+@ hinv.cpu.thermal_throttle.package.time CPU package throttle time from /sys/devices/system/cpu/*/thermal_throttle
 @ kernel.all.hz value of HZ (jiffies/second) for the currently running kernel
 @ kernel.all.uptime time the current kernel has been running
 @ kernel.all.idletime time the current kernel has been idle since boot
@@ -2229,3 +2274,46 @@ zram.mm_stat.data_size.compressed and this statistic.
 @ zram.bd_stat.count size of data written in backing device
 @ zram.bd_stat.reads the number of reads from backing device
 @ zram.bd_stat.writes the number of writes to backing device
+
+@ network.all.in.bytes network recv bytes from physical network interfaces
+Sum of bytes column on the "Receive" side of /proc/net/dev for network
+interfaces deemed to be 'physical' interfaces, using regular expression
+pattern described in the $PCP_SYSCONF_DIR/linux/interfaces.conf file.
+@ network.all.in.packets network recv packets from physical network interfaces
+Sum of packets column on the "Receive" side of /proc/net/dev for network
+interfaces deemed to be 'physical' interfaces, using regular expression
+pattern described in the $PCP_SYSCONF_DIR/linux/interfaces.conf file.
+@ network.all.in.errors network recv errors from physical network interfaces
+Sum of errors column on the "Receive" side of /proc/net/dev for network
+interfaces deemed to be 'physical' interfaces, using regular expression
+pattern described in the $PCP_SYSCONF_DIR/linux/interfaces.conf file.
+@ network.all.in.drops network recv drops from physical network interfaces
+Sum of drop column on the "Receive" side of /proc/net/dev for network
+interfaces deemed to be 'physical' interfaces, using regular expression
+pattern described in the $PCP_SYSCONF_DIR/linux/interfaces.conf file.
+
+@ network.all.out.bytes network bytes sent from physical network interfaces
+Sum of bytes column on the "Transmit" side of /proc/net/dev for network
+interfaces deemed to be 'physical' interfaces, using regular expression
+pattern described in the $PCP_SYSCONF_DIR/linux/interfaces.conf file.
+@ network.all.out.packets network packets sent from physical network interfaces
+Sum of packets column on the "Transmit" side of /proc/net/dev for network
+interfaces deemed to be 'physical' interfaces, using regular expression
+pattern described in the $PCP_SYSCONF_DIR/linux/interfaces.conf file.
+@ network.all.out.errors network send errors from physical network interfaces
+Sum of errors column on the "Transmit" side of /proc/net/dev for network
+interfaces deemed to be 'physical' interfaces, using regular expression
+pattern described in the $PCP_SYSCONF_DIR/linux/interfaces.conf file.
+@ network.all.out.drops network send drops from physical network interfaces
+Sum of drop column on the "Transmit" side of /proc/net/dev for network
+interfaces deemed to be 'physical' interfaces, using regular expression
+pattern described in the $PCP_SYSCONF_DIR/linux/interfaces.conf file.
+
+@ network.all.total.bytes total bytes on physical network interfaces
+Sum of network.all.in.bytes and network.all.out.bytes metrics.
+@ network.all.total.packets total packets on physical network interfaces
+Sum of network.all.in.packets and network.all.out.packets metrics.
+@ network.all.total.errors network errors on physical network interfaces
+Sum of network.all.in.errors and network.all.out.errors metrics.
+@ network.all.total.drops network drops on physical network interfaces
+Sum of network.all.in.drops and network.all.out.drops metrics.

@@ -89,15 +89,23 @@ PCP_VIRT_VAR_RUN_T="type virt_var_run_t; \# pmda.libvirt"
 PCP_VIRT_VAR_RUN_RULE="allow pcp_pmcd_t virt_var_run_t:sock_file write;"
 endif
 
+ifeq "$(PCP_SELINUX_PROC_SECURITY)" "true"
+PCP_PROC_SECURITY_T="type proc_security_t;"
+PCP_PROC_SECURITY_RULE="allow pcp_pmcd_t proc_security_t:file { getattr open read };"
+endif
+
 ifeq "$(PCP_SELINUX_CAP2_SYSLOG)" "true"
 PCP_CAP2_SYSLOG_CLASS="class capability2 { syslog };"
 PCP_CAP2_SYSLOG_RULE="allow pcp_pmcd_t self:capability2 syslog;"
 endif
 
 ifeq "$(PCP_SELINUX_ICMP_SOCKET)" "false"
+ifeq "$(PCP_SELINUX_RAWIP_SOCKET)" "true"
 PCP_RAWIP_SOCKET_CLASS="class rawip_socket { create getopt setopt read write }; \# pmda.netcheck"
 PCP_RAWIP_SOCKET_RULE="allow pcp_pmcd_t self:rawip_socket { create getopt setopt read write };"
 endif
+endif
+
 ifeq "$(PCP_SELINUX_ICMP_SOCKET)" "true"
 PCP_ICMP_SOCKET_CLASS="class icmp_socket { create getopt setopt read write }; \# pmda.netcheck"
 PCP_ICMP_SOCKET_RULE="allow pcp_pmcd_t self:icmp_socket { create getopt setopt read write };"

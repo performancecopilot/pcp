@@ -16,10 +16,16 @@ echo "QA output created by $seq"
 trap "_cleanup; rm -f $tmp.*; exit" 0 1 2 3 15
 
 _stop_auto_restart pmcd
+_stop_auto_restart pmlogger
 
 _cleanup()
 {
     _restore_auto_restart pmcd
+    _restore_auto_restart pmlogger
+   # these come from src/pmcdgone running _wait_for_pmlogger w/out $tmp
+   # being set ...
+   #
+   rm -f ._wait_for_pmlogger.host ._wait_for_pmlogger.pmlc
 }
 
 use_systemd=''

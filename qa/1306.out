@@ -28,7 +28,7 @@ FILTER: INCLUDE .*
 === pminfo listing. Note some labels in the pminfo listing have been removed, see _filter
 
 openmetrics.labelfiltering.metric1
-    labels {"agent":"openmetrics","source":"labelfiltering"}
+    labels {"agent":"openmetrics","foo":"abc","source":"labelfiltering"}
     inst [0 or "0 foo:abc"] value 1
     inst [0 or "0 foo:abc"] labels {"agent":"openmetrics","foo":"abc","instname":"0 foo:abc","source":"labelfiltering"}
 
@@ -37,12 +37,12 @@ openmetrics.labelfiltering.metric2
     value 8
 
 openmetrics.labelfiltering.metric3
-    labels {"agent":"openmetrics","source":"labelfiltering"}
+    labels {"abc":"0","agent":"openmetrics","source":"labelfiltering"}
     inst [0 or "0 abc:0"] value 458
     inst [0 or "0 abc:0"] labels {"abc":"0","agent":"openmetrics","instname":"0 abc:0","source":"labelfiltering"}
 
 openmetrics.labelfiltering.metric4
-    labels {"agent":"openmetrics","source":"labelfiltering"}
+    labels {"agent":"openmetrics","someoptionallabel":"not in instance name","source":"labelfiltering","xyz":"0"}
     inst [0 or "0 someoptionallabel:not in instance name xyz:0"] value 456
     inst [0 or "0 someoptionallabel:not in instance name xyz:0"] labels {"agent":"openmetrics","instname":"0 someoptionallabel:not in instance name xyz:0","someoptionallabel":"not in instance name","source":"labelfiltering","xyz":"0"}
 

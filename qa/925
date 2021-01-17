@@ -15,6 +15,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+NEEDREWRITE=$PCP_LOG_DIR/pmlogger/.NeedRewrite
+
 _cleanup()
 {
     if $needclean
@@ -24,6 +26,7 @@ _cleanup()
     fi
     cd $here
     $sudo rm -rf $tmp $tmp.*
+    [ -f $NEEDREWRITE.$seq ] && $sudo mv $NEEDREWRITE.$seq $NEEDREWRITE
 }
 
 _filter()
@@ -75,6 +78,8 @@ status=1	# failure is the default!
 needclean=true
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
+
+[ -f $NEEDREWRITE ] && $sudo mv $NEEDREWRITE $NEEDREWRITE.$seq
 
 # real QA test starts here
 cat <<End-of-File >$tmp.control

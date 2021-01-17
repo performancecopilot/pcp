@@ -9,7 +9,6 @@ bintray:
     deb_architecture: amd64
 
 container:
-  init: /usr/bin/systemd
   containerfile: |
     FROM docker.io/library/ubuntu:20.04
     RUN apt-get update && apt-get install -y systemd sudo
@@ -20,16 +19,16 @@ container:
     # pmcd will create the file /var/lib/pcp/pmns/stdpmid, which is required by QA tests
     RUN printf '#!/bin/sh\nexit 0\n' > /usr/sbin/policy-rc.d
 
+    CMD ["/usr/bin/systemd"]
+
 tasks:
   update: |
     sudo apt-get -y update
     sudo ACCEPT_EULA=Y DEBIAN_FRONTEND=noninteractive apt-get -y dist-upgrade
   install_build_dependencies: |
     sudo apt-get -y update
-    for pkg in $(./pcp/qa/admin/check-vm -fp)
-    do
-      sudo ACCEPT_EULA=Y DEBIAN_FRONTEND=noninteractive apt-get install -y "$pkg" || true
-    done
+    pkgs=$(./pcp/qa/admin/list-packages -m -v -x cpan -x pip3 -x not4ci)
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y $pkgs
   build: |
     cd ./pcp
     ./Makepkgs --nonrpm --verbose
@@ -43,11 +42,20 @@ tasks:
     sudo -i -u pcpqa ./check 002
   qa_sanity: |
     set -o pipefail
-    sudo -i -u pcpqa ./check -TT -g sanity -x not_in_container |& tee ./artifacts/test/test.log
+    if [ "$runner" = "container" ]; then
+      sudo -i -u pcpqa ./check -TT -g sanity -x not_in_ci -x not_in_container |& tee ./artifacts/test/test.log
+    else
+      sudo -i -u pcpqa ./check -TT -g sanity -x not_in_ci |& tee ./artifacts/test/test.log
+    fi
   qa: |
     set -o pipefail
-    sudo -i -u pcpqa ./check -TT -x not_in_container |& tee ./artifacts/test/test.log
+    if [ "$runner" = "container" ]; then
+      sudo -i -u pcpqa ./check -TT -x x11 -x remote -x not_in_ci -x not_in_container |& tee ./artifacts/test/test.log
+    else
+      sudo -i -u pcpqa ./check -TT -x x11 -x remote -x not_in_ci |& tee ./artifacts/test/test.log
+    fi
   copy_test_artifacts: |
     cp /var/lib/pcp/testsuite/check.timings ./artifacts/test
     [ $(awk 'END{print NF}' ./artifacts/test/check.timings) = 2 ] && date '+%s' >> ./artifacts/test/check.timings
+    shopt -s nullglob
     for test in /var/lib/pcp/testsuite/*.out.bad; do cp $test ${test/.out.bad/.full} ./artifacts/test || true; done

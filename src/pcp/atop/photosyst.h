@@ -160,8 +160,8 @@ struct	perintf {
 	count_t scarrier;/* transmit carrier                    */
 	count_t scompr; /* transmit compressed                  */
 
-	long 	speed;	/* interface speed in megabits/second	*/
-	long 	speedp;	/* previous interface speed 		*/
+	count_t	speed;	/* interface speed in megabits/second	*/
+	count_t	speedp;	/* previous interface speed 		*/
 	char	duplex;	/* full duplex (boolean) 		*/
 	char 	type;	/* interface type ('e'/'w'/'?')  	*/
 };

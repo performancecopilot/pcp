@@ -76,8 +76,8 @@ sample.bin ["bin-500"] 500.000 500.000 500.000 500.000 5 none
 sample.bin ["bin-300"] 300.000 300.000 300.000 300.000 8 none
 sample.drift  104.500 116.483 26.000 184.000 8 none
 hinv.ncpu  1.000 1.000 1.000 1.000 6 none
-pmcd.pmlogger.port [1318] 4331.000 4331.000 4331.000 4331.000 1 none
-pmcd.pmlogger.port [1342] 4331.000 4331.000 4331.000 4331.000 1 none
+pmcd.pmlogger.port ["1318"] 4331.000 4331.000 4331.000 4331.000 1 none
+pmcd.pmlogger.port ["1342"] 4331.000 4331.000 4331.000 4331.000 1 none
 pmcd.pmlogger.port ["1368"] 4331.000 4331.000 4331.000 4331.000 1 none
 
 === Bogus archive check ===

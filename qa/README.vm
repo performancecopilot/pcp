@@ -16,16 +16,11 @@ These notes should be read in conjunction with the README notes.
 (g) make sure there is no firewall, or if there is one the ports mentioned
     in qa/README (pmcd, pmlogger control, pmproxy, etc) are open
 (h) git clone the PCP tree
-(i) cd qa/admin and run check-vm until you're tired ...
-    - beware that check-vm -p only lists the first package ... there
-      may be more that one alternative, so check the output from check-vm
-      (without -p) for more details
-    - packages.manifest is a moving feast, so be prepared to take the
-      information there as a suggestion, rather than gospel truth
-    - the N/A packages are in two forms; generic for the platform
-      (in packages.manifest) and per-host in check-vm ... for a new
-      VM you'll only have the first and may need to make updates for
-      the second
+(i) cd qa/admin and run list-packages -p until you're tired ...
+    - the files in qa/admin/package-lists are the inventories for each
+      distribution, version and architecture we know about ... see the
+      README in that directory if you need to create a new package-list
+      file ... and send it back to us for inclusion, please
 
 If you're NOT going to run any of the -g remote tests, then you don't need
 steps (c) or (d).
@@ -78,11 +73,13 @@ Fedora
     # upgrade recipe from Fedora 21 onwards
     $ sudo dnf update --refresh; sudo dnf install dnf-plugin-system-upgrade
     $ sudo dnf install fedora-gpg-keys
+
     # if you get more than one release behind (I think) ... do this with
     # "32" replaced by the desired version number
     $ cd /etc/pki/rpm-gpg/
     $ sudo wget https://src.fedoraproject.org/rpms/fedora-repos/raw/master/f/RPM-GPG-KEY-fedora-32-primary
     $ sudo ln -s RPM-GPG-KEY-fedora-32-primary RPM-GPG-KEY-fedora-32-x86_64
+
     #                                                             for Fedora 26
     $ sudo dnf system-upgrade download --refresh --allowerasing --releasever=26
     $ sudo dnf system-upgrade reboot
@@ -125,6 +122,11 @@ CentOS
     19 Apr 2017: 6.0-6.7, 7.0-7.3
     25 Sep 2018: 6.*, 7.1-7.5
     # everything the same as RedHat
+    # promising CentOS 7 -> CentOS 8 upgrade recipe at
+      https://www.tecmint.com/upgrade-centos-7-to-centos-8/
+      but it does not work ... CentOS 8 needs to be a reinstall
+      then
+    # sudo dnf install epel-release -y
 
 openSUSE
     https://en.opensuse.org/Lifetime
@@ -308,8 +310,7 @@ Slackware
 
 Arch Linux
     https://www.archlinux.org/releng/releases/
-    04 Jan 2018: 2018.01.01 2017.12.01 2107.11.01
-    27 Jun 2016: 2016.06.01, 2016.05.01, 2016.04.01
+    05 Oct 2020: 2020.10.01 2020.09.01 2020.08.01
     # which packages are installed
     $ pacman -Q -i | sed -n -e '/^Name /s/.* : //p'
     # package search recipe (name and info or description)
@@ -321,14 +322,14 @@ Arch Linux
     $ sudo pacman -F -y (refresh files database) then
     $         pacman -F -l <package> (files in a package)
     $         pacman -F -o <fullpath> (package(s) owning a file)
-    $         pacman -F -s <regexp> (package(s) owning matching files)
-    # package install recipe
+    $         pacman -F -x <regexp> (package(s) owning matching files)
+    # package install recipe, always do 
+    $ sudo pacman -Syu
+    # then install the package ... never try to upgrade a package
     $ sudo pacman -S <package>
     # update all packages recipe
     $ sudo pacman -Sy archlinux-keyring
     $ sudo pacman -Syyu
-    # release upgrade recipe
-    $ ???
 
 OpenIndiana
     https://www.openindiana.org/download/

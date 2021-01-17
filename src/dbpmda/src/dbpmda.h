@@ -15,7 +15,6 @@
 
 #include "pmapi.h"
 #include "libpcp.h"
-#include "libpcp.h"
 #include "pmda.h"
 
 /* yacc/lex routines */
@@ -95,6 +94,20 @@ extern int timer;
 /* get descriptor for fetch or not */
 extern int get_desc;
 
+/* report instance names in pmResult, or not (use ???) */
+extern int get_iname;
+
 /* namespace pathnames */
 extern char *pmnsfile;
 extern char *cmd_namespace;
+
+/* garbage collection */
+extern void gc_add(void *);
+extern void gc_free(void);
+
+/* pid for daemon PMDA */
+extern pid_t pid;
+
+/* helper routines for instance id -> name lookup */
+extern char *dopmda_iname(pmInDom, int);
+extern char *dodso_iname(pmInDom, int);

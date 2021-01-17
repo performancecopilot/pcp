@@ -4680,98 +4680,98 @@ Simple gauge metric with some instances
 
 openmetrics.pmwebd_3_12_2.cgroup.blkio.all.throttle.io_service_bytes.async [Per-cgroup throttle async bytes transferred]
     Data Type: double  InDom: 144.18476 0x2400482c
-    Semantics: counter  Units: byte
+    Semantics: counter  Units: Kbyte
 Help:
 Per-cgroup throttle async bytes transferred
     inst [0 or "/"] value 321091796992
 
 openmetrics.pmwebd_3_12_2.cgroup.blkio.all.throttle.io_service_bytes.read [Per-cgroup throttle bytes transferred in reads]
     Data Type: double  InDom: 144.18473 0x24004829
-    Semantics: counter  Units: byte
+    Semantics: counter  Units: Kbyte
 Help:
 Per-cgroup throttle bytes transferred in reads
     inst [0 or "/"] value 320924024832
 
 openmetrics.pmwebd_3_12_2.cgroup.blkio.all.throttle.io_service_bytes.sync [Per-cgroup throttle sync bytes transferred]
     Data Type: double  InDom: 144.18475 0x2400482b
-    Semantics: counter  Units: byte
+    Semantics: counter  Units: Kbyte
 Help:
 Per-cgroup throttle sync bytes transferred
     inst [0 or "/"] value 0
 
 openmetrics.pmwebd_3_12_2.cgroup.blkio.all.throttle.io_service_bytes.total [Per-cgroup throttle total bytes transferred]
     Data Type: double  InDom: 144.18477 0x2400482d
-    Semantics: counter  Units: byte
+    Semantics: counter  Units: Kbyte
 Help:
 Per-cgroup throttle total bytes transferred
     inst [0 or "/"] value 321091796992
 
 openmetrics.pmwebd_3_12_2.cgroup.blkio.all.throttle.io_service_bytes.write [Per-cgroup throttle bytes transferred to disk in writes]
     Data Type: double  InDom: 144.18474 0x2400482a
-    Semantics: counter  Units: byte
+    Semantics: counter  Units: Kbyte
 Help:
 Per-cgroup throttle bytes transferred to disk in writes
     inst [0 or "/"] value 167772160
 
 openmetrics.pmwebd_3_12_2.cgroup.blkio.all.throttle.io_serviced.async [Per-cgroup throttle async operations serviced]
     Data Type: double  InDom: 144.18481 0x24004831
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
 Help:
 Per-cgroup throttle async operations serviced
     inst [0 or "/"] value 4745
 
 openmetrics.pmwebd_3_12_2.cgroup.blkio.all.throttle.io_serviced.read [Per-cgroup throttle read operations serviced]
     Data Type: double  InDom: 144.18478 0x2400482e
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
 Help:
 Per-cgroup throttle read operations serviced
     inst [0 or "/"] value 4737
 
 openmetrics.pmwebd_3_12_2.cgroup.blkio.all.throttle.io_serviced.sync [Per-cgroup throttle sync operations serviced]
     Data Type: double  InDom: 144.18480 0x24004830
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
 Help:
 Per-cgroup throttle sync operations serviced
     inst [0 or "/"] value 0
 
 openmetrics.pmwebd_3_12_2.cgroup.blkio.all.throttle.io_serviced.total [Per-cgroup total throttle operations serviced]
     Data Type: double  InDom: 144.18482 0x24004832
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
 Help:
 Per-cgroup total throttle operations serviced
     inst [0 or "/"] value 4745
 
 openmetrics.pmwebd_3_12_2.cgroup.blkio.all.throttle.io_serviced.write [Per-cgroup throttle write operations serviced]
     Data Type: double  InDom: 144.18479 0x2400482f
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
 Help:
 Per-cgroup throttle write operations serviced
     inst [0 or "/"] value 8
 
 openmetrics.pmwebd_3_12_2.cgroup.cpuacct.stat.system [Time spent by tasks of the cgroup in kernel mode]
     Data Type: double  InDom: 144.18435 0x24004803
-    Semantics: counter  Units: sec
+    Semantics: counter  Units: millisec
 Help:
 Time spent by tasks of the cgroup in kernel mode
     inst [0 or "/"] value 0.258
 
 openmetrics.pmwebd_3_12_2.cgroup.cpuacct.stat.user [Time spent by tasks of the cgroup in user mode]
     Data Type: double  InDom: 144.18434 0x24004802
-    Semantics: counter  Units: sec
+    Semantics: counter  Units: millisec
 Help:
 Time spent by tasks of the cgroup in user mode
     inst [0 or "/"] value 5.585
 
 openmetrics.pmwebd_3_12_2.cgroup.cpuacct.usage [CPU time consumed by processes in each cgroup]
     Data Type: double  InDom: 144.18432 0x24004800
-    Semantics: counter  Units: sec
+    Semantics: counter  Units: nanosec
 Help:
 CPU time consumed by processes in each cgroup
     inst [0 or "/"] value 59.30594183300001
 
 openmetrics.pmwebd_3_12_2.cgroup.cpuacct.usage_percpu [Per-CPU time consumed by processes in each cgroup]
     Data Type: double  InDom: 144.18433 0x24004801
-    Semantics: counter  Units: sec
+    Semantics: counter  Units: nanosec
 Help:
 Per-CPU time consumed by processes in each cgroup
     inst [0 or "/::cpu0"] value 16.560593627
@@ -4781,7 +4781,7 @@ Per-CPU time consumed by processes in each cgroup
 
 openmetrics.pmwebd_3_12_2.cgroup.memory.failcnt [Count of failures to allocate memory due to cgroup limit]
     Data Type: double  InDom: 144.18438 0x24004806
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
 Help:
 Count of failures to allocate memory due to cgroup limit
     inst [0 or "/"] value 27068
@@ -4837,28 +4837,28 @@ Bytes of mapped file (incl tmpfs/shmem)
 
 openmetrics.pmwebd_3_12_2.cgroup.memory.stat.pgfault [Total number of page faults]
     Data Type: double  InDom: 144.18447 0x2400480f
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
 Help:
 Total number of page faults
     inst [0 or "/"] value 207794
 
 openmetrics.pmwebd_3_12_2.cgroup.memory.stat.pgmajfault [Number of major page faults]
     Data Type: double  InDom: 144.18448 0x24004810
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
 Help:
 Number of major page faults
     inst [0 or "/"] value 196
 
 openmetrics.pmwebd_3_12_2.cgroup.memory.stat.pgpgin [Number of charging events to the memory cgroup]
     Data Type: double  InDom: 144.18445 0x2400480d
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
 Help:
 Number of charging events to the memory cgroup
     inst [0 or "/"] value 208514
 
 openmetrics.pmwebd_3_12_2.cgroup.memory.stat.pgpgout [Number of uncharging events to the memory cgroup]
     Data Type: double  InDom: 144.18446 0x2400480e
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
 Help:
 Number of uncharging events to the memory cgroup
     inst [0 or "/"] value 122925
@@ -4956,28 +4956,28 @@ Hierarchical, cumulative version of stat.mapped_file
 
 openmetrics.pmwebd_3_12_2.cgroup.memory.stat.total.pgfault [Hierarchical, cumulative version of stat.pgfault]
     Data Type: double  InDom: 144.18462 0x2400481e
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
 Help:
 Hierarchical, cumulative version of stat.pgfault
     inst [0 or "/"] value 207794
 
 openmetrics.pmwebd_3_12_2.cgroup.memory.stat.total.pgmajfault [Hierarchical, cumulative version of stat.pgmajfault]
     Data Type: double  InDom: 144.18463 0x2400481f
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
 Help:
 Hierarchical, cumulative version of stat.pgmajfault
     inst [0 or "/"] value 196
 
 openmetrics.pmwebd_3_12_2.cgroup.memory.stat.total.pgpgin [Hierarchical, cumulative version of stat.pgpgin]
     Data Type: double  InDom: 144.18460 0x2400481c
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
 Help:
 Hierarchical, cumulative version of stat.pgpgin
     inst [0 or "/"] value 208514
 
 openmetrics.pmwebd_3_12_2.cgroup.memory.stat.total.pgpgout [Hierarchical, cumulative version of stat.pgpgout]
     Data Type: double  InDom: 144.18461 0x2400481d
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
 Help:
 Hierarchical, cumulative version of stat.pgpgout
     inst [0 or "/"] value 122925
@@ -5057,7 +5057,7 @@ The Thing
 
 openmetrics.problematic_strings.test2 [The Other Thing]
     Data Type: double  InDom: 144.19457 0x24004c01
-    Semantics: instant  Units: none
+    Semantics: instant  Units: count
 Help:
 The Other Thing
     inst [0 or ""] value 0
@@ -5292,7 +5292,7 @@ The HTTP request latencies in microseconds.
 
 openmetrics.sample_pmda_3_12_2.sample.bigid [a metric with item number bigger then 2^9]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
+    Semantics: instant  Units: count
 Help:
 a metric with item number bigger then 2^9
     value 4194303
@@ -5349,7 +5349,7 @@ rate per second to set sample.const_rate.value, writable
 
 openmetrics.sample_pmda_3_12_2.sample.const_rate.value [constant rate counter]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
 Help:
 constant rate counter
     value 10485760
@@ -5363,7 +5363,7 @@ A control variable for the "sample" PMDA
 
 openmetrics.sample_pmda_3_12_2.sample.datasize [Space allocated for PMDA's data segment]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: byte
+    Semantics: instant  Units: Kbyte
 Help:
 Space allocated for PMDA's data segment
     value 0
@@ -5403,7 +5403,7 @@ like sample.bin but type DOUBLE
 
 openmetrics.sample_pmda_3_12_2.sample.double.bin_ctr [like sample.bin but type DOUBLE, SEM_COUNTER and SPACE_KBYTE]
     Data Type: double  InDom: 144.24650 0x2400604a
-    Semantics: counter  Units: byte
+    Semantics: counter  Units: Kbyte
 Help:
 like sample.bin but type DOUBLE, SEM_COUNTER and SPACE_KBYTE
     inst [0 or "bin-100"] value 102400
@@ -5496,7 +5496,7 @@ Elapsed time (seconds)
 
 openmetrics.sample_pmda_3_12_2.sample.dynamic.counter [counter metric with dynamic indom]
     Data Type: double  InDom: 144.24659 0x24006053
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
 Help:
 counter metric with dynamic indom
     inst [0 or "one"] value 1178
@@ -5504,7 +5504,7 @@ counter metric with dynamic indom
 
 openmetrics.sample_pmda_3_12_2.sample.dynamic.discrete [discrete metric with dynamic indom]
     Data Type: double  InDom: 144.24660 0x24006054
-    Semantics: discrete  Units: none
+    Semantics: discrete  Units: count
 Help:
 discrete metric with dynamic indom
     inst [0 or "one"] value 1178
@@ -5512,7 +5512,7 @@ discrete metric with dynamic indom
 
 openmetrics.sample_pmda_3_12_2.sample.dynamic.instant [instant metric with dynamic indom]
     Data Type: double  InDom: 144.24661 0x24006055
-    Semantics: instant  Units: none
+    Semantics: instant  Units: count
 Help:
 instant metric with dynamic indom
     inst [0 or "one"] value 1178
@@ -5520,28 +5520,28 @@ instant metric with dynamic indom
 
 openmetrics.sample_pmda_3_12_2.sample.dynamic.meta.pmdesc.indom [pmDesc.indom for sample.dynamic.meta.metric]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
+    Semantics: discrete  Units: count
 Help:
 pmDesc.indom for sample.dynamic.meta.metric
     value 4294967295
 
 openmetrics.sample_pmda_3_12_2.sample.dynamic.meta.pmdesc.sem [pmDesc.sem for sample.dynamic.meta.metric]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
+    Semantics: discrete  Units: count
 Help:
 pmDesc.sem for sample.dynamic.meta.metric
     value 4
 
 openmetrics.sample_pmda_3_12_2.sample.dynamic.meta.pmdesc.type [pmDesc.type for sample.dynamic.meta.metric]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
+    Semantics: discrete  Units: count
 Help:
 pmDesc.type for sample.dynamic.meta.metric
     value 0
 
 openmetrics.sample_pmda_3_12_2.sample.dynamic.meta.pmdesc.units [pmDesc.units for sample.dynamic.meta.metric]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
+    Semantics: discrete  Units: count
 Help:
 pmDesc.units for sample.dynamic.meta.metric
     value 520105984
@@ -5591,7 +5591,7 @@ like sample.bin but type FLOAT
 
 openmetrics.sample_pmda_3_12_2.sample.float.bin_ctr [like sample.bin but type FLOAT, SEM_COUNTER and SPACE_KBYTE]
     Data Type: double  InDom: 144.24643 0x24006043
-    Semantics: counter  Units: byte
+    Semantics: counter  Units: Kbyte
 Help:
 like sample.bin but type FLOAT, SEM_COUNTER and SPACE_KBYTE
     inst [0 or "bin-100"] value 102400
@@ -6646,7 +6646,7 @@ Help:
 
 openmetrics.sample_pmda_3_12_2.sample.kbyte_ctr [counter Kbytes/second]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: byte
+    Semantics: counter  Units: Kbyte
 Help:
 counter Kbytes/second
     value 2627584
@@ -6675,7 +6675,7 @@ like sample.bin but type 32
 
 openmetrics.sample_pmda_3_12_2.sample.long.bin_ctr [like sample.bin but type 32, SEM_COUNTER and SPACE_KBYTE]
     Data Type: double  InDom: 144.24615 0x24006027
-    Semantics: counter  Units: byte
+    Semantics: counter  Units: Kbyte
 Help:
 like sample.bin but type 32, SEM_COUNTER and SPACE_KBYTE
     inst [0 or "bin-100"] value 102400
@@ -6740,7 +6740,7 @@ like sample.bin but type 64
 
 openmetrics.sample_pmda_3_12_2.sample.longlong.bin_ctr [like sample.bin but type 64, SEM_COUNTER and SPACE_KBYTE]
     Data Type: double  InDom: 144.24629 0x24006035
-    Semantics: counter  Units: byte
+    Semantics: counter  Units: Kbyte
 Help:
 like sample.bin but type 64, SEM_COUNTER and SPACE_KBYTE
     inst [0 or "bin-100"] value 102400
@@ -6797,14 +6797,14 @@ Powers of two.
 
 openmetrics.sample_pmda_3_12_2.sample.many.count [number of instances in sample.many.int's domain]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
+    Semantics: instant  Units: count
 Help:
 number of instances in sample.many.int's domain
     value 5
 
 openmetrics.sample_pmda_3_12_2.sample.many.int [variable sized instance domain]
     Data Type: double  InDom: 144.24674 0x24006062
-    Semantics: instant  Units: none
+    Semantics: instant  Units: count
 Help:
 variable sized instance domain
     inst [0 or "i-0"] value 0
@@ -6815,7 +6815,7 @@ variable sized instance domain
 
 openmetrics.sample_pmda_3_12_2.sample.milliseconds [Elapsed time (milliseconds)]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: sec
+    Semantics: counter  Units: millisec
 Help:
 Elapsed time (milliseconds)
     value 770.782631
@@ -6924,70 +6924,70 @@ Several constant instances
 
 openmetrics.sample_pmda_3_12_2.sample.pdu [Total PDU count]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
 Help:
 Total PDU count
     value 3710
 
 openmetrics.sample_pmda_3_12_2.sample.percontext.control.active [Number of active PMAPI contexts]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
+    Semantics: instant  Units: count
 Help:
 Number of active PMAPI contexts
     value 1
 
 openmetrics.sample_pmda_3_12_2.sample.percontext.control.ctx [Number of PMAPI contexts seen]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
+    Semantics: instant  Units: count
 Help:
 Number of PMAPI contexts seen
     value 4
 
 openmetrics.sample_pmda_3_12_2.sample.percontext.control.end [Number of PMAPI contexts closed]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
+    Semantics: instant  Units: count
 Help:
 Number of PMAPI contexts closed
     value 1
 
 openmetrics.sample_pmda_3_12_2.sample.percontext.control.start [Number of new PMAPI contexts seen]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
+    Semantics: instant  Units: count
 Help:
 Number of new PMAPI contexts seen
     value 2
 
 openmetrics.sample_pmda_3_12_2.sample.percontext.pdu [Total PDU count for the client context]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
 Help:
 Total PDU count for the client context
     value 2993
 
 openmetrics.sample_pmda_3_12_2.sample.percontext.recv_pdu [Count of PDUs received from the client context]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
 Help:
 Count of PDUs received from the client context
     value 1497
 
 openmetrics.sample_pmda_3_12_2.sample.percontext.xmit_pdu [Count of PDUs transmitted]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
 Help:
 Count of PDUs transmitted
     value 1496
 
 openmetrics.sample_pmda_3_12_2.sample.rapid [count very quickly]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
 Help:
 count very quickly
     value 2400000000
 
 openmetrics.sample_pmda_3_12_2.sample.recv_pdu [Count of PDUs received]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
 Help:
 Count of PDUs received
     value 1856
@@ -7001,7 +7001,7 @@ count down by powers of 2, wrap back to 10 Tbytes at 1
 
 openmetrics.sample_pmda_3_12_2.sample.scale_step.count_down [count down by powers of 10, wrap back to 10e12 at 1]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
+    Semantics: instant  Units: count
 Help:
 count down by powers of 10, wrap back to 10e12 at 1
     value 1
@@ -7015,7 +7015,7 @@ count up dimensionless by multiples of 10, wrap back to 1 at 10 million
 
 openmetrics.sample_pmda_3_12_2.sample.scale_step.time_up_nanosecs [count up nanoseconds by multiples of 10, wrap back to 1 nanosecond at 1 day]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: sec
+    Semantics: instant  Units: nanosec
 Help:
 count up nanoseconds by multiples of 10, wrap back to 1 nanosecond at 1 day
     value 1e-09
@@ -7046,28 +7046,28 @@ Current state version and reset for sample.scramble.bin
 
 openmetrics.sample_pmda_3_12_2.sample.secret.foo.bar.four [dynamic *.secret.foo.bar.four metric]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
+    Semantics: instant  Units: count
 Help:
 dynamic *.secret.foo.bar.four metric
     value 4
 
 openmetrics.sample_pmda_3_12_2.sample.secret.foo.bar.grunt.five [dynamic *.secret.foo.bar.grunt.five metric]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
+    Semantics: instant  Units: count
 Help:
 dynamic *.secret.foo.bar.grunt.five metric
     value 5
 
 openmetrics.sample_pmda_3_12_2.sample.secret.foo.bar.grunt.snort.huff.puff.seven [dynamic *.secret.foo.bar.grunt.snort.huff.puff.seven metric]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
+    Semantics: instant  Units: count
 Help:
 dynamic *.secret.foo.bar.grunt.snort.huff.puff.seven metric
     value 7
 
 openmetrics.sample_pmda_3_12_2.sample.secret.foo.bar.grunt.snort.six [dynamic *.secret.foo.bar.grunt.snort.six metric]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
+    Semantics: instant  Units: count
 Help:
 dynamic *.secret.foo.bar.grunt.snort.six metric
     value 6
@@ -7093,35 +7093,35 @@ PMDA status
 
 openmetrics.sample_pmda_3_12_2.sample.secret.foo.bar.three [dynamic *.secret.foo.bar.three metric]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
+    Semantics: instant  Units: count
 Help:
 dynamic *.secret.foo.bar.three metric
     value 3
 
 openmetrics.sample_pmda_3_12_2.sample.secret.foo.one [dynamic *.secret.foo.one metric]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
+    Semantics: instant  Units: count
 Help:
 dynamic *.secret.foo.one metric
     value 1
 
 openmetrics.sample_pmda_3_12_2.sample.secret.foo.two [dynamic *.secret.foo.two metric]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
+    Semantics: instant  Units: count
 Help:
 dynamic *.secret.foo.two metric
     value 2
 
 openmetrics.sample_pmda_3_12_2.sample.step [A step function (instantaneous)]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
+    Semantics: instant  Units: count
 Help:
 A step function (instantaneous)
     value 520
 
 openmetrics.sample_pmda_3_12_2.sample.step_counter [A step function (counter)]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
 Help:
 A step function (counter)
     value 520
@@ -7143,7 +7143,7 @@ like sample.bin but type U32
 
 openmetrics.sample_pmda_3_12_2.sample.ulong.bin_ctr [like sample.bin but type U32, SEM_COUNTER and SPACE_KBYTE]
     Data Type: double  InDom: 144.24622 0x2400602e
-    Semantics: counter  Units: byte
+    Semantics: counter  Units: Kbyte
 Help:
 like sample.bin but type U32, SEM_COUNTER and SPACE_KBYTE
     inst [0 or "bin-100"] value 102400
@@ -7208,7 +7208,7 @@ like sample.bin but type U64
 
 openmetrics.sample_pmda_3_12_2.sample.ulonglong.bin_ctr [like sample.bin but type U64, SEM_COUNTER and SPACE_KBYTE]
     Data Type: double  InDom: 144.24636 0x2400603c
-    Semantics: counter  Units: byte
+    Semantics: counter  Units: Kbyte
 Help:
 like sample.bin but type U64, SEM_COUNTER and SPACE_KBYTE
     inst [0 or "bin-100"] value 102400
@@ -7286,14 +7286,14 @@ unsigned long long counter that wraps
 
 openmetrics.sample_pmda_3_12_2.sample.xmit_pdu [Count of PDUs transmitted]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
 Help:
 Count of PDUs transmitted
     value 1854
 
 openmetrics.sample_pmda_instname_5_0_0.sample.bigid [a metric with item number bigger then 2^9]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
+    Semantics: instant  Units: count
 Help:
 a metric with item number bigger then 2^9
     value 4194303
@@ -7350,7 +7350,7 @@ rate per second to set sample.const_rate.value, writable
 
 openmetrics.sample_pmda_instname_5_0_0.sample.const_rate.value [constant rate counter]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
 Help:
 constant rate counter
     value 10485760
@@ -7364,7 +7364,7 @@ A control variable for the "sample" PMDA
 
 openmetrics.sample_pmda_instname_5_0_0.sample.datasize [Space allocated for PMDA's data segment]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: byte
+    Semantics: instant  Units: Kbyte
 Help:
 Space allocated for PMDA's data segment
     value 0
@@ -7404,7 +7404,7 @@ like sample.bin but type DOUBLE
 
 openmetrics.sample_pmda_instname_5_0_0.sample.double.bin_ctr [like sample.bin but type DOUBLE, SEM_COUNTER and SPACE_KBYTE]
     Data Type: double  InDom: 144.25674 0x2400644a
-    Semantics: counter  Units: byte
+    Semantics: counter  Units: Kbyte
 Help:
 like sample.bin but type DOUBLE, SEM_COUNTER and SPACE_KBYTE
     inst [0 or "bin-100"] value 102400
@@ -7497,7 +7497,7 @@ Elapsed time (seconds)
 
 openmetrics.sample_pmda_instname_5_0_0.sample.dynamic.counter [counter metric with dynamic indom]
     Data Type: double  InDom: 144.25683 0x24006453
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
 Help:
 counter metric with dynamic indom
     inst [0 or "one"] value 1178
@@ -7505,7 +7505,7 @@ counter metric with dynamic indom
 
 openmetrics.sample_pmda_instname_5_0_0.sample.dynamic.discrete [discrete metric with dynamic indom]
     Data Type: double  InDom: 144.25684 0x24006454
-    Semantics: discrete  Units: none
+    Semantics: discrete  Units: count
 Help:
 discrete metric with dynamic indom
     inst [0 or "one"] value 1178
@@ -7513,7 +7513,7 @@ discrete metric with dynamic indom
 
 openmetrics.sample_pmda_instname_5_0_0.sample.dynamic.instant [instant metric with dynamic indom]
     Data Type: double  InDom: 144.25685 0x24006455
-    Semantics: instant  Units: none
+    Semantics: instant  Units: count
 Help:
 instant metric with dynamic indom
     inst [0 or "one"] value 1178
@@ -7521,28 +7521,28 @@ instant metric with dynamic indom
 
 openmetrics.sample_pmda_instname_5_0_0.sample.dynamic.meta.pmdesc.indom [pmDesc.indom for sample.dynamic.meta.metric]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
+    Semantics: discrete  Units: count
 Help:
 pmDesc.indom for sample.dynamic.meta.metric
     value 4294967295
 
 openmetrics.sample_pmda_instname_5_0_0.sample.dynamic.meta.pmdesc.sem [pmDesc.sem for sample.dynamic.meta.metric]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
+    Semantics: discrete  Units: count
 Help:
 pmDesc.sem for sample.dynamic.meta.metric
     value 4
 
 openmetrics.sample_pmda_instname_5_0_0.sample.dynamic.meta.pmdesc.type [pmDesc.type for sample.dynamic.meta.metric]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
+    Semantics: discrete  Units: count
 Help:
 pmDesc.type for sample.dynamic.meta.metric
     value 0
 
 openmetrics.sample_pmda_instname_5_0_0.sample.dynamic.meta.pmdesc.units [pmDesc.units for sample.dynamic.meta.metric]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
+    Semantics: discrete  Units: count
 Help:
 pmDesc.units for sample.dynamic.meta.metric
     value 520105984
@@ -7592,7 +7592,7 @@ like sample.bin but type FLOAT
 
 openmetrics.sample_pmda_instname_5_0_0.sample.float.bin_ctr [like sample.bin but type FLOAT, SEM_COUNTER and SPACE_KBYTE]
     Data Type: double  InDom: 144.25667 0x24006443
-    Semantics: counter  Units: byte
+    Semantics: counter  Units: Kbyte
 Help:
 like sample.bin but type FLOAT, SEM_COUNTER and SPACE_KBYTE
     inst [0 or "bin-100"] value 102400
@@ -8647,7 +8647,7 @@ Help:
 
 openmetrics.sample_pmda_instname_5_0_0.sample.kbyte_ctr [counter Kbytes/second]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: byte
+    Semantics: counter  Units: Kbyte
 Help:
 counter Kbytes/second
     value 2627584
@@ -8676,7 +8676,7 @@ like sample.bin but type 32
 
 openmetrics.sample_pmda_instname_5_0_0.sample.long.bin_ctr [like sample.bin but type 32, SEM_COUNTER and SPACE_KBYTE]
     Data Type: double  InDom: 144.25639 0x24006427
-    Semantics: counter  Units: byte
+    Semantics: counter  Units: Kbyte
 Help:
 like sample.bin but type 32, SEM_COUNTER and SPACE_KBYTE
     inst [0 or "bin-100"] value 102400
@@ -8741,7 +8741,7 @@ like sample.bin but type 64
 
 openmetrics.sample_pmda_instname_5_0_0.sample.longlong.bin_ctr [like sample.bin but type 64, SEM_COUNTER and SPACE_KBYTE]
     Data Type: double  InDom: 144.25653 0x24006435
-    Semantics: counter  Units: byte
+    Semantics: counter  Units: Kbyte
 Help:
 like sample.bin but type 64, SEM_COUNTER and SPACE_KBYTE
     inst [0 or "bin-100"] value 102400
@@ -8798,14 +8798,14 @@ Powers of two.
 
 openmetrics.sample_pmda_instname_5_0_0.sample.many.count [number of instances in sample.many.int's domain]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
+    Semantics: instant  Units: count
 Help:
 number of instances in sample.many.int's domain
     value 5
 
 openmetrics.sample_pmda_instname_5_0_0.sample.many.int [variable sized instance domain]
     Data Type: double  InDom: 144.25698 0x24006462
-    Semantics: instant  Units: none
+    Semantics: instant  Units: count
 Help:
 variable sized instance domain
     inst [0 or "i-0"] value 0
@@ -8816,7 +8816,7 @@ variable sized instance domain
 
 openmetrics.sample_pmda_instname_5_0_0.sample.milliseconds [Elapsed time (milliseconds)]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: sec
+    Semantics: counter  Units: millisec
 Help:
 Elapsed time (milliseconds)
     value 770.782631
@@ -8925,70 +8925,70 @@ Several constant instances
 
 openmetrics.sample_pmda_instname_5_0_0.sample.pdu [Total PDU count]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
 Help:
 Total PDU count
     value 3710
 
 openmetrics.sample_pmda_instname_5_0_0.sample.percontext.control.active [Number of active PMAPI contexts]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
+    Semantics: instant  Units: count
 Help:
 Number of active PMAPI contexts
     value 1
 
 openmetrics.sample_pmda_instname_5_0_0.sample.percontext.control.ctx [Number of PMAPI contexts seen]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
+    Semantics: instant  Units: count
 Help:
 Number of PMAPI contexts seen
     value 4
 
 openmetrics.sample_pmda_instname_5_0_0.sample.percontext.control.end [Number of PMAPI contexts closed]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
+    Semantics: instant  Units: count
 Help:
 Number of PMAPI contexts closed
     value 1
 
 openmetrics.sample_pmda_instname_5_0_0.sample.percontext.control.start [Number of new PMAPI contexts seen]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
+    Semantics: instant  Units: count
 Help:
 Number of new PMAPI contexts seen
     value 2
 
 openmetrics.sample_pmda_instname_5_0_0.sample.percontext.pdu [Total PDU count for the client context]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
 Help:
 Total PDU count for the client context
     value 2993
 
 openmetrics.sample_pmda_instname_5_0_0.sample.percontext.recv_pdu [Count of PDUs received from the client context]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
 Help:
 Count of PDUs received from the client context
     value 1497
 
 openmetrics.sample_pmda_instname_5_0_0.sample.percontext.xmit_pdu [Count of PDUs transmitted]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
 Help:
 Count of PDUs transmitted
     value 1496
 
 openmetrics.sample_pmda_instname_5_0_0.sample.rapid [count very quickly]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
 Help:
 count very quickly
     value 2400000000
 
 openmetrics.sample_pmda_instname_5_0_0.sample.recv_pdu [Count of PDUs received]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
 Help:
 Count of PDUs received
     value 1856
@@ -9002,7 +9002,7 @@ count down by powers of 2, wrap back to 10 Tbytes at 1
 
 openmetrics.sample_pmda_instname_5_0_0.sample.scale_step.count_down [count down by powers of 10, wrap back to 10e12 at 1]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
+    Semantics: instant  Units: count
 Help:
 count down by powers of 10, wrap back to 10e12 at 1
     value 1
@@ -9016,7 +9016,7 @@ count up dimensionless by multiples of 10, wrap back to 1 at 10 million
 
 openmetrics.sample_pmda_instname_5_0_0.sample.scale_step.time_up_nanosecs [count up nanoseconds by multiples of 10, wrap back to 1 nanosecond at 1 day]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: sec
+    Semantics: instant  Units: nanosec
 Help:
 count up nanoseconds by multiples of 10, wrap back to 1 nanosecond at 1 day
     value 1e-09
@@ -9047,28 +9047,28 @@ Current state version and reset for sample.scramble.bin
 
 openmetrics.sample_pmda_instname_5_0_0.sample.secret.foo.bar.four [dynamic *.secret.foo.bar.four metric]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
+    Semantics: instant  Units: count
 Help:
 dynamic *.secret.foo.bar.four metric
     value 4
 
 openmetrics.sample_pmda_instname_5_0_0.sample.secret.foo.bar.grunt.five [dynamic *.secret.foo.bar.grunt.five metric]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
+    Semantics: instant  Units: count
 Help:
 dynamic *.secret.foo.bar.grunt.five metric
     value 5
 
 openmetrics.sample_pmda_instname_5_0_0.sample.secret.foo.bar.grunt.snort.huff.puff.seven [dynamic *.secret.foo.bar.grunt.snort.huff.puff.seven metric]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
+    Semantics: instant  Units: count
 Help:
 dynamic *.secret.foo.bar.grunt.snort.huff.puff.seven metric
     value 7
 
 openmetrics.sample_pmda_instname_5_0_0.sample.secret.foo.bar.grunt.snort.six [dynamic *.secret.foo.bar.grunt.snort.six metric]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
+    Semantics: instant  Units: count
 Help:
 dynamic *.secret.foo.bar.grunt.snort.six metric
     value 6
@@ -9094,35 +9094,35 @@ PMDA status
 
 openmetrics.sample_pmda_instname_5_0_0.sample.secret.foo.bar.three [dynamic *.secret.foo.bar.three metric]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
+    Semantics: instant  Units: count
 Help:
 dynamic *.secret.foo.bar.three metric
     value 3
 
 openmetrics.sample_pmda_instname_5_0_0.sample.secret.foo.one [dynamic *.secret.foo.one metric]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
+    Semantics: instant  Units: count
 Help:
 dynamic *.secret.foo.one metric
     value 1
 
 openmetrics.sample_pmda_instname_5_0_0.sample.secret.foo.two [dynamic *.secret.foo.two metric]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
+    Semantics: instant  Units: count
 Help:
 dynamic *.secret.foo.two metric
     value 2
 
 openmetrics.sample_pmda_instname_5_0_0.sample.step [A step function (instantaneous)]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
+    Semantics: instant  Units: count
 Help:
 A step function (instantaneous)
     value 520
 
 openmetrics.sample_pmda_instname_5_0_0.sample.step_counter [A step function (counter)]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
 Help:
 A step function (counter)
     value 520
@@ -9144,7 +9144,7 @@ like sample.bin but type U32
 
 openmetrics.sample_pmda_instname_5_0_0.sample.ulong.bin_ctr [like sample.bin but type U32, SEM_COUNTER and SPACE_KBYTE]
     Data Type: double  InDom: 144.25646 0x2400642e
-    Semantics: counter  Units: byte
+    Semantics: counter  Units: Kbyte
 Help:
 like sample.bin but type U32, SEM_COUNTER and SPACE_KBYTE
     inst [0 or "bin-100"] value 102400
@@ -9209,7 +9209,7 @@ like sample.bin but type U64
 
 openmetrics.sample_pmda_instname_5_0_0.sample.ulonglong.bin_ctr [like sample.bin but type U64, SEM_COUNTER and SPACE_KBYTE]
     Data Type: double  InDom: 144.25660 0x2400643c
-    Semantics: counter  Units: byte
+    Semantics: counter  Units: Kbyte
 Help:
 like sample.bin but type U64, SEM_COUNTER and SPACE_KBYTE
     inst [0 or "bin-100"] value 102400
@@ -9287,13 +9287,72 @@ unsigned long long counter that wraps
 
 openmetrics.sample_pmda_instname_5_0_0.sample.xmit_pdu [Count of PDUs transmitted]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
 Help:
 Count of PDUs transmitted
     value 1854
 
+openmetrics.sample_pmda_pcp5_metadata.sample.colour [Metrics with a "saw-tooth" trend over time]
+    Data Type: 32-bit int  InDom: 144.26627 0x24006803
+    Semantics: instant  Units: none
+Help:
+Metrics with a "saw-tooth" trend over time
+    inst [0 or "red"] value 117
+    inst [1 or "green"] value 218
+    inst [2 or "blue"] value 319
+
+openmetrics.sample_pmda_pcp5_metadata.sample.control [A control variable for the "sample" PMDA]
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+A control variable for the "sample" PMDA
+    value 0
+
+openmetrics.sample_pmda_pcp5_metadata.sample.double.bin_ctr [like sample.bin but type DOUBLE, SEM_COUNTER and SPACE_KBYTE]
+    Data Type: double  InDom: 144.26626 0x24006802
+    Semantics: counter  Units: Kbyte
+Help:
+like sample.bin but type DOUBLE, SEM_COUNTER and SPACE_KBYTE
+    inst [0 or "bin-100"] value 100
+    inst [1 or "bin-200"] value 200
+    inst [2 or "bin-300"] value 300
+    inst [3 or "bin-400"] value 400
+    inst [4 or "bin-500"] value 500
+    inst [5 or "bin-600"] value 600
+    inst [6 or "bin-700"] value 700
+    inst [7 or "bin-800"] value 800
+    inst [8 or "bin-900"] value 900
+
+openmetrics.sample_pmda_pcp5_metadata.sample.float.one [1 as a 32-bit floating point value]
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+1 as a 32-bit floating point value
+    value 1
+
+openmetrics.sample_pmda_pcp5_metadata.sample.mirage_longlong [Simple saw-tooth rate, but instances come and go]
+    Data Type: 64-bit int  InDom: 144.26628 0x24006804
+    Semantics: instant  Units: byte / millisec
+Help:
+Simple saw-tooth rate, but instances come and go
+    inst [0 or "m-00"] value 80000000
+    inst [1 or "m-33"] value 3379000000
+    inst [2 or "m-36"] value 3678000000
+    inst [3 or "m-37"] value 3777000000
+    inst [4 or "m-38"] value 3876000000
+    inst [5 or "m-39"] value 3975000000
+    inst [6 or "m-40"] value 4074000000
+    inst [7 or "m-41"] value 4173000000
+
+openmetrics.sample_pmda_pcp5_metadata.sample.wrap.long [long counter that wraps]
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: none
+Help:
+long counter that wraps
+    value -344
+
 openmetrics.sample_prometheus_metrics.go_gc_duration_seconds [A summary of the GC invocation durations.]
-    Data Type: double  InDom: 144.26624 0x24006800
+    Data Type: double  InDom: 144.27648 0x24006c00
     Semantics: instant  Units: sec
 Help:
 A summary of the GC invocation durations.
@@ -9486,7 +9545,7 @@ Number of bytes obtained by system. Sum of all system allocations.
     value 133160936
 
 openmetrics.sample_prometheus_metrics.http_request_duration_microseconds [The HTTP request latencies in microseconds.]
-    Data Type: double  InDom: 144.26651 0x2400681b
+    Data Type: double  InDom: 144.27675 0x24006c1b
     Semantics: instant  Units: microsec
 Help:
 The HTTP request latencies in microseconds.
@@ -9552,7 +9611,7 @@ The HTTP request latencies in microseconds.
     inst [59 or "59 handler:version quantile:0.99"] value nan
 
 openmetrics.sample_prometheus_metrics.http_request_duration_microseconds_count [The HTTP request latencies in microseconds.]
-    Data Type: double  InDom: 144.26653 0x2400681d
+    Data Type: double  InDom: 144.27677 0x24006c1d
     Semantics: counter  Units: count
 Help:
 The HTTP request latencies in microseconds.
@@ -9578,7 +9637,7 @@ The HTTP request latencies in microseconds.
     inst [19 or "19 handler:version"] value 0
 
 openmetrics.sample_prometheus_metrics.http_request_duration_microseconds_sum [The HTTP request latencies in microseconds.]
-    Data Type: double  InDom: 144.26652 0x2400681c
+    Data Type: double  InDom: 144.27676 0x24006c1c
     Semantics: counter  Units: microsec
 Help:
 The HTTP request latencies in microseconds.
@@ -9604,7 +9663,7 @@ The HTTP request latencies in microseconds.
     inst [19 or "19 handler:version"] value 0
 
 openmetrics.sample_prometheus_metrics.http_request_size_bytes [The HTTP request sizes in bytes.]
-    Data Type: double  InDom: 144.26654 0x2400681e
+    Data Type: double  InDom: 144.27678 0x24006c1e
     Semantics: instant  Units: byte
 Help:
 The HTTP request sizes in bytes.
@@ -9670,7 +9729,7 @@ The HTTP request sizes in bytes.
     inst [59 or "59 handler:version quantile:0.99"] value nan
 
 openmetrics.sample_prometheus_metrics.http_request_size_bytes_count [The HTTP request sizes in bytes.]
-    Data Type: double  InDom: 144.26656 0x24006820
+    Data Type: double  InDom: 144.27680 0x24006c20
     Semantics: counter  Units: count
 Help:
 The HTTP request sizes in bytes.
@@ -9696,7 +9755,7 @@ The HTTP request sizes in bytes.
     inst [19 or "19 handler:version"] value 0
 
 openmetrics.sample_prometheus_metrics.http_request_size_bytes_sum [The HTTP request sizes in bytes.]
-    Data Type: double  InDom: 144.26655 0x2400681f
+    Data Type: double  InDom: 144.27679 0x24006c1f
     Semantics: counter  Units: byte
 Help:
 The HTTP request sizes in bytes.
@@ -9722,7 +9781,7 @@ The HTTP request sizes in bytes.
     inst [19 or "19 handler:version"] value 0
 
 openmetrics.sample_prometheus_metrics.http_requests_total [Total number of HTTP requests made.]
-    Data Type: double  InDom: 144.26657 0x24006821
+    Data Type: double  InDom: 144.27681 0x24006c21
     Semantics: counter  Units: none
 Help:
 Total number of HTTP requests made.
@@ -9736,7 +9795,7 @@ Total number of HTTP requests made.
     inst [7 or "7 code:200 handler:status method:get"] value 1
 
 openmetrics.sample_prometheus_metrics.http_response_size_bytes [The HTTP response sizes in bytes.]
-    Data Type: double  InDom: 144.26658 0x24006822
+    Data Type: double  InDom: 144.27682 0x24006c22
     Semantics: instant  Units: byte
 Help:
 The HTTP response sizes in bytes.
@@ -9802,7 +9861,7 @@ The HTTP response sizes in bytes.
     inst [59 or "59 handler:version quantile:0.99"] value nan
 
 openmetrics.sample_prometheus_metrics.http_response_size_bytes_count [The HTTP response sizes in bytes.]
-    Data Type: double  InDom: 144.26660 0x24006824
+    Data Type: double  InDom: 144.27684 0x24006c24
     Semantics: counter  Units: count
 Help:
 The HTTP response sizes in bytes.
@@ -9828,7 +9887,7 @@ The HTTP response sizes in bytes.
     inst [19 or "19 handler:version"] value 0
 
 openmetrics.sample_prometheus_metrics.http_response_size_bytes_sum [The HTTP response sizes in bytes.]
-    Data Type: double  InDom: 144.26659 0x24006823
+    Data Type: double  InDom: 144.27683 0x24006c23
     Semantics: counter  Units: byte
 Help:
 The HTTP response sizes in bytes.
@@ -9896,7 +9955,7 @@ Virtual memory size in bytes.
     value 170373120
 
 openmetrics.sample_prometheus_metrics.prometheus_build_info [A metric with a constant '1' value labeled by version, revision, branch, and goversion from which prometheus was built.]
-    Data Type: double  InDom: 144.26667 0x2400682b
+    Data Type: double  InDom: 144.27691 0x24006c2b
     Semantics: instant  Units: none
 Help:
 A metric with a constant '1' value labeled by version, revision, branch, and goversion from which prometheus was built.
@@ -9931,7 +9990,7 @@ The max number of concurrent queries.
     value 20
 
 openmetrics.sample_prometheus_metrics.prometheus_evaluator_duration_seconds [The duration of rule group evaluations.]
-    Data Type: double  InDom: 144.26672 0x24006830
+    Data Type: double  InDom: 144.27696 0x24006c30
     Semantics: instant  Units: sec
 Help:
 The duration of rule group evaluations.
@@ -9963,7 +10022,7 @@ The total number of rule group evaluations skipped due to throttled metric stora
     value 0
 
 openmetrics.sample_prometheus_metrics.prometheus_local_storage_checkpoint_duration_seconds [The duration in seconds taken for checkpointing open chunks and chunks yet to be persisted]
-    Data Type: double  InDom: 144.26676 0x24006834
+    Data Type: double  InDom: 144.27700 0x24006c34
     Semantics: instant  Units: sec
 Help:
 The duration in seconds taken for checkpointing open chunks and chunks yet to be persisted
@@ -10000,7 +10059,7 @@ The size of the last checkpoint of open chunks and chunks yet to be persisted
     value 1584792
 
 openmetrics.sample_prometheus_metrics.prometheus_local_storage_checkpoint_series_chunks_written [The number of chunk written per series while checkpointing open chunks and chunks yet to be persisted.]
-    Data Type: double  InDom: 144.26681 0x24006839
+    Data Type: double  InDom: 144.27705 0x24006c39
     Semantics: instant  Units: none
 Help:
 The number of chunk written per series while checkpointing open chunks and chunks yet to be persisted.
@@ -10030,7 +10089,7 @@ Help:
     value 0
 
 openmetrics.sample_prometheus_metrics.prometheus_local_storage_chunk_ops_total [The total number of chunk operations by their type.]
-    Data Type: double  InDom: 144.26685 0x2400683d
+    Data Type: double  InDom: 144.27709 0x24006c3d
     Semantics: counter  Units: none
 Help:
 The total number of chunk operations by their type.
@@ -10062,7 +10121,7 @@ A counter incremented each time an inconsistency in the local storage is detecte
     value 0
 
 openmetrics.sample_prometheus_metrics.prometheus_local_storage_indexing_batch_duration_seconds [Quantiles for batch indexing duration in seconds.]
-    Data Type: double  InDom: 144.26689 0x24006841
+    Data Type: double  InDom: 144.27713 0x24006c41
     Semantics: instant  Units: sec
 Help:
 Quantiles for batch indexing duration in seconds.
@@ -10085,7 +10144,7 @@ Quantiles for batch indexing duration in seconds.
     value 0
 
 openmetrics.sample_prometheus_metrics.prometheus_local_storage_indexing_batch_sizes [Quantiles for indexing batch sizes (number of metrics per batch).]
-    Data Type: double  InDom: 144.26692 0x24006844
+    Data Type: double  InDom: 144.27716 0x24006c44
     Semantics: instant  Units: none
 Help:
 Quantiles for indexing batch sizes (number of metrics per batch).
@@ -10129,7 +10188,7 @@ The total number of samples ingested.
     value 7177706
 
 openmetrics.sample_prometheus_metrics.prometheus_local_storage_maintain_series_duration_seconds [The duration in seconds it took to perform maintenance on a series.]
-    Data Type: double  InDom: 144.26698 0x2400684a
+    Data Type: double  InDom: 144.27722 0x24006c4a
     Semantics: instant  Units: sec
 Help:
 The duration in seconds it took to perform maintenance on a series.
@@ -10141,7 +10200,7 @@ The duration in seconds it took to perform maintenance on a series.
     inst [5 or "5 location:memory quantile:0.99"] value 0.371275481
 
 openmetrics.sample_prometheus_metrics.prometheus_local_storage_maintain_series_duration_seconds_count [The duration in seconds it took to perform maintenance on a series.]
-    Data Type: double  InDom: 144.26700 0x2400684c
+    Data Type: double  InDom: 144.27724 0x24006c4c
     Semantics: counter  Units: count
 Help:
 The duration in seconds it took to perform maintenance on a series.
@@ -10149,7 +10208,7 @@ The duration in seconds it took to perform maintenance on a series.
     inst [1 or "1 location:memory"] value 20978
 
 openmetrics.sample_prometheus_metrics.prometheus_local_storage_maintain_series_duration_seconds_sum [The duration in seconds it took to perform maintenance on a series.]
-    Data Type: double  InDom: 144.26699 0x2400684b
+    Data Type: double  InDom: 144.27723 0x24006c4b
     Semantics: counter  Units: sec
 Help:
 The duration in seconds it took to perform maintenance on a series.
@@ -10206,7 +10265,7 @@ How often a non-existent series was referred to during label matching or chunk p
     value 0
 
 openmetrics.sample_prometheus_metrics.prometheus_local_storage_out_of_order_samples_total [The total number of samples that were discarded because their timestamps were at or before the last received sample for a series.]
-    Data Type: double  InDom: 144.26708 0x24006854
+    Data Type: double  InDom: 144.27732 0x24006c54
     Semantics: counter  Units: none
 Help:
 The total number of samples that were discarded because their timestamps were at or before the last received sample for a series.
@@ -10242,7 +10301,7 @@ Help:
     value 0
 
 openmetrics.sample_prometheus_metrics.prometheus_local_storage_series_chunks_persisted_bucket [The number of chunks persisted per series.]
-    Data Type: double  InDom: 144.26713 0x24006859
+    Data Type: double  InDom: 144.27737 0x24006c59
     Semantics: counter  Units: count
 Help:
 The number of chunks persisted per series.
@@ -10271,7 +10330,7 @@ The number of chunks persisted per series.
     value 45157
 
 openmetrics.sample_prometheus_metrics.prometheus_local_storage_series_ops_total [The total number of series operations by their type.]
-    Data Type: double  InDom: 144.26716 0x2400685c
+    Data Type: double  InDom: 144.27740 0x24006c5c
     Semantics: counter  Units: none
 Help:
 The total number of series operations by their type.
@@ -10316,7 +10375,7 @@ The number of alert notifications in the queue.
     value 0
 
 openmetrics.sample_prometheus_metrics.prometheus_rule_evaluation_failures_total [The total number of rule evaluation failures.]
-    Data Type: double  InDom: 144.26721 0x24006861
+    Data Type: double  InDom: 144.27745 0x24006c61
     Semantics: counter  Units: none
 Help:
 The total number of rule evaluation failures.
@@ -10324,7 +10383,7 @@ The total number of rule evaluation failures.
     inst [1 or "1 rule_type:recording"] value 0
 
 openmetrics.sample_prometheus_metrics.prometheus_sd_azure_refresh_duration_seconds [The duration of a Azure-SD refresh in seconds.]
-    Data Type: double  InDom: 144.26722 0x24006862
+    Data Type: double  InDom: 144.27746 0x24006c62
     Semantics: instant  Units: sec
 Help:
 The duration of a Azure-SD refresh in seconds.
@@ -10354,7 +10413,7 @@ Number of Azure-SD refresh failures.
     value 0
 
 openmetrics.sample_prometheus_metrics.prometheus_sd_consul_rpc_duration_seconds [The duration of a Consul RPC call in seconds.]
-    Data Type: double  InDom: 144.26726 0x24006866
+    Data Type: double  InDom: 144.27750 0x24006c66
     Semantics: instant  Units: sec
 Help:
 The duration of a Consul RPC call in seconds.
@@ -10366,7 +10425,7 @@ The duration of a Consul RPC call in seconds.
     inst [5 or "5 call:services endpoint:catalog quantile:0.99"] value nan
 
 openmetrics.sample_prometheus_metrics.prometheus_sd_consul_rpc_duration_seconds_count [The duration of a Consul RPC call in seconds.]
-    Data Type: double  InDom: 144.26728 0x24006868
+    Data Type: double  InDom: 144.27752 0x24006c68
     Semantics: counter  Units: count
 Help:
 The duration of a Consul RPC call in seconds.
@@ -10374,7 +10433,7 @@ The duration of a Consul RPC call in seconds.
     inst [1 or "1 call:services endpoint:catalog"] value 0
 
 openmetrics.sample_prometheus_metrics.prometheus_sd_consul_rpc_duration_seconds_sum [The duration of a Consul RPC call in seconds.]
-    Data Type: double  InDom: 144.26727 0x24006867
+    Data Type: double  InDom: 144.27751 0x24006c67
     Semantics: counter  Units: sec
 Help:
 The duration of a Consul RPC call in seconds.
@@ -10403,7 +10462,7 @@ The number of DNS-SD lookups.
     value 0
 
 openmetrics.sample_prometheus_metrics.prometheus_sd_ec2_refresh_duration_seconds [The duration of a EC2-SD refresh in seconds.]
-    Data Type: double  InDom: 144.26732 0x2400686c
+    Data Type: double  InDom: 144.27756 0x24006c6c
     Semantics: instant  Units: sec
 Help:
 The duration of a EC2-SD refresh in seconds.
@@ -10440,7 +10499,7 @@ The number of File-SD read errors.
     value 0
 
 openmetrics.sample_prometheus_metrics.prometheus_sd_file_scan_duration_seconds [The duration of the File-SD scan in seconds.]
-    Data Type: double  InDom: 144.26737 0x24006871
+    Data Type: double  InDom: 144.27761 0x24006c71
     Semantics: instant  Units: sec
 Help:
 The duration of the File-SD scan in seconds.
@@ -10463,7 +10522,7 @@ The duration of the File-SD scan in seconds.
     value 0
 
 openmetrics.sample_prometheus_metrics.prometheus_sd_gce_refresh_duration [The duration of a GCE-SD refresh in seconds.]
-    Data Type: double  InDom: 144.26740 0x24006874
+    Data Type: double  InDom: 144.27764 0x24006c74
     Semantics: instant  Units: none
 Help:
 The duration of a GCE-SD refresh in seconds.
@@ -10493,7 +10552,7 @@ The number of GCE-SD refresh failures.
     value 0
 
 openmetrics.sample_prometheus_metrics.prometheus_sd_kubernetes_events_total [The number of Kubernetes events handled.]
-    Data Type: double  InDom: 144.26744 0x24006878
+    Data Type: double  InDom: 144.27768 0x24006c78
     Semantics: counter  Units: none
 Help:
 The number of Kubernetes events handled.
@@ -10511,7 +10570,7 @@ The number of Kubernetes events handled.
     inst [11 or "11 event:update role:service"] value 0
 
 openmetrics.sample_prometheus_metrics.prometheus_sd_marathon_refresh_duration_seconds [The duration of a Marathon-SD refresh in seconds.]
-    Data Type: double  InDom: 144.26745 0x24006879
+    Data Type: double  InDom: 144.27769 0x24006c79
     Semantics: instant  Units: sec
 Help:
 The duration of a Marathon-SD refresh in seconds.
@@ -10541,7 +10600,7 @@ The number of Marathon-SD refresh failures.
     value 0
 
 openmetrics.sample_prometheus_metrics.prometheus_sd_triton_refresh_duration_seconds [The duration of a Triton-SD refresh in seconds.]
-    Data Type: double  InDom: 144.26749 0x2400687d
+    Data Type: double  InDom: 144.27773 0x24006c7d
     Semantics: instant  Units: sec
 Help:
 The duration of a Triton-SD refresh in seconds.
@@ -10571,7 +10630,7 @@ The number of Triton-SD scrape failures.
     value 0
 
 openmetrics.sample_prometheus_metrics.prometheus_target_interval_length_seconds [Actual intervals between scrapes.]
-    Data Type: double  InDom: 144.26753 0x24006881
+    Data Type: double  InDom: 144.27777 0x24006c81
     Semantics: instant  Units: sec
 Help:
 Actual intervals between scrapes.
@@ -10582,21 +10641,21 @@ Actual intervals between scrapes.
     inst [4 or "4 interval:15s quantile:0.99"] value 15.000321589
 
 openmetrics.sample_prometheus_metrics.prometheus_target_interval_length_seconds_count [Actual intervals between scrapes.]
-    Data Type: double  InDom: 144.26755 0x24006883
+    Data Type: double  InDom: 144.27779 0x24006c83
     Semantics: counter  Units: count
 Help:
 Actual intervals between scrapes.
     inst [0 or "0 interval:15s"] value 14012
 
 openmetrics.sample_prometheus_metrics.prometheus_target_interval_length_seconds_sum [Actual intervals between scrapes.]
-    Data Type: double  InDom: 144.26754 0x24006882
+    Data Type: double  InDom: 144.27778 0x24006c82
     Semantics: counter  Units: sec
 Help:
 Actual intervals between scrapes.
     inst [0 or "0 interval:15s"] value 507078.1890832364
 
 openmetrics.sample_prometheus_metrics.prometheus_target_scrape_pool_sync_total [Total number of syncs that were executed on a scrape pool.]
-    Data Type: double  InDom: 144.26756 0x24006884
+    Data Type: double  InDom: 144.27780 0x24006c84
     Semantics: counter  Units: none
 Help:
 Total number of syncs that were executed on a scrape pool.
@@ -10617,7 +10676,7 @@ Total number of scrapes that were skipped because the metric storage was throttl
     value 0
 
 openmetrics.sample_prometheus_metrics.prometheus_target_sync_length_seconds [Actual interval to sync the scrape pool.]
-    Data Type: double  InDom: 144.26759 0x24006887
+    Data Type: double  InDom: 144.27783 0x24006c87
     Semantics: instant  Units: sec
 Help:
 Actual interval to sync the scrape pool.
@@ -10628,14 +10687,14 @@ Actual interval to sync the scrape pool.
     inst [4 or "4 quantile:0.99 scrape_job:prometheus"] value nan
 
 openmetrics.sample_prometheus_metrics.prometheus_target_sync_length_seconds_count [Actual interval to sync the scrape pool.]
-    Data Type: double  InDom: 144.26761 0x24006889
+    Data Type: double  InDom: 144.27785 0x24006c89
     Semantics: counter  Units: count
 Help:
 Actual interval to sync the scrape pool.
     inst [0 or "0 scrape_job:prometheus"] value 1
 
 openmetrics.sample_prometheus_metrics.prometheus_target_sync_length_seconds_sum [Actual interval to sync the scrape pool.]
-    Data Type: double  InDom: 144.26760 0x24006888
+    Data Type: double  InDom: 144.27784 0x24006c88
     Semantics: counter  Units: sec
 Help:
 Actual interval to sync the scrape pool.
@@ -10656,46 +10715,6 @@ The total number of ZooKeeper failures.
     value 0
 
 openmetrics.sh_script_no_suffix.some_metric000 [Simple gauge metric with some instances]
-    Data Type: double  InDom: 144.28672 0x24007000
-    Semantics: instant  Units: none
-Help:
-Simple gauge metric with some instances
-    inst [0 or "0 someinst:000"] value 0
-    inst [1 or "1 someinst:001"] value 0
-
-openmetrics.sh_script_no_suffix.some_metric001 [Simple gauge metric with some instances]
-    Data Type: double  InDom: 144.28673 0x24007001
-    Semantics: instant  Units: none
-Help:
-Simple gauge metric with some instances
-    inst [0 or "0 someinst:000"] value 0
-    inst [1 or "1 someinst:001"] value 1
-
-openmetrics.sh_script_no_suffix.some_metric002 [Simple gauge metric with some instances]
-    Data Type: double  InDom: 144.28674 0x24007002
-    Semantics: instant  Units: none
-Help:
-Simple gauge metric with some instances
-    inst [0 or "0 someinst:000"] value 0
-    inst [1 or "1 someinst:001"] value 2
-
-openmetrics.sh_script_no_suffix.some_metric003 [Simple gauge metric with some instances]
-    Data Type: double  InDom: 144.28675 0x24007003
-    Semantics: instant  Units: none
-Help:
-Simple gauge metric with some instances
-    inst [0 or "0 someinst:000"] value 0
-    inst [1 or "1 someinst:001"] value 3
-
-openmetrics.sh_script_no_suffix.some_metric004 [Simple gauge metric with some instances]
-    Data Type: double  InDom: 144.28676 0x24007004
-    Semantics: instant  Units: none
-Help:
-Simple gauge metric with some instances
-    inst [0 or "0 someinst:000"] value 0
-    inst [1 or "1 someinst:001"] value 4
-
-openmetrics.sh_scripted.some_metric000 [Simple gauge metric with some instances]
     Data Type: double  InDom: 144.29696 0x24007400
     Semantics: instant  Units: none
 Help:
@@ -10703,7 +10722,7 @@ Simple gauge metric with some instances
     inst [0 or "0 someinst:000"] value 0
     inst [1 or "1 someinst:001"] value 0
 
-openmetrics.sh_scripted.some_metric001 [Simple gauge metric with some instances]
+openmetrics.sh_script_no_suffix.some_metric001 [Simple gauge metric with some instances]
     Data Type: double  InDom: 144.29697 0x24007401
     Semantics: instant  Units: none
 Help:
@@ -10711,7 +10730,7 @@ Simple gauge metric with some instances
     inst [0 or "0 someinst:000"] value 0
     inst [1 or "1 someinst:001"] value 1
 
-openmetrics.sh_scripted.some_metric002 [Simple gauge metric with some instances]
+openmetrics.sh_script_no_suffix.some_metric002 [Simple gauge metric with some instances]
     Data Type: double  InDom: 144.29698 0x24007402
     Semantics: instant  Units: none
 Help:
@@ -10719,7 +10738,7 @@ Simple gauge metric with some instances
     inst [0 or "0 someinst:000"] value 0
     inst [1 or "1 someinst:001"] value 2
 
-openmetrics.sh_scripted.some_metric003 [Simple gauge metric with some instances]
+openmetrics.sh_script_no_suffix.some_metric003 [Simple gauge metric with some instances]
     Data Type: double  InDom: 144.29699 0x24007403
     Semantics: instant  Units: none
 Help:
@@ -10727,7 +10746,7 @@ Simple gauge metric with some instances
     inst [0 or "0 someinst:000"] value 0
     inst [1 or "1 someinst:001"] value 3
 
-openmetrics.sh_scripted.some_metric004 [Simple gauge metric with some instances]
+openmetrics.sh_script_no_suffix.some_metric004 [Simple gauge metric with some instances]
     Data Type: double  InDom: 144.29700 0x24007404
     Semantics: instant  Units: none
 Help:
@@ -10735,8 +10754,48 @@ Simple gauge metric with some instances
     inst [0 or "0 someinst:000"] value 0
     inst [1 or "1 someinst:001"] value 4
 
-openmetrics.simple_metric.metric1 [Simple gauge metric with three instances]
+openmetrics.sh_scripted.some_metric000 [Simple gauge metric with some instances]
     Data Type: double  InDom: 144.30720 0x24007800
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 0
+
+openmetrics.sh_scripted.some_metric001 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.30721 0x24007801
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 1
+
+openmetrics.sh_scripted.some_metric002 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.30722 0x24007802
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 2
+
+openmetrics.sh_scripted.some_metric003 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.30723 0x24007803
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 3
+
+openmetrics.sh_scripted.some_metric004 [Simple gauge metric with some instances]
+    Data Type: double  InDom: 144.30724 0x24007804
+    Semantics: instant  Units: none
+Help:
+Simple gauge metric with some instances
+    inst [0 or "0 someinst:000"] value 0
+    inst [1 or "1 someinst:001"] value 4
+
+openmetrics.simple_metric.metric1 [Simple gauge metric with three instances]
+    Data Type: double  InDom: 144.31744 0x24007c00
     Semantics: instant  Units: none
 Help:
 Simple gauge metric with three instances
@@ -10745,14 +10804,14 @@ Simple gauge metric with three instances
     inst [2 or "2 hig:246 xyz:something"] value 128
 
 openmetrics.simple_metric.metric2 [Simple gauge metric with one instance]
-    Data Type: double  InDom: 144.30721 0x24007801
+    Data Type: double  InDom: 144.31745 0x24007c01
     Semantics: instant  Units: none
 Help:
 Simple gauge metric with one instance
     inst [0 or "0 efg:0"] value 121
 
 openmetrics.stderr_check.stderr_check [Simple gauge metric with one instance]
-    Data Type: double  InDom: 144.31744 0x24007c00
+    Data Type: double  InDom: 144.32768 0x24008000
     Semantics: instant  Units: none
 Help:
 Simple gauge metric with one instance
@@ -10787,7 +10846,7 @@ CPU load for b5be5b9f_b0f1_47de_b436_27f167daf396
     value 0.6245374825293383
 
 openmetrics.thermostat.tms_jvm_gc_4099dd5b_8226_4c13_a697_5e669380060b_wallTime [GC Wall Time for 4099dd5b_8226_4c13_a697_5e669380060b]
-    Data Type: double  InDom: 144.32773 0x24008005
+    Data Type: double  InDom: 144.33797 0x24008405
     Semantics: instant  Units: none
 Help:
 GC Wall Time for 4099dd5b_8226_4c13_a697_5e669380060b
@@ -10795,7 +10854,7 @@ GC Wall Time for 4099dd5b_8226_4c13_a697_5e669380060b
     inst [1 or "1 collector_name:PSScavenge"] value 120532
 
 openmetrics.thermostat.tms_jvm_gc_44157db5_4922_49d0_89de_f20f8bf71ceb_wallTime [GC Wall Time for 44157db5_4922_49d0_89de_f20f8bf71ceb]
-    Data Type: double  InDom: 144.32770 0x24008002
+    Data Type: double  InDom: 144.33794 0x24008402
     Semantics: instant  Units: none
 Help:
 GC Wall Time for 44157db5_4922_49d0_89de_f20f8bf71ceb
@@ -10803,7 +10862,7 @@ GC Wall Time for 44157db5_4922_49d0_89de_f20f8bf71ceb
     inst [1 or "1 collector_name:PSScavenge"] value 4539165
 
 openmetrics.thermostat.tms_jvm_gc_641b7232_19dd_47ae_9cc1_8294b2a09774_wallTime [GC Wall Time for 641b7232_19dd_47ae_9cc1_8294b2a09774]
-    Data Type: double  InDom: 144.32774 0x24008006
+    Data Type: double  InDom: 144.33798 0x24008406
     Semantics: instant  Units: none
 Help:
 GC Wall Time for 641b7232_19dd_47ae_9cc1_8294b2a09774
@@ -10811,16 +10870,9 @@ GC Wall Time for 641b7232_19dd_47ae_9cc1_8294b2a09774
     inst [1 or "1 collector_name:CMS"] value 2932705
 
 openmetrics.thermostat.tms_jvm_gc_b5be5b9f_b0f1_47de_b436_27f167daf396_wallTime [GC Wall Time for b5be5b9f_b0f1_47de_b436_27f167daf396]
-    Data Type: double  InDom: 144.32769 0x24008001
+    Data Type: double  InDom: 144.33793 0x24008401
     Semantics: instant  Units: none
 Help:
 GC Wall Time for b5be5b9f_b0f1_47de_b436_27f167daf396
     inst [0 or "0 collector_name:Copy"] value 24462465
     inst [1 or "1 collector_name:MSC"] value 49519
-
-=== remove openmetrics agent ===
-Culling the Performance Metrics Name Space ...
-openmetrics ... done
-Updating the PMCD control file, and notifying PMCD ...
-[...removing files...]
-Check openmetrics metrics have gone away ... OK

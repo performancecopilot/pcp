@@ -27,7 +27,8 @@ $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-./1233 --valgrind
+./1233 --valgrind \
+| sed -e '/Command/s;/.*/pminfo;.../pminfo;'
 
 # success, all done
 status=0

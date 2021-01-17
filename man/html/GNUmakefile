@@ -29,8 +29,8 @@ default_pcp : $(SUBDIRS)
 install :: default_pcp install_pcp
 
 install_pcp : $(SUBDIRS)
-	$(INSTALL) -m 755 -d $(PCP_BOOKS_DIR)/html
-	$(INSTALL) -m 644 $(HTMLFILES) $(CSSFILES) $(PCP_BOOKS_DIR)/html
+	$(INSTALL) -m 755 -d $(PCP_HTML_DIR)
+	$(INSTALL) -m 644 $(HTMLFILES) $(CSSFILES) $(PCP_HTML_DIR)
 	$(SUBDIRS_MAKERULE)
 
 include $(BUILDRULES)

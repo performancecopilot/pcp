@@ -159,15 +159,15 @@ done
 echo
 echo "=== multi-volume case ==="
 cp $here/tmparch/mv-foo.* .
-cp mv-foo.2 mv-foo.123456789
+cp mv-foo.2 mv-foo.123
 pmlogmv -V mv-foo bar >$tmp.out 2>&1
 sts=$?
 _filter <$tmp.out
 [ $sts -eq 0 ] || echo exit status $sts
-for opart in 0 1 2 123456789 index meta
+for opart in 0 1 2 123 index meta
 do
     npart=$opart
-    [ "$opart" = 123456789 ] && opart=2
+    [ "$opart" = 123 ] && opart=2
     if cmp $here/tmparch/mv-foo.$opart bar.$npart
     then
 	:
@@ -226,9 +226,13 @@ chmod u+w,g+w,o+w .
 rm -rf mv-foo.* new
 
 echo
-echo "=== Frank's error case rm failing after first file ==="
+echo "=== Frank's error case rm failing after first file (can't happen anymore) ==="
+# as of Sep 2020 pmlogmv re-implemented in C and the link-count check that
+# triggered this issue is no longer part of the code
+#
 cp $here/tmparch/mv-foo.* .
-ln mv-foo.2 mv-foo.3
+chmod 0 mv-foo.2
+#ln mv-foo.2 mv-foo.3
 pmlogmv -V mv-foo mv-bar >$tmp.out 2>&1
 sts=$?
 _filter <$tmp.out

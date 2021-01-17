@@ -148,8 +148,8 @@ void	showtotproc(struct tstat *, double, int, int);
 void	showcmdproc(struct tstat *, double, int, int);
 
 void	printg     (const char *, ...);
-int	prisyst(struct sstat  *, int, int, int, int, struct sselection *,
+int	prisyst(struct sstat  *, int, double, int, int, struct sselection *,
 			char *, int, int, int, int, int, int, int, int, int);
 int	priproc(struct tstat  **, int, int, int, int, int, char, char,
-	        struct syscap *, int, int);
+	        struct syscap *, double, int);
 void	priphead(int, int, char *, char *, char);

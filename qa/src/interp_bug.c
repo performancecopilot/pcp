@@ -10,12 +10,12 @@
 #define N_PMID_A sizeof(metrics_a)/sizeof(metrics_a[0])
 #define N_PMID_B sizeof(metrics_b)/sizeof(metrics_b[0])
 
-static char *metrics_a[] = {
+static const char *metrics_a[] = {
     "sample.long.one",
     "kernel.all.syscall"
 };
 
-static char *metrics_b[] = {
+static const char *metrics_b[] = {
     "sample.long.one",
     "kernel.all.sysexec"
 };

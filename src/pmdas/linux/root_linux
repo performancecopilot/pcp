@@ -73,10 +73,26 @@ hinv.cpu {
     flags		60:18:10
     cache_alignment	60:18:11
     online		60:55:0
+    thermal_throttle
 }
 
 hinv.node {
     online		60:55:1
+}
+
+hinv.cpu.thermal_throttle {
+    core
+    package
+}
+
+hinv.cpu.thermal_throttle.core {
+    count		60:55:2
+    time		60:55:3
+}
+
+hinv.cpu.thermal_throttle.package {
+    count		60:55:4
+    time		60:55:5
 }
 
 kernel {
@@ -751,6 +767,7 @@ swap {
 }
 
 network {
+    all
     interface
     sockstat
     ip
@@ -772,6 +789,33 @@ network {
     rawconn6
     tcpconn6
     mptcp
+}
+
+network.all {
+    in
+    out
+    total
+}
+
+network.all.in {
+    bytes		60:90:0
+    packets		60:90:1
+    errors		60:90:2
+    drops		60:90:3
+}
+
+network.all.out {
+    bytes		60:90:4
+    packets		60:90:5
+    errors		60:90:6
+    drops		60:90:7
+}
+
+network.all.total {
+    bytes		60:90:8
+    packets		60:90:9
+    errors		60:90:10
+    drops		60:90:11
 }
 
 network.interface {
@@ -1442,13 +1486,21 @@ mem.slabinfo.slabs {
 mem.vmstat {
 	/* sorted by name to make maintenance easier */
 	allocstall			60:28:35
+	allocstall_dma			60:28:154
+	allocstall_dma32		60:28:155
+	allocstall_high			60:28:156
+	allocstall_movable		60:28:157
+	allocstall_normal		60:28:158
 	balloon_deflate			60:28:103
 	balloon_inflate			60:28:104
 	balloon_migrate			60:28:105
 	compact_blocks_moved		60:28:57
+	compact_daemon_free_scanned	60:28:159
+	compact_daemon_migrate_scanned	60:28:160
 	compact_daemon_wake 		60:28:106
 	compact_fail			60:28:58
 	compact_free_scanned		60:28:107
+	compact_isolated		60:28:126
 	compact_migrate_scanned		60:28:108
 	compact_pagemigrate_failed	60:28:59
 	compact_pages_moved		60:28:60
@@ -1472,18 +1524,26 @@ mem.vmstat {
 	nr_dirty			60:28:0
 	nr_dirty_background_threshold	60:28:92
 	nr_dirty_threshold		60:28:93
+	nr_file_hugepages		60:28:161
+	nr_file_pages			60:28:41
+	nr_file_pmdmapped		60:28:162
+	nr_foll_pin_acquired		60:28:163
+	nr_foll_pin_released		60:28:164
 	nr_free_cma			60:28:111
 	nr_free_pages			60:28:47
 	nr_inactive_anon		60:28:48
 	nr_inactive_file		60:28:49
 	nr_isolated_anon		60:28:50
 	nr_isolated_file		60:28:51
+	nr_kernel_misc_reclaimable	60:28:165
 	nr_kernel_stack			60:28:52
 	nr_mapped			60:28:4
 	nr_mlock			60:28:53
 	nr_pages_scanned		60:28:112
 	nr_page_table_pages		60:28:3
 	nr_shmem			60:28:54
+	nr_shmem_hugepages		60:28:127
+	nr_shmem_pmdmapped		60:28:128
 	nr_slab				60:28:5
 	nr_slab_reclaimable		60:28:37
 	nr_slab_unreclaimable		60:28:38
@@ -1494,6 +1554,13 @@ mem.vmstat {
 	nr_writeback			60:28:1
 	nr_writeback_temp		60:28:56
 	nr_written			60:28:94
+	nr_zone_active_anon		60:28:130
+	nr_zone_active_file		60:28:132
+	nr_zone_inactive_anon		60:28:129
+	nr_zone_inactive_file		60:28:131
+	nr_zone_unevictable		60:28:133
+	nr_zone_write_pending		60:28:134
+	nr_zspages			60:28:135
 	numa_foreign			60:28:95
 	numa_hint_faults		60:28:152
 	numa_hint_faults_local		60:28:153
@@ -1505,6 +1572,7 @@ mem.vmstat {
 	numa_other			60:28:100
 	numa_pages_migrated		60:28:114
 	numa_pte_updates		60:28:115
+	oom_kill			60:28:166
 	pageoutrun			60:28:34
 	pgactivate			60:28:14
 	pgalloc_dma			60:28:12
@@ -1543,6 +1611,7 @@ mem.vmstat {
 	pgscan_kswapd_normal		60:28:25
 	pgsteal_dma			60:28:23
 	pgsteal_dma32			60:28:71
+	pgsteal_file			60:28:167
 	pgsteal_high			60:28:21
 	pgsteal_movable			60:28:72
 	pgsteal_normal			60:28:22
@@ -1559,15 +1628,23 @@ mem.vmstat {
 	pswpin				60:28:8
 	pswpout				60:28:9
 	slabs_scanned			60:28:31
+	swap_ra				60:28:168
+	swap_ra_hit			60:28:169
 	thp_collapse_alloc		60:28:75
 	thp_collapse_alloc_failed	60:28:76
 	thp_deferred_split_page		60:28:119
 	thp_fault_alloc			60:28:73
 	thp_fault_fallback		60:28:74
+	thp_fault_fallback_charge	60:28:170
+	thp_file_alloc			60:28:136
+	thp_file_mapped			60:28:137
 	thp_split			60:28:77
 	thp_split_page			60:28:120
 	thp_split_page_failed		60:28:121
 	thp_split_pmd			60:28:122
+	thp_split_pud			60:28:171
+	thp_swpout			60:28:172
+	thp_swpout_fallback		60:28:173
 	thp_zero_page_alloc	 	60:28:101
 	thp_zero_page_alloc_failed 	60:28:102
 	unevictable_pgs_cleared		60:28:78
@@ -1579,21 +1656,11 @@ mem.vmstat {
 	unevictable_pgs_scanned		60:28:84
 	unevictable_pgs_stranded	60:28:85
 	workingset_activate		60:28:123
+	workingset_nodes		60:28:174
 	workingset_nodereclaim		60:28:124
 	workingset_refault		60:28:125
+	workingset_restore		60:28:175
 	zone_reclaim_failed		60:28:86
-	compact_isolated		60:28:126
-	nr_shmem_hugepages		60:28:127
-	nr_shmem_pmdmapped		60:28:128
-	nr_zone_inactive_anon		60:28:129
-	nr_zone_active_anon		60:28:130
-	nr_zone_inactive_file		60:28:131
-	nr_zone_active_file		60:28:132
-	nr_zone_unevictable		60:28:133
-	nr_zone_write_pending		60:28:134
-	nr_zspages			60:28:135
-	thp_file_alloc			60:28:136
-	thp_file_mapped			60:28:137
 }
 
 vfs {

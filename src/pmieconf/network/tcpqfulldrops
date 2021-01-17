@@ -1,6 +1,6 @@
 #pmieconf-rules 1
 # --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
-# 
+#
 
 rule	network.tcpqfulldrops
 	summary	= "$rule$"
@@ -40,5 +40,5 @@ string	email_expand
 	display	= no
 	modify	= no;
 
-# 
+#
 # --- DO NOT MODIFY THIS FILE --- see pmieconf(5)

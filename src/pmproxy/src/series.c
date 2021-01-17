@@ -85,8 +85,8 @@ static sds PARAM_ALIGN, PARAM_COUNT, PARAM_DELTA, PARAM_OFFSET,
 	   PARAM_BEGIN, PARAM_END, PARAM_RANGE, PARAM_ZONE;
 
 /* constant global strings (read-only) */
-static const char pmseries_success[] = "{\"success\":true}\r\n";
-static const char pmseries_failure[] = "{\"success\":false}\r\n";
+static const char pmseries_success[] = "\"success\":true";
+static const char pmseries_failure[] = "\"success\":false";
 
 static pmSeriesRestCommand *
 pmseries_lookup_rest_command(sds url)
@@ -177,6 +177,11 @@ on_pmseries_value(pmSID sid, pmSeriesValue *value, void *arg)
     sds			timestamp, series, quoted;
     sds			result = http_get_buffer(baton->client);
 
+    if (pmDebugOptions.query && pmDebugOptions.desperate)
+	fprintf(stderr, "on_pmseries_value: arg=%p %s %s %s\n",
+	    arg, value->timestamp, value->data, value->series);
+
+
     timestamp = value->timestamp;
     series = value->series;
     quoted = sdscatrepr(sdsempty(), value->data, sdslen(value->data));
@@ -240,8 +245,9 @@ on_pmseries_metric(pmSID sid, sds name, void *arg)
     pmSeriesBaton	*baton = (pmSeriesBaton *)arg;
     struct client	*client = baton->client;
     const char		*prefix;
-    sds			s, result = http_get_buffer(client);
+    sds			s, quoted, result = http_get_buffer(client);
 
+    quoted = sdscatrepr(sdsempty(), name, sdslen(name));
     if (sid == NULL) {	/* request for all metric names globally */
 	if (baton->values == 0) {
 	    result = push_client_identifier(baton, result);
@@ -250,7 +256,7 @@ on_pmseries_metric(pmSID sid, sds name, void *arg)
 	} else {
 	    prefix = ",";
 	}
-	result = sdscatfmt(result, "%s\"%S\"", prefix, name);
+	result = sdscatfmt(result, "%s%S", prefix, quoted);
     } else {
 	if ((s = baton->sid) == NULL) {	/* first series seem */
 	    baton->sid = sdsdup(sid);
@@ -268,9 +274,10 @@ on_pmseries_metric(pmSID sid, sds name, void *arg)
 	    }
 	    prefix = ",";
 	}
-	result = sdscatfmt(result, "%s{\"series\":\"%S\",\"name\":\"%S\"}",
-				prefix, sid, name);
+	result = sdscatfmt(result, "%s{\"series\":\"%S\",\"name\":%S}",
+				prefix, sid, quoted);
     }
+    sdsfree(quoted);
     baton->values++;	/* count of names for this series/request */
 
     http_set_buffer(client, result, HTTP_FLAG_JSON);
@@ -533,14 +540,27 @@ on_pmseries_done(int status, void *arg)
     http_code		code;
     sds			msg;
 
+    if (pmDebugOptions.query && pmDebugOptions.desperate)
+	fprintf(stderr, "on_pmseries_done: arg=%p status=%d\n", arg, status);
     if (status == 0) {
 	code = HTTP_STATUS_OK;
 	/* complete current response with JSON suffix if needed */
 	if ((msg = baton->suffix) == NULL) {	/* empty OK response */
 	    switch (baton->restkey) {
+	    case RESTKEY_LABELS:
+		if (baton->names != NULL) {
+		    /* the label values API method always returns an */
+		    /* object { labelName: [labelValues] } */
+		    if (baton->clientid)
+			msg = sdscatfmt(sdsempty(),
+				    "{\"client\":%S,\"result\":{}}\r\n",
+				    baton->clientid);
+		    else
+			msg = sdsnewlen("{}\r\n", 4);
+		    break;
+		}
 	    case RESTKEY_DESC:
 	    case RESTKEY_INSTS:
-	    case RESTKEY_LABELS:
 	    case RESTKEY_METRIC:
 	    case RESTKEY_VALUES:
 	    case RESTKEY_SOURCE:
@@ -554,12 +574,10 @@ on_pmseries_done(int status, void *arg)
 		break;
 
 	    default:			/* use success:true default */
+		msg = sdsnewlen("{", 1);
 		if (baton->clientid)
-		    msg = sdscatfmt(sdsempty(),
-				"{\"client\":%S,\"success\":%s}\r\n",
-				baton->clientid, "true");
-		else
-		    msg = sdsnewlen(pmseries_success, sizeof(pmseries_success) - 1);
+		    msg = sdscatfmt(msg, "\"client\":%S,", baton->clientid);
+		msg = sdscatfmt(msg, "%s}\r\n", pmseries_success);
 		break;
 	    }
 	}
@@ -567,15 +585,36 @@ on_pmseries_done(int status, void *arg)
     } else {
 	if (((code = client->u.http.parser.status_code)) == 0)
 	    code = HTTP_STATUS_BAD_REQUEST;
+	msg = sdsnewlen("{", 1);
 	if (baton->clientid)
-	    msg = sdscatfmt(sdsempty(),
-				"{\"client\":%S,\"success\":%s}\r\n",
-				baton->clientid, "false");
-	else
-	    msg = sdsnewlen(pmseries_failure, sizeof(pmseries_failure) - 1);
+	    msg = sdscatfmt(msg, "\"client\":%S,", baton->clientid);
+	msg = sdscatfmt(msg, "%s}\r\n", pmseries_failure);
 	flags |= HTTP_FLAG_JSON;
     }
     http_reply(client, msg, code, flags, options);
+}
+
+static void
+on_pmseries_error(pmLogLevel level, sds message, void *arg)
+{
+    pmSeriesBaton	*baton = (pmSeriesBaton *)arg;
+    struct client	*client = baton->client;
+    http_options	options = baton->options;
+    http_flags		flags = client->u.http.flags | HTTP_FLAG_JSON;
+    http_code		status_code;
+    sds			quoted, msg;
+
+    if (((status_code = client->u.http.parser.status_code)) == 0)
+	status_code = (level > PMLOG_REQUEST) ?
+		HTTP_STATUS_INTERNAL_SERVER_ERROR : HTTP_STATUS_BAD_REQUEST;
+    quoted = sdscatrepr(sdsempty(), message, sdslen(message));
+    msg = sdsnewlen("{", 1);
+    if (baton->clientid)
+	msg = sdscatfmt(msg, "\"client\":%S,", baton->clientid);
+    msg = sdscatfmt(msg, "\"message\":%S,%s}\r\n", quoted, pmseries_failure);
+    sdsfree(quoted);
+
+    http_reply(client, msg, status_code, flags, options);
 }
 
 static void
@@ -590,7 +629,11 @@ pmseries_log(pmLogLevel level, sds message, void *arg)
 {
     pmSeriesBaton	*baton = (pmSeriesBaton *)arg;
 
-    proxylog(level, message, baton->client->proxy);
+    /* locally log low priority diagnostics or when already responding */
+    if (level <= PMLOG_INFO || baton->suffix)
+	proxylog(level, message, baton->client->proxy);
+    else	/* inform client, complete request */
+	on_pmseries_error(level, message, baton);
 }
 
 static pmSeriesSettings pmseries_settings = {
@@ -615,7 +658,7 @@ pmseries_setup_request_parameters(struct client *client,
     enum http_method	method = client->u.http.parser.method;
     dictEntry		*entry;
     size_t		length;
-    sds			series, names;
+    sds			series, names, expr;
 
     if (parameters) {
 	/* allow all APIs to pass(-through) a 'client' parameter */
@@ -657,8 +700,13 @@ pmseries_setup_request_parameters(struct client *client,
 	    client->u.http.parser.status_code = HTTP_STATUS_BAD_REQUEST;
 	} else if (parameters != NULL &&
 	    (entry = dictFind(parameters, PARAM_EXPR)) != NULL) {
-	    baton->query = dictGetVal(entry);   /* get sds value */
-	    dictSetVal(parameters, entry, NULL);   /* claim this */
+	    expr = dictGetVal(entry);   /* get sds value */
+	    if (expr == NULL || sdslen(expr) == 0) {
+		client->u.http.parser.status_code = HTTP_STATUS_BAD_REQUEST;
+	    } else {
+		dictSetVal(parameters, entry, NULL);   /* claim this */
+		baton->query = expr;
+	    }
 	} else if (method != HTTP_POST) {
 	    client->u.http.parser.status_code = HTTP_STATUS_BAD_REQUEST;
 	}
@@ -671,8 +719,10 @@ pmseries_setup_request_parameters(struct client *client,
 	} else if (parameters != NULL &&
 	    (entry = dictFind(parameters, PARAM_SERIES)) != NULL) {
 	    series = dictGetVal(entry);
-	    length = sdslen(series);
-	    baton->sids = sdssplitlen(series, length, ",", 1, &baton->nsids);
+	    if (series == NULL || (length = sdslen(series)) == 0)
+		client->u.http.parser.status_code = HTTP_STATUS_BAD_REQUEST;
+	    else
+		baton->sids = sdssplitlen(series, length, ",", 1, &baton->nsids);
 	} else if (method != HTTP_POST) {
 	    client->u.http.parser.status_code = HTTP_STATUS_BAD_REQUEST;
 	}
@@ -686,8 +736,10 @@ pmseries_setup_request_parameters(struct client *client,
 	if (parameters != NULL) {
 	    if ((entry = dictFind(parameters, PARAM_SERIES)) != NULL) {
 		series = dictGetVal(entry);
-		length = sdslen(series);
-		baton->sids = sdssplitlen(series, length, ",", 1, &baton->nsids);
+		if (series == NULL || (length = sdslen(series)) == 0)
+		    client->u.http.parser.status_code = HTTP_STATUS_BAD_REQUEST;
+		else
+		    baton->sids = sdssplitlen(series, length, ",", 1, &baton->nsids);
 	    } else if ((entry = dictFind(parameters, PARAM_MATCH)) != NULL) {
 		baton->match = dictGetVal(entry);
 		baton->sids = &baton->match;
@@ -699,8 +751,10 @@ pmseries_setup_request_parameters(struct client *client,
 		entry = dictFind(parameters, PARAM_NAMES);	/* synonym */
 	    if (entry != NULL) {
 		names = dictGetVal(entry);
-		length = sdslen(names);
-		baton->names = sdssplitlen(names, length, ",", 1, &baton->nnames);
+		if (names == NULL || (length = sdslen(names)) == 0)
+		    client->u.http.parser.status_code = HTTP_STATUS_BAD_REQUEST;
+		else
+		    baton->names = sdssplitlen(names, length, ",", 1, &baton->nnames);
 	    }
 	}
 	break;
@@ -710,8 +764,10 @@ pmseries_setup_request_parameters(struct client *client,
 	if (parameters != NULL) {
 	    if ((entry = dictFind(parameters, PARAM_SOURCE)) != NULL) {
 		series = dictGetVal(entry);
-		length = sdslen(series);
-		baton->sids = sdssplitlen(series, length, ",", 1, &baton->nsids);
+		if (series == NULL || (length = sdslen(series)) == 0)
+		    client->u.http.parser.status_code = HTTP_STATUS_BAD_REQUEST;
+		else
+		    baton->sids = sdssplitlen(series, length, ",", 1, &baton->nsids);
 	    } else if ((entry = dictFind(parameters, PARAM_MATCH)) != NULL) {
 		baton->match = dictGetVal(entry);
 		baton->sids = &baton->match;

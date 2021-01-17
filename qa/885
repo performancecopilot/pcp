@@ -24,7 +24,7 @@ root=$tmp.root
 export LINUX_STATSPATH=$root
 pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init
 files=`echo $here/linux/cpuinfo-* | LC_COLLATE=POSIX sort`
-metrics=`pminfo hinv.cpu | grep -v hinv.cpu.online`
+metrics=`pminfo hinv.cpu | egrep -v 'online|thermal_throttle'`
 
 for file in $files
 do

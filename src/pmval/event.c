@@ -203,9 +203,9 @@ myeventdump(pmValueSet *vsp, int idx, int highres)
 	 * __pmRegisterAnon(), so the anonymous metrics
 	 * should now be in the PMNS
 	 */
-	char	*name_flags = "event.flags";
-	char	*name_missed = "event.missed";
-	int	sts;
+	const char	*name_flags = "event.flags";
+	const char	*name_missed = "event.missed";
+	int		sts;
 
 	sts = pmLookupName(1, &name_flags, &pmid_flags);
 	if (sts < 0) {

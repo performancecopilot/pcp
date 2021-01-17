@@ -21,6 +21,12 @@ _check_series
 which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
 
 full_hostname=`hostname`
+if echo "$full_hostname" | grep '\.' >/dev/null
+then
+    :
+else
+    _notrun "hostname -> $full_hostname, no domain name part"
+fi
 
 sasl_notrun_checks saslpasswd2 sasldblistusers2
 $pluginviewer -a | grep 'Plugin "sasldb"' >/dev/null

@@ -6,11 +6,12 @@ dbpmda> status
 
 Namespace:              (default)
 PMDA:                   ./pmdas/broken/broken_pmda_2_0
-Connection:             daemon
+Connection:             daemon (pid: PID)
 PMDA PMAPI Version:     2
 Debug options:          (none)
 Timer:                  off
 Getdesc:                off
+Getiname:               off
 
 Dump Instance Profile state=INCLUDE, 0 profiles
 
@@ -118,10 +119,10 @@ dbpmda> close
 dbpmda> quit
 Log started
 
-broken pmda Debug: pmdaInit: PMDA broken_pmda_2_0: Metric 0.0.1(1) matched to indom 249.0(0)
-broken pmda Debug: pmdaInit: PMDA broken_pmda_2_0: Metric 0.0.7(3) matched to indom 249.7(1)
-broken pmda Debug: pmdaInit: PMDA broken_pmda_2_0: Metric 0.0.13(8) matched to indom 249.7(1)
-broken pmda Debug: pmdaInit: PMDA broken_pmda_2_0: Metric 0.0.14(12) matched to indom 249.8(2)
+broken pmda Debug: pmdaInit: PMDA broken_pmda_2_0: Metric 249.0.1(1) matched to indom 249.0(0)
+broken pmda Debug: pmdaInit: PMDA broken_pmda_2_0: Metric 249.0.7(3) matched to indom 249.7(1)
+broken pmda Debug: pmdaInit: PMDA broken_pmda_2_0: Metric 249.0.13(8) matched to indom 249.7(1)
+broken pmda Debug: pmdaInit: PMDA broken_pmda_2_0: Metric 249.0.14(12) matched to indom 249.8(2)
 broken pmda Debug: pmdaInit: PMDA broken_pmda_2_0: help file pmdas/broken/broken_v2 opened
 broken pmda Warning: pmdaDirect: PMDA broken_pmda_2_0: Direct mapping for metrics disabled @ metrics[2] 249.0.5
 broken pmda Info: name        = broken_pmda_2_0
@@ -164,11 +165,12 @@ dbpmda> status
 
 Namespace:              (default)
 PMDA:                   ./pmdas/broken/broken_pmda_2_1
-Connection:             daemon
+Connection:             daemon (pid: PID)
 PMDA PMAPI Version:     2
 Debug options:          (none)
 Timer:                  off
 Getdesc:                off
+Getiname:               off
 
 Dump Instance Profile state=INCLUDE, 0 profiles
 
@@ -180,10 +182,10 @@ dbpmda> close
 dbpmda> quit
 Log started
 
-broken pmda Debug: pmdaInit: PMDA broken_pmda_2_1: Metric 0.0.1(1) matched to indom 249.0(0)
-broken pmda Debug: pmdaInit: PMDA broken_pmda_2_1: Metric 0.0.7(3) matched to indom 249.7(1)
-broken pmda Debug: pmdaInit: PMDA broken_pmda_2_1: Metric 0.0.13(8) matched to indom 249.7(1)
-broken pmda Critical: pmdaInit: PMDA broken_pmda_2_1: Undefined instance domain serial (17) specified in metric 0.1.4(12)
+broken pmda Debug: pmdaInit: PMDA broken_pmda_2_1: Metric 249.0.1(1) matched to indom 249.0(0)
+broken pmda Debug: pmdaInit: PMDA broken_pmda_2_1: Metric 249.0.7(3) matched to indom 249.7(1)
+broken pmda Debug: pmdaInit: PMDA broken_pmda_2_1: Metric 249.0.13(8) matched to indom 249.7(1)
+broken pmda Critical: pmdaInit: PMDA broken_pmda_2_1: Undefined instance domain serial (17) specified in metric 249.1.4(12)
 broken pmda Debug: pmdaConnect: PMDA broken_pmda_2_1: opened pipe to pmcd, infd = 0, outfd = 1
 broken pmda Error: PMDA Initialisation Failed
 
@@ -194,11 +196,12 @@ dbpmda> status
 
 Namespace:              (default)
 PMDA:                   ./pmdas/broken/broken_pmda_2_2
-Connection:             daemon
+Connection:             daemon (pid: PID)
 PMDA PMAPI Version:     2
 Debug options:          (none)
 Timer:                  off
 Getdesc:                off
+Getiname:               off
 
 Dump Instance Profile state=INCLUDE, 0 profiles
 
@@ -206,7 +209,7 @@ dbpmda> close
 dbpmda> quit
 Log started
 
-broken pmda Critical: pmdaInit: PMDA broken_pmda_2_2: Undefined instance domain serial (0) specified in metric 0.0.1(1)
+broken pmda Critical: pmdaInit: PMDA broken_pmda_2_2: Undefined instance domain serial (0) specified in metric 249.0.1(1)
 broken pmda Debug: pmdaConnect: PMDA broken_pmda_2_2: opened pipe to pmcd, infd = 0, outfd = 1
 broken pmda Error: PMDA Initialisation Failed
 
@@ -217,11 +220,12 @@ dbpmda> status
 
 Namespace:              (default)
 PMDA:                   ./pmdas/broken/broken_pmda_2_3
-Connection:             daemon
+Connection:             daemon (pid: PID)
 PMDA PMAPI Version:     2
 Debug options:          (none)
 Timer:                  off
 Getdesc:                off
+Getiname:               off
 
 Dump Instance Profile state=INCLUDE, 0 profiles
 
@@ -240,11 +244,12 @@ dbpmda> status
 
 Namespace:              (default)
 PMDA:                   ./pmdas/broken/broken_pmda_2_4
-Connection:             daemon
+Connection:             daemon (pid: PID)
 PMDA PMAPI Version:     2
 Debug options:          (none)
 Timer:                  off
 Getdesc:                off
+Getiname:               off
 
 Dump Instance Profile state=INCLUDE, 0 profiles
 
@@ -256,10 +261,10 @@ dbpmda> close
 dbpmda> quit
 Log started
 
-broken pmda Debug: pmdaInit: PMDA broken_pmda_2_4: Metric 0.0.1(1) matched to indom 249.0(0)
-broken pmda Debug: pmdaInit: PMDA broken_pmda_2_4: Metric 0.0.7(3) matched to indom 249.7(1)
-broken pmda Debug: pmdaInit: PMDA broken_pmda_2_4: Metric 0.0.13(8) matched to indom 249.7(1)
-broken pmda Debug: pmdaInit: PMDA broken_pmda_2_4: Metric 0.0.14(12) matched to indom 249.8(2)
+broken pmda Debug: pmdaInit: PMDA broken_pmda_2_4: Metric 249.0.1(1) matched to indom 249.0(0)
+broken pmda Debug: pmdaInit: PMDA broken_pmda_2_4: Metric 249.0.7(3) matched to indom 249.7(1)
+broken pmda Debug: pmdaInit: PMDA broken_pmda_2_4: Metric 249.0.13(8) matched to indom 249.7(1)
+broken pmda Debug: pmdaInit: PMDA broken_pmda_2_4: Metric 249.0.14(12) matched to indom 249.8(2)
 broken pmda Debug: pmdaInit: PMDA broken_pmda_2_4: help file pmdas/broken/broken_v2 opened
 broken pmda Warning: pmdaDirect: PMDA broken_pmda_2_4: Direct mapping for metrics disabled @ metrics[2] 249.0.5
 broken pmda Info: name        = broken_pmda_2_4
@@ -282,11 +287,12 @@ dbpmda> status
 
 Namespace:              (default)
 PMDA:                   ./pmdas/broken/broken_pmda_2_5
-Connection:             daemon
+Connection:             daemon (pid: PID)
 PMDA PMAPI Version:     unknown!
 Debug options:          (none)
 Timer:                  off
 Getdesc:                off
+Getiname:               off
 
 Dump Instance Profile state=INCLUDE, 0 profiles
 

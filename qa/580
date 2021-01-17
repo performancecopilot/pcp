@@ -40,8 +40,15 @@ _get_libpcp_config
 target="-h localhost"
 $unix_domain_sockets && target="-h unix:"
 
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
 status=1	# failure is the default!
-trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
 {
@@ -52,7 +59,9 @@ _filter()
 src/indom -i 15 kernel.all.load | _filter
 if [ $PCP_PLATFORM != darwin -a $PCP_PLATFORM != solaris -a $PCP_PLATFORM != freebsd ]
 then
+    echo "src/indom $target -i 1 proc.psinfo.pid" >> $here/$seq.full
     src/indom $target -i 1 proc.psinfo.pid \
+    | tee -a $here/$seq.full \
     | _filter \
     | sed 's/<0*1/<ONE/g;
 s,/etc/init ,init,g;
@@ -60,6 +69,7 @@ s,/etc/init,init,g;
 s,/sbin/init,init,g;
 s, /usr/lib/systemd/systemd\([ ">]\), init\1,;
 s, /lib/systemd/systemd\([ ">]\), init\1,;
+s, /bin/systemd\([ ">]\), init\1,;
 s,init[^>]*,init,g;'
    # Irix 6.2 has a space after the init, linux may have extra arguments
    # And on some Linux systems (e.g. Fedora 18), pid 1 is not init, but

@@ -99,22 +99,7 @@ bcc.disk.all.latency
 
 ## Web Frontend
 
-Many of the BCC PMDA modules have a corresponding Vector widget
-([Vector BCC Widgets](https://github.com/Netflix/vector/blob/master/src/app/charts/bcc.js)),
-for example:
-
-### tcplife
-
-Shows information about recently closed TCP sessions:
-
-![vector_tcplife](https://user-images.githubusercontent.com/538011/41207752-4e216ca2-6d1b-11e8-89c6-c34a42c62351.png)
-
-### profile
-
-Records stack traces at a specific interval, which will be rendered as a
-flamegraph in Vector:
-
-![profile](https://user-images.githubusercontent.com/538011/42831897-de7c8fca-89ef-11e8-9d35-59a89248d83c.png)
+All BCC PMDA modules can be visualized in Grafana, using the [grafana-pcp plugin](https://grafana-pcp.readthedocs.io).
 
 # Troubleshooting
 

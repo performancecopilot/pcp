@@ -1,0 +1,11 @@
+. $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/pmdaproc.sh
+
+iam=zfs
+daemon_opt=true
+pipe_opt=true
+pmns_source=root_zfs
+
+pmdaSetup
+pmdaInstall
+exit

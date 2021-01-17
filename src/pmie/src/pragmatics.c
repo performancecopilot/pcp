@@ -662,8 +662,8 @@ static int
 init(Metric *m, int reinit)
 {
     char	*hname;
-    char	*hconn = symName(m->hconn);
-    char	*mname = symName(m->mname);
+    const char	*hconn = symName(m->hconn);
+    const char	*mname = symName(m->mname);
     char	**inames;
     int		*iids;
     int		handle;

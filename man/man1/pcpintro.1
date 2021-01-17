@@ -951,7 +951,7 @@ $ pcp \-\-host pcps://app2.acme.com?container=cae8e6edc0d5
 $ pcp \-\-host pcps://nas1.acme.com:44321?username=tanya&method=gssapi
 $ pcp \-\-host pcps://nas2.acme.com@firewalls.r.us?method=plain
 $ pcp \-\-host pcp://nas3.acme.com
-$ pcp \-\-host 192.168.0.103?container=cae8e6edc0d5,method=digest-md5
+$ pcp \-\-host 192.168.0.103?container=cae8e6edc0d5,method=scram-sha-256
 $ pcp \-\-host unix:
 $ pcp \-\-host local:
 .ft R
@@ -1142,6 +1142,16 @@ Similar to the action of the -C option for
 .BR pmcd (1)
 and
 .BR pmproxy (1).
+.TP
+.B PCP_NSS_INIT_MODE
+Mode to use to initialize the NSS certificate database when using
+secure connections.
+This variable may be set to either
+.B readonly
+or
+.BR readwrite .
+If unset, the default is
+.BR readwrite .
 .TP
 .B PCP_STDERR
 Many PCP tools support the environment variable

@@ -1,0 +1,327 @@
+QA output created by 1874
+Start test Redis server ...
+PING
+PONG
+
+pmseries: [Info] processed 5 archive records from PATH/archives/proc
+== verify series sum (a + b) SID lookup
+kernel.all.load + kernel.all.load
+http://localhost:PROXYPORT/series/query?expr=kernel.all.load%20%2B%20kernel.all.load
+[
+    "16aa36d93e5cd0733499eee7dafc07dbb2ad7067"
+]
+== verify series sum (a + b) with samples
+kernel.all.load[samples:1] + kernel.all.load[samples:1]
+http://localhost:PROXYPORT/series/query?expr=kernel.all.load%5Bsamples%3A1%5D%20%2B%20kernel.all.load%5Bsamples%3A1%5D
+[
+    {
+        "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
+        "instance": "59181b1de54ff2b383cfd1cdd8636f86c880b69b",
+        "timestamp": 1317633024305.845,
+        "value": "0.000000e+00"
+    },
+    {
+        "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
+        "instance": "ab010c7d45145aa33c8f8fa681a68c9d4102ae19",
+        "timestamp": 1317633024305.845,
+        "value": "4.000000e-02"
+    },
+    {
+        "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
+        "instance": "9d418095c9f971ff4fd44d6828ead27f9d021dc3",
+        "timestamp": 1317633024305.845,
+        "value": "1.000000e-01"
+    }
+]
+== verify series sum (a + b) with samples by SID
+kernel.all.load + kernel.all.load
+http://localhost:PROXYPORT/series/values?series=16aa36d93e5cd0733499eee7dafc07dbb2ad7067&samples=1
+[
+    {
+        "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
+        "instance": "59181b1de54ff2b383cfd1cdd8636f86c880b69b",
+        "timestamp": 1317633022959.242,
+        "value": "0.000000e+00"
+    },
+    {
+        "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
+        "instance": "ab010c7d45145aa33c8f8fa681a68c9d4102ae19",
+        "timestamp": 1317633022959.242,
+        "value": "4.000000e-02"
+    },
+    {
+        "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
+        "instance": "9d418095c9f971ff4fd44d6828ead27f9d021dc3",
+        "timestamp": 1317633022959.242,
+        "value": "1.000000e-01"
+    }
+]
+http://localhost:PROXYPORT/series/descs?series=16aa36d93e5cd0733499eee7dafc07dbb2ad7067
+[
+    {
+        "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
+        "source": "0000000000000000000000000000000000000000",
+        "pmid": "511.0.0",
+        "indom": "60.2",
+        "semantics": "instant",
+        "type": "FLOAT",
+        "units": ""
+    }
+]
+http://localhost:PROXYPORT/series/metrics?series=16aa36d93e5cd0733499eee7dafc07dbb2ad7067
+[
+    {
+        "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
+        "name": "kernel.all.load+kernel.all.load"
+    }
+]
+http://localhost:PROXYPORT/series/instances?series=16aa36d93e5cd0733499eee7dafc07dbb2ad7067
+[
+    {
+        "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
+        "source": "2cd6a38f9339f2dd1f0b4775bda89a9e7244def6",
+        "instance": "59181b1de54ff2b383cfd1cdd8636f86c880b69b",
+        "id": 1,
+        "name": "1 minute"
+    },
+    {
+        "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
+        "source": "2cd6a38f9339f2dd1f0b4775bda89a9e7244def6",
+        "instance": "ab010c7d45145aa33c8f8fa681a68c9d4102ae19",
+        "id": 5,
+        "name": "5 minute"
+    },
+    {
+        "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
+        "source": "2cd6a38f9339f2dd1f0b4775bda89a9e7244def6",
+        "instance": "9d418095c9f971ff4fd44d6828ead27f9d021dc3",
+        "id": 15,
+        "name": "15 minute"
+    }
+]
+== verify series difference (a - b) SID lookup
+kernel.all.load - kernel.all.load
+http://localhost:PROXYPORT/series/query?expr=kernel.all.load%20-%20kernel.all.load
+[
+    "f29c38f54d5a3cb928496439760634617688036b"
+]
+== verify series difference (a - b) with samples
+kernel.all.load[samples:1] - kernel.all.load[samples:1]
+http://localhost:PROXYPORT/series/query?expr=kernel.all.load%5Bsamples%3A1%5D%20%2B%20kernel.all.load%5Bsamples%3A1%5D
+[
+    {
+        "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
+        "instance": "59181b1de54ff2b383cfd1cdd8636f86c880b69b",
+        "timestamp": 1317633024305.845,
+        "value": "0.000000e+00"
+    },
+    {
+        "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
+        "instance": "ab010c7d45145aa33c8f8fa681a68c9d4102ae19",
+        "timestamp": 1317633024305.845,
+        "value": "4.000000e-02"
+    },
+    {
+        "series": "16aa36d93e5cd0733499eee7dafc07dbb2ad7067",
+        "instance": "9d418095c9f971ff4fd44d6828ead27f9d021dc3",
+        "timestamp": 1317633024305.845,
+        "value": "1.000000e-01"
+    }
+]
+== verify series difference (a - b) with samples by SID
+kernel.all.load - kernel.all.load
+http://localhost:PROXYPORT/series/values?series=f29c38f54d5a3cb928496439760634617688036b&samples=1
+[
+    {
+        "series": "f29c38f54d5a3cb928496439760634617688036b",
+        "instance": "59181b1de54ff2b383cfd1cdd8636f86c880b69b",
+        "timestamp": 1317633022959.242,
+        "value": "0.000000e+00"
+    },
+    {
+        "series": "f29c38f54d5a3cb928496439760634617688036b",
+        "instance": "ab010c7d45145aa33c8f8fa681a68c9d4102ae19",
+        "timestamp": 1317633022959.242,
+        "value": "0.000000e+00"
+    },
+    {
+        "series": "f29c38f54d5a3cb928496439760634617688036b",
+        "instance": "9d418095c9f971ff4fd44d6828ead27f9d021dc3",
+        "timestamp": 1317633022959.242,
+        "value": "0.000000e+00"
+    }
+]
+http://localhost:PROXYPORT/series/descs?series=f29c38f54d5a3cb928496439760634617688036b
+[
+    {
+        "series": "f29c38f54d5a3cb928496439760634617688036b",
+        "source": "0000000000000000000000000000000000000000",
+        "pmid": "511.0.0",
+        "indom": "60.2",
+        "semantics": "instant",
+        "type": "FLOAT",
+        "units": ""
+    }
+]
+http://localhost:PROXYPORT/series/metrics?series=f29c38f54d5a3cb928496439760634617688036b
+[
+    {
+        "series": "f29c38f54d5a3cb928496439760634617688036b",
+        "name": "kernel.all.load-kernel.all.load"
+    }
+]
+http://localhost:PROXYPORT/series/instances?series=f29c38f54d5a3cb928496439760634617688036b
+[
+    {
+        "series": "f29c38f54d5a3cb928496439760634617688036b",
+        "source": "2cd6a38f9339f2dd1f0b4775bda89a9e7244def6",
+        "instance": "59181b1de54ff2b383cfd1cdd8636f86c880b69b",
+        "id": 1,
+        "name": "1 minute"
+    },
+    {
+        "series": "f29c38f54d5a3cb928496439760634617688036b",
+        "source": "2cd6a38f9339f2dd1f0b4775bda89a9e7244def6",
+        "instance": "ab010c7d45145aa33c8f8fa681a68c9d4102ae19",
+        "id": 5,
+        "name": "5 minute"
+    },
+    {
+        "series": "f29c38f54d5a3cb928496439760634617688036b",
+        "source": "2cd6a38f9339f2dd1f0b4775bda89a9e7244def6",
+        "instance": "9d418095c9f971ff4fd44d6828ead27f9d021dc3",
+        "id": 15,
+        "name": "15 minute"
+    }
+]
+== verify series function (floor(a)) SID lookup
+floor(kernel.all.load)
+http://localhost:PROXYPORT/series/query?expr=floor%28kernel.all.load%29
+[
+    "f2dbf7a113932b3371c8871df932603856d1d7b6"
+]
+== verify series function (floor(a)) with samples
+floor(kernel.all.load[samples:2])
+http://localhost:PROXYPORT/series/query?expr=floor%28kernel.all.load%5Bsamples%3A2%5D%29
+[
+    {
+        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
+        "instance": "59181b1de54ff2b383cfd1cdd8636f86c880b69b",
+        "timestamp": 1317633024305.845,
+        "value": "0.000000e+00"
+    },
+    {
+        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
+        "instance": "ab010c7d45145aa33c8f8fa681a68c9d4102ae19",
+        "timestamp": 1317633024305.845,
+        "value": "0.000000e+00"
+    },
+    {
+        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
+        "instance": "9d418095c9f971ff4fd44d6828ead27f9d021dc3",
+        "timestamp": 1317633024305.845,
+        "value": "0.000000e+00"
+    },
+    {
+        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
+        "instance": "59181b1de54ff2b383cfd1cdd8636f86c880b69b",
+        "timestamp": 1317633023802.930,
+        "value": "0.000000e+00"
+    },
+    {
+        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
+        "instance": "ab010c7d45145aa33c8f8fa681a68c9d4102ae19",
+        "timestamp": 1317633023802.930,
+        "value": "0.000000e+00"
+    },
+    {
+        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
+        "instance": "9d418095c9f971ff4fd44d6828ead27f9d021dc3",
+        "timestamp": 1317633023802.930,
+        "value": "0.000000e+00"
+    }
+]
+== verify series function (floor(a)) with samples by SID
+floor(kernel.all.load)
+http://localhost:PROXYPORT/series/values?series=f2dbf7a113932b3371c8871df932603856d1d7b6&samples=2
+[
+    {
+        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
+        "instance": "59181b1de54ff2b383cfd1cdd8636f86c880b69b",
+        "timestamp": 1317633022959.242,
+        "value": "0.000000e+00"
+    },
+    {
+        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
+        "instance": "ab010c7d45145aa33c8f8fa681a68c9d4102ae19",
+        "timestamp": 1317633022959.242,
+        "value": "0.000000e+00"
+    },
+    {
+        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
+        "instance": "9d418095c9f971ff4fd44d6828ead27f9d021dc3",
+        "timestamp": 1317633022959.242,
+        "value": "0.000000e+00"
+    },
+    {
+        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
+        "instance": "59181b1de54ff2b383cfd1cdd8636f86c880b69b",
+        "timestamp": 1317633023300.460,
+        "value": "0.000000e+00"
+    },
+    {
+        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
+        "instance": "ab010c7d45145aa33c8f8fa681a68c9d4102ae19",
+        "timestamp": 1317633023300.460,
+        "value": "0.000000e+00"
+    },
+    {
+        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
+        "instance": "9d418095c9f971ff4fd44d6828ead27f9d021dc3",
+        "timestamp": 1317633023300.460,
+        "value": "0.000000e+00"
+    }
+]
+http://localhost:PROXYPORT/series/descs?series=f2dbf7a113932b3371c8871df932603856d1d7b6
+[
+    {
+        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
+        "source": "0000000000000000000000000000000000000000",
+        "pmid": "511.0.0",
+        "indom": "60.2",
+        "semantics": "instant",
+        "type": "float",
+        "units": "none"
+    }
+]
+http://localhost:PROXYPORT/series/metrics?series=f2dbf7a113932b3371c8871df932603856d1d7b6
+[
+    {
+        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
+        "name": "floor(kernel.all.load)"
+    }
+]
+http://localhost:PROXYPORT/series/instances?series=f2dbf7a113932b3371c8871df932603856d1d7b6
+[
+    {
+        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
+        "source": "2cd6a38f9339f2dd1f0b4775bda89a9e7244def6",
+        "instance": "59181b1de54ff2b383cfd1cdd8636f86c880b69b",
+        "id": 1,
+        "name": "1 minute"
+    },
+    {
+        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
+        "source": "2cd6a38f9339f2dd1f0b4775bda89a9e7244def6",
+        "instance": "ab010c7d45145aa33c8f8fa681a68c9d4102ae19",
+        "id": 5,
+        "name": "5 minute"
+    },
+    {
+        "series": "f2dbf7a113932b3371c8871df932603856d1d7b6",
+        "source": "2cd6a38f9339f2dd1f0b4775bda89a9e7244def6",
+        "instance": "9d418095c9f971ff4fd44d6828ead27f9d021dc3",
+        "id": 15,
+        "name": "15 minute"
+    }
+]

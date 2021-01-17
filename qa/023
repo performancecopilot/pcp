@@ -95,6 +95,7 @@ $1 == "y" && $2 = "y" && $8 == "localhost" {
 s/^6 /N-OK /
 s/^8 /N-OK /
 s/^9 /N-OK /
+s/^15 /N-OK /
 s/^16 /N-OK /
 s/^17 /N-OK /
 s/^18 /N-OK /
@@ -126,6 +127,7 @@ cleanup()
     echo "pmcd.log at cleanup" >>$here/$seq.full
     cat pmcd.log >>$here/$seq.full
     cd $here
+    _change_config pmlogger on
     if $_needclean
     then
 	_needclean=false
@@ -138,7 +140,6 @@ cleanup()
 	[ -f $SAVE_LOGCONTROL ] && $sudo mv $SAVE_LOGCONTROL $LOGCONTROL
 	echo "=== restored $LOGCONTROL ===" >>$here/$seq.full
 	cat $LOGCONTROL >>$here/$seq.full
-	[ ! -z "$SAVE_LOGGER" ] && _change_config pmlogger $SAVE_LOGGER
 	echo "Restart and ping pmcd ..."
 	unset PMCD_PORT # don't worry about preserving just get rid of it
 	unset PMCD_SOCKET

@@ -4,6 +4,13 @@
 #
 # Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
 #
+# :not_in_ci:
+# 	This test depends on reasonable platform scheduler performance
+# 	and when pmie yields for the waiting for a back-off timeout,
+# 	pmie needs to run shortly after the timeout expires.
+#	We've seen evidence of a back-off of 5 seconds leading to a
+#	16 second delay before pmie runs again, and the test is doomed
+#	if this happens.
 
 seq=`basename $0`
 echo "QA output created by $seq"

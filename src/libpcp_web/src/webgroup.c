@@ -55,28 +55,43 @@ webgroups_lookup(pmWebGroupModule *module)
     return (struct webgroups *)module->privdata;
 }
 
+static int
+webgroup_deref_context(struct context *cp)
+{
+    if (cp == NULL)
+	return 1;
+    if (cp->refcount == 0)
+	return 0;
+    return (--cp->refcount > 0);
+}
+
 static void
 webgroup_release_context(uv_handle_t *handle)
 {
     struct context	*context = (struct context *)handle->data;
 
     if (pmDebugOptions.http || pmDebugOptions.libweb)
-	fprintf(stderr, "releasing context %p\n", context);
-
+	fprintf(stderr, "releasing context %p [refcount=%u]\n",
+			context, context->refcount);
     pmwebapi_free_context(context);
 }
 
 static void
-webgroup_destroy_context(struct context *context, struct webgroups *groups)
+webgroup_drop_context(struct context *context, struct webgroups *groups)
 {
-    context->garbage = 1;
     if (pmDebugOptions.http || pmDebugOptions.libweb)
-	fprintf(stderr, "destroying context %p\n", context);
+	fprintf(stderr, "destroying context %p [refcount=%u]\n",
+			context, context->refcount);
 
-    uv_timer_stop(&context->timer);
-    if (groups)
-	dictUnlink(groups->contexts, &context->randomid);
-    uv_close((uv_handle_t *)&context->timer, webgroup_release_context);
+    if (webgroup_deref_context(context) == 0) {
+	if (context->garbage == 0) {
+	    context->garbage = 1;
+	    uv_timer_stop(&context->timer);
+	}
+	if (groups)
+	    dictUnlink(groups->contexts, &context->randomid);
+	uv_close((uv_handle_t *)&context->timer, webgroup_release_context);
+    }
 }
 
 static void
@@ -84,12 +99,20 @@ webgroup_timeout_context(uv_timer_t *arg)
 {
     uv_handle_t		*handle = (uv_handle_t *)arg;
     struct context	*cp = (struct context *)handle->data;
-    struct webgroups	*gp = (struct webgroups *)cp->privdata;
 
     if (pmDebugOptions.http || pmDebugOptions.libweb)
 	fprintf(stderr, "context %u timed out (%p)\n", cp->randomid, cp);
 
-    webgroup_destroy_context(cp, gp);
+    /*
+     * Cannot free data structures in the timeout handler, as
+     * they may still be actively in use - wait until reference
+     * is returned to zero by the caller, or background cleanup
+     * finds this context and cleans it.
+     */
+    if (cp->refcount == 0 && cp->garbage == 0) {
+	cp->garbage = 1;
+	uv_timer_stop(&cp->timer);
+    }
 }
 
 static int
@@ -224,7 +247,7 @@ webgroup_new_context(pmWebGroupSettings *sp, dict *params,
     cp->setup = 1;
 
     if (pmDebugOptions.http || pmDebugOptions.libweb)
-	fprintf(stderr, "context %u new context setup (%p)\n", cp->randomid, cp);
+	fprintf(stderr, "new context[%d] setup (%p)\n", cp->randomid, cp);
 
     return cp;
 }
@@ -236,28 +259,36 @@ webgroup_use_context(struct context *cp, int *status, sds *message, void *arg)
     int			sts;
     struct webgroups    *gp = (struct webgroups *)cp->privdata;
 
-    if (pmDebugOptions.http || pmDebugOptions.libweb)
-	fprintf(stderr, "context %u timer set (%p) to %u msec\n",
-			cp->randomid, cp, cp->timeout);
-
-    /* if already started, uv_timer_start updates the timer */
-    uv_update_time(gp->events); /* see https://github.com/libuv/libuv/issues/1068 */
-    uv_timer_start(&cp->timer, webgroup_timeout_context, cp->timeout, 0);
-
-    if (cp->setup == 0) {
-	if ((sts = pmReconnectContext(cp->context)) < 0) {
-	    infofmt(*message, "cannot reconnect context: %s",
+    if (cp->garbage == 0) {
+	if (cp->setup == 0) {
+	    if ((sts = pmReconnectContext(cp->context)) < 0) {
+		infofmt(*message, "cannot reconnect context: %s",
+			pmErrStr_r(sts, errbuf, sizeof(errbuf)));
+		*status = sts;
+		return NULL;
+	    }
+	    cp->setup = 1;
+	}
+	if ((sts = pmUseContext(cp->context)) < 0) {
+	    infofmt(*message, "cannot use existing context: %s",
 			pmErrStr_r(sts, errbuf, sizeof(errbuf)));
 	    *status = sts;
 	    return NULL;
 	}
-	cp->setup = 1;
-    }
 
-    if ((sts = pmUseContext(cp->context)) < 0) {
-	infofmt(*message, "cannot use existing context: %s",
-			pmErrStr_r(sts, errbuf, sizeof(errbuf)));
-	*status = sts;
+	if (pmDebugOptions.http || pmDebugOptions.libweb)
+	    fprintf(stderr, "context %u timer set (%p) to %u msec\n",
+			cp->randomid, cp, cp->timeout);
+
+	/* refresh current time: https://github.com/libuv/libuv/issues/1068 */
+	uv_update_time(gp->events);
+
+	/* if already started, uv_timer_start updates the existing timer */
+	uv_timer_start(&cp->timer, webgroup_timeout_context, cp->timeout, 0);
+    } else {
+	infofmt(*message, "expired context identifier: %u", cp->randomid);
+	webgroup_drop_context(cp, gp);
+	*status = -ENOTCONN;
 	return NULL;
     }
 
@@ -290,20 +321,19 @@ webgroup_lookup_context(pmWebGroupSettings *sp, sds *id, dict *params,
 	    *status = -ENOTCONN;
 	    return NULL;
 	}
-	if (cp->garbage) {
-	    infofmt(*message, "expired context identifier: %u", key);
-	    *status = -ENOTCONN;
+	if (cp->garbage == 0) {
+	    access.username = cp->username;
+	    access.password = cp->password;
+	    access.realm = cp->realm;
+	    if (sp->callbacks.on_check &&
+		sp->callbacks.on_check(*id, &access, status, message, arg) < 0)
 	    return NULL;
 	}
-	access.username = cp->username;
-	access.password = cp->password;
-	access.realm = cp->realm;
-	if (sp->callbacks.on_check &&
-	    sp->callbacks.on_check(*id, &access, status, message, arg) < 0)
-	    return NULL;
     }
 
-    return webgroup_use_context(cp, status, message, arg);
+    if ((cp = webgroup_use_context(cp, status, message, arg)) != NULL)
+	cp->refcount++;
+    return cp;
 }
 
 int
@@ -331,6 +361,7 @@ pmWebGroupContext(pmWebGroupSettings *sp, sds id, dict *params, void *arg)
     }
 
     sp->callbacks.on_done(id, sts, msg, arg);
+    webgroup_deref_context(cp);
     sdsfree(msg);
     return sts;
 }
@@ -351,7 +382,7 @@ pmWebGroupDestroy(pmWebGroupSettings *settings, sds id, void *arg)
 	if (pmDebugOptions.libweb)
 	    fprintf(stderr, "%s: destroy context %p gp=%p\n", "pmWebGroupDestroy", cp, gp);
 
-	webgroup_destroy_context(cp, gp);
+	webgroup_drop_context(cp, gp);
     }
     sdsfree(msg);
 }
@@ -471,6 +502,7 @@ pmWebGroupDerive(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 
 done:
     settings->callbacks.on_done(id, sts, msg, arg);
+    webgroup_deref_context(cp);
     sdsfree(msg);
 }
 
@@ -677,7 +709,7 @@ webgroup_lookup_metric(pmWebGroupSettings *settings, context_t *cp, sds name, vo
 
     if ((mp = dictFetchValue(cp->metrics, name)) != NULL)
 	return mp;
-    if ((sts = pmLookupName(1, &name, &pmid)) < 0) {
+    if ((sts = pmLookupName(1, (const char **)&name, &pmid)) < 0) {
 	if (sts == PM_ERR_IPC)
 	    cp->setup = 0;
 	if (pmDebugOptions.libweb)
@@ -694,10 +726,10 @@ webgroup_fetch_names(pmWebGroupSettings *settings, context_t *cp, int fail,
 	sds *message, void *arg)
 {
     struct metric	*metric;
-    int			i, status = 0;
+    int			i, sts = 0;
 
-    if (webgroup_use_context(cp, &status, message, arg) == NULL)
-	return status;
+    if (webgroup_use_context(cp, &sts, message, arg) == NULL)
+	return sts;
 
     for (i = 0; i < numnames; i++) {
 	metric = mplist[i] = webgroup_lookup_metric(settings, cp, names[i], arg);
@@ -714,10 +746,10 @@ webgroup_fetch_pmids(pmWebGroupSettings *settings, context_t *cp, int fail,
 	sds *message, void *arg)
 {
     struct metric	*metric;
-    int			i, status = 0;
+    int			i, sts = 0;
 
-    if (webgroup_use_context(cp, &status, message, arg) == NULL)
-	return status;
+    if (webgroup_use_context(cp, &sts, message, arg) == NULL)
+	return sts;
 
     for (i = 0; i < numpmids; i++) {
 	metric = mplist[i] = webgroup_lookup_pmid(settings, cp, names[i], arg);
@@ -805,6 +837,7 @@ pmWebGroupFetch(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 
 done:
     settings->callbacks.on_done(id, sts, msg, arg);
+    webgroup_deref_context(cp);
     sdsfree(msg);
 }
 
@@ -993,7 +1026,7 @@ profile:
 extern void
 pmWebGroupProfile(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 {
-    struct context	*cp;
+    struct context	*cp = NULL;
     struct metric	*mp;
     struct indom	*ip;
     enum profile	profile = PROFILE_DEL;
@@ -1072,6 +1105,7 @@ pmWebGroupProfile(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 
 done:
     settings->callbacks.on_done(id, sts, msg, arg);
+    webgroup_deref_context(cp);
     sdsfree(msg);
 }
 
@@ -1146,6 +1180,7 @@ pmWebGroupChildren(pmWebGroupSettings *settings, sds id, dict *params, void *arg
 
 done:
     settings->callbacks.on_done(id, sts, msg, arg);
+    webgroup_deref_context(cp);
     sdsfree(msg);
 }
 
@@ -1196,7 +1231,7 @@ webgroup_instances(pmWebGroupSettings *settings,
 void
 pmWebGroupInDom(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 {
-    struct context	*cp;
+    struct context	*cp = NULL;
     struct domain	*dp;
     struct metric	*mp;
     struct indom	*ip;
@@ -1296,6 +1331,7 @@ pmWebGroupInDom(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 
 done:
     settings->callbacks.on_done(id, sts, msg, arg);
+    webgroup_deref_context(cp);
     sdsfree(msg);
 }
 
@@ -1324,6 +1360,34 @@ typedef struct weblookup {
     void		*arg;
 } weblookup_t;
 
+/* Metric namespace failure callback for use after pmTraversePMNS_r(3) */
+static void
+badname(const char *name, const char *errmsg, struct weblookup *lookup)
+{
+    pmWebGroupSettings	*settings = lookup->settings;
+    pmWebMetric		*metric = &lookup->metric;
+    context_t		*cp = lookup->context;
+    void		*arg = lookup->arg;
+
+    /* clear buffer contents from any previous call(s) */
+    sdsclear(metric->series);
+    sdsclear(metric->name);
+    sdsclear(metric->sem);
+    sdsclear(metric->type);
+    sdsclear(metric->units);
+    sdsclear(metric->labels);
+    sdsclear(metric->oneline);
+    sdsclear(metric->helptext);
+
+    /* inform caller (callback) about failure via ID_NULL and oneline */
+    metric->pmid = PM_ID_NULL;
+    metric->indom = PM_INDOM_NULL;
+    metric->name = sdscat(metric->name, name);
+    metric->oneline = sdscat(metric->oneline, errmsg);
+
+    settings->callbacks.on_metric(cp->origin, metric, arg);
+}
+
 /* Metric namespace traversal callback for use with pmTraversePMNS_r(3) */
 static void
 webmetric_lookup(const char *name, void *arg)
@@ -1334,6 +1398,7 @@ webmetric_lookup(const char *name, void *arg)
     seriesname_t	*snp = NULL;
     context_t		*cp = lookup->context;
     metric_t		*mp;
+    indom_t		*ip;
 
     if (webgroup_use_context(cp, &lookup->status, &lookup->message, arg) == NULL)
 	return;
@@ -1352,16 +1417,21 @@ webmetric_lookup(const char *name, void *arg)
 
     metric->name = sdscat(metric->name, name);
     mp = webgroup_lookup_metric(settings, cp, metric->name, arg);
-    if (mp == NULL)
+    if (mp == NULL) {
+	badname(name, "failed to lookup metric name", lookup);
 	return;
+    }
     snp = webgroup_lookup_series(mp->numnames, mp->names, name);
     if (snp == NULL)	/* a 'redirect' - pick the first series */
 	snp = &mp->names[0];
 
     pmwebapi_add_domain_labels(cp, mp->cluster->domain);
     pmwebapi_add_cluster_labels(cp, mp->cluster);
-    if (mp->indom)
-	pmwebapi_add_indom_labels(mp->indom);
+    if ((ip = mp->indom) != NULL) {
+	if (pmwebapi_add_indom_instances(cp, ip) > 0)
+	    pmwebapi_add_instances_labels(cp, ip);
+	pmwebapi_add_indom_labels(ip);
+    }
     pmwebapi_add_item_labels(cp, mp);
     pmwebapi_metric_hash(mp);
     pmwebapi_metric_help(cp, mp);
@@ -1393,7 +1463,7 @@ pmWebGroupMetric(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
     struct context	*cp;
     pmWebMetric		*metric = &lookup.metric;
     size_t		length;
-    char		errmsg[PM_MAXERRMSGLEN];
+    char		errmsg[PM_MAXERRMSGLEN], *error;
     sds			msg = NULL, prefix = NULL, *names = NULL;
     int			i, sts = 0, numnames = 0;
 
@@ -1445,14 +1515,24 @@ pmWebGroupMetric(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
     for (i = 0; i < numnames; i++) {
 	sts = pmTraversePMNS_r(names[i], webmetric_lookup, &lookup);
 	if (sts >= 0) {
+	    if (numnames != 1) {	/* already started with response */
+		sts = 0;
+		continue;
+	    }
 	    msg = lookup.message;
 	    if ((sts = (lookup.status < 0) ? lookup.status : 0) < 0)
 		break;
 	} else {
 	    if (sts == PM_ERR_IPC)
 		cp->setup = 0;
-	    infofmt(msg, "%s traversal failed - %s", names[i],
-			    pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	    error = pmErrStr_r(sts, errmsg, sizeof(errmsg));
+	    if (numnames != 1) {
+		badname(names[i], error, &lookup);
+		sts = 0;
+	    } else {
+		infofmt(msg, "%s traversal failed - %s", names[i], error);
+		break;
+	    }
 	}
     }
 
@@ -1468,6 +1548,7 @@ pmWebGroupMetric(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 done:
     sdsfreesplitres(names, numnames);
     settings->callbacks.on_done(id, sts, msg, arg);
+    webgroup_deref_context(cp);
     sdsfree(msg);
 }
 
@@ -1791,6 +1872,7 @@ pmWebGroupScrape(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 
 done:
     settings->callbacks.on_done(id, sts, msg, arg);
+    webgroup_deref_context(cp);
     sdsfree(msg);
 }
 
@@ -1824,12 +1906,15 @@ store_add_instid(struct instore *store, int id)
 static void
 store_add_profile(struct instore *store)
 {
+    int		sts;
+
     if (store->insts) {
-	    int sts;
 	sts = pmDelProfile(store->indom, 0, NULL);
-	fprintf(stderr, "pmDelProfile: sts=%d\n", sts);
+	if (pmDebugOptions.libweb)
+	    fprintf(stderr, "pmDelProfile: sts=%d\n", sts);
 	sts = pmAddProfile(store->indom, store->count, store->insts);
-	fprintf(stderr, "pmAddProfile: sts=%d\n", sts);
+	if (pmDebugOptions.libweb)
+	    fprintf(stderr, "pmAddProfile: sts=%d\n", sts);
 	free(store->insts);
 	store->insts = NULL;
     }
@@ -1901,10 +1986,10 @@ webgroup_store(struct context *context, struct metric *metric,
     bytes = sizeof(pmValueSet) + sizeof(pmValue) * (count - 1);
     if ((result = (pmResult *)calloc(1, sizeof(pmResult))) == NULL ||
 	(valueset = (pmValueSet *)calloc(1, bytes)) == NULL) {
-	if (atom.cp && metric->desc.type == PM_TYPE_STRING) {
-	    if (result) free(result);
+	if (atom.cp && metric->desc.type == PM_TYPE_STRING)
 	    free(atom.cp);
-	}
+	if (result)
+	    free(result);
 	return -ENOMEM;
     }
     result->vset[0] = valueset;
@@ -2027,6 +2112,7 @@ pmWebGroupStore(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 
 done:
     settings->callbacks.on_done(id, sts, msg, arg);
+    webgroup_deref_context(cp);
     sdsfree(msg);
 }
 
@@ -2142,7 +2228,7 @@ pmWebGroupClose(pmWebGroupModule *module)
 	/* walk the contexts, stop timers and free resources */
 	iterator = dictGetIterator(groups->contexts);
 	while ((entry = dictNext(iterator)) != NULL)
-	    webgroup_destroy_context((context_t *)dictGetVal(entry), NULL);
+	    webgroup_drop_context((context_t *)dictGetVal(entry), NULL);
 	dictReleaseIterator(iterator);
 	dictRelease(groups->contexts);
 	memset(groups, 0, sizeof(struct webgroups));

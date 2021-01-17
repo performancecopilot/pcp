@@ -52,6 +52,30 @@ myLocalFetch(__pmContext *ctxp, int numpmid, pmID pmidlist[], __pmPDU **pdup)
     return __pmEncodeResult(0, result, pdup);
 }
 
+/*
+ * from libpcp/src/p_result.c ... used for -Dfetch output
+ */
+typedef struct {
+    pmID		pmid;
+    int			numval;		/* no. of vlist els to follow, or error */
+    int			valfmt;		/* insitu or pointer */
+    __pmValue_PDU	vlist[1];	/* zero or more */
+} vlist_t;
+typedef struct {
+    __pmPDUHdr		hdr;
+    pmTimeval		timestamp;	/* when returned */
+    int			numpmid;	/* no. of PMIDs to follow */
+    __pmPDU		data[1];	/* zero or more */
+} result_t;
+/*
+ * from libpcp/src/internal.h ... used for -Dfetch output
+ */
+#ifdef HAVE_NETWORK_BYTEORDER
+#define __ntohpmID(a)           (a)
+#else
+#define __ntohpmID(a)           htonl(a)
+#endif
+
 int
 myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 {
@@ -131,6 +155,76 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 		 *        < 0 (local error or IPC problem)
 		 *        other (bogus PDU)
 		 */
+
+		if (pmDebugOptions.fetch) {
+		    fprintf(stderr, "myFetch returns ...\n");
+		    if (n == PDU_ERROR) {
+			int		flag = 0;
+
+			fprintf(stderr, "PMCD state changes: ");
+			if (n & PMCD_AGENT_CHANGE) {
+			    fprintf(stderr, "agent(s)");
+			    if (n & PMCD_ADD_AGENT) fprintf(stderr, " added");
+			    if (n & PMCD_RESTART_AGENT) fprintf(stderr, " restarted");
+			    if (n & PMCD_DROP_AGENT) fprintf(stderr, " dropped");
+			    flag++;
+			}
+			if (n & PMCD_LABEL_CHANGE) {
+			    if (flag++)
+				fprintf(stderr, ", ");
+			    fprintf(stderr, "label change");
+			}
+			if (n & PMCD_NAMES_CHANGE) {
+			    if (flag++)
+				fprintf(stderr, ", ");
+			    fprintf(stderr, "names change");
+			}
+			fputc('\n', stderr);
+		    }
+		    else if (n == PDU_RESULT) {
+			/*
+			 * not safe to decode result here, so have to make
+			 * do with a shallow dump of the PDU using logic
+			 * from libpcp/__pmDecodeResult()
+			 */
+			int		numpmid;
+			int		numval;
+			int		i;
+			int		vsize;
+			pmID		pmid;
+			struct timeval	timestamp;
+			char		*name;
+			result_t	*pp;
+			vlist_t		*vlp;
+			pp = (result_t *)pb;
+			/* assume PDU is valid ... it comes from pmcd */
+			numpmid = ntohl(pp->numpmid);
+			timestamp.tv_sec = ntohl(pp->timestamp.tv_sec);
+			timestamp.tv_usec = ntohl(pp->timestamp.tv_usec);
+			fprintf(stderr, "pmResult timestamp: %d.%06d numpmid: %d\n", (int)timestamp.tv_sec, (int)timestamp.tv_usec, numpmid);
+			vsize = 0;
+			for (i = 0; i < numpmid; i++) {
+			    vlp = (vlist_t *)&pp->data[vsize/sizeof(__pmPDU)];
+			    pmid = __ntohpmID(vlp->pmid);
+			    numval = ntohl(vlp->numval);
+			    fprintf(stderr, "  %s", pmIDStr(pmid));
+			    if (pmNameID(pmid, &name) == 0) {
+				fprintf(stderr, " (%s)", name);
+				free(name);
+			    }
+			    fprintf(stderr, ": numval: %d", numval);
+			    if (numval > 0)
+				fprintf(stderr, " valfmt: %d", ntohl(vlp->valfmt));
+			    fputc('\n', stderr);
+			    vsize += sizeof(vlp->pmid) + sizeof(vlp->numval);
+			    if (numval > 0)
+				vsize += sizeof(vlp->valfmt) + ntohl(vlp->numval) * sizeof(__pmValue_PDU);
+			}
+		    }
+		    else
+			fprintf(stderr, "__pmGetPDU: Error: %s\n", pmErrStr(n));
+		}
+
 		if (n == PDU_RESULT) {
 		    /*
 		     * Success with a pmResult in a pdubuf.
@@ -239,6 +333,9 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 		    }
 		}
 	    }
+	}
+	else {
+	    fprintf(stderr, "Error: __pmSendFetch: %s\n", pmErrStr(n));
 	}
 	if (newlist != NULL)
 	    free(newlist);

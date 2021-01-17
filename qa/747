@@ -2,7 +2,7 @@
 # PCP QA Test No. 747
 # Exercise Linux hardware inventory online/offline metrics.
 #
-# Copyright (c) 2014 Red Hat.
+# Copyright (c) 2014,2020 Red Hat.
 #
 
 seq=`basename $0`
@@ -34,10 +34,11 @@ export LINUX_STATSPATH=$tmp.root
 pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init
 local="-L -K clear -K add,60,$pmda"
 
-hinv_metrics="hinv.cpu.online hinv.node.online"
+online_metrics="hinv.cpu.online hinv.node.online"
 allcpu_metrics=`pminfo $local kernel.all.cpu | LC_COLLATE=POSIX sort`
 percpu_metrics=`pminfo $local kernel.percpu.cpu | LC_COLLATE=POSIX sort`
 pernode_metrics=`pminfo $local kernel.pernode.cpu | LC_COLLATE=POSIX sort`
+thermal_metrics=`pminfo $local hinv.cpu.thermal_throttle| LC_COLLATE=POSIX sort`
 
 for tgz in $here/linux/sysdev-*.tgz $here/linux/sysfs-numa-001.tgz
 do
@@ -46,8 +47,24 @@ do
     $sudo tar xzf $tgz
     base=`basename $tgz`
 
-    echo "== Checking hinv metric values - $base"
-    for m in $hinv_metrics
+    echo "=== $base ===" >>$here/$seq.full
+
+    # need the number of cpus in this data set ... from the number of
+    # lines like
+    # cpu7 850802 2207 394292 41789513 119722 1143651 200784 0 0 0
+    # in proc/stat
+    #
+    if [ ! -f proc/stat ]
+    then
+	echo "Arrgh, proc/stat not included in $base stats tarball"
+	exit
+    fi
+    LINUX_NCPUS=`grep '^cpu[0-9][0-9]* ' proc/stat | wc -l | sed -e 's/ //g'`
+    export LINUX_NCPUS
+    echo "LINUX_NCPUS=$LINUX_NCPUS" >>$here/$seq.full
+
+    echo "== Checking hinv online metric values - $base"
+    for m in $online_metrics
     do
 	pminfo $local -f $m | _sort_instname
     done
@@ -66,6 +83,13 @@ do
 
     echo "== Checking per-node CPU metric values - $base"
     for m in $pernode_metrics
+    do
+	pminfo $local -f $m | _sort_instname
+    done
+    echo && echo "== done" && echo
+
+    echo "== Checking hinv thermal_throttle values - $base"
+    for m in $thermal_metrics
     do
 	pminfo $local -f $m | _sort_instname
     done

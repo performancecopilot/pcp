@@ -67,6 +67,7 @@ ctx(int type)
 "@"	{ return AT; }
 
 milliseconds?	{ return ctx(MSEC); }
+disconnect	{ return ctx(DISCONNECT); }
 mandatory	{ return ctx(MANDATORY); }
 advisory	{ return ctx(ADVISORY); }
 timezone	{ return ctx(TIMEZONE); }
@@ -78,6 +79,7 @@ primary		{ return ctx(PRIMARY); }
 status		{ return ctx(STATUS); }
 volume		{ return ctx(VOLUME); }
 flush		{ return ctx(SYNC); }
+sleep		{ return ctx(SLEEP); }
 every		{ return ctx(EVERY); }
 local		{ return ctx(LOCAL); }
 maybe		{ return ctx(MAYBE); }

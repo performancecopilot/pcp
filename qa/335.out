@@ -44,7 +44,7 @@ expr node <addr-0> type=DELTA left=<addr-1> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.4 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 29.9 0x7400009
     Semantics: instant  Units: none
-expr node <addr-1> type=NAME left=(nil) right=(nil) save_last=1 [sample.scramble.bin] master=0
+expr node <addr-1> type=NAME left=(nil) right=(nil) save_last=1 [sample.scramble.bin] primary=0
     PMID: 29.0.121 (29.0.121 from pmDesc) numval: 9
     Data Type: 32-bit int  InDom: 29.9 0x7400009
     Semantics: instant  Units: none
@@ -85,7 +85,7 @@ expr node <addr-0> type=DELTA left=<addr-1> right=(nil) save_last=0
 [5] inst=300, val=0
 [6] inst=800, val=0
 [7] inst=900, val=0
-expr node <addr-1> type=NAME left=(nil) right=(nil) save_last=1 [sample.scramble.bin] master=0
+expr node <addr-1> type=NAME left=(nil) right=(nil) save_last=1 [sample.scramble.bin] primary=0
     PMID: 29.0.121 (29.0.121 from pmDesc) numval: 8
     Data Type: 32-bit int  InDom: 29.9 0x7400009
     Semantics: instant  Units: none
@@ -123,7 +123,7 @@ expr node <addr-0> type=DELTA left=<addr-1> right=(nil) save_last=0
 [5] inst=100, val=0
 [6] inst=900, val=0
 [7] inst=500, val=0
-expr node <addr-1> type=NAME left=(nil) right=(nil) save_last=1 [sample.scramble.bin] master=0
+expr node <addr-1> type=NAME left=(nil) right=(nil) save_last=1 [sample.scramble.bin] primary=0
     PMID: 29.0.121 (29.0.121 from pmDesc) numval: 9
     Data Type: 32-bit int  InDom: 29.9 0x7400009
     Semantics: instant  Units: none
@@ -157,7 +157,7 @@ expr node <addr-0> type=DELTA left=<addr-1> right=(nil) save_last=0
 [4] inst=200, val=0
 [5] inst=300, val=0
 [6] inst=900, val=0
-expr node <addr-1> type=NAME left=(nil) right=(nil) save_last=1 [sample.scramble.bin] master=0
+expr node <addr-1> type=NAME left=(nil) right=(nil) save_last=1 [sample.scramble.bin] primary=0
     PMID: 29.0.121 (29.0.121 from pmDesc) numval: 7
     Data Type: 32-bit int  InDom: 29.9 0x7400009
     Semantics: instant  Units: none
@@ -192,7 +192,7 @@ expr node <addr-0> type=DELTA left=<addr-1> right=(nil) save_last=0
 [2] inst=200, val=0
 [3] inst=800, val=0
 [4] inst=400, val=0
-expr node <addr-1> type=NAME left=(nil) right=(nil) save_last=1 [sample.scramble.bin] master=0
+expr node <addr-1> type=NAME left=(nil) right=(nil) save_last=1 [sample.scramble.bin] primary=0
     PMID: 29.0.121 (29.0.121 from pmDesc) numval: 6
     Data Type: 32-bit int  InDom: 29.9 0x7400009
     Semantics: instant  Units: none

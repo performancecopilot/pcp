@@ -27,6 +27,15 @@ QmcInstance::QmcInstance()
     my.active = false;
 }
 
+QmcInstance::QmcInstance(const QmcInstance &base)
+{
+    my.inst = base.inst();
+    my.name = base.name();
+    my.refCount = base.refCount();
+    my.index = base.index();
+    my.active = base.active();
+}
+
 QmcInstance::QmcInstance(int id, const char* name)
 {
     my.inst = id;
@@ -101,7 +110,7 @@ QmcIndom::QmcIndom(int type, QmcDesc &desc)
 	cerr << "QmcIndom::QmcIndom: unable to lookup "
 	     << pmInDomStr(my.id) << " from "
 	     << (my.type == PM_CONTEXT_ARCHIVE ? "archive" : "host/local")
-	     << " source: " << pmErrStr(my.status) << endl;
+	     << " source: " << pmErrStr(my.status) << QT_ENDL;
     }
 }
 
@@ -141,7 +150,7 @@ QmcIndom::lookup(QString const &name)
 		QTextStream cerr(stderr);
 		cerr << "QmcIndom::lookup: inst \"" << name << "\"(" << i
 		     << ") matched to \"" << my.instances[i].name() << "\"("
-		     << i << ')' << endl;
+		     << i << ')' << QT_ENDL;
 	    }
 	    if (my.instances[i].refCount() == 0) {
 		my.profile = true;
@@ -175,7 +184,7 @@ QmcIndom::lookup(QString const &name)
 		    QTextStream cerr(stderr);
 		    cerr << "QmcIndom::lookup: numerical inst \""
 			 << name << " matched to \"" << my.instances[i].name()
-			 << "\"(" << i << ')' << endl;
+			 << "\"(" << i << ')' << QT_ENDL;
 		}
 		if (my.instances[i].refCount() == 0) {
 		    my.profile = true;
@@ -279,7 +288,7 @@ QmcIndom::genProfile()
 	     << ": " << action << " ptr = " << ptr;
 	if (sts < 0)
 	    cerr << ", sts = " << sts << ": " << pmErrStr(sts);
-	cerr << endl;
+	cerr << QT_ENDL;
     }
 
     if (sts >= 0)
@@ -291,15 +300,16 @@ void
 QmcIndom::dump(QTextStream &os) const
 {
     os << pmInDomStr(my.id) << ": " << numInsts() << " instances ("
-       << my.nullCount << " NULL)" << endl;
+       << my.nullCount << " NULL)" << QT_ENDL;
     for (int i = 0; i < my.instances.size(); i++)
 	if (!my.instances[i].null())
 	    os << "  [" << my.instances[i].inst() << "] = \""
 	       << my.instances[i].name() << "\" ("
 	       << my.instances[i].refCount() << " refs) "
-	       << (my.instances[i].active() ? "active" : "inactive") << endl;
+	       << (my.instances[i].active() ? "active" : "inactive")
+	       << QT_ENDL;
 	else
-	    os << "  NULL -> " << my.instances[i].index() << endl;
+	    os << "  NULL -> " << my.instances[i].index() << QT_ENDL;
 }
 
 int
@@ -328,7 +338,7 @@ QmcIndom::update()
 	    QTextStream cerr(stderr);
 	    cerr << "QmcIndom::update: Cleaning indom " << pmInDomStr(my.id)
 		 << ": Removed " << my.nullCount - oldNullCount 
-		 << " instances" << endl;
+		 << " instances" << QT_ENDL;
 	}
 	return 0;
     }
@@ -350,7 +360,7 @@ QmcIndom::update()
 	    QTextStream cerr(stderr);
 	    cerr << "QmcIndom::update: Updating indom " << pmInDomStr(my.id)
 		 << ": Got " << count << " instances (vs " << numInsts()
-		 << ")" << endl;
+		 << ")" << QT_ENDL;
 	}
 
 	// Any instances which are not in the new indom AND are not
@@ -394,7 +404,7 @@ QmcIndom::update()
 		if (pmDebugOptions.indom) {
 		    QTextStream cerr(stderr);
 		    cerr << "QmcIndom::update: Unchanged \"" << nameList[i]
-			 << "\"(" << instList[i] << ')' << endl;
+			 << "\"(" << instList[i] << ')' << QT_ENDL;
 		}
 		my.instances[i].setActive(true);
 		my.numActive++;
@@ -422,7 +432,7 @@ QmcIndom::update()
 			cerr << "QmcIndom::update: Ignoring \""
 			     << nameList[i] 
 			     << "\" with identical internal identifier ("
-			     << instList[i] << ")" << endl;
+			     << instList[i] << ")" << QT_ENDL;
 		    }
 		    break;
 		}
@@ -432,7 +442,7 @@ QmcIndom::update()
 		if (pmDebugOptions.indom) {
 		    QTextStream cerr(stderr);
 		    cerr << "QmcIndom::update: Adding \"" << nameList[i] 
-			 << "\"(" << instList[i] << ")" << endl;
+			 << "\"(" << instList[i] << ")" << QT_ENDL;
 		}
 		if (my.nullCount) {
 		    uint newindex = my.instances[my.nullIndex].index();
@@ -451,10 +461,11 @@ QmcIndom::update()
 	if (pmDebugOptions.indom) {
 	    QTextStream cerr(stderr);
 	    if (my.instances.size() == oldLen && my.nullCount == oldNullCount)
-		cerr << "QmcIndom::update: indom size unchanged" << endl;
+		cerr << "QmcIndom::update: indom size unchanged" << QT_ENDL;
 	    else {
 		cerr << "QmcIndom::update: indom changed from "
-		     << oldLen - oldNullCount << " to " << numInsts() << endl;
+		     << oldLen - oldNullCount << " to " << numInsts()
+		     << QT_ENDL;
 		dump(cerr);
 	    }
 	}
@@ -466,11 +477,11 @@ QmcIndom::update()
 	if (pmDebugOptions.pmc) {
 	    QTextStream cerr(stderr);
 	    if (sts == 0)
-		cerr << "QmcIndom::update: indom empty!" << endl;
+		cerr << "QmcIndom::update: indom empty!" << QT_ENDL;
 	    else
 		cerr << "QmcIndom::update: unable to lookup "
 		     << pmInDomStr(my.id) << " from host/local source: "
-		     << pmErrStr(sts) << endl;
+		     << pmErrStr(sts) << QT_ENDL;
 	}
     }
 

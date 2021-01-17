@@ -82,3 +82,5 @@ $(COV_DIR)/%.o: %.c
 	mkdir -p $(@D)
 	$(CCF) $(COV_FLAGS) -c -o $@ $^
 
+fakefs:	fakefs.tar.gz
+	tar xf fakefs.tar.gz

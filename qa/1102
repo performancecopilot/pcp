@@ -46,7 +46,11 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
 
 _pmdaopenmetrics_save_config
-_pmdaopenmetrics_remove | sed -e 's/not found in Name Space, this is OK/done/'
+_pmdaopenmetrics_remove \
+| sed \
+    -e '/ Info: /d' \
+    -e 's/not found in Name Space, this is OK/done/' \
+# end
 _pmdaopenmetrics_install
 
 port=`_find_free_port 10000`
@@ -105,7 +109,10 @@ do
     pminfo -f `pminfo openmetrics.source4 | LC_COLLATE=POSIX sort`
 done
 
-_pmdaopenmetrics_remove
+_pmdaopenmetrics_remove \
+| sed \
+    -e '/ Info: /d' \
+# end
 
 # success, all done
 status=0

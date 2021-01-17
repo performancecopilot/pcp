@@ -24,14 +24,6 @@ _filter()
 	-e "s/$port2/PORT2/"
 }
 
-_filter_rem()
-{
-    sed \
-	-e '/mips_64/d' \
-	-e '/mips_o32/d' \
-	-e '/mips_n32/d'
-}
-
 _check_pmda_gone()
 {
     sleep 2
@@ -49,7 +41,19 @@ _check_pmda_gone()
     rm -f $tmp.tmp
 }
 
+_snag_log()
+{
+    if [ -f "$PCP_LOG_DIR/pmcd/sample.log" ]
+    then
+	cat "$PCP_LOG_DIR/pmcd/sample.log" >>$here/$seq.full
+    else
+	echo "$PCP_LOG_DIR/pmcd/sample.log: missing?"
+    fi
+}
+
 status=1
+
+$sudo rm -f $seq.full
 
 # save pmcd.conf and restore it after the test
 cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
@@ -80,28 +84,47 @@ trap "echo; echo 'Reinstall PMDA ...'; $sudo ./Install </dev/null >$tmp.out; _fi
 echo
 echo "=== remove agent ==="
 $sudo ./Remove >$tmp.out 2>&1
-_filter_rem <$tmp.out
+cat $tmp.out
 _check_pmda_gone $iam
 
 echo
-echo "=== pipe agent ==="
+echo "=== pipe agent ===" | tee -a $here/$seq.full
 echo pipe | $sudo ./Install -e >$tmp.out 2>&1
 _filter <$tmp.out
 pminfo -v sample || echo "... failed!"
+_snag_log
 echo pipe | $sudo ./Install -e >$tmp.out 2>&1
 _filter <$tmp.out
 pminfo -v sample || echo "... failed!"
+_snag_log
 
-echo
-echo "=== socket Internet agent ==="
+echo | tee -a $here/$seq.full
+echo "=== socket Internet agent ===" | tee -a $here/$seq.full
 
-# pick a tcp port that is not in use
+# pick two tcp ports that are not in use
 #
-port1=`_get_port tcp 5670 5689`
+port1=`_find_free_port 5670`
 if [ -z "$port1" ]
 then
-    echo "Arrgh ... no free TCP port in the range 5670 ... 5689"
-    exit 1
+    echo "Arrgh ... port1: no free TCP port in the range 5670 ... "
+    exit
+fi
+echo "port1=$port1" >>$here/$seq.full
+if which netstat >/dev/null 2>&1
+then
+    netstat -a | grep $port1 >>$here/$seq.full
+fi
+try=`expr $port1 + 1`
+port2=`_find_free_port $try`
+if [ -z "$port2" ]
+then
+    echo "Arrgh ... port2: no free TCP port in the range $try ... "
+    exit
+fi
+echo "port2=$port2" >>$here/$seq.full
+if which netstat >/dev/null 2>&1
+then
+    netstat -a | grep $port2 >>$here/$seq.full
 fi
 
 echo 'socket
@@ -109,31 +132,32 @@ Internet
 '$port1 | $sudo ./Install -e >$tmp.out 2>&1
 _filter <$tmp.out
 pminfo -v sample || echo "... failed!"
-
-# use next port this time
-port2=`expr $port1 + 1`
+_snag_log
 
 echo 'socket
 Internet
 '$port2 | $sudo ./Install -e >$tmp.out 2>&1
 _filter <$tmp.out
 pminfo -v sample || echo "... failed!"
+_snag_log
 
-echo
-echo "=== socket Unix agent ==="
+echo | tee -a $here/$seq.full
+echo "=== socket Unix agent ===" | tee -a $here/$seq.full
 echo 'socket
 Unix
 '"$tmp.fifo" | $sudo ./Install -e >$tmp.out 2>&1
 _filter <$tmp.out
 pminfo -v sample || echo "... failed!"
+_snag_log
 echo 'socket
 Unix
 '"$tmp.fifo" | $sudo ./Install -e >$tmp.out 2>&1
 _filter <$tmp.out
 pminfo -v sample || echo "... failed!"
+_snag_log
 
 $sudo ./Remove >$tmp.out 2>&1
-_filter_rem <$tmp.out
+cat $tmp.out
 _check_pmda_gone $iam
 
 status=0

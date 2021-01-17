@@ -516,7 +516,6 @@ __pmAddOptArchiveFolio(pmOptions *opts, char *arg)
 	opts->flags |= PM_OPTFLAG_RUNTIME_ERR;
 	opts->errors++;
     } else {
-	size_t length;
 	char *p, *log, *dir;
 	int line, sep = pmPathSeparator();
 
@@ -565,12 +564,15 @@ __pmAddOptArchiveFolio(pmOptions *opts, char *arg)
 	    p = skip_nonwhitespace(p);
 	    *p = '\0';
 
-	    length = strlen(dir) + 1 + strlen(log) + 1;
-	    if ((p = (char *)malloc(length)) == NULL)
-		pmNoMem("pmGetOptions(archive)", length, PM_FATAL_ERR);
-	    pmsprintf(p, length, "%s%c%s", dir, sep, log);
-	    __pmAddOptArchive(opts, p);
-	    free(p);
+	    if (__pmAbsolutePath(log)) {
+		/* absolute path to archive - do not prefix with dir */
+		__pmAddOptArchive(opts, log);
+	    }
+	    else {
+		char archive[MAXPATHLEN];
+		pmsprintf(archive, sizeof(archive), "%s%c%s", dir, sep, log);
+		__pmAddOptArchive(opts, archive);
+	    }
 	}
 
 	fclose(fp);

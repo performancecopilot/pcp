@@ -100,7 +100,6 @@ class ContainerRunner:
     def setup(self, pcp_path):
         image_name = f"{self.container_name}-image"
         containerfile = self.platform['container']['containerfile']
-        init = self.platform['container'].get('init', '/sbin/init')
 
         # build a new image
         subprocess.run([*self.sudo, 'podman', 'build', '--squash', '-t', image_name, '-f', '-'],
@@ -108,12 +107,12 @@ class ContainerRunner:
 
         # start a new container
         subprocess.run([*self.sudo, 'podman', 'rm', '-f', self.container_name], stderr=subprocess.DEVNULL, check=False)
-        subprocess.run([*self.sudo, 'podman', 'run', '-d', '--name', self.container_name,
-                        '--privileged', *self.security_opts,
-                        image_name, init], check=True)
+        subprocess.run([*self.sudo, 'podman', 'run', '-dt', '--name', self.container_name,
+                        '--privileged', *self.security_opts, image_name], check=True)
 
-        self.exec('mkdir -p artifacts/build artifacts/test')
         subprocess.run([*self.sudo, 'podman', 'cp', pcp_path, f"{self.container_name}:/home/pcpbuild/pcp"], check=True)
+        self.exec('sudo chown -R pcpbuild:pcpbuild pcp')
+        self.exec('mkdir -p artifacts/build artifacts/test')
 
     def exec(self, command, check=True):
         command = self.command_preamble + command

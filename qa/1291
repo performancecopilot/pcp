@@ -1,0 +1,67 @@
+#!/bin/sh
+# PCP QA Test No. 1291
+# effectiveness of time_caliper() in interp.c
+#
+# Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+TIME=`which time`
+$TIME --help >$tmp.err 2>&1
+if grep '.--portability' $tmp.err >/dev/null
+then
+    TIME=$TIME' --portability'
+fi
+
+echo "TIME=$TIME" >>$seq.full
+
+_filter()
+{
+    sed \
+	-e '/^real /d' \
+	-e '/^user /d' \
+	-e '/^sys /d' \
+	-e '/^time_caliper: /d' \
+    # end
+}
+
+# real QA test starts here
+$TIME pcp -z -a archives/20201109 -Dqa atop 10 3 >$tmp.out 2>$tmp.err
+
+cat $tmp.out
+_filter <$tmp.err
+
+grep '^user ' $tmp.err \
+| $PCP_AWK_PROG '
+    { if ($2 < 5.0)
+	print "user <5.0"
+      else
+        print
+    }'
+
+# success, all done
+exit

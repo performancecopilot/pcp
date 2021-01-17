@@ -135,6 +135,12 @@ atopsar(int argc, char *argv[])
 	*/
 	setup_options(&opts, argv, saroptions());
 
+	/*
+	** detect archives passed in via environment (PCP_ARCHIVE)
+	*/
+	if (opts.narchives > 0)
+		rawreadflag++;
+
 	/* 
 	** interpret command-line arguments & flags 
 	*/
@@ -260,13 +266,15 @@ atopsar(int argc, char *argv[])
 					pratopsaruse(pmGetProgname(), &opts);
 			}
 		}
+		/* if no interval specified, read from logfile */
+		else if (!rawreadflag)
+		{
+			__pmAddOptArchivePath(&opts);
+			rawreadflag++;
+		}
 	}
-
-	if (opts.narchives > 0)
-		rawreadflag++;
-
 	/* if no flags specified at all, read from logfile */
-	if (argc <= 1 && !rawreadflag)
+	else if (!rawreadflag)
 	{
 		__pmAddOptArchivePath(&opts);
 		rawreadflag++;
@@ -1917,7 +1925,7 @@ ifline(struct sstat *ss, struct tstat *ts, struct tstat **ps, int nactproc,
 		preprint(badness);
 
 		printf("%-6s %4s %7.1lf %7.1lf %8.0lf %8.0lf "
-		       "%5lld %5lld %7ld %c", 
+		       "%5lld %5lld %7lld %c", 
 			pn, busyval,
 			(double)ss->intf.intf[i].rpack / deltasec,
 			(double)ss->intf.intf[i].spack / deltasec,

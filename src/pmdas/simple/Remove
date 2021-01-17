@@ -19,6 +19,9 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=simple
+perl_opt=true
+python_opt=true
+python_opt=true
 
 pmdaSetup
 pmdaRemove

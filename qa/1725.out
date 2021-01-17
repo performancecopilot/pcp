@@ -1,0 +1,26 @@
+QA output created by 1725
+
+=== bpftrace agent installation ===
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check bpftrace metrics have appeared ... 7 metrics and X values
+
+=== check tracepoint metric ===
+
+bpftrace.info.tracepoints PMID: 151.1.2 [list all available tracepoints]
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+list all available tracepoints
+
+=== check example tracepoint metric value ===
+kprobe:version_show
+
+=== remove bpftrace agent ===
+Culling the Performance Metrics Name Space ...
+bpftrace ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check bpftrace metrics have gone away ... OK

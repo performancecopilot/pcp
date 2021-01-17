@@ -388,8 +388,9 @@ publishService(__pmServerPresence *s)
 
 	/* Check whether creating the client object succeeded. */
 	if (! client) {
-	    pmNotifyErr(LOG_ERR, "Failed to create avahi client: %s",
-			  avahi_strerror(error));
+	    if (pmDebugOptions.discovery)
+		pmNotifyErr(LOG_WARNING, "Failed to create avahi client: %s",
+			      avahi_strerror(error));
 	    goto fail;
 	}
 

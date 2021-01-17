@@ -20,7 +20,7 @@ main(int argc, char **argv)
     static char	*usage = "[-D debugspec] [-h hostname] metric stringvalue";
     int			len;
     int			n;
-    char		*namelist[1];
+    const char		*namelist[1];
     pmID		pmidlist[1];
     pmResult		*res;
 

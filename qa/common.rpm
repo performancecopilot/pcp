@@ -128,7 +128,8 @@ _rpm_prepare_check()
     if [ "X$rpm_name" = "X" -o "X$rpm_inst" = "X" ]
     then
 	echo "QA test bug - _rpm_package_prepare not yet done?"
-	exit 1
+	status=0
+	exit $status
     fi
 }
 
@@ -136,6 +137,7 @@ _rpm_package_install()
 {
     if [ "X$rpm_name" != "X" ]
     then
+	echo "_rpm_package_install: start `date`" >>$seq.full
         rpm -q $rpm_name >/dev/null 2>&1
 	if [ $? -eq 0 ]
 	then
@@ -148,23 +150,39 @@ _rpm_package_install()
 	    $sudo rpm -qa >> $seq.full 2>&1
 	    echo "count after from rpm(1): `$sudo rpm -qa | wc -l | sed -e 's/  *//g'`" >> $seq.full
 	fi
+	echo "_rpm_package_install: end `date`" >>$seq.full
     fi
 }
 
 _rpm_package_install_await()
 {
-    countdown=300	# 30 seconds
+    countdown=600	# 60 seconds
 
+    echo "_rpm_package_install_await: start `date`" >>$seq.full
     _rpm_prepare_check
     while [ $countdown -gt 0 ]
     do
-	pminfo -f rpm.arch | grep -q "or \"$rpm_inst\"]" && return 0
+	if pminfo -f rpm.arch | grep -q "or \"$rpm_inst\"]"
+	then
+	    echo "_rpm_package_install_await: success end `date`" >>$seq.full
+	    return 0
+	fi
 	pmsleep 0.1 
 	countdown=`expr $countdown - 1`
     done
+    echo "_rpm_package_install_await: fail end `date`" >>$seq.full
 
     echo "rpm_package_install_await gave up awaiting $rpm_inst install!"
-    exit 1
+    pminfo -f rpm.arch
+    if [ -f "$PCP_LOG_DIR/pmcd/rpm.log" ]
+    then
+	cat "$PCP_LOG_DIR/pmcd/rpm.log" >>$here/$seq.full
+    else
+	echo "$PCP_LOG_DIR/pmcd/rpm.log: missing?"
+    fi
+
+    status=0
+    exit $status
 }
 
 _rpm_package_remove()
@@ -192,7 +210,8 @@ _rpm_package_remove_await()
     done
 
     echo "rpm_package_remove_await gave up awaiting $rpm_name removal!"
-    exit 1
+    status=0
+    exit $status
 }
 
 

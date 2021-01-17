@@ -13,7 +13,7 @@ static int	vflag;
 static int	tflag;
 static int	numpmid;
 static pmID	pmidlist[20];
-static char	*namelist[20];
+static const char *namelist[20];
 static double	delta = 500;
 
 static void

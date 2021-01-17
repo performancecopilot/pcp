@@ -46,20 +46,20 @@ static pmOptions opts = {
 };
 
 static int	ctx[2] = { -1, -1 };
-static char	**namelist = NULL;
+static const char **namelist = NULL;
 static int	numnames = 0;
 static pmID	*pmidlist;
 static pmDesc	*desclist;
 
 void
-add_name(char *name)
+add_name(const char *name)
 {
-    char	**tmp_names;
+    const char	**tmp_names;
     pmID	*tmp_pmids;
     pmDesc	*tmp_descs;
 
     numnames++;
-    tmp_names = (char **)realloc(namelist, numnames*sizeof(namelist[0]));
+    tmp_names = (const char **)realloc(namelist, numnames*sizeof(namelist[0]));
     if (tmp_names == NULL) {
 	fprintf(stderr, "add_name: realloc failed for nameslist[%d]\n", numnames);
 	exit(1);

@@ -20,7 +20,7 @@ echo "QA output created by $seq"
 [ -f /etc/slackware-version ] && _notrun "chkconfig does not work for Slackware"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full $seq.out
+$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 VERBOSE_CONFIG=false
@@ -39,14 +39,6 @@ _check_chk()
 	echo "is_chkconfig_on $1 returns false"
     fi
 }
-
-ln -f $seq.out.1 $seq.out || exit 1
-if [ -f $PCP_BINADM_DIR/pmmgr ]
-then
-    PMMGR_INSTALLED=true
-    FULL_LIST="pmcd pmie pmlogger pmmgr pmproxy"
-    ln -f $seq.out.2 $seq.out || exit 1
-fi
 
 # real QA test starts here
 

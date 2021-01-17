@@ -1,0 +1,102 @@
+#!/bin/sh
+# PCP QA Test No. 1775
+# libpcp interp mode with dynamic indoms, proc.psinfo.utime in particular
+#
+# Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+if $do_valgrind
+then
+    _run_valgrind ...your test goes here...
+else
+    pmdumptext -z -l -t 30sec -a archives/20201109 proc.psinfo.utime 2>&1
+fi \
+>$tmp.out
+
+head -1 $tmp.out \
+| sed -e 's/\("[^ ]*\) [^"]*"/\1"/g' >$tmp.head
+sed -e 1d $tmp.out >$tmp.results
+
+cat <<'End-of-File' | sed -e '/^#/d' | while read inst first last
+# <instname> == pid
+#      first_timestamp last_timestamp
+000001 	09:00:04.333004	- 
+1632727	09:55:34.331026	09:55:34.380851
+1631847	09:46:04.432786	09:55:44.334059
+1628405	09:06:34.372106	09:29:04.370139
+End-of-File
+do
+    echo
+    echo "Instance: \"$inst\" First: $first Last: $last"
+    field=`$PCP_AWK_PROG -F'	' <$tmp.head '
+{ for (i = 1; i <= NF; i++) {
+      if ($i ~ /"'$inst'"/) {
+	print i
+	exit
+      }
+  }
+}'`
+    if [ -z "$field" ]
+    then
+	echo "Arrgh ... no inst \"$inst\" in the header line"
+	cat $tmp.head
+	exit
+    fi
+
+    $PCP_AWK_PROG -F'	' <$tmp.results '
+{ print $1 "	" $'$field' }' \
+    | $PCP_AWK_PROG -F'	' '
+BEGIN	{ prev_value = "?"; prev_stamp = "?"; obs = 0; noobs = 0 }
+	{ if ($2 != "?") {
+	    obs++
+	    if (prev_value == "?")
+		print $1 ": first value: " $2
+	  }
+	  else {
+	    noobs++
+	    if (prev_value != "?")
+		print prev_stamp ": last value: " prev_value
+	  }
+	  prev_stamp = $1
+	  prev_value = $2
+	}
+END	{ print "Values: " obs " present, " noobs " missing" }'
+
+done
+
+# success, all done
+exit

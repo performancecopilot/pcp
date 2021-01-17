@@ -18,9 +18,6 @@
 #include "libpcp.h"
 #include "mmv_stats.h"
 #include "slots.h"
-#ifdef HAVE_REGEX_H
-#include <regex.h>
-#endif
 #ifdef HAVE_LIBUV
 #include <uv.h>
 #else
@@ -119,12 +116,12 @@ extern void pmSearchDiscoverText(pmDiscoverEvent *,
 typedef struct discoverModuleData {
     unsigned int		handle;		/* callbacks context handle */
     unsigned int		shareslots;	/* boolean, sharing 'slots' */
-    sds				logname;	/* archive directory dirname */
     mmv_registry_t		*metrics;	/* registry of metrics */
     struct dict			*config;	/* configuration dict */
     uv_loop_t			*events;	/* event library loop */
     redisSlots			*slots;		/* server slots data */
-    regex_t			exclude_names;	/* metric names to exclude */
+    unsigned int		exclude_names;	/* exclude metric names */
+    sds				*patterns;	/* metric name patterns */
     struct dict			*pmids;		/* dict of excluded PMIDs */
     unsigned int		exclude_indoms;	/* exclude instance domains */
     struct dict			*indoms;	/* dict of excluded InDoms */

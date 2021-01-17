@@ -64,6 +64,10 @@ do
     echo "kill and restart pmlogger ..."
     $signal -a -s TERM pmlogger
     $sudo $PCP_BINADM_DIR/pmlogger_check -V -c control >>pmcheck.log 2>&1
+    # back-to-back signals may confuse $signal (killing by name)
+    # so delay a little ...
+    #
+    pmsleep 0.1
 done
 $signal -a -s TERM pmlogger
 

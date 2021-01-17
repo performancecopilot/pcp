@@ -91,12 +91,35 @@ chk_one(task_t *tp, pmID pmid, int inst)
 	return 0;
 
     ctp = rqp->r_fetch->f_aux;
-    if (ctp == NULL || ctp == tp)
+    if (ctp == NULL)
+	return 0;
+    if (ctp == tp)
 	/*
 	 * can only happen if same metric+inst appears more than once
 	 * in the same group ... this can never be a conflict
+	 * return 1 => skip this one
 	 */
 	return 1;
+
+    if (pmDebugOptions.log) {
+	fprintf(stderr, "chk_one: pmid=%s task=" PRINTF_P_PFX "%p state=%s%s%s%s delta=%d.%06d\n",
+		pmIDStr(pmid), tp,
+		PMLC_GET_INLOG(tp->t_state) ? " " : "N",
+		PMLC_GET_AVAIL(tp->t_state) ? " " : "N",
+		PMLC_GET_MAND(tp->t_state) ? "M" : "A",
+		PMLC_GET_ON(tp->t_state) ? "Y" : "N",
+		(int)tp->t_delta.tv_sec, (int)tp->t_delta.tv_usec);
+	if (ctp == NULL)
+	    fprintf(stderr, "compared to: NULL\n");
+	else
+	    fprintf(stderr, "compared to: optreq task=" PRINTF_P_PFX "%p state=%s%s%s%s delta=%d.%06d\n",
+		    ctp,
+		    PMLC_GET_INLOG(ctp->t_state) ? " " : "N",
+		    PMLC_GET_AVAIL(ctp->t_state) ? " " : "N",
+		    PMLC_GET_MAND(ctp->t_state) ? "M" : "A",
+		    PMLC_GET_ON(ctp->t_state) ? "Y" : "N",
+		    (int)ctp->t_delta.tv_sec, (int)ctp->t_delta.tv_usec);
+    }
 
     if (PMLC_GET_MAND(ctp->t_state)) {
 	if (PMLC_GET_ON(ctp->t_state)) {
@@ -130,37 +153,104 @@ chk_one(task_t *tp, pmID pmid, int inst)
     return 0;
 }
 
+/*
+ * like chk_one() but we have to deal with the possibility that numinst
+ * (number of instances in the logging request) is 0 (=> all instances)
+ * in either this task, or some other task
+ */
 int
 chk_all(task_t *tp, pmID pmid)
 {
-    optreq_t	*rqp;
-    task_t	*ctp;
+    optreq_t		*rqp;
+    task_t		*ctp;
+    __pmHashNode	*hp;
 
-    rqp = findoptreq(pmid, 0);	/*TODO, not right!*/
-    if (rqp == NULL)
-	return 0;
+    for (hp = __pmHashSearch(pmid, &pm_hash); hp != NULL; hp = hp->next) {
+	if (pmid != (pmID)hp->key)
+            continue;
+	rqp = (optreq_t *)hp->data;
+	if (rqp == NULL)
+	    continue;
 
-    ctp = rqp->r_fetch->f_aux;
-
-    if (pmDebugOptions.log) {
-	fprintf(stderr, "chk_all: pmid=%s task=" PRINTF_P_PFX "%p state=%s%s%s%s delta=%d.%06d\n",
-		pmIDStr(pmid), tp,
-		PMLC_GET_INLOG(tp->t_state) ? " " : "N",
-		PMLC_GET_AVAIL(tp->t_state) ? " " : "N",
-		PMLC_GET_MAND(tp->t_state) ? "M" : "A",
-		PMLC_GET_ON(tp->t_state) ? "Y" : "N",
-		(int)tp->t_delta.tv_sec, (int)tp->t_delta.tv_usec);
+	ctp = rqp->r_fetch->f_aux;
 	if (ctp == NULL)
-	    fprintf(stderr, "compared to: NULL\n");
-	else
-	    fprintf(stderr, "compared to: optreq task=" PRINTF_P_PFX "%p state=%s%s%s%s delta=%d.%06d\n",
-		    ctp,
-		    PMLC_GET_INLOG(ctp->t_state) ? " " : "N",
-		    PMLC_GET_AVAIL(ctp->t_state) ? " " : "N",
-		    PMLC_GET_MAND(ctp->t_state) ? "M" : "A",
-		    PMLC_GET_ON(ctp->t_state) ? "Y" : "N",
-		    (int)ctp->t_delta.tv_sec, (int)ctp->t_delta.tv_usec);
+	    continue;
+	if (ctp == tp) {
+	    /*
+	     * can only happen if same metric appears more than once
+	     * in the same group ... this can never be a conflict
+	     * return 1 => skip this one, but first we may need to
+	     * expand the profile for the existing fetch to include
+	     * all instances
+	     */
+	    if (rqp->r_numinst != 0) {
+		indomctl_t	*idp;
+		for (idp = rqp->r_fetch->f_idp; idp != (indomctl_t *)0; idp = idp->i_next) {
+		    if (idp->i_indom == rqp->r_desc->indom) {
+
+			if (idp->i_numinst > 0) {
+			    idp->i_numinst = 0;
+			    free(idp->i_instlist);
+			}
+			break;
+		    }
+		}
+		rqp->r_numinst = 0;
+		free(rqp->r_instlist);
+	    }
+	    return 1;
+	}
+
+	if (pmDebugOptions.log) {
+	    fprintf(stderr, "chk_all: pmid=%s task=" PRINTF_P_PFX "%p state=%s%s%s%s delta=%d.%06d\n",
+		    pmIDStr(pmid), tp,
+		    PMLC_GET_INLOG(tp->t_state) ? " " : "N",
+		    PMLC_GET_AVAIL(tp->t_state) ? " " : "N",
+		    PMLC_GET_MAND(tp->t_state) ? "M" : "A",
+		    PMLC_GET_ON(tp->t_state) ? "Y" : "N",
+		    (int)tp->t_delta.tv_sec, (int)tp->t_delta.tv_usec);
+	    if (ctp == NULL)
+		fprintf(stderr, "compared to: NULL\n");
+	    else
+		fprintf(stderr, "compared to: optreq task=" PRINTF_P_PFX "%p state=%s%s%s%s delta=%d.%06d\n",
+			ctp,
+			PMLC_GET_INLOG(ctp->t_state) ? " " : "N",
+			PMLC_GET_AVAIL(ctp->t_state) ? " " : "N",
+			PMLC_GET_MAND(ctp->t_state) ? "M" : "A",
+			PMLC_GET_ON(ctp->t_state) ? "Y" : "N",
+			(int)ctp->t_delta.tv_sec, (int)ctp->t_delta.tv_usec);
+	}
+
+	if (PMLC_GET_MAND(ctp->t_state)) {
+	    if (PMLC_GET_ON(ctp->t_state)) {
+		if (PMLC_GET_MAND(tp->t_state) == 0 && PMLC_GET_MAYBE(tp->t_state) == 0) {
+		    if (PMLC_GET_ON(tp->t_state))
+			return -1;
+		    else
+			return -2;
+		}
+	    }
+	    else {
+		if (PMLC_GET_MAND(tp->t_state) == 0 && PMLC_GET_MAYBE(tp->t_state) == 0) {
+		    if (PMLC_GET_ON(tp->t_state))
+			return -3;
+		    else
+			return -4;
+		}
+	    }
+	    /*
+	     * new mandatory, over-rides the old mandatory
+	     */
+	    undo(ctp, rqp, PM_IN_NULL);
+	}
+	else {
+	    /*
+	     * new anything, over-rides the old advisory
+	     */
+	    undo(ctp, rqp, PM_IN_NULL);
+	}
     }
+
     return 0;
 }
 
@@ -177,6 +267,7 @@ validate_metrics(void)
     pmID		*new_pmids;
     const pmDesc	*old_desc;
     pmDesc		new_desc;
+    const char		**names;
     int			index;
     int			error;
     int			sts;
@@ -209,7 +300,8 @@ validate_metrics(void)
 	    pmNoMem("allocating pmID array for validating metrice",
 		      tp->t_numpmid * sizeof(*tp->t_pmidlist), PM_FATAL_ERR);
 	}
-	if ((sts = pmLookupName(tp->t_numpmid, tp->t_namelist, new_pmids)) < 0) {
+	names = (const char **)tp->t_namelist;
+	if ((sts = pmLookupName(tp->t_numpmid, names, new_pmids)) < 0) {
 	    fprintf(stderr, "Error looking up metrics: Reason: %s\n",
 		    pmErrStr(sts));
 	    exit(1);
@@ -222,8 +314,8 @@ validate_metrics(void)
 	     * (possible), then the needed pmID will be fetched.
 	     */
 	    if (new_pmids[index] == PM_ID_NULL) {
-		if ((sts = pmLookupName(1, &tp->t_namelist[index],
-					&new_pmids[index])) < 0) {
+		names = (const char **)&tp->t_namelist[index];
+		if ((sts = pmLookupName(1, names, &new_pmids[index])) < 0) {
 		    /* The lookup of the metric is still in error. */
 		    fprintf(stderr, "Error looking up %s: Reason: %s\n",
 			    tp->t_namelist[index], pmErrStr(sts));
@@ -312,7 +404,7 @@ add_dynamic_metric(const char *name, void *data)
     pmResult	*logreq;
     __pmHashNode *hp;
 
-    if ((sts = pmLookupName(1, (char **)&name, &pmid)) < 0 || pmid == PM_ID_NULL) {
+    if ((sts = pmLookupName(1, &name, &pmid)) < 0 || pmid == PM_ID_NULL) {
 	/* hmm, that metric has gone away, or something went wrong  - ignore it */
 	return;
     }

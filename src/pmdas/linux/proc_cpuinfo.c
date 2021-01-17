@@ -1,7 +1,7 @@
 /*
  * Linux /proc/cpuinfo metrics cluster
  *
- * Copyright (c) 2013-2017 Red Hat.
+ * Copyright (c) 2013-2017,2019-2020 Red Hat.
  * Copyright (c) 2000-2005 Silicon Graphics, Inc.  All Rights Reserved.
  * Portions Copyright (c) 2001 Gilly Ran (gilly@exanet.com) - for the
  * portions supporting the Alpha platform.  All rights reserved.
@@ -45,6 +45,29 @@ refresh_sysfs_online(char *instname, const char *node_or_cpu)
     if (n != 1)
 	return 1;
     return online;
+}
+
+unsigned long
+refresh_sysfs_thermal_throttle(char *instname,
+		const char *core_or_package, const char *count_or_time)
+{
+    const char *sysfs_path = "sys/devices/system";
+    char path[MAXPATHLEN];
+    unsigned long value;
+    FILE *fp;
+    int n;
+
+    pmsprintf(path, sizeof(path),
+		"%s/%s/cpu/%s/thermal_throttle/%s_throttle_%s",
+		linux_statspath, sysfs_path, instname,
+		core_or_package, count_or_time);
+    if ((fp = fopen(path, "r")) == NULL)
+	return 0;
+    n = fscanf(fp, "%lu", &value);
+    fclose(fp);
+    if (n != 1)
+	return 0;
+    return value;
 }
 
 static char *

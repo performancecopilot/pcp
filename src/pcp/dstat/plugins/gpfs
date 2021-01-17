@@ -1,0 +1,27 @@
+#
+# pcp-dstat(1) configuration file - see pcp-dstat(5)
+#
+# Requires the GPFS PMDA
+#
+
+[gpfs]
+label = fs/%I
+printtype = b
+precision = 0
+grouptype = 2
+width = 4
+reads = gpfs.fsios.read_bytes
+writes = gpfs.fsios.write_bytes
+
+[gpfs-ops]
+label = gpfs-ops/%I
+printtype = b
+precision = 0
+grouptype = 2
+width = 9
+opens = gpfs.fsios.opens
+reads = gpfs.fsios.reads
+writes = gpfs.fsios.writes
+inode_updates = gpfs.fsios.inode_updates
+readdir = gpfs.fsios.readdir
+closes = gpfs.fsios.closes
