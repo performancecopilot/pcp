@@ -17,4 +17,72 @@
 \f3pmdazfs\f1 \- ZFS filesystem performance metrics domain agent (PMDA) for Linux
 .SH SYNOPSIS
 \f3$PCP_PMDAS_DIR/linux_zfs/pmdazfs\f1
-
+[\f3\-d\f1 \f2domain\f1]
+[\f3\-l\f1 \f2logfile\f1]
+[\f3\-z\f1 \f2zfs_path\f1]
+.SH DESCRIPTION
+.B pmdazfs
+is a Performance Metrics Domain Agent (PMDA) which extracts
+performance metrics describing the state of the ZFS filesystem
+from the stats files located in /proc.
+.PP
+The
+.B zfs
+PMDA exports metrics that measure information about caching (ARC, L2ARC, ZIL, VDEV),
+buffering, RAIDZ, dnode operations and pools IO.
+.PP
+A brief description of the
+.B pmdazfs
+command line options follows:
+.TP 5
+.B \-d
+The performance metrics
+.I domain
+number must be set to a unique value.
+.TP
+.B \-l
+Location of the log file.  By default, a log file named
+.I zfs.log
+is written in the current directory of
+.BR pmcd (1)
+when
+.B pmdazfs
+is started, i.e.
+.BR $PCP_LOG_DIR/pmcd .
+If the log file cannot
+be created or is not writable, output is written to the standard error instead.
+.TP
+.B \-z
+Location of the stats. By default it is
+.I /proc/spl/kstat/zfs
+and can be also set in the ZFS_PATH environment variable.
+.SH INSTALLATION
+OpenZFS is not included in PCP, and has to be installed on the system from the available 
+packages or source. Once OpenZFS is installed and configured, the stats files should appear
+in /proc and PMDA can be added to PMCD using the Install script:
+.PP
+.ft CW
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/zfs
+# ./Install
+.in
+.fi
+.ft 1
+.PP
+To remove PMDA use the Remove script:
+.PP
+.ft CW
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/zfs
+# ./Remove
+.in
+.fi
+.ft 1
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmcd (1),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).
