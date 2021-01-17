@@ -162,12 +162,24 @@ else
     echo '/allow \[pcp_pmcd_t\] .*\[capability2\]/d' >>$tmp.sed
 fi
 
+# rawip_socket is indeed nested and only present if the icmp_socket class
+# IS NOT defined AND the rawip_socket class IS defined
+# (see the selinux GNUlocaldefs file) ... so in the other cases we need
+# to cull the rawip_socket line from $seq.out.in
+#
 if seinfo -x --class=icmp_socket $common_flag 2>&1 \
    | egrep '^[ 	][ 	]*(class |)icmp_socket$' >/dev/null
 then
     echo '/allow \[pcp_pmcd_t\] .*\[rawip_socket\]/d' >>$tmp.sed
 else
     echo '/allow \[pcp_pmcd_t\] .*\[icmp_socket\]/d' >>$tmp.sed
+    if seinfo -x --class=rawip_socket $common_flag 2>&1 \
+       | egrep '^[ 	][ 	]*(class |)rawip_socket$' >/dev/null
+    then
+	:
+    else
+	echo '/allow \[pcp_pmcd_t\] .*\[rawip_socket\]/d' >>$tmp.sed
+    fi
 fi
 
 if seinfo -a 2>&1 \
@@ -195,7 +207,7 @@ echo "Checking that pcpupstream policy module has been properly installed"
 awk '{ print $1 }' $seq.full | grep "pcpupstream$"  | _filter_semodule
 # real QA test starts here
 echo "Checking policies."
-printf '1\nq\n' | sedismod $policy_file | _filter_sedismod
+printf '1\nq\n' | sedismod $policy_file | tee -a $seq.full | _filter_sedismod
 
 # success, all done
 status=0
