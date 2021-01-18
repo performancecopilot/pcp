@@ -693,6 +693,9 @@ PMDA_CALL extern void pmdaTreeRelease(pmdaNameSpace *);
  * pmdaCachePurge
  *	cull inactive entries
  *
+ * pmdaCachePurgeCallback
+ *	cull inactive entries and invoke callback for private data
+ *
  * pmdaCacheResize
  *	set the maximum instance identifier
  */
@@ -703,6 +706,7 @@ PMDA_CALL extern int pmdaCacheLookupName(pmInDom, const char *, int *, void **);
 PMDA_CALL extern int pmdaCacheLookupKey(pmInDom, const char *, int, const void *, char **, int *, void **);
 PMDA_CALL extern int pmdaCacheOp(pmInDom, int);
 PMDA_CALL extern int pmdaCachePurge(pmInDom, time_t);
+PMDA_CALL extern int pmdaCachePurgeCallback(pmInDom, time_t, void (*)(void *));
 PMDA_CALL extern int pmdaCacheResize(pmInDom, int);
 
 #define PMDA_CACHE_LOAD			1
