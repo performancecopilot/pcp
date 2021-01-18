@@ -186,3 +186,8 @@ PCP_PMDA_3.10 {
     pmdaExtSetData;
     pmdaSetData;
 } PCP_PMDA_3.9;
+
+PCP_PMDA_3.11 {
+  global:
+    pmdaCachePurgeCallback;
+} PCP_PMDA_3.10;

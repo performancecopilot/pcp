@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013,2015-2017 Red Hat.
+ * Copyright (c) 2013,2015-2017,2021 Red Hat.
  * Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -1427,7 +1427,7 @@ int pmdaCacheLookupKey(pmInDom indom, const char *name, int keylen, const void *
     return PM_ERR_INST;
 }
 
-int pmdaCachePurge(pmInDom indom, time_t recent)
+int pmdaCachePurgeCallback(pmInDom indom, time_t recent, void (*callback)(void *))
 {
     hdr_t	*h;
     entry_t	*e;
@@ -1449,6 +1449,10 @@ int pmdaCachePurge(pmInDom indom, time_t recent)
 	 */
 	if (e->stamp != 0 && e->stamp < epoch) {
 	    e->state = PMDA_CACHE_EMPTY;
+	    if (callback && e->private) {
+	    	(*callback)(e->private);
+		e->private = NULL;
+	    }
 	    cnt++;
 	}
     }
@@ -1456,6 +1460,11 @@ int pmdaCachePurge(pmInDom indom, time_t recent)
 	h->hstate |= DIRTY_INSTANCE;	/* entries marked empty */
 
     return cnt;
+}
+
+int pmdaCachePurge(pmInDom indom, time_t recent)
+{
+    return pmdaCachePurgeCallback(indom, recent, NULL);
 }
 
 int pmdaCacheResize(pmInDom indom, int maximum)
