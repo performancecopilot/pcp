@@ -511,7 +511,7 @@ Requires: pcp-pmda-samba pcp-pmda-slurm pcp-pmda-vmware pcp-pmda-zimbra
 Requires: pcp-pmda-dm pcp-pmda-apache
 Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-mailq pcp-pmda-mounts
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping pcp-pmda-smart
-Requires: pcp-pmda-lustrecomm pcp-pmda-logger pcp-pmda-docker pcp-pmda-bind2
+Requires: pcp-pmdas-hacluster pcp-pmda-lustrecomm pcp-pmda-logger pcp-pmda-docker pcp-pmda-bind2
 %if !%{disable_podman}
 Requires: pcp-pmda-podman
 %endif
@@ -2007,6 +2007,19 @@ smartmontools package.
 #end pcp-pmda-smart
 
 #
+# pcp-pmda-hacluster
+#
+%package pmda-hacluster
+License: GPLv2+
+Summary: Performance Co-Pilot (PCP) metrics for High Availability Clusters
+URL: https://pcp.io
+Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
+%description pmda-hacluster
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics about linux High Availability (HA) Clusters.
+# end pcp-pmda-hacluster
+
+#
 # pcp-pmda-summary
 #
 %package pmda-summary
@@ -2672,6 +2685,9 @@ exit 0
 
 %preun pmda-smart
 %{pmda_remove "$1" "smart"}
+
+%preun pmda-hacluster
+%{pmda_remove "$1" "hacluster"}
 
 %preun pmda-summary
 %{pmda_remove "$1" "summary"}
@@ -3378,6 +3394,10 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %files pmda-smart
 %{_pmdasdir}/smart
 %{_pmdasexecdir}/smart
+
+%files pmda-hacluster
+%{_pmdasdir}/hacluster
+%{_pmdasexecdir}/hacluster
 
 %files pmda-summary
 %{_pmdasdir}/summary
