@@ -7,6 +7,7 @@ URL: https://pcp.io
 Source: @package_name@-@package_version@.src.tar.gz
 BuildRoot: @build_root@
 Distribution: @package_distribution@
+BuildRequires: make
 BuildRequires: procps bison flex
 BuildRequires: ncurses-devel
 BuildRequires: readline-devel
