@@ -206,6 +206,7 @@ Obsoletes: pcp-manager-debuginfo < 5.2.0
 Obsoletes: pcp-manager < 5.2.0
 
 # https://fedoraproject.org/wiki/Packaging "C and C++"
+BuildRequires: make
 BuildRequires: gcc gcc-c++
 BuildRequires: procps autoconf bison flex
 BuildRequires: nss-devel
