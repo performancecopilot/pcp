@@ -1178,7 +1178,7 @@ zfs_fetch(int numpmid, pmID *pmidlist, pmResult **resp, pmdaExt *pmda)
     __pmID_int *idp;
 
     for (i = 0; i < numpmid; i++) {
-        idp = (__pmID_int *)&(pmidlist[i]);	
+        idp = (__pmID_int *)&(pmidlist[i]);        
         switch (idp->cluster) {
         case ZFS_ARC_CLUST:
             zfs_arcstats_refresh(&arcstats);
