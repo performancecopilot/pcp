@@ -24,27 +24,33 @@ zfs_abdstats_refresh(zfs_abdstats_t *abdstats)
             mname = strtok(line, delim);
             mval  = strtok(NULL, delim); // not used
             mval  = strtok(NULL, delim);
-            if (strcmp(mname, "struct_size") == 0) abdstats->struct_size = strtoul(mval, NULL, 0);
+            if (strncmp(mname, "scatter_", 8) == 0) {
+                if (strncmp(mname, "scatter_page_", 13) == 0) {
+                    if (strcmp(mname, "scatter_page_multi_chunk") == 0) abdstats->scatter_page_multi_chunk = strtoul(mval, NULL, 0);
+                    else if (strcmp(mname, "scatter_page_multi_zone") == 0) abdstats->scatter_page_multi_zone = strtoul(mval, NULL, 0);
+                    else if (strcmp(mname, "scatter_page_alloc_retry") == 0) abdstats->scatter_page_alloc_retry = strtoul(mval, NULL, 0);
+                }
+                else if (strncmp(mname, "scatter_order_", 14) == 0) {
+                    if (strcmp(mname, "scatter_order_0") == 0) abdstats->scatter_order_0 = strtoul(mval, NULL, 0);
+                    else if (strcmp(mname, "scatter_order_1") == 0) abdstats->scatter_order_1 = strtoul(mval, NULL, 0);
+                    else if (strcmp(mname, "scatter_order_2") == 0) abdstats->scatter_order_2 = strtoul(mval, NULL, 0);
+                    else if (strcmp(mname, "scatter_order_3") == 0) abdstats->scatter_order_3 = strtoul(mval, NULL, 0);
+                    else if (strcmp(mname, "scatter_order_4") == 0) abdstats->scatter_order_4 = strtoul(mval, NULL, 0);
+                    else if (strcmp(mname, "scatter_order_5") == 0) abdstats->scatter_order_5 = strtoul(mval, NULL, 0);
+                    else if (strcmp(mname, "scatter_order_6") == 0) abdstats->scatter_order_6 = strtoul(mval, NULL, 0);
+                    else if (strcmp(mname, "scatter_order_7") == 0) abdstats->scatter_order_7 = strtoul(mval, NULL, 0);
+                    else if (strcmp(mname, "scatter_order_8") == 0) abdstats->scatter_order_8 = strtoul(mval, NULL, 0);
+                    else if (strcmp(mname, "scatter_order_9") == 0) abdstats->scatter_order_9 = strtoul(mval, NULL, 0);
+                    else if (strcmp(mname, "scatter_order_10") == 0) abdstats->scatter_order_10 = strtoul(mval, NULL, 0);
+                }
+                else if (strcmp(mname, "scatter_cnt") == 0) abdstats->scatter_cnt = strtoul(mval, NULL, 0);
+                else if (strcmp(mname, "scatter_data_size") == 0) abdstats->scatter_data_size = strtoul(mval, NULL, 0);
+                else if (strcmp(mname, "scatter_chunk_waste") == 0) abdstats->scatter_chunk_waste = strtoul(mval, NULL, 0);
+                else if (strcmp(mname, "scatter_sg_table_retry") == 0) abdstats->scatter_sg_table_retry = strtoul(mval, NULL, 0);
+            }
+            else if (strcmp(mname, "struct_size") == 0) abdstats->struct_size = strtoul(mval, NULL, 0);
             else if (strcmp(mname, "linear_cnt") == 0) abdstats->linear_cnt = strtoul(mval, NULL, 0);
             else if (strcmp(mname, "linear_data_size") == 0) abdstats->linear_data_size = strtoul(mval, NULL, 0);
-            else if (strcmp(mname, "scatter_cnt") == 0) abdstats->scatter_cnt = strtoul(mval, NULL, 0);
-            else if (strcmp(mname, "scatter_data_size") == 0) abdstats->scatter_data_size = strtoul(mval, NULL, 0);
-            else if (strcmp(mname, "scatter_chunk_waste") == 0) abdstats->scatter_chunk_waste = strtoul(mval, NULL, 0);
-            else if (strcmp(mname, "scatter_order_0") == 0) abdstats->scatter_order_0 = strtoul(mval, NULL, 0);
-            else if (strcmp(mname, "scatter_order_1") == 0) abdstats->scatter_order_1 = strtoul(mval, NULL, 0);
-            else if (strcmp(mname, "scatter_order_2") == 0) abdstats->scatter_order_2 = strtoul(mval, NULL, 0);
-            else if (strcmp(mname, "scatter_order_3") == 0) abdstats->scatter_order_3 = strtoul(mval, NULL, 0);
-            else if (strcmp(mname, "scatter_order_4") == 0) abdstats->scatter_order_4 = strtoul(mval, NULL, 0);
-            else if (strcmp(mname, "scatter_order_5") == 0) abdstats->scatter_order_5 = strtoul(mval, NULL, 0);
-            else if (strcmp(mname, "scatter_order_6") == 0) abdstats->scatter_order_6 = strtoul(mval, NULL, 0);
-            else if (strcmp(mname, "scatter_order_7") == 0) abdstats->scatter_order_7 = strtoul(mval, NULL, 0);
-            else if (strcmp(mname, "scatter_order_8") == 0) abdstats->scatter_order_8 = strtoul(mval, NULL, 0);
-            else if (strcmp(mname, "scatter_order_9") == 0) abdstats->scatter_order_9 = strtoul(mval, NULL, 0);
-            else if (strcmp(mname, "scatter_order_10") == 0) abdstats->scatter_order_10 = strtoul(mval, NULL, 0);
-            else if (strcmp(mname, "scatter_page_multi_chunk") == 0) abdstats->scatter_page_multi_chunk = strtoul(mval, NULL, 0);
-            else if (strcmp(mname, "scatter_page_multi_zone") == 0) abdstats->scatter_page_multi_zone = strtoul(mval, NULL, 0);
-            else if (strcmp(mname, "scatter_page_alloc_retry") == 0) abdstats->scatter_page_alloc_retry = strtoul(mval, NULL, 0);
-            else if (strcmp(mname, "scatter_sg_table_retry") == 0) abdstats->scatter_sg_table_retry = strtoul(mval, NULL, 0);
         }
         free(line);
     }

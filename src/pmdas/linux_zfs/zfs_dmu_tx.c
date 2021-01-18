@@ -24,17 +24,19 @@ zfs_dmu_tx_refresh(zfs_dmu_tx_t *dmu_tx)
             mname = strtok(line, delim);
             mval  = strtok(NULL, delim); // not used
             mval  = strtok(NULL, delim);
-            if (strcmp(mname, "dmu_tx_assigned") == 0) dmu_tx->assigned = strtoul(mval, NULL, 0);
+            if (strncmp(mname, "dmu_tx_dirty_", 13) == 0) {
+                if (strcmp(mname, "dmu_tx_dirty_throttle") == 0) dmu_tx->dirty_throttle = strtoul(mval, NULL, 0);
+                else if (strcmp(mname, "dmu_tx_dirty_delay") == 0) dmu_tx->dirty_delay = strtoul(mval, NULL, 0);
+                else if (strcmp(mname, "dmu_tx_dirty_over_max") == 0) dmu_tx->dirty_over_max = strtoul(mval, NULL, 0);
+                else if (strcmp(mname, "dmu_tx_dirty_frees_delay") == 0) dmu_tx->dirty_frees_delay = strtoul(mval, NULL, 0);
+            }
+            else if (strcmp(mname, "dmu_tx_assigned") == 0) dmu_tx->assigned = strtoul(mval, NULL, 0);
             else if (strcmp(mname, "dmu_tx_delay") == 0) dmu_tx->delay = strtoul(mval, NULL, 0);
             else if (strcmp(mname, "dmu_tx_error") == 0) dmu_tx->error = strtoul(mval, NULL, 0);
             else if (strcmp(mname, "dmu_tx_suspended") == 0) dmu_tx->suspended = strtoul(mval, NULL, 0);
             else if (strcmp(mname, "dmu_tx_group") == 0) dmu_tx->group = strtoul(mval, NULL, 0);
             else if (strcmp(mname, "dmu_tx_memory_reserve") == 0) dmu_tx->memory_reserve = strtoul(mval, NULL, 0);
             else if (strcmp(mname, "dmu_tx_memory_reclaim") == 0) dmu_tx->memory_reclaim = strtoul(mval, NULL, 0);
-            else if (strcmp(mname, "dmu_tx_dirty_throttle") == 0) dmu_tx->dirty_throttle = strtoul(mval, NULL, 0);
-            else if (strcmp(mname, "dmu_tx_dirty_delay") == 0) dmu_tx->dirty_delay = strtoul(mval, NULL, 0);
-            else if (strcmp(mname, "dmu_tx_dirty_over_max") == 0) dmu_tx->dirty_over_max = strtoul(mval, NULL, 0);
-            else if (strcmp(mname, "dmu_tx_dirty_frees_delay") == 0) dmu_tx->dirty_frees_delay = strtoul(mval, NULL, 0);
             else if (strcmp(mname, "dmu_tx_quota") == 0) dmu_tx->quota = strtoul(mval, NULL, 0);
         }
         free(line);
