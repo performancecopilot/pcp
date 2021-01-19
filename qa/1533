@@ -20,21 +20,27 @@ trap "cd $here; $sudo rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
 {
-    $here/src/sortinst \
-    | sed -e '/inst /s/\[[01] /[0-or-1 /'
+    $here/src/sortinst | \
+    sed \
+        -e '/inst /s/\[[01] /[0-or-1 /' \
+        -e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
+        -e "s,$PCP_VAR_DIR,PCP_VAR_DIR,g" \
+    #end
 }
 
-
 root=$tmp.root
+pmns=$PCP_VAR_DIR/pmns/root_zfs
 pmda=$PCP_PMDAS_DIR/zfs/pmda_zfs.so,zfs_init
 tgz=$here/linux/zfs-stats.v2.tgz
+$sudo rm -f $PCP_VAR_DIR/config/pmda/153.*
 $sudo rm -fr $root
 mkdir $root || _fail "root in use when processing $tgz"
 cd $root
 $sudo tar xzf $tgz
 export ZFS_PATH=$root/zfs
+metrics=`pminfo -n $pmns zfs | LC_COLLATE=POSIX sort`
 echo "== Valgrind checking metric descriptors and values"
-_run_valgrind pminfo -L -K clear -K add,153,$pmda -dfmtT zfs 2>&1 | _filter
+_run_valgrind pminfo -L -K clear -K add,153,$pmda -n $pmns -dfmtT $metrics | _filter
 echo && echo "== done" && echo
 cd $here
 
