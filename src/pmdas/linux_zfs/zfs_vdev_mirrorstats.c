@@ -29,7 +29,7 @@ zfs_vdev_mirrorstats_refresh(zfs_vdev_mirrorstats_t *vdev_mirrorstats)
     FILE *fp;
     size_t len = 0;
 
-    if (zfs_stats_file_check(fname, "vdev_mirror_stats") != 0)
+    if (zfs_stats_file_check(fname, sizeof(fname), "vdev_mirror_stats") != 0)
         return;
 
     fp = fopen(fname, "r");

@@ -29,9 +29,9 @@ zfs_arcstats_refresh(zfs_arcstats_t *arcstats)
     FILE *fp;
     size_t len = 0;
 
-    if (zfs_stats_file_check(fname, "arcstats") != 0)
+    if (zfs_stats_file_check(fname, sizeof(fname), "arcstats") != 0)
         return;
-    
+
     fp = fopen(fname, "r");
     if (fp != NULL) {
         while (getline(&line, &len, fp) != -1) {

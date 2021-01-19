@@ -29,7 +29,7 @@ zfs_abdstats_refresh(zfs_abdstats_t *abdstats)
     FILE *fp;
     size_t len = 0;
 
-    if (zfs_stats_file_check(fname, "abdstats") != 0)
+    if (zfs_stats_file_check(fname, sizeof(fname), "abdstats") != 0)
         return;
 
     fp = fopen(fname, "r");

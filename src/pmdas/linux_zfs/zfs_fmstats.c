@@ -29,7 +29,7 @@ zfs_fmstats_refresh(zfs_fmstats_t *fmstats)
     FILE *fp;
     size_t len = 0;
 
-    if (zfs_stats_file_check(fname, "fm") != 0)
+    if (zfs_stats_file_check(fname, sizeof(fname), "fm") != 0)
         return;
 
     fp = fopen(fname, "r");

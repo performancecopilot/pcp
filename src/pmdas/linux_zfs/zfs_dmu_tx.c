@@ -29,7 +29,7 @@ zfs_dmu_tx_refresh(zfs_dmu_tx_t *dmu_tx)
     FILE *fp;
     size_t len = 0;
 
-    if (zfs_stats_file_check(fname, "dmu_tx") != 0)
+    if (zfs_stats_file_check(fname, sizeof(fname), "dmu_tx") != 0)
         return;
 
     fp = fopen(fname, "r");

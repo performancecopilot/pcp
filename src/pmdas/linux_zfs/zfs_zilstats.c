@@ -29,7 +29,7 @@ zfs_zilstats_refresh(zfs_zilstats_t *zilstats)
     FILE *fp;
     size_t len = 0;
 
-    if (zfs_stats_file_check(fname, "zil") != 0)
+    if (zfs_stats_file_check(fname, sizeof(fname), "zil") != 0)
         return;
 
     fp = fopen(fname, "r");

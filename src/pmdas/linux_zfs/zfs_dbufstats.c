@@ -29,7 +29,7 @@ zfs_dbufstats_refresh(zfs_dbufstats_t *dbufstats)
     FILE *fp;
     size_t len = 0;
 
-    if (zfs_stats_file_check(fname, "dbufstats") != 0)
+    if (zfs_stats_file_check(fname, sizeof(fname), "dbufstats") != 0)
         return;
 
     fp = fopen(fname, "r");
