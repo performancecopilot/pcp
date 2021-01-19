@@ -5512,7 +5512,7 @@ sockets.skmem.back_log PMID: 154.1.88 [memory used for the sk backlog queue]
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 0
 
-sockets.skmem.sock_drop PMID: 154.1.89 [dropped packets before de multiplexed into socket]
+sockets.skmem.sock_drop PMID: 154.1.89 [dropped packets before demultiplexed into socket]
     Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
     Semantics: instant  Units: none
     inst [0 or "udp/10.0.0.10:49693"] value 0
@@ -5607,7 +5607,7 @@ sockets.skmem.sock_drop PMID: 154.1.89 [dropped packets before de multiplexed in
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 0
 
-sockets.wscale.str PMID: 154.1.60 []
+sockets.wscale.str PMID: 154.1.60 [send and rcv scale factor as a string]
     Data Type: string  InDom: 154.0 0x26800000
     Semantics: discrete  Units: none
     inst [0 or "udp/10.0.0.10:49693"] value ""
@@ -8043,7 +8043,7 @@ sockets.skmem.back_log PMID: 154.1.88 [memory used for the sk backlog queue]
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-sockets.skmem.sock_drop PMID: 154.1.89 [dropped packets before de multiplexed into socket]
+sockets.skmem.sock_drop PMID: 154.1.89 [dropped packets before demultiplexed into socket]
     Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
     Semantics: instant  Units: none
     inst [0 or "udp/0.0.0.0:5353"] value 0
@@ -8075,7 +8075,7 @@ sockets.skmem.sock_drop PMID: 154.1.89 [dropped packets before de multiplexed in
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-sockets.wscale.str PMID: 154.1.60 []
+sockets.wscale.str PMID: 154.1.60 [send and rcv scale factor as a string]
     Data Type: string  InDom: 154.0 0x26800000
     Semantics: discrete  Units: none
     inst [0 or "udp/0.0.0.0:5353"] value ""
