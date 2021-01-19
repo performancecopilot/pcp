@@ -28,8 +28,9 @@ zfs_zfetchstats_refresh(zfs_zfetchstats_t *zfetchstats)
     char fname[MAXPATHLEN];
     FILE *fp;
     size_t len = 0;
+    uint64_t value;
 
-    if (zfs_stats_file_check(fname, "zfetchstats") != 0)
+    if (zfs_stats_file_check(fname, sizeof(fname), "zfetchstats") != 0)
         return;
 
     fp = fopen(fname, "r");
@@ -38,9 +39,11 @@ zfs_zfetchstats_refresh(zfs_zfetchstats_t *zfetchstats)
             mname = strtok(line, delim);
             mval  = strtok(NULL, delim); // not used
             mval  = strtok(NULL, delim);
-            if (strcmp(mname, "hits") == 0) zfetchstats->hits = strtoul(mval, NULL, 0);
-            else if (strcmp(mname, "misses") == 0) zfetchstats->misses = strtoul(mval, NULL, 0);
-            else if (strcmp(mname, "max_streams") == 0) zfetchstats->max_streams = strtoul(mval, NULL, 0);
+	    value = strtoull(mval, NULL, 0);
+
+            if (strcmp(mname, "hits") == 0) zfetchstats->hits = value;
+            else if (strcmp(mname, "misses") == 0) zfetchstats->misses = value;
+            else if (strcmp(mname, "max_streams") == 0) zfetchstats->max_streams = value;
         }
         free(line);
     }
