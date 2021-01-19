@@ -41,7 +41,8 @@ The performance metrics
 number must be set to a unique value.
 .TP
 .B \-l
-Location of the log file.  By default, a log file named
+Location of the log file.
+By default, a log file named
 .I zfs.log
 is written in the current directory of
 .BR pmcd (1)
@@ -57,8 +58,9 @@ Location of the stats. By default it is
 .I /proc/spl/kstat/zfs
 and can be also set in the ZFS_PATH environment variable.
 .SH INSTALLATION
-OpenZFS is not included in PCP, and has to be installed on the system from the available 
-packages or source. Once OpenZFS is installed and configured, the stats files should appear
+OpenZFS is not included in PCP, and has to be installed on the system
+from the available packages or source.
+Once OpenZFS is installed and configured, the stats files should appear
 in /proc and PMDA can be added to PMCD using the Install script:
 .PP
 .ft CW
