@@ -270,7 +270,7 @@ BuildRequires: qt5-qtsvg-devel
 %endif
 %endif
 
-Requires: bash xz gawk sed grep findutils which %{_hostname_executable}
+Requires: bash xz gawk sed grep findutils which iproute %{_hostname_executable}
 Requires: pcp-libs = %{version}-%{release}
 %if !%{disable_selinux}
 Requires: pcp-selinux = %{version}-%{release}
