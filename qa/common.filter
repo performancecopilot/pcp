@@ -917,6 +917,7 @@ _filter_torture_api()
 	-e '/^    waitio /d' \
 	-e '/^    xfs /d' \
 	-e '/^    xvm /d' \
+	-e '/^    zfs /d' \
 	-e '/^    zram /d' \
     # end
 }

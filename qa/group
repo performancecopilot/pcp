@@ -254,6 +254,7 @@ pmda.shping
 pmda.simple
 pmda.slurm
 pmda.smart
+pmda.sockets
 pmda.summary
 pmda.systemd
 pmda.trivial
@@ -261,8 +262,8 @@ pmda.txmon
 pmda.unbound
 pmda.weblog
 pmda.xfs
+pmda.zfs
 pmda.zswap
-pmda.sockets
 
 # tools which use PCP_COUNTER_WRAP
 wrap
@@ -1796,6 +1797,11 @@ x11
 1490 python local labels
 1495 pmlogrewrite labels pmdumplog local
 1511 pmcd local
+1530 pmda.zfs local
+1531 pmda.zfs local
+1532 pmda.zfs local
+1533 pmda.zfs local
+1534 pmda.zfs local
 1543 pmproxy local
 1544 pmproxy python local
 1545 pcp2xml python pcp2xxx local

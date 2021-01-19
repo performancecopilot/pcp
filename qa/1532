@@ -12,6 +12,7 @@ echo "QA output created by $seq"
 . ./common.check
 
 [ $PCP_PLATFORM = linux ] || _notrun "Linux ZFS PMDA is Linux-specific (uses procfs)"
+grep -q zfs /proc/filesystems || _notrun "ZFS filesystem unsupported by the running kernel"
 which zpool > /dev/null || _notrun "zpool not found, please check your OpenZFS installation"
 
 status=1
@@ -25,33 +26,36 @@ _filter()
 }
 
 pmda=$PCP_PMDAS_DIR/zfs/pmda_zfs.so,zfs_init
+pmns=$PCP_VAR_DIR/pmns/root_zfs
+opts="-L -K clear -K add,153,$pmda -n $pmns"
 export ZFS_PATH=
 poolname=pmdazfs_test
 root=$tmp.root
+$sudo rm -f $PCP_VAR_DIR/config/pmda/153.*
 $sudo rm -fr $root
 mkdir $root || _fail "root in use when processing $tgz"
 $sudo dd if=/dev/zero of=$root/disk.img bs=1024 count=65536 > /dev/null 2>&1
 $sudo zpool create $poolname $root/disk.img
 echo "== Checking metric count for ZFS ARC"
-pminfo -L -K clear -K add,153,$pmda -f zfs.arc |  grep '^ \+value ' | wc -l 2>&1
+pminfo $opts -f zfs.arc |  grep '^ \+value ' | wc -l 2>&1
 echo "== Checking metric count for ZFS ABD"
-pminfo -L -K clear -K add,153,$pmda -f zfs.abd |  grep '^ \+value ' | wc -l 2>&1
+pminfo $opts -f zfs.abd |  grep '^ \+value ' | wc -l 2>&1
 echo "== Checking metric count for ZFS DBUF"
-pminfo -L -K clear -K add,153,$pmda -f zfs.dbuf |  grep '^ \+value ' | wc -l 2>&1
+pminfo $opts -f zfs.dbuf |  grep '^ \+value ' | wc -l 2>&1
 echo "== Checking metric count for ZFS DMU TX"
-pminfo -L -K clear -K add,153,$pmda -f zfs.dmu_tx |  grep '^ \+value ' | wc -l 2>&1
+pminfo $opts -f zfs.dmu_tx |  grep '^ \+value ' | wc -l 2>&1
 echo "== Checking metric count for ZFS DNode"
-pminfo -L -K clear -K add,153,$pmda -f zfs.dnode |  grep '^ \+value ' | wc -l 2>&1
+pminfo $opts -f zfs.dnode |  grep '^ \+value ' | wc -l 2>&1
 echo "== Checking metric count for ZFS VDev"
-pminfo -L -K clear -K add,153,$pmda -f zfs.vdev |  grep '^ \+value ' | wc -l 2>&1
+pminfo $opts -f zfs.vdev |  grep '^ \+value ' | wc -l 2>&1
 echo "== Checking metric count for ZFS XUIO"
-pminfo -L -K clear -K add,153,$pmda -f zfs.xuio |  grep '^ \+value ' | wc -l 2>&1
+pminfo $opts -f zfs.xuio |  grep '^ \+value ' | wc -l 2>&1
 echo "== Checking metric count for ZFS ZFetch"
-pminfo -L -K clear -K add,153,$pmda -f zfs.zfetch |  grep '^ \+value ' | wc -l 2>&1
+pminfo $opts -f zfs.zfetch |  grep '^ \+value ' | wc -l 2>&1
 echo "== Checking metric count for ZFS ZIL"
-pminfo -L -K clear -K add,153,$pmda -f zfs.zil |  grep '^ \+value ' | wc -l 2>&1
+pminfo $opts -f zfs.zil |  grep '^ \+value ' | wc -l 2>&1
 echo "== Checking metric count for ZFS pool $poolname"
-pminfo -L -K clear -K add,153,$pmda -f zfs.pool | grep $poolname | wc -l 2>&1
+pminfo $opts -f zfs.pool | grep $poolname | wc -l 2>&1
 echo && echo "== done" && echo
 $sudo zpool destroy $poolname
 $sudo rm $root/disk.img
