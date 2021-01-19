@@ -1,0 +1,11 @@
+/*
+ * fake "root" for validating the local PMNS subtree
+ */
+
+#include <stdpmid>
+
+#ifndef SOCKETS
+#define SOCKETS	154
+#endif
+
+#include "root_sockets"
