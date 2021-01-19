@@ -152,18 +152,18 @@ zfs_poolstats_refresh(zfs_poolstats_t **poolstats, pmdaInstid **pools, pmdaIndom
             while (getline(&line, &len, fp) != -1) {
                 if (nread_seen == 1) {
                     // Tokenize the line to extract the metrics
-                    (*poolstats)[i].nread        = strtoul(strtok(line, delim), NULL, 0);
-                    (*poolstats)[i].nwritten        = strtoul(strtok(NULL, delim), NULL, 0);
-                    (*poolstats)[i].reads        = strtoul(strtok(NULL, delim), NULL, 0);
-                    (*poolstats)[i].writes        = strtoul(strtok(NULL, delim), NULL, 0);
-                    (*poolstats)[i].wtime        = strtoul(strtok(NULL, delim), NULL, 0);
-                    (*poolstats)[i].wlentime        = strtoul(strtok(NULL, delim), NULL, 0);
-                    (*poolstats)[i].wupdate        = strtoul(strtok(NULL, delim), NULL, 0);
-                    (*poolstats)[i].rtime        = strtoul(strtok(NULL, delim), NULL, 0);
-                    (*poolstats)[i].rlentime        = strtoul(strtok(NULL, delim), NULL, 0);
-                    (*poolstats)[i].rupdate        = strtoul(strtok(NULL, delim), NULL, 0);
-                    (*poolstats)[i].wcnt        = strtoul(strtok(NULL, delim), NULL, 0);
-                    (*poolstats)[i].rcnt        = strtoul(strtok(NULL, delim), NULL, 0);
+                    (*poolstats)[i].nread       = strtoull(strtok(line, delim), NULL, 0);
+                    (*poolstats)[i].nwritten    = strtoull(strtok(NULL, delim), NULL, 0);
+                    (*poolstats)[i].reads       = strtoull(strtok(NULL, delim), NULL, 0);
+                    (*poolstats)[i].writes      = strtoull(strtok(NULL, delim), NULL, 0);
+                    (*poolstats)[i].wtime       = strtoull(strtok(NULL, delim), NULL, 0);
+                    (*poolstats)[i].wlentime    = strtoull(strtok(NULL, delim), NULL, 0);
+                    (*poolstats)[i].wupdate     = strtoull(strtok(NULL, delim), NULL, 0);
+                    (*poolstats)[i].rtime       = strtoull(strtok(NULL, delim), NULL, 0);
+                    (*poolstats)[i].rlentime    = strtoull(strtok(NULL, delim), NULL, 0);
+                    (*poolstats)[i].rupdate     = strtoull(strtok(NULL, delim), NULL, 0);
+                    (*poolstats)[i].wcnt        = strtoull(strtok(NULL, delim), NULL, 0);
+                    (*poolstats)[i].rcnt        = strtoull(strtok(NULL, delim), NULL, 0);
                 }
                 else {
                     // Search for the header line

@@ -28,6 +28,7 @@ zfs_zilstats_refresh(zfs_zilstats_t *zilstats)
     char fname[MAXPATHLEN];
     FILE *fp;
     size_t len = 0;
+    uint64_t value;
 
     if (zfs_stats_file_check(fname, sizeof(fname), "zil") != 0)
         return;
@@ -38,23 +39,33 @@ zfs_zilstats_refresh(zfs_zilstats_t *zilstats)
             mname = strtok(line, delim);
             mval  = strtok(NULL, delim); // not used
             mval  = strtok(NULL, delim);
-            if (strncmp(mname, "zil_itx_" , 8) == 0) {
-                if (strncmp(mname, "zil_itx_metaslab_" , 17) == 0) {
-                    if (strcmp(mname, "zil_itx_metaslab_normal_count") == 0) zilstats->itx_metaslab_normal_count = strtoul(mval, NULL, 0);
-                    else if (strcmp(mname, "zil_itx_metaslab_normal_bytes") == 0) zilstats->itx_metaslab_normal_bytes = strtoul(mval, NULL, 0);
-                    else if (strcmp(mname, "zil_itx_metaslab_slog_count") == 0) zilstats->itx_metaslab_slog_count = strtoul(mval, NULL, 0);
-                    else if (strcmp(mname, "zil_itx_metaslab_slog_bytes") == 0) zilstats->itx_metaslab_slog_bytes = strtoul(mval, NULL, 0);
+	    value = strtoull(mval, NULL, 0);
+
+            if (strncmp(mname, "zil_" , 4) != 0)
+                continue;
+            mname += 4;
+            if (strncmp(mname, "itx_" , 4) == 0) {
+                mname += 4;
+                if (strncmp(mname, "metaslab_" , 9) == 0) {
+                    mname += 9;
+                    if (strcmp(mname, "normal_count") == 0) zilstats->itx_metaslab_normal_count = value;
+                    else if (strcmp(mname, "normal_bytes") == 0) zilstats->itx_metaslab_normal_bytes = value;
+                    else if (strcmp(mname, "slog_count") == 0) zilstats->itx_metaslab_slog_count = value;
+                    else if (strcmp(mname, "slog_bytes") == 0) zilstats->itx_metaslab_slog_bytes = value;
                 }
-                else if (strcmp(mname, "zil_itx_count") == 0) zilstats->itx_count = strtoul(mval, NULL, 0);
-                else if (strcmp(mname, "zil_itx_indirect_count") == 0) zilstats->itx_indirect_count = strtoul(mval, NULL, 0);
-                else if (strcmp(mname, "zil_itx_indirect_bytes") == 0) zilstats->itx_indirect_bytes = strtoul(mval, NULL, 0);
-                else if (strcmp(mname, "zil_itx_copied_count") == 0) zilstats->itx_copied_count = strtoul(mval, NULL, 0);
-                else if (strcmp(mname, "zil_itx_copied_bytes") == 0) zilstats->itx_copied_bytes = strtoul(mval, NULL, 0);
-                else if (strcmp(mname, "zil_itx_needcopy_count") == 0) zilstats->itx_needcopy_count = strtoul(mval, NULL, 0);
-                else if (strcmp(mname, "zil_itx_needcopy_bytes") == 0) zilstats->itx_needcopy_bytes = strtoul(mval, NULL, 0);
+                else if (strcmp(mname, "count") == 0) zilstats->itx_count = value;
+                else if (strcmp(mname, "indirect_count") == 0) zilstats->itx_indirect_count = value;
+                else if (strcmp(mname, "indirect_bytes") == 0) zilstats->itx_indirect_bytes = value;
+                else if (strcmp(mname, "copied_count") == 0) zilstats->itx_copied_count = value;
+                else if (strcmp(mname, "copied_bytes") == 0) zilstats->itx_copied_bytes = value;
+                else if (strcmp(mname, "needcopy_count") == 0) zilstats->itx_needcopy_count = value;
+                else if (strcmp(mname, "needcopy_bytes") == 0) zilstats->itx_needcopy_bytes = value;
             }
-            else if (strcmp(mname, "zil_commit_count") == 0) zilstats->commit_count = strtoul(mval, NULL, 0);
-            else if (strcmp(mname, "zil_commit_writer_count") == 0) zilstats->commit_writer_count = strtoul(mval, NULL, 0);
+            if (strncmp(mname, "commit_" , 7) == 0) {
+                mname += 7;
+                if (strcmp(mname, "count") == 0) zilstats->commit_count = value;
+                else if (strcmp(mname, "writer_count") == 0) zilstats->commit_writer_count = value;
+            }
         }
         free(line);
     }

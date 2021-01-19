@@ -28,6 +28,7 @@ zfs_vdev_mirrorstats_refresh(zfs_vdev_mirrorstats_t *vdev_mirrorstats)
     char fname[MAXPATHLEN];
     FILE *fp;
     size_t len = 0;
+    uint64_t value;
 
     if (zfs_stats_file_check(fname, sizeof(fname), "vdev_mirror_stats") != 0)
         return;
@@ -38,13 +39,15 @@ zfs_vdev_mirrorstats_refresh(zfs_vdev_mirrorstats_t *vdev_mirrorstats)
             mname = strtok(line, delim);
             mval  = strtok(NULL, delim); // not used
             mval  = strtok(NULL, delim);
-            if (strcmp(mname, "rotating_linear") == 0) vdev_mirrorstats->rotating_linear = strtoul(mval, NULL, 0);
-            else if (strcmp(mname, "rotating_offset") == 0) vdev_mirrorstats->rotating_offset = strtoul(mval, NULL, 0);
-            else if (strcmp(mname, "rotating_seek") == 0) vdev_mirrorstats->rotating_seek = strtoul(mval, NULL, 0);
-            else if (strcmp(mname, "non_rotating_linear") == 0) vdev_mirrorstats->non_rotating_linear = strtoul(mval, NULL, 0);
-            else if (strcmp(mname, "non_rotating_seek") == 0) vdev_mirrorstats->non_rotating_seek = strtoul(mval, NULL, 0);
-            else if (strcmp(mname, "preferred_found") == 0) vdev_mirrorstats->preferred_found = strtoul(mval, NULL, 0);
-            else if (strcmp(mname, "preferred_not_found") == 0) vdev_mirrorstats->preferred_not_found = strtoul(mval, NULL, 0);
+	    value = strtoull(mval, NULL, 0);
+
+            if (strcmp(mname, "rotating_linear") == 0) vdev_mirrorstats->rotating_linear = value;
+            else if (strcmp(mname, "rotating_offset") == 0) vdev_mirrorstats->rotating_offset = value;
+            else if (strcmp(mname, "rotating_seek") == 0) vdev_mirrorstats->rotating_seek = value;
+            else if (strcmp(mname, "non_rotating_linear") == 0) vdev_mirrorstats->non_rotating_linear = value;
+            else if (strcmp(mname, "non_rotating_seek") == 0) vdev_mirrorstats->non_rotating_seek = value;
+            else if (strcmp(mname, "preferred_found") == 0) vdev_mirrorstats->preferred_found = value;
+            else if (strcmp(mname, "preferred_not_found") == 0) vdev_mirrorstats->preferred_not_found = value;
         }
         free(line);
     }
