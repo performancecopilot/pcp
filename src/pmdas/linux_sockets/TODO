@@ -1,0 +1,4 @@
+- sockets.timer.expire_str metrics - parse strings to give sockets.timer.expire
+- ss filter support via config and/or pmstore
+- finish man page
+- pmlogconf config

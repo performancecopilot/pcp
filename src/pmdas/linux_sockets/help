@@ -1,0 +1,220 @@
+#
+# Copyright (c) 2021 Red Hat.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# Sockets PMDA help file
+#
+# lines beginning with a # are ignored
+# lines beginning @ introduce a new entry of the form
+#  @ metric_name oneline-text
+#  help text goes
+#  here over multiple lines
+#  ...
+#
+# the metric_name is decoded against the default PMNS -- as a special case,
+# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
+# instance domain identification, and the text describes the instance domain
+#
+# blank lines before the @ line are ignored
+#
+@ 154.0 open sockets
+
+@ sockets.af socket address family as a string
+Depending on PMDA configuration options, the address family may be one
+of tcp, tcp6, udp, udp6, udplite, udplite6 or raw
+
+@ sockets.state socket state as a string, commonly UNCONN, ESTAB, TIME-WAIT
+Possible socket states depend on the address family. Common states include:
+UNCONN, ESTAB, SYN_SENT, SYN_RECV, FIN_WAIT1, FIN_WAIT2, TIME_WAIT,
+CLOSE, CLOSE_WAIT, LAST_ACK, LISTEN and CLOSING
+
+@ sockets.recvq length of the receive queue
+
+@ sockets.sendq length of the send queue
+
+@ sockets.src local (source) IP address (IPv4 or IPv6) and port
+
+@ sockets.dst destination IP address (IPv4 or IPv6) and port
+
+@ sockets.uid the user id the socket belongs to
+
+@ sockets.inode the socket's inode number in VFS
+The socket inode can be matched up with symlinks in /proc/<pid>/fd
+for the process thatcreated the socket.
+
+@ sockets.sk uuid cookie of the socket
+
+@ sockets.cgroup cgroup v2 pathname
+Cgroup v2 pathname. This pathname is relative to the mount point
+of the hierarchy (usually below /sys/fs/cgroup)
+
+@ sockets.v6only boolean value set to one if the socket is IPv6, 0 otherwise
+
+@ sockets.ts boolean value set to one if the timestamp option is set
+
+@ sockets.sack boolean value set to one if the sack option is set
+
+@ sockets.cubic boolean value set to one if the cubic option is set
+
+@ sockets.ato ack timeout
+Ack timeout in milliseconds, used for delayed ack mode.
+
+@ sockets.mss maximum segment size
+
+@ sockets.pmtu path maximum transmission unit
+
+@ sockets.rcvmss receive maximum transmission units
+
+@ sockets.advmss advertised maximum segment size
+
+@ sockets.cwnd congestion window size
+
+@ sockets.ssthresh tcp congestion window slow start threshold
+
+@ sockets.bytes_sent count of bytes sent using the socket
+
+@ sockets.bytes_retrans count of bytes retransmitted using the socket
+
+@ sockets.bytes_acked count of bytes acked using the socket
+
+@ sockets.bytes_received count of bytes received using the socket
+
+@ sockets.segs_out count of segments sent out using the socket
+
+@ sockets.segs_in count of segments received using the socket
+
+@ sockets.data_segs_out count of data segments sent out using the socket
+
+@ sockets.data_segs_in count of data segments received using the socket
+
+@ sockets.send egress bps
+
+@ sockets.lastsnd how long time since the last packet sent in milliseconds
+
+@ sockets.lastrcv how long time since the last packet received in milliseconds
+
+@ sockets.lastack how long time since the last ack received in milliseconds
+
+@ sockets.pacing_rate the pacing rate of the socket
+Note max_pacing_rate is currently not supported
+
+@ sockets.delivery_rate most recent goodput, as measured by tcp_rate_gen().
+limited by the sending application (e.g., no data to send), it reports
+the highest measurement instead of the most recent. The unit is bytes
+per second.
+
+@ sockets.delivered
+
+@ sockets.app_limited TCP flows are limited with application-limiting
+
+@ sockets.reord_seen
+
+@ sockets.busy TCP connection is busy??
+
+@ sockets.dsack_dups duplicate selective acknowledgements
+
+@ sockets.rcv_rtt receive round trip time
+
+@ sockets.rcv_space TCP internal auto tuning socket receive buffer size
+
+@ sockets.rcv_ssthresh TCP congestion window slow start threshold
+The slow start threshold (ssthresh) determines the (de)activation of
+slow start. When a new connection is made, cwnd is initialized to one
+TCP data or acknowledgment packet, and waits for an acknowledgement,
+or ACK. Slow start also terminates when congestion is experienced.
+
+@ sockets.minrtt minimum round trip time achieved in the socket
+
+@ sockets.notsent unsent data bytes that are still buffered
+
+@ sockets.timer.str the 'timer:' string, as reported by ss
+Format is <timer_name>,<expire_time>,<retrans>. See also sockets.timer.name,
+sockets.timer.expire_str and sockets.timer.retrans.
+
+@ sockets.timer.name name of the socket timer.
+
+on : means one of these timers: TCP retrans timer, TCP early retrans
+timer and tail loss probe timer
+
+keepalive: tcp keep alive timer
+
+timewait: timewait stage timer
+
+persist: zero window probe timer
+
+unknown: none of the above timers
+
+@ sockets.timer.expire_str how long until the timer will expire
+Currently only exported as a string.
+
+@ sockets.timer.retrans how many times the retransmission occured in timer
+
+@ sockets.skmem.str socket memory details, as a string
+The format is r<rmem_alloc>,rb<rcv_buf>,t<wmem_alloc>,tb<snd_buf>,
+f<fwd_alloc>,w<wmem_queued>,o<opt_mem>, bl<back_log>,d<sock_drop>
+
+For details, see also sockets.skmem.rmem_alloc, sockets.skmem.wmem_alloc,
+sockets.skmem.rcv_buf, sockets.skmem.snd_buf, sockets.skmem.fwd_alloc,
+sockets.skmem.wmem_queued, sockets.skmem.ropt_mem, sockets.skmem.back_log,
+sockets.skmem.sock_drop.
+
+@ sockets.skmem.rmem_alloc memory allocated for receiving packet
+
+@ sockets.skmem.wmem_alloc memory used for sending packet (which has been sent
+Memory used for sending packet (which has been sent to layer 3)
+
+@ sockets.skmem.rcv_buf total memory that can be allocated to recv packets
+
+@ sockets.skmem.snd_buf total memory that can be allocated to send packets
+
+@ sockets.skmem.fwd_alloc cache memory allocated but not yet used for snd/rcv
+The memory allocated by the socket as cache, but not used for receiving
+or sending packet yet. If need memory to send/receive packet, the memory
+in this cache will be used before allocate additional memory.
+
+@ sockets.skmem.wmem_queued memory allocated for sending packet
+The memory allocated for sending packet (which has not been sent to layer 3)
+
+@ sockets.skmem.ropt_mem memory used for storing socket options
+The memory used for storing socket option, e.g., the key for
+TCP MD5 signature
+
+@ sockets.skmem.back_log memory used for the sk backlog queue
+The memory used for the sk backlog queue. On a process context, if the
+process is receiving packet, and a new packet is received, it will be
+put into the sk backlog queue, so it can be received by the process
+immediately.
+
+@ sockets.skmem.sock_drop dropped packets before demultiplexed into socket
+The number of packets dropped before they are demultiplexed into the socket.
+
+@ sockets.wscale.str send and rcv scale factor as a string
+If the window scale option is used, this field shows the send scale
+factor and receive scale factor as a string <snd_wscale>:<rcv_wscale>.
+
+See also sockets.wscale.snd and sockets.wscale.rcv.
+
+@ sockets.wscale.snd send scale factor when window scale is used
+
+@ sockets.wscale.rcv receive scale factor when window scale is used
+
+@ sockets.round_trip.str average round trip time and variance, as a string
+String value of the average round trip time and the mean deviation of rtt,
+both in milliseconds.
+
+See also sockets.round_trip.rtt and sockets.round_trip.rttvar
+
+@ sockets.round_trip.rtt average round trip time in milliseconds
+See also sockets.round_trip.str and sockets.round_trip.rttvar
+
+@ sockets.round_trip.rttvar round trip time mean deviation.
+See also sockets.round_trip.str and sockets.round_trip.rtt.
