@@ -29,7 +29,7 @@ zfs_zfetchstats_refresh(zfs_zfetchstats_t *zfetchstats)
     FILE *fp;
     size_t len = 0;
 
-    if (zfs_stats_file_check(fname, "zfetchstats") != 0)
+    if (zfs_stats_file_check(fname, sizeof(fname), "zfetchstats") != 0)
         return;
 
     fp = fopen(fname, "r");

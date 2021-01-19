@@ -122,15 +122,15 @@ zfs_poolstats_refresh(zfs_poolstats_t **poolstats, pmdaInstid **pools, pmdaIndom
     if ((*poolstats = realloc(*poolstats, (*poolsindom).it_numinst * sizeof(zfs_poolstats_t))) == NULL)
         pmNoMem("poolstats refresh", (*poolsindom).it_numinst * sizeof(zfs_poolstats_t), PM_FATAL_ERR);
     for (i = 0; i < (*poolsindom).it_numinst; i++) {
-        pool_dir[0] = 0;        
-        sprintf(pool_dir, "%s%c%s", ZFS_PATH, pmPathSeparator(), (*poolsindom).it_set[i].i_name);
+        pool_dir[0] = 0;
+        pmsprintf(pool_dir, sizeof(pool_dir), "%s%c%s", ZFS_PATH, pmPathSeparator(), (*poolsindom).it_set[i].i_name);
         if (stat(pool_dir, &sstat) != 0) {
             continue;
         }
         // Read the state if exists
         (*poolstats)[i].state = 13; // UNKNOWN
         fname[0] = 0;
-        sprintf(fname, "%s%c%s", pool_dir, pmPathSeparator(), "state");
+        pmsprintf(fname, sizeof(fname), "%s%c%s", pool_dir, pmPathSeparator(), "state");
         fp = fopen(fname, "r");
         if (fp != NULL) {
             while (getline(&line, &len, fp) != -1) {
@@ -145,7 +145,7 @@ zfs_poolstats_refresh(zfs_poolstats_t **poolstats, pmdaInstid **pools, pmdaIndom
         }
         // Read the IO stats
         fname[0] = 0;
-        sprintf(fname, "%s%c%s", pool_dir, pmPathSeparator(), "io");
+        pmsprintf(fname, sizeof(fname), "%s%c%s", pool_dir, pmPathSeparator(), "io");
         fp = fopen(fname, "r");
         if (fp != NULL) {
             nread_seen = 0;

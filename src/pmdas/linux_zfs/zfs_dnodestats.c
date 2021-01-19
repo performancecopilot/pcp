@@ -29,7 +29,7 @@ zfs_dnodestats_refresh(zfs_dnodestats_t *dnodestats)
     FILE *fp;
     size_t len = 0;
 
-    if (zfs_stats_file_check(fname, "dnodestats") != 0)
+    if (zfs_stats_file_check(fname, sizeof(fname), "dnodestats") != 0)
         return;
 
     fp = fopen(fname, "r");

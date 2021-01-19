@@ -29,7 +29,7 @@ zfs_xuiostats_refresh(zfs_xuiostats_t *xuiostats)
     FILE *fp;
     size_t len = 0;
 
-    if (zfs_stats_file_check(fname, "xuio_stats") != 0)
+    if (zfs_stats_file_check(fname, sizeof(fname), "xuio_stats") != 0)
         return;
 
     fp = fopen(fname, "r");
