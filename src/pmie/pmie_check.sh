@@ -29,6 +29,11 @@ PMIECONF="$PCP_BIN_DIR/pmieconf"
 #
 unset PCP_STDERR
 
+# ensure mere mortals cannot write any configuration files,
+# but that the unprivileged PCP_USER account has read access
+#
+umask 022
+
 # added to handle problem when /var/log/pcp is a symlink, as first
 # reported by Micah_Altman@harvard.edu in Nov 2001
 #

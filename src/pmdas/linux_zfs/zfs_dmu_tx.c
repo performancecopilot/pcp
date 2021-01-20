@@ -1,3 +1,17 @@
+/*
+ * Copyright (c) 2021 Red Hat.
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -14,8 +28,9 @@ zfs_dmu_tx_refresh(zfs_dmu_tx_t *dmu_tx)
     char fname[MAXPATHLEN];
     FILE *fp;
     size_t len = 0;
+    uint64_t value;
 
-    if (zfs_stats_file_check(fname, "dmu_tx") != 0)
+    if (zfs_stats_file_check(fname, sizeof(fname), "dmu_tx") != 0)
         return;
 
     fp = fopen(fname, "r");
@@ -24,18 +39,26 @@ zfs_dmu_tx_refresh(zfs_dmu_tx_t *dmu_tx)
             mname = strtok(line, delim);
             mval  = strtok(NULL, delim); // not used
             mval  = strtok(NULL, delim);
-            if (strcmp(mname, "dmu_tx_assigned") == 0) dmu_tx->assigned = strtoul(mval, NULL, 0);
-            else if (strcmp(mname, "dmu_tx_delay") == 0) dmu_tx->delay = strtoul(mval, NULL, 0);
-            else if (strcmp(mname, "dmu_tx_error") == 0) dmu_tx->error = strtoul(mval, NULL, 0);
-            else if (strcmp(mname, "dmu_tx_suspended") == 0) dmu_tx->suspended = strtoul(mval, NULL, 0);
-            else if (strcmp(mname, "dmu_tx_group") == 0) dmu_tx->group = strtoul(mval, NULL, 0);
-            else if (strcmp(mname, "dmu_tx_memory_reserve") == 0) dmu_tx->memory_reserve = strtoul(mval, NULL, 0);
-            else if (strcmp(mname, "dmu_tx_memory_reclaim") == 0) dmu_tx->memory_reclaim = strtoul(mval, NULL, 0);
-            else if (strcmp(mname, "dmu_tx_dirty_throttle") == 0) dmu_tx->dirty_throttle = strtoul(mval, NULL, 0);
-            else if (strcmp(mname, "dmu_tx_dirty_delay") == 0) dmu_tx->dirty_delay = strtoul(mval, NULL, 0);
-            else if (strcmp(mname, "dmu_tx_dirty_over_max") == 0) dmu_tx->dirty_over_max = strtoul(mval, NULL, 0);
-            else if (strcmp(mname, "dmu_tx_dirty_frees_delay") == 0) dmu_tx->dirty_frees_delay = strtoul(mval, NULL, 0);
-            else if (strcmp(mname, "dmu_tx_quota") == 0) dmu_tx->quota = strtoul(mval, NULL, 0);
+            value = strtoull(mval, NULL, 0);
+
+            if (strncmp(mname, "dmu_tx_", 7) != 0)
+                continue;
+            mname += 7;
+            if (strncmp(mname, "dirty_", 6) == 0) {
+                mname += 6;
+                if (strcmp(mname, "throttle") == 0) dmu_tx->dirty_throttle = value;
+                else if (strcmp(mname, "delay") == 0) dmu_tx->dirty_delay = value;
+                else if (strcmp(mname, "over_max") == 0) dmu_tx->dirty_over_max = value;
+                else if (strcmp(mname, "frees_delay") == 0) dmu_tx->dirty_frees_delay = value;
+            }
+            else if (strcmp(mname, "assigned") == 0) dmu_tx->assigned = value;
+            else if (strcmp(mname, "delay") == 0) dmu_tx->delay = value;
+            else if (strcmp(mname, "error") == 0) dmu_tx->error = value;
+            else if (strcmp(mname, "suspended") == 0) dmu_tx->suspended = value;
+            else if (strcmp(mname, "group") == 0) dmu_tx->group = value;
+            else if (strcmp(mname, "memory_reserve") == 0) dmu_tx->memory_reserve = value;
+            else if (strcmp(mname, "memory_reclaim") == 0) dmu_tx->memory_reclaim = value;
+            else if (strcmp(mname, "quota") == 0) dmu_tx->quota = value;
         }
         free(line);
     }

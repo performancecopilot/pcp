@@ -29,6 +29,11 @@ PMLOGGERENVS="$PCP_SYSCONFIG_DIR/pmlogger"
 #
 unset PCP_STDERR
 
+# ensure mere mortals cannot write any configuration files,
+# but that the unprivileged PCP_USER account has read access
+#
+umask 022
+
 # constant setup
 #
 tmp=`mktemp -d "$PCP_TMPFILE_DIR/pmlogger_check.XXXXXXXXX"` || exit 1

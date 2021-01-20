@@ -1,3 +1,19 @@
+/*
+ * ZFS PMDA for Linux
+ *
+ * Copyright (c) 2021 Red Hat.
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ */
+
 #include <stdint.h>
 
 #include "pmapi.h"
@@ -1162,7 +1178,7 @@ zfs_fetch(int numpmid, pmID *pmidlist, pmResult **resp, pmdaExt *pmda)
     __pmID_int *idp;
 
     for (i = 0; i < numpmid; i++) {
-        idp = (__pmID_int *)&(pmidlist[i]);	
+        idp = (__pmID_int *)&(pmidlist[i]);
         switch (idp->cluster) {
         case ZFS_ARC_CLUST:
             zfs_arcstats_refresh(&arcstats);
@@ -1207,7 +1223,7 @@ static int
 zfs_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
     __pmID_int *idp = (__pmID_int *)&(mdesc->m_desc.pmid);
-        
+
     if (idp->cluster == ZFS_POOL_CLUST) { // && mdesc->m_desc.indom == ZFS_POOL_INDOM) {
         switch (idp->item) {
         case ZFS_POOL_STATE:
@@ -1252,7 +1268,7 @@ zfs_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
         default:
             return PM_ERR_PMID;
         }
-    } 
+    }
     else {
         switch (mdesc->m_desc.type) {
         case PM_TYPE_U32:
@@ -1297,7 +1313,7 @@ zfs_init(pmdaInterface *dp)
 
     if (dp->status != 0)
         return;
-    
+
     /* Initialize ARC metrics only present in OpenZFS v. 2 to 0s
        to avoid missing values on older systems.
     */
@@ -1323,7 +1339,7 @@ zfs_init(pmdaInterface *dp)
     dp->version.any.instance = zfs_instance;
     dp->version.any.fetch = zfs_fetch;
     pmdaSetFetchCallBack(dp, zfs_fetchCallBack);
-    pmdaInit(dp, 
+    pmdaInit(dp,
             indomtab, sizeof(indomtab)/sizeof(indomtab[0]),
             metrictab, sizeof(metrictab)/sizeof(metrictab[0]));
 }

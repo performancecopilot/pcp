@@ -209,6 +209,7 @@ pmda.environ
 pmda.gfs2
 pmda.gluster
 pmda.gpfs
+pmda.hacluster
 pmda.haproxy
 pmda.hotproc
 pmda.jbd2
@@ -254,6 +255,7 @@ pmda.shping
 pmda.simple
 pmda.slurm
 pmda.smart
+pmda.sockets
 pmda.summary
 pmda.systemd
 pmda.trivial
@@ -261,6 +263,7 @@ pmda.txmon
 pmda.unbound
 pmda.weblog
 pmda.xfs
+pmda.zfs
 pmda.zswap
 
 # tools which use PCP_COUNTER_WRAP
@@ -1795,6 +1798,11 @@ x11
 1490 python local labels
 1495 pmlogrewrite labels pmdumplog local
 1511 pmcd local
+1530 pmda.zfs local
+1531 pmda.zfs local
+1532 pmda.zfs local
+1533 pmda.zfs local
+1534 pmda.zfs local
 1543 pmproxy local
 1544 pmproxy python local
 1545 pcp2xml python pcp2xxx local
@@ -1812,6 +1820,7 @@ x11
 1613 pmda.linux kernel local
 1622 selinux local
 1623 libpcp_import collectl local
+1634:reserved pmda.sockets local
 1644 pmda.perfevent local
 1660 libpcp labels local
 1661 pmproxy libpcp_web pmlogger local
@@ -1878,4 +1887,5 @@ x11
 1876 pmcd secure local
 1886 pmseries libpcp_web local
 1896 pmlogger logutil pmlc local
+1897 pmda.hacluster local valgrind
 4751 libpcp threads valgrind local pcp
