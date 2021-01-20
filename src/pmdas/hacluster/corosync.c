@@ -15,11 +15,11 @@
  */
 
 #include <inttypes.h>
+#include <ctype.h>
 
 #include "pmapi.h"
 #include "libpcp.h"
 #include "pmda.h"
-#include "ctype.h"
 
 #include "corosync.h"
 
@@ -140,7 +140,6 @@ hacluster_refresh_corosync_node(const char *node_name, struct member_votes *node
 	FILE *pf;
 
 	pmsprintf(buffer, sizeof(buffer), "%s", quorumtool_command);
-	buffer[sizeof(buffer)-1] = '\0';
 
 	if ((pf = popen(buffer, "r")) == NULL)
 		return -oserror();
@@ -189,7 +188,6 @@ hacluster_refresh_corosync_global()
 	FILE *pf;
 
 	pmsprintf(buffer, sizeof(buffer), "%s", quorumtool_command);
-	buffer[sizeof(buffer)-1] = '\0';
 
 	if ((pf = popen(buffer, "r")) == NULL)
 		return -oserror();
@@ -221,7 +219,6 @@ hacluster_refresh_corosync_global()
 	pclose(pf);
 
 	pmsprintf(buffer, sizeof(buffer), "%s", cfgtool_command);
-	buffer[sizeof(buffer)-1] = '\0';
 
 	if ((pf = popen(buffer, "r")) == NULL)
 		return -oserror();
@@ -244,7 +241,6 @@ hacluster_refresh_corosync_ring(const char *ring_name, struct rings *rings)
 	int ring_found = 0;
 	
 	pmsprintf(buffer, sizeof(buffer), "%s", cfgtool_command);
-	buffer[sizeof(buffer)-1] = '\0';
 
 	if ((pf = popen(buffer, "r")) == NULL)
 		return -oserror();
@@ -288,7 +284,7 @@ hacluster_refresh_corosync_ring(const char *ring_name, struct rings *rings)
 	
 				/* 
 				 * We've finished collecting for our requested rings, however we
-				 * we need to ensure that we don't acidentally collect information
+				 * we need to ensure that we don't accidentally collect information
 				 * for any other rings so break out
 				 */
 				break;
@@ -298,7 +294,6 @@ hacluster_refresh_corosync_ring(const char *ring_name, struct rings *rings)
 	pclose(pf);
 
 	pmsprintf(buffer, sizeof(buffer), "%s", quorumtool_command);
-	buffer[sizeof(buffer)-1] = '\0';
 
 	if ((pf = popen(buffer, "r")) == NULL)
 		return -oserror();  

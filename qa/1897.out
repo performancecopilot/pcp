@@ -285,28 +285,28 @@ The number of fail count per node and resource ID, the actual maximum value
 depends on Pacemaker internals.
     inst [0 or "node-1:my_first_svc"] value 0
 
-hacluster.pacemaker.location_contraints.node PMID: 155.2.0 [Node of the location constraint]
+hacluster.pacemaker.location_constraints.node PMID: 155.2.0 [Node of the location constraint]
     Data Type: string  InDom: 155.1 0x26c00001
     Semantics: instant  Units: count
 Help:
 The node that the location constraint applies to in the cluster.
     inst [0 or "test"] value "node-1"
 
-hacluster.pacemaker.location_contraints.resource PMID: 155.2.1 [Resource of the location constraint]
+hacluster.pacemaker.location_constraints.resource PMID: 155.2.1 [Resource of the location constraint]
     Data Type: string  InDom: 155.1 0x26c00001
     Semantics: instant  Units: count
 Help:
 The resource that the location constraint applies to in the cluster.
     inst [0 or "test"] value "test"
 
-hacluster.pacemaker.location_contraints.role PMID: 155.2.2 [Resource role of the location constraint]
+hacluster.pacemaker.location_constraints.role PMID: 155.2.2 [Resource role of the location constraint]
     Data Type: string  InDom: 155.1 0x26c00001
     Semantics: instant  Units: count
 Help:
 The resource role that the location contraint applies to, if any.
     inst [0 or "test"] value "Started"
 
-hacluster.pacemaker.location_contraints.score PMID: 155.2.3 [Score of the location constraint]
+hacluster.pacemaker.location_constraints.score PMID: 155.2.3 [Score of the location constraint]
     Data Type: string  InDom: 155.1 0x26c00001
     Semantics: instant  Units: count
 Help:

@@ -15,7 +15,7 @@ echo "QA output created by $seq"
 
 _check_valgrind
 [ $PCP_PLATFORM = linux ] || _notrun "HACLUSTER PMDA is Linux-specific (hacluster)"
-[ -d $PCP_PMDAS_DIR/hacluster ] || _notrun "haclustr PMDA directory is not installed"
+[ -d $PCP_PMDAS_DIR/hacluster ] || _notrun "hacluster PMDA directory is not installed"
 
 _cleanup()
 {

@@ -15,12 +15,11 @@
  */
  
 #include <inttypes.h>
+#include <ctype.h>
 
 #include "pmapi.h"
 #include "libpcp.h"
 #include "pmda.h"
-
-#include "ctype.h"
 
 #include "drbd.h"
 
@@ -30,7 +29,6 @@ static char *split_brain_path;
 int
 hacluster_drbd_resource_fetch(int item, struct resource *resource, pmAtomValue *atom)
 {
-
 	/* check for bounds */
 	if (item < 0 || item >= NUM_DRBD_RESOURCE_STATS)
 		return PMDA_FETCH_NOVALUES;
@@ -159,7 +157,6 @@ hacluster_refresh_drbd_resource(const char *resource_name, struct resource *reso
 	int found_node = 0, found_volume = 0, nesting = 0;
 
 	pmsprintf(buffer, sizeof(buffer), "%s", drbdsetup_command);
-	buffer[sizeof(buffer)-1] = '\0';
 
 	if ((pf = popen(buffer, "r")) == NULL)
 		return -oserror();
@@ -276,7 +273,6 @@ hacluster_refresh_drbd_peer_device(const char *peer_name, struct peer_device *pe
 	int found_node = 0, found_peer_node = 0, nesting = 0;
 
 	pmsprintf(buffer, sizeof(buffer), "%s", drbdsetup_command);
-	buffer[sizeof(buffer)-1] = '\0';
 
 	if ((pf = popen(buffer, "r")) == NULL)
 		return -oserror();

@@ -15,11 +15,11 @@
  */
 
 #include <inttypes.h>
+#include <ctype.h>
 
 #include "pmapi.h"
 #include "libpcp.h"
 #include "pmda.h"
-#include "ctype.h"
 
 #include "sbd.h"
 
@@ -75,7 +75,6 @@ hacluster_refresh_sbd_device(const char *sbd_dev, struct sbd *sbd)
 	FILE *pf;
 
 	pmsprintf(buffer, sizeof(buffer), "%s -d %s dump", sbd_command, sbd_dev);
-	buffer[sizeof(buffer)-1] = '\0';
 
 	if ((pf = popen(buffer, "r")) == NULL)
 		return -oserror();

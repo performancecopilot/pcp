@@ -61,6 +61,9 @@ require {
 	type fs_t;
 	@PCP_RPM_VAR_LIB_T@
 	@PCP_VIRT_VAR_RUN_T@
+	type cluster_tmpfs_t;
+	type drbd_exec_t;
+	type sbd_exec_t;
         class sem { unix_read associate getattr read };
 	class lnk_file { read getattr };
 	class file { append create execute execute_no_trans getattr setattr ioctl lock open read write unlink @PCP_HOSTNAME_EXEC_MAP@ };
@@ -86,10 +89,6 @@ require {
         class dbus { send_msg };
         @PCP_BPF_CLASS@
 	class system { module_request };
-	# pmda-hacluster
-	type cluster_tmpfs_t;
-	type drbd_exec_t;
-	type sbd_exec_t;
 	class netlink_generic_socket { bind create getattr setopt write read };
 }
 
@@ -407,20 +406,20 @@ corenet_tcp_connect_all_ports(pcp_domain)
 
 #=========== pmda-hacluster ============
 # pmda-hacluster requirements for checking crm_mon, cibadmin, corosync-quorumtool, corosync-cfgtool
-# type=AVC msg=audit(1610569943.696:400): avc:  denied  { write } for  pid=626777 comm="crm_mon" name="qb-request-stonith-ng-header" dev="tmpfs" ino=584198 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:cluster_tmpfs_t:s0 tclass=file permissive=1
-# type=AVC msg=audit(1610468306.708:617): avc:  denied  { write } for  pid=6402 comm="cibadmin" name="qb-request-cib_rw-header" dev="tmpfs" ino=1496 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:cluster_tmpfs_t:s0 tclass=file permissive=1
-# type=AVC msg=audit(1610468306.754:624): avc:  denied  { write } for  pid=6406 comm="corosync-quorum" name="qb-request-cmap-header" dev="tmpfs" ino=1545 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:cluster_tmpfs_t:s0 tclass=file permissive=1
-# type=AVC msg=audit(1610553783.755:658): avc:  denied  { write } for  pid=212252 comm="corosync-cfgtoo" name="qb-request-cfg-header" dev="tmpfs" ino=334 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:cluster_tmpfs_t:s0 tclass=file permissive=1
+# type=AVC msg=audit(XXX.75): avc:  denied  { write } for  pid=626777 comm="crm_mon" name="qb-request-stonith-ng-header" dev="tmpfs" ino=584198 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:cluster_tmpfs_t:s0 tclass=file permissive=1
+# type=AVC msg=audit(XXX.76): avc:  denied  { write } for  pid=6402 comm="cibadmin" name="qb-request-cib_rw-header" dev="tmpfs" ino=1496 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:cluster_tmpfs_t:s0 tclass=file permissive=1
+# type=AVC msg=audit(XXX.77): avc:  denied  { write } for  pid=6406 comm="corosync-quorum" name="qb-request-cmap-header" dev="tmpfs" ino=1545 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:cluster_tmpfs_t:s0 tclass=file permissive=1
+# type=AVC msg=audit(XXX.78): avc:  denied  { write } for  pid=212252 comm="corosync-cfgtoo" name="qb-request-cfg-header" dev="tmpfs" ino=334 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:cluster_tmpfs_t:s0 tclass=file permissive=1
 allow pcp_pmcd_t cluster_tmpfs_t:file { write };
 
 # pmda-hacluster requirements for checking drbdsetup
-# type=AVC msg=audit(1610619528.108:428): avc:  denied  { execute_no_trans } for  pid=627791 comm="sh" path="/usr/sbin/drbdsetup" dev="vda1" ino=972119 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:drbd_exec_t:s0 tclass=file permissive=1
+# type=AVC msg=audit(XXX.79): avc:  denied  { execute_no_trans } for  pid=627791 comm="sh" path="/usr/sbin/drbdsetup" dev="vda1" ino=972119 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:drbd_exec_t:s0 tclass=file permissive=1
 allow pcp_pmcd_t drbd_exec_t:file { execute execute_no_trans };
 
 # pmda-hacluster requirements for chrecking drbdsetup
-# type=AVC msg=audit(1610569831.024:383): avc:  denied  { write } for  pid=626006 comm="drbdsetup" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=netlink_generic_socket permissive=1
+# type=AVC msg=audit(XXX.80): avc:  denied  { write } for  pid=626006 comm="drbdsetup" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=netlink_generic_socket permissive=1
 allow pcp_pmcd_t self:netlink_generic_socket { bind create getattr setopt write read };
 
 # pmda-hacluster requirements for checking sbd
-# type=AVC msg=audit(1610568498.722:347): avc:  denied  { execute_no_trans } for  pid=421434 comm="sh" path="/usr/sbin/sbd" dev="vda1" ino=1050019 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:sbd_exec_t:s0 tclass=file permissive=1
+# type=AVC msg=audit(XXX.81): avc:  denied  { execute_no_trans } for  pid=421434 comm="sh" path="/usr/sbin/sbd" dev="vda1" ino=1050019 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:sbd_exec_t:s0 tclass=file permissive=1
 allow pcp_pmcd_t sbd_exec_t:file { execute execute_no_trans };

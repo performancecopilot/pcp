@@ -8,13 +8,13 @@ The PMDA collects it's metric data from the following components that make up a 
 
 ### `hacluster.drbd.split_brain`
 
-This metric signals if there is a split brain occurring in drbd per instance resource:volume. The metric will return the value `1` if a split brain is detected, otherwise it will be `0`.
+This metric signals if there is a split brain occurring in DRBD per instance resource:volume. The metric will return the value `1` if a split brain is detected, otherwise it will be `0`.
 
 In order for this metric to function, you will need to set-up a custom DRBD split-brain handler.
 
 #### Setting up the DRBD split-brain handler
 
-1) Copy the hook into all drbd nodes:
+1) Copy the hook into all DRBD nodes:
 
 The hook is available from:
 https://github.com/SUSE/ha-sap-terraform-deployments/blob/72c9d3ecf6c3f6dd18ccb7bcbde4b40722d5c641/salt/drbd_node/files/notify-split-brain-haclusterexporter-suse-metric.sh
@@ -25,7 +25,7 @@ https://github.com/SUSE/ha-sap-terraform-deployments/blob/72c9d3ecf6c3f6dd18ccb7
 
 Refer to following upstream doc: https://docs.linbit.com/docs/users-guide-8.4/#s-configure-split-brain-behavior
 
-It is important for the pmda that the handler creates the files in that location and with the naming outlined in the handler as is.
+It is important for the PMDA that the handler creates the files in that location and with the naming outlined in the handler as is.
 
 Note: that the created split-brain detection files will need to be manually removed after the split brain is resolved.
 

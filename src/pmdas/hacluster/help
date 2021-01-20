@@ -47,16 +47,16 @@ used by the Resource Agents.
 @ hacluster.pacemaker.stonith_enabled Whether stonith is enabled in the cluster
 Value returns as to whether stonith is enabled or disabled for the cluster.
 
-@ hacluster.pacemaker.location_contraints.node Node of the location constraint
+@ hacluster.pacemaker.location_constraints.node Node of the location constraint
 The node that the location constraint applies to in the cluster.
 
-@ hacluster.pacemaker.location_contraints.resource Resource of the location constraint
+@ hacluster.pacemaker.location_constraints.resource Resource of the location constraint
 The resource that the location constraint applies to in the cluster.
 
-@ hacluster.pacemaker.location_contraints.role Resource role of the location constraint
+@ hacluster.pacemaker.location_constraints.role Resource role of the location constraint
 The resource role that the location contraint applies to, if any.
 
-@ hacluster.pacemaker.location_contraints.score Score of the location constraint
+@ hacluster.pacemaker.location_constraints.score Score of the location constraint
 The score given to the location constraint by Pacemaker, the value depends on
 Pacemaker internals.
 
