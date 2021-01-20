@@ -26,7 +26,8 @@ enabled = true
 auth_enabled = false
 
 [bpftrace]
-max_throughput = 65536
+# ridiculously small for test5 running on (potentially) slow VMs
+max_throughput = 4096
 EOF
 
 echo "=== bpftrace script without variabes ==="
@@ -63,7 +64,7 @@ echo
 
 echo "=== too much output ==="
 pmstore bpftrace.control.register '// name: test5
-profile:hz:9999 { printf("test"); }'
+profile:hz:999 { printf("test"); }'
 _pmdabpftrace_wait_for_value bpftrace.scripts.test5.status '"error"'
 pminfo -f bpftrace.scripts.test5.error | sed -e 's/ [1-9][0-9]* / LIMIT /g'
 echo
