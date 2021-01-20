@@ -66,7 +66,8 @@ _filter()
 for f in sockets/ss_noemitauOH.txt sockets/ss_noemitauOH_ubuntu.txt; do
     echo === testing $f ===
     export PCPQA_PMDA_SOCKETS="$f"
-    _run_valgrind pminfo -L -K clear -K add,154,$pmda -dfmt -n $pmns sockets
+    $sudo rm -f $PCP_VAR_DIR/config/pmda/$domain.0
+    _run_valgrind pminfo -L -K clear -K add,154,$pmda -dfmt -n $pmns network.persocket
 done
 
 # success, all done

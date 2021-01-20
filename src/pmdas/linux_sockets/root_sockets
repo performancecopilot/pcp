@@ -17,10 +17,15 @@
 #endif
 
 root {
-    sockets
+    network
 }
 
-sockets {
+network {
+    persocket
+}
+
+network.persocket {
+    filter		SOCKETS:0:0
     af			SOCKETS:1:0
     state		SOCKETS:1:1
     recvq		SOCKETS:1:2
@@ -74,20 +79,20 @@ sockets {
     round_trip
 }
 
-sockets.wscale {
+network.persocket.wscale {
     str			SOCKETS:1:60
     snd			SOCKETS:1:61
     rcv			SOCKETS:1:62
 }
 
-sockets.timer {
+network.persocket.timer {
     str			SOCKETS:1:70
     name		SOCKETS:1:71
     expire_str		SOCKETS:1:72
     retrans		SOCKETS:1:73
 }
 
-sockets.skmem {
+network.persocket.skmem {
     str			SOCKETS:1:80
     rmem_alloc		SOCKETS:1:81
     wmem_alloc		SOCKETS:1:82
@@ -100,7 +105,7 @@ sockets.skmem {
     sock_drop		SOCKETS:1:89
 }
 
-sockets.round_trip {
+network.persocket.round_trip {
     str			SOCKETS:1:90
     rtt			SOCKETS:1:91
     rttvar		SOCKETS:1:92

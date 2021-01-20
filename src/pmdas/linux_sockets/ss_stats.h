@@ -14,7 +14,7 @@
 typedef struct ss_stats {
     int			instid;
     char		af[6];		/* address family */
-    char		state[8];	/* socket state */
+    char		state[16];	/* socket state */
     __int32_t		recvq;
     __int32_t		sendq;
     char		src[32];	/* source address and port */
@@ -90,3 +90,4 @@ extern int ss_refresh(int);
 extern int ss_parse(char *, ss_stats_t *);
 extern FILE *ss_open_stream(void);
 extern void ss_close_stream(FILE *);
+extern char *ss_filter; /* current string value of network.persocket.filter */
