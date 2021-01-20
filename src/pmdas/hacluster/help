@@ -1,0 +1,276 @@
+#
+# Copyright (c) 2020 - 2021 Red Hat.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# hacluster PMDA help file in the ASCII format
+#
+# lines beginning with a # are ignored
+# lines beginning @ introduce a new entry of the form
+#  @ metric_name oneline-text
+#  help test goes
+#  here over multiple lines
+#  ...
+#
+# the metric_name is decoded against the default PMNS -- as a special case,
+# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
+# instance domain identification, and the text describes the instance domain
+#
+# blank lines before the @ line are ignored
+#
+@ HACLUSTER.0 Instance domain for High Availability Cluster component metrics
+
+@ hacluster.pacemaker.config_last_change Unix timestamp corresponding to last Pacmaker configuration change
+Unix timestamp in seconds corresponding to the last time that the Pacemaker
+configuration was changed on the system.
+
+@ hacluster.pacemaker.fail_count The number of fail count recorded
+The number of fail count per node and resource ID, the actual maximum value
+depends on Pacemaker internals.
+
+@ hacluster.pacemaker.migration_threshold Migration threshold per node and resource ID
+The value for the migration threshold per node and resource ID set by the
+Pacemaker cluster.
+
+@ hacluster.pacemaker.node_attributes Metadata used by Resource Agents
+The raw values for the cluster metadata attributes and their value per node as
+used by the Resource Agents. 
+
+@ hacluster.pacemaker.stonith_enabled Whether stonith is enabled in the cluster
+Value returns as to whether stonith is enabled or disabled for the cluster.
+
+@ hacluster.pacemaker.location_contraints.node Node of the location constraint
+The node that the location constraint applies to in the cluster.
+
+@ hacluster.pacemaker.location_contraints.resource Resource of the location constraint
+The resource that the location constraint applies to in the cluster.
+
+@ hacluster.pacemaker.location_contraints.role Resource role of the location constraint
+The resource role that the location contraint applies to, if any.
+
+@ hacluster.pacemaker.location_contraints.score Score of the location constraint
+The score given to the location constraint by Pacemaker, the value depends on
+Pacemaker internals.
+
+@ hacluster.pacemaker.nodes.type The type given to the node
+The membership type given to the node in the Pacemaker cluster.
+
+@ hacluster.pacemaker.nodes.status.online The status given to the node
+The value of the status reported by the node in the cluster, there is one
+metric given for each possible status.
+
+@ hacluster.pacemaker.nodes.status.standby The status given to the node
+The value of the status reported by the node in the cluster, there is one
+metric given for each possible status.
+
+@ hacluster.pacemaker.nodes.status.standby_on_fail The status given to the node
+The value of the status reported by the node in the cluster, there is one
+metric given for each possible status.
+
+@ hacluster.pacemaker.nodes.status.maintenance The status given to the node
+The value of the status reported by the node in the cluster, there is one
+metric given for each possible status.
+
+@ hacluster.pacemaker.nodes.status.pending The status given to the node
+The value of the status reported by the node in the cluster, there is one
+metric given for each possible status.
+
+@ hacluster.pacemaker.nodes.status.unclean The status given to the node
+The value of the status reported by the node in the cluster, there is one
+metric given for each possible status.
+
+@ hacluster.pacemaker.nodes.status.shutdown The status given to the node
+The value of the status reported by the node in the cluster, there is one
+metric given for each possible status.
+
+@ hacluster.pacemaker.nodes.status.expected_up The status given to the node
+The value of the status reported by the node in the cluster, there is one
+metric given for each possible status.
+
+@ hacluster.pacemaker.nodes.status.dc The status given to the node
+The value of the status reported by the node in the cluster, there is one
+metric given for each possible status.
+
+@ hacluster.pacemaker.resources.agent The name of the resource agent for this resource
+The name given for the resource agent for the given resource instance in the 
+cluster.
+
+@ hacluster.pacemaker.resources.clone The name of the clone given for this resource
+The name given for the clone for the given resource instance in the cluster,
+if any.
+
+@ hacluster.pacemaker.resources.group The name of the group given for this resource
+The name given for the group for the given resource instance in the cluster,
+if any.
+
+@ hacluster.pacemaker.resources.managed Value is either true or false
+The value of whether the resource instance in the cluster is managed or not.
+
+@ hacluster.pacemaker.resources.role The given role state
+The value of the given role state for the resource instance in the cluster.
+
+@ hacluster.pacemaker.resources.status.active The status given to the resource
+The value of the status reported for the resource instance in the cluster,
+there is one metric given for each possible status.
+
+@ hacluster.pacemaker.resources.status.orphaned The status given to the resource
+The value of the status reported for the resource instance in the cluster,
+there is one metric given for each possible status.
+
+@ hacluster.pacemaker.resources.status.blocked The status given to the resource
+The value of the status reported for the resource instance in the cluster,
+there is one metric given for each possible status.
+
+@ hacluster.pacemaker.resources.status.failed The status given to the resource
+The value of the status reported for the resource instance in the cluster,
+there is one metric given for each possible status.
+
+@ hacluster.pacemaker.resources.status.failure_ignored The status given to the resource
+The value of the status reported for the resource instance in the cluster,
+there is one metric given for each possible status.
+
+@ hacluster.corosync.quorate Value given for quorate
+The value represents whether or not the cluster is quorate.
+
+@ hacluster.corosync.ring_errors Number of faulty rings
+The total number of Corosync rings which are faulty.
+
+@ hacluster.corosync.member_votes.votes Quorum votes per node
+The number of quorum votes allocated to each node in the cluster.
+
+@ hacluster.corosync.member_votes.local Votes that are local to this node
+The quorum votes which are local to this node in the cluster.
+
+@ hacluster.corosync.member_votes.node_id Node ID
+The full corosync ID for the nodes in the cluster. 
+
+@ hacluster.corosync.quorum_votes.expected_votes Expected vote count
+The number of expected quorum votes for the cluster.
+
+@ hacluster.corosync.quorum_votes.highest_expected Hightest expected vote count
+The highest number of expected quorum votes for the cluster. 
+
+@ hacluster.corosync.quorum_votes.total_votes Total number of votes
+The total number of quorum votes for the cluster.
+
+@ hacluster.corosync.quorum_votes.quorum Whether cluster is quorate
+The value reported for the quorate for the cluster.
+
+@ hacluster.corosync.rings.status Corosync ring status
+The status for each Corosync ring in the cluster, a value of 1 is faulty and
+0 is healthy.
+
+@ hacluster.corosync.rings.address IP Address for ring
+The IP address locally linked to this ring.
+
+@ hacluster.corosync.rings.node_id ID of the local node
+The internal Corosync node ID to the node matched to the ring.
+
+@ hacluster.corosync.rings.number Ring number
+The number for the Corosync ring.
+
+@ hacluster.corosync.rings.ring_id Ring ID
+The internal Corosync ring ID, corresponds to the first node to join.
+
+@ hacluster.sbd.devices.path Path of SBD device
+The full path given to each SBD device.
+
+@ hacluster.sbd.devices.status Status of the SBD device
+The current status given for each of the SBD devices, the value is one of
+healthy or unhealthy.
+
+@ hacluster.sbd.timeouts.mgswait mgswait timeout value
+The value threshold for msgwait timeouts for the given SBD device.
+
+@ hacluster.sbd.timeouts.allocate allocate timeout value
+The value threshold for allocate timeouts for the given SBD device.
+
+@ hacluster.sbd.timeouts.loop loop timeout value
+The value threshold for loop timeouts for the given SBD device.
+
+@ hacluster.sbd.timeouts.watchdog watchdog timeout value
+The value threshold for watchdog timeouts for the given SBD device.
+
+@ hacluster.drbd.written Amount written to DRBD resource
+Amount in KiB written to the DRBD resource:volume.
+
+@ hacluster.drbd.read Amount read by DRBD resource
+Amount in KiB read by the DRBD resource:volume.
+
+@ hacluster.drbd.al_writes Writes to the activity log
+Amount of writes to the activity log area of metadata by the DRBD
+resource:volume.
+
+@ hacluster.drbd.bm_writes Writes to bitmap area
+Amount of writes to the bitmap area of metadata by the DRBD resource:volume.
+
+@ hacluster.drbd.upper_pending Block I/O requests pending
+The number of the block I/O requests forwarded but not yet answered by DRBD
+for the resource:volume.
+
+@ hacluster.drbd.lower_pending Number of open requests
+The number of open requests to the local I/O subsystem by DRBD for the
+resource:volume.
+
+@ hacluster.drbd.quorum Quorum satus of DRBD resource:volume
+The Quorum status of the DRBD resource according to resource:volume, 1 is
+quorate and 0 is non-quorate.
+
+@ hacluster.drbd.connections_sync Connections in sync
+The number of DRBD connections in sync for each resource:volume, this value is
+between 0 to 100.
+
+@ hacluster.drbd.connections_received Volume of data received
+The volume of data received via the network connection in KiB by DRBD for the
+resource:volume.
+
+@ hacluster.drbd.connections_sent Volume of data sent
+The volume of data sent via the network connection in KiB by DRBD for the
+resource:volume.
+
+@ hacluster.drbd.connections_pending Number of connections pending
+The number of requests sent which have not yet been received by DRBD for the
+resource:volume.
+
+@ hacluster.drbd.connections_unacked Number of connection not acknowledged
+The number of requests sent which have not yet been acknowledged by DRBD for
+the resource:volume.
+
+@ hacluster.drbd.split_brain Signal for split brain detection.
+This metric signals if there has been a split brain occuring in DRBD for the
+resource:volume, value is 1 is a split brain has been detected.
+
+@ hacluster.drbd.resources.resource Name of the resource
+The name given for the DRBD resource for each resource:volume.
+
+@ hacluster.drbd.resources.role Role of the resource
+The resported role for ther DRBD resource for each resource:volume.
+
+@ hacluster.drbd.resources.volume Volume of the resource
+The volume number of ther resource for each resource:volume.
+
+@ hacluster.drbd.resources.disk_state Disk state
+The current reported disk state of for the resource:volume.
+
+@ hacluster.drbd.connections.resource Resource that the connection is for
+The given resource that the DRBD connection is for each resource:volume.
+
+@ hacluster.drbd.connections.peer_node_id The ID the connection is for
+The given peer node ID for which the connection is for.
+
+@ hacluster.drbd.connections.peer_role Role of the connection
+The reported role type for the connection.
+
+@ hacluster.drbd.connections.volume Volume number
+The reported volume for the connection.
+
+@ hacluster.drbd.connections.peer_disk_state Peer disk state
+The reported peer disk state for the connection.

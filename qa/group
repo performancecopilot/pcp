@@ -209,6 +209,7 @@ pmda.environ
 pmda.gfs2
 pmda.gluster
 pmda.gpfs
+pmda.hacluster
 pmda.haproxy
 pmda.hotproc
 pmda.jbd2
@@ -1886,4 +1887,5 @@ x11
 1876 pmcd secure local
 1886 pmseries libpcp_web local
 1896 pmlogger logutil pmlc local
+1897 pmda.hacluster local valgrind
 4751 libpcp threads valgrind local pcp
