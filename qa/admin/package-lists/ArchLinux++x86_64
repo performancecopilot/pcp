@@ -39,6 +39,7 @@ core/flex
 core/gawk
 core/gcc
 core/grep
+core/iproute
 core/icu
 core/libsasl
 core/make
