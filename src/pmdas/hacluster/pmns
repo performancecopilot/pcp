@@ -22,7 +22,7 @@ hacluster {
 hacluster.pacemaker {
 	config_last_change		HACLUSTER:0:0
 	fail_count				HACLUSTER:1:0
-	location_contraints
+	location_constraints
 	migration_threshold		HACLUSTER:1:1
 	nodes
 	node_attributes			HACLUSTER:4:0
@@ -30,7 +30,7 @@ hacluster.pacemaker {
 	stonith_enabled			HACLUSTER:0:1
 }
 
-hacluster.pacemaker.location_contraints {
+hacluster.pacemaker.location_constraints {
 	node					HACLUSTER:2:0
 	resource				HACLUSTER:2:1
 	role					HACLUSTER:2:2

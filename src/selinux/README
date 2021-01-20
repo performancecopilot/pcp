@@ -91,7 +91,7 @@ AVC line from audit.log as a comment, so something like:
 For documentation, it will help to replace the msg=audit(...) part
 with msg=audit(XXX.<N>) (or YYY.<N>) provided the <N> (number) part is
 chosen to make the line unique across all type=AVC comments ... the
-src/selinux/next-xxx-yyy script will report the next avaliable unique
+src/selinux/next-xxx-yyy script will report the next available unique
 IDs for both XXX.<N> and YYY.<N>.
 
 Be careful you understand what context accesses you're allowing with

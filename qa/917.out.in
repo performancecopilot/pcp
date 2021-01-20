@@ -121,6 +121,10 @@ Checking policies.
   allow [pcp_domain] [domain] : [unix_stream_socket] { connectto };
   allow [pcp_domain] [port_type] : [tcp_socket] { name_connect };
 ! allow [pcp_domain] [file_type] : [file] { map };
+  allow [pcp_pmcd_t] [cluster_tmpfs_t] : [file] { write };
+  allow [pcp_pmcd_t] [drbd_exec_t] : [file] { execute execute_no_trans };
+  allow [pcp_pmcd_t] self : [netlink_generic_socket] { bind create getattr setopt write read };
+  allow [pcp_pmcd_t] [sbd_exec_t] : [file] { execute execute_no_trans };
   allow [pcp_pmcd_t] [etc_t] : [dir] { open read search getattr lock ioctl };
   allow [pcp_pmcd_t] [shadow_t] : [file] { getattr ioctl lock open read };
   allow [pcp_pmie_t] [etc_t] : [dir] { open read search getattr lock ioctl };

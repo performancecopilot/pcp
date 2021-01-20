@@ -14,10 +14,11 @@
  * for more details.
  */
 
+#include <ctype.h>
+
 #include "pmapi.h"
 #include "pmda.h"
 #include "domain.h"
-#include "ctype.h"
 
 #include "pmdahacluster.h"
 
@@ -359,7 +360,6 @@ hacluster_pacemaker_fail_instance_refresh(void)
 	pmInDom		indom = INDOM(PACEMAKER_FAIL_INDOM);
 
 	pmsprintf(buffer, sizeof(buffer), "%s", crm_mon_command);
-	buffer[sizeof(buffer)-1] = '\0';
 
 	if ((pf = popen(buffer, "r")) == NULL)
 		return -oserror();
@@ -418,7 +418,7 @@ hacluster_pacemaker_fail_instance_refresh(void)
 }
 
 int
-hacluster_pacemaker_contraints_instance_refresh(void)
+hacluster_pacemaker_constraints_instance_refresh(void)
 {
 	int			sts;
 	char		buffer[4096], constraint_name[256];
@@ -473,7 +473,6 @@ hacluster_pacemaker_nodes_instance_refresh(void)
 	pmInDom		indom = INDOM(PACEMAKER_NODES_INDOM);
 
 	pmsprintf(buffer, sizeof(buffer), "%s", crm_mon_command);
-	buffer[sizeof(buffer)-1] = '\0';
 
 	if ((pf = popen(buffer, "r")) == NULL)
 		return -oserror();
@@ -527,7 +526,6 @@ hacluster_pacemaker_node_attrib_instance_refresh(void)
 	pmInDom		indom = INDOM(PACEMAKER_NODE_ATTRIB_INDOM);
 
 	pmsprintf(buffer, sizeof(buffer), "%s", crm_mon_command);
-	buffer[sizeof(buffer)-1] = '\0';
 
 	if ((pf = popen(buffer, "r")) == NULL)
 		return -oserror();
@@ -601,7 +599,6 @@ hacluster_pacemaker_resources_instance_refresh(void)
 	pmInDom		indom= INDOM(PACEMAKER_RESOURCES_INDOM);
 
 	pmsprintf(buffer, sizeof(buffer), "%s", crm_mon_command);
-	buffer[sizeof(buffer)-1] = '\0';
 
 	if ((pf = popen(buffer, "r")) == NULL)
 		return -oserror();
@@ -633,7 +630,7 @@ hacluster_pacemaker_resources_instance_refresh(void)
 			if (strstr(buffer, "/>")) {
 				/* 
 				 * Assign indom based upon our resource_name:node_id by joining our node_name
-				 * with our volume number but only if we have both a resouce name and a node_id  
+				 * with our volume number but only if we have both a resource name and a node_id  
 				 */
 				if (node_name[0] == '\0') {
 					snprintf(instance_name, sizeof(instance_name), "%s", resource_id);
@@ -798,7 +795,7 @@ hacluster_sbd_device_instance_refresh(void)
 	if ((fp = fopen(sbd_path, "r")) == NULL)
 		/*
 		 * There might not be any sbd devices configured to return 
-		 * currently, so just provide no instances so cleanly return
+		 * currently, so just provide no instances to cleanly return
 		 */
 		return 0;
 
@@ -1004,7 +1001,7 @@ static int
 hacluster_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt *pmda)
 {
 	hacluster_pacemaker_fail_instance_refresh();
-	hacluster_pacemaker_contraints_instance_refresh();
+	hacluster_pacemaker_constraints_instance_refresh();
 	hacluster_pacemaker_nodes_instance_refresh();
 	hacluster_pacemaker_node_attrib_instance_refresh();
 	hacluster_pacemaker_resources_instance_refresh();
@@ -1037,7 +1034,7 @@ hacluster_fetch_refresh(pmdaExt *pmda, int *need_refresh)
 	if ((sts = hacluster_pacemaker_fail_instance_refresh()) < 0)
 		return sts;
 		
-	if ((sts = hacluster_pacemaker_contraints_instance_refresh()) < 0)
+	if ((sts = hacluster_pacemaker_constraints_instance_refresh()) < 0)
 		return sts;
 		
 	if ((sts = hacluster_pacemaker_nodes_instance_refresh()) < 0)

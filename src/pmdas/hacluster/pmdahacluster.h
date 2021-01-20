@@ -40,7 +40,7 @@ enum {
 
 enum {
 	PACEMAKER_FAIL_INDOM = 0,		/* 0 -- Pacemaker failure/migrations */
-	PACEMAKER_CONSTRAINTS_INDOM,	/* 1 -- Pacemaker location contraints */
+	PACEMAKER_CONSTRAINTS_INDOM,	/* 1 -- Pacemaker location constraints */
 	PACEMAKER_NODES_INDOM,			/* 2 -- Pacemaker nodes data */
 	PACEMAKER_NODE_ATTRIB_INDOM,	/* 3 -- Pacemaker node attributes */
 	PACEMAKER_RESOURCES_INDOM,		/* 4 -- Pacemaker resources */

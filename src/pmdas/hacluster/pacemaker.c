@@ -34,10 +34,10 @@ dateToEpoch(char *last_written_text)
 	int year;
 	struct tm cib_written;
 
-	/* Initialize DST status as unknown (-1) avoiding uninitalized variable */
+	/* Initialize DST status as unknown (-1) avoiding uninitialized variable */
 	cib_written.tm_isdst = -1;
 
-	/* Token our time stirng into its components */
+	/* Token our time string into its components */
 	sscanf(last_written_text, "%s %s %d %d:%d:%d %d",
 		str_wday,
 		str_mon,
@@ -343,7 +343,6 @@ hacluster_refresh_pacemaker_global()
 	FILE *pf;
 
 	pmsprintf(buffer, sizeof(buffer), "%s", cibadmin_command);
-	buffer[sizeof(buffer)-1] = '\0';
 
 	if ((pf = popen(buffer, "r")) == NULL)
 		return -oserror();
@@ -358,7 +357,6 @@ hacluster_refresh_pacemaker_global()
 	pclose(pf);
 
 	pmsprintf(buffer, sizeof(buffer), "%s", crm_mon_command);
-	buffer[sizeof(buffer)-1] = '\0';
 
 	if ((pf = popen(buffer, "r")) == NULL)
 		return -oserror();
@@ -387,7 +385,6 @@ hacluster_refresh_pacemaker_fail(const char *instance_name, struct fail_count *f
 	FILE *pf;
 
 	pmsprintf(buffer, sizeof(buffer), "%s", crm_mon_command);
-	buffer[sizeof(buffer)-1] = '\0';
 
 	if ((pf = popen(buffer, "r")) == NULL)
 		return -oserror();
@@ -441,7 +438,6 @@ hacluster_refresh_pacemaker_constraints(const char *constraints_name, struct loc
 	FILE *pf;
 
 	pmsprintf(buffer, sizeof(buffer), "%s", cibadmin_command);
-	buffer[sizeof(buffer)-1] = '\0';
 
 	if ((pf = popen(buffer, "r")) == NULL)
 		return -oserror();
@@ -479,7 +475,6 @@ hacluster_refresh_pacemaker_nodes(const char *node_name, struct nodes *nodes)
 	char unclean[10], shutdown[10], expected_up[10], dc[10];
 
 	pmsprintf(buffer, sizeof(buffer), "%s", crm_mon_command);
-	buffer[sizeof(buffer)-1] = '\0';
 
 	if ((pf = popen(buffer, "r")) == NULL)
 		return -oserror();
@@ -537,7 +532,6 @@ hacluster_refresh_pacemaker_node_attribs(const char *attrib_name, struct attribu
 	FILE *pf;
 
 	pmsprintf(buffer, sizeof(buffer), "%s", crm_mon_command);
-	buffer[sizeof(buffer)-1] = '\0';
 
 	if ((pf = popen(buffer, "r")) == NULL)
 		return -oserror();
@@ -611,7 +605,6 @@ hacluster_refresh_pacemaker_resources(const char *instance_name, struct resource
 	}
 
 	pmsprintf(buffer, sizeof(buffer), "%s", crm_mon_command);
-	buffer[sizeof(buffer)-1] = '\0';
 
 	if ((pf = popen(buffer, "r")) == NULL)
 		return -oserror();
