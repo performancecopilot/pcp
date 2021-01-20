@@ -111,7 +111,7 @@ dateToEpoch(char *last_written_text)
 		cib_written.tm_mon = 11;
 
 	/* Return an epoch value for our given date */
-	return (uint64_t)mktime(&cib_written); 
+	return (uint64_t)gmtime(&cib_written); 
 }
 
 uint8_t
