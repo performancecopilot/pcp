@@ -16,23 +16,39 @@
 #include <pcp/pmda.h>
 #include "ss_stats.h"
 
+#define SS_OPTIONS "-noemitauOH"
+
+/* default filter: reduces logging overheads */
+#define SS_DEFAULT_FILTER "state connected"
+
+char *ss_filter = NULL; /* storable: network.persocket.filter */
+
 FILE *
 ss_open_stream()
 {
     FILE *fp;
     char *path;
+    char cmd[MAXPATHLEN];
+
+    if (ss_filter == NULL) {
+	/* pmstore to network.persocket.filter frees this if changing */
+    	if ((ss_filter = strdup(SS_DEFAULT_FILTER)) == NULL)
+	    return NULL;
+    }
 
     if ((path = getenv("PCPQA_PMDA_SOCKETS")) != NULL)
 	/* PCPQA input file */
     	fp = fopen(path, "r");
     else {
 	/* TODO use a config file for ss options and ss filters */
-	if (access("/usr/sbin/ss", X_OK) == 0)
-	    fp = popen("/usr/sbin/ss -noemitauOH", "r"); /* Fedora/RHEL */
-	else if (access("/usr/bin/ss", X_OK) == 0)
-	    fp = popen("/usr/bin/ss -noemitauOH", "r"); /* Ubuntu */
-	else
-	    fp = NULL;
+	if (access((path = "/usr/sbin/ss"), X_OK) != 0) {
+	    if (access((path = "/usr/bin/ss"), X_OK) != 0) {
+	    	fprintf(stderr, "Error: no \"ss\" binary found\n");
+		return NULL;
+	    }
+	}
+	pmsprintf(cmd, sizeof(cmd), "%s %s %s", path, SS_OPTIONS, ss_filter);
+	fp = popen(cmd, "r");
     }
 
     return fp;

@@ -58,11 +58,13 @@ ss_refresh(int indom)
 	    ss = (ss_stats_t *)malloc(sizeof(ss_stats_t));
 	}
 	*ss = parsed_ss;
+	if (ss->state[0] == '\0')
+	    continue; /* transient with no state, ignore */
 	ss->instid = pmdaCacheStore(indom, PMDA_CACHE_ADD, instname, (void **)ss);
     }
     ss_close_stream(fp);
 
-    /* purge inactive/closed sockets after 10min */
+    /* purge inactive/closed sockets after 10min, and free private data */
     pmdaCachePurgeCallback(indom, 600, ss_free);
     pmdaCacheOp(indom, PMDA_CACHE_SYNC); 
 

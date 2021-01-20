@@ -101,6 +101,10 @@ sockets_fetchCallBack(pmdaMetric *metric, unsigned int inst, pmAtomValue *atom)
     int sts;
 
     switch (cluster) {
+    case CLUSTER_GLOBAL:
+	atom->cp = ss_filter;
+    	break;
+
     case CLUSTER_SS:
 	sts = pmdaCacheLookup(sockets_indom(SOCKETS_INDOM), inst, NULL, (void **)&ss);
 
@@ -142,6 +146,46 @@ sockets_fetchCallBack(pmdaMetric *metric, unsigned int inst, pmAtomValue *atom)
     return PMDA_FETCH_STATIC;
 }
 
+static int
+sockets_store(pmResult *result, pmdaExt *pmda)
+{
+    int i;
+    int sts = 0;
+
+    for (i = 0; i < result->numpmid; i++) {
+    	pmValueSet *vsp = result->vset[i];
+	pmAtomValue av;
+
+	switch (pmID_cluster(vsp->pmid)) {
+	case CLUSTER_GLOBAL:
+	    if (vsp->numval != 1)
+		sts = PM_ERR_INST;
+	    else switch (pmID_item(vsp->pmid)) {
+	    	case 0: /* network.persocket.filter */
+		    if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+			PM_TYPE_STRING, &av, PM_TYPE_STRING)) >= 0) {
+			if (ss_filter)
+			    free(ss_filter);
+			ss_filter = av.cp; /* TODO filter syntax check */
+		    }
+		    break;
+		default:
+		    sts = PM_ERR_PMID;
+		    break;
+	    }
+	    break;
+	case CLUSTER_SS:
+	    sts = PM_ERR_PERMISSION;
+	    break;
+	default:
+	    sts = PM_ERR_PMID;
+	    break;
+	}
+    }
+
+    return sts;
+}
+
 /*
  * Initialise the agent (both daemon and DSO).
  */
@@ -165,8 +209,9 @@ sockets_init(pmdaInterface *dp)
     if (dp->status != 0)
 	return;
 
-    dp->version.four.instance = sockets_instance;
-    dp->version.four.fetch = sockets_fetch;
+    dp->version.seven.instance = sockets_instance;
+    dp->version.seven.fetch = sockets_fetch;
+    dp->version.seven.store = sockets_store;
     pmdaSetFetchCallBack(dp, sockets_fetchCallBack);
 
     pmdaSetFlags(dp, PMDA_EXT_FLAG_HASHED);
