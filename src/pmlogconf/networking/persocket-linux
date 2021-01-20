@@ -1,0 +1,5 @@
+#pmlogconf-setup 2.0
+ident	network per-socket detailed statistics (ss -noemitau) [Linux]
+delta	60 sec
+probe	network.persocket.af values ? include : exclude
+	network.persocket
