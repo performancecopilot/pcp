@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015,2019 Red Hat.
+ * Copyright (c) 2013-2015,2019-2020 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -103,8 +103,6 @@ createServices(AvahiClient *c)
     int ret;
     int i;
 
-    assert(c);
-
      /*
       * Create a new entry group, if necessary, or reset the existing one.
       */
@@ -179,7 +177,6 @@ entryGroupCallback(AvahiEntryGroup *g, AvahiEntryGroupState state, void *data)
 {
     (void)data;
 
-    assert(g != NULL);
     assert(group == NULL || group == g);
     group = g;
 
@@ -227,7 +224,6 @@ cleanupClient(void)
 static void
 advertisingClientCallback(AvahiClient *c, AvahiClientState state, void *userData)
 {
-    assert(c);
     (void)userData;
 
     /* Called whenever the client or server state changes. */
@@ -443,7 +439,7 @@ __pmServerAvahiAdvertisePresence(__pmServerPresence *s)
 		  size, PM_FATAL_ERR);
     }
     pmsprintf(s->avahi->serviceName, size, "PCP %s on %s", s->serviceSpec, host);
-    assert (avahi_is_valid_service_name(s->avahi->serviceName));
+    assert(avahi_is_valid_service_name(s->avahi->serviceName));
 
     size = sizeof("_._tcp") + strlen(s->serviceSpec); /* includes room for the nul */
     if ((s->avahi->serviceTag = avahi_malloc(size)) == NULL) {
@@ -534,7 +530,6 @@ resolveCallback(
     (void)hostName;
     (void)txt;
     (void)flags;
-    assert(r);
 
     switch (event) {
 	case AVAHI_RESOLVER_FAILURE:
@@ -600,7 +595,6 @@ browseCallback(
     browsingContext *context = (browsingContext *)userdata;
     AvahiClient *c = avahi_service_browser_get_client(b);
     AvahiSimplePoll *simplePoll = context->simplePoll;
-    assert(b);
 
     /* Unused argument. */
     (void)flags;
@@ -637,7 +631,6 @@ browseCallback(
 static void
 browsingClientCallback(AvahiClient *c, AvahiClientState state, void *userdata)
 {
-    assert(c);
     if (state == AVAHI_CLIENT_FAILURE) {
 	browsingContext *context = (browsingContext *)userdata;
 	AvahiSimplePoll *simplePoll = context->simplePoll;
