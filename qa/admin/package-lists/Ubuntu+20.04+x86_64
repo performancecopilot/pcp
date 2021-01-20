@@ -34,6 +34,7 @@ gdb
 gfs2-utils
 git
 grep
+iproute2
 libavahi-common-dev
 libclass-dbi-perl
 libcoin-dev
