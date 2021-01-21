@@ -46,7 +46,7 @@ bpftrace.scripts.test4.exit_code
 
 === too much output ===
 bpftrace.control.register old value="{}" new value="// name: test5
-profile:hz:9999 { printf("test"); }"
+profile:hz:999 { printf("test"); }"
 found metric bpftrace.scripts.test5.status with matching value "error"
 
 bpftrace.scripts.test5.error
