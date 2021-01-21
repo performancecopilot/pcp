@@ -77,10 +77,10 @@ class ServiceTests(unittest.TestCase):
 
     def testTooManyKeys(self):
         config = PMDAConfig()
-        config.max_throughput = 64 * 1024
+        config.max_throughput = 4 * 1024
         self.setup(config)
 
-        script = self.service.register_script(Script('profile:hz:9999 { @test1[kstack,ustack] = count(); }'))
+        script = self.service.register_script(Script('profile:hz:999 { @test1[kstack,ustack] = count(); }'))
         for _i in range(20):
             script = self.service.refresh_script(script.script_id)
             if script.state.status == 'error':
@@ -92,10 +92,10 @@ class ServiceTests(unittest.TestCase):
 
     def testTooMuchOutput(self):
         config = PMDAConfig()
-        config.max_throughput = 64 * 1024
+        config.max_throughput = 4 * 1024
         self.setup(config)
 
-        script = self.service.register_script(Script('profile:hz:9999 { printf("test"); }'))
+        script = self.service.register_script(Script('profile:hz:999 { printf("test"); }'))
         for _i in range(20):
             script = self.service.refresh_script(script.script_id)
             if script.state.status == 'error':

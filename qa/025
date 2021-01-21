@@ -18,16 +18,6 @@ trap "_cleanup; rm -f $tmp.*; exit" 0 1 2 3 15
 _stop_auto_restart pmcd
 _stop_auto_restart pmlogger
 
-_cleanup()
-{
-    _restore_auto_restart pmcd
-    _restore_auto_restart pmlogger
-   # these come from src/pmcdgone running _wait_for_pmlogger w/out $tmp
-   # being set ...
-   #
-   rm -f ._wait_for_pmlogger.host ._wait_for_pmlogger.pmlc
-}
-
 use_systemd=''
 if [ -f $PCP_INC_DIR/builddefs ]
 then
@@ -36,13 +26,61 @@ then
     if $ENABLE_SYSTEMD
     then
 	use_systemd='-s'
-	echo "Using systemd." >>$seq.full
+	# these other services really get in the way and prevent a
+	# clean pmlogger restart from src/pmcdgone
+	#
+	for svc in \
+	    pmlogger_check.timer pmlogger_check.service \
+	    pmlogger_daily.timer pmlogger_daily.service \
+	    pmlogger_daily-poll.timer pmlogger_daily-poll.service \
+	    pmlogger_daily_report.timer pmlogger_daily_report.service \
+	    pmlogger_daily_report-poll.timer pmlogger_daily_report-poll.service
+	do
+	    case "$svc" in
+		*.timer)
+			;;
+		*)
+			sudo systemctl disable $svc >>$seq.full 2>&1
+			;;
+	    esac
+	    sudo systemctl stop $svc >>$seq.full 2>&1
+	    echo "+ after stop $svc ..." >>$seq.full
+	    _get_pids_by_name pmlogger >>$seq.full 2>&1
+	    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mlogger' >>$seq.full
+	done
+	# and now get a clean pmlogger without the other hangers-on
+	#
+	sudo systemctl restart pmlogger
     fi
 fi
+echo "Using system? \"$use_systemd\" (-s => yes)" >>$seq.full
+
+_cleanup()
+{
+    _restore_auto_restart pmcd
+    _restore_auto_restart pmlogger
+    if [ "X$use_systemd" = X-s ]
+    then
+	for svc in \
+	    pmlogger_check.service \
+	    pmlogger_daily.service \
+	    pmlogger_daily-poll.service \
+	    pmlogger_daily_report.service \
+	    pmlogger_daily_report-poll.service
+	do
+	    sudo systemctl enable $svc >>$seq.full 2>&1
+	    sudo systemctl start $svc >>$seq.full 2>&1
+	done
+    fi
+   # these come from src/pmcdgone running _wait_for_pmlogger w/out $tmp
+   # being set ...
+   #
+   rm -f ._wait_for_pmlogger.host ._wait_for_pmlogger.pmlc
+}
 
 # real QA test starts here
 $sudo src/pmcdgone $use_systemd 2>&1 \
-| tee $seq.full \
+| tee -a $seq.full \
 | sed \
     -e '/^+ /d' \
     -e '/__pmGetPDU: fd=3 BINARY hdr: Broken pipe/d' \

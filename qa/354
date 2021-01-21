@@ -30,7 +30,8 @@ cd $tmp
 
 _build_sed()
 {
-    echo "s/$host/HOST/g" >$tmp.sed
+    echo 's/$/ /' >$tmp.sed
+    echo "s/$host/HOST/g" >>$tmp.sed
     $PCP_AWK_PROG <$1 >>$tmp.sed '
 BEGIN	{ numpid = 0; pid[""] = 1 }
 /pid:/	{ if ($6 == 0) next
@@ -39,8 +40,9 @@ BEGIN	{ numpid = 0; pid[""] = 1 }
 	  }
 	  numpid++
 	  pid[numpid] = $6
-	  print "s/ " $6 "\\b/ pmlogger-pid-" numpid "/g"
+	  print "s/ " $6 "\\([^0-9]\\)/ pmlogger-pid-" numpid "\\1/g"
 	}'
+    echo 's/ $//' >>$tmp.sed
 }
 
 # Note on last awk ...
@@ -133,8 +135,11 @@ MKTEMP=`ls *.localhost.0 \
 	| sed -e 's/^[0-9][0-9]* //' -e 's/\.localhost\.0//' -e 1q`
 echo "MKTEMP=$MKTEMP" >>$here/$seq.full
 _build_sed $tmp.out
-_filter $tmp.out
+echo "-- $tmp.sed --" >>$here/$seq.full
+cat $tmp.sed >>$here/$seq.full
+echo "-- $tmp.out --" >>$here/$seq.full
 cat $tmp.out >>$here/$seq.full
+_filter $tmp.out
 echo
 echo "pmlogger processes:"
 echo "pmlogger processes:" >>$here/$seq.full
@@ -221,6 +226,9 @@ MKTEMP=`ls *.localhost.0 \
 	| sed -e 's/^[0-9][0-9]* //' -e 's/\.localhost\.0//' -e 1q`
 echo "MKTEMP=$MKTEMP" >>$here/$seq.full
 _build_sed $tmp.out
+echo "-- $tmp.sed --" >>$here/$seq.full
+cat $tmp.sed >>$here/$seq.full
+echo "-- $tmp.out --" >>$here/$seq.full
 cat $tmp.out >>$here/$seq.full
 _filter $tmp.out
 echo
