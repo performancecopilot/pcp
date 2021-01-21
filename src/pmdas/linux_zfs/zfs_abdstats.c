@@ -39,6 +39,10 @@ zfs_abdstats_refresh(zfs_abdstats_t *abdstats)
             mname = strtok(line, delim);
             mval  = strtok(NULL, delim); // not used
             mval  = strtok(NULL, delim);
+
+            if ((strcmp(mname, "name") == 0) || strtok(NULL, delim) != NULL)
+                continue;
+
             value = strtoull(mval, NULL, 0);
 
             if (strncmp(mname, "scatter_", 8) == 0) {

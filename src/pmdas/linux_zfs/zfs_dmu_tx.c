@@ -39,10 +39,12 @@ zfs_dmu_tx_refresh(zfs_dmu_tx_t *dmu_tx)
             mname = strtok(line, delim);
             mval  = strtok(NULL, delim); // not used
             mval  = strtok(NULL, delim);
+
+            if ((strcmp(mname, "name") == 0) || strtok(NULL, delim) != NULL)
+                continue;
+
             value = strtoull(mval, NULL, 0);
 
-            if (strncmp(mname, "dmu_tx_", 7) != 0)
-                continue;
             mname += 7;
             if (strncmp(mname, "dirty_", 6) == 0) {
                 mname += 6;

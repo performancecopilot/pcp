@@ -39,7 +39,11 @@ zfs_xuiostats_refresh(zfs_xuiostats_t *xuiostats)
             mname = strtok(line, delim);
             mval  = strtok(NULL, delim); // not used
             mval  = strtok(NULL, delim);
-	    value = strtoull(mval, NULL, 0);
+
+            if ((strcmp(mname, "name") == 0) || strtok(NULL, delim) != NULL)
+                continue;
+
+            value = strtoull(mval, NULL, 0);
 
             if (strcmp(mname, "onloan_read_buf") == 0) xuiostats->onloan_read_buf = value;
             else if (strcmp(mname, "onloan_write_buf") == 0) xuiostats->onloan_write_buf = value;

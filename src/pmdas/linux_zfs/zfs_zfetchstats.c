@@ -39,7 +39,11 @@ zfs_zfetchstats_refresh(zfs_zfetchstats_t *zfetchstats)
             mname = strtok(line, delim);
             mval  = strtok(NULL, delim); // not used
             mval  = strtok(NULL, delim);
-	    value = strtoull(mval, NULL, 0);
+
+            if ((strcmp(mname, "name") == 0) || strtok(NULL, delim) != NULL)
+                continue;
+
+            value = strtoull(mval, NULL, 0);
 
             if (strcmp(mname, "hits") == 0) zfetchstats->hits = value;
             else if (strcmp(mname, "misses") == 0) zfetchstats->misses = value;
