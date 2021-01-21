@@ -278,7 +278,7 @@ PCP_SELINUX_VIRT_VAR_RUN = @pcp_selinux_virt_var_run@
 PCP_SELINUX_PROC_SECURITY = @pcp_selinux_proc_security@
 PCP_SELINUX_FILES_MMAP_ALL_FILES = @pcp_selinux_files_mmap_all_files@
 PCP_SELINUX_CAP2_SYSLOG = @pcp_selinux_cap2_syslog@
-PCP_SELINUX_ICMP_SOCKET = @pcp_selinux_icmp_socket@
+PCP_SELINUX_ICMP_SOCKET_CLASS = @pcp_selinux_icmp_socket_class@
 # pcpqa.te
 PCP_SELINUX_INITRC_TMP = @pcp_selinux_initrc_tmp@
 PCP_SELINUX_SUDO_EXEC = @pcp_selinux_sudo_exec@

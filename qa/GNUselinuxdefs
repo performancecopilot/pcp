@@ -80,8 +80,8 @@ PCP_DIR_RULE="allow pcp_pmcd_t usr_t:dir { add_name remove_name write };"
 endif
 
 ifeq "$(PCP_SELINUX_RAWIP_SOCKET_CLASS)" "true"
-PCP_RAWIP_SOCKET_CLASS="class rawip_socket { create getopt setopt };"
-PCP_RAWIP_SOCKET_RULE="allow pcp_pmcd_t self:rawip_socket { create getopt setopt };"
+PCP_RAWIP_SOCKET_CLASS="class rawip_socket { create getopt setopt read write }; \# pmda.netcheck"
+PCP_RAWIP_SOCKET_RULE="allow pcp_pmcd_t self:rawip_socket { create getopt setopt read write };"
 endif
 
 ifeq "$(PCP_SELINUX_HOSTNAME_EXEC_MAP)" "true"

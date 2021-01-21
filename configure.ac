@@ -2001,7 +2001,7 @@ pcp_selinux_rpm_var_lib=false
 pcp_selinux_virt_var_run=false
 pcp_selinux_proc_security=false
 pcp_selinux_cap2_syslog=false
-pcp_selinux_icmp_socket=false
+pcp_selinux_icmp_socket_class=false
 
 pcp_selinux_initrc_tmp=false
 pcp_selinux_sudo_exec=false
@@ -2125,7 +2125,7 @@ AS_IF([test "x$enable_selinux" != "xfalse"], [
 
     seinfo -x --class=icmp_socket $seinfo_common_flag 2>/dev/null \
     | egrep '^[[ 	]][[ 	]]*(class |)icmp_socket$' >/dev/null \
-    && pcp_selinux_icmp_socket=true
+    && pcp_selinux_icmp_socket_class=true
 
     dnl these ones are for pcpqa.te
 
@@ -2173,7 +2173,7 @@ AC_SUBST(pcp_selinux_rpm_var_lib)
 AC_SUBST(pcp_selinux_virt_var_run)
 AC_SUBST(pcp_selinux_proc_security)
 AC_SUBST(pcp_selinux_cap2_syslog)
-AC_SUBST(pcp_selinux_icmp_socket)
+AC_SUBST(pcp_selinux_icmp_socket_class)
 
 dnl for pcpqa.te
 AC_SUBST(pcp_selinux_initrc_tmp)
