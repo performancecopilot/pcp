@@ -27,11 +27,27 @@ then
     do_valgrind=true
 fi
 
-# test for-some-thing || _notrun No support for some-thing
+[ $PCP_PLATFORM = linux ] || _notrun "pmdasockets is Linux-specific"
+[ -f $PCP_PMDAS_DIR/sockets/pmdasockets ] || _notrun "sockets pmda not installed"
+
+pmns=$PCP_PMDAS_DIR/sockets/root
+pmda=$PCP_PMDAS_DIR/sockets/pmda_sockets.$DSO_SUFFIX,sockets_init
+_make_helptext sockets
+
+# override the default contents of PMDA cache files
+# (do not want localhost versions to be used here).
+#
+domain=154
+[ -f $PCP_VAR_DIR/config/pmda/$domain.0 ] && \
+_save_config $PCP_VAR_DIR/config/pmda/$domain.0
+$sudo rm -f $PCP_VAR_DIR/config/pmda/$domain.0
 
 _cleanup()
 {
     cd $here
+    [ -f $PCP_VAR_DIR/config/pmda/$domain.0.$seq ] && \
+    _restore_config $PCP_VAR_DIR/config/pmda/$domain.0
+
     $sudo rm -rf $tmp $tmp.*
 }
 
@@ -47,22 +63,12 @@ _filter()
 }
 
 # real QA test starts here
-
-if $do_valgrind
-then
-    _run_valgrind ...your test goes here...
-else
-    ...your test goes here... 2>&1
-fi \
-| _filter
-
-# if really bad error
-status=1
-exit
-
-# optional stuff if your test has verbose output to help resolve problems
-#echo
-#echo "If failure, check $seq.full"
+for f in sockets/ss_noemitauOH.txt sockets/ss_noemitauOH_ubuntu.txt; do
+    echo === testing $f ===
+    export PCPQA_PMDA_SOCKETS="$f"
+    $sudo rm -f $PCP_VAR_DIR/config/pmda/$domain.0
+    _run_valgrind pminfo -L -K clear -K add,154,$pmda -dfmt -n $pmns network.persocket
+done
 
 # success, all done
 exit

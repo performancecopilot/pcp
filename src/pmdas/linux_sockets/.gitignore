@@ -1,0 +1,5 @@
+domain.h
+pmdasockets
+pmda_sockets.so
+pmda_sockets.dll
+pmda_sockets.dylib

@@ -512,6 +512,7 @@ Requires: pcp-pmda-dm pcp-pmda-apache
 Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-mailq pcp-pmda-mounts
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping pcp-pmda-smart
 Requires: pcp-pmdas-hacluster pcp-pmda-lustrecomm pcp-pmda-logger pcp-pmda-docker pcp-pmda-bind2
+Requires: pcp-pmdas-sockets
 %if !%{disable_podman}
 Requires: pcp-pmda-podman
 %endif
@@ -2007,6 +2008,20 @@ smartmontools package.
 #end pcp-pmda-smart
 
 #
+# pcp-pmda-sockets
+#
+%package pmda-sockets
+License: GPLv2+
+Summary: Performance Co-Pilot (PCP) per-socket metrics
+URL: https://pcp.io
+Requires: pcp = @package_version@ pcp-libs = @package_version@
+Requires: iproute
+%description pmda-sockets
+This package contains the PCP Performance Metric Domain Agent (PMDA) for
+collecting per-socket statistics, making use of utilities such as 'ss'.
+#end pcp-pmda-sockets
+
+#
 # pcp-pmda-hacluster
 #
 %package pmda-hacluster
@@ -2685,6 +2700,9 @@ exit 0
 
 %preun pmda-smart
 %{pmda_remove "$1" "smart"}
+
+%preun pmda-sockets
+%{pmda_remove "$1" "sockets"}
 
 %preun pmda-hacluster
 %{pmda_remove "$1" "hacluster"}
@@ -3394,6 +3412,10 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %files pmda-smart
 %{_pmdasdir}/smart
 %{_pmdasexecdir}/smart
+
+%files pmda-sockets
+%{_pmdasdir}/sockets
+%{_pmdasexecdir}/sockets
 
 %files pmda-hacluster
 %{_pmdasdir}/hacluster

@@ -25,6 +25,7 @@
 \f3pmdaCacheLookupKey\f1,
 \f3pmdaCacheOp\f1,
 \f3pmdaCachePurge\f1,
+\f3pmdaCachePurgeCallback\f1,
 \f3pmdaCacheResize\f1 \- manage a cache of instance domain information for a PMDA
 .SH "C SYNOPSIS"
 .ft 3
@@ -55,6 +56,9 @@ int pmdaCacheOp(pmInDom \fIindom\fP, int \fIop\fP);
 .br
 .ti -8n
 int pmdaCachePurge(pmInDom \fIindom\fP, time_t \fIrecent\fP);
+.br
+.ti -8n
+int pmdaCachePurgeCallback(pmInDom \fIindom\fP, time_t \fIrecent\fP, void (*\fIcallback\fP)(void *));
 .br
 .ti -8n
 int pmdaCacheResize(pmInDom \fIindom\fP, int \fImaximum\fP);
@@ -433,6 +437,22 @@ On success
 returns the number of culled entries, else in the case of an error
 the return value is negative (and suitable for decoding with
 .BR pmErrStr (3)).
+.PP
+The
+.B pmdaCachePurgeCallback
+function is similar to
+.B pmdaCachePurge
+except that a
+.I callback
+function will also be called with the
+.I private
+data pointer associated with the cache entry to be culled.
+The callback is not made if
+.I private is
+.BR NULL .
+This would typically be used to free the private data when the associated
+entry is purged in PMDAs that do not separately maintain any references
+to the private data.
 .PP
 .B pmdaCacheOp
 may be used to perform additional operations on the cache as follows:

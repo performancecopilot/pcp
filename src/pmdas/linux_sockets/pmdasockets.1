@@ -1,0 +1,143 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2021 Red Hat.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
+.TH PMDASOCKETS 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdasockets\f1 \- sockets statistics PMDA
+.SH DESCRIPTION
+.B pmdasockets
+is a Performance Metrics Domain Agent (PMDA) which exports
+metric values for current sockets on the local system.
+.PP
+This PMDA currently collects its data through the
+.BR ss (8)
+utility and requires that the program is installed in order to function.
+This dependency may change in the future.
+.SH INSTALLATION
+To install (enable) the
+.B sockets
+PMDA, do the following as root:
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/sockets
+# ./Install
+.fi
+.ft P
+.RE
+.sp 1
+To uninstall (disable), do the following as root:
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/sockets
+# ./Remove
+.fi
+.ft P
+.RE
+.sp 1
+\fBpmdasockets\fR is launched by
+.BR pmcd (1)
+and should never be executed directly.
+The Install and Remove scripts notify
+.BR pmcd (1)
+when the agent is installed or removed.
+.SH FILTER CONFIGURATION
+The string valued metric
+.B network.persocket.filter
+specifies the
+.BR ss (1)
+filter to be applied to optionally select socket states,
+IP addresses and other options that
+.B pmdasockets
+will collect (to populate it's instance domain).
+By default, this is
+.B state connected
+meaning only sockets in the
+.B connected
+state will be included.
+This can be changed dynamically by using
+.BR pmstore (1)
+to store a new filter string in the
+.B network.persocket.filter
+metric.
+E.g.
+.in 1i
+.sp 1
+.RS +4
+.ft B
+.nf
+# pmstore network.persocket.filter "state all"
+.fi
+.ft P
+.RE
+.sp 1
+will change the filter to include sockets in all states.
+Note that the filter string is not persisted across PMDA restarts or reboots
+(this may change in the future).
+For further details of the filter syntax and options, consult
+.BR ss (8).
+.SH LOGGING CONFIGURATION
+The
+.BR pmlogconf (1)
+configuration file for
+.B pmdasockets
+is
+.BR $PCP_VAR_DIR/config/pmlogconf/networking/persocket-linux
+(where
+.B $PCP_VAR_DIR
+is typically
+.BR /var/lib/pcp )
+which specifies to log all metrics below
+.B network.persocket
+in the PCP namespace with a default sampling interval of 60 seconds.
+The logging interval and metrics to be logged can be changed
+by editing that file and then restarting the
+.B pmlogger
+service.
+For details of the syntax, see
+.BR pmlogconf (1).
+.SH METRICS
+The metrics and metadata supported by
+.B pmdasockets
+correspond to fields reported by
+.B ss -noemitauOH
+and are also available as help text provided by the PMDA,
+e.g. to list all metrics, metadata descriptors and help text:
+.in 1i
+.sp 1
+.RS +4
+.ft B
+.nf
+# pminfo -fmdtT network.persocket
+.fi
+.ft P
+.RE
+.sp 1
+Note that the PMDA must be installed (enabled) for this command to work correctly, see above.
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fR are used to parameterize
+the file and directory names used by \fBPCP\fR. On each installation, the
+file \fB/etc/pcp.conf\fR contains the local values for these variables.
+The \fB$PCP_CONF\fR variable may be used to specify an alternative
+configuration file, as described in \fIpcp.conf\fR(5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmcd (1),
+.BR pmlogger (1)
+and
+.BR ss (8).
