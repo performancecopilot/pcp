@@ -33,8 +33,7 @@ LCFLAGS		= $(INVISIBILITY)
 
 SCRIPTS		= Install Remove
 VERSION_SCRIPT	= exports
-HELPTARGETS	= help.dir help.pag
-LDIRT		= $(HELPTARGETS) domain.h $(VERSION_SCRIPT) $(IAM).log
+LDIRT		= domain.h $(VERSION_SCRIPT) $(IAM).log
 
 MAN_SECTION	= 1
 MAN_PAGES	= pmda$(IAM).$(MAN_SECTION)
@@ -45,13 +44,13 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
-build-me: $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS)
+build-me: $(LIBTARGET) $(CMDTARGET)
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)
 	$(INSTALL) -m 755 -d $(PMDATMPDIR)
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) $(PMDAADMDIR)
-	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h help $(HELPTARGETS) $(PMNSFILES) $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h help $(PMNSFILES) $(PMDAADMDIR)
 	@$(INSTALL_MAN)
 else
 build-me:
@@ -61,9 +60,6 @@ endif
 default_pcp : default
 
 install_pcp : install
-
-$(HELPTARGETS) : help
-	$(NEWHELP) -n root -v 2 -o help < help
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
