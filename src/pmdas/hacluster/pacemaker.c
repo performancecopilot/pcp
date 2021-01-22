@@ -31,7 +31,7 @@ uint64_t
 dateToEpoch(char *last_written_text)
 {
 	char str_wday[4], str_mon[4]; 
-	int year;
+	int year, last_change_utc;
 	struct tm cib_written;
 
 	/* Initialize DST status as unknown (-1) avoiding uninitialized variable */
@@ -109,9 +109,27 @@ dateToEpoch(char *last_written_text)
 
 	if (strstr(str_mon, "Dec"))
 		cib_written.tm_mon = 11;
+		
+	cib_written.tm_yday = 12;
+	mktime(&cib_written);
 
-	/* Return an epoch value for our given date */
-	return (uint64_t)gmtime(&cib_written); 
+	/*
+	 * Return seconds since the Epoch in UTC from localtime time_t outlined by 
+	 * Open Group Base Specification
+	 * Issue 7, 2018 Edition (IEEE Std 1003.1-2017) - Section 4.16
+	 * POSIX.1-2017
+	 *
+	 * https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap04.html
+	 *
+	 * Note: The last three terms of the expression take into consideration of
+	 *       adding a leap day for each leap year since epoch.
+	 * 
+	 */
+	last_change_utc = cib_written.tm_sec + cib_written.tm_min*60 + cib_written.tm_hour*3600 + cib_written.tm_yday*86400 +
+					  (cib_written.tm_year-70)*31536000 + ((cib_written.tm_year-69)/4)*86400 -
+					  ((cib_written.tm_year-1)/100)*86400 + ((cib_written.tm_year+299)/400)*86400;
+	        
+	return (uint64_t)last_change_utc; 
 }
 
 uint8_t
