@@ -8,4 +8,12 @@
 #define SOCKETS	154
 #endif
 
-#include "root_sockets"
+root {
+    network
+}
+
+network {
+    persocket
+}
+
+#include "pmns"

@@ -16,14 +16,6 @@
 #define SOCKETS	154
 #endif
 
-root {
-    network
-}
-
-network {
-    persocket
-}
-
 network.persocket {
     filter		SOCKETS:0:0
     af			SOCKETS:1:0

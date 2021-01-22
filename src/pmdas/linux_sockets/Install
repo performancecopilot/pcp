@@ -24,7 +24,6 @@ iam=sockets
 dso_opt=true
 pipe_opt=false
 daemon_opt=false
-pmns_source=root_sockets
 
 which ss >/dev/null 2>&1
 if [ $? -ne 0 ]

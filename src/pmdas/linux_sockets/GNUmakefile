@@ -17,7 +17,7 @@ include	$(TOPDIR)/src/include/builddefs
 
 IAM		= sockets
 DOMAIN		= SOCKETS
-PMNSFILES	= root_sockets
+PMNSFILES	= root pmns
 CMDTARGET	= pmda$(IAM)
 LIBTARGET	= pmda_$(IAM).$(DSOSUFFIX)
 PMDAINIT	= $(IAM)_init
@@ -25,8 +25,6 @@ PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
 PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
 PMIEDIR		= $(PCP_SYSCONF_DIR)/pmieconf/$(IAM)
 PMIEVARDIR	= $(PCP_VAR_DIR)/config/pmieconf/$(IAM)
-
-CONF_LINE       = "$(IAM)	154	dso	$(PMDAINIT)	$(PMDATMPDIR)/$(LIBTARGET)"
 
 CFILES		= pmda.c  metrictab.c ss_refresh.c ss_parse.c ss_stream.c
 HFILES		= indom.h cluster.h ss_stats.h
@@ -48,18 +46,12 @@ include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
 build-me: $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS)
-	@if [ -f ../pmcd.conf ]; then \
-	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
-		echo $(CONF_LINE) >> ../pmcd.conf ; \
-	    fi; \
-	fi
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)
 	$(INSTALL) -m 755 -d $(PMDATMPDIR)
-	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h help $(HELPTARGETS) root root_sockets $(PMDAADMDIR)
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) $(PMDAADMDIR)
-	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_sockets root_sockets $(PCP_PMNSADM_DIR)/root_sockets
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h help $(HELPTARGETS) $(PMNSFILES) $(PMDAADMDIR)
 	@$(INSTALL_MAN)
 else
 build-me:
@@ -71,7 +63,7 @@ default_pcp : default
 install_pcp : install
 
 $(HELPTARGETS) : help
-	$(NEWHELP) -n root_sockets -v 2 -o help < help
+	$(NEWHELP) -n root -v 2 -o help < help
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
