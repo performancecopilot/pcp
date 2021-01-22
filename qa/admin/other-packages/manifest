@@ -1617,6 +1617,20 @@ slackpkg?	pstree		[procps-ng (QA optional)]
 pacman?		pstree		[core/psmisc (QA optional)]
 brew?		pstree		[? (QA optional)]
 
+# -- ss sockets statistics tool
+#
+dpkg?		ss		[iproute2]
+rpm?		ss		[iproute]
+urpmi?		ss		[iproute]
+emerge?		ss		[?]
+pkgin?		ss		[?]
+pkg_add?	ss		[iproute2]
+F_pkg?		ss		[?]
+S_pkg?		ss		[?]
+slackpkg?	ss		[?]
+pacman?		ss		[?]
+brew?		ss		[?]
+
 # -- swrast graphics driver (for pmchart QA)
 #
 dpkg?		/usr/lib/*/dri/swrast_dri.so	[libgl1-mesa-dri (QA optional)]
