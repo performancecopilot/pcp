@@ -91,12 +91,57 @@ _filter_pmda_install <$tmp.out \
 
 echo
 echo "=== validate values ==="
-rm -f $tmp.stats
+rm -f $tmp.stats.*
+
 echo "\
-2011-05-11T08:18:02.420771+10:00 host rsyslogd-pstats: imuxsock: submitted=85 ratelimit.discarded=0 ratelimit.numratelimiters=24 
-2011-05-11T08:18:02.420797+10:00 host rsyslogd-pstats: main Q: size=1181 enqueued=1181 full=0 maxqsize=1181 
-2011-05-11T08:18:07.423713+10:00 host rsyslogd-pstats: imuxsock: submitted=85 ratelimit.discarded=0 ratelimit.numratelimiters=24 
-2011-05-11T08:18:07.423752+10:00 host rsyslogd-pstats: main Q: size=1 enqueued=1183 full=0 maxqsize=1182" > $tmp.stats
+2011-05-11T08:18:02.410871+10:00 host rsyslogd-pstats: ignored record ...
+2011-05-11T08:18:02.420771+10:00 host rsyslogd-pstats: imuxsock: submitted=85 ratelimit.discarded=0 ratelimit.numratelimiters=24
+2011-05-11T08:18:02.420771+10:00 host rsyslogd-pstats: omelasticsearch: connfail=42 submits=4201 failed=142 success=4201
+2011-05-11T08:18:02.420797+10:00 host rsyslogd-pstats: main Q: size=1181 enqueued=1181 full=0 maxqsize=1181
+2011-05-11T08:18:02.420897+10:00 host rsyslogd-pstats: other Q: size=1142 enqueued=1142 full=0 maxqsize=1142" > $tmp.stats.legacy.0
+
+echo "\
+2011-05-11T08:18:03.420789+10:00 host not-pstats: random garbage ...
+2011-05-11T08:18:07.423713+10:00 host rsyslogd-pstats: imuxsock: submitted=85 ratelimit.discarded=0 ratelimit.numratelimiters=24
+2011-05-11T08:18:07.423718+10:00 host rsyslogd-pstats: omelasticsearch: connfail=42 submits=4201 failed=142 success=4201
+2011-05-11T08:18:07.423752+10:00 host rsyslogd-pstats: main Q: size=1 enqueued=1183 full=0 maxqsize=1182
+2011-05-11T08:18:07.423752+10:00 host rsyslogd-pstats: other Q: size=1 enqueued=1143 full=0 maxqsize=1142" > $tmp.stats.legacy.1
+
+echo "\
+2022-01-03T22:59:30.234425+00:00 host rsyslogd-pstats: global: origin=dynstats
+2022-01-03T22:59:30.234434+00:00 host rsyslogd-pstats: imuxsock: origin=imuxsock submitted=3810 ratelimit.discarded=0 ratelimit.numratelimiters=3810
+2022-01-03T22:59:30.234434+00:00 host rsyslogd-pstats: omelasticsearch: origin=omelasticsearch submitted=82 failed.http=0 failed.httprequests=0 failed.checkConn=0 failed.es=0 response.success=0 response.bad=0 response.duplicate=0 response.badargument=0 response.bulkrejection=0 response.other=0
+2022-01-03T22:59:30.234437+00:00 host rsyslogd-pstats: pstats-file: origin=core.action processed=180 failed=0 suspended=0 suspended.duration=0 resumed=0
+2022-01-03T22:59:30.234440+00:00 host rsyslogd-pstats: pstats-pipe: origin=core.action processed=180 failed=0 suspended=0 suspended.duration=0 resumed=0
+2022-01-03T22:59:30.234442+00:00 host rsyslogd-pstats: action 2: origin=core.action processed=3815 failed=0 suspended=0 suspended.duration=0 resumed=0
+2022-01-03T22:59:30.234445+00:00 host rsyslogd-pstats: action 3: origin=core.action processed=3814 failed=0 suspended=0 suspended.duration=0 resumed=0
+2022-01-03T22:59:30.234447+00:00 host rsyslogd-pstats: action 4: origin=core.action processed=1 failed=0 suspended=0 suspended.duration=0 resumed=0
+2022-01-03T22:59:30.234449+00:00 host rsyslogd-pstats: action 5: origin=core.action processed=0 failed=0 suspended=0 suspended.duration=0 resumed=0
+2022-01-03T22:59:30.234451+00:00 host rsyslogd-pstats: action 6: origin=core.action processed=0 failed=0 suspended=0 suspended.duration=0 resumed=0
+2022-01-03T22:59:30.234453+00:00 host rsyslogd-pstats: action 7: origin=core.action processed=0 failed=0 suspended=0 suspended.duration=0 resumed=0
+2022-01-03T22:59:30.234455+00:00 host rsyslogd-pstats: action 8: origin=core.action processed=0 failed=0 suspended=0 suspended.duration=0 resumed=0
+2022-01-03T22:59:30.234459+00:00 host rsyslogd-pstats: resource-usage: origin=impstats utime=366529 stime=583115 maxrss=4848 minflt=1485 majflt=0 inblock=0 oublock=1048 nvcsw=11527 nivcsw=1
+2022-01-03T22:59:30.234463+00:00 host rsyslogd-pstats: action 2 queue[DA]: origin=core.queue size=0 enqueued=0 full=0 discarded.full=0 discarded.nf=0 maxqsize=0
+2022-01-03T22:59:30.234465+00:00 host rsyslogd-pstats: action 2 queue: origin=core.queue size=0 enqueued=3815 full=0 discarded.full=0 discarded.nf=0 maxqsize=4
+2022-01-03T22:59:30.234468+00:00 host rsyslogd-pstats: main Q: origin=core.queue size=14 enqueued=4009 full=0 discarded.full=0 discarded.nf=0 maxqsize=15" > $tmp.stats.modern.0
+
+echo "\
+2022-01-03T22:59:33.237567+00:00 host rsyslogd-pstats: global: origin=dynstats
+2022-01-03T22:59:33.237582+00:00 host rsyslogd-pstats: imuxsock: origin=imuxsock submitted=5498 ratelimit.discarded=0 ratelimit.numratelimiters=5498
+2022-01-03T22:59:33.237583+00:00 host rsyslogd-pstats: omelasticsearch: origin=omelasticsearch submitted=92 failed.http=0 failed.httprequests=0 failed.checkConn=2 failed.es=0 response.success=0 response.bad=0 response.duplicate=0 response.badargument=1 response.bulkrejection=0 response.other=0
+2022-01-03T22:59:33.237586+00:00 host rsyslogd-pstats: pstats-file: origin=core.action processed=195 failed=0 suspended=0 suspended.duration=0 resumed=0
+2022-01-03T22:59:33.237590+00:00 host rsyslogd-pstats: pstats-pipe: origin=core.action processed=195 failed=0 suspended=0 suspended.duration=0 resumed=0
+2022-01-03T22:59:33.237593+00:00 host rsyslogd-pstats: action 2: origin=core.action processed=5503 failed=0 suspended=0 suspended.duration=0 resumed=0
+2022-01-03T22:59:33.237597+00:00 host rsyslogd-pstats: action 3: origin=core.action processed=5502 failed=0 suspended=0 suspended.duration=0 resumed=0
+2022-01-03T22:59:33.237600+00:00 host rsyslogd-pstats: action 4: origin=core.action processed=1 failed=0 suspended=0 suspended.duration=0 resumed=0
+2022-01-03T22:59:33.237602+00:00 host rsyslogd-pstats: action 5: origin=core.action processed=0 failed=0 suspended=0 suspended.duration=0 resumed=0
+2022-01-03T22:59:33.237605+00:00 host rsyslogd-pstats: action 6: origin=core.action processed=0 failed=0 suspended=0 suspended.duration=0 resumed=0
+2022-01-03T22:59:33.237608+00:00 host rsyslogd-pstats: action 7: origin=core.action processed=0 failed=0 suspended=0 suspended.duration=0 resumed=0
+2022-01-03T22:59:33.237611+00:00 host rsyslogd-pstats: action 8: origin=core.action processed=0 failed=0 suspended=0 suspended.duration=0 resumed=0
+2022-01-03T22:59:33.237617+00:00 host rsyslogd-pstats: resource-usage: origin=impstats utime=517844 stime=830921 maxrss=5328 minflt=1605 majflt=0 inblock=0 oublock=1472 nvcsw=16596 nivcsw=1
+2022-01-03T22:59:33.237621+00:00 host rsyslogd-pstats: action 2 queue[DA]: origin=core.queue size=0 enqueued=0 full=0 discarded.full=0 discarded.nf=0 maxqsize=0
+2022-01-03T22:59:33.237625+00:00 host rsyslogd-pstats: action 2 queue: origin=core.queue size=0 enqueued=5503 full=0 discarded.full=0 discarded.nf=0 maxqsize=4
+2022-01-03T22:59:33.237631+00:00 host rsyslogd-pstats: main Q: origin=core.queue size=14 enqueued=5712 full=0 discarded.full=0 discarded.nf=0 maxqsize=15" > $tmp.stats.modern.1
 
 for i in 1 2 3 4 5
 do
@@ -111,10 +156,11 @@ then
     exit
 fi
 
-$sudo sh -c "cat $tmp.stats >> $PCP_LOG_DIR/rsyslog/stats"
-sleep 2	# give some time for pmdarsyslog to be told
-$sudo sh -c "cat $tmp.stats >> $PCP_LOG_DIR/rsyslog/stats"
-sleep 2	# give more time for pmdarsyslog to be told
+for stats_file in $tmp.stats.*; do
+    $sudo sh -c "cat $stats_file >> $PCP_LOG_DIR/rsyslog/stats"
+    sleep 2	# give some time for pmdarsyslog to be told
+done
+
 pminfo rsyslog \
 | LC_COLLATE=POSIX sort \
 | while read metric
