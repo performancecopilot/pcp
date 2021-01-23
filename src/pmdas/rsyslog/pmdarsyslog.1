@@ -57,17 +57,21 @@ This is done by adding the lines:
 .RS +4
 .ft B
 .nf
-$ModLoad impstats
-$PStatsInterval 5       # log every 5 seconds
-syslog.info             |/var/log/pcp/rsyslog/stats
+module(load="impstats" interval="10" severity="7")
+if $syslogtag contains 'rsyslogd-pstats' then {
+    action(
+        name="pstats-for-pcp"
+        type="ompipe"
+        template="RSYSLOG_FileFormat"
+        pipe="/var/log/pcp/rsyslog/stats"
+    )
+    stop
+}
 .fi
 .ft P
 .RE
 .sp 1
 to your \fIrsyslog.conf\fR\|(5) configuration file after installing the \s-1PMDA\s0.
-Take care to ensure the syslog.info messages do not get logged in any
-other file, as this could unexpectedly fill your filesystem.  Syntax
-useful for this is syslog.!=info for explicitly excluding these.
 .SH FILES
 .IP "\fB$PCP_LOG_DIR/rsyslog/stats\fR" 4
 named pipe containing statistics exported from rsyslog,
