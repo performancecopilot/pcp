@@ -39,7 +39,11 @@ zfs_fmstats_refresh(zfs_fmstats_t *fmstats)
             mname = strtok(line, delim);
             mval  = strtok(NULL, delim); // not used
             mval  = strtok(NULL, delim);
-	    value = strtoull(mval, NULL, 0);
+
+            if ((strcmp(mname, "name") == 0) || strtok(NULL, delim) != NULL)
+                continue;
+
+            value = strtoull(mval, NULL, 0);
 
             if (strcmp(mname, "erpt-dropped") == 0) fmstats->erpt_dropped = value;
             else if (strcmp(mname, "erpt-set-failed") == 0) fmstats->erpt_set_failed = value;

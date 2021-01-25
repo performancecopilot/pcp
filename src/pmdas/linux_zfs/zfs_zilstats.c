@@ -39,10 +39,12 @@ zfs_zilstats_refresh(zfs_zilstats_t *zilstats)
             mname = strtok(line, delim);
             mval  = strtok(NULL, delim); // not used
             mval  = strtok(NULL, delim);
-	    value = strtoull(mval, NULL, 0);
 
-            if (strncmp(mname, "zil_" , 4) != 0)
+            if ((strcmp(mname, "name") == 0) || strtok(NULL, delim) != NULL)
                 continue;
+
+            value = strtoull(mval, NULL, 0);
+
             mname += 4;
             if (strncmp(mname, "itx_" , 4) == 0) {
                 mname += 4;

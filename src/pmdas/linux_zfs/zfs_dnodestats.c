@@ -39,10 +39,12 @@ zfs_dnodestats_refresh(zfs_dnodestats_t *dnodestats)
             mname = strtok(line, delim);
             mval  = strtok(NULL, delim); // not used
             mval  = strtok(NULL, delim);
+
+            if ((strcmp(mname, "name") == 0) || strtok(NULL, delim) != NULL)
+                continue;
+
             value = strtoull(mval, NULL, 0);
 
-            if (strncmp(mname, "dnode_", 6) != 0)
-                continue;
             mname += 6;
             if (strcmp(mname, "allocate") == 0) dnodestats->allocate = value;
             else if (strncmp(mname, "alloc_", 6) == 0) {

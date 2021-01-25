@@ -39,6 +39,10 @@ zfs_arcstats_refresh(zfs_arcstats_t *arcstats)
             mname = strtok(line, delim);
             mval  = strtok(NULL, delim); // not used
             mval  = strtok(NULL, delim);
+
+            if ((strcmp(mname, "name") == 0) || strtok(NULL, delim) != NULL)
+                continue;
+
             value = strtoull(mval, NULL, 0);
 
             if (strncmp(mname, "l2_", 3) == 0) {

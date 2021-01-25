@@ -39,7 +39,11 @@ zfs_vdev_mirrorstats_refresh(zfs_vdev_mirrorstats_t *vdev_mirrorstats)
             mname = strtok(line, delim);
             mval  = strtok(NULL, delim); // not used
             mval  = strtok(NULL, delim);
-	    value = strtoull(mval, NULL, 0);
+
+            if ((strcmp(mname, "name") == 0) || strtok(NULL, delim) != NULL)
+                continue;
+
+            value = strtoull(mval, NULL, 0);
 
             if (strcmp(mname, "rotating_linear") == 0) vdev_mirrorstats->rotating_linear = value;
             else if (strcmp(mname, "rotating_offset") == 0) vdev_mirrorstats->rotating_offset = value;
