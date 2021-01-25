@@ -4,7 +4,6 @@ Documentation=man:pmie(1)
 After=network-online.target pmcd.service
 Before=pmie_check.timer pmie_daily.timer
 BindsTo=pmie_check.timer pmie_daily.timer
-Wants=pmcd.service
 
 [Service]
 Type=notify
