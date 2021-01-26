@@ -14,7 +14,8 @@ Source0: %{bintray}/pcp/source/pcp-%{version}.src.tar.gz
 %global __python2 python
 %endif
 
-%if 0%{?rhel} >= 7 || 0%{?fedora} >= 17
+# UsrMerge was completed in EL 7, however the latest 'hostname' package in EL 7 contains "Provides: /bin/hostname"
+%if 0%{?rhel} >= 8 || 0%{?fedora} >= 17
 %global _hostname_executable /usr/bin/hostname
 %else
 %global _hostname_executable /bin/hostname
