@@ -2,6 +2,8 @@
 # PCP QA Test No. 294
 # Basic pmproxy functionality
 #
+# See qa/1290 for valgrind version of this test.
+#
 # Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
