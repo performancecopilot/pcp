@@ -6,6 +6,7 @@ include $(TOPDIR)/src/include/builddefs
 QRCFILE = $(COMMAND).qrc
 UIFILES = $(shell echo *.ui)
 SOURCES = pmdumptext.cpp
+BASHDIR = $(PCP_BASHSHARE_DIR)/completions
 LDIRT = $(COMMAND)
 
 default: build-me
@@ -24,6 +25,7 @@ ifeq ($(WINDOW),mac)
 else
 	$(INSTALL) -m 755 $(BINARY) $(PCP_BIN_DIR)/$(COMMAND)
 endif
+	$(INSTALL) -S $(BASHDIR)/pcp $(BASHDIR)/$(COMMAND)
 else
 build-me:
 install:

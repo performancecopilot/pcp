@@ -1,6 +1,7 @@
 pcp (5.2.4-1) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
+  * Add systemd package dependency (closes: #962994)
 
  -- Nathan Scott <nathans@debian.org>  Wed, 10 Feb 2021 11:09:25 +1100
 

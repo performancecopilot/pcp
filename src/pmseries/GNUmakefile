@@ -22,6 +22,7 @@ LCFLAGS = $(LIBUVCFLAGS)
 ifeq "$(TARGET_OS)" "mingw"
 LLDLIBS += -lws2_32
 endif
+BASHDIR = $(PCP_BASHSHARE_DIR)/completions
 
 default:	build-me
 
@@ -33,6 +34,7 @@ install:	default
 	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/pmseries
 	# compatibility symlink (share pmproxy config Redis server list)
 	$(INSTALL) -S $(PCP_SYSCONF_DIR)/pmproxy/pmproxy.conf $(PCP_SYSCONF_DIR)/pmseries/pmseries.conf
+	$(INSTALL) -S $(BASHDIR)/pcp $(BASHDIR)/$(CMDTARGET)
 else
 build-me:
 install:

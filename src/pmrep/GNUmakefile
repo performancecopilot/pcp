@@ -20,6 +20,7 @@ SCRIPT = $(TARGET).py
 LNKTARGET = pcp2csv
 CONFIG = pmrep.conf
 MAN_PAGES = pcp2csv.1 pmrep.1 pmrep.conf.5
+BASHDIR = $(PCP_BASHSHARE_DIR)/completions
 
 default: $(SCRIPT) $(MAN_PAGES)
 
@@ -31,6 +32,7 @@ ifeq "$(HAVE_PYTHON_ORDEREDDICT)" "true"
 	$(INSTALL) -S $(PCP_BIN_DIR)/$(TARGET) $(PCP_BIN_DIR)/$(LNKTARGET)
 	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/$(TARGET)
 	$(INSTALL) -m 644 $(CONFIG) $(PCP_SYSCONF_DIR)/$(TARGET)/$(CONFIG)
+	$(INSTALL) -S $(BASHDIR)/pcp $(BASHDIR)/$(TARGET)
 	@$(INSTALL_MAN)
 endif
 
