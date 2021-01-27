@@ -16,9 +16,13 @@
 #define SOCKETS	154
 #endif
 
+network {
+    persocket
+}
+
 network.persocket {
     filter		SOCKETS:0:0
-    af			SOCKETS:1:0
+    netid		SOCKETS:1:0
     state		SOCKETS:1:1
     recvq		SOCKETS:1:2
     sendq		SOCKETS:1:3

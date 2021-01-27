@@ -20,7 +20,7 @@ static char *
 ss_instname(ss_stats_t *ss, char *buf, int buflen)
 {
     /* af/src:port */
-    pmsprintf(buf, buflen, "%s%s%s", ss->af, ss->v6only ? "6/" : "/", ss->src);
+    pmsprintf(buf, buflen, "%s%s%s", ss->netid, ss->v6only ? "6/" : "/", ss->src);
 
     return buf;
 }

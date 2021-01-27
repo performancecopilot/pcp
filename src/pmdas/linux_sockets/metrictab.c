@@ -28,8 +28,8 @@ pmdaMetric metrictable[] = {
 	    PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
 	    PMDA_PMUNITS(0,0,0,0,0,0) }},
 
-    { /* network.persocket.af */
-	.m_user = OFFSET(ss_stats_t, af),
+    { /* network.persocket.netid */
+	.m_user = OFFSET(ss_stats_t, netid),
 	.m_desc = { PMDA_PMID(CLUSTER_SS, 0),
 	    PM_TYPE_STRING, SOCKETS_INDOM, PM_SEM_DISCRETE,
 	    PMDA_PMUNITS(0,0,0,0,0,0) }},
@@ -205,8 +205,8 @@ pmdaMetric metrictable[] = {
     { /* network.persocket.send */
 	.m_user = OFFSET(ss_stats_t, send),
 	.m_desc = { PMDA_PMID(CLUSTER_SS, 41),
-	    PM_TYPE_U32, SOCKETS_INDOM, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0,1,0,0,0,PM_COUNT_ONE) }},
+	    PM_TYPE_DOUBLE, SOCKETS_INDOM, PM_SEM_INSTANT,
+	    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }},
 
     { /* network.persocket.lastsnd */
 	.m_user = OFFSET(ss_stats_t, lastsnd),
@@ -230,19 +230,19 @@ pmdaMetric metrictable[] = {
 	.m_user = OFFSET(ss_stats_t, pacing_rate),
 	.m_desc = { PMDA_PMID(CLUSTER_SS, 45),
 	    PM_TYPE_DOUBLE, SOCKETS_INDOM, PM_SEM_INSTANT,
-	    PMDA_PMUNITS(1,-1,0,PM_SPACE_BYTE,0,0) }},
+	    PMDA_PMUNITS(1,-1,0,PM_SPACE_BYTE,PM_TIME_SEC,0) }},
 
     { /* network.persocket.delivery_rate */
 	.m_user = OFFSET(ss_stats_t, delivery_rate),
 	.m_desc = { PMDA_PMID(CLUSTER_SS, 46),
 	    PM_TYPE_DOUBLE, SOCKETS_INDOM, PM_SEM_INSTANT,
-	    PMDA_PMUNITS(1,-1,0,PM_SPACE_BYTE,0,0) }},
+	    PMDA_PMUNITS(1,-1,0,PM_SPACE_BYTE,PM_TIME_SEC,0) }},
 
     { /* network.persocket.delivered */
 	.m_user = OFFSET(ss_stats_t, delivered),
 	.m_desc = { PMDA_PMID(CLUSTER_SS, 47),
 	    PM_TYPE_U32, SOCKETS_INDOM, PM_SEM_COUNTER,
-	    PMDA_PMUNITS(0,1,0,0,0,PM_COUNT_ONE) }},
+	    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }},
 
     { /* network.persocket.app_limited */
 	.m_user = OFFSET(ss_stats_t, app_limited),
@@ -254,7 +254,7 @@ pmdaMetric metrictable[] = {
 	.m_user = OFFSET(ss_stats_t, busy),
 	.m_desc = { PMDA_PMID(CLUSTER_SS, 49),
 	    PM_TYPE_32, SOCKETS_INDOM, PM_SEM_DISCRETE,
-	    PMDA_PMUNITS(0,1,0,0,0,PM_COUNT_ONE) }},
+	    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }},
 
     { /* network.persocket.busy */
 	.m_user = OFFSET(ss_stats_t, busy),
@@ -266,7 +266,7 @@ pmdaMetric metrictable[] = {
 	.m_user = OFFSET(ss_stats_t, dsack_dups),
 	.m_desc = { PMDA_PMID(CLUSTER_SS, 51),
 	    PM_TYPE_U32, SOCKETS_INDOM, PM_SEM_INSTANT,
-	    PMDA_PMUNITS(0,1,0,0,0,PM_COUNT_ONE) }},
+	    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }},
 
     { /* network.persocket.rcv_rtt */
 	.m_user = OFFSET(ss_stats_t, rcv_rtt),

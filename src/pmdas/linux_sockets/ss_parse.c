@@ -61,7 +61,7 @@ static struct {
     { "segs_in:", 8, PM_TYPE_U32, &ss_p.segs_in },
     { "data_segs_out:", 14, PM_TYPE_U32, &ss_p.data_segs_out },
     { "data_segs_in:", 13, PM_TYPE_U32, &ss_p.data_segs_in },
-    { "send ", 5, PM_TYPE_U32, &ss_p.send }, /* no ':' */
+    { "send ", 5, PM_TYPE_DOUBLE, &ss_p.send }, /* no ':' */
     { "lastsnd:", 8, PM_TYPE_U32, &ss_p.lastsnd },
     { "lastrcv:", 8, PM_TYPE_U32, &ss_p.lastrcv },
     { "lastack:", 8, PM_TYPE_U32, &ss_p.lastack },
@@ -189,7 +189,7 @@ ss_parse(char *line, ss_stats_t *ss)
 
     memset(&ss_p, 0, sizeof(ss_p));
     sscanf(line, "%s %s %u %u %s %s",
-    	ss_p.af, ss_p.state, &ss_p.sendq, &ss_p.recvq, ss_p.src, ss_p.dst);
+    	ss_p.netid, ss_p.state, &ss_p.sendq, &ss_p.recvq, ss_p.src, ss_p.dst);
 
     /* skip first 6 fields, already scanned (above) */
     for (i=0; i < 6; i++)
