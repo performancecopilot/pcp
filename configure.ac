@@ -1,5 +1,5 @@
 dnl
-dnl Copyright (c) 2012-2020 Red Hat.
+dnl Copyright (c) 2012-2021 Red Hat.
 dnl Copyright (c) 2008 Aconex.  All Rights Reserved.
 dnl Copyright (c) 2000-2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 dnl
@@ -3286,6 +3286,11 @@ dnl shared PCP files (shareable for diskless)
 pcp_share_dir=`eval echo $datarootdir/pcp`
 pcp_share_dir=`eval echo $pcp_share_dir`
 AC_SUBST(pcp_share_dir)
+
+dnl shared bash command completions
+pcp_bashshare_dir=`eval echo $datarootdir/bash-completion`
+pcp_bashshare_dir=`eval echo $pcp_bashshare_dir`
+AC_SUBST(pcp_bashshare_dir)
 
 dnl private PCP executables
 pcp_binadm_dir=`eval echo $libexecdir/pcp/bin`

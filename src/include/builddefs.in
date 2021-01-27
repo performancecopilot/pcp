@@ -238,6 +238,7 @@ PCP_PMNS_DIR = @pcp_pmns_dir@
 PCP_PMNSADM_DIR = @pcp_pmnsadm_dir@
 PCP_SELINUX_DIR = @pcp_selinux_dir@
 PCP_SELINUXADM_DIR = @pcp_selinuxadm_dir@
+PCP_BASHSHARE_DIR = @pcp_bashshare_dir@
 
 NEED_OLD_TBL_HEADER = @need_old_tbl_header@
 RDYNAMIC_FLAG = @rdynamic_flag@

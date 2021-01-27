@@ -16,20 +16,19 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 BASHRC = pcp_completion.sh
-BASHDIR = $(shell echo $(PCP_SHARE_DIR) | sed -e 's;/pcp$$;;')/bash-completion
-COMMANDS = $(shell sed -n -e 's/^complete .*-o default //p' < $(BASHRC))
+COMMANDS = pmdumplog pmlogcheck pmlogextract pmlogsummary \
+	   pminfo pmprobe pmstat pmstore pmevent pmval
 
 default:	$(BASHRC)
 
 include $(BUILDRULES)
 
 install:	default
-	$(INSTALL) -d $(BASHDIR)
-	$(INSTALL) -d $(BASHDIR)/completions
-	$(INSTALL) -m 644 $(BASHRC) $(BASHDIR)/completions/pcp
+	$(INSTALL) -d $(PCP_BASHSHARE_DIR)
+	$(INSTALL) -d $(PCP_BASHSHARE_DIR)/completions
+	$(INSTALL) -m 644 $(BASHRC) $(PCP_BASHSHARE_DIR)/completions/pcp
 	for c in `echo $(COMMANDS)`; do \
-	    [ $$c = pcp ] && continue; \
-	    $(INSTALL) -S $(BASHDIR)/completions/pcp $(BASHDIR)/completions/$$c; \
+	    $(INSTALL) -S $(PCP_BASHSHARE_DIR)/completions/pcp $(BASHDIR)/completions/$$c; \
 	done
 
 default_pcp:	default

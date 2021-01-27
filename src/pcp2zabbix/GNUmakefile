@@ -19,6 +19,7 @@ TARGET = pcp2zabbix
 MAN_SECTION = 1
 MAN_PAGES = $(TARGET).$(MAN_SECTION)
 MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
+BASHDIR = $(PCP_BASHSHARE_DIR)/completions
 
 default: $(TARGET).py $(MAN_PAGES)
 
@@ -29,6 +30,7 @@ include $(BUILDRULES)
 install: default
 ifeq "$(HAVE_PYTHON)" "true"
 	$(INSTALL) -m 755 $(TARGET).py $(PCP_BIN_DIR)/$(TARGET)
+	$(INSTALL) -S $(BASHDIR)/pcp $(BASHDIR)/$(TARGET)
 	@$(INSTALL_MAN)
 endif
 

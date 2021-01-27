@@ -20,6 +20,7 @@ COLLECTOR = PCP2SparkStreamCollector
 MAN_SECTION = 1
 MAN_PAGES = $(TARGET).$(MAN_SECTION)
 MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
+BASHDIR = $(PCP_BASHSHARE_DIR)/completions
 EX_DIR = $(PCP_SHARE_DIR)/examples/pcp2spark
 
 default: $(TARGET).py $(COLLECTOR).py $(MAN_PAGES)
@@ -29,6 +30,7 @@ include $(BUILDRULES)
 install: default
 ifeq "$(HAVE_PYTHON)" "true"
 	$(INSTALL) -m 755 $(TARGET).py $(PCP_BIN_DIR)/$(TARGET)
+	$(INSTALL) -S $(BASHDIR)/pcp $(BASHDIR)/$(TARGET)
 	$(INSTALL) -m 755 -d $(EX_DIR)
 	$(INSTALL) -m 644 README.md $(EX_DIR)/README.md
 	$(INSTALL) -m 644 $(COLLECTOR).py $(EX_DIR)/$(COLLECTOR).python
