@@ -35,6 +35,8 @@ install_pcp : default_pcp
 	$(INSTALL) -m 755 -d $(CONFIGETC)
 	$(INSTALL) -m 755 -d $(CONFIGVAR)
 	$(INSTALL) -m 644 -t $(CONFIGVAR)/pcp pmafm.pcp $(CONFIGETC)/pcp
+ifeq "$(ENABLE_QT)" "true"
 	$(INSTALL) -m 644 -t $(CONFIGVAR)/pcp-gui pmafm.pcp-gui $(CONFIGETC)/pcp-gui
+endif
 
 include $(BUILDRULES)
