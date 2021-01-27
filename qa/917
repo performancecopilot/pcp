@@ -67,7 +67,7 @@ echo '/^#/d' >$tmp.sed
 echo '/^!/s// /' >>$tmp.sed
 for type in container_runtime_t nsfs_t docker_var_lib_t unreserved_port_t \
 	    tracefs_t unconfined_service_t numad_t rpm_var_lib_t \
-	    virt_var_run_t proc_security_t
+	    virt_var_run_t proc_security_t sbd_exec_t
 do
     if grep "^[ 	][ 	]*$type\$" $tmp.types >/dev/null
     then
@@ -105,6 +105,9 @@ do
 		;;
 	    proc_security_t)
 		echo '/allow \[pcp_pmcd_t] \[proc_security_t]/d' >>$tmp.sed
+		;;
+	    sbd_exec_t)
+		echo '/allow \[pcp_pmcd_t] \[sbd_exec_t]/d' >>$tmp.sed
 		;;
 	esac
     fi
@@ -180,6 +183,14 @@ else
     else
 	echo '/allow \[pcp_pmcd_t\] .*\[rawip_socket\]/d' >>$tmp.sed
     fi
+fi
+
+if seinfo -x --class=netlink_generic_socket $common_flag 2>&1 \
+   | grep '^[ 	][ 	]*(class |)netlink_generic_socket$' >/dev/null
+then
+    :
+else
+    echo '/allow \[pcp_pmcd_t\] .*\[netlink_generic_socket\]/d' >>$tmp.sed
 fi
 
 if seinfo -a 2>&1 \

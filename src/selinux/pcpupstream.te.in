@@ -63,7 +63,7 @@ require {
 	@PCP_VIRT_VAR_RUN_T@
 	type cluster_tmpfs_t;
 	type drbd_exec_t;
-	type sbd_exec_t;
+	@PCP_SBD_EXEC_T@
         class sem { unix_read associate getattr read };
 	class lnk_file { read getattr };
 	class file { append create execute execute_no_trans getattr setattr ioctl lock open read write unlink @PCP_HOSTNAME_EXEC_MAP@ };
@@ -89,7 +89,7 @@ require {
         class dbus { send_msg };
         @PCP_BPF_CLASS@
 	class system { module_request };
-	class netlink_generic_socket { bind create getattr setopt write read };
+	@PCP_NETLINK_GENERIC_SOCKET_CLASS@
 }
 
 #============= init_t ==============
@@ -416,10 +416,10 @@ allow pcp_pmcd_t cluster_tmpfs_t:file { write };
 # type=AVC msg=audit(XXX.79): avc:  denied  { execute_no_trans } for  pid=627791 comm="sh" path="/usr/sbin/drbdsetup" dev="vda1" ino=972119 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:drbd_exec_t:s0 tclass=file permissive=1
 allow pcp_pmcd_t drbd_exec_t:file { execute execute_no_trans };
 
-# pmda-hacluster requirements for chrecking drbdsetup
+# pmda-hacluster requirements for checking drbdsetup
 # type=AVC msg=audit(XXX.80): avc:  denied  { write } for  pid=626006 comm="drbdsetup" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=netlink_generic_socket permissive=1
-allow pcp_pmcd_t self:netlink_generic_socket { bind create getattr setopt write read };
+@PCP_NETLINK_GENERIC_SOCKET_RULE@
 
 # pmda-hacluster requirements for checking sbd
 # type=AVC msg=audit(XXX.81): avc:  denied  { execute_no_trans } for  pid=421434 comm="sh" path="/usr/sbin/sbd" dev="vda1" ino=1050019 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:sbd_exec_t:s0 tclass=file permissive=1
-allow pcp_pmcd_t sbd_exec_t:file { execute execute_no_trans };
+@PCP_SBD_EXEC_RULE@
