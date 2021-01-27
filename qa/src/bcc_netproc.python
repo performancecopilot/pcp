@@ -1,0 +1,84 @@
+"""
+Manual socket code to check exact number of calls/bytes for netproc module of the BCC PMDA
+
+Verify this tool with:
+bpftrace -e '
+kprobe:tcp_sendmsg /pid == cpid/ { printf("[BPF] tcp_sendmsg(len=%d)\n", arg2); }
+kprobe:tcp_cleanup_rbuf /pid == cpid/ { printf("[BPF] tcp_cleanup_rbuf(len=%d)\n", arg1); }
+kprobe:udp_sendmsg /pid == cpid/ { printf("[BPF] udp_sendmsg(len=%d)\n", arg2); }
+kprobe:skb_consume_udp /pid == cpid/ { printf("[BPF] skb_consume_udp(len=%d)\n", arg2); }
+' -c "/usr/bin/python bcc_netproc.python client"
+"""
+import asyncio
+import sys
+
+async def tcp_server_handle_echo(reader, writer):
+    recv_data = await reader.read(100)
+    print(f"[PY]  TCP server received: {recv_data} (len={len(recv_data)})")
+
+    reply_data = f"{recv_data.decode()} reply".encode()
+    writer.write(reply_data)
+    print(f"[PY]  TCP server sent: {reply_data} (len={len(reply_data)})")
+    await writer.drain()
+
+    writer.close()
+
+async def tcp_client(host, port, message):
+    reader, writer = await asyncio.open_connection(host, port)
+    writer.write(message)
+    await writer.drain()
+    print(f"[PY]  TCP client sent: {message} (len={len(message)})")
+
+    data = await reader.read(100)
+    print(f"[PY]  TCP client received: {data} (len={len(data)})")
+
+    writer.close()
+    await writer.wait_closed()
+
+class UdpEchoServerProtocol:
+    def connection_made(self, transport):
+        self.transport = transport
+
+    def datagram_received(self, recv_data, addr):
+        print(f"[PY]  UDP server received: {recv_data} (len={len(recv_data)})")
+
+        reply_data = f"{recv_data.decode()} reply".encode()
+        self.transport.sendto(reply_data, addr)
+        print(f"[PY]  UDP server sent: {reply_data} (len={len(reply_data)})")
+
+        sys.exit(0) # testing procedure done
+
+class UdpEchoClientProtocol:
+    def __init__(self, message):
+        self.message = message
+        self.transport = None
+
+    def connection_made(self, transport):
+        self.transport = transport
+        self.transport.sendto(self.message)
+        print(f"[PY]  UDP client sent: {self.message} (len={len(self.message)})")
+
+    def datagram_received(self, data, addr):
+        print(f"[PY]  UDP client received: {data} (len={len(data)})")
+        self.transport.close()
+
+    def error_received(self, exc):
+        print(f"[PY]  Error received: {exc}")
+
+    def connection_lost(self, exc):
+        pass
+
+async def main():
+    loop = asyncio.get_running_loop()
+    if len(sys.argv) != 2 or sys.argv[1] not in ['server', 'client']:
+        print(f"usage: {sys.argv[0]} server|client")
+        sys.exit(1)
+    elif sys.argv[1] == 'server':
+        await asyncio.start_server(tcp_server_handle_echo, '127.0.0.1', 1234)
+        await loop.create_datagram_endpoint(lambda: UdpEchoServerProtocol(), local_addr=('127.0.0.1', 1235))
+        await asyncio.sleep(60)
+    else:
+        await tcp_client('127.0.0.1', 1234, b'testmsg TCP')
+        await loop.create_datagram_endpoint(lambda: UdpEchoClientProtocol(b'test UDP message'), remote_addr=('127.0.0.1', 1235))
+
+asyncio.run(main())
