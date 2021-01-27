@@ -45,7 +45,7 @@ ss_refresh(int indom)
     if ((fp = ss_open_stream()) == NULL)
     	return -errno;
 
-    pmdaCacheOp(indom, PMDA_CACHE_LOAD);
+    /* invalidate all cache entries */
     pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
     
     while (fgets(line, sizeof(line), fp) != NULL) {

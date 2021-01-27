@@ -216,7 +216,10 @@ sockets_init(pmdaInterface *dp)
 
     pmdaSetFlags(dp, PMDA_EXT_FLAG_HASHED);
     pmdaInit(dp, indomtable, nindoms, metrictable, nmetrics);
-    ss_refresh(sockets_indom(SOCKETS_INDOM)); /* initial refresh */
+
+    /* load the cache (if any) and run an initial refresh */
+    pmdaCacheOp(sockets_indom(SOCKETS_INDOM), PMDA_CACHE_LOAD);
+    ss_refresh(sockets_indom(SOCKETS_INDOM));
 }
 
 static pmLongOptions longopts[] = {
