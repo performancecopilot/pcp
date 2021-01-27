@@ -2209,11 +2209,19 @@ etc/cron.d/
 etc/pcp/
 EOF
 
-# manifest without documentation or tests (common pattern)
-basic_manifest()
-{
-    awk '{print $NF}' $DIST_MANIFEST | \
-        egrep -v '/pcp-doc/|/testsuite/|/man/|/examples/'
+# functions to manipulate the manifest of files - keeping
+# or culling given (or common) patterns from the stream.
+keep() {
+    egrep $@ || return 0
+}
+cull() {
+    egrep -v $@ || return 0
+}
+total_manifest() {
+    awk '{print $NF}' $DIST_MANIFEST
+}
+basic_manifest() {
+    total_manifest | cull '/pcp-doc/|/testsuite/|/man/|/examples/'
 }
 
 #
@@ -2221,106 +2229,106 @@ basic_manifest()
 # to isolate the (somewhat exotic) dependencies for these tools.
 # Likewise, for the pcp-pmda and pcp-testsuite subpackages.
 #
-awk '{print $NF}' $DIST_MANIFEST | egrep 'selinux' | egrep -v 'tmp|GNUselinuxdefs' >pcp-selinux-files
-awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp-doc|man.*\.[1-9].*' | egrep -v 'out' >pcp-doc-files
-awk '{print $NF}' $DIST_MANIFEST | egrep 'tutorials|/html/' >>pcp-doc-files
-awk '{print $NF}' $DIST_MANIFEST | egrep 'testsuite|etc/systemd/system' >pcp-testsuite-files
+total_manifest | keep 'tutorials|/html/' >>pcp-doc-files
+total_manifest | keep 'testsuite|etc/systemd/system' >pcp-testsuite-files
 PCP_GUI='pmchart|pmconfirm|pmdumptext|pmmessage|pmquery|pmsnap|pmtime'
-basic_manifest | egrep "$PCP_GUI|pcp-gui|applications|pixmaps|hicolor" | egrep -v 'pmtime.h' >pcp-gui-files
-basic_manifest | egrep -e 'zeroconf|daily[-_]report|/sa$' >pcp-zeroconf-files
+basic_manifest | keep "$PCP_GUI|pcp-gui|applications|pixmaps|hicolor" | cull 'pmtime.h' >pcp-gui-files
+basic_manifest | keep 'selinux' | cull 'tmp|GNUselinuxdefs' >pcp-selinux-files
+total_manifest | keep 'pcp-doc|man.*\.[1-9].*' | cull 'out' >pcp-doc-files
+basic_manifest | keep 'zeroconf|daily[-_]report|/sa$' >pcp-zeroconf-files
 basic_manifest | egrep -e 'pmiostat|pmrep|dstat|pcp2csv' \
    -e 'pcp-atop|pcp-dmcache|pcp-dstat|pcp-free|pcp-htop' \
    -e 'pcp-ipcs|pcp-iostat|pcp-lvmcache|pcp-mpstat' \
    -e 'pcp-numastat|pcp-pidstat|pcp-shping|pcp-tapestat' \
-   -e 'pcp-uptime|pcp-verify' | egrep \
-   -v 'selinux|pmlogconf|pmieconf' >pcp-system-tools-files
-basic_manifest | egrep 'sar2pcp' >pcp-import-sar2pcp-files
-basic_manifest | egrep 'iostat2pcp' >pcp-import-iostat2pcp-files
-basic_manifest | egrep 'sheet2pcp' >pcp-import-sheet2pcp-files
-basic_manifest | egrep 'mrtg2pcp' >pcp-import-mrtg2pcp-files
-basic_manifest | egrep 'ganglia2pcp' >pcp-import-ganglia2pcp-files
-basic_manifest | egrep 'collectl2pcp' >pcp-import-collectl2pcp-files
-basic_manifest | egrep 'pcp2elasticsearch' >pcp-export-pcp2elasticsearch-files
-basic_manifest | egrep 'pcp2influxdb' >pcp-export-pcp2influxdb-files
-basic_manifest | egrep 'pcp2xlsx' >pcp-export-pcp2xlsx-files
-basic_manifest | egrep 'pcp2graphite' >pcp-export-pcp2graphite-files
-basic_manifest | egrep 'pcp2json' >pcp-export-pcp2json-files
-basic_manifest | egrep 'pcp2spark' >pcp-export-pcp2spark-files
-basic_manifest | egrep 'pcp2xml' >pcp-export-pcp2xml-files
-basic_manifest | egrep 'pcp2zabbix' >pcp-export-pcp2zabbix-files
-basic_manifest | egrep 'zabbix|zbxpcp' | grep -v pcp2zabbix >pcp-export-zabbix-agent-files
-basic_manifest | egrep '(etc/pcp|pmdas)/activemq(/|$)' >pcp-pmda-activemq-files
-basic_manifest | egrep '(etc/pcp|pmdas)/apache(/|$)' >pcp-pmda-apache-files
-basic_manifest | egrep '(etc/pcp|pmdas)/bash(/|$)' >pcp-pmda-bash-files
-basic_manifest | egrep '(etc/pcp|pmdas)/bcc(/|$)' >pcp-pmda-bcc-files
-basic_manifest | egrep '(etc/pcp|pmdas)/bind2(/|$)' >pcp-pmda-bind2-files
-basic_manifest | egrep '(etc/pcp|pmdas)/bonding(/|$)' >pcp-pmda-bonding-files
-basic_manifest | egrep '(etc/pcp|pmdas)/bpftrace(/|$)' >pcp-pmda-bpftrace-files
-basic_manifest | egrep '(etc/pcp|pmdas)/cifs(/|$)' >pcp-pmda-cifs-files
-basic_manifest | egrep '(etc/pcp|pmdas)/cisco(/|$)' >pcp-pmda-cisco-files
-basic_manifest | egrep '(etc/pcp|pmdas)/dbping(/|$)' >pcp-pmda-dbping-files
-basic_manifest | egrep '(etc/pcp|pmdas|pmieconf)/dm(/|$)' >pcp-pmda-dm-files
-basic_manifest | egrep '(etc/pcp|pmdas)/docker(/|$)' >pcp-pmda-docker-files
-basic_manifest | egrep '(etc/pcp|pmdas)/ds389log(/|$)' >pcp-pmda-ds389log-files
-basic_manifest | egrep '(etc/pcp|pmdas)/ds389(/|$)' >pcp-pmda-ds389-files
-basic_manifest | egrep '(etc/pcp|pmdas)/elasticsearch(/|$)' >pcp-pmda-elasticsearch-files
-basic_manifest | egrep '(etc/pcp|pmdas)/gfs2(/|$)' >pcp-pmda-gfs2-files
-basic_manifest | egrep '(etc/pcp|pmdas)/gluster(/|$)' >pcp-pmda-gluster-files
-basic_manifest | egrep '(etc/pcp|pmdas)/gpfs(/|$)' >pcp-pmda-gpfs-files
-basic_manifest | egrep '(etc/pcp|pmdas)/gpsd(/|$)' >pcp-pmda-gpsd-files
-basic_manifest | egrep '(etc/pcp|pmdas)/hacluster(/|$)' >pcp-pmda-hacluster-files
-basic_manifest | egrep '(etc/pcp|pmdas)/haproxy(/|$)' >pcp-pmda-haproxy-files
-basic_manifest | egrep '(etc/pcp|pmdas)/infiniband(/|$)' >pcp-pmda-infiniband-files
-basic_manifest | egrep '(etc/pcp|pmdas)/json(/|$)' >pcp-pmda-json-files
-basic_manifest | egrep '(etc/pcp|pmdas)/libvirt(/|$)' >pcp-pmda-libvirt-files
-basic_manifest | egrep '(etc/pcp|pmdas)/lio(/|$)' >pcp-pmda-lio-files
-basic_manifest | egrep '(etc/pcp|pmdas)/lmsensors(/|$)' >pcp-pmda-lmsensors-files
-basic_manifest | egrep '(etc/pcp|pmdas)/logger(/|$)' >pcp-pmda-logger-files
-basic_manifest | egrep '(etc/pcp|pmdas)/lustre(/|$)' >pcp-pmda-lustre-files
-basic_manifest | egrep '(etc/pcp|pmdas)/lustrecomm(/|$)' >pcp-pmda-lustrecomm-files
-basic_manifest | egrep '(etc/pcp|pmdas)/memcache(/|$)' >pcp-pmda-memcache-files
-basic_manifest | egrep '(etc/pcp|pmdas)/mailq(/|$)' >pcp-pmda-mailq-files
-basic_manifest | egrep '(etc/pcp|pmdas)/mic(/|$)' >pcp-pmda-mic-files
-basic_manifest | egrep '(etc/pcp|pmdas)/mounts(/|$)' >pcp-pmda-mounts-files
-basic_manifest | egrep '(etc/pcp|pmdas)/mssql(/|$)' >pcp-pmda-mssql-files
-basic_manifest | egrep '(etc/pcp|pmdas)/mysql(/|$)' >pcp-pmda-mysql-files
-basic_manifest | egrep '(etc/pcp|pmdas)/named(/|$)' >pcp-pmda-named-files
-basic_manifest | egrep '(etc/pcp|pmdas)/netfilter(/|$)' >pcp-pmda-netfilter-files
-basic_manifest | egrep '(etc/pcp|pmdas)/netcheck(/|$)' >pcp-pmda-netcheck-files
-basic_manifest | egrep '(etc/pcp|pmdas)/news(/|$)' >pcp-pmda-news-files
-basic_manifest | egrep '(etc/pcp|pmdas)/nfsclient(/|$)' >pcp-pmda-nfsclient-files
-basic_manifest | egrep '(etc/pcp|pmdas)/nginx(/|$)' >pcp-pmda-nginx-files
-basic_manifest | egrep '(etc/pcp|pmdas)/nutcracker(/|$)' >pcp-pmda-nutcracker-files
-basic_manifest | egrep '(etc/pcp|pmdas)/nvidia(/|$)' >pcp-pmda-nvidia-files
-basic_manifest | egrep '(etc/pcp|pmdas)/openmetrics(/|$)' >pcp-pmda-openmetrics-files
-basic_manifest | egrep '(etc/pcp|pmdas)/openvswitch(/|$)' >pcp-pmda-openvswitch-files
-basic_manifest | egrep '(etc/pcp|pmdas)/oracle(/|$)' >pcp-pmda-oracle-files
-basic_manifest | egrep '(etc/pcp|pmdas)/pdns(/|$)' >pcp-pmda-pdns-files
-basic_manifest | egrep '(etc/pcp|pmdas)/perfevent(/|$)' >pcp-pmda-perfevent-files
-basic_manifest | egrep '(etc/pcp|pmdas)/podman(/|$)' >pcp-pmda-podman-files
-basic_manifest | egrep '(etc/pcp|pmdas)/postfix(/|$)' >pcp-pmda-postfix-files
-basic_manifest | egrep '(etc/pcp|pmdas)/postgresql(/|$)' >pcp-pmda-postgresql-files
-basic_manifest | egrep '(etc/pcp|pmdas)/rabbitmq(/|$)' >pcp-pmda-rabbitmq-files
-basic_manifest | egrep '(etc/pcp|pmdas)/redis(/|$)' >pcp-pmda-redis-files
-basic_manifest | egrep '(etc/pcp|pmdas)/roomtemp(/|$)' >pcp-pmda-roomtemp-files
-basic_manifest | egrep '(etc/pcp|pmdas)/rpm(/|$)' >pcp-pmda-rpm-files
-basic_manifest | egrep '(etc/pcp|pmdas)/rsyslog(/|$)' >pcp-pmda-rsyslog-files
-basic_manifest | egrep '(etc/pcp|pmdas)/samba(/|$)' >pcp-pmda-samba-files
-basic_manifest | egrep '(etc/pcp|pmdas)/sendmail(/|$)' >pcp-pmda-sendmail-files
-basic_manifest | egrep '(etc/pcp|pmdas)/shping(/|$)' >pcp-pmda-shping-files
-basic_manifest | egrep '(etc/pcp|pmdas)/slurm(/|$)' >pcp-pmda-slurm-files
-basic_manifest | egrep '(etc/pcp|pmdas)/smart(/|$)' >pcp-pmda-smart-files
-basic_manifest | egrep '(etc/pcp|pmdas)/snmp(/|$)' >pcp-pmda-snmp-files
-basic_manifest | egrep '(etc/pcp|pmdas)/sockets(/|$)' >pcp-pmda-sockets-files
-basic_manifest | egrep '(etc/pcp|pmdas)/statsd(/|$)' >pcp-pmda-statsd-files
-basic_manifest | egrep '(etc/pcp|pmdas)/summary(/|$)' >pcp-pmda-summary-files
-basic_manifest | egrep '(etc/pcp|pmdas)/systemd(/|$)' >pcp-pmda-systemd-files
-basic_manifest | egrep '(etc/pcp|pmdas)/trace(/|$)' >pcp-pmda-trace-files
-basic_manifest | egrep '(etc/pcp|pmdas)/unbound(/|$)' >pcp-pmda-unbound-files
-basic_manifest | egrep '(etc/pcp|pmdas)/weblog(/|$)' >pcp-pmda-weblog-files
-basic_manifest | egrep '(etc/pcp|pmdas)/vmware(/|$)' >pcp-pmda-vmware-files
-basic_manifest | egrep '(etc/pcp|pmdas)/zimbra(/|$)' >pcp-pmda-zimbra-files
-basic_manifest | egrep '(etc/pcp|pmdas)/zswap(/|$)' >pcp-pmda-zswap-files
+   -e 'pcp-uptime|pcp-verify' | \
+   cull 'selinux|pmlogconf|pmieconf' >pcp-system-tools-files
+basic_manifest | keep 'sar2pcp' >pcp-import-sar2pcp-files
+basic_manifest | keep 'iostat2pcp' >pcp-import-iostat2pcp-files
+basic_manifest | keep 'sheet2pcp' >pcp-import-sheet2pcp-files
+basic_manifest | keep 'mrtg2pcp' >pcp-import-mrtg2pcp-files
+basic_manifest | keep 'ganglia2pcp' >pcp-import-ganglia2pcp-files
+basic_manifest | keep 'collectl2pcp' >pcp-import-collectl2pcp-files
+basic_manifest | keep 'pcp2elasticsearch' >pcp-export-pcp2elasticsearch-files
+basic_manifest | keep 'pcp2influxdb' >pcp-export-pcp2influxdb-files
+basic_manifest | keep 'pcp2xlsx' >pcp-export-pcp2xlsx-files
+basic_manifest | keep 'pcp2graphite' >pcp-export-pcp2graphite-files
+basic_manifest | keep 'pcp2json' >pcp-export-pcp2json-files
+basic_manifest | keep 'pcp2spark' >pcp-export-pcp2spark-files
+basic_manifest | keep 'pcp2xml' >pcp-export-pcp2xml-files
+basic_manifest | keep 'pcp2zabbix' >pcp-export-pcp2zabbix-files
+basic_manifest | keep 'zabbix|zbxpcp' | cull pcp2zabbix >pcp-export-zabbix-agent-files
+basic_manifest | keep '(etc/pcp|pmdas)/activemq(/|$)' >pcp-pmda-activemq-files
+basic_manifest | keep '(etc/pcp|pmdas)/apache(/|$)' >pcp-pmda-apache-files
+basic_manifest | keep '(etc/pcp|pmdas)/bash(/|$)' >pcp-pmda-bash-files
+basic_manifest | keep '(etc/pcp|pmdas)/bcc(/|$)' >pcp-pmda-bcc-files
+basic_manifest | keep '(etc/pcp|pmdas)/bind2(/|$)' >pcp-pmda-bind2-files
+basic_manifest | keep '(etc/pcp|pmdas)/bonding(/|$)' >pcp-pmda-bonding-files
+basic_manifest | keep '(etc/pcp|pmdas)/bpftrace(/|$)' >pcp-pmda-bpftrace-files
+basic_manifest | keep '(etc/pcp|pmdas)/cifs(/|$)' >pcp-pmda-cifs-files
+basic_manifest | keep '(etc/pcp|pmdas)/cisco(/|$)' >pcp-pmda-cisco-files
+basic_manifest | keep '(etc/pcp|pmdas)/dbping(/|$)' >pcp-pmda-dbping-files
+basic_manifest | keep '(etc/pcp|pmdas|pmieconf)/dm(/|$)' >pcp-pmda-dm-files
+basic_manifest | keep '(etc/pcp|pmdas)/docker(/|$)' >pcp-pmda-docker-files
+basic_manifest | keep '(etc/pcp|pmdas)/ds389log(/|$)' >pcp-pmda-ds389log-files
+basic_manifest | keep '(etc/pcp|pmdas)/ds389(/|$)' >pcp-pmda-ds389-files
+basic_manifest | keep '(etc/pcp|pmdas)/elasticsearch(/|$)' >pcp-pmda-elasticsearch-files
+basic_manifest | keep '(etc/pcp|pmdas)/gfs2(/|$)' >pcp-pmda-gfs2-files
+basic_manifest | keep '(etc/pcp|pmdas)/gluster(/|$)' >pcp-pmda-gluster-files
+basic_manifest | keep '(etc/pcp|pmdas)/gpfs(/|$)' >pcp-pmda-gpfs-files
+basic_manifest | keep '(etc/pcp|pmdas)/gpsd(/|$)' >pcp-pmda-gpsd-files
+basic_manifest | keep '(etc/pcp|pmdas)/hacluster(/|$)' >pcp-pmda-hacluster-files
+basic_manifest | keep '(etc/pcp|pmdas)/haproxy(/|$)' >pcp-pmda-haproxy-files
+basic_manifest | keep '(etc/pcp|pmdas)/infiniband(/|$)' >pcp-pmda-infiniband-files
+basic_manifest | keep '(etc/pcp|pmdas)/json(/|$)' >pcp-pmda-json-files
+basic_manifest | keep '(etc/pcp|pmdas)/libvirt(/|$)' >pcp-pmda-libvirt-files
+basic_manifest | keep '(etc/pcp|pmdas)/lio(/|$)' >pcp-pmda-lio-files
+basic_manifest | keep '(etc/pcp|pmdas)/lmsensors(/|$)' >pcp-pmda-lmsensors-files
+basic_manifest | keep '(etc/pcp|pmdas)/logger(/|$)' >pcp-pmda-logger-files
+basic_manifest | keep '(etc/pcp|pmdas)/lustre(/|$)' >pcp-pmda-lustre-files
+basic_manifest | keep '(etc/pcp|pmdas)/lustrecomm(/|$)' >pcp-pmda-lustrecomm-files
+basic_manifest | keep '(etc/pcp|pmdas)/memcache(/|$)' >pcp-pmda-memcache-files
+basic_manifest | keep '(etc/pcp|pmdas)/mailq(/|$)' >pcp-pmda-mailq-files
+basic_manifest | keep '(etc/pcp|pmdas)/mic(/|$)' >pcp-pmda-mic-files
+basic_manifest | keep '(etc/pcp|pmdas)/mounts(/|$)' >pcp-pmda-mounts-files
+basic_manifest | keep '(etc/pcp|pmdas)/mssql(/|$)' >pcp-pmda-mssql-files
+basic_manifest | keep '(etc/pcp|pmdas)/mysql(/|$)' >pcp-pmda-mysql-files
+basic_manifest | keep '(etc/pcp|pmdas)/named(/|$)' >pcp-pmda-named-files
+basic_manifest | keep '(etc/pcp|pmdas)/netfilter(/|$)' >pcp-pmda-netfilter-files
+basic_manifest | keep '(etc/pcp|pmdas)/netcheck(/|$)' >pcp-pmda-netcheck-files
+basic_manifest | keep '(etc/pcp|pmdas)/news(/|$)' >pcp-pmda-news-files
+basic_manifest | keep '(etc/pcp|pmdas)/nfsclient(/|$)' >pcp-pmda-nfsclient-files
+basic_manifest | keep '(etc/pcp|pmdas)/nginx(/|$)' >pcp-pmda-nginx-files
+basic_manifest | keep '(etc/pcp|pmdas)/nutcracker(/|$)' >pcp-pmda-nutcracker-files
+basic_manifest | keep '(etc/pcp|pmdas)/nvidia(/|$)' >pcp-pmda-nvidia-files
+basic_manifest | keep '(etc/pcp|pmdas)/openmetrics(/|$)' >pcp-pmda-openmetrics-files
+basic_manifest | keep '(etc/pcp|pmdas)/openvswitch(/|$)' >pcp-pmda-openvswitch-files
+basic_manifest | keep '(etc/pcp|pmdas)/oracle(/|$)' >pcp-pmda-oracle-files
+basic_manifest | keep '(etc/pcp|pmdas)/pdns(/|$)' >pcp-pmda-pdns-files
+basic_manifest | keep '(etc/pcp|pmdas)/perfevent(/|$)' >pcp-pmda-perfevent-files
+basic_manifest | keep '(etc/pcp|pmdas)/podman(/|$)' >pcp-pmda-podman-files
+basic_manifest | keep '(etc/pcp|pmdas)/postfix(/|$)' >pcp-pmda-postfix-files
+basic_manifest | keep '(etc/pcp|pmdas)/postgresql(/|$)' >pcp-pmda-postgresql-files
+basic_manifest | keep '(etc/pcp|pmdas)/rabbitmq(/|$)' >pcp-pmda-rabbitmq-files
+basic_manifest | keep '(etc/pcp|pmdas)/redis(/|$)' >pcp-pmda-redis-files
+basic_manifest | keep '(etc/pcp|pmdas)/roomtemp(/|$)' >pcp-pmda-roomtemp-files
+basic_manifest | keep '(etc/pcp|pmdas)/rpm(/|$)' >pcp-pmda-rpm-files
+basic_manifest | keep '(etc/pcp|pmdas)/rsyslog(/|$)' >pcp-pmda-rsyslog-files
+basic_manifest | keep '(etc/pcp|pmdas)/samba(/|$)' >pcp-pmda-samba-files
+basic_manifest | keep '(etc/pcp|pmdas)/sendmail(/|$)' >pcp-pmda-sendmail-files
+basic_manifest | keep '(etc/pcp|pmdas)/shping(/|$)' >pcp-pmda-shping-files
+basic_manifest | keep '(etc/pcp|pmdas)/slurm(/|$)' >pcp-pmda-slurm-files
+basic_manifest | keep '(etc/pcp|pmdas)/smart(/|$)' >pcp-pmda-smart-files
+basic_manifest | keep '(etc/pcp|pmdas)/snmp(/|$)' >pcp-pmda-snmp-files
+basic_manifest | keep '(etc/pcp|pmdas)/sockets(/|$)' >pcp-pmda-sockets-files
+basic_manifest | keep '(etc/pcp|pmdas)/statsd(/|$)' >pcp-pmda-statsd-files
+basic_manifest | keep '(etc/pcp|pmdas)/summary(/|$)' >pcp-pmda-summary-files
+basic_manifest | keep '(etc/pcp|pmdas)/systemd(/|$)' >pcp-pmda-systemd-files
+basic_manifest | keep '(etc/pcp|pmdas)/trace(/|$)' >pcp-pmda-trace-files
+basic_manifest | keep '(etc/pcp|pmdas)/unbound(/|$)' >pcp-pmda-unbound-files
+basic_manifest | keep '(etc/pcp|pmdas)/weblog(/|$)' >pcp-pmda-weblog-files
+basic_manifest | keep '(etc/pcp|pmdas)/vmware(/|$)' >pcp-pmda-vmware-files
+basic_manifest | keep '(etc/pcp|pmdas)/zimbra(/|$)' >pcp-pmda-zimbra-files
+basic_manifest | keep '(etc/pcp|pmdas)/zswap(/|$)' >pcp-pmda-zswap-files
 
 rm -f packages.list
 for pmda_package in \
