@@ -2000,6 +2000,7 @@ pcp_selinux_files_list_non_auth_dirs=false
 pcp_selinux_rpm_var_lib=false
 pcp_selinux_virt_var_run=false
 pcp_selinux_proc_security=false
+pcp_selinux_sbd_exec=false
 pcp_selinux_cap2_syslog=false
 pcp_selinux_icmp_socket_class=false
 
@@ -2020,6 +2021,7 @@ pcp_selinux_sock_file_class=false
 pcp_selinux_security_class=false
 pcp_selinux_dir_class=false
 pcp_selinux_rawip_socket_class=false
+pcp_selinux_netlink_generic_socket_class=false
 
 AS_IF([test "x$enable_selinux" != "xfalse"], [
 
@@ -2051,6 +2053,8 @@ AS_IF([test "x$enable_selinux" != "xfalse"], [
 	&& pcp_selinux_virt_var_run=true
     grep '^[[ 	]][[ 	]]*proc_security_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_proc_security=true
+    grep '^[[ 	]][[ 	]]*sbd_exec_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_sbd_exec=true
 
     dnl these ones are for pcpqa.te
 
@@ -2155,6 +2159,10 @@ AS_IF([test "x$enable_selinux" != "xfalse"], [
     | egrep '^[[ 	]][[ 	]]*(class |)rawip_socket$' >/dev/null \
     && pcp_selinux_rawip_socket_class=true
 
+    seinfo -x --class=netlink_generic_socket $seinfo_common_flag 2>/dev/null \
+    | egrep '^[[ 	]][[ 	]]*(class |)netlink_generic_socket$' >/dev/null \
+    && pcp_selinux_netlink_generic_socket_class=true
+
 ])
 
 dnl for pcpupstream.te
@@ -2172,6 +2180,7 @@ AC_SUBST(pcp_selinux_files_list_non_auth_dirs)
 AC_SUBST(pcp_selinux_rpm_var_lib)
 AC_SUBST(pcp_selinux_virt_var_run)
 AC_SUBST(pcp_selinux_proc_security)
+AC_SUBST(pcp_selinux_sbd_exec)
 AC_SUBST(pcp_selinux_cap2_syslog)
 AC_SUBST(pcp_selinux_icmp_socket_class)
 
@@ -2193,6 +2202,7 @@ AC_SUBST(pcp_selinux_sock_file_class)
 AC_SUBST(pcp_selinux_security_class)
 AC_SUBST(pcp_selinux_dir_class)
 AC_SUBST(pcp_selinux_rawip_socket_class)
+AC_SUBST(pcp_selinux_netlink_generic_socket_class)
 
 pcp_selinux_files_mmap_all_files=false
 if test "x$enable_selinux" != "xfalse"

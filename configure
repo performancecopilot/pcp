@@ -713,6 +713,7 @@ fmt_int64
 fmt_pid
 rdynamic_flag
 pcp_selinux_files_mmap_all_files
+pcp_selinux_netlink_generic_socket_class
 pcp_selinux_rawip_socket_class
 pcp_selinux_dir_class
 pcp_selinux_security_class
@@ -731,6 +732,7 @@ pcp_selinux_sudo_exec
 pcp_selinux_initrc_tmp
 pcp_selinux_icmp_socket_class
 pcp_selinux_cap2_syslog
+pcp_selinux_sbd_exec
 pcp_selinux_proc_security
 pcp_selinux_virt_var_run
 pcp_selinux_rpm_var_lib
@@ -11851,6 +11853,7 @@ pcp_selinux_files_list_non_auth_dirs=false
 pcp_selinux_rpm_var_lib=false
 pcp_selinux_virt_var_run=false
 pcp_selinux_proc_security=false
+pcp_selinux_sbd_exec=false
 pcp_selinux_cap2_syslog=false
 pcp_selinux_icmp_socket_class=false
 
@@ -11871,6 +11874,7 @@ pcp_selinux_sock_file_class=false
 pcp_selinux_security_class=false
 pcp_selinux_dir_class=false
 pcp_selinux_rawip_socket_class=false
+pcp_selinux_netlink_generic_socket_class=false
 
 if test "x$enable_selinux" != "xfalse"; then :
 
@@ -11899,6 +11903,8 @@ if test "x$enable_selinux" != "xfalse"; then :
 	&& pcp_selinux_virt_var_run=true
     grep '^[ 	][ 	]*proc_security_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_proc_security=true
+    grep '^[ 	][ 	]*sbd_exec_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_sbd_exec=true
 
 
     grep '^[ 	][ 	]*initrc_tmp_t$' <conftest.out >/dev/null \
@@ -11986,8 +11992,14 @@ if test "x$enable_selinux" != "xfalse"; then :
     | egrep '^[ 	][ 	]*(class |)rawip_socket$' >/dev/null \
     && pcp_selinux_rawip_socket_class=true
 
+    seinfo -x --class=netlink_generic_socket $seinfo_common_flag 2>/dev/null \
+    | egrep '^[ 	][ 	]*(class |)netlink_generic_socket$' >/dev/null \
+    && pcp_selinux_netlink_generic_socket_class=true
+
 
 fi
+
+
 
 
 
