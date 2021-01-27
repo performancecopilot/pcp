@@ -616,6 +616,7 @@ hacluster_refresh_pacemaker_resources(const char *instance_name, struct resource
 	if (strchr(instance_name, ':') == NULL) {
 		resource_id = (char*)instance_name;
 		no_node_attachment = 1;
+		node = NULL;
 	} else {
 		tofree = str = strdup(instance_name);
 		resource_id = strsep(&str, ":");
