@@ -2144,7 +2144,7 @@ DIST_TMPFILES=$BACKDIR/install.tmpfiles
 DIST_MANIFEST=$BACKDIR/install.manifest
 PCP_SYSCONFIG_DIR=@pcp_sysconfig_dir@
 export NO_CHOWN DIST_ROOT DIST_MANIFEST DIST_TMPFILES
-rm -f $DIST_MANIFEST
+rm -f $DIST_MANIFEST $DIST_TMPFILES
 @make@ install_pcp
 
 %if 0%{?fedora} > 26
@@ -2166,548 +2166,232 @@ DEVFILELIST=`ls -1 $BACKDIR/debian/lib*-dev.{install,dirs}`
 # Package split: pcp{-conf,-libs,-libs-devel,-testsuite,-import-*,-export-*}...
 # The above list is ordered by file selection; files for each package are
 # removed from a global set, then the base package catches all remaining.
-sed -e 's/^/\//' $CFGFILELIST >cfg_files
-sed -e 's/^/\//' $LIBFILELIST >libs_files
-sed -e 's/^/\//' $DEVFILELIST >dev_files
-grep "\.h$" $DEVFILELIST | cut -f2 -d":" >lib_devel_files
-grep "\.pc$" $DEVFILELIST | cut -f2 -d":" >>lib_devel_files
-grep "\.so$" $DEVFILELIST | cut -f2 -d":" >>lib_devel_files
-grep "\.a$" $DEVFILELIST | cut -f2 -d":" >>lib_devel_files
-sed -i -e 's/^/\//' lib_devel_files
-sed -i '/.h$/d' dev_files
-sed -i '/.pc$/d' dev_files
-sed -i '/.so$/d' dev_files
-sed -i '/.a$/d' dev_files
+sed -e 's/^/\//' $CFGFILELIST >pcp-conf-files
+sed -e 's/^/\//' $LIBFILELIST >pcp-libs-files
+sed -e 's/^/\//' $DEVFILELIST >pcp-devel-files
+grep "\.h$" $DEVFILELIST | cut -f2 -d":" >pcp-libs-devel-files
+grep "\.pc$" $DEVFILELIST | cut -f2 -d":" >>pcp-libs-devel-files
+grep "\.so$" $DEVFILELIST | cut -f2 -d":" >>pcp-libs-devel-files
+grep "\.a$" $DEVFILELIST | cut -f2 -d":" >>pcp-libs-devel-files
+sed -i -e 's/^/\//' pcp-libs-devel-files
+sed -i '/.h$/d' pcp-devel-files
+sed -i '/.pc$/d' pcp-devel-files
+sed -i '/.so$/d' pcp-devel-files
+sed -i '/.a$/d' pcp-devel-files
+sed -i '/\/man\//d' pcp-devel-files
+sed -i '/\/include\//d' pcp-devel-files
 
 %ifarch x86_64 ppc64 ppc64le aarch64 s390x
-sed -i -e 's/usr\/lib\//usr\/lib64\//' libs_files
-sed -i -e 's/usr\/lib\//usr\/lib64\//' dev_files
-sed -i -e 's/usr\/lib\//usr\/lib64\//' lib_devel_files
+sed -i -e 's/usr\/lib\//usr\/lib64\//' pcp-libs-files
+sed -i -e 's/usr\/lib\//usr\/lib64\//' pcp-devel-files
+sed -i -e 's/usr\/lib\//usr\/lib64\//' pcp-libs-devel-files
 %endif
 %ifarch ia64
 %if "%{_vendor}" != "suse"
-sed -i -e 's/usr\/lib\//usr\/lib64\//' libs_files
-sed -i -e 's/usr\/lib\//usr\/lib64\//' dev_files
-sed -i -e 's/usr\/lib\//usr\/lib64\//' lib_devel_files
+sed -i -e 's/usr\/lib\//usr\/lib64\//' pcp-libs-files
+sed -i -e 's/usr\/lib\//usr\/lib64\//' pcp-devel-files
+sed -i -e 's/usr\/lib\//usr\/lib64\//' pcp-libs-devel-files
 %endif
 %endif
 
 #
 # some special cases for devel
 awk '{print $NF}' $DIST_MANIFEST |\
-egrep 'pcp\/(examples|demos)|pmdas\/(sample|simple|trivial|txmon)|bin/(pmdbg|pmclient|pmerr|genpmda)' >>dev_files
+egrep 'pcp\/(examples|demos)|pmdas\/(sample|simple|trivial|txmon)|bin/(pmdbg|pmclient|pmerr|genpmda)' | egrep -v tutorials >>pcp-devel-files
 
 #
 # Patterns for files to be marked %config(noreplace).
 # Note: /etc/pcp.{conf,env,sh} are %config but not noreplace
 # and are treated specially below.
-cat >conf_files <<EOF
+cat >confpath.list <<EOF
 etc/sysconfig/
 etc/cron.d/
 etc/pcp/
 EOF
 
+# manifest without documentation or tests (common pattern)
+basic_manifest()
+{
+    awk '{print $NF}' $DIST_MANIFEST | \
+        egrep -v '/pcp-doc/|/testsuite/|/man/|/examples/'
+}
+
 #
 # Files for the various subpackages.  We use these subpackages
 # to isolate the (somewhat exotic) dependencies for these tools.
 # Likewise, for the pcp-pmda and pcp-testsuite subpackages.
-%if "@enable_selinux@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep 'selinux' | egrep -v 'tmp|GNUselinuxdefs' >selinux_files
-%endif
-awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp-doc|man.*\.[1-9].*' | egrep -v 'out' >docs_files
-awk '{print $NF}' $DIST_MANIFEST | egrep 'tutorials|/html/' >>docs_files
-awk '{print $NF}' $DIST_MANIFEST | egrep 'testsuite|etc/systemd/system' >testsuite_files
-%if "@enable_qt@" == "true"
+#
+awk '{print $NF}' $DIST_MANIFEST | egrep 'selinux' | egrep -v 'tmp|GNUselinuxdefs' >pcp-selinux-files
+awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp-doc|man.*\.[1-9].*' | egrep -v 'out' >pcp-doc-files
+awk '{print $NF}' $DIST_MANIFEST | egrep 'tutorials|/html/' >>pcp-doc-files
+awk '{print $NF}' $DIST_MANIFEST | egrep 'testsuite|etc/systemd/system' >pcp-testsuite-files
 PCP_GUI='pmchart|pmconfirm|pmdumptext|pmmessage|pmquery|pmsnap|pmtime'
-awk '{print $NF}' $DIST_MANIFEST | egrep "$PCP_GUI|applications|pixmaps|hicolor" | egrep -v '/pcp-doc/|/man/|pmtime.h' > gui_files
-%endif
-%if "@have_perl@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep 'sar2pcp' >import_sar2pcp_files
-awk '{print $NF}' $DIST_MANIFEST | egrep 'iostat2pcp' >import_iostat2pcp_files
-awk '{print $NF}' $DIST_MANIFEST | egrep 'sheet2pcp' >import_sheet2pcp_files
-awk '{print $NF}' $DIST_MANIFEST | egrep 'mrtg2pcp' >import_mrtg2pcp_files
-awk '{print $NF}' $DIST_MANIFEST | egrep 'ganglia2pcp' >import_ganglia2pcp_files
-%endif
-awk '{print $NF}' $DIST_MANIFEST | egrep 'collectl2pcp' >import_collectl2pcp_files
-%if "@pcp2elasticsearch@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp2elasticsearch' >export_pcp2elasticsearch_files
-%endif
-%if "@pcp2influxdb@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp2influxdb' >export_pcp2influxdb_files
-%endif
-%if "@pcp2xlsx@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp2xlsx' >export_pcp2xlsx_files
-%endif
-%if "@have_python@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp2graphite' >export_pcp2graphite_files
-awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp2json' >export_pcp2json_files
-awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp2spark' >export_pcp2spark_files
-awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp2xml' >export_pcp2xml_files
-awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp2zabbix' >export_pcp2zabbix_files
-%endif
-awk '{print $NF}' $DIST_MANIFEST | egrep 'zabbix|zbxpcp' | grep -v pcp2zabbix >export_zabbix_agent_files
-%if "@pmda_infiniband@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep '(etc/pcp|pmdas)/infiniband' >pmda_infiniband_files
-%endif
-%if "@pmda_podman@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep '(etc/pcp|pmdas)/podman' > pmda_podman_files
-%endif
-%if "@pmda_statsd@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep '(etc/pcp|pmdas)/statsd' > pmda_statsd_files
-%endif
-%if "@pmda_perfevent@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep '(etc/pcp|pmdas)/perfevent|perfalloc.1' > pmda_perfevent_files
-%endif
-%if "@pmda_systemd@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep '(etc/pcp|pmdas)/systemd' > pmda_systemd_files
-%endif
-%if "@pmda_activemq@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/activemq' > pmda_activemq_files
-%endif
-%if "@pmda_bind2@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/bind2' > pmda_bind2_files
-%endif
-%if "@pmda_elasticsearch@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/elasticsearch' > pmda_elasticsearch_files
-%endif
-%if "@pmda_nutcracker@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/nutcracker' > pmda_nutcracker_files
-%endif
-%if "@have_perl@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/redis' > pmda_redis_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/bonding' > pmda_bonding_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/dbping' > pmda_dbping_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/ds389log' > pmda_ds389log_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/ds389' > pmda_ds389_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/gpfs' > pmda_gpfs_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/gpsd' > pmda_gpsd_files
-%endif
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/docker' > pmda_docker_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/lustrecomm' > pmda_lustrecomm_files
-%if "@pmda_mysql@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/mysql' > pmda_mysql_files
-%endif
-%if "@have_perl@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/lustre' > pmda_lustre_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/memcache' > pmda_memcache_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/named' > pmda_named_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/netfilter' > pmda_netfilter_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/news' > pmda_news_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/pdns' > pmda_pdns_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/rsyslog' > pmda_rsyslog_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/samba' > pmda_samba_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/slurm' > pmda_slurm_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/vmware' > pmda_vmware_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/zimbra' > pmda_zimbra_files
-%endif
-%if "@pmda_nginx@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/nginx' > pmda_nginx_files
-%endif
-%if "@pmda_postfix@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/postfix' > pmda_postfix_files
-%endif
-%if "@pmda_postgresql@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/postgresql' > pmda_postgresql_files
-%endif
-%if "@pmda_oracle@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/oracle' > pmda_oracle_files
-%endif
-%if "@pmda_snmp@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/snmp' > pmda_snmp_files
-%endif
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas|pmieconf)/dm' > pmda_dm_files
-%if "@pmda_json@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/json' > pmda_json_files
-%endif
-%if "@pmda_libvirt@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/libvirt' > pmda_libvirt_files
-%endif
-%if "@pmda_lio@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/lio' > pmda_lio_files
-%endif
-%if "@pmda_openmetrics@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/openmetrics' > pmda_openmetrics_files
-%endif
-%if "@pmda_bcc@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/bcc' > pmda_bcc_files
-%endif
-%if "@pmda_bpftrace@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/bpftrace' > pmda_bpftrace_files
-%endif
-%if "@have_python@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/gluster' > pmda_gluster_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/zswap' > pmda_zswap_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/unbound' > pmda_unbound_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/mic' > pmda_mic_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/haproxy' > pmda_haproxy_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/lmsensors' > pmda_lmsensors_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/mssql' > pmda_mssql_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/netcheck' > pmda_netcheck_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/nfsclient' > pmda_nfsclient_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/openvswitch' > pmda_openvswitch_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/rabbitmq' > pmda_rabbitmq_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmiostat|pmrep|dstat|pcp2csv' \
-      -e 'pcp-atop|pcp-dmcache|pcp-dstat|pcp-free|pcp-htop|pcp-ipcs' \
-      -e 'pcp-iostat|pcp-lvmcache|pcp-mpstat|pcp-numastat|pcp-pidstat' \
-      -e 'pcp-shping|pcp-tapestat|pcp-uptime|pcp-verify' |\
-egrep -v 'testsuite|selinux|pmlogconf|pmieconf' > system_tools_files
-%endif
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/apache' > pmda_apache_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/bash' > pmda_bash_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/cifs' > pmda_cifs_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/cisco' > pmda_cisco_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/gfs2' > pmda_gfs2_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/logger' > pmda_logger_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/mailq' > pmda_mailq_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/mounts' > pmda_mounts_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/nvidia' > pmda_nvidia_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/roomtemp' > pmda_roomtemp_files
-%if "@pmda_rpm@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/rpm' > pmda_rpm_files
-%endif
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/sendmail' > pmda_sendmail_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/shping' > pmda_shping_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/smart' > pmda_smart_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/sockets' > pmda_sockets_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/hacluster' > pmda_hacluster_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/summary' > pmda_summary_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/trace' > pmda_trace_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '(etc/pcp|pmdas)/weblog' > pmda_weblog_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'zeroconf|daily[-_]report|/sa$' > zeroconf_files
+basic_manifest | egrep "$PCP_GUI|pcp-gui|applications|pixmaps|hicolor" | egrep -v 'pmtime.h' >pcp-gui-files
+basic_manifest | egrep -e 'zeroconf|daily[-_]report|/sa$' >pcp-zeroconf-files
+basic_manifest | egrep -e 'pmiostat|pmrep|dstat|pcp2csv' \
+   -e 'pcp-atop|pcp-dmcache|pcp-dstat|pcp-free|pcp-htop' \
+   -e 'pcp-ipcs|pcp-iostat|pcp-lvmcache|pcp-mpstat' \
+   -e 'pcp-numastat|pcp-pidstat|pcp-shping|pcp-tapestat' \
+   -e 'pcp-uptime|pcp-verify' | egrep \
+   -v 'selinux|pmlogconf|pmieconf' >pcp-system-tools-files
+basic_manifest | egrep 'sar2pcp' >pcp-import-sar2pcp-files
+basic_manifest | egrep 'iostat2pcp' >pcp-import-iostat2pcp-files
+basic_manifest | egrep 'sheet2pcp' >pcp-import-sheet2pcp-files
+basic_manifest | egrep 'mrtg2pcp' >pcp-import-mrtg2pcp-files
+basic_manifest | egrep 'ganglia2pcp' >pcp-import-ganglia2pcp-files
+basic_manifest | egrep 'collectl2pcp' >pcp-import-collectl2pcp-files
+basic_manifest | egrep 'pcp2elasticsearch' >pcp-export-pcp2elasticsearch-files
+basic_manifest | egrep 'pcp2influxdb' >pcp-export-pcp2influxdb-files
+basic_manifest | egrep 'pcp2xlsx' >pcp-export-pcp2xlsx-files
+basic_manifest | egrep 'pcp2graphite' >pcp-export-pcp2graphite-files
+basic_manifest | egrep 'pcp2json' >pcp-export-pcp2json-files
+basic_manifest | egrep 'pcp2spark' >pcp-export-pcp2spark-files
+basic_manifest | egrep 'pcp2xml' >pcp-export-pcp2xml-files
+basic_manifest | egrep 'pcp2zabbix' >pcp-export-pcp2zabbix-files
+basic_manifest | egrep 'zabbix|zbxpcp' | grep -v pcp2zabbix >pcp-export-zabbix-agent-files
+basic_manifest | egrep '(etc/pcp|pmdas)/activemq(/|$)' >pcp-pmda-activemq-files
+basic_manifest | egrep '(etc/pcp|pmdas)/apache(/|$)' >pcp-pmda-apache-files
+basic_manifest | egrep '(etc/pcp|pmdas)/bash(/|$)' >pcp-pmda-bash-files
+basic_manifest | egrep '(etc/pcp|pmdas)/bcc(/|$)' >pcp-pmda-bcc-files
+basic_manifest | egrep '(etc/pcp|pmdas)/bind2(/|$)' >pcp-pmda-bind2-files
+basic_manifest | egrep '(etc/pcp|pmdas)/bonding(/|$)' >pcp-pmda-bonding-files
+basic_manifest | egrep '(etc/pcp|pmdas)/bpftrace(/|$)' >pcp-pmda-bpftrace-files
+basic_manifest | egrep '(etc/pcp|pmdas)/cifs(/|$)' >pcp-pmda-cifs-files
+basic_manifest | egrep '(etc/pcp|pmdas)/cisco(/|$)' >pcp-pmda-cisco-files
+basic_manifest | egrep '(etc/pcp|pmdas)/dbping(/|$)' >pcp-pmda-dbping-files
+basic_manifest | egrep '(etc/pcp|pmdas|pmieconf)/dm(/|$)' >pcp-pmda-dm-files
+basic_manifest | egrep '(etc/pcp|pmdas)/docker(/|$)' >pcp-pmda-docker-files
+basic_manifest | egrep '(etc/pcp|pmdas)/ds389log(/|$)' >pcp-pmda-ds389log-files
+basic_manifest | egrep '(etc/pcp|pmdas)/ds389(/|$)' >pcp-pmda-ds389-files
+basic_manifest | egrep '(etc/pcp|pmdas)/elasticsearch(/|$)' >pcp-pmda-elasticsearch-files
+basic_manifest | egrep '(etc/pcp|pmdas)/gfs2(/|$)' >pcp-pmda-gfs2-files
+basic_manifest | egrep '(etc/pcp|pmdas)/gluster(/|$)' >pcp-pmda-gluster-files
+basic_manifest | egrep '(etc/pcp|pmdas)/gpfs(/|$)' >pcp-pmda-gpfs-files
+basic_manifest | egrep '(etc/pcp|pmdas)/gpsd(/|$)' >pcp-pmda-gpsd-files
+basic_manifest | egrep '(etc/pcp|pmdas)/hacluster(/|$)' >pcp-pmda-hacluster-files
+basic_manifest | egrep '(etc/pcp|pmdas)/haproxy(/|$)' >pcp-pmda-haproxy-files
+basic_manifest | egrep '(etc/pcp|pmdas)/infiniband(/|$)' >pcp-pmda-infiniband-files
+basic_manifest | egrep '(etc/pcp|pmdas)/json(/|$)' >pcp-pmda-json-files
+basic_manifest | egrep '(etc/pcp|pmdas)/libvirt(/|$)' >pcp-pmda-libvirt-files
+basic_manifest | egrep '(etc/pcp|pmdas)/lio(/|$)' >pcp-pmda-lio-files
+basic_manifest | egrep '(etc/pcp|pmdas)/lmsensors(/|$)' >pcp-pmda-lmsensors-files
+basic_manifest | egrep '(etc/pcp|pmdas)/logger(/|$)' >pcp-pmda-logger-files
+basic_manifest | egrep '(etc/pcp|pmdas)/lustre(/|$)' >pcp-pmda-lustre-files
+basic_manifest | egrep '(etc/pcp|pmdas)/lustrecomm(/|$)' >pcp-pmda-lustrecomm-files
+basic_manifest | egrep '(etc/pcp|pmdas)/memcache(/|$)' >pcp-pmda-memcache-files
+basic_manifest | egrep '(etc/pcp|pmdas)/mailq(/|$)' >pcp-pmda-mailq-files
+basic_manifest | egrep '(etc/pcp|pmdas)/mic(/|$)' >pcp-pmda-mic-files
+basic_manifest | egrep '(etc/pcp|pmdas)/mounts(/|$)' >pcp-pmda-mounts-files
+basic_manifest | egrep '(etc/pcp|pmdas)/mssql(/|$)' >pcp-pmda-mssql-files
+basic_manifest | egrep '(etc/pcp|pmdas)/mysql(/|$)' >pcp-pmda-mysql-files
+basic_manifest | egrep '(etc/pcp|pmdas)/named(/|$)' >pcp-pmda-named-files
+basic_manifest | egrep '(etc/pcp|pmdas)/netfilter(/|$)' >pcp-pmda-netfilter-files
+basic_manifest | egrep '(etc/pcp|pmdas)/netcheck(/|$)' >pcp-pmda-netcheck-files
+basic_manifest | egrep '(etc/pcp|pmdas)/news(/|$)' >pcp-pmda-news-files
+basic_manifest | egrep '(etc/pcp|pmdas)/nfsclient(/|$)' >pcp-pmda-nfsclient-files
+basic_manifest | egrep '(etc/pcp|pmdas)/nginx(/|$)' >pcp-pmda-nginx-files
+basic_manifest | egrep '(etc/pcp|pmdas)/nutcracker(/|$)' >pcp-pmda-nutcracker-files
+basic_manifest | egrep '(etc/pcp|pmdas)/nvidia(/|$)' >pcp-pmda-nvidia-files
+basic_manifest | egrep '(etc/pcp|pmdas)/openmetrics(/|$)' >pcp-pmda-openmetrics-files
+basic_manifest | egrep '(etc/pcp|pmdas)/openvswitch(/|$)' >pcp-pmda-openvswitch-files
+basic_manifest | egrep '(etc/pcp|pmdas)/oracle(/|$)' >pcp-pmda-oracle-files
+basic_manifest | egrep '(etc/pcp|pmdas)/pdns(/|$)' >pcp-pmda-pdns-files
+basic_manifest | egrep '(etc/pcp|pmdas)/perfevent(/|$)' >pcp-pmda-perfevent-files
+basic_manifest | egrep '(etc/pcp|pmdas)/podman(/|$)' >pcp-pmda-podman-files
+basic_manifest | egrep '(etc/pcp|pmdas)/postfix(/|$)' >pcp-pmda-postfix-files
+basic_manifest | egrep '(etc/pcp|pmdas)/postgresql(/|$)' >pcp-pmda-postgresql-files
+basic_manifest | egrep '(etc/pcp|pmdas)/rabbitmq(/|$)' >pcp-pmda-rabbitmq-files
+basic_manifest | egrep '(etc/pcp|pmdas)/redis(/|$)' >pcp-pmda-redis-files
+basic_manifest | egrep '(etc/pcp|pmdas)/roomtemp(/|$)' >pcp-pmda-roomtemp-files
+basic_manifest | egrep '(etc/pcp|pmdas)/rpm(/|$)' >pcp-pmda-rpm-files
+basic_manifest | egrep '(etc/pcp|pmdas)/rsyslog(/|$)' >pcp-pmda-rsyslog-files
+basic_manifest | egrep '(etc/pcp|pmdas)/samba(/|$)' >pcp-pmda-samba-files
+basic_manifest | egrep '(etc/pcp|pmdas)/sendmail(/|$)' >pcp-pmda-sendmail-files
+basic_manifest | egrep '(etc/pcp|pmdas)/shping(/|$)' >pcp-pmda-shping-files
+basic_manifest | egrep '(etc/pcp|pmdas)/slurm(/|$)' >pcp-pmda-slurm-files
+basic_manifest | egrep '(etc/pcp|pmdas)/smart(/|$)' >pcp-pmda-smart-files
+basic_manifest | egrep '(etc/pcp|pmdas)/snmp(/|$)' >pcp-pmda-snmp-files
+basic_manifest | egrep '(etc/pcp|pmdas)/sockets(/|$)' >pcp-pmda-sockets-files
+basic_manifest | egrep '(etc/pcp|pmdas)/statsd(/|$)' >pcp-pmda-statsd-files
+basic_manifest | egrep '(etc/pcp|pmdas)/summary(/|$)' >pcp-pmda-summary-files
+basic_manifest | egrep '(etc/pcp|pmdas)/systemd(/|$)' >pcp-pmda-systemd-files
+basic_manifest | egrep '(etc/pcp|pmdas)/trace(/|$)' >pcp-pmda-trace-files
+basic_manifest | egrep '(etc/pcp|pmdas)/unbound(/|$)' >pcp-pmda-unbound-files
+basic_manifest | egrep '(etc/pcp|pmdas)/weblog(/|$)' >pcp-pmda-weblog-files
+basic_manifest | egrep '(etc/pcp|pmdas)/vmware(/|$)' >pcp-pmda-vmware-files
+basic_manifest | egrep '(etc/pcp|pmdas)/zimbra(/|$)' >pcp-pmda-zimbra-files
+basic_manifest | egrep '(etc/pcp|pmdas)/zswap(/|$)' >pcp-pmda-zswap-files
 
-touch gui_files pmda_infiniband_files \
-      pmda_perfevent_files pmda_podman_files pmda_statsd_files \
-      pmda_bonding_files pmda_dbping_files pmda_pdns_files \
-      pmda_ds389_files pmda_ds389log_files pmda_gpfs_files \
-      pmda_gpsd_files pmda_lustre_files pmda_lustrecomm_files \
-      pmda_memcache_files pmda_named_files pmda_redis_files pmda_docker_files \
-      pmda_netfilter_files pmda_news_files pmda_logger_files \
-      pmda_openvswitch_files \
-      pmda_rsyslog_files pmda_samba_files pmda_slurm_files pmda_rabbitmq_files \
-      pmda_vmware_files pmda_zimbra_files pmda_apache_files pmda_bash_files \
-      pmda_cifs_files pmda_cisco_files pmda_gfs2_files pmda_mic_files \
-      pmda_mailq_files pmda_mounts_files pmda_nvidia_files pmda_roomtemp_files \
-      pmda_rpm_files pmda_sendmail_files pmda_shping_files pmda_summary_files \
-      pmda_trace_files pmda_weblog_files pmda_dm_files pmda_systemd_files \
-      pmda_smart_files pmda_sockets_files pmda_hacluster_files pmda_gluster_files \
-      pmda_zswap_files pmda_unbound_files \
-      pmda_haproxy_files pmda_elasticsearch_files pmda_postfix_files \
-      pmda_lmsensors_files pmda_nfsclient_files pmda_mssql_files \
-      pmda_netcheck_files pmda_bcc_files pmda_bpftrace_files pmda_json_files \
-      pmda_libvirt_files pmda_lio_files pmda_openmetrics_files pmda_snmp_files \
-      pmda_mysql_files pmda_nginx_files pmda_activemq_files pmda_bind2_files \
-      pmda_nutcracker_files pmda_postgresql_files pmda_oracle_files \
-      zeroconf_files selinux_files system_tools_files
+rm -f packages.list
+for pmda_package in \
+    activemq apache \
+    bash bcc bind2 bonding bpftrace \
+    cifs cisco \
+    dbping docker dm ds389 ds389log \
+    elasticsearch \
+    gfs2 gluster gpfs gpsd \
+    hacluster haproxy \
+    infiniband \
+    json \
+    libvirt lio lmsensors logger lustre lustrecomm \
+    mailq memcache mic mounts mssql mysql \
+    named netcheck netfilter news nfsclient nginx \
+    nutcracker nvidia \
+    openmetrics openvswitch oracle \
+    pdns perfevent podman postfix postgresql \
+    rabbitmq redis roomtemp rpm rsyslog \
+    samba sendmail shping slurm smart snmp \
+    sockets statsd summary systemd \
+    unbound \
+    trace \
+    vmware \
+    weblog \
+    zimbra zswap ; \
+do \
+    pmda_packages="$pmda_packages pcp-pmda-$pmda_package"; \
+done
 
-rm -f *_files.rpm
+for import_package in \
+    collectl2pcp iostat2pcp ganglia2pcp mrtg2pcp sar2pcp sheet2pcp ; \
+do \
+    import_packages="$import_packages pcp-import-$import_package"; \
+done
+
+for export_package in \
+    pcp2elasticsearch pcp2graphite pcp2influxdb pcp2json \
+    pcp2spark pcp2xlsx pcp2xml pcp2zabbix zabbix-agent ; \
+do \
+    export_packages="$export_packages pcp-export-$export_package"; \
+done
+
+for subpackage in \
+    pcp-conf pcp-gui pcp-doc pcp-libs pcp-devel pcp-libs-devel \
+    pcp-selinux pcp-system-tools pcp-testsuite pcp-zeroconf \
+    $pmda_packages $import_packages $export_packages ; \
+do \
+    echo $subpackage >> packages.list; \
+done
+
+rm -f *-files.rpm *-tmpfiles.rpm
 sort -u $DIST_MANIFEST | $PCP_AWK_PROG '
+function loadfiles(files) {
+    system ("touch " files"-files");
+    filelist=files"-files";
+    while (getline < filelist) {
+        if (length(pkg[$0]) > 0 && pkg[$0] != files)
+            print "Dup: ", $0, " package: ", pkg[$0], " and ", files;
+        if (length(pkg[$0]) == 0)
+            pkg[$0] = files;
+    }
+}
 BEGIN {
-    while( getline < "cfg_files") cfg[$0]=1;
-    while( getline < "gui_files") gui[$0]=1;
-    while( getline < "docs_files") doc[$0]=1;
-    while( getline < "libs_files") lib[$0]=1;
-    while( getline < "dev_files") dev[$0]=1;
-    while( getline < "lib_devel_files") libdev[$0]=1;
-    while( getline < "testsuite_files") testsuite[$0]=1;
-    while( getline < "pmda_dm_files") pmda_dm[$0]=1;
-    while( getline < "pmda_lustrecomm_files") pmda_lustrecomm[$0]=1;
-    while( getline < "pmda_infiniband_files") pmda_infiniband[$0]=1;
-%if "@pmda_podman@" == "true"
-    while( getline < "pmda_podman_files") pmda_podman[$0]=1;
-%endif
-%if "@pmda_statsd@" == "true"
-    while( getline < "pmda_statsd_files") pmda_statsd[$0]=1;
-%endif
-%if "@pmda_perfevent@" == "true"
-    while( getline < "pmda_perfevent_files") pmda_perfevent[$0]=1;
-%endif
-%if "@pmda_activemq@" == "true"
-    while( getline < "pmda_activemq_files") pmda_activemq[$0]=1;
-%endif
-%if "@pmda_bind2@" == "true"
-    while( getline < "pmda_bind2_files") pmda_bind2[$0]=1;
-%endif
-%if "@pmda_nutcracker@" == "true"
-    while( getline < "pmda_nutcracker_files") pmda_nutcracker[$0]=1;
-%endif
-%if "@pmda_elasticsearch@" == "true"
-    while( getline < "pmda_elasticsearch_files") pmda_elasticsearch[$0]=1;
-%endif
-%if "@pmda_mysql@" == "true"
-    while( getline < "pmda_mysql_files") pmda_mysql[$0]=1;
-%endif
-%if "@have_perl@" == "true"
-    while( getline < "pmda_redis_files") pmda_redis[$0]=1;
-    while( getline < "pmda_bonding_files") pmda_bonding[$0]=1;
-    while( getline < "pmda_dbping_files") pmda_dbping[$0]=1;
-    while( getline < "pmda_ds389log_files") pmda_ds389log[$0]=1;
-    while( getline < "pmda_ds389_files") pmda_ds389[$0]=1;
-    while( getline < "pmda_gpfs_files") pmda_gpfs[$0]=1;
-    while( getline < "pmda_gpsd_files") pmda_gpsd[$0]=1;
-    while( getline < "pmda_docker_files") pmda_docker[$0]=1;
-    while( getline < "pmda_lustre_files") pmda_lustre[$0]=1;
-    while( getline < "pmda_memcache_files") pmda_memcache[$0]=1;
-    while( getline < "pmda_named_files") pmda_named[$0]=1;
-    while( getline < "pmda_netfilter_files") pmda_netfilter[$0]=1;
-    while( getline < "pmda_news_files") pmda_news[$0]=1;
-    while( getline < "pmda_pdns_files") pmda_pdns[$0]=1;
-    while( getline < "pmda_rsyslog_files") pmda_rsyslog[$0]=1;
-    while( getline < "pmda_samba_files") pmda_samba[$0]=1;
-    while( getline < "pmda_slurm_files") pmda_slurm[$0]=1;
-    while( getline < "pmda_vmware_files") pmda_vmware[$0]=1;
-    while( getline < "pmda_zimbra_files") pmda_zimbra[$0]=1;
-%endif
-%if "@pmda_nginx@" == "true"
-    while( getline < "pmda_nginx_files") pmda_nginx[$0]=1;
-%endif
-%if "@pmda_postfix@" == "true"
-    while( getline < "pmda_postfix_files") pmda_postfix[$0]=1;
-%endif
-%if "@pmda_postgresql@" == "true"
-    while( getline < "pmda_postgresql_files") pmda_postgresql[$0]=1;
-%endif
-%if "@pmda_oracle@" == "true"
-    while( getline < "pmda_oracle_files") pmda_oracle[$0]=1;
-%endif
-%if "@pmda_snmp@" == "true"
-    while( getline < "pmda_snmp_files") pmda_snmp[$0]=1;
-%endif
-%if "@pmda_bcc@" == "true"
-    while( getline < "pmda_bcc_files") pmda_bcc[$0]=1;
-%endif
-%if "@pmda_bpftrace@" == "true"
-    while( getline < "pmda_bpftrace_files") pmda_bpftrace[$0]=1;
-%endif
-%if "@have_python@" == "true"
-    while( getline < "system_tools_files") system_tools[$0]=1;
-    while( getline < "pmda_gluster_files") pmda_gluster[$0]=1;
-    while( getline < "pmda_zswap_files") pmda_zswap[$0]=1;
-    while( getline < "pmda_unbound_files") pmda_unbound[$0]=1;
-    while( getline < "pmda_mic_files") pmda_mic[$0]=1;
-    while( getline < "pmda_haproxy_files") pmda_haproxy[$0]=1;
-    while( getline < "pmda_lmsensors_files") pmda_lmsensors[$0]=1;
-    while( getline < "pmda_mssql_files") pmda_mssql[$0]=1;
-    while( getline < "pmda_netcheck_files") pmda_netcheck[$0]=1;
-    while( getline < "pmda_nfsclient_files") pmda_nfsclient[$0]=1;
-    while( getline < "pmda_openvswitch_files") pmda_openvswitch[$0]=1;
-    while( getline < "pmda_rabbitmq_files") pmda_rabbitmq[$0]=1;
-    while( getline < "export_pcp2graphite_files") export_pcp2graphite[$0]=1;
-    while( getline < "export_pcp2json_files") export_pcp2json[$0]=1;
-    while( getline < "export_pcp2spark_files") export_pcp2spark[$0]=1;
-    while( getline < "export_pcp2xml_files") export_pcp2xml[$0]=1;
-    while( getline < "export_pcp2zabbix_files") export_pcp2zabbix[$0]=1;
-%endif
-%if "@pcp2elasticsearch@" == "true"
-    while( getline < "export_pcp2elasticsearch_files") export_pcp2elasticsearch[$0]=1;
-%endif
-%if "@pcp2influxdb@" == "true"
-    while( getline < "export_pcp2influxdb_files") export_pcp2influxdb[$0]=1;
-%endif
-%if "@pcp2xlsx@" == "true"
-    while( getline < "export_pcp2xlsx_files") export_pcp2xlsx[$0]=1;
-%endif
-    while( getline < "export_zabbix_agent_files") export_zabbix_agent[$0]=1;
-%if "@pmda_json@" == "true"
-    while( getline < "pmda_json_files") pmda_json[$0]=1;
-%endif
-%if "@pmda_libvirt@" == "true"
-    while( getline < "pmda_libvirt_files") pmda_libvirt[$0]=1;
-%endif
-%if "@pmda_lio@" == "true"
-    while( getline < "pmda_lio_files") pmda_lio[$0]=1;
-%endif
-%if "@pmda_openmetrics@" == "true"
-    while( getline < "pmda_openmetrics_files") pmda_openmetrics[$0]=1;
-%endif
-%if "@pmda_systemd@" == "true"
-    while( getline < "pmda_systemd_files") pmda_systemd[$0]=1;
-%endif
-    while( getline < "pmda_apache_files") pmda_apache[$0]=1;
-    while( getline < "pmda_bash_files") pmda_bash[$0]=1;
-    while( getline < "pmda_cifs_files") pmda_cifs[$0]=1;
-    while( getline < "pmda_cisco_files") pmda_cisco[$0]=1;
-    while( getline < "pmda_gfs2_files") pmda_gfs2[$0]=1;
-    while( getline < "pmda_logger_files") pmda_logger[$0]=1;
-    while( getline < "pmda_mailq_files") pmda_mailq[$0]=1;
-    while( getline < "pmda_mounts_files") pmda_mounts[$0]=1;
-    while( getline < "pmda_nvidia_files") pmda_nvidia[$0]=1;
-    while( getline < "pmda_roomtemp_files") pmda_roomtemp[$0]=1;
-    while( getline < "pmda_rpm_files") pmda_rpm[$0]=1;
-    while( getline < "pmda_sendmail_files") pmda_sendmail[$0]=1;
-    while( getline < "pmda_shping_files") pmda_shping[$0]=1;
-    while( getline < "pmda_smart_files") pmda_smart[$0]=1;
-    while( getline < "pmda_sockets_files") pmda_sockets[$0]=1;    
-    while( getline < "pmda_hacluster_files") pmda_hacluster[$0]=1;    
-    while( getline < "pmda_summary_files") pmda_summary[$0]=1;
-    while( getline < "pmda_trace_files") pmda_trace[$0]=1;
-    while( getline < "pmda_weblog_files") pmda_weblog[$0]=1;
-%if "@have_perl@" == "true"
-    while( getline < "import_sar2pcp_files") import_sar2pcp[$0]=1;
-    while( getline < "import_iostat2pcp_files") import_iostat2pcp[$0]=1;
-    while( getline < "import_sheet2pcp_files") import_sheet2pcp[$0]=1;
-    while( getline < "import_mrtg2pcp_files") import_mrtg2pcp[$0]=1;
-    while( getline < "import_ganglia2pcp_files") import_ganglia2pcp[$0]=1;
-%endif
-    while( getline < "import_collectl2pcp_files") import_collectl2pcp[$0]=1;
-%if "@enable_selinux@" == "true"
-    while( getline < "selinux_files") selinux[$0]=1;
-%endif
-    while( getline < "conf_files") conf[nconf++]=$0;
-    while( getline < "zeroconf_files") zeroconf_files[$0]=1;
+    while (getline < "packages.list") loadfiles($0);
+    while (getline < "confpath.list") conf[nconf++]=$0;
 }
 {
-    if (cfg[$NF]) f="cfg_files.rpm";
-    else if (gui[$NF]) f="gui_files.rpm";
-%if "@enable_selinux@" == "true"
-    else if (selinux[$NF]) f="selinux_files.rpm";
-%endif
-    else if (doc[$NF]) f="docs_files.rpm";
-    else if (lib[$NF]) f="libs_files.rpm";
-    else if (dev[$NF]) f="dev_files.rpm";
-    else if (libdev[$NF]) f="lib_devel_files.rpm";
-    else if (testsuite[$NF]) f="testsuite_files.rpm";
-    else if (pmda_dm[$NF]) f="pmda_dm_files.rpm";
-    else if (pmda_lustrecomm[$NF]) f="pmda_lustrecomm_files.rpm";
-    else if (pmda_infiniband[$NF]) f="pmda_infiniband_files.rpm";
-%if "@pmda_podman@" == "true"
-    else if (pmda_podman[$NF]) f="pmda_podman_files.rpm";
-%endif
-%if "@pmda_statsd@" == "true"
-    else if (pmda_statsd[$NF]) f="pmda_statsd_files.rpm";
-%endif
-%if "@pmda_perfevent@" == "true"
-    else if (pmda_perfevent[$NF]) f="pmda_perfevent_files.rpm";
-%endif
-%if "@pmda_activemq@" == "true"
-    else if (pmda_activemq[$NF]) f="pmda_activemq_files.rpm";
-%endif
-%if "@pmda_bind2@" == "true"
-    else if (pmda_bind2[$NF]) f="pmda_bind2_files.rpm";
-%endif
-%if "@pmda_nutcracker@" == "true"
-    else if (pmda_nutcracker[$NF]) f="pmda_nutcracker_files.rpm";
-%endif
-%if "@pmda_elasticsearch@" == "true"
-    else if (pmda_elasticsearch[$NF]) f="pmda_elasticsearch_files.rpm";
-%endif
-%if "@pmda_mysql@" == "true"
-    else if (pmda_mysql[$NF]) f="pmda_mysql_files.rpm";
-%endif
-%if "@have_perl@" == "true"
-    else if (pmda_redis[$NF]) f="pmda_redis_files.rpm";
-    else if (pmda_bonding[$NF]) f="pmda_bonding_files.rpm";
-    else if (pmda_dbping[$NF]) f="pmda_dbping_files.rpm";
-    else if (pmda_ds389log[$NF]) f="pmda_ds389log_files.rpm";
-    else if (pmda_ds389[$NF]) f="pmda_ds389_files.rpm";
-    else if (pmda_gpfs[$NF]) f="pmda_gpfs_files.rpm";
-    else if (pmda_gpsd[$NF]) f="pmda_gpsd_files.rpm";
-    else if (pmda_docker[$NF]) f="pmda_docker_files.rpm";
-    else if (pmda_lustre[$NF]) f="pmda_lustre_files.rpm";
-    else if (pmda_memcache[$NF]) f="pmda_memcache_files.rpm";
-    else if (pmda_named[$NF]) f="pmda_named_files.rpm";
-    else if (pmda_netfilter[$NF]) f="pmda_netfilter_files.rpm";
-    else if (pmda_news[$NF]) f="pmda_news_files.rpm";
-    else if (pmda_pdns[$NF]) f="pmda_pdns_files.rpm";
-    else if (pmda_rsyslog[$NF]) f="pmda_rsyslog_files.rpm";
-    else if (pmda_samba[$NF]) f="pmda_samba_files.rpm";
-    else if (pmda_slurm[$NF]) f="pmda_slurm_files.rpm";
-    else if (pmda_vmware[$NF]) f="pmda_vmware_files.rpm";
-    else if (pmda_zimbra[$NF]) f="pmda_zimbra_files.rpm";
-%endif
-%if "@pmda_nginx@" == "true"
-    else if (pmda_nginx[$NF]) f="pmda_nginx_files.rpm";
-%endif
-%if "@pmda_postfix@" == "true"
-    else if (pmda_postfix[$NF]) f="pmda_postfix_files.rpm";
-%endif
-%if "@pmda_postgresql@" == "true"
-    else if (pmda_postgresql[$NF]) f="pmda_postgresql_files.rpm";
-%endif
-%if "@pmda_oracle@" == "true"
-    else if (pmda_oracle[$NF]) f="pmda_oracle_files.rpm";
-%endif
-%if "@pmda_snmp@" == "true"
-    else if (pmda_snmp[$NF]) f="pmda_snmp_files.rpm";
-%endif
-%if "@pmda_bcc@" == "true"
-    else if (pmda_bcc[$NF]) f="pmda_bcc_files.rpm";
-%endif
-%if "@pmda_bpftrace@" == "true"
-    else if (pmda_bpftrace[$NF]) f="pmda_bpftrace_files.rpm";
-%endif
-%if "@have_python@" == "true"
-    else if (system_tools[$NF]) f="system_tools_files.rpm";
-    else if (pmda_gluster[$NF]) f="pmda_gluster_files.rpm";
-    else if (pmda_zswap[$NF]) f="pmda_zswap_files.rpm";
-    else if (pmda_unbound[$NF]) f="pmda_unbound_files.rpm";
-    else if (pmda_mic[$NF]) f="pmda_mic_files.rpm";
-    else if (pmda_haproxy[$NF]) f="pmda_haproxy_files.rpm";
-    else if (pmda_lmsensors[$NF]) f="pmda_lmsensors_files.rpm";
-    else if (pmda_mssql[$NF]) f="pmda_mssql_files.rpm";
-    else if (pmda_netcheck[$NF]) f="pmda_netcheck_files.rpm";
-    else if (pmda_nfsclient[$NF]) f="pmda_nfsclient_files.rpm";
-    else if (pmda_openvswitch[$NF]) f="pmda_openvswitch_files.rpm";
-    else if (pmda_rabbitmq[$NF]) f="pmda_rabbitmq_files.rpm";
-    else if (export_pcp2graphite[$NF]) f="export_pcp2graphite_files.rpm";
-    else if (export_pcp2json[$NF]) f="export_pcp2json_files.rpm";
-    else if (export_pcp2spark[$NF]) f="export_pcp2spark_files.rpm";
-    else if (export_pcp2xml[$NF]) f="export_pcp2xml_files.rpm";
-    else if (export_pcp2zabbix[$NF]) f="export_pcp2zabbix_files.rpm";
-%endif
-%if "@pcp2elasticsearch@" == "true"
-    else if (export_pcp2elasticsearch[$NF]) f="export_pcp2elasticsearch_files.rpm";
-%endif
-%if "@pcp2influxdb@" == "true"
-    else if (export_pcp2influxdb[$NF]) f="export_pcp2influxdb_files.rpm";
-%endif
-%if "@pcp2xlsx@" == "true"
-    else if (export_pcp2xlsx[$NF]) f="export_pcp2xlsx_files.rpm";
-%endif
-    else if (export_zabbix_agent[$NF]) f="export_zabbix_agent_files.rpm";
-%if "@pmda_json@" == "true"
-    else if (pmda_json[$NF]) f="pmda_json_files.rpm";
-%endif
-%if "@pmda_libvirt@" == "true"
-    else if (pmda_libvirt[$NF]) f="pmda_libvirt_files.rpm";
-%endif
-%if "@pmda_lio@" == "true"
-    else if (pmda_lio[$NF]) f="pmda_lio_files.rpm";
-%endif
-%if "@pmda_openmetrics@" == "true"
-    else if (pmda_openmetrics[$NF]) f="pmda_openmetrics_files.rpm";
-%endif
-%if "@pmda_systemd@" == "true"
-    else if (pmda_systemd[$NF]) f="pmda_systemd_files.rpm";
-%endif
-    else if (pmda_apache[$NF]) f="pmda_apache_files.rpm";
-    else if (pmda_bash[$NF]) f="pmda_bash_files.rpm";
-    else if (pmda_cifs[$NF]) f="pmda_cifs_files.rpm";
-    else if (pmda_cisco[$NF]) f="pmda_cisco_files.rpm";
-    else if (pmda_gfs2[$NF]) f="pmda_gfs2_files.rpm";
-    else if (pmda_logger[$NF]) f="pmda_logger_files.rpm";
-    else if (pmda_mailq[$NF]) f="pmda_mailq_files.rpm";
-    else if (pmda_mounts[$NF]) f="pmda_mounts_files.rpm";
-    else if (pmda_nvidia[$NF]) f="pmda_nvidia_files.rpm";
-    else if (pmda_roomtemp[$NF]) f="pmda_roomtemp_files.rpm";
-    else if (pmda_rpm[$NF]) f="pmda_rpm_files.rpm";
-    else if (pmda_sendmail[$NF]) f="pmda_sendmail_files.rpm";
-    else if (pmda_shping[$NF]) f="pmda_shping_files.rpm";
-    else if (pmda_smart[$NF]) f="pmda_smart_files.rpm";
-    else if (pmda_sockets[$NF]) f="pmda_sockets_files.rpm";
-    else if (pmda_hacluster[$NF]) f="pmda_hacluster_files.rpm";    
-    else if (pmda_summary[$NF]) f="pmda_summary_files.rpm";
-    else if (pmda_trace[$NF]) f="pmda_trace_files.rpm";
-    else if (pmda_weblog[$NF]) f="pmda_weblog_files.rpm";
-%if "@have_perl@" == "true"
-    else if (import_sar2pcp[$NF]) f="import_sar2pcp_files.rpm";
-    else if (import_iostat2pcp[$NF]) f="import_iostat2pcp_files.rpm";
-    else if (import_sheet2pcp[$NF]) f="import_sheet2pcp_files.rpm";
-    else if (import_mrtg2pcp[$NF]) f="import_mrtg2pcp_files.rpm";
-    else if (import_ganglia2pcp[$NF]) f="import_ganglia2pcp_files.rpm";
-%endif
-    else if (import_collectl2pcp[$NF]) f="import_collectl2pcp_files.rpm";
-    else if (zeroconf_files[$NF]) f="zeroconf.rpm";
-    else f="base_files.rpm"
+    if (pkg[$NF]) p=pkg[$NF];
+    else p="pcp";
+    f=p"-files.rpm";
 }
 $1 == "d" {
 	    if (match ($5, "'$PCP_RUN_DIR'")) {
@@ -2730,12 +2414,45 @@ $1 == "f" {
 	    }
 	    printf ("%%%%attr(%s,%s,%s) %s\n", $2, $3, $4, $6) >> f
 	  }
-$1 == "l" { print $3 >> f }'
+$1 == "l" {
+%if "@pmda_systemd@" == "true"
+            if (match ($3, "'$PCP_VAR_DIR'")) {
+                print $3 >> p"-tmpfiles";
+                if (length(tmpfiles[p]) == 0) {
+                    printf ("'$PCP_SYSTEMDTMPFILES_DIR'/%s.conf\n", p) >> f;
+                    tmpfiles[p] = p;
+                }
+            }
+%endif
+            print $3 >> f;
+          }'
 
 %if "@enable_systemd@" == "true"
 mkdir -p $DIST_ROOT/@pcp_systemdtmpfiles_dir@
-mv $DIST_TMPFILES $DIST_ROOT/@pcp_systemdtmpfiles_dir@/pcp.conf
-echo @pcp_systemdtmpfiles_dir@/pcp.conf >> base_files.rpm
+sort -u $DIST_TMPFILES | $PCP_AWK_PROG '
+function loadtmpfiles(files) {
+    system ("touch " files"-tmpfiles");
+    filelist=files"-tmpfiles";
+    while (getline < filelist) {
+        if (pkg[$0] && pkg[$0] != files)
+            print "Dup: ", $0, " package: ", pkg[$0], " and ", files;
+        pkg[$0] = files;
+    }
+}
+BEGIN {
+    while (getline < "packages.list") loadtmpfiles($0);
+}
+{
+    if (pkg[$2]) p=pkg[$2];
+    else p="pcp";
+    f=p".conf";
+    printf ("%s\n", $0) >> f;
+}'
+
+for tmpfile in *.conf ; \
+do \
+    mv $tmpfile $DIST_ROOT/@pcp_systemdtmpfiles_dir@/$tmpfile; \
+done
 %endif
 
 %pre testsuite
@@ -3162,259 +2879,259 @@ chown -R pcp:pcp "$PCP_LOG_DIR/pmproxy" 2>/dev/null
 %{selinux_handle_policy "$1" "pcpupstream-container"}
 %endif
 
-%files -f base_files.rpm
+%files -f pcp-files.rpm
 
-%files conf -f cfg_files.rpm
+%files conf -f pcp-conf-files.rpm
 
-%files libs -f libs_files.rpm
+%files libs -f pcp-libs-files.rpm
 
-%files libs-devel -f lib_devel_files.rpm
+%files libs-devel -f pcp-libs-devel-files.rpm
 
-%files devel -f dev_files.rpm
+%files devel -f pcp-devel-files.rpm
 
-%files doc -f docs_files.rpm
+%files doc -f pcp-doc-files.rpm
 
 %if "@enable_selinux@" == "true"
-%files selinux -f selinux_files.rpm
+%files selinux -f pcp-selinux-files.rpm
 %endif
 
 %if "@enable_qt@" == "true"
-%files gui -f gui_files.rpm
+%files gui -f pcp-gui-files.rpm
 %endif
 
-%files testsuite -f testsuite_files.rpm
+%files testsuite -f pcp-testsuite-files.rpm
 %defattr(-,pcpqa,pcpqa)
 
 %if "@pmda_infiniband@" == "true"
-%files pmda-infiniband -f pmda_infiniband_files.rpm
+%files pmda-infiniband -f pcp-pmda-infiniband-files.rpm
 %endif
 
 %if "@pmda_podman@" == "true"
-%files pmda-podman -f pmda_podman_files.rpm
+%files pmda-podman -f pcp-pmda-podman-files.rpm
 %endif
 
 %if "@pmda_statsd@" == "true"
-%files pmda-statsd -f pmda_statsd_files.rpm
+%files pmda-statsd -f pcp-pmda-statsd-files.rpm
 %endif
 
 %if "@pmda_perfevent@" == "true"
-%files pmda-perfevent -f pmda_perfevent_files.rpm
+%files pmda-perfevent -f pcp-pmda-perfevent-files.rpm
 %endif
 
 %if "@pmda_activemq@" == "true"
-%files pmda-activemq -f pmda_activemq_files.rpm
+%files pmda-activemq -f pcp-pmda-activemq-files.rpm
 %endif
 
 %if "@pmda_bind2@" == "true"
-%files pmda-bind2 -f pmda_bind2_files.rpm
+%files pmda-bind2 -f pcp-pmda-bind2-files.rpm
 %endif
 
 %if "@pmda_nutcracker@" == "true"
-%files pmda-nutcracker -f pmda_nutcracker_files.rpm
+%files pmda-nutcracker -f pcp-pmda-nutcracker-files.rpm
 %endif
 
 %if "@pmda_elasticsearch@" == "true"
-%files pmda-elasticsearch -f pmda_elasticsearch_files.rpm
+%files pmda-elasticsearch -f pcp-pmda-elasticsearch-files.rpm
 %endif
 
 %if "@have_perl@" == "true"
-%files pmda-redis -f pmda_redis_files.rpm
+%files pmda-redis -f pcp-pmda-redis-files.rpm
 
-%files pmda-bonding -f pmda_bonding_files.rpm
+%files pmda-bonding -f pcp-pmda-bonding-files.rpm
 
-%files pmda-dbping -f pmda_dbping_files.rpm
+%files pmda-dbping -f pcp-pmda-dbping-files.rpm
 
-%files pmda-ds389log -f pmda_ds389log_files.rpm
+%files pmda-ds389log -f pcp-pmda-ds389log-files.rpm
 
-%files pmda-ds389 -f pmda_ds389_files.rpm
+%files pmda-ds389 -f pcp-pmda-ds389-files.rpm
 
-%files pmda-gpfs -f pmda_gpfs_files.rpm
+%files pmda-gpfs -f pcp-pmda-gpfs-files.rpm
 
-%files pmda-gpsd -f pmda_gpsd_files.rpm
+%files pmda-gpsd -f pcp-pmda-gpsd-files.rpm
 
-%files pmda-docker -f pmda_docker_files.rpm
+%files pmda-docker -f pcp-pmda-docker-files.rpm
 
-%files pmda-lustre -f pmda_lustre_files.rpm
+%files pmda-lustre -f pcp-pmda-lustre-files.rpm
 
-%files pmda-memcache -f pmda_memcache_files.rpm
+%files pmda-memcache -f pcp-pmda-memcache-files.rpm
 
-%files pmda-named -f pmda_named_files.rpm
+%files pmda-named -f pcp-pmda-named-files.rpm
 
-%files pmda-netfilter -f pmda_netfilter_files.rpm
+%files pmda-netfilter -f pcp-pmda-netfilter-files.rpm
 
-%files pmda-news -f pmda_news_files.rpm
+%files pmda-news -f pcp-pmda-news-files.rpm
 
-%files pmda-pdns -f pmda_pdns_files.rpm
+%files pmda-pdns -f pcp-pmda-pdns-files.rpm
 
-%files pmda-rsyslog -f pmda_rsyslog_files.rpm
+%files pmda-rsyslog -f pcp-pmda-rsyslog-files.rpm
 
-%files pmda-samba -f pmda_samba_files.rpm
+%files pmda-samba -f pcp-pmda-samba-files.rpm
 
-%files pmda-slurm -f pmda_slurm_files.rpm
+%files pmda-slurm -f pcp-pmda-slurm-files.rpm
 
-%files pmda-vmware -f pmda_vmware_files.rpm
+%files pmda-vmware -f pcp-pmda-vmware-files.rpm
 
-%files pmda-zimbra -f pmda_zimbra_files.rpm
+%files pmda-zimbra -f pcp-pmda-zimbra-files.rpm
 %endif
 
-%files pmda-lustrecomm -f pmda_lustrecomm_files.rpm
+%files pmda-lustrecomm -f pcp-pmda-lustrecomm-files.rpm
 
 %if "@pmda_mysql@" == "true"
-%files pmda-mysql -f pmda_mysql_files.rpm
+%files pmda-mysql -f pcp-pmda-mysql-files.rpm
 %endif
 
 %if "@pmda_nginx@" == "true"
-%files pmda-nginx -f pmda_nginx_files.rpm
+%files pmda-nginx -f pcp-pmda-nginx-files.rpm
 %endif
 
 %if "@pmda_postfix@" == "true"
-%files pmda-postfix -f pmda_postfix_files.rpm
+%files pmda-postfix -f pcp-pmda-postfix-files.rpm
 %endif
 
 %if "@pmda_postgresql@" == "true"
-%files pmda-postgresql -f pmda_postgresql_files.rpm
+%files pmda-postgresql -f pcp-pmda-postgresql-files.rpm
 %endif
 
 %if "@pmda_oracle@" == "true"
-%files pmda-oracle -f pmda_oracle_files.rpm
+%files pmda-oracle -f pcp-pmda-oracle-files.rpm
 %endif
 
 %if "@pmda_snmp@" == "true"
-%files pmda-snmp -f pmda_snmp_files.rpm
+%files pmda-snmp -f pcp-pmda-snmp-files.rpm
 %endif
 
-%files pmda-dm -f pmda_dm_files.rpm
+%files pmda-dm -f pcp-pmda-dm-files.rpm
 
 %if "@pmda_bcc@" == "true"
-%files pmda-bcc -f pmda_bcc_files.rpm
+%files pmda-bcc -f pcp-pmda-bcc-files.rpm
 %endif
 
 %if "@pmda_bpftrace@" == "true"
-%files pmda-bpftrace -f pmda_bpftrace_files.rpm
+%files pmda-bpftrace -f pcp-pmda-bpftrace-files.rpm
 %endif
 
 %if "@have_python@" == "true"
-%files pmda-gluster -f pmda_gluster_files.rpm
+%files pmda-gluster -f pcp-pmda-gluster-files.rpm
 
-%files pmda-zswap -f pmda_zswap_files.rpm
+%files pmda-zswap -f pcp-pmda-zswap-files.rpm
 
-%files pmda-unbound -f pmda_unbound_files.rpm
+%files pmda-unbound -f pcp-pmda-unbound-files.rpm
 
-%files pmda-mic -f pmda_mic_files.rpm
+%files pmda-mic -f pcp-pmda-mic-files.rpm
 
-%files pmda-haproxy -f pmda_haproxy_files.rpm
+%files pmda-haproxy -f pcp-pmda-haproxy-files.rpm
 
-%files pmda-lmsensors -f pmda_lmsensors_files.rpm
+%files pmda-lmsensors -f pcp-pmda-lmsensors-files.rpm
 
-%files pmda-mssql -f pmda_mssql_files.rpm
+%files pmda-mssql -f pcp-pmda-mssql-files.rpm
 
-%files pmda-netcheck -f pmda_netcheck_files.rpm
+%files pmda-netcheck -f pcp-pmda-netcheck-files.rpm
 
-%files pmda-nfsclient -f pmda_nfsclient_files.rpm
+%files pmda-nfsclient -f pcp-pmda-nfsclient-files.rpm
 
-%files pmda-openvswitch -f pmda_openvswitch_files.rpm
+%files pmda-openvswitch -f pcp-pmda-openvswitch-files.rpm
 
-%files pmda-rabbitmq -f pmda_rabbitmq_files.rpm
+%files pmda-rabbitmq -f pcp-pmda-rabbitmq-files.rpm
 
-%files export-pcp2graphite -f export_pcp2graphite_files.rpm
+%files export-pcp2graphite -f pcp-export-pcp2graphite-files.rpm
 
-%files export-pcp2json -f export_pcp2json_files.rpm
+%files export-pcp2json -f pcp-export-pcp2json-files.rpm
 
-%files export-pcp2spark -f export_pcp2spark_files.rpm
+%files export-pcp2spark -f pcp-export-pcp2spark-files.rpm
 
-%files export-pcp2xml -f export_pcp2xml_files.rpm
+%files export-pcp2xml -f pcp-export-pcp2xml-files.rpm
 
-%files export-pcp2zabbix -f export_pcp2zabbix_files.rpm
+%files export-pcp2zabbix -f pcp-export-pcp2zabbix-files.rpm
 
 %endif
 
 %if "@pcp2elasticsearch@" == "true"
-%files export-pcp2elasticsearch -f export_pcp2elasticsearch_files.rpm
+%files export-pcp2elasticsearch -f pcp-export-pcp2elasticsearch-files.rpm
 %endif
 
 %if "@pcp2influxdb@" == "true"
-%files export-pcp2influxdb -f export_pcp2influxdb_files.rpm
+%files export-pcp2influxdb -f pcp-export-pcp2influxdb-files.rpm
 %endif
 
 %if "@pcp2xlsx@" == "true"
-%files export-pcp2xlsx -f export_pcp2xlsx_files.rpm
+%files export-pcp2xlsx -f pcp-export-pcp2xlsx-files.rpm
 %endif
 
-%files export-zabbix-agent -f export_zabbix_agent_files.rpm
+%files export-zabbix-agent -f pcp-export-zabbix-agent-files.rpm
 
 %if "@pmda_json@" == "true"
-%files pmda-json -f pmda_json_files.rpm
+%files pmda-json -f pcp-pmda-json-files.rpm
 %endif
 
 %if "@pmda_libvirt@" == "true"
-%files pmda-libvirt -f pmda_libvirt_files.rpm
+%files pmda-libvirt -f pcp-pmda-libvirt-files.rpm
 %endif
 
 %if "@pmda_lio@" == "true"
-%files pmda-lio -f pmda_lio_files.rpm
+%files pmda-lio -f pcp-pmda-lio-files.rpm
 %endif
 
 %if "@pmda_openmetrics@" == "true"
-%files pmda-openmetrics -f pmda_openmetrics_files.rpm
+%files pmda-openmetrics -f pcp-pmda-openmetrics-files.rpm
 %endif
 
-%files pmda-apache -f pmda_apache_files.rpm
+%files pmda-apache -f pcp-pmda-apache-files.rpm
 
-%files pmda-bash -f pmda_bash_files.rpm
+%files pmda-bash -f pcp-pmda-bash-files.rpm
 
-%files pmda-cifs -f pmda_cifs_files.rpm
+%files pmda-cifs -f pcp-pmda-cifs-files.rpm
 
-%files pmda-cisco -f pmda_cisco_files.rpm
+%files pmda-cisco -f pcp-pmda-cisco-files.rpm
 
-%files pmda-gfs2 -f pmda_gfs2_files.rpm
+%files pmda-gfs2 -f pcp-pmda-gfs2-files.rpm
 
-%files pmda-logger -f pmda_logger_files.rpm
+%files pmda-logger -f pcp-pmda-logger-files.rpm
 
-%files pmda-mailq -f pmda_mailq_files.rpm
+%files pmda-mailq -f pcp-pmda-mailq-files.rpm
 
-%files pmda-mounts -f pmda_mounts_files.rpm
+%files pmda-mounts -f pcp-pmda-mounts-files.rpm
 
-%files pmda-nvidia-gpu -f pmda_nvidia_files.rpm
+%files pmda-nvidia-gpu -f pcp-pmda-nvidia-files.rpm
 
-%files pmda-roomtemp -f pmda_roomtemp_files.rpm
+%files pmda-roomtemp -f pcp-pmda-roomtemp-files.rpm
 
 %if "@pmda_rpm@" == "true"
-%files pmda-rpm -f pmda_rpm_files.rpm
+%files pmda-rpm -f pcp-pmda-rpm-files.rpm
 %endif
 
-%files pmda-sendmail -f pmda_sendmail_files.rpm
+%files pmda-sendmail -f pcp-pmda-sendmail-files.rpm
 
-%files pmda-shping -f pmda_shping_files.rpm
+%files pmda-shping -f pcp-pmda-shping-files.rpm
 
-%files pmda-smart -f pmda_smart_files.rpm
+%files pmda-smart -f pcp-pmda-smart-files.rpm
 
-%files pmda-sockets -f pmda_sockets_files.rpm
+%files pmda-sockets -f pcp-pmda-sockets-files.rpm
 
-%files pmda-hacluster -f pmda_hacluster_files.rpm
+%files pmda-hacluster -f pcp-pmda-hacluster-files.rpm
 
-%files pmda-summary -f pmda_summary_files.rpm
+%files pmda-summary -f pcp-pmda-summary-files.rpm
 
 %if "@pmda_systemd@" == "true"
-%files pmda-systemd -f pmda_systemd_files.rpm
+%files pmda-systemd -f pcp-pmda-systemd-files.rpm
 %endif
 
-%files pmda-trace -f pmda_trace_files.rpm
+%files pmda-trace -f pcp-pmda-trace-files.rpm
 
-%files pmda-weblog -f pmda_weblog_files.rpm
+%files pmda-weblog -f pcp-pmda-weblog-files.rpm
 
 %if "@have_perl@" == "true"
-%files import-sar2pcp -f import_sar2pcp_files.rpm
+%files import-sar2pcp -f pcp-import-sar2pcp-files.rpm
 
-%files import-iostat2pcp -f import_iostat2pcp_files.rpm
+%files import-iostat2pcp -f pcp-import-iostat2pcp-files.rpm
 
-%files import-sheet2pcp -f import_sheet2pcp_files.rpm
+%files import-sheet2pcp -f pcp-import-sheet2pcp-files.rpm
 
-%files import-mrtg2pcp -f import_mrtg2pcp_files.rpm
+%files import-mrtg2pcp -f pcp-import-mrtg2pcp-files.rpm
 
-%files import-ganglia2pcp -f import_ganglia2pcp_files.rpm
+%files import-ganglia2pcp -f pcp-import-ganglia2pcp-files.rpm
 %endif
 
-%files import-collectl2pcp -f import_collectl2pcp_files.rpm
+%files import-collectl2pcp -f pcp-import-collectl2pcp-files.rpm
 
 %if "@have_perl@" == "true"
 %files -n perl-PCP-PMDA -f perl-pcp-pmda.list
@@ -3435,7 +3152,7 @@ chown -R pcp:pcp "$PCP_LOG_DIR/pmproxy" 2>/dev/null
 %endif
 
 %if "@have_python@" == "true"
-%files system-tools -f system_tools_files.rpm
+%files system-tools -f pcp-system-tools-files.rpm
 %endif
 
-%files zeroconf -f zeroconf.rpm
+%files zeroconf -f pcp-zeroconf-files.rpm
