@@ -186,7 +186,7 @@ else
 fi
 
 if seinfo -x --class=netlink_generic_socket $common_flag 2>&1 \
-   | grep '^[ 	][ 	]*(class |)netlink_generic_socket$' >/dev/null
+   | egrep '^[ 	][ 	]*(class |)netlink_generic_socket$' >/dev/null
 then
     :
 else
