@@ -7,7 +7,7 @@ network.persocket.filter PMID: 154.0.0 [filter for sockets of interest]
     Semantics: discrete  Units: none
     value "state connected"
 
-network.persocket.af PMID: 154.1.0 [socket address family as a string]
+network.persocket.netid PMID: 154.1.0 [socket protocol identifier]
     Data Type: string  InDom: 154.0 0x26800000
     Semantics: discrete  Units: none
     inst [0 or "udp/10.0.0.10:49693"] value "udp"
@@ -2763,8 +2763,8 @@ network.persocket.data_segs_in PMID: 154.1.40 [count of data segments received u
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 457
 
 network.persocket.send PMID: 154.1.41 [egress bps]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
-    Semantics: counter  Units: nanosec
+    Data Type: double  InDom: 154.0 0x26800000
+    Semantics: instant  Units: count
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
     inst [2 or "udp/10.0.0.10:42866"] value 0
@@ -2855,7 +2855,7 @@ network.persocket.send PMID: 154.1.41 [egress bps]
     inst [87 or "tcp6/[::]:44321"] value 0
     inst [88 or "tcp6/[::]:44322"] value 0
     inst [89 or "tcp6/[::]:44323"] value 0
-    inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 2419647374
+    inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 58254222222
 
 network.persocket.lastsnd PMID: 154.1.42 [how long time since the last packet sent in milliseconds]
     Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
@@ -3142,9 +3142,9 @@ network.persocket.lastack PMID: 154.1.44 [how long time since the last ack recei
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 3495
 
-network.persocket.pacing_rate PMID: 154.1.45 [the pacing rate of the socket]
+network.persocket.pacing_rate PMID: 154.1.45 [the current pacing rate of the socket]
     Data Type: double  InDom: 154.0 0x26800000
-    Semantics: instant  Units: byte / nanosec
+    Semantics: instant  Units: byte / sec
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
     inst [2 or "udp/10.0.0.10:42866"] value 0
@@ -3237,9 +3237,9 @@ network.persocket.pacing_rate PMID: 154.1.45 [the pacing rate of the socket]
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 116185706368
 
-network.persocket.delivery_rate PMID: 154.1.46 [most recent goodput, as measured by tcp_rate_gen().]
+network.persocket.delivery_rate PMID: 154.1.46 [delivery bandwidth estimate excluding idle periods]
     Data Type: double  InDom: 154.0 0x26800000
-    Semantics: instant  Units: byte / nanosec
+    Semantics: instant  Units: byte / sec
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
     inst [2 or "udp/10.0.0.10:42866"] value 0
@@ -3334,7 +3334,7 @@ network.persocket.delivery_rate PMID: 154.1.46 [most recent goodput, as measured
 
 network.persocket.delivered PMID: 154.1.47 []
     Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
-    Semantics: counter  Units: nanosec
+    Semantics: counter  Units: count
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
     inst [2 or "udp/10.0.0.10:42866"] value 0
@@ -3524,7 +3524,7 @@ network.persocket.app_limited PMID: 154.1.48 [TCP flows are limited with applica
 
 network.persocket.reord_seen PMID: 154.1.49 []
     Data Type: 32-bit int  InDom: 154.0 0x26800000
-    Semantics: discrete  Units: nanosec
+    Semantics: discrete  Units: count
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
     inst [2 or "udp/10.0.0.10:42866"] value 0
@@ -3714,7 +3714,7 @@ network.persocket.busy PMID: 154.1.50 [TCP connection is busy??]
 
 network.persocket.dsack_dups PMID: 154.1.51 [duplicate selective acknowledgements]
     Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
-    Semantics: instant  Units: nanosec
+    Semantics: instant  Units: count
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
     inst [2 or "udp/10.0.0.10:42866"] value 0
@@ -6197,7 +6197,7 @@ network.persocket.filter PMID: 154.0.0 [filter for sockets of interest]
     Semantics: discrete  Units: none
     value "state connected"
 
-network.persocket.af PMID: 154.1.0 [socket address family as a string]
+network.persocket.netid PMID: 154.1.0 [socket protocol identifier]
     Data Type: string  InDom: 154.0 0x26800000
     Semantics: discrete  Units: none
     inst [0 or "udp/0.0.0.0:5353"] value "udp"
@@ -7126,8 +7126,8 @@ network.persocket.data_segs_in PMID: 154.1.40 [count of data segments received u
     inst [27 or "tcp6/[::1]:53"] value 0
 
 network.persocket.send PMID: 154.1.41 [egress bps]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
-    Semantics: counter  Units: nanosec
+    Data Type: double  InDom: 154.0 0x26800000
+    Semantics: instant  Units: count
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
     inst [2 or "udp/192.168.123.1:53"] value 0
@@ -7253,9 +7253,9 @@ network.persocket.lastack PMID: 154.1.44 [how long time since the last ack recei
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.pacing_rate PMID: 154.1.45 [the pacing rate of the socket]
+network.persocket.pacing_rate PMID: 154.1.45 [the current pacing rate of the socket]
     Data Type: double  InDom: 154.0 0x26800000
-    Semantics: instant  Units: byte / nanosec
+    Semantics: instant  Units: byte / sec
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
     inst [2 or "udp/192.168.123.1:53"] value 0
@@ -7285,9 +7285,9 @@ network.persocket.pacing_rate PMID: 154.1.45 [the pacing rate of the socket]
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.delivery_rate PMID: 154.1.46 [most recent goodput, as measured by tcp_rate_gen().]
+network.persocket.delivery_rate PMID: 154.1.46 [delivery bandwidth estimate excluding idle periods]
     Data Type: double  InDom: 154.0 0x26800000
-    Semantics: instant  Units: byte / nanosec
+    Semantics: instant  Units: byte / sec
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
     inst [2 or "udp/192.168.123.1:53"] value 0
@@ -7319,7 +7319,7 @@ network.persocket.delivery_rate PMID: 154.1.46 [most recent goodput, as measured
 
 network.persocket.delivered PMID: 154.1.47 []
     Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
-    Semantics: counter  Units: nanosec
+    Semantics: counter  Units: count
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
     inst [2 or "udp/192.168.123.1:53"] value 0
@@ -7383,7 +7383,7 @@ network.persocket.app_limited PMID: 154.1.48 [TCP flows are limited with applica
 
 network.persocket.reord_seen PMID: 154.1.49 []
     Data Type: 32-bit int  InDom: 154.0 0x26800000
-    Semantics: discrete  Units: nanosec
+    Semantics: discrete  Units: count
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
     inst [2 or "udp/192.168.123.1:53"] value 0
@@ -7447,7 +7447,7 @@ network.persocket.busy PMID: 154.1.50 [TCP connection is busy??]
 
 network.persocket.dsack_dups PMID: 154.1.51 [duplicate selective acknowledgements]
     Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
-    Semantics: instant  Units: nanosec
+    Semantics: instant  Units: count
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
     inst [2 or "udp/192.168.123.1:53"] value 0

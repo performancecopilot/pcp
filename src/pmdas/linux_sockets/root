@@ -12,8 +12,4 @@ root {
     network
 }
 
-network {
-    persocket
-}
-
 #include "pmns"

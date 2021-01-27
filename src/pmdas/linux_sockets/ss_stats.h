@@ -13,7 +13,7 @@
  */
 typedef struct ss_stats {
     int			instid;
-    char		af[6];		/* address family */
+    char		netid[16];	/* protocol identifer */
     char		state[16];	/* socket state */
     __int32_t		recvq;
     __int32_t		sendq;
@@ -64,10 +64,10 @@ typedef struct ss_stats {
     __uint32_t		segs_in;
     __uint32_t		data_segs_out;
     __uint32_t		data_segs_in;
-    __int32_t		send;
-    __int32_t		lastsnd;
-    __int32_t		lastrcv;
-    __int32_t		lastack;
+    double		send;
+    __uint32_t		lastsnd;
+    __uint32_t		lastrcv;
+    __uint32_t		lastack;
     double		pacing_rate;
     double		delivery_rate;
     __uint32_t		delivered;

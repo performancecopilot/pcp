@@ -2015,7 +2015,7 @@ smartmontools package.
 License: GPLv2+
 Summary: Performance Co-Pilot (PCP) per-socket metrics
 URL: https://pcp.io
-Requires: pcp = @package_version@ pcp-libs = @package_version@
+Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
 Requires: iproute
 %description pmda-sockets
 This package contains the PCP Performance Metric Domain Agent (PMDA) for

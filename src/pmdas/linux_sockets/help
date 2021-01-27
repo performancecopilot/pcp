@@ -34,9 +34,9 @@ domain of network sockets to only those sockets of interest. The default
 filter is "state connected". This metric supports pmstore(1) to change the
 filter. For further details on filter syntax, see the FILTER section of ss(1).
 
-@ network.persocket.af socket address family as a string
-Depending on PMDA configuration options, the address family may be one
-of tcp, tcp6, udp, udp6, udplite, udplite6 or raw
+@ network.persocket.netid socket protocol identifier
+Depending on PMDA configuration options, the socket netid may be one of tcp,
+tcp6, udp, udp6, udplite, udplite6 or raw. See ss(8) for further details.
 
 @ network.persocket.state socket state as a string, commonly UNCONN, ESTAB, TIME-WAIT
 Possible socket states depend on the address family. Common states include:
@@ -110,13 +110,15 @@ Ack timeout in milliseconds, used for delayed ack mode.
 
 @ network.persocket.lastack how long time since the last ack received in milliseconds
 
-@ network.persocket.pacing_rate the pacing rate of the socket
-Note max_pacing_rate is currently not supported
+@ network.persocket.pacing_rate the current pacing rate of the socket
+The rate at which the fair queuing queuing discipline will attempt to evenly send data
+when not restricted by either the congestion window or the availability of application
+data.
 
-@ network.persocket.delivery_rate most recent goodput, as measured by tcp_rate_gen().
-limited by the sending application (e.g., no data to send), it reports
-the highest measurement instead of the most recent. The unit is bytes
-per second.
+@ network.persocket.delivery_rate delivery bandwidth estimate excluding idle periods
+The recent effective delivery bandwidth of the connection to the client. This gives
+an estimate of current connection performance by excluding periods when the connection
+was idle due to lack of application data to send.
 
 @ network.persocket.delivered
 
