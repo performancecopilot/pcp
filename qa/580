@@ -66,6 +66,7 @@ then
     | sed 's/<0*1/<ONE/g;
 s,/etc/init ,init,g;
 s,/etc/init,init,g;
+s,/usr/sbin/init,init,g;
 s,/sbin/init,init,g;
 s, /usr/lib/systemd/systemd\([ ">]\), init\1,;
 s, /lib/systemd/systemd\([ ">]\), init\1,;
