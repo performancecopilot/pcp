@@ -200,6 +200,10 @@ then
 	touch $tmp.needpush
     else
 	$GIT push $push
+	# need to get last commit aligned locally and remotely, so that
+	# HEAD -> master, origin/master, origin/HEAD
+	#
+	$GIT pull
     fi
 fi
 
