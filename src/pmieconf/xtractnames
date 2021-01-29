@@ -29,7 +29,15 @@ do
     fi
 done
 
-tmp=`mktemp -d "$PCP_TMPFILE_DIR/pmieconf-xtract.XXXXXXXXX"` || exit 1
+if [ -n "$PCP_TMPFILE_DIR" -a -d "$PCP_TMPFILE_DIR" ]
+then
+    tmp=`mktemp -d "$PCP_TMPFILE_DIR/pmieconf-xtract.XXXXXXXXX"` || exit 1
+else
+    # assume run during a build and /tmp is a safe bet
+    #
+    tmp=`mktemp -d "/tmp/pmieconf-xtract.XXXXXXXXX"` || exit 1
+fi
+
 trap "rm -rf $tmp; exit" 0 1 2 3 15
 
 _usage()

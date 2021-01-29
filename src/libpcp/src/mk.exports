@@ -13,7 +13,15 @@ fi
 
 . ../../include/pcp.conf
 
-tmp=`mktemp -d "$PCP_TMPFILE_DIR/pcp-build-mk.exports.XXXXXXXXX"` || exit 1
+if [ -n "$PCP_TMPFILE_DIR" -a -d "$PCP_TMPFILE_DIR" ]
+then
+    tmp=`mktemp -d "$PCP_TMPFILE_DIR/pcp-build-mk.exports.XXXXXXXXX"` || exit 1
+else
+    # assume run during a build and /tmp is a safe bet
+    #
+    tmp=`mktemp -d "/tmp/pcp-build-mk.exports.XXXXXXXXX"` || exit 1
+fi
+
 sts=0
 trap "rm -rf $tmp; exit \$sts" 0 1 2 3 15
 
