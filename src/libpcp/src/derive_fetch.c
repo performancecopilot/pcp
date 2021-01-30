@@ -409,6 +409,10 @@ bin_op(int type, int op, pmAtomValue a, int ltype, int lmul, int ldiv, pmAtomVal
 		case N_OR:
 		    res.l = (l.l != 0) || (r.l != 0);
 		    break;
+		default:	/* should not happen */
+		    fprintf(stderr, "bin_op: botch: 32 op=%d\n", op);
+		    res.l = 0;
+		    break;
 	    }
 	    break;
 	case PM_TYPE_U32:
@@ -447,6 +451,9 @@ bin_op(int type, int op, pmAtomValue a, int ltype, int lmul, int ldiv, pmAtomVal
 		case N_OR:
 		    res.ul = (l.ul != 0) || (r.ul != 0);
 		    break;
+		default:	/* should not happen */
+		    fprintf(stderr, "bin_op: botch: U32 op=%d\n", op);
+		    res.ul = 0;
 	    }
 	    break;
 	case PM_TYPE_64:
@@ -485,6 +492,9 @@ bin_op(int type, int op, pmAtomValue a, int ltype, int lmul, int ldiv, pmAtomVal
 		case N_OR:
 		    res.ll = (l.ll != 0) || (r.ll != 0);
 		    break;
+		default:	/* should not happen */
+		    fprintf(stderr, "bin_op: botch: 64 op=%d\n", op);
+		    res.ll = 0;
 	    }
 	    break;
 	case PM_TYPE_U64:
@@ -523,6 +533,9 @@ bin_op(int type, int op, pmAtomValue a, int ltype, int lmul, int ldiv, pmAtomVal
 		case N_OR:
 		    res.ull = (l.ull != 0) || (r.ull != 0);
 		    break;
+		default:	/* should not happen */
+		    fprintf(stderr, "bin_op: botch: U64 op=%d\n", op);
+		    res.ull = 0;
 	    }
 	    break;
 	case PM_TYPE_FLOAT:
@@ -561,6 +574,9 @@ bin_op(int type, int op, pmAtomValue a, int ltype, int lmul, int ldiv, pmAtomVal
 		case N_OR:
 		    res.f = (l.f != 0) || (r.f != 0);
 		    break;
+		default:	/* should not happen */
+		    fprintf(stderr, "bin_op: botch: FLOAT op=%d\n", op);
+		    res.f = 0;
 	    }
 	    break;
 	case PM_TYPE_DOUBLE:
@@ -604,6 +620,9 @@ bin_op(int type, int op, pmAtomValue a, int ltype, int lmul, int ldiv, pmAtomVal
 		case N_OR:
 		    res.d = (l.d != 0) || (r.d != 0);
 		    break;
+		default:	/* should not happen */
+		    fprintf(stderr, "bin_op: botch: DOUBLE op=%d\n", op);
+		    res.d = 0;
 	    }
 	    break;
     }
