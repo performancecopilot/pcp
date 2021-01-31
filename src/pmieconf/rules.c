@@ -975,7 +975,7 @@ read_token(FILE *f, char *token, int token_length, int end)
 	while (c != '"') {
 	    if (c == '\\')
 		c = mygetc(f);
-	    if (c == end || c == EOF || n == token_length) {
+	    if (c == end || c == EOF || n == token_length-1) {
 		token[n] = '\0';
 		parse_error("end-of-string", token);
 		return -1;
