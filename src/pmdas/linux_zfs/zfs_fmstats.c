@@ -51,6 +51,6 @@ zfs_fmstats_refresh(zfs_fmstats_t *fmstats)
             else if (strcmp(mname, "payload-set-failed") == 0) fmstats->payload_set_failed = value;
         }
         free(line);
+        fclose(fp);
     }
-    fclose(fp);
 }

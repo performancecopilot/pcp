@@ -50,7 +50,7 @@ zfs_zfetchstats_refresh(zfs_zfetchstats_t *zfetchstats)
             else if (strcmp(mname, "max_streams") == 0) zfetchstats->max_streams = value;
         }
         free(line);
+        fclose(fp);
     }
-    fclose(fp);
 }
 

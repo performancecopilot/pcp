@@ -53,6 +53,6 @@ zfs_xuiostats_refresh(zfs_xuiostats_t *xuiostats)
             else if (strcmp(mname, "write_buf_nocopy") == 0) xuiostats->write_buf_nocopy = value;
         }
         free(line);
+        fclose(fp);
     }
-    fclose(fp);
 }

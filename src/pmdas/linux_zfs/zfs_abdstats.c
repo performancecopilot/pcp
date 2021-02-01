@@ -77,6 +77,6 @@ zfs_abdstats_refresh(zfs_abdstats_t *abdstats)
             else if (strcmp(mname, "linear_data_size") == 0) abdstats->linear_data_size = value;
         }
         free(line);
+        fclose(fp);
     }
-    fclose(fp);
 }

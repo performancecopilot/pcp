@@ -205,6 +205,6 @@ zfs_arcstats_refresh(zfs_arcstats_t *arcstats)
             else if (strcmp(mname, "uncompressed_size") == 0) arcstats->uncompressed_size = value;
         }
         free(line);
+        fclose(fp);
     }
-    fclose(fp);
 }

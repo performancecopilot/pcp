@@ -54,6 +54,6 @@ zfs_vdev_mirrorstats_refresh(zfs_vdev_mirrorstats_t *vdev_mirrorstats)
             else if (strcmp(mname, "preferred_not_found") == 0) vdev_mirrorstats->preferred_not_found = value;
         }
         free(line);
+        fclose(fp);
     }
-    fclose(fp);
 }
