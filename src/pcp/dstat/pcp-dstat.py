@@ -1,6 +1,6 @@
 #!/usr/bin/env pmpython
 #
-# Copyright (C) 2018-2020 Red Hat.
+# Copyright (C) 2018-2021 Red Hat.
 # Copyright (C) 2004-2016 Dag Wieers <dag@wieers.com>
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -705,7 +705,7 @@ class DstatTool(object):
                 sys.exit(1)
         if len(operands) > 1:
             try:
-                self.samples = int(operands[1])
+                self.samples = int(operands[1]) + 1
             except:
                 sys.stderr.write("Invalid sample count '%s'\n" % operands[1])
                 sys.exit(1)
