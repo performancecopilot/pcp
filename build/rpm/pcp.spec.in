@@ -2241,7 +2241,7 @@ basic_manifest | egrep -e 'pmiostat|pmrep|dstat|pcp2csv' \
    -e 'pcp-ipcs|pcp-iostat|pcp-lvmcache|pcp-mpstat' \
    -e 'pcp-numastat|pcp-pidstat|pcp-shping|pcp-tapestat' \
    -e 'pcp-uptime|pcp-verify' | \
-   cull 'selinux|pmlogconf|pmieconf' >pcp-system-tools-files
+   cull 'selinux|pmlogconf|pmieconf|pmrepconf' >pcp-system-tools-files
 basic_manifest | keep 'sar2pcp' >pcp-import-sar2pcp-files
 basic_manifest | keep 'iostat2pcp' >pcp-import-iostat2pcp-files
 basic_manifest | keep 'sheet2pcp' >pcp-import-sheet2pcp-files
