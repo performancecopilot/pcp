@@ -8,6 +8,8 @@ kprobe:tcp_cleanup_rbuf /pid == cpid/ { printf("[BPF] tcp_cleanup_rbuf(len=%d)\n
 kprobe:udp_sendmsg /pid == cpid/ { printf("[BPF] udp_sendmsg(len=%d)\n", arg2); }
 kprobe:skb_consume_udp /pid == cpid/ { printf("[BPF] skb_consume_udp(len=%d)\n", arg2); }
 ' -c "/usr/bin/python bcc_netproc.python client"
+
+Note: This script should be compatible with Python 3.6.8+ (for EL 8)
 """
 import asyncio
 import sys
@@ -33,7 +35,6 @@ async def tcp_client(host, port, message):
     print(f"[PY]  TCP client received: {data} (len={len(data)})")
 
     writer.close()
-    await writer.wait_closed()
 
 class UdpEchoServerProtocol:
     def connection_made(self, transport):
@@ -49,8 +50,9 @@ class UdpEchoServerProtocol:
         sys.exit(0) # testing procedure done
 
 class UdpEchoClientProtocol:
-    def __init__(self, message):
+    def __init__(self, message, on_con_lost):
         self.message = message
+        self.on_con_lost = on_con_lost
         self.transport = None
 
     def connection_made(self, transport):
@@ -66,10 +68,10 @@ class UdpEchoClientProtocol:
         print(f"[PY]  Error received: {exc}")
 
     def connection_lost(self, exc):
-        pass
+        self.on_con_lost.set_result(True)
 
 async def main():
-    loop = asyncio.get_running_loop()
+    loop = asyncio.get_event_loop()
     if len(sys.argv) != 2 or sys.argv[1] not in ['server', 'client']:
         print(f"usage: {sys.argv[0]} server|client")
         sys.exit(1)
@@ -79,6 +81,10 @@ async def main():
         await asyncio.sleep(60)
     else:
         await tcp_client('127.0.0.1', 1234, b'testmsg TCP')
-        await loop.create_datagram_endpoint(lambda: UdpEchoClientProtocol(b'test UDP message'), remote_addr=('127.0.0.1', 1235))
+        on_con_lost = loop.create_future()
+        await loop.create_datagram_endpoint(lambda: UdpEchoClientProtocol(b'test UDP message', on_con_lost), remote_addr=('127.0.0.1', 1235))
+        await on_con_lost
 
-asyncio.run(main())
+loop = asyncio.get_event_loop()
+loop.run_until_complete(main())
+loop.close()
