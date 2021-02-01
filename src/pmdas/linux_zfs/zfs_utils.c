@@ -20,16 +20,16 @@
 
 #include "zfs_utils.h"
 
-char ZFS_PATH[MAXPATHLEN];
+char zfs_path[MAXPATHLEN];
 
 int
 zfs_stats_file_check(char *fname, size_t fnamelen, const char *sname)
 {
     struct stat buffer;
-    pmsprintf(fname, fnamelen, "%s%c%s", ZFS_PATH, pmPathSeparator(), sname);
+    pmsprintf(fname, fnamelen, "%s%c%s", zfs_path, pmPathSeparator(), sname);
     if (stat(fname, &buffer) != 0) {
         pmNotifyErr(LOG_WARNING, "File does not exist: %s", fname);
         return 1;
     }
-    else return 0;
+    return 0;
 }

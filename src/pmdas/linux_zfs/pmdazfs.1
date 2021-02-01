@@ -19,7 +19,6 @@
 \f3$PCP_PMDAS_DIR/linux_zfs/pmdazfs\f1
 [\f3\-d\f1 \f2domain\f1]
 [\f3\-l\f1 \f2logfile\f1]
-[\f3\-z\f1 \f2zfs_path\f1]
 .SH DESCRIPTION
 .B pmdazfs
 is a Performance Metrics Domain Agent (PMDA) which extracts
@@ -52,11 +51,6 @@ is started, i.e.
 .BR $PCP_LOG_DIR/pmcd .
 If the log file cannot
 be created or is not writable, output is written to the standard error instead.
-.TP
-.B \-z
-Location of the stats. By default it is
-.I /proc/spl/kstat/zfs
-and can be also set in the ZFS_PATH environment variable.
 .SH INSTALLATION
 OpenZFS is not included in PCP, and has to be installed on the system
 from the available packages or source.

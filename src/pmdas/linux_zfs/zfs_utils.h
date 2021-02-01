@@ -16,6 +16,6 @@
 #include "libpcp.h"
 #include "pmda.h"
 
-extern char ZFS_PATH[MAXPATHLEN];
+extern char zfs_path[MAXPATHLEN];
 
 int zfs_stats_file_check(char *fname, size_t fnamelen, const char *sname);
