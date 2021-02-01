@@ -100,7 +100,7 @@ class PCPBCCModule(PCPBCCBase):
                 PM_TYPE_U64,
                 PM_SEM_COUNTER,
                 units_bytes,
-                "amount of bytes requested to be transmitted",
+                "amount of bytes requested to be sent",
             ),
             (
                 name + "tcp.recv.calls",
@@ -132,7 +132,7 @@ class PCPBCCModule(PCPBCCBase):
                 PM_TYPE_U64,
                 PM_SEM_COUNTER,
                 units_bytes,
-                "amount of bytes requested to be transmitted",
+                "amount of bytes requested to be sent",
             ),
             (
                 name + "udp.recv.calls",
