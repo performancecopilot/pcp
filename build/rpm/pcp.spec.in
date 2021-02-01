@@ -2107,13 +2107,15 @@ collecting metrics about web server logs.
 License: GPLv2+
 Summary: Performance Co-Pilot (PCP) Zeroconf Package
 URL: https://pcp.io
-Requires: pcp pcp-doc pcp-system-tools
-Requires: pcp-pmda-dm
+Requires: pcp = @package_version@ pcp-libs = @package_version@
+Requires: pcp-system-tools = @package_version@
+Requires: pcp-doc = @package_version@
+Requires: pcp-pmda-dm = @package_version@
 %if "@have_python@" == "true"
-Requires: pcp-pmda-nfsclient
+Requires: pcp-pmda-nfsclient = @package_version@
 %endif
 %if "@pmda_openmetrics@" == "true"
-Requires: pcp-pmda-openmetrics
+Requires: pcp-pmda-openmetrics = @package_version@
 %endif
 %description zeroconf
 This package contains configuration tweaks and files to increase metrics
