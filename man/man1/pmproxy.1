@@ -21,12 +21,14 @@
 \f3pmproxy\f1
 [\f3\-AFft?\f1]
 [\f3\-C\f1 \f2dirname\f1]
+[\f3\-h\f1 \f2host\f1[,\f2host\f1 ...]
 [\f3\-i\f1 \f2ipaddress\f1]
 [\f3\-l\f1 \f2logfile\f1]
 [\f3\-L\f1 \f2bytes\f1]
 [\f3\-M\f1 \f2certname\f1]
 [\f3\-p\f1 \f2port\f1[,\f2port\f1 ...]
 [\f3\-P\f1 \f2passfile\f1]
+[\f3\-r\f1 \f2port\f1[,\f2port\f1 ...]
 [\f3\-U\f1 \f2username\f1]
 [\f3\-x\f1 \f2file\f1]
 .SH DESCRIPTION
@@ -247,12 +249,11 @@ option allows this certificate
 to be changed.
 This option implies \f3pmproxy\f1 is running in \f3deprecated\f1 mode.
 .TP
-\f3\-p\f1 \f2port\f1, \f3\-\-redisport\f1=\f2port\f1
-Specify an alternate Redis
+\f3\-p\f1 \f2port\f1, \f3\-\-port\f1=\f2port\f1
+Specify an alternate
 .I port
-number to connect to for time series querying, overriding any
-configuration file settings.
-This option implies \f3pmproxy\f1 is running in \f3timeseries\f1 mode.
+number to listen on for client connections.
+The default value is 44322.
 .TP
 \f3\-P\f1 \f2file\f1, \f3\-\-passfile\f1=\f2file\f1
 Specify the path to a
@@ -267,6 +268,13 @@ ownership ("pcp" user, typically) and permissions on this file (0400, so as to
 be unreadable by any user other than the user running the
 .B pmproxy
 process).
+.TP
+\f3\-r\f1 \f2port\f1, \f3\-\-redisport\f1=\f2port\f1
+Specify an alternate Redis
+.I port
+number to connect to for time series querying, overriding any
+configuration file settings.
+This option implies \f3pmproxy\f1 is running in \f3timeseries\f1 mode.
 .TP
 \f3\-s\f1 \f2sockname\f1, \f3\-\-socket\f1=\f2sockname\f1
 Specify the path to a local unix domain socket (for platforms supporting this
@@ -368,14 +376,10 @@ listens for PCP client connections on TCP/IP port number 44322
 Either the environment
 variable
 .B PMPROXY_PORT
-.B \-p
-command line option
-may be used to specify alternative port number(s) when
-.B PMPROXY_PORT
 or the
 .B \-p
-command line option
-may be used to specify alternative port number(s) when
+command line option may be used to specify alternative port
+number(s) when
 .B pmproxy
 is started; in each case, the specification is a comma-separated list
 of one or more numerical port numbers.
