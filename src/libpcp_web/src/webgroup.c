@@ -89,7 +89,7 @@ webgroup_drop_context(struct context *context, struct webgroups *groups)
 	    uv_timer_stop(&context->timer);
 	}
 	if (groups)
-	    dictUnlink(groups->contexts, &context->randomid);
+	    dictDelete(groups->contexts, &context->randomid);
 	uv_close((uv_handle_t *)&context->timer, webgroup_release_context);
     }
 }
@@ -99,6 +99,7 @@ webgroup_timeout_context(uv_timer_t *arg)
 {
     uv_handle_t		*handle = (uv_handle_t *)arg;
     struct context	*cp = (struct context *)handle->data;
+    struct webgroups	*gp = (struct webgroups *)cp->privdata;
 
     if (pmDebugOptions.http || pmDebugOptions.libweb)
 	fprintf(stderr, "context %u timed out (%p)\n", cp->randomid, cp);
@@ -112,6 +113,8 @@ webgroup_timeout_context(uv_timer_t *arg)
     if (cp->refcount == 0 && cp->garbage == 0) {
 	cp->garbage = 1;
 	uv_timer_stop(&cp->timer);
+        // fix memory leak
+        webgroup_drop_context(cp, gp);
     }
 }
 
