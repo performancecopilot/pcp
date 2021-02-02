@@ -44,6 +44,19 @@ PROGLOG=$PCP_LOG_DIR/pmlogger/$prog.log
 MYPROGLOG=$PROGLOG.$$
 USE_SYSLOG=true
 
+# optional begin logging to $PCP_LOG_DIR/NOTICES
+#
+if $PCP_LOG_RC_SCRIPTS
+then
+    logmsg="begin pid:$$ $prog args:$*"
+    if which pstree >/dev/null 2>&1
+    then
+	logmsg="$logmsg [`pstree -lps $$`]"
+	logmsg="`echo "$logmsg" | sed -e 's/---pstree([^)]*)//'`"
+    fi
+    $PCP_BINADM_DIR/pmpost "$logmsg"
+fi
+
 _cleanup()
 {
     if [ -s "$MYPROGLOG" ]
@@ -1096,4 +1109,12 @@ fi
 [ -f "$PCP_LOG_DIR/pmlogger/pmlogger_daily.stamp" ] && _compress_now
 
 [ -f $tmp/err ] && status=1
+
+# optional end logging to $PCP_LOG_DIR/NOTICES
+#
+if $PCP_LOG_RC_SCRIPTS
+then
+    $PCP_BINADM_DIR/pmpost "end pid:$$ $prog status=$status"
+fi
+
 exit
