@@ -112,7 +112,8 @@ _cleanup()
     cd $here
     $sudo rm -f $tmp.*
     $sudo rm -rf $tmp
-    $sudo mv $PCP_LOG_DIR/NOTICES.$$ $PCP_LOG_DIR/NOTICES
+    [ -f $PCP_LOG_DIR/NOTICES.$$ ] \
+	&& $sudo mv $PCP_LOG_DIR/NOTICES.$$ $PCP_LOG_DIR/NOTICES
     [ -f $NEEDREWRITE.$seq ] && $sudo mv $NEEDREWRITE.$seq $NEEDREWRITE
 }
 
@@ -125,7 +126,8 @@ $sudo rm -rf $tmp $tmp.*
 # take explicit control of the umask
 umask 022
 
-$sudo mv $PCP_LOG_DIR/NOTICES $PCP_LOG_DIR/NOTICES.$$
+[ -f $PCP_LOG_DIR/NOTICES ] \
+    && $sudo mv $PCP_LOG_DIR/NOTICES $PCP_LOG_DIR/NOTICES.$$
 rm -f $seq.full
 mkdir $tmp
 
