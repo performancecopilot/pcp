@@ -333,84 +333,84 @@ used by the Resource Agents.
     inst [2 or "node-2:test_clone_state"] value "DEMOTED"
     inst [3 or "node-2:test_site"] value "SECONDARY_SITE_NAME"
 
-hacluster.pacemaker.nodes.status.dc PMID: 155.3.8 [The status given to the node]
+hacluster.pacemaker.nodes.status.dc PMID: 155.3.8 [Whether the node status is given as disconnected]
     Data Type: 32-bit unsigned int  InDom: 155.2 0x26c00002
     Semantics: instant  Units: count
 Help:
-The value of the status reported by the node in the cluster, there is one
-metric given for each possible status.
+Whether the disconnected status is reportered by the node in the cluster, a
+value of 1 confirms the node status as disconnected.
     inst [0 or "node-1"] value 0
     inst [1 or "node-2"] value 1
 
-hacluster.pacemaker.nodes.status.expected_up PMID: 155.3.7 [The status given to the node]
+hacluster.pacemaker.nodes.status.expected_up PMID: 155.3.7 [Whether the node status is given as expected_up]
     Data Type: 32-bit unsigned int  InDom: 155.2 0x26c00002
     Semantics: instant  Units: count
 Help:
-The value of the status reported by the node in the cluster, there is one
-metric given for each possible status.
+Whether the expected_up status is reportered by the node in the cluster, a
+value of 1 confirms the node status as expected_up.
     inst [0 or "node-1"] value 1
     inst [1 or "node-2"] value 1
 
-hacluster.pacemaker.nodes.status.maintenance PMID: 155.3.3 [The status given to the node]
+hacluster.pacemaker.nodes.status.maintenance PMID: 155.3.3 [Whether the node status is given as maintenance]
     Data Type: 32-bit unsigned int  InDom: 155.2 0x26c00002
     Semantics: instant  Units: count
 Help:
-The value of the status reported by the node in the cluster, there is one
-metric given for each possible status.
+Whether the maintenance status is reportered by the node in the cluster, a
+value of 1 confirms the node status as online.
     inst [0 or "node-1"] value 0
     inst [1 or "node-2"] value 0
 
-hacluster.pacemaker.nodes.status.online PMID: 155.3.0 [The status given to the node]
+hacluster.pacemaker.nodes.status.online PMID: 155.3.0 [Whether the node status is given as online]
     Data Type: 32-bit unsigned int  InDom: 155.2 0x26c00002
     Semantics: instant  Units: count
 Help:
-The value of the status reported by the node in the cluster, there is one
-metric given for each possible status.
+Whether the online status is reportered by the node in the cluster, a value of
+1 confirms the node status as online.
     inst [0 or "node-1"] value 1
     inst [1 or "node-2"] value 1
 
-hacluster.pacemaker.nodes.status.pending PMID: 155.3.4 [The status given to the node]
+hacluster.pacemaker.nodes.status.pending PMID: 155.3.4 [Whether the node status is given as pending]
     Data Type: 32-bit unsigned int  InDom: 155.2 0x26c00002
     Semantics: instant  Units: count
 Help:
-The value of the status reported by the node in the cluster, there is one
-metric given for each possible status.
+Whether the pending status is reportered by the node in the cluster, a value of
+1 confirms the node status as pending.
     inst [0 or "node-1"] value 0
     inst [1 or "node-2"] value 0
 
-hacluster.pacemaker.nodes.status.shutdown PMID: 155.3.6 [The status given to the node]
+hacluster.pacemaker.nodes.status.shutdown PMID: 155.3.6 [Whether the node status is given as shutdown]
     Data Type: 32-bit unsigned int  InDom: 155.2 0x26c00002
     Semantics: instant  Units: count
 Help:
-The value of the status reported by the node in the cluster, there is one
-metric given for each possible status.
+Whether the shutdown status is reportered by the node in the cluster, a value
+of 1 confirms the node status as shutdown.
     inst [0 or "node-1"] value 0
     inst [1 or "node-2"] value 0
 
-hacluster.pacemaker.nodes.status.standby PMID: 155.3.1 [The status given to the node]
+hacluster.pacemaker.nodes.status.standby PMID: 155.3.1 [Whether the node status is given as standby]
     Data Type: 32-bit unsigned int  InDom: 155.2 0x26c00002
     Semantics: instant  Units: count
 Help:
-The value of the status reported by the node in the cluster, there is one
-metric given for each possible status.
+Whether the standby status is reportered by the node in the cluster, a value of
+1 confirms the node status as standby.
     inst [0 or "node-1"] value 0
     inst [1 or "node-2"] value 0
 
-hacluster.pacemaker.nodes.status.standby_on_fail PMID: 155.3.2 [The status given to the node]
+hacluster.pacemaker.nodes.status.standby_on_fail PMID: 155.3.2 [Whether the node status is given as standby_on_fail]
     Data Type: 32-bit unsigned int  InDom: 155.2 0x26c00002
     Semantics: instant  Units: count
 Help:
-The value of the status reported by the node in the cluster, there is one
-metric given for each possible status.
+Whether the standby_on_fail status is reportered by the node in the cluster,
+a value of 1 confirms the node status as standby_on_fail.
     inst [0 or "node-1"] value 0
     inst [1 or "node-2"] value 0
 
-hacluster.pacemaker.nodes.status.unclean PMID: 155.3.5 [The status given to the node]
+hacluster.pacemaker.nodes.status.unclean PMID: 155.3.5 [Whether the node status is given as unclean]
     Data Type: 32-bit unsigned int  InDom: 155.2 0x26c00002
     Semantics: instant  Units: count
 Help:
-The value of the status reported by the node in the cluster, there is one
-metric given for each possible status.
+Whether the unclean status is reportered by the node in the cluster, a value of
+1 confirms the node status as unclean.
     inst [0 or "node-1"] value 0
     inst [1 or "node-2"] value 0
 
@@ -467,11 +467,11 @@ hacluster.pacemaker.resources.managed PMID: 155.5.3 [Value is either true or fal
 Help:
 The value of whether the resource instance in the cluster is managed or not.
     inst [0 or "my_first_svc:node-1"] value 0
-    inst [5 or "rsc_TEST:node-1"] value 0
-    inst [1 or "rsc_Test:node-1"] value 0
-    inst [2 or "rsc_Test:node-2"] value 0
-    inst [4 or "rsc_fs_TEST:node-1"] value 0
-    inst [3 or "rsc_ip_TEST:node-1"] value 0
+    inst [5 or "rsc_TEST:node-1"] value 1
+    inst [1 or "rsc_Test:node-1"] value 1
+    inst [2 or "rsc_Test:node-2"] value 1
+    inst [4 or "rsc_fs_TEST:node-1"] value 1
+    inst [3 or "rsc_ip_TEST:node-1"] value 1
 
 hacluster.pacemaker.resources.role PMID: 155.5.4 [The given role state]
     Data Type: string  InDom: 155.4 0x26c00004
@@ -485,64 +485,64 @@ The value of the given role state for the resource instance in the cluster.
     inst [4 or "rsc_fs_TEST:node-1"] value "Started"
     inst [3 or "rsc_ip_TEST:node-1"] value "Started"
 
-hacluster.pacemaker.resources.status.active PMID: 155.5.5 [The status given to the resource]
+hacluster.pacemaker.resources.status.active PMID: 155.5.5 [Whether the resources status is given as active]
     Data Type: 32-bit unsigned int  InDom: 155.4 0x26c00004
     Semantics: instant  Units: count
 Help:
-The value of the status reported for the resource instance in the cluster,
-there is one metric given for each possible status.
+Whether the active status is reportered by the resource in the cluster, a
+value of 1 confirms the resource status as active.
+    inst [0 or "my_first_svc:node-1"] value 0
+    inst [5 or "rsc_TEST:node-1"] value 1
+    inst [1 or "rsc_Test:node-1"] value 1
+    inst [2 or "rsc_Test:node-2"] value 1
+    inst [4 or "rsc_fs_TEST:node-1"] value 1
+    inst [3 or "rsc_ip_TEST:node-1"] value 1
+
+hacluster.pacemaker.resources.status.blocked PMID: 155.5.7 [Whether the resources status is given as blocked]
+    Data Type: 32-bit unsigned int  InDom: 155.4 0x26c00004
+    Semantics: instant  Units: count
+Help:
+Whether the blocked status is reportered by the resource in the cluster, a
+value of 1 confirms the resource status as blocked.
+    inst [0 or "my_first_svc:node-1"] value 0
+    inst [5 or "rsc_TEST:node-1"] value 0
+    inst [1 or "rsc_Test:node-1"] value 0
+    inst [2 or "rsc_Test:node-2"] value 0
+    inst [4 or "rsc_fs_TEST:node-1"] value 1
+    inst [3 or "rsc_ip_TEST:node-1"] value 0
+
+hacluster.pacemaker.resources.status.failed PMID: 155.5.8 [Whether the resources status is given as failed]
+    Data Type: 32-bit unsigned int  InDom: 155.4 0x26c00004
+    Semantics: instant  Units: count
+Help:
+Whether the failed status is reportered by the resource in the cluster, a 
+value of 1 confirms the resource status as failed.
     inst [0 or "my_first_svc:node-1"] value 0
     inst [5 or "rsc_TEST:node-1"] value 0
     inst [1 or "rsc_Test:node-1"] value 0
     inst [2 or "rsc_Test:node-2"] value 0
     inst [4 or "rsc_fs_TEST:node-1"] value 0
-    inst [3 or "rsc_ip_TEST:node-1"] value 0
+    inst [3 or "rsc_ip_TEST:node-1"] value 1
 
-hacluster.pacemaker.resources.status.blocked PMID: 155.5.7 [The status given to the resource]
+hacluster.pacemaker.resources.status.failure_ignored PMID: 155.5.9 [Whether the resources status is given as failure_ignored]
     Data Type: 32-bit unsigned int  InDom: 155.4 0x26c00004
     Semantics: instant  Units: count
 Help:
-The value of the status reported for the resource instance in the cluster,
-there is one metric given for each possible status.
+Whether the failure_ignored status is reportered by the resource in the
+cluster, a value of 1 confirms the resource status as failure_ignored.
     inst [0 or "my_first_svc:node-1"] value 0
     inst [5 or "rsc_TEST:node-1"] value 0
-    inst [1 or "rsc_Test:node-1"] value 0
+    inst [1 or "rsc_Test:node-1"] value 1
     inst [2 or "rsc_Test:node-2"] value 0
     inst [4 or "rsc_fs_TEST:node-1"] value 0
-    inst [3 or "rsc_ip_TEST:node-1"] value 0
+    inst [3 or "rsc_ip_TEST:node-1"] value 1
 
-hacluster.pacemaker.resources.status.failed PMID: 155.5.8 [The status given to the resource]
+hacluster.pacemaker.resources.status.orphaned PMID: 155.5.6 [Whether the resources status is given as orphaned]
     Data Type: 32-bit unsigned int  InDom: 155.4 0x26c00004
     Semantics: instant  Units: count
 Help:
-The value of the status reported for the resource instance in the cluster,
-there is one metric given for each possible status.
-    inst [0 or "my_first_svc:node-1"] value 0
-    inst [5 or "rsc_TEST:node-1"] value 0
-    inst [1 or "rsc_Test:node-1"] value 0
-    inst [2 or "rsc_Test:node-2"] value 0
-    inst [4 or "rsc_fs_TEST:node-1"] value 0
-    inst [3 or "rsc_ip_TEST:node-1"] value 0
-
-hacluster.pacemaker.resources.status.failure_ignored PMID: 155.5.9 [The status given to the resource]
-    Data Type: 32-bit unsigned int  InDom: 155.4 0x26c00004
-    Semantics: instant  Units: count
-Help:
-The value of the status reported for the resource instance in the cluster,
-there is one metric given for each possible status.
-    inst [0 or "my_first_svc:node-1"] value 0
-    inst [5 or "rsc_TEST:node-1"] value 0
-    inst [1 or "rsc_Test:node-1"] value 0
-    inst [2 or "rsc_Test:node-2"] value 0
-    inst [4 or "rsc_fs_TEST:node-1"] value 0
-    inst [3 or "rsc_ip_TEST:node-1"] value 0
-
-hacluster.pacemaker.resources.status.orphaned PMID: 155.5.6 [The status given to the resource]
-    Data Type: 32-bit unsigned int  InDom: 155.4 0x26c00004
-    Semantics: instant  Units: count
-Help:
-The value of the status reported for the resource instance in the cluster,
-there is one metric given for each possible status.
+Whether the orphaned status is reportered by the resource in the cluster, a
+value of 1 confirms the resource status as orphaned.
     inst [0 or "my_first_svc:node-1"] value 0
     inst [5 or "rsc_TEST:node-1"] value 0
     inst [1 or "rsc_Test:node-1"] value 0
