@@ -34,6 +34,19 @@ PROGLOG=$PCP_LOG_DIR/pmlogger/$prog.log
 MYPROGLOG=$PROGLOG.$$
 USE_SYSLOG=true
 
+# optional begin logging to $PCP_LOG_DIR/NOTICES
+#
+if $PCP_LOG_RC_SCRIPTS
+then
+    logmsg="begin pid:$$ $prog args:$*"
+    if which pstree >/dev/null 2>&1
+    then
+	logmsg="$logmsg [`pstree -lps $$`]"
+	logmsg="`echo "$logmsg" | sed -e 's/---pstree([^)]*)//'`"
+    fi
+    $PCP_BINADM_DIR/pmpost "$logmsg"
+fi
+
 _cleanup()
 {
     if [ -s "$MYPROGLOG" ]
@@ -1647,7 +1660,7 @@ p
 # only be done once, e.g. after software upgrade with new pmlogrewrite(1)
 # configuration files
 #
-if [ -f $PCP_LOG_DIR/pmlogger/.NeedRewrite ]
+if ! $COMPRESSONLY && [ -f $PCP_LOG_DIR/pmlogger/.NeedRewrite ]
 then
     REWRITEALL=true
     $VERBOSE && echo "Info: found .NeedRewrite => rewrite all archives"
@@ -1670,9 +1683,16 @@ fi
 # if need be, remove .NeedRewrite so we don't trigger -R processing
 # next time
 #
-if [ -f $PCP_LOG_DIR/pmlogger/.NeedRewrite ]
+if ! $COMPRESSONLY && [ -f $PCP_LOG_DIR/pmlogger/.NeedRewrite ]
 then
     rm -f $PCP_LOG_DIR/pmlogger/.NeedRewrite
+fi
+
+# optional end logging to $PCP_LOG_DIR/NOTICES
+#
+if $PCP_LOG_RC_SCRIPTS
+then
+    $PCP_BINADM_DIR/pmpost "end pid:$$ $prog status=$status"
 fi
 
 exit
