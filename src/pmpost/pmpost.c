@@ -14,23 +14,37 @@
 
 #include "pmapi.h"
 #include <sys/stat.h>
+#include <sys/time.h>
 #include <sys/file.h>
+#ifdef HAVE_PWD_H
+#include <pwd.h>
+#endif
 #ifdef HAVE_GRP_H
 #include <grp.h>
 #endif
 
 /*
- * Attempt to setup the notices file in a way that members of
- * the (unprivileged) "pcp" group account can write to it.
+ * Attempt to setup the notices file in a way that the user "pcp"
+ * can write to it.
  */
-int gid;
-#ifdef HAVE_GETGRNAM
+uid_t	uid;
+gid_t	gid;
+#if defined(HAVE_GETPWENT) && defined(HAVE_GETGRNAM)
 static void
-setup_group(void)
+setup_ids(void)
 {
-    char *name = pmGetConfig("PCP_GROUP");
-    struct group *group;
+    char *name;
+    struct passwd	*passwd;
+    struct group	*group;
 
+    name = pmGetConfig("PCP_USER");
+    if (!name || name[0] == '\0')
+	name = "pcp";
+    passwd = getpwnam(name);
+    if (passwd)
+	uid = passwd->pw_uid;
+
+    name = pmGetConfig("PCP_GROUP");
     if (!name || name[0] == '\0')
 	name = "pcp";
     group = getgrnam(name);
@@ -38,7 +52,7 @@ setup_group(void)
 	gid = group->gr_gid;
 }
 #else
-#define setup_group()
+#define setup_ids()
 #endif
 
 static int
@@ -77,7 +91,7 @@ main(int argc, char **argv)
     FILE	*np;
     char	*dir;
     struct stat	sbuf;
-    time_t	now;
+    struct timeval	now;
     int		lastday = LAST_UNDEFINED;
     struct tm	*tmp;
     int		sts = 0;
@@ -119,7 +133,7 @@ main(int argc, char **argv)
     pmsprintf(notices, sizeof(notices), "%s%c" "NOTICES",
 		pmGetConfig("PCP_LOG_DIR"), pmPathSeparator());
 
-    setup_group();
+    setup_ids();
     dir = dirname(strdup(notices));
     if (mkdir_r(dir) < 0) {
 	fprintf(stderr, "pmpost: cannot create directory \"%s\": %s\n",
@@ -132,12 +146,16 @@ main(int argc, char **argv)
 	    fprintf(stderr, "pmpost: cannot open or create file \"%s\": %s\n",
 		notices, osstrerror());
 	    goto oops;
-#ifndef IS_MINGW
-	} else if ((fchown(fd, 0, gid)) < 0) {
-	    fprintf(stderr, "pmpost: cannot set file gid \"%s\": %s\n",
-		notices, osstrerror());
-#endif
 	}
+#ifndef IS_MINGW
+	/* if root, try to fix ownership */
+	if (getuid() == 0) {
+	    if ((fchown(fd, uid, gid)) < 0) {
+		fprintf(stderr, "pmpost: cannot set file gid \"%s\": %s\n",
+		    notices, osstrerror());
+	    }
+	}
+#endif
 	lastday = LAST_NEWFILE;
     }
 
@@ -190,15 +208,15 @@ main(int argc, char **argv)
 	goto oops;
     }
 
-    time(&now);
-    tmp = localtime(&now);
+    gettimeofday(&now, NULL);
+    tmp = localtime(&now.tv_sec);
 
     if (lastday != tmp->tm_yday) {
-	if (fprintf(np, "\nDATE: %s", ctime(&now)) < 0)
+	if (fprintf(np, "\nDATE: %s", ctime(&now.tv_sec)) < 0)
 	    sts = oserror();
     }
 
-    if (fprintf(np, "%02d:%02d", tmp->tm_hour, tmp->tm_min) < 0)
+    if (fprintf(np, "%02d:%02d:%02d.%03d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, (int)(now.tv_usec/1000)) < 0)
 	sts = oserror();
 
     for (i = 1; i < argc; i++) {
@@ -221,9 +239,8 @@ main(int argc, char **argv)
 
 oops:
     fprintf(stderr, "pmpost: unposted message: [");
-    time(&now);
-    tmp = localtime(&now);
-    for (p = ctime(&now); *p != '\n'; p++)
+    gettimeofday(&now, NULL);
+    for (p = ctime(&now.tv_sec); *p != '\n'; p++)
 	fputc(*p, stderr);
     fputc(']', stderr);
     for (i = 1; i < argc; i++) {
