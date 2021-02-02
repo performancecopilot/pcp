@@ -50,8 +50,8 @@ static zfs_vdev_cachestats_t vdev_cachestats;
 static zfs_vdev_mirrorstats_t vdev_mirrorstats;
 static zfs_zfetchstats_t zfetchstats;
 static zfs_zilstats_t zilstats;
-static zfs_poolstats_t *poolstats = NULL;
-static pmdaInstid *pools = NULL;
+static zfs_poolstats_t *poolstats;
+static pmdaInstid *pools;
 static pmdaIndom indomtab[] = {
     { ZFS_POOL_INDOM, 0, NULL }
 };
@@ -1300,12 +1300,16 @@ zfs_init(pmdaInterface *dp)
 {
     char helppath[MAXPATHLEN];
     int sep = pmPathSeparator();
+    char *envpath;
+
+    /* optional overrides of globals for testing */
+    envpath = getenv("ZFS_PATH");
+    if (envpath == NULL || *envpath == '\0')
+	envpath = ZFS_DEFAULT_PATH;
+    strncpy(zfs_path, envpath, MAXPATHLEN);
+    zfs_path[MAXPATHLEN-1] = '\0';
 
     if (_isDSO) {
-        if (getenv("ZFS_PATH") != NULL)
-            strcpy(ZFS_PATH, getenv("ZFS_PATH"));
-        if (strlen(ZFS_PATH) == 0)
-            strcpy(ZFS_PATH, ZFS_DEFAULT_PATH);
         pmsprintf(helppath, sizeof(helppath), "%s%c" "zfs" "%c" "help",
                 pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
         pmdaDSO(dp, PMDA_INTERFACE_7, "ZFS DSO", helppath);
@@ -1313,28 +1317,6 @@ zfs_init(pmdaInterface *dp)
 
     if (dp->status != 0)
         return;
-
-    /* Initialize ARC metrics only present in OpenZFS v. 2 to 0s
-       to avoid missing values on older systems.
-    */
-    arcstats.l2_log_blk_writes = 0;
-    arcstats.l2_log_blk_avg_asize = 0;
-    arcstats.l2_log_blk_asize = 0;
-    arcstats.l2_log_blk_count = 0;
-    arcstats.l2_data_to_meta_ratio = 0;
-    arcstats.l2_rebuild_success = 0;
-    arcstats.l2_rebuild_unsupported = 0;
-    arcstats.l2_rebuild_io_errors = 0;
-    arcstats.l2_rebuild_dh_errors = 0;
-    arcstats.l2_rebuild_cksum_lb_errors = 0;
-    arcstats.l2_rebuild_lowmem = 0;
-    arcstats.l2_rebuild_size = 0;
-    arcstats.l2_rebuild_asize = 0;
-    arcstats.l2_rebuild_bufs = 0;
-    arcstats.l2_rebuild_bufs_precached = 0;
-    arcstats.l2_rebuild_log_blks = 0;
-    arcstats.cached_only_in_progress = 0;
-    arcstats.abd_chunk_waste_size = 0;
 
     dp->version.any.instance = zfs_instance;
     dp->version.any.fetch = zfs_fetch;
@@ -1349,13 +1331,12 @@ pmLongOptions   longopts[] = {
     PMOPT_DEBUG,
     PMDAOPT_DOMAIN,
     PMDAOPT_LOGFILE,
-    { "", 1, 'z', "ZFS_PATH", "path to ZFS stats files (default /proc/spl/kstat/zfs)" },
     PMOPT_HELP,
     PMDA_OPTIONS_END
 };
 
 pmdaOptions     opts = {
-    .short_options = "D:d:l:z:?",
+    .short_options = "D:d:l:?",
     .long_options = longopts,
 };
 
@@ -1364,7 +1345,7 @@ main(int argc, char **argv)
 {
     int            sep = pmPathSeparator();
     pmdaInterface  dispatch;
-    char           helppath[MAXPATHLEN], c;
+    char           helppath[MAXPATHLEN];
 
     _isDSO = 0;
     pmSetProgname(argv[0]);
@@ -1372,18 +1353,7 @@ main(int argc, char **argv)
             pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_7, pmGetProgname(), ZFS, "zfs.log", helppath);
 
-    if (getenv("ZFS_PATH") != NULL)
-        strcpy(ZFS_PATH, getenv("ZFS_PATH"));
-    while ((c = pmdaGetOptions(argc, argv, &opts, &dispatch)) != EOF) {
-        switch(c) {
-        case 'z':
-            strcpy(ZFS_PATH, opts.optarg);
-            break;
-        }
-    }
-    if (strlen(ZFS_PATH) == 0)
-        strcpy(ZFS_PATH, ZFS_DEFAULT_PATH);
-
+    pmdaGetOptions(argc, argv, &opts, &dispatch);
     if (opts.errors) {
         pmdaUsageMessage(&opts);
         exit(1);

@@ -588,6 +588,11 @@ state==1 { for (i=1;i<=NF;i++) { \
     fi
 endif
 
+MANPAGE_SUFFIX = _sfx=.gz; \
+    $(HAVE_BZIP2ED_MANPAGES) && _sfx=.bz2; \
+    $(HAVE_LZMAED_MANPAGES) && _sfx=.lzma; \
+    $(HAVE_XZED_MANPAGES) && _sfx=.xz; \
+
 PERL_INSTALL_BASE = @perl_install_base@
 PERL_INSTALLDIRS = @perl_installdirs@
 
@@ -655,10 +660,7 @@ PERL_GET_FILELIST = \
 	$(PERLMAKE) -f Makefile $(1) DESTDIR="$$DIST_ROOT"; \
 	find "$$DIST_ROOT/$(PERL_INSTALL_BASE)" -name .packlist -exec mv '{}' $(2) ';' ; \
 	if [ -s $(2) ] ; then \
-	    _sfx=.gz; \
-	    $(HAVE_BZIP2ED_MANPAGES) && _sfx=.bz2; \
-	    $(HAVE_LZMAED_MANPAGES) && _sfx=.lzma; \
-	    $(HAVE_XZED_MANPAGES) && _sfx=.xz; \
+	    $(MANPAGE_SUFFIX) \
             if [ "$(HAVE_MANPAGES)" = "false" ] ; then \
 		sed -e '/.*man[1-9].*/d' -e '/.*3pm.*/d' $(2) >$(2).tmp; \
 		mv $(2).tmp $(2); \

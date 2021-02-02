@@ -40,7 +40,7 @@ zfs_pools_init(zfs_poolstats_t **poolstats, pmdaInstid **pools, pmdaIndom *pools
     static int seen_err = 0;
 
     // Discover the pools by looking for directories in /proc/spl/kstat/zfs
-    if ((zfs_dp = opendir(ZFS_PATH)) != NULL) {
+    if ((zfs_dp = opendir(zfs_path)) != NULL) {
         while ((ep = readdir(zfs_dp))) {
             if (ep->d_type == DT_DIR) {
                 if (strcmp(ep->d_name, ".") == 0 || strcmp(ep->d_name, "..") == 0)
@@ -62,7 +62,7 @@ zfs_pools_init(zfs_poolstats_t **poolstats, pmdaInstid **pools, pmdaIndom *pools
         closedir(zfs_dp);
     }
     else {
-        pmNotifyErr(LOG_WARNING, "Failed to open ZFS pools dir \"%s\": %s\n", ZFS_PATH, pmErrStr(-errno));
+        pmNotifyErr(LOG_WARNING, "Failed to open ZFS pools dir \"%s\": %s\n", zfs_path, pmErrStr(-errno));
     }
     if (*pools == NULL) {
         if (! seen_err) {
@@ -123,7 +123,7 @@ zfs_poolstats_refresh(zfs_poolstats_t **poolstats, pmdaInstid **pools, pmdaIndom
         pmNoMem("poolstats refresh", (*poolsindom).it_numinst * sizeof(zfs_poolstats_t), PM_FATAL_ERR);
     for (i = 0; i < (*poolsindom).it_numinst; i++) {
         pool_dir[0] = 0;
-        pmsprintf(pool_dir, sizeof(pool_dir), "%s%c%s", ZFS_PATH, pmPathSeparator(), (*poolsindom).it_set[i].i_name);
+        pmsprintf(pool_dir, sizeof(pool_dir), "%s%c%s", zfs_path, pmPathSeparator(), (*poolsindom).it_set[i].i_name);
         if (stat(pool_dir, &sstat) != 0) {
             continue;
         }

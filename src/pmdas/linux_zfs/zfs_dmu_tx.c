@@ -63,6 +63,6 @@ zfs_dmu_tx_refresh(zfs_dmu_tx_t *dmu_tx)
             else if (strcmp(mname, "quota") == 0) dmu_tx->quota = value;
         }
         free(line);
+        fclose(fp);
     }
-    fclose(fp);
 }

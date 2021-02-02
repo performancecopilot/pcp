@@ -12,9 +12,7 @@ echo "QA output created by $seq"
 
 _pmdabcc_check
 _pmdabcc_require_kernel_version 4 6
-which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
-which dig >/dev/null 2>&1 || _notrun "No dig binary installed"
-which strace >/dev/null 2>&1 || _notrun "No strace binary installed"
+which ss >/dev/null 2>&1 || _notrun "No ss binary installed"
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
@@ -48,12 +46,13 @@ in
 	    ;;
 esac
 
-target_http=http://1.1.1.1
-target_dns=1.1.1.1
-
-_value_filter()
+_pid_filter()
 {
-    awk '/"'"$1"'"/ && /value [1-9][0-9]*/ {print "OK"; exit}'
+    sed \
+      -e "s/$1/SERVERPID/g" \
+      -e "s/$2/CLIENTPID/g" \
+      -e '/inst \[[0-9]/d' \
+    #end
 }
 
 _prepare_pmda bcc
@@ -74,37 +73,38 @@ EOF
 _pmdabcc_wait_for_metric
 
 # Generate system activity for the BCC netproc module
-# TCP
-curl -s ${target_http} > /dev/null &
-pid_curl=$!
-echo "curl pid: ${pid_curl}" >> "$seq.full"
-wait ${pid_curl}
+$python src/bcc_netproc.py server >> "$seq.full" &
+server_pid=$!
 
-# UDP
-# dig performs the DNS request from the first forked process
-pid_dig=`strace -f -e 'trace=!all' dig @$target_dns -x $target_dns 2>&1 | awk '/Process .* attached/ { print $3; exit }'`
-echo "dig pid: ${pid_dig}" >> "$seq.full"
+# wait for server to listen on specified port
+for i in `seq 1 10`; do ss -lnt | grep -q :1234 && break; sleep 1; done
+if [ $i -ge 10 ]; then
+    echo "Server didn't open tcp/1234 in time, test failed"
+    exit 1
+fi
 
-for metric in bcc.proc.io.net.perpid.tcp.in.packets \
-              bcc.proc.io.net.perpid.tcp.in.bytes \
-              bcc.proc.io.net.perpid.tcp.out.packets \
-              bcc.proc.io.net.perpid.tcp.out.bytes
+$python src/bcc_netproc.py client >> "$seq.full" &
+client_pid=$!
+
+wait ${client_pid}
+wait ${server_pid}
+echo "server PID: ${server_pid}" >> "$seq.full"
+echo "client PID: ${client_pid}" >> "$seq.full"
+
+for metric in bcc.proc.io.net.perpid.tcp.send.calls \
+              bcc.proc.io.net.perpid.tcp.send.bytes \
+              bcc.proc.io.net.perpid.tcp.recv.calls \
+              bcc.proc.io.net.perpid.tcp.recv.bytes \
+              bcc.proc.io.net.perpid.udp.send.calls \
+              bcc.proc.io.net.perpid.udp.send.bytes \
+              bcc.proc.io.net.perpid.udp.recv.calls \
+              bcc.proc.io.net.perpid.udp.recv.bytes
 do
-    echo "=== report metric values for $metric ==="
-    pminfo -f $metric 2>&1 | tee -a $here/$seq.full \
-    | tee -a $seq.full \
-    | _value_filter ${pid_curl}
-done
+    echo && echo && echo "=== report metric values for $metric ==="
+    pminfo -dfmtT $metric 2>&1 | tee -a $seq.full \
+    | _pid_filter ${server_pid} ${client_pid} \
+    | sort # sort to fix the non deterministic instance order
 
-for metric in bcc.proc.io.net.perpid.udp.in.packets \
-              bcc.proc.io.net.perpid.udp.in.bytes \
-              bcc.proc.io.net.perpid.udp.out.packets \
-              bcc.proc.io.net.perpid.udp.out.bytes
-do
-    echo "=== report metric values for $metric ==="
-    pminfo -f $metric 2>&1 | tee -a $here/$seq.full \
-    | tee -a $seq.full \
-    | _value_filter ${pid_dig}
 done
 
 _pmdabcc_remove

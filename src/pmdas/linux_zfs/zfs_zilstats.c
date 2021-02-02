@@ -70,6 +70,6 @@ zfs_zilstats_refresh(zfs_zilstats_t *zilstats)
             }
         }
         free(line);
+        fclose(fp);
     }
-    fclose(fp);
 }

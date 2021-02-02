@@ -91,6 +91,6 @@ zfs_dnodestats_refresh(zfs_dnodestats_t *dnodestats)
             else if (strcmp(mname, "free_interior_lock_retry") == 0) dnodestats->free_interior_lock_retry = value;
         }
         free(line);
+        fclose(fp);
     }
-    fclose(fp);
 }

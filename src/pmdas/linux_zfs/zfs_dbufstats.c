@@ -102,6 +102,6 @@ zfs_dbufstats_refresh(zfs_dbufstats_t *dbufstats)
             }
         }
         free(line);
+        fclose(fp);
     }
-    fclose(fp);
 }

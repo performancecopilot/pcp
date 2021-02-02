@@ -41,7 +41,7 @@ int file_indexed (struct file_state *f_s, int type, int *base, void **vpp, int i
 {
     int i;
     char *cp, *sp;
-	
+
     /* reload file if it hasn't been reloaded in x */
     if (refresh_file( f_s ) <0 ) {
 	pmNotifyErr(LOG_ERR, "file_indexed: refresh_file error");
@@ -53,12 +53,15 @@ int file_indexed (struct file_state *f_s, int type, int *base, void **vpp, int i
      * strtok to the appropriate spot 
      * strtok screws up the target string, so make a copy of the file data
      */
-    cp = malloc ( f_s->datas );
-    strcpy ( cp, f_s->datap );
-    sp = strtok( cp, " " );
-    for (i = 0; i < index; i++){
-	sp = strtok( NULL, " ");
+    if ((cp = strndup ( f_s->datap, f_s->datas )) == NULL) {
+	pmNotifyErr(LOG_ERR, "file_indexed: out-of-memory error");
+	return -1;
     }
+
+    sp = strtok( cp, " " );
+    for (i = 0; i < index; i++)
+	sp = strtok( NULL, " ");
+
     /* otherwise, a lot like file_single (see below)
      * one would eventually write a configure script to make
      * sure that the right routines are used below.. defining
@@ -92,5 +95,3 @@ int file_indexed (struct file_state *f_s, int type, int *base, void **vpp, int i
 
     return 0;
 }
-
-

@@ -50,7 +50,7 @@ zfs_vdev_cachestats_refresh(zfs_vdev_cachestats_t *vdev_cachestats)
             else if (strcmp(mname, "misses") == 0) vdev_cachestats->misses = value;
         }
         free(line);
+        fclose(fp);
     }
-    fclose(fp);
 }
 

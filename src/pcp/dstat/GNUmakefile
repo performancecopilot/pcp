@@ -34,10 +34,12 @@ build-me:: $(SCRIPT) $(MAN_PAGES)
 install: default $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 	$(INSTALL) -m 755 $(SCRIPT) $(PCP_BINADM_DIR)/$(TARGET)
+	@$(INSTALL_MAN)
 ifeq "$(ENABLE_DSTAT)" "true"
 	$(INSTALL) -S $(PCP_BINADM_DIR)/pcp-dstat $(PCP_BIN_DIR)/dstat
+	$(MANPAGE_SUFFIX) \
+	$(INSTALL) -S $(PCP_MAN_DIR)/man1/pcp-dstat.1$$_sfx $(PCP_MAN_DIR)/man1/dstat.1$$_sfx
 endif
-	@$(INSTALL_MAN)
 else
 build-me:
 install:

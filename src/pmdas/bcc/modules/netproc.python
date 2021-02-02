@@ -47,13 +47,13 @@ units_none = pmUnits(0, 0, 0, 0, 0, 0)
 Netstats = namedtuple(
     "Netstats",
     [
-        "tcp_send_packets",
+        "tcp_send_calls",
         "tcp_send_bytes",
-        "tcp_recv_packets",
+        "tcp_recv_calls",
         "tcp_recv_bytes",
-        "udp_send_packets",
+        "udp_send_calls",
         "udp_send_bytes",
-        "udp_recv_packets",
+        "udp_recv_calls",
         "udp_recv_bytes",
     ],
 )
@@ -61,6 +61,8 @@ Netstats = namedtuple(
 #
 # PCP BCC Module
 #
+
+
 class PCPBCCModule(PCPBCCBase):
     """ PCP BCC netproc module """
 
@@ -85,68 +87,68 @@ class PCPBCCModule(PCPBCCBase):
             # Name - reserved - type - semantics - units - help
             # note: ordering of these metrics must match ordering of the Netstats named tuple
             (
-                name + "tcp.out.packets",
+                name + "tcp.send.calls",
                 None,
                 PM_TYPE_U64,
                 PM_SEM_COUNTER,
                 units_count,
-                "packets sent",
+                "number of TCP send calls (tcp_sendmsg())",
             ),
             (
-                name + "tcp.out.bytes",
+                name + "tcp.send.bytes",
                 None,
                 PM_TYPE_U64,
                 PM_SEM_COUNTER,
                 units_bytes,
-                "bytes sent",
+                "amount of bytes requested to be transmitted",
             ),
             (
-                name + "tcp.in.packets",
+                name + "tcp.recv.calls",
                 None,
                 PM_TYPE_U64,
                 PM_SEM_COUNTER,
                 units_count,
-                "packets received",
+                "number of TCP recv calls (tcp_recvmsg()/tcp_cleanup_rbuf())",
             ),
             (
-                name + "tcp.in.bytes",
+                name + "tcp.recv.bytes",
                 None,
                 PM_TYPE_U64,
                 PM_SEM_COUNTER,
                 units_bytes,
-                "bytes received",
+                "amount of bytes received",
             ),
             (
-                name + "udp.out.packets",
+                name + "udp.send.calls",
                 None,
                 PM_TYPE_U64,
                 PM_SEM_COUNTER,
                 units_count,
-                "packets sent",
+                "number of UDP send calls (udp_sendmsg())",
             ),
             (
-                name + "udp.out.bytes",
+                name + "udp.send.bytes",
                 None,
                 PM_TYPE_U64,
                 PM_SEM_COUNTER,
                 units_bytes,
-                "bytes sent",
+                "amount of bytes requested to be transmitted",
             ),
             (
-                name + "udp.in.packets",
+                name + "udp.recv.calls",
                 None,
                 PM_TYPE_U64,
                 PM_SEM_COUNTER,
                 units_count,
-                "packets received",
+                "number of UDP recv calls (udp_recvmsg()/skb_consume_udp())",
             ),
             (
-                name + "udp.in.bytes",
+                name + "udp.recv.bytes",
                 None,
                 PM_TYPE_U64,
                 PM_SEM_COUNTER,
                 units_bytes,
-                "bytes received",
+                "amount of bytes received",
             ),
         )
         return True, self.items
@@ -172,17 +174,13 @@ class PCPBCCModule(PCPBCCBase):
             pid = pid_ct.value
             prev_netstat = self.cache.get(pid, Netstats(0, 0, 0, 0, 0, 0, 0, 0))
             self.cache[pid] = Netstats(
-                tcp_send_packets=prev_netstat.tcp_send_packets
-                + cur_netstat.tcp_send_packets,
+                tcp_send_calls=prev_netstat.tcp_send_calls + cur_netstat.tcp_send_calls,
                 tcp_send_bytes=prev_netstat.tcp_send_bytes + cur_netstat.tcp_send_bytes,
-                tcp_recv_packets=prev_netstat.tcp_recv_packets
-                + cur_netstat.tcp_recv_packets,
+                tcp_recv_calls=prev_netstat.tcp_recv_calls + cur_netstat.tcp_recv_calls,
                 tcp_recv_bytes=prev_netstat.tcp_recv_bytes + cur_netstat.tcp_recv_bytes,
-                udp_send_packets=prev_netstat.udp_send_packets
-                + cur_netstat.udp_send_packets,
+                udp_send_calls=prev_netstat.udp_send_calls + cur_netstat.udp_send_calls,
                 udp_send_bytes=prev_netstat.udp_send_bytes + cur_netstat.udp_send_bytes,
-                udp_recv_packets=prev_netstat.udp_recv_packets
-                + cur_netstat.udp_recv_packets,
+                udp_recv_calls=prev_netstat.udp_recv_calls + cur_netstat.udp_recv_calls,
                 udp_recv_bytes=prev_netstat.udp_recv_bytes + cur_netstat.udp_recv_bytes,
             )
             self.insts[str(pid)] = ct.c_int(pid)

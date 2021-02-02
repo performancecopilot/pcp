@@ -353,7 +353,7 @@ the accumulated read and write throughput on disk is shown.
 When the
 .BR pmdabcc (1)
 module `netproc' has been installed,
-the number of received and sent network packets are shown.
+the number of receive and send network calls are shown.
 .br
 The last columns contain the accumulated occupation percentage for the
 chosen resource (default: cpu) and the user name.
@@ -372,7 +372,7 @@ the accumulated read and write throughput on disk is shown.
 When the
 .BR pmdabcc (1)
 module `netproc' has been installed,
-the number of received and sent network packets are shown.
+the number of receive and send network calls are shown.
 .br
 The last columns contain the accumulated occupation percentage for the
 chosen resource (default: cpu) and the program name.
@@ -391,7 +391,7 @@ the accumulated read and write throughput on disk is shown.
 When the
 .BR pmdabcc (1)
 module `netproc' has been installed,
-the number of received and sent network packets are shown.
+the number of receive and send network calls are shown.
 .br
 The last columns contain the accumulated occupation percentage for the
 chosen resource (default: cpu) and the Docker container id (CID).
@@ -1396,6 +1396,26 @@ The swap space consumed by this process (or user).
 CPU time consumption of this process in system mode (kernel mode), usually
 due to system call handling.
 .TP 9
+.B TCPRASZ
+The average size of a received TCP buffer in bytes.
+This information will only be shown when the BCC PMDA is active
+and the `netproc' module is enabled.
+.TP 9
+.B TCPRCV
+The number of tcp_recvmsg()/tcp_cleanup_rbuf() calls from this process.
+This information will only be shown when the BCC PMDA is active
+and the `netproc' module is enabled.
+.TP 9
+.B TCPSASZ
+The average size of a TCP buffer requested to be transmitted in bytes.
+This information will only be shown when the BCC PMDA is active
+and the `netproc' module is enabled.
+.TP 9
+.B TCPSND
+The number of tcp_sendmsg() calls from this process.
+This information will only be shown when the BCC PMDA is active
+and the `netproc' module is enabled.
+.TP 9
 .B THR
 Total number of threads within this process.
 All related threads are contained in a thread group, represented by
@@ -1419,6 +1439,26 @@ state 'interruptible sleeping' (S).
 .B TSLPU
 Number of threads within this process that are in the
 state 'uninterruptible sleeping' (D).
+.TP 9
+.B UDPRASZ
+The average size of a received UDP buffer in bytes.
+This information will only be shown when the BCC PMDA is active
+and the `netproc' module is enabled.
+.TP 9
+.B UDPRCV
+The number of udp_recvmsg()/skb_consume_udp() calls from this process.
+This information will only be shown when the BCC PMDA is active
+and the `netproc' module is enabled.
+.TP 9
+.B UDPSASZ
+The average size of a UDP buffer requested to be transmitted in bytes.
+This information will only be shown when the BCC PMDA is active
+and the `netproc' module is enabled.
+.TP 9
+.B UDPSND
+The number of udp_sendmsg() calls from this process.
+This information will only be shown when the BCC PMDA is active
+and the `netproc' module is enabled.
 .TP 9
 .B USRCPU
 CPU time consumption of this process in user mode, due to processing the
@@ -1804,14 +1844,14 @@ Subsequent fields:
 PID, name (between brackets), state,
 .BR pmdabcc (1)
 module `netproc' loaded ('y' or 'n'),
-number of TCP-packets transmitted,
-cumulative size of TCP-packets transmitted,
-number of TCP-packets received,
-cumulative size of TCP-packets received,
-number of UDP-packets transmitted,
-cumulative size of UDP-packets transmitted,
-number of UDP-packets received,
-cumulative size of UDP-packets transmitted,
+number of tcp_sendmsg() calls,
+cumulative size of TCP buffers requested to be transmitted,
+number of tcp_recvmsg()/tcp_cleanup_rbuf() calls,
+cumulative size of TCP buffers received,
+number of udp_sendmsg() calls,
+cumulative size of UDP buffers requested to be transmitted,
+number of udp_recvmsg()/skb_consume_udp() calls,
+cumulative size of UDP buffers transmitted,
 number of raw packets transmitted (obsolete, always 0),
 number of raw packets received (obsolete, always 0),
 TGID (group number of related tasks/threads) and is_process (y/n).
@@ -1882,16 +1922,24 @@ command are not available in
 Some features of
 .BR pcp-atop
 (such as reporting on the Apache HTTP daemon, Infiniband, NFS
-client mounts, hardware event counts and GPU statistics) are
-only activated if the corresonding PCP metrics are available.
-Refer to the documentation for
+client mounts, hardware event counts, GPU statistics and per-process
+TCP and UDP statistics) are only activated if the corresonding PCP metrics
+are available. Refer to the documentation for
 .BR pmdaapache (1),
 .BR pmdainfiniband (1),
 .BR pmdanfsclient (1),
-.BR pmdanvidia (1)
-and
+.BR pmdanvidia (1),
 .BR pmdaperfevent (1)
+and
+.BR pmdabcc (1)
 for further details on activating these metrics.
+.PP
+The semantics of the per-process network statistics deviate slightly from the
+.BR atop (1)
+tool: instead of the number of TCP/UDP packets sent/received (which may be inaccurate
+due to TCP segmentation offload),
+.BR pcp-atop
+shows the number of tcp_sendmsg()/udp_sendmsg()/etc. kernel calls per process.
 .SH FILES
 .TP 5
 .B /etc/atoprc
