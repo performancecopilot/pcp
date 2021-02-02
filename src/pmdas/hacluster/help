@@ -63,41 +63,41 @@ Pacemaker internals.
 @ hacluster.pacemaker.nodes.type The type given to the node
 The membership type given to the node in the Pacemaker cluster.
 
-@ hacluster.pacemaker.nodes.status.online The status given to the node
-The value of the status reported by the node in the cluster, there is one
-metric given for each possible status.
+@ hacluster.pacemaker.nodes.status.online Whether the node status is given as online
+Whether the online status is reportered by the node in the cluster, a value of
+1 confirms the node status as online.
 
-@ hacluster.pacemaker.nodes.status.standby The status given to the node
-The value of the status reported by the node in the cluster, there is one
-metric given for each possible status.
+@ hacluster.pacemaker.nodes.status.standby Whether the node status is given as standby
+Whether the standby status is reportered by the node in the cluster, a value of
+1 confirms the node status as standby.
 
-@ hacluster.pacemaker.nodes.status.standby_on_fail The status given to the node
-The value of the status reported by the node in the cluster, there is one
-metric given for each possible status.
+@ hacluster.pacemaker.nodes.status.standby_on_fail Whether the node status is given as standby_on_fail
+Whether the standby_on_fail status is reportered by the node in the cluster,
+a value of 1 confirms the node status as standby_on_fail.
 
-@ hacluster.pacemaker.nodes.status.maintenance The status given to the node
-The value of the status reported by the node in the cluster, there is one
-metric given for each possible status.
+@ hacluster.pacemaker.nodes.status.maintenance Whether the node status is given as maintenance
+Whether the maintenance status is reportered by the node in the cluster, a
+value of 1 confirms the node status as online.
 
-@ hacluster.pacemaker.nodes.status.pending The status given to the node
-The value of the status reported by the node in the cluster, there is one
-metric given for each possible status.
+@ hacluster.pacemaker.nodes.status.pending Whether the node status is given as pending
+Whether the pending status is reportered by the node in the cluster, a value of
+1 confirms the node status as pending.
 
-@ hacluster.pacemaker.nodes.status.unclean The status given to the node
-The value of the status reported by the node in the cluster, there is one
-metric given for each possible status.
+@ hacluster.pacemaker.nodes.status.unclean Whether the node status is given as unclean
+Whether the unclean status is reportered by the node in the cluster, a value of
+1 confirms the node status as unclean.
 
-@ hacluster.pacemaker.nodes.status.shutdown The status given to the node
-The value of the status reported by the node in the cluster, there is one
-metric given for each possible status.
+@ hacluster.pacemaker.nodes.status.shutdown Whether the node status is given as shutdown
+Whether the shutdown status is reportered by the node in the cluster, a value
+of 1 confirms the node status as shutdown.
 
-@ hacluster.pacemaker.nodes.status.expected_up The status given to the node
-The value of the status reported by the node in the cluster, there is one
-metric given for each possible status.
+@ hacluster.pacemaker.nodes.status.expected_up Whether the node status is given as expected_up
+Whether the expected_up status is reportered by the node in the cluster, a
+value of 1 confirms the node status as expected_up.
 
-@ hacluster.pacemaker.nodes.status.dc The status given to the node
-The value of the status reported by the node in the cluster, there is one
-metric given for each possible status.
+@ hacluster.pacemaker.nodes.status.dc Whether the node status is given as disconnected
+Whether the disconnected status is reportered by the node in the cluster, a
+value of 1 confirms the node status as disconnected.
 
 @ hacluster.pacemaker.resources.agent The name of the resource agent for this resource
 The name given for the resource agent for the given resource instance in the 
@@ -117,25 +117,25 @@ The value of whether the resource instance in the cluster is managed or not.
 @ hacluster.pacemaker.resources.role The given role state
 The value of the given role state for the resource instance in the cluster.
 
-@ hacluster.pacemaker.resources.status.active The status given to the resource
-The value of the status reported for the resource instance in the cluster,
-there is one metric given for each possible status.
+@ hacluster.pacemaker.resources.status.active Whether the resources status is given as active
+Whether the active status is reportered by the resource in the cluster, a
+value of 1 confirms the resource status as active.
 
-@ hacluster.pacemaker.resources.status.orphaned The status given to the resource
-The value of the status reported for the resource instance in the cluster,
-there is one metric given for each possible status.
+@ hacluster.pacemaker.resources.status.orphaned Whether the resources status is given as orphaned
+Whether the orphaned status is reportered by the resource in the cluster, a
+value of 1 confirms the resource status as orphaned.
 
-@ hacluster.pacemaker.resources.status.blocked The status given to the resource
-The value of the status reported for the resource instance in the cluster,
-there is one metric given for each possible status.
+@ hacluster.pacemaker.resources.status.blocked Whether the resources status is given as blocked
+Whether the blocked status is reportered by the resource in the cluster, a
+value of 1 confirms the resource status as blocked.
 
-@ hacluster.pacemaker.resources.status.failed The status given to the resource
-The value of the status reported for the resource instance in the cluster,
-there is one metric given for each possible status.
+@ hacluster.pacemaker.resources.status.failed Whether the resources status is given as failed
+Whether the failed status is reportered by the resource in the cluster, a 
+value of 1 confirms the resource status as failed.
 
-@ hacluster.pacemaker.resources.status.failure_ignored The status given to the resource
-The value of the status reported for the resource instance in the cluster,
-there is one metric given for each possible status.
+@ hacluster.pacemaker.resources.status.failure_ignored Whether the resources status is given as failure_ignored
+Whether the failure_ignored status is reportered by the resource in the
+cluster, a value of 1 confirms the resource status as failure_ignored.
 
 @ hacluster.corosync.quorate Value given for quorate
 The value represents whether or not the cluster is quorate.
