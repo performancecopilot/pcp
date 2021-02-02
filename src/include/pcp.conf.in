@@ -227,3 +227,8 @@ PCP_SASLCONF_DIR=@pcp_saslconf_dir@
 # Standard path: /usr/lib/systemd/systemd, /usr/lib/tmpfiles.d
 PCP_SYSTEMDUNIT_DIR=@pcp_systemdunit_dir@
 PCP_SYSTEMDTMPFILES_DIR=@pcp_systemdtmpfiles_dir@
+
+# verbose logging of PCP "rc" scripts launched from init, cron or systemd
+# ... logging goes to $PCP_LOG_DIR/NOTICES
+# expect this to be changed manually (to true) if required
+PCP_LOG_RC_SCRIPTS=false
