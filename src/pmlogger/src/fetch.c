@@ -159,22 +159,24 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 		if (pmDebugOptions.fetch) {
 		    fprintf(stderr, "myFetch returns ...\n");
 		    if (n == PDU_ERROR) {
+			int		sts;
 			int		flag = 0;
 
+			__pmDecodeError(pb, &sts);
 			fprintf(stderr, "PMCD state changes: ");
-			if (n & PMCD_AGENT_CHANGE) {
+			if (sts & PMCD_AGENT_CHANGE) {
 			    fprintf(stderr, "agent(s)");
-			    if (n & PMCD_ADD_AGENT) fprintf(stderr, " added");
-			    if (n & PMCD_RESTART_AGENT) fprintf(stderr, " restarted");
-			    if (n & PMCD_DROP_AGENT) fprintf(stderr, " dropped");
+			    if (sts & PMCD_ADD_AGENT) fprintf(stderr, " added");
+			    if (sts & PMCD_RESTART_AGENT) fprintf(stderr, " restarted");
+			    if (sts & PMCD_DROP_AGENT) fprintf(stderr, " dropped");
 			    flag++;
 			}
-			if (n & PMCD_LABEL_CHANGE) {
+			if (sts & PMCD_LABEL_CHANGE) {
 			    if (flag++)
 				fprintf(stderr, ", ");
 			    fprintf(stderr, "label change");
 			}
-			if (n & PMCD_NAMES_CHANGE) {
+			if (sts & PMCD_NAMES_CHANGE) {
 			    if (flag++)
 				fprintf(stderr, ", ");
 			    fprintf(stderr, "names change");
