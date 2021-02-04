@@ -2,7 +2,7 @@ QA output created by 1530
 == Valgrind checking metric descriptors and values
 === std out ===
 
-zfs.abd.linear_cnt PMID: 153.1.1 []
+zfs.abd.linear_cnt PMID: 153.1.1 [number of linear ABDs]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -12,14 +12,14 @@ allocated through abd_get_offset() and abd_get_from_buf()). If an
 ABD takes ownership of its buf then it will become tracked.
     value 153
 
-zfs.abd.linear_data_size PMID: 153.1.2 []
+zfs.abd.linear_data_size PMID: 153.1.2 [size of linear ABDs]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
 Help:
 Amount of data stored in all linear ABDs tracked by linear_cnt 
     value 153
 
-zfs.abd.scatter.chunk_waste PMID: 153.1.5 []
+zfs.abd.scatter.chunk_waste PMID: 153.1.5 [size of scatter ABD chunk waste]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
 Help:
@@ -27,7 +27,7 @@ The amount of space wasted at the end of the last chunk across all
 scatter ABDs tracked by scatter_cnt.
     value 153
 
-zfs.abd.scatter.cnt PMID: 153.1.3 []
+zfs.abd.scatter.cnt PMID: 153.1.3 [number of scatter ABDs]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -36,14 +36,14 @@ ABDs which don't own their data (for instance the ones which were
 allocated through abd_get_offset()).
     value 153
 
-zfs.abd.scatter.data_size PMID: 153.1.4 []
+zfs.abd.scatter.data_size PMID: 153.1.4 [size of scatter ABDs]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
 Help:
 Amount of data stored in all scatter ABDs tracked by scatter_cnt 
     value 153
 
-zfs.abd.scatter.order_0 PMID: 153.1.6 []
+zfs.abd.scatter.order_0 PMID: 153.1.6 [number of 0th order scatter ABDs]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -52,7 +52,7 @@ allocations are spread over all currently allocated ABDs, and
 act as a measure of memory fragmentation.
     value 153
 
-zfs.abd.scatter.order_1 PMID: 153.1.7 []
+zfs.abd.scatter.order_1 PMID: 153.1.7 [number of 1st order scatter ABDs]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -61,7 +61,7 @@ allocations are spread over all currently allocated ABDs, and
 act as a measure of memory fragmentation.
     value 153
 
-zfs.abd.scatter.order_10 PMID: 153.1.16 []
+zfs.abd.scatter.order_10 PMID: 153.1.16 [number of 10th order scatter ABDs]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -70,7 +70,7 @@ allocations are spread over all currently allocated ABDs, and
 act as a measure of memory fragmentation.
     value 153
 
-zfs.abd.scatter.order_2 PMID: 153.1.8 []
+zfs.abd.scatter.order_2 PMID: 153.1.8 [number of 2nd order scatter ABDs]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -79,7 +79,7 @@ allocations are spread over all currently allocated ABDs, and
 act as a measure of memory fragmentation.
     value 153
 
-zfs.abd.scatter.order_3 PMID: 153.1.9 []
+zfs.abd.scatter.order_3 PMID: 153.1.9 [number of 3rd order scatter ABDs]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -88,7 +88,7 @@ allocations are spread over all currently allocated ABDs, and
 act as a measure of memory fragmentation.
     value 153
 
-zfs.abd.scatter.order_4 PMID: 153.1.10 []
+zfs.abd.scatter.order_4 PMID: 153.1.10 [number of 4th order scatter ABDs]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -97,7 +97,7 @@ allocations are spread over all currently allocated ABDs, and
 act as a measure of memory fragmentation.
     value 153
 
-zfs.abd.scatter.order_5 PMID: 153.1.11 []
+zfs.abd.scatter.order_5 PMID: 153.1.11 [number of 5th order scatter ABDs]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -106,7 +106,7 @@ allocations are spread over all currently allocated ABDs, and
 act as a measure of memory fragmentation.
     value 153
 
-zfs.abd.scatter.order_6 PMID: 153.1.12 []
+zfs.abd.scatter.order_6 PMID: 153.1.12 [number of 6th order scatter ABDs]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -115,7 +115,7 @@ allocations are spread over all currently allocated ABDs, and
 act as a measure of memory fragmentation.
     value 153
 
-zfs.abd.scatter.order_7 PMID: 153.1.13 []
+zfs.abd.scatter.order_7 PMID: 153.1.13 [number of 7th order scatter ABDs]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -124,7 +124,7 @@ allocations are spread over all currently allocated ABDs, and
 act as a measure of memory fragmentation.
     value 153
 
-zfs.abd.scatter.order_8 PMID: 153.1.14 []
+zfs.abd.scatter.order_8 PMID: 153.1.14 [number of 8th order scatter ABDs]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -133,7 +133,7 @@ allocations are spread over all currently allocated ABDs, and
 act as a measure of memory fragmentation.
     value 153
 
-zfs.abd.scatter.order_9 PMID: 153.1.15 []
+zfs.abd.scatter.order_9 PMID: 153.1.15 [number of 9th order scatter ABDs]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -142,7 +142,7 @@ allocations are spread over all currently allocated ABDs, and
 act as a measure of memory fragmentation.
     value 153
 
-zfs.abd.scatter.page_alloc_retry PMID: 153.1.19 []
+zfs.abd.scatter.page_alloc_retry PMID: 153.1.19 [number of scatter ABD allocation retries]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -150,7 +150,7 @@ The total number of retries encountered when attempting to
 allocate the pages to populate the scatter ABD.
     value 153
 
-zfs.abd.scatter.page_multi_chunk PMID: 153.1.17 []
+zfs.abd.scatter.page_multi_chunk PMID: 153.1.17 [number of multi-chunk scatter ABDs]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -159,7 +159,7 @@ ABDs are preferentially allocated from the minimum number of
 contiguous multi-page chunks, a single chunk is optimal.
     value 153
 
-zfs.abd.scatter.page_multi_zone PMID: 153.1.18 []
+zfs.abd.scatter.page_multi_zone PMID: 153.1.18 [number of split scatter ABDs]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -167,28 +167,31 @@ The number of scatter ABDs which are split across memory zones.
 ABDs are preferentially allocated using pages from a single zone.
     value 153
 
-zfs.abd.scatter.sg_table_retry PMID: 153.1.20 []
+zfs.abd.scatter.sg_table_retry PMID: 153.1.20 [number of scatter ABD SG table allocation retries]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 The total number of retries encountered when attempting to
-allocate the sg table for an ABD.
+allocate the SG table for an ABD.
     value 153
 
-zfs.abd.struct_size PMID: 153.1.0 []
+zfs.abd.struct_size PMID: 153.1.0 [size of allocated ABD structs]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
 Help:
 Amount of memory occupied by all of the abd_t struct allocations 
     value 153
 
-zfs.arc.abd_chunk_waste_size PMID: 153.0.115 []
+zfs.arc.abd_chunk_waste_size PMID: 153.0.115 [size of scattered ABD chunks in ARC]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: byte
-Help: <empty entry>
+Help:
+This includes space wasted by all scatter ABD's, not just those allocated by the ARC.
+But the vast majority of scatter ABD's come from the ARC, because other users are
+very short-lived.
     value 0
 
-zfs.arc.access_skip PMID: 153.0.16 []
+zfs.arc.access_skip PMID: 153.0.16 [ARC buffers skipped]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -196,7 +199,7 @@ Number of buffers skipped when updating the access state due to the
 header having already been released after acquiring the hash lock.
     value 153
 
-zfs.arc.anon_evictable_data PMID: 153.0.43 []
+zfs.arc.anon_evictable_data PMID: 153.0.43 [size of evictable anon data]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
 Help:
@@ -207,7 +210,7 @@ residing in the arc_anon state, and are eligible for eviction
 Not updated directly; only synced in arc_kstat_update.
     value 153
 
-zfs.arc.anon_evictable_metadata PMID: 153.0.44 []
+zfs.arc.anon_evictable_metadata PMID: 153.0.44 [size of evictable anon metadata]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
 Help:
@@ -218,7 +221,7 @@ residing in the arc_anon state, and are eligible for eviction
 Not updated directly; only synced in arc_kstat_update.
     value 153
 
-zfs.arc.anon_size PMID: 153.0.42 []
+zfs.arc.anon_size PMID: 153.0.42 [size of buffers in anon state]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
 Help:
@@ -229,10 +232,12 @@ are all included in this value.
 Not updated directly; only synced in arc_kstat_update.
     value 153
 
-zfs.arc.async_upgrade_sync PMID: 153.0.92 []
+zfs.arc.async_upgrade_sync PMID: 153.0.92 [ARC async upgrade sync]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+This is a sync read that needs to wait for an in-flight async read. Request that the
+zio have its priority upgraded.
     value 153
 
 zfs.arc.bonus_size PMID: 153.0.41 [bytes consumed by bonus buffers.]
@@ -264,10 +269,11 @@ Help:
 min target cache size
     value 153
 
-zfs.arc.cached_only_in_progress PMID: 153.0.114 []
+zfs.arc.cached_only_in_progress PMID: 153.0.114 [ARC cached only in progress]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+ARC cached only in progress
     value 0
 
 zfs.arc.compressed_size PMID: 153.0.33 [compressed size of entire ARC]
@@ -279,7 +285,7 @@ Note that the compressed bytes may match the uncompressed bytes
 if the block is either not compressed or compressed arc is disabled.
     value 153
 
-zfs.arc.data_size PMID: 153.0.37 []
+zfs.arc.data_size PMID: 153.0.37 [size of ARC buffers]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
 Help:
@@ -289,7 +295,7 @@ on disk user data (e.g. plain file contents).
 Not updated directly; only synced in arc_kstat_update.
     value 153
 
-zfs.arc.dbuf_size PMID: 153.0.39 []
+zfs.arc.dbuf_size PMID: 153.0.39 [size of dbufs]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
 Help:
@@ -297,55 +303,63 @@ Number of bytes consumed by dmu_buf_impl_t objects.
 Not updated directly; only synced in arc_kstat_update.
     value 153
 
-zfs.arc.deleted PMID: 153.0.14 []
+zfs.arc.deleted PMID: 153.0.14 [ARC deletions]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+ARC deletions
     value 153
 
-zfs.arc.demand.data_hits PMID: 153.0.2 []
+zfs.arc.demand.data_hits PMID: 153.0.2 [ARC demand data hits]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+ARC demand data hits
     value 153
 
-zfs.arc.demand.data_misses PMID: 153.0.3 []
+zfs.arc.demand.data_misses PMID: 153.0.3 [ARC demand data misses]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+Demand misses mean that programs are waiting on disk IO.
     value 153
 
-zfs.arc.demand.hit_predictive_prefetch PMID: 153.0.93 []
+zfs.arc.demand.hit_predictive_prefetch PMID: 153.0.93 [ARC demand hit predictive prefetch number]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+ARC demand hit predictive prefetch number
     value 153
 
-zfs.arc.demand.hit_prescient_prefetch PMID: 153.0.94 []
+zfs.arc.demand.hit_prescient_prefetch PMID: 153.0.94 [ARC demand hit prescient prefetch number]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+ARC demand hit prescient prefetch number
     value 153
 
-zfs.arc.demand.metadata_hits PMID: 153.0.4 []
+zfs.arc.demand.metadata_hits PMID: 153.0.4 [ARC demand metadata hits]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+ARC demand metadata hits
     value 153
 
-zfs.arc.demand.metadata_misses PMID: 153.0.5 []
+zfs.arc.demand.metadata_misses PMID: 153.0.5 [ARC demand metadata misses]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+ARC demand metadata misses
     value 153
 
-zfs.arc.dnode_limit PMID: 153.0.89 []
+zfs.arc.dnode_limit PMID: 153.0.89 [ARC dnode limit]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
-Help: <empty entry>
+Help:
+ARC dnode limit
     value 153
 
-zfs.arc.dnode_size PMID: 153.0.40 []
+zfs.arc.dnode_size PMID: 153.0.40 [size of dnodes]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
 Help:
@@ -353,31 +367,35 @@ Number of bytes consumed by dnode_t objects.
 Not updated directly; only synced in arc_kstat_update.
     value 153
 
-zfs.arc.evict.l2_cached PMID: 153.0.19 []
+zfs.arc.evict.l2_cached PMID: 153.0.19 [ARC evicted data cached in L2ARC]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+ARC evicted data cached in L2ARC
     value 153
 
-zfs.arc.evict.l2_eligible PMID: 153.0.20 []
+zfs.arc.evict.l2_eligible PMID: 153.0.20 [ARC evicted data eligible for L2ARC]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+ARC evicted data eligible for L2ARC
     value 153
 
-zfs.arc.evict.l2_ineligible PMID: 153.0.21 []
+zfs.arc.evict.l2_ineligible PMID: 153.0.21 [ARC evicted data not eligible for L2ARC]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+ARC evicted data not eligible for L2ARC
     value 153
 
-zfs.arc.evict.l2_skip PMID: 153.0.22 []
+zfs.arc.evict.l2_skip PMID: 153.0.22 [ARC evicted data not cached in L2ARC]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+ARC evicted data not cached in L2ARC
     value 153
 
-zfs.arc.evict.not_enough PMID: 153.0.18 []
+zfs.arc.evict.not_enough PMID: 153.0.18 [ARC buffers that could not be evicted]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -385,7 +403,7 @@ Number of times arc_evict_state() was unable to evict enough
 buffers to reach its target amount.
     value 153
 
-zfs.arc.evict.skip PMID: 153.0.17 []
+zfs.arc.evict.skip PMID: 153.0.17 [ARC evicted buffers skipped]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -394,37 +412,42 @@ indirect prefetch buffers that have not lived long enough, or are
 not from the spa we're trying to evict from.
     value 153
 
-zfs.arc.hash.chain_max PMID: 153.0.27 []
+zfs.arc.hash.chain_max PMID: 153.0.27 [naximum number of chains in ARC]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: count
-Help: <empty entry>
+Help:
+naximum number of chains in ARC
     value 153
 
-zfs.arc.hash.chains PMID: 153.0.26 []
+zfs.arc.hash.chains PMID: 153.0.26 [number of hash chains in ARC]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
-Help: <empty entry>
+Help:
+number of hash chains in ARC
     value 153
 
-zfs.arc.hash.collisions PMID: 153.0.25 []
+zfs.arc.hash.collisions PMID: 153.0.25 [number of hash collisions in ARC]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+number of hash collisions in ARC
     value 153
 
-zfs.arc.hash.elements PMID: 153.0.23 []
+zfs.arc.hash.elements PMID: 153.0.23 [number of hash elements in ARC]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
-Help: <empty entry>
+Help:
+number of hash elements in ARC
     value 153
 
-zfs.arc.hash.elements_max PMID: 153.0.24 []
+zfs.arc.hash.elements_max PMID: 153.0.24 [maximnum number of has elements in ARC]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: count
-Help: <empty entry>
+Help:
+maximnum number of has elements in ARC
     value 153
 
-zfs.arc.hdr_size PMID: 153.0.36 []
+zfs.arc.hdr_size PMID: 153.0.36 [size of internal ARC structures]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
 Help:
@@ -437,273 +460,316 @@ cache).
 Not updated directly; only synced in arc_kstat_update.
     value 153
 
-zfs.arc.hits PMID: 153.0.0 []
+zfs.arc.hits PMID: 153.0.0 [ARC hits]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+Number of times a data block was in the ARC DRAM cache and returned.
     value 153
 
-zfs.arc.l2.abort_lowmem PMID: 153.0.71 []
+zfs.arc.l2.abort_lowmem PMID: 153.0.71 [number of L2ARC low memory aborts]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+number of L2ARC low memory aborts
     value 153
 
-zfs.arc.l2.asize PMID: 153.0.75 []
+zfs.arc.l2.asize PMID: 153.0.75 [L2ARC aligned size]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
-Help: <empty entry>
+Help:
+L2ARC aligned size
     value 153
 
-zfs.arc.l2.cksum_bad PMID: 153.0.72 []
+zfs.arc.l2.cksum_bad PMID: 153.0.72 [number of L2ARC bad checksum errors]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+number of L2ARC bad checksum errors
     value 153
 
-zfs.arc.l2.data_to_meta_ratio PMID: 153.0.102 []
+zfs.arc.l2.data_to_meta_ratio PMID: 153.0.102 [L2ARC data to metadata ratio]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+L2ARC data to metadata ratio
     value 0
 
-zfs.arc.l2.evict_l1cached PMID: 153.0.69 []
+zfs.arc.l2.evict_l1cached PMID: 153.0.69 [L2ARC evictions of L1-cached data]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+L2ARC evictions of L1-cached data
     value 153
 
-zfs.arc.l2.evict_lock_retry PMID: 153.0.67 []
+zfs.arc.l2.evict_lock_retry PMID: 153.0.67 [number of L2ARC evict lock retries]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+number of L2ARC evict lock retries
     value 153
 
-zfs.arc.l2.evict_reading PMID: 153.0.68 []
+zfs.arc.l2.evict_reading PMID: 153.0.68 [L2ARC evictions upon reading]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+L2ARC evictions upon reading
     value 153
 
-zfs.arc.l2.feeds PMID: 153.0.59 []
+zfs.arc.l2.feeds PMID: 153.0.59 [L2ARC feeds]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+L2ARC feeds
     value 153
 
-zfs.arc.l2.free_on_write PMID: 153.0.70 []
+zfs.arc.l2.free_on_write PMID: 153.0.70 [size of L2ARC free on write data]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+size of L2ARC free on write data
     value 153
 
-zfs.arc.l2.hdr_size PMID: 153.0.76 []
+zfs.arc.l2.hdr_size PMID: 153.0.76 [Size of L2ARC internal data structures]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
-Help: <empty entry>
+Help:
+Size of L2ARC internal data structures
     value 153
 
-zfs.arc.l2.hits PMID: 153.0.57 []
+zfs.arc.l2.hits PMID: 153.0.57 [L2ARC hits]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+L2ARC hits
     value 153
 
-zfs.arc.l2.io_error PMID: 153.0.73 []
+zfs.arc.l2.io_error PMID: 153.0.73 [number of L2ARC IO errors]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+number of L2ARC IO errors
     value 153
 
-zfs.arc.l2.log.blk_asize PMID: 153.0.100 []
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: byte
-Help: <empty entry>
-    value 0
-
-zfs.arc.l2.log.blk_avg_asize PMID: 153.0.99 []
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: byte
-Help: <empty entry>
-    value 0
-
-zfs.arc.l2.log.blk_count PMID: 153.0.101 []
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: count
-Help: <empty entry>
-    value 0
-
-zfs.arc.l2.log.blk_writes PMID: 153.0.98 []
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: count
-Help: <empty entry>
-    value 0
-
-zfs.arc.l2.misses PMID: 153.0.58 []
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: count
-Help: <empty entry>
-    value 153
-
-zfs.arc.l2.read_bytes PMID: 153.0.61 []
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: byte
-Help: <empty entry>
-    value 153
-
-zfs.arc.l2.rebuild.asize PMID: 153.0.110 [Aligned size of restored buffers in the L2ARC]
+zfs.arc.l2.log.blk_asize PMID: 153.0.100 [L2ARC log block aligned size]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: byte
 Help:
-Aligned size of restored buffers in the L2ARC
+L2ARC log block aligned size
     value 0
 
-zfs.arc.l2.rebuild.bufs PMID: 153.0.111 []
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: count
-Help: <empty entry>
-    value 0
-
-zfs.arc.l2.rebuild.bufs_precached PMID: 153.0.112 []
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: count
-Help: <empty entry>
-    value 0
-
-zfs.arc.l2.rebuild.cksum_lb_errors PMID: 153.0.107 []
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: count
-Help: <empty entry>
-    value 0
-
-zfs.arc.l2.rebuild.dh_errors PMID: 153.0.106 []
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: count
-Help: <empty entry>
-    value 0
-
-zfs.arc.l2.rebuild.io_errors PMID: 153.0.105 []
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: count
-Help: <empty entry>
-    value 0
-
-zfs.arc.l2.rebuild.log_blks PMID: 153.0.113 []
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: count
-Help: <empty entry>
-    value 0
-
-zfs.arc.l2.rebuild.lowmem PMID: 153.0.108 []
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: count
-Help: <empty entry>
-    value 0
-
-zfs.arc.l2.rebuild.size PMID: 153.0.109 [Logical size of restored buffers in the L2ARC]
+zfs.arc.l2.log.blk_avg_asize PMID: 153.0.99 [L2ARC log block average size]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: byte
 Help:
-Logical size of restored buffers in the L2ARC
+L2ARC log block average size
     value 0
 
-zfs.arc.l2.rebuild.success PMID: 153.0.103 []
+zfs.arc.l2.log.blk_count PMID: 153.0.101 [L2ARC log block count]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+L2ARC log block count
     value 0
 
-zfs.arc.l2.rebuild.unsupported PMID: 153.0.104 []
+zfs.arc.l2.log.blk_writes PMID: 153.0.98 [L2ARC log block writes]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+L2ARC log block writes
     value 0
 
-zfs.arc.l2.rw_clash PMID: 153.0.60 []
+zfs.arc.l2.misses PMID: 153.0.58 [L2ARC misses]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+L2ARC misses
     value 153
 
-zfs.arc.l2.size PMID: 153.0.74 []
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: byte
-Help: <empty entry>
-    value 153
-
-zfs.arc.l2.write_bytes PMID: 153.0.62 []
+zfs.arc.l2.read_bytes PMID: 153.0.61 [L2ARC bytes read]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: byte
-Help: <empty entry>
+Help:
+L2ARC bytes read
     value 153
 
-zfs.arc.l2.writes_done PMID: 153.0.64 []
+zfs.arc.l2.rebuild.asize PMID: 153.0.110 [aligned size of restored buffers in the L2ARC]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: byte
+Help:
+aligned size of restored buffers in the L2ARC
+    value 0
+
+zfs.arc.l2.rebuild.bufs PMID: 153.0.111 [L2ARC rebuild buffers]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
-    value 153
+Help:
+L2ARC rebuild buffers
+    value 0
 
-zfs.arc.l2.writes_error PMID: 153.0.65 []
+zfs.arc.l2.rebuild.bufs_precached PMID: 153.0.112 [L2ARC rebuild buffers prefetched]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
-    value 153
+Help:
+L2ARC rebuild buffers prefetched
+    value 0
 
-zfs.arc.l2.writes_lock_retry PMID: 153.0.66 []
+zfs.arc.l2.rebuild.cksum_lb_errors PMID: 153.0.107 [L2ARC log block checksum errors]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
-    value 153
+Help:
+L2ARC log block checksum errors
+    value 0
 
-zfs.arc.l2.writes_sent PMID: 153.0.63 []
+zfs.arc.l2.rebuild.dh_errors PMID: 153.0.106 [L2ARC device header errors]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+L2ARC device header errors
+    value 0
+
+zfs.arc.l2.rebuild.io_errors PMID: 153.0.105 [L2ARC rebuild IO errors]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+L2ARC rebuild IO errors
+    value 0
+
+zfs.arc.l2.rebuild.log_blks PMID: 153.0.113 [L2ARC rebuild log blocks]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+L2ARC rebuild log blocks
+    value 0
+
+zfs.arc.l2.rebuild.lowmem PMID: 153.0.108 [L2ARC low memory errors]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+L2ARC low memory errors
+    value 0
+
+zfs.arc.l2.rebuild.size PMID: 153.0.109 [logical size of restored buffers in the L2ARC]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: byte
+Help:
+logical size of restored buffers in the L2ARC
+    value 0
+
+zfs.arc.l2.rebuild.success PMID: 153.0.103 [L2ARC rebuild state]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+L2ARC rebuild state
+    value 0
+
+zfs.arc.l2.rebuild.unsupported PMID: 153.0.104 [L2ARC rebuild unsupported]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Attempt to rebuild a device containing no actual dev hdr or containing a header
+from some other pool or from another version of persistent L2ARC.
+    value 0
+
+zfs.arc.l2.rw_clash PMID: 153.0.60 [L2ARC read/write clashes]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+L2ARC read/write clashes
     value 153
 
-zfs.arc.loaned_bytes PMID: 153.0.85 []
+zfs.arc.l2.size PMID: 153.0.74 [L2ARC size]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
-Help: <empty entry>
+Help:
+L2ARC size
     value 153
 
-zfs.arc.memory.all_bytes PMID: 153.0.80 []
+zfs.arc.l2.write_bytes PMID: 153.0.62 [L2ARC bytes written]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: byte
-Help: <empty entry>
+    Semantics: counter  Units: byte
+Help:
+L2ARC bytes written
     value 153
 
-zfs.arc.memory.available_bytes PMID: 153.0.82 []
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: byte
-Help: <empty entry>
-    value 153
-
-zfs.arc.memory.direct_count PMID: 153.0.78 []
+zfs.arc.l2.writes_done PMID: 153.0.64 [number of writes done in L2ARC]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+number of writes done in L2ARC
     value 153
 
-zfs.arc.memory.free_bytes PMID: 153.0.81 []
+zfs.arc.l2.writes_error PMID: 153.0.65 [number of write errors in L2ARC]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+number of write errors in L2ARC
+    value 153
+
+zfs.arc.l2.writes_lock_retry PMID: 153.0.66 [number of L2ARC write lock retries]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+number of L2ARC write lock retries
+    value 153
+
+zfs.arc.l2.writes_sent PMID: 153.0.63 [number of writes sent to L2ARC]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+number of writes sent to L2ARC
+    value 153
+
+zfs.arc.loaned_bytes PMID: 153.0.85 [ARC loaned bytes]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
-Help: <empty entry>
+Help:
+ARC loaned bytes
     value 153
 
-zfs.arc.memory.indirect_count PMID: 153.0.79 []
+zfs.arc.memory.all_bytes PMID: 153.0.80 [ARC all memory]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: byte
+Help:
+ARC all memory
+    value 153
+
+zfs.arc.memory.available_bytes PMID: 153.0.82 [ARC available memory]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: byte
+Help:
+ARC available memory
+    value 153
+
+zfs.arc.memory.direct_count PMID: 153.0.78 [ARC memory direct count]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+ARC memory direct count
     value 153
 
-zfs.arc.memory.throttle_count PMID: 153.0.77 []
+zfs.arc.memory.free_bytes PMID: 153.0.81 [ARC free memory]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: byte
+Help:
+ARC free memory
+    value 153
+
+zfs.arc.memory.indirect_count PMID: 153.0.79 [ARC memory indirect count]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+ARC memory indirect count
     value 153
 
-zfs.arc.meta_limit PMID: 153.0.88 []
+zfs.arc.memory.throttle_count PMID: 153.0.77 [ARC memory throttle count]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+ARC memory throttle count
+    value 153
+
+zfs.arc.meta_limit PMID: 153.0.88 [ARC metadata buffers limit]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
 Help:
@@ -711,27 +777,28 @@ ARC will evict meta buffers that exceed arc_meta_limit. This
 tunable make arc_meta_limit adjustable for different workloads.
     value 153
 
-zfs.arc.meta_max PMID: 153.0.90 [max size of metadata]
+zfs.arc.meta_max PMID: 153.0.90 [nax size of ARC metadata]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
 Help:
-max size of metadata
+nax size of ARC metadata
     value 153
 
-zfs.arc.meta_min PMID: 153.0.91 [min size for metadata]
+zfs.arc.meta_min PMID: 153.0.91 [nin size of ARC metadata]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
 Help:
-min size for metadata
+nin size of ARC metadata
     value 153
 
-zfs.arc.meta_used PMID: 153.0.87 []
+zfs.arc.meta_used PMID: 153.0.87 [ARC metadata buffers used]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
-Help: <empty entry>
+Help:
+ARC metadata buffers used
     value 153
 
-zfs.arc.metadata_size PMID: 153.0.38 []
+zfs.arc.metadata_size PMID: 153.0.38 [size of ARC metadata]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
 Help:
@@ -742,7 +809,7 @@ structures (e.g. ZAP, dnode, indirect blocks, etc).
 Not updated directly; only synced in arc_kstat_update.
     value 153
 
-zfs.arc.mfu.evictable_data PMID: 153.0.52 []
+zfs.arc.mfu.evictable_data PMID: 153.0.52 [size of most frequently used evictable data]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
 Help:
@@ -752,7 +819,7 @@ state.
 Not updated directly; only synced in arc_kstat_update
     value 153
 
-zfs.arc.mfu.evictable_metadata PMID: 153.0.53 []
+zfs.arc.mfu.evictable_metadata PMID: 153.0.53 [size of most frequently used evictable metadata]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
 Help:
@@ -762,7 +829,7 @@ arc_mfu state.
 Not updated directly; only synced in arc_kstat_update.
     value 153
 
-zfs.arc.mfu.ghost_evictable_data PMID: 153.0.55 []
+zfs.arc.mfu.ghost_evictable_data PMID: 153.0.55 [size of most frequently used evictable ghost data]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
 Help:
@@ -772,7 +839,7 @@ ARC_BUFC_DATA, and linked off the arc_mfu_ghost state.
 Not updated directly; only synced in arc_kstat_update.
     value 153
 
-zfs.arc.mfu.ghost_evictable_metadata PMID: 153.0.56 []
+zfs.arc.mfu.ghost_evictable_metadata PMID: 153.0.56 [size of most frequently used evictable ghost metadata]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
 Help:
@@ -782,13 +849,14 @@ ARC_BUFC_METADATA, and linked off the arc_mru_ghost state.
 Not updated directly; only synced in arc_kstat_update.
     value 153
 
-zfs.arc.mfu.ghost_hits PMID: 153.0.13 []
+zfs.arc.mfu.ghost_hits PMID: 153.0.13 [ARC most frequently used metadata hits]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+ARC most frequently used metadata hits
     value 153
 
-zfs.arc.mfu.ghost_size PMID: 153.0.54 []
+zfs.arc.mfu.ghost_size PMID: 153.0.54 [size of most frequently used ghost list]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
 Help:
@@ -798,13 +866,14 @@ arcstat_mru_ghost_size for more details.
 Not updated directly; only synced in arc_kstat_update.
     value 153
 
-zfs.arc.mfu.hits PMID: 153.0.12 []
+zfs.arc.mfu.hits PMID: 153.0.12 [ARC most frequently used data hits]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+ARC most frequently used data hits
     value 153
 
-zfs.arc.mfu.size PMID: 153.0.51 []
+zfs.arc.mfu.size PMID: 153.0.51 [size of most frequently used data]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
 Help:
@@ -815,13 +884,16 @@ are all included in this value.
 Not updated directly; only synced in arc_kstat_update.
     value 153
 
-zfs.arc.misses PMID: 153.0.1 []
+zfs.arc.misses PMID: 153.0.1 [ARC misses]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+Number of times a data block was not in the ARC DRAM cache. It will 
+be read from the L2ARC cache devices (if available and the data is 
+cached on them) or the pool disks.
     value 153
 
-zfs.arc.mru.evictable_data PMID: 153.0.46 []
+zfs.arc.mru.evictable_data PMID: 153.0.46 [size of most recently used evictable data]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
 Help:
@@ -832,7 +904,7 @@ residing in the arc_mru state, and are eligible for eviction
 Not updated directly; only synced in arc_kstat_update.
     value 153
 
-zfs.arc.mru.evictable_metadata PMID: 153.0.47 []
+zfs.arc.mru.evictable_metadata PMID: 153.0.47 [size of most recently used evictable metadata]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
 Help:
@@ -843,7 +915,7 @@ residing in the arc_mru state, and are eligible for eviction
 Not updated directly; only synced in arc_kstat_update.
     value 153
 
-zfs.arc.mru.ghost_evictable_data PMID: 153.0.49 []
+zfs.arc.mru.ghost_evictable_data PMID: 153.0.49 [size of most recently used evictable ghost data]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
 Help:
@@ -853,7 +925,7 @@ ARC_BUFC_DATA, and linked off the arc_mru_ghost state.
 Not updated directly; only synced in arc_kstat_update.
     value 153
 
-zfs.arc.mru.ghost_evictable_metadata PMID: 153.0.50 []
+zfs.arc.mru.ghost_evictable_metadata PMID: 153.0.50 [size of most recently used evictable ghost metadata]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
 Help:
@@ -863,13 +935,14 @@ ARC_BUFC_METADATA, and linked off the arc_mru_ghost state.
 Not updated directly; only synced in arc_kstat_update.
     value 153
 
-zfs.arc.mru.ghost_hits PMID: 153.0.11 []
+zfs.arc.mru.ghost_hits PMID: 153.0.11 [ARC most recently used metadata hits]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+ARC most recently used metadata hits
     value 153
 
-zfs.arc.mru.ghost_size PMID: 153.0.48 []
+zfs.arc.mru.ghost_size PMID: 153.0.48 [size of most recently used ghost list]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
 Help:
@@ -882,13 +955,14 @@ Thus, *if* the headers had associated ARC buffers, these
 buffers *would have* consumed this number of bytes.
     value 153
 
-zfs.arc.mru.hits PMID: 153.0.10 []
+zfs.arc.mru.hits PMID: 153.0.10 [ARC most recently used data hits]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+ARC most recently used data hits
     value 153
 
-zfs.arc.mru.size PMID: 153.0.45 []
+zfs.arc.mru.size PMID: 153.0.45 [size of most recently used data]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
 Help:
@@ -899,7 +973,7 @@ are all included in this value.
 Not updated directly; only synced in arc_kstat_update.
     value 153
 
-zfs.arc.mutex_miss PMID: 153.0.15 []
+zfs.arc.mutex_miss PMID: 153.0.15 [ARC mutex miss]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -909,17 +983,18 @@ by something using the same buffer, since hash locks are shared
 by multiple buffers.
     value 153
 
-zfs.arc.need_free PMID: 153.0.95 [bytes to be freed]
+zfs.arc.need_free PMID: 153.0.95 [ARC bytes to be freed]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
 Help:
-bytes to be freed
+ARC bytes to be freed
     value 153
 
-zfs.arc.no_grow PMID: 153.0.83 []
+zfs.arc.no_grow PMID: 153.0.83 [ARC no grow setting]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: count
-Help: <empty entry>
+Help:
+ARC no grow setting
     value 153
 
 zfs.arc.overhead_size PMID: 153.0.35 [number of bytes in the arc from arc_buf_t's]
@@ -940,61 +1015,74 @@ Help:
 target size of MRU
     value 153
 
-zfs.arc.prefetch.data_hits PMID: 153.0.6 []
+zfs.arc.prefetch.data_hits PMID: 153.0.6 [ARC prefetch data hits]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+Prefetch identified a sequential workload, and requested that the data be cached 
+in the ARC ahead of time by performing ARC accesses for that data. As it turned out, 
+the data was already in the ARC - so these accesses returned as "hits" 
+(and so the prefetch ARC access wasn't actually needed). This happens if cached 
+data is repeatedly read in a sequential manner.
     value 153
 
-zfs.arc.prefetch.data_misses PMID: 153.0.7 []
+zfs.arc.prefetch.data_misses PMID: 153.0.7 [ARC prefetch data misses]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+Prefetch identified a sequential workload, and requested that the data
+be cached in the ARC ahead of time by performing ARC accesses for that data. 
+The data was not in the cache already, and so this is a "miss" and the data 
+is read from disk. This is normal, and is how prefetch populates the ARC from disk.
     value 153
 
-zfs.arc.prefetch.metadata_hits PMID: 153.0.8 []
+zfs.arc.prefetch.metadata_hits PMID: 153.0.8 [ARC prefetch metadata hits]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+ARC prefetch metadata hits
     value 153
 
-zfs.arc.prefetch.metadata_misses PMID: 153.0.9 []
+zfs.arc.prefetch.metadata_misses PMID: 153.0.9 [ARC prefetch metadata misses]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+ARC prefetch metadata misses
     value 153
 
-zfs.arc.prune PMID: 153.0.86 []
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: byte
-Help: <empty entry>
-    value 153
-
-zfs.arc.raw_size PMID: 153.0.97 [size of all b_rabd's in entire arc]
+zfs.arc.prune PMID: 153.0.86 [ARC objects to scan for prune]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
 Help:
-size of all b_rabd's in entire arc
+ARC objects to scan for prune
     value 153
 
-zfs.arc.size PMID: 153.0.32 []
+zfs.arc.raw_size PMID: 153.0.97 [size of all b_rabd's in entire ARC]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: byte
+Help:
+size of all b_rabd's in entire ARC
+    value 153
+
+zfs.arc.size PMID: 153.0.32 [size of ARC]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
 Help:
 Not updated directly; only synced in arc_kstat_update
     value 153
 
-zfs.arc.sys_free PMID: 153.0.96 [target system free bytes]
+zfs.arc.sys_free PMID: 153.0.96 [ARC target system free bytes]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
 Help:
-target system free bytes
+ARC target system free bytes
     value 153
 
-zfs.arc.tempreserve PMID: 153.0.84 []
+zfs.arc.tempreserve PMID: 153.0.84 [ARC tempreserve space]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
-Help: <empty entry>
+Help:
+ARC tempreserve space
     value 153
 
 zfs.arc.uncompressed_size PMID: 153.0.34 [uncompressed size of entire ARC]
@@ -1006,18 +1094,18 @@ arc is disabled then this value will be identical to the stat
 above.
     value 153
 
-zfs.dbuf.cache.count PMID: 153.2.0 [statistics about the size of the dbuf cache]
+zfs.dbuf.cache.count PMID: 153.2.0 [number of elements in the dbuf cache]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-statistics about the size of the dbuf cache
+number of elements in the dbuf cache
     value 153
 
-zfs.dbuf.cache.hiwater_bytes PMID: 153.2.5 [statistics regarding the bounds on the dbuf cache size]
+zfs.dbuf.cache.hiwater_bytes PMID: 153.2.5 [high bounds on the dbuf cache size]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: byte
 Help:
-statistics regarding the bounds on the dbuf cache size
+high bounds on the dbuf cache size
     value 153
 
 zfs.dbuf.cache.level_0 PMID: 153.2.7 [the distribution of dbufs level 0 in the cache]
@@ -1188,32 +1276,32 @@ Help:
 the total size of dbufs level 9 in the cache
     value 153
 
-zfs.dbuf.cache.lowater_bytes PMID: 153.2.4 [statistics regarding the bounds on the dbuf cache size]
+zfs.dbuf.cache.lowater_bytes PMID: 153.2.4 [low bounds on the dbuf cache size]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: byte
 Help:
-statistics regarding the bounds on the dbuf cache size
+low bounds on the dbuf cache size
     value 153
 
-zfs.dbuf.cache.size_bytes PMID: 153.2.1 [statistics about the size of the dbuf cache]
+zfs.dbuf.cache.size_bytes PMID: 153.2.1 [size of the dbuf cache]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
 Help:
-statistics about the size of the dbuf cache
+size of the dbuf cache
     value 153
 
-zfs.dbuf.cache.size_bytes_max PMID: 153.2.2 [statistics about the size of the dbuf cache]
+zfs.dbuf.cache.size_bytes_max PMID: 153.2.2 [max size of the dbuf cache]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: byte
 Help:
-statistics about the size of the dbuf cache
+max size of the dbuf cache
     value 153
 
-zfs.dbuf.cache.target_bytes PMID: 153.2.3 [statistics regarding the bounds on the dbuf cache size]
+zfs.dbuf.cache.target_bytes PMID: 153.2.3 [target bounds on the dbuf cache size]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: byte
 Help:
-statistics regarding the bounds on the dbuf cache size
+target bounds on the dbuf cache size
     value 153
 
 zfs.dbuf.cache.total_evicts PMID: 153.2.6 [total number of dbuf cache evictions that have occurred]
@@ -1223,13 +1311,14 @@ Help:
 total number of dbuf cache evictions that have occurred
     value 153
 
-zfs.dbuf.hash.chain_max PMID: 153.2.37 []
+zfs.dbuf.hash.chain_max PMID: 153.2.37 [max number of dbuf hash chains]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+max number of dbuf hash chains
     value 153
 
-zfs.dbuf.hash.chains PMID: 153.2.36 []
+zfs.dbuf.hash.chains PMID: 153.2.36 [number of dbuf hash chains]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -1237,35 +1326,35 @@ Number of sublists containing more than one dbuf in the dbuf
 hash table. Keep track of the longest hash chain.
     value 153
 
-zfs.dbuf.hash.collisions PMID: 153.2.33 [statistics about the dbuf hash table]
+zfs.dbuf.hash.collisions PMID: 153.2.33 [dbuf hash table collisions]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-statistics about the dbuf hash table
+dbuf hash table collisions
     value 153
 
-zfs.dbuf.hash.elements PMID: 153.2.34 [statistics about the dbuf hash table]
+zfs.dbuf.hash.elements PMID: 153.2.34 [number of dbuf hash table elements]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-statistics about the dbuf hash table
+number of dbuf hash table elements
     value 153
 
-zfs.dbuf.hash.elements_max PMID: 153.2.35 [statistics about the dbuf hash table]
+zfs.dbuf.hash.elements_max PMID: 153.2.35 [max number of dbuf hash table elements]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-statistics about the dbuf hash table
+max number of dbuf hash table elements
     value 153
 
-zfs.dbuf.hash.hits PMID: 153.2.31 [statistics about the dbuf hash table]
+zfs.dbuf.hash.hits PMID: 153.2.31 [dbuf hash table hits]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-statistics about the dbuf hash table
+dbuf hash table hits
     value 153
 
-zfs.dbuf.hash.insert_race PMID: 153.2.38 []
+zfs.dbuf.hash.insert_race PMID: 153.2.38 [number of dbug hash insert races]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -1273,21 +1362,21 @@ Number of times a dbuf_create() discovers that a dbuf was
 already created and in the dbuf hash table.
     value 153
 
-zfs.dbuf.hash.misses PMID: 153.2.32 [statistics about the dbuf hash table ]
+zfs.dbuf.hash.misses PMID: 153.2.32 [dbuf hash table misses]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-statistics about the dbuf hash table 
+dbuf hash table misses
     value 153
 
-zfs.dbuf.metadata_cache.count PMID: 153.2.39 [statistics about the size of the metadata dbuf cache]
+zfs.dbuf.metadata_cache.count PMID: 153.2.39 [number of elementsin the metadata dbuf cache]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-statistics about the size of the metadata dbuf cache
+number of elementsin the metadata dbuf cache
     value 153
 
-zfs.dbuf.metadata_cache.overflow PMID: 153.2.42 []
+zfs.dbuf.metadata_cache.overflow PMID: 153.2.42 [number of the metadata dbuf cache overflows]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
 Help:
@@ -1296,93 +1385,105 @@ something to the metadata cache because it's full, and instead put
 the data in the regular dbuf cache.
     value 153
 
-zfs.dbuf.metadata_cache.size_bytes PMID: 153.2.40 [statistics about the size of the metadata dbuf cache]
+zfs.dbuf.metadata_cache.size_bytes PMID: 153.2.40 [size of the metadata dbuf cache]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
 Help:
-statistics about the size of the metadata dbuf cache
+size of the metadata dbuf cache
     value 153
 
-zfs.dbuf.metadata_cache.size_bytes_max PMID: 153.2.41 [statistics about the size of the metadata dbuf cache]
+zfs.dbuf.metadata_cache.size_bytes_max PMID: 153.2.41 [max size of the metadata dbuf cache]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
 Help:
-statistics about the size of the metadata dbuf cache
+max size of the metadata dbuf cache
     value 153
 
-zfs.dmu_tx.assigned PMID: 153.3.0 []
+zfs.dmu_tx.assigned PMID: 153.3.0 [number of DMU transactions assigned]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+number of DMU transactions assigned
     value 153
 
-zfs.dmu_tx.delay PMID: 153.3.1 []
+zfs.dmu_tx.delay PMID: 153.3.1 [number of DMU transactions delayed]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: millisec
-Help: <empty entry>
+Help:
+number of DMU transactions delayed
     value 153
 
-zfs.dmu_tx.dirty_delay PMID: 153.3.8 []
+zfs.dmu_tx.dirty_delay PMID: 153.3.8 [number of DMU transaction delays]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: millisec
-Help: <empty entry>
+Help:
+number of DMU transaction delays
     value 153
 
-zfs.dmu_tx.dirty_frees_delay PMID: 153.3.10 []
+zfs.dmu_tx.dirty_frees_delay PMID: 153.3.10 [number of DMU transaction frees delayed]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: millisec
-Help: <empty entry>
+Help:
+number of DMU transaction frees delayed
     value 153
 
-zfs.dmu_tx.dirty_over_max PMID: 153.3.9 []
+zfs.dmu_tx.dirty_over_max PMID: 153.3.9 [number of DMU transactions over the maximum limit]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
-Help: <empty entry>
+Help:
+number of DMU transactions over the maximum limit
     value 153
 
-zfs.dmu_tx.dirty_throttle PMID: 153.3.7 []
+zfs.dmu_tx.dirty_throttle PMID: 153.3.7 [number of DMU transaction throttles]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: millisec
-Help: <empty entry>
+Help:
+number of DMU transaction throttles
     value 153
 
-zfs.dmu_tx.error PMID: 153.3.2 []
+zfs.dmu_tx.error PMID: 153.3.2 [number of DMU transaction errors]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+number of DMU transaction errors
     value 153
 
-zfs.dmu_tx.group PMID: 153.3.4 []
+zfs.dmu_tx.group PMID: 153.3.4 [number of DMU transaction gropus]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+number of DMU transaction gropus
     value 153
 
-zfs.dmu_tx.memory_reclaim PMID: 153.3.6 []
+zfs.dmu_tx.memory_reclaim PMID: 153.3.6 [size of memory reclaimed for DMU transactions]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
-Help: <empty entry>
+Help:
+size of memory reclaimed for DMU transactions
     value 153
 
-zfs.dmu_tx.memory_reserve PMID: 153.3.5 []
+zfs.dmu_tx.memory_reserve PMID: 153.3.5 [size of memory reserved for DMU transactions]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
-Help: <empty entry>
+Help:
+size of memory reserved for DMU transactions
     value 153
 
-zfs.dmu_tx.quota PMID: 153.3.11 []
+zfs.dmu_tx.quota PMID: 153.3.11 [DMU transaction quota]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
-Help: <empty entry>
+Help:
+DMU transaction quota
     value 153
 
-zfs.dmu_tx.suspended PMID: 153.3.3 []
+zfs.dmu_tx.suspended PMID: 153.3.3 [number of DMU transactions suspended]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+number of DMU transactions suspended
     value 153
 
-zfs.dnode.alloc.next_block PMID: 153.4.20 []
+zfs.dnode.alloc.next_block PMID: 153.4.20 [number of dnode allocations to another block]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -1390,7 +1491,7 @@ Number of times dmu_object_alloc*() was forced to advance to the
 next meta dnode dbuf due to an error from  dmu_object_next().
     value 153
 
-zfs.dnode.alloc.next_chunk PMID: 153.4.18 []
+zfs.dnode.alloc.next_chunk PMID: 153.4.18 [number of dnode allocations to another chunk]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -1398,7 +1499,7 @@ Number of times dmu_object_alloc*() reached the end of the existing
 object ID chunk and advanced to a new one.
     value 153
 
-zfs.dnode.alloc.race PMID: 153.4.19 []
+zfs.dnode.alloc.race PMID: 153.4.19 [number of dnode allocation race conditions]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -1406,21 +1507,21 @@ Number of times multiple threads attempted to allocate a dnode
 from the same block of free dnodes.
     value 153
 
-zfs.dnode.allocate PMID: 153.4.15 []
+zfs.dnode.allocate PMID: 153.4.15 [number of new dnodes allocations]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of new dnodes allocated by dnode_allocate().
     value 153
 
-zfs.dnode.buf_evict PMID: 153.4.17 []
+zfs.dnode.buf_evict PMID: 153.4.17 [number of dnode dbuf evictions]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of meta dnode dbufs evicted.
     value 153
 
-zfs.dnode.free_interior_lock_retry PMID: 153.4.14 []
+zfs.dnode.free_interior_lock_retry PMID: 153.4.14 [number of dnode dbufs free lock retries due to interior references]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -1428,7 +1529,7 @@ Number of times dnode_free_interior_slots() needed to retry
 acquiring a slot zrl lock due to contention.
     value 153
 
-zfs.dnode.hold.alloc_hits PMID: 153.4.2 []
+zfs.dnode.hold.alloc_hits PMID: 153.4.2 [number of dnode allocation hits]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -1437,7 +1538,7 @@ to hold the requested object number which was allocated.  This is
 the common case when looking up any allocated object number.
     value 153
 
-zfs.dnode.hold.alloc_interior PMID: 153.4.4 []
+zfs.dnode.hold.alloc_interior PMID: 153.4.4 [number of failed dnode dbuf holds due to interior references]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -1446,7 +1547,7 @@ able to hold the request object number because the object number
 refers to an interior large dnode slot.
     value 153
 
-zfs.dnode.hold.alloc_lock_misses PMID: 153.4.6 []
+zfs.dnode.hold.alloc_lock_misses PMID: 153.4.6 [number of dnode dbuf lock misses]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -1455,7 +1556,7 @@ need to create the dnode because another thread did so after
 dropping the read lock but before acquiring the write lock.
     value 153
 
-zfs.dnode.hold.alloc_lock_retry PMID: 153.4.5 []
+zfs.dnode.hold.alloc_lock_retry PMID: 153.4.5 [number of dnode dbuf lock retries]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -1463,7 +1564,7 @@ Number of times dnode_hold(..., DNODE_MUST_BE_ALLOCATED) needed
 to retry acquiring slot zrl locks due to contention.
     value 153
 
-zfs.dnode.hold.alloc_misses PMID: 153.4.3 []
+zfs.dnode.hold.alloc_misses PMID: 153.4.3 [number of dnode allocation misses]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -1471,7 +1572,7 @@ Number of times dnode_hold(..., DNODE_MUST_BE_ALLOCATED) was not
 able to hold the request object number because it was not allocated.
     value 153
 
-zfs.dnode.hold.alloc_type_none PMID: 153.4.7 []
+zfs.dnode.hold.alloc_type_none PMID: 153.4.7 [number of unallocated dnode dbuf holds]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -1480,21 +1581,21 @@ a free dnode instantiated by dnode_create() but not yet allocated
 by dnode_allocate().
     value 153
 
-zfs.dnode.hold.dbuf_hold PMID: 153.4.0 []
+zfs.dnode.hold.dbuf_hold PMID: 153.4.0 [number of failed dnode dbuf holds]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of failed attempts to hold a meta dnode dbuf.
     value 0
 
-zfs.dnode.hold.dbuf_read PMID: 153.4.1 []
+zfs.dnode.hold.dbuf_read PMID: 153.4.1 [number of failed dnode dbuf reads]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of failed attempts to read a meta dnode dbuf.
     value 0
 
-zfs.dnode.hold.free_hits PMID: 153.4.8 []
+zfs.dnode.hold.free_hits PMID: 153.4.8 [number of dnode dbuf hold hits]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -1502,7 +1603,7 @@ Number of times dnode_hold(..., DNODE_MUST_BE_FREE) was able
 to hold the requested range of free dnode slots.
     value 153
 
-zfs.dnode.hold.free_lock_misses PMID: 153.4.10 []
+zfs.dnode.hold.free_lock_misses PMID: 153.4.10 [number of dnode dbuf free lock misses]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -1511,7 +1612,7 @@ able to hold the requested range of free dnode slots because
 after acquiring the zrl lock at least one slot was allocated.
     value 153
 
-zfs.dnode.hold.free_lock_retry PMID: 153.4.11 []
+zfs.dnode.hold.free_lock_retry PMID: 153.4.11 [number of dnode dbuf free lock retries]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -1519,7 +1620,7 @@ Number of times dnode_hold(..., DNODE_MUST_BE_FREE) needed
 to retry acquiring slot zrl locks due to contention.
     value 153
 
-zfs.dnode.hold.free_misses PMID: 153.4.9 []
+zfs.dnode.hold.free_misses PMID: 153.4.9 [number of dnode dbuf hold misses]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -1528,7 +1629,7 @@ able to hold the requested range of free dnode slots because
 at least one slot was allocated.
     value 153
 
-zfs.dnode.hold.free_overflow PMID: 153.4.12 []
+zfs.dnode.hold.free_overflow PMID: 153.4.12 [number of dnode dbuf free overflows]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -1536,7 +1637,7 @@ Number of times dnode_hold(..., DNODE_MUST_BE_FREE) requested
 a range of dnode slots which would overflow the dnode_phys_t.
     value 153
 
-zfs.dnode.hold.free_refcount PMID: 153.4.13 []
+zfs.dnode.hold.free_refcount PMID: 153.4.13 [number of referenced dnode dbufs]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -1544,56 +1645,56 @@ Number of times dnode_hold(..., DNODE_MUST_BE_FREE) requested
 a range of dnode slots which were held by another thread.
     value 153
 
-zfs.dnode.move.active PMID: 153.4.27 []
+zfs.dnode.move.active PMID: 153.4.27 [number of active dnode moves]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Statistics for tracking dnodes which have been moved.
     value 153
 
-zfs.dnode.move.handle PMID: 153.4.25 []
+zfs.dnode.move.handle PMID: 153.4.25 [number of handle dnode moves]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Statistics for tracking dnodes which have been moved.
     value 153
 
-zfs.dnode.move.invalid PMID: 153.4.21 []
+zfs.dnode.move.invalid PMID: 153.4.21 [number invalid dnode moves]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Statistics for tracking dnodes which have been moved.
     value 153
 
-zfs.dnode.move.recheck1 PMID: 153.4.22 []
+zfs.dnode.move.recheck1 PMID: 153.4.22 [number of recheck1 dnode moves]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Statistics for tracking dnodes which have been moved.
     value 153
 
-zfs.dnode.move.recheck2 PMID: 153.4.23 []
+zfs.dnode.move.recheck2 PMID: 153.4.23 [number of recheck2 dnode moves]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Statistics for tracking dnodes which have been moved.
     value 153
 
-zfs.dnode.move.rwlock PMID: 153.4.26 []
+zfs.dnode.move.rwlock PMID: 153.4.26 [number of RW lock dnode moves]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Statistics for tracking dnodes which have been moved.
     value 153
 
-zfs.dnode.move.special PMID: 153.4.24 []
+zfs.dnode.move.special PMID: 153.4.24 [number of special dnode modes]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Statistics for tracking dnodes which have been moved.
     value 153
 
-zfs.dnode.reallocate PMID: 153.4.16 []
+zfs.dnode.reallocate PMID: 153.4.16 [number of new dnodes reallocations]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -1721,67 +1822,70 @@ Help:
 last time wait queue changed
     inst [0-or-1 or "pmdazfs_test"] value 153
 
-zfs.vdev.cache.delegations PMID: 153.6.0 []
+zfs.vdev.cache.delegations PMID: 153.6.0 [vdev cache delegations]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+vdev cache delegations
     value 153
 
-zfs.vdev.cache.hits PMID: 153.6.1 []
+zfs.vdev.cache.hits PMID: 153.6.1 [vdev cache hits]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+vdev cache hits
     value 153
 
-zfs.vdev.cache.misses PMID: 153.6.2 []
+zfs.vdev.cache.misses PMID: 153.6.2 [vdev cache misses]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+vdev cache misses
     value 153
 
-zfs.vdev.mirror.non_rotating_linear PMID: 153.6.6 []
+zfs.vdev.mirror.non_rotating_linear PMID: 153.6.6 [vdev mirror linear non-rotations]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 New IO follows directly the last IO  (nonrot) 
     value 153
 
-zfs.vdev.mirror.non_rotating_seek PMID: 153.6.7 []
+zfs.vdev.mirror.non_rotating_seek PMID: 153.6.7 [vdev mirror random seeks non-rot]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 New IO requires random seek (nonrot) 
     value 153
 
-zfs.vdev.mirror.preferred_found PMID: 153.6.8 []
+zfs.vdev.mirror.preferred_found PMID: 153.6.8 [vdev mirror preferred found]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Preferred child vdev found 
     value 153
 
-zfs.vdev.mirror.preferred_not_found PMID: 153.6.9 []
+zfs.vdev.mirror.preferred_not_found PMID: 153.6.9 [vdev mirror preferred not found]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Preferred child vdev not found or equal load  
     value 153
 
-zfs.vdev.mirror.rotating_linear PMID: 153.6.3 []
+zfs.vdev.mirror.rotating_linear PMID: 153.6.3 [vdev mirror linear rotations]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 New IO follows directly the last IO 
     value 153
 
-zfs.vdev.mirror.rotating_offset PMID: 153.6.4 []
+zfs.vdev.mirror.rotating_offset PMID: 153.6.4 [vdev mirror offset rotations]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 New IO is within zfs_vdev_mirror_rotating_seek_offset of the last 
     value 153
 
-zfs.vdev.mirror.rotating_seek PMID: 153.6.5 []
+zfs.vdev.mirror.rotating_seek PMID: 153.6.5 [vdev mirror random seeks]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -1830,10 +1934,11 @@ Help:
 whether a copy is made when assigning a write buffer 
     value 153
 
-zfs.zfetch.hits PMID: 153.8.0 []
+zfs.zfetch.hits PMID: 153.8.0 [zfetch hits]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+zfetch hits
     value 153
 
 zfs.zfetch.max_streams PMID: 153.8.2 [maximum number of streams per zfetch]
@@ -1843,20 +1948,21 @@ Help:
 maximum number of streams per zfetch
     value 153
 
-zfs.zfetch.misses PMID: 153.8.1 []
+zfs.zfetch.misses PMID: 153.8.1 [zfetch misses]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-Help: <empty entry>
+Help:
+zfetch misses
     value 153
 
-zfs.zil.commit.count PMID: 153.9.0 []
+zfs.zil.commit.count PMID: 153.9.0 [ZIL commit count]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of times a ZIL commit (e.g. fsync) has been requested.
     value 153
 
-zfs.zil.commit.writer_count PMID: 153.9.1 []
+zfs.zil.commit.writer_count PMID: 153.9.1 [ZIL commit writer count]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -1865,7 +1971,7 @@ This is less than zil_commit_count when commits are merged
 (see the documentation above zil_commit()).
     value 153
 
-zfs.zil.itx.copied_bytes PMID: 153.9.6 []
+zfs.zil.itx.copied_bytes PMID: 153.9.6 [size of ZIL data copied]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
 Help:
@@ -1874,14 +1980,14 @@ Note that bytes accumulates the length of the transactions
 (i.e. data), not the actual log record sizes.
     value 153
 
-zfs.zil.itx.copied_count PMID: 153.9.5 []
+zfs.zil.itx.copied_count PMID: 153.9.5 [number of ZIL transactions copied]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 The number of transactions copied into lr_write_t.
     value 153
 
-zfs.zil.itx.count PMID: 153.9.2 []
+zfs.zil.itx.count PMID: 153.9.2 [ZIL transation count]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -1889,7 +1995,7 @@ Number of transactions (reads, writes, renames, etc.)
 that have been committed.
     value 153
 
-zfs.zil.itx.indirect_bytes PMID: 153.9.4 []
+zfs.zil.itx.indirect_bytes PMID: 153.9.4 [ZIL indirect transaction data size]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
 Help:
@@ -1898,16 +2004,15 @@ Note that bytes accumulates the length of the transactions
 (i.e. data), not the actual log record sizes.
     value 153
 
-zfs.zil.itx.indirect_count PMID: 153.9.3 []
+zfs.zil.itx.indirect_count PMID: 153.9.3 [ZIL indirect transaction count]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 The number of indirect transactions.
     value 153
 
-zfs.zil.itx.metaslab.normal_bytes PMID: 153.9.10 []
-    Data Type: 64-bit unsigError: input truncated at line 1962. Increase MAXLINELEN.
-ned int  InDom: PM_INDOM_NULL 0xffffffff
+zfs.zil.itx.metaslab.normal_bytes PMID: 153.9.10 [size of ZIL transaction data allocated]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
 Help:
 The size of transactions which have been allocated to the normal
@@ -1916,7 +2021,7 @@ the actual log record sizes - which do not include the actual
 data in case of indirect writes.
     value 153
 
-zfs.zil.itx.metaslab.normal_count PMID: 153.9.9 []
+zfs.zil.itx.metaslab.normal_count PMID: 153.9.9 [number of ZIL transactions allocated]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -1926,7 +2031,7 @@ the actual log record sizes - which do not include the actual
 data in case of indirect writes.
     value 153
 
-zfs.zil.itx.metaslab.slog_bytes PMID: 153.9.12 []
+zfs.zil.itx.metaslab.slog_bytes PMID: 153.9.12 [size of ZIL transaction data in slog]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
 Help:
@@ -1935,7 +2040,7 @@ If there are no separate log devices, this is the same as the
 normal pool.
     value 153
 
-zfs.zil.itx.metaslab.slog_count PMID: 153.9.11 []
+zfs.zil.itx.metaslab.slog_count PMID: 153.9.11 [number of ZIL transactions in slog]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -1944,7 +2049,7 @@ If there are no separate log devices, this is the same as the
 normal pool.
     value 153
 
-zfs.zil.itx.needcopy_bytes PMID: 153.9.8 []
+zfs.zil.itx.needcopy_bytes PMID: 153.9.8 [size of ZIL transaction data to be copied]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte
 Help:
@@ -1953,7 +2058,7 @@ Note that bytes accumulates the length of the transactions
 (i.e. data), not the actual log record sizes.
     value 153
 
-zfs.zil.itx.needcopy_count PMID: 153.9.7 []
+zfs.zil.itx.needcopy_count PMID: 153.9.7 [number of ZIL transactions to be copied]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
