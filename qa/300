@@ -104,7 +104,7 @@ echo "Check pmpost messages ..."
 cat $PCP_LOG_DIR/NOTICES > $seq.full
 egrep 'bozo|pmlogger_check' $PCP_LOG_DIR/NOTICES \
 | sed \
-    -e 's/^[0-9][0-9]*:[0-9][0-9]*/TIME/' \
+    -e 's/^[0-9][0-9]*:[0-9][0-9]*:[0-9]*\.[0-9]* /TIME /' \
     -e 's/\(check for host \).*/\1HOSTNAME/'
 
 # success, all done
