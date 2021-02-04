@@ -55,8 +55,8 @@ export HACLUSTER_SETUP_SBD_PATH="./sbd"
 export HACLUSTER_SETUP_DRBD="./drbdsetup.sh"
 export HACLUSTER_SETUP_DRBD_SPLITBRAIN="./"
 pmda=$PCP_PMDAS_DIR/hacluster/pmda_hacluster.so,hacluster_init
-metrics=`pminfo -L -K clear -K add,155,$pmda hacluster | LC_COLLATE=POSIX sort`
-memcheck="hacluster.pacemaker.config_last_change hacluster.corosync.quorate hacluster.sbd.devices.path hacluster.drbd.split_brain"
+metrics=`pminfo -L -K clear -K add,155,$pmda ha_cluster | LC_COLLATE=POSIX sort`
+memcheck="ha_cluster.pacemaker.config_last_change ha_cluster.corosync.quorate ha_cluster.sbd.devices.path ha_cluster.drbd.split_brain"
 
 for tgz in $here/hacluster/hacluster-*.tgz
 do

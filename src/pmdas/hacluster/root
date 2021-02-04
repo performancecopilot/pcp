@@ -5,7 +5,7 @@
 #include <stdpmid>
 
 root { 
-	hacluster 
+	ha_cluster 
 }
 
 #ifndef HACLUSTER

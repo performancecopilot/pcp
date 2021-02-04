@@ -19,6 +19,8 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=hacluster
+pmns_name=ha_cluster	# differs to PMDA name
+
 pmdaSetup
 pmdaRemove
 exit
