@@ -93,10 +93,15 @@ do
 	    ) && echo $seq >>$tmp.tmp
 	    ;;
 
-
 	pmlogrewrite)	# executable might be hidden in mk.logfarm
 	    ( grep -v '^#' $seq \
 	      | egrep -q "(^[ 	]*(pmlogrewrite|mk.logfarm)([ '\"]|$))|([ /'\"\`_=](pmlogrewrite|mk.logfarm)([ '\"\`_]|$))" \
+	    ) && echo $seq >>$tmp.tmp
+	    ;;
+
+	pmpost)		# executable might be in $PCP_BINADM_DIR
+	    ( grep -v '^#' $seq \
+	      | egrep "(^[ 	]*pmpost([ '\"]|$))|([ '\"\`/]pmpost([ '\"\`]|$))" >$tmp.debug \
 	    ) && echo $seq >>$tmp.tmp
 	    ;;
 

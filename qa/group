@@ -599,7 +599,7 @@ x11
 156 pmda.sample pmda.proc local pmcd_wait pmda.install
 157 pmlogger local
 158 pmval pmie local kernel
-159 pmda.cisco local pmda.install pmstore
+159 pmda.cisco local pmda.install pmstore pmpost
 160 libpcp local
 161 pmlogger local
 162:retired pmda pmda.proc local pmda.shping pmda.install
@@ -740,13 +740,13 @@ x11
 297 pmproxy local
 298 pmie local kernel
 299 libpcp local sanity kernel
-300 pmcd local
+300 pmcd local pmpost
 301 pmda pmcd pmlogger local
 302 pmlogextract local pmdumplog
 303 local pmlogextract pmdumplog
 304 pmlogger local
 305 pmgadgets local
-306 other local
+306 other local pmpost
 307 pmlc #936084 local pmie
 308 pmlc pmlogger #452417 remote pmdumplog pmda.proc
 309 libpcp pmcd pmda.linux pmda.simple local pmstore kernel
@@ -1485,7 +1485,7 @@ x11
 1042 pmproxy pmda.proc local python
 1043 pmda.linux local kernel
 1044 pmie local pmieconf sanity
-1045 pmie local pmieconf
+1045 pmie local pmieconf pmpost
 1046 pmie local pmieconf
 1047 pmie local pmieconf
 1048 python local kernel
