@@ -9,9 +9,6 @@
 #include <regex.h>
 #include <unistd.h>
 
-#include <pcp/pmapi.h>
-#include "libpcp.h"
-
 /*
  * sort instances based on instance name from pminfo/__pmDumpResult
  * output like
@@ -164,7 +161,10 @@ Options:\n\
 	}
 	sts = strlen(sortlines[cur]);
 	if (sortlines[cur][sts-1] != '\n') {
-	    fprintf(stderr, "Error: input truncated at line %d. Increase MAXLINELEN.\n", n);
+	    fprintf(stderr, "%s: Error: input truncated at line %d\n", argv[0], n);
+	    fprintf(stderr, "Increase MAXLINELEN from %d?\n", MAXLINELEN);
+	    sortlines[cur][sts-1] = '\0';
+	    fprintf(stderr, "Input text:\n%s\n", sortlines[cur]);
 	    exit(1);
 	}
 

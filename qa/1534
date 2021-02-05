@@ -20,8 +20,22 @@ trap "cd $here; $sudo rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
 {
-    $here/src/sortinst | \
-    sed \
+    $PCP_AWK_PROG '
+BEGIN			{ outfile = "'$tmp.0'" }
+/^=== std err ===$/	{ outfile = "'$tmp.1'" }
+			{ print >outfile }'
+    if [ ! -f $tmp.0 ]
+    then
+	echo "Botch: no part 0 output?"
+	touch $tmp.0
+    fi
+    if [ ! -f $tmp.1 ]
+    then
+	echo "Botch: no part 1 output?"
+	touch $tmp.1
+    fi
+    ( $here/src/sortinst <$tmp.0; cat $tmp.1 ) \
+    | sed \
         -e '/inst /s/\[[01] /[0-or-1 /' \
         -e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
         -e "s,$PCP_VAR_DIR,PCP_VAR_DIR,g" \

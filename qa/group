@@ -1799,11 +1799,11 @@ x11
 1490 python local labels
 1495 pmlogrewrite labels pmdumplog local
 1511 pmcd local
-1530 pmda.zfs local
-1531 pmda.zfs local
+1530 pmda.zfs local valgrind
+1531 pmda.zfs local valgrind
 1532 pmda.zfs local
-1533 pmda.zfs local
-1534 pmda.zfs local
+1533 pmda.zfs local valgrind
+1534 pmda.zfs local valgrind
 1543 pmproxy local
 1544 pmproxy python local
 1545 pcp2xml python pcp2xxx local
