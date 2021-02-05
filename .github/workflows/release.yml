@@ -76,17 +76,18 @@ jobs:
         run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} task install
 
       - name: Initialize QA
+        id: init_qa
         run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} task init_qa
 
       - name: QA
         run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} task qa_sanity
 
       - name: Copy test results
-        if: always()
+        if: always() && steps.init_qa.outcome == 'success'
         run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} artifacts test --path ./artifacts/test
 
       - name: Publish test results
-        if: always()
+        if: always() && steps.init_qa.outcome == 'success'
         uses: actions/upload-artifact@v2
         with:
           name: test-${{ matrix.platform }}-${{ matrix.runner }}
