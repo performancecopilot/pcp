@@ -1350,7 +1350,7 @@ _clean_display()
 #   _check_valgrind
 #
 # Main code...
-#   _run_valgrind app [arg1 [arg2] ... ]
+#   _run_valgrind [--sudo] app [arg1 [arg2] ... ]
 # or
 #   _run_helgrind [--sudo] app [arg1 [arg2] ... ]
 #
