@@ -38,13 +38,28 @@ zfs_pools_init(zfs_poolstats_t **poolstats, pmdaInstid **pools, pmdaIndom *pools
     size_t size;
     zfs_poolstats_t *poolstats_tmp;
     static int seen_err = 0;
+    struct stat sstat;
+    char statpath[MAXPATHLEN];
+    int sep = pmPathSeparator();
 
     // Discover the pools by looking for directories in /proc/spl/kstat/zfs
     if ((zfs_dp = opendir(zfs_path)) != NULL) {
         while ((ep = readdir(zfs_dp))) {
-            if (ep->d_type == DT_DIR) {
-                if (strcmp(ep->d_name, ".") == 0 || strcmp(ep->d_name, "..") == 0)
+	    /*
+	     * Note: d_type field is not necessarily set for some file
+	     * systems (especially /tmp during PCP QA), so have to make
+	     * sure it is a directory using stat()
+	     */
+	    pmsprintf(statpath, sizeof(statpath), "%s%c%s", zfs_path, sep, ep->d_name);
+	    if (stat(statpath, &sstat) < 0) {
+		/* if stat() fails, warn and ignore it ... */
+		pmNotifyErr(LOG_WARNING, "zfs_pools_init: stat(%s) failed: %s\n", statpath, pmErrStr(-errno));
+		continue;
+	    }
+            if ((sstat.st_mode & S_IFMT) == S_IFDIR) {
+                if (strcmp(ep->d_name, ".") == 0 || strcmp(ep->d_name, "..") == 0) {
                     continue;
+		}
                 else {
                     pmdaInstid    *pools_tmp;
                     size = (pool_num + 1) * sizeof(pmdaInstid);
@@ -62,7 +77,7 @@ zfs_pools_init(zfs_poolstats_t **poolstats, pmdaInstid **pools, pmdaIndom *pools
         closedir(zfs_dp);
     }
     else {
-        pmNotifyErr(LOG_WARNING, "Failed to open ZFS pools dir \"%s\": %s\n", zfs_path, pmErrStr(-errno));
+        pmNotifyErr(LOG_WARNING, "zfs_pools_init: failed to open ZFS pools dir \"%s\": %s\n", zfs_path, pmErrStr(-errno));
     }
     if (*pools == NULL) {
         if (! seen_err) {
