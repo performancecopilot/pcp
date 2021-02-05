@@ -27,7 +27,7 @@
  * - allow an alternate sort key prefix char (pfx) from the command line
  */
 
-#define MAXLINELEN 1024
+#define MAXLINELEN BUFSIZ
 
 /*
  * compare external instance names following the " character ...
