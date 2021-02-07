@@ -1713,7 +1713,7 @@ class DstatTool(object):
                 else:
                     sep = CHAR['sep']
                 if plugin in self.timelist:
-                    oline = oline + sep + self.tshow(plugin, self.pmfg_ts)
+                    oline = oline + sep + self.tshowcsv(plugin, self.pmfg_ts)
                 elif plugin.grouptype is None:
                     for m, name in enumerate(plugin.mgroup):
                         oline = oline + sep + self.mshowcsv(plugin, m, results[name])

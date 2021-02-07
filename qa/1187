@@ -1,8 +1,8 @@
 #!/bin/sh
 # PCP QA Test No. 1187
-# Exercise pcp-dstat archive mode functionality.
+# Exercise pcp-dstat archive mode and CSV functionality.
 #
-# Copyright (c) 2018-2020 Red Hat.  All Rights Reserved.
+# Copyright (c) 2018-2021 Red Hat.  All Rights Reserved.
 #
 
 seq=`basename $0`
@@ -104,6 +104,14 @@ dstat "CSV instances" --cpu -C 1,2,total --cpu-use -o $tmp.csv2 | filter_info
 echo "CSV instances contents" | tee -a $here/$seq.full
 cat $tmp.csv2 | tee -a $here/$seq.full | filter_info
 echo "CSV instances complete" | tee -a $here/$seq.full
+
+# verify no special characters in live CSV output
+echo "CSV timestamp"
+$DSTAT -T -o $tmp.csv3 1 2 > /dev/null
+echo "=== done" && echo
+echo "CSV timestamp checking" >> $here/$seq.full
+cat $tmp.csv3 | tee -a $here/$seq.full | grep 37m
+echo "CSV timestamp complete" | tee -a $here/$seq.full
 
 # success, -D all done
 status=0
