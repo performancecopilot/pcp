@@ -47,6 +47,7 @@ _setup()
 	    if [ ! -L "$dir/$file" ]
 	    then
 		$verbose && echo link $dir/$file
+		rm -f "$dir/$file"
 		ln -s "$base/$file" "$dir/$file"
 	    fi
 	else
@@ -120,6 +121,7 @@ do
     else
 	if [ -f $base/$seq.out ]
 	then
+	    rm -f $dir/$seq.out
 	    if ln -s $base/$seq.out $dir/$seq.out
 	    then
 		$verbose && echo link $dir/$seq.out
