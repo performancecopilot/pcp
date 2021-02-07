@@ -763,6 +763,7 @@ sortinst.o:	libpcp.h
 store.o:	libpcp.h
 storepmcd.o:	libpcp.h
 stripmark.o:	libpcp.h
+timeshift.o:	libpcp.h
 torture_api.o:	libpcp.h
 torture_indom.o:	libpcp.h
 torture_logmeta.o:	libpcp.h
