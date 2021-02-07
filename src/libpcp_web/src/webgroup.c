@@ -45,6 +45,7 @@ typedef struct webgroups {
     mmv_registry_t	*metrics;
     struct dict		*config;
     uv_loop_t		*events;
+    uv_timer_t		gc_timer;
 } webgroups;
 
 static struct webgroups *
@@ -252,6 +253,34 @@ webgroup_new_context(pmWebGroupSettings *sp, dict *params,
     return cp;
 }
 
+static void
+webgroup_garbage_collect(uv_timer_t *arg)
+{
+    uv_handle_t		*handle = (uv_handle_t *)arg;
+    struct webgroups	*groups = (struct webgroups *)handle->data;
+    dictIterator        *iterator = dictGetSafeIterator(groups->contexts);
+    context_t		*cp;
+    dictEntry           *entry;
+
+    if (pmDebugOptions.http || pmDebugOptions.libweb)
+	fprintf(stderr, "webgroup_garbage_collect: started\n");
+
+    while ((entry = dictNext(iterator)) != NULL) {
+	cp = (context_t *)dictGetVal(entry);
+	if (cp->garbage && cp->privdata == groups) {
+	    if (pmDebugOptions.http || pmDebugOptions.libweb)
+		fprintf(stderr, "context %u (%p) garbage collected\n", cp->randomid, cp);
+	    webgroup_drop_context(cp, groups);
+	}
+    }
+    dictReleaseIterator(iterator);
+
+    /* TODO - add other GC actions, e.g. trim lru dict entries, etc. */
+
+    if (pmDebugOptions.http || pmDebugOptions.libweb)
+	fprintf(stderr, "webgroup_garbage_collect: finished\n");
+}
+
 static struct context *
 webgroup_use_context(struct context *cp, int *status, sds *message, void *arg)
 {
@@ -287,7 +316,6 @@ webgroup_use_context(struct context *cp, int *status, sds *message, void *arg)
 	uv_timer_start(&cp->timer, webgroup_timeout_context, cp->timeout, 0);
     } else {
 	infofmt(*message, "expired context identifier: %u", cp->randomid);
-	webgroup_drop_context(cp, gp);
 	*status = -ENOTCONN;
 	return NULL;
     }
@@ -326,8 +354,9 @@ webgroup_lookup_context(pmWebGroupSettings *sp, sds *id, dict *params,
 	    access.password = cp->password;
 	    access.realm = cp->realm;
 	    if (sp->callbacks.on_check &&
-		sp->callbacks.on_check(*id, &access, status, message, arg) < 0)
-	    return NULL;
+		sp->callbacks.on_check(*id, &access, status, message, arg) < 0) {
+		return NULL;
+	    }
 	}
     }
 
@@ -2203,6 +2232,18 @@ pmWebGroupSetConfiguration(pmWebGroupModule *module, dict *config)
 	return 0;
     }
     return -ENOMEM;
+}
+
+/* garbage collection timer */
+void
+pmWebGroupSetGC(pmWebGroupModule *module, unsigned int timeout, unsigned int repeat)
+{
+    struct webgroups	*webgroups = webgroups_lookup(module);
+
+    uv_timer_init(webgroups->events, &webgroups->gc_timer);
+    webgroups->gc_timer.data = (void *)webgroups;
+    uv_timer_start(&webgroups->gc_timer, webgroup_garbage_collect,
+	(uint64_t)timeout, (uint64_t)repeat);
 }
 
 int
