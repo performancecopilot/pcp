@@ -39,6 +39,10 @@ jobs:
         with:
           python-version: '>=3.6'
 
+      - name: Upgrade conmon to 2.0.26
+        if: matrix.runner == 'container'
+        run: sudo .github/workflows/upgrade_conmon.sh
+
       - name: Setup
         run: |
           python3 -c 'import yaml' || pip3 install pyyaml
