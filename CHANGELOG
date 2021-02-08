@@ -1,3 +1,6 @@
+pcp-5.3.0 (16 April 2021)
+    - https://github.com/performancecopilot/pcp/projects/1
+
 pcp-5.2.5 (8 February 2021)
     - Client tools and utilities:
 	pcp-dstat: correct the sample count logic, was off-by-one

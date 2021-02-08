@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 5.2.5
+Version: 5.3.0
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2+ and CC-BY
@@ -3490,6 +3490,9 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %endif
 
 %changelog
+* Fri Apr 16 2021 Nathan Scott <nathans@redhat.com> - 5.3.0-1
+- https://github.com/performancecopilot/pcp/projects/1
+
 * Mon Feb 08 2021 Nathan Scott <nathans@redhat.com> - 5.2.5-1
 - Update to latest PCP sources.
 - Fix off-by-one issue in pcp-dstat reporting (BZ 1922768)
