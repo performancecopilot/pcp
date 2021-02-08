@@ -125,7 +125,7 @@ main(int argc, char **argv)
 	}
     }
 
-    if ((c = argc - opts.optind) > 0)
+    if ((argc - opts.optind) > 0)
 	opts.errors++;
 
     if (opts.errors) {
