@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Red Hat.
+ * Copyright (c) 2017-2021 Red Hat.
  * Copyright (c) 2020 Yushan ZHANG.
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -2318,7 +2318,7 @@ series_process_func(seriesQueryBaton *baton, node_t *np, int level)
 static sds
 series_expr_canonical(node_t *np, int idx)
 {
-    sds		left, right, statement = NULL;
+    sds		left, right, metric = NULL, statement = NULL;
 
     if (np == NULL)
 	return sdsempty();
@@ -2429,15 +2429,17 @@ series_expr_canonical(node_t *np, int idx)
 	statement = sdscatfmt(sdsempty(), "%S<=%S", left, right);
 	break;
     case N_EQ:
-	if (np->left->type == N_NAME && sdscmp(np->left->value, sdsnew("metric.name")) == 0) {
+	metric = sdsnew("metric.name");
+	if (np->left->type == N_NAME && sdscmp(np->left->value, metric) == 0)
 	    statement = sdsdup(right);
-	} else
+	else
 	    statement = sdscatfmt(sdsempty(), "%S==\"%S\"", left, right);
 	break;
     case N_GLOB:
-	if (np->left->type == N_NAME && sdscmp(np->left->value, sdsnew("metric.name")) == 0) {
+	metric = sdsnew("metric.name");
+	if (np->left->type == N_NAME && sdscmp(np->left->value, metric) == 0)
 	    statement = sdscatfmt(sdsempty(), "%S", np->value_set.series_values[idx].metric_name);
-	} else
+	else
 	    statement = sdscatfmt(sdsempty(), "%S~~\"%S\"", left, right);
 	break;
     case N_GEQ:
@@ -2450,13 +2452,12 @@ series_expr_canonical(node_t *np, int idx)
 	statement = sdscatfmt(sdsempty(), "%S!=\"%S\"", left, right);
 	break;
     case N_AND:
+	metric = sdsnew("metric.name");
 	if ((np->left->type == N_EQ || np->left->type == N_GLOB)
-		&& sdscmp(np->left->left->value, sdsnew("metric.name")) == 0) {
-	    statement = sdscatfmt(sdsempty(), "%S{%S}", np->value_set.series_values[idx].metric_name,
-			right);
-	} else {
+		&& sdscmp(np->left->left->value, metric) == 0)
+	    statement = sdscatfmt(sdsempty(), "%S{%S}", np->value_set.series_values[idx].metric_name, right);
+	else
 	    statement = sdscatfmt(sdsempty(), "%S&&%S", left, right);
-	}
 	break;
     case N_OR:
 	statement = sdscatfmt(sdsempty(), "%S||%S", left, right);
@@ -2497,6 +2498,7 @@ series_expr_canonical(node_t *np, int idx)
     }
     sdsfree(left);
     sdsfree(right);
+    sdsfree(metric);
     return statement ? statement : sdsempty();
 }
 
