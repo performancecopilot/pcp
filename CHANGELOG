@@ -1,4 +1,4 @@
-pcp-5.2.4 (8 February 2021)
+pcp-5.2.5 (8 February 2021)
     - Client tools and utilities:
 	pcp-dstat: correct the sample count logic, was off-by-one
 	pcp-dstat: fix csv output with timestamps (no special chars)
