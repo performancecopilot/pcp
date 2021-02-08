@@ -195,7 +195,9 @@ main(int argc, char **argv)
 	/*
 	 * preserve the mode and ownership of any existing PMNS file
 	 */
-	chmod(outfname, sbuf.st_mode & ~S_IFMT);
+	if (chmod(outfname, sbuf.st_mode & ~S_IFMT) < 0)
+	    fprintf(stderr, "%s: chmod(%s, %o...) failed: %s\n",
+		    pmGetProgname(), outfname, sbuf.st_mode & ~S_IFMT, osstrerror());
 #if defined(HAVE_CHOWN)
 	if (chown(outfname, sbuf.st_uid, sbuf.st_gid) < 0)
 	    fprintf(stderr, "%s: chown(%s, ...) failed: %s\n",
