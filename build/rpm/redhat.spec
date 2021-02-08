@@ -3491,7 +3491,9 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 
 %changelog
 * Wed Feb 10 2021 Nathan Scott <nathans@redhat.com> - 5.2.4-1
-- https://github.com/performancecopilot/pcp/projects/1
+- Update to latest PCP sources.
+- Fix off-by-one issue in pcp-dstat reporting (BZ 1922768)
+- Add dstat(1) symlink to pcp-dstat(1) man page (BZ 1922771)
 
 * Fri Dec 18 2020 Nathan Scott <nathans@redhat.com> - 5.2.3-1
 - Update to latest PCP sources.

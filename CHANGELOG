@@ -1,5 +1,53 @@
-pcp-5.2.4 (10 February 2021)
-    - https://github.com/performancecopilot/pcp/projects/1
+pcp-5.2.4 (8 February 2021)
+    - Client tools and utilities:
+	pcp-dstat: correct the sample count logic, was off-by-one
+	pcp-dstat: fix csv output with timestamps (no special chars)
+    - PMDA additions, enhancements and bug fixes:
+	pmdazfs: new Linux ZFS metrics
+	pmdasockets: new Linux ss(1) metrics
+	pmdahacluster: new HA metrics (Pacemaker, Corosync, DRBD and SBD)
+	pmdabcc: netproc module: count kernel calls, not packets
+	pmdalinux: add hinv.cpu.thermal_throttle metrics
+	pmdalinux: add missing help text for new metrics, drop dups
+    - Server-side utilities and log management scripts:
+	pmproxy: fix quoting of /series/metrics matched names
+	pmlogger: fix permissions mismatch for pmlogger tmp dir
+	pmlogger: fix incorrect reporting of pmcd state changes
+	pmie_check: explicity set a umask appropriate for pmieconf
+	pmlogger_check: explicity set a umask appropriate for pmlogconf
+	pmlogger_check: skip .NeedRewrite processing with -K
+	pmpost: increase timestamp resolution
+	pmpost: fix NOTICES file ownership changes
+	rc scripts: add optional logging
+	systemd: remove Wants=pmcd from pmlogger and pmie
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings
+	libpcp: redo the interp.c time_caliper changes
+	libpcp_web: add timer driven webgroup garbage collector
+	libpcp_pmda: add new function pmdaCachePurgeCallback
+    - Misc build, infrastructure and packaging updates:
+	libpcp_web: fix minor memory leak on an error path (covscan)
+	build: fixed version dependencies between .deb sub-packages
+	build: extend configure.ac for more ncurses cases (pcp-htop)
+	build: explicit rpm dependency on make package for f34+
+	build: consistent naming for icmp/rawip sockets
+	build: fix hostname(1) dependency (again)
+	build: create per-rpm-subpackage systemd tmpfiles entries
+	build: add systemd build dependency for deb builds
+	build: do not install bash completions for non-existent commands
+	build: do not install pcp-gui pmafm file for non-existent commands
+	build: ensure bash completions end up in correct deb sub-packages
+	build: fixes to ensure PCP_TMPFILE_DIR not used during the build
+	build: package pmrepconf in the same rpm package as pmlogconf
+	build: add versioned rpm spec dependencies for pcp-zeroconf
+	ci: upgrade to Ubuntu 20.04 base VM for containers
+    - Security Enhanced Linux:
+	selinux: enable netcheck rawip_socket if icmp_socket unavailable
+	selinux: additional rules needed for pmie/pmlogger in fedora
+    - Documentation and QA infrastructure:
+	docs: add pointers to readthedocs.io now that books live there
+	pcp-dstat: optionally install a man page symlink for dstat
+	docs: pmproxy(1) man page corrections and additions
+	qa: improve sortinst reporting when line buffer overflow occurs
 
 pcp-5.2.3 (18 December 2020)
     - Client tools and utilities:
