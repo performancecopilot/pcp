@@ -33,7 +33,7 @@ class TimeoutHTTPAdapter(requests.adapters.HTTPAdapter):
 class BintrayApi:
 
     def __init__(self, subject: str, user: str, apikey: str, gpg_passphrase: str, endpoint='https://api.bintray.com',
-                 timeout=10*60):
+                 timeout=20*60):
         self.subject = subject
         self.user = user
         self.apikey = apikey
