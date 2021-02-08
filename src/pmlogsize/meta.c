@@ -253,7 +253,7 @@ do_meta(__pmFILE *f)
 	}
 	printf("]\n");
 
-	if (dflag) {
+	if (dflag && indom_tab != NULL) {
 	    qsort(indom_tab, nindom, sizeof(indom_tab[0]), indom_compar);
 	    for (indomp = indom_tab; indomp < &indom_tab[nindom]; indomp++) {
 		if (thres != -1 && 100*(float)sum_bytes/bytes[TYPE_INDOM] > thres) {
