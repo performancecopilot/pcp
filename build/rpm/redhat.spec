@@ -512,8 +512,8 @@ Requires: pcp-pmda-samba pcp-pmda-slurm pcp-pmda-vmware pcp-pmda-zimbra
 Requires: pcp-pmda-dm pcp-pmda-apache
 Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-mailq pcp-pmda-mounts
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping pcp-pmda-smart
-Requires: pcp-pmdas-hacluster pcp-pmda-lustrecomm pcp-pmda-logger pcp-pmda-docker pcp-pmda-bind2
-Requires: pcp-pmdas-sockets
+Requires: pcp-pmda-hacluster pcp-pmda-lustrecomm pcp-pmda-logger pcp-pmda-docker pcp-pmda-bind2
+Requires: pcp-pmda-sockets
 %if !%{disable_podman}
 Requires: pcp-pmda-podman
 %endif
@@ -3492,6 +3492,10 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %changelog
 * Fri Apr 16 2021 Nathan Scott <nathans@redhat.com> - 5.3.0-1
 - https://github.com/performancecopilot/pcp/projects/1
+
+* Mon Feb 08 2021 Andreas Gerstmayr <agerstmayr@redhat.com> - 5.2.5-2
+- fixed typo in specfile (pcp-testsuite requires pcp-pmda-hacluster
+  and pcp-pmda-sockets instead of pcp-pmdas-hacluster etc.)
 
 * Mon Feb 08 2021 Nathan Scott <nathans@redhat.com> - 5.2.5-1
 - Update to latest PCP sources.
