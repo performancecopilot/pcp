@@ -1010,7 +1010,6 @@ pmwebapi_servlet_setup(struct proxy *proxy)
     pmWebGroupSetEventLoop(&pmwebapi_settings.module, proxy->events);
     pmWebGroupSetConfiguration(&pmwebapi_settings.module, proxy->config);
     pmWebGroupSetMetricRegistry(&pmwebapi_settings.module, metric_registry);
-    pmWebGroupSetGC(&pmwebapi_settings.module, 30000, 30000);
 }
 
 static void

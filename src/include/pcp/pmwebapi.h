@@ -369,7 +369,6 @@ extern int pmWebGroupSetup(pmWebGroupModule *);
 extern int pmWebGroupSetEventLoop(pmWebGroupModule *, void *);
 extern int pmWebGroupSetConfiguration(pmWebGroupModule *, struct dict *);
 extern int pmWebGroupSetMetricRegistry(pmWebGroupModule *, struct mmv_registry *);
-extern void pmWebGroupSetGC(pmWebGroupModule *, unsigned int, unsigned int);
 extern void pmWebGroupClose(pmWebGroupModule *);
 
 /*
