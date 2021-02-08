@@ -1003,7 +1003,7 @@ time_caliper(__pmContext *ctxp, instcntl_t *icp)
 			free(instp);
 			return;
 		    }
-		    if ((ip = __pmHashSearch((unsigned int)idp->instlist[j], &indomp->hashinst)) == NULL) {
+		    if (__pmHashSearch((unsigned int)idp->instlist[j], &indomp->hashinst) == NULL) {
 			char	strbuf[20];
 			fprintf(stderr, "time_caliper: Botch: indom %s inst %d hashinst __pmHashSearch failed\n", pmInDomStr_r(icp->metric->desc.indom, strbuf, sizeof(strbuf)), idp->instlist[j]);
 			return;
