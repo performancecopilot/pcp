@@ -6,7 +6,7 @@ The PMDA collects it's metric data from the following components that make up a 
 
 ## General Notes
 
-### `hacluster.drbd.split_brain`
+### `ha_cluster.drbd.split_brain`
 
 This metric signals if there is a split brain occurring in DRBD per instance resource:volume. The metric will return the value `1` if a split brain is detected, otherwise it will be `0`.
 
@@ -37,7 +37,7 @@ exposed by this PMDA.
 Once the PMDA has been installed, the following command will list all of
 the available metrics and their explanatory “help” text:
 
-		# $ pminfo -fT hacluster
+		# $ pminfo -fT ha_cluster
 
 ## Installation
 
