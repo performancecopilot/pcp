@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020 Red Hat.
+ * Copyright (c) 2019-2021 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -23,7 +23,10 @@
 #endif
 #include <fnmatch.h>
 
-#define DEFAULT_TIMEOUT 5000
+#define DEFAULT_WORK_TIMER 2000
+static unsigned int default_worker;	/* BG work delta, milliseconds */
+
+#define DEFAULT_POLL_TIMEOUT 5000
 static unsigned int default_timeout;	/* timeout in milliseconds */
 
 #define DEFAULT_BATCHSIZE 256
@@ -35,7 +38,7 @@ static sds PARAM_HOSTNAME, PARAM_HOSTSPEC, PARAM_CTXNUM, PARAM_CTXID,
            PARAM_PMIDS, PARAM_PMID, PARAM_INDOM, PARAM_INSTANCE,
            PARAM_INAME, PARAM_MVALUE, PARAM_TARGET, PARAM_EXPR, PARAM_MATCH;
 static sds AUTH_USERNAME, AUTH_PASSWORD;
-static sds EMPTYSTRING, LOCALHOST, TIMEOUT, BATCHSIZE;
+static sds EMPTYSTRING, LOCALHOST, WORK_TIMER, POLL_TIMEOUT, BATCHSIZE;
 
 enum matches { MATCH_EXACT, MATCH_GLOB, MATCH_REGEX };
 enum profile { PROFILE_ADD, PROFILE_DEL };
@@ -45,6 +48,8 @@ typedef struct webgroups {
     mmv_registry_t	*metrics;
     struct dict		*config;
     uv_loop_t		*events;
+    unsigned int	active;
+    uv_timer_t		timer;
 } webgroups;
 
 static struct webgroups *
@@ -170,7 +175,7 @@ webgroup_new_context(pmWebGroupSettings *sp, dict *params,
 {
     struct webgroups	*groups = webgroups_lookup(&sp->module);
     struct context	*cp;
-    unsigned int	polltime = DEFAULT_TIMEOUT;
+    unsigned int	polltime = DEFAULT_POLL_TIMEOUT;
     uv_handle_t		*handle;
     pmWebAccess		access;
     double		seconds;
@@ -252,6 +257,39 @@ webgroup_new_context(pmWebGroupSettings *sp, dict *params,
     return cp;
 }
 
+static void
+webgroup_garbage_collect(struct webgroups *groups)
+{
+    dictIterator        *iterator = dictGetSafeIterator(groups->contexts);
+    dictEntry           *entry;
+    context_t		*cp;
+
+    if (pmDebugOptions.http || pmDebugOptions.libweb)
+	fprintf(stderr, "%s: started\n", "webgroup_garbage_collect");
+
+    while ((entry = dictNext(iterator)) != NULL) {
+	cp = (context_t *)dictGetVal(entry);
+	if (cp->garbage && cp->privdata == groups) {
+	    if (pmDebugOptions.http || pmDebugOptions.libweb)
+		fprintf(stderr, "GC context %u (%p)\n", cp->randomid, cp);
+	    webgroup_drop_context(cp, groups);
+	}
+    }
+    dictReleaseIterator(iterator);
+
+    if (pmDebugOptions.http || pmDebugOptions.libweb)
+	fprintf(stderr, "%s: finished\n", "webgroup_garbage_collect");
+}
+
+static void
+webgroup_worker(uv_timer_t *arg)
+{
+    uv_handle_t		*handle = (uv_handle_t *)arg;
+    struct webgroups	*groups = (struct webgroups *)handle->data;
+
+    webgroup_garbage_collect(groups);
+}
+
 static struct context *
 webgroup_use_context(struct context *cp, int *status, sds *message, void *arg)
 {
@@ -287,7 +325,6 @@ webgroup_use_context(struct context *cp, int *status, sds *message, void *arg)
 	uv_timer_start(&cp->timer, webgroup_timeout_context, cp->timeout, 0);
     } else {
 	infofmt(*message, "expired context identifier: %u", cp->randomid);
-	webgroup_drop_context(cp, gp);
 	*status = -ENOTCONN;
 	return NULL;
     }
@@ -304,6 +341,15 @@ webgroup_lookup_context(pmWebGroupSettings *sp, sds *id, dict *params,
     unsigned int	key;
     pmWebAccess		access;
     char		*endptr = NULL;
+
+    if (groups->active == 0) {
+	groups->active = 1;
+	/* install general background work timer (GC) */
+	uv_timer_init(groups->events, &groups->timer);
+	groups->timer.data = (void *)groups;
+	uv_timer_start(&groups->timer, webgroup_worker,
+			default_worker, default_worker);
+    }
 
     if (*id == NULL) {
 	if (!(cp = webgroup_new_context(sp, params, status, message, arg)))
@@ -326,8 +372,9 @@ webgroup_lookup_context(pmWebGroupSettings *sp, sds *id, dict *params,
 	    access.password = cp->password;
 	    access.realm = cp->realm;
 	    if (sp->callbacks.on_check &&
-		sp->callbacks.on_check(*id, &access, status, message, arg) < 0)
-	    return NULL;
+		sp->callbacks.on_check(*id, &access, status, message, arg) < 0) {
+		return NULL;
+	    }
 	}
     }
 
@@ -2148,7 +2195,8 @@ pmWebGroupSetup(pmWebGroupModule *module)
     /* generally needed strings, error messages */
     EMPTYSTRING = sdsnew("");
     LOCALHOST = sdsnew("localhost");
-    TIMEOUT = sdsnew("pmwebapi.timeout");
+    WORK_TIMER = sdsnew("pmwebapi.work");
+    POLL_TIMEOUT = sdsnew("pmwebapi.timeout");
     BATCHSIZE = sdsnew("pmwebapi.batchsize");
     AUTH_USERNAME = sdsnew("auth.username");
     AUTH_PASSWORD = sdsnew("auth.password");
@@ -2160,6 +2208,7 @@ pmWebGroupSetup(pmWebGroupModule *module)
 
     /* setup a dictionary mapping context number to data */
     groups->contexts = dictCreate(&intKeyDictCallBacks, NULL);
+
     return 0;
 }
 
@@ -2182,12 +2231,20 @@ pmWebGroupSetConfiguration(pmWebGroupModule *module, dict *config)
     char		*endnum;
     sds			value;
 
-    if ((value = dictFetchValue(config, TIMEOUT)) == NULL) {
-	default_timeout = DEFAULT_TIMEOUT;
+    if ((value = dictFetchValue(config, WORK_TIMER)) == NULL) {
+	default_worker = DEFAULT_WORK_TIMER;
+    } else {
+	default_worker = strtoul(value, &endnum, 0);
+	if (*endnum != '\0')
+	    default_worker = DEFAULT_WORK_TIMER;
+    }
+
+    if ((value = dictFetchValue(config, POLL_TIMEOUT)) == NULL) {
+	default_timeout = DEFAULT_POLL_TIMEOUT;
     } else {
 	default_timeout = strtoul(value, &endnum, 0);
 	if (*endnum != '\0')
-	    default_timeout = DEFAULT_TIMEOUT;
+	    default_timeout = DEFAULT_POLL_TIMEOUT;
     }
 
     if ((value = dictFetchValue(config, BATCHSIZE)) == NULL) {
@@ -2226,6 +2283,10 @@ pmWebGroupClose(pmWebGroupModule *module)
 
     if (groups) {
 	/* walk the contexts, stop timers and free resources */
+	if (groups->active) {
+	    groups->active = 0;
+	    uv_timer_stop(&groups->timer);
+	}
 	iterator = dictGetIterator(groups->contexts);
 	while ((entry = dictNext(iterator)) != NULL)
 	    webgroup_drop_context((context_t *)dictGetVal(entry), NULL);
@@ -2256,7 +2317,8 @@ pmWebGroupClose(pmWebGroupModule *module)
     /* generally needed strings, error messages */
     sdsfree(EMPTYSTRING);
     sdsfree(LOCALHOST);
-    sdsfree(TIMEOUT);
+    sdsfree(WORK_TIMER);
+    sdsfree(POLL_TIMEOUT);
     sdsfree(BATCHSIZE);
     sdsfree(AUTH_USERNAME);
     sdsfree(AUTH_PASSWORD);

@@ -39,6 +39,23 @@ jobs:
         with:
           python-version: '>=3.6'
 
+      - name: Update conmon to 2.0.26
+        if: matrix.runner == 'container'
+        run: |
+          podman --version
+
+          echo Previous conmon
+          /usr/libexec/podman/conmon --version
+
+          wget -q -O conmon.zip https://github.com/containers/conmon/releases/download/v2.0.26/conmon-2.0.26.zip
+          unzip conmon.zip
+          chmod +x result/bin/conmon
+          sudo cp -f result/bin/conmon /usr/bin/conmon
+          sudo cp -f result/bin/conmon /usr/libexec/podman/conmon
+
+          echo Upgraded conmon
+          /usr/libexec/podman/conmon --version
+
       - name: Setup
         run: |
           python3 -c 'import yaml' || pip3 install pyyaml
@@ -76,17 +93,19 @@ jobs:
         run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} task install
 
       - name: Initialize QA
+        id: init_qa
         run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} task init_qa
 
       - name: QA
         run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} task qa_sanity
 
       - name: Copy test results
-        if: always()
+        # always() is required here to run this step even if the QA step fails
+        if: always() && steps.init_qa.outcome == 'success'
         run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} artifacts test --path ./artifacts/test
 
       - name: Publish test results
-        if: always()
+        if: always() && steps.init_qa.outcome == 'success'
         uses: actions/upload-artifact@v2
         with:
           name: test-${{ matrix.platform }}-${{ matrix.runner }}
