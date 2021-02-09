@@ -82,6 +82,7 @@ static int
 setup_sufftab(void)
 {
     char	**table;
+    char	**table_tmp;
     char	*list;
     char	*p;
     int		n = 2;
@@ -91,18 +92,25 @@ setup_sufftab(void)
 	return -1;
     }
 
-    if ((table = malloc(n * sizeof(char *))) == NULL ||
-	(table[0] = strdup("")) == NULL) {
-	fprintf(stderr, "pmlogmv: cannot allocate suffix table\n");
+    if ((table = malloc(n * sizeof(char *))) == NULL) {
+	fprintf(stderr, "pmlogmv: cannot malloc suffix table\n");
+	return -1;
+    }
+
+    if ((table[0] = strdup("")) == NULL) {
+	fprintf(stderr, "pmlogmv: cannot strdup for suffix table[0]\n");
+	free(table);
 	return -1;
     }
 
     p = strtok(list, " ");
     while (p) {
-	if ((table = realloc(table, sizeof(char *) * ++n)) == NULL) {
-	    fprintf(stderr, "pmlogmv: cannot allocate suffix table\n");
+	if ((table_tmp = realloc(table, sizeof(char *) * ++n)) == NULL) {
+	    fprintf(stderr, "pmlogmv: cannot realloc suffix table for %d entries\n", n);
+	    free(table);
 	    return -1;
 	}
+	table = table_tmp;
 	table[n-2] = p;
 	p = strtok(NULL, " ");
     }

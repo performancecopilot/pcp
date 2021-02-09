@@ -309,8 +309,11 @@ printsummary(const char *name)
 		    for (j = 0; j < msp->ninst; j++)
 			if (strcmp(msp->inst[j], str) == 0)
 			    break;
-		    if (j == msp->ninst)
+		    if (j == msp->ninst) {
+			if (str) free(str);
+			str = NULL;
 			continue;
+		    }
 		}
 		if (star)
 		    putchar('*');
