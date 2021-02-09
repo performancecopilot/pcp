@@ -4,6 +4,12 @@ pcp (5.3.0-1) unstable; urgency=low
 
  -- Nathan Scott <nathans@debian.org>  Fri, 16 Apr 2021 21:25:03 +1000
 
+pcp (5.2.6-1) unstable; urgency=low
+
+  * Resolve bash-related package conflicts (closes: #982323)
+
+ -- Nathan Scott <nathans@debian.org>  Tue, 09 Feb 2021 13:36:31 +1100
+
 pcp (5.2.5-1) unstable; urgency=low
 
   * New release (full details in CHANGELOG).

@@ -355,7 +355,7 @@ Description: Tool for importing data from collectl into PCP archive logs
 
 Package: pcp-export-pcp2graphite
 Depends: ?{python-pcp}, ${python:Depends}, ${misc:Depends}, ${shlibs:Depends}
-Breaks: pcp (<< 3.10.9)
+Breaks: pcp (<< 5.2.4)
 Architecture: any
 Description: Tool for exporting data from PCP to Graphite
  Performance Co-Pilot (PCP) front-end tool for exporting data from PCP
@@ -363,6 +363,7 @@ Description: Tool for exporting data from PCP to Graphite
 
 Package: pcp-export-pcp2influxdb
 Depends: ?{python-pcp}, ?{python-requests}, ${python:Depends}, ${misc:Depends}, ${shlibs:Depends}
+Breaks: pcp (<< 5.2.4)
 Architecture: any
 Description: Tool for exporting data from PCP to InfluxDB
  Performance Co-Pilot (PCP) front-end tools for exporting metric values
