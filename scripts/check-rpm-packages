@@ -1,10 +1,20 @@
 #! /bin/sh
 #
 
-[ $# -ne 1 ] && echo "Compare Makepkgs with rpmbuild" && echo "Usage: $0 VERSION" && exit 1
+if [ $# -eq 1 ]; then
+    VER=$1
+elif [ $# -eq 0 ]; then
+    . ./VERSION.pcp
+    VER="$PACKAGE_MAJOR.$PACKAGE_MINOR.$PACKAGE_REVISION"
+else
+    echo "Compare Makepkgs with rpmbuild" && echo "Usage: $0 [VERSION]"
+    exit 1
+fi
 
-VER=$1
-[ ! -d pcp-$VER ] && echo No directory pcp-$VER. Run both Makepkgs and rpmbuild first && exit 1
+if [ ! -d pcp-$VER ]; then
+    echo "No directory pcp-$VER. Run both Makepkgs and rpmbuild first"
+    exit 1
+fi
 
 for rpm in pcp-$VER/build/rpm/*.rpm; do
   echo $rpm | egrep -qs 'debuginfo|debugsource|src\.rpm' && continue
