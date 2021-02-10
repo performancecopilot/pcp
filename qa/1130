@@ -27,6 +27,23 @@ status=1       # failure is the default!
 
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
+# deal with non-determinism in arithmetic values from pcp2elasticsearch
+# e.g. "clock": 3029.0309999999999 -> "clock": 3029.031
+#
+_filter_prec()
+{
+    sed \
+	-e '/"bogomips":/s/\(5587.42\)0*[1-3]/\1/' \
+	-e '/"clock":/s/\(3029.03\)09*[7-9]/\11/' \
+	-e '/"load":/s/\(0.0\)89*[7-9]/\19/' \
+	-e '/"speed":/s/\(781261.93\)79*[7-9]/\18/' \
+	-e '/"clock":/s/\(2723.43\)69*[7-9]/\17/' \
+	-e '/"load":/s/\(0.08\)0*[1-3]/\1/' \
+	-e '/"user":/s/\(9.999\)0*[1-6]/\1/' \
+	-e '/"clock":/s/\(2800.10\)89*[7-9]/\19/' \
+    # end
+}
+
 _full_stash()
 {
     echo "--- pcp2elasticsearch stdout --" >>$seq.full
@@ -85,7 +102,7 @@ echo "--- Start of received data ---"
 egrep '(mappings|slack)' $tmp.socat.err | sed -e 's,< [1-9].*,,g' >$tmp.archive.data
 while read -r line
 do
-  echo $line | pmjson | LC_COLLATE=POSIX sort | tr -d ,
+  echo $line | _filter_prec | pmjson | LC_COLLATE=POSIX sort | tr -d ,
 done < $tmp.archive.data
 echo "--- End of received data ---"
 _full_stash
