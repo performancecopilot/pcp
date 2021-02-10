@@ -87,6 +87,13 @@ done
 cd $PCP_PMDAS_DIR/hacluster
 $sudo ./Remove </dev/null >/dev/null 2>&1
 
+if [ -f $PCP_LOG_DIR/pmcd/hacluster.log ]
+then
+    cat $PCP_LOG_DIR/pmcd/hacluster.log >>$here/$seq.full
+else
+    echo "Arrgh: $PCP_LOG_DIR/pmcd/hacluster.log is missing?"
+fi
+
 # success, all done
 status=0
 exit
