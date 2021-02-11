@@ -23,6 +23,7 @@
 #include "ss_stats.h"
 
 static int		_isDSO = 1; /* for local contexts */
+static char		*username;
 
 /* metrics supported in this PMDA - see metrictab.c */
 extern pmdaMetric metrictable[];
@@ -200,6 +201,8 @@ sockets_init(pmdaInterface *dp)
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_7, "SOCKETS DSO", helppath);
     }
+    else
+	pmSetProcessIdentity(username);
 
     if (dp->status != 0)
 	return;
@@ -227,12 +230,13 @@ static pmLongOptions longopts[] = {
     PMOPT_DEBUG,
     PMDAOPT_DOMAIN,
     PMDAOPT_LOGFILE,
+    PMDAOPT_USERNAME,
     PMOPT_HELP,
     PMDA_OPTIONS_END
 };
 
 static pmdaOptions opts = {
-    .short_options = "D:d:l:?",
+    .short_options = "D:d:l:U:?",
     .long_options = longopts,
 };
 
@@ -248,6 +252,7 @@ main(int argc, char **argv)
 
     _isDSO = 0;
     pmSetProgname(argv[0]);
+    pmGetUsername(&username);
     pmsprintf(helppath, sizeof(helppath), "%s%c" "sockets" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_7, pmGetProgname(), SOCKETS, "sockets.log", helppath);
@@ -257,6 +262,8 @@ main(int argc, char **argv)
 	pmdaUsageMessage(&opts);
 	exit(1);
     }
+    if (opts.username)
+	username = opts.username;
 
     pmdaOpenLog(&dispatch);
     sockets_init(&dispatch);

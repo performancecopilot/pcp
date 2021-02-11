@@ -31,7 +31,7 @@ HFILES		= indom.h cluster.h ss_stats.h
 LLDLIBS		= $(PCP_PMDALIB)
 LCFLAGS		= $(INVISIBILITY)
 
-SCRIPTS		= Install Remove
+SCRIPTS		= Install Remove Upgrade
 VERSION_SCRIPT	= exports
 LDIRT		= domain.h $(VERSION_SCRIPT) $(IAM).log
 

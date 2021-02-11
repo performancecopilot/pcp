@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/usr/bin/sh
 #
 # Copyright (c) 2021 Red Hat.
 # 
@@ -19,6 +19,7 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=sockets
+pmns_name=network.persocket	# differs to PMDA name
 
 pmdaSetup
 pmdaRemove
