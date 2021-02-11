@@ -1,16 +1,13 @@
-Summary: System-level performance monitoring and performance management
-Name: @package_name@
+Name:    @package_name@
 Version: @package_version@
-Release: @package_release@@package_sgirelease@
+Release: @package_release@
+Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2+ and CC-BY
-URL: https://pcp.io
-Source: @package_name@-@package_version@.src.tar.gz
+URL:     https://pcp.io
+
 BuildRoot: @build_root@
 Distribution: @package_distribution@
-BuildRequires: make
-BuildRequires: procps bison flex
-BuildRequires: ncurses-devel
-BuildRequires: readline-devel
+Source0: pcp-%{version}.src.tar.gz
 
 %if 0%{?rhel} > 7
 %global __requires_exclude ^perl-LDAP$
@@ -29,11 +26,42 @@ BuildRequires: readline-devel
 %global _hostname_executable /bin/hostname
 %endif
 
+# prevent conflicting binary and man page install for pcp(1)
+Conflicts: librapi < 0.16
+
+# KVM PMDA moved into pcp (no longer using Perl, default on)
+Obsoletes: pcp-pmda-kvm < 4.1.1
+Provides: pcp-pmda-kvm = %{version}-%{release}
+
+# PCP REST APIs are now provided by pmproxy
+Obsoletes: pcp-webapi-debuginfo < 5.0.0
+Obsoletes: pcp-webapi < 5.0.0
+Provides: pcp-webapi = %{version}-%{release}
+
+# PCP discovery service now provided by pmfind
+Obsoletes: pcp-manager-debuginfo < 5.2.0
+Obsoletes: pcp-manager < 5.2.0
+
+# Some older releases did not update or replace pcp-gui-debuginfo properly
+%if 0%{?fedora} < 27 && 0%{?rhel} <= 7 && "%{_vendor}" == "redhat"
+Obsoletes: pcp-gui-debuginfo < 4.1.1
+%endif
+
+Obsoletes: pcp-compat < 4.2.0
+Obsoletes: pcp-monitor < 4.2.0
+Obsoletes: pcp-collector < 4.2.0
+
+# https://fedoraproject.org/wiki/Packaging "C and C++"
+BuildRequires: make
+BuildRequires: gcc gcc-c++
+BuildRequires: procps autoconf bison flex
+
 %if 0%{?sles_version} == 11
 # rpmbuild is in the rpm (not rpm-build) package for SLES11
 %else
 BuildRequires: rpm-build
 %endif
+
 %if "@enable_avahi@" == "true"
 BuildRequires: avahi-devel
 %endif
@@ -96,24 +124,8 @@ BuildRequires: libpfm-devel >= 4.4
 BuildRequires: systemd-devel
 %endif
 
-# prevent conflicting SGI package installation
-Conflicts: pcp-pro < 2.2
-
-# prevent conflicting binary and man page install for pcp(1)
-Conflicts: librapi < 0.16
-
-# KVM PMDA moved into pcp (no longer using Perl, default on)
-Obsoletes: pcp-pmda-kvm < 4.1.1
-Provides: pcp-pmda-kvm
-
-# PCP REST APIs are now provided by pmproxy
-Obsoletes: pcp-webapi-debuginfo < 5.0.0
-Obsoletes: pcp-webapi < 5.0.0
-Provides: pcp-webapi
-
-# PCP discovery service now provided by pmfind
-Obsoletes: pcp-manager-debuginfo < 5.2.0
-Obsoletes: pcp-manager < 5.2.0
+BuildRequires: ncurses-devel
+BuildRequires: readline-devel
 
 # Utilities used indirectly e.g. by scripts we install
 Requires: bash xz gawk sed grep coreutils findutils
@@ -214,15 +226,6 @@ Requires: pcp-selinux = @package_version@
 %endif
 
 Requires: pcp-libs = @package_version@
-
-# Some older releases did not update or replace pcp-gui-debuginfo properly
-%if 0%{?fedora} < 27 && 0%{?rhel} <= 7 && "%{_vendor}" == "redhat"
-Obsoletes: pcp-gui-debuginfo < 4.1.1
-%endif
-
-Obsoletes: pcp-compat < 4.2.0
-Obsoletes: pcp-monitor < 4.2.0
-Obsoletes: pcp-collector < 4.2.0
 
 %description
 Performance Co-Pilot (PCP) provides a framework and services to support
@@ -2163,7 +2166,7 @@ PCP_CONF=$BACKDIR/src/include/pcp.conf
 export PCP_CONF
 . $BACKDIR/src/include/pcp.env
 CFGFILELIST=`ls -1 $BACKDIR/debian/pcp-conf.{install,dirs}`
-LIBFILELIST=`ls -1 $BACKDIR/debian/lib*.{install,dirs} | fgrep -v -- -dev.`
+LIBFILELIST=`ls -1 $BACKDIR/debian/lib*.{install,dirs} | grep -F -v -- -dev.`
 DEVFILELIST=`ls -1 $BACKDIR/debian/lib*-dev.{install,dirs}`
 
 # Package split: pcp{-conf,-libs,-libs-devel,-testsuite,-import-*,-export-*}...
@@ -2199,7 +2202,7 @@ sed -i -e 's/usr\/lib\//usr\/lib64\//' pcp-libs-devel-files
 
 # some special cases for devel
 awk '{print $NF}' $DIST_MANIFEST |\
-egrep 'pcp\/(examples|demos)|(etc/pcp|pcp/pmdas)\/(sample|simple|trivial|txmon)|bin/(pmdbg|pmclient|pmerr|genpmda)' | egrep -v tutorials >>pcp-devel-files
+grep -E 'pcp\/(examples|demos)|(etc/pcp|pcp/pmdas)\/(sample|simple|trivial|txmon)|bin/(pmdbg|pmclient|pmerr|genpmda)' | grep -E -v tutorials >>pcp-devel-files
 
 # Patterns for files to be marked %config(noreplace).
 # Note: /etc/pcp.{conf,env,sh} are %config but not noreplace
@@ -2213,10 +2216,10 @@ EOF
 # functions to manipulate the manifest of files - keeping
 # or culling given (or common) patterns from the stream.
 keep() {
-    egrep $@ || return 0
+    grep -E $@ || return 0
 }
 cull() {
-    egrep -v $@ || return 0
+    grep -E -v $@ || return 0
 }
 total_manifest() {
     awk '{print $NF}' $DIST_MANIFEST
@@ -2235,7 +2238,7 @@ total_manifest | keep 'tutorials|/html/|pcp-doc|man.*\.[1-9].*' | cull 'out' >pc
 basic_manifest | keep "$PCP_GUI|pcp-gui|applications|pixmaps|hicolor" | cull 'pmtime.h' >pcp-gui-files
 basic_manifest | keep 'selinux' | cull 'tmp|GNUselinuxdefs' >pcp-selinux-files
 basic_manifest | keep 'zeroconf|daily[-_]report|/sa$' >pcp-zeroconf-files
-basic_manifest | egrep -e 'pmiostat|pmrep|dstat|pcp2csv' \
+basic_manifest | grep -E -e 'pmiostat|pmrep|dstat|pcp2csv' \
    -e 'pcp-atop|pcp-dmcache|pcp-dstat|pcp-free|pcp-htop' \
    -e 'pcp-ipcs|pcp-iostat|pcp-lvmcache|pcp-mpstat' \
    -e 'pcp-numastat|pcp-pidstat|pcp-shping|pcp-tapestat' \

@@ -197,21 +197,32 @@ Conflicts: librapi < 0.16
 
 # KVM PMDA moved into pcp (no longer using Perl, default on)
 Obsoletes: pcp-pmda-kvm < 4.1.1
-Provides: pcp-pmda-kvm
+Provides: pcp-pmda-kvm = %{version}-%{release}
 
 # PCP REST APIs are now provided by pmproxy
 Obsoletes: pcp-webapi-debuginfo < 5.0.0
 Obsoletes: pcp-webapi < 5.0.0
-Provides: pcp-webapi
+Provides: pcp-webapi = %{version}-%{release}
 
 # PCP discovery service now provided by pmfind
 Obsoletes: pcp-manager-debuginfo < 5.2.0
 Obsoletes: pcp-manager < 5.2.0
 
+# Some older releases did not update or replace pcp-gui-debuginfo properly
+%if 0%{?fedora} < 27 && 0%{?rhel} <= 7 && "%{_vendor}" == "redhat"
+Obsoletes: pcp-gui-debuginfo < 4.1.1
+%endif
+
+Obsoletes: pcp-compat < 4.2.0
+Obsoletes: pcp-monitor < 4.2.0
+Obsoletes: pcp-collector < 4.2.0
+Obsoletes: pcp-pmda-nvidia < 3.10.5
+
 # https://fedoraproject.org/wiki/Packaging "C and C++"
 BuildRequires: make
 BuildRequires: gcc gcc-c++
 BuildRequires: procps autoconf bison flex
+
 BuildRequires: nss-devel
 BuildRequires: rpm-devel
 BuildRequires: avahi-devel
@@ -274,20 +285,9 @@ BuildRequires: qt5-qtsvg-devel
 %endif
 
 Requires: bash xz gawk sed grep findutils which %{_hostname_executable}
-Requires: pcp-libs = %{version}-%{release}
 %if !%{disable_selinux}
 Requires: pcp-selinux = %{version}-%{release}
 %endif
-
-# Some older releases did not update or replace pcp-gui-debuginfo properly
-%if 0%{?fedora} < 27 && 0%{?rhel} <= 7 && "%{_vendor}" == "redhat"
-Obsoletes: pcp-gui-debuginfo < 4.1.1
-%endif
-
-Obsoletes: pcp-compat < 4.2.0
-Obsoletes: pcp-monitor < 4.2.0
-Obsoletes: pcp-collector < 4.2.0
-Obsoletes: pcp-pmda-nvidia < 3.10.5
 
 Requires: pcp-libs = %{version}-%{release}
 
@@ -2315,7 +2315,7 @@ PCP_CONF=$BACKDIR/src/include/pcp.conf
 export PCP_CONF
 . $BACKDIR/src/include/pcp.env
 CFGFILELIST=`ls -1 $BACKDIR/debian/pcp-conf.{install,dirs}`
-LIBFILELIST=`ls -1 $BACKDIR/debian/lib*.{install,dirs} | fgrep -v -- -dev.`
+LIBFILELIST=`ls -1 $BACKDIR/debian/lib*.{install,dirs} | grep -F -v -- -dev.`
 DEVFILELIST=`ls -1 $BACKDIR/debian/lib*-dev.{install,dirs}`
 
 # Package split: pcp{-conf,-libs,-libs-devel,-testsuite,-import-*,-export-*}...
@@ -2351,10 +2351,10 @@ sed -i -e 's/usr\/lib\//usr\/lib64\//' pcp-libs-devel-files
 
 # some special cases for devel
 awk '{print $NF}' $DIST_MANIFEST |\
-egrep 'pcp\/(examples|demos)|(etc/pcp|pcp/pmdas)\/(sample|simple|trivial|txmon)|bin/(pmdbg|pmclient|pmerr|genpmda)' | egrep -v tutorials >>pcp-devel-files
+grep -E 'pcp\/(examples|demos)|(etc/pcp|pcp/pmdas)\/(sample|simple|trivial|txmon)|bin/(pmdbg|pmclient|pmerr|genpmda)' | grep -E -v tutorials >>pcp-devel-files
 
-# Patterns for files to be marked %config(noreplace).
-# Note: /etc/pcp.{conf,env,sh} are %config but not noreplace
+# Patterns for files to be marked %%config(noreplace).
+# Note: /etc/pcp.{conf,env,sh} are %%config but not noreplace
 # and are treated specially below.
 cat >confpath.list <<EOF
 etc/sysconfig/
@@ -2365,10 +2365,10 @@ EOF
 # functions to manipulate the manifest of files - keeping
 # or culling given (or common) patterns from the stream.
 keep() {
-    egrep $@ || return 0
+    grep -E $@ || return 0
 }
 cull() {
-    egrep -v $@ || return 0
+    grep -E -v $@ || return 0
 }
 total_manifest() {
     awk '{print $NF}' $DIST_MANIFEST
@@ -2388,7 +2388,7 @@ total_manifest | keep 'testsuite|etc/systemd/system' >pcp-testsuite-files
 basic_manifest | keep "$PCP_GUI|pcp-gui|applications|pixmaps|hicolor" | cull 'pmtime.h' >pcp-gui-files
 basic_manifest | keep 'selinux' | cull 'tmp|GNUselinuxdefs' >pcp-selinux-files
 basic_manifest | keep 'zeroconf|daily[-_]report|/sa$' >pcp-zeroconf-files
-basic_manifest | egrep -e 'pmiostat|pmrep|dstat|pcp2csv' \
+basic_manifest | grep -E -e 'pmiostat|pmrep|dstat|pcp2csv' \
    -e 'pcp-atop|pcp-dmcache|pcp-dstat|pcp-free|pcp-htop' \
    -e 'pcp-ipcs|pcp-iostat|pcp-lvmcache|pcp-mpstat' \
    -e 'pcp-numastat|pcp-pidstat|pcp-shping|pcp-tapestat' \
@@ -2609,6 +2609,12 @@ BEGIN {
     f=p".conf";
     printf ("%s\n", $0) >> f;
 }'
+
+%if %{disable_mssql}
+# TODO: integrate better into the PCP build (via autoconf)
+# so that this and other mssql artifacts are not generated.
+rm -f pcp-pmda-mssql.conf
+%endif
 
 for tmpfile in *.conf ; \
 do \
@@ -3169,7 +3175,9 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 
 %files pmda-lmsensors -f pcp-pmda-lmsensors-files.rpm
 
+%if !%{disable_mssql}
 %files pmda-mssql -f pcp-pmda-mssql-files.rpm
+%endif
 
 %files pmda-netcheck -f pcp-pmda-netcheck-files.rpm
 
@@ -3265,7 +3273,7 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %files import-iostat2pcp -f pcp-import-iostat2pcp-files.rpm
 
 #TODO:
-#%files import-sheet2pcp -f pcp-import-sheet2pcp-files.rpm
+#%%files import-sheet2pcp -f pcp-import-sheet2pcp-files.rpm
 
 %files import-mrtg2pcp -f pcp-import-mrtg2pcp-files.rpm
 
@@ -3308,8 +3316,11 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 
 * Mon Feb 08 2021 Nathan Scott <nathans@redhat.com> - 5.2.5-1
 - Update to latest PCP sources.
-- Fix off-by-one issue in pcp-dstat reporting (BZ 1922768)
-- Add dstat(1) symlink to pcp-dstat(1) man page (BZ 1922771)
+- Fix pcp-dstat(1) sample count being off-by-one (BZ 1922768)
+- Add dstat(1) symlink to pcp-dstat(1) in pcp-doc (BZ 1922771)
+
+* Tue Jan 26 2021 Fedora Release Engineering <releng@fedoraproject.org> - 5.2.3-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_34_Mass_Rebuild
 
 * Fri Dec 18 2020 Nathan Scott <nathans@redhat.com> - 5.2.3-1
 - Update to latest PCP sources.
