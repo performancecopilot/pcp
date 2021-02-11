@@ -90,6 +90,7 @@ require {
         @PCP_BPF_CLASS@
 	class system { module_request };
 	@PCP_NETLINK_GENERIC_SOCKET_CLASS@
+	@PCP_NETLINK_TCPDIAG_SOCKET_CLASS@
 }
 
 #============= init_t ==============
@@ -423,3 +424,11 @@ allow pcp_pmcd_t drbd_exec_t:file { execute execute_no_trans };
 # pmda-hacluster requirements for checking sbd
 # type=AVC msg=audit(XXX.81): avc:  denied  { execute_no_trans } for  pid=421434 comm="sh" path="/usr/sbin/sbd" dev="vda1" ino=1050019 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:sbd_exec_t:s0 tclass=file permissive=1
 @PCP_SBD_EXEC_RULE@
+
+#=========== pmda-sockets ============
+# type=AVC msg=audit(XXX.85): avc:  denied  { create } for  pid=YYYY comm="ss" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=netlink_tcpdiag_socket permissive=1
+# type=AVC msg=audit(XXX.86): avc:  denied  { setopt } for  pid=YYYY comm="ss" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=netlink_tcpdiag_socket permissive=1
+# type=AVC msg=audit(XXX.87): avc:  denied  { bind } for  pid=YYYY comm="ss" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=netlink_tcpdiag_socket permissive=1
+# type=AVC msg=audit(XXX.88): avc:  denied  { getattr } for  pid=YYYY comm="ss" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=netlink_tcpdiag_socket permissive=1
+# type=AVC msg=audit(XXX.89): avc:  denied  { nlmsg_read } for  pid=YYYY comm="ss" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=netlink_tcpdiag_socket permissive=1
+@PCP_NETLINK_TCPDIAG_SOCKET_RULE@

@@ -216,6 +216,11 @@ type=AVC msg=audit(XXX.62): avc:  denied  { getattr open read } for  pid=YYYY co
 type=AVC msg=audit(XXX.63): avc:  denied  { connectto } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:saslauthd_t:s0 tclass=unix_stream_socket permissive=0
 type=AVC msg=audit(XXX.66): avc:  denied  { sys_rawio } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:pcp_pmcd_t:s0 tclass=capability permissive=0
 type=AVC msg=audit(XXX.67): avc:  denied  { module_request } for pid=YYYY comm="pmdalinux" kmod="netdev-tun0" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:kernel_t:s0 tclass=system permissive=0
+type=AVC msg=audit(XXX.85): avc:  denied  { create } for  pid=YYYY comm="ss" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=netlink_tcpdiag_socket permissive=1
+type=AVC msg=audit(XXX.86): avc:  denied  { setopt } for  pid=YYYY comm="ss" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=netlink_tcpdiag_socket permissive=1
+type=AVC msg=audit(XXX.87): avc:  denied  { bind } for  pid=YYYY comm="ss" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=netlink_tcpdiag_socket permissive=1
+type=AVC msg=audit(XXX.88): avc:  denied  { getattr } for  pid=YYYY comm="ss" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=netlink_tcpdiag_socket permissive=1
+type=AVC msg=audit(XXX.89): avc:  denied  { nlmsg_read } for  pid=YYYY comm="ss" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=netlink_tcpdiag_socket permissive=1
 EOF
 
 echo "Silence is golden ... all AVC's are allowed by active policy"
