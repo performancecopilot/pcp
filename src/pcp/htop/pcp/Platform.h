@@ -21,6 +21,7 @@ in the source distribution for its full text.
 #include "Action.h"
 #include "BatteryMeter.h"
 #include "DiskIOMeter.h"
+#include "SysArchMeter.h"
 #include "Meter.h"
 #include "Process.h"
 #include "ProcessLocksScreen.h"
@@ -55,6 +56,8 @@ void Platform_setMemoryValues(Meter* this);
 void Platform_setSwapValues(Meter* this);
 
 void Platform_setZramValues(Meter* this);
+
+void Platform_setSysArch(SysArchInfo* data);
 
 char* Platform_getProcessEnv(pid_t pid);
 
@@ -181,6 +184,10 @@ typedef enum Metric_ {
    PCP_PROC_SMAPS_PSS,		/* proc.smaps.pss */
    PCP_PROC_SMAPS_SWAP,		/* proc.smaps.swap */
    PCP_PROC_SMAPS_SWAPPSS,	/* proc.smaps.swappss */
+
+   KERNEL_UNAME_SYSNAME,    /* kernel.uname.sysname */
+   KERNEL_UNAME_RELEASE,    /* kernel.uname.release */
+   KERNEL_UNAME_MACHINE,    /* kernel.uname.machine */
 
    PCP_METRIC_COUNT		/* total metric count */
 } Metric;

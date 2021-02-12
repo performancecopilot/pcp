@@ -36,6 +36,7 @@ in the source distribution for its full text.
 #include "SwapMeter.h"
 #include "TasksMeter.h"
 #include "UptimeMeter.h"
+#include "SysArchMeter.h"
 #include "XUtils.h"
 
 #include "linux/PressureStallMeter.h"
@@ -98,6 +99,7 @@ const MeterClass* const Platform_meterTypes[] = {
    &ZramMeter_class,
    &DiskIOMeter_class,
    &NetworkIOMeter_class,
+   &SysArchMeter_class,
    NULL
 };
 
@@ -207,6 +209,10 @@ static const char *Platform_metricNames[] = {
    [PCP_PROC_SMAPS_PSS] = "proc.smaps.pss",
    [PCP_PROC_SMAPS_SWAP] = "proc.smaps.swap",
    [PCP_PROC_SMAPS_SWAPPSS] = "proc.smaps.swappss",
+
+   [KERNEL_UNAME_SYSNAME] = "kernel.uname.sysname",
+   [KERNEL_UNAME_RELEASE] = "kernel.uname.release",
+   [KERNEL_UNAME_MACHINE] = "kernel.uname.machine",
 
    [PCP_METRIC_COUNT] = NULL
 };
@@ -558,6 +564,20 @@ void Platform_setZramValues(Meter* this) {
    this->total = stats.totalZram;
    this->values[0] = stats.usedZramComp;
    this->values[1] = stats.usedZramOrig;
+}
+
+void Platform_setSysArch(SysArchInfo *data) {
+    int c = sizeof(SysArchInfo)/sizeof(char*);
+    pmAtomValue *values = xCalloc(c, sizeof(pmAtomValue));
+
+    if (Metric_values(KERNEL_UNAME_SYSNAME, &values[0], 1, PM_TYPE_STRING) != NULL)
+        data->name = values[0].cp;
+    if (Metric_values(KERNEL_UNAME_RELEASE, &values[1], 1, PM_TYPE_STRING) != NULL)
+        data->release = values[1].cp;
+    if (Metric_values(KERNEL_UNAME_MACHINE, &values[2], 1, PM_TYPE_STRING) != NULL)
+        data->machine = values[2].cp;
+
+    free(values);
 }
 
 char* Platform_getProcessEnv(pid_t pid) {
