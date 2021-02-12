@@ -633,7 +633,10 @@ systemdMain(pmdaInterface *dispatch)
 {
     int pmcdfd;
 
-    pmcdfd = __pmdaInFd(dispatch);
+    if ((pmcdfd = __pmdaInFd(dispatch)) < 0) {
+	/* error logged in __pmdaInFd() */
+	exit(1);
+    }
     if (pmcdfd > maxfd)
         maxfd = pmcdfd;
 

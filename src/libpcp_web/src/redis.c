@@ -1764,7 +1764,7 @@ __redisGetSubscribeCallBack(redisAsyncContext *ac, redisReply *reply, redisCallB
 void
 redisPrintReply(FILE *fp, redisReply *reply, int level)
 {
-    int		i;
+    size_t	i;
     char	hashbuf[42];
 
     if (reply == NULL)
@@ -1786,9 +1786,9 @@ redisPrintReply(FILE *fp, redisReply *reply, int level)
     case REDIS_REPLY_ARRAY:
     case REDIS_REPLY_MAP:
     case REDIS_REPLY_SET:
-	fprintf(fp, "elements=%ld\n", reply->elements);
+	fprintf(fp, "elements=%zu\n", reply->elements);
     	for (i = 0; i < reply->elements; i++) {
-	    fprintf(fp, "[%d]", i);
+	    fprintf(fp, "[%zu]", i);
 	    redisPrintReply(fp, reply->element[i], level+1);
 	}
 	break;

@@ -51,7 +51,10 @@ traceMain(pmdaInterface *dispatch)
     int		nready, i, pdutype, sts, protocol;
 
     ctlfd = getcport();
-    pmcdfd = __pmdaInFd(dispatch);
+    if ((pmcdfd = __pmdaInFd(dispatch)) < 0) {
+	/* error logged in __pmdaInFd() */
+	exit(1);
+    }
     maxfd = (ctlfd > pmcdfd) ? (ctlfd):(pmcdfd);
     FD_ZERO(&fds);
     FD_SET(ctlfd, &fds);

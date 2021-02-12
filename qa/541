@@ -43,43 +43,46 @@ _wait_for_pmlogger
 #
 pminfo -f sample.dynamic >/dev/null 2>&1
 
-for op in some_inst all_inst
-do
-    echo
-    echo "=== operator $op ==="
-
-    # just one instance
-    #
-    cat >$tmp.indom <<End-of-File
+# just one instance
+#
+cat >$tmp.indom <<End-of-File
 0 zero
 End-of-File
-    $sudo rm -f $control
-    $sudo cp $tmp.indom $control
-    pmprobe -I sample.dynamic.counter
+$sudo rm -f $control
+$sudo cp $tmp.indom $control
+pmprobe -I sample.dynamic.counter
 
-    cat <<End-of-File | pmie -t 250msec >$tmp.out 2>&1 &
-$op ( sample.dynamic.counter > 0 ) -> shell "echo counter:" " %i:?";
+cat <<End-of-File | pmie -t 500msec >$tmp.out 2>&1 &
+some_inst ( sample.dynamic.counter > 0 ) -> shell "echo some_inst counter:" " %i:?";
+all_inst ( sample.dynamic.counter > 0 ) -> shell "echo all_inst counter:" " %i:?";
 End-of-File
-    pid=$!
+pid=$!
 
-    sleep 3
+sleep 3
 
-    # replace one instance by two others
-    #
-    cat >$tmp.indom <<End-of-File
+# replace one instance by two others
+#
+cat >$tmp.indom <<End-of-File
 1 one
 2 two
 End-of-File
-    $sudo rm -f $control
-    $sudo cp $tmp.indom $control
-    pmprobe -I sample.dynamic.counter
-    sleep 2
+$sudo rm -f $control
+$sudo cp $tmp.indom $control
+pmprobe -I sample.dynamic.counter
 
-    $signal -s TERM $pid
-    wait
+sleep 3
 
-    uniq $tmp.out
-done
+$signal -s TERM $pid
+wait
+
+echo
+echo "filtered pmie output ..."
+cat $tmp.out >>$seq.full
+$PCP_AWK_PROG <$tmp.out '
+	{ if (seen[$0] == 1) next
+	  print
+	  seen[$0] = 1
+	}'
 
 # success, all done
 status=0

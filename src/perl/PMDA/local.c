@@ -371,8 +371,10 @@ local_pmdaMain(pmdaInterface *self)
     size_t offset;
     char *s, *p;
 
-    if ((pmcdfd = __pmdaInFd(self)) < 0)
+    if ((pmcdfd = __pmdaInFd(self)) < 0) {
+	/* error logged in __pmdaInFd() */
 	exit(1);
+    }
 
     for (i = 0; i < ntimers; i++)
 	timers[i].id = __pmAFregister(&timers[i].delta, &timers[i].cookie,

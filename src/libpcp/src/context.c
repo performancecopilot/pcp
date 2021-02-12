@@ -1285,8 +1285,8 @@ pmReconnectContext(int handle)
     }
 
     ctxp = contexts[ctxnum];
-    PM_LOCK(ctxp->c_lock);
     PM_UNLOCK(contexts_lock);
+    PM_LOCK(ctxp->c_lock);
     ctl = ctxp->c_pmcd;
     if (ctxp->c_type == PM_CONTEXT_HOST) {
 	if (ctl->pc_timeout && time(NULL) < ctl->pc_again) {

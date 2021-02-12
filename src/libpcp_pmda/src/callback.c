@@ -300,6 +300,7 @@ pmdaInstance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt *
 {
     int			i;
     int			namelen;
+    int			numinst;
     int			err = 0;
     pmInResult  	*res;
     pmdaIndom		*idp = NULL;	/* initialize to pander to gcc */
@@ -324,14 +325,21 @@ pmdaInstance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt *
 	idp = &pmda->e_indoms[i];
     }
 
+    if (name == NULL && inst == PM_IN_NULL)
+	numinst = __pmdaCntInst(indom, pmda);
+    else
+	numinst = 1;
+
+    if (numinst < 0)
+	return numinst;
+
     if ((res = (pmInResult *)malloc(sizeof(*res))) == NULL)
         return -oserror();
-    res->indom = indom;
 
-    if (name == NULL && inst == PM_IN_NULL)
-	res->numinst = __pmdaCntInst(indom, pmda);
-    else
-	res->numinst = 1;
+    res->indom = indom;
+    res->numinst = numinst;
+    res->instlist = NULL;
+    res->namelist = NULL;
 
     if (inst == PM_IN_NULL) {
 	if ((res->instlist = (int *)malloc(res->numinst * sizeof(res->instlist[0]))) == NULL) {
@@ -339,8 +347,6 @@ pmdaInstance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt *
 	    return -oserror();
 	}
     }
-    else
-	res->instlist = NULL;
 
     if (name == NULL) {
 	if ((res->namelist = (char **)malloc(res->numinst * sizeof(res->namelist[0]))) == NULL) {
@@ -350,8 +356,6 @@ pmdaInstance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt *
 	for (i = 0; i < res->numinst; i++)
 	    res->namelist[0] = NULL;
     }
-    else
-	res->namelist = NULL;
 
     if (name == NULL && inst == PM_IN_NULL) {
 	/* return inst and name for everything */
@@ -864,8 +868,8 @@ pmdaLabel(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
 	    fprintf(stderr, "pmdaLabel: InDom %s %d instance labels request\n",
 			    pmInDomStr_r(ident, idbuf, sizeof(idbuf)), numinst);
 
-	if (numinst == 0)
-	    return 0;
+	if (numinst <= 0)
+	    return numinst;
 
 	/* allocate minimally-sized chunk of contiguous memory upfront */
 	if ((lp = (pmLabelSet *)calloc(numinst, sizeof(pmLabelSet))) == NULL)

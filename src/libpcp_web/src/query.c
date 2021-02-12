@@ -1512,7 +1512,7 @@ series_query_expr_reply(redisAsyncContext *c, redisReply *reply, const sds cmd, 
 	return;	/* short-circuit as command was re-submitted */
     if (UNLIKELY(reply == NULL || reply->type != REDIS_REPLY_ARRAY)) {
     	if (sts < 0) {
-	    infofmt(msg, "expected array of one string element (got %lu) from series %s %s (type=%s)",
+	    infofmt(msg, "expected array of one string element (got %zu) from series %s %s (type=%s)",
    		reply->elements, sid->name, HMGET, redis_reply_type(reply));
 	    batoninfo(baton, PMLOG_RESPONSE, msg);
 	}
@@ -4353,7 +4353,7 @@ series_map_lookup_expr_reply(redisAsyncContext *c, redisReply *reply, const sds 
 	return;	/* short-circuit as command was re-submitted */
     if (UNLIKELY(reply == NULL || reply->type != REDIS_REPLY_ARRAY || reply->elements == 0)) {
     	if (sts < 0) {
-	    infofmt(msg, "expected array of one string element (got %lu) from series %s %s (type=%s)",
+	    infofmt(msg, "expected array of one string element (got %zu) from series %s %s (type=%s)",
    		reply->elements, sid->name, HMGET, redis_reply_type(reply));
 	    batoninfo(baton, PMLOG_RESPONSE, msg);
 	}
@@ -5043,7 +5043,7 @@ series_inst_expr_reply(redisAsyncContext *c, redisReply *reply, const sds cmd, v
 	return;	/* short-circuit as command was re-submitted */
     if (UNLIKELY(reply == NULL || reply->type != REDIS_REPLY_ARRAY)) {
     	if (sts < 0) {
-	    infofmt(msg, "expected array of one string element (got %lu) from series %s %s (type=%s)",
+	    infofmt(msg, "expected array of one string element (got %zu) from series %s %s (type=%s)",
    		reply->elements, sid->name, HMGET, redis_reply_type(reply));
 	    batoninfo(baton, PMLOG_RESPONSE, msg);
 	}

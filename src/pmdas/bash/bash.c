@@ -325,7 +325,10 @@ bash_main(pmdaInterface *dispatch)
     fd_set	fds, readyfds;
     int		maxfd, nready, pmcdfd;
 
-    pmcdfd = __pmdaInFd(dispatch);
+    if ((pmcdfd = __pmdaInFd(dispatch)) < 0) {
+	/* error logged in __pmdaInFd() */
+	exit(1);
+    }
     maxfd = pmcdfd;
 
     FD_ZERO(&fds);
