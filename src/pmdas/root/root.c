@@ -764,7 +764,10 @@ root_main(pmdaInterface *dp)
     int         maxfd, pmcd_fd;
     __pmFdSet	readable_fds;
 
-    pmcd_fd = __pmdaInFd(dp);
+    if ((pmcd_fd = __pmdaInFd(dp)) < 0) {
+	/* error logged in __pmdaInFd() */
+	exit(1);
+    }
     __pmFD_SET(pmcd_fd, &connected_fds);
     root_maximum_fd = (socket_fd > pmcd_fd) ? socket_fd : pmcd_fd;
 
