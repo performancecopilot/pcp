@@ -21,6 +21,7 @@ procmetrics {
 	hotproc.psinfo.processor		TASK_CPU_CURCPU
 	hotproc.psinfo.rt_priority		TASK_CPU_RTPRIO
 	hotproc.psinfo.policy			TASK_CPU_POLICY
+	hotproc.psinfo.wchan_s			TASK_GEN_WCHAN
 
 	# /proc/pid/status
 	hotproc.psinfo.threads			TASK_GEN_NTHR
@@ -41,11 +42,15 @@ procmetrics {
 	hotproc.memory.vmexe			TASK_MEM_VEXEC
 	hotproc.memory.vmlib			TASK_MEM_VLIBS
 	hotproc.memory.vmswap			TASK_MEM_VSWAP
+	hotproc.memory.vmlock			TASK_MEM_VLOCK
 
 	# /proc/pid/io
 	hotproc.io.read_bytes			TASK_DSK_RSZ
 	hotproc.io.write_bytes			TASK_DSK_WSZ
 	hotproc.io.cancelled_write_bytes	TASK_DSK_CWSZ
+
+	# /proc/pid/schedstat
+	hotproc.schedstat.run_delay		TASK_CPU_RUNDELAY
 
 	# /proc/pid/smaps_rollup
 	hotproc.smaps.pss			TASK_MEM_PMEM

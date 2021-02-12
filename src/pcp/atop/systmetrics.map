@@ -51,8 +51,10 @@ systmetrics {
 	mem.vmstat.pgsteal_movable		MEM_STEAL_MOVABLE
 	mem.vmstat.pgsteal_normal		MEM_STEAL_NORMAL
 	mem.vmstat.allocstall			MEM_ALLOCSTALL
+	mem.vmstat.oom_kill			MEM_OOM_KILL
 
 	# /proc/meminfo
+	mem.util.swapCached			MEM_SWAPCACHED
 	mem.util.cached				MEM_CACHEMEM
 	mem.util.dirty				MEM_CACHEDRT
 	mem.physmem				MEM_PHYSMEM
@@ -68,6 +70,10 @@ systmetrics {
 	mem.util.hugepagesTotal			MEM_TOTHUGEPAGE
 	mem.util.hugepagesFree			MEM_FREEHUGEPAGE
 	hinv.hugepagesize			HUGEPAGESZ  
+
+	# /sys/kernel/mm/ksm
+	mem.ksm.pages_shared			MEM_KSMSHARED
+	mem.ksm.pages_sharing			MEM_KSMSHARING
 
 	# shmctl(2)
 	ipc.shm.rss				MEM_SHMRSS
@@ -277,6 +283,13 @@ systmetrics {
 	kernel.all.pressure.io.some.total	PSI_IOSOME_TOTAL
 	kernel.all.pressure.io.full.avg		PSI_IOFULL_AVG
 	kernel.all.pressure.io.full.total	PSI_IOFULL_TOTAL
+
+	# /proc/spl/kstat/zfs/arcstats
+	zfs.arc.size				ZFS_ARCSIZE
+
+	# /sys/kernel/debug/zswap
+	zswap.pool_total_size			ZSWAP_TOTALSIZE
+	zswap.stored_pages			ZSWAP_STOREDMEM
 
 	# hardware events
 	perfevent.hwcounters.INSTRUCTIONS_RETIRED.value		PERCPU_PERF_INSTR

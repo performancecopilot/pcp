@@ -8,7 +8,7 @@
 ** of the 'atop'-framework.
 ** 
 ** Copyright (C) 2007-2010 Gerlof Langeveld
-** Copyright (C) 2015-2019 Red Hat.
+** Copyright (C) 2015-2021 Red Hat.
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -862,7 +862,7 @@ pratopsaruse(char *myname, pmOptions *opts)
 	int	i;
 
 	fprintf(stderr,
-		"Usage: %s [-flags] [-r file|date|y...] [-R cnt] [-b hh:mm] [-e hh:mm]\n",
+		"Usage: %s [-flags] [-r file|date|y...] [-R cnt] [-b date|time] [-e date|time]\n",
 								myname);
 	fprintf(stderr, "\t\tor\n");
 	fprintf(stderr,
@@ -880,9 +880,9 @@ pratopsaruse(char *myname, pmOptions *opts)
 	fprintf(stderr,
 		"\t  -R  summarize <cnt> samples into one sample\n");
 	fprintf(stderr,
-		"\t  -b  begin  showing data from  specified time\n");
+		"\t  -b  begin  showing data from  specified date/time\n");
 	fprintf(stderr,
-		"\t  -e  finish showing data after specified time\n");
+		"\t  -e  finish showing data after specified date/time\n");
 	fprintf(stderr,
 		"\t  -S  print timestamp on every line in case of more "
 		"resources\n");
@@ -1434,7 +1434,7 @@ swapline(struct sstat *ss, struct tstat *ts, struct tstat **ps, int nactproc,
 }
 
 /*
-** Pressure Stall Information statistics
+** PSI statistics
 */
 static void
 psihead(int osvers, int osrel, int ossub)
@@ -1449,25 +1449,52 @@ psiline(struct sstat *ss, struct tstat *ts, struct tstat **ps, int nactproc,
         int osvers, int osrel, int ossub, char *tstamp,
         int ppres,  int ntrun, int ntslpi, int ntslpu, int pexit, int pzombie)
 {
+	// calculate pressure percentages for entire interval
+	unsigned int	csperc  = ss->psi.cpusome.total/(deltatic*10000/hz);
+	unsigned int	msperc  = ss->psi.memsome.total/(deltatic*10000/hz);
+	unsigned int	mfperc  = ss->psi.memfull.total/(deltatic*10000/hz);
+	unsigned int	isperc  = ss->psi.iosome.total /(deltatic*10000/hz);
+	unsigned int	ifperc  = ss->psi.iofull.total /(deltatic*10000/hz);
+	unsigned int	badness = 0;
+
 	if (!ss->psi.present)
 	{
-		printf("no PSI stats available for this system .....\n");
-		return 0;
+		printf("no PSI stats available for this interval...\n");
+		return 1;
 	}
 
-	printf("%3.0f%%%3.0f%%%3.0f%%   %3.0f%%%3.0f%%%3.0f%% "
-	       "%3.0f%%%3.0f%%%3.0f%%   %3.0f%%%3.0f%%%3.0f%% "
-	       "%3.0f%%%3.0f%%%3.0f%%\n",
-		ss->psi.cpusome.avg10, ss->psi.cpusome.avg60,
-		ss->psi.cpusome.avg300,
-		ss->psi.memsome.avg10, ss->psi.memsome.avg60,
-		ss->psi.memsome.avg300,
-		ss->psi.memfull.avg10, ss->psi.memfull.avg60,
-		ss->psi.memfull.avg300,
-		ss->psi.iosome.avg10, ss->psi.iosome.avg60,
-		ss->psi.iosome.avg300,
-		ss->psi.iofull.avg10, ss->psi.iofull.avg60,
-		ss->psi.iofull.avg300);
+	// correct percentages if needed
+	if (csperc > 100)
+		csperc = 100;
+
+	if (msperc > 100)
+		msperc = 100;
+
+	if (mfperc > 100)
+		mfperc = 100;
+
+	if (isperc > 100)
+		isperc = 100;
+
+	if (ifperc > 100)
+		ifperc = 100;
+
+	// consider a 'some' percentage > 0 as almost critical
+	// (I/O full tends to increase rapidly as well)
+	if (csperc || msperc || isperc || ifperc)
+		badness = 80;
+
+	// consider a memory 'full' percentage > 0 as critical
+	if (mfperc)
+		badness = 100;
+
+	// show results
+	preprint(badness);
+
+	printf("   %3u%%       %3u%%     %3u%%      %3u%%    %3u%%",
+		csperc, msperc, mfperc, isperc, ifperc);
+
+	postprint(badness);
 
 	return 1;
 }
@@ -1564,7 +1591,7 @@ gendskline(struct sstat *ss, char *tstamp, char selector)
 			pn = dp->name;
 
 		printf("%-14s %3.0lf%% %6.1lf %7.1lf %7.1lf %7.1lf "
-		       "%5.1lf %6.2lf ms",
+		       "%5.1lf %9.5lf ms",
 		    	pn,
 			(double)dp->io_ms  *  100.0 / mstot,
 			(double)dp->nread  * 1000.0 / mstot,

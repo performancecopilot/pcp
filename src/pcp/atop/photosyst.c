@@ -1,5 +1,5 @@
 /*
-** Copyright (C) 2015-2019 Red Hat.
+** Copyright (C) 2015-2021 Red Hat.
 ** Copyright (C) 2000-2012 Gerlof Langeveld.
 **
 ** This program is free software; you can redistribute it and/or modify it
@@ -369,8 +369,10 @@ photosyst(struct sstat *si)
 	count += extract_count_t(result, descs, MEM_STEAL_NORMAL);
 	si->mem.pgsteal = count;
 	si->mem.allocstall = extract_count_t(result, descs, MEM_ALLOCSTALL);
+	si->mem.oomkills = extract_count_t(result, descs, MEM_OOM_KILL);
 
 	/* /proc/meminfo */
+	si->mem.swapcached = extract_count_t(result, descs, MEM_SWAPCACHED);
 	si->mem.cachemem = extract_count_t(result, descs, MEM_CACHEMEM);
 	si->mem.cachedrt = extract_count_t(result, descs, MEM_CACHEDRT);
 	si->mem.physmem = extract_count_t(result, descs, MEM_PHYSMEM);
@@ -386,6 +388,10 @@ photosyst(struct sstat *si)
 	si->mem.tothugepage = extract_count_t(result, descs, MEM_TOTHUGEPAGE);
 	si->mem.freehugepage = extract_count_t(result, descs, MEM_FREEHUGEPAGE);
 	si->mem.hugepagesz = extract_count_t(result, descs, HUGEPAGESZ);
+
+	/* /sys/kernel/mm/ksm */
+	si->mem.ksmshared = extract_count_t(result, descs, MEM_KSMSHARED);
+	si->mem.ksmsharing = extract_count_t(result, descs, MEM_KSMSHARING);
 
 	/* shmctl(2) */
 	si->mem.shmrss = extract_count_t(result, descs, MEM_SHMRSS) * 1024;
@@ -694,6 +700,13 @@ photosyst(struct sstat *si)
 	si->psi.iofull.avg60 = extract_count_t_inst(result, descs, PSI_IOFULL_AVG, 60, 1);
 	si->psi.iofull.avg300 = extract_count_t_inst(result, descs, PSI_IOFULL_AVG, 300, 2);
 	si->psi.iofull.total = extract_count_t(result, descs, PSI_IOFULL_TOTAL);
+
+	/* /proc/spl/kstat/zfs/arcstats */
+	si->mem.zfsarcsize = extract_count_t(result, descs, ZFS_ARCSIZE);
+
+	/* /sys/kernel/debug/zswap */
+	si->mem.zswtotpool = extract_count_t(result, descs, ZSWAP_TOTALSIZE);
+	si->mem.zswstored = extract_count_t(result, descs, ZSWAP_STOREDMEM);
 
 	/* Infiniband statistics */
 	insts = NULL; /* silence coverity */

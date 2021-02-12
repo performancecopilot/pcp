@@ -8,6 +8,8 @@ FILES = \
 	atop-hotproc \
 	atop-gpustats \
 	atop-infiniband \
+	atop-zfs \
+	atop-zswap \
 	collectl \
 	collectl-summary \
 	collectl-interrupts \

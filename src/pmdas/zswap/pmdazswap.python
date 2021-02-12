@@ -3,7 +3,7 @@
 Performance Metrics Domain Agent exporting Linux compressed swap metrics.
 '''
 #
-# Copyright (c) 2014-2015,2020 Red Hat.
+# Copyright (c) 2014-2015,2021 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -102,6 +102,10 @@ class ZswapPMDA(PMDA):
             return [self.values['pool_pages'] * self.pagesize, 1]
         elif item == 8:
             return [self.values['stored_pages'] * self.pagesize, 1]
+        elif item == 9:
+            return [self.values['pool_total_size'] * self.pagesize, 1]
+        elif item == 10:
+            return [self.values['same_filled_pages'] * self.pagesize, 1]
         return [c_api.PM_ERR_PMID, 0]
 
 
@@ -174,6 +178,19 @@ class ZswapPMDA(PMDA):
                 pmUnits(1, 0, 0, c_api.PM_SPACE_KBYTE, 0, 0)),
         'Compressed pages currently stored in zswap')
 
+        self.values['pool_total_size'] = 0
+        self.add_metric(name + '.pool_total_size', pmdaMetric(
+                self.pmid(0, 9),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT,
+                pmUnits(1, 0, 0, c_api.PM_SPACE_KBYTE, 0, 0)),
+        'Total memory used by the compressed pool')
+
+        self.values['same_filled_pages'] = 0
+        self.add_metric(name + '.same_filled_pages', pmdaMetric(
+                self.pmid(0, 10),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(1, 0, 0, c_api.PM_SPACE_KBYTE, 0, 0)),
+        'Same-value filled pages stored in zswap')
 
     def __init__(self, name, domain):
         PMDA.__init__(self, name, domain)

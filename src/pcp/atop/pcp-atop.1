@@ -1,7 +1,7 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2000-2018 Gerlof Langeveld.
-.\" Copyright (c) 2017-2020 Red Hat.
+.\" Copyright (c) 2000-2021 Gerlof Langeveld.
+.\" Copyright (c) 2017-2021 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -20,7 +20,7 @@
 .SH SYNOPSIS
 Interactive Usage:
 .P
-\f3pcp\f1 [\f2pcp\ options\f1] \f3atop\f1 [\f3\-aAcCdDfFgGmMnNopRsuvxy1\f1] [\f3\-L\f1 \f2linelen\f1] [\f3\-P\f1\f2label\f1[,\f2label\f1]...] [\f2interval\f1 [\f2samples\f1]]
+\f3pcp\f1 [\f2pcp\ options\f1] \f3atop\f1 [\f3\-aAcCdDfFgGmMnNopRsuvxyY1\f1] [\f3\-L\f1 \f2linelen\f1] [\f3\-P\f1\f2label\f1[,\f2label\f1]...] [\f2interval\f1 [\f2samples\f1]]
 .P
 Writing and reading PCP archive folios:
 .P
@@ -29,7 +29,7 @@ Writing and reading PCP archive folios:
 [\f3\-a\f1] [\f3\-S\f1] [\f2interval\f1 [\f2samples\f1]]
 .br
 .B pcp\ atop
-\f3\-r\f1 \f2folio\f1 [\f3\-AcCdDfFgGmMnNopRsuvxy1\f1] [\f3\-b\f1 \f2hh:mm\f1] [\f3\-e\f1 \f2hh:mm\f1] [\f3\-L\f1 \f2linelen\f1] [\f3\-P\f1\f2label\f1[,\f2label\f1]...] [\f2interval\f1 [\f2samples\f1]]
+\f3\-r\f1 \f2folio\f1 [\f3\-AcCdDfFgGmMnNopRsuvxy1\f1] [\f3\-b\f1 [\f2yy-mm-dd\f1] \f2hh:mm\f1] [\f3\-e\f1 \f2yy-mm-dd\f1] \f2hh:mm\f1] [\f3\-L\f1 \f2linelen\f1] [\f3\-P\f1\f2label\f1[,\f2label\f1]...] [\f2interval\f1 [\f2samples\f1]]
 .SH DESCRIPTION
 The program
 .B pcp-atop
@@ -336,8 +336,13 @@ while additional lines show the activity
 per individual thread (in a different color).
 Depending on the option 'a' (all or active toggle), all threads are shown
 or only the threads that were active during the last interval.
+Depending on the option 'Y' (sort threads), the threads per
+process will be sorted on the chosen sort criterium or not.
 .br
 Whether this key is active or not can be seen in the header line.
+.TP 5
+.B Y
+Sort the threads per process when combined with option 'y' (toggle).
 .TP 5
 .B u
 Show the process activity accumulated per user.
@@ -452,8 +457,14 @@ Request for version information (version number and date).
 .B R
 Gather and calculate the proportional set size of processes (toggle).
 Gathering of all values that are needed to calculate the PSIZE of a process
-is a relatively time-consuming task, so this key should only be active when
+is a very time-consuming task, so this key should only be active when
 analyzing the resident memory consumption of processes.
+.TP 5
+.B W
+Get the WCHAN per thread (toggle).
+Gathering of the WCHAN string per thread
+is a relatively time-consuming task, so this key should only be made
+active when analyzing the reason for threads to be in sleep state.
 .TP 5
 .B x
 Suppress colors to highlight critical resources (toggle).
@@ -712,7 +723,7 @@ With the flag
 .B \-b
 (begin time) and/or
 .B \-e
-(end time) followed by a time argument of the form HH:MM,
+(end time) followed by a time argument of the form [YY-MM-DD] HH:MM,
 a certain time period within the archive can be selected.
 .SH OUTPUT DESCRIPTION
 The first sample shows the system level activity since boot
@@ -897,6 +908,8 @@ memory including tmpfs (`shmem`), the resident size of shared memory (`shrss`)
 the amount of shared memory that is currently swapped (`shswp`),
 the amount of memory that is currently claimed by vmware's
 balloon driver (`vmbal`),
+the amount of memory that is currently claimed by the ARC (cache)
+of ZFSonlinux (`zfarc`),
 the amount of memory that is claimed for huge pages (`hptot`),
 and the amount of huge page memory that is really in use (`hpuse`).
 
@@ -907,7 +920,12 @@ only a relevant subset is shown.
 Swap occupation and overcommit info.
 .br
 This line contains the total amount of swap space on disk (`tot') and
-the amount of free swap space (`free').
+the amount of free swap space (`free'),
+the size of the swap cache (`swcac'),
+the total size of compressed storage in zswap (`zpool`),
+the total size of the compressed pages stored in zswap (`zstor'),
+the total size of the memory used for KSM (`ksuse`, i.e. shared), and
+the total size of the memory saved (deduped) by KSM (`kssav`, i.e. sharing).
 .br
 Furthermore the committed virtual memory space (`vmcom') and the maximum
 limit of the committed space (`vmlim', which is by default swap size
@@ -926,19 +944,25 @@ that free memory drops below a particular threshold and the number
 times that the kernel tries to reclaim pages due to an urgent need (`stall').
 .br
 Also the number of memory pages the system read from swap space (`swin')
-and the number of memory pages the system wrote to swap space (`swout')
-are shown.
+and the number of memory pages the system wrote to swap space (`swout') and
+the number of OOM (out-of-memory) kills (`oomkill') are shown.
 .TP 5
 .B PSI
 Pressure Stall Information.
 .br
-This line contains three percentages per category:
-average pressure percentage over the last 10, 60 and 300 seconds
-(separated by slashes).
+This line contains percentages about resource pressure related to CPU,
+memory and I/O. Certain percentages refer to 'some' meaning that some
+processes/threads were delayed due to resource overload. Other
+percentages refer to 'full' meaning a loss of overall throughput
+due to resource overload.
 .br
-The categories are: CPU for 'some' (`cs'),
-memory for 'some' (`ms'), memory for 'full' (`mf'),
-I/O for 'some' (`is'), and I/O for 'full' (`if').
+The values `cpusome', `memsome', `memfull', `iosome' and `iofull'
+show the pressure percentage during the entire interval.
+.br
+The values `cs' (cpu some), `ms' (memory some), `mf' (memory full),
+`is' (I/O some) and `if' (I/O full) each show
+three percentages separated by slashes:
+pressure percentage over the last 10, 60 and 300 seconds.
 .TP 5
 .B LVM/MDD/DSK
 Logical volume/multiple device/disk utilization.
@@ -1214,6 +1238,9 @@ during the interval.
 When the comma-separated list exceeds
 the width of the column, a hexadecimal value is shown.
 .TP 9
+.B LOCKSZ
+The virtual amount of memory being locked (i.e. non-swappable) by this process (or user).
+.TP 9
 .B MAJFLT
 The number of page faults issued by this process that have been solved
 by creating/loading the requested memory page.
@@ -1296,7 +1323,7 @@ system gives a reliable impression of the total resident memory consumed
 by all processes.
 .br
 Since gathering of all values that are needed to calculate the PSIZE is a
-relatively time-consuming task, the 'R' key (or '\-R' flag) should
+very time-consuming task, the 'R' key (or '\-R' flag) should
 be active.
 Gathering these values also requires superuser privileges
 (otherwise '?K' is shown in the output).
@@ -1311,6 +1338,9 @@ Unfortunately, the kernel aggregates the
 data tranfer of a process to the data transfer of its parent process when
 terminating, so you might see transfers for (parent) processes like
 cron, bash or init, that are not really issued by them.
+.TP 9
+.B RDELAY
+Runqueue delay, i.e. time spent waiting on a runqueue.
 .TP 9
 .B RGID
 The real group-id under which the process executes.
@@ -1497,6 +1527,14 @@ The virtual memory size of the (private) stack used by this process
 .B VSTEXT
 The virtual memory size of the (shared) text of the executable program.
 .TP 9
+.B WCHAN
+Wait channel of thread in sleep state, i.e. the name of the kernel function
+in which the thread has been put asleep.
+.br
+Since determining the name string of the kernel function is a
+relatively time-consuming task, the 'W' key (or '-W' flag) should
+be active.
+.TP 9
 .B WRDSK
 When the kernel maintains standard io statistics (>= 2.6.20):
 .br
@@ -1636,17 +1674,23 @@ total size of shared memory (pages),
 size of resident shared memory (pages),
 size of swapped shared memory (pages),
 huge page size (in bytes),
-total size of huge pages (huge pages), and
-size of free huge pages (huge pages).
+total size of huge pages (huge pages),
+size of free huge pages (huge pages),
+size of ARC (cache) of ZFSonlinux (pages),
+size of sharing pages for KSM (pages), and
+size of shared pages for KSM (pages).
 .TP 9
 .B SWP
 Subsequent fields:
 page size for this machine (in bytes),
 size of swap (pages),
 size of free swap (pages),
-0 (future use),
-size of committed space (pages), and
-limit for committed space (pages).
+size of swap cache (pages),
+size of committed space (pages),
+limit for committed space (pages),
+size of the swap cache (pages),
+size of compressed pages stored in zswap (pages), and
+total size of compressed pool in zswap (pages).
 .TP 9
 .B PAG
 Subsequent fields:
@@ -1654,8 +1698,9 @@ page size for this machine (in bytes),
 number of page scans,
 number of allocstalls,
 0 (future use),
-number of swapins, and
-number of swapouts.
+number of swapins,
+number of swapouts, and
+number of oomkills.
 .TP 9
 .B PSI
 Subsequent fields:
@@ -1721,7 +1766,7 @@ number of misses on reply cache, and
 number of uncached requests.
 .TP 9
 .B NET
-First one line is produced for the upper layers of the TCP/IP stack.
+First, one line is produced for the upper layers of the TCP/IP stack.
 .br
 Subsequent fields:
 the verb "upper",
@@ -1731,10 +1776,19 @@ number of packets received by UDP,
 number of packets transmitted by UDP,
 number of packets received by IP,
 number of packets transmitted by IP,
-number of packets delivered to higher layers by IP, and
-number of packets forwarded by IP.
+number of packets delivered to higher layers by IP,
+number of packets forwarded by IP,
+number of input errors (UDP),
+number of noport errors (UDP),
+number of active opens (TCP),
+number of passive opens (TCP),
+number of passive opens (TCP),
+number of established connections at this moment (TCP),
+number of retransmitted segments (TCP),
+number of input errors (TCP), and
+number of output resets (TCP).
 
-Next one line is shown for every interface.
+Next, one line is shown for every interface.
 .br
 Subsequent fields:
 name of the interface,
@@ -1769,8 +1823,9 @@ number of threads in state 'uninterruptible sleeping' (D),
 effective uid, effective gid,
 saved uid, saved gid,
 filesystem uid, filesystem gid, elapsed time (hertz),
-is_process (y/n), OpenVZ  virtual pid (VPID), OpenVZ container id (CTID)
-and Docker container id (CID).
+is_process (y/n), OpenVZ  virtual pid (VPID), OpenVZ container id (CTID),
+Docker container id (CID), and indication if the task is newly started
+during this interval ('N').
 .TP 9
 .B PRC
 For every process one line is shown.
@@ -1782,7 +1837,9 @@ CPU-consumption in user mode (clockticks),
 CPU-consumption in system mode (clockticks),
 nice value, priority, realtime priority,
 scheduling policy, current CPU, sleep average,
-TGID (group number of related tasks/threads) and is_process (y/n).
+TGID (group number of related tasks/threads), is_process (y/n),
+runqueue delay in nanoseconds for this thread or for all threads (in case of
+process), and wait channel of this thread (between brackets).
 .TP 9
 .B PRE
 For every process one line is shown.
@@ -1815,8 +1872,9 @@ virtual library exec size (Kbytes),
 virtual data size (Kbytes),
 virtual stack size (Kbytes),
 swap space used (Kbytes),
-TGID (group number of related tasks/threads), is_process (y/n) and
-proportional set size (Kbytes) if in 'R' option is specified.
+TGID (group number of related tasks/threads), is_process (y/n),
+proportional set size (Kbytes) if in 'R' option is specified and
+virtually locked memory space (Kbytes).
 .TP 9
 .B PRD
 For every process one line is shown.
@@ -1830,7 +1888,8 @@ cumulative number of sectors read,
 number of writes on disk,
 cumulative number of sectors written,
 cancelled number of written sectors,
-TGID (group number of related tasks/threads) and is_process (y/n).
+TGID (group number of related tasks/threads),
+obsoleted value ('n'), and is_process (y/n).
 .br
 If the standard I/O statistics (>= 2.6.20) are not used,
 the disk I/O counters per process are not relevant.

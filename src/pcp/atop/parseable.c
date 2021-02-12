@@ -363,7 +363,7 @@ print_GPU(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 void
 print_MEM(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 {
-	printf(	"%s %u %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld\n",
+	printf(	"%s %u %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld\n",
 			hp,
 			pagesize,
 			ss->mem.physmem,
@@ -379,33 +379,40 @@ print_MEM(char *hp, struct sstat *ss, struct tstat *ps, int nact)
         		ss->mem.shmswp,
         		ss->mem.hugepagesz,
         		ss->mem.tothugepage,
-        		ss->mem.freehugepage);
+        		ss->mem.freehugepage,
+        		ss->mem.zfsarcsize,
+        		ss->mem.ksmsharing,
+        		ss->mem.ksmshared);
 }
 
 void
 print_SWP(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 {
-	printf(	"%s %u %lld %lld %lld %lld %lld\n",
+	printf(	"%s %u %lld %lld %lld %lld %lld %lld %lld %lld\n",
 			hp,
 			pagesize,
 			ss->mem.totswap,
 			ss->mem.freeswap,
-			(long long)0,
+			ss->mem.swapcached,
 			ss->mem.committed,
-			ss->mem.commitlim);
+			ss->mem.commitlim,
+        		ss->mem.swapcached,
+        		ss->mem.zswstored,
+        		ss->mem.zswtotpool);
 }
 
 void
 print_PAG(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 {
-	printf("%s %u %lld %lld %lld %lld %lld\n",
+	printf("%s %u %lld %lld %lld %lld %lld %lld\n",
 			hp,
 			pagesize,
 			ss->mem.pgscans,
 			ss->mem.allocstall,
 			(long long)0,
 			ss->mem.swins,
-			ss->mem.swouts);
+			ss->mem.swouts,
+			ss->mem.oomkills);
 }
 
 void
@@ -541,7 +548,7 @@ print_NET(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 {
 	register int 	i;
 
-	printf(	"%s %s %lld %lld %lld %lld %lld %lld %lld %lld\n",
+	printf(	"%s %s %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld\n",
 			hp,
 			"upper",
         		ss->net.tcp.InSegs,
@@ -557,7 +564,17 @@ print_NET(char *hp, struct sstat *ss, struct tstat *ps, int nact)
        		 	ss->net.ipv4.InDelivers +
        		 		ss->net.ipv6.Ip6InDelivers,
        		 	ss->net.ipv4.ForwDatagrams +
-       		 		ss->net.ipv6.Ip6OutForwDatagrams);
+       		 		ss->net.ipv6.Ip6OutForwDatagrams,
+       		 	ss->net.udpv4.InErrors +
+				ss->net.udpv6.Udp6InErrors,
+       		 	ss->net.udpv4.NoPorts +
+				ss->net.udpv6.Udp6NoPorts,
+			ss->net.tcp.ActiveOpens,
+			ss->net.tcp.PassiveOpens,
+			ss->net.tcp.CurrEstab,
+			ss->net.tcp.RetransSegs,
+			ss->net.tcp.InErrs,
+			ss->net.tcp.OutRsts);
 
 	for (i=0; ss->intf.intf[i].name[0]; i++)
 	{
@@ -609,7 +626,7 @@ print_PRG(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 			exitcode = (ps->gen.excode >>   8) & 0xff;
 
 		printf("%s %d (%s) %c %d %d %d %d %d %ld (%s) %d %d %d %d "
- 		       "%d %d %d %d %d %d %ld %c %d %d %s\n",
+ 		       "%d %d %d %d %d %d %ld %c %d %d %s %c\n",
 			hp,
 			ps->gen.pid,
 			ps->gen.name,
@@ -635,7 +652,8 @@ print_PRG(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 			ps->gen.isproc ? 'y':'n',
 			ps->gen.vpid,
 			ps->gen.ctid,
-			ps->gen.container[0] ? ps->gen.container:"-");
+			ps->gen.container[0] ? ps->gen.container:"-",
+        		ps->gen.excode & ~(INT_MAX) ? 'N' : '-');
 	}
 }
 
@@ -646,7 +664,8 @@ print_PRC(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 
 	for (i=0; i < nact; i++, ps++)
 	{
-		printf("%s %d (%s) %c %u %lld %lld %d %d %d %d %d %d %d %c\n",
+		printf("%s %d (%s) %c %u %lld %lld %d %d %d %d %d %d %d %c "
+		       "%llu (%s)\n",
 				hp,
 				ps->gen.pid,
 				ps->gen.name,
@@ -661,7 +680,9 @@ print_PRC(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 				ps->cpu.curcpu,
 				ps->cpu.sleepavg,
 				ps->gen.tgid,
-				ps->gen.isproc ? 'y':'n');
+				ps->gen.isproc ? 'y':'n',
+				ps->cpu.rundelay,
+				ps->cpu.wchan);
 	}
 }
 
@@ -673,7 +694,7 @@ print_PRM(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 	for (i=0; i < nact; i++, ps++)
 	{
 		printf("%s %d (%s) %c %u %lld %lld %lld %lld %lld %lld "
-		       "%lld %lld %lld %lld %lld %d %c %lld\n",
+		       "%lld %lld %lld %lld %lld %d %c %lld %lld\n",
 				hp,
 				ps->gen.pid,
 				ps->gen.name,
@@ -693,7 +714,8 @@ print_PRM(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 				ps->gen.tgid,
 				ps->gen.isproc ? 'y':'n',
 				ps->mem.pmem == (unsigned long long)-1LL ?
-								0:ps->mem.pmem);
+								0:ps->mem.pmem,
+				ps->mem.vlock);
 	}
 }
 

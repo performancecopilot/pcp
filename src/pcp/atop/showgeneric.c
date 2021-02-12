@@ -8,7 +8,7 @@
 ** figures.
 **
 ** Copyright (C) 2000-2010 Gerlof Langeveld
-** Copyright (C) 2015-2020 Red Hat.
+** Copyright (C) 2015-2021 Red Hat.
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -30,6 +30,7 @@
 #include <pwd.h>
 #include <grp.h>
 #include <stdarg.h>
+#include <locale.h>
 
 #include "atop.h"
 #include "photoproc.h"
@@ -45,6 +46,7 @@ static void	showhelp(int);
 static int	paused;     	/* boolean: currently in pause-mode     */
 static int	fixedhead;	/* boolean: fixate header-lines         */
 static int	sysnosort;	/* boolean: suppress sort of resources  */
+static int	threadsort;	/* boolean: sort threads per process    */
 static int	avgval;		/* boolean: average values i.s.o. total */
 static int	suppressexit;	/* boolean: suppress exited processes   */
 
@@ -220,6 +222,10 @@ generic_samp(double sampletime, double nsecs,
 			qsort(sstat->intf.intf, sstat->intf.nrintf,
 		  	       sizeof sstat->intf.intf[0], intfcompar);
 
+		if (sstat->ifb.nrports > 1 && maxifblines > 0)
+			qsort(sstat->ifb.ifb, sstat->ifb.nrports,
+		  	       sizeof sstat->ifb.ifb[0], ifbcompar);
+
 		if (sstat->nfs.nfsmounts.nrmounts > 1 && maxnfslines > 0)
 			qsort(sstat->nfs.nfsmounts.nfsmnt,
 		              sstat->nfs.nfsmounts.nrmounts,
@@ -259,21 +265,23 @@ generic_samp(double sampletime, double nsecs,
 
                 int seclen	= val2elapstr(nsecs, buf, sizeof(buf)-1);
                 int lenavail 	= (screen ? COLS : linelen) -
-						49 - seclen - nodenamelen;
+						51 - seclen - nodenamelen;
                 int len1	= lenavail / 3;
                 int len2	= lenavail - len1 - len1; 
 
-		printg("ATOP - %s%*s%s  %s%*s%c%c%c%c%c%c%c%c%c%c%c%c%c%c%*s%s"
-		       " elapsed", 
+		printg("ATOP - %s%*s%s  %s%*s%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%"
+		       "*s%s elapsed", 
 			sysname.nodename, len1, "", 
 			format1, format2, len1, "",
 			threadview                    ? MTHREAD    : '-',
+			threadsort                    ? MTHRSORT   : '-',
 			fixedhead  		      ? MSYSFIXED  : '-',
 			sysnosort  		      ? MSYSNOSORT : '-',
 			deviatonly 		      ? '-'        : MALLPROC,
 			usecolors  		      ? '-'        : MCOLORS,
 			avgval     		      ? MAVGVAL    : '-',
 			calcpss     		      ? MCALCPSS   : '-',
+			getwchan     		      ? MGETWCHAN  : '-',
 			suppressexit 		      ? MSUPEXITS  : '-',
 			procsel.userid[0] != USERSTUB ? MSELUSER   : '-',
 			procsel.prognamesz	      ? MSELPROC   : '-',
@@ -315,12 +323,11 @@ generic_samp(double sampletime, double nsecs,
 			autoorder = showorder;
 
 		curline = prisyst(sstat, curline, nsecs, avgval,
-					fixedhead, &syssel, &autoorder,
-					maxcpulines, maxgpulines,
-					maxdsklines, maxmddlines,
-		                        maxlvmlines, maxintlines,
-					maxifblines, maxnfslines,
-					maxcontlines);
+		                  fixedhead, &syssel, &autoorder,
+		                  maxcpulines, maxgpulines, maxdsklines,
+				  maxmddlines, maxlvmlines,
+		                  maxintlines, maxifblines, maxnfslines,
+		                  maxcontlines);
 
 		/*
  		** if system-wide statistics do not fit,
@@ -336,12 +343,13 @@ generic_samp(double sampletime, double nsecs,
 			move(curline, 0);
 
 			limitedlines();
-
+			
 			curline = prisyst(sstat, curline, nsecs, avgval,
 					fixedhead,  &syssel, &autoorder,
-					maxcpulines, maxdsklines, maxmddlines,
-					maxmddlines, maxlvmlines,
-		                        maxintlines, maxifblines, maxnfslines,
+					maxcpulines, maxgpulines,
+					maxdsklines, maxmddlines,
+		                        maxlvmlines, maxintlines,
+					maxifblines, maxnfslines,
 		                        maxcontlines);
 
 			/*
@@ -687,16 +695,22 @@ generic_samp(double sampletime, double nsecs,
 				else
 					j = ntotal;
 
+				/*
+ 				** zip process list with thread list
+				*/
 				if (zipagain)
 				{
 					struct tstat *tall = devtstat->taskall;
 					struct tstat *pcur;
+					long int     n;
 
 					for (i=j=0; i < ncurlist; i++)
 					{
 					    pcur = curlist[i];
 
-					    tsklist[j++] = pcur;
+					    tsklist[j++] = pcur; // take process
+
+					    n = j; // start index of threads
 
 					    for (t = pcur - tall + 1;
 					         t < devtstat->ntaskall &&
@@ -716,6 +730,14 @@ generic_samp(double sampletime, double nsecs,
  						}
 						else
 							tsklist[j++] = tall+t;
+					    }
+
+				            if (threadsort && j-n > 0 &&
+							curorder != MSORTMEM)
+					    {
+						qsort(&tsklist[n], j-n,
+				                  sizeof(struct tstat *),
+				                  procsort[(int)curorder&0x1f]);
 					    }
 					}
 
@@ -798,7 +820,7 @@ generic_samp(double sampletime, double nsecs,
 				if (tsklist)   free(tsklist);
 				if (sellist)   free(sellist);
 
-				return '\0';	
+				return lastchar;	
 
 			   /*
 			   ** stop it
@@ -1415,15 +1437,7 @@ generic_samp(double sampletime, double nsecs,
 					break;
 
 				   case 12:	// container id
-					/*
-					 * Don't even ask ... we want to
-					 * scan the input buffer and are only
-					 * interested in a possible error ...
-					 * the (void)(...+1) babble is the
-					 * only way to silence new "smart" C
-					 * compilers!
-					 */
-					(void)(strtol(procsel.container, &p, 16)+1);
+					(void)strtol(procsel.container, &p, 16);
 
 					if (*p)
 					{
@@ -1741,7 +1755,7 @@ generic_samp(double sampletime, double nsecs,
 
 			   /*
 			   ** per-thread view wanted with sorting on
-			   ** process level or thread level
+			   ** process level
 			   */
 			   case MTHREAD:
 				if (threadview)
@@ -1759,6 +1773,24 @@ generic_samp(double sampletime, double nsecs,
 				break;
 
 			   /*
+			   ** sorting on thread level as well (threadview)
+			   */
+			   case MTHRSORT:
+				if (threadsort)
+				{
+					threadsort = 0;
+					statmsg    = "Thread sorting disabled for thread view";
+					firstproc  = 0;
+				}
+				else
+				{
+					threadsort = 1;
+					statmsg    = "Thread sorting enabled for thread view";
+					firstproc  = 0;
+				}
+				break;
+
+			   /*
 			   ** per-process PSS calculation wanted 
 			   */
 			   case MCALCPSS:
@@ -1771,6 +1803,22 @@ generic_samp(double sampletime, double nsecs,
 				{
 					calcpss    = 1;
 					statmsg    = "PSIZE gathering enabled";
+				}
+				break;
+
+			   /*
+			   ** per-thread WCHAN definition 
+			   */
+			   case MGETWCHAN:
+				if (getwchan)
+				{
+					getwchan   = 0;
+					statmsg    = "WCHAN gathering disabled";
+				}
+				else
+				{
+					getwchan   = 1;
+					statmsg    = "WCHAN gathering enabled";
 				}
 				break;
 
@@ -2203,6 +2251,7 @@ accumulate(struct tstat *curproc, struct tstat *curstat)
 		curstat->mem.vdata  += curproc->mem.vdata;
 		curstat->mem.vstack += curproc->mem.vstack;
 		curstat->mem.vswap  += curproc->mem.vswap;
+		curstat->mem.vlock  += curproc->mem.vlock;
 		curstat->mem.rgrow  += curproc->mem.rgrow;
 		curstat->mem.vgrow  += curproc->mem.vgrow;
 
@@ -2565,11 +2614,25 @@ generic_init(void)
 				threadview = 1;
 			break;
 
+		   case MTHRSORT:
+			if (threadsort)
+				threadsort = 0;
+			else
+				threadsort = 1;
+			break;
+
 		   case MCALCPSS:
 			if (calcpss)
 				calcpss = 0;
 			else
 				calcpss = 1;
+			break;
+
+		   case MGETWCHAN:
+			if (getwchan)
+				getwchan = 0;
+			else
+				getwchan = 1;
 			break;
 
 		   case MSUPEXITS:
@@ -2618,6 +2681,9 @@ generic_init(void)
 		/*
 		** initialize screen-handling via curses
 		*/
+		setlocale(LC_ALL, "");
+		setlocale(LC_NUMERIC, "C");
+
 		initscr();
 		cbreak();
 		noecho();
@@ -2713,8 +2779,10 @@ static struct helptext {
 									' '},
 	{"\n",							' '},
 	{"Presentation (keys shown in header line):\n",  	' '},
-	{"\t'%c'  - show individual threads                        (toggle)\n",
+	{"\t'%c'  - show threads within process (thread view)      (toggle)\n",
 		 						MTHREAD},
+	{"\t'%c'  - sort threads (when combined with thread view)  (toggle)\n",
+		 						MTHRSORT},
 	{"\t'%c'  - show all processes (default: active processes) (toggle)\n",
 								MALLPROC},
 	{"\t'%c'  - show fixed number of header lines              (toggle)\n",
@@ -2729,6 +2797,8 @@ static struct helptext {
 								MAVGVAL},
 	{"\t'%c'  - calculate proportional set size (PSIZE)        (toggle)\n",
 								MCALCPSS},
+	{"\t'%c'  - determine WCHAN per thread                     (toggle)\n",
+								MGETWCHAN},
 	{"\n",							' '},
 	{"Raw file viewing:\n",					' '},
 	{"\t'%c'  - show next     sample in raw file\n",	MSAMPNEXT},
@@ -2859,7 +2929,8 @@ generic_usage(void)
 			MSUPEXITS);
 	printf("\t  -%c  show limited number of lines for certain resources\n",
 			MSYSLIMIT);
-	printf("\t  -%c  show individual threads\n", MTHREAD);
+	printf("\t  -%c  show threads within process\n", MTHREAD);
+	printf("\t  -%c  sort threads (when combined with '%c')\n", MTHRSORT, MTHREAD);
 	printf("\t  -%c  show average-per-second i.s.o. total values\n\n",
 			MAVGVAL);
 	printf("\t  -%c  no colors in case of high occupation\n",
@@ -3212,12 +3283,20 @@ do_flags(char *name, char *val)
 			threadview = 1;
 			break;
 
+		   case MTHRSORT:
+			threadsort = 1;
+			break;
+
 		   case MCOLORS:
 			usecolors = 0;
 			break;
 
 		   case MCALCPSS:
 			calcpss = 1;
+			break;
+
+		   case MGETWCHAN:
+			getwchan = 1;
 			break;
 
 		   case MSUPEXITS:

@@ -21,6 +21,7 @@ force	available
 	proc.psinfo.threads
 	proc.psinfo.tgid
 	proc.psinfo.pid
+	proc.psinfo.wchan_s
 	proc.namespaces.envid
 	proc.id.uid
 	proc.id.euid
@@ -37,6 +38,7 @@ force	available
 	proc.memory.vmswap
 	proc.memory.share
 	proc.memory.vmsize
+	proc.memory.vmlock
 	proc.io.read_bytes
 	proc.io.write_bytes
 	proc.io.cancelled_write_bytes
@@ -45,3 +47,4 @@ force	available
 	proc.id.suid_nm
 	proc.id.fsuid_nm
 	proc.id.container
+	proc.schedstat.run_delay

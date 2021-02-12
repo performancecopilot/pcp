@@ -7,7 +7,7 @@
 ** This source-file contains the Linux-specific functions to calculate
 ** figures to be visualized.
 **
-** Copyright (C) 2015,2019 Red Hat.
+** Copyright (C) 2015,2019,2021 Red Hat.
 ** Copyright (C) 2009 JC van Winkel
 ** Copyright (C) 2000-2010 Gerlof Langeveld
 **
@@ -449,7 +449,10 @@ procprt_PPID_e(struct tstat *curstat, int avgval, double nsecs)
 {
         static char buf[64];
 
-	pmsprintf(buf, sizeof buf, "%*s", procprt_PPID.width, "-");
+	if (curstat->gen.ppid)
+        	pmsprintf(buf, sizeof buf, "%*d", procprt_PPID.width, curstat->gen.ppid);
+	else
+		pmsprintf(buf, sizeof buf, "%*s", procprt_PPID.width, "-");
         return buf;
 }
 
@@ -754,6 +757,24 @@ procprt_SWAPSZ_e(struct tstat *curstat, int avgval, double nsecs)
 
 proc_printdef procprt_SWAPSZ = 
    { "SWAPSZ", "SWAPSZ", procprt_SWAPSZ_a, procprt_SWAPSZ_e, 6 };
+/***************************************************************/
+char *
+procprt_LOCKSZ_a(struct tstat *curstat, int avgval, double nsecs)
+{
+        static char buf[10];
+
+        val2memstr(curstat->mem.vlock*1024, buf, sizeof buf, KBFORMAT, 0, 0);
+        return buf;
+}
+
+char *
+procprt_LOCKSZ_e(struct tstat *curstat, int avgval, double nsecs)
+{
+        return "    0K";
+}
+
+proc_printdef procprt_LOCKSZ = 
+   { "LOCKSZ", "LOCKSZ", procprt_LOCKSZ_a, procprt_LOCKSZ_e, 6 };
 /***************************************************************/
 char *
 procprt_CMD_a(struct tstat *curstat, int avgval, double nsecs)
@@ -1960,6 +1981,52 @@ procprt_GPUMEMBUSY_ae(struct tstat *curstat, int avgval, double nsecs)
 
 proc_printdef procprt_GPUMEMBUSY = 
    { "MEMBUSY", "GPUMEMBUSY", procprt_GPUMEMBUSY_ae, procprt_GPUMEMBUSY_ae, 7};
+/***************************************************************/
+char *
+procprt_WCHAN_a(struct tstat *curstat, int avgval, double nsecs)
+{
+        static char buf[32];
+
+        if (curstat->gen.state != 'R')
+		pmsprintf(buf, sizeof buf, "%-15.15s", curstat->cpu.wchan);
+	else
+		pmsprintf(buf, sizeof buf, "%-15.15s", " ");
+
+        return buf;
+}
+
+char *
+procprt_WCHAN_e(struct tstat *curstat, int avgval, double nsecs)
+{
+        static char buf[32];
+
+	pmsprintf(buf, sizeof buf, "%-15.15s", " ");
+        return buf;
+}
+
+proc_printdef procprt_WCHAN =
+   { "WCHAN          ", "WCHAN", procprt_WCHAN_a, procprt_WCHAN_e, 15 };
+/***************************************************************/
+char *
+procprt_RUNDELAY_a(struct tstat *curstat, int avgval, double nsecs)
+{
+        static char buf[10];
+
+        val2cpustr(curstat->cpu.rundelay/1000000, buf, sizeof buf);
+        return buf;
+}
+
+char *
+procprt_RUNDELAY_e(struct tstat *curstat, int avgval, double nsecs)
+{
+        static char buf[10];
+
+        snprintf(buf, sizeof buf, "     -");
+        return buf;
+}
+
+proc_printdef procprt_RUNDELAY =
+   { "RDELAY", "RDELAY", procprt_RUNDELAY_a, procprt_RUNDELAY_e, 6 };
 /***************************************************************/
 char *
 procprt_SORTITEM_ae(struct tstat *curstat, int avgval, double nsecs)

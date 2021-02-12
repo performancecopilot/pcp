@@ -8,7 +8,7 @@
 ** of counters.
 **
 ** Copyright (C) 1996-2014 Gerlof Langeveld
-** Copyright (C) 2015,2019-2020 Red Hat
+** Copyright (C) 2015,2019-2021 Red Hat
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -82,7 +82,7 @@ struct sselection {
 #define	MPROCMEM	'm'
 #define	MPROCDSK	'd'
 #define	MPROCNET	'n'
-#define	MPROCGPU	'e'
+#define MPROCGPU	'e'
 #define	MPROCSCH	's'
 #define	MPROCVAR	'v'
 #define	MPROCARG	'c'
@@ -96,11 +96,13 @@ struct sselection {
 #define	MSORTDSK	'D'
 #define	MSORTMEM	'M'
 #define	MSORTNET	'N'
-#define	MSORTGPU	'E'
+#define MSORTGPU	'E'
 #define	MSORTAUTO	'A'
 
 #define	MTHREAD		'y'
+#define	MTHRSORT	'Y'
 #define	MCALCPSS	'R'
+#define	MGETWCHAN	'W'
 #define	MSUPEXITS	'G'
 #define	MCOLORS		'x'
 #define	MSYSFIXED	'f'

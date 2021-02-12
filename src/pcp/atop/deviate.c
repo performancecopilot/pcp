@@ -7,7 +7,7 @@
 ** This source-file contains functions to calculate the differences for
 ** the system-level and process-level counters since the previous sample.
 **
-** Copyright (C) 2015,2017,2019-2020 Red Hat.
+** Copyright (C) 2015,2017,2019-2021 Red Hat.
 ** Copyright (C) 2000-2010 Gerlof Langeveld
 **
 ** This program is free software; you can redistribute it and/or modify it
@@ -39,8 +39,8 @@ static void calcdiff(struct tstat *, struct tstat *, struct tstat *,
 void
 deviattask(struct tstat    *curtpres, unsigned long ntaskpres,
            struct tstat    *curpexit, unsigned long nprocexit,
-	   struct devtstat *devtstat,
-	   struct sstat    *devsstat)
+  	   struct devtstat *devtstat,
+  	   struct sstat    *devsstat)
 {
 	register int		c, d, pall=0, pact=0;
 	register struct tstat	*curstat, *devstat, *thisproc;
@@ -425,6 +425,11 @@ calcdiff(struct tstat *devstat, struct tstat *curstat, struct tstat *prestat,
 	devstat->cpu.curcpu   = curstat->cpu.curcpu;
 	devstat->cpu.sleepavg = curstat->cpu.sleepavg;
 
+	if (curstat->cpu.wchan[0])
+		strcpy(devstat->cpu.wchan, curstat->cpu.wchan);
+	else
+		devstat->cpu.wchan[0] = 0;
+
 	devstat->mem.vexec    = curstat->mem.vexec;
 	devstat->mem.vmem     = curstat->mem.vmem;
 	devstat->mem.rmem     = curstat->mem.rmem;
@@ -433,6 +438,7 @@ calcdiff(struct tstat *devstat, struct tstat *curstat, struct tstat *prestat,
 	devstat->mem.vstack   = curstat->mem.vstack;
 	devstat->mem.vlibs    = curstat->mem.vlibs;
 	devstat->mem.vswap    = curstat->mem.vswap;
+	devstat->mem.vlock    = curstat->mem.vlock;
 
 	if (curstat->gpu.state || prestat->gpu.state) // GPU use?
 	{
@@ -477,6 +483,8 @@ calcdiff(struct tstat *devstat, struct tstat *curstat, struct tstat *prestat,
 	if (devstat->cpu.utime > totusedcpu)
 		devstat->cpu.utime = 1;
 
+	devstat->cpu.rundelay  =
+		subcount(curstat->cpu.rundelay, prestat->cpu.rundelay);
 	/*
 	** do further calculations
 	*/
@@ -629,9 +637,9 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev, double inter
 					         pre->cpu.cpu[i].guest);
 
 		dev->cpu.cpu[i].instr = subcount(cur->cpu.cpu[i].instr,
-						 pre->cpu.cpu[i].instr);
+					         pre->cpu.cpu[i].instr);
 		dev->cpu.cpu[i].cycle = subcount(cur->cpu.cpu[i].cycle,
-						 pre->cpu.cpu[i].cycle);
+					         pre->cpu.cpu[i].cycle);
 
 		ticks 		      = cur->cpu.cpu[i].freqcnt.ticks;
 
@@ -663,6 +671,7 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev, double inter
 	dev->mem.cachedrt	= cur->mem.cachedrt;
 	dev->mem.totswap	= cur->mem.totswap;
 	dev->mem.freeswap	= cur->mem.freeswap;
+	dev->mem.swapcached	= cur->mem.swapcached;
 
 	dev->mem.shmem		= cur->mem.shmem;
 	dev->mem.shmrss		= cur->mem.shmrss;
@@ -673,6 +682,11 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev, double inter
 	dev->mem.hugepagesz	= cur->mem.hugepagesz;
 
 	dev->mem.vmwballoon	= cur->mem.vmwballoon;
+	dev->mem.zfsarcsize	= cur->mem.zfsarcsize;
+	dev->mem.ksmsharing	= cur->mem.ksmsharing;
+	dev->mem.ksmshared 	= cur->mem.ksmshared;
+	dev->mem.zswstored	= cur->mem.zswstored;
+	dev->mem.zswtotpool	= cur->mem.zswtotpool;
 
 	dev->mem.swouts		= subcount(cur->mem.swouts,  pre->mem.swouts);
 	dev->mem.swins		= subcount(cur->mem.swins,   pre->mem.swins);
@@ -680,6 +694,7 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev, double inter
 	dev->mem.pgsteal	= subcount(cur->mem.pgsteal, pre->mem.pgsteal);
 	dev->mem.allocstall	= subcount(cur->mem.allocstall,
 				                         pre->mem.allocstall);
+	dev->mem.oomkills	= subcount(cur->mem.oomkills, pre->mem.oomkills);
 
 	dev->psi          	= cur->psi;
 
@@ -1480,6 +1495,7 @@ totalsyst(char category, struct sstat *new, struct sstat *tot)
 		tot->mem.cachedrt	 = new->mem.cachedrt;
 		tot->mem.totswap	 = new->mem.totswap;
 		tot->mem.freeswap	 = new->mem.freeswap;
+		tot->mem.swapcached	 = new->mem.swapcached;
 
 		tot->mem.shmem		 = new->mem.shmem;
 		tot->mem.shmrss		 = new->mem.shmrss;

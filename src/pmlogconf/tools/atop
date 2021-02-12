@@ -65,6 +65,8 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
 	mem.vmstat.pgsteal_kswapd
 	mem.vmstat.pgsteal_direct
 	mem.vmstat.allocstall
+	mem.vmstat.oom_kill
+	mem.util.swapCached
 	mem.util.cached
 	mem.util.dirty
 	mem.physmem
@@ -78,6 +80,8 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
 	mem.util.hugepagesTotal
 	mem.util.hugepagesFree
 	hinv.hugepagesize
+	mem.ksm.pages_shared
+	mem.ksm.pages_sharing
 	swap.pagesin
 	swap.pagesout
 	swap.length

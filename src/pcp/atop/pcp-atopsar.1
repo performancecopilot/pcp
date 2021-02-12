@@ -1,7 +1,7 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2000-2018 Gerlof Langeveld.
-.\" Copyright (c) 2017-2020 Red Hat.
+.\" Copyright (c) 2000-2021 Gerlof Langeveld.
+.\" Copyright (c) 2017-2021 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -19,7 +19,7 @@
 \f3pcp-atopsar\f1 \- Advanced System Activity Report (pcp-atop related)
 .SH SYNOPSIS
 \f3pcp\f1 [\f2pcp\ options\f1] \f3atopsar\f1 [\f2atop\ options\f1]
-[\-r \f2file|date\f1] [\-h \f2host\f1] [\-R \f2cnt\f1] [\-b \f2hh:mm\f1] [\-e \f2hh:mm\f1]
+[\-r \f2file|date\f1] [\-h \f2host\f1] [\-R \f2cnt\f1] [\-b \f2yy-mm-dd\f1] \f2hh:mm\f1] [\-e \f2yy-mm-dd\f1] \f2hh:mm\f1]
 .br
 \f3pcp\f1 [\f2pcp\ options\f1] \f3atopsar\f1 [\f2atop\ options\f1] \f2interval\f1 [\f2samples\f1]
 .SH DESCRIPTION
@@ -69,7 +69,7 @@ options
 .B \-b
 and
 .B \-e
-followed by a time argument of the form hh:mm.
+followed by a time argument of the form [yy-mm-dd] hh:mm.
 .PP
 In the second synopsis line,
 .B pcp-atopsar
@@ -565,24 +565,24 @@ The output for the flag
 .B \-B
 contains the Pressure Stall Information (PSI):
 .TP 12
-.B cs_10_60_300
-Average pressure percentage over the last 10, 60 and 300 seconds for the
+.B cpusome
+Average pressure percentage during the interval for the
 category 'CPU some'.
 .TP 12
-.B ms_10_60_300
-Average pressure percentage over the last 10, 60 and 300 seconds for the
+.B memsome
+Average pressure percentage during the interval for the
 category 'memory some'.
 .TP 12
-.B mf_10_60_300
-Average pressure percentage over the last 10, 60 and 300 seconds for the
+.B memfull
+Average pressure percentage during the interval for the
 category 'memory full'.
 .TP 12
-.B is_10_60_300
-Average pressure percentage over the last 10, 60 and 300 seconds for the
+.B iosome
+Average pressure percentage during the interval for the
 category 'I/O some'.
 .TP 12
-.B if_10_60_300
-Average pressure percentage over the last 10, 60 and 300 seconds for the
+.B iofull
+Average pressure percentage during the interval for the
 category 'I/O full'.
 .PP
 The output for the flags

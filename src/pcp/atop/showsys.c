@@ -9,7 +9,7 @@
 **
 ** Copyright (C) 2009 JC van Winkel
 ** Copyright (C) 2000-2012 Gerlof Langeveld
-** Copyright (C) 2015,2019 Red Hat.
+** Copyright (C) 2015,2019,2021 Red Hat.
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -946,7 +946,11 @@ sysprt_CPLAVG1(void *p, void *notused, int badness, int *color)
         struct sstat *sstat=p;
         static char buf[16]="avg1 ";
 
-        if (sstat->cpu.lavg1  > 999.0)
+        if (sstat->cpu.lavg1 > 999999.0)
+	{
+                pmsprintf(buf+5, sizeof buf-5, ">999999");
+	}
+	else if (sstat->cpu.lavg1 > 999.0)
         {
                 pmsprintf(buf+5, sizeof buf-5, "%7.0f", sstat->cpu.lavg1);
         }
@@ -965,7 +969,11 @@ sysprt_CPLAVG5(void *p, void *notused, int badness, int *color)
         struct sstat *sstat=p;
         static char buf[16]="avg5 ";
 
-        if (sstat->cpu.lavg5  > 999.0)
+        if (sstat->cpu.lavg5 > 999999.0)
+	{
+                pmsprintf(buf+5, sizeof buf-5, ">999999");
+	}
+	else if (sstat->cpu.lavg5 > 999.0)
         {
                 pmsprintf(buf+5, sizeof buf-5, "%7.0f", sstat->cpu.lavg5);
         }
@@ -987,7 +995,11 @@ sysprt_CPLAVG15(void *p, void *notused, int badness, int *color)
 	if (sstat->cpu.lavg15 > (2 * sstat->cpu.nrcpu) )
 		*color = COLORALMOST;
 
-        if (sstat->cpu.lavg15  > 999.0)
+        if (sstat->cpu.lavg15 > 99999.0)
+	{
+                pmsprintf(buf+6, sizeof buf-6, ">99999");
+	}
+	else if (sstat->cpu.lavg15 > 999.0)
         {
                 pmsprintf(buf+6, sizeof buf-6, "%6.0f", sstat->cpu.lavg15);
         }
@@ -1400,6 +1412,19 @@ sysprt_VMWBAL(void *p, void *notused, int badness, int *color)
 sys_printdef syspdef_VMWBAL = {"VMWBAL", sysprt_VMWBAL};
 /*******************************************************************/
 char *
+sysprt_ZFSARC(void *p, void *notused, int badness, int *color) 
+{
+        struct sstat *sstat=p;
+        static char buf[16]="zfarc  ";
+	count_t value = sstat->mem.zfsarcsize;
+        val2memstr(value, buf+6, sizeof buf-6, MBFORMAT, 0, 0);
+	*color = -1;
+        return buf;
+}
+
+sys_printdef syspdef_ZFSARC = {"ZFSARC", sysprt_ZFSARC};
+/*******************************************************************/
+char *
 sysprt_SWPTOT(void *p, void *notused, int badness, int *color) 
 {
         struct sstat *sstat=p;
@@ -1424,6 +1449,71 @@ sysprt_SWPFREE(void *p, void *notused, int badness, int *color)
 }
 
 sys_printdef syspdef_SWPFREE = {"SWPFREE", sysprt_SWPFREE};
+/*******************************************************************/
+char *
+sysprt_SWPCACHE(void *p, void *notused, int badness, int *color) 
+{
+        struct sstat *sstat=p;
+        static char buf[16]="swcac ";
+        count_t value = sstat->mem.swapcached * 1024;
+        val2memstr(value, buf+6, sizeof buf-6, MBFORMAT, 0, 0);
+	*color = -1;
+        return buf;
+}
+
+sys_printdef syspdef_SWPCACHE = {"SWPCACHE", sysprt_SWPCACHE};
+/*******************************************************************/
+char *
+sysprt_ZSWTOTAL(void *p, void *notused, int badness, int *color) 
+{
+        struct sstat *sstat=p;
+        static char buf[16]="zpool ";
+        count_t value = sstat->mem.zswtotpool;
+        val2memstr(value, buf+6, sizeof buf-6, MBFORMAT, 0, 0);
+	*color = -1;
+        return buf;
+}
+
+sys_printdef syspdef_ZSWTOTAL = {"ZSWTOTAL", sysprt_ZSWTOTAL};
+/*******************************************************************/
+char *
+sysprt_ZSWSTORED(void *p, void *notused, int badness, int *color) 
+{
+        struct sstat *sstat=p;
+        static char buf[16]="zstor ";
+        count_t value = sstat->mem.zswstored;
+        val2memstr(value, buf+6, sizeof buf-6, MBFORMAT, 0, 0);
+	*color = -1;
+        return buf;
+}
+
+sys_printdef syspdef_ZSWSTORED = {"ZSWSTORED", sysprt_ZSWSTORED};
+/*******************************************************************/
+char *
+sysprt_KSMSHARING(void *p, void *notused, int badness, int *color) 
+{
+        struct sstat *sstat=p;
+        static char buf[16]="kssav ";
+        count_t value = sstat->mem.ksmshared;
+        val2memstr(value, buf+6, sizeof buf-6, MBFORMAT, 0, 0);
+	*color = -1;
+        return buf;
+}
+
+sys_printdef syspdef_KSMSHARING = {"KSMSHARING", sysprt_KSMSHARING};
+/*******************************************************************/
+char *
+sysprt_KSMSHARED(void *p, void *notused, int badness, int *color) 
+{
+        struct sstat *sstat=p;
+        static char buf[16]="ksuse ";
+        count_t value = sstat->mem.ksmsharing;
+        val2memstr(value, buf+6, sizeof buf-6, MBFORMAT, 0, 0);
+	*color = -1;
+        return buf;
+}
+
+sys_printdef syspdef_KSMSHARED = {"KSMSHARED", sysprt_KSMSHARED};
 /*******************************************************************/
 char *
 sysprt_SWPCOMMITTED(void *p, void *notused, int badness, int *color) 
@@ -1520,7 +1610,23 @@ sysprt_PAGSWOUT(void *p, void *q, int badness, int *color)
 
 sys_printdef syspdef_PAGSWOUT = {"PAGSWOUT", sysprt_PAGSWOUT};
 /*******************************************************************/
-// general formatting of PSI field
+char *
+sysprt_OOMKILLS(void *p, void *q, int badness, int *color) 
+{
+        struct sstat *sstat=p;
+        extraparam *as=q;
+        static char buf[16]="oomkill  ";
+
+	if (sstat->mem.oomkills)
+		*color = COLORCRIT;
+
+        val2valstr(sstat->mem.oomkills, buf+8, sizeof buf-8, 4, as->avgval, as->nsecs);
+        return buf;
+}
+
+sys_printdef syspdef_OOMKILLS = {"OOMKILLS", sysprt_OOMKILLS};
+/*******************************************************************/
+// general formatting of PSI field in avg10/avg60/avg300
 void
 psiformat(struct psi *p, char *head, char *buf, int bufsize)
 {
@@ -1597,6 +1703,80 @@ sysprt_PSIIOF(void *p, void *q, int badness, int *color)
         return buf;
 }
 sys_printdef syspdef_PSIIOF = {"PSIIOF", sysprt_PSIIOF};
+
+/*******************************************************************/
+// general formatting of PSI field in total percentage
+void
+psiformattot(struct psi *p, char *head, void *q, int *color, char *buf, int bufsize)
+{
+	static char	formats[] = "%-7.7s %3lu%%";
+        extraparam      *as=q;
+	unsigned long 	perc = p->total/(as->nsecs*10000);
+
+	if (perc > 100)
+		perc = 100;
+
+	if (perc >= 1)
+		*color = COLORALMOST;
+
+	pmsprintf(buf, bufsize, formats, head, perc);
+}
+
+char *
+sysprt_PSICPUSTOT(void *p, void *q, int badness, int *color) 
+{
+        struct sstat *sstat=p;
+        static char buf[32];
+
+	psiformattot(&(sstat->psi.cpusome), "cpusome", q, color, buf, sizeof buf);
+        return buf;
+}
+sys_printdef syspdef_PSICPUSTOT = {"PSICPUSTOT", sysprt_PSICPUSTOT};
+
+char *
+sysprt_PSIMEMSTOT(void *p, void *q, int badness, int *color) 
+{
+        struct sstat *sstat=p;
+        static char buf[32];
+
+	psiformattot(&(sstat->psi.memsome), "memsome", q, color, buf, sizeof buf);
+        return buf;
+}
+sys_printdef syspdef_PSIMEMSTOT = {"PSIMEMSTOT", sysprt_PSIMEMSTOT};
+
+char *
+sysprt_PSIMEMFTOT(void *p, void *q, int badness, int *color) 
+{
+        struct sstat *sstat=p;
+        static char buf[32];
+
+	psiformattot(&(sstat->psi.memfull), "memfull", q, color, buf, sizeof buf);
+        return buf;
+}
+sys_printdef syspdef_PSIMEMFTOT = {"PSIMEMFTOT", sysprt_PSIMEMFTOT};
+
+char *
+sysprt_PSIIOSTOT(void *p, void *q, int badness, int *color) 
+{
+        struct sstat *sstat=p;
+        static char buf[32];
+
+	psiformattot(&(sstat->psi.iosome), "iosome", q, color, buf, sizeof buf);
+        return buf;
+}
+sys_printdef syspdef_PSIIOSTOT = {"PSIIOSTOT", sysprt_PSIIOSTOT};
+
+
+char *
+sysprt_PSIIOFTOT(void *p, void *q, int badness, int *color) 
+{
+        struct sstat *sstat=p;
+        static char buf[32];
+
+	psiformattot(&(sstat->psi.iofull), "iofull", q, color, buf, sizeof buf);
+        return buf;
+}
+sys_printdef syspdef_PSIIOFTOT = {"PSIIOFTOT", sysprt_PSIIOFTOT};
 
 /*******************************************************************/
 char *
@@ -1828,19 +2008,31 @@ sysprt_DSKAVIO(void *p, void *q, int badness, int *color)
 
 	*color = -1;
 
-        if (tim > 100.0)
+        if (tim >= 100.0)
         {
                 pmsprintf(buf+5, sizeof buf-5, "%4.0lf ms", tim);
         } 
-        else if (tim > 10.0) 
+        else if (tim >= 10.0) 
         {
                 pmsprintf(buf+5, sizeof buf-5, "%4.1lf ms", tim);
         }
-        else 
+        else if (tim >= 0.1)
+        {
+                pmsprintf(buf+5, sizeof buf-5, "%4.2lf ms", tim);
+        }
+        else if (tim >= 0.01)
+        {
+                pmsprintf(buf+5, sizeof buf-5, "%4.1lf µs", tim * 1000.0);
+        }
+        else if (tim >= 0.0001)
+        {
+                pmsprintf(buf+5, sizeof buf-5, "%4.2lf µs", tim * 1000.0);
+        }
+        else
         {
 	        if (tim < 0)
                         tim = 0;
-                pmsprintf(buf+5, sizeof buf-5, "%4.2lf ms", tim);
+                pmsprintf(buf+5, sizeof buf-5, "%4.1lf ns", tim * 1000000.0);
         }
 
         return buf;
@@ -2127,6 +2319,15 @@ sysprt_NETNAME(void *p, void *q, int badness, int *color)
                                		(sstat->intf.intf[as->index].speed *10);
 		}
 
+		if( busy < -99 )
+		{
+			// when we get wrong values, show wrong values
+			busy = -99;
+		}		
+		else if( busy > 999 )
+		{
+			busy = 999;
+		}
 	        pmsprintf(buf, sizeof buf, "%-7.7s %3lld%%", 
        		          sstat->intf.intf[as->index].name, busy);
 
@@ -2207,6 +2408,16 @@ char *makenetspeed(count_t val, double nsecs)
         {
                 val = val / 1000 / 1000 / 1000;
                 c = 'T';
+        }
+
+        if(val < -999)
+        {
+		// when we get wrong values, show wrong values
+                val = -999;
+        }
+        else if(val > 9999)
+        {
+                val = 9999;
         }
 
         pmsprintf(buf+3, sizeof buf-3, "%4lld %cbps", val, c);

@@ -12,7 +12,7 @@
 ** visualized for the user.
 ** 
 ** Copyright (C) 2000-2018 Gerlof Langeveld
-** Copyright (C) 2015-2020 Red Hat.
+** Copyright (C) 2015-2021 Red Hat.
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -149,6 +149,7 @@ char		deviatonly = 1;
 char      	usecolors  = 1;  /* boolean: colors for high occupation  */
 char		threadview = 0;	 /* boolean: show individual threads     */
 char      	calcpss    = 0;  /* boolean: read/calculate process PSS  */
+char      	getwchan   = 0;  /* boolean: obtain wchan string         */
 
 unsigned short	hertz;
 unsigned int	pidmax;
@@ -361,14 +362,6 @@ main(int argc, char *argv[])
 				midnightflag++;
 				break;
 
-                           case 'a':		/* all processes per sample ? */
-				deviatonly = 0;
-				break;
-
-                           case 'R':		/* all processes per sample ? */
-				calcpss = 1;
-				break;
-
                            case 'b':		/* begin time ?               */
 				opts.start_optarg = abstime(opts.optarg);
 				break;
@@ -389,6 +382,18 @@ main(int argc, char *argv[])
 					prusage(pmGetProgname(), &opts);
 
 				linelen = atoi(opts.optarg);
+				break;
+
+                           case MALLPROC:	/* all processes per sample ? */
+				deviatonly = 0;
+				break;
+
+                           case MCALCPSS:	/* calculate PSS per sample ? */
+				calcpss = 1;
+				break;
+
+                           case MGETWCHAN:	/* obtain wchan string?       */
+				getwchan = 1;
 				break;
 
 			   default:		/* gather other flags */
@@ -707,7 +712,7 @@ prusage(char *myname, pmOptions *opts)
 	printf("\t\tor\n");
 	printf("Usage: %s -w  file  [-S] [-%c] [interval [samples]]\n",
 					myname, MALLPROC);
-	printf("       %s -r  file  [-b hh:mm] [-e hh:mm] [-flags] [interval [samples]]\n",
+	printf("       %s -r  file  [-b [yy-mm-dd ]hh:mm:ss] [-e [yy-mm-dd ]hh:mm:ss] [-flags] [interval [samples]]\n",
 					myname);
 	printf("\n");
 	printf("\tgeneric flags:\n");
@@ -716,11 +721,13 @@ prusage(char *myname, pmOptions *opts)
 	                "only)\n", MALLPROC);
 	printf("\t  -%c  calculate proportional set size (PSS) per process\n",
 	                MCALCPSS);
+	printf("\t  -%c  determine WCHAN (string) per thread\n", MGETWCHAN);
 	printf("\t  -P  generate parseable output for specified label(s)\n");
 	printf("\t  -L  alternate line length (default 80) in case of "
 			"non-screen output\n");
 
-	(*vis.show_usage)();
+	if (vis.show_usage)
+		(*vis.show_usage)();
 
 	if (opts)
 	{
@@ -818,7 +825,10 @@ readrc(char *path, int syslevel)
 
 			i = strlen(linebuf);
 
-			if (i > 0 && linebuf[i-1] == '\n')
+			if (i <= 1)	// empty line?
+				continue;
+
+			if (linebuf[i-1] == '\n')
 				linebuf[i-1] = 0;
 
 			nr = sscanf(linebuf, "%19s %255[^#]",

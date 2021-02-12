@@ -1,0 +1,5 @@
+#pmlogconf-setup 2.0
+ident   Compressed swap metrics sampled by the atop command
+probe	zswap.pool_total_size values ? include : exclude
+	zswap.pool_total_size
+	zswap.stored_pages

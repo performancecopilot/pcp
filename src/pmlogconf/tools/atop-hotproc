@@ -21,6 +21,7 @@ probe   hotproc.control.config != "" ? include : exclude
 	hotproc.psinfo.threads
 	hotproc.psinfo.tgid
 	hotproc.psinfo.pid
+	hotproc.psinfo.wchan_s
 	hotproc.namespaces.envid
 	hotproc.id.uid
 	hotproc.id.euid
@@ -35,6 +36,7 @@ probe   hotproc.control.config != "" ? include : exclude
 	hotproc.memory.vmexe
 	hotproc.memory.vmlib
 	hotproc.memory.vmswap
+	hotproc.memory.vmlock
 	hotproc.io.read_bytes
 	hotproc.io.write_bytes
 	hotproc.io.cancelled_write_bytes
@@ -43,3 +45,4 @@ probe   hotproc.control.config != "" ? include : exclude
 	hotproc.id.suid_nm
 	hotproc.id.fsuid_nm
 	hotproc.id.container
+	hotproc.schedstat.run_delay

@@ -7,7 +7,7 @@
 ** Include-file describing system-level counters maintained.
 **
 ** Copyright (C) 1996-2014 Gerlof Langeveld
-** Copyright (C) 2015 Red Hat.
+** Copyright (C) 2015,2021 Red Hat.
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -29,7 +29,6 @@
 #define	MAXIBNAME	12
 
 /************************************************************************/
-
 struct	memstat {
 	count_t	physmem;	// number of physical pages
 	count_t	freemem;	// number of free     pages
@@ -61,6 +60,13 @@ struct	memstat {
 	count_t	hugepagesz;	// huge page size (bytes)
 
 	count_t	vmwballoon;	// vmware claimed balloon pages
+	count_t	zfsarcsize;	// zfsonlinux ARC size (pages)
+	count_t swapcached;	// swap cache (pages)
+	count_t	ksmsharing;	// saved i.e. deduped memory (pages)
+	count_t	ksmshared;	// current size shared pages (pages)
+	count_t	zswstored;	// zswap stored pages (pages)
+	count_t	zswtotpool;	// total pool size (pages)
+	count_t	oomkills;	// number of oom killings
 };
 
 /************************************************************************/
@@ -175,8 +181,8 @@ struct intfstat {
 
 struct  pernfsmount {
 	char 	mountdev[MAXMNTNAME];		/* mountdevice 		*/
-	count_t	age;			/* number of seconds mounted	*/
-
+        count_t	age;			/* number of seconds mounted	*/
+	
 	count_t	bytesread;		/* via normal reads		*/
 	count_t	byteswrite;		/* via normal writes		*/
 	count_t	bytesdread;		/* via direct reads		*/
@@ -220,20 +226,20 @@ struct nfsstat {
 	} client;
 
 	struct {
-		int             	nrmounts;
+        	int             	nrmounts;
 		struct pernfsmount	*nfsmnt;
 	} nfsmounts;
 };
 
 /************************************************************************/
-struct psi {
+struct	psi {
 	float	avg10;		// average pressure last 10 seconds
 	float	avg60;		// average pressure last 60 seconds
 	float	avg300;		// average pressure last 300 seconds
 	count_t	total;		// total number of milliseconds
 };
 
-struct pressure {
+struct	pressure {
 	char	   present;	/* pressure stats supported?	*/
 	char       future[3];
 	struct psi cpusome;	/* pressure stall info 'some'   */
@@ -328,11 +334,11 @@ struct	sstat {
 	struct netstat	net;
 	struct intfstat	intf;
 	struct dskstat  dsk;
-	struct nfsstat	nfs;
-	struct contstat	cfs;
+	struct nfsstat  nfs;
+	struct contstat cfs;
 	struct pressure	psi;
-	struct gpustat	gpu;
-	struct ifbstat	ifb;
+	struct gpustat 	gpu;
+	struct ifbstat 	ifb;
 
 	struct wwwstat	www;
 };

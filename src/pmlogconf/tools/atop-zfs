@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+ident   ZFS metrics sampled by the atop command
+probe	zfs.arc.size values ? include : exclude
+	zfs.arc.size

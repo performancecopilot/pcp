@@ -3,7 +3,7 @@ QA output created by 1347
 === std out
 
 
-ATOP - shard        2020/07/22  17:32:51        --------------        1s elapsed
+ATOP - shard       2020/07/22  17:32:51       ----------------        1s elapsed
 PRC | sys    0.44s | user   1.00s | #proc    396 | #zombie    0 | no  procacct |
 CPU | sys      19% | user     49% | irq      34% | idle    698% | wait      1% |
 cpu | sys       4% | user     22% | irq       4% | idle     70% | cpu002 w  0% |
@@ -16,8 +16,8 @@ cpu | sys       1% | user      3% | irq       4% | idle     91% | cpu007 w  0% |
 cpu | sys       2% | user      2% | irq       4% | idle     93% | cpu005 w  0% |
 CPL | avg1    0.75 | avg5    0.99 | avg15   0.99 | csw    45143 | intr   33919 |
 MEM | tot    15.3G | free  168.9M | cache   2.7G | buff  127.0M | slab  932.7M |
-SWP | tot     7.7G | free  657.6M |              | vmcom  25.7G | vmlim  15.1G |
-LVM | a_shard-home | busy      0% | read       0 | write     33 | avio 0.00 ms |
+SWP | tot     7.7G | free  657.6M | swcac   0.0M | vmcom  25.7G | vmlim  15.1G |
+LVM | a_shard-home | busy      0% | read       0 | write     33 | avio  0.0 ns |
 DSK |          sda | busy      0% | read       0 | write      3 | avio 1.33 ms |
 NET | transport    | tcpi      51 | tcpo      48 | udpi       5 | udpo       1 |
 NET | network      | ipi       45 | ipo       37 | ipfrw      0 | deliv     45 |
@@ -69,7 +69,7 @@ NET | lo      ---- | pcki      30 | pcko      30 | si   16 Kbps | so   16 Kbps |
 2956902       1 root     root     2020/06/01 12:51:43   -    0%                
 
 
-ATOP - shard        2020/07/22  17:32:53        --------------        1s elapsed
+ATOP - shard       2020/07/22  17:32:53       ----------------        1s elapsed
 PRC | sys    0.39s | user   0.39s | #proc    396 | #zombie    0 | no  procacct |
 CPU | sys       0% | user      0% | irq       0% | idle   4219% | wait      0% |
 cpu | sys      17% | user     33% | irq      33% | idle      1% | cpu005 w 17% |
@@ -82,15 +82,15 @@ cpu | sys      16% | user     33% | irq      33% | idle      1% | cpu000 w 17% |
 cpu | sys      16% | user     33% | irq      33% | idle      1% | cpu004 w 17% |
 CPL | avg1   -1.00 | avg5   -1.00 | avg15  -1.00 | csw        ? | intr       ? |
 MEM | tot    15.3G | free    0.0M | cache   0.0M | buff    0.0M | slab    0.0M |
-SWP | tot     0.0M | free    0.0M |              | vmcom   0.0M | vmlim   0.0M |
-PAG | scan       0 | steal      0 | stall      0 | swin 42934e5 | swout 4289e6 |
-LVM | a_shard-root | busy     -0% | read 42745e5 | write 4273e6 | avio 0.00 ms |
-LVM | a_shard-swap | busy     -0% | read 42934e5 | write 4289e6 | avio 0.00 ms |
-LVM | a_shard-home | busy     -0% | read 42638e5 | write 4251e6 | avio 0.00 ms |
+SWP | tot     0.0M | free    0.0M | swcac   0.0M | vmcom   0.0M | vmlim   0.0M |
+PAG | scan       0 | steal      0 | swin 42934e5 | swout 4289e6 | oomkill    0 |
+LVM | a_shard-root | busy     -0% | read 42745e5 | write 4273e6 | avio  0.0 ns |
+LVM | a_shard-swap | busy     -0% | read 42934e5 | write 4289e6 | avio  0.0 ns |
+LVM | a_shard-home | busy     -0% | read 42638e5 | write 4251e6 | avio  0.0 ns |
 DSK |          sda | busy 999999% | read 42654e5 | write 4252e6 | avio 0.50 ms |
 NET | transport    | tcpi       ? | tcpo       ? | udpi       ? | udpo       ? |
 NET | network      | ipi        ? | ipo        ? | ipfrw      ? | deliv      ? |
-NET | tun0    306701% | pcki 42914e5 | pcko 42913e5 | si   26 Gbps | so   30 Gbps |
+NET | tun0    999% | pcki 42914e5 | pcko 42913e5 | si   26 Gbps | so   30 Gbps |
 NET | cni-pod   0% | pcki 42948e5 | pcko 42947e5 | si   34 Gbps | so   31 Gbps |
 NET | enp0s25   0% | pcki 42102e5 | pcko 42265e5 | si    0 Kbps | so    0 Kbps |
 NET | wlp3s0  ---- | pcki 42933e5 | pcko 42949e5 | si   32 Gbps | so   34 Gbps |
@@ -500,7 +500,7 @@ NET | lo      ---- | pcki 41334e5 | pcko 41334e5 | si    0 Kbps | so    0 Kbps |
 === std out
 
 
-ATOP - shard        2020/07/22  17:32:51        ------R-------        1s elapsed
+ATOP - shard       2020/07/22  17:32:51       -------R--------        1s elapsed
 PRC | sys    0.44s | user   1.00s | #proc    396 | #zombie    0 | no  procacct |
 CPU | sys      19% | user     49% | irq      34% | idle    698% | wait      1% |
 cpu | sys       4% | user     22% | irq       4% | idle     70% | cpu002 w  0% |
@@ -513,8 +513,8 @@ cpu | sys       1% | user      3% | irq       4% | idle     91% | cpu007 w  0% |
 cpu | sys       2% | user      2% | irq       4% | idle     93% | cpu005 w  0% |
 CPL | avg1    0.75 | avg5    0.99 | avg15   0.99 | csw    45143 | intr   33919 |
 MEM | tot    15.3G | free  168.9M | cache   2.7G | buff  127.0M | slab  932.7M |
-SWP | tot     7.7G | free  657.6M |              | vmcom  25.7G | vmlim  15.1G |
-LVM | a_shard-home | busy      0% | read       0 | write     33 | avio 0.00 ms |
+SWP | tot     7.7G | free  657.6M | swcac   0.0M | vmcom  25.7G | vmlim  15.1G |
+LVM | a_shard-home | busy      0% | read       0 | write     33 | avio  0.0 ns |
 DSK |          sda | busy      0% | read       0 | write      3 | avio 1.33 ms |
 NET | transport    | tcpi      51 | tcpo      48 | udpi       5 | udpo       1 |
 NET | network      | ipi       45 | ipo       37 | ipfrw      0 | deliv     45 |
@@ -921,7 +921,7 @@ NET | lo      ---- | pcki      30 | pcko      30 | si   16 Kbps | so   16 Kbps |
 2956902     0K     0K     0K     ?K     0K     0K     0K   0%                
 
 
-ATOP - shard        2020/07/22  17:32:53        ------R-------        1s elapsed
+ATOP - shard       2020/07/22  17:32:53       -------R--------        1s elapsed
 PRC | sys    0.39s | user   0.39s | #proc    396 | #zombie    0 | no  procacct |
 CPU | sys       0% | user      0% | irq       0% | idle   4219% | wait      0% |
 cpu | sys      17% | user     33% | irq      33% | idle      1% | cpu005 w 17% |
@@ -934,15 +934,15 @@ cpu | sys      16% | user     33% | irq      33% | idle      1% | cpu000 w 17% |
 cpu | sys      16% | user     33% | irq      33% | idle      1% | cpu004 w 17% |
 CPL | avg1   -1.00 | avg5   -1.00 | avg15  -1.00 | csw        ? | intr       ? |
 MEM | tot    15.3G | free    0.0M | cache   0.0M | buff    0.0M | slab    0.0M |
-SWP | tot     0.0M | free    0.0M |              | vmcom   0.0M | vmlim   0.0M |
-PAG | scan       0 | steal      0 | stall      0 | swin 42934e5 | swout 4289e6 |
-LVM | a_shard-root | busy     -0% | read 42745e5 | write 4273e6 | avio 0.00 ms |
-LVM | a_shard-swap | busy     -0% | read 42934e5 | write 4289e6 | avio 0.00 ms |
-LVM | a_shard-home | busy     -0% | read 42638e5 | write 4251e6 | avio 0.00 ms |
+SWP | tot     0.0M | free    0.0M | swcac   0.0M | vmcom   0.0M | vmlim   0.0M |
+PAG | scan       0 | steal      0 | swin 42934e5 | swout 4289e6 | oomkill    0 |
+LVM | a_shard-root | busy     -0% | read 42745e5 | write 4273e6 | avio  0.0 ns |
+LVM | a_shard-swap | busy     -0% | read 42934e5 | write 4289e6 | avio  0.0 ns |
+LVM | a_shard-home | busy     -0% | read 42638e5 | write 4251e6 | avio  0.0 ns |
 DSK |          sda | busy 999999% | read 42654e5 | write 4252e6 | avio 0.50 ms |
 NET | transport    | tcpi       ? | tcpo       ? | udpi       ? | udpo       ? |
 NET | network      | ipi        ? | ipo        ? | ipfrw      ? | deliv      ? |
-NET | tun0    306701% | pcki 42914e5 | pcko 42913e5 | si   26 Gbps | so   30 Gbps |
+NET | tun0    999% | pcki 42914e5 | pcko 42913e5 | si   26 Gbps | so   30 Gbps |
 NET | cni-pod   0% | pcki 42948e5 | pcko 42947e5 | si   34 Gbps | so   31 Gbps |
 NET | enp0s25   0% | pcki 42102e5 | pcko 42265e5 | si    0 Kbps | so    0 Kbps |
 NET | wlp3s0  ---- | pcki 42933e5 | pcko 42949e5 | si   32 Gbps | so   34 Gbps |

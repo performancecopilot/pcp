@@ -8,7 +8,7 @@
 ** to access the process-database.
 **
 ** Copyright (C) 1996-2014 Gerlof Langeveld
-** Copyright (C) 2015,2019 Red Hat
+** Copyright (C) 2015,2019,2021 Red Hat
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -49,15 +49,16 @@ struct tstat {
 		char 	state;		/* process state ('E' = exited)	*/
 		int	excode;		/* process exit status		*/
 		time_t 	btime;		/* process start time (epoch)	*/
-		time_t 	elaps;		/* process elaps time (pacct)	*/
+		time_t 	elaps;		/* process elaps time (hertz)	*/
 		char	cmdline[CMDLEN+1];/* command-line string       	*/
 		int	nthrslpi;	/* # threads in state 'S'       */
 		int	nthrslpu;	/* # threads in state 'D'       */
 		int	nthrrun;	/* # threads in state 'R'       */
+
 		int	ctid;		/* OpenVZ container ID		*/
 		int	vpid;		/* OpenVZ virtual PID		*/
 
-		int	wasinactive;	/* boolean: task inactive       */
+		int	wasinactive;	/* boolean: task inactive	*/
 
 		char	container[CLEN];/* Docker container id (12 pos) */
 	} gen;
@@ -71,7 +72,10 @@ struct tstat {
 		int	rtprio;		/* realtime priority            */
 		int	policy;		/* scheduling policy            */
 		int	curcpu;		/* current processor            */
-		int	sleepavg;	/* sleep average percentage	*/
+		int	sleepavg;       /* sleep average percentage     */
+		int	ifuture[4];	/* reserved for future use	*/
+		char	wchan[16];	/* wait channel string    	*/
+		count_t	rundelay;	/* schedstat rundelay (nanosec)	*/
 	} cpu;
 
 	/* DISK STATISTICS						*/
@@ -98,6 +102,7 @@ struct tstat {
 		count_t vstack;		/* virtmem stack    (Kb)     	*/
 		count_t vlibs;		/* virtmem libexec  (Kb)     	*/
 		count_t vswap;		/* swap space used  (Kb)     	*/
+		count_t	vlock;		/* virtual locked   (Kb) 	*/
 	} mem;
 
 	/* NETWORK STATISTICS						*/
@@ -143,16 +148,16 @@ struct pinfo {
 ** structure to maintains all deviation info related to one sample
 */
 struct devtstat {
-	struct tstat	*taskall;
-	struct tstat	**procall;
-	struct tstat	**procactive;
+        struct tstat     *taskall;
+        struct tstat    **procall;
+        struct tstat    **procactive;
 
 	unsigned long	ntaskall;
-	unsigned long	ntaskactive;
+        unsigned long	ntaskactive;
 	unsigned long	nprocall;
 	unsigned long	nprocactive;
 
-	unsigned long	totrun, totslpi, totslpu, totzombie;
+        unsigned long   totrun, totslpi, totslpu, totzombie;
 };
 
 /*

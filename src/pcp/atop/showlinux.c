@@ -7,7 +7,7 @@
 ** This source-file contains the Linux-specific functions to calculate
 ** figures to be visualized.
 ** 
-** Copyright (C) 2015,2018-2020 Red Hat.
+** Copyright (C) 2015,2018-2021 Red Hat.
 ** Copyright (C) 2009-2010 JC van Winkel
 ** Copyright (C) 2000-2012 Gerlof Langeveld
 **
@@ -141,6 +141,8 @@ sys_printdef *memsyspdefs[] = {
 	&syspdef_BLANKBOX,
 	&syspdef_VMWBAL,
 	&syspdef_BLANKBOX,
+	&syspdef_ZFSARC,
+	&syspdef_BLANKBOX,
 	&syspdef_HUPTOT,
 	&syspdef_HUPUSE,
         0
@@ -148,6 +150,13 @@ sys_printdef *memsyspdefs[] = {
 sys_printdef *swpsyspdefs[] = {
 	&syspdef_SWPTOT,
 	&syspdef_SWPFREE,
+	&syspdef_SWPCACHE,
+	&syspdef_BLANKBOX,
+	&syspdef_ZSWTOTAL,
+	&syspdef_ZSWSTORED,
+	&syspdef_KSMSHARING,
+	&syspdef_KSMSHARED,
+	&syspdef_BLANKBOX,
 	&syspdef_SWPCOMMITTED,
 	&syspdef_SWPCOMMITLIM,
 	&syspdef_BLANKBOX,
@@ -159,10 +168,16 @@ sys_printdef *pagsyspdefs[] = {
 	&syspdef_PAGSTALL,
 	&syspdef_PAGSWIN,
 	&syspdef_PAGSWOUT,
+	&syspdef_OOMKILLS,
 	&syspdef_BLANKBOX,
         0
 };
 sys_printdef *psisyspdefs[] = {
+	&syspdef_PSICPUSTOT,
+	&syspdef_PSIMEMSTOT,
+	&syspdef_PSIMEMFTOT,
+	&syspdef_PSIIOSTOT,
+	&syspdef_PSIIOFTOT,
 	&syspdef_PSICPUS,
 	&syspdef_PSIMEMS,
 	&syspdef_PSIMEMF,
@@ -299,6 +314,8 @@ proc_printdef *allprocpdefs[]=
 	&procprt_PPID,
 	&procprt_SYSCPU,
 	&procprt_USRCPU,
+	&procprt_RUNDELAY,
+	&procprt_WCHAN,
 	&procprt_VGROW,
 	&procprt_RGROW,
 	&procprt_MINFLT,
@@ -311,6 +328,7 @@ proc_printdef *allprocpdefs[]=
 	&procprt_VDATA,
 	&procprt_VSTACK,
 	&procprt_SWAPSZ,
+	&procprt_LOCKSZ,
 	&procprt_CMD,
 	&procprt_RUID,
 	&procprt_EUID,
@@ -464,8 +482,8 @@ makeargv(char *line, const char *linename, name_prio *vec)
                         *p=0;
                 }
                 else
-		        mcleanstop(1,  "atoprc - %s: no name:prio pair for "
-					"`%s'\n", name, linename);
+                        mcleanstop(1,	"atoprc - %s: no name:prio pair for "
+                        		"`%s'\n", name, linename);
 
                 /* now get number */
                 p++;
@@ -527,8 +545,8 @@ make_sys_prints(sys_printpair *ar, int maxn, const char *pairs,
                         }
                 }
                 if (permissables[j]==0)
-                        mcleanstop(1,
-			"atoprc - own system line: item %s invalid in %s line!\n",
+			mcleanstop(1,
+			"atoprc - own system line: item %s invalid in %s line\n",
 			name, linename);
         }
         ar[i].f=0;
@@ -766,61 +784,68 @@ pricumproc(struct sstat *sstat, struct devtstat *devtstat,
                 if (memline[0].f == 0)
                 {
                     make_sys_prints(memline, MAXITEMS,
-	                "MEMTOT:6 "
-	                "MEMFREE:7 "
-	                "MEMCACHE:5 "
-	                "MEMDIRTY:3 "
-	                "MEMBUFFER:5 "
-	                "MEMSLAB:5 "
-	                "RECSLAB:2 "
+	                "MEMTOT:8 "
+	                "MEMFREE:9 "
+	                "MEMCACHE:7 "
+	                "MEMDIRTY:5 "
+	                "MEMBUFFER:7 "
+	                "MEMSLAB:7 "
+	                "RECSLAB:4 "
 	                "BLANKBOX:0 "
 	                "SHMEM:4 "
-	                "SHMRSS:3 "
-	                "SHMSWP:1 "
+	                "SHMRSS:4 "
+	                "SHMSWP:3 "
 	                "BLANKBOX:0 "
-	                "VMWBAL:4 "
+	                "VMWBAL:5 "
 	                "BLANKBOX:0 "
-	                "HUPTOT:4 "
+	                "ZFSARC:6 "
+	                "BLANKBOX:0 "
+	                "HUPTOT:6 "
 	                "HUPUSE:3 ", memsyspdefs, "builtin memline");
                 }
                 if (swpline[0].f == 0)
                 {
                     make_sys_prints(swpline, MAXITEMS,
-	                "SWPTOT:3 "
-	                "SWPFREE:4 "
+	                "SWPTOT:5 "
+	                "SWPFREE:6 "
+	                "SWPCACHE:4 "
 	                "BLANKBOX:0 "
+	                "ZSWTOTAL:3 "
+	                "ZSWSTORED:3 "
 	                "BLANKBOX:0 "
+	                "KSMSHARED:2 "
+	                "KSMSHARING:2 "
 	                "BLANKBOX:0 "
-	                "BLANKBOX:0 "
-	                "BLANKBOX:0 "
-	                "BLANKBOX:0 "
-	                "SWPCOMMITTED:5 "
-	                "SWPCOMMITLIM:6", swpsyspdefs, "builtin swpline");
+	                "SWPCOMMITTED:7 "
+	                "SWPCOMMITLIM:8", swpsyspdefs, "builtin swpline");
                 }
                 if (pagline[0].f == 0)
                 {
                     make_sys_prints(pagline, MAXITEMS,
 	                "PAGSCAN:3 "
-	                "PAGSTEAL:3 "
+	                "PAGSTEAL:2 "
 	                "PAGSTALL:1 "
 	                "BLANKBOX:0 "
 	                "BLANKBOX:0 "
 	                "BLANKBOX:0 "
 	                "BLANKBOX:0 "
-	                "BLANKBOX:0 "
-	                "PAGSWIN:3 "
-	                "PAGSWOUT:4", pagsyspdefs, "builtin pagline");
+	                "PAGSWIN:4 "
+	                "PAGSWOUT:5"
+			"OOMKILLS:6", pagsyspdefs, "builtin pagline");
                 }
                 if (psiline[0].f == 0)
                 {
                     make_sys_prints(psiline, MAXITEMS,
-	                "PSICPUS:3 "
-	                "PSIMEMS:3 "
+	                "PSICPUSTOT:7 "
+	                "PSIMEMSTOT:7 "
+	                "PSIMEMFTOT:8 "
+	                "PSIIOSTOT:7 "
+	                "PSIIOFTOT:8 "
+	                "PSICPUS:6 "
+	                "PSIMEMS:5 "
 	                "PSIMEMF:3 "
-	                "PSIIOS:3 "
-	                "PSIIOF:3 "
-	                "BLANKBOX:0 "
-	                "BLANKBOX:0 "
+	                "PSIIOS:4 "
+	                "PSIIOF:2 "
 	                "BLANKBOX:0 ", psisyspdefs, "builtin psiline");
                 }
                 if (contline[0].f == 0)
@@ -1021,15 +1046,15 @@ priphead(int curlist, int totlist, char *showtype, char *showorder,
 
                 make_proc_prints(memprocs, MAXITEMS, 
                         "PID:10 TID:3 MINFLT:2 MAJFLT:2 VSTEXT:4 VSLIBS:4 "
-			"VDATA:4 VSTACK:4 VSIZE:6 RSIZE:7 PSIZE:5 "
+			"VDATA:4 VSTACK:4 LOCKSZ:3 VSIZE:6 RSIZE:7 PSIZE:5 "
                         "VGROW:7 RGROW:8 SWAPSZ:5 RUID:1 EUID:0 "
                         "SORTITEM:9 CMD:10", 
                         "built-in memprocs");
 
                 make_proc_prints(schedprocs, MAXITEMS, 
-                        "PID:10 TID:6 CID:5 VPID:4 CTID:4 TRUN:7 TSLPI:7 "
-			"TSLPU:7 POLI:8 NICE:9 PRI:9 RTPR:9 CPUNR:8 ST:8 "
-			"EXC:8 S:8 SORTITEM:10 CMD:10", 
+                        "PID:10 TID:6 CID:4 VPID:3 CTID:3 TRUN:7 TSLPI:7 "
+			"TSLPU:7 POLI:8 NICE:9 PRI:5 RTPR:9 CPUNR:8 ST:8 "
+			"EXC:8 S:8 RDELAY:8 WCHAN:5 SORTITEM:10 CMD:10",
                         "built-in schedprocs");
 
                 make_proc_prints(dskprocs, MAXITEMS, 
@@ -1065,19 +1090,19 @@ priphead(int curlist, int totlist, char *showtype, char *showorder,
 
                 make_proc_prints(totusers, MAXITEMS, 
                         "NPROCS:10 SYSCPU:9 USRCPU:9 VSIZE:6 "
-                        "RSIZE:8 PSIZE:8 SWAPSZ:5 RDDSK:7 CWRDSK:7 "
+                        "RSIZE:8 PSIZE:8 LOCKSZ:3 SWAPSZ:5 RDDSK:7 CWRDSK:7 "
 			"RNET:6 SNET:6 SORTITEM:10 RUID:10", 
                         "built-in totusers");
 
                 make_proc_prints(totprocs, MAXITEMS, 
                         "NPROCS:10 SYSCPU:9 USRCPU:9 VSIZE:6 "
-                        "RSIZE:8 PSIZE:8 SWAPSZ:5 RDDSK:7 CWRDSK:7 "
+                        "RSIZE:8 PSIZE:8 LOCKSZ:3 SWAPSZ:5 RDDSK:7 CWRDSK:7 "
 			"RNET:6 SNET:6 SORTITEM:10 CMD:10", 
                         "built-in totprocs");
 
                 make_proc_prints(totconts, MAXITEMS, 
                         "NPROCS:10 SYSCPU:9 USRCPU:9 VSIZE:6 "
-                        "RSIZE:8 PSIZE:8 SWAPSZ:5 RDDSK:7 CWRDSK:7 "
+                        "RSIZE:8 PSIZE:8 LOCKSZ:3 SWAPSZ:5 RDDSK:7 CWRDSK:7 "
 			"RNET:6 SNET:6 SORTITEM:10 CID:10", 
                         "built-in totconts");
         }
@@ -1163,10 +1188,11 @@ priphead(int curlist, int totlist, char *showtype, char *showorder,
 #define	FORMTID	"TID:6 "
 #define	FORMCID	"CID:5 "
 #define	FORMCPU	"SYSCPU:9 USRCPU:9 "
+#define	FORMDEL	"RDELAY:4 "
 #define FORMMEM	"VGROW:8 RGROW:8 "
 #define FORMDSK	"RDDSK:7 CWRDSK:7 "
 #define FORMNET	"RNET:6 SNET:6 "
-#define FORMMSC	"RUID:3 EUID:2 ST:4 EXC:4 THR:4 S:4 CPUNR:4 "
+#define FORMMSC	"RUID:2 EUID:1 ST:3 EXC:3 THR:3 S:3 CPUNR:3 "
 #define FORMEND	"SORTITEM:10 CMD:10"
 
 static void
@@ -1191,6 +1217,9 @@ make_proc_dynamicgen()
 
 	memcpy(p, FORMCPU, sizeof FORMCPU -1);
 	p += sizeof FORMCPU -1;
+
+	memcpy(p, FORMDEL, sizeof FORMDEL -1);
+	p += sizeof FORMDEL -1;
 
 	memcpy(p, FORMMEM, sizeof FORMMEM -1);
 	p += sizeof FORMMEM -1;
@@ -2024,7 +2053,7 @@ pridisklike(extraparam *ep, struct perdsk *dp, char *lp, char *highorderp,
 
 
 /*
-** process-level sort-functions
+** process-level sort functions
 */
 int
 compcpu(const void *a, const void *b)
@@ -2041,9 +2070,13 @@ compcpu(const void *a, const void *b)
         acpu = ta->cpu.stime + ta->cpu.utime;
         bcpu = tb->cpu.stime + tb->cpu.utime;
 
-        if (acpu < bcpu) return  1;
-        if (acpu > bcpu) return -1;
-	else             return compmem(a, b);
+        if (acpu < bcpu)
+                return  1;
+
+        if (acpu > bcpu)
+                return -1;
+
+        return compmem(a, b);
 }
 
 int
@@ -2052,8 +2085,8 @@ compdsk(const void *a, const void *b)
 	struct tstat	*ta = *(struct tstat **)a;
 	struct tstat	*tb = *(struct tstat **)b;
 
-        register count_t adsk;
-        register count_t bdsk;
+        count_t	adsk;
+        count_t bdsk;
 
 	if (ta == NULL)  return  1;
 	if (tb == NULL)  return  -1;
@@ -2068,9 +2101,13 @@ compdsk(const void *a, const void *b)
 	else
 		bdsk = tb->dsk.rio;
 
-        if (adsk < bdsk) return  1;
-        if (adsk > bdsk) return -1;
-	else             return compcpu(a, b);
+        if (adsk < bdsk)
+                return  1;
+
+        if (adsk > bdsk)
+                return -1;
+
+        return compcpu(a, b);
 }
 
 int
@@ -2088,9 +2125,13 @@ compmem(const void *a, const void *b)
         amem = ta->mem.rmem;
         bmem = tb->mem.rmem;
 
-        if (amem < bmem) return  1;
-        if (amem > bmem) return -1;
-	else             return  0;
+        if (amem < bmem)
+                return  1;
+
+        if (amem > bmem)
+                return -1;
+
+        return  0;
 }
 
 int
@@ -2124,14 +2165,22 @@ compgpu(const void *a, const void *b)
 
 	if (abusy == -1 || bbusy == -1)
 	{
-        	if (amem < bmem)	return  1;
-	        if (amem > bmem) 	return -1;
+                if (amem < bmem)
+                        return  1;
+
+                if (amem > bmem)
+                        return -1;
+
                 return  0;
 	}
 	else
 	{
-		if (abusy < bbusy)	return  1;
-		if (abusy > bbusy)	return -1;
+                if (abusy < bbusy)
+                        return  1;
+
+                if (abusy > bbusy)
+                        return -1;
+
        		return  0;
 	}
 }
@@ -2151,9 +2200,13 @@ compnet(const void *a, const void *b)
         anet = ta->net.tcpssz + ta->net.tcprsz + ta->net.udpssz + ta->net.udprsz;
         bnet = tb->net.tcpssz + tb->net.tcprsz + tb->net.udpssz + tb->net.udprsz;
 
-        if (anet < bnet) return  1;
-        if (anet > bnet) return -1;
-	else             return compcpu(a, b);
+        if (anet < bnet)
+                return  1;
+
+        if (anet > bnet)
+                return -1;
+
+	return compcpu(a, b);
 }
 
 int
@@ -2171,9 +2224,13 @@ compusr(const void *a, const void *b)
         uida = ta->gen.ruid;
         uidb = tb->gen.ruid;
 
-        if (uida > uidb) return  1;
-        if (uida < uidb) return -1;
-	else             return  0;
+        if (uida > uidb)
+                return  1;
+
+        if (uida < uidb)
+                return -1;
+
+        return  0;
 }
 
 int
@@ -2209,7 +2266,7 @@ compcon(const void *a, const void *b)
         containera = ta->gen.container;
         containerb = tb->gen.container;
 
-        return strcmp(containera, containerb);
+       return strcmp(containera, containerb);
 }
 
 /*
@@ -2223,9 +2280,13 @@ cpucompar(const void *a, const void *b)
         register count_t bidle = ((struct percpu *)b)->itime +
                                  ((struct percpu *)b)->wtime;
 
-        if (aidle < bidle) return -1;
-        if (aidle > bidle) return  1;
-	else               return  0;
+        if (aidle < bidle)
+                return -1;
+
+        if (aidle > bidle)
+                return  1;
+
+	return  0;
 }
 
 int
@@ -2238,15 +2299,23 @@ gpucompar(const void *a, const void *b)
 
 	if (agpuperc == -1 || bgpuperc == -1)
 	{
-        	if (amemuse < bmemuse)	return  1;
-        	if (amemuse > bmemuse)	return -1;
-                return  0;
+                if (amemuse < bmemuse)
+                        return  1;
+
+                if (amemuse > bmemuse)
+                        return -1;
+
+		return  0;
 	}
 	else
 	{
-        	if (agpuperc < bgpuperc)	return  1;
-        	if (agpuperc > bgpuperc)	return -1;
-                return  0;
+                if (agpuperc < bgpuperc)
+                        return  1;
+
+                if (agpuperc > bgpuperc)
+                        return -1;
+
+		return  0;
 	}
 }
 
@@ -2256,9 +2325,13 @@ diskcompar(const void *a, const void *b)
         register count_t amsio = ((struct perdsk *)a)->io_ms;
         register count_t bmsio = ((struct perdsk *)b)->io_ms;
 
-        if (amsio < bmsio) return  1;
-        if (amsio > bmsio) return -1;
-	else               return  0;
+        if (amsio < bmsio)
+                return  1;
+
+        if (amsio > bmsio)
+                return -1;
+
+        return  0;
 }
 
 int
@@ -2304,16 +2377,24 @@ intfcompar(const void *a, const void *b)
         */
         if (aspeed && bspeed)
         {
-                if (afactor < bfactor)  return  1;
-                if (afactor > bfactor)  return -1;
-		else                    return  0;
+                if (afactor < bfactor)
+                        return  1;
+
+                if (afactor > bfactor)
+                        return -1;
+
+                return  0;
         }
 
         if (!aspeed && !bspeed)
         {
-                if ((arbyte + asbyte) < (brbyte + bsbyte))      return  1;
-                if ((arbyte + asbyte) > (brbyte + bsbyte))      return -1;
-		else                                            return  0;
+                if ((arbyte + asbyte) < (brbyte + bsbyte))
+                        return  1;
+
+                if ((arbyte + asbyte) > (brbyte + bsbyte))
+                        return -1;
+
+                return  0;
         }
 
         if (aspeed)
@@ -2321,6 +2402,7 @@ intfcompar(const void *a, const void *b)
         else
                 return  1;
 }
+
 
 int
 ifbcompar(const void *a, const void *b)
@@ -2330,8 +2412,12 @@ ifbcompar(const void *a, const void *b)
         count_t btransfer  = ((struct perifb *)b)->rcvb +
                              ((struct perifb *)b)->sndb;
 
-	if (atransfer < btransfer)	return  1;
-	if (atransfer > btransfer)	return -1;
+	if (atransfer < btransfer)
+                return  1;
+
+	if (atransfer > btransfer)
+                return -1;
+
 	return  0;
 }
 
@@ -2351,9 +2437,13 @@ nfsmcompar(const void *a, const void *b)
 	                         nb->bytestotread + nb->bytestotwrite +
                                  nb->pagesmread   + nb->pagesmwrite;
 
-        if (aused < bused) return  1;
-        if (aused > bused) return -1;
-	else               return  0;
+        if (aused < bused)
+                return  1;
+
+        if (aused > bused)
+                return -1;
+
+        return  0;
 }
 
 int
@@ -2365,9 +2455,13 @@ contcompar(const void *a, const void *b)
         register count_t aused = ca->system + ca->user + ca->nice;
         register count_t bused = cb->system + cb->user + cb->nice;
 
-        if (aused < bused) return  1;
-        if (aused > bused) return -1;
-	else               return  0;
+        if (aused < bused) 
+                return  1;
+
+        if (aused > bused)
+                return -1;
+
+        return  0;
 }
 
 /*

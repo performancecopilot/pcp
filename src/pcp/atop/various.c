@@ -8,7 +8,7 @@
 ** time-of-day, the cpu-time consumption and the memory-occupation. 
 **
 ** Copyright (C) 2000-2010 Gerlof Langeveld
-** Copyright (C) 2015-2020 Red Hat.
+** Copyright (C) 2015-2021 Red Hat.
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -749,7 +749,7 @@ setup_origin(pmOptions *opts)
 }
 
 /*
-** Function abstime() converts a user-specified HH:MM time string
+** Function abstime() converts a user-specified time string
 ** into @-prefixed form that is used by libpcp interfaces.
 */
 char *
@@ -762,7 +762,6 @@ abstime(char *str)
 	if ((arg = malloc(length)) == NULL)
 		pmNoMem("abstime", length, PM_FATAL_ERR);
 	pmsprintf(arg, length, "@%s", str);
-	arg[length-1] = '\0';
 	return arg;
 }
 
@@ -1328,7 +1327,6 @@ rawarchive(pmOptions *opts, const char *name)
 		return;
 	}
 	pmsprintf(path, sizeof path, "%s/%s.folio", name, basename(tmp));
-	path[sizeof path-1] = '\0';
 	if (access(path, R_OK) == 0)
 	{
 		__pmAddOptArchiveFolio(opts, path);
@@ -1479,7 +1477,6 @@ rawwrite(pmOptions *opts, const char *name,
 	putenv("PCP_XCONFIRM_PROG=/bin/true");
 
 	pmsprintf(args, sizeof args, "%s.folio", basename((char *)name));
-	args[sizeof args-1] = '\0';
 	if (pmRecordSetup(args, pmGetProgname(), 1) == NULL)
 	{
 		fprintf(stderr, "%s: cannot setup recording to %s: %s\n",
@@ -1500,7 +1497,6 @@ rawwrite(pmOptions *opts, const char *name,
 	*/
 	if (opts->samples || midnightflag) {
 	    pmsprintf(args, sizeof args, "-T%.3fseconds", duration);
-	    args[sizeof args-1] = '\0';
 	    if ((sts = pmRecordControl(record, PM_REC_SETARG, args)) < 0)
 		{
 		    fprintf(stderr, "%s: setting loggers arguments: %s\n",

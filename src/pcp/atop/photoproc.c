@@ -1,5 +1,5 @@
 /*
-** Copyright (C) 2015-2017,2019-2020 Red Hat.
+** Copyright (C) 2015-2017,2019-2021 Red Hat.
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -39,9 +39,16 @@ update_task(struct tstat *task, int pid, char *name, pmResult *rp, pmDesc *dp, i
 	else
 	    task->mem.pmem = extract_ucount_t_inst(rp, dp, TASK_MEM_PMEM, pid, offset);
 
+	/* determine wchan if wanted (optional, relatively expensive) */
+	if (!getwchan)
+	    task->cpu.wchan[0] = '\0';
+	else
+	    extract_string_inst(rp, dp, TASK_GEN_WCHAN, &task->cpu.wchan[0],
+				sizeof task->cpu.wchan, pid, offset);
+
 	/* /proc/pid/cgroup */
 	extract_string_inst(rp, dp, TASK_GEN_CONTAINER, &task->gen.container[0],
-				sizeof(task->gen.container), pid, offset);
+			    sizeof task->gen.container, pid, offset);
         if (task->gen.container[0] != '\0')
 		supportflags |= DOCKSTAT;
 
@@ -67,6 +74,7 @@ update_task(struct tstat *task, int pid, char *name, pmResult *rp, pmDesc *dp, i
 	task->cpu.curcpu = extract_integer_inst(rp, dp, TASK_CPU_CURCPU, pid, offset);
 	task->cpu.rtprio = extract_integer_inst(rp, dp, TASK_CPU_RTPRIO, pid, offset);
 	task->cpu.policy = extract_integer_inst(rp, dp, TASK_CPU_POLICY, pid, offset);
+	task->cpu.rundelay = extract_integer_inst(rp, dp, TASK_CPU_RUNDELAY, pid, offset);
 
 	/* /proc/pid/status */
 	task->gen.nthr = extract_integer_inst(rp, dp, TASK_GEN_NTHR, pid, offset);
@@ -88,6 +96,7 @@ update_task(struct tstat *task, int pid, char *name, pmResult *rp, pmDesc *dp, i
 	task->mem.vexec = extract_count_t_inst(rp, dp, TASK_MEM_VEXEC, pid, offset);
 	task->mem.vlibs = extract_count_t_inst(rp, dp, TASK_MEM_VLIBS, pid, offset);
 	task->mem.vswap = extract_count_t_inst(rp, dp, TASK_MEM_VSWAP, pid, offset);
+	task->mem.vlock = extract_count_t_inst(rp, dp, TASK_MEM_VLOCK, pid, offset);
 
 	/* /proc/pid/io */
 	task->dsk.rsz = extract_count_t_inst(rp, dp, TASK_DSK_RSZ, pid, offset);
@@ -128,6 +137,7 @@ photoproc(struct tstat **tasks, unsigned int *taskslen)
 {
 	static int	setup;
 	static pmID	pssid;
+	static pmID	wchanid;
 	static pmID	pmids[TASK_NMETRICS];
 	static pmDesc	descs[TASK_NMETRICS];
 	pmResult	*result;
@@ -141,6 +151,7 @@ photoproc(struct tstat **tasks, unsigned int *taskslen)
 			for (i = 0; i < TASK_NMETRICS; i++)
 				procmetrics[i] += 3;	/* skip "hot" */
 		setup_metrics(procmetrics, pmids, descs, TASK_NMETRICS);
+		wchanid = pmids[TASK_GEN_WCHAN];
 		pssid = pmids[TASK_MEM_PMEM];
 		setup = 1;
 
@@ -148,10 +159,23 @@ photoproc(struct tstat **tasks, unsigned int *taskslen)
 		netproc_probe();
 	}
 
+	/*
+	** reading the smaps file for every process with every sample
+	** is a really 'expensive' from a CPU consumption point-of-view,
+	** so gathering this info is optional
+	*/
 	if (!calcpss)
 		pmids[TASK_MEM_PMEM] = PM_ID_NULL;
 	else
 		pmids[TASK_MEM_PMEM] = pssid;
+	/*
+	** determine thread's wchan, if wanted ('expensive' from
+	** a CPU consumption point-of-view)
+	*/
+	if (!getwchan)
+		pmids[TASK_GEN_WCHAN] = PM_ID_NULL;
+	else
+		pmids[TASK_GEN_WCHAN] = wchanid;
 
 	fetch_metrics("task", TASK_NMETRICS, pmids, &result);
 
