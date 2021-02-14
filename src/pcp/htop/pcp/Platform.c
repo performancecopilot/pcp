@@ -567,17 +567,17 @@ void Platform_setZramValues(Meter* this) {
 }
 
 void Platform_setSysArch(SysArchInfo *data) {
-    int c = sizeof(SysArchInfo)/sizeof(char*);
-    pmAtomValue *values = xCalloc(c, sizeof(pmAtomValue));
+   int c = sizeof(SysArchInfo)/sizeof(char*);
+   pmAtomValue *values = xCalloc(c, sizeof(pmAtomValue));
 
-    if (Metric_values(KERNEL_UNAME_SYSNAME, &values[0], 1, PM_TYPE_STRING) != NULL)
-        data->name = values[0].cp;
-    if (Metric_values(KERNEL_UNAME_RELEASE, &values[1], 1, PM_TYPE_STRING) != NULL)
-        data->release = values[1].cp;
-    if (Metric_values(KERNEL_UNAME_MACHINE, &values[2], 1, PM_TYPE_STRING) != NULL)
-        data->machine = values[2].cp;
+   if (Metric_values(KERNEL_UNAME_SYSNAME, &values[0], 1, PM_TYPE_STRING) != NULL)
+      data->name = values[0].cp;
+   if (Metric_values(KERNEL_UNAME_RELEASE, &values[1], 1, PM_TYPE_STRING) != NULL)
+      data->release = values[1].cp;
+   if (Metric_values(KERNEL_UNAME_MACHINE, &values[2], 1, PM_TYPE_STRING) != NULL)
+      data->machine = values[2].cp;
 
-    free(values);
+   free(values);
 }
 
 char* Platform_getProcessEnv(pid_t pid) {

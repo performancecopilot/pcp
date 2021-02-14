@@ -12,9 +12,9 @@ in the source distribution for its full text.
 extern const MeterClass SysArchMeter_class;
 
 typedef struct SysArchInfo_ {
-    char* name;
-    char* release;
-    char* machine;
+   char* name;
+   char* release;
+   char* machine;
 } SysArchInfo;
 
 #endif
