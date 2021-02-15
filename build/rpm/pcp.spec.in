@@ -2470,11 +2470,9 @@ test -d @pcp_var_dir@/testsuite || mkdir -p -m 755 @pcp_var_dir@/testsuite
 getent group pcpqa >/dev/null || groupadd -r pcpqa
 getent passwd pcpqa >/dev/null || \
   useradd -c "PCP Quality Assurance" -g pcpqa -d @pcp_var_dir@/testsuite -M -r -s /bin/bash pcpqa 2>/dev/null
-chown -R pcpqa:pcpqa @pcp_var_dir@/testsuite 2>/dev/null
 exit 0
 
 %post testsuite
-chown -R pcpqa:pcpqa @pcp_var_dir@/testsuite 2>/dev/null
 # inherited from %post for pcp-collector
 %if "@enable_systemd@" == "true"
     systemctl restart pmcd >/dev/null 2>&1
@@ -2848,11 +2846,6 @@ PCP_PMNS_DIR=@pcp_var_dir@/pmns
 PCP_LOG_DIR=@pcp_log_dir@
 PCP_SA_DIR=@pcp_sa_dir@
 
-chown -R pcp:pcp "$PCP_LOG_DIR/pmcd" 2>/dev/null
-chown -R pcp:pcp "$PCP_LOG_DIR/pmlogger" 2>/dev/null
-chown -R pcp:pcp "$PCP_SA_DIR" 2>/dev/null
-chown -R pcp:pcp "$PCP_LOG_DIR/pmie" 2>/dev/null
-chown -R pcp:pcp "$PCP_LOG_DIR/pmproxy" 2>/dev/null
 %{install_file "$PCP_PMNS_DIR" .NeedRebuild}
 %{install_file "$PCP_LOG_DIR/pmlogger" .NeedRewrite}
 %if "@enable_systemd@" == "true"
