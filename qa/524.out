@@ -10,10 +10,10 @@ pmlogger: Sample limit reached, exiting
 Log finished DATE
 
 TIMESTAMP 1 metric
-    30.0.5 (sampledso.colour): inst [1 or "green"] value NUMBER
+    30.0.5 (sampledso.dupnames.four.colour or sampledso.colour): inst [1 or "green"] value NUMBER
 
 TIMESTAMP 1 metric
-    30.0.5 (sampledso.colour): inst [1 or "green"] value NUMBER
+    30.0.5 (sampledso.dupnames.four.colour or sampledso.colour): inst [1 or "green"] value NUMBER
 stdout is empty
 stderr is empty
 
@@ -50,10 +50,10 @@ and finally with the archive somewhere writeable
 Error: no pmlogger.log created
 
 TIMESTAMP 1 metric
-    30.0.5 (sampledso.colour): inst [1 or "green"] value NUMBER
+    30.0.5 (sampledso.dupnames.four.colour or sampledso.colour): inst [1 or "green"] value NUMBER
 
 TIMESTAMP 1 metric
-    30.0.5 (sampledso.colour): inst [1 or "green"] value NUMBER
+    30.0.5 (sampledso.dupnames.four.colour or sampledso.colour): inst [1 or "green"] value NUMBER
 stdout is empty
 stderr contains ...
 pmlogger: cannot open log "./pmlogger.log" for writing : Permission denied

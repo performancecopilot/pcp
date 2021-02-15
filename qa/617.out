@@ -246,7 +246,7 @@ fetch metric [ metric ... ]
 dbpmda> fetch 29.0.6
 PMID(s): 29.0.6
 pmResult dump from ADDR timestamp: 0.000000 TIMEZONE numpmid: 1
-  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin): numval: 9 valfmt: 0 vlist[]:
+  29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin): numval: 9 valfmt: 0 vlist[]:
     inst [100 or ???] value 100
     inst [200 or ???] value 200
     inst [300 or ???] value 300
@@ -259,7 +259,7 @@ pmResult dump from ADDR timestamp: 0.000000 TIMEZONE numpmid: 1
 dbpmda> fetch sample.bin 29.0.5
 PMID(s): 29.0.6 29.0.5
 pmResult dump from ADDR timestamp: 0.000000 TIMEZONE numpmid: 2
-  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin): numval: 9 valfmt: 0 vlist[]:
+  29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin): numval: 9 valfmt: 0 vlist[]:
     inst [100 or ???] value 100
     inst [200 or ???] value 200
     inst [300 or ???] value 300
@@ -269,7 +269,7 @@ pmResult dump from ADDR timestamp: 0.000000 TIMEZONE numpmid: 2
     inst [700 or ???] value 700
     inst [800 or ???] value 800
     inst [900 or ???] value 900
-  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+  29.0.5 (sample.dupnames.four.colour or sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or ???] value 101
     inst [1 or ???] value 202
     inst [2 or ???] value 303
@@ -311,7 +311,7 @@ Dump Instance Profile state=INCLUDE, 1 profiles
 dbpmda> fetch 29.0.6
 PMID(s): 29.0.6
 pmResult dump from ADDR timestamp: 0.000000 TIMEZONE numpmid: 1
-  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin): No values returned!
+  29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin): No values returned!
 dbpmda> profile 29.2 add 200
 dbpmda> status
 
@@ -331,7 +331,7 @@ Dump Instance Profile state=INCLUDE, 1 profiles
 dbpmda> fetch 29.0.6
 PMID(s): 29.0.6
 pmResult dump from ADDR timestamp: 0.000000 TIMEZONE numpmid: 1
-  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin): numval: 1 valfmt: 0 vlist[]:
+  29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin): numval: 1 valfmt: 0 vlist[]:
     inst [200 or ???] value 200
 dbpmda> profile 29.2 add 250
 dbpmda> status
@@ -352,7 +352,7 @@ Dump Instance Profile state=INCLUDE, 1 profiles
 dbpmda> fetch 29.0.6
 PMID(s): 29.0.6
 pmResult dump from ADDR timestamp: 0.000000 TIMEZONE numpmid: 1
-  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin): numval: 1 valfmt: 0 vlist[]:
+  29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin): numval: 1 valfmt: 0 vlist[]:
     inst [200 or ???] value 200
 dbpmda> profile 29.2 add 300
 dbpmda> status
@@ -373,7 +373,7 @@ Dump Instance Profile state=INCLUDE, 1 profiles
 dbpmda> fetch 29.0.6
 PMID(s): 29.0.6
 pmResult dump from ADDR timestamp: 0.000000 TIMEZONE numpmid: 1
-  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin): numval: 2 valfmt: 0 vlist[]:
+  29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin): numval: 2 valfmt: 0 vlist[]:
     inst [200 or ???] value 200
     inst [300 or ???] value 300
 dbpmda> profile 29.2 delete 200
@@ -395,7 +395,7 @@ Dump Instance Profile state=INCLUDE, 1 profiles
 dbpmda> fetch 29.0.6
 PMID(s): 29.0.6
 pmResult dump from ADDR timestamp: 0.000000 TIMEZONE numpmid: 1
-  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin): numval: 1 valfmt: 0 vlist[]:
+  29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin): numval: 1 valfmt: 0 vlist[]:
     inst [300 or ???] value 300
 dbpmda> profile 29.2 all
 dbpmda> status
@@ -415,7 +415,7 @@ Dump Instance Profile state=INCLUDE, 1 profiles
 dbpmda> fetch 29.0.6
 PMID(s): 29.0.6
 pmResult dump from ADDR timestamp: 0.000000 TIMEZONE numpmid: 1
-  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin): numval: 9 valfmt: 0 vlist[]:
+  29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin): numval: 9 valfmt: 0 vlist[]:
     inst [100 or ???] value 100
     inst [200 or ???] value 200
     inst [300 or ???] value 300

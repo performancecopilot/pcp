@@ -66,7 +66,7 @@ len(metrics[]):3
   metric:no.such.metric2 metadata:3
   metric:pmcd.client.whoami metadata:10
 context #### metadata prefix=sample response code 200
-len(metrics[]):177
+len(metrics[]):183
   metric:sample.aggregate.hullo metadata:9
   metric:sample.aggregate.null metadata:9
   metric:sample.aggregate.write_me metadata:9
@@ -100,6 +100,12 @@ len(metrics[]):177
   metric:sample.double.write_me metadata:9
   metric:sample.drift metadata:9
   metric:sample.dupnames.daemon_pid metadata:9
+  metric:sample.dupnames.five.bin metadata:10
+  metric:sample.dupnames.five.bucket metadata:10
+  metric:sample.dupnames.five.long_bin metadata:10
+  metric:sample.dupnames.five.part_bin metadata:10
+  metric:sample.dupnames.four.bin metadata:10
+  metric:sample.dupnames.four.colour metadata:10
   metric:sample.dupnames.pid_daemon metadata:9
   metric:sample.dupnames.three.bin metadata:10
   metric:sample.dupnames.three.write_me metadata:9
@@ -299,9 +305,27 @@ store: success
   sample.colour[2=342]
 context #### metrics target=sample.dupnames.three.bin response code 200
 metrics: success
-#### PCP5 sample.dupnames.three.bin 29.0.6 32 29.2 instant none
-#### HELP sample_dupnames_three_bin Several constant instances
-#### TYPE sample_dupnames_three_bin gauge
+#### PCP5 sample.dupnames.five.bin 29.0.6 32 29.2 instant none
+#### HELP sample_dupnames_five_bin Several constant instances
+#### TYPE sample_dupnames_five_bin gauge
+sample_dupnames_five_bin{instname="bin-100",instid="100",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="100"} 100
+sample_dupnames_five_bin{instname="bin-200",instid="200",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="200"} 200
+sample_dupnames_five_bin{instname="bin-300",instid="300",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="300"} 300
+sample_dupnames_five_bin{instname="bin-400",instid="400",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="400"} 400
+sample_dupnames_five_bin{instname="bin-500",instid="500",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="500"} 500
+sample_dupnames_five_bin{instname="bin-600",instid="600",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="600"} 600
+sample_dupnames_five_bin{instname="bin-700",instid="700",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="700"} 700
+sample_dupnames_five_bin{instname="bin-800",instid="800",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="800"} 800
+sample_dupnames_five_bin{instname="bin-900",instid="900",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="900"} 900
+sample_dupnames_four_bin{instname="bin-100",instid="100",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="100"} 100
+sample_dupnames_four_bin{instname="bin-200",instid="200",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="200"} 200
+sample_dupnames_four_bin{instname="bin-300",instid="300",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="300"} 300
+sample_dupnames_four_bin{instname="bin-400",instid="400",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="400"} 400
+sample_dupnames_four_bin{instname="bin-500",instid="500",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="500"} 500
+sample_dupnames_four_bin{instname="bin-600",instid="600",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="600"} 600
+sample_dupnames_four_bin{instname="bin-700",instid="700",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="700"} 700
+sample_dupnames_four_bin{instname="bin-800",instid="800",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="800"} 800
+sample_dupnames_four_bin{instname="bin-900",instid="900",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="900"} 900
 sample_dupnames_three_bin{instname="bin-100",instid="100",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="100"} 100
 sample_dupnames_three_bin{instname="bin-200",instid="200",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="200"} 200
 sample_dupnames_three_bin{instname="bin-300",instid="300",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="300"} 300

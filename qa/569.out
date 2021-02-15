@@ -160,6 +160,12 @@ sample.dupnames.two.float.ten 1
 sample.dupnames.two.double.ten 1
 sample.dupnames.three.bin 9
 sample.dupnames.three.write_me 1
+sample.dupnames.four.bin 9
+sample.dupnames.four.colour 3
+sample.dupnames.five.bin 9
+sample.dupnames.five.bucket 9
+sample.dupnames.five.part_bin 5
+sample.dupnames.five.long_bin 9
 sample.negative.ctr.m_32 1
 sample.negative.ctr.m_64 1
 sample.negative.ctr.m_float 1
@@ -351,6 +357,12 @@ sample.dupnames.two.float.ten 1 PM_IN_NULL
 sample.dupnames.two.double.ten 1 PM_IN_NULL
 sample.dupnames.three.bin 9 ?100 ?200 ?300 ?400 ?500 ?600 ?700 ?800 ?900
 sample.dupnames.three.write_me 1 PM_IN_NULL
+sample.dupnames.four.bin 9 ?100 ?200 ?300 ?400 ?500 ?600 ?700 ?800 ?900
+sample.dupnames.four.colour 3 ?0 ?1 ?2
+sample.dupnames.five.bin 9 ?100 ?200 ?300 ?400 ?500 ?600 ?700 ?800 ?900
+sample.dupnames.five.bucket 9 ?100 ?200 ?300 ?400 ?500 ?600 ?700 ?800 ?900
+sample.dupnames.five.part_bin 5 ?100 ?300 ?500 ?700 ?900
+sample.dupnames.five.long_bin 9 ?100 ?200 ?300 ?400 ?500 ?600 ?700 ?800 ?900
 sample.negative.ctr.m_32 1 PM_IN_NULL
 sample.negative.ctr.m_64 1 PM_IN_NULL
 sample.negative.ctr.m_float 1 PM_IN_NULL
@@ -548,6 +560,12 @@ sample.dupnames.two.float.ten 1 PM_IN_NULL
 sample.dupnames.two.double.ten 1 PM_IN_NULL
 sample.dupnames.three.bin 9 "bin-100" "bin-200" "bin-300" "bin-400" "bin-500" "bin-600" "bin-700" "bin-800" "bin-900"
 sample.dupnames.three.write_me 1 PM_IN_NULL
+sample.dupnames.four.bin 9 "bin-100" "bin-200" "bin-300" "bin-400" "bin-500" "bin-600" "bin-700" "bin-800" "bin-900"
+sample.dupnames.four.colour 3 "red" "green" "blue"
+sample.dupnames.five.bin 9 "bin-100" "bin-200" "bin-300" "bin-400" "bin-500" "bin-600" "bin-700" "bin-800" "bin-900"
+sample.dupnames.five.bucket 9 "bin-100" "bin-200" "bin-300" "bin-400" "bin-500" "bin-600" "bin-700" "bin-800" "bin-900"
+sample.dupnames.five.part_bin 5 "bin-100" "bin-300" "bin-500" "bin-700" "bin-900"
+sample.dupnames.five.long_bin 9 "bin-100" "bin-200" "bin-300" "bin-400" "bin-500" "bin-600" "bin-700" "bin-800" "bin-900"
 sample.negative.ctr.m_32 1 PM_IN_NULL
 sample.negative.ctr.m_64 1 PM_IN_NULL
 sample.negative.ctr.m_float 1 PM_IN_NULL
@@ -731,6 +749,12 @@ sample.dupnames.two.float.ten 1 10
 sample.dupnames.two.double.ten 1 10
 sample.dupnames.three.bin 9 100 200 300 400 500 600 700 800 900
 sample.dupnames.three.write_me 1 NUMBER
+sample.dupnames.four.bin 9 100 200 300 400 500 600 700 800 900
+sample.dupnames.four.colour 3 136 237 338
+sample.dupnames.five.bin 9 100 200 300 400 500 600 700 800 900
+sample.dupnames.five.bucket 9 100 200 300 400 500 600 700 800 900
+sample.dupnames.five.part_bin 5 100 300 500 700 900
+sample.dupnames.five.long_bin 9 100 200 300 400 500 600 700 800 900
 sample.negative.ctr.m_32 1 -9990
 sample.negative.ctr.m_64 1 -9990
 sample.negative.ctr.m_float 1 -9990
@@ -960,6 +984,16 @@ sample.dupnames.two.double.ten 1 PM_IN_NULL PM_IN_NULL
 sample.dupnames.three.bin 9 ?100 "bin-100" ?200 "bin-200" ?300 "bin-300" ?400 "bin-400" ?500 "bin-500" ?600 "bin-600" ?700 "bin-700" ?800 "bin-800" ?900 "bin-90
 0"
 sample.dupnames.three.write_me 1 PM_IN_NULL PM_IN_NULL
+sample.dupnames.four.bin 9 ?100 "bin-100" ?200 "bin-200" ?300 "bin-300" ?400 "bin-400" ?500 "bin-500" ?600 "bin-600" ?700 "bin-700" ?800 "bin-800" ?900 "bin-900
+"
+sample.dupnames.four.colour 3 ?0 "red" ?1 "green" ?2 "blue"
+sample.dupnames.five.bin 9 ?100 "bin-100" ?200 "bin-200" ?300 "bin-300" ?400 "bin-400" ?500 "bin-500" ?600 "bin-600" ?700 "bin-700" ?800 "bin-800" ?900 "bin-900
+"
+sample.dupnames.five.bucket 9 ?100 "bin-100" ?200 "bin-200" ?300 "bin-300" ?400 "bin-400" ?500 "bin-500" ?600 "bin-600" ?700 "bin-700" ?800 "bin-800" ?900 "bin-
+900"
+sample.dupnames.five.part_bin 5 ?100 "bin-100" ?300 "bin-300" ?500 "bin-500" ?700 "bin-700" ?900 "bin-900"
+sample.dupnames.five.long_bin 9 ?100 "bin-100" ?200 "bin-200" ?300 "bin-300" ?400 "bin-400" ?500 "bin-500" ?600 "bin-600" ?700 "bin-700" ?800 "bin-800" ?900 "bi
+n-900"
 sample.negative.ctr.m_32 1 PM_IN_NULL PM_IN_NULL
 sample.negative.ctr.m_64 1 PM_IN_NULL PM_IN_NULL
 sample.negative.ctr.m_float 1 PM_IN_NULL PM_IN_NULL

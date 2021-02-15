@@ -96,10 +96,11 @@ name: sample.seconds
 pmNameID botch: expected "sample.seconds", got "sample.dupnames.two.seconds"
 
 name: sample.colour
+pmNameID botch: expected "sample.colour", got "sample.dupnames.four.colour"
 
 name: sample.longlong
 
 name: bozo.the.clown
 
 
-Unexpected failure for 6 of 48 PMAPI operations
+Unexpected failure for 7 of 48 PMAPI operations

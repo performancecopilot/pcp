@@ -1,11 +1,11 @@
 QA output created by 374
 
 === pmlogger host type: -b 64 -v pcp=2 ===
-New log volume 1
 last log entry   DATE
 current time     DATE
 log volume       0
 log size more than 200
+New log volume 1
 last log entry   DATE
 current time     DATE
 log volume       1

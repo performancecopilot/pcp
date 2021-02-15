@@ -101,7 +101,7 @@ Metrics in archive:
     pmcd.seqnum
     pmcd.control.register
     pmcd.control.register
-    sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
+    sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     pmcd.control.timeout
     pmcd.control.debug
     pmcd.control.register
@@ -129,7 +129,7 @@ Metrics in archive:
     pmcd.seqnum
     pmcd.control.register
     pmcd.control.register
-    sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
+    sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     pmcd.control.timeout
     pmcd.control.debug
     pmcd.control.register

@@ -164,6 +164,12 @@ sampledso.dupnames.two.float.ten [10 as a 32-bit floating point value]
 sampledso.dupnames.two.double.ten [10 as a 64-bit floating point value]
 sampledso.dupnames.three.bin [Several constant instances]
 sampledso.dupnames.three.write_me [Modifiable, but otherwise constant.]
+sampledso.dupnames.four.bin [Several constant instances]
+sampledso.dupnames.four.colour [Metrics with a "saw-tooth" trend over time]
+sampledso.dupnames.five.bin [Several constant instances]
+sampledso.dupnames.five.bucket [Several constant instances]
+sampledso.dupnames.five.part_bin [Several constant instances]
+sampledso.dupnames.five.long_bin [like sample.bin but type 32]
 sampledso.negative.ctr.m_32 [32-bit integer counter metric with negative value]
 sampledso.negative.ctr.m_64 [64-bit integer counter metric with negative value]
 sampledso.negative.ctr.m_float [float counter metric with negative value]
@@ -1122,6 +1128,67 @@ Help:
 This metric has a 32-bit integer value of 2, unless changed via pmStore.
 The metric has semantics of rate, and units of events per second.
 
+sampledso.dupnames.four.bin
+Help:
+9 instances labelled "bin-100" thru "bin-900", each with an
+initial value of 100 thru 900.
+
+pmstore(1) may be used to change the values of some or all of
+the instances, but note this will also change the values of the
+metrics that share the same underlying values, i.e. sampledso.bucket,
+sampledso.part_bin, sample.bogus_bin, sample.scramble.bin
+sampledso.long.bin, sample.long.bin_ctr, sample.ulong.bin,
+sampledso.ulong.bin_ctr, sample.longlong.bin, sample.longlong.bin_ctr,
+sampledso.ulonglong.bin, sample.ulonglong.bin_ctr, sample.float.bin,
+sampledso.float.bin_ctr, sample.double.bin, sample.double.bin_ctr
+and sampledso.string.bin.
+
+sampledso.dupnames.four.colour
+Help:
+This metric has 3 instances, designated "red", "green" and "blue".
+
+The value of the metric is monotonic increasing in the range N to
+N+100, then back to N.  The different instances have different N
+values, namely 100 (red), 200 (green) and 300 (blue).
+
+The underlying counter starts at 0 and is incremented once
+for each pmFetch() to this metric and/or sampledso.mirage and/or
+sampledso.mirage_longlong.
+
+Use pmStore() to modify the underlying counter (independent of which
+instance or instances are used).
+
+sampledso.dupnames.five.bin
+Help:
+9 instances labelled "bin-100" thru "bin-900", each with an
+initial value of 100 thru 900.
+
+pmstore(1) may be used to change the values of some or all of
+the instances, but note this will also change the values of the
+metrics that share the same underlying values, i.e. sampledso.bucket,
+sampledso.part_bin, sample.bogus_bin, sample.scramble.bin
+sampledso.long.bin, sample.long.bin_ctr, sample.ulong.bin,
+sampledso.ulong.bin_ctr, sample.longlong.bin, sample.longlong.bin_ctr,
+sampledso.ulonglong.bin, sample.ulonglong.bin_ctr, sample.float.bin,
+sampledso.float.bin_ctr, sample.double.bin, sample.double.bin_ctr
+and sampledso.string.bin.
+
+sampledso.dupnames.five.bucket
+Help:
+9 instances labelled "bin-100" thru "bin-900", each with a constant
+value of 100 thru 900.  This is an alias for sampledso.bin, but with
+a different PMID.
+
+sampledso.dupnames.five.part_bin
+Help:
+5 instances labelled "bin-100" thru "bin-900", each with a constant
+value of 100 thru 900.  This is defined over the same domain as
+sampledso.part, but half of the instances are missing.
+
+sampledso.dupnames.five.long_bin
+Help:
+like sample.bin but type 32
+
 sampledso.negative.ctr.m_32
 Help:
 A metric with the semantics of PM_SEM_COUNTER, a type of PM_TYPE_32
@@ -1315,6 +1382,51 @@ sample.ulonglong.bin, sample.ulonglong.bin_ctr, sample.float.bin,
 sample.float.bin_ctr, sample.double.bin, sample.double.bin_ctr
 and sample.string.bin.
 
+sample.dupnames.four.colour
+Help:
+This metric has 3 instances, designated "red", "green" and "blue".
+
+The value of the metric is monotonic increasing in the range N to
+N+100, then back to N.  The different instances have different N
+values, namely 100 (red), 200 (green) and 300 (blue).
+
+The underlying counter starts at 0 and is incremented once
+for each pmFetch() to this metric and/or sample.mirage and/or
+sample.mirage_longlong.
+
+Use pmStore() to modify the underlying counter (independent of which
+instance or instances are used).
+
+sample.dupnames.four.bin
+Help:
+9 instances labelled "bin-100" thru "bin-900", each with an
+initial value of 100 thru 900.
+
+pmstore(1) may be used to change the values of some or all of
+the instances, but note this will also change the values of the
+metrics that share the same underlying values, i.e. sample.bucket,
+sample.part_bin, sample.bogus_bin, sample.scramble.bin
+sample.long.bin, sample.long.bin_ctr, sample.ulong.bin,
+sample.ulong.bin_ctr, sample.longlong.bin, sample.longlong.bin_ctr,
+sample.ulonglong.bin, sample.ulonglong.bin_ctr, sample.float.bin,
+sample.float.bin_ctr, sample.double.bin, sample.double.bin_ctr
+and sample.string.bin.
+
+sample.dupnames.five.bin
+Help:
+9 instances labelled "bin-100" thru "bin-900", each with an
+initial value of 100 thru 900.
+
+pmstore(1) may be used to change the values of some or all of
+the instances, but note this will also change the values of the
+metrics that share the same underlying values, i.e. sample.bucket,
+sample.part_bin, sample.bogus_bin, sample.scramble.bin
+sample.long.bin, sample.long.bin_ctr, sample.ulong.bin,
+sample.ulong.bin_ctr, sample.longlong.bin, sample.longlong.bin_ctr,
+sample.ulonglong.bin, sample.ulonglong.bin_ctr, sample.float.bin,
+sample.float.bin_ctr, sample.double.bin, sample.double.bin_ctr
+and sample.string.bin.
+
 sample.dupnames.two.seconds
 Help:
 The elapsed time since the PMDA started, in seconds, i.e. as returned
@@ -1371,7 +1483,7 @@ __pmFetchLocal: calling ???_profile(domain: 30), context: 0
 __pmFetchLocal: [0] PMID=30.0.6 nval=9
 pmFetch returns ...
 pmResult ... numpmid: 1
-  30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): numval: 9 valfmt: 0 vlist[]:
+  30.0.6 (sampledso.dupnames.five.bin, sampledso.dupnames.four.bin, sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): numval: 9 valfmt: 0 vlist[]:
     inst [100 or "bin-100"] value NUMBER
     inst [200 or "bin-200"] value NUMBER
     inst [300 or "bin-300"] value NUMBER
@@ -2026,7 +2138,7 @@ pmResult ... numpmid: 3
   2.0.0 (pmcd.control.debug): No PMCD agent for domain of request
   30.0.14 (sampledso.long.write_me): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
-  29.0.5 (sample.colour): No PMCD agent for domain of request
+  29.0.5 (sample.dupnames.four.colour, sample.colour): No PMCD agent for domain of request
 
 base store test (failures not unexpected) ...
 pmStore: Missing metric value(s)
@@ -2040,7 +2152,7 @@ numval == 0 tests (failures expected) ...
 pmResult ... numpmid: 3
   2.0.0 (pmcd.control.debug): No PMCD agent for domain of request
   30.0.14 (sampledso.long.write_me): No values returned!
-  29.0.5 (sample.colour): No PMCD agent for domain of request
+  29.0.5 (sample.dupnames.four.colour, sample.colour): No PMCD agent for domain of request
 pmStore: Missing metric value(s)
 __pmControlLog: OK
 pmResult ... numpmid: 3
@@ -2048,7 +2160,7 @@ pmResult ... numpmid: 3
    value NUMBER
   30.0.14 (sampledso.long.write_me): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
-  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or ???] value NUMBER
     inst [1 or ???] value NUMBER
     inst [2 or ???] value NUMBER
@@ -2058,7 +2170,7 @@ pmResult ... numpmid: 3
   2.0.0 (pmcd.control.debug): No PMCD agent for domain of request
   30.0.14 (sampledso.long.write_me): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
-  29.0.5 (sample.colour): No PMCD agent for domain of request
+  29.0.5 (sample.dupnames.four.colour, sample.colour): No PMCD agent for domain of request
 pmStore: Missing metric value(s)
 __pmControlLog: OK
 pmResult ... numpmid: 3
@@ -2066,7 +2178,7 @@ pmResult ... numpmid: 3
    value NUMBER
   30.0.14 (sampledso.long.write_me): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
-  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or ???] value NUMBER
     inst [1 or ???] value NUMBER
     inst [2 or ???] value NUMBER

@@ -455,6 +455,12 @@ sampledso.dupnames.two.float.ten
 sampledso.dupnames.two.double.ten
 sampledso.dupnames.three.bin
 sampledso.dupnames.three.write_me
+sampledso.dupnames.four.bin
+sampledso.dupnames.four.colour
+sampledso.dupnames.five.bin
+sampledso.dupnames.five.bucket
+sampledso.dupnames.five.part_bin
+sampledso.dupnames.five.long_bin
 sampledso.negative.ctr.m_32
 sampledso.negative.ctr.m_64
 sampledso.negative.ctr.m_float
@@ -658,6 +664,12 @@ sampledso.dupnames.two.float.ten
 sampledso.dupnames.two.double.ten
 sampledso.dupnames.three.bin
 sampledso.dupnames.three.write_me
+sampledso.dupnames.four.bin
+sampledso.dupnames.four.colour
+sampledso.dupnames.five.bin
+sampledso.dupnames.five.bucket
+sampledso.dupnames.five.part_bin
+sampledso.dupnames.five.long_bin
 sampledso.negative.ctr.m_32
 sampledso.negative.ctr.m_64
 sampledso.negative.ctr.m_float
@@ -682,13 +694,19 @@ Name space load: N.NN msec
 30.0.1 alias sampledso.daemon_pid and sampledso.dupnames.pid_daemon
 30.0.1 alias sampledso.daemon_pid and sampledso.dupnames.daemon_pid
 30.0.2 alias sampledso.seconds and sampledso.dupnames.two.seconds
+30.0.5 alias sampledso.colour and sampledso.dupnames.four.colour
+30.0.6 alias sampledso.bin and sampledso.dupnames.five.bin
+30.0.6 alias sampledso.bin and sampledso.dupnames.four.bin
 30.0.6 alias sampledso.bin and sampledso.dupnames.three.bin
 30.0.6 alias sampledso.bin and sampledso.dupnames.two.bin
+30.0.48 alias sampledso.bucket and sampledso.dupnames.five.bucket
+30.0.50 alias sampledso.part_bin and sampledso.dupnames.five.part_bin
 30.0.36 alias sampledso.write_me and sampledso.dupnames.three.write_me
 30.0.36 alias sampledso.write_me and sampledso.dupnames.two.write_me
 30.0.46 alias sampledso.lights and sampledso.dupnames.two.lights
 pmNameAll(sampledso.secret): Unknown or illegal metric identifier
 pmNameAll(sampledso.ghosts): Unknown or illegal metric identifier
+30.0.103 alias sampledso.long.bin and sampledso.dupnames.five.long_bin
 30.0.16 alias sampledso.float.ten and sampledso.dupnames.two.float.ten
 30.0.26 alias sampledso.double.ten and sampledso.dupnames.two.double.ten
 30.0.1 alias sampledso.dupnames.daemon_pid and sampledso.dupnames.pid_daemon
@@ -696,6 +714,8 @@ pmNameAll(sampledso.ghosts): Unknown or illegal metric identifier
 30.0.1 alias sampledso.dupnames.pid_daemon and sampledso.dupnames.daemon_pid
 30.0.1 alias sampledso.dupnames.pid_daemon and sampledso.daemon_pid
 30.0.2 alias sampledso.dupnames.two.seconds and sampledso.seconds
+30.0.6 alias sampledso.dupnames.two.bin and sampledso.dupnames.five.bin
+30.0.6 alias sampledso.dupnames.two.bin and sampledso.dupnames.four.bin
 30.0.6 alias sampledso.dupnames.two.bin and sampledso.dupnames.three.bin
 30.0.6 alias sampledso.dupnames.two.bin and sampledso.bin
 30.0.36 alias sampledso.dupnames.two.write_me and sampledso.dupnames.three.write_me
@@ -703,10 +723,24 @@ pmNameAll(sampledso.ghosts): Unknown or illegal metric identifier
 30.0.46 alias sampledso.dupnames.two.lights and sampledso.lights
 30.0.16 alias sampledso.dupnames.two.float.ten and sampledso.float.ten
 30.0.26 alias sampledso.dupnames.two.double.ten and sampledso.double.ten
+30.0.6 alias sampledso.dupnames.three.bin and sampledso.dupnames.five.bin
+30.0.6 alias sampledso.dupnames.three.bin and sampledso.dupnames.four.bin
 30.0.6 alias sampledso.dupnames.three.bin and sampledso.dupnames.two.bin
 30.0.6 alias sampledso.dupnames.three.bin and sampledso.bin
 30.0.36 alias sampledso.dupnames.three.write_me and sampledso.dupnames.two.write_me
 30.0.36 alias sampledso.dupnames.three.write_me and sampledso.write_me
+30.0.6 alias sampledso.dupnames.four.bin and sampledso.dupnames.five.bin
+30.0.6 alias sampledso.dupnames.four.bin and sampledso.dupnames.three.bin
+30.0.6 alias sampledso.dupnames.four.bin and sampledso.dupnames.two.bin
+30.0.6 alias sampledso.dupnames.four.bin and sampledso.bin
+30.0.5 alias sampledso.dupnames.four.colour and sampledso.colour
+30.0.6 alias sampledso.dupnames.five.bin and sampledso.dupnames.four.bin
+30.0.6 alias sampledso.dupnames.five.bin and sampledso.dupnames.three.bin
+30.0.6 alias sampledso.dupnames.five.bin and sampledso.dupnames.two.bin
+30.0.6 alias sampledso.dupnames.five.bin and sampledso.bin
+30.0.48 alias sampledso.dupnames.five.bucket and sampledso.bucket
+30.0.50 alias sampledso.dupnames.five.part_bin and sampledso.part_bin
+30.0.103 alias sampledso.dupnames.five.long_bin and sampledso.long.bin
 
 === -L sampledso.one.bad ===
 Error: sampledso.one.bad: Unknown metric name
