@@ -335,6 +335,9 @@ sample_dupnames_three_bin{instname="bin-600",instid="600",role="testing",agent="
 sample_dupnames_three_bin{instname="bin-700",instid="700",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="700"} 700
 sample_dupnames_three_bin{instname="bin-800",instid="800",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="800"} 800
 sample_dupnames_three_bin{instname="bin-900",instid="900",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="900"} 900
+#### PCP5 sample.dupnames.two.bin 29.0.6 32 29.2 instant none
+#### HELP sample_dupnames_two_bin Several constant instances
+#### TYPE sample_dupnames_two_bin gauge
 sample_dupnames_two_bin{instname="bin-100",instid="100",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="100"} 100
 sample_dupnames_two_bin{instname="bin-200",instid="200",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="200"} 200
 sample_dupnames_two_bin{instname="bin-300",instid="300",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="300"} 300
@@ -344,6 +347,9 @@ sample_dupnames_two_bin{instname="bin-600",instid="600",role="testing",agent="sa
 sample_dupnames_two_bin{instname="bin-700",instid="700",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="700"} 700
 sample_dupnames_two_bin{instname="bin-800",instid="800",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="800"} 800
 sample_dupnames_two_bin{instname="bin-900",instid="900",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="900"} 900
+#### PCP5 sample.bin 29.0.6 32 29.2 instant none
+#### HELP sample_bin Several constant instances
+#### TYPE sample_bin gauge
 sample_bin{instname="bin-100",instid="100",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="100"} 100
 sample_bin{instname="bin-200",instid="200",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="200"} 200
 sample_bin{instname="bin-300",instid="300",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="300"} 300

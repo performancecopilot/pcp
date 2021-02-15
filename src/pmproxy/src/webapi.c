@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020 Red Hat.
+ * Copyright (c) 2019-2021 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -52,6 +52,7 @@ typedef struct pmWebGroupBaton {
     unsigned int	numvsets;
     unsigned int	numinsts;
     unsigned int	numindoms;
+    sds			name;		/* metric currently being processed */
     pmID		pmid;		/* metric currently being processed */
     pmInDom		indom;		/* indom currently being processed */
 } pmWebGroupBaton;
@@ -131,6 +132,7 @@ pmwebapi_data_release(struct client *client)
 	fprintf(stderr, "%s: baton %p for client %p\n", "pmwebapi_data_release",
 			baton, client);
 
+    sdsfree(baton->name);
     sdsfree(baton->suffix);
     sdsfree(baton->context);
     sdsfree(baton->clientid);
@@ -285,19 +287,25 @@ static int
 on_pmwebapi_fetch_values(sds context, pmWebValueSet *valueset, void *arg)
 {
     pmWebGroupBaton	*baton = (pmWebGroupBaton *)arg;
-    sds			result = http_get_buffer(baton->client);
+    sds			s, result = http_get_buffer(baton->client);
     char		pmidstr[20];
 
     pmwebapi_set_context(baton, context);
 
-    if (valueset->pmid != baton->pmid) {	/* new metric */
+    /* pmID insufficient to determine uniqueness, use metric name too */
+    if (baton->name == NULL)
+	baton->name = sdsempty();
+
+    s = baton->name;
+    if (valueset->pmid != baton->pmid || sdscmp(valueset->name, s) != 0) {
+	sdsclear(s);	/* new metric */
+	baton->name = sdscpylen(s, valueset->name, sdslen(valueset->name));
 	baton->pmid = valueset->pmid;
 	if (baton->numvsets > 0) {
 	    result = sdscatlen(result, "]},", 3);
 	    baton->suffix = json_pop_suffix(baton->suffix);	/* '[' */
 	    baton->suffix = json_pop_suffix(baton->suffix); /* '{' */
 	}
-	baton->pmid = valueset->pmid;
 	baton->numvsets = 0;
 	baton->numinsts = 0;
     } else if (baton->numvsets != 0) {
@@ -475,7 +483,8 @@ on_pmwebapi_scrape(sds context, pmWebScrape *scrape, void *arg)
     pmWebValue		*value = &scrape->value;
     long long		milliseconds;
     char		pmidstr[20], indomstr[20];
-    sds			name = NULL, semantics = NULL, result, quoted = NULL, labels = NULL;
+    sds			name = NULL, semantics = NULL, labels = NULL;
+    sds			s, result, quoted = NULL;
 
     pmwebapi_set_context(baton, context);
     if (open_metrics_type_check(metric->type) < 0)
@@ -484,10 +493,17 @@ on_pmwebapi_scrape(sds context, pmWebScrape *scrape, void *arg)
     result = http_get_buffer(baton->client);
     name = open_metrics_name(metric->name, baton->compat);
 
-    if (metric->pmid != baton->pmid)	/* new metric */
+    if (baton->name == NULL)
+	baton->name = sdsempty();
+
+    s = baton->name;
+    if (metric->pmid != baton->pmid || sdscmp(metric->name, s) != 0) {
+	sdsclear(s);	/* new metric */
+	baton->name = sdscpylen(s, metric->name, sdslen(metric->name));
 	baton->pmid = metric->pmid;
-    else
+    } else {    
 	goto value;	/* metric header already done */
+    }
 
     if (baton->compat == 0) {	/* include pmid, indom and type */
 	pmIDStr_r(metric->pmid, pmidstr, sizeof(pmidstr));
