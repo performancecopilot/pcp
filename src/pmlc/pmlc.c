@@ -103,6 +103,7 @@ main(int argc, char **argv)
     struct timespec	delay;
 
     iflag = isatty(0);
+    setbuf(stdout, NULL);
 
     while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {

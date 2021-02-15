@@ -1,0 +1,132 @@
+QA output created by 1293
+QA output created by 1292 --valgrind
+=== std out ===
+Connected to primary pmlogger at local:
+# expect one instance for each metric
+log advisory on once { sample.bin["bin-100"] sample.colour["red"] }     Inst  Inst Name
+    ====== =========
+sample.bin
+       100 bin-100
+
+sample.colour
+         0 red
+
+
+# expect one bin, 3 colours
+log advisory on once { sample.bin["bin-100"] sample.colour }     Inst  Inst Name
+    ====== =========
+sample.bin
+       100 bin-100
+
+sample.colour
+         0 red
+         1 green
+         2 blue
+
+
+# expect 3 colours, one bin
+log advisory on once { sample.colour sample.bin["bin-100"] }     Inst  Inst Name
+    ====== =========
+sample.colour
+         0 red
+         1 green
+         2 blue
+
+sample.bin
+       100 bin-100
+
+
+# expect 2 instances
+log advisory on once { sample.bin ["bin-100","bin-900"] }     Inst  Inst Name
+    ====== =========
+sample.bin
+       100 bin-100
+       900 bin-900
+
+
+# expect 3 colours, 1 ten
+log advisory on once { sample.colour["red" "green"] sample.long.ten }     Inst  Inst Name
+    ====== =========
+sample.colour
+         0 red
+         1 green
+
+sample.long.ten
+           singular instance
+
+
+# expect 1 ten, 3 colours
+log advisory on once { sample.long.ten sample.colour["red" "green"] }     Inst  Inst Name
+    ====== =========
+sample.long.ten
+           singular instance
+
+sample.colour
+         0 red
+         1 green
+
+
+# expect 2 instances for each of 4 metrics
+log advisory on once { sample.dupnames.five ["bin-100","bin-900"] }     Inst  Inst Name
+    ====== =========
+sample.dupnames.five.bin
+       100 bin-100
+       900 bin-900
+
+sample.dupnames.five.bucket
+       100 bin-100
+       900 bin-900
+
+sample.dupnames.five.part_bin
+       100 bin-100
+       900 bin-900
+
+sample.dupnames.five.long_bin
+       100 bin-100
+       900 bin-900
+
+
+# expect ten, all of bin and 1 of bucket
+log advisory on once { sample.long.ten sample.bin sample.bucket ["bin-100"] }     Inst  Inst Name
+    ====== =========
+sample.long.ten
+           singular instance
+
+sample.bin
+       100 bin-100
+       200 bin-200
+       300 bin-300
+       400 bin-400
+       500 bin-500
+       600 bin-600
+       700 bin-700
+       800 bin-800
+       900 bin-900
+
+sample.bucket
+       100 bin-100
+
+
+# indom mismatch errors
+log advisory on once { sample.dupnames.three ["bin-100"] }
+log advisory on once { sample.dupnames.four ["bin-100"] }
+log advisory on once { sample.bin sample.bucket sample.long.ten ["bin-100"] }
+=== std err ===
+Error: sample.dupnames.three.write_me has no instance domain but an instance was specified
+Error: different instance domains:
+    sample.dupnames.three.bin (29.2)
+    sample.dupnames.three.write_me (PM_INDOM_NULL)
+Logging statement ignored due to error(s)
+Error: different instance domains:
+    sample.dupnames.four.bin (29.2)
+    sample.dupnames.four.colour (29.1)
+Logging statement ignored due to error(s)
+Error: sample.long.ten has no instance domain but an instance was specified
+Logging statement ignored due to error(s)
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlc -eP -Dappl0
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

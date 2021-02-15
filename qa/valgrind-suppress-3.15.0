@@ -130,3 +130,37 @@
    fun:pmNewContext
    ...
 }
+
+# qa/129? on bozo ... this pmlc-only code path has been triaged
+# up the wazoo and I can't see where the uninitialized data comes
+# from (and memset(.., 0, ..) the whole PDU buffer does not make
+# the valgrind error go away.  Even if there is uninitialized data
+# the sender (pmlc) and receiver (pmlogger) agree on the over-the-wire
+# protocol
+# Syscall param socketcall.sendto(msg) points to uninitialised byte(s)
+# at 0x4A66690: send (send.c:28)
+# by 0x49003BE: __pmSend (secureconnect.c:1571)
+# by 0x489CD59: __pmXmitPDU (pdu.c:406)
+# by 0x48D7CDC: __pmSendLogControl (p_lcontrol.c:98)
+# by 0x48D950E: __pmControlLog (logcontrol.c:36)
+# by 0x10DF30: LogCtl (actions.c:399)
+# by 0x10B674: main (pmlc.c:374)
+# Address 0x519d6a8 is 56 bytes inside a block of size 76 alloc'd
+# at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+# by 0x489D9DE: __pmFindPDUBuf (pdubuf.c:115)
+# by 0x48D7B21: __pmSendLogControl (p_lcontrol.c:69)
+# by 0x48D950E: __pmControlLog (logcontrol.c:36)
+# by 0x10DF30: LogCtl (actions.c:399)
+# ...
+{
+   __pmXmitPDU buffer for p_lcontrol.c
+   Memcheck:Param
+   socketcall.sendto(msg)
+   fun:send
+   fun:__pmSend
+   fun:__pmXmitPDU
+   fun:__pmSendLogControl
+   fun:__pmControlLog
+   ...
+}
+
