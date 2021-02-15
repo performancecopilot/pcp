@@ -2627,9 +2627,11 @@ test -d %{_testsdir} || mkdir -p -m 755 %{_testsdir}
 getent group pcpqa >/dev/null || groupadd -r pcpqa
 getent passwd pcpqa >/dev/null || \
   useradd -c "PCP Quality Assurance" -g pcpqa -d %{_testsdir} -M -r -s /bin/bash pcpqa 2>/dev/null
+chown -R pcpqa:pcpqa %{_testsdir} 2>/dev/null
 exit 0
 
 %post testsuite
+chown -R pcpqa:pcpqa %{_testsdir} 2>/dev/null
 %if 0%{?rhel}
 %if !%{disable_systemd}
     systemctl restart pmcd >/dev/null 2>&1
