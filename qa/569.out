@@ -596,7 +596,7 @@ sample.step 1 NUMBER
 sample.step_counter 1 NUMBER
 sample.mirage NUMVAL VAL or INST ...
 sample.mirage_longlong NUMVAL VAL or INST ...
-sample.write_me 1 2
+sample.write_me 1 NUMBER
 sample.lights 1 "STRING"
 sample.magnitude 1 NUMBER
 sample.pdu 1 NUMBER
@@ -750,7 +750,7 @@ sample.dupnames.two.double.ten 1 10
 sample.dupnames.three.bin 9 100 200 300 400 500 600 700 800 900
 sample.dupnames.three.write_me 1 NUMBER
 sample.dupnames.four.bin 9 100 200 300 400 500 600 700 800 900
-sample.dupnames.four.colour 3 136 237 338
+sample.dupnames.four.colour 3 NUMBER NUMBER NUMBER
 sample.dupnames.five.bin 9 100 200 300 400 500 600 700 800 900
 sample.dupnames.five.bucket 9 100 200 300 400 500 600 700 800 900
 sample.dupnames.five.part_bin 5 100 300 500 700 900

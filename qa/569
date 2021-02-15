@@ -50,11 +50,21 @@ s/ [0-9][0-9]*/ NUMBER/g
 s/ ".*"/ "STRING"/g
 s/ NUMBER/ 1/
 }' \
+	-e '/sample\.write_me /{
+s/ [0-9][0-9]*/ NUMBER/g
+s/ ".*"/ "STRING"/g
+s/ NUMBER/ 1/
+}' \
 	-e '/sample\..*seconds /{
 s/ [0-9][0-9.]*/ NUMBER/g
 s/ NUMBER/ 1/
 }' \
 	-e '/sample\.colour /{
+s/ \([0-9]\)/ X\1/
+s/ [0-9][0-9.]*/ NUMBER/g
+s/ X/ /
+}' \
+	-e '/sample\.dupnames\.four\.colour /{
 s/ \([0-9]\)/ X\1/
 s/ [0-9][0-9.]*/ NUMBER/g
 s/ X/ /
