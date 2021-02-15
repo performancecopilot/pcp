@@ -51,6 +51,9 @@ typedef struct Platform_ {
    pmID* fetch;			/* enabled identifiers for sampling */
    pmDesc* descs;		/* metric desc array indexed by Metric */
    pmResult* result;		/* sample values result indexed by Metric */
+   char* sysname;
+   char* release;
+   char* machine;
 } Platform;
 
 Platform* pcp;
@@ -429,12 +432,18 @@ void Platform_init(void) {
    Metric_enable(PCP_BOOTTIME, true);
    Metric_enable(PCP_HINV_NCPU, true);
    Metric_enable(PCP_PERCPU_SYSTEM, true);
+   Metric_enable(KERNEL_UNAME_SYSNAME, true);
+   Metric_enable(KERNEL_UNAME_RELEASE, true);
+   Metric_enable(KERNEL_UNAME_MACHINE, true);
    Metric_fetch(NULL);
 
    for (Metric metric = 0; metric < PCP_PROC_PID; metric++)
       Metric_enable(metric, true);
    Metric_enable(PCP_PID_MAX, false);	/* needed one time only */
    Metric_enable(PCP_BOOTTIME, false);
+   Metric_enable(KERNEL_UNAME_SYSNAME, false);
+   Metric_enable(KERNEL_UNAME_RELEASE, false);
+   Metric_enable(KERNEL_UNAME_MACHINE, false);
 }
 
 void Platform_done(void) {
@@ -571,11 +580,16 @@ void Platform_setSysArch(SysArchInfo *data) {
    pmAtomValue *values = xCalloc(c, sizeof(pmAtomValue));
 
    if (Metric_values(KERNEL_UNAME_SYSNAME, &values[0], 1, PM_TYPE_STRING) != NULL)
-      data->name = values[0].cp;
+      pcp->sysname = values[0].cp;
+   data->name = pcp->sysname;
+
    if (Metric_values(KERNEL_UNAME_RELEASE, &values[1], 1, PM_TYPE_STRING) != NULL)
-      data->release = values[1].cp;
+      pcp->release = values[1].cp;
+   data->release = pcp->release;
+
    if (Metric_values(KERNEL_UNAME_MACHINE, &values[2], 1, PM_TYPE_STRING) != NULL)
-      data->machine = values[2].cp;
+      pcp->machine = values[2].cp;
+   data->machine = pcp->machine;
 
    free(values);
 }
