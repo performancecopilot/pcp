@@ -57,8 +57,8 @@ build-me: $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS) $(MYFILES)
 install: default
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)
 	$(INSTALL) -m 755 -d $(PMDATMPDIR)
-	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h help $(HELPTARGETS) root root_jbd2 $(PMDAADMDIR)
-	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h help $(HELPTARGETS) root root_jbd2 $(LIBTARGET) $(PMDAADMDIR)
+	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(CMDTARGET) $(SCRIPTS) $(PMDAADMDIR)
 	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_jbd2 root_jbd2 $(PCP_PMNSADM_DIR)/root_jbd2
 	$(INSTALL) -m 644 -t $(REWRITEVARDIR)/jbd2_kernel_ulong.conf jbd2_kernel_ulong.conf $(REWRITEDIR)/jbd2_kernel_ulong.conf
 	@$(INSTALL_MAN)

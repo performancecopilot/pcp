@@ -84,7 +84,7 @@ endif
 
 install: default
 ifneq ($(LIBTARGET),)
-	$(INSTALL) -m 755 $(LIBTARGET) $(PCP_LIB_DIR)/$(LIBTARGET)
+	$(INSTALL) -m 644 $(LIBTARGET) $(PCP_LIB_DIR)/$(LIBTARGET)
 endif
 ifneq ($(SYMTARGET),)
 	for tt in $(SYMTARGET); do \
@@ -92,7 +92,7 @@ ifneq ($(SYMTARGET),)
 	done
 endif
 ifneq ($(STATICLIBTARGET),)
-	$(INSTALL) -m 755 $(STATICLIBTARGET) $(PCP_LIB_DIR)/$(STATICLIBTARGET)
+	$(INSTALL) -m 644 $(STATICLIBTARGET) $(PCP_LIB_DIR)/$(STATICLIBTARGET)
 endif
 
 $(XFILES):
