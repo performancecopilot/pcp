@@ -274,6 +274,8 @@ sample.dupnames {
     three
     daemon_pid		SAMPLE:0:1
     pid_daemon		SAMPLE:0:1
+    four
+    five
 }
 
 sample.dupnames.two {
@@ -296,6 +298,20 @@ sample.dupnames.two.double {
 sample.dupnames.three {
     bin			SAMPLE:0:6
     write_me		SAMPLE:0:36
+}
+
+/* these ones have different indoms */
+sample.dupnames.four {
+    bin			SAMPLE:0:6
+    colour		SAMPLE:0:5
+}
+
+/* these ones have the same indom */
+sample.dupnames.five {
+    bin			SAMPLE:0:6
+    bucket		SAMPLE:0:48
+    part_bin		SAMPLE:0:50
+    long_bin		SAMPLE:0:103
 }
 
 sample.negative {
