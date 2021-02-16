@@ -2387,8 +2387,6 @@ char *makenetspeed(count_t val, double nsecs)
                               // 012345678901
 
         val=val/125/nsecs;	// convert to Kbps
-        if (val < 0)
-                val = 0;
 
         if (val < 10000)
         {

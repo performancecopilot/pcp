@@ -22,13 +22,13 @@ in the source distribution for its full text.
 #ifdef HAVE_LIBNCURSESW
 #define RichString_printVal(this, y, x) mvadd_wchstr(y, x, (this).chptr)
 #define RichString_printoffnVal(this, y, x, off, n) mvadd_wchnstr(y, x, (this).chptr + (off), n)
-#define RichString_getCharVal(this, i) ((this).chptr[i].chars[0] & 255)
+#define RichString_getCharVal(this, i) ((this).chptr[i].chars[0])
 #define RichString_setChar(this, at, ch) do { (this)->chptr[(at)] = (CharType) { .chars = { ch, 0 } }; } while (0)
 #define CharType cchar_t
 #else
 #define RichString_printVal(this, y, x) mvaddchstr(y, x, (this).chptr)
 #define RichString_printoffnVal(this, y, x, off, n) mvaddchnstr(y, x, (this).chptr + (off), n)
-#define RichString_getCharVal(this, i) ((this).chptr[i])
+#define RichString_getCharVal(this, i) ((this).chptr[i] & 0xff)
 #define RichString_setChar(this, at, ch) do { (this)->chptr[(at)] = ch; } while (0)
 #define CharType chtype
 #endif
@@ -42,26 +42,33 @@ typedef struct RichString_ {
    int highlightAttr;
 } RichString;
 
-void RichString_setAttrn(RichString* this, int attrs, int start, int finish);
+void RichString_rewind(RichString* this, int count);
 
-int RichString_findChar(RichString* this, char c, int start);
+void RichString_setAttrn(RichString* this, int attrs, int start, int charcount);
+
+int RichString_findChar(const RichString* this, char c, int start);
 
 void RichString_prune(RichString* this);
 
 void RichString_setAttr(RichString* this, int attrs);
 
-void RichString_appendChr(RichString* this, char c, int count);
+void RichString_appendChr(RichString* this, int attrs, char c, int count);
 
-void RichString_appendWide(RichString* this, int attrs, const char* data);
+/* All appending and writing functions return the number of written characters (not columns). */
 
-void RichString_appendnWide(RichString* this, int attrs, const char* data, int len);
+int RichString_appendWide(RichString* this, int attrs, const char* data);
 
-void RichString_writeWide(RichString* this, int attrs, const char* data);
+int RichString_appendnWide(RichString* this, int attrs, const char* data, int len);
 
-void RichString_appendAscii(RichString* this, int attrs, const char* data);
+/* columns takes the maximum number of columns to write and contains on return the number of columns written. */
+int RichString_appendnWideColumns(RichString* this, int attrs, const char* data, int len, int* columns);
 
-void RichString_appendnAscii(RichString* this, int attrs, const char* data, int len);
+int RichString_writeWide(RichString* this, int attrs, const char* data);
 
-void RichString_writeAscii(RichString* this, int attrs, const char* data);
+int RichString_appendAscii(RichString* this, int attrs, const char* data);
+
+int RichString_appendnAscii(RichString* this, int attrs, const char* data, int len);
+
+int RichString_writeAscii(RichString* this, int attrs, const char* data);
 
 #endif

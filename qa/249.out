@@ -784,7 +784,7 @@ TIMESTAMP ... numpmid: 8
    value 1000000
   29.0.14 (sample.long.write_me): numval: 1 valfmt: 0 vlist[]:
    value 13
-  29.0.103 (sample.long.bin): numval: 9 valfmt: 0 vlist[]:
+  29.0.103 (sample.dupnames.five.long_bin, sample.long.bin): numval: 9 valfmt: 0 vlist[]:
     inst [100 or "bin-100"] value 100
     inst [200 or "bin-200"] value 200
     inst [300 or "bin-300"] value 300
@@ -868,7 +868,7 @@ TIMESTAMP ... numpmid: 8
    value 1000000
   29.0.14 (sample.long.write_me): numval: 1 valfmt: 0 vlist[]:
    value 13
-  29.0.103 (sample.long.bin): numval: 9 valfmt: 0 vlist[]:
+  29.0.103 (sample.dupnames.five.long_bin, sample.long.bin): numval: 9 valfmt: 0 vlist[]:
     inst [100 or "bin-100"] value 100
     inst [200 or "bin-200"] value 200
     inst [300 or "bin-300"] value 300
@@ -998,7 +998,7 @@ TIMESTAMP ... numpmid: 16
    value 1000000
   29.0.14 (sample.long.write_me): numval: 1 valfmt: 0 vlist[]:
    value 13
-  29.0.103 (sample.long.bin): numval: 9 valfmt: 0 vlist[]:
+  29.0.103 (sample.dupnames.five.long_bin, sample.long.bin): numval: 9 valfmt: 0 vlist[]:
     inst [100 or "bin-100"] value 100
     inst [200 or "bin-200"] value 200
     inst [300 or "bin-300"] value 300
@@ -1655,7 +1655,7 @@ TIMESTAMP ... numpmid: 23
     inst [900 or "bin-900"] value "900"
   511.0.9 (myname.f): numval: 1 valfmt: 1 vlist[]:
    value "hullo world!"
-  29.0.6 (sample.dupnames.three.bin, sample.dupnames.two.bin, sample.bin): numval: 9 valfmt: 0 vlist[]:
+  29.0.6 (sample.dupnames.five.bin, sample.dupnames.four.bin, sample.dupnames.three.bin, sample.dupnames.two.bin, sample.bin): numval: 9 valfmt: 0 vlist[]:
     inst [100 or "bin-100"] value 100
     inst [200 or "bin-200"] value 200
     inst [300 or "bin-300"] value 300

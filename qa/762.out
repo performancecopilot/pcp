@@ -10,9 +10,9 @@ PMID 29.0.3 sample.milliseconds: Elapsed time (milliseconds)
 
 PMID 29.0.4 sample.load: Hypothetical load
 
-PMID 29.0.5 sample.colour: Metrics with a "saw-tooth" trend over time
+PMID 29.0.5 sample.dupnames.four.colour or sample.colour: Metrics with a "saw-tooth" trend over time
 
-PMID 29.0.6 sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin: Several constant instances
+PMID 29.0.6 sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin: Several constant instances
 
 PMID 29.0.7 sample.drift: A random trended metric
 
@@ -96,11 +96,11 @@ PMID 29.0.46 sample.dupnames.two.lights or sample.lights: Traffic lights.
 
 PMID 29.0.47 sample.magnitude: Powers of two.
 
-PMID 29.0.48 sample.bucket: Several constant instances
+PMID 29.0.48 sample.dupnames.five.bucket or sample.bucket: Several constant instances
 
 PMID 29.0.49 sample.needprofile: Metrics that need an explicit profile
 
-PMID 29.0.50 sample.part_bin: Several constant instances
+PMID 29.0.50 sample.dupnames.five.part_bin or sample.part_bin: Several constant instances
 
 PMID 29.0.51 sample.bogus_bin: Several constant instances
 
@@ -206,7 +206,7 @@ PMID 29.0.101 sample.ulonglong.million: 1000000 as a 64-bit unsigned integer
 
 PMID 29.0.102 sample.ulonglong.write_me: a 64-bit unsigned integer that can be modified
 
-PMID 29.0.103 sample.long.bin: like sample.bin but type 32
+PMID 29.0.103 sample.dupnames.five.long_bin or sample.long.bin: like sample.bin but type 32
 
 PMID 29.0.104 sample.long.bin_ctr: like sample.bin but type 32, SEM_COUNTER and SPACE_KBYTE
 

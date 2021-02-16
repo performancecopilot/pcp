@@ -66,7 +66,7 @@ len(metrics[]):3
   metric:no.such.metric2 metadata:3
   metric:pmcd.client.whoami metadata:10
 context #### metadata prefix=sample response code 200
-len(metrics[]):177
+len(metrics[]):183
   metric:sample.aggregate.hullo metadata:9
   metric:sample.aggregate.null metadata:9
   metric:sample.aggregate.write_me metadata:9
@@ -100,6 +100,12 @@ len(metrics[]):177
   metric:sample.double.write_me metadata:9
   metric:sample.drift metadata:9
   metric:sample.dupnames.daemon_pid metadata:9
+  metric:sample.dupnames.five.bin metadata:10
+  metric:sample.dupnames.five.bucket metadata:10
+  metric:sample.dupnames.five.long_bin metadata:10
+  metric:sample.dupnames.five.part_bin metadata:10
+  metric:sample.dupnames.four.bin metadata:10
+  metric:sample.dupnames.four.colour metadata:10
   metric:sample.dupnames.pid_daemon metadata:9
   metric:sample.dupnames.three.bin metadata:10
   metric:sample.dupnames.three.write_me metadata:9
@@ -286,19 +292,49 @@ context #### store name=sample.aggregate.write_me&value=bad response code 400
 context #### store name=sample.colour&value=10&instance=0 response code 200
 store: success
   sample.colour[0=111]
+  sample.dupnames.four.colour[0=111]
 context #### store name=sample.colour&value=20&instance=0,1 response code 200
 store: success
   sample.colour[0=121]
   sample.colour[1=222]
+  sample.dupnames.four.colour[0=121]
+  sample.dupnames.four.colour[1=222]
 context #### store name=sample.colour&value=30&iname=blue response code 200
 store: success
   sample.colour[2=331]
+  sample.dupnames.four.colour[2=331]
 context #### store name=sample.colour&value=40&iname=red,blue response code 200
 store: success
   sample.colour[0=141]
   sample.colour[2=342]
+  sample.dupnames.four.colour[0=141]
+  sample.dupnames.four.colour[2=342]
 context #### metrics target=sample.dupnames.three.bin response code 200
 metrics: success
+#### PCP5 sample.dupnames.five.bin 29.0.6 32 29.2 instant none
+#### HELP sample_dupnames_five_bin Several constant instances
+#### TYPE sample_dupnames_five_bin gauge
+sample_dupnames_five_bin{instname="bin-100",instid="100",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="100"} 100
+sample_dupnames_five_bin{instname="bin-200",instid="200",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="200"} 200
+sample_dupnames_five_bin{instname="bin-300",instid="300",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="300"} 300
+sample_dupnames_five_bin{instname="bin-400",instid="400",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="400"} 400
+sample_dupnames_five_bin{instname="bin-500",instid="500",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="500"} 500
+sample_dupnames_five_bin{instname="bin-600",instid="600",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="600"} 600
+sample_dupnames_five_bin{instname="bin-700",instid="700",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="700"} 700
+sample_dupnames_five_bin{instname="bin-800",instid="800",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="800"} 800
+sample_dupnames_five_bin{instname="bin-900",instid="900",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="900"} 900
+#### PCP5 sample.dupnames.four.bin 29.0.6 32 29.2 instant none
+#### HELP sample_dupnames_four_bin Several constant instances
+#### TYPE sample_dupnames_four_bin gauge
+sample_dupnames_four_bin{instname="bin-100",instid="100",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="100"} 100
+sample_dupnames_four_bin{instname="bin-200",instid="200",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="200"} 200
+sample_dupnames_four_bin{instname="bin-300",instid="300",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="300"} 300
+sample_dupnames_four_bin{instname="bin-400",instid="400",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="400"} 400
+sample_dupnames_four_bin{instname="bin-500",instid="500",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="500"} 500
+sample_dupnames_four_bin{instname="bin-600",instid="600",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="600"} 600
+sample_dupnames_four_bin{instname="bin-700",instid="700",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="700"} 700
+sample_dupnames_four_bin{instname="bin-800",instid="800",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="800"} 800
+sample_dupnames_four_bin{instname="bin-900",instid="900",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="900"} 900
 #### PCP5 sample.dupnames.three.bin 29.0.6 32 29.2 instant none
 #### HELP sample_dupnames_three_bin Several constant instances
 #### TYPE sample_dupnames_three_bin gauge
@@ -311,6 +347,9 @@ sample_dupnames_three_bin{instname="bin-600",instid="600",role="testing",agent="
 sample_dupnames_three_bin{instname="bin-700",instid="700",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="700"} 700
 sample_dupnames_three_bin{instname="bin-800",instid="800",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="800"} 800
 sample_dupnames_three_bin{instname="bin-900",instid="900",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="900"} 900
+#### PCP5 sample.dupnames.two.bin 29.0.6 32 29.2 instant none
+#### HELP sample_dupnames_two_bin Several constant instances
+#### TYPE sample_dupnames_two_bin gauge
 sample_dupnames_two_bin{instname="bin-100",instid="100",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="100"} 100
 sample_dupnames_two_bin{instname="bin-200",instid="200",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="200"} 200
 sample_dupnames_two_bin{instname="bin-300",instid="300",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="300"} 300
@@ -320,6 +359,9 @@ sample_dupnames_two_bin{instname="bin-600",instid="600",role="testing",agent="sa
 sample_dupnames_two_bin{instname="bin-700",instid="700",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="700"} 700
 sample_dupnames_two_bin{instname="bin-800",instid="800",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="800"} 800
 sample_dupnames_two_bin{instname="bin-900",instid="900",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="900"} 900
+#### PCP5 sample.bin 29.0.6 32 29.2 instant none
+#### HELP sample_bin Several constant instances
+#### TYPE sample_bin gauge
 sample_bin{instname="bin-100",instid="100",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="100"} 100
 sample_bin{instname="bin-200",instid="200",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="200"} 200
 sample_bin{instname="bin-300",instid="300",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="300"} 300

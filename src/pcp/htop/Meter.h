@@ -98,8 +98,10 @@ struct Meter_ {
    int param;
    GraphData* drawData;
    int h;
+   int columnWidthCount;      /*<< only used internally by the Header */
    const ProcessList* pl;
    uint8_t curItems;
+   const int* curAttributes;
    double* values;
    double total;
    void* meterData;
@@ -132,7 +134,7 @@ void Meter_setCaption(Meter* this, const char* caption);
 
 void Meter_setMode(Meter* this, int modeIndex);
 
-ListItem* Meter_toListItem(Meter* this, bool moving);
+ListItem* Meter_toListItem(const Meter* this, bool moving);
 
 extern const MeterMode* const Meter_modes[];
 

@@ -8,6 +8,7 @@ in the source distribution for its full text.
 #include "config.h" // IWYU pragma: keep
 
 #include <assert.h>
+#include <errno.h>
 #include <getopt.h>
 #include <locale.h>
 #include <stdbool.h>
@@ -34,6 +35,19 @@ in the source distribution for its full text.
 #include "UsersTable.h"
 #include "XUtils.h"
 
+#ifdef HAVE_LIBCAP
+#include <sys/capability.h>
+#endif
+
+
+#ifdef HAVE_LIBCAP
+enum CapMode {
+   CAP_MODE_NONE,
+   CAP_MODE_BASIC,
+   CAP_MODE_STRICT
+};
+#endif
+
 static void printVersionFlag(void) {
    fputs(PACKAGE " " VERSION "\n", stdout);
 }
@@ -46,11 +60,17 @@ static void printHelpFlag(void) {
          "-d --delay=DELAY                Set the delay between updates, in tenths of seconds\n"
          "-F --filter=FILTER              Show only the commands matching the given filter\n"
          "-h --help                       Print this help screen\n"
+#ifdef HAVE_LIBCAP
+         "   --drop-capabilities[=none|basic|strict] Drop Linux capabilities when running as root\n"
+         "                                none - do not drop any capabilities\n"
+         "                                basic (default) - drop all capabilities not needed by htop\n"
+         "                                strict - drop all capabilities except those needed for core functionality\n"
+#endif
          "-H --highlight-changes[=DELAY]  Highlight new and old processes\n"
          "-M --no-mouse                   Disable the mouse\n"
          "-p --pid=PID[,PID,PID...]       Show only the given PIDs\n"
-         "-s --sort-key=COLUMN            Sort by COLUMN (try --sort-key=help for a list)\n"
-         "-t --tree                       Show the tree view by default\n"
+         "-s --sort-key=COLUMN            Sort by COLUMN in list view (try --sort-key=help for a list)\n"
+         "-t --tree                       Show the tree view (can be combined with -s)\n"
          "-u --user[=USERNAME]            Show only processes for a given user (or $USER)\n"
          "-U --no-unicode                 Do not use unicode but plain ASCII\n"
          "-V --version                    Print version info\n"
@@ -75,6 +95,9 @@ typedef struct CommandLineSettings_ {
    bool allowUnicode;
    bool highlightChanges;
    int highlightDelaySecs;
+#ifdef HAVE_LIBCAP
+   enum CapMode capabilitiesMode;
+#endif
 } CommandLineSettings;
 
 static CommandLineSettings parseArguments(int argc, char** argv) {
@@ -91,9 +114,12 @@ static CommandLineSettings parseArguments(int argc, char** argv) {
       .allowUnicode = true,
       .highlightChanges = false,
       .highlightDelaySecs = -1,
+#ifdef HAVE_LIBCAP
+      .capabilitiesMode = CAP_MODE_BASIC,
+#endif
    };
 
-   static struct option long_opts[] =
+   const struct option long_opts[] =
    {
       {"help",       no_argument,         0, 'h'},
       {"version",    no_argument,         0, 'V'},
@@ -108,6 +134,9 @@ static CommandLineSettings parseArguments(int argc, char** argv) {
       {"pid",        required_argument,   0, 'p'},
       {"filter",     required_argument,   0, 'F'},
       {"highlight-changes", optional_argument, 0, 'H'},
+#ifdef HAVE_LIBCAP
+      {"drop-capabilities", optional_argument, 0, 128},
+#endif
       {0,0,0,0}
    };
 
@@ -125,14 +154,15 @@ static CommandLineSettings parseArguments(int argc, char** argv) {
          case 's':
             assert(optarg); /* please clang analyzer, cause optarg can be NULL in the 'u' case */
             if (String_eq(optarg, "help")) {
-               for (int j = 1; j < Platform_numberOfFields; j++) {
+               for (int j = 1; j < LAST_PROCESSFIELD; j++) {
                   const char* name = Process_fields[j].name;
-                  if (name) printf ("%s\n", name);
+                  const char* description = Process_fields[j].description;
+                  if (name) printf("%19s %s\n", name, description);
                }
                exit(0);
             }
             flags.sortKey = 0;
-            for (int j = 1; j < Platform_numberOfFields; j++) {
+            for (int j = 1; j < LAST_PROCESSFIELD; j++) {
                if (Process_fields[j].name == NULL)
                   continue;
                if (String_eq(optarg, Process_fields[j].name)) {
@@ -186,7 +216,7 @@ static CommandLineSettings parseArguments(int argc, char** argv) {
             assert(optarg); /* please clang analyzer, cause optarg can be NULL in the 'u' case */
             char* argCopy = xStrdup(optarg);
             char* saveptr;
-            char* pid = strtok_r(argCopy, ",", &saveptr);
+            const char* pid = strtok_r(argCopy, ",", &saveptr);
 
             if(!flags.pidMatchList) {
                flags.pidMatchList = Hashtable_new(8, false);
@@ -204,8 +234,7 @@ static CommandLineSettings parseArguments(int argc, char** argv) {
          }
          case 'F': {
             assert(optarg);
-            flags.commFilter = xStrdup(optarg);
-
+            free_and_xStrdup(&flags.commFilter, optarg);
             break;
          }
          case 'H': {
@@ -226,6 +255,27 @@ static CommandLineSettings parseArguments(int argc, char** argv) {
             flags.highlightChanges = true;
             break;
          }
+#ifdef HAVE_LIBCAP
+         case 128: {
+            const char* mode = optarg;
+            if (!mode && optind < argc && argv[optind] != NULL &&
+               (argv[optind][0] != '\0' && argv[optind][0] != '-')) {
+               mode = argv[optind++];
+            }
+
+            if (!mode || String_eq(mode, "basic")) {
+               flags.capabilitiesMode = CAP_MODE_BASIC;
+            } else if (String_eq(mode, "none")) {
+               flags.capabilitiesMode = CAP_MODE_NONE;
+            } else if (String_eq(mode, "strict")) {
+               flags.capabilitiesMode = CAP_MODE_STRICT;
+            } else {
+               fprintf(stderr, "Error: invalid capabilities mode \"%s\".\n", mode);
+               exit(1);
+            }
+            break;
+         }
+#endif
          default:
             exit(1);
       }
@@ -244,21 +294,101 @@ static void millisleep(unsigned long millisec) {
 }
 
 static void setCommFilter(State* state, char** commFilter) {
-   MainPanel* panel = (MainPanel*)state->panel;
    ProcessList* pl = state->pl;
-   IncSet* inc = panel->inc;
-   size_t maxlen = sizeof(inc->modes[INC_FILTER].buffer) - 1;
-   char* buffer = inc->modes[INC_FILTER].buffer;
+   IncSet* inc = state->mainPanel->inc;
 
-   strncpy(buffer, *commFilter, maxlen);
-   buffer[maxlen] = 0;
-   inc->modes[INC_FILTER].index = strlen(buffer);
-   inc->filtering = true;
+   IncSet_setFilter(inc, *commFilter);
    pl->incFilter = IncSet_filter(inc);
 
    free(*commFilter);
    *commFilter = NULL;
 }
+
+#ifdef HAVE_LIBCAP
+static int dropCapabilities(enum CapMode mode) {
+
+   if (mode == CAP_MODE_NONE)
+      return 0;
+
+   /* capabilities we keep to operate */
+   const cap_value_t keepcapsStrict[] = {
+      CAP_DAC_READ_SEARCH,
+      CAP_SYS_PTRACE,
+   };
+   const cap_value_t keepcapsBasic[] = {
+      CAP_DAC_READ_SEARCH,   /* read non world-readable process files of other users, like /proc/[pid]/io */
+      CAP_KILL,              /* send signals to processes of other users */
+      CAP_SYS_NICE,          /* lower process nice value / change nice value for arbitrary processes */
+      CAP_SYS_PTRACE,        /* read /proc/[pid]/exe */
+#ifdef HAVE_DELAYACCT
+      CAP_NET_ADMIN,         /* communicate over netlink socket for delay accounting */
+#endif
+   };
+   const cap_value_t* const keepcaps = (mode == CAP_MODE_BASIC) ? keepcapsBasic : keepcapsStrict;
+   const size_t ncap = (mode == CAP_MODE_BASIC) ? ARRAYSIZE(keepcapsBasic) : ARRAYSIZE(keepcapsStrict);
+
+   cap_t caps = cap_init();
+   if (caps == NULL) {
+      fprintf(stderr, "Error: can not initialize capabilities: %s\n", strerror(errno));
+      return -1;
+   }
+
+   if (cap_clear(caps) < 0) {
+      fprintf(stderr, "Error: can not clear capabilities: %s\n", strerror(errno));
+      cap_free(caps);
+      return -1;
+   }
+
+   cap_t currCaps = cap_get_proc();
+   if (currCaps == NULL) {
+      fprintf(stderr, "Error: can not get current process capabilities: %s\n", strerror(errno));
+      cap_free(caps);
+      return -1;
+   }
+
+   for (size_t i = 0; i < ncap; i++) {
+      if (!CAP_IS_SUPPORTED(keepcaps[i]))
+         continue;
+
+      cap_flag_value_t current;
+      if (cap_get_flag(currCaps, keepcaps[i], CAP_PERMITTED, &current) < 0) {
+         fprintf(stderr, "Error: can not get current value of capability %d: %s\n", keepcaps[i], strerror(errno));
+         cap_free(currCaps);
+         cap_free(caps);
+         return -1;
+      }
+
+      if (current != CAP_SET)
+         continue;
+
+      if (cap_set_flag(caps, CAP_PERMITTED, 1, &keepcaps[i], CAP_SET) < 0) {
+         fprintf(stderr, "Error: can not set permitted capability %d: %s\n", keepcaps[i], strerror(errno));
+         cap_free(currCaps);
+         cap_free(caps);
+         return -1;
+      }
+
+      if (cap_set_flag(caps, CAP_EFFECTIVE, 1, &keepcaps[i], CAP_SET) < 0) {
+         fprintf(stderr, "Error: can not set effective capability %d: %s\n", keepcaps[i], strerror(errno));
+         cap_free(currCaps);
+         cap_free(caps);
+         return -1;
+      }
+   }
+
+   if (cap_set_proc(caps) < 0) {
+      fprintf(stderr, "Error: can not set process capabilities: %s\n", strerror(errno));
+      cap_free(currCaps);
+      cap_free(caps);
+      return -1;
+   }
+
+   cap_free(currCaps);
+   cap_free(caps);
+
+   return 0;
+}
+#endif
 
 int main(int argc, char** argv) {
 
@@ -270,6 +400,11 @@ int main(int argc, char** argv) {
       setlocale(LC_CTYPE, "");
 
    CommandLineSettings flags = parseArguments(argc, argv);
+
+#ifdef HAVE_LIBCAP
+   if (dropCapabilities(flags.capabilitiesMode) < 0)
+      exit(1);
+#endif
 
    Platform_init();
 
@@ -298,25 +433,26 @@ int main(int argc, char** argv) {
    if (flags.highlightDelaySecs != -1)
       settings->highlightDelaySecs = flags.highlightDelaySecs;
    if (flags.sortKey > 0) {
-      settings->sortKey = flags.sortKey;
-      settings->treeView = false;
-      settings->direction = 1;
+      // -t -s <key> means "tree sorted by key"
+      // -s <key> means "list sorted by key" (previous existing behavior)
+      if (!flags.treeView) {
+         settings->treeView = false;
+      }
+      Settings_setSortKey(settings, flags.sortKey);
    }
 
-   CRT_init(&(settings->delay), settings->colorScheme, flags.allowUnicode);
+   CRT_init(settings, flags.allowUnicode);
 
    MainPanel* panel = MainPanel_new();
    ProcessList_setPanel(pl, (Panel*) panel);
 
    MainPanel_updateTreeFunctions(panel, settings->treeView);
 
-   ProcessList_printHeader(pl, Panel_getHeader((Panel*)panel));
-
    State state = {
       .settings = settings,
       .ut = ut,
       .pl = pl,
-      .panel = (Panel*) panel,
+      .mainPanel = panel,
       .header = header,
       .pauseProcessUpdate = false,
       .hideProcessSelection = false,

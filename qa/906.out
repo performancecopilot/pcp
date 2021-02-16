@@ -2,7 +2,7 @@ QA output created by 906
 
 == sample.color by pmID ==
 
-sample.colour [Metrics with a "saw-tooth" trend over time]
+sample.dupnames.four.colour [Metrics with a "saw-tooth" trend over time]
     Data Type: 32-bit int  InDom: 29.1 0x7400001
     Semantics: instant  Units: none
 Help:

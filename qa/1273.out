@@ -9,7 +9,7 @@ Fetch Control [0]
   PMID 29.0.6
 
 TIMESTAMP 1 metric
-    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
         inst [100 or "bin-100"] value 100
         inst [200 or "bin-200"] value 200
         inst [300 or "bin-300"] value 300
@@ -21,7 +21,7 @@ TIMESTAMP 1 metric
         inst [900 or "bin-900"] value 900
 
 TIMESTAMP 1 metric
-    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
         inst [100 or "bin-100"] value 100
         inst [200 or "bin-200"] value 200
         inst [300 or "bin-300"] value 300
@@ -43,7 +43,7 @@ Fetch Control [0]
   PMID 29.0.6
 
 TIMESTAMP 1 metric
-    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
         inst [100 or "bin-100"] value 100
         inst [200 or "bin-200"] value 200
         inst [300 or "bin-300"] value 300
@@ -55,7 +55,7 @@ TIMESTAMP 1 metric
         inst [900 or "bin-900"] value 900
 
 TIMESTAMP 1 metric
-    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
         inst [100 or "bin-100"] value 100
         inst [200 or "bin-200"] value 200
         inst [300 or "bin-300"] value 300
@@ -85,7 +85,7 @@ Fetch Control [1]
   PMID 29.0.6
 
 TIMESTAMP 1 metric
-    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
         inst [100 or "bin-100"] value 100
         inst [200 or "bin-200"] value 200
         inst [300 or "bin-300"] value 300
@@ -97,7 +97,7 @@ TIMESTAMP 1 metric
         inst [900 or "bin-900"] value 900
 
 TIMESTAMP 1 metric
-    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
         inst [100 or "bin-100"] value 100
         inst [200 or "bin-200"] value 200
         inst [300 or "bin-300"] value 300
@@ -127,7 +127,7 @@ Fetch Control [1]
   PMID 30.0.10
 
 TIMESTAMP 1 metric
-    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
         inst [100 or "bin-100"] value 100
         inst [200 or "bin-200"] value 200
         inst [300 or "bin-300"] value 300
@@ -139,7 +139,7 @@ TIMESTAMP 1 metric
         inst [900 or "bin-900"] value 900
 
 TIMESTAMP 1 metric
-    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
         inst [100 or "bin-100"] value 100
         inst [200 or "bin-200"] value 200
         inst [300 or "bin-300"] value 300
@@ -176,7 +176,7 @@ Fetch Control [1]
   PMID 29.0.6
 
 TIMESTAMP 1 metric
-    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
         inst [100 or "bin-100"] value 100
         inst [200 or "bin-200"] value 200
         inst [300 or "bin-300"] value 300
@@ -188,7 +188,7 @@ TIMESTAMP 1 metric
         inst [900 or "bin-900"] value 900
 
 TIMESTAMP 1 metric
-    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
         inst [100 or "bin-100"] value 100
         inst [200 or "bin-200"] value 200
         inst [300 or "bin-300"] value 300
@@ -210,7 +210,7 @@ Fetch Control [0]
   PMID 29.0.6
 
 TIMESTAMP 1 metric
-    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
         inst [100 or "bin-100"] value 100
         inst [200 or "bin-200"] value 200
         inst [300 or "bin-300"] value 300
@@ -219,7 +219,7 @@ TIMESTAMP 1 metric
         inst [600 or "bin-600"] value 600
 
 TIMESTAMP 1 metric
-    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
         inst [100 or "bin-100"] value 100
         inst [200 or "bin-200"] value 200
         inst [300 or "bin-300"] value 300
@@ -248,25 +248,25 @@ Fetch Control [1]
   PMID 29.0.6
 
 TIMESTAMP 1 metric
-    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
         inst [200 or "bin-200"] value 200
         inst [400 or "bin-400"] value 400
         inst [600 or "bin-600"] value 600
 
 TIMESTAMP 1 metric
-    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
         inst [100 or "bin-100"] value 100
         inst [300 or "bin-300"] value 300
         inst [500 or "bin-500"] value 500
 
 TIMESTAMP 1 metric
-    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
         inst [200 or "bin-200"] value 200
         inst [400 or "bin-400"] value 400
         inst [600 or "bin-600"] value 600
 
 TIMESTAMP 1 metric
-    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
         inst [100 or "bin-100"] value 100
         inst [300 or "bin-300"] value 300
         inst [500 or "bin-500"] value 500
@@ -292,23 +292,23 @@ Fetch Control [1]
   PMID 29.0.6
 
 TIMESTAMP 1 metric
-    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
         inst [400 or "bin-400"] value 400
         inst [500 or "bin-500"] value 500
 
 TIMESTAMP 1 metric
-    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
         inst [100 or "bin-100"] value 100
         inst [200 or "bin-200"] value 200
         inst [300 or "bin-300"] value 300
 
 TIMESTAMP 1 metric
-    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
         inst [400 or "bin-400"] value 400
         inst [500 or "bin-500"] value 500
 
 TIMESTAMP 1 metric
-    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
         inst [100 or "bin-100"] value 100
         inst [200 or "bin-200"] value 200
         inst [300 or "bin-300"] value 300
@@ -332,7 +332,7 @@ Fetch Control [1]
   PMID 29.0.6
 
 TIMESTAMP 1 metric
-    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
         inst [100 or "bin-100"] value 100
         inst [200 or "bin-200"] value 200
         inst [300 or "bin-300"] value 300
@@ -344,7 +344,7 @@ TIMESTAMP 1 metric
         inst [900 or "bin-900"] value 900
 
 TIMESTAMP 1 metric
-    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
         inst [100 or "bin-100"] value 100
         inst [200 or "bin-200"] value 200
         inst [300 or "bin-300"] value 300
@@ -374,7 +374,7 @@ Fetch Control [1]
   PMID 29.0.6
 
 TIMESTAMP 1 metric
-    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
         inst [100 or "bin-100"] value 100
         inst [200 or "bin-200"] value 200
         inst [300 or "bin-300"] value 300
@@ -386,7 +386,7 @@ TIMESTAMP 1 metric
         inst [900 or "bin-900"] value 900
 
 TIMESTAMP 1 metric
-    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
         inst [100 or "bin-100"] value 100
         inst [200 or "bin-200"] value 200
         inst [300 or "bin-300"] value 300

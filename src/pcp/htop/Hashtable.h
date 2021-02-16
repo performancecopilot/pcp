@@ -8,44 +8,34 @@ in the source distribution for its full text.
 */
 
 #include <stdbool.h>
+#include <stddef.h>
 
 
-typedef unsigned int hkey_t;
+typedef unsigned int ht_key_t;
 
-typedef void(*Hashtable_PairFunction)(hkey_t key, void* value, void* userdata);
+typedef void(*Hashtable_PairFunction)(ht_key_t key, void* value, void* userdata);
 
-typedef struct HashtableItem_ {
-   hkey_t key;
-   unsigned int probe;
-   void* value;
-} HashtableItem;
-
-typedef struct Hashtable_ {
-   unsigned int size;
-   HashtableItem* buckets;
-   unsigned int items;
-   bool owner;
-} Hashtable;
+typedef struct Hashtable_ Hashtable;
 
 #ifndef NDEBUG
 
-unsigned int Hashtable_count(const Hashtable* this);
+size_t Hashtable_count(const Hashtable* this);
 
 #endif /* NDEBUG */
 
-Hashtable* Hashtable_new(unsigned int size, bool owner);
+Hashtable* Hashtable_new(size_t size, bool owner);
 
 void Hashtable_delete(Hashtable* this);
 
 void Hashtable_clear(Hashtable* this);
 
-void Hashtable_setSize(Hashtable* this, unsigned int size);
+void Hashtable_setSize(Hashtable* this, size_t size);
 
-void Hashtable_put(Hashtable* this, hkey_t key, void* value);
+void Hashtable_put(Hashtable* this, ht_key_t key, void* value);
 
-void* Hashtable_remove(Hashtable* this, hkey_t key);
+void* Hashtable_remove(Hashtable* this, ht_key_t key);
 
-void* Hashtable_get(Hashtable* this, hkey_t key);
+void* Hashtable_get(Hashtable* this, ht_key_t key);
 
 void Hashtable_foreach(Hashtable* this, Hashtable_PairFunction f, void* userData);
 

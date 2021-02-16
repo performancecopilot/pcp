@@ -155,7 +155,6 @@ pmlcFlexInput (char * buf, int ms)
 		printf ("pmlc> ");
 	    else
 		printf ("? ");
-	    fflush (stdout);
 	}
     }
 
@@ -165,7 +164,6 @@ pmlcFlexInput (char * buf, int ms)
 	    ms = 1;
 	    if ( eflag ) {
 		putchar (in);
-		fflush (stdout);
 	    }
 	} else {
 	    ms = 0;
@@ -214,7 +212,6 @@ char input(void)
 		printf("pmlc> ");
 	    else
 		printf("? ");
-	    fflush(stdout);
 	}
     	if (first)
     	    first = 0;
@@ -231,7 +228,6 @@ char input(void)
 	lastc = get;
 	if (eflag) {
 	    putchar(lastc);
-	    fflush(stdout);
 	}
     }
 

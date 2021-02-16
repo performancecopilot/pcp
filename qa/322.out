@@ -1,11 +1,11 @@
 QA output created by 322
 
 === pmlogger host type: -v pcp>=3 ===
-New log volume 1
 last log entry   DATE
 current time     DATE
 log volume       0
 log size more than 200
+New log volume 1
 last log entry   DATE
 current time     DATE
 log volume       1

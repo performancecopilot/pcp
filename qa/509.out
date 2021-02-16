@@ -84,6 +84,8 @@ pmLoadNameSpace: bin -> 29.0.153
 pmLoadNameSpace: bin -> 29.0.6
 pmLoadNameSpace: bin -> 29.0.6
 pmLoadNameSpace: bin -> 29.0.6
+pmLoadNameSpace: bin -> 29.0.6
+pmLoadNameSpace: bin -> 29.0.6
 pmLoadNameSpace: bin_ctr -> 29.0.104
 pmLoadNameSpace: bin_ctr -> 29.0.106
 pmLoadNameSpace: bin_ctr -> 29.0.108
@@ -92,11 +94,13 @@ pmLoadNameSpace: bin_ctr -> 29.0.112
 pmLoadNameSpace: bin_ctr -> 29.0.114
 pmLoadNameSpace: bogus_bin -> 29.0.51
 pmLoadNameSpace: bucket -> 29.0.48
+pmLoadNameSpace: bucket -> 29.0.48
 pmLoadNameSpace: byte_ctr -> 29.0.81
 pmLoadNameSpace: byte_rate -> 29.0.82
 pmLoadNameSpace: byte_rate_perhour -> 29.0.85
 pmLoadNameSpace: bytes_down -> 29.0.66
 pmLoadNameSpace: bytes_up -> 29.0.65
+pmLoadNameSpace: colour -> 29.0.5
 pmLoadNameSpace: colour -> 29.0.5
 pmLoadNameSpace: control -> 29.0.0
 pmLoadNameSpace: control -> 29.0.61
@@ -137,6 +141,7 @@ pmLoadNameSpace: lights -> 29.0.46
 pmLoadNameSpace: lights -> 29.0.46
 pmLoadNameSpace: load -> 29.0.4
 pmLoadNameSpace: long -> 29.0.57
+pmLoadNameSpace: long_bin -> 29.0.103
 pmLoadNameSpace: longlong -> 29.0.59
 pmLoadNameSpace: m_32 -> 29.0.141
 pmLoadNameSpace: m_32 -> 29.0.145
@@ -187,6 +192,7 @@ pmLoadNameSpace: param_float -> 29.0.132
 pmLoadNameSpace: param_string -> 29.0.134
 pmLoadNameSpace: param_u32 -> 29.0.129
 pmLoadNameSpace: param_u64 -> 29.0.131
+pmLoadNameSpace: part_bin -> 29.0.50
 pmLoadNameSpace: part_bin -> 29.0.50
 pmLoadNameSpace: pdu -> 29.0.40
 pmLoadNameSpace: pdu -> 29.0.43

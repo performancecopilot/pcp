@@ -4,7 +4,7 @@
 # connections, end-of-JSON-response EOL strings and other
 # small API buglets that have cropped up over time.
 #
-# Copyright (c) 2019 Red Hat.
+# Copyright (c) 2019,2021 Red Hat.
 #
 
 seq=`basename $0`
@@ -84,6 +84,11 @@ store1='http://localhost:44322/pmapi/store?name=sample.many.count&value=5'
 store2='http://localhost:44322/pmapi/store?name=sample.many.count&value=3'
 store3='http://localhost:44322/pmapi/store?name=sample.many.count&value=7'
 curl -s "$store1" "$fetch" "$store2" "$fetch" "$store3" "$fetch" | _filter_fetch
+
+# change instance domain for a single connection
+echo "Verify fetching metric with multiple names" | tee -a $seq.full
+fetch='http://localhost:44322/pmapi/fetch?name=sample.bin'
+curl -s "$fetch" | _filter_fetch
 
 # check parsing of URLs with strange parameters
 echo "Verify handling of unusual URL contents (empty)" | tee -a $seq.full

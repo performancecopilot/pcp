@@ -5,7 +5,7 @@ defctx: pmLookupDesc(29.0.5): Attempt to use an illegal context
 explicit host context ...
 first pmFetch is OK
 pmResult dump from ...
-  29.0.5 (sample.colour): numval: 1 valfmt: 0 vlist[]:
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 1 valfmt: 0 vlist[]:
 inst [1 or "green"] value VALUE
 defctx: pmDelProfile: Attempt to use an illegal context
 defctx: pmAddProfile: Attempt to use an illegal context
@@ -22,7 +22,7 @@ Destroy(2)
 explicit archive context ...
 first pmFetch is OK
 pmResult dump from ...
-  29.0.5 (sample.colour): numval: 1 valfmt: 0 vlist[]:
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 1 valfmt: 0 vlist[]:
 inst [1 or "green"] value VALUE
 defctx: pmDelProfile: Attempt to use an illegal context
 defctx: pmAddProfile: Attempt to use an illegal context
@@ -39,7 +39,7 @@ Destroy(2)
 explicit multi-volume archive context ...
 first pmFetch is OK
 pmResult dump from ...
-  29.0.5 (sample.colour): numval: 1 valfmt: 0 vlist[]:
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 1 valfmt: 0 vlist[]:
 inst [1 or "green"] value VALUE
 defctx: pmDelProfile: Attempt to use an illegal context
 defctx: pmAddProfile: Attempt to use an illegal context
@@ -56,7 +56,7 @@ Destroy(2)
 explicit no index archive context ...
 first pmFetch is OK
 pmResult dump from ...
-  29.0.5 (sample.colour): numval: 1 valfmt: 0 vlist[]:
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 1 valfmt: 0 vlist[]:
 inst [1 or "green"] value VALUE
 defctx: pmDelProfile: Attempt to use an illegal context
 defctx: pmAddProfile: Attempt to use an illegal context

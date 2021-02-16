@@ -23,7 +23,7 @@ TIMESTAMP 5 metrics
     2.0.23 (pmcd.pid): value NUMBER
     2.0.24 (pmcd.seqnum): value NUMBER
 TIMESTAMP 3 metrics
-    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
         inst [100 or "bin-100"] value NUMBER
         inst [200 or "bin-200"] value NUMBER
         inst [300 or "bin-300"] value NUMBER
@@ -36,7 +36,7 @@ TIMESTAMP 3 metrics
     29.0.3 (sample.milliseconds): value NUMBER
     29.0.1 (sample.dupnames.pid_daemon or sample.dupnames.daemon_pid or sample.daemon_pid): value NUMBER
 TIMESTAMP 3 metrics
-    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
         inst [100 or "bin-100"] value NUMBER
         inst [200 or "bin-200"] value NUMBER
         inst [300 or "bin-300"] value NUMBER
@@ -49,7 +49,7 @@ TIMESTAMP 3 metrics
     29.0.3 (sample.milliseconds): value NUMBER
     29.0.1 (sample.dupnames.pid_daemon or sample.dupnames.daemon_pid or sample.daemon_pid): value NUMBER
 TIMESTAMP 3 metrics
-    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
         inst [100 or "bin-100"] value NUMBER
         inst [200 or "bin-200"] value NUMBER
         inst [300 or "bin-300"] value NUMBER
@@ -62,7 +62,7 @@ TIMESTAMP 3 metrics
     29.0.3 (sample.milliseconds): value NUMBER
     29.0.1 (sample.dupnames.pid_daemon or sample.dupnames.daemon_pid or sample.daemon_pid): value NUMBER
 TIMESTAMP 3 metrics
-    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
         inst [100 or "bin-100"] value NUMBER
         inst [200 or "bin-200"] value NUMBER
         inst [300 or "bin-300"] value NUMBER
@@ -75,7 +75,7 @@ TIMESTAMP 3 metrics
     29.0.3 (sample.milliseconds): value NUMBER
     29.0.1 (sample.dupnames.pid_daemon or sample.dupnames.daemon_pid or sample.daemon_pid): value NUMBER
 TIMESTAMP 3 metrics
-    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
         inst [100 or "bin-100"] value NUMBER
         inst [200 or "bin-200"] value NUMBER
         inst [300 or "bin-300"] value NUMBER
@@ -88,7 +88,7 @@ TIMESTAMP 3 metrics
     29.0.3 (sample.milliseconds): value NUMBER
     29.0.1 (sample.dupnames.pid_daemon or sample.dupnames.daemon_pid or sample.daemon_pid): value NUMBER
 TIMESTAMP 3 metrics
-    29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
         inst [100 or "bin-100"] value NUMBER
         inst [200 or "bin-200"] value NUMBER
         inst [300 or "bin-300"] value NUMBER

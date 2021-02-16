@@ -9,6 +9,7 @@ in the source distribution for its full text.
 
 #include <stdbool.h>
 
+#include "CRT.h"
 #include "FunctionBar.h"
 #include "Object.h"
 #include "RichString.h"
@@ -22,9 +23,10 @@ typedef enum HandlerResult_ {
    HANDLED     = 0x01,
    IGNORED     = 0x02,
    BREAK_LOOP  = 0x04,
-   REDRAW      = 0x08,
-   RESCAN      = 0x10,
-   SYNTH_KEY   = 0x20,
+   REFRESH     = 0x08,
+   REDRAW      = 0x10,
+   RESCAN      = 0x20,
+   SYNTH_KEY   = 0x40,
 } HandlerResult;
 
 #define EVENT_SET_SELECTED (-1)
@@ -33,16 +35,24 @@ typedef enum HandlerResult_ {
 #define EVENT_IS_HEADER_CLICK(ev_) ((ev_) >= -10000 && (ev_) <= -9000)
 #define EVENT_HEADER_CLICK_GET_X(ev_) ((ev_) + 10000)
 
-typedef HandlerResult(*Panel_EventHandler)(Panel*, int);
+typedef HandlerResult (*Panel_EventHandler)(Panel*, int);
+typedef void (*Panel_DrawFunctionBar)(Panel*, bool);
+typedef void (*Panel_PrintHeader)(Panel*);
 
 typedef struct PanelClass_ {
    const ObjectClass super;
    const Panel_EventHandler eventHandler;
+   const Panel_DrawFunctionBar drawFunctionBar;
+   const Panel_PrintHeader printHeader;
 } PanelClass;
 
-#define As_Panel(this_)                ((const PanelClass*)((this_)->super.klass))
-#define Panel_eventHandlerFn(this_)    As_Panel(this_)->eventHandler
-#define Panel_eventHandler(this_, ev_) As_Panel(this_)->eventHandler((Panel*)(this_), ev_)
+#define As_Panel(this_)                        ((const PanelClass*)((this_)->super.klass))
+#define Panel_eventHandlerFn(this_)            As_Panel(this_)->eventHandler
+#define Panel_eventHandler(this_, ev_)         (assert(As_Panel(this_)->eventHandler), As_Panel(this_)->eventHandler((Panel*)(this_), ev_))
+#define Panel_drawFunctionBarFn(this_)         As_Panel(this_)->drawFunctionBar
+#define Panel_drawFunctionBar(this_, hideFB_)  (assert(As_Panel(this_)->drawFunctionBar), As_Panel(this_)->drawFunctionBar((Panel*)(this_), hideFB_))
+#define Panel_printHeaderFn(this_)             As_Panel(this_)->printHeader
+#define Panel_printHeader(this_)               (assert(As_Panel(this_)->printHeader), As_Panel(this_)->printHeader((Panel*)(this_)))
 
 struct Panel_ {
    Object super;
@@ -55,10 +65,11 @@ struct Panel_ {
    int scrollV;
    short scrollH;
    bool needsRedraw;
+   bool wasFocus;
    FunctionBar* currentBar;
    FunctionBar* defaultBar;
    RichString header;
-   int selectionColor;
+   ColorElements selectionColorId;
 };
 
 #define Panel_setDefaultBar(this_) do { (this_)->currentBar = (this_)->defaultBar; } while (0)
@@ -67,7 +78,7 @@ struct Panel_ {
 
 extern const PanelClass Panel_class;
 
-Panel* Panel_new(int x, int y, int w, int h, bool owner, const ObjectClass* type, FunctionBar* fuBar);
+Panel* Panel_new(int x, int y, int w, int h, const ObjectClass* type, bool owner, FunctionBar* fuBar);
 
 void Panel_delete(Object* cast);
 
@@ -75,9 +86,7 @@ void Panel_init(Panel* this, int x, int y, int w, int h, const ObjectClass* type
 
 void Panel_done(Panel* this);
 
-void Panel_setSelectionColor(Panel* this, int color);
-
-RichString* Panel_getHeader(Panel* this);
+void Panel_setSelectionColor(Panel* this, ColorElements colorId);
 
 void Panel_setHeader(Panel* this, const char* header);
 
@@ -103,13 +112,13 @@ void Panel_moveSelectedUp(Panel* this);
 
 void Panel_moveSelectedDown(Panel* this);
 
-int Panel_getSelectedIndex(Panel* this);
+int Panel_getSelectedIndex(const Panel* this);
 
-int Panel_size(Panel* this);
+int Panel_size(const Panel* this);
 
 void Panel_setSelected(Panel* this, int selected);
 
-void Panel_draw(Panel* this, bool focus, bool highlightSelected);
+void Panel_draw(Panel* this, bool force_redraw, bool focus, bool highlightSelected, bool hideFunctionBar);
 
 void Panel_splice(Panel* this, Vector* from);
 

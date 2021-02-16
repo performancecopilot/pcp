@@ -201,12 +201,12 @@ Archive basename: ARCHIVE
 
 DATE
 pmlc request from HOST: advisory on 25032.7 sec
-  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
+  metric: sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: bin-100
 pmlogger: Caught signal 15, exiting
 
 Log finished DATE
-sample.bin currently has no instance number 333
+Error: metric sample.bin currently has no instance number 333
     - you may only specify metric instances active now.  However if no
       instances are specified, pmlogger will use all of the instances
       available at the time the metric is logged

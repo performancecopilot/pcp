@@ -80,9 +80,9 @@ ifneq ($(TARGET_OS),mingw)
 	$(INSTALL) -m 1777 -d $(PCP_TMPFILE_DIR)
 endif
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_TMP_DIR)
-ifeq "$(findstring $(PACKAGE_DISTRIBUTION), debian)" ""
+ifeq (, $(filter debian suse, $(PACKAGE_DISTRIBUTION)))
 	# PCP_RUN_DIR usually -> /var/run which may be a temporary filesystem
-	# and Debian's lintian complains about packages including /var/run/xxx
+	# and lint checks may complain about packages including /var/run/xxx
 	# artifacts ... PCP_RUN_DIR is also conditionally created on the
 	# fly in each before use case, so the inclusion in the package is
 	# sometimes desirable, but not mandatory

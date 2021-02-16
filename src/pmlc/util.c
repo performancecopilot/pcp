@@ -111,8 +111,6 @@ void
 beginmetrics(void)
 {
     metric_cnt = 0;
-    fflush(stdout);
-    fflush(stderr);
     freemetrics();
 }
 
@@ -250,8 +248,7 @@ endmetrics(void)
     n_logreq = n_metrics;
 
 done:
-    fflush(stderr);
-    fflush(stdout);
+    return;
 }
 
 /* Add a metric to the metric list. Sets metric_cnt to < 0 on fatal error. */
@@ -337,7 +334,7 @@ addinst(char *name, int instid)
 {
     metric_t	*mp, *first_mp;
     indom_t	*ip;
-    int		m, i, j, need;
+    int		i, j, need;
     int		inst;
     static int	done_inst_msg = 0;
 
@@ -348,53 +345,52 @@ addinst(char *name, int instid)
     had_insts = 1;
 
     /* Find the first selected metric */
-    for (m = 0, mp = metric; m < n_metrics; m++, mp++)
+    for (mp = metric; mp < &metric[n_metrics]; mp++)
 	if (mp->status.selected)
 	    break;
-    if (m >= n_metrics) {
-	fprintf(stderr, "Ark! No metrics selected for addinst(%s)\n", name);
+    if (mp >= &metric[n_metrics]) {
+	fprintf(stderr, "Internal botch: No metrics selected for addinst(%s, %d)\n", name, instid);
 	abort();
     }
     first_mp = mp;
 
     if (first_inst) {
-	/* check that the first metric doesn't have PM_INDOM_NULL */
-	if (mp->indom == -1) {
-	    metric_cnt = PM_ERR_INDOM;
-	    fprintf(stderr, "%s has no instance domain but an instance was specified\n",
-		    mp->name);
-	    return;
-	}
+	int	bad = 0;
+	int	nullindom = 0;
+
+	first_inst = 0;
 
 	/* check that all of the metrics have the same instance domain */
-	if (n_selected > 1) {
-	    i = 0;
-	    for (i++, mp++; m < n_metrics; m++, mp++) {
-		if (!mp->status.selected)
-		    continue;
+	for ( ; mp < &metric[n_metrics]; mp++) {
+	    if (!mp->status.selected)
+		continue;
 
-		/* check pointers to indoms; PM_INDOM_NULL has -1 */
-		if (first_mp->indom != mp->indom) {
-		    if (i++ == 0) {
-			fprintf(stderr,
-				"The instance domains for the following metrics clash with %s:\n",
-				first_mp->name);
-			metric_cnt = PM_ERR_INDOM;
-		    }
-		    if (i < 5) {		/* elide any domain errors after this */
-			fputs(mp->name, stderr);
-			putc('\n', stderr);
-		    }
-		    else {
-			fputs("(etc.)\n", stderr);
-			break;
-		    }
-		}
+	    /* check that the metric doesn't have PM_INDOM_NULL */
+	    if (mp->indom == -1) {
+		fprintf(stderr, "Error: %s has no instance domain but an instance was specified\n",
+			mp->name);
+		nullindom = 1;
 	    }
-	    if (i)
-		return;
+
+	    if (mp == first_mp)
+		continue;
+
+	    if (first_mp->indom != mp->indom) {
+		if (bad == 0) {
+		    fprintf(stderr, "Error: different instance domains:\n");
+		    fprintf(stderr, "    %s (%s)\n", first_mp->name, pmInDomStr(indom[first_mp->indom].indom));
+		    bad = 1;
+		}
+		if (mp->indom == -1)
+		    fprintf(stderr, "    %s (PM_INDOM_NULL)\n", mp->name);
+		else
+		    fprintf(stderr, "    %s (%s)\n", mp->name, pmInDomStr(indom[mp->indom].indom));
+	    }
 	}
-	first_inst = 0;
+	if (bad || nullindom) {
+	    metric_cnt = PM_ERR_INDOM;
+	    return;
+	}
     }
 
     mp = first_mp;			/* go back to first selected metric */
@@ -408,7 +404,7 @@ addinst(char *name, int instid)
 	    if (instid == ip->inst[i])
 		break;
 
-    for ( ; m < n_metrics; m++, mp++) {
+    for ( ; mp < &metric[n_metrics]; mp++) {
 	if (!mp->status.selected)
 	    continue;
 
@@ -423,9 +419,9 @@ addinst(char *name, int instid)
 	    if (mp->status.has_insts || mp->status.new) {
 		metric_cnt = PM_ERR_INST;
 		if (name != NULL)
-		    fprintf(stderr, "%s currently has no instance named %s\n", mp->name, name);
+		    fprintf(stderr, "Error: metric %s currently has no instance named %s\n", mp->name, name);
 		else
-		    fprintf(stderr, "%s currently has no instance number %d\n", mp->name, instid);
+		    fprintf(stderr, "Error: metric %s currently has no instance number %d\n", mp->name, instid);
 		if (!done_inst_msg) {
 		    fputs("    - you may only specify metric instances active now.  However if no\n"
 			  "      instances are specified, pmlogger will use all of the instances\n"
@@ -440,11 +436,11 @@ addinst(char *name, int instid)
 	    else {
 		if (name != NULL)
 		    fprintf(stderr,
-			    "Warning: instance %s not currently in %s's instance domain\n",
+			    "Warning: instance name %s not currently in metric %s's instance domain\n",
 			    name, mp->name);
 		else
 		    fprintf(stderr,
-			    "Warning: instance %d not currently in %s's instance domain\n",
+			    "Warning: instance number %d not currently in metric %s's instance domain\n",
 			    instid, mp->name);
 		fputs("         (getting all instances anyway)\n", stderr);
 	    }
@@ -461,12 +457,12 @@ addinst(char *name, int instid)
 	    if (mp->status.has_insts) {
 		if (name != NULL) {
 		    fprintf(stderr,
-			    "Warning: instance %s already specified for %s\n",
+			    "Warning: instance name %s already specified for metric %s\n",
 			    name, mp->name);
 		}
 		else {
 		    fprintf(stderr,
-			    "Warning: instance %d already specified for %s\n",
+			    "Warning: instance number %d already specified for %s\n",
 			    instid, mp->name);
 		}
 	    }
@@ -487,9 +483,9 @@ addinst(char *name, int instid)
 		need = mp->n_insts * sizeof(int);
 		if ((mp->inst = (int *)realloc(mp->inst, need)) == NULL) {
 		    if (name != NULL)
-			fprintf(stderr, "%s inst %s: ", mp->name, name);
+			fprintf(stderr, "metric %s inst name %s: ", mp->name, name);
 		    else
-			fprintf(stderr, "%s inst %d: ", mp->name, instid);
+			fprintf(stderr, "metric %s inst number %d: ", mp->name, instid);
 		    pmNoMem("expanding instance array", need, PM_FATAL_ERR);
 		}
 		mp->inst[j] = inst;

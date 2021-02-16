@@ -5,7 +5,7 @@ dbpmda> getdesc on
 dbpmda> fetch sample.colour
 PMID(s): 29.0.5
 pmResult ... numpmid: 1
-  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+  29.0.5 (sample.dupnames.four.colour or sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or ???] value NUMBER
     inst [1 or ???] value NUMBER
     inst [2 or ???] value NUMBER
@@ -18,6 +18,6 @@ dbpmda> profile 29.1 add 2
 dbpmda> fetch sample.colour
 PMID(s): 29.0.5
 pmResult ... numpmid: 1
-  29.0.5 (sample.colour): numval: 1 valfmt: 0 vlist[]:
+  29.0.5 (sample.dupnames.four.colour or sample.colour): numval: 1 valfmt: 0 vlist[]:
     inst [2 or ???] value NUMBER
 dbpmda> 

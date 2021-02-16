@@ -40,6 +40,8 @@ static inline const char* IncSet_filter(const IncSet* this) {
    return this->filtering ? this->modes[INC_FILTER].buffer : NULL;
 }
 
+void IncSet_setFilter(IncSet* this, const char* filter);
+
 typedef const char* (*IncMode_GetPanelValue)(Panel*, int);
 
 void IncSet_reset(IncSet* this, IncType type);
@@ -47,10 +49,6 @@ void IncSet_reset(IncSet* this, IncType type);
 IncSet* IncSet_new(FunctionBar* bar);
 
 void IncSet_delete(IncSet* this);
-
-bool IncSet_next(IncSet* this, IncType type, Panel* panel, IncMode_GetPanelValue getPanelValue);
-
-bool IncSet_prev(IncSet* this, IncType type, Panel* panel, IncMode_GetPanelValue getPanelValue);
 
 bool IncSet_handleKey(IncSet* this, int ch, Panel* panel, IncMode_GetPanelValue getPanelValue, Vector* lines);
 

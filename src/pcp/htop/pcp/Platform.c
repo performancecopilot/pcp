@@ -1,7 +1,8 @@
 /*
 htop - linux/Platform.c
 (C) 2014 Hisham H. Muhammad
-(C) 2020 Red Hat, Inc.  All Rights Reserved.
+(C) 2020 htop dev team
+(C) 2020-2021 Red Hat, Inc.  All Rights Reserved.
 Released under the GNU GPLv2, see the COPYING file
 in the source distribution for its full text.
 */
@@ -136,13 +137,14 @@ static const char *Platform_metricNames[] = {
    [PCP_PERCPU_GUEST] = "kernel.percpu.cpu.guest",
    [PCP_PERCPU_GUESTNICE] = "kernel.percpu.cpu.guest_nice",
    [PCP_MEM_TOTAL] = "mem.physmem",
-   [PCP_MEM_USED] = "mem.util.used",
+   [PCP_MEM_FREE] = "mem.util.free",
+   [PCP_MEM_AVAILABLE] = "mem.util.available",
    [PCP_MEM_BUFFERS] = "mem.util.bufmem",
    [PCP_MEM_CACHED] = "mem.util.cached",
-   [PCP_MEM_SHARED] = "mem.util.shmem",
    [PCP_MEM_SRECLAIM] = "mem.util.slabReclaimable",
-   [PCP_SWAP_TOTAL] = "swap.length",
-   [PCP_SWAP_USED] = "swap.used",
+   [PCP_MEM_SWAPCACHED] = "mem.util.swapCached",
+   [PCP_MEM_SWAPTOTAL] = "mem.util.swapTotal",
+   [PCP_MEM_SWAPFREE] = "mem.util.swapFree",
    [PCP_DISK_READB] = "disk.all.read_bytes",
    [PCP_DISK_WRITEB] = "disk.all.write_bytes",
    [PCP_DISK_ACTIVE] = "disk.all.avactive",
@@ -169,7 +171,6 @@ static const char *Platform_metricNames[] = {
    [PCP_PROC_STATE] = "proc.psinfo.sname",
    [PCP_PROC_TTY] = "proc.psinfo.tty",
    [PCP_PROC_TTYPGRP] = "proc.psinfo.tty_pgrp",
-   [PCP_PROC_FLAGS] = "proc.psinfo.flags",
    [PCP_PROC_MINFLT] = "proc.psinfo.minflt",
    [PCP_PROC_MAJFLT] = "proc.psinfo.maj_flt",
    [PCP_PROC_CMINFLT] = "proc.psinfo.cmin_flt",
@@ -182,7 +183,6 @@ static const char *Platform_metricNames[] = {
    [PCP_PROC_NICE] = "proc.psinfo.nice",
    [PCP_PROC_THREADS] = "proc.psinfo.threads",
    [PCP_PROC_STARTTIME] = "proc.psinfo.start_time",
-   [PCP_PROC_EXITSIGNAL] = "proc.psinfo.exit_signal",
    [PCP_PROC_PROCESSOR] = "proc.psinfo.processor",
    [PCP_PROC_CMD] = "proc.psinfo.cmd",
    [PCP_PROC_PSARGS] = "proc.psinfo.psargs",
@@ -546,6 +546,7 @@ void Platform_setSwapValues(Meter* this) {
    const ProcessList* pl = this->pl;
    this->total = pl->totalSwap;
    this->values[0] = pl->usedSwap;
+   this->values[1] = pl->cachedSwap;
 }
 
 void Platform_setZramValues(Meter* this) {

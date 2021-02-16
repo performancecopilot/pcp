@@ -1,0 +1,75 @@
+#!/bin/sh
+# PCP QA Test No. 1292
+# pmlc - try to reproduce some Coverity-flagged errors
+#
+# see qa/1293 for the valgrind version of this test
+#
+# Copyright (c) 2021 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+cat <<'End-of-File' >$tmp.in
+# expect one instance for each metric
+log advisory on once { sample.bin["bin-100"] sample.colour["red"] }
+# expect one bin, 3 colours
+log advisory on once { sample.bin["bin-100"] sample.colour }
+# expect 3 colours, one bin
+log advisory on once { sample.colour sample.bin["bin-100"] }
+# expect 2 instances
+log advisory on once { sample.bin ["bin-100","bin-900"] }
+# expect 3 colours, 1 ten
+log advisory on once { sample.colour["red" "green"] sample.long.ten }
+# expect 1 ten, 3 colours
+log advisory on once { sample.long.ten sample.colour["red" "green"] }
+# expect 2 instances for each of 4 metrics
+log advisory on once { sample.dupnames.five ["bin-100","bin-900"] }
+# expect ten, all of bin and 1 of bucket
+log advisory on once { sample.long.ten sample.bin sample.bucket ["bin-100"] }
+# indom mismatch errors
+log advisory on once { sample.dupnames.three ["bin-100"] }
+log advisory on once { sample.dupnames.four ["bin-100"] }
+log advisory on once { sample.bin sample.bucket sample.long.ten ["bin-100"] }
+End-of-File
+
+# real QA test starts here
+
+if $do_valgrind
+then
+    _run_valgrind pmlc -eP <$tmp.in -Dappl0
+else
+    pmlc -eP <$tmp.in -Dappl0 2>&1
+fi
+
+# success, all done
+exit

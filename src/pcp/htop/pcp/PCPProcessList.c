@@ -1,7 +1,8 @@
 /*
 htop - PCPProcessList.c
 (C) 2014 Hisham H. Muhammad
-(C) 2020 Red Hat, Inc.  All Rights Reserved.
+(C) 2020 htop dev team
+(C) 2020-2021 Red Hat, Inc.  All Rights Reserved.
 Released under the GNU GPLv2, see the COPYING file
 in the source distribution for its full text.
 */
@@ -95,20 +96,8 @@ static inline unsigned long long PCPProcessList_adjustTime(unsigned long long t)
    return t / 10;
 }
 
-static void PCPProcessList_updateProcInfo(Process* process, int pid, int offset, char* command, int* commLen, long long boottime) {
-   PCPProcess* pp = (PCPProcess*) process;
+static void PCPProcessList_updateID(Process* process, int pid, int offset) {
    pmAtomValue value;
-   char *string;
-
-   if (!Metric_instance(PCP_PROC_CMD, pid, offset, &value, PM_TYPE_STRING))
-      value.cp = xStrdup("<unknown>");
-   string = value.cp;
-   const int commLenIn = *commLen - 1;
-   int commsize = MINIMUM((int)strlen(value.cp) + 1, commLenIn);
-   strncpy(command, value.cp, commLenIn);
-   command[commsize] = '\0';
-   *commLen = commsize;
-   free(string);
 
    if (Metric_instance(PCP_PROC_TGID, pid, offset, &value, PM_TYPE_U32))
       process->tgid = value.ul;
@@ -126,6 +115,16 @@ static void PCPProcessList_updateProcInfo(Process* process, int pid, int offset,
    } else {
       process->state = 'X';
    }
+}
+
+static void PCPProcessList_updateInfo(Process* process, int pid, int offset, char* command, size_t commLen) {
+   PCPProcess* pp = (PCPProcess*) process;
+   pmAtomValue value;
+
+   if (!Metric_instance(PCP_PROC_CMD, pid, offset, &value, PM_TYPE_STRING))
+      value.cp = xStrdup("<unknown>");
+   String_safeStrncpy(command, value.cp, commLen);
+   free(value.cp);
 
    if (Metric_instance(PCP_PROC_PGRP, pid, offset, &value, PM_TYPE_U32))
       process->pgrp = value.ul;
@@ -146,11 +145,6 @@ static void PCPProcessList_updateProcInfo(Process* process, int pid, int offset,
       process->tpgid = value.ul;
    else
       process->tpgid = 0;
-
-   if (Metric_instance(PCP_PROC_FLAGS, pid, offset, &value, PM_TYPE_U32))
-      process->flags = value.ul;
-   else
-      process->flags = 0;
 
    if (Metric_instance(PCP_PROC_MINFLT, pid, offset, &value, PM_TYPE_U32))
       process->minflt = value.ul;
@@ -212,17 +206,11 @@ static void PCPProcessList_updateProcInfo(Process* process, int pid, int offset,
    else
       process->starttime_ctime = 0;
 
-   if (Metric_instance(PCP_PROC_EXITSIGNAL, pid, offset, &value, PM_TYPE_U32))
-      process->exit_signal = value.ul;
-   else
-      process->exit_signal = 0;
-
    if (Metric_instance(PCP_PROC_PROCESSOR, pid, offset, &value, PM_TYPE_U32))
       process->processor = value.ul;
    else
       process->processor = 0;
 
-   process->starttime_ctime += boottime;
    process->time = pp->utime + pp->stime;
 }
 
@@ -230,55 +218,53 @@ static void PCPProcessList_updateIO(PCPProcess* process, int pid, int offset, un
    pmAtomValue value;
 
    if (Metric_instance(PCP_PROC_IO_RCHAR, pid, offset, &value, PM_TYPE_U64))
-      process->io_rchar = value.ull;
+      process->io_rchar = value.ull / ONE_K;
    else
-      process->io_rchar = 0;
+      process->io_rchar = ULLONG_MAX;
 
    if (Metric_instance(PCP_PROC_IO_WCHAR, pid, offset, &value, PM_TYPE_U64))
-      process->io_wchar = value.ull;
+      process->io_wchar = value.ull / ONE_K;
    else
-      process->io_wchar = 0;
+      process->io_wchar = ULLONG_MAX;
 
    if (Metric_instance(PCP_PROC_IO_SYSCR, pid, offset, &value, PM_TYPE_U64))
       process->io_syscr = value.ull;
    else
-      process->io_syscr = 0;
+      process->io_syscr = ULLONG_MAX;
 
    if (Metric_instance(PCP_PROC_IO_SYSCW, pid, offset, &value, PM_TYPE_U64))
       process->io_syscw = value.ull;
    else
-      process->io_syscw = 0;
+      process->io_syscw = ULLONG_MAX;
 
    if (Metric_instance(PCP_PROC_IO_CANCELLED, pid, offset, &value, PM_TYPE_U64))
-      process->io_cancelled_write_bytes = value.ull;
+      process->io_cancelled_write_bytes = value.ull / ONE_K;
    else
-      process->io_cancelled_write_bytes = 0;
+      process->io_cancelled_write_bytes = ULLONG_MAX;
 
    if (Metric_instance(PCP_PROC_IO_READB, pid, offset, &value, PM_TYPE_U64)) {
       unsigned long long last_read = process->io_read_bytes;
-      process->io_read_bytes = value.ull;
+      process->io_read_bytes = value.ull / ONE_K;
       process->io_rate_read_bps =
-               ((double)(value.ull - last_read)) /
-               (((double)(now - process->io_rate_read_time)) / 1000);
-      process->io_rate_read_time = now;
+            ONE_K * (process->io_read_bytes - last_read) /
+            (now - process->io_last_scan_time);
    } else {
-      process->io_read_bytes = -1LL;
+      process->io_read_bytes = ULLONG_MAX;
       process->io_rate_read_bps = NAN;
-      process->io_rate_read_time = -1LL;
    }
 
    if (Metric_instance(PCP_PROC_IO_WRITEB, pid, offset, &value, PM_TYPE_U64)) {
       unsigned long long last_write = process->io_write_bytes;
       process->io_write_bytes = value.ull;
       process->io_rate_write_bps =
-               ((double)(value.ull - last_write)) /
-               (((double)(now - process->io_rate_write_time)) / 1000);
-      process->io_rate_write_time = now;
+            ONE_K * (process->io_write_bytes - last_write) /
+            (now - process->io_last_scan_time);
    } else {
-      process->io_write_bytes = -1LL;
+      process->io_write_bytes = ULLONG_MAX;
       process->io_rate_write_bps = NAN;
-      process->io_rate_write_time = -1LL;
    }
+
+   process->io_last_scan_time = now;
 }
 
 static void PCPProcessList_updateMemory(PCPProcess* process, int pid, int offset) {
@@ -394,40 +380,65 @@ static void PCPProcessList_updateUsername(Process* process, int pid, int offset,
    process->user = setUser(users, uid, pid, offset);
 }
 
-static void setComm(Process* process, const char* command, int len) {
-   if (process->comm && process->commLen >= len) {
-      strncpy(process->comm, command, process->commLen);
-      process->comm[process->commLen-1] = '\0';
-   } else {
-      if (process->comm)
-         free(process->comm);
-      process->comm = xStrdup(command);
-   }
-   process->commLen = len;
-}
-
-static void PCPProcessList_setComm(Process* process, const char* command, int len) {
-   process->basenameOffset = -1;
-   setComm(process, command, len);
-}
-
-static void PCPProcessList_updateCmdline(Process* process, int pid, int offset) {
+static void PCPProcessList_updateCmdline(Process* process, int pid, int offset, const char* comm) {
    pmAtomValue value;
-   if (Metric_instance(PCP_PROC_PSARGS, pid, offset, &value, PM_TYPE_STRING)) {
-      bool kthread = (value.cp[0] == '(');
-      Process_setKernelThread(process, kthread);
-      process->basenameOffset = kthread ? 1 : 0;
-      for (int i = 0; value.cp[i] != '\0'; i++) {
-         if (!isspace(value.cp[i]))
-            break;
-         process->basenameOffset++;
-      }
-      setComm(process, value.cp, strlen(value.cp) + 1);
-      free(value.cp);
-   } else {
-      process->comm = NULL;
-      process->commLen = 0;
+   if (!Metric_instance(PCP_PROC_PSARGS, pid, offset, &value, PM_TYPE_STRING)) {
+      if (process->state != 'Z')
+         Process_setKernelThread(process, true);
+      else
+         process->basenameOffset = 0;
+      return;
    }
+
+   char *command = value.cp;
+   size_t length = strlen(command);
+   if (command[0] != '(') {
+      Process_setKernelThread(process, false);
+   } else {
+      ++command;
+      --length;
+      if (command[length-1] == ')')
+         command[length-1] = '\0';
+      Process_setKernelThread(process, true);
+   }
+
+   int tokenEnd = 0;
+   int tokenStart = 0;
+   int lastChar = 0;
+   for (int i = 0; i < length; i++) {
+      /* htop considers the next character after the last / that is before
+       * basenameOffset, as the start of the basename in cmdline - see
+       * Process_writeCommand */
+      if (command[i] == '/')
+         tokenStart = i + 1;
+      lastChar = i;
+   }
+   tokenEnd = length;
+
+   PCPProcess *pp = (PCPProcess *)process;
+   pp->mergedCommand.maxLen = lastChar + 1;  /* accommodate cmdline */
+   if (!process->comm || !String_eq(command, process->comm)) {
+      process->basenameOffset = tokenEnd;
+      free_and_xStrdup(&process->comm, command);
+      pp->procCmdlineBasenameOffset = tokenStart;
+      pp->procCmdlineBasenameEnd = tokenEnd;
+      pp->mergedCommand.cmdlineChanged = true;
+   }
+
+   /* comm could change, so should be updated */
+   if ((length = strlen(comm)) > 0) {
+      pp->mergedCommand.maxLen += length;
+      if (!pp->procComm || !String_eq(command, pp->procComm)) {
+         free_and_xStrdup(&pp->procComm, command);
+         pp->mergedCommand.commChanged = true;
+      }
+   } else if (pp->procComm) {
+      free(pp->procComm);
+      pp->procComm = NULL;
+      pp->mergedCommand.commChanged = true;
+   }
+
+   free(value.cp);
 }
 
 static bool PCPProcessList_updateProcesses(PCPProcessList* this, double period, struct timeval* tv) {
@@ -443,9 +454,35 @@ static bool PCPProcessList_updateProcesses(PCPProcessList* this, double period, 
    /* for every process ... */
    while (Metric_iterate(PCP_PROC_PID, &pid, &offset)) {
 
-      bool existed;
-      Process* proc = ProcessList_getProcess(pl, pid, &existed, PCPProcess_new);
+      bool preExisting;
+      Process* proc = ProcessList_getProcess(pl, pid, &preExisting, PCPProcess_new);
       PCPProcess* pp = (PCPProcess*) proc;
+      PCPProcessList_updateID(proc, pid, offset);
+
+      /*
+       * These conditions will not trigger on first occurrence, cause we need to
+       * add the process to the ProcessList and do all one time scans
+       * (e.g. parsing the cmdline to detect a kernel thread)
+       * But it will short-circuit subsequent scans.
+       */
+      if (preExisting && hideKernelThreads && Process_isKernelThread(proc)) {
+         proc->updated = true;
+         proc->show = false;
+         if (proc->state == 'R')
+            pl->runningTasks++;
+         pl->kernelThreads++;
+         pl->totalTasks++;
+         continue;
+      }
+      if (preExisting && hideUserlandThreads && Process_isUserlandThread(proc)) {
+         proc->updated = true;
+         proc->show = false;
+         if (proc->state == 'R')
+            pl->runningTasks++;
+         pl->userlandThreads++;
+         pl->totalTasks++;
+         continue;
+      }
 
       if (settings->flags & PROCESS_FLAG_IO)
          PCPProcessList_updateIO(pp, pid, offset, now);
@@ -458,16 +495,12 @@ static bool PCPProcessList_updateProcesses(PCPProcessList* this, double period, 
             PCPProcessList_updateSmaps(pp, pid, offset);
       }
 
-      proc->show = ! ((hideKernelThreads && Process_isKernelThread(proc)) ||
-                      (hideUserlandThreads && Process_isUserlandThread(proc)));
-
       char command[MAX_NAME + 1];
-      int commLen = sizeof(command);
       unsigned int tty_nr = proc->tty_nr;
       unsigned long long int lasttimes = pp->utime + pp->stime;
 
-      PCPProcessList_updateProcInfo(proc, pid, offset, command, &commLen, this->btime);
-
+      PCPProcessList_updateInfo(proc, pid, offset, command, sizeof(command));
+      proc->starttime_ctime += this->btime;
       if (tty_nr != proc->tty_nr)
          PCPProcessList_updateTTY(pp, pid, offset);
 
@@ -476,13 +509,23 @@ static bool PCPProcessList_updateProcesses(PCPProcessList* this, double period, 
                           0.0 : CLAMP(percent_cpu, 0.0, pl->cpuCount * 100.0);
       proc->percent_mem = proc->m_resident / (double)pl->totalMem * 100.0;
 
-      if (!existed) {
+      if (!preExisting) {
          PCPProcessList_updateUsername(proc, pid, offset, pl->usersTable);
-         PCPProcessList_updateCmdline(proc, pid, offset);
+         PCPProcessList_updateCmdline(proc, pid, offset, command);
          Process_fillStarttimeBuffer(proc);
          ProcessList_add(pl, proc);
       } else if (settings->updateProcessNames && proc->state != 'Z') {
-         PCPProcessList_updateCmdline(proc, pid, offset);
+         PCPProcessList_updateCmdline(proc, pid, offset, command);
+      }
+
+      /* (Re)Generate the Command string, but only if the process is:
+       * - not a kernel thread, and
+       * - not a zombie or it became zombie under htop's watch, and
+       * - not a user thread or if showThreadNames is not set */
+      if (!Process_isKernelThread(proc) &&
+          (proc->state != 'Z' || pp->mergedCommand.str) &&
+          (!Process_isUserlandThread(proc) || !settings->showThreadNames)) {
+         PCPProcess_makeCommandStr(proc);
       }
 
       if (settings->flags & PROCESS_FLAG_LINUX_CGROUP)
@@ -498,54 +541,75 @@ static bool PCPProcessList_updateProcesses(PCPProcessList* this, double period, 
          PCPProcessList_readSecattrData(pp, pid, offset);
 
       if (proc->state == 'Z' && proc->basenameOffset == 0) {
-         PCPProcessList_setComm(proc, command, commLen);
+         proc->basenameOffset = -1;
+         free_and_xStrdup(&proc->comm, command);
+         pp->procCmdlineBasenameOffset = 0;
+         pp->procCmdlineBasenameEnd = 0;
+         pp->mergedCommand.commChanged = true;
       } else if (Process_isThread(proc)) {
+         if (settings->showThreadNames || Process_isKernelThread(proc)) {
+            proc->basenameOffset = -1;
+            free_and_xStrdup(&proc->comm, command);
+            pp->procCmdlineBasenameOffset = 0;
+            pp->procCmdlineBasenameEnd = 0;
+            pp->mergedCommand.commChanged = true;
+         }
          if (Process_isKernelThread(proc)) {
             pl->kernelThreads++;
-            PCPProcessList_setComm(proc, command, commLen);
          } else {
             pl->userlandThreads++;
-            if (settings->showThreadNames)
-               PCPProcessList_updateCmdline(proc, pid, offset);
-            else
-               PCPProcessList_setComm(proc, command, commLen);
          }
       }
+
+      /* Set at the end when we know if a new entry is a thread */
+      proc->show = ! ((hideKernelThreads && Process_isKernelThread(proc)) ||
+                      (hideUserlandThreads && Process_isUserlandThread(proc)));
+//fprintf(stderr, "Updated PID %d [%s] show=%d user=%d[%d] kern=%d[%d]\n", pid, command, proc->show, Process_isUserlandThread(proc), hideUserlandThreads, Process_isKernelThread(proc), hideKernelThreads);
 
       pl->totalTasks++;
       if (proc->state == 'R')
          pl->runningTasks++;
       proc->updated = true;
    }
+//fprintf(stderr, "Total tasks %d, running=%d\n", pl->totalTasks, pl->runningTasks);
    return true;
 }
 
 static void PCPProcessList_updateMemoryInfo(ProcessList* super) {
-   unsigned long long int shmem = 0;
-   unsigned long long int sreclaimable = 0;
+   unsigned long long int freeMem = 0;
+   unsigned long long int swapFreeMem = 0;
+   unsigned long long int sreclaimableMem = 0;
    super->totalMem = super->usedMem = super->cachedMem = 0;
    super->usedSwap = super->totalSwap = 0;
 
    pmAtomValue value;
    if (Metric_values(PCP_MEM_TOTAL, &value, 1, PM_TYPE_U64) != NULL)
       super->totalMem = value.ull;
-   if (Metric_values(PCP_MEM_USED, &value, 1, PM_TYPE_U64) != NULL)
-      super->usedMem = value.ull;
+   if (Metric_values(PCP_MEM_FREE, &value, 1, PM_TYPE_U64) != NULL)
+      freeMem = value.ull;
    if (Metric_values(PCP_MEM_BUFFERS, &value, 1, PM_TYPE_U64) != NULL)
       super->buffersMem = value.ull;
    if (Metric_values(PCP_MEM_SRECLAIM, &value, 1, PM_TYPE_U64) != NULL)
-      sreclaimable = value.ull;
-   if (Metric_values(PCP_MEM_SHARED, &value, 1, PM_TYPE_U64) != NULL)
-      shmem = value.ull;
+      sreclaimableMem = value.ull;
    if (Metric_values(PCP_MEM_CACHED, &value, 1, PM_TYPE_U64) != NULL) {
       super->cachedMem = value.ull;
-      super->cachedMem += sreclaimable;
-      super->cachedMem -= shmem;
+      super->cachedMem += sreclaimableMem;
    }
-   if (Metric_values(PCP_SWAP_USED, &value, 1, PM_TYPE_U64) != NULL)
-      super->usedSwap = value.ull / 1024;
-   if (Metric_values(PCP_SWAP_TOTAL, &value, 1, PM_TYPE_U64) != NULL)
-      super->totalSwap = value.ull / 1024;
+   unsigned long long int usedDiff;
+   usedDiff = freeMem + super->cachedMem + super->buffersMem;
+   super->usedMem = (super->totalMem >= usedDiff) ?
+           super->totalMem - usedDiff : super->totalMem - freeMem;
+   if (Metric_values(PCP_MEM_AVAILABLE, &value, 1, PM_TYPE_U64) != NULL)
+      super->availableMem = MINIMUM(value.ull, super->totalMem);
+   else
+      super->availableMem = freeMem;
+   if (Metric_values(PCP_MEM_SWAPFREE, &value, 1, PM_TYPE_U64) != NULL)
+      swapFreeMem = value.ull;
+   if (Metric_values(PCP_MEM_SWAPTOTAL, &value, 1, PM_TYPE_U64) != NULL)
+      super->totalSwap = value.ull;
+   if (Metric_values(PCP_MEM_SWAPCACHED, &value, 1, PM_TYPE_U64) != NULL)
+      super->cachedSwap = value.ull;
+    super->usedSwap = super->totalSwap - swapFreeMem - super->cachedSwap;
 }
 
 /* make copies of previously sampled values to avoid overwrite */

@@ -31,11 +31,10 @@ static void AvailableMetersPanel_delete(Object* object) {
 }
 
 static inline void AvailableMetersPanel_addMeter(Header* header, Panel* panel, const MeterClass* type, int param, int column) {
-   Meter* meter = Header_addMeterByClass(header, type, param, column);
+   const Meter* meter = Header_addMeterByClass(header, type, param, column);
    Panel_add(panel, (Object*) Meter_toListItem(meter, false));
    Panel_setSelected(panel, Panel_size(panel) - 1);
    MetersPanel_setMoving((MetersPanel*)panel, true);
-   FunctionBar_draw(panel->currentBar);
 }
 
 static HandlerResult AvailableMetersPanel_eventHandler(Panel* super, int ch) {
@@ -91,7 +90,7 @@ const PanelClass AvailableMetersPanel_class = {
    .eventHandler = AvailableMetersPanel_eventHandler
 };
 
-AvailableMetersPanel* AvailableMetersPanel_new(Settings* settings, Header* header, Panel* leftMeters, Panel* rightMeters, ScreenManager* scr, ProcessList* pl) {
+AvailableMetersPanel* AvailableMetersPanel_new(Settings* settings, Header* header, Panel* leftMeters, Panel* rightMeters, ScreenManager* scr, const ProcessList* pl) {
    AvailableMetersPanel* this = AllocThis(AvailableMetersPanel);
    Panel* super = (Panel*) this;
    FunctionBar* fuBar = FunctionBar_newEnterEsc("Add   ", "Done   ");

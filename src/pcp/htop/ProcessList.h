@@ -34,6 +34,9 @@ in the source distribution for its full text.
 #define MAX_READ 2048
 #endif
 
+typedef unsigned long long int memory_t;
+#define MEMORY_MAX ULLONG_MAX
+
 typedef struct ProcessList_ {
    const Settings* settings;
 
@@ -61,13 +64,15 @@ typedef struct ProcessList_ {
    int userlandThreads;
    int kernelThreads;
 
-   unsigned long long int totalMem;
-   unsigned long long int usedMem;
-   unsigned long long int buffersMem;
-   unsigned long long int cachedMem;
-   unsigned long long int totalSwap;
-   unsigned long long int usedSwap;
-   unsigned long long int freeSwap;
+   memory_t totalMem;
+   memory_t usedMem;
+   memory_t buffersMem;
+   memory_t cachedMem;
+   memory_t availableMem;
+
+   memory_t totalSwap;
+   memory_t usedSwap;
+   memory_t cachedSwap;
 
    int cpuCount;
 
@@ -85,15 +90,15 @@ void ProcessList_done(ProcessList* this);
 
 void ProcessList_setPanel(ProcessList* this, Panel* panel);
 
-void ProcessList_printHeader(ProcessList* this, RichString* header);
+void ProcessList_printHeader(const ProcessList* this, RichString* header);
 
 void ProcessList_add(ProcessList* this, Process* p);
 
-void ProcessList_remove(ProcessList* this, Process* p);
+void ProcessList_remove(ProcessList* this, const Process* p);
 
 Process* ProcessList_get(ProcessList* this, int idx);
 
-int ProcessList_size(ProcessList* this);
+int ProcessList_size(const ProcessList* this);
 
 void ProcessList_sort(ProcessList* this);
 

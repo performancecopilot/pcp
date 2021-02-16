@@ -2986,11 +2986,6 @@ pmieconf -c enable dmthin
 %post
 PCP_PMNS_DIR=%{_pmnsdir}
 PCP_LOG_DIR=%{_logsdir}
-chown -R pcp:pcp %{_logsdir}/pmcd 2>/dev/null
-chown -R pcp:pcp %{_logsdir}/pmlogger 2>/dev/null
-chown -R pcp:pcp %{_logsdir}/sa 2>/dev/null
-chown -R pcp:pcp %{_logsdir}/pmie 2>/dev/null
-chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %{install_file "$PCP_PMNS_DIR" .NeedRebuild}
 %{install_file "$PCP_LOG_DIR/pmlogger" .NeedRewrite}
 %if !%{disable_systemd}

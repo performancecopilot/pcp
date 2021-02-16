@@ -11,6 +11,7 @@ iter 3: ctx 0: pmLookupDesc metric: sample.part_bin
 iter 4: ctx 1: pmLookupName metric: slow.seventeen
 iter 5: ctx 2: pmGetInDom metric: 2.0.18 (aka pmcd.buf.alloc)
 iter 6: ctx 0: pmNameID metric: 29.0.50 (aka sample.part_bin)
+Error: returned name sample.dupnames.five.part_bin expecting sample.part_bin
 iter 7: ctx 1: pmFetch metric: 243.0.0 (aka slow.seventeen)
 iter 8: ctx 2: pmNameInDom metric: 2.0.18 (aka pmcd.buf.alloc)
 iter 9: ctx 0: pmGetInDom metric: 29.0.50 (aka sample.part_bin)
@@ -44,6 +45,7 @@ iter 33: ctx 0: pmLookupDesc metric: sample.part_bin
 iter 34: ctx 1: pmLookupName metric: slow.seventeen
 iter 35: ctx 2: pmGetInDom metric: 2.0.18 (aka pmcd.buf.alloc)
 iter 36: ctx 0: pmNameID metric: 29.0.50 (aka sample.part_bin)
+Error: returned name sample.dupnames.five.part_bin expecting sample.part_bin
 iter 37: ctx 1: pmFetch metric: 243.0.0 (aka slow.seventeen)
 iter 38: ctx 2: pmNameInDom metric: 2.0.18 (aka pmcd.buf.alloc)
 iter 39: ctx 0: pmGetInDom metric: 29.0.50 (aka sample.part_bin)
@@ -79,6 +81,7 @@ iter 3: ctx 0: pmLookupDesc metric: sample.part_bin
 iter 4: ctx 1: pmLookupName metric: slow.seventeen
 iter 5: ctx 2: pmGetInDom metric: 2.0.18 (aka pmcd.buf.alloc)
 iter 6: ctx 0: pmNameID metric: 29.0.50 (aka sample.part_bin)
+Error: returned name sample.dupnames.five.part_bin expecting sample.part_bin
 iter 7: ctx 1: pmFetch metric: 243.0.0 (aka slow.seventeen)
 Error: Timeout waiting for a response from PMCD
 iter 8: ctx 2: pmNameInDom metric: 2.0.18 (aka pmcd.buf.alloc)
@@ -114,6 +117,7 @@ iter 33: ctx 0: pmLookupDesc metric: sample.part_bin
 iter 34: ctx 1: pmLookupName metric: slow.seventeen
 iter 35: ctx 2: pmGetInDom metric: 2.0.18 (aka pmcd.buf.alloc)
 iter 36: ctx 0: pmNameID metric: 29.0.50 (aka sample.part_bin)
+Error: returned name sample.dupnames.five.part_bin expecting sample.part_bin
 iter 37: ctx 1: pmFetch metric: 243.0.0 (aka slow.seventeen)
 Error: Timeout waiting for a response from PMCD
 iter 38: ctx 2: pmNameInDom metric: 2.0.18 (aka pmcd.buf.alloc)

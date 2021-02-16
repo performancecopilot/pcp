@@ -40,7 +40,7 @@ LogControl dump from ADDR numpmid: 1
  inst [1]
  inst [2]
 pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
-  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
@@ -58,7 +58,7 @@ TIMESTAMP 5 metrics
     2.0.24 (pmcd.seqnum): value NUMBER
 
 TIMESTAMP 1 metric
-    29.0.5 (sample.colour): inst [2 or "blue"] value NUMBER
+    29.0.5 (sample.dupnames.four.colour or sample.colour): inst [2 or "blue"] value NUMBER
 
 TIMESTAMP 5 metrics
     2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
@@ -107,7 +107,7 @@ LogControl dump from ADDR numpmid: 1
  inst [1]
  inst [2]
 pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
-  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
@@ -171,7 +171,7 @@ LogControl dump from ADDR numpmid: 1
  inst [1]
  inst [2]
 pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
-  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
@@ -241,7 +241,7 @@ LogControl dump from ADDR numpmid: 1
  inst [1]
  inst [2]
 pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
-  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
@@ -259,7 +259,7 @@ TIMESTAMP 5 metrics
     2.0.24 (pmcd.seqnum): value NUMBER
 
 TIMESTAMP 1 metric
-    29.0.5 (sample.colour): inst [2 or "blue"] value NUMBER
+    29.0.5 (sample.dupnames.four.colour or sample.colour): inst [2 or "blue"] value NUMBER
 
 TIMESTAMP 5 metrics
     2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
@@ -314,7 +314,7 @@ LogControl dump from ADDR numpmid: 1
  inst [1]
  inst [2]
 pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
-  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
@@ -332,7 +332,7 @@ TIMESTAMP 5 metrics
     2.0.24 (pmcd.seqnum): value NUMBER
 
 TIMESTAMP 1 metric
-    29.0.5 (sample.colour): inst [2 or "blue"] value NUMBER
+    29.0.5 (sample.dupnames.four.colour or sample.colour): inst [2 or "blue"] value NUMBER
 
 TIMESTAMP 5 metrics
     2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
@@ -383,7 +383,7 @@ LogControl dump from ADDR numpmid: 1
  inst [1]
  inst [2]
 pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
-  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
@@ -401,7 +401,7 @@ TIMESTAMP 5 metrics
     2.0.24 (pmcd.seqnum): value NUMBER
 
 TIMESTAMP 1 metric
-    29.0.5 (sample.colour): inst [2 or "blue"] value NUMBER
+    29.0.5 (sample.dupnames.four.colour or sample.colour): inst [2 or "blue"] value NUMBER
 
 TIMESTAMP 5 metrics
     2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
@@ -448,7 +448,7 @@ LogControl dump from ADDR numpmid: 1
  inst [1]
  inst [2]
 pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
-  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
@@ -512,7 +512,7 @@ LogControl dump from ADDR numpmid: 1
  inst [1]
  inst [2]
 pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
-  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
@@ -578,7 +578,7 @@ LogControl dump from ADDR numpmid: 1
  inst [1]
  inst [2]
 pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
-  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
@@ -596,7 +596,7 @@ TIMESTAMP 5 metrics
     2.0.24 (pmcd.seqnum): value NUMBER
 
 TIMESTAMP 1 metric
-    29.0.5 (sample.colour): inst [2 or "blue"] value NUMBER
+    29.0.5 (sample.dupnames.four.colour or sample.colour): inst [2 or "blue"] value NUMBER
 
 TIMESTAMP 5 metrics
     2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
@@ -645,7 +645,7 @@ LogControl dump from ADDR numpmid: 1
  inst [1]
  inst [2]
 pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
-  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
@@ -711,7 +711,7 @@ LogControl dump from ADDR numpmid: 1
  inst [1]
  inst [2]
 pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
-  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
@@ -729,7 +729,7 @@ TIMESTAMP 5 metrics
     2.0.24 (pmcd.seqnum): value NUMBER
 
 TIMESTAMP 1 metric
-    29.0.5 (sample.colour): inst [2 or "blue"] value NUMBER
+    29.0.5 (sample.dupnames.four.colour or sample.colour): inst [2 or "blue"] value NUMBER
 
 TIMESTAMP 5 metrics
     2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
@@ -778,7 +778,7 @@ LogControl dump from ADDR numpmid: 1
  inst [1]
  inst [2]
 pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
-  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
@@ -840,7 +840,7 @@ LogControl dump from ADDR numpmid: 1
  inst [1]
  inst [2]
 pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
-  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
@@ -908,7 +908,7 @@ LogControl dump from ADDR numpmid: 1
  inst [1]
  inst [2]
 pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
-  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
@@ -976,7 +976,7 @@ LogControl dump from ADDR numpmid: 1
  inst [1]
  inst [2]
 pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
-  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
@@ -1042,7 +1042,7 @@ LogControl dump from ADDR numpmid: 1
  inst [1]
  inst [2]
 pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
-  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
@@ -1060,7 +1060,7 @@ TIMESTAMP 5 metrics
     2.0.24 (pmcd.seqnum): value NUMBER
 
 TIMESTAMP 1 metric
-    29.0.5 (sample.colour): inst [2 or "blue"] value NUMBER
+    29.0.5 (sample.dupnames.four.colour or sample.colour): inst [2 or "blue"] value NUMBER
 
 TIMESTAMP 5 metrics
     2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
@@ -1109,7 +1109,7 @@ LogControl dump from ADDR numpmid: 1
  inst [1]
  inst [2]
 pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
-  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
@@ -1173,7 +1173,7 @@ LogControl dump from ADDR numpmid: 1
  inst [1]
  inst [2]
 pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
-  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
@@ -1237,7 +1237,7 @@ LogControl dump from ADDR numpmid: 1
  inst [1]
  inst [2]
 pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
-  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
@@ -1255,7 +1255,7 @@ TIMESTAMP 5 metrics
     2.0.24 (pmcd.seqnum): value NUMBER
 
 TIMESTAMP 1 metric
-    29.0.5 (sample.colour): inst [2 or "blue"] value NUMBER
+    29.0.5 (sample.dupnames.four.colour or sample.colour): inst [2 or "blue"] value NUMBER
 
 TIMESTAMP 5 metrics
     2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
@@ -1304,7 +1304,7 @@ LogControl dump from ADDR numpmid: 1
  inst [1]
  inst [2]
 pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
-  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
@@ -1370,7 +1370,7 @@ LogControl dump from ADDR numpmid: 1
  inst [1]
  inst [2]
 pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
-  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
@@ -1388,7 +1388,7 @@ TIMESTAMP 5 metrics
     2.0.24 (pmcd.seqnum): value NUMBER
 
 TIMESTAMP 1 metric
-    29.0.5 (sample.colour): inst [2 or "blue"] value NUMBER
+    29.0.5 (sample.dupnames.four.colour or sample.colour): inst [2 or "blue"] value NUMBER
 
 TIMESTAMP 5 metrics
     2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
@@ -1437,7 +1437,7 @@ LogControl dump from ADDR numpmid: 1
  inst [1]
  inst [2]
 pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
-  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
@@ -1501,7 +1501,7 @@ LogControl dump from ADDR numpmid: 1
  inst [1]
  inst [2]
 pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
-  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
@@ -1567,7 +1567,7 @@ LogControl dump from ADDR numpmid: 1
  inst [1]
  inst [2]
 pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
-  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
@@ -1585,7 +1585,7 @@ TIMESTAMP 5 metrics
     2.0.24 (pmcd.seqnum): value NUMBER
 
 TIMESTAMP 1 metric
-    29.0.5 (sample.colour): inst [2 or "blue"] value NUMBER
+    29.0.5 (sample.dupnames.four.colour or sample.colour): inst [2 or "blue"] value NUMBER
 
 TIMESTAMP 5 metrics
     2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
@@ -1632,7 +1632,7 @@ LogControl dump from ADDR numpmid: 1
  inst [1]
  inst [2]
 pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
-  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT

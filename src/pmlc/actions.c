@@ -328,6 +328,7 @@ Query(void)
 	vsp = res->vset[i];
 	if (mp->pmid != vsp->pmid) {
 	    fprintf(stderr, "GAK! %s not found in returned result\n", mp->name);
+	    pmFreeResult(res);
 	    return;
 	}
 	puts(mp->name);
