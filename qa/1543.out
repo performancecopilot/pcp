@@ -748,6 +748,16 @@ Series checked (indom)
     "values": [
         {
             "pmid": "29.0.5",
+            "name": "sample.dupnames.four.colour",
+            "instances": [
+                {
+                    "instance": 2,
+                    "value": VALUE
+                }
+            ]
+        },
+        {
+            "pmid": "29.0.5",
             "name": "sample.colour",
             "instances": [
                 {
@@ -768,6 +778,24 @@ Series checked (indom)
     "context": "CONTEXT"
     "timestamp": TIME,
     "values": [
+        {
+            "pmid": "29.0.5",
+            "name": "sample.dupnames.four.colour",
+            "instances": [
+                {
+                    "instance": 2,
+                    "value": VALUE
+                },
+                {
+                    "instance": 0,
+                    "value": VALUE
+                },
+                {
+                    "instance": 1,
+                    "value": VALUE
+                }
+            ]
+        },
         {
             "pmid": "29.0.5",
             "name": "sample.colour",
@@ -937,6 +965,18 @@ sample_long_million{hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAIN
 # HELP sample_long_write_me a 32-bit integer that can be modified
 # TYPE sample_long_write_me gauge
 sample_long_write_me{hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",changed="true"} 24
+# PCP5 sample.dupnames.five.long_bin 29.0.103 32 29.2 instant none
+# HELP sample_dupnames_five_long_bin like sample.bin but type 32
+# TYPE sample_dupnames_five_long_bin gauge
+sample_dupnames_five_long_bin{instname="bin-100",instid="100",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="100"} 100
+sample_dupnames_five_long_bin{instname="bin-200",instid="200",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="200"} 200
+sample_dupnames_five_long_bin{instname="bin-300",instid="300",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="300"} 300
+sample_dupnames_five_long_bin{instname="bin-400",instid="400",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="400"} 400
+sample_dupnames_five_long_bin{instname="bin-500",instid="500",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="500"} 500
+sample_dupnames_five_long_bin{instname="bin-600",instid="600",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="600"} 600
+sample_dupnames_five_long_bin{instname="bin-700",instid="700",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="700"} 700
+sample_dupnames_five_long_bin{instname="bin-800",instid="800",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="800"} 800
+sample_dupnames_five_long_bin{instname="bin-900",instid="900",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="900"} 900
 # PCP5 sample.long.bin 29.0.103 32 29.2 instant none
 # HELP sample_long_bin like sample.bin but type 32
 # TYPE sample_long_bin gauge
@@ -962,6 +1002,12 @@ sample_long_bin_ctr{instname="bin-700",instid="700",hostname="HOSTNAME",machinei
 sample_long_bin_ctr{instname="bin-800",instid="800",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="800"} 800
 sample_long_bin_ctr{instname="bin-900",instid="900",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="900"} 900
 == scrape metric instances ==
+# PCP5 sample.dupnames.four.colour 29.0.5 32 29.1 instant none
+# HELP sample_dupnames_four_colour Metrics with a "saw-tooth" trend over time
+# TYPE sample_dupnames_four_colour gauge
+sample_dupnames_four_colour{instname="red",instid="0",model="RGB",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 143
+sample_dupnames_four_colour{instname="green",instid="1",model="RGB",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 244
+sample_dupnames_four_colour{instname="blue",instid="2",model="RGB",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 345
 # PCP5 sample.colour 29.0.5 32 29.1 instant none
 # HELP sample_colour Metrics with a "saw-tooth" trend over time
 # TYPE sample_colour gauge
