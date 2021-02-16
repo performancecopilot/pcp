@@ -13,6 +13,7 @@ in the source distribution for its full text.
 #include <errno.h>
 #include <fcntl.h>
 #include <stdarg.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -36,9 +37,21 @@ void* xMalloc(size_t size) {
    return data;
 }
 
+void* xMallocArray(size_t nmemb, size_t size) {
+   assert(nmemb > 0);
+   assert(size > 0);
+   if (SIZE_MAX / nmemb < size) {
+      fail();
+   }
+   return xMalloc(nmemb * size);
+}
+
 void* xCalloc(size_t nmemb, size_t size) {
    assert(nmemb > 0);
    assert(size > 0);
+   if (SIZE_MAX / nmemb < size) {
+      fail();
+   }
    void* data = calloc(nmemb, size);
    if (!data) {
       fail();
@@ -54,6 +67,15 @@ void* xRealloc(void* ptr, size_t size) {
       fail();
    }
    return data;
+}
+
+void* xReallocArray(void* ptr, size_t nmemb, size_t size) {
+   assert(nmemb > 0);
+   assert(size > 0);
+   if (SIZE_MAX / nmemb < size) {
+      fail();
+   }
+   return xRealloc(ptr, nmemb * size);
 }
 
 char* String_cat(const char* s1, const char* s2) {
@@ -151,7 +173,7 @@ char* String_readLine(FILE* fd) {
    char* buffer = xMalloc(step + 1);
    char* at = buffer;
    for (;;) {
-      char* ok = fgets(at, step + 1, fd);
+      const char* ok = fgets(at, step + 1, fd);
       if (!ok) {
          free(buffer);
          return NULL;
@@ -169,6 +191,18 @@ char* String_readLine(FILE* fd) {
       buffer = xRealloc(buffer, bufSize + 1);
       at = buffer + bufSize - step;
    }
+}
+
+size_t String_safeStrncpy(char *restrict dest, const char *restrict src, size_t size) {
+   assert(size > 0);
+
+   size_t i = 0;
+   for (; i < size - 1 && src[i]; i++)
+      dest[i] = src[i];
+
+   dest[i] = '\0';
+
+   return i;
 }
 
 int xAsprintf(char** strp, const char* fmt, ...) {
@@ -203,6 +237,14 @@ char* xStrdup(const char* str) {
       fail();
    }
    return data;
+}
+
+void free_and_xStrdup(char** ptr, const char* str) {
+   if (*ptr && String_eq(*ptr, str))
+      return;
+
+   free(*ptr);
+   *ptr = xStrdup(str);
 }
 
 char* xStrndup(const char* str, size_t len) {

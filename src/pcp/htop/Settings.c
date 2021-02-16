@@ -29,14 +29,14 @@ void Settings_delete(Settings* this) {
    free(this);
 }
 
-static void Settings_readMeters(Settings* this, char* line, int column) {
+static void Settings_readMeters(Settings* this, const char* line, int column) {
    char* trim = String_trim(line);
    char** ids = String_split(trim, ' ', NULL);
    free(trim);
    this->columns[column].names = ids;
 }
 
-static void Settings_readMeterModes(Settings* this, char* line, int column) {
+static void Settings_readMeterModes(Settings* this, const char* line, int column) {
    char* trim = String_trim(line);
    char** ids = String_split(trim, ' ', NULL);
    free(trim);
@@ -45,7 +45,7 @@ static void Settings_readMeterModes(Settings* this, char* line, int column) {
       len++;
    }
    this->columns[column].len = len;
-   int* modes = xCalloc(len, sizeof(int));
+   int* modes = len ? xCalloc(len, sizeof(int)) : NULL;
    for (int i = 0; i < len; i++) {
       modes[i] = atoi(ids[i]);
    }
@@ -55,7 +55,7 @@ static void Settings_readMeterModes(Settings* this, char* line, int column) {
 
 static void Settings_defaultMeters(Settings* this, int initialCpuCount) {
    int sizes[] = { 3, 3 };
-   if (initialCpuCount > 4) {
+   if (initialCpuCount > 4 && initialCpuCount <= 128) {
       sizes[1]++;
    }
    for (int i = 0; i < 2; i++) {
@@ -64,7 +64,22 @@ static void Settings_defaultMeters(Settings* this, int initialCpuCount) {
       this->columns[i].len = sizes[i];
    }
    int r = 0;
-   if (initialCpuCount > 8) {
+
+   if (initialCpuCount > 128) {
+      // Just show the average, ricers need to config for impressive screenshots
+      this->columns[0].names[0] = xStrdup("CPU");
+      this->columns[0].modes[0] = BAR_METERMODE;
+   } else if (initialCpuCount > 32) {
+      this->columns[0].names[0] = xStrdup("LeftCPUs8");
+      this->columns[0].modes[0] = BAR_METERMODE;
+      this->columns[1].names[r] = xStrdup("RightCPUs8");
+      this->columns[1].modes[r++] = BAR_METERMODE;
+   } else if (initialCpuCount > 16) {
+      this->columns[0].names[0] = xStrdup("LeftCPUs4");
+      this->columns[0].modes[0] = BAR_METERMODE;
+      this->columns[1].names[r] = xStrdup("RightCPUs4");
+      this->columns[1].modes[r++] = BAR_METERMODE;
+   } else if (initialCpuCount > 8) {
       this->columns[0].names[0] = xStrdup("LeftCPUs2");
       this->columns[0].modes[0] = BAR_METERMODE;
       this->columns[1].names[r] = xStrdup("RightCPUs2");
@@ -96,10 +111,10 @@ static void readFields(ProcessField* fields, uint32_t* flags, const char* line) 
    free(trim);
    int i, j;
    *flags = 0;
-   for (j = 0, i = 0; i < Platform_numberOfFields && ids[i]; i++) {
+   for (j = 0, i = 0; i < LAST_PROCESSFIELD && ids[i]; i++) {
       // This "+1" is for compatibility with the older enum format.
       int id = atoi(ids[i]) + 1;
-      if (id > 0 && id < Platform_numberOfFields && Process_fields[id].name) {
+      if (id > 0 && id < LAST_PROCESSFIELD && Process_fields[id].name) {
          fields[j] = id;
          *flags |= Process_fields[id].flags;
          j++;
@@ -137,10 +152,17 @@ static bool Settings_read(Settings* this, const char* fileName, int initialCpuCo
       } else if (String_eq(option[0], "sort_key")) {
          // This "+1" is for compatibility with the older enum format.
          this->sortKey = atoi(option[1]) + 1;
+      } else if (String_eq(option[0], "tree_sort_key")) {
+         // This "+1" is for compatibility with the older enum format.
+         this->treeSortKey = atoi(option[1]) + 1;
       } else if (String_eq(option[0], "sort_direction")) {
          this->direction = atoi(option[1]);
+      } else if (String_eq(option[0], "tree_sort_direction")) {
+         this->treeDirection = atoi(option[1]);
       } else if (String_eq(option[0], "tree_view")) {
          this->treeView = atoi(option[1]);
+      } else if (String_eq(option[0], "tree_view_always_by_pid")) {
+         this->treeViewAlwaysByPID = atoi(option[1]);
       } else if (String_eq(option[0], "hide_kernel_threads")) {
          this->hideKernelThreads = atoi(option[1]);
       } else if (String_eq(option[0], "hide_userland_threads")) {
@@ -214,6 +236,8 @@ static bool Settings_read(Settings* this, const char* fileName, int initialCpuCo
       } else if (String_eq(option[0], "right_meter_modes")) {
          Settings_readMeterModes(this, option[1], 1);
          didReadMeters = true;
+      } else if (String_eq(option[0], "hide_function_bar")) {
+         this->hideFunctionBar = atoi(option[1]);
       #ifdef HAVE_LIBHWLOC
       } else if (String_eq(option[0], "topology_affinity")) {
          this->topologyAffinity = !!atoi(option[1]);
@@ -228,7 +252,7 @@ static bool Settings_read(Settings* this, const char* fileName, int initialCpuCo
    return didReadFields;
 }
 
-static void writeFields(FILE* fd, ProcessField* fields, const char* name) {
+static void writeFields(FILE* fd, const ProcessField* fields, const char* name) {
    fprintf(fd, "%s=", name);
    const char* sep = "";
    for (int i = 0; fields[i]; i++) {
@@ -273,6 +297,8 @@ bool Settings_write(Settings* this) {
    // This "-1" is for compatibility with the older enum format.
    fprintf(fd, "sort_key=%d\n", (int) this->sortKey - 1);
    fprintf(fd, "sort_direction=%d\n", (int) this->direction);
+   fprintf(fd, "tree_sort_key=%d\n", (int) this->treeSortKey - 1);
+   fprintf(fd, "tree_sort_direction=%d\n", (int) this->treeDirection);
    fprintf(fd, "hide_kernel_threads=%d\n", (int) this->hideKernelThreads);
    fprintf(fd, "hide_userland_threads=%d\n", (int) this->hideUserlandThreads);
    fprintf(fd, "shadow_other_users=%d\n", (int) this->shadowOtherUsers);
@@ -287,6 +313,7 @@ bool Settings_write(Settings* this) {
    fprintf(fd, "strip_exe_from_cmdline=%d\n", (int) this->stripExeFromCmdline);
    fprintf(fd, "show_merged_command=%d\n", (int) this->showMergedCommand);
    fprintf(fd, "tree_view=%d\n", (int) this->treeView);
+   fprintf(fd, "tree_view_always_by_pid=%d\n", (int) this->treeViewAlwaysByPID);
    fprintf(fd, "header_margin=%d\n", (int) this->headerMargin);
    fprintf(fd, "detailed_cpu_time=%d\n", (int) this->detailedCPUTime);
    fprintf(fd, "cpu_count_from_one=%d\n", (int) this->countCPUsFromOne);
@@ -305,6 +332,7 @@ bool Settings_write(Settings* this) {
    fprintf(fd, "left_meter_modes="); writeMeterModes(this, fd, 0);
    fprintf(fd, "right_meters="); writeMeters(this, fd, 1);
    fprintf(fd, "right_meter_modes="); writeMeterModes(this, fd, 1);
+   fprintf(fd, "hide_function_bar=%d\n", (int) this->hideFunctionBar);
    #ifdef HAVE_LIBHWLOC
    fprintf(fd, "topology_affinity=%d\n", (int) this->topologyAffinity);
    #endif
@@ -316,7 +344,9 @@ Settings* Settings_new(int initialCpuCount) {
    Settings* this = xCalloc(1, sizeof(Settings));
 
    this->sortKey = PERCENT_CPU;
-   this->direction = 1;
+   this->treeSortKey = PID;
+   this->direction = -1;
+   this->treeDirection = 1;
    this->shadowOtherUsers = false;
    this->showThreadNames = false;
    this->hideKernelThreads = false;
@@ -340,21 +370,22 @@ Settings* Settings_new(int initialCpuCount) {
    this->findCommInCmdline = true;
    this->stripExeFromCmdline = true;
    this->showMergedCommand = false;
+   this->hideFunctionBar = 0;
    #ifdef HAVE_LIBHWLOC
    this->topologyAffinity = false;
    #endif
-   this->fields = xCalloc(Platform_numberOfFields + 1, sizeof(ProcessField));
+   this->fields = xCalloc(LAST_PROCESSFIELD + 1, sizeof(ProcessField));
    // TODO: turn 'fields' into a Vector,
    // (and ProcessFields into proper objects).
    this->flags = 0;
-   ProcessField* defaults = Platform_defaultFields;
+   const ProcessField* defaults = Platform_defaultFields;
    for (int i = 0; defaults[i]; i++) {
       this->fields[i] = defaults[i];
       this->flags |= Process_fields[defaults[i]].flags;
    }
 
    char* legacyDotfile = NULL;
-   char* rcfile = getenv("HTOPRC");
+   const char* rcfile = getenv("HTOPRC");
    if (rcfile) {
       this->filename = xStrdup(rcfile);
    } else {
@@ -408,10 +439,7 @@ Settings* Settings_new(int initialCpuCount) {
    }
    if (!ok) {
       this->changed = true;
-      // TODO: how to get SYSCONFDIR correctly through Autoconf?
-      char* systemSettings = String_cat(SYSCONFDIR, "/htoprc");
-      ok = Settings_read(this, systemSettings, initialCpuCount);
-      free(systemSettings);
+      ok = Settings_read(this, SYSCONFDIR "/htoprc", initialCpuCount);
    }
    if (!ok) {
       Settings_defaultMeters(this, initialCpuCount);
@@ -427,9 +455,17 @@ Settings* Settings_new(int initialCpuCount) {
 }
 
 void Settings_invertSortOrder(Settings* this) {
-   if (this->direction == 1) {
-      this->direction = -1;
+   int* attr = (this->treeView) ? &(this->treeDirection) : &(this->direction);
+   *attr = (*attr == 1) ? -1 : 1;
+}
+
+void Settings_setSortKey(Settings* this, ProcessField sortKey) {
+   if (this->treeViewAlwaysByPID || !this->treeView) {
+      this->sortKey = sortKey;
+      this->direction = (Process_fields[sortKey].defaultSortDesc) ? -1 : 1;
+      this->treeView = false;
    } else {
-      this->direction = 1;
+      this->treeSortKey = sortKey;
+      this->treeDirection = (Process_fields[sortKey].defaultSortDesc) ? -1 : 1;
    }
 }

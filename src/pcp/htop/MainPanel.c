@@ -25,14 +25,14 @@ static const char* const MainFunctions[]  = {"Help  ", "Setup ", "Search", "Filt
 
 void MainPanel_updateTreeFunctions(MainPanel* this, bool mode) {
    FunctionBar* bar = MainPanel_getFunctionBar(this);
-   FunctionBar_setLabel(bar, KEY_F(5), mode ? "Sorted" : "Tree  ");
+   FunctionBar_setLabel(bar, KEY_F(5), mode ? "List  " : "Tree  ");
 }
 
 void MainPanel_pidSearch(MainPanel* this, int ch) {
    Panel* super = (Panel*) this;
    pid_t pid = ch - 48 + this->pidSearch;
    for (int i = 0; i < Panel_size(super); i++) {
-      Process* p = (Process*) Panel_get(super, i);
+      const Process* p = (const Process*) Panel_get(super, i);
       if (p && p->pid == pid) {
          Panel_setSelected(super, i);
          break;
@@ -44,6 +44,11 @@ void MainPanel_pidSearch(MainPanel* this, int ch) {
    }
 }
 
+static const char* MainPanel_getValue(Panel* this, int i) {
+   const Process* p = (const Process*) Panel_get(this, i);
+   return Process_getCommand(p);
+}
+
 static HandlerResult MainPanel_eventHandler(Panel* super, int ch) {
    MainPanel* this = (MainPanel*) super;
 
@@ -51,6 +56,11 @@ static HandlerResult MainPanel_eventHandler(Panel* super, int ch) {
 
    Htop_Reaction reaction = HTOP_OK;
 
+   /* Let supervising ScreenManager handle resize */
+   if (ch == KEY_RESIZE)
+      return IGNORED;
+
+   /* reset on every normal key */
    if (ch != ERR)
       this->state->hideProcessSelection = false;
 
@@ -60,7 +70,11 @@ static HandlerResult MainPanel_eventHandler(Panel* super, int ch) {
       Settings* settings = this->state->settings;
       int hx = super->scrollH + x + 1;
       ProcessField field = ProcessList_keyAt(pl, hx);
-      if (field == settings->sortKey) {
+      if (settings->treeView && settings->treeViewAlwaysByPID) {
+         settings->treeView = false;
+         settings->direction = 1;
+         reaction |= Action_setSortKey(settings, field);
+      } else if (field == Settings_getActiveSortKey(settings)) {
          Settings_invertSortOrder(settings);
       } else {
          reaction |= Action_setSortKey(settings, field);
@@ -68,7 +82,7 @@ static HandlerResult MainPanel_eventHandler(Panel* super, int ch) {
       reaction |= HTOP_RECALCULATE | HTOP_REDRAW_BAR | HTOP_SAVE_SETTINGS;
       result = HANDLED;
    } else if (ch != ERR && this->inc->active) {
-      bool filterChanged = IncSet_handleKey(this->inc, ch, super, (IncMode_GetPanelValue) MainPanel_getValue, NULL);
+      bool filterChanged = IncSet_handleKey(this->inc, ch, super, MainPanel_getValue, NULL);
       if (filterChanged) {
          this->state->pl->incFilter = IncSet_filter(this->inc);
          reaction = HTOP_REFRESH | HTOP_REDRAW_BAR;
@@ -96,16 +110,12 @@ static HandlerResult MainPanel_eventHandler(Panel* super, int ch) {
 
    if (reaction & HTOP_REDRAW_BAR) {
       MainPanel_updateTreeFunctions(this, this->state->settings->treeView);
-      IncSet_drawBar(this->inc);
-      if (this->state->pauseProcessUpdate) {
-         FunctionBar_append("PAUSED", CRT_colors[PAUSED]);
-      }
    }
    if (reaction & HTOP_UPDATE_PANELHDR) {
-      ProcessList_printHeader(this->state->pl, Panel_getHeader(super));
+      result |= REDRAW;
    }
    if (reaction & HTOP_REFRESH) {
-      result |= REDRAW;
+      result |= REFRESH;
    }
    if (reaction & HTOP_RECALCULATE) {
       result |= RESCAN;
@@ -118,22 +128,17 @@ static HandlerResult MainPanel_eventHandler(Panel* super, int ch) {
    }
    if (!(reaction & HTOP_KEEP_FOLLOWING)) {
       this->state->pl->following = -1;
-      Panel_setSelectionColor(super, CRT_colors[PANEL_SELECTION_FOCUS]);
+      Panel_setSelectionColor(super, PANEL_SELECTION_FOCUS);
    }
    return result;
 }
 
 int MainPanel_selectedPid(MainPanel* this) {
-   Process* p = (Process*) Panel_getSelected((Panel*)this);
+   const Process* p = (const Process*) Panel_getSelected((Panel*)this);
    if (p) {
       return p->pid;
    }
    return -1;
-}
-
-const char* MainPanel_getValue(MainPanel* this, int i) {
-   Process* p = (Process*) Panel_get((Panel*)this, i);
-   return Process_getCommand(p);
 }
 
 bool MainPanel_foreachProcess(MainPanel* this, MainPanel_ForeachProcessFn fn, Arg arg, bool* wasAnyTagged) {
@@ -160,12 +165,32 @@ bool MainPanel_foreachProcess(MainPanel* this, MainPanel_ForeachProcessFn fn, Ar
    return ok;
 }
 
+static void MainPanel_drawFunctionBar(Panel* super, bool hideFunctionBar) {
+   MainPanel* this = (MainPanel*) super;
+
+   // Do not hide active search and filter bar.
+   if (hideFunctionBar && !this->inc->active)
+      return;
+
+   IncSet_drawBar(this->inc);
+   if (this->state->pauseProcessUpdate) {
+      FunctionBar_append("PAUSED", CRT_colors[PAUSED]);
+   }
+}
+
+static void MainPanel_printHeader(Panel* super) {
+   MainPanel* this = (MainPanel*) super;
+   ProcessList_printHeader(this->state->pl, &super->header);
+}
+
 const PanelClass MainPanel_class = {
    .super = {
       .extends = Class(Panel),
       .delete = MainPanel_delete
    },
-   .eventHandler = MainPanel_eventHandler
+   .eventHandler = MainPanel_eventHandler,
+   .drawFunctionBar = MainPanel_drawFunctionBar,
+   .printHeader = MainPanel_printHeader
 };
 
 MainPanel* MainPanel_new() {

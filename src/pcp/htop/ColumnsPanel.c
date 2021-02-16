@@ -44,7 +44,7 @@ static HandlerResult ColumnsPanel_eventHandler(Panel* super, int ch) {
       {
          if (selected < size - 1) {
             this->moving = !(this->moving);
-            Panel_setSelectionColor(super, this->moving ? CRT_colors[PANEL_SELECTION_FOLLOW] : CRT_colors[PANEL_SELECTION_FOCUS]);
+            Panel_setSelectionColor(super, this->moving ? PANEL_SELECTION_FOLLOW : PANEL_SELECTION_FOCUS);
             ListItem* selectedItem = (ListItem*) Panel_getSelected(super);
             if (selectedItem)
                selectedItem->moving = this->moving;
@@ -125,7 +125,7 @@ ColumnsPanel* ColumnsPanel_new(Settings* settings) {
    this->moving = false;
    Panel_setHeader(super, "Active Columns");
 
-   ProcessField* fields = this->settings->fields;
+   const ProcessField* fields = this->settings->fields;
    for (; *fields; fields++) {
       if (Process_fields[*fields].name) {
          Panel_add(super, (Object*) ListItem_new(Process_fields[*fields].name, *fields));

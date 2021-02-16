@@ -3,7 +3,8 @@
 /*
 htop - PCPProcess.h
 (C) 2014 Hisham H. Muhammad
-(C) 2020 Red Hat, Inc.  All Rights Reserved.
+(C) 2020 htop dev team
+(C) 2020-2021 Red Hat, Inc.  All Rights Reserved.
 Released under the GNU GPLv2, see the COPYING file
 in the source distribution for its full text.
 */
@@ -24,65 +25,34 @@ in the source distribution for its full text.
 #define PROCESS_FLAG_LINUX_CTXT     0x4000
 #define PROCESS_FLAG_LINUX_SECATTR  0x8000
 
-typedef enum UnsupportedProcessFields {
-   FLAGS = 9,
-   ITREALVALUE = 20,
-   VSIZE = 22,
-   RSS = 23,
-   RLIM = 24,
-   STARTCODE = 25,
-   ENDCODE = 26,
-   STARTSTACK = 27,
-   KSTKESP = 28,
-   KSTKEIP = 29,
-   SIGNAL = 30,
-   BLOCKED = 31,
-   SSIGIGNORE = 32,
-   SIGCATCH = 33,
-   WCHAN = 34,
-   NSWAP = 35,
-   CNSWAP = 36,
-   EXIT_SIGNAL = 37,
-} UnsupportedProcessField;
-
-typedef enum PCPProcessFields {
-   CMINFLT = 11,
-   CMAJFLT = 13,
-   UTIME = 14,
-   STIME = 15,
-   CUTIME = 16,
-   CSTIME = 17,
-   M_SHARE = 41,
-   M_TRS = 42,
-   M_DRS = 43,
-   M_LRS = 44,
-   M_DT = 45,
-   RCHAR = 103,
-   WCHAR = 104,
-   SYSCR = 105,
-   SYSCW = 106,
-   RBYTES = 107,
-   WBYTES = 108,
-   CNCLWB = 109,
-   IO_READ_RATE = 110,
-   IO_WRITE_RATE = 111,
-   IO_RATE = 112,
-   CGROUP = 113,
-   OOM = 114,
-   IO_PRIORITY = 115,
-   PERCENT_CPU_DELAY = 116,
-   PERCENT_IO_DELAY = 117,
-   PERCENT_SWAP_DELAY = 118,
-   M_PSS = 119,
-   M_SWAP = 120,
-   M_PSSWP = 121,
-   CTXT = 122,
-   SECATTR = 123,
-   LAST_PROCESSFIELD = 124,
-} PCPProcessField;
+/* PCPProcessMergedCommand is populated by PCPProcess_makeCommandStr: It
+ * contains the merged Command string, and the information needed by
+ * PCPProcess_writeCommand to color the string. str will be NULL for kernel
+ * threads and zombies */
+typedef struct PCPProcessMergedCommand_ {
+   char *str;           /* merged Command string */
+   int maxLen;          /* maximum expected length of Command string */
+   int baseStart;       /* basename's start offset */
+   int baseEnd;         /* basename's end offset */
+   int commStart;       /* comm's start offset */
+   int commEnd;         /* comm's end offset */
+   int sep1;            /* first field separator, used if non-zero */
+   int sep2;            /* second field separator, used if non-zero */
+   bool separateComm;   /* whether comm is a separate field */
+   bool cmdlineChanged; /* whether cmdline changed */
+   bool commChanged;    /* whether comm changed */
+   bool prevMergeSet;   /* whether showMergedCommand was set */
+   bool prevPathSet;    /* whether showProgramPath was set */
+   bool prevCommSet;    /* whether findCommInCmdline was set */
+   bool prevCmdlineSet; /* whether findCommInCmdline was set */
+} PCPProcessMergedCommand;
 
 typedef struct PCPProcess_ {
    Process super;
+   char *procComm;
+   int procCmdlineBasenameOffset;
+   int procCmdlineBasenameEnd;
+   PCPProcessMergedCommand mergedCommand;
    bool isKernelThread;
    unsigned long int cminflt;
    unsigned long int cmajflt;
@@ -98,15 +68,31 @@ typedef struct PCPProcess_ {
    long m_drs;
    long m_lrs;
    long m_dt;
+
+   /* Data read (in kilobytes) */
    unsigned long long io_rchar;
+
+   /* Data written (in kilobytes) */
    unsigned long long io_wchar;
+
+   /* Number of read(2) syscalls */
    unsigned long long io_syscr;
+
+   /* Number of write(2) syscalls */
    unsigned long long io_syscw;
+
+   /* Storage data read (in kilobytes) */
    unsigned long long io_read_bytes;
+
+   /* Storage data written (in kilobytes) */
    unsigned long long io_write_bytes;
+
+   /* Storage data cancelled (in kilobytes) */
    unsigned long long io_cancelled_write_bytes;
-   unsigned long long io_rate_read_time;
-   unsigned long long io_rate_write_time;
+
+   /* Point in time of last io scan (in seconds elapsed since the Epoch) */
+   unsigned long long io_last_scan_time;
+
    double io_rate_read_bps;
    double io_rate_write_bps;
    char* cgroup;
@@ -122,6 +108,7 @@ typedef struct PCPProcess_ {
    unsigned long ctxt_total;
    unsigned long ctxt_diff;
    char* secattr;
+   unsigned long long int last_mlrs_calctime;
 } PCPProcess;
 
 static inline void Process_setKernelThread(Process* this, bool truth) {
@@ -136,9 +123,7 @@ static inline bool Process_isUserlandThread(const Process* this) {
    return this->pid != this->tgid;
 }
 
-extern ProcessFieldData Process_fields[];
-
-extern ProcessPidColumn Process_pidColumns[];
+extern const ProcessFieldData Process_fields[LAST_PROCESSFIELD];
 
 extern const ProcessClass PCPProcess_class;
 
@@ -146,7 +131,9 @@ Process* PCPProcess_new(const Settings* settings);
 
 void Process_delete(Object* cast);
 
-void PCPProcess_printDelay(float delay_percent, char* buffer, int n);
+/* This function constructs the string that is displayed by
+ * PCPProcess_writeCommand and also returned by PCPProcess_getCommandStr */
+void PCPProcess_makeCommandStr(Process *this);
 
 bool Process_isThread(const Process* this);
 

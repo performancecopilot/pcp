@@ -67,7 +67,7 @@ static void CPUMeter_updateValues(Meter* this, char* buffer, size_t size) {
    double percent = Platform_setCPUValues(this, cpu);
 
    if (this->pl->settings->showCPUUsage) {
-      xSnprintf(cpuUsageBuffer, sizeof(cpuUsageBuffer), "%5.1f%%", percent);
+      xSnprintf(cpuUsageBuffer, sizeof(cpuUsageBuffer), "%.1f%%", percent);
    }
 
    if (this->pl->settings->showCPUFrequency) {
@@ -167,8 +167,8 @@ static void CPUMeter_display(const Object* cast, RichString* out) {
    #endif
 }
 
-static void AllCPUsMeter_getRange(Meter* this, int* start, int* count) {
-   CPUMeterData* data = this->meterData;
+static void AllCPUsMeter_getRange(const Meter* this, int* start, int* count) {
+   const CPUMeterData* data = this->meterData;
    int cpus = data->cpus;
    switch(Meter_name(this)[0]) {
       default:

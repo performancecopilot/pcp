@@ -1,4 +1,4 @@
-.TH "PCP-HTOP" "1" "2020" "Performance Co-Pilot" "User Commands"
+.TH "PCP-HTOP" "1" "2021" "Performance Co-Pilot" "User Commands"
 .SH "NAME"
 pcp-htop \- interactive process viewer
 .SH "SYNOPSIS"
@@ -180,9 +180,6 @@ vice-versa.
 When in tree view mode, expand or collapse subtree. When a subtree is collapsed
 a "+" sign shows to the left of the process name.
 .TP
-.B a (on multiprocessor machines)
-Set CPU affinity: mark which CPUs a process is allowed to use.
-.TP
 .B u
 Show only processes owned by a specified user.
 .TP
@@ -217,7 +214,7 @@ Show full paths to running programs, where applicable. (This is a toggle key.)
 Pause/resume process updates.
 .TP
 .B m
-Merge exe, comm and cmdline, where applicable. (This is a toggle key.)
+Merge comm and cmdline, where applicable. (This is a toggle key.)
 .TP
 .B Ctrl-L
 Refresh: redraw screen and recalculate values.
@@ -238,17 +235,11 @@ main screen, it is shown below in parenthesis.
 .TP 5
 .B Command
 The full command line of the process (i.e. program name and arguments). If the
-option 'Merge exe, comm and cmdline in Command' (toggled by the 'm' key) is set,
-and if readable, the executable path (/proc/[pid]/exe) and the command name
-(/proc/[pid]/comm) are also shown merged with the command line.
+option 'Merge comm and cmdline in Command' (toggled by the 'm' key) is set,
+the command name (/proc/[pid]/comm) is also shown merged with the command line.
 .TP
 .B Comm
 The command name of the process obtained from /proc/[pid]/comm, if readable.
-.TP
-.B Exe
-The abbreviated basename of the executable of the process, obtained from
-/proc/[pid]/exe, if readable. pcp-htop is able to read this file on linux for ALL
-the processes only if it has the capability CAP_SYS_PTRACE or root privileges.
 .TP
 .B PID
 The process ID.
@@ -381,15 +372,6 @@ The number of threads in the process.
 .B TGID
 The thread group ID.
 .TP
-.B CTID
-OpenVZ container ID, a.k.a virtual environment ID.
-.TP
-.B VPID
-OpenVZ process ID.
-.TP
-.B VXID
-VServer process ID.
-.TP
 .B RCHAR (RD_CHAR)
 The number of bytes the process has read.
 .TP
@@ -447,9 +429,6 @@ The percentage of time spent swapping in pages. Requires CAP_NET_ADMIN.
 .B COMM
 The command name for the process. Requires Linux kernel 2.6.33 or newer.
 .TP
-.B EXE
-The executable file of the process as reported by the kernel. Requires CAP_SYS_PTRACE and PTRACE_MODE_READ_FSCRED.
-.TP
 .B All other flags
 Currently unsupported (always displays '-').
 .SH "CONFIG FILE"
@@ -463,7 +442,7 @@ in-program Setup configuration, so it should not be hand-edited.
 If no user configuration exists
 .B pcp-htop
 tries to read the system-wide configuration from
-.I /etc/pcp/htoprc
+.I /etc/htoprc
 and as a last resort, falls back to its hard coded defaults.
 .LP
 You may override the location of the configuration file using the $PCP-HTOPRC
@@ -479,14 +458,18 @@ The decision to use this convention was made in order to conserve screen
 space and make memory size representations consistent throughout
 .BR pcp-htop .
 .SH "SEE ALSO"
-.BR proc (5),
-.BR top (1),
-.BR free (1),
-.BR ps (1),
-.BR uptime (1)
+.BR pcp (1),
+.BR pcp-atop (1),
+.BR pcp-dstat (1),
+.BR pcp-free (1),
+.BR pcp-pidstat (1),
+.BR pcp-uptime (1)
 and
-.BR limits.conf (5).
+.BR pmcd (1).
 .SH "AUTHORS"
 .B pcp-htop
-was originally developed by Hisham Muhammad.
-Nowadays it is maintained by the <htop@groups.io> and <pcp@groups.io> communities.
+is based on
+.B htop
+which was originally developed by Hisham Muhammad.
+Nowadays these tools are maintained by the <htop@groups.io>
+and <pcp@groups.io> communities.

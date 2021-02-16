@@ -42,7 +42,8 @@ Display a help message and exit
 Show only the given PIDs
 .TP
 \fB\-s \-\-sort\-key COLUMN\fR
-Sort by this column (use \-\-sort\-key help for a column list)
+Sort by this column (use \-\-sort\-key help for a column list).
+This will force a list view unless you specify -t at the same time.
 .TP
 \fB\-u \-\-user=USERNAME\fR
 Show only the processes of a given user
@@ -57,7 +58,8 @@ Disable support of mouse control
 Output version information and exit
 .TP
 \fB\-t \-\-tree
-Show processes in tree view
+Show processes in tree view. This can be used to force a tree view when
+requesting a sort order with -s.
 .TP
 \fB\-H \-\-highlight-changes=DELAY\fR
 Highlight new and old processes
@@ -135,6 +137,7 @@ select which columns are displayed, in which order.
 Incrementally search the command lines of all the displayed processes. The
 currently selected (highlighted) command will update as you type. While in
 search mode, pressing F3 will cycle through matching occurrences.
+Pressing Shift-F3 will cycle backwards.
 
 Alternatively the search can be started by simply typing the command
 you are looking for, although for the first character normal key
@@ -151,11 +154,9 @@ between them as a tree. Toggling the key will switch between tree and
 your previously selected sort view. Selecting a sort view will exit
 tree view.
 .TP
-.B F6
-On sorted view, select a field for sorting, also accessible through < and >.
+.B F6, <, >
+Selects a field for sorting, also accessible through < and >.
 The current sort field is indicated by a highlight in the header.
-On tree view, expand or collapse the current subtree. A "+" indicator in the
-tree node indicates that it is collapsed.
 .TP
 .B F7, ]
 Increase the selected process's priority (subtract from 'nice' value).
@@ -185,6 +186,9 @@ Set CPU affinity: mark which CPUs a process is allowed to use.
 .TP
 .B u
 Show only processes owned by a specified user.
+.TP
+.B N
+Sort by PID.
 .TP
 .B M
 Sort by memory usage (top compatibility key).
@@ -376,7 +380,7 @@ The time, measured in clock ticks that the process has spent in user and system
 time (see UTIME, STIME above).
 .TP
 .B NLWP
-The number of threads in the process.
+The number of Light-Weight Processes (=threads) in the process.
 .TP
 .B TGID
 The thread group ID.

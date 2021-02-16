@@ -36,19 +36,19 @@ force	include
 	kernel.percpu.cpu.guest
 	kernel.percpu.cpu.guest_nice
 
-	mem.util.used
+	mem.util.available
+	mem.util.free
 	mem.util.bufmem
 	mem.util.cached
-	mem.util.shmem
 	mem.util.slabReclaimable
+	mem.util.swapCached
+	mem.util.swapTotal
+	mem.util.swapFree
 
 	network.all.in.bytes
 	network.all.out.bytes
 	network.all.in.packets
 	network.all.out.packets
-
-	swap.length
-	swap.used
 
 	zram.capacity
 	zram.mm_stat.data_size.original

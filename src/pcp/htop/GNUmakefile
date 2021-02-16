@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2020 Red Hat.
+# Copyright (c) 2020-2021 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -129,12 +129,13 @@ HFILES = \
 	UsersTable.h \
 	Vector.h \
 	XUtils.h \
-	linux/ZramStats.h \
 	linux/PressureStallMeter.h \
 	linux/ZramMeter.h \
+	linux/ZramStats.h \
 	pcp/PCPProcess.h \
 	pcp/PCPProcessList.h \
-	pcp/Platform.h
+	pcp/Platform.h \
+	pcp/ProcessField.h \
 
 MAN_PAGES = $(CMDTARGET).1
 
@@ -159,12 +160,6 @@ install_pcp: install
 
 $(DISTLINKS):	$(CMDTARGET)
 	@$(LN_S) -f $(CMDTARGET) $@
-
-$(CMDTARGET).1:	htop.1.in
-	sed -e 's;@PACKAGE_STRING@;Performance Co-Pilot;g' \
-	    -e 's;@sysconfdir@;'$(PCP_SYSCONF_DIR)';g' \
-	    -e 's;HTOP;PCP-HTOP;g' -e 's; htop; pcp-htop;g' \
-		< $^ > $@
 
 config.h: config.h.in
 	sed -e 's;@SYSCONFDIR@;'$(PCP_SYSCONF_DIR)';g' \

@@ -13,29 +13,31 @@ in the source distribution for its full text.
 
 #include "Macros.h"
 #include "ProvideCurses.h"
+#include "Settings.h"
 
 
 typedef enum TreeStr_ {
-   TREE_STR_HORZ,
    TREE_STR_VERT,
    TREE_STR_RTEE,
    TREE_STR_BEND,
    TREE_STR_TEND,
    TREE_STR_OPEN,
    TREE_STR_SHUT,
-   TREE_STR_COUNT
+   TREE_STR_ASC,
+   TREE_STR_DESC,
+   LAST_TREE_STR
 } TreeStr;
 
-typedef enum ColorSchemes_ {
-   COLORSCHEME_DEFAULT = 0,
+typedef enum ColorScheme_ {
+   COLORSCHEME_DEFAULT,
    COLORSCHEME_MONOCHROME,
    COLORSCHEME_BLACKONWHITE,
    COLORSCHEME_LIGHTTERMINAL,
    COLORSCHEME_MIDNIGHT,
    COLORSCHEME_BLACKNIGHT,
    COLORSCHEME_BROKENGRAY,
-   LAST_COLORSCHEME,
-} ColorSchemes;
+   LAST_COLORSCHEME
+} ColorScheme;
 
 typedef enum ColorElements_ {
    RESET_COLOR,
@@ -58,11 +60,13 @@ typedef enum ColorElements_ {
    METER_VALUE_IOWRITE,
    METER_VALUE_NOTICE,
    METER_VALUE_OK,
+   METER_VALUE_WARN,
    LED_COLOR,
    UPTIME,
    BATTERY,
    TASKS_RUNNING,
    SWAP,
+   SWAP_CACHE,
    PROCESS,
    PROCESS_SHADOW,
    PROCESS_TAG,
@@ -88,6 +92,10 @@ typedef enum ColorElements_ {
    MEMORY_BUFFERS,
    MEMORY_BUFFERS_TEXT,
    MEMORY_CACHE,
+   HUGEPAGE_1,
+   HUGEPAGE_2,
+   HUGEPAGE_3,
+   HUGEPAGE_4,
    LOAD,
    LOAD_AVERAGE_FIFTEEN,
    LOAD_AVERAGE_FIVE,
@@ -144,17 +152,13 @@ extern const char* const* CRT_treeStr;
 
 extern const int* CRT_colors;
 
-extern int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT];
-
 extern int CRT_cursorX;
 
 extern int CRT_scrollHAmount;
 
 extern int CRT_scrollWheelVAmount;
 
-extern const char* CRT_termType;
-
-extern int CRT_colorScheme;
+extern ColorScheme CRT_colorScheme;
 
 #ifdef HAVE_SETUID_ENABLED
 
@@ -170,7 +174,7 @@ static inline void CRT_restorePrivileges(void) { }
 
 #endif /* HAVE_SETUID_ENABLED */
 
-void CRT_init(const int* delay, int colorScheme, bool allowUnicode);
+void CRT_init(const Settings* settings, bool allowUnicode);
 
 void CRT_done(void);
 

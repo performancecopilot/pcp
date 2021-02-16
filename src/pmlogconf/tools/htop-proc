@@ -10,7 +10,6 @@ force	available
 	proc.psinfo.sname
 	proc.psinfo.tty
 	proc.psinfo.tty_pgrp
-	proc.psinfo.flags
 	proc.psinfo.minflt
 	proc.psinfo.maj_flt
 	proc.psinfo.cmin_flt
@@ -23,7 +22,6 @@ force	available
 	proc.psinfo.nice
 	proc.psinfo.threads
 	proc.psinfo.start_time
-	proc.psinfo.exit_signal
 	proc.psinfo.processor
 	proc.psinfo.cmd
 	proc.psinfo.psargs
