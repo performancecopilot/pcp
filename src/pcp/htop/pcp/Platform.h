@@ -22,11 +22,11 @@ in the source distribution for its full text.
 #include "Action.h"
 #include "BatteryMeter.h"
 #include "DiskIOMeter.h"
-#include "SysArchMeter.h"
 #include "Meter.h"
 #include "Process.h"
 #include "ProcessLocksScreen.h"
 #include "SignalsPanel.h"
+#include "SysArchMeter.h"
 
 extern ProcessField Platform_defaultFields[];
 
@@ -58,7 +58,7 @@ void Platform_setSwapValues(Meter* this);
 
 void Platform_setZramValues(Meter* this);
 
-void Platform_setSysArch(SysArchInfo* data);
+void Platform_getSysArch(SysArchInfo* data);
 
 char* Platform_getProcessEnv(pid_t pid);
 
@@ -82,6 +82,9 @@ typedef enum Metric_ {
 
    PCP_HINV_NCPU,		/* hinv.ncpu */
    PCP_HINV_CPUCLOCK,		/* hinv.cpu.clock */
+   PCP_UNAME_SYSNAME,		/* kernel.uname.sysname */
+   PCP_UNAME_RELEASE,		/* kernel.uname.release */
+   PCP_UNAME_MACHINE,		/* kernel.uname.machine */
    PCP_LOAD_AVERAGE, 		/* kernel.all.load */
    PCP_PID_MAX,			/* kernel.all.pid_max */
    PCP_UPTIME,			/* kernel.all.uptime */
@@ -184,10 +187,6 @@ typedef enum Metric_ {
    PCP_PROC_SMAPS_PSS,		/* proc.smaps.pss */
    PCP_PROC_SMAPS_SWAP,		/* proc.smaps.swap */
    PCP_PROC_SMAPS_SWAPPSS,	/* proc.smaps.swappss */
-
-   KERNEL_UNAME_SYSNAME,    /* kernel.uname.sysname */
-   KERNEL_UNAME_RELEASE,    /* kernel.uname.release */
-   KERNEL_UNAME_MACHINE,    /* kernel.uname.machine */
 
    PCP_METRIC_COUNT		/* total metric count */
 } Metric;

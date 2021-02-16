@@ -35,9 +35,9 @@ in the source distribution for its full text.
 #include "ProvideCurses.h"
 #include "Settings.h"
 #include "SwapMeter.h"
+#include "SysArchMeter.h"
 #include "TasksMeter.h"
 #include "UptimeMeter.h"
-#include "SysArchMeter.h"
 #include "XUtils.h"
 
 #include "linux/PressureStallMeter.h"
@@ -52,9 +52,7 @@ typedef struct Platform_ {
    pmID* fetch;			/* enabled identifiers for sampling */
    pmDesc* descs;		/* metric desc array indexed by Metric */
    pmResult* result;		/* sample values result indexed by Metric */
-   char* sysname;
-   char* release;
-   char* machine;
+   SysArchInfo uname;		/* system and architecture information */
 } Platform;
 
 Platform* pcp;
@@ -112,6 +110,9 @@ static const char *Platform_metricNames[] = {
 
    [PCP_HINV_NCPU] = "hinv.ncpu",
    [PCP_HINV_CPUCLOCK] = "hinv.cpu.clock",
+   [PCP_UNAME_SYSNAME] = "kernel.uname.sysname",
+   [PCP_UNAME_RELEASE] = "kernel.uname.release",
+   [PCP_UNAME_MACHINE] = "kernel.uname.machine",
    [PCP_LOAD_AVERAGE] = "kernel.all.load",
    [PCP_PID_MAX] = "kernel.all.pid_max",
    [PCP_UPTIME] = "kernel.all.uptime",
@@ -212,10 +213,6 @@ static const char *Platform_metricNames[] = {
    [PCP_PROC_SMAPS_PSS] = "proc.smaps.pss",
    [PCP_PROC_SMAPS_SWAP] = "proc.smaps.swap",
    [PCP_PROC_SMAPS_SWAPPSS] = "proc.smaps.swappss",
-
-   [KERNEL_UNAME_SYSNAME] = "kernel.uname.sysname",
-   [KERNEL_UNAME_RELEASE] = "kernel.uname.release",
-   [KERNEL_UNAME_MACHINE] = "kernel.uname.machine",
 
    [PCP_METRIC_COUNT] = NULL
 };
@@ -432,22 +429,29 @@ void Platform_init(void) {
    Metric_enable(PCP_BOOTTIME, true);
    Metric_enable(PCP_HINV_NCPU, true);
    Metric_enable(PCP_PERCPU_SYSTEM, true);
-   Metric_enable(KERNEL_UNAME_SYSNAME, true);
-   Metric_enable(KERNEL_UNAME_RELEASE, true);
-   Metric_enable(KERNEL_UNAME_MACHINE, true);
+   Metric_enable(PCP_UNAME_SYSNAME, true);
+   Metric_enable(PCP_UNAME_RELEASE, true);
+   Metric_enable(PCP_UNAME_MACHINE, true);
+
    Metric_fetch(NULL);
 
    for (Metric metric = 0; metric < PCP_PROC_PID; metric++)
       Metric_enable(metric, true);
    Metric_enable(PCP_PID_MAX, false);	/* needed one time only */
    Metric_enable(PCP_BOOTTIME, false);
-   Metric_enable(KERNEL_UNAME_SYSNAME, false);
-   Metric_enable(KERNEL_UNAME_RELEASE, false);
-   Metric_enable(KERNEL_UNAME_MACHINE, false);
+   Metric_enable(PCP_UNAME_SYSNAME, false);
+   Metric_enable(PCP_UNAME_RELEASE, false);
+   Metric_enable(PCP_UNAME_MACHINE, false);
+
+   /* first call, save uname info */
+   Platform_getSysArch(NULL);
 }
 
 void Platform_done(void) {
    pmDestroyContext(pcp->context);
+   free(pcp->uname.machine);
+   free(pcp->uname.release);
+   free(pcp->uname.name);
    free(pcp->fetch);
    free(pcp->pmids);
    free(pcp->names);
@@ -576,23 +580,22 @@ void Platform_setZramValues(Meter* this) {
    this->values[1] = stats.usedZramOrig;
 }
 
-void Platform_setSysArch(SysArchInfo *data) {
-   int c = sizeof(SysArchInfo)/sizeof(char*);
-   pmAtomValue *values = xCalloc(c, sizeof(pmAtomValue));
-
-   if (Metric_values(KERNEL_UNAME_SYSNAME, &values[0], 1, PM_TYPE_STRING) != NULL)
-      pcp->sysname = values[0].cp;
-   data->name = pcp->sysname;
-
-   if (Metric_values(KERNEL_UNAME_RELEASE, &values[1], 1, PM_TYPE_STRING) != NULL)
-      pcp->release = values[1].cp;
-   data->release = pcp->release;
-
-   if (Metric_values(KERNEL_UNAME_MACHINE, &values[2], 1, PM_TYPE_STRING) != NULL)
-      pcp->machine = values[2].cp;
-   data->machine = pcp->machine;
-
-   free(values);
+void Platform_getSysArch(SysArchInfo *data) {
+   if (data) {
+      /* constant, use previously-sampled values */
+      data->name = pcp->uname.name;
+      data->release = pcp->uname.release;
+      data->machine = pcp->uname.machine;
+   } else {
+      /* first call, extract just-sampled values */
+      pmAtomValue value;
+      if (Metric_values(PCP_UNAME_SYSNAME, &value, 1, PM_TYPE_STRING))
+         pcp->uname.name = value.cp;
+      if (Metric_values(PCP_UNAME_RELEASE, &value, 1, PM_TYPE_STRING))
+         pcp->uname.release = value.cp;
+      if (Metric_values(PCP_UNAME_MACHINE, &value, 1, PM_TYPE_STRING))
+         pcp->uname.machine = value.cp;
+   }
 }
 
 char* Platform_getProcessEnv(pid_t pid) {

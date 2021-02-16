@@ -66,6 +66,7 @@ CFILES = \
 	Settings.c \
 	SignalsPanel.c \
 	SwapMeter.c \
+	SysArchMeter.c \
 	TasksMeter.c \
 	TraceScreen.c \
 	UptimeMeter.c \
@@ -74,7 +75,6 @@ CFILES = \
 	XUtils.c \
 	linux/PressureStallMeter.c \
 	linux/ZramMeter.c \
-	SysArchMeter.c \
 	pcp/PCPProcess.c \
 	pcp/PCPProcessList.c \
 	pcp/Platform.c
@@ -124,6 +124,7 @@ HFILES = \
 	Settings.h \
 	SignalsPanel.h \
 	SwapMeter.h \
+	SysArchMeter.h \
 	TasksMeter.h \
 	TraceScreen.h \
 	UptimeMeter.h \
@@ -132,7 +133,6 @@ HFILES = \
 	XUtils.h \
 	linux/PressureStallMeter.h \
 	linux/ZramMeter.h \
-	SysArchMeter.h \
 	linux/ZramStats.h \
 	pcp/PCPProcess.h \
 	pcp/PCPProcessList.h \

@@ -19,7 +19,7 @@ static const int SysArchMeter_attributes[] = {HOSTNAME};
 
 static void SysArchMeter_updateValues(Meter* this, char* buffer, size_t size) {
    SysArchInfo data;
-   Platform_setSysArch(&data);
+   Platform_getSysArch(&data);
 
    snprintf(buffer, size, "%s %s [%s]", data.name, data.release, data.machine);
 }
