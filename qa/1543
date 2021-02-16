@@ -54,6 +54,7 @@ _filter_html()
 {
     echo "== $@ ==" | tee -a $here/$seq.full
     tee -a $seq.full | \
+    tr -d '[\015]' | \
     sed \
 	-e "s,pmproxy/$PCP_VERSION,pmproxy/VERSION,g" \
     #end
