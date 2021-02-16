@@ -52,7 +52,11 @@ typedef struct Platform_ {
    pmID* fetch;			/* enabled identifiers for sampling */
    pmDesc* descs;		/* metric desc array indexed by Metric */
    pmResult* result;		/* sample values result indexed by Metric */
+
    SysArchInfo uname;		/* system and architecture information */
+   long long btime;		/* boottime in seconds since the epoch */
+   int pidmax;			/* maximum platform process identifier */
+   int ncpu;			/* maximum processor count configured */
 } Platform;
 
 Platform* pcp;
@@ -443,8 +447,11 @@ void Platform_init(void) {
    Metric_enable(PCP_UNAME_RELEASE, false);
    Metric_enable(PCP_UNAME_MACHINE, false);
 
-   /* first call, save uname info */
+   /* first sample (fetch) performed above, save constants */
    Platform_getSysArch(NULL);
+   Platform_getBootTime();
+   Platform_getMaxCPU();
+   Platform_getMaxPid();
 }
 
 void Platform_done(void) {
@@ -482,11 +489,37 @@ void Platform_getLoadAverage(double* one, double* five, double* fifteen) {
    }
 }
 
+int Platform_getMaxCPU(void) {
+   if (pcp->ncpu)
+      return pcp->ncpu;
+
+   pmAtomValue value;
+   if (Metric_values(PCP_HINV_NCPU, &value, 1, PM_TYPE_32) != NULL)
+      pcp->ncpu = value.l;
+   else
+      pcp->ncpu = -1;
+   return pcp->ncpu;
+}
+
 int Platform_getMaxPid(void) {
+   if (pcp->pidmax)
+      return pcp->pidmax;
+
    pmAtomValue value;
    if (Metric_values(PCP_PID_MAX, &value, 1, PM_TYPE_32) == NULL)
       return -1;
-   return value.l;
+   pcp->pidmax = value.l;
+   return pcp->pidmax;
+}
+
+long long Platform_getBootTime(void) {
+   if (pcp->btime)
+      return pcp->btime;
+
+   pmAtomValue value;
+   if (Metric_values(PCP_BOOTTIME, &value, 1, PM_TYPE_64) != NULL)
+      pcp->btime = value.ll;
+   return pcp->btime;
 }
 
 static double Platform_setOneCPUValues(Meter* this, pmAtomValue* values) {

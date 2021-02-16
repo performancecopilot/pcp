@@ -24,10 +24,7 @@ in the source distribution for its full text.
 
 static int PCPProcessList_computeCPUcount(void) {
    int cpus;
-   pmAtomValue value;
-   if (Metric_values(PCP_HINV_NCPU, &value, 1, PM_TYPE_32) != NULL)
-      cpus = value.l;
-   else
+   if ((cpus = Platform_getMaxCPU()) <= 0)
       cpus = Metric_instanceCount(PCP_PERCPU_SYSTEM);
    return cpus > 1 ? cpus : 1;
 }
@@ -66,10 +63,6 @@ ProcessList* ProcessList_new(UsersTable* usersTable, Hashtable* pidMatchList, ui
    ProcessList* super = &(this->super);
 
    ProcessList_init(super, Class(PCPProcess), usersTable, pidMatchList, userId);
-
-   pmAtomValue value;
-   if (Metric_values(PCP_BOOTTIME, &value, 1, PM_TYPE_64) != NULL)
-      this->btime = value.ll;
 
    struct timeval timestamp;
    gettimeofday(&timestamp, NULL);
@@ -500,7 +493,7 @@ static bool PCPProcessList_updateProcesses(PCPProcessList* this, double period, 
       unsigned long long int lasttimes = pp->utime + pp->stime;
 
       PCPProcessList_updateInfo(proc, pid, offset, command, sizeof(command));
-      proc->starttime_ctime += this->btime;
+      proc->starttime_ctime += Platform_getBootTime();
       if (tty_nr != proc->tty_nr)
          PCPProcessList_updateTTY(pp, pid, offset);
 

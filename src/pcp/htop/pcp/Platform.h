@@ -48,6 +48,10 @@ int Platform_getUptime(void);
 
 void Platform_getLoadAverage(double* one, double* five, double* fifteen);
 
+long long Platform_getBootTime(void);
+
+int Platform_getMaxCPU(void);
+
 int Platform_getMaxPid(void);
 
 double Platform_setCPUValues(Meter* this, int cpu);

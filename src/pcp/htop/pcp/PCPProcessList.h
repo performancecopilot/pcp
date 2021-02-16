@@ -54,7 +54,6 @@ typedef enum CPUMetric_ {
 typedef struct PCPProcessList_ {
    ProcessList super;
    double timestamp;		/* previous sample timestamp */
-   long long btime;		/* kernel.all.boottime timestamp */
    pmAtomValue* cpu;		/* aggregate values for each metric */
    pmAtomValue** percpu;	/* per-processor values for each metric */
    pmAtomValue* values;		/* per-processor buffer for just one metric */
