@@ -122,61 +122,18 @@ void PCPProcess_printDelay(float delay_percent, char* buffer, int n) {
 }
 
 /*
-TASK_COMM_LEN is defined to be 16 for /proc/[pid]/comm in man proc(5), but it is
+TASK_COMM_LEN is defined to be 16 for /proc/[pid]/comm in man proc(5), but is
 not available in an userspace header - so define it. Note: when colorizing a
-basename with the comm prefix, the entire basename (not just the comm prefix) is
-colorized for better readability, and it is implicit that only upto
-(TASK_COMM_LEN - 1) could be comm
+basename with the comm prefix, the entire basename (not just the comm prefix)
+is colorized for better readability, and it is implicit that only up to
+(TASK_COMM_LEN - 1) could be comm.
 */
 #define TASK_COMM_LEN 16
 
-static bool findCommInCmdline(const char *comm, const char *cmdline, int cmdlineBasenameOffset, int *pCommStart, int *pCommEnd) {
-   /* Try to find procComm in tokenized cmdline - this might in rare cases
-    * mis-identify a string or fail, if comm or cmdline had been unsuitably
-    * modified by the process */
-   const char *tokenBase;
-   size_t tokenLen;
-   const size_t commLen = strlen(comm);
-
-   if (cmdlineBasenameOffset < 0)
-      return false;
-
-   for (const char *token = cmdline + cmdlineBasenameOffset; *token; ) {
-      for (tokenBase = token; *token && *token != '\n'; ++token) {
-         if (*token == '/') {
-            tokenBase = token + 1;
-         }
-      }
-      tokenLen = token - tokenBase;
-
-      if ((tokenLen == commLen || (tokenLen > commLen && commLen == (TASK_COMM_LEN - 1))) &&
-          strncmp(tokenBase, comm, commLen) == 0) {
-         *pCommStart = tokenBase - cmdline;
-         *pCommEnd = token - cmdline;
-         return true;
-      }
-      if (*token) {
-         do {
-            ++token;
-         } while ('\n' == *token);
-      }
-   }
-   return false;
-}
-
-/* stpcpy, but also converts newlines to spaces */
-static inline char *stpcpyWithNewlineConversion(char *dstStr, const char *srcStr) {
-   for (; *srcStr; ++srcStr) {
-      *dstStr++ = (*srcStr == '\n') ? ' ' : *srcStr;
-   }
-   *dstStr = 0;
-   return dstStr;
-}
-
 /*
-This function makes the merged Command string. It also stores the offsets of the
-basename, comm w.r.t the merged Command string - these offsets will be used by
-PCPProcess_writeCommand() for coloring. The merged Command string is also
+This function makes the merged Command string. It also stores the offsets of
+the basename, comm w.r.t the merged Command string - these offsets will be used
+by PCPProcess_writeCommand() for coloring. The merged Command string is also
 returned by PCPProcess_getCommandStr() for searching, sorting and filtering.
 */
 void PCPProcess_makeCommandStr(Process* this) {
@@ -247,82 +204,32 @@ void PCPProcess_makeCommandStr(Process* this) {
    assert(cmdlineBasenameOffset >= 0);
    assert(cmdlineBasenameOffset <= (int)strlen(cmdline));
 
-   if (!showMergedCommand || !procComm) {    /* fall back to cmdline */
-      if (showMergedCommand && procComm && strlen(procComm)) {   /* Prefix column with comm */
-         if (strncmp(cmdline + cmdlineBasenameOffset, procComm, MINIMUM(TASK_COMM_LEN - 1, strlen(procComm))) != 0) {
-            mc->commStart = 0;
-            mc->commEnd = strlen(procComm);
+   if (showMergedCommand && procComm && strlen(procComm)) {   /* Prefix column with comm */
+      if (strncmp(cmdline + cmdlineBasenameOffset, procComm, MINIMUM(TASK_COMM_LEN - 1, strlen(procComm))) != 0) {
+         mc->commStart = 0;
+         mc->commEnd = strlen(procComm);
 
-            str = stpcpy(str, procComm);
+         str = stpcpy(str, procComm);
 
-            mc->sep1 = str - strStart;
-            str = stpcpy(str, SEPARATOR);
-         }
+         mc->sep1 = str - strStart;
+         str = stpcpy(str, SEPARATOR);
       }
-
-      if (showProgramPath) {
-         (void) stpcpyWithNewlineConversion(str, cmdline);
-         mc->baseStart = cmdlineBasenameOffset;
-         mc->baseEnd = cmdlineBasenameEnd;
-      } else {
-         (void) stpcpyWithNewlineConversion(str, cmdline + cmdlineBasenameOffset);
-         mc->baseStart = 0;
-         mc->baseEnd = cmdlineBasenameEnd - cmdlineBasenameOffset;
-      }
-
-      if (mc->sep1) {
-         mc->baseStart += str - strStart - SEPARATOR_LEN + 1;
-         mc->baseEnd += str - strStart - SEPARATOR_LEN + 1;
-      }
-
-      return;
    }
 
-   mc->sep1 = 0;
-   mc->sep2 = 0;
-
-   int commStart = 0;
-   int commEnd = 0;
-   bool commInCmdline = false;
-
-   if (searchCommInCmdline) {
-      /* commStart/commEnd will be adjusted later along with cmdline */
-      commInCmdline = findCommInCmdline(procComm, cmdline, cmdlineBasenameOffset, &commStart, &commEnd);
-   }
-
-   /* Note: commStart, commEnd are offsets into RichString. But the multibyte
-    * separator (with size SEPARATOR_LEN) has size 1 in RichString. The offset
-    * adjustments below reflect this. */
-   if (commEnd) {
-      /* cmdline will be a separate field */
-      mc->sep1 = str - strStart;
-      str = stpcpy(str, SEPARATOR);
-
-      if (commInCmdline) {
-         commStart += str - strStart - SEPARATOR_LEN + 1;
-         commEnd += str - strStart - SEPARATOR_LEN + 1;
-      }
-
-      mc->separateComm = false;  /* procComm merged */
+   if (showProgramPath) {
+      (void) stpcpy(str, cmdline);
+      mc->baseStart = cmdlineBasenameOffset;
+      mc->baseEnd = cmdlineBasenameEnd;
    } else {
-      mc->sep1 = str - strStart;
-      str = stpcpy(str, SEPARATOR);
-
-      commStart = str - strStart - SEPARATOR_LEN + 1;
-      str = stpcpy(str, procComm);
-      commEnd = str - strStart - SEPARATOR_LEN + 1;   /* or commStart + strlen(procComm) */
-
-      mc->sep2 = str - strStart - SEPARATOR_LEN + 1;
-      str = stpcpy(str, SEPARATOR);
-
-      mc->separateComm = true;  /* procComm a separate field */
+      (void) stpcpy(str, cmdline + cmdlineBasenameOffset);
+      mc->baseStart = 0;
+      mc->baseEnd = cmdlineBasenameEnd - cmdlineBasenameOffset;
    }
 
-   /* Display cmdline */
-   (void) stpcpyWithNewlineConversion(str, cmdline);
-
-   mc->commStart = commStart;
-   mc->commEnd = commEnd;
+   if (mc->sep1) {
+      mc->baseStart += str - strStart - SEPARATOR_LEN + 1;
+      mc->baseEnd += str - strStart - SEPARATOR_LEN + 1;
+   }
 }
 
 static void PCPProcess_writeCommand(const Process* this, int attr, int baseAttr, RichString* str) {
