@@ -1461,12 +1461,14 @@ __pmNextIpv6SubnetAddr(unsigned char *addr, int maskBits)
 void
 __pmCloseSocket(int fd)
 {
-    __pmResetIPC(fd);
+    if (fd >= 0) {
+	__pmResetIPC(fd);
 #if defined(IS_MINGW)
-    closesocket(fd);
+	closesocket(fd);
 #else
-    close(fd);
+	close(fd);
 #endif
+    }
 }
 
 int
