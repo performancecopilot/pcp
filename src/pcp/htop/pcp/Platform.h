@@ -13,11 +13,12 @@ in the source distribution for its full text.
 #include <stdbool.h>
 #include <pcp/pmapi.h>
 
-#undef PACKAGE_BUGREPORT
+#undef PACKAGE_URL
 #undef PACKAGE_NAME
 #undef PACKAGE_STRING
 #undef PACKAGE_TARNAME
 #undef PACKAGE_VERSION
+#undef PACKAGE_BUGREPORT
 
 #include "Action.h"
 #include "BatteryMeter.h"
