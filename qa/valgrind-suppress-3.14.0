@@ -46,3 +46,33 @@
    fun:pmNewContext
    ...
 }
+
+# qa/1293 seen on CI debian10-container and vm11
+# Syscall param socketcall.sendto(msg) points to uninitialised byte(s)
+# at 0x49F885D: send (send.c:28)
+# by 0x48BE7B9: __pmSend (in /usr/lib/libpcp.so.3)
+# by 0x487B818: __pmXmitPDU (in /usr/lib/libpcp.so.3)
+# by 0x48A49A4: __pmSendLogControl (in /usr/lib/libpcp.so.3)
+# by 0x48A5BBA: __pmControlLog (in /usr/lib/libpcp.so.3)
+# by 0x10D0F1: ??? (in /usr/bin/pmlc)
+# by 0x10ACEF: ??? (in /usr/bin/pmlc)
+# by 0x492209A: (below main) (libc-start.c:308)
+# Address 0x5123328 is 56 bytes inside a block of size 76 alloc'd
+# at 0x483577F: malloc (vg_replace_malloc.c:299)
+# by 0x487BFFB: __pmFindPDUBuf (in /usr/lib/libpcp.so.3)
+# by 0x48A48EC: __pmSendLogControl (in /usr/lib/libpcp.so.3)
+# by 0x48A5BBA: __pmControlLog (in /usr/lib/libpcp.so.3)
+# by 0x10D0F1: ??? (in /usr/bin/pmlc)
+# by 0x10ACEF: ??? (in /usr/bin/pmlc)
+# by 0x492209A: (below main) (libc-start.c:308)
+{
+   __pmXmitPDU buffer for p_lcontrol.c
+   Memcheck:Param
+   socketcall.sendto(msg)
+   fun:send
+   fun:__pmSend
+   fun:__pmXmitPDU
+   fun:__pmSendLogControl
+   fun:__pmControlLog
+   ...
+}
