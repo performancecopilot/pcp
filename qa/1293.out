@@ -1,7 +1,7 @@
 QA output created by 1293
 QA output created by 1292 --valgrind
 === std out ===
-Connected to primary pmlogger at local:
+Connected to pmlogger pid PID at local:
 # expect one instance for each metric
 log advisory on once { sample.bin["bin-100"] sample.colour["red"] }     Inst  Inst Name
     ====== =========
@@ -125,8 +125,93 @@ Error: sample.long.ten has no instance domain but an instance was specified
 Logging statement ignored due to error(s)
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pmlc -eP -Dappl0
+Command: pmlc -e -Dappl0 PID
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
+Log for pmlogger on ...
+
+preprocessor cmd: ...
+Config parsed
+Starting logger for ...
+Archive basename: TMP
+
+DATE
+pmlc request from ...: advisory on once
+  metric: sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
+    instance: bin-100
+  metric: sample.dupnames.four.colour or sample.colour
+    instance: red
+
+DATE
+pmlc request from ...: advisory on once
+  metric: sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
+    instance: bin-100
+  metric: sample.dupnames.four.colour or sample.colour
+    instance: red
+    instance: green
+    instance: blue
+
+DATE
+pmlc request from ...: advisory on once
+  metric: sample.dupnames.four.colour or sample.colour
+    instance: red
+    instance: green
+    instance: blue
+  metric: sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
+    instance: bin-100
+
+DATE
+pmlc request from ...: advisory on once
+  metric: sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
+    instance: bin-100
+    instance: bin-900
+
+DATE
+pmlc request from ...: advisory on once
+  metric: sample.dupnames.four.colour or sample.colour
+    instance: red
+    instance: green
+  metric: sample.long.ten
+
+DATE
+pmlc request from ...: advisory on once
+  metric: sample.long.ten
+  metric: sample.dupnames.four.colour or sample.colour
+    instance: red
+    instance: green
+
+DATE
+pmlc request from ...: advisory on once
+  metric: sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
+    instance: bin-100
+    instance: bin-900
+  metric: sample.dupnames.five.bucket or sample.bucket
+    instance: bin-100
+    instance: bin-900
+  metric: sample.dupnames.five.part_bin or sample.part_bin
+    instance: bin-100
+    instance: bin-900
+  metric: sample.dupnames.five.long_bin or sample.long.bin
+    instance: bin-100
+    instance: bin-900
+
+DATE
+pmlc request from ...: advisory on once
+  metric: sample.long.ten
+  metric: sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
+    instance: bin-100
+    instance: bin-200
+    instance: bin-300
+    instance: bin-400
+    instance: bin-500
+    instance: bin-600
+    instance: bin-700
+    instance: bin-800
+    instance: bin-900
+  metric: sample.dupnames.five.bucket or sample.bucket
+    instance: bin-100
+pmlogger: Caught signal 15, exiting
+
+Log finished DATE
