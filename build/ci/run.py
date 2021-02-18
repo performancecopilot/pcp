@@ -110,7 +110,7 @@ class ContainerRunner:
         subprocess.run([*self.sudo, 'podman', 'run', '-dt', '--name', self.container_name,
                         '--privileged', *self.security_opts, image_name], check=True)
 
-        subprocess.run([*self.sudo, 'podman', 'cp', pcp_path, f"{self.container_name}:/home/pcpbuild/pcp"], check=True)
+        subprocess.run([*self.sudo, 'podman', 'cp', f"{pcp_path}/", f"{self.container_name}:/home/pcpbuild/pcp"], check=True)
         self.exec('sudo chown -R pcpbuild:pcpbuild pcp')
         self.exec('mkdir -p artifacts/build artifacts/test')
 
