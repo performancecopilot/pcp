@@ -119,8 +119,10 @@ def read_hosts(qa_dir: str, artifacts_path: str) -> List[Test]:
             testartifacts_dir = os.path.join(artifacts_path, artifact_dir)
             test_timings_file = os.path.join(testartifacts_dir, 'check.timings')
 
-            test_durations = read_test_durations(test_timings_file)
-            tests.extend(read_testlog(qa_dir, testartifacts_dir, groups, test_durations, host))
+            # ignore test runs without any QA run (e.g. build failure)
+            if os.path.exists(test_timings_file):
+                test_durations = read_test_durations(test_timings_file)
+                tests.extend(read_testlog(qa_dir, testartifacts_dir, groups, test_durations, host))
     return list(hosts), tests
 
 

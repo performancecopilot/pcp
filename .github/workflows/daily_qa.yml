@@ -87,8 +87,10 @@ jobs:
         if: always() && steps.init_qa.outcome == 'success'
         run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} artifacts test --path ./artifacts/test
 
+      # also upload empty test results (in case of build failure)
+      # so that test-report.py script is aware of build failures
       - name: Publish test results
-        if: always() && steps.init_qa.outcome == 'success'
+        if: always()
         uses: actions/upload-artifact@v2
         with:
           name: test-${{ matrix.platform }}-${{ matrix.runner }}
