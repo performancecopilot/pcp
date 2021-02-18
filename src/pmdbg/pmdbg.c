@@ -22,20 +22,22 @@
 #include "deprecated.h"
 #include "../libpcp/src/pmdbg.h"
 
-static char	*fmt_old = "DBG_TRACE_%-11.11s  %10d  %s\n";
-static char	*fmt = "%-14.14s  %s\n";
+static char	*fmt = "%-14.14s  %s";
+static char	*fmt_gdb = "%-14.14s  ((int *)&pmDebugOptions)[%d]";
+static char	*fmt_old = "DBG_TRACE_%-11.11s  %10d  %s";
 
 static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("General options"),
     PMOPT_DEBUG,
+    { "gdb", 0, 'g', 0, "display expression for gdb(1) (requires -l)" },
     { "list", 0, 'l', 0, "display values and text for all PCP debug options" },
-    { "old", 0, 'o', 0, "old and deprecated (bit-field) encodings" },
+    { "old", 0, 'o', 0, "old and deprecated (bit-field) encodings (requires -l)" },
     PMOPT_HELP,
     PMAPI_OPTIONS_END
 };
 
 static pmOptions opts = {
-    .short_options = "D:lo?",
+    .short_options = "D:glo?",
     .long_options = longopts,
     .short_usage = "[options] [code ..]",
 };
@@ -47,9 +49,14 @@ main(int argc, char **argv)
     int		c;
     int		old = 0;
     int		list = 0;
+    int		gdb = 0;
 
     while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
 	switch (c) {
+
+	case 'g':	/* output gdb(1) address expression for gdb set/print commands */
+	    gdb = 1;
+	    break;
 
 	case 'l':	/* list all options */
 	    list = 1;
@@ -76,6 +83,21 @@ main(int argc, char **argv)
 	}
     }
 
+    if (!list) {
+	if (old) {
+	    fprintf(stderr, "%s: -o only allowed with -l\n", pmGetProgname());
+	    opts.errors++;
+	}
+	if (gdb) {
+	    fprintf(stderr, "%s: -g only allowed with -l\n", pmGetProgname());
+	    opts.errors++;
+	}
+    }
+    else if (old && gdb) {
+	fprintf(stderr, "%s: -o and -g are mutually exclusive\n", pmGetProgname());
+	opts.errors++;
+    }
+
     if (opts.errors) {
 	pmUsageMessage(&opts);
 	exit(1);
@@ -85,21 +107,33 @@ main(int argc, char **argv)
 	printf("Performance Co-Pilot Debug Options\n");
 	if (old)
 	    printf("#define       Value  Meaning\n");
-	else
+	else if (gdb) {
+	    printf(fmt, "Option", "gdb(1) expression");
+	    putchar('\n');
+	}
+	else {
 	    printf(fmt, "Option", "Meaning");
+	    putchar('\n');
+	}
 	for (i = 0; i < num_debug; i++) {
-	    if (!old) {
-		printf(fmt, debug_map[i].name, debug_map[i].text);
-	    }
-	    else {
+	    if (old) {
 		if (debug_map[i].bit) {
 		    char	*p;
 		    char	*name = strdup(debug_map[i].name);
 		    for (p = name; p != NULL && *p; p++)
 			*p = toupper((int)*p);
 		    printf(fmt_old, name, debug_map[i].bit, debug_map[i].text);
+		    putchar('\n');
 		    free(name);
 		}
+	    }
+	    else if (gdb) {
+		printf(fmt_gdb, debug_map[i].name, i);
+		putchar('\n');
+	    }
+	    else {
+		printf(fmt, debug_map[i].name, debug_map[i].text);
+		putchar('\n');
 	    }
 	}
 	exit(0);
@@ -133,6 +167,7 @@ main(int argc, char **argv)
 		for (p = name; p != NULL && *p; p++)
 		    *p = toupper((int)*p);
 		printf(fmt_old, name, debug_map[i].bit, debug_map[i].text);
+		putchar('\n');
 		free(name);
 	    }
 	}

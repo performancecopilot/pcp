@@ -131,9 +131,9 @@
    ...
 }
 
-# qa/129? on bozo ... this pmlc-only code path has been triaged
-# up the wazoo and I can't see where the uninitialized data comes
-# from (and memset(.., 0, ..) the whole PDU buffer does not make
+# qa/1293 on bozo and vm29 ... this pmlc-only code path has been
+# triaged up the wazoo and I can't see where the uninitialized data
+# comes from (and memset(.., 0, ..) the whole PDU buffer does not make
 # the valgrind error go away.  Even if there is uninitialized data
 # the sender (pmlc) and receiver (pmlogger) agree on the over-the-wire
 # protocol

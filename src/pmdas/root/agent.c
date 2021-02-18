@@ -83,62 +83,62 @@ root_create_agent(int ipctype, char *argv, char *label, int *infd, int *outfd)
 	if (outPipe[1] > root_maximum_fd)
 	    root_maximum_fd = outPipe[1];
     }
-    if (transfer_final != NULL) { /* Start a new agent if required */
-	childPid = fork();
-	if (childPid == (pid_t)-1) {
-	    if (ipctype == ROOT_AGENT_PIPE) {
-		close(inPipe[0]);
-		close(inPipe[1]);
-		close(outPipe[0]);
-		close(outPipe[1]);
-	    }
-	    return (pid_t)-1;
+    /* Start a new agent */
+    childPid = fork();
+    if (childPid == (pid_t)-1) {
+	if (ipctype == ROOT_AGENT_PIPE) {
+	    close(inPipe[0]);
+	    close(inPipe[1]);
+	    close(outPipe[0]);
+	    close(outPipe[1]);
 	}
-	if (childPid) {
-	    /* This is the parent (pmdaroot) */
-	    if (ipctype == ROOT_AGENT_PIPE) {
-		close(inPipe[0]);
-		close(outPipe[1]);
-		*infd = inPipe[1];
-		*outfd = outPipe[0];
-	    }
+	return (pid_t)-1;
+    }
+    if (childPid) {
+	/* This is the parent (pmdaroot) */
+	if (ipctype == ROOT_AGENT_PIPE) {
+	    close(inPipe[0]);
+	    close(outPipe[1]);
+	    *infd = inPipe[1];
+	    *outfd = outPipe[0];
+	}
+    }
+    else {
+	/*
+	 * This is the child (new agent)
+	 * make sure stderr is fd 2
+	 */
+	dup2(fileno(stderr), STDERR_FILENO); 
+	if (ipctype == ROOT_AGENT_PIPE) {
+	    /* make pipe stdin for PMDA */
+	    dup2(inPipe[0], STDIN_FILENO);
+	    /* make pipe stdout for PMDA */
+	    dup2(outPipe[1], STDOUT_FILENO);
 	}
 	else {
 	    /*
-	     * This is the child (new agent)
-	     * make sure stderr is fd 2
+	     * not a pipe, close stdin and attach stdout to stderr
 	     */
-	    dup2(fileno(stderr), STDERR_FILENO); 
-	    if (ipctype == ROOT_AGENT_PIPE) {
-		/* make pipe stdin for PMDA */
-		dup2(inPipe[0], STDIN_FILENO);
-		/* make pipe stdout for PMDA */
-		dup2(outPipe[1], STDOUT_FILENO);
-	    }
-	    else {
-		/*
-		 * not a pipe, close stdin and attach stdout to stderr
-		 */
-		close(STDIN_FILENO);
-		dup2(STDERR_FILENO, STDOUT_FILENO);
-	    }
-	    for (i = 0; i <= root_maximum_fd; i++) {
-		/* Close all except std{in,out,err} */
-		if (i == STDIN_FILENO ||
-		    i == STDOUT_FILENO ||
-		    i == STDERR_FILENO)
-		    continue;
-		close(i);
-	    }
-
-	    execvp(transfer_final[0], transfer_final);
-	    /* botch if reach here */
-	    fprintf(stderr, "%s: error starting %s: %s\n",
-		    pmGetProgname(), transfer_final[0], osstrerror());
-	    /* avoid atexit() processing, so _exit not exit */
-	    _exit(1);
+	    close(STDIN_FILENO);
+	    dup2(STDERR_FILENO, STDOUT_FILENO);
 	}
+	for (i = 0; i <= root_maximum_fd; i++) {
+	    /* Close all except std{in,out,err} */
+	    if (i == STDIN_FILENO ||
+		i == STDOUT_FILENO ||
+		i == STDERR_FILENO)
+		continue;
+	    close(i);
+	}
+
+	execvp(transfer_final[0], transfer_final);
+	/* botch if reach here */
+	fprintf(stderr, "%s: error starting %s: %s\n",
+		pmGetProgname(), transfer_final[0], osstrerror());
+	/* avoid atexit() processing, so _exit not exit */
+	_exit(1);
     }
+
     if (pmDebugOptions.appl0) {
 	pmNotifyErr(LOG_DEBUG, "Started %s agent pid=%" FMT_PID " infd=%d outfd=%d\n",
 			label, childPid, *infd, *outfd);

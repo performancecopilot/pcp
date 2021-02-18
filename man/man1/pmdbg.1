@@ -21,7 +21,7 @@
 \f2code\f1 ...
 .br
 \f3pmdbg\f1
-\f3\-l\f1 [\f3\-o\f1]
+\f3\-l\f1 [\f3\-o\f1] [\f3\-g\f1]
 .br
 \f3pmdbg\f1
 \f3\-D\f1 \f2name\f1[,\f2name\f1 ...]
@@ -37,19 +37,41 @@ old bit-field scheme.
 .B pmdbg
 with a
 .B \-l
-argument prints out all the debug options.
-Without the
+option prints out all the debug options.
+If there is no
+.B \-g
+and no
 .B \-o
-argument the output lists the name of each option and some
+option then the output lists the name of each option and some
 descriptive text.
-Otherwise the output is for only the old bit-fields
+.PP
+With the
+.B \-l
+and
+.B \-g
+options the descriptive text is replaced with an
+expression that can be used to set or print the corresponding
+debug flag in
+.B gdb (1).
+.PP
+With the
+.B \-l
+and
+.B \-o
+options the output is for only the old bit-fields
 with the mnemonic and decimal values of each
 the bit-field along with some descriptive text.
+.PP
+Obviously the
+.B \-o
+and
+.B \-g
+options are mutually exclusive.
 .PP
 .B pmdbg
 with a
 .B \-D
-argument parses the list of
+option parses the list of
 \fInames\fP(s) using
 .BR __pmParseDebug (3)
 and reports the corresponding decimal value.
@@ -103,6 +125,11 @@ decimal value(s).
 .TP
 \fB\-l\fR, \fB\-\-list\fR
 List all the debug options.
+.TP
+\fB\-g\fR, \fB\-\-gdb\fR
+Output
+.BR gdb (1)
+expressions with \fB\-l\fP.
 .TP
 \fB\-o\fR, \fB\-\-old\fR
 Use old-style output format with \fB\-l\fP.
