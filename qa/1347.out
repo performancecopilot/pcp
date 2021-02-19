@@ -92,9 +92,9 @@ NET | transport    | tcpi       ? | tcpo       ? | udpi       ? | udpo       ? |
 NET | network      | ipi        ? | ipo        ? | ipfrw      ? | deliv      ? |
 NET | tun0    999% | pcki 42914e5 | pcko 42913e5 | si   26 Gbps | so   30 Gbps |
 NET | cni-pod   0% | pcki 42948e5 | pcko 42947e5 | si   34 Gbps | so   31 Gbps |
-NET | enp0s25   0% | pcki 42102e5 | pcko 42265e5 | si    0 Kbps | so    0 Kbps |
+NET | enp0s25   0% | pcki 42102e5 | pcko 42265e5 | si -999 Kbps | so -999 Kbps |
 NET | wlp3s0  ---- | pcki 42933e5 | pcko 42949e5 | si   32 Gbps | so   34 Gbps |
-NET | lo      ---- | pcki 41334e5 | pcko 41334e5 | si    0 Kbps | so    0 Kbps |
+NET | lo      ---- | pcki 41334e5 | pcko 41334e5 | si -999 Kbps | so -999 Kbps |
 
     PID    PPID RUID     RGID       STDATE    STTIME  EXC S  CPU CMD            
       1       0 root     root     2020/06/01 12:51:43   -    -0% systemd        
@@ -944,9 +944,9 @@ NET | transport    | tcpi       ? | tcpo       ? | udpi       ? | udpo       ? |
 NET | network      | ipi        ? | ipo        ? | ipfrw      ? | deliv      ? |
 NET | tun0    999% | pcki 42914e5 | pcko 42913e5 | si   26 Gbps | so   30 Gbps |
 NET | cni-pod   0% | pcki 42948e5 | pcko 42947e5 | si   34 Gbps | so   31 Gbps |
-NET | enp0s25   0% | pcki 42102e5 | pcko 42265e5 | si    0 Kbps | so    0 Kbps |
+NET | enp0s25   0% | pcki 42102e5 | pcko 42265e5 | si -999 Kbps | so -999 Kbps |
 NET | wlp3s0  ---- | pcki 42933e5 | pcko 42949e5 | si   32 Gbps | so   34 Gbps |
-NET | lo      ---- | pcki 41334e5 | pcko 41334e5 | si    0 Kbps | so    0 Kbps |
+NET | lo      ---- | pcki 41334e5 | pcko 41334e5 | si -999 Kbps | so -999 Kbps |
 
     PID VSTACK  VSIZE  RSIZE  PSIZE  VGROW  RGROW SWAPSZ  MEM CMD            
       1     0K     0K     0K     ?K  -0.2G -20.0M     0K   0% systemd        
