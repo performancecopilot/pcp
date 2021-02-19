@@ -19,3 +19,33 @@
    fun:pmNewContext
    ...
 }
+
+# qa/1293 seen on CI ubuntu1604-direct and vm27
+# Syscall param socketcall.sendto(msg) points to uninitialised byte(s)
+# at 0x51ED49D: send (send.c:26)
+# by 0x4EA70D7: __pmSend (in /usr/lib/libpcp.so.3)
+# by 0x4E61D61: __pmXmitPDU (in /usr/lib/libpcp.so.3)
+# by 0x4E8C3F7: __pmSendLogControl (in /usr/lib/libpcp.so.3)
+# by 0x4E8D68A: __pmControlLog (in /usr/lib/libpcp.so.3)
+# by 0x404796: ??? (in /usr/bin/pmlc)
+# by 0x402109: ??? (in /usr/bin/pmlc)
+# by 0x510583F: (below main) (libc-start.c:291)
+# Address 0x7be85a8 is 56 bytes inside a block of size 76 alloc'd
+# at 0x4C2DB8F: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+# by 0x4E625EB: __pmFindPDUBuf (in /usr/lib/libpcp.so.3)
+# by 0x4E8C322: __pmSendLogControl (in /usr/lib/libpcp.so.3)
+# by 0x4E8D68A: __pmControlLog (in /usr/lib/libpcp.so.3)
+# by 0x404796: ??? (in /usr/bin/pmlc)
+# by 0x402109: ??? (in /usr/bin/pmlc)
+# by 0x510583F: (below main) (libc-start.c:291)
+{
+   __pmXmitPDU buffer for p_lcontrol.c
+   Memcheck:Param
+   socketcall.sendto(msg)
+   fun:send
+   fun:__pmSend
+   fun:__pmXmitPDU
+   fun:__pmSendLogControl
+   fun:__pmControlLog
+   ...
+}

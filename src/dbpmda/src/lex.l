@@ -355,6 +355,7 @@ dbpmdaFlexInput(char * inbuf, int ms)
 	    } else {
 		/* It maybe an EOF */
 		if ((inf != NULL) && (inf != yyin)) {
+		    fclose(yyin);
 		    yyin = inf;
 		    lineno = 1;
 #ifdef HAVE_READLINE

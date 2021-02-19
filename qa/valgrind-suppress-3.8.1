@@ -146,3 +146,30 @@
    fun:pmNewContext
    ...
 }
+
+# qa/1293 seen on CI centos6-container and vm14 and vm28
+# by 0x4E9B2AF: __pmSend (secureconnect.c:1571)
+# by 0x4E582E2: __pmXmitPDU (pdu.c:406)
+# by 0x4E82264: __pmSendLogControl (p_lcontrol.c:98)
+# by 0x4E8324D: __pmControlLog (logcontrol.c:36)
+# by 0x404F6D: LogCtl (actions.c:399)
+# by 0x402B2C: main (pmlc.c:374)
+# Address 0x7a148a8 is 56 bytes inside a block of size 76 alloc'd
+# at 0x4C28A2E: malloc (vg_replace_malloc.c:270)
+# by 0x4E58B1B: __pmFindPDUBuf (pdubuf.c:115)
+# by 0x4E82194: __pmSendLogControl (p_lcontrol.c:69)
+# by 0x4E8324D: __pmControlLog (logcontrol.c:36)
+# by 0x404F6D: LogCtl (actions.c:399)
+# by 0x402B2C: main (pmlc.c:374)
+{
+   __pmXmitPDU buffer for p_lcontrol.c
+   Memcheck:Param
+   socketcall.sendto(msg)
+   fun:send
+   fun:__pmSend
+   fun:__pmXmitPDU
+   fun:__pmSendLogControl
+   fun:__pmControlLog
+   fun:LogCtl
+   ...
+}

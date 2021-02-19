@@ -216,8 +216,10 @@ __dminit_parse(const char *path, int recover)
 	char	*name = strndup(p, q-p+1);
 	name[q-p] = '\0';
 	lsts = __dminit_component(name, 1, recover);
-	if (lsts < 0)
+	if (lsts < 0) {
+	    free(name);
 	    return lsts;
+	}
 	sts += lsts;
 	free(name);
 	p = q+1;

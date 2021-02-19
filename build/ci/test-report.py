@@ -106,22 +106,24 @@ def read_testlog(qa_dir: str, testartifacts_dir: str, groups: Dict[str, List[str
 
 def read_hosts(qa_dir: str, artifacts_path: str) -> List[Test]:
     groups = read_test_groups(os.path.join(qa_dir, 'group'))
-    hosts = []
+    hosts = set()
     tests = []
     for artifact_dir in os.listdir(artifacts_path):
-        if not artifact_dir.startswith('test-'):
-            continue
+        if artifact_dir.startswith('build-'):
+            host = artifact_dir[len('build-'):]
+            hosts.add(host)
+        elif artifact_dir.startswith('test-'):
+            host = artifact_dir[len('test-'):]
+            hosts.add(host)
 
-        testartifacts_dir = os.path.join(artifacts_path, artifact_dir)
-        test_timings_file = os.path.join(testartifacts_dir, 'check.timings')
-        host = artifact_dir[len('test-'):]
-        hosts.append(host)
+            testartifacts_dir = os.path.join(artifacts_path, artifact_dir)
+            test_timings_file = os.path.join(testartifacts_dir, 'check.timings')
 
-        # ignore test runs without any QA run (e.g. build failure)
-        if os.path.exists(test_timings_file):
-            test_durations = read_test_durations(test_timings_file)
-            tests.extend(read_testlog(qa_dir, testartifacts_dir, groups, test_durations, host))
-    return hosts, tests
+            # ignore test runs without any QA run (e.g. build failure)
+            if os.path.exists(test_timings_file):
+                test_durations = read_test_durations(test_timings_file)
+                tests.extend(read_testlog(qa_dir, testartifacts_dir, groups, test_durations, host))
+    return list(hosts), tests
 
 
 def write_allure_result(test: Test, commit: str, allure_results_path: str):

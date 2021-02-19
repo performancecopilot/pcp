@@ -185,35 +185,35 @@ redisSecureConnection(redisContext *c, const char *capath,
 
     if ((certpath != NULL && keypath == NULL) || (keypath != NULL && certpath == NULL)) {
         __redisSetError(c, REDIS_ERR, "certpath and keypath must be specified together");
-        return REDIS_ERR;
+        goto error;
     }
 
     if (capath) {
         if (!SSL_CTX_load_verify_locations(ctx, capath, NULL)) {
             __redisSetError(c, REDIS_ERR, "Invalid CA certificate");
-            return REDIS_ERR;
+	    goto error;
         }
     }
     if (certpath) {
         if (!SSL_CTX_use_certificate_chain_file(ctx, certpath)) {
             __redisSetError(c, REDIS_ERR, "Invalid client certificate");
-            return REDIS_ERR;
+	    goto error;
         }
         if (!SSL_CTX_use_PrivateKey_file(ctx, keypath, SSL_FILETYPE_PEM)) {
             __redisSetError(c, REDIS_ERR, "Invalid client key");
-            return REDIS_ERR;
+	    goto error;
         }
     }
 
     ssl = SSL_new(ctx);
     if (!ssl) {
         __redisSetError(c, REDIS_ERR, "Couldn't create new SSL instance");
-        return REDIS_ERR;
+        goto error;
     }
     if (servername) {
         if (!SSL_set_tlsext_host_name(ssl, servername)) {
             __redisSetError(c, REDIS_ERR, "Couldn't set server name indication");
-            return REDIS_ERR;
+	    goto error;
         }
     }
 

@@ -708,10 +708,10 @@ dopmda(int pdu)
 				printf("    %.*s=%.*s\n", lp->namelen, name, lp->valuelen, value);
 			    }
 			}
-			if (numsets > 0)
-			    pmFreeLabelSets(labelset, numsets);
-			else
+			if (numsets == 0)
 			    printf("Info: __pmDecodeLabel() returns 0 label sets\n");
+			/* Note: this is safe, even if numsets == 0 */
+			pmFreeLabelSets(labelset, numsets);
 		    }
 		    else
 			printf("Error: __pmDecodeLabel() failed: %s\n", pmErrStr(sts));
