@@ -11,6 +11,10 @@ bintray:
 container:
   containerfile: |
     FROM docker.io/i386/ubuntu:bionic
+
+    # https://stackoverflow.com/questions/25193161/chfn-pam-system-error-intermittently-in-docker-hub-builds/25267015
+    RUN ln -s -f /bin/true /usr/bin/chfn
+
     RUN linux32 apt-get update && linux32 apt-get install -y python-dev systemd sudo git
     RUN useradd --create-home pcpbuild
     RUN echo 'pcpbuild ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/pcpbuild
