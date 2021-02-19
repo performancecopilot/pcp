@@ -44,16 +44,18 @@ Demand misses mean that programs are waiting on disk IO.
 @ zfs.arc.demand.metadata_hits ARC demand metadata hits
 @ zfs.arc.demand.metadata_misses ARC demand metadata misses
 @ zfs.arc.prefetch.data_hits ARC prefetch data hits
-Prefetch identified a sequential workload, and requested that the data be cached 
-in the ARC ahead of time by performing ARC accesses for that data. As it turned out, 
-the data was already in the ARC - so these accesses returned as "hits" 
-(and so the prefetch ARC access wasn't actually needed). This happens if cached 
-data is repeatedly read in a sequential manner.
+Prefetch identified a sequential workload, and requested that the data
+be cached in the ARC ahead of time by performing ARC accesses for that
+data.  As it turned out, the data was already in the ARC - so these
+accesses returned as "hits" (and so the prefetch ARC access was not
+actually needed).  This happens if cached data is repeatedly read in a
+sequential manner.
 @ zfs.arc.prefetch.data_misses ARC prefetch data misses
 Prefetch identified a sequential workload, and requested that the data
 be cached in the ARC ahead of time by performing ARC accesses for that data. 
-The data was not in the cache already, and so this is a "miss" and the data 
-is read from disk. This is normal, and is how prefetch populates the ARC from disk.
+The data was not in the cache already, and so this is a "miss" and the data
+is read from disk.  This is normal, and is how prefetch populates the ARC
+from disk.
 @ zfs.arc.prefetch.metadata_hits ARC prefetch metadata hits
 @ zfs.arc.prefetch.metadata_misses ARC prefetch metadata misses
 @ zfs.arc.mru.hits ARC most recently used data hits
@@ -285,9 +287,9 @@ from some other pool or from another version of persistent L2ARC.
 @ zfs.arc.l2.rebuild.log_blks L2ARC rebuild log blocks
 @ zfs.arc.cached_only_in_progress ARC cached only in progress
 @ zfs.arc.abd_chunk_waste_size size of scattered ABD chunks in ARC
-This includes space wasted by all scatter ABD's, not just those allocated by the ARC.
-But the vast majority of scatter ABD's come from the ARC, because other users are
-very short-lived.
+This includes space wasted by all scatter ABD's, not just those allocated
+by the ARC.  But the vast majority of scatter ABD's come from the ARC,
+because other users are very short-lived.
 
 @ zfs.abd.struct_size size of allocated ABD structs
 Amount of memory occupied by all of the abd_t struct allocations 
