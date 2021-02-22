@@ -76,7 +76,6 @@ CFILES = \
 	linux/PressureStallMeter.c \
 	linux/ZramMeter.c \
 	zfs/ZfsArcMeter.c \
-	zfs/ZfsArcStats.c \
 	zfs/ZfsCompressedArcMeter.c \
 	pcp/PCPProcess.c \
 	pcp/PCPProcessList.c \
