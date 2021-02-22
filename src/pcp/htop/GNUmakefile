@@ -75,6 +75,9 @@ CFILES = \
 	XUtils.c \
 	linux/PressureStallMeter.c \
 	linux/ZramMeter.c \
+	zfs/ZfsArcMeter.c \
+	zfs/ZfsArcStats.c \
+	zfs/ZfsCompressedArcMeter.c \
 	pcp/PCPProcess.c \
 	pcp/PCPProcessList.c \
 	pcp/Platform.c
@@ -134,6 +137,9 @@ HFILES = \
 	linux/PressureStallMeter.h \
 	linux/ZramMeter.h \
 	linux/ZramStats.h \
+	zfs/ZfsArcMeter.h \
+	zfs/ZfsArcStats.h \
+	zfs/ZfsCompressedArcMeter.h \
 	pcp/PCPProcess.h \
 	pcp/PCPProcessList.h \
 	pcp/Platform.h \
