@@ -186,9 +186,9 @@ zfs.arc.abd_chunk_waste_size PMID: 153.0.115 [size of scattered ABD chunks in AR
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: byte
 Help:
-This includes space wasted by all scatter ABD's, not just those allocated by the ARC.
-But the vast majority of scatter ABD's come from the ARC, because other users are
-very short-lived.
+This includes space wasted by all scatter ABD's, not just those allocated
+by the ARC.  But the vast majority of scatter ABD's come from the ARC,
+because other users are very short-lived.
     value 0
 
 zfs.arc.access_skip PMID: 153.0.16 [ARC buffers skipped]
@@ -1019,11 +1019,12 @@ zfs.arc.prefetch.data_hits PMID: 153.0.6 [ARC prefetch data hits]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Prefetch identified a sequential workload, and requested that the data be cached 
-in the ARC ahead of time by performing ARC accesses for that data. As it turned out, 
-the data was already in the ARC - so these accesses returned as "hits" 
-(and so the prefetch ARC access wasn't actually needed). This happens if cached 
-data is repeatedly read in a sequential manner.
+Prefetch identified a sequential workload, and requested that the data
+be cached in the ARC ahead of time by performing ARC accesses for that
+data.  As it turned out, the data was already in the ARC - so these
+accesses returned as "hits" (and so the prefetch ARC access was not
+actually needed).  This happens if cached data is repeatedly read in a
+sequential manner.
     value 153
 
 zfs.arc.prefetch.data_misses PMID: 153.0.7 [ARC prefetch data misses]
@@ -1032,8 +1033,9 @@ zfs.arc.prefetch.data_misses PMID: 153.0.7 [ARC prefetch data misses]
 Help:
 Prefetch identified a sequential workload, and requested that the data
 be cached in the ARC ahead of time by performing ARC accesses for that data. 
-The data was not in the cache already, and so this is a "miss" and the data 
-is read from disk. This is normal, and is how prefetch populates the ARC from disk.
+The data was not in the cache already, and so this is a "miss" and the data
+is read from disk.  This is normal, and is how prefetch populates the ARC
+from disk.
     value 153
 
 zfs.arc.prefetch.metadata_hits PMID: 153.0.8 [ARC prefetch metadata hits]
