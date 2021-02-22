@@ -697,10 +697,46 @@ static void PCPProcessList_updatePerCPUReal(PCPProcessList* this, Metric metric,
       this->percpu[i][cpumetric].d = this->values[i].d;
 }
 
-static void PCPProcessList_updateHeader(ProcessList* super, const Settings* settings) {
-   PCPProcessList_updateMemoryInfo(super);
+static void PCPProcessList_scanZfsArcstats(PCPProcessList* this) {
+   unsigned long long int dbufSize = 0;
+   unsigned long long int dnodeSize = 0;
+   unsigned long long int bonusSize = 0;
+   pmAtomValue value;
 
+   if (Metric_values(PCP_ZFS_ARC_ANON_SIZE, &value, 1, PM_TYPE_U64))
+      this->zfs.anon = value.ull / ONE_K;
+   if (Metric_values(PCP_ZFS_ARC_C_MAX, &value, 1, PM_TYPE_U64))
+      this->zfs.max = value.ull / ONE_K;
+   if (Metric_values(PCP_ZFS_ARC_BONUS_SIZE, &value, 1, PM_TYPE_U64))
+      bonusSize = value.ull / ONE_K;
+   if (Metric_values(PCP_ZFS_ARC_DBUF_SIZE, &value, 1, PM_TYPE_U64))
+      dbufSize = value.ull / ONE_K;
+   if (Metric_values(PCP_ZFS_ARC_DNODE_SIZE, &value, 1, PM_TYPE_U64))
+      dnodeSize = value.ull / ONE_K;
+   if (Metric_values(PCP_ZFS_ARC_COMPRESSED_SIZE, &value, 1, PM_TYPE_U64))
+      this->zfs.compressed = value.ull / ONE_K;
+   if (Metric_values(PCP_ZFS_ARC_UNCOMPRESSED_SIZE, &value, 1, PM_TYPE_U64))
+      this->zfs.uncompressed = value.ull / ONE_K;
+   if (Metric_values(PCP_ZFS_ARC_HDR_SIZE, &value, 1, PM_TYPE_U64))
+      this->zfs.header = value.ull / ONE_K;
+   if (Metric_values(PCP_ZFS_ARC_MFU_SIZE, &value, 1, PM_TYPE_U64))
+      this->zfs.MFU = value.ull / ONE_K;
+   if (Metric_values(PCP_ZFS_ARC_MRU_SIZE, &value, 1, PM_TYPE_U64))
+      this->zfs.MRU = value.ull / ONE_K;
+   if (Metric_values(PCP_ZFS_ARC_SIZE, &value, 1, PM_TYPE_U64))
+      this->zfs.size = value.ull / ONE_K;
+
+   this->zfs.other = (dbufSize + dnodeSize + bonusSize) / ONE_K;
+   this->zfs.enabled = (this->zfs.size > 0);
+   this->zfs.isCompressed = (this->zfs.compressed > 0);
+}
+
+static void PCPProcessList_updateHeader(ProcessList* super, const Settings* settings) {
    PCPProcessList* this = (PCPProcessList*) super;
+
+   PCPProcessList_updateMemoryInfo(super);
+   PCPProcessList_scanZfsArcstats(this);
+
    PCPProcessList_updateCPUcount(this);
 
    PCPProcessList_backupCPUTime(this->cpu);
@@ -731,41 +767,6 @@ static void PCPProcessList_updateHeader(ProcessList* super, const Settings* sett
 
    if (settings->showCPUFrequency)
       PCPProcessList_updatePerCPUReal(this, PCP_HINV_CPUCLOCK, CPU_FREQUENCY);
-}
-
-static inline void PCPProcessList_scanZfsArcstats(PCPProcessList* this) {
-   unsigned long long int dbufSize = 0;
-   unsigned long long int dnodeSize = 0;
-   unsigned long long int bonusSize = 0;
-   pmAtomValue value;
-
-   memset(&this->zfs, 0, sizeof(ZfsArcStats));
-   if (Metric_values(PCP_ZFS_ARC_ANON_SIZE, &value, 1, PM_TYPE_U64))
-      this->zfs.anon = value.ull / ONE_K;
-   if (Metric_values(PCP_ZFS_ARC_C_MAX, &value, 1, PM_TYPE_U64))
-      this->zfs.max = value.ull / ONE_K;
-   if (Metric_values(PCP_ZFS_ARC_BONUS_SIZE, &value, 1, PM_TYPE_U64))
-      bonusSize = value.ull / ONE_K;
-   if (Metric_values(PCP_ZFS_ARC_DBUF_SIZE, &value, 1, PM_TYPE_U64))
-      dbufSize = value.ull / ONE_K;
-   if (Metric_values(PCP_ZFS_ARC_DNODE_SIZE, &value, 1, PM_TYPE_U64))
-      dnodeSize = value.ull / ONE_K;
-   if (Metric_values(PCP_ZFS_ARC_COMPRESSED_SIZE, &value, 1, PM_TYPE_U64))
-      this->zfs.compressed = value.ull / ONE_K;
-   if (Metric_values(PCP_ZFS_ARC_UNCOMPRESSED_SIZE, &value, 1, PM_TYPE_U64))
-      this->zfs.uncompressed = value.ull / ONE_K;
-   if (Metric_values(PCP_ZFS_ARC_HDR_SIZE, &value, 1, PM_TYPE_U64))
-      this->zfs.header = value.ull / ONE_K;
-   if (Metric_values(PCP_ZFS_ARC_MFU_SIZE, &value, 1, PM_TYPE_U64))
-      this->zfs.MFU = value.ull / ONE_K;
-   if (Metric_values(PCP_ZFS_ARC_MRU_SIZE, &value, 1, PM_TYPE_U64))
-      this->zfs.MRU = value.ull / ONE_K;
-   if (Metric_values(PCP_ZFS_ARC_SIZE, &value, 1, PM_TYPE_U64))
-      this->zfs.size = value.ull / ONE_K;
-
-   this->zfs.other = (dbufSize + dnodeSize + bonusSize) / ONE_K;
-   this->zfs.enabled = (this->zfs.size > 0);
-   this->zfs.isCompressed = (this->zfs.compressed > 0);
 }
 
 void ProcessList_goThroughEntries(ProcessList* super, bool pauseProcessUpdate) {
@@ -804,7 +805,6 @@ void ProcessList_goThroughEntries(ProcessList* super, bool pauseProcessUpdate) {
    this->timestamp = pmtimevalToReal(&timestamp);
 
    PCPProcessList_updateHeader(super, settings);
-   PCPProcessList_scanZfsArcstats(this);
 
    /* In pause mode only update global data for meters (CPU, memory, etc) */
    if (pauseProcessUpdate)
