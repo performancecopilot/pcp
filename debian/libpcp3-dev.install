@@ -86,6 +86,7 @@ usr/share/man/man3/pmFreeMetricSpec.3.gz
 usr/share/man/man3/pmFreeOptions.3.gz
 usr/share/man/man3/__pmFreeProfile.3.gz
 usr/share/man/man3/pmFreeResult.3.gz
+usr/share/man/man3/pmfstring.3.gz
 usr/share/man/man3/pmGetAPIConfig.3.gz
 usr/share/man/man3/pmGetArchiveEnd.3.gz
 usr/share/man/man3/pmGetArchiveLabel.3.gz
