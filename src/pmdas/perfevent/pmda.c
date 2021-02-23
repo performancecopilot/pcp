@@ -2,7 +2,7 @@
  * perfevent PMDA
  *
  * Copyright (c) 2013 Joe White
- * Copyright (c) 2012,2016,2018,2019 Red Hat.
+ * Copyright (c) 2012,2016,2018,2019,2021 Red Hat.
  * Copyright (c) 1995,2004 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,6 +19,7 @@
 #include "pmda.h"
 #include "domain.h"
 #include <sys/stat.h>
+#include <sys/resource.h>
 #include <ctype.h>
 
 #include "perfmanager.h"
@@ -412,6 +413,36 @@ static void config_indom_derived(pmdaIndom *pindom, int index, perf_derived_coun
     }
 }
 
+/* \brief set number of open files allowed to maximum possible.
+ *
+ * Note this PMDA may open one file per-event per-CPU so attempt
+ * transparently increasing the allowed open files to the kernel
+ * enforced hard limit.
+ *
+ * \returns void
+ */
+static void set_rlimit_maxfiles()
+{
+    struct rlimit limit;
+
+    if (getrlimit(RLIMIT_NOFILE, &limit) == 0) {
+	limit.rlim_cur = limit.rlim_max;
+	if (setrlimit(RLIMIT_NOFILE, &limit) != 0)
+	    pmNotifyErr(LOG_ERR, "Cannot %s open file limits\n", "adjust");
+    } else {
+	pmNotifyErr(LOG_ERR, "Cannot %s open file limits\n", "get");
+    }
+}
+
+static long get_rlimit_maxfiles()
+{
+    struct rlimit limit;
+
+    if (getrlimit(RLIMIT_NOFILE, &limit) == 0)
+	return limit.rlim_cur;
+    return -1;
+}
+
 /* \brief Initialise the perf events interface and read the counters
  *
  * Note this function needs the correct OS permissions to succeed. Either
@@ -426,6 +457,8 @@ static int setup_perfevents()
     int ret;
     int	sep = pmPathSeparator();
     pmsprintf(buffer, sizeof(buffer), "%s%c" PMDANAME "%c" PMDANAME ".conf", pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
+
+    set_rlimit_maxfiles();
 
     perfif = manager_init(buffer);
     if( 0 == perfif )
@@ -703,7 +736,8 @@ perfevent_init(pmdaInterface *dp)
         return;
     }
 
-    pmNotifyErr(LOG_INFO, "perfevent version " VERSION " initialised\n");
+    pmNotifyErr(LOG_INFO, "perfevent version " VERSION
+			  " (maxfiles=%ld)\n", get_rlimit_maxfiles());
 }
 
 static void usage(void)
