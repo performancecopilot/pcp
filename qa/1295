@@ -1,0 +1,115 @@
+#!/bin/sh
+# PCP QA Test No. 1295
+# 
+# error checks for sample.dynamic.* config file
+#
+# Copyright (c) 2021 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+if [ "$1" = "--valgrind" ]
+then
+    echo "Error: no --valgrind variant here"
+    exit 1
+fi
+
+_cleanup()
+{
+    cd $here
+    [ -f $control.qa-$seq ] && $sudo mv $control.qa-$seq $control
+    $sudo rm -rf $tmp $tmp.*
+}
+
+control=$PCP_PMDAS_DIR/sample/dynamic.indom
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+$sudo rm -f $control.qa-$seq
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+[ -f $control ] && $sudo mv $control $control.qa-$seq
+
+_filter()
+{
+    sed \
+	-e '/Log for pmdasample/s/ on .*/ on .../' \
+    # end
+}
+
+# prime the sample PMDA to refresh the dynamic indom
+#
+pminfo -f sample.dynamic >/dev/null 2>&1
+
+# real QA test starts here
+
+_service pcp restart 2>&1 | _filter_pcp_start
+_wait_for_pmcd
+_wait_for_pmlogger
+
+# missing instance name (200)
+#
+cat >$tmp.indom <<End-of-File
+10 one
+20 two
+30 three
+200
+201 two-hundred-and-one
+End-of-File
+$sudo rm -f $control
+$sudo cp $tmp.indom $control
+sleep 1
+pmprobe -I sample.dynamic.counter sample.dynamic.instant sample.dynamic.discrete
+sleep 1
+
+# negative instance identifier (-200)
+#
+echo
+cat >$tmp.indom <<End-of-File
+10 one
+20 two
+30 three
+-200 two-hundred
+201 two-hundred-and-one
+End-of-File
+$sudo rm -f $control
+$sudo cp $tmp.indom $control
+sleep 1
+pmprobe -I sample.dynamic.counter sample.dynamic.instant sample.dynamic.discrete
+sleep 1
+
+# too big an instance identifier (4194304) .. won't fit in 22 bits
+#
+echo
+cat >$tmp.indom <<End-of-File
+10 one
+20 two
+30 three
+4194304 two-hundred
+201 two-hundred-and-one
+End-of-File
+$sudo rm -f $control
+$sudo cp $tmp.indom $control
+sleep 1
+pmprobe -I sample.dynamic.counter sample.dynamic.instant sample.dynamic.discrete
+sleep 1
+
+# and what's in the PMDA log?
+#
+_filter <$PCP_LOG_DIR/pmcd/sample.log
+
+# success, all done
+exit
