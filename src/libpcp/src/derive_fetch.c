@@ -815,13 +815,17 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 			    np->data.info->ivlist[k].value.l = np->left->data.info->ivlist[i].value.l - np->left->data.info->last_ivlist[j].value.l;
 			    break;
 			case PM_TYPE_U32:
-			    np->data.info->ivlist[k].value.ul = np->left->data.info->ivlist[i].value.ul - np->left->data.info->last_ivlist[j].value.ul;
+			    /* result promoted to 64 by parser */
+			    np->data.info->ivlist[k].value.ll = np->left->data.info->ivlist[i].value.ul;
+			    np->data.info->ivlist[k].value.ll -= np->left->data.info->last_ivlist[j].value.ul;
 			    break;
 			case PM_TYPE_64:
 			    np->data.info->ivlist[k].value.ll = np->left->data.info->ivlist[i].value.ll - np->left->data.info->last_ivlist[j].value.ll;
 			    break;
 			case PM_TYPE_U64:
-			    np->data.info->ivlist[k].value.ull = np->left->data.info->ivlist[i].value.ull - np->left->data.info->last_ivlist[j].value.ull;
+			    /* result promoted to DOUBLE by parser */
+			    np->data.info->ivlist[k].value.d = np->left->data.info->ivlist[i].value.ull;
+			    np->data.info->ivlist[k].value.d -= np->left->data.info->last_ivlist[j].value.ull;
 			    break;
 			case PM_TYPE_FLOAT:
 			    np->data.info->ivlist[k].value.f = np->left->data.info->ivlist[i].value.f - np->left->data.info->last_ivlist[j].value.f;
