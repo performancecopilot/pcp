@@ -51,8 +51,8 @@ build-me: $(CMDTARGET) $(LIBTARGET)
 install_pcp install:	default 
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)
 	$(INSTALL) -m 755 -d $(PMDATMPDIR)
-	$(INSTALL) -m 644 -t $(PMDATMPDIR) root pmns domain.h help $(PMDAADMDIR)
-	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(CMDTARGET) $(LIBTARGET) $(SCRIPTS) $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) root pmns domain.h help $(LIBTARGET) $(PMDAADMDIR)
+	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(CMDTARGET) $(SCRIPTS) $(PMDAADMDIR)
 	$(INSTALL) -m 644 -t $(REWRITEVARDIR)/rpm_migrate.conf migrate.conf $(REWRITEDIR)/rpm_migrate.conf
 	@$(INSTALL_MAN)
 else

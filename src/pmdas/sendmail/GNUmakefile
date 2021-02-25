@@ -44,8 +44,8 @@ install install_pcp:	default
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)
 	$(INSTALL) -m 755 -d $(PMDATMPDIR)
 	$(INSTALL) -m 755 -t $(PMDATMPDIR)/pmda$(IAM)$(EXECSUFFIX) $(CMDTARGET) $(PMDAADMDIR)/pmda$(IAM)$(EXECSUFFIX)
-	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(LIBTARGET) $(SCRIPTS) $(PMDAADMDIR)
-	$(INSTALL) -m 644 -t $(PMDATMPDIR) $(DFILES) pmns help root domain.h $(PMDAADMDIR)
+	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(SCRIPTS) $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) $(DFILES) pmns help root domain.h $(LIBTARGET) $(PMDAADMDIR)
 	$(INSTALL) -m 644 -t $(PMCHARTVARDIR)/Sendmail Sendmail.pmchart $(PMCHARTDIR)/Sendmail
 
 $(CMDTARGET):	$(OBJECTS)

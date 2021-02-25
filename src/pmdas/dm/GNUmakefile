@@ -56,8 +56,8 @@ install: default
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)
 	$(INSTALL) -m 755 -d $(PMDATMPDIR)
 	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h help $(PMDAADMDIR)
-	$(INSTALL) -m 644 -t $(PMDATMPDIR) root $(PMNSFILES) $(PMDAADMDIR)
-	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) root $(PMNSFILES) $(LIBTARGET) $(PMDAADMDIR)
+	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(CMDTARGET) $(SCRIPTS) $(PMDAADMDIR)
 	$(INSTALL) -m 644 -t $(PMIEVARDIR)/data_high_util dmthin.data_high_util.pmie $(PMIEDIR)/data_high_util
 	$(INSTALL) -m 644 -t $(PMIEVARDIR)/metadata_high_util dmthin.metadata_high_util.pmie $(PMIEDIR)/metadata_high_util
 	@$(INSTALL_MAN)

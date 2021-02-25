@@ -899,7 +899,7 @@ install: default
 	\$(INSTALL) -m 755 -d \$(PCP_VAR_DIR)/pmdas
 	\$(INSTALL) -m 755 -d \$(PMDADIR)
 	\$(INSTALL) -m 755 \$(CMDTARGET) \$(PMDADIR)/\$(CMDTARGET)
-	\$(INSTALL) -m 755 \$(LIBTARGET) \$(PMDADIR)/\$(LIBTARGET)
+	\$(INSTALL) -m 644 \$(LIBTARGET) \$(PMDADIR)/\$(LIBTARGET)
 	\$(INSTALL) -m 755 $oflag/Install \$(PMDADIR)/Install
 	\$(INSTALL) -m 755 $oflag/Remove \$(PMDADIR)/Remove
 	\$(INSTALL) -m 644 $oflag/Makefile.install \$(PMDADIR)/Makefile
@@ -962,7 +962,7 @@ install: default
 	\$(INSTALL) -m 755 -d \$(PCP_VAR_DIR)/pmdas
 	\$(INSTALL) -m 755 -d \$(PMDADIR)
 	\$(INSTALL) -m 755 -f \$(CMDTARGET) \$(PMDADIR)/\$(CMDTARGET)
-	\$(INSTALL) -m 755 -f \$(LIBTARGET) \$(PMDADIR)/\$(LIBTARGET)
+	\$(INSTALL) -m 644 -f \$(LIBTARGET) \$(PMDADIR)/\$(LIBTARGET)
 	\$(INSTALL) -m 755 -f $oflag/Install \$(PMDADIR)/Install
 	\$(INSTALL) -m 755 -f $oflag/Remove \$(PMDADIR)/Remove
 	\$(INSTALL) -m 644 -f $oflag/Makefile.install \$(PMDADIR)/Makefile

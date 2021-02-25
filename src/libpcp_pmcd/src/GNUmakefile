@@ -73,7 +73,7 @@ include $(BUILDRULES)
 
 install : default
 ifeq "$(TARGET_OS)" "mingw"
-	$(INSTALL) -m 755 $(LIBTARGET) $(PCP_LIB_DIR)/$(LIBTARGET)
+	$(INSTALL) -m 644 $(LIBTARGET) $(PCP_LIB_DIR)/$(LIBTARGET)
 endif
 
 ifeq "$(ENABLE_PROBES)" "true"

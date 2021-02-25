@@ -54,7 +54,7 @@ include $(BUILDRULES)
 
 install: default
 ifneq ($(LIBTARGET),)
-	$(INSTALL) -m 755 $(LIBTARGET) $(PCP_LIB_DIR)/$(LIBTARGET)
+	$(INSTALL) -m 644 $(LIBTARGET) $(PCP_LIB_DIR)/$(LIBTARGET)
 	$(INSTALL) -m 644 $(LIBCONFIG) $(PCP_LIB_DIR)/pkgconfig/$(LIBCONFIG)
 endif
 ifneq ($(SYMTARGET),)
@@ -63,7 +63,7 @@ ifneq ($(SYMTARGET),)
 	done
 endif
 ifneq ($(STATICLIBTARGET),)
-	$(INSTALL) -m 755 $(STATICLIBTARGET) $(PCP_LIB_DIR)/$(STATICLIBTARGET)
+	$(INSTALL) -m 644 $(STATICLIBTARGET) $(PCP_LIB_DIR)/$(STATICLIBTARGET)
 endif
 
 default_pcp: default

@@ -89,11 +89,11 @@ build-me: $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS) $(CONFTARGETS)
 install: default
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)
 	$(INSTALL) -m 755 -d $(PMDATMPDIR)
-	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h help $(HELPTARGETS) $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h help $(HELPTARGETS) $(LIBTARGET) $(PMDAADMDIR)
 	$(INSTALL) -m 755 -d $(PMDACONFIG)
 	$(INSTALL) -m 644 interfaces.conf $(PMDACONFIG)/interfaces.conf
 	$(INSTALL) -m 644 -t $(PMDATMPDIR)/samplebandwidth.conf bandwidth.conf $(PMDACONFIG)/samplebandwidth.conf
-	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(LIBTARGET) $(CMDTARGET) $(PMDAADMDIR)
+	$(INSTALL) -m 755 -t $(PMDATMPDIR)/$(CMDTARGET) $(CMDTARGET) $(PMDAADMDIR)/$(CMDTARGET)
 	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_linux root_linux $(PCP_PMNSADM_DIR)/root_linux
 	$(INSTALL) -m 644 -t $(REWRITEVARDIR)/linux_proc_fs_nfsd_fixups.conf proc_fs_nfsd_fixups.conf $(REWRITEDIR)/linux_proc_fs_nfsd_fixups.conf
 	$(INSTALL) -m 644 -t $(REWRITEVARDIR)/linux_proc_net_snmp_migrate.conf proc_net_snmp_migrate.conf $(REWRITEDIR)/linux_proc_net_snmp_migrate.conf

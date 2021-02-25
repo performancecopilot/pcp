@@ -57,8 +57,8 @@ build-me: $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS)
 install: default
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)
 	$(INSTALL) -m 755 -d $(PMDATMPDIR)
-	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h help help.dir help.pag root root_xfs $(PMDAADMDIR)
-	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h help help.dir help.pag root root_xfs $(LIBTARGET) $(PMDAADMDIR)
+	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(CMDTARGET) $(SCRIPTS) $(PMDAADMDIR)
 	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_xfs root_xfs $(PCP_PMNSADM_DIR)/root_xfs
 	$(INSTALL) -m 644 -t $(REWRITEVARDIR)/linux_xfs_migrate.conf linux_xfs_migrate.conf $(REWRITEDIR)/linux_xfs_migrate.conf
 	@$(INSTALL_MAN)
