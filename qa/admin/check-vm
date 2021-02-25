@@ -1592,7 +1592,7 @@ then
     then
 	if [ -f $PCP_VAR_DIR/config/pmlogger/config.default ]
 	then
-	    if grep -q "allow $network" $PCP_VAR_DIR/config/pmlogger/config.default
+	    if grep -q "^allow $network" $PCP_VAR_DIR/config/pmlogger/config.default
 	    then
 		:
 	    else

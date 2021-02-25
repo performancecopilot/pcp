@@ -6,7 +6,7 @@ kernel.all.cpu.user
     Semantics: counter  Units: millisec
 
 delta.cpu.user
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: millisec
 
 rate.cpu.user
@@ -158,7 +158,7 @@ sample.seconds
     Semantics: counter  Units: sec
 
 delta.seconds
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: sec
 
 rate.seconds

@@ -255,9 +255,11 @@ sleepTight(Task *t)
 	else {
 	    unrealizenano(delay, &ts);
 	    for (;;) {	/* loop to catch early wakeup from nanosleep */
-		if (ts.tv_sec < 0 || ts.tv_nsec > 999999999) {
-		    fprintf(stderr, "sleepTight: invalid args: %ld.%09ld\n",
-			    (long int)ts.tv_sec, (long int)ts.tv_nsec);
+		if (ts.tv_sec < 0 ||
+		    ts.tv_nsec < 0 || ts.tv_nsec > 999999999) {
+		    fprintf(stderr, "Botch: sleepTight: invalid args: delay=%f -> ts={%ld,%ld}\n",
+			    delay, (long int)ts.tv_sec, (long int)ts.tv_nsec);
+		    dumpTask(t);
 		    break;
 		}
 		sts = nanosleep(&ts, &tleft);
@@ -268,7 +270,39 @@ sleepTight(Task *t)
 		    logRotate();
 		    dorotate = 0;
 		}
-		if (sts == 0 || (sts < 0 && oserror() != EINTR))
+		if (sts == 0)
+		    break;
+		else if (sts < 0) {
+		    int	lsts = oserror();
+		    /*
+		     * error from nanosleep() .. be a bit anal here
+		     * because getting it wrong may lead to an infinite
+		     * loop
+		     */
+		    switch (lsts) {
+			case EINTR:
+			    /* interrupted, resume the sleep ... */
+			    break;
+			case ENOENT:
+			    /*
+			     * have seen this during pmie start up, not sure
+			     * of the cause, but seems safe to resume the
+			     * sleep ... */
+			    break;
+			default:
+			    fprintf(stderr, "sleepTight: nanosleep({%ld,%ld}) -> -1 errno=%d tleft={%ld,%ld}\n",
+				(long)ts.tv_sec, (long)ts.tv_nsec, lsts,
+				(long)tleft.tv_sec, (long)tleft.tv_nsec);
+			    sts = 0;	/* force end of for(;;) loop */
+			    break;
+		    }
+		}
+		else {
+		    fprintf(stderr, "Botch: sleepTight: nanosleep({%ld,%ld}) -> %d\n",
+				(long)ts.tv_sec, (long)ts.tv_nsec, sts);
+		    sts = 0;	/* force end of for(;;) loop */
+		}
+		if (sts == 0)
 		    break;
 		ts = tleft;
 	    }

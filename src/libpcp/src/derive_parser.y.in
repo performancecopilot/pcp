@@ -1417,6 +1417,13 @@ check_expr(dm_t *dmp, node_t *np, int async)
 		else if (np->left->desc.type == PM_TYPE_U64)
 		    np->desc.type = PM_TYPE_64;
 	    }
+	    else if (np->type == N_DELTA) {
+		/* make sure result is signed and has sufficient precision */
+		if (np->left->desc.type == PM_TYPE_U32)
+		    np->desc.type = PM_TYPE_64;
+		else if (np->left->desc.type == PM_TYPE_U64)
+		    np->desc.type = PM_TYPE_DOUBLE;
+	    }
 	    break;
 
 	case N_ANON:

@@ -772,6 +772,11 @@ PCP_CALL extern int pmflush(void);
 PCP_CALL extern int pmsprintf(char *, size_t, const char *, ...) __PM_PRINTFLIKE(3,4);
 
 /*
+ * Safe version of fscanf("...%s...", buf)
+ */
+PCP_CALL extern int pmfstring(FILE *f, char **);
+
+/*
  * Wrapper for config/environment variables. Warning: this will exit() with
  * a FATAL error if /etc/pcp.conf does not exist and $PCP_CONF is not set.
  * Use the pmGetOptionalConfig variant if this behaviour is not sought.

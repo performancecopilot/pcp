@@ -186,6 +186,7 @@ enable(Task *t)
     if (waiting(t) == 0) {
 	/* all clear now ... */
 	t->epoch = t->eval;
+	t->tick = 0;		/* tick count is relative to epoch */
 	t->retry = 0;
     }
 }
@@ -879,6 +880,23 @@ run(void)
 	    /* regular eval, host and metrics available */
 	    t->tick++;
 	    t->eval = t->epoch + t->tick * t->delta;
+	}
+	if (!archives) {
+	    /*
+	     * sanity check ... don't let t->eval run ahead of real
+	     * time ... has been observed in the presence of a pmcd
+	     * diconnnect and reconnect bug that has been fixed, but
+	     * leaving this check, to be sure, to be sure
+	     */
+	    now = getReal();
+	    if (t->eval > now + t->delta) {
+		if (!quiet) {
+		    fprintf(stderr, "run: schedule eval (%f) > now (%f) + delta (%f) ... reset\n",
+			t->eval, now, t->delta);
+		    dumpTask(t);
+		}
+		t->eval = now + t->delta;
+	    }
 	}
 	taskq = t->next;
 	if (taskq) taskq->prev = NULL;

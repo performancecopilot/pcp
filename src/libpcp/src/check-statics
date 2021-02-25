@@ -516,6 +516,7 @@ util.o
     ?highwater			# sbrk(0) hack for Mac OS X, safe
     ?pick			# sbrk(0) hack for Mac OS X, safe
 deprecated.o
+strings.o
 ?win32.o
 				# skip statics in win32.c as we don't run this
 				# script for Windows builds

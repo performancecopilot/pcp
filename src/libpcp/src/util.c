@@ -1145,7 +1145,7 @@ pmNoMem(const char *where, size_t size, int fatal)
     pmNotifyErr(fatal ? LOG_ERR : LOG_WARNING,
 			"%s: malloc(%d) failed: %s",
 			where, (int)size, osstrerror_r(errmsg, sizeof(errmsg)));
-    if (fatal)
+    if (fatal == PM_FATAL_ERR)
 	exit(1);
 }
 
@@ -1801,32 +1801,6 @@ pmflush(void)
 	free(path);
 
     return sts;
-}
-
-int
-pmsprintf(char *str, size_t size, const char *fmt, ...)
-{
-    va_list	arg;
-    int		bytes;
-
-    /* bad input given - treated as garbage in, garbage out */
-    if (size == 0)
-	return 0;
-
-    va_start(arg, fmt);
-    bytes = vsnprintf(str, size, fmt, arg);
-    va_end(arg);
-    if (bytes < size) {
-	if (bytes > 0)	/* usual case, null terminated here */
-	    return bytes;
-	/* safest option - treat all errors as empty string */
-	*str = '\0';
-	return 1;
-    }
-    /* ensure (truncated) string is always null terminated. */
-    bytes = size - 1;
-    str[bytes] = '\0';
-    return bytes;
 }
 
 /*

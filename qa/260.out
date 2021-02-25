@@ -159,7 +159,7 @@ __dmbind: bind metric[2] delta.m1
 Derived metric expr dump from <addr-41>...
 expr node <addr-41> type=DELTA left=<addr-42> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.3 from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 expr node <addr-42> type=NAME left=(nil) right=(nil) save_last=1 [sample.const_rate.value] primary=0
     PMID: 29.0.72 (29.0.72 from pmDesc) numval: 0
@@ -171,11 +171,11 @@ __dmbind: bind metric[3] delta.m2
 Derived metric expr dump from <addr-43>...
 expr node <addr-43> type=PLUS left=<addr-44> right=<addr-46> save_last=0
     PMID: PM_ID_NULL (511.0.4 from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 expr node <addr-44> type=DELTA left=<addr-45> right=(nil) save_last=0
     PMID: PM_ID_NULL (30.0.72 from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 expr node <addr-45> type=NAME left=(nil) right=(nil) save_last=1 [sampledso.const_rate.value] primary=0
     PMID: 30.0.72 (30.0.72 from pmDesc) numval: 0
@@ -191,7 +191,7 @@ __dmbind: bind metric[4] delta.m3
 Derived metric expr dump from <addr-47>...
 expr node <addr-47> type=MINUS left=<addr-48> right=<addr-49> save_last=0
     PMID: PM_ID_NULL (511.0.5 from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 expr node <addr-48> type=NAME left=(nil) right=(nil) save_last=0 [sample.bigid] primary=0
     PMID: 29.0.1023 (29.0.1023 from pmDesc) numval: 0
@@ -199,7 +199,7 @@ expr node <addr-48> type=NAME left=(nil) right=(nil) save_last=0 [sample.bigid] 
     Semantics: instant  Units: count
 expr node <addr-49> type=DELTA left=<addr-50> right=(nil) save_last=0
     PMID: PM_ID_NULL (30.0.72 from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 expr node <addr-50> type=NAME left=(nil) right=(nil) save_last=1 [sampledso.const_rate.value] primary=0
     PMID: 30.0.72 (30.0.72 from pmDesc) numval: 0
@@ -223,7 +223,7 @@ expr node <addr-53> type=SLASH left=<addr-54> right=<addr-58> save_last=0
     Semantics: instant  Units: count
 expr node <addr-54> type=STAR left=<addr-55> right=<addr-56> save_last=0
     PMID: PM_ID_NULL (30.0.72 from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 expr node <addr-55> type=INTEGER left=(nil) right=(nil) save_last=0 [3] primary=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
@@ -231,7 +231,7 @@ expr node <addr-55> type=INTEGER left=(nil) right=(nil) save_last=0 [3] primary=
     Semantics: discrete  Units: none
 expr node <addr-56> type=DELTA left=<addr-57> right=(nil) save_last=0
     PMID: PM_ID_NULL (30.0.72 from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 expr node <addr-57> type=NAME left=(nil) right=(nil) save_last=1 [sampledso.const_rate.value] primary=0
     PMID: 30.0.72 (30.0.72 from pmDesc) numval: 0
@@ -251,7 +251,7 @@ expr node <addr-59> type=SLASH left=<addr-60> right=<addr-62> save_last=0
     Semantics: instant  Units: none
 expr node <addr-60> type=DELTA left=<addr-61> right=(nil) save_last=0
     PMID: PM_ID_NULL (29.0.72 from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 expr node <addr-61> type=NAME left=(nil) right=(nil) save_last=1 [sample.const_rate.value] primary=0
     PMID: 29.0.72 (29.0.72 from pmDesc) numval: 0
@@ -259,11 +259,11 @@ expr node <addr-61> type=NAME left=(nil) right=(nil) save_last=1 [sample.const_r
     Semantics: counter  Units: count
 expr node <addr-62> type=PLUS left=<addr-63> right=<addr-65> save_last=0
     PMID: PM_ID_NULL (29.0.72 from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 expr node <addr-63> type=DELTA left=<addr-64> right=(nil) save_last=0
     PMID: PM_ID_NULL (29.0.72 from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 expr node <addr-64> type=NAME left=(nil) right=(nil) save_last=1 [sample.const_rate.value] primary=0
     PMID: 29.0.72 (29.0.72 from pmDesc) numval: 0
@@ -271,7 +271,7 @@ expr node <addr-64> type=NAME left=(nil) right=(nil) save_last=1 [sample.const_r
     Semantics: counter  Units: count
 expr node <addr-65> type=DELTA left=<addr-66> right=(nil) save_last=0
     PMID: PM_ID_NULL (30.0.72 from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 expr node <addr-66> type=NAME left=(nil) right=(nil) save_last=1 [sampledso.const_rate.value] primary=0
     PMID: 30.0.72 (30.0.72 from pmDesc) numval: 0
@@ -291,7 +291,7 @@ expr node <addr-68> type=SLASH left=<addr-69> right=<addr-71> save_last=0
     Semantics: instant  Units: none
 expr node <addr-69> type=DELTA left=<addr-70> right=(nil) save_last=0
     PMID: PM_ID_NULL (29.0.72 from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 expr node <addr-70> type=NAME left=(nil) right=(nil) save_last=1 [sample.const_rate.value] primary=0
     PMID: 29.0.72 (29.0.72 from pmDesc) numval: 0
@@ -299,7 +299,7 @@ expr node <addr-70> type=NAME left=(nil) right=(nil) save_last=1 [sample.const_r
     Semantics: counter  Units: count
 expr node <addr-71> type=DELTA left=<addr-72> right=(nil) save_last=0
     PMID: PM_ID_NULL (29.0.72 from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 expr node <addr-72> type=NAME left=(nil) right=(nil) save_last=1 [sample.const_rate.value] primary=0
     PMID: 29.0.72 (29.0.72 from pmDesc) numval: 0
@@ -311,7 +311,7 @@ expr node <addr-73> type=SLASH left=<addr-74> right=<addr-76> save_last=0
     Semantics: instant  Units: none
 expr node <addr-74> type=DELTA left=<addr-75> right=(nil) save_last=0
     PMID: PM_ID_NULL (30.0.72 from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 expr node <addr-75> type=NAME left=(nil) right=(nil) save_last=1 [sampledso.const_rate.value] primary=0
     PMID: 30.0.72 (30.0.72 from pmDesc) numval: 0
@@ -319,7 +319,7 @@ expr node <addr-75> type=NAME left=(nil) right=(nil) save_last=1 [sampledso.cons
     Semantics: counter  Units: count
 expr node <addr-76> type=DELTA left=<addr-77> right=(nil) save_last=0
     PMID: PM_ID_NULL (29.0.72 from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 expr node <addr-77> type=NAME left=(nil) right=(nil) save_last=1 [sample.const_rate.value] primary=0
     PMID: 29.0.72 (29.0.72 from pmDesc) numval: 0
@@ -334,15 +334,15 @@ __dmgetpmid: metric "delta.m5" -> PMID 511.0.7
 __dmgetpmid: metric "delta.m6" -> PMID 511.0.8
 
 delta.m1 PMID: 511.0.3
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 
 delta.m2 PMID: 511.0.4
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 
 delta.m3 PMID: 511.0.5
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 
 delta.m4 PMID: 511.0.6

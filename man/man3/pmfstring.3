@@ -1,0 +1,108 @@
+\"macro stdmacro
+.\"
+.\" Copyright (c) 2021 Ken McDonell.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
+.TH PMFSTRING 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmfstring\f1 \- safe string scanning
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+int pmfstring(FILE *\fIf\fP, char **\fIstr\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.B pmfstring
+is safe string scanning routine with semantics similar to
+.BR fscanf (3)
+with the
+.B %s
+format specifier, namely scan the input stream from
+.I f
+skipping initial whitespace characters, the accumulating all the subsequent
+non-whitespace characters.
+.PP
+The main difference is that
+.B pmfstring
+allocates the result buffer
+.I str
+using the
+.BR malloc (3)
+family and ensures that
+.I str
+is (a) large enough and (b) null-byte terminated.
+.PP
+Additionally
+.B pmfstring
+does not consider \en to be a whitespace character in the initial
+scan (before filling
+.I str )
+and so
+will not scan past the end of the current line, which is different
+to
+.BR fscanf (3)
+and better aligned with the PCP use cases.
+.PP
+The caller is responsible for maintaining a reference to
+.I str
+or calling
+.BR free (3)
+to release the associated storage.
+.PP
+On success,
+.B pmfstring
+returns then length of
+.I str
+(the same length as
+.BR strlen (3)
+would return) and guaranteed to be not less than 1.
+.PP
+Failure is indicated by one of the following, and
+.I str
+is not assigned a value:
+.PD 0
+.IP \ \(bu 3n
+0 to indicate no non-whitespace characters were found before the end of the
+current line from the stream
+.I f
+.IP \ \(bu  3n
+-1 (
+aka
+.BR EOF )
+to indicate end of file on the stream
+.I f
+.IP \ \(bu 3n
+-2 to indicate some more serious failure, probably in the
+.BR malloc (3)
+routines; refer to
+.I errno
+for more information
+.PD
+.SH COMPATIBILITY
+.B pmfstring
+has similar semantics to the
+.B %ms
+format specifier in some versions of
+.BR fscanf (3)
+and the C99
+.BR fscanf_s (3)
+routine \- unfortunately neither of these is portable.
+.SH SEE ALSO
+.BR free (3),
+.BR fscanf (3),
+.BR malloc (3)
+and
+.BR strlen (3).

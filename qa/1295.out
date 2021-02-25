@@ -1,0 +1,17 @@
+QA output created by 1295
+sample.dynamic.counter 0
+sample.dynamic.instant 0
+sample.dynamic.discrete 0
+
+sample.dynamic.counter 0
+sample.dynamic.instant 0
+sample.dynamic.discrete 0
+
+sample.dynamic.counter 0
+sample.dynamic.instant 0
+sample.dynamic.discrete 0
+Log for pmdasample on ...
+
+redo_dynamic: botch missing instance name for instance identifier 200
+redo_dynamic: botch instance identifier -200 is illegal
+redo_dynamic: botch instance identifier 4194304 is illegal

@@ -1,0 +1,15 @@
+QA output created by 1296
+=== pmie output ===
+
+=== pmie.log ===
+Log for pmie on ...
+
+pmie: PID = ...
+
+I am alive (at least 3 times)
+Error: pmFetch from ... failed: IPC protocol failure
+Info: Lost connection to pmcd local:
+Info: Re-established connection to pmcd local:
+I am alive (at least 3 times)
+
+Log finished ...

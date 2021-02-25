@@ -128,7 +128,7 @@ then
     then
 	if [ -s $PCP_VAR_DIR/config/pmlogger/config.default ]
 	then
-	    if grep -q "allow $network" $PCP_VAR_DIR/config/pmlogger/config.default
+	    if grep -q "^allow $network" $PCP_VAR_DIR/config/pmlogger/config.default
 	    then
 		echo "Already done."
 	    else
@@ -137,6 +137,7 @@ then
 		echo "allow $network : all;" >>$tmp.conf
 		diff -u $PCP_VAR_DIR/config/pmlogger/config.default $tmp.conf
 		sudo cp $tmp.conf $PCP_VAR_DIR/config/pmlogger/config.default
+		echo "Now you need to restart the primary pmlogger."
 	    fi
 	else
 	    echo "Warning: \"$PCP_VAR_DIR/config/pcp/pmlogger/config.default\" is empty"

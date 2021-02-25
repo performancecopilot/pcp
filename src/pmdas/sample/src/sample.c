@@ -718,7 +718,7 @@ redo_dynamic(int increment)
 								    {
 	    FILE	*fspec;
 	    int		newinst;
-	    char	newname[100];	/* hack, secret max */
+	    char	*newname;
 	    int		numinst;
 
 	    lastsbuf = statbuf;
@@ -731,8 +731,28 @@ redo_dynamic(int increment)
 		idp->it_set = NULL;
 		numinst = 0;
 		for ( ; ; ) {
-		    if (fscanf(fspec, "%d %s", &newinst, newname) != 2)
+		    int		numval;
+		    if ((numval = fscanf(fspec, "%d", &newinst)) == EOF)
 			break;
+		    if (numval != 1) {
+			int	c;
+			fprintf(stderr, "redo_dynamic: botch missing instance identifier\n");
+			while ((c = fgetc(fspec)) != EOF && c != '\n') {
+			    fputc(c, stderr);
+			}
+			err = 0;
+			goto badinput;
+		    }
+		    if (newinst < 0 || newinst >= (1 << 22)) {
+			fprintf(stderr, "redo_dynamic: botch instance identifier %d is illegal\n", newinst);
+			err = 0;
+			goto badinput;
+		    }
+		    if (pmfstring(fspec, &newname) < 1) {
+			fprintf(stderr, "redo_dynamic: botch missing instance name for instance identifier %d\n", newinst);
+			err = 0;
+			goto badinput;
+		    }
 		    numinst++;
 		    if ((idp->it_set = (pmdaInstid *)realloc(idp->it_set, numinst * sizeof(pmdaInstid))) == NULL) {
 			err = -oserror();
@@ -740,18 +760,18 @@ redo_dynamic(int increment)
 			return err;
 		    }
 		    idp->it_set[numinst-1].i_inst = newinst;
-		    if ((idp->it_set[numinst-1].i_name = strdup(newname)) == NULL) {
-			err = -oserror();
-			free(idp->it_set);
-			idp->it_set = NULL;
-			fclose(fspec);
-			return err;
-		    }
+		    idp->it_set[numinst-1].i_name = newname;
 		    if (newinst > _dyn_max) {
 			if ((_dyn_ctr = (int *)realloc(_dyn_ctr, (newinst+1)*sizeof(_dyn_ctr[0]))) == NULL) {
 			    err = -oserror();
+badinput:
+			    while (numinst-1 > 0) {
+				free(idp->it_set[numinst-1].i_name);
+				numinst--;
+			    }
 			    free(idp->it_set);
 			    idp->it_set = NULL;
+			    idp->it_numinst = 0;
 			    fclose(fspec);
 			    return err;
 			}

@@ -466,6 +466,12 @@ one call to
 and the next. There is one value in the result
 for each instance that appears in both the current and the previous
 sample.
+If the metric x is unsigned, then the type of the result is
+converted to ensure as much precision as possible can be retained,
+so if the metric x has type PM_TYPE_U32 then the result is of type PM_TYPE_64, else
+if the metric x has type PM_TYPE_U64 then the result is of type PM_TYPE_DOUBLE.
+Otherwise the type of the result is the same as the type of the
+metric x.
 T}
 _
 rate(x)	T{
@@ -475,7 +481,7 @@ one call to
 and the next divided by the elapsed time between the calls to
 .BR pmFetch (3).
 The semantics of the derived metric are based on the semantics of the
-operand (x) with the dimension in the
+metric x with the dimension in the
 .B time
 domain decreased by one and scaling if required in the time utilization case
 where the operand is in units of time, and the derived metric is unitless.
@@ -494,7 +500,7 @@ instant(x)	T{
 Returns the current value of the metric x, even it has
 the semantics of a counter, i.e. PM_SEM_COUNTER.
 The semantics of the derived metric are based on the semantics of the
-operand (x); if x has semantics PM_SEM_COUNTER, the semantics of
+metric x; if x has semantics PM_SEM_COUNTER, the semantics of
 instant(x) is PM_SEM_INSTANT, otherwise the semantics of the derived metric
 is the same as the semantics of the metric x.
 T}
