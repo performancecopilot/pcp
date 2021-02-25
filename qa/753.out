@@ -52,7 +52,7 @@ units:     Kbyte
 samples:   2
 interval:  0.50 sec
 No values available
-          0
+                    0
 
 metric:    r
 semantics: instantaneous value
@@ -70,7 +70,7 @@ units:     none
 samples:   2
 interval:  0.50 sec
 No values available
-          0
+                    0
 
 metric:    r
 semantics: instantaneous value
