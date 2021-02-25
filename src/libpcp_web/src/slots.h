@@ -37,7 +37,7 @@ typedef struct redisSlotServer {
 typedef struct redisSlotRange {
     unsigned int	start;
     unsigned int	end;
-    redisSlotServer	master;
+    redisSlotServer	primary;
     unsigned int	counter;
     unsigned int	nreplicas;
     redisSlotServer	*replicas;

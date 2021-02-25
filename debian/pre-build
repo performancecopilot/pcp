@@ -2,7 +2,7 @@
 #
 # Pre-build helper script
 #
-# 1. Generate control from control.master and the non-optional
+# 1. Generate control from control.pcp and the non-optional
 #    control.foo fragments so that control can be included in the tarball
 #    (for vanilla Debian builds that do not use ../Makepkgs).
 #
@@ -12,7 +12,7 @@ rm -f $tmp
 status=1	# failure is the default
 trap "rm -f $tmp; exit \$status" 0 1 2 3 15
 
-for part in control.master
+for part in control.pcp
 do
     if [ -f $part ]
     then

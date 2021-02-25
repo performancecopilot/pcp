@@ -6,7 +6,7 @@ These files are the principal drivers for the ../check-vm script.
 check-vm -c may be used check the manifest and unavailable files.
 
 manifest
-	This is the master list of all packages across all packaging
+	This is the primary list of all packages across all packaging
 	frameworks, independent of distro (when more than one distro
 	uses the same packaging framework).  For example the lines
 	beginning "rpm?" only apply to systems where rpm(1) is the

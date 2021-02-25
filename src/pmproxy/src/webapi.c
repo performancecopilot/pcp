@@ -468,7 +468,6 @@ on_pmwebapi_children(sds context, pmWebChildren *children, void *arg)
 
 /*
  * https://openmetrics.io/
- * https://github.com/OpenObservability/OpenMetrics/blob/master/markdown/metric_exposition_format.md
  *
  * metric_name [
  *    "{" label_name "=" `"` label_value `"` { "," label_name "=" `"` label_value `"` } [ "," ] "}"

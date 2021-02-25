@@ -3,7 +3,7 @@
 # Usage: scripts/new-branch
 #
 # This script uses today's date to create a new branch, record the
-# HEAD SHA in <branch>.sha, then switch back to the master branch
+# HEAD SHA in <branch>.sha, then switch back to the main branch
 #
 # All of this sets up for a new batch of commits to be pushed via
 # github pull requests using the sister-scripts scripts/pcp-push
@@ -49,12 +49,12 @@ fi
 
 [ $# -eq 0 ] || _usage
 
-# expect to be on master branch at this point
+# expect to be on main branch at this point
 #
 branch=`git branch --list | sed -n -e 's/^\* //p'`
-if [ "$branch" != master ]
+if [ "$branch" != main ]
 then
-    echo "Error: should be on master branch (not $branch)"
+    echo "Error: should be on main branch (not $branch)"
     exit
 fi
 branch=`date '+%Y%m%d'`$suff
@@ -83,7 +83,7 @@ sha=`git log | sed -e 's/commit //' -e 1q`
 
 # back to square one
 #
-$GIT checkout master
+$GIT checkout main
 
 if $dryrun
 then

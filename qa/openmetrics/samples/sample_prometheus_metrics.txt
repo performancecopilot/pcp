@@ -417,7 +417,7 @@ process_start_time_seconds 1.49026254599e+09
 process_virtual_memory_bytes 1.7037312e+08
 # HELP prometheus_build_info A metric with a constant '1' value labeled by version, revision, branch, and goversion from which prometheus was built.
 # TYPE prometheus_build_info gauge
-prometheus_build_info{branch="master",goversion="go1.7.5",revision="bd1182d29f462c39544f94cc822830e1c64cf55b",version="1.5.2"} 1
+prometheus_build_info{branch="main",goversion="go1.7.5",revision="bd1182d29f462c39544f94cc822830e1c64cf55b",version="1.5.2"} 1
 # HELP prometheus_config_last_reload_success_timestamp_seconds Timestamp of the last successful configuration reload.
 # TYPE prometheus_config_last_reload_success_timestamp_seconds gauge
 prometheus_config_last_reload_success_timestamp_seconds 1.490262519e+09

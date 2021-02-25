@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# resync a local git repo with the master branch of the official
+# resync a local git repo with the main branch of the official
 # PCP repo at github.com/performancecopilot/pcp.git
 #
 
@@ -50,9 +50,9 @@ then
     exit 1
 fi
 
-if [ "$branch" != master ]
+if [ "$branch" != main ]
 then
-    echo "Warning: current branch $branch is not master"
+    echo "Warning: current branch $branch is not main"
 fi
 
 head=`git log -1 | sed -n '/^commit /s///p'`

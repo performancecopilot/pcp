@@ -150,7 +150,7 @@ $(TOPDIR)/src/pmns/stdpmid:
 pmdbg.h : ../../include/pcp/pmapi.h mk.pmdbg
 	./mk.pmdbg
 
-exports:	exports.master mk.exports
+exports:	exports.in mk.exports
 	./mk.exports
 
 # The library is thread-safe ... check-statics will force a build failure

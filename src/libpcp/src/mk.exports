@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Make exports from exports.master
+# Make exports from exports.in
 #
 # Do conditionals first, then strip comments
 #
@@ -26,9 +26,9 @@ sts=0
 trap "rm -rf $tmp; exit \$sts" 0 1 2 3 15
 
 rm -f $tmp.err
-$PCP_AWK_PROG <exports.master '
+$PCP_AWK_PROG <exports.in '
 $1 == "#if"	{ if (inif) {
-		    print "mk.exports: Error: exports.maser[" NR "] nested #if" >"'$tmp/err'"
+		    print "mk.exports: Error: exports.in[" NR "] nested #if" >"'$tmp/err'"
 		    inif = 0
 		    exit
 		  }
@@ -40,7 +40,7 @@ $1 == "#if"	{ if (inif) {
 		  next
 		}
 $1 == "#endif"	{ if (!inif) {
-		    print "mk.exports: Error: exports.maser[" NR "] missing #if" >"'$tmp/err'"
+		    print "mk.exports: Error: exports.in[" NR "] missing #if" >"'$tmp/err'"
 		    inif = 0
 		    exit
 		  }

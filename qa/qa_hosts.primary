@@ -1,5 +1,5 @@
 #
-# master version of likely victim hosts for PCP QA
+# primary version of likely victim hosts for PCP QA
 #
 # entries are fully qualified domain names, in any order
 # the only pre-requisite is that they be running some version of PCP.

@@ -51,7 +51,7 @@ LDIRT += 051.work 134.full.* \
 	# test is run
 LDIRT += $(shell [ -f .gitignore ] && grep '\.out$$' .gitignore)
 
-qa_hosts:	qa_hosts.master mk.qa_hosts
+qa_hosts:	qa_hosts.primary mk.qa_hosts
 	PATH=$(PATH); ./mk.qa_hosts
 
 localconfig:

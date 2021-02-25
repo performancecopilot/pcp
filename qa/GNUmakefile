@@ -72,7 +72,7 @@ COMMON = common.check common.config common.filter \
 	 common.python common.openmetrics \
 	 common.bcc common.bpftrace
 
-OTHERS = group qa_hosts.master README sanity.coverage \
+OTHERS = group qa_hosts.primary README sanity.coverage \
 	 $(shell echo valgrind-suppress* helgrind-suppress*)
 
 ifeq "$(ENABLE_SELINUX)" "true"
@@ -87,7 +87,7 @@ DOTOUTFILES = $(shell [ -f qa_outfiles ] && cat qa_outfiles || ls -1 | grep '^[0
 qa_outfiles:
 	@echo $(DOTOUTFILES) > qa_outfiles
 
-qa_hosts:	qa_hosts.master mk.qa_hosts
+qa_hosts:	qa_hosts.primary mk.qa_hosts
 	./mk.qa_hosts
 
 localconfig:

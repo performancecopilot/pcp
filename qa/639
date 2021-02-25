@@ -27,7 +27,7 @@ _add()
     rm -f $tmp.root.lock
 }
 
-cat <<End-of-File >$tmp.master
+cat <<End-of-File >$tmp.main
 /*
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -181,12 +181,12 @@ End-of-File
 
 # real QA test starts here
 echo "Initial state ..."
-pminfo -m -n $tmp.master
+pminfo -m -n $tmp.main
 
 echo
 echo "Serial additions ..."
 echo "Serial additions ..." >$seq.full
-cp $tmp.master $tmp.root
+cp $tmp.main $tmp.root
 for m in $tmp.d1 $tmp.one.d2 $tmp.one.one.d3 $tmp.two.d4 $tmp.three.one.d5 \
 	 $tmp.one.one.d6 $tmp.one.one.d7 $tmp.one.one.d8 $tmp.two.d9
 do
@@ -201,7 +201,7 @@ pminfo -m -n $tmp.root | LC_COLLATE=POSIX sort
 echo
 echo "Parallel additions ..."
 echo "Parallel additions ..." >>$seq.full
-cp $tmp.master $tmp.root
+cp $tmp.main $tmp.root
 rm -f $tmp*.out
 for m in $tmp.d1 $tmp.one.d2 $tmp.one.one.d3 $tmp.two.d4 $tmp.three.one.d5 \
 	 $tmp.one.one.d6 $tmp.one.one.d7 $tmp.one.one.d8 $tmp.two.d9

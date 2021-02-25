@@ -27,7 +27,7 @@ unsigned int	cgroup_version;
 
 /*
  * Parts of the following two functions are based on systemd code, see
- * https://github.com/systemd/systemd/blob/master/src/basic/unit-name.c
+ * https://github.com/systemd/systemd/blob/main/src/basic/unit-name.c
  *
  * The license in that code is: SPDX-License-Identifier: LGPL-2.1+
  */

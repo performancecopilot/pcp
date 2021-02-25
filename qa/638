@@ -28,7 +28,7 @@ _del()
     rm -f $tmp.root.lock
 }
 
-cat <<End-of-File >$tmp.master
+cat <<End-of-File >$tmp.main
 /*
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -169,11 +169,11 @@ End-of-File
 
 # real QA test starts here
 echo "Initial state ..."
-pminfo -m -n $tmp.master
+pminfo -m -n $tmp.main
 
 echo
 echo "Serial deletions ..."
-cp $tmp.master $tmp.root
+cp $tmp.main $tmp.root
 for m in d1 one.d2 one.one.d3 two.d4 three.one.d5 one.one.d6 \
 	 one.one.d7 one.one.d8 two.d9
 do
@@ -186,7 +186,7 @@ pminfo -m -n $tmp.root
 
 echo
 echo "Parallel deletions ..."
-cp $tmp.master $tmp.root
+cp $tmp.main $tmp.root
 rm -f $tmp.out
 for m in d1 one.d2 one.one.d3 two.d4 three.one.d5 one.one.d6 \
 	 one.one.d7 one.one.d8 two.d9

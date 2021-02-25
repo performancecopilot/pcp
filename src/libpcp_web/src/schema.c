@@ -1554,7 +1554,7 @@ decodeRedisSlot(redisSlotsBaton *baton, redisReply *reply)
     }
     slots.end = (__uint32_t)slot;
     node = reply->element[2];
-    if ((decodeRedisNode(baton, node, &slots.master)) < 0)
+    if ((decodeRedisNode(baton, node, &slots.primary)) < 0)
 	return -EINVAL;
 
     if ((sp = calloc(1, sizeof(redisSlotRange))) == NULL)

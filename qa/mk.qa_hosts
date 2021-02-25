@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# make qa_hosts from qa_hosts.master
+# make qa_hosts from qa_hosts.primary
 #
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -22,9 +22,9 @@ unset PCP_AWK_PROG
 # generic initialization
 . ./common.rc
 
-if [ ! -f qa_hosts.master ]
+if [ ! -f qa_hosts.primary ]
 then
-    echo "$0: Cannot find \"qa_hosts.master\""
+    echo "$0: Cannot find \"qa_hosts.primary\""
     exit 1
 fi
 
@@ -45,16 +45,16 @@ fi
 [ -z "$my_fqdn" -o "$my_host" = "$my_fqdn" ] && my_fqdn=$my_host".localdomain"
 
 rm -f qa_hosts
-grep "^#order" qa_hosts.master \
+grep "^#order" qa_hosts.primary \
 | while read tag pat recipe
 do
     if echo $my_fqdn | fgrep "$pat" >/dev/null 2>&1
     then
 	trap "rm -f /tmp/$$; exit 1" 1 2 3 15
 
-	# strip qa_hosts.master leaving only hosts
+	# strip qa_hosts.primary leaving only hosts
 	#
-	sed -e 's/#.*//' -e '/^ *$/d' qa_hosts.master >/tmp/$$
+	sed -e 's/#.*//' -e '/^ *$/d' qa_hosts.primary >/tmp/$$
 
 	# match in turn
 	#

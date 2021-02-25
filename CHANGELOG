@@ -395,7 +395,7 @@ pcp-5.2.0 (7 August 2020)
 	ci: remove Azure Pipelines, replaced with GitHub Actions
 	ci: implement workaround for podman and AppArmor
 	ci: daily QA with Status Report on GitHub Actions
-	ci: only run on pushes/PRs to master branch, not tags
+	ci: only run on pushes/PRs to main branch, not tags
 	ci: use containerfile for containers, fix locale of centos8
 	ci: add epel repos to centos7 and centos8 for libuv-devel
 	ci: add ubuntu 16.04
@@ -565,7 +565,7 @@ pcp-5.1.0 (24 April 2020)
 	ci: enable redis on startup on Azure CI hosts
 	ci: install libuv-devel from EPEL Modular on RHEL 8
 	build/tar/preinstall: take more care of services before upgrade
-	debian/fixcontrol.master: fix libsystemd-dev conditional logic
+	debian/fixcontrol.main: fix libsystemd-dev conditional logic
 	configure.ac: improved libsystemd checks and portability
 	build: update do-maybe-requires script to check provides metadata
 	build: remove perl(NET::SNMP) from unavailable file (it's in EPEL)
@@ -1092,7 +1092,7 @@ pcp-4.3.3 (28 June 2019)
 	build: update fedora rpm changelog with another bz
 	build: remove selinux-policy-updates.patch from fedora.spec
 	build/qa: add new deps to dockerfiles, 
-	build: rename libopenssl-dev to libssl-dev in debian/control.master
+	build: rename libopenssl-dev to libssl-dev in debian/control.main
     - Documentation and QA infrastructure:
 	qa, pmproxy: fixes to derived metrics registration
 	qa: add minimal valgrind 3.15.0 suppressions (f30+)

@@ -266,7 +266,7 @@ do
     echo "--- after _setup() ---" >>$here/$seq.full
     $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mlogger' >>$here/$seq.full
     
-    # create the control file from master
+    # create the control file from primary
     _extract_control $i > $logdir/control
     echo "--- control ---" >>$here/$seq.full
     cat $logdir/control >>$here/$seq.full

@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# generate control preamble from control.master
+# generate control preamble from control.pcp
 #
 tmp=/var/tmp/$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
@@ -57,7 +57,7 @@ fi
 #
 if [ ! -f ../src/include/builddefs ]
 then
-    echo "fixcontrol.master: Botch: ../src/include/builddefs does not exist"
+    echo "fixcontrol: Botch: ../src/include/builddefs does not exist"
     exit 1
 fi
 
@@ -231,4 +231,4 @@ else
 fi
 
 echo "s/ $//" >>$tmp.sed
-sed -f $tmp.sed <control.master
+sed -f $tmp.sed <control.pcp

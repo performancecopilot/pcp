@@ -9959,7 +9959,7 @@ openmetrics.sample_prometheus_metrics.prometheus_build_info [A metric with a con
     Semantics: instant  Units: none
 Help:
 A metric with a constant '1' value labeled by version, revision, branch, and goversion from which prometheus was built.
-    inst [0 or "0 branch:master goversion:go1.7.5 revision:bd1182d29f462c39544f94cc822830e1c64cf55b version:1.5.2"] value 1
+    inst [0 or "0 branch:main goversion:go1.7.5 revision:bd1182d29f462c39544f94cc822830e1c64cf55b version:1.5.2"] value 1
 
 openmetrics.sample_prometheus_metrics.prometheus_config_last_reload_success_timestamp_seconds [Timestamp of the last successful configuration reload.]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff

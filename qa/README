@@ -56,8 +56,8 @@ Basic getting started
 	on this will be skipped.
 
     Next, mk.qa_hosts is a script that includes heuristics for selecting
-    and sorting the list of potential remote PCP QA hosts (qa_hosts.master).
-    Refer to the comments in qa_hosts.master, and make appropriate changes.
+    and sorting the list of potential remote PCP QA hosts (qa_hosts.primary).
+    Refer to the comments in qa_hosts.primary, and make appropriate changes.
 
     For each of the potential remote PCP QA hosts, the following must be
     set up:
@@ -91,7 +91,7 @@ Basic getting started
 	And finally, the "pcpqa" user needs to be included in the group
 	"pcp".
 
-    Once you've modified common.config and qa_hosts.master, then run
+    Once you've modified common.config and qa_hosts.primary, then run
     "chk.setup" to validate the settings.
 
     For test 051 we need five local hostnames that are valid, although PCP

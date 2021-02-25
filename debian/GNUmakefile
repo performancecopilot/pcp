@@ -313,8 +313,8 @@ ifeq ($(HAVE_HICOLOR_ICONS), true)
 	cat pcp-gui.install.hicolor >>pcp-gui.install
 endif
 
-control:	control.master control.pcpgui fixcontrol.master
-	./fixcontrol.master >control
+control:	control.pcp control.pcpgui fixcontrol
+	./fixcontrol >control
 ifeq ($(ENABLE_PYTHON2), true)
 	cat control.python2 >>control
 endif

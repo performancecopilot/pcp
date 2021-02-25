@@ -26,7 +26,7 @@ main(int argc, char **argv)
     int		numiter;
     int		links;
     int		first = 1;
-    int		master = 1;
+    int		primary = 1;
     int		result;
     int		pid;
     int		debug = 0;
@@ -77,13 +77,13 @@ main(int argc, char **argv)
 		exit(1);
 	    }
 
-	    master = fork();
+	    primary = fork();
 
-	    if (master == -1) {
+	    if (primary == -1) {
 		perror("chain: fork failed");
 		exit(1);
 	    }
-	    else if (master) {
+	    else if (primary) {
 		close(1);
 		if (dup(p1[1]) < 0) {
 		    perror("chain: p1 dup->1 failed");
@@ -113,17 +113,17 @@ main(int argc, char **argv)
 	    close(p1[0]);
 	    close(p1[1]);
 	    first = 0;
-	    if (!master)
+	    if (!primary)
 		break;
 	}
     }
     close(p2[1]);
 
-    if (master) {
+    if (primary) {
 	    if (debug)
-		fprintf(stderr, "initial write, master pid %ld\n", (long)getpid());
+		fprintf(stderr, "initial write, primary pid %ld\n", (long)getpid());
 	    if (write(1, pbuf, sizeof(pbuf)) != sizeof(pbuf)) {
-		perror("master write failed");
+		perror("primary write failed");
 		exit(1);
 	    }
     }
@@ -152,7 +152,7 @@ main(int argc, char **argv)
     }
     close(1);
 
-    while (master && (pid = wait(&result)) != -1) {
+    while (primary && (pid = wait(&result)) != -1) {
 	if (debug)
 	    fprintf(stderr, "wait -> %d and 0x%x\n", pid, result);
     }

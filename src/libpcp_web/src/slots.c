@@ -45,7 +45,7 @@ redisSlotRangeInsert(redisSlots *redis, redisSlotRange *range)
 	int		i;
 
 	fprintf(stderr, "Slot range: %05u-%05u\n", range->start, range->end);
-	fprintf(stderr, "    Master: %s\n", range->master.hostspec);
+	fprintf(stderr, "   Primary: %s\n", range->primary.hostspec);
 	for (i = 0; i < range->nreplicas; i++)
 	    fprintf(stderr, "\tReplica%05u: %s\n", i, range->replicas[i].hostspec);
     }
@@ -79,7 +79,7 @@ redisSlotsInit(dict *config, void *events)
 	    goto fail;
 
 	/* use the default Redis server if none specified */
-	range->master.hostspec = sdsnew(default_server);
+	range->primary.hostspec = sdsnew(default_server);
 	range->start = 0;
 	range->end = MAXSLOTS;
 	redisSlotRangeInsert(slots, range);
@@ -94,7 +94,7 @@ redisSlotsInit(dict *config, void *events)
 	if ((range = calloc(1, sizeof(redisSlotRange))) == NULL)
 	    goto fail;
 
-	range->master.hostspec = specs[i];
+	range->primary.hostspec = specs[i];
 	range->start = start;
 	range->end = (i == nservers - 1) ? MAXSLOTS : space * (i + 1);
 	redisSlotRangeInsert(slots, range);
@@ -142,7 +142,7 @@ redisSlotRangeClear(redisSlots *pool, redisSlotRange *range)
 {
     int			i;
 
-    redisSlotServerFree(pool, &range->master);
+    redisSlotServerFree(pool, &range->primary);
     for (i = 0; i < range->nreplicas; i++)
 	redisSlotServerFree(pool, &range->replicas[i]);
     free(range->replicas);
@@ -308,16 +308,16 @@ redisGetAsyncContextBySlot(redisSlots *slots, unsigned int slot)
     range = *(redisSlotRange **)p;
 
 #if 1
-    server = &range->master;
+    server = &range->primary;
 #else
     /*
      * Using replicas seems to always invoke cluster MOVED responses back
-     * to the master, even for read-only requests, which was not the plan
+     * to the primary even for read-only requests, which was not the plan
      * (leads to worse performance not better), so this is disabled until
      * further analysis is done as to why that may be.
      */
     range->counter++;
-    server = (range->nreplicas == 0) ? &range->master :
+    server = (range->nreplicas == 0) ? &range->primary :
 	     &range->replicas[range->counter % range->nreplicas];
 #endif
     if (server->redis == NULL)

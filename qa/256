@@ -42,7 +42,7 @@ $1 == "expr" && $2 == "node" && $3 ~ /^0x/	{ print "s/" $3 "/<addr-" n ">/"; n++
 # -e 's/ val=[0-9][0-9]*/ val=<number>/g'
 }
 
-# expr node <addr-6> type=NAME left=(nil) right=(nil) save_last=1 [sample.pdu] master=0
+# expr node <addr-6> type=NAME left=(nil) right=(nil) save_last=1 [sample.pdu] primary=0
 # ...
 # [0] inst=-1, val=49794
 _filter2()
