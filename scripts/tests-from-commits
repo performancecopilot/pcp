@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # typical usage:
-# test-from-commits -b master -t pcp -r 6bad98e4b0537c2e99b3906ca7a36f4998ea3419..HEAD
+# test-from-commits -b main -t pcp -r 6bad98e4b0537c2e99b3906ca7a36f4998ea3419..HEAD
 #
 
 tmp=/var/tmp/$$
@@ -761,7 +761,7 @@ _usage()
     echo >&2 "Usage: groups-to-test [options]"
     echo >&2
     echo >&2 "options:"
-    echo >&2 "  -b branch           [defaults to master]"
+    echo >&2 "  -b branch           [defaults to main]"
     echo >&2 "  -r range            [defaults to \$(cat tested.sha)..HEAD)]"
     exit 1
 }
@@ -791,7 +791,7 @@ then
 else
     range=''
 fi
-branch=master
+branch=main
 while getopts "b:r:?" c
 do
     case $c
