@@ -52,7 +52,7 @@ typedef struct {
 
 static int	__pmLastUsedFd = -INT_MAX;
 static __pmIPC	*__pmIPCTable;
-static int	ipctablecount;
+static size_t	ipctablecount;
 
 #ifdef PM_MULTI_THREAD
 static pthread_mutex_t	ipc_lock = PTHREAD_MUTEX_INITIALIZER;
@@ -70,7 +70,7 @@ __pmIsIpcLock(void *lock)
     return lock == (void *)&ipc_lock;
 }
 #endif
-static int	ipcentrysize;
+static size_t	ipcentrysize;
 
 static inline __pmIPC *
 __pmIPCTablePtr(int fd)
@@ -82,8 +82,7 @@ __pmIPCTablePtr(int fd)
 static int
 resize(int fd)
 {
-    size_t size;
-    int	oldcount;
+    size_t size, oldcount;
     __pmIPC	*tmp__pmIPCTable;
 
     PM_ASSERT_IS_LOCKED(ipc_lock);
