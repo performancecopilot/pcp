@@ -204,7 +204,8 @@ rule_match(char *fullname, char *rulename)
     if (strcmp(fullname, rulename) == 0)
 	return 1;
     /* fullname may be a group, so match against rulename's groups */
-    s = strcpy(token, rulename);	/* reuse the token buffer */
+    pmstrncpy(token, sizeof(token), rulename);	/* reuse the token buffer */
+    s = token;
     while ((s = strrchr(s, '.')) != NULL) {
 	s[0] = '\0';
 	if (strcmp(token, fullname) == 0)
@@ -810,23 +811,7 @@ append_string(char *s, char *append, int len)
 #endif
     if ((s = (char *)realloc(s, size)) == NULL)
 	return NULL;
-#ifdef __GNUC__
-#if __GNUC__ >= 10
-    /*
-     * gcc 10 on Fedora 32 and Debian unstable falsely report a problem
-     * with this strncat() ... it is safe
-     */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wstringop-truncation"
-#endif
-#endif
-    strncat(s, append, len);
-#ifdef __GNUC__
-#if __GNUC__ >= 10
-#pragma GCC diagnostic pop
-#endif
-#endif
-    s[size-1] = '\0';
+    pmstrncat(s, size, append);
     return s;
 }
 
@@ -1848,7 +1833,7 @@ write_pmiefile(char *program, int autocreate)
 	return errmsg;
     }
     else if (!gotpath) {
-	strcpy(token, fname);
+	pmstrncpy(token, sizeof(token), fname);
 	if (realpath(token, pmiefile) == NULL) {
 	    fclose(fp);
 	    pmsprintf(errmsg, sizeof(errmsg), "failed to resolve %s realpath: %s", token, osstrerror());
@@ -1979,9 +1964,9 @@ save_area_append(char *str)
 	    return NULL;
     }
     if (sa_mark == 1)
-	save_area = strcpy(save_area, str);
+	pmstrncpy(save_area, sa_size, str);
     else
-	save_area = strcat(save_area, str);
+	pmstrncat(save_area, sa_size, str);
     sa_mark += size;
     return save_area;
 }
@@ -2225,7 +2210,7 @@ initialise(char *in_rules, char *in_pmie, int autocreate, char *warning, size_t 
     if (in_pmie == NULL)
 	pmsprintf(pmiefile, sizeof(pmiefile), "%s\\%s", home, DEFAULT_USER_PMIE);
     else
-	strcpy(pmiefile, in_pmie);
+	pmstrncpy(pmiefile, sizeof(pmiefile), in_pmie);
     rule_path_sep = ";";
 #else
     if (getuid() == 0) {
@@ -2255,7 +2240,7 @@ initialise(char *in_rules, char *in_pmie, int autocreate, char *warning, size_t 
 	if (in_pmie == NULL)
 	    pmsprintf(pmiefile, sizeof(pmiefile), "%s%c%s", home, SEP, DEFAULT_USER_PMIE);
 	else
-	    strcpy(pmiefile, in_pmie);
+	    pmstrncpy(pmiefile, sizeof(pmiefile), in_pmie);
     }
     rule_path_sep = ":";
 #endif
@@ -2264,7 +2249,7 @@ initialise(char *in_rules, char *in_pmie, int autocreate, char *warning, size_t 
 	if ((p = getenv("PMIECONF_PATH")) == NULL)
 	    pmsprintf(rulepath, sizeof(rulepath), "%s%c%s", pmGetConfig("PCP_VAR_DIR"), SEP, DEFAULT_RULES);
 	else
-	    strcpy(rulepath, p);
+	    pmstrncpy(rulepath, sizeof(rulepath), p);
     }
     else
 	pmsprintf(rulepath, sizeof(rulepath), "%s", in_rules);
