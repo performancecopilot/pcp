@@ -772,9 +772,26 @@ PCP_CALL extern int pmflush(void);
 PCP_CALL extern int pmsprintf(char *, size_t, const char *, ...) __PM_PRINTFLIKE(3,4);
 
 /*
- * Safe version of fscanf("...%s...", buf)
+ * Safe version of fscanf("...%s...", buf) ... buf dynamically allocated,
+ * guaranteed to be null-byte terminated and returns strlen(buf)
  */
-PCP_CALL extern int pmfstring(FILE *f, char **);
+PCP_CALL extern size_t pmfstring(FILE *f, char **);
+
+/*
+ * Safe version of strncpy() ... args are deliberately different to
+ * strncpy() to guard against accidential misuse ... length is length
+ * of dest, not src ... also result is 0/-1 for success/truncation
+ * rather than the useless (!) char * = dest
+ */
+PCP_CALL extern int pmstrncpy(char *, size_t, char *);
+
+/*
+ * Safe version of strncat() ... args are deliberately different to
+ * strncat() to guard against accidential misuse ... length is length
+ * of dest, not src ... also result is 0/-1 for success/truncation
+ * rather than the useless (!) char * = dest
+ */
+PCP_CALL extern int pmstrncat(char *, size_t, char *);
 
 /*
  * Wrapper for config/environment variables. Warning: this will exit() with

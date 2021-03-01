@@ -269,7 +269,7 @@ print_grouplist(int argcount)
 	if ((j = strchr(rulelist[i].self.name, '.')) != NULL) {
 	    *j = '\0';	/* mark end of group name */
 	    if (strcmp(rulelist[i].self.name, lastgroup) != 0) {
-		strcpy(lastgroup, rulelist[i].self.name);
+		pmstrncpy(lastgroup, sizeof(lastgroup), rulelist[i].self.name);
 		pprintf("  %s\n", lastgroup);
 	    }
 	    *j = '.';	/* repair the rule name */
@@ -420,7 +420,7 @@ command_list(int argcount)
     }
 
     if (strcmp(".", inbuf[1]) == 0)
-	strcpy(inbuf[1], previous);
+	pmstrncpy(inbuf[1], sizeof(inbuf[1]), previous);
     if (strcmp("all", inbuf[1]) == 0)
 	all = 1;
     if ((msg = lookup_rules(inbuf[1], &rptr, &rcount, all)) != NULL) {
@@ -441,7 +441,7 @@ command_list(int argcount)
 	}
     }
     free(rptr);
-    strcpy(previous, inbuf[1]);
+    pmstrncpy(previous, sizeof(previous), inbuf[1]);
     return sts;
 }
 
@@ -465,7 +465,7 @@ command_undo(int argcount)
     }
 
     if (strcmp(".", inbuf[1]) == 0)
-	strcpy(inbuf[1], previous);
+	pmstrncpy(inbuf[1], sizeof(inbuf[1]), previous);
     if (strcmp("all", inbuf[1]) == 0)
 	all = 1;
     if ((msg = lookup_rules(inbuf[1], &rptr, &rcount, all)) != NULL) {
@@ -483,7 +483,7 @@ command_undo(int argcount)
 	error(msg);
 	return -1;
     }
-    strcpy(previous, inbuf[1]);
+    pmstrncpy(previous, sizeof(previous), inbuf[1]);
     pmiefile_modified = 1;
     return 0;
 }
@@ -514,8 +514,8 @@ command_modify(int command, int argcount)
 		argcount < 1? "few":"many");
 	    return -1;
 	}
-	strcpy(inbuf[2], "enabled");
-	strcpy(inbuf[3], "yes");
+	pmstrncpy(inbuf[2], sizeof(inbuf[2]), "enabled");
+	pmstrncpy(inbuf[3], sizeof(inbuf[3]), "yes");
     }
     else { /* (command == COMMAND_DISABLE) */
 	if (argcount != 1) {
@@ -523,12 +523,12 @@ command_modify(int command, int argcount)
 		argcount < 1? "few":"many");
 	    return -1;
 	}
-	strcpy(inbuf[2], "enabled");
-	strcpy(inbuf[3], "no");
+	pmstrncpy(inbuf[2], sizeof(inbuf[2]), "enabled");
+	pmstrncpy(inbuf[3], sizeof(inbuf[3]), "no");
     }
 
     if (strcmp(".", inbuf[1]) == 0)
-	strcpy(inbuf[1], previous);
+	pmstrncpy(inbuf[1], sizeof(inbuf[1]), previous);
     if (strcmp("all", inbuf[1]) == 0)
 	all = 1;
     if ( ((c = is_attribute(inbuf[2])) != -1) && c != ATTRIB_ENABLED ) {
@@ -549,7 +549,7 @@ command_modify(int command, int argcount)
     }
     pmiefile_modified = 1;
     free(rptr);
-    strcpy(previous, inbuf[1]);
+    pmstrncpy(previous, sizeof(previous), inbuf[1]);
     return 0;
 }
 
@@ -573,7 +573,7 @@ command_help(int argcount)
     }
 
     if (strcmp(".", inbuf[1]) == 0)
-	strcpy(inbuf[1], previous);
+	pmstrncpy(inbuf[1], sizeof(inbuf[1]), previous);
     if (strcmp("all", inbuf[1]) == 0)
 	all = 1;
     if ((msg = lookup_rules(inbuf[1], &rptr, &rcount, all)) != NULL) {
@@ -595,7 +595,7 @@ command_help(int argcount)
 	}
     }
     free(rptr);
-    strcpy(previous, inbuf[1]);
+    pmstrncpy(previous, sizeof(previous), inbuf[1]);
     return sts;
 }
 

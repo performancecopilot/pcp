@@ -757,6 +757,7 @@ redo_dynamic(int increment)
 		    if ((idp->it_set = (pmdaInstid *)realloc(idp->it_set, numinst * sizeof(pmdaInstid))) == NULL) {
 			err = -oserror();
 			fclose(fspec);
+			free(newname);
 			return err;
 		    }
 		    idp->it_set[numinst-1].i_inst = newinst;

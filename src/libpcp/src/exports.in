@@ -723,4 +723,6 @@ PCP_3.30 {
 PCP_3.31 {
   global:
     pmfstring;
+    pmstrncpy;
+    pmstrncat;
 } PCP_3.30;

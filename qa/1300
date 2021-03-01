@@ -1,0 +1,46 @@
+#!/bin/sh
+# PCP QA Test No. 1300
+# pmstrncpy/pmstrncat workout
+#
+# Copyright (c) 2021 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+src/pmstrn 2 "" "" "" "" ""
+
+echo
+for i in 1 2 3 4 5 6 7 8 9
+do
+    src/pmstrn $i "foobar"
+done
+
+echo 
+src/pmstrn 80 llan fair pwll gwyngyll gogerych wyrnd robwllll antysilio gogogoch
+
+# success, all done
+exit
