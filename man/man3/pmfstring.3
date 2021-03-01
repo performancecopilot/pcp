@@ -26,11 +26,12 @@ cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
 .B pmfstring
-is safe string scanning routine with semantics similar to
+is a safe string scanning routine with semantics similar to
 .BR fscanf (3)
 with the
 .B %s
-format specifier, namely scan the input stream from
+format specifier.
+It scans the input stream from
 .I f
 skipping initial whitespace characters, then accumulating all the subsequent
 non-whitespace characters.
