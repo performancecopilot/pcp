@@ -339,7 +339,7 @@ A simple example of a scripted config entry follows:
 #! /bin/sh
 awk '{
     print("# HELP loadavg local load average")
-    print("# Type loadavg gauge")
+    print("# TYPE loadavg gauge")
     printf("loadavg {interval=\\"1-minute\\"} %.2f\\n", $1)
     printf("loadavg {interval=\\"5-minute\\"} %.2f\\n", $2)
     printf("loadavg {interval=\\"15-minute\\"} %.2f\\n", $3)
@@ -355,7 +355,7 @@ data when run:
 .nf
 
 # HELP loadavg local load average
-# Type loadavg gauge
+# TYPE loadavg gauge
 loadavg {interval="1-minute"} 0.12
 loadavg {interval="5-minute"} 0.27
 loadavg {interval="15-minute"} 0.54
