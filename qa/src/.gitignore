@@ -191,6 +191,7 @@ pmpost-exploit
 pmprintf
 pmsocks_objstyle
 pmsprintf
+pmstrn
 pmtimezone.so
 profilecrash
 proc_test

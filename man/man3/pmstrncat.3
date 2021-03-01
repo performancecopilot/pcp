@@ -1,0 +1,59 @@
+\"macro stdmacro
+.\"
+.\" Copyright (c) 2021 Ken McDonell.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
+.TH PMSTRNCAT 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmstrncat\f1 \- safe string concatenation
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+int pmstrncat(char *\fIdest\fP, size_t \fIdestlen\fP, char *\fIsrc\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.B pmstrncat
+is safe string concatenation routine with semantics similar to
+.BR strncat (3).
+.PP
+The main differences are that
+.I src
+must be null-byte terminated,
+.I destlen
+is the length of the destination buffer (\c
+.IR dest )
+not the length of the source string (\c
+.IR src ),
+and
+.B pmstrncat
+ensures that
+.I dest
+is null-byte terminated, even when \fIstrlen\fP(\fIsrc\fP) is larger
+than the remaining space in
+.I dest
+(\fIdestlen\fP \- \fIstrlen\fP(\fIdest\fP) on entry).
+.PP
+On success,
+.B pmstrncat
+returns 0, else -1 indicates that
+.I src
+is too big and the result been truncated to ensure
+.I dest
+has no been overrun.
+.SH SEE ALSO
+.BR pmstrncpy (3)
+and
+.BR strncat (3).

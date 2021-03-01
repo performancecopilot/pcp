@@ -1740,6 +1740,7 @@ x11
 1297 pmieutil local
 1298 pmval local
 1299 libpcp pminfo local
+1300 libpcp local
 1301 pmda.pmproxy pmda.mmv local
 1303 pcp dstat python local
 1304 pmstat context context_local local

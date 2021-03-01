@@ -244,6 +244,8 @@ usr/share/man/man3/pmSortInstances.3.gz
 usr/share/man/man3/pmSpecLocalPMDA.3.gz
 usr/share/man/man3/pmsprintf.3.gz
 usr/share/man/man3/pmStore.3.gz
+usr/share/man/man3/pmstrncat.3.gz
+usr/share/man/man3/pmstrncpy.3.gz
 usr/share/man/man3/pmSyslog.3.gz
 usr/share/man/man3/pmtime.3.gz
 usr/share/man/man3/pmTimeConnect.3.gz

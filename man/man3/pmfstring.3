@@ -20,7 +20,7 @@
 .ft 3
 #include <pcp/pmapi.h>
 .sp
-int pmfstring(FILE *\fIf\fP, char **\fIstr\fP);
+size_t pmfstring(FILE *\fIf\fP, char **\fIstr\fP);
 .sp
 cc ... \-lpcp
 .ft 1
@@ -32,7 +32,7 @@ with the
 .B %s
 format specifier, namely scan the input stream from
 .I f
-skipping initial whitespace characters, the accumulating all the subsequent
+skipping initial whitespace characters, then accumulating all the subsequent
 non-whitespace characters.
 .PP
 The main difference is that
@@ -64,11 +64,11 @@ to release the associated storage.
 .PP
 On success,
 .B pmfstring
-returns then length of
+returns the length of
 .I str
 (the same length as
 .BR strlen (3)
-would return) and guaranteed to be not less than 1.
+would return) that is guaranteed to be not less than 1.
 .PP
 Failure is indicated by one of the following, and
 .I str

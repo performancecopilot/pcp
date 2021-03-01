@@ -67,39 +67,41 @@ pmsprintf(char *str, size_t size, const char *fmt, ...)
  *
  * Allocator uses a "buffer doubling" algorithm, but the result is
  * truncated to the null-byte terminator before returning.
+ *
+ * Returns strlen(buf).
  */
-int
+size_t
 pmfstring(FILE *f, char **str)
 {
     char	*buf = NULL;
     char	*buf_tmp;
     int		buflen = 0;
     int		i = 0;
-    char	c;
+    int		c;
 
     /* skip initial white space */
     while ((c = fgetc(f)) != EOF) {
-	if (c == EOF)
-	    return -1; /* aka EOF */
-	else if (c == '\n')
+	if (c == '\n')
 	    /* \n before a non-whitespace char */
 	    return 0;
 	else if (!isspace(c))
 	    break;
     }
+    if (c == EOF)
+	return -1; /* aka EOF */
 
     for ( ; ; ) {
 	if (i > buflen-1) {
 	    if (buf == NULL) {
 		if ((buf = (char *)malloc(4)) == NULL) {
-		    pmNoMem("pmfbufing malloc", 4, PM_RECOV_ERR);
+		    pmNoMem("pmfstring malloc", 4, PM_RECOV_ERR);
 		    return -2;
 		}
 		buflen = 4;
 	    }
 	    else {
 		if ((buf_tmp = (char *)realloc(buf, buflen*2)) == NULL) {
-		    pmNoMem("pmfbufing realloc", buflen*2, PM_RECOV_ERR);
+		    pmNoMem("pmfstring realloc", buflen*2, PM_RECOV_ERR);
 		    free(buf);
 		    return -2;
 		}
@@ -114,13 +116,59 @@ pmfstring(FILE *f, char **str)
     }
     buf[i] = '\0';		/* null-byte termination */
 
-    /* truncate allocation to length of the bufing + terminator */
+    /* truncate allocation to length of the string + terminator */
     if ((buf_tmp = (char *)realloc(buf, i+1)) == NULL) {
-	pmNoMem("pmfbufing truncate", i+1, PM_RECOV_ERR);
+	pmNoMem("pmfstring truncate", i+1, PM_RECOV_ERR);
 	free(buf);
 	return -2;
     }
 
     *str = buf_tmp;
     return i;
+}
+
+/*
+ * Safe version of strncpy() that guards against buffer over-run
+ * and guarantees the dest[] is null-byte terminated.
+ *
+ * Note that unlike strncpy(), destlen is the (maximum) length of
+ * dest[] not src[].
+ *
+ * Returns 0/-1 for success/truncation (of src in dest)
+ */
+int
+pmstrncpy(char *dest, size_t destlen, char *src)
+{
+    char	*d = dest;
+    char	*s = src;
+
+    for ( ; *s && d < &dest[destlen-1]; ) {
+	*d++ = *s++;
+    }
+    *d = '\0';
+
+    return *s == '\0' ? 0 : -1;
+}
+
+/*
+ * Safe version of strncat() that guards against buffer over-run
+ * and guarantees the dest[] is null-byte terminated.
+ *
+ * Note that unlike strncat(), destlen is the (maximum) length of
+ * dest[] not src[].
+ *
+ * Returns 0/-1 for success/truncation (of src in dest)
+ */
+int
+pmstrncat(char *dest, size_t destlen, char *src)
+{
+    char	*d = &dest[strlen(dest)];
+    char	*s = src;
+
+    for ( ; *s && d < &dest[destlen-1]; ) {
+	*d++ = *s++;
+    }
+    *d = '\0';
+
+    return *s == '\0' ? 0 : -1;
 }
