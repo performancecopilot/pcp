@@ -118,7 +118,7 @@ version_locked(int fd)
     if (__pmIPCTable == NULL || fd < 0 || fd >= ipctablecount) {
 	if (pmDebugOptions.context)
 	    fprintf(stderr,
-		"IPC protocol botch: version: table->" PRINTF_P_PFX "%p fd=%d sz=%d\n",
+		"IPC protocol botch: version: table->" PRINTF_P_PFX "%p fd=%d sz=%lu\n",
 		__pmIPCTable, fd, ipctablecount);
 	return UNKNOWN_VERSION;
     }
@@ -133,7 +133,7 @@ socket_locked(int fd)
     if (__pmIPCTable == NULL || fd < 0 || fd >= ipctablecount) {
 	if (pmDebugOptions.context)
 	    fprintf(stderr,
-		"IPC protocol botch: socket: table->" PRINTF_P_PFX "%p fd=%d sz=%d\n",
+		"IPC protocol botch: socket: table->" PRINTF_P_PFX "%p fd=%d sz=%lu\n",
 		__pmIPCTable, fd, ipctablecount);
 	return 0;
     }
@@ -148,7 +148,7 @@ features_locked(int fd)
     if (__pmIPCTable == NULL || fd < 0 || fd >= ipctablecount) {
 	if (pmDebugOptions.context)
 	    fprintf(stderr,
-		"IPC protocol botch: features: table->" PRINTF_P_PFX "%p fd=%d sz=%d\n",
+		"IPC protocol botch: features: table->" PRINTF_P_PFX "%p fd=%d sz=%lu\n",
 		__pmIPCTable, fd, ipctablecount);
 	return 0;
     }
