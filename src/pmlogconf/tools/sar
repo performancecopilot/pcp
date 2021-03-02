@@ -71,6 +71,7 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
 	kernel.all.cpu.sys
 	kernel.all.cpu.user
 	kernel.all.cpu.wait.total
+	kernel.all.cpu.vuser
 	kernel.all.intr
 	kernel.all.load
 	kernel.all.pswitch
