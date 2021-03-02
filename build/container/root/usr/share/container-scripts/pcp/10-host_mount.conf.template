@@ -1,0 +1,4 @@
+[Service]
+Environment="PROC_STATSPATH=${HOST_MOUNT}"
+Environment="PCP_PODMAN_DATADIR=${HOST_MOUNT}/var/lib/containers/storage/overlay-containers"
+Environment="PCP_PODMAN_RUNDIR=${HOST_MOUNT}/var/run/containers/storage/overlay-containers"
