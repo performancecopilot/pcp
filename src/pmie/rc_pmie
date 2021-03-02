@@ -135,22 +135,14 @@ _start_pmcheck()
     wait_option=''
     [ ! -z "$PMCD_WAIT_TIMEOUT" ] && wait_option="-t $PMCD_WAIT_TIMEOUT" 
 
-    if pmcd_wait $wait_option
+    pmie_check >$bgtmp/pmie 2>&1
+    bgstatus=$?
+    if [ -s $bgtmp/pmie ]
     then
-	pmie_check >$bgtmp/pmie 2>&1
-	bgstatus=$?
-	if [ -s $bgtmp/pmie ]
-	then
-	    logfile=$PCP_LOG_DIR/pmie/pmie_check.log
-	    mv -f $bgtmp/pmie $logfile
+	logfile=$PCP_LOG_DIR/pmie/pmie_check.log
+	mv -f $bgtmp/pmie $logfile
 
-	    message="pmie_check start failed in $prog, see $logfile"
-	    $PCP_SYSLOG_PROG -p daemon.warning "$message"
-	    $PCP_BINADM_DIR/pmpost "$message"
-	fi
-    else
-	bgstatus=$?
-	message="pmcd_wait failed in $prog: exit status: $bgstatus" 
+	message="pmie_check start failed in $prog, see $logfile"
 	$PCP_SYSLOG_PROG -p daemon.warning "$message"
 	$PCP_BINADM_DIR/pmpost "$message"
     fi
