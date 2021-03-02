@@ -27,10 +27,11 @@ MAN_SECTION = 1
 MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
 MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
 
-default: check_domain
+default_pcp default: check_domain
 
 include $(BUILDRULES)
 
+ifeq "$(PMDA_BIND2)" "true"
 install: default
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)
 	$(INSTALL) -m 755 -d $(PMDATMPDIR)
@@ -40,9 +41,11 @@ install: default
 	$(INSTALL) -m 644 -t $(PMDATMPDIR)/bind2.conf bind2-example.conf $(CONFIGDIR)/bind2.conf
 	@$(INSTALL_MAN)
 
-default_pcp : default
-
 install_pcp : install
+else
+install_pcp install:
+	@$(INSTALL_MAN)
+endif
 
 check_domain:	../../pmns/stdpmid
 	$(DOMAIN_PERLRULE)
