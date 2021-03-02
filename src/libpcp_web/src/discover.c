@@ -429,20 +429,21 @@ fs_change_callBack(uv_fs_event_t *handle, const char *filename, int events, int 
 
     if (lockcnt == 0 && count > 0) {
 	/* log-rolling has started */
-    	fprintf(stderr, "%s discovery callback: log-rolling in progress\n", stamp());
+	if (pmDebugOptions.discovery)
+	    fprintf(stderr, "%s discovery callback: log-rolling in progress\n", stamp());
 	lockcnt = count;
 	return;
     }
 
     if (lockcnt > 0 && count > 0) {
-	/* log-rolling is still in progress */
 	lockcnt = count;
-	return;
+    	return; /* still in progress */
     }
 
     if (lockcnt > 0 && count == 0) {
     	/* log-rolling is finished: check what got deleted, and then purge */
-    	fprintf(stderr, "%s discovery callback: finished log-rolling\n", stamp());
+	if (pmDebugOptions.discovery)
+	    fprintf(stderr, "%s discovery callback: finished log-rolling\n", stamp());
 	pmDiscoverTraverse(PM_DISCOVER_FLAGS_META|PM_DISCOVER_FLAGS_DATAVOL, check_deleted);
     }
     lockcnt = count;
@@ -752,16 +753,19 @@ pmDiscoverInvokeMetricCallBacks(pmDiscover *p, pmTimespec *ts, pmDesc *desc,
 	__pmContext	*ctxp = __pmHandleToPtr(p->ctx);
 	__pmArchCtl	*acp = ctxp->c_archctl;
 	char		idstr[32];
+	char		errmsg[PM_MAXERRMSGLEN];
 
 	if ((sts = __pmLogAddDesc(acp, desc)) < 0)
-	    fprintf(stderr, "%s: failed to add metric descriptor for %s\n",
+	    fprintf(stderr, "%s: failed to add metric descriptor for %s: %s\n",
 			    "pmDiscoverInvokeMetricCallBacks",
-			    pmIDStr_r(desc->pmid, idstr, sizeof(idstr)));
+			    pmIDStr_r(desc->pmid, idstr, sizeof(idstr)),
+			    pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	for (i = 0; i < numnames; i++) {
 	    if ((sts = __pmLogAddPMNSNode(acp, desc->pmid, names[i])) < 0)
-		fprintf(stderr, "%s: failed to add metric name %s for %s\n",
+		fprintf(stderr, "%s: failed to add metric name %s for %s: %s\n",
 				"pmDiscoverInvokeMetricCallBacks", names[i],
-				pmIDStr_r(desc->pmid, idstr, sizeof(idstr)));
+				pmIDStr_r(desc->pmid, idstr, sizeof(idstr)),
+				pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	}
 	PM_UNLOCK(ctxp->c_lock);
     }
@@ -1294,12 +1298,7 @@ pmDiscoverInvokeCallBacks(pmDiscover *p)
 		}
 		return;
 	    }
-
-	    /*
-	     * We have a valid pmapi context. Initialize context state
-	     * and invoke registered source callbacks.
-	     */
-	    pmDiscoverNewSource(p, sts);
+	    p->ctx = sts;
 
 	    if ((sts = pmGetArchiveEnd(&tvp)) < 0) {
 		/* Less likely, but could still be too early (as above) */
@@ -1310,6 +1309,12 @@ pmDiscoverInvokeCallBacks(pmDiscover *p)
 		p->ctx = -1;
 		return;
 	    }
+
+	    /*
+	     * We have a valid pmapi context. Initialize context state
+	     * and invoke registered source callbacks.
+	     */
+	    pmDiscoverNewSource(p, p->ctx);
 
 	    /* seek to end of archive for logvol data - see also TODO in process_logvol() */
 	    pmSetMode(PM_MODE_FORW, &tvp, 1);
