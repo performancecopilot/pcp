@@ -6,6 +6,7 @@ on:
 jobs:
   analyze:
     name: Analyze
+    if: github.repository == 'performancecopilot/pcp'
     runs-on: ubuntu-latest
 
     steps:
