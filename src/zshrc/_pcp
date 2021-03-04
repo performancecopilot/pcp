@@ -310,7 +310,6 @@ _pcp () {
   pmdbg)
     _arguments -A "-*" \
       '(- *)'{-\?,--help}'[display help message]' \
-      -g, --gdb             display expression for gdb(1) (requires -l)
       '(- *)'{-g,--gdb}'[display expression for gdb]' \
       '(- *)'{-o,--old}'[old and deprecated (bit-field) encodings]' \
       '(- *)'{-l,--list}'[display values and text for all PCP debug options]' \
