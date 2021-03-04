@@ -314,7 +314,7 @@ root_setup_socket(void)
 
     if (socket_path[0] == '\0')
 	pmsprintf(socket_path, sizeof(socket_path), "%s/pmcd/root.socket",
-		pmGetConfig("PCP_TMP_DIR"));
+		pmGetConfig("PCP_VAR_DIR"));
     unlink(socket_path);
     memcpy(path, socket_path, sizeof(path));	/* dirname copy */
     sts = __pmMakePath(dirname(path), S_IRWXU);
@@ -839,7 +839,7 @@ pmLongOptions	longopts[] = {
     PMOPT_DEBUG,
     PMDAOPT_DOMAIN,
     PMDAOPT_LOGFILE,
-    { "socket", 1, 's', "PATH", "Unix domain socket file [default $PCP_TMP_DIR/pmcd/root.socket]" },
+    { "socket", 1, 's', "PATH", "Unix domain socket file [default $PCP_VAR_DIR/pmcd/root.socket]" },
     PMOPT_HELP,
     PMDA_OPTIONS_END
 };

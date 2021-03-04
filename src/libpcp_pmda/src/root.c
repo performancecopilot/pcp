@@ -39,7 +39,7 @@ pmdaRootConnect(const char *path)
 	return -ENOMEM;
 
     if (path == NULL) {
-	if ((tmpdir = pmGetOptionalConfig("PCP_TMP_DIR")) == NULL) {
+	if ((tmpdir = pmGetOptionalConfig("PCP_VAR_DIR")) == NULL) {
 	    __pmSockAddrFree(addr);
 	    return PM_ERR_GENERIC;
 	}

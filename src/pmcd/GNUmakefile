@@ -35,7 +35,7 @@ ifeq ($(ENABLE_SYSTEMD),true)
 endif
 	$(INSTALL) -m 644 -t $(PCP_SHARE_DIR)/lib pmdaproc.sh rc-proc.sh rc-proc.sh.minimal $(PCP_LIBADM_DIR)
 	$(INSTALL) -o $(PCP_USER) -g $(PCP_GROUP) -m 775 -d $(PCP_LOG_DIR)/pmcd
-	$(INSTALL) -m 700 -d $(PCP_TMP_DIR)/pmcd
+	$(INSTALL) -m 700 -d $(PCP_VAR_DIR)/pmcd
 ifneq ($(PACKAGE_DISTRIBUTION),debian)
 	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/pmcd
 endif
