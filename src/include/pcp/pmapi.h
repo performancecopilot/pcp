@@ -783,7 +783,7 @@ PCP_CALL extern size_t pmfstring(FILE *f, char **);
  * of dest, not src ... also result is 0/-1 for success/truncation
  * rather than the useless (!) char * = dest
  */
-PCP_CALL extern int pmstrncpy(char *, size_t, char *);
+PCP_CALL extern int pmstrncpy(char *, size_t, const char *);
 
 /*
  * Safe version of strncat() ... args are deliberately different to
@@ -791,7 +791,7 @@ PCP_CALL extern int pmstrncpy(char *, size_t, char *);
  * of dest, not src ... also result is 0/-1 for success/truncation
  * rather than the useless (!) char * = dest
  */
-PCP_CALL extern int pmstrncat(char *, size_t, char *);
+PCP_CALL extern int pmstrncat(char *, size_t, const char *);
 
 /*
  * Wrapper for config/environment variables. Warning: this will exit() with
