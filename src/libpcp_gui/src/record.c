@@ -107,7 +107,7 @@ pmRecordSetup(const char *folio, const char *creator, int replay)
      * have folio file created ... get unique base string
      */
     tbuf[0] = '\0';
-    strcpy(foliopath, folio);
+    pmstrncpy(foliopath, sizeof(foliopath), folio);
     if ((p = strrchr(foliopath, '/')) != NULL) {
 	/* folio name contains a slash */
 	p++;
