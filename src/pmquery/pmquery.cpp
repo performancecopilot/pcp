@@ -235,8 +235,6 @@ PmQuery::PmQuery(bool inputflag, bool printflag, bool noframeflag,
 
 	textEdit = new QTextEdit(this);
 	textEdit->setFont(fixed);
-	textEdit->setLineWrapMode(QTextEdit::FixedColumnWidth);
-	textEdit->setLineWrapColumnOrWidth(80);
 	textEdit->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	if (nosliderflag)
 	    textEdit->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);

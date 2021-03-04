@@ -486,11 +486,11 @@ do_dialog(char cmd)
 
 	if (cmd == 'X')
 	    pmsprintf(lbuf, sizeof(lbuf), "%s -c -header \"%s - %s\" -file %s -icon question "
-			  "-B Yes -b No 2>/dev/null",
+			  "-B Yes -b No",
 		    xconfirm, dialog_title, rsc_prog, msg);
 	else
 	    pmsprintf(lbuf, sizeof(lbuf), "%s -c -header \"%s - %s\" -file %s -icon info "
-			  "-b Close 2>/dev/null",
+			  "-b Close",
 		    xconfirm, dialog_title, rsc_prog, msg);
 
 

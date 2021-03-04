@@ -1,0 +1,42 @@
+QA output created by 1302
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogrewrite -c TMP.config archives/bozo-20170904 TMP
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+Note: timezone set to local timezone of host "bozo" from archive
+
+
+21:37:08.179476 1 metric
+    29.0.5 (sample.colour): No values returned!
+
+21:37:13.179126 1 metric
+    29.0.5 (sample.colour): No values returned!
+
+21:37:18.178999 1 metric
+    29.0.5 (sample.colour): No values returned!
+
+21:37:23.178928 1 metric
+    29.0.5 (sample.colour): No values returned!
+
+21:37:28.179103 1 metric
+    29.0.5 (sample.colour): No values returned!
+
+21:37:33.178941 1 metric
+    29.0.5 (sample.colour): No values returned!
+
+21:37:38.179074 1 metric
+    29.0.5 (sample.colour): No values returned!
+
+21:37:43.179063 1 metric
+    29.0.5 (sample.colour): No values returned!
+
+21:37:48.179066 1 metric
+    29.0.5 (sample.colour): No values returned!
+
+21:37:53.179043 1 metric
+    29.0.5 (sample.colour): No values returned!

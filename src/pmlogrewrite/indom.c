@@ -391,54 +391,66 @@ do_indom(void)
 	}
     }
 
-    if (need_alloc) {
+    if (numinst > 0) {
 	/*
-	 * __pmLogPutInDom assumes the elements of inamelist[] point into
-	 * of a contiguous allocation starting at inamelist[0] ... if we've
-	 * changed an instance name or moved instance names about, then we
-	 * need to reallocate the strings for inamelist[]
+	 * some instances remain ... work to be done
 	 */
-	int	need = 0;
-	char	*new;
-	char	*p;
 
-	for (j = 0; j < numinst; j++)
-	    need += strlen(inamelist[j]) + 1;
-	new = (char *)malloc(need);
-	if (new == NULL) {
-	    fprintf(stderr, "inamelist[] malloc(%d) failed: %s\n", need, strerror(errno));
+	if (need_alloc) {
+	    /*
+	     * __pmLogPutInDom assumes the elements of inamelist[] point into
+	     * of a contiguous allocation starting at inamelist[0] ... if we've
+	     * changed an instance name or moved instance names about, then we
+	     * need to reallocate the strings for inamelist[]
+	     */
+	    int	need = 0;
+	    char	*new;
+	    char	*p;
+
+	    for (j = 0; j < numinst; j++)
+		need += strlen(inamelist[j]) + 1;
+	    new = (char *)malloc(need);
+	    if (new == NULL) {
+		fprintf(stderr, "inamelist[] malloc(%d) failed: %s\n", need, strerror(errno));
+		abandon();
+		/*NOTREACHED*/
+	    }
+	    p = new;
+	    for (j = 0; j < numinst; j++) {
+		strcpy(p, inamelist[j]);
+		inamelist[j] = p;
+		p += strlen(p) + 1;
+	    }
+	}
+
+	/*
+	 * libpcp, via __pmLogPutInDom(), assumes control of the storage pointed
+	 * to by instlist and inamelist.
+	 */
+	if ((sts = __pmLogPutInDom(&outarch.archctl, indom, &stamp, numinst, instlist, inamelist)) < 0) {
+	    fprintf(stderr, "%s: Error: __pmLogPutInDom: %s: %s\n",
+			    pmGetProgname(), pmInDomStr(indom), pmErrStr(sts));
 	    abandon();
 	    /*NOTREACHED*/
 	}
-	p = new;
-	for (j = 0; j < numinst; j++) {
-	    strcpy(p, inamelist[j]);
-	    inamelist[j] = p;
-	    p += strlen(p) + 1;
+	if (pmDebugOptions.appl0) {
+	    fprintf(stderr, "Metadata: write InDom %s @ offset=%ld\n", pmInDomStr(indom), out_offset);
+	}
+
+	/*
+	 * If the indom was a duplicate, then we are responsible for freeing the
+	 * associated storage.
+	 */
+	if (sts == PMLOGPUTINDOM_DUP) {
+	    if (need_alloc)
+		free(inamelist[0]);
+	    free(inamelist);
+	    free(instlist);
 	}
     }
-
-    /*
-     * libpcp, via __pmLogPutInDom(), assumes control of the storage pointed
-     * to by instlist and inamelist.
-     */
-    if ((sts = __pmLogPutInDom(&outarch.archctl, indom, &stamp, numinst, instlist, inamelist)) < 0) {
-	fprintf(stderr, "%s: Error: __pmLogPutInDom: %s: %s\n",
-			pmGetProgname(), pmInDomStr(indom), pmErrStr(sts));
-	abandon();
-	/*NOTREACHED*/
-    }
-    /*
-     * If the indom was a duplicate, then we are responsible for freeing the
-     * associated storage.
-     */
-    if (sts == PMLOGPUTINDOM_DUP) {
-	if (need_alloc)
-	    free(inamelist[0]);
+    else {
+	/* all instances have been deleted */
 	free(inamelist);
 	free(instlist);
-    }
-    if (pmDebugOptions.appl0) {
-	fprintf(stderr, "Metadata: write InDom %s @ offset=%ld\n", pmInDomStr(indom), out_offset);
     }
 }

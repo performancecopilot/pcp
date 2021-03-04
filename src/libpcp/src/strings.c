@@ -137,10 +137,10 @@ pmfstring(FILE *f, char **str)
  * Returns 0/-1 for success/truncation (of src in dest)
  */
 int
-pmstrncpy(char *dest, size_t destlen, char *src)
+pmstrncpy(char *dest, size_t destlen, const char *src)
 {
     char	*d = dest;
-    char	*s = src;
+    const char	*s = src;
 
     for ( ; *s && d < &dest[destlen-1]; ) {
 	*d++ = *s++;
@@ -160,10 +160,10 @@ pmstrncpy(char *dest, size_t destlen, char *src)
  * Returns 0/-1 for success/truncation (of src in dest)
  */
 int
-pmstrncat(char *dest, size_t destlen, char *src)
+pmstrncat(char *dest, size_t destlen, const char *src)
 {
     char	*d = &dest[strlen(dest)];
-    char	*s = src;
+    const char	*s = src;
 
     for ( ; *s && d < &dest[destlen-1]; ) {
 	*d++ = *s++;

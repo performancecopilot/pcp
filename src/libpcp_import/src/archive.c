@@ -49,10 +49,10 @@ check_context_start(pmi_context *current)
     lcp = &current->logctl;
     if (current->timezone == NULL) {
 	char	tzbuf[PM_TZ_MAXLEN];
-	strcpy(lcp->l_label.ill_tz, __pmTimezone_r(tzbuf, sizeof(tzbuf)));
+	pmstrncpy(lcp->l_label.ill_tz, sizeof(lcp->l_label.ill_tz), __pmTimezone_r(tzbuf, sizeof(tzbuf)));
     }
     else
-	strcpy(lcp->l_label.ill_tz, current->timezone);
+	pmstrncpy(lcp->l_label.ill_tz, sizeof(lcp->l_label.ill_tz), current->timezone);
     pmNewZone(lcp->l_label.ill_tz);
     current->state = CONTEXT_ACTIVE;
 

@@ -26,10 +26,10 @@ extern int verbose;
 static int fd = -1;
 static int port = -1;
 static int timeout = 2;	/* default 2 sec to timeout JMS server ACKs */
-static char *hostname;
-static char *username;
-static char *passcode;
-static char *topic;			/* JMS "topic" for pmie messages */
+static char *hostname = NULL;
+static char *username = NULL;
+static char *passcode = NULL;
+static char *topic = NULL;		/* JMS "topic" for pmie messages */
 static char pmietopic[] = "PMIE";	/* default JMS "topic" for pmie */
 
 static char buffer[4096];
@@ -89,8 +89,11 @@ static int stomp_connect(const char *hostname, int port)
 
 	/* Was the connection successful? */
 	if (ret <= 0) {
-	    if (oserror() == EINTR)
+	    if (oserror() == EINTR) {
+		__pmCloseSocket(fd);
+		__pmHostEntFree(servinfo);
 		return -2;
+	    }
 	    continue;
 	}
 	ret = __pmConnectCheckError(fd);
@@ -264,22 +267,44 @@ static void stomp_parse(void)
     while (fgets(buffer, sizeof(buffer), f)) {
 	if (strncmp(buffer, "port=", 5) == 0)
 	    port = atoi(isspace_terminate(&buffer[5]));
-	else if (strncmp(buffer, "host=", 5) == 0)
+	else if (strncmp(buffer, "host=", 5) == 0) {
+	    if (hostname != NULL)
+		free(hostname);
 	    hostname = strdup(isspace_terminate(&buffer[5]));
-	else if (strncmp(buffer, "hostname=", 9) == 0)
+	}
+	else if (strncmp(buffer, "hostname=", 9) == 0) {
+	    if (hostname != NULL)
+		free(hostname);
 	    hostname = strdup(isspace_terminate(&buffer[9]));
-	else if (strncmp(buffer, "user=", 5) == 0)
+	}
+	else if (strncmp(buffer, "user=", 5) == 0) {
+	    if (username != NULL)
+		free(username);
 	    username = strdup(isspace_terminate(&buffer[5]));
-	else if (strncmp(buffer, "username=", 9) == 0)
+	}
+	else if (strncmp(buffer, "username=", 9) == 0) {
+	    if (username != NULL)
+		free(username);
 	    username = strdup(isspace_terminate(&buffer[9]));
-	else if (strncmp(buffer, "password=", 9) == 0)
+	}
+	else if (strncmp(buffer, "password=", 9) == 0) {
+	    if (passcode != NULL)
+		free(passcode);
 	    passcode = strdup(isspace_terminate(&buffer[9]));
-	else if (strncmp(buffer, "passcode=", 9) == 0)
+	}
+	else if (strncmp(buffer, "passcode=", 9) == 0) {
+	    if (passcode != NULL)
+		free(passcode);
 	    passcode = strdup(isspace_terminate(&buffer[9]));
-	else if (strncmp(buffer, "timeout=", 8) == 0)	/* optional */
+	}
+	else if (strncmp(buffer, "timeout=", 8) == 0) {	/* optional */
 	    timeout = atoi(isspace_terminate(&buffer[8]));
-	else if (strncmp(buffer, "topic=", 6) == 0)	/* optional */
+	}
+	else if (strncmp(buffer, "topic=", 6) == 0) {	/* optional */
+	    if (topic != NULL)
+		free(topic);
 	    topic = strdup(isspace_terminate(&buffer[6]));
+	}
     }
     fclose(f);
 

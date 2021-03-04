@@ -107,7 +107,7 @@ pmRecordSetup(const char *folio, const char *creator, int replay)
      * have folio file created ... get unique base string
      */
     tbuf[0] = '\0';
-    strcpy(foliopath, folio);
+    pmstrncpy(foliopath, sizeof(foliopath), folio);
     if ((p = strrchr(foliopath, '/')) != NULL) {
 	/* folio name contains a slash */
 	p++;
@@ -118,12 +118,12 @@ pmRecordSetup(const char *folio, const char *creator, int replay)
 		free(dir);
 	    if ((dir = strdup(foliopath)) == NULL)
 		goto failed;
-	    strcpy(tbuf, dir);
-	    strcat(tbuf, "/");
+	    pmstrncpy(tbuf, sizeof(tbuf), dir);
+	    pmstrncat(tbuf, sizeof(tbuf), "/");
 	}
 	*p = c;
     }
-    strcat(tbuf, "XXXXXX");
+    pmstrncat(tbuf, sizeof(tbuf), "XXXXXX");
 #if HAVE_MKSTEMP
     cur_umask = umask(S_IXUSR | S_IRWXG | S_IRWXO);
     if ((fd = mkstemp(tbuf)) < 0) {
@@ -298,21 +298,21 @@ pmRecordAddHost(const char *host, int isdefault, pmRecordHost **rhp)
     rp->isdefault = isdefault;
 
     if (dir != NULL)
-	strcpy(tbuf, dir);
+	pmstrncpy(tbuf, sizeof(tbuf), dir);
     else
 	tbuf[0] = '\0';
-    strcat(tbuf, base);
+    pmstrncat(tbuf, sizeof(tbuf), base);
     p = &tbuf[strlen(tbuf)];
-    strcat(tbuf, ".");
-    strcat(tbuf, host);
-    strcat(tbuf, ".config");
+    pmstrncat(tbuf, sizeof(tbuf), ".");
+    pmstrncat(tbuf, sizeof(tbuf), host);
+    pmstrncat(tbuf, sizeof(tbuf), ".config");
     c = '\0';
     if (access(tbuf, F_OK) == 0) {
 	p[0] = 'a';
 	p[1] = '.';
 	p[2] = '\0';
-	strcat(p, host);
-	strcat(p, ".config");
+	pmstrncat(p, sizeof(tbuf) - (p - tbuf), host);
+	pmstrncat(p, sizeof(tbuf) - (p - tbuf), ".config");
 	while (p[0] <= 'z') {
 	    if (access(tbuf, F_OK) != 0) {
 		c = p[0];

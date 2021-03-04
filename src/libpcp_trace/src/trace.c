@@ -711,7 +711,7 @@ _pmauxtraceconnect(void)
      *  PCP_TRACE_NOAGENT
      */
     if ((sptr = getenv(TRACE_ENV_HOST)) != NULL)
-	strcpy(hostname, sptr);
+	pmstrncpy(hostname, sizeof(hostname), sptr);
     else {
        (void)gethostname(hostname, MAXHOSTNAMELEN);
        hostname[MAXHOSTNAMELEN-1] = '\0';

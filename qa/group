@@ -1742,6 +1742,7 @@ x11
 1299 libpcp pminfo local
 1300 libpcp local
 1301 pmda.pmproxy pmda.mmv local
+1302 pmlogrewrite valgrind local
 1303 pcp dstat python local
 1304 pmstat context context_local local
 1306 pmda.openmetrics labels local python
