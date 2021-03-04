@@ -226,7 +226,7 @@ binary-arch: checkroot build-stamp
 	# pmcd.stp added to dh_fixperms because on Ubuntu 16.04
 	# $(PCP_SHARE_DIR)/../systemtap/tapset/pmcd.stp was getting an
 	# unwanted mode change from 444 to 644
-	dh_fixperms -a -X/tmp -Xpmcd.stp
+	dh_fixperms -a -Xvar/lib/pcp/tmp -Xvar/lib/pcp/pmcd -Xpmcd.stp
 	dh_installdirs -a
 	dh_install -a --sourcedir=debian/$(pcp)
 	@$(uninstall)
