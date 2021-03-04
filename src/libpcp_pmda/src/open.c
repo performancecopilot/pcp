@@ -238,7 +238,7 @@ __pmdaOpenUnix(char *sockname, int *infd, int *outfd)
     }
     memset(&myaddr, 0, sizeof(myaddr));
     myaddr.sun_family = AF_UNIX;
-    strcpy(myaddr.sun_path, sockname);
+    pmstrncpy(myaddr.sun_path, sizeof(myaddr.sun_path), sockname);
     len = (int)offsetof(struct sockaddr_un, sun_path) + (int)strlen(myaddr.sun_path);
     sts = bind(sfd, (struct sockaddr*) &myaddr, len);
     if (sts < 0) {
