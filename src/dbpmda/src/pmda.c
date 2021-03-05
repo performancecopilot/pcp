@@ -571,7 +571,7 @@ dopmda(int pdu)
 	     * result or giving up
 	     */
 
-	    if (sts < 0) {
+	    if (sts < 0 || sts == PDU_ERROR) {
 		if (pinpdu > 0)
 		    __pmUnpinPDUBuf(pb);
 		return;
