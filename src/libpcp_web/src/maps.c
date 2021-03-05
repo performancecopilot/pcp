@@ -131,10 +131,10 @@ redisMapsInit(void)
 	return;
     setup = 1;
 
-    instmap = dictCreate(&sdsDictCallBacks, (void *)mapnames[0]);
-    namesmap = dictCreate(&sdsDictCallBacks, (void *)mapnames[1]);
-    labelsmap = dictCreate(&sdsDictCallBacks, (void *)mapnames[2]);
-    contextmap = dictCreate(&sdsDictCallBacks, (void *)mapnames[3]);
+    instmap = dictCreate(&sdsDictCallBacks, (void *)sdsnew(mapnames[0]));
+    namesmap = dictCreate(&sdsDictCallBacks, (void *)sdsnew(mapnames[1]));
+    labelsmap = dictCreate(&sdsDictCallBacks, (void *)sdsnew(mapnames[2]));
+    contextmap = dictCreate(&sdsDictCallBacks, (void *)sdsnew(mapnames[3]));
 }
 
 sds
