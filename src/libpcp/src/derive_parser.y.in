@@ -176,6 +176,7 @@ __dminit_component(const char *name, int descend, int recover)
 	    pmsprintf(path, sizeof(path), "%s%c%s", name, pmPathSeparator(), dp->d_name);
 	    if ((localsts = __dminit_component(path, descend, recover)) < 0) {
 		sts = localsts;
+		closedir(dirp);
 		goto finish;
 	    }
 	    sts += localsts;
