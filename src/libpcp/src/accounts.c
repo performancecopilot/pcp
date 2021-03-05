@@ -82,11 +82,16 @@ __pmGroupnameFromID(gid_t gid, char *buf, size_t size)
 {
     char namebuf[1024];
     struct group grp, *result;
+    int	sts;
 
-    getgrgid_r(gid, &grp, namebuf, sizeof(namebuf), &result);
-    pmsprintf(buf, size, "%s", result ? result->gr_name : "unknown");
-    buf[size-1] = '\0';
-    return buf;
+    sts = getgrgid_r(gid, &grp, namebuf, sizeof(namebuf), &result);
+    if (sts < 0 || result == NULL)
+	return "unknown";
+    else {
+	pmsprintf(buf, size, "%s", result->gr_name);
+	buf[size-1] = '\0';
+	return buf;
+    }
 }
 #elif defined(HAVE_GETGRGID)
 char *
@@ -111,11 +116,16 @@ __pmUsernameFromID(uid_t uid, char *buf, size_t size)
 {
     char namebuf[1024];
     struct passwd pwd, *result;
+    int sts;
 
-    getpwuid_r(uid, &pwd, namebuf, sizeof(namebuf), &result);
-    pmsprintf(buf, size, "%s", result ? result->pw_name : "unknown");
-    buf[size-1] = '\0';
-    return buf;
+    sts = getpwuid_r(uid, &pwd, namebuf, sizeof(namebuf), &result);
+    if (sts < 0 || result == NULL)
+	return "unknown";
+    else {
+	pmsprintf(buf, size, "%s", result->pw_name);
+	buf[size-1] = '\0';
+	return buf;
+    }
 }
 #elif defined(HAVE_GETPWUID)
 char *
@@ -140,9 +150,10 @@ __pmUsernameToID(const char *name, uid_t *uid)
 {
     char namebuf[1024];
     struct passwd pwd, *result = NULL;
+    int sts;
 
-    getpwnam_r(name, &pwd, namebuf, sizeof(namebuf), &result);
-    if (!result)
+    sts = getpwnam_r(name, &pwd, namebuf, sizeof(namebuf), &result);
+    if (sts < 0 || result == NULL)
 	return -ENOENT;
     *uid = result->pw_uid;
     return 0;
@@ -173,9 +184,10 @@ __pmGroupnameToID(const char *name, gid_t *gid)
 {
     char namebuf[512];
     struct group grp, *result = NULL;
+    int sts;
 
-    getgrnam_r(name, &grp, namebuf, sizeof(namebuf), &result);
-    if (result == NULL)
+    sts = getgrnam_r(name, &grp, namebuf, sizeof(namebuf), &result);
+    if (sts < 0 || result == NULL)
 	return -ENOENT;
     *gid = result->gr_gid;
     return 0;
@@ -219,9 +231,10 @@ __pmHomedirFromID(uid_t uid, char *buf, size_t size)
 	PM_UNLOCK(__pmLock_extcall);
     }
     else {
+	int sts;
 	PM_UNLOCK(__pmLock_extcall);
-	getpwuid_r(uid, &pwd, namebuf, sizeof(namebuf), &result);
-	if (result == NULL)
+	sts = getpwuid_r(uid, &pwd, namebuf, sizeof(namebuf), &result);
+	if (sts < 0 || result == NULL)
 	    return NULL;
 	pmsprintf(buf, size, "%s", result->pw_dir);
     }
@@ -297,8 +310,8 @@ __pmUsersGroupIDs(const char *username, gid_t **groupids, unsigned int *ngroups)
     struct passwd	pwd, *result = NULL;
     struct group	gr, *grp;
 
-    getpwnam_r(username, &pwd, grbuf, sizeof(grbuf), &result);
-    if (!result)
+    sts = getpwnam_r(username, &pwd, grbuf, sizeof(grbuf), &result);
+    if (sts < 0 || result == NULL)
 	return -ENOENT;
 
     /* add the primary group in right away, before supplementary groups */
@@ -433,8 +446,8 @@ __pmGroupsUserIDs(const char *groupname, uid_t **userids, unsigned int *nusers)
     unsigned int	i, count = 0;
 
     /* for a given group name, find gid and user names */
-    getgrnam_r(groupname, &gr, grbuf, sizeof(grbuf), &grp);
-    if (grp == NULL)
+    sts = getgrnam_r(groupname, &gr, grbuf, sizeof(grbuf), &grp);
+    if (sts < 0 || grp == NULL)
 	return -EINVAL;
     groupid = grp->gr_gid;
     names = grp->gr_mem;	/* supplementaries */
@@ -545,15 +558,16 @@ __pmGetUserIdentity(const char *username, uid_t *uid, gid_t *gid, int mode)
     struct passwd pwd, *pw;
 
     sts = getpwnam_r(username, &pwd, buf, sizeof(buf), &pw);
-    if (pw == NULL) {
-	pmNotifyErr(LOG_CRIT,
-		"cannot find the %s user to switch to\n", username);
+    if (sts < 0) {
+	pmNotifyErr(LOG_CRIT, "getpwnam_r(%s) failed: %s\n",
+		username, pmErrStr_r(sts, buf, sizeof(buf)));
 	if (mode == PM_FATAL_ERR)
 	    exit(1);
 	return -ENOENT;
-    } else if (sts != 0) {
-	pmNotifyErr(LOG_CRIT, "getpwnam_r(%s) failed: %s\n",
-		username, pmErrStr_r(sts, buf, sizeof(buf)));
+    }
+    else if (pw == NULL) {
+	pmNotifyErr(LOG_CRIT,
+		"cannot find the %s user to switch to\n", username);
 	if (mode == PM_FATAL_ERR)
 	    exit(1);
 	return -ENOENT;
@@ -580,7 +594,8 @@ __pmGetUserIdentity(const char *username, uid_t *uid, gid_t *gid, int mode)
 	if (mode == PM_FATAL_ERR)
 	    exit(1);
 	return -ENOENT;
-    } else if (oserror() != 0) {
+    }
+    else if (oserror() != 0) {
 	PM_UNLOCK(__pmLock_extcall);
 	pmNotifyErr(LOG_CRIT, "getpwnam(%s) failed: %s\n",
 		username, pmErrStr_r(oserror(), errmsg, sizeof(errmsg)));
