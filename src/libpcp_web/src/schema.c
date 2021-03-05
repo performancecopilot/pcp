@@ -1026,6 +1026,7 @@ doneRedisStreamBaton(redisStreamBaton *baton)
 
     seriesBatonCheckMagic(baton, MAGIC_STREAM, "doneRedisStreamBaton");
     seriesBatonCheckMagic(load, MAGIC_LOAD, "doneRedisStreamBaton");
+    sdsfree(baton->stamp);
     memset(baton, 0, sizeof(*baton));
     free(baton);
 
