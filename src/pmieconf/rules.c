@@ -2338,7 +2338,6 @@ lookup_processes(int *count, char ***processes)
 	    pmsprintf(errmsg, sizeof(errmsg), "insufficient memory for process search");
 	    if (proc_list) free(proc_list);
 	    closedir(dirp);
-	    close(fd);
 	    return errmsg;
 	}
 	running++;
