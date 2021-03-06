@@ -342,8 +342,8 @@ receivePDUs(pmdaInterface *dispatch)
 	timeout.tv_sec = interval;
 
 	if (pmDebugOptions.appl1)
-	    logmessage(LOG_DEBUG, "Select set for %d seconds\n", 
-			 interval);
+	    logmessage(LOG_DEBUG, "Select set for %ld seconds\n", 
+			 (long)interval);
 
 	sts = select(nfds, &rfds, (fd_set*)0, (fd_set*)0, &timeout);
 	if (sts < 0) {
