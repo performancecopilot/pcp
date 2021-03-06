@@ -477,7 +477,6 @@ do_dialog(char cmd)
 	    fprintf(stderr, "Reason? %s\n", osstrerror());
 	    if (fd != -1)
 		close(fd);
-	    free(xconfirm);
 	    goto failed;
 	}
 	fputs(p, msgf);
@@ -498,13 +497,11 @@ do_dialog(char cmd)
 	    fprintf(stderr, "\nError: __pmProcessUnpickArgs failed for recording session dialog\n");
 	    fprintf(stderr, "Command: \"%s\"\n", lbuf);
 	    fprintf(stderr, "Error: %s\n", pmErrStr(sts));
-	    free(xconfirm);
 	    goto failed;
 	}
 	if ((sts = __pmProcessPipe(&argp, "r", PM_EXEC_TOSS_NONE, &msgf)) < 0) {
 	    fprintf(stderr, "\nError: failed to start command for recording session dialog\n");
 	    fprintf(stderr, "Command: \"%s\"\n", lbuf);
-	    free(xconfirm);
 	    goto failed;
 	}
 
