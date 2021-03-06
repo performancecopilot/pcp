@@ -348,8 +348,6 @@ local_reconnector(files_t *file)
         files->fd = fd;
 
 done:
-    if (myaddr)
-	__pmSockAddrFree(myaddr);
     if (servinfo)
 	__pmHostEntFree(servinfo);
 }
