@@ -90,7 +90,7 @@ put_str_value(char *name, pmInDom indom, char *instance, char *val)
 	    sts = pmiPutValue(name, instance, val);
 	    if (sts < 0)
 		fprintf(stderr, "Warning: put_str_value \"%s\" inst:\"%s\" value:\"%s\" failed: err=%d %s\n",
-		    name, instance ? instance : "NULL", val ? val : "NULL", sts, pmiErrStr(sts));
+		    name, instance, val, sts, pmiErrStr(sts));
 	}
     }
 

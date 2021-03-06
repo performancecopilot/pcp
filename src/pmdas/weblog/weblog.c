@@ -1309,10 +1309,10 @@ openLogFile(FileInfo *theFile)
 	return -1;
     }
 
-    logmessage(LOG_INFO, "%s opened (fd=%d, inode=%d)\n",
+    logmessage(LOG_INFO, "%s opened (fd=%d, inode=%lu)\n",
 	       theFile->fileName,
 	       theFile->filePtr, 
-	       theFile->fileStat.st_ino);
+	       (unsigned long)theFile->fileStat.st_ino);
 
     /* throw away last line in file */
     if (theFile->fileStat.st_size != 0) {
@@ -1420,9 +1420,9 @@ checkLogFile(FileInfo *theFile,
     if (result == wl_ok && tmpStat->st_size < theFile->fileStat.st_size) {
 
 	logmessage(LOG_WARNING, 
-		   "%s stat - inode %d, size %d -> %d\n",
+		   "%s stat - inode %lu, size %zu -> %zu\n",
 		   theFile->fileName,
-		   theFile->fileStat.st_ino,
+		   (unsigned long)theFile->fileStat.st_ino,
 		   theFile->fileStat.st_size,
 		   tmpStat->st_size);
 
@@ -1472,10 +1472,10 @@ checkLogFile(FileInfo *theFile,
 	else if (tmpStat->st_ino != theFile->fileStat.st_ino) {
 
 	    logmessage(LOG_WARNING, 
-		       "%s inactive - inode %d -> %d\n",
+		       "%s inactive - inode %lu -> %lu\n",
 		       theFile->fileName,
-		       theFile->fileStat.st_ino,
-		       tmpStat->st_ino);
+		       (unsigned long)theFile->fileStat.st_ino,
+		       (unsigned long)tmpStat->st_ino);
 
 	    result = wl_reopened;
 	}
@@ -1524,7 +1524,7 @@ checkLogFile(FileInfo *theFile,
     if (result == wl_ok && tmpStat->st_mtime > theFile->fileStat.st_mtime) {
 
 	if (pmDebugOptions.appl1)
-	    logmessage(LOG_DEBUG, "%s grew %d bytes\n", 
+	    logmessage(LOG_DEBUG, "%s grew %zd bytes\n", 
 		       theFile->fileName,
 		       tmpStat->st_size - theFile->fileStat.st_size);
     	theFile->lastActive = wl_timeOfRefresh;
@@ -1694,7 +1694,7 @@ refresh(WebSproc* proc)
 
 			if (pmDebugOptions.appl0)
 			    logmessage(LOG_DEBUG, 
-				       "Short read of %s by %d bytes\n",
+				       "Short read of %s by %zd bytes\n",
 				       accessFile->fileName,
 				       tmpStat.st_size - accessFile->fileStat.st_size);
 
@@ -2098,7 +2098,7 @@ refresh(WebSproc* proc)
                         
                         if (pmDebugOptions.appl2) {
                             logmessage(LOG_DEBUG, 
-                                   "Access: Server=%d, line=%s\n        method=%s [%d], size=%s=%d [%d]\n",
+                                   "Access: Server=%d, line=%s\n        method=%s [%d], size=%s=%ld [%d]\n",
                                    i,
                                    line,
                                    proc->methodStr,
@@ -2132,7 +2132,7 @@ refresh(WebSproc* proc)
                     sts = wl_gets(errorFile, &line);
                     if (sts <= 0) {
 			if (pmDebugOptions.appl0)
-			    logmessage(LOG_DEBUG, "%s was %d bytes short\n",
+			    logmessage(LOG_DEBUG, "%s was %zd bytes short\n",
 				   errorFile->fileName,
 				   tmpStat.st_size - 
 				   errorFile->fileStat.st_size);
@@ -2252,7 +2252,7 @@ probe(void)
     wl_timeOfRefresh = theTime.tv_sec;
 
     if (pmDebugOptions.appl1)
-    	logmessage(LOG_DEBUG, "Starting probe at %d\n", wl_timeOfRefresh);
+    	logmessage(LOG_DEBUG, "Starting probe at %lu\n", (unsigned long)wl_timeOfRefresh);
 
     FD_ZERO(&rfds);
 
