@@ -411,10 +411,12 @@ remap_stdout_stderr(void)
     setlinebuf(stdout);
     i = fileno(stdout);
     close(i);
-    if ((j = dup(fileno(stderr))) != i)
+    if ((j = dup(fileno(stderr))) != i) {
 	fprintf(stderr, "%s: Warning: failed to link stdout ... "
 			"dup() returns %d, expected %d (stderr=%d)\n",
 			pmGetProgname(), j, i, fileno(stderr));
+	close(j);
+    }
 }
 
 void
