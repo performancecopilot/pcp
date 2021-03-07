@@ -765,6 +765,7 @@ getargs(int argc, char *argv[])
                           &tv, &tv2, &tv1,
 		          &msg) < 0) {
 	fputs(msg, stderr);
+	free(msg);
         exit(1);
     }
     start = pmtimevalToReal(&tv1);
@@ -819,6 +820,7 @@ getargs(int argc, char *argv[])
                           &tv, &tv2, &tv1,
 		          &msg) < 0) {
 	fputs(msg, stderr);
+	free(msg);
 	exit(1);
     }
 
