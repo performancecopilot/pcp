@@ -352,7 +352,10 @@ startmonitor(void)
 	return;
     }
     /* seek to struct size and write one zero */
-    lseek(fd, sizeof(pmiestats_t)-1, SEEK_SET);
+    if (lseek(fd, sizeof(pmiestats_t)-1, SEEK_SET) < 0) {
+	fprintf(stderr, "%s: Warning: lseek failed for stats file %s: %s\n",
+		pmGetProgname(), perffile, osstrerror());
+    }
     if (write(fd, &zero, 1) != 1) {
 	fprintf(stderr, "%s: Warning: write failed for stats file %s: %s\n",
 		pmGetProgname(), perffile, osstrerror());
