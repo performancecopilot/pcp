@@ -83,13 +83,17 @@ actShell(Expr *x)
 	size += strlen(pcp_bin_path) + 1;
 	if ((path = malloc(size)) != NULL) {
 	    if ((i = pmsprintf(path, size-1, "%s:%s:%s:%s\n", paths,
-			pcp_bin_path, pcp_binadm_path, all_platform_paths)) <= 0)
+			pcp_bin_path, pcp_binadm_path, all_platform_paths)) <= 0) {
+		free(path);
 		path = paths;	/* fallback to basic defaults */
+	    }
 	    else if (path[i-2] == ':')
 		path[i-2] = '\0';	/* PCP_PLATFORM_PATHS may be null */
 	    else
 		path[i] = '\0';
-	} else {
+	}
+	else {
+	    pmNoMem("actShell:path", size, PM_RECOV_ERR);
 	    path = paths;	/* set a basic default anyway */
 	}
     }
