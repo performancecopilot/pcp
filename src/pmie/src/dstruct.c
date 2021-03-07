@@ -1354,9 +1354,7 @@ void
 dumpTask(Task *t)
 {
     int	i;
-    Host	*h;
 
-    h = t->hosts;
     fprintf(stderr, "Task dump @ " PRINTF_P_PFX "%p\n", t);
     fprintf(stderr, "  nth=%d delta=%.3f tick=%d next=" PRINTF_P_PFX "%p prev=" PRINTF_P_PFX "%p\n", t->nth, t->delta, t->tick, t->next, t->prev);
     fprintf(stderr, "  eval time: ");
@@ -1367,15 +1365,16 @@ dumpTask(Task *t)
 	fprintf(stderr, "N/A");
     else
 	fprintf(stderr, "%.3f", t->retry);
-    if (h->down)
-	fprintf(stderr, " host %s down", symName(h->name));
-    else if (h->waits)
-	fprintf(stderr, " metric/instances missing");
-    fputc('\n', stderr);
     if (t->hosts == NULL)
-	fprintf(stderr, "  host=<null>\n");
-    else
-	fprintf(stderr, "  host=%s via=%s (%s)\n", symName(t->hosts->name), symName(t->hosts->conn), t->hosts->down ? "down" : "up");
+	fprintf(stderr, "  host: <null>\n");
+    else {
+	Host	*h = t->hosts;
+	fprintf(stderr, " host: %s", symName(h->name));
+	if (h->waits)
+	    fprintf(stderr, " metric/instances missing");
+	fputc('\n', stderr);
+	    fprintf(stderr, "  via=%s (%s)\n", symName(h->conn), h->down ? "down" : "up");
+    }
     fprintf(stderr, "  rules:\n");
     for (i = 0; i < t->nrules; i++) {
 	fprintf(stderr, "    %s\n", symName(t->rules[i]));

@@ -56,7 +56,8 @@ inblock == 1 && /eval time/	{ this_time = $6*3600+$7*60+$8
 				  	print $1,$2,"last +",delta
 				  }
 				  last_time = this_time
-				}'
+				}' \
+| sed -e "s/host  `hostname`/host: HOSTNAME/"
 
 # success, all done
 status=0
