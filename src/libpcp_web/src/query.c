@@ -2925,7 +2925,7 @@ series_abs_pmAtomValue(int type, pmAtomValue *val)
 	break;
     case PM_TYPE_64:
 	if (val->ll < 0)
-	    val->ll = val->ll;
+	    val->ll = -val->ll;
 	break;
     case PM_TYPE_U32:
     case PM_TYPE_U64:
