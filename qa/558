@@ -59,6 +59,10 @@ _wait_for_pmlogger
 
 cp $tmp.log $seq.full
 
+# Especially on slow VMs (like bozo-vm) we may need to dodge warnings
+# from pmie's rule scheduler around pmcd reconnection ... the second
+# last awk script does this.
+#
 _filter_pmie_log <$tmp.log \
 | sed \
     -e "s/ host $HOST/ host HOST\/localhost/g" \
@@ -70,11 +74,22 @@ _filter_pmie_log <$tmp.log \
     -e 's/failed: IPC protocol failure/failed: [IPC shutdown]/' \
     -e 's/failed: Connection reset by peer/failed: [IPC shutdown]/' \
 | $PCP_AWK_PROG '
+skip == 1 && /^[^ ]/		{ skip = 0 }
+/^run: schedule eval/		{ skip = 1 }
+/^sleepTight: negative/		{ skip = 1 }
+/^Last sleepTight until:/	{ skip = 1 }
+/^This sleepTight\() entry:/	{ skip = 1 }
+/^Harvest children done:/	{ skip = 1 }
+/^Want sleepTight until:/	{ skip = 1 }
+/Task dump @/			{ skip = 1 }
+skip == 0			{ print }' \
+| $PCP_AWK_PROG '
 $1 == "DATE:" && $2 == "singular"	{ if (state > 0) skip = 1
 					  state++
 					}
 $1 != "DATE:"		{ skip = 0; state = 0 }
-skip == 0		{ print }'
+skip == 0		{ print }' \
+
 
 _check_core
 

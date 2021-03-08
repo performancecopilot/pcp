@@ -105,7 +105,23 @@ do
     echo "=== running pmie via $port ===" |tee -a $seq.full
     pmie -f -h localhost:$port -c $tmp.pmie -T 5s > $tmp.out 2>&1
     cat $tmp.out >> $seq.full
-    cat $tmp.out | _filter_pmie
+    # Especially on slow VMs (like bozo-vm) we may need to dodge warnings
+    # from pmie's rule scheduler around pmcd reconnection ... the final
+    # awk script does this.
+    #
+    cat $tmp.out \
+    | _filter_pmie \
+    | $PCP_AWK_PROG '
+skip == 1 && /^[^ ]/		{ skip = 0 }
+/^run: schedule eval/		{ skip = 1 }
+/^sleepTight: negative/		{ skip = 1 }
+/^Last sleepTight until:/	{ skip = 1 }
+/^This sleepTight\() entry:/	{ skip = 1 }
+/^Harvest children done:/	{ skip = 1 }
+/^Want sleepTight until:/	{ skip = 1 }
+/Task dump @/			{ skip = 1 }
+skip == 0			{ print }'
+
     #(echo f $tmp.pmie; echo l; echo r 5s) | pmie -d -f -h localhost:$port | _filter_pmie
 done
 

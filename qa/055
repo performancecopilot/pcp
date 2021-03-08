@@ -120,7 +120,22 @@ cat $tmp.config >>$seq.full
 $sudo rm -f /tmp/pmie.err
 pmie -T 10 -v $tmp.config >$tmp.out 2>$tmp.err
 ( echo; echo "=== err ==="; cat $tmp.err ) >>$seq.full
-cat $tmp.err | _show_pmie_exit
+# Especially on slow VMs (like bozo-vm) we may need to dodge warnings
+# from pmie's rule scheduler around pmcd reconnection ... the awk
+# script does this.
+#
+cat $tmp.err \
+| $PCP_AWK_PROG '
+skip == 1 && /^[^ ]/		{ skip = 0 }
+/^run: schedule eval/		{ skip = 1 }
+/^sleepTight: negative/		{ skip = 1 }
+/^Last sleepTight until:/	{ skip = 1 }
+/^This sleepTight\() entry:/	{ skip = 1 }
+/^Harvest children done:/	{ skip = 1 }
+/^Want sleepTight until:/	{ skip = 1 }
+/Task dump @/			{ skip = 1 }
+skip == 0			{ print }' \
+| _show_pmie_exit
 ( echo; echo "=== out ==="; cat $tmp.out ) >>$seq.full
 cat $tmp.out | LC_COLLATE=POSIX sort
 ( echo; echo "=== /tmp/pmie.err ==="; cat /tmp/pmie.err ) >>$seq.full

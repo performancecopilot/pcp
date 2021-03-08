@@ -195,6 +195,9 @@ echo
 # ... warning - pmcd via ... does not respond
 # ... Cannot connect to pmcd
 #
+# And we also have to dodge pmie scheduler warnings around pmcd
+# reconnection ... the second awk script does this.
+#
 _filter_pmie_log <$tmp.out \
 | sed \
     -e "/ Error: /s/$HOST/HOST/g" \
@@ -294,7 +297,17 @@ $2 ~ /DYN_/	{ if (last[$2] != $0) {
 		  next
 		}
 		{ print }
-/Lost connection/	{ last["DYN_DISCRETE"] = last["DYN_INSTANT"] = "" }'
+/Lost connection/	{ last["DYN_DISCRETE"] = last["DYN_INSTANT"] = "" }' \
+| $PCP_AWK_PROG '
+skip == 1 && /^[^ ]/		{ skip = 0 }
+/^run: schedule eval/		{ skip = 1 }
+/^sleepTight: negative/		{ skip = 1 }
+/^Last sleepTight until:/	{ skip = 1 }
+/^This sleepTight\() entry:/	{ skip = 1 }
+/^Harvest children done:/	{ skip = 1 }
+/^Want sleepTight until:/	{ skip = 1 }
+/Task dump @/			{ skip = 1 }
+skip == 0			{ print }'
 
 # success, all done
 status=0

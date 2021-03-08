@@ -67,8 +67,22 @@ echo "=== pmie output ==="
 cat $tmp.out
 echo
 echo "=== pmie.log ==="
+# Especially on slow VMs (like bozo-vm) we may need to dodge warnings
+# from pmie's rule scheduler around pmcd reconnection ... the final
+# awk script does this.
+#
 tee -a $seq.full < $tmp.log \
-| _filter
+| _filter \
+| $PCP_AWK_PROG '
+skip == 1 && /^[^ ]/		{ skip = 0 }
+/^run: schedule eval/		{ skip = 1 }
+/^sleepTight: negative/		{ skip = 1 }
+/^Last sleepTight until:/	{ skip = 1 }
+/^This sleepTight\() entry:/	{ skip = 1 }
+/^Harvest children done:/	{ skip = 1 }
+/^Want sleepTight until:/	{ skip = 1 }
+/Task dump @/			{ skip = 1 }
+skip == 0			{ print }'
 
 # success, all done
 exit
