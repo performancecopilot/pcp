@@ -555,7 +555,7 @@ pmEventFlagsStr_r(int flags, char *buf, int buflen)
 
     buf[0] = '\0';
     if (flags & PM_EVENT_FLAG_POINT) {
-	if (started++) strcat(buf, ",");
+	started++;
 	strcat(buf, "point");
     }
     if (flags & PM_EVENT_FLAG_START) {
