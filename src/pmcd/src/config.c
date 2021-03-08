@@ -1639,7 +1639,7 @@ ConnectSocketAgent(AgentInfo *aPtr)
 	goto error;
 #endif
     }
-    if (sts < 0) {
+    if (sts < 0 || fd < 0) {
 	fprintf(stderr, "pmcd: Error connecting to \"%s\" agent : %s\n",
 		     aPtr->pmDomainLabel, netstrerror());
 	goto error;
