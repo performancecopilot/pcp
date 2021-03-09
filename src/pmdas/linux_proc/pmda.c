@@ -15,6 +15,14 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
+ *
+ * PMDA Debug Flags
+ * -Dappl0	cgroups.c
+ * -Dappl1	proc_pid.c (add -Ddesperate for more verbosity)
+ * -Dappl2	pmns operations
+ * -Dappl3	acct.c
+ * -Dauth	authorization operations
+ * -Dattr	in container proc_refresh diagnostic
  */
 
 #include "pmapi.h"

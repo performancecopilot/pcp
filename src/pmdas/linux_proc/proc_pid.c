@@ -141,7 +141,7 @@ tasklist_append(const char *pid, proc_pid_list_t *pids)
 	closedir(taskdirp);
     }
     else {
-	if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
+	if (pmDebugOptions.appl1 && pmDebugOptions.desperate) {
 	    char ebuf[1024];
 	    fprintf(stderr, "tasklist_append: opendir(\"%s\") failed: %s\n", taskpath, pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
 	}
@@ -185,7 +185,7 @@ refresh_cgroup_pidlist(int want_threads, proc_runq_t *runq_stats, proc_pid_list_
 	fclose(fp);
     }
     else {
-	if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
+	if (pmDebugOptions.appl1 && pmDebugOptions.desperate) {
 	    char ebuf[1024];
 	    fprintf(stderr, "refresh_cgroup_pidlist: fopen(\"%s\", \"r\") failed: %s\n", path, pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
 	}
@@ -205,7 +205,7 @@ refresh_global_pidlist(int want_threads, proc_runq_t *runq_stats, proc_pid_list_
 
     pmsprintf(path, sizeof(path), "%s/proc", proc_statspath);
     if ((dirp = opendir(path)) == NULL) {
-	if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
+	if (pmDebugOptions.appl1 && pmDebugOptions.desperate) {
 	    char ebuf[1024];
 	    fprintf(stderr, "refresh_global_pidlist: opendir(\"%s\") failed: %s\n", path, pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
 	}
@@ -743,7 +743,7 @@ hotproc_eval_procs(void)
 
     double hptime = (ts.tv_sec - p_timestamp.tv_sec) + (ts.tv_usec - p_timestamp.tv_usec)/1000000.0;
 
-    if (pmDebugOptions.libpmda)
+    if (pmDebugOptions.appl1)
 	fprintf(stderr, "Hotproc Update took %f time\n", hptime);
 
     /* Idle */
@@ -878,7 +878,7 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids)
 		close(fd);
 	    }
 	    else {
-		if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
+		if (pmDebugOptions.appl1 && pmDebugOptions.desperate) {
 		    char ebuf[1024];
 		    fprintf(stderr, "refresh_proc_pidlist: open(\"%s\", O_RDONLY) failed: %s\n", buf, pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
 		}
@@ -917,7 +917,7 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids)
 		    close(fd);
 		}
 		else {
-		    if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
+		    if (pmDebugOptions.appl1 && pmDebugOptions.desperate) {
 			char ebuf[1024];
 			fprintf(stderr, "refresh_proc_pidlist: open(\"%s\", O_RDONLY) failed: %s\n", buf, pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
 		    }
@@ -1057,7 +1057,7 @@ refresh_proc_pid(proc_pid_t *proc_pid, proc_runq_t *proc_runq,
     if (sts < 0)
 	return sts;
 
-    if (pmDebugOptions.libpmda)
+    if (pmDebugOptions.appl1)
 	fprintf(stderr,
 		"refresh_proc_pid: %d pids (threads=%d, %s=\"%s\")\n",
 		procpids.count, procpids.threads,
@@ -1107,14 +1107,14 @@ proc_open(const char *base, proc_pid_entry_t *ep)
 			proc_statspath, ep->id, ep->id, base);
 	fd = open(buf, O_RDONLY);
 	if (fd < 0) {
-	    if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
+	    if (pmDebugOptions.appl1 && pmDebugOptions.desperate) {
 		char ebuf[1024];
 		fprintf(stderr, "proc_open: open(\"%s\", O_RDONLY) failed: %s\n",
 			    buf, pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
 	    }
 	    /* fallback to /proc path if task path open fails */
 	} else {
-	    if (pmDebugOptions.libpmda && pmDebugOptions.desperate)
+	    if (pmDebugOptions.appl1 && pmDebugOptions.desperate)
 		fprintf(stderr, "proc_open: thread: %s -> fd=%d\n", buf, fd);
 	    return fd;
 	}
@@ -1122,13 +1122,13 @@ proc_open(const char *base, proc_pid_entry_t *ep)
     pmsprintf(buf, sizeof(buf), "%s/proc/%d/%s", proc_statspath, ep->id, base);
     fd = open(buf, O_RDONLY);
     if (fd < 0) {
-	if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
+	if (pmDebugOptions.appl1 && pmDebugOptions.desperate) {
 	    char ebuf[1024];
 	    fprintf(stderr, "proc_open: open(\"%s\", O_RDONLY) failed: %s\n",
 			    buf, pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
 	}
     }
-    if (pmDebugOptions.libpmda && pmDebugOptions.desperate)
+    if (pmDebugOptions.appl1 && pmDebugOptions.desperate)
 	fprintf(stderr, "proc_open: %s -> fd=%d\n", buf, fd);
     return fd;
 }
@@ -1145,7 +1145,7 @@ proc_opendir(const char *base, proc_pid_entry_t *ep)
 	    return dir;
 	}
 	else {
-	    if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
+	    if (pmDebugOptions.appl1 && pmDebugOptions.desperate) {
 		char ebuf[1024];
 		fprintf(stderr, "proc_opendir: opendir(\"%s\") failed: %s\n", buf, pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
 	    }
@@ -1155,7 +1155,7 @@ proc_opendir(const char *base, proc_pid_entry_t *ep)
     pmsprintf(buf, sizeof(buf), "%s/proc/%d/%s", proc_statspath, ep->id, base);
     dir = opendir(buf);
     if (dir == NULL) {
-	if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
+	if (pmDebugOptions.appl1 && pmDebugOptions.desperate) {
 	    char ebuf[1024];
 	    fprintf(stderr, "proc_opendir: opendir(\"%s\") failed: %s\n", buf, pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
 	}
@@ -1207,7 +1207,7 @@ read_proc_entry(int fd, int *lenp, char **bufp)
 	    sts = maperr();
 	else if (n == 0) {
 	    sts = -ENODATA;
-	    if (pmDebugOptions.libpmda && pmDebugOptions.desperate)
+	    if (pmDebugOptions.appl1 && pmDebugOptions.desperate)
 		fprintf(stderr, "read_proc_entry: fd=%d: no data\n", fd);
 	}
     }
@@ -1496,7 +1496,7 @@ fetch_proc_pid_status(int id, proc_pid_t *proc_pid, int *sts)
 			break;
 		    default:
 nomatch:
-			if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
+			if (pmDebugOptions.appl1 && pmDebugOptions.desperate) {
 			    char	*p;
 			    fprintf(stderr, "fetch_proc_pid_status: skip ");
 			    for (p = curline; *p && *p != '\n'; p++)
@@ -1679,7 +1679,7 @@ fetch_proc_pid_io(int id, proc_pid_t *proc_pid, int *sts)
 		else if (strncmp(curline, "cancelled_write_bytes:", 22) == 0)
 		    ep->io_lines.cancel = strsep(&curline, "\n");
 		else {
-		    if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
+		    if (pmDebugOptions.appl1 && pmDebugOptions.desperate) {
 			char	*p;
 			fprintf(stderr, "fetch_proc_pid_io: skip ");
 			for (p = curline; *p && *p != '\n'; p++)
@@ -1777,7 +1777,7 @@ fetch_proc_pid_smaps(int id, proc_pid_t *proc_pid, int *sts)
 		else if (strncmp(curline, "Locked:", 7) == 0)
 		    ep->smaps_lines.locked = strsep(&curline, "\n");
 		else {
-		    if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
+		    if (pmDebugOptions.appl1 && pmDebugOptions.desperate) {
 			char	*p;
 			fprintf(stderr, "fetch_proc_pid_smaps: skip ");
 			for (p = curline; *p && *p != '\n'; p++)

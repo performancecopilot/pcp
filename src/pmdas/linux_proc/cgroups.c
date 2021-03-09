@@ -169,7 +169,7 @@ refresh_cgroup_device_map(void)
 	pmdaCacheStore(devtindom, PMDA_CACHE_ADD, buf, (void *)dev);
 
 	if (pmDebugOptions.appl0)
-	    fprintf(stderr, "refresh_devices: \"%s\" \"%d:%d\" inst=%d\n",
+	    fprintf(stderr, "refresh_cgroup_devices: \"%s\" \"%d:%d\" inst=%d\n",
 			dev->name, dev->major, dev->minor, dev->inst);
     }
     fclose(fp);
@@ -209,7 +209,7 @@ refresh_cgroup_subsys(void)
 	pmdaCacheStore(subsys, PMDA_CACHE_ADD, name, (void *)ssp);
 
 	if (pmDebugOptions.appl0)
-	    fprintf(stderr, "refresh_subsys: \"%s\" h=%u nc=%u on=%u\n",
+	    fprintf(stderr, "refresh_cgroup_subsys: \"%s\" h=%u nc=%u on=%u\n",
 			name, hierarchy, num_cgroups, enabled);
     }
     fclose(fp);
@@ -268,7 +268,7 @@ refresh_cgroup_filesys(void)
 		fs->options = strdup(options);
 	    fs->version = version;
 	    if (pmDebugOptions.appl0)
-		fprintf(stderr, "refresh_filesys: add \"%s\" \"%s\"\n",
+		fprintf(stderr, "refresh_cgroup_filesys: add \"%s\" \"%s\"\n",
 			fs->path, device);
 	    pmdaCacheStore(mounts, PMDA_CACHE_ADD, path, fs);
 	}

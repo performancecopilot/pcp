@@ -236,7 +236,7 @@ init_acct_file_info(void)
 static void
 close_pacct_file(void)
 {
-    if (pmDebugOptions.libpmda && pmDebugOptions.desperate)
+    if (pmDebugOptions.appl3)
 	pmNotifyErr(LOG_DEBUG, "acct: close file=%s\n", acct_file.path);
 
     if (acct_file.fd >= 0) {
@@ -260,6 +260,7 @@ static int
 open_and_acct(const char *path, int do_acct)
 {
     struct stat file_stat;
+    char	errmsg[PM_MAXERRMSGLEN];
 
     if (acct_file.fd != -1)
 	return 0;
@@ -269,14 +270,24 @@ open_and_acct(const char *path, int do_acct)
     else
 	acct_file.fd = open(path, O_RDONLY);
 
-    if (acct_file.fd < 0)
+    if (acct_file.fd < 0) {
+	if (pmDebugOptions.appl3)
+	    pmNotifyErr(LOG_DEBUG, "acct: open(\"%s\", ...) do_acct=%d failed: %s\n", path, do_acct, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
+
 	goto err1;
+    }
 
-    if (fstat(acct_file.fd, &file_stat) < 0)
+    if (fstat(acct_file.fd, &file_stat) < 0) {
+	if (pmDebugOptions.appl3)
+	    pmNotifyErr(LOG_DEBUG, "acct: fstat \"%s\" failed: %s\n", path, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
 	goto err2;
+    }
 
-    if (do_acct && acct(path) < 0)
+    if (do_acct && acct(path) < 0) {
+	if (pmDebugOptions.appl3)
+	    pmNotifyErr(LOG_DEBUG, "acct: acct(\"%s\") failed: %s\n", path, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
 	goto err2;
+    }
 
     if (!check_accounting(acct_file.fd))
 	goto err3;
@@ -284,13 +295,16 @@ open_and_acct(const char *path, int do_acct)
     if (!set_record_size(acct_file.fd))
 	goto err3;
 
-    if (lseek(acct_file.fd, file_stat.st_size, SEEK_SET) < 0)
+    if (lseek(acct_file.fd, file_stat.st_size, SEEK_SET) < 0) {
+	if (pmDebugOptions.appl3)
+	    pmNotifyErr(LOG_DEBUG, "acct: lseek \"%s\",%zd failed: %s\n", path, file_stat.st_size, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
 	goto err3;
+    }
 
     acct_file.prev_size = file_stat.st_size;
     acct_file.path = path;
 
-    if (pmDebugOptions.libpmda && pmDebugOptions.desperate)
+    if (pmDebugOptions.appl3)
 	pmNotifyErr(LOG_DEBUG, "acct: open file=%s acct=%d version=%d\n", path, do_acct, acct_file.version);
     return 1;
 
@@ -426,7 +440,7 @@ exists_hash_entry(int i_inst, proc_acct_t *proc_acct)
 static void
 acct_timer(int sig, void *ptr)
 {
-    if (pmDebugOptions.libpmda && pmDebugOptions.desperate)
+    if (pmDebugOptions.appl3)
 	pmNotifyErr(LOG_DEBUG, "acct: timer called\n");
     if (acct_file.fd >= 0 && acct_file.acct_enabled && get_file_size() > acct_file_size_threshold)
 	reopen_pacct_file();
@@ -444,7 +458,7 @@ reset_acct_timer(void)
     sts = __pmAFregister(&acct_update_interval, NULL, acct_timer);
     if (sts < 0) {
 	close_pacct_file();
-	if (pmDebugOptions.libpmda && pmDebugOptions.desperate)
+	if (pmDebugOptions.appl3)
 	    pmNotifyErr(LOG_DEBUG, "acct: error registering timer: %s\n", pmErrStr(sts));
 	return;
     }
@@ -462,7 +476,7 @@ init_pacct_system_file(void)
 	strncpy(pacct_system_file, tmppath, sizeof(pacct_system_file)-1);
     }
 
-    if (pmDebugOptions.libpmda && pmDebugOptions.desperate)
+    if (pmDebugOptions.appl3)
 	pmNotifyErr(LOG_DEBUG, "acct: initialize pacct_system_file path to %s\n", pacct_system_file);
 }
 
@@ -476,7 +490,7 @@ init_pacct_private_file(void)
 	pmsprintf(pacct_private_file, sizeof(pacct_private_file), "%s/pmcd/pacct", tmpdir);
     }
 
-    if (pmDebugOptions.libpmda && pmDebugOptions.desperate)
+    if (pmDebugOptions.appl3)
 	pmNotifyErr(LOG_DEBUG, "acct: initialize pacct_private_file path to %s\n", pacct_private_file);
 }
 
@@ -520,7 +534,7 @@ refresh_acct(proc_acct_t *proc_acct)
 	return;
 
     if ((proc_acct->now - acct_file.last_check_accounting) > acct_check_accounting_interval) {
-	if (pmDebugOptions.libpmda && pmDebugOptions.desperate)
+	if (pmDebugOptions.appl3)
 	    pmNotifyErr(LOG_DEBUG, "acct: check accounting\n");
 	if (!check_accounting(acct_file.fd)) {
 	    reopen_pacct_file();
@@ -531,7 +545,7 @@ refresh_acct(proc_acct_t *proc_acct)
     need_update = acct_gc(&proc_acct->accthash, proc_acct->now);
 
     if (need_update) {
-	if (pmDebugOptions.libpmda && pmDebugOptions.desperate)
+	if (pmDebugOptions.appl3)
 	    pmNotifyErr(LOG_DEBUG, "acct: acct_gc n=%d\n", need_update);
     }
 
@@ -572,7 +586,7 @@ refresh_acct(proc_acct_t *proc_acct)
 	ringbuf_entry.instid.i_inst = i_inst;
 	ringbuf_entry.instid.i_name = acct_ops.get_comm(acctp);
 
-	if (pmDebugOptions.libpmda && pmDebugOptions.desperate)
+	if (pmDebugOptions.appl3)
 	    pmNotifyErr(LOG_DEBUG, "acct: hash add pid=%d comm=%s\n", i_inst, acct_ops.get_comm(acctp));
 
 	acct_ringbuf_add(&proc_acct->accthash, &ringbuf_entry);
@@ -582,7 +596,7 @@ refresh_acct(proc_acct_t *proc_acct)
 
     if (need_update) {
 	copy_ringbuf_to_indom(proc_acct->indom, proc_acct->now);
-	if (pmDebugOptions.libpmda && pmDebugOptions.desperate)
+	if (pmDebugOptions.appl3)
 	    pmNotifyErr(LOG_DEBUG, "acct: update indom it_numinst=%d\n", proc_acct->indom->it_numinst);
     }
     acct_file.prev_size = acct_file_size;
@@ -672,7 +686,7 @@ acct_store(pmResult *result, pmdaExt *pmda, pmValueSet *vsp)
 	if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
 			PM_TYPE_U32, &av, PM_TYPE_U32)) >= 0) {
 	    int state_changed = !acct_enable_private_acct != !av.ul;
-	    if (pmDebugOptions.libpmda && pmDebugOptions.desperate)
+	    if (pmDebugOptions.appl3)
 		pmNotifyErr(LOG_DEBUG, "acct: store enable_acct old=%d new=%d\n", acct_enable_private_acct, av.ul);
 	    acct_enable_private_acct = av.ul;
 	    if (state_changed)
