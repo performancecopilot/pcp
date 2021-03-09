@@ -61,6 +61,9 @@ _pminfo()
     done
 }
 
+# ensure accounting is initially off
+$sudo pmstore acct.control.enable_acct 0 >>$seq.full
+
 _header "initially disabled"
 _pminfo
 
