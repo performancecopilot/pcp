@@ -418,7 +418,8 @@ remap_stdout_stderr(void)
 	fprintf(stderr, "%s: Warning: failed to link stdout ... "
 			"dup() returns %d, expected %d (stderr=%d)\n",
 			pmGetProgname(), j, i, fileno(stderr));
-	close(j);
+	if (j >= 0)
+	    close(j);
     }
 }
 
