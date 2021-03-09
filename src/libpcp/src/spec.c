@@ -247,7 +247,7 @@ pmParseMetricSpec(
              ((ninst > 1) ? (ninst - 1) * sizeof(char *) : 0) +
 	     ((h_start) ? h_end - h_start + 1 : 0) +
 	     ((a_start) ? a_end - a_start + 1 : 0) +
-	     ((m_start) ? m_end - m_start + 1 : 0) +
+	     (m_end - m_start + 1) +
 	     ((i_start) ? i_end - i_start + 1 : 0));
     msp = (pmMetricSpec *)metricAlloc(length);
 
