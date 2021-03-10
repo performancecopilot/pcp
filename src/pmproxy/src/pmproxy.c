@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2019 Red Hat.
+ * Copyright (c) 2012-2021 Red Hat.
  * Copyright (c) 2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,6 +17,7 @@
 #include "pmproxy.h"
 #include "pmwebapi.h"
 #include <strings.h>
+#include <sys/resource.h>
 #include <sys/stat.h>
 
 #define MAXPENDING	128	/* maximum number of pending connections */
@@ -316,6 +317,20 @@ GetServerInfo(void)
     return info;	/* deprecated access mode for server information */
 }
 
+static void
+set_rlimit_maxfiles(void)
+{
+    struct rlimit limit;
+
+    if (getrlimit(RLIMIT_NOFILE, &limit) != 0)
+	pmNotifyErr(LOG_ERR, "Cannot get open file limits\n");
+    else {
+	limit.rlim_cur = limit.rlim_max;
+	if (setrlimit(RLIMIT_NOFILE, &limit) != 0)
+	    pmNotifyErr(LOG_ERR, "Cannot adjust open file limits\n");
+    }
+}
+
 #define ENV_WARN_PORT		1
 #define ENV_WARN_LOCAL		2
 #define ENV_WARN_MAXPENDING	4
@@ -333,6 +348,7 @@ main(int argc, char *argv[])
     pid_t	mainpid;
 
     umask(022);
+    set_rlimit_maxfiles();
     pmGetUsername(&username);
     __pmServerSetFeature(PM_SERVER_FEATURE_DISCOVERY);
 
