@@ -33,7 +33,7 @@ local="-L -K clear -K add,60,$pmda"
 
 vfs_metrics=`pminfo $local vfs | LC_COLLATE=POSIX sort`
 sys_metrics=`pminfo $local kernel.all.entropy | LC_COLLATE=POSIX sort`
-sys_metrics="$sys_metrics  kernel.all.pid_max"
+sys_metrics="$sys_metrics  kernel.all.nptys kernel.all.pid_max"
 for tgz in $here/linux/procsys-*.tgz
 do
     rm -fr $root

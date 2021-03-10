@@ -1,7 +1,7 @@
 /*
  * Linux /proc/sys/kernel metrics cluster
  *
- * Copyright (c) 2017-2018 Red Hat.
+ * Copyright (c) 2017-2018,2021 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,9 +17,11 @@
 #include "proc_sys_kernel.h"
 
 #define ENTROPY_AVAILABLE "/proc/sys/kernel/random/entropy_avail"
-#define ENTROPY_POOLSIZE  "/proc/sys/kernel/random/poolsize"
-#define KERNEL_PID_MAX	"/proc/sys/kernel/pid_max"
-#define PID_MAX_LIMIT	(1<<22)
+#define ENTROPY_POOLSIZE "/proc/sys/kernel/random/poolsize"
+#define KERNEL_PID_MAX "/proc/sys/kernel/pid_max"
+#define KERNEL_PTY_NR "/proc/sys/kernel/pty/nr"
+
+#define PID_MAX_LIMIT (1<<22)
 
 int
 refresh_proc_sys_kernel(proc_sys_kernel_t *proc_sys_kernel)
@@ -28,7 +30,7 @@ refresh_proc_sys_kernel(proc_sys_kernel_t *proc_sys_kernel)
     char buf[MAXPATHLEN];
     FILE *eavail = NULL;
     FILE *poolsz = NULL;
-    FILE *pidmax;
+    FILE *pidmax, *ptynr;
 
     memset(proc_sys_kernel, 0, sizeof(proc_sys_kernel_t));
 
@@ -38,6 +40,11 @@ refresh_proc_sys_kernel(proc_sys_kernel_t *proc_sys_kernel)
 	if (fscanf(pidmax, "%u", &proc_sys_kernel->pid_max) != 1)
 	    proc_sys_kernel->pid_max = PID_MAX_LIMIT;
 	fclose(pidmax);
+    }
+
+    if ((ptynr = linux_statsfile(KERNEL_PTY_NR, buf, sizeof(buf))) != NULL) {
+	fscanf(ptynr, "%u", &proc_sys_kernel->pty_nr);
+	fclose(ptynr);
     }
 
     if ((eavail = linux_statsfile(ENTROPY_AVAILABLE, buf, sizeof(buf))) == NULL ||

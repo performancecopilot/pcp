@@ -1,7 +1,7 @@
 /*
  * Linux PMDA
  *
- * Copyright (c) 2012-2020 Red Hat.
+ * Copyright (c) 2012-2021 Red Hat.
  * Copyright (c) 2016-2017 Fujitsu.
  * Copyright (c) 2007-2011 Aconex.  All Rights Reserved.
  * Copyright (c) 2002 International Business Machines Corp.
@@ -5031,10 +5031,15 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_SYS_KERNEL,1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
       PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-    /* kernel.pid_max */
+    /* kernel.all.pid_max */
     { &proc_sys_kernel.pid_max,
       { PMDA_PMID(CLUSTER_SYS_KERNEL,2), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
       PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+    /* kernel.all.nptys */
+    { &proc_sys_kernel.pty_nr,
+      { PMDA_PMID(CLUSTER_SYS_KERNEL,3), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /*
      * mem.vmstat cluster

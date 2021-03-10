@@ -65,6 +65,9 @@ kernel.all.entropy.avail
 kernel.all.entropy.poolsize
     value 4096
 
+kernel.all.nptys
+    value 9
+
 kernel.all.pid_max
     value 65536
 
