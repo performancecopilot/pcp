@@ -307,9 +307,9 @@ local_reconnector(files_t *file)
     void *enumIx;
 
     if (file->fd >= 0)		/* reconnect-needed flag */
-	goto done;
+	return;
     if ((servinfo = __pmGetAddrInfo(file->me.sock.host)) == NULL)
-	goto done;
+	return;
     /* Loop over the addresses resolved for this host name until one of them
        connects. */
     enumIx = NULL;
@@ -347,7 +347,6 @@ local_reconnector(files_t *file)
     if (fd >= 0)
         files->fd = fd;
 
-done:
     if (servinfo)
 	__pmHostEntFree(servinfo);
 }

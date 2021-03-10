@@ -483,11 +483,11 @@ init_pacct_system_file(void)
 static void
 init_pacct_private_file(void)
 {
-    char *tmpdir;
-    if ((tmpdir = pmGetOptionalConfig("PCP_TMP_DIR")) == NULL) {
+    char *pacctdir;
+    if ((pacctdir = pmGetOptionalConfig("PCP_VAR_DIR")) == NULL) {
 	pacct_private_file[0] = '\0';
     } else {
-	pmsprintf(pacct_private_file, sizeof(pacct_private_file), "%s/pmcd/pacct", tmpdir);
+	pmsprintf(pacct_private_file, sizeof(pacct_private_file), "%s/pmcd/pacct", pacctdir);
     }
 
     if (pmDebugOptions.appl3)
