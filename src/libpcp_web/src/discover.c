@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 Red Hat.
+ * Copyright (c) 2018-2021 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -1212,6 +1212,7 @@ process_logvol(pmDiscover *p)
 	oldcurvol = acp->ac_curvol;
 	PM_UNLOCK(ctxp->c_lock);
 
+	r = NULL; /* so we know if pmFetchArchive() assigned it */
 	if ((sts = pmFetchArchive(&r)) < 0) {
 	    /* err handling to skip to the next vol */
 	    ctxp = __pmHandleToPtr(p->ctx);
@@ -1260,6 +1261,13 @@ process_logvol(pmDiscover *p)
 	 * TODO: persistently save current timestamp, so after being restarted,
 	 * pmproxy can resume where it left off for each archive.
 	 */
+	ts.tv_sec = r->timestamp.tv_sec;
+	ts.tv_nsec = r->timestamp.tv_usec * 1000;
+	pmDiscoverInvokeValuesCallBack(p, &ts, r);
+	pmFreeResult(r);
+    }
+
+    if (r) {
 	ts.tv_sec = r->timestamp.tv_sec;
 	ts.tv_nsec = r->timestamp.tv_usec * 1000;
 	pmDiscoverInvokeValuesCallBack(p, &ts, r);
