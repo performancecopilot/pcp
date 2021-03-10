@@ -27,6 +27,7 @@ myLocalFetch(__pmContext *ctxp, int numpmid, pmID pmidlist[], __pmPDU **pdup)
     pmResult	*result;
     pmID	*newlist = NULL;
     int		newcnt, have_dm, n;
+    int		sts;
 
     /* for derived metrics, may need to rewrite the pmidlist */
     have_dm = newcnt = __pmPrepareFetch(ctxp, numpmid, pmidlist, &newlist);
@@ -49,7 +50,10 @@ myLocalFetch(__pmContext *ctxp, int numpmid, pmID pmidlist[], __pmPDU **pdup)
 	    free(newlist);
     }
 
-    return __pmEncodeResult(0, result, pdup);
+    sts = __pmEncodeResult(0, result, pdup);
+    pmFreeResult(result);
+
+    return sts;
 }
 
 /*

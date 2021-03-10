@@ -1,0 +1,176 @@
+QA output created by 1305
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogger -o -s 4 -c TMP.config -l TMP.log -K clear -K add,30,PCP_PMDAS_DIR/sample/pmda_sample,sample_init -K add,253,PCP_PMDAS_DIR/simple/pmda_simple,simple_init TMP
+Warning: ignored attempt to set SIGKILL handler in sigaction();
+the SIGKILL signal is uncatchable
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+pmlogger.log ...
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+pmlogger: Sample limit reached, exiting
+
+Log finished DATE
+
+archive contents ...
+
+TIMESTAMP 12 metrics
+    30.0.103 (sampledso.long.bin or sampledso.dupnames.five.long_bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
+    30.0.10 (sampledso.long.one): value 1
+    30.0.11 (sampledso.long.ten): value 10
+    30.0.12 (sampledso.long.hundred): value 100
+    30.0.13 (sampledso.long.million): value 1000000
+    30.0.14 (sampledso.long.write_me): value 13
+    30.0.104 (sampledso.long.bin_ctr):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
+    253.0.0 (simple.numfetch): value 1
+    253.0.1 (simple.color):
+        inst [0 or "red"] value 1
+        inst [1 or "green"] value 101
+        inst [2 or "blue"] value 201
+    253.1.2 (simple.time.user): value N
+    253.1.3 (simple.time.sys): value N
+    253.2.4 (simple.now):
+        inst [0 or "sec"] value N
+        inst [1 or "min"] value N
+        inst [2 or "hour"] value N
+
+TIMESTAMP 12 metrics
+    30.0.103 (sampledso.long.bin or sampledso.dupnames.five.long_bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
+    30.0.10 (sampledso.long.one): value 1
+    30.0.11 (sampledso.long.ten): value 10
+    30.0.12 (sampledso.long.hundred): value 100
+    30.0.13 (sampledso.long.million): value 1000000
+    30.0.14 (sampledso.long.write_me): value 13
+    30.0.104 (sampledso.long.bin_ctr):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
+    253.0.0 (simple.numfetch): value 2
+    253.0.1 (simple.color):
+        inst [0 or "red"] value 2
+        inst [1 or "green"] value 102
+        inst [2 or "blue"] value 202
+    253.1.2 (simple.time.user): value N
+    253.1.3 (simple.time.sys): value N
+    253.2.4 (simple.now):
+        inst [0 or "sec"] value N
+        inst [1 or "min"] value N
+        inst [2 or "hour"] value N
+
+TIMESTAMP 12 metrics
+    30.0.103 (sampledso.long.bin or sampledso.dupnames.five.long_bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
+    30.0.10 (sampledso.long.one): value 1
+    30.0.11 (sampledso.long.ten): value 10
+    30.0.12 (sampledso.long.hundred): value 100
+    30.0.13 (sampledso.long.million): value 1000000
+    30.0.14 (sampledso.long.write_me): value 13
+    30.0.104 (sampledso.long.bin_ctr):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
+    253.0.0 (simple.numfetch): value 3
+    253.0.1 (simple.color):
+        inst [0 or "red"] value 3
+        inst [1 or "green"] value 103
+        inst [2 or "blue"] value 203
+    253.1.2 (simple.time.user): value N
+    253.1.3 (simple.time.sys): value N
+    253.2.4 (simple.now):
+        inst [0 or "sec"] value N
+        inst [1 or "min"] value N
+        inst [2 or "hour"] value N
+
+TIMESTAMP 12 metrics
+    30.0.103 (sampledso.long.bin or sampledso.dupnames.five.long_bin):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
+    30.0.10 (sampledso.long.one): value 1
+    30.0.11 (sampledso.long.ten): value 10
+    30.0.12 (sampledso.long.hundred): value 100
+    30.0.13 (sampledso.long.million): value 1000000
+    30.0.14 (sampledso.long.write_me): value 13
+    30.0.104 (sampledso.long.bin_ctr):
+        inst [100 or "bin-100"] value 100
+        inst [200 or "bin-200"] value 200
+        inst [300 or "bin-300"] value 300
+        inst [400 or "bin-400"] value 400
+        inst [500 or "bin-500"] value 500
+        inst [600 or "bin-600"] value 600
+        inst [700 or "bin-700"] value 700
+        inst [800 or "bin-800"] value 800
+        inst [900 or "bin-900"] value 900
+    253.0.0 (simple.numfetch): value 4
+    253.0.1 (simple.color):
+        inst [0 or "red"] value 4
+        inst [1 or "green"] value 104
+        inst [2 or "blue"] value 204
+    253.1.2 (simple.time.user): value N
+    253.1.3 (simple.time.sys): value N
+    253.2.4 (simple.now):
+        inst [0 or "sec"] value N
+        inst [1 or "min"] value N
+        inst [2 or "hour"] value N
