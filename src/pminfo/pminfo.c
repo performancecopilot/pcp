@@ -263,6 +263,10 @@ defaultlabels(pmLabelSet **sets)
     if ((pmGetContextHostName_r(contextid, host, sizeof(host))) == NULL)
 	return PM_ERR_GENERIC;
     pmsprintf(buf, sizeof(buf), "{\"hostname\":\"%s\"}", host);
+    /*
+     * __pmAddLabels() will return 1, else error (and lp is not alloc'd)
+     * ... so no leak on the error path
+     */
     if ((sts = __pmAddLabels(&lp, buf, PM_LABEL_CONTEXT)) > 0) {
 	*sets = lp;
 	return 0;
