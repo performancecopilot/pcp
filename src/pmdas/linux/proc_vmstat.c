@@ -1,7 +1,7 @@
 /*
  * Linux /proc/vmstat metrics cluster
  *
- * Copyright (c) 2013-2014,2016-2017,2020 Red Hat.
+ * Copyright (c) 2013-2014,2016-2017,2020-2021 Red Hat.
  * Copyright (c) 2007,2011 Aconex.  All Rights Reserved.
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -416,6 +416,10 @@ refresh_proc_vmstat(proc_vmstat_t *proc_vmstat)
 	*p = -1; /* marked as "no value available" */
     }
 
+    proc_vmstat->pgscan_direct_total = 0;
+    proc_vmstat->pgscan_kswapd_total = 0;
+    proc_vmstat->pgsteal_total = 0;
+
     if ((fp = linux_statsfile("/proc/vmstat", buf, sizeof(buf))) == NULL)
     	return -oserror();
 
@@ -435,6 +439,14 @@ refresh_proc_vmstat(proc_vmstat_t *proc_vmstat)
 		    break;
 		}
 	    }
+	    if (*bufp == NULL)
+		continue;
+	    else if (strncmp(buf, "pgsteal_", 8) == 0)
+		proc_vmstat->pgsteal_total += *p;
+	    else if (strncmp(buf, "pgscan_kswapd", 13) == 0)
+		proc_vmstat->pgscan_kswapd_total += *p;
+	    else if (strncmp(buf, "pgscan_direct", 13) == 0)
+		proc_vmstat->pgscan_direct_total += *p;
 	}
     }
     fclose(fp);

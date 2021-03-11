@@ -1,7 +1,7 @@
 /*
  * Linux /proc/vmstat metrics cluster
  *
- * Copyright (c) 2013,2016-2017 Red Hat.
+ * Copyright (c) 2013,2016-2017,2021 Red Hat.
  * Copyright (c) 2007,2011 Aconex.  All Rights Reserved.
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -139,12 +139,14 @@ typedef struct {
 	__uint64_t pgscan_direct_movable;
 	__uint64_t pgscan_direct_normal;
 	__uint64_t pgscan_direct_throttle;
+	__uint64_t pgscan_direct_total;
 	__uint64_t pgscan_kswapd;
 	__uint64_t pgscan_kswapd_dma;
 	__uint64_t pgscan_kswapd_dma32;
 	__uint64_t pgscan_kswapd_high;
 	__uint64_t pgscan_kswapd_movable;
 	__uint64_t pgscan_kswapd_normal;
+	__uint64_t pgscan_kswapd_total;
 	__uint64_t pgsteal_direct;
 	__uint64_t pgsteal_direct_dma;
 	__uint64_t pgsteal_direct_dma32;
@@ -161,6 +163,7 @@ typedef struct {
 	__uint64_t pgsteal_kswapd_normal;
 	__uint64_t pgsteal_movable;
 	__uint64_t pgsteal_normal;
+	__uint64_t pgsteal_total;
 	__uint64_t pswpin;
 	__uint64_t pswpout;
 	__uint64_t slabs_scanned;
