@@ -46,7 +46,7 @@ then
 fi
 echo "local: pid=$local_pid" >>$seq.full
 
-remote=`getpmcdhosts -v 'pcp>=4' -L -n 1 2>$tmp.err`
+remote=`./getpmcdhosts -v 'pcp>=4' -L -n 1 2>$tmp.err`
 if [ -z "$remote" ]
 then
     _notrun "`cat $tmp.err`"
