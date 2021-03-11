@@ -14,7 +14,8 @@ makes it especially useful for those seeking centralized monitoring of distribut
 
 * :doc:`UAG/AboutUAGGuide`
 * :doc:`PG/AboutPGGuide`
-* `REST API Guide <api/>`__
+* :doc:`guides/scaling`
+* `REST API Specification <api/>`_
 
 .. toctree::
    :caption: Guides
@@ -22,7 +23,8 @@ makes it especially useful for those seeking centralized monitoring of distribut
    
    UAG/AboutUAGGuide
    PG/AboutPGGuide
-   REST API Guide <https://pcp.readthedocs.io/en/latest/api/>
+   guides/scaling
+   REST API Specification <https://pcp.readthedocs.io/en/latest/api/>
 
 
 .. toctree::
