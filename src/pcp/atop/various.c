@@ -828,6 +828,7 @@ setup_globals(pmOptions *opts)
 	pmID		pmids[HOST_NMETRICS];
 	pmDesc		descs[HOST_NMETRICS];
 	pmResult	*result = NULL;
+	char		*p;
 
 	setup_context(opts);
 	setup_metrics(hostmetrics, &pmids[0], &descs[0], HOST_NMETRICS);
@@ -851,6 +852,8 @@ setup_globals(pmOptions *opts)
 	extract_string(result, descs, HOST_VERSION, sysname.version, sizeof sysname.version);
 	extract_string(result, descs, HOST_MACHINE, sysname.machine, sizeof sysname.machine);
 	extract_string(result, descs, HOST_NODENAME, sysname.nodename, sizeof sysname.nodename);
+	if ((p = strchr(sysname.nodename, '.')))
+		*p = '\0';	/* without domain-name */
 	nodenamelen = strlen(sysname.nodename);
 
 	/* default hardware inventory - used as fallbacks only if other metrics missing */
@@ -1295,6 +1298,19 @@ lookslikedatetome(const char *p)
 }
 
 void
+rawarchive_from_midnight(pmOptions *opts)
+{
+	static char	midnight[32];
+	struct tm 	today;
+	time_t		now = time(NULL);
+
+	pmLocaltime(&now, &today);
+	pmsprintf(midnight, sizeof(midnight), "@ %04d-%02d-%02d 00:00:00",
+		today.tm_year+1900, today.tm_mon+1, today.tm_mday);
+	opts->origin_optarg = midnight;	/* also enables archive mode */
+}
+
+void
 rawarchive(pmOptions *opts, const char *name)
 {
 	struct tm	*tp;
@@ -1306,7 +1322,7 @@ rawarchive(pmOptions *opts, const char *name)
 	int		sts, len = (name? strlen(name) : 0);
 
 	if (len == 0) {
-		__pmAddOptArchivePath(opts);
+		rawarchive_from_midnight(opts);
 		return;
 	}
 

@@ -189,6 +189,7 @@ void		setup_options(struct pmOptions *, char **, char *);
 void		close_options(struct pmOptions *);
 void		rawfolio(struct pmOptions *);
 void		rawarchive(struct pmOptions *, const char *);
+void		rawarchive_from_midnight(struct pmOptions *);
 void		rawwrite(struct pmOptions *, const char *, struct timeval *,
 			unsigned int, char);
 

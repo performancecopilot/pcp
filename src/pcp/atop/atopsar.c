@@ -266,17 +266,17 @@ atopsar(int argc, char *argv[])
 					pratopsaruse(pmGetProgname(), &opts);
 			}
 		}
-		/* if no interval specified, read from logfile */
+		/* if no interval specified, read from midnight in todays logfile */
 		else if (!rawreadflag)
 		{
-			__pmAddOptArchivePath(&opts);
+			rawarchive_from_midnight(&opts);
 			rawreadflag++;
 		}
 	}
-	/* if no flags specified at all, read from logfile */
+	/* if no flags specified at all, read midnight in todays from logfile */
 	else if (!rawreadflag)
 	{
-		__pmAddOptArchivePath(&opts);
+		rawarchive_from_midnight(&opts);
 		rawreadflag++;
 	}
 
