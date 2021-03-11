@@ -1,0 +1,77 @@
+#!/bin/sh
+# PCP QA Test No. 1305
+# mem leak in pmlogger -o
+#
+# Copyright (c) 2021 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_valgrind
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+	-e "s@$PCP_PMDAS_DIR@PCP_PMDAS_DIR@g" \
+	-e '/(simple.time.user)/s/ value .*/ value N/' \
+	-e '/(simple.time.sys)/s/ value .*/ value N/' \
+        -e '/inst \[0 or "sec"]/s/ value .*/ value N/' \
+        -e '/inst \[1 or "min"]/s/ value .*/ value N/' \
+        -e '/inst \[2 or "hour"]/s/ value .*/ value N/' \
+    # end
+}
+
+echo 'log mandatory on 500 msec { sampledso.long simple }' >$tmp.config
+
+if [ -z "$sudo_local_ctx" ]
+then
+    need_sudo=''
+else
+    need_sudo='--sudo'
+fi
+
+# real QA test starts here
+_run_valgrind $need_sudo \
+    pmlogger -o -s 4 -c $tmp.config -l $tmp.log \
+    -K clear \
+    -K add,30,$PCP_PMDAS_DIR/sample/pmda_sample,sample_init \
+    -K add,253,$PCP_PMDAS_DIR/simple/pmda_simple,simple_init \
+    $tmp 2>&1 \
+| _filter
+
+echo
+echo "pmlogger.log ..."
+_filter_pmlogger_log <$tmp.log
+
+echo
+echo "archive contents ..."
+pmdumplog $tmp sampledso simple \
+| _filter_pmdumplog \
+| _filter
+
+# success, all done
+exit

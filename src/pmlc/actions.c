@@ -444,6 +444,7 @@ void LogCtl(int control, int state, int delta)
 	vsp = res->vset[i];
 	if (mp->pmid != vsp->pmid) {
 	    fprintf(stderr, "GAK! %s not found in returned result\n", mp->name);
+	    pmFreeResult(res);
 	    return;
 	}
 	if (vsp->numval < 0) {

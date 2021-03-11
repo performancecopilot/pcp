@@ -27,6 +27,7 @@ myLocalFetch(__pmContext *ctxp, int numpmid, pmID pmidlist[], __pmPDU **pdup)
     pmResult	*result;
     pmID	*newlist = NULL;
     int		newcnt, have_dm, n;
+    int		sts;
 
     /* for derived metrics, may need to rewrite the pmidlist */
     have_dm = newcnt = __pmPrepareFetch(ctxp, numpmid, pmidlist, &newlist);
@@ -49,7 +50,10 @@ myLocalFetch(__pmContext *ctxp, int numpmid, pmID pmidlist[], __pmPDU **pdup)
 	    free(newlist);
     }
 
-    return __pmEncodeResult(0, result, pdup);
+    sts = __pmEncodeResult(0, result, pdup);
+    pmFreeResult(result);
+
+    return sts;
 }
 
 /*
@@ -248,8 +252,10 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 			}
 			else {
 			    __pmFinishResult(ctxp, sts, &result);
-			    if ((sts = __pmEncodeResult(ctxp->c_pmcd->pc_fd, result, &npb)) < 0)
+			    if ((sts = __pmEncodeResult(ctxp->c_pmcd->pc_fd, result, &npb)) < 0) {
+				pmFreeResult(result);
 				n = sts;
+			    }
 			    else {
 				/* using PDU with derived metrics */
 				__pmUnpinPDUBuf(pb);

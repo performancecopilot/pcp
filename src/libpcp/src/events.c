@@ -478,7 +478,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
     vset->vlist[0].value.pval = (pmValueBlock *)malloc(want);
     if (vset->vlist[0].value.pval == NULL) {
-	vset->valfmt = PM_VAL_INSITU;
+	free(vset);
 	return -oserror();
     }
     vset->vlist[0].value.pval->vlen = need;

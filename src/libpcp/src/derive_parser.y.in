@@ -571,6 +571,7 @@ report_sem_error(char *name, node_t *np)
 	case N_NEQ:
 	case N_AND:
 	case N_OR:
+	    assert(np->left != NULL && np->right != NULL);
 	    if (np->left->type == N_INTEGER || np->left->type == N_DOUBLE || np->left->type == N_NAME)
 		pmprintf("%s ", np->left->value);
 	    else
@@ -583,6 +584,7 @@ report_sem_error(char *name, node_t *np)
 	    break;
 	case N_NOT:
 	case N_NEG:
+	    assert(np->left != NULL);
 	    pmprintf("%s ", n_type_c(np->type));
 	    if (np->left->type == N_INTEGER || np->left->type == N_DOUBLE || np->left->type == N_NAME)
 		pmprintf("%s", np->left->value);
@@ -600,9 +602,11 @@ report_sem_error(char *name, node_t *np)
 	case N_ANON:
 	case N_DEFINED:
 	case N_SCALAR:
+	    assert(np->left != NULL);
 	    pmprintf("%s(%s)", __dmnode_type_str(np->type), np->left->value);
 	    break;
 	case N_QUEST:
+	    assert(np->left != NULL && np->right != NULL);
 	    if (np->left->type == N_INTEGER || np->left->type == N_DOUBLE || np->left->type == N_NAME)
 		pmprintf("%s ? ", np->left->value);
 	    else
@@ -610,6 +614,7 @@ report_sem_error(char *name, node_t *np)
 	    np = np->right;
 	    /* FALLTHROUGH */
 	case N_COLON:
+	    assert(np->left != NULL && np->right != NULL);
 	    if (np->left->type == N_INTEGER || np->left->type == N_DOUBLE || np->left->type == N_NAME)
 		pmprintf("%s : ", np->left->value);
 	    else
@@ -620,6 +625,7 @@ report_sem_error(char *name, node_t *np)
 		pmprintf("<expr>");
 	    break;
 	case N_RESCALE:
+	    assert(np->left != NULL && np->right != NULL);
 	    if (np->left->type == N_INTEGER || np->left->type == N_DOUBLE || np->left->type == N_NAME)
 		pmprintf("%s ", np->left->value);
 	    else

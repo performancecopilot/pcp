@@ -974,23 +974,21 @@ initarchive(__pmContext	*ctxp, const char *name)
     }
     if (namelist)
 	free(namelist);
-    if (acp) {
-	if (acp->ac_log_list) {
-	    while (acp->ac_num_logs > 0) {
-		--acp->ac_num_logs;
-		if (acp->ac_log_list[acp->ac_num_logs]) {
-		    free(acp->ac_log_list[acp->ac_num_logs]->ml_name);
-		    free(acp->ac_log_list[acp->ac_num_logs]->ml_hostname);
-		    free(acp->ac_log_list[acp->ac_num_logs]->ml_tz);
-		    free(acp->ac_log_list[acp->ac_num_logs]);
-		}
+    if (acp->ac_log_list) {
+	while (acp->ac_num_logs > 0) {
+	    --acp->ac_num_logs;
+	    if (acp->ac_log_list[acp->ac_num_logs]) {
+		free(acp->ac_log_list[acp->ac_num_logs]->ml_name);
+		free(acp->ac_log_list[acp->ac_num_logs]->ml_hostname);
+		free(acp->ac_log_list[acp->ac_num_logs]->ml_tz);
+		free(acp->ac_log_list[acp->ac_num_logs]);
 	    }
-	    free(acp->ac_log_list);
 	}
-	if (acp->ac_log && --acp->ac_log->l_refcnt == 0)
-	    free(acp->ac_log);
-	free(acp);
+	free(acp->ac_log_list);
     }
+    if (acp->ac_log && --acp->ac_log->l_refcnt == 0)
+	free(acp->ac_log);
+    free(acp);
     ctxp->c_archctl = NULL;
     return sts;
 }
