@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Red Hat.
+ * Copyright (c) 2017-2021 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -124,6 +124,7 @@ doneRedisMapBaton(redisMapBaton *baton)
     seriesBatonCheckMagic(baton, MAGIC_MAPPING, "doneRedisMapBaton");
     if (baton->mapped)
 	baton->mapped(baton->arg);
+    sdsfree(baton->mapKey);
     memset(baton, 0, sizeof(*baton));
     free(baton);
 }
@@ -1040,7 +1041,7 @@ series_stream_append(sds cmd, sds name, sds value)
     unsigned int	vlen = sdslen(value);
 
     cmd = sdscatfmt(cmd, "$%u\r\n%S\r\n$%u\r\n%S\r\n", nlen, name, vlen, value);
-    sdsfree(value);
+    sdsfree(value); /* NOTE: value free'd here, but caller frees the name parameter */
     return cmd;
 }
 
@@ -1155,8 +1156,10 @@ redis_series_stream(redisSlots *slots, sds stamp, metric_t *metric,
     key = sdscatfmt(sdsempty(), "pcp:values:series:%s", hash);
 
     if ((sts = metric->error) < 0) {
+	sds minus1 = sdsnewlen("-1", 2);
 	stream = series_stream_append(stream,
-			sdsnewlen("-1", 2), sdscatfmt(sdsempty(), "%i", sts));
+			minus1, sdscatfmt(sdsempty(), "%i", sts));
+	sdsfree(minus1);
 	count += 2;
     } else {
 	name = sdsempty();
@@ -1165,7 +1168,9 @@ redis_series_stream(redisSlots *slots, sds stamp, metric_t *metric,
 	    stream = series_stream_value(stream, name, type, &metric->u.atom);
 	    count += 2;
 	} else if (metric->u.vlist->listcount <= 0) {
-	    stream = series_stream_append(stream, sdsnew("0"), sdsnew("0"));
+	    sds zero = sdsnew("0");
+	    stream = series_stream_append(stream, zero, sdsnew("0"));
+	    sdsfree(zero);
 	    count += 2;
 	} else {
 	    for (i = 0; i < metric->u.vlist->listcount; i++) {
