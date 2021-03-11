@@ -543,19 +543,21 @@ dopmda(int pdu)
 	    pinpdu = 0;
 	    if ((sts = __pmSendFetch(toPMDA, FROM_ANON, 0, NULL, 
 				    1, &(desc.pmid))) >= 0) {
+		int		lsts;
+		int		ksts;
 		if ((pinpdu = sts = __pmGetPDU(fromPMDA, ANY_SIZE, TIMEOUT_NEVER, 
 				     &pb)) == PDU_RESULT) {
-		    if ((sts = __pmDecodeResult(pb, &result)) < 0)
+		    if ((lsts = __pmDecodeResult(pb, &result)) < 0)
 			printf("Error: __pmDecodeResult() failed: %s\n", 
-			       pmErrStr(sts));
+			       pmErrStr(lsts));
 		    else if (pmDebugOptions.fetch)
 			__pmDumpResult(stdout, result);
 		}
 		else if (sts == PDU_ERROR) {
-		    if ((i = __pmDecodeError(pb, &sts)) >= 0)
-			printf("Error PDU: %s\n", pmErrStr(sts));
+		    if ((ksts = __pmDecodeError(pb, &lsts)) >= 0)
+			printf("Error PDU: %s\n", pmErrStr(lsts));
 		    else
-			printf("Error: __pmDecodeError() failed: %s\n", pmErrStr(i));
+			printf("Error: __pmDecodeError() failed: %s\n", pmErrStr(ksts));
 		}
 		else if (sts == 0)
 		    printf("Error: __pmGetPDU() failed: PDU empty, PMDA may have died\n");
@@ -571,7 +573,7 @@ dopmda(int pdu)
 	     * result or giving up
 	     */
 
-	    if (sts < 0 || sts == PDU_ERROR) {
+	    if (sts != PDU_RESULT) {
 		if (pinpdu > 0)
 		    __pmUnpinPDUBuf(pb);
 		return;
