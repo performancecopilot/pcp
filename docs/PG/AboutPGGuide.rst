@@ -1,6 +1,6 @@
 .. _AboutPGGuide:
 
-About Programmer's Guide
+Programmer's Guide
 #########################
 
 .. contents::

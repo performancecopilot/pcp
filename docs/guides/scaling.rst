@@ -1,0 +1,122 @@
+.. include:: ../refs.rst
+
+Scaling Guidelines
+##################
+
+Introduction and Scope
+**********************
+
+This technical note explores the scalability of centralized logging with `Performance Co-Pilot (PCP) <https://pcp.io>`_.
+In this architecture, a single logger host is set up to run multiple `pmlogger(1)`_ processes, each configured to retrieve a standard set of performance metrics from a different remote `pmcd(1)`_ host.
+The centralized logger host is also configured to run the `pmproxy(1)`_ daemon, which discovers the resulting PCP archives logs and loads the metric data into a local `Redis`_ server.
+
+System resource usage is measured and presented across various aspects of the pmlogger, pmproxy and Redis daemons.
+Three configurations with 10 and 50 pmloggers are tested to explore aspects of scalability.
+Only the data capture aspects are tested for a single centralized logger host - we have not yet extended these experiments to a federated architecture (with multiple pmlogger hosts logging to a central Redis instance), nor to a clustered Redis data store.
+
+Sizing Factors
+**************
+
+Remote system size
+------------------
+
+The number of CPUs, disks, network interfaces and other hardware resources affects the amount of data collected by each pmlogger on the centralized logging host.
+In the measurements below, every remote system has 64 CPUs, one disk and one network interface.
+In these tests, the pmcd hosts are actually all instances of a container running pmcd, exposing only the pmcd tcp port.
+
+Logged Metrics
+--------------
+
+The number and types of logged metrics play an important role.
+In particular, the per-process ``proc.*`` metrics require a large amount of disk space (e.g. with the standard pcp-zeroconf setup, 10s logging interval, 11 MB without proc metrics vs. 155 MB with proc metrics - a factor of 10 times more).
+Additionally, the number of instances for each metric, for example the number of CPUs, block devices and network interfaces also impacts the required storage capacity.
+
+Logging Interval
+----------------
+
+The interval (how often metrics are logged), dramatically affects the storage requirements.
+The expected daily PCP archive file sizes are written to the ``pmlogger.log`` file for each pmlogger instance.
+These values are uncompressed estimates (see pmlogger ``-r`` option in `pmlogger(1)`_).
+Since PCP archives compress very well (approximately 10:1), the actual long term disk space requirements can be determined for a particular site.
+
+pmlogrewrite
+------------
+
+After every PCP upgrade a tool called `pmlogrewrite(1)`_ will run and will rewrite old archives if there were changes in the metric metadata from the previous version and the new version of PCP.
+This process duration scales linear with the number of archives stored.
+
+Configuration Options
+*********************
+
+sysctl and rlimit settings
+--------------------------
+
+When archive discovery is enabled, pmproxy requires 4 file descriptors for every pmlogger that it is monitoring/log-tailing, plus additional file descriptors for the daemon logs and pmproxy client sockets, if any.
+Each pmlogger process uses about 20 file descriptors for the remote pmcd socket, archive files, daemon logs and others.
+In total, this can exceed the default 1024 soft limit on a system running around 200 pmloggers.
+The pmproxy daemon in pcp-5.3.0 and later automatically increases the soft limit to the hard limit.
+On earlier versions of PCP, tuning will be required if a high number of pmloggers are to be deployed.
+
+Local Archives
+--------------
+
+The `pmlogger(1)`_ daemon stores metrics of local and remote pmcds in ``/var/log/pcp/pmlogger``.
+To control the logging interval, update the control file located at ``/etc/pcp/pmlogger/control.d`` and add ``-t X`` in the arguments, where ``X`` is the logging interval in seconds.
+To configure which metrics should be logged, run ``pmlogconf /var/lib/pcp/config/pmlogger/<configfile>``.
+To specify retention settings, i.e. when to purge old PCP archives, update the ``/etc/sysconfig/pmlogger_timers`` file and specify ``PMLOGGER_DAILY_PARAMS="-E -k X"``, where ``X`` is the amount of days to keep PCP archives.
+
+Redis
+-----
+
+The `pmproxy(1)`_ daemon sends logged metrics from `pmlogger(1)`_ to a Redis database.
+To update the logging interval or the logged metrics, see the section above.
+Two options are available to specify the retention settings in the pmproxy configuration file located at ``/etc/pcp/pmproxy/pmproxy.conf``:
+
+* ``stream.expire`` specifies the duration when stale metrics should be removed, i.e. metrics which were not updated in a specified amount of time (in seconds)
+* ``stream.maxlen`` specifies the maximum number of metric values for one metric per host. This setting should be the retention time divided by the logging interval, for example 20160 for 14 days of retention and 60s logging interval (60*60*24*14/60)
+
+Results and Analysis
+********************
+
+The following results were gathered with a default **pcp-zeroconf 5.3.0** installation, where each remote host is an identical container instance running `pmcd(1)`_ on a server with 64 CPU cores, 376 GB RAM and 1 disk attached (as mentioned above, 64 CPUs increases per-CPU metric volume).
+The logging interval is 10s, ``proc`` metrics of remote nodes are *not* included, and the memory values refer to the RSS (Resident Set Size) value.
+
++--------------+-----------------+----------+------------------+---------+--------------+
+| Number of    | PCP Archives    | pmlogger | pmlogger Network | pmproxy | Redis Memory |
+|              |                 |          |                  |         |              |
+| Remote Hosts | Storage per Day | Memory   | per Day (In)     | Memory  | per Day      |
++==============+=================+==========+==================+=========+==============+
+| 10           | 91 MB           | 160 MB   | 2 MB             | 1.4 GB  | 2.6 GB       |
++--------------+-----------------+----------+------------------+---------+--------------+
+| 50           | 522 MB          | 580 MB   | 9 MB             | 6.3 GB  | 12 GB        |
++--------------+-----------------+----------+------------------+---------+--------------+
+
+Detailed Utilization Statistics
+-------------------------------
+
++--------------+---------+-----------+-----------------+------------------------+-------------+
+| Number of    | pmproxy | Disk IOPS | Disk Throughput | Avg. Size (in Sectors) | Disk        |
+|              |         |           |                 |                        |             |
+| Remote Hosts | CPU%    | (write)   | (write)         | of requests            | Utilization |
++==============+=========+===========+=================+========================+=============+
+| 10           | 1%      | 25        | 19 MB/s         | 700                    | 4%          |
++--------------+---------+-----------+-----------------+------------------------+-------------+
+| 50           | 5%      | 70        | 52 MB/s         | 700                    | 10%         |
++--------------+---------+-----------+-----------------+------------------------+-------------+
+
+.. note::
+
+    For PCP versions before 5.3.0, please refer to `Appendix A`_.
+
+Appendix A
+**********
+
+There are known memory leaks in `pmproxy(1)`_ in versions before 5.3.0, resulting in higher memory usage than expected.
+As a workaround you can limit the memory usage of pmproxy by running: ``systemctl edit pmproxy`` and set:
+
+.. code-block:: ini
+
+    [Service]
+    MemoryMax=10G
+
+After saving the file, restart pmproxy by running ``systemctl restart pmproxy``.
