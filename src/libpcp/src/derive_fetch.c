@@ -625,6 +625,10 @@ bin_op(int type, int op, pmAtomValue a, int ltype, int lmul, int ldiv, pmAtomVal
 		    res.d = 0;
 	    }
 	    break;
+	default:	/* should not happen, but coverity does not know that */
+	    fprintf(stderr, "bin_op: botch: type=%d is invalid\n", type);
+	    res.ll = 0;	/* not great, but the best we can do */
+	    break;
     }
 
     return res;
