@@ -545,7 +545,7 @@ engine(void)
 	sigact.sa_handler = getalarm;
 	sigaction(SIGALRM, &sigact, (struct sigaction *)0);
 
-	if (interval.tv_sec || interval.tv_usec)
+	if ((interval.tv_sec || interval.tv_usec) && !rawreadflag)
 		setalarm(&interval);
 
 	if (hinv_nrgpus > 0)
@@ -766,7 +766,7 @@ getalarm(int sig)
 {
 	awaittrigger=0;
 
-	if (interval.tv_sec || interval.tv_usec)
+	if ((interval.tv_sec || interval.tv_usec) && !rawreadflag)
 		setalarm(&interval);	/* restart the timer */
 }
 
