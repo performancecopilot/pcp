@@ -16,7 +16,7 @@ _bcc_check_ArgString || _notrun "bcc is broken (ArgString bug) on this platform"
 # the biotop BCC module uses kprobes that might attach to kernel symbols
 # that are not present ... add to the list below as required
 #
-for symbol in blk_account_io_completion
+for symbol in blk_account_io_done
 do
     grep " T $symbol\$" /proc/kallsyms >/dev/null || _notrun "kernel does not contain required $symbol symbol"
 done
@@ -81,7 +81,7 @@ echo Started dd at $(date) >> $here/$seq.full
 dd if=/dev/zero of=${out_file} bs=${write_size} count=1 oflag=direct 2>>$here/$seq.full
 
 # wait until PMDA refreshes BPF table containing dd
-_pmdabcc_wait_for_value bcc.proc.io.perdev.comm '"dd"'
+_pmdabcc_wait_for_value bcc.proc.io.perdev.comm '("dd"|"dmcrypt_write/\d+")'
 
 echo "=== report metric values for pid ==="
 pminfo -dfmtT bcc.proc.io.perdev.pid 2>&1 | tee -a $here/$seq.full \
@@ -89,7 +89,7 @@ pminfo -dfmtT bcc.proc.io.perdev.pid 2>&1 | tee -a $here/$seq.full \
 
 echo "=== report metric values for comm ==="
 pminfo -dfmtT bcc.proc.io.perdev.comm 2>&1 | tee -a $here/$seq.full \
-| _value_filter_exact '"dd"'
+| _value_filter_regex '("dd"|"dmcrypt_write/\d+")'
 
 echo "=== report metric values for direction ==="
 pminfo -dfmtT bcc.proc.io.perdev.direction 2>&1 | tee -a $here/$seq.full \

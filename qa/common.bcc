@@ -146,9 +146,11 @@ _pmdabcc_wait_for_value()
     value_regex=${2:-'.*'}
 
     sed -n '/Error:/,$p' $PCP_LOG_DIR/pmcd/bcc.log
-    for i in `seq 1 30`; do pminfo -f $1 | grep -q 'inst .* value '$value_regex && break; sleep 1; done
+    for i in `seq 1 30`; do pminfo -f $1 | grep -q -P 'inst .* value '$value_regex && break; sleep 1; done
     if [ $i -ge 30 ]; then
-        echo Could not get a single value, test failed
+        echo Could not get a single value matching $value_regex
+        echo Current values:
+        pminfo -f $1
         exit
     fi
 }
@@ -267,6 +269,11 @@ _value_filter_nonzero()
 _value_filter_exact()
 {
     grep "value $1" > /dev/null && echo OK
+}
+
+_value_filter_regex()
+{
+    grep -P 'value '$1 > /dev/null && echo OK
 }
 
 # openSUSE 15.0 bcc-0.5.0-lp150.9.2 is carrying a patch to backport bcc

@@ -16,7 +16,7 @@ _bcc_check_ArgString || _notrun "bcc is broken (ArgString bug) on this platform"
 # the bioperpid BCC module uses kprobes that might attach to kernel symbols
 # that are not present ... add to the list below as required
 #
-for symbol in blk_account_io_completion
+for symbol in blk_account_io_done
 do
     grep " T $symbol\$" /proc/kallsyms >/dev/null || _notrun "kernel does not contain required $symbol symbol"
 done
