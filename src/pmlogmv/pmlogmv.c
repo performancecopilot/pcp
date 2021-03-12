@@ -94,11 +94,13 @@ setup_sufftab(void)
 
     if ((table = malloc(n * sizeof(char *))) == NULL) {
 	fprintf(stderr, "pmlogmv: cannot malloc suffix table\n");
+	free(list);
 	return -1;
     }
 
     if ((table[0] = strdup("")) == NULL) {
 	fprintf(stderr, "pmlogmv: cannot strdup for suffix table[0]\n");
+	free(list);
 	free(table);
 	return -1;
     }
@@ -107,6 +109,7 @@ setup_sufftab(void)
     while (p) {
 	if ((table_tmp = realloc(table, sizeof(char *) * ++n)) == NULL) {
 	    fprintf(stderr, "pmlogmv: cannot realloc suffix table for %d entries\n", n);
+	    free(list);
 	    free(table);
 	    return -1;
 	}
@@ -114,6 +117,7 @@ setup_sufftab(void)
 	table[n-2] = p;
 	p = strtok(NULL, " ");
     }
+    free(list);
 
     table[n-1] = NULL;
     sufftab = table;
