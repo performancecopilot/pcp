@@ -2330,8 +2330,10 @@ lookup_processes(int *count, char ***processes)
 	if (ptr == NULL)
 	    continue;
 	stats = (pmiestats_t *)ptr;
-	if (strcmp(stats->config, get_pmiefile()) != 0)
+	if (strcmp(stats->config, get_pmiefile()) != 0) {
+	    __pmMemoryUnmap(ptr, statbuf.st_size);
 	    continue;
+	}
 
 	size = (1 + running) * sizeof(char *);
 	if ((proc_list = (char **)realloc(proc_list, size)) == NULL
@@ -2339,9 +2341,11 @@ lookup_processes(int *count, char ***processes)
 	    pmsprintf(errmsg, sizeof(errmsg), "insufficient memory for process search");
 	    if (proc_list) free(proc_list);
 	    closedir(dirp);
+	    __pmMemoryUnmap(ptr, statbuf.st_size);
 	    return errmsg;
 	}
 	running++;
+	__pmMemoryUnmap(ptr, statbuf.st_size);
     }
     closedir(dirp);
     *count = running;
