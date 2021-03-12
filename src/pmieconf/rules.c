@@ -476,6 +476,7 @@ validate(int type, char *name, char *value)
 	    ;
 	if (x < 0) {
 	    type_error(name, "include a closing single quote");
+	    free(s);
 	    return errmsg;
 	}
 	free(s);
