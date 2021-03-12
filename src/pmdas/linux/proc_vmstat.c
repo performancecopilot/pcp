@@ -439,7 +439,7 @@ refresh_proc_vmstat(proc_vmstat_t *proc_vmstat)
 		    break;
 		}
 	    }
-	    if (*bufp == NULL)
+	    if (*bufp == '\0')
 		continue;
 	    else if (strncmp(buf, "pgsteal_", 8) == 0)
 		proc_vmstat->pgsteal_total += *p;

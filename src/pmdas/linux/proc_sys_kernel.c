@@ -43,7 +43,8 @@ refresh_proc_sys_kernel(proc_sys_kernel_t *proc_sys_kernel)
     }
 
     if ((ptynr = linux_statsfile(KERNEL_PTY_NR, buf, sizeof(buf))) != NULL) {
-	fscanf(ptynr, "%u", &proc_sys_kernel->pty_nr);
+	if (fscanf(ptynr, "%u", &proc_sys_kernel->pty_nr) != 1)
+	    proc_sys_kernel->pty_nr = 0;
 	fclose(ptynr);
     }
 
