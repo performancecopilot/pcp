@@ -561,7 +561,7 @@ lex(int reset)
 		sts = __pmProcessAddArg(&argp, path);
 	    }
 	    if (sts == 0)
-		__pmProcessAddArg(&argp, fname);
+		sts = __pmProcessAddArg(&argp, fname);
 	    if (sts < 0)
 		return PM_ERR_GENERIC;
 
