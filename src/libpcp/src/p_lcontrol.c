@@ -185,8 +185,9 @@ __pmDecodeLogControl(const __pmPDU *pdubuf, pmResult **request, int *control, in
     return 0;
 
 corrupt:
-    while (i)
-	free(req->vset[i--]);
+    /* req->vset[0] ... req->vset[i] have been malloc'd */
+    for ( ; i >= 0; i--)
+	free(req->vset[i]);
     free(req);
     return sts;
 }

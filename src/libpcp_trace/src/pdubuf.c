@@ -25,7 +25,7 @@ typedef struct bufctl {
     int			bc_size;
     int			bc_pincnt;
     char		*bc_buf;
-    char		*bc_bufend;
+    char		*bc_bufend;	/* last byte in bc_buf[] */
 } bufctl_t;
 
 static bufctl_t	*buf_free;
@@ -73,7 +73,7 @@ __pmtracefindPDUbuf(int need)
 	    return NULL;
 	}
 	pcp->bc_next = buf_free;
-	pcp->bc_bufend = &pcp->bc_buf[pcp->bc_size];
+	pcp->bc_bufend = &pcp->bc_buf[pcp->bc_size-1];
 	buf_free = pcp;
     }
 
@@ -94,7 +94,7 @@ __pmtracepinPDUbuf(void *handle)
     bufctl_t	*prior = NULL;
 
     for (pcp = buf_free; pcp != NULL; pcp = pcp->bc_next) {
-	if (pcp->bc_buf <= (char *)handle && (char *)handle < pcp->bc_bufend)
+	if (pcp->bc_buf <= (char *)handle && (char *)handle <= pcp->bc_bufend)
 	    break;
 	prior = pcp;
     }
@@ -115,7 +115,7 @@ __pmtracepinPDUbuf(void *handle)
     }
     else {
 	for (pcp = buf_pin; pcp != NULL; pcp = pcp->bc_next) {
-	    if (pcp->bc_buf <= (char *)handle && (char *)handle < pcp->bc_bufend)
+	    if (pcp->bc_buf <= (char *)handle && (char *)handle <= pcp->bc_bufend)
 		break;
 	}
 	if (pcp != NULL)
