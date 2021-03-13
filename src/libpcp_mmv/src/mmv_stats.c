@@ -945,7 +945,7 @@ get_label(const char *name, const char *value, mmv_value_type_t type,
     }
 
     /* Verify the name meets pmLookupLabel(3) syntax rules */
-    len = name ? strlen(name) : 0;
+    len = strlen(name);
     if (len < 1 || !isalpha((int)(name[0]))) {
 	setoserror(EINVAL);
 	return -1;
@@ -958,7 +958,7 @@ get_label(const char *name, const char *value, mmv_value_type_t type,
     }
 
     /* Verify values meet some (type-based) sanity checks */
-    len = value ? strlen(value) : 0;
+    len = strlen(value);
     switch (type) {
 	case MMV_NULL_TYPE:
 	    value = "null";
