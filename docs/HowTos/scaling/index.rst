@@ -1,18 +1,52 @@
-.. include:: ../refs.rst
+.. include:: ../../refs.rst
 
 Scaling Guidelines
 ##################
 
-Introduction and Scope
-**********************
-
 This technical note explores the scalability of centralized logging with `Performance Co-Pilot (PCP) <https://pcp.io>`_.
-In this architecture, a single logger host is set up to run multiple `pmlogger(1)`_ processes, each configured to retrieve a standard set of performance metrics from a different remote `pmcd(1)`_ host.
-The centralized logger host is also configured to run the `pmproxy(1)`_ daemon, which discovers the resulting PCP archives logs and loads the metric data into a local `Redis`_ server.
 
-System resource usage is measured and presented across various aspects of the pmlogger, pmproxy and Redis daemons.
-Three configurations with 10 and 50 pmloggers are tested to explore aspects of scalability.
-Only the data capture aspects are tested for a single centralized logger host - we have not yet extended these experiments to a federated architecture (with multiple pmlogger hosts logging to a central Redis instance), nor to a clustered Redis data store.
+Architecture
+************
+
+PCP supports multiple deployment architectures, based on the scale of the PCP deployment.
+The most common deployment architectures are described below.
+
+Fully Distributed Setup
+-----------------------
+
+A way to setup decentralized logging is to run `pmlogger(1)`_ on each monitored host, which retrieves metrics from a local `pmcd(1)`_ instance.
+A local `pmproxy(1)`_ daemon imports the performance metrics into a central `Redis`_ database.
+
+.. figure:: fully-distributed.svg
+
+pmlogger Farm
+-------------
+
+In cases where the resource usage on the monitored hosts is constrained, another deployment option is a **pmlogger farm**.
+In this setup, a single logger host runs multiple `pmlogger(1)`_ processes, each configured to retrieve performance metrics from a different remote `pmcd(1)`_ host.
+The centralized logger host is also configured to run the `pmproxy(1)`_ daemon, which discovers the resulting PCP archives logs and loads the metric data into a `Redis`_ database.
+
+.. figure:: pmlogger-farm.svg
+
+Federated pmlogger Farm
+-----------------------
+
+For large scale deployments, we advice deploying multiple `pmlogger(1)`_ farms in a federated fashion.
+For example, one `pmlogger(1)`_ farm per rack or data center.
+Each pmlogger farm loads the metrics into a central `Redis`_ database.
+
+.. figure:: federated-pmlogger-farm.svg
+
+Redis Database Deployment
+-------------------------
+
+The Redis database can run in a clustered fashion, where data is sharded across multiple hosts (see `Redis Cluster <https://redis.io/topics/cluster-tutorial>`_ for more details).
+Another viable option is to deploy a Redis cluster in the cloud, or to utilize a managed Redis cluster from a cloud vendor.
+
+.. note::
+
+    For PCP versions before 5.3.0, *pmlogger farm* is the only supported and tested deployment architecture.
+    Other deployment architectures might work, but are not officially supported.
 
 Sizing Factors
 **************
@@ -78,7 +112,7 @@ Two options are available to specify the retention settings in the pmproxy confi
 Results and Analysis
 ********************
 
-The following results were gathered with a default **pcp-zeroconf 5.3.0** installation, where each remote host is an identical container instance running `pmcd(1)`_ on a server with 64 CPU cores, 376 GB RAM and 1 disk attached (as mentioned above, 64 CPUs increases per-CPU metric volume).
+The following results were gathered on a `pmlogger Farm`_ deployment, with a default **pcp-zeroconf 5.3.0** installation, where each remote host is an identical container instance running `pmcd(1)`_ on a server with 64 CPU cores, 376 GB RAM and 1 disk attached (as mentioned above, 64 CPUs increases per-CPU metric volume).
 The logging interval is 10s, ``proc`` metrics of remote nodes are *not* included, and the memory values refer to the RSS (Resident Set Size) value.
 
 +--------------+-----------------+----------+------------------+---------+--------------+

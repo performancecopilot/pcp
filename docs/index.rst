@@ -12,18 +12,18 @@ makes it especially useful for those seeking centralized monitoring of distribut
 
 **Table of Contents**
 
-* :doc:`UAG/AboutUAGGuide`
-* :doc:`PG/AboutPGGuide`
-* :doc:`guides/scaling`
+* :doc:`UAG/AboutUserAdministratorsGuide`
+* :doc:`PG/AboutProgrammersGuide`
+* :doc:`HowTos/scaling/index`
 * `REST API Specification <api/>`_
 
 .. toctree::
    :caption: Guides
    :hidden:
    
-   UAG/AboutUAGGuide
-   PG/AboutPGGuide
-   guides/scaling
+   UAG/AboutUserAdministratorsGuide
+   PG/AboutProgrammersGuide
+   HowTos/scaling/index
    REST API Specification <https://pcp.readthedocs.io/en/latest/api/>
 
 
