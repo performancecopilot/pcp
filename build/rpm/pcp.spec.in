@@ -104,6 +104,9 @@ BuildRequires: man %{_hostname_executable}
 BuildRequires: initscripts
 %endif
 %endif
+%if "@enable_systemd@" == "true"
+BuildRequires: systemd-devel
+%endif
 %if "@pmda_rpm@" == "true"
 BuildRequires: rpm-devel
 %endif
@@ -119,9 +122,6 @@ BuildRequires: chan-devel HdrHistogram_c-devel
 %endif
 %if "@pmda_perfevent@" == "true"
 BuildRequires: libpfm-devel >= 4.4
-%endif
-%if "@pmda_systemd@" == "true"
-BuildRequires: systemd-devel
 %endif
 
 BuildRequires: ncurses-devel
