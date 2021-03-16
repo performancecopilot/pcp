@@ -12,6 +12,7 @@ in the source distribution for its full text.
 #include <ctype.h>
 #include <stdbool.h>
 #include <pcp/pmapi.h>
+#include <sys/sysmacros.h>
 
 #undef PACKAGE_URL
 #undef PACKAGE_NAME

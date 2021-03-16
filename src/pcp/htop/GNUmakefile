@@ -15,12 +15,15 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
+COPYRIGHT = "(C) 2004-2019 Hisham Muhammad. (C) 2020-2021 htop dev team."
+
 CMDTARGET = pcp-htop
 DISTARGET = $(PCP_BINADM_DIR)/$(CMDTARGET)
 LLDLIBS = $(PCPLIB) $(LIB_FOR_NCURSESW) $(LIB_FOR_MATH)
 NCURSES_CFLAGS = -DHAVE_LIBNCURSESW=$(HAVE_NCURSESW)
 LCFLAGS = $(NCURSES_CFLAGS) $(C99_CFLAGS) -Ipcp -I.
-LDIRT = config.h
+LCFLAGS += -DVERSION=\"$(PCP_VERSION)\" -DSYSCONFDIR=\"$(PCP_SYSCONF_DIR)\"
+LCFLAGS += -DCOPYRIGHT=\"$(COPYRIGHT)\" -DPACKAGE=\"$(CMDTARGET)\"
 
 CFILES = \
 	Action.c \
@@ -151,7 +154,7 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(HAVE_NCURSESW)" "true"
-build-me: config.h $(CMDTARGET) $(DISTLINKS)
+build-me: $(CMDTARGET) $(DISTLINKS)
 
 install: default
 	$(INSTALL) -m 755 $(CMDTARGET) $(DISTARGET)
@@ -167,12 +170,6 @@ install_pcp: install
 
 $(DISTLINKS):	$(CMDTARGET)
 	@$(LN_S) -f $(CMDTARGET) $@
-
-config.h: config.h.in
-	sed -e 's;@SYSCONFDIR@;'$(PCP_SYSCONF_DIR)';g' \
-	    -e 's;@VERSION@;'$(PCP_VERSION)';g' \
-	    -e 's;@PACKAGE@;'$(CMDTARGET)';g' \
-		< $^ > $@
 
 check::	$(CFILES) $(HFILES)
 	$(CLINT) $^
