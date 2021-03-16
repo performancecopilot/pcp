@@ -1,4 +1,3 @@
 sphinx-rtd-theme
-sphinx.ext.autosectionlabel
-sphinxcontrib.redoc
-sphinxcontrib.openapi
+sphinxcontrib-redoc
+sphinxcontrib-openapi
