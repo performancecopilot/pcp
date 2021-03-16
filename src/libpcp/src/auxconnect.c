@@ -1599,18 +1599,27 @@ __pmSocketClosed(void)
 ssize_t
 __pmWrite(int socket, const void *buffer, size_t length)
 {
+    if (socket < 0)
+	return -EBADF;
+
     return write(socket, buffer, length);
 }
 
 ssize_t
 __pmRead(int socket, void *buffer, size_t length)
 {
+    if (socket < 0)
+	return -EBADF;
+
     return read(socket, buffer, length);
 }
 
 ssize_t
 __pmSend(int socket, const void *buffer, size_t length, int flags)
 {
+    if (socket < 0)
+	return -EBADF;
+
     return send(socket, buffer, length, flags);
 }
 
@@ -1618,6 +1627,10 @@ ssize_t
 __pmRecv(int socket, void *buffer, size_t length, int flags)
 {
     ssize_t	size;
+
+    if (socket < 0)
+	return -EBADF;
+
     size = recv(socket, buffer, length, flags);
     if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
 	fprintf(stderr, "%s:__pmRecv(%d, ..., %d, " PRINTF_P_PFX "%x) -> %d",
@@ -1635,6 +1648,9 @@ int
 __pmSocketReady(int fd, struct timeval *timeout)
 {
     __pmFdSet	onefd;
+
+    if (fd < 0)
+	return -EBADF;
 
     FD_ZERO(&onefd);
     FD_SET(fd, &onefd);
