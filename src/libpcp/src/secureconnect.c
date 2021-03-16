@@ -169,7 +169,7 @@ __pmCloseSocket(int fd)
 	}
     }
 
-    if (fd != -1) {
+    if (fd >= 0) {
 #if defined(IS_MINGW)
 	closesocket(fd);
 #else
@@ -1548,6 +1548,9 @@ __pmRead(int fd, void *buffer, size_t length)
 {
     __pmSecureSocket socket;
 
+    if (fd < 0)
+	return -EBADF;
+
     if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd) {
 	ssize_t size = PR_Read(socket.nsprFd, buffer, length);
 	if (size < 0)
@@ -1561,6 +1564,9 @@ ssize_t
 __pmSend(int fd, const void *buffer, size_t length, int flags)
 {
     __pmSecureSocket socket;
+
+    if (fd < 0)
+	return -EBADF;
 
     if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd) {
 	ssize_t size = PR_Write(socket.nsprFd, buffer, length);
@@ -1576,6 +1582,9 @@ __pmRecv(int fd, void *buffer, size_t length, int flags)
 {
     __pmSecureSocket	socket;
     ssize_t		size;
+
+    if (fd < 0)
+	return -EBADF;
 
     if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd) {
 	if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
@@ -1614,6 +1623,9 @@ __pmSocketReady(int fd, struct timeval *timeout)
 {
     __pmSecureSocket socket;
     __pmFdSet onefd;
+
+    if (fd < 0)
+	return -EBADF;
 
     if (__pmDataIPC(fd, &socket) == 0 && socket.sslFd)
         if (SSL_DataPending(socket.sslFd))

@@ -654,7 +654,7 @@ new(CLASS,name,domain)
 	}
 	else {
 	    pmdaDaemon(&dispatch, PMDA_INTERFACE_5, pmdaname, domain,
-			logfile, strdup(helpfile));
+			logfile, helpfile);
 	}
 	dispatch.version.four.fetch = fetch_wrapper;
 	dispatch.version.four.instance = instance_wrapper;

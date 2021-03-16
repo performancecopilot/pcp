@@ -135,7 +135,7 @@ class PCPBCCModule(PCPBCCBase):
                self.get_kprobe_functions(b"blk_start_request"):
                 self.bpf.attach_kprobe(event="blk_start_request", fn_name="trace_req_start")
             self.bpf.attach_kprobe(event="blk_mq_start_request", fn_name="trace_req_start")
-            self.bpf.attach_kprobe(event="blk_account_io_completion", fn_name="trace_req_completion")
+            self.bpf.attach_kprobe(event="blk_account_io_done", fn_name="trace_req_completion")
             if self.interval > 0:
                 self.thread.start()
             self.log("Compiled.")

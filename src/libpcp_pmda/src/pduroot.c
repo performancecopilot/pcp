@@ -288,6 +288,7 @@ __pmdaRecvRootPDUStart(int fd, void *buffer, int buflen)
      * Set 'msgh' iov (I/O vector) to point to buffer used
      * to receive the "real" data read by recvmsg()
      */
+    memset(&msgh, 0, sizeof(msgh));
     msgh.msg_control = control_un.control;
     msgh.msg_controllen = sizeof(control_un.control);
     msgh.msg_iov = &iov;

@@ -164,7 +164,6 @@ __pmDecodeLogControl(const __pmPDU *pdubuf, pmResult **request, int *control, in
 	if ((vsp = (pmValueSet *)malloc(need)) == NULL) {
 	    pmNoMem("__pmDecodeLogControl.vsp", need, PM_RECOV_ERR);
 	    sts = -oserror();
-	    i--;
 	    goto corrupt;
 	}
 	req->vset[i] = vsp;
@@ -185,8 +184,9 @@ __pmDecodeLogControl(const __pmPDU *pdubuf, pmResult **request, int *control, in
     return 0;
 
 corrupt:
-    while (i)
-	free(req->vset[i--]);
+    /* req->vset[0] ... req->vset[i-1] have been malloc'd */
+    for (i-- ; i >= 0; i--)
+	free(req->vset[i]);
     free(req);
     return sts;
 }

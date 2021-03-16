@@ -16,20 +16,19 @@
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
-import os
-import pkg_resources
-
 # -- Project information -----------------------------------------------------
 
 project = 'pcp'
-copyright = '2020, Performance Co-Pilot'
+copyright = '2021, Performance Co-Pilot'
 author = 'Performance Co-Pilot'
 
-# The short X.Y version
-version = ''
-# The full version, including alpha/beta/rc tags
-release = ''
+with open('../VERSION.pcp') as f:
+    pkg_ver = dict([x.strip().split('=') for x in f if 'PACKAGE_' in x])
 
+    # The short X.Y version
+    version = f"{pkg_ver['PACKAGE_MAJOR']}.{pkg_ver['PACKAGE_MINOR']}.{pkg_ver['PACKAGE_REVISION']}"
+    # The full version, including alpha/beta/rc tags
+    release = f"{version}-{pkg_ver['PACKAGE_BUILD']}"
 
 # -- General configuration ---------------------------------------------------
 
@@ -40,7 +39,10 @@ release = ''
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = [ 'sphinx.ext.autosectionlabel','sphinxcontrib.redoc', 'sphinxcontrib.openapi'
+extensions = [
+    'sphinx.ext.autosectionlabel',
+    'sphinxcontrib.redoc',
+    'sphinxcontrib.openapi',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -79,10 +81,6 @@ pygments_style = None
 html_theme = 'sphinx_rtd_theme'
 
 html_logo = '../images/pcp_icon.png'
-html_theme_options = {
-        'logo_only': True,
-        'display_version': False,
-}
 
 redoc = [
     {
@@ -91,35 +89,30 @@ redoc = [
         'spec': 'specs/openapi.yaml',
         'opts': {
             'lazy-rendering': True,
-
         },
     },
 ]
 
 redoc_uri = 'https://cdn.jsdelivr.net/npm/redoc@next/bundles/redoc.standalone.js'
 
-if not os.environ.get('READTHEDOCS') == 'True':
-    import sphinx_rtd_theme
-    html_theme = 'sphinx_rtd_theme'
-    html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
-
-
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
-# html_theme_options = {}
+html_theme_options = {
+    'logo_only': True,
+}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
-html_context = {
-    'css_files': [
-        '_static/theme_overrides.css',  # override wide tables in RTD theme
-        ],
-     }
+# These paths are either relative to html_static_path
+# or fully qualified paths (eg. https://...)
+html_css_files = [
+    'theme_overrides.css',
+]
 
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.

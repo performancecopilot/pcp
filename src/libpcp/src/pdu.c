@@ -368,6 +368,9 @@ __pmXmitPDU(int fd, __pmPDU *pdubuf)
     int		len;
     __pmPDUHdr	*php = (__pmPDUHdr *)pdubuf;
 
+    if (fd < 0)
+	return -EBADF;
+
     __pmIgnoreSignalPIPE();
 
     if (pmDebugOptions.pdu) {
