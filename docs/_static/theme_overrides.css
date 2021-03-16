@@ -1,3 +1,4 @@
+/* allow line breaks in table cells */
 .wy-table-responsive table td {
    white-space: normal;
 }

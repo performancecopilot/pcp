@@ -115,28 +115,28 @@ Results and Analysis
 The following results were gathered on a `pmlogger Farm`_ deployment, with a default **pcp-zeroconf 5.3.0** installation, where each remote host is an identical container instance running `pmcd(1)`_ on a server with 64 CPU cores, 376 GB RAM and 1 disk attached (as mentioned above, 64 CPUs increases per-CPU metric volume).
 The logging interval is 10s, ``proc`` metrics of remote nodes are *not* included, and the memory values refer to the RSS (Resident Set Size) value.
 
-+--------------+-----------------+----------+------------------+---------+--------------+
-| Number of    | PCP Archives    | pmlogger | pmlogger Network | pmproxy | Redis Memory |
-|              |                 |          |                  |         |              |
-| Remote Hosts | Storage per Day | Memory   | per Day (In)     | Memory  | per Day      |
-+==============+=================+==========+==================+=========+==============+
-| 10           | 91 MB           | 160 MB   | 2 MB             | 1.4 GB  | 2.6 GB       |
-+--------------+-----------------+----------+------------------+---------+--------------+
-| 50           | 522 MB          | 580 MB   | 9 MB             | 6.3 GB  | 12 GB        |
-+--------------+-----------------+----------+------------------+---------+--------------+
++-----------+----------------+----------+------------------+---------+--------------+
+| Number of | PCP Archives   | pmlogger | pmlogger Network | pmproxy | Redis Memory |
+|           |                |          |                  |         |              |
+| Hosts     | Storage p. Day | Memory   | per Day (In)     | Memory  | per Day      |
++===========+================+==========+==================+=========+==============+
+| 10        | 91 MB          | 160 MB   | 2 MB             | 1.4 GB  | 2.6 GB       |
++-----------+----------------+----------+------------------+---------+--------------+
+| 50        | 522 MB         | 580 MB   | 9 MB             | 6.3 GB  | 12 GB        |
++-----------+----------------+----------+------------------+---------+--------------+
 
 Detailed Utilization Statistics
 -------------------------------
 
-+--------------+---------+-----------+-----------------+------------------------+-------------+
-| Number of    | pmproxy | Disk IOPS | Disk Throughput | Avg. Size (in Sectors) | Disk        |
-|              |         |           |                 |                        |             |
-| Remote Hosts | CPU%    | (write)   | (write)         | of requests            | Utilization |
-+==============+=========+===========+=================+========================+=============+
-| 10           | 1%      | 25        | 19 MB/s         | 700                    | 4%          |
-+--------------+---------+-----------+-----------------+------------------------+-------------+
-| 50           | 5%      | 70        | 52 MB/s         | 700                    | 10%         |
-+--------------+---------+-----------+-----------------+------------------------+-------------+
++-----------+---------+-----------+-----------------+------------------------+-------------+
+| Number of | pmproxy | Disk IOPS | Disk Throughput | Avg. Size (in Sectors) | Disk        |
+|           |         |           |                 |                        |             |
+| Hosts     | CPU%    | (write)   | (write)         | of requests            | Utilization |
++===========+=========+===========+=================+========================+=============+
+| 10        | 1%      | 25        | 19 MB/s         | 700                    | 4%          |
++-----------+---------+-----------+-----------------+------------------------+-------------+
+| 50        | 5%      | 70        | 52 MB/s         | 700                    | 10%         |
++-----------+---------+-----------+-----------------+------------------------+-------------+
 
 .. note::
 
