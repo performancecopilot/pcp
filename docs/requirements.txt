@@ -1,0 +1,3 @@
+sphinx-rtd-theme>=0.5.1
+sphinxcontrib-redoc
+sphinxcontrib-openapi

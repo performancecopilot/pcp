@@ -1,8 +1,8 @@
 .. pcp documentation master file, created by
    sphinx-quickstart on Wed Sep 16 15:12:41 2020.
 
-Performance Co-Pilot Books
-###########################
+Performance Co-Pilot
+####################
 
 `Performance Co-Pilot (PCP) <https://pcp.io/>`_ provides a framework and services to support system-level performance monitoring and management. It presents a unifying 
 abstraction for all of the performance data in a system, and many tools for interrogating, retrieving and processing that data.
@@ -12,17 +12,19 @@ makes it especially useful for those seeking centralized monitoring of distribut
 
 **Table of Contents**
 
-* :doc:`UAG/AboutUAGGuide`
-* :doc:`PG/AboutPGGuide`
-* `REST API Guide <api/>`__
+* :doc:`UAG/AboutUserAdministratorsGuide`
+* :doc:`PG/AboutProgrammersGuide`
+* :doc:`HowTos/scaling/index`
+* `REST API Specification <api/>`_
 
 .. toctree::
    :caption: Guides
    :hidden:
    
-   UAG/AboutUAGGuide
-   PG/AboutPGGuide
-   REST API Guide <https://pcp.readthedocs.io/en/latest/api/>
+   UAG/AboutUserAdministratorsGuide
+   PG/AboutProgrammersGuide
+   HowTos/scaling/index
+   REST API Specification <https://pcp.readthedocs.io/en/latest/api/>
 
 
 .. toctree::

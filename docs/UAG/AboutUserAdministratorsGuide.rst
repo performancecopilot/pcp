@@ -1,7 +1,7 @@
-.. _AboutUAGGuide:
+.. _AboutUAG:
 
-About User's and Administrator's Guide
-#######################################
+User's and Administrator's Guide
+################################
 
 .. contents::
 
