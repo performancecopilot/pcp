@@ -1,7 +1,7 @@
 GNUmakefile|1777|root|root|$(PCP_TMPFILE_DIR)
 GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_LOG_DIR)
-GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_SECURE_DB_PATH)
 GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_RUN_DIR)|optional
+GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_SECURE_DB_PATH)
 GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_TMP_DIR)
 GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_VAR_DIR)/config/pmda
 src/pmcd/GNUmakefile|700|root|root|$(PCP_VAR_DIR)/pmcd
@@ -9,6 +9,8 @@ src/pmcd/GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_LOG_DIR)/pmcd
 src/pmdas/bash/GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_TMP_DIR)/bash|optional
 src/pmdas/json/GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_TMP_DIR)/json|optional
 src/pmdas/mmv/src/GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_TMP_DIR)/mmv|optional
+src/pmdas/mmv/src/GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_TMP_DIR)/pmproxy|optional
+src/pmfind/GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_LOG_DIR)/pmfind
 src/pmie/GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_LOG_DIR)/pmie
 src/pmie/GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_TMP_DIR)/pmie|optional
 src/pmie/GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_VAR_DIR)/config/pmie

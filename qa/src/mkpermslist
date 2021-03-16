@@ -144,6 +144,21 @@ s/$/|optional/
 	    mv $tmp.tmp $tmp.raw
 	    ;;
 
+	src/pmdas/mssql/GNUmakefile|src/pmdas/postgresql/GNUmakefile|src/pmdas/rabbitmq/GNUmakefile|src/pmdas/elasticsearch/GNUmakefile)
+	    # CONF            = $(IAM).conf
+	    # PMDACONFIG      = $(PCP_SYSCONF_DIR)/$(IAM)
+	    # PMDATMPDIR      = $(PCP_PMDAS_DIR)/$(IAM)
+	    # ...
+	    # $(INSTALL) -m 600 -t $(PMDATMPDIR)/$(CONF) $(CONF) $(PMDACONFIG)/$(CONF)
+	    #
+	    # But, -t installs a "temp file" symlink, so the mode (-m) is sort of
+	    # irrelevant ...
+	    #
+	    sed <$tmp.raw >$tmp.tmp \
+		-e '/PMDATMPDIR)/d'
+	    mv $tmp.tmp $tmp.raw
+	    ;;
+
 	src/pmmgr/GNUmakefile)
 	    # all the INSTALL lines here are conditional, including this one
 	    # $(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_LOG_DIR)/pmmgr
