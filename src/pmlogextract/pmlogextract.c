@@ -1019,17 +1019,42 @@ append_textreclist(int i)
 
     iap = &inarch[i];
     type = ntoh_pmTextType(iap->pb[META][2]);
-    if ((type & PM_TEXT_PMID))
+    if ((type & PM_TEXT_PMID) == PM_TEXT_PMID && (type & PM_TEXT_INDOM) == 0)
 	ident = ntoh_pmID(iap->pb[META][3]);
-    else /* (type & PM_TEXT_INDOM) */
+    else if ((type & PM_TEXT_PMID) == 0 && (type & PM_TEXT_INDOM) == PM_TEXT_INDOM)
 	ident = ntoh_pmInDom(iap->pb[META][3]);
+    else {
+	fprintf(stderr, "%s: append_textreclist: Botch: bad type %d for ident %d\n",
+		pmGetProgname(), type, ntoh_pmID(iap->pb[META][3]));
+	abandon_extract();
+	/*NOTREACHED*/
+    }
+    if (((type & PM_TEXT_ONELINE) == PM_TEXT_ONELINE && (type & PM_TEXT_HELP) == 0) ||
+	((type & PM_TEXT_ONELINE) == 0 && (type & PM_TEXT_HELP) == PM_TEXT_HELP)) {
+	/* good, expect one or the other to be set */
+	;
+    }
+    else {
+	if ((type & PM_TEXT_PMID)) {
+	    fprintf(stderr, "%s: append_textreclist: Botch: bad type %d for pmid %s\n",
+		    pmGetProgname(), type, pmIDStr(ident));
+	    abandon_extract();
+	    /*NOTREACHED*/
+	}
+	else /* (type & PM_TEXT_INDOM) */ {
+	    fprintf(stderr, "%s: append_textreclist: Botch: bad type %d for indom %s\n",
+		    pmGetProgname(), type, pmInDomStr(ident));
+	    abandon_extract();
+	    /*NOTREACHED*/
+	}
+    }
 
     if (pmDebugOptions.appl1) {
 	fprintf(stderr, "update_textreclist: looking for ");
 	if ((type & PM_TEXT_PMID))
 	    fprintf(stderr, "(pmid:%s)", pmIDStr(ident));
 	else /* (type & PM_TEXT_INDOM) */
-	    fprintf(stderr, "(pmid:%s)", pmInDomStr(ident));
+	    fprintf(stderr, "(indom:%s)", pmInDomStr(ident));
 	fprintf(stderr, "(type:%s)\n",
 		(type & PM_TEXT_ONELINE) ? "oneline" : "help");
     }
@@ -1050,7 +1075,7 @@ append_textreclist(int i)
 		printmetricnames(stderr, curr->pdu);
 		fputc('\n', stderr);
 	    }
-	    else if ((type & PM_TEXT_INDOM)) {
+	    else /* (type & PM_TEXT_INDOM) */ {
 		fprintf(stderr, "indom match %s\n", pmInDomStr(curr->desc.indom));
 	    }
 	}
@@ -1060,14 +1085,14 @@ append_textreclist(int i)
 	    fprintf(stderr, "%s: Warning: ", pmGetProgname());
 	    if ((type & PM_TEXT_PMID))
 		fprintf(stderr, "metric PMID %s", pmIDStr(curr->desc.pmid));
-	    else if ((type & PM_TEXT_INDOM))
+	    else /* (type & PM_TEXT_INDOM) */
 		fprintf(stderr, "instance domain %s",pmInDomStr(curr->desc.indom));
 	    if ((type & PM_TEXT_ONELINE)) {
 		fprintf(stderr, " one line text changed from\n");
 		fprintf(stderr, "  \"%s\" to\n", str1);
 		fprintf(stderr, "  \"%s\"!\n", str2);
 	    }
-	    else if ((type & PM_TEXT_HELP)) {
+	    else /* (type & PM_TEXT_HELP) */ {
 		/*
 		 * It's not practical to print the entire help text of each as
 		 * part of an error message.
@@ -1092,13 +1117,13 @@ append_textreclist(int i)
 	    curr->desc.pmid = ident;
 	    if ((type & PM_TEXT_ONELINE))
 		sts = __pmHashAdd(ident, (void *)curr, &rpmidoneline);
-	    else if ((type & PM_TEXT_HELP))
+	    else /* (type & PM_TEXT_HELP) */
 		sts = __pmHashAdd(ident, (void *)curr, &rpmidtext);
-	} else if ((type & PM_TEXT_INDOM)) {
+	} else /* (type & PM_TEXT_INDOM) */ {
 	    curr->desc.indom = ident;
 	    if ((type & PM_TEXT_ONELINE))
 		sts = __pmHashAdd(ident, (void *)curr, &rindomoneline);
-	    else if ((type & PM_TEXT_HELP))
+	    else /* (type & PM_TEXT_HELP) */
 		sts = __pmHashAdd(ident, (void *)curr, &rindomtext);
 	}
 	if (sts < 0) {
