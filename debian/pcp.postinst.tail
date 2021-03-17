@@ -60,6 +60,10 @@ chmod 775 /var/log/pcp/sa
 chown pcp:pcp /var/log/pcp/pmproxy
 chmod 775 /var/log/pcp/pmproxy
 
+# must match src/pmfind/GNUmakefile
+chown pcp:pcp /var/log/pcp/pmfind
+chmod 775 /var/log/pcp/pmfind
+
 # and fixup the change in deployment plan for these ones in the case
 # of an upgrade, rather than an install ... they used to be pcp:pcp
 chown root:root /etc/pcp/pmie
