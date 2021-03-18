@@ -38,6 +38,13 @@ for PMDA in bash json mmv; do
     fi
 done
 
+# must match src/pmdas/mmv/src/GNUmakefile
+chown pcp:pcp /var/lib/pcp/tmp/mmv
+chmod 775 /var/lib/pcp/tmp/mmv
+# (strange but true, the "pmproxy" pmda is built in the mmv dir)
+chown pcp:pcp /var/lib/pcp/tmp/pmproxy
+chmod 775 /var/lib/pcp/tmp/pmproxy
+
 # must match src/pmie/GNUmakefile
 chown pcp:pcp /var/lib/pcp/config/pmie
 chmod 775 /var/lib/pcp/config/pmie
