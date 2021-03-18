@@ -117,8 +117,11 @@ setup_sufftab(void)
 	table[n-2] = p;
 	p = strtok(NULL, " ");
     }
-    free(list);
 
+    /*
+     * Note: table[i] -> &list[x], so do NOT free(list) on the success
+     * path here.
+     */
     table[n-1] = NULL;
     sufftab = table;
     return 0;
