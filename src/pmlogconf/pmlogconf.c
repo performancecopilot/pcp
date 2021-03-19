@@ -1247,7 +1247,7 @@ update_groups(FILE *tempfile, const char *pattern)
     struct timeval	interval;
     static char		answer[64];
     char		buffer[128];
-    char		*state = NULL, *errmsg;
+    char		*state = NULL, *errmsg, *p;
     unsigned int	i, m, count;
 
     /* iterate over the groups array. */
@@ -1315,8 +1315,9 @@ y         log this group\n\
 	    break;
 
 	case '/':
+	    if ((p = strrchr(answer + 1, '\n')) != NULL)
+		*p = '\0';
 	    printf("Searching for \"%s\"\n", answer + 1);
-	    prompt = 0;
 	    if ((group_pattern(&i, answer + 1)) != NULL) {
 		i--;	/* prepare for loop iteration */
 		continue;
