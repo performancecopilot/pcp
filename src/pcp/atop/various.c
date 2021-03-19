@@ -848,7 +848,11 @@ setup_globals(pmOptions *opts)
 		pidmax = (1 << 15);
 	if ((pagesize = extract_integer(result, descs, HOST_PAGESIZE)) <= 0)
 		pagesize = getpagesize();
+	if ((system_boottime = extract_count_t(result, descs, HOST_BTIME)) <= 0)
+		system_boottime = result->timestamp.tv_sec - interval.tv_sec;
+
 	extract_string(result, descs, HOST_RELEASE, sysname.release, sizeof sysname.release);
+	sscanf(sysname.release, "%d.%d.%d", &osrel, &osvers, &ossub);
 	extract_string(result, descs, HOST_VERSION, sysname.version, sizeof sysname.version);
 	extract_string(result, descs, HOST_MACHINE, sysname.machine, sizeof sysname.machine);
 	extract_string(result, descs, HOST_NODENAME, sysname.nodename, sizeof sysname.nodename);

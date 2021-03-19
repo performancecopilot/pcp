@@ -113,7 +113,6 @@ struct	cpustat {
 	count_t	devint;	/* number of device interrupts 		*/
 	count_t	csw;	/* number of context switches		*/
 	count_t	nprocs;	/* number of processes started          */
-	count_t	btime;	/* boot time                            */
 	float	lavg1;	/* load average last    minute          */
 	float	lavg5;	/* load average last  5 minutes         */
 	float	lavg15;	/* load average last 15 minutes         */

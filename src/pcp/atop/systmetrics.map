@@ -10,7 +10,6 @@ systmetrics {
 	kernel.all.pswitch			CPU_CSW
 	kernel.all.intr				CPU_DEVINT
 	kernel.all.sysfork			CPU_NPROCS
-	kernel.all.boottime			CPU_BTIME
 	kernel.all.cpu.user			CPU_UTIME
 	kernel.all.cpu.nice			CPU_NTIME
 	kernel.all.cpu.sys			CPU_STIME

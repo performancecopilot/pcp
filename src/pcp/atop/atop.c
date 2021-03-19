@@ -158,6 +158,7 @@ unsigned int	hinv_nrcpus;
 unsigned int	hinv_nrdisk;
 unsigned int	hinv_nrgpus;
 unsigned int	hinv_nrintf;
+long long	system_boottime;
 int 		osrel;
 int 		osvers;
 int 		ossub;
@@ -167,8 +168,6 @@ char		**argvp;
 
 int		fetchmode;
 int		fetchstep;
-
-long long	system_boottime;
 
 struct visualize vis = {generic_samp, generic_error,
 			generic_end,  generic_usage,
@@ -591,7 +590,6 @@ engine(void)
 			lastcmd = MRESET;
 			goto reset;
 		}
-		system_boottime = cursstat->cpu.btime;
 
 		/*
 		** take a snapshot of the current task-level statistics 
@@ -628,10 +626,12 @@ engine(void)
 		** to delay changing curtime until after sampling due to
 		** the way pmSetMode(3) works.
 		*/
-		pretime  = curtime;	/* timestamp for previous sample */
-		curtime  = cursstat->stamp; /* timestamp for this sample */
+		if (sampcnt <= 1)
+			pretime.tv_sec = system_boottime;
+		curtime = cursstat->stamp; /* timestamp for this sample */
 		timed = pmtimevalToReal(&curtime);
 		delta = timed - pmtimevalToReal(&pretime);
+		pretime = curtime; /* timestamp for previous sample */
 
 		deviatsyst(cursstat, presstat, devsstat, delta);
 

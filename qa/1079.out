@@ -3,7 +3,7 @@ General options (default)
 === std out
 
 
-ATOP - slick       2015/09/25  11:03:20       ----------------        1s elapsed
+ATOP - slick       2015/09/25  11:03:20       ----------------        2s elapsed
 PRC | sys   16m20s | user  61m45s | #proc    254 | #zombie    0 | no  procacct |
 CPU | sys       1% | user      4% | irq       0% | idle    392% | wait      2% |
 cpu | sys       0% | user      1% | irq       0% | idle     97% | cpu002 w  1% |
@@ -18,9 +18,9 @@ DSK |          sda | busy      2% | read  161108 | write 163892 | avio 6.23 ms |
 NFC | rpc       35 | read       0 | write      0 | retxmit    0 | autref    35 |
 NET | transport    | tcpi  263904 | tcpo  284726 | udpi   75245 | udpo   81495 |
 NET | network      | ipi   300472 | ipo   328158 | ipfrw      0 | deliv 298076 |
-NET | p2p1    ---- | pcki  391116 | pcko  275261 | si 1168 Mbps | so  830 Mbps |
-NET | lo      ---- | pcki   60893 | pcko   60893 | si  597 Mbps | so  597 Mbps |
-NET | tun0    ---- | pcki    5917 | pcko    6220 | si   17 Mbps | so 4842 Kbps |
+NET | p2p1    ---- | pcki  391116 | pcko  275261 | si  584 Mbps | so  415 Mbps |
+NET | lo      ---- | pcki   60893 | pcko   60893 | si  298 Mbps | so  298 Mbps |
+NET | tun0    ---- | pcki    5917 | pcko    6220 | si 8843 Kbps | so 2421 Kbps |
 WWW | reqs       9 | totKB     17 | byt/rq  1934 | iwork      4 | bwork      1 |
 
   PID SYSCPU USRCPU RDELAY  VGROW  RGROW  RDDSK  WRDSK CPUNR  CPU CMD            
@@ -355,7 +355,7 @@ Memory option
 === std out
 
 
-ATOP - slick       2015/09/25  11:03:20       ----------------        1s elapsed
+ATOP - slick       2015/09/25  11:03:20       ----------------        2s elapsed
 PRC | sys   16m20s | user  61m45s | #proc    254 | #zombie    0 | no  procacct |
 CPU | sys       1% | user      4% | irq       0% | idle    392% | wait      2% |
 cpu | sys       0% | user      1% | irq       0% | idle     97% | cpu002 w  1% |
@@ -370,9 +370,9 @@ DSK |          sda | busy      2% | read  161108 | write 163892 | avio 6.23 ms |
 NFC | rpc       35 | read       0 | write      0 | retxmit    0 | autref    35 |
 NET | transport    | tcpi  263904 | tcpo  284726 | udpi   75245 | udpo   81495 |
 NET | network      | ipi   300472 | ipo   328158 | ipfrw      0 | deliv 298076 |
-NET | p2p1    ---- | pcki  391116 | pcko  275261 | si 1168 Mbps | so  830 Mbps |
-NET | lo      ---- | pcki   60893 | pcko   60893 | si  597 Mbps | so  597 Mbps |
-NET | tun0    ---- | pcki    5917 | pcko    6220 | si   17 Mbps | so 4842 Kbps |
+NET | p2p1    ---- | pcki  391116 | pcko  275261 | si  584 Mbps | so  415 Mbps |
+NET | lo      ---- | pcki   60893 | pcko   60893 | si  298 Mbps | so  298 Mbps |
+NET | tun0    ---- | pcki    5917 | pcko    6220 | si 8843 Kbps | so 2421 Kbps |
 WWW | reqs       9 | totKB     17 | byt/rq  1934 | iwork      4 | bwork      1 |
 
   PID VSTACK  VSIZE  RSIZE  PSIZE  VGROW  RGROW SWAPSZ  MEM CMD            
@@ -1180,7 +1180,7 @@ Disk option
 === std out
 
 
-ATOP - slick       2015/09/25  11:03:20       ----------------        1s elapsed
+ATOP - slick       2015/09/25  11:03:20       ----------------        2s elapsed
 PRC | sys   16m20s | user  61m45s | #proc    254 | #zombie    0 | no  procacct |
 CPU | sys       1% | user      4% | irq       0% | idle    392% | wait      2% |
 cpu | sys       0% | user      1% | irq       0% | idle     97% | cpu002 w  1% |
@@ -1195,9 +1195,9 @@ DSK |          sda | busy      2% | read  161108 | write 163892 | avio 6.23 ms |
 NFC | rpc       35 | read       0 | write      0 | retxmit    0 | autref    35 |
 NET | transport    | tcpi  263904 | tcpo  284726 | udpi   75245 | udpo   81495 |
 NET | network      | ipi   300472 | ipo   328158 | ipfrw      0 | deliv 298076 |
-NET | p2p1    ---- | pcki  391116 | pcko  275261 | si 1168 Mbps | so  830 Mbps |
-NET | lo      ---- | pcki   60893 | pcko   60893 | si  597 Mbps | so  597 Mbps |
-NET | tun0    ---- | pcki    5917 | pcko    6220 | si   17 Mbps | so 4842 Kbps |
+NET | p2p1    ---- | pcki  391116 | pcko  275261 | si  584 Mbps | so  415 Mbps |
+NET | lo      ---- | pcki   60893 | pcko   60893 | si  298 Mbps | so  298 Mbps |
+NET | tun0    ---- | pcki    5917 | pcko    6220 | si 8843 Kbps | so 2421 Kbps |
 WWW | reqs       9 | totKB     17 | byt/rq  1934 | iwork      4 | bwork      1 |
 
   PID   TID  RDDSK  WRDSK WCANCL  DSK CMD            
@@ -1532,7 +1532,7 @@ Scheduling option
 === std out
 
 
-ATOP - slick       2015/09/25  11:03:20       ----------------        1s elapsed
+ATOP - slick       2015/09/25  11:03:20       ----------------        2s elapsed
 PRC | sys   16m20s | user  61m45s | #proc    254 | #zombie    0 | no  procacct |
 CPU | sys       1% | user      4% | irq       0% | idle    392% | wait      2% |
 cpu | sys       0% | user      1% | irq       0% | idle     97% | cpu002 w  1% |
@@ -1547,9 +1547,9 @@ DSK |          sda | busy      2% | read  161108 | write 163892 | avio 6.23 ms |
 NFC | rpc       35 | read       0 | write      0 | retxmit    0 | autref    35 |
 NET | transport    | tcpi  263904 | tcpo  284726 | udpi   75245 | udpo   81495 |
 NET | network      | ipi   300472 | ipo   328158 | ipfrw      0 | deliv 298076 |
-NET | p2p1    ---- | pcki  391116 | pcko  275261 | si 1168 Mbps | so  830 Mbps |
-NET | lo      ---- | pcki   60893 | pcko   60893 | si  597 Mbps | so  597 Mbps |
-NET | tun0    ---- | pcki    5917 | pcko    6220 | si   17 Mbps | so 4842 Kbps |
+NET | p2p1    ---- | pcki  391116 | pcko  275261 | si  584 Mbps | so  415 Mbps |
+NET | lo      ---- | pcki   60893 | pcko   60893 | si  298 Mbps | so  298 Mbps |
+NET | tun0    ---- | pcki    5917 | pcko    6220 | si 8843 Kbps | so 2421 Kbps |
 WWW | reqs       9 | totKB     17 | byt/rq  1934 | iwork      4 | bwork      1 |
 
   PID TRUN TSLPI TSLPU POLI NICE RTPR CPUNR ST EXC S RDELAY  CPU CMD            
@@ -1883,7 +1883,7 @@ NET | p2p1    ---- | pcki       3 | pcko       0 | si    1 Kbps | so    0 Kbps |
 Replay with atop-style time window
 
 
-ATOP - slick       2015/09/25  11:03:20       ----------------        1s elapsed
+ATOP - slick       2015/09/25  11:03:20       ----------------        2s elapsed
 PRC | sys    0.00s | user   0.00s | #proc    254 | #zombie    0 | no  procacct |
 CPU | sys       0% | user      0% | irq       0% | idle      0% | wait      0% |
 CPL | avg1   -1.00 | avg5   -1.00 | avg15  -1.00 | csw        0 | intr       0 |
@@ -2492,7 +2492,7 @@ NET | p2p1    ---- | pcki       3 | pcko       0 | si    1 Kbps | so    0 Kbps |
 Replay with atop hotproc support
 
 
-ATOP - shard       2017/09/25  13:23:04       ----------------        1s elapsed
+ATOP - shard       2017/09/25  13:23:04       ----------------        2s elapsed
 PRC | sys    1.33s | user   0.63s | #proc     11 | #zombie    0 | no  procacct |
 CPU | sys       1% | user      5% | irq       1% | idle    793% | wait      0% |
 cpu | sys       0% | user      1% | irq       0% | idle     99% | cpu000 w  0% |
@@ -2512,10 +2512,10 @@ LVM | a_shard-home | busy      0% | read   16237 | write 533251 | avio  0.0 ns |
 DSK |          sda | busy      0% | read  104096 | write 621081 | avio 0.63 ms |
 NET | transport    | tcpi 3423243 | tcpo 3403917 | udpi  307137 | udpo  251753 |
 NET | network      | ipi  3717042 | ipo  3655098 | ipfrw      0 | deliv 3696e3 |
-NET | enp0s25 ---- | pcki 1335281 | pcko 1195715 | si 7398 Mbps | so 1078 Mbps |
-NET | lo      ---- | pcki 2341058 | pcko 2341058 | si 2292 Mbps | so 2292 Mbps |
-NET | tun0    ---- | pcki  100271 | pcko  123558 | si  405 Mbps | so   73 Mbps |
-NET | wlp3s0  ---- | pcki   91166 | pcko    6240 | si  105 Mbps | so 8253 Kbps |
+NET | enp0s25 ---- | pcki 1335281 | pcko 1195715 | si 3699 Mbps | so  539 Mbps |
+NET | lo      ---- | pcki 2341058 | pcko 2341058 | si 1146 Mbps | so 1146 Mbps |
+NET | tun0    ---- | pcki  100271 | pcko  123558 | si  202 Mbps | so   36 Mbps |
+NET | wlp3s0  ---- | pcki   91166 | pcko    6240 | si   52 Mbps | so 4126 Kbps |
 WWW | reqs      21 | totKB     20 | byt/rq   975 | iwork      5 | bwork      1 |
 
   PID SYSCPU USRCPU RDELAY  VGROW  RGROW  RDDSK  WRDSK CPUNR  CPU CMD            

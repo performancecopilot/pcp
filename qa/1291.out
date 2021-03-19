@@ -1,7 +1,7 @@
 QA output created by 1291
 
 
-ATOP -          2020/11/09  09:00:14         ----------------         1s elapsed
+ATOP -         2020/11/09  09:00:14        ----------------          20s elapsed
 PRC | sys    8h21m | user  24h31m | #proc    506 | #zombie    0 | no  procacct |
 CPU | sys      10% | user     23% | irq      46% | idle    720% | wait      1% |
 cpu | sys       1% | user      4% | irq       6% | idle     89% | cpu006 w  0% |
@@ -22,9 +22,9 @@ LVM | a_shard-home | busy      0% | read 4615230 | write 9619e3 | avio  0.0 ns |
 DSK |          sda | busy      1% | read 3603186 | write 9225e3 | avio 0.96 ms |
 NET | transport    | tcpi 18442e3 | tcpo 17490e3 | udpi 23158e3 | udpo 21130e3 |
 NET | network      | ipi 41283409 | ipo 38533669 | ipfrw      0 | deliv 4127e4 |
-NET | lo      ---- | pcki 22835e3 | pcko 22835e3 | si  196 Gbps | so  196 Gbps |
-NET | enp0s25 ---- | pcki 19925e3 | pcko 15039e3 | si   90 Gbps | so   58 Gbps |
-NET | tun0    ---- | pcki  732362 | pcko  763839 | si 2975 Mbps | so 1909 Mbps |
+NET | lo      ---- | pcki 22835e3 | pcko 22835e3 | si 9843 Mbps | so 9843 Mbps |
+NET | enp0s25 ---- | pcki 19925e3 | pcko 15039e3 | si 4517 Mbps | so 2912 Mbps |
+NET | tun0    ---- | pcki  732362 | pcko  763839 | si  148 Mbps | so   95 Mbps |
 
   PID SYSCPU USRCPU RDELAY  VGROW  RGROW  RDDSK  WRDSK CPUNR  CPU CMD            
 110376  2h35m  8h47m  0.00s   4.7G 45080K     0K     0K     4   4% chrome         
@@ -535,7 +535,7 @@ NET | tun0    ---- | pcki  732362 | pcko  763839 | si 2975 Mbps | so 1909 Mbps |
 1626161  0.00s  0.00s  0.00s     0K     0K     0K     0K     0   0%                
 
 
-ATOP -          2020/11/09  09:00:24         ----------------         1s elapsed
+ATOP -         2020/11/09  09:00:24        ----------------          10s elapsed
 PRC | sys    0.50s | user   1.25s | #proc    506 | #zombie    0 | no  procacct |
 CPU | sys       3% | user     14% | irq      48% | idle    734% | wait      1% |
 cpu | sys       1% | user      8% | irq       6% | idle     85% | cpu000 w  0% |
@@ -556,9 +556,9 @@ LVM | a_shard-home | busy      0% | read      91 | write     70 | avio  0.0 ns |
 DSK |          sda | busy      1% | read      96 | write     54 | avio 0.67 ms |
 NET | transport    | tcpi      63 | tcpo      76 | udpi      19 | udpo      17 |
 NET | network      | ipi       83 | ipo       93 | ipfrw      0 | deliv     83 |
-NET | enp0s25 ---- | pcki      66 | pcko      78 | si  289 Kbps | so   80 Kbps |
-NET | tun0    ---- | pcki      15 | pcko      13 | si  148 Kbps | so    5 Kbps |
-NET | lo      ---- | pcki       3 | pcko       3 | si   28 Kbps | so   28 Kbps |
+NET | enp0s25 ---- | pcki      66 | pcko      78 | si   28 Kbps | so    8 Kbps |
+NET | tun0    ---- | pcki      15 | pcko      13 | si   14 Kbps | so    0 Kbps |
+NET | lo      ---- | pcki       3 | pcko       3 | si    2 Kbps | so    2 Kbps |
 
   PID SYSCPU USRCPU RDELAY  VGROW  RGROW  RDDSK  WRDSK CPUNR  CPU CMD            
 110376  0.11s  0.40s  0.00s     0K     0K     0K     0K     4   5% chrome         
@@ -743,11 +743,11 @@ NET | lo      ---- | pcki       3 | pcko       3 | si   28 Kbps | so   28 Kbps |
 1627986  0.00s  0.00s  0.00s     0K     0K     0K     0K     0   0%                
 1626161  0.00s  0.00s  0.00s     0K     0K     0K     0K     0   0%                
 __pmLogFetchInterp: unbound items scanned: pass2: 24 first: 23 forget: 1 trim: 24 pass3: 24 last: 23 forget: 20568 trim: 24
-__pmLogFetchInterp: unbound items scanned: pass2: 449 first: 430 forget: 1 trim: 431 pass3: 449 last: 430 forget: 369367 trim: 431
+__pmLogFetchInterp: unbound items scanned: pass2: 448 first: 429 forget: 1 trim: 430 pass3: 448 last: 429 forget: 368510 trim: 430
 __pmLogFetchInterp: unbound items scanned: pass2: 20240 first: 15719 forget: 1 trim: 15720 pass3: 20240 last: 15719 forget: 13472040 trim: 15720
-__pmLogFetchInterp: unbound items scanned: pass2: 449 first: 81 forget: 35 trim: 18 pass3: 449 last: 416 forget: 834 trim: 417
+__pmLogFetchInterp: unbound items scanned: pass2: 448 first: 81 forget: 35 trim: 18 pass3: 448 last: 415 forget: 832 trim: 416
 __pmLogFetchInterp: unbound items scanned: pass2: 20240 first: 391 forget: 394 trim: 0 pass3: 20240 last: 15287 forget: 13071240 trim: 15288
-__pmLogFetchInterp: unbound items scanned: pass2: 449 first: 1046 forget: 437 trim: 417 pass3: 449 last: 0 forget: 0 trim: 0
+__pmLogFetchInterp: unbound items scanned: pass2: 448 first: 1045 forget: 436 trim: 416 pass3: 448 last: 0 forget: 0 trim: 0
 __pmLogFetchInterp: unbound items scanned: pass2: 20240 first: 508 forget: 514 trim: 117 pass3: 20240 last: 0 forget: 0 trim: 0
 __pmLogFetchInterp: unbound items scanned: pass2: 0 first: 0 forget: 0 trim: 0 pass3: 0 last: 0 forget: 0 trim: 0
 user <5.0

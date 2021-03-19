@@ -306,7 +306,6 @@ photosyst(struct sstat *si)
 	si->cpu.csw = extract_count_t(result, descs, CPU_CSW);
 	si->cpu.devint = extract_count_t(result, descs, CPU_DEVINT);
 	si->cpu.nprocs = extract_count_t(result, descs, CPU_NPROCS);
-	si->cpu.btime  = extract_count_t(result, descs, CPU_BTIME);
 	si->cpu.all.utime = extract_count_t(result, descs, CPU_UTIME);
 	si->cpu.all.ntime = extract_count_t(result, descs, CPU_NTIME);
 	si->cpu.all.stime = extract_count_t(result, descs, CPU_STIME);
