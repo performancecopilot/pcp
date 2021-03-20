@@ -472,7 +472,7 @@ getargs(int argc, char *argv[])
     char		*commandlog = NULL;
     char		*subopts;
     char		*subopt;
-    char		*msg;
+    char		*msg = NULL;
     int			checkFlag = 0;
     int			foreground = 0;
     int			primary = 0;
@@ -832,6 +832,9 @@ getargs(int argc, char *argv[])
     start = pmtimevalToReal(&tv1);
     stop = pmtimevalToReal(&tv2);
     runTime = stop - start;
+
+    if (msg != NULL)
+	free(msg);
 }
 
 /***********************************************************************
