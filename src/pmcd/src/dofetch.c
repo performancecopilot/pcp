@@ -199,6 +199,7 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
     __pmHashCtl		*hcp;
     __pmHashNode	*hp;
     pmProfile		*profile;
+    pmProfile		defprofile = {PM_PROFILE_INCLUDE, 0, NULL};
     pmResult		*result = NULL;
     int			sts = 0;
     static pmTimeval	when = {0, 0};	/* Agents never see archive requests */
@@ -240,7 +241,7 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
 	if (hp != NULL)
 	    profile = (pmProfile *)hp->data;
 	else
-	    profile = NULL;
+	    profile = &defprofile;
 	if (aPtr->ipcType == AGENT_DSO) {
 	    if (aPtr->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
 		aPtr->ipc.dso.dispatch.version.four.ext->e_context = cPtr - client;
