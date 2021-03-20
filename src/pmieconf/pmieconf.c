@@ -51,7 +51,7 @@ static char	help[] = \
     " 12. abort     discard changes then exit";
 
 #define MAXARGS	4
-static char	inbuf[MAXARGS][MAXBUFLEN+1];	/* input buffer */
+static char	inbuf[MAXARGS+1][MAXBUFLEN+1];	/* input buffer */
 static char	previous[MAXVARLEN+1];		/* buffer for last rule name */
 
 static symbol_t commands[] = {
@@ -694,7 +694,7 @@ interact(void)
 	printf("Updates will be made to %s\n", get_pmiefile());
     do {
 	sts = 0;
-	for (n = 0; n < MAXARGS; n++)
+	for (n = 0; n <= MAXARGS; n++)
 	    inbuf[n][0] = '\0';
 	if (interactive) {
 	    setio(0);
@@ -796,7 +796,7 @@ main(int argc, char **argv)
 	opts.errors++;
     }
 
-    for (c = 0; opts.optind < argc && c < MAXARGS; c++) {
+    for (c = 0; opts.optind < argc && c <= MAXARGS; c++) {
 	strncpy(inbuf[c], argv[opts.optind++], MAXBUFLEN);
 	inbuf[c][MAXBUFLEN] = '\0';
 	interactive = 0;

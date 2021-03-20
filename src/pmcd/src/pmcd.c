@@ -463,16 +463,25 @@ ShutdownAgent(AgentInfo *ap)
 void
 TerminateAgent(AgentInfo *ap)
 {
-    pid_t pid;
+    pid_t	pid;
+    int		sts;
 
     if (!ap->status.connected)
 	return;
     pid = (ap->ipcType == AGENT_SOCKET) ?
 	   ap->ipc.socket.agentPid : ap->ipc.pipe.agentPid;
-    if (ap->status.isRootChild && pmdarootfd > 0)
-	pmdaRootProcessTerminate(pmdarootfd, pid);
-    else
-	__pmProcessTerminate(pid, 1);
+    if (ap->status.isRootChild && pmdarootfd > 0) {
+	/* killed via PDU exchange with root PMDA */
+	sts = pmdaRootProcessTerminate(pmdarootfd, pid);
+	    pmNotifyErr(LOG_INFO, "pmdaRootProcessTerminate(..., %" FMT_PID ") failed: %s\n",
+		pid, pmErrStr(sts));
+    }
+    else {
+	/* wrapper for kill(pid, SIGKILL) */
+	if (__pmProcessTerminate(pid, 1) < 0)
+	    pmNotifyErr(LOG_INFO, "__pmProcessTerminate(%" FMT_PID ") failed: %s\n",
+		pid, pmErrStr(-oserror()));
+    }
 }
 
 void

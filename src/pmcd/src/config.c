@@ -1582,14 +1582,18 @@ ConnectSocketAgent(AgentInfo *aPtr)
 	     addr = __pmHostEntGetSockAddr(host, &enumIx)) {
 	    if (__pmSockAddrIsInet(addr)) {
 		/* Only consider addresses of the chosen family. */
-		if (aPtr->ipc.socket.addrDomain != AF_INET)
+		if (aPtr->ipc.socket.addrDomain != AF_INET) {
+		    __pmSockAddrFree(addr);
 		    continue;
+		}
 	        fd = __pmCreateSocket();
 	    }
 	    else if (__pmSockAddrIsIPv6(addr)) {
 		/* Only consider addresses of the chosen family. */
-		if (aPtr->ipc.socket.addrDomain != AF_INET6)
+		if (aPtr->ipc.socket.addrDomain != AF_INET6) {
+		    __pmSockAddrFree(addr);
 		    continue;
+		}
 	        fd = __pmCreateIPv6Socket();
 	    }
 	    else {

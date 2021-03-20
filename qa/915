@@ -25,6 +25,7 @@ host=`hostname`
 [ -z "$host" ] && _notrun "Cannot discover local host name"
 interface=`_host_to_ipaddr $host`
 [ -z "$interface" ] && _notrun "Cannot translate hostname ($host) to interface"
+[ "$interface" = "127.0.0.1" ] && _notrun "$host => localhost"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
