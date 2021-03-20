@@ -2162,6 +2162,7 @@ read_pmiefile(char *warning, size_t warnlen)
     /* check that we have access to all components of the path */
     if ((home = strdup(tmp)) == NULL) {
 	pmsprintf(errmsg, sizeof(errmsg), "insufficient memory for pmie file parsing");
+	fclose(f);
 	return errmsg;
     }
 #ifdef IS_MINGW
@@ -2174,6 +2175,7 @@ read_pmiefile(char *warning, size_t warnlen)
 	if (access(p, F_OK) < 0) {
 	    pmsprintf(errmsg, sizeof(errmsg), "cannot access rules path component: \"%s\"", p);
 	    free(home);
+	    fclose(f);
 	    return errmsg;
 	}
 	p = strtok(NULL, rule_path_sep);
