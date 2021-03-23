@@ -94,12 +94,14 @@ typedef struct xzfile {
 static void
 xz_debug(const char *fmt, ...)
 {
-#if 0
     va_list ap;
-    va_start(ap, fmt);
-    vfprintf(stderr, fmt, ap);
-    va_end(ap);
-#endif
+
+    if (pmDebugOptions.compress) {
+	va_start(ap, fmt);
+	vfprintf(stderr, fmt, ap);
+	fputc('\n', stderr);
+	va_end(ap);
+    }
 }
 
 blkcache *
@@ -229,12 +231,12 @@ parse_indexes(FILE *f, size_t *nr_streams)
       }
 
       if (fseek(f, -LZMA_STREAM_HEADER_SIZE, SEEK_CUR) != 0) {
-	  xz_debug("%s: fseek: %m", __func__);
+	  xz_debug("%s(%d, ...): fseek: %m", __func__, fileno(f));
 	  setoserror(-PM_ERR_LOGREC);
 	  goto err;
       }
       if (fread(footer, 1, LZMA_STREAM_HEADER_SIZE, f) != LZMA_STREAM_HEADER_SIZE) {
-	  xz_debug("%s: read stream footer: %m", __func__);
+	  xz_debug("%s(%d, ...): read stream footer: %m", __func__, fileno(f));
 	  setoserror(-PM_ERR_LOGREC);
 	  goto err;
       }
@@ -249,30 +251,30 @@ parse_indexes(FILE *f, size_t *nr_streams)
       pos -= LZMA_STREAM_HEADER_SIZE;
       (*nr_streams)++;
 
-      xz_debug("decode stream footer at pos = %d", pos);
+      xz_debug("%s(%d, ...): decode stream footer at pos = %d", __func__, fileno(f), pos);
 
       /* Does the stream footer look reasonable? */
       r = lzma_stream_footer_decode(&footer_flags, footer);
       if (r != LZMA_OK) {
-	  xz_debug("parse_indexes: invalid stream footer (error %d)", r);
+	  xz_debug("%s(%d, ...): invalid stream footer (error %d)", __func__, fileno(f), r);
 	  setoserror(-PM_ERR_LOGREC);
 	  goto err;
       }
-      xz_debug("backward_size = %lu",
-	       (unsigned long) footer_flags.backward_size);
+      xz_debug("%s(%d, ...): backward_size = %lu",
+	       __func__, fileno(f), (unsigned long) footer_flags.backward_size);
       index_size = footer_flags.backward_size;
       if (pos < index_size + LZMA_STREAM_HEADER_SIZE) {
-	  xz_debug("%s: invalid stream footer", __func__);
+	  xz_debug("%s(%d, ...): invalid stream footer", __func__, fileno(f));
 	  setoserror(-PM_ERR_LOGREC);
 	  goto err;
       }
 
       pos -= index_size;
-      xz_debug("decode index at pos = %d", pos);
+      xz_debug("%s(%d, ...): decode index at pos = %d", __func__, fileno(f), pos);
 
       /* Seek backwards to the index of this stream. */
       if (fseek(f, pos, SEEK_SET) != 0) {
-	  xz_debug("%s: fseek: %m", __func__);
+	  xz_debug("%s(%d, ...): fseek: %m", __func__, fileno(f));
 	  setoserror(-PM_ERR_LOGREC);
 	  goto err;
       }
@@ -280,7 +282,7 @@ parse_indexes(FILE *f, size_t *nr_streams)
       /* Decode the index. */
       r = lzma_index_decoder(&strm, &this_index, UINT64_MAX);
       if (r != LZMA_OK) {
-	  xz_debug("%s: invalid stream index (error %d)", __func__, r);
+	  xz_debug("%s(%d, ...): invalid stream index (error %d)", __func__, fileno(f), r);
 	  setoserror(-PM_ERR_LOGREC);
 	  goto err;
       }
@@ -294,7 +296,7 @@ parse_indexes(FILE *f, size_t *nr_streams)
 
 	  n = fread(&buf, 1, strm.avail_in, f);
 	  if (n != strm.avail_in) {
-	      xz_debug("read: %m");
+	      xz_debug("%s(%d, ...): read: %m", __func__, fileno(f));
 	      setoserror(-PM_ERR_LOGREC);
 	      goto err;
 	  }
@@ -305,31 +307,31 @@ parse_indexes(FILE *f, size_t *nr_streams)
       } while (r == LZMA_OK);
 
       if (r != LZMA_STREAM_END) {
-	  xz_debug("%s: could not parse index (error %d)",
-		   __func__, r);
+	  xz_debug("%s(%d, ...): could not parse index (error %d)",
+		   __func__, fileno(f), r);
 	  setoserror(-PM_ERR_LOGREC);
 	  goto err;
       }
 
       pos -= lzma_index_total_size(this_index) + LZMA_STREAM_HEADER_SIZE;
 
-      xz_debug("decode stream header at pos = %d", pos);
+      xz_debug("%s(%d, ...): decode stream header at pos = %d", __func__, fileno(f), pos);
 
       /* Read and decode the stream header. */
       if (fseek(f, pos, SEEK_SET) != 0) {
-	  xz_debug("%s: fseek: %m", __func__);
+	  xz_debug("%s(%d, ...): fseek: %m", __func__, fileno(f));
 	  setoserror(-PM_ERR_LOGREC);
 	  goto err;
       }
       if (fread(header, 1, LZMA_STREAM_HEADER_SIZE, f) != LZMA_STREAM_HEADER_SIZE) {
-	  xz_debug("%s: read stream header: %m", __func__);
+	  xz_debug("%s(%d, ...): read stream header: %m", __func__, fileno(f));
 	  setoserror(-PM_ERR_LOGREC);
 	  goto err;
       }
 
       r = lzma_stream_header_decode(&header_flags, header);
       if (r != LZMA_OK) {
-	  xz_debug("%s: invalid stream header (error %d)", __func__, r);
+	  xz_debug("%s(%d, ...): invalid stream header (error %d)", __func__, fileno(f), r);
 	  setoserror(-PM_ERR_LOGREC);
 	  goto err;
       }
@@ -337,8 +339,8 @@ parse_indexes(FILE *f, size_t *nr_streams)
       /* Header and footer of the stream should be equal. */
       r = lzma_stream_flags_compare(&header_flags, &footer_flags);
       if (r != LZMA_OK) {
-	  xz_debug("%s: header and footer of stream are not equal (error %d)",
-		   __func__, r);
+	  xz_debug("%s(%d, ...): header and footer of stream are not equal (error %d)",
+		   __func__, fileno(f), r);
 	  setoserror(-PM_ERR_LOGREC);
 	  goto err;
       }
@@ -346,8 +348,8 @@ parse_indexes(FILE *f, size_t *nr_streams)
       /* Store the decoded stream flags in this_index. */
       r = lzma_index_stream_flags(this_index, &footer_flags);
       if (r != LZMA_OK) {
-	  xz_debug("%s: cannot read stream_flags from index (error %d)",
-		   __func__, r);
+	  xz_debug("%s(%d, ...): cannot read stream_flags from index (error %d)",
+		   __func__, fileno(f), r);
 	  setoserror(-PM_ERR_LOGREC);
 	  goto err;
       }
@@ -357,8 +359,8 @@ parse_indexes(FILE *f, size_t *nr_streams)
        */
       r = lzma_index_stream_padding(this_index, stream_padding);
       if (r != LZMA_OK) {
-	  xz_debug("%s: cannot set stream_padding in index (error %d)",
-		   __func__, r);
+	  xz_debug("%s(%d, ...): cannot set stream_padding in index (error %d)",
+		   __func__, fileno(f), r);
 	  setoserror(-PM_ERR_LOGREC);
 	  goto err;
       }
@@ -366,7 +368,7 @@ parse_indexes(FILE *f, size_t *nr_streams)
       if (combined_index != NULL) {
 	  r = lzma_index_cat(this_index, combined_index, NULL);
 	  if (r != LZMA_OK) {
-	      xz_debug("%s: cannot combine indexes", __func__);
+	      xz_debug("%s(%d, ...): cannot combine indexes", __func__, fileno(f));
 	      setoserror(-PM_ERR_LOGREC);
 	      goto err;
 	  }
@@ -446,8 +448,11 @@ xz_open(__pmFILE *f, const char *path, const char *mode)
 
   /* Open the file. */
   xz->f = fopen(path, mode);
-  if (xz->f == NULL)
+  if (xz->f == NULL) {
+      xz_debug("%s(..., %s, ...): fopen: %m", __func__, path);
       goto err;
+  }
+  xz_debug("%s(..., %s, ...): fd=%d", __func__, path, fileno(xz->f));
 
   if (init(xz) == 0) {
       xz->fd = fileno(xz->f);
@@ -577,19 +582,21 @@ read_block(xzfile *xz, uint64_t offset,
   /* Locate the block containing the uncompressed offset. */
   lzma_index_iter_init(&iter, xz->idx);
   if (lzma_index_iter_locate(&iter, offset)) {
-    xz_debug("cannot find offset %lu in the xz file", offset);
+    xz_debug("%s(%d, ...): cannot find offset %lu in the xz file - eof?",
+		__func__, xz->fd, offset);
     return NULL;
   }
 
   *start_rtn = iter.block.uncompressed_file_offset;
   *size_rtn = iter.block.uncompressed_size;
 
-  xz_debug("seek: block number %d at file offset %lu",
+  xz_debug("%s(%d, ...) lseek: block number %d at file offset %lu",
+		__func__, xz->fd,
                 (int) iter.block.number_in_file,
                 (uint64_t) iter.block.compressed_file_offset);
 
   if (lseek(xz->fd, iter.block.compressed_file_offset, SEEK_SET) == -1) {
-    xz_debug("lseek: %m");
+    xz_debug("%s(%d, ...): lseek: %m", __func__, xz->fd);
     return NULL;
   }
 
@@ -598,16 +605,18 @@ read_block(xzfile *xz, uint64_t offset,
    */
   n = read(xz->fd, header, 1);
   if (n == 0) {
-    xz_debug("read: unexpected end of file reading block header byte");
+    xz_debug("%s(%d, ...): read: unexpected end of file reading block header byte",
+    		__func__, xz->fd);
     return NULL;
   }
   if (n == -1) {
-    xz_debug("read: %m");
+    xz_debug("%s(%d, ...): read: %m", __func__, xz->fd);
     return NULL;
   }
 
   if (header[0] == '\0') {
-    xz_debug("read: unexpected invalid block in file, header[0] = 0");
+    xz_debug("%s(%d, ...): read: unexpected invalid block in file, header[0] = 0",
+    		__func__, xz->fd);
     return NULL;
   }
 
@@ -616,20 +625,27 @@ read_block(xzfile *xz, uint64_t offset,
   block.filters = filters;
   block.header_size = lzma_block_header_size_decode(header[0]);
 
+  if (block.header_size < 1 || block.header_size > sizeof(header[0]) * LZMA_BLOCK_HEADER_SIZE_MAX) {
+    xz_debug("%s(%d, ...): read: unexpected header size (%zd) in file",
+    		__func__, xz->fd, block.header_size);
+    return NULL;
+  }
+
   /* Now read and decode the block header. */
   n = read(xz->fd, &header[1], block.header_size-1);
   if (n >= 0 && n != block.header_size-1) {
-    xz_debug("read: unexpected end of file reading block header");
+    xz_debug("%s(%d, ...): read: unexpected end of file reading block header",
+    		__func__, xz->fd);
     return NULL;
   }
   if (n == -1) {
-    xz_debug("read: %m");
+    xz_debug("%s(%d, ...): read: %m", __func__, xz->fd);
     return NULL;
   }
 
   r = lzma_block_header_decode(&block, NULL, header);
   if (r != LZMA_OK) {
-    xz_debug("invalid block header (error %d)", r);
+    xz_debug("%s(%d, ...): invalid block header (error %d)", __func__, xz->fd, r);
     return NULL;
   }
 
@@ -638,22 +654,22 @@ read_block(xzfile *xz, uint64_t offset,
    */
   r = lzma_block_compressed_size(&block, iter.block.unpadded_size);
   if (r != LZMA_OK) {
-    xz_debug("cannot calculate compressed size (error %d)", r);
+    xz_debug("%s(%d, ...): cannot calculate compressed size (error %d)", __func__, xz->fd, r);
     goto err1;
   }
 
   /* Read the block data. */
   r = lzma_block_decoder(&strm, &block);
   if (r != LZMA_OK) {
-    xz_debug("invalid block (error %d)", r);
+    xz_debug("%s(%d, ...): invalid block (error %d)", __func__, xz->fd, r);
     goto err1;
   }
 
   data = malloc(*size_rtn);
   if (data == NULL) {
-    xz_debug("malloc(%lu bytes): %m\n"
+    xz_debug("%s(%d, ...): malloc(%lu bytes): %m\n"
                   "NOTE: If this error occurs, you need to recompress your xz files with a smaller block size.  Use: 'xz --block-size=16777216 ...'.",
-                  *size_rtn);
+                  __func__, xz->fd, *size_rtn);
     goto err1;
   }
 
@@ -670,7 +686,7 @@ read_block(xzfile *xz, uint64_t offset,
       strm.next_in = buf;
       n = read(xz->fd, buf, sizeof buf);
       if (n == -1) {
-        xz_debug("read: %m");
+        xz_debug("%s(%d, ...): read: %m", __func__, xz->fd);
         goto err2;
       }
       strm.avail_in = n;
@@ -684,7 +700,7 @@ read_block(xzfile *xz, uint64_t offset,
   } while (r == LZMA_OK);
 
   if (r != LZMA_OK && r != LZMA_STREAM_END) {
-    xz_debug("could not parse block data (error %d)", r);
+    xz_debug("%s(%d, ...): could not parse block data (error %d)", __func__, xz->fd, r);
     goto err2;
   }
 

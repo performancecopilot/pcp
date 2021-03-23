@@ -1717,7 +1717,7 @@ x11
 1274 pmlogextract pmdumplog labels help local sanity
 1275 man pmlogger local
 1276:retired pmmgr containers local
-1277 dbpmda local
+1277 dbpmda local pmdbg
 1278 dbpmda local
 1279 dbpmda local
 1280 archive pmdumplog local

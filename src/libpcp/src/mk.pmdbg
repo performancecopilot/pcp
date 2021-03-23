@@ -14,6 +14,29 @@
 # for more details.
 #
 # Create pmdbg.h from ../../include/pcp/.h
+#
+# Recipe for adding a new debug flag:
+# 1. edit ../../include/pcp/pmapi.h
+#    - Add the new entry into pmdebugoptions_t ... the name must obviously
+#      be unique, and the comment on the same line becomes the explanation
+#      that is visible with pmdbg -l, so be careful with the wordsmithing.
+#      The order of the "old" options is important, so add the new entry
+#      after the /* new ones start here ... */ comment, probably at the end
+#      of the declaration block for pmdebugoptions_t.
+# 2. $ make
+#    - Will recreate ./pmdbg.h and rebuild libpcp
+#
+# For testing:
+# 3. $ sudo make install
+# 4. $ cd ../../pmdbg
+#    $ make clean
+#    $ ./pmdbg -l
+#    - Check new flag appears
+#    $ sudo make install
+# 5. $ cd ../../qa
+#    $ ./check -g pmdbg
+#    - Expect that at least 1277 will need to be remade
+#
 
 INCDIR=../../include
 
