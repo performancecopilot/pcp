@@ -32,7 +32,7 @@ PMLOGCONFVARDIR	= $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
 
 LDIRT	= domain.h *.o $(IAM).log pmda$(IAM) pmda_$(IAM).so $(TARGETS)
 LLDFLAGS= -L$(TOPDIR)/src/libpcp_web/src
-LLDLIBS	= -lpcp_web $(PCP_PMDALIB) $(LIB_FOR_LIBUV)
+LLDLIBS	= $(PCP_WEBLIB)
 
 default: build-me
 
