@@ -171,11 +171,15 @@ dbpmda> debug query
 dbpmda> status
 Debug options:          (all)
 Getiname:               off
+dbpmda> debug compress
+dbpmda> status
+Debug options:          (all)
+Getiname:               off
 dbpmda> debug none
 dbpmda> status
 Debug options:          (none)
 Getiname:               off
-dbpmda> debug  pdu fetch profile value context indom pdubuf log logmeta optfetch af appl0 appl1 appl2 pmns libpmda timecontrol pmc derive lock interp config pmapi fault auth discovery attr http desperate deprecated exec labels series libweb alloc services appl3 appl4 appl5 access qa search query
+dbpmda> debug  pdu fetch profile value context indom pdubuf log logmeta optfetch af appl0 appl1 appl2 pmns libpmda timecontrol pmc derive lock interp config pmapi fault auth discovery attr http desperate deprecated exec labels series libweb alloc services appl3 appl4 appl5 access qa search query compress
 dbpmda> status
 Debug options:          (all)
 Getiname:               off
