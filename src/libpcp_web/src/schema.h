@@ -162,6 +162,7 @@ typedef struct seriesLoadBaton {
  */
 typedef struct seriesModuleData {
     mmv_registry_t	*metrics;
+    void		*metrics_handle;
     struct dict		*config;
     uv_loop_t		*events;
     redisSlots		*slots;
@@ -170,5 +171,7 @@ typedef struct seriesModuleData {
 } seriesModuleData;
 
 extern seriesModuleData *getSeriesModuleData(pmSeriesModule *);
+extern void pmSeriesStatsAdd(pmSeriesModule *, const char *, const char *, double);
+extern void pmSeriesStatsSet(pmSeriesModule *, const char *, const char *, double);
 
 #endif	/* SERIES_SCHEMA_H */

@@ -4709,6 +4709,7 @@ pmSeriesLabels(pmSeriesSettings *settings, int nseries, pmSID *series, void *arg
     baton->phases[i++].func = series_lookup_finished;
     assert(i <= QUERY_PHASES);
     seriesBatonPhases(baton->current, i, baton);
+    pmSeriesStatsAdd(&settings->module, "labels.calls", NULL, 1);
     return 0;
 }
 
@@ -4810,6 +4811,7 @@ pmSeriesLabelValues(pmSeriesSettings *settings, int nlabels, pmSID *labels, void
     baton->phases[i++].func = series_lookup_finished;
     assert(i <= QUERY_PHASES);
     seriesBatonPhases(baton->current, i, baton);
+    pmSeriesStatsAdd(&settings->module, "labelvalues.calls", NULL, 1);
     return 0;
 }
 
@@ -4911,6 +4913,7 @@ pmSeriesDescs(pmSeriesSettings *settings, int nseries, pmSID *series, void *arg)
     baton->phases[i++].func = series_lookup_finished;
     assert(i <= QUERY_PHASES);
     seriesBatonPhases(baton->current, i, baton);
+    pmSeriesStatsAdd(&settings->module, "descs.calls", NULL, 1);
     return 0;
 }
 
@@ -5161,6 +5164,7 @@ pmSeriesInstances(pmSeriesSettings *settings, int nseries, pmSID *series, void *
     baton->phases[i++].func = series_lookup_finished;
     assert(i <= QUERY_PHASES);
     seriesBatonPhases(baton->current, i, baton);
+    pmSeriesStatsAdd(&settings->module, "instances.calls", NULL, 1);
     return 0;
 }
 
@@ -5373,6 +5377,7 @@ pmSeriesSources(pmSeriesSettings *settings, int nsources, pmSID *sources, void *
     baton->phases[i++].func = series_lookup_finished;
     assert(i <= QUERY_PHASES);
     seriesBatonPhases(baton->current, i, baton);
+    pmSeriesStatsAdd(&settings->module, "sources.calls", NULL, 1);
     return 0;
 }
 
@@ -5424,6 +5429,7 @@ pmSeriesMetrics(pmSeriesSettings *settings, int nseries, sds *series, void *arg)
     baton->phases[i++].func = series_lookup_finished;
     assert(i <= QUERY_PHASES);
     seriesBatonPhases(baton->current, i, baton);
+    pmSeriesStatsAdd(&settings->module, "metrics.calls", NULL, 1);
     return 0;
 }
 
@@ -5589,5 +5595,6 @@ pmSeriesValues(pmSeriesSettings *settings, pmSeriesTimeWindow *timing,
     baton->phases[i++].func = series_lookup_finished;
     assert(i <= QUERY_PHASES);
     seriesBatonPhases(baton->current, i, baton);
+    pmSeriesStatsAdd(&settings->module, "values.calls", NULL, 1);
     return 0;
 }

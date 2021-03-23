@@ -117,6 +117,7 @@ typedef struct discoverModuleData {
     unsigned int		handle;		/* callbacks context handle */
     unsigned int		shareslots;	/* boolean, sharing 'slots' */
     mmv_registry_t		*metrics;	/* registry of metrics */
+    void			*metrics_handle;
     struct dict			*config;	/* configuration dict */
     uv_loop_t			*events;	/* event library loop */
     redisSlots			*slots;		/* server slots data */

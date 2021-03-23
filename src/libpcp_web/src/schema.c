@@ -1780,6 +1780,76 @@ redisGlobalsInit(struct dict *config)
     redisMapsInit();
 }
 
+static void
+pmSeriesSetupMetrics(pmSeriesModule *module)
+{
+    seriesModuleData	*data = getSeriesModuleData(module);
+    pmUnits		nounits = MMV_UNITS(0,0,0,0,0,0);
+    pmInDom		noindom = MMV_INDOM_NULL;
+
+    if (data == NULL || data->metrics == NULL)
+    	return; /* no metric registry has been set up */
+
+    /*
+     * various RESTAPI request call counters
+     */
+    mmv_stats_add_metric(data->metrics, "query.calls", 1,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, nounits, noindom,
+	"total RESTAPI calls to /series/values", NULL);
+
+    mmv_stats_add_metric(data->metrics, "descs.calls", 2,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, nounits, noindom,
+	"total RESTAPI calls to /series/descs", NULL);
+
+    mmv_stats_add_metric(data->metrics, "instances.calls", 3,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, nounits, noindom,
+	"total RESTAPI calls to /series/instances", NULL);
+
+    mmv_stats_add_metric(data->metrics, "sources.calls", 4,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, nounits, noindom,
+	"total RESTAPI calls to /series/sources", NULL);
+
+    mmv_stats_add_metric(data->metrics, "metrics.calls", 5,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, nounits, noindom,
+	"total RESTAPI calls to /series/metrics", NULL);
+
+    mmv_stats_add_metric(data->metrics, "values.calls", 6,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, nounits, noindom,
+	"total RESTAPI calls to /series/values", NULL);
+
+    mmv_stats_add_metric(data->metrics, "labels.calls", 7,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, nounits, noindom,
+	"total RESTAPI calls to /series/labels", NULL);
+
+    mmv_stats_add_metric(data->metrics, "labelvalues.calls", 8,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, nounits, noindom,
+	"total RESTAPI calls to /series/labelvalues", NULL);
+
+    mmv_stats_add_metric(data->metrics, "load.calls", 9,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, nounits, noindom,
+	"total RESTAPI calls to /series/load", NULL);
+
+    data->metrics_handle = mmv_stats_start(data->metrics);
+}
+
+void
+pmSeriesStatsAdd(pmSeriesModule *module, const char *name, const char *inst, double count)
+{
+    seriesModuleData   *data;
+
+    if (module != NULL && (data = getSeriesModuleData(module)) != NULL)
+	mmv_stats_add(data->metrics_handle, name, inst, count);
+}
+
+void
+pmSeriesStatsSet(pmSeriesModule *module, const char *name, const char *inst, double value)
+{
+    seriesModuleData   *data;
+
+    if (module != NULL && (data = getSeriesModuleData(module)) != NULL)
+	mmv_stats_set(data->metrics_handle, name, inst, value);
+}
+
 int
 pmSeriesSetup(pmSeriesModule *module, void *arg)
 {
@@ -1804,6 +1874,9 @@ pmSeriesSetup(pmSeriesModule *module, void *arg)
 			module->on_setup, arg, data->events, arg);
 	data->shareslots = 0;
     }
+
+    pmSeriesSetupMetrics(module);
+
     return 0;
 }
 
@@ -1871,6 +1944,86 @@ pmDiscoverSetEventLoop(pmDiscoverModule *module, void *events)
 	return 0;
     }
     return -ENOMEM;
+}
+
+void
+pmDiscoverSetupMetrics(pmDiscoverModule *module)
+{
+    discoverModuleData	*data = getDiscoverModuleData(module);
+    pmUnits		nounits = MMV_UNITS(0,0,0,0,0,0);
+    pmInDom		noindom = MMV_INDOM_NULL;
+
+    if (data == NULL || data->metrics == NULL)
+    	return; /* no metric registry has been set up */
+
+    /*
+     * redis and archive discovery metrics
+     */
+    mmv_stats_add_metric(data->metrics, "discover.monitored", 1,
+	MMV_TYPE_U64, MMV_SEM_DISCRETE, nounits, noindom,
+	"number of directories, sub-directories and archives currently being monitored", NULL);
+
+    mmv_stats_add_metric(data->metrics, "discover.purged", 2,
+	MMV_TYPE_U64, MMV_SEM_DISCRETE, nounits, noindom,
+	"number of directories, sub-directories and archives purged (no longer being monitored)", NULL);
+
+    mmv_stats_add_metric(data->metrics, "discover.metadata.callbacks", 3,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, nounits, noindom,
+	"total calls to process metadata for all monitored archives", NULL);
+
+    mmv_stats_add_metric(data->metrics, "discover.metadata.loops", 4,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, nounits, noindom,
+	"total loops processing metadata for all monitored archives", NULL);
+
+    mmv_stats_add_metric(data->metrics, "discover.metadata.decode.desc", 5,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, nounits, noindom,
+	"total desc records decoded processing metadata for all monitored archives", NULL);
+
+    mmv_stats_add_metric(data->metrics, "discover.metadata.decode.indom", 6,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, nounits, noindom,
+	"total indom records decoded processing metadata for all monitored archives", NULL);
+
+    mmv_stats_add_metric(data->metrics, "discover.metadata.decode.label", 7,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, nounits, noindom,
+	"total label records decoded processing metadata for all monitored archives", NULL);
+
+    mmv_stats_add_metric(data->metrics, "discover.metadata.decode.helptext", 8,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, nounits, noindom,
+	"total help text records decoded processing metadata for all monitored archives", NULL);
+
+    mmv_stats_add_metric(data->metrics, "discover.logvol.callbacks", 9,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, nounits, noindom,
+	"total calls to process logvol data for all monitored archives", NULL);
+
+    mmv_stats_add_metric(data->metrics, "discover.logvol.loops", 10,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, nounits, noindom,
+	"total loops processing logvol data for all monitored archives", NULL);
+
+    mmv_stats_add_metric(data->metrics, "discover.logvol.change_vol", 11,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, nounits, noindom,
+	"total log vol values callbacks made for all monitored archives", NULL);
+
+    mmv_stats_add_metric(data->metrics, "discover.logvol.decode.result", 12,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, nounits, noindom,
+	"total result records decoded for all monitored archives", NULL);
+
+    mmv_stats_add_metric(data->metrics, "discover.logvol.decode.result_pmids", 13,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, nounits, noindom,
+	"total metric pmids in decoded result records for all monitored archives", NULL);
+
+    mmv_stats_add_metric(data->metrics, "discover.logvol.decode.mark_record", 14,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, nounits, noindom,
+	"total mark record result records decoded for all monitored archives", NULL);
+
+    mmv_stats_add_metric(data->metrics, "discover.logvol.new_contexts", 15,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, nounits, noindom,
+	"total successful new context calls made for all monitored archives", NULL);
+
+    mmv_stats_add_metric(data->metrics, "discover.logvol.get_archive_end_failed", 16,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, nounits, noindom,
+	"total failed pmGetArchiveEnd calls after successfully creating a new context for all monitored archives", NULL);
+
+    data->metrics_handle = mmv_stats_start(data->metrics);
 }
 
 int
@@ -1944,6 +2097,8 @@ pmDiscoverSetup(pmDiscoverModule *module, pmDiscoverCallBacks *cbs, void *arg)
 
     if (!logdir)
 	logdir = fallback;
+
+    pmDiscoverSetupMetrics(module);
 
     if (access(logdir, F_OK) == 0) {
 	sts = pmDiscoverRegister(logdir, module, cbs, arg);

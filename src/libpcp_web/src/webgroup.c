@@ -46,6 +46,7 @@ enum profile { PROFILE_ADD, PROFILE_DEL };
 typedef struct webgroups {
     struct dict		*contexts;
     mmv_registry_t	*metrics;
+    void		*metrics_handle;
     struct dict		*config;
     uv_loop_t		*events;
     unsigned int	active;
@@ -276,6 +277,19 @@ webgroup_garbage_collect(struct webgroups *groups)
 	}
     }
     dictReleaseIterator(iterator);
+
+    /* TODO - trim maps, particularly instmap if proc metrics are not excluded */
+
+    if (groups->metrics_handle) {
+	mmv_stats_set(groups->metrics_handle, "contextmap.size",
+	    NULL, dictSize(contextmap));
+	mmv_stats_set(groups->metrics_handle, "namesmap.size",
+	    NULL, dictSize(namesmap));
+	mmv_stats_set(groups->metrics_handle, "labelsmap.size",
+	    NULL, dictSize(labelsmap));
+	mmv_stats_set(groups->metrics_handle, "instmap.size",
+	    NULL, dictSize(instmap));
+    }
 
     if (pmDebugOptions.http || pmDebugOptions.libweb)
 	fprintf(stderr, "%s: finished\n", "webgroup_garbage_collect");
@@ -2262,6 +2276,41 @@ pmWebGroupSetConfiguration(pmWebGroupModule *module, dict *config)
     return -ENOMEM;
 }
 
+static void
+pmWebGroupSetupMetrics(pmWebGroupModule *module)
+{
+    struct webgroups	*webgroups = webgroups_lookup(module);
+    pmUnits            nounits = MMV_UNITS(0,0,0,0,0,0);
+    pmInDom            noindom = MMV_INDOM_NULL;
+
+    if (webgroups == NULL || webgroups->metrics == NULL)
+	return; /* no metric registry has been set up */
+
+    /*
+     * Reverse mapping dict metrics
+     */
+    mmv_stats_add_metric(webgroups->metrics, "contextmap.size", 1,
+	MMV_TYPE_U32, MMV_SEM_INSTANT, nounits, noindom,
+	"number of entries in the context map dictionary", NULL);
+
+    mmv_stats_add_metric(webgroups->metrics, "namesmap.size", 2,
+	MMV_TYPE_U32, MMV_SEM_INSTANT, nounits, noindom,
+	"number of entries in the metric names map dictionary", NULL);
+
+    mmv_stats_add_metric(webgroups->metrics, "labelsmap.size", 3,
+	MMV_TYPE_U32, MMV_SEM_INSTANT, nounits, noindom,
+	"number of entries in the labels map dictionary", NULL);
+
+    mmv_stats_add_metric(webgroups->metrics, "instmap.size", 4,
+	MMV_TYPE_U32, MMV_SEM_INSTANT, nounits, noindom,
+	"number of entries in the instance name map dictionary", NULL);
+
+    /* TODO add call counter metrics for pmWebgroup* API functions */
+
+    webgroups->metrics_handle = mmv_stats_start(webgroups->metrics);
+}
+
+
 int
 pmWebGroupSetMetricRegistry(pmWebGroupModule *module, mmv_registry_t *registry)
 {
@@ -2269,6 +2318,7 @@ pmWebGroupSetMetricRegistry(pmWebGroupModule *module, mmv_registry_t *registry)
 
     if (webgroups) {
 	webgroups->metrics = registry;
+	pmWebGroupSetupMetrics(module);
 	return 0;
     }
     return -ENOMEM;

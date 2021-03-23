@@ -19,6 +19,7 @@
 #include <ctype.h>
 #include "query.h"
 #include "load.h"
+#include "schema.h"
 #include "util.h"
 #include "libpcp.h"
 
@@ -1909,6 +1910,7 @@ pmSeriesQuery(pmSeriesSettings *settings, sds query, pmSeriesFlags flags, void *
 	return PM_ERR_NYI;
     }
 
+    pmSeriesStatsAdd(&settings->module, "query.calls", NULL, 1);
     return series_solve(settings, sp.expr, &sp.time, flags, arg);
 }
 
@@ -1936,5 +1938,6 @@ pmSeriesLoad(pmSeriesSettings *settings, sds source, pmSeriesFlags flags, void *
 	fputc('\n', stderr);
     }
 
+    pmSeriesStatsAdd(&settings->module, "load.calls", NULL, 1);
     return series_load(settings, sp.expr, &sp.time, flags, arg);
 }
