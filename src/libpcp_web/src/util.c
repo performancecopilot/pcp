@@ -1248,8 +1248,8 @@ pmwebapi_new_pmid(context_t *cp, const sds name, pmID pmid,
 {
     struct metric	*mp = NULL;
     pmDesc		desc;
-    char		**names, errmsg[PM_MAXERRMSGLEN], buffer[64];
-    int			sts, numnames;
+    char		**names = NULL, errmsg[PM_MAXERRMSGLEN], buffer[64];
+    int			sts, numnames = 0;
 
     if ((sts = pmUseContext(cp->context)) < 0) {
 	fprintf(stderr, "%s: failed to use context for PMID %s: %s\n",
@@ -1274,7 +1274,8 @@ pmwebapi_new_pmid(context_t *cp, const sds name, pmID pmid,
 		    pmErrStr_r(sts, errmsg, sizeof(errmsg)));
     } else {
 	mp = pmwebapi_new_metric(cp, name, &desc, numnames, names);
-	free(names);
+	if (numnames > 0 && names != NULL)
+	    free(names);
     }
     return mp;
 }

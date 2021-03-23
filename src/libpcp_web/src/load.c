@@ -162,7 +162,7 @@ new_metric(seriesLoadBaton *baton, pmValueSet *vsp)
     pmDesc		desc;
     char		errmsg[PM_MAXERRMSGLEN], idbuf[64];
     char		**nameall = NULL;
-    int			count, sts, i;
+    int			count = 0, sts, i;
 
     if ((sts = pmUseContext(context->context)) < 0) {
 	fprintf(stderr, "%s: failed to use context for PMID %s: %s\n",
@@ -189,7 +189,10 @@ new_metric(seriesLoadBaton *baton, pmValueSet *vsp)
     if (sts < 0)
 	return NULL;
 
-    if ((metric = pmwebapi_new_metric(context, NULL, &desc, count, nameall)) == NULL)
+    metric = pmwebapi_new_metric(context, NULL, &desc, count, nameall);
+    if (count > 0 && nameall != NULL)
+	free(nameall);
+    if (metric == NULL)
 	return NULL;
     get_metric_metadata(baton, metric);
 
