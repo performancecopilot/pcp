@@ -1144,9 +1144,13 @@ main(int argc, char *argv[])
     PM_UNLOCK(ctxp->c_lock);
 
     if (mode == PM_MODE_FORW)
-	pmSetMode(mode, &opts.start, 0);
+	sts = pmSetMode(mode, &opts.start, 0);
     else
-	pmSetMode(mode, &opts.finish, 0);
+	sts = pmSetMode(mode, &opts.finish, 0);
+    if (sts < 0) {
+	fprintf(stderr, "%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
+	exit(1);
+    }
 
     if (lflag)
 	dumpLabel(Lflag);
@@ -1188,10 +1192,6 @@ main(int argc, char *argv[])
 		done.tv_sec = 0;
 		done.tv_usec = 0;
 	    }
-	}
-	if (sts < 0) {
-	    fprintf(stderr, "%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
-	    exit(1);
 	}
 	sts = 0;
 	for ( ; ; ) {
