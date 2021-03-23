@@ -1181,6 +1181,7 @@ typedef struct {
     int qa;		/* QA (transient, developers only) */
     int search;		/* Text search tracing */
     int query;		/* libpcp_web query parsing and evaulation */
+    int	compress;	/* Archive compress/decompress operations */
 } pmdebugoptions_t;
 
 PCP_DATA extern pmdebugoptions_t	pmDebugOptions;

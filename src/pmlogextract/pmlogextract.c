@@ -1014,7 +1014,7 @@ append_textreclist(int i)
     reclist_t	*curr;
     int		sts = 0;
     int		type;
-    int		ident;
+    int		ident = -1;
     const char *str1, *str2;
 
     iap = &inarch[i];
