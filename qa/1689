@@ -1,0 +1,37 @@
+#!/bin/sh
+# PCP QA Test No. 1689
+# Exercise and check pmproxy / libpcp_web metrics
+#
+# Copyright (c) 2021 Red Hat.  All Rights Reserved.
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -x $PCP_BINADM_DIR/pmproxy ] || \
+    _notrun "need $PCP_BINADM_DIR/pmproxy"
+
+pgrep pmproxy >/dev/null 2>&1 || \
+    _notrun "pmproxy not running"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_cleanup()
+{
+    $sudo rm -f $tmp.*
+}
+
+# basic namespace and metadata check
+names=`pminfo pmproxy | LC_COLLATE=POSIX sort`
+pminfo -mdt $names
+
+# TODO check metric values after various operations
+
+# success, all done
+exit

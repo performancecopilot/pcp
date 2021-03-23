@@ -1839,6 +1839,7 @@ x11
 1681 pmrep pcp2xxx pmlogconf local
 1682 pmrep pcp2xxx pmlogconf valgrind local
 1688 pmieconf local
+1689 pmproxy libpcp_web local
 1690 pmseries local
 1692 pmda.pmcd local
 1694 pidstat local python pcp
