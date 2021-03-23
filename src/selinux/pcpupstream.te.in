@@ -91,6 +91,7 @@ require {
 	class system { module_request };
 	@PCP_NETLINK_GENERIC_SOCKET_CLASS@
 	@PCP_NETLINK_TCPDIAG_SOCKET_CLASS@
+        @PCP_LOCKDOWN_CLASS@
 }
 
 #============= init_t ==============
@@ -175,18 +176,22 @@ allow pcp_pmcd_t pcp_tmp_t:file { execute execute_no_trans @PCP_TMP_MAP@ };
 #type=AVC msg=audit(YYY.27): avc:  denied  { execute_no_trans } for  pid=8657 comm="sh" path="/usr/bin/hostname" dev="dm-1" ino=1051243 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:hostname_exec_t:s0 tclass=file permissive=0
 allow pcp_pmcd_t hostname_exec_t:file { getattr execute read open execute_no_trans };
 
+# pmda.perfevent
 #type=AVC msg=audit(YYY.28): avc:  denied  { mount } for  pid=22090 comm="pmdaperfevent" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:tracefs_t:s0 tclass=filesystem permissive=0
-@PCP_TRACEFS_FS_RULE@
-
 #type=AVC msg=audit(YYY.29): avc:  denied  { search } for  pid=22090 comm="pmdaperfevent" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:tracefs_t:s0 tclass=dir permissive=0
 #type=AVC msg=audit(YYY.30): avc:  denied  { read } for  pid=22090 comm="pmdaperfevent" name="events" dev="tracefs" ino=176 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:tracefs_t:s0 tclass=dir permissive=0
 #type=AVC msg=audit(YYY.31): avc:  denied  { open } for  pid=22090 comm="pmdaperfevent" path="/sys/kernel/debug/tracing/events" dev="tracefs" ino=176 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:tracefs_t:s0 tclass=dir permissive=0
-#type=AVC msg=audit(YYY.88): avc:  denied  { read } for  pid=2023 comm="pmdakvm" name="kvm" dev="tracefs" ino=18541 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:tracefs_t:s0 tclass=dir permissive=0
-@PCP_TRACEFS_DIR_RULE@
+@PCP_TRACEFS_FS_RULE@
 
 #type=AVC msg=audit(YYY.32): avc:  denied  { read } for  pid=22090 comm="pmdaperfevent" name="id" dev="tracefs" ino=321619 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:tracefs_t:s0 tclass=file permissive=0
 #type=AVC msg=audit(YYY.33): avc:  denied  { open } for  pid=22090 comm="pmdaperfevent" path="/sys/kernel/debug/tracing/events/gfs2/gfs2_glock_state_change/id" dev="tracefs" ino=321619 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:tracefs_t:s0 tclass=file permissive=0
 @PCP_TRACEFS_FILE_RULE@
+
+# pmda.kvm
+#type=AVC msg=audit(YYY.88): avc:  denied  { read } for  pid=2023 comm="pmdakvm" name="kvm" dev="tracefs" ino=18541 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:tracefs_t:s0 tclass=dir permissive=0
+@PCP_TRACEFS_DIR_RULE@
+#type=AVC msg=audit(YYY.101): avc:  denied  { integrity } for  pid=1606 comm="pmdakvm" lockdown_reason="debugfs access" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=lockdown permissive=0
+@PCP_LOCKDOWN_RULE@
 
 #type=AVC msg=audit(YYY.37): avc:  denied  { getattr } for  pid=YYYY comm="pmdaproc" path="/dev/gpmctl" dev="devtmpfs" ino=19750 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:gpmctl_t:s0 tclass=sock_file permissive=1
 allow pcp_pmcd_t gpmctl_t:sock_file getattr;

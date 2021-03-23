@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2020 Red Hat.
+# Copyright (c) 2012-2021 Red Hat.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -281,6 +281,8 @@ PCP_SELINUX_SBD_EXEC = @pcp_selinux_sbd_exec@
 PCP_SELINUX_FILES_MMAP_ALL_FILES = @pcp_selinux_files_mmap_all_files@
 PCP_SELINUX_CAP2_SYSLOG = @pcp_selinux_cap2_syslog@
 PCP_SELINUX_ICMP_SOCKET_CLASS = @pcp_selinux_icmp_socket_class@
+PCP_SELINUX_LOCKDOWN = @pcp_selinux_lockdown@
+PCP_SELINUX_LOCKDOWN_CLASS = @pcp_selinux_lockdown_class@
 # pcpqa.te
 PCP_SELINUX_INITRC_TMP = @pcp_selinux_initrc_tmp@
 PCP_SELINUX_SUDO_EXEC = @pcp_selinux_sudo_exec@

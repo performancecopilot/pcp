@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2018,2020 Red Hat.
+# Copyright (c) 2017-2018,2020-2021 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -78,6 +78,8 @@ $(IAM).te: $(IAM).te.in
 		-e 's+@PCP_RAWIP_SOCKET_RULE@+'$(PCP_RAWIP_SOCKET_RULE)'+' \
 		-e 's+@PCP_ICMP_SOCKET_CLASS@+'$(PCP_ICMP_SOCKET_CLASS)'+' \
 		-e 's+@PCP_ICMP_SOCKET_RULE@+'$(PCP_ICMP_SOCKET_RULE)'+' \
+		-e 's+@PCP_LOCKDOWN_CLASS@+'$(PCP_LOCKDOWN_CLASS)'+' \
+		-e 's+@PCP_LOCKDOWN_RULE@+'$(PCP_LOCKDOWN_RULE)'+' \
 		-e 's+@PCP_NETLINK_GENERIC_SOCKET_CLASS@+'$(PCP_NETLINK_GENERIC_SOCKET_CLASS)'+' \
 		-e 's+@PCP_NETLINK_GENERIC_SOCKET_RULE@+'$(PCP_NETLINK_GENERIC_SOCKET_RULE)'+' \
 		-e 's+@PCP_NETLINK_TCPDIAG_SOCKET_CLASS@+'$(PCP_NETLINK_TCPDIAG_SOCKET_CLASS)'+' \

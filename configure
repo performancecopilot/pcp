@@ -11973,6 +11973,10 @@ if test "x$enable_selinux" != "xfalse"; then :
     | egrep '^[ 	][ 	]*(class |)security$' >/dev/null \
     && pcp_selinux_security_class=true
 
+    seinfo -x --class=lockdown $seinfo_common_flag 2>/dev/null \
+    | egrep '^[ 	][ 	]*(class |)lockdown$' >/dev/null \
+    && pcp_selinux_lockdown_class=true
+
             seinfo -x --class=dir $seinfo_common_flag 2>/dev/null \
     | egrep '^[ 	][ 	]*(class |)dir$' >/dev/null \
     && pcp_selinux_dir_class=true

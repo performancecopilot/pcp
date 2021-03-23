@@ -208,6 +208,14 @@ else
     echo '/allow \[pcp_domain] \[file_type] : \[file].* map/d' >>$tmp.sed
 fi
 
+if seinfo -x --class=lockdown $common_flag 2>&1 \
+   | egrep '^[ 	][ 	]*(class |)lockdown$' >/dev/null
+then
+    :
+else
+    echo '/allow \[pcp_pmcd_t\] .*\[lockdown\]/d' >>$tmp.sed
+fi
+
 cat $tmp.sed >>$seq.full
 
 cat $seq.out.in | _filter_outfile >$seq.out

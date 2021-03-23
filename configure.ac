@@ -2149,6 +2149,10 @@ AS_IF([test "x$enable_selinux" != "xfalse"], [
     | egrep '^[[ 	]][[ 	]]*(class |)security$' >/dev/null \
     && pcp_selinux_security_class=true
 
+    seinfo -x --class=lockdown $seinfo_common_flag 2>/dev/null \
+    | egrep '^[[ 	]][[ 	]]*(class |)lockdown$' >/dev/null \
+    && pcp_selinux_lockdown_class=true
+
     dnl pcp_selinux_dir already used for something else, so name to
     dnl set is pcp_selinux_dir_class
     seinfo -x --class=dir $seinfo_common_flag 2>/dev/null \
