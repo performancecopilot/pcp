@@ -213,6 +213,7 @@ void		setup_process(void);
 void		setup_metrics(const char **, unsigned int *, struct pmDesc *, int);
 int		fetch_metrics(const char *, int, unsigned int *, struct pmResult **);
 int		get_instances(const char *, int, struct pmDesc *, int **, char ***);
+int		fetch_instances(const char *, int, struct pmDesc *, int **, char ***);
 int		get_instance_index(pmResult *, int, int);
 
 struct sstat	*sstat_alloc(const char *);
