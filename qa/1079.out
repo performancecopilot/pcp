@@ -1781,7 +1781,7 @@ WWW | reqs       9 | totKB     17 | byt/rq  1934 | iwork      4 | bwork      1 |
   511    0     1     0 norm    0    0     0 N-   - S  0.00s   0% hci0           
   512    0     1     0 norm    0    0     0 N-   - S  0.00s   0% hci0           
   513    0     1     0 norm    0    0     2 N-   - S  0.00s   0% kworker/u17:1  
-  677    0     0     0 norm    0    0     0 --   -   0.00s   0%                
+  677    0     0     0 norm    0    0     0 --   - -  0.00s   0%                
  1162    0     1     0 norm    0    0     0 N-   - S  0.00s   0% loop0          
  1163    0     1     0 norm    0    0     1 N-   - S  0.00s   0% loop1          
  1164    0     1     0 norm    0    0     3 N-   - S  0.00s   0% kdmflush       
@@ -1865,7 +1865,7 @@ NET | p2p1    ---- | pcki       3 | pcko       0 | si    1 Kbps | so    0 Kbps |
     7    0     1     0 norm    0    0     2 --   - S  0.00s   0% rcu_sched      
     9    0     1     0 norm    0    0     3 --   - S  0.00s   0% rcuos/0        
    25    0     1     0 norm    0    0     0 --   - S  0.00s   0% rcuos/2        
-  677    0     0     0 norm    0    0     0 --   -   0.00s   0%                
+  677    0     0     0 norm    0    0     0 --   - -  0.00s   0%                
 12870    0     1     0 norm    0    0     2 --   - S  0.00s   0% kworker/u16:2  
 22844    0     1     0 norm    0    0     1 --   - S  0.00s   0% kworker/u16:1  
 === std err
