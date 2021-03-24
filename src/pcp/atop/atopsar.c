@@ -161,6 +161,7 @@ atopsar(int argc, char *argv[])
 
                            case 'b':		/* begin time ?          */
 				opts.start_optarg = abstime(opts.optarg);
+				opts.origin_optarg = opts.start_optarg;
 				break;
 
                            case 'e':		/* end   time ?          */
