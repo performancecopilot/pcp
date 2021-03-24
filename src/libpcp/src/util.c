@@ -1665,6 +1665,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
     }
 
     va_copy(save_arg, arg);
+    va_end(save_arg);
     avail = msgbuflen - msgsize - 1;
     for ( ; ; ) {
 	char	*msgbuf_tmp;
@@ -1673,6 +1674,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
 	    if (bytes < avail)
 		break;
 	    va_copy(arg, save_arg);	/* will need to call vsnprintf() again */
+	    va_end(arg);
 	}
 	msgbuflen += MSGCHUNK;
 PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
@@ -1690,13 +1692,11 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 	    msgsize = 0;
 	    PM_UNLOCK(util_lock);
 	    pmNoMem("vmprintf realloc", msgbuflen_tmp, PM_RECOV_ERR);
-	    va_end(save_arg);
 	    return -ENOMEM;
 	}
 	msgbuf = msgbuf_tmp;
 	avail = msgbuflen - msgsize - 1;
     }
-    va_end(save_arg);
     msgsize += bytes;
 
     PM_UNLOCK(util_lock);
