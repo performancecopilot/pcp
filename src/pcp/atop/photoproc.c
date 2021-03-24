@@ -19,6 +19,9 @@
 #include "photoproc.h"
 #include "procmetrics.h"
 
+static pmID	pmids[TASK_NMETRICS];
+static pmDesc	descs[TASK_NMETRICS];
+
 /*
 ** sampled proc values into task structure, for one process/thread
 */
@@ -132,14 +135,53 @@ update_task(struct tstat *task, int pid, char *name, pmResult *rp, pmDesc *dp, i
 	task->dsk.cwsz /= 512;		    /* sectors */
 }
 
+/*
+** kernel.all.pid_max is unavailable, fall back to heuristics.
+** Firstly seek out the maximum PID from the proc indom for a
+** single sample, or (in the case of an archive) all available
+** samples.  If that fails fallback to some sensible default.
+*/
+int
+getmaxpid(void)
+{
+	char		**insts;
+	int		*pids, maxpid = 0;
+	unsigned long	i, count;
+
+	count = get_instances("maxpid", TASK_GEN_PID, descs, &pids, &insts);
+	if (count > 0) {
+		for (i = 0; i < count; i++)
+			if (pids[i] > maxpid)
+				maxpid = pids[i];
+		free(insts);
+		free(pids);
+	}
+	if (!maxpid)
+		return (1 << 15);
+	return maxpid;
+}
+
+void
+setup_photoproc(void)
+{
+	unsigned long	i;
+
+	if (!hotprocflag)
+		for (i = 0; i < TASK_NMETRICS; i++)
+			procmetrics[i] += 3;	/* skip "hot" */
+
+	setup_metrics(procmetrics, pmids, descs, TASK_NMETRICS);
+
+	/* check if per-process network metrics are available */
+	netproc_probe();
+}
+
 unsigned long
 photoproc(struct tstat **tasks, unsigned int *taskslen)
 {
 	static int	setup;
 	static pmID	pssid;
 	static pmID	wchanid;
-	static pmID	pmids[TASK_NMETRICS];
-	static pmDesc	descs[TASK_NMETRICS];
 	pmResult	*result;
 	char		**insts;
 	int		*pids, offset;
@@ -147,16 +189,9 @@ photoproc(struct tstat **tasks, unsigned int *taskslen)
 
 	if (!setup)
 	{
-		if (!hotprocflag)
-			for (i = 0; i < TASK_NMETRICS; i++)
-				procmetrics[i] += 3;	/* skip "hot" */
-		setup_metrics(procmetrics, pmids, descs, TASK_NMETRICS);
 		wchanid = pmids[TASK_GEN_WCHAN];
 		pssid = pmids[TASK_MEM_PMEM];
 		setup = 1;
-
-		/* check if per-process network metrics are available */
-		netproc_probe();
 	}
 
 	/*
@@ -209,8 +244,8 @@ photoproc(struct tstat **tasks, unsigned int *taskslen)
 
 	pmFreeResult(result);
 	if (count > 0) {
-	    free(insts);
-	    free(pids);
+		free(insts);
+		free(pids);
 	}
 
 	return count;

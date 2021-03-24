@@ -261,27 +261,27 @@ update_mnt(struct pernfsmount *mp, int id, char *name, pmResult *rp, pmDesc *dp,
 	mp->pagesmwrite = extract_count_t_inst(rp, dp, PERNFS_WRPAGES, id, offset);
 }
 
+static pmID	pmids[SYST_NMETRICS];
+static pmDesc	descs[SYST_NMETRICS];
+
+void
+setup_photosyst(void)
+{
+	setup_metrics(systmetrics, pmids, descs, SYST_NMETRICS);
+}
+
 char
 photosyst(struct sstat *si)
 {
-	static int	setup;
 	count_t		count;
 	unsigned int	nrcpu, nrdisk, nrintf, nrports;
 	unsigned int	onrcpu, onrdisk, onrintf, onrports;
 	unsigned int	nrlvm, nrmdd, nrnfs;
 	unsigned int	onrlvm, onrmdd, onrnfs;
-	static pmID	pmids[SYST_NMETRICS];
-	static pmDesc	descs[SYST_NMETRICS];
 	pmResult	*result;
 	size_t		size;
 	char		**insts;
 	int		*ids, i;
-
-	if (!setup)
-	{
-		setup_metrics(systmetrics, pmids, descs, SYST_NMETRICS);
-		setup = 1;
-	}
 
 	if (fetch_metrics("system", SYST_NMETRICS, pmids, &result) < 0)
 		return MRESET;

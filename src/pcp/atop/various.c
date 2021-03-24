@@ -29,6 +29,8 @@
 #include <math.h>
 
 #include "atop.h"
+#include "photoproc.h"
+#include "photosyst.h"
 #include "hostmetrics.h"
 
 extern const char *hostmetrics[];
@@ -842,10 +844,13 @@ setup_globals(pmOptions *opts)
 		cleanstop(1);
 	}
 
+	setup_photosyst();
+	setup_photoproc();
+
 	if ((hertz = extract_integer(result, descs, HOST_HERTZ)) <= 0)
 		hertz = sysconf(_SC_CLK_TCK);
 	if ((pidmax = extract_integer(result, descs, HOST_PID_MAX)) <= 0)
-		pidmax = (1 << 15);
+		pidmax = getmaxpid();
 	if ((pagesize = extract_integer(result, descs, HOST_PAGESIZE)) <= 0)
 		pagesize = getpagesize();
 	if ((system_boottime = extract_count_t(result, descs, HOST_BTIME)) <= 0)
@@ -1433,7 +1438,7 @@ static void
 rawconfig(FILE *fp, double interval)
 {
 	const char		**p;
-	unsigned int		delta, offset;
+	unsigned int		delta;
 
 	fprintf(fp, "log mandatory on once {\n");
 	for (p = hostmetrics; (*p)[0] != '.'; p++)
@@ -1446,9 +1451,8 @@ rawconfig(FILE *fp, double interval)
 	fprintf(fp, "log mandatory on every %u milliseconds {\n", delta);
 	for (p = systmetrics; (*p)[0] != '.'; p++)
 		fprintf(fp, "    %s\n", *p);
-	offset = hotprocflag ? 0 : 3;
 	for (p = procmetrics; (*p)[0] != '.'; p++)
-		fprintf(fp, "    %s\n", *p + offset);
+		fprintf(fp, "    %s\n", *p);
 	fputs("}\n", fp);
 }
 

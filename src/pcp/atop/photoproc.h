@@ -177,4 +177,6 @@ void		deviattask(struct tstat *, unsigned long,
 			   struct tstat *, unsigned long,
 			   struct devtstat *, struct sstat *);
 
+int		getmaxpid(void);
+void		setup_photoproc(void);
 unsigned long	photoproc(struct tstat **, unsigned int *);

@@ -1338,7 +1338,6 @@ procprt_EXC_e(struct tstat *curstat, int avgval, double nsecs)
 {
         static char buf[4];
 
-
         pmsprintf(buf, sizeof buf, "%3d", 
                  curstat->gen.excode & 0xff ?
                           curstat->gen.excode & 0x7f : 
@@ -1353,9 +1352,12 @@ proc_printdef procprt_EXC =
 char *
 procprt_S_a(struct tstat *curstat, int avgval, double nsecs)
 {
-        static char buf[2]="E";
+        static char buf[2];
 
-        buf[0]=curstat->gen.state;
+	if (!curstat->gen.state)
+                buf[0]='-';
+	else
+        	buf[0]=curstat->gen.state;
         return buf;
 }
 
@@ -1363,7 +1365,6 @@ char *
 procprt_S_e(struct tstat *curstat, int avgval, double nsecs)
 {
         return "E";
-
 }
 
 proc_printdef procprt_S = 
