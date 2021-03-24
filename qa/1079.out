@@ -4,7 +4,7 @@ General options (default)
 
 
 ATOP - slick       2015/09/25  11:03:20       ----------------        2s elapsed
-PRC | sys   16m20s | user  61m45s | #proc    254 | #zombie    0 | no  procacct |
+PRC | sys   16m20s | user  61m45s | #proc    253 | #zombie    0 | no  procacct |
 CPU | sys       1% | user      4% | irq       0% | idle    392% | wait      2% |
 cpu | sys       0% | user      1% | irq       0% | idle     97% | cpu002 w  1% |
 cpu | sys       0% | user      1% | irq       0% | idle     98% | cpu000 w  1% |
@@ -277,11 +277,10 @@ WWW | reqs       9 | totKB     17 | byt/rq  1934 | iwork      4 | bwork      1 |
 31667  0.00s  0.00s  0.00s     0K     0K     0K     0K     2   0% kworker/2:3    
 32428  0.00s  0.00s  0.00s     0K     0K     0K     0K     3   0% kworker/3:0    
 32429  0.00s  0.00s  0.00s     0K     0K     0K     0K     3   0% kworker/3:3    
-  670  0.00s  0.00s  0.00s     0K     0K     0K     0K     0   0%                
 
 
 ATOP - slick       2015/09/25  11:03:21       ----------------        1s elapsed
-PRC | sys    0.04s | user   0.02s | #proc    254 | #zombie    0 | no  procacct |
+PRC | sys    0.04s | user   0.02s | #proc    253 | #zombie    0 | no  procacct |
 CPU | sys       5% | user      5% | irq       0% | idle    382% | wait      8% |
 cpu | sys       2% | user      2% | irq       0% | idle     96% | cpu000 w  0% |
 cpu | sys       1% | user      2% | irq       0% | idle     97% | cpu003 w  0% |
@@ -316,11 +315,10 @@ NET | lo      ---- | pcki       2 | pcko       2 | si    1 Kbps | so    1 Kbps |
   462  0.00s  0.00s  0.00s     0K     0K     0K     0K     2   0% rtsx_usb_ms_1  
 12870  0.00s  0.00s  0.00s     0K     0K     0K     0K     0   0% kworker/u16:2  
 22844  0.00s  0.00s  0.00s     0K     0K     0K     0K     2   0% kworker/u16:1  
-  670  0.00s  0.00s  0.00s     0K     0K     0K     0K     0   0%                
 
 
 ATOP - slick       2015/09/25  11:03:22       ----------------        1s elapsed
-PRC | sys    0.01s | user   0.02s | #proc    254 | #zombie    0 | no  procacct |
+PRC | sys    0.01s | user   0.02s | #proc    253 | #zombie    0 | no  procacct |
 CPU | sys       2% | user      2% | irq       0% | idle    395% | wait      1% |
 cpu | sys       2% | user      2% | irq       0% | idle     96% | cpu000 w  0% |
 cpu | sys       0% | user      1% | irq       0% | idle     98% | cpu003 w  0% |
@@ -356,7 +354,7 @@ Memory option
 
 
 ATOP - slick       2015/09/25  11:03:20       ----------------        2s elapsed
-PRC | sys   16m20s | user  61m45s | #proc    254 | #zombie    0 | no  procacct |
+PRC | sys   16m20s | user  61m45s | #proc    253 | #zombie    0 | no  procacct |
 CPU | sys       1% | user      4% | irq       0% | idle    392% | wait      2% |
 cpu | sys       0% | user      1% | irq       0% | idle     97% | cpu002 w  1% |
 cpu | sys       0% | user      1% | irq       0% | idle     98% | cpu000 w  1% |
@@ -629,11 +627,10 @@ WWW | reqs       9 | totKB     17 | byt/rq  1934 | iwork      4 | bwork      1 |
 31667     0K     0K     0K     ?K     0K     0K     0K   0% kworker/2:3    
 32428     0K     0K     0K     ?K     0K     0K     0K   0% kworker/3:0    
 32429     0K     0K     0K     ?K     0K     0K     0K   0% kworker/3:3    
-  670     0K     0K     0K     ?K     0K     0K     0K   0%                
 
 
 ATOP - slick       2015/09/25  11:03:21       ----------------        1s elapsed
-PRC | sys    0.04s | user   0.02s | #proc    254 | #zombie    0 | no  procacct |
+PRC | sys    0.04s | user   0.02s | #proc    253 | #zombie    0 | no  procacct |
 CPU | sys       5% | user      5% | irq       0% | idle    382% | wait      8% |
 cpu | sys       2% | user      2% | irq       0% | idle     96% | cpu000 w  0% |
 cpu | sys       1% | user      2% | irq       0% | idle     97% | cpu003 w  0% |
@@ -902,11 +899,10 @@ NET | lo      ---- | pcki       2 | pcko       2 | si    1 Kbps | so    1 Kbps |
 31667     0K     0K     0K     ?K     0K     0K     0K   0% kworker/2:3    
 32428     0K     0K     0K     ?K     0K     0K     0K   0% kworker/3:0    
 32429     0K     0K     0K     ?K     0K     0K     0K   0% kworker/3:3    
-  670     0K     0K     0K     ?K     0K     0K     0K   0%                
 
 
 ATOP - slick       2015/09/25  11:03:22       ----------------        1s elapsed
-PRC | sys    0.01s | user   0.02s | #proc    254 | #zombie    0 | no  procacct |
+PRC | sys    0.01s | user   0.02s | #proc    253 | #zombie    0 | no  procacct |
 CPU | sys       2% | user      2% | irq       0% | idle    395% | wait      1% |
 cpu | sys       2% | user      2% | irq       0% | idle     96% | cpu000 w  0% |
 cpu | sys       0% | user      1% | irq       0% | idle     98% | cpu003 w  0% |
@@ -1172,7 +1168,6 @@ NET | p2p1    ---- | pcki       3 | pcko       0 | si    1 Kbps | so    0 Kbps |
 31667     0K     0K     0K     ?K     0K     0K     0K   0% kworker/2:3    
 32428     0K     0K     0K     ?K     0K     0K     0K   0% kworker/3:0    
 32429     0K     0K     0K     ?K     0K     0K     0K   0% kworker/3:3    
-  670     0K     0K     0K     ?K     0K     0K     0K   0%                
 === std err
 === done
 
@@ -1181,7 +1176,7 @@ Disk option
 
 
 ATOP - slick       2015/09/25  11:03:20       ----------------        2s elapsed
-PRC | sys   16m20s | user  61m45s | #proc    254 | #zombie    0 | no  procacct |
+PRC | sys   16m20s | user  61m45s | #proc    253 | #zombie    0 | no  procacct |
 CPU | sys       1% | user      4% | irq       0% | idle    392% | wait      2% |
 cpu | sys       0% | user      1% | irq       0% | idle     97% | cpu002 w  1% |
 cpu | sys       0% | user      1% | irq       0% | idle     98% | cpu000 w  1% |
@@ -1454,11 +1449,10 @@ WWW | reqs       9 | totKB     17 | byt/rq  1934 | iwork      4 | bwork      1 |
 31667     -     0K     0K     0K   0% kworker/2:3    
 32428     -     0K     0K     0K   0% kworker/3:0    
 32429     -     0K     0K     0K   0% kworker/3:3    
-  670     -     0K     0K     0K   0%                
 
 
 ATOP - slick       2015/09/25  11:03:21       ----------------        1s elapsed
-PRC | sys    0.04s | user   0.02s | #proc    254 | #zombie    0 | no  procacct |
+PRC | sys    0.04s | user   0.02s | #proc    253 | #zombie    0 | no  procacct |
 CPU | sys       5% | user      5% | irq       0% | idle    382% | wait      8% |
 cpu | sys       2% | user      2% | irq       0% | idle     96% | cpu000 w  0% |
 cpu | sys       1% | user      2% | irq       0% | idle     97% | cpu003 w  0% |
@@ -1493,11 +1487,10 @@ NET | lo      ---- | pcki       2 | pcko       2 | si    1 Kbps | so    1 Kbps |
   462     -     0K     0K     0K   0% rtsx_usb_ms_1  
 12870     -     0K     0K     0K   0% kworker/u16:2  
 22844     -     0K     0K     0K   0% kworker/u16:1  
-  670     -     0K     0K     0K   0%                
 
 
 ATOP - slick       2015/09/25  11:03:22       ----------------        1s elapsed
-PRC | sys    0.01s | user   0.02s | #proc    254 | #zombie    0 | no  procacct |
+PRC | sys    0.01s | user   0.02s | #proc    253 | #zombie    0 | no  procacct |
 CPU | sys       2% | user      2% | irq       0% | idle    395% | wait      1% |
 cpu | sys       2% | user      2% | irq       0% | idle     96% | cpu000 w  0% |
 cpu | sys       0% | user      1% | irq       0% | idle     98% | cpu003 w  0% |
@@ -1533,7 +1526,7 @@ Scheduling option
 
 
 ATOP - slick       2015/09/25  11:03:20       ----------------        2s elapsed
-PRC | sys   16m20s | user  61m45s | #proc    254 | #zombie    0 | no  procacct |
+PRC | sys   16m20s | user  61m45s | #proc    253 | #zombie    0 | no  procacct |
 CPU | sys       1% | user      4% | irq       0% | idle    392% | wait      2% |
 cpu | sys       0% | user      1% | irq       0% | idle     97% | cpu002 w  1% |
 cpu | sys       0% | user      1% | irq       0% | idle     98% | cpu000 w  1% |
@@ -1806,11 +1799,10 @@ WWW | reqs       9 | totKB     17 | byt/rq  1934 | iwork      4 | bwork      1 |
 31667    0     1     0 norm    0    0     2 N-   - S  0.00s   0% kworker/2:3    
 32428    0     1     0 norm    0    0     3 N-   - S  0.00s   0% kworker/3:0    
 32429    0     1     0 norm    0    0     3 N-   - S  0.00s   0% kworker/3:3    
-  670    0     0     0 norm    0    0     0 N-   -   0.00s   0%                
 
 
 ATOP - slick       2015/09/25  11:03:21       ----------------        1s elapsed
-PRC | sys    0.04s | user   0.02s | #proc    254 | #zombie    0 | no  procacct |
+PRC | sys    0.04s | user   0.02s | #proc    253 | #zombie    0 | no  procacct |
 CPU | sys       5% | user      5% | irq       0% | idle    382% | wait      8% |
 cpu | sys       2% | user      2% | irq       0% | idle     96% | cpu000 w  0% |
 cpu | sys       1% | user      2% | irq       0% | idle     97% | cpu003 w  0% |
@@ -1845,11 +1837,10 @@ NET | lo      ---- | pcki       2 | pcko       2 | si    1 Kbps | so    1 Kbps |
   462    0     0     1 norm    0    0     2 --   - D  0.00s   0% rtsx_usb_ms_1  
 12870    0     1     0 norm    0    0     0 --   - S  0.00s   0% kworker/u16:2  
 22844    0     1     0 norm    0    0     2 --   - S  0.00s   0% kworker/u16:1  
-  670    0     0     0 norm    0    0     0 --   -   0.00s   0%                
 
 
 ATOP - slick       2015/09/25  11:03:22       ----------------        1s elapsed
-PRC | sys    0.01s | user   0.02s | #proc    254 | #zombie    0 | no  procacct |
+PRC | sys    0.01s | user   0.02s | #proc    253 | #zombie    0 | no  procacct |
 CPU | sys       2% | user      2% | irq       0% | idle    395% | wait      1% |
 cpu | sys       2% | user      2% | irq       0% | idle     96% | cpu000 w  0% |
 cpu | sys       0% | user      1% | irq       0% | idle     98% | cpu003 w  0% |
@@ -1884,7 +1875,7 @@ Replay with atop-style time window
 
 
 ATOP - slick       2015/09/25  11:03:20       ----------------        2s elapsed
-PRC | sys    0.00s | user   0.00s | #proc    254 | #zombie    0 | no  procacct |
+PRC | sys    0.00s | user   0.00s | #proc    253 | #zombie    0 | no  procacct |
 CPU | sys       0% | user      0% | irq       0% | idle      0% | wait      0% |
 CPL | avg1   -1.00 | avg5   -1.00 | avg15  -1.00 | csw        0 | intr       0 |
 MEM | tot     3.8G | free    0.0M | cache   0.0M | buff    0.0M | slab    0.0M |
@@ -1996,8 +1987,8 @@ SWP | tot     0.0M | free    0.0M | swcac   0.0M | vmcom   0.0M | vmlim   0.0M |
   643  0.00s  0.00s  0.00s     0K     0K     0K     0K     0   0%                
   647  0.00s  0.00s  0.00s     0K     0K     0K     0K     0   0%                
   662  0.00s  0.00s  0.00s     0K     0K     0K     0K     0   0%                
+  670  0.00s  0.00s  0.00s     0K     0K     0K     0K     0   0%                
   672  0.00s  0.00s  0.00s     0K     0K     0K     0K     0   0%                
-  677  0.00s  0.00s  0.00s     0K     0K     0K     0K     0   0%                
   877  0.00s  0.00s  0.00s     0K     0K     0K     0K     0   0%                
   955  0.00s  0.00s  0.00s     0K     0K     0K     0K     0   0%                
   956  0.00s  0.00s  0.00s     0K     0K     0K     0K     0   0%                
@@ -2144,11 +2135,10 @@ SWP | tot     0.0M | free    0.0M | swcac   0.0M | vmcom   0.0M | vmlim   0.0M |
 32674  0.00s  0.00s  0.00s     0K     0K     0K     0K     0   0%                
 32675  0.00s  0.00s  0.00s     0K     0K     0K     0K     0   0%                
 32676  0.00s  0.00s  0.00s     0K     0K     0K     0K     0   0%                
-  670  0.00s  0.00s  0.00s     0K     0K     0K     0K     0   0%                
 
 
 ATOP - slick       2015/09/25  11:03:21       ----------------        1s elapsed
-PRC | sys   16m20s | user  61m45s | #proc    254 | #zombie    0 | no  procacct |
+PRC | sys   16m20s | user  61m45s | #proc    253 | #zombie    0 | no  procacct |
 CPU | sys       1% | user      4% | irq       0% | idle    392% | wait      2% |
 cpu | sys       0% | user      1% | irq       0% | idle     97% | cpu002 w  1% |
 cpu | sys       0% | user      1% | irq       0% | idle     98% | cpu000 w  1% |
@@ -2421,11 +2411,10 @@ WWW | reqs       9 | totKB     17 | byt/rq  1934 | iwork      4 | bwork      1 |
 31667  0.00s  0.00s  0.00s     0K     0K     0K     0K     2   0% kworker/2:3    
 32428  0.00s  0.00s  0.00s     0K     0K     0K     0K     3   0% kworker/3:0    
 32429  0.00s  0.00s  0.00s     0K     0K     0K     0K     3   0% kworker/3:3    
-  670  0.00s  0.00s  0.00s     0K     0K     0K     0K     0   0%                
 
 
 ATOP - slick       2015/09/25  11:03:22       ----------------        1s elapsed
-PRC | sys    0.01s | user   0.03s | #proc    254 | #zombie    0 | no  procacct |
+PRC | sys    0.01s | user   0.03s | #proc    253 | #zombie    0 | no  procacct |
 CPU | sys       2% | user      2% | irq       0% | idle    396% | wait      0% |
 cpu | sys       2% | user      2% | irq       0% | idle     96% | cpu000 w  0% |
 cpu | sys       1% | user      0% | irq       0% | idle     99% | cpu001 w  0% |
@@ -2456,11 +2445,10 @@ NET | p2p1    ---- | pcki       3 | pcko       0 | si    1 Kbps | so    0 Kbps |
   462  0.00s  0.00s  0.00s     0K     0K     0K     0K     2   0% rtsx_usb_ms_1  
 12870  0.00s  0.00s  0.00s     0K     0K     0K     0K     0   0% kworker/u16:2  
 22844  0.00s  0.00s  0.00s     0K     0K     0K     0K     2   0% kworker/u16:1  
-  670  0.00s  0.00s  0.00s     0K     0K     0K     0K     0   0%                
 
 
 ATOP - slick       2015/09/25  11:03:23       ----------------        1s elapsed
-PRC | sys    0.02s | user   0.03s | #proc    254 | #zombie    0 | no  procacct |
+PRC | sys    0.02s | user   0.03s | #proc    253 | #zombie    0 | no  procacct |
 CPU | sys       3% | user      5% | irq       0% | idle    384% | wait      9% |
 cpu | sys       2% | user      2% | irq       0% | idle     96% | cpu000 w  0% |
 cpu | sys       0% | user      1% | irq       0% | idle     91% | cpu003 w  8% |

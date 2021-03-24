@@ -180,7 +180,7 @@ photoproc(struct tstat **tasks, unsigned int *taskslen)
 	fetch_metrics("task", TASK_NMETRICS, pmids, &result);
 
 	/* extract external process names (insts) */
-	count = get_instances("task", TASK_GEN_NAME, descs, &pids, &insts);
+	count = fetch_instances("task", TASK_GEN_NAME, descs, &pids, &insts);
 	if (count > *taskslen)
 	{
 		size_t	size = count * sizeof(struct tstat);

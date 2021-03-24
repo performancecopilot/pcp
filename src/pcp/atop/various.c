@@ -1217,11 +1217,11 @@ fetch_metrics(const char *purpose, int nmetrics, pmID *pmids, pmResult **result)
 }
 
 int
-get_instances(const char *purpose, int value, pmDesc *descs, int **ids, char ***insts)
+instances(const char *purpose, int all, int id, pmDesc *descs, int **ids, char ***insts)
 {
 	int	sts, i;
 
-	if (descs[value].pmid == PM_ID_NULL)
+	if (descs[id].pmid == PM_ID_NULL)
 	{
 		/* we have no descriptor for this metric, thus no instances */
 		*insts = NULL;
@@ -1229,8 +1229,9 @@ get_instances(const char *purpose, int value, pmDesc *descs, int **ids, char ***
 		return 0;
 	}
 
-	sts = !rawreadflag ? pmGetInDom(descs[value].indom, ids, insts) :
-			pmGetInDomArchive(descs[value].indom, ids, insts);
+	sts = (rawreadflag && all) ?
+			pmGetInDomArchive(descs[id].indom, ids, insts) :
+			pmGetInDom(descs[id].indom, ids, insts);
 	if (sts == PM_ERR_INDOM_LOG)
 	{
 		/* metrics but no indom - expected sometimes, "no values" */
@@ -1252,6 +1253,20 @@ get_instances(const char *purpose, int value, pmDesc *descs, int **ids, char ***
 			fprintf(stderr, "    [%d]  %s\n", (*ids)[i], (*insts)[i]);
 	}
 	return sts;
+}
+
+/* retrieve instances observed across all of time */
+int
+get_instances(const char *purpose, int mid, pmDesc *descs, int **ids, char ***insts)
+{
+    return instances(purpose, 1, mid, descs, ids, insts);
+}
+
+/* retrieve instances observed in the last sample */
+int
+fetch_instances(const char *purpose, int mid, pmDesc *descs, int **ids, char ***insts)
+{
+    return instances(purpose, 0, mid, descs, ids, insts);
 }
 
 static char *
