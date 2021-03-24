@@ -97,7 +97,11 @@ _filter_freebsd()
 	    -e '/^kernel\.all\.uptime .* Unknown metric name/d' \
 	    -e '/^kernel\.percpu\.pswitch .* Unknown metric name/d' \
 	    -e '/^kernel\.percpu\.syscall .* Unknown metric name/d' \
+	    -e '/^mem\.util\.available .* Unknown metric name/d' \
 	    -e '/^mem\.util\.bufmem .* Unknown metric name/d' \
+	    -e '/^mem\.util\.swapCached .* Unknown metric name/d' \
+	    -e '/^mem\.util\.swapFree .* Unknown metric name/d' \
+	    -e '/^mem\.util\.swapTotal .* Unknown metric name/d' \
 	    -e '/^name_cache\.enters .* Unknown metric name/d' \
 	    -e '/^name_cache\.misses .* Unknown metric name/d' \
 	    -e '/^name_cache\.removes .* Unknown metric name/d' \
@@ -138,7 +142,11 @@ _filter_netbsd()
 	    -e '/^kernel\.all\.uptime .* Unknown metric name/d' \
 	    -e '/^kernel\.percpu\.pswitch .* Unknown metric name/d' \
 	    -e '/^kernel\.percpu\.syscall .* Unknown metric name/d' \
+	    -e '/^mem\.util\.available .* Unknown metric name/d' \
 	    -e '/^mem\.util\.bufmem .* Unknown metric name/d' \
+	    -e '/^mem\.util\.swapCached .* Unknown metric name/d' \
+	    -e '/^mem\.util\.swapFree .* Unknown metric name/d' \
+	    -e '/^mem\.util\.swapTotal .* Unknown metric name/d' \
 	    -e '/^name_cache\.enters .* Unknown metric name/d' \
 	    -e '/^name_cache\.misses .* Unknown metric name/d' \
 	    -e '/^name_cache\.removes .* Unknown metric name/d' \
@@ -197,7 +205,11 @@ _filter_openbsd()
 	    -e '/^kernel\.percpu\.pswitch .* Unknown metric name/d' \
 	    -e '/^kernel\.percpu\.syscall .* Unknown metric name/d' \
 	    -e '/^mem\.physmem .* Unknown metric name/d' \
+	    -e '/^mem\.util\.available .* Unknown metric name/d' \
 	    -e '/^mem\.util\.bufmem .* Unknown metric name/d' \
+	    -e '/^mem\.util\.swapCached .* Unknown metric name/d' \
+	    -e '/^mem\.util\.swapFree .* Unknown metric name/d' \
+	    -e '/^mem\.util\.swapTotal .* Unknown metric name/d' \
 	    -e '/^mem\.util\.shmem .* Unknown metric name/d' \
 	    -e '/^mem\.util\.slabReclaimable .* Unknown metric name/d' \
 	    -e '/^name_cache\.enters .* Unknown metric name/d' \
