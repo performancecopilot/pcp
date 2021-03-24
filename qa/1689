@@ -12,6 +12,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+# need both redis and pmproxy running for this test
+_check_redis_server
 [ -x $PCP_BINADM_DIR/pmproxy ] || \
     _notrun "need $PCP_BINADM_DIR/pmproxy"
 
