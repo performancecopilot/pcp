@@ -18,7 +18,7 @@ echo "QA output created by $seq"
 which python3 >/dev/null 2>&1 || _notrun "No binary named python3 found"
 
 _check_valgrind
-_check_series
+_check_redis_server
 
 _cleanup()
 {
