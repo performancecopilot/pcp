@@ -3,7 +3,7 @@ QA output created by 1347
 === std out
 
 
-ATOP - shard       2020/07/22  17:32:51       ----------------        4s elapsed
+ATOP - shard       2020/07/22  17:32:51       -----------------       4s elapsed
 PRC | sys    0.44s | user   1.00s | #proc    394 | #zombie    0 | no  procacct |
 CPU | sys      19% | user     49% | irq      34% | idle    698% | wait      1% |
 cpu | sys       4% | user     22% | irq       4% | idle     70% | cpu002 w  0% |
@@ -67,7 +67,7 @@ NET | lo      ---- | pcki      30 | pcko      30 | si    4 Kbps | so    4 Kbps |
 2956410       2 root     root     2020/07/22 17:32:47   -    I 0% kworker/u16:
 
 
-ATOP - shard       2020/07/22  17:32:53       ----------------        2s elapsed
+ATOP - shard       2020/07/22  17:32:53       -----------------       2s elapsed
 PRC | sys    0.39s | user   0.39s | #proc    394 | #zombie    0 | no  procacct |
 CPU | sys       0% | user      0% | irq       0% | idle   4219% | wait      0% |
 cpu | sys      17% | user     33% | irq      33% | idle      1% | cpu005 w 17% |
@@ -496,7 +496,7 @@ NET | lo      ---- | pcki 41334e5 | pcko 41334e5 | si -999 Kbps | so -999 Kbps |
 === std out
 
 
-ATOP - shard       2020/07/22  17:32:51       -------R--------        4s elapsed
+ATOP - shard       2020/07/22  17:32:51       -------R---------       4s elapsed
 PRC | sys    0.44s | user   1.00s | #proc    394 | #zombie    0 | no  procacct |
 CPU | sys      19% | user     49% | irq      34% | idle    698% | wait      1% |
 cpu | sys       4% | user     22% | irq       4% | idle     70% | cpu002 w  0% |
@@ -915,7 +915,7 @@ NET | lo      ---- | pcki      30 | pcko      30 | si    4 Kbps | so    4 Kbps |
 3246189   136K 59012K     0K     ?K     0K     0K 20084K   0% podman pause   
 
 
-ATOP - shard       2020/07/22  17:32:53       -------R--------        2s elapsed
+ATOP - shard       2020/07/22  17:32:53       -------R---------       2s elapsed
 PRC | sys    0.39s | user   0.39s | #proc    394 | #zombie    0 | no  procacct |
 CPU | sys       0% | user      0% | irq       0% | idle   4219% | wait      0% |
 cpu | sys      17% | user     33% | irq      33% | idle      1% | cpu005 w 17% |

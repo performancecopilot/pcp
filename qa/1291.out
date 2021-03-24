@@ -1,7 +1,7 @@
 QA output created by 1291
 
 
-ATOP -         2020/11/09  09:00:14        ----------------          20s elapsed
+ATOP -         2020/11/09  09:00:14        -----------------         20s elapsed
 PRC | sys    8h21m | user  24h31m | #proc    392 | #zombie    0 | no  procacct |
 CPU | sys      10% | user     23% | irq      46% | idle    720% | wait      1% |
 cpu | sys       1% | user      4% | irq       6% | idle     89% | cpu006 w  0% |
@@ -421,7 +421,7 @@ NET | tun0    ---- | pcki  732362 | pcko  763839 | si  148 Mbps | so   95 Mbps |
 2544150  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% xfs_mru_cache  
 
 
-ATOP -         2020/11/09  09:00:24        ----------------          10s elapsed
+ATOP -         2020/11/09  09:00:24        -----------------         10s elapsed
 PRC | sys    0.50s | user   1.25s | #proc    392 | #zombie    0 | no  procacct |
 CPU | sys       3% | user     14% | irq      48% | idle    734% | wait      1% |
 cpu | sys       1% | user      8% | irq       6% | idle     85% | cpu000 w  0% |

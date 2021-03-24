@@ -568,6 +568,18 @@ all (active) processes will be shown again.
 .br
 Whether this key is active or not can be seen in the header line.
 .TP 5
+.B Q
+Specify a comma-separated list of process state characters.
+From now on, only processes will be shown that are in those specific
+process states.
+Accepted states are: R (running), S (sleeping), D (disk sleep),
+T (stopped), t (tracing stop), X (dead), Z (zombie) and P (parked).
+The system statistics are still system wide.
+If the Enter-key is pressed without specifying a state,
+all (active) processes will be shown again.
+.br
+Whether this key is active or not can be seen in the header line.
+.TP 5
 .B S
 Specify search strings for specific logical volume names,
 specific disk names and specific network interface names.
