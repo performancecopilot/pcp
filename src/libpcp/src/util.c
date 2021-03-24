@@ -2022,8 +2022,11 @@ __pmMakePath(const char *dir, mode_t mode)
     for (p = path+1; *p != '\0'; p++) {
 	if (*p == pmPathSeparator()) {
 	    *p = '\0';
-	    if (mkdir2(path, mode) < 0)
-		return -1;
+	    if (mkdir2(path, mode) < 0) {
+		/* dir may already exist */
+		if (oserror() != EEXIST)
+		    return -1;
+	    }
 	    *p = pmPathSeparator();
 	}
     }
