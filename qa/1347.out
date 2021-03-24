@@ -4,7 +4,7 @@ QA output created by 1347
 
 
 ATOP - shard       2020/07/22  17:32:51       ----------------        4s elapsed
-PRC | sys    0.44s | user   1.00s | #proc    396 | #zombie    0 | no  procacct |
+PRC | sys    0.44s | user   1.00s | #proc    394 | #zombie    0 | no  procacct |
 CPU | sys      19% | user     49% | irq      34% | idle    698% | wait      1% |
 cpu | sys       4% | user     22% | irq       4% | idle     70% | cpu002 w  0% |
 cpu | sys       3% | user      6% | irq       4% | idle     87% | cpu004 w  1% |
@@ -65,12 +65,10 @@ NET | lo      ---- | pcki      30 | pcko      30 | si    4 Kbps | so    4 Kbps |
 1671685    1633 USER     GROUP    2020/07/22 17:32:47   -    S 0% nstat       
 2909726       2 root     root     2020/07/22 17:32:47   -    I 0% kworker/u16:
 2956410       2 root     root     2020/07/22 17:32:47   -    I 0% kworker/u16:
-2956910 2956875 USER     GROUP    2020/07/22 17:32:47   -    0% pmsleep        
-2956902       1 root     root     2020/07/22 17:32:47   -    0%                
 
 
 ATOP - shard       2020/07/22  17:32:53       ----------------        2s elapsed
-PRC | sys    0.39s | user   0.39s | #proc    396 | #zombie    0 | no  procacct |
+PRC | sys    0.39s | user   0.39s | #proc    394 | #zombie    0 | no  procacct |
 CPU | sys       0% | user      0% | irq       0% | idle   4219% | wait      0% |
 cpu | sys      17% | user     33% | irq      33% | idle      1% | cpu005 w 17% |
 cpu | sys      17% | user     33% | irq      33% | idle      1% | cpu003 w 17% |
@@ -491,8 +489,6 @@ NET | lo      ---- | pcki 41334e5 | pcko 41334e5 | si -999 Kbps | so -999 Kbps |
 3415048 3415046 USER     GROUP    2020/07/25 21:59:52   -    -0% scdaemon       
 3433701 2612644 USER     GROUP    2020/07/22 17:32:47   -    -0% chrome         
 3734807       1 root     root     2020/08/12 19:40:58   -    -0% cupsd          
-2956910       1 root     root     2020/07/22 17:32:47   -    -0%                
-2956902       1 root     root     2020/07/22 17:32:47   -    -0%                
 === std err
 === done
 
@@ -501,7 +497,7 @@ NET | lo      ---- | pcki 41334e5 | pcko 41334e5 | si -999 Kbps | so -999 Kbps |
 
 
 ATOP - shard       2020/07/22  17:32:51       -------R--------        4s elapsed
-PRC | sys    0.44s | user   1.00s | #proc    396 | #zombie    0 | no  procacct |
+PRC | sys    0.44s | user   1.00s | #proc    394 | #zombie    0 | no  procacct |
 CPU | sys      19% | user     49% | irq      34% | idle    698% | wait      1% |
 cpu | sys       4% | user     22% | irq       4% | idle     70% | cpu002 w  0% |
 cpu | sys       3% | user      6% | irq       4% | idle     87% | cpu004 w  1% |
@@ -917,12 +913,10 @@ NET | lo      ---- | pcki      30 | pcko      30 | si    4 Kbps | so    4 Kbps |
 2956688     0K     0K     0K     ?K     0K     0K     0K   0% kworker/4:0-ev 
 2956689     0K     0K     0K     ?K     0K     0K     0K   0% kworker/0:0-ev 
 3246189   136K 59012K     0K     ?K     0K     0K 20084K   0% podman pause   
-2956910     0K     0K     0K     ?K     0K     0K     0K   0% pmsleep        
-2956902     0K     0K     0K     ?K     0K     0K     0K   0%                
 
 
 ATOP - shard       2020/07/22  17:32:53       -------R--------        2s elapsed
-PRC | sys    0.39s | user   0.39s | #proc    396 | #zombie    0 | no  procacct |
+PRC | sys    0.39s | user   0.39s | #proc    394 | #zombie    0 | no  procacct |
 CPU | sys       0% | user      0% | irq       0% | idle   4219% | wait      0% |
 cpu | sys      17% | user     33% | irq      33% | idle      1% | cpu005 w 17% |
 cpu | sys      17% | user     33% | irq      33% | idle      1% | cpu003 w 17% |
@@ -1343,8 +1337,6 @@ NET | lo      ---- | pcki 41334e5 | pcko 41334e5 | si -999 Kbps | so -999 Kbps |
 3415048     0K     0K     0K     ?K  -0.3G  -116K     0K   0% scdaemon       
 3433701     0K     0K     0K     ?K  -4.6G -56.6M     0K   0% chrome         
 3734807     0K     0K     0K     ?K  -0.2G -2440K     0K   0% cupsd          
-2956910     0K     0K     0K     ?K     0K     0K     0K   0%                
-2956902     0K     0K     0K     ?K     0K     0K     0K   0%                
 === std err
 === done
 

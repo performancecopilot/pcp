@@ -114,7 +114,7 @@ acctphotoproc(struct tstat **accproc, unsigned int *taskslen, struct timeval *cu
 		return 0;
 
 	fetch_metrics("acct", ACCT_NMETRICS, pmids, &result);
-	count = get_instances("acct", ACCT_GEN_ETIME, descs, &pids, &insts);
+	count = fetch_instances("acct", ACCT_GEN_ETIME, descs, &pids, &insts);
 	if (count > *taskslen)
 	{
 		size_t	size = count * sizeof(struct tstat);

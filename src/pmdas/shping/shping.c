@@ -251,7 +251,10 @@ refresh(void *dummy)
 		setsid();	/* make new process group */
 		for (j = 0; j < NOFILE; j++)
 		    close(j);
-		open("/dev/null", O_RDONLY, 0);
+		if (open("/dev/null", O_RDONLY, 0) != 0) {
+		    fprintf(stderr, "Error: failed to open /dev/null for stdin: %s\n", pmErrStr(-oserror()));
+		    exit(1);
+		}
 		sts = -1;
 		if (pmDebugOptions.appl2) {
 		    FILE	*f;
@@ -261,10 +264,15 @@ refresh(void *dummy)
 		    }
 		    sts = open("shping.out", O_WRONLY|O_APPEND|O_CREAT, 0644);
 		}
-		if (sts == -1)
-		    open("/dev/null", O_WRONLY, 0);
-		if (dup(1) == -1) {
-		    fprintf(stderr, "Warning: dup() failed: %s\n", pmErrStr(-oserror()));
+		if (sts == -1) {
+		    if (open("/dev/null", O_WRONLY, 0) != 1) {
+			fprintf(stderr, "Error: failed to open /dev/null for stdout: %s\n", pmErrStr(-oserror()));
+			exit(1);
+		    }
+		}
+		if (dup(1) != 2) {
+		    fprintf(stderr, "Error: failed dup() for stderr: %s\n", pmErrStr(-oserror()));
+		    exit(1);
 		}
 		argv[2] = cmdlist[i].cmd;
 		sts = execv("/bin/sh", argv);

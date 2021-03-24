@@ -868,7 +868,8 @@ rawdump(FILE *f)
 	return;
     }
 
-    fseek(f, (long)0, SEEK_SET);
+    if (fseek(f, (long)0, SEEK_SET) < 0)
+	fprintf(stderr, "Warning: fseek(..., 0, ...) failed: %s\n", pmErrStr(-oserror()));
 
     while ((sts = fread(&len, 1, sizeof(len), f)) == sizeof(len)) {
 	len = ntohl(len);
@@ -899,7 +900,8 @@ rawdump(FILE *f)
     }
     if (sts < 0)
 	printf("fread fails: %s\n", osstrerror());
-    fseek(f, old, SEEK_SET);
+    if (fseek(f, old, SEEK_SET) < 0)
+	fprintf(stderr, "Warning: fseek(..., %ld, ...) failed: %s\n", old, pmErrStr(-oserror()));
 }
 
 static void
@@ -1144,9 +1146,13 @@ main(int argc, char *argv[])
     PM_UNLOCK(ctxp->c_lock);
 
     if (mode == PM_MODE_FORW)
-	pmSetMode(mode, &opts.start, 0);
+	sts = pmSetMode(mode, &opts.start, 0);
     else
-	pmSetMode(mode, &opts.finish, 0);
+	sts = pmSetMode(mode, &opts.finish, 0);
+    if (sts < 0) {
+	fprintf(stderr, "%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
+	exit(1);
+    }
 
     if (lflag)
 	dumpLabel(Lflag);
@@ -1188,10 +1194,6 @@ main(int argc, char *argv[])
 		done.tv_sec = 0;
 		done.tv_usec = 0;
 	    }
-	}
-	if (sts < 0) {
-	    fprintf(stderr, "%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
-	    exit(1);
 	}
 	sts = 0;
 	for ( ; ; ) {

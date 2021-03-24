@@ -13,7 +13,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-_check_series
+_check_redis_server
 _check_valgrind
 openssl help 2>/dev/null || _notrun "No openssl binary found"
 

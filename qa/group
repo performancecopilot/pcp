@@ -1718,7 +1718,7 @@ x11
 1275 man pmlogger local
 1276:retired pmmgr containers local
 1277 dbpmda local pmdbg
-1278 dbpmda local
+1278 dbpmda local pmdbg
 1279 dbpmda local
 1280 archive pmdumplog local
 1281 archive pmdumplog valgrind local
@@ -1768,7 +1768,7 @@ x11
 1354 pmval archive local
 1357 pmda.podman valgrind local
 1358 pmda.podman local
-1359 libpcp local
+1359 libpcp local pmdbg
 1362 pmda.postgresql local
 1367 labels pmda.simple local python
 1368 labels help pmlogger pmdumplog local sanity
