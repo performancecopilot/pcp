@@ -281,6 +281,14 @@ logreopen(const char *progname, const char *logname, FILE *oldstream,
 
     fflush(oldstream);
     *status = 0;		/* set to one if all this works ... */
+
+    if (logname == NULL) {
+	/*
+	 * no logfile name, no dice
+	 */
+	return NULL;
+    }
+
     oldfd = fileno(oldstream);
     if ((dupoldfd = dup(oldfd)) >= 0) {
 	/*
