@@ -759,7 +759,10 @@ load_cache(hdr_t *h)
 	    return PM_ERR_GENERIC;
 	pmsprintf(filename, sizeof(filename),
 		"%s%c" "config" "%c" "pmda", vdp, sep, sep);
-	mkdir2(filename, 0755);
+	if (mkdir2(filename, 0755) < 0) {
+	    /* failure here is not fatal ... dir may already exist */
+	    ;
+	}
     }
 
     pmsprintf(filename, sizeof(filename), "%s%cconfig%cpmda%c%s",
@@ -920,7 +923,10 @@ save_cache(hdr_t *h, int hstate)
 	    return PM_ERR_GENERIC;
 	pmsprintf(filename, sizeof(filename),
 		"%s%c" "config" "%c" "pmda", vdp, sep, sep);
-	mkdir2(filename, 0755);
+	if (mkdir2(filename, 0755) < 0) {
+	    /* failure here is not fatal ... dir may already exist */
+	    ;
+	}
     }
 
     pmsprintf(filename, sizeof(filename), "%s%cconfig%cpmda%c%s",

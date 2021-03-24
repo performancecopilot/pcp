@@ -626,7 +626,7 @@ read_block(xzfile *xz, uint64_t offset,
   block.header_size = lzma_block_header_size_decode(header[0]);
 
   if (block.header_size < 1 || block.header_size > sizeof(header[0]) * LZMA_BLOCK_HEADER_SIZE_MAX) {
-    xz_debug("%s(%d, ...): read: unexpected header size (%zd) in file",
+    xz_debug("%s(%d, ...): read: unexpected header size (%u) in file",
     		__func__, xz->fd, block.header_size);
     return NULL;
   }
