@@ -345,6 +345,7 @@ struct	sstat {
 /*
 ** prototypes
 */
+void	setup_photosyst(void);
 char	photosyst (struct sstat *);
 void	deviatsyst(struct sstat *, struct sstat *, struct sstat *, double);
 void	totalsyst (char,           struct sstat *, struct sstat *);
