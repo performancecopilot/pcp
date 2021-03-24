@@ -2022,7 +2022,8 @@ __pmMakePath(const char *dir, mode_t mode)
     for (p = path+1; *p != '\0'; p++) {
 	if (*p == pmPathSeparator()) {
 	    *p = '\0';
-	    mkdir2(path, mode);
+	    if (mkdir2(path, mode) < 0)
+		return -1;
 	    *p = pmPathSeparator();
 	}
     }
