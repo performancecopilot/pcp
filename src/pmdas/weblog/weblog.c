@@ -1722,41 +1722,48 @@ refresh(WebSproc* proc)
 
 		    if (newLength > proc->strLength)
 		    {
+		       int	fail = 0;
+		       char	*tmp_str;
                        if (pmDebugOptions.appl2) {
                             logmessage(LOG_DEBUG, 
                                    "Resizing strings from %d to %d bytes\n",
                                    proc->strLength,
                                    newLength);
                         }
-                        proc->methodStr = (char*)realloc(proc->methodStr, 
-                                     newLength * sizeof(char));
-                        proc->sizeStr = (char*)realloc(proc->sizeStr,
-                                       newLength * sizeof(char));
-                        proc->c_statusStr = (char*)realloc(proc->c_statusStr,
-                                           newLength * sizeof(char));
-                        proc->s_statusStr = (char*)realloc(proc->s_statusStr,
-                                           newLength * sizeof(char));
+			if ((tmp_str = (char*)realloc(proc->methodStr, newLength * sizeof(char))) == NULL)
+			    fail = 1;
+			else
+			    proc->methodStr = tmp_str;
+			if ((tmp_str = (char*)realloc(proc->sizeStr, newLength * sizeof(char))) == NULL)
+			    fail = 1;
+			else
+			    proc->sizeStr = tmp_str;
+			if ((tmp_str = (char*)realloc(proc->c_statusStr, newLength * sizeof(char))) == NULL)
+			    fail = 1;
+			else
+			    proc->c_statusStr = tmp_str;
+			if ((tmp_str = (char*)realloc(proc->s_statusStr, newLength * sizeof(char))) == NULL)
+			    fail = 1;
+			else
+			    proc->s_statusStr = tmp_str;
                         proc->strLength = newLength;
-                    }
 
-                    if (proc->methodStr == (char *)0 || 
-                        proc->sizeStr == (char *)0 ||
-                        proc->c_statusStr == (char *)0 ||
-                        proc->s_statusStr == (char *)0 ) {
-                        logmessage(LOG_ERR, 
-                               "Unable to allocate %d bytes to strings",
-                               newLength);
-                        proc->strLength = 0;
-                        if (proc->methodStr != (char *)0)
-                            free(proc->methodStr);
-                        if (proc->sizeStr != (char *)0)
-                            free(proc->sizeStr);
-                        if (proc->c_statusStr != (char *)0)
-                            free(proc->c_statusStr);
-                        if (proc->s_statusStr != (char *)0)
-                            free(proc->s_statusStr);
-                        
-                        break;
+			if (fail) {
+			    logmessage(LOG_ERR, 
+				   "Unable to allocate %d bytes to strings",
+				   newLength);
+			    proc->strLength = 0;
+			    if (proc->methodStr != (char *)0)
+				free(proc->methodStr);
+			    if (proc->sizeStr != (char *)0)
+				free(proc->sizeStr);
+			    if (proc->c_statusStr != (char *)0)
+				free(proc->c_statusStr);
+			    if (proc->s_statusStr != (char *)0)
+				free(proc->s_statusStr);
+			    
+			    break;
+			}
                     }
 
                     ok = 0;

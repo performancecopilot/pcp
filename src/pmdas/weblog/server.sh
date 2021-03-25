@@ -386,7 +386,8 @@ _switchAction()
     if $do_logs
     then
     	_addServer
-    else
+    elif $do_files
+    then
         _installFiles
     fi
 }
@@ -553,40 +554,40 @@ _zeus_extract()
 	    rm -f $tmp/zeus
 	    touch $tmp/zeus
 	    $PCP_AWK_PROG < $ZEUSPATH/server.ini -v hostname=$LOCALHOSTNAME -v out=$tmp/zeus -v ini=$ZEUSPATH/server.ini -F'=' '
-BEGIN				{ mode = 0;
-				  port = 0;
-				  name = "";
-				  access = "???";
-				  errors = "???";
-				  docs = "???";
-				  host = hostname;
+BEGIN				{ mode = 0
+				  port = 0
+				  name = ""
+				  access = "???"
+				  errors = "???"
+				  docs = "???"
+				  host = hostname
 				}
 
 /^port/			{ if (mode == 0)
-			    port=$2;
+			    port=$2
 			  next 
 			}
 $1 ~ /\[Admin/		{ mode = 1; next }
 $1 ~ /\[Server/		{ if (mode == 2) {
-			    printf("%s %s %s %d %s %s\n", name, access, errors, port, host, docs) > out;
-			    name=""; access="???"; errors="???"; docs="???";
+			    printf("%s %s %s %d %s %s\n", name, access, errors, port, host, docs) > out
+			    name=""; access="???"; errors="???"; docs="???"
 			    host = hostname
 			  }
 			  else
-			    mode = 2;
+			    mode = 2
 
-			  i = match($1, " .*]");
+			  i = match($1, " .*]")
 			  if (i == 0) {
 			    mode = 1
 			  }
 			  else {
-			    name = substr($1, RSTART+1, RLENGTH-2);
+			    name = substr($1, RSTART+1, RLENGTH-2)
 			  }
 			  next
 			}
 /^logdir/		{ if (mode == 2) {
-			    access = sprintf("%s/transfer", $2);
-			    errors = sprintf("%s/errors", $2);
+			    access = sprintf("%s/transfer", $2)
+			    errors = sprintf("%s/errors", $2)
 			  }
 			  next
 			}
@@ -595,11 +596,11 @@ $1 ~ /\[Server/		{ if (mode == 2) {
 			  next
 			}
 /^ipname/		{ if (mode == 2)
-			    host = $2;
+			    host = $2
 			  next
 			}
 END			{ if (mode == 2)
-			    printf("%s %s %s %d %s %s\n", name, access, errors, port, host, docs) > out;
+			    printf("%s %s %s %d %s %s\n", name, access, errors, port, host, docs) > out
 			}'
 
 	    if [ -f $tmp/zeus -a -s $tmp/zeus ]
@@ -672,26 +673,26 @@ _squid_extract()
 	    rm -f $tmp/squid
 	    touch $tmp/squid
 	    $PCP_AWK_PROG < $SQUIDPATH/etc/squid.conf -v hostname=${LOCALHOSTNAME} -v out=$tmp/squid '
-BEGIN				{ port = 3128;
-				  name = hostname;
-				  access = "/usr/local/squid/logs/access.log";
-				  errors = "/dev/null";
-				  host = hostname;
+BEGIN				{ port = 3128
+				  name = hostname
+				  access = "/usr/local/squid/logs/access.log"
+				  errors = "/dev/null"
+				  host = hostname
 				}
 
 $1 == "emulate_httpd_log" { if ( $2 == "on" )
-				mode = 1;
+				mode = 1
 			  }
-$1 == "cache_access_log"  { access = $2;
+$1 == "cache_access_log"  { access = $2
 			  }
-$1 == "http_port"         { port = $2;
+$1 == "http_port"         { port = $2
 			  }
-$1 == "visible_hostname"  {  name = $2;
+$1 == "visible_hostname"  {  name = $2
 			  }
 END			  { if (mode == 0)
-			        printf("SQUID %s %s %s %d %s\n", name, access, errors, port, host) > out;
+			        printf("SQUID %s %s %s %d %s\n", name, access, errors, port, host) > out
 			    else
-			        printf("CERN %s %s %s %d %s\n", name, access, errors, port, host) > out;
+			        printf("CERN %s %s %s %d %s\n", name, access, errors, port, host) > out
 			  }'
 
 	    if [ -f $tmp/squid -a -s $tmp/squid ]
@@ -778,78 +779,82 @@ _apache_extract()
 	    | sed -e's/#.*//' -e'/^$/d' \
 	    | $PCP_AWK_PROG -v def=`hostname` '
 		BEGIN { 
-		    curnam=def;
-		    names[def] = curnam;
-		    ports[def] = 80;
+		    curnam=def
+		    cn=sprintf("%s:%d", curnam, 80)
+		    names[cn] = curnam
+		    ports[cn] = 80
 		}
 		$1 == "<VirtualHost" { 
 		    sub(">", "", $2); 
-		    n = split ($2, nm, ":");
+		    n = split ($2, nm, ":")
 		    if ( n == 1 ) {
-			curnam=$2;
-			port=ports[def];
+			curnam=$2
+			port=ports[def]
 		    } else {
-			if ( length (nm[1]) && nm[1] != "*" ) {
-			    curnam = nm[1];
+			if ( length (nm[1]) && nm[1] != "*" && nm[1] != "_default_" ) {
+			    curnam = nm[1]
 			} else {
-			    curnam = def;
+			    curnam = def
 			}
 			if ( length (nm[2]) ) {
-			    port = nm[2];
+			    port = nm[2]
 			} else {
-			    port = ports[def];
+			    port = ports[def]
 			}
 		    }
-		    cn=sprintf("%s:%d", curnam, port);
-		    names[cn] = curnam;
-		    ports[cn] = port;
-		    curnam = cn;
+		    cn=sprintf("%s:%d", curnam, port)
+		    names[cn] = curnam
+		    ports[cn] = port
+		    curnam = cn
 		}
 		$1 == "ServerName" { names[curnam] = $2; }
 		$1 == "Port" { ports[curnam] = $2; }
 		$1 == "</VirtualHost>" { curnam=def; }
 		$1 == "ErrorLog" { 
 		    path = $2
-		    sub (/\$\{APACHE_LOG_DIR\}/, "/var/log/apache2", path)
+		    sub (/\${APACHE_LOG_DIR}/, "/var/log/apache2", path)
 		    if ( match (path, "/") != 1 ) {
-			erlog[curnam] = sprintf ("%s/%s", "'$apchroot'", path);
+			erlog[curnam] = sprintf ("%s/%s", "'$apchroot'", path)
 		    } else {
-			erlog[curnam] = path;
+			erlog[curnam] = path
 		    }
 		}
 		$1 == "DocumentRoot" {
 		    path = $2
-		    sub (/\$\{APACHE_LOG_DIR\}/, "/var/log/apache2", path)
+		    sub (/\${APACHE_LOG_DIR}/, "/var/log/apache2", path)
 		    if ( match (path, "/") != 1 ) {
-			docs[curnam] = sprintf ("%s/%s", "'$apchroot'", path);
+			docs[curnam] = sprintf ("%s/%s", "'$apchroot'", path)
 		    } else {
-			docs[curnam] = path;
+			docs[curnam] = path
 		    }
 		}
 		$1 == "TransferLog" {
 		    path = $2
-		    sub (/\$\{APACHE_LOG_DIR\}/, "/var/log/apache2", path)
+		    sub (/\${APACHE_LOG_DIR}/, "/var/log/apache2", path)
 		    if ( match (path, "/") != 1 ) {
-			tlog[curnam] = sprintf ("%s/%s", "'$apchroot'", path);
+			tlog[curnam] = sprintf ("%s/%s", "'$apchroot'", path)
 		    } else {
-			tlog[curnam] = path;
+			tlog[curnam] = path
 		    }
 		}
 		$1 == "CustomLog" && ($3 == "common" || $3 == "combined") { 
 		    path = $2
-		    sub (/\$\{APACHE_LOG_DIR\}/, "/var/log/apache2", path)
+		    sub (/\${APACHE_LOG_DIR}/, "/var/log/apache2", path)
 		    if ( match (path, "/") != 1 ) {
-			tlog[curnam] = sprintf ("%s/%s", "'$apchroot'", path);
+			tlog[curnam] = sprintf ("%s/%s", "'$apchroot'", path)
 		    } else {
-			tlog[curnam] = path;
+			tlog[curnam] = path
 		    }
 		}
 		END {
 		    for ( n in names ) {
-			 print names[n], ports[n], tlog[n], erlog[n], docs[n]; 
+			 print names[n], ports[n], tlog[n], erlog[n], docs[n]
 		    }
 		}'\
 	     | while read serverName serverPort access errors docs ; do
+		# if we don't have access and errors, skip it
+		#
+		[ -z "$access" -o -z "$errors" ] && continue
 		$debug && echo "_apache_extract: serverName=$serverName serverPort=$serverPort access=$access errors=$errors docs=$docs"
 
 		accessRegex=CERN

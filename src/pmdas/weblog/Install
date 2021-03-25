@@ -45,6 +45,11 @@ delay=15
 chkDelay=20
 maxserv=80
 
+# For modern web servers, the access logs are secured so that the
+# "user" pcp cannot read em ... run this PMDA as root
+#
+args="-U root $args"
+
 
 # --- start functions ---
 #
@@ -165,7 +170,7 @@ _default_config ()
 	    fi
 	    rm -f $configFile
 	    cp $__tmp.conf $configFile
-	    args="-D $debugFlag -t $delay -n $chkDelay -S $maxserv $configFile"
+	    args="$args -D $debugFlag -t $delay -n $chkDelay -S $maxserv $configFile"
 	    socket_opt=false
 	fi
     fi
@@ -642,7 +647,7 @@ else
 	fi
     fi
 
-    args="-D $debugFlag -t $delay -n $chkDelay -S $maxserv $configFile"
+    args="$args -D $debugFlag -t $delay -n $chkDelay -S $maxserv $configFile"
 
     echo
     echo "------------------------------------------------------------------------------"
