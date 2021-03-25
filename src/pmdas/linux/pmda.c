@@ -67,6 +67,7 @@
 #include "proc_fs_nfsd.h"
 #include "numa_meminfo.h"
 #include "ksm.h"
+#include "sysfs_fchost.h"
 #include "sysfs_tapestats.h"
 #include "proc_tty.h"
 #include "proc_pressure.h"
@@ -366,6 +367,7 @@ static pmdaIndom indomtab[] = {
     { SOFTIRQS_INDOM, 0, NULL },
     { PRESSUREAVG_INDOM, 3, pressureavg_indom_id },
     { ZRAM_INDOM, 0, NULL },
+    { FCHOST_INDOM, 0, NULL },
 };
 
 
@@ -6349,6 +6351,39 @@ static pmdaMetric metrictab[] = {
     /* kernel.all.pressure.io.full.total */
     { NULL, { PMDA_PMID(CLUSTER_PRESSURE_IO,3), PM_TYPE_U64, PM_INDOM_NULL,
 	      PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_USEC,0)}},
+
+/*
+ * Fibre Channel host metrics cluster
+ */
+    /* fchost.in.frames */
+    { NULL, { PMDA_PMID(CLUSTER_FCHOST, FCHOST_IN_FRAMES), PM_TYPE_U64,
+	FCHOST_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    /* fchost.out.frames */
+    { NULL, { PMDA_PMID(CLUSTER_FCHOST, FCHOST_OUT_FRAMES), PM_TYPE_U64,
+	FCHOST_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    /* fchost.in.bytes */
+    { NULL, { PMDA_PMID(CLUSTER_FCHOST, FCHOST_IN_BYTES), PM_TYPE_U64,
+	FCHOST_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+    /* fchost.out.bytes */
+    { NULL, { PMDA_PMID(CLUSTER_FCHOST, FCHOST_OUT_BYTES), PM_TYPE_U64,
+	FCHOST_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+    /* fchost.lip_count */
+    { NULL, { PMDA_PMID(CLUSTER_FCHOST, FCHOST_LIP_COUNT), PM_TYPE_U64,
+	FCHOST_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    /* fchost.nos_count */
+    { NULL, { PMDA_PMID(CLUSTER_FCHOST, FCHOST_NOS_COUNT), PM_TYPE_U64,
+	FCHOST_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    /* fchost.error_frames */
+    { NULL, { PMDA_PMID(CLUSTER_FCHOST, FCHOST_ERROR_FRAMES), PM_TYPE_U64,
+	FCHOST_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    /* fchost.dumped_frames */
+    { NULL, { PMDA_PMID(CLUSTER_FCHOST, FCHOST_DUMPED_FRAMES), PM_TYPE_U64,
+	FCHOST_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* hinv.nfchost */
+    { NULL, { PMDA_PMID(CLUSTER_FCHOST, FCHOST_HINV_NFCHOST), PM_TYPE_U32,
+	PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
 };
 
 typedef struct {
@@ -6690,6 +6725,9 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
     if (need_refresh[CLUSTER_PRESSURE_IO])
 	refresh_proc_pressure_io(&proc_pressure);
 
+    if (need_refresh[CLUSTER_FCHOST])
+	refresh_sysfs_fchosts(INDOM(FCHOST_INDOM));
+
 done:
     if (need_refresh_mtab)
 	pmdaDynamicMetricTable(pmda);
@@ -6729,6 +6767,9 @@ linux_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt
 	need_refresh[REFRESH_NETADDR_INET]++;
 	need_refresh[REFRESH_NETADDR_IPV6]++;
 	need_refresh[REFRESH_NETADDR_HW]++;
+	break;
+    case FCHOST_INDOM:
+	need_refresh[CLUSTER_FCHOST]++;
 	break;
     case FILESYS_INDOM:
 	need_refresh[CLUSTER_FILESYS]++;
@@ -8810,6 +8851,28 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 	default:
 	    return PM_ERR_PMID;
+	}
+	break;
+
+    case CLUSTER_FCHOST:
+	if (item == FCHOST_HINV_NFCHOST) {
+	    /* hinv.nfchost */
+	    atom->ul = pmdaCacheOp(INDOM(FCHOST_INDOM), PMDA_CACHE_SIZE_ACTIVE);
+	}
+	else {
+	    /*
+	     * fchost.* metrics are direct indexed by item, see sysfs_fchost.h
+	     */
+	    fchost_t *fchost = NULL;
+
+	    if (item >= FCHOST_COUNT)
+		return PM_ERR_PMID;
+	    sts = pmdaCacheLookup(INDOM(FCHOST_INDOM), inst, NULL, (void **)&fchost);
+	    if (sts < 0)
+		return sts;
+	    if (sts != PMDA_CACHE_ACTIVE || fchost == NULL)
+		return PM_ERR_INST;
+	    atom->ull = fchost->counts[item];
 	}
 	break;
 

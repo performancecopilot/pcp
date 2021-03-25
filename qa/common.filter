@@ -248,7 +248,6 @@ _filter_optional_pmdas()
 {
     sed \
 	-e '/pmdaroot/d' \
-	-e '/pmdaaconex/d' \
 	-e '/pmdaapache/d' \
 	-e '/pmdaarray/d' \
 	-e '/pmdaash/d' \
@@ -867,7 +866,6 @@ _filter_torture_api()
 	-e '/^    hostname /d' \
 	-e '/^    license /d' \
 	-e '/^    services /d' \
-	-e '/^    aconex /d' \
 	-e '/^    apache /d' \
 	-e '/^    bonding /d' \
 	-e '/^    cihb /d' \
@@ -876,6 +874,7 @@ _filter_torture_api()
 	-e '/^    ds389 /d' \
 	-e '/^    dynamic /d' \
 	-e '/^    engr /d' \
+	-e '/^    fchost /d' \
 	-e '/^    feature /d' \
 	-e '/^    idiot /d' \
 	-e '/^    idl /d' \

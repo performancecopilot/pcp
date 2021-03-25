@@ -38,11 +38,11 @@ CFILES		= pmda.c linux_table.c mem_bandwidth.c namespaces.c \
 		  proc_sys_fs.c proc_sys_kernel.c login.c ksm.c \
 		  proc_slabinfo.c proc_uptime.c proc_vmstat.c \
 		  proc_locks.c sysfs_kernel.c numa_meminfo.c \
-		  proc_net_netstat.c proc_net_softnet.c \
+		  proc_net_netstat.c proc_net_softnet.c proc_tty.c \
 		  proc_net_raw.c proc_net_udp.c proc_net_unix.c \
 		  proc_net_snmp6.c proc_buddyinfo.c proc_zoneinfo.c \
-		  sysfs_tapestats.c proc_net_sockstat6.c \
-		  proc_fs_nfsd.c proc_tty.c proc_pressure.c
+		  proc_net_sockstat6.c proc_fs_nfsd.c proc_pressure.c \
+		  sysfs_fchost.c sysfs_tapestats.c
 
 HFILES		= linux.h linux_table.h convert.h namespaces.h \
 		  proc_stat.h proc_meminfo.h proc_loadavg.h \
@@ -53,11 +53,11 @@ HFILES		= linux.h linux_table.h convert.h namespaces.h \
 		  proc_sys_fs.h proc_sys_kernel.h login.h ksm.h \
 		  proc_slabinfo.h proc_uptime.h proc_vmstat.h \
 		  proc_locks.h sysfs_kernel.h numa_meminfo.h \
-		  proc_net_netstat.h proc_net_softnet.h \
+		  proc_net_netstat.h proc_net_softnet.h proc_tty.h \
 		  proc_net_raw.h proc_net_udp.h proc_net_unix.h \
 		  proc_net_snmp6.h proc_buddyinfo.h proc_zoneinfo.h \
-		  sysfs_tapestats.h proc_net_sockstat6.h \
-		  proc_fs_nfsd.h proc_tty.h proc_pressure.h
+		  proc_net_sockstat6.h proc_fs_nfsd.h proc_pressure.h \
+		  sysfs_fchost.h sysfs_tapestats.h 
 
 VERSION_SCRIPT	= exports
 HELPTARGETS	= help.dir help.pag
