@@ -42,11 +42,6 @@ typedef struct {
     uint64_t	counts[TAPESTATS_COUNT];
 } tapedev_t;
 
-typedef struct {
-    pmdaIndom           indom;
-    tapedev_t		**tapes; /* indom.it_numinst ptrs to tape devs */
-} sysfs_tapestats_t;
-
 extern int refresh_sysfs_tapestats(pmInDom);
 
 #endif /* SYSFS_TAPESTATS_H */
