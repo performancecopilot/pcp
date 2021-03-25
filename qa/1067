@@ -152,6 +152,7 @@ $zabbix_agentd -t pcp.sample.bad.novalues
 
 # verify enumeration of all metrics
 echo "== enumerated names and filtered values" | tee -a $seq.full
+pmstore sample.ghosts.visible "-1" >>$seq.full 2>&1
 $sudo rm -f $control	# control the dynamic indom
 echo '1 one' >$tmp.indom
 echo '2 two' >>$tmp.indom
