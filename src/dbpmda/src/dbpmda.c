@@ -30,6 +30,7 @@ int		stmt_type;
 int		eflag;
 int		fflag;
 int		iflag;
+int		vflag;
 
 extern int yyparse(void);
 
@@ -40,6 +41,7 @@ static pmLongOptions longopts[] = {
     { "norc", 0, 'f', 0, "skip .dbpmdarc processing" },
     { "creds-timeout", 1, 'q', "N", "initial negoptionsotiation timeout (seconds)" },
     { "username", 1, 'U', "USER", "run under named user account" },
+    { "valgrind", 0, 'v', 0, "running under valgrind, don't dlclose() dso PMDAs" },
     PMOPT_HELP,
     PMAPI_OPTIONS_HEADER("Input options"),
     { "echo-input", 0, 'e', 0, "echo input" },
@@ -49,7 +51,7 @@ static pmLongOptions longopts[] = {
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_POSIX,
-    .short_options = "q:D:efin:U:?",
+    .short_options = "q:D:efin:U:v?",
     .long_options = longopts,
 };
 
@@ -59,8 +61,13 @@ static pmOptions opts = {
 static void
 cleanup()
 {
-    if (connmode == CONN_DSO)
-	closedso();
+    if (connmode == CONN_DSO) {
+	/*
+	 * Don't dlclose() if we're running under valgrind (-v option)
+	 */
+	if (!vflag)
+	    closedso();
+    }
     else if (connmode == CONN_DAEMON)
 	closepmda();
     connmode = NO_CONN;
@@ -116,6 +123,10 @@ main(int argc, char **argv)
 
 	case 'U':		/* run under alternate user account */
 	    pmSetProcessIdentity(opts.optarg);
+	    break;
+
+	case 'v':		/* valgrind special */
+	    vflag = 1;
 	    break;
 
 	default:
