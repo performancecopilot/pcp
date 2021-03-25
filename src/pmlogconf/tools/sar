@@ -64,6 +64,7 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
 	#disk.md.w_await	- derived metric (iostat.conf)
 	#disk.md.util		- derived metric (iostat.conf)
 	kernel.all.cpu.guest
+	kernel.all.cpu.guest_nice
 	kernel.all.cpu.idle
 	kernel.all.cpu.intr
 	kernel.all.cpu.nice
@@ -72,10 +73,14 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
 	kernel.all.cpu.user
 	kernel.all.cpu.wait.total
 	kernel.all.cpu.vuser
+	kernel.all.cpu.vnice
+	kernel.all.cpu.irq.soft
+	kernel.all.cpu.irq.hard
 	kernel.all.intr
 	kernel.all.load
 	kernel.all.pswitch
 	kernel.percpu.cpu.guest
+	kernel.percpu.cpu.guest_nice
 	kernel.percpu.cpu.idle
 	kernel.percpu.cpu.intr
 	kernel.percpu.cpu.nice
@@ -85,6 +90,8 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
 	kernel.percpu.cpu.wait.total
 	kernel.percpu.cpu.vuser	
 	kernel.percpu.cpu.vnice
+	kernel.percpu.cpu.irq.soft
+	kernel.percpu.cpu.irq.hard
 	mem.vmstat.pgfault
 	mem.vmstat.pgfree
 	mem.vmstat.pgmajfault
