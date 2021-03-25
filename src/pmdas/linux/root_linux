@@ -36,6 +36,7 @@ root {
     tape
     tty
     zram
+    fchost
 }
 
 hinv {
@@ -52,6 +53,7 @@ hinv {
     node
     hugepagesize	60:1:59
     ntape		60:71:16
+    nfchost		60:91:16
 }
 
 hinv.map {
@@ -1330,6 +1332,25 @@ network.unix.stream {
     established		60:81:2
     listen		60:81:3
     count		60:81:4
+}
+
+fchost {
+    in
+    out
+    lip_count		60:91:4
+    nos_count		60:91:5
+    error_frames	60:91:6
+    dumped_frames	60:91:7
+}
+
+fchost.in {
+    frames		60:91:0
+    bytes		60:91:2
+}
+
+fchost.out {
+    frames		60:91:1
+    bytes		60:91:3
 }
 
 filesys {

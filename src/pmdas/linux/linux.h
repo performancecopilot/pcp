@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020 Red Hat.
+ * Copyright (c) 2016-2021 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -112,6 +112,7 @@ enum {
 	CLUSTER_ZRAM_MM_STAT,	/* 88 /sys/block/zram[0-9]/mm_stat metrics */
 	CLUSTER_ZRAM_BD_STAT,	/* 89 /sys/block/zram[0-9]/bd_stat metrics */
 	CLUSTER_NET_ALL,	/* 90 /proc/net/dev aggregate metrics */
+	CLUSTER_FCHOST,		/* 91 /sys/class/fc_host metrics */
 
 	NUM_CLUSTERS		/* one more than highest numbered cluster */
 };
@@ -181,6 +182,7 @@ enum {
 	SOFTIRQS_INDOM,		/* 36 - softirqs */
 	PRESSUREAVG_INDOM,	/* 37 - 10, 60, 300 second pressure averages */
 	ZRAM_INDOM,		/* 38 - compressed RAM devices */
+	FCHOST_INDOM,		/* 39 - fibrechannel hosts */
 
 	NUM_INDOMS		/* one more than highest numbered cluster */
 };

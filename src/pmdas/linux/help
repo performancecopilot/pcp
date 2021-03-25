@@ -67,6 +67,7 @@ devices all share the same statistics in the kernel as the st devices.
 @ 60.36 set of soft interrupts
 @ 60.37 pressure time averages for 10 seconds, 1 minute and 5 minutes
 @ 60.38 set of compressed memory devices
+@ 60.39 fibre channel host bus adapters
 
 
 @ kernel.uname.release release level of the running kernel
@@ -2321,3 +2322,61 @@ Sum of network.all.in.packets and network.all.out.packets metrics.
 Sum of network.all.in.errors and network.all.out.errors metrics.
 @ network.all.total.drops network drops on physical network interfaces
 Sum of network.all.in.drops and network.all.out.drops metrics.
+
+@ fchost.in.frames Count of fibre channel frames received
+The total number of Fibre Channel (FC) frames that have been received
+by the Host Bus Adapter (HBA).
+This count is across all protocols and classes, which includes general
+services etc. as well as frames associated with SCSI traffic.
+
+@ fchost.in.bytes Count of fibre channel bytes received
+The total number of received bytes by the Host Bus Adapter (HBA).
+This count is across all protocols and classes, which includes general
+services etc. as well as frames associated with SCSI traffic.
+Also this counts all received words, frame headers, CRC, and so on,
+and not only "user" data bytes.
+
+@ fchost.out.frames Count of fibre channel frames transmitted
+The total number of Fibre Channel (FC) frames that have been transmitted
+by the Host Bus Adapter (HBA).
+This count is across all protocols and classes, which includes general
+services etc. as well as frames associated with SCSI traffic.
+
+@ fchost.out.bytes Count of fibre channel bytes transmitted
+The total number of transmitted bytes by the Host Bus Adapter (HBA).
+This count is across all protocols and classes, which includes general
+services etc. as well as frames associated with SCSI traffic.
+Also this counts all transmitted words, frame headers, CRC, and so on,
+and not only "user" data bytes.
+
+@ fchost.lip_count Count of loop initializaton FC primitives
+The number of LIP (loop initializaton FC primitive) resets that have
+occurred.
+This should be the number initiated by the HBA unless there are other
+ports on the link the HBA is connected to that can also issue the LIP
+primitive.
+One can send a LIP by writing to /sys/class/fc_host/hostN/issue_lip
+A LIP will cause temporary loss of link (link down/link up events).
+
+@ fchost.nos_count Count of not operational FC primitives
+The number of NOS (not operational) FC primitives that have occurred
+on the switched fabric.
+This would typically be recieved by the HBA during link initialization
+between the HBA port and the switch if the switch detected a problem -
+typically NOS is sent by a port that is offline or has detected a link
+problem or failure of some type.  This being non-zero implies problems
+at the link level or with the switch port the HBA is connected to.
+
+@ fchost.error_frames Count of FC frames received in error
+
+@ fchost.dumped_frames Count of FC frames lost due to buffers
+The count of FC frames that were lost due to lack of local resources
+(buffers).
+A frame arrives at the HBA nport, but there is no place to capture it
+due to lack of available buffers within the adapter.
+The frame is "dumped", i.e. dropped and the firmware never sees it.
+Something is not working with buffer credits between ports at a lower
+FC link level if this is happening (one guess as to why dumped frames
+could occur).
+
+@ hinv.nfchost Number of fibre channel host bus adapters from /sys/class/fc_host/host*

@@ -1882,6 +1882,7 @@ x11
 1801 dstat python pcp local
 1805 pmda.linux kernel local
 1813 python labels local
+1814 pmda.linux local
 1820 atop local
 1821 pmlogpaste local
 1824 pmproxy local

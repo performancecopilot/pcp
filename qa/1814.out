@@ -1,0 +1,115 @@
+QA output created by 1814
+== Checking Fibre Channel metric values - fchost-root-001.tgz
+
+fchost.dumped_frames PMID: 60.91.7 [Count of FC frames lost due to buffers]
+    Data Type: 64-bit unsigned int  InDom: 60.39 0xf000027
+    Semantics: counter  Units: count
+    inst [N or "host0"] value 0
+    inst [N or "host1"] value 10
+
+fchost.error_frames PMID: 60.91.6 [Count of FC frames received in error]
+    Data Type: 64-bit unsigned int  InDom: 60.39 0xf000027
+    Semantics: counter  Units: count
+    inst [N or "host0"] value 0
+    inst [N or "host1"] value 10
+
+fchost.in.bytes PMID: 60.91.2 [Count of fibre channel bytes received]
+    Data Type: 64-bit unsigned int  InDom: 60.39 0xf000027
+    Semantics: counter  Units: byte
+    inst [N or "host0"] value 14798
+    inst [N or "host1"] value 28194
+
+fchost.in.frames PMID: 60.91.0 [Count of fibre channel frames received]
+    Data Type: 64-bit unsigned int  InDom: 60.39 0xf000027
+    Semantics: counter  Units: count
+    inst [N or "host0"] value 28194
+    inst [N or "host1"] value 3618
+
+fchost.lip_count PMID: 60.91.4 [Count of loop initializaton FC primitives]
+    Data Type: 64-bit unsigned int  InDom: 60.39 0xf000027
+    Semantics: counter  Units: count
+    inst [N or "host0"] value 0
+    inst [N or "host1"] value 0
+
+fchost.nos_count PMID: 60.91.5 [Count of not operational FC primitives]
+    Data Type: 64-bit unsigned int  InDom: 60.39 0xf000027
+    Semantics: counter  Units: count
+    inst [N or "host0"] value 0
+    inst [N or "host1"] value 0
+
+fchost.out.bytes PMID: 60.91.3 [Count of fibre channel bytes transmitted]
+    Data Type: 64-bit unsigned int  InDom: 60.39 0xf000027
+    Semantics: counter  Units: byte
+    inst [N or "host0"] value 0
+    inst [N or "host1"] value 36446496
+
+fchost.out.frames PMID: 60.91.1 [Count of fibre channel frames transmitted]
+    Data Type: 64-bit unsigned int  InDom: 60.39 0xf000027
+    Semantics: counter  Units: count
+    inst [N or "host0"] value 36446496
+    inst [N or "host1"] value 8480
+
+hinv.nfchost PMID: 60.91.16 [Number of fibre channel host bus adapters from /sys/class/fc_host/host*]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+    value 2
+
+== done
+
+== Checking Fibre Channel metric values - fchost-root-002.tgz
+
+fchost.dumped_frames PMID: 60.91.7 [Count of FC frames lost due to buffers]
+    Data Type: 64-bit unsigned int  InDom: 60.39 0xf000027
+    Semantics: counter  Units: count
+    inst [N or "host1"] value 0
+    inst [N or "host3"] value 0
+
+fchost.error_frames PMID: 60.91.6 [Count of FC frames received in error]
+    Data Type: 64-bit unsigned int  InDom: 60.39 0xf000027
+    Semantics: counter  Units: count
+    inst [N or "host1"] value 75
+    inst [N or "host3"] value 80
+
+fchost.in.bytes PMID: 60.91.2 [Count of fibre channel bytes received]
+    Data Type: 64-bit unsigned int  InDom: 60.39 0xf000027
+    Semantics: counter  Units: byte
+    inst [N or "host1"] value 2348977
+    inst [N or "host3"] value 1763583
+
+fchost.in.frames PMID: 60.91.0 [Count of fibre channel frames received]
+    Data Type: 64-bit unsigned int  InDom: 60.39 0xf000027
+    Semantics: counter  Units: count
+    inst [N or "host1"] value 4599856
+    inst [N or "host3"] value 3705291
+
+fchost.lip_count PMID: 60.91.4 [Count of loop initializaton FC primitives]
+    Data Type: 64-bit unsigned int  InDom: 60.39 0xf000027
+    Semantics: counter  Units: count
+    inst [N or "host1"] value 0
+    inst [N or "host3"] value 0
+
+fchost.nos_count PMID: 60.91.5 [Count of not operational FC primitives]
+    Data Type: 64-bit unsigned int  InDom: 60.39 0xf000027
+    Semantics: counter  Units: count
+    inst [N or "host1"] value 4
+    inst [N or "host3"] value 3
+
+fchost.out.bytes PMID: 60.91.3 [Count of fibre channel bytes transmitted]
+    Data Type: 64-bit unsigned int  InDom: 60.39 0xf000027
+    Semantics: counter  Units: byte
+    inst [N or "host1"] value 75471872
+    inst [N or "host3"] value 56737792
+
+fchost.out.frames PMID: 60.91.1 [Count of fibre channel frames transmitted]
+    Data Type: 64-bit unsigned int  InDom: 60.39 0xf000027
+    Semantics: counter  Units: count
+    inst [N or "host1"] value 2336881664
+    inst [N or "host3"] value 2272852992
+
+hinv.nfchost PMID: 60.91.16 [Number of fibre channel host bus adapters from /sys/class/fc_host/host*]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+    value 2
+
+== done
+
