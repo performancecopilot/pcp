@@ -4,10 +4,6 @@
 #include <uapi/linux/ptrace.h>
 #include <linux/blkdev.h>
 
-typedef struct disk_key {
-    char disk[DISK_NAME_LEN];
-    u64 slot;
-} disk_key_t;
 BPF_HASH(start, struct request *);
 BPF_HISTOGRAM(dist);
 
