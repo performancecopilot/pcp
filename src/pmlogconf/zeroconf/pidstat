@@ -21,11 +21,3 @@ delta	30 seconds
 	proc.id.uid
 	proc.id.uid_nm
 	proc.psinfo.psargs
-
-	kernel.all.cpu.user
-	kernel.all.cpu.vuser
-	kernel.all.cpu.sys
-	kernel.all.cpu.guest
-	kernel.all.cpu.nice
-	kernel.all.cpu.idle
-
