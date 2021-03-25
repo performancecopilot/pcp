@@ -29,7 +29,7 @@ DFILES	= README
 LDIRT	= domain.h $(TARGETS) check_match.o
 
 PMDAADMDIR = $(PCP_PMDASADM_DIR)/weblog
-PMDATMPDIR = $(PCP_PMDAS_DIR)/weblog
+PMDAVARDIR = $(PCP_PMDAS_DIR)/weblog
 PMCHARTDIR = $(PCP_SYSCONF_DIR)/pmchart
 PMCHARTVARDIR = $(PCP_VAR_DIR)/config/pmchart
 
@@ -44,10 +44,11 @@ build-me:	$(TARGETS)
 
 install:	build-me
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)
-	$(INSTALL) -m 755 -d $(PMDATMPDIR)
-	$(INSTALL) -m 755 -t $(PMDATMPDIR)/pmda$(IAM)$(IAM) $(PMDAADMDIR)/pmda$(IAM)
-	$(INSTALL) -m 755 -t $(PMDATMPDIR) check_match $(SCRIPTS) $(PMDAADMDIR)
-	$(INSTALL) -m 644 -t $(PMDATMPDIR) $(DFILES) root help pmns domain.h $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMDAVARDIR)
+	$(INSTALL) -m 755 -t $(PMDAVARDIR)/pmda$(IAM) $(IAM) $(PMDAADMDIR)/pmda$(IAM)
+	$(INSTALL) -m 755 -t $(PMDAVARDIR) check_match $(SCRIPTS) $(PMDAADMDIR)
+	$(INSTALL) -m 755 -t $(IAM) $(PMDAADMDIR)/pmda$(IAM)
+	$(INSTALL) -m 644 -t $(PMDAVARDIR) $(DFILES) root help pmns domain.h $(PMDAADMDIR)
 	$(INSTALL) -m 644 -t $(PMCHARTVARDIR)/Web.Alarms Web.Alarms.pmchart $(PMCHARTDIR)/Web.Alarms
 	$(INSTALL) -m 644 -t $(PMCHARTVARDIR)/Web.Requests Web.Requests.pmchart $(PMCHARTDIR)/Web.Requests
 	$(INSTALL) -m 644 -t $(PMCHARTVARDIR)/Web.Volume Web.Volume.pmchart $(PMCHARTDIR)/Web.Volume
