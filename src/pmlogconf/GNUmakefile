@@ -36,7 +36,8 @@ SUBDIRS = \
 	platform \
 	statsd \
 	storage \
-	tools
+	tools \
+	services
 
 # Only evaluate zeroconf configurations if we package that.
 # Otherwise zeroconf will be installed for all platforms as

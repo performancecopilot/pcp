@@ -1,0 +1,5 @@
+#pmlogconf-setup 2.0
+ident   metrics exported by the pmproxy(1) service
+probe	pmproxy.pid values ? include : exclude
+
+	pmproxy
