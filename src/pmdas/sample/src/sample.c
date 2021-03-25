@@ -1012,8 +1012,16 @@ cntinst(pmInDom indom)
     if (indom == PM_INDOM_NULL)
 	return 1;
     for (idp = indomtab; idp->it_indom != PM_INDOM_NULL; idp++) {
-	if (idp->it_indom == indom)
-	    return idp->it_numinst;
+	if (idp->it_indom == indom) {
+	    if (indom == indomtab[GHOST_INDOM].it_indom) {
+		if (visible_ghosts <= 0)
+		    return 0;
+		else
+		    return visible_ghosts;
+	    }
+	    else
+		return idp->it_numinst;
+	}
     }
     pmNotifyErr(LOG_WARNING, "cntinst: unknown pmInDom 0x%x", indom);
     return 0;
@@ -1114,6 +1122,7 @@ static int
 nextinst(int *inst)
 {
     int		j;
+    int		numinst;
 
     if (_singular == 0) {
 	/* PM_INDOM_NULL ... just the one value */
@@ -1121,9 +1130,19 @@ nextinst(int *inst)
 	_singular = -1;
 	return 1;
     }
+
+    if (_idp->it_indom == indomtab[GHOST_INDOM].it_indom) {
+	if (visible_ghosts <= 0)
+	    numinst = 0;
+	else
+	    numinst = visible_ghosts;
+    }
+    else
+	numinst = _idp->it_numinst;
+
     if (_ordinal >= 0) {
 	/* scan for next value in the profile */
-	for (j = _ordinal; j < _idp->it_numinst; j++) {
+	for (j = _ordinal; j < numinst; j++) {
 	    if (__pmInProfile(_idp->it_indom, _profile, _idp->it_set[j].i_inst)) {
 		*inst = _idp->it_set[j].i_inst;
 		_ordinal = j+1;
@@ -2992,7 +3011,6 @@ sample_store(pmResult *result, pmdaExt *ep)
 		visible_ghosts = av.l;
 		if (visible_ghosts > num_ghosts)
 		    visible_ghosts = num_ghosts;
-		indomtab[GHOST_INDOM].it_numinst = visible_ghosts;
 		state_ghosts = 23;
 		break;
 	    default:
