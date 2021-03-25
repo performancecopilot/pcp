@@ -108,6 +108,7 @@ echo "PING"
 pmsleep 0.125
 options="-p $redisport"
 redis-cli $options ping
+_check_redis_server $redisport
 echo
 
 # prepare logging location and config
