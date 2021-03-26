@@ -1753,14 +1753,22 @@ refresh(WebSproc* proc)
 				   "Unable to allocate %d bytes to strings",
 				   newLength);
 			    proc->strLength = 0;
-			    if (proc->methodStr != (char *)0)
+			    if (proc->methodStr != NULL) {
 				free(proc->methodStr);
-			    if (proc->sizeStr != (char *)0)
+				proc->methodStr = NULL;
+			    }
+			    if (proc->sizeStr != NULL) {
 				free(proc->sizeStr);
-			    if (proc->c_statusStr != (char *)0)
+				proc->sizeStr = NULL;
+			    }
+			    if (proc->c_statusStr != NULL) {
 				free(proc->c_statusStr);
-			    if (proc->s_statusStr != (char *)0)
+				proc->c_statusStr = NULL;
+			    }
+			    if (proc->s_statusStr != NULL) {
 				free(proc->s_statusStr);
+				proc->s_statusStr = NULL;
+			    }
 			    
 			    break;
 			}
