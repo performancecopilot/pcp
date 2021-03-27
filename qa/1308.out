@@ -1,0 +1,83 @@
+QA output created by 1308
+QA output created by 1307 --valgrind
+=== std out ===
+pmInDom: 30.11
+Instance domain is empty
+PMID: 30.0.1008
+Getting description...
+Sending Profile...
+Getting Result Structure...
+30.0.1008: -1 -> 1
+pmInDom: 30.11
+[  0] inst: 1 name: "Obambo"
+PMID(s): 30.0.1009
+pmResult dump from <addr> timestamp: 0.000000 TIMESTAMP.000 numpmid: 1
+  30.0.1009 (<noname>): numval: 1 valfmt: 1 vlist[]:
+    inst [1 or "Obambo"] value "Africa"
+PMID: 30.0.1008
+Getting description...
+Getting Result Structure...
+30.0.1008: 1 -> 0
+pmInDom: 30.11
+Instance domain is empty
+PMID(s): 30.0.1009
+pmResult dump from <addr> timestamp: 0.000000 TIMESTAMP.000 numpmid: 1
+  30.0.1009 (<noname>): No values returned!
+PMID: 30.0.1008
+Getting description...
+Getting Result Structure...
+30.0.1008: 0 -> -1
+pmInDom: 30.11
+Instance domain is empty
+                                    ^ at or near here
+PMID: 30.0.1008
+Getting description...
+Getting Result Structure...
+30.0.1008: -1 -> 10
+pmInDom: 30.11
+[  0] inst: 1 name: "Obambo"
+[  1] inst: 2 name: "Banjhakri"
+[  2] inst: 3 name: "Mogwai"
+[  3] inst: 4 name: "Pocong"
+[  4] inst: 5 name: "Hitodama"
+[  5] inst: 6 name: "Krahang"
+[  6] inst: 7 name: "Zmeu"
+[  7] inst: 8 name: "Duppy"
+PMID(s): 30.0.1009
+pmResult dump from <addr> timestamp: 0.000000 TIMESTAMP.000 numpmid: 1
+  30.0.1009 (<noname>): numval: 8 valfmt: 1 vlist[]:
+    inst [1 or "Obambo"] value "Africa"
+    inst [2 or "Banjhakri"] value "Nepal"
+    inst [3 or "Mogwai"] value "China"
+    inst [4 or "Pocong"] value "Indonesia"
+    inst [5 or "Hitodama"] value "Japan"
+    inst [6 or "Krahang"] value "Thailand"
+    inst [7 or "Zmeu"] value "Roumania"
+    inst [8 or "Duppy"] value "Jamaica"
+PMID: 30.0.1008
+Getting description...
+Getting Result Structure...
+30.0.1008: 8 -> 4
+pmInDom: 30.11
+[  0] inst: 1 name: "Obambo"
+[  1] inst: 2 name: "Banjhakri"
+[  2] inst: 3 name: "Mogwai"
+[  3] inst: 4 name: "Pocong"
+PMID(s): 30.0.1009
+pmResult dump from <addr> timestamp: 0.000000 TIMESTAMP.000 numpmid: 1
+  30.0.1009 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [1 or "Obambo"] value "Africa"
+    inst [2 or "Banjhakri"] value "Nepal"
+    inst [3 or "Mogwai"] value "China"
+    inst [4 or "Pocong"] value "Indonesia"
+PMID: 30.0.1008
+Getting description...
+Getting Result Structure...
+30.0.1008: 4 -> -1
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: dbpmda -v -U USER
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

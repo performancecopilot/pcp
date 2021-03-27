@@ -1012,8 +1012,16 @@ cntinst(pmInDom indom)
     if (indom == PM_INDOM_NULL)
 	return 1;
     for (idp = indomtab; idp->it_indom != PM_INDOM_NULL; idp++) {
-	if (idp->it_indom == indom)
-	    return idp->it_numinst;
+	if (idp->it_indom == indom) {
+	    if (indom == indomtab[GHOST_INDOM].it_indom) {
+		if (visible_ghosts <= 0)
+		    return 0;
+		else
+		    return visible_ghosts;
+	    }
+	    else
+		return idp->it_numinst;
+	}
     }
     pmNotifyErr(LOG_WARNING, "cntinst: unknown pmInDom 0x%x", indom);
     return 0;
@@ -1114,6 +1122,7 @@ static int
 nextinst(int *inst)
 {
     int		j;
+    int		numinst;
 
     if (_singular == 0) {
 	/* PM_INDOM_NULL ... just the one value */
@@ -1121,9 +1130,19 @@ nextinst(int *inst)
 	_singular = -1;
 	return 1;
     }
+
+    if (_idp->it_indom == indomtab[GHOST_INDOM].it_indom) {
+	if (visible_ghosts <= 0)
+	    numinst = 0;
+	else
+	    numinst = visible_ghosts;
+    }
+    else
+	numinst = _idp->it_numinst;
+
     if (_ordinal >= 0) {
 	/* scan for next value in the profile */
-	for (j = _ordinal; j < _idp->it_numinst; j++) {
+	for (j = _ordinal; j < numinst; j++) {
 	    if (__pmInProfile(_idp->it_indom, _profile, _idp->it_set[j].i_inst)) {
 		*inst = _idp->it_set[j].i_inst;
 		_ordinal = j+1;
@@ -1301,33 +1320,40 @@ sample_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaEx
 	return PM_ERR_INDOM;
 
     if ((res = (pmInResult *)malloc(sizeof(*res))) == NULL)
-        return -oserror();
-    res->indom = indom;
+	return -oserror();
 
     if (name == NULL && inst == PM_IN_NULL)
 	res->numinst = cntinst(indom);
     else
 	res->numinst = 1;
+    res->indom = indom;
 
-    if (inst == PM_IN_NULL) {
-	if ((res->instlist = (int *)malloc(res->numinst * sizeof(res->instlist[0]))) == NULL) {
-	    free(res);
-	    return -oserror();
+    if (res->numinst > 0) {
+	if (inst == PM_IN_NULL) {
+	    if ((res->instlist = (int *)malloc(res->numinst * sizeof(res->instlist[0]))) == NULL) {
+		free(res);
+		return -oserror();
+	    }
 	}
+	else
+	    res->instlist = NULL;
+
+	if (name == NULL) {
+	    if ((res->namelist = (char **)malloc(res->numinst * sizeof(res->namelist[0]))) == NULL) {
+		__pmFreeInResult(res);
+		return -oserror();
+	    }
+	    for (i = 0; i < res->numinst; i++)
+		res->namelist[0] = NULL;
+	}
+	else
+	    res->namelist = NULL;
     }
-    else
+    else {
+	/* empty indom */
 	res->instlist = NULL;
-
-    if (name == NULL) {
-	if ((res->namelist = (char **)malloc(res->numinst * sizeof(res->namelist[0]))) == NULL) {
-	    __pmFreeInResult(res);
-	    return -oserror();
-	}
-	for (i = 0; i < res->numinst; i++)
-	    res->namelist[0] = NULL;
-    }
-    else
 	res->namelist = NULL;
+    }
 
     if (name == NULL && inst == PM_IN_NULL) {
 	/* return inst and name for everything */
@@ -1754,9 +1780,12 @@ doit:
 		      item == 134 ||	/* event.param_string */
 		      item == 135))	/* event.param_aggregate */
 		numval = 0;
-	    else if (visible_ghosts < 0 && cluster == 0 &&
-		    (item == 1009 || item == 1010 || item == 1011))
-		numval = PM_ERR_PMID;
+	    else if (cluster == 0 && (item== 1009 || item == 1010 || item == 1011)) {
+		if (visible_ghosts < 0)
+		    numval = PM_ERR_PMID;
+		else
+		    numval = visible_ghosts;
+	    }
 	    else if (dp->type == PM_TYPE_NOSUPPORT)
 		numval = PM_ERR_APPVERSION;
 	    else if (dp->indom != PM_INDOM_NULL) {
@@ -2992,7 +3021,6 @@ sample_store(pmResult *result, pmdaExt *ep)
 		visible_ghosts = av.l;
 		if (visible_ghosts > num_ghosts)
 		    visible_ghosts = num_ghosts;
-		indomtab[GHOST_INDOM].it_numinst = visible_ghosts;
 		state_ghosts = 23;
 		break;
 	    default:

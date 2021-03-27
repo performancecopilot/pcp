@@ -18,7 +18,7 @@
 \f3dbpmda\f1 \- debugger for Performance Co-Pilot PMDAs
 .SH SYNOPSIS
 \f3dbpmda\f1
-[\f3\-efi?\f1]
+[\f3\-efiv?\f1]
 [\f3\-n\f1 \f2pmnsfile\f1]
 [\f3\-q\f1 \f2timeout\f1]
 [\f3\-U\f1 \f2username\f1]
@@ -123,6 +123,23 @@ The unit of time is seconds.
 \fB\-U\fR \fIusername\fR, \fB\-\-username\fR=\fIusername\fR
 User account under which to run
 .BR dbpmda .
+.TP
+\fB\-v\fR, \fB\-\-valgrind\fR
+Useful when running
+.B dbpmda
+under the control of
+.BR valgrind (1)
+to triage problems in a DSO PMDA.
+If the
+.B \-v
+option is used then
+.B dbpmda
+will do not call
+.BR dlclose (3)
+before exiting, this allows 
+.BR valgrind (1)
+to access the symbol table of the DSO PMDA when reporting which makes
+debugging much easier.
 .TP
 \fB\-?\fR, \fB\-\-help\fR
 Display usage message and exit.

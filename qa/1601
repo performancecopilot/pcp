@@ -81,6 +81,8 @@ redis-cli $options ping
 _check_redis_server $redisport
 echo
 
+_check_redis_server_version $redisport
+
 # import some well-known test data into Redis
 pmseries $options --load "$here/archives/proc" | _filter_source
 

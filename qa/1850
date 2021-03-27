@@ -62,6 +62,8 @@ redis-cli -p $redisport ping
 _check_redis_server $redisport
 echo
 
+_check_redis_server_version $redisport
+
 args="-p $redisport -Z UTC"
 
 echo "== Load metric data into this redis instance"
