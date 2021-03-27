@@ -1,0 +1,86 @@
+#!/bin/sh
+# PCP QA Test No. 1307
+# sample.ghost.* workout
+#
+# See 1308 for the valgrind version of this test.
+#
+# Copyright (c) 2021 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e 's/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/TIMESTAMP/g' \
+	-e 's/0x[0-9a-f]*/<addr>/g' \
+    # end
+}
+
+_set_dsosuffix
+
+cat <<End-of-File >$tmp.cmd
+open dso $PCP_PMDAS_DIR/sample/pmda_sample.$DSOSUFFIX sample_init 30
+getiname on
+instance 30.11
+store sampledso.ghosts.visible "1"
+instance 30.11
+fetch sampledso.ghosts.origin
+store sampledso.ghosts.visible "0"
+instance 30.11
+fetch sampledso.ghosts.origin
+store sampledso.ghosts.visible "-1"
+instance 30.11
+fetch sampledso.ghosts.origin
+store sampledso.ghosts.visible "10"
+instance 30.11
+fetch sampledso.ghosts.origin
+store sampledso.ghosts.visible "4"
+instance 30.11
+fetch sampledso.ghosts.origin
+store sampledso.ghosts.visible "-1"
+End-of-File
+
+# real QA test starts here
+
+if $do_valgrind
+then
+    _run_valgrind dbpmda -v -U `id -un` <$tmp.cmd
+else
+    dbpmda -U `id -un` <$tmp.cmd 2>&1
+fi \
+| tee -a $seq.full \
+| _filter
+
+# success, all done
+exit

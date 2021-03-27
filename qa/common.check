@@ -2788,6 +2788,39 @@ _sighup_pmcd()
     $PCP_BINADM_DIR/pmsleep $_signal_delay
 }
 
+# Discover the platform-specific DSO suffix, at set $(DSOSUFFIX)
+#
+_set_dsosuffix()
+{
+    cat <<End-of-File >$tmp._mk
+include $PCP_INC_DIR/builddefs
+default:
+	@echo \$(DSOSUFFIX)
+End-of-File
+    if $PCP_MAKE_PROG -f $tmp._mk >$tmp._out 2>$tmp._err
+    then
+	:
+    else
+	cat $tmp._err
+	echo "Error: $PCP_MAKE_PROG failed establishing DSO suffix"
+	status=1
+	exit
+    fi
+    if [ -s $tmp._err ]
+    then
+	cat $tmp._err
+	echo "Warning: unexpected stderr from $PCP_MAKE_PROG when establishing DSO suffix"
+    fi
+    DSOSUFFIX=`cat $tmp._out`
+    if [ -z "$DSOSUFFIX" ]
+    then
+	echo "Error: cannot establish the DSO suffix from $PCP_INC_DIR/builddefs"
+	status=1
+	exit
+    fi
+    rm -f $tmp._mk $tmp._out $tmp._err
+}
+
 # common webapi header filtering
 #
 _webapi_header_filter()
