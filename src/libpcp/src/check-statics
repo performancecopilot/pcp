@@ -9,6 +9,9 @@ sts=1  # presume failure, in case of an unexpected early exit
 tmp=`mktemp -d /tmp/pcp-build-check-statics.XXXXXXXXX` || exit 1
 trap "rm -rf $tmp; exit \$sts" 0 1 2 3 15
 
+debug=false
+#debug=true
+
 NM=nm
 which gcc-nm >/dev/null 2>&1 && NM=gcc-nm
 
@@ -74,6 +77,8 @@ in
 	    exit
 	    ;;
 esac
+
+$debug && echo NM=$NM
 
 obj=''
 cat <<End-of-File \
@@ -664,7 +669,7 @@ do
     $skip_file && continue
     opt=`echo $line | sed -n -e 's/?.*/?/p'`
     name=`echo $line | sed -e 's/?//'`
-    #debug# echo "obj=$obj type=$line opt=$opt"
+    $debug && echo "obj=$obj type=$line opt=$opt"
     #
     # We accept the given symbol name with several decorations:
     #
