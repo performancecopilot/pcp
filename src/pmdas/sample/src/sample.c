@@ -1320,33 +1320,40 @@ sample_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaEx
 	return PM_ERR_INDOM;
 
     if ((res = (pmInResult *)malloc(sizeof(*res))) == NULL)
-        return -oserror();
-    res->indom = indom;
+	return -oserror();
 
     if (name == NULL && inst == PM_IN_NULL)
 	res->numinst = cntinst(indom);
     else
 	res->numinst = 1;
+    res->indom = indom;
 
-    if (inst == PM_IN_NULL) {
-	if ((res->instlist = (int *)malloc(res->numinst * sizeof(res->instlist[0]))) == NULL) {
-	    free(res);
-	    return -oserror();
+    if (res->numinst > 0) {
+	if (inst == PM_IN_NULL) {
+	    if ((res->instlist = (int *)malloc(res->numinst * sizeof(res->instlist[0]))) == NULL) {
+		free(res);
+		return -oserror();
+	    }
 	}
+	else
+	    res->instlist = NULL;
+
+	if (name == NULL) {
+	    if ((res->namelist = (char **)malloc(res->numinst * sizeof(res->namelist[0]))) == NULL) {
+		__pmFreeInResult(res);
+		return -oserror();
+	    }
+	    for (i = 0; i < res->numinst; i++)
+		res->namelist[0] = NULL;
+	}
+	else
+	    res->namelist = NULL;
     }
-    else
+    else {
+	/* empty indom */
 	res->instlist = NULL;
-
-    if (name == NULL) {
-	if ((res->namelist = (char **)malloc(res->numinst * sizeof(res->namelist[0]))) == NULL) {
-	    __pmFreeInResult(res);
-	    return -oserror();
-	}
-	for (i = 0; i < res->numinst; i++)
-	    res->namelist[0] = NULL;
-    }
-    else
 	res->namelist = NULL;
+    }
 
     if (name == NULL && inst == PM_IN_NULL) {
 	/* return inst and name for everything */
@@ -1773,9 +1780,12 @@ doit:
 		      item == 134 ||	/* event.param_string */
 		      item == 135))	/* event.param_aggregate */
 		numval = 0;
-	    else if (visible_ghosts < 0 && cluster == 0 &&
-		    (item == 1009 || item == 1010 || item == 1011))
-		numval = PM_ERR_PMID;
+	    else if (cluster == 0 && (item== 1009 || item == 1010 || item == 1011)) {
+		if (visible_ghosts < 0)
+		    numval = PM_ERR_PMID;
+		else
+		    numval = visible_ghosts;
+	    }
 	    else if (dp->type == PM_TYPE_NOSUPPORT)
 		numval = PM_ERR_APPVERSION;
 	    else if (dp->indom != PM_INDOM_NULL) {
