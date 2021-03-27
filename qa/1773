@@ -88,6 +88,8 @@ options="-p $redisport"
 redis-cli $options ping
 echo
 
+_check_redis_server_version $redisport
+
 # import multi-host test data into Redis
 for node in node80 node81; do
     pmseries $options --load $tmp.farm/farm/$node/20201124.0 | _filter_source

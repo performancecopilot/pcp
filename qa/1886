@@ -57,6 +57,8 @@ pmsleep 0.125
 redis-cli -p $redisport ping
 echo
 
+_check_redis_server_version $redisport
+
 args="-p $redisport -Z UTC"
 
 echo "== Load metric data into this redis instance"

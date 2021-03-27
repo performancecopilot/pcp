@@ -60,6 +60,8 @@ options="-p $redisport"
 redis-cli $options ping
 echo
 
+_check_redis_server_version $redisport
+
 echo "Verify basic load from proc archive"
 pmseries $options --load "{source.path: \"$here/archives/proc\"}" | _filter_source
 echo

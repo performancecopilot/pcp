@@ -1292,6 +1292,18 @@ _check_series()
 	_notrun "Redis server utility not installed"
 }
 
+# check redis-server version
+# ... assumes _check_series already done and redis-server is running
+#
+_check_redis_server_version()
+{
+    eval `redis-cli -p "$1" info server |
+	grep redis_version: |
+	sed -e 's/:/=/g' -e 's/\..*//g'`
+    [ $redis_version -ge 5 ] || _notrun "Redis server @ port $1: version $redis_version too old"
+}
+
+#
 # Check redis server is installed and running locally and the version
 # is not too old. Optional port parameter defaults to 6379
 _check_redis_server()
@@ -1301,10 +1313,7 @@ _check_redis_server()
     [ -n "$1" ] && redisport="$1"
     redis-cli -p $redisport ping >/dev/null
     [ $? -eq 0 ] || _notrun "Redis server not running locally"
-    eval `redis-cli -p $redisport info server |
-	grep redis_version: |
-	sed -e 's/:/=/g' -e 's/\..*//g'`
-    [ $redis_version -ge 5 ] || _notrun "Redis $redis_version too old"
+    _check_redis_server_version $resdisport
 }
 
 _check_search()

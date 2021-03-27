@@ -49,6 +49,8 @@ options="-p $redisport"
 redis-cli $options ping
 echo
 
+_check_redis_server_version $redisport
+
 echo "Load first archive"
 pmseries $options --load "{source.path: \"$here/archives/viewqa1\"}" | _filter_source
 echo "Load second archive"
