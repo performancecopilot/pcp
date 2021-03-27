@@ -244,6 +244,11 @@ printindom(FILE *f, pmInResult *irp)
 {
     int		i;
 
+    if (irp->numinst == 0) {
+	fprintf(f, "Instance domain is empty\n");
+	return;
+    }
+
     for (i = 0; i < irp->numinst; i++) {
 	fprintf(f, "[%3d]", i);
 	if (irp->instlist != NULL)

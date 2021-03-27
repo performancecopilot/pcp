@@ -184,8 +184,12 @@ dodso_iname(pmInDom indom, int inst)
 
     sts = dispatch.version.any.instance(indom, inst, NULL, &inresult,
 					dispatch.version.any.ext);
-    if (sts >= 0)
+    if (sts >= 0) {
+	if (inresult->numinst != 1)
+	    printf("Warning: numinst=%d, not 1 as expected\n", inresult->numinst);
 	iname = strdup(inresult->namelist[0]);
+	__pmFreeInResult(inresult);
+    }
     else
 	printf("Error: DSO instance() failed: %s\n", pmErrStr(sts));
 
@@ -287,9 +291,11 @@ dodso(int pdu)
 	    sts = dispatch.version.any.instance(param.indom, param.number, 
 						    param.name, &inresult,
 						    dispatch.version.any.ext);
-	    if (sts >= 0)
+	    if (sts >= 0) {
 		printindom(stdout, inresult);
-	    else
+		__pmFreeInResult(inresult);
+	    }
+	    else if (sts < 0)
 		printf("Error: DSO instance() failed: %s\n", pmErrStr(sts));
 	    break;
 
@@ -334,6 +340,11 @@ dodso(int pdu)
 	    sts = dispatch.version.any.store(result, dispatch.version.any.ext);
 	    if (sts < 0)
 		printf("Error: DSO store() failed: %s\n", pmErrStr(sts));
+	    /*
+	     * DSO PMDA will manage the pmResult skelton, but
+	     * we need to free the pmValueSets and values here
+	     */
+	    __pmFreeResultValues(result);
 
 	    break;
 
