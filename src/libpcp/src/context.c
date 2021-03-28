@@ -1305,11 +1305,11 @@ pmReconnectContext(int handle)
 
 	if ((sts = __pmConnectPMCD(ctl->pc_hosts, ctl->pc_nhosts,
 				   ctxp->c_flags, &ctxp->c_attrs)) < 0) {
+	    PM_UNLOCK(ctxp->c_lock);
 	    waitawhile(ctl);
 	    if (pmDebugOptions.context)
 		fprintf(stderr, "pmReconnectContext(%d), failed (wait %d secs before next attempt)\n",
 		    handle, (int)(ctl->pc_again - time(NULL)));
-	    PM_UNLOCK(ctxp->c_lock);
 	    sts = -ETIMEDOUT;
 	    goto pmapi_return;
 	}
