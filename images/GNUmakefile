@@ -1,7 +1,9 @@
 TOPDIR = ..
 include $(TOPDIR)/src/include/builddefs
 
+ifeq "$(ENABLE_QT)" "true"
 DESKTOP_ICONS = pmchart.png pmtime.png
+endif
 HTMLDOC_ICONS = pcpicon.png pmcharticon.png pmtimeicon.png
 
 SVGFILES = $(shell echo *.svg)
@@ -37,7 +39,7 @@ endif
 include $(BUILDRULES)
 
 install: default
-ifeq ($(WINDOW),x11)
+ifeq "$(ENABLE_QT)" "true"
 	$(INSTALL) -m 755 -d $(PCP_ICONS_DIR)
 	$(INSTALL) -m 644 $(DESKTOP_ICONS) $(PCP_ICONS_DIR)
 endif

@@ -48,7 +48,9 @@ install:	build-me
 	$(INSTALL) -m 755 -t $(PMDATMPDIR)/parse parse.sh $(PMDAADMDIR)/parse
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) probe Install Remove $(PMDAADMDIR)
 	$(INSTALL) -m 644 -t $(PMDATMPDIR) $(DFILES) root help pmns domain.h $(PMDAADMDIR)
+ifeq "$(ENABLE_QT)" "true"
 	$(INSTALL) -m 644 -t $(PMCHARTVARDIR)/Cisco Cisco.pmchart $(PMCHARTDIR)/Cisco
+endif
 	$(INSTALL) -m 755 -d $(PMIEDIR)
 	$(INSTALL) -m 755 -d $(PMIEVARDIR)
 	$(INSTALL) -m 644 -t $(PMIEVARDIR)/in_util cisco.in_util.pmie $(PMIEDIR)/in_util

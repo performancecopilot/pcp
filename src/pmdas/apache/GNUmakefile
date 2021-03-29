@@ -46,7 +46,9 @@ install: build-me
 	$(INSTALL) -m 755 -t $(PMDAVARDIR)/pmda$(IAM) $(IAM) $(PMDAADMDIR)/pmda$(IAM)
 	$(INSTALL) -m 755 -t $(PMDAVARDIR) $(SCRIPTS) $(PMDAADMDIR)
 	$(INSTALL) -m 644 -t $(PMDAVARDIR) $(DFILES) pmns help root domain.h $(PMDAADMDIR)
+ifeq "$(ENABLE_QT)" "true"
 	$(INSTALL) -m 644 -t $(PMCHARTVARDIR)/Apache Apache.pmchart $(PMCHARTETCDIR)/Apache
+endif
 	$(INSTALL) -m 755 -d $(PMLOGCONFETCDIR)
 	$(INSTALL) -m 755 -d $(PMLOGCONFVARDIR)
 	$(INSTALL) -m 644 -t $(PMLOGCONFVARDIR)/processes pmlogconf.processes $(PMLOGCONFETCDIR)/processes
