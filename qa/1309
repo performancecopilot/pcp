@@ -1,7 +1,7 @@
 #!/bin/sh
-# PCP QA Test No. 1532
-# Test Linux ZFS PMDA against a live ZFS pool - part A (older stats files)
-# See also qa/1309 for part B
+# PCP QA Test No. 1309
+# Test Linux ZFS PMDA against a live ZFS pool - part B (newer stats files)
+# See also qa/1532 for part A
 #
 
 seq=`basename $0`
@@ -16,7 +16,7 @@ echo "QA output created by $seq"
 grep -q zfs /proc/filesystems || _notrun "ZFS filesystem unsupported by the running kernel"
 which zpool > /dev/null || _notrun "zpool not found, please check your OpenZFS installation"
 
-for file in arcstats dmu_tx xuio_stats zfetchstats zil
+for file in abdstats dbufstats dnodestats vdev_mirror_stats
 do
     [ -f /proc/spl/kstat/zfs/$file ] || _notrun "/proc/spl/kstat/zfs/$file is missing"
 done
@@ -42,16 +42,14 @@ $sudo rm -fr $root
 mkdir $root || _fail "root in use when processing $tgz"
 $sudo dd if=/dev/zero of=$root/disk.img bs=1024 count=65536 > /dev/null 2>&1
 $sudo zpool create $poolname $root/disk.img
-echo "== Checking metric count for ZFS ARC"
-pminfo $opts -f zfs.arc |  grep '^ \+value ' | wc -l 2>&1
-echo "== Checking metric count for ZFS DMU TX"
-pminfo $opts -f zfs.dmu_tx |  grep '^ \+value ' | wc -l 2>&1
-echo "== Checking metric count for ZFS XUIO"
-pminfo $opts -f zfs.xuio |  grep '^ \+value ' | wc -l 2>&1
-echo "== Checking metric count for ZFS ZFetch"
-pminfo $opts -f zfs.zfetch |  grep '^ \+value ' | wc -l 2>&1
-echo "== Checking metric count for ZFS ZIL"
-pminfo $opts -f zfs.zil |  grep '^ \+value ' | wc -l 2>&1
+echo "== Checking metric count for ZFS ABD"
+pminfo $opts -f zfs.abd |  grep '^ \+value ' | wc -l 2>&1
+echo "== Checking metric count for ZFS DBUF"
+pminfo $opts -f zfs.dbuf |  grep '^ \+value ' | wc -l 2>&1
+echo "== Checking metric count for ZFS DNode"
+pminfo $opts -f zfs.dnode |  grep '^ \+value ' | wc -l 2>&1
+echo "== Checking metric count for ZFS VDev"
+pminfo $opts -f zfs.vdev |  grep '^ \+value ' | wc -l 2>&1
 echo "== Checking metric count for ZFS pool $poolname"
 pminfo $opts -f zfs.pool | grep $poolname | wc -l 2>&1
 echo && echo "== done" && echo

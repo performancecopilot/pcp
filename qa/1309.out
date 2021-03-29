@@ -1,0 +1,14 @@
+QA output created by 1309
+== Checking metric count for ZFS ABD
+21
+== Checking metric count for ZFS DBUF
+43
+== Checking metric count for ZFS DNode
+28
+== Checking metric count for ZFS VDev
+10
+== Checking metric count for ZFS pool pmdazfs_test
+13
+
+== done
+
