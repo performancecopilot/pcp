@@ -487,6 +487,7 @@ pmResult ... numpmid: 1
   62.1.6 (<noname>): No values returned!
 dbpmda> instance 62.0
 pmInDom: 62.0
+Instance domain is empty
 dbpmda> 
 Log for pmdanfsclient on HOST ...
 Log finished ...
