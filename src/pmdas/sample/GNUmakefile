@@ -37,7 +37,9 @@ install_pcp install :: default
 	$(INSTALL) -m 755 -d $(PMDATMPDIR)
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove $(PMDAADMDIR)
 	$(INSTALL) -m 644 -t $(PMDATMPDIR) $(DFILES) pmns root $(PMDAADMDIR)
+ifeq "$(ENABLE_QT)" "true"
 	$(INSTALL) -m 644 -t $(PMCHARTVARDIR)/Sample Sample.pmchart $(PMCHARTDIR)/Sample
+endif
 
 $(OBJECTS): domain.h
 
