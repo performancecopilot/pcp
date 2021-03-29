@@ -15,8 +15,8 @@ echo "QA output created by $seq"
 
 _check_series
 which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
-curl --request-targets 2>&1 | grep -q 'requires parameter' && \
-	_notrun "Test requires curl --request-targets option"
+curl --request-target 2>&1 | grep -q 'requires parameter' || \
+	_notrun "Test requires curl --request-target option"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
