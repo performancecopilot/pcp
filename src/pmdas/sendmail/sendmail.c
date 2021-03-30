@@ -40,7 +40,7 @@ static pmdaIndom indomtab[] = {
     { MAILER_INDOM, 0, NULL },
 };
 
-static char		*statsfile = "/var/sendmail.st";
+static char		*statsfile;
 static char		*username;
 static int		nmailer;
 static void		*ptr;
@@ -118,7 +118,6 @@ map_stats(void)
 	long	stat_nr[MAXMAILERS];	/* # rejects by each mailer */
 	long	stat_nd[MAXMAILERS];	/* # discards by each mailer */
     } *smstat;
-    
 
     if (pmDebugOptions.appl0) {
     	fprintf(stderr, "%s: map_stats: Entering:\n", pmGetProgname());
@@ -266,10 +265,16 @@ do_sendmail_cf(void)
     int		i;
     int		lineno = 0;
 
+    if ((statsfile = strdup("/var/sendmail.st")) == NULL) {
+	fprintf(stderr, "do_sendmail_cf: initial statsfile strdup(\"/var/sendmail.st\") failed\n");
+	exit(1);
+    }
+
     if ((fp = fopen("/etc/sendmail.cf", "r")) == NULL) {
 	if ((fp = fopen("/etc/mail/sendmail.cf", "r")) == NULL) {
 	    /* this is pretty serious! */
 	    nmailer = 0;
+	    free(statsfile);
 	    statsfile = NULL;
 	    if (pmDebugOptions.appl0)
 		fprintf(stderr, "Warning: cannot find sendmail.cf, so no stats!\n");
@@ -302,7 +307,10 @@ do_sendmail_cf(void)
 	    }
 	    if (i == nmailer) {
 		indomtab[MAILER_INDOM].it_set = (pmdaInstid *)realloc(indomtab[MAILER_INDOM].it_set, (nmailer+1) * sizeof(pmdaInstid));
-		indomtab[MAILER_INDOM].it_set[nmailer].i_name = strdup(&buf[1]);
+		if ((indomtab[MAILER_INDOM].it_set[nmailer].i_name = strdup(&buf[1])) == NULL) {
+		    fprintf(stderr, "do_sendmail_cf: indomtab[] strdup(\"%s\") failed\n", &buf[1]);
+		    exit(1);
+		}
 		indomtab[MAILER_INDOM].it_set[nmailer].i_inst = nmailer;
 		if (pmDebugOptions.appl0)
 		    fprintf(stderr, "sendmail.cf[%d]: mailer \"%s\" inst=%d\n",
@@ -331,7 +339,11 @@ do_sendmail_cf(void)
 		bp++;
 	    *bp = '\0';
 
-	    statsfile = strdup(tp);
+	    free(statsfile);
+	    if ((statsfile = strdup(tp)) == NULL) {
+		fprintf(stderr, "do_sendmail_cf: statsfile strdup(\"%s\") failed\n", tp);
+		exit(1);
+	    }
 	    if (pmDebugOptions.appl0)
 		fprintf(stderr, "sendmail.cf[%d]: statsfile \"%s\"\n",
 		    lineno, tp);
