@@ -34,6 +34,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 {
     __pmPDU		*pb;
     int			sts;
+    int			psts;		/* for PDU send ops */
     int			op_sts;
     pmID		pmid;
     pmDesc		desc;
@@ -103,9 +104,14 @@ __pmdaMainPDU(pmdaInterface *dispatch)
     if (pmda->e_checkCallBack != NULL) {
 	op_sts = (*(pmda->e_checkCallBack))();
 	if (op_sts < 0) {
-	    if (sts != PDU_PROFILE && sts != PDU_ATTR)
+	    if (sts != PDU_PROFILE && sts != PDU_ATTR) {
 		/* all other PDUs expect an ACK */
-		__pmSendError(pmda->e_outfd, FROM_ANON, op_sts);
+		psts = __pmSendError(pmda->e_outfd, FROM_ANON, op_sts);
+		if (psts < 0) {
+		    pmNotifyErr(LOG_DEBUG, "__pmSendError(%d,...,%d) ACK failed:%s\n",
+			    pmda->e_outfd, op_sts, pmErrStr(psts));
+		}
+	    }
 	    __pmUnpinPDUBuf(pb);
 	    return 0;
 	}
@@ -170,9 +176,17 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	    __pmUnpinPDUBuf(pmidlist);
 	}
 	if (sts < 0) {
-	    __pmSendError(pmda->e_outfd, FROM_ANON, sts);
+	    psts = __pmSendError(pmda->e_outfd, FROM_ANON, sts);
+	    if (psts < 0) {
+		pmNotifyErr(LOG_DEBUG, "__pmSendError(%d,...,%d) FETCH failed: %s\n",
+			pmda->e_outfd, sts, pmErrStr(psts));
+	    }
 	} else {
-	    __pmSendResult(pmda->e_outfd, FROM_ANON, result);
+	    psts = __pmSendResult(pmda->e_outfd, FROM_ANON, result);
+	    if (psts < 0) {
+		pmNotifyErr(LOG_DEBUG, "__pmSendResult(%d,...) failed: %s\n",
+			pmda->e_outfd, pmErrStr(psts));
+	    }
 	    if (pmda->e_resultCallBack != NULL)
 		pmda->e_resultCallBack(result);
 	}
@@ -199,10 +213,20 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	    }
 	    free(namelist);
 	}
-	if (sts < 0)
-	    __pmSendError(pmda->e_outfd, FROM_ANON, sts);
-	else
-	    __pmSendIDList(pmda->e_outfd, FROM_ANON, 1, &pmid, sts);
+	if (sts < 0) {
+	    psts = __pmSendError(pmda->e_outfd, FROM_ANON, sts);
+	    if (psts < 0) {
+		pmNotifyErr(LOG_DEBUG, "__pmSendError(%d,...,%d) PMNS_NAMES failed: %s\n",
+			pmda->e_outfd, sts, pmErrStr(psts));
+	    }
+	}
+	else {
+	    psts = __pmSendIDList(pmda->e_outfd, FROM_ANON, 1, &pmid, sts);
+	    if (psts < 0) {
+		pmNotifyErr(LOG_DEBUG, "__pmSendIDList(%d,...) failed: %s\n",
+			pmda->e_outfd, pmErrStr(psts));
+	    }
+	}
 	break;
 
     case PDU_PMNS_CHILD:
@@ -225,10 +249,20 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	    }
 	    free(name);
 	}
-	if (sts < 0)
-	    __pmSendError(pmda->e_outfd, FROM_ANON, sts);
-	else
-	    __pmSendNameList(pmda->e_outfd, FROM_ANON, sts, (const char **)offspring, statuslist);
+	if (sts < 0) {
+	    psts = __pmSendError(pmda->e_outfd, FROM_ANON, sts);
+	    if (psts < 0) {
+		pmNotifyErr(LOG_DEBUG, "__pmSendError(%d,...,%d) PMNS_CHILD failed: %s\n",
+			pmda->e_outfd, sts, pmErrStr(psts));
+	    }
+	}
+	else {
+	    psts = __pmSendNameList(pmda->e_outfd, FROM_ANON, sts, (const char **)offspring, statuslist);
+	    if (psts < 0) {
+		pmNotifyErr(LOG_DEBUG, "__pmSendNameList(%d,...) PMNS_CHILD failed: %s\n",
+			pmda->e_outfd, pmErrStr(psts));
+	    }
+	}
 	if (offspring) free(offspring);
 	if (statuslist) free(statuslist);
 	break;
@@ -251,10 +285,20 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	    }
 	    free(name);
 	}
-	if (sts < 0)
-	    __pmSendError(pmda->e_outfd, FROM_ANON, sts);
-	else
-	    __pmSendNameList(pmda->e_outfd, FROM_ANON, sts, (const char **)offspring, NULL);
+	if (sts < 0) {
+	    psts = __pmSendError(pmda->e_outfd, FROM_ANON, sts);
+	    if (psts < 0) {
+		pmNotifyErr(LOG_DEBUG, "__pmSendError(%d,...,%d) PMNS_TRAVERSE failed: %s\n",
+			pmda->e_outfd, sts, pmErrStr(psts));
+	    }
+	}
+	else {
+	    psts = __pmSendNameList(pmda->e_outfd, FROM_ANON, sts, (const char **)offspring, NULL);
+	    if (psts < 0) {
+		pmNotifyErr(LOG_DEBUG, "__pmSendNameList(%d,...) PMNS_TRAVERSE failed: %s\n",
+			pmda->e_outfd, pmErrStr(psts));
+	    }
+	}
 	if (offspring) free(offspring);
 	break;
 
@@ -271,10 +315,20 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	    else /* Not INTERFACE_4 */
 		sts = PM_ERR_PMID;
 	}
-	if (sts < 0)
-	    __pmSendError(pmda->e_outfd, FROM_ANON, sts);
-	else
-	    __pmSendNameList(pmda->e_outfd, FROM_ANON, sts, (const char **)namelist, NULL);
+	if (sts < 0) {
+	    psts = __pmSendError(pmda->e_outfd, FROM_ANON, sts);
+	    if (psts < 0) {
+		pmNotifyErr(LOG_DEBUG, "__pmSendError(%d,...,%d) PMNS_IDS failed: %s\n",
+			pmda->e_outfd, sts, pmErrStr(psts));
+	    }
+	}
+	else {
+	    psts = __pmSendNameList(pmda->e_outfd, FROM_ANON, sts, (const char **)namelist, NULL);
+	    if (psts < 0) {
+		pmNotifyErr(LOG_DEBUG, "__pmSendNameList(%d,...) PMNS_IDS failed: %s\n",
+			pmda->e_outfd, pmErrStr(psts));
+	    }
+	}
 	if (namelist) free(namelist);
 	break;
 
@@ -284,10 +338,20 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 
 	if ((sts = __pmDecodeDescReq(pb, &pmid)) >= 0)
 	    sts = dispatch->version.any.desc(pmid, &desc, pmda);
-	if (sts < 0)
-	    __pmSendError(pmda->e_outfd, FROM_ANON, sts);
-	else
-	    __pmSendDesc(pmda->e_outfd, FROM_ANON, &desc);
+	if (sts < 0) {
+	    psts = __pmSendError(pmda->e_outfd, FROM_ANON, sts);
+	    if (psts < 0) {
+		pmNotifyErr(LOG_DEBUG, "__pmSendError(%d,...,%d) DESC_REQ failed: %s\n",
+			pmda->e_outfd, sts, pmErrStr(psts));
+	    }
+	}
+	else {
+	    psts = __pmSendDesc(pmda->e_outfd, FROM_ANON, &desc);
+	    if (psts < 0) {
+		pmNotifyErr(LOG_DEBUG, "__pmSendDesc(%d,...) failed: %s\n",
+			pmda->e_outfd, pmErrStr(psts));
+	    }
+	}
 	break;
 
     case PDU_LABEL_REQ:
@@ -299,12 +363,21 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	    ctxnum = dispatch->version.seven.ext->e_context;
 	    sts = dispatch->version.seven.label(ident, type, &labels, pmda);
 	}
-	if (sts < 0)
-	    __pmSendError(pmda->e_outfd, FROM_ANON, sts);
+	if (sts < 0) {
+	    psts = __pmSendError(pmda->e_outfd, FROM_ANON, sts);
+	    if (psts < 0) {
+		pmNotifyErr(LOG_DEBUG, "__pmSendError(%d,...,%d) LABEL_REQ failed: %s\n",
+			pmda->e_outfd, sts, pmErrStr(psts));
+	    }
+	}
 	else {
 	    if (sts > 0 && !(type & PM_LABEL_INSTANCES))
 		sts = 1;
-	    __pmSendLabel(pmda->e_outfd, FROM_ANON, ident, type, labels, sts);
+	    psts = __pmSendLabel(pmda->e_outfd, FROM_ANON, ident, type, labels, sts);
+	    if (psts < 0) {
+		pmNotifyErr(LOG_DEBUG, "__pmSendLabel(%d,...) failed: %s\n",
+			pmda->e_outfd, pmErrStr(psts));
+	    }
 	    pmFreeLabelSets(labels, sts);
 	}
 	break;
@@ -315,10 +388,19 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 
 	if ((sts = __pmDecodeInstanceReq(pb, &when, &indom, &inst, &iname)) >= 0)
 	    sts = dispatch->version.any.instance(indom, inst, iname, &inres, pmda);
-	if (sts < 0)
-	    __pmSendError(pmda->e_outfd, FROM_ANON, sts);
+	if (sts < 0) {
+	    psts = __pmSendError(pmda->e_outfd, FROM_ANON, sts);
+	    if (psts < 0) {
+		pmNotifyErr(LOG_DEBUG, "__pmSendError(%d,...,%d) INSTANCE_REQ failed: %s\n",
+			pmda->e_outfd, sts, pmErrStr(psts));
+	    }
+	}
 	else {
-	    __pmSendInstance(pmda->e_outfd, FROM_ANON, inres);
+	    psts = __pmSendInstance(pmda->e_outfd, FROM_ANON, inres);
+	    if (psts < 0) {
+		pmNotifyErr(LOG_DEBUG, "__pmSendInstance(%d,...) failed: %s\n",
+			pmda->e_outfd, pmErrStr(psts));
+	    }
 	    __pmFreeInResult(inres);
 	}
 	if (iname)
@@ -331,10 +413,20 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 
 	if ((sts = __pmDecodeTextReq(pb, &ident, &type)) >= 0)
 	    sts = dispatch->version.any.text(ident, type, &buffer, pmda);
-	if (sts < 0)
-	    __pmSendError(pmda->e_outfd, FROM_ANON, sts);
-	else
-	    __pmSendText(pmda->e_outfd, FROM_ANON, ident, buffer);
+	if (sts < 0) {
+	    psts = __pmSendError(pmda->e_outfd, FROM_ANON, sts);
+	    if (psts < 0) {
+		pmNotifyErr(LOG_DEBUG, "__pmSendError(%d,...,%d) TEXT_REQ failed: %s\n",
+			pmda->e_outfd, sts, pmErrStr(psts));
+	    }
+	}
+	else {
+	    psts = __pmSendText(pmda->e_outfd, FROM_ANON, ident, buffer);
+	    if (psts < 0) {
+		pmNotifyErr(LOG_DEBUG, "__pmSendText(%d,...) failed: %s\n",
+			pmda->e_outfd, pmErrStr(psts));
+	    }
+	}
 	break;
 
     case PDU_RESULT:
