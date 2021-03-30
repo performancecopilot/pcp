@@ -265,8 +265,7 @@ summarydel(void *a)
 	    pmNotifyErr(LOG_ERR, "history table insert failure - '%s' "
 		"instance will not maintain its instance number.", check.tag);
     }
-    if (k != NULL)
-	free(k);	/* don't free k->tag - its in the history table */
+    free(k);	/* don't free k->tag - its in the history table */
 }
 
 /*
