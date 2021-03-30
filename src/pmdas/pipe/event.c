@@ -870,7 +870,11 @@ event_acl(pmInDom aclops)
 	if (strcmp(pa->identifier, "*") == 0)
 	    continue;
 	pmdaCacheStore(aclops, PMDA_CACHE_ADD, pa->identifier, NULL);
-	pmdaCacheLookupName(aclops, pa->identifier, &pa->operation, NULL);
+	if ((sts = pmdaCacheLookupName(aclops, pa->identifier, &pa->operation, NULL)) < 0) {
+	    pmNotifyErr(LOG_ERR, "event_acl: pmdaCacheLookupName(...,%s,...): %s",
+		    pa->identifier, pmErrStr(sts));
+	    exit(1);
+	}
 
 	if (pa->user)
 	    nusers++;
@@ -943,6 +947,7 @@ event_indom(pmInDom pipe_indom)
 {
     pipe_command	*pc;
     int			i;
+    int			sts;
 
     /* initialize the instance domain cache */
     pmdaCacheOp(pipe_indom, PMDA_CACHE_LOAD);
@@ -951,7 +956,11 @@ event_indom(pmInDom pipe_indom)
     for (i = 0; i < cmdtab_size; i++) {
 	pc = &cmdtab[i];
 	pmdaCacheStore(pipe_indom, PMDA_CACHE_ADD, pc->identifier, pc);
-	pmdaCacheLookupName(pipe_indom, pc->identifier, &pc->inst, NULL);
+	if ((sts = pmdaCacheLookupName(pipe_indom, pc->identifier, &pc->inst, NULL)) < 0) {
+	    pmNotifyErr(LOG_ERR, "event_indom: pmdaCacheLookupName(...,%s,...): %s",
+		    pc->identifier, pmErrStr(sts));
+	    exit(1);
+	}
 
 	if (pmDebugOptions.appl0)
             pmNotifyErr(LOG_DEBUG, "event_indom: added %s[%d]", pc->identifier, pc->inst);
