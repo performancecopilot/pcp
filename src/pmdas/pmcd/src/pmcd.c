@@ -1227,10 +1227,9 @@ fetch_labels(int ctx, pmAtomValue *avp, char **hostname)
 	avp->cp = pmcd_labels;
     else if ((sts = __pmGetContextLabels(&set)) <= 0)
 	avp->cp = "";
-    else {
+    else
 	avp->cp = strndup(set->json, set->jsonlen + 1);
-	pmFreeLabelSets(set, 1);
-    }
+    pmFreeLabelSets(set, 1);
     return avp->cp;
 }
 
