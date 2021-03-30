@@ -11,6 +11,7 @@ memory/GNUmakefile
 networking/GNUmakefile
 platform/GNUmakefile
 sgi/GNUmakefile
+services/GNUmakefile
 sqlserver/GNUmakefile
 statsd/GNUmakefile
 storage/GNUmakefile

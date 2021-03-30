@@ -49,12 +49,14 @@ install:	build-me
 	$(INSTALL) -m 755 -t $(PMDAVARDIR) check_match $(SCRIPTS) $(PMDAADMDIR)
 	$(INSTALL) -m 755 -t $(IAM) $(PMDAADMDIR)/pmda$(IAM)
 	$(INSTALL) -m 644 -t $(PMDAVARDIR) $(DFILES) root help pmns domain.h $(PMDAADMDIR)
+ifeq "$(ENABLE_QT)" "true"
 	$(INSTALL) -m 644 -t $(PMCHARTVARDIR)/Web.Alarms Web.Alarms.pmchart $(PMCHARTDIR)/Web.Alarms
 	$(INSTALL) -m 644 -t $(PMCHARTVARDIR)/Web.Requests Web.Requests.pmchart $(PMCHARTDIR)/Web.Requests
 	$(INSTALL) -m 644 -t $(PMCHARTVARDIR)/Web.Volume Web.Volume.pmchart $(PMCHARTDIR)/Web.Volume
 	$(INSTALL) -m 755 -t $(PMCHARTVARDIR)/Web.Allservers Web.Allservers.pmchart $(PMCHARTDIR)/Web.Allservers
 	$(INSTALL) -m 755 -t $(PMCHARTVARDIR)/Web.Perserver.Bytes Web.Perserver.Bytes.pmchart $(PMCHARTDIR)/Web.Perserver.Bytes
 	$(INSTALL) -m 755 -t $(PMCHARTVARDIR)/Web.Perserver.Requests Web.Perserver.Requests.pmchart $(PMCHARTDIR)/Web.Perserver.Requests
+endif
 else
 build-me:
 install:

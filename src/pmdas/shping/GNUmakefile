@@ -60,8 +60,10 @@ install: configs
 endif
 
 configs:
+ifeq "$(ENABLE_QT)" "true"
 	$(INSTALL) -m 644 -t $(PMCHARTVARDIR)/shping.CPUTime shping.CPUTime.pmchart $(PMCHARTDIR)/shping.CPUTime
 	$(INSTALL) -m 644 -t $(PMCHARTVARDIR)/shping.RealTime shping.RealTime.pmchart $(PMCHARTDIR)/shping.RealTime
+endif
 	$(INSTALL) -m 755 -d $(PMIECONFDIR)
 	$(INSTALL) -m 755 -d $(PMIECONFVARDIR)
 	$(INSTALL) -m 644 -t $(PMIECONFVARDIR)/status shping.status.pmie $(PMIECONFDIR)/status
