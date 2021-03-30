@@ -331,7 +331,12 @@ __pmtracegetPDU(int fd, int timeout, __pmTracePDU **result)
     }
 
     php->len = ntohl(php->len);
-    if (php->len < 0) {
+    /*
+     * PDU "len" must be > header + 32-bits (for an ACK PDU) and
+     * < header + "bits" + 256 (for the longest possible tag)
+     */
+    if (php->len < (int)sizeof(__pmTracePDUHdr) + sizeof(int32_t) ||
+        php->len > (int)sizeof(__pmTracePDUHdr) + sizeof(int32_t) + 256) {
 	fprintf(stderr, "__pmtracegetPDU: fd=%d illegal len=%d in hdr\n", fd, php->len);
 	return PMTRACE_ERR_IPC;
     }
