@@ -258,6 +258,7 @@ pmda.smart
 pmda.sockets
 pmda.summary
 pmda.systemd
+pmda.trace
 pmda.trivial
 pmda.txmon
 pmda.unbound
@@ -275,7 +276,7 @@ pmstore
 # metadata labels and pm*Labels() libpcp routines
 labels
 
-# trace library and PMDA
+# trace library
 trace
 
 # Linux platform PMDA
@@ -562,7 +563,7 @@ x11
 119 logutil local #877570
 120 kernel local kernel
 121 pmlogconf #893249 local kernel
-122 trace local #893884 remote
+122 trace local #893884 remote pmda.trace
 123 libpcp local
 124 pmie local #870661 kernel
 125 pmval archive kernel
@@ -698,7 +699,7 @@ x11
 255 compat pmda #508731 #509091 pmda.proc help pmda.install local pmda.simple
 256 derive pmns local sanity pmda.sample
 257 libpcp pmns compat remote
-258 trace local pmda.install folio
+258 trace local pmda.install folio pmda.trace
 259 derive pmval local
 260 derive pmie local pmstore
 261 pmdumplog pmval local pmlogextract
@@ -776,7 +777,7 @@ x11
 333:retired archive mem_leak local purify
 334 derive local
 335 derive local pmval pmstore
-336 trace local pmda.install folio
+336 trace local pmda.install folio pmda.trace
 337 pmlogextract local pmval pmdumplog
 338 logutil pmlogextract local sanity
 339 pmie local kernel
@@ -795,7 +796,7 @@ x11
 352 derive pmlogger local pmdumplog
 353 pmsocks remote
 354 folio local sanity pmlc
-355 trace local pmda.install
+355 trace local pmda.install pmda.trace
 356 derive local pmie
 357 other local
 358 pmie local pmstore
@@ -816,7 +817,7 @@ x11
 373 pmimport local perl pmdumplog
 374 pmlc pmlogger remote pmdumplog
 375 pmlc pmlogger remote pmdumplog
-376 trace local pmda.install
+376 trace local pmda.install pmda.trace
 377 other local
 378 pmie local kernel
 379 pmda.cisco local
@@ -861,12 +862,12 @@ x11
 418 pmdumplog local pmlogger
 419 pmdumplog local pmlogger kernel
 420 local pmdumplog
-421 trace local pmda.install
+421 trace local pmda.install pmda.trace
 422 libpcp local pmstore
 423 libpcp local
 424 local pmlogsummary
 425 wrap local pmlogsummary pmdumplog
-426 trace local pmstore
+426 trace local pmstore pmda.trace
 427 pmcd #564017 local
 428 archive local pmval pmstore
 429 pmns local
@@ -885,8 +886,8 @@ x11
 442 pmlogextract local
 443 event local pmstore
 444 event local pmstore
-445 trace local
-446 trace local
+445 trace local pmda.trace
+446 trace local pmda.trace
 447 event local pmstore
 448 libpcp local
 449 threads local flakey pmns
@@ -1041,11 +1042,11 @@ x11
 598 derive local
 599 pmie local
 600 libpcp local timezone
-601 trace pmda.install local
-602 trace pmda.install local
-603 trace pmda.install remote
+601 trace pmda.install local pmda.trace
+602 trace pmda.install local pmda.trace
+603 trace pmda.install remote pmda.trace
 604 archive pmval pmlogextract pmdumplog local
-605 trace local
+605 trace local pmda.trace
 606 python archive pmns iostat local pidstat pcp
 607 libpcp local
 608 pmpost local
@@ -1082,7 +1083,7 @@ x11
 639 pmns local
 640 pmpost local
 641 logutil pmdumplog local pmlogrewrite pmlogmv
-642 pmda.trivial pmns local pmda.simple pmda.sample pmda.sendmail trace
+642 pmda.trivial pmns local pmda.simple pmda.sample pmda.sendmail trace pmda.trace
 643 pmda.trivial pmns local
 644 pmns local
 645 pmlogger local kernel
