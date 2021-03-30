@@ -116,7 +116,10 @@ decode_status(int status)
 
 /*
  * Built array of arguments for use in __pmProcessExec() or
- * __pmProcessPipe()
+ * __pmProcessPipe().
+ *
+ * On error, return < 0 and *argp == NULL and any __pmExecCtl_t
+ * allocations are cleaned up.
  */
 int
 __pmProcessAddArg(__pmExecCtl_t **handle, const char *arg)
@@ -839,6 +842,9 @@ __pmProcessPipeClose(FILE *fp)
  * - no \ escapes
  * - shell meta characters are not recognized and will be eaten as
  *   arguments, e.g. ; & < > |
+ *
+ * On error, return < 0 and *argp == NULL and any __pmExecCtl_t
+ * allocations are cleaned up.
  */
 int
 __pmProcessUnpickArgs(__pmExecCtl_t **argp, const char *command)
@@ -854,6 +860,7 @@ __pmProcessUnpickArgs(__pmExecCtl_t **argp, const char *command)
 
     if (str == NULL) {
 	pmNoMem("__pmProcessUnpickArgs", strlen(command)+1, PM_RECOV_ERR);
+	*argp = NULL;
 	return -ENOMEM;
     }
 
@@ -878,6 +885,8 @@ __pmProcessUnpickArgs(__pmExecCtl_t **argp, const char *command)
 		pmNotifyErr(LOG_WARNING,
 			"__pmProcessUnpickArgs: unterminated quote (%c) in command: %s\n",
 			endch & 0xff, command);
+		cleanup(*argp);
+		*argp = NULL;
 		sts = PM_ERR_GENERIC;
 		break;
 	    }
