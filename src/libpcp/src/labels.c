@@ -851,16 +851,17 @@ __pmMergeLabelSets(pmLabel *alabels, const char *abuf, __pmHashCtl *ac, int na,
     char		*bp = output;
     int			sts, i, j;
 
-    if (no)
-	*no = 0;	/* number of output labels */
-
     /* integrity check */
-    if ((na > 0 && alabels == NULL) || (nb > 0 && blabels == NULL)) {
+    if ((na > 0 && alabels == NULL) || (nb > 0 && blabels == NULL) ||
+        (olabels == NULL && no != NULL) || (olabels != NULL && no == NULL)) {
 	if (pmDebugOptions.labels)
 	    fprintf(stderr, "__pmMergeLabelSets: invalid or corrupt arguments\n");
 	sts = -EINVAL;
 	goto done;
     }
+
+    if (no)
+	*no = 0;	/* number of output labels */
 
     /* Walk over both label sets inserting all names into the output
      * buffer, but prefering b-group values over those in the a-group.
