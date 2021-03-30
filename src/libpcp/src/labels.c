@@ -183,6 +183,9 @@ pmFreeLabelSets(pmLabelSet *sets, int nsets)
 {
     int		i;
 
+    if (sets == NULL)
+	return;
+
     for (i = 0; i < nsets; i++) {
 	if (sets[i].nlabels > 0)
 	    free(sets[i].labels);
@@ -195,10 +198,7 @@ pmFreeLabelSets(pmLabelSet *sets, int nsets)
 	    sets[i].hash = NULL;
 	}
     }
-    if (sets != NULL) {
-	assert(nsets > 0);
-	free(sets);
-    }
+    free(sets);
 }
 
 pmLabelSet *

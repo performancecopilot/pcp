@@ -61,6 +61,14 @@ to release storage previously allocated for a
 by
 .BR pmLookupLabels (3)
 or related APIs.
+.PP
+To simplify error handling, if
+.I sets
+is
+.B NULL
+then
+.I pmFreeLabelSets
+simply returns without freeing any storage.
 .SH SEE ALSO
 .BR malloc (3),
 .BR PMAPI (3)
