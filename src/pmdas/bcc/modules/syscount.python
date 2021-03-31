@@ -117,7 +117,12 @@ class PCPBCCModule(PCPBCCBase):
 
     def init_insts(self):
         """ Initialize insts """
-        self.insts = {self.syscalls[i] : c_int(1) for i in range(len(self.syscalls))}
+        self.insts = {}
+        for i in range(list(self.syscalls.keys())[-1]):
+            if i in self.syscalls:
+                self.insts[self.syscalls[i]] = c_int(1)
+            else:
+                self.insts["UNDEF" + str(i)] = c_int(1)
 
     def reset_cache(self):
         """ Reset internal cache """
