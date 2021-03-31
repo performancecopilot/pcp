@@ -172,6 +172,10 @@ pmTimeShowDialog(int fd, int show)
     return sts;
 }
 
+/*
+ * is this deprecated?  no apparent use in src or qa trees, but it
+ * is documented in the pmTime(3) man page
+ */
 int
 pmTimeRecv(int fd, pmTime **datap)
 {
@@ -186,6 +190,13 @@ pmTimeRecv(int fd, pmTime **datap)
 	sts = -1;
     } else if (sts < 0) {
 	setoserror(neterror());
+    } else if (k->length < sizeof(pmTime) || k->length > sizeof(pmTime) + 2 * PM_TZ_MAXLEN) {
+	/*
+	 * fails sanity check ... the 2 * PM_TZ_MAXLEN is a bit of a punt as we're not
+	 * absolutely certain how long k->data[] could be, but at worst it seems to be
+	 * a timezone + a timezone "label"
+	 */
+	sts = PM_ERR_IPC;
     } else if (k->length > sizeof(pmTime)) {	/* double dipping */
 	remains = k->length - sizeof(pmTime);
 	k_tmp = realloc(k, k->length);

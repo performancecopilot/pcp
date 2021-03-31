@@ -216,6 +216,14 @@ else
     echo '/allow \[pcp_pmcd_t\] .*\[lockdown\]/d' >>$tmp.sed
 fi
 
+if seinfo -x --class=netlink_tcpdiag_socket $common_flag 2>&1 \
+   | egrep '^[ 	][ 	]*(class |)netlink_tcpdiag_socket$' >/dev/null
+then
+    :
+else
+    echo '/allow \[pcp_pmcd_t\] .*\[netlink_tcpdiag_socket\]/d' >>$tmp.sed
+fi
+
 cat $tmp.sed >>$seq.full
 
 cat $seq.out.in | _filter_outfile >$seq.out

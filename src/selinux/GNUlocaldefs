@@ -118,8 +118,11 @@ endif
 
 ifeq "$(PCP_SELINUX_NETLINK_GENERIC_SOCKET_CLASS)" "true"
 PCP_NETLINK_GENERIC_SOCKET_CLASS="class netlink_generic_socket { bind create getattr setopt write read };"
-PCP_NETLINK_TCPDIAG_SOCKET_CLASS="class netlink_tcpdiag_socket { bind create getattr nlmsg_read setopt };"
 PCP_NETLINK_GENERIC_SOCKET_RULE="allow pcp_pmcd_t self:netlink_generic_socket { bind create getattr setopt write read };"
+endif
+
+ifeq "$(PCP_SELINUX_NETLINK_TCPDIAG_SOCKET_CLASS)" "true"
+PCP_NETLINK_TCPDIAG_SOCKET_CLASS="class netlink_tcpdiag_socket { bind create getattr nlmsg_read setopt };"
 PCP_NETLINK_TCPDIAG_SOCKET_RULE="allow pcp_pmcd_t self:netlink_tcpdiag_socket { bind create getattr nlmsg_read setopt };"
 endif
 
