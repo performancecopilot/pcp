@@ -104,7 +104,7 @@ class PCPBCCModule(PCPBCCBase):
             self.bpf = BPF(text=bpf_text)
             self.bpf.attach_kprobe(event="ttwu_do_wakeup", fn_name="trace_ttwu_do_wakeup")
             self.bpf.attach_kprobe(event="wake_up_new_task", fn_name="trace_wake_up_new_task")
-            self.bpf.attach_kprobe(event_re="^finish_task_switch$|^finish_task_switch\.isra\.\d$", fn_name="trace_run")
+            self.bpf.attach_kprobe(event_re=r"^finish_task_switch$|^finish_task_switch\.isra\.\d$", fn_name="trace_run")
             self.log("Compiled.")
         except Exception as error: # pylint: disable=broad-except
             self.bpf = None
