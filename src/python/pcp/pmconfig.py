@@ -362,7 +362,7 @@ class pmConfig(object):
                         confmet[name] = parsemet[metric][1:]
                     tempmet[spec] = confmet
                 else:
-                    raise IOError("Metricset definition '%s' not found." % metric)
+                    raise IOError("Metricset definition ':%s' not found." % spec)
 
         # Create combined metricset
         if self.util.globals == 1:
