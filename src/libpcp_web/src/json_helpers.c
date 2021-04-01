@@ -595,13 +595,18 @@ pmjsonPrint(FILE *fp, json_flags flags, const char *pointer,
     for (;;) {
 	bytes = (*get_json)(buffer, sizeof(buffer), userdata);
 	if (bytes == 0) {
-	    sts = eof_expected ? 0 : -EINVAL;
+	    sts = eof_expected ? 0 : -ENODATA;
+	    if (sts != 0) {
+		if (pmDebugOptions.libweb)
+		    fprintf(stderr, "%s:%s empty input\n",
+			    pmGetProgname(), __func__);
+	    }
 	    goto finished;
 	}
 	if (bytes < 0) {
 	    if (pmDebugOptions.libweb)
-		fprintf(stderr, "%s: failed to get JSON: %s\n",
-			pmGetProgname(), osstrerror());
+		fprintf(stderr, "%s:%s: failed to get JSON: %s\n",
+			pmGetProgname(), __func__, osstrerror());
 	    sts = -oserror();
 	    goto finished;
 	}
