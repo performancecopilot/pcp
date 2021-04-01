@@ -139,17 +139,17 @@ socket="$PCP_RUN_DIR/pmproxy.socket"
 # in _filter_curl
 #
 $sudo curl --unix-socket "$socket" \
-	"http://localhost/pmapi/context" 2>&1 \
-| _filter_curl \
+	"http://localhost/pmapi/context" 2>$tmp.err \
 | _filter_json "Check context creation on unix socket"
+_filter_curl <$tmp.err
 
 context="context=`cat $tmp.context`"
 metrics='names=sample.long.one,sample.long.million'
 
 $sudo curl --unix-socket "$socket" \
-	"http://localhost/pmapi/fetch?$context&$metrics" 2>&1 \
-| _filter_curl \
+	"http://localhost/pmapi/fetch?$context&$metrics" 2>$tmp.err \
 | _filter_json "Check metric fetching on that context"
+_filter_curl <$tmp.err
 
 # success, all done
 status=0
