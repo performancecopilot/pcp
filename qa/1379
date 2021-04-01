@@ -84,6 +84,20 @@ _filter_json()
     fi
 }
 
+# Expecting 3 lines like ... the ^M's in the last line is a little tricky
+#
+#  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+#                                 Dload  Upload   Total   Spent    Left  Speed
+#^M  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0^M100   249  100   249    0     0   243k      0 --:--:-- --:--:-- --:--:--  243k
+_filter_curl()
+{
+    $PCP_AWK_PROG '
+/% Total /		{ next }
+/ Dload  Upload /	{ next }
+/..:..:.. ..:..:../	{ next }
+			{ print }'
+}
+
 _get_context()
 {
     grep '"context"' | \
@@ -119,15 +133,22 @@ cat $PCP_LOG_DIR/pmproxy/pmproxy.log >> $here/$seq.full
 
 socket="$PCP_RUN_DIR/pmproxy.socket"
 
-curl -s --unix-socket "$socket" \
-	"http://localhost/pmapi/context" \
+# need sudo here to avoid "Permission denied" when trying to open
+# $PCP_RUN_DIR/pmproxy.socket, e.g. on older Debian-based platforms
+# also drop -s so we can see errors ... filter expected fluff out
+# in _filter_curl
+#
+$sudo curl --unix-socket "$socket" \
+	"http://localhost/pmapi/context" 2>&1 \
+| _filter_curl \
 | _filter_json "Check context creation on unix socket"
 
 context="context=`cat $tmp.context`"
 metrics='names=sample.long.one,sample.long.million'
 
-curl -s --unix-socket "$socket" \
-	"http://localhost/pmapi/fetch?$context&$metrics" \
+$sudo curl --unix-socket "$socket" \
+	"http://localhost/pmapi/fetch?$context&$metrics" 2>&1 \
+| _filter_curl \
 | _filter_json "Check metric fetching on that context"
 
 # success, all done
