@@ -30,7 +30,7 @@ spec=qa-$seq-%Y%m%d.%H.%M
 echo == checking strftime archive name substitution | tee -a $seq.full
 base=`pmdate $spec`
 nextbase=`pmdate +1M $spec`
-$PMLOGGER -s10 -t 1s -c config.default -l $tmp/pmlogger.log $tmp/$spec 2>$tmp/$seq.err &
+$PMLOGGER -s20 -t 1s -c config.default -l $tmp/pmlogger.log $tmp/$spec 2>$tmp/$seq.err &
 pid=$!; sleep 5; kill -TERM $pid
 echo === log === >>$seq.full; cat $tmp/pmlogger.log >>$seq.full
 echo === err === >>$seq.full; cat $tmp/$seq.err >>$seq.full

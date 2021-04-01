@@ -244,6 +244,10 @@ static int refreshData(void)
 	    strncmp(s2, "Load", 4) == 0 ||
 	    strncmp(s2, "CPU", 3) == 0)
 		/* ignored */ ;
+	else if (s3 == NULL) {
+	    if (pmDebugOptions.appl1)
+		pmNotifyErr(LOG_WARNING, "Missing value for '%s'!\n", s2);
+	}
 	else if (strcmp(s2, "Total Accesses:") == 0) {
 	    data.total_accesses = strtoull(s3, (char **)NULL, 10);
 	    data.flags |= ACCESSES;
