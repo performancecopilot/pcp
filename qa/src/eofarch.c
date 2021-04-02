@@ -103,6 +103,10 @@ main(int argc, char **argv)
 	pmFreeResult(resp);
     }
     printf("Found %d samples, with %d log reads\n", resnum, __pmLogReads);
+    if (resnum == 0) {
+	printf("Empty archive\n");
+	exit(0);
+    }
 
     printf("\nPass 2: before start of log scan\n");
     first.tv_sec--;
