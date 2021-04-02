@@ -73,10 +73,6 @@ add_ctx_dm(char *filename)
 		else if (state == STATE_ASSIGN) {
 		    printf(" name=\"%s\"", name);
 		}
-		else if (state == STATE_EXPR) {
-		    *ep = '\0';
-		    printf(" expr=\"%s\"", name);
-		}
 		putchar('\n');
 		fclose(f);
 		return -1;

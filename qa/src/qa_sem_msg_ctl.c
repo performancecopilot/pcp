@@ -25,6 +25,7 @@ int semctl(int semid, int semnum, int cmd, ...)
     memset(i, 0, sizeof(*i));
     i->semusz = 7;
     i->semaem = 8;
+    va_end(pp);
     return 0;
 }
 

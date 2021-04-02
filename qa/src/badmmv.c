@@ -396,10 +396,6 @@ corrupt_metrics(void)
     value->extra = text_offset;
     finish_mapping(mapping, length);
 
-    /* (setup a valid length for remaining test cases) */
-    length = sizeof(mmv_disk_header_t) + 3 * sizeof(mmv_disk_toc_t);
-    length += sizeof(mmv_disk_metric_t) + sizeof(mmv_disk_value_t);
-
     /* Case #5 - file ends within longform helptext */
     length = sizeof(mmv_disk_header_t) + 2 * sizeof(mmv_disk_toc_t);
     length += sizeof(mmv_disk_metric_t) + sizeof(mmv_disk_value_t);
