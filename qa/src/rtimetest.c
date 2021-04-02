@@ -94,7 +94,6 @@ main(int argc, char *argv[])
 	exit(1);
     }
 
-    ttstart = 1392649730;	// time(&ttstart) => time_t
     ttstart = 1390057730;
     tvstart.tv_sec = ttstart;
     tvstart.tv_usec = 0;
