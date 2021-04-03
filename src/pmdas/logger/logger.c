@@ -172,9 +172,15 @@ valid_pmid(unsigned int cluster, unsigned int item)
 static int
 logger_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-    unsigned int	cluster = pmID_cluster(mdesc->m_desc.pmid);
-    unsigned int	item = pmID_item(mdesc->m_desc.pmid);
+    unsigned int	cluster;
+    unsigned int	item;
     int		sts;
+
+    if (mdesc == NULL)
+	    return PM_ERR_PMID;
+
+    cluster = pmID_cluster(mdesc->m_desc.pmid);
+    item = pmID_item(mdesc->m_desc.pmid);
 
     if ((sts = valid_pmid(cluster, item)) < 0)
 	return sts;
@@ -202,8 +208,7 @@ logger_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	dynamic_metric_info_t	*pinfo;
 	int			queue;
 
-	if ((pinfo = ((mdesc != NULL) ? mdesc->m_user : NULL)) == NULL)
-	    return PM_ERR_PMID;
+	pinfo = mdesc->m_user;
 	queue = event_queueid(pinfo->handle);
 
 	switch (pinfo->pmid_index) {
