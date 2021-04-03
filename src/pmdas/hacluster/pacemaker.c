@@ -625,8 +625,11 @@ hacluster_refresh_pacemaker_resources(const char *instance_name, struct resource
 
 	pmsprintf(buffer, sizeof(buffer), "%s", crm_mon_command);
 
-	if ((pf = popen(buffer, "r")) == NULL)
+	if ((pf = popen(buffer, "r")) == NULL) {
+		if (!no_node_attachment)
+		    free(tofree);
 		return -oserror();
+	}
 
 	while(fgets(buffer, sizeof(buffer)-1, pf) != NULL) {
 
