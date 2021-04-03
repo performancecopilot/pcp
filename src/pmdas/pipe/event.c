@@ -121,7 +121,8 @@ free_parameters(int nparams, char **paramtab)
 {
     while (--nparams >= 0)
 	free(paramtab[nparams]);
-    free(paramtab);
+    if (paramtab != NULL)
+	free(paramtab);
 }
 
 /* replace pipe command string wildcards with user-supplied parameters */
