@@ -1088,8 +1088,10 @@ redisConnectWithOptions(const redisOptions *options)
         c->fd = options->endpoint.fd;
         c->flags |= REDIS_CONNECTED;
     }
-    else
+    else {
+        redisFree(c);
         return NULL;
+    }
 
     if (options->timeout != NULL && (c->flags & REDIS_BLOCK) && c->fd != REDIS_INVALID_FD)
         redisContextSetTimeout(c, *options->timeout);
