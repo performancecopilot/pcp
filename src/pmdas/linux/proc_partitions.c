@@ -372,6 +372,7 @@ persistent_dm_name(char *namebuf, int namelen, int devmajor, int devminor)
     if ((fd = open(path, O_RDONLY)) >= 0) {
 	memset(path, 0, sizeof(path));
     	if (read(fd, path, sizeof(path)-1) > 0) {
+	    path[sizeof(path)-1] = '\0';
 	    if ((p = strchr(path, '\n')) != NULL)
 	    	*p = '\0';
 	    strncpy(namebuf, path, namelen-1);
@@ -431,7 +432,7 @@ persistent_md_name(char *namebuf, int namelen)
 		continue;
 	    pmsprintf(path, sizeof(path), "%s/dev/md/%s",
 			linux_statspath, dentry->d_name);
-	    if ((size = readlink(path, name, sizeof(name))) < 0)
+	    if ((size = readlink(path, name, sizeof(name)-1)) < 0)
 		continue;
 	    name[size] = '\0';
 	    if (strcmp(basename(name), namebuf) == 0) {
