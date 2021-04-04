@@ -178,9 +178,16 @@ refresh_cgroup_pidlist(int want_threads, proc_runq_t *runq_stats, proc_pid_list_
 
     if ((fp = fopen(path, "r")) != NULL) {
 	while (fscanf(fp, "%d\n", &pid) == 1) {
+	    int		sts;
 	    pidlist_append_pid(pid, pids);
-	    if (runq_stats)
-		proc_runq_append_pid(pid, runq_stats);
+	    if (runq_stats) {
+		if ((sts = proc_runq_append_pid(pid, runq_stats)) < 0) {
+		    if (pmDebugOptions.appl1 && pmDebugOptions.desperate) {
+			char ebuf[1024];
+			fprintf(stderr, "proc_runq_append_pid(%" FMT_PID ",...): failed: %s\n", pid, pmErrStr_r(sts, ebuf, sizeof(ebuf)));
+		    }
+		}
+	    }
 	}
 	fclose(fp);
     }
@@ -215,11 +222,18 @@ refresh_global_pidlist(int want_threads, proc_runq_t *runq_stats, proc_pid_list_
     /* note: readdir on /proc ignores threads */
     while ((dp = readdir(dirp)) != NULL) {
 	if (isdigit((int)dp->d_name[0])) {
+	    int		sts;
 	    pidlist_append(dp->d_name, pids);
 	    if (want_threads)
 		tasklist_append(dp->d_name, pids);
-	    if (runq_stats)
-		proc_runq_append(dp->d_name, runq_stats);
+	    if (runq_stats) {
+		if ((sts = proc_runq_append(dp->d_name, runq_stats)) < 0) {
+		    if (pmDebugOptions.appl1 && pmDebugOptions.desperate) {
+			char ebuf[1024];
+			fprintf(stderr, "proc_runq_append(%s,...): failed: %s\n", dp->d_name, pmErrStr_r(sts, ebuf, sizeof(ebuf)));
+		    }
+		}
+	    }
 	}
     }
     closedir(dirp);
