@@ -13,15 +13,16 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-which sheet2pcp >/dev/null 2>&1
-[ $? -eq 0 ] || _notrun "sheet2pcp not installed"
-perl -e "use XML::TokeParser" >/dev/null 2>&1
-[ $? -eq 0 ] || _notrun "perl XML::TokeParser module not installed"
-perl -e "use Spreadsheet::ReadSXC" >/dev/null 2>&1
-[ $? -eq 0 ] || _notrun "perl Spreadsheet::ReadSXC module not installed"
-
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full
+
+which sheet2pcp >>$seq.full 2>&1
+[ $? -eq 0 ] || _notrun "sheet2pcp not installed"
+perl -e "use XML::TokeParser" >>$seq.full 2>&1
+[ $? -eq 0 ] || _notrun "perl XML::TokeParser module not installed"
+perl -e "use Spreadsheet::ReadSXC" >>$seq.full 2>&1
+[ $? -eq 0 ] || _notrun "perl Spreadsheet::ReadSXC module not installed"
+
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
