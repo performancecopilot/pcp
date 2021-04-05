@@ -32,7 +32,8 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 #
 _filter()
 {
-    sed \
+    tee -a $here/$seq.full \
+    | sed \
 	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
 	-e '/^proc\.id\.container: No data available/d' \
 	-e '/^proc\.schedstat\.envid: Metric not supported/d' \
@@ -47,11 +48,49 @@ _filter()
     # end
 }
 
+# for pminfo -f ... don't care so much about details of values (-v
+# checks for errors), rather want to exercise code paths for valgrind
+#
+_filter_f()
+{
+    $PCP_AWK_PROG '
+BEGIN				{ skip = 1 }
+$1 == "==="			{ print
+			  	  if ($0 ~ /valgrind report/) skip = 0
+				  next
+				}
+skip == 0			{ print; next }
+/^proc\.runq/			{ print $1 ": some values"; next }
+/^proc\./			{ seen = 1; numval = 0; metric = $1; next }
+$1 == "inst" || $1 == "value"	{ numval++; next }
+NF == 0 && seen == 1		{ if (numval == 1) print metric ": 1 value"
+				  else if (numval <= 10) print metric ": " numval " values"
+				  else print metric ": >10 values"
+				  seen = 0
+				}' \
+    | sed \
+	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
+    # end
+
+}
+
 # real QA test starts here
 linux_pmda=$PCP_PMDAS_DIR/linux/pmda_linux,linux_init
 proc_pmda=$PCP_PMDAS_DIR/proc/pmda_proc,proc_init
-_run_valgrind pminfo -vL -Kclear -Kadd,60,$linux_pmda -Kadd,3,$proc_pmda proc \
+
+# bypass access controls, so proc indom is expanded and used
+#
+export PROC_ACCESS=1
+
+echo "=== check for errors, silence is golden ==="
+_run_valgrind --sudo pminfo -vL -Kclear -Kadd,60,$linux_pmda -Kadd,3,$proc_pmda proc 2>&1 \
 | _filter
+
+echo
+echo "=== check number of values ==="
+( _run_valgrind --sudo pminfo -fL -Kclear -Kadd,60,$linux_pmda -Kadd,3,$proc_pmda proc 2>&1 \
+  ; echo ) \
+| _filter_f
 
 # success, all done
 status=0
