@@ -51,6 +51,8 @@ ss_refresh(int indom)
     while (fgets(line, sizeof(line), fp) != NULL) {
 	ss_parse(line, &parsed_ss);
 	ss_instname(&parsed_ss, instname, sizeof(instname));
+	if (parsed_ss.state[0] == '\0')
+	    continue; /* transient with no state, ignore */
 	ss = NULL;
 	sts = pmdaCacheLookupName(indom, instname, &inst, (void **)&ss);
 	if (sts < 0 || ss == NULL) {
@@ -58,8 +60,6 @@ ss_refresh(int indom)
 	    ss = (ss_stats_t *)malloc(sizeof(ss_stats_t));
 	}
 	*ss = parsed_ss;
-	if (ss->state[0] == '\0')
-	    continue; /* transient with no state, ignore */
 	ss->instid = pmdaCacheStore(indom, PMDA_CACHE_ADD, instname, (void **)ss);
     }
     ss_close_stream(fp);

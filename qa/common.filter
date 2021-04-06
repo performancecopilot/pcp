@@ -348,6 +348,7 @@ _filter_optional_pmdas()
 	-e '/pmdazfs/d' \
 	-e '/pmdazimbra/d' \
 	-e '/pmdazswap/d' \
+	-e '/weblog/d' \
     #end
 }
 
@@ -359,9 +360,11 @@ _filter_optional_pmda_instances()
 	-e '/inst \[4 or "pmproxy"]/d' \
 	-e '/inst \[10 or "trace"]/d' \
 	-e '/inst \[15 or "sendmail"]/d' \
+        -e '/inst \[22 or "weblog"]/d' \
 	-e '/inst \[24 or "redis"]/d' \
 	-e '/inst \[28 or "news"]/d' \
 	-e '/inst \[33 or "podman"]/d' \
+	-e '/inst \[57 or "statsd"]/d' \
 	-e '/inst \[60 or "linux"]/d' \
 	-e '/inst \[62 or "nfsclient"]/d' \
 	-e '/inst \[66 or "mysql"]/d' \
@@ -389,7 +392,7 @@ _filter_optional_pmda_instances()
 	-e '/inst \[149 or "bcc"]/d' \
         -e '/inst \[152 or "netcheck"]/d' \
 	-e '/inst \[250 or "trivial"]/d' \
-	-e '/inst \[57 or "statsd"]/d' \
+
     # end
 }
 

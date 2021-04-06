@@ -57,9 +57,9 @@ export PMCD_RECONNECT_TIMEOUT=1
 pmie -c $tmp.config -l $tmp.log -U `id -un` >$tmp.out 2>&1 &
 pid=$!
 sleep 5
-_service pmcd stop
+_service pmcd stop >>$seq.full 2>&1
 sleep 5
-_service pmcd restart
+_service pmcd restart >>$seq.full 2>&1
 sleep 5
 kill -TERM $pid
 wait
