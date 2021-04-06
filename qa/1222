@@ -50,6 +50,8 @@ _filter()
 
 # for pminfo -f ... don't care so much about details of values (-v
 # checks for errors), rather want to exercise code paths for valgrind
+# sed at the end is required to cull some metrics that sometimes have
+# no values
 #
 _filter_f()
 {
@@ -70,6 +72,9 @@ NF == 0 && seen == 1		{ if (numval == 1) print metric ": 1 value"
 				}' \
     | sed \
 	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
+	-e '/^proc\.namespaces\./d' \
+	-e '/^proc\.smaps\./d' \
+	-e '/^proc\.psinfo\.cgroups:/d' \
     # end
 
 }
