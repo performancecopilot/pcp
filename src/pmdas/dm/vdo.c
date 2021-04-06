@@ -187,7 +187,10 @@ dm_vdodev_fetch(pmdaMetric *metric, const char *name, pmAtomValue *atom)
 	    if ((sts = vdo_fetch_ull("overhead_blocks_used", name, &v3)) < 0)
 		return sts;
 	    calc = (double)(v2 + v3);
-	    atom->f = 100.0 * (calc / (double)v1);
+	    if (v1 != 0)
+		atom->f = 100.0 * (calc / (double)v1);
+	    else
+		atom->f = 0.0;
 	    return sts;
 	case VDODEV_SAVINGS_PERCENTAGE:
 	    if ((sts = vdo_fetch_ull("logical_blocks_used", name, &v1)) < 0)
