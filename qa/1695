@@ -14,7 +14,6 @@ echo "QA output created by $seq"
 . ./common.check
 
 _check_valgrind
-_check_series
 
 _cleanup()
 {
