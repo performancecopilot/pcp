@@ -382,7 +382,7 @@ find_entry(hdr_t *h, const char *name, int inst, int *sts)
 /*
  * optionally resize the hash table first (if resize == 1)
  *
- * then re-order each hash chain so that active entires are
+ * then re-order each hash chain so that active entries are
  * before inactive entries, and culled entries dropped
  *
  * applies to _both_ the inst and name hashes
