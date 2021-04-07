@@ -64,7 +64,6 @@ proc.psinfo.maj_flt: >10 values
 proc.psinfo.cmin_flt: >10 values
 proc.psinfo.minflt: >10 values
 proc.psinfo.flags: >10 values
-proc.psinfo.tty_pgrp: >10 values
 proc.psinfo.tty: >10 values
 proc.psinfo.session: >10 values
 proc.psinfo.pgrp: >10 values
