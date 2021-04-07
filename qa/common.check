@@ -1313,7 +1313,7 @@ _check_redis_server()
     [ -n "$1" ] && redisport="$1"
     redis-cli -p $redisport ping >/dev/null
     [ $? -eq 0 ] || _notrun "Redis server not running locally"
-    _check_redis_server_version $resdisport
+    _check_redis_server_version $redisport
 }
 
 _check_search()
