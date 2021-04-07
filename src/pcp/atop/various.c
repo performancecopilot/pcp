@@ -1190,7 +1190,12 @@ fetch_metrics(const char *purpose, int nmetrics, pmID *pmids, pmResult **result)
 	    return PM_ERR_EOL;
 	}
 
-	pmSetMode(fetchmode, &curtime, fetchstep);
+	if ((sts = pmSetMode(fetchmode, &curtime, fetchstep)) < 0)
+	{
+		fprintf(stderr, "%s: %s setmode: %s\n",
+			pmGetProgname(), purpose, pmErrStr(sts));
+		cleanstop(1);
+	}
 	if ((sts = pmFetch(nmetrics, pmids, result)) < 0)
 	{
 		if (sts == PM_ERR_EOL)
