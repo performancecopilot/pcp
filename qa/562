@@ -13,6 +13,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+[ "id -un" = root ] && _notrun "this test fails if run as root"
+
 status=1	# failure is the default!
 userid=`id -u`
 groupid=`id -g`
