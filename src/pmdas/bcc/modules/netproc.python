@@ -13,6 +13,7 @@
 #
 """ PCP BCC PMDA netproc module """
 
+import re
 import ctypes as ct
 from collections import namedtuple
 import os
@@ -44,6 +45,7 @@ units_count = pmUnits(0, 0, 1, 0, 0, PM_COUNT_ONE)
 units_none = pmUnits(0, 0, 0, 0, 0, 0)
 
 # use tuple here instead of a dict or class to access the fields by index in the bpfdata method
+# do not change the first 8 items
 Netstats = namedtuple(
     "Netstats",
     [
@@ -55,6 +57,7 @@ Netstats = namedtuple(
         "udp_send_bytes",
         "udp_recv_calls",
         "udp_recv_bytes",
+        "instance_name",
     ],
 )
 
@@ -75,7 +78,7 @@ class PCPBCCModule(PCPBCCBase):
             if opt == "remove_stopped_processes":
                 self.remove_stopped_processes = self.config.getboolean(MODULE, opt)
 
-        self.cache = {}
+        self.netstats_cache = {}
         self.insts = {}
 
         self.log("Initialized.")
@@ -164,6 +167,18 @@ class PCPBCCModule(PCPBCCBase):
             self.err("Module NOT active!")
             raise
 
+    @staticmethod
+    def get_cmdline(pid):
+        """
+        Returns the cmdline until the first space or NUL, and adds a leading space
+        Mimics the behavior of the proc PMDA
+        """
+        try:
+            cmdline = open("/proc/{}/cmdline".format(pid), "r").read()
+            return " " + re.split("[\x00 ]", cmdline)[0]
+        except IOError:
+            return ""
+
     def refresh(self):
         """ Refresh BPF data """
         if self.bpf is None:
@@ -172,8 +187,14 @@ class PCPBCCModule(PCPBCCBase):
         netstats_per_pid = self.bpf["netstats_per_pid"]
         for pid_ct, cur_netstat in netstats_per_pid.items():
             pid = pid_ct.value
-            prev_netstat = self.cache.get(pid, Netstats(0, 0, 0, 0, 0, 0, 0, 0))
-            self.cache[pid] = Netstats(
+
+            prev_netstat = self.netstats_cache.get(pid, None)
+            if not prev_netstat:
+                cmdline = PCPBCCModule.get_cmdline(pid)
+                instance_name = "{:06d}{}".format(pid, cmdline)
+                prev_netstat = Netstats(0, 0, 0, 0, 0, 0, 0, 0, instance_name)
+
+            netstat = Netstats(
                 tcp_send_calls=prev_netstat.tcp_send_calls + cur_netstat.tcp_send_calls,
                 tcp_send_bytes=prev_netstat.tcp_send_bytes + cur_netstat.tcp_send_bytes,
                 tcp_recv_calls=prev_netstat.tcp_recv_calls + cur_netstat.tcp_recv_calls,
@@ -182,25 +203,30 @@ class PCPBCCModule(PCPBCCBase):
                 udp_send_bytes=prev_netstat.udp_send_bytes + cur_netstat.udp_send_bytes,
                 udp_recv_calls=prev_netstat.udp_recv_calls + cur_netstat.udp_recv_calls,
                 udp_recv_bytes=prev_netstat.udp_recv_bytes + cur_netstat.udp_recv_bytes,
+                instance_name=prev_netstat.instance_name,
             )
-            self.insts[str(pid)] = ct.c_int(pid)
+            self.netstats_cache[pid] = netstat
+            self.insts[netstat.instance_name] = ct.c_int(pid)
         netstats_per_pid.clear()
 
         # remove stopped processes
         if self.remove_stopped_processes:
-            current_pids = frozenset(os.listdir("/proc"))
-            cached_pids = frozenset(self.insts.keys())
+            current_pids = frozenset(
+                [int(dirname) for dirname in os.listdir("/proc") if dirname.isdigit()]
+            )
+            cached_pids = frozenset(self.netstats_cache.keys())
             stopped_pids = cached_pids - current_pids
             for pid in stopped_pids:
-                del self.cache[int(pid)]
-                del self.insts[pid]
+                netstat = self.netstats_cache[pid]
+                del self.insts[netstat.instance_name]
+                del self.netstats_cache[pid]
 
         return self.insts
 
     def bpfdata(self, item, inst):
         """ Return BPF data as PCP metric value """
         try:
-            value = self.cache[inst][item]
+            value = self.netstats_cache[inst][item]
             return [value, 1]
         except Exception:  # pylint: disable=broad-except
             return [PMDA_FETCH_NOVALUES, 0]
