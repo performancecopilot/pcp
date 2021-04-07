@@ -1888,6 +1888,7 @@ procprt_GPULIST_ae(struct tstat *curstat, int avgval, double nsecs)
 	if (!curstat->gpu.gpulist)
 		return "       -";
 
+	memset(tmp, 0, sizeof tmp);
 	for (i=0; i < hinv_nrgpus; i++)
 	{
 		if (curstat->gpu.gpulist & 1<<i)
