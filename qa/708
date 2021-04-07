@@ -28,7 +28,7 @@ test $? -eq 0 || _notrun 'Python pcp pmi module is not installed'
 $python $here/src/test_pmi.py $tmp.pcplog >$seq.full 2>&1
 grep OK $seq.full
 
-export PM_DERIVED_CONFIG=''
+export PCP_DERIVED_CONFIG=''
 pminfo --desc --fetch -z -a $tmp.pcplog hinv.ncpu kernel.all.load | _filter
 
 # success, all done

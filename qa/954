@@ -38,7 +38,7 @@ echo "qa.b = sample.long.hundred" >$tmp.c2
 
 # no extra derived metrics, thanks
 #
-export PM_DERIVED_CONFIG=''
+export PCP_DERIVED_CONFIG=''
 
 # real QA test starts here
 echo "=== one config ===" | tee -a $here/$seq.full
