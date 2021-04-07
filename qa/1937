@@ -1,0 +1,67 @@
+#!/bin/sh
+# PCP QA Test No. 1937
+# Exercise xfs.perdev.buffer log rewriting rules.
+#
+# Copyright (c) 2021 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ $PCP_PLATFORM = linux ] || _notrun "XFS PMDA is Linux-specific"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf \$tmp \$tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* \$seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+create_rewrite_logs()
+{
+    cat <<'End-of-File' >$tmp.log.conf
+log mandatory on once {
+  xfs.perdev.buffer
+}
+End-of-File
+    pmlogger -r -c $tmp.log.conf -T 1sec $tmp.log
+    cat << 'End-of-File2' > $tmp.lrw.conf
+metric xfs.perdev.buffer.get { pmid -> 11.18.140 }
+metric xfs.perdev.buffer.create { pmid -> 11.18.141 }
+metric xfs.perdev.buffer.get_locked { pmid -> 11.18.142 }
+metric xfs.perdev.buffer.get_locked_waited { pmid -> 11.18.143 }
+metric xfs.perdev.buffer.busy_locked { pmid -> 11.18.144 }
+metric xfs.perdev.buffer.miss_locked { pmid -> 11.18.145 }
+metric xfs.perdev.buffer.page_retries { pmid -> 11.18.146 }
+metric xfs.perdev.buffer.page_found { pmid -> 11.18.147 }
+metric xfs.perdev.buffer.get_read { pmid -> 11.18.148 }
+End-of-File2
+    pmlogrewrite -c $tmp.lrw.conf -w $tmp.log $tmp.log-1
+    migrate=$PCP_VAR_DIR/config/pmlogrewrite/linux_xfs_perdev_buffer.conf
+    pmlogrewrite -c $migrate -w $tmp.log-1 $tmp.log-2
+    rm $tmp.log.conf $tmp.lrw.conf
+    echo "+++ log +++" >>$seq.full
+    pmdumplog -z -dil $tmp.log   | tee -a $seq.full >$tmp.log.dump
+    echo "+++ log-1 +++" >>$seq.full
+    pmdumplog -z -dil $tmp.log-1 | tee -a $seq.full >$tmp.log-1.dump
+    echo "+++ log-2 +++" >>$seq.full
+    pmdumplog -z -dil $tmp.log-2 | tee -a $seq.full >$tmp.log-2.dump
+}
+
+# real QA test starts here
+create_rewrite_logs
+echo "old -> new changes" | tee -a $seq.full
+diff -U 1 $tmp.log-1.dump $tmp.log-2.dump | tee -a $seq.full | sed -e '/^---/d' -e '/^+++/d'
+echo "new -> ref changes ... expect none" | tee -a $seq.full
+diff -U 1 $tmp.log-2.dump $tmp.log.dump | tee -a $seq.full | sed -e '/^---/d' -e '/^+++/d'
+
+# success, all done
+exit

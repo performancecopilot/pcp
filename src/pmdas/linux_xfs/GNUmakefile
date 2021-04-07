@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2016,2020 Red Hat.
+# Copyright (c) 2013-2016,2020-2021 Red Hat.
 # Copyright (c) 2000,2003,2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -60,7 +60,7 @@ install: default
 	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h help help.dir help.pag root root_xfs $(PMDAADMDIR)
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) $(PMDAADMDIR)
 	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_xfs root_xfs $(PCP_PMNSADM_DIR)/root_xfs
-	$(INSTALL) -m 644 -t $(REWRITEVARDIR)/linux_xfs_migrate.conf linux_xfs_migrate.conf $(REWRITEDIR)/linux_xfs_migrate.conf
+	$(INSTALL) -m 644 -t $(REWRITEVARDIR) linux_xfs_migrate.conf linux_xfs_perdev_buffer.conf $(REWRITEDIR)
 	@$(INSTALL_MAN)
 else
 build-me:

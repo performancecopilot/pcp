@@ -1903,4 +1903,5 @@ x11
 1886 pmseries libpcp_web local
 1896 pmlogger logutil pmlc local
 1897 pmda.hacluster local valgrind
+1937 pmlogrewrite pmda.xfs local
 4751 libpcp threads valgrind local pcp

@@ -1,7 +1,7 @@
 /*
  * XFS PMDA
  *
- * Copyright (c) 2012-2014,2016 Red Hat.
+ * Copyright (c) 2012-2014,2016,2020-2021 Red Hat.
  * Copyright (c) 2000,2004,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -1189,39 +1189,39 @@ static pmdaMetric xfs_metrictab[] = {
 
 /* xfs.perdev.buffer.get */
     { &sysfs_xfs.xs_buf_get,
-      { PMDA_PMID(CLUSTER_PERDEV,140), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      { PMDA_PMID(CLUSTER_PERDEV,187), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.buffer.create */
     { &sysfs_xfs.xs_buf_create,
-      { PMDA_PMID(CLUSTER_PERDEV,141), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      { PMDA_PMID(CLUSTER_PERDEV,188), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.buffer.get_locked */
     { &sysfs_xfs.xs_buf_get_locked,
-      { PMDA_PMID(CLUSTER_PERDEV,142), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      { PMDA_PMID(CLUSTER_PERDEV,189), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.buffer.get_locked_waited */
     { &sysfs_xfs.xs_buf_get_locked_waited,
-      { PMDA_PMID(CLUSTER_PERDEV,143), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      { PMDA_PMID(CLUSTER_PERDEV,190), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.buffer.busy_locked */
     { &sysfs_xfs.xs_buf_busy_locked,
-      { PMDA_PMID(CLUSTER_PERDEV,144), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      { PMDA_PMID(CLUSTER_PERDEV,191), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.buffer.miss_locked */
     { &sysfs_xfs.xs_buf_miss_locked,
-      { PMDA_PMID(CLUSTER_PERDEV,145), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      { PMDA_PMID(CLUSTER_PERDEV,192), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.buffer.page_retries */
     { &sysfs_xfs.xs_buf_page_retries,
-      { PMDA_PMID(CLUSTER_PERDEV,146), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      { PMDA_PMID(CLUSTER_PERDEV,193), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.buffer.page_found */         
     { &sysfs_xfs.xs_buf_page_found,
-      { PMDA_PMID(CLUSTER_PERDEV,147), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      { PMDA_PMID(CLUSTER_PERDEV,194), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* xfs.perdev.buffer.get_read */         
     { &sysfs_xfs.xs_buf_get_read,
-      { PMDA_PMID(CLUSTER_PERDEV,148), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      { PMDA_PMID(CLUSTER_PERDEV,195), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* xfs.perdev.vnodes.active */
@@ -1895,8 +1895,8 @@ xfs_text(int ident, int type, char **buf, pmdaExt *pmda)
 
 	/* share per-device help text with globals */
 	if (pmID_cluster(pmid) == CLUSTER_PERDEV) {
-	    if (pmID_item(pmid) >= 140 && pmID_item(pmid) <= 148)
-		ident = (int)pmID_build(pmID_domain(pmid), CLUSTER_XFSBUF, pmID_item(pmid)-140);
+	    if (pmID_item(pmid) >= 187 && pmID_item(pmid) <= 195)
+		ident = (int)pmID_build(pmID_domain(pmid), CLUSTER_XFSBUF, pmID_item(pmid)-187);
 	    else
 		ident = (int)pmID_build(pmID_domain(pmid), CLUSTER_XFS, pmID_item(pmid));
 	}

@@ -2082,63 +2082,63 @@ Help:
 value from xs_qm_dquots_unused field of struct xfsstats
 No value(s) available!
 
-xfs.perdev.buffer.get PMID: 11.18.140 [number of request buffer calls]
+xfs.perdev.buffer.get PMID: 11.18.187 [number of request buffer calls]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
 number of request buffer calls
 No value(s) available!
 
-xfs.perdev.buffer.create PMID: 11.18.141 [number of buffers created]
+xfs.perdev.buffer.create PMID: 11.18.188 [number of buffers created]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
 number of buffers created
 No value(s) available!
 
-xfs.perdev.buffer.get_locked PMID: 11.18.142 [number of requests for a locked buffer which succeeded]
+xfs.perdev.buffer.get_locked PMID: 11.18.189 [number of requests for a locked buffer which succeeded]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
 number of requests for a locked buffer which succeeded
 No value(s) available!
 
-xfs.perdev.buffer.get_locked_waited PMID: 11.18.143 [number of requests for a locked buffer which waited]
+xfs.perdev.buffer.get_locked_waited PMID: 11.18.190 [number of requests for a locked buffer which waited]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
 number of requests for a locked buffer which waited
 No value(s) available!
 
-xfs.perdev.buffer.busy_locked PMID: 11.18.144 [number of non-blocking requests for a locked buffer which failed]
+xfs.perdev.buffer.busy_locked PMID: 11.18.191 [number of non-blocking requests for a locked buffer which failed]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
 number of non-blocking requests for a locked buffer which failed
 No value(s) available!
 
-xfs.perdev.buffer.miss_locked PMID: 11.18.145 [number of requests for a locked buffer which failed due to no buffer]
+xfs.perdev.buffer.miss_locked PMID: 11.18.192 [number of requests for a locked buffer which failed due to no buffer]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
 number of requests for a locked buffer which failed due to no buffer
 No value(s) available!
 
-xfs.perdev.buffer.page_retries PMID: 11.18.146 [number of retry attempts when allocating a page for insertion in a buffer]
+xfs.perdev.buffer.page_retries PMID: 11.18.193 [number of retry attempts when allocating a page for insertion in a buffer]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
 number of retry attempts when allocating a page for insertion in a buffer
 No value(s) available!
 
-xfs.perdev.buffer.page_found PMID: 11.18.147 [number of hits in the page cache when looking for a page]
+xfs.perdev.buffer.page_found PMID: 11.18.194 [number of hits in the page cache when looking for a page]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
 number of hits in the page cache when looking for a page
 No value(s) available!
 
-xfs.perdev.buffer.get_read PMID: 11.18.148 [number of buffer get calls requiring immediate device reads]
+xfs.perdev.buffer.get_read PMID: 11.18.195 [number of buffer get calls requiring immediate device reads]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
@@ -2640,67 +2640,70 @@ Help:
 Records moved inside blocks during inode-allocation btree operations
 No value(s) available!
 
-xfs.perdev.btree.free_inode.lookup PMID: 11.18.140 [number of request buffer calls]
+xfs.perdev.btree.free_inode.lookup PMID: 11.18.140 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-number of request buffer calls
+Number of free-inode btree record lookups
 No value(s) available!
 
-xfs.perdev.btree.free_inode.compare PMID: 11.18.141 [number of buffers created]
+xfs.perdev.btree.free_inode.compare PMID: 11.18.141 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-number of buffers created
+Number of free-inode btree record compares
 No value(s) available!
 
-xfs.perdev.btree.free_inode.insrec PMID: 11.18.142 [number of requests for a locked buffer which succeeded]
+xfs.perdev.btree.free_inode.insrec PMID: 11.18.142 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-number of requests for a locked buffer which succeeded
+Number of free-inode btree insert record operations executed
 No value(s) available!
 
-xfs.perdev.btree.free_inode.delrec PMID: 11.18.143 [number of requests for a locked buffer which waited]
+xfs.perdev.btree.free_inode.delrec PMID: 11.18.143 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-number of requests for a locked buffer which waited
+Number of free-inode btree delete record operations executed
 No value(s) available!
 
-xfs.perdev.btree.free_inode.newroot PMID: 11.18.144 [number of non-blocking requests for a locked buffer which failed]
+xfs.perdev.btree.free_inode.newroot PMID: 11.18.144 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-number of non-blocking requests for a locked buffer which failed
+Number of times a new level is added to a free-inode btree
 No value(s) available!
 
-xfs.perdev.btree.free_inode.killroot PMID: 11.18.145 [number of requests for a locked buffer which failed due to no buffer]
+xfs.perdev.btree.free_inode.killroot PMID: 11.18.145 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-number of requests for a locked buffer which failed due to no buffer
+Number of times a level is removed from a free-inode btree
 No value(s) available!
 
-xfs.perdev.btree.free_inode.increment PMID: 11.18.146 [number of retry attempts when allocating a page for insertion in a buffer]
+xfs.perdev.btree.free_inode.increment PMID: 11.18.146 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-number of retry attempts when allocating a page for insertion in a buffer
+Number of times a cursor has been moved forward one free-inode
+btree record
 No value(s) available!
 
-xfs.perdev.btree.free_inode.decrement PMID: 11.18.147 [number of hits in the page cache when looking for a page]
+xfs.perdev.btree.free_inode.decrement PMID: 11.18.147 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-number of hits in the page cache when looking for a page
+Number of times a cursor has been moved backward one free-inode
+btree record
 No value(s) available!
 
-xfs.perdev.btree.free_inode.lshift PMID: 11.18.148 [number of buffer get calls requiring immediate device reads]
+xfs.perdev.btree.free_inode.lshift PMID: 11.18.148 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-number of buffer get calls requiring immediate device reads
+Left shift block operations to make space for a new free-inode
+btree record
 No value(s) available!
 
 xfs.perdev.btree.free_inode.rshift PMID: 11.18.149 []
@@ -5128,39 +5131,39 @@ value from xs_qm_dquots_unused field of struct xfsstats
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
-xfs.perdev.buffer.get PMID: 11.18.140 [number of request buffer calls]
+xfs.perdev.buffer.get PMID: 11.18.187 [number of request buffer calls]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
 number of request buffer calls
-    inst [0-or-1 or "/dev/loop3"] value 185
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 337
+    inst [0-or-1 or "/dev/loop3"] value 1516
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 2411
 
-xfs.perdev.buffer.create PMID: 11.18.141 [number of buffers created]
+xfs.perdev.buffer.create PMID: 11.18.188 [number of buffers created]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
 number of buffers created
-    inst [0-or-1 or "/dev/loop3"] value 186
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 339
+    inst [0-or-1 or "/dev/loop3"] value 29
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 76
 
-xfs.perdev.buffer.get_locked PMID: 11.18.142 [number of requests for a locked buffer which succeeded]
+xfs.perdev.buffer.get_locked PMID: 11.18.189 [number of requests for a locked buffer which succeeded]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
 number of requests for a locked buffer which succeeded
-    inst [0-or-1 or "/dev/loop3"] value 3
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 5
+    inst [0-or-1 or "/dev/loop3"] value 1504
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 2386
 
-xfs.perdev.buffer.get_locked_waited PMID: 11.18.143 [number of requests for a locked buffer which waited]
+xfs.perdev.buffer.get_locked_waited PMID: 11.18.190 [number of requests for a locked buffer which waited]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
 number of requests for a locked buffer which waited
-    inst [0-or-1 or "/dev/loop3"] value 2
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 3
+    inst [0-or-1 or "/dev/loop3"] value 0
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
-xfs.perdev.buffer.busy_locked PMID: 11.18.144 [number of non-blocking requests for a locked buffer which failed]
+xfs.perdev.buffer.busy_locked PMID: 11.18.191 [number of non-blocking requests for a locked buffer which failed]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
@@ -5168,15 +5171,15 @@ number of non-blocking requests for a locked buffer which failed
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
-xfs.perdev.buffer.miss_locked PMID: 11.18.145 [number of requests for a locked buffer which failed due to no buffer]
+xfs.perdev.buffer.miss_locked PMID: 11.18.192 [number of requests for a locked buffer which failed due to no buffer]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
 number of requests for a locked buffer which failed due to no buffer
-    inst [0-or-1 or "/dev/loop3"] value 0
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
+    inst [0-or-1 or "/dev/loop3"] value 12
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 25
 
-xfs.perdev.buffer.page_retries PMID: 11.18.146 [number of retry attempts when allocating a page for insertion in a buffer]
+xfs.perdev.buffer.page_retries PMID: 11.18.193 [number of retry attempts when allocating a page for insertion in a buffer]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
@@ -5184,21 +5187,21 @@ number of retry attempts when allocating a page for insertion in a buffer
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
-xfs.perdev.buffer.page_found PMID: 11.18.147 [number of hits in the page cache when looking for a page]
+xfs.perdev.buffer.page_found PMID: 11.18.194 [number of hits in the page cache when looking for a page]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
 number of hits in the page cache when looking for a page
-    inst [0-or-1 or "/dev/loop3"] value 0
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
+    inst [0-or-1 or "/dev/loop3"] value 21
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 46
 
-xfs.perdev.buffer.get_read PMID: 11.18.148 [number of buffer get calls requiring immediate device reads]
+xfs.perdev.buffer.get_read PMID: 11.18.195 [number of buffer get calls requiring immediate device reads]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
 number of buffer get calls requiring immediate device reads
-    inst [0-or-1 or "/dev/loop3"] value 0
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
+    inst [0-or-1 or "/dev/loop3"] value 9
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 19
 
 xfs.perdev.vnodes.active PMID: 11.18.70 [number of vnodes not on free lists]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -5763,75 +5766,78 @@ Records moved inside blocks during inode-allocation btree operations
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
-xfs.perdev.btree.free_inode.lookup PMID: 11.18.140 [number of request buffer calls]
+xfs.perdev.btree.free_inode.lookup PMID: 11.18.140 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-number of request buffer calls
+Number of free-inode btree record lookups
     inst [0-or-1 or "/dev/loop3"] value 185
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 337
 
-xfs.perdev.btree.free_inode.compare PMID: 11.18.141 [number of buffers created]
+xfs.perdev.btree.free_inode.compare PMID: 11.18.141 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-number of buffers created
+Number of free-inode btree record compares
     inst [0-or-1 or "/dev/loop3"] value 186
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 339
 
-xfs.perdev.btree.free_inode.insrec PMID: 11.18.142 [number of requests for a locked buffer which succeeded]
+xfs.perdev.btree.free_inode.insrec PMID: 11.18.142 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-number of requests for a locked buffer which succeeded
+Number of free-inode btree insert record operations executed
     inst [0-or-1 or "/dev/loop3"] value 3
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 5
 
-xfs.perdev.btree.free_inode.delrec PMID: 11.18.143 [number of requests for a locked buffer which waited]
+xfs.perdev.btree.free_inode.delrec PMID: 11.18.143 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-number of requests for a locked buffer which waited
+Number of free-inode btree delete record operations executed
     inst [0-or-1 or "/dev/loop3"] value 2
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 3
 
-xfs.perdev.btree.free_inode.newroot PMID: 11.18.144 [number of non-blocking requests for a locked buffer which failed]
+xfs.perdev.btree.free_inode.newroot PMID: 11.18.144 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-number of non-blocking requests for a locked buffer which failed
+Number of times a new level is added to a free-inode btree
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
-xfs.perdev.btree.free_inode.killroot PMID: 11.18.145 [number of requests for a locked buffer which failed due to no buffer]
+xfs.perdev.btree.free_inode.killroot PMID: 11.18.145 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-number of requests for a locked buffer which failed due to no buffer
+Number of times a level is removed from a free-inode btree
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
-xfs.perdev.btree.free_inode.increment PMID: 11.18.146 [number of retry attempts when allocating a page for insertion in a buffer]
+xfs.perdev.btree.free_inode.increment PMID: 11.18.146 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-number of retry attempts when allocating a page for insertion in a buffer
+Number of times a cursor has been moved forward one free-inode
+btree record
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
-xfs.perdev.btree.free_inode.decrement PMID: 11.18.147 [number of hits in the page cache when looking for a page]
+xfs.perdev.btree.free_inode.decrement PMID: 11.18.147 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-number of hits in the page cache when looking for a page
+Number of times a cursor has been moved backward one free-inode
+btree record
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
-xfs.perdev.btree.free_inode.lshift PMID: 11.18.148 [number of buffer get calls requiring immediate device reads]
+xfs.perdev.btree.free_inode.lshift PMID: 11.18.148 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-number of buffer get calls requiring immediate device reads
+Left shift block operations to make space for a new free-inode
+btree record
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 

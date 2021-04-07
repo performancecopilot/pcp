@@ -1,5 +1,5 @@
 /*
- * Portions Copyright (c) 2013,2016 Red Hat.
+ * Portions Copyright (c) 2013,2016,2020-2021 Red Hat.
  * Copyright (c) 2000,2004,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -492,15 +492,15 @@ xfs.perdev.vnodes {
 }
 
 xfs.perdev.buffer {
-    get                 XFS:18:140
-    create              XFS:18:141
-    get_locked          XFS:18:142
-    get_locked_waited   XFS:18:143
-    busy_locked         XFS:18:144
-    miss_locked         XFS:18:145
-    page_retries        XFS:18:146
-    page_found          XFS:18:147
-    get_read            XFS:18:148
+    get                 XFS:18:187
+    create              XFS:18:188
+    get_locked          XFS:18:189
+    get_locked_waited   XFS:18:190
+    busy_locked         XFS:18:191
+    miss_locked         XFS:18:192
+    page_retries        XFS:18:193
+    page_found          XFS:18:194
+    get_read            XFS:18:195
 }
 
 xfs.perdev.btree {
