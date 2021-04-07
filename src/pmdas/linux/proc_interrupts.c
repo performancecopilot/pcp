@@ -159,7 +159,7 @@ extract_interrupt_values(char *name, char *buffer, pmInDom intr, pmInDom cpuintr
     for (i = 0; i < ncolumns; i++) {
 	value = strtoul(s, &end, 10);
 	if (!isspace(*end))
-	    return changed;
+	    continue;
 	s = end;
 	cpuip = NULL;
 	cpuid = column_to_cpuid(i);
@@ -258,7 +258,7 @@ extract_softirq_values(char *name, char *buffer, pmInDom sirq, pmInDom cpusirq, 
     for (i = 0; i < ncolumns; i++) {
 	value = strtoul(s, &end, 10);
 	if (!isspace(*end))
-	    return changed;
+	    continue;
 	s = end;
 	cpuip = NULL;
 	cpuid = column_to_cpuid(i);
