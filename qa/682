@@ -13,7 +13,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-[ "id -un" = root ] && _notrun "this test fails if run as root"
+[ "$(id -un)" = root ] && _notrun "this test fails if run as root"
 
 _check_valgrind
 
