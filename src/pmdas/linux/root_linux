@@ -132,6 +132,7 @@ kernel.all {
 
 kernel.all.interrupts {
     total		60:4:0
+    missed		60:4:2
     errors		60:4:3
 }
 
@@ -214,10 +215,11 @@ kernel.all.cpu.irq {
 }
 
 kernel.percpu {
-    interrupts		60:*:*
-    softirqs		60:*:*
+    interrupts		60:4:1
+    softirqs		60:63:0
     cpu
     intr		60:4:4
+    sirq		60:63:1
 }
 
 kernel.percpu.cpu {

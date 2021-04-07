@@ -34,11 +34,11 @@
 #include "filesys.h"
 #include "getinfo.h"
 #include "swapdev.h"
-#include "interrupts.h"
 #include "linux_table.h"
 #include "namespaces.h"
 #include "sysfs_kernel.h"
 #include "proc_cpuinfo.h"
+#include "proc_interrupts.h"
 #include "proc_stat.h"
 #include "proc_locks.h"
 #include "proc_loadavg.h"
@@ -332,7 +332,7 @@ static pmdaIndom indomtab[] = {
     { DISK_INDOM, 0, NULL }, /* cached */
     { LOADAVG_INDOM, 3, loadavg_indom_id },
     { NET_DEV_INDOM, 0, NULL },
-    { INTERRUPTS_INDOM, 0, NULL },
+    { INTERRUPT_INDOM, 0, NULL },
     { FILESYS_INDOM, 0, NULL },
     { SWAPDEV_INDOM, 0, NULL },
     { NFS_INDOM, NR_RPC_COUNTERS, nfs_indom_id },
@@ -354,8 +354,8 @@ static pmdaIndom indomtab[] = {
     { ICMPMSG_INDOM, NR_ICMPMSG_COUNTERS, _pm_proc_net_snmp_indom_id },
     { DM_INDOM, 0, NULL }, /* cached */
     { MD_INDOM, 0, NULL }, /* cached */
-    { INTERRUPT_NAMES_INDOM, 0, NULL },
-    { SOFTIRQS_NAMES_INDOM, 0, NULL },
+    { 0 }, /* deprecated INTERRUPT_NAMES_INDOM */
+    { 0 }, /* deprecated SOFTIRQ_NAMES_INDOM */
     { IPC_STAT_INDOM, 0, NULL },
     { IPC_MSG_INDOM, 0, NULL },
     { IPC_SEM_INDOM, 0, NULL },
@@ -364,10 +364,12 @@ static pmdaIndom indomtab[] = {
     { ZONEINFO_PROTECTION_INDOM, 0, NULL },
     { TAPEDEV_INDOM, 0, NULL },
     { TTY_INDOM, 0, NULL },
-    { SOFTIRQS_INDOM, 0, NULL },
+    { SOFTIRQ_INDOM, 0, NULL },
     { PRESSUREAVG_INDOM, 3, pressureavg_indom_id },
     { ZRAM_INDOM, 0, NULL },
     { FCHOST_INDOM, 0, NULL },
+    { INTERRUPT_CPU_INDOM, 0, NULL },
+    { SOFTIRQ_CPU_INDOM, 0, NULL },
 };
 
 
@@ -5955,7 +5957,15 @@ static pmdaMetric metrictab[] = {
  */
     /* kernel.all.interrupts.total */
     { NULL, { PMDA_PMID(CLUSTER_INTERRUPTS, 0), PM_TYPE_U64,
-    INTERRUPTS_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    INTERRUPT_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* kernel.percpu.interrupts */
+    { NULL, { PMDA_PMID(CLUSTER_INTERRUPTS, 1), PM_TYPE_U32,
+    INTERRUPT_CPU_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* kernel.all.interrupts.missed */
+    { &irq_mis_count, { PMDA_PMID(CLUSTER_INTERRUPTS, 2), PM_TYPE_U32,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* kernel.all.interrupts.errors */
     { &irq_err_count, { PMDA_PMID(CLUSTER_INTERRUPTS, 3), PM_TYPE_U32,
@@ -5965,24 +5975,20 @@ static pmdaMetric metrictab[] = {
     { NULL, { PMDA_PMID(CLUSTER_INTERRUPTS, 4), PM_TYPE_U64,
     CPU_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
-    /* kernel.percpu.interrupts.line[<0-1023>] */
-    { NULL, { PMDA_PMID(CLUSTER_INTERRUPT_LINES, 0), PM_TYPE_U32,
-    CPU_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
-
-    /* kernel.percpu.interrupts.[<other>] */
-    { NULL, { PMDA_PMID(CLUSTER_INTERRUPT_OTHER, 0), PM_TYPE_U32,
-    CPU_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
-
 /*
  * /proc/softirqs clusters
  */
 
     /* kernel.all.softirqs.total */
     { NULL, { PMDA_PMID(CLUSTER_SOFTIRQS_TOTAL, 0), PM_TYPE_U64,
-    SOFTIRQS_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    SOFTIRQ_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
-    /* kernel.percpu.softirqs.[<name>] */
+    /* kernel.percpu.softirqs */
     { NULL, { PMDA_PMID(CLUSTER_SOFTIRQS, 0), PM_TYPE_U32,
+    SOFTIRQ_CPU_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* kernel.percpu.sirq */
+    { NULL, { PMDA_PMID(CLUSTER_SOFTIRQS, 1), PM_TYPE_U64,
     CPU_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /*
@@ -6431,7 +6437,6 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
 {
     linux_container_t *cp = linux_ctx_container(context);
     linux_access_t *access = access_ctx(context);
-    int need_refresh_mtab = 0;
     int need_net_ioctl = 0;
     int ns_fds = 0;
     int sts = 0;
@@ -6620,14 +6625,12 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
 	container_nsleave(cp, LINUX_NAMESPACE_UTS);
     }
 
-    if (need_refresh[CLUSTER_INTERRUPTS] ||
-	need_refresh[CLUSTER_INTERRUPT_LINES] ||
-	need_refresh[CLUSTER_INTERRUPT_OTHER])
-	need_refresh_mtab |= refresh_interrupt_values();
+    if (need_refresh[CLUSTER_INTERRUPTS])
+	refresh_proc_interrupts();
 
     if (need_refresh[CLUSTER_SOFTIRQS] ||
 	need_refresh[CLUSTER_SOFTIRQS_TOTAL])
-	need_refresh_mtab |= refresh_softirqs_values();
+	refresh_proc_softirqs();
 
     if (need_refresh[CLUSTER_SWAPDEV])
 	refresh_swapdev(INDOM(SWAPDEV_INDOM));
@@ -6729,8 +6732,6 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
 	refresh_sysfs_fchosts(INDOM(FCHOST_INDOM));
 
 done:
-    if (need_refresh_mtab)
-	pmdaDynamicMetricTable(pmda);
     container_close(cp, ns_fds);
     return sts;
 }
@@ -8609,12 +8610,10 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	}
 	return sts;
 
-    case CLUSTER_INTERRUPT_LINES:
-    case CLUSTER_INTERRUPT_OTHER:
     case CLUSTER_INTERRUPTS:
     case CLUSTER_SOFTIRQS_TOTAL:
     case CLUSTER_SOFTIRQS:
-	return interrupts_fetch(cluster, item, inst, atom);
+	return proc_interrupts_fetch(cluster, item, inst, atom);
 
     case CLUSTER_DM:
     case CLUSTER_MD:
@@ -9147,6 +9146,21 @@ linux_labelInDom(pmInDom indom, pmLabelSet **lp)
 	pmdaAddLabels(lp, "{\"device_type\":[\"memory\",\"numa_node\"]}");
 	pmdaAddLabels(lp, "{\"indom_name\":\"per buddy per numa_node\"}");
 	return 1;
+    case INTERRUPT_INDOM:
+	pmdaAddLabels(lp, "{\"device_type\":\"irq\"}");
+	pmdaAddLabels(lp, "{\"indom_name\":\"per irq\"}");
+	return 1;
+    case INTERRUPT_CPU_INDOM:
+	pmdaAddLabels(lp, "{\"device_type\":[\"irq\",\"cpu\"]}");
+	pmdaAddLabels(lp, "{\"indom_name\":\"per cpu, per irq\"}");
+	return 1;
+    case SOFTIRQ_INDOM:
+	pmdaAddLabels(lp, "{\"indom_name\":\"per softirq\"}");
+	return 1;
+    case SOFTIRQ_CPU_INDOM:
+	pmdaAddLabels(lp, "{\"device_type\":\"cpu\"}");
+	pmdaAddLabels(lp, "{\"indom_name\":\"per cpu, per softirq\"}");
+	return 1;
     default:
 	sts = 0;
 	break;
@@ -9193,8 +9207,10 @@ linux_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
 {
     zoneinfo_entry_t	*info;
     zoneprot_entry_t	*prot;
+    interrupt_cpu_t	*cpuintr;
+    interrupt_t		*intr;
     unsigned int	numanode, value;
-    char		*name;
+    char		*name, *p;
     int			sts;
 
     if (indom == PM_INDOM_NULL)
@@ -9246,6 +9262,29 @@ linux_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
 	return pmdaAddLabels(lp,
 			"{\"numa_node\":%u,\"zone\":\"%s\",\"lowmem_reserved\":%u}",
 			prot->node, prot->zone, prot->lowmem);
+
+    case INTERRUPT_INDOM:
+	sts = pmdaCacheLookup(indom, inst, &name, (void **)&intr);
+	if (sts < 0 || sts == PMDA_CACHE_INACTIVE)
+	    return 0;
+	return pmdaAddLabels(lp, "{\"irq\":\"%s\",\"irqtext\":\"%s\"}",
+			name, intr->label);
+
+    case INTERRUPT_CPU_INDOM:
+	sts = pmdaCacheLookup(indom, inst, &name, (void **)&cpuintr);
+	if (sts < 0 || sts == PMDA_CACHE_INACTIVE)
+	    return 0;
+	p = strchr(name, ':');
+	return pmdaAddLabels(lp, "{\"cpu\":%u,\"irq\":\"%.*s\",\"irqtext\":\"%s\"}",
+			cpuintr->cpuid, (int)(p - name), name, cpuintr->row->label);
+
+    case SOFTIRQ_CPU_INDOM:
+	sts = pmdaCacheLookup(indom, inst, &name, (void **)&cpuintr);
+	if (sts < 0 || sts == PMDA_CACHE_INACTIVE)
+	    return 0;
+	p = strchr(name, ':');
+	return pmdaAddLabels(lp, "{\"cpu\":%u, \"softirq\":\"%.*s\"}",
+			cpuintr->cpuid, (int)(p - name), name);
 
     default:
 	break;
@@ -9506,7 +9545,6 @@ linux_init(pmdaInterface *dp)
     nmetrics = sizeof(metrictab)/sizeof(metrictab[0]);
 
     proc_vmstat_init();
-    interrupts_init(dp->version.any.ext, metrictab, nmetrics);
 
     rootfd = pmdaRootConnect(NULL);
     pmdaSetFlags(dp, PMDA_EXT_FLAG_HASHED);
@@ -9514,12 +9552,6 @@ linux_init(pmdaInterface *dp)
 
     /* string metrics use the pmdaCache API for value indexing */
     pmdaCacheOp(INDOM(STRINGS_INDOM), PMDA_CACHE_STRINGS);
-
-    /* dynamic metrics using the pmdaCache API for name<->item mapping */
-    pmdaCacheOp(INDOM(INTERRUPT_NAMES_INDOM), PMDA_CACHE_STRINGS);
-    pmdaCacheResize(INDOM(INTERRUPT_NAMES_INDOM), (1 << 10)-1);
-    pmdaCacheOp(INDOM(SOFTIRQS_NAMES_INDOM), PMDA_CACHE_STRINGS);
-    pmdaCacheResize(INDOM(SOFTIRQS_NAMES_INDOM), (1 << 10)-1);
 }
 
 pmLongOptions	longopts[] = {

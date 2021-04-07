@@ -51,8 +51,6 @@
 @ 60.23 internet control message protocol (ICMP) message types
 @ 60.24 device mapper driver devices
 @ 60.25 multi-device driver devices
-@ 60.26 persistent per-processor interrupt IDs
-@ 60.27 persistent per-processor softirq IDs
 @ 60.28 IPC shm_stat shared memory IDs
 @ 60.29 IPC msg_stat message queue IDs
 @ 60.30 IPC sem_stat semaphore IDs
@@ -68,6 +66,8 @@ devices all share the same statistics in the kernel as the st devices.
 @ 60.37 pressure time averages for 10 seconds, 1 minute and 5 minutes
 @ 60.38 set of compressed memory devices
 @ 60.39 fibre channel host bus adapters
+@ 60.40 per-processor IRQs
+@ 60.41 per-processor soft IRQs
 
 
 @ kernel.uname.release release level of the running kernel
@@ -142,6 +142,9 @@ Per-CPU time spent running (virtual) guest operating systems.
 @ kernel.percpu.cpu.guest_nice percpu nice guest CPU time
 Per-CPU nice time spent running (virtual) guest operating systems.
 
+@ kernel.percpu.softirqs per CPU per soft interrupt counts from /proc/softirqs
+@ kernel.percpu.sirq per CPU aggregate soft interrupt counts from /proc/softirqs
+
 @ kernel.all.softirqs.total total interrupts counts from /proc/softirqs
 Aggregated interrupt counts for each type of interrupt reported
 by the kernel in /proc/softirqs.
@@ -149,6 +152,8 @@ by the kernel in /proc/softirqs.
 @ kernel.all.interrupts.total total interrupts counts from /proc/interrupts
 Aggregated interrupt counts for each type of interrupt reported
 by the kernel in /proc/interrupts.
+
+@ kernel.all.interrupts.missed MIS count from /proc/interrupts
 
 @ kernel.all.interrupts.errors interrupt error count from /proc/interrupts
 This is a global counter (normally converted to a count/second)
@@ -796,6 +801,9 @@ i.e. the clock interrupt rate, wehich is usually 100/second.
 See also kernel.percpu.intr and kernel.percpu.interrupts to get
 the breakdown of interrupt count by interrupt type and which CPU
 processed each one.
+
+@ kernel.percpu.interrupts interrupt counters from /proc/interrupts
+Counts of each interrupt type, for each CPU.
 
 @ kernel.percpu.intr interrupt count metric from /proc/interrupts
 Aggregate count of each CPUs interrupt processing count, calculated

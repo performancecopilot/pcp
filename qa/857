@@ -39,11 +39,10 @@ _filter()
 
 # real QA test starts here
 pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init
-metrics="kernel.percpu.intr kernel.percpu.interrupts kernel.percpu.softirqs"
+metrics="kernel.percpu.intr kernel.percpu.interrupts kernel.percpu.sirq kernel.percpu.softirqs"
 
 for machine in 8cpu-x86_64 1cpu-i686
 do
-
     # Need to clear the linux PMDA's indom cache before we run with -L
     # to prevent cross-version pollution
     #

@@ -70,8 +70,8 @@ enum {
 	PROC_MEMORY_PROCS,	/* 46 memory group processes -> proc PMDA */
 	PROC_NET_CLS_GROUPS,	/* 47 network class fication control groups -> proc PMDA */
 	PROC_NET_CLS_PROCS,	/* 48 network classification group processes -> proc PMDA */
-	CLUSTER_INTERRUPT_LINES,/* 49 /proc/interrupts percpu interrupts */
-	CLUSTER_INTERRUPT_OTHER,/* 50 /proc/interrupts percpu interrupts */
+	CLUSTER_INTERRUPT_LINES,/* deprecated: do not re-use 49 */
+	CLUSTER_INTERRUPT_OTHER,/* deprecated: do not re-use 50 */
 	PROC_PID_FD,		/* 51 /proc/<pid>/fd -> proc PMDA */
 	CLUSTER_LV,		/* deprecated: do not re-use 52 */
 	CLUSTER_NET_NETSTAT,    /* 53 /proc/net/netstat */
@@ -147,7 +147,7 @@ enum {
 	DISK_INDOM,		/* 1 - disks */
 	LOADAVG_INDOM,		/* 2 - 1, 5, 15 minute load averages */
 	NET_DEV_INDOM,		/* 3 - network interfaces */
-	INTERRUPTS_INDOM,	/* 4 - interrupt lines */
+	INTERRUPT_INDOM,	/* 4 - interrupt lines */
 	FILESYS_INDOM,		/* 5 - mounted bdev filesystems */
 	SWAPDEV_INDOM,		/* 6 - swap devices */
 	NFS_INDOM,		/* 7 - nfs operations */
@@ -169,8 +169,8 @@ enum {
 	ICMPMSG_INDOM,          /* 23 - icmp message types */
 	DM_INDOM,		/* 24 - device mapper devices */
 	MD_INDOM,		/* 25 - multi-device devices */
-	INTERRUPT_NAMES_INDOM,	/* 26 - persistent percpu interrupts IDs */
-	SOFTIRQS_NAMES_INDOM,	/* 27 - persistent percpu softirqs IDs */
+	INTERRUPT_NAMES_INDOM_DEPRECATED, /* deprecated 26 */
+	SOFTIRQ_NAMES_INDOM_DEPRECATED,  /* deprecated 27 */
 	IPC_STAT_INDOM,	        /* 28 - ipc shm_stat shmid */
 	IPC_MSG_INDOM,	        /* 29 - ipc msg_stat msgid */
 	IPC_SEM_INDOM,	        /* 30 - ipc sem_stat msgid */
@@ -179,10 +179,12 @@ enum {
 	ZONEINFO_PROTECTION_INDOM,	/* 33 - proc zoneinfo protection item */
 	TAPEDEV_INDOM,		/* 34 - tape devices */
 	TTY_INDOM,              /* 35 - serial tty devices */
-	SOFTIRQS_INDOM,		/* 36 - softirqs */
+	SOFTIRQ_INDOM,		/* 36 - softirqs */
 	PRESSUREAVG_INDOM,	/* 37 - 10, 60, 300 second pressure averages */
 	ZRAM_INDOM,		/* 38 - compressed RAM devices */
 	FCHOST_INDOM,		/* 39 - fibrechannel hosts */
+	INTERRUPT_CPU_INDOM,	/* 40 - per-CPU interrupt lines */
+	SOFTIRQ_CPU_INDOM,	/* 41 - per-CPU soft IRQs */
 
 	NUM_INDOMS		/* one more than highest numbered cluster */
 };

@@ -1396,7 +1396,7 @@ x11
 952 threads valgrind local
 953 libpcp threads local
 954 libpcp threads derive local
-955 pmda.linux local kernel
+955:retired pmda.linux local kernel
 956 pmcd local
 957 pmda.linux local valgrind
 958 archive local pmdumplog
