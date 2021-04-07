@@ -64,9 +64,7 @@ _cleanup()
 	for svc in \
 	    pmlogger_check.service \
 	    pmlogger_daily.service \
-	    pmlogger_daily-poll.service \
-	    pmlogger_daily_report.service \
-	    pmlogger_daily_report-poll.service
+	    pmlogger_daily-poll.service
 	do
 	    sudo systemctl enable $svc >>$seq.full 2>&1
 	    sudo systemctl start $svc >>$seq.full 2>&1
