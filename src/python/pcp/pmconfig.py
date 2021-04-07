@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015-2020 Marko Myllynen <myllynen@redhat.com>
+# Copyright (C) 2015-2021 Marko Myllynen <myllynen@redhat.com>
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -492,14 +492,24 @@ class pmConfig(object):
                 found = [[], []]
                 for r in instances:
                     try:
-                        cr = re.compile(r'\A' + r + r'\Z')
-                        for i, s in enumerate(inst[1]):
-                            if re.match(cr, s):
-                                found[0].append(inst[0][i])
-                                found[1].append(inst[1][i])
-                        del cr
+                        if r.isdigit():
+                            msg = "Invalid instance id"
+                            for i, s in enumerate(inst[1]):
+                                sp = s.split()[0]
+                                if sp.isdigit() and int(r) == int(sp):
+                                    found[0].append(inst[0][i])
+                                    found[1].append(inst[1][i])
+                                    break
+                        else:
+                            msg = "Invalid regex"
+                            cr = re.compile(r'\A' + r + r'\Z')
+                            for i, s in enumerate(inst[1]):
+                                if re.match(cr, s):
+                                    found[0].append(inst[0][i])
+                                    found[1].append(inst[1][i])
+                            del cr
                     except Exception as error:
-                        sys.stderr.write("Invalid regex '%s': %s.\n" % (r, error))
+                        sys.stderr.write("%s '%s': %s.\n" % (msg, r, error))
                         sys.exit(1)
                 if not found[0]:
                     return
