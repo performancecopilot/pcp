@@ -75,8 +75,8 @@ NF == 0 && seen == 1		{ if (numval == 1) print metric ": 1 value"
 	-e '/^proc\.namespaces\./d' \
 	-e '/^proc\.smaps\./d' \
 	-e '/^proc\.psinfo\.cgroups:/d' \
+	-e '/^proc\.psinfo\.tty_pgrp:/d' \
     # end
-
 }
 
 # real QA test starts here
