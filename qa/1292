@@ -34,7 +34,7 @@ _cleanup()
     cd $here
     [ -n "$pid" ] && kill -TERM $pid
     wait
-    cat $tmp.log | tee $seq.full | _filter
+    cat $tmp.log | tee -a $seq.full | _filter
     $sudo rm -rf $tmp $tmp.*
 }
 
