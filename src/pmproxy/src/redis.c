@@ -136,7 +136,7 @@ static void
 on_redis_connected(void *arg)
 {
     struct proxy	*proxy = (struct proxy *)arg;
-    mmv_registry_t	*metric_registry = proxymetrics(proxy, METRICS_REDIS);
+    mmv_registry_t	*metric_registry = proxymetrics(proxy, METRICS_DISCOVER);
     sds			message;
 
     message = sdsnew("Redis slots");
@@ -212,5 +212,5 @@ close_redis_module(struct proxy *proxy)
     if (archive_discovery)
 	pmDiscoverClose(&redis_discover.module);
 
-    proxymetrics_close(proxy, METRICS_REDIS);
+    proxymetrics_close(proxy, METRICS_DISCOVER);
 }

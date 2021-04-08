@@ -1959,67 +1959,67 @@ pmDiscoverSetupMetrics(pmDiscoverModule *module)
     /*
      * redis and archive discovery metrics
      */
-    mmv_stats_add_metric(data->metrics, "discover.monitored", 1,
+    mmv_stats_add_metric(data->metrics, "monitored", 1,
 	MMV_TYPE_U64, MMV_SEM_DISCRETE, nounits, noindom,
 	"number of directories, sub-directories and archives currently being monitored", NULL);
 
-    mmv_stats_add_metric(data->metrics, "discover.purged", 2,
+    mmv_stats_add_metric(data->metrics, "purged", 2,
 	MMV_TYPE_U64, MMV_SEM_DISCRETE, nounits, noindom,
 	"number of directories, sub-directories and archives purged (no longer being monitored)", NULL);
 
-    mmv_stats_add_metric(data->metrics, "discover.metadata.callbacks", 3,
+    mmv_stats_add_metric(data->metrics, "metadata.callbacks", 3,
 	MMV_TYPE_U64, MMV_SEM_COUNTER, nounits, noindom,
 	"total calls to process metadata for all monitored archives", NULL);
 
-    mmv_stats_add_metric(data->metrics, "discover.metadata.loops", 4,
+    mmv_stats_add_metric(data->metrics, "metadata.loops", 4,
 	MMV_TYPE_U64, MMV_SEM_COUNTER, nounits, noindom,
 	"total loops processing metadata for all monitored archives", NULL);
 
-    mmv_stats_add_metric(data->metrics, "discover.metadata.decode.desc", 5,
+    mmv_stats_add_metric(data->metrics, "metadata.decode.desc", 5,
 	MMV_TYPE_U64, MMV_SEM_COUNTER, nounits, noindom,
 	"total desc records decoded processing metadata for all monitored archives", NULL);
 
-    mmv_stats_add_metric(data->metrics, "discover.metadata.decode.indom", 6,
+    mmv_stats_add_metric(data->metrics, "metadata.decode.indom", 6,
 	MMV_TYPE_U64, MMV_SEM_COUNTER, nounits, noindom,
 	"total indom records decoded processing metadata for all monitored archives", NULL);
 
-    mmv_stats_add_metric(data->metrics, "discover.metadata.decode.label", 7,
+    mmv_stats_add_metric(data->metrics, "metadata.decode.label", 7,
 	MMV_TYPE_U64, MMV_SEM_COUNTER, nounits, noindom,
 	"total label records decoded processing metadata for all monitored archives", NULL);
 
-    mmv_stats_add_metric(data->metrics, "discover.metadata.decode.helptext", 8,
+    mmv_stats_add_metric(data->metrics, "metadata.decode.helptext", 8,
 	MMV_TYPE_U64, MMV_SEM_COUNTER, nounits, noindom,
 	"total help text records decoded processing metadata for all monitored archives", NULL);
 
-    mmv_stats_add_metric(data->metrics, "discover.logvol.callbacks", 9,
+    mmv_stats_add_metric(data->metrics, "logvol.callbacks", 9,
 	MMV_TYPE_U64, MMV_SEM_COUNTER, nounits, noindom,
 	"total calls to process logvol data for all monitored archives", NULL);
 
-    mmv_stats_add_metric(data->metrics, "discover.logvol.loops", 10,
+    mmv_stats_add_metric(data->metrics, "logvol.loops", 10,
 	MMV_TYPE_U64, MMV_SEM_COUNTER, nounits, noindom,
 	"total loops processing logvol data for all monitored archives", NULL);
 
-    mmv_stats_add_metric(data->metrics, "discover.logvol.change_vol", 11,
+    mmv_stats_add_metric(data->metrics, "logvol.change_vol", 11,
 	MMV_TYPE_U64, MMV_SEM_COUNTER, nounits, noindom,
 	"total log vol values callbacks made for all monitored archives", NULL);
 
-    mmv_stats_add_metric(data->metrics, "discover.logvol.decode.result", 12,
+    mmv_stats_add_metric(data->metrics, "logvol.decode.result", 12,
 	MMV_TYPE_U64, MMV_SEM_COUNTER, nounits, noindom,
 	"total result records decoded for all monitored archives", NULL);
 
-    mmv_stats_add_metric(data->metrics, "discover.logvol.decode.result_pmids", 13,
+    mmv_stats_add_metric(data->metrics, "logvol.decode.result_pmids", 13,
 	MMV_TYPE_U64, MMV_SEM_COUNTER, nounits, noindom,
 	"total metric pmids in decoded result records for all monitored archives", NULL);
 
-    mmv_stats_add_metric(data->metrics, "discover.logvol.decode.mark_record", 14,
+    mmv_stats_add_metric(data->metrics, "logvol.decode.mark_record", 14,
 	MMV_TYPE_U64, MMV_SEM_COUNTER, nounits, noindom,
 	"total mark record result records decoded for all monitored archives", NULL);
 
-    mmv_stats_add_metric(data->metrics, "discover.logvol.new_contexts", 15,
+    mmv_stats_add_metric(data->metrics, "logvol.new_contexts", 15,
 	MMV_TYPE_U64, MMV_SEM_COUNTER, nounits, noindom,
 	"total successful new context calls made for all monitored archives", NULL);
 
-    mmv_stats_add_metric(data->metrics, "discover.logvol.get_archive_end_failed", 16,
+    mmv_stats_add_metric(data->metrics, "logvol.get_archive_end_failed", 16,
 	MMV_TYPE_U64, MMV_SEM_COUNTER, nounits, noindom,
 	"total failed pmGetArchiveEnd calls after successfully creating a new context for all monitored archives", NULL);
 
