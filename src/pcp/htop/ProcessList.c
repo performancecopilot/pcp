@@ -10,11 +10,12 @@ in the source distribution for its full text.
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
 
-#include "Compat.h"
 #include "CRT.h"
 #include "Hashtable.h"
 #include "Macros.h"
+#include "Platform.h"
 #include "Vector.h"
 #include "XUtils.h"
 
@@ -35,7 +36,7 @@ ProcessList* ProcessList_init(ProcessList* this, const ObjectClass* klass, Users
    // set later by platform-specific code
    this->cpuCount = 0;
 
-   this->scanTs = 0;
+   this->monotonicMs = 0;
 
 #ifdef HAVE_LIBHWLOC
    this->topologyOk = false;
@@ -94,7 +95,7 @@ static const char* alignedProcessFieldTitle(ProcessField field) {
 }
 
 void ProcessList_printHeader(const ProcessList* this, RichString* header) {
-   RichString_prune(header);
+   RichString_rewind(header, RichString_size(header));
 
    const Settings* settings = this->settings;
    const ProcessField* fields = settings->fields;
@@ -131,7 +132,7 @@ void ProcessList_add(ProcessList* this, Process* p) {
    p->processList = this;
 
    // highlighting processes found in first scan by first scan marked "far in the past"
-   p->seenTs = this->scanTs;
+   p->seenStampMs = this->monotonicMs;
 
    Vector_add(this->processes, p);
    Hashtable_put(this->processTable, p->pid, p);
@@ -202,7 +203,7 @@ static void ProcessList_updateTreeSetLayer(ProcessList* this, unsigned int leftB
    if (layerSize == 0)
       return;
 
-   Vector* layer = Vector_new(this->processes->type, false, layerSize);
+   Vector* layer = Vector_new(Vector_type(this->processes), false, layerSize);
 
    // Find all processes on the same layer (process with the same `deep` value
    // and included in a range from `leftBound` to `rightBound`).
@@ -311,6 +312,11 @@ static void ProcessList_updateTreeSet(ProcessList* this) {
 }
 
 static void ProcessList_buildTreeBranch(ProcessList* this, pid_t pid, int level, int indent, int direction, bool show, int* node_counter, int* node_index) {
+   // On OpenBSD the kernel thread 'swapper' has pid 0.
+   // Do not treat it as root of any tree.
+   if (pid == 0)
+      return;
+
    Vector* children = Vector_new(Class(Process), false, DEFAULT_SIZE);
 
    for (int i = Vector_size(this->processes) - 1; i >= 0; i--) {
@@ -494,18 +500,39 @@ void ProcessList_expandTree(ProcessList* this) {
    }
 }
 
+void ProcessList_collapseAllBranches(ProcessList* this) {
+   int size = Vector_size(this->processes);
+   for (int i = 0; i < size; i++) {
+      Process* process = (Process*) Vector_get(this->processes, i);
+      // FreeBSD has pid 0 = kernel and pid 1 = init, so init has tree_depth = 1
+      if (process->tree_depth > 0 && process->pid > 1)
+         process->showChildren = false;
+   }
+}
+
 void ProcessList_rebuildPanel(ProcessList* this) {
    const char* incFilter = this->incFilter;
 
-   int currPos = Panel_getSelectedIndex(this->panel);
-   int currScrollV = this->panel->scrollV;
-   int currSize = Panel_size(this->panel);
+   const int currPos = Panel_getSelectedIndex(this->panel);
+   const int currScrollV = this->panel->scrollV;
+   const int currSize = Panel_size(this->panel);
 
    Panel_prune(this->panel);
-   int size = ProcessList_size(this);
-   int idx = 0;
 
-   for (int i = 0; i < size; i++) {
+   /* Follow main process if followed a userland thread and threads are now hidden */
+   const Settings* settings = this->settings;
+   if (this->following != -1 && settings->hideUserlandThreads) {
+      const Process* followedProcess = (const Process*) Hashtable_get(this->processTable, this->following);
+      if (followedProcess && Process_isThread(followedProcess) && Hashtable_get(this->processTable, followedProcess->tgid) != NULL) {
+         this->following = followedProcess->tgid;
+      }
+   }
+
+   const int processCount = ProcessList_size(this);
+   int idx = 0;
+   bool foundFollowed = false;
+
+   for (int i = 0; i < processCount; i++) {
       Process* p = ProcessList_get(this, i);
 
       if ( (!p->show)
@@ -517,15 +544,22 @@ void ProcessList_rebuildPanel(ProcessList* this) {
       Panel_set(this->panel, idx, (Object*)p);
 
       if (this->following != -1 && p->pid == this->following) {
+         foundFollowed = true;
          Panel_setSelected(this->panel, idx);
          this->panel->scrollV = currScrollV;
       }
       idx++;
    }
 
+   if (this->following != -1 && !foundFollowed) {
+      /* Reset if current followed pid not found */
+      this->following = -1;
+      Panel_setSelectionColor(this->panel, PANEL_SELECTION_FOCUS);
+   }
+
    if (this->following == -1) {
       /* If the last item was selected, keep the new last item selected */
-      if (currPos == currSize - 1)
+      if (currPos > 0 && currPos == currSize - 1)
          Panel_setSelected(this->panel, Panel_size(this->panel) - 1);
       else
          Panel_setSelected(this->panel, currPos);
@@ -549,8 +583,6 @@ Process* ProcessList_getProcess(ProcessList* this, pid_t pid, bool* preExisting,
 }
 
 void ProcessList_scan(ProcessList* this, bool pauseProcessUpdate) {
-   struct timespec now;
-
    // in pause mode only gather global data for meters (CPU/memory/...)
    if (pauseProcessUpdate) {
       ProcessList_goThroughEntries(this, true);
@@ -571,31 +603,29 @@ void ProcessList_scan(ProcessList* this, bool pauseProcessUpdate) {
    this->runningTasks = 0;
 
 
-   // set scanTs
+   // set scan timestamp
    static bool firstScanDone = false;
-   if (!firstScanDone) {
-      this->scanTs = 0;
+   if (firstScanDone) {
+      Platform_gettime_monotonic(&this->monotonicMs);
+   } else {
+      this->monotonicMs = 0;
       firstScanDone = true;
-   } else if (Compat_clock_monotonic_gettime(&now) == 0) {
-      // save time in millisecond, so with a delay in deciseconds
-      // there are no irregularities
-      this->scanTs = 1000 * now.tv_sec + now.tv_nsec / 1000000;
    }
 
    ProcessList_goThroughEntries(this, false);
 
    for (int i = Vector_size(this->processes) - 1; i >= 0; i--) {
       Process* p = (Process*) Vector_get(this->processes, i);
-      if (p->tombTs > 0) {
+      if (p->tombStampMs > 0) {
          // remove tombed process
-         if (this->scanTs >= p->tombTs) {
+         if (this->monotonicMs >= p->tombStampMs) {
             ProcessList_remove(this, p);
          }
       } else if (p->updated == false) {
          // process no longer exists
          if (this->settings->highlightChanges && p->wasShown) {
             // mark tombed
-            p->tombTs = this->scanTs + 1000 * this->settings->highlightDelaySecs;
+            p->tombStampMs = this->monotonicMs + 1000 * this->settings->highlightDelaySecs;
          } else {
             // immediately remove
             ProcessList_remove(this, p);

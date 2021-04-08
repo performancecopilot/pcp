@@ -87,16 +87,13 @@ bool TraceScreen_forkTracer(TraceScreen* this) {
       dup2(fdpair[1], STDERR_FILENO);
       close(fdpair[1]);
 
-      CRT_dropPrivileges();
-
       char buffer[32] = {0};
       xSnprintf(buffer, sizeof(buffer), "%d", this->super.process->pid);
       execlp("strace", "strace", "-T", "-tt", "-s", "512", "-p", buffer, NULL);
 
       // Should never reach here, unless execlp fails ...
       const char* message = "Could not execute 'strace'. Please make sure it is available in your $PATH.";
-      ssize_t written = write(STDERR_FILENO, message, strlen(message));
-      (void) written;
+      (void)! write(STDERR_FILENO, message, strlen(message));
 
       exit(127);
    }

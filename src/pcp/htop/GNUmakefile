@@ -24,6 +24,7 @@ NCURSES_CFLAGS = -DHAVE_LIBNCURSESW=$(HAVE_NCURSESW)
 LCFLAGS = $(NCURSES_CFLAGS) $(C99_CFLAGS) -Ipcp -I.
 LCFLAGS += -DVERSION=\"$(PCP_VERSION)\" -DSYSCONFDIR=\"$(PCP_SYSCONF_DIR)\"
 LCFLAGS += -DCOPYRIGHT=\"$(COPYRIGHT)\" -DPACKAGE=\"$(CMDTARGET)\"
+LCFLAGS += -DMAJOR_IN_SYSMACROS=1
 
 CFILES = \
 	Action.c \
@@ -34,6 +35,7 @@ CFILES = \
 	ClockMeter.c \
 	ColorsPanel.c \
 	ColumnsPanel.c \
+	CommandLine.c \
 	CommandScreen.c \
 	Compat.c \
 	CPUMeter.c \
@@ -47,7 +49,6 @@ CFILES = \
 	Hashtable.c \
 	Header.c \
 	HostnameMeter.c \
-	htop.c \
 	IncSet.c \
 	InfoScreen.c \
 	ListItem.c \
@@ -82,7 +83,8 @@ CFILES = \
 	zfs/ZfsCompressedArcMeter.c \
 	pcp/PCPProcess.c \
 	pcp/PCPProcessList.c \
-	pcp/Platform.c
+	pcp/Platform.c \
+	pcp-htop.c \
 
 HFILES = \
 	Action.h \
@@ -93,6 +95,7 @@ HFILES = \
 	ClockMeter.h \
 	ColorsPanel.h \
 	ColumnsPanel.h \
+	CommandLine.h \
 	CommandScreen.h \
 	Compat.h \
 	CPUMeter.h \

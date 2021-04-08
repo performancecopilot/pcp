@@ -7,6 +7,7 @@ in the source distribution for its full text.
 
 #include "Settings.h"
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -53,7 +54,7 @@ static void Settings_readMeterModes(Settings* this, const char* line, int column
    this->columns[column].modes = modes;
 }
 
-static void Settings_defaultMeters(Settings* this, int initialCpuCount) {
+static void Settings_defaultMeters(Settings* this, unsigned int initialCpuCount) {
    int sizes[] = { 3, 3 };
    if (initialCpuCount > 4 && initialCpuCount <= 128) {
       sizes[1]++;
@@ -124,11 +125,8 @@ static void readFields(ProcessField* fields, uint32_t* flags, const char* line) 
    String_freeArray(ids);
 }
 
-static bool Settings_read(Settings* this, const char* fileName, int initialCpuCount) {
-   FILE* fd;
-   CRT_dropPrivileges();
-   fd = fopen(fileName, "r");
-   CRT_restorePrivileges();
+static bool Settings_read(Settings* this, const char* fileName, unsigned int initialCpuCount) {
+   FILE* fd = fopen(fileName, "r");
    if (!fd)
       return false;
 
@@ -163,6 +161,8 @@ static bool Settings_read(Settings* this, const char* fileName, int initialCpuCo
          this->treeView = atoi(option[1]);
       } else if (String_eq(option[0], "tree_view_always_by_pid")) {
          this->treeViewAlwaysByPID = atoi(option[1]);
+      } else if (String_eq(option[0], "all_branches_collapsed")) {
+         this->allBranchesCollapsed = atoi(option[1]);
       } else if (String_eq(option[0], "hide_kernel_threads")) {
          this->hideKernelThreads = atoi(option[1]);
       } else if (String_eq(option[0], "hide_userland_threads")) {
@@ -205,7 +205,7 @@ static bool Settings_read(Settings* this, const char* fileName, int initialCpuCo
          this->showCPUUsage = atoi(option[1]);
       } else if (String_eq(option[0], "show_cpu_frequency")) {
          this->showCPUFrequency = atoi(option[1]);
-      #ifdef HAVE_SENSORS_SENSORS_H
+      #ifdef BUILD_WITH_CPU_TEMP
       } else if (String_eq(option[0], "show_cpu_temperature")) {
          this->showCPUTemperature = atoi(option[1]);
       } else if (String_eq(option[0], "degree_fahrenheit")) {
@@ -263,7 +263,7 @@ static void writeFields(FILE* fd, const ProcessField* fields, const char* name) 
    fprintf(fd, "\n");
 }
 
-static void writeMeters(Settings* this, FILE* fd, int column) {
+static void writeMeters(const Settings* this, FILE* fd, int column) {
    const char* sep = "";
    for (int i = 0; i < this->columns[column].len; i++) {
       fprintf(fd, "%s%s", sep, this->columns[column].names[i]);
@@ -272,7 +272,7 @@ static void writeMeters(Settings* this, FILE* fd, int column) {
    fprintf(fd, "\n");
 }
 
-static void writeMeterModes(Settings* this, FILE* fd, int column) {
+static void writeMeterModes(const Settings* this, FILE* fd, int column) {
    const char* sep = "";
    for (int i = 0; i < this->columns[column].len; i++) {
       fprintf(fd, "%s%d", sep, this->columns[column].modes[i]);
@@ -281,16 +281,11 @@ static void writeMeterModes(Settings* this, FILE* fd, int column) {
    fprintf(fd, "\n");
 }
 
-bool Settings_write(Settings* this) {
-   FILE* fd;
+int Settings_write(const Settings* this) {
+   FILE* fd = fopen(this->filename, "w");
+   if (fd == NULL)
+      return -errno;
 
-   CRT_dropPrivileges();
-   fd = fopen(this->filename, "w");
-   CRT_restorePrivileges();
-
-   if (fd == NULL) {
-      return false;
-   }
    fprintf(fd, "# Beware! This file is rewritten by htop when settings are changed in the interface.\n");
    fprintf(fd, "# The parser is also very primitive, and not human-friendly.\n");
    writeFields(fd, this->fields, "fields");
@@ -314,12 +309,13 @@ bool Settings_write(Settings* this) {
    fprintf(fd, "show_merged_command=%d\n", (int) this->showMergedCommand);
    fprintf(fd, "tree_view=%d\n", (int) this->treeView);
    fprintf(fd, "tree_view_always_by_pid=%d\n", (int) this->treeViewAlwaysByPID);
+   fprintf(fd, "all_branches_collapsed=%d\n", (int) this->allBranchesCollapsed);
    fprintf(fd, "header_margin=%d\n", (int) this->headerMargin);
    fprintf(fd, "detailed_cpu_time=%d\n", (int) this->detailedCPUTime);
    fprintf(fd, "cpu_count_from_one=%d\n", (int) this->countCPUsFromOne);
    fprintf(fd, "show_cpu_usage=%d\n", (int) this->showCPUUsage);
    fprintf(fd, "show_cpu_frequency=%d\n", (int) this->showCPUFrequency);
-   #ifdef HAVE_SENSORS_SENSORS_H
+   #ifdef BUILD_WITH_CPU_TEMP
    fprintf(fd, "show_cpu_temperature=%d\n", (int) this->showCPUTemperature);
    fprintf(fd, "degree_fahrenheit=%d\n", (int) this->degreeFahrenheit);
    #endif
@@ -336,11 +332,19 @@ bool Settings_write(Settings* this) {
    #ifdef HAVE_LIBHWLOC
    fprintf(fd, "topology_affinity=%d\n", (int) this->topologyAffinity);
    #endif
-   fclose(fd);
-   return true;
+
+   int r = 0;
+
+   if (ferror(fd) != 0)
+      r = (errno != 0) ? -errno : -EBADF;
+
+   if (fclose(fd) != 0)
+      r = r ? r : -errno;
+
+   return r;
 }
 
-Settings* Settings_new(int initialCpuCount) {
+Settings* Settings_new(unsigned int initialCpuCount) {
    Settings* this = xCalloc(1, sizeof(Settings));
 
    this->sortKey = PERCENT_CPU;
@@ -352,13 +356,14 @@ Settings* Settings_new(int initialCpuCount) {
    this->hideKernelThreads = false;
    this->hideUserlandThreads = false;
    this->treeView = false;
+   this->allBranchesCollapsed = false;
    this->highlightBaseName = false;
    this->highlightMegabytes = false;
    this->detailedCPUTime = false;
    this->countCPUsFromOne = false;
    this->showCPUUsage = true;
    this->showCPUFrequency = false;
-   #ifdef HAVE_SENSORS_SENSORS_H
+   #ifdef BUILD_WITH_CPU_TEMP
    this->showCPUTemperature = false;
    this->degreeFahrenheit = false;
    #endif
@@ -406,7 +411,6 @@ Settings* Settings_new(int initialCpuCount) {
          htopDir = String_cat(home, "/.config/htop");
       }
       legacyDotfile = String_cat(home, "/.htoprc");
-      CRT_dropPrivileges();
       (void) mkdir(configDir, 0700);
       (void) mkdir(htopDir, 0700);
       free(htopDir);
@@ -417,7 +421,6 @@ Settings* Settings_new(int initialCpuCount) {
          free(legacyDotfile);
          legacyDotfile = NULL;
       }
-      CRT_restorePrivileges();
    }
    this->colorScheme = 0;
    this->enableMouse = true;
@@ -428,7 +431,7 @@ Settings* Settings_new(int initialCpuCount) {
       ok = Settings_read(this, legacyDotfile, initialCpuCount);
       if (ok) {
          // Transition to new location and delete old configuration file
-         if (Settings_write(this)) {
+         if (Settings_write(this) == 0) {
             unlink(legacyDotfile);
          }
       }

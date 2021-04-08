@@ -53,6 +53,7 @@ typedef enum ColorElements_ {
    PANEL_SELECTION_FOLLOW,
    PANEL_SELECTION_UNFOCUS,
    LARGE_NUMBER,
+   METER_SHADOW,
    METER_TEXT,
    METER_VALUE,
    METER_VALUE_ERROR,
@@ -92,6 +93,7 @@ typedef enum ColorElements_ {
    MEMORY_BUFFERS,
    MEMORY_BUFFERS_TEXT,
    MEMORY_CACHE,
+   MEMORY_SHARED,
    HUGEPAGE_1,
    HUGEPAGE_2,
    HUGEPAGE_3,
@@ -159,20 +161,6 @@ extern int CRT_scrollHAmount;
 extern int CRT_scrollWheelVAmount;
 
 extern ColorScheme CRT_colorScheme;
-
-#ifdef HAVE_SETUID_ENABLED
-
-void CRT_dropPrivileges(void);
-
-void CRT_restorePrivileges(void);
-
-#else /* HAVE_SETUID_ENABLED */
-
-/* Turn setuid operations into NOPs */
-static inline void CRT_dropPrivileges(void) { }
-static inline void CRT_restorePrivileges(void) { }
-
-#endif /* HAVE_SETUID_ENABLED */
 
 void CRT_init(const Settings* settings, bool allowUnicode);
 

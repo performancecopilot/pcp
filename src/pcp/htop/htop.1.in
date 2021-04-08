@@ -177,9 +177,11 @@ Quit
 Invert the sort order: if sort order is increasing, switch to decreasing, and
 vice-versa.
 .TP
-.B +, \-
+.B +, \-, *
 When in tree view mode, expand or collapse subtree. When a subtree is collapsed
 a "+" sign shows to the left of the process name.
+Pressing "*" will expand or collapse all children of PIDs without parents, so
+typically PID 1 (init) and PID 2 (kthreadd on Linux, if kernel threads are shown).
 .TP
 .B a (on multiprocessor machines)
 Set CPU affinity: mark which CPUs a process is allowed to use.
@@ -366,6 +368,15 @@ The user ID of the process owner.
 .TP
 .B PERCENT_CPU (CPU%)
 The percentage of the CPU time that the process is currently using.
+This is the default way to represent CPU usage in Linux. Each process can
+consume up to 100% which means the full capacity of the core it is running
+on. This is sometimes called "Irix mode" e.g. in
+.BR top (1).
+.TP
+.B PERCENT_NORM_CPU (NCPU%)
+The percentage of the CPU time that the process is currently using normalized
+by CPU count. This is sometimes called "Solaris mode" e.g. in
+.BR top (1).
 .TP
 .B PERCENT_MEM (MEM%)
 The percentage of memory the process is currently using (based on the process's

@@ -1,15 +1,13 @@
 /*
 htop - linux/Platform.c
 (C) 2014 Hisham H. Muhammad
-(C) 2020 htop dev team
+(C) 2020-2021 htop dev team
 (C) 2020-2021 Red Hat, Inc.  All Rights Reserved.
 Released under the GNU GPLv2, see the COPYING file
 in the source distribution for its full text.
 */
 
 #include "config.h"
-
-#include "Platform.h"
 
 #include <math.h>
 
@@ -31,6 +29,7 @@ in the source distribution for its full text.
 #include "Panel.h"
 #include "PCPProcess.h"
 #include "PCPProcessList.h"
+#include "Platform.h"
 #include "ProcessList.h"
 #include "ProvideCurses.h"
 #include "Settings.h"
@@ -46,6 +45,7 @@ in the source distribution for its full text.
 #include "zfs/ZfsArcStats.h"
 #include "zfs/ZfsCompressedArcMeter.h"
 
+
 typedef struct Platform_ {
    int context;			/* PMAPI(3) context identifier */
    unsigned int total;		/* total number of all metrics */
@@ -54,9 +54,10 @@ typedef struct Platform_ {
    pmID* fetch;			/* enabled identifiers for sampling */
    pmDesc* descs;		/* metric desc array indexed by Metric */
    pmResult* result;		/* sample values result indexed by Metric */
+   struct timeval offset;	/* time offset used in archive mode only */
 
-   SysArchInfo uname;		/* system and architecture information */
    long long btime;		/* boottime in seconds since the epoch */
+   char* release;		/* uname and distro from this context */
    int pidmax;			/* maximum platform process identifier */
    int ncpu;			/* maximum processor count configured */
 } Platform;
@@ -121,6 +122,7 @@ static const char *Platform_metricNames[] = {
    [PCP_UNAME_SYSNAME] = "kernel.uname.sysname",
    [PCP_UNAME_RELEASE] = "kernel.uname.release",
    [PCP_UNAME_MACHINE] = "kernel.uname.machine",
+   [PCP_UNAME_DISTRO] = "kernel.uname.distro",
    [PCP_LOAD_AVERAGE] = "kernel.all.load",
    [PCP_PID_MAX] = "kernel.all.pid_max",
    [PCP_UPTIME] = "kernel.all.uptime",
@@ -150,6 +152,7 @@ static const char *Platform_metricNames[] = {
    [PCP_MEM_AVAILABLE] = "mem.util.available",
    [PCP_MEM_BUFFERS] = "mem.util.bufmem",
    [PCP_MEM_CACHED] = "mem.util.cached",
+   [PCP_MEM_SHARED] = "mem.util.shared",
    [PCP_MEM_SRECLAIM] = "mem.util.slabReclaimable",
    [PCP_MEM_SWAPCACHED] = "mem.util.swapCached",
    [PCP_MEM_SWAPTOTAL] = "mem.util.swapTotal",
@@ -242,13 +245,6 @@ pmAtomValue* Metric_values(Metric metric, pmAtomValue *atom, int count, int type
    pmValueSet* vset = pcp->result->vset[metric];
    if (!vset || vset->numval <= 0)
       return NULL;
-
-   /* allocate space for atom if needed */
-   if (!atom || !count) {
-      if (!count)
-         count = vset->numval;
-      atom = xCalloc(count, sizeof(pmAtomValue));
-   }
 
    /* extract requested number of values as requested type */
    const pmDesc* desc = &pcp->descs[metric];
@@ -378,7 +374,7 @@ bool Metric_fetch(struct timeval *timestamp) {
       return false;
    }
    if (timestamp)
-	*timestamp = pcp->result->timestamp;
+      *timestamp = pcp->result->timestamp;
    return true;
 }
 
@@ -400,20 +396,49 @@ static int Platform_addMetric(Metric id, const char *name) {
    return ++pcp->total;
 }
 
+/* global state from the environment and command line arguments */
+pmOptions opts;
+
 void Platform_init(void) {
-   int sts = pmNewContext(PM_CONTEXT_HOST, "local:");
-   if (sts < 0)
-      sts = pmNewContext(PM_CONTEXT_LOCAL, NULL);
+   const char* source;
+   if (opts.context == PM_CONTEXT_ARCHIVE) {
+      source = opts.archives[0];
+   } else if (opts.context == PM_CONTEXT_HOST) {
+      source = opts.nhosts > 0 ? opts.hosts[0] : "local:";
+   } else {
+      opts.context = PM_CONTEXT_HOST;
+      source = "local:";
+   }
+
+   int sts;
+   sts = pmNewContext(opts.context, source);
+   /* with no host requested, fallback to PM_CONTEXT_LOCAL shared libraries */
+   if (sts < 0 && opts.context == PM_CONTEXT_HOST && opts.nhosts == 0) {
+      opts.context = PM_CONTEXT_LOCAL;
+      sts = pmNewContext(opts.context, NULL);
+   }
    if (sts < 0) {
       fprintf(stderr, "Cannot setup PCP metric source: %s\n", pmErrStr(sts));
       exit(1);
    }
+   /* setup timezones and other general startup preparation completion */
+   pmGetContextOptions(sts, &opts);
+   if (opts.errors) {
+      pmflush();
+      exit(1);
+   }
+
    pcp = xCalloc(1, sizeof(Platform));
    pcp->context = sts;
    pcp->fetch = xCalloc(PCP_METRIC_COUNT, sizeof(pmID));
    pcp->pmids = xCalloc(PCP_METRIC_COUNT, sizeof(pmID));
    pcp->names = xCalloc(PCP_METRIC_COUNT, sizeof(char*));
    pcp->descs = xCalloc(PCP_METRIC_COUNT, sizeof(pmDesc));
+
+   if (opts.context == PM_CONTEXT_ARCHIVE) {
+      gettimeofday(&pcp->offset, NULL);
+      pmtimevalDec(&pcp->offset, &opts.start);
+   }
 
    for (unsigned int i = 0; i < PCP_METRIC_COUNT; i++)
       Platform_addMetric(i, Platform_metricNames[i]);
@@ -452,6 +477,7 @@ void Platform_init(void) {
    Metric_enable(PCP_UNAME_SYSNAME, true);
    Metric_enable(PCP_UNAME_RELEASE, true);
    Metric_enable(PCP_UNAME_MACHINE, true);
+   Metric_enable(PCP_UNAME_DISTRO, true);
 
    Metric_fetch(NULL);
 
@@ -462,19 +488,17 @@ void Platform_init(void) {
    Metric_enable(PCP_UNAME_SYSNAME, false);
    Metric_enable(PCP_UNAME_RELEASE, false);
    Metric_enable(PCP_UNAME_MACHINE, false);
+   Metric_enable(PCP_UNAME_DISTRO, false);
 
    /* first sample (fetch) performed above, save constants */
-   Platform_getSysArch(NULL);
    Platform_getBootTime();
+   Platform_getRelease(0);
    Platform_getMaxCPU();
    Platform_getMaxPid();
 }
 
 void Platform_done(void) {
    pmDestroyContext(pcp->context);
-   free(pcp->uname.machine);
-   free(pcp->uname.release);
-   free(pcp->uname.name);
    free(pcp->fetch);
    free(pcp->pmids);
    free(pcp->names);
@@ -586,18 +610,17 @@ double Platform_setCPUValues(Meter* this, int cpu) {
 void Platform_setMemoryValues(Meter* this) {
    const ProcessList* pl = this->pl;
    const PCPProcessList* ppl = (const PCPProcessList*) pl;
-   long int usedMem = pl->usedMem;
-   long int buffersMem = pl->buffersMem;
-   long int cachedMem = pl->cachedMem;
-   usedMem -= buffersMem + cachedMem;
-   this->total = pl->totalMem;
-   this->values[0] = usedMem;
-   this->values[1] = buffersMem;
-   this->values[2] = cachedMem;
+
+   this->total     = pl->totalMem;
+   this->values[0] = pl->usedMem;
+   this->values[1] = pl->buffersMem;
+   this->values[2] = pl->sharedMem;
+   this->values[3] = pl->cachedMem;
+   this->values[4] = pl->availableMem;
 
    if (ppl->zfs.enabled != 0) {
       this->values[0] -= ppl->zfs.size;
-      this->values[2] += ppl->zfs.size;
+      this->values[3] += ppl->zfs.size;
    }
 }
 
@@ -641,33 +664,86 @@ void Platform_setZramValues(Meter* this) {
 }
 
 void Platform_setZfsArcValues(Meter* this) {
-   PCPProcessList* ppl = (PCPProcessList*) this->pl;
+   const PCPProcessList* ppl = (const PCPProcessList*) this->pl;
 
    ZfsArcMeter_readStats(this, &(ppl->zfs));
 }
 
 void Platform_setZfsCompressedArcValues(Meter* this) {
-   PCPProcessList* ppl = (PCPProcessList*) this->pl;
+   const PCPProcessList* ppl = (const PCPProcessList*) this->pl;
 
    ZfsCompressedArcMeter_readStats(this, &(ppl->zfs));
 }
 
-void Platform_getSysArch(SysArchInfo *data) {
-   if (data) {
-      /* constant, use previously-sampled values */
-      data->name = pcp->uname.name;
-      data->release = pcp->uname.release;
-      data->machine = pcp->uname.machine;
-   } else {
-      /* first call, extract just-sampled values */
-      pmAtomValue value;
-      if (Metric_values(PCP_UNAME_SYSNAME, &value, 1, PM_TYPE_STRING))
-         pcp->uname.name = value.cp;
-      if (Metric_values(PCP_UNAME_RELEASE, &value, 1, PM_TYPE_STRING))
-         pcp->uname.release = value.cp;
-      if (Metric_values(PCP_UNAME_MACHINE, &value, 1, PM_TYPE_STRING))
-         pcp->uname.machine = value.cp;
+void Platform_getHostname(char* buffer, size_t size) {
+    const char* hostname = pmGetContextHostName(pcp->context);
+    String_safeStrncpy(buffer, hostname, size);
+}
+
+void Platform_getRelease(char** string) {
+   /* fast-path - previously-formatted string */
+   if (string) {
+      *string = pcp->release;
+      return;
    }
+
+   /* first call, extract just-sampled values */
+   pmAtomValue value;
+
+   char* name = NULL;
+   if (Metric_values(PCP_UNAME_SYSNAME, &value, 1, PM_TYPE_STRING))
+      name = value.cp;
+   char* release = NULL;
+   if (Metric_values(PCP_UNAME_RELEASE, &value, 1, PM_TYPE_STRING))
+      release = value.cp;
+   char* machine = NULL;
+   if (Metric_values(PCP_UNAME_MACHINE, &value, 1, PM_TYPE_STRING))
+      machine = value.cp;
+   char* distro = NULL;
+   if (Metric_values(PCP_UNAME_DISTRO, &value, 1, PM_TYPE_STRING))
+      distro = value.cp;
+
+   size_t length = 16; /* padded for formatting characters */
+   if (name)
+      length += strlen(name);
+   if (release)
+      length += strlen(release);
+   if (machine)
+      length += strlen(machine);
+   if (distro)
+      length += strlen(distro);
+   pcp->release = xCalloc(1, length);
+
+   if (name) {
+      strcat(pcp->release, name);
+      strcat(pcp->release, " ");
+   }
+   if (release) {
+      strcat(pcp->release, release);
+      strcat(pcp->release, " ");
+   }
+   if (machine) {
+      strcat(pcp->release, "[");
+      strcat(pcp->release, machine);
+      strcat(pcp->release, "] ");
+   }
+   if (distro) {
+      if (pcp->release[0] != '\0') {
+         strcat(pcp->release, "@ ");
+         strcat(pcp->release, distro);
+      } else {
+         strcat(pcp->release, distro);
+      }
+      strcat(pcp->release, " ");
+   }
+
+   if (pcp->release) /* cull trailing space */
+      pcp->release[strlen(pcp->release)] = '\0';
+
+   free(distro);
+   free(machine);
+   free(release);
+   free(name);
 }
 
 char* Platform_getProcessEnv(pid_t pid) {
@@ -710,9 +786,7 @@ void Platform_getPressureStall(const char* file, bool some, double* ten, double*
 }
 
 bool Platform_getDiskIO(DiskIOData* data) {
-   data->totalBytesRead = 0;
-   data->totalBytesWritten = 0;
-   data->totalMsTimeSpend = 0;
+   memset(data, 0, sizeof(*data));
 
    pmAtomValue value;
    if (Metric_values(PCP_DISK_READB, &value, 1, PM_TYPE_U64) != NULL)
@@ -724,28 +798,83 @@ bool Platform_getDiskIO(DiskIOData* data) {
    return true;
 }
 
-bool Platform_getNetworkIO(unsigned long int* bytesReceived,
-                           unsigned long int* packetsReceived,
-                           unsigned long int* bytesTransmitted,
-                           unsigned long int* packetsTransmitted) {
-   *bytesReceived = 0;
-   *packetsReceived = 0;
-   *bytesTransmitted = 0;
-   *packetsTransmitted = 0;
+bool Platform_getNetworkIO(NetworkIOData* data) {
+   memset(data, 0, sizeof(*data));
 
    pmAtomValue value;
    if (Metric_values(PCP_NET_RECVB, &value, 1, PM_TYPE_U64) != NULL)
-      *bytesReceived = value.ull;
+      data->bytesReceived = value.ull;
    if (Metric_values(PCP_NET_SENDB, &value, 1, PM_TYPE_U64) != NULL)
-      *bytesTransmitted = value.ull;
+      data->bytesTransmitted = value.ull;
    if (Metric_values(PCP_NET_RECVP, &value, 1, PM_TYPE_U64) != NULL)
-      *packetsReceived = value.ull;
+      data->packetsReceived = value.ull;
    if (Metric_values(PCP_NET_SENDP, &value, 1, PM_TYPE_U64) != NULL)
-      *packetsTransmitted = value.ull;
+      data->packetsTransmitted = value.ull;
    return true;
 }
 
 void Platform_getBattery(double* level, ACPresence* isOnAC) {
    *level = NAN;
    *isOnAC = AC_ERROR;
+}
+
+void Platform_longOptionsUsage(ATTR_UNUSED const char* name) {
+   printf(
+"   --host=HOSTSPEC              metrics source is PMCD at HOSTSPEC [see PCPIntro(1)]\n"
+"   --hostzone                   set reporting timezone to local time of metrics source\n"
+"   --timezone=TZ                set reporting timezone\n");
+}
+
+bool Platform_getLongOption(int opt, ATTR_UNUSED int argc, char** argv) {
+   /* libpcp export without a header definition */
+   extern void __pmAddOptHost(pmOptions *, char *);
+
+   switch (opt) {
+      case PLATFORM_LONGOPT_HOST:  /* --host=HOSTSPEC */
+         if (argv[optind][0] == '\0')
+            return false;
+          __pmAddOptHost(&opts, optarg);
+         return true;
+
+      case PLATFORM_LONGOPT_HOSTZONE:  /* --hostzone */
+         if (opts.timezone) {
+            pmprintf("%s: at most one of -Z and -z allowed\n", pmGetProgname());
+            opts.errors++;
+         } else {
+            opts.tzflag = 1;
+         }
+         return true;
+
+      case PLATFORM_LONGOPT_TIMEZONE:  /* --timezone=TZ */
+         if (argv[optind][0] == '\0')
+            return false;
+         if (opts.tzflag) {
+            pmprintf("%s: at most one of -Z and -z allowed\n", pmGetProgname());
+            opts.errors++;
+         } else {
+            opts.timezone = optarg;
+         }
+         return true;
+
+      default:
+         break;
+   }
+   return false;
+}
+
+void Platform_gettime_realtime(struct timeval* tv, uint64_t* msec) {
+   if (gettimeofday(tv, NULL) == 0) {
+      /* shift by start offset to stay in lock-step with realtime (archives) */
+      if (pcp->offset.tv_sec || pcp->offset.tv_usec)
+         pmtimevalDec(tv, &pcp->offset);
+      *msec = ((uint64_t)tv->tv_sec * 1000) + ((uint64_t)tv->tv_usec / 1000);
+   } else {
+      memset(tv, 0, sizeof(struct timeval));
+      *msec = 0;
+   }
+}
+
+void Platform_gettime_monotonic(uint64_t* msec) {
+   struct timeval* tv = &pcp->result->timestamp;
+   *msec = ((uint64_t)tv->tv_sec * 1000) + ((uint64_t)tv->tv_usec / 1000);
 }

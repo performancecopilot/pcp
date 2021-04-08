@@ -35,25 +35,25 @@ static const int CPUMeter_attributes[] = {
 };
 
 typedef struct CPUMeterData_ {
-   int cpus;
+   unsigned int cpus;
    Meter** meters;
 } CPUMeterData;
 
 static void CPUMeter_init(Meter* this) {
-   int cpu = this->param;
-   if (this->pl->cpuCount > 1) {
+   unsigned int cpu = this->param;
+   if (cpu == 0) {
+      Meter_setCaption(this, "Avg");
+   } else if (this->pl->cpuCount > 1) {
       char caption[10];
-      xSnprintf(caption, sizeof(caption), "%3d", Settings_cpuId(this->pl->settings, cpu - 1));
+      xSnprintf(caption, sizeof(caption), "%3u", Settings_cpuId(this->pl->settings, cpu - 1));
       Meter_setCaption(this, caption);
    }
-   if (this->param == 0)
-      Meter_setCaption(this, "Avg");
 }
 
-static void CPUMeter_updateValues(Meter* this, char* buffer, size_t size) {
-   int cpu = this->param;
+static void CPUMeter_updateValues(Meter* this) {
+   unsigned int cpu = this->param;
    if (cpu > this->pl->cpuCount) {
-      xSnprintf(buffer, size, "absent");
+      xSnprintf(this->txtBuffer, sizeof(this->txtBuffer), "absent");
       for (uint8_t i = 0; i < this->curItems; i++)
          this->values[i] = 0;
       return;
@@ -79,7 +79,7 @@ static void CPUMeter_updateValues(Meter* this, char* buffer, size_t size) {
       }
    }
 
-   #ifdef HAVE_SENSORS_SENSORS_H
+   #ifdef BUILD_WITH_CPU_TEMP
    if (this->pl->settings->showCPUTemperature) {
       double cpuTemperature = this->values[CPU_METER_TEMPERATURE];
       if (isnan(cpuTemperature))
@@ -91,7 +91,7 @@ static void CPUMeter_updateValues(Meter* this, char* buffer, size_t size) {
    }
    #endif
 
-   xSnprintf(buffer, size, "%s%s%s%s%s",
+   xSnprintf(this->txtBuffer, sizeof(this->txtBuffer), "%s%s%s%s%s",
              cpuUsageBuffer,
              (cpuUsageBuffer[0] && (cpuFrequencyBuffer[0] || cpuTemperatureBuffer[0])) ? " " : "",
              cpuFrequencyBuffer,
@@ -102,7 +102,6 @@ static void CPUMeter_updateValues(Meter* this, char* buffer, size_t size) {
 static void CPUMeter_display(const Object* cast, RichString* out) {
    char buffer[50];
    const Meter* this = (const Meter*)cast;
-   RichString_prune(out);
    if (this->param > this->pl->cpuCount) {
       RichString_appendAscii(out, CRT_colors[METER_TEXT], "absent");
       return;
@@ -150,7 +149,7 @@ static void CPUMeter_display(const Object* cast, RichString* out) {
       }
    }
 
-   #ifdef HAVE_SENSORS_SENSORS_H
+   #ifdef BUILD_WITH_CPU_TEMP
    if (this->pl->settings->showCPUTemperature) {
       char cpuTemperatureBuffer[10];
       double cpuTemperature = this->values[CPU_METER_TEMPERATURE];
@@ -169,7 +168,7 @@ static void CPUMeter_display(const Object* cast, RichString* out) {
 
 static void AllCPUsMeter_getRange(const Meter* this, int* start, int* count) {
    const CPUMeterData* data = this->meterData;
-   int cpus = data->cpus;
+   unsigned int cpus = data->cpus;
    switch(Meter_name(this)[0]) {
       default:
       case 'A': // All
@@ -187,8 +186,17 @@ static void AllCPUsMeter_getRange(const Meter* this, int* start, int* count) {
    }
 }
 
+static void AllCPUsMeter_updateValues(Meter* this) {
+   CPUMeterData* data = this->meterData;
+   Meter** meters = data->meters;
+   int start, count;
+   AllCPUsMeter_getRange(this, &start, &count);
+   for (int i = 0; i < count; i++)
+      Meter_updateValues(meters[i]);
+}
+
 static void CPUMeterCommonInit(Meter* this, int ncol) {
-   int cpus = this->pl->cpuCount;
+   unsigned int cpus = this->pl->cpuCount;
    CPUMeterData* data = this->meterData;
    if (!data) {
       data = this->meterData = xMalloc(sizeof(CPUMeterData));
@@ -332,6 +340,7 @@ const MeterClass AllCPUsMeter_class = {
       .delete = Meter_delete,
       .display = CPUMeter_display
    },
+   .updateValues = AllCPUsMeter_updateValues,
    .defaultMode = CUSTOM_METERMODE,
    .total = 100.0,
    .attributes = CPUMeter_attributes,
@@ -351,6 +360,7 @@ const MeterClass AllCPUs2Meter_class = {
       .delete = Meter_delete,
       .display = CPUMeter_display
    },
+   .updateValues = AllCPUsMeter_updateValues,
    .defaultMode = CUSTOM_METERMODE,
    .total = 100.0,
    .attributes = CPUMeter_attributes,
@@ -370,6 +380,7 @@ const MeterClass LeftCPUsMeter_class = {
       .delete = Meter_delete,
       .display = CPUMeter_display
    },
+   .updateValues = AllCPUsMeter_updateValues,
    .defaultMode = CUSTOM_METERMODE,
    .total = 100.0,
    .attributes = CPUMeter_attributes,
@@ -389,6 +400,7 @@ const MeterClass RightCPUsMeter_class = {
       .delete = Meter_delete,
       .display = CPUMeter_display
    },
+   .updateValues = AllCPUsMeter_updateValues,
    .defaultMode = CUSTOM_METERMODE,
    .total = 100.0,
    .attributes = CPUMeter_attributes,
@@ -408,6 +420,7 @@ const MeterClass LeftCPUs2Meter_class = {
       .delete = Meter_delete,
       .display = CPUMeter_display
    },
+   .updateValues = AllCPUsMeter_updateValues,
    .defaultMode = CUSTOM_METERMODE,
    .total = 100.0,
    .attributes = CPUMeter_attributes,
@@ -427,6 +440,7 @@ const MeterClass RightCPUs2Meter_class = {
       .delete = Meter_delete,
       .display = CPUMeter_display
    },
+   .updateValues = AllCPUsMeter_updateValues,
    .defaultMode = CUSTOM_METERMODE,
    .total = 100.0,
    .attributes = CPUMeter_attributes,
@@ -446,6 +460,7 @@ const MeterClass AllCPUs4Meter_class = {
       .delete = Meter_delete,
       .display = CPUMeter_display
    },
+   .updateValues = AllCPUsMeter_updateValues,
    .defaultMode = CUSTOM_METERMODE,
    .total = 100.0,
    .attributes = CPUMeter_attributes,
@@ -465,6 +480,7 @@ const MeterClass LeftCPUs4Meter_class = {
       .delete = Meter_delete,
       .display = CPUMeter_display
    },
+   .updateValues = AllCPUsMeter_updateValues,
    .defaultMode = CUSTOM_METERMODE,
    .total = 100.0,
    .attributes = CPUMeter_attributes,
@@ -484,6 +500,7 @@ const MeterClass RightCPUs4Meter_class = {
       .delete = Meter_delete,
       .display = CPUMeter_display
    },
+   .updateValues = AllCPUsMeter_updateValues,
    .defaultMode = CUSTOM_METERMODE,
    .total = 100.0,
    .attributes = CPUMeter_attributes,
@@ -503,6 +520,7 @@ const MeterClass AllCPUs8Meter_class = {
       .delete = Meter_delete,
       .display = CPUMeter_display
    },
+   .updateValues = AllCPUsMeter_updateValues,
    .defaultMode = CUSTOM_METERMODE,
    .total = 100.0,
    .attributes = CPUMeter_attributes,
@@ -522,6 +540,7 @@ const MeterClass LeftCPUs8Meter_class = {
       .delete = Meter_delete,
       .display = CPUMeter_display
    },
+   .updateValues = AllCPUsMeter_updateValues,
    .defaultMode = CUSTOM_METERMODE,
    .total = 100.0,
    .attributes = CPUMeter_attributes,
@@ -541,6 +560,7 @@ const MeterClass RightCPUs8Meter_class = {
       .delete = Meter_delete,
       .display = CPUMeter_display
    },
+   .updateValues = AllCPUsMeter_updateValues,
    .defaultMode = CUSTOM_METERMODE,
    .total = 100.0,
    .attributes = CPUMeter_attributes,

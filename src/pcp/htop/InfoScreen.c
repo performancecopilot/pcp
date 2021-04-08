@@ -28,7 +28,7 @@ InfoScreen* InfoScreen_init(InfoScreen* this, const Process* process, FunctionBa
    }
    this->display = Panel_new(0, 1, COLS, height, Class(ListItem), false, bar);
    this->inc = IncSet_new(bar);
-   this->lines = Vector_new(this->display->items->type, true, DEFAULT_SIZE);
+   this->lines = Vector_new(Vector_type(this->display->items), true, DEFAULT_SIZE);
    Panel_setHeader(this->display, panelHeader);
    return this;
 }
@@ -145,8 +145,10 @@ void InfoScreen_run(InfoScreen* this) {
          break;
       case KEY_F(5):
          clear();
-         if (As_InfoScreen(this)->scan)
+         if (As_InfoScreen(this)->scan) {
+            Vector_prune(this->lines);
             InfoScreen_scan(this);
+         }
 
          InfoScreen_draw(this);
          break;
@@ -161,8 +163,10 @@ void InfoScreen_run(InfoScreen* this) {
          break;
       case KEY_RESIZE:
          Panel_resize(panel, COLS, LINES - 2);
-         if (As_InfoScreen(this)->scan)
+         if (As_InfoScreen(this)->scan) {
+            Vector_prune(this->lines);
             InfoScreen_scan(this);
+         }
 
          InfoScreen_draw(this);
          break;

@@ -18,20 +18,24 @@ in the source distribution for its full text.
 static const int MemoryMeter_attributes[] = {
    MEMORY_USED,
    MEMORY_BUFFERS,
+   MEMORY_SHARED,
    MEMORY_CACHE
 };
 
-static void MemoryMeter_updateValues(Meter* this, char* buffer, size_t size) {
+static void MemoryMeter_updateValues(Meter* this) {
+   char* buffer = this->txtBuffer;
+   size_t size = sizeof(this->txtBuffer);
    int written;
 
-   /* available memory is not supported on all platforms */
-   this->values[3] = NAN;
+   /* shared and available memory are not supported on all platforms */
+   this->values[2] = NAN;
+   this->values[4] = NAN;
    Platform_setMemoryValues(this);
 
    /* Do not print available memory in bar mode */
-   this->curItems = 3;
+   this->curItems = 4;
 
-   written = Meter_humanUnit(buffer, isnan(this->values[3]) ? this->values[0] : this->total - this->values[3], size);
+   written = Meter_humanUnit(buffer, isnan(this->values[4]) ? this->values[0] : this->total - this->values[4], size);
    METER_BUFFER_CHECK(buffer, size, written);
 
    METER_BUFFER_APPEND_CHR(buffer, size, '/');
@@ -55,13 +59,20 @@ static void MemoryMeter_display(const Object* cast, RichString* out) {
    RichString_appendAscii(out, CRT_colors[METER_TEXT], " buffers:");
    RichString_appendAscii(out, CRT_colors[MEMORY_BUFFERS_TEXT], buffer);
 
-   Meter_humanUnit(buffer, this->values[2], sizeof(buffer));
+   /* shared memory is not supported on all platforms */
+   if (!isnan(this->values[2])) {
+      Meter_humanUnit(buffer, this->values[2], sizeof(buffer));
+      RichString_appendAscii(out, CRT_colors[METER_TEXT], " shared:");
+      RichString_appendAscii(out, CRT_colors[MEMORY_SHARED], buffer);
+   }
+
+   Meter_humanUnit(buffer, this->values[3], sizeof(buffer));
    RichString_appendAscii(out, CRT_colors[METER_TEXT], " cache:");
    RichString_appendAscii(out, CRT_colors[MEMORY_CACHE], buffer);
 
    /* available memory is not supported on all platforms */
-   if (!isnan(this->values[3])) {
-      Meter_humanUnit(buffer, this->values[3], sizeof(buffer));
+   if (!isnan(this->values[4])) {
+      Meter_humanUnit(buffer, this->values[4], sizeof(buffer));
       RichString_appendAscii(out, CRT_colors[METER_TEXT], " available:");
       RichString_appendAscii(out, CRT_colors[METER_VALUE], buffer);
    }
@@ -75,7 +86,7 @@ const MeterClass MemoryMeter_class = {
    },
    .updateValues = MemoryMeter_updateValues,
    .defaultMode = BAR_METERMODE,
-   .maxItems = 4,
+   .maxItems = 5,
    .total = 100.0,
    .attributes = MemoryMeter_attributes,
    .name = "Memory",

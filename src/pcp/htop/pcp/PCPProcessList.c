@@ -1,7 +1,7 @@
 /*
 htop - PCPProcessList.c
 (C) 2014 Hisham H. Muhammad
-(C) 2020 htop dev team
+(C) 2020-2021 htop dev team
 (C) 2020-2021 Red Hat, Inc.  All Rights Reserved.
 Released under the GNU GPLv2, see the COPYING file
 in the source distribution for its full text.
@@ -31,7 +31,7 @@ static int PCPProcessList_computeCPUcount(void) {
 
 static void PCPProcessList_updateCPUcount(PCPProcessList* this) {
    ProcessList* pl = &(this->super);
-   int cpus = PCPProcessList_computeCPUcount();
+   unsigned int cpus = PCPProcessList_computeCPUcount();
    if (cpus == pl->cpuCount)
       return;
 
@@ -40,7 +40,7 @@ static void PCPProcessList_updateCPUcount(PCPProcessList* this) {
    free(this->values);
 
    this->percpu = xCalloc(cpus, sizeof(pmAtomValue *));
-   for (int i = 0; i < cpus; i++)
+   for (unsigned int i = 0; i < cpus; i++)
       this->percpu[i] = xCalloc(CPU_METRIC_COUNT, sizeof(pmAtomValue));
    this->values = xCalloc(cpus, sizeof(pmAtomValue));
 }
@@ -78,7 +78,7 @@ void ProcessList_delete(ProcessList* pl) {
    PCPProcessList* this = (PCPProcessList*) pl;
    ProcessList_done(pl);
    free(this->values);
-   for (int i = 0; i < pl->cpuCount; i++)
+   for (unsigned int i = 0; i < pl->cpuCount; i++)
       free(this->percpu[i]);
    free(this->percpu);
    free(this->cpu);
@@ -384,7 +384,7 @@ static void PCPProcessList_updateCmdline(Process* process, int pid, int offset, 
    }
 
    char *command = value.cp;
-   size_t length = strlen(command);
+   int length = strlen(command);
    if (command[0] != '(') {
       Process_setKernelThread(process, false);
    } else {
@@ -584,12 +584,13 @@ static void PCPProcessList_updateMemoryInfo(ProcessList* super) {
       super->buffersMem = value.ull;
    if (Metric_values(PCP_MEM_SRECLAIM, &value, 1, PM_TYPE_U64) != NULL)
       sreclaimableMem = value.ull;
+   if (Metric_values(PCP_MEM_SHARED, &value, 1, PM_TYPE_U64) != NULL)
+      super->sharedMem = value.ull;
    if (Metric_values(PCP_MEM_CACHED, &value, 1, PM_TYPE_U64) != NULL) {
       super->cachedMem = value.ull;
       super->cachedMem += sreclaimableMem;
    }
-   unsigned long long int usedDiff;
-   usedDiff = freeMem + super->cachedMem + super->buffersMem;
+   const memory_t usedDiff = freeMem + super->cachedMem + sreclaimableMem + super->buffersMem + super->sharedMem;
    super->usedMem = (super->totalMem >= usedDiff) ?
            super->totalMem - usedDiff : super->totalMem - freeMem;
    if (Metric_values(PCP_MEM_AVAILABLE, &value, 1, PM_TYPE_U64) != NULL)
@@ -697,12 +698,49 @@ static void PCPProcessList_updatePerCPUReal(PCPProcessList* this, Metric metric,
       this->percpu[i][cpumetric].d = this->values[i].d;
 }
 
-static void PCPProcessList_scanZfsArcstats(PCPProcessList* this) {
+static void PCPProcessList_updateHeader(ProcessList* super, const Settings* settings) {
+   PCPProcessList_updateMemoryInfo(super);
+
+   PCPProcessList* this = (PCPProcessList*) super;
+   PCPProcessList_updateCPUcount(this);
+
+   PCPProcessList_backupCPUTime(this->cpu);
+   PCPProcessList_updateAllCPUTime(this, PCP_CPU_USER, CPU_USER_TIME);
+   PCPProcessList_updateAllCPUTime(this, PCP_CPU_NICE, CPU_NICE_TIME);
+   PCPProcessList_updateAllCPUTime(this, PCP_CPU_SYSTEM, CPU_SYSTEM_TIME);
+   PCPProcessList_updateAllCPUTime(this, PCP_CPU_IDLE, CPU_IDLE_TIME);
+   PCPProcessList_updateAllCPUTime(this, PCP_CPU_IOWAIT, CPU_IOWAIT_TIME);
+   PCPProcessList_updateAllCPUTime(this, PCP_CPU_IRQ, CPU_IRQ_TIME);
+   PCPProcessList_updateAllCPUTime(this, PCP_CPU_SOFTIRQ, CPU_SOFTIRQ_TIME);
+   PCPProcessList_updateAllCPUTime(this, PCP_CPU_STEAL, CPU_STEAL_TIME);
+   PCPProcessList_updateAllCPUTime(this, PCP_CPU_GUEST, CPU_GUEST_TIME);
+   PCPProcessList_deriveCPUTime(this->cpu);
+
+   for (unsigned int i = 0; i < super->cpuCount; i++)
+      PCPProcessList_backupCPUTime(this->percpu[i]);
+   PCPProcessList_updatePerCPUTime(this, PCP_PERCPU_USER, CPU_USER_TIME);
+   PCPProcessList_updatePerCPUTime(this, PCP_PERCPU_NICE, CPU_NICE_TIME);
+   PCPProcessList_updatePerCPUTime(this, PCP_PERCPU_SYSTEM, CPU_SYSTEM_TIME);
+   PCPProcessList_updatePerCPUTime(this, PCP_PERCPU_IDLE, CPU_IDLE_TIME);
+   PCPProcessList_updatePerCPUTime(this, PCP_PERCPU_IOWAIT, CPU_IOWAIT_TIME);
+   PCPProcessList_updatePerCPUTime(this, PCP_PERCPU_IRQ, CPU_IRQ_TIME);
+   PCPProcessList_updatePerCPUTime(this, PCP_PERCPU_SOFTIRQ, CPU_SOFTIRQ_TIME);
+   PCPProcessList_updatePerCPUTime(this, PCP_PERCPU_STEAL, CPU_STEAL_TIME);
+   PCPProcessList_updatePerCPUTime(this, PCP_PERCPU_GUEST, CPU_GUEST_TIME);
+   for (unsigned int i = 0; i < super->cpuCount; i++)
+      PCPProcessList_deriveCPUTime(this->percpu[i]);
+
+   if (settings->showCPUFrequency)
+      PCPProcessList_updatePerCPUReal(this, PCP_HINV_CPUCLOCK, CPU_FREQUENCY);
+}
+
+static inline void PCPProcessList_scanZfsArcstats(PCPProcessList* this) {
    unsigned long long int dbufSize = 0;
    unsigned long long int dnodeSize = 0;
    unsigned long long int bonusSize = 0;
    pmAtomValue value;
 
+   memset(&this->zfs, 0, sizeof(ZfsArcStats));
    if (Metric_values(PCP_ZFS_ARC_ANON_SIZE, &value, 1, PM_TYPE_U64))
       this->zfs.anon = value.ull / ONE_K;
    if (Metric_values(PCP_ZFS_ARC_C_MAX, &value, 1, PM_TYPE_U64))
@@ -729,44 +767,6 @@ static void PCPProcessList_scanZfsArcstats(PCPProcessList* this) {
    this->zfs.other = (dbufSize + dnodeSize + bonusSize) / ONE_K;
    this->zfs.enabled = (this->zfs.size > 0);
    this->zfs.isCompressed = (this->zfs.compressed > 0);
-}
-
-static void PCPProcessList_updateHeader(ProcessList* super, const Settings* settings) {
-   PCPProcessList* this = (PCPProcessList*) super;
-
-   PCPProcessList_updateMemoryInfo(super);
-   PCPProcessList_scanZfsArcstats(this);
-
-   PCPProcessList_updateCPUcount(this);
-
-   PCPProcessList_backupCPUTime(this->cpu);
-   PCPProcessList_updateAllCPUTime(this, PCP_CPU_USER, CPU_USER_TIME);
-   PCPProcessList_updateAllCPUTime(this, PCP_CPU_NICE, CPU_NICE_TIME);
-   PCPProcessList_updateAllCPUTime(this, PCP_CPU_SYSTEM, CPU_SYSTEM_TIME);
-   PCPProcessList_updateAllCPUTime(this, PCP_CPU_IDLE, CPU_IDLE_TIME);
-   PCPProcessList_updateAllCPUTime(this, PCP_CPU_IOWAIT, CPU_IOWAIT_TIME);
-   PCPProcessList_updateAllCPUTime(this, PCP_CPU_IRQ, CPU_IRQ_TIME);
-   PCPProcessList_updateAllCPUTime(this, PCP_CPU_SOFTIRQ, CPU_SOFTIRQ_TIME);
-   PCPProcessList_updateAllCPUTime(this, PCP_CPU_STEAL, CPU_STEAL_TIME);
-   PCPProcessList_updateAllCPUTime(this, PCP_CPU_GUEST, CPU_GUEST_TIME);
-   PCPProcessList_deriveCPUTime(this->cpu);
-
-   for (int i = 0; i < super->cpuCount; i++)
-      PCPProcessList_backupCPUTime(this->percpu[i]);
-   PCPProcessList_updatePerCPUTime(this, PCP_PERCPU_USER, CPU_USER_TIME);
-   PCPProcessList_updatePerCPUTime(this, PCP_PERCPU_NICE, CPU_NICE_TIME);
-   PCPProcessList_updatePerCPUTime(this, PCP_PERCPU_SYSTEM, CPU_SYSTEM_TIME);
-   PCPProcessList_updatePerCPUTime(this, PCP_PERCPU_IDLE, CPU_IDLE_TIME);
-   PCPProcessList_updatePerCPUTime(this, PCP_PERCPU_IOWAIT, CPU_IOWAIT_TIME);
-   PCPProcessList_updatePerCPUTime(this, PCP_PERCPU_IRQ, CPU_IRQ_TIME);
-   PCPProcessList_updatePerCPUTime(this, PCP_PERCPU_SOFTIRQ, CPU_SOFTIRQ_TIME);
-   PCPProcessList_updatePerCPUTime(this, PCP_PERCPU_STEAL, CPU_STEAL_TIME);
-   PCPProcessList_updatePerCPUTime(this, PCP_PERCPU_GUEST, CPU_GUEST_TIME);
-   for (int i = 0; i < super->cpuCount; i++)
-      PCPProcessList_deriveCPUTime(this->percpu[i]);
-
-   if (settings->showCPUFrequency)
-      PCPProcessList_updatePerCPUReal(this, PCP_HINV_CPUCLOCK, CPU_FREQUENCY);
 }
 
 void ProcessList_goThroughEntries(ProcessList* super, bool pauseProcessUpdate) {
@@ -805,6 +805,7 @@ void ProcessList_goThroughEntries(ProcessList* super, bool pauseProcessUpdate) {
    this->timestamp = pmtimevalToReal(&timestamp);
 
    PCPProcessList_updateHeader(super, settings);
+   PCPProcessList_scanZfsArcstats(this);
 
    /* In pause mode only update global data for meters (CPU, memory, etc) */
    if (pauseProcessUpdate)

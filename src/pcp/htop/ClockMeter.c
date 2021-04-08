@@ -19,12 +19,13 @@ static const int ClockMeter_attributes[] = {
    CLOCK
 };
 
-static void ClockMeter_updateValues(Meter* this, char* buffer, size_t size) {
-   time_t t = time(NULL);
+static void ClockMeter_updateValues(Meter* this) {
+   const ProcessList* pl = this->pl;
+
    struct tm result;
-   const struct tm* lt = localtime_r(&t, &result);
+   const struct tm* lt = localtime_r(&pl->realtime.tv_sec, &result);
    this->values[0] = lt->tm_hour * 60 + lt->tm_min;
-   strftime(buffer, size, "%H:%M:%S", lt);
+   strftime(this->txtBuffer, sizeof(this->txtBuffer), "%H:%M:%S", lt);
 }
 
 const MeterClass ClockMeter_class = {

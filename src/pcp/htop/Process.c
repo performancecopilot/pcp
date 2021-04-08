@@ -316,12 +316,12 @@ void Process_writeField(const Process* this, RichString* str, ProcessField field
       if (field == PERCENT_NORM_CPU) {
          cpuPercentage /= this->processList->cpuCount;
       }
-      if (cpuPercentage > 999.9f) {
+      if (cpuPercentage > 999.9F) {
          xSnprintf(buffer, n, "%4u ", (unsigned int)cpuPercentage);
-      } else if (cpuPercentage > 99.9f) {
+      } else if (cpuPercentage > 99.9F) {
          xSnprintf(buffer, n, "%3u. ", (unsigned int)cpuPercentage);
       } else {
-         if (cpuPercentage < 0.05f)
+         if (cpuPercentage < 0.05F)
             attr = CRT_colors[PROCESS_SHADOW];
 
          xSnprintf(buffer, n, "%4.1f ", cpuPercentage);
@@ -329,10 +329,10 @@ void Process_writeField(const Process* this, RichString* str, ProcessField field
       break;
    }
    case PERCENT_MEM:
-      if (this->percent_mem > 99.9f) {
+      if (this->percent_mem > 99.9F) {
          xSnprintf(buffer, n, "100. ");
       } else {
-         if (this->percent_mem < 0.05f)
+         if (this->percent_mem < 0.05F)
             attr = CRT_colors[PROCESS_SHADOW];
 
          xSnprintf(buffer, n, "%4.1f ", this->percent_mem);
@@ -406,7 +406,6 @@ void Process_writeField(const Process* this, RichString* str, ProcessField field
 void Process_display(const Object* cast, RichString* out) {
    const Process* this = (const Process*) cast;
    const ProcessField* fields = this->settings->fields;
-   RichString_prune(out);
    for (int i = 0; fields[i]; i++)
       As_Process(this)->writeField(this, out, fields[i]);
 
@@ -426,7 +425,7 @@ void Process_display(const Object* cast, RichString* out) {
       }
    }
 
-   assert(out->chlen > 0);
+   assert(RichString_size(out) > 0);
 }
 
 void Process_done(Process* this) {
@@ -468,21 +467,20 @@ void Process_toggleTag(Process* this) {
 
 bool Process_isNew(const Process* this) {
    assert(this->processList);
-   if (this->processList->scanTs >= this->seenTs) {
-      return this->processList->scanTs - this->seenTs <= 1000 * this->processList->settings->highlightDelaySecs;
+   if (this->processList->monotonicMs >= this->seenStampMs) {
+      return this->processList->monotonicMs - this->seenStampMs <= 1000 * (uint64_t)this->processList->settings->highlightDelaySecs;
    }
    return false;
 }
 
 bool Process_isTomb(const Process* this) {
-    return this->tombTs > 0;
+    return this->tombStampMs > 0;
 }
 
 bool Process_setPriority(Process* this, int priority) {
-   CRT_dropPrivileges();
    int old_prio = getpriority(PRIO_PROCESS, this->pid);
    int err = setpriority(PRIO_PROCESS, this->pid, priority);
-   CRT_restorePrivileges();
+
    if (err == 0 && old_prio != getpriority(PRIO_PROCESS, this->pid)) {
       this->nice = priority;
    }
@@ -494,10 +492,7 @@ bool Process_changePriorityBy(Process* this, Arg delta) {
 }
 
 bool Process_sendSignal(Process* this, Arg sgn) {
-   CRT_dropPrivileges();
-   bool ok = (kill(this->pid, sgn.i) == 0);
-   CRT_restorePrivileges();
-   return ok;
+   return kill(this->pid, sgn.i) == 0;
 }
 
 int Process_pidCompare(const void* v1, const void* v2) {
@@ -517,14 +512,11 @@ int Process_compare(const void* v1, const void* v2) {
 
    int result = Process_compareByKey(p1, p2, key);
 
-   if (Settings_getActiveDirection(settings) != 1)
-      result = -result;
-
    // Implement tie-breaker (needed to make tree mode more stable)
    if (!result)
       return SPACESHIP_NUMBER(p1->pid, p2->pid);
 
-   return result;
+   return (Settings_getActiveDirection(settings) == 1) ? result : -result;
 }
 
 static uint8_t stateCompareValue(char state) {

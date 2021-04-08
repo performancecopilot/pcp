@@ -3,7 +3,7 @@
 /*
 htop - pcp/Platform.h
 (C) 2014 Hisham H. Muhammad
-(C) 2020 htop dev team
+(C) 2020-2021 htop dev team
 (C) 2020-2021 Red Hat, Inc.  All Rights Reserved.
 Released under the GNU GPLv2, see the COPYING file
 in the source distribution for its full text.
@@ -12,7 +12,6 @@ in the source distribution for its full text.
 #include <ctype.h>
 #include <stdbool.h>
 #include <pcp/pmapi.h>
-#include <sys/sysmacros.h>
 
 #undef PACKAGE_URL
 #undef PACKAGE_NAME
@@ -25,10 +24,12 @@ in the source distribution for its full text.
 #include "BatteryMeter.h"
 #include "DiskIOMeter.h"
 #include "Meter.h"
+#include "NetworkIOMeter.h"
 #include "Process.h"
 #include "ProcessLocksScreen.h"
 #include "SignalsPanel.h"
 #include "SysArchMeter.h"
+
 
 extern ProcessField Platform_defaultFields[];
 
@@ -68,8 +69,6 @@ void Platform_setZfsArcValues(Meter* this);
 
 void Platform_setZfsCompressedArcValues(Meter* this);
 
-void Platform_getSysArch(SysArchInfo* data);
-
 char* Platform_getProcessEnv(pid_t pid);
 
 char* Platform_getInodeFilename(pid_t pid, ino_t inode);
@@ -80,12 +79,31 @@ void Platform_getPressureStall(const char *file, bool some, double* ten, double*
 
 bool Platform_getDiskIO(DiskIOData* data);
 
-bool Platform_getNetworkIO(unsigned long int* bytesReceived,
-                           unsigned long int* packetsReceived,
-                           unsigned long int* bytesTransmitted,
-                           unsigned long int* packetsTransmitted);
+bool Platform_getNetworkIO(NetworkIOData* data);
 
 void Platform_getBattery(double *percent, ACPresence *isOnAC);
+
+void Platform_getHostname(char* buffer, size_t size);
+
+void Platform_getRelease(char** string);
+
+enum {
+   PLATFORM_LONGOPT_HOST = 128,
+   PLATFORM_LONGOPT_TIMEZONE,
+   PLATFORM_LONGOPT_HOSTZONE,
+};
+
+#define PLATFORM_LONG_OPTIONS \
+      {PMLONGOPT_HOST, optional_argument, 0, PLATFORM_LONGOPT_HOST}, \
+      {PMLONGOPT_TIMEZONE, optional_argument, 0, PLATFORM_LONGOPT_TIMEZONE}, \
+      {PMLONGOPT_HOSTZONE, optional_argument, 0, PLATFORM_LONGOPT_HOSTZONE}, \
+
+void Platform_longOptionsUsage(const char* name);
+
+bool Platform_getLongOption(int opt, int argc, char** argv);
+
+extern pmOptions opts;
+
 
 typedef enum Metric_ {
    PCP_CONTROL_THREADS,		/* proc.control.perclient.threads */
@@ -95,6 +113,7 @@ typedef enum Metric_ {
    PCP_UNAME_SYSNAME,		/* kernel.uname.sysname */
    PCP_UNAME_RELEASE,		/* kernel.uname.release */
    PCP_UNAME_MACHINE,		/* kernel.uname.machine */
+   PCP_UNAME_DISTRO,		/* kernel.uname.distro */
    PCP_LOAD_AVERAGE, 		/* kernel.all.load */
    PCP_PID_MAX,			/* kernel.all.pid_max */
    PCP_UPTIME,			/* kernel.all.uptime */
@@ -123,6 +142,7 @@ typedef enum Metric_ {
    PCP_MEM_FREE,		/* mem.util.free */
    PCP_MEM_BUFFERS,		/* mem.util.bufmem */
    PCP_MEM_CACHED,		/* mem.util.cached */
+   PCP_MEM_SHARED,		/* mem.util.shared */
    PCP_MEM_AVAILABLE,		/* mem.util.available */
    PCP_MEM_SRECLAIM,		/* mem.util.slabReclaimable */
    PCP_MEM_SWAPCACHED,		/* mem.util.swapCached */
@@ -140,17 +160,17 @@ typedef enum Metric_ {
    PCP_PSI_IOFULL,		/* kernel.all.pressure.io.full.avg */
    PCP_PSI_MEMSOME,		/* kernel.all.pressure.memory.some.avg */
    PCP_PSI_MEMFULL,		/* kernel.all.pressure.memory.full.avg */
-   PCP_ZFS_ARC_ANON_SIZE,	/* zfs.arc.anon_size */
-   PCP_ZFS_ARC_BONUS_SIZE,	/* zfs.arc.bonus_size */
-   PCP_ZFS_ARC_COMPRESSED_SIZE,	/* zfs.arc.compressed_size */
-   PCP_ZFS_ARC_UNCOMPRESSED_SIZE, /* zfs.arc.uncompressed_size */
-   PCP_ZFS_ARC_C_MAX,		/* zfs.arc.c_max */
-   PCP_ZFS_ARC_DBUF_SIZE,	/* zfs.arc.dbuf_size */
-   PCP_ZFS_ARC_DNODE_SIZE,	/* zfs.arc.dnode_size */
-   PCP_ZFS_ARC_HDR_SIZE,	/* zfs.arc.hdr_size */
-   PCP_ZFS_ARC_MFU_SIZE,	/* zfs.arc.mfu_size */
-   PCP_ZFS_ARC_MRU_SIZE,	/* zfs.arc.mru_size */
-   PCP_ZFS_ARC_SIZE,		/* zfs.arc.size */
+   PCP_ZFS_ARC_ANON_SIZE,        /* zfs.arc.anon_size */
+   PCP_ZFS_ARC_BONUS_SIZE,       /* zfs.arc.bonus_size */
+   PCP_ZFS_ARC_COMPRESSED_SIZE,  /* zfs.arc.compressed_size */
+   PCP_ZFS_ARC_UNCOMPRESSED_SIZE,  /* zfs.arc.uncompressed_size */
+   PCP_ZFS_ARC_C_MAX,            /* zfs.arc.c_max */
+   PCP_ZFS_ARC_DBUF_SIZE,        /* zfs.arc.dbuf_size */
+   PCP_ZFS_ARC_DNODE_SIZE,       /* zfs.arc.dnode_size */
+   PCP_ZFS_ARC_HDR_SIZE,         /* zfs.arc.hdr_size */
+   PCP_ZFS_ARC_MFU_SIZE,         /* zfs.arc.mfu_size */
+   PCP_ZFS_ARC_MRU_SIZE,         /* zfs.arc.mru_size */
+   PCP_ZFS_ARC_SIZE,             /* zfs.arc.size */
    PCP_ZRAM_CAPACITY,		/* zram.capacity */
    PCP_ZRAM_ORIGINAL,		/* zram.mm_stat.data_size.original */
    PCP_ZRAM_COMPRESSED,		/* zram.mm_stat.data_size.compressed */
@@ -229,5 +249,9 @@ int Metric_instanceCount(Metric metric);
 int Metric_instanceOffset(Metric metric, int inst);
 
 pmAtomValue *Metric_instance(Metric metric, int inst, int offset, pmAtomValue *atom, int type);
+
+void Platform_gettime_realtime(struct timeval* tv, uint64_t* msec);
+
+void Platform_gettime_monotonic(uint64_t* msec);
 
 #endif

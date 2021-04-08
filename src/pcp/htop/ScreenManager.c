@@ -15,6 +15,7 @@ in the source distribution for its full text.
 #include "CRT.h"
 #include "FunctionBar.h"
 #include "Object.h"
+#include "Platform.h"
 #include "ProcessList.h"
 #include "ProvideCurses.h"
 #include "XUtils.h"
@@ -92,9 +93,8 @@ void ScreenManager_resize(ScreenManager* this, int x1, int y1, int x2, int y2) {
 static void checkRecalculation(ScreenManager* this, double* oldTime, int* sortTimeout, bool* redraw, bool* rescan, bool* timedOut) {
    ProcessList* pl = this->header->pl;
 
-   struct timeval tv;
-   gettimeofday(&tv, NULL);
-   double newTime = ((double)tv.tv_sec * 10) + ((double)tv.tv_usec / 100000);
+   Platform_gettime_realtime(&pl->realtime, &pl->realtimeMs);
+   double newTime = ((double)pl->realtime.tv_sec * 10) + ((double)pl->realtime.tv_usec / 100000);
 
    *timedOut = (newTime - *oldTime > this->settings->delay);
    *rescan |= *timedOut;
@@ -105,7 +105,10 @@ static void checkRecalculation(ScreenManager* this, double* oldTime, int* sortTi
 
    if (*rescan) {
       *oldTime = newTime;
+      // scan processes first - some header values are calculated there
       ProcessList_scan(pl, this->state->pauseProcessUpdate);
+      // always update header, especially to avoid gaps in graph meters
+      Header_updateData(this->header);
       if (!this->state->pauseProcessUpdate && (*sortTimeout == 0 || this->settings->treeView)) {
          ProcessList_sort(pl);
          *sortTimeout = 1;

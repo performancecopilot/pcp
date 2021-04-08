@@ -41,12 +41,13 @@ typedef struct Settings_ {
    bool detailedCPUTime;
    bool showCPUUsage;
    bool showCPUFrequency;
-   #ifdef HAVE_SENSORS_SENSORS_H
+   #ifdef BUILD_WITH_CPU_TEMP
    bool showCPUTemperature;
    bool degreeFahrenheit;
    #endif
    bool treeView;
    bool treeViewAlwaysByPID;
+   bool allBranchesCollapsed;
    bool showProgramPath;
    bool shadowOtherUsers;
    bool showThreadNames;
@@ -86,9 +87,9 @@ static inline int Settings_getActiveDirection(const Settings* this) {
 
 void Settings_delete(Settings* this);
 
-bool Settings_write(Settings* this);
+int Settings_write(const Settings* this);
 
-Settings* Settings_new(int initialCpuCount);
+Settings* Settings_new(unsigned int initialCpuCount);
 
 void Settings_invertSortOrder(Settings* this);
 

@@ -113,7 +113,7 @@ void Process_delete(Object* cast) {
    free(this);
 }
 
-void PCPProcess_printDelay(float delay_percent, char* buffer, int n) {
+static void PCPProcess_printDelay(float delay_percent, char* buffer, int n) {
    if (isnan(delay_percent)) {
       xSnprintf(buffer, n, " N/A  ");
    } else {

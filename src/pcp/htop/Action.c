@@ -206,12 +206,12 @@ static Htop_Reaction actionSortByTime(State* st) {
 
 static Htop_Reaction actionToggleKernelThreads(State* st) {
    st->settings->hideKernelThreads = !st->settings->hideKernelThreads;
-   return HTOP_RECALCULATE | HTOP_SAVE_SETTINGS;
+   return HTOP_RECALCULATE | HTOP_SAVE_SETTINGS | HTOP_KEEP_FOLLOWING;
 }
 
 static Htop_Reaction actionToggleUserlandThreads(State* st) {
    st->settings->hideUserlandThreads = !st->settings->hideUserlandThreads;
-   return HTOP_RECALCULATE | HTOP_SAVE_SETTINGS;
+   return HTOP_RECALCULATE | HTOP_SAVE_SETTINGS | HTOP_KEEP_FOLLOWING;
 }
 
 static Htop_Reaction actionToggleProgramPath(State* st) {
@@ -227,8 +227,17 @@ static Htop_Reaction actionToggleMergedCommand(State* st) {
 static Htop_Reaction actionToggleTreeView(State* st) {
    st->settings->treeView = !st->settings->treeView;
 
-   ProcessList_expandTree(st->pl);
+   if (!st->settings->allBranchesCollapsed) ProcessList_expandTree(st->pl);
    return HTOP_REFRESH | HTOP_SAVE_SETTINGS | HTOP_KEEP_FOLLOWING | HTOP_REDRAW_BAR | HTOP_UPDATE_PANELHDR;
+}
+
+static Htop_Reaction actionExpandOrCollapseAllBranches(State* st) {
+   st->settings->allBranchesCollapsed = !st->settings->allBranchesCollapsed;
+   if (st->settings->allBranchesCollapsed)
+      ProcessList_collapseAllBranches(st->pl);
+   else
+      ProcessList_expandTree(st->pl);
+   return HTOP_REFRESH | HTOP_SAVE_SETTINGS;
 }
 
 static Htop_Reaction actionIncFilter(State* st) {
@@ -258,7 +267,7 @@ static Htop_Reaction actionInvertSortOrder(State* st) {
    Settings_invertSortOrder(st->settings);
    if (st->pauseProcessUpdate)
       ProcessList_sort(st->pl);
-   return HTOP_REFRESH | HTOP_SAVE_SETTINGS;
+   return HTOP_REFRESH | HTOP_SAVE_SETTINGS | HTOP_KEEP_FOLLOWING;
 }
 
 static Htop_Reaction actionExpandOrCollapse(State* st) {
@@ -316,14 +325,12 @@ static Htop_Reaction actionSetAffinity(State* st) {
 static Htop_Reaction actionKill(State* st) {
    Panel* signalsPanel = SignalsPanel_new();
    const ListItem* sgn = (ListItem*) Action_pickFromVector(st, signalsPanel, 15, true);
-   if (sgn) {
-      if (sgn->key != 0) {
-         Panel_setHeader((Panel*)st->mainPanel, "Sending...");
-         Panel_draw((Panel*)st->mainPanel, false, true, true, State_hideFunctionBar(st));
-         refresh();
-         MainPanel_foreachProcess(st->mainPanel, Process_sendSignal, (Arg) { .i = sgn->key }, NULL);
-         napms(500);
-      }
+   if (sgn && sgn->key != 0) {
+      Panel_setHeader((Panel*)st->mainPanel, "Sending...");
+      Panel_draw((Panel*)st->mainPanel, false, true, true, State_hideFunctionBar(st));
+      refresh();
+      MainPanel_foreachProcess(st->mainPanel, Process_sendSignal, (Arg) { .i = sgn->key }, NULL);
+      napms(500);
    }
    Panel_delete((Object*)signalsPanel);
    return HTOP_REFRESH | HTOP_REDRAW_BAR | HTOP_UPDATE_PANELHDR;
@@ -438,7 +445,7 @@ static const struct {
    { .key = "      H: ", .info = "hide/show user process threads" },
    { .key = "      K: ", .info = "hide/show kernel threads" },
    { .key = "      F: ", .info = "cursor follows process" },
-   { .key = "    + -: ", .info = "expand/collapse tree" },
+   { .key = "  + - *: ", .info = "expand/collapse tree/toggle all" },
    { .key = "N P M T: ", .info = "sort by PID, CPU%, MEM% or TIME" },
    { .key = "      I: ", .info = "invert sort order" },
    { .key = " F6 > .: ", .info = "select sort column" },
@@ -515,8 +522,9 @@ static Htop_Reaction actionHelp(State* st) {
    addattrstr(CRT_colors[BAR_BORDER], "[");
    addattrstr(CRT_colors[MEMORY_USED], "used"); addstr("/");
    addattrstr(CRT_colors[MEMORY_BUFFERS_TEXT], "buffers"); addstr("/");
+   addattrstr(CRT_colors[MEMORY_SHARED], "shared"); addstr("/");
    addattrstr(CRT_colors[MEMORY_CACHE], "cache");
-   addattrstr(CRT_colors[BAR_SHADOW], "                            used/total");
+   addattrstr(CRT_colors[BAR_SHADOW], "                     used/total");
    addattrstr(CRT_colors[BAR_BORDER], "]");
    attrset(CRT_colors[DEFAULT_COLOR]);
    mvaddstr(line++, 0, "Swap bar:      ");
@@ -573,7 +581,7 @@ static Htop_Reaction actionHelp(State* st) {
    CRT_readKey();
    clear();
 
-   return HTOP_RECALCULATE | HTOP_REDRAW_BAR;
+   return HTOP_RECALCULATE | HTOP_REDRAW_BAR | HTOP_KEEP_FOLLOWING;
 }
 
 static Htop_Reaction actionUntagAll(State* st) {
@@ -621,6 +629,7 @@ static Htop_Reaction actionShowCommandScreen(State* st) {
 
 void Action_setBindings(Htop_Action* keys) {
    keys[' '] = actionTag;
+   keys['*'] = actionExpandOrCollapseAllBranches;
    keys['+'] = actionExpandOrCollapse;
    keys[','] = actionSetSortColumn;
    keys['-'] = actionExpandOrCollapse;

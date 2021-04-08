@@ -19,19 +19,19 @@ static const int DateTimeMeter_attributes[] = {
    DATETIME
 };
 
-static void DateTimeMeter_updateValues(Meter* this, char* buffer, size_t size) {
-   time_t t = time(NULL);
+static void DateTimeMeter_updateValues(Meter* this) {
+   const ProcessList* pl = this->pl;
+
    struct tm result;
-   const struct tm* lt = localtime_r(&t, &result);
+   const struct tm* lt = localtime_r(&pl->realtime.tv_sec, &result);
    int year = lt->tm_year + 1900;
    if (((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0)) {
       this->total = 366;
-   }
-   else {
+   } else {
       this->total = 365;
    }
    this->values[0] = lt->tm_yday;
-   strftime(buffer, size, "%F %H:%M:%S", lt);
+   strftime(this->txtBuffer, sizeof(this->txtBuffer), "%F %H:%M:%S", lt);
 }
 
 const MeterClass DateTimeMeter_class = {

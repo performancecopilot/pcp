@@ -48,6 +48,10 @@ typedef struct ProcessList_ {
    Hashtable* displayTreeSet;
    Hashtable* draftingTreeSet;
 
+   struct timeval realtime;   /* time of the current sample */
+   uint64_t realtimeMs;       /* current time in milliseconds */
+   uint64_t monotonicMs;      /* same, but from monotonic clock */
+
    Panel* panel;
    int following;
    uid_t userId;
@@ -59,24 +63,23 @@ typedef struct ProcessList_ {
    bool topologyOk;
    #endif
 
-   int totalTasks;
-   int runningTasks;
-   int userlandThreads;
-   int kernelThreads;
+   unsigned int totalTasks;
+   unsigned int runningTasks;
+   unsigned int userlandThreads;
+   unsigned int kernelThreads;
 
    memory_t totalMem;
    memory_t usedMem;
    memory_t buffersMem;
    memory_t cachedMem;
+   memory_t sharedMem;
    memory_t availableMem;
 
    memory_t totalSwap;
    memory_t usedSwap;
    memory_t cachedSwap;
 
-   int cpuCount;
-
-   time_t scanTs;
+   unsigned int cpuCount;
 } ProcessList;
 
 ProcessList* ProcessList_new(UsersTable* usersTable, Hashtable* pidMatchList, uid_t userId);
@@ -106,10 +109,16 @@ ProcessField ProcessList_keyAt(const ProcessList* this, int at);
 
 void ProcessList_expandTree(ProcessList* this);
 
+void ProcessList_collapseAllBranches(ProcessList* this);
+
 void ProcessList_rebuildPanel(ProcessList* this);
 
 Process* ProcessList_getProcess(ProcessList* this, pid_t pid, bool* preExisting, Process_New constructor);
 
 void ProcessList_scan(ProcessList* this, bool pauseProcessUpdate);
+
+static inline Process* ProcessList_findProcess(ProcessList* this, pid_t pid) {
+   return (Process*) Hashtable_get(this->processTable, pid);
+}
 
 #endif

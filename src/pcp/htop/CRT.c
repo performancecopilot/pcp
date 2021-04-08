@@ -118,6 +118,7 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [UPTIME] = A_BOLD | ColorPair(Cyan, Black),
       [BATTERY] = A_BOLD | ColorPair(Cyan, Black),
       [LARGE_NUMBER] = A_BOLD | ColorPair(Red, Black),
+      [METER_SHADOW] = A_BOLD | ColorPairGrayBlack,
       [METER_TEXT] = ColorPair(Cyan, Black),
       [METER_VALUE] = A_BOLD | ColorPair(Cyan, Black),
       [METER_VALUE_ERROR] = A_BOLD | ColorPair(Red, Black),
@@ -155,6 +156,7 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [MEMORY_BUFFERS] = ColorPair(Blue, Black),
       [MEMORY_BUFFERS_TEXT] = A_BOLD | ColorPair(Blue, Black),
       [MEMORY_CACHE] = ColorPair(Yellow, Black),
+      [MEMORY_SHARED] = ColorPair(Magenta, Black),
       [HUGEPAGE_1] = ColorPair(Green, Black),
       [HUGEPAGE_2] = ColorPair(Yellow, Black),
       [HUGEPAGE_3] = ColorPair(Red, Black),
@@ -208,6 +210,7 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [UPTIME] = A_BOLD,
       [BATTERY] = A_BOLD,
       [LARGE_NUMBER] = A_BOLD,
+      [METER_SHADOW] = A_DIM,
       [METER_TEXT] = A_NORMAL,
       [METER_VALUE] = A_BOLD,
       [METER_VALUE_ERROR] = A_BOLD,
@@ -245,6 +248,7 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [MEMORY_BUFFERS] = A_NORMAL,
       [MEMORY_BUFFERS_TEXT] = A_NORMAL,
       [MEMORY_CACHE] = A_NORMAL,
+      [MEMORY_SHARED] = A_NORMAL,
       [HUGEPAGE_1] = A_BOLD,
       [HUGEPAGE_2] = A_NORMAL,
       [HUGEPAGE_3] = A_REVERSE | A_BOLD,
@@ -298,6 +302,7 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [UPTIME] = ColorPair(Yellow, White),
       [BATTERY] = ColorPair(Yellow, White),
       [LARGE_NUMBER] = ColorPair(Red, White),
+      [METER_SHADOW] = ColorPair(Blue, White),
       [METER_TEXT] = ColorPair(Blue, White),
       [METER_VALUE] = ColorPair(Black, White),
       [METER_VALUE_ERROR] = A_BOLD | ColorPair(Red, White),
@@ -335,6 +340,7 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [MEMORY_BUFFERS] = ColorPair(Cyan, White),
       [MEMORY_BUFFERS_TEXT] = ColorPair(Cyan, White),
       [MEMORY_CACHE] = ColorPair(Yellow, White),
+      [MEMORY_SHARED] = ColorPair(Magenta, White),
       [HUGEPAGE_1] = ColorPair(Green, White),
       [HUGEPAGE_2] = ColorPair(Yellow, White),
       [HUGEPAGE_3] = ColorPair(Red, White),
@@ -388,6 +394,7 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [UPTIME] = ColorPair(Yellow, Black),
       [BATTERY] = ColorPair(Yellow, Black),
       [LARGE_NUMBER] = ColorPair(Red, Black),
+      [METER_SHADOW] = A_BOLD | ColorPairGrayBlack,
       [METER_TEXT] = ColorPair(Blue, Black),
       [METER_VALUE] = ColorPair(Black, Black),
       [METER_VALUE_ERROR] = A_BOLD | ColorPair(Red, Black),
@@ -425,6 +432,7 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [MEMORY_BUFFERS] = ColorPair(Cyan, Black),
       [MEMORY_BUFFERS_TEXT] = ColorPair(Cyan, Black),
       [MEMORY_CACHE] = ColorPair(Yellow, Black),
+      [MEMORY_SHARED] = ColorPair(Magenta, Black),
       [HUGEPAGE_1] = ColorPair(Green, Black),
       [HUGEPAGE_2] = ColorPair(Yellow, Black),
       [HUGEPAGE_3] = ColorPair(Red, Black),
@@ -478,6 +486,7 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [UPTIME] = A_BOLD | ColorPair(Yellow, Blue),
       [BATTERY] = A_BOLD | ColorPair(Yellow, Blue),
       [LARGE_NUMBER] = A_BOLD | ColorPair(Red, Blue),
+      [METER_SHADOW] = ColorPair(Cyan, Blue),
       [METER_TEXT] = ColorPair(Cyan, Blue),
       [METER_VALUE] = A_BOLD | ColorPair(Cyan, Blue),
       [METER_VALUE_ERROR] = A_BOLD | ColorPair(Red, Blue),
@@ -515,6 +524,7 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [MEMORY_BUFFERS] = A_BOLD | ColorPair(Cyan, Blue),
       [MEMORY_BUFFERS_TEXT] = A_BOLD | ColorPair(Cyan, Blue),
       [MEMORY_CACHE] = A_BOLD | ColorPair(Yellow, Blue),
+      [MEMORY_SHARED] = A_BOLD | ColorPair(Magenta, Blue),
       [HUGEPAGE_1] = A_BOLD | ColorPair(Green, Blue),
       [HUGEPAGE_2] = A_BOLD | ColorPair(Yellow, Blue),
       [HUGEPAGE_3] = A_BOLD | ColorPair(Red, Blue),
@@ -568,6 +578,7 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [UPTIME] = ColorPair(Green, Black),
       [BATTERY] = ColorPair(Green, Black),
       [LARGE_NUMBER] = A_BOLD | ColorPair(Red, Black),
+      [METER_SHADOW] = A_BOLD | ColorPairGrayBlack,
       [METER_TEXT] = ColorPair(Cyan, Black),
       [METER_VALUE] = ColorPair(Green, Black),
       [METER_VALUE_ERROR] = A_BOLD | ColorPair(Red, Black),
@@ -605,6 +616,7 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [MEMORY_BUFFERS] = ColorPair(Blue, Black),
       [MEMORY_BUFFERS_TEXT] = A_BOLD | ColorPair(Blue, Black),
       [MEMORY_CACHE] = ColorPair(Yellow, Black),
+      [MEMORY_SHARED] = ColorPair(Magenta, Black),
       [HUGEPAGE_1] = ColorPair(Green, Black),
       [HUGEPAGE_2] = ColorPair(Yellow, Black),
       [HUGEPAGE_3] = ColorPair(Red, Black),
@@ -652,42 +664,10 @@ int CRT_scrollWheelVAmount = 10;
 ColorScheme CRT_colorScheme = COLORSCHEME_DEFAULT;
 
 ATTR_NORETURN
-static void CRT_handleSIGTERM(int sgn) {
-   (void) sgn;
+static void CRT_handleSIGTERM(ATTR_UNUSED int sgn) {
    CRT_done();
    _exit(0);
 }
-
-#ifdef HAVE_SETUID_ENABLED
-
-static int CRT_euid = -1;
-
-static int CRT_egid = -1;
-
-void CRT_dropPrivileges() {
-   CRT_egid = getegid();
-   CRT_euid = geteuid();
-   if (setegid(getgid()) == -1) {
-      CRT_fatalError("Fatal error: failed dropping group privileges");
-   }
-   if (seteuid(getuid()) == -1) {
-      CRT_fatalError("Fatal error: failed dropping user privileges");
-   }
-}
-
-void CRT_restorePrivileges() {
-   if (CRT_egid == -1 || CRT_euid == -1) {
-      CRT_fatalError("Fatal error: internal inconsistency");
-   }
-   if (setegid(CRT_egid) == -1) {
-      CRT_fatalError("Fatal error: failed restoring group privileges");
-   }
-   if (seteuid(CRT_euid) == -1) {
-      CRT_fatalError("Fatal error: failed restoring user privileges");
-   }
-}
-
-#endif /* HAVE_SETUID_ENABLED */
 
 #ifndef NDEBUG
 
@@ -695,7 +675,7 @@ static int stderrRedirectNewFd = -1;
 static int stderrRedirectBackupFd = -1;
 
 static int createStderrCacheFile(void) {
-#ifdef HAVE_MEMFD_CREATE
+#if defined(HAVE_MEMFD_CREATE)
    return memfd_create("htop.stderr-redirect", 0);
 #elif defined(O_TMPFILE)
    return open("/tmp", O_TMPFILE | O_CREAT | O_EXCL | O_RDWR, S_IRUSR | S_IWUSR);

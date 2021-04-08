@@ -72,6 +72,7 @@ static HandlerResult DisplayOptionsPanel_eventHandler(Panel* super, int ch) {
       Header* header = this->scr->header;
       Header_calculateHeight(header);
       Header_reinit(header);
+      Header_updateData(header);
       Header_draw(header);
       ScreenManager_resize(this->scr, this->scr->x1, header->height, this->scr->x2, this->scr->y2);
    }
@@ -98,6 +99,7 @@ DisplayOptionsPanel* DisplayOptionsPanel_new(Settings* settings, ScreenManager* 
    Panel_setHeader(super, "Display options");
    Panel_add(super, (Object*) CheckItem_newByRef("Tree view", &(settings->treeView)));
    Panel_add(super, (Object*) CheckItem_newByRef("- Tree view is always sorted by PID (htop 2 behavior)", &(settings->treeViewAlwaysByPID)));
+   Panel_add(super, (Object*) CheckItem_newByRef("- Tree view is collapsed by default", &(settings->allBranchesCollapsed)));
    Panel_add(super, (Object*) CheckItem_newByRef("Shadow other users' processes", &(settings->shadowOtherUsers)));
    Panel_add(super, (Object*) CheckItem_newByRef("Hide kernel threads", &(settings->hideKernelThreads)));
    Panel_add(super, (Object*) CheckItem_newByRef("Hide userland process threads", &(settings->hideUserlandThreads)));
@@ -116,8 +118,16 @@ DisplayOptionsPanel* DisplayOptionsPanel_new(Settings* settings, ScreenManager* 
    Panel_add(super, (Object*) CheckItem_newByRef("Add guest time in CPU meter percentage", &(settings->accountGuestInCPUMeter)));
    Panel_add(super, (Object*) CheckItem_newByRef("Also show CPU percentage numerically", &(settings->showCPUUsage)));
    Panel_add(super, (Object*) CheckItem_newByRef("Also show CPU frequency", &(settings->showCPUFrequency)));
-   #ifdef HAVE_SENSORS_SENSORS_H
-   Panel_add(super, (Object*) CheckItem_newByRef("Also show CPU temperature (requires libsensors)", &(settings->showCPUTemperature)));
+   #ifdef BUILD_WITH_CPU_TEMP
+   Panel_add(super, (Object*) CheckItem_newByRef(
+   #if defined(HTOP_LINUX)
+                                                 "Also show CPU temperature (requires libsensors)",
+   #elif defined(HTOP_FREEBSD)
+                                                 "Also show CPU temperature",
+   #else
+   #error Unknown temperature implementation!
+   #endif
+                                                 &(settings->showCPUTemperature)));
    Panel_add(super, (Object*) CheckItem_newByRef("- Show temperature in degree Fahrenheit instead of Celsius", &(settings->degreeFahrenheit)));
    #endif
    Panel_add(super, (Object*) CheckItem_newByRef("Enable the mouse", &(settings->enableMouse)));
