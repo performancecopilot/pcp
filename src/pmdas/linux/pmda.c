@@ -5043,7 +5043,7 @@ static pmdaMetric metrictab[] = {
     /* kernel.all.nptys */
     { &proc_sys_kernel.pty_nr,
       { PMDA_PMID(CLUSTER_SYS_KERNEL,3), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
     /*
      * mem.vmstat cluster
