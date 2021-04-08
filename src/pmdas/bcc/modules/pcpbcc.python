@@ -311,6 +311,22 @@ class PCPBCCBase(object):
         return name.replace("/", ".").replace("[", "{").replace("]", "}")
 
     @staticmethod
+    def get_instance_name_for_pid(pid):
+        """
+        Returns an instance name for a given process
+        in the same format as the proc PMDA, for example:
+
+            001379 /usr/sbin/NetworkManager
+        """
+        process_name = ""
+        try:
+            cmdline = open("/proc/{}/cmdline".format(pid), "r").read()
+            process_name = " " + re.split("[\x00 ]", cmdline)[0]
+        except IOError:
+            pass
+        return "{:06d}{}".format(pid, process_name)
+
+    @staticmethod
     def bcc_version():
         """ Check BCC version """
         try:

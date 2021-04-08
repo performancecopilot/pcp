@@ -167,18 +167,6 @@ class PCPBCCModule(PCPBCCBase):
             self.err("Module NOT active!")
             raise
 
-    @staticmethod
-    def get_cmdline(pid):
-        """
-        Returns the cmdline until the first space or NUL, and adds a leading space
-        Mimics the behavior of the proc PMDA
-        """
-        try:
-            cmdline = open("/proc/{}/cmdline".format(pid), "r").read()
-            return " " + re.split("[\x00 ]", cmdline)[0]
-        except IOError:
-            return ""
-
     def refresh(self):
         """ Refresh BPF data """
         if self.bpf is None:
@@ -190,8 +178,7 @@ class PCPBCCModule(PCPBCCBase):
 
             prev_netstat = self.netstats_cache.get(pid, None)
             if not prev_netstat:
-                cmdline = PCPBCCModule.get_cmdline(pid)
-                instance_name = "{:06d}{}".format(pid, cmdline)
+                instance_name = self.get_instance_name_for_pid(pid)
                 prev_netstat = Netstats(0, 0, 0, 0, 0, 0, 0, 0, instance_name)
 
             netstat = Netstats(
