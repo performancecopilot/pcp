@@ -745,6 +745,28 @@ series_source(series_data *dp)
     }
 }
 
+static void
+pmseries_close(uv_timer_t *arg)
+{
+    uv_handle_t		*handle = (uv_handle_t *)arg;
+    series_data		*dp = (series_data *)handle->data;
+
+    pmSeriesClose(&dp->settings.module);
+    series_data_free(dp);
+}
+
+static void
+pmseries_schedule_close(series_data *dp)
+{
+    uv_loop_t		*loop = dp->loop;
+    uv_timer_t		timer;
+    uv_handle_t		*handle = (uv_handle_t *)&timer;
+
+    handle->data = dp;
+    uv_timer_init(loop, &timer);
+    uv_timer_start(&timer, pmseries_close, 0, 0);
+}
+
 /*
  * Finishing up interacting with the library via callbacks
  */
@@ -777,8 +799,9 @@ on_series_done(int sts, void *arg)
 	arg = entry->arg;
 	func(dp, arg);
     } else {
-	pmSeriesClose(&dp->settings.module);
-	series_data_free(dp);
+	/* we're in the middle of an Redis async callback,
+	   schedule freeing the Redis context for later */
+	pmseries_schedule_close(dp);
     }
 }
 

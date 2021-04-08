@@ -158,6 +158,8 @@ typedef enum cmd_parse_result {
     ACTION(REQ_REDIS_ZSCORE)                                                   \
     ACTION(REQ_REDIS_ZUNIONSTORE)                                              \
     ACTION(REQ_REDIS_ZSCAN)                                                    \
+    ACTION(REQ_REDIS_GEOADD) /* redis requests - geospatial data */            \
+    ACTION(REQ_REDIS_PUBLISH) /* redis requests - pub/sub */                   \
     ACTION(REQ_REDIS_EVAL) /* redis requests - eval */                         \
     ACTION(REQ_REDIS_EVALSHA)                                                  \
     ACTION(REQ_REDIS_PING) /* redis requests - ping/quit */                    \

@@ -37,6 +37,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <ctype.h>
+#include <limits.h>
 
 #include "hiredis.h"
 #include "net.h"
@@ -976,7 +977,8 @@ int redisBufferWrite(redisContext *c, int *done) {
                 if (c->obuf == NULL)
                     goto oom;
             } else {
-                if (sdsrange(c->obuf,nwritten,-1) < 0) goto oom;
+                if (sdslen(c->obuf) > SSIZE_MAX) goto oom;
+                sdsrange(c->obuf,nwritten,-1);
             }
         }
     }

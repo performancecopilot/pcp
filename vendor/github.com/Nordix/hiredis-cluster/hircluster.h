@@ -66,6 +66,11 @@
 /* Flag to enable routing table updates using the command 'cluster slots'.
  * Default is the 'cluster nodes' command. */
 #define HIRCLUSTER_FLAG_ROUTE_USE_SLOTS 0x4000
+/* Flag to enable graceful fallback to non clustered mode */
+#define HIRCLUSTER_FLAG_NOCLUSTER_FALLBACK 0x8000
+
+/* Unfortunately there is no error code for this type of error to match */
+#define HIRCLUSTER_ENOCLUSTER     "ERR This instance has cluster support disabled"
 
 #ifdef __cplusplus
 extern "C" {
@@ -185,6 +190,7 @@ int redisClusterSetOptionPassword(redisClusterContext *cc,
 int redisClusterSetOptionParseSlaves(redisClusterContext *cc);
 int redisClusterSetOptionParseOpenSlots(redisClusterContext *cc);
 int redisClusterSetOptionRouteUseSlots(redisClusterContext *cc);
+int redisClusterSetOptionNoclusterFallback(redisClusterContext *cc);
 int redisClusterSetOptionConnectTimeout(redisClusterContext *cc,
                                         const struct timeval tv);
 int redisClusterSetOptionTimeout(redisClusterContext *cc,

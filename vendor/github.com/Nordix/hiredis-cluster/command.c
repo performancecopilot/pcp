@@ -130,6 +130,8 @@ static int redis_arg1(struct cmd *r) {
     case CMD_REQ_REDIS_RPOPLPUSH:
     case CMD_REQ_REDIS_RPUSHX:
 
+    case CMD_REQ_REDIS_PUBLISH:
+
     case CMD_REQ_REDIS_SISMEMBER:
 
     case CMD_REQ_REDIS_ZRANK:
@@ -211,6 +213,8 @@ static int redis_arg3(struct cmd *r) {
 static int redis_argn(struct cmd *r) {
     switch (r->type) {
     case CMD_REQ_REDIS_BITCOUNT:
+
+    case CMD_REQ_REDIS_GEOADD:
 
     case CMD_REQ_REDIS_SET:
     case CMD_REQ_REDIS_HDEL:
@@ -402,6 +406,7 @@ static inline cmd_type_t redis_parse_cmd_verb(const char *m, int len) {
                !strncasecmp(m, "decrby", 6) ? CMD_REQ_REDIS_DECRBY :
                !strncasecmp(m, "exists", 6) ? CMD_REQ_REDIS_EXISTS :
                !strncasecmp(m, "expire", 6) ? CMD_REQ_REDIS_EXPIRE :
+               !strncasecmp(m, "geoadd", 6) ? CMD_REQ_REDIS_GEOADD :
                !strncasecmp(m, "getbit", 6) ? CMD_REQ_REDIS_GETBIT :
                !strncasecmp(m, "getset", 6) ? CMD_REQ_REDIS_GETSET :
                !strncasecmp(m, "psetex", 6) ? CMD_REQ_REDIS_PSETEX :
@@ -434,6 +439,7 @@ static inline cmd_type_t redis_parse_cmd_verb(const char *m, int len) {
                !strncasecmp(m, "restore", 7) ? CMD_REQ_REDIS_RESTORE :
                !strncasecmp(m, "pfcount", 7) ? CMD_REQ_REDIS_PFCOUNT :
                !strncasecmp(m, "pfmerge", 7) ? CMD_REQ_REDIS_PFMERGE :
+               !strncasecmp(m, "publish", 7) ? CMD_REQ_REDIS_PUBLISH :
                                                CMD_UNKNOWN;
     case 8:
         return !strncasecmp(m, "expireat", 8) ? CMD_REQ_REDIS_EXPIREAT :

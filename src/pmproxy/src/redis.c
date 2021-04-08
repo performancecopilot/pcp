@@ -95,12 +95,12 @@ redisfmt(redisReply *reply)
 
 static void
 on_redis_server_reply(
-	redisAsyncContext *c, redisReply *reply, const sds cmd, void *arg)
+	redisClusterAsyncContext *c, void *r, void *arg)
 {
     struct client	*client = (struct client *)arg;
+    redisReply          *reply = r;
 
     (void)c;
-    sdsfree(cmd);
     client_write(client, redisfmt(reply), NULL);
 }
 
@@ -136,7 +136,7 @@ static void
 on_redis_connected(void *arg)
 {
     struct proxy	*proxy = (struct proxy *)arg;
-    mmv_registry_t	*metric_registry = proxymetrics(proxy, METRICS_REDIS);
+    mmv_registry_t	*metric_registry = proxymetrics(proxy, METRICS_DISCOVER);
     sds			message;
 
     message = sdsnew("Redis slots");

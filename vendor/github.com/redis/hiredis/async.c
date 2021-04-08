@@ -41,7 +41,7 @@
 #include <errno.h>
 #include "async.h"
 #include "net.h"
-#include "dict.c"
+#include "dict.h"
 #include "sds.h"
 #include "win32.h"
 
@@ -52,7 +52,7 @@ int __redisAppendCommand(redisContext *c, const char *cmd, size_t len);
 void __redisSetError(redisContext *c, int type, const char *str);
 
 /* Functions managing dictionary of callbacks for pub/sub. */
-static unsigned int callbackHash(const void *key) {
+static uint64_t callbackHash(const void *key) {
     return dictGenHashFunction((const unsigned char *)key,
                                sdslen((const sds)key));
 }
