@@ -129,6 +129,48 @@ pmproxy.pid PMID: 4.1.0 [pmproxy PID]
 Help:
 PID for the current pmproxy invocation
 
+pmproxy.redis.requests.error PMID: 4.2.2 [number of request errors]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+total number of request errors
+
+pmproxy.redis.requests.inflight.bytes PMID: 4.2.7 [bytes allocated for inflight requests]
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: byte
+Help:
+amount of bytes allocated for inflight requests
+
+pmproxy.redis.requests.inflight.total PMID: 4.2.6 [inflight requests]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: count
+Help:
+total number of inflight requests
+
+pmproxy.redis.requests.total PMID: 4.2.1 [number of requests]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+total number of requests
+
+pmproxy.redis.responses.error PMID: 4.2.4 [number of error responses]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+total number of error responses
+
+pmproxy.redis.responses.total PMID: 4.2.3 [number of responses]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+total number of responses
+
+pmproxy.redis.responses.wait PMID: 4.2.5 [wait time for responses]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: microsec
+Help:
+total wait time for responses
+
 pmproxy.series.descs.calls PMID: 4.6.2 [calls to /series/descs]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: none

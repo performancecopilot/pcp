@@ -15,6 +15,7 @@
 #define SLOTS_H
 
 #include <hiredis-cluster/hircluster.h>
+#include <mmv_stats.h>
 #include "batons.h"
 #include "redis.h"
 #include "maps.h"
@@ -40,10 +41,25 @@ typedef struct redisSlots {
     redisMap		*keymap;	/* map command names to key position */
     void		*events;	/* libuv event loop */
     int			search;		/* RediSearch status */
+
+    mmv_registry_t	*metrics;	/* MMV metrics for instrumentation */
+    void		*metrics_handle; /* MMV handle */
 } redisSlots;
+
+/* wraps the actual Redis callback and data */
+typedef struct redisSlotsReplyData {
+    redisSlots			*slots;
+    int64_t			start;		/* time of the request in usec */
+    size_t			req_size;	/* size of request */
+
+    redisClusterCallbackFn	*callback;	/* actual callback */
+    void			*arg;		/* actual callback args */
+} redisSlotsReplyData;
 
 typedef void (*redisPhase)(redisSlots *, void *);	/* phased operations */
 
+extern void redisSlotsSetupMetrics(redisSlots *);
+extern int redisSlotsSetMetricRegistry(redisSlots *, mmv_registry_t *);
 extern redisSlots *redisSlotsInit(dict *, void *);
 extern redisSlots *redisSlotsConnect(dict *, redisSlotsFlags,
 		redisInfoCallBack, redisDoneCallBack, void *, void *, void *);
