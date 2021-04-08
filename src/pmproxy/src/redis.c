@@ -136,6 +136,7 @@ static void
 on_redis_connected(void *arg)
 {
     struct proxy	*proxy = (struct proxy *)arg;
+    mmv_registry_t	*redis_metric_registry = proxymetrics(proxy, METRICS_REDIS);
     mmv_registry_t	*discover_metric_registry = proxymetrics(proxy, METRICS_DISCOVER);
     sds			message;
 
@@ -156,6 +157,9 @@ on_redis_connected(void *arg)
     } else if (search_queries) {
 	redis_discover.callbacks = redis_search;
     }
+
+    redisSlotsSetMetricRegistry(proxy->slots, redis_metric_registry);
+    redisSlotsSetupMetrics(proxy->slots);
 
     if (archive_discovery && (series_queries || search_queries)) {
 	pmDiscoverSetEventLoop(&redis_discover.module, proxy->events);
@@ -212,5 +216,6 @@ close_redis_module(struct proxy *proxy)
     if (archive_discovery)
 	pmDiscoverClose(&redis_discover.module);
 
+    proxymetrics_close(proxy, METRICS_REDIS);
     proxymetrics_close(proxy, METRICS_DISCOVER);
 }
