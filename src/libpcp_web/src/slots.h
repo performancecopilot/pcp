@@ -14,13 +14,17 @@
 #ifndef SLOTS_H
 #define SLOTS_H
 
+#include <hiredis-cluster/hircluster.h>
 #include "batons.h"
 #include "redis.h"
 #include "maps.h"
 
 #define MAXSLOTS	(1 << 14)
 #define SLOTMASK	(MAXSLOTS-1)
-#define SLOTS_PHASES	6
+#define SLOTS_PHASES	5
+
+/* Unfortunately there is no error code for this error to match */
+#define REDIS_ENOCLUSTER     "ERR This instance has cluster support disabled"
 
 typedef enum redisSlotsFlags {
     SLOTS_NONE		= 0,
@@ -29,53 +33,28 @@ typedef enum redisSlotsFlags {
     SLOTS_SEARCH	= (1 << 2),
 } redisSlotsFlags;
 
-typedef struct redisSlotServer {
-    sds			hostspec;	/* hostname:port or unix socket file */
-    redisAsyncContext	*redis;
-} redisSlotServer;
-
-typedef struct redisSlotRange {
-    unsigned int	start;
-    unsigned int	end;
-    redisSlotServer	primary;
-    unsigned int	counter;
-    unsigned int	nreplicas;
-    redisSlotServer	*replicas;
-} redisSlotRange;
-
 typedef struct redisSlots {
-    unsigned int	counter;
-    unsigned int	nslots;
-    unsigned int	setup;		/* slots info all successfully setup */
-    unsigned int	refresh;	/* do slot refresh whenever possible */
-    redisSlotRange	*slots;		/* all instances; e.g. CLUSTER SLOTS */
+    redisClusterAsyncContext *acc;	/* cluster context */
+    unsigned int	setup;		/* connected to redis */
+    int			cluster_mode;	/* Redis cluster mode enabled */
     redisMap		*keymap;	/* map command names to key position */
-    dict		*contexts;	/* async contexts access by hostspec */
-    void		*events;
-    int			search;
+    void		*events;	/* libuv event loop */
+    int			search;		/* RediSearch status */
 } redisSlots;
 
 typedef void (*redisPhase)(redisSlots *, void *);	/* phased operations */
 
 extern redisSlots *redisSlotsInit(dict *, void *);
-extern redisAsyncContext *redisGetSlotContext(redisSlots *, unsigned int, const char *);
-extern redisAsyncContext *redisGetAsyncContextBySlot(redisSlots *, unsigned int);
-extern redisAsyncContext *redisGetAsyncContextByHost(redisSlots *, sds);
-
 extern redisSlots *redisSlotsConnect(dict *, redisSlotsFlags,
 		redisInfoCallBack, redisDoneCallBack, void *, void *, void *);
-extern int redisSlotRangeInsert(redisSlots *, redisSlotRange *);
-extern int redisSlotsRequest(redisSlots *, const char *, sds, sds,
-		redisAsyncCallBack *, void *);
-extern void redisSlotsClear(redisSlots *);
+extern int redisSlotsRequest(redisSlots *, sds, redisClusterCallbackFn *, void *);
+extern int redisSlotsRequestFirstNode(redisSlots *slots, const sds cmd,
+                                        redisClusterCallbackFn *callback, void *arg);
 extern void redisSlotsFree(redisSlots *);
-
-extern int redisSlotsRedirect(redisSlots *, redisReply *, void *,
-		redisInfoCallBack, const sds, redisAsyncCallBack, void *);
 
 extern int redisSlotsProxyConnect(redisSlots *,
 		redisInfoCallBack, redisReader **, const char *, ssize_t,
-		redisAsyncCallBack *, void *);
+		redisClusterCallbackFn *, void *);
 extern void redisSlotsProxyFree(redisReader *);
 
 typedef struct {

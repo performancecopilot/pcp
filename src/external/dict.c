@@ -905,6 +905,18 @@ unsigned long dictScan(dict *d,
     return v;
 }
 
+/* ------------------ compat functions required in hiredis ------------------ */
+void dictInitIterator(dictIterator *iter, dict *d)
+{
+    // please refer to dictGetSafeIterator()
+    iter->d = d;
+    iter->table = 0;
+    iter->index = -1;
+    iter->safe = 1;
+    iter->entry = NULL;
+    iter->nextEntry = NULL;
+}
+
 /* ------------------------- private functions ------------------------------ */
 
 /* Expand the hash table if needed */

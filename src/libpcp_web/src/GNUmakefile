@@ -15,16 +15,31 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
+HIREDIS_HFILES = $(addprefix deps/hiredis/, \
+	alloc.h async.h async_private.h fmacros.h hiredis.h net.h \
+	read.h sockcompat.h win32.h adapters/libuv.h)
+HIREDIS_CFILES = $(addprefix deps/hiredis/, \
+	alloc.c async.c hiredis.c net.c read.c)
+HIREDIS_XFILES = $(HIREDIS_HFILES) $(HIREDIS_CFILES)
+
+HIREDIS_CLUSTER_HFILES = $(addprefix deps/hiredis-cluster/, \
+	adlist.h command.h hiarray.h hiutil.h hircluster.h win32.h \
+	adapters/libuv.h)
+HIREDIS_CLUSTER_CFILES = $(addprefix deps/hiredis-cluster/, \
+	adlist.c command.c crc16.c hiarray.c hiutil.c hircluster.c)
+HIREDIS_CLUSTER_XFILES = $(HIREDIS_CLUSTER_HFILES) $(HIREDIS_CLUSTER_CFILES)
+
 CFILES = jsmn.c http_client.c http_parser.c sds.c siphash.c \
-	 query.c schema.c load.c crc16.c sha1.c util.c slots.c \
-	 redis.c net.c dict.c ini.c maps.c batons.c encoding.c \
-	 search.c json_helpers.c config.c
+	 query.c schema.c load.c sha1.c util.c slots.c \
+	 redis.c dict.c ini.c maps.c batons.c encoding.c \
+	 search.c json_helpers.c config.c \
+	 $(HIREDIS_CFILES) $(HIREDIS_CLUSTER_CFILES)
 HFILES = jsmn.h http_client.h http_parser.h sdsalloc.h zmalloc.h \
-	 query.h schema.h load.h crc16.h sha1.h util.h slots.h \
-	 redis.h net.h dict.h ini.h maps.h batons.h encoding.h \
-	 search.h discover.h private.h libuv.h
+	 query.h schema.h load.h sha1.h util.h slots.h \
+	 redis.h dict.h ini.h maps.h batons.h encoding.h \
+	 search.h discover.h private.h
 YFILES = query_parser.y
-XFILES = jsmn.c jsmn.h http_parser.c http_parser.h crc16.c crc16.h \
+XFILES = jsmn.c jsmn.h http_parser.c http_parser.h \
 	 sha1.c sha1.h sds.c siphash.c dict.c dict.h ini.c ini.h
 
 LLDLIBS = $(PCPWEBLIB_EXTRAS) $(LIB_FOR_MATH)
@@ -33,10 +48,10 @@ LLDLIBS += -lws2_32
 endif
 
 LDIRT = $(XFILES) $(YFILES:%.y=%.tab.?)
-LCFLAGS += -DJSMN_PARENT_LINKS=1 -DJSMN_STRICT=1 -DHTTP_PARSER_STRICT=0
+LCFLAGS += $(C99_CFLAGS) -DJSMN_PARENT_LINKS=1 -DJSMN_STRICT=1 -DHTTP_PARSER_STRICT=0 -Ideps
 
 ifeq "$(HAVE_LIBUV)" "true"
-CFILES += libuv.c discover.c webgroup.c
+CFILES += discover.c webgroup.c
 LCFLAGS += $(LIBUVCFLAGS) -DHAVE_LIBUV=1
 LLDLIBS += $(LIB_FOR_LIBUV)
 else
@@ -44,7 +59,6 @@ CFILES += nodiscover.c nowebgroup.c
 endif
 
 ifeq "$(HAVE_OPENSSL)" "true"
-CFILES += ssl.c
 LCFLAGS += $(LIBOPENSSLCFLAGS) -DHAVE_OPENSSL=1
 LLDLIBS += $(LIB_FOR_OPENSSL)
 endif
@@ -71,9 +85,9 @@ SYMTARGET =
 endif
 
 VERSION_SCRIPT = exports
-LDIRT = $(XFILES) $(YFILES:%.y=%.tab.?)
+LDIRT = $(XFILES) $(HIREDIS_XFILES) $(HIREDIS_CLUSTER_XFILES) $(YFILES:%.y=%.tab.?)
 
-default: $(XFILES) $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
+default: $(XFILES) $(HIREDIS_XFILES) $(HIREDIS_CLUSTER_XFILES) $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
 
 include $(BUILDRULES)
 
@@ -97,6 +111,12 @@ endif
 
 $(XFILES):
 	$(LN_S) -f $(TOPDIR)/src/external/$@ $@
+$(HIREDIS_XFILES):
+	mkdir -p deps/hiredis/adapters
+	$(LN_S) -f $(realpath $(TOPDIR))/vendor/github.com/redis/$(@:deps/%=%) $@
+$(HIREDIS_CLUSTER_XFILES):
+	mkdir -p deps/hiredis-cluster/adapters
+	$(LN_S) -f $(realpath $(TOPDIR))/vendor/github.com/Nordix/$(@:deps/%=%) $@
 
 .NOTPARALLEL:
 query_parser.tab.h query_parser.tab.c: query_parser.y query.h
@@ -107,7 +127,7 @@ default_pcp:	default
 install_pcp:	install
 
 ifneq ($(LIBTARGET),)
-$(LIBTARGET): $(VERSION_SCRIPT) $(XFILES)
+$(LIBTARGET): $(VERSION_SCRIPT) $(XFILES) $(HIREDIS_XFILES) $(HIREDIS_CLUSTER_XFILES)
 endif
 
 jsmn.o:		jsmn.c jsmn.h
@@ -116,4 +136,7 @@ http_parser.o:	http_parser.c http_parser.h
 http_client.o load.o query.o query_parser.o:	$(TOPDIR)/src/include/pcp/libpcp.h
 
 check:: $(CFILES) $(HFILES) $(XFILES)
-	$(CLINT) $^
+	$(CLINT) \
+	  --suppress=unknownMacro:/usr/include/bits/stdlib.h \
+	  --suppress=internalAstError:deps/hiredis-cluster/command.c:351 \
+	  $^

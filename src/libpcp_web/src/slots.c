@@ -14,195 +14,19 @@
 #include "schema.h"
 #include "batons.h"
 #include "slots.h"
-#include "crc16.h"
-#include "libuv.h"
 #include "util.h"
 #include <ctype.h>
 #include <search.h>
 #ifdef HAVE_STRINGS_H
 #include <strings.h>
 #endif
+#if defined(HAVE_LIBUV)
+#include <hiredis-cluster/adapters/libuv.h>
+#else
+static int redisClusterLibuvAttach() { return REDIS_OK; }
+#endif
 
 static char default_server[] = "localhost:6379";
-
-static int
-slotsCompare(const void *pa, const void *pb)
-{
-    redisSlotRange	*a = (redisSlotRange *)pa;
-    redisSlotRange	*b = (redisSlotRange *)pb;
-
-    if (a->end < b->start)
-	return -1;
-    if (b->end < a->start)
-	return 1;
-    return 0;
-}
-
-int
-redisSlotRangeInsert(redisSlots *redis, redisSlotRange *range)
-{
-    if (pmDebugOptions.series) {
-	int		i;
-
-	fprintf(stderr, "Slot range: %05u-%05u\n", range->start, range->end);
-	fprintf(stderr, "   Primary: %s\n", range->primary.hostspec);
-	for (i = 0; i < range->nreplicas; i++)
-	    fprintf(stderr, "\tReplica%05u: %s\n", i, range->replicas[i].hostspec);
-    }
-
-    if (tsearch((const void *)range, (void **)&redis->slots, slotsCompare)) {
-	redis->nslots++;
-	return 0;
-    }
-    return -ENOMEM;
-}
-
-redisSlots *
-redisSlotsInit(dict *config, void *events)
-{
-    redisSlotRange	*range;
-    redisSlots		*slots;
-    int			i = 0, start, space, nservers = 0;
-    sds			servers, *specs = NULL;
-
-    if ((slots = (redisSlots *)calloc(1, sizeof(redisSlots))) == NULL)
-	return NULL;
-
-    slots->events = events;
-    slots->keymap = dictCreate(&sdsKeyDictCallBacks, "keymap");
-    slots->contexts = dictCreate(&sdsKeyDictCallBacks, "contexts");
-
-    servers = pmIniFileLookup(config, "pmseries", "servers");
-    if ((servers == NULL) ||
-	!(specs = sdssplitlen(servers, sdslen(servers), ",", 1, &nservers))) {
-	if ((range = calloc(1, sizeof(redisSlotRange))) == NULL)
-	    goto fail;
-
-	/* use the default Redis server if none specified */
-	range->primary.hostspec = sdsnew(default_server);
-	range->start = 0;
-	range->end = MAXSLOTS;
-	redisSlotRangeInsert(slots, range);
-	return slots;
-    }
-
-    /* given a list of one or more servers, share the slot range */
-    start = 0;
-    space = MAXSLOTS / nservers;
-
-    for (i = 0; i < nservers; i++) {
-	if ((range = calloc(1, sizeof(redisSlotRange))) == NULL)
-	    goto fail;
-
-	range->primary.hostspec = specs[i];
-	range->start = start;
-	range->end = (i == nservers - 1) ? MAXSLOTS : space * (i + 1);
-	redisSlotRangeInsert(slots, range);
-
-	start += space + 1;	/* prepare for next iteration */
-    }
-    free(specs);
-    return slots;
-
-fail:
-    while (i < nservers)
-	sdsfree(specs[i++]);
-    free(specs);
-    redisSlotsFree(slots);
-    return NULL;
-}
-
-static void
-redisSlotServerFree(redisSlots *pool, redisSlotServer *server)
-{
-    redisAsyncContext	*context = NULL;
-    dictEntry		*entry;
-    sds			hostspec;
-
-    if ((hostspec = server->hostspec) != NULL) {
-	/* check the context map to ensure no dangling references */
-	if ((entry = dictUnlink(pool->contexts, hostspec)) != NULL) {
-	    if (pmDebugOptions.series)
-		fprintf(stderr, "%s: %s\n", "redisSlotServerFree", hostspec);
-	    context = dictGetVal(entry);
-	    dictFreeUnlinkedEntry(pool->contexts, entry);
-	    (context->c).flags &= ~REDIS_NO_AUTO_FREE;
-	    redisAsyncDisconnect(context);
-	}
-	sdsfree(hostspec);
-    } else if ((context = server->redis) != NULL) {
-	(context->c).flags &= ~REDIS_NO_AUTO_FREE;
-	redisAsyncDisconnect(context);
-    }
-    memset(server, 0, sizeof(*server));
-}
-
-void
-redisSlotRangeClear(redisSlots *pool, redisSlotRange *range)
-{
-    int			i;
-
-    redisSlotServerFree(pool, &range->primary);
-    for (i = 0; i < range->nreplicas; i++)
-	redisSlotServerFree(pool, &range->replicas[i]);
-    free(range->replicas);
-    memset(range, 0, sizeof(*range));
-}
-
-void
-redisSlotsClear(redisSlots *pool)
-{
-    void		*root = pool->slots;
-    redisSlotRange	*range;
-
-    while (root != NULL) {
-	range = *(redisSlotRange **)root;
-	tdelete(range, &root, slotsCompare);
-	redisSlotRangeClear(pool, range);
-	free(range);
-    }
-    pool->slots = NULL;
-    pool->nslots = 0;
-}
-
-void
-redisSlotsFree(redisSlots *pool)
-{
-    redisSlotsClear(pool);
-    dictRelease(pool->keymap);
-    dictRelease(pool->contexts);
-    memset(pool, 0, sizeof(*pool));
-    free(pool);
-}
-
-/*
- * Hash slot lookup based on the Redis cluster specification.
- */
-static unsigned int
-keySlot(const char *key, unsigned int keylen)
-{
-    int			start, end;	/* curly brace indices */
-
-    for (start = 0; start < keylen; start++)
-	if (key[start] == '{')
-	    break;
-
-    /* No curly braces - hash the entire key */
-    if (start == keylen)
-	return crc16(key, keylen) & SLOTMASK;
-
-    /* Start curly found - check if we have an end brace */
-    for (end = start + 1; end < keylen; end++)
-	if (key[end] == '}')
-	    break;
-
-    /* No end brace, or nothing in-between, use full key */
-    if (end == keylen || end == start + 1)
-	return crc16(key, keylen) & SLOTMASK;
-
-    /* Hash the key content in-between the braces */
-    return crc16(key + start + 1, end - start - 1) & SLOTMASK;
-}
 
 static void
 redis_connect_callback(const redisAsyncContext *redis, int status)
@@ -240,214 +64,178 @@ redis_disconnect_callback(const redisAsyncContext *redis, int status)
     }
 }
 
-static redisAsyncContext *
-redis_connect(const char *server)
+redisSlots *
+redisSlotsInit(dict *config, void *events)
 {
-    redisOptions	options = { .options = REDIS_OPT_NOAUTOFREE };
-    char		hostname[MAXHOSTNAMELEN];
-    char		*endnum, *p;
-    unsigned int	port;
-
-    if (server == NULL)
-	server = default_server;
-    if (strncmp(server, "unix:", 5) != 0) {
-	pmsprintf(hostname, sizeof(hostname), "%s", server);
-	if ((p = rindex(hostname, ':')) == NULL) {
-	    port = 6379;  /* default Redis port */
-	} else {
-	    port = (unsigned int)strtoul(p + 1, &endnum, 10);
-	    if (*endnum != '\0')
-		port = 6379;
-	    else
-		*p = '\0';
-	}
-	REDIS_OPTIONS_SET_TCP(&options, hostname, port);
-    } else {
-	REDIS_OPTIONS_SET_UNIX(&options, server + 5);
-    }
-    return redisAsyncConnectWithOptions(&options);
-}
-
-redisAsyncContext *
-redisAttach(redisSlots *slots, const char *server)
-{
-    redisAsyncContext	*redis = redis_connect(server);
-
-    if (redis) {
-	redis->data = (void *)slots;
-	redisEventAttach(redis, slots->events);
-	redisAsyncSetConnectCallBack(redis, redis_connect_callback);
-	redisAsyncSetDisconnectCallBack(redis, redis_disconnect_callback);
-    }
-    return redis;
-}
-
-redisAsyncContext *
-redisGetAsyncContextByHost(redisSlots *slots, sds hostspec)
-{
-    redisAsyncContext	*context;
+    redisSlots		*slots;
+    dictIterator	*iterator;
     dictEntry		*entry;
+    sds			servers = NULL;
+    int			sts = 0;
+    struct timeval	connection_timeout = {5, 0}; // 5s
+    struct timeval	command_timeout = {60, 0}; // 1m
 
-    if ((entry = dictFind(slots->contexts, hostspec)) != NULL)
-	return (redisAsyncContext *)dictGetVal(entry);
-    context = redisAttach(slots, hostspec);
-    dictAdd(slots->contexts, hostspec, (void *)context);
-    return context;
-}
-
-redisAsyncContext *
-redisGetAsyncContextBySlot(redisSlots *slots, unsigned int slot)
-{
-    redisSlotServer	*server;
-    redisSlotRange	*range, s = {.start = slot, .end = slot};
-    void		*p;
-
-    p = tfind((const void *)&s, (void **)&slots->slots, slotsCompare);
-    if (p == NULL)
+    slots = (redisSlots *)calloc(1, sizeof(redisSlots));
+    if (slots == NULL) {
 	return NULL;
-    range = *(redisSlotRange **)p;
+    }
 
-#if 1
-    server = &range->primary;
-#else
-    /*
-     * Using replicas seems to always invoke cluster MOVED responses back
-     * to the primary even for read-only requests, which was not the plan
-     * (leads to worse performance not better), so this is disabled until
-     * further analysis is done as to why that may be.
-     */
-    range->counter++;
-    server = (range->nreplicas == 0) ? &range->primary :
-	     &range->replicas[range->counter % range->nreplicas];
-#endif
-    if (server->redis == NULL)
-	server->redis = redisGetAsyncContextByHost(slots, server->hostspec);
+    slots->setup = 0;
+    slots->events = events;
+    slots->keymap = dictCreate(&sdsKeyDictCallBacks, "keymap");
 
-    if (UNLIKELY(pmDebugOptions.series))
-	fprintf(stderr, "Redis [slot=%05u] %s\n", slot, server->hostspec);
+    servers = pmIniFileLookup(config, "pmseries", "servers");
+    if (servers == NULL)
+        servers = sdsnew(default_server);
 
-    return server->redis;
+    slots->acc = redisClusterAsyncContextInit();
+    if (slots->acc && slots->acc->err) {
+        pmNotifyErr(LOG_ERR, "redisSlotsInit: %s\n", slots->acc->errstr);
+        return slots;
+    }
+
+    sts = redisClusterSetOptionAddNodes(slots->acc->cc, servers);
+    if (sts != REDIS_OK) {
+	pmNotifyErr(LOG_ERR, "redisSlotsInit: failed to add redis nodes: %s\n", slots->acc->cc->errstr);
+	return slots;
+    }
+
+    sts = redisClusterSetOptionConnectTimeout(slots->acc->cc, connection_timeout);
+    if (sts != REDIS_OK) {
+	pmNotifyErr(LOG_ERR, "redisSlotsInit: failed to set connect timeout: %s\n", slots->acc->errstr);
+	return slots;
+    }
+
+    sts = redisClusterSetOptionTimeout(slots->acc->cc, command_timeout);
+    if (sts != REDIS_OK) {
+	pmNotifyErr(LOG_ERR, "redisSlotsInit: failed to set command timeout: %s\n", slots->acc->cc->errstr);
+	return slots;
+    }
+
+    sts = redisClusterLibuvAttach(slots->acc, slots->events);
+    if (sts != REDIS_OK) {
+	pmNotifyErr(LOG_ERR, "redisSlotsInit: failed to attach to libuv event loop: %s\n", slots->acc->errstr);
+	return slots;
+    }
+
+    sts = redisClusterAsyncSetConnectCallback(slots->acc, redis_connect_callback);
+    if (sts != REDIS_OK) {
+	pmNotifyErr(LOG_ERR, "redisSlotsInit: failed to set connect callback: %s\n", slots->acc->errstr);
+	return slots;
+    }
+
+    sts = redisClusterAsyncSetDisconnectCallback(slots->acc, redis_disconnect_callback);
+    if (sts != REDIS_OK) {
+	pmNotifyErr(LOG_ERR, "redisSlotsInit: failed to set disconnect callback: %s\n", slots->acc->errstr);
+	return slots;
+    }
+
+    sts = redisClusterConnect2(slots->acc->cc);
+    if (sts == REDIS_OK) {
+	slots->cluster_mode = 1;
+    }
+    else if (strcmp(slots->acc->cc->errstr, REDIS_ENOCLUSTER) == 0) {
+	// This instance has cluster support disabled
+	slots->acc->cc->err = 0;
+	memset(slots->acc->cc->errstr, '\0', strlen(slots->acc->cc->errstr));
+	slots->cluster_mode = 0;
+
+	// sanity check: show error message if more than one node is configured, but cluster mode is disabled
+	// otherwise all other nodes silently don't get any data
+	iterator = dictGetSafeIterator(slots->acc->cc->nodes);
+	entry = dictNext(iterator);
+	if (entry && dictNext(iterator)) {
+	    dictReleaseIterator(iterator);
+	    pmNotifyErr(LOG_ERR, "Redis: more than one node is configured, but Redis cluster mode is disabled");
+	    return slots;
+	}
+	dictReleaseIterator(iterator);
+    }
+    else {
+        pmNotifyErr(LOG_INFO, "Cannot connect to Redis at %s: %s. Disabling time series functionality.\n", servers, slots->acc->cc->errstr);
+        return slots;
+    }
+
+    slots->setup = 1;
+    return slots;
 }
 
-redisAsyncContext *
-redisGetAsyncContext(redisSlots *slots, sds key, const char *topic)
+void
+redisSlotsFree(redisSlots *slots)
 {
-    unsigned int	slot;
-
-    if (LIKELY(key))
-	slot = keySlot(key, sdslen(key));	/* cluster specification */
-    else if (slots->nslots)
-	slot = slots->counter++ % slots->nslots;	/* round-robin */
-    else
-	slot = 0;						/* ? */
-
-    if (UNLIKELY(pmDebugOptions.series))
-	fprintf(stderr, "Redis [slot=%05u] %s %s\n", slot, topic, key);
-
-    return redisGetAsyncContextBySlot(slots, slot);
+    redisClusterAsyncDisconnect(slots->acc);
+    redisClusterAsyncFree(slots->acc);
+    dictRelease(slots->keymap);
+    memset(slots, 0, sizeof(*slots));
+    free(slots);
 }
 
 /*
  * Submit an arbitrary request to a (set of) Redis instance(s).
  * The given key is used to determine the slot used, as per the
  * cluster specification - https://redis.io/topics/cluster-spec
+ * 
+ * Serves mainly as a wrapper to redisClusterAsyncFormattedCommand
+ * including debug output and error handling
  */
 int
-redisSlotsRequest(redisSlots *slots, const char *topic,
-		const sds key, const sds cmd, redisAsyncCallBack *callback, void *arg)
+redisSlotsRequest(redisSlots *slots, const sds cmd,
+		redisClusterCallbackFn *callback, void *arg)
 {
-    redisAsyncContext	*context = redisGetAsyncContext(slots, key, topic);
     int			sts;
 
-    if (UNLIKELY(pmDebugOptions.desperate))
-	fputs(cmd, stderr);
-    if (UNLIKELY(!key && !slots->setup)) {
-	/*
-	 * First request must be CLUSTER, PING, or similar - must
-	 * not allow regular requests until these have completed.
-	 * This is because the low layers accumulate async requests
-	 * until connection establishment, which might not happen.
-	 * Over time this becomes a memory leak - if we do not ever
-	 * establish an initial connection).
-	 */
-	if (strcmp(topic, CLUSTER) != 0 &&
-	    strcmp(topic, PING) != 0 && strcmp(topic, INFO) != 0) {
-	    sdsfree(cmd);
-	    return -ENOTCONN;
-	}
-    }
+    if (UNLIKELY(!slots->setup))
+        return -ENOTCONN;
 
-    sts = redisAsyncFormattedCommand(context, callback, cmd, arg);
-    if (key)
-	sdsfree(key);
-    if (sts != REDIS_OK)
+    if (!slots->cluster_mode)
+	return redisSlotsRequestFirstNode(slots, cmd, callback, arg);
+
+    if (UNLIKELY(pmDebugOptions.desperate))
+	fprintf(stderr, "Sending raw redis command:\n%s", cmd);
+
+    sts = redisClusterAsyncFormattedCommand(slots->acc, callback, arg, cmd, sdslen(cmd));
+    if (sts != REDIS_OK) {
+        pmNotifyErr(LOG_ERR, "redisSlotsRequest: %s (%s)\n", slots->acc->errstr, cmd);
 	return -ENOMEM;
-    return 0;
+    }
+    return REDIS_OK;
 }
 
-/*
- * Given a Redis reply, check whether this is a cluster redirect
- * response.  If so, decode the target server and resend command
- * to the specified server.  If not, release the command memory.
- */
 int
-redisSlotsRedirect(redisSlots *slots, redisReply *reply,
-		void *userdata, redisInfoCallBack info, const sds cmd,
-		redisAsyncCallBack *callback, void *arg)
+redisSlotsRequestFirstNode(redisSlots *slots, const sds cmd,
+		redisClusterCallbackFn *callback, void *arg)
 {
-    redisAsyncContext	*context;
-    const char		*slot, *p;
-    sds			hostspec, msg;
-    int			moved = 0, asked = 0, len, sts = -1;
+    dictIterator	*iterator;
+    dictEntry		*entry;
+    int			sts;
 
-    if (LIKELY(reply == NULL || reply->type != REDIS_REPLY_ERROR))
-	goto complete;
+    if (UNLIKELY(!slots->setup))
+        return -ENOTCONN;
 
-    /* Redirection and resharding - resubmit cmd/cb/arg to new server */
-    p = reply->str;
-    if (strncmp(p, "MOVED ", sizeof("MOVED")) == 0)
-	moved = sizeof("MOVED");
-    else if (strncmp(p, "ASK ", sizeof("ASK")) == 0)
-	asked = sizeof("ASK");
-
-    if (moved || asked) {
-	if (moved)
-	    slots->refresh = 1;
-	slot = (p += (moved + asked));
-	while (isdigit((int)(*p)))	/* skip over slot# */
-	    p++;
-	len = p - slot;
-	while (isspace((int)(*p)))	/* skip over space */
-	    p++;
-
-	hostspec = sdsnew(p);
-	if (pmDebugOptions.series) {
-	    fprintf(stderr, "redisSlotsRedirect: send to slot %.*s (%s)\n",
-			    len, slot, hostspec);
-	}
-	context = redisGetAsyncContextByHost(slots, hostspec);
-	sdsfree(hostspec);
-	sts = redisAsyncFormattedCommand(context, callback, cmd, arg);
-	if (sts == REDIS_OK)
-	    return 1;
-
-	infofmt(msg, "Request redirection to instance %s failed", p);
-	info(PMLOG_REQUEST, msg, userdata);
-	sdsfree(msg);
-	sts = 0;
+    iterator = dictGetSafeIterator(slots->acc->cc->nodes);
+    entry = dictNext(iterator);
+    dictReleaseIterator(iterator);
+    if (!entry) {
+	pmNotifyErr(LOG_ERR, "redisSlotsRequestFirstNode: No Redis node configured.\n");
+	return REDIS_ERR;
     }
 
-complete:
-    sdsfree(cmd);
-    return sts;
+    if (UNLIKELY(pmDebugOptions.desperate))
+	fprintf(stderr, "Sending raw redis command to first node:\n%s", cmd);
+
+    sts = redisClusterAsyncFormattedCommandToNode(slots->acc, dictGetVal(entry), callback, arg, cmd, sdslen(cmd));
+    if (sts != REDIS_OK) {
+	pmNotifyErr(LOG_ERR, "redisSlotsRequestFirstNode: %s (%s)\n", slots->acc->errstr, cmd);
+	return -ENOMEM;
+    }
+    return REDIS_OK;
 }
 
 int
 redisSlotsProxyConnect(redisSlots *slots, redisInfoCallBack info,
 	redisReader **readerp, const char *buffer, ssize_t nread,
-	redisAsyncCallBack *callback, void *arg)
+	redisClusterCallbackFn *callback, void *arg)
 {
-    redisAsyncContext	*context;
     redisReader		*reader = *readerp;
     redisReply		*reply = NULL;
     dictEntry		*entry;
@@ -482,13 +270,20 @@ redisSlotsProxyConnect(redisSlots *slots, redisInfoCallBack info,
 	    if (position < reply->elements)
 		key = sdsnew(reply->element[position]->str);
 	}
-	context = redisGetAsyncContext(slots, key, cmd);
-	sdsfree(key);
 	sdsfree(cmd);
 	cmd = sdsnewlen(reader->buf + offset, sdslen(reader->buf) - length);
-	sts = redisAsyncFormattedCommand(context, callback, cmd, arg);
-	if (sts != REDIS_OK)
-	    return -EPROTO;
+	if (key != NULL && position > 0)
+	    sts = redisSlotsRequest(slots, cmd, callback, arg);
+	else
+	    sts = redisSlotsRequestFirstNode(slots, cmd, callback, arg);
+	sdsfree(key);
+	if (sts != REDIS_OK) {
+	    redisReply *errorReply = calloc(1, sizeof(redisReply));
+	    errorReply->type = REDIS_REPLY_ERROR;
+	    errorReply->str = slots->acc->errstr;
+	    errorReply->len = strlen(slots->acc->errstr);
+	    callback(slots->acc, errorReply, arg);
+	}
     }
     return 0;
 }

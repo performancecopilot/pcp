@@ -104,7 +104,7 @@ void listClusterNodeDestructor(void *val) {
 
 void listClusterSlotDestructor(void *val) { cluster_slot_destroy(val); }
 
-unsigned int dictSdsHash(const void *key) {
+uint64_t dictSdsHash(const void *key) {
     return dictGenHashFunction((unsigned char *)key, sdslen((char *)key));
 }
 
@@ -238,7 +238,7 @@ static void __redisClusterSetError(redisClusterContext *cc, int type,
     } else {
         /* Only REDIS_ERR_IO may lack a description! */
         assert(type == REDIS_ERR_IO);
-        strerror_r(errno, cc->errstr, sizeof(cc->errstr));
+        __redis_strerror_r(errno, cc->errstr, sizeof(cc->errstr));
     }
 }
 
@@ -2366,7 +2366,7 @@ static cluster_node *node_get_by_ask_error_reply(redisClusterContext *cc,
                 part[1] = NULL;
                 ip_port[0] = NULL;
             } else {
-                node = de->val;
+                node = dictGetVal(de);
                 goto done;
             }
         } else {
@@ -3646,7 +3646,7 @@ static void __redisClusterAsyncSetError(redisClusterAsyncContext *acc, int type,
     } else {
         /* Only REDIS_ERR_IO may lack a description! */
         assert(type == REDIS_ERR_IO);
-        strerror_r(errno, acc->errstr, sizeof(acc->errstr));
+        __redis_strerror_r(errno, acc->errstr, sizeof(acc->errstr));
     }
 }
 

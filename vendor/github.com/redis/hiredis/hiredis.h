@@ -32,6 +32,13 @@
  */
 
 #ifndef __HIREDIS_H
+
+/* if _GNU_SOURCE is set, the strerror_r function behaves weird
+ * and (sometimes?) ignores the buf parameter
+ * workaround this by using PCP's error functions */
+extern char *pmErrStr_r(int, char *, int);
+#define __redis_strerror_r(errno, buf, len) pmErrStr_r(-(errno), (buf), (len))
+
 #define __HIREDIS_H
 #include "read.h"
 #include <stdarg.h> /* for va_list */

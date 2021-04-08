@@ -3,9 +3,6 @@ QA output created by 1602
 PING1
 PONG
 
-PING2
-PONG
-
 == start pmproxy
 PING_PROXY
 PONG
@@ -29,8 +26,15 @@ sample.long.ten
 == redis-cli empty key set
 
 
-== redis-cli handle errors
+== redis-cli handle errors 1
 ERR wrong number of arguments for 'get' command
+
+
+== redis-cli handle errors 2
+ERR syntax error
+
+
+== redis-cli nonexistant key
 
 
 == all done

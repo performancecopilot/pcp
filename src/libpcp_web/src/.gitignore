@@ -1,3 +1,4 @@
+deps/
 sds.c
 ini.c
 ini.h

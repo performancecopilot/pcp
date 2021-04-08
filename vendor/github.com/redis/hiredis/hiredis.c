@@ -37,6 +37,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <ctype.h>
+#include <limits.h>
 
 #include "hiredis.h"
 #include "net.h"
@@ -675,7 +676,7 @@ void __redisSetError(redisContext *c, int type, const char *str) {
     } else {
         /* Only REDIS_ERR_IO may lack a description! */
         assert(type == REDIS_ERR_IO);
-        strerror_r(errno, c->errstr, sizeof(c->errstr));
+        __redis_strerror_r(errno, c->errstr, sizeof(c->errstr));
     }
 }
 
@@ -976,7 +977,8 @@ int redisBufferWrite(redisContext *c, int *done) {
                 if (c->obuf == NULL)
                     goto oom;
             } else {
-                if (sdsrange(c->obuf,nwritten,-1) < 0) goto oom;
+                if (sdslen(c->obuf) > SSIZE_MAX) goto oom;
+                sdsrange(c->obuf,nwritten,-1);
             }
         }
     }
