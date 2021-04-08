@@ -136,7 +136,7 @@ static void
 on_redis_connected(void *arg)
 {
     struct proxy	*proxy = (struct proxy *)arg;
-    mmv_registry_t	*metric_registry = proxymetrics(proxy, METRICS_DISCOVER);
+    mmv_registry_t	*discover_metric_registry = proxymetrics(proxy, METRICS_DISCOVER);
     sds			message;
 
     message = sdsnew("Redis slots");
@@ -160,7 +160,7 @@ on_redis_connected(void *arg)
     if (archive_discovery && (series_queries || search_queries)) {
 	pmDiscoverSetEventLoop(&redis_discover.module, proxy->events);
 	pmDiscoverSetConfiguration(&redis_discover.module, proxy->config);
-	pmDiscoverSetMetricRegistry(&redis_discover.module, metric_registry);
+	pmDiscoverSetMetricRegistry(&redis_discover.module, discover_metric_registry);
 	pmDiscoverSetup(&redis_discover.module, &redis_discover.callbacks, proxy);
 	pmDiscoverSetSlots(&redis_discover.module, proxy->slots);
     }
@@ -212,5 +212,5 @@ close_redis_module(struct proxy *proxy)
     if (archive_discovery)
 	pmDiscoverClose(&redis_discover.module);
 
-    proxymetrics_close(proxy, METRICS_REDIS);
+    proxymetrics_close(proxy, METRICS_DISCOVER);
 }

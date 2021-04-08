@@ -1043,9 +1043,9 @@ process_metadata(pmDiscover *p)
     if (pmDebugOptions.discovery)
 	fprintf(stderr, "process_metadata: %s in progress %s\n",
 		p->context.name, pmDiscoverFlagsStr(p));
-    pmDiscoverStatsAdd(p->module, "discover.metadata.callbacks", NULL, 1);
+    pmDiscoverStatsAdd(p->module, "metadata.callbacks", NULL, 1);
     for (;;) {
-	pmDiscoverStatsAdd(p->module, "discover.metadata.loops", NULL, 1);
+	pmDiscoverStatsAdd(p->module, "metadata.loops", NULL, 1);
 	off = lseek(p->fd, 0, SEEK_CUR);
 	nb = read(p->fd, &hdr, sizeof(__pmLogHdr));
 
@@ -1103,7 +1103,7 @@ process_metadata(pmDiscover *p)
 	    /* decode pmDesc result from PDU buffer */
 	    nnames = 0;
 	    names = NULL;
-	    pmDiscoverStatsAdd(p->module, "discover.metadata.decode.desc", NULL, 1);
+	    pmDiscoverStatsAdd(p->module, "metadata.decode.desc", NULL, 1);
 	    if ((e = pmDiscoverDecodeMetaDesc(buf, len, &desc, &nnames, &names)) < 0) {
 		if (pmDebugOptions.discovery)
 		    fprintf(stderr, "%s failed: err=%d %s\n",
@@ -1128,7 +1128,7 @@ process_metadata(pmDiscover *p)
 
 	case TYPE_INDOM:
 	    /* decode indom result from buffer */
-	    pmDiscoverStatsAdd(p->module, "discover.metadata.decode.indom", NULL, 1);
+	    pmDiscoverStatsAdd(p->module, "metadata.decode.indom", NULL, 1);
 	    if ((e = pmDiscoverDecodeMetaInDom(buf, len, &ts, &inresult)) < 0) {
 		if (pmDebugOptions.discovery)
 		    fprintf(stderr, "%s failed: err=%d %s\n",
@@ -1140,7 +1140,7 @@ process_metadata(pmDiscover *p)
 
 	case TYPE_LABEL:
 	    /* decode labelset from buffer */
-	    pmDiscoverStatsAdd(p->module, "discover.metadata.decode.label", NULL, 1);
+	    pmDiscoverStatsAdd(p->module, "metadata.decode.label", NULL, 1);
 	    if ((e = pmDiscoverDecodeMetaLabelSet(buf, len, &ts, &id, &type, &nsets, &labelset)) < 0) {
 		if (pmDebugOptions.discovery)
 		    fprintf(stderr, "%s failed: err=%d %s\n",
@@ -1175,7 +1175,7 @@ process_metadata(pmDiscover *p)
 		fprintf(stderr, "TEXT\n");
 	    /* decode help text from buffer */
 	    buffer = NULL;
-	    pmDiscoverStatsAdd(p->module, "discover.metadata.decode.helptext", NULL, 1);
+	    pmDiscoverStatsAdd(p->module, "metadata.decode.helptext", NULL, 1);
 	    if ((e = pmDiscoverDecodeMetaHelpText(buf, len, &type, &id, &buffer)) < 0) {
 		if (pmDebugOptions.discovery)
 		    fprintf(stderr, "%s failed: err=%d %s\n",
@@ -1220,12 +1220,12 @@ static void
 bump_logvol_decode_stats(pmDiscover *p, pmResult *r)
 {
     if (r->numpmid == 0)
-	pmDiscoverStatsAdd(p->module, "discover.logvol.decode.mark_record", NULL, 1);
+	pmDiscoverStatsAdd(p->module, "logvol.decode.mark_record", NULL, 1);
     else if (r->numpmid < 0)
-	pmDiscoverStatsAdd(p->module, "discover.logvol.decode.error_result", NULL, 1);
+	pmDiscoverStatsAdd(p->module, "logvol.decode.error_result", NULL, 1);
     else {
-	pmDiscoverStatsAdd(p->module, "discover.logvol.decode.result", NULL, 1);
-	pmDiscoverStatsAdd(p->module, "discover.logvol.decode.result_pmids", NULL, r->numpmid);
+	pmDiscoverStatsAdd(p->module, "logvol.decode.result", NULL, 1);
+	pmDiscoverStatsAdd(p->module, "logvol.decode.result_pmids", NULL, r->numpmid);
     }
 }
 
@@ -1243,9 +1243,9 @@ process_logvol(pmDiscover *p)
     __pmContext		*ctxp;
     __pmArchCtl		*acp;
 
-    pmDiscoverStatsAdd(p->module, "discover.logvol.callbacks", NULL, 1);
+    pmDiscoverStatsAdd(p->module, "logvol.callbacks", NULL, 1);
     for (;;) {
-	pmDiscoverStatsAdd(p->module, "discover.logvol.loops", NULL, 1);
+	pmDiscoverStatsAdd(p->module, "logvol.loops", NULL, 1);
 	pmUseContext(p->ctx);
 	ctxp = __pmHandleToPtr(p->ctx);
 	acp = ctxp->c_archctl;
@@ -1260,7 +1260,7 @@ process_logvol(pmDiscover *p)
 	    if (oldcurvol < acp->ac_curvol) {
 	    	__pmLogChangeVol(acp, acp->ac_curvol);
 		acp->ac_offset = 0; /* __pmLogFetch will fix it up */
-		pmDiscoverStatsAdd(p->module, "discover.logvol.change_vol", NULL, 1);
+		pmDiscoverStatsAdd(p->module, "logvol.change_vol", NULL, 1);
 	    }
 	    PM_UNLOCK(ctxp->c_lock);
 
@@ -1349,7 +1349,7 @@ pmDiscoverInvokeCallBacks(pmDiscover *p)
 		}
 		return;
 	    }
-	    pmDiscoverStatsAdd(p->module, "discover.logvol.new_contexts", NULL, 1);
+	    pmDiscoverStatsAdd(p->module, "logvol.new_contexts", NULL, 1);
 	    p->ctx = sts;
 
 	    if ((sts = pmGetArchiveEnd(&tvp)) < 0) {
@@ -1359,7 +1359,7 @@ pmDiscoverInvokeCallBacks(pmDiscover *p)
 		moduleinfo(p->module, PMLOG_ERROR, msg, p->data);
 		pmDestroyContext(p->ctx);
 		p->ctx = -1;
-		pmDiscoverStatsAdd(p->module, "discover.logvol.get_archive_end_failed", NULL, 1);
+		pmDiscoverStatsAdd(p->module, "logvol.get_archive_end_failed", NULL, 1);
 
 		return;
 	    }
@@ -1474,7 +1474,7 @@ changed_callback(pmDiscover *p)
 {
     int n_monitored, n_purged;
 
-    pmDiscoverStatsAdd(p->module, "discover.changed_callbacks", NULL, 1);
+    pmDiscoverStatsAdd(p->module, "changed_callbacks", NULL, 1);
     if (pmDebugOptions.discovery)
 	fprintf(stderr, "CHANGED %s (%s)\n", p->context.name,
 			pmDiscoverFlagsStr(p));
@@ -1514,11 +1514,11 @@ changed_callback(pmDiscover *p)
 
 	/* finally, purge deleted entries (globally), if any */
 	n_purged = pmDiscoverPurgeDeleted();
-	pmDiscoverStatsAdd(p->module, "discover.purged", NULL, n_purged);
+	pmDiscoverStatsAdd(p->module, "purged", NULL, n_purged);
     }
 
     n_monitored = pmDiscoverTraverse(PM_DISCOVER_FLAGS_ALL, NULL);
-    pmDiscoverStatsSet(p->module, "discover.monitored", NULL, n_monitored);
+    pmDiscoverStatsSet(p->module, "monitored", NULL, n_monitored);
 
     if (pmDebugOptions.discovery) {
 	fprintf(stderr, "%s -- tracking status\n", stamp());
