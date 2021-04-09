@@ -338,17 +338,39 @@ pmUnitsStr(const pmUnits *pu)
 
 /* Scale conversion, based on value format, value type and scale */
 int
-pmConvScale(int type, const pmAtomValue * ival, const pmUnits * iunit, pmAtomValue * oval, const pmUnits * ounit)
+pmConvScale(int type, const pmAtomValue *ival, const pmUnits *iunit_arg, pmAtomValue *oval, const pmUnits *ounit_arg)
 {
     int sts;
     int k;
     __int64_t div, mult;
     __int64_t d, m;
     char strbuf[80];
+    pmUnits	*iunit = (pmUnits *)iunit_arg;
+    pmUnits	*ounit = (pmUnits *)ounit_arg;
+    pmUnits	ispecial;
+    pmUnits	ospecial;
 
     if (pmDebugOptions.value) {
 	fprintf(stderr, "pmConvScale: %s", pmAtomStr_r(ival, type, strbuf, sizeof(strbuf)));
 	fprintf(stderr, " [%s]", pmUnitsStr_r(iunit, strbuf, sizeof(strbuf)));
+    }
+
+    /*
+     * special case ... if all components of the dimension are zero
+     * (dimension "none"), then treat this as the dimension of "count"
+     */
+    if (iunit->dimSpace == 0 && iunit->dimTime == 0 && iunit->dimCount == 0) {
+	ispecial = *iunit_arg;
+	iunit = &ispecial;
+	iunit->dimCount = 1;
+	if (pmDebugOptions.value) {
+	    fprintf(stderr, " defaults to [%s]", pmUnitsStr_r(iunit, strbuf, sizeof(strbuf)));
+	}
+    }
+    if (ounit->dimSpace == 0 && ounit->dimTime == 0 && ounit->dimCount == 0) {
+	ospecial = *ounit_arg;
+	ounit = &ospecial;
+	ounit->dimCount = 1;
     }
 
     if (iunit->dimSpace != ounit->dimSpace || iunit->dimTime != ounit->dimTime || iunit->dimCount != ounit->dimCount) {
@@ -558,7 +580,10 @@ pmConvScale(int type, const pmAtomValue * ival, const pmUnits * iunit, pmAtomVal
 
     if (pmDebugOptions.value) {
 	fprintf(stderr, " -> %s", pmAtomStr_r(oval, type, strbuf, sizeof(strbuf)));
-	fprintf(stderr, " [%s]\n", pmUnitsStr_r(ounit, strbuf, sizeof(strbuf)));
+	fprintf(stderr, " [%s]", pmUnitsStr_r(ounit_arg, strbuf, sizeof(strbuf)));
+	if (ounit != ounit_arg)
+	    fprintf(stderr, " defaults to [%s]", pmUnitsStr_r(ounit, strbuf, sizeof(strbuf)));
+	fputc('\n', stderr);
     }
     return 0;
 
@@ -566,7 +591,10 @@ bad:
     if (pmDebugOptions.value) {
 	char errmsg[PM_MAXERRMSGLEN];
 	fprintf(stderr, " -> Error: %s", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
-	fprintf(stderr, " [%s]\n", pmUnitsStr_r(ounit, strbuf, sizeof(strbuf)));
+	fprintf(stderr, " [%s]", pmUnitsStr_r(ounit_arg, strbuf, sizeof(strbuf)));
+	if (ounit != ounit_arg)
+	    fprintf(stderr, " defaults to [%s]", pmUnitsStr_r(ounit, strbuf, sizeof(strbuf)));
+	fputc('\n', stderr);
     }
     return sts;
 }

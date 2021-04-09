@@ -1,0 +1,69 @@
+#!/bin/sh
+# PCP QA Test No. 1311
+# Marko's "Number of user space processes" issue
+#
+# see qa/1312 for the valgrind version of this test
+#
+# Copyright (c) 2021 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e 's/a/a/' \
+    # end
+}
+
+cat <<'End-of-File' >$tmp.derived
+qa.a = proc.nprocs
+qa.b = proc.runq.kernel
+qa.c = proc.nprocs - proc.runq.kernel
+qa.d = rescale(proc.nprocs, "count") - proc.runq.kernel
+qa.e = proc.runq.runnable + proc.runq.blocked + proc.runq.sleeping + proc.runq.stopped + proc.runq.swapped + proc.runq.defunct + proc.runq.unknown
+End-of-File
+
+# real QA test starts here
+
+export PCP_DERIVED_CONFIG=$tmp.derived
+if $do_valgrind
+then
+    _run_valgrind pmdumptext -z -a archives/runq qa.a qa.b qa.c qa.d qa.e
+else
+    pmdumptext -z -a archives/runq qa.a qa.b qa.c qa.d qa.e
+fi \
+| _filter
+
+# success, all done
+exit

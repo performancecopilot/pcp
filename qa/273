@@ -269,6 +269,13 @@ src/grind_conv 3 0 0:1:0:0:1:0 0:2:0:0:1:0
 echo "--- units.c error case 48 ---"
 src/grind_conv 8 0 0:1:0:0:1:0 0:1:0:0:1:0
 
+# test the default pmUnits mapping
+#
+echo "--- default pmUnits none -> count"
+src/grind_conv 3 123456 0:0:0:0:0:0 0:0:1:0:0:0
+echo "--- default pmUnits count -> none"
+src/grind_conv 3 123456 0:0:1:0:0:0 0:0:0:0:0:0
+
 # units.c using src/xval
 #
 echo

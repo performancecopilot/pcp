@@ -1867,6 +1867,12 @@ pmConvScale Error: Impossible value or scale conversion
 --- units.c error case 48 ---
 type=8 input units=microsec value=[type=AGGREGATE_STATIC len=1] 30
 pmConvScale Error: Impossible value or scale conversion
+--- default pmUnits none -> count
+type=3 input units= value=123456
+output units=count value=123456
+--- default pmUnits count -> none
+type=3 input units=count value=123456
+output units= value=123456
 
 --- units.c case 32 ---
 pmExtractValue:  1073741823 [32] -> 1073741823 [32]
