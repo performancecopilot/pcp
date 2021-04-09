@@ -122,7 +122,8 @@ redisSlotsInit(dict *config, void *events)
     redisSlots		*slots;
     sds			servers = NULL;
     int			sts = 0;
-    struct timeval timeout = {5, 0}; // 5s
+    struct timeval	connection_timeout = {5, 0}; // 5s
+    struct timeval	command_timeout = {60, 0}; // 1m
 
     slots = (redisSlots *)calloc(1, sizeof(redisSlots));
     if (slots == NULL) {
@@ -155,9 +156,15 @@ redisSlotsInit(dict *config, void *events)
 	return slots;
     }
 
-    sts = redisClusterSetOptionConnectTimeout(slots->acc->cc, timeout);
+    sts = redisClusterSetOptionConnectTimeout(slots->acc->cc, connection_timeout);
     if (sts != REDIS_OK) {
 	fprintf(stderr, "redisSlotsInit: failed to set connect timeout\n");
+	return slots;
+    }
+
+    sts = redisClusterSetOptionTimeout(slots->acc->cc, command_timeout);
+    if (sts != REDIS_OK) {
+	fprintf(stderr, "redisSlotsInit: failed to set command timeout\n");
 	return slots;
     }
 
