@@ -1,0 +1,3 @@
+usr/bin/pcp2elasticsearch
+usr/share/bash-completion/completions/pcp2elasticsearch
+usr/share/man/man1/pcp2elasticsearch.1.gz

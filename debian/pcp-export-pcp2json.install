@@ -1,0 +1,3 @@
+usr/bin/pcp2json
+usr/share/bash-completion/completions/pcp2json
+usr/share/man/man1/pcp2json.1.gz

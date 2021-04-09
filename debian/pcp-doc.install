@@ -113,3 +113,16 @@ usr/share/pcp/demos/tutorials/diskmodel.tar.gz
 usr/share/pcp/demos/tutorials/diskperf.tar.gz
 usr/share/pcp/demos/tutorials/pmie.tar.gz
 usr/share/pcp/demos/tutorials/pmview.tar.gz
+usr/share/pcp/examples/pmie/UAG
+usr/share/pcp/examples/pmie/UPM
+usr/share/pcp/examples/pmie/CPU
+usr/share/pcp/examples/pmie/DISK
+usr/share/pcp/examples/pmie/FILESYS
+usr/share/pcp/examples/pmie/RAS
+usr/share/pcp/examples/pmie/SWAP
+usr/share/pcp/examples/pmie/NETWORK
+usr/share/pcp/examples/pmie/ENVIRON
+usr/share/pcp/examples/pmie/WEBREPORT
+usr/share/pcp/examples/pmie/README
+usr/share/pcp/examples/pcp2spark/PCP2SparkStreamCollector.python
+usr/share/pcp/examples/pcp2spark/README.md
