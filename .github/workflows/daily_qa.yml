@@ -36,6 +36,15 @@ jobs:
         with:
           python-version: '>=3.6'
 
+      - name: Update version information
+        run: |
+          . ./VERSION.pcp
+          PACKAGE_BUILD="0.$(date +'%Y%m%d').$(git rev-parse --short HEAD)"
+          PCP_VERSION=${PACKAGE_MAJOR}.${PACKAGE_MINOR}.${PACKAGE_REVISION}
+          PCP_BUILD_VERSION=${PCP_VERSION}-${PACKAGE_BUILD}
+          sed -i "s/PACKAGE_BUILD=.*/PACKAGE_BUILD=${PACKAGE_BUILD}/" VERSION.pcp
+          sed -i "1 s/(.*)/(${PCP_BUILD_VERSION})/" debian/changelog
+
       - name: Setup
         run: |
           python3 -c 'import yaml' || pip3 install pyyaml
