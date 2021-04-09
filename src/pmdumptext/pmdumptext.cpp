@@ -694,6 +694,8 @@ override(int opt, pmOptions *opts)
     return 0;
 }
 
+static char *tz_in_env;		/* for valgrind */
+
 int
 main(int argc, char *argv[])
 {
@@ -1066,8 +1068,8 @@ main(int argc, char *argv[])
     //
     if (group->defaultTZ() != QmcGroup::localTZ) {
 	tzEnv.append(tzString);
-	sts = putenv(strdup((const char *)tzEnv.toLatin1()));
-	if (sts < 0) {
+	sts = putenv((tz_in_env = strdup((const char *)tzEnv.toLatin1())));
+	if (sts < 0 || tz_in_env == NULL) {
 	    pmprintf("%s: Warning: Unable to set timezone in environment\n",
 		     pmGetProgname());
 	    sts = 0;
@@ -1131,7 +1133,7 @@ main(int argc, char *argv[])
 	fullFlag = false;
 
     if (!dumpFlag)
-	exit(0);
+	goto done;
 
     if (!isLive) {
 	int tmp_mode = PM_MODE_INTERP;
@@ -1265,6 +1267,20 @@ main(int argc, char *argv[])
 	    lines = 0;
 	}
     }
+
+done:
+
+    /*
+     * We muck with opts->archives[] indirectly, so clean up to make
+     * valgind happy ... to see why the direct free()s, are needed
+     * you'll need to inspect the source of __pmAddOptArchive() to
+     * discover that opts.archives[] contains strings that may have been
+     * malloc'd (as in this case) or may be something quite different,
+     * which is why pmFreeOptions() must take the lame path.
+     */
+    for (i = 0; i < opts.narchives; i++)
+	free(opts.archives[i]);
+    pmFreeOptions(&opts);
 
     return 0;
 }
