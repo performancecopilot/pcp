@@ -141,13 +141,14 @@ configure_tools = export DEBUG=-DNDEBUG QT_SELECT=5;
 configure_paths = --prefix=/usr --libexecdir=/usr/lib --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d --with-sysconfigdir=/etc/default
 
 checkdir = test -f debian/rules
-uninstall = cat debian/*.install | sed -e "s,^,debian/$(pcp)/," | xargs rm -f
-uninstallpy = cat python*-pcp.list | sed -e "s,^,debian/$(pcp)/," | xargs rm -fr
-uninstallpydir = ls -d debian/$(pcp)/usr/lib*/python* | xargs rm -fr
-uninstalltest = cat debian/$(pcp_testsuite).dirs | sed -e "s,^,debian/$(pcp)/," | xargs rm -fr
-uninstalldirs = rmdir debian/$(pcp)/usr/include/pcp debian/$(pcp)/usr/include debian/$(pcp)/usr/share/man/man3
-uninstallib = cat debian/$(pcp_pmda_infiniband).dirs | sed -e "s,^,debian/$(pcp)/," | xargs rm -fr
-uninstallgui = cat debian/$(pcpgui).dirs | sed -e "s,^,debian/$(pcp)/," | xargs rm -fr
+uninstall = cat debian/*.install | sed -e "s,^,$(dirpcp)/," | xargs rm -f
+uninstallpy = cat python*-pcp.list | sed -e "s,^,$(dirpcp)/," | xargs rm -fr
+uninstallpydir = ls -d $(dirpcp)/usr/lib*/python* | xargs rm -fr
+uninstalltest = cat $(dirpcp_testsuite).dirs | sed -e "s,^,debian/$(pcp)/," | xargs rm -fr
+uninstalldirs = rmdir $(dirpcp)/usr/include/pcp $(dirpcp)/usr/include $(dirpcp)/usr/share/man/man3
+uninstallib = cat $(dirpcp_pmda_infiniband).dirs | sed -e "s,^,$(dirpcp)/," | xargs rm -fr
+uninstallspark = cat $(dirdoc).dirs | sed -e "s,^,$(dirpcp_export_spark)/," | xargs rm -fr
+uninstallgui = cat $(dirgui).dirs | sed -e "s,^,$(dirpcp)/," | xargs rm -fr
 unrpathperl = find $(allperldir) -name \*.so | xargs chrpath -d
 
 build: build-arch build-indep
@@ -258,6 +259,7 @@ binary-arch: checkroot build-stamp
 	@$(uninstalldirs)
 	@$(uninstalltest)
 	@$(uninstallpydir)
+	@$(uninstallspark)
 	@$(uninstallpy)
 	@$(unrpathperl)
 	dh_makeshlibs -a -N $(libpcp)
