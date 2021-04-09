@@ -38,7 +38,7 @@ bpf_src = "modules/netproc.bpf"
 # PCP BCC PMDA constants
 #
 MODULE = "netproc"
-BASENS = "proc.io.net.perpid."
+BASENS = "proc.net."
 units_bytes = pmUnits(1, 0, 0, PM_SPACE_BYTE, 0, 0)
 units_count = pmUnits(0, 0, 1, 0, 0, PM_COUNT_ONE)
 units_none = pmUnits(0, 0, 0, 0, 0, 0)

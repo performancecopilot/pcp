@@ -49,8 +49,8 @@ esac
 _pid_filter()
 {
     sed \
-      -e "s/$1/SERVERPID/g" \
-      -e "s/$2/CLIENTPID/g" \
+      -e "s/0*$1/SERVERPID/g" \
+      -e "s/0*$2/CLIENTPID/g" \
       -e '/inst \[[0-9]/d' \
     #end
 }
@@ -91,14 +91,14 @@ wait ${server_pid}
 echo "server PID: ${server_pid}" >> "$seq.full"
 echo "client PID: ${client_pid}" >> "$seq.full"
 
-for metric in bcc.proc.io.net.perpid.tcp.send.calls \
-              bcc.proc.io.net.perpid.tcp.send.bytes \
-              bcc.proc.io.net.perpid.tcp.recv.calls \
-              bcc.proc.io.net.perpid.tcp.recv.bytes \
-              bcc.proc.io.net.perpid.udp.send.calls \
-              bcc.proc.io.net.perpid.udp.send.bytes \
-              bcc.proc.io.net.perpid.udp.recv.calls \
-              bcc.proc.io.net.perpid.udp.recv.bytes
+for metric in bcc.proc.net.tcp.send.calls \
+              bcc.proc.net.tcp.send.bytes \
+              bcc.proc.net.tcp.recv.calls \
+              bcc.proc.net.tcp.recv.bytes \
+              bcc.proc.net.udp.send.calls \
+              bcc.proc.net.udp.send.bytes \
+              bcc.proc.net.udp.recv.calls \
+              bcc.proc.net.udp.recv.bytes
 do
     echo && echo && echo "=== report metric values for $metric ==="
     pminfo -dfmtT $metric 2>&1 | tee -a $seq.full \

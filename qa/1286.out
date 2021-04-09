@@ -41,18 +41,18 @@ Check bcc metrics have appeared ... X metrics and X values
 
 
 
-=== report metric values for bcc.proc.io.net.perpid.tcp.send.calls ===
+=== report metric values for bcc.proc.net.tcp.send.calls ===
 
     Data Type: 64-bit unsigned int  InDom: 149.40 0x25400028
     Semantics: counter  Units: count
     inst [CLIENTPID or "CLIENTPID"] value 1
     inst [SERVERPID or "SERVERPID"] value 1
 Help:
-bcc.proc.io.net.perpid.tcp.send.calls PMID: 149.40.0 [number of TCP send calls (tcp_sendmsg())]
+bcc.proc.net.tcp.send.calls PMID: 149.40.0 [number of TCP send calls (tcp_sendmsg())]
 number of TCP send calls (tcp_sendmsg())
 
 
-=== report metric values for bcc.proc.io.net.perpid.tcp.send.bytes ===
+=== report metric values for bcc.proc.net.tcp.send.bytes ===
 
     Data Type: 64-bit unsigned int  InDom: 149.40 0x25400028
     Semantics: counter  Units: byte
@@ -60,21 +60,21 @@ number of TCP send calls (tcp_sendmsg())
     inst [SERVERPID or "SERVERPID"] value 17
 Help:
 amount of bytes requested to be sent
-bcc.proc.io.net.perpid.tcp.send.bytes PMID: 149.40.1 [amount of bytes requested to be sent]
+bcc.proc.net.tcp.send.bytes PMID: 149.40.1 [amount of bytes requested to be sent]
 
 
-=== report metric values for bcc.proc.io.net.perpid.tcp.recv.calls ===
+=== report metric values for bcc.proc.net.tcp.recv.calls ===
 
     Data Type: 64-bit unsigned int  InDom: 149.40 0x25400028
     Semantics: counter  Units: count
     inst [CLIENTPID or "CLIENTPID"] value 1
     inst [SERVERPID or "SERVERPID"] value 1
 Help:
-bcc.proc.io.net.perpid.tcp.recv.calls PMID: 149.40.2 [number of TCP recv calls (tcp_recvmsg()/tcp_cleanup_rbuf())]
+bcc.proc.net.tcp.recv.calls PMID: 149.40.2 [number of TCP recv calls (tcp_recvmsg()/tcp_cleanup_rbuf())]
 number of TCP recv calls (tcp_recvmsg()/tcp_cleanup_rbuf())
 
 
-=== report metric values for bcc.proc.io.net.perpid.tcp.recv.bytes ===
+=== report metric values for bcc.proc.net.tcp.recv.bytes ===
 
     Data Type: 64-bit unsigned int  InDom: 149.40 0x25400028
     Semantics: counter  Units: byte
@@ -82,21 +82,21 @@ number of TCP recv calls (tcp_recvmsg()/tcp_cleanup_rbuf())
     inst [SERVERPID or "SERVERPID"] value 11
 Help:
 amount of bytes received
-bcc.proc.io.net.perpid.tcp.recv.bytes PMID: 149.40.3 [amount of bytes received]
+bcc.proc.net.tcp.recv.bytes PMID: 149.40.3 [amount of bytes received]
 
 
-=== report metric values for bcc.proc.io.net.perpid.udp.send.calls ===
+=== report metric values for bcc.proc.net.udp.send.calls ===
 
     Data Type: 64-bit unsigned int  InDom: 149.40 0x25400028
     Semantics: counter  Units: count
     inst [CLIENTPID or "CLIENTPID"] value 1
     inst [SERVERPID or "SERVERPID"] value 1
 Help:
-bcc.proc.io.net.perpid.udp.send.calls PMID: 149.40.4 [number of UDP send calls (udp_sendmsg())]
+bcc.proc.net.udp.send.calls PMID: 149.40.4 [number of UDP send calls (udp_sendmsg())]
 number of UDP send calls (udp_sendmsg())
 
 
-=== report metric values for bcc.proc.io.net.perpid.udp.send.bytes ===
+=== report metric values for bcc.proc.net.udp.send.bytes ===
 
     Data Type: 64-bit unsigned int  InDom: 149.40 0x25400028
     Semantics: counter  Units: byte
@@ -104,21 +104,21 @@ number of UDP send calls (udp_sendmsg())
     inst [SERVERPID or "SERVERPID"] value 22
 Help:
 amount of bytes requested to be sent
-bcc.proc.io.net.perpid.udp.send.bytes PMID: 149.40.5 [amount of bytes requested to be sent]
+bcc.proc.net.udp.send.bytes PMID: 149.40.5 [amount of bytes requested to be sent]
 
 
-=== report metric values for bcc.proc.io.net.perpid.udp.recv.calls ===
+=== report metric values for bcc.proc.net.udp.recv.calls ===
 
     Data Type: 64-bit unsigned int  InDom: 149.40 0x25400028
     Semantics: counter  Units: count
     inst [CLIENTPID or "CLIENTPID"] value 1
     inst [SERVERPID or "SERVERPID"] value 1
 Help:
-bcc.proc.io.net.perpid.udp.recv.calls PMID: 149.40.6 [number of UDP recv calls (udp_recvmsg()/skb_consume_udp())]
+bcc.proc.net.udp.recv.calls PMID: 149.40.6 [number of UDP recv calls (udp_recvmsg()/skb_consume_udp())]
 number of UDP recv calls (udp_recvmsg()/skb_consume_udp())
 
 
-=== report metric values for bcc.proc.io.net.perpid.udp.recv.bytes ===
+=== report metric values for bcc.proc.net.udp.recv.bytes ===
 
     Data Type: 64-bit unsigned int  InDom: 149.40 0x25400028
     Semantics: counter  Units: byte
@@ -126,7 +126,7 @@ number of UDP recv calls (udp_recvmsg()/skb_consume_udp())
     inst [SERVERPID or "SERVERPID"] value 16
 Help:
 amount of bytes received
-bcc.proc.io.net.perpid.udp.recv.bytes PMID: 149.40.7 [amount of bytes received]
+bcc.proc.net.udp.recv.bytes PMID: 149.40.7 [amount of bytes received]
 
 === remove bcc agent ===
 Culling the Performance Metrics Name Space ...

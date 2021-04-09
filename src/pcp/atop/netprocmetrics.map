@@ -2,15 +2,15 @@
 # metric names and access macros for netproc.c
 #
 netprocmetrics {
-	bcc.proc.io.net.perpid.tcp.send.calls	TASK_NET_TCPSND
-	bcc.proc.io.net.perpid.tcp.send.bytes	TASK_NET_TCPSSZ
-	bcc.proc.io.net.perpid.tcp.recv.calls	TASK_NET_TCPRCV
-	bcc.proc.io.net.perpid.tcp.recv.bytes	TASK_NET_TCPRSZ
+	bcc.proc.net.tcp.send.calls	TASK_NET_TCPSND
+	bcc.proc.net.tcp.send.bytes	TASK_NET_TCPSSZ
+	bcc.proc.net.tcp.recv.calls	TASK_NET_TCPRCV
+	bcc.proc.net.tcp.recv.bytes	TASK_NET_TCPRSZ
 
-	bcc.proc.io.net.perpid.udp.send.calls	TASK_NET_UDPSND
-	bcc.proc.io.net.perpid.udp.send.bytes	TASK_NET_UDPSSZ
-	bcc.proc.io.net.perpid.udp.recv.calls	TASK_NET_UDPRCV
-	bcc.proc.io.net.perpid.udp.recv.bytes	TASK_NET_UDPRSZ
+	bcc.proc.net.udp.send.calls	TASK_NET_UDPSND
+	bcc.proc.net.udp.send.bytes	TASK_NET_UDPSSZ
+	bcc.proc.net.udp.recv.calls	TASK_NET_UDPRCV
+	bcc.proc.net.udp.recv.bytes	TASK_NET_UDPRSZ
 
 	# end marker - provides count
 	.					TASK_NET_NMETRICS
