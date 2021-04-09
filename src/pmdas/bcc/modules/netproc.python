@@ -13,7 +13,6 @@
 #
 """ PCP BCC PMDA netproc module """
 
-import re
 import ctypes as ct
 from collections import namedtuple
 import os
