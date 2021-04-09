@@ -156,10 +156,10 @@ hacluster_refresh_drbd_resource(const char *resource_name, struct resource *reso
 
 	int found_node = 0, found_volume = 0, nesting = 0;
 
-	pmsprintf(buffer, sizeof(buffer), "%s", drbdsetup_command);
+	pmsprintf(buffer, sizeof(buffer), "%s 2>&1", drbdsetup_command);
 
 	if ((pf = popen(buffer, "r")) == NULL)
-		return -oserror();
+		return oserror();
 
 	/* 
 	 * We need to split our combined NODE:VOLUME instance names into their
@@ -274,10 +274,10 @@ hacluster_refresh_drbd_peer_device(const char *peer_name, struct peer_device *pe
 
 	int found_node = 0, found_peer_node = 0, nesting = 0;
 
-	pmsprintf(buffer, sizeof(buffer), "%s", drbdsetup_command);
+	pmsprintf(buffer, sizeof(buffer), "%s 2>&1", drbdsetup_command);
 
 	if ((pf = popen(buffer, "r")) == NULL)
-		return -oserror();
+		return oserror();
 
 	/* 
 	 * We need to split our combined NODE:PEER_NODE_ID instance names into

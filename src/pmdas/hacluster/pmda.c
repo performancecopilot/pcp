@@ -359,10 +359,10 @@ hacluster_pacemaker_fail_instance_refresh(void)
 	FILE		*pf;
 	pmInDom		indom = INDOM(PACEMAKER_FAIL_INDOM);
 
-	pmsprintf(buffer, sizeof(buffer), "%s", crm_mon_command);
+	pmsprintf(buffer, sizeof(buffer), "%s 2>&1", crm_mon_command);
 
 	if ((pf = popen(buffer, "r")) == NULL)
-		return -oserror();
+		return oserror();
 
 	while(fgets(buffer, sizeof(buffer)-1, pf) != NULL) {
 		/* First we need to check whether we are in <node_history> section*/
@@ -426,11 +426,11 @@ hacluster_pacemaker_constraints_instance_refresh(void)
 	FILE		*pf;
 	pmInDom		indom = INDOM(PACEMAKER_CONSTRAINTS_INDOM);
 
-	pmsprintf(buffer, sizeof(buffer), "%s", cibadmin_command);
+	pmsprintf(buffer, sizeof(buffer), "%s 2>&1", cibadmin_command);
 	buffer[sizeof(buffer)-1] = '\0';
 
 	if ((pf = popen(buffer, "r")) == NULL)
-		return -oserror();
+		return oserror();
 
 	while(fgets(buffer, sizeof(buffer)-1, pf) != NULL) {
 		/* First we need to check whether we are in <constraints> section*/
@@ -472,10 +472,10 @@ hacluster_pacemaker_nodes_instance_refresh(void)
 	FILE		*pf;
 	pmInDom		indom = INDOM(PACEMAKER_NODES_INDOM);
 
-	pmsprintf(buffer, sizeof(buffer), "%s", crm_mon_command);
+	pmsprintf(buffer, sizeof(buffer), "%s 2>&1", crm_mon_command);
 
 	if ((pf = popen(buffer, "r")) == NULL)
-		return -oserror();
+		return oserror();
 
 	while(fgets(buffer, sizeof(buffer)-1, pf) != NULL) {
 		/* First we need to check whether we are in <nodes> section*/
@@ -525,10 +525,10 @@ hacluster_pacemaker_node_attrib_instance_refresh(void)
 	FILE		*pf;
 	pmInDom		indom = INDOM(PACEMAKER_NODE_ATTRIB_INDOM);
 
-	pmsprintf(buffer, sizeof(buffer), "%s", crm_mon_command);
+	pmsprintf(buffer, sizeof(buffer), "%s 2>&1", crm_mon_command);
 
 	if ((pf = popen(buffer, "r")) == NULL)
-		return -oserror();
+		return oserror();
 
 	while(fgets(buffer, sizeof(buffer)-1, pf) != NULL) {
 		/* First we need to check whether we are in <node_history> section*/
@@ -598,10 +598,10 @@ hacluster_pacemaker_resources_instance_refresh(void)
 	FILE		*pf;
 	pmInDom		indom= INDOM(PACEMAKER_RESOURCES_INDOM);
 
-	pmsprintf(buffer, sizeof(buffer), "%s", crm_mon_command);
+	pmsprintf(buffer, sizeof(buffer), "%s 2>&1", crm_mon_command);
 
 	if ((pf = popen(buffer, "r")) == NULL)
-		return -oserror();
+		return oserror();
 
 	while(fgets(buffer, sizeof(buffer)-1, pf) != NULL) {
 		/* First we need to check whether we are in <resources> section*/
@@ -676,9 +676,11 @@ hacluster_corosync_node_instance_refresh(void)
 	 * membership information section of corosync-quorumtool output
 	 */
 	pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
+	
+	pmsprintf(buffer, sizeof(buffer), "%s 2>&1", quorumtool_command);
 
-	if ((pf = popen(quorumtool_command, "r")) == NULL)
-		return -oserror();
+	if ((pf = popen(buffer, "r")) == NULL)
+		return oserror();
 
 	while (fgets(buffer, sizeof(buffer)-1, pf) != NULL) {
 		/* Clear whitespace at start of each line */
@@ -735,8 +737,10 @@ hacluster_corosync_ring_instance_refresh(void)
 	 */
 	pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
 	
-	if ((pf = popen(cfgtool_command, "r")) == NULL)
-		return -oserror();
+	pmsprintf(buffer, sizeof(buffer), "%s 2>&1", cfgtool_command);
+	
+	if ((pf = popen(buffer, "r")) == NULL)
+		return oserror();
 
 	while(fgets(buffer, sizeof(buffer)-1, pf) != NULL) {
 
@@ -865,8 +869,10 @@ hacluster_drbd_resource_instance_refresh(void)
 	 */
 	pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
 	
-	if ((pf = popen(drbdsetup_command, "r")) == NULL)
-		return -oserror();
+	pmsprintf(buffer, sizeof(buffer), "%s 2>&1", drbdsetup_command);
+	
+	if ((pf = popen(buffer, "r")) == NULL)
+		return oserror();
 
 	while(fgets(buffer, sizeof(buffer)-1, pf) != NULL) {
 		/* Clear whitespace at start of each line */
@@ -940,8 +946,10 @@ hacluster_drbd_peer_device_instance_refresh(void)
 	 */
 	pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
 
-	if ((pf = popen(drbdsetup_command, "r")) == NULL)
-		return -oserror();
+	pmsprintf(buffer, sizeof(buffer), "%s 2>&1", drbdsetup_command);
+
+	if ((pf = popen(buffer, "r")) == NULL)
+		return oserror();
 
 	while(fgets(buffer, sizeof(buffer)-1, pf) != NULL) {
 		/* Clear whitespace at start of each line */

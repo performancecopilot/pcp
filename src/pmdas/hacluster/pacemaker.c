@@ -360,7 +360,7 @@ hacluster_refresh_pacemaker_global()
 	char last_written_text[128], stonith[6];
 	FILE *pf;
 
-	pmsprintf(buffer, sizeof(buffer), "%s", cibadmin_command);
+	pmsprintf(buffer, sizeof(buffer), "%s 2>&1", cibadmin_command);
 
 	if ((pf = popen(buffer, "r")) == NULL)
 		return -oserror();
@@ -374,7 +374,7 @@ hacluster_refresh_pacemaker_global()
 	}
 	pclose(pf);
 
-	pmsprintf(buffer, sizeof(buffer), "%s", crm_mon_command);
+	pmsprintf(buffer, sizeof(buffer), "%s 2>&1", crm_mon_command);
 
 	if ((pf = popen(buffer, "r")) == NULL)
 		return -oserror();
@@ -402,7 +402,7 @@ hacluster_refresh_pacemaker_fail(const char *instance_name, struct fail_count *f
 	int found_node_history = 0, found_node_name = 0;
 	FILE *pf;
 
-	pmsprintf(buffer, sizeof(buffer), "%s", crm_mon_command);
+	pmsprintf(buffer, sizeof(buffer), "%s 2>&1", crm_mon_command);
 
 	if ((pf = popen(buffer, "r")) == NULL)
 		return -oserror();
@@ -455,7 +455,7 @@ hacluster_refresh_pacemaker_constraints(const char *constraints_name, struct loc
 	int found_constraints = 0;
 	FILE *pf;
 
-	pmsprintf(buffer, sizeof(buffer), "%s", cibadmin_command);
+	pmsprintf(buffer, sizeof(buffer), "%s 2>&1", cibadmin_command);
 
 	if ((pf = popen(buffer, "r")) == NULL)
 		return -oserror();
@@ -492,7 +492,7 @@ hacluster_refresh_pacemaker_nodes(const char *node_name, struct nodes *nodes)
 	char online[10], standby[10], standby_on_fail[10], maintenance[10], pending[10];
 	char unclean[10], shutdown[10], expected_up[10], dc[10];
 
-	pmsprintf(buffer, sizeof(buffer), "%s", crm_mon_command);
+	pmsprintf(buffer, sizeof(buffer), "%s 2>&1", crm_mon_command);
 
 	if ((pf = popen(buffer, "r")) == NULL)
 		return -oserror();
@@ -549,7 +549,7 @@ hacluster_refresh_pacemaker_node_attribs(const char *attrib_name, struct attribu
 	int found_node_attributes = 0, found_node_name = 0;
 	FILE *pf;
 
-	pmsprintf(buffer, sizeof(buffer), "%s", crm_mon_command);
+	pmsprintf(buffer, sizeof(buffer), "%s 2>&1", crm_mon_command);
 
 	if ((pf = popen(buffer, "r")) == NULL)
 		return -oserror();
@@ -623,7 +623,7 @@ hacluster_refresh_pacemaker_resources(const char *instance_name, struct resource
 		node = strsep(&str, ":");
 	}
 
-	pmsprintf(buffer, sizeof(buffer), "%s", crm_mon_command);
+	pmsprintf(buffer, sizeof(buffer), "%s 2>&1", crm_mon_command);
 
 	if ((pf = popen(buffer, "r")) == NULL) {
 		if (!no_node_attachment)
