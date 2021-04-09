@@ -513,7 +513,7 @@ hacluster_refresh_pacemaker_nodes(const char *node_name, struct nodes *nodes)
 
 		/* Collect our node names */
 		if (found_nodes && strstr(buffer, node_name)) {
-			sscanf(buffer, "%*s %*s %*s online=\"%[^\"]\" standby=\"%[^\"]\" standby_onfail=\"%[^\"]\" maintenance=\"%[^\"]\" pending=\"%[^\"]\" unclean=\"%[^\"]\" shutdown=\"%[^\"]\" expected_up=\"%[^\"]\" is_dc =\"%[^\"]\" %*s type=\"%[^\"]\"",
+			sscanf(buffer, "%*s %*s %*s online=\"%9[^\"]\" standby=\"%9[^\"]\" standby_onfail=\"%9[^\"]\" maintenance=\"%9[^\"]\" pending=\"%9[^\"]\" unclean=\"%9[^\"]\" shutdown=\"%9[^\"]\" expected_up=\"%9[^\"]\" is_dc =\"%9[^\"]\" %*s type=\"%9[^\"]\"",
 				online,
 				standby,
 				standby_on_fail,
@@ -671,19 +671,8 @@ hacluster_refresh_pacemaker_resources(const char *instance_name, struct resource
 			/* Collect our metrics */
 			if (strstr(buffer, "resource id=") && strstr(buffer, resource_id)) {
 
-				if(strstr(resources->clone, "\0") || strstr(resources->group, "\0")) {
-					sscanf(buffer, "%*s %*s resource_agent=\"%[^\"]\" role=\"%[^\"]\" active=\"%[^\"]\" orphaned=\"%[^\"]\" blocked=\"%[^\"]\" managed=\"%[^\"]\" failed=\"%[^\"]\" failure_ignored=\"%[^\"]\"",
-						resources->agent,
-						resources->role,
-						active,
-						orphaned,
-						blocked,
-						managed,
-						failed,
-						failure_ignored
-					);
-				} else if ((strstr(resources->clone, "\0") || strstr(resources->group, "\0")) && strstr(buffer, "target_role")) { 
-					sscanf(buffer, "%*s %*s resource_agent=\"%[^\"]\" role=\"%[^\"]\" %*s active=\"%[^\"]\" orphaned=\"%[^\"]\" blocked=\"%[^\"]\" managed=\"%[^\"]\" failed=\"%[^\"]\" failure_ignored=\"%[^\"]\"",
+				if (strstr(buffer, "target_role")) { 
+					sscanf(buffer, "%*s %*s resource_agent=\"%[^\"]\" role=\"%[^\"]\" %*s active=\"%7[^\"]\" orphaned=\"%7[^\"]\" blocked=\"%7[^\"]\" managed=\"%7[^\"]\" failed=\"%7[^\"]\" failure_ignored=\"%7[^\"]\"",
 						resources->agent,
 						resources->role,
 						active,
@@ -694,7 +683,7 @@ hacluster_refresh_pacemaker_resources(const char *instance_name, struct resource
 						failure_ignored
 					);
 				} else {
-					sscanf(buffer, "%*s %*s resource_agent=\"%[^\"]\" role=\"%[^\"]\" %*s active=\"%[^\"]\" orphaned=\"%[^\"]\" blocked=\"%[^\"]\" managed=\"%[^\"]\" failed=\"%[^\"]\" failure_ignored=\"%[^\"]\"",
+					sscanf(buffer, "%*s %*s resource_agent=\"%[^\"]\" role=\"%[^\"]\" active=\"%7[^\"]\" orphaned=\"%7[^\"]\" blocked=\"%7[^\"]\" managed=\"%7[^\"]\" failed=\"%7[^\"]\" failure_ignored=\"%7[^\"]\"",
 						resources->agent,
 						resources->role,
 						active,
