@@ -1016,8 +1016,20 @@ map_desc(dm_t *dmp, node_t *np, int async)
 	if (left->units.dimCount != right->units.dimCount ||
 	    left->units.dimTime != right->units.dimTime ||
 	    left->units.dimSpace != right->units.dimSpace) {
-	    PM_TPD(derive_errmsg) = "Dimensions are not the same";
-	    goto bad;
+	    /*
+	     * or one of them is allowed to be "none" provided the
+	     * other is "count" ... this matches the special case
+	     * documented for pmConvScale(3)
+	     */
+	    if (left->units.dimTime == 0 && right->units.dimTime == 0 &&
+	        left->units.dimSpace == 0 && right->units.dimSpace == 0 &&
+		((left->units.dimCount == 0 && right->units.dimCount == 1) ||
+		 (left->units.dimCount == 1 && right->units.dimCount == 0)))
+		    ;
+	    else {
+		PM_TPD(derive_errmsg) = "Dimensions are not the same";
+		goto bad;
+	    }
 	}
     }
 
@@ -1032,8 +1044,20 @@ map_desc(dm_t *dmp, node_t *np, int async)
 	    (left->units.dimCount != right->units.dimCount ||
 	     left->units.dimTime != right->units.dimTime ||
 	     left->units.dimSpace != right->units.dimSpace)) {
-	    PM_TPD(derive_errmsg) = "Dimensions are not the same";
-	    goto bad;
+	    /*
+	     * or one of them is allowed to be "none" provided the
+	     * other is "count" ... this matches the special case
+	     * documented for pmConvScale(3)
+	     */
+	    if (left->units.dimTime == 0 && right->units.dimTime == 0 &&
+	        left->units.dimSpace == 0 && right->units.dimSpace == 0 &&
+		((left->units.dimCount == 0 && right->units.dimCount == 1) ||
+		 (left->units.dimCount == 1 && right->units.dimCount == 0)))
+		    ;
+	    else {
+		PM_TPD(derive_errmsg) = "Dimensions are not the same";
+		goto bad;
+	    }
 	}
     }
 

@@ -1752,6 +1752,8 @@ x11
 1308 dbpmda pmda.sample valgrind local
 1309 pmda.zfs local
 1310 labels python local
+1311 derive pmdumptext local
+1312 derive pmdumptext valgrind local
 1318 pmprobe pmlogconf local kernel
 1321 pmlogger pmda.openmetrics local python
 1323 pmlogrewrite labels help pmdumplog local

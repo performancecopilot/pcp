@@ -27,6 +27,18 @@ pmUnits myunits = { 1, -1, 0, PM_SPACE_EBYTE, PM_TIME_SEC, 0 };
 pmUnits myunits = { 0, 0, PM_TIME_SEC, PM_SPACE_EBYTE, 0, -1, 1 };
 #endif
 
+static pmLongOptions longopts[] = {
+    PMOPT_DEBUG,
+    PMOPT_HELP,
+    PMAPI_OPTIONS_END
+};
+
+static pmOptions opts = {
+    .short_options = "D:?",
+    .long_options = longopts,
+    .short_usage = "[-D...] [c|s|r|t|x]"
+};
+
 int
 main(int argc, char **argv)
 {
@@ -38,19 +50,27 @@ main(int argc, char **argv)
 
     value.f = 12345678;
 
-    if (argc > 1) {
-	if (argv[1][0] == 'c') {
+    while (pmGetOptions(argc, argv, &opts) != EOF) {
+	;
+    }
+    if (opts.errors || (opts.flags & PM_OPTFLAG_EXIT)) {
+	pmUsageMessage(&opts);
+	exit(1);
+    }
+
+    if (opts.optind < argc) {
+	if (argv[opts.optind][0] == 'c') {
 	    /* crude, but effective ... the "count" dimension case */
 	    units.dimCount = 1;
 	    mode = 1;
 	}
-	else if (argv[1][0] == 's') {
+	else if (argv[opts.optind][0] == 's') {
 	    /* crude, but effective ... the "space" dimension case */
 	    units.dimSpace = 1;
 	    units.scaleSpace = PM_SPACE_MBYTE;
 	    mode = 2;
 	}
-	else if (argv[1][0] == 'r') {
+	else if (argv[opts.optind][0] == 'r') {
 	    /* crude, but effective ... the "space/time" dimension case */
 	    units.dimSpace = 1;
 	    units.dimTime = -1;
@@ -58,13 +78,13 @@ main(int argc, char **argv)
 	    units.scaleTime = PM_TIME_SEC;
 	    mode = 2;
 	}
-	else if (argv[1][0] == 't') {
+	else if (argv[opts.optind][0] == 't') {
 	    /* crude, but effective ... the "time" dimension case */
 	    units.dimTime = 1;
 	    units.scaleTime = PM_TIME_SEC;
 	    mode = 3;
 	}
-	else if (argv[1][0] == 'x') {
+	else if (argv[opts.optind][0] == 'x') {
 	    /* PBYTE and EBYTE space extensions */
 	    value.f = 1;
 	    while (myunits.scaleSpace > 0) {
