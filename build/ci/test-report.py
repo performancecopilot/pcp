@@ -100,7 +100,9 @@ def read_testlog(qa_dir: str, testartifacts_dir: str, groups: Dict[str, List[str
                 test.message = "test cancelled"
             elif tests and tests[-1].status in [Test.Status.Failed, Test.Status.Broken]:
                 # if this line doesn't match any regex, it's probably output from the previous test
-                tests[-1].message += line
+                if len(tests[-1].message) < 10000: # ignore output for huge diffs
+                    tests[-1].message += line
+
     return tests
 
 
