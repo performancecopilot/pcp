@@ -1,0 +1,23 @@
+#!/bin/sh
+#
+# remake the runq archive ...
+# this archive is intended to be checked in and not remade, this script is
+# simply a record of how it was created
+#
+
+. /etc/pcp.env
+
+tmp=/var/tmp/$$
+rm -f $tmp.*
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+cat <<End-of-File >>$tmp.config
+log mandatory on 10 sec {
+    proc.runq
+    proc.nprocs
+}
+End-of-File
+
+rm -f runq.0 runq.meta runq.index
+
+pmlogger -s 10 -c $tmp.config runq
