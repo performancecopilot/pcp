@@ -1,0 +1,4 @@
+etc/pcp/pmieconf/zeroconf
+etc/pcp/pmlogconf/zeroconf
+var/lib/pcp/config/pmieconf/zeroconf
+var/lib/pcp/config/pmlogconf/zeroconf

@@ -21,6 +21,10 @@ PCPTESTSUITE = pcp-testsuite
 PCPTESTSUITE_FILES = pcp-testsuite.dirs pcp-testsuite.postinst
 PCPTESTSUITE_DOC_DIR = $(PCP_DOC_DIR)/../pcp-testsuite
 
+PCPZEROCONF = pcp-zeroconf
+PCPZEROCONF_FILES = pcp-zeroconf.dirs pcp-zeroconf.install pcp-zeroconf.postinst
+PCPZEROCONF_DOC_DIR = $(PCP_DOC_DIR)/../pcp-zeroconf
+
 PCPIMPORTSAR = pcp-import-sar2pcp
 PCPIMPORTSAR_FILES = pcp-import-sar2pcp.install
 PCPIMPORTSAR_DOC_DIR = $(PCP_DOC_DIR)/../pcp-import-sar2pcp
@@ -135,6 +139,13 @@ ifeq ($(PACKAGE_DISTRIBUTION), debian)
 	$(INSTALL) -m 755 -d $(PCPTESTSUITE_DOC_DIR)
 	$(INSTALL) -m 644 copyright $(PCPTESTSUITE_DOC_DIR)
 	$(INSTALL) -m 644 changelog $(PCPTESTSUITE_DOC_DIR)/changelog.Debian
+endif
+
+install-zeroconf: default
+ifeq ($(PACKAGE_DISTRIBUTION), debian)
+	$(INSTALL) -m 755 -d $(PCPZEROCONF_DOC_DIR)
+	$(INSTALL) -m 644 copyright $(PCPZEROCONF_DOC_DIR)
+	$(INSTALL) -m 644 changelog $(PCPZEROCONF_DOC_DIR)/changelog.Debian
 endif
 
 install-pcpcfg: default

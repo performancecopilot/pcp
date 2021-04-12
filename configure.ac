@@ -1642,7 +1642,7 @@ dnl check if the Debian dpkg program is available
 if test -z "$DPKG"; then
    AC_PATH_PROG(DPKG, dpkg)
 fi
-dpkg=$DKPG
+dpkg=$DPKG
 AC_SUBST(dpkg)
 
 dnl check for the Slackware makepkg packaging tool

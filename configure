@@ -9446,7 +9446,7 @@ fi
 
 
 fi
-dpkg=$DKPG
+dpkg=$DPKG
 
 
 if test -z "$MAKEPKG"; then
