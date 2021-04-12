@@ -27,6 +27,9 @@ PMDAADMDIR = $(PCP_PMDASADM_DIR)/$(IAM)
 PMDACONFIG = $(PCP_SYSCONF_DIR)/$(IAM)
 PMDATMPDIR = $(PCP_PMDAS_DIR)/$(IAM)
 
+REWRITEDIR = $(PCP_SYSCONF_DIR)/pmlogrewrite
+REWRITEVARDIR = $(PCP_VAR_DIR)/config/pmlogrewrite
+
 MAN_SECTION = 1
 MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
 MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
@@ -45,6 +48,7 @@ install_pcp install ::	default
 	$(INSTALL) -m 644 -t $(PMDATMPDIR) pmdautil.python README.md $(PMDAADMDIR)
 	$(INSTALL) -m 755 -d $(PMDACONFIG)
 	$(INSTALL) -m 644 -t $(PMDATMPDIR) $(CONFIGS) $(PMDACONFIG)
+	$(INSTALL) -m 644 -t $(REWRITEVARDIR)/bcc_migrate.conf migrate.conf $(REWRITEDIR)/bcc_migrate.conf
 	@$(INSTALL_MAN)
 
 default_pcp default ::	$(SUBDIRS)
