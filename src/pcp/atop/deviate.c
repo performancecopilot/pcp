@@ -800,7 +800,7 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev, double inter
 	** refresh all interface properties
 	*/
 
-	for (i=0; cur->intf.intf[i].name[0]; i++)
+	for (i=0; cur->intf.intf && cur->intf.intf[i].name[0]; i++)
 	{
 		strcpy(ifprop.name, cur->intf.intf[i].name);
 
