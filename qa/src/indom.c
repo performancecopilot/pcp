@@ -9,7 +9,8 @@ static pmLongOptions longopts[] = {
     PMOPT_ARCHIVE,
     PMOPT_DEBUG,
     PMOPT_HOST,
-    { "inst", 1, 'i', "INST", "report on internal instance identifier" },
+    { "inst", 1, 'i', "INST", "report this internal instance identifier" },
+    { "probe", 0, 'p', NULL, "report 1st, last and quartile internal instances" },
     PMOPT_LOCALPMDA,
     PMOPT_SPECLOCAL,
     PMOPT_TIMEZONE,
@@ -20,12 +21,14 @@ static pmLongOptions longopts[] = {
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_STDOUT_TZ,
-    .short_options = "a:D:h:i:K:LzZ:?",
+    .short_options = "a:D:h:i:K:LrzZ:?",
     .long_options = longopts,
     .short_usage = "[options] metricname ...",
 };
 
-static int	inst;
+static int	inst = -999;
+
+static int	rflag = 0;
 
 int
 dometric(const char *name)
@@ -33,9 +36,14 @@ dometric(const char *name)
     pmID	pmid;
     pmDesc	desc;
     int		i, sts;
-    char	*iname;
-    int		*ilist;
+    int		numinst;
+    char	*iname = NULL;
+    int		*ilist = NULL;
+    int		p;
+    int		probe[5];
+    int		nprobe;
     char	**nlist;
+    char	*func;
 
     if ((sts = pmLookupName(1, &name, &pmid)) < 0)
 	return sts;
@@ -43,61 +51,87 @@ dometric(const char *name)
     if ((sts = pmLookupDesc(pmid, &desc)) < 0)
 	return sts;
 
-    iname = "no match";
-    printf("pm*InDom: inst=[%d]", inst);
-    if ((sts = pmNameInDom(desc.indom, inst, &iname)) < 0)
-	printf(" {%s}\n", pmErrStr(sts));
-    else {
-	printf(" iname=<%s> reverse lookup:", iname);
-	if ((sts = pmLookupInDom(desc.indom, iname)) < 0)
-	    printf(" {%s}\n", pmErrStr(sts));
-	else
-	    printf(" inst=[%d]\n", sts);
-	free(iname);
+    if (opts.context == PM_CONTEXT_HOST || opts.context == PM_CONTEXT_LOCAL) {
+	numinst = pmGetInDom(desc.indom, &ilist, &nlist);
+	func = "pmGetInDom";
     }
-    if (opts.context == PM_CONTEXT_ARCHIVE) {
+    else {
+	numinst = pmGetInDomArchive(desc.indom, &ilist, &nlist);
+	func = "pmGetInDomArchive";
+    }
+    if (rflag) {
+	if (numinst > 0) {
+	    probe[0] = 0;
+	    probe[1] = 0.25*(numinst-1);
+	    probe[2] = (numinst-1)/2;
+	    probe[3] = 0.75*(numinst-1);
+	    probe[4] = numinst-1;
+	    nprobe = 5;
+	}
+	else
+	    nprobe = -1;
+    }
+    else {
+	nprobe = 1;
+    }
+
+
+    for (p = 0; p < nprobe; p++) {
+	int	try;
 	iname = "no match";
-	printf("pm*InDomArchive: inst=[%d]", inst);
-	if ((sts = pmNameInDomArchive(desc.indom, inst, &iname)) < 0)
+	if (rflag)
+	    try = ilist[probe[p]];
+	else
+	    try = inst;
+	printf("pm*InDom: inst=[%d]", try);
+	if ((sts = pmNameInDom(desc.indom, try, &iname)) < 0)
 	    printf(" {%s}\n", pmErrStr(sts));
 	else {
 	    printf(" iname=<%s> reverse lookup:", iname);
-	    if ((sts = pmLookupInDomArchive(desc.indom, iname)) < 0)
+	    if ((sts = pmLookupInDom(desc.indom, iname)) < 0)
 		printf(" {%s}\n", pmErrStr(sts));
 	    else
 		printf(" inst=[%d]\n", sts);
 	    free(iname);
 	}
-    }
-
-    if ((sts = pmGetInDom(desc.indom, &ilist, &nlist)) < 0)
-	printf("pmGetInDom: {%s}\n", pmErrStr(sts));
-    else {
-	printf("pmGetInDom:\n");
-	for (i = 0; i < sts; i++) {
-	    if (ilist[i] == inst) {
-		printf("   [%d] <%s>\n", ilist[i], nlist[i]);
-		break;
+	if (opts.context == PM_CONTEXT_ARCHIVE) {
+	    iname = "no match";
+	    printf("pm*InDomArchive: inst=[%d]", try);
+	    if ((sts = pmNameInDomArchive(desc.indom, try, &iname)) < 0)
+		printf(" {%s}\n", pmErrStr(sts));
+	    else {
+		printf(" iname=<%s> reverse lookup:", iname);
+		if ((sts = pmLookupInDomArchive(desc.indom, iname)) < 0)
+		    printf(" {%s}\n", pmErrStr(sts));
+		else
+		    printf(" inst=[%d]\n", sts);
+		free(iname);
 	    }
 	}
-	free(ilist);
-	free(nlist);
     }
 
-    if (opts.context == PM_CONTEXT_ARCHIVE) {
-	if ((sts = pmGetInDomArchive(desc.indom, &ilist, &nlist)) < 0)
-	    printf("pmGetInDomArchive: {%s}\n", pmErrStr(sts));
+    if (numinst < 0) {
+	printf("%s: {%s}\n", func, pmErrStr(numinst));
+	sts = numinst;
+    }
+    else {
+	sts = 0;
+	printf("%s:\n", func);
+	if (rflag) {
+	    for (p = 0; p < nprobe; p++) {
+		printf("   [%d] <%s> [ordinal %d]\n", ilist[probe[p]], nlist[probe[p]], probe[p]);
+	    }
+	}
 	else {
-	    printf("pmGetInDomArchive:\n");
-	    for (i = 0; i < sts; i++) {
-		if (i == inst) {
+	    for (i = 0; i < numinst; i++) {
+		if (ilist[i] == inst) {
 		    printf("   [%d] <%s>\n", ilist[i], nlist[i]);
 		    break;
 		}
 	    }
-	    free(ilist);
-	    free(nlist);
 	}
+	free(ilist);
+	free(nlist);
     }
 
     return sts;
@@ -123,8 +157,14 @@ main(int argc, char **argv)
 		opts.errors++;
 	    }
 	    break;
+	case 'r':	/* pick some representative instacnces */
+	    rflag++;
+	    break;
 	}
     }
+
+    if (rflag == 0 && inst == -999)
+	inst = 0;
 
     if (opts.errors || (opts.flags & PM_OPTFLAG_EXIT)) {
 	exitsts = !(opts.flags & PM_OPTFLAG_EXIT);
