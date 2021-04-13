@@ -15,20 +15,17 @@ echo "QA output created by $seq"
 
 [ $PCP_PLATFORM = linux ] || _notrun "Linux interrupts test, only works with Linux"
 
-# expected output is very large, compressed to save space in repo
-$sudo rm -f $seq.out
-bunzip2 < $seq.out.bz2 > $seq.out
-
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 
 _cleanup()
 {
     cd $here
-    [ -f $PCP_VAR_DIR/config/pmda/$domain.26.$seq ] && \
-	_restore_config $PCP_VAR_DIR/config/pmda/$domain.26
-    [ -f $PCP_VAR_DIR/config/pmda/$domain.27.$seq ] && \
-	_restore_config $PCP_VAR_DIR/config/pmda/$domain.27
+    for indom in 0 40 41
+    do
+	[ -f $PCP_VAR_DIR/config/pmda/$domain.$indom.$seq ] && \
+	_restore_config $PCP_VAR_DIR/config/pmda/$domain.$indom
+    done
     rm -rf $tmp.*
 }
 
@@ -60,14 +57,26 @@ softirqs=`echo $here/linux/softirqs-* | LC_COLLATE=POSIX sort`
 
 # override the default contents of PMDA cache files
 # (do not want localhost versions to be used here).
+# Note: domain 60 and indom ordinal 0, 40, 41 is magic, from
+# $ pminfo -d kernel.percpu.intr kernel.percpu.interrupts kernel.percpu.softirqs
+
+# kernel.percpu.intr
+#     Data Type: 64-bit unsigned int  InDom: 60.0 0xf000000
+#                                            ^^ ^ here
+# kernel.percpu.interrupts
+#     Data Type: 32-bit unsigned int  InDom: 60.40 0xf000028
+#                                            ^^ ^^ here
+# kernel.percpu.softirqs
+#     Data Type: 32-bit unsigned int  InDom: 60.41 0xf000029
+#                                            ^^ ^^ here
 #
 domain=60
-[ -f $PCP_VAR_DIR/config/pmda/$domain.26 ] && \
-    _save_config $PCP_VAR_DIR/config/pmda/$domain.26
-$sudo rm -f $PCP_VAR_DIR/config/pmda/$domain.26
-[ -f $PCP_VAR_DIR/config/pmda/$domain.27 ] && \
-    _save_config $PCP_VAR_DIR/config/pmda/$domain.27
-$sudo rm -f $PCP_VAR_DIR/config/pmda/$domain.27
+for indom in 0 40 41
+do
+    [ -f $PCP_VAR_DIR/config/pmda/$domain.$indom ] && \
+    _save_config $PCP_VAR_DIR/config/pmda/$domain.$indom
+    $sudo rm -f $PCP_VAR_DIR/config/pmda/$domain.$indom
+done
 
 for file in $interrupts
 do
@@ -81,7 +90,7 @@ do
     export LINUX_NCPUS=$ncpu
 
     echo "== Checking interrupts metrics from $base ($ncpu CPU)"
-    pminfo -f -L -K clear -K add,$domain,$pmda kernel.percpu.intr kernel.percpu.interrupts
+    src/indom -v -r 10 -L -K clear -K add,$domain,$pmda kernel.percpu.intr kernel.percpu.interrupts
     echo && echo "== done" && echo
     echo "== Checking interrupts helptext from $base ($ncpu CPU)"
     pminfo -tT -L -K clear -K add,$domain,$pmda kernel.percpu.intr kernel.percpu.interrupts
@@ -101,7 +110,10 @@ do
     export LINUX_NCPUS=$ncpu
 
     echo "== Checking softirqs metrics from $base ($ncpu CPU)"
-    pminfo -f -L -K clear -K add,$domain,$pmda kernel.percpu.softirqs
+    src/indom -v -r 10 -L -K clear -K add,$domain,$pmda kernel.percpu.softirqs
+    echo && echo "== done" && echo
+    echo "== Checking softirqs helptext from $base ($ncpu CPU)"
+    pminfo -tT -L -K clear -K add,$domain,$pmda kernel.percpu.intr kernel.percpu.interrupts
     echo && echo "== done" && echo
     cd $here
 done

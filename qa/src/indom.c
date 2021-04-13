@@ -9,7 +9,10 @@ static pmLongOptions longopts[] = {
     PMOPT_ARCHIVE,
     PMOPT_DEBUG,
     PMOPT_HOST,
-    { "inst", 1, 'i', "INST", "report on internal instance identifier" },
+    { "full", 0, 'f', NULL, "report all instances" },
+    { "inst", 1, 'i', "INST", "report this internal instance identifier" },
+    { "probe", 1, 'r', "PCT", "report PCT percentile internal instances" },
+    { "values", 0, 'v', NULL, "report values as well" },
     PMOPT_LOCALPMDA,
     PMOPT_SPECLOCAL,
     PMOPT_TIMEZONE,
@@ -20,12 +23,17 @@ static pmLongOptions longopts[] = {
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_STDOUT_TZ,
-    .short_options = "a:D:h:i:K:LzZ:?",
+    .short_options = "a:D:fh:i:K:Lr:vzZ:?",
     .long_options = longopts,
-    .short_usage = "[options] metricname ...",
+    .short_usage = "[options] [-f|-p|-i INST] metricname ...",
 };
 
-static int	inst;
+static int	inst = -999;
+
+static int	rflag = 0;
+static int	pct;
+static int	fflag = 0;
+static int	vflag = 0;
 
 int
 dometric(const char *name)
@@ -33,9 +41,14 @@ dometric(const char *name)
     pmID	pmid;
     pmDesc	desc;
     int		i, sts;
-    char	*iname;
-    int		*ilist;
+    int		numinst;
+    char	*iname = NULL;
+    int		*ilist = NULL;
+    int		p;
+    int		probe;
+    int		nprobe;
     char	**nlist;
+    char	*func;
 
     if ((sts = pmLookupName(1, &name, &pmid)) < 0)
 	return sts;
@@ -43,61 +56,113 @@ dometric(const char *name)
     if ((sts = pmLookupDesc(pmid, &desc)) < 0)
 	return sts;
 
-    iname = "no match";
-    printf("pm*InDom: inst=[%d]", inst);
-    if ((sts = pmNameInDom(desc.indom, inst, &iname)) < 0)
-	printf(" {%s}\n", pmErrStr(sts));
-    else {
-	printf(" iname=<%s> reverse lookup:", iname);
-	if ((sts = pmLookupInDom(desc.indom, iname)) < 0)
-	    printf(" {%s}\n", pmErrStr(sts));
-	else
-	    printf(" inst=[%d]\n", sts);
-	free(iname);
+    if (opts.context == PM_CONTEXT_HOST || opts.context == PM_CONTEXT_LOCAL) {
+	numinst = pmGetInDom(desc.indom, &ilist, &nlist);
+	func = "pmGetInDom";
     }
-    if (opts.context == PM_CONTEXT_ARCHIVE) {
+    else {
+	numinst = pmGetInDomArchive(desc.indom, &ilist, &nlist);
+	func = "pmGetInDomArchive";
+    }
+    if (rflag || fflag) {
+	if (numinst > 0)
+	    nprobe = numinst;
+	else
+	    nprobe = -1;
+    }
+    else
+	nprobe = 1;
+
+
+    for (p = 0; p < nprobe; p++) {
+	int	try;
 	iname = "no match";
-	printf("pm*InDomArchive: inst=[%d]", inst);
-	if ((sts = pmNameInDomArchive(desc.indom, inst, &iname)) < 0)
+	if (rflag) {
+	    probe = p*pct*(numinst-1)/100;
+	    if (probe >= numinst)
+		break;
+	    try = ilist[probe];
+	}
+	else if (fflag)
+	    try = ilist[p];
+	else
+	    try = inst;
+	printf("pm*InDom: inst=[%d]", try);
+	if ((sts = pmNameInDom(desc.indom, try, &iname)) < 0)
 	    printf(" {%s}\n", pmErrStr(sts));
 	else {
 	    printf(" iname=<%s> reverse lookup:", iname);
-	    if ((sts = pmLookupInDomArchive(desc.indom, iname)) < 0)
-		printf(" {%s}\n", pmErrStr(sts));
+	    if ((sts = pmLookupInDom(desc.indom, iname)) < 0)
+		printf(" {%s}", pmErrStr(sts));
 	    else
-		printf(" inst=[%d]\n", sts);
+		printf(" inst=[%d]", sts);
 	    free(iname);
+	    if (vflag) {
+		if ((sts = pmDelProfile(desc.indom, 0, NULL)) < 0)
+		    printf(" pmDelProfile: {%s}", pmErrStr(sts));
+		else {
+		    if ((sts = pmAddProfile(desc.indom, 1, &try)) < 0)
+			printf(" pmAddProfile: {%s}", pmErrStr(sts));
+		    else {
+			pmResult	*rp;
+			if ((sts = pmFetch(1, &desc.pmid, &rp)) < 0)
+			    printf(" pmFetch: {%s}", pmErrStr(sts));
+			else {
+			    printf(" value:");
+			    pmPrintValue(stdout, rp->vset[0]->valfmt, desc.type, &rp->vset[0]->vlist[0], 9);
+			    pmFreeResult(rp);
+			}
+		    }
+		}
+	    }
+	    fputc('\n', stdout);
 	}
-    }
-
-    if ((sts = pmGetInDom(desc.indom, &ilist, &nlist)) < 0)
-	printf("pmGetInDom: {%s}\n", pmErrStr(sts));
-    else {
-	printf("pmGetInDom:\n");
-	for (i = 0; i < sts; i++) {
-	    if (ilist[i] == inst) {
-		printf("   [%d] <%s>\n", ilist[i], nlist[i]);
-		break;
+	if (opts.context == PM_CONTEXT_ARCHIVE) {
+	    iname = "no match";
+	    printf("pm*InDomArchive: inst=[%d]", try);
+	    if ((sts = pmNameInDomArchive(desc.indom, try, &iname)) < 0)
+		printf(" {%s}\n", pmErrStr(sts));
+	    else {
+		printf(" iname=<%s> reverse lookup:", iname);
+		if ((sts = pmLookupInDomArchive(desc.indom, iname)) < 0)
+		    printf(" {%s}\n", pmErrStr(sts));
+		else
+		    printf(" inst=[%d]\n", sts);
+		free(iname);
 	    }
 	}
-	free(ilist);
-	free(nlist);
     }
 
-    if (opts.context == PM_CONTEXT_ARCHIVE) {
-	if ((sts = pmGetInDomArchive(desc.indom, &ilist, &nlist)) < 0)
-	    printf("pmGetInDomArchive: {%s}\n", pmErrStr(sts));
+    if (numinst < 0) {
+	printf("%s: {%s}\n", func, pmErrStr(numinst));
+	sts = numinst;
+    }
+    else {
+	sts = 0;
+	printf("%s:\n", func);
+	if (rflag) {
+	    for (p = 0; p < nprobe; p++) {
+		probe = p*pct*(numinst-1)/100;
+		if (probe >= numinst)
+		    break;
+		printf("   [%d] <%s> [%d%% percentile]\n", ilist[probe], nlist[probe], p*pct);
+	    }
+	}
+	else if (fflag) {
+	    for (p = 0; p < nprobe; p++) {
+		printf("   [%d] <%s> [ordinal %d]\n", ilist[p], nlist[p], p);
+	    }
+	}
 	else {
-	    printf("pmGetInDomArchive:\n");
-	    for (i = 0; i < sts; i++) {
-		if (i == inst) {
+	    for (i = 0; i < numinst; i++) {
+		if (ilist[i] == inst) {
 		    printf("   [%d] <%s>\n", ilist[i], nlist[i]);
 		    break;
 		}
 	    }
-	    free(ilist);
-	    free(nlist);
 	}
+	free(ilist);
+	free(nlist);
     }
 
     return sts;
@@ -116,6 +181,13 @@ main(int argc, char **argv)
     pmSetProgname(argv[0]);
     while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {
+	case 'f':	/* pick all instances */
+	    if (rflag) {
+		pmprintf("%s: -p and -f are mutually exclusive\n", pmGetProgname());
+		opts.errors++;
+	    }
+	    fflag++;
+	    break;
 	case 'i':	/* instance */
 	    inst = (int)strtol(opts.optarg, &endnum, 10);
 	    if (*endnum != '\0' || inst < 0) {
@@ -123,7 +195,32 @@ main(int argc, char **argv)
 		opts.errors++;
 	    }
 	    break;
+	case 'r':	/* pick some representative instances */
+	    if (fflag) {
+		pmprintf("%s: -f and -p are mutually exclusive\n", pmGetProgname());
+		opts.errors++;
+	    }
+	    rflag++;
+	    pct = (int)strtol(opts.optarg, &endnum, 10);
+	    if (*endnum != '\0' || pct <= 0 || pct > 99) {
+		pmprintf("%s: -p requires numeric argument > 0 and <= 99\n", pmGetProgname());
+		opts.errors++;
+	    }
+	    break;
+	case 'v':	/* report values as well */
+	    vflag++;
+	    break;
 	}
+    }
+
+    if (rflag + fflag == 1 && inst != -999) {
+	pmprintf("%s: -i and (-f or -p) are mutually exclusive\n", pmGetProgname());
+	opts.errors++;
+    }
+
+    if (rflag == 0 && fflag == 0 && inst == -999) {
+	/* default */
+	inst = 0;
     }
 
     if (opts.errors || (opts.flags & PM_OPTFLAG_EXIT)) {

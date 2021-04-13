@@ -5051,897 +5051,897 @@ static pmdaMetric metrictab[] = {
 
     /* mem.vmstat.nr_dirty */
     { &_pm_proc_vmstat.nr_dirty,
-    {PMDA_PMID(28,0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    {PMDA_PMID(CLUSTER_VMSTAT,0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
     /* mem.vmstat.nr_writeback */
     { &_pm_proc_vmstat.nr_writeback,
-    {PMDA_PMID(28,1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    {PMDA_PMID(CLUSTER_VMSTAT,1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
     /* mem.vmstat.nr_unstable */
     { &_pm_proc_vmstat.nr_unstable,
-    {PMDA_PMID(28,2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    {PMDA_PMID(CLUSTER_VMSTAT,2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
     /* mem.vmstat.nr_page_table_pages */
     { &_pm_proc_vmstat.nr_page_table_pages,
-    {PMDA_PMID(28,3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    {PMDA_PMID(CLUSTER_VMSTAT,3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
     /* mem.vmstat.nr_mapped */
     { &_pm_proc_vmstat.nr_mapped,
-    {PMDA_PMID(28,4), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    {PMDA_PMID(CLUSTER_VMSTAT,4), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
     /* mem.vmstat.nr_slab */
     { &_pm_proc_vmstat.nr_slab,
-    {PMDA_PMID(28,5), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    {PMDA_PMID(CLUSTER_VMSTAT,5), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
     /* mem.vmstat.pgpgin */
     { &_pm_proc_vmstat.pgpgin,
-    {PMDA_PMID(28,6), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,6), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgpgout */
     { &_pm_proc_vmstat.pgpgout,
-    {PMDA_PMID(28,7), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,7), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pswpin */
     { &_pm_proc_vmstat.pswpin,
-    {PMDA_PMID(28,8), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,8), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pswpout */
     { &_pm_proc_vmstat.pswpout,
-    {PMDA_PMID(28,9), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,9), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgalloc_high */
     { &_pm_proc_vmstat.pgalloc_high,
-    {PMDA_PMID(28,10), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,10), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgalloc_normal */
     { &_pm_proc_vmstat.pgalloc_normal,
-    {PMDA_PMID(28,11), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,11), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgalloc_dma */
     { &_pm_proc_vmstat.pgalloc_dma,
-    {PMDA_PMID(28,12), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,12), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgfree */
     { &_pm_proc_vmstat.pgfree,
-    {PMDA_PMID(28,13), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,13), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgactivate */
     { &_pm_proc_vmstat.pgactivate,
-    {PMDA_PMID(28,14), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,14), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgdeactivate */
     { &_pm_proc_vmstat.pgdeactivate,
-    {PMDA_PMID(28,15), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,15), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgfault */
     { &_pm_proc_vmstat.pgfault,
-    {PMDA_PMID(28,16), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,16), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgmajfault */
     { &_pm_proc_vmstat.pgmajfault,
-    {PMDA_PMID(28,17), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,17), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgrefill_high */
     { &_pm_proc_vmstat.pgrefill_high,
-    {PMDA_PMID(28,18), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,18), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgrefill_normal */
     { &_pm_proc_vmstat.pgrefill_normal,
-    {PMDA_PMID(28,19), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,19), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgrefill_dma */
     { &_pm_proc_vmstat.pgrefill_dma,
-    {PMDA_PMID(28,20), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,20), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgsteal_high */
     { &_pm_proc_vmstat.pgsteal_high,
-    {PMDA_PMID(28,21), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,21), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgsteal_normal */
     { &_pm_proc_vmstat.pgsteal_normal,
-    {PMDA_PMID(28,22), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,22), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgsteal_dma */
     { &_pm_proc_vmstat.pgsteal_dma,
-    {PMDA_PMID(28,23), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,23), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgscan_kswapd_high */
     { &_pm_proc_vmstat.pgscan_kswapd_high,
-    {PMDA_PMID(28,24), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,24), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgscan_kswapd_normal */
     { &_pm_proc_vmstat.pgscan_kswapd_normal,
-    {PMDA_PMID(28,25), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,25), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgscan_kswapd_dma */
     { &_pm_proc_vmstat.pgscan_kswapd_dma,
-    {PMDA_PMID(28,26), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,26), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgscan_direct_high */
     { &_pm_proc_vmstat.pgscan_direct_high,
-    {PMDA_PMID(28,27), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,27), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgscan_direct_normal */
     { &_pm_proc_vmstat.pgscan_direct_normal,
-    {PMDA_PMID(28,28), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,28), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgscan_direct_dma */
     { &_pm_proc_vmstat.pgscan_direct_dma,
-    {PMDA_PMID(28,29), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,29), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pginodesteal */
     { &_pm_proc_vmstat.pginodesteal,
-    {PMDA_PMID(28,30), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,30), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.slabs_scanned */
     { &_pm_proc_vmstat.slabs_scanned,
-    {PMDA_PMID(28,31), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,31), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.kswapd_steal */
     { &_pm_proc_vmstat.kswapd_steal,
-    {PMDA_PMID(28,32), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,32), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.kswapd_inodesteal */
     { &_pm_proc_vmstat.kswapd_inodesteal,
-    {PMDA_PMID(28,33), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,33), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pageoutrun */
     { &_pm_proc_vmstat.pageoutrun,
-    {PMDA_PMID(28,34), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,34), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.allocstall */
     { &_pm_proc_vmstat.allocstall,
-    {PMDA_PMID(28,35), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,35), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgrotated */
     { &_pm_proc_vmstat.pgrotated,
-    {PMDA_PMID(28,36), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,36), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_slab_reclaimable */
     { &_pm_proc_vmstat.nr_slab_reclaimable,
-    {PMDA_PMID(28,37), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    {PMDA_PMID(CLUSTER_VMSTAT,37), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
     /* mem.vmstat.nr_slab_unreclaimable */
     { &_pm_proc_vmstat.nr_slab_unreclaimable,
-    {PMDA_PMID(28,38), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    {PMDA_PMID(CLUSTER_VMSTAT,38), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
     /* mem.vmstat.nr_anon_pages */
     { &_pm_proc_vmstat.nr_anon_pages,
-    {PMDA_PMID(28,39), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    {PMDA_PMID(CLUSTER_VMSTAT,39), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
     /* mem.vmstat.nr_bounce */
     { &_pm_proc_vmstat.nr_bounce,
-    {PMDA_PMID(28,40), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    {PMDA_PMID(CLUSTER_VMSTAT,40), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
     /* mem.vmstat.nr_file_pages */
     { &_pm_proc_vmstat.nr_file_pages,
-    {PMDA_PMID(28,41), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    {PMDA_PMID(CLUSTER_VMSTAT,41), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
     /* mem.vmstat.nr_vmscan_write */
     { &_pm_proc_vmstat.nr_vmscan_write,
-    {PMDA_PMID(28,42), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,42), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.htlb_buddy_alloc_fail */
     { &_pm_proc_vmstat.htlb_buddy_alloc_fail,
-    {PMDA_PMID(28,43), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,43), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.htlb_buddy_alloc_success */
     { &_pm_proc_vmstat.htlb_buddy_alloc_success,
-    {PMDA_PMID(28,44), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,44), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_active_anon */
     { &_pm_proc_vmstat.nr_active_anon,
-    {PMDA_PMID(28,45), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    {PMDA_PMID(CLUSTER_VMSTAT,45), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_active_file */
     { &_pm_proc_vmstat.nr_active_file,
-    {PMDA_PMID(28,46), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    {PMDA_PMID(CLUSTER_VMSTAT,46), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_free_pages */
     { &_pm_proc_vmstat.nr_free_pages,
-    {PMDA_PMID(28,47), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    {PMDA_PMID(CLUSTER_VMSTAT,47), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_inactive_anon */
     { &_pm_proc_vmstat.nr_inactive_anon,
-    {PMDA_PMID(28,48), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    {PMDA_PMID(CLUSTER_VMSTAT,48), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_inactive_file */
     { &_pm_proc_vmstat.nr_inactive_file,
-    {PMDA_PMID(28,49), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    {PMDA_PMID(CLUSTER_VMSTAT,49), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_isolated_anon */
     { &_pm_proc_vmstat.nr_isolated_anon,
-    {PMDA_PMID(28,50), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    {PMDA_PMID(CLUSTER_VMSTAT,50), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_isolated_file */
     { &_pm_proc_vmstat.nr_isolated_file,
-    {PMDA_PMID(28,51), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    {PMDA_PMID(CLUSTER_VMSTAT,51), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_kernel_stack */
     { &_pm_proc_vmstat.nr_kernel_stack,
-    {PMDA_PMID(28,52), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    {PMDA_PMID(CLUSTER_VMSTAT,52), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_mlock */
     { &_pm_proc_vmstat.nr_mlock,
-    {PMDA_PMID(28,53), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    {PMDA_PMID(CLUSTER_VMSTAT,53), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_shmem */
     { &_pm_proc_vmstat.nr_shmem,
-    {PMDA_PMID(28,54), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    {PMDA_PMID(CLUSTER_VMSTAT,54), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_unevictable */
     { &_pm_proc_vmstat.nr_unevictable,
-    {PMDA_PMID(28,55), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    {PMDA_PMID(CLUSTER_VMSTAT,55), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_writeback_temp */
     { &_pm_proc_vmstat.nr_writeback_temp,
-    {PMDA_PMID(28,56), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    {PMDA_PMID(CLUSTER_VMSTAT,56), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.compact_blocks_moved */
     { &_pm_proc_vmstat.compact_blocks_moved,
-    {PMDA_PMID(28,57), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,57), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.compact_fail */
     { &_pm_proc_vmstat.compact_fail,
-    {PMDA_PMID(28,58), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,58), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.compact_pagemigrate_failed */
     { &_pm_proc_vmstat.compact_pagemigrate_failed,
-    {PMDA_PMID(28,59), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,59), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.compact_pages_moved */
     { &_pm_proc_vmstat.compact_pages_moved,
-    {PMDA_PMID(28,60), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,60), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.compact_stall */
     { &_pm_proc_vmstat.compact_stall,
-    {PMDA_PMID(28,61), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,61), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.compact_success */
     { &_pm_proc_vmstat.compact_success,
-    {PMDA_PMID(28,62), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,62), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgalloc_dma32 */
     { &_pm_proc_vmstat.pgalloc_dma32,
-    {PMDA_PMID(28,63), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,63), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgalloc_movable */
     { &_pm_proc_vmstat.pgalloc_movable,
-    {PMDA_PMID(28,64), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,64), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgrefill_dma32 */
     { &_pm_proc_vmstat.pgrefill_dma32,
-    {PMDA_PMID(28,65), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,65), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgrefill_movable */
     { &_pm_proc_vmstat.pgrefill_movable,
-    {PMDA_PMID(28,66), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,66), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgscan_direct_dma32 */
     { &_pm_proc_vmstat.pgscan_direct_dma32,
-    {PMDA_PMID(28,67), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,67), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgscan_direct_movable */
     { &_pm_proc_vmstat.pgscan_direct_movable,
-    {PMDA_PMID(28,68), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,68), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgscan_kswapd_dma32 */
     { &_pm_proc_vmstat.pgscan_kswapd_dma32,
-    {PMDA_PMID(28,69), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,69), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgscan_kswapd_movable */
     { &_pm_proc_vmstat.pgscan_kswapd_movable,
-    {PMDA_PMID(28,70), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,70), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgsteal_dma32 */
     { &_pm_proc_vmstat.pgsteal_dma32,
-    {PMDA_PMID(28,71), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,71), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgsteal_movable */
     { &_pm_proc_vmstat.pgsteal_movable,
-    {PMDA_PMID(28,72), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,72), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.thp_fault_alloc */
     { &_pm_proc_vmstat.thp_fault_alloc,
-    {PMDA_PMID(28,73), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,73), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.thp_fault_fallback */
     { &_pm_proc_vmstat.thp_fault_fallback,
-    {PMDA_PMID(28,74), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,74), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.thp_collapse_alloc */
     { &_pm_proc_vmstat.thp_collapse_alloc,
-    {PMDA_PMID(28,75), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,75), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.thp_collapse_alloc_failed */
     { &_pm_proc_vmstat.thp_collapse_alloc_failed,
-    {PMDA_PMID(28,76), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,76), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.thp_split */
     { &_pm_proc_vmstat.thp_split,
-    {PMDA_PMID(28,77), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,77), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.unevictable_pgs_cleared */
     { &_pm_proc_vmstat.unevictable_pgs_cleared,
-    {PMDA_PMID(28,78), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,78), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.unevictable_pgs_culled */
     { &_pm_proc_vmstat.unevictable_pgs_culled,
-    {PMDA_PMID(28,79), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,79), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.unevictable_pgs_mlocked */
     { &_pm_proc_vmstat.unevictable_pgs_mlocked,
-    {PMDA_PMID(28,80), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,80), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.unevictable_pgs_mlockfreed */
     { &_pm_proc_vmstat.unevictable_pgs_mlockfreed,
-    {PMDA_PMID(28,81), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,81), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.unevictable_pgs_munlocked */
     { &_pm_proc_vmstat.unevictable_pgs_munlocked,
-    {PMDA_PMID(28,82), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,82), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.unevictable_pgs_rescued */
     { &_pm_proc_vmstat.unevictable_pgs_rescued,
-    {PMDA_PMID(28,83), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,83), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.unevictable_pgs_scanned */
     { &_pm_proc_vmstat.unevictable_pgs_scanned,
-    {PMDA_PMID(28,84), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,84), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.unevictable_pgs_stranded */
     { &_pm_proc_vmstat.unevictable_pgs_stranded,
-    {PMDA_PMID(28,85), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,85), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.zone_reclaim_failed */
     { &_pm_proc_vmstat.zone_reclaim_failed,
-    {PMDA_PMID(28,86), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,86), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.kswapd_low_wmark_hit_quickly */
     { &_pm_proc_vmstat.kswapd_low_wmark_hit_quickly,
-    {PMDA_PMID(28,87), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,87), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.kswapd_high_wmark_hit_quickly */
     { &_pm_proc_vmstat.kswapd_high_wmark_hit_quickly,
-    {PMDA_PMID(28,88), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,88), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.kswapd_skip_congestion_wait */
     { &_pm_proc_vmstat.kswapd_skip_congestion_wait,
-    {PMDA_PMID(28,89), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,89), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_anon_transparent_hugepages */
     { &_pm_proc_vmstat.nr_anon_transparent_hugepages,
-    {PMDA_PMID(28,90), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    {PMDA_PMID(CLUSTER_VMSTAT,90), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_dirtied */
     { &_pm_proc_vmstat.nr_dirtied,
-    {PMDA_PMID(28,91), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,91), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_dirty_background_threshold */
     { &_pm_proc_vmstat.nr_dirty_background_threshold,
-    {PMDA_PMID(28,92), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    {PMDA_PMID(CLUSTER_VMSTAT,92), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_dirty_threshold */
     { &_pm_proc_vmstat.nr_dirty_threshold,
-    {PMDA_PMID(28,93), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    {PMDA_PMID(CLUSTER_VMSTAT,93), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_written */
     { &_pm_proc_vmstat.nr_written,
-    {PMDA_PMID(28,94), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,94), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.numa_foreign */
     { &_pm_proc_vmstat.numa_foreign,
-    {PMDA_PMID(28,95), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,95), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.numa_hit */
     { &_pm_proc_vmstat.numa_hit,
-    {PMDA_PMID(28,96), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,96), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.numa_interleave */
     { &_pm_proc_vmstat.numa_interleave,
-    {PMDA_PMID(28,97), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,97), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.numa_local */
     { &_pm_proc_vmstat.numa_local,
-    {PMDA_PMID(28,98), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,98), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.numa_miss */
     { &_pm_proc_vmstat.numa_miss,
-    {PMDA_PMID(28,99), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,99), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.numa_other */
     { &_pm_proc_vmstat.numa_other,
-    {PMDA_PMID(28,100), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,100), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.thp_zero_page_alloc */
     { &_pm_proc_vmstat.thp_zero_page_alloc,
-    {PMDA_PMID(28,101), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,101), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.thp_zero_page_alloc_failed */
     { &_pm_proc_vmstat.thp_zero_page_alloc_failed,
-    {PMDA_PMID(28,102), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,102), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.balloon_inflate */
     { &_pm_proc_vmstat.balloon_inflate,
-    {PMDA_PMID(28,103), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,103), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.balloon_deflate */
     { &_pm_proc_vmstat.balloon_deflate,
-    {PMDA_PMID(28,104), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,104), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.balloon_migrate */
     { &_pm_proc_vmstat.balloon_migrate,
-    {PMDA_PMID(28,105), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,105), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.compact_daemon_wake */
     { &_pm_proc_vmstat.compact_daemon_wake,
-    {PMDA_PMID(28,106), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,106), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.compact_free_scanned */
     { &_pm_proc_vmstat.compact_free_scanned,
-    {PMDA_PMID(28,107), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,107), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.compact_migrate_scanned */
     { &_pm_proc_vmstat.compact_migrate_scanned,
-    {PMDA_PMID(28,108), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,108), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.drop_pagecache */
     { &_pm_proc_vmstat.drop_pagecache,
-    {PMDA_PMID(28,109), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,109), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.drop_slab */
     { &_pm_proc_vmstat.drop_slab,
-    {PMDA_PMID(28,110), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,110), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_free_cma */
     { &_pm_proc_vmstat.nr_free_cma,
-    {PMDA_PMID(28,111), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,111), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_pages_scanned */
     { &_pm_proc_vmstat.nr_pages_scanned,
-    {PMDA_PMID(28,112), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,112), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_vmscan_immediate_reclaim */
     { &_pm_proc_vmstat.nr_vmscan_immediate_reclaim,
-    {PMDA_PMID(28,113), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,113), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.numa_pages_migrated */
     { &_pm_proc_vmstat.numa_pages_migrated,
-    {PMDA_PMID(28,114), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,114), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.numa_pte_updates */
     { &_pm_proc_vmstat.numa_pte_updates,
-    {PMDA_PMID(28,115), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,115), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pglazyfreed */
     { &_pm_proc_vmstat.pglazyfreed,
-    {PMDA_PMID(28,116), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,116), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgmigrate_fail */
     { &_pm_proc_vmstat.pgmigrate_fail,
-    {PMDA_PMID(28,117), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,117), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgmigrate_success */
     { &_pm_proc_vmstat.pgmigrate_success,
-    {PMDA_PMID(28,118), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,118), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.thp_deferred_split_page */
     { &_pm_proc_vmstat.thp_deferred_split_page,
-    {PMDA_PMID(28,119), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,119), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.thp_split_page */
     { &_pm_proc_vmstat.thp_split_page,
-    {PMDA_PMID(28,120), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,120), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.thp_split_page_failed */
     { &_pm_proc_vmstat.thp_split_page_failed,
-    {PMDA_PMID(28,121), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,121), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.thp_split_pmd */ 
     { &_pm_proc_vmstat.thp_split_pmd,
-    {PMDA_PMID(28,122), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,122), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.workingset_activate */
     { &_pm_proc_vmstat.workingset_activate,
-    {PMDA_PMID(28,123), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,123), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.workingset_nodereclaim */
     { &_pm_proc_vmstat.workingset_nodereclaim,
-    {PMDA_PMID(28,124), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,124), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.workingset_refault */
     { &_pm_proc_vmstat.workingset_refault,
-    {PMDA_PMID(28,125), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,125), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.compact_isolated */
     { &_pm_proc_vmstat.compact_isolated,
-    {PMDA_PMID(28,126), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,126), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_shmem_hugepages */
     { &_pm_proc_vmstat.nr_shmem_hugepages,
-    {PMDA_PMID(28,127), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    {PMDA_PMID(CLUSTER_VMSTAT,127), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_shmem_pmdmapped */
     { &_pm_proc_vmstat.nr_shmem_pmdmapped,
-    {PMDA_PMID(28,128), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    {PMDA_PMID(CLUSTER_VMSTAT,128), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_zone_inactive_anon */
     { &_pm_proc_vmstat.nr_zone_inactive_anon,
-    {PMDA_PMID(28,129), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    {PMDA_PMID(CLUSTER_VMSTAT,129), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_zone_active_anon */
     { &_pm_proc_vmstat.nr_zone_active_anon,
-    {PMDA_PMID(28,130), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    {PMDA_PMID(CLUSTER_VMSTAT,130), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_zone_inactive_file */
     { &_pm_proc_vmstat.nr_zone_inactive_file,
-    {PMDA_PMID(28,131), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    {PMDA_PMID(CLUSTER_VMSTAT,131), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_zone_active_file */
     { &_pm_proc_vmstat.nr_zone_active_file,
-    {PMDA_PMID(28,132), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    {PMDA_PMID(CLUSTER_VMSTAT,132), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_zone_unevictable */
     { &_pm_proc_vmstat.nr_zone_unevictable,
-    {PMDA_PMID(28,133), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    {PMDA_PMID(CLUSTER_VMSTAT,133), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_zone_write_pending */
     { &_pm_proc_vmstat.nr_zone_write_pending,
-    {PMDA_PMID(28,134), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    {PMDA_PMID(CLUSTER_VMSTAT,134), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_zspages */
     { &_pm_proc_vmstat.nr_zspages,
-    {PMDA_PMID(28,135), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    {PMDA_PMID(CLUSTER_VMSTAT,135), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.thp_file_alloc */
     { &_pm_proc_vmstat.thp_file_alloc,
-    {PMDA_PMID(28,136), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,136), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.thp_file_mapped */
     { &_pm_proc_vmstat.thp_file_mapped,
-    {PMDA_PMID(28,137), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,137), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgsteal_kswapd_dma */
     { &_pm_proc_vmstat.pgsteal_kswapd_dma,
-    {PMDA_PMID(28,138), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,138), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgsteal_kswapd_dma32 */
     { &_pm_proc_vmstat.pgsteal_kswapd_dma32,
-    {PMDA_PMID(28,139), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,139), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgsteal_kswapd_normal */
     { &_pm_proc_vmstat.pgsteal_kswapd_normal,
-    {PMDA_PMID(28,140), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,140), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgsteal_kswapd_movable */
     { &_pm_proc_vmstat.pgsteal_kswapd_movable,
-    {PMDA_PMID(28,141), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,141), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgsteal_direct_dma */
     { &_pm_proc_vmstat.pgsteal_direct_dma,
-    {PMDA_PMID(28,142), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,142), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgsteal_direct_dma32 */
     { &_pm_proc_vmstat.pgsteal_direct_dma32,
-    {PMDA_PMID(28,143), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,143), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgsteal_direct_normal */
     { &_pm_proc_vmstat.pgsteal_direct_normal,
-    {PMDA_PMID(28,144), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,144), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgsteal_direct_movable */
     { &_pm_proc_vmstat.pgsteal_direct_movable,
-    {PMDA_PMID(28,145), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,145), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgscan_direct */
     { &_pm_proc_vmstat.pgscan_direct,
-    {PMDA_PMID(28,146), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,146), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgscan_direct_throttle */
     { &_pm_proc_vmstat.pgscan_direct_throttle,
-    {PMDA_PMID(28,147), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,147), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgscan_kswapd */
     { &_pm_proc_vmstat.pgscan_kswapd,
-    {PMDA_PMID(28,148), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,148), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgsteal_direct */
     { &_pm_proc_vmstat.pgsteal_direct,
-    {PMDA_PMID(28,149), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,149), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgsteal_kswapd */
     { &_pm_proc_vmstat.pgsteal_kswapd,
-    {PMDA_PMID(28,150), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,150), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.numa_huge_pte_updates */
     { &_pm_proc_vmstat.numa_huge_pte_updates,
-    {PMDA_PMID(28,151), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,151), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.numa_hint_faults */
     { &_pm_proc_vmstat.numa_hint_faults,
-    {PMDA_PMID(28,152), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,152), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.numa_hint_faults_local */
     { &_pm_proc_vmstat.numa_hint_faults_local,
-    {PMDA_PMID(28,153), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,153), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.allocstall_dma */
     { &_pm_proc_vmstat.allocstall_dma,
-    {PMDA_PMID(28,154), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,154), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.allocstall_dma32 */
     { &_pm_proc_vmstat.allocstall_dma32,
-    {PMDA_PMID(28,155), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,155), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.allocstall_high */
     { &_pm_proc_vmstat.allocstall_high,
-    {PMDA_PMID(28,156), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,156), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.allocstall_movable */
     { &_pm_proc_vmstat.allocstall_movable,
-    {PMDA_PMID(28,157), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,157), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.allocstall_normal */
     { &_pm_proc_vmstat.allocstall_normal,
-    {PMDA_PMID(28,158), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,158), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.compact_daemon_free_scanned */
     { &_pm_proc_vmstat.compact_daemon_free_scanned,
-    {PMDA_PMID(28,159), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,159), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.compact_daemon_migrate_scanned */
     { &_pm_proc_vmstat.compact_daemon_migrate_scanned,
-    {PMDA_PMID(28,160), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,160), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_file_hugepages */
     { &_pm_proc_vmstat.nr_file_hugepages,
-    {PMDA_PMID(28,161), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    {PMDA_PMID(CLUSTER_VMSTAT,161), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_file_pmdmapped */
     { &_pm_proc_vmstat.nr_file_pmdmapped,
-    {PMDA_PMID(28,162), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    {PMDA_PMID(CLUSTER_VMSTAT,162), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_foll_pin_acquired */
     { &_pm_proc_vmstat.nr_foll_pin_acquired,
-    {PMDA_PMID(28,163), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    {PMDA_PMID(CLUSTER_VMSTAT,163), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_foll_pin_released */
     { &_pm_proc_vmstat.nr_foll_pin_released,
-    {PMDA_PMID(28,164), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    {PMDA_PMID(CLUSTER_VMSTAT,164), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_kernel_misc_reclaimable */
     { &_pm_proc_vmstat.nr_kernel_misc_reclaimable,
-    {PMDA_PMID(28,165), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    {PMDA_PMID(CLUSTER_VMSTAT,165), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.oom_kill */
     { &_pm_proc_vmstat.oom_kill,
-    {PMDA_PMID(28,166), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,166), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgsteal_file */
     { &_pm_proc_vmstat.pgsteal_file,
-    {PMDA_PMID(28,167), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,167), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.swap_ra */
     { &_pm_proc_vmstat.swap_ra,
-    {PMDA_PMID(28,168), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,168), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.swap_ra_hit */
     { &_pm_proc_vmstat.swap_ra_hit,
-    {PMDA_PMID(28,169), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,169), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.thp_fault_fallback_charge */
     { &_pm_proc_vmstat.thp_fault_fallback_charge ,
-    {PMDA_PMID(28,170), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,170), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.thp_split_pud */
     { &_pm_proc_vmstat.thp_split_pud,
-    {PMDA_PMID(28,171), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,171), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.thp_swpout */
     { &_pm_proc_vmstat.thp_swpout,
-    {PMDA_PMID(28,172), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,172), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.thp_swpout_fallback */
     { &_pm_proc_vmstat.thp_swpout_fallback,
-    {PMDA_PMID(28,173), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,173), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.workingset_nodes */
     { &_pm_proc_vmstat.workingset_nodes,
-    {PMDA_PMID(28,174), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,174), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.workingset_restore */
     { &_pm_proc_vmstat.workingset_restore,
-    {PMDA_PMID(28,175), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,175), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgscan_direct_total */
     { &_pm_proc_vmstat.pgscan_direct_total,
-    {PMDA_PMID(28,176), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,176), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgscan_kswapd_total */
     { &_pm_proc_vmstat.pgscan_kswapd_total,
-    {PMDA_PMID(28,177), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,177), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgsteal_total */
     { &_pm_proc_vmstat.pgsteal_total,
-    {PMDA_PMID(28,178), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,178), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /*
@@ -6819,6 +6819,18 @@ linux_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt
 	break;
     case TTY_INDOM:
 	need_refresh[CLUSTER_TTY]++;
+	break;
+    case INTERRUPT_INDOM:
+	need_refresh[CLUSTER_INTERRUPTS]++;
+	break;
+    case INTERRUPT_CPU_INDOM:
+	need_refresh[CLUSTER_INTERRUPTS]++;
+	break;
+    case SOFTIRQ_INDOM:
+	need_refresh[CLUSTER_SOFTIRQS_TOTAL]++;
+	break;
+    case SOFTIRQ_CPU_INDOM:
+        need_refresh[CLUSTER_SOFTIRQS]++;
 	break;
     /* no default label : pmdaInstance will pick up errors */
     }

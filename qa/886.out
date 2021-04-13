@@ -1,0 +1,389 @@
+QA output created by 886
+== Checking interrupts metrics from interrupts-1152cpu-x86_64.bz2 (1152 CPU)
+kernel.percpu.intr:
+pm*InDom: inst=[0] iname=<cpu0> reverse lookup: inst=[0] value: 14375370
+pm*InDom: inst=[115] iname=<cpu115> reverse lookup: inst=[115] value:  1137884
+pm*InDom: inst=[230] iname=<cpu230> reverse lookup: inst=[230] value:  1128818
+pm*InDom: inst=[345] iname=<cpu345> reverse lookup: inst=[345] value:  1118591
+pm*InDom: inst=[460] iname=<cpu460> reverse lookup: inst=[460] value:  1335621
+pm*InDom: inst=[575] iname=<cpu575> reverse lookup: inst=[575] value:  1367200
+pm*InDom: inst=[690] iname=<cpu690> reverse lookup: inst=[690] value:  1120085
+pm*InDom: inst=[805] iname=<cpu805> reverse lookup: inst=[805] value:  1124226
+pm*InDom: inst=[920] iname=<cpu920> reverse lookup: inst=[920] value:  1107381
+pm*InDom: inst=[1035] iname=<cpu1035> reverse lookup: inst=[1035] value:  1485470
+pm*InDom: inst=[1151] iname=<cpu1151> reverse lookup: inst=[1151] value:  1245475
+pmGetInDom:
+   [0] <cpu0> [0% percentile]
+   [115] <cpu115> [10% percentile]
+   [230] <cpu230> [20% percentile]
+   [345] <cpu345> [30% percentile]
+   [460] <cpu460> [40% percentile]
+   [575] <cpu575> [50% percentile]
+   [690] <cpu690> [60% percentile]
+   [805] <cpu805> [70% percentile]
+   [920] <cpu920> [80% percentile]
+   [1035] <cpu1035> [90% percentile]
+   [1151] <cpu1151> [100% percentile]
+kernel.percpu.interrupts:
+pm*InDom: inst=[0] iname=<0::cpu0> reverse lookup: inst=[0] value:      844
+pm*InDom: inst=[121651] iname=<130::cpu691> reverse lookup: inst=[121651] value:        0
+pm*InDom: inst=[243302] iname=<236::cpu230> reverse lookup: inst=[243302] value:        0
+pm*InDom: inst=[364953] iname=<342::cpu921> reverse lookup: inst=[364953] value:        0
+pm*InDom: inst=[486604] iname=<449::cpu460> reverse lookup: inst=[486604] value:        0
+pm*InDom: inst=[608255] iname=<555::cpu1151> reverse lookup: inst=[608255] value:        0
+pm*InDom: inst=[729906] iname=<661::cpu690> reverse lookup: inst=[729906] value:        0
+pm*InDom: inst=[851557] iname=<767::cpu229> reverse lookup: inst=[851557] value:        0
+pm*InDom: inst=[973208] iname=<938::cpu920> reverse lookup: inst=[973208] value:        0
+pm*InDom: inst=[1094859] iname=<1077::cpu459> reverse lookup: inst=[1094859] value:        0
+pm*InDom: inst=[1216511] iname=<PIW::cpu1151> reverse lookup: inst=[1216511] value:        0
+pmGetInDom:
+   [0] <0::cpu0> [0% percentile]
+   [121651] <130::cpu691> [10% percentile]
+   [243302] <236::cpu230> [20% percentile]
+   [364953] <342::cpu921> [30% percentile]
+   [486604] <449::cpu460> [40% percentile]
+   [608255] <555::cpu1151> [50% percentile]
+   [729906] <661::cpu690> [60% percentile]
+   [851557] <767::cpu229> [70% percentile]
+   [973208] <938::cpu920> [80% percentile]
+   [1094859] <1077::cpu459> [90% percentile]
+   [1216511] <PIW::cpu1151> [100% percentile]
+
+== done
+
+== Checking interrupts helptext from interrupts-1152cpu-x86_64.bz2 (1152 CPU)
+
+kernel.percpu.intr [interrupt count metric from /proc/interrupts]
+Help:
+Aggregate count of each CPUs interrupt processing count, calculated
+as the sum of all interrupt types in /proc/interrupts for each CPU.
+
+kernel.percpu.interrupts [interrupt counters from /proc/interrupts]
+Help:
+Counts of each interrupt type, for each CPU.
+
+== done
+
+== Checking interrupts metrics from interrupts-16cpu-s390x (16 CPU)
+kernel.percpu.intr:
+pm*InDom: inst=[0] iname=<cpu0> reverse lookup: inst=[0] value:    62206
+pm*InDom: inst=[1] iname=<cpu1> reverse lookup: inst=[1] value:    12957
+pm*InDom: inst=[3] iname=<cpu3> reverse lookup: inst=[3] value:    38152
+pm*InDom: inst=[4] iname=<cpu4> reverse lookup: inst=[4] value:    40647
+pm*InDom: inst=[6] iname=<cpu6> reverse lookup: inst=[6] value:    44207
+pm*InDom: inst=[7] iname=<cpu7> reverse lookup: inst=[7] value:    33175
+pm*InDom: inst=[9] iname=<cpu9> reverse lookup: inst=[9] value:    15015
+pm*InDom: inst=[10] iname=<cpu10> reverse lookup: inst=[10] value:    65355
+pm*InDom: inst=[12] iname=<cpu12> reverse lookup: inst=[12] value:    47888
+pm*InDom: inst=[13] iname=<cpu13> reverse lookup: inst=[13] value:    11493
+pm*InDom: inst=[15] iname=<cpu15> reverse lookup: inst=[15] value:    14673
+pmGetInDom:
+   [0] <cpu0> [0% percentile]
+   [1] <cpu1> [10% percentile]
+   [3] <cpu3> [20% percentile]
+   [4] <cpu4> [30% percentile]
+   [6] <cpu6> [40% percentile]
+   [7] <cpu7> [50% percentile]
+   [9] <cpu9> [60% percentile]
+   [10] <cpu10> [70% percentile]
+   [12] <cpu12> [80% percentile]
+   [13] <cpu13> [90% percentile]
+   [15] <cpu15> [100% percentile]
+kernel.percpu.interrupts:
+pm*InDom: inst=[0] iname=<EXT::cpu0> reverse lookup: inst=[0] value:    30368
+pm*InDom: inst=[92] iname=<5::cpu12> reverse lookup: inst=[92] value:        0
+pm*InDom: inst=[185] iname=<11::cpu9> reverse lookup: inst=[185] value:        0
+pm*InDom: inst=[278] iname=<17::cpu6> reverse lookup: inst=[278] value:        0
+pm*InDom: inst=[370] iname=<23::cpu2> reverse lookup: inst=[370] value:        0
+pm*InDom: inst=[463] iname=<TMR::cpu15> reverse lookup: inst=[463] value:        0
+pm*InDom: inst=[556] iname=<IUC::cpu12> reverse lookup: inst=[556] value:        0
+pm*InDom: inst=[648] iname=<C15::cpu8> reverse lookup: inst=[648] value:        0
+pm*InDom: inst=[741] iname=<ADM::cpu5> reverse lookup: inst=[741] value:        0
+pm*InDom: inst=[834] iname=<PCD::cpu2> reverse lookup: inst=[834] value:        0
+pm*InDom: inst=[927] iname=<RST::cpu15> reverse lookup: inst=[927] value:        1
+pmGetInDom:
+   [0] <EXT::cpu0> [0% percentile]
+   [92] <5::cpu12> [10% percentile]
+   [185] <11::cpu9> [20% percentile]
+   [278] <17::cpu6> [30% percentile]
+   [370] <23::cpu2> [40% percentile]
+   [463] <TMR::cpu15> [50% percentile]
+   [556] <IUC::cpu12> [60% percentile]
+   [648] <C15::cpu8> [70% percentile]
+   [741] <ADM::cpu5> [80% percentile]
+   [834] <PCD::cpu2> [90% percentile]
+   [927] <RST::cpu15> [100% percentile]
+
+== done
+
+== Checking interrupts helptext from interrupts-16cpu-s390x (16 CPU)
+
+kernel.percpu.intr [interrupt count metric from /proc/interrupts]
+Help:
+Aggregate count of each CPUs interrupt processing count, calculated
+as the sum of all interrupt types in /proc/interrupts for each CPU.
+
+kernel.percpu.interrupts [interrupt counters from /proc/interrupts]
+Help:
+Counts of each interrupt type, for each CPU.
+
+== done
+
+== Checking interrupts metrics from interrupts-1cpu-i686 (1 CPU)
+kernel.percpu.intr:
+pm*InDom: inst=[0] iname=<cpu0> reverse lookup: inst=[0] value:  7538223
+pmGetInDom:
+   [0] <cpu0> [0% percentile]
+kernel.percpu.interrupts:
+pm*InDom: inst=[0] iname=<0::cpu0> reverse lookup: inst=[0] value:        9
+pm*InDom: inst=[3] iname=<9::cpu0> reverse lookup: inst=[3] value:        0
+pm*InDom: inst=[6] iname=<12::cpu0> reverse lookup: inst=[6] value:     1080
+pm*InDom: inst=[9] iname=<24::cpu0> reverse lookup: inst=[9] value:        0
+pm*InDom: inst=[12] iname=<LOC::cpu0> reverse lookup: inst=[12] value:  6651207
+pm*InDom: inst=[15] iname=<IWI::cpu0> reverse lookup: inst=[15] value:        0
+pm*InDom: inst=[18] iname=<CAL::cpu0> reverse lookup: inst=[18] value:        0
+pm*InDom: inst=[21] iname=<THR::cpu0> reverse lookup: inst=[21] value:        0
+pm*InDom: inst=[24] iname=<MCP::cpu0> reverse lookup: inst=[24] value:      276
+pm*InDom: inst=[27] iname=<HVS::cpu0> reverse lookup: inst=[27] value:        0
+pm*InDom: inst=[30] iname=<PIW::cpu0> reverse lookup: inst=[30] value:        0
+pmGetInDom:
+   [0] <0::cpu0> [0% percentile]
+   [3] <9::cpu0> [10% percentile]
+   [6] <12::cpu0> [20% percentile]
+   [9] <24::cpu0> [30% percentile]
+   [12] <LOC::cpu0> [40% percentile]
+   [15] <IWI::cpu0> [50% percentile]
+   [18] <CAL::cpu0> [60% percentile]
+   [21] <THR::cpu0> [70% percentile]
+   [24] <MCP::cpu0> [80% percentile]
+   [27] <HVS::cpu0> [90% percentile]
+   [30] <PIW::cpu0> [100% percentile]
+
+== done
+
+== Checking interrupts helptext from interrupts-1cpu-i686 (1 CPU)
+
+kernel.percpu.intr [interrupt count metric from /proc/interrupts]
+Help:
+Aggregate count of each CPUs interrupt processing count, calculated
+as the sum of all interrupt types in /proc/interrupts for each CPU.
+
+kernel.percpu.interrupts [interrupt counters from /proc/interrupts]
+Help:
+Counts of each interrupt type, for each CPU.
+
+== done
+
+== Checking interrupts metrics from interrupts-2cpu-s390x (2 CPU)
+kernel.percpu.intr:
+pm*InDom: inst=[0] iname=<cpu0> reverse lookup: inst=[0] value:    38892
+pm*InDom: inst=[0] iname=<cpu0> reverse lookup: inst=[0] value:    38892
+pmGetInDom:
+   [0] <cpu0> [0% percentile]
+   [0] <cpu0> [10% percentile]
+kernel.percpu.interrupts:
+pm*InDom: inst=[0] iname=<EXT::cpu0> reverse lookup: inst=[0] value:    31903
+pm*InDom: inst=[0] iname=<EXT::cpu0> reverse lookup: inst=[0] value:    31903
+pm*InDom: inst=[0] iname=<EXT::cpu0> reverse lookup: inst=[0] value:    31903
+pm*InDom: inst=[0] iname=<EXT::cpu0> reverse lookup: inst=[0] value:    31903
+pmGetInDom:
+   [0] <EXT::cpu0> [0% percentile]
+   [0] <EXT::cpu0> [10% percentile]
+   [0] <EXT::cpu0> [20% percentile]
+   [0] <EXT::cpu0> [30% percentile]
+
+== done
+
+== Checking interrupts helptext from interrupts-2cpu-s390x (2 CPU)
+
+kernel.percpu.intr [interrupt count metric from /proc/interrupts]
+Help:
+Aggregate count of each CPUs interrupt processing count, calculated
+as the sum of all interrupt types in /proc/interrupts for each CPU.
+
+kernel.percpu.interrupts [interrupt counters from /proc/interrupts]
+Help:
+Counts of each interrupt type, for each CPU.
+
+== done
+
+== Checking interrupts metrics from interrupts-8cpu-x86_64 (8 CPU)
+kernel.percpu.intr:
+pm*InDom: inst=[0] iname=<cpu0> reverse lookup: inst=[0] value: 26111240
+pm*InDom: inst=[0] iname=<cpu0> reverse lookup: inst=[0] value: 26111240
+pm*InDom: inst=[1] iname=<cpu1> reverse lookup: inst=[1] value:  7662936
+pm*InDom: inst=[2] iname=<cpu2> reverse lookup: inst=[2] value: 20042205
+pm*InDom: inst=[2] iname=<cpu2> reverse lookup: inst=[2] value: 20042205
+pm*InDom: inst=[3] iname=<cpu3> reverse lookup: inst=[3] value:  6568091
+pm*InDom: inst=[4] iname=<cpu4> reverse lookup: inst=[4] value: 19451440
+pm*InDom: inst=[4] iname=<cpu4> reverse lookup: inst=[4] value: 19451440
+pmGetInDom:
+   [0] <cpu0> [0% percentile]
+   [0] <cpu0> [10% percentile]
+   [1] <cpu1> [20% percentile]
+   [2] <cpu2> [30% percentile]
+   [2] <cpu2> [40% percentile]
+   [3] <cpu3> [50% percentile]
+   [4] <cpu4> [60% percentile]
+   [4] <cpu4> [70% percentile]
+kernel.percpu.interrupts:
+pm*InDom: inst=[0] iname=<0::cpu0> reverse lookup: inst=[0] value:       38
+pm*InDom: inst=[28] iname=<9::cpu4> reverse lookup: inst=[28] value:      206
+pm*InDom: inst=[57] iname=<23::cpu1> reverse lookup: inst=[57] value:        3
+pm*InDom: inst=[86] iname=<27::cpu6> reverse lookup: inst=[86] value:    59367
+pm*InDom: inst=[114] iname=<31::cpu2> reverse lookup: inst=[114] value:    97997
+pm*InDom: inst=[143] iname=<34::cpu7> reverse lookup: inst=[143] value:       59
+pm*InDom: inst=[172] iname=<SPU::cpu4> reverse lookup: inst=[172] value:        0
+pm*InDom: inst=[200] iname=<RES::cpu0> reverse lookup: inst=[200] value:   448998
+pm*InDom: inst=[229] iname=<TRM::cpu5> reverse lookup: inst=[229] value:        0
+pm*InDom: inst=[258] iname=<MCP::cpu2> reverse lookup: inst=[258] value:     2525
+pm*InDom: inst=[287] iname=<PIW::cpu7> reverse lookup: inst=[287] value:        0
+pmGetInDom:
+   [0] <0::cpu0> [0% percentile]
+   [28] <9::cpu4> [10% percentile]
+   [57] <23::cpu1> [20% percentile]
+   [86] <27::cpu6> [30% percentile]
+   [114] <31::cpu2> [40% percentile]
+   [143] <34::cpu7> [50% percentile]
+   [172] <SPU::cpu4> [60% percentile]
+   [200] <RES::cpu0> [70% percentile]
+   [229] <TRM::cpu5> [80% percentile]
+   [258] <MCP::cpu2> [90% percentile]
+   [287] <PIW::cpu7> [100% percentile]
+
+== done
+
+== Checking interrupts helptext from interrupts-8cpu-x86_64 (8 CPU)
+
+kernel.percpu.intr [interrupt count metric from /proc/interrupts]
+Help:
+Aggregate count of each CPUs interrupt processing count, calculated
+as the sum of all interrupt types in /proc/interrupts for each CPU.
+
+kernel.percpu.interrupts [interrupt counters from /proc/interrupts]
+Help:
+Counts of each interrupt type, for each CPU.
+
+== done
+
+== Checking softirqs metrics from softirqs-1152cpu-x86_64.bz2 (1152 CPU)
+kernel.percpu.softirqs:
+pm*InDom: inst=[0] iname=<HI::cpu0> reverse lookup: inst=[0] value:        1
+pm*InDom: inst=[1151] iname=<HI::cpu1151> reverse lookup: inst=[1151] value:        0
+pm*InDom: inst=[2303] iname=<TIMER::cpu1151> reverse lookup: inst=[2303] value:    28403
+pm*InDom: inst=[3455] iname=<NET_TX::cpu1151> reverse lookup: inst=[3455] value:        0
+pm*InDom: inst=[4607] iname=<NET_RX::cpu1151> reverse lookup: inst=[4607] value:        0
+pm*InDom: inst=[5759] iname=<BLOCK::cpu1151> reverse lookup: inst=[5759] value:        0
+pm*InDom: inst=[6911] iname=<IRQ_POLL::cpu1151> reverse lookup: inst=[6911] value:        0
+pm*InDom: inst=[8063] iname=<TASKLET::cpu1151> reverse lookup: inst=[8063] value:        0
+pm*InDom: inst=[9215] iname=<SCHED::cpu1151> reverse lookup: inst=[9215] value:     9257
+pm*InDom: inst=[10367] iname=<HRTIMER::cpu1151> reverse lookup: inst=[10367] value:        0
+pm*InDom: inst=[11519] iname=<RCU::cpu1151> reverse lookup: inst=[11519] value:     2706
+pmGetInDom:
+   [0] <HI::cpu0> [0% percentile]
+   [1151] <HI::cpu1151> [10% percentile]
+   [2303] <TIMER::cpu1151> [20% percentile]
+   [3455] <NET_TX::cpu1151> [30% percentile]
+   [4607] <NET_RX::cpu1151> [40% percentile]
+   [5759] <BLOCK::cpu1151> [50% percentile]
+   [6911] <IRQ_POLL::cpu1151> [60% percentile]
+   [8063] <TASKLET::cpu1151> [70% percentile]
+   [9215] <SCHED::cpu1151> [80% percentile]
+   [10367] <HRTIMER::cpu1151> [90% percentile]
+   [11519] <RCU::cpu1151> [100% percentile]
+
+== done
+
+== Checking softirqs helptext from softirqs-1152cpu-x86_64.bz2 (1152 CPU)
+
+kernel.percpu.intr [interrupt count metric from /proc/interrupts]
+Help:
+Aggregate count of each CPUs interrupt processing count, calculated
+as the sum of all interrupt types in /proc/interrupts for each CPU.
+
+kernel.percpu.interrupts [interrupt counters from /proc/interrupts]
+Help:
+Counts of each interrupt type, for each CPU.
+
+== done
+
+== Checking softirqs metrics from softirqs-1cpu-i686 (1 CPU)
+kernel.percpu.softirqs:
+pm*InDom: inst=[0] iname=<HI::cpu0> reverse lookup: inst=[0] value:        0
+pm*InDom: inst=[0] iname=<HI::cpu0> reverse lookup: inst=[0] value:        0
+pm*InDom: inst=[1] iname=<TIMER::cpu0> reverse lookup: inst=[1] value:  6403664
+pm*InDom: inst=[2] iname=<NET_TX::cpu0> reverse lookup: inst=[2] value:    28234
+pm*InDom: inst=[3] iname=<NET_RX::cpu0> reverse lookup: inst=[3] value:  2315415
+pm*InDom: inst=[4] iname=<BLOCK::cpu0> reverse lookup: inst=[4] value:   649022
+pm*InDom: inst=[5] iname=<IRQ_POLL::cpu0> reverse lookup: inst=[5] value:        0
+pm*InDom: inst=[6] iname=<TASKLET::cpu0> reverse lookup: inst=[6] value:       25
+pm*InDom: inst=[7] iname=<SCHED::cpu0> reverse lookup: inst=[7] value:        0
+pm*InDom: inst=[8] iname=<HRTIMER::cpu0> reverse lookup: inst=[8] value:     6675
+pmGetInDom:
+   [0] <HI::cpu0> [0% percentile]
+   [0] <HI::cpu0> [10% percentile]
+   [1] <TIMER::cpu0> [20% percentile]
+   [2] <NET_TX::cpu0> [30% percentile]
+   [3] <NET_RX::cpu0> [40% percentile]
+   [4] <BLOCK::cpu0> [50% percentile]
+   [5] <IRQ_POLL::cpu0> [60% percentile]
+   [6] <TASKLET::cpu0> [70% percentile]
+   [7] <SCHED::cpu0> [80% percentile]
+   [8] <HRTIMER::cpu0> [90% percentile]
+
+== done
+
+== Checking softirqs helptext from softirqs-1cpu-i686 (1 CPU)
+
+kernel.percpu.intr [interrupt count metric from /proc/interrupts]
+Help:
+Aggregate count of each CPUs interrupt processing count, calculated
+as the sum of all interrupt types in /proc/interrupts for each CPU.
+
+kernel.percpu.interrupts [interrupt counters from /proc/interrupts]
+Help:
+Counts of each interrupt type, for each CPU.
+
+== done
+
+== Checking softirqs metrics from softirqs-8cpu-x86_64 (8 CPU)
+kernel.percpu.softirqs:
+pm*InDom: inst=[0] iname=<HI::cpu0> reverse lookup: inst=[0] value:       12
+pm*InDom: inst=[7] iname=<HI::cpu7> reverse lookup: inst=[7] value:        0
+pm*InDom: inst=[15] iname=<TIMER::cpu7> reverse lookup: inst=[15] value: 12521062
+pm*InDom: inst=[23] iname=<NET_TX::cpu7> reverse lookup: inst=[23] value:       91
+pm*InDom: inst=[31] iname=<NET_RX::cpu7> reverse lookup: inst=[31] value:   326415
+pm*InDom: inst=[39] iname=<BLOCK::cpu7> reverse lookup: inst=[39] value:    89285
+pm*InDom: inst=[47] iname=<BLOCK_IOPOLL::cpu7> reverse lookup: inst=[47] value:        0
+pm*InDom: inst=[55] iname=<TASKLET::cpu7> reverse lookup: inst=[55] value:    14721
+pm*InDom: inst=[63] iname=<SCHED::cpu7> reverse lookup: inst=[63] value:  2226145
+pm*InDom: inst=[71] iname=<HRTIMER::cpu7> reverse lookup: inst=[71] value:        0
+pm*InDom: inst=[79] iname=<RCU::cpu7> reverse lookup: inst=[79] value:  1790731
+pmGetInDom:
+   [0] <HI::cpu0> [0% percentile]
+   [7] <HI::cpu7> [10% percentile]
+   [15] <TIMER::cpu7> [20% percentile]
+   [23] <NET_TX::cpu7> [30% percentile]
+   [31] <NET_RX::cpu7> [40% percentile]
+   [39] <BLOCK::cpu7> [50% percentile]
+   [47] <BLOCK_IOPOLL::cpu7> [60% percentile]
+   [55] <TASKLET::cpu7> [70% percentile]
+   [63] <SCHED::cpu7> [80% percentile]
+   [71] <HRTIMER::cpu7> [90% percentile]
+   [79] <RCU::cpu7> [100% percentile]
+
+== done
+
+== Checking softirqs helptext from softirqs-8cpu-x86_64 (8 CPU)
+
+kernel.percpu.intr [interrupt count metric from /proc/interrupts]
+Help:
+Aggregate count of each CPUs interrupt processing count, calculated
+as the sum of all interrupt types in /proc/interrupts for each CPU.
+
+kernel.percpu.interrupts [interrupt counters from /proc/interrupts]
+Help:
+Counts of each interrupt type, for each CPU.
+
+== done
+

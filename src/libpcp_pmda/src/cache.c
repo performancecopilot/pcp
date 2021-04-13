@@ -713,7 +713,11 @@ retry:
 	h->last = e;
     h->nentry++;
 
-    if (h->hsize > 0 && h->hsize < 1024 && h->nentry > 4 * h->hsize)
+    /*
+     * try to keep hash table sized so there are on average no
+     * more than 4 entries per hash chain
+     */
+    if (h->hsize > 0 && h->nentry > 4 * h->hsize)
 	redo_hash(h, 1);
 
     /* link into the inst hash list, if any */
