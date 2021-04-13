@@ -30,6 +30,10 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 # assorted metrics may not be there, plus this ripper ...
 # [Mon Dec 18 20:31:35] pminfo(8372) Error: pmdaFetch: Fetch callback error from metric PMID 3.11.0[1]: No data available
 #
+# and ERROR SUMMARY may appear twice because some valgrind versions
+# get confused and report summary stats for 2 threads ... take the
+# first one only (and punt)
+#
 _filter()
 {
     tee -a $here/$seq.full \
@@ -45,6 +49,7 @@ _filter()
 	-e '/^proc\.psinfo\.cgroups: No data available/d' \
 	-e '/pmdaFetch: Fetch callback error from metric PMID 3\.11\.0\[.*]: No data available/d' \
 	-e '/proc\.psinfo\.tty_pgrp: No value(s) available/d' \
+	-e '/ERROR SUMMARY/q' \
     # end
 }
 
@@ -53,9 +58,12 @@ _filter()
 # sed at the end is required to cull some metrics that sometimes have
 # no values
 #
+# seen note above re:  ERROR SUMMARY
+#
 _filter_f()
 {
-    $PCP_AWK_PROG '
+    tee /tmp/eek \
+    | $PCP_AWK_PROG '
 BEGIN				{ skip = 1 }
 $1 == "==="			{ print
 			  	  if ($0 ~ /valgrind report/) skip = 0
@@ -76,6 +84,7 @@ NF == 0 && seen == 1		{ if (numval == 1) print metric ": 1 value"
 	-e '/^proc\.smaps\./d' \
 	-e '/^proc\.psinfo\.cgroups:/d' \
 	-e '/^proc\.psinfo\.tty_pgrp:/d' \
+	-e '/ERROR SUMMARY/q' \
     # end
 }
 
