@@ -107,6 +107,7 @@ refresh_sysfs_tapestats(pmInDom tape_indom)
 	/* now update the stats for the new (or existing) tape device */
 	memset(device->counts, 0, sizeof(device->counts));
 	while ((tapestats = readdir(tapestatsdir)) != NULL) {
+	    ssize_t n;
 	    char *ts = tapestats->d_name;
 	    int tslen = strlen(ts);
 
@@ -115,15 +116,13 @@ refresh_sysfs_tapestats(pmInDom tape_indom)
 	    pmsprintf(statsfile, sizeof(statsfile), "%s/%s", statsname, ts);
 	    if ((fd = open(statsfile, O_RDONLY)) < 0)
 	    	continue; /* should report this */
-	    /*
-	     * kernel bug - exported value is not terminated with NULL or \n
-	     * so we have to zero our buffer prior to reading. sigh.
-	     */
-	    memset(strvalue, 0, sizeof(strvalue));
-	    if (read(fd, strvalue, sizeof(strvalue)) <= 0) {
+
+	    if ((n = read(fd, strvalue, sizeof(strvalue)-1)) <= 0) {
 		close(fd);
 	    	continue;
 	    }
+	    strvalue[n] = '\0';
+
 	    for (i=0; i < TAPESTATS_COUNT; i++) {
 		if (strncmp(tapestat_fields[i].name, ts, tslen) == 0) {
 		    device->counts[i] = strtoll(strvalue, NULL, 10);
