@@ -322,7 +322,7 @@ setup_proc_net_all(proc_net_all_t *all)
 	pmNotifyErr(LOG_ERR, "%s: ignoring \"%s\" pattern from %s: %s\n",
 		    pmGetProgname(), pattern, filename, buffer);
 defaults:
-	regcomp(&all->regex, default_pattern, REG_EXTENDED|REG_NOSUB);
+	(void)regcomp(&all->regex, default_pattern, REG_EXTENDED|REG_NOSUB);
 	if (pmDebugOptions.libpmda)
 	    fprintf(stderr, "%s: %s interface regular expression:\n%s\n",
 		    "setup_proc_net_all", "default", default_pattern);
@@ -335,13 +335,13 @@ defaults:
 	free(pattern);
 }
 
-int
+void
 refresh_proc_net_all(pmInDom indom, proc_net_all_t *all)
 {
-    net_interface_t	*netip;
     static int		setup;
-    int			sts = 0;
+    net_interface_t	*netip;
     char		*name;
+    int			sts;
 
     if (!setup) {
 	setup_proc_net_all(all);
@@ -359,13 +359,12 @@ refresh_proc_net_all(pmInDom indom, proc_net_all_t *all)
             continue;
 	refresh_net_all(all, netip, name);
     }
-    return sts;
 }
 
-int
+void
 refresh_proc_net_dev(pmInDom indom, linux_container_t *container)
 {
-    static uint32_t	gen;	/* refresh generation number */
+    static int		setup;		/* first pass through */
     static uint32_t	cache_err;	/* throttle messages */
     char		buf[1024];
     FILE		*fp;
@@ -373,17 +372,19 @@ refresh_proc_net_dev(pmInDom indom, linux_container_t *container)
     int			j, sts;
     net_interface_t	*netip;
 
-    if ((fp = linux_statsfile("/proc/net/dev", buf, sizeof(buf))) == NULL)
-    	return -oserror();
-
-    if (gen == 0) {
-	/*
-	 * first time, reload cache from external file, and force any
-	 * subsequent changes to be saved
-	 */
+    /*
+     * first time, reload cache from external file, and force any
+     * subsequent changes to be saved
+     */
+    if (!setup) {
 	pmdaCacheOp(indom, PMDA_CACHE_LOAD);
-	gen++;
+	setup = 1;
     }
+
+    pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
+
+    if ((fp = linux_statsfile("/proc/net/dev", buf, sizeof(buf))) == NULL)
+	return;
 
     /*
 Inter-|   Receive                                                |  Transmit
@@ -391,8 +392,6 @@ Inter-|   Receive                                                |  Transmit
     lo: 4060748   39057    0    0    0     0          0         0  4060748   39057    0    0    0     0       0          0
   eth0:       0  337614    0    0    0     0          0         0        0  267537    0    0    0 27346      62          0
      */
-
-    pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
 
     while (fgets(buf, sizeof(buf), fp) != NULL) {
 	if ((p = v = strchr(buf, ':')) == NULL)
@@ -436,7 +435,6 @@ Inter-|   Receive                                                |  Transmit
 
     if (!container)
 	pmdaCacheOp(indom, PMDA_CACHE_SAVE);
-    return 0;
 }
 
 int
@@ -457,12 +455,12 @@ refresh_net_sysfs(pmInDom indom, int *need_refresh)
     return sts;
 }
 
-int
+void
 refresh_net_ioctl(pmInDom indom, linux_container_t *cp, int *need_refresh)
 {
     net_interface_t	*netip;
     char		*p;
-    int			sts = 0;
+    int			sts;
 
     for (pmdaCacheOp(indom, PMDA_CACHE_WALK_REWIND);;) {
 	if ((sts = pmdaCacheOp(indom, PMDA_CACHE_WALK_NEXT)) < 0)
@@ -471,7 +469,6 @@ refresh_net_ioctl(pmInDom indom, linux_container_t *cp, int *need_refresh)
 	    continue;
 	refresh_net_dev_ioctl(p, netip, cp, need_refresh);
     }
-    return sts;
 }
 
 static int
