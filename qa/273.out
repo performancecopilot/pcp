@@ -1590,7 +1590,6 @@ simple.now
 sample.bin:
 pm*InDom: inst=[0] {Unknown or illegal instance identifier}
 pmGetInDom:
-Error: Unknown or illegal instance identifier
 --- instance.c case 5 ---
 sample.long.one:
 pm*InDom: inst=[0] {Unknown or illegal instance domain identifier}
