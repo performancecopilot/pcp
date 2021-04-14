@@ -62,8 +62,9 @@ refresh_sysfs_fchosts(pmInDom fchost_indom)
 	if ((fchostsdir = opendir(statsname)) == NULL)
 	    continue; /* no stats for this device? */
 	/* look up this fchost in the cache, add it if not already present. */
+	fchost = NULL;
 	sts = pmdaCacheLookupName(fchost_indom, host, NULL, (void **)&fchost);
-	if (sts < 0) {
+	if (sts < 0 || fchost == NULL) {
 	    /* new fibre channel host */
 	    if ((fchost = (fchost_t *)calloc(1, sizeof(fchost_t))) == NULL) {
 		sts = -oserror();

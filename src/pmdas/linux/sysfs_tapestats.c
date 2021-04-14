@@ -72,8 +72,9 @@ refresh_sysfs_tapestats(pmInDom tape_indom)
 	 * Look up this tape device in the PMDA cache
 	 * or add it if not already present.
 	 */
+	device = NULL;
 	sts = pmdaCacheLookupName(tape_indom, sysdev, NULL, (void **)&device);
-	if (sts < 0) {
+	if (sts < 0 || device == NULL) {
 	    /* new tape device */
 	    if ((device = (tapedev_t *)malloc(sizeof(tapedev_t))) == NULL) {
 		sts = -oserror();
