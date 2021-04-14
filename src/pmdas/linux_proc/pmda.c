@@ -2942,15 +2942,17 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	if (mdesc->m_desc.indom == INDOM(CGROUP_PERDEVBLKIO_INDOM)) {
 	    indom = INDOM(CGROUP_PERDEVBLKIO_INDOM);
-	    sts = pmdaCacheLookup(indom, inst, NULL, (void **)&blkdev);
+	    if ((sts = pmdaCacheLookup(indom, inst, NULL, (void **)&blkdev)) < 0)
+		return sts;
+	    if (sts != PMDA_CACHE_ACTIVE || blkdev == NULL)
+		return 0;
 	} else {
 	    indom = INDOM(CGROUP_BLKIO_INDOM);
-	    sts = pmdaCacheLookup(indom, inst, NULL, (void **)&blkio);
+	    if ((sts = pmdaCacheLookup(indom, inst, NULL, (void **)&blkio)) < 0)
+		return sts;
+	    if (sts != PMDA_CACHE_ACTIVE || blkio == NULL)
+		return 0;
 	}
-	if (sts < 0)
-	    return sts;
-	if (sts != PMDA_CACHE_ACTIVE)
-	   return 0;
 	switch (item) {
 	case CG_PERDEVBLKIO_IOMERGED_READ: /* cgroup.blkio.dev.io_merged.read */
 	    atom->ull = blkdev->stats.io_merged.read;

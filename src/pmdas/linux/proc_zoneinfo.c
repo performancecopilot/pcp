@@ -89,7 +89,7 @@ refresh_proc_zoneinfo(pmInDom indom, pmInDom protection_indom)
 	/* inner loop to extract all values for this node */
         while ((!feof(fp)) && values < ZONE_VALUES + 1 && fgets(buf, sizeof(buf), fp) != NULL) {
             if (strncmp(buf, "Node", 4) == 0){
-                fseek(fp, -(long)(strlen(buf)), 1);
+                (void)fseek(fp, -(long)(strlen(buf)), 1);
                 break;
             }            
             if ((sscanf(buf, "  pages free %llu", &value)) == 1) {

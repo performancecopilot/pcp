@@ -142,12 +142,12 @@ struct iwreq {
 #define IPV6_ADDR_COMPATv4      0x0080U
 
 struct linux_container;
-extern int refresh_proc_net_dev(pmInDom, struct linux_container *);
+extern void refresh_proc_net_dev(pmInDom, struct linux_container *);
 extern void refresh_net_addr_ioctl(pmInDom, struct linux_container *, int *);
-extern int refresh_net_ioctl(pmInDom, struct linux_container *, int *);
+extern void refresh_net_ioctl(pmInDom, struct linux_container *, int *);
 extern void refresh_net_addr_sysfs(pmInDom, int *);
 extern int refresh_net_sysfs(pmInDom, int *);
-extern int refresh_proc_net_all(pmInDom, proc_net_all_t *);
+extern void refresh_proc_net_all(pmInDom, proc_net_all_t *);
 
 extern void refresh_net_addr_sysfs(pmInDom, int *);
 extern void refresh_net_addr_ioctl(pmInDom, struct linux_container *, int *);

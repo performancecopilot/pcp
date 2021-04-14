@@ -377,6 +377,14 @@ Description: Tool for exporting data from PCP to InfluxDB
  Performance Co-Pilot (PCP) front-end tools for exporting metric values
  to InfluxDB (https://influxdata.com/time-series-platform/influxdb).
 
+Package: pcp-export-pcp2json
+Depends: ?{python-pcp}, ${python:Depends}, ${misc:Depends}, ${shlibs:Depends}
+Breaks: pcp (<< 5.3.0)
+Architecture: any
+Description: Tool for exporting data from PCP to JSON
+ Performance Co-Pilot (PCP) front-end tool for exporting data from PCP
+ in JSON format.
+
 Package: pcp-export-pcp2spark
 Depends: ?{python-pcp}, ?{python-requests}, ${python:Depends}, ${misc:Depends}, ${shlibs:Depends}
 Breaks: pcp (<< 5.3.0)
