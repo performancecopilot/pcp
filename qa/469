@@ -27,7 +27,7 @@ pminfo -T \
 function skip_me(m)
 {
     # for OpenMetrics we forward on the underlying domain help text
-    return (m == "kernel.percpu.interrupts.line21" || m ~ "^openmetrics")
+    return (m ~ "^openmetrics")
 }
 /Help:/ { metric = line; next }
 { 
