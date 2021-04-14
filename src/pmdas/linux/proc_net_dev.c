@@ -471,7 +471,7 @@ refresh_net_ioctl(pmInDom indom, linux_container_t *cp, int *need_refresh)
     }
 }
 
-static int
+static void
 refresh_net_dev_ipv4_addr(pmInDom indom, linux_container_t *container)
 {
     int n, fd, sts, numreqs = 30;
@@ -481,7 +481,7 @@ refresh_net_dev_ipv4_addr(pmInDom indom, linux_container_t *container)
     static uint32_t cache_err;
 
     if ((fd = refresh_inet_socket(container)) < 0)
-	return fd;
+	return;
 
     ifc.ifc_buf = NULL;
     for (;;) {
@@ -490,7 +490,7 @@ refresh_net_dev_ipv4_addr(pmInDom indom, linux_container_t *container)
 
 	if (ioctl(fd, SIOCGIFCONF, &ifc) < 0) {
 	    free(ifc.ifc_buf);
-	    return -oserror();
+	    return;
 	}
 	if (ifc.ifc_len == sizeof(struct ifreq) * numreqs) {
 	    /* assume it overflowed and try again */
@@ -529,7 +529,6 @@ refresh_net_dev_ipv4_addr(pmInDom indom, linux_container_t *container)
 	refresh_net_ipv4_addr(ifr->ifr_name, netip, container);
     }
     free(ifc.ifc_buf);
-    return 0;
 }
 
 static int
@@ -580,7 +579,7 @@ refresh_net_dev_hw_addr(pmInDom indom)
     return 0;
 }
 
-static int
+static void
 refresh_net_dev_ipv6_addr(pmInDom indom)
 {
     FILE *fp;
@@ -594,7 +593,7 @@ refresh_net_dev_ipv6_addr(pmInDom indom)
     static uint32_t cache_err;
 
     if ((fp = linux_statsfile("/proc/net/if_inet6", buf, sizeof(buf))) == NULL)
-	return 0;
+	return;
 
     /*
      * expecting something like ...
@@ -642,7 +641,6 @@ refresh_net_dev_ipv6_addr(pmInDom indom)
 	netip->has_ipv6 = 1;
     }
     fclose(fp);
-    return 0;
 }
 
 /*
