@@ -149,7 +149,7 @@ extract_interrupt_values(char *name, char *buffer, pmInDom intr, pmInDom cpuintr
     int sts, changed = 0;
 
     sts = pmdaCacheLookupName(intr, name, NULL, (void **)&ip);
-    if (sts < 0 || ip == NULL) {
+    if (sts < 0) {
 	if ((ip = calloc(1, sizeof(interrupt_t))) == NULL)
 	    return 0;
 	changed = 1;
@@ -165,8 +165,8 @@ extract_interrupt_values(char *name, char *buffer, pmInDom intr, pmInDom cpuintr
 	cpuid = column_to_cpuid(i);
 	online_cpumap[cpuid].intr_count += value;
 	pmsprintf(cpubuf, sizeof cpubuf, "%s::cpu%lu", name, cpuid);
-	sts = pmdaCacheLookupName(intr, cpubuf, NULL, (void **)&cpuip);
-	if (sts < 0 || cpuip == NULL) {
+	sts = pmdaCacheLookupName(cpuintr, cpubuf, NULL, (void **)&cpuip);
+	if (sts < 0 && cpuip == NULL) {
 	    if ((cpuip = calloc(1, sizeof(interrupt_cpu_t))) == NULL)
 	        continue;
 	    cpuip->row = ip;
@@ -248,7 +248,7 @@ extract_softirq_values(char *name, char *buffer, pmInDom sirq, pmInDom cpusirq, 
     int sts, changed = 0;
 
     sts = pmdaCacheLookupName(sirq, name, NULL, (void **)&ip);
-    if (sts < 0 || ip == NULL) {
+    if (sts < 0) {
 	if ((ip = calloc(1, sizeof(interrupt_t))) == NULL)
 	    return 0;
 	changed = 1;
@@ -264,8 +264,8 @@ extract_softirq_values(char *name, char *buffer, pmInDom sirq, pmInDom cpusirq, 
 	cpuid = column_to_cpuid(i);
 	online_cpumap[cpuid].sirq_count += value;
 	pmsprintf(cpubuf, sizeof cpubuf, "%s::cpu%lu", name, cpuid);
-	sts = pmdaCacheLookupName(sirq, cpubuf, NULL, (void **)&cpuip);
-	if (sts < 0 || cpuip == NULL) {
+	sts = pmdaCacheLookupName(cpusirq, cpubuf, NULL, (void **)&cpuip);
+	if (sts < 0) {
 	    if ((cpuip = calloc(1, sizeof(interrupt_cpu_t))) == NULL)
 	        continue;
 	    cpuip->row = ip;
