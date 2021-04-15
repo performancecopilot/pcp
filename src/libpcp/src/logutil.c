@@ -1805,7 +1805,7 @@ again:
 	header->len = sizeof(*header) + rlen;
 	header->type = PDU_RESULT;
 	header->from = FROM_ANON;
-	/* swab pdu buffer - done later in __pmDecodeResult */
+	/* swab PDU buffer - done later in __pmDecodeResult */
 
 	if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
 	    int	j;
@@ -2121,7 +2121,7 @@ more:
 	     *     from the log are assigned using the first two fields in the
 	     *     pmid_ctl struct -- since these are allocated once as
 	     *	   needed, and never free'd, we have to make sure pmFreeResult
-	     *     finds a pmValueSet in a pinned pdu buffer ... this means
+	     *     finds a pmValueSet in a pinned PDU buffer ... this means
 	     *     we must find at least one real value from the log to go
 	     *     with any "unavailable" results
 	     * (2) real pmValueSets can be ignored, they are in a pdubuf
@@ -2226,12 +2226,12 @@ more:
 	     *
 	     * WARNING
 	     *		This compresses the pmValueSet INSITU, and since
-	     *		these are in a pdu buffer, it trashes the the
-	     *		pdu buffer and means there is no clever way of
-	     *		re-using the pdu buffer to satisfy multiple
-	     *		pmFetch requests
+	     *		these are in a PDU buffer it trashes the PDU
+	     *		buffer - which means there is no clever way of
+	     *		re-using the PDU buffer to satisfy multiple
+	     *		pmFetch requests.
 	     *		Fortunately, stdio buffering means copying to
-	     *		make additional pdu buffers is not too expensive.
+	     *		make additional PDU buffers is not too expensive.
 	     */
 	    kval = 0;
 	    for (j = 0; j < newres->vset[i]->numval; j++) {
