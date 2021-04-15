@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 # PCP QA Test No. 1820
 # Exercise memory allocation and time window bugs in pcp-atopsar(1).
 #
@@ -35,6 +35,7 @@ _filter()
 {
     sed \
 	-e 's;^ *[0-9][0-9][0-9][0-9]/[0-9][0-9]/[0-9][0-9]$;DATESTAMP;g' \
+	-e 'd;initial metric value(s);' \
     #end
 }
 
@@ -53,8 +54,8 @@ export PCP_ARCHIVE_DIR=$tmp.archives
 mkdir -p "$PCP_ARCHIVE_DIR/$hostname"
 cp $PCP_ARCHIVE.* "$PCP_ARCHIVE_DIR/$hostname"
 unset PCP_HOSTZONE PCP_ARCHIVE
-pcp -z atopsar >$tmp.noargs
-pcp -z atopsar -H >$tmp.-H-arg
+pcp -z atopsar >$tmp.noargs 2>&1
+pcp -z atopsar -H >$tmp.-H-arg 2>&1
 diff $tmp.noargs $tmp.-H-arg >/dev/null
 if [ $? -eq 0 ]
 then

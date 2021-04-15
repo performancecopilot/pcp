@@ -1336,7 +1336,8 @@ rawarchive_from_midnight(pmOptions *opts)
 	pmLocaltime(&now, &today);
 	pmsprintf(midnight, sizeof(midnight), "@ %04d-%02d-%02d 00:00:00",
 		today.tm_year+1900, today.tm_mon+1, today.tm_mday);
-	opts->origin_optarg = midnight;	/* also enables archive mode */
+	/* setting origin_optarg also enables archive mode */
+	opts->origin_optarg = opts->start_optarg = midnight;
 }
 
 void
