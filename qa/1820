@@ -1,4 +1,4 @@
-#!/usr/bin/sh
+#!/bin/sh
 # PCP QA Test No. 1820
 # Exercise memory allocation and time window bugs in pcp-atopsar(1).
 #
