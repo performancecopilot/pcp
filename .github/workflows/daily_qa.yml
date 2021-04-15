@@ -36,6 +36,10 @@ jobs:
         with:
           python-version: '>=3.6'
 
+      - name: Fix local hostname DNS lookup
+        if: matrix.runner == 'direct'
+        run: echo 127.0.1.1 $(hostname --fqdn) $(hostname) | sudo tee -a /etc/hosts
+
       - name: Update version information
         run: |
           . ./VERSION.pcp
