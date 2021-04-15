@@ -3303,10 +3303,10 @@ PCP_LOG_DIR=%{_logsdir}
 
 %changelog
 * Fri Apr 16 2021 Nathan Scott <nathans@redhat.com> - 5.3.0-1
-- https://github.com/performancecopilot/pcp/projects/1
+- Added conditional lockdown policy access by pmdakvm (BZ 1929259)
 
 * Mon Feb 08 2021 Andreas Gerstmayr <agerstmayr@redhat.com> - 5.2.5-2
-- fixed typo in specfile (pcp-testsuite requires pcp-pmda-hacluster
+- Fixed typo in specfile (pcp-testsuite requires pcp-pmda-hacluster
   and pcp-pmda-sockets instead of pcp-pmdas-hacluster etc.)
 
 * Mon Feb 08 2021 Nathan Scott <nathans@redhat.com> - 5.2.5-1

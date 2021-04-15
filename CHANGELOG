@@ -1,5 +1,97 @@
 pcp-5.3.0 (16 April 2021)
-    - https://github.com/performancecopilot/pcp/projects/1
+    - Client tools and utilities:
+	pmie: fix nasty scheduler issue around pmcd reconnect
+	pcp-atop: allow process filtering based on state
+	pcp-atop: report kernel wait channel symbol for blocked processes
+	pcp-atop: report virtual memory out-of-memory process killing
+	pcp-atop: report swap-cached, KSM, ZFS and zswap memory metrics
+	pcp-atop: report per-process locked memory metric
+	pcp-atop: report per-process run_delay scheduler metric
+	pcp-atop: extended reporting of pressure stall information
+	pcp-atop: document date/time syntax for start/end time (-b/-e)
+	pcp-atop: option to sort threads per process
+	pcp-atop: resolve some inconsistencies with atop and atopsar
+	pcp-atop: prevent automatic stepping in archive replay mode
+	pcp-atop: correct 'elapsed' reporting and improve boottime setup
+	pcp-atop: fix displaying processes (instances) with no values
+	pcp-atop: improve behaviour without kernel.all.pid_max value
+	pcp-atopsar: ensure --begin semantics have matching origin/start
+	pcp-atopsar: default reporting start time is today
+	pcp-htop: added the SysArch Meter
+	pcp-htop: added ZFS ARC statistics
+	pcp-htop: ensure Zram Meter always uses initialized data
+	pmquery: use default line wrapping to not chop off text
+	pmrep: fix error message with undefined metricset
+	pmrep.conf: fix metric names in proc-essential
+	pmrep.conf: switch using BCC PMDA netproc module for proc-net metricset
+	pmrep.conf: tweak proc-io-ext unit
+	pmrep.conf: more complete proc-os-stats counts
+	pmrep et al: allow specifying instances with PID
+    - PMDA additions, enhancements and bug fixes:
+	pmdabcc: rename bcc.proc.io.net.perpid.* to bcc.proc.net.*
+	pmdabcc: fix runqlat for newer compilers
+	pmdabcc: fix bioperpid and biotop on recent kernels, upstream sync
+	pmdabcc: handle gaps in syscall number list in syscount module
+	pmdabcc: biotop - rename bpf function for consistency
+	pmdabcc: make netproc the only default module
+	pmdabcc: netproc - add command name to instance names
+	pmdahacluster: reduce log messages from popen() calls
+	pmdahacluster: fix logic for ha_cluster.pacemaker.resources.*
+	pmdaperfevent: automatically increase the allowed open files
+	pmdaproc: cleanup up debug flag use
+	pmdaproc: update acct.* metrics pacct file location
+	pmdalinux: add a new kernel.all.nptys metric
+	pmdalinux: add memory metrics to collate vmstat numbers
+	pmdalinux: add support for fibre channel host metrics
+	pmdalinux: switch interrupts metrics to using compound indoms
+	pmdaweblog: 10,000km service
+	pmdaxfs: fix PMID numbering botch below xfs.perdev.buffer
+    - Server-side utilities and log management scripts:
+	pmcd: slight change to an internal AF_UNIX socket path
+	pmproxy: correctly handle metrics with multiple names
+	pmproxy: increase open files soft limit to maxfiles
+	pmlc: fix botched error checking logic in addinst
+	pmlogconf: fix the interactive pattern search
+	pmlogconf: tools/sar add missing cpu metrics
+	pmlogconf: add configs for services/pmproxy and services/redis
+	pmlogconf: add config for per-process network stats
+	rc_pmie: remove pmcd_wait check for pmcd, not needed
+	zeroconf: remove duplicate metrics from 30-second sampling setting
+	zeroconf: increase logging delta for proc metrics from 30s to 60s
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings
+	libpcp: changes for metrics with semantics of dimension "none"
+	libpcp: add pmfstring(3), a safe replacement for %s in fscanf
+	libpcp: derived metrics semantics for delta(x) when x is unsigned
+	libpcp: add pmstrncpy(3) and pmstrncat(3) for safe string handling
+	libpcp_pmda: don't cripple hash tables, fixes very large indoms
+	libpcp_web: add instrumentation and various mmv metrics
+	libpcp_web: plug a potential memory leak in archive discovery
+	libpcp_web: plug leak in discovery values callback writing to Redis
+	libpcp_web: plug leaks in callers of series_stream_append
+	libpcp_web: plug leaks in callers of pmwebapi_new_metric
+	libpcp_web: fix heap corruption in Redis maps on pmproxy shutdown
+    - Misc build, infrastructure and packaging updates:
+	Coverity scan and clang fixes throughout the code base
+	build: update the redhat.spec to use %files, adding tmpfiles.d
+	build: avoid packaging rundir on [open]SUSE distros
+	build: drop historical recursive chown from pcp rpm specs
+	build: rename master to main (or similar)
+	build: build pmdabind2 only if dependencies are installed
+	build: add Dockerfile for latest development PCP build
+	build: include systemd-devel for more rpm build cases
+	build: fix deb path permissions for pmfind log directory
+	build: install the directory that houses DM pmieconf content
+	build: fix some mispackaged (deb) pcp2xxx tools
+	build: add a pcp-zeroconf package for deb builds also
+    - Security Enhanced Linux:
+	selinux: add conditional lockdown policy access by pmdakvm
+	selinux: add build infrastructure for netlink_tcpdiag_socket class
+    - Documentation and QA infrastructure:
+	docs: first version of the PCP Scaling Guide
+	docs: updates to pmdaopenmetrics(1)
+	docs: explain pmproxy stream options in terms of metric retention
+	docs: add note about deprecation of sar2pcp
+	qa: add _check_redis_server to common.check, update tests
 
 pcp-5.2.5 (8 February 2021)
     - Client tools and utilities:
