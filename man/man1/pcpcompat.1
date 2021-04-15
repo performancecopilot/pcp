@@ -37,6 +37,19 @@ includes PCP archives created over 20 years ago!).
 From time to time the PCP developers deprecate and remove PCP utilities,
 replacing them with new versions of utilities providing comparable features.
 This page describes replacement utilities for historical PCP tools.
+.SH SAR2PCP
+The
+.BR sar2pcp (1)
+utility is now deprecated, and will be retired in a future version of
+PCP (v6).
+This is being replaced by native support for generating PCP archives
+within the tools of the sysstat package (which provides
+.B sar
+itself, as well as the
+.B sadf
+utility which produces PCP archives via the
+.B \-l
+option).
 .SH PMLOGCONF-SETUP
 Earlier versions of PCP (prior to v5.1.1) provided a shell script that
 was used internally by
@@ -152,6 +165,7 @@ services could use the scalable time series REST APIs described on
 .SH SEE ALSO
 .BR pcp (1),
 .BR pmcd (1),
+.BR sar2pcp (1),
 .BR pmrep (1),
 .BR pmfind (1),
 .BR pmfind_check (1),
