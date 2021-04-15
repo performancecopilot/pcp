@@ -1,8 +1,6 @@
-bintray:
-  repository:
-    type: rpm
-    name: f33
-    description: Performance Co-Pilot for Fedora 33
+artifactory:
+  package_type: rpm
+  deploy_path: /fedora/33/x86_64/pcp
 
 vm:
   box: fedora/33-cloud-base

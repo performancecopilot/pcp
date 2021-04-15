@@ -12,6 +12,7 @@ makes it especially useful for those seeking centralized monitoring of distribut
 
 **Table of Contents**
 
+* :doc:`HowTos/installation/index`
 * :doc:`UAG/AboutUserAdministratorsGuide`
 * :doc:`PG/AboutProgrammersGuide`
 * :doc:`HowTos/scaling/index`
@@ -21,6 +22,7 @@ makes it especially useful for those seeking centralized monitoring of distribut
    :caption: Guides
    :hidden:
    
+   HowTos/installation/index
    UAG/AboutUserAdministratorsGuide
    PG/AboutProgrammersGuide
    HowTos/scaling/index

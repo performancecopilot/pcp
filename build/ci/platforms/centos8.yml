@@ -1,8 +1,6 @@
-bintray:
-  repository:
-    type: rpm
-    name: el8
-    description: Performance Co-Pilot for EL8
+artifactory:
+  package_type: rpm
+  deploy_path: /centos/8/x86_64/pcp
 
 container:
   containerfile: |

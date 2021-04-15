@@ -1,13 +1,3 @@
-bintray:
-  repository:
-    type: debian
-    name: bionic
-    description: Performance Co-Pilot for 32-bit Ubuntu 18.04 (bionic beaver)
-  params:
-    deb_distribution: bionic
-    deb_component: main
-    deb_architecture: i386
-
 container:
   containerfile: |
     FROM docker.io/i386/ubuntu:bionic

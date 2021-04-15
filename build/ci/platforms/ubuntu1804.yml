@@ -1,12 +1,10 @@
-bintray:
-  repository:
-    type: debian
-    name: bionic
-    description: Performance Co-Pilot for Ubuntu 18.04 (bionic beaver)
+artifactory:
+  package_type: deb
+  deploy_path: /ubuntu/18.04/amd64/pcp
   params:
-    deb_distribution: bionic
-    deb_component: main
-    deb_architecture: amd64
+    deb.distribution: bionic
+    deb.component: main
+    deb.architecture: amd64
 
 container:
   containerfile: |

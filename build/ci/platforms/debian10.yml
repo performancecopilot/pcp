@@ -1,12 +1,10 @@
-bintray:
-  repository:
-    type: debian
-    name: buster
-    description: Performance Co-Pilot for Debian 10 (buster)
+artifactory:
+  package_type: deb
+  deploy_path: /debian/10/amd64/pcp
   params:
-    deb_distribution: buster
-    deb_component: main
-    deb_architecture: amd64
+    deb.distribution: buster
+    deb.component: main
+    deb.architecture: amd64
 
 container:
   containerfile: |

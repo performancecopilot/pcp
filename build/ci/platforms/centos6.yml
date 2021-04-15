@@ -1,8 +1,6 @@
-bintray:
-  repository:
-    type: rpm
-    name: el6
-    description: Performance Co-Pilot for EL6
+artifactory:
+  package_type: rpm
+  deploy_path: /centos/6/x86_64/pcp
 
 container:
   containerfile: |

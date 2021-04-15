@@ -1,8 +1,6 @@
-bintray:
-  repository:
-    type: rpm
-    name: el7
-    description: Performance Co-Pilot for EL7
+artifactory:
+  package_type: rpm
+  deploy_path: /centos/7/x86_64/pcp
 
 container:
   containerfile: |
