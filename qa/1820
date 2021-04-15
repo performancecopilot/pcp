@@ -35,7 +35,7 @@ _filter()
 {
     sed \
 	-e 's;^ *[0-9][0-9][0-9][0-9]/[0-9][0-9]/[0-9][0-9]$;DATESTAMP;g' \
-	-e 'd;initial metric value(s);' \
+	-e '/initial metric value(s)/d' \
     #end
 }
 
