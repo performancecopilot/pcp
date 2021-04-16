@@ -1,3 +1,6 @@
+pcp-5.3.1 (4 June 2021)
+    - https://github.com/performancecopilot/pcp/projects/1
+
 pcp-5.3.0 (16 April 2021)
     - Client tools and utilities:
 	pmie: fix nasty scheduler issue around pmcd reconnect

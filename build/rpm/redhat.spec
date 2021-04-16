@@ -1,12 +1,12 @@
 Name:    pcp
-Version: 5.3.0
+Version: 5.3.1
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2+ and CC-BY
 URL:     https://pcp.io
 
-%global  bintray https://bintray.com/artifact/download
-Source0: %{bintray}/pcp/source/pcp-%{version}.src.tar.gz
+%global  artifactory https://performancecopilot.jfrog.io/artifactory
+Source0: %{artifactory}/pcp-source-release/pcp-%{version}.src.tar.gz
 
 %if 0%{?fedora} >= 26 || 0%{?rhel} > 7
 %global __python2 python2
@@ -3303,6 +3303,10 @@ PCP_LOG_DIR=%{_logsdir}
 %files zeroconf -f pcp-zeroconf-files.rpm
 
 %changelog
+* Fri Jun 04 2021 Nathan Scott <nathans@redhat.com> - 5.3.1-1
+- https://github.com/performancecopilot/pcp/projects/1
+- Update to latest PCP sources.
+
 * Fri Apr 16 2021 Nathan Scott <nathans@redhat.com> - 5.3.0-1
 - Added conditional lockdown policy access by pmdakvm (BZ 1929259)
 - Update to latest PCP sources.
