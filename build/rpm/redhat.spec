@@ -3304,6 +3304,7 @@ PCP_LOG_DIR=%{_logsdir}
 %changelog
 * Fri Apr 16 2021 Nathan Scott <nathans@redhat.com> - 5.3.0-1
 - Added conditional lockdown policy access by pmdakvm (BZ 1929259)
+- Update to latest PCP sources.
 
 * Mon Feb 08 2021 Andreas Gerstmayr <agerstmayr@redhat.com> - 5.2.5-2
 - Fixed typo in specfile (pcp-testsuite requires pcp-pmda-hacluster

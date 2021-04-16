@@ -3,7 +3,7 @@ pcp (5.3.0-1) unstable; urgency=low
   * New release (full details in CHANGELOG).
   * Resolve pmfind log path permissions (closes: #985384)
 
- -- Nathan Scott <nathans@debian.org>  Fri, 16 Apr 2021 21:25:03 +1000
+ -- Nathan Scott <nathans@debian.org>  Fri, 16 Apr 2021 10:07:03 +1000
 
 pcp (5.2.6-1) unstable; urgency=low
 
