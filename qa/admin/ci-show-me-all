@@ -57,6 +57,7 @@ _setup()
     done
 }
 
+extra=''
 while [ $# -gt 0 ]
 do
     case "$1"
@@ -67,6 +68,12 @@ do
 	    find test-* -type l -name "*.out" >$tmp.tmp
 	    [ -s $tmp.tmp ] && ( cat $tmp.tmp | xargs rm )
 	    rm -f $tmp.tmp
+	    shift
+	    ;;
+	-l)
+	    # list, not meld
+	    #
+	    extra="$extra -l"
 	    shift
 	    ;;
 	*)
@@ -138,7 +145,7 @@ do
     then
 	echo "$dir/$seq: same failure as $match_dir/$seq"
     else
-	./show-me -w $seq
+	./show-me -w $extra $seq
 	echo "$dir $seq $sum" >>$tmp.sum
     fi
     cd ..
