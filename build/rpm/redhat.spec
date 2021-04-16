@@ -222,7 +222,6 @@ Obsoletes: pcp-pmda-nvidia < 3.10.5
 BuildRequires: make
 BuildRequires: gcc gcc-c++
 BuildRequires: procps autoconf bison flex
-
 BuildRequires: nss-devel
 BuildRequires: rpm-devel
 BuildRequires: avahi-devel
@@ -269,7 +268,8 @@ BuildRequires: perl-generators
 %endif
 BuildRequires: perl-devel perl(strict)
 BuildRequires: perl(ExtUtils::MakeMaker) perl(LWP::UserAgent) perl(JSON)
-BuildRequires: perl(LWP::UserAgent) perl(Time::HiRes) perl(Digest::MD5)
+BuildRequires: perl(Time::HiRes) perl(Digest::MD5)
+BuildRequires: perl(XML::LibXML) perl(File::Slurp)
 BuildRequires: man %{_hostname_executable}
 %if !%{disable_systemd}
 BuildRequires: systemd-devel systemd-rpm-macros
@@ -285,6 +285,7 @@ BuildRequires: qt5-qtsvg-devel
 %endif
 
 Requires: bash xz gawk sed grep findutils which %{_hostname_executable}
+Requires: pcp-libs = %{version}-%{release}
 %if !%{disable_selinux}
 Requires: pcp-selinux = %{version}-%{release}
 %endif
