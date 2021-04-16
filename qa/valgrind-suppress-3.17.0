@@ -110,6 +110,14 @@
 # by 0x10D072: ??? (in /usr/bin/pmlc)
 # by 0x10AC8A: ??? (in /usr/bin/pmlc)
 # by 0x4927D09: (below main) (libc-start.c:308)
+#
+# Same thing, qa/1293 on CI fedora_rawhide-container but this one
+# has an extra line in the callback
+#   fun:__pmXmitPDU
+#   fun:UnknownInlinedFun           <--- here
+#   fun:__pmSendLogControl
+# so add an extra ... in the signature below
+#
 {
    __pmXmitPDU buffer for p_lcontrol.c
    Memcheck:Param
@@ -117,6 +125,7 @@
    fun:send
    fun:__pmSend
    fun:__pmXmitPDU
+   ...
    fun:__pmSendLogControl
    fun:__pmControlLog
    ...

@@ -76,3 +76,18 @@
    fun:__pmControlLog
    ...
 }
+
+# Same thing, qa/1293 on vm11 (i686, Debian 10.6) but this one
+# ends are socketcall.send(msg) rather than socketcall.sendto(msg)
+#                                                          ^^
+{
+   __pmXmitPDU buffer for p_lcontrol.c
+   Memcheck:Param
+   socketcall.send(msg)
+   fun:send
+   fun:__pmSend
+   fun:__pmXmitPDU
+   fun:__pmSendLogControl
+   fun:__pmControlLog
+   ...
+}

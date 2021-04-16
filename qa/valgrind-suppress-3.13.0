@@ -158,3 +158,18 @@
    fun:__pmControlLog
    ...
 }
+
+# Same thing, in CI on ubuntu1804-direct, but this one
+# ends are socketcall.sendto(msg) rather than socketcall.send(msg)
+#                         ^^
+{
+   __pmXmitPDU buffer for p_lcontrol.c
+   Memcheck:Param
+   socketcall.sendto(msg)
+   fun:send
+   fun:__pmSend
+   fun:__pmXmitPDU
+   fun:__pmSendLogControl
+   fun:__pmControlLog
+   ...
+}
