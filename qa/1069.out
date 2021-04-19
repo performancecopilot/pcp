@@ -385,9 +385,9 @@ Invalid regex '(':
 Invalid regex '.[]*':
 Invalid regex '.[z-a]':
 == metricset command line handling
-  p.p.processor  p.p.priority  p.p.nice  p.p.c.pct  p.p.c.ratio  p.p.threads  p.p.sname  p.p.utime  p.p.stime
-  000001 /usr/l  000001 /usr/  000001 /  000001 /u  000001 /usr  000001 /usr  000001 /u  000001 /u  000001 /u
-                                                                                              ms/s       ms/s
+  p.p.processor  p.p.priority  p.p.nice  p.p.threads  p.p.sname  p.p.utime  p.p.stime
+  000001 /usr/l  000001 /usr/  000001 /  000001 /usr  000001 /u  000001 /u  000001 /u
+                                                                      ms/s       ms/s
 Metricset definition ':nosuchset' not found.
 Metricset definition ':nosuchset' not found.
 == invalid configuration file
