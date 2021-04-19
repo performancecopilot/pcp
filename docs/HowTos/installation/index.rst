@@ -16,7 +16,8 @@ These packages are usually more recent than the distribution packages.
 Fedora / RHEL / CentOS
 ----------------------
 
-Create a file ``/etc/yum.repos.d/performancecopilot.repo`` with the following content:
+Create a file ``/etc/yum.repos.d/performancecopilot.repo`` with the following content.
+**Note:** Replace ``fedora`` with ``centos`` when using CentOS or RHEL.
 
 .. code-block:: ini
 
@@ -37,7 +38,8 @@ Install PCP using the package manager:
 Debian / Ubuntu
 ---------------
 
-Run the following commands. **Note:** Replace ``focal`` according to your installed Debian or Ubuntu release name.
+Run the following commands.
+**Note:** Replace ``focal`` according to your installed Debian or Ubuntu release name.
 
 .. code-block:: bash
 
