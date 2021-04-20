@@ -716,12 +716,12 @@ generic_samp(double sampletime, double nsecs,
 					    n = j; // start index of threads
 
 					    for (t = pcur - tall + 1;
-					         t < devtstat->ntaskall &&
-						 pcur->gen.tgid		&&
-					         pcur->gen.tgid == 
-					            (tall+t)->gen.tgid;
+					         t < devtstat->ntaskall && pcur->gen.tgid;
 					         t++)
 					    {
+						if (pcur->gen.tgid != (tall+t)->gen.tgid)
+							continue;
+
 						if (deviatonly &&
 							showtype  != MPROCMEM &&
 						        showorder != MSORTMEM   )

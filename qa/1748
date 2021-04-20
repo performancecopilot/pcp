@@ -1,0 +1,51 @@
+#!/bin/sh
+# PCP QA Test No. 1748
+# Exercise pcp-atop threads handling.
+#
+# Copyright (c) 2021 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+ATOP="$PCP_BINADM_DIR/pcp-atop"
+test -f "$ATOP" || _notrun "$ATOP is not installed, skipped"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# read from the pcp-atop-threads archive with various atop options
+#
+atop()
+{
+    message="$1"
+    shift
+    options="$@"
+
+    echo "$message"
+
+    pcp_options="pcp -z --origin=+0.1 --archive $here/archives/pcp-atop-threads"
+    $pcp_options atop $options 1 >$tmp.out 2>$tmp.err
+
+    echo "=== std out"
+    cat $tmp.out
+    echo "=== std err"
+    cat $tmp.err
+    echo "=== done" && echo
+}
+
+# real QA test starts here
+atop "General options (default)"
+atop "Disk option" -d
+atop "Memory option" -m
+atop "Threads option" -y
+
+# success, all done
+status=0
+exit
