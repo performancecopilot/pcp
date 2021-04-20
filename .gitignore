@@ -10,8 +10,6 @@ Logs
 .census
 .DS_Store
 .gitcensus
-.bintrayrc
-.bintrayrc.*
 .vscode
 .qmake.stash
 autom4te.cache

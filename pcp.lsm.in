@@ -20,9 +20,9 @@ Description:    Performance Co-Pilot (PCP) provides a framework and
 Keywords:       performance, monitoring, system, status, distributed
 Author:         pcp@groups.io (PCP Development Team)
 Maintained-by:  pcp@groups.io (PCP Development Team)
-Primary-site:   https://bintray.com/pcp
+Primary-site:   https://github.com/performancecopilot/pcp
 Alternate-site:
-Original-site:  https://bintray.com/pcp
+Original-site:  https://github.com/performancecopilot/pcp
 Platforms:      Linux, MacOSX, Solaris, AIX, FreeBSD, NetBSD, Windows
 Copying-policy: GPL (libraries are LGPL)
 End

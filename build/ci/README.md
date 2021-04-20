@@ -5,7 +5,7 @@ Workflow descriptions are located in `.github/workflows`, platform specific PCP 
 
 * CI: Triggered on push and on pull requests, runs the sanity QA group on assorted platforms
 * Daily CI: Runs a full QA run daily at 19:00 UTC and publishes the results at https://pcp.io/qa-reports/
-* Release: Triggered when a new tag is pushed, creates a new release and pushes it to https://bintray.com/pcp
+* Release: Triggered when a new tag is pushed, creates a new release and pushes it to https://performancecopilot.jfrog.io/
 
 ## Reproducing test failures
 ```

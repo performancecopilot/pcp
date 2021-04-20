@@ -16,7 +16,7 @@
 </TABLE>
 <H1 ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7>Installation</FONT></H1>
 <P>Binary packages for Linux (<i>deb</i> and <i>rpm</i> formats), Mac OS X, Solaris and Windows are made available by the PCP development team.&nbsp;&nbsp;The latest version can always be found in the download section of the <A HREF="https://pcp.io/">PCP project</A> web pages.&nbsp;&nbsp;Its also worth noting that many Linux distributions now ship PCP - these include Debian, Fedora, Slackware, SuSE and Ubuntu.</P>
-<P>PCP GUI runs natively on Mac OS X, X11 (Linux/Unix) and Windows, and binary packages for these platforms are available in the same location.&nbsp;&nbsp;The installation instructions for each differ significantly - below we discuss each in turn, and finally cover building the tools from source.</P>
+<P>PCP GUI runs natively on Mac OS X, X11 (Linux/Unix) and Windows.&nbsp;&nbsp;The installation instructions for each differ significantly - below we discuss each in turn, and finally cover building the tools from source.</P>
 <UL>
 	<LI><A HREF="#rpm">Linux (rpm format)</A>
 	<LI><A HREF="#deb">Linux (deb format)</A>
@@ -35,12 +35,12 @@
 </TABLE>
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
 	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>
-&nbsp;&nbsp;&nbsp;If using packages <B>from your distribution</B> or <B>from the <A HREF="https://bintray.com/pcp">bintray.com/pcp</A> Set Me Up</B> page, in a command shell enter:<BR>
+&nbsp;&nbsp;&nbsp;If using packages <B>from your distribution</B> or <B>from the <A HREF="https://performancecopilot.jfrog.io/ui/repos/tree/General/artifactory-build-info">https://performancecopilot.jfrog.io/</A> Set Me Up</B> page, in a command shell enter:<BR>
 <PRE><B>
 # yum install pcp pcp-gui
 </B></PRE>
 <BR>
-&nbsp;&nbsp;&nbsp;If using packages <B>manually downloaded from <A HREF="https://bintray.com/pcp">bintray.com/pcp</A></B>, in a command shell enter:<BR>
+&nbsp;&nbsp;&nbsp;If using packages <B>manually downloaded from <A HREF="https://performancecopilot.jfrog.io/ui/repos/tree/General/artifactory-build-info">https://performancecopilot.jfrog.io/</A></B>, in a command shell enter:<BR>
 <PRE><B>
 # rpm -Uvh *pcp*.rpm
 </B></PRE>
@@ -52,61 +52,15 @@
 </TABLE>
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
 	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>
-&nbsp;&nbsp;&nbsp;If using packages <B>from your distribution</B> or <B>from the <A HREF="https://bintray.com/pcp">bintray.com/pcp</A> Set Me Up</B> page, in a command shell enter:<BR>
+&nbsp;&nbsp;&nbsp;If using packages <B>from your distribution</B> or <B>from the <A HREF="https://performancecopilot.jfrog.io/ui/repos/tree/General/artifactory-build-info">https://performancecopilot.jfrog.io/</A> Set Me Up</B> page, in a command shell enter:<BR>
 <PRE><B>
 # apt-get install pcp pcp-gui
 </B></PRE>
 <BR>
-&nbsp;&nbsp;&nbsp;If using packages <B>manually downloaded from <A HREF="https://bintray.com/pcp">bintray.com/pcp</A></B>, in a command shell enter:<BR>
+&nbsp;&nbsp;&nbsp;If using packages <B>manually downloaded from <A HREF="https://performancecopilot.jfrog.io/ui/repos/tree/General/artifactory-build-info">https://performancecopilot.jfrog.io/</A></B>, in a command shell enter:<BR>
 <PRE><B>
 # apt-get install ./*pcp*.deb
 </B></PRE>
-<BR>
-</TD></TR>
-</TABLE>
-<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
-        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="mac">Mac</A> OS X Installation</B></FONT></P></TD></TR>
-</TABLE>
-<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
-	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;After downloading the <I>dmg</I> file for your platform, double-click on the PCP <I>dmg</I> icon, and follow the installation instructions presented by the Installer.<BR>
-<BR>
-</TD></TR>
-</TABLE>
-<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
-        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="sun">Solaris</A> Installation</B></FONT></P></TD></TR>
-</TABLE>
-<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
-	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;After downloading (and gunzip'ing) the binary package, to perform a fresh install:<BR>
-<PRE><B>
-# pkgadd -d pcp-X.Y.Z
-<I>&nbsp;&nbsp;Say 'y' to all the questions</I>
-# svcadm enable pmcd
-</B></PRE><BR>
-Or to update to a newer version:
-<PRE><B>
-# pkgrm pcp-X.Y.OLD
-# pkgadd -d pcp X.Y.Z
-# svcadm enable pmcd
-</B></PRE>
-<BR>
-</TD></TR>
-</TABLE>
-<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
-        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="win">Windows</A> Installation</B></FONT></P></TD></TR>
-</TABLE>
-<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
-	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;After downloading the PCP Glider <I>msi</I> file, right-click on the command prompt icon, select <I><B>Run As Administrator</B></I>, and enter:<BR>
-<PRE><B>
-# msiexec /i pcp-glider-*.msi
-# cd C:\Glider\scripts
-# postinst.bat
-</B></PRE><BR>
-Before upgrading or removing PCP Glider, run:
-<PRE><B>
-# cd C:\Glider\scripts
-# prerm.bat
-</B></PRE><BR>
-The command line utilities can now be accessed from a Windows shell or the provided (POSIX) shell.&nbsp;&nbsp;The graphical tools can be accessed via the Windows <I>Start</I> menu.
 <BR>
 </TD></TR>
 </TABLE>
@@ -138,7 +92,7 @@ $ make
 <CENTER>
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0>
 	<TR> <TD WIDTH="50%"><P>Copyright &copy; 2007-2010 <A HREF="https://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A><BR>Copyright &copy; 2000-2004 <A HREF="https://www.sgi.com/"><FONT COLOR="#000060">Silicon Graphics Inc</FONT></A></P></TD>
-	<TD WIDTH="50%"><P ALIGN=RIGHT><A HREF="https://pcp.io/"><FONT COLOR="#000060">PCP Site</FONT></A><BR>Copyright &copy; 2012-2018 <A HREF="https://www.redhat.com/"><FONT COLOR="#000060">Red Hat</FONT></A></P></TD> </TR>
+	<TD WIDTH="50%"><P ALIGN=RIGHT><A HREF="https://pcp.io/"><FONT COLOR="#000060">PCP Site</FONT></A><BR>Copyright &copy; 2012-2021 <A HREF="https://www.redhat.com/"><FONT COLOR="#000060">Red Hat</FONT></A></P></TD> </TR>
 </TABLE>
 </CENTER>
 </BODY>

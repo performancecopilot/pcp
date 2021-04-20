@@ -125,15 +125,12 @@ Use 'svcs' command to check the state of the services, e.g.:
 
 ### 5. Windows Installation
 
-There are 3 ways to get PCP working on Windows:
+The only way to get PCP working on Windows is to build from source.
 
-1) Download the native Windows version of PCP from bintray.com/pcp/windows
-
-2) Set up PCP build environment manually. For that you can:
+Set up PCP build environment manually. For that you can:
 
 - download Git for Windows SDK (https://github.com/git-for-windows/build-extra/releases)
-- download PCP package from bintray (https://bintray.com/pcp/windows)
-- install PCP package via pacman. (pacman -S mingw-w64-x86_64-pcp-X.Y.Z-any.pkg.tar)
+- build and install PCP from source (see below)
 - set PCP_DIR to C:\git-sdk-64\mingw64
 - add to the system PATH:
 ..1. "C:\git-sdk-64\mingw64\bin"
@@ -143,15 +140,6 @@ There are 3 ways to get PCP working on Windows:
 ```
 $PCP_DIR\libexec\pcp\bin\pmcd.exe
 ```
-
-3) Same as 2 except building the PCP pacman package from source
-
-- follow https://github.com/git-for-windows/git/wiki/Package-management
-  and get PKGBUILD from https://github.com/Andrii-hotfix/MINGW-packages
-- cd MINGW-packages/mingw-w64-pcp
-- makepkg-mingw -s
-- install pcp package via pacman as above.
-
 
 ## Building from source
 
