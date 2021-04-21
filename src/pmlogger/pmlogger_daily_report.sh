@@ -1,25 +1,25 @@
 #! /bin/sh
 #
 # Copyright (c) 2018 Red Hat.
-# 
+#
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-# 
+#
 # Administrative script for daily sar-style report summaries.
 # This is intened to be run from cron, an hour or two after the pmlogger_daily
 # cron script has completed, e.g. around 2am would be a suitable time.
 #
 # Sample crontab entry:
 #
-# # daily generation of system activity reports 
+# # daily generation of system activity reports
 # 0     2  *  *  *  pcp  /usr/libexec/pcp/bin/pmlogger_daily_report
 #
 #
@@ -249,7 +249,7 @@ fi
 
 # Common reporting options, including time window: midnight yesterday for 24h
 #
-REPORT_OPTIONS="-a $ARCHIVEPATH -z -p -f%H:%M:%S -t$INTERVAL"
+REPORT_OPTIONS="-a $ARCHIVEPATH -z -E 0 -p -f%H:%M:%S -t$INTERVAL"
 if ! $ARCHIVETIMES
 then
     # specific start/finish times - midnight yesterday for 24h
@@ -288,32 +288,32 @@ _report()
     fi
 }
 
-_report :sar-u-ALL '# CPU Utilization statistics, all CPUS' 
-_report :sar-u-ALL-P-ALL '# CPU Utilization statistics, per-CPU' 
-_report :vmstat '# virtual memory (vmstat) statistics' 
-_report :vmstat-a '# virtual memory active/inactive memory statistics' 
-_report :sar-B '# paging statistics' 
-_report :sar-b '# I/O and transfer rate statistics' 
-_report :sar-d-dev '# block device statistics' 
-_report :sar-d-dm '# device-mapper device statistics' 
-_report :sar-F '# mounted filesystem statistics' 
-_report :sar-H '# hugepages utilization statistics' 
-_report :sar-I-SUM '# interrupt statistics, summed' 
-_report :sar-n-DEV '# network statistics, per device' 
-_report :sar-n-EDEV '# network error statistics, per device' 
-_report :sar-n-NFSv4 '# NFSv4 client and RPC statistics' 
-_report :sar-n-NFSDv4 '# NFSv4 server and RPC statistics' 
-_report :sar-n-SOCK '# socket statistics' 
-_report :sar-n-TCP-ETCP '# TCP statistics' 
-_report :sar-q '# queue length and load averages' 
-_report :sar-r '# memory utilization statistics' 
-_report :sar-S '# swap usage statistics' 
-_report :sar-W '# swapping statistics' 
-_report :sar-w '# task creation and system switching statistics' 
-_report :sar-y '# TTY devices activity' 
-_report :numa-hint-faults '# NUMA hint fault statistics' 
-_report :numa-per-node-cpu '# NUMA per-node CPU statistics' 
-_report :numa-pgmigrate-per-node '# NUMA per-node page migration statistics' 
+_report :sar-u-ALL '# CPU Utilization statistics, all CPUS'
+_report :sar-u-ALL-P-ALL '# CPU Utilization statistics, per-CPU'
+_report :vmstat '# virtual memory (vmstat) statistics'
+_report :vmstat-a '# virtual memory active/inactive memory statistics'
+_report :sar-B '# paging statistics'
+_report :sar-b '# I/O and transfer rate statistics'
+_report :sar-d-dev '# block device statistics'
+_report :sar-d-dm '# device-mapper device statistics'
+_report :sar-F '# mounted filesystem statistics'
+_report :sar-H '# hugepages utilization statistics'
+_report :sar-I-SUM '# interrupt statistics, summed'
+_report :sar-n-DEV '# network statistics, per device'
+_report :sar-n-EDEV '# network error statistics, per device'
+_report :sar-n-NFSv4 '# NFSv4 client and RPC statistics'
+_report :sar-n-NFSDv4 '# NFSv4 server and RPC statistics'
+_report :sar-n-SOCK '# socket statistics'
+_report :sar-n-TCP-ETCP '# TCP statistics'
+_report :sar-q '# queue length and load averages'
+_report :sar-r '# memory utilization statistics'
+_report :sar-S '# swap usage statistics'
+_report :sar-W '# swapping statistics'
+_report :sar-w '# task creation and system switching statistics'
+_report :sar-y '# TTY devices activity'
+_report :numa-hint-faults '# NUMA hint fault statistics'
+_report :numa-per-node-cpu '# NUMA per-node CPU statistics'
+_report :numa-pgmigrate-per-node '# NUMA per-node page migration statistics'
 
 [ -f $tmp/err ] && status=1
 
