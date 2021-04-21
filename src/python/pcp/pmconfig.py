@@ -462,6 +462,20 @@ class pmConfig(object):
             inst_labels.append(indom_labels[i] if i in indom_labels else {})
         return inst_labels
 
+    def get_proc_basename(self, proc):
+        """ Get process basename """
+        if proc.startswith('('):
+            # Kernel thread
+            proc = proc[1:-1]
+        else:
+            # User space process
+            if proc.startswith('-'):
+                proc = proc[1:]
+            if proc.endswith(':'):
+                proc = proc[:-1]
+            proc = os.path.basename(proc)
+        return proc
+
     def check_metric(self, metric):
         """ Validate individual metric and get its details """
         try:
@@ -491,16 +505,27 @@ class pmConfig(object):
             if instances and inst[1][0] and not self.do_live_filtering():
                 found = [[], []]
                 for r in instances:
+                    hit = False
                     try:
                         if r.isdigit():
-                            msg = "Invalid instance id"
-                            for i, s in enumerate(inst[1]):
-                                sp = s.split()[0]
-                                if sp.isdigit() and int(r) == int(sp):
-                                    found[0].append(inst[0][i])
-                                    found[1].append(inst[1][i])
-                                    break
-                        else:
+                            msg = "Invalid instance"
+                            if inst[1][0].split()[0].isdigit():
+                                for i, s in enumerate(inst[1]):
+                                    sp = s.split()[0]
+                                    if sp.isdigit() and int(r) == int(sp):
+                                        found[0].append(inst[0][i])
+                                        found[1].append(inst[1][i])
+                                        hit = True
+                                        break
+                        if r.isalpha():
+                            msg = "Invalid process"
+                            if ' ' in inst[1][0] and inst[1][0].split()[0].isdigit():
+                                for i, s in enumerate(inst[1]):
+                                    if r == self.get_proc_basename(s.split()[1]):
+                                        found[0].append(inst[0][i])
+                                        found[1].append(inst[1][i])
+                                        hit = True
+                        if not hit:
                             msg = "Invalid regex"
                             cr = re.compile(r'\A' + r + r'\Z')
                             for i, s in enumerate(inst[1]):
@@ -1059,6 +1084,12 @@ class pmConfig(object):
         """ Filter instance name against metric instances """
         if not self._re_cache[metric]:
             return True
+
+        for r in self.util.metrics[metric][1]:
+            if r.isalpha():
+                if ' ' in name and name.split()[0].isdigit():
+                    if r == self.get_proc_basename(name.split()[1]):
+                        return True
 
         for cr in self._re_cache[metric]:
             if re.match(cr, name):
