@@ -1,0 +1,13 @@
+@PACKAGE_INIT@
+
+set_and_check(hiredis_cluster_INCLUDEDIR "@PACKAGE_INCLUDE_INSTALL_DIR@")
+
+if(NOT TARGET hiredis_cluster::hiredis_cluster)
+  include(${CMAKE_CURRENT_LIST_DIR}/hiredis_cluster-targets.cmake)
+endif()
+
+set(hiredis_cluster_LIBRARIES hiredis_cluster::hiredis_cluster)
+set(hiredis_cluster_INCLUDE_DIRS ${hiredis_cluster_INCLUDEDIR})
+
+check_required_components(hiredis_cluster)
+

@@ -1,0 +1,11 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+pkgincludedir=${includedir}/hiredis_cluster
+
+Name: hiredis_cluster
+Description: Minimalistic C client library for Redis with cluster support.
+Version: @PROJECT_VERSION@
+Libs: -L${libdir} -lhiredis_cluster
+Cflags: -I${pkgincludedir} -D_FILE_OFFSET_BITS=64
