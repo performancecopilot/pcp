@@ -1,6 +1,6 @@
 #!/usr/bin/env pmpython
 #
-# Copyright (C) 2015-2020 Marko Myllynen <myllynen@redhat.com>
+# Copyright (C) 2015-2021 Marko Myllynen <myllynen@redhat.com>
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -29,6 +29,8 @@ import sys
 
 # Our imports
 from datetime import datetime, timedelta
+import signal
+import shutil
 import time
 import math
 import re
@@ -159,6 +161,7 @@ class PMReporter(object):
         self.found_insts = []
         self.prev_insts = None
         self.static_header = 1
+        self.repeat_header_auto = 0
 
         # Performance metrics store
         # key - metric name
@@ -523,6 +526,22 @@ class PMReporter(object):
             self.write_header()
         if self.header == 0:
             self.repeat_header = 0
+        if self.repeat_header == "auto" and (self.dynamic_header or self.fixed_header):
+            self.repeat_header = 0
+        if self.repeat_header == "auto":
+            self.set_auto_repeat_header()
+            if self.repeat_header != "auto":
+                try:
+                    signum = getattr(signal, "SIGWINCH")
+                    signal.signal(signum, self.set_auto_repeat_header)
+                except Exception:
+                    pass
+            else:
+                adjust = 2 if not self.unitinfo else 3
+                if [x for x in self.pmconfig.descs if x.contents.indom != PM_INDOM_NULL]:
+                    adjust += 1
+                # Best guess with no terminal info available
+                self.repeat_header = 24 - adjust
 
         # Just checking
         if self.check == 1:
@@ -552,7 +571,8 @@ class PMReporter(object):
 
             # Repeat header if needed
             if self.output == OUTPUT_STDOUT and not self.dynamic_header:
-                if self.lines > 0 and self.repeat_header == self.lines:
+                if (self.lines > 0 and self.repeat_header == self.lines) or \
+                   (self.repeat_header_auto and self.lines >= self.repeat_header):
                     self.write_header(True)
                     self.lines = 0
                 self.lines += 1
@@ -684,6 +704,26 @@ class PMReporter(object):
             seen = set()
             self.found_insts = [i[1] for metric in results for i in results[metric]]
             self.found_insts = [i for i in self.found_insts if not (i in seen or seen.add(i))]
+
+    def set_auto_repeat_header(self, *args):
+        """ Set auto repeat header """
+        try:
+            if hasattr(shutil, 'get_terminal_size'):
+                lines = shutil.get_terminal_size().lines
+            else:
+                lines = int(os.popen('stty size', 'r').read().split()[0])
+            if self.colxrow is None:
+                header = 2 if not self.unitinfo else 3
+                if [x for x in self.pmconfig.descs if x.contents.indom != PM_INDOM_NULL]:
+                    header += 1
+                self.repeat_header = lines - header
+            else:
+                header = 1 if not self.unitinfo else 2
+                instances = len(set([j for i in self.pmconfig.insts for j in i[0]]))
+                self.repeat_header = int(lines / instances) - header
+            self.repeat_header_auto = 1
+        except Exception:
+            pass
 
     def write_extheader(self):
         """ Write extended header """
@@ -1107,7 +1147,8 @@ class PMReporter(object):
         insts = [(metric, list(zip(*results[metric]))[0]) for metric in results if results[metric]]
         if self.fixed_header:
             self.prepare_stdout_colxrow(results)
-        elif insts and (self.repeat_header == self.lines or insts != self.prev_insts):
+        elif (insts and (self.repeat_header == self.lines or insts != self.prev_insts)) or \
+             (self.repeat_header_auto and self.lines >= self.repeat_header):
             if self.output == OUTPUT_CSV:
                 self.write_header_csv(results)
             if self.output == OUTPUT_STDOUT:

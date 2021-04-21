@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (C) 2015-2020 Marko Myllynen <myllynen@redhat.com>
+.\" Copyright (C) 2015-2021 Marko Myllynen <myllynen@redhat.com>
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -410,7 +410,8 @@ repeat_header (integer)
 .RS 4
 Indicates how often to repeat the header.
 Corresponding command line option is \fB\-E\fP.
-Defaults to \fB0\fP.
+\fBauto\fR uses terminal height.
+Defaults to \fB0\fP (disabled).
 .RE
 .PP
 dynamic_header (boolean)
