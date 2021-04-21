@@ -4,7 +4,7 @@
  * Copyright (c) 2000,2004,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
  * Copyright (c) 2002 International Business Machines Corp.
  * Copyright (c) 2007-2011 Aconex.  All Rights Reserved.
- * Copyright (c) 2012-2020 Red Hat.
+ * Copyright (c) 2012-2021 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -309,6 +309,11 @@ static pmdaMetric metrictab[] = {
   { NULL,
     { PMDA_PMID(CLUSTER_PID_STAT,47), PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
+/* proc.psinfo.policy_s */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_STAT,48), PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
 /*
  * proc/<pid>/status cluster
  */
@@ -1723,6 +1728,28 @@ proc_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt 
     return sts;
 }
 
+static char *
+scheduler_policy_name(int policy)
+{
+    switch (policy) {
+    case 0:	/* SCHED_NORMAL */
+	return "NORMAL";
+    case 1:	/* SCHED_FIFO */
+	return "FIFO";
+    case 2:	/* SCHED_RR */
+	return "RR";
+    case 3:	/* SCHED_BATCH */
+	return "BATCH";
+    case 5:	/* SCHED_IDLE */
+	return "IDLE";
+    case 6:	/* SCHED_DEADLINE */
+	return "DEADLN";
+    default:
+	break;
+    }
+    return "?";
+}
+
 /*
  * callback provided to pmdaFetch
  */
@@ -1987,8 +2014,14 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    case PROC_PID_STAT_RTPRIORITY: /* proc.psinfo.rt_priority */
 	    case PROC_PID_STAT_POLICY: /* proc.psinfo.policy */
 	    	if ((f = _pm_getfield(entry->stat_buf, item - 3)) == NULL) /* Note the offset */
-		    	return 0;
-		    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
+		    return 0;
+		atom->ul = (__uint32_t)strtoul(f, &tail, 0);
+	    	break;
+
+	    case PROC_PID_STAT_POLICY_S: /* proc.psinfo.policy_s */
+	    	if ((f = _pm_getfield(entry->stat_buf, PROC_PID_STAT_POLICY - 3)) == NULL) /* Note the offset */
+		    return 0;
+		atom->cp = scheduler_policy_name(atoi(f));
 	    	break;
 
 	    case PROC_PID_STAT_DELAYACCT_BLKIO_TICKS: /* proc.psinfo.delayacct_blkio_time */

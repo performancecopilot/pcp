@@ -81,6 +81,7 @@ proc.psinfo.oom_score -12387 No permission to perform requested operation
 proc.psinfo.pgrp -12387 No permission to perform requested operation
 proc.psinfo.pid -12387 No permission to perform requested operation
 proc.psinfo.policy -12387 No permission to perform requested operation
+proc.psinfo.policy_s -12387 No permission to perform requested operation
 proc.psinfo.ppid -12387 No permission to perform requested operation
 proc.psinfo.priority -12387 No permission to perform requested operation
 proc.psinfo.processor -12387 No permission to perform requested operation
@@ -182,6 +183,7 @@ proc.psinfo.oom_score COUNT
 proc.psinfo.pgrp COUNT
 proc.psinfo.pid COUNT
 proc.psinfo.policy COUNT
+proc.psinfo.policy_s COUNT
 proc.psinfo.ppid COUNT
 proc.psinfo.priority COUNT
 proc.psinfo.processor COUNT

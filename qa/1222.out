@@ -25,6 +25,7 @@ proc.psinfo.sigcatch_s: >10 values
 proc.psinfo.sigignore_s: >10 values
 proc.psinfo.blocked_s: >10 values
 proc.psinfo.signal_s: >10 values
+proc.psinfo.policy_s: >10 values
 proc.psinfo.environ: >10 values
 proc.psinfo.cguest_time: >10 values
 proc.psinfo.guest_time: >10 values

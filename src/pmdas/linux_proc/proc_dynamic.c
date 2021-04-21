@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015,2020 Red Hat.
+ * Copyright (c) 2015,2021 Red Hat.
  * Copyright (c) 2014-2015 Martins Innus.  All Rights Reserved.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -132,6 +132,7 @@ static dynproc_metric_t psinfo_metrics[] = {
 	{ .name = "guest_time",	    .cluster = CLUSTER_PID_STAT,	.item=45 },
 	{ .name = "cguest_time",    .cluster = CLUSTER_PID_STAT,	.item=46 },
 	{ .name = "environ",        .cluster = CLUSTER_PID_STAT,	.item=47 },
+	{ .name = "policy_s",	    .cluster = CLUSTER_PID_STAT,	.item=48 },
 	{ .name = "signal_s",	    .cluster = CLUSTER_PID_STATUS,	.item=16 },
 	{ .name = "blocked_s",	    .cluster = CLUSTER_PID_STATUS,	.item=17 },
 	{ .name = "sigignore_s",    .cluster = CLUSTER_PID_STATUS,	.item=18 },

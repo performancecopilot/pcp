@@ -1,7 +1,7 @@
 /*
  * Linux /proc/<pid>/... Clusters
  *
- * Copyright (c) 2013-2015,2018-2020 Red Hat.
+ * Copyright (c) 2013-2015,2018-2021 Red Hat.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -76,9 +76,10 @@
 #define PROC_PID_STAT_GUEST_TIME     45
 #define PROC_PID_STAT_CGUEST_TIME    46
 #define PROC_PID_STAT_ENVIRON        47
+#define PROC_PID_STAT_POLICY_S       48
 
 /* number of fields in proc_pid_stat_entry_t */
-#define NR_PROC_PID_STAT             48
+#define NR_PROC_PID_STAT             49
 
 /*
  * metrics in /proc/<pid>/status
