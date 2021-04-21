@@ -545,17 +545,17 @@ class PMReporter(object):
                 refresh_metrics = 0
                 self.pmconfig.update_metrics(curr_insts=not self.live_filter)
 
+            # Fetch values
+            refresh_metrics = self.pmconfig.fetch()
+            if refresh_metrics < 0:
+                break
+
             # Repeat header if needed
             if self.output == OUTPUT_STDOUT and not self.dynamic_header:
                 if self.lines > 0 and self.repeat_header == self.lines:
                     self.write_header(True)
                     self.lines = 0
                 self.lines += 1
-
-            # Fetch values
-            refresh_metrics = self.pmconfig.fetch()
-            if refresh_metrics < 0:
-                break
 
             # Report and prepare for the next round
             self.report(self.pmfg_ts())

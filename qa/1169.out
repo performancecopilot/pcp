@@ -1203,9 +1203,6 @@ Time,"disk.dev.read-sdb","disk.dev.write-sdb"
 00:00:17   N/A         ~          ~         ~
 00:00:18   sdb     1.000          ~         ~
 00:00:19   sdb     1.000      1.000         ~
-
-          test  d.d.read  d.d.write  m.u.used
-                 count/s    count/s     Kbyte
 == fixed header test with separate header
 [ 1] - disk.dev.read - count/s
 [ 2] - disk.dev.write - count/s
@@ -1377,12 +1374,6 @@ Time,"disk.dev.read-sdb","disk.dev.write-sdb"
 00:00:17   N/A         ~         ~         ~
 00:00:18   sdb     1.000         ~         ~
 00:00:19   sdb     1.000     1.000         ~
-
-[ 1] - disk.dev.read - count/s
-[ 2] - disk.dev.write - count/s
-[ 3] - mem.util.used - Kbyte
-
-                       1         2         3
 == fixed header test with derived metric missing values using rate
           test  d.d.read  d.d.write    a  m.u.used
                  count/s    count/s  cou     Kbyte
