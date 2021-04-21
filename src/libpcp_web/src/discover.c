@@ -1531,6 +1531,7 @@ static void
 dir_callback(pmDiscover *p)
 {
     pmDiscoverMonitor(p->context.name, changed_callback);
+    p->flags &= ~PM_DISCOVER_FLAGS_NEW;
 }
 
 static void
@@ -1540,6 +1541,7 @@ archive_callback(pmDiscover *p)
 	if (pmDebugOptions.discovery)
 	    fprintf(stderr, "DISCOVERED ARCHIVE %s\n", p->context.name);
 	pmDiscoverMonitor(p->context.name, changed_callback);
+	p->flags &= ~PM_DISCOVER_FLAGS_NEW;
     }
 }
 
