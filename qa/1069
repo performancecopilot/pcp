@@ -117,7 +117,6 @@ pmrep -s 1 -t 1 -i '.[]*'   disk.dev.read 2>&1 | grep -o "Invalid regex '.\[]\*'
 pmrep -s 1 -t 1 -i '.[z-a]' disk.dev.read 2>&1 | grep -o "Invalid regex '.\[z-a\]':"
 
 echo "== metricset command line handling"
-pmrep -z -a $here/archives/20201109 -i '.*000001.*' -C :proc-cpu
 pmrep -z -a $here/archives/20201109 -i '.*000001.*' -C :nosuchset
 pmrep -z -a $here/archives/20201109 -i '.*000001.*' -C :proc-cpu :nosuchset
 

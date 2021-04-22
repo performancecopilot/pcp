@@ -404,7 +404,6 @@ Invalid regex '(':
 Invalid regex '.[]*':
 Invalid regex '.[z-a]':
 == metricset command line handling
-    CPU  Prio  Nice  Threads  State  %usr  %sys
 Metricset definition ':nosuchset' not found.
 Metricset definition ':nosuchset' not found.
 == invalid configuration file
