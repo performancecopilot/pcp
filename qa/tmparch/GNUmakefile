@@ -19,7 +19,10 @@ install install_pcp:
 
 include GNUlocaldefs
 
-setup: $(MKARCH)
+setup: check_pmcd_stable $(MKARCH)
+
+check_pmcd_stable:
+	./check-pmcd-stable
 
 LDIRT += mkbig1.log
 
