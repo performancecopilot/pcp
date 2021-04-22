@@ -93,7 +93,7 @@ Note: timezone set to local timezone of host "shack" from archive
 
 === testing pmrep with :collectl-sd config on pcp-zeroconf archive
   KBRead   Reads  KBWrit  Writes
-    kB/s  count/    kB/s  count/
+    KB/s  count/    KB/s  count/
      N/A     N/A     N/A     N/A
   1723.0  260.00  102.00  11.000
   740.00  178.00  91.000  10.000
@@ -109,7 +109,7 @@ Note: timezone set to local timezone of host "shack" from archive
 
 === testing pmrep with :collectl-sn config on pcp-zeroconf archive
     KBIn   PktIn   KBOut  PktOut
-    kB/s  count/    kB/s  count/
+    KB/s  count/    KB/s  count/
      N/A     N/A     N/A     N/A
   202.80  94.000  202.89  94.000
   222.84  91.000  222.92  92.000
