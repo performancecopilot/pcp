@@ -21,7 +21,7 @@ MYCONFIGS = config.foo config.bar config.bigbin \
 	config.dodgey-all config.dodgey-mixed config.dodgey-some \
 	config1.interp config2.interp
 
-MYSCRIPTS = make.dodgey mkbig1
+MYSCRIPTS = make.dodgey mkbig1 check-pmcd-stable
 
 OTHERS = README
 
@@ -48,6 +48,8 @@ endif
 foo.0:	config.foo
 	rm -f foo.index foo.meta foo.0
 	pmlogger -c config.foo -s 8 foo
+	mv pmlogger.log foo.pmlogger.log
+	cp $(PCP_LOG_DIR)/pmcd/pmcd.log foo.pmcd.log
 
 mv-foo.0:	config.foo
 	rm -f mv-foo.index mv-foo.meta mv-foo.?
