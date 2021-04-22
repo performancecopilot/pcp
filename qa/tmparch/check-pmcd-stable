@@ -58,6 +58,8 @@ then
 	_check >$tmp.tmp
 	if [ -s $tmp.tmp ]
 	then
+	    :
+	else
 	    touch $tmp.ok
 	    break
 	fi
@@ -69,7 +71,7 @@ then
 	#
 	pminfo -v >/dev/null 2>&1
     else
-	echo "Failed to fix these after ${iter}secs: `tr '\012' ' ' <$tmp.tmp`"
+	echo "Failed to fix these after ${wait}secs: `tr '\012' ' ' <$tmp.tmp`"
 	sts=1
     fi
 fi
