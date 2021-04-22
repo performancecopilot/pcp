@@ -92,6 +92,25 @@ Invalid metric tape.dev.io_ns (PM_ERR_INDOM_LOG Instance domain identifier not d
       1.000        1000.033
       1.000        1000.001
       1.000        1000.016
+  s.seconds  s.milliseconds
+        N/A             N/A
+        N/A             N/A
+      1.000        1000.033
+      1.000        1000.001
+      1.000        1000.016
+  d.d.read  d.d.read  d.d.read  d.d.read  d.d.read  d.d.read
+   count/s   count/s   count/s   count/s   count/s   count/s
+       N/A       N/A       N/A       N/A       N/A       N/A
+     0.000    30.000     0.500     0.000     0.000     1.000
+     0.000    30.000     0.000     0.000     0.000     1.000
+     0.000    30.000     0.500     0.000     0.000     1.000
+     0.000    30.000     0.500     0.000     0.000     0.500
+  d.d.read  d.d.read  d.d.read  d.d.read  d.d.read  d.d.read
+       N/A       N/A       N/A       N/A       N/A       N/A
+     0.000    30.000     0.500     0.000     0.000     1.000
+     0.000    30.000     0.000     0.000     0.000     1.000
+     0.000    30.000     0.500     0.000     0.000     1.000
+     0.000    30.000     0.500     0.000     0.000     0.500
         |        |d.d.read|d.d.write|d.d.total|n.i.mtu|m.u.free|k.a.load|m.u.used
         |        | count/s|  count/s|  count/s|   byte|   Kbyte|        |   Kbyte
 00:47:01|     sda|     N/A|      N/A|      N/A|      ~|       ~|       ~|       ~

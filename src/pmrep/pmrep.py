@@ -88,7 +88,7 @@ class PMReporter(object):
                      'type_prefer', 'precision_force', 'limit_filter', 'limit_filter_force',
                      'live_filter', 'rank', 'invert_filter', 'predicate', 'names_change',
                      'speclocal', 'instances', 'ignore_incompat', 'ignore_unknown',
-                     'omit_flat', 'include_labels', 'include_texts')
+                     'omit_flat', 'instinfo', 'include_labels', 'include_texts')
 
         # The order of preference for options (as present):
         # 1 - command line options
@@ -101,6 +101,7 @@ class PMReporter(object):
         self.speclocal = None
         self.derived = None
         self.header = 1
+        self.instinfo = 1
         self.unitinfo = 1
         self.globals = 1
         self.timestamp = 0
@@ -206,6 +207,7 @@ class PMReporter(object):
         opts.pmSetLongOptionHeader("Reporting options")
         opts.pmSetLongOption("no-header", 0, "H", "", "omit headers")
         opts.pmSetLongOption("no-unit-info", 0, "U", "", "omit unit info from headers")
+        opts.pmSetLongOption("no-inst-info", 0, "", "", "omit instance info from headers")
         opts.pmSetLongOption("no-globals", 0, "G", "", "omit global metrics")
         opts.pmSetLongOption("timestamps", 0, "p", "", "print timestamps")
         opts.pmSetLongOptionAlign()        # -A/--align
@@ -270,6 +272,8 @@ class PMReporter(object):
             self.daemonize = 1
         elif opt == 'include-texts':
             self.include_texts = 1
+        elif opt == 'no-inst-info':
+            self.instinfo = 0
         elif opt == 'K':
             if not self.speclocal or not self.speclocal.startswith(";"):
                 self.speclocal = ";" + optarg
@@ -1003,7 +1007,7 @@ class PMReporter(object):
         del insts[-1]
         del mlabels[-1]
         self.writer.write(self.format.format(*names) + "\n")
-        if prnti:
+        if self.instinfo and prnti:
             self.writer.write(self.format.format(*insts) + "\n")
         if self.include_labels:
             self.writer.write(self.format.format(*mlabels) + "\n")

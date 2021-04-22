@@ -41,6 +41,7 @@
 [\fB\-K\fP \fIspec\fP]
 [\fB\-l\fP \fIdelimiter\fP]
 [\fB\-N\fP \fIpredicate\fP]
+[\fB\-\-no\-inst\-info\fP]
 [\fB\-o\fP \fIoutput\fP]
 [\fB\-O\fP \fIorigin\fP]
 [\fB\-P\fP|\fB\-0\fP \fIprecision\fP]
@@ -665,6 +666,10 @@ Since \fBmem.util.used\fP is a single-valued metric (thus not sharing the
 same instance domain as the process-related metrics),
 it will be reported as usual.
 .RE
+.TP
+\fB\-\-no\-inst\-info\fR
+Omit instance information from headers.
+Not applicable with separate header (see \fB\-g\fR).
 .TP
 \fB\-o\fR \fIoutput\fR, \fB\-\-output\fR=\fIoutput\fR
 Use

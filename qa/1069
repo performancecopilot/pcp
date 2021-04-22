@@ -87,7 +87,10 @@ pmrep -s 5 -t 2 $log -C -x sample | _archive_filter
 echo "---"
 pmrep -T 7s -t 3 -p $log -x sample | _archive_filter
 echo "---"
-pmrep -s 5 -t 2 $log -G -H -U sample
+pmrep -s 5 -t 2 $log -G -H sample
+pmrep -s 5 -t 2 $log -G -U sample
+pmrep -s 5 -t 2 $log2 -G --no-inst-info disk.dev.read
+pmrep -s 5 -t 2 $log2 -G -U --no-inst-info disk.dev.read
 pmrep -s 5 -t 2 $log2 -p -l '|' -X "" disk.dev.read disk.dev.write disk.dev.total network.interface.mtu mem.util.free kernel.all.load mem.util.used
 pmrep -s 5 -t 2 $log2 -p -l '|' -X "Instance name" disk.dev.read disk.dev.write disk.dev.total network.interface.mtu mem.util.free kernel.all.load mem.util.used
 

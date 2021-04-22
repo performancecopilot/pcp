@@ -656,6 +656,7 @@ _pcp () {
       "$common_python[@]" \
       "(-o --output $exargs)"{-o+,--output=}'[set output target]:target:(archive csv stdout)' \
       "(-F --output-file $exargs)"{-F+,--output-file=}'[specify output file]:file:_files' \
+      "(--no-inst-info $exargs)"--no-inst-info'[omit instance info]' \
       "(-U --no-unit-info $exargs)"{-U,--no-unit-info}'[omit unit info]' \
       "(-p --timestamps $exargs)"{-p,--timestamps}'[print timestamps]' \
       "(-d --delay --container -h --host -L --local-PMDA -K --spec-local -u --no-interpol $exargs)"{-d,--delay}'[delay between updates in archive mode]' \
