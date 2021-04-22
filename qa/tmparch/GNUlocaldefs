@@ -48,8 +48,6 @@ endif
 foo.0:	config.foo
 	rm -f foo.index foo.meta foo.0
 	pmlogger -c config.foo -s 8 foo
-	mv pmlogger.log foo.pmlogger.log
-	cp $(PCP_LOG_DIR)/pmcd/pmcd.log foo.pmcd.log
 
 mv-foo.0:	config.foo
 	rm -f mv-foo.index mv-foo.meta mv-foo.?
