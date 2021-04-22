@@ -2559,6 +2559,9 @@ $1 == "d" {
             if (match ($5, "'$PCP_RUN_DIR'")) {
                 printf ("%%%%ghost ") >> f;
             }
+            if (match ($5, "'$PCP_VAR_DIR'/testsuite")) {
+                $3 = $4 = "pcpqa";
+            }
             printf ("%%%%dir %%%%attr(%s,%s,%s) %s\n", $2, $3, $4, $5) >> f
           }
 $1 == "f" && $6 ~ "etc/pcp\\.conf" { printf ("%%%%config ") >> f; }
@@ -2570,6 +2573,9 @@ $1 == "f" {
                     printf ("%%%%config(noreplace) ") >> f;
                     break;
                 }
+            }
+            if (match ($6, "'$PCP_VAR_DIR'/testsuite")) {
+                $3 = $4 = "pcpqa";
             }
             if (match ($6, "'$PCP_MAN_DIR'") || match ($6, "'$PCP_DOC_DIR'")) {
                 printf ("%%%%doc ") >> f;
@@ -3050,7 +3056,6 @@ PCP_LOG_DIR=%{_logsdir}
 %endif
 
 %files testsuite -f pcp-testsuite-files.rpm
-%defattr(-,pcpqa,pcpqa)
 
 %if !%{disable_infiniband}
 %files pmda-infiniband -f pcp-pmda-infiniband-files.rpm
