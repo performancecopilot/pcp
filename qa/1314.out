@@ -1,0 +1,27 @@
+QA output created by 1314
+QA output created by 1313 --valgrind
+=== std out ===
+pmfstring -> 1 "1"
+pmfstring -> 2 "22"
+pmfstring -> 3 "333"
+pmfstring -> 4 "4444"
+pmfstring -> 5 "55555"
+pmfstring -> 6 "666666"
+pmfstring -> 7 "7777777"
+pmfstring -> 8 "88888888"
+pmfstring -> 9 "999999999"
+pmfstring -> 10 "aaaaaaaaaa"
+pmfstring -> 11 "i_am_11_cha"
+pmfstring -> 12 "i_am_12_char"
+pmfstring -> 13 "i_am_13_chars"
+pmfstring -> 14 "i_am_14__chars"
+pmfstring -> 15 "i_am_15___chars"
+pmfstring -> 16 "i_am_16____chars"
+pmfstring -> 17 "i_am_17_____chars"
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/pmfstring
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
