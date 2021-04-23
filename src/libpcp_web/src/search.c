@@ -937,7 +937,7 @@ redis_search_schema_callback(
 	baton->slots->search = 1;
     } else {
 	// probably no RediSearch module installed, ignore silently
-	baton->slots->search = -ENOTSUP;
+	baton->slots->search = 0;
     }
 
     redis_slots_end_phase(baton);

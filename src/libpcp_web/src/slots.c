@@ -318,9 +318,8 @@ redisSlotsRequestFirstNode(redisSlots *slots, const sds cmd,
 	return REDIS_ERR;
     }
 
-    if (UNLIKELY(pmDebugOptions.desperate)) {
-	fprintf(stderr, "Sending raw redis command:\n%s", cmd);
-    }
+    if (UNLIKELY(pmDebugOptions.desperate))
+	fprintf(stderr, "Sending raw redis command to first node:\n%s", cmd);
 
     redisSlotsReplyData *srd = redisSlotsReplyDataInit(slots, sdslen(cmd), callback, arg);
     sts = redisClusterAsyncFormattedCommandToNode(slots->acc, dictGetVal(entry), redisSlotsReplyCallback, srd, cmd, sdslen(cmd));
