@@ -91,7 +91,7 @@ pmfstring(FILE *f, char **str)
 	return -1; /* aka EOF */
 
     for ( ; ; ) {
-	if (i > buflen-1) {
+	if (i > buflen-2) {
 	    if (buf == NULL) {
 		if ((buf = (char *)malloc(4)) == NULL) {
 		    pmNoMem("pmfstring malloc", 4, PM_RECOV_ERR);

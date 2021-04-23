@@ -1,0 +1,57 @@
+#!/bin/sh
+# PCP QA Test No. 1313
+# exercise pmfstring
+# see 1314 for the valgrind version
+#
+# Copyright (c) 2021 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+cat <<'End-of-File' >$tmp.in
+1 22 333 4444 55555 666666 7777777 88888888 999999999 aaaaaaaaaa
+   i_am_11_cha i_am_12_char i_am_13_chars i_am_14__chars
+	i_am_15___chars i_am_16____chars
+		i_am_17_____chars
+End-of-File
+
+if $do_valgrind
+then
+    _run_valgrind src/pmfstring <$tmp.in
+else
+    src/pmfstring <$tmp.in
+fi
+
+# success, all done
+exit
