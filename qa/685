@@ -19,7 +19,6 @@ echo "QA output created by $seq"
 _cleanup()
 {
     cd $here
-    $sudo rm -rf $tmp $tmp.* $PCP_VAR_DIR/pmns/root_qa
     $sudo $PCP_BINADM_DIR/pmnsdel qa
     _service pmcd start 2>&1 | _filter_pcp_start
     _wait_for_pmcd
@@ -27,6 +26,7 @@ _cleanup()
     # and NOT qa.check: pmLookupDesc: Unknown or illegal metric identifier
     #
     pminfo -f qa
+    $sudo rm -rf $tmp $tmp.* $PCP_VAR_DIR/pmns/root_qa
 }
 
 status=1	# failure is the default!

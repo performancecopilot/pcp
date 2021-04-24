@@ -16,7 +16,9 @@ echo "QA output created by $seq"
 rem_host=`./getpmcdhosts -L -n 1 -P -a sample 2>$tmp.tmp`
 if [ -z "$rem_host" ]
 then
-    _notrun `cat $tmp.tmp`
+    msg=`cat $tmp.tmp`
+    rm -f $tmp.tmp
+    _notrun "$msg"
     # NOTREACHED
 fi
 rm -f $tmp.tmp $seq.full

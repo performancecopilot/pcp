@@ -36,7 +36,6 @@ _cleanup()
 	echo "=== $file ===" >>$here/$seq.full
 	cat $file >>$here/$seq.full
     done
-    $sudo rm -f $tmp.*
     _restore_auto_restart pmcd
     [ "$pmie_state" = on ] && _change_config pmie on
     if $pmie_was_running
@@ -48,6 +47,7 @@ _cleanup()
 	$sudo $PCP_BINADM_DIR/pmsignal -a -s TERM pmie >>$here/$seq.full 2>&1
 	_wait_pmie_end
     fi
+    $sudo rm -f $tmp.*
 }
 
 status=1	# failure is the default!

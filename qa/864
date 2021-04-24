@@ -13,8 +13,19 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+# don't need cd, but need to avoid ./collectl that generates warnings
+# from pcp(1) if . is on the $PATH
+#
+cd collectl
+
 pcp collectl --version >$tmp.out 2>&1
-grep 'collectl version' $tmp.out >/dev/null || _notrun "pcp-collectl not installed"
+if grep 'collectl version' $tmp.out >/dev/null
+then
+    :
+else
+    rm -f $tmp.*
+    _notrun "pcp-collectl not installed"
+fi
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
@@ -35,8 +46,9 @@ _filter()
 }
 
 # real QA test starts here
-rm -f $seq.full
-pcp collectl -R 1.25 -i 1 | tee -a $seq.full | _filter
+
+rm -f $here/$seq.full
+pcp collectl -R 1.25 -i 1 | tee -a $here/$seq.full | _filter
 
 # success, all done
 status=0

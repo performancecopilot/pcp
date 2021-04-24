@@ -17,7 +17,9 @@ echo "QA output created by $seq"
 #
 ./getpmcdhosts -n 2 -L -a sample -v 'pcp>=2' -s IRIX64 >$tmp.tmp 2>&1
 if [ $? -ne 0 ]; then
-    _notrun "`cat $tmp.tmp`"
+    msg=`cat $tmp.tmp`
+    rm -f $tmp.tmp
+    _notrun "$msg"
     # NOTREACHED
 fi
 rm -f $seq.tmp

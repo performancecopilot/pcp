@@ -35,7 +35,7 @@ NEEDREWRITE=$PCP_LOG_DIR/pmlogger/.NeedRewrite
 _cleanup()
 {
     cd $here
-    $sudo rm -rf $tmp.*
+    $sudo rm -rf $tmp $tmp.*
     $sudo mv $PCP_LOG_DIR/NOTICES.$seq $PCP_LOG_DIR/NOTICES
     [ -f $NEEDREWRITE.$seq ] && $sudo mv $NEEDREWRITE.$seq $NEEDREWRITE
 }
