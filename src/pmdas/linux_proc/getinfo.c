@@ -88,8 +88,12 @@ tty_driver_init(void)
 	free(unused);
 
 	n = (tty_driver_count + 1) * sizeof(tty_driver_t);
-	if ((tmp = (tty_driver_t *)realloc(tty_drivers, n)) == NULL)
+	if ((tmp = (tty_driver_t *)realloc(tty_drivers, n)) == NULL) {
+	    pmNoMem("tty_driver_init: realloc", n, PM_RECOV_ERR);
+	    free(device);
+	    free(range);
 	    break;
+	}
 
 	tty = &tmp[tty_driver_count];
 	if (strncmp(end = device, "/dev/", 5) == 0)
