@@ -207,39 +207,66 @@ _pmda_setup()
 }
 
 # Take automated setup action (Install or Remove) for PMDAs
+# Protocol here is:
+#	.Need${action} => package installs may leave these behind
+#			  to indicate action needed here
+#	.Need${action}.pending => action is running
+#	.Need${action}.failed => action run but failed (these will
+#				 trigger a retry the next time pmcd is
+#				 restated
 #
 _pmda_enact()
 {
     action=$1
     verb=$2
 
-    for file in */.Need$action
+    for file in */.Need${action}*
     do
-	[ "$file" = "*/.Need$action" ] && break
+	# skip all of this if no files from glob expansion
+	#
+	[ "$file" = "*/.Need${action}*" ] && break
 	pmda=`dirname $file`
-	if [ -d "$pmda" -a -f "$pmda/.Need$action" ]
-	then
-	    cd $pmda
-	    $PCP_ECHO_PROG "$verb $pmda PMDA ..."
+	# sanity ... $pmda really should be a directory name
+	#
+	[ -d "$pmda" ] || continue
+	# rename marker file asap and _before_ calling action script
+	# because that script might call this start script recursively,
+	# and we don't want to get stuck in an infinite loop.
+	# 
+	case "$file"
+	in
+	    */.Need${action}|*/.Need${action}.failed)
+		rm -f $pmda/.Need${action}.pending
+		mv $file $pmda/.Need${action}.pending
+		$PCP_ECHO_PROG "$verb $pmda PMDA ..."
+		cd $pmda
+		if ./${action} </dev/null >/dev/null
+		then
+		    # success
+		    $PCP_BINADM_DIR/pmpost "PMDA setup: automated $action: $pmda"
+		    rm -f .Need$action.pending
+		else
+		    # failure
+		    $PCP_BINADM_DIR/pmpost "PMDA setup: automated $action FAILED (exit=$?): $pmda"
+		    # leave the marker, but rename to .failed, this
+		    # will allow another attempt at the next restart
+		    # and maybe we'll be luckier next time
+		    #
+		    mv .Need$action.pending .Need$action.failed
+		fi
+		cd "$PCP_PMDAS_DIR"
+		;;
 
-	    # rename marker file _before_ calling action script because
-	    # that script might call this start script recursively, and
-	    # we don't want to get stuck in an infinite loop.
-	    # 
-	    rm -f .Need${action}.sav
-	    mv .Need${action} .Need${action}.sav
-	    if ./${action} </dev/null >/dev/null
-	    then
-		# success
-		$PCP_BINADM_DIR/pmpost "PMDA setup: automated $action: $pmda"
-		rm -f .Need$action.sav
-	    else
-		# put the file back, maybe we'll be luckier next time
-		$PCP_BINADM_DIR/pmpost "PMDA setup: automated $action FAILED (exit=$?): $pmda"
-		mv .Need$action.sav .Need$action
-	    fi
-	    cd "$PCP_PMDAS_DIR"
-	fi
+	    */.Need${action}.pending)
+		# recursion ... do nothing here
+		#
+		;;
+
+	    *)
+		$PCP_BINADM_DIR/pmpost "PMDA automated setup: botch: what is $file?"
+		;;
+	esac
+
     done
 }
 
