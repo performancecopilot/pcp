@@ -21,7 +21,20 @@ trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 _check()
 {
     find $PCP_PMDAS_DIR -name ".Need*" -print \
-    | grep -v '\.sav$'
+    | while read f
+    do
+	case "$f"
+	in
+	    *.failed)
+		# Install/Remove failed, cannot have further concurrent
+		# actions unless pmcd restart is done (again)
+		#
+		;;
+	    *)
+		echo $f
+		;;
+	esac
+    done
 }
 
 # emasculated version of _service() from ../common.check ...
@@ -48,13 +61,15 @@ then
     _restart_pmcd
     i=0
     rm -f $tmp.ok
-    # give the rc scripts $wait seconds to get going
+    # give the rc scripts $wait seconds to get going and poll every
+    # $poll milliseconds
     #
-    wait=10
-    iter=`expr $wait \* 10`
+    wait=30
+    poll=100
+    iter=`expr $wait \* 10000 / $poll`
     while [ $i -lt $iter ]
     do
-	pmsleep 0.1
+	pmsleep ${poll}msec
 	_check >$tmp.tmp
 	if [ -s $tmp.tmp ]
 	then
