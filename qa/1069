@@ -2,7 +2,7 @@
 # PCP QA Test No. 1069
 # Exercise pmrep configuration and various reporting modes.
 #
-# Copyright (c) 2015-2017 Red Hat.
+# Copyright (c) 2015-2021 Red Hat.
 #
 
 seq=`basename $0`
@@ -39,6 +39,15 @@ _archive_filter()
     sed \
 	-e '/timezone/s/ (reporting.*)//' \
 	-e "s#$here#QAPATH#g" \
+    #end
+}
+
+_conf_error_filter()
+{
+    sed \
+	-e "s/'\/.*'/CONF_FILE/g" \
+	-e "s/errors: \/.*/errors: CONF_FILE/g" \
+	-e "s/File contains/Source contains/g" \
     #end
 }
 
@@ -120,7 +129,7 @@ echo "== metricset command line handling"
 pmrep -z -a $here/archives/20201109 -i '.*000001.*' -C :nosuchset
 pmrep -z -a $here/archives/20201109 -i '.*000001.*' -C :proc-cpu :nosuchset
 
-echo "== invalid configuration file"
+echo "== invalid configuration file part 1"
 cat > $tmp.wconfig <<EOF
 [global]
 mem.util.free = ,,
@@ -140,6 +149,20 @@ pmrep -C -c $tmp.wconfig -x :test2 2>&1 | grep "sample count"
 pmrep -C -c $tmp.wconfig -x :test3
 pmrep -C -c $tmp.wconfig -x :test4
 pmrep -C -c $tmp.wconfig -x :test5
+
+echo "== invalid configuration file part 2"
+cat > $tmp.wconfig <<EOF
+[test1]
+error
+EOF
+pmrep -C -c $tmp.wconfig -x :test1 2>&1 | _conf_error_filter
+
+echo "== invalid configuration file part 3"
+cat > $tmp.wconfig <<EOF
+[test1]
+error =
+EOF
+pmrep -C -c $tmp.wconfig -x :test1 2>&1 | _conf_error_filter
 
 echo "== unsupported metric type"
 pmrep -s 1 -t 1 sample.sysinfo

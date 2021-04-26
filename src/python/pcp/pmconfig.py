@@ -176,6 +176,9 @@ class pmConfig(object):
         if not config.has_section(section):
             return
         for opt in config.options(section):
+            if opt in self.util.keys and not config.get(section, opt):
+                sys.stderr.write("No value set for option %s in [%s].\n" % (opt, section))
+                sys.exit(1)
             if opt in self.util.keys:
                 self.set_attr(opt, config.get(section, opt))
             elif section == 'options':
@@ -194,8 +197,9 @@ class pmConfig(object):
             try:
                 config.read(self.util.config)
             except ConfigParser.Error as error:
-                sys.stderr.write("Failed to read configuration file '%s', line %d:\n%s\n"
-                                 % (self.util.config, error.lineno, str(error.message).split("\n")[0])) # pylint: disable=no-member
+                lineno = str(error.lineno) if hasattr(error, 'lineno') else error.errors[0][0]
+                sys.stderr.write("Failed to read configuration file '%s', line %s:\n%s\n"
+                                 % (self.util.config, lineno, str(error.message)))
                 sys.exit(1)
         self.read_section_options(config, 'options')
         for arg in iter(sys.argv[1:]):
@@ -276,6 +280,10 @@ class pmConfig(object):
 
     def parse_metric_info(self, metrics, key, value):
         """ Parse metric information """
+        if not value:
+            sys.stderr.write("Failed to read configuration file '%s':\nNo value set for '%s'.\n"
+                             % (self.util.config, key))
+            sys.exit(1)
         # NB. Uses the config key, not the metric, as the dict key
         compact = False
         if ',' in value or ('.' in key and key.rsplit(".")[1] not in self.metricspec):
@@ -319,8 +327,9 @@ class pmConfig(object):
             try:
                 config.read(self.util.config)
             except ConfigParser.Error as error:
-                sys.stderr.write("Failed to read configuration file '%s', line %d:\n%s\n"
-                                 % (self.util.config, error.lineno, str(error.message).split("\n")[0])) # pylint: disable=no-member
+                lineno = str(error.lineno) if hasattr(error, 'lineno') else error.errors[0][0]
+                sys.stderr.write("Failed to read configuration file '%s', line %s:\n%s\n"
+                                 % (self.util.config, lineno, str(error.message)))
                 sys.exit(1)
 
         # First read global metrics (if not disabled already)
