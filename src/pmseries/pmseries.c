@@ -746,25 +746,31 @@ series_source(series_data *dp)
 }
 
 static void
-pmseries_close(uv_timer_t *arg)
+on_timer_close_complete(uv_handle_t *handle)
 {
-    uv_handle_t		*handle = (uv_handle_t *)arg;
-    series_data		*dp = (series_data *)handle->data;
+    free(handle);
+}
+
+static void
+pmseries_close(uv_timer_t *timer)
+{
+    series_data		*dp = (series_data *)timer->data;
 
     pmSeriesClose(&dp->settings.module);
     series_data_free(dp);
+    uv_close((uv_handle_t*)timer, on_timer_close_complete);
 }
 
 static void
 pmseries_schedule_close(series_data *dp)
 {
     uv_loop_t		*loop = dp->loop;
-    uv_timer_t		timer;
-    uv_handle_t		*handle = (uv_handle_t *)&timer;
+    uv_timer_t		*timer;
 
-    handle->data = dp;
-    uv_timer_init(loop, &timer);
-    uv_timer_start(&timer, pmseries_close, 0, 0);
+    timer = calloc(1, sizeof(uv_timer_t));
+    timer->data = dp;
+    uv_timer_init(loop, timer);
+    uv_timer_start(timer, pmseries_close, 0, 0);
 }
 
 /*
