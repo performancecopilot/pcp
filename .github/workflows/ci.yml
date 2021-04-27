@@ -1,6 +1,8 @@
+# Runs the sanity testsuite
 name: CI
 on:
   push:
+    # run on all branches, no tags
     branches:
       - '**'
     tags-ignore:
@@ -9,7 +11,7 @@ on:
 
 jobs:
   qa:
-    name: ${{ matrix.platform }}-${{ matrix.runner }}
+    name: ${{ matrix.platform }} [${{ matrix.runner }}]
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -31,12 +33,6 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v2
-
-      - name: Set up Python 3.6+
-        if: matrix.platform == 'ubuntu1604'
-        uses: actions/setup-python@v2
-        with:
-          python-version: '>=3.6'
 
       - name: Fix local hostname DNS lookup
         if: matrix.runner == 'direct'
@@ -91,7 +87,7 @@ jobs:
         id: init_qa
         run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} task init_qa
 
-      - name: QA
+      - name: QA (sanity group)
         run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} task qa_sanity
 
       - name: Copy test results

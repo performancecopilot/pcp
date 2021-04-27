@@ -7,7 +7,7 @@ on:
 
 jobs:
   qa:
-    name: ${{ matrix.platform }}-${{ matrix.runner }}
+    name: ${{ matrix.platform }} [${{ matrix.runner }}]
     if: github.repository == 'performancecopilot/pcp' || github.event_name == 'workflow_dispatch'
     runs-on: ${{ matrix.os }}
     strategy:
@@ -27,12 +27,6 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v2
-
-      - name: Set up Python 3.6+
-        if: matrix.platform == 'ubuntu1604'
-        uses: actions/setup-python@v2
-        with:
-          python-version: '>=3.6'
 
       - name: Fix local hostname DNS lookup
         if: matrix.runner == 'direct'
