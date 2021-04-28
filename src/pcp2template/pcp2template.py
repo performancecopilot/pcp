@@ -405,7 +405,7 @@ class PCP2XXX(object):
             if self.outfile is None:
                 self.writer = sys.stdout
             else:
-                self.writer = open(self.outfile, 'wt')
+                self.writer = open(self.outfile, 'wt') # pylint: disable=consider-using-with
             # XXX Write some first round details here if needed
             #host = self.context.pmGetContextHostName()
             #timez = self.context.posix_tz_to_utc_offset(self.context.get_current_tz(self.opts))

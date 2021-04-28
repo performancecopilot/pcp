@@ -415,7 +415,7 @@ class PCP2XML(object):
             if self.outfile is None:
                 self.writer = sys.stdout
             else:
-                self.writer = open(self.outfile, 'wt')
+                self.writer = open(self.outfile, 'wt') # pylint: disable=consider-using-with
             if not self.header:
                 self.writer.write('<?xml version="1.0" encoding="UTF-8"?>\n')
             self.writer.write('<pcp>\n')
