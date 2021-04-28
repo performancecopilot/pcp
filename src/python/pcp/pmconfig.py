@@ -124,7 +124,13 @@ class pmConfig(object):
                     else:
                         config = arg.replace("-c", "", 1)
                     if not os.path.isfile(config) or not os.access(config, os.R_OK):
-                        raise IOError("Failed to read configuration file '%s'." % config)
+                        if not os.path.exists(config):
+                            err = "No such file or directory"
+                        elif not os.access(config, os.R_OK):
+                            err = "Permission denied"
+                        else:
+                            err = "Not a regular file"
+                        raise IOError("Failed to read configuration from '%s': %s." % (config, err))
                 except StopIteration:
                     break
 
