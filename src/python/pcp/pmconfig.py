@@ -291,10 +291,6 @@ class pmConfig(object):
 
     def parse_metric_info(self, metrics, key, value):
         """ Parse metric information """
-        if not value:
-            sys.stderr.write("Failed to read configuration file '%s':\nNo value set for '%s'.\n"
-                             % (self.util.config, key))
-            sys.exit(1)
         # NB. Uses the config key, not the metric, as the dict key
         compact = False
         if ',' in value or ('.' in key and key.rsplit(".")[1] not in self.metricspec):
@@ -352,6 +348,10 @@ class pmConfig(object):
                     if key in self.util.keys:
                         sys.stderr.write("No options allowed in [global] section.\n")
                         sys.exit(1)
+                    if not config.get('global', key):
+                        sys.stderr.write("Failed to read configuration file ")
+                        sys.stderr.write("'%s':\nNo value set for '%s'.\n" % (self.util.config, key))
+                        sys.exit(1)
                     self.parse_metric_info(parsemet, key, config.get('global', key))
                 for metric in parsemet:
                     name = parsemet[metric][:1][0]
@@ -375,6 +375,10 @@ class pmConfig(object):
                 if config.has_section(spec):
                     parsemet = OrderedDict()
                     for key in config.options(spec):
+                        if not config.get(spec, key):
+                            sys.stderr.write("Failed to read configuration file ")
+                            sys.stderr.write("'%s':\nNo value set for '%s'.\n" % (self.util.config, key))
+                            sys.exit(1)
                         if key not in self.util.keys:
                             self.parse_metric_info(parsemet, key, config.get(spec, key))
                     for metric in parsemet:
