@@ -131,7 +131,7 @@ jobs:
       - name: Publish test report
         uses: actions/upload-artifact@v2
         with:
-          name: testreport
+          name: qareport
           path: ./allure-report
 
       - name: Checkout qa-reports
