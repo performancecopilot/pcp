@@ -94,8 +94,13 @@ class pmConfig(object):
             except Exception:
                 pass
 
+    # Deprecated, use set_config_path() below instead
     def set_config_file(self, default_config):
         """ Set default config file """
+        return self.set_config_path(default_config)
+
+    def set_config_path(self, default_config):
+        """ Set default config path """
         config = None
         usrdir = os.path.expanduser('~')
         sysdir = pmapi.pmContext.pmGetConfig("PCP_SYSCONF_DIR")
@@ -106,7 +111,7 @@ class pmConfig(object):
                 config = conf
                 break
 
-        # Possibly override the default config file before
+        # Possibly override the default config path before
         # parsing the rest of the command line options
         args = iter(sys.argv[1:])
         for arg in args:
