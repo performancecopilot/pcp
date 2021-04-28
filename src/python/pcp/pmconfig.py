@@ -682,7 +682,8 @@ class pmConfig(object):
                     try:
                         self.util.context.pmLoadDerivedConfig(derived)
                     except pmapi.pmErr as error:
-                        sys.stderr.write("Failed to load derived metric definitions from file '%s':\n%s.\n" % (derived, str(error)))
+                        sys.stderr.write("Failed to load derived metric definitions ")
+                        sys.stderr.write("from file '%s':\n%s.\n" % (derived, str(error)))
                         sys.exit(1)
                 else:
                     err = ""
@@ -970,7 +971,8 @@ class pmConfig(object):
                                 del self.labels[i][1][v]
                     self.util.metrics[metric][5] = self.pmfg_items_to_indom(items)
                 else:
-                    self.util.metrics[metric][5] = self.util.pmfg.extend_indom(metric, mtype, scale, max_insts)
+                    self.util.metrics[metric][5] = \
+                        self.util.pmfg.extend_indom(metric, mtype, scale, max_insts)
 
                 # Populate per-metric regex cache for live filtering
                 if self.do_live_filtering():
@@ -1015,7 +1017,10 @@ class pmConfig(object):
         """ Finalize util options """
         # Runtime overrides samples/interval
         if self.util.opts.pmGetOptionFinishOptarg():
-            origin = float(self.util.opts.pmGetOptionOrigin()) if self.util.opts.pmGetOptionOrigin() is not None else 0
+            if self.util.opts.pmGetOptionOrigin() is None:
+                origin = 0
+            else:
+                origin = float(self.util.opts.pmGetOptionOrigin())
             self.util.runtime = float(self.util.opts.pmGetOptionFinish()) - origin
             if self.util.opts.pmGetOptionSamples():
                 self.util.samples = self.util.opts.pmGetOptionSamples()
