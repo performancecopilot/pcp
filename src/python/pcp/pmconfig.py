@@ -371,7 +371,8 @@ class pmConfig(object):
                         confmet[name] = parsemet[metric][1:]
                     tempmet[spec] = confmet
                 else:
-                    raise IOError("Metricset definition ':%s' not found." % spec)
+                    sys.stderr.write("Metricset definition ':%s' not found.\n" % spec)
+                    sys.exit(1)
 
         # Create combined metricset
         if self.util.globals == 1:
@@ -386,7 +387,8 @@ class pmConfig(object):
                         self.util.metrics[m] = confmet[m]
 
         if not self.util.metrics:
-            raise IOError("No metrics specified.")
+            sys.stderr.write("No metrics specified.\n")
+            sys.exit(1)
 
         self._conf_metrics = deepcopy(self.util.metrics)
 
