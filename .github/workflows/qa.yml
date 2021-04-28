@@ -126,7 +126,7 @@ jobs:
             --summary
           cp ./build/ci/allure/categories.json ./allure-results
           /opt/allure-*/bin/allure generate
-          echo 'To view the report please extract this folder, run `python3 -m http.server` and open http://0.0.0.0:8000' > ./allure-report/README.txt
+          cp ./build/ci/allure/README.txt ./allure-report
 
       - name: Publish test report
         uses: actions/upload-artifact@v2
@@ -146,8 +146,8 @@ jobs:
         if: github.repository == 'performancecopilot/pcp'
         run: |
           rm -rf qa-reports/test-* qa-reports/docs
-          mv artifacts/test-* qa-reports/
-          mv allure-report qa-reports/docs
+          cp -r artifacts/test-* qa-reports/
+          cp -r allure-report qa-reports/docs
 
           cd qa-reports
           git config --local user.name "GitHub Actions"
