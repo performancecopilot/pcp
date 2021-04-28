@@ -2048,6 +2048,11 @@ pmDiscoverSetupMetrics(pmDiscoverModule *module)
 	"failed pmGetArchiveEnd calls after successfully creating a new context for all monitored archives",
 	"total failed pmGetArchiveEnd calls after successfully creating a new context for all monitored archives");
 
+    mmv_stats_add_metric(data->metrics, "changed_callbacks", 17,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, nounits, noindom,
+	"filesystem changed callbacks",
+	"number of observed filesystem changes to PCP archives");
+
     data->metrics_handle = mmv_stats_start(data->metrics);
 }
 
