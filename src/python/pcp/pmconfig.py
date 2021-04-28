@@ -1029,8 +1029,7 @@ class pmConfig(object):
             self.util.runtime = float(self.util.opts.pmGetOptionFinish()) - origin
             if self.util.opts.pmGetOptionSamples():
                 self.util.samples = self.util.opts.pmGetOptionSamples()
-                if self.util.samples < 2:
-                    self.util.samples = 2
+                self.util.samples = max(2, self.util.samples)
                 self.util.interval = float(self.util.runtime) / (self.util.samples - 1)
                 self.util.opts.pmSetOptionInterval(str(self.util.interval))
                 self.util.interval = self.util.opts.pmGetOptionInterval()
