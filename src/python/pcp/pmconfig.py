@@ -323,6 +323,19 @@ class pmConfig(object):
             sys.stderr.write("No metrics specified.\n")
             raise pmapi.pmUsageErr()
 
+        def read_cmd_line_items():
+            """ Helper to read command line items """
+            tempmet = OrderedDict()
+            for metric in metrics:
+                if metric.startswith(":"):
+                    tempmet[metric[1:]] = None
+                else:
+                    spec, insts = self.parse_metric_spec_instances(metric)
+                    m = spec.split(",")
+                    m[2] = insts
+                    tempmet[m[0]] = m[1:]
+            return tempmet
+
         # Read config
         # Python < 3.2 compat
         if sys.version_info[0] >= 3 and sys.version_info[1] >= 2:
@@ -357,16 +370,8 @@ class pmConfig(object):
                     name = parsemet[metric][:1][0]
                     globmet[name] = parsemet[metric][1:]
 
-        # Add command line and configuration file metricsets
-        tempmet = OrderedDict()
-        for metric in metrics:
-            if metric.startswith(":"):
-                tempmet[metric[1:]] = None
-            else:
-                spec, insts = self.parse_metric_spec_instances(metric)
-                m = spec.split(",")
-                m[2] = insts
-                tempmet[m[0]] = m[1:]
+        # Add command line metrics and metricsets
+        tempmet = read_cmd_line_items()
 
         # Get config and set details for configuration file metricsets
         confmet = OrderedDict()
