@@ -116,7 +116,7 @@ bad:
     fclose(file);
 }
 
-char *
+static char *
 lookup_ttyname(dev_t dev)
 {
     tty_driver_t	*tty;
@@ -148,7 +148,7 @@ lookup_ttyname(dev_t dev)
  *
  * Returns a pointer into a static buffer, so no free'ing needed.
  */
-char *
+static char *
 get_ttyname(dev_t dev, char *devpath)
 {
     static char	ttyname[MAXPATHLEN];
@@ -184,19 +184,11 @@ get_ttyname(dev_t dev, char *devpath)
 }
 
 /*
- * Convert kernels string device number encoding into a dev_t
+ * Use kernels device number encoding (dev_t) to
  * before searching for matching tty name.
  */
 char *
-get_ttyname_info(const char *devnum)
-{
-    unsigned device = (unsigned int)strtoul(devnum, NULL, 0);
-
-    return get_ttyname_info_dev_t((dev_t)device);
-}
-
-char *
-get_ttyname_info_dev_t(dev_t dev)
+get_ttyname_info(dev_t dev)
 {
     char	*name;
 

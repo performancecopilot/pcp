@@ -1,7 +1,7 @@
 /*
  * Linux proc/<pid>/{stat,statm,status,...} Clusters
  *
- * Copyright (c) 2013-2020 Red Hat.
+ * Copyright (c) 2013-2021 Red Hat.
  * Copyright (c) 2000,2004,2006 Silicon Graphics, Inc.  All Rights Reserved.
  * Copyright (c) 2010 Aconex.  All Rights Reserved.
  * 
@@ -26,14 +26,19 @@
 #include <pwd.h>
 #include <grp.h>
 #include "proc_pid.h"
-#include "proc_runq.h"
 #include "indom.h"
 #include "cgroups.h"
 #include "hotproc.h"
 
-static proc_pid_list_t procpids; /* previous pids list that the proc pmda uses */
-static void refresh_proc_pidlist(proc_pid_t *, proc_pid_list_t *);
+static size_t	procbuflen;
+static char	*procbuf;
 
+static proc_pid_list_t procpids; /* previous pids list that the proc pmda uses */
+static void refresh_proc_pidlist(proc_pid_t *, proc_pid_list_t *, proc_runq_t *);
+static int refresh_proc_pid_stat(proc_pid_entry_t *);
+static int refresh_proc_pid_status(proc_pid_entry_t *);
+static int refresh_proc_pid_io(proc_pid_entry_t *);
+static int refresh_proc_pid_schedstat(proc_pid_entry_t *);
 
 /* Hotproc variables */
 
@@ -66,22 +71,28 @@ static int hot_numprocs[2] = {0, 0};
  */
 static process_t *hotproc_list[2] = {NULL, NULL};
 
+/* index into proc_list etc.. */
+static int current;
+static int previous = 1;
+
 /* various cpu time totals  */
-static int num_cpus;
 static int hot_have_totals;
 static double hot_total_transient;
 static double hot_total_cpuidle;
 static double hot_total_active;
 static double hot_total_inactive;
 
-static unsigned long hot_refresh_count;
-
-/* index into proc_list etc.. */
-static int current;
-static int previous = 1;
-
 struct timeval   hotproc_update_interval;
 int     hotproc_timer_id = -1;
+
+proc_pid_entry_t *
+proc_pid_entry_lookup(int id, proc_pid_t *proc_pid)
+{
+    __pmHashNode	*node = __pmHashSearch(id, &proc_pid->pidhash);
+    proc_pid_entry_t	*entry = node ? (proc_pid_entry_t *)node->data : NULL;
+
+    return entry;
+}
 
 int 
 get_hot_totals(double * ta, double * ti, double * tt, double * tci )
@@ -110,7 +121,7 @@ pidlist_append_pid(int pid, proc_pid_list_t *pids)
     if (pids->count >= pids->size) {
 	pids->size += 64;
 	if (!(pids->pids = (int *)realloc(pids->pids, pids->size * sizeof(int)))) {
-	    perror("pidlist_append: out of memory");
+	    perror("pidlist_append_pid: out of memory");
 	    pids->size = pids->count = 0;
 	    return;	/* soldier on bravely */
 	}
@@ -127,9 +138,9 @@ pidlist_append(const char *pidname, proc_pid_list_t *pids)
 static void
 tasklist_append(const char *pid, proc_pid_list_t *pids)
 {
-    DIR *taskdirp;
-    struct dirent *tdp;
-    char taskpath[1024];
+    DIR			*taskdirp;
+    struct dirent	*tdp;
+    char		taskpath[1024];
 
     pmsprintf(taskpath, sizeof(taskpath), "%s/proc/%s/task", proc_statspath, pid);
     if ((taskdirp = opendir(taskpath)) != NULL) {
@@ -139,21 +150,18 @@ tasklist_append(const char *pid, proc_pid_list_t *pids)
 	    pidlist_append(tdp->d_name, pids);
 	}
 	closedir(taskdirp);
-    }
-    else {
-	if (pmDebugOptions.appl1 && pmDebugOptions.desperate) {
-	    char ebuf[1024];
-	    fprintf(stderr, "tasklist_append: opendir(\"%s\") failed: %s\n", taskpath, pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
-	}
+    } else if (pmDebugOptions.appl1 && pmDebugOptions.desperate) {
+	fprintf(stderr, "%s: opendir(\"%s\") failed: %s\n",
+			"tasklist_append", taskpath, pmErrStr(-oserror()));
     }
 }
 
 static int
-refresh_cgroup_pidlist(int want_threads, proc_runq_t *runq_stats, proc_pid_list_t *pids, const char *cgroup)
+refresh_cgroup_pidlist(int want_threads, proc_pid_list_t *pids, const char *cgroup)
 {
-    char path[MAXPATHLEN];
-    FILE *fp;
-    int pid;
+    char		path[MAXPATHLEN];
+    FILE		*fp;
+    int			pid;
 
     pids->count = 0;
     pids->threads = want_threads;
@@ -177,63 +185,41 @@ refresh_cgroup_pidlist(int want_threads, proc_runq_t *runq_stats, proc_pid_list_
 	pmsprintf(path, sizeof(path), "%s%s/container/cgroup.procs", proc_statspath, cgroup);
 
     if ((fp = fopen(path, "r")) != NULL) {
-	while (fscanf(fp, "%d\n", &pid) == 1) {
-	    int		sts;
+	while (fscanf(fp, "%d\n", &pid) == 1)
 	    pidlist_append_pid(pid, pids);
-	    if (runq_stats) {
-		if ((sts = proc_runq_append_pid(pid, runq_stats)) < 0) {
-		    if (pmDebugOptions.appl1 && pmDebugOptions.desperate) {
-			char ebuf[1024];
-			fprintf(stderr, "proc_runq_append_pid(%" FMT_PID ",...): failed: %s\n", pid, pmErrStr_r(sts, ebuf, sizeof(ebuf)));
-		    }
-		}
-	    }
-	}
 	fclose(fp);
     }
-    else {
-	if (pmDebugOptions.appl1 && pmDebugOptions.desperate) {
-	    char ebuf[1024];
-	    fprintf(stderr, "refresh_cgroup_pidlist: fopen(\"%s\", \"r\") failed: %s\n", path, pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
-	}
+    else if (pmDebugOptions.appl1 && pmDebugOptions.desperate) {
+	fprintf(stderr, "%s: fopen(\"%s\", \"r\") failed: %s\n",
+			    "refresh_cgroup_pidlist", path, pmErrStr(-oserror()));
     }
     return 0;
 }
 
 static int
-refresh_global_pidlist(int want_threads, proc_runq_t *runq_stats, proc_pid_list_t *pids)
+refresh_global_pidlist(int want_threads, proc_pid_list_t *pids)
 {
-    DIR *dirp;
-    struct dirent *dp;
-    char path[MAXPATHLEN];
+    DIR			*dirp;
+    struct dirent	*dp;
+    char		path[MAXPATHLEN];
 
     pids->count = 0;
     pids->threads = want_threads;
 
     pmsprintf(path, sizeof(path), "%s/proc", proc_statspath);
     if ((dirp = opendir(path)) == NULL) {
-	if (pmDebugOptions.appl1 && pmDebugOptions.desperate) {
-	    char ebuf[1024];
-	    fprintf(stderr, "refresh_global_pidlist: opendir(\"%s\") failed: %s\n", path, pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
-	}
+	if (pmDebugOptions.appl1 && pmDebugOptions.desperate)
+	    fprintf(stderr, "%s: opendir(\"%s\") failed: %s\n",
+		    "refresh_global_pidlist", path, pmErrStr(-oserror()));
 	return -oserror();
     }
 
     /* note: readdir on /proc ignores threads */
     while ((dp = readdir(dirp)) != NULL) {
 	if (isdigit((int)dp->d_name[0])) {
-	    int		sts;
 	    pidlist_append(dp->d_name, pids);
 	    if (want_threads)
 		tasklist_append(dp->d_name, pids);
-	    if (runq_stats) {
-		if ((sts = proc_runq_append(dp->d_name, runq_stats)) < 0) {
-		    if (pmDebugOptions.appl1 && pmDebugOptions.desperate) {
-			char ebuf[1024];
-			fprintf(stderr, "proc_runq_append(%s,...): failed: %s\n", dp->d_name, pmErrStr_r(sts, ebuf, sizeof(ebuf)));
-		    }
-		}
-	    }
 	}
     }
     closedir(dirp);
@@ -245,7 +231,7 @@ refresh_global_pidlist(int want_threads, proc_runq_t *runq_stats, proc_pid_list_
 static int
 in_hot_active_list(pid_t pid)
 {
-    int i;
+    int			i;
 
     for (i = 0; i < hot_numactive; i++) {
         if (pid == hot_active_list[i])
@@ -257,7 +243,7 @@ in_hot_active_list(pid_t pid)
 static int
 check_if_hot(char *cpid)
 {
-    int mypid;
+    int			mypid;
 
     if (sscanf(cpid, "%d", &mypid) == 0)
 	return 0;
@@ -269,8 +255,8 @@ check_if_hot(char *cpid)
 static int
 refresh_hotproc_pidlist(proc_pid_list_t *pids)
 {
-    DIR *dirp;
-    struct dirent *dp;
+    DIR			*dirp;
+    struct dirent	*dp;
 
     if ((dirp = opendir("/proc")) == NULL)
 	return -oserror();
@@ -317,15 +303,12 @@ init_hot_active_list(void)
 static int
 add_hot_active_list(process_t *node, config_vars *vars)
 {
-    if (eval_tree(vars) == 0) {
+    pid_t		*res;
+
+    if (eval_tree(vars) == 0)
         return 0;
-    }
-    else {
-        /*fprintf(stderr, "Added hotproc %d\n", node->pid);*/
-    }
 
     if (hot_numactive == hot_maxactive) {
-        pid_t *res;
         hot_maxactive = hot_numactive*2;
         res = (pid_t *)realloc(hot_active_list, hot_maxactive * sizeof(pid_t));
         if (res == NULL)
@@ -345,11 +328,9 @@ compare_pids(const void *n1, const void *n2)
 static process_t *
 lookup_node(int curr_prev, pid_t pid)
 {
-    process_t key;
-    process_t *node;
+    process_t		key, *node;
 
     key.pid = pid;
-
     if ((hot_numprocs[curr_prev] > 0) &&
         ((node = bsearch(&key, hotproc_list[curr_prev], hot_numprocs[curr_prev],
 			sizeof(process_t), compare_pids)) != NULL)) {
@@ -367,7 +348,7 @@ lookup_curr_node(pid_t pid)
 static double
 diff_counter(double current, double previous, int pmtype)
 {
-    double      outval = current-previous;
+    double		outval = current-previous;
 
     if (outval < 0.0) {
         switch (pmtype) {
@@ -399,10 +380,10 @@ get_hotproc_node(pid_t pid, process_t **getnode)
 static unsigned long long
 get_idle_time(void)
 {
-    FILE *fp = NULL;
-    unsigned long long idle_time = 0;
-    int n;
-    char buf[MAXPATHLEN];
+    FILE		*fp = NULL;
+    unsigned long long	idle_time = 0;
+    int			n;
+    char		buf[MAXPATHLEN];
 
     pmsprintf(buf, sizeof(buf), "%s/proc/stat", proc_statspath);
     if ((fp = fopen(buf, "r")) == NULL)
@@ -422,52 +403,44 @@ get_idle_time(void)
 static int
 hotproc_eval_procs(void)
 {
-    pid_t pid;
-    struct timeval ts;
-    int sts;
-    char                *f;
-    unsigned long       ul;
-    unsigned long long  ull;
-    char                *tail;
-    process_t *oldnode = NULL;      
-    process_t *newnode = NULL;      
-    int np = 0;                    
-    struct timeval p_timestamp = {0};   
-    config_vars vars;
-    proc_pid_entry_t    *statentry;
-    proc_pid_entry_t    *statusentry;
-    proc_pid_entry_t    *ioentry;
-    proc_pid_entry_t    *schedstatentry;
-    __pmHashNode *node;
-    int i;
+    struct timeval	ts;
+    char                *name;
+    process_t		*oldnode = NULL, *newnode = NULL;      
+    struct timeval	timestamp;
+    config_vars		vars;
+    proc_pid_entry_t    *entry;
+    pid_t		pid;
+    int			np = 0, i, sts;
+
+    static double	refresh_time[2];  /* timestamp after refresh */
+    static time_t	sysidle[2];       /* sys idle from /proc/stat */
+    static int		num_cpus;
+    static unsigned int	hot_refresh_count;
 
     /* Still need to compute some of these */
-    static double refresh_time[2];  /* timestamp after refresh */
-    static time_t sysidle[2];       /* sys idle from /proc/stat */
-    double sysidle_delta;           /* system idle delta time since last refresh */
-    double actual_delta;            /* actual delta time since last refresh */
-    double transient_delta;         /* calculated delta time of transient procs */
-    double cputime_delta;           /* delta cpu time for a process */
-    //double syscalls_delta;          /* delta num of syscalls for a process */
-    double vctx_delta;              /* delta num of vol ctx switches for a process */
-    double ictx_delta;              /* delta num of invol ctx switches for a process */
-    double bread_delta;             /* delta num of bytes read */
-    double bwrit_delta;             /* delta num of bytes written */
-    double bwtime_delta;            /* delta num of microsec for waiting for blocked io */
-    double qwtime_delta;            /* delta num of nanosec waiting on run queue */
-    double timestamp_delta;         /* real time delta b/w refreshes for process */
-    double total_cputime = 0;       /* total of cputime_deltas for each process */
-    double total_activetime = 0;    /* total of cputime_deltas for active processes */
-    double total_inactivetime = 0;  /* total of cputime_deltas for inactive processes */
+    double	sysidle_delta,	/* system idle delta time since last refresh */
+		actual_delta,	/* actual delta time since last refresh */
+		transient_delta,/* calculated delta time of transient procs */
+		cputime_delta,	/* delta cpu time for a process */
+		vctx_delta,	/* delta num of vol ctx switches for a process */
+		ictx_delta,	/* delta num of invol ctx switches for a process */
+		bread_delta,	/* delta num of bytes read */
+		bwrit_delta,	/* delta num of bytes written */
+		bwtime_delta,	/* delta num of microsec for waiting for blocked io */
+		qwtime_delta,	/* delta num of nanosec waiting on run queue */
+		timestamp_delta,/* real time delta b/w refreshes for process */
+		total_cputime,		/* total of cputime_deltas for each process */
+		total_activetime,	/* total of cputime_deltas for active processes */
+		total_inactivetime;	/* total of cputime_deltas for inactive processes */
 
-    if (num_cpus == 0) {
+    total_cputime = total_activetime = total_inactivetime = 0;
+
+    if (num_cpus == 0)
 	num_cpus = sysconf(_SC_NPROCESSORS_ONLN);
-    }
 
     if (current == 0) {
         current = 1; previous = 0;
-    }
-    else {
+    } else {
         current = 0; previous = 1;
     }
 
@@ -479,37 +452,32 @@ hotproc_eval_procs(void)
     hotpids.threads = 0;
 
     /* Whats running right now */
-    refresh_global_pidlist(0, NULL, &hotpids);
-    refresh_proc_pidlist(hotproc_poss_pid, &hotpids);
+    refresh_global_pidlist(0, &hotpids);
+    refresh_proc_pidlist(hotproc_poss_pid, &hotpids, NULL);
+
+    pmtimevalNow(&timestamp);
 
     for (i=0; i < hotpids.count; i++) {
 
 	pid = hotpids.pids[i];
 
-        node = __pmHashSearch(hotpids.pids[i], &hotproc_poss_pid->pidhash);
-
-	if (node == NULL) {
-	    fprintf(stderr,"hotproc : Hash search failed for Proc %d!\n", i);
+	entry = proc_pid_entry_lookup(pid, hotproc_poss_pid);
+	if (entry == NULL) {
+	    fprintf(stderr, "%s: hash search failed for process %d\n",
+			    "hotproc_eval_procs", i);
 	    continue;
 	}
-
-	pmtimevalNow(&p_timestamp);
 
 	/* Collect all the stat/status/statm info */
-	statentry = fetch_proc_pid_stat(pid, hotproc_poss_pid, &sts);
-	statusentry = fetch_proc_pid_status(pid, hotproc_poss_pid, &sts);
-	ioentry = fetch_proc_pid_io(pid, hotproc_poss_pid, &sts);
-	schedstatentry = fetch_proc_pid_schedstat(pid, hotproc_poss_pid, &sts);
+	refresh_proc_pid_stat(entry);
+	refresh_proc_pid_status(entry);
+	refresh_proc_pid_io(entry);
+	refresh_proc_pid_schedstat(entry);
 
         /* Note: /proc/pid/schedstat and /proc/pid/io not on all platforms */
-	if (!statentry || !statusentry /*|| !ioentry || !schedstatentry */) {
-	    /* Can happen if the process was exiting during
-	     * refresh_proc_pidlist then the above fetch's will fail.
-	     * Would be best if they were not in the list at all
-	     * "np" is used from now on, so hopefully can just continue
-	     */
+	if (!(entry->flags & PROC_PID_FLAG_STAT_SUCCESS) ||
+	    !(entry->flags & PROC_PID_FLAG_STATUS_SUCCESS))
 	    continue;
-	}
 
 	if (np == hot_maxprocs[current]) {
 	    process_t *res;
@@ -523,81 +491,36 @@ hotproc_eval_procs(void)
 
 	newnode = &hotproc_list[current][np++];
         newnode->pid = pid;
+	newnode->r_cputimestamp = timestamp.tv_sec + timestamp.tv_usec / 1000000;
 
-	/* Calc the stats we will need */
-	/* CPU Time is sum of U & S time */
-	
-	if ((f = _pm_getfield(statentry->stat_buf, PROC_PID_STAT_UTIME)) == NULL)
-	    newnode->r_cputime = 0;
-	else {
-	    ul = (__uint32_t)strtoul(f, &tail, 0);
-	    newnode->r_cputime      = (double)ul / (double)hz;
+	/* Calculate the stats we will need */
+
+	/* CPU time is user and system time */
+	newnode->r_cputime = (double)entry->stat.utime + entry->stat.stime;
+	newnode->r_cputime /= (double)_pm_hertz;
+
+	/* Context Switches : voluntary and involuntary */
+	newnode->r_vctx = entry->status.vctxsw;
+	newnode->r_ictx = entry->status.nvctxsw;
+
+	/* IO demand: read and write - not available from all kernels */
+	if (!(entry->flags & PROC_PID_FLAG_IO_SUCCESS)) {
+	    newnode->r_bread = 0;
+	    newnode->r_bwrit = 0;
+	} else {
+	    newnode->r_bread = entry->io.readb;
+	    newnode->r_bwrit = entry->io.writeb;
 	}
 
-	if ((f = _pm_getfield(statentry->stat_buf, PROC_PID_STAT_STIME)) == NULL){
-	    /* Nothing */
-	}
-	else {
-	    ul = (__uint32_t)strtoul(f, &tail, 0);
-	    newnode->r_cputime      += (double)ul / (double)hz;
-	}
-
-	newnode->r_cputimestamp = p_timestamp.tv_sec + p_timestamp.tv_usec / 1000000;
-
-	/* Context Switches : vol and invol */
-
-        if ((f = _pm_getfield(statusentry->status_lines.vctxsw, 1)) == NULL)
-	    newnode->r_vctx = 0;
-	else
-	    newnode->r_vctx = (__uint32_t)strtoul(f, &tail, 0);
-
-	if ((f = _pm_getfield(statusentry->status_lines.nvctxsw, 1)) == NULL)
-	    newnode->r_ictx = 0;
-	else
-	    newnode->r_ictx = (__uint32_t)strtoul(f, &tail, 0);
-
-	/* IO demand */
-	/* Read */
-	
-        if( !ioentry ) /* ioentry is not enabled on all kernels */
-            ull = 0;
-	else if ((f = _pm_getfield(ioentry->io_lines.readb, 1)) == NULL)
-	    ull = 0;
-	else
-	    ull = (__uint64_t)strtoull(f, &tail, 0);
-		
-	newnode->r_bread = ull;
-
-	/* Write */
-
-        if( !ioentry ) /* ioentry is not enabled on all kernels */
-            ull = 0;
-	else if ((f = _pm_getfield(ioentry->io_lines.writeb, 1)) == NULL)
-	    ull = 0;
-	else
-	    ull = (__uint64_t)strtoull(f, &tail, 0);
-		
-	newnode->r_bwrit = ull;
-	
 	/* Block IO wait (delayacct_blkio_ticks) */
+	newnode->r_bwtime = (double)entry->stat.delayacct_blkio_time;
+	newnode->r_bwtime /= (double)_pm_hertz;
 
-	if ((f = _pm_getfield(statentry->stat_buf, PROC_PID_STAT_DELAYACCT_BLKIO_TICKS - 3)) == NULL)  /* Note the offset */
-	    ul = 0;
-	else
-	    ul = (__uint32_t)strtoul(f, &tail, 0);
-		
-	newnode->r_bwtime = (double)ul / hz;
-
-	/* Schedwait (run_delay) */
-        if( !schedstatentry ) /* schedstat is not enabled on all kernels */
-            ull =0;
-        else if ((f = _pm_getfield(schedstatentry->schedstat_buf, 1)) == NULL)
-	    ull = 0;
-	else
-	    ull  = (__uint64_t)strtoull(f, &tail, 0);
-
-	newnode->r_qwtime = ull;
-
+	/* Schedwait (run_delay) - not available from all kernels */
+	if (!(entry->flags & PROC_PID_FLAG_SCHEDSTAT_SUCCESS))
+	    newnode->r_qwtime = 0;
+        else
+	    newnode->r_qwtime = entry->schedstat.rundelay;
 
 	/* This is not the first time through, so we can generate rate stats */
 	if ((oldnode = lookup_node(previous, pid)) != NULL) {
@@ -635,14 +558,13 @@ hotproc_eval_procs(void)
 	    /* schedwait */
 	    qwtime_delta = diff_counter((double)newnode->r_qwtime,
 		    (double)oldnode->r_qwtime, PM_TYPE_64);
-	    vars.preds.schedwait = qwtime_delta / (timestamp_delta * 1000000000); /* run_delay in nsec */
-
+	    /* run_delay in nsec */
+	    vars.preds.schedwait = qwtime_delta / (timestamp_delta * 1000000000);
 	}
         else {
 	    newnode->r_cpuburn = 0;
 	    memset(&newnode->preds, 0, sizeof(newnode->preds));
 	    vars.cpuburn = 0;
-	    //vars.preds.syscalls = 0;
 	    vars.preds.ctxswitch = 0;
 	    vars.preds.iowait = 0;
 	    vars.preds.schedwait = 0;
@@ -653,101 +575,63 @@ hotproc_eval_procs(void)
         total_cputime += cputime_delta;
 
 	/* Command */
-
-	if ((f = _pm_getfield(statentry->stat_buf, PROC_PID_STAT_CMD)) == NULL) {
+	if (entry->stat.cmd == NULL)
 	    strcpy(vars.fname, "Unknown");
-	}
 	else {
-	    char *cmd = f + 1;	/* skip enclosing parentheses */
+	    char *cmd = entry->stat.cmd;
 	    size_t len = strlen(cmd);
+	    int parens = 0;
+
+	    if (cmd[0] == '(') { /* skip enclosing parentheses */
+		parens = 1;
+		cmd++;
+		len--;
+	    }
 
 	    strncpy(vars.fname, cmd, sizeof(vars.fname));
-	    if (len < sizeof(vars.fname))
-		vars.fname[len-1] = '\0'; /* Skip the closing parenthesis */
+	    if (len < sizeof(vars.fname) && parens && cmd[len-1] == ')')
+		vars.fname[len-1] = '\0'; /* skip closing parenthesis */
 	    vars.fname[sizeof(vars.fname) - 1] = '\0';
 	}
 
 	/* PS Args */
-	strncpy(vars.psargs, statentry->name+7, sizeof(vars.psargs));
+	strncpy(vars.psargs, entry->name+7, sizeof(vars.psargs));
 	vars.psargs[sizeof(vars.psargs)-1]='\0';
 
 	/* UID and GID */
-	if ((f = _pm_getfield(statusentry->status_lines.uid, 1)) == NULL) {
-	    ul = 0;
-	}
-	else {
-	    ul = (__uint32_t)strtoul(f, &tail, 0);
-	}
-	
-	vars.uid = ul;
-
-	if ((f = _pm_getfield(statusentry->status_lines.gid, 1)) == NULL) {
-	    ul = 0;
-	}
-	else {
-	    ul = (__uint32_t)strtoul(f, &tail, 0);
-	}
-
-	vars.gid = ul;
+	vars.uid = entry->status.uid;
+	vars.gid = entry->status.gid;
 
 	/* uname and gname */
-
-	struct passwd *pwe;		
-
-	if ((pwe = getpwuid((uid_t)vars.uid)) != NULL) {
-	    strncpy(vars.uname, pwe->pw_name, sizeof(vars.uname));
+	if ((name = proc_uidname_lookup(vars.uid)) != NULL) {
+	    strncpy(vars.uname, name, sizeof(vars.uname));
 	    vars.uname[sizeof(vars.uname)-1] = '\0';
-	}
-	else {
+	} else {
 	    strcpy(vars.uname, "UNKNOWN");
 	}
-
-	struct group *gre;
-
-	if ((gre = getgrgid((gid_t)vars.gid)) != NULL) {
-	    strncpy(vars.gname, gre->gr_name, sizeof(vars.gname));
+	if ((name = proc_gidname_lookup(vars.gid)) != NULL) {
+	    strncpy(vars.gname, name, sizeof(vars.gname));
 	    vars.gname[sizeof(vars.gname)-1] = '\0';
-	} 
-	else {
+	} else {
 	    strcpy(vars.gname, "UNKNOWN");
 	}
 
 	/* VSIZE from stat */
-
-	if ((f = _pm_getfield(statentry->stat_buf, PROC_PID_STAT_VSIZE)) == NULL) {
-	    ul = 0;
-	}
-	else {
-	    ul = (__uint32_t)strtoul(f, &tail, 0);
-	    ul /= 1024;
-	}
-
-	vars.preds.virtualsize = ul;
+	vars.preds.virtualsize = entry->stat.vsize / 1024;
 
 	/* RSS from stat */
+	vars.preds.residentsize = entry->stat.rss * _pm_system_pagesize / 1024;
 
-	if ((f = _pm_getfield(statentry->stat_buf, PROC_PID_STAT_RSS)) == NULL) {
-	    ul = 0;
-	}
-	else {
-	    ul = (__uint32_t)strtoul(f, &tail, 0);
-	    ul *= getpagesize() / 1024;
-	}
-
-	vars.preds.residentsize = ul;
-
-	//  Struct copy.  I think it was a bug before.  Copy should be after rss and vm calcs
+	/* Struct copy - copy should be after rss and vm calcs. */
 	newnode->preds = vars.preds;
 
-	if ((sts = add_hot_active_list(newnode, &vars)) < 0) {
+	if ((sts = add_hot_active_list(newnode, &vars)) < 0)
 	    return sts;
-       	}
 
        	if (sts == 0)
 	    total_inactivetime += cputime_delta;
 	else
 	    total_activetime += cputime_delta;
-
     }
 
     hot_numprocs[current] = np;
@@ -755,18 +639,19 @@ hotproc_eval_procs(void)
     pmtimevalNow(&ts);
     refresh_time[current] = ts.tv_sec + ts.tv_usec / 1000000;
 
-    double hptime = (ts.tv_sec - p_timestamp.tv_sec) + (ts.tv_usec - p_timestamp.tv_usec)/1000000.0;
-
-    if (pmDebugOptions.appl1)
-	fprintf(stderr, "Hotproc Update took %f time\n", hptime);
+    if (pmDebugOptions.appl1) {
+	double hptime = (ts.tv_sec - timestamp.tv_sec) +
+			(ts.tv_usec - timestamp.tv_usec) / 1000000.0;
+	fprintf(stderr, "%s: update took %f time\n",
+			"hotproc_eval_procs", hptime);
+    }
 
     /* Idle */
     sysidle[current] = get_idle_time();
 
     /* Handle rollover */
-    hot_refresh_count++;
-    if (hot_refresh_count == 0)
-        hot_refresh_count = 2;
+    if (++hot_refresh_count == 0)
+	hot_refresh_count = 2;
 
     if (hot_refresh_count > 1) {
 	sysidle_delta = diff_counter(sysidle[current], sysidle[previous], PM_TYPE_64) / (double)HZ;
@@ -775,11 +660,11 @@ hotproc_eval_procs(void)
 	if (transient_delta < 0) /* sanity check */
 	    transient_delta = 0;
 
-        hot_have_totals = 1;
-        hot_total_transient = transient_delta / actual_delta;
-        hot_total_cpuidle = sysidle_delta / actual_delta;
-        hot_total_active = total_activetime / actual_delta;
-        hot_total_inactive = total_inactivetime / actual_delta;
+	hot_have_totals = 1;
+	hot_total_transient = transient_delta / actual_delta;
+	hot_total_cpuidle = sysidle_delta / actual_delta;
+	hot_total_active = total_activetime / actual_delta;
+	hot_total_inactive = total_inactivetime / actual_delta;
     }
 
     qsort(hotproc_list[current], hot_numprocs[current],
@@ -806,7 +691,7 @@ init_hotproc_pid(proc_pid_t *_hotproc_poss_pid)
 void
 reset_hotproc_timer(void)
 {
-    int	sts;
+    int			sts;
 
     /* Only reset/enable timer when a valid configuration is present. */
     if (!conf_gen)
@@ -833,15 +718,58 @@ disable_hotproc(void)
 }
 
 static void
-refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids)
+refresh_proc_indom_entry(proc_pid_entry_t *ep, pmdaIndom *indomp, int idx)
 {
-    int i, numinst, idx;
-    int fd;
-    char *p;
-    char buf[MAXPATHLEN];
-    __pmHashNode *node, *next, *prev;
-    proc_pid_entry_t *ep;
-    pmdaIndom *indomp = proc_pid->indom;
+    indomp->it_set[idx].i_inst = ep->id; /* internal instid is pid */
+    indomp->it_set[idx].i_name = ep->instname; /* ptr ref, do not free */
+}
+
+static void
+refresh_proc_runq(proc_pid_entry_t *ep, proc_runq_t *runq)
+{
+    if (!(ep->flags & PROC_PID_FLAG_STAT_SUCCESS)) {
+	runq->unknown++;
+    } else if (ep->stat.state[0] == 'Z') {
+	runq->defunct++;
+    } else if (ep->stat.vsize == 0) {
+	/* kernel process (not defunct and virtual size is zero) */
+	runq->swapped++;
+    } else {
+	/* all other states :- fs/proc/array.c::task_state_array */
+	switch (ep->stat.state[0]) {
+	case 'R':
+	    runq->runnable++;
+	    break;
+	case 'S':
+	    runq->sleeping++;
+	    break;
+	case 't':
+	case 'T':
+	    runq->stopped++;
+	    break;
+	case 'P':
+	case 'D':
+	    runq->blocked++;
+	    break;
+	/* case 'Z': -- already counted above */
+	default:
+	    if (pmDebugOptions.appl1)
+	        fprintf(stderr, "%s: UNKNOWN process state %c on pid %d\n",
+			"refresh_proc_runq", ep->stat.state[0], ep->id);
+	    runq->unknown++;
+	    break;
+	}
+    }
+}
+
+static void
+refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids, proc_runq_t *runq)
+{
+    int			i, fd, numinst, idx = 0;
+    char		*p, buf[MAXPATHLEN];
+    __pmHashNode	*node, *next, *prev;
+    proc_pid_entry_t	*ep;
+    pmdaIndom		*indomp = proc_pid->indom;
 
     /*
      * invalidate all entries so we can harvest pids that have exited
@@ -891,11 +819,9 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids)
 		}
 		close(fd);
 	    }
-	    else {
-		if (pmDebugOptions.appl1 && pmDebugOptions.desperate) {
-		    char ebuf[1024];
-		    fprintf(stderr, "refresh_proc_pidlist: open(\"%s\", O_RDONLY) failed: %s\n", buf, pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
-		}
+	    else if (pmDebugOptions.appl1 && pmDebugOptions.desperate) {
+		fprintf(stderr, "%s: open(\"%s\", O_RDONLY) failed: %s\n",
+			"refresh_proc_pidlist", buf, pmErrStr(-oserror()));
 	    }
 	    if (k == 0) {
 		/*
@@ -910,7 +836,7 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids)
 		     * we get it from /proc/XX/status as "Name:   name\n...",
 		     * to fit the 6 digits of PID and opening parenthesis, 
 	             * save 2 bytes at the start of the buffer. 
-                     * And don't forget to leave 2 bytes for the trailing 
+	             * And don't forget to leave 2 bytes for the trailing 
 		     * parenthesis and the nil. Here is
 		     * an example of what we're trying to achieve:
 		     * +--+--+--+--+--+--+--+--+--+--+--+--+--+--+
@@ -930,11 +856,9 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids)
 		    }
 		    close(fd);
 		}
-		else {
-		    if (pmDebugOptions.appl1 && pmDebugOptions.desperate) {
-			char ebuf[1024];
-			fprintf(stderr, "refresh_proc_pidlist: open(\"%s\", O_RDONLY) failed: %s\n", buf, pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
-		    }
+		else if (pmDebugOptions.appl1 && pmDebugOptions.desperate) {
+		    fprintf(stderr, "%s: open(\"%s\", O_RDONLY) failed: %s\n",
+			    "refresh_proc_pidlist", buf, pmErrStr(-oserror()));
 		}
 	    }
 
@@ -950,25 +874,25 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids)
 	}
 
 	if (ep->instname == NULL) {
-           /*
-             * The external instance name is the pid followed by
-             * a copy of the psargs truncated at the first space.
-             * e.g. "012345 /path/to/command". Command line args,
-             * if any, are truncated. The full command line is
-             * available in the proc.psinfo.psargs metric.
-             */
-            if ((p = strchr(ep->name, ' ')) != NULL) {
-                if ((p = strchr(p+1, ' ')) != NULL) {
-                    int len = p - ep->name;
+	   /*
+	     * The external instance name is the pid followed by
+	     * a copy of the psargs truncated at the first space.
+	     * e.g. "012345 /path/to/command". Command line args,
+	     * if any, are truncated. The full command line is
+	     * available in the proc.psinfo.psargs metric.
+	     */
+	    if ((p = strchr(ep->name, ' ')) != NULL) {
+	        if ((p = strchr(p+1, ' ')) != NULL) {
+	            int len = p - ep->name;
 		    if (len > PROC_PID_STAT_CMD_MAXLEN)
 			len = PROC_PID_STAT_CMD_MAXLEN;
-                    ep->instname = (char *)malloc(len+1);
-                    strncpy(ep->instname, ep->name, len);
-                    ep->instname[len] = '\0';
-                }
-            }
-            if (ep->instname == NULL) /* no spaces found, so use the full name */
-                ep->instname = strndup(ep->name, PROC_PID_STAT_CMD_MAXLEN);
+	            ep->instname = (char *)malloc(len+1);
+	            strncpy(ep->instname, ep->name, len);
+	            ep->instname[len] = '\0';
+	        }
+	    }
+	    if (ep->instname == NULL) /* no spaces found, so use the full name */
+	        ep->instname = strndup(ep->name, PROC_PID_STAT_CMD_MAXLEN);
 	}
 	
 	/* mark pid as valid (new or still running) */
@@ -996,25 +920,14 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids)
 		    free(ep->instname);
 		if (ep->name != NULL)
 		    free(ep->name);
-		if (ep->stat_buf != NULL)
-		    free(ep->stat_buf);
-		if (ep->status_buf != NULL)
-		    free(ep->status_buf);
-		if (ep->statm_buf != NULL)
-		    free(ep->statm_buf);
+		if (ep->stat.cmd != NULL)
+		    free(ep->stat.cmd);
 		if (ep->maps_buf != NULL)
 		    free(ep->maps_buf);
-		if (ep->smaps_buf != NULL)
-		    free(ep->smaps_buf);
-		if (ep->schedstat_buf != NULL)
-		    free(ep->schedstat_buf);
-		if (ep->io_buf != NULL)
-		    free(ep->io_buf);
 		if (ep->wchan_buf != NULL)
 		    free(ep->wchan_buf);
 		if (ep->environ_buf != NULL)
 		    free(ep->environ_buf);
-
 	    	if (prev == NULL)
 		    proc_pid->pidhash.hash[i] = node->next;
 		else
@@ -1027,18 +940,30 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids)
 	}
     }
 
+    /* Reset accounting of the runqueue metrics, initially all zeroes */
+    if (runq)
+	memset(runq, 0, sizeof(proc_runq_t));
+
     /*
-     * At this point, the hash table contains only valid pids. Refresh the indom table,
-     * based on the updated process hash table. Indom table instance names are shared
-     * with their hash table entry, do not free!
+     * At this point, the hash table contains only valid pids.  Finally:
+     * - refresh the indom table, based on the updated process hash table.
+     *   (indom table instance names are shared with the hash table entry,
+     *    so must not be freed).
+     * - if runq metrics are being gathered, sample stat files now for all
+     *   active processes and accumulate the values - and do this in a way
+     *   that sets the FETCHED flag for these files such that they're only
+     *   read once for each sample (fetch).
      */
     indomp->it_numinst = numinst;
     indomp->it_set = (pmdaInstid *)realloc(indomp->it_set, numinst * sizeof(pmdaInstid));
-    for (idx=0, i=0; i < proc_pid->pidhash.hsize; i++) {
-	for (node=proc_pid->pidhash.hash[i]; node != NULL; node=node->next, idx++) {
+    for (i=0; i < proc_pid->pidhash.hsize; i++) {
+	for (node=proc_pid->pidhash.hash[i]; node != NULL; node=node->next) {
 	    ep = (proc_pid_entry_t *)node->data;
-	    indomp->it_set[idx].i_inst = ep->id; /* internal instid is pid */
-	    indomp->it_set[idx].i_name = ep->instname; /* ptr ref, do not free */
+	    if (runq) {
+		refresh_proc_pid_stat(ep);
+		refresh_proc_runq(ep, runq);
+	    }
+	    refresh_proc_indom_entry(ep, indomp, idx++);
 	}
     }
 }
@@ -1048,9 +973,9 @@ refresh_proc_pid(proc_pid_t *proc_pid, proc_runq_t *proc_runq,
 		 int want_threads, const char *cgroups,
 		 const char *container, int namelen)
 {
-    char path[MAXPATHLEN];
-    int sts, want_cgroups;
-    const char *filter = cgroups;
+    char		path[MAXPATHLEN];
+    int			sts, want_cgroups;
+    const char		*filter = cgroups;
 
     want_cgroups = container || (cgroups && cgroups[0] != '\0');
 
@@ -1061,44 +986,35 @@ refresh_proc_pid(proc_pid_t *proc_pid, proc_runq_t *proc_runq,
     if (container)
 	filter = cgroup_container_path(path, sizeof(path), container);
 
-    /* Reset accounting of the runqueue metrics, initially all zeroes */
-    if (proc_runq)
-	memset(proc_runq, 0, sizeof(proc_runq_t));
-
     sts = !want_cgroups ?
-	refresh_global_pidlist(want_threads, proc_runq, &procpids) :
-	refresh_cgroup_pidlist(want_threads, proc_runq, &procpids, filter);
+	refresh_global_pidlist(want_threads, &procpids) :
+	refresh_cgroup_pidlist(want_threads, &procpids, filter);
     if (sts < 0)
 	return sts;
 
     if (pmDebugOptions.appl1)
-	fprintf(stderr,
-		"refresh_proc_pid: %d pids (threads=%d, %s=\"%s\")\n",
-		procpids.count, procpids.threads,
+	fprintf(stderr, "%s: %d pids (threads=%d, %s=\"%s\")\n",
+		"refresh_proc_pid", procpids.count, procpids.threads,
 		container ? "container" : "cgroups", filter ? filter : "");
 
-    refresh_proc_pidlist(proc_pid, &procpids);
+    refresh_proc_pidlist(proc_pid, &procpids, proc_runq);
     return 0;
 }
 
 int
 refresh_hotproc_pid(proc_pid_t *proc_pid, int threads, const char *cgroups)
 {
-
-    int sts;
+    int			sts;
 
     hotpids.count = 0;
     hotpids.threads = threads;
 
-    sts = refresh_hotproc_pidlist(&hotpids);
+    if ((sts = refresh_hotproc_pidlist(&hotpids)) < 0)
+	return sts;
 
-    if (sts < 0)
-        return sts;
-
-    refresh_proc_pidlist(proc_pid, &hotpids);
+    refresh_proc_pidlist(proc_pid, &hotpids, NULL);
     return 0;
 }
-
 
 
 /*
@@ -1113,45 +1029,42 @@ refresh_hotproc_pid(proc_pid_t *proc_pid, int threads, const char *cgroups)
 static int
 proc_open(const char *base, proc_pid_entry_t *ep)
 {
-    int fd;
-    char buf[128];
+    int			fd;
+    char		buf[128];
 
     if (procpids.threads) {
 	pmsprintf(buf, sizeof(buf), "%s/proc/%d/task/%d/%s",
 			proc_statspath, ep->id, ep->id, base);
 	fd = open(buf, O_RDONLY);
 	if (fd < 0) {
-	    if (pmDebugOptions.appl1 && pmDebugOptions.desperate) {
-		char ebuf[1024];
-		fprintf(stderr, "proc_open: open(\"%s\", O_RDONLY) failed: %s\n",
-			    buf, pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
-	    }
+	    if (pmDebugOptions.appl1 && pmDebugOptions.desperate)
+		fprintf(stderr, "%s: open(\"%s\", O_RDONLY) failed: %s\n",
+				"proc_open", buf, pmErrStr(-oserror()));
 	    /* fallback to /proc path if task path open fails */
 	} else {
 	    if (pmDebugOptions.appl1 && pmDebugOptions.desperate)
-		fprintf(stderr, "proc_open: thread: %s -> fd=%d\n", buf, fd);
+		fprintf(stderr, "%s: thread: %s -> fd=%d\n",
+				"proc_open", buf, fd);
 	    return fd;
 	}
     }
     pmsprintf(buf, sizeof(buf), "%s/proc/%d/%s", proc_statspath, ep->id, base);
     fd = open(buf, O_RDONLY);
     if (fd < 0) {
-	if (pmDebugOptions.appl1 && pmDebugOptions.desperate) {
-	    char ebuf[1024];
-	    fprintf(stderr, "proc_open: open(\"%s\", O_RDONLY) failed: %s\n",
-			    buf, pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
-	}
+	if (pmDebugOptions.appl1 && pmDebugOptions.desperate)
+	    fprintf(stderr, "%s: open(\"%s\", O_RDONLY) failed: %s\n",
+			    "proc_open", buf, pmErrStr(-oserror()));
     }
     if (pmDebugOptions.appl1 && pmDebugOptions.desperate)
-	fprintf(stderr, "proc_open: %s -> fd=%d\n", buf, fd);
+	fprintf(stderr, "%s: %s -> fd=%d\n", "proc_open", buf, fd);
     return fd;
 }
 
 static DIR *
 proc_opendir(const char *base, proc_pid_entry_t *ep)
 {
-    DIR *dir;
-    char buf[128];
+    DIR			*dir;
+    char		buf[128];
 
     if (procpids.threads) {
 	pmsprintf(buf, sizeof(buf), "%s/proc/%d/task/%d/%s", proc_statspath, ep->id, ep->id, base);
@@ -1159,20 +1072,18 @@ proc_opendir(const char *base, proc_pid_entry_t *ep)
 	    return dir;
 	}
 	else {
-	    if (pmDebugOptions.appl1 && pmDebugOptions.desperate) {
-		char ebuf[1024];
-		fprintf(stderr, "proc_opendir: opendir(\"%s\") failed: %s\n", buf, pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
-	    }
+	    if (pmDebugOptions.appl1 && pmDebugOptions.desperate)
+		fprintf(stderr, "%s: opendir(\"%s\") failed: %s\n",
+				"proc_opendir", buf, pmErrStr(-oserror()));
 	}
 	/* fallback to /proc path if task path opendir fails */
     }
     pmsprintf(buf, sizeof(buf), "%s/proc/%d/%s", proc_statspath, ep->id, base);
     dir = opendir(buf);
     if (dir == NULL) {
-	if (pmDebugOptions.appl1 && pmDebugOptions.desperate) {
-	    char ebuf[1024];
-	    fprintf(stderr, "proc_opendir: opendir(\"%s\") failed: %s\n", buf, pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
-	}
+	if (pmDebugOptions.appl1 && pmDebugOptions.desperate)
+	    fprintf(stderr, "%s: opendir(\"%s\") failed: %s\n",
+			    "proc_opendir", buf, pmErrStr(-oserror()));
     }
     return dir;
 }
@@ -1185,7 +1096,7 @@ proc_opendir(const char *base, proc_pid_entry_t *ep)
 static int
 maperr(void)
 {
-    int		sts = -oserror();
+    int			sts = -oserror();
 
     if (sts == -EACCES || sts == -EINVAL) sts = 0;
     else if (sts == -ENOENT) sts = PM_ERR_APPVERSION;
@@ -1193,12 +1104,11 @@ maperr(void)
 }
 
 static int
-read_proc_entry(int fd, int *lenp, char **bufp)
+read_proc_entry(int fd, size_t *lenp, char **bufp)
 {
-    int sts = 0;
-    int n, len = 0;
-    char *p = *bufp;
-    char buf[1024];
+    size_t		len = 0;
+    char		*p = *bufp, buf[1024];
+    int			n, sts = 0;
 
     for (len=0;;) {
 	if ((n = read(fd, buf, sizeof(buf))) <= 0)
@@ -1222,10 +1132,90 @@ read_proc_entry(int fd, int *lenp, char **bufp)
 	else if (n == 0) {
 	    sts = -ENODATA;
 	    if (pmDebugOptions.appl1 && pmDebugOptions.desperate)
-		fprintf(stderr, "read_proc_entry: fd=%d: no data\n", fd);
+		fprintf(stderr, "%s: fd=%d: no data\n", "read_proc_entry", fd);
 	}
     }
 
+    return sts;
+}
+
+static void
+parse_proc_stat(proc_pid_entry_t *ep, size_t buflen, char *buf)
+{
+    char		*p, *end;
+
+    /* skip PID */
+    p = strchr(buf, ' ');
+    p += 2;
+
+    /* cmd (%s) */
+    end = strrchr(p, ')');
+    ep->stat.cmd = strndup(p, end - p);
+    p = end + 2;
+
+    /* state (char) */
+    memset(ep->stat.state, 0, sizeof(ep->stat.state));
+    ep->stat.state[0] = p[0];
+
+    /* the rest are numeric values */
+    ep->stat.ppid = strtoul(++p, &p, 10);
+    ep->stat.pgrp = strtoul(++p, &p, 10);
+    ep->stat.session = strtoul(++p, &p, 10);
+    ep->stat.tty = strtoul(++p, &p, 10);
+    ep->stat.tty_pgrp = strtol(++p, &p, 10);
+    ep->stat.flags = strtoul(++p, &p, 10);
+    ep->stat.minflt = strtoul(++p, &p, 10);
+    ep->stat.cminflt = strtoul(++p, &p, 10);
+    ep->stat.majflt = strtoul(++p, &p, 10);
+    ep->stat.cmajflt = strtoul(++p, &p, 10);
+    ep->stat.utime = strtoull(++p, &p, 10);
+    ep->stat.stime = strtoull(++p, &p, 10);
+    ep->stat.cutime = strtoull(++p, &p, 10);
+    ep->stat.cstime = strtoull(++p, &p, 10);
+    ep->stat.priority = strtol(++p, &p, 10);
+    ep->stat.nice = strtol(++p, &p, 10);
+    strtoul(++p, &p, 10); /* threads, we use /proc/pid/status */
+    ep->stat.it_real_value = strtoul(++p, &p, 10);
+    ep->stat.start_time = strtoull(++p, &p, 10);
+    ep->stat.vsize = strtoull(++p, &p, 10);
+    ep->stat.rss = strtoull(++p, &p, 10);
+    ep->stat.rss_rlim = strtoull(++p, &p, 10);
+    ep->stat.start_code = strtoul(++p, &p, 10);
+    ep->stat.end_code = strtoul(++p, &p, 10);
+    ep->stat.start_stack = strtoul(++p, &p, 10);
+    ep->stat.esp = strtoul(++p, &p, 10);
+    ep->stat.eip = strtoul(++p, &p, 10);
+    ep->stat.signal = strtoul(++p, &p, 10);
+    ep->stat.blocked = strtoul(++p, &p, 10);
+    ep->stat.sigignore = strtoul(++p, &p, 10);
+    ep->stat.sigcatch = strtoul(++p, &p, 10);
+    ep->stat.wchan = strtoul(++p, &p, 10);
+    ep->stat.nswap = strtoul(++p, &p, 10);
+    ep->stat.cnswap = strtoul(++p, &p, 10);
+    ep->stat.exit_signal = strtoul(++p, &p, 10);
+    ep->stat.processor = strtoul(++p, &p, 10);
+    ep->stat.priority = strtoul(++p, &p, 10);
+    ep->stat.rtpriority = strtoul(++p, &p, 10);
+    ep->stat.policy = strtoul(++p, &p, 10);
+    ep->stat.delayacct_blkio_time = strtoull(++p, &p, 10);
+    ep->stat.guest_time = strtoull(++p, &p, 10);
+    ep->stat.cguest_time = strtoull(++p, &p, 10);
+}
+
+static int
+refresh_proc_pid_stat(proc_pid_entry_t *ep)
+{
+    int			fd, sts;
+
+    if (ep->flags & PROC_PID_FLAG_STAT_SUCCESS)
+	return 0;
+    if ((fd = proc_open("stat", ep)) < 0)
+	return maperr();
+    if ((sts = read_proc_entry(fd, &procbuflen, &procbuf)) >= 0) {
+	parse_proc_stat(ep, procbuflen, procbuf);
+	ep->flags |= PROC_PID_FLAG_STAT_SUCCESS;
+    }
+    close(fd);
     return sts;
 }
 
@@ -1235,72 +1225,101 @@ read_proc_entry(int fd, int *lenp, char **bufp)
 proc_pid_entry_t *
 fetch_proc_pid_stat(int id, proc_pid_t *proc_pid, int *sts)
 {
-    __pmHashNode	*node = __pmHashSearch(id, &proc_pid->pidhash);
-    proc_pid_entry_t	*ep = node ? (proc_pid_entry_t *)node->data : NULL;
-    char		*p;
-    int			fd;
+    proc_pid_entry_t	*ep = proc_pid_entry_lookup(id, proc_pid);
+
+    *sts = 0;
+    if (!ep)
+	return NULL;
+    if (!(ep->flags & PROC_PID_FLAG_STAT_FETCHED)) {
+	*sts = refresh_proc_pid_stat(ep);
+	ep->flags |= PROC_PID_FLAG_STAT_FETCHED;
+    }
+    return (*sts < 0) ? NULL : ep;
+}
+
+static int
+refresh_proc_pid_wchan(proc_pid_entry_t *ep)
+{
+    int			fd, sts = 0;
+
+    if (ep->wchan_buflen > 0)
+	ep->wchan_buf[0] = '\0';
+    if ((fd = proc_open("wchan", ep)) >= 0) {
+	sts = read_proc_entry(fd, &ep->wchan_buflen, &ep->wchan_buf);
+	close(fd);
+    } /* else - ignore failure here, backwards compat */
+    return sts;
+}
+
+/*
+ * fetch a proc/<pid>/wchan entry for pid
+ */
+proc_pid_entry_t *
+fetch_proc_pid_wchan(int id, proc_pid_t *proc_pid, int *sts)
+{
+    proc_pid_entry_t	*ep = proc_pid_entry_lookup(id, proc_pid);
 
     *sts = 0;
     if (!ep)
 	return NULL;
 
-    if (!(ep->flags & PROC_PID_FLAG_STAT_FETCHED)) {
-	if (ep->stat_buflen > 0)
-	    ep->stat_buf[0] = '\0';
-	if ((fd = proc_open("stat", ep)) < 0)
-	    *sts = maperr();
-	else {
-	    *sts = read_proc_entry(fd, &ep->stat_buflen, &ep->stat_buf);
-	    close(fd);
-	}
-	ep->flags |= PROC_PID_FLAG_STAT_FETCHED;
-    }
-
     if (!(ep->flags & PROC_PID_FLAG_WCHAN_FETCHED)) {
-	if (ep->wchan_buflen > 0)
-	    ep->wchan_buf[0] = '\0';
-	if ((fd = proc_open("wchan", ep)) < 0)
-	    ; /* ignore failure here, backwards compat */
-	else {
-	    *sts = read_proc_entry(fd, &ep->wchan_buflen, &ep->wchan_buf);
-	    close(fd);
-	}
+	*sts = refresh_proc_pid_wchan(ep);
 	ep->flags |= PROC_PID_FLAG_WCHAN_FETCHED;
     }
 
-    if (!(ep->flags & PROC_PID_FLAG_ENVIRON_FETCHED)) {
-	if (ep->environ_buflen > 0)
-	    ep->environ_buf[0] = '\0';
-	if ((fd = proc_open("environ", ep)) >= 0) {
-	    *sts = read_proc_entry(fd, &ep->environ_buflen, &ep->environ_buf);
-	    close(fd);
-	    if (*sts == 0) {
-		/* Replace nulls with spaces */
-		if (ep->environ_buf) {
-		    for (p=ep->environ_buf; p < ep->environ_buf + ep->environ_buflen; p++) {
-			if (*p == '\0')
-			    *p = ' ';
-		    }
-		    ep->environ_buf[ep->environ_buflen-1] = '\0';
+    if (*sts < 0)
+    	return NULL;
+    return ep;
+}
+
+static int
+refresh_proc_pid_environ(proc_pid_entry_t *ep)
+{
+    char		*p;
+    int			fd, sts;
+
+    if (ep->environ_buflen > 0)
+	ep->environ_buf[0] = '\0';
+    if ((fd = proc_open("environ", ep)) >= 0) {
+	sts = read_proc_entry(fd, &ep->environ_buflen, &ep->environ_buf);
+	close(fd);
+	if (sts == 0) {
+	    /* replace nulls with spaces */
+	    if (ep->environ_buf) {
+		for (p=ep->environ_buf; p < ep->environ_buf + ep->environ_buflen; p++) {
+		    if (*p == '\0')
+			*p = ' ';
 		}
+		ep->environ_buf[ep->environ_buflen-1] = '\0';
 	    }
-	    else {
-		/*
-		 * probably EOF on first read, especially for
-		 * /proc/<N>/environ ...
-		 */
-		ep->environ_buflen = 0;
-		*sts = 0; /* clear -ENODATA */
-	    }
-	}
-	else {
-	    /*
-	     * have seen Permission denied errors from open(),
-	     * especially for /proc/<N>/environ ...
-	     */
+	} else {
+	    /* probably EOF on first read */
 	    ep->environ_buflen = 0;
-	    *sts = 0; /* clear -ENODATA */
+	    sts = 0; /* clear -ENODATA */
 	}
+    } else {
+	/* have seen EPERM errors from open */
+	ep->environ_buflen = 0;
+	sts = 0; /* clear -ENODATA */
+    }
+    return sts;
+}
+
+/*
+ * fetch a proc/<pid>/environ entry for pid
+ */
+proc_pid_entry_t *
+fetch_proc_pid_environ(int id, proc_pid_t *proc_pid, int *sts)
+{
+    proc_pid_entry_t	*ep = proc_pid_entry_lookup(id, proc_pid);
+
+    *sts = 0;
+    if (!ep)
+	return NULL;
+
+    if (!(ep->flags & PROC_PID_FLAG_ENVIRON_FETCHED)) {
+	*sts = refresh_proc_pid_environ(ep);
 	ep->flags |= PROC_PID_FLAG_ENVIRON_FETCHED;
     }
 
@@ -1310,27 +1329,225 @@ fetch_proc_pid_stat(int id, proc_pid_t *proc_pid, int *sts)
 }
 
 /*
- * Skip an initial colon-terminated header and whitespace, then comma-separate
- * the remainder of the line by overwriting any whitespace.
+ * Skip an initial identifying header and any whitespace, comma-separate
+ * the remainder of the line by overwriting any whitespace (optionally),
+ * then insert resulting string into the strings cache.
  */
-static char *
-commasep(char **buf)
+static int
+parse_string_value(char **buf, size_t length, int commasep)
 {
-    char *start, *p = *buf;
+    char		*p, *start;
 
-    for (; *p && *p != ':'; p++);	/* skip header */
-    if (*p) p++;
-    for (; *p && isspace(*p); p++);	/* skip initial whitespace */
+    *buf += length;
+    for (p = *buf; *p && isspace(*p); p++);	/* skip initial whitespace */
     start = *buf = p;
-    for (; *p; p++) {
+    while (*p) {
 	if (*p == '\n') {
 	    *p = '\0';	/* replace end of line */
-	    *buf = p + 1;
+	    *buf = p;
 	    break;
 	}
-	if (isspace(*p)) *p = ',';	/* replace whitespace */
+	if (commasep && isspace(*p))
+	    *p = ',';	/* replace whitespace */
+	p++;
     }
-    return start;
+    return proc_strings_insert(start);
+}
+
+static void
+parse_proc_status(proc_pid_entry_t *ep, size_t buflen, char *buf)
+{
+    char		*curline = buf;
+
+    /*
+     * Expecting something like ...
+     *
+     * Name:	bash
+     * State:	S (sleeping)
+     * Tgid:	21374
+     * Pid:	21374
+     * PPid:	21373
+     * TracerPid:	0
+     * Uid:	1000	1000	1000	1000
+     * Gid:	1000	1000	1000	1000
+     * FDSize:	256
+     * Groups:	24 25 27 29 30 44 46 105 110 112 1000 
+     * VmPeak:	   22388 kB
+     * VmSize:	   22324 kB
+     * VmLck:	       0 kB
+     * VmPin:	       0 kB
+     * VmHWM:	    5200 kB
+     * VmRSS:	    5200 kB
+     * VmData:	    3280 kB
+     * VmStk:	     136 kB
+     * VmExe:	     916 kB
+     * VmLib:	    2024 kB
+     * VmPTE:	      60 kB
+     * VmSwap:	       0 kB
+     * Threads:	1
+     * SigQ:	0/47779
+     * SigPnd:	0000000000000000
+     * ShdPnd:	0000000000000000
+     * SigBlk:	0000000000010000
+     * SigIgn:	0000000000384004
+     * SigCgt:	000000004b813efb
+     * CapInh:	0000000000000000
+     * CapPrm:	0000000000000000
+     * CapEff:	0000000000000000
+     * CapBnd:	ffffffffffffffff
+     * Cpus_allowed:	3
+     * Cpus_allowed_list:	0-1
+     * Mems_allowed:	00000000,00000001
+     * Mems_allowed_list:	0
+     * voluntary_ctxt_switches:	225
+     * nonvoluntary_ctxt_switches:	56
+     */
+    ep->status.flags = 0;
+    while (curline) {
+	switch (*curline) {
+	case 'C':
+	    if (strncmp(curline, "Cpus_allowed_list:", 18) == 0) {
+		ep->status.cpusallowed = parse_string_value(&curline, 19, 0);
+		ep->status.flags |= PROC_STATUS_FLAG_CPUSALLOWED;
+	    } else
+		goto nomatch;
+	    break;
+	case 'e':
+	    if (strncmp(curline, "envID:", 6) == 0) {
+		ep->status.envid = strtoul(curline + 7, &curline, 0);
+		ep->status.flags |= PROC_STATUS_FLAG_ENVID;
+	    } else
+		goto nomatch;
+	    break;
+	case 'G':
+	    if (strncmp(curline, "Gid:", 4) == 0) {
+		ep->status.gid = strtoul(curline + 5, &curline, 0);
+		ep->status.egid = strtoul(++curline, &curline, 10);
+		ep->status.sgid = strtoul(++curline, &curline, 10);
+		ep->status.fsgid = strtoul(++curline, &curline, 10);
+	    } else
+		goto nomatch;
+	    break;
+	case 'N':
+	    if (strncmp(curline, "Ngid:", 5) == 0) {
+		ep->status.ngid = parse_string_value(&curline, 6, 0);
+		ep->status.flags |= PROC_STATUS_FLAG_NGID;
+	    } else if (strncmp(curline, "NStgid:", 7) == 0) {
+		ep->status.nstgid = parse_string_value(&curline, 8, 1);
+		ep->status.flags |= PROC_STATUS_FLAG_NSTGID;
+	    } else if (strncmp(curline, "NSpid:", 6) == 0) {
+		ep->status.nspid = parse_string_value(&curline, 7, 1);
+		ep->status.flags |= PROC_STATUS_FLAG_NSPID;
+	    } else if (strncmp(curline, "NSpgid:", 7) == 0) {
+		ep->status.nspgid = parse_string_value(&curline, 8, 1);
+		ep->status.flags |= PROC_STATUS_FLAG_NSPGID;
+	    } else if (strncmp(curline, "NSsid:", 6) == 0) {
+		ep->status.nssid = parse_string_value(&curline, 7, 1);
+		ep->status.flags |= PROC_STATUS_FLAG_NSSID;
+	    } else
+		goto nomatch;
+	    break;
+	case 'n':
+	    if (strncmp(curline, "nonvoluntary_ctxt_switches:", 27) == 0)
+		ep->status.nvctxsw = strtoul(curline + 28, &curline, 0);
+	    else
+		goto nomatch;
+	    break;
+	case 'S':
+	    if (strncmp(curline, "SigPnd:", 7) == 0)
+		ep->status.sigpnd = parse_string_value(&curline, 8, 0);
+	    else if (strncmp(curline, "SigBlk:", 7) == 0)
+		ep->status.sigblk = parse_string_value(&curline, 8, 0);
+	    else if (strncmp(curline, "SigIgn:", 7) == 0)
+		ep->status.sigign = parse_string_value(&curline, 8, 0);
+	    else if (strncmp(curline, "SigCgt:", 7) == 0)
+		ep->status.sigcgt = parse_string_value(&curline, 8, 0);
+	    else
+		goto nomatch;
+	    break;
+	case 'T':
+	    if (strncmp(curline, "Threads:", 8) == 0)
+		ep->status.threads = strtoul(curline + 9, &curline, 0);
+	    else if (strncmp(curline, "Tgid:", 5) == 0) {
+		ep->status.tgid = strtoul(curline + 6, &curline, 0);
+		ep->status.flags |= PROC_STATUS_FLAG_TGID;
+	    } else
+		goto nomatch;
+	    break;
+	case 'U':
+	    if (strncmp(curline, "Uid:", 4) == 0) {
+		ep->status.uid = strtoul(curline + 5, &curline, 0);
+		ep->status.euid = strtoul(++curline, &curline, 10);
+		ep->status.suid = strtoul(++curline, &curline, 10);
+		ep->status.fsuid = strtoul(++curline, &curline, 10);
+	    } else
+		goto nomatch;
+	    break;
+	case 'V':
+	    if (strncmp(curline, "VmPeak:", 7) == 0)
+		ep->status.vmpeak = strtoul(curline + 8, &curline, 0);
+	    else if (strncmp(curline, "VmSize:", 7) == 0)
+		ep->status.vmsize = strtoul(curline + 8, &curline, 0);
+	    else if (strncmp(curline, "VmLck:", 6) == 0)
+		ep->status.vmlck = strtoul(curline + 7, &curline, 0);
+	    else if (strncmp(curline, "VmPin:", 6) == 0)
+		ep->status.vmpin = strtoul(curline + 7, &curline, 0);
+	    else if (strncmp(curline, "VmHWM:", 6) == 0)
+		ep->status.vmhwm = strtoul(curline + 7, &curline, 0);
+	    else if (strncmp(curline, "VmRSS:", 6) == 0)
+		ep->status.vmrss = strtoul(curline + 7, &curline, 0);
+	    else if (strncmp(curline, "VmData:", 7) == 0)
+		ep->status.vmdata = strtoul(curline + 8, &curline, 0);
+	    else if (strncmp(curline, "VmStk:", 6) == 0)
+		ep->status.vmstk = strtoul(curline + 7, &curline, 0);
+	    else if (strncmp(curline, "VmExe:", 6) == 0)
+		ep->status.vmexe = strtoul(curline + 7, &curline, 0);
+	    else if (strncmp(curline, "VmLib:", 6) == 0)
+		ep->status.vmlib = strtoul(curline + 7, &curline, 0);
+	    else if (strncmp(curline, "VmPTE:", 6) == 0)
+		ep->status.vmpte = strtoul(curline + 7, &curline, 0);
+	    else if (strncmp(curline, "VmSwap:", 7) == 0)
+		ep->status.vmswap = strtoul(curline + 7, &curline, 0);
+	    else
+		goto nomatch;
+	    break;
+	case 'v':
+	    if (strncmp(curline, "voluntary_ctxt_switches:", 24) == 0)
+		ep->status.vctxsw = strtoul(curline + 25, &curline, 0);
+	    else
+		goto nomatch;
+	    break;
+
+	default:
+	nomatch:
+		if (pmDebugOptions.appl1 && pmDebugOptions.desperate) {
+		    char	*p;
+		    fprintf(stderr, "%s: skip ", "fetch_proc_pid_status");
+		    for (p = curline; *p && *p != '\n'; p++)
+			fputc(*p, stderr);
+		    fputc('\n', stderr);
+		}
+		curline = index(curline, '\n');
+	}
+	if (curline != NULL) curline++;
+    }
+}
+
+static int
+refresh_proc_pid_status(proc_pid_entry_t *ep)
+{
+    int			fd, sts;
+
+    if (ep->flags & PROC_PID_FLAG_STATUS_SUCCESS)
+	return 0;
+    if ((fd = proc_open("status", ep)) < 0)
+	return maperr();
+    if ((sts = read_proc_entry(fd, &procbuflen, &procbuf)) == 0) {
+	parse_proc_status(ep, procbuflen, procbuf);
+	ep->flags |= PROC_PID_FLAG_STATUS_SUCCESS;
+    }
+    close(fd);
+    return sts;
 }
 
 /*
@@ -1339,193 +1556,48 @@ commasep(char **buf)
 proc_pid_entry_t *
 fetch_proc_pid_status(int id, proc_pid_t *proc_pid, int *sts)
 {
-    __pmHashNode	*node = __pmHashSearch(id, &proc_pid->pidhash);
-    proc_pid_entry_t	*ep = node ? (proc_pid_entry_t *)node->data : NULL;
+    proc_pid_entry_t	*ep = proc_pid_entry_lookup(id, proc_pid);
 
     *sts = 0;
     if (!ep)
 	return NULL;
 
     if (!(ep->flags & PROC_PID_FLAG_STATUS_FETCHED)) {
-	int	fd;
-	char	*curline;
-
-	if (ep->status_buflen > 0)
-	    ep->status_buf[0] = '\0';
-	if ((fd = proc_open("status", ep)) < 0)
-	    *sts = maperr();
-	else {
-	    *sts = read_proc_entry(fd, &ep->status_buflen, &ep->status_buf);
-	    close(fd);
-	}
-
-	if (*sts == 0) {
-	    /* assign pointers to individual lines in buffer */
-	    curline = ep->status_buf;
-	    /*
-	     * Expecting something like ...
-	     *
-	     * Name:	bash
-	     * State:	S (sleeping)
-	     * Tgid:	21374
-	     * Pid:	21374
-	     * PPid:	21373
-	     * TracerPid:	0
-	     * Uid:	1000	1000	1000	1000
-	     * Gid:	1000	1000	1000	1000
-	     * FDSize:	256
-	     * Groups:	24 25 27 29 30 44 46 105 110 112 1000 
-	     * VmPeak:	   22388 kB
-	     * VmSize:	   22324 kB
-	     * VmLck:	       0 kB
-	     * VmPin:	       0 kB
-	     * VmHWM:	    5200 kB
-	     * VmRSS:	    5200 kB
-	     * VmData:	    3280 kB
-	     * VmStk:	     136 kB
-	     * VmExe:	     916 kB
-	     * VmLib:	    2024 kB
-	     * VmPTE:	      60 kB
-	     * VmSwap:	       0 kB
-	     * Threads:	1
-	     * SigQ:	0/47779
-	     * SigPnd:	0000000000000000
-	     * ShdPnd:	0000000000000000
-	     * SigBlk:	0000000000010000
-	     * SigIgn:	0000000000384004
-	     * SigCgt:	000000004b813efb
-	     * CapInh:	0000000000000000
-	     * CapPrm:	0000000000000000
-	     * CapEff:	0000000000000000
-	     * CapBnd:	ffffffffffffffff
-	     * Cpus_allowed:	3
-	     * Cpus_allowed_list:	0-1
-	     * Mems_allowed:	00000000,00000001
-	     * Mems_allowed_list:	0
-	     * voluntary_ctxt_switches:	225
-	     * nonvoluntary_ctxt_switches:	56
-	     */
-	    while (curline) {
-		/* small optimization ... peek at first character */
-		switch (*curline) {
-		    case 'U':
-			if (strncmp(curline, "Uid:", 4) == 0)
-			    ep->status_lines.uid = strsep(&curline, "\n");
-			else
-			    goto nomatch;
-			break;
-		    case 'G':
-			if (strncmp(curline, "Gid:", 4) == 0)
-			    ep->status_lines.gid = strsep(&curline, "\n");
-			else
-			    goto nomatch;
-			break;
-		    case 'V':
-			if (strncmp(curline, "VmPeak:", 7) == 0)
-			    ep->status_lines.vmpeak = strsep(&curline, "\n");
-			else if (strncmp(curline, "VmSize:", 7) == 0)
-			    ep->status_lines.vmsize = strsep(&curline, "\n");
-			else if (strncmp(curline, "VmLck:", 6) == 0)
-			    ep->status_lines.vmlck = strsep(&curline, "\n");
-			else if (strncmp(curline, "VmPin:", 6) == 0)
-			    ep->status_lines.vmpin = strsep(&curline, "\n");
-			else if (strncmp(curline, "VmHWM:", 6) == 0)
-			    ep->status_lines.vmhwm = strsep(&curline, "\n");
-			else if (strncmp(curline, "VmRSS:", 6) == 0)
-			    ep->status_lines.vmrss = strsep(&curline, "\n");
-			else if (strncmp(curline, "VmData:", 7) == 0)
-			    ep->status_lines.vmdata = strsep(&curline, "\n");
-			else if (strncmp(curline, "VmStk:", 6) == 0)
-			    ep->status_lines.vmstk = strsep(&curline, "\n");
-			else if (strncmp(curline, "VmExe:", 6) == 0)
-			    ep->status_lines.vmexe = strsep(&curline, "\n");
-			else if (strncmp(curline, "VmLib:", 6) == 0)
-			    ep->status_lines.vmlib = strsep(&curline, "\n");
-			else if (strncmp(curline, "VmPTE:", 6) == 0)
-			    ep->status_lines.vmpte = strsep(&curline, "\n");
-			else if (strncmp(curline, "VmSwap:", 7) == 0)
-			    ep->status_lines.vmswap = strsep(&curline, "\n");
-			else
-			    goto nomatch;
-			break;
-		    case 'T':
-			if (strncmp(curline, "Threads:", 8) == 0)
-			    ep->status_lines.threads = strsep(&curline, "\n");
-			else if (strncmp(curline, "Tgid:", 5) == 0)
-			    ep->status_lines.tgid = strsep(&curline, "\n");
-			else
-			    goto nomatch;
-			break;
-		    case 'S':
-			if (strncmp(curline, "SigPnd:", 7) == 0)
-			    ep->status_lines.sigpnd = strsep(&curline, "\n");
-			else if (strncmp(curline, "SigBlk:", 7) == 0)
-			    ep->status_lines.sigblk = strsep(&curline, "\n");
-			else if (strncmp(curline, "SigIgn:", 7) == 0)
-			    ep->status_lines.sigign = strsep(&curline, "\n");
-			else if (strncmp(curline, "SigCgt:", 7) == 0)
-			    ep->status_lines.sigcgt = strsep(&curline, "\n");
-			else
-			    goto nomatch;
-			break;
-		    case 'v':
-			if (strncmp(curline, "voluntary_ctxt_switches:", 24) == 0)
-			    ep->status_lines.vctxsw = strsep(&curline, "\n");
-			else
-			    goto nomatch;
-			break;
-		    case 'N':
-			if (strncmp(curline, "Ngid:", 5) == 0)
-			    ep->status_lines.ngid = strsep(&curline, "\n");
-			else if (strncmp(curline, "NStgid:", 7) == 0) {
-			    ep->status_lines.nstgid = commasep(&curline);
-			}
-			else if (strncmp(curline, "NSpid:", 6) == 0) {
-			    ep->status_lines.nspid = commasep(&curline);
-			}
-			else if (strncmp(curline, "NSpgid:", 7) == 0)
-			    ep->status_lines.nspgid = commasep(&curline);
-			else if (strncmp(curline, "NSsid:", 6) == 0)
-			    ep->status_lines.nssid = commasep(&curline);
-			else
-			    goto nomatch;
-			break;
-		    case 'n':
-			if (strncmp(curline, "nonvoluntary_ctxt_switches:", 27) == 0)
-			    ep->status_lines.nvctxsw = strsep(&curline, "\n");
-			else
-			    goto nomatch;
-			break;
-                    case 'C':
-		        if (strncmp(curline, "Cpus_allowed_list:", 18) == 0)
-		            ep->status_lines.cpusallowed = strsep(&curline, "\n");
-			else
-			    goto nomatch;
-			break;
-                    case 'e':
-		        if (strncmp(curline, "envID:", 6) == 0)
-		            ep->status_lines.envid = strsep(&curline, "\n");
-			else
-			    goto nomatch;
-			break;
-		    default:
-nomatch:
-			if (pmDebugOptions.appl1 && pmDebugOptions.desperate) {
-			    char	*p;
-			    fprintf(stderr, "fetch_proc_pid_status: skip ");
-			    for (p = curline; *p && *p != '\n'; p++)
-				fputc(*p, stderr);
-			    fputc('\n', stderr);
-			}
-			curline = index(curline, '\n');
-			if (curline != NULL) curline++;
-		}
-	    }
-	    ep->flags |= PROC_PID_FLAG_STATUS_FETCHED;
-	}
+	*sts = refresh_proc_pid_status(ep);
+	ep->flags |= PROC_PID_FLAG_STATUS_FETCHED;
     }
-
     return (*sts < 0) ? NULL : ep;
+}
+
+static void
+parse_proc_statm(proc_pid_entry_t *ep, size_t buflen, char *buf)
+{
+    char	*p = buf;
+
+    ep->statm.size = strtoul(p, &p, 10);
+    ep->statm.rss = strtoul(++p, &p, 10);
+    ep->statm.share = strtoul(++p, &p, 10);
+    ep->statm.textrs = strtoul(++p, &p, 10);
+    ep->statm.librs = strtol(++p, &p, 10);
+    ep->statm.datrs = strtoul(++p, &p, 10);
+    ep->statm.dirty = strtoul(++p, &p, 10);
+}
+
+static int
+refresh_proc_pid_statm(proc_pid_entry_t *ep)
+{
+    int			fd, sts;
+
+    if (ep->flags & PROC_PID_FLAG_STATM_SUCCESS)
+	return 0;
+    if ((fd = proc_open("statm", ep)) < 0)
+	return maperr();
+    if ((sts = read_proc_entry(fd, &procbuflen, &procbuf)) == 0) {
+	parse_proc_statm(ep, procbuflen, procbuf);
+	ep->flags |= PROC_PID_FLAG_STATM_SUCCESS;
+    }
+    close(fd);
+    return sts;
 }
 
 /*
@@ -1534,72 +1606,94 @@ nomatch:
 proc_pid_entry_t *
 fetch_proc_pid_statm(int id, proc_pid_t *proc_pid, int *sts)
 {
-    __pmHashNode	*node = __pmHashSearch(id, &proc_pid->pidhash);
-    proc_pid_entry_t	*ep = node ? (proc_pid_entry_t *)node->data : NULL;
+    proc_pid_entry_t	*ep = proc_pid_entry_lookup(id, proc_pid);
 
     *sts = 0;
     if (!ep)
     	return NULL;
 
     if (!(ep->flags & PROC_PID_FLAG_STATM_FETCHED)) {
-	int fd;
-
-	if (ep->statm_buflen > 0)
-	    ep->statm_buf[0] = '\0';
-	if ((fd = proc_open("statm", ep)) < 0)
-	    *sts = maperr();
-	else {
-	    *sts = read_proc_entry(fd, &ep->statm_buflen, &ep->statm_buf);
-	    close(fd);
-	}
+	*sts = refresh_proc_pid_statm(ep);
 	ep->flags |= PROC_PID_FLAG_STATM_FETCHED;
     }
-
     return (*sts < 0) ? NULL : ep;
 }
 
+static int
+refresh_proc_pid_maps(proc_pid_entry_t *ep)
+{
+    int			fd, sts;
+
+    if (ep->flags & PROC_PID_FLAG_MAPS_SUCCESS)
+	return 0;
+    if (ep->maps_buflen > 0)
+	ep->maps_buf[0] = '\0';
+    if ((fd = proc_open("maps", ep)) < 0)
+	return maperr();
+    sts = read_proc_entry(fd, &ep->maps_buflen, &ep->maps_buf);
+    close(fd);
+
+    /* If there are no maps, make maps_buf a zero length string. */
+    if (ep->maps_buflen == 0) {
+	ep->maps_buflen = 1;
+	ep->maps_buf = (char *)malloc(1);
+    }
+    if (ep->maps_buf) {
+	ep->maps_buf[ep->maps_buflen - 1] = '\0';
+	ep->flags |= PROC_PID_FLAG_MAPS_SUCCESS;
+	sts = 0; /* clear -ENODATA */
+    } else {
+	ep->maps_buflen = 0;
+    }
+    return sts;
+}
 
 /*
  * fetch a proc/<pid>/maps entry for pid
- * WARNING: This can be very large!  Only ask for it if you really need it.
+ *
+ * Values are large and access *must* be protected (have_access).
  */
 proc_pid_entry_t *
 fetch_proc_pid_maps(int id, proc_pid_t *proc_pid, int *sts)
 {
-    __pmHashNode	*node = __pmHashSearch(id, &proc_pid->pidhash);
-    proc_pid_entry_t	*ep = node ? (proc_pid_entry_t *)node->data : NULL;
-    int			fd;
+    proc_pid_entry_t	*ep = proc_pid_entry_lookup(id, proc_pid);
 
     *sts = 0;
     if (!ep)
 	return NULL;
 
     if (!(ep->flags & PROC_PID_FLAG_MAPS_FETCHED)) {
-	if (ep->maps_buflen > 0)
-	    ep->maps_buf[0] = '\0';
-	if ((fd = proc_open("maps", ep)) < 0)
-	    *sts = maperr();
-	else {
-	    *sts = read_proc_entry(fd, &ep->maps_buflen, &ep->maps_buf);
-	    close(fd);
-
-	    /* If there are no maps, make maps_buf a zero length string. */
-	    if (ep->maps_buflen == 0) {
-		ep->maps_buflen = 1;
-		ep->maps_buf = (char *)malloc(1);
-	    }
-	    if (ep->maps_buf) {
-		ep->maps_buf[ep->maps_buflen - 1] = '\0';
-		*sts = 0; /* clear -ENODATA */
-	    }
-	    else
-		ep->maps_buflen = 0;
-	}
-
+	*sts = refresh_proc_pid_maps(ep);
 	ep->flags |= PROC_PID_FLAG_MAPS_FETCHED;
     }
-
     return (*sts < 0) ? NULL : ep;
+}
+
+static void
+parse_proc_schedstat(proc_pid_entry_t *ep, size_t buflen, char *buf)
+{
+    char	*p = buf;
+
+    ep->schedstat.cputime = strtoull(p, &p, 10);
+    ep->schedstat.rundelay = strtoull(++p, &p, 10);
+    ep->schedstat.count = strtoull(++p, &p, 10);
+}
+
+static int 
+refresh_proc_pid_schedstat(proc_pid_entry_t *ep)
+{
+    int			fd, sts;
+
+    if (ep->flags & PROC_PID_FLAG_SCHEDSTAT_SUCCESS)
+	return 0;
+    if ((fd = proc_open("schedstat", ep)) < 0)
+	return maperr();
+    if ((sts = read_proc_entry(fd, &procbuflen, &procbuf)) >= 0) {
+	parse_proc_schedstat(ep, procbuflen, procbuf);
+	ep->flags |= PROC_PID_FLAG_SCHEDSTAT_SUCCESS;
+    }
+    close(fd);
+    return sts;
 }
 
 /*
@@ -1608,28 +1702,77 @@ fetch_proc_pid_maps(int id, proc_pid_t *proc_pid, int *sts)
 proc_pid_entry_t *
 fetch_proc_pid_schedstat(int id, proc_pid_t *proc_pid, int *sts)
 {
-    __pmHashNode	*node = __pmHashSearch(id, &proc_pid->pidhash);
-    proc_pid_entry_t	*ep = node ? (proc_pid_entry_t *)node->data : NULL;
+    proc_pid_entry_t	*ep = proc_pid_entry_lookup(id, proc_pid);
 
     *sts = 0;
     if (!ep)
 	return NULL;
 
     if (!(ep->flags & PROC_PID_FLAG_SCHEDSTAT_FETCHED)) {
-	int		fd;
-
-	if (ep->schedstat_buflen > 0)
-	    ep->schedstat_buf[0] = '\0';
-	if ((fd = proc_open("schedstat", ep)) < 0)
-	    *sts = maperr();
-	else {
-	    *sts = read_proc_entry(fd, &ep->schedstat_buflen, &ep->schedstat_buf);
-	    close(fd);
-	}
+	*sts = refresh_proc_pid_schedstat(ep);
 	ep->flags |= PROC_PID_FLAG_SCHEDSTAT_FETCHED;
     }
-
     return (*sts < 0) ? NULL : ep;
+}
+
+static void
+parse_proc_io(proc_pid_entry_t *ep, size_t buflen, char *buf)
+{
+    char *curline = buf;
+
+    /*
+     * rchar: 714415843
+     * wchar: 101078796
+     * syscr: 780339
+     * syscw: 493583
+     * read_bytes: 209099776
+     * write_bytes: 118263808
+     * cancelled_write_bytes: 102301696
+    */
+    while (curline) {
+	if (strncmp(curline, "rchar:", 6) == 0)
+	    ep->io.rchar = strtoull(curline + 7, &curline, 0);
+	else if (strncmp(curline, "wchar:", 6) == 0)
+	    ep->io.wchar = strtoull(curline + 7, &curline, 0);
+	else if (strncmp(curline, "syscr:", 6) == 0)
+	    ep->io.syscr = strtoull(curline + 7, &curline, 0);
+	else if (strncmp(curline, "syscw:", 6) == 0)
+	    ep->io.syscw = strtoull(curline + 7, &curline, 0);
+	else if (strncmp(curline, "read_bytes:", 11) == 0)
+	    ep->io.readb = strtoull(curline + 12, &curline, 0);
+	else if (strncmp(curline, "write_bytes:", 12) == 0)
+	    ep->io.writeb = strtoull(curline + 13, &curline, 0);
+	else if (strncmp(curline, "cancelled_write_bytes:", 22) == 0)
+	    ep->io.cancel = strtoull(curline + 23, &curline, 0);
+	else {
+	    if (pmDebugOptions.appl1 && pmDebugOptions.desperate) {
+		char	*p;
+		fprintf(stderr, "%s: skip ", "fetch_proc_pid_io");
+		for (p = curline; *p && *p != '\n'; p++)
+		    fputc(*p, stderr);
+		fputc('\n', stderr);
+	    }
+	    curline = index(curline, '\n');
+	}
+	if (curline != NULL) curline++;
+    }
+}
+
+static int
+refresh_proc_pid_io(proc_pid_entry_t *ep)
+{
+    int			fd, sts;
+
+    if (ep->flags & PROC_PID_FLAG_IO_SUCCESS)
+	return 0;
+    if ((fd = proc_open("io", ep)) < 0)
+	return maperr();
+    if ((sts = read_proc_entry(fd, &procbuflen, &procbuf)) >= 0) {
+	parse_proc_io(ep, procbuflen, procbuf);
+	ep->flags |= PROC_PID_FLAG_IO_SUCCESS;
+    }
+    close(fd);
+    return sts;
 }
 
 /*
@@ -1644,71 +1787,128 @@ fetch_proc_pid_schedstat(int id, proc_pid_t *proc_pid, int *sts)
 proc_pid_entry_t *
 fetch_proc_pid_io(int id, proc_pid_t *proc_pid, int *sts)
 {
-    __pmHashNode	*node = __pmHashSearch(id, &proc_pid->pidhash);
-    proc_pid_entry_t	*ep = node ? (proc_pid_entry_t *)node->data : NULL;
+    proc_pid_entry_t	*ep = proc_pid_entry_lookup(id, proc_pid);
 
     *sts = 0;
     if (!ep)
 	return NULL;
 
     if (!(ep->flags & PROC_PID_FLAG_IO_FETCHED)) {
-	int	fd;
-	char	*curline;
-
-	if (ep->io_buflen > 0)
-	    ep->io_buf[0] = '\0';
-	if ((fd = proc_open("io", ep)) < 0)
-	    *sts = maperr();
-	else {
-	    *sts = read_proc_entry(fd, &ep->io_buflen, &ep->io_buf);
-	    close(fd);
-	}
-
-	if (*sts == 0) {
-	    /* assign pointers to individual lines in buffer */
-	    curline = ep->io_buf;
-	    /*
-	     * expecting 
-	     * rchar: 714415843
-	     * wchar: 101078796
-	     * syscr: 780339
-	     * syscw: 493583
-	     * read_bytes: 209099776
-	     * write_bytes: 118263808
-	     * cancelled_write_bytes: 102301696
-	    */
-	    while (curline) {
-		if (strncmp(curline, "rchar:", 6) == 0)
-		    ep->io_lines.rchar = strsep(&curline, "\n");
-		else if (strncmp(curline, "wchar:", 6) == 0)
-		    ep->io_lines.wchar = strsep(&curline, "\n");
-		else if (strncmp(curline, "syscr:", 6) == 0)
-		    ep->io_lines.syscr = strsep(&curline, "\n");
-		else if (strncmp(curline, "syscw:", 6) == 0)
-		    ep->io_lines.syscw = strsep(&curline, "\n");
-		else if (strncmp(curline, "read_bytes:", 11) == 0)
-		    ep->io_lines.readb = strsep(&curline, "\n");
-		else if (strncmp(curline, "write_bytes:", 12) == 0)
-		    ep->io_lines.writeb = strsep(&curline, "\n");
-		else if (strncmp(curline, "cancelled_write_bytes:", 22) == 0)
-		    ep->io_lines.cancel = strsep(&curline, "\n");
-		else {
-		    if (pmDebugOptions.appl1 && pmDebugOptions.desperate) {
-			char	*p;
-			fprintf(stderr, "fetch_proc_pid_io: skip ");
-			for (p = curline; *p && *p != '\n'; p++)
-			    fputc(*p, stderr);
-			fputc('\n', stderr);
-		    }
-		    curline = index(curline, '\n');
-		    if (curline != NULL) curline++;
-		}
-	    }
-	    ep->flags |= PROC_PID_FLAG_IO_FETCHED;
-	}
+	*sts = refresh_proc_pid_io(ep);
+	ep->flags |= PROC_PID_FLAG_IO_FETCHED;
     }
-
     return (*sts < 0) ? NULL : ep;
+}
+
+static void
+parse_proc_smaps(proc_pid_entry_t *ep, size_t buflen, char *buf)
+{
+    char		*curline = buf;
+
+    /*
+     * Rss:                1860 kB
+     * Pss:                 354 kB
+     * Pss_Anon:             92 kB
+     * Pss_File:            262 kB
+     *  [...]
+     * Locked:                0 kB
+     */
+    while (curline) {
+	switch (curline[0]) {
+	case 'A':
+	    if (strncmp(curline, "AnonHugePages:", 14) == 0)
+		ep->smaps.anonhugepages = strtoull(curline + 15, &curline, 0);
+	    else if (strncmp(curline, "Anonymous:", 10) == 0)
+		ep->smaps.anonymous = strtoull(curline + 11, &curline, 0);
+	    else
+		goto nomatch;
+	    break;
+	case 'F':
+	    if (strncmp(curline, "FilePmdMapped:", 14) == 0)
+		ep->smaps.filepmdmapped = strtoull(curline + 15, &curline, 0);
+	    else
+		goto nomatch;
+	    break;
+	case 'L':
+	    if (strncmp(curline, "LazyFree:", 9) == 0)
+		ep->smaps.lazyfree = strtoull(curline + 10, &curline, 0);
+	    else if (strncmp(curline, "Locked:", 7) == 0)
+		ep->smaps.locked = strtoull(curline + 8, &curline, 0);
+	    else
+		goto nomatch;
+	    break;
+	case 'P':
+	    if (strncmp(curline, "Pss:", 4) == 0)
+		ep->smaps.pss = strtoull(curline + 5, &curline, 0);
+	    else if (strncmp(curline, "Pss_Anon:", 9) == 0)
+		ep->smaps.pss_anon = strtoull(curline + 10, &curline, 0);
+	    else if (strncmp(curline, "Pss_File:", 9) == 0)
+		ep->smaps.pss_file = strtoull(curline + 10, &curline, 0);
+	    else if (strncmp(curline, "Pss_Shmem:", 10) == 0)
+		ep->smaps.pss_shmem = strtoull(curline + 11, &curline, 0);
+	    else if (strncmp(curline, "Private_Clean:", 14) == 0)
+		ep->smaps.private_clean = strtoull(curline + 15, &curline, 0);
+	    else if (strncmp(curline, "Private_Dirty:", 14) == 0)
+		ep->smaps.private_dirty = strtoull(curline + 15, &curline, 0);
+	    else if (strncmp(curline, "Private_Hugetlb:", 16) == 0)
+		ep->smaps.private_hugetlb = strtoull(curline + 17, &curline, 0);
+	    else
+		goto nomatch;
+	    break;
+	case 'R':
+	    if (strncmp(curline, "Rss:", 4) == 0)
+		ep->smaps.rss = strtoull(curline + 5, &curline, 0);
+	    else if (strncmp(curline, "Referenced:", 11) == 0)
+		ep->smaps.referenced = strtoull(curline + 12, &curline, 0);
+	    else
+		goto nomatch;
+	    break;
+	case 'S':
+	    if (strncmp(curline, "Shared_Clean:", 13) == 0)
+		ep->smaps.shared_clean = strtoull(curline + 14, &curline, 0);
+	    else if (strncmp(curline, "Shared_Dirty:", 13) == 0)
+		ep->smaps.shared_dirty = strtoull(curline + 14, &curline, 0);
+	    else if (strncmp(curline, "ShmemPmdMapped:", 15) == 0)
+		ep->smaps.shmempmdmapped = strtoull(curline + 16, &curline, 0);
+	    else if (strncmp(curline, "Shared_Hugetlb:", 15) == 0)
+		ep->smaps.shared_hugetlb = strtoull(curline + 16, &curline, 0);
+	    else if (strncmp(curline, "Swap:", 5) == 0)
+		ep->smaps.swap = strtoull(curline + 6, &curline, 0);
+	    else if (strncmp(curline, "SwapPss:", 8) == 0)
+		ep->smaps.swappss = strtoull(curline + 9, &curline, 0);
+	    else
+		goto nomatch;
+	    break;
+	default:
+	nomatch:
+	    if (pmDebugOptions.appl1 && pmDebugOptions.desperate) {
+		char	*p;
+		fprintf(stderr, "%s: skip ", "fetch_proc_pid_smaps");
+		for (p = curline; *p && *p != '\n'; p++)
+		    fputc(*p, stderr);
+		fputc('\n', stderr);
+	    }
+	}
+	curline = index(curline, '\n');	/* skips any kB suffix */
+	if (curline != NULL) curline++;
+    }
+}
+
+static int
+refresh_proc_pid_smaps(proc_pid_entry_t *ep)
+{
+    int			fd, sts;
+
+    if (ep->flags & PROC_PID_FLAG_SMAPS_SUCCESS)
+	return 0;
+    if ((fd = proc_open("smaps_rollup", ep)) < 0)
+	return maperr();
+    if ((sts = read_proc_entry(fd, &procbuflen, &procbuf)) >= 0) {
+	parse_proc_smaps(ep, procbuflen, procbuf);
+	ep->flags |= PROC_PID_FLAG_SMAPS_SUCCESS;
+    }
+    close(fd);
+    return sts;
 }
 
 /*
@@ -1717,96 +1917,36 @@ fetch_proc_pid_io(int id, proc_pid_t *proc_pid, int *sts)
 proc_pid_entry_t *
 fetch_proc_pid_smaps(int id, proc_pid_t *proc_pid, int *sts)
 {
-    __pmHashNode	*node = __pmHashSearch(id, &proc_pid->pidhash);
-    proc_pid_entry_t	*ep = node ? (proc_pid_entry_t *)node->data : NULL;
+    proc_pid_entry_t	*ep = proc_pid_entry_lookup(id, proc_pid);
 
     *sts = 0;
     if (!ep)
 	return NULL;
 
     if (!(ep->flags & PROC_PID_FLAG_SMAPS_FETCHED)) {
-	int	fd;
-	char	*curline;
-
-	if (ep->smaps_buflen > 0)
-	    ep->smaps_buf[0] = '\0';
-	if ((fd = proc_open("smaps_rollup", ep)) < 0)
-	    *sts = maperr();
-	else {
-	    *sts = read_proc_entry(fd, &ep->smaps_buflen, &ep->smaps_buf);
-	    close(fd);
-	}
-
-	if (*sts == 0) {
-	    /* assign pointers to individual lines in buffer */
-	    curline = ep->smaps_buf;
-	    /*
-	     * expecting 
-	     * Rss:                1860 kB
-	     * Pss:                 354 kB
-	     * Pss_Anon:             92 kB
-	     * Pss_File:            262 kB
-             * [...]
-	     * Locked:                0 kB
-	     */
-	    while (curline) {
-		if (strncmp(curline, "Rss:", 4) == 0)
-		    ep->smaps_lines.rss = strsep(&curline, "\n");
-		else if (strncmp(curline, "Pss:", 4) == 0)
-		    ep->smaps_lines.pss = strsep(&curline, "\n");
-		else if (strncmp(curline, "Pss_Anon:", 9) == 0)
-		    ep->smaps_lines.pss_anon = strsep(&curline, "\n");
-		else if (strncmp(curline, "Pss_File:", 9) == 0)
-		    ep->smaps_lines.pss_file = strsep(&curline, "\n");
-		else if (strncmp(curline, "Pss_Shmem:", 10) == 0)
-		    ep->smaps_lines.pss_shmem = strsep(&curline, "\n");
-		else if (strncmp(curline, "Shared_Clean:", 13) == 0)
-		    ep->smaps_lines.shared_clean = strsep(&curline, "\n");
-		else if (strncmp(curline, "Shared_Dirty:", 13) == 0)
-		    ep->smaps_lines.shared_dirty = strsep(&curline, "\n");
-		else if (strncmp(curline, "Private_Clean:", 14) == 0)
-		    ep->smaps_lines.private_clean = strsep(&curline, "\n");
-		else if (strncmp(curline, "Private_Dirty:", 14) == 0)
-		    ep->smaps_lines.private_dirty = strsep(&curline, "\n");
-		else if (strncmp(curline, "Referenced:", 11) == 0)
-		    ep->smaps_lines.referenced = strsep(&curline, "\n");
-		else if (strncmp(curline, "Anonymous:", 10) == 0)
-		    ep->smaps_lines.anonymous = strsep(&curline, "\n");
-		else if (strncmp(curline, "LazyFree:", 9) == 0)
-		    ep->smaps_lines.lazyfree = strsep(&curline, "\n");
-		else if (strncmp(curline, "AnonHugePages:", 14) == 0)
-		    ep->smaps_lines.anonhugepages = strsep(&curline, "\n");
-		else if (strncmp(curline, "ShmemPmdMapped:", 15) == 0)
-		    ep->smaps_lines.shmempmdmapped = strsep(&curline, "\n");
-		else if (strncmp(curline, "FilePmdMapped:", 14) == 0)
-		    ep->smaps_lines.filepmdmapped = strsep(&curline, "\n");
-		else if (strncmp(curline, "Shared_Hugetlb:", 15) == 0)
-		    ep->smaps_lines.shared_hugetlb = strsep(&curline, "\n");
-		else if (strncmp(curline, "Private_Hugetlb:", 16) == 0)
-		    ep->smaps_lines.private_hugetlb = strsep(&curline, "\n");
-		else if (strncmp(curline, "Swap:", 5) == 0)
-		    ep->smaps_lines.swap = strsep(&curline, "\n");
-		else if (strncmp(curline, "SwapPss:", 8) == 0)
-		    ep->smaps_lines.swappss = strsep(&curline, "\n");
-		else if (strncmp(curline, "Locked:", 7) == 0)
-		    ep->smaps_lines.locked = strsep(&curline, "\n");
-		else {
-		    if (pmDebugOptions.appl1 && pmDebugOptions.desperate) {
-			char	*p;
-			fprintf(stderr, "fetch_proc_pid_smaps: skip ");
-			for (p = curline; *p && *p != '\n'; p++)
-			    fputc(*p, stderr);
-			fputc('\n', stderr);
-		    }
-		    curline = index(curline, '\n');
-		    if (curline != NULL) curline++;
-		}
-	    }
-	    ep->flags |= PROC_PID_FLAG_SMAPS_FETCHED;
-	}
+	*sts = refresh_proc_pid_smaps(ep);
+	ep->flags |= PROC_PID_FLAG_SMAPS_FETCHED;
     }
-
     return (*sts < 0) ? NULL : ep;
+}
+
+static int
+refresh_proc_pid_fd(proc_pid_entry_t *ep)
+{
+    uint32_t		de_count;
+    DIR			*dir;
+
+    if (ep->flags & PROC_PID_FLAG_FD_SUCCESS)
+	return 0;
+    if ((dir = proc_opendir("fd", ep)) == NULL)
+	return maperr();
+    de_count = 0;
+    while (readdir(dir) != NULL)
+	de_count++;
+    closedir(dir);
+    ep->fd_count = de_count - 2; /* subtract cwd and parent entries */
+    ep->flags |= PROC_PID_FLAG_FD_SUCCESS;
+    return 0;
 }
 
 /*
@@ -1815,29 +1955,17 @@ fetch_proc_pid_smaps(int id, proc_pid_t *proc_pid, int *sts)
 proc_pid_entry_t *
 fetch_proc_pid_fd(int id, proc_pid_t *proc_pid, int *sts)
 {
-    __pmHashNode	*node = __pmHashSearch(id, &proc_pid->pidhash);
-    proc_pid_entry_t	*ep = node ? (proc_pid_entry_t *)node->data : NULL;
+    proc_pid_entry_t	*ep = proc_pid_entry_lookup(id, proc_pid);
 
     *sts = 0;
     if (!ep)
 	return NULL;
 
     if (!(ep->flags & PROC_PID_FLAG_FD_FETCHED)) {
-	uint32_t de_count = 0;
-	DIR	*dir = proc_opendir("fd", ep);
-
-	if (dir == NULL) {
-	    *sts = maperr();
-	    return NULL;
-	}
-	while (readdir(dir) != NULL)
-	    de_count++;
-	closedir(dir);
-	ep->fd_count = de_count - 2; /* subtract cwd and parent entries */
+	*sts = refresh_proc_pid_fd(ep);
 	ep->flags |= PROC_PID_FLAG_FD_FETCHED;
     }
-
-    return ep;
+    return (*sts < 0) ? NULL : ep;
 }
 
 /*
@@ -1890,48 +2018,79 @@ proc_cgroup_reformat(char *buf, int buflen, char *fmt, int fmtlen, char *cid, in
     }
 }
 
+static int
+refresh_proc_pid_cgroup(proc_pid_entry_t *ep)
+{
+    static size_t	clen1, clen2;
+    static char		*cbuf1, *cbuf2;
+    char		cid[72], *tmp;
+    int			fd, sts;
+
+    if (ep->flags & PROC_PID_FLAG_CGROUP_SUCCESS)
+	return 0;
+    if ((fd = proc_open("cgroup", ep)) < 0)
+	return maperr();
+    if ((sts = read_proc_entry(fd, &clen1, &cbuf1)) >= 0) {
+	if (clen1 > clen2) {
+	    if ((tmp = realloc(cbuf2, clen1)) != NULL) {
+		clen2 = clen1;
+		cbuf2 = tmp;
+	    }
+	}
+	/* reformat the buffer to match "ps" output format and */
+	/* try any container name heuristics, then hash (both) */
+	proc_cgroup_reformat(cbuf1, clen1, cbuf2, clen2, cid, sizeof(cid));
+	ep->container_id = proc_strings_insert(cid);
+	ep->cgroup_id = proc_strings_insert(cbuf2);
+	ep->flags |= PROC_PID_FLAG_CGROUP_SUCCESS;
+    }
+    close(fd);
+    return sts;
+}
+
 /*
  * fetch a proc/<pid>/cgroup entry for pid
  */
 proc_pid_entry_t *
 fetch_proc_pid_cgroup(int id, proc_pid_t *proc_pid, int *sts)
 {
-    __pmHashNode	*node = __pmHashSearch(id, &proc_pid->pidhash);
-    proc_pid_entry_t	*ep = node ? (proc_pid_entry_t *)node->data : NULL;
-    static char		*cbuf1, *cbuf2;
-    static int		clen1, clen2;
+    proc_pid_entry_t	*ep = proc_pid_entry_lookup(id, proc_pid);
 
     *sts = 0;
     if (!ep)
 	return NULL;
 
     if (!(ep->flags & PROC_PID_FLAG_CGROUP_FETCHED)) {
-	char	cid[72], *tmp;
-	int	fd;
-
-	if ((fd = proc_open("cgroup", ep)) < 0)
-	    *sts = maperr();
-	else {
-	    *sts = read_proc_entry(fd, &clen1, &cbuf1);
-	    if (*sts >= 0) {
-		if (clen1 > clen2) {
-		    if ((tmp = realloc(cbuf2, clen1)) != NULL) {
-			clen2 = clen1;
-			cbuf2 = tmp;
-		    }
-		}
-		/* reformat the buffer to match "ps" output format and */
-		/* try any container name heuristics, then hash (both) */
-		proc_cgroup_reformat(cbuf1, clen1, cbuf2, clen2, cid, sizeof(cid));
-		ep->container_id = proc_strings_insert(cid);
-		ep->cgroup_id = proc_strings_insert(cbuf2);
-	    }
-	    close(fd);
-	}
+	*sts = refresh_proc_pid_cgroup(ep);
 	ep->flags |= PROC_PID_FLAG_CGROUP_FETCHED;
     }
 
     return (*sts < 0) ? NULL : ep;
+}
+
+static int
+refresh_proc_pid_label(proc_pid_entry_t *ep)
+{
+    ssize_t		n;
+    int			fd, sts;
+
+    if (ep->flags & PROC_PID_FLAG_LABEL_SUCCESS)
+	return 0;
+    if ((fd = proc_open("attr/current", ep)) < 0)
+	return maperr();
+    if ((n = read(fd, procbuf, procbuflen)) < 0)
+	sts = maperr();
+    else if (n == 0)
+	sts = -ENODATA;
+    else {
+	sts = 0;
+	/* buffer matches "ps" output format, direct hash */
+	procbuf[n-1] = '\0';
+	ep->label_id = proc_strings_insert(procbuf);
+	ep->flags |= PROC_PID_FLAG_LABEL_SUCCESS;
+    }
+    close(fd);
+    return sts;
 }
 
 /*
@@ -1940,34 +2099,35 @@ fetch_proc_pid_cgroup(int id, proc_pid_t *proc_pid, int *sts)
 proc_pid_entry_t *
 fetch_proc_pid_label(int id, proc_pid_t *proc_pid, int *sts)
 {
-    __pmHashNode	*node = __pmHashSearch(id, &proc_pid->pidhash);
-    proc_pid_entry_t	*ep = node ? (proc_pid_entry_t *)node->data : NULL;
+    proc_pid_entry_t	*ep = proc_pid_entry_lookup(id, proc_pid);
 
     *sts = 0;
     if (!ep)
 	return NULL;
 
     if (!(ep->flags & PROC_PID_FLAG_LABEL_FETCHED)) {
-	char	buf[1024];
-	int	n, fd;
-
-	if ((fd = proc_open("attr/current", ep)) < 0)
-	    *sts = maperr();
-	else if ((n = read(fd, buf, sizeof(buf))) < 0)
-	    *sts = maperr();
-	else if (n == 0)
-	    *sts = -ENODATA;
-	else {
-	    /* buffer matches "ps" output format, direct hash */
-	    buf[n-1] = '\0';
-	    ep->label_id = proc_strings_insert(buf);
-	}
-	if (fd >= 0)
-	    close(fd);
+	*sts = refresh_proc_pid_label(ep);
 	ep->flags |= PROC_PID_FLAG_LABEL_FETCHED;
     }
-
     return (*sts < 0) ? NULL : ep;
+}
+
+static int
+refresh_proc_pid_oom_score(proc_pid_entry_t *ep)
+{
+    int			fd, sts;
+
+    if (ep->flags & PROC_PID_FLAG_OOM_SCORE_SUCCESS)
+	return 0;
+    if ((fd = proc_open("oom_score", ep)) < 0)
+	return maperr();
+    ep->oom_score = 0;
+    if ((sts = read_proc_entry(fd, &procbuflen, &procbuf)) >= 0) {
+	ep->oom_score = (__uint32_t)strtoul(procbuf, NULL, 0);
+	ep->flags |= PROC_PID_FLAG_OOM_SCORE_SUCCESS;
+    }
+    close(fd);
+    return sts;
 }
 
 /*
@@ -1976,83 +2136,15 @@ fetch_proc_pid_label(int id, proc_pid_t *proc_pid, int *sts)
 proc_pid_entry_t *
 fetch_proc_pid_oom_score(int id, proc_pid_t *proc_pid, int *sts)
 {
-    __pmHashNode	*node = __pmHashSearch(id, &proc_pid->pidhash);
-    proc_pid_entry_t	*ep = node ? (proc_pid_entry_t *)node->data : NULL;
+    proc_pid_entry_t	*ep = proc_pid_entry_lookup(id, proc_pid);
 
     *sts = 0;
     if (!ep)
 	return NULL;
 
     if (!(ep->flags & PROC_PID_FLAG_OOM_SCORE_FETCHED)) {
-	char	buf[64];
-	int	n, fd;
-
-	if ((fd = proc_open("oom_score", ep)) < 0)
-	    *sts = maperr();
-	else if ((n = read(fd, buf, sizeof(buf))) < 0)
-	    *sts = maperr();
-	else if (n == 0)
-	    *sts = -ENODATA;
-	else {
-	    buf[n-1] = '\0';
-	    ep->oom_score = (__uint32_t)strtoul(buf, NULL, 0);
-	}
-	if (fd >= 0)
-	    close(fd);
+	*sts = refresh_proc_pid_oom_score(ep);
 	ep->flags |= PROC_PID_FLAG_OOM_SCORE_FETCHED;
     }
-
     return (*sts < 0) ? NULL : ep;
-}
-
-/*
- * Extract the ith (space separated) field from a char buffer.
- * The first field starts at zero.  There is a special case we
- * have to deal with - brace-enclosed command name may contain
- * embedded whitespace.
- * BEWARE: return copy is in a static buffer.
- */
-char *
-_pm_getfield(char *buf, int field)
-{
-    static int	retbuflen = 0;
-    static char	*retbuf = NULL;
-    char	*p, *rp;
-    int		i;
-
-    if (buf == NULL)
-	return NULL;
-
-    for (p = buf, i=0; i < field; i++) {
-	/* if brace-enclosed, skip to the closing brace */
-	if (*p == '(')
-	    for (; *p && *p != ')'; p++) {;}
-
-	/* skip to the next space */
-	for (; *p && !isspace((int)*p); p++) {;}
-
-	/* skip to the next word */
-	for (; *p && isspace((int)*p); p++) {;}
-    }
-
-    /* return a null terminated copy of the field */
-    for (i=0; ; i++) {
-	if (p[i] == '\0' || p[i] == '\n')
-	    break;
-	if (p[0] == '(' && i > 0 && p[i-1] == ')')
-	    break;
-	if (p[0] != '(' && isspace((int)p[i]))
-	    break;
-    }
-
-    if (i >= retbuflen) {
-	if ((rp = (char *)realloc(retbuf, i + 4)) == NULL)
-	    return NULL;
-	retbuf = rp;
-	retbuflen = i+4;
-    }
-    memcpy(retbuf, p, i);
-    retbuf[i] = '\0';
-
-    return retbuf;
 }
