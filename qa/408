@@ -18,7 +18,7 @@ trap "exit \$status" 0 1 2 3 15
 
 _filter()
 {
-fgrep "Oneline or help text is not available" |\
+fgrep "One-line or help text is not available" |\
    egrep -v "^irix\.|^hw\.|^hinv\.|^mmv\."
 }
 
