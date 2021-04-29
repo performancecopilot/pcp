@@ -356,7 +356,7 @@ class pmConfig(object):
         # Metrics from different sources
         globmet = OrderedDict()
         confmet = OrderedDict()
-        tempmet = read_cmd_line_items()
+        cmdlmet = read_cmd_line_items()
         sources = OrderedDict()
 
         # Read config
@@ -413,8 +413,8 @@ class pmConfig(object):
                     config.remove_section(section)
 
         # Get details for configuration file metricsets
-        for spec in tempmet:
-            if tempmet[spec] is None:
+        for spec in cmdlmet:
+            if cmdlmet[spec] is None:
                 if all_sets.has_section(spec):
                     parsemet = OrderedDict()
                     for key in all_sets.options(spec):
@@ -434,11 +434,11 @@ class pmConfig(object):
                     for metric in parsemet:
                         name = parsemet[metric][:1][0]
                         confmet[name] = parsemet[metric][1:]
-                    tempmet[spec] = confmet
+                    cmdlmet[spec] = confmet
 
         # Check for metricsets not found
-        for spec in tempmet:
-            if tempmet[spec] is None:
+        for spec in cmdlmet:
+            if cmdlmet[spec] is None:
                 sys.stderr.write("Metricset definition ':%s' not found.\n" % spec)
                 sys.exit(1)
 
@@ -446,12 +446,12 @@ class pmConfig(object):
         if self.util.globals == 1:
             for metric in globmet:
                 self.util.metrics[metric] = globmet[metric]
-        for metric in tempmet:
-            if isinstance(tempmet[metric], list):
-                self.util.metrics[metric] = tempmet[metric]
+        for metric in cmdlmet:
+            if isinstance(cmdlmet[metric], list):
+                self.util.metrics[metric] = cmdlmet[metric]
             else:
-                if tempmet[metric]:
-                    for m in tempmet[metric]:
+                if cmdlmet[metric]:
+                    for m in cmdlmet[metric]:
                         self.util.metrics[m] = confmet[m]
 
         if not self.util.metrics:
