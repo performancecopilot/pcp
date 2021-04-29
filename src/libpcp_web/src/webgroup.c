@@ -85,8 +85,6 @@ webgroup_release_context(uv_handle_t *handle)
 static void
 webgroup_drop_context(struct context *context, struct webgroups *groups)
 {
-    dictEntry		*entry;
-
     if (pmDebugOptions.http || pmDebugOptions.libweb)
 	fprintf(stderr, "destroying context %p [refcount=%u]\n",
 			context, context->refcount);
@@ -96,11 +94,8 @@ webgroup_drop_context(struct context *context, struct webgroups *groups)
 	    context->garbage = 1;
 	    uv_timer_stop(&context->timer);
 	}
-	if (groups) {
-	    entry = dictUnlink(groups->contexts, &context->randomid);
-	    if (entry != NULL)
-		dictFreeUnlinkedEntry(groups->contexts, entry);
-	}
+	if (groups)
+	    dictDelete(groups->contexts, &context->randomid);
 	uv_close((uv_handle_t *)&context->timer, webgroup_release_context);
     }
 }
