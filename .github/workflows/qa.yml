@@ -126,7 +126,8 @@ jobs:
             --summary
           cp ./build/ci/allure/categories.json ./allure-results
           /opt/allure-*/bin/allure generate
-          cp ./build/ci/allure/README.txt ./allure-report
+          cp ./build/ci/allure/README.md ./allure-report
+          cp ./build/ci/allure/open_report.sh ./allure-report
 
       - name: Publish test report
         uses: actions/upload-artifact@v2
