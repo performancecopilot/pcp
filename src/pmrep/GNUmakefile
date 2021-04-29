@@ -24,6 +24,7 @@ BASHDIR = $(PCP_BASHSHARE_DIR)/completions
 CONFIGS = 00-defaults.conf numa.conf proc.conf \
 	iostat.conf mpstat.conf pidstat.conf sar.conf \
 	vmstat.conf \
+	collectl.conf \
 	iostat_v10.conf iostat_v11.conf iostat_v12_3.conf \
 	sar-old-kernel.conf
 
