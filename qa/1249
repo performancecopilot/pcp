@@ -102,6 +102,8 @@ _filter_pmie()
 	-e '/^Log for pmie on .* started /d' \
 	-e 's/^[A-Za-z0-9 :]*: /DATESTAMP: /' \
 	-e '/^DATESTAMP: PID = /d' \
+	-e '/Unknown metric name/d' \
+	-e '/not in namespace for pmcd/d' \
     # end
 }
 

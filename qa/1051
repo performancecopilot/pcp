@@ -50,6 +50,7 @@ cat <<End-of-File >$tmp.conf
 // 1 network.tcp_drop_connects enabled = yes
 // 1 network.tcp_retransmit enabled = yes
 // 1 shping.status enabled = yes
+// 1 mssql.stolen_node_memory enabled = no
 // end
 //
 // --- START GENERATED SECTION (do not change this section) ---
