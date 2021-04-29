@@ -12,14 +12,16 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
+. ./common.redis
 
 _check_series
+_check_redis_server_version_offline
 
 _cleanup()
 {
     cd $here
     [ -n "$pmproxy_pid" ] && $signal -s TERM $pmproxy_pid
-    [ -n "$options1" ] && redis-cli $options1 shutdown
+    _redis_cluster_3nodes_stop
     if $need_restore
     then
 	need_restore=false
@@ -54,16 +56,8 @@ _save_config $PCP_SYSCONF_DIR/pmproxy
 $sudo rm -f $PCP_SYSCONF_DIR/pmproxy/*
 need_restore=true
 
-echo "== start two test Redis servers"
-redisport1=`_find_free_port`
-redis-server --port $redisport1 --save "" > $tmp.redis1 2>&1 &
-redis1_pid=$!
-echo "PING1"
-echo "redisport1=$redisport1" >>$seq.full
-echo "redis1_pid=$redis1_pid" >>$seq.full
-pmsleep 0.125
-options1="-h localhost -p $redisport1"
-redis-cli $options1 ping
+# start Redis cluster
+_redis_cluster_3nodes_start
 echo
 
 echo "== start pmproxy"
@@ -73,7 +67,7 @@ cat >$tmp.conf <<EOF
 pcp.enabled = true
 redis.enabled = true
 [pmseries]
-servers = localhost:$redisport1
+servers = localhost:$redis_node1_port,localhost:$redis_node2_port,localhost:$redis_node3_port
 EOF
 proxyport=`_find_free_port`
 proxyopts="-p $proxyport -c $tmp.conf"
@@ -121,9 +115,18 @@ echo "== redis-cli nonexistant key"
 redis-cli -p $proxyport get abc
 echo
 
+# check key distribution
+echo "== redis cluster key distribution"
+echo "== node1"
+redis-cli -p $redis_node1_port keys pcpqa:*
+echo "== node2"
+redis-cli -p $redis_node2_port keys pcpqa:*
+echo "== node3"
+redis-cli -p $redis_node3_port keys pcpqa:*
+echo
+
 cat $tmp.conf >> $seq.full
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep pmproxy >> $seq.full
-redis-cli $options1 keys pcpqa:* >> $seq.full
 cat $tmp.pmproxy.log >> $seq.full
 
 echo "== all done" | tee -a $seq.full

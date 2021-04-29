@@ -1670,6 +1670,7 @@ int
 pmSeriesSetup(pmSeriesModule *module, void *arg)
 {
     seriesModuleData	*data = getSeriesModuleData(module);
+    sds			option;
     redisSlotsFlags	flags;
 
     if (data == NULL)
@@ -1684,7 +1685,12 @@ pmSeriesSetup(pmSeriesModule *module, void *arg)
 	data->shareslots = 1;
     } else {
 	/* establish an initial connection to Redis instance(s) */
-	flags = SLOTS_VERSION | SLOTS_SEARCH;
+	flags = SLOTS_VERSION;
+
+	option = pmIniFileLookup(data->config, "pmsearch", "enabled");
+	if (option && strncmp(option, "true", sdslen(option)) == 0)
+	    flags |= SLOTS_SEARCH;
+
 	data->slots = redisSlotsConnect(
 			data->config, flags, module->on_info,
 			module->on_setup, arg, data->events, arg);

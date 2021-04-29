@@ -1,0 +1,85 @@
+#
+# Common shell routines for testing Redis (cluster)
+#
+# Copyright (c) 2021 Red Hat.
+#
+
+_redis_cluster_3nodes_start()
+{
+	echo "== Start a Redis cluster"
+	echo "== Start node 1"
+	redis_node1_port=`_find_free_port`
+	redis-server --port $redis_node1_port --save "" --cluster-enabled yes --cluster-config-file $tmp.redis1.cluster.conf > $tmp.redis1.out 2>&1 &
+	redis_node1_pid=$!
+	echo "redis_node1_port=$redis_node1_port" >>$seq.full
+	echo "redis_node1_pid=$redis_node1_pid" >>$seq.full
+	pmsleep 0.125 # wait for Redis to listen on socket
+	redis-cli -p $redis_node1_port ping
+
+	echo "== Start node 2"
+	redis_node2_port=`_find_free_port`
+	redis-server --port $redis_node2_port --save "" --cluster-enabled yes --cluster-config-file $tmp.redis2.cluster.conf > $tmp.redis2.out 2>&1 &
+	redis_node2_pid=$!
+	echo "redis_node2_port=$redis_node2_port" >>$seq.full
+	echo "redis_node2_pid=$redis_node2_pid" >>$seq.full
+	pmsleep 0.125
+	redis-cli -p $redis_node2_port ping
+
+	echo "== Start node 3"
+	redis_node3_port=`_find_free_port`
+	redis-server --port $redis_node3_port --save "" --cluster-enabled yes --cluster-config-file $tmp.redis3.cluster.conf > $tmp.redis3.out 2>&1 &
+	redis_node3_pid=$!
+	echo "redis_node3_port=$redis_node3_port" >>$seq.full
+	echo "redis_node3_pid=$redis_node3_pid" >>$seq.full
+	pmsleep 0.125
+	redis-cli -p $redis_node3_port ping
+
+	echo
+	echo "== Create Redis cluster"
+	# --cluster-yes is not supported in Redis 5.0.3 (RHEL 7), use workaround instead
+	yes yes | redis-cli --cluster create 127.0.0.1:$redis_node1_port 127.0.0.1:$redis_node2_port 127.0.0.1:$redis_node3_port \
+	| sed 's/\x1b\[[0-9;]*m//g' \
+	| tee -a $seq.full \
+	| grep '[OK]'
+
+	echo
+	echo "== Wait for cluster to get ready"
+	for i in `seq 1 30`
+	do
+	if redis-cli -p $redis_node1_port cluster info | grep -q "cluster_state:ok" && echo "OK"; then
+		cluster_ready=yes
+		break
+	fi
+	pmsleep 1
+	done
+	if [ -z "$cluster_ready" ]; then
+	echo "Redis cluster didn't get ready in 30 seconds."
+	exit 1
+	fi
+
+	echo
+	echo "== Cluster status"
+	redis-cli -p $redis_node1_port cluster info | tr -d '\r' | grep -E "cluster_(state|known_nodes|size)"
+}
+
+_redis_cluster_3nodes_stop()
+{
+	printf "\n== Redis Node 1 keys:\n" >> $seq.full
+	redis-cli -p $redis_node1_port keys '*' >> $seq.full
+	printf "\n== Redis Node 1 log:\n" >> $seq.full
+	cat $tmp.redis1.out >> $seq.full
+
+	printf "\n== Redis Node 2 keys:\n" >> $seq.full
+	redis-cli -p $redis_node2_port keys '*' >> $seq.full
+	printf "\n== Redis Node 2 log:\n" >> $seq.full
+	cat $tmp.redis2.out >> $seq.full
+
+	printf "\n== Redis Node 3 keys:\n" >> $seq.full
+	redis-cli -p $redis_node3_port keys '*' >> $seq.full
+	printf "\n== Redis Node 3 log:\n" >> $seq.full
+	cat $tmp.redis3.out >> $seq.full
+
+	[ -n "$redis_node1_port" ] && redis-cli -p $redis_node1_port shutdown
+	[ -n "$redis_node2_port" ] && redis-cli -p $redis_node2_port shutdown
+	[ -n "$redis_node3_port" ] && redis-cli -p $redis_node3_port shutdown
+}

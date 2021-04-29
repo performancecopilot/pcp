@@ -1,7 +1,23 @@
 QA output created by 1602
-== start two test Redis servers
-PING1
+== Start a Redis cluster
+== Start node 1
 PONG
+== Start node 2
+PONG
+== Start node 3
+PONG
+
+== Create Redis cluster
+[OK] All nodes agree about slots configuration.
+[OK] All 16384 slots covered.
+
+== Wait for cluster to get ready
+OK
+
+== Cluster status
+cluster_state:ok
+cluster_known_nodes:3
+cluster_size:3
 
 == start pmproxy
 PING_PROXY
@@ -27,7 +43,7 @@ sample.long.ten
 
 
 == redis-cli handle errors 1
-ERR wrong number of arguments for 'get' command
+Parse command error. Cmd type: 17, state: 10, break position: 21.
 
 
 == redis-cli handle errors 2
@@ -36,5 +52,13 @@ ERR syntax error
 
 == redis-cli nonexistant key
 
+
+== redis cluster key distribution
+== node1
+
+== node2
+pcpqa:1602:one
+== node3
+pcpqa:1602:ten
 
 == all done

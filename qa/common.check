@@ -1303,6 +1303,13 @@ _check_redis_server_version()
     [ $redis_version -ge 5 ] || _notrun "Redis server @ port $1: version $redis_version too old"
 }
 
+# check redis-server version without running Redis server
+_check_redis_server_version_offline()
+{
+    redis_version=`redis-server --version | sed -E 's/.*v=([0-9]).*/\1/g'`
+    [ $redis_version -ge 5 ] || _notrun "Redis version $redis_version too old"
+}
+
 #
 # Check redis server is installed and running locally and the version
 # is not too old. Optional port parameter defaults to 6379

@@ -334,6 +334,7 @@ redisSlotsRequestFirstNode(redisSlots *slots, const sds cmd,
 {
     dictIterator	*iterator;
     dictEntry		*entry;
+    cluster_node	*node;
     int			sts;
 
     if (UNLIKELY(!slots->setup))
@@ -347,11 +348,12 @@ redisSlotsRequestFirstNode(redisSlots *slots, const sds cmd,
 	return REDIS_ERR;
     }
 
+    node = dictGetVal(entry);
     if (UNLIKELY(pmDebugOptions.desperate))
-	fprintf(stderr, "Sending raw redis command to first node:\n%s", cmd);
+	fprintf(stderr, "Sending raw redis command to node %s\n%s", node->addr, cmd);
 
     redisSlotsReplyData *srd = redisSlotsReplyDataInit(slots, sdslen(cmd), callback, arg);
-    sts = redisClusterAsyncFormattedCommandToNode(slots->acc, dictGetVal(entry), redisSlotsReplyCallback, srd, cmd, sdslen(cmd));
+    sts = redisClusterAsyncFormattedCommandToNode(slots->acc, node, redisSlotsReplyCallback, srd, cmd, sdslen(cmd));
     mmv_stats_inc(slots->metrics_handle, "requests.total", NULL);
 
     if (sts != REDIS_OK) {
