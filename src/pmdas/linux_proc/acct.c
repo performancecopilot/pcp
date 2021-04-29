@@ -217,7 +217,7 @@ check_accounting(int fd)
 	return 0;
     if (fork() == 0) {
 	is_child = 1;
-	exit(0);
+	_exit(0);
     }
     wait(0);
     if (fstat(fd, &after) < 0)
