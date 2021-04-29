@@ -469,7 +469,7 @@ echo 'failure = yes' >> $tmp.econfig
 pmrep -s 1 -x -C -H -U $log2 -c $tmp.econfig :fail
 echo '[options]' > $tmp.econfig
 echo 'mem.util.free = freemem' >> $tmp.econfig
-pmrep -s 1 -x -C -H -U $log2 -c $tmp.econfig hinv.machine 2>&1 | _archive_filter
+pmrep -s 1 -x -C -H -U $log2 -c $tmp.econfig hinv.machine 2>&1 | _archive_filter | _conf_error_filter
 echo '[empty]' > $tmp.econfig
 echo 'interval = 2s' >> $tmp.econfig
 echo '[metric]' >> $tmp.econfig
@@ -485,7 +485,7 @@ echo '[options]' > $tmp.cconfig
 echo 'interval = 2s' >> $tmp.cconfig
 echo 'mem.util.free = freemem' >> $tmp.cconfig
 # No metrics in options allowed
-pmrep -s 1 -x -C $log2 -c $tmp.cconfig mem.util.used | _archive_filter
+pmrep -s 1 -x -C $log2 -c $tmp.cconfig mem.util.used 2>&1 | _archive_filter | _conf_error_filter
 echo '[testing]' > $tmp.cconfig
 echo 'colxrow = " test "' >> $tmp.cconfig
 echo 'mem.util.free = freemem' >> $tmp.cconfig
@@ -502,8 +502,8 @@ echo '[global]' >> $tmp.cconfig
 echo 'interval = 3s' >> $tmp.cconfig
 echo 'mem.util.free = freemem' >> $tmp.cconfig
 # No options in globals allowed
-pmrep -s 1 -x -C $log2 -c $tmp.cconfig -G mem.util.used | _archive_filter
-pmrep -s 1 -x -C $log2 -c $tmp.cconfig    mem.util.used | _archive_filter
+pmrep -s 1 -x -C $log2 -c $tmp.cconfig -G mem.util.used 2>&1 | _archive_filter | _conf_error_filter
+pmrep -s 1 -x -C $log2 -c $tmp.cconfig    mem.util.used 2>&1 | _archive_filter | _conf_error_filter
 echo '[options]' > $tmp.cconfig
 echo 'interval = 2s' >> $tmp.cconfig
 echo '[global]' >> $tmp.cconfig

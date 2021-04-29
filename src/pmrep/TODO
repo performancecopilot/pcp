@@ -1,6 +1,6 @@
 - comment, clean up, optimize code
 - update sar/iostat/pidstat metricsets to match latest sysstat
-- drop obsolete metricsets from pmrep.conf
+- drop obsolete metricsets from config files
 - drop deprecated pmconfig.py methods
 
 - verify labels printing (-m)
@@ -12,8 +12,6 @@
 - consider labels support in pmrep.conf
 
 - change default precision to 2 (?)
-- includedir config file support (?)
-- copy directive conf file support (?)
 - generalized zabbix_interval (write to target in batches) (?)
 
 - check and/or clean "# Instance(s)" checks in pmconfig.py (??)

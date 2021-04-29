@@ -275,7 +275,9 @@ but this option \fIwill\fP override per-metric specifications.
 \fB\-c\fR \fIconfig\fR, \fB\-\-config\fR=\fIconfig\fR
 Specify the
 .I config
-file to use.
+file or directory to use.
+In case \fIconfig\fP is a directory all files under it ending
+\fB.conf\fR will be included.
 The default is the first found of:
 .IR ./pcp2spark.conf ,
 .IR \f(CW$HOME\fP/.pcp2spark.conf ,

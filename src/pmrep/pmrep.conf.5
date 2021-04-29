@@ -49,6 +49,14 @@ modify custom metricsets by editing
 .BR pmrep.conf .
 See below for the \fImetricset\fP specification.
 .PP
+In case \fBpmrep\fP configuration files are read from a directory then
+the values for the \fB[options]\fP and \fB[global]\fP sections will be
+combined from each file where defined.
+The last definition of a directive will be used in case defined several
+times in different files.
+However, custom \fImetricset\fP sections will not be combined, only the
+last definition found will be used for reporting.
+.PP
 Options via environment values (see
 .BR pmGetOptions (3))
 override the corresponding built-in default values (if any).
@@ -626,9 +634,10 @@ related metrics.
 The \fBsar\-w\fP set is an example how to mimic an existing tool with
 \fBpmrep\fP.
 .PP
-The system default \fBpmrep.conf\fP file contains many more examples.
-Using tab after the colon can be used to complete available metricsets
-(with bash and zsh).
+The system default \fBpmrep\fP configuration files contain many more
+examples.
+Using the tab key on the command line after the colon can be used to
+complete available metricsets (with bash and zsh).
 .sp 1
 .PP
 .RS 4
@@ -637,14 +646,14 @@ Using tab after the colon can be used to complete available metricsets
 timestamp = yes
 interval = 2s
 extheader = yes
-repeat_header = 20
+repeat_header = auto
 space_scale = MB
 
 [global]
 kernel.all.sysfork = forks,,,,8
 allcache = mem.util.allcache
 allcache.formula = mem.util.bufmem + mem.util.cached + mem.util.slab
-allcache.width = 10
+allcache.width = 12
 
 [db1]
 source = db\-host1.example.com
@@ -668,8 +677,8 @@ kernel.all.pswitch = cswch/s,,,,9
 .sp 1
 .SH FILES
 .TP
-.I \f(CW$PCP_SYSCONF_DIR\fP/pmrep/pmrep.conf
-system provided \fBpmrep\fP configuration file
+.I \f(CW$PCP_SYSCONF_DIR\fP/pmrep/*.conf
+system provided default \fBpmrep\fP configuration files
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize
 the file and directory names used by PCP.

@@ -873,15 +873,24 @@ _pcp () {
       # pmrep(1) style metricset
       (( ${(k)py_tools[(I)$service]} > 0 )) || return 1
       local conf=${~opt_args[-c]:-${~opt_args[--config]}}
-      if [[ -z $conf ]]; then
+      [[ -n $conf && ! -e $conf ]] && return 1
+      if [[ -d $conf ]]; then
+        conf=($conf/*.conf)
+      elif [[ -z $conf ]]; then
         for f in ./$service.conf $HOME/.$service.conf $HOME/.pcp/$service.conf ${${(M)${(f)"$(</etc/pcp.conf)"}:#PCP_SYSCONF_DIR=*}##PCP_SYSCONF_DIR=}/$service/$service.conf; do
-          [[ -f $f ]] && conf=$f && break
+          [[ -f $f ]] && conf=($f) && break
         done
+        if [[ -z $conf && $service == pmrep ]]; then
+          d=${${(M)${(f)"$(</etc/pcp.conf)"}:#PCP_SYSCONF_DIR=*}##PCP_SYSCONF_DIR=}/$service
+          [[ -d $d ]] && conf=($d/*.conf)
+        fi
       fi
       [[ -z $conf ]] && return 1
       local -a sets
-      for s in ${(f)"$(<${(e)conf})"}; do
-        [[ $s == \[*\] && $s != \[(global|options)\] ]] && sets+=:${${s/\[}/\]}
+      for f in $conf; do
+        for s in ${(f)"$(<${(e)f})"}; do
+          [[ $s == \[*\] && $s != \[(global|options)\] ]] && sets+=:${${s/\[}/\]}
+        done
       done
       _wanted metricsets expl metricset compadd -a sets && ret=0
     fi

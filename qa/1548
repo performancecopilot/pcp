@@ -1,0 +1,79 @@
+#!/bin/sh
+# PCP QA Test No. 1548
+# Exercise pmrep config directory handling.
+#
+# Copyright (c) 2021 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+$python -c "from pcp import pmapi" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
+$python -c "from collections import OrderedDict" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python collections OrderedDict module not installed"
+
+which pmrep >/dev/null 2>&1 || _notrun "No pmrep binary installed"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+echo == test missing path
+pmrep -C -c /nosuchpath abc
+pmrep -C -c /nosuchpath mem.util.free
+
+echo == create empty config dir
+mkdir $tmp-conf-dir || exit 1
+
+echo == test dir with no conf files
+pmrep -C -U -c $tmp-conf-dir nosuchmetric
+pmrep -C -U -c $tmp-conf-dir :nosuchset
+pmrep -C -U -c $tmp-conf-dir mem.util.free
+
+echo == populate config dir
+cat > $tmp-conf-dir/a.conf <<EOF
+[options]
+unitinfo = yes
+[global]
+kernel.all.nusers = should-not-see-me,,,,
+[test1]
+mem.util.free = ,,,,
+[test2]
+mem.util.cached = ,,,,
+EOF
+cat > $tmp-conf-dir/b.conf <<EOF
+[options]
+unitinfo = no
+[global]
+kernel.all.nusers = nusers,,,,
+kernel.all.runnable = nproc,,,,
+[test2]
+mem.util.used = ,,,,
+[test3]
+mem.util.used = ,,,,
+EOF
+cat > $tmp-conf-dir/c.conf <<EOF
+[test4]
+unitinfo = yes
+mem.util.dirty = %%test,,,,
+EOF
+
+echo == test config dir
+pmrep -C -c $tmp-conf-dir :test1
+pmrep -C -c $tmp-conf-dir :test2
+pmrep -C -c $tmp-conf-dir :test3
+pmrep -C -c $tmp-conf-dir :test4
+
+echo == test command line options
+pmrep -C -H -c $tmp-conf-dir :test1
+pmrep -C -U -c $tmp-conf-dir :test1
+pmrep -C -G -c $tmp-conf-dir :test1
+
+# success, all done
+status=0
+exit

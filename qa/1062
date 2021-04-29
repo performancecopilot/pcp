@@ -19,7 +19,7 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
-config="$PCP_SYSCONF_DIR/pmrep/pmrep.conf"
+config="$PCP_SYSCONF_DIR/pmrep"
 
 # real QA test starts here
 echo "== exercise vmstat config section, live"
