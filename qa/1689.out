@@ -19,7 +19,7 @@ Help:
 Writing anything other then 0 to this metric will result in
 re-reading directory and re-mapping files.
 
-pmproxy.discover.changed_callbacks PMID: 4.5.17 [changed callbacks]
+pmproxy.discover.changed_callbacks PMID: 4.5.17 [filesystem changed callbacks]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: none
 Help:
