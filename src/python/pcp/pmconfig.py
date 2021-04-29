@@ -710,7 +710,7 @@ class pmConfig(object):
                         err = "Unidentified error"
                     finally:
                         if err:
-                            sys.stderr.write("Failed to register derived metric: %s.\n" % err)
+                            sys.stderr.write("Failed to register derived metric:\n%s.\n" % err)
                             sys.exit(1)
 
         if not hasattr(self.util, 'leaf_only') or not self.util.leaf_only:
