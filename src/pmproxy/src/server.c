@@ -173,7 +173,6 @@ server_init(int portcount, const char *localpath)
     server_metrics_init(proxy);
 
     proxy->events = uv_default_loop();
-    uv_loop_init(proxy->events);
 
     return proxy;
 }
