@@ -85,6 +85,8 @@ webgroup_release_context(uv_handle_t *handle)
 static void
 webgroup_drop_context(struct context *context, struct webgroups *groups)
 {
+    dictEntry		*entry;
+
     if (pmDebugOptions.http || pmDebugOptions.libweb)
 	fprintf(stderr, "destroying context %p [refcount=%u]\n",
 			context, context->refcount);
@@ -94,8 +96,11 @@ webgroup_drop_context(struct context *context, struct webgroups *groups)
 	    context->garbage = 1;
 	    uv_timer_stop(&context->timer);
 	}
-	if (groups)
-	    dictUnlink(groups->contexts, &context->randomid);
+	if (groups) {
+	    entry = dictUnlink(groups->contexts, &context->randomid);
+	    if (entry != NULL)
+		dictFreeUnlinkedEntry(groups->contexts, entry);
+	}
 	uv_close((uv_handle_t *)&context->timer, webgroup_release_context);
     }
 }
@@ -2291,19 +2296,23 @@ pmWebGroupSetupMetrics(pmWebGroupModule *module)
      */
     mmv_stats_add_metric(webgroups->metrics, "contextmap.size", 1,
 	MMV_TYPE_U32, MMV_SEM_INSTANT, nounits, noindom,
-	"number of entries in the context map dictionary", NULL);
+	"context map dictionary size",
+	"number of entries in the context map dictionary");
 
     mmv_stats_add_metric(webgroups->metrics, "namesmap.size", 2,
 	MMV_TYPE_U32, MMV_SEM_INSTANT, nounits, noindom,
-	"number of entries in the metric names map dictionary", NULL);
+	"metric names map dictionary size",
+	"number of entries in the metric names map dictionary");
 
     mmv_stats_add_metric(webgroups->metrics, "labelsmap.size", 3,
 	MMV_TYPE_U32, MMV_SEM_INSTANT, nounits, noindom,
-	"number of entries in the labels map dictionary", NULL);
+	"labels map dictionary size",
+	"number of entries in the labels map dictionary");
 
     mmv_stats_add_metric(webgroups->metrics, "instmap.size", 4,
 	MMV_TYPE_U32, MMV_SEM_INSTANT, nounits, noindom,
-	"number of entries in the instance name map dictionary", NULL);
+	"instance name map dictionary size",
+	"number of entries in the instance name map dictionary");
 
     /* TODO add call counter metrics for pmWebgroup* API functions */
 

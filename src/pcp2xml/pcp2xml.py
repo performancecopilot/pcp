@@ -126,7 +126,7 @@ class PCP2XML(object):
         self.pmfg_ts = None
 
         # Read configuration and prepare to connect
-        self.config = self.pmconfig.set_config_file(DEFAULT_CONFIG)
+        self.config = self.pmconfig.set_config_path(DEFAULT_CONFIG)
         self.pmconfig.read_options()
         self.pmconfig.read_cmd_line()
         self.pmconfig.prepare_metrics()
@@ -415,7 +415,7 @@ class PCP2XML(object):
             if self.outfile is None:
                 self.writer = sys.stdout
             else:
-                self.writer = open(self.outfile, 'wt')
+                self.writer = open(self.outfile, 'wt') # pylint: disable=consider-using-with
             if not self.header:
                 self.writer.write('<?xml version="1.0" encoding="UTF-8"?>\n')
             self.writer.write('<pcp>\n')

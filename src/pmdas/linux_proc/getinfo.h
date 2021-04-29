@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018,2020 Red Hat.
+ * Copyright (c) 2016-2018,2021 Red Hat.
  * Copyright (c) 2010 Aconex.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -14,6 +14,5 @@
  */
 
 extern void tty_driver_init(void);
-extern char *get_ttyname_info_dev_t(dev_t);
-extern char *get_ttyname_info(const char *);
+extern char *get_ttyname_info(dev_t);
 

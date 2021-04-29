@@ -406,12 +406,19 @@ Invalid regex '.[z-a]':
 == metricset command line handling
 Metricset definition ':nosuchset' not found.
 Metricset definition ':nosuchset' not found.
-== invalid configuration file
+== invalid configuration file part 1
 Error while parsing options: Invalid output target specified.
 pcp: sample count must be a positive numeric argument
 Error while parsing options: Non-negative integer expected.
 pmrep: Impossible value or scale conversion
 Invalid metric bogus (PM_ERR_NAME Unknown metric name).
+== invalid configuration file part 2
+Failed to read configuration file CONF_FILE, line 2:
+Source contains parsing errors: CONF_FILE
+	[line  2]: 'error\n'
+== invalid configuration file part 3
+Failed to read configuration file CONF_FILE:
+No value set for error in [test1].
 == unsupported metric type
 Invalid metric sample.sysinfo (PM_ERR_TYPE Unknown or illegal metric type).
 == exercise non-integer options
@@ -1317,6 +1324,7 @@ pmrep: Impossible value or scale conversion
   xxx
 == handle empty/invalid/multiple metricsets in config file
 Invalid metric yes (PM_ERR_NAME Unknown metric name).
+Failed to read configuration file CONF_FILE:
 Unknown option mem.util.free in [options].
 No metrics specified.
 
@@ -1353,6 +1361,7 @@ No metrics specified.
  duration: 00:00:00
 
 == handle options/global/metricset section corner cases / issues
+Failed to read configuration file CONF_FILE:
 Unknown option mem.util.free in [options].
    test   freemem
             Kbyte
@@ -1371,7 +1380,8 @@ Unknown option mem.util.free in [options].
 
   m.u.used
      Kbyte
-No options allowed in [global] section.
+Failed to read configuration file CONF_FILE:
+Section [global] contains options.
 No metrics specified.
 
   archive: QAPATH/archives/20130706

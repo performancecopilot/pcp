@@ -30,6 +30,7 @@ modify all enabled yes
 modify shping enabled no
 modify cisco enabled no
 modify dmthin enabled no
+modify mssql enabled no
 EOF
 
 # real QA test starts here

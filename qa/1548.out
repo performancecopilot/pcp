@@ -1,0 +1,21 @@
+QA output created by 1548
+== test missing path
+Failed to read configuration from '/nosuchpath':
+No such file or directory.
+Failed to read configuration from '/nosuchpath':
+No such file or directory.
+== create empty config dir
+== test dir with no conf files
+Invalid metric nosuchmetric (PM_ERR_NAME Unknown metric name).
+Metricset definition ':nosuchset' not found.
+  m.u.free
+== populate config dir
+== test config dir
+  nusers  nproc  m.u.free
+  nusers  nproc  m.u.used
+  nusers  nproc  m.u.used
+  nusers  nproc  %test
+                 Kbyte
+== test command line options
+  nusers  nproc  m.u.free
+  m.u.free

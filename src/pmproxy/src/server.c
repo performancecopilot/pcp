@@ -122,7 +122,8 @@ server_metrics_init(struct proxy *proxy)
 
     mmv_stats_add_metric(registry, "pid", SERVER_PID,
 		MMV_TYPE_U32, MMV_SEM_DISCRETE, nounits, noindom,
-		"PID for the current pmproxy invocation", NULL);
+		"pmproxy PID",
+		"PID for the current pmproxy invocation");
     pmsprintf(buffer, sizeof(buffer), "%u", pid);
     mmv_stats_add_metric_label(registry, SERVER_PID,
 		"pid", buffer, MMV_NUMBER_TYPE, 0);
@@ -172,7 +173,6 @@ server_init(int portcount, const char *localpath)
     server_metrics_init(proxy);
 
     proxy->events = uv_default_loop();
-    uv_loop_init(proxy->events);
 
     return proxy;
 }

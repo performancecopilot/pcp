@@ -124,7 +124,7 @@ class PCP2XXX(object):
         self.pmfg_ts = None
 
         # Read configuration and prepare to connect
-        self.config = self.pmconfig.set_config_file(DEFAULT_CONFIG)
+        self.config = self.pmconfig.set_config_path(DEFAULT_CONFIG)
         self.pmconfig.read_options()
         self.pmconfig.read_cmd_line()
         self.pmconfig.prepare_metrics()
@@ -405,7 +405,7 @@ class PCP2XXX(object):
             if self.outfile is None:
                 self.writer = sys.stdout
             else:
-                self.writer = open(self.outfile, 'wt')
+                self.writer = open(self.outfile, 'wt') # pylint: disable=consider-using-with
             # XXX Write some first round details here if needed
             #host = self.context.pmGetContextHostName()
             #timez = self.context.posix_tz_to_utc_offset(self.context.get_current_tz(self.opts))

@@ -50,7 +50,7 @@ if sys.version_info[0] >= 3:
     long = int # pylint: disable=redefined-builtin
 
 # Default config
-DEFAULT_CONFIG = ["./pmrep.conf", "$HOME/.pmrep.conf", "$HOME/.pcp/pmrep.conf", "$PCP_SYSCONF_DIR/pmrep/pmrep.conf"]
+DEFAULT_CONFIG = ["./pmrep.conf", "$HOME/.pmrep.conf", "$HOME/.pcp/pmrep.conf", "$PCP_SYSCONF_DIR/pmrep/pmrep.conf", "$PCP_SYSCONF_DIR/pmrep"]
 
 # Defaults
 CONFVER = 1
@@ -173,7 +173,7 @@ class PMReporter(object):
         self.pmfg_ts = None
 
         # Read configuration and prepare to connect
-        self.config = self.pmconfig.set_config_file(DEFAULT_CONFIG)
+        self.config = self.pmconfig.set_config_path(DEFAULT_CONFIG)
         self.pmconfig.read_options()
         self.pmconfig.read_cmd_line()
         self.pmconfig.prepare_metrics()
@@ -611,7 +611,7 @@ class PMReporter(object):
             if self.output == OUTPUT_ARCHIVE or self.outfile is None:
                 self.writer = sys.stdout
             else:
-                self.writer = open(self.outfile, 'wt')
+                self.writer = open(self.outfile, 'wt') # pylint: disable=consider-using-with
 
     def prepare_stdout(self):
         """ Prepare stdout output format """

@@ -1,0 +1,57 @@
+#!/bin/sh
+# PCP QA Test No. 1955
+# Check the atexit handling in the PMDAs doesn't cause log
+# completion messages to happen during regular operation.
+#
+# Copyright (c) 2021 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e 's/<something>/<else>/' \
+    # end
+}
+
+# real QA test starts here
+pmdas=`pminfo -f pmcd.agent.type \
+	| grep value | grep -v 'value 0' \
+	| sed -e 's/.* "//g' | sed -e 's/".*//g'`
+
+# list of running, non-DSO PMDAs
+echo "PMDA list: $pmdas" > $seq.full
+
+for pmda in $pmdas
+do
+    test -f "$PCP_LOG_DIR/pmcd/$pmda.log" || continue
+    $sudo grep '^Log finished' "$PCP_LOG_DIR/pmcd/$pmda.log"
+    if [ $? -eq 0 ]
+    then
+	echo "PMDA $pmda has suspect atexit handling"
+	status=1
+    else
+	echo "PMDA $pmda looks OK" >> $seq.full
+    fi
+done
+
+[ $status = 0 ] && echo "Silence is golden"
+
+exit

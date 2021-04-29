@@ -2,7 +2,7 @@
 # PCP QA Test No. 1069
 # Exercise pmrep configuration and various reporting modes.
 #
-# Copyright (c) 2015-2017 Red Hat.
+# Copyright (c) 2015-2021 Red Hat.
 #
 
 seq=`basename $0`
@@ -39,6 +39,15 @@ _archive_filter()
     sed \
 	-e '/timezone/s/ (reporting.*)//' \
 	-e "s#$here#QAPATH#g" \
+    #end
+}
+
+_conf_error_filter()
+{
+    sed \
+	-e "s/'\/.*'/CONF_FILE/g" \
+	-e "s/errors: \/.*/errors: CONF_FILE/g" \
+	-e "s/File contains/Source contains/g" \
     #end
 }
 
@@ -120,7 +129,7 @@ echo "== metricset command line handling"
 pmrep -z -a $here/archives/20201109 -i '.*000001.*' -C :nosuchset
 pmrep -z -a $here/archives/20201109 -i '.*000001.*' -C :proc-cpu :nosuchset
 
-echo "== invalid configuration file"
+echo "== invalid configuration file part 1"
 cat > $tmp.wconfig <<EOF
 [global]
 mem.util.free = ,,
@@ -140,6 +149,20 @@ pmrep -C -c $tmp.wconfig -x :test2 2>&1 | grep "sample count"
 pmrep -C -c $tmp.wconfig -x :test3
 pmrep -C -c $tmp.wconfig -x :test4
 pmrep -C -c $tmp.wconfig -x :test5
+
+echo "== invalid configuration file part 2"
+cat > $tmp.wconfig <<EOF
+[test1]
+error
+EOF
+pmrep -C -c $tmp.wconfig -x :test1 2>&1 | _conf_error_filter
+
+echo "== invalid configuration file part 3"
+cat > $tmp.wconfig <<EOF
+[test1]
+error =
+EOF
+pmrep -C -c $tmp.wconfig -x :test1 2>&1 | _conf_error_filter
 
 echo "== unsupported metric type"
 pmrep -s 1 -t 1 sample.sysinfo
@@ -446,7 +469,7 @@ echo 'failure = yes' >> $tmp.econfig
 pmrep -s 1 -x -C -H -U $log2 -c $tmp.econfig :fail
 echo '[options]' > $tmp.econfig
 echo 'mem.util.free = freemem' >> $tmp.econfig
-pmrep -s 1 -x -C -H -U $log2 -c $tmp.econfig hinv.machine 2>&1 | _archive_filter
+pmrep -s 1 -x -C -H -U $log2 -c $tmp.econfig hinv.machine 2>&1 | _archive_filter | _conf_error_filter
 echo '[empty]' > $tmp.econfig
 echo 'interval = 2s' >> $tmp.econfig
 echo '[metric]' >> $tmp.econfig
@@ -462,7 +485,7 @@ echo '[options]' > $tmp.cconfig
 echo 'interval = 2s' >> $tmp.cconfig
 echo 'mem.util.free = freemem' >> $tmp.cconfig
 # No metrics in options allowed
-pmrep -s 1 -x -C $log2 -c $tmp.cconfig mem.util.used | _archive_filter
+pmrep -s 1 -x -C $log2 -c $tmp.cconfig mem.util.used 2>&1 | _archive_filter | _conf_error_filter
 echo '[testing]' > $tmp.cconfig
 echo 'colxrow = " test "' >> $tmp.cconfig
 echo 'mem.util.free = freemem' >> $tmp.cconfig
@@ -479,8 +502,8 @@ echo '[global]' >> $tmp.cconfig
 echo 'interval = 3s' >> $tmp.cconfig
 echo 'mem.util.free = freemem' >> $tmp.cconfig
 # No options in globals allowed
-pmrep -s 1 -x -C $log2 -c $tmp.cconfig -G mem.util.used | _archive_filter
-pmrep -s 1 -x -C $log2 -c $tmp.cconfig    mem.util.used | _archive_filter
+pmrep -s 1 -x -C $log2 -c $tmp.cconfig -G mem.util.used 2>&1 | _archive_filter | _conf_error_filter
+pmrep -s 1 -x -C $log2 -c $tmp.cconfig    mem.util.used 2>&1 | _archive_filter | _conf_error_filter
 echo '[options]' > $tmp.cconfig
 echo 'interval = 2s' >> $tmp.cconfig
 echo '[global]' >> $tmp.cconfig

@@ -31,7 +31,7 @@ _cleanup()
 
 # basic namespace and metadata check
 names=`pminfo pmproxy | LC_COLLATE=POSIX sort`
-pminfo -mdt $names
+pminfo -mdtT $names
 
 # TODO check metric values after various operations
 

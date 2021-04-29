@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2000,2003,2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 # Copyright (c) 2007-2010 Aconex.  All Rights Reserved.
-# Copyright (c) 2013-2016,2019-2020 Red Hat.
+# Copyright (c) 2013-2016,2019-2021 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -29,11 +29,11 @@ REWRITEDIR	= $(PCP_SYSCONF_DIR)/pmlogrewrite
 REWRITEVARDIR	= $(PCP_VAR_DIR)/config/pmlogrewrite
 CONF_LINE	= "proc	3	pipe	binary		$(PMDATMPDIR)/$(CMDTARGET) -d 3"
 
-CFILES		= pmda.c acct.c cgroups.c proc_pid.c proc_runq.c proc_dynamic.c\
-		  getinfo.c contexts.c gram_node.c config.c error.c hotproc.c
+CFILES		= pmda.c acct.c cgroups.c contexts.c proc_pid.c proc_dynamic.c \
+		  getinfo.c gram_node.c config.c error.c hotproc.c
 
 HFILES		= clusters.h indom.h config.h contexts.h hotproc.h gram_node.h \
-		  acct.h cgroups.h proc_pid.h proc_runq.h getinfo.h
+		  acct.h cgroups.h proc_pid.h getinfo.h
 
 LFILES		= lex.l
 YFILES		= gram.y
@@ -113,15 +113,14 @@ lex.o:	hotproc.h
 acct.o pmda.o: acct.h
 cgroups.o pmda.o: clusters.h
 cgroups.o pmda.o:	cgroups.h
-cgroups.o pmda.o proc_pid.o proc_runq.o proc_dynamic.o:	proc_pid.h
+cgroups.o pmda.o proc_pid.o proc_dynamic.o:	proc_pid.h
 proc_dynamic.o:	help_text.h
-pmda.o proc_runq.o:	proc_runq.h
 indom.o pmda.o:	indom.h
 pmda.o:	domain.h
 pmda.o:	getinfo.h
 pmda.o:	$(VERSION_SCRIPT)
 
-acct.o cgroups.o contexts.o pmda.o proc_dynamic.o proc_pid.o proc_runq.o:	$(TOPDIR)/src/include/pcp/libpcp.h
+acct.o cgroups.o contexts.o pmda.o proc_dynamic.o proc_pid.o:	$(TOPDIR)/src/include/pcp/libpcp.h
 
 check::	$(CFILES) $(HFILES)
 	$(CLINT) $^

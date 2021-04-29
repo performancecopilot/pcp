@@ -85,7 +85,7 @@ static time_t
 get_end_time_v3(void *entry)
 {
     return ((struct acct_v3 *)entry)->ac_btime +
-	   (int)(((struct acct_v3 *)entry)->ac_etime / hz);
+	   (int)(((struct acct_v3 *)entry)->ac_etime / _pm_hertz);
 }
 
 static unsigned long long
@@ -112,7 +112,7 @@ acct_fetchCallBack_v3(int item, void *p, pmAtomValue *atom)
 	atom->ul = acctp->ac_tty;
 	break;
     case ACCT_TTYNAME:
-	atom->cp = get_ttyname_info_dev_t(acctp->ac_tty);
+	atom->cp = get_ttyname_info(acctp->ac_tty);
 	break;
     case ACCT_PID:
 	atom->ul = acctp->ac_pid;
@@ -124,13 +124,13 @@ acct_fetchCallBack_v3(int item, void *p, pmAtomValue *atom)
 	atom->ul = acctp->ac_btime;
 	break;
     case ACCT_ETIME:
-	atom->f = acctp->ac_etime / hz;
+	atom->f = acctp->ac_etime / _pm_hertz;
 	break;
     case ACCT_UTIME:
-	atom->f = decode_comp_t(acctp->ac_utime) * 1.0 / hz;
+	atom->f = decode_comp_t(acctp->ac_utime) * 1.0 / _pm_hertz;
 	break;
     case ACCT_STIME:
-	atom->f = decode_comp_t(acctp->ac_stime) * 1.0 / hz;
+	atom->f = decode_comp_t(acctp->ac_stime) * 1.0 / _pm_hertz;
 	break;
     case ACCT_MEM:
 	atom->ull = decode_comp_t(acctp->ac_mem);
@@ -217,7 +217,7 @@ check_accounting(int fd)
 	return 0;
     if (fork() == 0) {
 	is_child = 1;
-	exit(0);
+	_exit(0);
     }
     wait(0);
     if (fstat(fd, &after) < 0)

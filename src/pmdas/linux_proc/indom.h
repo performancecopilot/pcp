@@ -61,7 +61,8 @@ extern char *proc_statspath;
 extern FILE *proc_statsfile(const char *, char *, int);
 
 /* Generic globals setup during PMDA startup */
-extern long hz;
+extern size_t _pm_system_pagesize;
+extern long _pm_hertz;
 
 /*
  * static string dictionary - one copy of oft-repeated strings;
