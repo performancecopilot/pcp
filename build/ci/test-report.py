@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
+import sys
 import os
+import shutil
 import argparse
 import re
 import json
-import shutil
+import csv
 from enum import Enum
 from collections import defaultdict
 from typing import List, Dict
@@ -129,6 +131,24 @@ def read_hosts(qa_dir: str, artifacts_path: str) -> List[Test]:
             test_durations = read_test_durations(test_timings_file)
             tests.extend(read_testlog(qa_dir, testartifacts_dir, groups, test_durations, host))
     return list(hosts), tests
+
+
+def print_test_report_csv(tests: List[Test], f):
+    writer = csv.writer(f)
+    writer.writerow(["Name", "Groups", "Platform", "Runner", "Start", "Stop", "Duration", "Status"])
+    for test in tests:
+        writer.writerow(
+            [
+                test.name,
+                ",".join(test.groups),
+                test.platform,
+                test.runner,
+                test.start,
+                test.stop,
+                test.stop - test.start,
+                test.status,
+            ]
+        )
 
 
 def print_test_summary(tests: List[Test]):
@@ -316,6 +336,7 @@ def main():
     parser.add_argument("--artifacts", default="./artifacts")
     parser.add_argument("--commit", required=True)
     parser.add_argument("--summary", action="store_true")
+    parser.add_argument("--csv", type=argparse.FileType("w"))
     parser.add_argument("--allure-results", dest="allure_results")
     parser.add_argument("--slack-channel", dest="slack_channel")  # required only for slack message
     parser.add_argument("--github-run-url", dest="github_run_url")  # required only for slack message
@@ -326,6 +347,9 @@ def main():
 
     if args.summary:
         print_test_summary(tests)
+
+    if args.csv:
+        print_test_report_csv(tests, args.csv)
 
     if args.allure_results:
         os.makedirs(args.allure_results, exist_ok=True)
