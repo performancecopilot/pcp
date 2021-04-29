@@ -1,0 +1,54 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
+#
+# Based on a rule originally developed by Jiajun Zhang at Red Hat
+#
+
+rule	mssql.stolen_node_memory
+	summary	= "$rule$"
+	predicate =
+"some_host (
+    ( avg_sample ( mssql.memory_manager.stolen_node_memory $hosts$ @0..9 ) ) > 0
+    && $pct$ %_sample
+    ( 100 * ( mssql.memory_manager.stolen_node_memory @0..9 $hosts$ /
+              mssql.memory_manager.total_server_memory @0..9 $hosts$ ) )
+	> $threshold$
+)"
+	enabled	= yes
+	version	= 1
+	help	=
+"A substantial proportion of total SQL Server memory is classified as
+stolen node memory which means the amount of memory used by SQL Server
+but not for database pages.
+A high amount of stolen memory indicates memory pressure - run DBCC
+MemoryStatus or query sys.dm_os_memory_clerks to identify the problem.";
+
+percent	threshold
+	default	= 70
+	help	=
+"Threshold percent of total server memory which is stolen node memory,
+in the range 0 (none) to 100 (all server memory is stolen node memory).";
+
+percent	pct
+	default	= 60
+	help	=
+"Percentage of the last 10 observations with at least threshold
+percent of total server memory which is stolen node memory.";
+
+string	rule
+	default	= "High mssql stolen node memory"
+	modify	= no
+	display	= no;
+
+string	action_expand
+	default	= "%v%mem@%h"
+	modify	= no
+	display	= no;
+
+string	email_expand
+	default	= "host: %h mssql stolen node memory: %v%"
+	display	= no
+	modify	= no;
+
+#
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)

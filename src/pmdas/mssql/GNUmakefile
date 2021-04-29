@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2020 Red Hat.
+# Copyright (c) 2019-2021 Red Hat.
 # Copyright (c) 2011 Aconex.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -31,6 +31,8 @@ endif
 PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
 PMDACONFIG	= $(PCP_SYSCONF_DIR)/$(IAM)
 PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
+PMIEDIR		= $(PCP_SYSCONF_DIR)/pmieconf/$(IAM)
+PMIEVARDIR	= $(PCP_VAR_DIR)/config/pmieconf/$(IAM)
 LOGCONFDIR	= $(PCP_SYSCONF_DIR)/pmlogconf/$(IAM)
 LOGCONFVARDIR	= $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
 
@@ -46,10 +48,13 @@ install_pcp install: default
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove Upgrade $(PYSCRIPT) $(PMDAADMDIR)
 	$(INSTALL) -m 755 -d $(PMDACONFIG)
 	$(INSTALL) -m 600 -t $(PMDATMPDIR)/$(CONF) $(CONF) $(PMDACONFIG)/$(CONF)
-	@$(INSTALL_MAN)
+	$(INSTALL) -m 755 -d $(PMIEDIR)
+	$(INSTALL) -m 755 -d $(PMIEVARDIR)
+	$(INSTALL) -m 644 -t $(PMIEVARDIR)/stolen_node_memory mssql.stolen_node_memory.pmie $(PMIEDIR)/stolen_node_memory
 	$(INSTALL) -m 755 -d $(LOGCONFDIR)
 	$(INSTALL) -m 755 -d $(LOGCONFVARDIR)
 	$(INSTALL) -m 644 -t $(LOGCONFVARDIR)/summary pmlogconf.summary $(LOGCONFDIR)/summary
+	@$(INSTALL_MAN)
 else
 build-me:
 install_pcp install:
