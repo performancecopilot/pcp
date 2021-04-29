@@ -41,7 +41,6 @@ need_restore=true
 
 _filter()
 {
-    echo "===filter:" >> /tmp/cat
     sed \
 	-e "s/'/\"/g" \
 	-e "s/\(\"userid\"\):\"$userid\"/\1:\"USERID\"/g" \
