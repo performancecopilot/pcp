@@ -64,8 +64,8 @@ then
     # give the rc scripts $wait seconds to get going and poll every
     # $poll milliseconds
     #
-    wait=30
-    poll=100
+    wait=60
+    poll=250
     iter=`expr $wait \* 10000 / $poll`
     while [ $i -lt $iter ]
     do
