@@ -98,7 +98,8 @@ like
 and more, see the \fBpmrep\fP configuration files under
 .I $PCP_SYSCONF_DIR/pmrep
 (typically \fB/etc/pcp/pmrep\fP) for details.
-Tab completion for metrics and metricsets is available on bash and zsh.
+Tab completion for metrics and metricsets is available with
+bash and zsh.
 .PP
 Unless directed to another host by the
 .B \-h
@@ -185,8 +186,8 @@ definition restricts
 .I csv
 and
 .I stdout
-reporting to the specified instances (so non-matching instances
-will be filtered).
+reporting to the specified instances of the selected metrics
+(so non-matching instances will be filtered out).
 An optional
 .I unit/scale
 is applicable for dimension-compatible, non-string metrics.
@@ -505,7 +506,7 @@ rather than from the default localhost.
 Do not print any headers.
 .TP
 \fB\-i\fR \fIinstances\fR, \fB\-\-instances\fR=\fIinstances\fR
-Report only the listed
+Report only the specified
 .I instances
 from current instances (if present, see also
 .BR \-j ).

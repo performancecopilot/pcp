@@ -762,7 +762,11 @@ performance metric domain also supports corresponding strings as external
 names for the instance identifiers, and these names are used at the user
 interface to the PCP utilities.
 .PP
-Multiple performance metrics may be associated with a single instance domain.
+Multiple performance metrics may be associated with a single instance
+domain.
+For example, per-process metrics under
+.CW proc
+all share the same instance domain.
 .PP
 PCP arranges for information describing instance domains to be exported
 from the performance metric domains to the applications that require
@@ -786,6 +790,7 @@ example from above, labels ``{"pid":87245,"cpu":7}'' might be used).
 .SH PERFORMANCE METRIC SPECIFICATIONS
 In configuration files and (to a lesser extent) command line options,
 metric specifications adhere to the following syntax rules by most tools.
+See the tool specific manual pages for the exact syntax supported.
 .PP
 If the source of performance metrics is real-time from
 .BR pmcd (1)
