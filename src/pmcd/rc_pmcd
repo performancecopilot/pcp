@@ -195,6 +195,18 @@ _pmda_setup()
 {
     # Auto-Install and/or Auto-Remove PMDAs?
     #
+    if $PCP_BINADM_DIR/pmlock $PCP_TMPFILE_DIR/pmda.auto.update
+    then
+	# we got the lock, proceed
+	$PCP_BINADM_DIR/pmpost "PMDA setup: pid=$$ acquire lock"
+	:
+    else
+	# one of us is already running
+	#
+	$PCP_BINADM_DIR/pmpost "PMDA setup: pid=$$ lock failed"
+	return
+    fi
+
     if [ -d "$PCP_PMDAS_DIR" ]
     then
 	here=`pwd`
@@ -204,6 +216,9 @@ _pmda_setup()
 	_pmda_enact Install Installing
 	cd "$here"
     fi
+
+    rm -f $PCP_TMPFILE_DIR/pmda.auto.update
+    $PCP_BINADM_DIR/pmpost "PMDA setup: pid=$$ release lock"
 }
 
 # Take automated setup action (Install or Remove) for PMDAs

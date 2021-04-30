@@ -58,6 +58,7 @@ _check >$tmp.tmp
 if [ -s $tmp.tmp ]
 then
     echo "Need to wait while these get fixed: `tr '\012' ' ' <$tmp.tmp`"
+    [ -f $PCP_LOG_DIR/NOTICES ] && cp $PCP_LOG_DIR/NOTICES $tmp.NOTICES
     _restart_pmcd
     i=0
     rm -f $tmp.ok
@@ -66,7 +67,7 @@ then
     #
     wait=60
     poll=250
-    iter=`expr $wait \* 10000 / $poll`
+    iter=`expr $wait \* 1000 / $poll`
     while [ $i -lt $iter ]
     do
 	pmsleep ${poll}msec
@@ -87,6 +88,10 @@ then
 	pminfo -v >/dev/null 2>&1
     else
 	echo "Failed to fix these after ${wait}secs: `tr '\012' ' ' <$tmp.tmp`"
+	echo "Recent changes to NOTICES ..."
+	[ -f $PCP_LOG_DIR/NOTICES ] && diff $tmp.NOTICES $PCP_LOG_DIR/NOTICES
+	echo "pmcd-related processes ..."
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]PID|[p]mcd'
 	sts=1
     fi
 fi
