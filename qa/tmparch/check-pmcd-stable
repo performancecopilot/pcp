@@ -59,13 +59,23 @@ if [ -s $tmp.tmp ]
 then
     echo "Need to wait while these get fixed: `tr '\012' ' ' <$tmp.tmp`"
     [ -f $PCP_LOG_DIR/NOTICES ] && cp $PCP_LOG_DIR/NOTICES $tmp.NOTICES
-    _restart_pmcd
+    if [ -f $PCP_TMPFILE_DIR/pmda.auto.update ]
+    then
+	# pmcd restart is already in progress, just wait for auto
+	# Install/Remove operations to complete
+	#
+	:
+    else
+	# Get pmcd going ...
+	#
+	_restart_pmcd
+    fi
     i=0
     rm -f $tmp.ok
     # give the rc scripts $wait seconds to get going and poll every
     # $poll milliseconds
     #
-    wait=60
+    wait=90
     poll=250
     iter=`expr $wait \* 1000 / $poll`
     while [ $i -lt $iter ]
