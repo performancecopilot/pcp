@@ -27,6 +27,24 @@ _cleanup()
     $sudo rm -rf $tmp.* $PCP_VAR_DIR/pmdas/bozo
 }
 
+# Usage: _check_need dir .Need<something>
+#
+_check_need()
+{
+    for file in $1/$2*
+    do
+	case "$file"
+	in
+	    *\*)
+	    	echo "$2 missing"
+		;;
+	    *)
+	    	echo "`echo "$file" | sed -e "s@^$1/@@"` present"
+		;;
+	esac
+    done
+}
+
 $sudo rm -rf $PCP_VAR_DIR/pmdas/bozo
 $sudo mkdir $PCP_VAR_DIR/pmdas/bozo
 cat <<End-of-File >$tmp.sh
@@ -41,6 +59,8 @@ $sudo cp $tmp.sh $PCP_VAR_DIR/pmdas/bozo/Install
 $sudo cp $tmp.sh $PCP_VAR_DIR/pmdas/bozo/Remove
 $sudo chmod 755 $PCP_VAR_DIR/pmdas/bozo/Install
 $sudo chmod 755 $PCP_VAR_DIR/pmdas/bozo/Remove
+$sudo rm -f $PCP_VAR_DIR/pmdas/bozo/.NeedInstall*
+$sudo rm -f $PCP_VAR_DIR/pmdas/bozo/.NeedRemove*
 $sudo touch $PCP_VAR_DIR/pmdas/bozo/.NeedInstall
 $sudo touch $PCP_VAR_DIR/pmdas/bozo/fail
 $sudo rm -f $PCP_LOG_DIR/NOTICES
@@ -51,53 +71,37 @@ echo "Install should fail"
 _service pmcd restart 2>&1 | _filter_pcp_start
 _wait_for_pmcd
 pmsleep 1.5	# give script time to execute
-if [ -f $PCP_VAR_DIR/pmdas/bozo/.NeedInstall ]
-then
-    echo ".NeedInstall present"
-else
-    echo ".NeedInstall missing"
-fi
+_check_need $PCP_VAR_DIR/pmdas/bozo .NeedInstall
 
 echo
 echo "Install should succeed"
+$sudo rm -f $PCP_VAR_DIR/pmdas/bozo/.NeedInstall*
+$sudo touch $PCP_VAR_DIR/pmdas/bozo/.NeedInstall
 $sudo rm -f $PCP_VAR_DIR/pmdas/bozo/fail
 _service pmcd restart 2>&1 | _filter_pcp_start
 _wait_for_pmcd
 pmsleep 1.5	# give script time to execute
-if [ -f $PCP_VAR_DIR/pmdas/bozo/.NeedInstall ]
-then
-    echo ".NeedInstall present"
-else
-    echo ".NeedInstall missing"
-fi
+_check_need $PCP_VAR_DIR/pmdas/bozo .NeedInstall
 
 echo
 echo "Remove should fail"
-$sudo touch $PCP_VAR_DIR/pmdas/bozo/fail
+$sudo rm -f $PCP_VAR_DIR/pmdas/bozo/.NeedRemove*
 $sudo touch $PCP_VAR_DIR/pmdas/bozo/.NeedRemove
+$sudo touch $PCP_VAR_DIR/pmdas/bozo/fail
 _service pmcd restart 2>&1 | _filter_pcp_start
 _wait_for_pmcd
 pmsleep 1.5	# give script time to execute
-if [ -f $PCP_VAR_DIR/pmdas/bozo/.NeedRemove ]
-then
-    echo ".NeedRemove present"
-else
-    echo ".NeedRemove missing"
-fi
+_check_need $PCP_VAR_DIR/pmdas/bozo .NeedRemove
 
 echo
 echo "Remove should succeed"
-$sudo rm -f $PCP_VAR_DIR/pmdas/bozo/fail
+$sudo rm -f $PCP_VAR_DIR/pmdas/bozo/.NeedRemove*
 $sudo touch $PCP_VAR_DIR/pmdas/bozo/.NeedRemove
+$sudo rm -f $PCP_VAR_DIR/pmdas/bozo/fail
 _service pmcd restart 2>&1 | _filter_pcp_start
 _wait_for_pmcd
 pmsleep 1.5	# give script time to execute
-if [ -f $PCP_VAR_DIR/pmdas/bozo/.NeedRemove ]
-then
-    echo ".NeedRemove present"
-else
-    echo ".NeedRemove missing"
-fi
+_check_need $PCP_VAR_DIR/pmdas/bozo .NeedRemove
 
 echo
 echo "Check pmpost messages ..."
