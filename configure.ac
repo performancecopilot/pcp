@@ -2132,6 +2132,10 @@ AS_IF([test "x$enable_selinux" != "xfalse"], [
     | egrep '^[[ 	]][[ 	]]*(class |)icmp_socket$' >/dev/null \
     && pcp_selinux_icmp_socket_class=true
 
+    seinfo -x --class=lockdown $seinfo_common_flag 2>/dev/null \
+    | egrep '^[[ 	]][[ 	]]*(class |)lockdown$' >/dev/null \
+    && pcp_selinux_lockdown_class=true
+
     dnl these ones are for pcpqa.te
 
     seinfo -x --class=netlink_selinux_socket $seinfo_common_flag 2>/dev/null \
@@ -2149,10 +2153,6 @@ AS_IF([test "x$enable_selinux" != "xfalse"], [
     seinfo -x --class=security $seinfo_common_flag 2>/dev/null \
     | egrep '^[[ 	]][[ 	]]*(class |)security$' >/dev/null \
     && pcp_selinux_security_class=true
-
-    seinfo -x --class=lockdown $seinfo_common_flag 2>/dev/null \
-    | egrep '^[[ 	]][[ 	]]*(class |)lockdown$' >/dev/null \
-    && pcp_selinux_lockdown_class=true
 
     dnl pcp_selinux_dir already used for something else, so name to
     dnl set is pcp_selinux_dir_class
@@ -2192,6 +2192,7 @@ AC_SUBST(pcp_selinux_proc_security)
 AC_SUBST(pcp_selinux_sbd_exec)
 AC_SUBST(pcp_selinux_cap2_syslog)
 AC_SUBST(pcp_selinux_icmp_socket_class)
+AC_SUBST(pcp_selinux_lockdown_class)
 
 dnl for pcpqa.te
 AC_SUBST(pcp_selinux_initrc_tmp)
