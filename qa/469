@@ -31,8 +31,8 @@ function skip_me(m)
 }
 /Help:/ { metric = line; next }
 { 
-    if (skip_me(metric)) next
     line = $0
+    if (skip_me(metric)) next
     if (length(line) > maxlen && metric != lastone) {
 	printf "[%d] %s, full help text is too long: %d\n", NR, metric, length(line)
 	lastone = metric

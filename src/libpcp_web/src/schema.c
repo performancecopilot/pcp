@@ -1976,7 +1976,8 @@ pmDiscoverSetupMetrics(pmDiscoverModule *module)
     mmv_stats_add_metric(data->metrics, "purged", 2,
 	MMV_TYPE_U64, MMV_SEM_DISCRETE, nounits, noindom,
 	"directories, sub-directories and archives purged (no longer being monitored)",
-	"number of directories, sub-directories and archives purged (no longer being monitored)");
+	"number of directories, sub-directories and archives purged\n"
+        "(no longer being monitored)");
 
     mmv_stats_add_metric(data->metrics, "metadata.callbacks", 3,
 	MMV_TYPE_U64, MMV_SEM_COUNTER, nounits, noindom,
@@ -2046,7 +2047,8 @@ pmDiscoverSetupMetrics(pmDiscoverModule *module)
     mmv_stats_add_metric(data->metrics, "logvol.get_archive_end_failed", 16,
 	MMV_TYPE_U64, MMV_SEM_COUNTER, nounits, noindom,
 	"failed pmGetArchiveEnd calls after successfully creating a new context for all monitored archives",
-	"total failed pmGetArchiveEnd calls after successfully creating a new context for all monitored archives");
+	"total failed pmGetArchiveEnd calls after successfully creating a new context\n"
+        "for all monitored archives");
 
     mmv_stats_add_metric(data->metrics, "changed_callbacks", 17,
 	MMV_TYPE_U64, MMV_SEM_COUNTER, nounits, noindom,
