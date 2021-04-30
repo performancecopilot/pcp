@@ -129,14 +129,3 @@
    fun:__pmAuthClientNegotiation
    ...
 }
-
-{
-   libuv leak on shutdown via signal handler object
-   Memcheck:Leak
-   ...
-   fun:uv__io_start
-   fun:uv_signal_init
-   fun:uv_loop_init
-   fun:uv_default_loop
-   ...
-}
