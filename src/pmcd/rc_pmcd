@@ -207,6 +207,9 @@ _pmda_setup()
 	return
     fi
 
+    # if we are interrupted, remove the lock file
+    trap "rm -rf $tmp $PCP_TMPFILE_DIR/pmda.auto.update; exit \$status" 1 2 3 15
+
     if [ -d "$PCP_PMDAS_DIR" ]
     then
 	here=`pwd`
@@ -219,6 +222,10 @@ _pmda_setup()
 
     rm -f $PCP_TMPFILE_DIR/pmda.auto.update
     $PCP_BINADM_DIR/pmpost "PMDA setup: pid=$$ release lock"
+
+    # re-instate mainline trap
+    #
+    trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
 }
 
 # Take automated setup action (Install or Remove) for PMDAs
