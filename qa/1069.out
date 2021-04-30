@@ -397,9 +397,9 @@ Invalid metric tape.dev.io_ns (PM_ERR_INDOM_LOG Instance domain identifier not d
 00:47:09  cpu0         ~    21.000         ~         ~
 00:47:09  cpu1         ~   384.000         ~         ~
 == invalid command line parameters
-Error while parsing options: Non-negative integer expected.
-Error while parsing options: Non-negative integer expected.
-Error while parsing options: Non-negative integer expected.
+Error while reading option repeat_header: Non-negative integer expected.
+Error while reading option precision: Non-negative integer expected.
+Error while reading option width: Non-negative integer expected.
 Invalid regex '(':
 Invalid regex '.[]*':
 Invalid regex '.[z-a]':
@@ -409,7 +409,7 @@ Metricset definition ':nosuchset' not found.
 == invalid configuration file part 1
 Error while parsing options: Invalid output target specified.
 pcp: sample count must be a positive numeric argument
-Error while parsing options: Non-negative integer expected.
+Error while reading option precision: Non-negative integer expected.
 pmrep: Impossible value or scale conversion
 Invalid metric bogus (PM_ERR_NAME Unknown metric name).
 == invalid configuration file part 2

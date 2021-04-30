@@ -685,36 +685,45 @@ class pmConfig(object):
         """ Validate common utility options """
         try:
             err = "Integer expected"
+            attr = "unknown"
             if hasattr(self.util, 'rank') and self.util.rank:
+                attr = 'rank'
                 self.util.rank = int(self.util.rank)
             if hasattr(self.util, 'limit_filter') and self.util.limit_filter:
+                attr = 'limit_filter'
                 self.util.limit_filter = int(self.util.limit_filter)
             if hasattr(self.util, 'limit_filter_force') and self.util.limit_filter_force:
+                attr = 'limit_filter_force'
                 self.util.limit_filter_force = int(self.util.limit_filter_force)
             err = "Non-negative integer expected"
             if hasattr(self.util, 'width') and self.util.width:
+                attr = 'width'
                 self.util.width = int(self.util.width)
                 if self.util.width < 0:
                     raise ValueError(err)
             if hasattr(self.util, 'width_force') and self.util.width_force:
+                attr = 'width_force'
                 self.util.width_force = int(self.util.width_force)
                 if self.util.width_force < 0:
                     raise ValueError(err)
             if hasattr(self.util, 'precision') and self.util.precision:
+                attr = 'precision'
                 self.util.precision = int(self.util.precision)
                 if self.util.precision < 0:
                     raise ValueError(err)
             if hasattr(self.util, 'precision_force') and self.util.precision_force:
+                attr = 'precision_force'
                 self.util.precision_force = int(self.util.precision_force)
                 if self.util.precision_force < 0:
                     raise ValueError(err)
             if hasattr(self.util, 'repeat_header') and self.util.repeat_header:
+                attr = 'repeat_header'
                 if self.util.repeat_header != "auto":
                     self.util.repeat_header = int(self.util.repeat_header)
                     if self.util.repeat_header < 0:
                         raise ValueError(err)
         except ValueError:
-            sys.stderr.write("Error while parsing options: %s.\n" % err)
+            sys.stderr.write("Error while reading option %s: %s.\n" % (attr, err))
             sys.exit(1)
 
     def validate_metrics(self, curr_insts=CURR_INSTS, max_insts=0):
