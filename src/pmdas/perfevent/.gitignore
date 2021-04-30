@@ -4,3 +4,4 @@ help.dir
 help.pag
 perfalloc
 pmdaperfevent
+pmda_perfevent.so

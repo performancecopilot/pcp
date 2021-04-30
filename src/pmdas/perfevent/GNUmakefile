@@ -19,8 +19,9 @@ include	$(TOPDIR)/src/include/builddefs
 
 IAM		= perfevent
 DOMAIN		= PERFEVENT
-CMDTARGET	= pmda$(IAM)
-
+CMDTARGET	= pmdaperfevent
+LIBTARGET	= pmda_perfevent.so
+PMDAINIT	= perfevent_init
 PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
 PMDACONFIG	= $(PCP_SYSCONF_DIR)/$(IAM)
 PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
@@ -32,9 +33,16 @@ CFILES	= pmda.c perfmanager.c perfinterface.c architecture.c \
 HFILES  = architecture.h configparser.h perfinterface.h perfmanager.h \
 		  rapl-interface.h perflock.h parse_events.h
 
-SCRIPTS		= Install Remove Upgrade perfevent-makerewrite.pl
+SCRIPTS	= Install Remove Upgrade perfevent-makerewrite.pl
 
 DFILES	= README help
+
+TARGETS = $(CMDTARGET) $(LIBTARGET) perfalloc
+
+LLDLIBS = $(PCP_PMDALIB) $(PFM_LIBS)
+LLDLIBS += $(LIB_FOR_RT) $(LIB_FOR_MATH) $(LIB_FOR_PTHREADS)
+LCFLAGS = -I.
+CFLAGS	+= -DVERSION=\"$(VERSION)\"
 
 VERSION := $(shell head -n 1 ChangeLog | cut -d ":" -f 1)
 
@@ -43,26 +51,19 @@ default_pcp default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(PMDA_PERFEVENT)" "true"
-build-me: $(CMDTARGET) $(HELPTARGETS) perfalloc
+build-me: $(TARGETS)
 
 install_pcp install: default
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)
 	$(INSTALL) -m 755 -d $(PMDATMPDIR)
 	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h help root pmns $(PMDAADMDIR)
-	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(CMDTARGET) $(SCRIPTS) perfalloc $(PMDAADMDIR)
+	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(CMDTARGET) $(LIBTARGET) $(SCRIPTS) perfalloc $(PMDAADMDIR)
 	$(INSTALL) -m 755 -d $(PMDACONFIG)
 	$(INSTALL) -m 644 -t $(PMDATMPDIR)/$(IAM).conf $(IAM).conf $(PMDACONFIG)/$(IAM).conf
 else
 build-me:
 install_pcp install:
 endif
-
-TARGETS = $(CMDTARGET) perfalloc
-
-LLDLIBS = $(PCP_PMDALIB) $(PFM_LIBS)
-LLDLIBS += $(LIB_FOR_RT) $(LIB_FOR_MATH) $(LIB_FOR_PTHREADS)
-LCFLAGS = -I.
-CFLAGS += -DVERSION=\"$(VERSION)\"
 
 $(OBJECTS): domain.h
 
