@@ -4,6 +4,9 @@ on:
   schedule:
     - cron:  '0 19 * * *'
   workflow_dispatch:
+    inputs:
+      pcp_qa_args:
+        description: '(optional) overwrite ./check args (e.g. "-g pmproxy -g pmseries")'
 
 jobs:
   qa:
@@ -85,6 +88,8 @@ jobs:
 
       - name: QA
         run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} task qa || true
+        env:
+          PCP_QA_ARGS: ${{ github.event.inputs.pcp_qa_args }}
 
       - name: Copy test results
         # always() is required here to run this step even if the QA step fails

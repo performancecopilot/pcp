@@ -93,7 +93,7 @@ class ContainerRunner:
                 k, v = line.rstrip().split('=')
                 if k == 'NAME':
                     if v == '"Ubuntu"':
-                        self.sudo = ['sudo']
+                        self.sudo = ['sudo', '-E']
                         self.security_opts = ['--security-opt', 'label=disable']
                     break
 
@@ -118,6 +118,7 @@ class ContainerRunner:
         command = self.command_preamble + command
         subprocess.run([*self.sudo, 'podman', 'exec', '-i',
                         '-u', 'pcpbuild', '-w', '/home/pcpbuild',
+                        '-e', 'PCP_QA_ARGS',
                         self.container_name, 'bash', '-'],
                        input=command.encode(), check=check)
 
