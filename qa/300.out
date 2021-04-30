@@ -1,12 +1,12 @@
 QA output created by 300
 Install should fail
-.NeedInstall present
+.NeedInstall.failed present
 
 Install should succeed
 .NeedInstall missing
 
 Remove should fail
-.NeedRemove present
+.NeedRemove.failed present
 
 Remove should succeed
 .NeedRemove missing
