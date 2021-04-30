@@ -29,10 +29,10 @@ async def context_and_fetch(host: str, port: int):
     return inst_val
 
 
-async def main(count):
+async def main(port, count):
     print(f"Sending {count} /context and /fetch requests...")
     responses = await asyncio.gather(
-        *[context_and_fetch("localhost", "44322") for i in range(count)],
+        *[context_and_fetch("localhost", port) for i in range(count)],
         return_exceptions=True
     )
     succeed = sum(1 for response in responses if isinstance(response, int))
@@ -45,10 +45,10 @@ async def main(count):
                 print(response)
 
 if __name__ == '__main__':
-    if len(sys.argv) != 2:
-        print(f"usage: {sys.argv[0]} COUNT")
+    if len(sys.argv) != 3:
+        print(f"usage: {sys.argv[0]} PORT COUNT")
         sys.exit(1)
 
     event_loop = asyncio.get_event_loop()
-    event_loop.run_until_complete(main(int(sys.argv[1])))
+    event_loop.run_until_complete(main(int(sys.argv[1]), int(sys.argv[2])))
     event_loop.close()
