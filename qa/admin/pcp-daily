@@ -871,6 +871,13 @@ do
 	    [ X"$what" = Xall ] && check_what='-g sanity'
 	    ;;
 
+	vm14)
+	    # vm14 CentOS6.10 (Final) ... pmrep is broken here
+	    #
+	    [ X"$what" = Xall ] && check_what='-x pmrep'
+	    ;;
+
+
 	vm15)
 	    # 1123 loops forever lost in an X11 wasteland
 	    [ X"$what" = Xall ] && check_what='-X 1123'
@@ -881,6 +888,12 @@ do
 	    #
 	    qa_dir=/var/lib/pcp/testsuite
 	    qa_user=pcpqa
+	    ;;
+
+	vm28)
+	    # vm28 RHEL Server 6.10 (Santiago) ... pmrep is broken here
+	    #
+	    [ X"$what" = Xall ] && check_what='-x pmrep'
 	    ;;
 
 	vm32)
