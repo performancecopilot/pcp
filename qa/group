@@ -1756,6 +1756,7 @@ x11
 1312 derive pmdumptext valgrind local
 1313 libpcp local
 1314 libpcp valgrind local
+1315 sanity local
 1318 pmprobe pmlogconf local kernel
 1321 pmlogger pmda.openmetrics local python
 1323 pmlogrewrite labels help pmdumplog local
