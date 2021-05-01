@@ -186,7 +186,7 @@ _reboot_setup()
     fi
 }
 
-# if pmda_setup() is interrupted, we need to cleanup
+# if _pmda_setup() is interrupted, we need to cleanup
 # (a) remove the mutual exclusion lock file, and
 # (b) make sure any pending operation will be repeated at the
 #     next restart
@@ -276,9 +276,19 @@ _pmda_enact()
 	# 
 	case "$file"
 	in
-	    */.Need${action}|*/.Need${action}.failed)
-		rm -f $pmda/.Need${action}.pending
-		mv $file $pmda/.Need${action}.pending
+	    */.Need${action}|*/.Need${action}.failed|*/.Need${action}.pending)
+		case "$file"
+		in
+		    */.Need${action}.pending)
+			# interrupted? we have the mutex lock here, so
+			# just proceed
+			#
+			;;
+		    *)
+			rm -f $pmda/.Need${action}.pending
+			mv $file $pmda/.Need${action}.pending
+			;;
+		esac
 		$PCP_ECHO_PROG "$verb $pmda PMDA ..."
 		cd $pmda
 		if ./${action} </dev/null >/dev/null
@@ -296,11 +306,6 @@ _pmda_enact()
 		    mv .Need${action}.pending .Need${action}.failed
 		fi
 		cd "$PCP_PMDAS_DIR"
-		;;
-
-	    */.Need${action}.pending)
-		# recursion ... do nothing here
-		#
 		;;
 
 	    *)
