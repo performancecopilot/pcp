@@ -186,6 +186,25 @@ _reboot_setup()
     fi
 }
 
+# if pmda_setup() is interrupted, we need to cleanup
+# (a) remove the mutual exclusion lock file, and
+# (b) make sure any pending operation will be repeated at the
+#     next restart
+#
+_pmda_setup_cleanup()
+{
+    echo "_pmda_setup: Interrupted!"
+    rm -rf $tmp $PCP_TMPFILE_DIR/pmda.auto.update
+    for file in $PCP_PMDAS_DIR/*/.Need*.pending
+    do
+	[ "$file" = "$PCP_PMDAS_DIR/*/.Need*.pending" ] && continue
+	guard=`echo $file | sed -e 's@.*/@@' -e 's/\.pending$//'`
+	pmda=`echo $file | sed -e 's@/.Need.*@@' -e 's@.*/@@'`
+	echo "_pmda_setup_cleanup: reset $guard for $pmda PMDA"
+	mv -f $PCP_PMDAS_DIR/$pmda/$guard.pending $PCP_PMDAS_DIR/$pmda/$guard
+    done
+}
+
 # Note: _pmda_setup() is run only once per rc script invocation ...
 #       even though this may call Install and/or Remove scripts
 #       for multiple PMDAs which may in turn (recursively) call
@@ -208,7 +227,7 @@ _pmda_setup()
     fi
 
     # if we are interrupted, remove the lock file
-    trap "rm -rf $tmp $PCP_TMPFILE_DIR/pmda.auto.update; exit \$status" 1 2 3 15
+    trap "_pmda_setup_cleanup; exit \$status" 1 2 3 15
 
     if [ -d "$PCP_PMDAS_DIR" ]
     then
