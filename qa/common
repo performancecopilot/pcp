@@ -141,7 +141,6 @@ _haveagents()
 		fi
 		if $reinstall
 		then
-		    [ -f $_here/$iam.out ] && cat $_here/$iam.out
 		    echo "Cannot make PMDA $agent work, ... giving up!"
 		    exit 1
 		else
@@ -152,10 +151,9 @@ _haveagents()
 		    elif [ -d "$agentdir" ]
 		    then
 			echo "Trying to re-install PMDA $agent from $agentdir ..."
-			_log_fyi $PCP_LOG_DIR/pmcd/pmcd.log $agentlog
 			cd $agentdir
 			unset ROOT TOOLROOT MAKEFLAGS
-			$sudo ./Remove </dev/null >>$_here/$iam.out
+			$sudo ./Remove </dev/null
 			case $agent
 			in
 			    cisco)
@@ -163,10 +161,11 @@ _haveagents()
 				./common.install.cisco $iam $agentdir
 				;;
 			    *)
-				$sudo ./Install </dev/null >>$_here/$iam.out
+				$sudo ./Install </dev/null
 				;;
 			esac
 			cd $_here
+			_log_fyi $PCP_LOG_DIR/pmcd/pmcd.log $agentlog
 			reinstall=true
 		    else
 			echo "Cannot find PMDA directory ($agentdir)"
@@ -317,7 +316,6 @@ End-of-File
 }
 
 here=`pwd`
-rm -f $here/$iam.out
 _setenvironment
 
 check=${check-true}
