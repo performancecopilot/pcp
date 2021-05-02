@@ -1150,6 +1150,8 @@ parse_proc_stat(proc_pid_entry_t *ep, size_t buflen, char *buf)
 
     /* cmd (%s) */
     end = strrchr(p, ')');
+    if (ep->stat.cmd != NULL)
+	free(ep->stat.cmd);
     ep->stat.cmd = strndup(p, end - p);
     p = end + 2;
 
