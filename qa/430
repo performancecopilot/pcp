@@ -133,7 +133,13 @@ _update_hostsfile()
 	else
 	    echo "# Hacked for QA/$seq" >$tmp.etc.hosts
 	    echo "#" >>$tmp.etc.hosts
-	    egrep '^[^#].*[ 	]'$realhost'([ 	]|$)' <$hostsfile >$tmp.tmp
+	    # For recent Ubuntu versions we're seeing
+	    # 127.0.1.1 <realhost>.<domain> <realhost>
+	    # so dodge this one in the counting test
+	    # - kenj 2 May 2021
+	    #
+	    egrep '^[^#].*[ 	]'$realhost'([ 	]|$)' <$hostsfile \
+	    | grep -v '^127\.0\.1\.1' >$tmp.tmp
 	    if [ `wc -l <$tmp.tmp | sed -e 's/  *//g'` -ne 1 ]
 	    then
 		echo "Updating $hostsfile failed: no single $realhost entry: (see $seq.full):"
