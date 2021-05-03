@@ -38,7 +38,7 @@ CPPDEFS += "-Dpython3=1"
 endif
 
 $(SCRIPT):	$(SCRIPT).in
-	$(PMCPP) -Pr $(CPPDEFS) <$(SCRIPT).in >$(SCRIPT)
+	$(TOPDIR)/src/pmcpp/pmcpp.static -Pr $(CPPDEFS) <$(SCRIPT).in >$(SCRIPT)
 
 install: default $(SUBDIRS)
 ifeq "$(HAVE_PYTHON_ORDEREDDICT)" "true"
