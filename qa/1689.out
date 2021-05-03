@@ -59,7 +59,8 @@ pmproxy.discover.logvol.get_archive_end_failed PMID: 4.5.16 [failed pmGetArchive
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: none
 Help:
-total failed pmGetArchiveEnd calls after successfully creating a new context for all monitored archives
+total failed pmGetArchiveEnd calls after successfully creating a new context
+for all monitored archives
 
 pmproxy.discover.logvol.loops PMID: 4.5.10 [loops processing logvol data for all monitored archives]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -119,7 +120,8 @@ pmproxy.discover.purged PMID: 4.5.2 [directories, sub-directories and archives p
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
 Help:
-number of directories, sub-directories and archives purged (no longer being monitored)
+number of directories, sub-directories and archives purged
+(no longer being monitored)
 
 pmproxy.pid PMID: 4.1.0 [pmproxy PID]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
