@@ -723,7 +723,7 @@ class PMReporter(object):
                 self.repeat_header = lines - header
             else:
                 header = 1 if not self.unitinfo else 2
-                instances = len({j for i in self.pmconfig.insts for j in i[0]})
+                instances = len(set([j for i in self.pmconfig.insts for j in i[0]]))
                 self.repeat_header = int(lines / instances) - header
             self.repeat_header_auto = 1
         except Exception:
