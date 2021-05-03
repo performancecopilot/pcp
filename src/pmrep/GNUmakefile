@@ -17,6 +17,7 @@ include $(TOPDIR)/src/include/builddefs
 
 TARGET = pmrep
 SCRIPT = $(TARGET).py
+LDIRT += $(SCRIPT)
 LNKTARGET = pcp2csv
 MAN_PAGES = pcp2csv.1 pmrep.1 pmrep.conf.5
 BASHDIR = $(PCP_BASHSHARE_DIR)/completions
@@ -27,6 +28,17 @@ include $(BUILDRULES)
 
 default: $(SCRIPT) $(MAN_PAGES) $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
+
+CPPDEFS=
+ifeq "$(ENABLE_PYTHON2)" "true"
+CPPDEFS += "-Dpython2=1"
+endif
+ifeq "$(ENABLE_PYTHON3)" "true"
+CPPDEFS += "-Dpython3=1"
+endif
+
+$(SCRIPT):	$(SCRIPT).in
+	$(TOPDIR)/src/pmcpp/pmcpp.static -Pr $(CPPDEFS) <$(SCRIPT).in >$(SCRIPT)
 
 install: default $(SUBDIRS)
 ifeq "$(HAVE_PYTHON_ORDEREDDICT)" "true"
