@@ -33,14 +33,24 @@ LIBS_SUBDIRS = \
 	libpcp_web \
 	#
 
+# ones that generate .static executables and may be used later on
+# in the build
+#
 OTHER_SUBDIRS = \
+	pmcpp \
+	newhelp \
+	pmieconf \
+	#
+
+# and all the rest ...
+#
+OTHER_SUBDIRS += \
 	pminfo \
 	pmprobe \
 	bashrc \
 	zshrc \
 	dbpmda \
 	genpmda \
-	newhelp \
 	pcp \
 	pcp2elasticsearch \
 	pcp2graphite \
@@ -52,7 +62,6 @@ OTHER_SUBDIRS = \
 	pcp2zabbix \
 	pmafm \
 	pmfind \
-	pmcpp \
 	pmcd \
 	pmcd_wait \
 	pmchart \
@@ -68,7 +77,6 @@ OTHER_SUBDIRS = \
 	pmgetopt \
 	pmhostname \
 	pmie \
-	pmieconf \
 	pmiestatus \
 	pmjson \
 	pmlc \
