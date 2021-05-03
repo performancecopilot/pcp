@@ -160,17 +160,20 @@ def print_test_summary(tests: List[Test]):
         return
 
     print("\nAll failed tests:")
-    failed_tests_by_platform = defaultdict(list)
-    for test in failed_tests:
-        failed_tests_by_platform[test.platform].append(test)
-    for platform in sorted(failed_tests_by_platform):
-        print(f"{platform}:", ",".join(map(lambda t: t.name, failed_tests_by_platform[platform])))
-
-    print("\nMost failed tests:")
     failed_tests_by_name = defaultdict(list)
     for test in failed_tests:
         failed_tests_by_name[test.name].append(test)
     failed_tests_by_name_count = {name: len(tests) for name, tests in failed_tests_by_name.items()}
+    print(" ".join(sorted(failed_tests_by_name.keys(), key=int)))
+
+    failed_tests_by_platform = defaultdict(list)
+    for test in failed_tests:
+        failed_tests_by_platform[test.platform].append(test)
+    print()
+    for platform in sorted(failed_tests_by_platform):
+        print(f"{platform}:", " ".join(map(lambda t: t.name, failed_tests_by_platform[platform])))
+
+    print("\nMost failed tests:")
     failed_tests_by_name_sorted = sorted(
         failed_tests_by_name_count.items(),
         key=lambda t: t[1],
