@@ -131,13 +131,13 @@ doneRedisMapBaton(redisMapBaton *baton)
 
 static void
 redis_map_publish_callback(
-	redisClusterAsyncContext *redis, void *r, void *arg)
+	redisClusterAsyncContext *c, void *r, void *arg)
 {
     redisMapBaton	*baton = (redisMapBaton *)arg;
     redisReply          *reply = r;
 
     seriesBatonCheckMagic(baton, MAGIC_MAPPING, "redis_map_publish_callback");
-    checkIntegerReply(baton->info, baton->userdata, reply,
+    checkIntegerReply(baton->info, baton->userdata, c, reply,
 			"%s: %s", PUBLISH, "new %s mapping",
 			redisMapName(baton->mapping));
     doneRedisMapBaton(baton);
@@ -166,7 +166,7 @@ redis_map_publish(redisMapBaton *baton)
 
 static void
 redis_map_request_callback(
-	redisClusterAsyncContext *redis, void *r, void *arg)
+	redisClusterAsyncContext *c, void *r, void *arg)
 {
     redisMapBaton	*baton = (redisMapBaton *)arg;
     redisReply          *reply = r;
@@ -174,7 +174,7 @@ redis_map_request_callback(
 
     seriesBatonCheckMagic(baton, MAGIC_MAPPING, "redis_map_request_callback");
 
-    newname = checkIntegerReply(baton->info, baton->userdata, reply,
+    newname = checkIntegerReply(baton->info, baton->userdata, c, reply,
                      "%s: %s (%s)", HSET, "string mapping script",
                      redisMapName(baton->mapping));
 
@@ -242,7 +242,7 @@ redis_source_context_name(
     seriesLoadBaton		*baton = (seriesLoadBaton *)arg;
     redisReply                  *reply = r;
 
-    checkIntegerReply(baton->info, baton->userdata, reply,
+    checkIntegerReply(baton->info, baton->userdata, c, reply,
 		"%s: %s", SADD, "mapping context to source or host name");
     doneSeriesLoadBaton(baton, "redis_source_context_name");
 }
@@ -254,7 +254,7 @@ redis_source_location(
     seriesLoadBaton		*baton = (seriesLoadBaton *)arg;
     redisReply                  *reply = r;
 
-    checkIntegerReply(baton->info, baton->userdata, reply,
+    checkIntegerReply(baton->info, baton->userdata, c, reply,
 		"%s: %s", GEOADD, "mapping source location");
     doneSeriesLoadBaton(baton, "redis_source_location");
 }
@@ -266,7 +266,7 @@ redis_context_name_source(
     seriesLoadBaton		*baton = (seriesLoadBaton *)arg;
     redisReply                  *reply = r;
 
-    checkIntegerReply(baton->info, baton->userdata, reply,
+    checkIntegerReply(baton->info, baton->userdata, c, reply,
 		"%s: %s", SADD, "mapping source names to context");
     doneSeriesLoadBaton(baton, "redis_context_name_source");
 }
@@ -341,7 +341,7 @@ redis_series_inst_name_callback(
     seriesLoadBaton		*baton = (seriesLoadBaton *)arg;
     redisReply                  *reply = r;
 
-    checkIntegerReply(baton->info, baton->userdata, reply,
+    checkIntegerReply(baton->info, baton->userdata, c, reply,
 		"%s: %s", SADD, "mapping series to inst name");
     doneSeriesLoadBaton(baton, "redis_series_inst_name_callback");
 }
@@ -353,7 +353,7 @@ redis_instances_series_callback(
     seriesLoadBaton		*baton = (seriesLoadBaton *)arg;
     redisReply                  *reply = r;
 
-    checkIntegerReply(baton->info, baton->userdata, reply,
+    checkIntegerReply(baton->info, baton->userdata, c, reply,
 		"%s: %s", SADD, "mapping instance to series");
     doneSeriesLoadBaton(baton, "redis_instances_series_callback");
 }
@@ -365,7 +365,7 @@ redis_series_inst_callback(
     seriesLoadBaton		*baton = (seriesLoadBaton *)arg;
     redisReply                  *reply = r;
 
-    checkStatusReplyOK(baton->info, baton->userdata, reply,
+    checkStatusReplyOK(baton->info, baton->userdata, c, reply,
 		"%s: %s", HMSET, "setting metric inst");
     doneSeriesLoadBaton(baton, "redis_series_inst_callback");
 }
@@ -541,7 +541,7 @@ redis_series_labelvalue_callback(
     seriesLoadBaton		*load = (seriesLoadBaton *)arg;
     redisReply                  *reply = r;
 
-    checkStatusReplyOK(load->info, load->userdata, reply,
+    checkStatusReplyOK(load->info, load->userdata, c, reply,
 		"%s: %s", HMSET, "setting series label value");
     doneSeriesLoadBaton(arg, "redis_series_labelvalue_callback");
 }
@@ -553,7 +553,7 @@ redis_series_maplabelvalue_callback(
     seriesLoadBaton		*load = (seriesLoadBaton *)arg;
     redisReply                  *reply = r;
 
-    checkStatusReplyOK(load->info, load->userdata, reply,
+    checkStatusReplyOK(load->info, load->userdata, c, reply,
 		"%s: %s", HMSET, "setting series map label value");
     doneSeriesLoadBaton(arg, "redis_series_maplabelvalue_callback");
 }
@@ -566,7 +566,7 @@ redis_series_labelflags_callback(
     seriesLoadBaton		*load = (seriesLoadBaton *)arg;
     redisReply                  *reply = r;
 
-    checkStatusReplyOK(load->info, load->userdata, reply,
+    checkStatusReplyOK(load->info, load->userdata, c, reply,
 		"%s: %s", HMSET, "setting series label flags");
     doneSeriesLoadBaton(arg, "redis_series_labelflags_callback");
 }
@@ -578,7 +578,7 @@ redis_series_label_set_callback(
     seriesLoadBaton		*load = (seriesLoadBaton *)arg;
     redisReply                  *reply = r;
 
-    checkIntegerReply(load->info, load->userdata, reply,
+    checkIntegerReply(load->info, load->userdata, c, reply,
 		"%s %s", SADD, "pcp:series:label.X.value:Y");
     doneSeriesLoadBaton(arg, "redis_series_label_set_callback");
 }
@@ -788,7 +788,7 @@ redis_metric_name_series_callback(
     seriesLoadBaton		*load = (seriesLoadBaton *)arg;
     redisReply                  *reply = r;
 
-    checkIntegerReply(load->info, load->userdata, reply,
+    checkIntegerReply(load->info, load->userdata, c, reply,
 			"%s %s", SADD, "map metric name to series");
     doneSeriesLoadBaton(arg, "redis_metric_name_series_callback");
 }
@@ -800,7 +800,7 @@ redis_series_metric_name_callback(
     seriesLoadBaton		*load = (seriesLoadBaton *)arg;
     redisReply                  *reply = r;
 
-    checkIntegerReply(load->info, load->userdata, reply,
+    checkIntegerReply(load->info, load->userdata, c, reply,
 			"%s: %s", SADD, "map series to metric name");
     doneSeriesLoadBaton(arg, "redis_series_metric_name_callback");
 }
@@ -812,7 +812,7 @@ redis_desc_series_callback(
     seriesLoadBaton		*load = (seriesLoadBaton *)arg;
     redisReply                  *reply = r;
 
-    checkStatusReplyOK(load->info, load->userdata, reply,
+    checkStatusReplyOK(load->info, load->userdata, c, reply,
 			"%s: %s", HMSET, "setting metric desc");
     doneSeriesLoadBaton(arg, "redis_desc_series_callback");
 }
@@ -824,7 +824,7 @@ redis_series_source_callback(
     seriesLoadBaton		*load = (seriesLoadBaton *)arg;
     redisReply                  *reply = r;
 
-    checkIntegerReply(load->info, load->userdata, reply,
+    checkIntegerReply(load->info, load->userdata, c, reply,
 			"%s: %s", SADD, "mapping series to context");
     doneSeriesLoadBaton(arg, "redis_series_source_callback");
 }
@@ -1062,7 +1062,7 @@ redis_series_stream_callback(
 	batoninfo(baton, PMLOG_WARNING, msg);
     }
     else {
-        checkStreamReplyString(baton->info, baton->userdata, reply,
+        checkStreamReplyString(baton->info, baton->userdata, c, reply,
 		baton->stamp, "stream %s status mismatch at time %s",
 		baton->hash, baton->stamp);
     }
@@ -1188,7 +1188,7 @@ redis_update_version_callback(
     redisReply          *reply = r;
 
     seriesBatonCheckMagic(baton, MAGIC_SLOTS, "redis_update_version_callback");
-    checkStatusReplyOK(baton->info, baton->userdata, reply,
+    checkStatusReplyOK(baton->info, baton->userdata, c, reply,
 			"%s setup", "pcp:version:schema");
     redis_slots_end_phase(baton);
 }
@@ -1365,11 +1365,11 @@ decodeCommandKey(redisSlotsBaton *baton, int index, redisReply *reply)
     }
 
     node = reply->element[3];
-    if ((position = checkIntegerReply(baton->info, baton->userdata, node,
+    if ((position = checkIntegerReply(baton->info, baton->userdata, slots->acc, node,
 			"KEY position for %s element %d", COMMAND, index)) < 0)
 	return -EINVAL;
     node = reply->element[0];
-    if ((cmd = checkStringReply(baton->info, baton->userdata, node,
+    if ((cmd = checkStringReply(baton->info, baton->userdata, slots->acc, node,
 			"NAME for %s element %d", COMMAND, index)) == NULL)
 	return -EINVAL;
 
@@ -1398,7 +1398,7 @@ redis_load_keymap_callback(
 	for (i = 0; i < reply->elements; i++) {
 	    command = reply->element[i];
 	    if (checkArrayReply(baton->info, baton->userdata,
-			command, "%s entry %d", COMMAND, i) == 0)
+			c, command, "%s entry %d", COMMAND, i) == 0)
 		decodeCommandKey(baton, i, command);
 	}
     } else if (reply->type == REDIS_REPLY_ERROR) {

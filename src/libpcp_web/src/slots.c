@@ -444,13 +444,15 @@ testReplyError(redisReply *reply, const char *server_message)
 
 void
 reportReplyError(redisInfoCallBack info, void *userdata,
-	redisReply *reply, const char *format, va_list argp)
+	redisClusterAsyncContext *acc, redisReply *reply, const char *format, va_list argp)
 {
     sds			msg = sdsnew("Error: ");
 
     msg = sdscatvprintf(msg, format, argp);
     if (reply && reply->type == REDIS_REPLY_ERROR)
 	msg = sdscatfmt(msg, "\nRedis: %s\n", reply->str);
+    else if (acc->err)
+	msg = sdscatfmt(msg, "\nRedis: %s\n", acc->errstr);
     else
 	msg = sdscat(msg, "\n");
     info(PMLOG_RESPONSE, msg, userdata);
@@ -459,7 +461,7 @@ reportReplyError(redisInfoCallBack info, void *userdata,
 
 int
 checkStatusReplyOK(redisInfoCallBack info, void *userdata,
-		redisReply *reply, const char *format, ...)
+		redisClusterAsyncContext *acc, redisReply *reply, const char *format, ...)
 {
     va_list		argp;
 
@@ -467,63 +469,63 @@ checkStatusReplyOK(redisInfoCallBack info, void *userdata,
 	(strcmp("OK", reply->str) == 0 || strcmp("QUEUED", reply->str) == 0))
 	return 0;
     va_start(argp, format);
-    reportReplyError(info, userdata, reply, format, argp);
+    reportReplyError(info, userdata, acc, reply, format, argp);
     va_end(argp);
     return -1;
 }
 
 int
 checkStreamReplyString(redisInfoCallBack info, void *userdata,
-	redisReply *reply, sds s, const char *format, ...)
+	redisClusterAsyncContext *acc, redisReply *reply, sds s, const char *format, ...)
 {
     va_list		argp;
 
     if (reply && reply->type == REDIS_REPLY_STRING && strcmp(s, reply->str) == 0)
 	return 0;
     va_start(argp, format);
-    reportReplyError(info, userdata, reply, format, argp);
+    reportReplyError(info, userdata, acc, reply, format, argp);
     va_end(argp);
     return -1;
 }
 
 int
 checkArrayReply(redisInfoCallBack info, void *userdata,
-	redisReply *reply, const char *format, ...)
+	redisClusterAsyncContext *acc, redisReply *reply, const char *format, ...)
 {
     va_list		argp;
 
     if (reply && reply->type == REDIS_REPLY_ARRAY)
 	return 0;
     va_start(argp, format);
-    reportReplyError(info, userdata, reply, format, argp);
+    reportReplyError(info, userdata, acc, reply, format, argp);
     va_end(argp);
     return -1;
 }
 
 long long
 checkIntegerReply(redisInfoCallBack info, void *userdata,
-	redisReply *reply, const char *format, ...)
+	redisClusterAsyncContext *acc, redisReply *reply, const char *format, ...)
 {
     va_list		argp;
 
     if (reply && reply->type == REDIS_REPLY_INTEGER)
 	return reply->integer;
     va_start(argp, format);
-    reportReplyError(info, userdata, reply, format, argp);
+    reportReplyError(info, userdata, acc, reply, format, argp);
     va_end(argp);
     return -1;
 }
 
 sds
 checkStringReply(redisInfoCallBack info, void *userdata,
-	redisReply *reply, const char *format, ...)
+	redisClusterAsyncContext *acc, redisReply *reply, const char *format, ...)
 {
     va_list		argp;
 
     if (reply && reply->type == REDIS_REPLY_STRING)
 	return sdsnew(reply->str);
     va_start(argp, format);
-    reportReplyError(info, userdata, reply, format, argp);
+    reportReplyError(info, userdata, acc, reply, format, argp);
     va_end(argp);
     return NULL;
 }

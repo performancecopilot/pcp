@@ -90,11 +90,17 @@ extern void redis_slots_end_phase(void *);
 
 /* Redis reply helper routines */
 extern int testReplyError(redisReply *, const char *);
-extern void reportReplyError(redisInfoCallBack, void *, redisReply *, const char *, va_list);
-extern int checkStatusReplyOK(redisInfoCallBack, void *, redisReply *, const char *, ...);
-extern int checkStreamReplyString(redisInfoCallBack, void *, redisReply *, sds, const char *, ...);
-extern int checkArrayReply(redisInfoCallBack, void *, redisReply *, const char *, ...);
-extern long long checkIntegerReply(redisInfoCallBack, void *, redisReply *, const char *, ...);
-extern sds checkStringReply(redisInfoCallBack, void *, redisReply *, const char *, ...);
+extern void reportReplyError(redisInfoCallBack, void *,
+	redisClusterAsyncContext *, redisReply *, const char *, va_list);
+extern int checkStatusReplyOK(redisInfoCallBack, void *,
+	redisClusterAsyncContext *, redisReply *, const char *, ...);
+extern int checkStreamReplyString(redisInfoCallBack, void *,
+	redisClusterAsyncContext *, redisReply *, sds, const char *, ...);
+extern int checkArrayReply(redisInfoCallBack, void *,
+	redisClusterAsyncContext *, redisReply *, const char *, ...);
+extern long long checkIntegerReply(redisInfoCallBack, void *,
+	redisClusterAsyncContext *, redisReply *, const char *, ...);
+extern sds checkStringReply(redisInfoCallBack, void *,
+	redisClusterAsyncContext *, redisReply *, const char *, ...);
 
 #endif	/* SLOTS_H */

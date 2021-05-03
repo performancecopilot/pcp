@@ -1190,7 +1190,7 @@ series_hmset_function_desc_callback(
     redisReply		*reply = r;
 
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_hmset_function_desc_callback");
-    checkStatusReplyOK(baton->info, baton->userdata, reply,
+    checkStatusReplyOK(baton->info, baton->userdata, c, reply,
 			"%s", "pcp:desc");
     series_query_end_phase(baton);
 }
@@ -1232,7 +1232,7 @@ series_hmset_function_expr_callback(
     redisReply		*reply = r;
 
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_hmset_function_expr_callback");
-    checkStatusReplyOK(baton->info, baton->userdata, reply,
+    checkStatusReplyOK(baton->info, baton->userdata, c, reply,
 			"%s", "pcp:expr");
     series_query_end_phase(baton);
 }

@@ -173,7 +173,7 @@ redis_search_text_add_callback(
     seriesGetContext	*context = &baton->pmapi;
     redisReply		*reply = r;
 
-    checkStatusReplyOK(baton->info, baton->userdata, reply,
+    checkStatusReplyOK(baton->info, baton->userdata, c, reply,
 		"%s: %s", FT_ADD, "search text add");
     doneSeriesGetContext(context, "redis_search_text_add_callback");
 }
