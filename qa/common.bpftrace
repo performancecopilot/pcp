@@ -10,7 +10,7 @@ _pmdabpftrace_check()
     [ -d /lib/modules/$(uname -r) ] || _notrun "kernel headers for kernel $(uname -r) not found"
 
     $python -c "from pcp import pmda" >/dev/null 2>&1 || _notrun "python pcp pmda module not installed"
-    $python -c "import sys; sys.exit(0 if sys.version_info >= (3, 6) else 1)" || _notrun "python 3.6+ is required for this PMDA"
+    _check_python36
 
     which bpftrace > /dev/null || _notrun "bpftrace not installed"
     bpftrace --help 2>&1 | grep '\-f.*json' > /dev/null || _notrun "current bpftrace version doesn't support JSON output, please upgrade"
