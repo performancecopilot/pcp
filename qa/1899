@@ -1,0 +1,60 @@
+#!/bin/sh
+# PCP QA Test No. 1899
+# instance propfile bug in pmFetchGroup()
+# See https://github.com/performancecopilot/pcp/issues/1253
+# See qa/1753 for the valgrind version of this test.
+#
+# Copyright (c) 2021 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e 's/[0-9][0-9]*\.[0-9][0-9]*/N.N/' \
+    # end
+}
+
+# real QA test starts here
+
+if $do_valgrind
+then
+    _run_valgrind src/pmfg-derived 1 2 3
+else
+    src/pmfg-derived 1 2 3 2>&1
+fi \
+| _filter
+
+# success, all done
+exit

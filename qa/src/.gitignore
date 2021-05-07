@@ -184,6 +184,7 @@ pmdacache
 pmdaqueue
 pmdashutdown
 pmid2int
+pmfg-derived
 pmfstring
 pmlcmacro
 pmnsinarchives

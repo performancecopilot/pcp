@@ -192,18 +192,12 @@ pmfg_lookup_item(const char *metric, const char *instance, pmFGI item)
 	(item->u.item.metric_desc.indom != PM_INDOM_NULL && !instance))
 	return PM_ERR_INDOM;
 
-    /* Clear instance profile if this is an opaque derived metric. */
-    if (IS_DERIVED(item->u.item.metric_desc.pmid)) {
-        (void) pmAddProfile(PM_INDOM_NULL, 0, NULL);
-    }
-
     /* Add given instance to profile. */
     if (item->u.item.metric_desc.indom != PM_INDOM_NULL) {
 	sts = pmLookupInDom(item->u.item.metric_desc.indom, instance);
 	if (sts < 0)
 	    return sts;
 	item->u.item.metric_inst = sts;
-        /* Moot & harmless if IS_DERIVED. */
 	sts = pmAddProfile(item->u.item.metric_desc.indom, 1,
 			   &item->u.item.metric_inst);
     }
@@ -226,11 +220,6 @@ pmfg_lookup_indom(const char *metric, pmFGI item)
     if (sts < 0)
 	return sts;
 
-    /* Clear instance profile if this is an opaque derived metric. */
-    if (IS_DERIVED(item->u.item.metric_desc.pmid)) {
-        (void) pmAddProfile(PM_INDOM_NULL, 0, NULL);
-    }
-
     /* As a convenience to users, we also accept non-indom'd metrics */
     if (item->u.indom.metric_desc.indom == PM_INDOM_NULL)
 	return 0;
@@ -238,7 +227,6 @@ pmfg_lookup_indom(const char *metric, pmFGI item)
     /*
      * Add all instances; this will override any other past or future
      * piecemeal instance requests from __pmExtendFetchGroup_lookup.
-     * Moot & harmless if IS_DERIVED.
      */
     return pmAddProfile(item->u.indom.metric_desc.indom, 0, NULL);
 }
@@ -1214,17 +1202,25 @@ static int
 pmfg_clear_profile(pmFG pmfg)
 {
     int sts;
+    pmFGI item;
 
     sts = pmUseContext(pmfg->ctx);
     if (sts != 0)
 	return sts;
 
     /*
-     * Wipe clean all instances; we'll add them back incrementally as
-     * the fetchgroup is extended.  This cannot fail for the manner in
-     * which we call it - see pmDelProfile(3) man page discussion.
+     * Wipe clean all instances profiles; we'll add them back incrementally
+     * as the fetchgroup is extended.
+     * Walk the fetchgroup, just clearing the profile for any indoms
+     * that are not PM_INDOM_NULL.
+     * Any errors here are benign (or rather there's nothing we can do
+     * about 'em), so ignore pmDelProfile() return value.
      */
-    return pmDelProfile(PM_INDOM_NULL, 0, NULL);
+    for (item = pmfg->items; item; item = item->next) {
+	if (item->u.item.metric_desc.indom != PM_INDOM_NULL)
+	    (void)pmDelProfile(item->u.item.metric_desc.indom, 0, NULL);
+    }
+    return 0;
 }
 
 

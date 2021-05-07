@@ -1,0 +1,13 @@
+QA output created by 1753
+QA output created by 1899 --valgrind
+=== std out ===
+1:	N.N
+2:	N.N
+3:	N.N
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/pmfg-derived 1 2 3
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
