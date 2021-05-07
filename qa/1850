@@ -55,7 +55,7 @@ _save_config $PCP_SYSCONF_DIR/pmseries
 $sudo rm -f $PCP_SYSCONF_DIR/pmseries/*
 
 echo "Start test Redis server ..."
-redis-server --port $redisport > $tmp.redis 2>&1 &
+redis-server --port $redisport --save "" > $tmp.redis 2>&1 &
 echo "PING"
 pmsleep 0.125
 redis-cli -p $redisport ping

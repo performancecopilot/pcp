@@ -58,7 +58,7 @@ need_restore=true
 
 echo "== start two test Redis servers"
 redisport1=`_find_free_port`
-redis-server --port $redisport1 > $tmp.redis1 2>&1 &
+redis-server --port $redisport1 --save "" > $tmp.redis1 2>&1 &
 redis1_pid=$!
 echo "PING1"
 echo "redisport1=$redisport1" >>$seq.full
@@ -68,7 +68,7 @@ options1="-h localhost -p $redisport1"
 redis-cli $options1 ping
 echo
 redisport2=`_find_free_port`
-redis-server --port $redisport2 > $tmp.redis2 2>&1 &
+redis-server --port $redisport2 --save "" > $tmp.redis2 2>&1 &
 redis2_pid=$!
 echo "PING2"
 echo "redisport2=$redisport2" >>$seq.full

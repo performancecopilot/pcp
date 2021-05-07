@@ -75,7 +75,7 @@ need_restore=true
 echo "Start test Redis server ..."
 redisport=`_find_free_port`
 echo "redisport=$redisport" >>$seq.full
-redis-server --port $redisport > $tmp.redis 2>&1 &
+redis-server --port $redisport --save "" > $tmp.redis 2>&1 &
 echo "PING"
 pmsleep 0.125
 options="-p $redisport"
