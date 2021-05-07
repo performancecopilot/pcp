@@ -1,5 +1,5 @@
-# PCP required package list for Fedora 32 x86_64
-# created by kenj on vm03.localdomain Mon 12 Oct 2020 14:03:26 AEDT
+# PCP required package list for Fedora 34 x86_64
+# cloned by kenj from Fedora 32 version on Tue Oct 13 11:33:31 2020 +1100
 #
 389-ds-base
 Coin4-devel
@@ -52,7 +52,7 @@ libvirt-daemon-driver-qemu
 lm_sensors
 mailx
 make
-man
+man-db
 mandoc
 mariadb
 memcached
@@ -92,7 +92,7 @@ postfix-perl-scripts
 postgresql
 psmisc
 pylint
-python2-devel
+python2.7
 python2-setuptools
 python3-bcc
 python3-devel
@@ -112,7 +112,6 @@ python3-rtslib
 python3-setuptools
 python3-six
 qt-devel
-qt4-devel
 qt5-qtbase-devel
 qt5-qtsvg-devel
 qtchooser
