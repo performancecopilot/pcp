@@ -738,6 +738,28 @@ then
     packaging_docker
 fi
 
+# At this point we may, or may not be in a build tree (no for rpm,
+# yes for debian, who knows for others) ... so anything that is a
+# build artifact that is needed by "make check" may not be there,
+# so there are some explicit things than may need to be made.
+#
+# The "dir" list below was hand-crafted based on historical build
+# failures, but as of now (4 May 2021) we don't have any specific
+# requirements, so this list is empty.
+#
+here=pwd
+for dir in
+do
+    if [ ! -d "$dir" ]
+    then
+	echo "Error: \"make check\" setup: $dir not found"
+	exit 1
+    fi
+    cd $dir
+    make
+    cd $here
+done
+
 check_pcp		# static checking (should be last).
 
 # success!
