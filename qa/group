@@ -126,7 +126,7 @@ compat
 # generic libpcp services (not pdu, not context, not archive)
 libpcp
 
-# fetch-specific, optfetch, groupfetch
+# fetch-specific, optfetch, fetchgroup
 fetch
 
 # archive support in libpcp, includes interp.c
@@ -1884,6 +1884,7 @@ x11
 1740 pmda.proc local
 1745 pmlogger libpcp pmval local
 1748 atop local
+1753 fetch valgrind local
 1763 pmlogctl local
 1768 pmfind local
 1769 pmda.linux local
@@ -1910,6 +1911,7 @@ x11
 1886 pmseries libpcp_web local
 1896 pmlogger logutil pmlc local
 1897 pmda.hacluster local valgrind
+1899 fetch local
 1937 pmlogrewrite pmda.xfs local
 1955 libpcp pmda pmda.pmcd local
 4751 libpcp threads valgrind local pcp

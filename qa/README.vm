@@ -71,17 +71,19 @@ Fedora
     # update all packages recipe
     $ sudo dnf update
     # upgrade recipe from Fedora 21 onwards
-    $ sudo dnf update --refresh; sudo dnf install dnf-plugin-system-upgrade
+    $ sudo dnf --refresh update; sudo dnf install dnf-plugin-system-upgrade
     $ sudo dnf install fedora-gpg-keys
 
     # if you get more than one release behind (I think) ... do this with
-    # "32" replaced by the desired version number
+    # "33" replaced by the desired version number
     $ cd /etc/pki/rpm-gpg/
-    $ sudo wget https://src.fedoraproject.org/rpms/fedora-repos/raw/main/f/RPM-GPG-KEY-fedora-32-primary
-    $ sudo ln -s RPM-GPG-KEY-fedora-32-primary RPM-GPG-KEY-fedora-32-x86_64
+    $ ver=33
+    $ sudo wget https://src.fedoraproject.org/rpms/fedora-repos/raw/main/f/RPM-GPG-KEY-fedora-$ver-primary
+    $ sudo ln -s RPM-GPG-KEY-fedora-$ver-primary RPM-GPG-KEY-fedora-$ver-x86_64
 
-    #                                                             for Fedora 26
-    $ sudo dnf system-upgrade download --refresh --allowerasing --releasever=26
+    # for Fedora 33, else "33" replaced by the desired version number
+    $ ver=33
+    $ sudo dnf system-upgrade download --refresh --allowerasing --releasever=$ver
     $ sudo dnf system-upgrade reboot
     # and then watch the console window ...
 
@@ -430,7 +432,7 @@ are commonly installed and are not needed for PCP builds nor QA.
 
 === Miscellaneous Hints ===
 
-Extending a roto LVM with oevice-mapper by adding a partition
+Extending a root LVM with device-mapper by adding a partition
     From
     https://serverfault.com/questions/810221/how-to-correctly-extend-a-linux-device-mapper-partition
     or
@@ -442,7 +444,10 @@ Extending a roto LVM with oevice-mapper by adding a partition
     $ sudo vgdisplay		<- get volume group name
     $ sudo vgextend /dev/fedora-server /dev/vdb1	<- extend the volume group
     $ sudo lvextend -l +100%FREE /dev/fedora-server/root	<- extend LVM
+    # for ext2
     $ sudo resize2fs /dev/fedora-server/root		<- extend filesystem
+    # for xfs
+    $ sudo xfs_growfs /
 
 Just remember that if you're using XFS, you need xfs_growfs instead of
 resize2fs.
