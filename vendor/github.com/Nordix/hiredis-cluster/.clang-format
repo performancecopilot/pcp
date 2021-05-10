@@ -1,0 +1,4 @@
+BasedOnStyle: LLVM
+IndentWidth: 4
+BreakBeforeTernaryOperators: false
+ReflowComments: false
