@@ -98,8 +98,8 @@ like
 and more, see the \fBpmrep\fP configuration files under
 .I $PCP_SYSCONF_DIR/pmrep
 (typically \fB/etc/pcp/pmrep\fP) for details.
-Tab completion for metrics and metricsets is available with
-bash and zsh.
+Tab completion for options, metrics, and metricsets
+is available with bash and zsh.
 .PP
 Unless directed to another host by the
 .B \-h
@@ -140,8 +140,8 @@ argument(s).
 If a metricspec specifies a non-leaf node in the
 Performance Metrics Name Space (PMNS), then
 .B pmrep
-will recursively descend the PMNS and report on all leaf nodes (i.e.,
-metrics) for that metricspec.
+will recursively descend the PMNS and report on all leaf nodes
+(i.e., metrics) for that metricspec.
 Use
 .BR pminfo (1)
 to list all the metrics (PMNS lead nodes) and their descriptions.
@@ -155,11 +155,11 @@ to be read from a
 .B pmrep
 configuration file (see
 .BR pmrep.conf (5))
-which can then consist of any number of metricspecs.
+which can then consist of any number of metrics.
 Second, a
 .I metricspec
 starting with non-colon specifies a PMNS node as described above,
-optionally followed by metric formatting definitions.
+optionally followed by metric output formatting definitions.
 This so-called
 .I compact form
 of a metricspec is defined as follows:
@@ -177,42 +177,41 @@ A valid PMNS node
 is mandatory.
 It can be followed by a text
 .I label
-used by supporting output targets (currently:
-.IR stdout ,
-see below).
+used with
+.I stdout
+output.
 The optional
 .I instances
 definition restricts
 .I csv
 and
 .I stdout
-reporting to the specified instances of the selected metrics
-(so non-matching instances will be filtered out).
+reporting to the specified instances of the metric
+so non-matching instances will be filtered out (see
+.BR -i ).
 An optional
 .I unit/scale
 is applicable for dimension-compatible, non-string metrics.
-(See below for supported
+See below for supported
 .I unit/scale
-specifications.)
+specifications.
 By default, cumulative counter metrics are converted to rates, an optional
 .I type
 can be set to
 .B raw
 to disable this rate conversion.
-For supporting output targets (currently:
-.IR stdout )
-a numeric
+For
+.IR stdout
+output a numeric
 .I width
 can be used to set the width of the output column for this metric.
-Too-wide numeric values for output will not be printed (apart from
-trailing decimals, numeric values will never be silently truncated).
-Too-wide strings will be truncated.
+Too-wide strings in output will be truncated to fit the column.
 Then, a metric-specific
 .I precision
 can be provided for numeric non-integer output values.
 Lastly, a metric-specific
 .I limit
-can be set for filtering numeric values per limit.
+can be set for filtering out numeric values per the limit.
 .PP
 As a special case with metrics that are counters with time units
 (nanoseconds to hours), the
@@ -232,12 +231,13 @@ requests the metric
 .B kernel.all.sysfork
 to be reported under the text label
 .BR forks ,
-converting to the default rate count/s in an
+converting to the metric default rate count/s in an
 .B 8
 wide column.
 Although the definitions in this
 .I compact form
-are optional, they must always be provided in the order specified above.
+are optional, they must always be provided in the order specified above,
+thus the commas.
 .PP
 .in 1.5i
 .ft CW
@@ -252,7 +252,7 @@ The third form of a metricspec,
 is described and valid only in
 .BR pmrep.conf (5).
 .PP
-Derived metrics are specified like PMNS leaf node metrics.
+Derived metrics are specified like regular PMNS leaf node metrics.
 .PP
 Options via environment values (see
 .BR pmGetOptions (3))
@@ -506,53 +506,85 @@ rather than from the default localhost.
 Do not print any headers.
 .TP
 \fB\-i\fR \fIinstances\fR, \fB\-\-instances\fR=\fIinstances\fR
-Report only the specified
-.I instances
-from current instances (if present, see also
-.BR \-j ).
-By default all current instances are reported,
+Retrieve and report only the specified metric
+.IR instances .
+By default all initially present instances are reported,
 except when writing an archive (see
 .BR \-o )
-when all instances, present and future, are reported.
-This is a global option that is used for all metrics unless a
-metric-specific instance definition is provided as part of a
-.IR metricspec .
-By default single-valued ``flat'' metrics without multiple
-instances are still reported as usual, use
-.B \-v
-to change this.
+when also all future instances will be reported.
 .RS
 .PP
-The list may consist of one or more comma-separated instances.
-The instance name may be quoted with single (') or double (")
-quotes for those cases where the instance name contains commas
-or whitespace.
-Note that on the command line when specifying more than one instance,
-all the names must be quoted.
+The specified
+.I instances
+are filtered from the initially present instances
+when the tool is starting up.
+Thus instances which would match the filter appearing
+after the tool has started up will not be reported,
+use
+.B \-j
+to change this.
 .PP
+This is a global option that is used for all set-valued metrics unless
+a metric-specific instance filter is provided as part of a
+.IR metricspec .
+By default single-valued ``flat'' metrics without multiple
+instance values are still reported as usual, use
+.B \-v
+to change this.
+.PP
+.I instances
+is a comma-separated list of one or more
+instance filter specifications.
+Filters containing commas or whitespace
+must be quoted with single (') or double (") quotes.
 Multiple
 .B \-i
 options are allowed as an alternative way of specifying more than
-one instance of interest.
-Regular expressions can also be used.
+one instance filter.
+.PP
+An individual instance filter may be:
+.TP 10
+.I name
+Full instance name.
+For example,
+\fBsda\fP for \fIdisk.dev\fP instances or
+\fBeth0\fP for \fInetwork.interface\fP instances.
+.TP
+.I PID
+Process ID for \fIproc\fP instances.
+.TP
+.I command
+Base name of a process for \fIproc\fP instances.
+For example,
+\fBpmcd\fP would match all
+.BR pmcd (1)
+processes regardless of their path or PID.
+.TP
+.I regex
+Regular expression.
+For example,
+\fB.*python.*\fP would match all instances having
+the string \fBpython\fP as part of their instance name
+meaning that this would match all Python processes
+regardless of their path, PID, or version.
 .PP
 As an example, the following would report the same instances:
 .EX
+$ pmrep \-i '. minute' kernel.all.load
+$ pmrep \-i '1 minute','5 minute' kernel.all.load
 $ pmrep \-i "'1 minute','5 minute'" kernel.all.load
-$ pmrep \-i '"1 minute","5 minute"' kernel.all.load
-$ pmrep \-i "'1 minute'" \-i "'5 minute'" kernel.all.load
+$ pmrep \-i '1 minute' \-i '5 minute' kernel.all.load
 $ pmrep kernel.all.load,,"'1 minute','5 minute'"
-$ pmrep kernel.all.load,,'"1 minute","5 minute"'
 .EE
 .PP
 However, this would report only the 1-minute instance:
 .EX
-$ pmrep \-i '"1 minute","5 minute"' kernel.all.load,,"1 minute"
+$ pmrep \-i '1 minute','5 minute' kernel.all.load,,'1 minute'
 .EE
 .PP
-But this would report all instances (due to per-metric override):
+And this would report all instances (due to per-metric override):
 .EX
-$ pmrep \-i '"1 minute","5 minute"' 'kernel.all.load,,.*'
+$ pmrep \-i '1 minute','5 minute' 'kernel.all.load,,.*'
 .EE
 .RE
 .TP
@@ -574,9 +606,9 @@ include PCP metric help texts in the created archive.
 .TP
 \fB\-j\fR, \fB\-\-live\-filter\fR
 Perform instance live filtering.
-This allows capturing all filtered instances even if processes
+This allows capturing all named instances even if processes
 are restarted at some point (unlike without live filtering).
-Performing live filtering over a huge amount of instances will add
+Performing live filtering over a huge number of instances will add
 some internal overhead so a bit of user caution is advised.
 See also
 .BR \-1 " and "
@@ -676,7 +708,7 @@ metrics to be reported, only the processes using most/least (as per
 .BR \-J )
 memory will be included when reporting total bytes written by processes.
 Since \fBmem.util.used\fP is a single-valued metric (thus not sharing the
-same instance domain as the process-related metrics),
+same instance domain as the process related metrics),
 it will be reported as usual.
 .RE
 .TP
@@ -690,7 +722,7 @@ Use
 target for reporting.
 The default target is
 .IR stdout .
-The available target alternatives are:
+The available output target alternatives are:
 .RS
 .TP 2
 .I archive
@@ -880,7 +912,8 @@ Omit unit information from headers.
 .TP
 \fB\-v\fR, \fB\-\-omit\-flat\fR
 Omit single-valued ``flat'' metrics from reporting, only consider
-set-valued metrics (i.e., metrics with multiple values) for reporting.
+set-valued metrics (i.e., metrics with multiple instance values)
+for reporting.
 See
 .B \-i
 and
@@ -910,11 +943,12 @@ Print extended header.
 .TP
 \fB\-X\fR \fIlabel\fR, \fB\-\-colxrow\fR=\fIlabel\fR
 Swap columns and rows in \fIstdout\fP output, reporting one instance per
-line, using \fIlabel\fP as the text label for instance column (set to an
-empty string \fB""\fP to enable swapping without a specific text label).
-This is convenient to allow easily using
+line, using \fIlabel\fP as the text label for the instance column.
+Use an empty string ("") to enable swapping without
+a specific column label.
+This change in output allows using
 .BR grep (1)
-to filter results or to more closely mimic other utilities.
+to filter results or to more closely mimic other tools.
 See also
 .BR \-i " and "
 .BR \-6 .
@@ -1017,7 +1051,9 @@ $ pmrep \-h server1 \-t 2s \-o csv \-k disk.dev.read disk.dev.write
 .RE
 .PP
 Display processes using at least 100MB of memory using
-dynamic headers:
+dynamic headers, additionally use
+.B \-g
+to display instance (process) names in full:
 .RS +4
 .ft B
 .nf
@@ -1028,12 +1064,12 @@ $ pmrep \-b MB \-\-limit\-filter 100 \-\-dynamic\-header proc.memory.rss
 .PP
 Display the predefined set of metrics from the default
 .BR pmrep.conf (5)
-containing information about I/O issued by current
-.IR firefox " process(es):"
+containing details about I/O requests by current
+.IR pmlogger " process(es):"
 .RS +4
 .ft B
 .nf
-$ pmrep \-i '.*firefox.*' :proc-io
+$ pmrep \-gp \-i pmlogger :proc-io
 .fi
 .ft P
 .RE

@@ -41,21 +41,21 @@ any number of custom
 for
 .BR pmrep .
 A metricset is a user-defined set of arbitrary performance metrics.
-This allows the user to create specifically crafted metricsets
+This allows users to create specifically crafted metricsets
 particularly relevant for their application or environment.
 Instead of being dependent on what existing tools provide or collecting
-the needed data with several disjoint utilities the user can create and
-modify custom metricsets by editing
+the needed data with several disjoint utilities users can
+define custom metricsets by merely editing
 .BR pmrep.conf .
 See below for the \fImetricset\fP specification.
 .PP
 In case \fBpmrep\fP configuration files are read from a directory then
-the values for the \fB[options]\fP and \fB[global]\fP sections will be
+values for the \fB[options]\fP and \fB[global]\fP sections will be
 combined from each file where defined.
-The last definition of a directive will be used in case defined several
-times in different files.
-However, custom \fImetricset\fP sections will not be combined, only the
-last definition found will be used for reporting.
+The last definition of a directive wins,
+meaning the last definition will be used in case defined multiple times.
+However, custom \fImetricset\fP sections will not be combined,
+only the last definition found will be used for reporting.
 .PP
 Options via environment values (see
 .BR pmGetOptions (3))
