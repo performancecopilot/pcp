@@ -332,10 +332,12 @@ EOF
 pmrep -C -H -U -a $here/archives/proc -c $tmp.derived-test.conf :derived-test
 echo "No output expected."
 
-echo "== derived metrics v. instance profiles"  # GH#451
+echo "== derived metrics v. instance profiles"  # GH#451, GH#1253
+# GH#451  - first column should have same values
 pmrep -s 1 -w 8 -H -U -e 'y = sum(sample.bucket)' y sample.bucket
 pmrep -s 1 -w 8 -H -U -e 'y = sum(sample.bucket)' y
-# first column should have same values
+# GH#1253 - should have values for all instances
+pmrep -s 1 -w 8 -H -U -e 'y = kernel.all.uptime-proc.psinfo.start_time' -a $here/archives/20201109 -z -O 30m -i 1,2,3 y
 
 echo "== extended existing sample configuration"
 cat > $tmp.dconfig <<EOF
