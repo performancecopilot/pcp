@@ -1,0 +1,79 @@
+#!/bin/sh
+# PCP QA Test No. 1316
+# Muti-threading and __pmProcess*() family
+#
+# Copyright (c) 2021 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+cat >$tmp.data <<End-of-File
+this is line one
+this is line two
+this is line three and bozo is hiding here
+this is line four
+this is line five
+this is line six
+this is line seven
+bozo line eight
+this is line nine
+this is line ten
+this is line eleven
+this is line twelve
+this is line thirteen
+this is line fourteen
+this is line fifteen
+this is line sixteen
+this is line seventeen
+this is line eighteen
+this is line nineteen
+this is line twenty
+End-of-File
+
+if $do_valgrind
+then
+    _run_helgrind src/multithread14 -i 12 -n 9 $tmp
+else
+    src/multithread14 -i 12 -n 9 $tmp
+fi
+
+for tid in 0 1 2 3 4 5 6 7 8
+do
+    echo
+    echo "--- output for thread $tid ---"
+    cat $tmp.$tid
+done
+
+# success, all done
+exit
