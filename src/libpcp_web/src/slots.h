@@ -44,6 +44,8 @@ typedef struct redisSlots {
 
     mmv_registry_t	*metrics;	/* MMV metrics for instrumentation */
     void		*metrics_handle; /* MMV handle */
+
+    int			inflight_requests; /* number of Redis requests without response */
 } redisSlots;
 
 /* wraps the actual Redis callback and data */
@@ -65,7 +67,7 @@ extern redisSlots *redisSlotsConnect(dict *, redisSlotsFlags,
 		redisInfoCallBack, redisDoneCallBack, void *, void *, void *);
 extern int redisSlotsRequest(redisSlots *, sds, redisClusterCallbackFn *, void *);
 extern int redisSlotsRequestFirstNode(redisSlots *slots, const sds cmd,
-                                        redisClusterCallbackFn *callback, void *arg);
+		redisClusterCallbackFn *callback, void *arg);
 extern void redisSlotsFree(redisSlots *);
 
 extern int redisSlotsProxyConnect(redisSlots *,

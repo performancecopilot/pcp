@@ -142,6 +142,7 @@ redisSlotsInit(dict *config, void *events)
     slots->setup = 0;
     slots->events = events;
     slots->keymap = dictCreate(&sdsKeyDictCallBacks, "keymap");
+    slots->inflight_requests = 0;
 
     servers = pmIniFileLookup(config, "pmseries", "servers");
     if (servers == NULL)
@@ -248,8 +249,8 @@ usec_now()
 }
 
 redisSlotsReplyData*
-redisSlotsReplyDataInit(redisSlots *slots, size_t req_size,
-                        redisClusterCallbackFn *callback, void *arg)
+redisSlotsReplyDataAlloc(redisSlots *slots, size_t req_size,
+			redisClusterCallbackFn *callback, void *arg)
 {
     redisSlotsReplyData *srd;
 
@@ -278,6 +279,7 @@ redisSlotsReplyCallback(redisClusterAsyncContext *c, void *r, void *arg)
     redisSlotsReplyData *srd = arg;
     redisReply 		*reply = r;
 
+    srd->slots->inflight_requests--;
     mmv_stats_add(srd->slots->metrics_handle, "responses.wait", NULL, usec_now() - srd->start);
     mmv_stats_inc(srd->slots->metrics_handle, "responses.total", NULL);
     mmv_stats_add(srd->slots->metrics_handle, "requests.inflight.total", NULL, -1);
@@ -313,7 +315,7 @@ redisSlotsRequest(redisSlots *slots, const sds cmd,
     if (UNLIKELY(pmDebugOptions.desperate))
 	fprintf(stderr, "Sending raw redis command:\n%s", cmd);
 
-    redisSlotsReplyData *srd = redisSlotsReplyDataInit(slots, sdslen(cmd), callback, arg);
+    redisSlotsReplyData *srd = redisSlotsReplyDataAlloc(slots, sdslen(cmd), callback, arg);
     sts = redisClusterAsyncFormattedCommand(slots->acc, redisSlotsReplyCallback, srd, cmd, sdslen(cmd));
     mmv_stats_inc(slots->metrics_handle, "requests.total", NULL);
 
@@ -323,6 +325,7 @@ redisSlotsRequest(redisSlots *slots, const sds cmd,
 	return -ENOMEM;
     }
 
+    slots->inflight_requests++;
     mmv_stats_inc(slots->metrics_handle, "requests.inflight.total", NULL);
     mmv_stats_add(slots->metrics_handle, "requests.inflight.bytes", NULL, sdslen(cmd));
     return REDIS_OK;
@@ -352,7 +355,7 @@ redisSlotsRequestFirstNode(redisSlots *slots, const sds cmd,
     if (UNLIKELY(pmDebugOptions.desperate))
 	fprintf(stderr, "Sending raw redis command to node %s\n%s", node->addr, cmd);
 
-    redisSlotsReplyData *srd = redisSlotsReplyDataInit(slots, sdslen(cmd), callback, arg);
+    redisSlotsReplyData *srd = redisSlotsReplyDataAlloc(slots, sdslen(cmd), callback, arg);
     sts = redisClusterAsyncFormattedCommandToNode(slots->acc, node, redisSlotsReplyCallback, srd, cmd, sdslen(cmd));
     mmv_stats_inc(slots->metrics_handle, "requests.total", NULL);
 
@@ -362,6 +365,7 @@ redisSlotsRequestFirstNode(redisSlots *slots, const sds cmd,
 	return -ENOMEM;
     }
 
+    slots->inflight_requests++;
     mmv_stats_inc(slots->metrics_handle, "requests.inflight.total", NULL);
     mmv_stats_add(slots->metrics_handle, "requests.inflight.bytes", NULL, sdslen(cmd));
     return REDIS_OK;
