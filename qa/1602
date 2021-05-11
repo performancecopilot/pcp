@@ -12,15 +12,16 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
+. ./common.redis
 
 _check_series
+_check_redis_server_version_offline
 
 _cleanup()
 {
     cd $here
     [ -n "$pmproxy_pid" ] && $signal -s TERM $pmproxy_pid
-    [ -n "$options2" ] && redis-cli $options2 shutdown
-    [ -n "$options1" ] && redis-cli $options1 shutdown
+    _redis_cluster_3nodes_stop
     if $need_restore
     then
 	need_restore=false
@@ -47,7 +48,6 @@ _filter_redis()
 {
     sed \
         -e "s,:$port1>,:PORT1>,g" \
-        -e "s,:$port2>,:PORT2>,g" \
     #end
 }
 
@@ -56,26 +56,8 @@ _save_config $PCP_SYSCONF_DIR/pmproxy
 $sudo rm -f $PCP_SYSCONF_DIR/pmproxy/*
 need_restore=true
 
-echo "== start two test Redis servers"
-redisport1=`_find_free_port`
-redis-server --port $redisport1 --save "" > $tmp.redis1 2>&1 &
-redis1_pid=$!
-echo "PING1"
-echo "redisport1=$redisport1" >>$seq.full
-echo "redis1_pid=$redis1_pid" >>$seq.full
-pmsleep 0.125
-options1="-h localhost -p $redisport1"
-redis-cli $options1 ping
-echo
-redisport2=`_find_free_port`
-redis-server --port $redisport2 --save "" > $tmp.redis2 2>&1 &
-redis2_pid=$!
-echo "PING2"
-echo "redisport2=$redisport2" >>$seq.full
-echo "redis2_pid=$redis2_pid" >>$seq.full
-pmsleep 0.125
-options2="-h localhost -p $redisport2"
-redis-cli $options2 ping
+# start Redis cluster
+_redis_cluster_3nodes_start
 echo
 
 echo "== start pmproxy"
@@ -85,7 +67,7 @@ cat >$tmp.conf <<EOF
 pcp.enabled = true
 redis.enabled = true
 [pmseries]
-servers = localhost:$redisport1,localhost:$redisport2
+servers = localhost:$redis_node1_port,localhost:$redis_node2_port,localhost:$redis_node3_port
 EOF
 proxyport=`_find_free_port`
 proxyopts="-p $proxyport -c $tmp.conf"
@@ -93,7 +75,7 @@ pmproxy -f -t -U $username -x $seq.full -l $tmp.pmproxy.log $proxyopts &
 pmproxy_pid=$!
 echo "proxyport=$proxyport" >>$seq.full
 echo "pmproxy_pid=$pmproxy_pid" >>$seq.full
-which netstat >/dev/null && netstat -a | egrep "$redisport1|$redisport2|$proxyport" >>$seq.full
+which netstat >/dev/null && netstat -a | egrep "$redisport1|$proxyport" >>$seq.full
 pmsleep 0.125
 echo "PING_PROXY"
 redis-cli -p $proxyport ping
@@ -123,14 +105,28 @@ echo
 echo "== redis-cli empty key set"
 redis-cli -p $proxyport keys no-such-key
 echo
-echo "== redis-cli handle errors"
-redis-cli -p $proxyport get foo bar
+echo "== redis-cli handle errors 1"
+redis-cli -p $proxyport get foo bar baz
+echo
+echo "== redis-cli handle errors 2"
+redis-cli -p $proxyport set foo bar baz
+echo
+echo "== redis-cli nonexistant key"
+redis-cli -p $proxyport get abc
+echo
+
+# check key distribution
+echo "== redis cluster key distribution"
+echo "== node1"
+redis-cli -p $redis_node1_port keys pcpqa:*
+echo "== node2"
+redis-cli -p $redis_node2_port keys pcpqa:*
+echo "== node3"
+redis-cli -p $redis_node3_port keys pcpqa:*
 echo
 
 cat $tmp.conf >> $seq.full
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep pmproxy >> $seq.full
-redis-cli $options1 keys pcpqa:* >> $seq.full
-redis-cli $options2 keys pcpqa:* >> $seq.full
 cat $tmp.pmproxy.log >> $seq.full
 
 echo "== all done" | tee -a $seq.full

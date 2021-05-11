@@ -87,6 +87,7 @@ redisfmt(redisReply *reply)
     case REDIS_REPLY_BOOL:
 	return sdscatfmt(command, "#%s\r\n", reply->integer ? "t" : "f");
     case REDIS_REPLY_NIL:
+	return sdscat(command, "$-1\r\n");
     default:
 	break;
     }
@@ -95,12 +96,12 @@ redisfmt(redisReply *reply)
 
 static void
 on_redis_server_reply(
-	redisAsyncContext *c, redisReply *reply, const sds cmd, void *arg)
+	redisClusterAsyncContext *c, void *r, void *arg)
 {
     struct client	*client = (struct client *)arg;
+    redisReply          *reply = r;
 
     (void)c;
-    sdsfree(cmd);
     client_write(client, redisfmt(reply), NULL);
 }
 
@@ -136,7 +137,8 @@ static void
 on_redis_connected(void *arg)
 {
     struct proxy	*proxy = (struct proxy *)arg;
-    mmv_registry_t	*metric_registry = proxymetrics(proxy, METRICS_DISCOVER);
+    mmv_registry_t	*redis_metric_registry = proxymetrics(proxy, METRICS_REDIS);
+    mmv_registry_t	*discover_metric_registry = proxymetrics(proxy, METRICS_DISCOVER);
     sds			message;
 
     message = sdsnew("Redis slots");
@@ -157,10 +159,13 @@ on_redis_connected(void *arg)
 	redis_discover.callbacks = redis_search;
     }
 
+    redisSlotsSetMetricRegistry(proxy->slots, redis_metric_registry);
+    redisSlotsSetupMetrics(proxy->slots);
+
     if (archive_discovery && (series_queries || search_queries)) {
 	pmDiscoverSetEventLoop(&redis_discover.module, proxy->events);
 	pmDiscoverSetConfiguration(&redis_discover.module, proxy->config);
-	pmDiscoverSetMetricRegistry(&redis_discover.module, metric_registry);
+	pmDiscoverSetMetricRegistry(&redis_discover.module, discover_metric_registry);
 	pmDiscoverSetup(&redis_discover.module, &redis_discover.callbacks, proxy);
 	pmDiscoverSetSlots(&redis_discover.module, proxy->slots);
     }
@@ -212,5 +217,6 @@ close_redis_module(struct proxy *proxy)
     if (archive_discovery)
 	pmDiscoverClose(&redis_discover.module);
 
+    proxymetrics_close(proxy, METRICS_REDIS);
     proxymetrics_close(proxy, METRICS_DISCOVER);
 }

@@ -1,0 +1,89 @@
+#!/bin/sh
+# PCP QA Test No. 1603
+# Exercise Redis cluster mode support in libpcp_web with pmseries.
+#
+# Copyright (c) 2021 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+. ./common.redis
+
+_check_series
+_check_redis_server_version_offline
+
+_cleanup()
+{
+    cd $here
+    [ -n "$pmproxy_pid" ] && $signal -s TERM $pmproxy_pid
+    _redis_cluster_3nodes_stop
+
+    if $need_restore
+    then
+	need_restore=false
+	_restore_config $PCP_SYSCONF_DIR/pmproxy
+    fi
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+signal=$PCP_BINADM_DIR/pmsignal
+
+username=`id -u -n`
+
+need_restore=false
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter_source()
+{
+    sed \
+	-e "s,$here,PATH,g" \
+    #end
+}
+
+# real QA test starts here
+_save_config $PCP_SYSCONF_DIR/pmproxy
+$sudo rm -f $PCP_SYSCONF_DIR/pmproxy/*
+need_restore=true
+
+_redis_cluster_3nodes_start
+
+cat >$tmp.conf <<EOF
+[pmproxy]
+pcp.enabled = true
+redis.enabled = true
+[pmseries]
+servers = localhost:$redis_node2_port,localhost:$redis_node1_port
+[pmsearch]
+enabled = false
+EOF
+pmseriesopts="-c $tmp.conf"
+
+echo
+echo "== Verify basic load from proc archive"
+pmseries $pmseriesopts --load "{source.path: \"$here/archives/proc\"}" | _filter_source
+
+echo
+echo "== Check number of keys on each node"
+# context hash will be different depending where the archive is stored on the QA host
+redis-cli -p $redis_node1_port keys '*' | grep -v context.name | wc -l
+redis-cli -p $redis_node2_port keys '*' | grep -v context.name | wc -l
+redis-cli -p $redis_node3_port keys '*' | grep -v context.name | wc -l
+
+echo
+echo "== List all metric names ..."
+pmseries $pmseriesopts -m | LC_COLLATE=POSIX sort
+
+echo
+echo "== Values fetch for a multi-valued query ..."
+pmseries $pmseriesopts -Z UTC 'kernel.all.load[count: 30]'
+
+
+status=0
+exit

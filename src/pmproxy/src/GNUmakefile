@@ -21,10 +21,14 @@ CFILES = pmproxy.c
 XFILES = uv_callback.h uv_callback.c
 
 LCFLAGS = $(PIECFLAGS) \
-	  -I$(TOPDIR)/src/libpcp_web/src -I$(TOPDIR)/src/libpcp_mmv/src
+	-I$(TOPDIR)/src/libpcp_web/src \
+	-I$(TOPDIR)/src/libpcp_web/src/deps \
+	-I$(TOPDIR)/src/libpcp_mmv/src
 LLDFLAGS = $(PIELDFLAGS)
 LLDLIBS	= -lpcp_mmv $(PCP_WEBLIB)
-PCPLIB_LDFLAGS += -L$(TOPDIR)/src/libpcp_mmv/$(LIBPCP_ABIDIR)
+PCPLIB_LDFLAGS += \
+	-L$(TOPDIR)/src/libpcp_web/$(LIBPCP_ABIDIR) \
+	-L$(TOPDIR)/src/libpcp_mmv/$(LIBPCP_ABIDIR)
 
 ifeq "$(HAVE_LIBUV)" "true"
 LCFLAGS += $(LIBUVCFLAGS) -DHAVE_LIBUV=1

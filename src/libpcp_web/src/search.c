@@ -167,20 +167,14 @@ redis_search_text_prep(sds s, int min_length, char *prefix, char *suffix)
 
 static void
 redis_search_text_add_callback(
-	redisAsyncContext *c, redisReply *reply, const sds cmd, void *arg)
+	redisClusterAsyncContext *c, void *r, void *arg)
 {
     seriesLoadBaton	*baton = (seriesLoadBaton *)arg;
     seriesGetContext	*context = &baton->pmapi;
-    int			sts;
+    redisReply		*reply = r;
 
-    sts = redisSlotsRedirect(baton->slots, reply, baton->info, baton->userdata,
-			     cmd, redis_search_text_add_callback, arg);
-    if (sts > 0)
-	return;	/* short-circuit as command was re-submitted */
-    if (sts == 0)
-	checkStatusReplyOK(baton->info, baton->userdata, reply,
+    checkStatusReplyOK(baton->info, baton->userdata, c, reply,
 		"%s: %s", FT_ADD, "search text add");
-
     doneSeriesGetContext(context, "redis_search_text_add_callback");
 }
 
@@ -252,7 +246,9 @@ redis_search_text_add(redisSlots *slots, pmSearchTextType type,
 	cmd = redis_param_str(cmd, helptext, strlen(helptext));
     }
 
-    redisSlotsRequest(slots, FT_ADD, key, cmd, redis_search_text_add_callback, arg);
+    sdsfree(key);
+    redisSlotsRequestFirstNode(slots, cmd, redis_search_text_add_callback, arg);
+    sdsfree(cmd);
 }
 
 void
@@ -369,18 +365,14 @@ pmSearchDiscoverText(pmDiscoverEvent *event,
 
 static void
 redis_search_info_callback(
-	redisAsyncContext *c, redisReply *reply, const sds cmd, void *arg)
+	redisClusterAsyncContext *c, void *r, void *arg)
 {
     redisSearchBaton	*baton = (redisSearchBaton *)arg;
+    redisReply		*reply = r;
     redisReply		*child, *value;
     pmSearchMetrics	metrics = {0};
-    int			i, sts;
+    int			i;
     sds			msg;
-
-    sts = redisSlotsRedirect(baton->slots, reply, baton->info, baton->userdata,
-			     cmd, redis_search_info_callback, arg);
-    if (sts > 0)
-	return;	/* short-circuit as command was re-submitted */
 
     if (reply && reply->type == REDIS_REPLY_ARRAY && reply->elements >= 30) {
 	for (i = 0; i < reply->elements-1; i++) {
@@ -418,11 +410,9 @@ redis_search_info_callback(
 	}
 	baton->callbacks->on_metrics(&metrics, baton->userdata);
     } else {
-	if (sts < 0) {
-	    infofmt(msg, "expected array from %s (reply=%s)",
-			FT_INFO, redis_reply_type(reply));
-	    batoninfo(baton, PMLOG_RESPONSE, msg);
-	}
+	infofmt(msg, "expected array from %s (reply=%s)",
+		FT_INFO, redis_reply_type(reply));
+	batoninfo(baton, PMLOG_RESPONSE, msg);
 	baton->error = -EPROTO;
     }
 
@@ -451,7 +441,9 @@ redis_search_info(redisSlots *slots, sds pcpkey, void *arg)
     cmd = redis_command(2);
     cmd = redis_param_str(cmd, FT_INFO, FT_INFO_LEN);
     cmd = redis_param_sds(cmd, key);
-    redisSlotsRequest(slots, FT_INFO, key, cmd, redis_search_info_callback, arg);
+    sdsfree(key);
+    redisSlotsRequestFirstNode(slots, cmd, redis_search_info_callback, arg);
+    sdsfree(cmd);
 }
 
 int
@@ -532,20 +524,15 @@ extract_search_results(redisSearchBaton *baton,
 
 static void
 redis_search_text_query_callback(
-	redisAsyncContext *c, redisReply *reply, const sds cmd, void *arg)
+	redisClusterAsyncContext *c, void *r, void *arg)
 {
     redisSearchBaton	*baton = (redisSearchBaton *)arg;
+    redisReply		*reply = r;
     redisReply		*value;
     struct timeval	finished;
     unsigned int	total;
     double		timer;
-    int			sts;
     sds			msg;
-
-    sts = redisSlotsRedirect(baton->slots, reply, baton->info, baton->userdata,
-			     cmd, redis_search_text_query_callback, arg);
-    if (sts > 0)
-	return;	/* short-circuit as command was re-submitted */
 
     if (LIKELY(reply && reply->type == REDIS_REPLY_ARRAY)) {
 	value = reply->element[0];
@@ -562,11 +549,9 @@ redis_search_text_query_callback(
 	    extract_search_results(baton, total, timer, reply);
 	}
     } else {
-	if (sts < 0) {
-	    infofmt(msg, "expected array from %s (reply=%s)",
-			FT_SEARCH, redis_reply_type(reply));
-	    batoninfo(baton, PMLOG_RESPONSE, msg);
-	}
+	infofmt(msg, "expected array from %s (reply=%s)",
+		FT_SEARCH, redis_reply_type(reply));
+	batoninfo(baton, PMLOG_RESPONSE, msg);
 	baton->error = -EPROTO;
     }
 
@@ -731,7 +716,9 @@ redis_search_text_query(redisSlots *slots, pmSearchTextRequest *request, void *a
 	cmd = redis_param_str(cmd, buffer, length);
     }
 
-    redisSlotsRequest(slots, FT_SEARCH, key, cmd, redis_search_text_query_callback, arg);
+    sdsfree(key);
+    redisSlotsRequestFirstNode(slots, cmd, redis_search_text_query_callback, arg);
+    sdsfree(cmd);
 }
 
 int
@@ -835,7 +822,9 @@ redis_search_text_suggest(redisSlots *slots, pmSearchTextRequest *request, void 
 	cmd = redis_param_str(cmd, buffer, length);
     }
 
-    redisSlotsRequest(slots, FT_SEARCH, key, cmd, redis_search_text_query_callback, arg);
+    sdsfree(key);
+    redisSlotsRequestFirstNode(slots, cmd, redis_search_text_query_callback, arg);
+    sdsfree(cmd);
 }
 
 int
@@ -909,7 +898,9 @@ redis_search_text_indom(redisSlots *slots, pmSearchTextRequest *request, void *a
 	cmd = redis_param_str(cmd, buffer, length);
     }
 
-    redisSlotsRequest(slots, FT_SEARCH, key, cmd, redis_search_text_query_callback, arg);
+    sdsfree(key);
+    redisSlotsRequestFirstNode(slots, cmd, redis_search_text_query_callback, arg);
+    sdsfree(cmd);
 }
 
 int
@@ -929,26 +920,24 @@ pmSearchTextInDom(pmSearchSettings *settings, pmSearchTextRequest *request, void
 
 static void
 redis_search_schema_callback(
-	redisAsyncContext *c, redisReply *reply, const sds cmd, void *arg)
+	redisClusterAsyncContext *c, void *r, void *arg)
 {
     redisSlotsBaton	*baton = (redisSlotsBaton *)arg;
-    int			sts;
+    redisReply		*reply = r;
+
     seriesBatonCheckMagic(baton, MAGIC_SLOTS, "redis_search_schema_callback");
 
-    sts = redisSlotsRedirect(baton->slots, reply, baton->info, baton->userdata,
-			     cmd, redis_search_schema_callback, arg);
-    if (sts > 0)
-	return;	/* short-circuit as command was re-submitted */
-    if (sts == 0) {
-	if (checkStatusReplyOK(baton->info, baton->userdata, reply,
-		"%s: %s", FT_CREATE, "creating search schema") == 0)
-	    baton->slots->search = -ENOTSUP;
-	else
-	    baton->slots->search = 1;
-    } else if (!testReplyError(reply, REDIS_EDROPINDEX)) {
-	baton->slots->search = -ENOTSUP;
-    } else {
+    if (testReplyError(reply, REDIS_EDROPINDEX)) {
+	// index already exists
 	baton->slots->search = 1;
+    }
+    else if (reply && reply->type == REDIS_REPLY_STATUS &&
+	(strcmp("OK", reply->str) == 0 || strcmp("QUEUED", reply->str) == 0)) {
+	// index created
+	baton->slots->search = 1;
+    } else {
+	// probably no RediSearch module installed, ignore silently
+	baton->slots->search = 0;
     }
 
     redis_slots_end_phase(baton);
@@ -1005,7 +994,9 @@ redis_load_search_schema(void *arg)
     cmd = redis_param_str(cmd, FT_WEIGHT, FT_WEIGHT_LEN);
     cmd = redis_param_str(cmd, "2", sizeof("2")-1);
 
-    redisSlotsRequest(baton->slots, FT_CREATE, key, cmd, redis_search_schema_callback, arg);
+    sdsfree(key);
+    redisSlotsRequestFirstNode(baton->slots, cmd, redis_search_schema_callback, arg);
+    sdsfree(cmd);
 }
 
 int

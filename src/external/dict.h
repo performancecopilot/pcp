@@ -34,6 +34,7 @@
  */
 
 #include <stdint.h>
+#include <stddef.h>
 
 #ifndef __DICT_H
 #define __DICT_H
@@ -180,6 +181,11 @@ uint8_t *dictGetHashFunctionSeed(void);
 unsigned long dictScan(dict *d, unsigned long v, dictScanFunction *fn, dictScanBucketFunction *bucketfn, void *privdata);
 uint64_t dictGetHash(dict *d, const void *key);
 dictEntry **dictFindEntryRefByPtrAndHash(dict *d, const void *oldptr, uint64_t hash);
+
+/* compat functions required for hiredis */
+void dictInitIterator(dictIterator *iter, dict *d);
+#define dictGetEntryVal dictGetVal
+#define dictSetHashVal dictSetVal
 
 /* Hash table types */
 extern dictType dictTypeHeapStringCopyKey;
