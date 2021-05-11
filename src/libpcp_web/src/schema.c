@@ -1057,9 +1057,13 @@ redis_series_stream_callback(
 
     seriesBatonCheckMagic(baton, MAGIC_STREAM, "redis_series_stream_callback");
     if (testReplyError(reply, REDIS_ESTREAMXADD)) {
-	infofmt(msg, "duplicate or early stream %s insert at time %s",
+	// duplicate streams can happen when pmproxy is restarted and discovery
+	// re-adds a part of the archive; only show warnings in desperate mode
+	if (UNLIKELY(pmDebugOptions.desperate)) {
+	    infofmt(msg, "duplicate or early stream %s insert at time %s",
 		baton->hash, baton->stamp);
-	batoninfo(baton, PMLOG_WARNING, msg);
+	    batoninfo(baton, PMLOG_DEBUG, msg);
+	}
     }
     else {
         checkStreamReplyString(baton->info, baton->userdata, c, reply,
