@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (C) 2015-2019 Marko Myllynen <myllynen@redhat.com>
+.\" Copyright (C) 2015-2021 Marko Myllynen <myllynen@redhat.com>
 .\" Copyright (C) 2016-2018 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
@@ -61,17 +61,19 @@ arguments or a configuration file.
 .B pcp2zabbix
 is a close relative of
 .BR pmrep (1).
-Please refer to
+Refer to
 .BR pmrep (1)
 for the
 .I metricspec
 description accepted on
 .B pcp2zabbix
-command line and
+command line.
+See
 .BR pmrep.conf (5)
 for description of the
 .B pcp2zabbix.conf
-configuration file overall syntax, this page describes
+configuration file overall syntax.
+This page describes
 .B pcp2zabbix
 specific options and configuration file differences with
 .BR pmrep.conf (5).
@@ -338,21 +340,15 @@ rather than from the default localhost.
 Do not print any headers.
 .TP
 \fB\-i\fR \fIinstances\fR, \fB\-\-instances\fR=\fIinstances\fR
-Report only the specified
-.I instances
-from current instances (if present, see also
-.BR \-j ).
+Retrieve and report only the specified metric
+.IR instances .
 By default all instances, present and future, are reported.
-This is a global option that is used for all metrics unless a
-metric-specific instance definition is provided as part of a
-.IR metricspec .
-By default single-valued ``flat'' metrics without multiple
-instances are still reported as usual, use
-.B \-v
-to change this.
-Please refer to
+.RS
+.PP
+Refer to
 .BR pmrep (1)
-for more details on this option.
+for complete description of this option.
+.RE
 .TP
 \fB\-I\fR, \fB\-\-ignore\-incompat\fR
 Ignore incompatible metrics.
@@ -387,9 +383,9 @@ The names are adjusted if \fB\-x\fR was given to override the
 .TP
 \fB\-j\fR, \fB\-\-live\-filter\fR
 Perform instance live filtering.
-This allows capturing all filtered instances even if processes
+This allows capturing all named instances even if processes
 are restarted at some point (unlike without live filtering).
-Performing live filtering over a huge amount of instances will add
+Performing live filtering over a huge number of instances will add
 some internal overhead so a bit of user caution is advised.
 See also
 .BR \-n .
@@ -463,7 +459,7 @@ metrics to be reported, only the processes using most/least (as per
 .BR \-J )
 memory will be included when reporting total bytes written by processes.
 Since \fBmem.util.used\fP is a single-valued metric (thus not sharing the
-same instance domain as the process-related metrics),
+same instance domain as the process related metrics),
 it will be reported as usual.
 .RE
 .TP
@@ -594,7 +590,8 @@ will run.
 .TP
 \fB\-v\fR, \fB\-\-omit\-flat\fR
 Omit single-valued ``flat'' metrics from reporting, only consider
-set-valued metrics (i.e., metrics with multiple values) for reporting.
+set-valued metrics (i.e., metrics with multiple instance values)
+for reporting.
 See
 .B \-i
 and

@@ -1,0 +1,133 @@
+QA output created by 1549
+== user-requested instance handling
+No matching instances found.
+
+Requested global instances:
+['wrong']
+  m.u.free
+     Kbyte
+     38220
+  m.u.free
+     Kbyte
+     38220
+  d.d.read
+       sda
+   count/s
+       N/A
+  d.d.read
+       sda
+   count/s
+       N/A
+  d.d.read  k.a.load  k.a.load
+       sda  1 minute  5 minute
+   count/s                    
+       N/A     0.820     0.700
+          k.a.load
+          1 minute
+                  
+             0.820
+  k.a.load  k.a.load
+  1 minute  5 minute
+                    
+     0.820     0.700
+  d.d.read
+       sda
+   count/s
+       N/A
+          d.d.read
+               sda
+           count/s
+               N/A
+  d.d.read  d.d.read
+       sda       sdb
+   count/s   count/s
+       N/A       N/A
+          d.d.read          d.d.read
+               sda               sdb
+           count/s           count/s
+               N/A               N/A
+  k.a.sysfork              free              load              load              read
+                                         1 minute          5 minute               sda
+      count/s             Kbyte                                               count/s
+          N/A             38220             0.820             0.700               N/A
+  d.d.read  d.d.read  d.d.read  d.d.read  d.d.read  d.d.read
+       sda       sdb       sdc       hdc       sdd       sde
+   count/s   count/s   count/s   count/s   count/s   count/s
+       N/A       N/A       N/A       N/A       N/A       N/A
+  d.d.read
+       sda
+   count/s
+       N/A
+      read      read      read      read      read
+       sda       sdb       sdc       sdd       sde
+   count/s   count/s   count/s   count/s   count/s
+       N/A       N/A       N/A       N/A       N/A
+| sd.* | sd.* | sd.* | sd.* | sd.* 
+|   sda|   sdb|   sdc|   sdd|   sde
+|count/|count/|count/|count/|count/
+|   N/A|   N/A|   N/A|   N/A|   N/A
+=== more instance handling
+No matching instances found.
+
+Requested global instances:
+['xxx', 'yyy', 'zzz']
+No matching instances found.
+
+Requested global instances:
+['sda', 'sdc']
+No matching instances found.
+
+Requested global instances:
+['sda']
+   l2   l3
+  sda  sda
+  cou  cou
+  N/A  N/A
+  d.d.read
+       sda
+   count/s
+       N/A
+  d.d.read
+       sda
+   count/s
+       N/A
+  label
+    sda
+  count
+    N/A
+== testing improved instance handling
+  p.p.pid
+  000001 
+  p.p.pid
+  000002 
+  p.p.pid  p.p.pid
+  000001   000002 
+  p.p.pid  p.p.pid  p.p.pid
+  000001   000002   000570 
+  p.p.pid
+  000002 
+  p.p.pid
+  029922 
+No matching instances found.
+
+Requested global instances:
+['XpmcdX']
+  p.p.pid
+  029922 
+  p.p.pid
+  000001 
+No matching instances found.
+
+Requested global instances:
+['0']
+  d.d.write
+        sda
+  d.d.write
+        sda
+  p.p.pid
+  029922 
+    29922
+    29922
+    29922
+    29922
+== done

@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (C) 2015-2019 Marko Myllynen <myllynen@redhat.com>
+.\" Copyright (C) 2015-2021 Marko Myllynen <myllynen@redhat.com>
 .\" Copyright (C) 2016-2018 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
@@ -56,17 +56,19 @@ arguments or a configuration file.
 .B pcp2xlsx
 is a close relative of
 .BR pmrep (1).
-Please refer to
+Refer to
 .BR pmrep (1)
 for the
 .I metricspec
 description accepted on
 .B pcp2xlsx
-command line and
+command line.
+See
 .BR pmrep.conf (5)
 for description of the
 .B pcp2xlsx.conf
-configuration file overall syntax, this page describes
+configuration file overall syntax.
+This page describes
 .B pcp2xlsx
 specific options and configuration file differences with
 .BR pmrep.conf (5).
@@ -263,20 +265,16 @@ rather than from the default localhost.
 Do not print any headers.
 .TP
 \fB\-i\fR \fIinstances\fR, \fB\-\-instances\fR=\fIinstances\fR
-Report only the specified
-.I instances
-from current instances (if present).
+Retrieve and report only the specified metric
+.IR instances
+from currently present metric instances.
 By default all current instances are reported.
-This is a global option that is used for all metrics unless a
-metric-specific instance definition is provided as part of a
-.IR metricspec .
-By default single-valued ``flat'' metrics without multiple
-instances are still reported as usual, use
-.B \-v
-to change this.
-Please refer to
+.RS
+.PP
+Refer to
 .BR pmrep (1)
-for more details on this option.
+for complete description of this option.
+.RE
 .TP
 \fB\-I\fR, \fB\-\-ignore\-incompat\fR
 Ignore incompatible metrics.
@@ -435,7 +433,8 @@ will run.
 .TP
 \fB\-v\fR, \fB\-\-omit\-flat\fR
 Omit single-valued ``flat'' metrics from reporting, only consider
-set-valued metrics (i.e., metrics with multiple values) for reporting.
+set-valued metrics (i.e., metrics with multiple instance values)
+for reporting.
 See
 .B \-i
 and
