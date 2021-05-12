@@ -91,7 +91,7 @@ echo "=== valgrind stdout ===" | tee -a $seq.full
 cat $tmp.valout | _filter_valgrind
 
 echo "=== valgrind stderr ===" | tee -a $seq.full
-cat $tmp.valerr | _filter_pmproxy_log | _filter_port
+cat $tmp.valerr | _filter_pmproxy_log | grep -v "Cannot connect to Redis" | _filter_port
 
 # success, all done
 status=0
