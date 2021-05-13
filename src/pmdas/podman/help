@@ -32,9 +32,9 @@
 @ podman.container.name human-readable name for each podman container
 @ podman.container.command command line of initial container process
 @ podman.container.status string indicating current container status
-@ podman.container.rwsize prefered I/O size for podman container
-@ podman.container.rootfssize size of container root filesystem
 @ podman.container.running zero or one indicating container running
+@ podman.container.image base image name for each container
+@ podman.container.pod pod mapping for containers in pods
 
 @ podman.container.stats.net_input interface bytes received per container
 @ podman.container.stats.net_output interface bytes transmitted per container

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Red Hat.
+ * Copyright (c) 2018,2021 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,21 +16,20 @@
 
 #include "pmapi.h"
 #include "pmda.h"
-#include <stdbool.h>
 
 typedef struct {
     uint32_t		name;		/* string mapping for name */
     uint32_t		command;	/* string mapping for running command */
     uint32_t		status;		/* string mapping for status */
-    int64_t		rwsize;
-    int64_t		rootfssize;
-    bool		running;
-    unsigned int	labels;
-    uint32_t		*labelnames;	/* string mappings for label names */
-    uint32_t		*labelvalues;	/* string mappings for label values */
+    unsigned int	running;
+    uint32_t		labelmap;	/* string mapping for labels */
+    unsigned int	nlabels;	/* number of labels in labelmap */
+    const char		*labels;	/* pointer to start of all labels */
+    uint32_t		image;		/* string mapping for image name */
+    uint32_t		podid;		/* string mapping for pod name */
 } container_info_t;
 
-typedef struct container_stats {
+typedef struct {
     int64_t		net_input;
     int64_t		net_output;
     int64_t		block_input;
@@ -41,40 +40,40 @@ typedef struct container_stats {
     int64_t		mem_usage;
     int64_t		mem_limit;
     double		mem_perc;
-    int64_t		nprocesses;
-    uint32_t		name;		/* string mapping for container name */
+    uint32_t		nprocesses;
 } container_stats_t;
 
-typedef enum state_flags {
+typedef enum {
     STATE_NONE		= 0x0,
     STATE_INFO		= 0x1,
     STATE_STATS		= 0x2,
+    STATE_POD		= 0x4,
 } state_flags_t;
 
-typedef struct container {
-    uint32_t		id;	/* string mapping for container hash */
-    uint32_t		podmap;	/* string mapping for pod hash (optional) */
+typedef struct {
     state_flags_t	flags;
     container_info_t	info;
     container_stats_t	stats;
 } container_t;
 
-typedef struct pod_info {
-    uint32_t		id;		/* string mapping for pod hash */
-    state_flags_t	flags;
+typedef struct {
     uint32_t		name;		/* string mapping for pod name */
     uint32_t		cgroup;		/* string mapping for cgroup name */
-    uint64_t		rwsize;
-    uint64_t		rootfssize;
-    bool		running;
-    unsigned int	labels;
-    uint32_t		*labelnames;	/* string mappings for label names */
-    uint32_t		*labelvalues;	/* string mappings for label values */
+    unsigned int	running;
+    uint32_t		labelmap;	/* string mapping for label names */
+    unsigned int	nlabels;	/* number of labels in labelmap */
+    const char		*labels;	/* pointer to start of all labels */
     uint32_t		status;		/* string mapping for status info */
-    uint32_t		ncontainers;
+    unsigned int	ncontainers;
 } pod_info_t;
 
-enum {
+typedef struct {
+    state_flags_t	flags;
+    pod_info_t		info;
+} pod_t;
+
+typedef enum {
+    /* pmID item fields */
     STATS_NET_INPUT	= 0,
     STATS_NET_OUTPUT	= 1,
     STATS_BLOCK_INPUT	= 2,
@@ -86,26 +85,39 @@ enum {
     STATS_MEM_LIMIT	= 8,
     STATS_MEM_PERC	= 9,
     STATS_PIDS		= 10,
-    NUM_CONTAINER_STATS
-};
+    NUM_CONTAINER_STATS,
 
-enum {
+    /* internal fields */
+    STATS_ID,
+} container_stats_e;
+
+typedef enum {
+    /* pmID item fields */
     INFO_NAME		= 0,
     INFO_COMMAND	= 1,
     INFO_STATUS		= 2,
-    INFO_RWSIZE		= 3,
-    INFO_ROOTFSSIZE	= 4,
     INFO_RUNNING	= 5,
-    NUM_CONTAINER_INFO
-};
+    INFO_IMAGE		= 6,
+    INFO_POD		= 7,
+    NUM_CONTAINER_INFO,
 
-enum {
+    /* internal fields */
+    INFO_ID,
+    INFO_LABELS,
+} container_info_e;
+
+typedef enum {
+    /* pmID item fields */
     POD_NAME		= 0,
     POD_CGROUP		= 1,
     POD_STATUS		= 2,
     POD_CONTAINERS	= 3,
-    NUM_POD_INFO
-};
+    NUM_POD_INFO,
+
+    /* internal fields */
+    POD_ID,
+    POD_LABELS,
+} pod_info_e;
 
 enum {
     CLUSTER_STATS	= 0,
@@ -123,16 +135,21 @@ enum {
 
 /* General routines */
 
-extern void podman_context_set_container(int, pmInDom, const char *, int);
-extern container_t *podman_context_container(int);
-extern void podman_context_end(int);
-
-extern void refresh_podman_containers(pmInDom, state_flags_t);
-extern void refresh_podman_container(pmInDom, char *, state_flags_t);
-extern void refresh_podman_pod_info(pmInDom, char *);
-extern void refresh_podman_pods_info(pmInDom);
-
+extern void podman_refresh(unsigned int[]);
 extern char *podman_strings_lookup(int);
 extern int podman_strings_insert(const char *);
+
+/* Parsing routines */
+
+extern int podman_parse_init(void);
+extern void podman_parse_end(void);
+
+/* Instance domains */
+
+extern pmdaIndom podman_indomtab[NUM_INDOMS];
+#define INDOM(x) (podman_indomtab[x].it_indom)
+
+/* System paths */
+extern char *podman_rundir;
 
 #endif /* PCP_PODMAN_H */

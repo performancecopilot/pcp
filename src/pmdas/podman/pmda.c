@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Red Hat.
+ * Copyright (c) 2018,2021 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,8 +16,8 @@
 #include "libpcp.h"
 #include "domain.h"
 
-static pmdaIndom podman_indomtab[NUM_INDOMS];
-#define INDOM(x) (podman_indomtab[x].it_indom)
+char *podman_rundir;
+pmdaIndom podman_indomtab[NUM_INDOMS];
 
 #define NUM_METRICS (NUM_CONTAINER_STATS + NUM_CONTAINER_INFO + NUM_POD_INFO)
 static pmdaMetric podman_metrictab[] = {
@@ -67,14 +67,14 @@ static pmdaMetric podman_metrictab[] = {
     { .m_desc = { PMDA_PMID(CLUSTER_INFO, INFO_STATUS),
 		PM_TYPE_STRING, CONTAINER_INDOM, PM_SEM_DISCRETE,
 		PMDA_PMUNITS(0,0,0,0,0,0) }, },
-    { .m_desc = { PMDA_PMID(CLUSTER_INFO, INFO_RWSIZE),
-		PM_TYPE_U64, CONTAINER_INDOM, PM_SEM_INSTANT,
-		PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
-    { .m_desc = { PMDA_PMID(CLUSTER_INFO, INFO_ROOTFSSIZE),
-		PM_TYPE_U64, CONTAINER_INDOM, PM_SEM_INSTANT,
-		PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
     { .m_desc = { PMDA_PMID(CLUSTER_INFO, INFO_RUNNING),
 		PM_TYPE_U32, CONTAINER_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { .m_desc = { PMDA_PMID(CLUSTER_INFO, INFO_IMAGE),
+		PM_TYPE_STRING, CONTAINER_INDOM, PM_SEM_DISCRETE,
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { .m_desc = { PMDA_PMID(CLUSTER_INFO, INFO_POD),
+		PM_TYPE_STRING, CONTAINER_INDOM, PM_SEM_DISCRETE,
 		PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
     /* pod info cluster (2) */
@@ -115,81 +115,23 @@ podman_strings_insert(const char *string)
     return pmdaCacheStore(dict, PMDA_CACHE_ADD, string, NULL);
 }
 
-static void
-podman_refresh_container(pmdaExt *pmda, pmInDom indom, int inst, state_flags_t flags)
-{
-    container_t		*cp = podman_context_container(pmda->e_context);
-    char		*name = NULL;
-    int			sts;
-
-    if (cp != NULL)
-	name = podman_strings_lookup(cp->id);
-    else if (inst != PM_IN_NULL) {
-	sts = pmdaCacheLookup(indom, inst, &name, (void **)&cp);
-	name = (sts < 0) ? NULL : podman_strings_lookup(cp->id);
-    }
-    if (name && name[0] == '\0')
-	name = NULL;
-
-    if (name)
-	refresh_podman_container(indom, name, flags);
-    else
-	refresh_podman_containers(indom, flags);
-}
-
-static void
-podman_refresh_info(pmdaExt *pmda, pmInDom indom, int inst, char *name)
-{
-    container_t		*cp = podman_context_container(pmda->e_context);
-    int			sts;
-
-    if (cp != NULL)
-	name = podman_strings_lookup(cp->id);
-    else if (inst != PM_IN_NULL) {
-	sts = pmdaCacheLookup(indom, inst, &name, (void **)&cp);
-	name = (sts < 0) ? NULL : podman_strings_lookup(cp->id);
-    }
-    if (name && name[0] == '\0')
-	name = NULL;
-
-    if (name)
-	refresh_podman_container(indom, name, STATE_INFO);
-    else
-	refresh_podman_containers(indom, STATE_INFO);
-}
-
-static void
-podman_refresh_pod(pmdaExt *pmda, pmInDom indom, int inst, char *name)
-{
-    container_t		*cp;
-    int			sts;
-
-    if (inst != PM_IN_NULL) {
-	sts = pmdaCacheLookup(indom, inst, &name, (void **)&cp);
-	name = (sts < 0) ? NULL : podman_strings_lookup(cp->id);
-    }
-    if (name && name[0] == '\0')
-	name = NULL;
-
-    if (name)
-	refresh_podman_pod_info(indom, name);
-    else
-	refresh_podman_pods_info(indom);
-}
-
 static int
 podman_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt *pmda)
 {
-    unsigned int	serial = pmInDom_serial(indom);
+    unsigned int	refresh = 0, need_refresh[NUM_CLUSTERS] = { 0 };
 
-    switch(serial) {
+    switch (pmInDom_serial(indom)) {
     case CONTAINER_INDOM:
-	podman_refresh_info(pmda, indom, inst, name);
+	need_refresh[CLUSTER_INFO]++;
+	refresh++;
 	break;
     case POD_INDOM:
-	podman_refresh_pod(pmda, indom, inst, name);
+	need_refresh[CLUSTER_POD]++;
+	refresh++;
 	break;
     }
+    if (refresh)
+	podman_refresh(need_refresh);
     return pmdaInstance(indom, inst, name, result, pmda);
 }
 
@@ -271,14 +213,14 @@ podman_info_fetchCallBack(unsigned int item, unsigned int inst, pmAtomValue *ato
     case INFO_STATUS:
 	atom->cp = podman_strings_lookup(cp->info.status);
 	break;
-    case INFO_RWSIZE:
-	atom->ull = cp->info.rwsize;
-	break;
-    case INFO_ROOTFSSIZE:
-	atom->ull = cp->info.rootfssize;
-	break;
     case INFO_RUNNING:
 	atom->ul = cp->info.running;
+	break;
+    case INFO_IMAGE:
+	atom->cp = podman_strings_lookup(cp->info.image);
+	break;
+    case INFO_POD:
+	atom->cp = podman_strings_lookup(cp->info.podid);
 	break;
     default:
 	return PM_ERR_PMID;
@@ -289,7 +231,7 @@ podman_info_fetchCallBack(unsigned int item, unsigned int inst, pmAtomValue *ato
 static int
 podman_pod_fetchCallBack(unsigned int item, unsigned int inst, pmAtomValue *atom)
 {
-    pod_info_t		*pp;
+    pod_t		*pp;
     int			sts;
 
     sts = pmdaCacheLookup(INDOM(POD_INDOM), inst, NULL, (void **)&pp);
@@ -297,19 +239,21 @@ podman_pod_fetchCallBack(unsigned int item, unsigned int inst, pmAtomValue *atom
 	return sts;
     if (sts != PMDA_CACHE_ACTIVE)
 	return PM_ERR_INST;
+    if (!(pp->flags & STATE_POD))
+	return 0;
 
     switch (item) {
     case POD_NAME:
-	atom->cp = podman_strings_lookup(pp->name);
+	atom->cp = podman_strings_lookup(pp->info.name);
 	break;
     case POD_CGROUP:
-	atom->cp = podman_strings_lookup(pp->cgroup);
+	atom->cp = podman_strings_lookup(pp->info.cgroup);
 	break;
     case POD_STATUS:
-	atom->cp = podman_strings_lookup(pp->status);
+	atom->cp = podman_strings_lookup(pp->info.status);
 	break;
     case POD_CONTAINERS:
-	atom->ul = pp->ncontainers;
+	atom->ul = pp->info.ncontainers;
 	break;
     default:
 	return PM_ERR_PMID;
@@ -340,7 +284,6 @@ static int
 podman_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
     unsigned int	cluster, need_refresh[NUM_CLUSTERS] = { 0 };
-    state_flags_t	flags = STATE_NONE;
     int			i;
 
     for (i = 0; i < numpmid; i++) {
@@ -348,16 +291,7 @@ podman_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	if (cluster < NUM_CLUSTERS)
 	    need_refresh[cluster]++;
     }
-
-    if (need_refresh[CLUSTER_STATS])
-	flags |= STATE_STATS;
-    if (need_refresh[CLUSTER_INFO])
-	flags |= STATE_INFO;
-
-    if (flags != STATE_NONE)
-	podman_refresh_container(pmda, INDOM(CONTAINER_INDOM), PM_IN_NULL, flags);
-    if (need_refresh[CLUSTER_POD])
-	podman_refresh_pod(pmda, INDOM(POD_INDOM), PM_IN_NULL, NULL);
+    podman_refresh(need_refresh);
 
     return pmdaFetch(numpmid, pmidlist, resp, pmda);
 }
@@ -366,7 +300,7 @@ static int
 podman_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
 {
     container_t		*cp;
-    pod_info_t		*pp;
+    pod_t		*pp;
     void		*vp;
     int			sts;
 
@@ -376,23 +310,19 @@ podman_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
     if (sts != PMDA_CACHE_ACTIVE)
 	return 0;
     if (indom == INDOM(POD_INDOM)) {
-	pp = (pod_info_t *)vp;
-	// for (i = 0; i < cp->info.labels; i++)
-	//	pmdaAddLabels(lp, "{\"%s\":\"%s\"}",
-	//		podman_strings_lookup(pp->labelnames[n]),
-	//		podman_strings_lookup(pp->labelvalue[n]));
-	return pp->labels;
+	pp = (pod_t *)vp;
+	if (pp->info.nlabels)
+	    pmdaAddNotes(lp, "%s", podman_strings_lookup(pp->info.labelmap));
+	return pp->info.nlabels;
     }
     if (indom == INDOM(CONTAINER_INDOM)) {
 	cp = (container_t *)vp;
-	if (cp->podmap)
+	if (cp->info.podid)
 	    pmdaAddLabels(lp, "{\"pod\":\"%s\"}",
-			    podman_strings_lookup(cp->podmap));
-	// for (i = 0; i < cp->info.labels; i++)
-	//	pmdaAddLabels(lp, "{\"%s\":\"%s\"}",
-	//		podman_strings_lookup(cp->info.labelnames[n]),
-	//		podman_strings_lookup(cp->info.labelvalues[n]));
-	return cp->info.labels + (cp->podmap? 1 : 0);
+			    podman_strings_lookup(cp->info.podid));
+	if (cp->info.nlabels)
+	    pmdaAddNotes(lp, "%s", podman_strings_lookup(cp->info.labelmap));
+	return cp->info.nlabels + (cp->info.podid ? 1 : 0);
     }
     return 0;
 }
@@ -401,19 +331,6 @@ static int
 podman_label(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
 {
     return pmdaLabel(ident, type, lpp, pmda);
-}
-
-static int
-podman_attribute(int ctx, int attr, const char *value, int len, pmdaExt *pmda)
-{
-    switch (attr) {
-    case PMDA_ATTR_CONTAINER:
-	podman_context_set_container(ctx, INDOM(CONTAINER_INDOM), value, len);
-	break;
-    default:
-	break;
-    }
-    return pmdaAttribute(ctx, attr, value, len, pmda);
 }
 
 static pmLongOptions   longopts[] = {
@@ -447,13 +364,16 @@ podman_init(pmdaInterface *dp)
     if (dp->status != 0)
 	return;
 
+    if (podman_rundir == NULL)
+	podman_rundir = "/run";
+
+    podman_parse_init();
+
     dp->version.seven.fetch = podman_fetch;
     dp->version.seven.label = podman_label;
     dp->version.seven.instance = podman_instance;
-    dp->version.seven.attribute = podman_attribute;
     pmdaSetFetchCallBack(dp, podman_fetchCallBack);
     pmdaSetLabelCallBack(dp, podman_labelCallBack);
-    pmdaSetEndContextCallBack(dp, podman_context_end);
 
     podman_indomtab[CONTAINER_INDOM].it_indom = CONTAINER_INDOM;
     podman_indomtab[STRINGS_INDOM].it_indom = STRINGS_INDOM;

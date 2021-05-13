@@ -1,8 +1,8 @@
 #!/bin/sh
-# PCP QA Test No. 1358
+# PCP QA Test No. 1357
 # Verify podman PMDA memory accesses using valgrind.
 #
-# Copyright (c) 2018 Red Hat.
+# Copyright (c) 2018,2021 Red Hat.
 #
 
 seq=`basename $0`
@@ -11,6 +11,7 @@ echo "QA output created by $seq"
 . ./common.containers
 
 [ -f $PCP_PMDAS_DIR/podman/pmdapodman ] || _notrun "podman pmda not installed"
+[ -x $PCP_BIN_DIR/systemctl ] || _notrun "systemctl command not available"
 _check_valgrind
 _check_containers
 _check_podman_binary
@@ -48,18 +49,22 @@ _filter()
 }
 
 # real QA test starts here
+$sudo $PCP_BIN_DIR/systemctl restart podman.service
+
 container=`$podman run -d busybox sleep 10`
 echo "== container: $container" >> $here/$seq.full
 [ -z "$container" ] && _fail "Failed to create container"
-pod=`$podman pod create`
-echo "== pod: $pod" >> $here/$seq.full
-[ -z "$pod" ] && _fail "Failed to create pod"
+
+# RHBZ #1958732
+#pod=`$podman pod create`
+#echo "== pod: $pod" >> $here/$seq.full
+#[ -z "$pod" ] && _fail "Failed to create pod"
 
 pmda=$PCP_PMDAS_DIR/podman/pmda_podman.so,podman_init
 pmns=$PCP_VAR_DIR/pmns/root_podman
 args="-L -K clear -K add,33,$pmda -v -n $pmns"
 
-_run_valgrind --sudo pminfo $args podman 2>&1 | _filter
+_run_valgrind --sudo pminfo $args podman.container 2>&1 | _filter
 
 # success, all done
 status=0

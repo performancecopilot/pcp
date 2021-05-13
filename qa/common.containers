@@ -25,7 +25,7 @@ _check_podman_binary()
     [ $? -eq 0 ] || _notrun "No podman binary found"
     podman="$sudo $podman"
 
-    $sudo test -S /run/podman/io.podman || _notrun "no podman varlink socket"
+    $sudo test -f "$PCP_SYSTEMDUNIT_DIR/podman.socket" || _notrun "No podman REST API service found"
 }
 
 _check_docker_binary()

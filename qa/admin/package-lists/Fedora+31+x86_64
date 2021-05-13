@@ -47,7 +47,6 @@ kubernetes-client
 libicu-devel
 libpfm-devel
 libuv-devel
-libvarlink-devel
 libvirt-daemon
 libvirt-daemon-driver-qemu
 lm_sensors

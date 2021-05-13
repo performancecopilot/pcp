@@ -58,18 +58,6 @@ podman.container.stats.mem_perc
 podman.container.stats.pids
      inst [NNN or "CONTAINER"] value INTEGER
      inst [NNN or "CONTAINER"] value INTEGER
-podman.pod.name
-     inst [NNN or "POD"] value STRING
-     inst [NNN or "POD"] value STRING
-podman.pod.cgroup
-     inst [NNN or "POD"] value STRING
-     inst [NNN or "POD"] value STRING
-podman.pod.status
-     inst [NNN or "POD"] value STRING
-     inst [NNN or "POD"] value STRING
-podman.pod.containers
-     inst [NNN or "POD"] value INTEGER
-     inst [NNN or "POD"] value INTEGER
 
 === remove podman agent ===
 Culling the Performance Metrics Name Space ...
@@ -78,4 +66,3 @@ Updating the PMCD control file, and notifying PMCD ...
 [...removing files...]
 Check podman metrics have gone away ... OK
 == removing containers
-== removing pods

@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright (c) 2018 Red Hat.
+# Copyright (c) 2018-2021 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -23,14 +23,14 @@ daemon_opt=true
 pipe_opt=true
 pmns_source=root_podman
 
-if [ ! -S /run/podman/io.podman ]
+if [ ! -S /run/podman/podman.sock ]
 then
-    $PCP_ECHO_PROG $PCP_ECHO_N "Do you wish to start the podman varlink socket? [y] ""$PCP_ECHO_C"
+    $PCP_ECHO_PROG $PCP_ECHO_N "Do you wish to start the podman system service? [y] ""$PCP_ECHO_C"
     read ans
     if [ "X$ans" = "Xy" -o "X$ans" = "XY" -o -z "$ans" ]
     then
-        systemctl enable io.podman.service
-        systemctl start io.podman.service
+        systemctl enable podman.service
+        systemctl start podman.service
     else
         echo "Warning: continuing installation but expect no metric values"
     fi

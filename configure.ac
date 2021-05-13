@@ -1793,9 +1793,6 @@ AC_CHECK_LIB(uv, uv_pipe_chmod,
 	     have_uv_pipe_chmod=true,
 	     have_uv_pipe_chmod=false)
 
-PKG_CHECK_MODULES([libvarlink], [libvarlink], [have_libvarlink=true], [have_libvarlink=false])
-AC_SUBST(HAVE_LIBVARLINK, [$have_libvarlink])
-
 PKG_CHECK_MODULES([ncurses], [ncurses], [have_ncurses=true], [have_ncurses=false])
 AC_SUBST(HAVE_NCURSES, [$have_ncurses])
 
@@ -1917,11 +1914,9 @@ AS_IF([test "x$do_pmdastatsd" = "xcheck"], [
 AC_SUBST(PMDA_STATSD, $pmda_statsd)
 if $pmda_statsd; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
-dnl Do you have varlink libraries for pmdapodman?
 AC_MSG_CHECKING([if the podman PMDA should be included])
-pmda_podman=false
-AS_IF([test "x$do_pmdapodman" = "xyes"], [pmda_podman=true])
-AS_IF([test "x$do_pmdapodman" = "xcheck"], [$have_libvarlink && pmda_podman=true])
+pmda_podman=true
+AS_IF([test "x$do_pmdapodman" = "xno"], [pmda_podman=false])
 AC_SUBST(PMDA_PODMAN, $pmda_podman)
 if $pmda_podman; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 

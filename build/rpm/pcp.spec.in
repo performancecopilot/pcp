@@ -110,9 +110,6 @@ BuildRequires: systemd-devel
 %if "@pmda_rpm@" == "true"
 BuildRequires: rpm-devel
 %endif
-%if "@pmda_podman@" == "true"
-BuildRequires: libvarlink-devel
-%endif
 %if "@pmda_statsd@" == "true"
 # ragel unavailable on RHEL8
 %if 0%{?rhel} == 0
@@ -930,12 +927,10 @@ License: GPLv2+
 Summary: Performance Co-Pilot (PCP) metrics for podman containers
 URL: https://pcp.io
 Requires: pcp = @package_version@ pcp-libs = @package_version@
-Requires: libvarlink
-BuildRequires: libvarlink-devel
 
 %description pmda-podman
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting podman container and pod statistics through libvarlink.
+collecting podman container and pod statistics via the podman REST API.
 #end pcp-pmda-podman
 %endif
 

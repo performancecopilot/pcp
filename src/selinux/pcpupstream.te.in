@@ -124,6 +124,9 @@ allow init_t system_cronjob_t:dbus send_msg;
 #type=AVC msg=audit(XXX.4): avc:  denied  { execute execute_no_trans open read } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:user_home_t:s0 tclass=file permissive=0
 allow pcp_pmcd_t user_home_t:file { execute execute_no_trans };
 
+#type=AVC msg=audit(XXX.90): avc: denied { getattr write } for pid=1514 comm="pmdapodman" path="/run/user/N/podman/podman.sock" dev="tmpfs" ino=228 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:user_tmp_t:s0 tclass=sock_file permissive=0
+allow pcp_pmcd_t user_tmp_t:sock_file { getattr write };
+
 #type=AVC msg=audit(XXX.6): avc:  denied  { append getattr ioctl open read write } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:debugfs_t:s0 tclass=file permissive=0
 allow pcp_pmcd_t debugfs_t:file { append getattr ioctl open read write };
 

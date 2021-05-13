@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014,2016-2017,2020 Red Hat.
+ * Copyright (c) 2014,2016-2017,2020-2021 Red Hat.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -501,7 +501,7 @@ on_header_value(http_parser *pp, const char *offset, size_t length)
 	    if (length + 1 > cp->type_length) {
 		cp->error_code = -E2BIG;
 		if (pmDebugOptions.http)
-		    fprintf(stderr, "on_header_value: Setting error E2BIG");
+		    fprintf(stderr, "on_header_value: Setting error E2BIG\n");
 		return 1;
 	    }
 	    strncpy(cp->type_buffer, offset, length);
@@ -523,7 +523,7 @@ on_body(http_parser *pp, const char *offset, size_t length)
     if (length > cp->body_length - cp->offset) {
 	cp->error_code = -E2BIG;
 	if (pmDebugOptions.http)
-	    fprintf(stderr, "on_body: Setting error E2BIG");
+	    fprintf(stderr, "on_body: Setting error E2BIG\n");
 	return 1;
     }
     strncpy(cp->body_buffer + cp->offset, offset, length);
@@ -595,7 +595,7 @@ http_client_response(http_client *cp)
 	    return sts ? sts : -EAGAIN;
 	}
 	if (pmDebugOptions.http)
-	    fprintf(stderr, "http_client error code=%d", cp->error_code);
+	    fprintf(stderr, "http_client_response error code=%d\n", cp->error_code);
 
 	bytes = http_parser_execute(&cp->parser, &settings, buffer, sts);
 	if (pmDebugOptions.http) {
@@ -604,7 +604,7 @@ http_client_response(http_client *cp)
 	    fprintf(stderr, "While loop condition=%d\n", (bytes && !(cp->flags & F_MESSAGE_END)));
 	}
 
-    } while (bytes && !(cp->flags & F_MESSAGE_END));
+    } while (bytes && !cp->error_code && !(cp->flags & F_MESSAGE_END));
 
     if (http_should_client_disconnect(cp))
 	http_client_disconnect(cp);
@@ -650,6 +650,7 @@ void
 pmhttpFreeClient(http_client *cp)
 {
     http_client_disconnect(cp);
+    free(cp->url);
     free(cp);
 }
 

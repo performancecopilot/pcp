@@ -42,12 +42,7 @@ Source0: %{artifactory}/pcp-source-release/pcp-%{version}.src.tar.gz
 %endif
 %endif
 
-# libvarlink and pmdapodman
-%if 0%{?fedora} >= 28 || 0%{?rhel} > 7
 %global disable_podman 0
-%else
-%global disable_podman 1
-%endif
 
 # libchan, libhdr_histogram and pmdastatsd
 %if 0%{?fedora} >= 29 || 0%{?rhel} > 7
@@ -241,9 +236,6 @@ BuildRequires: python3-setuptools
 BuildRequires: ncurses-devel
 BuildRequires: readline-devel
 BuildRequires: cyrus-sasl-devel
-%if !%{disable_podman}
-BuildRequires: libvarlink-devel
-%endif
 %if !%{disable_statsd}
 # ragel unavailable on RHEL8
 %if 0%{?rhel} == 0
@@ -289,8 +281,6 @@ Requires: pcp-libs = %{version}-%{release}
 %if !%{disable_selinux}
 Requires: pcp-selinux = %{version}-%{release}
 %endif
-
-Requires: pcp-libs = %{version}-%{release}
 
 %global _confdir        %{_sysconfdir}/pcp
 %global _logsdir        %{_localstatedir}/log/pcp
@@ -891,12 +881,10 @@ License: GPLv2+
 Summary: Performance Co-Pilot (PCP) metrics for podman containers
 URL: https://pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-Requires: libvarlink
-BuildRequires: libvarlink-devel
 
 %description pmda-podman
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting podman container and pod statistics through libvarlink.
+collecting podman container and pod statistics via the podman REST API.
 %endif
 
 %if !%{disable_statsd}

@@ -2,7 +2,7 @@
 # PCP QA Test No. 1358
 # Exercise the podman PMDA.
 #
-# Copyright (c) 2018 Red Hat.
+# Copyright (c) 2018,2021 Red Hat.
 #
 
 seq=`basename $0`
@@ -11,6 +11,7 @@ echo "QA output created by $seq"
 . ./common.containers
 
 [ -f $PCP_PMDAS_DIR/podman/pmdapodman ] || _notrun "podman pmda not installed"
+[ -x $PCP_BIN_DIR/systemctl ] || _notrun "systemctl command not available"
 _check_containers
 _check_podman_binary
 _check_podman_images busybox
@@ -42,10 +43,9 @@ pmdapodman_install()
 
 _filter()
 {
-    egrep "^podman|$pod1|$pod2|$container1|$container2" | \
+    #egrep "^podman|$pod1|$pod2|$container1|$container2" | \
+    egrep "^podman|$container1|$container2" | \
     sed \
-	-e "s/$pod1/POD/g" \
-	-e "s/$pod2/POD/g" \
 	-e "s/$container1/CONTAINER/g" \
 	-e "s/$container2/CONTAINER/g" \
 	-e 's/ value [0-9]\+\.\?[0-9]*[eE][+-][0-9]\+/ value FLOAT/g' \
@@ -53,6 +53,8 @@ _filter()
 	-e 's/ value [0-9]\+/ value INTEGER/g' \
 	-e 's/ value ".*"/ value STRING/g' \
 	-e 's/inst \[[[0-9]\+ or/ inst [NNN or/g' \
+	#-e "s/$pod1/POD/g" \
+	#-e "s/$pod2/POD/g" \
     #end
 }
 
@@ -80,6 +82,8 @@ _prepare_pmda podman
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
+$sudo $PCP_BIN_DIR/systemctl restart podman.service
+
 pmdapodman_install
 
 # create some new podman containers
@@ -89,16 +93,17 @@ container2=`$podman run -d busybox sleep 10`
 echo "== container2: $container2" >> $here/$seq.full
 [ -z "$container1" -o -z "$container2" ] && _fail "Failed to create containers"
 
+# RHBZ #1958732
 # create some new podman pods
-pod1=`$podman pod create`
-echo "== pod1: $pod1" >> $here/$seq.full
-pod2=`$podman pod create`
-echo "== pod2: $pod2" >> $here/$seq.full
-[ -z "$pod1" -o -z "$pod2" ] && _fail "Failed to create PODs"
+#pod1=`$podman pod create`
+#echo "== pod1: $pod1" >> $here/$seq.full
+#pod2=`$podman pod create`
+#echo "== pod2: $pod2" >> $here/$seq.full
+#[ -z "$pod1" -o -z "$pod2" ] && _fail "Failed to create PODs"
 
 # fetch new state, check for new containers and pods
 echo "=== podman metric verification ==="
-pminfo --fetch podman | tee -a $here/$seq.full | _filter
+pminfo --fetch podman.container | tee -a $here/$seq.full | _filter
 
 echo
 echo "=== remove $iam agent ==="

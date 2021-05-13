@@ -22,6 +22,7 @@ Checking policies.
   allow [init_t] [tmp_t] : [file] { open };
   allow [init_t] [system_cronjob_t] : [dbus] { send_msg };
   allow [pcp_pmcd_t] [user_home_t] : [file] { execute execute_no_trans };
+  allow [pcp_pmcd_t] [user_tmp_t] : [sock_file] { getattr write };
   allow [pcp_pmcd_t] [debugfs_t] : [file] { append getattr ioctl open read write };
 ! allow [pcp_pmcd_t] [pcp_pmie_exec_t] : [file] { execute execute_no_trans open read map };
   allow [pcp_pmcd_t] [pcp_var_lib_t] : [fifo_file] { getattr read open unlink };
