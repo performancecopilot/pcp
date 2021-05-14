@@ -59,9 +59,7 @@ log_error(jsonsl_t json, jsonsl_error_t error,
 static void
 container_stats_update(container_stats_parser_t *parser, const char *position)
 {
-    if (parser->id < 0) {		/* bad input JSON data */
-	return;
-    } else if (container_stats_json->level == 2) {	/* complete */
+    if (container_stats_json->level == 2) {	/* complete */
 	container_t *cp = NULL;
 	pmInDom indom = INDOM(CONTAINER_INDOM);
 	char *name = podman_strings_lookup(parser->id);
@@ -259,11 +257,9 @@ container_info_end_labels(container_info_parser_t *ip, int bytes)
 static void
 container_info_update(container_info_parser_t *ip, int level, const char *position)
 {
-    if (ip->id < 0) {		/* bad input JSON data */
-	return;
-    } else if (level > 2) {	/* labels complete */
+    if (level > 2) {	/* labels complete */
 	container_info_end_labels(ip, position - ip->values.labels + 1);
-    } else {			/* container is complete */
+    } else {		/* container is complete */
 	container_t *cp = NULL;
 	pmInDom indom = INDOM(CONTAINER_INDOM);
 	char *name = podman_strings_lookup(ip->id);
@@ -423,11 +419,9 @@ pod_info_end_labels(pod_info_parser_t *pp, int bytes)
 static void
 pod_info_update(pod_info_parser_t *ip, int level, const char *position)
 {
-    if (ip->id < 0) {		/* bad input JSON data */
-	return;
-    } else if (level > 2) {	/* labels are now complete */
+    if (level > 2) {	/* labels are now complete */
 	pod_info_end_labels(ip, position - ip->values.labels + 1);
-    } else {			/* pod is complete */
+    } else {		/* pod is complete */
 	pod_t *pp = NULL;
 	pmInDom indom = INDOM(POD_INDOM);
 	char *name = podman_strings_lookup(ip->id);
