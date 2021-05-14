@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
- * Copyright (c) 2013, Red Hat Inc.
+ * Copyright (c) 2013,2021 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -281,37 +281,17 @@ bool OpenViewDialog::openView(const char *path)
 
 	strcpy(_fname, path);
 	if ((f = fopen(_fname, "r")) == NULL) {
-	    // not found, start the great hunt
-	    // try user's pmchart dir ...
+	    // not found, try users pmchart dir
 	    pmsprintf(_fname, sizeof(_fname),
 			"%s%c" ".pcp%c" "pmchart%c" "%s",
 			(const char *)homepath.toLatin1(), sep, sep, sep, path);
 	    if ((f = fopen(_fname, "r")) == NULL) {
-		// try system pmchart dir
+		// not found, try system pmchart dir
 		pmsprintf(_fname, sizeof(_fname),
 			    "%s%c" "config%c" "pmchart%c" "%s",
 			    pmGetConfig("PCP_VAR_DIR"), sep, sep, sep, path);
-		if ((f = fopen(_fname, "r")) == NULL) {
-		    // try user's kmchart dir
-		    pmsprintf(_fname, sizeof(_fname),
-				"%s%c" ".pcp%c" "kmchart%c" "%s",
-				(const char *)homepath.toLatin1(),
-				sep, sep, sep, path);
-		    if ((f = fopen(_fname, "r")) == NULL) {
-			// try system kmchart dir
-			pmsprintf(_fname, sizeof(_fname),
-				    "%s%c" "config%c" "kmchart%c" "%s",
-				    pmGetConfig("PCP_VAR_DIR"),
-				    sep, sep, sep, path);
-			if ((f = fopen(_fname, "r")) == NULL) {
-			    pmsprintf(_fname, sizeof(_fname),
-					"%s%c" "config%c" "pmchart%c" "%s",
-					pmGetConfig("PCP_VAR_DIR"),
-					sep, sep, sep, path);
-			    goto noview;
-			}
-		    }
-		}
+		if ((f = fopen(_fname, "r")) == NULL)
+		    goto noview;
 	    }
 	}
 	// check for executable and __pmProcessPipe() as needed

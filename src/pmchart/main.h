@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Red Hat.
+ * Copyright (c) 2014,2021 Red Hat.
  * Copyright (c) 2007, Aconex.  All Rights Reserved.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
  * 
@@ -71,6 +71,12 @@ typedef struct {
 	// Saved Hosts
 	QStringList savedHosts;
 	bool savedHostsModified;
+
+	// Filesysten Paths
+	QString lastArchivePath;
+	bool lastArchivePathModified;
+	QString lastExportPath;
+	bool lastExportPathModified;
 } Settings;
 
 extern Settings globalSettings;

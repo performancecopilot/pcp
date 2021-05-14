@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014,2021 Red Hat.
  * Copyright (c) 2007-2009, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -33,22 +33,14 @@ SaveViewDialog::SaveViewDialog(QWidget* parent) : QDialog(parent)
 	SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
 	this, SLOT(dirListView_selectionChanged()));
 
+    my.hostDynamic = true;
+    my.sizeDynamic = true;
+
     QDir dir;
     QChar sep(pmPathSeparator());
     QString home = my.userDir = QDir::toNativeSeparators(QDir::homePath());
-    my.userDir.append(sep);
-    my.userDir.append(".pcp");
-    my.userDir.append(sep);
-    my.userDir.append("kmchart");
-    if (!dir.exists(my.userDir)) {
-	my.userDir = home;
-	my.userDir.append(sep);
-	my.userDir.append(".pcp");
-	my.userDir.append(sep);
-	my.userDir.append("pmchart");
-    }
-    my.hostDynamic = true;
-    my.sizeDynamic = true;
+    my.userDir.append(sep).append(".pcp");
+    my.userDir.append(sep).append("pmchart");
 
     pathComboBox->addItem(fileIconProvider->icon(QFileIconProvider::Folder),
 			  my.userDir);

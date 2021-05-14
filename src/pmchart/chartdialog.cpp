@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Red Hat.
+ * Copyright (c) 2013-2015,2021 Red Hat.
  * Copyright (c) 2007-2008, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -374,10 +374,17 @@ void ChartDialog::archiveButtonClicked()
     af->setAcceptMode(QFileDialog::AcceptOpen);
     af->setIconProvider(fileIconProvider);
     af->setWindowTitle(tr("Add Archive"));
-    af->setDirectory(QDir::toNativeSeparators(QDir::homePath()));
+    af->setDirectory(globalSettings.lastArchivePath);
 
-    if (af->exec() == QDialog::Accepted)
+    if (af->exec() == QDialog::Accepted) {
 	al = af->selectedFiles();
+	QString path = QFileInfo(al.at(0)).dir().absolutePath();
+	if (globalSettings.lastArchivePath != path) {
+	    globalSettings.lastArchivePath = path;
+	    globalSettings.lastArchivePathModified = true;
+	}
+    }
+
     for (QStringList::Iterator it = al.begin(); it != al.end(); ++it) {
 	QString archive = *it;
 	if ((sts = archiveGroup->use(PM_CONTEXT_ARCHIVE, archive)) < 0) {

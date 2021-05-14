@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2007, Aconex.  All Rights Reserved.
- * Copyright (c) 2013, Red Hat, Inc.
+ * Copyright (c) 2013,2021 Red Hat, Inc.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -48,7 +48,7 @@ void ExportDialog::languageChange()
 void ExportDialog::init()
 {
     QChar	sep(pmPathSeparator());
-    QString	imgfile = QDir::toNativeSeparators(QDir::homePath());
+    QString	imgfile = globalSettings.lastExportPath;
 
     my.quality = 0;
     my.format = strdup("png");
@@ -122,10 +122,17 @@ void ExportDialog::displayQualitySlider()
 void ExportDialog::filePushButton_clicked()
 {
     ExportFileDialog file(this);
+    file.setDirectory(globalSettings.lastExportPath);
 
-    file.setDirectory(QDir::toNativeSeparators(QDir::homePath()));
-    if (file.exec() == QDialog::Accepted)
-	fileLineEdit->setText(file.selectedFiles().at(0));
+    if (file.exec() == QDialog::Accepted) {
+	QString selection = file.selectedFiles().at(0);
+	QString path = QFileInfo(selection).dir().absolutePath();
+	if (globalSettings.lastExportPath != path) {
+	    globalSettings.lastExportPath = path;
+	    globalSettings.lastExportPathModified = true;
+	}
+	fileLineEdit->setText(selection);
+    }
 }
 
 void ExportDialog::formatComboBox_currentIndexChanged(QString suffix)

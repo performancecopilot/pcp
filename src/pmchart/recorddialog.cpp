@@ -33,26 +33,7 @@ void RecordDialog::languageChange()
 
 void RecordDialog::init(Tab *tab)
 {
-    QChar	sep(pmPathSeparator());
-    QString	pmlogger = QDir::toNativeSeparators(QDir::homePath());
-    QString	view, folio, archive;
-
-    pmlogger.append(sep);
-    pmlogger.append(".pcp");
-    pmlogger.append(sep);
-    pmlogger.append("pmlogger");
-    pmlogger.append(sep);
-    view = folio = archive = pmlogger;
-
-    view.append("[date].view");
-    viewLineEdit->setText(view);
-    folio.append("[date].folio");
-    folioLineEdit->setText(folio);
-    archive.append("[host]");
-    archive.append(sep);
-    archive.append("[date]");
-    archiveLineEdit->setText(archive);
-
+    initText();
     my.tab = tab;
     my.units = QmcTime::Seconds;
     deltaLineEdit->setText(
@@ -60,6 +41,23 @@ void RecordDialog::init(Tab *tab)
 
     selectedRadioButton->setChecked(false);
     allGadgetsRadioButton->setChecked(true);
+}
+
+void RecordDialog::initText()
+{
+    QChar	sep(pmPathSeparator());
+
+    my.viewText = globalSettings.lastArchivePath;
+    my.viewText.append(sep).append("[date].view");
+    viewLineEdit->setText(my.viewText);
+
+    my.folioText = globalSettings.lastArchivePath;
+    my.folioText.append(sep).append("[date].folio");
+    folioLineEdit->setText(my.folioText);
+
+    my.archiveText = globalSettings.lastArchivePath;
+    my.archiveText.append(sep).append("[host]").append(sep).append("[date]");
+    archiveLineEdit->setText(my.archiveText);
 }
 
 void RecordDialog::selectedRadioButton_clicked()
@@ -83,53 +81,41 @@ void RecordDialog::deltaUnitsComboBox_activated(int value)
 
 void RecordDialog::viewPushButton_clicked()
 {
+    initText();
+
     RecordFileDialog view(this);
+    view.setDirectory(my.viewText);
 
-    QChar sep(pmPathSeparator());
-    QString pmlogger = QDir::toNativeSeparators(QDir::homePath());
-    pmlogger.append(sep);
-    pmlogger.append(".pcp");
-    pmlogger.append(sep);
-    pmlogger.append("pmlogger");
-    pmlogger.append(sep);
-
-    view.setDirectory(pmlogger);
-    if (view.exec() == QDialog::Accepted)
-	viewLineEdit->setText(view.selectedFiles().at(0));
+    if (view.exec() == QDialog::Accepted) {
+	QString selection = view.selectedFiles().at(0);
+	viewLineEdit->setText(selection);
+    }
 }
 
 void RecordDialog::folioPushButton_clicked()
 {
+    initText();
+
     RecordFileDialog folio(this);
+    folio.setDirectory(my.folioText);
 
-    QChar sep(pmPathSeparator());
-    QString pmlogger = QDir::toNativeSeparators(QDir::homePath());
-    pmlogger.append(sep);
-    pmlogger.append(".pcp");
-    pmlogger.append(sep);
-    pmlogger.append("pmlogger");
-    pmlogger.append(sep);
-
-    folio.setDirectory(pmlogger);
-    if (folio.exec() == QDialog::Accepted)
-	folioLineEdit->setText(folio.selectedFiles().at(0));
+    if (folio.exec() == QDialog::Accepted) {
+	QString selection = folio.selectedFiles().at(0);
+	folioLineEdit->setText(selection);
+    }
 }
 
 void RecordDialog::archivePushButton_clicked()
 {
+    initText();
+
     RecordFileDialog archive(this);
+    archive.setDirectory(my.archiveText);
 
-    QChar sep(pmPathSeparator());
-    QString pmlogger = QDir::toNativeSeparators(QDir::homePath());
-    pmlogger.append(sep);
-    pmlogger.append(".pcp");
-    pmlogger.append(sep);
-    pmlogger.append("pmlogger");
-    pmlogger.append(sep);
-
-    archive.setDirectory(pmlogger);
-    if (archive.exec() == QDialog::Accepted)
-	archiveLineEdit->setText(archive.selectedFiles().at(0));
+    if (archive.exec() == QDialog::Accepted) {
+	QString selection = archive.selectedFiles().at(0);
+	archiveLineEdit->setText(selection);
+    }
 }
 
 // substitute "local:" or "localhost" with actual hostname

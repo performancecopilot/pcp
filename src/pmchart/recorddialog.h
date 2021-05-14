@@ -47,10 +47,16 @@ protected slots:
     virtual void languageChange();
 
 private:
+    void initText(void);
+
     struct {
 	Tab *tab;
 	QString delta;
 	QmcTime::DeltaUnits units;
+
+	QString viewText;
+	QString folioText;
+	QString archiveText;
 
 	QString view;
 	QString folio;
