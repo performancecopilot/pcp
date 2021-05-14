@@ -388,12 +388,7 @@ void ChartDialog::archiveButtonClicked()
     for (QStringList::Iterator it = al.begin(); it != al.end(); ++it) {
 	QString archive = *it;
 	if ((sts = archiveGroup->use(PM_CONTEXT_ARCHIVE, archive)) < 0) {
-	    archive.prepend(tr("Cannot open PCP archive: "));
-	    archive.append(tr("\n"));
-	    archive.append(tr(pmErrStr(sts)));
-	    QMessageBox::warning(this, pmGetProgname(), archive,
-		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
-		    Qt::NoButton, Qt::NoButton);
+	    pmflush();
 	} else {
 	    setupAvailableMetricsTree(true);
 	    archiveGroup->updateBounds();
@@ -419,12 +414,7 @@ void ChartDialog::hostButtonClicked()
 		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
 		    Qt::NoButton, Qt::NoButton);
 	} else if ((sts = liveGroup->use(PM_CONTEXT_HOST, hostspec, flags)) < 0) {
-	    hostspec.prepend(tr("Cannot connect to host: "));
-	    hostspec.append(tr("\n"));
-	    hostspec.append(tr(pmErrStr(sts)));
-	    QMessageBox::warning(this, pmGetProgname(), hostspec,
-		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
-		    Qt::NoButton, Qt::NoButton);
+	    pmflush();
 	} else {
 	    console->post(PmChart::DebugUi,
 			"ChartDialog::newHost: %s (flags=0x%x)",

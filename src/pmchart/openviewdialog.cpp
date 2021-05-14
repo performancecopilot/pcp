@@ -219,7 +219,6 @@ void OpenViewDialog::archiveAdd()
 {
     QFileDialog *af = new QFileDialog(this);
     QStringList al;
-    int sts;
 
     af->setFileMode(QFileDialog::ExistingFiles);
     af->setAcceptMode(QFileDialog::AcceptOpen);
@@ -238,13 +237,8 @@ void OpenViewDialog::archiveAdd()
 
     for (QStringList::Iterator it = al.begin(); it != al.end(); ++it) {
 	QString archive = *it;
-	if ((sts = archiveGroup->use(PM_CONTEXT_ARCHIVE, archive)) < 0) {
-	    archive.prepend(tr("Cannot open PCP archive: "));
-	    archive.append(tr("\n"));
-	    archive.append(tr(pmErrStr(sts)));
-	    QMessageBox::warning(this, pmGetProgname(), archive,
-		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
-		    QMessageBox::NoButton, QMessageBox::NoButton);
+	if (archiveGroup->use(PM_CONTEXT_ARCHIVE, archive) < 0) {
+	    pmflush();
 	} else {
 	    setupComboBoxes(true);
 	    archiveGroup->updateBounds();
@@ -262,20 +256,15 @@ void OpenViewDialog::hostAdd()
 
     if (host->exec() == QDialog::Accepted) {
 	QString hostspec = host->getHostSpecification();
-	int sts, flags = host->getContextFlags();
+	int flags = host->getContextFlags();
 
 	if (hostspec.isNull() || hostspec.length() == 0) {
 	    hostspec.append(tr("Hostname not specified\n"));
 	    QMessageBox::warning(this, pmGetProgname(), hostspec,
 		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
 		    Qt::NoButton, Qt::NoButton);
-	} else if ((sts = liveGroup->use(PM_CONTEXT_HOST, hostspec, flags)) < 0) {
-	    hostspec.prepend(tr("Cannot connect to host: "));
-	    hostspec.append(tr("\n"));
-	    hostspec.append(tr(pmErrStr(sts)));
-	    QMessageBox::warning(this, pmGetProgname(), hostspec,
-		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
-		    Qt::NoButton, Qt::NoButton);
+	} else if (liveGroup->use(PM_CONTEXT_HOST, hostspec, flags) < 0) {
+	    pmflush();
 	} else {
 	    console->post(PmChart::DebugUi,
 			"OpenViewDialog::newHost: %s (flags=0x%x)",
@@ -320,11 +309,7 @@ bool OpenViewDialog::useLiveContext(int index)
     int sts;
 
     if ((sts = liveGroup->use(PM_CONTEXT_HOST, source.source())) < 0) {
-	QString msg = QString("Failed to connect to pmcd on \"%1\".\n%2.\n\n")
-				.arg(sourceName).arg(pmErrStr(sts));
-	QMessageBox::warning(NULL, pmGetProgname(), msg,
-		QMessageBox::Ok | QMessageBox::Default | QMessageBox::Escape,
-		QMessageBox::NoButton, QMessageBox::NoButton);
+	pmflush();
 	result = false;
     }
     free(sourceName);
@@ -345,14 +330,9 @@ bool OpenViewDialog::useArchiveContext(int index)
     QmcSource source = archiveGroup->context(index)->source();
     char *sourceName = source.sourceAscii();
     bool result = true;
-    int sts;
 
-    if ((sts = archiveGroup->use(PM_CONTEXT_ARCHIVE, source.source())) < 0) {
-	QString msg = QString("Failed to open archive \"%1\".\n%2.\n\n")
-				.arg(sourceName).arg(pmErrStr(sts));
-	QMessageBox::warning(NULL, pmGetProgname(), msg,
-		QMessageBox::Ok | QMessageBox::Default | QMessageBox::Escape,
-		QMessageBox::NoButton, QMessageBox::NoButton);
+    if (archiveGroup->use(PM_CONTEXT_ARCHIVE, source.source()) < 0) {
+	pmflush();
 	result = false;
     }
     free(sourceName);
