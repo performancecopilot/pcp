@@ -30,11 +30,14 @@ static pmDiscoverCallBacks **discoverCallBackTable;
 static char *pmDiscoverFlagsStr(pmDiscover *);
 
 /* internal hash table of discovered paths */
-#define PM_DISCOVER_HASHTAB_SIZE 16
+#define PM_DISCOVER_HASHTAB_SIZE 32
 static pmDiscover *discover_hashtable[PM_DISCOVER_HASHTAB_SIZE];
 
 /* pmlogger_daily log-roll lock count */
-static int lockcnt = 0;
+static int logrolling = 0;
+
+/* number of archives or directories currently being monitored */
+static int n_monitored = 0;
 
 /* stats helpers */
 static void
@@ -133,6 +136,7 @@ pmDiscoverLookupAdd(const char *fullpath, pmDiscoverModule *module, void *arg)
 	    discover_hashtable[k] = h;
 	else
 	    p->next = h;
+	pmDiscoverStatsSet(h->module, "monitored", NULL, ++n_monitored);
 	if (pmDebugOptions.discovery)
 	    fprintf(stderr, "pmDiscoverLookupAdd: --> new entry %s\n", name);
 
@@ -422,22 +426,33 @@ is_deleted(pmDiscover *p, struct stat *sbuf)
     return ret;
 }
 
-static void
-logdir_is_locked_callBack(pmDiscover *p, void *arg)
+static int
+check_for_locks()
 {
-    int			*cntp = (int *)arg;
-    char		sep = pmPathSeparator();
-    char		path[MAXNAMELEN];
+    int			i;
+    pmDiscover		*p;
+    char                sep = pmPathSeparator();
+    char                path[MAXNAMELEN];
 
-    pmsprintf(path, sizeof(path), "%s%c%s", p->context.name, sep, "lock");
-    if (access(path, F_OK) == 0)
-    	(*cntp)++;
+    for (i=0; i < PM_DISCOVER_HASHTAB_SIZE; i++) {
+    	for (p = discover_hashtable[i]; p; p = p->next) {
+	    if (p->flags & PM_DISCOVER_FLAGS_DIRECTORY) {
+		pmsprintf(path, sizeof(path), "%s%c%s", p->context.name, sep, "lock");
+		if (access(path, F_OK) == 0)
+		    return 1;
+	    }
+	}
+    }
+
+    /* no locks */
+    return 0;
 }
 
 static void
 check_deleted(pmDiscover *p)
 {
     struct stat sbuf;
+
     if (!(p->flags & PM_DISCOVER_FLAGS_DELETED) && is_deleted(p, &sbuf))
     	p->flags |= PM_DISCOVER_FLAGS_DELETED;
 }
@@ -450,7 +465,7 @@ fs_change_callBack(uv_fs_event_t *handle, const char *filename, int events, int 
     pmDiscover		*p;
     char		*s;
     sds			path;
-    int			count = 0;
+    int			locksfound = 0;
     struct stat		statbuf;
 
     /*
@@ -458,29 +473,28 @@ fs_change_callBack(uv_fs_event_t *handle, const char *filename, int events, int 
      * in any of the directories we are tracking. For mutex, the log control
      * scripts use a 'lock' file in each directory as it is processed.
      */
-    pmDiscoverTraverseArg(PM_DISCOVER_FLAGS_DIRECTORY,
-    	logdir_is_locked_callBack, (void *)&count);
+    locksfound = check_for_locks();
 
-    if (lockcnt == 0 && count > 0) {
+    if (!logrolling && locksfound) {
 	/* log-rolling has started */
 	if (pmDebugOptions.discovery)
 	    fprintf(stderr, "%s discovery callback: log-rolling in progress\n", stamp());
-	lockcnt = count;
+	logrolling = locksfound;
 	return;
     }
 
-    if (lockcnt > 0 && count > 0) {
-	lockcnt = count;
+    if (logrolling && locksfound) {
+	logrolling = locksfound;
     	return; /* still in progress */
     }
 
-    if (lockcnt > 0 && count == 0) {
+    if (logrolling && !locksfound) {
     	/* log-rolling is finished: check what got deleted, and then purge */
 	if (pmDebugOptions.discovery)
 	    fprintf(stderr, "%s discovery callback: finished log-rolling\n", stamp());
 	pmDiscoverTraverse(PM_DISCOVER_FLAGS_META|PM_DISCOVER_FLAGS_DATAVOL, check_deleted);
     }
-    lockcnt = count;
+    logrolling = locksfound;
 
     uv_fs_event_getpath(handle, buffer, &bytes);
     path = sdsnewlen(buffer, bytes);
@@ -1487,7 +1501,22 @@ directory_changed_cb(pmDiscover *p, void *arg)
 static void
 changed_callback(pmDiscover *p)
 {
-    int n_monitored, n_purged;
+    time_t		now;
+    int			throttle;
+    int			n_purged;
+
+    /* dynamic callback throttle - to improve scaling */
+    if ((throttle = n_monitored / 40) < 1)
+	throttle = 1;
+    pmDiscoverStatsSet(p->module, "throttle", NULL, throttle);
+    if ((p->flags & PM_DISCOVER_FLAGS_NEW) == 0) {
+	if (time(&now) - p->lastcb < throttle || 
+	    pmDiscoverGetInflightRedisRequests(p->module) > 1000000) {
+	    pmDiscoverStatsAdd(p->module, "throttled_changed_callbacks", NULL, 1);
+	    return; /* throttled */
+	}
+    }
+    p->lastcb = now;
 
     pmDiscoverStatsAdd(p->module, "changed_callbacks", NULL, 1);
     if (pmDebugOptions.discovery)
@@ -1500,7 +1529,6 @@ changed_callback(pmDiscover *p)
 	 * in due course by pmDiscoverPurgeDeleted.
 	 */
 	return;
-	
     }
 
     if (p->flags & PM_DISCOVER_FLAGS_COMPRESSED) {
@@ -1517,6 +1545,7 @@ changed_callback(pmDiscover *p)
 	    fprintf(stderr, "%s DIRECTORY CHANGED %s (%s)\n",
 	    	stamp(), p->context.name, pmDiscoverFlagsStr(p));
 	}
+
 	pmDiscoverArchives(p->context.name, p->module, p->data);
 	pmDiscoverTraverse(PM_DISCOVER_FLAGS_NEW, created_callback);
 
@@ -1530,10 +1559,9 @@ changed_callback(pmDiscover *p)
 	/* finally, purge deleted entries (globally), if any */
 	n_purged = pmDiscoverPurgeDeleted();
 	pmDiscoverStatsAdd(p->module, "purged", NULL, n_purged);
+	n_monitored -= n_purged;
+	pmDiscoverStatsSet(p->module, "monitored", NULL, n_monitored);
     }
-
-    n_monitored = pmDiscoverTraverse(PM_DISCOVER_FLAGS_ALL, NULL);
-    pmDiscoverStatsSet(p->module, "monitored", NULL, n_monitored);
 
     if (pmDebugOptions.discovery) {
 	fprintf(stderr, "%s -- tracking status\n", stamp());

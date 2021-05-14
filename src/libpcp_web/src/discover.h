@@ -60,8 +60,8 @@ typedef enum pmDiscoverFlags {
     PM_DISCOVER_FLAGS_DATAVOL			= (1 << 5), /* archive data volume */
     PM_DISCOVER_FLAGS_INDEX			= (1 << 6), /* archive index file */
     PM_DISCOVER_FLAGS_META			= (1 << 7), /* archive metadata */
-    PM_DISCOVER_FLAGS_DATAVOL_READY		= (1 << 9), /* flag: datavol data available */
-    PM_DISCOVER_FLAGS_META_IN_PROGRESS		= (1 << 8), /* flag: metadata read in progress */
+    PM_DISCOVER_FLAGS_DATAVOL_READY		= (1 << 8), /* flag: datavol data available */
+    PM_DISCOVER_FLAGS_META_IN_PROGRESS		= (1 << 9), /* flag: metadata read in progress */
 
     PM_DISCOVER_FLAGS_ALL			= ((unsigned int)~PM_DISCOVER_FLAGS_NONE)
 } pmDiscoverFlags;
@@ -84,6 +84,7 @@ typedef struct pmDiscover {
 #ifdef HAVE_LIBUV
     uv_fs_event_t		*event_handle;	/* uv fs_notify event handle */ 
 #endif
+    time_t			lastcb;		/* time last callback processed */
     struct stat			statbuf;	/* stat buffer */
     void			*baton;		/* private internal lib data */
     void			*data;		/* opaque user data pointer */
