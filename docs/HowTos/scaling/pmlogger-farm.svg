@@ -1,3 +1,1593 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="849px" height="374px" viewBox="-0.5 -0.5 849 374" content="&lt;mxfile host=&quot;app.diagrams.net&quot; modified=&quot;2021-03-15T18:57:52.795Z&quot; agent=&quot;5.0 (X11)&quot; etag=&quot;96-FtYLS9ywY2aJIkNmg&quot; version=&quot;14.4.8&quot; type=&quot;device&quot;&gt;&lt;diagram id=&quot;_u2Pu7ICIZ9oJZ_Oul_9&quot; name=&quot;Page-1&quot;&gt;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&lt;/diagram&gt;&lt;/mxfile&gt;"><defs/><g><rect x="240" y="69" width="330" height="260" rx="39" ry="39" fill="#000000" stroke="#000000" pointer-events="all" transform="translate(2,3)" opacity="0.25"/><rect x="240" y="69" width="330" height="260" rx="39" ry="39" fill="#ffffff" stroke="#000000" pointer-events="all"/><rect x="22.81" y="20" width="154.38" height="90" rx="13.5" ry="13.5" fill="#000000" stroke="#000000" pointer-events="all" transform="translate(2,3)" opacity="0.25"/><rect x="22.81" y="20" width="154.38" height="90" rx="13.5" ry="13.5" fill="#ffffff" stroke="#000000" pointer-events="all"/><ellipse cx="107.19" cy="45" rx="30" ry="15" fill="#000000" stroke="#000000" pointer-events="all" transform="translate(2,3)" opacity="0.25"/><ellipse cx="107.19" cy="45" rx="30" ry="15" fill="#fdf6e3" stroke="#d79b00" pointer-events="all"/><ellipse cx="67.19" cy="90" rx="15" ry="10" fill="#000000" stroke="#000000" pointer-events="all" transform="translate(2,3)" opacity="0.25"/><ellipse cx="67.19" cy="90" rx="15" ry="10" fill="#2c3e50" stroke="#000000" pointer-events="all"/><ellipse cx="107.19" cy="90" rx="15" ry="10" fill="#000000" stroke="#000000" pointer-events="all" transform="translate(2,3)" opacity="0.25"/><ellipse cx="107.19" cy="90" rx="15" ry="10" fill="#2c3e50" stroke="#000000" pointer-events="all"/><ellipse cx="147.19" cy="90" rx="15" ry="10" fill="#000000" stroke="#000000" pointer-events="all" transform="translate(2,3)" opacity="0.25"/><ellipse cx="147.19" cy="90" rx="15" ry="10" fill="#2c3e50" stroke="#000000" pointer-events="all"/><rect x="87.19" y="35" width="40" height="20" fill="#fdf6e3" stroke="none" pointer-events="all"/><g transform="translate(-0.5 -0.5)"><switch><foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 38px; height: 1px; padding-top: 45px; margin-left: 88px;"><div style="box-sizing: border-box; font-size: 0; text-align: center; "><div style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">PMCD</div></div></div></foreignObject><text x="107" y="48" fill="#000000" font-family="Sans-serif" font-size="10px" text-anchor="middle" font-weight="bold">PMCD</text></switch></g><rect x="27.19" y="60" width="40" height="20" fill="none" stroke="none" pointer-events="all" transform="translate(2,3)" opacity="0.25"/><rect x="27.19" y="60" width="40" height="20" fill="none" stroke="none" pointer-events="all"/><g transform="translate(-0.5 -0.5)"><switch><foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 38px; height: 1px; padding-top: 70px; margin-left: 28px;"><div style="box-sizing: border-box; font-size: 0; text-align: center; "><div style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">PMDAs</div></div></div></foreignObject><text x="47" y="73" fill="#000000" font-family="Sans-serif" font-size="10px" text-anchor="middle" font-weight="bold">PMDAs</text></switch></g><rect x="0" y="0" width="160" height="20" fill="none" stroke="none" pointer-events="all" transform="translate(2,3)" opacity="0.25"/><rect x="0" y="0" width="160" height="20" fill="none" stroke="none" pointer-events="all"/><g transform="translate(-0.5 -0.5)"><switch><foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 158px; height: 1px; padding-top: 10px; margin-left: 1px;"><div style="box-sizing: border-box; font-size: 0; text-align: center; "><div style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">Monitored Host</div></div></div></foreignObject><text x="80" y="13" fill="#000000" font-family="Sans-serif" font-size="10px" text-anchor="middle" font-weight="bold">Monitored Host</text></switch></g><rect x="256.26" y="49" width="173.75" height="20" fill="none" stroke="none" pointer-events="all" transform="translate(2,3)" opacity="0.25"/><rect x="256.26" y="49" width="173.75" height="20" fill="none" stroke="none" pointer-events="all"/><g transform="translate(-0.5 -0.5)"><switch><foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 172px; height: 1px; padding-top: 59px; margin-left: 257px;"><div style="box-sizing: border-box; font-size: 0; text-align: center; "><div style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">pmlogger Host</div></div></div></foreignObject><text x="343" y="62" fill="#000000" font-family="Sans-serif" font-size="10px" text-anchor="middle" font-weight="bold">pmlogger Host</text></switch></g><ellipse cx="286.26" cy="114" rx="30" ry="15" fill="#000000" stroke="#000000" pointer-events="all" transform="translate(2,3)" opacity="0.25"/><ellipse cx="286.26" cy="114" rx="30" ry="15" fill="#fdf6e3" stroke="#d79b00" pointer-events="all"/><rect x="266.26" y="104" width="40" height="20" fill="none" stroke="none" pointer-events="all" transform="translate(2,3)" opacity="0.25"/><rect x="266.26" y="104" width="40" height="20" fill="none" stroke="none" pointer-events="all"/><g transform="translate(-0.5 -0.5)"><switch><foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 38px; height: 1px; padding-top: 114px; margin-left: 267px;"><div style="box-sizing: border-box; font-size: 0; text-align: center; "><div style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; "><i style="font-size: 10px">pmlogger</i></div></div></div></foreignObject><text x="286" y="117" fill="#000000" font-family="Sans-serif" font-size="10px" text-anchor="middle" font-weight="bold">pmlogger</text></switch></g><path d="M 320 115 L 353.76 115" fill="none" stroke="#000000" stroke-width="2" stroke-miterlimit="10" pointer-events="stroke"/><path d="M 359.76 115 L 351.76 119 L 353.76 115 L 351.76 111 Z" fill="#000000" stroke="#000000" stroke-width="2" stroke-miterlimit="10" pointer-events="all"/><path d="M 362 119.53 C 364.11 121.19 367.91 122.64 372.18 123.39 C 379.69 124.72 387.71 124.68 394.89 123.51 C 399.33 122.79 403.2 121.47 405.76 119.53 L 405.76 131.83 C 405.42 135.23 402.4 137.02 399.12 138.21 C 391.69 140.69 378.95 141 369.9 138.62 C 366.13 137.51 362.32 135.63 362 131.82 Z M 362 100.94 C 364.11 102.61 367.91 104.05 372.18 104.81 C 379.69 106.13 387.71 106.1 394.89 104.93 C 399.33 104.2 403.2 102.89 405.76 100.95 L 405.76 113.24 C 405.42 116.64 402.4 118.43 399.12 119.63 C 391.69 122.1 378.95 122.41 369.9 120.04 C 366.13 118.92 362.32 117.05 362 113.24 Z M 362 96.03 C 362 92.78 368.79 89.39 383.46 89 C 398.03 89 405.76 92.72 405.76 96.01 C 405.76 99.66 396.39 102.99 384.88 102.99 C 373.07 103.15 362 100.19 362 96.03 Z" fill="#2072b8" stroke="none" pointer-events="all"/><path d="M 675.5 169 C 629.5 169 618 204 654.8 211 C 618 226.4 659.4 260 689.3 246 C 710 274 779 274 802 246 C 848 246 848 218 819.25 204 C 848 176 802 148 761.75 162 C 733 141 687 141 675.5 169 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10" pointer-events="all"/><g transform="translate(-0.5 -0.5)"><switch><foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 228px; height: 1px; padding-top: 204px; margin-left: 619px;"><div style="box-sizing: border-box; font-size: 0; text-align: center; "><div style="display: inline-block; font-size: 10px; font-family: sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">Redis Cluster</div></div></div></foreignObject><text x="733" y="207" fill="#000000" font-family="sans-serif" font-size="10px" text-anchor="middle" font-weight="bold">Redis Cluster</text></switch></g><path d="M 144.32 49.13 L 249.13 109.87" fill="none" stroke="#000000" stroke-width="2" stroke-miterlimit="10" pointer-events="stroke"/><path d="M 139.12 46.12 L 148.05 46.67 L 144.32 49.13 L 144.04 53.59 Z" fill="#000000" stroke="#000000" stroke-width="2" stroke-miterlimit="10" pointer-events="all"/><path d="M 254.33 112.88 L 245.4 112.33 L 249.13 109.87 L 249.41 105.41 Z" fill="#000000" stroke="#000000" stroke-width="2" stroke-miterlimit="10" pointer-events="all"/><ellipse cx="500" cy="190" rx="30" ry="15" fill="#000000" stroke="#000000" pointer-events="all" transform="translate(2,3)" opacity="0.25"/><ellipse cx="500" cy="190" rx="30" ry="15" fill="#fdf6e3" stroke="#d79b00" pointer-events="all"/><rect x="480" y="180" width="40" height="20" fill="none" stroke="none" pointer-events="all" transform="translate(2,3)" opacity="0.25"/><rect x="480" y="180" width="40" height="20" fill="none" stroke="none" pointer-events="all"/><g transform="translate(-0.5 -0.5)"><switch><foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 38px; height: 1px; padding-top: 190px; margin-left: 481px;"><div style="box-sizing: border-box; font-size: 0; text-align: center; "><div style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; "><div>pmproxy</div></div></div></div></foreignObject><text x="500" y="193" fill="#000000" font-family="Sans-serif" font-size="10px" text-anchor="middle" font-weight="bold">pmproxy</text></switch></g><path d="M 405.76 129.85 L 471.97 174.77" fill="none" stroke="#000000" stroke-width="2" stroke-miterlimit="10" pointer-events="stroke"/><path d="M 476.94 178.14 L 468.07 176.96 L 471.97 174.77 L 472.56 170.34 Z" fill="#000000" stroke="#000000" stroke-width="2" stroke-miterlimit="10" pointer-events="all"/><rect x="329" y="139" width="108.25" height="20" fill="none" stroke="none" pointer-events="all" transform="translate(2,3)" opacity="0.25"/><rect x="329" y="139" width="108.25" height="20" fill="none" stroke="none" pointer-events="all"/><g transform="translate(-0.5 -0.5)"><switch><foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 106px; height: 1px; padding-top: 149px; margin-left: 330px;"><div style="box-sizing: border-box; font-size: 0; text-align: center; "><div style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">PCP Archive Log</div></div></div></foreignObject><text x="383" y="152" fill="#000000" font-family="Sans-serif" font-size="10px" text-anchor="middle" font-weight="bold">PCP Archive Log</text></switch></g><path d="M 625.86 190 L 538.24 190" fill="none" stroke="#000000" stroke-width="2" stroke-miterlimit="10" pointer-events="stroke"/><path d="M 631.86 190 L 623.86 194 L 625.86 190 L 623.86 186 Z" fill="#000000" stroke="#000000" stroke-width="2" stroke-miterlimit="10" pointer-events="all"/><path d="M 532.24 190 L 540.24 186 L 538.24 190 L 540.24 194 Z" fill="#000000" stroke="#000000" stroke-width="2" stroke-miterlimit="10" pointer-events="all"/><rect x="22.81" y="150" width="154.38" height="90" rx="13.5" ry="13.5" fill="#000000" stroke="#000000" pointer-events="all" transform="translate(2,3)" opacity="0.25"/><rect x="22.81" y="150" width="154.38" height="90" rx="13.5" ry="13.5" fill="#ffffff" stroke="#000000" pointer-events="all"/><ellipse cx="107.19" cy="175" rx="30" ry="15" fill="#000000" stroke="#000000" pointer-events="all" transform="translate(2,3)" opacity="0.25"/><ellipse cx="107.19" cy="175" rx="30" ry="15" fill="#fdf6e3" stroke="#d79b00" pointer-events="all"/><ellipse cx="67.19" cy="220" rx="15" ry="10" fill="#000000" stroke="#000000" pointer-events="all" transform="translate(2,3)" opacity="0.25"/><ellipse cx="67.19" cy="220" rx="15" ry="10" fill="#2c3e50" stroke="#000000" pointer-events="all"/><ellipse cx="107.19" cy="220" rx="15" ry="10" fill="#000000" stroke="#000000" pointer-events="all" transform="translate(2,3)" opacity="0.25"/><ellipse cx="107.19" cy="220" rx="15" ry="10" fill="#2c3e50" stroke="#000000" pointer-events="all"/><ellipse cx="147.19" cy="220" rx="15" ry="10" fill="#000000" stroke="#000000" pointer-events="all" transform="translate(2,3)" opacity="0.25"/><ellipse cx="147.19" cy="220" rx="15" ry="10" fill="#2c3e50" stroke="#000000" pointer-events="all"/><rect x="87.19" y="165" width="40" height="20" fill="#fdf6e3" stroke="none" pointer-events="all"/><g transform="translate(-0.5 -0.5)"><switch><foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 38px; height: 1px; padding-top: 175px; margin-left: 88px;"><div style="box-sizing: border-box; font-size: 0; text-align: center; "><div style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">PMCD</div></div></div></foreignObject><text x="107" y="178" fill="#000000" font-family="Sans-serif" font-size="10px" text-anchor="middle" font-weight="bold">PMCD</text></switch></g><rect x="27.19" y="190" width="40" height="20" fill="none" stroke="none" pointer-events="all" transform="translate(2,3)" opacity="0.25"/><rect x="27.19" y="190" width="40" height="20" fill="none" stroke="none" pointer-events="all"/><g transform="translate(-0.5 -0.5)"><switch><foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 38px; height: 1px; padding-top: 200px; margin-left: 28px;"><div style="box-sizing: border-box; font-size: 0; text-align: center; "><div style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">PMDAs</div></div></div></foreignObject><text x="47" y="203" fill="#000000" font-family="Sans-serif" font-size="10px" text-anchor="middle" font-weight="bold">PMDAs</text></switch></g><rect x="0" y="130" width="160" height="20" fill="none" stroke="none" pointer-events="all" transform="translate(2,3)" opacity="0.25"/><rect x="0" y="130" width="160" height="20" fill="none" stroke="none" pointer-events="all"/><g transform="translate(-0.5 -0.5)"><switch><foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 158px; height: 1px; padding-top: 140px; margin-left: 1px;"><div style="box-sizing: border-box; font-size: 0; text-align: center; "><div style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">Monitored Host</div></div></div></foreignObject><text x="80" y="143" fill="#000000" font-family="Sans-serif" font-size="10px" text-anchor="middle" font-weight="bold">Monitored Host</text></switch></g><rect x="22.81" y="280" width="154.38" height="90" rx="13.5" ry="13.5" fill="#000000" stroke="#000000" pointer-events="all" transform="translate(2,3)" opacity="0.25"/><rect x="22.81" y="280" width="154.38" height="90" rx="13.5" ry="13.5" fill="#ffffff" stroke="#000000" pointer-events="all"/><ellipse cx="107.19" cy="305" rx="30" ry="15" fill="#000000" stroke="#000000" pointer-events="all" transform="translate(2,3)" opacity="0.25"/><ellipse cx="107.19" cy="305" rx="30" ry="15" fill="#fdf6e3" stroke="#d79b00" pointer-events="all"/><ellipse cx="67.19" cy="350" rx="15" ry="10" fill="#000000" stroke="#000000" pointer-events="all" transform="translate(2,3)" opacity="0.25"/><ellipse cx="67.19" cy="350" rx="15" ry="10" fill="#2c3e50" stroke="#000000" pointer-events="all"/><ellipse cx="107.19" cy="350" rx="15" ry="10" fill="#000000" stroke="#000000" pointer-events="all" transform="translate(2,3)" opacity="0.25"/><ellipse cx="107.19" cy="350" rx="15" ry="10" fill="#2c3e50" stroke="#000000" pointer-events="all"/><ellipse cx="147.19" cy="350" rx="15" ry="10" fill="#000000" stroke="#000000" pointer-events="all" transform="translate(2,3)" opacity="0.25"/><ellipse cx="147.19" cy="350" rx="15" ry="10" fill="#2c3e50" stroke="#000000" pointer-events="all"/><rect x="87.19" y="295" width="40" height="20" fill="#fdf6e3" stroke="none" pointer-events="all"/><g transform="translate(-0.5 -0.5)"><switch><foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 38px; height: 1px; padding-top: 305px; margin-left: 88px;"><div style="box-sizing: border-box; font-size: 0; text-align: center; "><div style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">PMCD</div></div></div></foreignObject><text x="107" y="308" fill="#000000" font-family="Sans-serif" font-size="10px" text-anchor="middle" font-weight="bold">PMCD</text></switch></g><rect x="27.19" y="320" width="40" height="20" fill="none" stroke="none" pointer-events="all" transform="translate(2,3)" opacity="0.25"/><rect x="27.19" y="320" width="40" height="20" fill="none" stroke="none" pointer-events="all"/><g transform="translate(-0.5 -0.5)"><switch><foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 38px; height: 1px; padding-top: 330px; margin-left: 28px;"><div style="box-sizing: border-box; font-size: 0; text-align: center; "><div style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">PMDAs</div></div></div></foreignObject><text x="47" y="333" fill="#000000" font-family="Sans-serif" font-size="10px" text-anchor="middle" font-weight="bold">PMDAs</text></switch></g><rect x="0" y="260" width="160" height="20" fill="none" stroke="none" pointer-events="all" transform="translate(2,3)" opacity="0.25"/><rect x="0" y="260" width="160" height="20" fill="none" stroke="none" pointer-events="all"/><g transform="translate(-0.5 -0.5)"><switch><foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 158px; height: 1px; padding-top: 270px; margin-left: 1px;"><div style="box-sizing: border-box; font-size: 0; text-align: center; "><div style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">Monitored Host</div></div></div></foreignObject><text x="80" y="273" fill="#000000" font-family="Sans-serif" font-size="10px" text-anchor="middle" font-weight="bold">Monitored Host</text></switch></g><ellipse cx="287.47" cy="189.61" rx="30" ry="15" fill="#000000" stroke="#000000" pointer-events="all" transform="translate(2,3)" opacity="0.25"/><ellipse cx="287.47" cy="189.61" rx="30" ry="15" fill="#fdf6e3" stroke="#d79b00" pointer-events="all"/><rect x="267.47" y="179.61" width="40" height="20" fill="none" stroke="none" pointer-events="all" transform="translate(2,3)" opacity="0.25"/><rect x="267.47" y="179.61" width="40" height="20" fill="none" stroke="none" pointer-events="all"/><g transform="translate(-0.5 -0.5)"><switch><foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 38px; height: 1px; padding-top: 190px; margin-left: 268px;"><div style="box-sizing: border-box; font-size: 0; text-align: center; "><div style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; "><i style="font-size: 10px">pmlogger</i></div></div></div></foreignObject><text x="287" y="193" fill="#000000" font-family="Sans-serif" font-size="10px" text-anchor="middle" font-weight="bold">pmlogger</text></switch></g><path d="M 363.21 195.14 C 365.32 196.8 369.12 198.25 373.39 199 C 380.9 200.33 388.92 200.29 396.1 199.12 C 400.54 198.4 404.41 197.08 406.97 195.14 L 406.97 207.44 C 406.63 210.84 403.61 212.63 400.33 213.82 C 392.9 216.3 380.16 216.61 371.11 214.23 C 367.34 213.12 363.53 211.24 363.21 207.43 Z M 363.21 176.55 C 365.32 178.22 369.12 179.66 373.39 180.42 C 380.9 181.74 388.92 181.71 396.1 180.54 C 400.54 179.81 404.41 178.5 406.97 176.56 L 406.97 188.85 C 406.63 192.25 403.61 194.04 400.33 195.24 C 392.9 197.71 380.16 198.02 371.11 195.65 C 367.34 194.53 363.53 192.66 363.21 188.85 Z M 363.21 171.64 C 363.21 168.39 370 165 384.67 164.61 C 399.24 164.61 406.97 168.33 406.97 171.62 C 406.97 175.27 397.6 178.6 386.09 178.6 C 374.28 178.76 363.21 175.8 363.21 171.64 Z" fill="#2072b8" stroke="none" pointer-events="all"/><path d="M 406.97 190.45 L 461.76 190.06" fill="none" stroke="#000000" stroke-width="2" stroke-miterlimit="10" pointer-events="stroke"/><path d="M 467.76 190.02 L 459.79 194.07 L 461.76 190.06 L 459.74 186.07 Z" fill="#000000" stroke="#000000" stroke-width="2" stroke-miterlimit="10" pointer-events="all"/><rect x="330.21" y="214.61" width="108.25" height="20" fill="none" stroke="none" pointer-events="all" transform="translate(2,3)" opacity="0.25"/><rect x="330.21" y="214.61" width="108.25" height="20" fill="none" stroke="none" pointer-events="all"/><g transform="translate(-0.5 -0.5)"><switch><foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 106px; height: 1px; padding-top: 225px; margin-left: 331px;"><div style="box-sizing: border-box; font-size: 0; text-align: center; "><div style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">PCP Archive Log</div></div></div></foreignObject><text x="384" y="228" fill="#000000" font-family="Sans-serif" font-size="10px" text-anchor="middle" font-weight="bold">PCP Archive Log</text></switch></g><ellipse cx="287.47" cy="269.61" rx="30" ry="15" fill="#000000" stroke="#000000" pointer-events="all" transform="translate(2,3)" opacity="0.25"/><ellipse cx="287.47" cy="269.61" rx="30" ry="15" fill="#fdf6e3" stroke="#d79b00" pointer-events="all"/><rect x="267.47" y="259.61" width="40" height="20" fill="none" stroke="none" pointer-events="all" transform="translate(2,3)" opacity="0.25"/><rect x="267.47" y="259.61" width="40" height="20" fill="none" stroke="none" pointer-events="all"/><g transform="translate(-0.5 -0.5)"><switch><foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 38px; height: 1px; padding-top: 270px; margin-left: 268px;"><div style="box-sizing: border-box; font-size: 0; text-align: center; "><div style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; "><i style="font-size: 10px">pmlogger</i></div></div></div></foreignObject><text x="287" y="273" fill="#000000" font-family="Sans-serif" font-size="10px" text-anchor="middle" font-weight="bold">pmlogger</text></switch></g><path d="M 363.21 275.14 C 365.32 276.8 369.12 278.25 373.39 279 C 380.9 280.33 388.92 280.29 396.1 279.12 C 400.54 278.4 404.41 277.08 406.97 275.14 L 406.97 287.44 C 406.63 290.84 403.61 292.63 400.33 293.82 C 392.9 296.3 380.16 296.61 371.11 294.23 C 367.34 293.12 363.53 291.24 363.21 287.43 Z M 363.21 256.55 C 365.32 258.22 369.12 259.66 373.39 260.42 C 380.9 261.74 388.92 261.71 396.1 260.54 C 400.54 259.81 404.41 258.5 406.97 256.56 L 406.97 268.85 C 406.63 272.25 403.61 274.04 400.33 275.24 C 392.9 277.71 380.16 278.02 371.11 275.65 C 367.34 274.53 363.53 272.66 363.21 268.85 Z M 363.21 251.64 C 363.21 248.39 370 245 384.67 244.61 C 399.24 244.61 406.97 248.33 406.97 251.62 C 406.97 255.27 397.6 258.6 386.09 258.6 C 374.28 258.76 363.21 255.8 363.21 251.64 Z" fill="#2072b8" stroke="none" pointer-events="all"/><path d="M 406.97 254.33 L 473.39 204.92" fill="none" stroke="#000000" stroke-width="2" stroke-miterlimit="10" pointer-events="stroke"/><path d="M 478.21 201.33 L 474.18 209.32 L 473.39 204.92 L 469.4 202.9 Z" fill="#000000" stroke="#000000" stroke-width="2" stroke-miterlimit="10" pointer-events="all"/><rect x="330.21" y="294.61" width="108.25" height="20" fill="none" stroke="none" pointer-events="all" transform="translate(2,3)" opacity="0.25"/><rect x="330.21" y="294.61" width="108.25" height="20" fill="none" stroke="none" pointer-events="all"/><g transform="translate(-0.5 -0.5)"><switch><foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 106px; height: 1px; padding-top: 305px; margin-left: 331px;"><div style="box-sizing: border-box; font-size: 0; text-align: center; "><div style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">PCP Archive Log</div></div></div></foreignObject><text x="384" y="308" fill="#000000" font-family="Sans-serif" font-size="10px" text-anchor="middle" font-weight="bold">PCP Archive Log</text></switch></g><path d="M 145.37 175.99 L 249.29 188.62" fill="none" stroke="#000000" stroke-width="2" stroke-miterlimit="10" pointer-events="stroke"/><path d="M 139.41 175.27 L 147.83 172.26 L 145.37 175.99 L 146.87 180.21 Z" fill="#000000" stroke="#000000" stroke-width="2" stroke-miterlimit="10" pointer-events="all"/><path d="M 255.25 189.34 L 246.83 192.35 L 249.29 188.62 L 247.79 184.4 Z" fill="#000000" stroke="#000000" stroke-width="2" stroke-miterlimit="10" pointer-events="all"/><path d="M 145.09 302.68 L 249.57 271.93" fill="none" stroke="#000000" stroke-width="2" stroke-miterlimit="10" pointer-events="stroke"/><path d="M 139.34 304.37 L 145.88 298.27 L 145.09 302.68 L 148.14 305.95 Z" fill="#000000" stroke="#000000" stroke-width="2" stroke-miterlimit="10" pointer-events="all"/><path d="M 255.32 270.24 L 248.78 276.34 L 249.57 271.93 L 246.52 268.66 Z" fill="#000000" stroke="#000000" stroke-width="2" stroke-miterlimit="10" pointer-events="all"/><path d="M 317.47 190.11 L 351.23 190.11" fill="none" stroke="#000000" stroke-width="2" stroke-miterlimit="10" pointer-events="stroke"/><path d="M 357.23 190.11 L 349.23 194.11 L 351.23 190.11 L 349.23 186.11 Z" fill="#000000" stroke="#000000" stroke-width="2" stroke-miterlimit="10" pointer-events="all"/><path d="M 322.13 270.11 L 355.89 270.11" fill="none" stroke="#000000" stroke-width="2" stroke-miterlimit="10" pointer-events="stroke"/><path d="M 361.89 270.11 L 353.89 274.11 L 355.89 270.11 L 353.89 266.11 Z" fill="#000000" stroke="#000000" stroke-width="2" stroke-miterlimit="10" pointer-events="all"/></g><switch><g requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"/><a transform="translate(0,-5)" xlink:href="https://www.diagrams.net/doc/faq/svg-export-text-problems" target="_blank"><text text-anchor="middle" font-size="10px" x="50%" y="100%">Viewer does not support full SVG 1.1</text></a></switch></svg>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:xhtml="http://www.w3.org/1999/xhtml"
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   width="849px"
+   height="374px"
+   viewBox="-0.5 -0.5 849 374"
+   content="&lt;mxfile host=&quot;app.diagrams.net&quot; modified=&quot;2021-03-15T18:57:52.795Z&quot; agent=&quot;5.0 (X11)&quot; etag=&quot;96-FtYLS9ywY2aJIkNmg&quot; version=&quot;14.4.8&quot; type=&quot;device&quot;&gt;&lt;diagram id=&quot;_u2Pu7ICIZ9oJZ_Oul_9&quot; name=&quot;Page-1&quot;&gt;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&lt;/diagram&gt;&lt;/mxfile&gt;"
+   id="svg1320"
+   sodipodi:docname="pmlogger-farm.svg"
+   inkscape:version="1.0.2 (e86c870879, 2021-01-15)">
+  <metadata
+     id="metadata1324">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1320"
+     inkscape:window-height="697"
+     id="namedview1322"
+     showgrid="false"
+     inkscape:zoom="1.0977229"
+     inkscape:cx="663.09111"
+     inkscape:cy="195.70033"
+     inkscape:window-x="26"
+     inkscape:window-y="23"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="switch1090"
+     inkscape:document-rotation="0" />
+  <defs
+     id="defs1002" />
+  <g
+     id="g1310">
+    <rect
+       x="240"
+       y="69"
+       width="330"
+       height="260"
+       rx="39"
+       ry="39"
+       fill="#000000"
+       stroke="#000000"
+       pointer-events="all"
+       transform="translate(2,3)"
+       opacity="0.25"
+       id="rect1004" />
+    <rect
+       x="240"
+       y="69"
+       width="330"
+       height="260"
+       rx="39"
+       ry="39"
+       fill="#ffffff"
+       stroke="#000000"
+       pointer-events="all"
+       id="rect1006" />
+    <rect
+       x="22.81"
+       y="20"
+       width="154.38"
+       height="90"
+       rx="13.5"
+       ry="13.5"
+       fill="#000000"
+       stroke="#000000"
+       pointer-events="all"
+       transform="translate(2,3)"
+       opacity="0.25"
+       id="rect1008" />
+    <rect
+       x="22.81"
+       y="20"
+       width="154.38"
+       height="90"
+       rx="13.5"
+       ry="13.5"
+       fill="#ffffff"
+       stroke="#000000"
+       pointer-events="all"
+       id="rect1010" />
+    <ellipse
+       cx="107.19"
+       cy="45"
+       rx="30"
+       ry="15"
+       fill="#000000"
+       stroke="#000000"
+       pointer-events="all"
+       transform="translate(2,3)"
+       opacity="0.25"
+       id="ellipse1012" />
+    <ellipse
+       cx="107.19"
+       cy="45"
+       rx="30"
+       ry="15"
+       fill="#fdf6e3"
+       stroke="#d79b00"
+       pointer-events="all"
+       id="ellipse1014" />
+    <ellipse
+       cx="67.19"
+       cy="90"
+       rx="15"
+       ry="10"
+       fill="#000000"
+       stroke="#000000"
+       pointer-events="all"
+       transform="translate(2,3)"
+       opacity="0.25"
+       id="ellipse1016" />
+    <ellipse
+       cx="67.19"
+       cy="90"
+       rx="15"
+       ry="10"
+       fill="#2c3e50"
+       stroke="#000000"
+       pointer-events="all"
+       id="ellipse1018" />
+    <ellipse
+       cx="107.19"
+       cy="90"
+       rx="15"
+       ry="10"
+       fill="#000000"
+       stroke="#000000"
+       pointer-events="all"
+       transform="translate(2,3)"
+       opacity="0.25"
+       id="ellipse1020" />
+    <ellipse
+       cx="107.19"
+       cy="90"
+       rx="15"
+       ry="10"
+       fill="#2c3e50"
+       stroke="#000000"
+       pointer-events="all"
+       id="ellipse1022" />
+    <ellipse
+       cx="147.19"
+       cy="90"
+       rx="15"
+       ry="10"
+       fill="#000000"
+       stroke="#000000"
+       pointer-events="all"
+       transform="translate(2,3)"
+       opacity="0.25"
+       id="ellipse1024" />
+    <ellipse
+       cx="147.19"
+       cy="90"
+       rx="15"
+       ry="10"
+       fill="#2c3e50"
+       stroke="#000000"
+       pointer-events="all"
+       id="ellipse1026" />
+    <rect
+       x="87.19"
+       y="35"
+       width="40"
+       height="20"
+       fill="#fdf6e3"
+       stroke="none"
+       pointer-events="all"
+       id="rect1028" />
+    <g
+       transform="translate(-0.5 -0.5)"
+       id="g1034">
+      <switch
+         id="switch1032">
+        <foreignObject
+           style="overflow: visible; text-align: left;"
+           pointer-events="none"
+           width="100%"
+           height="100%"
+           requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+          <xhtml:div
+             style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 38px; height: 1px; padding-top: 45px; margin-left: 88px;">
+            <xhtml:div
+               style="box-sizing: border-box; font-size: 0; text-align: center; ">
+              <xhtml:div
+                 style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">PMCD</xhtml:div>
+            </xhtml:div>
+          </xhtml:div>
+        </foreignObject>
+        <text
+           x="107"
+           y="48"
+           fill="#000000"
+           font-family="Sans-serif"
+           font-size="10px"
+           text-anchor="middle"
+           font-weight="bold"
+           id="text1030">PMCD</text>
+      </switch>
+    </g>
+    <rect
+       x="27.19"
+       y="60"
+       width="40"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       transform="translate(2,3)"
+       opacity="0.25"
+       id="rect1036" />
+    <rect
+       x="27.19"
+       y="60"
+       width="40"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       id="rect1038" />
+    <g
+       transform="translate(-0.5 -0.5)"
+       id="g1044">
+      <switch
+         id="switch1042">
+        <foreignObject
+           style="overflow: visible; text-align: left;"
+           pointer-events="none"
+           width="100%"
+           height="100%"
+           requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+          <xhtml:div
+             style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 38px; height: 1px; padding-top: 70px; margin-left: 28px;">
+            <xhtml:div
+               style="box-sizing: border-box; font-size: 0; text-align: center; ">
+              <xhtml:div
+                 style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">PMDAs</xhtml:div>
+            </xhtml:div>
+          </xhtml:div>
+        </foreignObject>
+        <text
+           x="47"
+           y="73"
+           fill="#000000"
+           font-family="Sans-serif"
+           font-size="10px"
+           text-anchor="middle"
+           font-weight="bold"
+           id="text1040">PMDAs</text>
+      </switch>
+    </g>
+    <rect
+       x="0"
+       y="0"
+       width="160"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       transform="translate(2,3)"
+       opacity="0.25"
+       id="rect1046" />
+    <rect
+       x="0"
+       y="0"
+       width="160"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       id="rect1048" />
+    <g
+       transform="translate(-0.5 -0.5)"
+       id="g1054">
+      <switch
+         id="switch1052">
+        <foreignObject
+           style="overflow: visible; text-align: left;"
+           pointer-events="none"
+           width="100%"
+           height="100%"
+           requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+          <xhtml:div
+             style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 158px; height: 1px; padding-top: 10px; margin-left: 1px;">
+            <xhtml:div
+               style="box-sizing: border-box; font-size: 0; text-align: center; ">
+              <xhtml:div
+                 style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">Monitored Host</xhtml:div>
+            </xhtml:div>
+          </xhtml:div>
+        </foreignObject>
+        <text
+           x="80"
+           y="13"
+           fill="#000000"
+           font-family="Sans-serif"
+           font-size="10px"
+           text-anchor="middle"
+           font-weight="bold"
+           id="text1050">Monitored Host</text>
+      </switch>
+    </g>
+    <rect
+       x="256.26"
+       y="49"
+       width="173.75"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       transform="translate(2,3)"
+       opacity="0.25"
+       id="rect1056" />
+    <rect
+       x="256.26"
+       y="49"
+       width="173.75"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       id="rect1058" />
+    <g
+       transform="translate(-0.5 -0.5)"
+       id="g1064">
+      <switch
+         id="switch1062">
+        <foreignObject
+           style="overflow: visible; text-align: left;"
+           pointer-events="none"
+           width="100%"
+           height="100%"
+           requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+          <xhtml:div
+             style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 172px; height: 1px; padding-top: 59px; margin-left: 257px;">
+            <xhtml:div
+               style="box-sizing: border-box; font-size: 0; text-align: center; ">
+              <xhtml:div
+                 style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">pmlogger Host</xhtml:div>
+            </xhtml:div>
+          </xhtml:div>
+        </foreignObject>
+        <text
+           x="343"
+           y="62"
+           fill="#000000"
+           font-family="Sans-serif"
+           font-size="10px"
+           text-anchor="middle"
+           font-weight="bold"
+           id="text1060">pmlogger Host</text>
+      </switch>
+    </g>
+    <ellipse
+       cx="286.26"
+       cy="114"
+       rx="30"
+       ry="15"
+       fill="#000000"
+       stroke="#000000"
+       pointer-events="all"
+       transform="translate(2,3)"
+       opacity="0.25"
+       id="ellipse1066" />
+    <ellipse
+       cx="286.26"
+       cy="114"
+       rx="30"
+       ry="15"
+       fill="#fdf6e3"
+       stroke="#d79b00"
+       pointer-events="all"
+       id="ellipse1068" />
+    <rect
+       x="266.26"
+       y="104"
+       width="40"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       transform="translate(2,3)"
+       opacity="0.25"
+       id="rect1070" />
+    <rect
+       x="266.26"
+       y="104"
+       width="40"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       id="rect1072" />
+    <g
+       transform="translate(-0.5 -0.5)"
+       id="g1078">
+      <switch
+         id="switch1076">
+        <foreignObject
+           style="overflow: visible; text-align: left;"
+           pointer-events="none"
+           width="100%"
+           height="100%"
+           requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+          <xhtml:div
+             style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 38px; height: 1px; padding-top: 114px; margin-left: 267px;">
+            <xhtml:div
+               style="box-sizing: border-box; font-size: 0; text-align: center; ">
+              <xhtml:div
+                 style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">
+                <xhtml:i
+                   style="font-size: 10px">pmlogger</xhtml:i>
+              </xhtml:div>
+            </xhtml:div>
+          </xhtml:div>
+        </foreignObject>
+        <text
+           x="286"
+           y="117"
+           fill="#000000"
+           font-family="Sans-serif"
+           font-size="10px"
+           text-anchor="middle"
+           font-weight="bold"
+           id="text1074">pmlogger</text>
+      </switch>
+    </g>
+    <path
+       d="M 320 115 L 353.76 115"
+       fill="none"
+       stroke="#000000"
+       stroke-width="2"
+       stroke-miterlimit="10"
+       pointer-events="stroke"
+       id="path1080" />
+    <path
+       d="M 359.76 115 L 351.76 119 L 353.76 115 L 351.76 111 Z"
+       fill="#000000"
+       stroke="#000000"
+       stroke-width="2"
+       stroke-miterlimit="10"
+       pointer-events="all"
+       id="path1082" />
+    <path
+       d="M 362 119.53 C 364.11 121.19 367.91 122.64 372.18 123.39 C 379.69 124.72 387.71 124.68 394.89 123.51 C 399.33 122.79 403.2 121.47 405.76 119.53 L 405.76 131.83 C 405.42 135.23 402.4 137.02 399.12 138.21 C 391.69 140.69 378.95 141 369.9 138.62 C 366.13 137.51 362.32 135.63 362 131.82 Z M 362 100.94 C 364.11 102.61 367.91 104.05 372.18 104.81 C 379.69 106.13 387.71 106.1 394.89 104.93 C 399.33 104.2 403.2 102.89 405.76 100.95 L 405.76 113.24 C 405.42 116.64 402.4 118.43 399.12 119.63 C 391.69 122.1 378.95 122.41 369.9 120.04 C 366.13 118.92 362.32 117.05 362 113.24 Z M 362 96.03 C 362 92.78 368.79 89.39 383.46 89 C 398.03 89 405.76 92.72 405.76 96.01 C 405.76 99.66 396.39 102.99 384.88 102.99 C 373.07 103.15 362 100.19 362 96.03 Z"
+       fill="#2072b8"
+       stroke="none"
+       pointer-events="all"
+       id="path1084" />
+    <path
+       d="m 675.75309,157 c -35.46567,0 -44.33208,35 -15.95955,42 -28.37253,15.4 3.54657,49 26.59925,35 15.95955,28 69.15804,28 86.89087,0 35.46567,0 35.46567,-28 13.29963,-42 22.16604,-28 -13.29963,-56 -44.33208,-42 -22.16604,-21 -57.63171,-21 -66.49812,7 z"
+       fill="#ffffff"
+       stroke="#000000"
+       stroke-miterlimit="10"
+       pointer-events="all"
+       id="path1086"
+       style="stroke-width:0.878062" />
+    <g
+       transform="translate(-46.5,-10.5)"
+       id="g1092">
+      <switch
+         id="switch1090">
+        <foreignObject
+           style="overflow: visible; text-align: left;"
+           pointer-events="none"
+           width="100%"
+           height="100%"
+           requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+          <xhtml:div
+             style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 228px; height: 1px; padding-top: 204px; margin-left: 619px;">
+            <xhtml:div
+               style="box-sizing: border-box; font-size: 0; text-align: center; ">
+              <xhtml:div
+                 style="display: inline-block; font-size: 10px; font-family: sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">Redis Cluster</xhtml:div>
+            </xhtml:div>
+          </xhtml:div>
+        </foreignObject>
+        <text
+           x="769"
+           y="205"
+           fill="#000000"
+           font-family="sans-serif"
+           font-size="10px"
+           text-anchor="middle"
+           font-weight="bold"
+           id="text1088"><tspan
+             sodipodi:role="line"
+             id="tspan1328"
+             x="769"
+             y="205">Redis</tspan><tspan
+             sodipodi:role="line"
+             x="769"
+             y="217.5"
+             id="tspan667">Instance</tspan></text>
+      </switch>
+    </g>
+    <path
+       d="M 144.32 49.13 L 249.13 109.87"
+       fill="none"
+       stroke="#000000"
+       stroke-width="2"
+       stroke-miterlimit="10"
+       pointer-events="stroke"
+       id="path1094" />
+    <path
+       d="M 139.12 46.12 L 148.05 46.67 L 144.32 49.13 L 144.04 53.59 Z"
+       fill="#000000"
+       stroke="#000000"
+       stroke-width="2"
+       stroke-miterlimit="10"
+       pointer-events="all"
+       id="path1096" />
+    <path
+       d="M 254.33 112.88 L 245.4 112.33 L 249.13 109.87 L 249.41 105.41 Z"
+       fill="#000000"
+       stroke="#000000"
+       stroke-width="2"
+       stroke-miterlimit="10"
+       pointer-events="all"
+       id="path1098" />
+    <ellipse
+       cx="500"
+       cy="190"
+       rx="30"
+       ry="15"
+       fill="#000000"
+       stroke="#000000"
+       pointer-events="all"
+       transform="translate(2,3)"
+       opacity="0.25"
+       id="ellipse1100" />
+    <ellipse
+       cx="500"
+       cy="190"
+       rx="30"
+       ry="15"
+       fill="#fdf6e3"
+       stroke="#d79b00"
+       pointer-events="all"
+       id="ellipse1102" />
+    <rect
+       x="480"
+       y="180"
+       width="40"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       transform="translate(2,3)"
+       opacity="0.25"
+       id="rect1104" />
+    <rect
+       x="480"
+       y="180"
+       width="40"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       id="rect1106" />
+    <g
+       transform="translate(-0.5 -0.5)"
+       id="g1112">
+      <switch
+         id="switch1110">
+        <foreignObject
+           style="overflow: visible; text-align: left;"
+           pointer-events="none"
+           width="100%"
+           height="100%"
+           requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+          <xhtml:div
+             style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 38px; height: 1px; padding-top: 190px; margin-left: 481px;">
+            <xhtml:div
+               style="box-sizing: border-box; font-size: 0; text-align: center; ">
+              <xhtml:div
+                 style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">
+                <xhtml:div>pmproxy</xhtml:div>
+              </xhtml:div>
+            </xhtml:div>
+          </xhtml:div>
+        </foreignObject>
+        <text
+           x="500"
+           y="193"
+           fill="#000000"
+           font-family="Sans-serif"
+           font-size="10px"
+           text-anchor="middle"
+           font-weight="bold"
+           id="text1108">pmproxy</text>
+      </switch>
+    </g>
+    <path
+       d="M 405.76 129.85 L 471.97 174.77"
+       fill="none"
+       stroke="#000000"
+       stroke-width="2"
+       stroke-miterlimit="10"
+       pointer-events="stroke"
+       id="path1114" />
+    <path
+       d="M 476.94 178.14 L 468.07 176.96 L 471.97 174.77 L 472.56 170.34 Z"
+       fill="#000000"
+       stroke="#000000"
+       stroke-width="2"
+       stroke-miterlimit="10"
+       pointer-events="all"
+       id="path1116" />
+    <rect
+       x="329"
+       y="139"
+       width="108.25"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       transform="translate(2,3)"
+       opacity="0.25"
+       id="rect1118" />
+    <rect
+       x="329"
+       y="139"
+       width="108.25"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       id="rect1120" />
+    <g
+       transform="translate(-0.5 -0.5)"
+       id="g1126">
+      <switch
+         id="switch1124">
+        <foreignObject
+           style="overflow: visible; text-align: left;"
+           pointer-events="none"
+           width="100%"
+           height="100%"
+           requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+          <xhtml:div
+             style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 106px; height: 1px; padding-top: 149px; margin-left: 330px;">
+            <xhtml:div
+               style="box-sizing: border-box; font-size: 0; text-align: center; ">
+              <xhtml:div
+                 style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">PCP Archive Log</xhtml:div>
+            </xhtml:div>
+          </xhtml:div>
+        </foreignObject>
+        <text
+           x="383"
+           y="152"
+           fill="#000000"
+           font-family="Sans-serif"
+           font-size="10px"
+           text-anchor="middle"
+           font-weight="bold"
+           id="text1122">PCP Archive Log</text>
+      </switch>
+    </g>
+    <path
+       d="M 643.4568,190 H 538.24"
+       fill="none"
+       stroke="#000000"
+       stroke-width="2.19165"
+       stroke-miterlimit="10"
+       pointer-events="stroke"
+       id="path1128" />
+    <path
+       d="m 643.86,190 -8,4 2,-4 -2,-4 z"
+       fill="#000000"
+       stroke="#000000"
+       stroke-width="2"
+       stroke-miterlimit="10"
+       pointer-events="all"
+       id="path1130" />
+    <path
+       d="M 532.24 190 L 540.24 186 L 538.24 190 L 540.24 194 Z"
+       fill="#000000"
+       stroke="#000000"
+       stroke-width="2"
+       stroke-miterlimit="10"
+       pointer-events="all"
+       id="path1132" />
+    <rect
+       x="22.81"
+       y="150"
+       width="154.38"
+       height="90"
+       rx="13.5"
+       ry="13.5"
+       fill="#000000"
+       stroke="#000000"
+       pointer-events="all"
+       transform="translate(2,3)"
+       opacity="0.25"
+       id="rect1134" />
+    <rect
+       x="22.81"
+       y="150"
+       width="154.38"
+       height="90"
+       rx="13.5"
+       ry="13.5"
+       fill="#ffffff"
+       stroke="#000000"
+       pointer-events="all"
+       id="rect1136" />
+    <ellipse
+       cx="107.19"
+       cy="175"
+       rx="30"
+       ry="15"
+       fill="#000000"
+       stroke="#000000"
+       pointer-events="all"
+       transform="translate(2,3)"
+       opacity="0.25"
+       id="ellipse1138" />
+    <ellipse
+       cx="107.19"
+       cy="175"
+       rx="30"
+       ry="15"
+       fill="#fdf6e3"
+       stroke="#d79b00"
+       pointer-events="all"
+       id="ellipse1140" />
+    <ellipse
+       cx="67.19"
+       cy="220"
+       rx="15"
+       ry="10"
+       fill="#000000"
+       stroke="#000000"
+       pointer-events="all"
+       transform="translate(2,3)"
+       opacity="0.25"
+       id="ellipse1142" />
+    <ellipse
+       cx="67.19"
+       cy="220"
+       rx="15"
+       ry="10"
+       fill="#2c3e50"
+       stroke="#000000"
+       pointer-events="all"
+       id="ellipse1144" />
+    <ellipse
+       cx="107.19"
+       cy="220"
+       rx="15"
+       ry="10"
+       fill="#000000"
+       stroke="#000000"
+       pointer-events="all"
+       transform="translate(2,3)"
+       opacity="0.25"
+       id="ellipse1146" />
+    <ellipse
+       cx="107.19"
+       cy="220"
+       rx="15"
+       ry="10"
+       fill="#2c3e50"
+       stroke="#000000"
+       pointer-events="all"
+       id="ellipse1148" />
+    <ellipse
+       cx="147.19"
+       cy="220"
+       rx="15"
+       ry="10"
+       fill="#000000"
+       stroke="#000000"
+       pointer-events="all"
+       transform="translate(2,3)"
+       opacity="0.25"
+       id="ellipse1150" />
+    <ellipse
+       cx="147.19"
+       cy="220"
+       rx="15"
+       ry="10"
+       fill="#2c3e50"
+       stroke="#000000"
+       pointer-events="all"
+       id="ellipse1152" />
+    <rect
+       x="87.19"
+       y="165"
+       width="40"
+       height="20"
+       fill="#fdf6e3"
+       stroke="none"
+       pointer-events="all"
+       id="rect1154" />
+    <g
+       transform="translate(-0.5 -0.5)"
+       id="g1160">
+      <switch
+         id="switch1158">
+        <foreignObject
+           style="overflow: visible; text-align: left;"
+           pointer-events="none"
+           width="100%"
+           height="100%"
+           requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+          <xhtml:div
+             style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 38px; height: 1px; padding-top: 175px; margin-left: 88px;">
+            <xhtml:div
+               style="box-sizing: border-box; font-size: 0; text-align: center; ">
+              <xhtml:div
+                 style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">PMCD</xhtml:div>
+            </xhtml:div>
+          </xhtml:div>
+        </foreignObject>
+        <text
+           x="107"
+           y="178"
+           fill="#000000"
+           font-family="Sans-serif"
+           font-size="10px"
+           text-anchor="middle"
+           font-weight="bold"
+           id="text1156">PMCD</text>
+      </switch>
+    </g>
+    <rect
+       x="27.19"
+       y="190"
+       width="40"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       transform="translate(2,3)"
+       opacity="0.25"
+       id="rect1162" />
+    <rect
+       x="27.19"
+       y="190"
+       width="40"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       id="rect1164" />
+    <g
+       transform="translate(-0.5 -0.5)"
+       id="g1170">
+      <switch
+         id="switch1168">
+        <foreignObject
+           style="overflow: visible; text-align: left;"
+           pointer-events="none"
+           width="100%"
+           height="100%"
+           requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+          <xhtml:div
+             style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 38px; height: 1px; padding-top: 200px; margin-left: 28px;">
+            <xhtml:div
+               style="box-sizing: border-box; font-size: 0; text-align: center; ">
+              <xhtml:div
+                 style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">PMDAs</xhtml:div>
+            </xhtml:div>
+          </xhtml:div>
+        </foreignObject>
+        <text
+           x="47"
+           y="203"
+           fill="#000000"
+           font-family="Sans-serif"
+           font-size="10px"
+           text-anchor="middle"
+           font-weight="bold"
+           id="text1166">PMDAs</text>
+      </switch>
+    </g>
+    <rect
+       x="0"
+       y="130"
+       width="160"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       transform="translate(2,3)"
+       opacity="0.25"
+       id="rect1172" />
+    <rect
+       x="0"
+       y="130"
+       width="160"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       id="rect1174" />
+    <g
+       transform="translate(-0.5 -0.5)"
+       id="g1180">
+      <switch
+         id="switch1178">
+        <foreignObject
+           style="overflow: visible; text-align: left;"
+           pointer-events="none"
+           width="100%"
+           height="100%"
+           requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+          <xhtml:div
+             style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 158px; height: 1px; padding-top: 140px; margin-left: 1px;">
+            <xhtml:div
+               style="box-sizing: border-box; font-size: 0; text-align: center; ">
+              <xhtml:div
+                 style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">Monitored Host</xhtml:div>
+            </xhtml:div>
+          </xhtml:div>
+        </foreignObject>
+        <text
+           x="80"
+           y="143"
+           fill="#000000"
+           font-family="Sans-serif"
+           font-size="10px"
+           text-anchor="middle"
+           font-weight="bold"
+           id="text1176">Monitored Host</text>
+      </switch>
+    </g>
+    <rect
+       x="22.81"
+       y="280"
+       width="154.38"
+       height="90"
+       rx="13.5"
+       ry="13.5"
+       fill="#000000"
+       stroke="#000000"
+       pointer-events="all"
+       transform="translate(2,3)"
+       opacity="0.25"
+       id="rect1182" />
+    <rect
+       x="22.81"
+       y="280"
+       width="154.38"
+       height="90"
+       rx="13.5"
+       ry="13.5"
+       fill="#ffffff"
+       stroke="#000000"
+       pointer-events="all"
+       id="rect1184" />
+    <ellipse
+       cx="107.19"
+       cy="305"
+       rx="30"
+       ry="15"
+       fill="#000000"
+       stroke="#000000"
+       pointer-events="all"
+       transform="translate(2,3)"
+       opacity="0.25"
+       id="ellipse1186" />
+    <ellipse
+       cx="107.19"
+       cy="305"
+       rx="30"
+       ry="15"
+       fill="#fdf6e3"
+       stroke="#d79b00"
+       pointer-events="all"
+       id="ellipse1188" />
+    <ellipse
+       cx="67.19"
+       cy="350"
+       rx="15"
+       ry="10"
+       fill="#000000"
+       stroke="#000000"
+       pointer-events="all"
+       transform="translate(2,3)"
+       opacity="0.25"
+       id="ellipse1190" />
+    <ellipse
+       cx="67.19"
+       cy="350"
+       rx="15"
+       ry="10"
+       fill="#2c3e50"
+       stroke="#000000"
+       pointer-events="all"
+       id="ellipse1192" />
+    <ellipse
+       cx="107.19"
+       cy="350"
+       rx="15"
+       ry="10"
+       fill="#000000"
+       stroke="#000000"
+       pointer-events="all"
+       transform="translate(2,3)"
+       opacity="0.25"
+       id="ellipse1194" />
+    <ellipse
+       cx="107.19"
+       cy="350"
+       rx="15"
+       ry="10"
+       fill="#2c3e50"
+       stroke="#000000"
+       pointer-events="all"
+       id="ellipse1196" />
+    <ellipse
+       cx="147.19"
+       cy="350"
+       rx="15"
+       ry="10"
+       fill="#000000"
+       stroke="#000000"
+       pointer-events="all"
+       transform="translate(2,3)"
+       opacity="0.25"
+       id="ellipse1198" />
+    <ellipse
+       cx="147.19"
+       cy="350"
+       rx="15"
+       ry="10"
+       fill="#2c3e50"
+       stroke="#000000"
+       pointer-events="all"
+       id="ellipse1200" />
+    <rect
+       x="87.19"
+       y="295"
+       width="40"
+       height="20"
+       fill="#fdf6e3"
+       stroke="none"
+       pointer-events="all"
+       id="rect1202" />
+    <g
+       transform="translate(-0.5 -0.5)"
+       id="g1208">
+      <switch
+         id="switch1206">
+        <foreignObject
+           style="overflow: visible; text-align: left;"
+           pointer-events="none"
+           width="100%"
+           height="100%"
+           requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+          <xhtml:div
+             style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 38px; height: 1px; padding-top: 305px; margin-left: 88px;">
+            <xhtml:div
+               style="box-sizing: border-box; font-size: 0; text-align: center; ">
+              <xhtml:div
+                 style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">PMCD</xhtml:div>
+            </xhtml:div>
+          </xhtml:div>
+        </foreignObject>
+        <text
+           x="107"
+           y="308"
+           fill="#000000"
+           font-family="Sans-serif"
+           font-size="10px"
+           text-anchor="middle"
+           font-weight="bold"
+           id="text1204">PMCD</text>
+      </switch>
+    </g>
+    <rect
+       x="27.19"
+       y="320"
+       width="40"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       transform="translate(2,3)"
+       opacity="0.25"
+       id="rect1210" />
+    <rect
+       x="27.19"
+       y="320"
+       width="40"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       id="rect1212" />
+    <g
+       transform="translate(-0.5 -0.5)"
+       id="g1218">
+      <switch
+         id="switch1216">
+        <foreignObject
+           style="overflow: visible; text-align: left;"
+           pointer-events="none"
+           width="100%"
+           height="100%"
+           requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+          <xhtml:div
+             style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 38px; height: 1px; padding-top: 330px; margin-left: 28px;">
+            <xhtml:div
+               style="box-sizing: border-box; font-size: 0; text-align: center; ">
+              <xhtml:div
+                 style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">PMDAs</xhtml:div>
+            </xhtml:div>
+          </xhtml:div>
+        </foreignObject>
+        <text
+           x="47"
+           y="333"
+           fill="#000000"
+           font-family="Sans-serif"
+           font-size="10px"
+           text-anchor="middle"
+           font-weight="bold"
+           id="text1214">PMDAs</text>
+      </switch>
+    </g>
+    <rect
+       x="0"
+       y="260"
+       width="160"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       transform="translate(2,3)"
+       opacity="0.25"
+       id="rect1220" />
+    <rect
+       x="0"
+       y="260"
+       width="160"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       id="rect1222" />
+    <g
+       transform="translate(-0.5 -0.5)"
+       id="g1228">
+      <switch
+         id="switch1226">
+        <foreignObject
+           style="overflow: visible; text-align: left;"
+           pointer-events="none"
+           width="100%"
+           height="100%"
+           requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+          <xhtml:div
+             style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 158px; height: 1px; padding-top: 270px; margin-left: 1px;">
+            <xhtml:div
+               style="box-sizing: border-box; font-size: 0; text-align: center; ">
+              <xhtml:div
+                 style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">Monitored Host</xhtml:div>
+            </xhtml:div>
+          </xhtml:div>
+        </foreignObject>
+        <text
+           x="80"
+           y="273"
+           fill="#000000"
+           font-family="Sans-serif"
+           font-size="10px"
+           text-anchor="middle"
+           font-weight="bold"
+           id="text1224">Monitored Host</text>
+      </switch>
+    </g>
+    <ellipse
+       cx="287.47"
+       cy="189.61"
+       rx="30"
+       ry="15"
+       fill="#000000"
+       stroke="#000000"
+       pointer-events="all"
+       transform="translate(2,3)"
+       opacity="0.25"
+       id="ellipse1230" />
+    <ellipse
+       cx="287.47"
+       cy="189.61"
+       rx="30"
+       ry="15"
+       fill="#fdf6e3"
+       stroke="#d79b00"
+       pointer-events="all"
+       id="ellipse1232" />
+    <rect
+       x="267.47"
+       y="179.61"
+       width="40"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       transform="translate(2,3)"
+       opacity="0.25"
+       id="rect1234" />
+    <rect
+       x="267.47"
+       y="179.61"
+       width="40"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       id="rect1236" />
+    <g
+       transform="translate(-0.5 -0.5)"
+       id="g1242">
+      <switch
+         id="switch1240">
+        <foreignObject
+           style="overflow: visible; text-align: left;"
+           pointer-events="none"
+           width="100%"
+           height="100%"
+           requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+          <xhtml:div
+             style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 38px; height: 1px; padding-top: 190px; margin-left: 268px;">
+            <xhtml:div
+               style="box-sizing: border-box; font-size: 0; text-align: center; ">
+              <xhtml:div
+                 style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">
+                <xhtml:i
+                   style="font-size: 10px">pmlogger</xhtml:i>
+              </xhtml:div>
+            </xhtml:div>
+          </xhtml:div>
+        </foreignObject>
+        <text
+           x="287"
+           y="193"
+           fill="#000000"
+           font-family="Sans-serif"
+           font-size="10px"
+           text-anchor="middle"
+           font-weight="bold"
+           id="text1238">pmlogger</text>
+      </switch>
+    </g>
+    <path
+       d="M 363.21 195.14 C 365.32 196.8 369.12 198.25 373.39 199 C 380.9 200.33 388.92 200.29 396.1 199.12 C 400.54 198.4 404.41 197.08 406.97 195.14 L 406.97 207.44 C 406.63 210.84 403.61 212.63 400.33 213.82 C 392.9 216.3 380.16 216.61 371.11 214.23 C 367.34 213.12 363.53 211.24 363.21 207.43 Z M 363.21 176.55 C 365.32 178.22 369.12 179.66 373.39 180.42 C 380.9 181.74 388.92 181.71 396.1 180.54 C 400.54 179.81 404.41 178.5 406.97 176.56 L 406.97 188.85 C 406.63 192.25 403.61 194.04 400.33 195.24 C 392.9 197.71 380.16 198.02 371.11 195.65 C 367.34 194.53 363.53 192.66 363.21 188.85 Z M 363.21 171.64 C 363.21 168.39 370 165 384.67 164.61 C 399.24 164.61 406.97 168.33 406.97 171.62 C 406.97 175.27 397.6 178.6 386.09 178.6 C 374.28 178.76 363.21 175.8 363.21 171.64 Z"
+       fill="#2072b8"
+       stroke="none"
+       pointer-events="all"
+       id="path1244" />
+    <path
+       d="M 406.97 190.45 L 461.76 190.06"
+       fill="none"
+       stroke="#000000"
+       stroke-width="2"
+       stroke-miterlimit="10"
+       pointer-events="stroke"
+       id="path1246" />
+    <path
+       d="M 467.76 190.02 L 459.79 194.07 L 461.76 190.06 L 459.74 186.07 Z"
+       fill="#000000"
+       stroke="#000000"
+       stroke-width="2"
+       stroke-miterlimit="10"
+       pointer-events="all"
+       id="path1248" />
+    <rect
+       x="330.21"
+       y="214.61"
+       width="108.25"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       transform="translate(2,3)"
+       opacity="0.25"
+       id="rect1250" />
+    <rect
+       x="330.21"
+       y="214.61"
+       width="108.25"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       id="rect1252" />
+    <g
+       transform="translate(-0.5 -0.5)"
+       id="g1258">
+      <switch
+         id="switch1256">
+        <foreignObject
+           style="overflow: visible; text-align: left;"
+           pointer-events="none"
+           width="100%"
+           height="100%"
+           requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+          <xhtml:div
+             style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 106px; height: 1px; padding-top: 225px; margin-left: 331px;">
+            <xhtml:div
+               style="box-sizing: border-box; font-size: 0; text-align: center; ">
+              <xhtml:div
+                 style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">PCP Archive Log</xhtml:div>
+            </xhtml:div>
+          </xhtml:div>
+        </foreignObject>
+        <text
+           x="384"
+           y="228"
+           fill="#000000"
+           font-family="Sans-serif"
+           font-size="10px"
+           text-anchor="middle"
+           font-weight="bold"
+           id="text1254">PCP Archive Log</text>
+      </switch>
+    </g>
+    <ellipse
+       cx="287.47"
+       cy="269.61"
+       rx="30"
+       ry="15"
+       fill="#000000"
+       stroke="#000000"
+       pointer-events="all"
+       transform="translate(2,3)"
+       opacity="0.25"
+       id="ellipse1260" />
+    <ellipse
+       cx="287.47"
+       cy="269.61"
+       rx="30"
+       ry="15"
+       fill="#fdf6e3"
+       stroke="#d79b00"
+       pointer-events="all"
+       id="ellipse1262" />
+    <rect
+       x="267.47"
+       y="259.61"
+       width="40"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       transform="translate(2,3)"
+       opacity="0.25"
+       id="rect1264" />
+    <rect
+       x="267.47"
+       y="259.61"
+       width="40"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       id="rect1266" />
+    <g
+       transform="translate(-0.5 -0.5)"
+       id="g1272">
+      <switch
+         id="switch1270">
+        <foreignObject
+           style="overflow: visible; text-align: left;"
+           pointer-events="none"
+           width="100%"
+           height="100%"
+           requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+          <xhtml:div
+             style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 38px; height: 1px; padding-top: 270px; margin-left: 268px;">
+            <xhtml:div
+               style="box-sizing: border-box; font-size: 0; text-align: center; ">
+              <xhtml:div
+                 style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">
+                <xhtml:i
+                   style="font-size: 10px">pmlogger</xhtml:i>
+              </xhtml:div>
+            </xhtml:div>
+          </xhtml:div>
+        </foreignObject>
+        <text
+           x="287"
+           y="273"
+           fill="#000000"
+           font-family="Sans-serif"
+           font-size="10px"
+           text-anchor="middle"
+           font-weight="bold"
+           id="text1268">pmlogger</text>
+      </switch>
+    </g>
+    <path
+       d="M 363.21 275.14 C 365.32 276.8 369.12 278.25 373.39 279 C 380.9 280.33 388.92 280.29 396.1 279.12 C 400.54 278.4 404.41 277.08 406.97 275.14 L 406.97 287.44 C 406.63 290.84 403.61 292.63 400.33 293.82 C 392.9 296.3 380.16 296.61 371.11 294.23 C 367.34 293.12 363.53 291.24 363.21 287.43 Z M 363.21 256.55 C 365.32 258.22 369.12 259.66 373.39 260.42 C 380.9 261.74 388.92 261.71 396.1 260.54 C 400.54 259.81 404.41 258.5 406.97 256.56 L 406.97 268.85 C 406.63 272.25 403.61 274.04 400.33 275.24 C 392.9 277.71 380.16 278.02 371.11 275.65 C 367.34 274.53 363.53 272.66 363.21 268.85 Z M 363.21 251.64 C 363.21 248.39 370 245 384.67 244.61 C 399.24 244.61 406.97 248.33 406.97 251.62 C 406.97 255.27 397.6 258.6 386.09 258.6 C 374.28 258.76 363.21 255.8 363.21 251.64 Z"
+       fill="#2072b8"
+       stroke="none"
+       pointer-events="all"
+       id="path1274" />
+    <path
+       d="M 406.97 254.33 L 473.39 204.92"
+       fill="none"
+       stroke="#000000"
+       stroke-width="2"
+       stroke-miterlimit="10"
+       pointer-events="stroke"
+       id="path1276" />
+    <path
+       d="M 478.21 201.33 L 474.18 209.32 L 473.39 204.92 L 469.4 202.9 Z"
+       fill="#000000"
+       stroke="#000000"
+       stroke-width="2"
+       stroke-miterlimit="10"
+       pointer-events="all"
+       id="path1278" />
+    <rect
+       x="330.21"
+       y="294.61"
+       width="108.25"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       transform="translate(2,3)"
+       opacity="0.25"
+       id="rect1280" />
+    <rect
+       x="330.21"
+       y="294.61"
+       width="108.25"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       id="rect1282" />
+    <g
+       transform="translate(-0.5 -0.5)"
+       id="g1288">
+      <switch
+         id="switch1286">
+        <foreignObject
+           style="overflow: visible; text-align: left;"
+           pointer-events="none"
+           width="100%"
+           height="100%"
+           requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+          <xhtml:div
+             style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 106px; height: 1px; padding-top: 305px; margin-left: 331px;">
+            <xhtml:div
+               style="box-sizing: border-box; font-size: 0; text-align: center; ">
+              <xhtml:div
+                 style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">PCP Archive Log</xhtml:div>
+            </xhtml:div>
+          </xhtml:div>
+        </foreignObject>
+        <text
+           x="384"
+           y="308"
+           fill="#000000"
+           font-family="Sans-serif"
+           font-size="10px"
+           text-anchor="middle"
+           font-weight="bold"
+           id="text1284">PCP Archive Log</text>
+      </switch>
+    </g>
+    <path
+       d="M 145.37 175.99 L 249.29 188.62"
+       fill="none"
+       stroke="#000000"
+       stroke-width="2"
+       stroke-miterlimit="10"
+       pointer-events="stroke"
+       id="path1290" />
+    <path
+       d="M 139.41 175.27 L 147.83 172.26 L 145.37 175.99 L 146.87 180.21 Z"
+       fill="#000000"
+       stroke="#000000"
+       stroke-width="2"
+       stroke-miterlimit="10"
+       pointer-events="all"
+       id="path1292" />
+    <path
+       d="M 255.25 189.34 L 246.83 192.35 L 249.29 188.62 L 247.79 184.4 Z"
+       fill="#000000"
+       stroke="#000000"
+       stroke-width="2"
+       stroke-miterlimit="10"
+       pointer-events="all"
+       id="path1294" />
+    <path
+       d="M 145.09 302.68 L 249.57 271.93"
+       fill="none"
+       stroke="#000000"
+       stroke-width="2"
+       stroke-miterlimit="10"
+       pointer-events="stroke"
+       id="path1296" />
+    <path
+       d="M 139.34 304.37 L 145.88 298.27 L 145.09 302.68 L 148.14 305.95 Z"
+       fill="#000000"
+       stroke="#000000"
+       stroke-width="2"
+       stroke-miterlimit="10"
+       pointer-events="all"
+       id="path1298" />
+    <path
+       d="M 255.32 270.24 L 248.78 276.34 L 249.57 271.93 L 246.52 268.66 Z"
+       fill="#000000"
+       stroke="#000000"
+       stroke-width="2"
+       stroke-miterlimit="10"
+       pointer-events="all"
+       id="path1300" />
+    <path
+       d="M 317.47 190.11 L 351.23 190.11"
+       fill="none"
+       stroke="#000000"
+       stroke-width="2"
+       stroke-miterlimit="10"
+       pointer-events="stroke"
+       id="path1302" />
+    <path
+       d="M 357.23 190.11 L 349.23 194.11 L 351.23 190.11 L 349.23 186.11 Z"
+       fill="#000000"
+       stroke="#000000"
+       stroke-width="2"
+       stroke-miterlimit="10"
+       pointer-events="all"
+       id="path1304" />
+    <path
+       d="M 322.13 270.11 L 355.89 270.11"
+       fill="none"
+       stroke="#000000"
+       stroke-width="2"
+       stroke-miterlimit="10"
+       pointer-events="stroke"
+       id="path1306" />
+    <path
+       d="M 361.89 270.11 L 353.89 274.11 L 355.89 270.11 L 353.89 266.11 Z"
+       fill="#000000"
+       stroke="#000000"
+       stroke-width="2"
+       stroke-miterlimit="10"
+       pointer-events="all"
+       id="path1308" />
+  </g>
+  <switch
+     id="switch1318">
+    <g
+       requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"
+       id="g1312" />
+    <a
+       transform="translate(0,-5)"
+       xlink:href="https://www.diagrams.net/doc/faq/svg-export-text-problems"
+       target="_blank"
+       id="a1316">
+      <text
+         text-anchor="middle"
+         font-size="10px"
+         x="50%"
+         y="100%"
+         id="text1314">Viewer does not support full SVG 1.1</text>
+    </a>
+  </switch>
+</svg>

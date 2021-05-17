@@ -3,50 +3,71 @@
 Scaling Guidelines
 ##################
 
-This technical note explores the scalability of centralized logging with `Performance Co-Pilot (PCP) <https://pcp.io>`_.
+This technical note explores the scalability of centralized time series analysis with `Performance Co-Pilot (PCP) <https://pcp.io>`_.
 
-Architecture
-************
+Architectures
+*************
 
 PCP supports multiple deployment architectures, based on the scale of the PCP deployment.
-The most common deployment architectures are described below.
+Each of the available architectures is described below this table which provides guidance on which deployment architecture suits best based on the number of monitored hosts.
 
-Fully Distributed Setup
------------------------
++-------------+---------+------------+------------+---------------+-----------+-------------+
+|  Number of  |  pmcd   | pmlogger   |  pmproxy   |     Redis     |   Redis   | Recommended |
+|             |         |            |            |               |           |             |
+|  Hosts (N)  | servers |  servers   |  servers   |    servers    |  cluster  | Deployments |
++=============+=========+============+============+===============+===========+=============+
+| 1 - 10      |    N    |   1 to N   |   1 to N   |       1       |    No     |  A, B or C  |
++-------------+---------+------------+------------+---------------+-----------+-------------+
+| 10 - 100    |    N    | N/10 to N  |   1 to N   |   1 to N/10   |   Maybe   |  B, C or D  |
++-------------+---------+------------+------------+---------------+-----------+-------------+
+| 100 - 1000  |    N    | N/100 to N | N/100 to N | N/100 to N/10 |    Yes    |    B or D   |
++-------------+---------+------------+------------+---------------+-----------+-------------+
 
-A way to setup decentralized logging is to run `pmlogger(1)`_ on each monitored host, which retrieves metrics from a local `pmcd(1)`_ instance.
-A local `pmproxy(1)`_ daemon imports the performance metrics into a central `Redis`_ database.
 
-.. figure:: fully-distributed.svg
+A. Localhost setup
+------------------
 
-pmlogger Farm
--------------
+The simplest setup is where each service runs locally on the monitored machine.
+This is the default deployment when each service is started with no configuration changes.
+Scaling beyond the individual node is not attempted and we are unable to make use of the distributed analytic capabilities that PCP and Grafana offer in anything beyond an ad-hoc fashion.
+
+B. Decentralized logging
+------------------------
+
+With one configuration change to the localhost setup to centralize only the Redis service, we achieve a decentralized logging setup.
+In this model `pmlogger(1)`_ is run on each monitored host and retrieves metrics from a local `pmcd(1)`_ instance.
+A local `pmproxy(1)`_ daemon exports the performance metrics to a central `Redis`_ instance.
+
+.. figure:: decentralized.svg
+
+C. Centralized logging (pmlogger farm)
+--------------------------------------
 
 In cases where the resource usage on the monitored hosts is constrained, another deployment option is a **pmlogger farm**.
 In this setup, a single logger host runs multiple `pmlogger(1)`_ processes, each configured to retrieve performance metrics from a different remote `pmcd(1)`_ host.
-The centralized logger host is also configured to run the `pmproxy(1)`_ daemon, which discovers the resulting PCP archives logs and loads the metric data into a `Redis`_ database.
+The centralized logger host is also configured to run the `pmproxy(1)`_ daemon, which discovers the resulting PCP archives logs and loads the metric data into a `Redis`_ instance.
 
 .. figure:: pmlogger-farm.svg
 
-Federated pmlogger Farm
------------------------
+D. Federated setup (multiple pmlogger farms)
+--------------------------------------------
 
-For large scale deployments, we advice deploying multiple `pmlogger(1)`_ farms in a federated fashion.
+For large scale deployments, we advise deploying multiple `pmlogger(1)`_ farms in a federated fashion.
 For example, one `pmlogger(1)`_ farm per rack or data center.
-Each pmlogger farm loads the metrics into a central `Redis`_ database.
+Each pmlogger farm loads the metrics into a central `Redis`_ instance.
 
 .. figure:: federated-pmlogger-farm.svg
 
-Redis Database Deployment
--------------------------
+Redis deployment options
+------------------------
 
-The Redis database can run in a clustered fashion, where data is sharded across multiple hosts (see `Redis Cluster <https://redis.io/topics/cluster-tutorial>`_ for more details).
+The default Redis deployment is standalone, localhost.
+However, Redis can optionally run in a highly-available and highly scalable *clustered* fashion, where data is sharded across multiple hosts (see `Redis Cluster <https://redis.io/topics/cluster-tutorial>`_ for more details).
 Another viable option is to deploy a Redis cluster in the cloud, or to utilize a managed Redis cluster from a cloud vendor.
 
 .. note::
 
-    For PCP versions before 5.3.0, *pmlogger farm* is the only supported and tested deployment architecture.
-    Other deployment architectures might work, but are not officially supported.
+    For PCP versions before 5.3.0, *localhost* and *pmlogger farm* are the only recommended deployment architectures.
 
 Sizing Factors
 **************
@@ -102,7 +123,7 @@ To specify retention settings, i.e. when to purge old PCP archives, update the `
 Redis
 -----
 
-The `pmproxy(1)`_ daemon sends logged metrics from `pmlogger(1)`_ to a Redis database.
+The `pmproxy(1)`_ daemon sends logged metrics from `pmlogger(1)`_ to a Redis instance.
 To update the logging interval or the logged metrics, see the section above.
 Two options are available to specify the retention settings in the pmproxy configuration file located at ``/etc/pcp/pmproxy/pmproxy.conf``:
 
