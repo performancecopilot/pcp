@@ -80,7 +80,7 @@ application, can be selected for reporting using one of the output
 alternatives listed below together with applicable formatting options.
 .PP
 .B pmrep
-collects the selected metric values through the facilities of the
+collects selected metric values through the facilities of the
 Performance Co-Pilot (PCP), see
 .BR PCPIntro (1).
 The metrics to be reported are specified on the command line,
@@ -91,7 +91,7 @@ In addition to the existing metrics, derived metrics can be defined using
 the arithmetic expressions described in
 .BR pmRegisterDerived (3).
 .PP
-A wide range of metricsets (see below) is included by default providing
+A wide range of metricsets (see below) is included by default, providing
 reports on per-process details, NUMA performance, mimicking other tools
 like
 .BR sar(1)
@@ -99,7 +99,7 @@ and more, see the \fBpmrep\fP configuration files under
 .I $PCP_SYSCONF_DIR/pmrep
 (typically \fB/etc/pcp/pmrep\fP) for details.
 Tab completion for options, metrics, and metricsets
-is available with bash and zsh.
+is available for bash and zsh.
 .PP
 Unless directed to another host by the
 .B \-h
@@ -154,7 +154,7 @@ First, on the command line it can start with a colon (``:'') to indicate a
 to be read from a
 .B pmrep
 configuration file (see
-.BR pmrep.conf (5))
+.BR pmrep.conf (5)),
 which can then consist of any number of metrics.
 Second, a
 .I metricspec
@@ -205,15 +205,15 @@ For
 output a numeric
 .I width
 can be used to set the width of the output column for this metric.
-Too-wide strings in output will be truncated to fit the column.
-Then, a metric-specific
+Too wide strings in the output will be truncated to fit the column.
+A metric-specific
 .I precision
 can be provided for numeric non-integer output values.
 Lastly, a metric-specific
 .I limit
 can be set for filtering out numeric values per the limit.
 .PP
-As a special case with metrics that are counters with time units
+As a special case for metrics that are counters with time units
 (nanoseconds to hours), the
 .I unit/scale
 can be used to change the default reporting (for example,
@@ -510,8 +510,8 @@ Retrieve and report only the specified metric
 .IR instances .
 By default all initially present instances are reported,
 except when writing an archive (see
-.BR \-o )
-when also all future instances will be reported.
+.BR \-o ),
+where also all future instances will be reported.
 .RS
 .PP
 The specified
@@ -564,7 +564,7 @@ processes regardless of their path or PID.
 Regular expression.
 For example,
 \fB.*python.*\fP would match all instances having
-the string \fBpython\fP as part of their instance name
+the string \fBpython\fP as part of their instance name,
 meaning that this would match all Python processes
 regardless of their path, PID, or version.
 .PP
@@ -911,9 +911,9 @@ to disable).
 Omit unit information from headers.
 .TP
 \fB\-v\fR, \fB\-\-omit\-flat\fR
-Omit single-valued ``flat'' metrics from reporting, only consider
-set-valued metrics (i.e., metrics with multiple instance values)
-for reporting.
+Report only set-valued metrics with instances (e.g. disk.dev.read) and
+omit single-valued ``flat'' metrics without instances (e.g.
+kernel.all.sysfork).
 See
 .B \-i
 and
