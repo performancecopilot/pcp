@@ -518,9 +518,9 @@ will run.
 .RE
 .TP
 \fB\-v\fR, \fB\-\-omit\-flat\fR
-Omit single-valued ``flat'' metrics from reporting, only consider
-set-valued metrics (i.e., metrics with multiple instance values)
-for reporting.
+Report only set-valued metrics with instances (e.g. disk.dev.read) and
+omit single-valued ``flat'' metrics without instances (e.g.
+kernel.all.sysfork).
 See
 .B \-i
 and
