@@ -596,7 +596,7 @@ class pmConfig(object):
                                         found[1].append(inst[1][i])
                                         hit = True
                                         break
-                        if r.isalpha():
+                        if r.replace('.', '').replace('_', '').replace('-', '').isalnum():
                             msg = "Invalid process"
                             if ' ' in inst[1][0] and inst[1][0].split()[0].isdigit():
                                 for i, s in enumerate(inst[1]):
