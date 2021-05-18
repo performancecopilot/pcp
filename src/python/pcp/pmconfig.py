@@ -1138,6 +1138,9 @@ class pmConfig(object):
         except pmapi.pmErr as error:
             if error.args[0] == pmapi.c_api.PM_ERR_EOL:
                 return -1
+            if error.args[0] == pmapi.c_api.PM_ERR_TOOSMALL:
+                raise pmapi.pmErr(pmapi.c_api.PM_ERR_TOOSMALL,
+                                  "\nNo metrics or instances to report present.")
             raise error
 
         # Watch for end time in uninterpolated mode
