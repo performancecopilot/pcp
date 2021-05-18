@@ -1178,7 +1178,7 @@ class pmConfig(object):
             return True
 
         for r in self.util.metrics[metric][1]:
-            if r.isalpha():
+            if r.replace('.', '').replace('_', '').replace('-', '').isalnum():
                 if ' ' in name and name.split()[0].isdigit():
                     if r == self.get_proc_basename(name.split()[1]):
                         return True
