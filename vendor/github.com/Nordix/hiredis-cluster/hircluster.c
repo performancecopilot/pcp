@@ -1060,13 +1060,6 @@ dict *parse_cluster_nodes(redisClusterContext *cc, char *str, int str_len,
 
             // add master node
             if (role_len >= 6 && memcmp(role, "master", 6) == 0) {
-                if (count_part < 8) {
-                    __redisClusterSetError(
-                        cc, REDIS_ERR_OTHER,
-                        "Master node parts number error: less than 8.");
-                    goto error;
-                }
-
                 master = node_get_with_nodes(cc, part, count_part,
                                              REDIS_ROLE_MASTER);
                 if (master == NULL) {
@@ -1744,14 +1737,14 @@ int redisClusterSetOptionAddNode(redisClusterContext *cc, const char *addr) {
             __redisClusterSetError(
                 cc, REDIS_ERR_OTHER,
                 "server address is incorrect, port part missing.");
-            return REDIS_ERR;
+            goto error;
         }
 
         port = hi_atoi(p, strlen(p));
         if (port <= 0) {
             __redisClusterSetError(cc, REDIS_ERR_OTHER,
                                    "server port is incorrect");
-            return REDIS_ERR;
+            goto error;
         }
 
         node = hi_malloc(sizeof(cluster_node));
@@ -1784,6 +1777,9 @@ int redisClusterSetOptionAddNode(redisClusterContext *cc, const char *addr) {
 
 oom:
     __redisClusterSetError(cc, REDIS_ERR_OOM, "Out of memory");
+    // passthrough
+
+error:
     sdsfree(ip);
     if (node != NULL) {
         sdsfree(node->addr);
@@ -1811,8 +1807,9 @@ int redisClusterSetOptionAddNodes(redisClusterContext *cc, const char *addrs) {
 
     if (address_count <= 0) {
         __redisClusterSetError(cc, REDIS_ERR_OTHER,
-                               "servers address is error(correct is like: "
+                               "invalid server addresses (example format: "
                                "127.0.0.1:1234,127.0.0.2:5678)");
+        sdsfreesplitres(address, address_count);
         return REDIS_ERR;
     }
 
@@ -2892,7 +2889,7 @@ static void *command_post_fragment(redisClusterContext *cc, struct cmd *command,
         key_count = hiarray_n(command->keys);
 
         reply->elements = key_count;
-        reply->element = hi_calloc(key_count, sizeof(*reply));
+        reply->element = hi_calloc(key_count, sizeof(*reply->element));
         if (reply->element == NULL) {
             goto oom;
         }
@@ -2929,7 +2926,7 @@ static void *command_post_fragment(redisClusterContext *cc, struct cmd *command,
     } else if (command->type == CMD_REQ_REDIS_MSET) {
         reply->type = REDIS_REPLY_STATUS;
         uint32_t str_len = strlen(REDIS_STATUS_OK);
-        reply->str = hi_malloc((str_len + 1) * sizeof(char *));
+        reply->str = hi_malloc((str_len + 1) * sizeof(char));
         if (reply->str == NULL) {
             goto oom;
         }
