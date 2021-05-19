@@ -518,7 +518,7 @@
             <xhtml:div
                style="box-sizing: border-box; font-size: 0; text-align: center; ">
               <xhtml:div
-                 style="display: inline-block; font-size: 10px; font-family: sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">Redis Cluster</xhtml:div>
+                 style="display: inline-block; font-size: 10px; font-family: sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">Redis Instance</xhtml:div>
             </xhtml:div>
           </xhtml:div>
         </foreignObject>
@@ -538,7 +538,7 @@
              sodipodi:role="line"
              id="tspan1334"
              x="845"
-             y="523.5">Cluster</tspan></text>
+             y="523.5">Instance</tspan></text>
       </switch>
     </g>
     <path
