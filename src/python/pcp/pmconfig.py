@@ -596,7 +596,7 @@ class pmConfig(object):
                                         found[1].append(inst[1][i])
                                         hit = True
                                         break
-                        if r.isalpha():
+                        if r.replace('.', '').replace('_', '').replace('-', '').isalnum():
                             msg = "Invalid process"
                             if ' ' in inst[1][0] and inst[1][0].split()[0].isdigit():
                                 for i, s in enumerate(inst[1]):
@@ -1138,6 +1138,9 @@ class pmConfig(object):
         except pmapi.pmErr as error:
             if error.args[0] == pmapi.c_api.PM_ERR_EOL:
                 return -1
+            if error.args[0] == pmapi.c_api.PM_ERR_TOOSMALL:
+                raise pmapi.pmErr(pmapi.c_api.PM_ERR_TOOSMALL,
+                                  "\nNo metrics or instances to report present.")
             raise error
 
         # Watch for end time in uninterpolated mode
@@ -1178,7 +1181,7 @@ class pmConfig(object):
             return True
 
         for r in self.util.metrics[metric][1]:
-            if r.isalpha():
+            if r.replace('.', '').replace('_', '').replace('-', '').isalnum():
                 if ' ' in name and name.split()[0].isdigit():
                     if r == self.get_proc_basename(name.split()[1]):
                         return True
