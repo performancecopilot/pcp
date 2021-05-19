@@ -1,7 +1,7 @@
 /*
  * Common argument parsing for all PMAPI client tools.
  *
- * Copyright (c) 2014-2018,2020 Red Hat.
+ * Copyright (c) 2014-2018,2020-2021 Red Hat.
  * Copyright (C) 1987-2014 Free Software Foundation, Inc.
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -817,7 +817,7 @@ void
 __pmStartOptions(pmOptions *opts)
 {
     extern char **_environ;
-    char **p, *s, *value = NULL;
+    char **p, *s, *reset, *value = NULL;
 
     if (opts->flags & PM_OPTFLAG_INIT)
 	return;
@@ -838,7 +838,7 @@ __pmStartOptions(pmOptions *opts)
 	if (strncmp(s, "PCP_", 4) != 0)
 	    continue;	/* short circuit if not PCP-prefixed */
 	s += 4;
-	if ((value = strchr(s, '=')) != NULL) {
+	if ((value = reset = strchr(s, '=')) != NULL) {
 	    *value = '\0';
 	    value++;	/* skip over the equals sign */
 	}
@@ -927,8 +927,8 @@ __pmStartOptions(pmOptions *opts)
 	    found = 1;
 	}
 
-	if (value)		/* reset the environment */
-	    *(value-1) = '=';
+	if (reset)		/* reset the environment */
+	    *reset = '=';
 
 	if (found && pmDebugOptions.config)
 	    fprintf(stderr, "pmGetOptions: %s set from the environment\n", *p);
