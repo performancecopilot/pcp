@@ -1,4 +1,4 @@
-#compdef pcp pcp2elasticsearch pcp2graphite pcp2influxdb pcp2json pcp2spark pcp2xlsx pcp2xml pcp2zabbix pmafm pmchart pmclient pmclient_fg=pmclient pmdbg pmdiff pmdumplog pmdumptext pmerr pmfind pmie pmie2col pminfo pmiostat pmlogcheck pmlogextract pmlogger pmloglabel pmlogsummary pmprobe pmrep pmseries pmstat pmstore pmval
+#compdef pcp pcp2elasticsearch pcp2graphite pcp2influxdb pcp2json pcp2spark pcp2xlsx pcp2xml pcp2zabbix pmafm pmchart pmclient pmclient_fg=pmclient pmdbg pmdiff pmdumplog pmdumptext pmerr pmfind pmie pmie2col pminfo pmiostat pmlogcheck pmlogextract pmlogger pmloglabel pmlogpaste pmlogreduce pmlogsize pmlogsummary pmprobe pmrep pmseries pmstat pmstore pmval
 #
 # PCP <https://pcp.io> completions for zsh <http://zsh.sf.net>.
 #
@@ -118,9 +118,9 @@ _pcp () {
       "$common_pmda[@]" \
       "$common_python[@]" \
       "(-j --live-filter $exargs)"{-j,--live-filter}'[perform instance live filtering]' \
-      "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]' \
-      "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter=}'[set default limit filter]' \
-      "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force=}'[set forced limit filter]' \
+      "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]:rank:' \
+      "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter=}'[set default limit filter]:limit:' \
+      "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force=}'[set forced limit filter]:limit:' \
       "(-m --include-labels -m --include-labels $exargs)"{-m,--include-labels}'[include labels]' \
       "(-n --invert-filter $exargs)"{-n,--invert-filter}'[perform ranking before live filtering]' \
       "(-N --predicate $exargs)"{-N+,--predicate=}'[specify predicate metric]:metric:->metrics' \
@@ -137,9 +137,9 @@ _pcp () {
       "$common_pmda[@]" \
       "$common_python[@]" \
       "(-j --live-filter $exargs)"{-j,--live-filter}'[perform instance live filtering]' \
-      "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]' \
-      "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter=}'[set default limit filter]' \
-      "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force=}'[set forced limit filter]' \
+      "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]:rank:' \
+      "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter=}'[set default limit filter]:limit:' \
+      "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force=}'[set forced limit filter]:limit:' \
       "(-n --invert-filter $exargs)"{-n,--invert-filter}'[perform ranking before live filtering]' \
       "(-N --predicate $exargs)"{-N+,--predicate=}'[specify predicate metric]:metric:->metrics' \
       "(-E --text-port -p --pickle-port -X --pickle-protocol $exargs)"{-E+,--text-port=}'[graphite plaintext port]:port:' \
@@ -156,9 +156,9 @@ _pcp () {
       "$common_pmda[@]" \
       "$common_python[@]" \
       "(-j --live-filter $exargs)"{-j,--live-filter}'[perform instance live filtering]' \
-      "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]' \
-      "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter=}'[set default limit filter]' \
-      "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force=}'[set forced limit filter]' \
+      "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]:rank:' \
+      "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter=}'[set default limit filter]:limit:' \
+      "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force=}'[set forced limit filter]:limit:' \
       "(-n --invert-filter $exargs)"{-n,--invert-filter}'[perform ranking before live filtering]' \
       "(-N --predicate $exargs)"{-N+,--predicate=}'[specify predicate metric]:metric:->metrics' \
       "(-E --db-pass $exargs)"{-E+,--db-pass=}'[password for database]:password:' \
@@ -177,9 +177,9 @@ _pcp () {
       "(-f --timestamp-format $exargs)"{-f+,--timestamp-format=}'[set time format string]:format:' \
       "(-F --output-file $exargs)"{-F+,--output-file=}'[specify output file]:file:_files' \
       "(-j --live-filter $exargs)"{-j,--live-filter}'[perform instance live filtering]' \
-      "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]' \
-      "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter=}'[set default limit filter]' \
-      "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force=}'[set forced limit filter]' \
+      "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]:rank:' \
+      "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter=}'[set default limit filter]:limit:' \
+      "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force=}'[set forced limit filter]:limit:' \
       "(-m --include-labels -m --include-labels $exargs)"{-m,--include-labels}'[include labels]' \
       "(-n --invert-filter $exargs)"{-n,--invert-filter}'[perform ranking before live filtering]' \
       "(-N --predicate $exargs)"{-N+,--predicate=}'[specify predicate metric]:metric:->metrics' \
@@ -197,9 +197,9 @@ _pcp () {
       "$common_pmda[@]" \
       "$common_python[@]" \
       "(-j --live-filter $exargs)"{-j,--live-filter}'[perform instance live filtering]' \
-      "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]' \
-      "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter=}'[set default limit filter]' \
-      "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force=}'[set forced limit filter]' \
+      "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]:rank:' \
+      "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter=}'[set default limit filter]:limit:' \
+      "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force=}'[set forced limit filter]:limit:' \
       "(-n --invert-filter $exargs)"{-n,--invert-filter}'[perform ranking before live filtering]' \
       "(-N --predicate $exargs)"{-N+,--predicate=}'[specify predicate metric]:metric:->metrics' \
       "(-g --spark-server $exargs)"{-g+,--spark-server=}'[spark server]:host:_hosts' \
@@ -228,9 +228,9 @@ _pcp () {
       "(-f --timestamp-format $exargs)"{-f+,--timestamp-format=}'[set time format string]:format:' \
       "(-F --output-file $exargs)"{-F+,--output-file=}'[specify output file]:file:_files' \
       "(-j --live-filter $exargs)"{-j,--live-filter}'[perform instance live filtering]' \
-      "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]' \
-      "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter=}'[set default limit filter]' \
-      "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force=}'[set forced limit filter]' \
+      "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]:rank:' \
+      "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter=}'[set default limit filter]:limit:' \
+      "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force=}'[set forced limit filter]:limit:' \
       "(-m --include-labels -m --include-labels $exargs)"{-m,--include-labels}'[include labels]' \
       "(-n --invert-filter $exargs)"{-n,--invert-filter}'[perform ranking before live filtering]' \
       "(-N --predicate $exargs)"{-N+,--predicate=}'[specify predicate metric]:metric:->metrics' \
@@ -247,9 +247,9 @@ _pcp () {
       "$common_pmda[@]" \
       "$common_python[@]" \
       "(-j --live-filter $exargs)"{-j,--live-filter}'[perform instance live filtering]' \
-      "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]' \
-      "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter=}'[set default limit filter]' \
-      "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force=}'[set forced limit filter]' \
+      "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]:rank:' \
+      "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter=}'[set default limit filter]:limit:' \
+      "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force=}'[set forced limit filter]:limit:' \
       "(-n --invert-filter $exargs)"{-n,--invert-filter}'[perform ranking before live filtering]' \
       "(-N --predicate $exargs)"{-N+,--predicate=}'[specify predicate metric]:metric:->metrics' \
       "(-E --zabbix-interval $exargs)"{-E+,--zabbix-interval=}'[send interval]:interval:' \
@@ -542,7 +542,7 @@ _pcp () {
       "(-S --start $exargs)"{-S+,--start=}'[set start of time window]:timespec:' \
       "(-s --samples $exargs)"{-s+,--samples=}'[specify number of log records to write]:samples:' \
       "(-T --finish $exargs)"{-T+,--finish=}'[set end of time window]:timespec:' \
-      "(-v $exargs)"-v+'[switch log volumes after this many samples]' \
+      "(-v $exargs)"-v+'[switch log volumes after this many samples]:volsamples:' \
       "(-w $exargs)"-w'[ignore day/month/year]' \
       "(-x $exargs)"-x'[skip metrics with mismatched metadata]' \
       "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone=}'[set reporting timezone]:timezone:_time_zone' \
@@ -588,9 +588,49 @@ _pcp () {
       "(-p --pid $exargs)"{-p+,--pid=}'[set logger PID for all files in archive]:pid:' \
       "(-s $exargs)"-s'[write label sentinel values for all files in archive]' \
       "(-v --verbose $exargs)"{-v,--verbose}'[verbose output]' \
-      "(-V --version $exargs)"{-V+,--version=}'[set version number for all files in archive]' \
+      "(-V --version $exargs)"{-V+,--version=}'[set version number for all files in archive]:version:' \
       "(-Z --timezone $exargs)"{-Z+,--timezone=}'[set reporting timezone]:timezone:_time_zone' \
       '1:archive:->archives' \
+      && return 0
+  ;;
+  pmlogpaste)
+    exargs="-? --help"
+    _arguments -C -S -s \
+      '(- *)'{-\?,--help}'[display help message]' \
+      "(-f --file $exargs)"{-f+,--file}'[use infile]:metric:' \
+      "(-h --hostname $exargs)"{-h+,--hostname}'[set hostname]:hostname:' \
+      "(-l --label $exargs)"{-l+,--label}'[set context label]:metric:' \
+      "(-m --metric $exargs)"{-m+,--metric}'[set metric name]:metric:' \
+      "(-o --outfile $exargs)"{-o+,--outfile}'[use outfile]:metric:' \
+      "(-t --timezone $exargs)"{-t+,--timezone}'[set timezone]:timezone:' \
+      && return 0
+  ;;
+  pmlogreduce)
+    arch_req=1
+    exargs="-? --help"
+    _arguments -C -S -s \
+      '(- *)'{-\?,--help}'[display help message]' \
+      "(-A --align $exargs)"{-A+,--align=}'[set initial sample time alignment]:timespec:' \
+      "(-s --samples $exargs)"{-s+,--samples=}'[specify number of log records to write]:samples:' \
+      "(-S --start $exargs)"{-S+,--start=}'[set start of time window]:timespec:' \
+      "(-t --interval $exargs)"{-t+,--interval=}'[specify sampling interval]:interval:' \
+      "(-T --finish $exargs)"{-T+,--finish=}'[set end of time window]:timespec:' \
+      "(-v $exargs)"-v+'[switch log volumes after this many samples]:volsamples:' \
+      "(-z --hostzone -Z --timezone $exargs)"{-z,--hostzone}'[use metrics source timezone]' \
+      "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone=}'[set reporting timezone]:timezone:_time_zone' \
+      '*:archive:->archives' \
+      && return 0
+  ;;
+  pmlogsize)
+    arch_req=1
+    exargs="-? --help"
+    _arguments -C -S -s \
+      '(- *)'{-\?,--help}'[display help message]' \
+      "(-d --detail $exargs)"{-d,--detail}'[detailed reporting]' \
+      "(-r --replication $exargs)"{-r,--replication}'[show replicated values]' \
+      "(-v --verbose $exargs)"{-v,--verbose}'[verbose mode]' \
+      "(-x --threshold $exargs)"{-x+,--threshold=}'[set reporting threshold]:threshold:' \
+      '*:archive:->archives' \
       && return 0
   ;;
   pmlogsummary)
@@ -666,12 +706,12 @@ _pcp () {
       "(-W --width-force -w --width $exargs)"{-W+,--width-force=}'[forced column width]:width:' \
       "(-l --delimiter $exargs)"{-l+,--delimiter=}'[set column delimiter]:delimiter:' \
       "(-j --live-filter $exargs)"{-j,--live-filter}'[perform instance live filtering]' \
-      "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]' \
+      "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]:rank:' \
       "(-2 --overall-rank -3 --overall-rank-alt -N --predicate $exargs)"{-2,--overall-rank}'[perform overall ranking from archive]' \
       "(-3 --overall-rank-alt -2 --overall-rank -N --predicate $exargs)"{-3,--overall-rank-alt}'[perform overall ranking using pmrep format]' \
-      "(-6 --sort-metric $exargs)"{-6+,--sort-metric}'[specify sort metric]' \
-      "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter=}'[set default limit filter]' \
-      "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force=}'[set forced limit filter]' \
+      "(-6 --sort-metric $exargs)"{-6+,--sort-metric}'[specify sort metric]:metric:' \
+      "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter=}'[set default limit filter]:limit:' \
+      "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force=}'[set forced limit filter]:limit:' \
       "(-m --include-labels -m --include-labels $exargs)"{-m,--include-labels}'[include labels]' \
       "(-n --invert-filter $exargs)"{-n,--invert-filter}'[perform ranking before live filtering]' \
       "(-N --predicate -2 --overall-rank -3 --overall-rank-alt $exargs)"{-N+,--predicate=}'[specify predicate metric]:metric:->metrics' \
@@ -699,7 +739,7 @@ _pcp () {
       "(-I --fullindom $exargs)"{-I,--fullindom}'[print verbose InDom]' \
       "(-i --instances $exargs)"{-i,--instances}'[report instance names]' \
       "(-F --fast $exargs)"{-F,--fast}'[request metadata only]' \
-      "(-g --glob $exargs)"{-g+,--glob}'[glob pattern to restrict matches]' \
+      "(-g --glob $exargs)"{-g+,--glob}'[glob pattern to restrict matches]:pattern:' \
       "(-l --labels $exargs)"{-l,--labels}'[report label values]' \
       "(-M --fullpmid $exargs)"{-M,--fullpmid}'[print verbose PMID]' \
       "(-m --metrics $exargs)"{-m,--metrics}'[report metric names]' \
