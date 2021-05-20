@@ -175,6 +175,18 @@ else
     echo "s/?{python-json-pointer}, //" >>$tmp.sed
 fi
 
+if $HAVE_PYTHON_OPENPYXL
+then
+    if $ENABLE_PYTHON3
+    then
+	echo "s/?{python-openpyxl}, /python3-openpyxl, /" >>$tmp.sed
+    else
+	echo "s/?{python-openpyxl}, /python-openpyxl, /" >>$tmp.sed
+    fi
+else
+    echo "s/?{python-openpyxl}, //" >>$tmp.sed
+fi
+
 if $HAVE_PYTHON_REQUESTS
 then
     if $ENABLE_PYTHON3
