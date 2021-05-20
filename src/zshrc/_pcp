@@ -118,7 +118,7 @@ _pcp () {
       "$common_pmda[@]" \
       "$common_python[@]" \
       "(-j --live-filter $exargs)"{-j,--live-filter}'[perform instance live filtering]' \
-      "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]:rank:' \
+      "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]:limit:' \
       "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter=}'[set default limit filter]:limit:' \
       "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force=}'[set forced limit filter]:limit:' \
       "(-m --include-labels -m --include-labels $exargs)"{-m,--include-labels}'[include labels]' \
@@ -137,7 +137,7 @@ _pcp () {
       "$common_pmda[@]" \
       "$common_python[@]" \
       "(-j --live-filter $exargs)"{-j,--live-filter}'[perform instance live filtering]' \
-      "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]:rank:' \
+      "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]:limit:' \
       "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter=}'[set default limit filter]:limit:' \
       "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force=}'[set forced limit filter]:limit:' \
       "(-n --invert-filter $exargs)"{-n,--invert-filter}'[perform ranking before live filtering]' \
@@ -156,7 +156,7 @@ _pcp () {
       "$common_pmda[@]" \
       "$common_python[@]" \
       "(-j --live-filter $exargs)"{-j,--live-filter}'[perform instance live filtering]' \
-      "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]:rank:' \
+      "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]:limit:' \
       "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter=}'[set default limit filter]:limit:' \
       "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force=}'[set forced limit filter]:limit:' \
       "(-n --invert-filter $exargs)"{-n,--invert-filter}'[perform ranking before live filtering]' \
@@ -177,7 +177,7 @@ _pcp () {
       "(-f --timestamp-format $exargs)"{-f+,--timestamp-format=}'[set time format string]:format:' \
       "(-F --output-file $exargs)"{-F+,--output-file=}'[specify output file]:file:_files' \
       "(-j --live-filter $exargs)"{-j,--live-filter}'[perform instance live filtering]' \
-      "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]:rank:' \
+      "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]:limit:' \
       "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter=}'[set default limit filter]:limit:' \
       "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force=}'[set forced limit filter]:limit:' \
       "(-m --include-labels -m --include-labels $exargs)"{-m,--include-labels}'[include labels]' \
@@ -197,7 +197,7 @@ _pcp () {
       "$common_pmda[@]" \
       "$common_python[@]" \
       "(-j --live-filter $exargs)"{-j,--live-filter}'[perform instance live filtering]' \
-      "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]:rank:' \
+      "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]:limit:' \
       "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter=}'[set default limit filter]:limit:' \
       "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force=}'[set forced limit filter]:limit:' \
       "(-n --invert-filter $exargs)"{-n,--invert-filter}'[perform ranking before live filtering]' \
@@ -228,7 +228,7 @@ _pcp () {
       "(-f --timestamp-format $exargs)"{-f+,--timestamp-format=}'[set time format string]:format:' \
       "(-F --output-file $exargs)"{-F+,--output-file=}'[specify output file]:file:_files' \
       "(-j --live-filter $exargs)"{-j,--live-filter}'[perform instance live filtering]' \
-      "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]:rank:' \
+      "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]:limit:' \
       "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter=}'[set default limit filter]:limit:' \
       "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force=}'[set forced limit filter]:limit:' \
       "(-m --include-labels -m --include-labels $exargs)"{-m,--include-labels}'[include labels]' \
@@ -247,7 +247,7 @@ _pcp () {
       "$common_pmda[@]" \
       "$common_python[@]" \
       "(-j --live-filter $exargs)"{-j,--live-filter}'[perform instance live filtering]' \
-      "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]:rank:' \
+      "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]:limit:' \
       "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter=}'[set default limit filter]:limit:' \
       "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force=}'[set forced limit filter]:limit:' \
       "(-n --invert-filter $exargs)"{-n,--invert-filter}'[perform ranking before live filtering]' \
@@ -706,7 +706,7 @@ _pcp () {
       "(-W --width-force -w --width $exargs)"{-W+,--width-force=}'[forced column width]:width:' \
       "(-l --delimiter $exargs)"{-l+,--delimiter=}'[set column delimiter]:delimiter:' \
       "(-j --live-filter $exargs)"{-j,--live-filter}'[perform instance live filtering]' \
-      "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]:rank:' \
+      "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]:limit:' \
       "(-2 --overall-rank -3 --overall-rank-alt -N --predicate $exargs)"{-2,--overall-rank}'[perform overall ranking from archive]' \
       "(-3 --overall-rank-alt -2 --overall-rank -N --predicate $exargs)"{-3,--overall-rank-alt}'[perform overall ranking using pmrep format]' \
       "(-6 --sort-metric $exargs)"{-6+,--sort-metric}'[specify sort metric]:metric:' \
