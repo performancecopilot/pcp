@@ -1386,6 +1386,7 @@ _check_valgrind()
 	    _notrun "valgrind broken on vm10"
 	    ;;
     esac
+    __extra=''
 }
 
 # Note: because we may be avoiding leaks in system libraries
@@ -1466,11 +1467,18 @@ _run_valgrind()
     __version=`valgrind --version | sed -e 's/valgrind-//' -e 's/\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\).*/\1/'`
     if [ -f $here/valgrind-suppress-$__version ]
     then
-	__extra="--suppressions=$here/valgrind-suppress-$__version"
-	echo "Warning: using extra $__extra" >>$here/$seq.full
+	if [ -z "$__extra" ]
+	then
+	    __extra="--suppressions=$here/valgrind-suppress-$__version"
+	else
+	    __extra="$__extra --suppressions=$here/valgrind-suppress-$__version"
+	fi
     else
-	__extra=''
 	echo "Warning: no extra suppressions found for valgrind version $__version" >>$here/$seq.full
+    fi
+    if [ -n "$__extra" ]
+    then
+	echo "Warning: using extra $__extra" >>$here/$seq.full
     fi
     $_valgrind_prefix valgrind \
 	--leak-check=full --read-var-info=yes --gen-suppressions=all \
@@ -1507,9 +1515,12 @@ if which valgrind >/dev/null 2>&1; then
     __version=`valgrind --version | sed -e 's/valgrind-//'`
     if [ -f $here/valgrind-suppress-$__version ]
     then
-	__extra="--suppressions=$here/valgrind-suppress-$__version"
-    else
-	__extra=''
+	if [ -z "$__extra" ]
+	then
+	    __extra="--suppressions=$here/valgrind-suppress-$__version"
+	else
+	    __extra="$__extra --suppressions=$here/valgrind-suppress-$__version"
+	fi
     fi
     valgrind --help >$tmp.valgrind.help 2>&1
     grep -q .--vgdb= <$tmp.valgrind.help && __extra="$__extra --vgdb=no"
@@ -1548,11 +1559,18 @@ _run_helgrind()
     __version=`valgrind --version | sed -e 's/valgrind-//'`
     if [ -f $here/helgrind-suppress-$__version ]
     then
-	__extra="--suppressions=$here/helgrind-suppress-$__version"
-	echo "Warning: using extra $__extra" >>$here/$seq.full
+	if [ -z "$__extra" ]
+	then
+	    __extra="--suppressions=$here/helgrind-suppress-$__version"
+	else
+	    __extra="$__extra --suppressions=$here/helgrind-suppress-$__version"
+	fi
     else
-	__extra=''
 	echo "Warning: no extra suppressions found for helgrind version $__version" >>$here/$seq.full
+    fi
+    if [ -n "$__extra" ]
+    then
+	echo "Warning: using extra $__extra" >>$here/$seq.full
     fi
 
     $_helgrind_prefix valgrind \
