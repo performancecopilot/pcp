@@ -145,6 +145,21 @@ fi
 echo "Allocated test number $newseq"
 newgroup=`echo $oldgroup | sed -e "s/^$oldseq[: ]/$newseq /" -e 's/$/ valgrind/'`
 
+if grep 'non-valgrind' $oldseq >/dev/null
+then
+    : annotation already added
+else
+    $PCP_AWK_PROG <$oldseq >$oldseq.new-grind '
+BEGIN			{ done = 0 }
+NF == 1 && $1 == "#" && done == 0	{
+			  print "# non-valgrind variant, see qa/'$newseq' for the valgrind variant"
+			  done = 1
+			}
+			{ print }'
+    mv $oldseq.new-grind $oldseq
+    chmod 755 $oldseq
+fi
+
 $PCP_AWK_PROG <$oldseq >$newseq '
 BEGIN			{ done = 0 }
 NF == 0			{ exit }
