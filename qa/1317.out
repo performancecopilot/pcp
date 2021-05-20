@@ -1,0 +1,157 @@
+QA output created by 1317
+QA output created by 1316 --valgrind
+=== std out ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/multithread14 -i 12 -n 9 TMP
+definitely lost: 0 bytes in 0 blocks
+definitely lost: 0 bytes in 0 blocks
+definitely lost: 0 bytes in 0 blocks
+definitely lost: 0 bytes in 0 blocks
+definitely lost: 0 bytes in 0 blocks
+definitely lost: 0 bytes in 0 blocks
+definitely lost: 0 bytes in 0 blocks
+definitely lost: 0 bytes in 0 blocks
+definitely lost: 0 bytes in 0 blocks
+definitely lost: 0 bytes in 0 blocks
+definitely lost: 0 bytes in 0 blocks
+definitely lost: 0 bytes in 0 blocks
+definitely lost: 0 bytes in 0 blocks
+definitely lost: 0 bytes in 0 blocks
+definitely lost: 0 bytes in 0 blocks
+definitely lost: 0 bytes in 0 blocks
+definitely lost: 0 bytes in 0 blocks
+definitely lost: 0 bytes in 0 blocks
+definitely lost: 0 bytes in 0 blocks
+definitely lost: 0 bytes in 0 blocks
+definitely lost: 0 bytes in 0 blocks
+definitely lost: 0 bytes in 0 blocks
+definitely lost: 0 bytes in 0 blocks
+definitely lost: 0 bytes in 0 blocks
+definitely lost: 0 bytes in 0 blocks
+
+--- output for thread 0 ---
+Answer: 1
+Answer: 2
+Answer: 3
+Answer: 5
+Answer: 8
+Answer: 13
+Answer: 21
+Answer: 34
+Answer: 55
+Answer: 89
+Answer: 144
+Answer: 233
+
+--- output for thread 1 ---
+Answer: 1
+Answer: 1
+Answer: 2
+Answer: 6
+Answer: 24
+Answer: 120
+Answer: 720
+Answer: 5040
+Answer: 40320
+Answer: 362880
+Answer: 3628800
+Answer: 39916800
+
+--- output for thread 2 ---
+Answer: 
+Answer: 
+Answer: 
+Answer: 
+Answer: 
+Answer: 
+Answer: 
+Answer: 
+Answer: 
+Answer: 
+Answer: 
+Answer: 
+
+--- output for thread 3 ---
+Answer: this is line one
+Answer: this is line two
+Answer: this is line three and bozo the boofhead is hiding here
+Answer: this is line four
+Answer: this is line five
+Answer: this is line six
+Answer: this is line seven
+Answer: bozo the boofhead line eight
+Answer: this is line nine
+Answer: this is line ten
+Answer: this is line eleven
+Answer: this is line twelve
+
+--- output for thread 4 ---
+Answer: 1
+Answer: 2
+Answer: 3
+Answer: 5
+Answer: 8
+Answer: 13
+Answer: 21
+Answer: 34
+Answer: 55
+Answer: 89
+Answer: 144
+Answer: 233
+
+--- output for thread 5 ---
+Answer: 1
+Answer: 1
+Answer: 2
+Answer: 6
+Answer: 24
+Answer: 120
+Answer: 720
+Answer: 5040
+Answer: 40320
+Answer: 362880
+Answer: 3628800
+Answer: 39916800
+
+--- output for thread 6 ---
+Answer: 
+Answer: 
+Answer: 
+Answer: 
+Answer: 
+Answer: 
+Answer: 
+Answer: 
+Answer: 
+Answer: 
+Answer: 
+Answer: 
+
+--- output for thread 7 ---
+Answer: this is line one
+Answer: this is line two
+Answer: this is line three and bozo the boofhead is hiding here
+Answer: this is line four
+Answer: this is line five
+Answer: this is line six
+Answer: this is line seven
+Answer: bozo the boofhead line eight
+Answer: this is line nine
+Answer: this is line ten
+Answer: this is line eleven
+Answer: this is line twelve
+
+--- output for thread 8 ---
+Answer: 1
+Answer: 2
+Answer: 3
+Answer: 5
+Answer: 8
+Answer: 13
+Answer: 21
+Answer: 34
+Answer: 55
+Answer: 89
+Answer: 144
+Answer: 233
