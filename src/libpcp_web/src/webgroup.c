@@ -1950,12 +1950,16 @@ struct instore {
     int			status;
 };
 
+#define STORE_INST_MAX	100000	/* cap number of storable instances */
+
 static int
 store_add_instid(struct instore *store, int id)
 {
     int		*insts, count = store->count++;
 
-    if ((insts = realloc(store->insts, store->count * sizeof(int))) == NULL) {
+    if ((store->count >= STORE_INST_MAX) ||
+	(insts = realloc(store->insts, store->count * sizeof(int))) == NULL) {
+	store->status = -E2BIG;
 	store->count = count;	/* reset */
 	return count;
     }
