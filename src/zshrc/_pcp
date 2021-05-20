@@ -602,7 +602,7 @@ _pcp () {
       "(-l --label $exargs)"{-l+,--label}'[set context label]:metric:' \
       "(-m --metric $exargs)"{-m+,--metric}'[set metric name]:metric:' \
       "(-o --outfile $exargs)"{-o+,--outfile}'[use outfile]:metric:' \
-      "(-t --timezone $exargs)"{-t+,--timezone}'[set timezone]:timezone:' \
+      "(-t --timezone $exargs)"{-t+,--timezone}'[set timezone]:timezone:_time_zone' \
       && return 0
   ;;
   pmlogreduce)
