@@ -100,9 +100,9 @@ configuration files in
 format.
 This new style of plugin is either built-in (time-related reporting
 only), or sourced from the system-wide location (\c
-.BR $PCP_ETC_DIR/dstat )
+.BR $PCP_SYSCONF_DIR/dstat )
 and/or sourced from an individual users set of personal plugins (\c
-.BR $HOME/pcp/dstat ).
+.BR $HOME/.pcp/dstat ).
 .PP
 The list of all available plugins can be seen using the \fB\-\-list\fR
 dstat command line option.
@@ -608,7 +608,7 @@ $ pcp \-\-host www.acme.com dstat \-\-time \-\-cpu\-adv \-\-sys 1 10
 .I \f(CW$HOME\fP/\&.pcp/dstat/
 private per-user configuration files
 .TP
-.I \f(CW$PCP_SYSCONF_DIR\fP/pcp/dstat/
+.I \f(CW$PCP_SYSCONF_DIR\fP/dstat/
 system-wide configuration files
 .SH ENVIRONMENT
 Internal plugins behaviour can be changed through environment variables.
