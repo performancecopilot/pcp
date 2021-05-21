@@ -1,28 +1,34 @@
 QA output created by 1106
 --- simple cases ---
 __pmProcessExec: argc=1 toss=1 "cat"
-__pmProcessExec: pid=PID wait_pid=PID exit=0
+__pmProcessExec: child pid=PID
+__pmProcessExec: child pid=PID wait_pid=PID exit=0
 
 a bb ccc dddd>eeee
 __pmProcessExec: argc=5 toss=1 "echo" "a" "bb" "ccc" "dddd>eeee"
-__pmProcessExec: pid=PID wait_pid=PID exit=0
+__pmProcessExec: child pid=PID
+__pmProcessExec: child pid=PID wait_pid=PID exit=0
 
 a bb ccc dddd
 __pmProcessExec: argc=5 toss=1 "echo" "a" "bb" "ccc" "dddd"
-__pmProcessExec: pid=PID wait_pid=PID exit=0
+__pmProcessExec: child pid=PID
+__pmProcessExec: child pid=PID wait_pid=PID exit=0
 
 --- quoting cases ---
  a bb ccc dddd eeee
 __pmProcessExec: argc=6 toss=1 "echo" "" "a" "bb" "ccc" "dddd eeee"
-__pmProcessExec: pid=PID wait_pid=PID exit=0
+__pmProcessExec: child pid=PID
+__pmProcessExec: child pid=PID wait_pid=PID exit=0
 
 a bb'ccc 'dddd eeee'
 __pmProcessExec: argc=4 toss=1 "echo" "a" "bb'ccc" "'dddd eeee'"
-__pmProcessExec: pid=PID wait_pid=PID exit=0
+__pmProcessExec: child pid=PID
+__pmProcessExec: child pid=PID wait_pid=PID exit=0
 
 a  bb " ccc  ' dddd eeee '
 __pmProcessExec: argc=4 toss=1 "echo" "a" " bb " ccc " "' dddd eeee '"
-__pmProcessExec: pid=PID wait_pid=PID exit=0
+__pmProcessExec: child pid=PID
+__pmProcessExec: child pid=PID wait_pid=PID exit=0
 
 --- error cases ---
 [DATE] unpickargs(PID) Warning: __pmProcessUnpickArgs: unterminated quote (') in command: echo 'abc

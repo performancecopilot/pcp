@@ -21,12 +21,14 @@ _cleanup()
 
 # filter pid's in lines like ...
 # __pmProcessExec: pid=1965 wait_pid=1965
+# __pmProcessPipe: map[0 of 1] child pid=1695 fp=0x55eb928fdd20
 #
 _filter()
 {
     tee -a $here/$seq.full \
     | sed \
 	-e 's/pid=[0-9][0-9]*/pid=PID/g' \
+	-e 's/fp=[^ ]*/fp=ADDR/' \
 	-e "s@$tmp@TMP@g" \
     #end
 }
