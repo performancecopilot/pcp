@@ -22,9 +22,9 @@
 .SH SYNOPSIS
 \f3pmlogctl\f1
 [\f3\-afNV?\f1]
-[\f3\-c\f1 \f2classname\f1]
+[\f3\-c\f1 \f2class\f1]
 [\f3\-i\f1 \f2ident\f1]
-[\f3\-p\f1 \f2policyfile\f1]
+[\f3\-p\f1 \f2policy\f1]
 \f2command\f1
 [\f2host ...\f1]
 .SH DESCRIPTION
@@ -154,7 +154,7 @@ or
 (matches all host names containing ``foo'' in upper, lower or mixed case).
 .PP
 The combination of a
-.I classname
+.I class
 from the optional
 .B \-c
 option (or
@@ -172,41 +172,22 @@ instances to which the
 operation should be applied.
 .PP
 The
-.BR \-N
-option runs
-.B pmlogctl
-in ``show me'' mode where the intent of the
-.I command
-is shown, but no changes are made.
-.PP
-The
 .B \-i
 option may be used with the
 .B create
 or
 .B cond-create
-commands to over-ride the instance identity that is specified
+commands to override the instance identity that is specified
 in the ident section of the class policy file
 (see the CLASS POLICY FILE section below).
-Since the identifier must
-be unique across all instances and all
-classes, it only makes sense to use this option when there
-is a single
+Since the identifier must be unique across all instances and all
+classes, it only makes sense to use this option when there is a single
 .I host
 argument.
 .PP
-The
-.B \-V
-option generally increases the verbosity of the output.
-A second
-.B \-V
-makes
-.B pmlogctl
-very chatty.
-.PP
 Given the tasks that
 .B pmlogctl
-is undertaking it usually must be run a ``root'', the exceptions
+is undertaking it usually must be run as ``root'', the exceptions
 being the
 .B status
 command or when the
@@ -244,7 +225,7 @@ The
 .B \-p
 option may be used to identify a class policy file other than
 the one found in the standard place, i.e. \c
-.B $PCP_ETC_DIR/pcp/pmlogger/class.d/\c
+.I $PCP_ETC_DIR/pcp/pmlogger/class.d/\c
 .IR classname .
 .PP
 At least one
@@ -384,7 +365,7 @@ The class policy checking can be by-passed using the
 .B \-f
 (force) command line option.
 .RE
-.SH "CLASS POLICY FILE"
+.SH CLASS POLICY FILE
 A class policy file contains a number of sections, each section
 begins with a line that simply starts with
 the name of the section followed enclosed by ``['' and ``]''.
@@ -572,8 +553,51 @@ hostname(.*)
 .fi
 .ft
 .RE
+.SH OPTIONS
+The available command line options are:
+.TP 5
+\fB\-a\fR, \fB\-\-all\fR
+Apply action to all matching instances.
+By default only one instance definition is expected and acted upon.
+.TP
+\fB\-c\fR \fIclass\fR, \fB\-\-class\fR=\fIclass\fR
+Set the name of the class for which
+.BR pmlogger (1)
+instances belong to as
+.IR class .
+.TP
+\fB\-f\fR, \fB\-\-force\fR
+Force action if possible.
+.TP
+\fB\-i\fR \fIident\fR, \fB\-\-ident\fR=\fIident\fR
+Override instance identifier with
+.IR ident .
+This option applies only for the commands
+.B create
+and
+.BR cond\-create .
+.TP
+\fB\-N\fR, \fB\-\-showme\fR
+Runs
+.B pmlogctl
+in a ``show me'' or ``dry run'' mode where the intent of the
+command is shown, but no changes are made.
+.TP
+\fB\-p\fR \fIpolicy\fR, \fB\-\-policy\fR=\fIpolicy\fR
+Use
+.I policy
+as the class policy file.
+Defaults to
+.IR $PCP_ETC_DIR/pcp/pmlogger/class.d/<class> .
+.TP
+\fB\-V\fR, \fB\-\-verbose\fR
+Enable verbose mode.
+Using this option twice increases verbosity.
+.TP
+\fB\-?\fR, \fB\-\-help\fR
+Display usage message and exit.
 .SH DIAGNOSTICS
-Most error or warning messages are self-explanatory.
+All are generated on standard error and are intended to be self-explanatory.
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize
 the file and directory names used by PCP.
