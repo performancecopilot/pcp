@@ -225,7 +225,7 @@ The
 .B \-p
 option may be used to identify a class policy file other than
 the one found in the standard place, i.e. \c
-.I $PCP_ETC_DIR/pcp/pmlogger/class.d/\c
+.I $PCP_SYSCONF_DIR/pmlogger/class.d/\c
 .IR classname .
 .PP
 At least one
@@ -376,7 +376,7 @@ Blank or empty lines are also ignored.
 The typical location of the policy file for the class
 .I foo
 is
-.B $PCP_ETC_DIR/pcp/pmlogger/class.d/\c
+.I $PCP_SYSCONF_DIR/pmlogger/class.d/\c
 .IR foo .
 .TP 4n
 .B [class]
@@ -588,7 +588,7 @@ Use
 .I policy
 as the class policy file.
 Defaults to
-.IR $PCP_ETC_DIR/pcp/pmlogger/class.d/<class> .
+.IR $PCP_SYSCONF_DIR/pmlogger/class.d/<class> .
 .TP
 \fB\-V\fR, \fB\-\-verbose\fR
 Enable verbose mode.
