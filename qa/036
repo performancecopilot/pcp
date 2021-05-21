@@ -35,6 +35,7 @@ _filter()
 	-e "s@$tmp@TMP@g" \
 	-e 's/PID exit=143/PID signal=15/' \
 	-e 's/-> 143 exit=143/-> 1015 signal=15/' \
+	-e 's/fp=[^ ]*/fp=ADDR/' \
     #end
 }
 
