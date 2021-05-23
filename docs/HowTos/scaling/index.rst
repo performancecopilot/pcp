@@ -12,9 +12,9 @@ PCP supports multiple deployment architectures, based on the scale of the PCP de
 Each of the available architectures is described below this table which provides guidance on which deployment architecture suits best based on the number of monitored hosts.
 
 +-------------+---------+------------+------------+---------------+-----------+-------------+
-|  Number of  |  pmcd   | pmlogger   |  pmproxy   |     Redis     |   Redis   | Recommended |
+| Number of   | pmcd    | pmlogger   | pmproxy    | Redis         | Redis     | Recommended |
 |             |         |            |            |               |           |             |
-|  Hosts (N)  | servers |  servers   |  servers   |    servers    |  cluster  | Deployments |
+| hosts (N)   | servers | servers    | servers    | servers       | cluster   | deployments |
 +=============+=========+============+============+===============+===========+=============+
 | 1 - 10      |    N    |   1 to N   |   1 to N   |       1       |    No     |  A, B or C  |
 +-------------+---------+------------+------------+---------------+-----------+-------------+

@@ -335,6 +335,9 @@ endif
 ifeq ($(ENABLE_QT), true)
 	cat control.pcpgui >>control
 endif
+ifeq ($(HAVE_PYTHON_OPENPYXL), true)
+	cat control.pcp2xlsx >>control
+endif
 ifeq ($(PMDA_INFINIBAND), true)
 	cat control.pmdaib >>control
 endif

@@ -1,0 +1,196 @@
+#!/bin/sh
+# PCP QA Test No. 1316
+# Muti-threading and __pmProcess*() family
+# non-valgrind variant, see qa/1317 for the valgrind variant
+# non-helgrind variant, see qa/1319 for the helgrind variant
+#
+# Copyright (c) 2021 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+do_valgrind=false
+do_helgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+elif [ "$1" = "--helgrind" ]
+then
+    _check_valgrind
+    do_helgrind=true
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+	-e '/^indirectly lost:/d' \
+	-e '/^LEAK SUMMARY:/d' \
+	-e '/^ERROR SUMMARY: 0 errors from 0 contexts \.\.\./d' \
+    # end
+}
+
+# real QA test starts here
+cat >$tmp.data <<End-of-File
+this is line one
+this is line two
+this is line three and bozo is hiding here
+this is line four
+this is line five
+this is line six
+this is line seven
+bozo line eight
+this is line nine
+this is line ten
+this is line eleven
+this is line twelve
+this is line thirteen
+this is line fourteen
+this is line fifteen
+this is line sixteen
+this is line seventeen
+this is line eighteen
+this is line nineteen
+this is line twenty
+End-of-File
+
+if $do_valgrind
+then
+    # Because valgrind does not want to play nicely with pthread_create()
+    # and pthread_join() we have to roll our own suppression for the
+    # thread stack allocation ...
+    # And after hours of testing and analysis the __pmProcessAddArg() one
+    # is just bogus.
+    # The fdopen one looks like a race between valgrind and glibc ... it
+    # mostly never appears.
+    #
+    cat <<'End-of-File' >$tmp.suppress
+# 304 bytes in 1 blocks are possibly lost in loss record 4 of 4
+# at 0x483DD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+# by 0x4014B1A: allocate_dtv (dl-tls.c:343)
+# by 0x4014B1A: _dl_allocate_tls (dl-tls.c:589)
+# by 0x4875322: allocate_stack (allocatestack.c:622)
+# by 0x4875322: pthread_create@@GLIBC_2.2.5 (pthread_create.c:660)
+# by 0x10C2C8: main (multithread14.c:505)
+{
+   pthread_create snarfoo
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:calloc
+   fun:allocate_dtv
+   fun:_dl_allocate_tls
+   fun:allocate_stack
+   fun:pthread_create*
+   fun:main
+}
+# 80 (16 direct, 64 indirect) bytes in 1 blocks are definitely lost in loss record 11 of 14
+# at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+# by 0x491991F: __pmProcessAddArg (exec.c:130)
+# by 0x10B4EE: func_C (multithread14.c:263) [or func_A() or func_B() or func_D()]
+# by 0x4874608: start_thread (pthread_create.c:477)
+# by 0x4A8A292: clone (clone.S:95)
+{
+   __pmProcessAddArg snarfoo
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:__pmProcessAddArg
+   ...
+   fun:start_thread
+   fun:clone
+}
+# 472 bytes in 1 blocks are definitely lost in loss record 18 of 19
+# at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+# by 0x49ED2F2: fdopen@@GLIBC_2.2.5 (iofdopen.c:122)
+# by 0x491A9AF: __pmProcessPipe (exec.c:599)
+# by 0x10BB8B: func_D (multithread14.c:361) [or func_A() or func_B() or func_C()]
+# by 0x4874608: start_thread (pthread_create.c:477)
+# by 0x4A8A292: clone (clone.S:95)
+{
+   fdopen-snarfoo
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:fdopen*
+   fun:__pmProcessPipe
+   ...
+   fun:start_thread
+   fun:clone
+}
+End-of-File
+    __extra="--suppressions=$tmp.suppress"
+    _run_valgrind src/multithread14 -i 12 -n 9 $tmp \
+    | _filter
+    if [ -s $tmp._valgrind.err ]
+    then
+	echo "Errors from valgrind ..."
+	cat $tmp._valgrind.err
+    fi
+elif $do_helgrind
+then
+    # Because helgrind does not want to play nicely with a fork()
+    # while holding exec_lock, followed by exit in the child after
+    # the execvp() fails ...
+    #
+    cat <<'End-of-File' >$tmp.suppress
+# Thread #4: Exiting thread still holds 1 lock
+# at 0x4A542C6: _Exit (_exit.c:31)
+# by 0x49B7B41: __run_exit_handlers (exit.c:132)
+# by 0x49B7BDF: exit (exit.c:139)
+# by 0x49209B6: __pmProcessPipe (exec.c:602)
+# by 0x10B5E5: func_C (multithread14.c:271)
+# by 0x4842B1A: ??? (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_helgrind-amd64-linux.so)
+# by 0x487A608: start_thread (pthread_create.c:477)
+# by 0x4A90292: clone (clone.S:95)
+{
+   lock-n-fork snarfoo
+   Helgrind:Misc
+   fun:_Exit
+   fun:__run_exit_handlers
+   fun:exit
+   fun:__pmProcessPipe
+   fun:func_C
+   ...
+   fun:start_thread
+   fun:clone
+}
+End-of-File
+    __extra="--suppressions=$tmp.suppress"
+    _run_helgrind src/multithread14 -i 12 -n 9 $tmp
+else
+    src/multithread14 -i 12 -n 9 $tmp
+fi
+
+for tid in 0 1 2 3 4 5 6 7 8
+do
+    echo
+    echo "--- output for thread $tid ---"
+    cat $tmp.$tid
+done
+
+# success, all done
+exit

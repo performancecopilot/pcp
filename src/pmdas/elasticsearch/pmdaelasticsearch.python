@@ -118,7 +118,7 @@ class elasticsearchPMDA(PMDA):
 
         self.nodes_indom = self.indom(0)
         self.nodes_insts = pmdaIndom(self.nodes_indom, {})
-        self.add_indom(self.nodes_insts)
+        self.add_indom(self.nodes_insts, 'elasticsearch cluster nodes')
         self.nodes_cluster = 1
         self.nodes_metrics = [
             # Name - type - semantics - units - help
@@ -201,7 +201,7 @@ class elasticsearchPMDA(PMDA):
                             self.nodes_metrics[item][4])
         self.node_info_indom = self.indom(1)
         self.node_info_insts = pmdaIndom(self.node_info_indom, {})
-        self.add_indom(self.node_info_insts)
+        self.add_indom(self.node_info_insts, 'elasticsearch cluster nodes')
         self.node_info_cluster = 2
         self.node_info_metrics = [
             # Name - type - semantics - units - help
@@ -271,7 +271,7 @@ class elasticsearchPMDA(PMDA):
 
         self.perindex_indom = self.indom(2)
         self.perindex_insts = pmdaIndom(self.perindex_indom, {})
-        self.add_indom(self.perindex_insts)
+        self.add_indom(self.perindex_insts, 'elasticsearch indices')
         self.perindex_cluster = 5
         self.perindex_metrics = [
             [ 'search.perindex.primaries.search.query_total', PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE), 'Number of search fetches to all elasticsearch primaries'],
@@ -312,7 +312,7 @@ class elasticsearchPMDA(PMDA):
 
         self.index_indom = self.indom(3)
         self.index_insts = pmdaIndom(self.index_indom, {})
-        self.add_indom(self.index_insts)
+        self.add_indom(self.index_insts, 'elasticsearch indices')
         self.index_cluster = 7
         self.index_metrics = [
             [ 'index.settings.gateway_snapshot_interval', PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0), 'Interval between gateway snapshots'],

@@ -28,15 +28,15 @@ pmrep -C -c /nosuchpath abc
 pmrep -C -c /nosuchpath mem.util.free
 
 echo == create empty config dir
-mkdir $tmp-conf-dir || exit 1
+mkdir $tmp.conf-dir || exit 1
 
 echo == test dir with no conf files
-pmrep -C -U -c $tmp-conf-dir nosuchmetric
-pmrep -C -U -c $tmp-conf-dir :nosuchset
-pmrep -C -U -c $tmp-conf-dir mem.util.free
+pmrep -C -U -c $tmp.conf-dir nosuchmetric
+pmrep -C -U -c $tmp.conf-dir :nosuchset
+pmrep -C -U -c $tmp.conf-dir mem.util.free
 
 echo == populate config dir
-cat > $tmp-conf-dir/a.conf <<EOF
+cat > $tmp.conf-dir/a.conf <<EOF
 [options]
 unitinfo = yes
 [global]
@@ -46,7 +46,7 @@ mem.util.free = ,,,,
 [test2]
 mem.util.cached = ,,,,
 EOF
-cat > $tmp-conf-dir/b.conf <<EOF
+cat > $tmp.conf-dir/b.conf <<EOF
 [options]
 unitinfo = no
 [global]
@@ -57,22 +57,22 @@ mem.util.used = ,,,,
 [test3]
 mem.util.used = ,,,,
 EOF
-cat > $tmp-conf-dir/c.conf <<EOF
+cat > $tmp.conf-dir/c.conf <<EOF
 [test4]
 unitinfo = yes
 mem.util.dirty = %%test,,,,
 EOF
 
 echo == test config dir
-pmrep -C -c $tmp-conf-dir :test1
-pmrep -C -c $tmp-conf-dir :test2
-pmrep -C -c $tmp-conf-dir :test3
-pmrep -C -c $tmp-conf-dir :test4
+pmrep -C -c $tmp.conf-dir :test1
+pmrep -C -c $tmp.conf-dir :test2
+pmrep -C -c $tmp.conf-dir :test3
+pmrep -C -c $tmp.conf-dir :test4
 
 echo == test command line options
-pmrep -C -H -c $tmp-conf-dir :test1
-pmrep -C -U -c $tmp-conf-dir :test1
-pmrep -C -G -c $tmp-conf-dir :test1
+pmrep -C -H -c $tmp.conf-dir :test1
+pmrep -C -U -c $tmp.conf-dir :test1
+pmrep -C -G -c $tmp.conf-dir :test1
 
 # success, all done
 status=0
