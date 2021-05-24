@@ -148,7 +148,7 @@ then
    fun:malloc
    fun:__pmProcessAddArg
    fun:func_*
-   fun:start_thread
+   ...
    fun:clone
 }
 # 148 (16 direct, 132 indirect) bytes in 1 blocks are definitely lost in loss record 11 of 15
@@ -165,7 +165,7 @@ then
    fun:__pmProcessAddArg
    fun:__pmProcessUnpickArgs
    fun:func_D
-   fun:start_thread
+   ...
    fun:clone
 }
 # 472 bytes in 1 blocks are definitely lost in loss record 18 of 19
@@ -182,7 +182,7 @@ then
    fun:fdopen*
    fun:__pmProcessPipe
    fun:func_*
-   fun:start_thread
+   ...
    fun:clone
 }
 End-of-File
@@ -219,7 +219,6 @@ then
    fun:__pmProcessPipe
    fun:func_C
    ...
-   fun:start_thread
    fun:clone
 }
 End-of-File
