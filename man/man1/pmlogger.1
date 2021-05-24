@@ -19,7 +19,7 @@
 \f3pmlogger\f1 \- create archive log for performance metrics
 .SH SYNOPSIS
 \f3pmlogger\f1
-[\f3\-CNLoPruy?\f1]
+[\f3\-CLNoPruy?\f1]
 [\f3\-c\f1 \f2conffile\f1]
 [\f3\-h\f1 \f2host\f1]
 [\f3\-H\f1 \f2hostname\f1]
@@ -821,14 +821,11 @@ on
 .IR host ,
 rather than from the default localhost.
 .TP
-\fB\-l\fR \fIlogfile\fR, \fB\-\-log\fR=\fIlogfile\fR
-Write all diagnostics to
-.B logfile
-instead of the default
-.IR pmlogger.log .
-.TP
-\fB\-L\fR, \fB\-\-linger\fR
-Run even if not the primary logger instance and nothing to log.
+\fB\-H\fR \fIhostname\fR, \fB\-\-hostname\fR=\fIhostname\fR
+Specify the
+.I hostname
+to use instead of the one returned by
+.BR pmcd (1).
 .TP
 \fB\-K\fR \fIspec\fR, \fB\-\-spec\-local\fR=\fIspec\fR
 When fetching metrics from a local context (see
@@ -844,22 +841,36 @@ More than one
 .B \-K
 option may be used.
 .TP
+\fB\-l\fR \fIlogfile\fR, \fB\-\-log\fR=\fIlogfile\fR
+Write all diagnostics to
+.B logfile
+instead of the default
+.IR pmlogger.log .
+.TP
+\fB\-L\fR, \fB\-\-linger\fR
+Run even if not the primary logger instance and nothing to log.
+.TP
 \fB\-m\fR \fInote\fR, \fB\-\-note\fR=\fInote\fR
 Append
 .I note
 to the port map file for this instance.
-.TP
-\fB\-o\fR, \fB\-\-local\-PMDA\fR
-Use a local context to collect metrics from DSO PMDAs on the local host
-without PMCD.
-See also
-.BR \-K .
 .TP
 \fB\-n\fR \fIpmnsfile\fR, \fB\-\-namespace\fR=\fIpmnsfile\fR
 Load an alternative Performance Metrics Name Space
 .RB ( PMNS (5))
 from the file
 .IR pmnsfile .
+.TP
+\fB\-N\fR, \fB\-\-notify\fR
+Notify service manager such as
+.BR systemd(1)
+as needed.
+.TP
+\fB\-o\fR, \fB\-\-local\-PMDA\fR
+Use a local context to collect metrics from DSO PMDAs on the local host
+without PMCD.
+See also
+.BR \-K .
 .TP
 \fB\-p\fR \fIPID\fR, \fB\-\-PID\fR=\fIPID\fR
 Log specified metrics for the lifetime of the pid
