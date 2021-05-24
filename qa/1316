@@ -107,6 +107,7 @@ then
    fun:pthread_create*
    fun:main
 }
+# vm03, vm08, vm22, vm29, vm34
 # 336 bytes in 1 blocks are possibly lost in loss record 8 of 8
 # at 0x483CAE9: calloc (vg_replace_malloc.c:760)
 # by 0x40145BA: _dl_allocate_tls (in /usr/lib64/ld-2.31.so)
@@ -117,6 +118,23 @@ then
    Memcheck:Leak
    match-leak-kinds: possible
    fun:calloc
+   fun:_dl_allocate_tls
+   fun:pthread_create*
+   fun:main
+}
+# vm04
+# 384 bytes in 1 blocks are possibly lost in loss record 8 of 8
+# at 0x4C331EA: calloc (vg_replace_malloc.c:762)
+# by 0x4012341: allocate_dtv (in /usr/lib64/ld-2.28.so)
+# by 0x4012CD1: _dl_allocate_tls (in /usr/lib64/ld-2.28.so)
+# by 0x4E46F32: pthread_create@@GLIBC_2.2.5 (in /usr/lib64/libpthread-2.28.so)
+# by 0x402D10: main (multithread14.c:512)
+{
+   pthread_create snarfoo variant 3
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:calloc
+   fun:allocate_dtv
    fun:_dl_allocate_tls
    fun:pthread_create*
    fun:main
@@ -133,7 +151,7 @@ then
    match-leak-kinds: definite
    fun:malloc
    fun:__pmProcessAddArg
-   ...
+   fun:...
    fun:start_thread
    fun:clone
 }
@@ -151,7 +169,7 @@ then
    fun:malloc
    fun:fdopen*
    fun:__pmProcessPipe
-   ...
+   fun:...
    fun:start_thread
    fun:clone
 }
@@ -188,7 +206,7 @@ then
    fun:exit
    fun:__pmProcessPipe
    fun:func_C
-   ...
+   fun:...
    fun:start_thread
    fun:clone
 }
