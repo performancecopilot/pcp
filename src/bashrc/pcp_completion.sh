@@ -57,11 +57,11 @@ _pcp_complete()
         arg_regex="-[AafhiKnOpSsTtUwxZ]"
     ;;
     pmfind)
-        all_args="CmqrSst"
+        all_args="CmqrSstV"
         arg_regex="-[mst]"
     ;;
     pmie)
-        all_args="AabCcdefHhjnOqSTtUVvWxZz"
+        all_args="AabCcdeFfhjlnOPqSTtUVvWXxZz"
         arg_regex="-[AachljnOSTtUZ]"
     ;;
     pmie2col)
@@ -77,7 +77,7 @@ _pcp_complete()
         arg_regex="-[abchKNnOZ]"
     ;;
     pmjson)
-        all_args="imopqy"
+        all_args="imopqyV"
         arg_regex="-[io]"
     ;;
     pmlc)
@@ -105,12 +105,12 @@ _pcp_complete()
         arg_regex="-[hpVZ]"
     ;;
     pmlogpaste)
-        all_args="ASsTtvZz"
-        arg_regex="-[ASsTtvZ]"
+        all_args="fhlmot"
+        arg_regex="-[fhlmot]"
     ;;
     pmlogreduce)
-        all_args="lmnSTvwZz"
-        arg_regex="-[nSTZ]"
+        all_args="ASsTtvZz"
+        arg_regex="-[ASsTtZ]"
     ;;
     pmlogsize)
         all_args="drvx"
