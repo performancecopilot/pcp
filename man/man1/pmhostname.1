@@ -16,10 +16,9 @@
 .TH PMHOSTNAME 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmhostname\f1 \- report hostname
-.\" literals use .B or \f3
-.\" arguments use .I or \f2
 .SH SYNOPSIS
-.B $PCP_BINADM_DIR/pmhostname
+\fBpmhostname\fR
+[\fB\-?\fR]
 [\fIhostname\fR]
 .SH DESCRIPTION
 .B pmhostname
@@ -51,6 +50,11 @@ fails, the input host name (either
 or the result from calling
 .BR gethostname (2))
 is reported.
+.SH OPTIONS
+The available command line options are:
+.TP 5
+\fB\-?\fR, \fB\-\-help\fR
+Display usage message and exit.
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize
 the file and directory names used by PCP.
