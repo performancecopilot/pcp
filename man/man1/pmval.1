@@ -24,6 +24,8 @@
 [\f3\-dgLrvVz?\f1]
 [\f3\-a\f1 \f2archive\f1]
 [\f3\-A\f1 \f2align\f1]
+[\f3\-\-container\f1=\f2name\f1]
+[\f3\-\-derived\f1=\f2file\f1]
 [\f3\-f\f1 \f2N\f1]
 [\f3\-h\f1 \f2host\f1]
 [\f3\-i\f1 \f2instances\f1]
@@ -39,8 +41,6 @@
 [\f3\-w\f1 \f2width\f1]
 [\f3\-x\f1 \f2pattern\f1]
 [\f3\-Z\f1 \f2timezone\f1]
-[\f3\-\-container\f1=\f2name\f1]
-[\f3\-\-derived\f1=\f2file\f1]
 \f2metricname\f1
 .sp
 \f3pmevent\f1
@@ -176,12 +176,21 @@ Refer to
 for a complete description of the syntax for
 .IR align .
 .TP
+\fB\-\-container\fR=\fIcontainer\fR
+Specify an individual
+.I container
+to be queried.
+.TP
 \fB\-d\fR, \fB\-\-delay\fR
 When replaying from an archive, this option requests that the prevailing
 real-time delay be applied between samples (see
 .BR \-t )
 to effect a pause, rather than
 the default behaviour of replaying at full speed.
+.TP
+\fB\-\-derived\fR=\fIfile\fR
+Load derived metric definitions from
+.IR file .
 .TP
 \fB\-f\fR \fIprecision\fR, \fB\-\-precision\fR=\fIprecision\fR
 Numbers are reported in ``fixed point'' notation, rather than the default
@@ -434,15 +443,6 @@ as described in
 .TP
 \fB\-?\fR, \fB\-\-help\fR
 Display usage message and exit.
-.TP
-\fB\-\-container\fR=\fIcontainer\fR
-Specify an individual
-.I container
-to be queried.
-.TP
-\fB\-\-derived\fR=\fIfile\fR
-Load derived metric definitions from
-.IR file .
 .SH CAVEATS
 By default,
 .B pmval

@@ -234,6 +234,12 @@ duplicate Performance Metric Identifiers (PMIDs) in
 but they are not allowed with
 .BR \-N .
 .TP
+\f3\-p\f1 \f2port\f1, \f3\-\-port\f1=\f2port\f1
+Specify port to listen on.
+By default port
+.B 44321
+is used.
+.TP
 \f3\-P\f1 \f2passfile\f1, \f3\-\-passfile\f1=\f2passfile\f1
 Specify the path to a file containing the Network Security Services certificate
 database password for (optional) secure connections, and for databases that are
@@ -267,7 +273,7 @@ socket family only).
 The default value is
 .IR $PCP_RUN_DIR/pmcd.socket .
 .TP
-\f3\-S\f1, \f3\-\-allcert\f1
+\f3\-S\f1, \f3\-\-reqauth\f1
 Require that all client connections provide user credentials.
 This means that only unix domain sockets, or authenticated connections are
 permitted (requires secure sockets support).

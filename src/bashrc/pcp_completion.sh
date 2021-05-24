@@ -56,25 +56,61 @@ _pcp_complete()
         all_args="AadfghiKLnOprSsTtUVvwxZz"
         arg_regex="-[AafhiKnOpSsTtUwxZ]"
     ;;
+    pmfind)
+        all_args="CmqrSstV"
+        arg_regex="-[mst]"
+    ;;
+    pmie)
+        all_args="AabCcdeFfhjlnOPqSTtUVvWXxZz"
+        arg_regex="-[AachljnOSTtUZ]"
+    ;;
+    pmie2col)
+        all_args="dpw"
+        arg_regex="-[dpw]"
+    ;;
+    pmiectl)
+        all_args="acfiNpV"
+        arg_regex="-[cip]"
+    ;;
     pminfo)
         all_args="abcdFfhIKLlMmNnOsTtVvxZz"
         arg_regex="-[abchKNnOZ]"
+    ;;
+    pmjson)
+        all_args="imopqyV"
+        arg_regex="-[io]"
+    ;;
+    pmlc)
+        all_args="ehinPpZz"
+        arg_regex="-[hnpZ]"
     ;;
     pmlogcheck)
         all_args="lmnSTvwZz"
         arg_regex="-[nSTZ]"
     ;;
+    pmlogctl)
+        all_args="acfiNpV"
+        arg_regex="-[cip]"
+    ;;
     pmlogextract)
         all_args="cdfmSsTvwxZz"
         arg_regex="-[cSsTvZ]"
     ;;
+    pmlogger)
+        all_args="CcHhKLlmNnoPprsTtUuVvxy"
+        arg_regex="-[cHhKlmnpsTtUVvx]"
+    ;;
+    pmloglabel)
+        all_args="hLlpsVvZ"
+        arg_regex="-[hpVZ]"
+    ;;
     pmlogpaste)
-        all_args="ASsTtvZz"
-        arg_regex="-[ASsTtvZ]"
+        all_args="fhlmot"
+        arg_regex="-[fhlmot]"
     ;;
     pmlogreduce)
-        all_args="lmnSTvwZz"
-        arg_regex="-[nSTZ]"
+        all_args="ASsTtvZz"
+        arg_regex="-[ASsTtZ]"
     ;;
     pmlogsize)
         all_args="drvx"
@@ -96,16 +132,16 @@ _pcp_complete()
         all_args="acdFghIiLlMmnpqSstVvZ"
         arg_regex="-[cghpZ]"
     ;;
-    pmstore)
-        all_args="FfhiKLnV"
-        arg_regex="-[hiKn]"
-    ;;
     pmstat)
         all_args="AagHhLlnOPpSsTtVxZz"
         arg_regex="-[AaHhnOpSsTtZ]"
     ;;
+    pmstore)
+        all_args="FfhiKLnV"
+        arg_regex="-[hiKn]"
+    ;;
     pmval)
-        all_args="AadfghiKLnOprSsTtUvVwxZz"
+        all_args="AadfghiKLnOprSsTtUVvwxZz"
         arg_regex="-[AafhiKnOpSsTtUwxZ]"
     ;;
     esac
@@ -166,4 +202,4 @@ _pcp_complete()
         fi
     fi
 }
-complete -F _pcp_complete -o default pcp2elasticsearch pcp2graphite pcp2influxdb pcp2json pcp2spark pcp2xlsx pcp2xml pcp2zabbix pmdumplog pmdumptext pmevent pminfo pmlogcheck pmlogextract pmlogpaste pmlogreduce pmlogsize pmlogsummary pmprobe pmrep pmseries pmstat pmstore pmval
+complete -F _pcp_complete -o default pcp2elasticsearch pcp2graphite pcp2influxdb pcp2json pcp2spark pcp2xlsx pcp2xml pcp2zabbix pmdumplog pmdumptext pmevent pmfind pmie pmie2col pmiectl pminfo pmjson pmlc pmlogcheck pmlogctl pmlogextract pmlogger pmloglabel pmlogpaste pmlogreduce pmlogsize pmlogsummary pmprobe pmrep pmseries pmstat pmstore pmval

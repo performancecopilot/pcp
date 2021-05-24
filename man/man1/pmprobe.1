@@ -18,16 +18,16 @@
 \f3pmprobe\f1 \- lightweight probe for performance metrics
 .SH SYNOPSIS
 \f3pmprobe\f1
-[\f3\-fFIiLVvz?\f1]
+[\f3\-dfFiILvVz?\f1]
 [\f3\-a\f1 \f2archive\f1]
 [\f3\-b\f1 \f2batchsize\f1]
+[\f3\-\-container\f1=\f2name\f1]
+[\f3\-\-derived\f1=\f2file\f1]
 [\f3\-h\f1 \f2hostname\f1]
 [\f3\-K\f1 \f2spec\f1]
 [\f3\-n\f1 \f2pmnsfile\f1]
 [\f3\-O\f1 \f2time\f1]
 [\f3\-Z\f1 \f2timezone\f1]
-[\f3\-\-container\f1=\f2name\f1]
-[\f3\-\-derived\f1=\f2file\f1]
 [\f2metricname\f1 ...]
 .SH DESCRIPTION
 .B pmprobe
@@ -122,15 +122,30 @@ and also to stagger fetches, which may otherwise timeout if
 or a PMDA is slow to respond, particularly if a large
 number of metrics are probed.
 .TP
-\fB\-n\fR \fIpmnsfile\fR, \fB\-\-namespace\fR=\fIpmnsfile\fR
-Normally
-.B pmprobe
-operates on the distributed Performance Metrics Name Space (PMNS),
-however, if the
-.B \-n
-option is specified an alternative local PMNS file is loaded
-from the file
-.IR pmnsfile .
+\fB\-\-container\fR=\fIcontainer\fR
+Specify an individual
+.I container
+to be queried.
+.TP
+\fB\-d\fR, \fB\-\-version\fR
+Display version number and exit.
+.TP
+\fB\-\-derived\fR=\fIdmfile\fR
+The
+.I dmfile
+argument specifies a file that contains derived metric definitions
+in the format described for
+.BR pmLoadDerivedConfig (3).
+This option provides a way to load derived metric definitions that
+is an alternative to the more generic use of the
+.B PCP_DERIVED_CONFIG
+environment variable as described in
+.BR PCPIntro (1).
+Using the \fB\-\-derived\fR option and the
+.B PCP_DERIVED_CONFIG
+environment variable to specify the
+.B same
+configuration is a bad idea, so choose one or the other method.
 .TP
 \fB\-f\fR, \fB\-\-force\fR
 When used with
@@ -144,16 +159,26 @@ instances are those for which values are currently available,
 which may be smaller than the set reported with
 .BR \-f .
 .TP
-\fB\-I\fR, \fB\-\-external\fR
-Report the external identifiers for each instance.
-The literal string
-.B PM_IN_NULL
-is reported for singular metrics.
+\fB\-F\fR, \fB\-\-faster\fR
+Assume given metric names are PMNS leaf nodes.
+.TP
+\fB\-h\fR \fIhost\fR, \fB\-\-host\fR=\fIhost\fR
+Connect to
+.BR pmcd (1)
+on
+.IR host ,
+rather than on the default localhost.
 .TP
 \fB\-i\fR, \fB\-\-internal\fR
 Report the internal identifiers for each instance.
 The values are in decimal and prefixed by ``?''.
 As a special case, the literal string
+.B PM_IN_NULL
+is reported for singular metrics.
+.TP
+\fB\-I\fR, \fB\-\-external\fR
+Report the external identifiers for each instance.
+The literal string
 .B PM_IN_NULL
 is reported for singular metrics.
 .TP
@@ -165,6 +190,22 @@ The
 argument conforms to the syntax described in
 .BR pmSpecLocalPMDA (3).
 More than one \fB\-K\fR option may be used.
+.TP
+\fB\-L\fR, \fB\-\-local\-PMDA\fR
+Use a local context to collect metrics from DSO PMDAs on the local host
+without PMCD.
+See also
+.BR \-K .
+.TP
+\fB\-n\fR \fIpmnsfile\fR, \fB\-\-namespace\fR=\fIpmnsfile\fR
+Normally
+.B pmprobe
+operates on the distributed Performance Metrics Name Space (PMNS),
+however, if the
+.B \-n
+option is specified an alternative local PMNS file is loaded
+from the file
+.IR pmnsfile .
 .TP
 \fB\-O\fR \fItime\fR, \fB\-\-origin\fR=\fItime\fR
 When used in conjunction with an archive source of metrics and the
@@ -199,30 +240,31 @@ options.
 This option provides a cryptic summary of the number of messages
 sent and received across the PMAPI interface.
 .TP
+\fB\-z\fR, \fB\-\-hostzone\fR
+Change the reporting timezone to the local timezone at the host
+that is the source of the performance metrics, as identified via
+either the
+.B \-h
+or
+.B \-a
+options.
+.TP
+\fB\-Z\fR \fItimezone\fR, \fB\-\-timezone\fR=\fItimezone\fR
+By default,
+.B pmprobe
+reports the time of day according to the local timezone on the system
+where
+.B pmprobe
+is run.
+The
+.B \-Z
+option changes the timezone to
+.I timezone
+in the format of the environment variable TZ as described in
+.BR environ (7).
+.TP
 \fB\-?\fR, \fB\-\-help\fR
 Display usage message and exit.
-.TP
-\fB\-\-container\fR=\fIcontainer\fR
-Specify an individual
-.I container
-to be queried.
-.TP
-\fB\-\-derived\fR=\fIdmfile\fR
-The
-.I dmfile
-argument specifies a file that contains derived metric definitions
-in the format described for
-.BR pmLoadDerivedConfig (3).
-This option provides a way to load derived metric definitions that
-is an alternative to the more generic use of the
-.B PCP_DERIVED_CONFIG
-environment variable as described in
-.BR PCPIntro (1).
-Using the \fB\-\-derived\fR option and the
-.B PCP_DERIVED_CONFIG
-environment variable to specify the
-.B same
-configuration is a bad idea, so choose one or the other method.
 .SH EXAMPLES
 .nf
 .ft CW
