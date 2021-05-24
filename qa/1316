@@ -97,13 +97,27 @@ then
 # by 0x4875322: pthread_create@@GLIBC_2.2.5 (pthread_create.c:660)
 # by 0x10C2C8: main (multithread14.c:505)
 {
-   pthread_create snarfoo
+   pthread_create snarfoo variant 1
    Memcheck:Leak
    match-leak-kinds: possible
    fun:calloc
    fun:allocate_dtv
    fun:_dl_allocate_tls
    fun:allocate_stack
+   fun:pthread_create*
+   fun:main
+}
+# 336 bytes in 1 blocks are possibly lost in loss record 8 of 8
+# at 0x483CAE9: calloc (vg_replace_malloc.c:760)
+# by 0x40145BA: _dl_allocate_tls (in /usr/lib64/ld-2.31.so)
+# by 0x486A12E: pthread_create@@GLIBC_2.2.5 (in /usr/lib64/libpthread-2.31.so)
+# by 0x402D88: main (multithread14.c:512)
+{
+   pthread_create snarfoo variant 2
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:calloc
+   fun:_dl_allocate_tls
    fun:pthread_create*
    fun:main
 }
