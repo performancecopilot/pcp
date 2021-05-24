@@ -24,12 +24,12 @@
 [\f3\-p\f1 \f2precision\f1]
 [\f3\-q\f1 \f2thres\f1]
 [\f3\-S\f1 \f2starttime\f1]
+[\f3-\-skip\-excluded\f1]
+[\f3-\-skip\-missing\f1]
 [\f3\-T\f1 \f2endtime\f1]
 [\f3\-x\f1 \f2metric\f1]
 [\f3\-X\f1 \f2file\f1]
 [\f3\-Z\f1 \f2timezone\f1]
-[\f3--skip-excluded\f1]
-[\f3--skip-missing\f1]
 \f2archive1\f1
 [\f2archive2\f1]
 .SH DESCRIPTION
@@ -161,10 +161,10 @@ as described in
 \fB\-?\fR, \fB\-\-help\fR
 Display usage message and exit.
 .TP
-.B \-\-skip-excluded
+.B \-\-skip\-excluded
 Cull the list of names of metrics being excluded from the output.
 .TP
-.B \-\-skip-missing
+.B \-\-skip\-missing
 By default,
 .B pmdiff
 will report the names of any metrics that are in one archive set but not
