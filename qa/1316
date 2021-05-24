@@ -99,7 +99,6 @@ then
 {
    pthread_create snarfoo variant 1
    Memcheck:Leak
-   match-leak-kinds: possible
    fun:calloc
    fun:allocate_dtv
    fun:_dl_allocate_tls
@@ -116,7 +115,6 @@ then
 {
    pthread_create snarfoo variant 2
    Memcheck:Leak
-   match-leak-kinds: possible
    fun:calloc
    fun:_dl_allocate_tls
    fun:pthread_create*
@@ -132,7 +130,6 @@ then
 {
    pthread_create snarfoo variant 3
    Memcheck:Leak
-   match-leak-kinds: possible
    fun:calloc
    fun:allocate_dtv
    fun:_dl_allocate_tls
@@ -146,12 +143,28 @@ then
 # by 0x4874608: start_thread (pthread_create.c:477)
 # by 0x4A8A292: clone (clone.S:95)
 {
-   __pmProcessAddArg snarfoo
+   __pmProcessAddArg snarfoo variant 1
    Memcheck:Leak
-   match-leak-kinds: definite
    fun:malloc
    fun:__pmProcessAddArg
    fun:func_*
+   fun:start_thread
+   fun:clone
+}
+# 148 (16 direct, 132 indirect) bytes in 1 blocks are definitely lost in loss record 11 of 15
+# at 0x4C28A2E: malloc (vg_replace_malloc.c:270)
+# by 0x50B4049: __pmProcessAddArg (exec.c:131)
+# by 0x50B41FD: __pmProcessUnpickArgs (exec.c:901)
+# by 0x4024BD: func_D (multithread14.c:357)
+# by 0x4E37AA0: start_thread (in /lib64/libpthread-2.12.so)
+# by 0x53DEC4C: clone (in /lib64/libc-2.12.so)
+{
+   __pmProcessAddArg snarfoo variant 2
+   Memcheck:Leak
+   fun:malloc
+   fun:__pmProcessAddArg
+   fun:__pmProcessUnpickArgs
+   fun:func_D
    fun:start_thread
    fun:clone
 }
@@ -165,7 +178,6 @@ then
 {
    fdopen-snarfoo
    Memcheck:Leak
-   match-leak-kinds: definite
    fun:malloc
    fun:fdopen*
    fun:__pmProcessPipe
