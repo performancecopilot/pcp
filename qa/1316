@@ -151,7 +151,7 @@ then
    match-leak-kinds: definite
    fun:malloc
    fun:__pmProcessAddArg
-   fun:...
+   fun:func_*
    fun:start_thread
    fun:clone
 }
@@ -169,7 +169,7 @@ then
    fun:malloc
    fun:fdopen*
    fun:__pmProcessPipe
-   fun:...
+   fun:func_*
    fun:start_thread
    fun:clone
 }
@@ -206,7 +206,7 @@ then
    fun:exit
    fun:__pmProcessPipe
    fun:func_C
-   fun:...
+   ...
    fun:start_thread
    fun:clone
 }
