@@ -18,7 +18,7 @@
 \f3newhelp\f1 \- generate a performance metrics help database
 .SH SYNOPSIS
 \f3$PCP_BINADM_DIR/newhelp\f1
-[\f3\-V?\f1]
+[\f3\-vV?\f1]
 [\f3\-n\f1 \f2pmnsfile\f1]
 [\f3\-o\f1 \f2outputfile\f1]
 [\f2file\f1 ...]
@@ -121,7 +121,7 @@ and the text describes the instance domain.
 .SH OPTIONS
 The available command line options are:
 .TP 5
-\fB\-o\fR \fIoutput\fR, \fB\-\-output=\fR\fIoutout\fR
+\fB\-o\fR \fIoutput\fR, \fB\-\-output\fR=\fIoutout\fR
 Specify base name for
 .I output
 files.
@@ -132,7 +132,12 @@ Load an alternative Performance Metrics Name Space
 from the file
 .IR pmnsfile .
 .TP
-\fB\-V\fR
+\fB\-v\fR \fIversion\fR, \fB\-\-version\fR=\fIversion\fR
+Set output version.
+This options is deprecated, the only supported value is
+.BR 2 .
+.TP
+\fB\-V\fR, \fB\-\-verbose\fR
 Print verbose output.
 .TP
 \fB\-?\fR, \fB\-\-help\fR

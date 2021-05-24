@@ -22,12 +22,12 @@
 [\fB\-a\fR \fIarchive\fR]
 [\fB\-b\fR \fIbatchsize\fR]
 [\fB\-c\fR \fIdmfile\fR]
+[\fB\-\-container\fR \fIname\fR]
 [\fB\-h\fR \fIhostname\fR]
 [\fB\-K\fR \fIspec\fR]
 [\fB\-\fR[\fBn\fR|\fBN\fR] \fIpmnsfile\fR]
 [\fB\-O\fR \fItime\fR]
 [\fB\-Z\fR \fItimezone\fR]
-[\f3\-\-container\f1]
 [\fImetricname\fR | \fIpmid\fR | \fIindom\fR]...
 .SH DESCRIPTION
 .B pminfo
@@ -249,6 +249,29 @@ but with the additional functionality that if a value is
 processed that is of type PM_TYPE_EVENT or PM_TYPE_HIGHRES_EVENT, then
 the event records will be unpacked and the details of each event record
 reported.
+.TP
+\fB\-z\fR, \fB\-\-hostzone\fR
+Change the reporting timezone to the local timezone at the host
+that is the source of the performance metrics, as identified via
+either the
+.B \-h
+or
+.B \-a
+options.
+.TP
+\fB\-Z\fR \fItimezone\fR, \fB\-\-timezone\fR=\fItimezone\fR
+By default,
+.B pminfo
+reports the time of day according to the local timezone on the system
+where
+.B pminfo
+is run.
+The
+.B \-Z
+option changes the timezone to
+.I timezone
+in the format of the environment variable TZ as described in
+.BR environ (7).
 .TP
 \fB\-?\fR, \fB\-\-help\fR
 Display usage message and exit.
