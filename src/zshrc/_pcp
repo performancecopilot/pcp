@@ -1,4 +1,4 @@
-#compdef pcp pcp2elasticsearch pcp2graphite pcp2influxdb pcp2json pcp2spark pcp2xlsx pcp2xml pcp2zabbix pmafm pmchart pmclient pmclient_fg=pmclient pmdbg pmdiff pmdumplog pmdumptext pmerr pmfind pmie pmie2col pminfo pmiostat pmlogcheck pmlogextract pmlogger pmloglabel pmlogpaste pmlogreduce pmlogsize pmlogsummary pmprobe pmrep pmseries pmstat pmstore pmval
+#compdef pcp pcp2elasticsearch pcp2graphite pcp2influxdb pcp2json pcp2spark pcp2xlsx pcp2xml pcp2zabbix pmafm pmchart pmclient pmclient_fg=pmclient pmdbg pmdiff pmdumplog pmdumptext pmerr pmfind pmie pmie2col pmiectl=pmlogctl pminfo pmiostat pmjson pmlc pmlogcheck pmlogctl pmlogextract pmlogger pmloglabel pmlogpaste pmlogreduce pmlogsize pmlogsummary pmprobe pmrep pmseries pmstat pmstore pmval
 #
 # PCP <https://pcp.io> completions for zsh <http://zsh.sf.net>.
 #
@@ -458,7 +458,7 @@ _pcp () {
   ;;
   pmie2col)
     exargs="-? --help"
-    _arguments -A "-*" -C -S -s \
+    _arguments -A "-*" -S -s \
       '(- *)'{-\?,--help}'[display help message]' \
       "(-d --delimiter $exargs)"{-d+,--delimiter=}'[specify output delimiter character]:delimiter:' \
       "(-p --precision $exargs)"{-p+,--precision=}'[specify output floating point precision]:precision:' \
@@ -515,6 +515,32 @@ _pcp () {
       "(-x $exargs)"-x+'[set comma-separated extended options]:options:->pmiostat_extopts' \
       && return 0
   ;;
+  pmjson)
+    _arguments -S -s \
+      "$common_help[@]" \
+      "(-i --in $exargs)"{-i+,--in=}'[set input file]:file:_files' \
+      "(-m --minimal $exargs)"{-m,--minimal}'[minimal output format]' \
+      "(-o --out $exargs)"{-o+,--out=}'[set output file]:file:_files' \
+      "(-p --pretty $exargs)"{-p,--pretty}'[human-readable format]' \
+      "(-q --quiet $exargs)"{-q,--quiet}'[verify input, no output]' \
+      "(-y --yaml $exargs)"{-y,--yaml}'[write YAML-like output]' \
+      && return 0
+  ;;
+  pmlc)
+    exargs="-? --help"
+    _arguments -A "-*" -S -s \
+      '(- *)'{-\?,--help}'[display help message]' \
+      "(-e --echo $exargs)"{-e,--echo}'[echo input]' \
+      "(-h --host $exargs)"{-h+,--host=}'[specify host to connect]:host:_hosts' \
+      "(-i --interactive $exargs)"{-i,--interactive}'[interactive mode]' \
+      "(-n --namespace $exargs)"{-n+,--namespace=}'[specify alternative PMNS]:pmnsfile:_files' \
+      "(-P --primary -p --port $exargs)"{-P,--primary}'[connect to primary pmlogger]' \
+      "(-p --port -P --primary $exargs)"{-p+,--port=}'[specify port to connect]' \
+      "(-Z --timezone -z --logzone $exargs)"{-Z+,--timezone=}'[set reporting timezone]:timezone:_time_zone' \
+      "(-z --logzone -Z --timezone $exargs)"{-z,--logzone}'[use pmlogger timezone]' \
+      '1:pid:_pids' \
+      && return 0
+  ;;
   pmlogcheck)
     exargs="-? --help"
     _arguments -C -S -s \
@@ -529,6 +555,20 @@ _pcp () {
       "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone=}'[set reporting timezone]:timezone:_time_zone' \
       "(-z --hostzone -Z --timezone $exargs)"{-z,--hostzone}'[use metrics source timezone]' \
       '1:archive:->archives' \
+      && return 0
+  ;;
+  pmlogctl)
+    exargs="-? --help"
+    _arguments -A "-*" -S -s \
+      '(- *)'{-\?,--help}'[display help message]' \
+      "(-a --all $exargs)"{-a,--all}'[apply action to all instances]' \
+      "(-c --class $exargs)"{-c+,--class=}'[specify class name]:class:' \
+      "(-f --force $exargs)"{-f,--force}'[force action]' \
+      "(-i --ident $exargs)"{-i+,--ident=}'[specify instance identifier]:ident:' \
+      "(-N --showme $exargs)"{-N,--showme}'[dry run mode, do no changes]' \
+      "(-p --policy $exargs)"{-p+,--policy=}'[specify policy file]:file:_files' \
+      "(-V --verbose $exargs)"{-V,--verbose}'[verbose mode]' \
+      '1:command:(create cond-create start stop restart status destroy)' \
       && return 0
   ;;
   pmlogextract)

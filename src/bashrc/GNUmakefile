@@ -1,11 +1,11 @@
 #
 # Copyright (c) 2009 Aconex.  All Rights Reserved.
-# 
+#
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -17,8 +17,9 @@ include $(TOPDIR)/src/include/builddefs
 
 BASHRC = pcp_completion.sh
 BASHDIR = $(PCP_BASHSHARE_DIR)/completions
-COMMANDS = pmdumplog pmlogcheck pmlogextract pmlogsummary \
-	   pminfo pmprobe pmstat pmstore pmevent pmval
+COMMANDS = pmdumplog pmevent pmfind pmie pmie2col pmiectl pminfo pmjson pmlc \
+	   pmlogcheck pmlogctl pmlogextract pmlogger pmloglabel pmlogpaste \
+	   pmlogreduce pmlogsize pmlogsummary pmprobe pmstat pmstore pmval
 
 default:	$(BASHRC)
 
