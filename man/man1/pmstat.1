@@ -22,7 +22,7 @@
 \f3pcp\f1 [\f2pcp\ options\f1] \f3vmstat\f1 [\f2interval\f1 [\f2samples\f1]]
 .P
 \f3pmstat\f1
-[\f3\-gLlPxz?\f1]
+[\f3\-gLlPVxz?\f1]
 [\f3\-a\f1 \f2archive\f1]
 [\f3\-A\f1 \f2align\f1]
 [\f3\-h\f1 \f2host\f1]
@@ -301,6 +301,9 @@ and in the simplest form may be an unsigned integer
 When reporting archived metrics, the report will be restricted to those
 records logged before or at
 .IR endtime .
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+Display version number and exit.
 .TP
 \fB\-x\fR, \fI\-\-xcpu\fR
 The extended CPU metrics option, causes two additional CPU metrics to be
