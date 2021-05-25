@@ -152,25 +152,6 @@ event callback occurs.
 A call to
 .B __pmAFisempty
 returns 1 or 0 depending on whether the event queue is empty or not.
-.SH SEE ALSO
-.BR PMAPI (3)
-.SH DIAGNOSTICS
-.BR __pmAFsetup ,
-.B __pmAFregister
-and
-.B __pmAFunregister
-return values less than zero in the case of an error.  These values
-are PCP error codes, and may be used to produce error messages via
-.BR pmErrStr (3).
-.P
-The routines support the standard PCP debug tracing, and the
-.B af
-option
-(or
-.B "\-D af"
-on the command line)
-will produce diagnostics on standard error that trace the enqueuing
-and execution of events.
 .SH CAVEATS
 These routines rely on
 .BR setitimer (2)
@@ -204,3 +185,22 @@ This restriction is enforced at the
 where routines may return the error code
 .B PM_ERR_THREAD
 if the library detects calls from more than one thread.
+.SH DIAGNOSTICS
+.BR __pmAFsetup ,
+.B __pmAFregister
+and
+.B __pmAFunregister
+return values less than zero in the case of an error.  These values
+are PCP error codes, and may be used to produce error messages via
+.BR pmErrStr (3).
+.P
+The routines support the standard PCP debug tracing, and the
+.B af
+option
+(or
+.B "\-D af"
+on the command line)
+will produce diagnostics on standard error that trace the enqueuing
+and execution of events.
+.SH SEE ALSO
+.BR PMAPI (3)

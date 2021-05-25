@@ -79,6 +79,10 @@ are undefined (no space will have been allocated,
 and so calling
 .BR free (3)
 is a singularly bad idea).
+.SH DIAGNOSTICS
+.IP \f3PM_ERR_INDOM\f1
+.I indom
+is not a valid instance domain identifier
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_
@@ -107,7 +111,3 @@ function.
 .BR pcp.conf (5)
 and
 .BR pcp.env (5).
-.SH DIAGNOSTICS
-.IP \f3PM_ERR_INDOM\f1
-.I indom
-is not a valid instance domain identifier

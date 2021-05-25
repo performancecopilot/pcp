@@ -84,6 +84,19 @@ This is the only situation in which
 .I indom
 may be
 .BR PM_INDOM_NULL .
+.SH CAVEAT
+It is possible to delete non-existent instance domains and non-existent
+instances from an instance profile.  None of the routines that use the instance
+profile will ever issue an error if you do this.  The cost of checking, when
+checking is possible, outweighs any benefits.
+.SH DIAGNOSTICS
+.IP \f3PM_ERR_PROFILESPEC\f1
+.I indom
+was
+.B PM_INDOM_NULL
+and
+.I instlist
+was not empty
 .SH SEE ALSO
 .BR pmAddProfile (3),
 .BR PMAPI (3),
@@ -95,16 +108,3 @@ may be
 .BR pmUseContext (3)
 and
 .BR pmWhichContext (3).
-.SH DIAGNOSTICS
-.IP \f3PM_ERR_PROFILESPEC\f1
-.I indom
-was
-.B PM_INDOM_NULL
-and
-.I instlist
-was not empty
-.SH CAVEAT
-It is possible to delete non-existent instance domains and non-existent
-instances from an instance profile.  None of the routines that use the instance
-profile will ever issue an error if you do this.  The cost of checking, when
-checking is possible, outweighs any benefits.

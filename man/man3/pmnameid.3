@@ -63,20 +63,6 @@ to release the storage when the value is no longer required.
 In the absence of errors,
 .B pmNameID
 returns zero.
-.SH SEE ALSO
-.BR PMAPI (3),
-.BR pmGetChildren (3),
-.BR pmGetChildrenStatus (3),
-.BR pmGetConfig (3),
-.BR pmLoadASCIINameSpace (3),
-.BR pmLoadNameSpace (3),
-.BR pmLookupName (3),
-.BR pmNameAll (3),
-.BR pmNewContext (3),
-.BR pcp.conf (5),
-.BR pcp.env (5)
-and
-.BR PMNS (5).
 .SH DIAGNOSTICS
 .IP \f3PM_ERR_NOPMNS\f1
 Failed to access a PMNS for operation.
@@ -92,3 +78,17 @@ does not correspond to a defined PMID in the PMNS.
 .IP \f3PM_ERR_*\f1
 Other diagnostics are for protocol failures when
 accessing the distributed PMNS.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmGetChildren (3),
+.BR pmGetChildrenStatus (3),
+.BR pmGetConfig (3),
+.BR pmLoadASCIINameSpace (3),
+.BR pmLoadNameSpace (3),
+.BR pmLookupName (3),
+.BR pmNameAll (3),
+.BR pmNewContext (3),
+.BR pcp.conf (5),
+.BR pcp.env (5)
+and
+.BR PMNS (5).

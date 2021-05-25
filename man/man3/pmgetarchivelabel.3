@@ -91,6 +91,10 @@ PCP archive file format.
 .PP
 .B pmGetArchiveLabel
 returns zero for success.
+.SH DIAGNOSTICS
+.IP \f3PM_ERR_NOCONTEXT\f1
+the current PMAPI context
+is either invalid, or not associated with a set of archive logs
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_
@@ -118,7 +122,3 @@ function.
 .BR pcp.conf (5)
 and
 .BR pcp.env (5).
-.SH DIAGNOSTICS
-.IP \f3PM_ERR_NOCONTEXT\f1
-the current PMAPI context
-is either invalid, or not associated with a set of archive logs

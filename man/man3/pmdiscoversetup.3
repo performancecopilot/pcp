@@ -158,15 +158,15 @@ which is the back-end REST API server for
 a native
 .BR grafana-server (1)
 data-source for PCP.
+.SH DIAGNOSTICS
+Generally zero on success, or on error a negative return code, see
+.BR pmerr (1).
 .SH FILES
 The default archive directory is
 .BR $PCP_LOG_DIR ,
 which is normally
 .BR /var/log/pcp/pmlogger .
 The API recursively descends all sub-directories and also dynamically discovers any new directories or archives found therein.
-.SH DIAGNOSTICS
-Generally zero on success, or on error a negative return code, see
-.BR pmerr (1).
 .SH SEE ALSO
 .BR grafana-server (1),
 .BR pmerr (1),

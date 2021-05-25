@@ -105,13 +105,6 @@ when it is no longer required.
 The same holds true for the
 .I status
 array.
-.SH DIAGNOSTICS
-.B
-pmdaChildren
-returns
-.B PM_ERR_NAME
-if the name is not recognized or cannot be translated,
-otherwise the number of descendent metric names found.
 .SH CAVEAT
 The PMDA must be using
 .B PMDA_PROTOCOL_4
@@ -119,6 +112,13 @@ or later, as specified in the call to
 .BR pmdaDSO (3)
 or
 .BR pmdaDaemon (3).
+.SH DIAGNOSTICS
+.B
+pmdaChildren
+returns
+.B PM_ERR_NAME
+if the name is not recognized or cannot be translated,
+otherwise the number of descendent metric names found.
 .SH SEE ALSO
 .BR PMAPI (3),
 .BR PMDA (3),

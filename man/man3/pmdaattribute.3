@@ -74,6 +74,13 @@ Some attributes will be consumed by
 and never through passed to PMDAs, such as PCP_ATTR_PASSWORD.
 A complete list of all possible attributes can be found in the headers listed
 above, all are prefixed by PCP_ATTR.
+.SH CAVEAT
+The PMDA must be using
+.B PMDA_PROTOCOL_6
+or later, as specified in the call to
+.BR pmdaDSO (3)
+or
+.BR pmdaDaemon (3).
 .SH DIAGNOSTICS
 .B pmdaAttribute
 should return either zero on success, or a negative return code
@@ -85,13 +92,6 @@ for those specific callbacks, for that specific client.
 In other words, errors will be be passed to PMCD but there is no guarantee
 made that the error will be return to the client and result in termination
 of the client, for example.
-.SH CAVEAT
-The PMDA must be using
-.B PMDA_PROTOCOL_6
-or later, as specified in the call to
-.BR pmdaDSO (3)
-or
-.BR pmdaDaemon (3).
 .SH SEE ALSO
 .BR PMAPI (3),
 .BR PMDA (3),

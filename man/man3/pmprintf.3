@@ -47,6 +47,24 @@ two routines, without actually producing any output.
 .B pmflush
 causes the internal buffer to be either displayed in a window, printed
 on standard error, or flushed to a file and the internal buffer to be cleared.
+.SH DIAGNOSTICS
+On successful completion, \f3pmprintf\f1 returns the number of characters
+transmitted, while
+.B pmflush
+returns a value of zero on successful completion.
+.PP
+For either routine, a negative value is returned if an error was encountered,
+and this can be passed to
+.BR pmErrStr (3)
+to obtain the associated error message.
+.SH FILES
+.B pmprintf
+uses the
+.BR mkstemp (3)
+function to create a temporary file.
+This temporary file is deleted when
+.B pmflush
+is called.
 .SH ENVIRONMENT
 The environment variable
 .BR PCP_STDERR
@@ -75,24 +93,6 @@ exist, and in this case if the file creation fails, then
 .I stderr
 is used instead).
 .RE
-.SH FILES
-.B pmprintf
-uses the
-.BR mkstemp (3)
-function to create a temporary file.
-This temporary file is deleted when
-.B pmflush
-is called.
-.SH DIAGNOSTICS
-On successful completion, \f3pmprintf\f1 returns the number of characters
-transmitted, while
-.B pmflush
-returns a value of zero on successful completion.
-.PP
-For either routine, a negative value is returned if an error was encountered,
-and this can be passed to
-.BR pmErrStr (3)
-to obtain the associated error message.
 .SH SEE ALSO
 .BR pmdbg (1),
 .BR fprintf (3),

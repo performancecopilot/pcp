@@ -123,6 +123,13 @@ of a given instance domain,
 Its successful return code differs significantly to
 .BR pmdaLabel ,
 as described below.
+.SH CAVEAT
+The PMDA must be using
+.B PMDA_PROTOCOL_7
+or later, as specified in the call to
+.BR pmdaDSO (3)
+or
+.BR pmdaDaemon (3).
 .SH DIAGNOSTICS
 On success
 .B pmdaLabel
@@ -144,13 +151,6 @@ labelset pointer must be returned (and not the total number of label
 If labels for the requested entity could not be obtained due to a
 catastrophic failure, such as an out of memory condition, these
 routines will return a negative error code.
-.SH CAVEAT
-The PMDA must be using
-.B PMDA_PROTOCOL_7
-or later, as specified in the call to
-.BR pmdaDSO (3)
-or
-.BR pmdaDaemon (3).
 .SH SEE ALSO
 .BR pminfo (1),
 .BR malloc (3),

@@ -129,6 +129,11 @@ and
 .I before
 the call to
 .BR pmdaInit (3).
+.SH CAVEAT
+The PMDA must be using
+.B PMDA_INTERFACE_2
+or later, as specified in the call to
+.BR pmdaDaemon (3).
 .SH DIAGNOSTICS
 .B pmdaConnect
 will log the type of connection made to
@@ -143,11 +148,6 @@ has been set in the global debugging specification, as described in
 If an error occurs that is unrecoverable,
 .I dispatch->status
 is set to a value less than 0, otherwise it is zero or positive.
-.SH CAVEAT
-The PMDA must be using
-.B PMDA_INTERFACE_2
-or later, as specified in the call to
-.BR pmdaDaemon (3).
 .SH SEE ALSO
 .BR pmcd (1),
 .BR pipe (2),

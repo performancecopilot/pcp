@@ -298,6 +298,22 @@ and
 and
 .B pmdaExtGetData
 for subsequently retrieving it.
+.SH CAVEAT
+The PMDA must be using
+.B PMDA_INTERFACE_2
+or later, as specified in the call to
+.BR pmdaDSO (3)
+or
+.BR pmdaDaemon (3)
+to use
+.BR pmdaInit .
+.PP
+The PMDA must use
+.B PMDA_INTERFACE_7
+or later to issue state change notifications using
+.BR pmdaSetFlags
+or
+.BR pmdaExtSetFlags .
 .SH DIAGNOSTICS
 .B pmdaInit
 will set
@@ -358,22 +374,6 @@ A memory allocation failure occurred while building the hash table to
 index the metric description table.
 This is a non-fatal warning message \- a fallback to linear searching
 will be automatically performed should this situation arise.
-.SH CAVEAT
-The PMDA must be using
-.B PMDA_INTERFACE_2
-or later, as specified in the call to
-.BR pmdaDSO (3)
-or
-.BR pmdaDaemon (3)
-to use
-.BR pmdaInit .
-.PP
-The PMDA must use
-.B PMDA_INTERFACE_7
-or later to issue state change notifications using
-.BR pmdaSetFlags
-or
-.BR pmdaExtSetFlags .
 .SH SEE ALSO
 .BR newhelp (1),
 .BR pmcd (1),

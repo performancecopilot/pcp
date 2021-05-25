@@ -66,20 +66,6 @@ a name and a PMID, and under these circumstances,
 .BR pmNameID (3)
 provides a slightly simpler interface in the absence of duplicate
 names for a particular PMID.
-.SH SEE ALSO
-.BR PMAPI (3),
-.BR pmGetChildren (3),
-.BR pmGetChildrenStatus (3),
-.BR pmGetConfig (3),
-.BR pmLoadASCIINameSpace (3),
-.BR pmLoadNameSpace (3),
-.BR pmLookupName (3),
-.BR pmNameID (3),
-.BR pmNewContext (3),
-.BR pcp.conf (5),
-.BR pcp.env (5)
-and
-.BR PMNS (5).
 .SH DIAGNOSTICS
 .IP \f3PM_ERR_NOPMNS\f1
 Failed to access a PMNS for operation.
@@ -95,3 +81,17 @@ does not correspond to a defined PMID in the PMNS.
 .IP \f3PM_ERR_*\f1
 Other diagnostics are for protocol failures when
 accessing the distributed PMNS.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmGetChildren (3),
+.BR pmGetChildrenStatus (3),
+.BR pmGetConfig (3),
+.BR pmLoadASCIINameSpace (3),
+.BR pmLoadNameSpace (3),
+.BR pmLookupName (3),
+.BR pmNameID (3),
+.BR pmNewContext (3),
+.BR pcp.conf (5),
+.BR pcp.env (5)
+and
+.BR PMNS (5).

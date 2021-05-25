@@ -309,35 +309,6 @@ returned by
 .B pmFetch
 has the same interpretation independent of the return value being
 zero or greater than zero.
-.SH SEE ALSO
-.BR pmcd (1),
-.BR pmAddProfile (3),
-.BR PMAPI (3),
-.BR pmDelProfile (3),
-.BR pmDupContext (3),
-.BR pmExtractValue (3),
-.BR pmFetchArchive (3),
-.BR pmFreeResult (3),
-.BR pmGetInDom (3),
-.BR pmLookupDesc (3),
-.BR pmLookupLabels (3),
-.BR pmLookupName (3),
-.BR pmNewContext (3),
-.BR pmSetMode (3),
-.BR pmUseContext (3)
-and
-.BR pmWhichContext (3).
-.PP
-Note that
-.B pmFetch
-is the most primitive method of fetching metric values from the PMCS.
-See the
-.BR pmFetchGroup (3)
-API for a higher level method that insulates
-the user from the intricacies of looking up metric names and metadata,
-setting up instance profiles,
-.CW pmResult
-traversal, conversions, and scaling.
 .SH DIAGNOSTICS
 As mentioned above,
 .B pmFetch
@@ -390,3 +361,32 @@ as a counter overflow, and hence the values are assumed to have
 wrapped once in the interval between consecutive samples.
 This ``wrapping'' behavior was the default in earlier PCP versions, but
 by default has been disabled in PCP version 1.3 and later.
+.SH SEE ALSO
+.BR pmcd (1),
+.BR pmAddProfile (3),
+.BR PMAPI (3),
+.BR pmDelProfile (3),
+.BR pmDupContext (3),
+.BR pmExtractValue (3),
+.BR pmFetchArchive (3),
+.BR pmFreeResult (3),
+.BR pmGetInDom (3),
+.BR pmLookupDesc (3),
+.BR pmLookupLabels (3),
+.BR pmLookupName (3),
+.BR pmNewContext (3),
+.BR pmSetMode (3),
+.BR pmUseContext (3)
+and
+.BR pmWhichContext (3).
+.PP
+Note that
+.B pmFetch
+is the most primitive method of fetching metric values from the PMCS.
+See the
+.BR pmFetchGroup (3)
+API for a higher level method that insulates
+the user from the intricacies of looking up metric names and metadata,
+setting up instance profiles,
+.CW pmResult
+traversal, conversions, and scaling.

@@ -62,13 +62,6 @@ The behaviour, return values and memory allocation rules for
 .I nameset
 are the same as for
 .BR pmNameAll (3).
-.SH DIAGNOSTICS
-.B
-pmdaName
-returns
-.B PM_ERR_PMID
-if the name is not recognized or cannot be translated,
-otherwise the number of metric names found (most commonly 1).
 .SH CAVEAT
 The PMDA must be using
 .B PMDA_PROTOCOL_4
@@ -76,6 +69,12 @@ or later, as specified in the call to
 .BR pmdaDSO (3)
 or
 .BR pmdaDaemon (3).
+.SH DIAGNOSTICS
+.B pmdaName
+returns
+.B PM_ERR_PMID
+if the name is not recognized or cannot be translated,
+otherwise the number of metric names found (most commonly 1).
 .SH SEE ALSO
 .BR PMAPI (3),
 .BR PMDA (3),

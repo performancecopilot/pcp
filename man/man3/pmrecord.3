@@ -376,60 +376,6 @@ or polling the
 field that will contain the termination status from
 .BR waitpid (2)
 if known, else \-1.
-.SH SEE ALSO
-.BR pmafm (1),
-.BR pmlogger (1),
-.BR pmquery (1)
-and
-.BR PMAPI (3).
-.SH FILES
-These routines create a number of files in the
-.B "same directory"
-as the
-.I folio
-file named in the call to
-.BR pmRecordSetup .
-In all cases, the ``XXXXXX'' component is the result of
-calling
-.BR mktemp (3).
-.TP 10
-.I XXXXXX
-If
-.I replay
-is non-zero, this is the creator's replay configuration file, else
-an empty control file, used to guarantee uniqueness.
-.PD 0
-.TP
-.I folio
-The PCP Archive Folio, suitable for use with
-.BR pmafm (1).
-.TP
-.I XXXXXX.host.\fBconfig\fP
-The
-.BR pmlogger (1)
-configuration for each
-.I host
-\- if the same
-.I host
-is used in different calls to
-.B pmRecordAddHost
-within the same recording session
-then one of the letters ``a'' through ``z'' will
-be appended to the ``XXXXXX'' part of all associated file names to ensure
-uniqueness.
-.TP
-.I XXXXXX.host.\fBlog\fP
-.I stdout
-and
-.I stderr
-for the
-.BR pmlogger (1)
-instance for each
-.IR host .
-.TP
-.I XXXXXX.host.\fR{\fB0\fP,\fBmeta\fP,\fBindex\fP}
-The files comprising a single PCP archive for each
-.IR host .
 .SH DIAGNOSTICS
 .PD
 .PP
@@ -478,3 +424,57 @@ will return
 if the associated
 .B pmlogger
 process has already exited.
+.SH FILES
+These routines create a number of files in the
+.B "same directory"
+as the
+.I folio
+file named in the call to
+.BR pmRecordSetup .
+In all cases, the ``XXXXXX'' component is the result of
+calling
+.BR mktemp (3).
+.TP 10
+.I XXXXXX
+If
+.I replay
+is non-zero, this is the creator's replay configuration file, else
+an empty control file, used to guarantee uniqueness.
+.PD 0
+.TP
+.I folio
+The PCP Archive Folio, suitable for use with
+.BR pmafm (1).
+.TP
+.I XXXXXX.host.\fBconfig\fP
+The
+.BR pmlogger (1)
+configuration for each
+.I host
+\- if the same
+.I host
+is used in different calls to
+.B pmRecordAddHost
+within the same recording session
+then one of the letters ``a'' through ``z'' will
+be appended to the ``XXXXXX'' part of all associated file names to ensure
+uniqueness.
+.TP
+.I XXXXXX.host.\fBlog\fP
+.I stdout
+and
+.I stderr
+for the
+.BR pmlogger (1)
+instance for each
+.IR host .
+.TP
+.I XXXXXX.host.\fR{\fB0\fP,\fBmeta\fP,\fBindex\fP}
+The files comprising a single PCP archive for each
+.IR host .
+.SH SEE ALSO
+.BR pmafm (1),
+.BR pmlogger (1),
+.BR pmquery (1)
+and
+.BR PMAPI (3).

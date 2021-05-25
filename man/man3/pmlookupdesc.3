@@ -221,6 +221,11 @@ become 64-bits long, or change their units from Mbytes to Gbytes,
 well-written applications
 using the services provided by the PMAPI will continue
 to function correctly.
+.SH DIAGNOSTICS
+.IP \f3PM_ERR_PMID\f1
+The requested PMID is not known to the PMCS
+.IP \f3PM_ERR_NOAGENT\f1
+The PMDA responsible for providing the metric is currently not available
 .SH SEE ALSO
 .BR PMAPI (3),
 .BR pmAtomStr (3),
@@ -232,8 +237,3 @@ to function correctly.
 .BR pcp.conf (5)
 and
 .BR pcp.env (5).
-.SH DIAGNOSTICS
-.IP \f3PM_ERR_PMID\f1
-The requested PMID is not known to the PMCS
-.IP \f3PM_ERR_NOAGENT\f1
-The PMDA responsible for providing the metric is currently not available

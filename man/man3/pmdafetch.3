@@ -312,6 +312,13 @@ myFetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *avp)
 .ps
 .ft
 .fi
+.SH CAVEAT
+The PMDA must be using
+.B PMDA_INTERFACE_2
+or later, as specified in the call to
+.BR pmdaDSO (3)
+or
+.BR pmdaDaemon (3).
 .SH DIAGNOSTICS
 The following error messages indicate that there is discrepancy between the
 namespace,
@@ -376,13 +383,6 @@ if an error occurred while allocating the
 .B pmResult
 structure or copying the value from the
 .BR pmAtomValue .
-.SH CAVEAT
-The PMDA must be using
-.B PMDA_INTERFACE_2
-or later, as specified in the call to
-.BR pmdaDSO (3)
-or
-.BR pmdaDaemon (3).
 .SH SEE ALSO
 .BR pmcd (1),
 .BR PMAPI (3),

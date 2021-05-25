@@ -1785,6 +1785,7 @@ x11
 1367 labels pmda.simple local python
 1368 labels help pmlogger pmdumplog local sanity
 1369 labels pmcd pmlogger pmdumplog local
+1370:reserved man local
 1372 pmie local
 1379 pmproxy local
 1383 pmlogrewrite labels pmdumplog local

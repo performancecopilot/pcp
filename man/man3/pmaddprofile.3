@@ -86,6 +86,19 @@ is zero, or
 is NULL, then all instances in
 .I indom
 are selected.
+.SH CAVEAT
+It is possible to add non-existent instance domains and non-existent instances
+to an instance profile.  None of the routines that use the instance profile
+will ever issue an error if you do this.  The cost of checking, when checking
+is possible, outweighs any benefits.
+.SH DIAGNOSTICS
+.IP \f3PM_ERR_PROFILESPEC\f1
+.I indom
+was
+.B PM_INDOM_NULL
+and
+.I instlist
+was not empty
 .SH SEE ALSO
 .BR PMAPI (3),
 .BR pmDelProfile (3),
@@ -97,16 +110,3 @@ are selected.
 .BR pmUseContext (3)
 and
 .BR pmWhichContext (3).
-.SH DIAGNOSTICS
-.IP \f3PM_ERR_PROFILESPEC\f1
-.I indom
-was
-.B PM_INDOM_NULL
-and
-.I instlist
-was not empty
-.SH CAVEAT
-It is possible to add non-existent instance domains and non-existent instances
-to an instance profile.  None of the routines that use the instance profile
-will ever issue an error if you do this.  The cost of checking, when checking
-is possible, outweighs any benefits.

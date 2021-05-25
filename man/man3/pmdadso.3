@@ -82,26 +82,6 @@ configuration file. The
 .I domain
 is used to initialize the metric and instance descriptors (see
 .BR pmdaInit (3)).
-.SH DIAGNOSTICS
-.TP 15
-.B Incompatible version of pmcd detected
-When
-.BR pmcd (1)
-creates the
-.B pmdaInterface
-structure, the
-.I dispatch.comm.version
-field is set to the highest protocol that
-.BR pmcd (1)
-understands.  This message indicates that the
-.BR pmcd (1)
-process does not understand the protocol used by
-.BR pmdaDSO .
-.TP
-.B Unable to allocate memory for pmdaExt structure
-In addition,
-.I dispatch->status
-is set to a value less than zero.
 .SH CAVEAT
 The PMDA must be using
 .B PMDA_INTERFACE_2
@@ -127,6 +107,26 @@ must be called to resestablish the internal integrity of the
 structure at the new location before any other routine in
 .I libpcp_pmda
 is called.
+.SH DIAGNOSTICS
+.TP 15
+.B Incompatible version of pmcd detected
+When
+.BR pmcd (1)
+creates the
+.B pmdaInterface
+structure, the
+.I dispatch.comm.version
+field is set to the highest protocol that
+.BR pmcd (1)
+understands.  This message indicates that the
+.BR pmcd (1)
+process does not understand the protocol used by
+.BR pmdaDSO .
+.TP
+.B Unable to allocate memory for pmdaExt structure
+In addition,
+.I dispatch->status
+is set to a value less than zero.
 .SH SEE ALSO
 .BR pmcd (1),
 .BR PMAPI (3),

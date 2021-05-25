@@ -214,33 +214,6 @@ desired timeout.
 This is most useful in cases where the remote host is at
 the end of a slow network, requiring longer latencies to
 establish the connection correctly.
-.SH ENVIRONMENT
-.TP
-.B PMCD_CONNECT_TIMEOUT
-Timeout period (in seconds) for
-.BR pmcd (1)
-connection attempts.
-.TP
-.B PMCD_PORT
-TCP/IP port(s) for connecting to
-.BR pmcd (1),
-historically was 4321 and more recently the officially registered port
-44321; in the current release,
-.B pmcd
-listens on both these ports as a transitional arrangement.  If used,
-should be set to a comma-separated list of numerical port numbers.
-.TP
-.B PMDA_PATH
-When searching for PMDAs to be loaded when
-.I type
-is
-.BR PM_CONTEXT_LOCAL ,
-the
-.B PMDA_PATH
-environment variable may be used to define a search path of
-directories to be used to locate the PMDA executables.
-The default search path is
-.BR $PCP_SHARE_DIR/lib:/usr/pcp/lib .
 .SH CAVEATS
 When using a
 .I type
@@ -277,22 +250,6 @@ and
 both may call
 .BR gethostbyname (3)
 internally.
-.SH SEE ALSO
-.BR pmcd (1),
-.BR pmproxy (1),
-.BR pmAddProfile (3),
-.BR PMAPI (3),
-.BR pmDelProfile (3),
-.BR pmDestroyContext (3),
-.BR pmDupContext (3),
-.BR pmGetConfig (3),
-.BR pmReconnectContext (3),
-.BR pmSetMode (3),
-.BR pmUseContext (3),
-.BR pmWhichContext (3),
-.BR pcp.conf (5)
-and
-.BR pcp.env (5).
 .SH DIAGNOSTICS
 .B PM_ERR_PERMISSION
 .IP
@@ -337,3 +294,46 @@ The instance domain of a metric differs among archives
 .B PM_ERR_LOGCHANGEUNITS
 .IP
 The units of a metric differs among archives
+.SH ENVIRONMENT
+.TP
+.B PMCD_CONNECT_TIMEOUT
+Timeout period (in seconds) for
+.BR pmcd (1)
+connection attempts.
+.TP
+.B PMCD_PORT
+TCP/IP port(s) for connecting to
+.BR pmcd (1),
+historically was 4321 and more recently the officially registered port
+44321; in the current release,
+.B pmcd
+listens on both these ports as a transitional arrangement.  If used,
+should be set to a comma-separated list of numerical port numbers.
+.TP
+.B PMDA_PATH
+When searching for PMDAs to be loaded when
+.I type
+is
+.BR PM_CONTEXT_LOCAL ,
+the
+.B PMDA_PATH
+environment variable may be used to define a search path of
+directories to be used to locate the PMDA executables.
+The default search path is
+.BR $PCP_SHARE_DIR/lib:/usr/pcp/lib .
+.SH SEE ALSO
+.BR pmcd (1),
+.BR pmproxy (1),
+.BR pmAddProfile (3),
+.BR PMAPI (3),
+.BR pmDelProfile (3),
+.BR pmDestroyContext (3),
+.BR pmDupContext (3),
+.BR pmGetConfig (3),
+.BR pmReconnectContext (3),
+.BR pmSetMode (3),
+.BR pmUseContext (3),
+.BR pmWhichContext (3),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).

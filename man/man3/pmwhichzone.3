@@ -41,6 +41,8 @@ If the call is successful (i.e. there exists a current reporting timezone)
 then a non-negative integer is returned and
 .I tz
 is set to point to a static buffer containing the timezone string itself.
+.SH DIAGNOSTICS
+A return value less than zero indicates there is no current reporting timezone.
 .SH SEE ALSO
 .BR PMAPI (3),
 .BR pmCtime (3),
@@ -49,5 +51,3 @@ is set to point to a static buffer containing the timezone string itself.
 .BR pmNewZone (3)
 and
 .BR pmUseZone (3).
-.SH DIAGNOSTICS
-A return value less than zero indicates there is no current reporting timezone.

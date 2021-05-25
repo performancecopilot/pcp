@@ -502,13 +502,11 @@ the original height for their current value.
 Beside the scale controls is another text box which displays the time of the
 fetched metrics.  The time will change with the time controller (see
 .BR pmtime (1)).
-.SH ENVIRONMENT
-The default face of the 3D font in the
-.B pmview
-window can be altered via
-.I PMVIEW_FONT
-environment variable which can be set to the base name of a Type1 font
-file in the default Inventor fonts directory.
+.SH DIAGNOSTICS
+Are intended to be self-explanatory.  The environment variable
+.B PCP_STDERR
+can be set to force most startup warnings and errors to be sent to the
+standard error stream rather than posted in a dialog.
 .SH FILES
 .TP 5
 .I $PCP_VAR_DIR/pmns/*
@@ -535,6 +533,13 @@ command line options in front end scripts
 .TP
 .I /usr/lib/DPS/outline/base/
 directory where Inventor normally looks for the outlines of Type1 fonts.
+.SH ENVIRONMENT
+The default face of the 3D font in the
+.B pmview
+window can be altered via
+.I PMVIEW_FONT
+environment variable which can be set to the base name of a Type1 font
+file in the default Inventor fonts directory.
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize
 the file and directory names used by PCP.
@@ -569,16 +574,4 @@ configuration file, as described in \fBpcp.conf\fP(5).
 and
 .BR pmlaunch (5).
 .P
-Relevant information is also available from the on-line PCP
-Tutorial.  Provided the
-.B pcp.man.tutorial
-subsystem from the PCP images has been installed, access the
-URL
-.B file:$PCP_DOC_DIR/Tutorial/pmview.html
-from your web browser.
-
-.SH DIAGNOSTICS
-Are intended to be self-explanatory.  The environment variable
-.B PCP_STDERR
-can be set to force most startup warnings and errors to be sent to the
-standard error stream rather than posted in a dialog.
+Relevant information is also available from the on-line PCP Tutorial.

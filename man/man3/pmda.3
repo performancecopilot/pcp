@@ -916,6 +916,33 @@ other temporary file name prefixes nor use
 .B trap
 statements to clean up temporary files as this is all done within
 .IR $PCP_SHARE_DIR /lib/pmdaproc.sh.
+.SH CAVEAT
+Failing to complete any of the data structures or calling any of the library
+routines out of order may cause unexpected behavior in the PMDA.
+.PP
+Due to changes to the
+.BR PMAPI (3)
+and
+.BR PMDA (3)
+API in the PCP 2.0 release, as described in the product release notes,
+PMDAs built using PCP 2.0 must specify
+.B PMDA_INTERFACE_2
+or later and link with
+.I libpcp_pmda.so.2
+and
+.IR libpcp.so.2 .
+Pre-existing Daemon PMDAs specifying
+.B PMDA_PROTOCOL_1
+will continue to function using the backwards compatible
+.I libpcp_pmda.so.1
+and
+.I libpcp.so.1
+libraries and may be recompiled using the headers installed in
+.I "/usr/include/pcp1.x/"
+without any modification.  These backwards compatible headers and libraries
+are contained in the
+.I pcp.sw.compat
+subsystem.
 .SH DIAGNOSTICS
 Any
 PMDA
@@ -971,33 +998,6 @@ fields are correctly initialized
 .BR pmdaDaemon (3)
 and
 .BR pmdaDSO (3)).
-.SH CAVEAT
-Failing to complete any of the data structures or calling any of the library
-routines out of order may cause unexpected behavior in the PMDA.
-.PP
-Due to changes to the
-.BR PMAPI (3)
-and
-.BR PMDA (3)
-API in the PCP 2.0 release, as described in the product release notes,
-PMDAs built using PCP 2.0 must specify
-.B PMDA_INTERFACE_2
-or later and link with
-.I libpcp_pmda.so.2
-and
-.IR libpcp.so.2 .
-Pre-existing Daemon PMDAs specifying
-.B PMDA_PROTOCOL_1
-will continue to function using the backwards compatible
-.I libpcp_pmda.so.1
-and
-.I libpcp.so.1
-libraries and may be recompiled using the headers installed in
-.I "/usr/include/pcp1.x/"
-without any modification.  These backwards compatible headers and libraries
-are contained in the
-.I pcp.sw.compat
-subsystem.
 .SH FILES
 .TP 10
 .I /usr/include/pcp/pmda.h

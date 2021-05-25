@@ -64,6 +64,11 @@ or create a new context with
 or
 .BR pmDupContext (3),
 before the next PMAPI operation that requires a PMAPI context.
+.SH DIAGNOSTICS
+.B PM_ERR_NOCONTEXT
+.IP
+.I handle
+does not identify a valid PMAPI context
 .SH SEE ALSO
 .BR PMAPI (3),
 .BR pmDupContext (3),
@@ -71,8 +76,3 @@ before the next PMAPI operation that requires a PMAPI context.
 .BR pmUseContext (3)
 and
 .BR pmWhichContext (3).
-.SH DIAGNOSTICS
-.B PM_ERR_NOCONTEXT
-.IP
-.I handle
-does not identify a valid PMAPI context

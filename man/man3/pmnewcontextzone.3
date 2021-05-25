@@ -55,6 +55,15 @@ that may be
 used in a subsequent call to
 .BR pmUseZone (3)
 to restore this reporting timezone.
+.SH DIAGNOSTICS
+.TP
+.B PM_ERR_NOCONTEXT
+the current PMAPI context is not valid
+.TP
+other
+a return value less than zero indicates a fatal error from a system call,
+most likely
+.BR malloc (3)
 .SH SEE ALSO
 .BR PMAPI (3),
 .BR pmCtime (3),
@@ -69,12 +78,3 @@ to restore this reporting timezone.
 .BR pcp.env (5)
 and
 .BR environ (7).
-.SH DIAGNOSTICS
-.TP
-.B PM_ERR_NOCONTEXT
-the current PMAPI context is not valid
-.TP
-other
-a return value less than zero indicates a fatal error from a system call,
-most likely
-.BR malloc (3)

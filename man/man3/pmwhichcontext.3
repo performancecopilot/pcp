@@ -37,6 +37,9 @@ on some host, or an archive log of performance metrics as created by
 returns a handle for the current PMAPI context, that may
 be used in the associated PMAPI routines that require a handle
 to identify a PMAPI context.
+.SH DIAGNOSTICS
+.IP \f3PM_ERR_NOCONTEXT\f1
+no current context
 .SH SEE ALSO
 .BR PMAPI (3),
 .BR pmDestroyContext (3),
@@ -44,6 +47,3 @@ to identify a PMAPI context.
 .BR pmNewContext (3)
 and
 .BR pmUseContext (3).
-.SH DIAGNOSTICS
-.IP \f3PM_ERR_NOCONTEXT\f1
-no current context

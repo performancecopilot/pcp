@@ -84,6 +84,20 @@ is undefined (no space will have been
 allocated, and so calling
 .BR free (3)
 is a singularly bad idea).
+.SH DIAGNOSTICS
+.IP \f3PM_ERR_NOPMNS\f1
+Failed to access a PMNS for operation.
+Note that if the application hasn't a priori called pmLoadNameSpace(3)
+and wants to use the distributed PMNS, then a call to
+.B pmGetChildren
+must be made inside a current context.
+.IP \f3PM_ERR_NAME\f1
+The pathname
+.I name
+is not valid in the current PMNS
+.IP \f3PM_ERR_*\f1
+Other diagnostics are for protocol failures when
+accessing the distributed PMNS.
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_
@@ -114,17 +128,3 @@ function.
 .BR pcp.env (5)
 and
 .BR PMNS (5).
-.SH DIAGNOSTICS
-.IP \f3PM_ERR_NOPMNS\f1
-Failed to access a PMNS for operation.
-Note that if the application hasn't a priori called pmLoadNameSpace(3)
-and wants to use the distributed PMNS, then a call to
-.B pmGetChildren
-must be made inside a current context.
-.IP \f3PM_ERR_NAME\f1
-The pathname
-.I name
-is not valid in the current PMNS
-.IP \f3PM_ERR_*\f1
-Other diagnostics are for protocol failures when
-accessing the distributed PMNS.

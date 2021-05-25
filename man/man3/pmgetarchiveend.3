@@ -63,6 +63,13 @@ is well-defined.
 .BR pmGetArchiveEnd
 preserves the positioning state of the log file prior to
 this function call.
+.SH DIAGNOSTICS
+.IP \f3PM_ERR_NOCONTEXT\f1
+the current PMAPI context
+is either invalid, or not associated with an set of archive logs
+.IP \f3PM_ERR_LOGREC\f1
+the set of archives is sufficiently damaged, that not a single valid
+record can be found
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_
@@ -91,10 +98,3 @@ function.
 .BR pcp.conf (5)
 and
 .BR pcp.env (5).
-.SH DIAGNOSTICS
-.IP \f3PM_ERR_NOCONTEXT\f1
-the current PMAPI context
-is either invalid, or not associated with an set of archive logs
-.IP \f3PM_ERR_LOGREC\f1
-the set of archives is sufficiently damaged, that not a single valid
-record can be found

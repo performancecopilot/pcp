@@ -1,0 +1,58 @@
+#!/usr/bin/sh
+# PCP QA Test No. 1370
+# Check long-options in manual pages.
+#
+# Copyright (c) 2021 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -f /etc/os-release ] || _notrun "Tested only on Fedora"
+grep -q ^NAME=Fedora /etc/os-release || _notrun "Tested only on Fedora"
+
+which man > /dev/null 2>&1 || _notrun "No man(1) command?"
+man pmrep | grep -q pmrep || _notrun "No man pages installed?"
+
+status=1        # failure is the default!
+hostname=`hostname`
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo "collecting commands"
+rpm -qa | grep pcp | xargs rpm -ql | grep bin/ | sort > $tmp.cmds.txt
+
+echo "removing problematic commands from test"
+for cmd in pcp-htop pcp-python pcp2csv pcp2xlsx pmafm pmgenmap \
+             pmie_dump_stats pmiestatus pmlock pmpause pmpython \
+             pmsleep pmwtf telnet-probe; do
+  sed -i "/$cmd/d" $tmp.cmds.txt
+done
+
+echo "display commands to be tested"
+cat $tmp.cmds.txt
+
+echo "run checks"
+for cmd in $(cat $tmp.cmds.txt); do
+  rm -f $tmp.test
+  bn=$(basename $cmd)
+  $cmd --help 2>&1 | grep -Eo -- '--.* ' | sed -e 's/=.*//g' -e 's/ .*//g' -e 's/]//g' | grep -e '-[A-Za-z]' > $tmp.test
+  if ! grep -q -- -- $tmp.test; then
+    continue
+  fi
+  for opt in $(cat $tmp.test); do
+    man $bn | grep -q -- "$opt" || echo "$bn.1 missing $opt"
+  done
+  rm -f $tmp.test
+done
+echo "checks done"
+
+# success, all done
+status=0
+exit

@@ -96,10 +96,10 @@ entries in this table should display the value zero in the version column.
 resets the version information associated with the given file descriptor to some
 known (invalid) number.  Subsequent lookups on this file descriptor will return
 an UNKNOWN_VERSION embedded within the __pmIPC structure.
-.SH SEE ALSO
-.BR PMAPI (3)
 .SH DIAGNOSTICS
 A negative return value from \f3__pmLookupIPC\f1 indicates that the requested
 file descriptor is not registered in the hash table.
 This typically indicates closure of an IPC channel, so PM_ERR_IPC is returned
 if this is the case.
+.SH SEE ALSO
+.BR PMAPI (3)

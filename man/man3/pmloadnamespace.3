@@ -85,6 +85,24 @@ over the handling of duplicate names for the same PMID in the PMNS.
 .PP
 .B pmLoadNameSpace
 returns zero on success.
+.SH DIAGNOSTICS
+Syntax and other errors in the parsing of the PMNS are reported
+on
+.I stderr
+with a message of the form ``Error Parsing ASCII PMNS: ...''.
+.PP
+.B PM_ERR_DUPPMNS
+.IP
+It is an error to try and load more than one PMNS, or to call
+either
+.B pmLoadNameSpace
+and/or
+.BR pmLoadASCIINameSpace (3)
+more than once.
+.PP
+.B PM_ERR_PMNS
+.IP
+Syntax error in the PMNS file.
 .SH FILES
 .IP \f2$PCP_VAR_DIR/pmns/root\f1 2.5i
 the default local PMNS, when the environment variable
@@ -117,21 +135,3 @@ function.
 .BR pcp.env (5)
 and
 .BR PMNS (5).
-.SH DIAGNOSTICS
-Syntax and other errors in the parsing of the PMNS are reported
-on
-.I stderr
-with a message of the form ``Error Parsing ASCII PMNS: ...''.
-.PP
-.B PM_ERR_DUPPMNS
-.IP
-It is an error to try and load more than one PMNS, or to call
-either
-.B pmLoadNameSpace
-and/or
-.BR pmLoadASCIINameSpace (3)
-more than once.
-.PP
-.B PM_ERR_PMNS
-.IP
-Syntax error in the PMNS file.
