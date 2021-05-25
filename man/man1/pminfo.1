@@ -18,16 +18,16 @@
 \f3pminfo\f1 \- display information about performance metrics
 .SH SYNOPSIS
 \fBpminfo\fR
-[\fB\-dfFIlLmMstTvxz?\fR]
+[\fB\-dfFIlLmMstTvVxz?\fR]
 [\fB\-a\fR \fIarchive\fR]
 [\fB\-b\fR \fIbatchsize\fR]
 [\fB\-c\fR \fIdmfile\fR]
+[\fB\-\-container\fR \fIname\fR]
 [\fB\-h\fR \fIhostname\fR]
 [\fB\-K\fR \fIspec\fR]
 [\fB\-\fR[\fBn\fR|\fBN\fR] \fIpmnsfile\fR]
 [\fB\-O\fR \fItime\fR]
 [\fB\-Z\fR \fItimezone\fR]
-[\f3\-\-container\f1]
 [\fImetricname\fR | \fIpmid\fR | \fIindom\fR]...
 .SH DESCRIPTION
 .B pminfo
@@ -120,6 +120,11 @@ environment variable to specify the
 .B same
 configuration is a bad idea, so choose one or the other method.
 .TP
+\fB\-\-container\fR=\fIcontainer\fR
+Specify an individual
+.I container
+to be queried.
+.TP
 \fB\-d\fR, \fB\-\-desc\fR
 Metric descriptions detailing the PMID, data type, data semantics, units,
 scale and associated instance domain.
@@ -162,6 +167,12 @@ More than one \fB\-K\fR option may be used.
 Print label sets associated with metrics and instances.
 Labels are optional metric metadata described in detail in
 .BR pmLookupLabels (3).
+.TP
+\fB\-L\fR, \fB\-\-local\-PMDA\fR
+Use a local context to collect metrics from DSO PMDAs on the local host
+without PMCD.
+See also
+.BR \-K .
 .TP
 \fB\-m\fR, \fB\-\-pmid\fR
 Print the PMID in terse mode.
@@ -229,6 +240,9 @@ This option silently disables any output from the options
 and
 \fB\-T\fR/\fB\-\-helptext\fR.
 .TP
+\fB\-V\fR, \fB\-\-version\fR
+Display version number and exit.
+.TP
 \fB\-x\fR, \fB\-\-events\fR
 Like the \fB\-f\fR/\fB\-\-fetch\fR option,
 but with the additional functionality that if a value is
@@ -236,13 +250,31 @@ processed that is of type PM_TYPE_EVENT or PM_TYPE_HIGHRES_EVENT, then
 the event records will be unpacked and the details of each event record
 reported.
 .TP
+\fB\-z\fR, \fB\-\-hostzone\fR
+Change the reporting timezone to the local timezone at the host
+that is the source of the performance metrics, as identified via
+either the
+.B \-h
+or
+.B \-a
+options.
+.TP
+\fB\-Z\fR \fItimezone\fR, \fB\-\-timezone\fR=\fItimezone\fR
+By default,
+.B pminfo
+reports the time of day according to the local timezone on the system
+where
+.B pminfo
+is run.
+The
+.B \-Z
+option changes the timezone to
+.I timezone
+in the format of the environment variable TZ as described in
+.BR environ (7).
+.TP
 \fB\-?\fR, \fB\-\-help\fR
 Display usage message and exit.
-.TP
-\fB\-\-container\fR=\fIcontainer\fR
-Specify an individual
-.I container
-to be queried.
 .SH FILES
 .TP 5
 .I $PCP_VAR_DIR/pmns/*

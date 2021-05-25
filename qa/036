@@ -21,6 +21,7 @@ _cleanup()
 
 # filter pid's in lines like ...
 # __pmProcessExec: pid=1965 wait_pid=1965
+# __pmProcessPipe: map[0 of 1] child pid=1695 fp=0x55eb928fdd20
 #
 # and for some *BSD systems, the /bin/sh -c " ...; kill -TERM $$; ..." test
 # returns an exit code of 143 (0x8f00) which is the real status shifted
@@ -35,6 +36,7 @@ _filter()
 	-e "s@$tmp@TMP@g" \
 	-e 's/PID exit=143/PID signal=15/' \
 	-e 's/-> 143 exit=143/-> 1015 signal=15/' \
+	-e 's/fp=[^ ]*/fp=ADDR/' \
     #end
 }
 

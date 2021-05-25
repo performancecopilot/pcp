@@ -48,6 +48,7 @@ _conf_error_filter()
 	-e "s/'\/.*'/CONF_FILE/g" \
 	-e "s/errors: \/.*/errors: CONF_FILE/g" \
 	-e "s/File contains/Source contains/g" \
+	-e "s/: u'/: '/" \
     #end
 }
 
