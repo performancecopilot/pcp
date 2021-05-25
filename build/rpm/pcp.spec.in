@@ -2203,8 +2203,10 @@ grep -E 'pcp\/(examples|demos)|(etc/pcp|pcp/pmdas)\/(sample|simple|trivial|txmon
 # Note: /etc/pcp.{conf,env,sh} are %config but not noreplace
 # and are treated specially below.
 cat >confpath.list <<EOF
+etc/zabbix/zabbix_agentd.d/
 etc/sysconfig/
 etc/cron.d/
+etc/sasl2/
 etc/pcp/
 EOF
 
