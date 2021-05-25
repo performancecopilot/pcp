@@ -24,7 +24,8 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 echo expect no lookup errors for kernel metricsets
 for set in mpstat mpstat-P-ALL
 do
-    pmrep -s 1 :$set >/dev/null
+    echo "=== $set ===" >>$seq.full
+    pmrep -s 1 :$set 2>&1 | tee -a $seq.full >/dev/null 
     sts=$?
     [ $sts -eq 0 ] || echo "FAIL: pmrep :$set returned $sts"
 done
