@@ -51,6 +51,11 @@ recently modified state, so
 .B pmUseContext
 restores the context to the state it was in the last time the context was
 used, not the state of the context when it was established.
+.SH DIAGNOSTICS
+.B PM_ERR_NOCONTEXT
+.IP
+.I handle
+does not identify a valid PMAPI context
 .SH SEE ALSO
 .BR PMAPI (3),
 .BR pmDestroyContext (3),
@@ -58,8 +63,3 @@ used, not the state of the context when it was established.
 .BR pmNewContext (3)
 and
 .BR pmWhichContext (3).
-.SH DIAGNOSTICS
-.B PM_ERR_NOCONTEXT
-.IP
-.I handle
-does not identify a valid PMAPI context

@@ -229,6 +229,13 @@ Values for these variables may be obtained programmatically
 using the
 .BR pmGetConfig (3)
 function.
+.SH DIAGNOSTICS
+.IP \f3-EINVAL\f1
+An invalid argument has been specified.
+.IP \f3-ENOMEM\f1
+Unable to allocate memory required to process the request.
+.IP \f3-EOPNOTSUPP\f1
+The specified \fImechanism\fP is not supported.
 .SH SEE ALSO
 .BR pmcd (1),
 .BR pmfind (1),
@@ -240,10 +247,3 @@ function.
 .BR pcp.env (5)
 and
 .BR avahi-daemon (8).
-.SH DIAGNOSTICS
-.IP \f3-EINVAL\f1
-An invalid argument has been specified.
-.IP \f3-ENOMEM\f1
-Unable to allocate memory required to process the request.
-.IP \f3-EOPNOTSUPP\f1
-The specified \fImechanism\fP is not supported.

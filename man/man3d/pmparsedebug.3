@@ -80,11 +80,6 @@ will set the conjunction of the bits in the
 .I value
 arguments.  To clear the bit-fields, see
 .BR pmClearDebug (3).
-.SH SEE ALSO
-.BR pmdbg (1),
-.BR pmSetDebug (3)
-and
-.BR pmClearDebug (3).
 .SH DIAGNOSTICS
 If successful,
 .B __pmParseDebug
@@ -93,3 +88,8 @@ returns the value computed by the bit-wise ``or'' of each flag in the
 suitable for assigning to the global debug trace control variable
 .BR pmDebug .
 Otherwise the return value is less than 0 to indicate a parsing error.
+.SH SEE ALSO
+.BR pmdbg (1),
+.BR pmSetDebug (3)
+and
+.BR pmClearDebug (3).

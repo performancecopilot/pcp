@@ -254,7 +254,6 @@ The fault injection infrastructure is
 .B not
 thread-safe and should only be used with applications that are
 known to be single-threaded.
-
 .SH RUN-TIME CONTROL
 .PP
 By default, no fault injection is enabled at run-time, even when
@@ -373,7 +372,6 @@ sample.event.records[bogus]: pmUnpackEventRecords: Cannot allocate memory
 libpcp/events.c:1: guard trip>2, 5 trips, 3 faults
 .fi
 .ft
-
 .SH EXAMPLES
 Refer to the PCP and PCP QA source code.
 .PP
@@ -406,7 +404,10 @@ $ cd qa
 $ check -n -g fault
 .fi
 .ft
-
+.SH DIAGNOSTICS
+.PP
+Some non-recoverable errors are reported on
+.IR stderr .
 .SH ENVIRONMENT
 .TP
 .B PM_FAULT_CONTROL
@@ -417,10 +418,5 @@ Force
 .I libpcp_fault
 to be used in preference to
 .IR libpcp .
-
 .SH SEE ALSO
 .BR PMAPI (3)
-.SH DIAGNOSTICS
-.PP
-Some non-recoverable errors are reported on
-.IR stderr .

@@ -85,6 +85,12 @@ are undefined (no space will have been allocated,
 and so calling
 .BR free (3)
 is a singularly bad idea).
+.SH DIAGNOSTICS
+.IP \f3PM_ERR_NOTARCHIVE\f1
+the current PMAPI context is not associated with a set of archive logs
+.IP \f3PM_ERR_INDOM_LOG\f1
+.I indom
+is not a defined instance domain identifier for the set of archive logs
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_
@@ -113,9 +119,3 @@ function.
 .BR pcp.conf (5)
 and
 .BR pcp.env (5).
-.SH DIAGNOSTICS
-.IP \f3PM_ERR_NOTARCHIVE\f1
-the current PMAPI context is not associated with a set of archive logs
-.IP \f3PM_ERR_INDOM_LOG\f1
-.I indom
-is not a defined instance domain identifier for the set of archive logs

@@ -194,13 +194,6 @@ nor modifying them).
 Instead, these variables can be access via the
 .I opts
 fields of the same name.
-.SH DIAGNOSTICS
-Both
-.B pmdaGetOptions
-and
-.B pmdaGetOpt
-will display the same error messages as
-.BR getopt .
 .SH CAVEAT
 The options
 .BR \-D ,
@@ -224,6 +217,13 @@ or later, as specified in the call to
 .BR pmdaDSO (3)
 or
 .BR pmdaDaemon (3).
+.SH DIAGNOSTICS
+Both
+.B pmdaGetOptions
+and
+.B pmdaGetOpt
+will display the same error messages as
+.BR getopt .
 .SH SEE ALSO
 .BR pmdbg (1),
 .BR getopt (3),

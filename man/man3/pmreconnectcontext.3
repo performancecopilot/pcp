@@ -107,6 +107,30 @@ desired timeout.
 This is most useful in cases where the remote host is at
 the end of a slow network, requiring longer latencies to
 establish the connection correctly.
+.SH CAVEAT
+Applications that use
+.BR gethostbyname (3)
+should exercise caution because the static fields in
+.I "struct hostent"
+may not be preserved across some
+.BR PMAPI (3)
+calls.
+In particular,
+.BR pmNewContext (3)
+and
+.BR pmReconnectContext (3)
+both may call
+.BR gethostbyname (3)
+internally.
+.SH DIAGNOSTICS
+.B PM_ERR_NOCONTEXT
+.IP
+.I handle
+does not identify a valid PMAPI context
+.P
+.B \-ETIMEDOUT
+.IP
+The re-try time has not elapsed, or the reconnection is attempted and fails.
 .SH ENVIRONMENT
 .TP
 .B PMCD_CONNECT_TIMEOUT
@@ -126,27 +150,3 @@ Redefines the back-off intervals - refer to
 .BR pmRegisterDerivedMetric (3)
 and
 .BR pmUseContext (3).
-.SH DIAGNOSTICS
-.B PM_ERR_NOCONTEXT
-.IP
-.I handle
-does not identify a valid PMAPI context
-.P
-.B \-ETIMEDOUT
-.IP
-The re-try time has not elapsed, or the reconnection is attempted and fails.
-.SH CAVEAT
-Applications that use
-.BR gethostbyname (3)
-should exercise caution because the static fields in
-.I "struct hostent"
-may not be preserved across some
-.BR PMAPI (3)
-calls.
-In particular,
-.BR pmNewContext (3)
-and
-.BR pmReconnectContext (3)
-both may call
-.BR gethostbyname (3)
-internally.

@@ -161,14 +161,6 @@ the first one is completed by calling
 .B __pmProcessExec
 or
 .BR __pmProcessPipe (3).
-.SH SEE ALSO
-.BR execvp(2),
-.BR fork (2),
-.BR __pmProcessPipe (3),
-.BR popen (3),
-.BR system (3)
-and
-.BR waitpid (3).
 .SH DIAGNOSTICS
 If successful
 .B __pmProcessAddArg
@@ -201,3 +193,11 @@ the return value is an encoding of the
 status as follows: 2000 if something unknown went wrong, else
 if 1000 + signal number of the command was killed or stopped by
 a signal, else the exit status of the command.
+.SH SEE ALSO
+.BR execvp(2),
+.BR fork (2),
+.BR __pmProcessPipe (3),
+.BR popen (3),
+.BR system (3)
+and
+.BR waitpid (3).

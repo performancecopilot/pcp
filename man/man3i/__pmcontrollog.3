@@ -263,13 +263,6 @@ and receiving the reply.
 It is assumed that the caller is single-threaded,
 which is true for the only current user of this routine, namely
 .BR pmlc (1).
-.SH SEE ALSO
-.BR pmlc (1),
-.BR pmlogger (1),
-.BR PMAPI (3),
-.BR pmFetch (3)
-and
-.BR __pmConnectLogger (3).
 .SH DIAGNOSTICS
 .IP \f3PM_ERR_TOOSMALL\f1
 The number of metrics in
@@ -291,3 +284,10 @@ and
 was specified, or
 .I delta
 was negative.
+.SH SEE ALSO
+.BR pmlc (1),
+.BR pmlogger (1),
+.BR PMAPI (3),
+.BR pmFetch (3)
+and
+.BR __pmConnectLogger (3).

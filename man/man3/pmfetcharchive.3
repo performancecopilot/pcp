@@ -89,6 +89,9 @@ for further details.
 .PP
 .B pmFetchArchive
 returns zero on success.
+.SH DIAGNOSTICS
+.IP \f3PM_ERR_NOTARCHIVE\f1
+the current PMAPI context is not associated with a set of archive logs
 .SH SEE ALSO
 .BR PMAPI (3),
 .BR pmFetch (3),
@@ -97,6 +100,3 @@ returns zero on success.
 .BR pmSetMode (3)
 and
 .BR pmTrimNameSpace (3).
-.SH DIAGNOSTICS
-.IP \f3PM_ERR_NOTARCHIVE\f1
-the current PMAPI context is not associated with a set of archive logs

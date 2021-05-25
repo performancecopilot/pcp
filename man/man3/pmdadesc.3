@@ -36,13 +36,6 @@ description in
 .I desc
 for the metric identified by
 .IR pmid .
-.SH DIAGNOSTICS
-If the
-.I pmid
-does not correspond to any metric supported by this PMDA,
-.B pmdaDesc
-returns
-.BR PM_ERR_PMID .
 .SH CAVEAT
 The PMDA must be using
 .B PMDA_INTERFACE_2
@@ -50,6 +43,13 @@ or later, as specified in the call to
 .BR pmdaDSO (3)
 or
 .BR pmdaDaemon (3).
+.SH DIAGNOSTICS
+If the
+.I pmid
+does not correspond to any metric supported by this PMDA,
+.B pmdaDesc
+returns
+.BR PM_ERR_PMID .
 .SH SEE ALSO
 .BR PMAPI (3),
 .BR PMDA (3),

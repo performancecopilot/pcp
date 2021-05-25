@@ -95,18 +95,6 @@ The callbacks are initialized to
 .BR pmdaInstance (3)
 and
 .BR pmdaStore (3).
-.SH DIAGNOSTICS
-.TP 15
-.B Unable to allocate memory for pmdaExt structure
-In addition, the
-.I dispatch->status
-field is set to a value less than zero.
-.TP
-.BI "PMDA interface version " interface " not supported"
-The
-.I interface
-version is not supported by
-.BR pmdaDaemon .
 .SH CAVEAT
 The PMDA must be using
 .B PMDA_INTERFACE_2
@@ -132,6 +120,18 @@ must be called to resestablish the internal integrity of the
 structure at the new location before any other routine in
 .I libpcp_pmda
 is called.
+.SH DIAGNOSTICS
+.TP 15
+.B Unable to allocate memory for pmdaExt structure
+In addition, the
+.I dispatch->status
+field is set to a value less than zero.
+.TP
+.BI "PMDA interface version " interface " not supported"
+The
+.I interface
+version is not supported by
+.BR pmdaDaemon .
 .SH SEE ALSO
 .BR PMAPI (3),
 .BR PMDA (3),

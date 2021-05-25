@@ -74,6 +74,13 @@ Other than error cases in
 .BR pmdaOpenHelp ,
 .B pmdaCloseHelp
 is not called.
+.SH CAVEAT
+The PMDA must be using
+.B PMDA_PROTOCOL_2
+or later, as specified in the call to
+.BR pmdaDSO (3)
+or
+.BR pmdaDaemon (3).
 .SH DIAGNOSTICS
 .B pmdaOpenHelp
 returns a negative value for failure, suitable for decoding with
@@ -82,13 +89,6 @@ returns a negative value for failure, suitable for decoding with
 and
 .B pmdaGetInDomHelp
 return NULL if the corresponding help text does not exist.
-.SH CAVEAT
-The PMDA must be using
-.B PMDA_PROTOCOL_2
-or later, as specified in the call to
-.BR pmdaDSO (3)
-or
-.BR pmdaDaemon (3).
 .SH SEE ALSO
 .BR newhelp (1),
 .BR PMAPI (3),

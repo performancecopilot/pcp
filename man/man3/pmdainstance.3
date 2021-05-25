@@ -206,6 +206,23 @@ and
 .I 3.22
 respectively) and are sourced from different PMDAs, the "device_type"
 label identifies the common device to which these values relate.
+.SH CAVEAT
+The PMDA must be using
+.B PMDA_INTERFACE_2
+or later, as specified in the call to
+.BR pmdaDSO (3)
+or
+.BR pmdaDaemon (3).
+If labeling of multi-dimensional instance names is performed,
+the PMDA must use
+.B PMDA_INTERFACE_7
+or later.
+.PP
+Because of optional partial matching up to the first space in the instance
+name, the
+.B PMDA
+developer should ensure that if instance names are allowed to have
+spaces, the names are unique up to the first space.
 .SH DIAGNOSTICS
 If any errors occur during the execution of
 .BR pmdaInstance ,
@@ -228,23 +245,6 @@ domain,
 .B pmdaInstance
 will return
 .BR PM_ERR_INST .
-.SH CAVEAT
-The PMDA must be using
-.B PMDA_INTERFACE_2
-or later, as specified in the call to
-.BR pmdaDSO (3)
-or
-.BR pmdaDaemon (3).
-If labeling of multi-dimensional instance names is performed,
-the PMDA must use
-.B PMDA_INTERFACE_7
-or later.
-.PP
-Because of optional partial matching up to the first space in the instance
-name, the
-.B PMDA
-developer should ensure that if instance names are allowed to have
-spaces, the names are unique up to the first space.
 .SH SEE ALSO
 .BR malloc (3),
 .BR PMAPI (3),

@@ -34,6 +34,11 @@ or from a local PMNS file, \f3PMNS_LOCAL\f1, or from a remote pmcd,
 .P
 This information may be useful in determining an appropriate error message
 depending on the PMNS' location.
+.SH DIAGNOSTICS
+.IP \f3PM_ERR_NOPMNS\f1
+If is not possible to determine where the location of the PMNS is.
+This could be due to problems with the current context or being
+unable to load a local PMNS.
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_
@@ -62,8 +67,3 @@ function.
 .BR pcp.env (5)
 and
 .BR PMNS (5).
-.SH DIAGNOSTICS
-.IP \f3PM_ERR_NOPMNS\f1
-If is not possible to determine where the location of the PMNS is.
-This could be due to problems with the current context or being
-unable to load a local PMNS.

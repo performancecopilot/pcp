@@ -108,6 +108,43 @@ Once the writing of the new
 .I outfile
 has begun, the signals SIGINT, SIGHUP and SIGTERM will be ignored
 to protect the integrity of the new file.
+.SH DIAGNOSTICS
+Cannot open ``xyz'' \- the filename for the root of the PMNS that was
+passed to
+.BR pmLoadNameSpace (3)
+is bogus.
+.PP
+Illegal PMID \- either one of the three PMID components (see
+.BR pmns (5))
+is not an integer, or the value for one of the
+components is negative, or too large.
+.PP
+Expected ... \- specific syntax errors when a particular type of
+lexical symbol was expected and
+not found; the messages are intended to be self-explanatory.
+.PP
+Internal botch \- implementation problem for the parser ...
+.PP
+Duplicate name ``abc'' in subtree for ``pqr.xyz'' \- for each non-leaf
+node, the names of all immediate descendents must be unique.
+.PP
+No name space entry for ``root'' \- the special non-leaf node with a pathname
+of ``root'' defines the root of the PMNS, and must appear
+somewhere in the PMNS specification.
+.PP
+Multiple name space entries for ``root'' \- more than one ``root'' node
+does not make sense!
+.PP
+Disconnected subtree (``abc.xyz.def'') in name space \- the pathname
+for this non-leaf node does not correspond to any pathname in the PMNS,
+hence this non-leaf node is ``orphaned'' in the PMNS.
+.PP
+Cannot find definition for non-terminal node ``xyz'' in name space \- a
+non-terminal node is named as part of its parent's specification, but
+is never defined.
+.PP
+Duplicate metric id (xxx) in name space for metrics ``abc'' and ``xyz''
+\- each PMID must be unique across the PMNS.
 .SH FILES
 .PD 0
 .TP 10
@@ -146,40 +183,3 @@ as described in
 .BR pcp.env (5)
 and
 .BR pmns (5).
-.SH DIAGNOSTICS
-Cannot open ``xyz'' \- the filename for the root of the PMNS that was
-passed to
-.BR pmLoadNameSpace (3)
-is bogus.
-.PP
-Illegal PMID \- either one of the three PMID components (see
-.BR pmns (5))
-is not an integer, or the value for one of the
-components is negative, or too large.
-.PP
-Expected ... \- specific syntax errors when a particular type of
-lexical symbol was expected and
-not found; the messages are intended to be self-explanatory.
-.PP
-Internal botch \- implementation problem for the parser ...
-.PP
-Duplicate name ``abc'' in subtree for ``pqr.xyz'' \- for each non-leaf
-node, the names of all immediate descendents must be unique.
-.PP
-No name space entry for ``root'' \- the special non-leaf node with a pathname
-of ``root'' defines the root of the PMNS, and must appear
-somewhere in the PMNS specification.
-.PP
-Multiple name space entries for ``root'' \- more than one ``root'' node
-does not make sense!
-.PP
-Disconnected subtree (``abc.xyz.def'') in name space \- the pathname
-for this non-leaf node does not correspond to any pathname in the PMNS,
-hence this non-leaf node is ``orphaned'' in the PMNS.
-.PP
-Cannot find definition for non-terminal node ``xyz'' in name space \- a
-non-terminal node is named as part of its parent's specification, but
-is never defined.
-.PP
-Duplicate metric id (xxx) in name space for metrics ``abc'' and ``xyz''
-\- each PMID must be unique across the PMNS.

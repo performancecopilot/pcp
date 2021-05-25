@@ -115,6 +115,11 @@ no further action is required.
 On success,
 .B pmTrimNameSpace
 returns zero.
+.SH DIAGNOSTICS
+.IP \f3PM_ERR_NOPMNS\f1
+there has been some earlier problem with establishing the relevant PMNS
+.IP \f3PM_ERR_NOCONTEXT\f1
+the current PMAPI context is invalid
 .SH SEE ALSO
 .BR pmlogger (1),
 .BR PMAPI (3),
@@ -123,8 +128,3 @@ returns zero.
 .BR pmNewContext (3)
 and
 .BR PMNS (5).
-.SH DIAGNOSTICS
-.IP \f3PM_ERR_NOPMNS\f1
-there has been some earlier problem with establishing the relevant PMNS
-.IP \f3PM_ERR_NOCONTEXT\f1
-the current PMAPI context is invalid

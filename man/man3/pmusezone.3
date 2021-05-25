@@ -39,6 +39,10 @@ or
 .BR pmNewContextZone (3),
 and this becomes
 the current reporting timezone.
+.SH DIAGNOSTICS
+A return value less than zero indicates the value of
+.I tz_handle
+is not legal.
 .SH SEE ALSO
 .BR PMAPI (3),
 .BR pmCtime (3),
@@ -47,7 +51,3 @@ the current reporting timezone.
 .BR pmNewZone (3)
 and
 .BR pmWhichZone (3).
-.SH DIAGNOSTICS
-A return value less than zero indicates the value of
-.I tz_handle
-is not legal.

@@ -37,12 +37,6 @@ Also, the implementation of a store callback which does permit
 metrics to be altered by
 .BR pmstore (1)
 is very application dependent.
-.SH DIAGNOSTICS
-.B
-pmdaStore
-returns
-.B PM_ERR_PERMISSION
-to indicate that no metrics may be modified.
 .SH CAVEAT
 The PMDA must be using
 .B PMDA_PROTOCOL_2
@@ -50,6 +44,12 @@ or later, as specified in the call to
 .BR pmdaDSO (3)
 or
 .BR pmdaDaemon (3).
+.SH DIAGNOSTICS
+.B
+pmdaStore
+returns
+.B PM_ERR_PERMISSION
+to indicate that no metrics may be modified.
 .SH SEE ALSO
 .BR pmstore (1),
 .BR PMAPI (3),

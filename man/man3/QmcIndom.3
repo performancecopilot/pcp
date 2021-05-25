@@ -166,18 +166,6 @@ if the profile has potentially changed since the last call to
 Generates a new profile for the instance domain. a
 .BR PMAPI (3)
 error code is returned if the profile failed.
-.SH SEE ALSO
-.BR PMAPI (3),
-.BR QMC (3),
-.BR QmcContext (3),
-.BR QmcDesc (3),
-.BR QmcMetric (3),
-.BR pmFetch (3),
-.BR pmflush (3),
-.BR pmGetInDom (3),
-.BR pmGetInDomArchive (3)
-and
-.BR pmprintf (3).
 .SH DIAGNOSTICS
 Error messages are generated using
 .BR pmprintf (3)
@@ -192,9 +180,21 @@ and/or
 to the global debugging specification, as described in
 .BR pmSetDebug (3).
 .SH BUGS
-User's have no control over the algorithm used to generate the profile. In
+Users have no control over the algorithm used to generate the profile. In
 the case of
 .I proc
 metrics, an implicit profile could be generated if all process instances are
 required, even though this will result in no values being returned in the
 fetch.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR QMC (3),
+.BR QmcContext (3),
+.BR QmcDesc (3),
+.BR QmcMetric (3),
+.BR pmFetch (3),
+.BR pmflush (3),
+.BR pmGetInDom (3),
+.BR pmGetInDomArchive (3)
+and
+.BR pmprintf (3).
