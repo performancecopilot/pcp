@@ -313,6 +313,8 @@ _check_logfile()
     fi
 }
 
+# check and wait for launched pmie daemon process.
+# $1 is the pid and $2 is the pmie process stdout/stderr output file
 _check_pmie()
 {
     $VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N " [process $1] ""$PCP_ECHO_C"
@@ -329,6 +331,14 @@ _check_pmie()
     delay=`expr \( $delay + 20 \* $x \) \* 10`	# tenths of a second
     while [ $delay -ne 0 ]
     do
+	if [ -s "$2" ]; then
+	    if grep -q -s "Log finished" "$2"; then
+		echo "Error: pmie daemon failed to start, see $PCP_LOG_DIR/pmie/pmie_check.log"
+		cat "$2"
+		return 1
+	    fi
+	fi
+
 	if [ -f $logfile ]
 	then
 	    # $logfile was previously removed, if it has appeared again then
@@ -804,11 +814,12 @@ NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
 		#
 		$VERY_VERBOSE && ( echo; $PCP_ECHO_PROG $PCP_ECHO_N "+ ${sock_me}$PMIE -b $args""$PCP_ECHO_C"; echo "..." )
 		$PCP_BINADM_DIR/pmpost "start pmie from $prog for host $host"
-		pid=`${sock_me} $PMIE -b $args >/dev/null 2>&1 & echo $!`
+		err=`mktemp "$tmp/pmie.errXXXXXXXXX"`
+		pid=`${sock_me} $PMIE -b $args >$err 2>&1 & echo $!`
 	    fi
 
 	    # wait for pmie to get started, and check on its health
-	    _check_pmie $pid
+	    _check_pmie $pid $err
 
 	elif [ ! -z "$pid" -a $STOP_PMIE = true ]
 	then
