@@ -409,8 +409,23 @@ configuration file location for a localhost inference engine, typically
 generated automatically by
 .BR pmieconf (1).
 .TP
+.I $PCP_LOG_DIR/pmie/pmie_check.log
+default location for the
+.B pmie_check
+log file.
+When run as a daemon service, if the
+.B pmie
+process failed to start or exited early, there may be error messages
+in this file, particularly if the daemon
+could not open it's own log file.
+.TP
+.I $PCP_LOG_DIR/pmie/pmie_daily.log
+default location for error messages generated during the daily
+.B pmie
+service maintenance operations.
+.TP
 .I $PCP_LOG_DIR/pmie/<hostname>
-default location for the pmie log file for the host
+default directory location for the pmie log file for the host
 .I hostname
 .TP
 .I $PCP_LOG_DIR/pmie/<hostname>/lock
