@@ -2,33 +2,53 @@
 # apps in the QA suite and/or additional apps or libraries (outside
 # PCP) that we use in exercising the PMDAs.
 #
-# This file is using the same form and same generation rule mechanisms as
-# pcpupstream.te ...
+# This file is using the same form and same generation rule mechanisms
+# as pcpupstream.te ...
 #
 # Most of the hints in src/selinux/README apply here.
 #
-# Changes in this file that involve @PCP_FOO@ macros also require changes
-# in the following places:
+# Changes in this file that involve @PCP_FOO@ macros also require
+# changes in the following places:
+#
+# ../configure.ac
+#	additional logic in the types or class interrogation
+#	blocks to initially set pcp_selinux_foo to false, then
+#	conditionally set pcp_selinux_foo_something, and finally
+#	an extra AC_SUBST(pcp_selinux_foo_something) further down
+#
+# ../src/include/builddefs.in
+#	add
+#	PCP_SELINUX_FOO_SOMETHING = @pcp_selinux_foo_something@
+#
 # ./GNUselinuxdefs
 # 	ifeq "$(PCP_SELINUX_FOO_SOMETHING)" "true"
 # 	... gmake macro definitions for (PCP_FOO_T (types) or
 # 	    PCP_FOO_CLASS (classes)) and PCP_FOO_RULE for allowed
 # 	    accesses
+#
 # ./GNUmakefile
 # 	additional sed rules for one or more of the following:
 #	    -e 's+@PCP_FOO_T@+'$(PCP_FOO_T)'+' \
 #	    -e 's+@PCP_FOO_CLASS@+'$(PCP_FOO_CLASS)'+' \
 #	    -e 's+@PCP_FOO_RULE@+'$(PCP_FOO_RULE)'+' \
-# ../configure.ac
-# 	additional logic in the types or class interrogation blocks to
-# 	conditionally set pcp_selinux_foo_something, and then an extra
-# 	AC_SUBST(pcp_selinux_foo_something) further down
-# ../src/include/builddefs.in
-#	add
-#	PCP_SELINUX_FOO_SOMETHING = @pcp_selinux_foo_something@
+# where _SOMETHING (and _something) is empty (if "foo" is simply a
+# type)  or _T (and _t) or _CLASS (and _class) or something else (if
+# "foo" maybe a type or a class)!
 #
-# where _SOMETHING is empty or _T or _CLASS or something else!  And ditto
-# for the lowercase version.
+# To test this ...
+# $ cd ..
+# $ autoconf
+# $ qa/admin/myconfigure -q
+# 	importantly this runs configure and updates src/builddefs
+# 	and you should see a PCP_SELINUX_FOO_SOMETHING = true
+# 	(or possibly false) line added
+# $ cd qa
+# $ rm -f pcpqa.te
+# $ make pcpqa.te
+# $ sed -e 's/#.*//' pcpqa.te | grep @
+# 	should be no lines with an @, else there is a name
+#	mismatch somewhere between ../configure.ac ->
+#	../src/builddefs.in -> ./GNUselinux -> ./GNUmakefile
 #
 
 module pcpqa 1.0;
@@ -49,6 +69,7 @@ require {
 	@PCP_XAUTH_EXEC_T@
 	@PCP_LOGROTATE_T@
 	@PCP_FAILLOG_T@
+	@PCP_KMOD_EXEC_T@
 
 	class file { @PCP_MAP_OP@ write };
 	class process { execstack signull };
@@ -141,3 +162,8 @@ allow pcp_pmcd_t usr_t:file { create unlink write };
 
 # type=AVC msg=audit(qa/789): avc:  denied  { write } for  pid=21132 comm="su" name="btmp" dev="dm-0" ino=25693341 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:faillog_t:s0 tclass=file permissive=0
 @PCP_FAILLOG_RULE@
+
+# type=AVC msg=audit(qa/1702): avc:  denied  { execute } for  pid=2205945 comm="sh" name="kmod" dev="dm-0" ino=9462231 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:kmod_exec_t:s0 tclass=file permissive=0
+# type=AVC msg=audit(1621920549.828:2642): avc:  denied  { execute_no_trans } for  pid=40596 comm="sh" path="/usr/bin/kmod" dev="dm-0" ino=9462231 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:kmod_exec_t:s0 tclass=file permissive=0
+#
+@PCP_KMOD_EXEC_RULE@
