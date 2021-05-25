@@ -376,7 +376,10 @@ main(int argc, char *argv[])
 	    break;
 	}
     }
-
+    if (opts.flags & PM_OPTFLAG_EXIT) {
+	pmUsageMessage(&opts);
+	exit(0);
+    }
     if (argc != opts.optind) {
 	pmprintf("%s: too many options\n", pmGetProgname());
 	opts.errors++;
