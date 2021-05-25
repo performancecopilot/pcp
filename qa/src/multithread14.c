@@ -241,7 +241,7 @@ func_C(void *arg)
 {
     int			iam = *((int *)arg);
     int			i;
-    char		c;
+    int			c;
     int			lastc;
     int			sts;
     int			f;		/* func_C output */
@@ -276,7 +276,7 @@ func_C(void *arg)
 	write(f, "Answer: ", strlen("Answer: "));
 	lastc = EOF;
 	while ((c = fgetc(fp)) != EOF) {
-	    write(f, &c, 1);
+	    write(f, (char *)&c, 1);
 	    lastc = c;
 	}
 	if (lastc != '\n')
