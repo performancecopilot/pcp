@@ -66,10 +66,7 @@
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To install basic PCP tools and services and enable collecting performance data on systemd based distributions, run:<br><B>
 <br> # yum install pcp # or apt-get or dnf or zypper
-<br> # systemctl enable pmcd
-<br> # systemctl start pmcd
-<br> # systemctl enable pmlogger
-<br> # systemctl start pmlogger
+<br> # systemctl enable --now pmcd pmlogger
 </B></TD></TR>
 </TABLE>
 
@@ -459,8 +456,7 @@ Enable monitoring of all Java instances on the fly and display all the collected
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To enable and start PMIE:<br><B>
-<br> # systemctl enable pmie
-<br> # systemctl start pmie
+<br> # systemctl enable --now pmie
 </B></TD></TR>
 </TABLE>
 
@@ -499,9 +495,8 @@ This example shows a PMIE script, checks its syntax, runs it against an archive,
 <P>Performance Metrics Series (<a href="http://man7.org/linux/man-pages/man1/pmseries.1.html">pmseries(1)</a>) works with local pmlogger and <a href="http://redis.io">Redis</a> servers to allow fast, scalable performance queries spanning multiple hosts.
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To enable and start PMIE:<br><B>
-<br> # systemctl enable pmlogger pmproxy redis
-<br> # systemctl start pmlogger pmproxy redis
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To enable and start metrics series collection: <br><B>
+<br> # systemctl enable --now pmlogger pmproxy redis
 </B></TD></TR>
 </TABLE>
 
@@ -527,8 +522,7 @@ the <a href="https://github.com/performancecopilot/grafana-pcp">grafana-pcp</a> 
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To install the PCP REST APIs service:<br><B>
-<br> # systemctl enable pmproxy
-<br> # systemctl start pmproxy
+<br> # systemctl enable --now pmproxy
 </B></TD></TR>
 </TABLE>
 
@@ -539,8 +533,7 @@ the <a href="https://github.com/performancecopilot/grafana-pcp">grafana-pcp</a> 
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To install the PCP REST APIs service:<br><B>
-<br> # systemctl enable grafana-server
-<br> # systemctl start grafana-server
+<br> # systemctl enable --now pmproxy redis
 </B></TD></TR>
 </TABLE>
 
