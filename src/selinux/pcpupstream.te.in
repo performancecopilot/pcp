@@ -70,7 +70,8 @@ require {
 	class dir { add_name open read search write getattr lock ioctl };
 	class unix_stream_socket connectto;
 	class capability { kill dac_override sys_ptrace sys_pacct net_admin chown sys_chroot ipc_lock ipc_owner sys_resource fowner sys_rawio fsetid };
-	@PCP_CAP2_SYSLOG_CLASS@
+	@PCP_CAPABILITY2_SYSLOG_CLASS@
+	@PCP_CAPABILITY2_BPF_CLASS@
 	@PCP_CAPUSERNS_PTRACE@
 	class chr_file { open write };
 	class fifo_file { getattr read open unlink lock ioctl }; # qa/455
@@ -252,7 +253,11 @@ allow pcp_pmcd_t kernel_t:process signull;
 @PCP_PMCD_UNCONFINED_SERVICE_RULE@
 
 # pmda-bcc needs the ability to read addresses in /proc/kallsyms
-@PCP_CAP2_SYSLOG_RULE@
+@PCP_CAPABILITY2_SYSLOG_RULE@
+
+#RHBZ1952374
+# pmda-bcc and pmda-bpftrace need the ability to run eBPF code
+@PCP_CAPABILITY2_BPF_RULE@
 
 #RHBZ1690542
 #type=AVC msg=audit(XXX.67): avc:  denied  { module_request } for pid=YYYY comm="pmdalinux" kmod="netdev-tun0" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:kernel_t:s0 tclass=system permissive=0
