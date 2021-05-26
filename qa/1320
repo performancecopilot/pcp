@@ -1,9 +1,9 @@
 #!/bin/sh
 # PCP QA Test No. 1320
-# [what am I here for?]
+# Check pmval -X
 # non-valgrind variant, see qa/1322 for the valgrind variant
 #
-# Copyright (c) 2021 [who are you?].  All Rights Reserved.
+# Copyright (c) 2021 Ken McDonell.  All Rights Reserved.
 #
 
 if [ $# -eq 0 ]
