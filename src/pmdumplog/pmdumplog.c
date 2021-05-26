@@ -493,28 +493,9 @@ dumpInDom(__pmContext *ctxp)
 	    for ( ; ; ) {
 		for (idp = (__pmLogInDom *)hp->data; idp->next != ldp; idp =idp->next)
 			;
-		if (xflag) {
-		    char	       *ddmm;
-		    char	       *yr;
-		    time_t		time;
-
-		    time = idp->stamp.tv_sec;
-		    ddmm = pmCtime(&time, timebuf);
-		    ddmm[10] = '\0';
-		    yr = &ddmm[20];
-		    printf("%s ", ddmm);
-		    __pmPrintTimeval(stdout, &idp->stamp);
-		    printf(" %4.4s", yr);
-		    if (xflag >= 2) {
-			struct timeval	offset;
-			offset.tv_sec = idp->stamp.tv_sec;
-			offset.tv_usec = idp->stamp.tv_usec;
-			printf(" (%.6f)", pmtimevalSub(&offset, &label.ll_start));
-		    }
-		}
-		else {
-		    __pmPrintTimeval(stdout, &idp->stamp);
-		}
+		tv.tv_sec = idp->stamp.tv_sec;
+		tv.tv_usec = idp->stamp.tv_usec;
+		mytimestamp(&tv);
 		printf(" %d instances\n", idp->numinst);
 		for (j = 0; j < idp->numinst; j++) {
 		    printf("   %d or \"%s\"\n",
