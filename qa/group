@@ -1766,7 +1766,9 @@ x11
 1322 pmval local valgrind
 1323 pmlogrewrite labels help pmdumplog local
 1324 pmclient archive multi-archive decompress-xz local pmlogextract python
+1325 pmdumplog local
 1326 pmstore pmda.pmcd local
+1327 pmdumplog local valgrind
 1330 pmda.openmetrics local python
 1331 verify local
 1337 pmda.mssql local

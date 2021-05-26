@@ -21,7 +21,7 @@
 #include <sys/stat.h>
 #include <errno.h>
 
-static struct pmTimeval	pmtv;
+static struct timeval	tv;
 static char		timebuf[32];	/* for pmCtime result + .xxx */
 static int		numpmid;
 static pmID		*pmid;
@@ -83,6 +83,34 @@ tvcmp(struct timeval a, struct timeval b)
     if (a.tv_usec > b.tv_usec)
 	return 1;
     return 0;
+}
+
+static void
+mytimestamp(struct timeval *stamp)
+{
+    struct pmTimeval	pmtv;
+
+    pmtv.tv_sec = stamp->tv_sec;
+    pmtv.tv_usec = stamp->tv_usec;
+
+    if (xflag) {
+	char	       	*ddmm;
+	char	       	*yr;
+	time_t		time;
+
+	time = stamp->tv_sec;
+	ddmm = pmCtime(&time, timebuf);
+	ddmm[10] = '\0';
+	yr = &ddmm[20];
+	printf("%s ", ddmm);
+	__pmPrintTimeval(stdout, &pmtv);
+	printf(" %4.4s", yr);
+	if (xflag >= 2)
+	    printf(" (%.6f)", pmtimevalSub(stamp, &label.ll_start));
+    }
+    else {
+	__pmPrintTimeval(stdout, &pmtv);
+    }
 }
 
 static int
@@ -309,9 +337,7 @@ dump_event(int numnames, char **names, pmValueSet *vsp, int index, int indom, in
 
 	for (r = 0; r < nrecords; r++) {
 	    printf("        --- event record [%d] timestamp ", r);
-	    pmtv.tv_sec = res[r]->timestamp.tv_sec;
-	    pmtv.tv_usec = res[r]->timestamp.tv_usec;
-	    __pmPrintTimeval(stdout, &pmtv);
+	    mytimestamp(&res[r]->timestamp);
 	    if (dump_nparams(res[r]->numpmid) < 0)
 		continue;
 	    flags = 0;
@@ -369,28 +395,7 @@ dump_result(pmResult *resp)
 	printf("[%d bytes]\n", nbyte);
     }
 
-    if (xflag) {
-	char	       *ddmm;
-	char	       *yr;
-	time_t		time;
-
-	time = resp->timestamp.tv_sec;
-	ddmm = pmCtime(&time, timebuf);
-	ddmm[10] = '\0';
-	yr = &ddmm[20];
-	printf("%s ", ddmm);
-	pmtv.tv_sec = resp->timestamp.tv_sec;
-	pmtv.tv_usec = resp->timestamp.tv_usec;
-	__pmPrintTimeval(stdout, &pmtv);
-	printf(" %4.4s", yr);
-	if (xflag >= 2)
-	    printf(" (%.6f)", pmtimevalSub(&resp->timestamp, &label.ll_start));
-    }
-    else {
-	pmtv.tv_sec = resp->timestamp.tv_sec;
-	pmtv.tv_usec = resp->timestamp.tv_usec;
-	__pmPrintTimeval(stdout, &pmtv);
-    }
+    mytimestamp(&resp->timestamp);
 
     if (resp->numpmid == 0) {
 	printf("  <mark>\n");
@@ -488,7 +493,28 @@ dumpInDom(__pmContext *ctxp)
 	    for ( ; ; ) {
 		for (idp = (__pmLogInDom *)hp->data; idp->next != ldp; idp =idp->next)
 			;
-		__pmPrintTimeval(stdout, &idp->stamp);
+		if (xflag) {
+		    char	       *ddmm;
+		    char	       *yr;
+		    time_t		time;
+
+		    time = idp->stamp.tv_sec;
+		    ddmm = pmCtime(&time, timebuf);
+		    ddmm[10] = '\0';
+		    yr = &ddmm[20];
+		    printf("%s ", ddmm);
+		    __pmPrintTimeval(stdout, &idp->stamp);
+		    printf(" %4.4s", yr);
+		    if (xflag >= 2) {
+			struct timeval	offset;
+			offset.tv_sec = idp->stamp.tv_sec;
+			offset.tv_usec = idp->stamp.tv_usec;
+			printf(" (%.6f)", pmtimevalSub(&offset, &label.ll_start));
+		    }
+		}
+		else {
+		    __pmPrintTimeval(stdout, &idp->stamp);
+		}
 		printf(" %d instances\n", idp->numinst);
 		for (j = 0; j < idp->numinst; j++) {
 		    printf("   %d or \"%s\"\n",
@@ -662,7 +688,9 @@ dumpLabelSets(__pmContext *ctxp)
 	 * Now print all the label sets at this time stamp.
 	 * Sort by type and then identifier.
 	 */
-	__pmPrintTimeval(stdout, &this_stamp);
+	tv.tv_sec = this_stamp.tv_sec;
+	tv.tv_usec = this_stamp.tv_usec;
+	mytimestamp(&tv);
 	putchar('\n');
 	for (lix = 0; lix < sizeof(labelTypes) / sizeof(*labelTypes); ++lix) {
 	    /* Are there labels of this type? */
@@ -744,11 +772,15 @@ dumpTI(__pmContext *ctxp)
     lcp = ctxp->c_archctl->ac_log;
 
     printf("\nTemporal Index\n");
+    if (xflag)
+	printf("\t\t");
     printf("\t\tLog Vol    end(meta)     end(log)\n");
     lastp = NULL;
     for (i = 0; i < ctxp->c_archctl->ac_log->l_numti; i++) {
 	tip = &ctxp->c_archctl->ac_log->l_ti[i];
-	__pmPrintTimeval(stdout, &tip->ti_stamp);
+	tv.tv_sec = tip->ti_stamp.tv_sec;
+	tv.tv_usec = tip->ti_stamp.tv_usec;
+	mytimestamp(&tv);
 	printf("\t  %5d  %11d  %11d\n", tip->ti_vol, tip->ti_meta, tip->ti_log);
 	if (i == 0) {
 	    pmsprintf(path, sizeof(path), "%s.meta", lcp->l_name);
@@ -1032,7 +1064,7 @@ main(int argc, char *argv[])
 	    break;
 
 	case 'x':	/* report Ddd Mmm DD <timestamp> YYYY */
-			/* -xx reports numeric timeval also */
+			/* -xx reports time offset from start of archive also */
 	    xflag++;
 	    break;
 	}
