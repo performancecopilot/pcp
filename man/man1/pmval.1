@@ -21,7 +21,7 @@
 \f3pmevent\f1 \- arbitrary performance metrics value dumper
 .SH SYNOPSIS
 \f3pmval\f1
-[\f3\-dgLrvVz?\f1]
+[\f3\-dgLrvVXz?\f1]
 [\f3\-a\f1 \f2archive\f1]
 [\f3\-A\f1 \f2align\f1]
 [\f3\-\-container\f1=\f2name\f1]
@@ -419,6 +419,14 @@ it should be a non-empty string.
 Use . (dot) for a \(lqmatch all\(rq
 .IR pattern .
 .RE
+.TP
+\fB\-X\fR
+When replaying from an archive, this option requests that the
+timestamp be reported with additional date information and microsecond
+precision, for example
+.B "Sat\ May\ 22\ 20:32:20.971633\ 2021"
+instead of the default format, for example
+.BR "20:32:20.971" .
 .TP
 \fB\-z\fR, \fB\-\-hostzone\fR
 Use the local timezone of the host that is the source of the

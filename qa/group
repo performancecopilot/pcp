@@ -1761,7 +1761,9 @@ x11
 1317 libpcp local valgrind
 1318 pmprobe pmlogconf local kernel
 1319 libpcp local valgrind
+1320 pmval local
 1321 pmlogger pmda.openmetrics local python
+1322 pmval local valgrind
 1323 pmlogrewrite labels help pmdumplog local
 1324 pmclient archive multi-archive decompress-xz local pmlogextract python
 1326 pmstore pmda.pmcd local

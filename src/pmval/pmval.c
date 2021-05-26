@@ -33,13 +33,14 @@ static pmLongOptions longopts[] = {
     { "verbose", 0, 'v', 0, "increase diagnostic output" },
     { "width", 1, 'w', "N", "set the width of each column of output" },
     { "filter", 1, 'x', "VALUE", "store to the metric before fetching (filter)" },
+    { "", 0, 'X', 0, "include date and microseconds in reported timestamps" },
     PMAPI_OPTIONS_END
 };
 
 static int override(int, pmOptions *);
 static pmOptions opts = {
     .flags = PM_OPTFLAG_DONE | PM_OPTFLAG_BOUNDARIES | PM_OPTFLAG_STDOUT_TZ,
-    .short_options = PMAPI_OPTIONS "df:i:K:LrU:vw:x:",
+    .short_options = PMAPI_OPTIONS "df:i:K:LrU:vw:x:X",
     .long_options = longopts,
     .short_usage = "[options] metricname",
     .override = override,
@@ -63,6 +64,7 @@ static pmTime *		pmtime;
 static pmTimeControls	controls;
 static Context		context;
 static int		reporting;	/* set once reporting values starts */
+static int		Xflag;
 
 /*
  * Compare two InstPair's on their id fields.
@@ -228,6 +230,31 @@ initapi(Context *x, pmMetricSpec *msp, int argc, char **argv)
     }
 }
 
+/* print the timestamp (various precisions) for archives */
+static void
+mytimestamp(struct timeval *stamp)
+{
+    if (Xflag) {
+	char		timebuf[32];	/* for pmCtime result + .xxx */
+	char	       *ddmm;
+	char	       *yr;
+	time_t		time;
+	pmTimeval	pmtv;
+
+	time = stamp->tv_sec;
+	ddmm = pmCtime(&time, timebuf);
+	ddmm[10] = '\0';
+	yr = &ddmm[20];
+	printf("%s ", ddmm);
+	pmtv.tv_sec = stamp->tv_sec;
+	pmtv.tv_usec = stamp->tv_usec;
+	__pmPrintTimeval(stdout, &pmtv);
+	printf(" %4.4s", yr);
+    }
+    else
+	pmPrintStamp(stdout, stamp);
+}
+
 /* Fetch metric values. */
 static int
 getvals(Context *x,		/* in - full pm description */
@@ -249,7 +276,7 @@ getvals(Context *x,		/* in - full pm description */
 
 	    if (r->numpmid == 0) {
 		if (opts.guiflag || opts.context == PM_CONTEXT_ARCHIVE)
-		    pmPrintStamp(stdout, &r->timestamp);
+		    mytimestamp(&r->timestamp);
 		printf("  Archive logging suspended\n");
 		reporting = 0;
 		pmFreeResult(r);
@@ -296,7 +323,7 @@ getvals(Context *x,		/* in - full pm description */
     e = r->vset[i]->numval;
     if (e == 0) {
 	if (opts.guiflag || opts.context == PM_CONTEXT_ARCHIVE) {
-	    pmPrintStamp(stdout, &r->timestamp);
+	    mytimestamp(&r->timestamp);
 	    printf("  ");
 	}
 	if (!rawEvents)
@@ -466,8 +493,12 @@ printlabels(Context *x)
 
     putchar('\n');
     for (i = 0; i < n; i++) {
-	if ((opts.guiflag || opts.context == PM_CONTEXT_ARCHIVE) && i == 0)
-	    printf("            ");
+	if ((opts.guiflag || opts.context == PM_CONTEXT_ARCHIVE) && i == 0) {
+	    if (Xflag)
+		printf("                               ");
+	    else
+		printf("            ");
+	}
 	if (rawCounter || (x->desc.sem != PM_SEM_COUNTER) || style != 0)
 	    printf("%*.*s ", cols, cols, pairs->name);
 	else {
@@ -981,6 +1012,10 @@ main(int argc, char *argv[])
 	    context.filter = opts.optarg;
 	    break;
 
+	case 'X':	/* report Ddd Mmm DD <timestamp> YYYY */
+	    Xflag = 1;
+	    break;
+
 	default:
 	    opts.errors++;
 	    break;
@@ -1215,7 +1250,7 @@ main(int argc, char *argv[])
 		    printlabels(&context);
 		if (rawEvents) {
 		    if (opts.guiflag || opts.context == PM_CONTEXT_ARCHIVE) {
-			pmPrintStamp(stdout, &rslt2->timestamp);
+			mytimestamp(&rslt2->timestamp);
 			printf("  ");
 		    }
 		    printevents(&context, rslt2->vset[idx2], cols);
@@ -1225,14 +1260,14 @@ main(int argc, char *argv[])
 		else if (rawCounter || (context.desc.sem != PM_SEM_COUNTER)) {
 		    /* not doing rate conversion, report this value immediately */
 		    if (opts.guiflag || opts.context == PM_CONTEXT_ARCHIVE)
-			pmPrintStamp(stdout, &rslt2->timestamp);
+			mytimestamp(&rslt2->timestamp);
 		    printvals(&context, rslt2->vset[idx2], cols);
 		    reporting = 1;
 		    continue;
 		}
 		else if (no_values || reporting) {
 		    if (opts.guiflag || opts.context == PM_CONTEXT_ARCHIVE) {
-			pmPrintStamp(stdout, &rslt2->timestamp);
+			mytimestamp(&rslt2->timestamp);
 			printf("  ");
 		    }
 		    printf("No values available\n");
@@ -1282,7 +1317,7 @@ main(int argc, char *argv[])
 
 	/* print values */
 	if (opts.guiflag || opts.context == PM_CONTEXT_ARCHIVE) {
-	    pmPrintStamp(stdout, &rslt1->timestamp);
+	    mytimestamp(&rslt1->timestamp);
 	    if (rawEvents)
 		printf("  ");
 	}

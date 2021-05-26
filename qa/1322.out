@@ -1,0 +1,58 @@
+QA output created by 1322
+QA output created by 1320 --valgrind
+=== std out ===
+Note: timezone set to local timezone of host "gonzo" from archive
+
+metric:    sample.colour
+archive:   archives/ok-foo
+host:      gonzo
+start:     Fri Aug  7 04:34:32 1998
+end:       Fri Aug  7 04:34:40 1998
+semantics: instantaneous value
+units:     none
+samples:   all
+
+                    red       green        blue 
+04:34:33.248        119         220         321 
+04:34:34.248        122         223         324 
+04:34:35.258        125         226         327 
+04:34:36.258        128         229         330 
+04:34:37.258        131         232         333 
+04:34:38.258        134         235         336 
+04:34:39.258        137         238         339 
+04:34:40.258        140         241         342 
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmval -z -U archives/ok-foo sample.colour
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== std out ===
+Note: timezone set to local timezone of host "gonzo" from archive
+
+metric:    sample.colour
+archive:   archives/ok-foo
+host:      gonzo
+start:     Fri Aug  7 04:34:32 1998
+end:       Fri Aug  7 04:34:40 1998
+semantics: instantaneous value
+units:     none
+samples:   all
+
+                                       red       green        blue 
+Fri Aug  7 04:34:33.248687 1998        119         220         321 
+Fri Aug  7 04:34:34.248493 1998        122         223         324 
+Fri Aug  7 04:34:35.258377 1998        125         226         327 
+Fri Aug  7 04:34:36.258416 1998        128         229         330 
+Fri Aug  7 04:34:37.258585 1998        131         232         333 
+Fri Aug  7 04:34:38.258389 1998        134         235         336 
+Fri Aug  7 04:34:39.258408 1998        137         238         339 
+Fri Aug  7 04:34:40.258477 1998        140         241         342 
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmval -X -z -U archives/ok-foo sample.colour
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
