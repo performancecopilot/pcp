@@ -305,6 +305,7 @@ redisSlotsRequest(redisSlots *slots, const sds cmd,
 		redisClusterCallbackFn *callback, void *arg)
 {
     int			sts;
+    redisSlotsReplyData	*srd;
 
     if (UNLIKELY(!slots->setup))
         return -ENOTCONN;
@@ -315,7 +316,11 @@ redisSlotsRequest(redisSlots *slots, const sds cmd,
     if (UNLIKELY(pmDebugOptions.desperate))
 	fprintf(stderr, "Sending raw redis command:\n%s", cmd);
 
-    redisSlotsReplyData *srd = redisSlotsReplyDataAlloc(slots, sdslen(cmd), callback, arg);
+    if ((srd = redisSlotsReplyDataAlloc(slots, sdslen(cmd), callback, arg)) == NULL) {
+	mmv_stats_inc(slots->metrics_handle, "requests.error", NULL);
+	pmNotifyErr(LOG_ERR, "Error: redisSlotsRequest failed to allocate reply data (%lu bytes)\n", sdslen(cmd));
+	return -ENOMEM;
+    }
     sts = redisClusterAsyncFormattedCommand(slots->acc, redisSlotsReplyCallback, srd, cmd, sdslen(cmd));
     mmv_stats_inc(slots->metrics_handle, "requests.total", NULL);
 
@@ -338,6 +343,7 @@ redisSlotsRequestFirstNode(redisSlots *slots, const sds cmd,
     dictIterator	*iterator;
     dictEntry		*entry;
     cluster_node	*node;
+    redisSlotsReplyData	*srd;
     int			sts;
 
     if (UNLIKELY(!slots->setup))
@@ -355,7 +361,11 @@ redisSlotsRequestFirstNode(redisSlots *slots, const sds cmd,
     if (UNLIKELY(pmDebugOptions.desperate))
 	fprintf(stderr, "Sending raw redis command to node %s\n%s", node->addr, cmd);
 
-    redisSlotsReplyData *srd = redisSlotsReplyDataAlloc(slots, sdslen(cmd), callback, arg);
+    if ((srd = redisSlotsReplyDataAlloc(slots, sdslen(cmd), callback, arg)) == NULL) {
+	mmv_stats_inc(slots->metrics_handle, "requests.error", NULL);
+	pmNotifyErr(LOG_ERR, "Error: redisSlotsRequestFirstNode failed to allocate reply data (%lu bytes)\n", sdslen(cmd));
+	return -ENOMEM;
+    }
     sts = redisClusterAsyncFormattedCommandToNode(slots->acc, node, redisSlotsReplyCallback, srd, cmd, sdslen(cmd));
     mmv_stats_inc(slots->metrics_handle, "requests.total", NULL);
 
