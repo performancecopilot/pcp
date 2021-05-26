@@ -1,7 +1,7 @@
 [Unit]
 Description=Proxy for Performance Metrics Collector Daemon
 Documentation=man:pmproxy(1)
-After=network-online.target pmcd.service
+After=network-online.target pmcd.service redis.service
 
 [Service]
 Type=notify
