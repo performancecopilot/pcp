@@ -79,7 +79,7 @@ __dmgetpmid: metric "qa.b" -> PMID 511.0.4
 __dmgetpmid: metric "qa.c" -> PMID 511.0.5
 __dmgetpmid: metric "qa.d" -> PMID 511.0.6
 derived metrics prefetch added 2 metrics: 29.0.6 29.0.50
-__dmpostfetch: [0] root node 511.0.3: numval=1 vset[0]: inst=100 l=100
+__dmpostvalueset: [0] root node 511.0.3: numval=1 vset[0]: inst=100 l=100
 expr node <addr-0> type=FILTERINST left=<addr-1> right=<addr-2> save_last=0
     PMID: PM_ID_NULL (511.0.3 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: 29.2 0x....
@@ -99,7 +99,7 @@ expr node <addr-2> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] pri
 [6] inst=700, val=700
 [7] inst=800, val=800
 [8] inst=900, val=900
-__dmpostfetch: [1] root node 511.0.4: numval=7 vset[0]: inst=100 l=100 vset[1]: inst=200 l=200 vset[2]: inst=300 l=300 vset[3]: inst=600 l=600 vset[4]: inst=700 l=700 vset[5]: inst=800 l=800 vset[6]: inst=900 l=900
+__dmpostvalueset: [1] root node 511.0.4: numval=7 vset[0]: inst=100 l=100 vset[1]: inst=200 l=200 vset[2]: inst=300 l=300 vset[3]: inst=600 l=600 vset[4]: inst=700 l=700 vset[5]: inst=800 l=800 vset[6]: inst=900 l=900
 expr node <addr-3> type=FILTERINST left=<addr-4> right=<addr-5> save_last=0
     PMID: PM_ID_NULL (511.0.4 from pmDesc) numval: 7
     Data Type: 32-bit int  InDom: 29.2 0x....
@@ -125,7 +125,7 @@ expr node <addr-5> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] pri
 [6] inst=700, val=700
 [7] inst=800, val=800
 [8] inst=900, val=900
-__dmpostfetch: [2] root node 511.0.5: numval=4 vset[0]: inst=600 l=600 vset[1]: inst=700 l=700 vset[2]: inst=800 l=800 vset[3]: inst=900 l=900
+__dmpostvalueset: [2] root node 511.0.5: numval=4 vset[0]: inst=600 l=600 vset[1]: inst=700 l=700 vset[2]: inst=800 l=800 vset[3]: inst=900 l=900
 expr node <addr-6> type=FILTERINST left=<addr-7> right=<addr-8> save_last=0
     PMID: PM_ID_NULL (511.0.5 from pmDesc) numval: 4
     Data Type: 32-bit int  InDom: 29.2 0x....
@@ -148,7 +148,7 @@ expr node <addr-8> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] pri
 [6] inst=700, val=700
 [7] inst=800, val=800
 [8] inst=900, val=900
-__dmpostfetch: [3] root node 511.0.6: numval=1 vset[0]: inst=300 l=600
+__dmpostvalueset: [3] root node 511.0.6: numval=1 vset[0]: inst=300 l=600
 expr node <addr-9> type=PLUS left=<addr-10> right=<addr-13> save_last=0
     PMID: PM_ID_NULL (511.0.6 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: 29.2 0x....
@@ -268,7 +268,7 @@ __dmtraverse: name="qa" added "qa.d"
 __dmgetpmid: metric "qa.a" -> PMID 511.0.3
 __dmgetpmid: metric "qa.d" -> PMID 511.0.4
 derived metrics prefetch added 3 metrics: 30.0.6 29.0.6 29.0.50
-__dmpostfetch: [0] root node 511.0.3: numval=0
+__dmpostvalueset: [0] root node 511.0.3: numval=0
 expr node <addr-0> type=FILTERINST left=<addr-1> right=<addr-2> save_last=0
     PMID: PM_ID_NULL (511.0.3 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 30.2 0x....
@@ -289,7 +289,7 @@ expr node <addr-2> type=NAME left=(nil) right=(nil) save_last=0 [sampledso.bin] 
 [8] inst=900, val=900
 eval_expr: expr node <addr-4> type=FILTERINST pmLookupInDom_ctx(...,29.2,bin-345) failed: Unknown or illegal instance identifier
 eval_expr: expr node <addr-7> type=FILTERINST pmLookupInDom_ctx(...,29.2,bin-345) failed: Unknown or illegal instance identifier
-__dmpostfetch: [1] root node 511.0.4: numval=0
+__dmpostvalueset: [1] root node 511.0.4: numval=0
 expr node <addr-3> type=PLUS left=<addr-4> right=<addr-7> save_last=0
     PMID: PM_ID_NULL (511.0.4 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 29.2 0x....

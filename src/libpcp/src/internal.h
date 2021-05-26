@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2020 Red Hat.
+ * Copyright (c) 2012-2021 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -333,8 +333,11 @@ extern int pmGetInDomArchive_ctx(__pmContext *, pmInDom, int **, char ***) _PCP_
 extern int pmFetch_ctx(__pmContext *, int, pmID *, pmResult **) _PCP_HIDDEN;
 extern int pmStore_ctx(__pmContext *, const pmResult *) _PCP_HIDDEN;
 extern int __pmDecodeResult_ctx(__pmContext *, __pmPDU *, pmResult **) _PCP_HIDDEN;
+extern int __pmDecodeHighResResult_ctx(__pmContext *, __pmPDU *, pmHighResResult **) _PCP_HIDDEN;
 extern int __pmSendResult_ctx(__pmContext *, int, int, const pmResult *) _PCP_HIDDEN;
+extern int __pmSendHighResResult_ctx(__pmContext *, int, int, const pmHighResResult *) _PCP_HIDDEN;
 extern void __pmDumpResult_ctx(__pmContext *, FILE *, const pmResult *) _PCP_HIDDEN;
+extern void __pmDumpHighResResult_ctx(__pmContext *, FILE *, const pmHighResResult *) _PCP_HIDDEN;
 extern int pmGetArchiveEnd_ctx(__pmContext *, struct timeval *) _PCP_HIDDEN;
 extern int __pmGetArchiveEnd_ctx(__pmContext *, struct timeval *) _PCP_HIDDEN;
 extern int __pmLogGenerateMark_ctx(__pmContext *, int, pmResult **) _PCP_HIDDEN;

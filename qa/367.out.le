@@ -77,6 +77,71 @@ pmResult dump from ADDR timestamp: 108000.123456 06:00:00.123 numpmid: 7
 032:        1 ffffffff       2f   3ffc00        1        1 ffffffff       31 
 040: deadcafe ffffcfc7  6000006 30007e7e  300000c 87654321 12345678  4000008 
 048: 63691a7d  500000c 599b979b 8f205a13 
+[SERVER]pmGetPDU: HIGHRES_RESULT fd=<n> len=216 from=CLIENT
+000:       d8     7015   CLIENT  7000000        0 e0a50100        0 15cd5b07 
+008: adde0000  1000000        0 ffffffff d2040000 efbe0000  3000000        0 
+016:  2000000 29090000  4000000      d80        8     11d7        0  1000000 
+024:  1000000 ffffffff 2c000000 1523c71e  1000000  1000000 ffffffff 2e000000 
+032:     c03f  1000000  1000000 ffffffff 31000000   fc3f00  1000000  1000000 
+040: ffffffff 33000000 fecaadde c7cfffff  6000006 7e7e0030  c000003 21436587 
+048: 78563412  8000004 63691a7d  500000c 599b979b 8f205a13 
+pmHighResResult dump from ADDR timestamp: 108000.123456789 06:00:00.123456789 numpmid: 7
+  0.55.685 (<noname>): numval: 1 valfmt: 0 vlist[]:
+   value 1234 0 0x4d2
+  0.47.751 (<noname>): numval: 3 valfmt: 0 vlist[]:
+    inst [2 or ???] value 2345 0 0x929
+    inst [4 or ???] value 3456 0 0xd80
+    inst [8 or ???] value 4567 0 0x11d7
+  0.0.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value "0"
+  123.456.789 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 9756277977086449272
+  255.0.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 4.3000001e+21
+  0.4095.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 4.56e+123
+  378.2930.766 (<noname>): Generic error, already reported above
++ PDU_HIGHRES_RESULT:
+pmHighResResult dump from ADDR timestamp: 108000.123456789 06:00:00.123456789 numpmid: 7
+  0.55.685 (<noname>): numval: 1 valfmt: 0 vlist[]:
+   value 1234 0 0x4d2
+  0.47.751 (<noname>): numval: 3 valfmt: 0 vlist[]:
+    inst [2 or ???] value 2345 0 0x929
+    inst [4 or ???] value 3456 0 0xd80
+    inst [8 or ???] value 4567 0 0x11d7
+  0.0.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value "0"
+  123.456.789 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 9756277977086449272
+  255.0.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 4.3000001e+21
+  0.4095.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 4.56e+123
+  378.2930.766 (<noname>): Generic error, already reported above
+pmHighResResult dump from ADDR timestamp: 108000.123456789 06:00:00.123456789 numpmid: 7
+  0.55.685 (<noname>): numval: 1 valfmt: 0 vlist[]:
+   value 1234 0 0x4d2
+  0.47.751 (<noname>): numval: 3 valfmt: 0 vlist[]:
+    inst [2 or ???] value 2345 0 0x929
+    inst [4 or ???] value 3456 0 0xd80
+    inst [8 or ???] value 4567 0 0x11d7
+  0.0.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value "0"
+  123.456.789 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 9756277977086449272
+  255.0.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 4.3000001e+21
+  0.4095.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 4.56e+123
+  378.2930.766 (<noname>): Generic error, already reported above
+[SERVER]pmXmitPDU: HIGHRES_RESULT fd=<n> len=216
+000:       d8     7015   SERVER  7000000        0 e0a50100        0 15cd5b07 
+008: adde0000  1000000        0 ffffffff d2040000 efbe0000  3000000        0 
+016:  2000000 29090000  4000000      d80        8     11d7        0  1000000 
+024:  1000000 ffffffff 2c000000 1523c71e  1000000  1000000 ffffffff 2e000000 
+032:     c03f  1000000  1000000 ffffffff 31000000   fc3f00  1000000  1000000 
+040: ffffffff 33000000 fecaadde c7cfffff  6000006 7e7e0030  c000003 21436587 
+048: 78563412  8000004 63691a7d  500000c 599b979b 8f205a13 
 [SERVER]pmGetPDU: PROFILE fd=<n> len=72 from=CLIENT
 000:       48     7002   CLIENT       2a        1        2        0 deadcafe 
 008:        0        2        0     face        1        1        0        1 
@@ -99,6 +164,14 @@ Dump Instance Profile state=EXCLUDE, 2 profiles
 [SERVER]pmXmitPDU: FETCH fd=<n> len=52
 000:       34     7003   SERVER       2b        0        0        6        0 
 008: 1ec72315 3fc00000   3ffc00      3ff ffffffff 
+[SERVER]pmGetPDU: HIGHRES_FETCH fd=<n> len=52 from=CLIENT
+000:       34     7014   CLIENT       2b        0        0        6        0 
+008: 1ec72315 3fc00000   3ffc00      3ff ffffffff 
++ PDU_HIGHRES_FETCH: ctxnum=43 numpmid=6
++ PMIDs: 0.0.0 123.456.789 255.0.0 0.4095.0 0.0.1023 PM_ID_NULL
+[SERVER]pmXmitPDU: HIGHRES_FETCH fd=<n> len=52
+000:       34     7014   SERVER       2b        0        0        6        0 
+008: 1ec72315 3fc00000   3ffc00      3ff ffffffff 
 [SERVER]pmGetPDU: DESC_REQ fd=<n> len=16 from=CLIENT
 000:       10     7004   CLIENT deadbeef 
 + PDU_DESC_REQ: pmid=378.2927.751
@@ -111,22 +184,22 @@ Dump Instance Profile state=EXCLUDE, 2 profiles
 [SERVER]pmXmitPDU: DESC fd=<n> len=32
 000:       20     7005   SERVER deadbeef        2     face        1 1f025000 
 [SERVER]pmGetPDU: INSTANCE_REQ fd=<n> len=32 from=CLIENT
-000:       20     7006   CLIENT     face    34bc0    9fbf1     dead        0 
-+ PDU_INSTANCE_REQ: now=216000.654321 12:00:00.654 indom=0.64206 inst=57005 name=NULL
+000:       20     7006   CLIENT cefa0000        0        0 adde0000        0 
++ PDU_INSTANCE_REQ: now=0.000000 00:00:00.000 indom=0.64206 inst=57005 name=NULL
 [SERVER]pmXmitPDU: INSTANCE_REQ fd=<n> len=32
-000:       20     7006   SERVER     face    34bc0    9fbf1     dead        0 
+000:       20     7006   SERVER cefa0000        0        0 adde0000        0 
 [SERVER]pmGetPDU: INSTANCE_REQ fd=<n> len=40 from=CLIENT
-000:       28     7006   CLIENT     face    34bc0    9fbf1        0        5 
+000:       28     7006   CLIENT cefa0000        0        0        0  5000000 
 008: 66697368 6f7e7e7e 
-+ PDU_INSTANCE_REQ: now=216000.654321 12:00:00.654 indom=0.64206 inst=0 name="fisho"
++ PDU_INSTANCE_REQ: now=0.000000 00:00:00.000 indom=0.64206 inst=0 name="fisho"
 [SERVER]pmXmitPDU: INSTANCE_REQ fd=<n> len=40
-000:       28     7006   SERVER     face    34bc0    9fbf1        0        5 
+000:       28     7006   SERVER cefa0000        0        0        0  5000000 
 008: 66697368 6f7e7e7e 
 [SERVER]pmGetPDU: INSTANCE_REQ fd=<n> len=32 from=CLIENT
-000:       20     7006   CLIENT     face    34bc0    9fbf1        0        0 
-+ PDU_INSTANCE_REQ: now=216000.654321 12:00:00.654 indom=0.64206 inst=0 name=NULL
+000:       20     7006   CLIENT cefa0000        0        0        0        0 
++ PDU_INSTANCE_REQ: now=0.000000 00:00:00.000 indom=0.64206 inst=0 name=NULL
 [SERVER]pmXmitPDU: INSTANCE_REQ fd=<n> len=32
-000:       20     7006   SERVER     face    34bc0    9fbf1        0        0 
+000:       20     7006   SERVER cefa0000        0        0        0        0 
 [SERVER]pmGetPDU: INSTANCE fd=<n> len=216 from=CLIENT
 000:       d8     7007   CLIENT     1234        b        1        5 616c7068 
 008: 617e7e7e        2        4 62657461        4        5 67616d6d 617e7e7e 

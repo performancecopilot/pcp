@@ -28,7 +28,7 @@ units:     none
 samples:   4
 interval:  0.25 sec
 derived metrics prefetch added 1 metrics: 29.0.23
-__dmpostfetch: [0] root node 511.0.3: numval=0
+__dmpostvalueset: [0] root node 511.0.3: numval=0
 expr node <addr> type=DELTA left=<addr> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.3 from pmDesc) numval: 0
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
@@ -43,7 +43,7 @@ TIMESTAMP ... numpmid: 1
   511.0.3 (derived.inst): No values returned!
 No values available
 derived metrics prefetch added 1 metrics: 29.0.23
-__dmpostfetch: [0] root node 511.0.3: numval=1 vset[0]: inst=-1 ll=0
+__dmpostvalueset: [0] root node 511.0.3: numval=1 vset[0]: inst=-1 ll=0
 expr node <addr> type=DELTA left=<addr> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.3 from pmDesc) numval: 1
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
@@ -60,7 +60,7 @@ TIMESTAMP ... numpmid: 1
    value 0
                     0
 derived metrics prefetch added 1 metrics: 29.0.23
-__dmpostfetch: [0] root node 511.0.3: numval=1 vset[0]: inst=-1 ll=0
+__dmpostvalueset: [0] root node 511.0.3: numval=1 vset[0]: inst=-1 ll=0
 expr node <addr> type=DELTA left=<addr> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.3 from pmDesc) numval: 1
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
@@ -77,7 +77,7 @@ TIMESTAMP ... numpmid: 1
    value 0
                     0
 derived metrics prefetch added 1 metrics: 29.0.23
-__dmpostfetch: [0] root node 511.0.3: numval=1 vset[0]: inst=-1 ll=0
+__dmpostvalueset: [0] root node 511.0.3: numval=1 vset[0]: inst=-1 ll=0
 expr node <addr> type=DELTA left=<addr> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.3 from pmDesc) numval: 1
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
@@ -116,7 +116,7 @@ units:     count
 samples:   4
 interval:  0.25 sec
 derived metrics prefetch added 1 metrics: 30.0.41
-__dmpostfetch: [0] root node 511.0.4: numval=0
+__dmpostvalueset: [0] root node 511.0.4: numval=0
 expr node <addr> type=DELTA left=<addr> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.4 from pmDesc) numval: 0
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
@@ -131,7 +131,7 @@ TIMESTAMP ... numpmid: 1
   511.0.4 (derived.ctr): No values returned!
 No values available
 derived metrics prefetch added 1 metrics: 30.0.41
-__dmpostfetch: [0] root node 511.0.4: numval=1 vset[0]: inst=-1 ll=1
+__dmpostvalueset: [0] root node 511.0.4: numval=1 vset[0]: inst=-1 ll=1
 expr node <addr> type=DELTA left=<addr> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.4 from pmDesc) numval: 1
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
@@ -148,7 +148,7 @@ TIMESTAMP ... numpmid: 1
    value 1
                     1
 derived metrics prefetch added 1 metrics: 30.0.41
-__dmpostfetch: [0] root node 511.0.4: numval=1 vset[0]: inst=-1 ll=1
+__dmpostvalueset: [0] root node 511.0.4: numval=1 vset[0]: inst=-1 ll=1
 expr node <addr> type=DELTA left=<addr> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.4 from pmDesc) numval: 1
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
@@ -165,7 +165,7 @@ TIMESTAMP ... numpmid: 1
    value 1
                     1
 derived metrics prefetch added 1 metrics: 30.0.41
-__dmpostfetch: [0] root node 511.0.4: numval=1 vset[0]: inst=-1 ll=1
+__dmpostvalueset: [0] root node 511.0.4: numval=1 vset[0]: inst=-1 ll=1
 expr node <addr> type=DELTA left=<addr> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.4 from pmDesc) numval: 1
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff

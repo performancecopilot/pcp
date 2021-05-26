@@ -39,7 +39,7 @@ __dmgetpmid: metric "my.scramble.delta" -> PMID 511.0.4
 __dmgetpmid: metric "my.scramble.delta" -> PMID 511.0.4
 __dmbind: bind metric[3] my.scramble.delta
 derived metrics prefetch added 1 metrics: 29.0.121
-__dmpostfetch: [0] root node 511.0.4: numval=0
+__dmpostvalueset: [0] root node 511.0.4: numval=0
 expr node <addr-0> type=DELTA left=<addr-1> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.4 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 29.9 0x7400009
@@ -72,7 +72,7 @@ eval_expr: DELTA: inst[6] mismatch left [6]=800 last [6]=500
 eval_expr: recover @ last [4]=800
 eval_expr: DELTA: inst[7] mismatch left [7]=900 last [7]=300
 eval_expr: recover @ last [1]=900
-__dmpostfetch: [0] root node 511.0.4: numval=8 vset[0]: inst=100 l=0 vset[1]: inst=700 l=0 vset[2]: inst=600 l=0 vset[3]: inst=400 l=0 vset[4]: inst=500 l=0 vset[5]: inst=300 l=0 vset[6]: inst=800 l=0 vset[7]: inst=900 l=0
+__dmpostvalueset: [0] root node 511.0.4: numval=8 vset[0]: inst=100 l=0 vset[1]: inst=700 l=0 vset[2]: inst=600 l=0 vset[3]: inst=400 l=0 vset[4]: inst=500 l=0 vset[5]: inst=300 l=0 vset[6]: inst=800 l=0 vset[7]: inst=900 l=0
 expr node <addr-0> type=DELTA left=<addr-1> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.4 from pmDesc) numval: 8
     Data Type: 32-bit int  InDom: 29.9 0x7400009
@@ -110,7 +110,7 @@ eval_expr: DELTA: inst[5] mismatch left [6]=100 last [6]=800
 eval_expr: recover @ last [0]=100
 eval_expr: DELTA: inst[7] mismatch left [8]=500 last [0]=100
 eval_expr: recover @ last [4]=500
-__dmpostfetch: [0] root node 511.0.4: numval=8 vset[0]: inst=400 l=0 vset[1]: inst=800 l=0 vset[2]: inst=600 l=0 vset[3]: inst=700 l=0 vset[4]: inst=300 l=0 vset[5]: inst=100 l=0 vset[6]: inst=900 l=0 vset[7]: inst=500 l=0
+__dmpostvalueset: [0] root node 511.0.4: numval=8 vset[0]: inst=400 l=0 vset[1]: inst=800 l=0 vset[2]: inst=600 l=0 vset[3]: inst=700 l=0 vset[4]: inst=300 l=0 vset[5]: inst=100 l=0 vset[6]: inst=900 l=0 vset[7]: inst=500 l=0
 expr node <addr-0> type=DELTA left=<addr-1> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.4 from pmDesc) numval: 8
     Data Type: 32-bit int  InDom: 29.9 0x7400009
@@ -145,7 +145,7 @@ eval_expr: DELTA: inst[3] mismatch left [3]=100 last [3]=700
 eval_expr: recover @ last [6]=100
 eval_expr: DELTA: inst[6] mismatch left [6]=900 last [6]=100
 eval_expr: recover @ last [7]=900
-__dmpostfetch: [0] root node 511.0.4: numval=7 vset[0]: inst=800 l=0 vset[1]: inst=400 l=0 vset[2]: inst=600 l=0 vset[3]: inst=100 l=0 vset[4]: inst=200 l=0 vset[5]: inst=300 l=0 vset[6]: inst=900 l=0
+__dmpostvalueset: [0] root node 511.0.4: numval=7 vset[0]: inst=800 l=0 vset[1]: inst=400 l=0 vset[2]: inst=600 l=0 vset[3]: inst=100 l=0 vset[4]: inst=200 l=0 vset[5]: inst=300 l=0 vset[6]: inst=900 l=0
 expr node <addr-0> type=DELTA left=<addr-1> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.4 from pmDesc) numval: 7
     Data Type: 32-bit int  InDom: 29.9 0x7400009
@@ -182,7 +182,7 @@ eval_expr: recover @ last [0]=800
 eval_expr: DELTA: inst[4] mismatch left [4]=500 last [4]=200
 eval_expr: DELTA: inst[4] mismatch left [5]=400 last [5]=300
 eval_expr: recover @ last [1]=400
-__dmpostfetch: [0] root node 511.0.4: numval=5 vset[0]: inst=300 l=0 vset[1]: inst=900 l=0 vset[2]: inst=200 l=0 vset[3]: inst=800 l=0 vset[4]: inst=400 l=0
+__dmpostvalueset: [0] root node 511.0.4: numval=5 vset[0]: inst=300 l=0 vset[1]: inst=900 l=0 vset[2]: inst=200 l=0 vset[3]: inst=800 l=0 vset[4]: inst=400 l=0
 expr node <addr-0> type=DELTA left=<addr-1> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.4 from pmDesc) numval: 5
     Data Type: 32-bit int  InDom: 29.9 0x7400009

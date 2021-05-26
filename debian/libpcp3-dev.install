@@ -79,6 +79,7 @@ usr/share/man/man3/pmflush.3.gz
 usr/share/man/man3/__pmFreeAttrsSpec.3.gz
 usr/share/man/man3/pmFreeEventResult.3.gz
 usr/share/man/man3/pmFreeHighResEventResult.3.gz
+usr/share/man/man3/pmFreeHighResResult.3.gz
 usr/share/man/man3/__pmFreeHostAttrsSpec.3.gz
 usr/share/man/man3/__pmFreeHostSpec.3.gz
 usr/share/man/man3/pmFreeLabelSets.3.gz
@@ -114,6 +115,7 @@ usr/share/man/man3/pmGetPMNSLocation.3.gz
 usr/share/man/man3/pmGetProgname.3.gz
 usr/share/man/man3/pmGetUsername.3.gz
 usr/share/man/man3/pmGetVersion.3.gz
+usr/share/man/man3/pmHighResFetch.3.gz
 usr/share/man/man3/pmiAddInstance.3.gz
 usr/share/man/man3/pmiAddMetric.3.gz
 usr/share/man/man3/pmID_build.3.gz

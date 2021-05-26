@@ -43,10 +43,11 @@ decode_encode(int fd, __pmPDU *pb, int type)
     int		code;
     int		proto;
     pmResult	*rp;
+    pmHighResResult	*hrrp;
     pmProfile	*profp;
     int		ctxnum;
     int		fail = -1;
-    pmTimeval	now;
+    pmTimeval	nowtv;
     int		numpmid;
     pmID	*pmidp;
     pmID	pmid;
@@ -114,6 +115,24 @@ decode_encode(int fd, __pmPDU *pb, int type)
 	    fail = 0;
 	    break;
 
+	case PDU_HIGHRES_RESULT:
+	    if ((e = __pmDecodeHighResResult(pb, &hrrp)) < 0) {
+		fprintf(stderr, "%s: Error: DecodeHighResResult: %s\n", pmGetProgname(), pmErrStr(e));
+		break;
+	    }
+	    if (pmDebugOptions.appl0) {
+		fprintf(stderr, "+ PDU_HIGHRES_RESULT:\n");
+		__pmDumpHighResResult(stderr, hrrp);
+	    }
+	    e = __pmSendHighResResult(fd, mypid, hrrp);
+	    pmFreeHighResResult(hrrp);
+	    if (e < 0) {
+		fprintf(stderr, "%s: Error: SendHighResResult: %s\n", pmGetProgname(), pmErrStr(e));
+		break;
+	    }
+	    fail = 0;
+	    break;
+
 	case PDU_PROFILE:
 	    if ((e = __pmDecodeProfile(pb, &ctxnum, &profp)) < 0) {
 		fprintf(stderr, "%s: Error: DecodeProfile: %s\n", pmGetProgname(), pmErrStr(e));
@@ -134,7 +153,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 	    break;
 
 	case PDU_FETCH:
-	    if ((e = __pmDecodeFetch(pb, &ctxnum, &now, &numpmid, &pmidp)) < 0) {
+	    if ((e = __pmDecodeFetch(pb, &ctxnum, &nowtv, &numpmid, &pmidp)) < 0) {
 		fprintf(stderr, "%s: Error: DecodeFetch: %s\n", pmGetProgname(), pmErrStr(e));
 		break;
 	    }
@@ -142,19 +161,41 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		int		j;
 		struct timeval	foo;
 		fprintf(stderr, "+ PDU_FETCH: ctxnum=%d now=%d.%06d ",
-		    ctxnum, now.tv_sec, now.tv_usec);
-		foo.tv_sec = now.tv_sec;
-		foo.tv_usec = now.tv_usec;
+		    ctxnum, nowtv.tv_sec, nowtv.tv_usec);
+		foo.tv_sec = nowtv.tv_sec;
+		foo.tv_usec = nowtv.tv_usec;
 		pmPrintStamp(stderr, &foo);
 		fprintf(stderr, " numpmid=%d\n+ PMIDs:", numpmid);
 		for (j = 0; j < numpmid; j++)
 		    fprintf(stderr, " %s", pmIDStr(pmidp[j]));
 		fputc('\n', stderr);
 	    }
-	    e = __pmSendFetch(fd, mypid, ctxnum, &now, numpmid, pmidp);
+	    e = __pmSendFetch(fd, mypid, ctxnum, &nowtv, numpmid, pmidp);
 	    __pmUnpinPDUBuf(pmidp);
 	    if (e < 0) {
 		fprintf(stderr, "%s: Error: SendFetch: %s\n", pmGetProgname(), pmErrStr(e));
+		break;
+	    }
+	    fail = 0;
+	    break;
+
+	case PDU_HIGHRES_FETCH:
+	    if ((e = __pmDecodeHighResFetch(pb, &ctxnum, &numpmid, &pmidp)) < 0) {
+		fprintf(stderr, "%s: Error: DecodeHighResFetch: %s\n", pmGetProgname(), pmErrStr(e));
+		break;
+	    }
+	    if (pmDebugOptions.appl0) {
+		int		j;
+		fprintf(stderr, "+ PDU_HIGHRES_FETCH: ctxnum=%d ", ctxnum);
+		fprintf(stderr, "numpmid=%d\n+ PMIDs:", numpmid);
+		for (j = 0; j < numpmid; j++)
+		    fprintf(stderr, " %s", pmIDStr(pmidp[j]));
+		fputc('\n', stderr);
+	    }
+	    e = __pmSendHighResFetch(fd, mypid, ctxnum, numpmid, pmidp);
+	    __pmUnpinPDUBuf(pmidp);
+	    if (e < 0) {
+		fprintf(stderr, "%s: Error: SendHighResFetch: %s\n", pmGetProgname(), pmErrStr(e));
 		break;
 	    }
 	    fail = 0;
@@ -191,17 +232,17 @@ decode_encode(int fd, __pmPDU *pb, int type)
 	    break;
 
 	case PDU_INSTANCE_REQ:
-	    if ((e = __pmDecodeInstanceReq(pb, &now, &indom, &inst, &name)) < 0) {
+	    if ((e = __pmDecodeInstanceReq(pb, &nowtv, &indom, &inst, &name)) < 0) {
 		fprintf(stderr, "%s: Error: DecodeInstanceReq: %s\n", pmGetProgname(), pmErrStr(e));
 		break;
 	    }
 	    if (pmDebugOptions.appl0) {
-		struct timeval	foo;
+		struct timeval	footv;
 		fprintf(stderr, "+ PDU_INSTANCE_REQ: now=%d.%06d ",
-		    now.tv_sec, now.tv_usec);
-		foo.tv_sec = now.tv_sec;
-		foo.tv_usec = now.tv_usec;
-		pmPrintStamp(stderr, &foo);
+		    nowtv.tv_sec, nowtv.tv_usec);
+		footv.tv_sec = nowtv.tv_sec;
+		footv.tv_usec = nowtv.tv_usec;
+		pmPrintStamp(stderr, &footv);
 		fprintf(stderr, " indom=%s", pmInDomStr(indom));
 		if (inst == PM_IN_NULL)
 		    fprintf(stderr, " inst=PM_IN_NULL");
@@ -212,7 +253,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		else
 		    fprintf(stderr, " name=\"%s\"\n", name);
 	    }
-	    e = __pmSendInstanceReq(fd, mypid, &now, indom, inst, name);
+	    e = __pmSendInstanceReq(fd, mypid, &nowtv, indom, inst, name);
 	    if (name)
 		free(name);
 	    if (e < 0) {

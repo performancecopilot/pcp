@@ -726,3 +726,18 @@ PCP_3.31 {
     pmstrncpy;
     pmstrncat;
 } PCP_3.30;
+
+PCP_3.32 {
+  global:
+    pmtimespecDec;
+    pmtimespecNow;
+
+    pmHighResFetch;
+
+    __pmHighResFetchLocal;
+    __pmHighResFinishResult;
+    __pmSendHighResFetch;
+    __pmDecodeHighResFetch;
+    __pmSendHighResResult;
+    __pmDecodeHighResResult;
+} PCP_3.31;
