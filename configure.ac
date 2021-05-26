@@ -1996,7 +1996,8 @@ pcp_selinux_rpm_var_lib=false
 pcp_selinux_virt_var_run=false
 pcp_selinux_proc_security=false
 pcp_selinux_sbd_exec=false
-pcp_selinux_cap2_syslog=false
+pcp_selinux_capability2_syslog=false
+pcp_selinux_capability2_bpf=false
 pcp_selinux_icmp_socket_class=false
 
 pcp_selinux_initrc_tmp=false
@@ -2124,7 +2125,11 @@ AS_IF([test "x$enable_selinux" != "xfalse"], [
 
     seinfo -x --class=capability2 $seinfo_common_flag 2>/dev/null \
     | grep '^[[ 	]][[ 	]]*syslog$' >/dev/null \
-    && pcp_selinux_cap2_syslog=true
+    && pcp_selinux_capability2_syslog=true
+
+    seinfo -x --class=capability2 $seinfo_common_flag 2>/dev/null \
+    | grep '^[[ 	]][[ 	]]*bpf$' >/dev/null \
+    && pcp_selinux_capability2_bpf=true
 
     seinfo -x --class=icmp_socket $seinfo_common_flag 2>/dev/null \
     | egrep '^[[ 	]][[ 	]]*(class |)icmp_socket$' >/dev/null \
@@ -2188,7 +2193,8 @@ AC_SUBST(pcp_selinux_rpm_var_lib)
 AC_SUBST(pcp_selinux_virt_var_run)
 AC_SUBST(pcp_selinux_proc_security)
 AC_SUBST(pcp_selinux_sbd_exec)
-AC_SUBST(pcp_selinux_cap2_syslog)
+AC_SUBST(pcp_selinux_capability2_syslog)
+AC_SUBST(pcp_selinux_capability2_bpf)
 AC_SUBST(pcp_selinux_icmp_socket_class)
 AC_SUBST(pcp_selinux_lockdown_class)
 
