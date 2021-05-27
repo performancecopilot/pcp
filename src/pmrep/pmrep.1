@@ -1098,6 +1098,15 @@ $ pmrep \-a ./20150921.09.13 \-S @15:00 \-T @17:00 :sar\-w :sar\-W
 .ft P
 .RE
 .PP
+Display the slab total usage (in MB) of three specific slab instances:
+.RS +4
+.ft B
+.nf
+$ pmrep 'mem.slabinfo.slabs.total_size,,kmalloc-4k|xfs_inode|ovl_inode,MB'
+.fi
+.ft P
+.RE
+.PP
 Record most relevant CPU, memory, and I/O related information about
 every Java process on the system, present and future, to an archive
 .I ./a
