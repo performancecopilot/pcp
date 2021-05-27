@@ -33,7 +33,7 @@ static pmLongOptions longopts[] = {
     { "verbose", 0, 'v', 0, "increase diagnostic output" },
     { "width", 1, 'w', "N", "set the width of each column of output" },
     { "filter", 1, 'x', "VALUE", "store to the metric before fetching (filter)" },
-    { "", 0, 'X', 0, "include date and microseconds in reported timestamps" },
+    { "timestamp", 0, 'X', 0, "include date and microseconds in reported timestamps" },
     PMAPI_OPTIONS_END
 };
 
