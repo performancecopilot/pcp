@@ -53,7 +53,7 @@ _pcp_complete()
         arg_regex="-[AacdfhnOPRSsTtUwZ]"
     ;;
     pmevent)
-        all_args="AadfghiKLnOprSsTtUVvwxZz"
+        all_args="AadfghiKLnOprSsTtUVvwXxZz"
         arg_regex="-[AafhiKnOpSsTtUwxZ]"
     ;;
     pmfind)
@@ -141,7 +141,7 @@ _pcp_complete()
         arg_regex="-[hiKn]"
     ;;
     pmval)
-        all_args="AadfghiKLnOprSsTtUVvwxZz"
+        all_args="AadfghiKLnOprSsTtUVvwXxZz"
         arg_regex="-[AafhiKnOpSsTtUwxZ]"
     ;;
     esac
