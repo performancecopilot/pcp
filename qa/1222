@@ -47,6 +47,7 @@ _filter()
 	-e '/^proc\.smaps\..*: Metric not supported/d' \
 	-e '/^proc\.smaps\..*: No value(s) available/d' \
 	-e '/^proc\.psinfo\.cgroups: No data available/d' \
+	-e '/^proc\.psinfo\.ngid: Metric not supported by this version/d' \
 	-e '/pmdaFetch: Fetch callback error from metric PMID 3\.11\.0\[.*]: No data available/d' \
 	-e '/proc\.psinfo\.tty_pgrp: No value(s) available/d' \
 	-e '/ERROR SUMMARY/q' \
@@ -57,6 +58,9 @@ _filter()
 # checks for errors), rather want to exercise code paths for valgrind
 # sed at the end is required to cull some metrics that sometimes have
 # no values
+#
+# we do need to cull any metrics that might not be supported on some
+# platforms
 #
 # seen note above re:  ERROR SUMMARY
 #
@@ -80,9 +84,10 @@ NF == 0 && seen == 1		{ if (numval == 1) print metric ": 1 value"
     | sed \
 	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
 	-e '/^proc\.namespaces\./d' \
-	-e '/^proc\.smaps\./d' \
 	-e '/^proc\.psinfo\.cgroups:/d' \
+	-e '/^proc\.psinfo\.ngid:/d' \
 	-e '/^proc\.psinfo\.tty_pgrp:/d' \
+	-e '/^proc\.smaps\./d' \
 	-e '/ERROR SUMMARY/q' \
     # end
 }

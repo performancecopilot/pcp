@@ -15,7 +15,6 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 proc.nprocs: 1 value
 proc.psinfo.oom_score: >10 values
 proc.psinfo.tgid: >10 values
-proc.psinfo.ngid: >10 values
 proc.psinfo.cpusallowed: >10 values
 proc.psinfo.nvctxsw: >10 values
 proc.psinfo.vctxsw: >10 values
