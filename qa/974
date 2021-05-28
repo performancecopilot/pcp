@@ -15,6 +15,12 @@ echo "QA output created by $seq"
 
 pminfo proc.nprocs >/dev/null 2>&1 || _notrun "proc PMDA not installed"
 [ $PCP_PLATFORM = linux ] || _notrun "Linux proc test, only works with Linux"
+case `pmprobe -v hinv.machine | sed -e 's/"$//' -e 's/.*"//'`
+in
+    i?86)
+	_notrun "Need 64-bit machine to match /proc test data"
+	;;
+esac
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
