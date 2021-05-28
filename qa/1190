@@ -84,10 +84,14 @@ _check_file()
 	    # most of these are PCP mmap'd files, in which case a match
 	    # for QA from the grep above is a fluke
 	    #
-	    case `file "$1"`
+	    case `file "$1" | sed -e 's/  */ /g'`
 	    in
 		*": PCP memory mapped values"*)
 		    rm -f $tmp.out
+		    ;;
+		*": data")	# file(1) does not grok the PCP types?
+		    rm -f $tmp.out
+		    ;;
 	    esac
 	    ;;
     esac
