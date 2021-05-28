@@ -165,6 +165,14 @@ else
     echo '/allow \[pcp_pmcd_t\] .*\[capability2\]/d' >>$tmp.sed
 fi
 
+if seinfo -x --class=capability2 $common_flag 2>&1 \
+   | grep '^[ 	][ 	]*bpf$' >/dev/null
+then
+    :
+else
+    echo '/allow \[pcp_pmcd_t\] .*\[capability2\]/d' >>$tmp.sed
+fi
+
 # rawip_socket is indeed nested and only present if the icmp_socket class
 # IS NOT defined AND the rawip_socket class IS defined
 # (see the selinux GNUlocaldefs file) ... so in the other cases we need

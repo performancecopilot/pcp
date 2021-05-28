@@ -99,9 +99,14 @@ PCP_SBD_EXEC_T="type sbd_exec_t;"
 PCP_SBD_EXEC_RULE="allow pcp_pmcd_t sbd_exec_t:file { execute execute_no_trans };"
 endif
 
-ifeq "$(PCP_SELINUX_CAP2_SYSLOG)" "true"
-PCP_CAP2_SYSLOG_CLASS="class capability2 { syslog };"
-PCP_CAP2_SYSLOG_RULE="allow pcp_pmcd_t self:capability2 syslog;"
+ifeq "$(PCP_SELINUX_CAPABILITY2_SYSLOG)" "true"
+PCP_CAPABILITY2_SYSLOG_CLASS="class capability2 { syslog };"
+PCP_CAPABILITY2_SYSLOG_RULE="allow pcp_pmcd_t self:capability2 syslog;"
+endif
+
+ifeq "$(PCP_SELINUX_CAPABILITY2_BPF)" "true"
+PCP_CAPABILITY2_BPF_CLASS="class capability2 { bpf };"
+PCP_CAPABILITY2_BPF_RULE="allow pcp_pmcd_t self:capability2 bpf;"
 endif
 
 ifeq "$(PCP_SELINUX_ICMP_SOCKET_CLASS)" "false"
