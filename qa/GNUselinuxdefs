@@ -55,11 +55,6 @@ PCP_FAILLOG_T="type faillog_t;"
 PCP_FAILLOG_RULE="allow pcp_pmcd_t faillog_t:file { write };"
 endif
 
-ifeq "$(PCP_SELINUX_KMOD_EXEC)" "true"
-PCP_KMOD_EXEC_T="type kmod_exec_t;"
-PCP_KMOD_EXEC_RULE="allow pcp_pmcd_t kmod_exec_t:file { execute execute_no_trans };"
-endif
-
 ifeq "$(PCP_SELINUX_NETLINK_AUDIT_SOCKET_CLASS)" "true"
 PCP_NETLINK_AUDIT_SOCKET_CLASS="class netlink_audit_socket { create nlmsg_relay };"
 PCP_NETLINK_AUDIT_SOCKET_RULE="allow pcp_pmcd_t self:netlink_audit_socket { create nlmsg_relay };"

@@ -11827,6 +11827,8 @@ if test "x$enable_selinux" != "xfalse"; then :
 	&& pcp_selinux_proc_security=true
     grep '^[ 	][ 	]*sbd_exec_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_sbd_exec=true
+    grep '^[ 	][ 	]*kmod_exec_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_kmod_exec=true
 
 
     grep '^[ 	][ 	]*initrc_tmp_t$' <conftest.out >/dev/null \
@@ -11849,8 +11851,6 @@ if test "x$enable_selinux" != "xfalse"; then :
 	&& pcp_selinux_logrotate=true
     grep '^[ 	][ 	]*faillog_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_faillog=true
-    grep '^[ 	][ 	]*kmod_exec_t$' <conftest.out >/dev/null \
-	&& pcp_selinux_kmod_exec=true
 
     rm -f conftest.out
 

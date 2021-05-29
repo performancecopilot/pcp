@@ -2053,6 +2053,8 @@ AS_IF([test "x$enable_selinux" != "xfalse"], [
 	&& pcp_selinux_proc_security=true
     grep '^[[ 	]][[ 	]]*sbd_exec_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_sbd_exec=true
+    grep '^[[ 	]][[ 	]]*kmod_exec_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_kmod_exec=true
 
     dnl these ones are for pcpqa.te
 
@@ -2076,8 +2078,6 @@ AS_IF([test "x$enable_selinux" != "xfalse"], [
 	&& pcp_selinux_logrotate=true
     grep '^[[ 	]][[ 	]]*faillog_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_faillog=true
-    grep '^[[ 	]][[ 	]]*kmod_exec_t$' <conftest.out >/dev/null \
-	&& pcp_selinux_kmod_exec=true
 
     rm -f conftest.out
 

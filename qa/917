@@ -67,7 +67,7 @@ echo '/^#/d' >$tmp.sed
 echo '/^!/s// /' >>$tmp.sed
 for type in container_runtime_t nsfs_t docker_var_lib_t unreserved_port_t \
 	    tracefs_t unconfined_service_t numad_t rpm_var_lib_t \
-	    virt_var_run_t proc_security_t sbd_exec_t
+	    virt_var_run_t proc_security_t sbd_exec_t kmod_exec_t
 do
     if grep "^[ 	][ 	]*$type\$" $tmp.types >/dev/null
     then
@@ -109,6 +109,10 @@ do
 	    sbd_exec_t)
 		echo '/allow \[pcp_pmcd_t] \[sbd_exec_t]/d' >>$tmp.sed
 		;;
+	    kmod_exec_t)
+		echo '/allow \[pcp_pmcd_t] \[kmod_exec_t]/d' >>$tmp.sed
+		;;
+
 	esac
     fi
 done
@@ -162,7 +166,9 @@ if seinfo -x --class=capability2 $common_flag 2>&1 \
 then
     :
 else
-    echo '/allow \[pcp_pmcd_t\] .*\[capability2\]/d' >>$tmp.sed
+    # need full rule here because > 1 rule for this class
+    #
+    echo '/allow \[pcp_pmcd_t\] .*\[capability2\] { syslog };/d' >>$tmp.sed
 fi
 
 if seinfo -x --class=capability2 $common_flag 2>&1 \
@@ -170,7 +176,9 @@ if seinfo -x --class=capability2 $common_flag 2>&1 \
 then
     :
 else
-    echo '/allow \[pcp_pmcd_t\] .*\[capability2\]/d' >>$tmp.sed
+    # need full rule here because > 1 rule for this class
+    #
+    echo '/allow \[pcp_pmcd_t\] .*\[capability2\] { bpf };/d' >>$tmp.sed
 fi
 
 # rawip_socket is indeed nested and only present if the icmp_socket class

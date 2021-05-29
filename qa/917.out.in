@@ -61,6 +61,9 @@ Checking policies.
 ! allow [pcp_pmcd_t] [unconfined_service_t] : [process] { signull };
 ! allow [pcp_pmcd_t] self : [capability2] { syslog };
 ! allow [pcp_pmcd_t] self : [capability2] { bpf };
+  allow [pcp_pmcd_t] [pcp_tmp_t] : [lnk_file] { create getattr setattr };
+  allow [pcp_pmcd_t] self : [capability] { fsetid };
+! allow [pcp_pmcd_t] [kmod_exec_t] : [file] { execute execute_no_trans };
   allow [pcp_pmcd_t] [kernel_t] : [system] { module_request };
   allow [pcp_pmcd_t] [su_exec_t] : [file] { execute execute_no_trans };
   allow [pcp_pmcd_t] [postgresql_var_run_t] : [sock_file] { write };

@@ -23,21 +23,26 @@ echo "QA output created by $seq"
 policy_name="pcpupstream"
 policy_file="$PCP_VAR_DIR/selinux/$policy_name.pp"
 
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
 which audit2allow >/dev/null 2>&1 || _notrun "audit2allow tool not installed."
 [ -f "$policy_file" ] || _notrun "upstream policy package not installed"
 $sudo semodule -l 2>&1 | grep -q $policy_name || _notrun "upstream policy package not loaded"
 # on Fedora 32, audit2allow is broken
-[ audit2allow -w </dev/null >/dev/null 2>&1 ] || _notrun "audit2allow -w is broken"
+if audit2allow -w </dev/null >>$seq.full 2>&1
+then
+    :
+else
+    _notrun "audit2allow -w is broken"
+fi
 
 _cleanup()
 {
     cd $here
     $sudo rm -rf $tmp $tmp.*
 }
-
-status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
-trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # run audit2allow, and then cull messages we expect
 # - Description: ... to end of output

@@ -135,3 +135,8 @@ ifeq "$(PCP_SELINUX_LOCKDOWN_CLASS)" "true"
 PCP_LOCKDOWN_CLASS="class lockdown { integrity }; \# pmda.kvm"
 PCP_LOCKDOWN_RULE="allow pcp_pmcd_t self:lockdown integrity;"
 endif
+
+ifeq "$(PCP_SELINUX_KMOD_EXEC)" "true"
+PCP_KMOD_EXEC_T="type kmod_exec_t;"
+PCP_KMOD_EXEC_RULE="allow pcp_pmcd_t kmod_exec_t:file { execute execute_no_trans };"
+endif

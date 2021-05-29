@@ -5,6 +5,7 @@ require {
         attribute userdomain;
         attribute file_type;
         attribute pcp_domain;
+
 	type pcp_pmcd_t;
 	type tmp_t;
 	type init_t;
@@ -64,8 +65,10 @@ require {
 	type cluster_tmpfs_t;
 	type drbd_exec_t;
 	@PCP_SBD_EXEC_T@
+	@PCP_KMOD_EXEC_T@
+
         class sem { unix_read associate getattr read };
-	class lnk_file { read getattr };
+	class lnk_file { create read getattr setattr };
 	class file { append create execute execute_no_trans getattr setattr ioctl lock open read write unlink @PCP_HOSTNAME_EXEC_MAP@ };
 	class dir { add_name open read search write getattr lock ioctl };
 	class unix_stream_socket connectto;
@@ -259,6 +262,20 @@ allow pcp_pmcd_t kernel_t:process signull;
 # pmda-bcc and pmda-bpftrace need the ability to run eBPF code
 @PCP_CAPABILITY2_BPF_RULE@
 
+# pmda-bcc -- failing to compile bpf files on Fedora 33
+# type=AVC msg=audit(XXX.91): avc:  denied  { fsetid } for  pid=9109 comm="tar" capability=4  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability permissive=1
+# type=AVC msg=audit(XXX.92): avc:  denied  { create } for  pid=9109 comm="tar" name="linux-event-codes.h" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:pcp_tmp_t:s0 tclass=lnk_file permissive=1
+# type=AVC msg=audit(XXX.93): avc:  denied  { setattr } for  pid=9109 comm="tar" name="linux-event-codes.h" dev="tmpfs" ino=190173 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:pcp_tmp_t:s0 tclass=lnk_file permissive=1
+# type=AVC msg=audit(XXX.94): avc:  denied  { getattr } for  pid=9109 comm="tar" path="/tmp/kheaders-5.2.18-100.fc29.x86_64+debug-09fFcg/include/dt-bindings/input/linux-event-codes.h" dev="tmpfs" ino=190173 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:pcp_tmp_t:s0 tclass=lnk_file permissive=1
+allow pcp_pmcd_t pcp_tmp_t:lnk_file { create getattr setattr };
+allow pcp_pmcd_t self:capability { fsetid };
+
+# pmda-bcc -- qa/1702 failure on Fedora 33
+# type=AVC msg=audit(XXX.96): avc:  denied  { execute } for  pid=2205945 comm="sh" name="kmod" dev="dm-0" ino=9462231 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:kmod_exec_t:s0 tclass=file permissive=0
+# type=AVC msg=audit(XXX.97): avc:  denied  { execute_no_trans } for  pid=40596 comm="sh" path="/usr/bin/kmod" dev="dm-0" ino=9462231 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:kmod_exec_t:s0 tclass=file permissive=0
+#
+@PCP_KMOD_EXEC_RULE@
+
 #RHBZ1690542
 #type=AVC msg=audit(XXX.67): avc:  denied  { module_request } for pid=YYYY comm="pmdalinux" kmod="netdev-tun0" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:kernel_t:s0 tclass=system permissive=0
 allow pcp_pmcd_t kernel_t:system module_request;
@@ -284,7 +301,7 @@ allow pcp_pmlogger_t unconfined_t:process signal;
 ## type=AVC msg=audit(YYY.85): avc: denied { signal } for pid=31205 comm="pmsignal" scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:system_r:unconfined_service_t:s0 tclass=process permissive=0
 @PCP_PMLOGGER_UNCONFINED_SERVICE_RULE@
 
-#type=AVC msg=audit(XXX.68): avc: denied { setattr unlink } for pid=29153 comm="mv" name="pmlogger_check.log" dev="dm-0" ino=926794 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=unconfined_u:object_r:user_tmp_t:s0 tclass=file permissive=0
+#type=AVC msg=audit(XXX.95): avc: denied { setattr unlink } for pid=29153 comm="mv" name="pmlogger_check.log" dev="dm-0" ino=926794 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=unconfined_u:object_r:user_tmp_t:s0 tclass=file permissive=0
 allow pcp_pmlogger_t user_tmp_t:file { setattr unlink };
 
 #type=AVC msg=audit(XXX.72): avc:  denied  { execute } for  pid=9634 comm="pmlogger_daily" name="setfiles" dev="dm-0" ino=34500334 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:setfiles_exec_t:s0 tclass=file permissive=0
@@ -368,7 +385,7 @@ allow pcp_pmcd_t fsadm_exec_t:file { execute execute_no_trans getattr open read 
 allow pcp_pmcd_t fixed_disk_device_t:blk_file { open read ioctl };
 
 #============= pmda-nvidia ==============
-#type=AVC msg=audit(YYY.83): avc: denied { map } for pid=7034 comm="pmdanvidia" path="/usr/lib64/libnvidia-ml.so" dev="dm-2" ino=16267329 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:default_t:s0 tclass=file permissive=0
+#type=AVC msg=audit(YYY.102): avc: denied { map } for pid=7034 comm="pmdanvidia" path="/usr/lib64/libnvidia-ml.so" dev="dm-2" ino=16267329 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:default_t:s0 tclass=file permissive=0
 #type=AVC msg=audit(YYY.84): avc: denied { execute } for pid=19828 comm="pmdanvidia" path="//usr/lib64/libnvidia-ml.so" dev="dm-2" ino=16267329 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:default_t:s0 tclass=file permissive=0
 @PCP_DEFAULT_MAP_RULE@
 
