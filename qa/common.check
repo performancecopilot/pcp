@@ -1400,7 +1400,7 @@ _check_valgrind()
 # run _check_valgrind, so only issue here is do we trust the helgrind
 # module of valgrind
 #
-_check_valgrind()
+_check_helgrind()
 {
     case `admin/whatami`
     in
