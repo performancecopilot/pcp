@@ -18,6 +18,7 @@ echo "QA output created by $seq"
 . ./common.check
 
 _check_valgrind
+_check_helgrind
 _get_libpcp_config
 $multi_threaded || _notrun "No libpcp threading support"
 

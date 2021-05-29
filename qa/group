@@ -1365,7 +1365,7 @@ x11
 921 pmdumplog local kernel
 922 derive pmie pmval local kernel
 923 derive libpcp valgrind local
-924 pmda.docker local valgrind
+924 pmda.docker local valgrind helgrind
 925 logutil local
 926 ganglia2pcp local pmdumplog
 927 derive local kernel
@@ -1383,7 +1383,7 @@ x11
 939 derive local kernel
 940 selinux local
 941 pmcd local
-942 threads valgrind local
+942 threads valgrind local helgrind
 943 pmprobe pmda.proc local
 944 pmcd secure local pmstore
 945 pmlogrewrite pmda.xfs local pmdumplog
@@ -1393,7 +1393,7 @@ x11
 949 python local timezone
 950 pmproxy avahi local
 951 pmie local pmval kernel
-952 threads valgrind local
+952 threads valgrind local helgrind
 953 libpcp threads local
 954 libpcp threads derive local
 955:retired pmda.linux local kernel
@@ -1515,7 +1515,7 @@ x11
 1071 pmrep python local kernel
 1072 pmrep python archive local kernel
 1073 pmda.linux local kernel
-1074 threads valgrind local
+1074 threads valgrind local helgrind
 1075 pmlogrewrite valgrind local
 1076 pmlogcheck local
 1077 pmcd libpcp archive local kernel
@@ -1615,7 +1615,7 @@ x11
 1171 pmda.bcc local python
 1172 pmda.bcc local python
 1173 pmda.bcc local python
-1174 threads valgrind local
+1174 threads valgrind local helgrind
 1175 pmda.bcc local python
 1176 pmda.bcc local python
 1177 pmns derive libpcp pmlogger local kernel
@@ -1684,7 +1684,7 @@ x11
 1240 libpcp pmrep local python
 1241 pmlogrewrite local
 1242 pmrep archive multi-archive decompress-xz local pmlogextract python
-1243 valgrind pmfind libpcp local
+1243 valgrind pmfind libpcp local helgrind
 1244 pmlogextract local
 1245 libpcp local
 1246:reserved pmlogreduce local
@@ -1760,7 +1760,7 @@ x11
 1316 libpcp local
 1317 libpcp local valgrind
 1318 pmprobe pmlogconf local kernel
-1319 libpcp local valgrind
+1319 libpcp local valgrind helgrind
 1320 pmval local
 1321 pmlogger pmda.openmetrics local python
 1322 pmval local valgrind
@@ -1924,4 +1924,4 @@ x11
 1899 fetch local
 1937 pmlogrewrite pmda.xfs local
 1955 libpcp pmda pmda.pmcd local
-4751 libpcp threads valgrind local pcp
+4751 libpcp threads valgrind local pcp helgrind

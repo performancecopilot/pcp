@@ -31,6 +31,7 @@ then
 elif [ "$1" = "--helgrind" ]
 then
     _check_valgrind
+    _check_helgrind
     do_helgrind=true
 fi
 

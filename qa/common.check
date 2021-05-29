@@ -1396,6 +1396,20 @@ _check_valgrind()
     __extra=''
 }
 
+# helgrind is just broken in some places ... assume we've already
+# run _check_valgrind, so only issue here is do we trust the helgrind
+# module of valgrind
+#
+_check_valgrind()
+{
+    case `admin/whatami`
+    in
+	*Fedora\ 33*)
+	    _notrun "helgrind broken on Fedora 33"
+	    ;;
+    esac
+}
+
 # Note: because we may be avoiding leaks in system libraries
 # via the suppressions, there is potential indeterminism for
 # the following case:

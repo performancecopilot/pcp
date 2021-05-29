@@ -15,6 +15,7 @@ echo "QA output created by $seq"
 
 # will have to use docker tests
 _check_valgrind
+_check_helgrind
 
 _filter()
 {
