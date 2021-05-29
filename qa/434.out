@@ -49,7 +49,7 @@ Reporting options:
   -w N, --width=N       set the width of each column of output
   -x VALUE, --filter=VALUE
                         store to the metric before fetching (filter)
-  -X                    include date and microseconds in reported timestamps
+  -X, --timestamp       include date and microseconds in reported timestamps
 usage - exit status 1
 
 metric:    sample.seconds
