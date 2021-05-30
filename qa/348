@@ -188,17 +188,23 @@ do
     #
     case "$metric"
     in
+	# this group may be missing from /sys/kernel/debug/kvm but if
+	# present (they survive the join above), they need to be skipped
+	# here so that the output is deterministic
+	# 
+	kvm.efer_reload)			;;
+	kvm.halt_poll_invalid)			;;
+	kvm.halt_successful_poll)		;;
 	kvm.max_mmu_page_hash_collisions)	;;
 	kvm.mmu_pte_updated)			;;
-	kvm.efer_reload)			;;
 	kvm.req_event)				;;
-	kvm.halt_successful_poll)		;;
-	kvm.halt_poll_invalid)			;;
-	kvm.halt_attempted_poll)		# all of the above fallthrough
+
+	kvm.halt_attempted_poll)		# special case
 	    _within_tolerance $metric $vpcp $vsys 2%
 	    [ $? -eq 0 ] || echo Platform $metric is out of range $vpcp vs $vsys
 	    ;;
-	*)
+
+	*)					# default tolerence check
 	    if [ "$n1" = 1 -a "$n2" = 1 ]
 	    then
 		_within_tolerance $metric $vpcp $vsys 2% -v
