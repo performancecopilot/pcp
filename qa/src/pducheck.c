@@ -104,6 +104,7 @@ _z(void)
     int			n;
     pmID		pmid;
     pmResult		*rp = NULL;
+    pmHighResResult	*hrrp = NULL;
     pmValueBlock	myvb;
     pmValueBlock	*gvbp;
     pmValueBlock	*xvbp;
@@ -127,11 +128,10 @@ _z(void)
     pmDesc		result_desc;
     pmDesc		*descp = &result_desc;
     int			ctxnum;
-    pmTimeval		now;
+    pmTimeval		nowtv;
     pmProfile		curprof;
     pmInDomProfile	idp[2];
     pmProfile		*profp;
-    pmResult		*resp;
     int			code;
     int			nv;
     int			sav_nv;
@@ -194,7 +194,9 @@ _z(void)
     }
 
 /* PDU_RESULT */
-    resp = NULL;
+    {
+    pmResult		*resp = NULL;
+
     num = 7;		/* the _maximum_ number of merics we have */
     rp = (pmResult *)malloc(sizeof(*rp) + (num -1)*sizeof(pmValueSet *));
     rp->numpmid = 0;
@@ -233,7 +235,7 @@ _z(void)
     av.cp = "0";
     rp->vset[2]->vlist[0].value.pval = NULL;
     if ((e = __pmStuffValue(&av, &rp->vset[2]->vlist[0], PM_TYPE_STRING)) < 0) {
-	fprintf(stderr, "Error: __pmStuffValue vset[%d] PM_TYPE_STRING: %s\n", i, pmErrStr(e));
+	fprintf(stderr, "Error: __pmStuffValue vset[2] PM_TYPE_STRING: %s\n", pmErrStr(e));
 	fatal = 1;
 	goto cleanup;
     }
@@ -246,7 +248,7 @@ _z(void)
     rp->vset[3]->vlist[0].inst = PM_IN_NULL;
     av.ull = 0x8765432112345678LL;
     if ((e = __pmStuffValue(&av, &rp->vset[3]->vlist[0], PM_TYPE_U64)) < 0) {
-	fprintf(stderr, "Error: __pmStuffValue vset[%d] PM_TYPE_U64: %s\n", i, pmErrStr(e));
+	fprintf(stderr, "Error: __pmStuffValue vset[3] PM_TYPE_U64: %s\n", pmErrStr(e));
 	fatal = 1;
 	goto cleanup;
     }
@@ -259,7 +261,7 @@ _z(void)
     rp->vset[4]->vlist[0].inst = PM_IN_NULL;
     av.f = 4.3E+21;
     if ((e = __pmStuffValue(&av, &rp->vset[4]->vlist[0], PM_TYPE_FLOAT)) < 0) {
-	fprintf(stderr, "Error: __pmStuffValue vset[%d] PM_TYPE_FLOAT: %s\n", i, pmErrStr(e));
+	fprintf(stderr, "Error: __pmStuffValue vset[4] PM_TYPE_FLOAT: %s\n", pmErrStr(e));
 	fatal = 1;
 	goto cleanup;
     }
@@ -272,7 +274,7 @@ _z(void)
     rp->vset[5]->vlist[0].inst = PM_IN_NULL;
     av.d = 4.56E+123;
     if ((e = __pmStuffValue(&av, &rp->vset[5]->vlist[0], PM_TYPE_DOUBLE)) < 0) {
-	fprintf(stderr, "Error: __pmStuffValue vset[%d] PM_TYPE_DOUBLE: %s\n", i, pmErrStr(e));
+	fprintf(stderr, "Error: __pmStuffValue vset[5] PM_TYPE_DOUBLE: %s\n", pmErrStr(e));
 	fatal = 1;
 	goto cleanup;
     }
@@ -382,14 +384,14 @@ _z(void)
 		    memcpy(&gav.f, gvbp->vbuf, sizeof(float));
 		    memcpy(&xav.f, xvbp->vbuf, sizeof(float));
 		    if (gav.f != xav.f)
-			fprintf(stderr, "Botch: Result: vset[%d][%d].value.pval->ull: got %e expect %e\n",
+			fprintf(stderr, "Botch: Result: vset[%d][%d].value.pval->f: got %e expect %e\n",
 			    i, j, (double)gav.f, (double)xav.f);
 		    break;
 		case PM_TYPE_DOUBLE:
 		    memcpy(&gav.d, gvbp->vbuf, sizeof(double));
 		    memcpy(&xav.d, xvbp->vbuf, sizeof(double));
 		    if (gav.d != xav.d)
-			fprintf(stderr, "Botch: Result: vset[%d][%d].value.pval->ull: got %e expect %e\n",
+			fprintf(stderr, "Botch: Result: vset[%d][%d].value.pval->d: got %e expect %e\n",
 			    i, j, gav.d, xav.d);
 		    break;
 	    }
@@ -397,6 +399,215 @@ _z(void)
     }
     if (resp != NULL)
 	pmFreeResult(resp);
+    }
+
+/* PDU_HIGRES_RESULT */
+    {
+    pmHighResResult	*hrresp = NULL;
+
+    num = 7;		/* the _maximum_ number of merics we have */
+    hrrp = (pmHighResResult *)malloc(sizeof(*hrrp) + (num -1)*sizeof(pmValueSet *));
+    hrrp->numpmid = 0;
+    hrrp->timestamp.tv_sec = 30 * 60 * 60;	/* 30 hrs after the epoch */
+    hrrp->timestamp.tv_nsec = 123456789;	/* plus a gnat */
+    /* singular instance, insitu value */
+    hrrp->vset[0] = (pmValueSet *)malloc(sizeof(*hrrp->vset[0]));
+    hrrp->numpmid = 1;
+    hrrp->vset[0]->pmid = 0xdead;
+    hrrp->vset[0]->numval = 1;
+    hrrp->vset[0]->valfmt = PM_VAL_INSITU;
+    hrrp->vset[0]->vlist[0].inst = PM_IN_NULL;
+    hrrp->vset[0]->vlist[0].value.lval = 1234;
+    /* 3 instances, all values insitu */
+    hrrp->vset[1] = (pmValueSet *)malloc(sizeof(*hrrp->vset[1])+2*sizeof(pmValue));
+    hrrp->numpmid = 2;
+    hrrp->vset[1]->pmid = 0xbeef;
+    hrrp->vset[1]->numval = 3;
+    hrrp->vset[1]->valfmt = PM_VAL_INSITU;
+    hrrp->vset[1]->vlist[0].inst = 2;
+    hrrp->vset[1]->vlist[0].value.lval = 2345;
+    hrrp->vset[1]->vlist[1].inst = 4;
+    hrrp->vset[1]->vlist[1].value.lval = 3456;
+    hrrp->vset[1]->vlist[2].inst = 8;
+    hrrp->vset[1]->vlist[2].value.lval = 4567;
+    /* singular instance, STRING value in pmValueBlock */
+    hrrp->vset[2] = (pmValueSet *)malloc(sizeof(*hrrp->vset[0]));
+    hrrp->numpmid = 3;
+    hrrp->vset[2]->pmid = pmidlist[0];
+    hrrp->vset[2]->numval = 1;
+    hrrp->vset[2]->valfmt = PM_VAL_DPTR;
+    hrrp->vset[2]->vlist[0].inst = PM_IN_NULL;
+    hrrp->vset[2]->vlist[0].value.pval = &myvb;
+    hrrp->vset[2]->vlist[0].value.pval->vtype = PM_TYPE_STRING;
+    hrrp->vset[2]->vlist[0].value.pval->vlen = PM_VAL_HDR_SIZE + 2;
+    av.cp = "0";
+    hrrp->vset[2]->vlist[0].value.pval = NULL;
+    if ((e = __pmStuffValue(&av, &hrrp->vset[2]->vlist[0], PM_TYPE_STRING)) < 0) {
+	fprintf(stderr, "Error: __pmStuffValue highres vset[2] PM_TYPE_STRING: %s\n", pmErrStr(e));
+	fatal = 1;
+	goto cleanup;
+    }
+    hrrp->vset[2]->vlist[0].value.pval->vbuf[0] = '0' + pass;
+    /* singular instance, U64 value in pmValueBlock */
+    hrrp->vset[3] = (pmValueSet *)malloc(sizeof(*hrrp->vset[0]));
+    hrrp->numpmid = 4;
+    hrrp->vset[3]->pmid = pmidlist[1];
+    hrrp->vset[3]->numval = 1;
+    hrrp->vset[3]->vlist[0].inst = PM_IN_NULL;
+    av.ull = 0x8765432112345678LL;
+    if ((e = __pmStuffValue(&av, &hrrp->vset[3]->vlist[0], PM_TYPE_U64)) < 0) {
+	fprintf(stderr, "Error: __pmStuffValue highres vset[3] PM_TYPE_U64: %s\n", pmErrStr(e));
+	fatal = 1;
+	goto cleanup;
+    }
+    hrrp->vset[3]->valfmt = e;
+    /* singular instance, FLOAT value in pmValueBlock */
+    hrrp->vset[4] = (pmValueSet *)malloc(sizeof(*hrrp->vset[0]));
+    hrrp->numpmid = 5;
+    hrrp->vset[4]->pmid = pmidlist[2];
+    hrrp->vset[4]->numval = 1;
+    hrrp->vset[4]->vlist[0].inst = PM_IN_NULL;
+    av.f = 4.3E+21;
+    if ((e = __pmStuffValue(&av, &hrrp->vset[4]->vlist[0], PM_TYPE_FLOAT)) < 0) {
+	fprintf(stderr, "Error: __pmStuffValue highres vset[4] PM_TYPE_FLOAT: %s\n", pmErrStr(e));
+	fatal = 1;
+	goto cleanup;
+    }
+    hrrp->vset[4]->valfmt = e;
+    /* singular instance, DOUBLE value in pmValueBlock */
+    hrrp->vset[5] = (pmValueSet *)malloc(sizeof(*hrrp->vset[0]));
+    hrrp->numpmid = 6;
+    hrrp->vset[5]->pmid = pmidlist[3];
+    hrrp->vset[5]->numval = 1;
+    hrrp->vset[5]->vlist[0].inst = PM_IN_NULL;
+    av.d = 4.56E+123;
+    if ((e = __pmStuffValue(&av, &hrrp->vset[5]->vlist[0], PM_TYPE_DOUBLE)) < 0) {
+	fprintf(stderr, "Error: __pmStuffValue highres vset[5] PM_TYPE_DOUBLE: %s\n", pmErrStr(e));
+	fatal = 1;
+	goto cleanup;
+    }
+    hrrp->vset[5]->valfmt = e;
+    /* no values */
+    hrrp->vset[6] = (pmValueSet *)malloc(sizeof(*hrrp->vset[0]));
+    hrrp->numpmid = 7;
+    hrrp->vset[6]->pmid = 0xdeadcafe;
+    hrrp->vset[6]->numval = PM_ERR_GENERIC;
+
+    /* done with setup, do it! */
+    if ((e = __pmSendHighResResult(fd[1], mypid, hrrp)) < 0) {
+	fprintf(stderr, "Error: SendHighResResult: %s\n", pmErrStr(e));
+	fatal = 1;
+	goto cleanup;
+    }
+    else {
+	if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
+	    fprintf(stderr, "Error: RecvHighResResult: %s\n", pmErrStr(e));
+	    fatal = 1;
+	    goto cleanup;
+	}
+	else if (e == 0) {
+	    fprintf(stderr, "Error: RecvHighResResult: end-of-file!\n");
+	    fatal = 1;
+	    goto cleanup;
+	}
+	else if (e != PDU_HIGHRES_RESULT) {
+	    fprintf(stderr, "Error: RecvHighResResult: %s wrong type PDU!\n", __pmPDUTypeStr(e));
+	    fatal = 1;
+	    goto cleanup;
+	}
+	else {
+	    if ((e = __pmDecodeHighResResult(pb, &hrresp)) < 0) {
+		fprintf(stderr, "Error: DecodeHighResResult: %s\n", pmErrStr(e));
+		fatal = 1;
+		goto cleanup;
+	    }
+	}
+    }
+    if (hrresp->timestamp.tv_sec != hrrp->timestamp.tv_sec)
+	fprintf(stderr, "Botch: HighResResult: tv_sec: got: %d expect: %d\n",
+	    (int)hrresp->timestamp.tv_sec, (int)hrrp->timestamp.tv_sec);
+    if (hrresp->timestamp.tv_nsec != hrrp->timestamp.tv_nsec)
+	fprintf(stderr, "Botch: HighResResult: tv_nsec: got: %d expect: %d\n",
+	    (int)hrresp->timestamp.tv_nsec, (int)hrrp->timestamp.tv_nsec);
+    if (hrresp->numpmid != hrrp->numpmid)
+	fprintf(stderr, "Botch: HighResResult: numpmid: got: %d expect: %d\n",
+	    hrresp->numpmid, hrrp->numpmid);
+    for (i = 0; i < hrrp->numpmid; i++) {
+	if (hrresp->vset[i]->pmid != hrrp->vset[i]->pmid)
+	    fprintf(stderr, "Botch: HighResResult: vset[%d].pmid: got: 0x%x expect: 0x%x\n",
+		i, hrresp->vset[i]->pmid, hrrp->vset[i]->pmid);
+	if (hrresp->vset[i]->numval != hrrp->vset[i]->numval) {
+	    fprintf(stderr, "Botch: HighResResult: vset[%d].numval: got: %d expect: %d\n",
+		i, hrresp->vset[i]->numval, hrrp->vset[i]->numval);
+	    continue;
+	}
+	if (hrresp->vset[i]->numval < 0)
+	    continue;
+	if (hrresp->vset[i]->valfmt != hrrp->vset[i]->valfmt)
+	    fprintf(stderr, "Botch: HighResResult: vset[%d].valfmt: got: %d expect: %d\n",
+		i, hrresp->vset[i]->valfmt, hrrp->vset[i]->valfmt);
+	for (j = 0; j < hrrp->vset[i]->numval; j++) {
+	    if (hrresp->vset[i]->vlist[j].inst != hrrp->vset[i]->vlist[j].inst)
+		fprintf(stderr, "Botch: HighResResult: vset[%d][%d].inst: got: %d expect: %d\n",
+		    i, j, hrresp->vset[i]->vlist[j].inst,
+		    hrrp->vset[i]->vlist[j].inst);
+	    if (hrresp->vset[i]->valfmt != hrrp->vset[i]->valfmt)
+		continue;
+	    if (hrresp->vset[i]->valfmt == PM_VAL_INSITU) {
+		if (hrresp->vset[i]->vlist[j].value.lval != hrrp->vset[i]->vlist[j].value.lval)
+		    fprintf(stderr, "Botch: HighResResult: insitu vset[%d][%d].value.lval: got: %d expect: %d\n",
+			i, j, hrresp->vset[i]->vlist[j].value.lval,
+			hrrp->vset[i]->vlist[j].value.lval);
+		continue;
+	    }
+	    /* NOT insitu */
+	    gvbp = hrresp->vset[i]->vlist[j].value.pval;
+	    xvbp = hrrp->vset[i]->vlist[j].value.pval;
+	    if (gvbp->vlen != xvbp->vlen)
+		fprintf(stderr, "Botch: HighResResult: vset[%d][%d].value.pval->vlen: got %d expect %d\n",
+		    i, j, gvbp->vlen, xvbp->vlen);
+	    if (gvbp->vtype != xvbp->vtype) {
+		fprintf(stderr, "Botch: HighResResult: vset[%d][%d].value.pval->vtype: got %d expect %d\n",
+		    i, j, gvbp->vtype, xvbp->vtype);
+		continue;
+	    }
+	    switch (gvbp->vtype) {
+		pmAtomValue	gav;
+		pmAtomValue	xav;
+		case PM_TYPE_STRING:
+		    if (strncmp(gvbp->vbuf, xvbp->vbuf, gvbp->vlen - sizeof(int)) != 0)
+			fprintf(stderr, "Botch: HighResResult: vset[%d][%d].value.pval->vbuf: got \"%*.*s\" expect \"%*.*s\"\n",
+			    i, j, gvbp->vlen, gvbp->vlen, gvbp->vbuf,
+			    gvbp->vlen, gvbp->vlen, xvbp->vbuf);
+		    break;
+		case PM_TYPE_64:
+		case PM_TYPE_U64:
+		    memcpy(&gav.ull, gvbp->vbuf, sizeof(__uint64_t));
+		    memcpy(&xav.ull, xvbp->vbuf, sizeof(__uint64_t));
+		    if (gav.ull != xav.ull)
+			fprintf(stderr, "Botch: HighResResult: vset[%d][%d].value.pval->ull: got %" FMT_UINT64 " expect %" FMT_UINT64 "\n",
+			    i, j, gav.ull, xav.ull);
+		    break;
+		case PM_TYPE_FLOAT:
+		    memcpy(&gav.f, gvbp->vbuf, sizeof(float));
+		    memcpy(&xav.f, xvbp->vbuf, sizeof(float));
+		    if (gav.f != xav.f)
+			fprintf(stderr, "Botch: HighResResult: vset[%d][%d].value.pval->f: got %e expect %e\n",
+			    i, j, (double)gav.f, (double)xav.f);
+		    break;
+		case PM_TYPE_DOUBLE:
+		    memcpy(&gav.d, gvbp->vbuf, sizeof(double));
+		    memcpy(&xav.d, xvbp->vbuf, sizeof(double));
+		    if (gav.d != xav.d)
+			fprintf(stderr, "Botch: HighResResult: vset[%d][%d].value.pval->d: got %e expect %e\n",
+			    i, j, gav.d, xav.d);
+		    break;
+	    }
+	}
+    }
+    if (hrresp != NULL)
+	pmFreeHighResResult(hrresp);
+    }
 
 /* PDU_PROFILE */
     n = sizeof(instlist) / sizeof(instlist[0]);
@@ -489,7 +700,7 @@ _z(void)
     n = sizeof(pmidlist) / sizeof(pmidlist[0]);
     if (pass != 0)
 	n = 1 + (foorand() % n);
-    if ((e = __pmSendFetch(fd[1], mypid, 43, (pmTimeval *)0, n, pmidlist)) < 0) {
+    if ((e = __pmSendFetch(fd[1], mypid, 43, NULL, n, pmidlist)) < 0) {
 	fprintf(stderr, "Error: SendFetch: %s\n", pmErrStr(e));
 	fatal = 1;
 	goto cleanup;
@@ -511,8 +722,58 @@ _z(void)
 	    goto cleanup;
 	}
 	else {
-	    if ((e = __pmDecodeFetch(pb, &ctxnum, &now, &num, &pmidp)) < 0) {
+	    if ((e = __pmDecodeFetch(pb, &ctxnum, &nowtv, &num, &pmidp)) < 0) {
 		fprintf(stderr, "Error: DecodeFetch: %s\n", pmErrStr(e));
+		fatal = 1;
+		goto cleanup;
+	    }
+	    else {
+		if (ctxnum != 43)
+		    fprintf(stderr, "Botch: Fetch: ctxnum: got: %d expect: %d\n",
+			ctxnum, 43);
+		if (num != n)
+		    fprintf(stderr, "Botch: Fetch: num: got: %d expect: %d\n",
+			num, n);
+		else {
+		    for (i = 0; i < num; i++) {
+			if (pmidlist[i] != pmidp[i])
+			    fprintf(stderr, "Botch: Fetch: pmidlist[%d]: got: 0x%x expect: 0x%x\n",
+				i, pmidp[i], pmidlist[i]);
+		    }
+		}
+		__pmUnpinPDUBuf(pmidp);
+	    }
+	}
+    }
+
+/* PDU_HIGHRES_FETCH */
+    n = sizeof(pmidlist) / sizeof(pmidlist[0]);
+    if (pass != 0)
+	n = 1 + (foorand() % n);
+    if ((e = __pmSendHighResFetch(fd[1], mypid, 43, n, pmidlist)) < 0) {
+	fprintf(stderr, "Error: SendHighResFetch: %s\n", pmErrStr(e));
+	fatal = 1;
+	goto cleanup;
+    }
+    else {
+	if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
+	    fprintf(stderr, "Error: RecvHighResFetch: %s\n", pmErrStr(e));
+	    fatal = 1;
+	    goto cleanup;
+	}
+	else if (e == 0) {
+	    fprintf(stderr, "Error: RecvHighResFetch: end-of-file!\n");
+	    fatal = 1;
+	    goto cleanup;
+	}
+	else if (e != PDU_HIGHRES_FETCH) {
+	    fprintf(stderr, "Error: RecvHighResFetch: %s wrong type PDU!\n", __pmPDUTypeStr(e));
+	    fatal = 1;
+	    goto cleanup;
+	}
+	else {
+	    if ((e = __pmDecodeHighResFetch(pb, &ctxnum, &num, &pmidp)) < 0) {
+		fprintf(stderr, "Error: DecodeHighResFetch: %s\n", pmErrStr(e));
 		fatal = 1;
 		goto cleanup;
 	    }
@@ -638,11 +899,11 @@ _z(void)
     n = sizeof(indomlist) / sizeof(indomlist[0]);
     if (pass != 0)
 	n = 1 + (foorand() % n);
-    now.tv_sec = 60 * 60 * 60;		/* 60 hrs after the epoch */
-    now.tv_usec = 654321;		/* plus a gnat */
+    nowtv.tv_sec = 60 * 60 * 60;	/* 60 hrs after the epoch */
+    nowtv.tv_usec = 654321;		/* plus a gnat */
     for (i = 0; i < n; i++) {
 	pmTimeval	tmp;
-	if ((e = __pmSendInstanceReq(fd[1], mypid, &now, 0xface, indomlist[i].inst, indomlist[i].name)) < 0) {
+	if ((e = __pmSendInstanceReq(fd[1], mypid, &nowtv, 0xface, indomlist[i].inst, indomlist[i].name)) < 0) {
 	    fprintf(stderr, "Error: SendInstanceReq: %s\n", pmErrStr(e));
 	    fatal = 1;
 	    goto cleanup;
@@ -670,9 +931,9 @@ _z(void)
 		    goto cleanup;
 		}
 		else {
-		    if (tmp.tv_sec != now.tv_sec || tmp.tv_usec != now.tv_usec)
+		    if (tmp.tv_sec != 0 || tmp.tv_usec != 0)
 			fprintf(stderr, "Botch: InstanceReq: when: got: %d,%d expect: %d,%d\n",
-			    tmp.tv_sec, tmp.tv_usec, now.tv_sec, now.tv_usec);
+			    tmp.tv_sec, tmp.tv_usec, nowtv.tv_sec, nowtv.tv_usec);
 		    if (indom != 0xface)
 			fprintf(stderr, "Botch: InstanceReq: indom: got: 0x%x expect: 0x%x\n",
 			    indom, 0xface);
@@ -1346,7 +1607,9 @@ _z(void)
 		goto cleanup;
 	    }
 	    else {
-		if ((e = __pmDecodeLogControl(pb, &resp, &control, &state, &rate)) < 0) {
+		pmResult	*logresp;
+
+		if ((e = __pmDecodeLogControl(pb, &logresp, &control, &state, &rate)) < 0) {
 		    fprintf(stderr, "Error: DecodeLogControl: numval=%d %s\n", nv, pmErrStr(e));
 		    fatal = 1;
 		    goto cleanup;
@@ -1361,33 +1624,33 @@ _z(void)
 		    if (rate != 1000)
 			fprintf(stderr, "Botch: LogControl: numval=%d rate: got: %d expect: %d\n",
 			    nv, rate, 1000);
-		    if (resp->numpmid != rp->numpmid)
+		    if (logresp->numpmid != rp->numpmid)
 			fprintf(stderr, "Botch: LogControl: numval=%d numpmid: got: %d expect: %d\n",
-			    nv, resp->numpmid, rp->numpmid);
+			    nv, logresp->numpmid, rp->numpmid);
 		    else {
 			for (i = 0; i < rp->numpmid; i++) {
-			    if (resp->vset[i]->pmid != rp->vset[i]->pmid)
+			    if (logresp->vset[i]->pmid != rp->vset[i]->pmid)
 				fprintf(stderr, "Botch: LogControl: numval=%d vset[%d].pmid: got: 0x%x expect: 0x%x\n",
-				    nv, i, resp->vset[i]->pmid, rp->vset[i]->pmid);
-			    if (resp->vset[i]->valfmt != rp->vset[i]->valfmt)
+				    nv, i, logresp->vset[i]->pmid, rp->vset[i]->pmid);
+			    if (logresp->vset[i]->valfmt != rp->vset[i]->valfmt)
 				fprintf(stderr, "Botch: LogControl: numval=%d vset[%d].valfmt: got: %d expect: %d\n",
-				    nv, i, resp->vset[i]->valfmt, rp->vset[i]->valfmt);
-			    if (resp->vset[i]->numval != rp->vset[i]->numval)
+				    nv, i, logresp->vset[i]->valfmt, rp->vset[i]->valfmt);
+			    if (logresp->vset[i]->numval != rp->vset[i]->numval)
 				fprintf(stderr, "Botch: LogControl: numval=%d vset[%d].numval: got: %d expect: %d\n",
-				    nv, i, resp->vset[i]->numval, rp->vset[i]->numval);
+				    nv, i, logresp->vset[i]->numval, rp->vset[i]->numval);
 			    else {
 				for (j = 0; j < rp->vset[i]->numval; j++) {
-				    if (resp->vset[i]->vlist[j].inst != rp->vset[i]->vlist[j].inst)
+				    if (logresp->vset[i]->vlist[j].inst != rp->vset[i]->vlist[j].inst)
 					fprintf(stderr, "Botch: LogControl: numval=%d vset[%d][%d].inst: got: %d expect: %d\n",
-					    nv, i, j, resp->vset[i]->vlist[j].inst, rp->vset[i]->vlist[j].inst);
-				    if (resp->vset[i]->vlist[j].value.lval != rp->vset[i]->vlist[j].value.lval)
+					    nv, i, j, logresp->vset[i]->vlist[j].inst, rp->vset[i]->vlist[j].inst);
+				    if (logresp->vset[i]->vlist[j].value.lval != rp->vset[i]->vlist[j].value.lval)
 					fprintf(stderr, "Botch: LogControl: numval=%d vset[%d][%d].value.lval: got: %d expect: %d\n",
-					    nv, i, j, resp->vset[i]->vlist[j].value.lval, rp->vset[i]->vlist[j].value.lval);
+					    nv, i, j, logresp->vset[i]->vlist[j].value.lval, rp->vset[i]->vlist[j].value.lval);
 				}
 			    }
 			}
 		    }
-		    pmFreeResult(resp);
+		    pmFreeResult(logresp);
 		}
 	    }
 	}
@@ -1619,6 +1882,20 @@ cleanup:
 	    free(rp->vset[i]);
 	}
 	free(rp);
+    }
+
+    /* done with hrrp by now */
+    if (hrrp != NULL) {
+	for (i = 0; i < hrrp->numpmid; i++) {
+	    if (hrrp->vset[i]->numval > 0 && hrrp->vset[i]->valfmt == PM_VAL_DPTR) {
+		for (j = 0; j < hrrp->vset[i]->numval; j++) {
+		    if (hrrp->vset[i]->vlist[j].value.pval != NULL)
+			free(hrrp->vset[i]->vlist[j].value.pval);
+		}
+	    }
+	    free(hrrp->vset[i]);
+	}
+	free(hrrp);
     }
 
     if (fatal)

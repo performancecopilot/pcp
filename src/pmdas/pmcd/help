@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013,2017,2019-2020 Red Hat.
+# Copyright (c) 2013,2017,2019-2021 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -208,6 +208,16 @@ Running total of BINARY mode LABEL PDUs received by PMCD from
 clients and agents.  These PDUs are used to send custom metric
 metadata in the form of name:value pairs (labels).
 
+@ pmcd.pdu_in.highres_fetch HIGHRES_FETCH PDUs received by PMCD
+Running total of HIGHRES FETCH PDUs received by PMCD from clients and
+agents.  These PDUs are used to request high resolution timestamps in
+fetch (metric value sampling) responses.
+
+@ pmcd.pdu_in.highres_result HIGHRES_RESULT PDUs received by PMCD
+Running total of HIGHRES RESULT PDUs received by PMCD from clients and
+agents.  These PDUs are used to respond with high resolution timestamps
+to fetch (metric value sampling) requests.
+
 @ pmcd.pdu_out.total Total PDUs sent by PMCD
 Running total of all BINARY mode PDUs sent by the PMCD to clients and
 agents.
@@ -287,6 +297,16 @@ and agents.  These are used to request metadata labels (name:value pairs).
 @ pmcd.pdu_out.label LABEL PDUs sent by PMCD
 Running total of BINARY mode LABEL PDUs sent by the PMCD to clients
 and agents.  These are used to send metadata labels (name:value pairs).
+
+@ pmcd.pdu_out.highres_fetch HIGHRES_FETCH PDUs sent by PMCD
+Running total of HIGHRES FETCH PDUs sent by the PMCD to clients and
+agents.  These PDUs are used to request high resolution timestamps in
+fetch (metric value sampling) responses.
+
+@ pmcd.pdu_out.highres_result HIGHRES_RESULT PDUs sent by PMCD
+Running total of HIGHRES RESULT PDUs sent by the PMCD to clients and
+agents.  These PDUs are used to respond with high resolution timestamps
+to fetch (metric value sampling) requests.
 
 @ pmcd.pmlogger.host host where active pmlogger is running
 The fully qualified domain name of the host on which a pmlogger

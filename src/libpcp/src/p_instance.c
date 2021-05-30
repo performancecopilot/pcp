@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 Red Hat.
+ * Copyright (c) 2012-2013,2021 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -24,14 +24,14 @@
 typedef struct {
     __pmPDUHdr		hdr;
     pmInDom		indom;
-    pmTimeval		when;			/* desired time */
+    pmTimeval		unused;			/* backward-compatibility */
     int			inst;			/* may be PM_IN_NULL */
     int			namelen;		/* chars in name[], may be 0 */
     char		name[sizeof(int)];	/* may be missing */
 } instance_req_t;
 
 int
-__pmSendInstanceReq(int fd, int from, const pmTimeval *when, pmInDom indom, 
+__pmSendInstanceReq(int fd, int from, const void *unused, pmInDom indom, 
 		    int inst, const char *name)
 {
     instance_req_t	*pp;
@@ -46,8 +46,7 @@ __pmSendInstanceReq(int fd, int from, const pmTimeval *when, pmInDom indom,
     pp->hdr.len = need;
     pp->hdr.type = PDU_INSTANCE_REQ;
     pp->hdr.from = from;
-    pp->when.tv_sec = htonl((__int32_t)when->tv_sec);
-    pp->when.tv_usec = htonl((__int32_t)when->tv_usec);
+    memset(&pp->unused, 0, sizeof(pp->unused));
     pp->indom = __htonpmInDom(indom);
     pp->inst = htonl(inst);
     if (name == NULL)
@@ -72,7 +71,7 @@ __pmSendInstanceReq(int fd, int from, const pmTimeval *when, pmInDom indom,
 }
 
 int
-__pmDecodeInstanceReq(__pmPDU *pdubuf, pmTimeval *when, pmInDom *indom, int *inst, char **name)
+__pmDecodeInstanceReq(__pmPDU *pdubuf, void *unused, pmInDom *indom, int *inst, char **name)
 {
     instance_req_t	*pp;
     char		*np, *pdu_end;
@@ -84,10 +83,9 @@ __pmDecodeInstanceReq(__pmPDU *pdubuf, pmTimeval *when, pmInDom *indom, int *ins
     if (pdu_end - (char *)pp < sizeof(instance_req_t) - sizeof(pp->name))
 	return PM_ERR_IPC;
 
-    when->tv_sec = ntohl(pp->when.tv_sec);
-    when->tv_usec = ntohl(pp->when.tv_usec);
     *indom = __ntohpmInDom(pp->indom);
     *inst = ntohl(pp->inst);
+    memset(unused, 0, sizeof(pp->unused));
     namelen = ntohl(pp->namelen);
     if (namelen > 0) {
 	if (namelen >= INT_MAX - 1 || namelen > pp->hdr.len)

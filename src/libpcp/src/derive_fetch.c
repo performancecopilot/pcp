@@ -1,11 +1,12 @@
 /*
  * Copyright (c) 2009,2014 Ken McDonell.  All Rights Reserved.
- * 
+ * Copyright (c) 2021 Red Hat.
+ *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation; either version 2.1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
@@ -679,7 +680,8 @@ regex_inst_gc(pattern_t *pp)
  * towards the root node of the tree.
  */
 static int
-eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
+eval_expr(__pmContext *ctxp, node_t *np, struct timespec *stamp, int numpmid,
+		pmValueSet **vset, int level)
 {
     int		sts;
     int		i;
@@ -687,11 +689,10 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
     int		k;
     size_t	need;
     char	strbuf[20];
-    pmTimeval	save_origin;
 
     assert(np != NULL);
     if (np->left != NULL) {
-	sts = eval_expr(ctxp, np->left, rp, level+1);
+	sts = eval_expr(ctxp, np->left, stamp, numpmid, vset, level+1);
 	if (sts < 0) {
 	    if (np->type == N_COUNT) {
 		/* count() ... special case, map errors to 0 */
@@ -711,7 +712,7 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 	}
     }
     if (np->right != NULL) {
-	sts = eval_expr(ctxp, np->right, rp, level+1);
+	sts = eval_expr(ctxp, np->right, stamp, numpmid, vset, level+1);
 	if (sts < 0) return sts;
     }
 
@@ -767,7 +768,7 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 	     * this and the last values are in the left expr
 	     */
 	    np->data.info->last_stamp = np->data.info->stamp;
-	    np->data.info->stamp = rp->timestamp;
+	    np->data.info->stamp = *stamp;
 	    free_ivlist(np);
 	    np->data.info->numval = np->left->data.info->numval <= np->left->data.info->last_numval ? np->left->data.info->numval : np->left->data.info->last_numval;
 	    if (np->data.info->numval <= 0)
@@ -847,9 +848,10 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 		}
 		else {
 		    /* rate() conversion, type will be DOUBLE */
-		    struct timeval	stampdiff;
+		    struct timespec	stampdiff;
+
 		    stampdiff = np->data.info->stamp;
-		    pmtimevalDec(&stampdiff, &np->data.info->last_stamp);
+		    pmtimespecDec(&stampdiff, &np->data.info->last_stamp);
 		    switch (np->left->desc.type) {
 			case PM_TYPE_32:
 			    np->data.info->ivlist[k].value.d = (double)(np->left->data.info->ivlist[i].value.l - np->left->data.info->last_ivlist[j].value.l);
@@ -876,7 +878,7 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 			     */
 			    return PM_ERR_CONV;
 		    }
-		    np->data.info->ivlist[k].value.d /= pmtimevalToReal(&stampdiff);
+		    np->data.info->ivlist[k].value.d /= pmtimespecToReal(&stampdiff);
 		    /*
 		     * check_expr() ensures dimTime is 0 or 1 at bind time
 		     */
@@ -1174,7 +1176,7 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 	     */
 	    assert(np->left != NULL);
 	    np->data.info->last_stamp = np->data.info->stamp;
-	    np->data.info->stamp = rp->timestamp;
+	    np->data.info->stamp = *stamp;
 	    np->data.info->numval = np->left->data.info->numval;
 	    if (np->data.info->numval > 0)
 		np->data.info->ivlist = np->left->data.info->ivlist;
@@ -1389,10 +1391,10 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 	     * Extract instance-values from pmResult and store them in
 	     * ivlist[] as <int, pmAtomValue> pairs
 	     */
-	    for (j = 0; j < rp->numpmid; j++) {
-		if (np->data.info->pmid == rp->vset[j]->pmid) {
+	    for (j = 0; j < numpmid; j++) {
+		if (np->data.info->pmid == vset[j]->pmid) {
 		    free_ivlist(np);
-		    np->data.info->numval = rp->vset[j]->numval;
+		    np->data.info->numval = vset[j]->numval;
 		    if (np->data.info->numval <= 0)
 			return np->data.info->numval;
 		    if ((np->data.info->ivlist = (val_t *)malloc(np->data.info->numval*sizeof(val_t))) == NULL) {
@@ -1400,58 +1402,58 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 			/*NOTREACHED*/
 		    }
 		    for (i = 0; i < np->data.info->numval; i++) {
-			np->data.info->ivlist[i].inst = rp->vset[j]->vlist[i].inst;
+			np->data.info->ivlist[i].inst = vset[j]->vlist[i].inst;
 			switch (np->desc.type) {
 			    case PM_TYPE_32:
 			    case PM_TYPE_U32:
-				np->data.info->ivlist[i].value.l = rp->vset[j]->vlist[i].value.lval;
+				np->data.info->ivlist[i].value.l = vset[j]->vlist[i].value.lval;
 				break;
 			    case PM_TYPE_64:
 			    case PM_TYPE_U64:
-				if (rp->vset[j]->valfmt != PM_VAL_DPTR && rp->vset[j]->valfmt != PM_VAL_SPTR)
+				if (vset[j]->valfmt != PM_VAL_DPTR && vset[j]->valfmt != PM_VAL_SPTR)
 				    return PM_ERR_LOGREC;
-				memcpy((void *)&np->data.info->ivlist[i].value.ll, (void *)rp->vset[j]->vlist[i].value.pval->vbuf, sizeof(__int64_t));
+				memcpy((void *)&np->data.info->ivlist[i].value.ll, (void *)vset[j]->vlist[i].value.pval->vbuf, sizeof(__int64_t));
 				break;
 			    case PM_TYPE_FLOAT:
-				if (rp->vset[j]->valfmt == PM_VAL_INSITU) {
+				if (vset[j]->valfmt == PM_VAL_INSITU) {
 				    /* old style insitu float */
-				    np->data.info->ivlist[i].value.l = rp->vset[j]->vlist[i].value.lval;
+				    np->data.info->ivlist[i].value.l = vset[j]->vlist[i].value.lval;
 				}
-				else if (rp->vset[j]->valfmt == PM_VAL_DPTR || rp->vset[j]->valfmt == PM_VAL_SPTR) {
-				    assert(rp->vset[j]->vlist[i].value.pval->vtype == PM_TYPE_FLOAT);
-				    memcpy((void *)&np->data.info->ivlist[i].value.f, (void *)rp->vset[j]->vlist[i].value.pval->vbuf, sizeof(float));
+				else if (vset[j]->valfmt == PM_VAL_DPTR || vset[j]->valfmt == PM_VAL_SPTR) {
+				    assert(vset[j]->vlist[i].value.pval->vtype == PM_TYPE_FLOAT);
+				    memcpy((void *)&np->data.info->ivlist[i].value.f, (void *)vset[j]->vlist[i].value.pval->vbuf, sizeof(float));
 				}
 				else
 				    return PM_ERR_LOGREC;
 				break;
 			    case PM_TYPE_DOUBLE:
-				if (rp->vset[j]->valfmt != PM_VAL_DPTR && rp->vset[j]->valfmt != PM_VAL_SPTR)
+				if (vset[j]->valfmt != PM_VAL_DPTR && vset[j]->valfmt != PM_VAL_SPTR)
 				    return PM_ERR_LOGREC;
-				memcpy((void *)&np->data.info->ivlist[i].value.d, (void *)rp->vset[j]->vlist[i].value.pval->vbuf, sizeof(double));
+				memcpy((void *)&np->data.info->ivlist[i].value.d, (void *)vset[j]->vlist[i].value.pval->vbuf, sizeof(double));
 				break;
 			    case PM_TYPE_STRING:
-				if (rp->vset[j]->valfmt != PM_VAL_DPTR && rp->vset[j]->valfmt != PM_VAL_SPTR)
+				if (vset[j]->valfmt != PM_VAL_DPTR && vset[j]->valfmt != PM_VAL_SPTR)
 				    return PM_ERR_LOGREC;
-				need = rp->vset[j]->vlist[i].value.pval->vlen-PM_VAL_HDR_SIZE;
+				need = vset[j]->vlist[i].value.pval->vlen-PM_VAL_HDR_SIZE;
 				if ((np->data.info->ivlist[i].value.cp = (char *)malloc(need)) == NULL) {
-				    pmNoMem("eval_expr: string value", rp->vset[j]->vlist[i].value.pval->vlen, PM_FATAL_ERR);
+				    pmNoMem("eval_expr: string value", vset[j]->vlist[i].value.pval->vlen, PM_FATAL_ERR);
 				    /*NOTREACHED*/
 				}
-				memcpy((void *)np->data.info->ivlist[i].value.cp, (void *)rp->vset[j]->vlist[i].value.pval->vbuf, need);
+				memcpy((void *)np->data.info->ivlist[i].value.cp, (void *)vset[j]->vlist[i].value.pval->vbuf, need);
 				np->data.info->ivlist[i].vlen = need;
 				break;
 			    case PM_TYPE_AGGREGATE:
 			    case PM_TYPE_AGGREGATE_STATIC:
 			    case PM_TYPE_EVENT:
 			    case PM_TYPE_HIGHRES_EVENT:
-				if (rp->vset[j]->valfmt != PM_VAL_DPTR && rp->vset[j]->valfmt != PM_VAL_SPTR)
+				if (vset[j]->valfmt != PM_VAL_DPTR && vset[j]->valfmt != PM_VAL_SPTR)
 				    return PM_ERR_LOGREC;
-				if ((np->data.info->ivlist[i].value.vbp = (pmValueBlock *)malloc(rp->vset[j]->vlist[i].value.pval->vlen)) == NULL) {
-				    pmNoMem("eval_expr: aggregate value", rp->vset[j]->vlist[i].value.pval->vlen, PM_FATAL_ERR);
+				if ((np->data.info->ivlist[i].value.vbp = (pmValueBlock *)malloc(vset[j]->vlist[i].value.pval->vlen)) == NULL) {
+				    pmNoMem("eval_expr: aggregate value", vset[j]->vlist[i].value.pval->vlen, PM_FATAL_ERR);
 				    /*NOTREACHED*/
 				}
-				memcpy(np->data.info->ivlist[i].value.vbp, (void *)rp->vset[j]->vlist[i].value.pval, rp->vset[j]->vlist[i].value.pval->vlen);
-				np->data.info->ivlist[i].vlen = rp->vset[j]->vlist[i].value.pval->vlen;
+				memcpy(np->data.info->ivlist[i].value.vbp, (void *)vset[j]->vlist[i].value.pval, vset[j]->vlist[i].value.pval->vlen);
+				np->data.info->ivlist[i].vlen = vset[j]->vlist[i].value.pval->vlen;
 				break;
 			    default:
 				/*
@@ -1464,10 +1466,8 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 		    return np->data.info->numval;
 		}
 	    }
-	    if (pmDebugOptions.derive) {
+	    if (pmDebugOptions.derive)
 		fprintf(stderr, "eval_expr: botch: operand %s not in the extended pmResult\n", pmIDStr_r(np->data.info->pmid, strbuf, sizeof(strbuf)));
-		__pmDumpResult_ctx(ctxp, stderr, rp);
-	    }
 	    return PM_ERR_PMID;
 
 	case N_DEFINED:
@@ -1489,7 +1489,7 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 	    assert(np->left != NULL);
 	    assert(np->right != NULL);
 	    np->data.info->last_stamp = np->data.info->stamp;
-	    np->data.info->stamp = rp->timestamp;
+	    np->data.info->stamp = *stamp;
 	    if (np->left->data.pattern->ftype == F_REGEX)
 		free_ivlist(np);
 	    else
@@ -1501,7 +1501,10 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 		    instctl_t		*ip;
 		    char		*iname;
 		    char		*q;
+
 		    if ((hp = __pmHashSearch(np->right->data.info->ivlist[i].inst, &np->left->data.pattern->hash)) == NULL) {
+			pmTimeval	save_origin;
+
 			/* first time we've seen this inst for this expr node */
 			if ((ip = (instctl_t *)malloc(sizeof(instctl_t))) == NULL) {
 			    pmNoMem("eval_expr: inst_ctl", sizeof(instctl_t), PM_FATAL_ERR);
@@ -1516,8 +1519,8 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 			     * back.
 			     */
 			    save_origin = ctxp->c_origin;	/* struct assignment */
-			    ctxp->c_origin.tv_sec = rp->timestamp.tv_sec;
-			    ctxp->c_origin.tv_usec = rp->timestamp.tv_usec;
+			    ctxp->c_origin.tv_sec = stamp->tv_sec;
+			    ctxp->c_origin.tv_usec = stamp->tv_nsec / 1000;
 			}
 			sts = pmNameInDom_ctx(ctxp, np->right->desc.indom, ip->inst, &iname);
 			if (ctxp->c_type == PM_CONTEXT_ARCHIVE)
@@ -1781,9 +1784,10 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 }
 
 /*
- * Algorithm here is complicated by trying to re-write the pmResult.
+ * Algorithm here is complicated by trying to re-write the pmValueSets
+ * in a result structure (either pmResult or pmHighResResult).
  *
- * On entry the pmResult is likely to be built over a pinned PDU buffer,
+ * On entry the result is likely to be built over a pinned PDU buffer,
  * which means individual pmValueSets cannot be selectively replaced
  * (this would come to tears badly in pmFreeResult() where as soon as
  * one pmValueSet is found to be in a pinned PDU buffer it is assumed
@@ -1808,46 +1812,33 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
  * - pmValueBlocks are from malloc()
  *
  * For reference, the same logic appears in __pmLogFetchInterp() to
- * sythesize a pmResult there.
+ * synthesize a pmResult there.
  */
-void
-__dmpostfetch(__pmContext *ctxp, pmResult **result)
+
+static int
+__dmpostvalueset(__pmContext *ctxp, struct timespec *stamp, int vnumpmid,
+		pmValueSet **vset, int numpmid, pmValueSet **newvset)
 {
-    int		i;
-    int		j;
-    int		m;
+    int		i, j, m;
     int		numval;
     int		valfmt;
+    int		fails = 0;
     size_t	need;
     int		rewrite;
     ctl_t	*cp = (ctl_t *)ctxp->c_dm;
-    pmResult	*rp = *result;
-    pmResult	*newrp;
 
-    /* if needed, __dminit() called in __dmopencontext beforehand */
-
-    if (cp == NULL || cp->fetch_has_dm == 0) return;
-
-    newrp = (pmResult *)malloc(sizeof(pmResult)+(cp->numpmid-1)*sizeof(pmValueSet *));
-    if (newrp == NULL) {
-	pmNoMem("__dmpostfetch: newrp", sizeof(pmResult)+(cp->numpmid-1)*sizeof(pmValueSet *), PM_FATAL_ERR);
-	/*NOTREACHED*/
-    }
-    newrp->timestamp = rp->timestamp;
-    newrp->numpmid = cp->numpmid;
-
-    for (j = 0; j < newrp->numpmid; j++) {
-	numval = rp->vset[j]->numval;
-	valfmt = rp->vset[j]->valfmt;
+    for (j = 0; j < numpmid; j++) {
+	numval = vset[j]->numval;
+	valfmt = vset[j]->valfmt;
 	rewrite = 0;
 	/*
 	 * pandering to gcc ... m is not used unless rewrite == 1 in
 	 * which case m is well-defined
 	 */
 	m = 0;
-	if (IS_DERIVED(rp->vset[j]->pmid)) {
+	if (IS_DERIVED(vset[j]->pmid)) {
 	    for (m = 0; m < cp->nmetric; m++) {
-		if (rp->vset[j]->pmid == cp->mlist[m].pmid) {
+		if (vset[j]->pmid == cp->mlist[m].pmid) {
 		    if (cp->mlist[m].expr == NULL) {
 			numval = PM_ERR_PMID;
 		    }
@@ -1858,37 +1849,48 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 			    valfmt = PM_VAL_INSITU;
 			else
 			    valfmt = PM_VAL_DPTR;
-			numval = eval_expr(ctxp, cp->mlist[m].expr, rp, 1);
-    if (pmDebugOptions.derive && pmDebugOptions.appl2) {
-	int	k;
-	char	strbuf[20];
 
-	fprintf(stderr, "__dmpostfetch: [%d] root node %s: numval=%d", j, pmIDStr_r(rp->vset[j]->pmid, strbuf, sizeof(strbuf)), numval);
-	for (k = 0; k < numval; k++) {
-	    fprintf(stderr, " vset[%d]: inst=%d", k, cp->mlist[m].expr->data.info->ivlist[k].inst);
-	    if (cp->mlist[m].expr->desc.type == PM_TYPE_32)
-		fprintf(stderr, " l=%d", cp->mlist[m].expr->data.info->ivlist[k].value.l);
-	    else if (cp->mlist[m].expr->desc.type == PM_TYPE_U32)
-		fprintf(stderr, " u=%u", cp->mlist[m].expr->data.info->ivlist[k].value.ul);
-	    else if (cp->mlist[m].expr->desc.type == PM_TYPE_64)
-		fprintf(stderr, " ll=%"PRIi64, cp->mlist[m].expr->data.info->ivlist[k].value.ll);
-	    else if (cp->mlist[m].expr->desc.type == PM_TYPE_U64)
-		fprintf(stderr, " ul=%"PRIu64, cp->mlist[m].expr->data.info->ivlist[k].value.ull);
-	    else if (cp->mlist[m].expr->desc.type == PM_TYPE_FLOAT)
-		fprintf(stderr, " f=%f", (double)cp->mlist[m].expr->data.info->ivlist[k].value.f);
-	    else if (cp->mlist[m].expr->desc.type == PM_TYPE_DOUBLE)
-		fprintf(stderr, " d=%f", cp->mlist[m].expr->data.info->ivlist[k].value.d);
-	    else if (cp->mlist[m].expr->desc.type == PM_TYPE_STRING) {
-		fprintf(stderr, " cp=%s (len=%d)", cp->mlist[m].expr->data.info->ivlist[k].value.cp, cp->mlist[m].expr->data.info->ivlist[k].vlen);
-	    }
-	    else {
-		fprintf(stderr, " vbp=" PRINTF_P_PFX "%p (len=%d)", cp->mlist[m].expr->data.info->ivlist[k].value.vbp, cp->mlist[m].expr->data.info->ivlist[k].vlen);
-	    }
-	}
-	fputc('\n', stderr);
-	if (cp->mlist[m].expr->data.info != NULL)
-	    __dmdumpexpr(cp->mlist[m].expr, 1);
-    }
+			numval = eval_expr(ctxp, cp->mlist[m].expr,
+						stamp, vnumpmid, vset, 1);
+			if (numval == PM_ERR_PMID)
+			    fails++;
+
+			if (pmDebugOptions.derive && pmDebugOptions.appl2) {
+			    int		k, type = cp->mlist[m].expr->desc.type;
+			    info_t	*info = cp->mlist[m].expr->data.info;
+			    char	strbuf[20];
+	
+			    pmIDStr_r(vset[j]->pmid, strbuf, sizeof(strbuf));
+			    fprintf(stderr, "%s: [%d] root node %s: numval=%d",
+					    "__dmpostvalueset", j, strbuf, numval);
+			    for (k = 0; k < numval; k++) {
+				pmAtomValue value = info->ivlist[k].value;
+
+				fprintf(stderr, " vset[%d]: inst=%d", k,
+						info->ivlist[k].inst);
+				if (type == PM_TYPE_32)
+				    fprintf(stderr, " l=%d", value.l);
+				else if (type == PM_TYPE_U32)
+				    fprintf(stderr, " u=%u", value.ul);
+				else if (type == PM_TYPE_64)
+				    fprintf(stderr, " ll=%"PRIi64, value.ll);
+				else if (type == PM_TYPE_U64)
+				    fprintf(stderr, " ul=%"PRIu64, value.ull);
+				else if (type == PM_TYPE_FLOAT)
+				    fprintf(stderr, " f=%f", (double)value.f);
+				else if (type == PM_TYPE_DOUBLE)
+				    fprintf(stderr, " d=%f", value.d);
+				else if (type == PM_TYPE_STRING)
+				    fprintf(stderr, " cp=%s (len=%d)", value.cp,
+						info->ivlist[k].vlen);
+				else
+				    fprintf(stderr, " vbp="PRINTF_P_PFX"%p (len=%d)",
+						value.vbp, info->ivlist[k].vlen);
+			    }
+			    fputc('\n', stderr);
+			    if (info != NULL)
+				__dmdumpexpr(cp->mlist[m].expr, 1);
+			}
 		    }
 		    break;
 		}
@@ -1904,14 +1906,14 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 	    need = sizeof(pmValueSet) + (numval - 1)*sizeof(pmValue);
 	}
 	if (need > 0) {
-	    if ((newrp->vset[j] = (pmValueSet *)malloc(need)) == NULL) {
-		pmNoMem("__dmpostfetch: vset", need, PM_FATAL_ERR);
+	    if ((newvset[j] = (pmValueSet *)malloc(need)) == NULL) {
+		pmNoMem("__dmpostvalueset: vset", need, PM_FATAL_ERR);
 		/*NOTREACHED*/
 	    }
 	}
-	newrp->vset[j]->pmid = rp->vset[j]->pmid;
-	newrp->vset[j]->numval = numval;
-	newrp->vset[j]->valfmt = valfmt;
+	newvset[j]->pmid = vset[j]->pmid;
+	newvset[j]->numval = numval;
+	newvset[j]->valfmt = valfmt;
 	if (numval < 0)
 	    continue;
 
@@ -1919,33 +1921,33 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 	    pmValueBlock	*vp;
 
 	    if (!rewrite) {
-		newrp->vset[j]->vlist[i].inst = rp->vset[j]->vlist[i].inst;
-		if (rp->vset[j]->valfmt == PM_VAL_DPTR || rp->vset[j]->valfmt == PM_VAL_SPTR) {
-		    need = rp->vset[j]->vlist[i].value.pval->vlen;
-		    vp = (pmValueBlock *)malloc(need);
-		    if (vp == NULL) {
-			pmNoMem("__dmpostfetch: copy value", need, PM_FATAL_ERR);
+		newvset[j]->vlist[i].inst = vset[j]->vlist[i].inst;
+		if ((vset[j]->valfmt == PM_VAL_DPTR) ||
+		    (vset[j]->valfmt == PM_VAL_SPTR)) {
+		    need = vset[j]->vlist[i].value.pval->vlen;
+		    if ((vp = (pmValueBlock *)malloc(need)) == NULL) {
+			pmNoMem("__dmpostvalueset: copy value", need, PM_FATAL_ERR);
 			/*NOTREACHED*/
 		    }
 		    if (pmDebugOptions.alloc) {
 			char	strbuf[20];
-			fprintf(stderr, "__dmpostfetch: pmValueBlock alloc: " PRINTF_P_PFX "%p newrp: " PRINTF_P_PFX "%p pmid: %s valfmt: %d\n",
-			    vp, newrp, pmIDStr_r(rp->vset[j]->pmid, strbuf, sizeof(strbuf)), rp->vset[j]->valfmt);
+			fprintf(stderr, "__dmpostvalueset: pmValueBlock alloc: " PRINTF_P_PFX "%p newvset: " PRINTF_P_PFX "%p pmid: %s valfmt: %d\n",
+			    vp, newvset, pmIDStr_r(vset[j]->pmid, strbuf, sizeof(strbuf)), vset[j]->valfmt);
 		    }
-		    memcpy((void *)vp, (void *)rp->vset[j]->vlist[i].value.pval, need);
-		    newrp->vset[j]->vlist[i].value.pval = vp;
-		    if (rp->vset[j]->valfmt == PM_VAL_SPTR) {
+		    memcpy((void *)vp, (void *)vset[j]->vlist[i].value.pval, need);
+		    newvset[j]->vlist[i].value.pval = vp;
+		    if (vset[j]->valfmt == PM_VAL_SPTR) {
 			/*
 			 * memcpy() means this is no longer static buffer,
 			 * change valfmt so pmFreeResult() is a happy
 			 * camper and there's no memory leak
 			 */
-			newrp->vset[j]->valfmt = PM_VAL_DPTR;
+			newvset[j]->valfmt = PM_VAL_DPTR;
 		    }
 		}
 		else {
-		    /* punt on rp->vset[j]->valfmt == PM_VAL_INSITU */
-		    newrp->vset[j]->vlist[i].value.lval = rp->vset[j]->vlist[i].value.lval;
+		    /* punt on vset[j]->valfmt == PM_VAL_INSITU */
+		    newvset[j]->vlist[i].value.lval = vset[j]->vlist[i].value.lval;
 		}
 		continue;
 	    }
@@ -1953,61 +1955,60 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 	    /*
 	     * the rewrite case ...
 	     */
-	    newrp->vset[j]->vlist[i].inst = cp->mlist[m].expr->data.info->ivlist[i].inst;
+	    newvset[j]->vlist[i].inst = cp->mlist[m].expr->data.info->ivlist[i].inst;
 	    switch (cp->mlist[m].expr->desc.type) {
 		case PM_TYPE_32:
 		case PM_TYPE_U32:
-		    newrp->vset[j]->vlist[i].value.lval = cp->mlist[m].expr->data.info->ivlist[i].value.l;
+		    newvset[j]->vlist[i].value.lval = cp->mlist[m].expr->data.info->ivlist[i].value.l;
 		    break;
 
 		case PM_TYPE_64:
 		case PM_TYPE_U64:
 		    need = PM_VAL_HDR_SIZE + sizeof(__int64_t);
 		    if ((vp = (pmValueBlock *)malloc(need)) == NULL) {
-			pmNoMem("__dmpostfetch: 64-bit int value", need, PM_FATAL_ERR);
+			pmNoMem("__dmpostvalueset: 64-bit int value", need, PM_FATAL_ERR);
 			/*NOTREACHED*/
 		    }
 		    vp->vlen = need;
 		    vp->vtype = cp->mlist[m].expr->desc.type;
 		    memcpy((void *)vp->vbuf, (void *)&cp->mlist[m].expr->data.info->ivlist[i].value.ll, sizeof(__int64_t));
-		    newrp->vset[j]->vlist[i].value.pval = vp;
+		    newvset[j]->vlist[i].value.pval = vp;
 		    break;
 
 		case PM_TYPE_FLOAT:
 		    need = PM_VAL_HDR_SIZE + sizeof(float);
 		    if ((vp = (pmValueBlock *)malloc(need)) == NULL) {
-			pmNoMem("__dmpostfetch: float value", need, PM_FATAL_ERR);
+			pmNoMem("__dmpostvalueset: float value", need, PM_FATAL_ERR);
 			/*NOTREACHED*/
 		    }
 		    vp->vlen = need;
 		    vp->vtype = PM_TYPE_FLOAT;
 		    memcpy((void *)vp->vbuf, (void *)&cp->mlist[m].expr->data.info->ivlist[i].value.f, sizeof(float));
-		    newrp->vset[j]->vlist[i].value.pval = vp;
+		    newvset[j]->vlist[i].value.pval = vp;
 		    break;
 
 		case PM_TYPE_DOUBLE:
 		    need = PM_VAL_HDR_SIZE + sizeof(double);
 		    if ((vp = (pmValueBlock *)malloc(need)) == NULL) {
-			pmNoMem("__dmpostfetch: double value", need, PM_FATAL_ERR);
+			pmNoMem("__dmpostvalueset: double value", need, PM_FATAL_ERR);
 			/*NOTREACHED*/
 		    }
 		    vp->vlen = need;
 		    vp->vtype = PM_TYPE_DOUBLE;
 		    memcpy((void *)vp->vbuf, (void *)&cp->mlist[m].expr->data.info->ivlist[i].value.f, sizeof(double));
-		    newrp->vset[j]->vlist[i].value.pval = vp;
+		    newvset[j]->vlist[i].value.pval = vp;
 		    break;
 
 		case PM_TYPE_STRING:
 		    need = PM_VAL_HDR_SIZE + cp->mlist[m].expr->data.info->ivlist[i].vlen;
-		    vp = (pmValueBlock *)malloc(need);
-		    if (vp == NULL) {
-			pmNoMem("__dmpostfetch: string value", need, PM_FATAL_ERR);
+		    if ((vp = (pmValueBlock *)malloc(need)) == NULL) {
+			pmNoMem("__dmpostvalueset: string value", need, PM_FATAL_ERR);
 			/*NOTREACHED*/
 		    }
 		    vp->vlen = need;
 		    vp->vtype = cp->mlist[m].expr->desc.type;
 		    memcpy((void *)vp->vbuf, cp->mlist[m].expr->data.info->ivlist[i].value.cp, cp->mlist[m].expr->data.info->ivlist[i].vlen);
-		    newrp->vset[j]->vlist[i].value.pval = vp;
+		    newvset[j]->vlist[i].value.pval = vp;
 		    break;
 
 		case PM_TYPE_AGGREGATE:
@@ -2015,13 +2016,12 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 		case PM_TYPE_EVENT:
 		case PM_TYPE_HIGHRES_EVENT:
 		    need = cp->mlist[m].expr->data.info->ivlist[i].vlen;
-		    vp = (pmValueBlock *)malloc(need);
-		    if (vp == NULL) {
-			pmNoMem("__dmpostfetch: aggregate or event value", need, PM_FATAL_ERR);
+		    if ((vp = (pmValueBlock *)malloc(need)) == NULL) {
+			pmNoMem("__dmpostvalueset: aggregate or event value", need, PM_FATAL_ERR);
 			/*NOTREACHED*/
 		    }
 		    memcpy((void *)vp, cp->mlist[m].expr->data.info->ivlist[i].value.vbp, cp->mlist[m].expr->data.info->ivlist[i].vlen);
-		    newrp->vset[j]->vlist[i].value.pval = vp;
+		    newvset[j]->vlist[i].value.pval = vp;
 		    break;
 
 		default:
@@ -2031,18 +2031,75 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 		     */
 		    if (pmDebugOptions.derive) {
 			char	strbuf[20];
-			fprintf(stderr, "__dmpostfetch: botch: drived metric[%d]: operand %s has odd type (%d)\n", m, pmIDStr_r(rp->vset[j]->pmid, strbuf, sizeof(strbuf)), cp->mlist[m].expr->desc.type);
+			fprintf(stderr, "__dmpostvalueset: botch: drived metric[%d]: operand %s has odd type (%d)\n", m, pmIDStr_r(vset[j]->pmid, strbuf, sizeof(strbuf)), cp->mlist[m].expr->desc.type);
 		    }
 		    break;
 	    }
 	}
     }
 
-    /*
-     * cull the original pmResult and return the rewritten one
-     */
+    return fails;
+}
+
+void
+__dmpostfetch(__pmContext *ctxp, pmResult **result)
+{
+    struct timespec	timestamp;
+    pmResult		*newrp, *rp = *result;
+    size_t		need;
+    ctl_t		*cp = (ctl_t *)ctxp->c_dm;
+    int			fails;
+
+    /* if needed, __dminit() called in __dmopencontext beforehand */
+    if (cp == NULL || cp->fetch_has_dm == 0)
+	return;
+
+    need = sizeof(pmResult) + (cp->numpmid - 1) * sizeof(pmValueSet *);
+    if ((newrp = (pmResult *)malloc(need)) == NULL) {
+	pmNoMem("__dmpostfetch: newrp", need, PM_FATAL_ERR);
+	/*NOTREACHED*/
+    }
+    newrp->numpmid = cp->numpmid;
+    newrp->timestamp = rp->timestamp;
+
+    timestamp.tv_sec = rp->timestamp.tv_sec;
+    timestamp.tv_nsec = rp->timestamp.tv_usec * 1000;
+    fails = __dmpostvalueset(ctxp, &timestamp, rp->numpmid, rp->vset,
+				newrp->numpmid, newrp->vset);
+    if (fails > 0 && pmDebugOptions.derive)
+	__pmDumpResult_ctx(ctxp, stderr, rp);
+
+    /* cull the original pmResult and return the rewritten one */
     pmFreeResult(rp);
     *result = newrp;
+}
 
-    return;
+void
+__dmposthighresfetch(__pmContext *ctxp, pmHighResResult **result)
+{
+    pmHighResResult	*newrp, *rp = *result;
+    size_t		need;
+    ctl_t		*cp = (ctl_t *)ctxp->c_dm;
+    int			fails;
+
+    /* if needed, __dminit() called in __dmopencontext beforehand */
+    if (cp == NULL || cp->fetch_has_dm == 0)
+	return;
+
+    need = sizeof(pmHighResResult) + (cp->numpmid - 1) * sizeof(pmValueSet *);
+    if ((newrp = (pmHighResResult *)malloc(need)) == NULL) {
+	pmNoMem("__dmposthighresfetch: newrp", need, PM_FATAL_ERR);
+	/*NOTREACHED*/
+    }
+    newrp->numpmid = cp->numpmid;
+    newrp->timestamp = rp->timestamp;
+
+    fails = __dmpostvalueset(ctxp, &rp->timestamp, rp->numpmid, rp->vset,
+				newrp->numpmid, newrp->vset);
+    if (fails > 0 && pmDebugOptions.derive)
+	__pmDumpHighResResult_ctx(ctxp, stderr, rp);
+
+    /* cull the original pmHighResResult and return the rewritten one */
+    pmFreeHighResResult(rp);
+    *result = newrp;
 }

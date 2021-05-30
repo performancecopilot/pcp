@@ -1,7 +1,7 @@
 '\"! tbl | mmdoc
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2012-2018 Red Hat.
+.\" Copyright (c) 2012-2018,2021 Red Hat.
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
@@ -17,13 +17,16 @@
 .\"
 .TH PMFETCH 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmFetch\f1 \- get performance metric values
+\f3pmFetch\f1,
+\f3pmHighResFetch\f1, \- get performance metric values
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
 .sp
 .nf
 int pmFetch(int \fInumpmid\fP, pmID *\fIpmidlist\fP, pmResult **\fIresult\fP);
+.br
+int pmHighResFetch(int \fInumpmid\fP, pmID *\fIpmidlist\fP, pmHighResResult **\fIresult\fP);
 .fi
 .sp
 cc ... \-lpcp
@@ -48,8 +51,10 @@ and
 .IR numpmid ,
 fetch the values for these performance metrics.
 .PP
-The call to
+A call to either
 .B pmFetch
+or
+.B pmHighResFetch
 is executed in the context of a source of metrics,
 instance profile and collection time,
 previously established by calls to
@@ -98,6 +103,27 @@ typedef struct {
       int            numpmid;        /* number of PMIDs */
       pmValueSet     *vset[1];       /* set of value sets */
 } pmResult;
+.in
+.fi
+.ft 1
+.PP
+The principal result from
+.B pmHighResFetch
+is exactly the same in terms of value sets, however a higher resolution
+timestamp (nanosecond instead of microsecond precision) is available in
+the
+.CW pmHighResResult
+structure.
+.PP
+.ft CW
+.nf
+.in +0.5i
+/* Result returned by pmHighResFetch() */
+typedef struct {
+      struct timespec timestamp;      /* time stamped by collector */
+      int             numpmid;        /* number of PMIDs */
+      pmValueSet      *vset[1];       /* set of value sets */
+} pmHighResResult;
 .in
 .fi
 .ft 1
@@ -251,6 +277,8 @@ and order of entries in
 completely deterministic,
 and greatly simplifies the application programming logic
 after the call to
+.B pmHighResFetch
+or
 .BR pmFetch .
 .PP
 The
@@ -278,6 +306,13 @@ and that host or the PMCS on that host became unreachable.
 Otherwise the value returned by the
 .B pmFetch
 function will be non-negative.
+.PP
+Similarly, the
+.I result
+structure returned by
+.B pmHighResFetch
+operates under the same principles, and should be released via
+.BR pmFreeHighResResult (3).
 .PP
 If the current context involves fetching metrics from a
 Performance Metrics Collector Daemon (PMCD), then the return value
@@ -307,22 +342,64 @@ however the
 .CW pmResult
 returned by
 .B pmFetch
+(or
+.CW pmHighResResult
+returned by
+.BR pmHighResFetch )
 has the same interpretation independent of the return value being
 zero or greater than zero.
+.SH SEE ALSO
+.BR pmcd (1),
+.BR pmAddProfile (3),
+.BR PMAPI (3),
+.BR pmDelProfile (3),
+.BR pmDupContext (3),
+.BR pmExtractValue (3),
+.BR pmFetchArchive (3),
+.BR pmFreeHighResResult (3),
+.BR pmFreeResult (3),
+.BR pmGetInDom (3),
+.BR pmLookupDesc (3),
+.BR pmLookupLabels (3),
+.BR pmLookupName (3),
+.BR pmNewContext (3),
+.BR pmSetMode (3),
+.BR pmUseContext (3)
+and
+.BR pmWhichContext (3).
+.PP
+Note that
+.B pmFetch
+and
+.B pmHighResFetch
+are the most primitive methods of fetching metric values from the PMCS.
+See the
+.BR pmFetchGroup (3)
+API for a higher level method that insulates
+the user from the intricacies of looking up metric names and metadata,
+setting up instance profiles,
+.CW pmResult
+traversal, conversions, and scaling.
 .SH DIAGNOSTICS
 As mentioned above,
 .B pmFetch
-returns error codes
+and
+.B pmHighResFetch
+return error codes
 .I insitu
 in the argument
 .IR result .
 If no result is returned,
 e.g. due to IPC failure using the current PMAPI context, or
-end of file on an archive log,
-then
-.B pmFetch
+end of file on an archive log, then these routines
 will return a negative error code which may be examined using
 .BR pmErrStr (3).
+.IP \f3PM_ERR_NYI\f1
+Currently PCP archives do not support high resolution timestamps,
+until this is addressed when fetching records from an archive log
+the
+.B pmHighResFetch
+will fail with the not-yet-implemented error code.
 .IP \f3PM_ERR_EOL\f1
 When fetching records from an archive log,
 .B pmFetch
@@ -361,32 +438,3 @@ as a counter overflow, and hence the values are assumed to have
 wrapped once in the interval between consecutive samples.
 This ``wrapping'' behavior was the default in earlier PCP versions, but
 by default has been disabled in PCP version 1.3 and later.
-.SH SEE ALSO
-.BR pmcd (1),
-.BR pmAddProfile (3),
-.BR PMAPI (3),
-.BR pmDelProfile (3),
-.BR pmDupContext (3),
-.BR pmExtractValue (3),
-.BR pmFetchArchive (3),
-.BR pmFreeResult (3),
-.BR pmGetInDom (3),
-.BR pmLookupDesc (3),
-.BR pmLookupLabels (3),
-.BR pmLookupName (3),
-.BR pmNewContext (3),
-.BR pmSetMode (3),
-.BR pmUseContext (3)
-and
-.BR pmWhichContext (3).
-.PP
-Note that
-.B pmFetch
-is the most primitive method of fetching metric values from the PMCS.
-See the
-.BR pmFetchGroup (3)
-API for a higher level method that insulates
-the user from the intricacies of looking up metric names and metadata,
-setting up instance profiles,
-.CW pmResult
-traversal, conversions, and scaling.

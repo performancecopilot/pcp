@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014,2017-2020 Red Hat.
+ * Copyright (c) 2012-2014,2017-2021 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -1337,6 +1337,7 @@ DoCreds(ClientInfo *cp, __pmPDU *pb)
 			{ PDU_FLAG_CONTAINER,	"CONTAINER" },
 			{ PDU_FLAG_BAD_LABEL,	"BAD_LABEL" },
 			{ PDU_FLAG_LABELS,	"LABELS" },
+			{ PDU_FLAG_HIGHRES,	"HIGHRES" },
 		    };
 		    int	i;
 		    int	first = 1;

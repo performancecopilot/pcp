@@ -15,12 +15,15 @@
 .\"
 .TH PMFREERESULT 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmFreeResult\f1 \- release storage allocated for performance metrics values
+\f3pmFreeResult\f1,
+\f3pmFreeHighResResult\f1, \- release storage allocated for performance metrics values
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
 .sp
 void pmFreeResult(pmResult *\fIresult\fP);
+.br
+void pmFreeHighResResult(pmHighResResult *\fIresult\fP);
 .sp
 cc ... \-lpcp
 .ft 1
@@ -31,6 +34,8 @@ cc ... \-lpcp
 ..
 The variable sized results returned by
 .BR pmFetch (3)
+and
+.BR pmHighResFetch (3)
 are allocated below the
 Performance Metrics Application Programming Interface (PMAPI)
 using a combination of dynamic (i.e. \c
@@ -55,8 +60,16 @@ to release storage previously allocated for a
 .CW pmResult
 by
 .BR pmFetch (3).
+.PP
+Similarly, memory allocated for the high resolution timestamped
+.I result
+structure returned from
+.BR pmHighResFetch (3)
+should be released by a call to
+.BR pmFreeHighResResult .
 .SH SEE ALSO
 .BR malloc (3),
-.BR PMAPI (3)
+.BR PMAPI (3),
+.BR pmFetch (3)
 and
-.BR pmFetch (3).
+.BR pmHighResFetch (3).

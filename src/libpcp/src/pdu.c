@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2012-2015 Red Hat.
+ * Copyright (c) 2012-2015,2017,2021 Red Hat.
  * Copyright (c) 1995-2005 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation; either version 2.1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
@@ -313,6 +313,8 @@ __pmPDUTypeStr_r(int type, char *buf, int buflen)
     case PDU_ATTR:		res = "ATTR"; break;
     case PDU_LABEL_REQ:		res = "LABEL_REQ"; break;
     case PDU_LABEL:		res = "LABEL"; break;
+    case PDU_HIGHRES_FETCH:	res = "HIGHRES_FETCH"; break;
+    case PDU_HIGHRES_RESULT:	res = "HIGHRES_RESULT"; break;
     default:			res = NULL; break;
     }
     if (res)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2020 Red Hat.
+ * Copyright (c) 2012-2021 Red Hat.
  * Copyright (c) 1997,2004 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -496,7 +496,10 @@ typedef struct pmResult {
     pmValueSet		*vset[1];	/* set of value sets, one per PMID */
 } pmResult;
 
-/* High resolution event timer result from pmUnpackHighResEventRecords() */
+/*
+ * Result returned by pmHighResFetch() and high resolution event timer
+ * result from pmUnpackHighResEventRecords()
+ */
 typedef struct pmHighResResult {
     struct timespec	timestamp;	/* time stamped by collector */
     int			numpmid;	/* number of PMIDs */
@@ -525,9 +528,10 @@ typedef union {
  * the number of metrics in the agument.  
  */
 PCP_CALL extern int pmFetch(int, pmID *, pmResult **);
+PCP_CALL extern int pmHighResFetch(int, pmID *, pmHighResResult **);
 
 /*
- * PMCD state changes returned as pmFetch function result for PM_CONTEXT_HOST
+ * PMCD state changes returned as fetch function results for PM_CONTEXT_HOST
  * contexts, i.e. when communicating with PMCD
  */
 #define PMCD_ADD_AGENT		(1<<0)
@@ -656,6 +660,7 @@ PCP_CALL extern int pmGetArchiveEnd(struct timeval *);
 
 /* Free result buffer */
 PCP_CALL extern void pmFreeResult(pmResult *);
+PCP_CALL extern void pmFreeHighResResult(pmHighResResult *);
 
 /* Value extract from pmValue and type conversion */
 PCP_CALL extern int pmExtractValue(int, const pmValue *, int, pmAtomValue *, int);
@@ -1048,7 +1053,7 @@ typedef struct pmEventRecord {
 } pmEventRecord;
 
 typedef struct pmHighResEventRecord {
-    pmTimespec	er_timestamp;	/* must be 2 x 64-bit format */
+    pmTimespec		er_timestamp;	/* must be 2 x 64-bit format */
     unsigned int	er_flags;	/* event record characteristics */
     int			er_nparams;	/* number of er_param[] entries */
     pmEventParameter	er_param[1];
@@ -1253,6 +1258,11 @@ PCP_CALL extern double pmtimevalSub(const struct timeval *, const struct timeval
 PCP_CALL extern double pmtimevalToReal(const struct timeval *);
 PCP_CALL extern void pmtimevalFromReal(double, struct timeval *);
 PCP_CALL extern void pmPrintStamp(FILE *, const struct timeval *);
+
+/* struct timespec manipulations */
+PCP_CALL extern int pmtimespecNow(struct timespec *);
+PCP_CALL extern void pmtimespecDec(struct timespec *, const struct timespec *);
+PCP_CALL extern double pmtimespecToReal(const struct timespec *);
 PCP_CALL extern void pmPrintHighResStamp(FILE *, const struct timespec *);
 
 /* filesystem path name separator */

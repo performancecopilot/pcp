@@ -307,13 +307,13 @@ ctx[0]: testme.lights:
     Semantics: discrete  Units: none
 ctx[0]: testme.bigbin: not in PMNS
 derived metrics prefetch added 2 metrics: 30.0.13 30.0.46
-__dmpostfetch: [6] root node 511.0.3: numval=1 vset[0]: inst=-1 l=1000000
+__dmpostvalueset: [6] root node 511.0.3: numval=1 vset[0]: inst=-1 l=1000000
 expr node ADDR type=NAME left=(nil) right=(nil) save_last=0 [sampledso.long.million] primary=0
     PMID: 30.0.13 (511.0.3 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=1000000
-__dmpostfetch: [7] root node 511.0.4: numval=1 vset[0]: inst=-1 cp=<COLOR> ...
+__dmpostvalueset: [7] root node 511.0.4: numval=1 vset[0]: inst=-1 cp=<COLOR> ...
 expr node ADDR type=NAME left=(nil) right=(nil) save_last=0 [sampledso.lights] primary=0
     PMID: 30.0.46 (511.0.4 from pmDesc) numval: 1
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
@@ -346,7 +346,7 @@ ctx[1]: testme.lights:
     Semantics: discrete  Units: none
 ctx[1]: testme.bigbin: not in PMNS
 derived metrics prefetch added 4 metrics: 29.0.11 29.0.10 30.0.13 30.0.46
-__dmpostfetch: [1] root node 511.2047.1023: numval=1 vset[0]: inst=-1 u=13
+__dmpostvalueset: [1] root node 511.2047.1023: numval=1 vset[0]: inst=-1 u=13
 expr node ADDR type=PLUS left=ADDR right=ADDR save_last=0
     PMID: PM_ID_NULL (511.2047.1023 from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -372,13 +372,13 @@ expr node ADDR type=INTEGER left=(nil) right=(nil) save_last=0 [3] primary=0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
 [0] inst=-1, val=3
-__dmpostfetch: [6] root node 511.0.3: numval=1 vset[0]: inst=-1 l=1000000
+__dmpostvalueset: [6] root node 511.0.3: numval=1 vset[0]: inst=-1 l=1000000
 expr node ADDR type=NAME left=(nil) right=(nil) save_last=0 [sampledso.long.million] primary=0
     PMID: 30.0.13 (511.0.3 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=1000000
-__dmpostfetch: [7] root node 511.0.4: numval=1 vset[0]: inst=-1 cp=<COLOR> ...
+__dmpostvalueset: [7] root node 511.0.4: numval=1 vset[0]: inst=-1 cp=<COLOR> ...
 expr node ADDR type=NAME left=(nil) right=(nil) save_last=0 [sampledso.lights] primary=0
     PMID: 30.0.46 (511.0.4 from pmDesc) numval: 1
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff

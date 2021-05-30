@@ -44,7 +44,6 @@ kvm.mmio_exits is in range
 kvm.mmu_cache_miss is in range
 kvm.mmu_flooded is in range
 kvm.mmu_pde_zapped is in range
-kvm.mmu_pte_updated is in range
 kvm.mmu_pte_write is in range
 kvm.mmu_recycled is in range
 kvm.mmu_shadow_zapped is in range

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 Red Hat.
+ * Copyright (c) 2012-2013,2021 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -18,18 +18,18 @@
 #include "internal.h"
 
 /*
- * PDU for pmFetch request (PDU_FETCH)
+ * PDUs for pmFetch requests (PDU_FETCH, PDU_HIGHRES_FETCH)
  */
 typedef struct {
     __pmPDUHdr		hdr;
     int			ctxid;		/* context slot index from the client */
-    pmTimeval      	when;		/* desired time */
-    int			numpmid;	/* no. PMIDs to follow */
-    pmID		pmidlist[1];	/* one or more */
+    pmTimeval      	unused;		/* backward-compatibility, zeroed */
+    int			numpmid;	/* number of PMIDs to follow */
+    pmID		pmidlist[1];	/* one or more PMID(s) */
 } fetch_t;
 
-int
-__pmSendFetch(int fd, int from, int ctxid, pmTimeval *when, int numpmid, pmID *pmidlist)
+static int
+__pmSendFetchPDU(int fd, int from, int ctxid, int numpmid, pmID *pmidlist, int pdutype)
 {
     size_t	need;
     fetch_t	*pp;
@@ -40,24 +40,14 @@ __pmSendFetch(int fd, int from, int ctxid, pmTimeval *when, int numpmid, pmID *p
     if ((pp = (fetch_t *)__pmFindPDUBuf((int)need)) == NULL)
 	return -oserror();
     pp->hdr.len = (int)need;
-    pp->hdr.type = PDU_FETCH;
+    pp->hdr.type = pdutype;
     /* 
      * note: context id may be sent twice due to protocol evolution and
      * backwards compatibility issues
      */
     pp->hdr.from = from;
     pp->ctxid = htonl(ctxid);
-    if (when == NULL)
-	memset((void *)&pp->when, 0, sizeof(pp->when));
-    else {
-#if defined(HAVE_32BIT_LONG)
-	pp->when.tv_sec = htonl(when->tv_sec);
-	pp->when.tv_usec = htonl(when->tv_usec);
-#else
-	pp->when.tv_sec = htonl((__int32_t)when->tv_sec);
-	pp->when.tv_usec = htonl((__int32_t)when->tv_usec);
-#endif
-    }
+    memset((void *)&pp->unused, 0, sizeof(pp->unused));
     pp->numpmid = htonl(numpmid);
     for (j = 0; j < numpmid; j++)
 	pp->pmidlist[j] = __htonpmID(pmidlist[j]);
@@ -68,7 +58,20 @@ __pmSendFetch(int fd, int from, int ctxid, pmTimeval *when, int numpmid, pmID *p
 }
 
 int
-__pmDecodeFetch(__pmPDU *pdubuf, int *ctxidp, pmTimeval *when, int *numpmidp, pmID **pmidlist)
+__pmSendFetch(int fd, int from, int ctxid, void *unused, int numpmid, pmID *pmidlist)
+{
+    (void)unused;	/* never used, once held a timestamp */
+    return __pmSendFetchPDU(fd, from, ctxid, numpmid, pmidlist, PDU_FETCH);
+}
+
+int
+__pmSendHighResFetch(int fd, int from, int ctxid, int numpmid, pmID *pmidlist)
+{
+    return __pmSendFetchPDU(fd, from, ctxid, numpmid, pmidlist, PDU_HIGHRES_FETCH);
+}
+
+static int
+__pmDecodeFetchPDU(__pmPDU *pdubuf, int *ctxidp, int *numpmidp, pmID **pmidlist)
 {
     fetch_t	*pp;
     char	*pduend;
@@ -85,17 +88,28 @@ __pmDecodeFetch(__pmPDU *pdubuf, int *ctxidp, pmTimeval *when, int *numpmidp, pm
 	return PM_ERR_IPC;
     if (numpmid >= (INT_MAX - sizeof(fetch_t)) / sizeof(pmID))
 	return PM_ERR_IPC;
-    if ((pduend - (char*)pp) != sizeof(fetch_t) + ((sizeof(pmID)) * (numpmid-1)))
+    if ((pduend - (char *)pp) != sizeof(fetch_t) + ((sizeof(pmID)) * (numpmid-1)))
 	return PM_ERR_IPC;
 
     for (j = 0; j < numpmid; j++)
 	pp->pmidlist[j] = __ntohpmID(pp->pmidlist[j]);
 
     *ctxidp = ntohl(pp->ctxid);
-    when->tv_sec = ntohl(pp->when.tv_sec);
-    when->tv_usec = ntohl(pp->when.tv_usec);
     *numpmidp = numpmid;
     *pmidlist = pp->pmidlist;
     __pmPinPDUBuf((void *)pdubuf);
     return 0;
+}
+
+int
+__pmDecodeFetch(__pmPDU *pdubuf, int *ctxidp, void *unused, int *numpmidp, pmID **pmidlist)
+{
+    memset(unused, 0, sizeof(((fetch_t *)0)->unused));
+    return __pmDecodeFetchPDU(pdubuf, ctxidp, numpmidp, pmidlist);
+}
+
+int
+__pmDecodeHighResFetch(__pmPDU *pdubuf, int *ctxidp, int *numpmidp, pmID **pmidlist)
+{
+    return __pmDecodeFetchPDU(pdubuf, ctxidp, numpmidp, pmidlist);
 }

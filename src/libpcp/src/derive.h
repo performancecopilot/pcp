@@ -33,11 +33,11 @@ typedef struct {		/* dynamic information for an expression node */
     int			mul_scale;	/* scale multiplier */
     int			div_scale;	/* scale divisor */
     val_t		*ivlist;	/* instance-value pairs */
-    struct timeval	stamp;		/* timestamp from current fetch */
+    struct timespec	stamp;		/* timestamp from current fetch */
     double		time_scale;	/* time utilization scaling for rate() */
     int			last_numval;	/* length of last_ivlist[] */
     val_t		*last_ivlist;	/* values from previous fetch for delta() or rate() */
-    struct timeval	last_stamp;	/* timestamp from previous fetch for rate() */
+    struct timespec	last_stamp;	/* timestamp from previous fetch for rate() */
 } info_t;
 
 typedef struct {			/* for instance filtering */
@@ -160,6 +160,7 @@ extern void __dmclosecontext(__pmContext *) _PCP_HIDDEN;
 extern int __dmdesc(__pmContext *, int, pmID, pmDesc *) _PCP_HIDDEN;
 extern int __dmprefetch(__pmContext *, int, const pmID *, pmID **) _PCP_HIDDEN;
 extern void __dmpostfetch(__pmContext *, pmResult **) _PCP_HIDDEN;
+extern void __dmposthighresfetch(__pmContext *, pmHighResResult **) _PCP_HIDDEN;
 extern void __dmdumpexpr(node_t *, int) _PCP_HIDDEN;
 extern char *__dmnode_type_str(int) _PCP_HIDDEN;
 extern int __dmhelptext(pmID, int, char **) _PCP_HIDDEN;

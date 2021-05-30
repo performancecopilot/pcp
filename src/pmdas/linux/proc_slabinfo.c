@@ -29,6 +29,12 @@ refresh_proc_slabinfo(pmInDom slab_indom, proc_slabinfo_t *slabinfo)
     int i, sts = 0, indom_change = 0;
     static int major_version = -1;
     static int minor_version = 0;
+    static int setup;
+
+    if (!setup) {
+	pmdaCacheOp(slab_indom, PMDA_CACHE_LOAD);
+	setup = 1;
+    }
 
     for (pmdaCacheOp(slab_indom, PMDA_CACHE_WALK_REWIND);;) {
 	if ((i = pmdaCacheOp(slab_indom, PMDA_CACHE_WALK_NEXT)) < 0)
