@@ -147,7 +147,7 @@ __dmgetpmid: metric "qa.a" -> PMID 511.0.3
 __dmgetpmid: metric "qa.b" -> PMID 511.0.4
 __dmgetpmid: metric "qa.c" -> PMID 511.0.5
 derived metrics prefetch added 1 metrics: 29.0.6
-__dmpostfetch: [0] root node 511.0.3: numval=1 vset[0]: inst=-1 l=300
+__dmpostvalueset: [0] root node 511.0.3: numval=1 vset[0]: inst=-1 l=300
 expr node <addr-0> type=SCALAR left=<addr-1> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.3 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0x....
@@ -172,7 +172,7 @@ expr node <addr-3> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] pri
 [6] inst=700, val=700
 [7] inst=800, val=800
 [8] inst=900, val=900
-__dmpostfetch: [1] root node 511.0.4: numval=1 vset[0]: inst=-1 d=200.000000
+__dmpostvalueset: [1] root node 511.0.4: numval=1 vset[0]: inst=-1 d=200.000000
 expr node <addr-4> type=SLASH left=<addr-5> right=<addr-19> save_last=0
     PMID: PM_ID_NULL (511.0.4 from pmDesc) numval: 1
     Data Type: double  InDom: PM_INDOM_NULL 0x....
@@ -265,7 +265,7 @@ expr node <addr-19> type=INTEGER left=(nil) right=(nil) save_last=0 [3] primary=
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0x....
     Semantics: discrete  Units: none
 [0] inst=-1, val=3
-__dmpostfetch: [2] root node 511.0.5: numval=1 vset[0]: inst=-1 d=200.000000
+__dmpostvalueset: [2] root node 511.0.5: numval=1 vset[0]: inst=-1 d=200.000000
 expr node <addr-20> type=SLASH left=<addr-21> right=<addr-35> save_last=0
     PMID: PM_ID_NULL (511.0.5 from pmDesc) numval: 1
     Data Type: double  InDom: PM_INDOM_NULL 0x....

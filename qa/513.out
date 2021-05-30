@@ -219,6 +219,34 @@ QA output created by 513
   __pmDecodeLabel: sts = -12366 (IPC protocol failure)
 [label] checking json access beyond extended buffer
   __pmDecodeLabel: sts = -12366 (IPC protocol failure)
+[highres_fetch] checking all-zeroes structure
+  __pmDecodeHighResFetch: sts = -12366 (IPC protocol failure)
+[highres_fetch] checking large numpmid field
+  __pmDecodeHighResFetch: sts = -12366 (IPC protocol failure)
+[highres_fetch] checking negative numpmid field
+  __pmDecodeHighResFetch: sts = -12366 (IPC protocol failure)
+[highres_fetch] checking access beyond buffer
+  __pmDecodeHighResFetch: sts = -12366 (IPC protocol failure)
+[highres_result] checking all-zeroes structure
+  __pmDecodeHighResResult: sts = -12366 (IPC protocol failure)
+[highres_result] checking large numpmid field
+  __pmDecodeHighResResult: sts = -12366 (IPC protocol failure)
+[highres_result] checking negative numpmid field
+  __pmDecodeHighResResult: sts = -12366 (IPC protocol failure)
+[highres_result] checking access beyond basic buffer
+  __pmDecodeHighResResult: sts = -12366 (IPC protocol failure)
+[highres_result] checking large numval field
+  __pmDecodeHighResResult: sts = -12366 (IPC protocol failure)
+[highres_result] checking negative numval field
+  __pmDecodeHighResResult: sts = -12366 (IPC protocol failure)
+[highres_result] checking access beyond extended buffer
+  __pmDecodeHighResResult: sts = -12366 (IPC protocol failure)
+[highres_result] checking insitu valfmt field
+  __pmDecodeHighResResult: sts = -12366 (IPC protocol failure)
+[highres_result] checking non-insitu valfmt field
+  __pmDecodeHighResResult: sts = -12366 (IPC protocol failure)
+[highres_result] checking access beyond non-insitu valfmt field
+  __pmDecodeHighResResult: sts = -12366 (IPC protocol failure)
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: src/pducrash

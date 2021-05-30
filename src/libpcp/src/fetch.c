@@ -1,11 +1,12 @@
 /*
  * Copyright (c) 1995-2006,2008 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ * Copyright (c) 2021 Red Hat.
+ *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation; either version 2.1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
@@ -85,6 +86,65 @@ __pmFinishResult(__pmContext *ctxp, int count, pmResult **resultp)
     return count;
 }
 
+int
+__pmFinishHighResResult(__pmContext *ctxp, int count, pmHighResResult **resultp)
+{
+    if (count >= 0)
+	__dmposthighresfetch(ctxp, resultp);
+    return count;
+}
+
+static void
+dump_fetch_flags(int sts)
+{
+    int flag = 0;
+
+    fprintf(stderr, "PMCD state changes: ");
+    if (sts & PMCD_AGENT_CHANGE) {
+	fprintf(stderr, "agent(s)");
+	if (sts & PMCD_ADD_AGENT) fprintf(stderr, " added");
+	if (sts & PMCD_RESTART_AGENT) fprintf(stderr, " restarted");
+	if (sts & PMCD_DROP_AGENT) fprintf(stderr, " dropped");
+	flag++;
+    }
+    if (sts & PMCD_LABEL_CHANGE) {
+	if (flag++)
+	    fprintf(stderr, ", ");
+	fprintf(stderr, "label change");
+    }
+    if (sts & PMCD_NAMES_CHANGE) {
+	if (flag++)
+	    fprintf(stderr, ", ");
+	fprintf(stderr, "names change");
+    }
+    fputc('\n', stderr);
+}
+
+static void
+trace_fetch_entry(const char *caller, int numpmid, pmID *pmidlist)
+{
+    char    dbgbuf[20];
+
+    fprintf(stderr, "%s(%d, pmid[0] %s", caller, numpmid,
+		    pmIDStr_r(pmidlist[0], dbgbuf, sizeof(dbgbuf)));
+    if (numpmid > 1)
+	fprintf(stderr, " ... pmid[%d] %s", numpmid-1,
+			pmIDStr_r(pmidlist[numpmid-1], dbgbuf, sizeof(dbgbuf)));
+    fprintf(stderr, ", ...) <:");
+}
+
+static void
+trace_fetch_exit(int sts)
+{
+    fprintf(stderr, ":> returns ");
+    if (sts >= 0) {
+	fprintf(stderr, "%d\n", sts);
+    } else {
+	char	errmsg[PM_MAXERRMSGLEN];
+	fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+    }
+}
+
 /*
  * Internal variant of pmFetch() ... ctxp is not NULL for
  * internal callers where the current context is already locked, but
@@ -97,13 +157,8 @@ pmFetch_ctx(__pmContext *ctxp, int numpmid, pmID *pmidlist, pmResult **result)
     int		need_unlock = 0;
     int		fd, ctx, sts, tout;
 
-    if (pmDebugOptions.pmapi) {
-	char    dbgbuf[20];
-	fprintf(stderr, "pmFetch(%d, pmid[0] %s", numpmid, pmIDStr_r(pmidlist[0], dbgbuf, sizeof(dbgbuf)));
-	if (numpmid > 1)
-	    fprintf(stderr, " ... pmid[%d] %s", numpmid-1, pmIDStr_r(pmidlist[numpmid-1], dbgbuf, sizeof(dbgbuf)));
-	fprintf(stderr, ", ...) <:");
-    }
+    if (pmDebugOptions.pmapi)
+	trace_fetch_entry("pmFetch", numpmid, pmidlist);
 
     if (numpmid < 1) {
 	sts = PM_ERR_TOOSMALL;
@@ -178,61 +233,169 @@ pmFetch_ctx(__pmContext *ctxp, int numpmid, pmID *pmidlist, pmResult **result)
 
 pmapi_return:
 
-    if (pmDebugOptions.pmapi) {
-	fprintf(stderr, ":> returns ");
-	if (sts >= 0)
-	    fprintf(stderr, "%d\n", sts);
-	else {
-	    char	errmsg[PM_MAXERRMSGLEN];
-	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
-	}
-    }
+    if (pmDebugOptions.pmapi)
+	trace_fetch_exit(sts);
 
     if (pmDebugOptions.fetch) {
-	fprintf(stderr, "pmFetch returns ...\n");
-	if (sts > 0) {
-	    int flag = 0;
-
-	    fprintf(stderr, "PMCD state changes: ");
-	    if (sts & PMCD_AGENT_CHANGE) {
-		fprintf(stderr, "agent(s)");
-		if (sts & PMCD_ADD_AGENT) fprintf(stderr, " added");
-		if (sts & PMCD_RESTART_AGENT) fprintf(stderr, " restarted");
-		if (sts & PMCD_DROP_AGENT) fprintf(stderr, " dropped");
-		flag++;
-	    }
-	    if (sts & PMCD_LABEL_CHANGE) {
-		if (flag++)
-		    fprintf(stderr, ", ");
-		fprintf(stderr, "label change");
-	    }
-	    if (sts & PMCD_NAMES_CHANGE) {
-		if (flag++)
-		    fprintf(stderr, ", ");
-		fprintf(stderr, "names change");
-	    }
-	    fputc('\n', stderr);
-	}
-	if (sts >= 0)
+	fprintf(stderr, "%s returns ...\n", "pmFetch");
+	if (sts >= 0) {
+	    if (sts > 0)
+		dump_fetch_flags(sts);
 	    __pmDumpResult_ctx(ctxp, stderr, *result);
-	else {
+	} else {
 	    char	errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "Error: %s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	}
     }
-    if (need_unlock) {
-	PM_UNLOCK(ctxp->c_lock);
-    }
 
+    if (need_unlock)
+	PM_UNLOCK(ctxp->c_lock);
     return sts;
 }
 
 int
 pmFetch(int numpmid, pmID *pmidlist, pmResult **result)
 {
-    int	sts;
-    sts = pmFetch_ctx(NULL, numpmid, pmidlist, result);
+    return pmFetch_ctx(NULL, numpmid, pmidlist, result);
+}
+
+static int
+__pmRecvHighResFetch(int fd, __pmContext *ctxp, int timeout, pmHighResResult **result)
+{
+    __pmPDU	*pb;
+    int		sts, pinpdu, changed = 0;
+
+    do {
+	sts = pinpdu = __pmGetPDU(fd, ANY_SIZE, timeout, &pb);
+	if (sts == PDU_HIGHRES_RESULT) {
+	    sts = __pmDecodeHighResResult_ctx(ctxp, pb, result);
+	}
+	else if (sts == PDU_ERROR) {
+	    __pmDecodeError(pb, &sts);
+	    if (sts > 0)
+		/* PMCD state change protocol */
+		changed |= sts;
+	}
+	else if (sts != PM_ERR_TIMEOUT)
+	    sts = PM_ERR_IPC;
+
+	if (pinpdu > 0)
+	    __pmUnpinPDUBuf(pb);
+    } while (sts > 0);
+
+    if (sts == 0)
+	return changed;
     return sts;
+}
+
+/*
+ * Internal variant of pmHighResFetch() ... ctxp is not NULL for
+ * internal callers where the current context is already locked, but
+ * NULL for callers from above the PMAPI or internal callers when the
+ * current context is not locked.
+ */
+int
+pmHighResFetch_ctx(__pmContext *ctxp, int numpmid, pmID *pmidlist, pmHighResResult **result)
+{
+    int		need_unlock = 0;
+    int		fd, ctx, sts, tout;
+
+    if (pmDebugOptions.pmapi)
+	trace_fetch_entry("pmHighResFetch", numpmid, pmidlist);
+
+    if (numpmid < 1) {
+	sts = PM_ERR_TOOSMALL;
+	goto pmapi_return;
+    }
+
+    if ((sts = ctx = pmWhichContext()) >= 0) {
+	int		newcnt;
+	pmID		*newlist = NULL;
+	int		have_dm;
+
+	if (ctxp == NULL) {
+	    ctxp = __pmHandleToPtr(ctx);
+	    if (ctxp != NULL)
+		need_unlock = 1;
+	}
+	else
+	    PM_ASSERT_IS_LOCKED(ctxp->c_lock);
+
+	if (ctxp == NULL) {
+	    sts = PM_ERR_NOCONTEXT;
+	    goto pmapi_return;
+	}
+	if (ctxp->c_type == PM_CONTEXT_LOCAL && PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA)) {
+	    /* Local context requires single-threaded applications */
+	    sts = PM_ERR_THREAD;
+	    goto pmapi_return;
+	}
+
+	/* for derived metrics, may need to rewrite the pmidlist */
+	have_dm = newcnt = __pmPrepareFetch(ctxp, numpmid, pmidlist, &newlist);
+	if (newcnt > numpmid) {
+	    /* replace args passed into pmHighResFetch */
+	    numpmid = newcnt;
+	    pmidlist = newlist;
+	}
+
+	if (ctxp->c_type == PM_CONTEXT_HOST) {
+	    tout = ctxp->c_pmcd->pc_tout_sec;
+	    fd = ctxp->c_pmcd->pc_fd;
+	    if ((sts = __pmUpdateProfile(fd, ctxp, tout)) < 0) {
+		sts = __pmMapErrno(sts);
+	    }
+	    else if ((sts = __pmSendHighResFetch(fd, __pmPtrToHandle(ctxp),
+					ctxp->c_slot, numpmid, pmidlist)) < 0) {
+		sts = __pmMapErrno(sts);
+	    }
+	    else {
+		PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_TIMEOUT);
+		sts = __pmRecvHighResFetch(fd, ctxp, tout, result);
+	    }
+	}
+	else if (ctxp->c_type == PM_CONTEXT_LOCAL) {
+	    sts = __pmHighResFetchLocal(ctxp, numpmid, pmidlist, result);
+	}
+	else {
+	    /* assume PM_CONTEXT_ARCHIVE */
+	    sts = PM_ERR_NYI;
+	}
+
+	/* process derived metrics, if any */
+	if (have_dm) {
+	    __pmFinishHighResResult(ctxp, sts, result);
+	    if (newlist != NULL)
+		free(newlist);
+	}
+    }
+
+pmapi_return:
+
+    if (pmDebugOptions.pmapi)
+	trace_fetch_exit(sts);
+
+    if (pmDebugOptions.fetch) {
+	fprintf(stderr, "%s returns ...\n", "pmHighResFetch");
+	if (sts >= 0) {
+	    if (sts > 0)
+		dump_fetch_flags(sts);
+	    __pmDumpHighResResult_ctx(ctxp, stderr, *result);
+	} else {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "Error: %s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+    }
+
+    if (need_unlock)
+	PM_UNLOCK(ctxp->c_lock);
+    return sts;
+}
+
+int
+pmHighResFetch(int numpmid, pmID *pmidlist, pmHighResResult **result)
+{
+    return pmHighResFetch_ctx(NULL, numpmid, pmidlist, result);
 }
 
 int

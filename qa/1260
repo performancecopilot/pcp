@@ -37,7 +37,7 @@ s/  *"red"/ <COLOR>/
 s/  *"yellow"/ <COLOR>/
 s/  *"green"/ <COLOR>/
 }' \
-	-e '/__dmpostfetch/{
+	-e '/__dmpostvalueset/{
 s/cp=red .*/cp=<COLOR> .../
 s/cp=yellow .*/cp=<COLOR> .../
 s/cp=green .*/cp=<COLOR> .../

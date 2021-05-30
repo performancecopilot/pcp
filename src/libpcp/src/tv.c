@@ -1,11 +1,12 @@
 /*
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ * Copyright (c) 2021 Red Hat.
+ *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation; either version 2.1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
@@ -60,6 +61,29 @@ pmtimevalDec(struct timeval *ap, const struct timeval *bp)
 	ap->tv_usec += 1000000;
 	ap->tv_sec--;
     }
+}
+
+/*
+ * struct subtractive time, *ap = *ap - *bp
+ */
+void
+pmtimespecDec(struct timespec *ap, const struct timespec *bp)
+{
+     ap->tv_sec -= bp->tv_sec;
+     ap->tv_nsec -= bp->tv_nsec;
+     if (ap->tv_nsec < 0) {
+	ap->tv_nsec += 1000000000;
+	ap->tv_sec--;
+    }
+}
+
+/*
+ * convert a timespec to a double (units = seconds)
+ */
+double
+pmtimespecToReal(const struct timespec *val)
+{
+    return val->tv_sec + ((long double)val->tv_nsec / (long double)1000000000);
 }
 
 /*

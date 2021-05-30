@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2012-2017 Red Hat.
+ * Copyright (c) 2012-2017,2021 Red Hat.
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -349,6 +349,11 @@ HandleClientInput(__pmFdSet *fdsPtr)
 	    case PDU_FETCH:
 		sts = (cp->denyOps & PMCD_OP_FETCH) ?
 		      PM_ERR_PERMISSION : DoFetch(cp, pb);
+		break;
+
+	    case PDU_HIGHRES_FETCH:
+		sts = (cp->denyOps & PMCD_OP_FETCH) ?
+		      PM_ERR_PERMISSION : DoHighResFetch(cp, pb);
 		break;
 
 	    case PDU_INSTANCE_REQ:
@@ -704,7 +709,7 @@ CheckNewClient(__pmFdSet * fdset, int rfd, int family)
 	    memset(&cp->pduInfo, 0, sizeof(cp->pduInfo));
 	    cp->pduInfo.version = PDU_VERSION;
 	    cp->pduInfo.licensed = 1;
-	    cp->pduInfo.features = PDU_FLAG_LABELS;
+	    cp->pduInfo.features = (PDU_FLAG_LABELS | PDU_FLAG_HIGHRES);
 	    if (__pmServerHasFeature(PM_SERVER_FEATURE_SECURE))
 		cp->pduInfo.features |= (PDU_FLAG_SECURE | PDU_FLAG_SECURE_ACK);
 	    if (__pmServerHasFeature(PM_SERVER_FEATURE_COMPRESS))

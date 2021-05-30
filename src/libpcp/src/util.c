@@ -1201,6 +1201,12 @@ __pmGetTimespec(struct timespec *ts)
 #endif
 }
 
+int
+pmtimespecNow(struct timespec *ts)
+{
+    return __pmGetTimespec(ts);
+}
+
 /*
  * a : b for pmTimeval ... <0 for a<b, ==0 for a==b, >0 for a>b
  */

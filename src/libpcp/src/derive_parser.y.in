@@ -316,18 +316,14 @@ static node_t *
 newnode(int type)
 {
     node_t	*np;
-    np = (node_t *)malloc(sizeof(node_t));
-    if (np == NULL) {
+
+
+    if ((np = (node_t *)calloc(1, sizeof(node_t))) == NULL) {
 	PM_UNLOCK(registered.mutex);
 	pmNoMem("pmRegisterDerived: newnode", sizeof(node_t), PM_FATAL_ERR);
 	/*NOTREACHED*/
     }
     np->type = type;
-    np->save_last = 0;
-    np->left = NULL;
-    np->right = NULL;
-    np->value = NULL;
-    np->data.info = NULL;
     return np;
 }
 
@@ -493,22 +489,14 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, int lookup_err_ok, int is_global
 	 * need to allocate the data.info block ... this is not done
 	 * in the parser for any of the nodes
 	 */
-	if ((new->data.info = (info_t *)malloc(sizeof(info_t))) == NULL) {
+	if ((new->data.info = (info_t *)calloc(1, sizeof(info_t))) == NULL) {
 	    PM_UNLOCK(registered.mutex);
 	    pmNoMem("bind_expr: info block", sizeof(info_t), PM_FATAL_ERR);
 	    /*NOTREACHED*/
 	}
 	new->data.info->pmid = PM_ID_NULL;
-	new->data.info->numval = 0;
 	new->data.info->mul_scale = new->data.info->div_scale = 1;
-	new->data.info->ivlist = NULL;
-	new->data.info->stamp.tv_sec = 0;
-	new->data.info->stamp.tv_usec = 0;
-	new->data.info->time_scale = -1;		/* one-trip initialization if needed */
-	new->data.info->last_numval = 0;
-	new->data.info->last_ivlist = NULL;
-	new->data.info->last_stamp.tv_sec = 0;
-	new->data.info->last_stamp.tv_usec = 0;
+	new->data.info->time_scale = -1; /* one-trip initialization if needed */
     }
 
     if (is_global) {
@@ -3117,7 +3105,7 @@ __dmopencontext(__pmContext *ctxp)
     ctxp->c_dm = (void *)cp;
     cp->glob_last = cp->nmetric = registered.nmetric;
     cp->limit = registered.limit;
-    if ((cp->mlist = (dm_t *)malloc(cp->nmetric*sizeof(dm_t))) == NULL) {
+    if ((cp->mlist = (dm_t *)calloc(cp->nmetric, sizeof(dm_t))) == NULL) {
 	PM_UNLOCK(registered.mutex);
 	pmNoMem("pmNewContext: derived metrics (mlist)", cp->nmetric*sizeof(dm_t), PM_FATAL_ERR);
 	/* NOTREACHED */
