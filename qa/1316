@@ -101,6 +101,7 @@ then
    pthread_create snarfoo variant 1
    Memcheck:Leak
    fun:calloc
+   ...
    fun:allocate_dtv
    fun:_dl_allocate_tls
    fun:allocate_stack
@@ -132,6 +133,7 @@ then
    pthread_create snarfoo variant 3
    Memcheck:Leak
    fun:calloc
+   ...
    fun:allocate_dtv
    fun:_dl_allocate_tls
    fun:pthread_create*
