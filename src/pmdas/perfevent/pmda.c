@@ -349,6 +349,12 @@ static int perfevent_text(int ident, int type, char **buffer, pmdaExt *pmda)
     {
         int i;
 
+	/* Single static metric below the dynamic 'derived' namespace */
+	if (pmID_cluster(ident) == 1 && pmID_item(ident) == 0) {
+            *buffer = "The number of derived metrics configured";
+            return 0;
+	}
+
         /* Lookup pmid in the metric table. */
 	for (i = 0; i < nummetrics; i++)
 	{
