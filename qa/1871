@@ -32,7 +32,8 @@ echo "=== Start test Redis server ==="
 redisport=`_find_free_port`
 redispath=`_find_redis_modules`
 redisearch="$redispath/redisearch.$DSO_SUFFIX"
-redis-server --port $redisport --save "" --loadmodule $redisearch > $tmp.redis 2>&1 &
+# RediSearch module is only accessible by the redis user
+sudo -u redis redis-server --port $redisport --save "" --loadmodule $redisearch > $tmp.redis 2>&1 &
 echo "PING"
 pmsleep 0.125
 port="-p $redisport"
