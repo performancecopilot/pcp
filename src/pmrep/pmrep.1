@@ -541,6 +541,9 @@ Note that as part of a
 .I metricspec
 on command line a list with more than one filter
 both the list and each filter must be quoted as shown below.
+It is also possible to define a single filter with bars (|)
+as instance separating regex in order to make quoting easier,
+see below.
 .PP
 Multiple
 .B \-i
@@ -580,6 +583,7 @@ $ pmrep \-i '1 minute','5 minute' kernel.all.load
 $ pmrep \-i "'1 minute','5 minute'" kernel.all.load
 $ pmrep \-i '1 minute' \-i '5 minute' kernel.all.load
 $ pmrep kernel.all.load,,"'1 minute','5 minute'"
+$ pmrep kernel.all.load,,'1 minute|5 minute'
 .EE
 .PP
 However, this would report only the 1-minute instance:
