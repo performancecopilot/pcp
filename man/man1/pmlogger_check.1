@@ -24,7 +24,7 @@
 [\f3\-l\f1 \f2logfile\f1]
 .br
 .B $PCP_BINADM_DIR/pmlogger_daily
-[\f3\-EKMNoprRV?\f1]
+[\f3\-EfKMNoprRV?\f1]
 [\f3\-c\f1 \f2control\f1]
 [\f3\-k\f1 \f2time\f1]
 [\f3\-l\f1 \f2logfile\f1]
@@ -128,7 +128,7 @@ to query the system service runlevel information for
 .BR pmlogger ,
 and use that to determine whether to start processes or not.
 .TP
-\fB\-E\fR
+\fB\-E\fR, \fB\-\-expunge\fR
 This option causes
 .B pmlogger_daily
 to pass the
@@ -145,6 +145,12 @@ and description for the
 .B \-x
 flag in
 .BR pmlogextract (1).
+.TP
+\fB\-f\fR, \fB\-\-force\fR
+This option causes
+.B pmlogger_daily
+to forces action.
+Using this option in production is not recommended.
 .TP
 \fB\-k\fR \fItime\fR, \fB\-\-discard\fR=\fItime\fR
 After some period, old PCP archives are discarded.

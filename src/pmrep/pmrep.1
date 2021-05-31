@@ -524,11 +524,11 @@ use
 .B \-j
 to change this.
 .PP
-This is a global option that is used for all set-valued metrics unless
-a metric-specific instance filter is provided as part of a
+This is a global option that is used for all set-valued metrics
+unless a metric-specific instance filter is provided as part of a
 .IR metricspec .
-By default single-valued ``flat'' metrics without multiple
-instance values are still reported as usual, use
+By default single-valued ``flat'' metrics without
+instances are still reported as usual, use
 .B \-v
 to change this.
 .PP
@@ -537,12 +537,20 @@ is a comma-separated list of one or more
 instance filter specifications.
 Filters containing commas or whitespace
 must be quoted with single (') or double (") quotes.
+Note that as part of a
+.I metricspec
+on command line a list with more than one filter
+both the list and each filter must be quoted as shown below.
+It is also possible to define a single filter with bars (|)
+as instance separating regex in order to make quoting easier,
+see below.
+.PP
 Multiple
 .B \-i
 options are allowed as an alternative way of specifying more than
-one instance filter.
+one non-metric-specific instance filters.
 .PP
-An individual instance filter may be:
+An individual instance filter may be one of the following:
 .TP 10
 .I name
 Full instance name.
@@ -575,6 +583,7 @@ $ pmrep \-i '1 minute','5 minute' kernel.all.load
 $ pmrep \-i "'1 minute','5 minute'" kernel.all.load
 $ pmrep \-i '1 minute' \-i '5 minute' kernel.all.load
 $ pmrep kernel.all.load,,"'1 minute','5 minute'"
+$ pmrep kernel.all.load,,'1 minute|5 minute'
 .EE
 .PP
 However, this would report only the 1-minute instance:
@@ -582,7 +591,7 @@ However, this would report only the 1-minute instance:
 $ pmrep \-i '1 minute','5 minute' kernel.all.load,,'1 minute'
 .EE
 .PP
-And this would report all instances (due to per-metric override):
+And this would report all instances (due to per-metric regex):
 .EX
 $ pmrep \-i '1 minute','5 minute' 'kernel.all.load,,.*'
 .EE
