@@ -1922,6 +1922,7 @@ x11
 1896 pmlogger logutil pmlc local
 1897 pmda.hacluster local valgrind
 1899 fetch local
+1902 help local
 1937 pmlogrewrite pmda.xfs local
 1955 libpcp pmda pmda.pmcd local
 4751 libpcp threads valgrind local pcp helgrind

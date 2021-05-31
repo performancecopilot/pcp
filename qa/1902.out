@@ -1,0 +1,11 @@
+QA output created by 1902
+== short option, no argument
+newhelp: option requires an argument -- 'v'
+Usage: newhelp [options] [file ...]
+== short option, one argument
+newhelp: need either a -o option or a filename argument to name the output file
+== long option, no argument
+newhelp: option '--version' requires an argument
+Usage: newhelp [options] [file ...]
+== long option, one argument
+newhelp: need either a -o option or a filename argument to name the output file

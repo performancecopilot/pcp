@@ -1,0 +1,49 @@
+#!/bin/sh
+# PCP QA Test No. 1902
+# Ensure the -v/--version option in newhelp is done right.
+# Subtlety here is that the defacto standard /-v--version
+# in PCP does not take arguments - ensure we don't use it.
+# https://github.com/performancecopilot/pcp/issues/1308
+#
+# Copyright (c) 2021 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# strip most of the usage, only show error line and generic usage
+_filter()
+{
+    $PCP_AWK_PROG '
+$1 == "newhelp:"	{ print }
+$1 == "Usage:"		{ print }
+    ' # end
+}
+
+# real QA test starts here
+echo "== short option, no argument"
+$PCP_BINADM_DIR/newhelp -v 2>&1 | _filter
+echo "== short option, one argument"
+$PCP_BINADM_DIR/newhelp -v2 2>&1 | _filter
+echo "== long option, no argument"
+$PCP_BINADM_DIR/newhelp --version 2>&1 | _filter
+echo "== long option, one argument"
+$PCP_BINADM_DIR/newhelp --version=2 2>&1 | _filter
+
+# success, all done
+exit

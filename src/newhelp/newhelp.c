@@ -249,7 +249,7 @@ static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Output options"),
     { "output", 1, 'o', "FILE", "base name for output files" },
     { "verbose", 0, 'V', 0, "verbose/diagnostic output" },
-    { "version", 0, 'v', 0, "deprecated (only version 2 format supported)" },
+    { "version", 1, 'v', "N", "deprecated (only version 2 format supported)" },
     PMAPI_OPTIONS_END
 };
 
