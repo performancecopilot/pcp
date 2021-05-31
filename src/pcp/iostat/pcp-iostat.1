@@ -19,7 +19,7 @@
 \f3pcp-iostat\f1 \- report block I/O statistics
 .SH SYNOPSIS
 \f3pcp\f1 [\f2pcp\ options\f1] \f3iostat\f1
-[\f3\-u\f1]
+[\f3\-u?\f1]
 [\f3\-G\f1 \f2method\f1]
 [\f3\-P\f1 \f2precision\f1]
 [\f3\-R\f1 \f2pattern\f1]
@@ -183,6 +183,9 @@ of SCSI devices,
 \f3h\fP - omit the heading, which is otherwise reported every 24 samples,
 .br
 \f3noidle\fP - Do not display statistics for idle devices.
+.TP
+\fB\-?\fR, \fB\-\-help\fR
+Display usage message and exit.
 .SH REPORT
 The columns in the
 .B pcp-iostat
