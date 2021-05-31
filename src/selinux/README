@@ -110,6 +110,73 @@ There's also other than AVC audit events related to SELinux - USER_AVC
 and SELINUX_ERR that could be checked in case of unexplained issues:
 
     # ausearch -m avc,user_avc,selinux_err -i -ts recent
+    
+== Full Recipe for Conditional Classes and/or Permissions ==
+
+or how to add PCP_SELINUX_FOO_SOMETHING
+
+where _SOMETHING (and _something) is empty (if "foo" is simply a
+type)  or _T (and _t) or _CLASS (and _class) or something else
+(like as in "FOO_SOMETHING" is <class_name>_<permission_name>).
+
+configure.ac
+
+    additional logic in the types or class interrogation blocks
+    to initially set pcp_selinux_foo_something to false, then
+    conditionally set pcp_selinux_foo_something, and finally an extra
+    AC_SUBST(pcp_selinux_foo_something) further down
+
+src/include/builddefs.in
+    add
+    PCP_SELINUX_FOO_SOMETHING = @pcp_selinux_foo_something@
+
+src/selinux/GNUlocaldefs
+    add
+    ifeq "$(PCP_SELINUX_FOO_SOMETHING)" "true"
+    PCP_FOO_T="... type ..."
+    PCP_FOO_CLASS="... class ..."
+    PCP_FOO_RULE="... rule ..."
+    endif
+
+    Note usually need one or two of these variable assignments (so
+    type and rule, or class and rule, or rule alone), and these these
+    could be complete type definitions, complete class definitions
+    or a permission in a list for a class.
+
+src/selinux/pcpupstream.te.in
+    in the require { ... } block add
+    @PCP_FOO_T@
+    and/or
+    @PCP_FOO_CLASS@
+
+
+qa/GNUselinuxdefs
+    ifeq "$(PCP_SELINUX_FOO_SOMETHING)" "true"
+    ... gmake macro definitions for (PCP_FOO_T (types) or
+	PCP_FOO_CLASS (classes)) and PCP_FOO_RULE for allowed
+	accesses
+
+qa/GNUmakefile
+    additional sed rules for one or more of the following:
+	-e 's+@PCP_FOO_T@+'$(PCP_FOO_T)'+' \
+	-e 's+@PCP_FOO_CLASS@+'$(PCP_FOO_CLASS)'+' \
+	-e 's+@PCP_FOO_RULE@+'$(PCP_FOO_RULE)'+' \
+
+    To test this ...
+
+    $ cd ..
+    $ autoconf
+    $ qa/admin/myconfigure -q
+	importantly this runs configure and updates src/builddefs
+	and you should see a PCP_SELINUX_FOO_SOMETHING = true
+	(or possibly false) line added
+    $ cd qa
+    $ rm -f pcpqa.te
+    $ make pcpqa.te
+    $ sed -e 's/#.*//' pcpqa.te | grep @
+	should be no lines with an @, else there is a name
+	mismatch somewhere between ../configure.ac ->
+	../src/builddefs.in -> ./GNUselinux -> ./GNUmakefile
 
 == Building ==
 
