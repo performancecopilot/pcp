@@ -47,16 +47,21 @@ bind DN
 .IP \(bu
 bind password
 .IP \(bu
-search scope
+default search scope
 .IP \(bu
-search base
+default search base
 .IP \(bu
-search filter
+default search filter
 .IP \(bu
 query interval
+.IP \(bu
+List of sources
+.IP \(bu
+List of attributes to display for each source
 .RE
 .PD
 .PP
+Please see the example provided (ds389.conf.example)
 Once this is setup, you can access the names and values for the
 389 DS performance metrics by doing the following as root:
 .sp 1
@@ -87,6 +92,9 @@ executed directly.
 The Install and Remove scripts notify \fBpmcd\fP(1) when the
 agent is installed or removed.
 .SH FILES
+.TP
+.I \f(CW$PCP_PMDAS_DIR\fP/ds389/ds389.conf.example
+example configuration file for the \fBpmdads389\fP agent
 .TP
 .I \f(CW$PCP_PMDAS_DIR\fP/ds389/ds389.conf
 configuration file for the \fBpmdads389\fP agent
