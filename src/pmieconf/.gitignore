@@ -6,6 +6,7 @@ memory/GNUmakefile
 network/GNUmakefile
 percpu/GNUmakefile
 pernetif/GNUmakefile
+power/GNUmakefile
 primary/GNUmakefile
 zeroconf/GNUmakefile
 pmieconf
