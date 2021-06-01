@@ -1323,12 +1323,16 @@ _check_redis_server()
     _check_redis_server_version $redisport
 }
 
+# Check if the RediSearch module is installed
 _check_search()
 {
     which pmsearch >/dev/null 2>&1 || \
 	_notrun "pmsearch command line utility not installed"
-    redis-cli module list | grep -q ^ft$ || \
-	_notrun "redisearch module is not loaded in Redis server"
+
+    redispath=`_find_redis_modules`
+    redisearch="$redispath/redisearch.$DSO_SUFFIX"
+    test -f $redisearch || \
+	_notrun "RediSearch module is not installed"
 }
 
 _find_redis_modules()
