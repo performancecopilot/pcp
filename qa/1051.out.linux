@@ -35,5 +35,7 @@ Warning - failed to expand action for rule per_netif.errors
   string: "$syslog_prefix$$rule$^ $action_expand$"
 Warning - failed to expand action for rule per_netif.util
   string: "$syslog_prefix$$rule$^ $action_expand$"
+Warning - failed to expand action for rule power.thermal_throttle
+  string: "$syslog_prefix$$rule$^ $action_expand$"
 Warning - failed to expand action for rule shping.status
   string: "$syslog_prefix$$rule$^ $action_expand$"

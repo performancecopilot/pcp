@@ -1,0 +1,48 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
+# 
+
+rule	power.thermal_throttle
+	summary	= "$rule$"
+	enumerate = hosts
+	predicate =
+"some_host (
+	100 * hinv.cpu.thermal_throttle.package.time $hosts$ > $threshold$
+)"
+	enabled	= yes
+	version	= 1
+	help	=
+"Over the last sample interval at least one CPU was affected by
+thermal throttling for a threshold percent or more of the time.
+When a CPU is throttled the hardware is slowed (voltage lowered,
+frequency lowered) to reduce the heat being generated.";
+
+string	rule
+	default	= "CPU is experiencing thermal throttling"
+	modify	= no
+	display	= no;
+
+unsigned	threshold
+	default	= 50
+	help	=
+"Threshold percentage for time a CPU spent under the effects of
+thermal throttling, in the range 0 (no time) to 100 (all time),
+independent of the number of CPUs.";
+
+string	delta
+	default = "2 min"
+	help =
+"Sample interval between evaluations of this rule.";
+
+string	action_expand
+	default	= "%v%time[%i]@%h"
+	display	= no
+	modify	= no;
+
+string	email_expand
+	default	= "host: %h CPU: %i thermal throttle time: %v%"
+	display	= no
+	modify	= no;
+
+#
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
