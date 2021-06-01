@@ -575,7 +575,7 @@ statsd_text(int ident, int type, char** buffer, pmdaExt* pmda) {
             {
                 static char oneliner[] = "Total time in microseconds spent parsing metrics";
                 static char full_description[] = 
-                    "Total time in microseconds spent parsing metrics. Includes time spent parsing a datagram and failing midway.\n";
+                    "Total time in microseconds spent parsing metrics.\nIncludes time spent parsing a datagram and failing midway.\n";
                 *buffer = (type & PM_TEXT_ONELINE) ? oneliner : full_description;
                 return 0;
             }
@@ -583,7 +583,7 @@ statsd_text(int ident, int type, char** buffer, pmdaExt* pmda) {
             {
                 static char oneliner[] = "Total time in microseconds spent aggregating metrics";
                 static char full_description[] = 
-                    "Total time in microseconds spent aggregating metrics. Includes time spent aggregating a metric and failing midway.\n";
+                    "Total time in microseconds spent aggregating metrics.\nIncludes time spent aggregating a metric and failing midway.\n";
                 *buffer = (type & PM_TEXT_ONELINE) ? oneliner : full_description;
                 return 0;
             }
