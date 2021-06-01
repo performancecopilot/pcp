@@ -57,7 +57,10 @@ class TestPrinter(pmcc.MetricGroupPrinter):
             total += inst_val
         for name in CPU_METRICS:
             if ticks[name] != None:
-                print("   ", name, round(ticks[name] / total * 100, 2), "%")
+                if total != 0:
+                    print("   ", name, round(ticks[name] / total * 100, 2), "%")
+                else:
+                    print("   ", name, "0 %")  # avoid divide by zero
             else:
                 print("   ", name, "? %")  # no value, first sample usually
 
