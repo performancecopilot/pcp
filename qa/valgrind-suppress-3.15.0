@@ -164,7 +164,7 @@
    ...
 }
 
-# qa/1695 and qa/1696
+# qa/1695 and qa/1696 on vm04 (CentOS Linux8.2.2004)
 # this appears to be an issue for libuv, not PCP
 # Syscall param epoll_ctl(event) points to uninitialised byte(s)
 # at 0x685586E: epoll_ctl (in /usr/lib64/libc-2.28.so)

@@ -76,3 +76,23 @@
    ...
 }
 
+# qa/1695 and qa/1696 on vm39 (RHEL 8.3)
+# this appears to be an issue for libuv, not PCP
+# Syscall param epoll_ctl(event) points to uninitialised byte(s)
+# at 0x685586E: epoll_ctl (in /usr/lib64/libc-2.28.so)
+# by 0x5A541D0: uv__io_poll (in /usr/lib64/libuv.so.1.0.0)
+# by 0x5A45AF4: uv_run (in /usr/lib64/libuv.so.1.0.0)
+# by 0x112351: main_loop (server.c:860)
+# by 0x111905: main (pmproxy.c:467)
+# Address 0x1ffeffb45c is on thread 1's stack
+# in frame #1, created by uv__io_poll (???:)
+{
+   libuv poll()
+   Memcheck:Param
+   epoll_ctl(event)
+   fun:epoll_ctl
+   fun:uv__io_poll
+   fun:uv_run
+   ...
+}
+
