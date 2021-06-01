@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015,2018 Red Hat.
+ * Copyright (c) 2012-2015,2018,2021 Red Hat.
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -250,6 +250,7 @@ GetPorts(char *file)
     int			address = INADDR_ANY;
     int			ctlix;
     int			sts;
+    int			fdFlags;
     char		*env_str;
     __pmSockAddr	*myAddr;
 #if defined(HAVE_STRUCT_SOCKADDR_UN)
@@ -424,6 +425,10 @@ GetPorts(char *file)
 	    }
 	    __pmSockAddrFree(myAddr);
 	}
+
+	/* Set close on exec for daily reexec log-roll */
+	if ((fdFlags = __pmGetFileDescriptorFlags(fd)) >= 0)
+	    __pmSetFileDescriptorFlags(fd, fdFlags | FD_CLOEXEC);
 
 	/* Now listen on the new socket. */
 	if (sts >= 0) {
