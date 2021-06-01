@@ -1,0 +1,2 @@
+QA output created by 1901
+== checking SIGUSR2 reexec does not leak FDs
