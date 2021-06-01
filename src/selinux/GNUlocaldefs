@@ -50,6 +50,11 @@ ifeq "$(PCP_SELINUX_FILES_MMAP_ALL_FILES)" "true"
 PCP_MMAP_ALL="files_mmap_all_files(pcp_domain);"
 endif
 
+ifeq "$(PCP_SELINUX_LOGGING_WATCH_ALL_LOG_DIRS_PATH)" "true"
+PCP_WATCH_ALL="logging_watch_all_log_dirs_path(pcp_domain);"
+PCP_WATCH_JOURNAL="logging_watch_journal_dir(pcp_domain);"
+endif
+
 ifeq "$(PCP_SELINUX_UNCONFINED)" "true"
 PCP_UNCONFINED_SERVICE="type unconfined_service_t;"
 PCP_PMLOGGER_UNCONFINED_SERVICE_RULE="allow pcp_pmlogger_t unconfined_service_t:process signal;"

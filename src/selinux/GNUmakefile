@@ -62,6 +62,8 @@ $(IAM).te: $(IAM).te.in
 		-e 's+@PCP_NUMAD_RULE@+'$(PCP_NUMAD_RULE)'+' \
 		-e 's+@PCP_FSADM_EXEC_MAP@+'$(PCP_FSADM_EXEC_MAP)'+' \
 		-e 's+@PCP_MMAP_ALL@+'$(PCP_MMAP_ALL)'+' \
+		-e 's+@PCP_WATCH_ALL@+'$(PCP_WATCH_ALL)'+' \
+		-e 's+@PCP_WATCH_JOURNAL@+'$(PCP_WATCH_JOURNAL)'+' \
 		-e 's+@PCP_BPF_CLASS@+'$(PCP_BPF_CLASS)'+' \
 		-e 's+@PCP_BPF_RULE@+'$(PCP_BPF_RULE)'+' \
 		-e 's+@PCP_RPM_VAR_LIB_T@+'$(PCP_RPM_VAR_LIB_T)'+' \

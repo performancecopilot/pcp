@@ -1,4 +1,4 @@
-module pcpupstream @PACKAGE_VERSION@;
+policy_module(pcpupstream,@PACKAGE_VERSION@);
 
 require {
         attribute domain;
@@ -434,6 +434,10 @@ corenet_tcp_connect_all_ports(pcp_domain)
 
 # all pcp_domain read access to all maps
 @PCP_MMAP_ALL@
+
+# all pcp_domain watch access to all log files
+@PCP_WATCH_ALL@
+@PCP_WATCH_JOURNAL@
 
 #=========== pmda-hacluster ============
 # pmda-hacluster requirements for checking crm_mon, cibadmin, corosync-quorumtool, corosync-cfgtool
