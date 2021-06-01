@@ -1033,6 +1033,15 @@ $ pmrep \-i wlan0 \-v network.interface.out
 .ft P
 .RE
 .PP
+Display the slab total usage (in MB) of two specific slab instances:
+.RS +4
+.ft B
+.nf
+$ pmrep mem.slabinfo.slabs.total_size,,'kmalloc-4k|xfs_inode',MB
+.fi
+.ft P
+.RE
+.PP
 Display timestamped
 .BR vmstat (8)
 like information using megabytes instead of kilobytes and also include
@@ -1103,15 +1112,6 @@ showing values recorded between 3 - 5 PM:
 .ft B
 .nf
 $ pmrep \-a ./20150921.09.13 \-S @15:00 \-T @17:00 :sar\-w :sar\-W
-.fi
-.ft P
-.RE
-.PP
-Display the slab total usage (in MB) of three specific slab instances:
-.RS +4
-.ft B
-.nf
-$ pmrep 'mem.slabinfo.slabs.total_size,,kmalloc-4k|xfs_inode|ovl_inode,MB'
 .fi
 .ft P
 .RE
