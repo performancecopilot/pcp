@@ -1275,10 +1275,10 @@ All the command line option lines should start with a hyphen as
 the first character.
 .TP
 .I $PCP_SYSCONFIG_DIR/pmcd
-additional environment variables that will be set when
+Environment variables that will be set when
 .B pmcd
 executes.
-Only settings of the form "PMCD_VARIABLE=value" will be honoured.
+Only settings of the form "PMCD_VARIABLE=value" or "PCP_VARIABLE=value" are honoured.
 .TP
 .I $PCP_SYSCONF_DIR/labels.conf
 settings related to labels used globally throughout the PMCS.
@@ -1328,7 +1328,7 @@ user names, user identifiers and primary group identifiers, used for access cont
 group names, group identifiers and group members, used for access control specifications
 .SH ENVIRONMENT
 The following variables are set in
-.BI $PCP_SYSCONFIG_DIR/pmcd .
+.BR $PCP_SYSCONFIG_DIR/pmcd .
 .PP
 In addition to the PCP environment variables described in the
 .B "PCP ENVIRONMENT"
