@@ -398,9 +398,6 @@ S_pkg?	pfmlib_perf_event.h		[N/A (build optional)]
 slackpkg?	pfmlib_perf_event.h	[N/A (build optional)]
 pacman?	/usr/include/perfmon/pfmlib_perf_event.h	[N/A (build optional)]
 brew?	pfmlib_perf_event.h		[N/A (build optional)]
-# -- rpm API
-rpm?	/usr/include/rpm/header.h	[rpm-devel (build optional)]
-urpmi?	/usr/include/rpm/header.h	[lib64rpm-devel (build optional)]
 # -- gcc C++ compiler
 dpkg?	g++				[g++]
 rpm?	g++				[gcc-c++ or ccache]

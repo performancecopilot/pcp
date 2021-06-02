@@ -93,7 +93,6 @@ qt5-qtsvg-devel
 readline-devel
 redis
 rpm-build
-rpm-devel
 rrdtool
 rrdtool-perl
 sed

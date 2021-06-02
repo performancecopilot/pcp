@@ -130,13 +130,6 @@ Source0: %{artifactory}/pcp-source-release/pcp-%{version}.src.tar.gz
 %global disable_nutcracker 1
 %endif
 
-# support for pmdarpm
-%if 0%{?rhel} == 0 || 0%{?rhel} > 5
-%global disable_rpm 0
-%else
-%global disable_rpm 1
-%endif
-
 # Qt development and runtime environment missing components before el6
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
 %global disable_qt 0
@@ -194,6 +187,9 @@ Conflicts: librapi < 0.16
 Obsoletes: pcp-pmda-kvm < 4.1.1
 Provides: pcp-pmda-kvm = %{version}-%{release}
 
+# RPM PMDA retired completely
+Obsoletes: pcp-pmda-rpm < 5.3.2
+
 # PCP REST APIs are now provided by pmproxy
 Obsoletes: pcp-webapi-debuginfo < 5.0.0
 Obsoletes: pcp-webapi < 5.0.0
@@ -218,7 +214,6 @@ BuildRequires: make
 BuildRequires: gcc gcc-c++
 BuildRequires: procps autoconf bison flex
 BuildRequires: nss-devel
-BuildRequires: rpm-devel
 BuildRequires: avahi-devel
 BuildRequires: xz-devel
 BuildRequires: zlib-devel
@@ -536,9 +531,6 @@ Requires: pcp-pmda-snmp
 %endif
 %if !%{disable_json}
 Requires: pcp-pmda-json
-%endif
-%if !%{disable_rpm}
-Requires: pcp-pmda-rpm
 %endif
 Requires: pcp-pmda-summary pcp-pmda-trace pcp-pmda-weblog
 %if !%{disable_python2} || !%{disable_python3}
@@ -1942,21 +1934,6 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the room temperature.
 # end pcp-pmda-roomtemp
 
-%if !%{disable_rpm}
-#
-# pcp-pmda-rpm
-#
-%package pmda-rpm
-License: GPLv2+
-Summary: Performance Co-Pilot (PCP) metrics for the RPM package manager
-URL: https://pcp.io
-Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-%description pmda-rpm
-This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the installed RPM packages.
-%endif
-# end pcp-pmda-rpm
-
 #
 # pcp-pmda-sendmail
 #
@@ -2650,11 +2627,6 @@ getent passwd pcp >/dev/null || \
   useradd -c "Performance Co-Pilot" -g pcp -d %{_localstatedir}/lib/pcp -M -r -s /sbin/nologin pcp
 exit 0
 
-%if !%{disable_rpm}
-%preun pmda-rpm
-%{pmda_remove "$1" "rpm"}
-%endif
-
 %if !%{disable_systemd}
 %preun pmda-systemd
 %{pmda_remove "$1" "systemd"}
@@ -3235,9 +3207,6 @@ PCP_LOG_DIR=%{_logsdir}
 
 %files pmda-roomtemp -f pcp-pmda-roomtemp-files.rpm
 
-%if !%{disable_rpm}
-%files pmda-rpm -f pcp-pmda-rpm-files.rpm
-%endif
 %files pmda-sendmail -f pcp-pmda-sendmail-files.rpm
 
 %files pmda-shping -f pcp-pmda-shping-files.rpm
