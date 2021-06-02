@@ -2220,11 +2220,11 @@ AC_SUBST(pcp_selinux_rawip_socket_class)
 AC_SUBST(pcp_selinux_netlink_generic_socket_class)
 AC_SUBST(pcp_selinux_netlink_tcpdiag_socket_class)
 
+dnl more work to do, these selinux macro are not always supported
 pcp_selinux_files_mmap_all_files=false
+pcp_selinux_logging_watch_all_log_dirs_path=false
 if test "x$enable_selinux" != "xfalse"
 then
-    dnl more work to do, files_mmap_all_files() macro is not always
-    dnl supported
     AC_MSG_CHECKING([for selinux files_mmap_all_files() macro])
     cat <<End-of-File >conftest.te
 module conftest 1.0;
@@ -2244,8 +2244,29 @@ End-of-File
     fi
     dnl cleanup turds from selinux Makefile
     rm -f tmp/all_interfaces.conf tmp/conftest.* tmp/iferror.m4
+
+    AC_MSG_CHECKING([for selinux logging_watch_all_log_dirs_path() macro])
+    cat <<End-of-File >conftest.te
+module conftest 1.0;
+require {
+	attribute logfile;
+	attribute pcp_domain;
+	class dir { getattr search open watch };
+}
+logging_watch_all_log_dirs_path(pcp_domain);
+End-of-File
+    if make -f /usr/share/selinux/devel/Makefile conftest.pp >/dev/null 2>&1
+    then
+	pcp_selinux_logging_watch_all_log_dirs_path=true
+	AC_MSG_RESULT(yes)
+    else
+	AC_MSG_RESULT(no)
+    fi
+    dnl cleanup turds from selinux Makefile
+    rm -f tmp/all_interfaces.conf tmp/conftest.* tmp/iferror.m4
 fi
 AC_SUBST(pcp_selinux_files_mmap_all_files)
+AC_SUBST(pcp_selinux_logging_watch_all_log_dirs_path)
 
 dnl Checks for library functions.
 AC_TYPE_SIGNAL
