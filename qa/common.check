@@ -1331,7 +1331,8 @@ _check_search()
 
     redispath=`_find_redis_modules`
     redisearch="$redispath/redisearch.$DSO_SUFFIX"
-    test -f $redisearch || \
+    # Redis modules path is not accessibly by the pcpqa user on Fedora/RHEL
+    sudo test -f $redisearch || \
 	_notrun "RediSearch module is not installed"
 }
 
