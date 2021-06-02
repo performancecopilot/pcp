@@ -56,7 +56,7 @@ def run_test():
             if utils.check_is_in_bounds(expected_max, number_value):
                 status = True
         elif k == "/median":
-            if utils.check_is_in_bounds(expected_median, number_value):
+            if utils.check_is_in_bounds(expected_median, number_value, 0.42):
                 status = True
         elif k == "/min":
             if utils.check_is_in_bounds(expected_min, number_value):
