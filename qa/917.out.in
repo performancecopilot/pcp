@@ -97,7 +97,6 @@ Checking policies.
   allow [pcp_pmcd_t] [fixed_disk_device_t] : [blk_file] { ioctl open read };
 ! allow [pcp_pmcd_t] [default_t] : [file] { execute map };
   allow [pcp_pmcd_t] self : [capability] { sys_rawio };
-! allow [pcp_pmcd_t] [rpm_var_lib_t] : [file] { map };
 ! allow [pcp_pmcd_t] [virt_var_run_t] : [sock_file] { write };
   allow [pcp_pmcd_t] [openvswitch_exec_t] : [file] { execute execute_no_trans };
 ! allow [pcp_pmcd_t] [ping_exec_t] : [file] { execute execute_no_trans map };
@@ -128,6 +127,12 @@ Checking policies.
   allow [pcp_domain] [domain] : [unix_stream_socket] { connectto };
   allow [pcp_domain] [port_type] : [tcp_socket] { name_connect };
 ! allow [pcp_domain] [file_type] : [file] { map };
+! allow [pcp_domain] [root_t] : [dir] { getattr watch };
+! allow [pcp_domain] [var_t] : [dir] { getattr open search };
+! allow [pcp_domain] [var_t] : [dir] { getattr open search };
+! allow [pcp_domain] [var_t] : [dir] { getattr watch };
+! allow [pcp_domain] [logfile] : [dir] { getattr open watch search };
+! allow [pcp_domain] [syslogd_var_run_t] : [dir] { getattr watch };
   allow [pcp_pmcd_t] [cluster_tmpfs_t] : [file] { write };
   allow [pcp_pmcd_t] [drbd_exec_t] : [file] { execute execute_no_trans };
   allow [pcp_pmcd_t] self : [netlink_generic_socket] { bind create getattr setopt write read };
