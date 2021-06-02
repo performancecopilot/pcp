@@ -64,8 +64,6 @@ $(IAM).te: $(IAM).te.in
 		-e 's+@PCP_MMAP_ALL@+'$(PCP_MMAP_ALL)'+' \
 		-e 's+@PCP_BPF_CLASS@+'$(PCP_BPF_CLASS)'+' \
 		-e 's+@PCP_BPF_RULE@+'$(PCP_BPF_RULE)'+' \
-		-e 's+@PCP_RPM_VAR_LIB_T@+'$(PCP_RPM_VAR_LIB_T)'+' \
-		-e 's+@PCP_RPM_VAR_LIB_RULE@+'$(PCP_RPM_VAR_LIB_RULE)'+' \
 		-e 's+@PCP_VIRT_VAR_RUN_T@+'$(PCP_VIRT_VAR_RUN_T)'+' \
 		-e 's+@PCP_VIRT_VAR_RUN_RULE@+'$(PCP_VIRT_VAR_RUN_RULE)'+' \
 		-e 's+@PCP_PROC_SECURITY_T@+'$(PCP_PROC_SECURITY_T)'+' \

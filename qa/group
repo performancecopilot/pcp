@@ -247,7 +247,7 @@ pmda.postgresql
 pmda.proc
 pmda.redis
 pmda.root
-pmda.rpm
+pmda.rpm		# note this group has been retired
 pmda.rsyslog
 pmda.sample
 pmda.sendmail
@@ -1191,8 +1191,8 @@ x11
 747 pmda.linux local kernel
 748 pmlogrewrite pmda.mysql local pmdumplog
 749 pmcd local
-750 pmda.rpm local flakey pmval
-751 pmda.rpm local pmdumplog pmlogrewrite
+750:retired pmda.rpm local flakey pmval
+751:retired pmda.rpm local pmdumplog pmlogrewrite
 752 libpcp local pmval timezone
 753 derive local pmval pmstore kernel
 754 pmda.unbound local python
@@ -1224,7 +1224,7 @@ x11
 780 pmproxy local
 781 logutil local
 782:retired pmwebd local
-783 pmda.rpm local valgrind
+783:retired pmda.rpm local valgrind
 784 pmda.mic python local
 785 pcp atop local
 786 context context_local libpcp local

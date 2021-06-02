@@ -33,6 +33,9 @@ Conflicts: librapi < 0.16
 Obsoletes: pcp-pmda-kvm < 4.1.1
 Provides: pcp-pmda-kvm = %{version}-%{release}
 
+# RPM PMDA retired completely
+Obsoletes: pcp-pmda-rpm < 5.3.2
+
 # PCP REST APIs are now provided by pmproxy
 Obsoletes: pcp-webapi-debuginfo < 5.0.0
 Obsoletes: pcp-webapi < 5.0.0
@@ -106,9 +109,6 @@ BuildRequires: initscripts
 %endif
 %if "@enable_systemd@" == "true"
 BuildRequires: systemd-devel
-%endif
-%if "@pmda_rpm@" == "true"
-BuildRequires: rpm-devel
 %endif
 %if "@pmda_statsd@" == "true"
 # ragel unavailable on RHEL8
@@ -337,9 +337,6 @@ Requires: pcp-pmda-lio
 %endif
 %if "@pmda_openmetrics@" == "true"
 Requires: pcp-pmda-openmetrics
-%endif
-%if "@pmda_rpm@" == "true"
-Requires: pcp-pmda-rpm
 %endif
 %if "@pmda_snmp@" == "true"
 Requires: pcp-pmda-snmp
@@ -1962,21 +1959,6 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the room temperature.
 # end pcp-pmda-roomtemp
 
-%if "@pmda_rpm@" == "true"
-#
-# pcp-pmda-rpm
-#
-%package pmda-rpm
-License: GPLv2+
-Summary: Performance Co-Pilot (PCP) metrics for the RPM package manager
-URL: https://pcp.io
-Requires: pcp = @package_version@ pcp-libs = @package_version@
-%description pmda-rpm
-This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the installed RPM packages.
-%endif
-# end pcp-pmda-rpm
-
 #
 # pcp-pmda-sendmail
 #
@@ -2310,7 +2292,6 @@ basic_manifest | keep '(etc/pcp|pmdas)/postgresql(/|$)' >pcp-pmda-postgresql-fil
 basic_manifest | keep '(etc/pcp|pmdas)/rabbitmq(/|$)' >pcp-pmda-rabbitmq-files
 basic_manifest | keep '(etc/pcp|pmdas)/redis(/|$)' >pcp-pmda-redis-files
 basic_manifest | keep '(etc/pcp|pmdas)/roomtemp(/|$)' >pcp-pmda-roomtemp-files
-basic_manifest | keep '(etc/pcp|pmdas)/rpm(/|$)' >pcp-pmda-rpm-files
 basic_manifest | keep '(etc/pcp|pmdas)/rsyslog(/|$)' >pcp-pmda-rsyslog-files
 basic_manifest | keep '(etc/pcp|pmdas)/samba(/|$)' >pcp-pmda-samba-files
 basic_manifest | keep '(etc/pcp|pmdas)/sendmail(/|$)' >pcp-pmda-sendmail-files
@@ -2346,7 +2327,7 @@ for pmda_package in \
     nutcracker nvidia \
     openmetrics openvswitch oracle \
     pdns perfevent podman postfix postgresql \
-    rabbitmq redis roomtemp rpm rsyslog \
+    rabbitmq redis roomtemp rsyslog \
     samba sendmail shping slurm smart snmp \
     sockets statsd summary systemd \
     unbound \
@@ -2538,11 +2519,6 @@ pmieconf -c enable dmthin
 
 %triggerin selinux -- container-selinux
 %{selinux_handle_policy "$1" "pcpupstream-container"}
-%endif
-
-%if "@pmda_rpm@" == "true"
-%preun pmda-rpm
-%{pmda_remove "$1" "rpm"}
 %endif
 
 %if "@pmda_systemd@" == "true"
@@ -3103,10 +3079,6 @@ PCP_SA_DIR=@pcp_sa_dir@
 %files pmda-nvidia-gpu -f pcp-pmda-nvidia-files.rpm
 
 %files pmda-roomtemp -f pcp-pmda-roomtemp-files.rpm
-
-%if "@pmda_rpm@" == "true"
-%files pmda-rpm -f pcp-pmda-rpm-files.rpm
-%endif
 
 %files pmda-sendmail -f pcp-pmda-sendmail-files.rpm
 

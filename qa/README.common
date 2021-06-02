@@ -47,7 +47,6 @@ in that order along with other service-specific initialization.
     common.pcpweb
     common.python
     common.qt
-    common.rpm
     common.secure
 
 And QA scripts may include these optional "common" files after the

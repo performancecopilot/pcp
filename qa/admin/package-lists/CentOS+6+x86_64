@@ -87,7 +87,6 @@ python-six
 qt-devel
 readline-devel
 rpm-build
-rpm-devel
 rrdtool
 rrdtool-perl
 sed

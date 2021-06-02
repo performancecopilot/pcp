@@ -740,7 +740,6 @@ pcp_selinux_capability2_syslog
 pcp_selinux_sbd_exec
 pcp_selinux_proc_security
 pcp_selinux_virt_var_run
-pcp_selinux_rpm_var_lib
 pcp_selinux_files_list_non_auth_dirs
 pcp_selinux_bpf
 pcp_selinux_numad
@@ -757,7 +756,6 @@ enable_selinux
 SEINFO
 PMDA_POSTFIX
 QSHAPE
-PMDA_RPM
 PMDA_PODMAN
 PMDA_STATSD
 lib_for_chan
@@ -11582,47 +11580,6 @@ if $pmda_podman; then { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }; else { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }; fi
 
-pmda_rpm=false
-savedLIBS=$LIBS
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for rpmlib > 4.4.2" >&5
-$as_echo_n "checking for rpmlib > 4.4.2... " >&6; }
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <rpm/header.h>
-int
-main ()
-{
-(void)HEADERGET_EXT;
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-    pmda_rpm=true
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-ac_fn_c_check_header_mongrel "$LINENO" "sys/inotify.h" "ac_cv_header_sys_inotify_h" "$ac_includes_default"
-if test "x$ac_cv_header_sys_inotify_h" = xyes; then :
-
-else
-  pmda_rpm=false
-fi
-
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if the rpm PMDA should be included" >&5
-$as_echo_n "checking if the rpm PMDA should be included... " >&6; }
-PMDA_RPM=$pmda_rpm
-
-if $pmda_rpm; then { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }; else { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }; fi
-LIBS=$savedLIBS
-
 pmda_postfix=false
 for ac_prog in qshape
 do
@@ -11769,7 +11726,6 @@ pcp_selinux_unconfined=false
 pcp_selinux_numad=false
 pcp_selinux_bpf=false
 pcp_selinux_files_list_non_auth_dirs=false
-pcp_selinux_rpm_var_lib=false
 pcp_selinux_virt_var_run=false
 pcp_selinux_proc_security=false
 pcp_selinux_sbd_exec=false
@@ -11819,8 +11775,6 @@ if test "x$enable_selinux" != "xfalse"; then :
 	&& pcp_selinux_unconfined=true
     grep '^[ 	][ 	]*numad_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_numad=true
-    grep '^[ 	][ 	]*rpm_var_lib_t$' <conftest.out >/dev/null \
-	&& pcp_selinux_rpm_var_lib=true
     grep '^[ 	][ 	]*virt_var_run_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_virt_var_run=true
     grep '^[ 	][ 	]*proc_security_t$' <conftest.out >/dev/null \
@@ -11934,7 +11888,6 @@ if test "x$enable_selinux" != "xfalse"; then :
 
 
 fi
-
 
 
 

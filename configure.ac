@@ -1920,22 +1920,6 @@ AS_IF([test "x$do_pmdapodman" = "xno"], [pmda_podman=false])
 AC_SUBST(PMDA_PODMAN, $pmda_podman)
 if $pmda_podman; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
-dnl Do you have RPM Package Manager libraries for pmdarpm?
-pmda_rpm=false
-savedLIBS=$LIBS
-AC_MSG_CHECKING([for rpmlib > 4.4.2])
-AC_COMPILE_IFELSE(
-   [AC_LANG_PROGRAM([[#include <rpm/header.h>]],
-                    [[(void)HEADERGET_EXT;]])],
-   [AC_MSG_RESULT([yes])
-    pmda_rpm=true],
-   [AC_MSG_RESULT([no])])
-AC_CHECK_HEADER([sys/inotify.h], [],[pmda_rpm=false])
-AC_MSG_CHECKING([if the rpm PMDA should be included])
-AC_SUBST(PMDA_RPM,$pmda_rpm)
-if $pmda_rpm; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
-LIBS=$savedLIBS
-
 dnl Do you have the required qshape script for the postfix PMDA
 dnl The logic here is copied from the PMDA's Install script
 pmda_postfix=false
@@ -1992,7 +1976,6 @@ pcp_selinux_unconfined=false
 pcp_selinux_numad=false
 pcp_selinux_bpf=false
 pcp_selinux_files_list_non_auth_dirs=false
-pcp_selinux_rpm_var_lib=false
 pcp_selinux_virt_var_run=false
 pcp_selinux_proc_security=false
 pcp_selinux_sbd_exec=false
@@ -2045,8 +2028,6 @@ AS_IF([test "x$enable_selinux" != "xfalse"], [
 	&& pcp_selinux_unconfined=true
     grep '^[[ 	]][[ 	]]*numad_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_numad=true
-    grep '^[[ 	]][[ 	]]*rpm_var_lib_t$' <conftest.out >/dev/null \
-	&& pcp_selinux_rpm_var_lib=true
     grep '^[[ 	]][[ 	]]*virt_var_run_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_virt_var_run=true
     grep '^[[ 	]][[ 	]]*proc_security_t$' <conftest.out >/dev/null \
@@ -2189,7 +2170,6 @@ AC_SUBST(pcp_selinux_unconfined)
 AC_SUBST(pcp_selinux_numad)
 AC_SUBST(pcp_selinux_bpf)
 AC_SUBST(pcp_selinux_files_list_non_auth_dirs)
-AC_SUBST(pcp_selinux_rpm_var_lib)
 AC_SUBST(pcp_selinux_virt_var_run)
 AC_SUBST(pcp_selinux_proc_security)
 AC_SUBST(pcp_selinux_sbd_exec)

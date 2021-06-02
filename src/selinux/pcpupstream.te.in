@@ -60,7 +60,6 @@ require {
         type su_exec_t;
 	type postgresql_var_run_t;
 	type fs_t;
-	@PCP_RPM_VAR_LIB_T@
 	@PCP_VIRT_VAR_RUN_T@
 	type cluster_tmpfs_t;
 	type drbd_exec_t;
@@ -391,10 +390,6 @@ allow pcp_pmcd_t fixed_disk_device_t:blk_file { open read ioctl };
 
 #type=AVC msg=audit(XXX.66): avc:  denied  { sys_rawio } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:pcp_pmcd_t:s0 tclass=capability permissive=0
 allow pcp_pmcd_t self:capability sys_rawio;
-
-#============= pmda-rpm ==============
-#type=AVC msg=audit(YYY.89): avc:  denied  { map } for  pid=4969 comm="pmdarpm" path="/var/lib/rpm/Name" dev="dm-0" ino=519186 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:rpm_var_lib_t:s0 tclass=file permissive=0
-@PCP_RPM_VAR_LIB_RULE@
 
 #============= pmda-libvirt ==============
 #type=AVC msg=audit(YYY.90): avc:  denied  { write } for  pid=30922 comm="python3" name="libvirt-sock-ro" dev="tmpfs" ino=25845 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:virt_var_run_t:s0 tclass=sock_file permissive=0

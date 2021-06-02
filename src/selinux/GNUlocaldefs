@@ -73,17 +73,6 @@ else
 PCP_SELINUX_MACRO_RULE="files_list_non_security\(pcp_domain\)"
 endif
 
-# need both type rpm_var_lib_t and permission map for this one
-#
-PCP_RPM_VAR_LIB_T=""
-PCP_RPM_VAR_LIB_RULE=""
-ifeq "$(PCP_SELINUX_RPM_VAR_LIB)" "true"
-ifeq "$(PCP_SELINUX_HOSTNAME_EXEC_MAP)" "true"
-PCP_RPM_VAR_LIB_T="type rpm_var_lib_t; \# pmda.rpm"
-PCP_RPM_VAR_LIB_RULE="allow pcp_pmcd_t rpm_var_lib_t:file map;"
-endif
-endif
-
 ifeq "$(PCP_SELINUX_VIRT_VAR_RUN)" "true"
 PCP_VIRT_VAR_RUN_T="type virt_var_run_t; \# pmda.libvirt"
 PCP_VIRT_VAR_RUN_RULE="allow pcp_pmcd_t virt_var_run_t:sock_file write;"
