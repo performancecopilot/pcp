@@ -15,6 +15,7 @@ echo "QA output created by $seq"
 
 _check_series
 _check_search
+_check_redis_server_version_offline
 
 _cleanup()
 {
