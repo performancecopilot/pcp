@@ -43,6 +43,7 @@ Checking policies.
 ! allow [pcp_pmcd_t] [tracefs_t] : [dir] { open read search };
 ! allow [pcp_pmcd_t] self : [lockdown] { integrity };
   allow [pcp_pmcd_t] [gpmctl_t] : [sock_file] { getattr };
+  allow [pcp_pmcd_t] [dma_device_t] : [dir] { getattr };
   allow [pcp_pmcd_t] [haproxy_var_lib_t] : [sock_file] { write };
   allow [pcp_pmcd_t] [sysctl_fs_t] : [file] { write };
 ! allow [pcp_pmcd_t] [ldconfig_exec_t] : [file] { map };
