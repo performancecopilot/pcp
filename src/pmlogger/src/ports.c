@@ -427,8 +427,12 @@ GetPorts(char *file)
 	}
 
 	/* Set close on exec for daily reexec log-roll */
-	if ((fdFlags = __pmGetFileDescriptorFlags(fd)) >= 0)
-	    __pmSetFileDescriptorFlags(fd, fdFlags | FD_CLOEXEC);
+	if (sts >= 0 && (fdFlags = __pmGetFileDescriptorFlags(fd)) >= 0) {
+	    if (__pmSetFileDescriptorFlags(fd, fdFlags | FD_CLOEXEC) != 0) {
+		/* report the error, but this is not fatal */
+		perror("GetPorts: __pmSetFileDescriptorFlags");
+	    }
+	}
 
 	/* Now listen on the new socket. */
 	if (sts >= 0) {

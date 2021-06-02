@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 1901
-# test pmlogger FD leak on SIGUSR1 reexec
+# test pmlogger FD leak on SIGUSR2 reexec
 #
 # Copyright (c) 2021 Red Hat.  All Rights Reserved.
 #
