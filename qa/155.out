@@ -13,6 +13,10 @@ long help text request:
 sample.long.ten
 Full Help: Error: Try again. Information not currently available
 
+highres fetch request:
+sample.long.one: Try again. Information not currently available
+sampledso.long.one: 1
+
 fetch request:
 sample.long.one: Try again. Information not currently available
 sampledso.long.one: 1
@@ -36,6 +40,10 @@ long help text request:
 sample.long.ten
 Help:
 10 as a 32-bit integer
+
+highres fetch request:
+sample.long.one: 1
+sampledso.long.one: 1
 
 fetch request:
 sample.long.one: 1

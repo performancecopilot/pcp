@@ -13,19 +13,23 @@ main(int argc, char **argv)
     int		c;
     int		sts;
     int		errflag = 0;
-    char	*host = "localhost";
+    int		highres = 0;
+    int		timestamp = 0;
+    char	*hostspec = "local:";
     char	*namespace = PM_NS_DEFAULT;
-    static char	*usage = "[-D debugspec] [-h hostname] [-n namespace]";
+    static char	*usage = "[-D debugspec] [-H] [-h hostspec] [-n namespace] [-T]";
     int		i;
     int		n;
     const char	*namelist[20];
     pmID	midlist[20];
     int		numpmid;
     pmResult	*rslt;
+    pmHighResResult *hrslt;
+    pmValueSet	**vset;
 
     pmSetProgname(argv[0]);
 
-    while ((c = getopt(argc, argv, "D:h:n:")) != EOF) {
+    while ((c = getopt(argc, argv, "D:h:Hn:T")) != EOF) {
 	switch (c) {
 
 	case 'D':	/* debug options */
@@ -37,12 +41,20 @@ main(int argc, char **argv)
 	    }
 	    break;
 
-	case 'h':	/* hostname for PMCD to contact */
-	    host = optarg;
+	case 'h':	/* hostspec for PMCD to contact */
+	    hostspec = optarg;
+	    break;
+
+	case 'H':	/* use high resolution fetching */
+	    highres = 1;
 	    break;
 
 	case 'n':	/* alternative name space file */
 	    namespace = optarg;
+	    break;
+
+	case 'T':	/* report fetch timestamp also */
+	    timestamp = 1;
 	    break;
 
 	case '?':
@@ -57,13 +69,16 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    if (namespace != PM_NS_DEFAULT && (sts = pmLoadASCIINameSpace(namespace, 1)) < 0) {
-	printf("%s: Cannot load namespace from \"%s\": %s\n", pmGetProgname(), namespace, pmErrStr(sts));
+    if ((namespace != PM_NS_DEFAULT) &&
+	(sts = pmLoadASCIINameSpace(namespace, 1)) < 0) {
+	fprintf(stderr, "%s: Cannot load namespace from \"%s\": %s\n",
+			pmGetProgname(), namespace, pmErrStr(sts));
 	exit(1);
     }
 
-    if ((sts = pmNewContext(PM_CONTEXT_HOST, host)) < 0) {
-	printf("%s: Cannot connect to PMCD on host \"%s\": %s\n", pmGetProgname(), host, pmErrStr(sts));
+    if ((sts = pmNewContext(PM_CONTEXT_HOST, hostspec)) < 0) {
+	fprintf(stderr, "%s: Cannot connect to PMCD on host \"%s\": %s\n",
+			pmGetProgname(), hostspec, pmErrStr(sts));
 	exit(1);
     }
 
@@ -72,31 +87,51 @@ main(int argc, char **argv)
     namelist[i++] = "sampledso.long.one";
     numpmid = i;
     n = pmLookupName(numpmid, namelist, midlist);
-    if (n < 0) {
-	printf("pmLookupName: %s\n", pmErrStr(n));
+    if (n < 0)
+	fprintf(stderr, "pmLookupName: %s\n", pmErrStr(n));
+    if (n != numpmid) {
 	for (i = 0; i < numpmid; i++) {
 	    if (midlist[i] == PM_ID_NULL)
-		printf("   %s is bad\n", namelist[i]);
+		fprintf(stderr, "   %s is bad\n", namelist[i]);
 	}
 	exit(1);
     }
 
-    if ((n = pmFetch(numpmid, midlist, &rslt)) < 0) {
-	printf("pmFetch rslt: %s\n", pmErrStr(n));
-	exit(1);
+    if (highres) {
+	if ((n = pmHighResFetch(numpmid, midlist, &hrslt)) < 0) {
+	    fprintf(stderr, "pmHighResFetch: %s\n", pmErrStr(n));
+	    exit(1);
+	}
+	if (timestamp)
+	    pmPrintHighResStamp(stdout, &hrslt->timestamp);
+	vset = hrslt->vset;
+    } else {
+	if ((n = pmFetch(numpmid, midlist, &rslt)) < 0) {
+	    fprintf(stderr, "pmFetch: %s\n", pmErrStr(n));
+	    exit(1);
+	}
+	if (timestamp)
+	    pmPrintStamp(stdout, &rslt->timestamp);
+	vset = rslt->vset;
     }
+
+    if (timestamp)
+	putchar('\n');
 
     for (i = 0; i < numpmid; i++) {
 	printf("%s: ", namelist[i]);
-        if (rslt->vset[i]->numval < 0)
-	    printf("%s\n", pmErrStr(rslt->vset[i]->numval));
+        if (vset[i]->numval < 0)
+	    printf("%s\n", pmErrStr(vset[i]->numval));
 	else
-	    printf("%d\n", rslt->vset[i]->vlist[0].value.lval);
+	    printf("%d\n", vset[i]->vlist[0].value.lval);
     }
 
-/*
-    __pmDumpResult(stdout, rslt);
-*/
+    if (pmDebugOptions.appl0) {
+	if (highres)
+	    __pmDumpHighResResult(stdout, hrslt);
+	else
+	    __pmDumpResult(stdout, rslt);
+    }
 
     exit(0);
 }

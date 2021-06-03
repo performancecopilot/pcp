@@ -35,20 +35,17 @@ do
 	echo "-- THESE SHOULD SUCCEED --"
     fi
 
-    echo
-echo "descriptor request:"
+    echo; echo "descriptor request:"
     pminfo $target -d sample.long.ten
-    echo
-echo "short help text request:"
+    echo; echo "short help text request:"
     pminfo $target -t sample.long.ten
-    echo
-echo "long help text request:"
+    echo; echo "long help text request:"
     pminfo $target -T sample.long.ten
-    echo
-echo "fetch request:"
+    echo; echo "highres fetch request:"
+    src/fetchpdu -H $target
+    echo; echo "fetch request:"
     src/fetchpdu $target
-    echo
-echo "store request:"
+    echo; echo "store request:"
     src/storepdu $target
 
 done

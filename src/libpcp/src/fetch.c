@@ -342,13 +342,13 @@ pmHighResFetch_ctx(__pmContext *ctxp, int numpmid, pmID *pmidlist, pmHighResResu
 	if (ctxp->c_type == PM_CONTEXT_HOST) {
 	    tout = ctxp->c_pmcd->pc_tout_sec;
 	    fd = ctxp->c_pmcd->pc_fd;
-	    if ((sts = __pmUpdateProfile(fd, ctxp, tout)) < 0) {
+	    if (!(__pmFeaturesIPC(fd) & PDU_FLAG_HIGHRES))
+		sts = PM_ERR_NYI;	/* lack pmcd support */
+	    else if ((sts = __pmUpdateProfile(fd, ctxp, tout)) < 0)
 		sts = __pmMapErrno(sts);
-	    }
 	    else if ((sts = __pmSendHighResFetch(fd, __pmPtrToHandle(ctxp),
-					ctxp->c_slot, numpmid, pmidlist)) < 0) {
+					ctxp->c_slot, numpmid, pmidlist)) < 0)
 		sts = __pmMapErrno(sts);
-	    }
 	    else {
 		PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_TIMEOUT);
 		sts = __pmRecvHighResFetch(fd, ctxp, tout, result);
