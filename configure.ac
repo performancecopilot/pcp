@@ -1975,6 +1975,7 @@ pcp_selinux_hostname_exec_map=false
 pcp_selinux_unconfined=false
 pcp_selinux_numad=false
 pcp_selinux_bpf=false
+pcp_selinux_dma_device=false
 pcp_selinux_files_list_non_auth_dirs=false
 pcp_selinux_virt_var_run=false
 pcp_selinux_proc_security=false
@@ -2036,6 +2037,8 @@ AS_IF([test "x$enable_selinux" != "xfalse"], [
 	&& pcp_selinux_sbd_exec=true
     grep '^[[ 	]][[ 	]]*kmod_exec_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_kmod_exec=true
+    grep '^[[ 	]][[ 	]]*dma_device_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_dma_device=true
 
     dnl these ones are for pcpqa.te
 
@@ -2169,6 +2172,7 @@ AC_SUBST(pcp_selinux_hostname_exec_map)
 AC_SUBST(pcp_selinux_unconfined)
 AC_SUBST(pcp_selinux_numad)
 AC_SUBST(pcp_selinux_bpf)
+AC_SUBST(pcp_selinux_dma_device)
 AC_SUBST(pcp_selinux_files_list_non_auth_dirs)
 AC_SUBST(pcp_selinux_virt_var_run)
 AC_SUBST(pcp_selinux_proc_security)

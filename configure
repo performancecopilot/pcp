@@ -742,6 +742,7 @@ pcp_selinux_sbd_exec
 pcp_selinux_proc_security
 pcp_selinux_virt_var_run
 pcp_selinux_files_list_non_auth_dirs
+pcp_selinux_dma_device
 pcp_selinux_bpf
 pcp_selinux_numad
 pcp_selinux_unconfined
@@ -11726,6 +11727,7 @@ pcp_selinux_hostname_exec_map=false
 pcp_selinux_unconfined=false
 pcp_selinux_numad=false
 pcp_selinux_bpf=false
+pcp_selinux_dma_device=false
 pcp_selinux_files_list_non_auth_dirs=false
 pcp_selinux_virt_var_run=false
 pcp_selinux_proc_security=false
@@ -11784,6 +11786,8 @@ if test "x$enable_selinux" != "xfalse"; then :
 	&& pcp_selinux_sbd_exec=true
     grep '^[ 	][ 	]*kmod_exec_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_kmod_exec=true
+    grep '^[ 	][ 	]*dma_device_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_dma_device=true
 
 
     grep '^[ 	][ 	]*initrc_tmp_t$' <conftest.out >/dev/null \
@@ -11889,6 +11893,7 @@ if test "x$enable_selinux" != "xfalse"; then :
 
 
 fi
+
 
 
 

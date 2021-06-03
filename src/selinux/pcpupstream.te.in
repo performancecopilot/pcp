@@ -51,7 +51,7 @@ require {
         type ldconfig_exec_t;
         type sysctl_net_t;
         type proc_net_t; #RHBZ1517656
-        type dma_device_t;
+        @PCP_DMA_DEVICE@
         type fixed_disk_device_t;
         type fsadm_exec_t;
 	type kernel_t;
@@ -204,7 +204,7 @@ allow pcp_pmcd_t hostname_exec_t:file { getattr execute read open execute_no_tra
 allow pcp_pmcd_t gpmctl_t:sock_file getattr;
 
 #type=AVC msg=audit(YYY.103): avc:  denied  { getattr } for  pid=YYYY comm="pmdaproc" path="/dev/dma_heap" dev="devtmpfs" ino=150 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:dma_device_t:s0 tclass=dir permissive=0
-allow pcp_pmcd_t dma_device_t:dir getattr;
+@PCP_DMA_DEVICE_RULE@
 
 #type=AVC msg=audit(XXX.16): avc:  denied  { write } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:haproxy_var_lib_t:s0 tclass=sock_file permissive=0
 allow pcp_pmcd_t haproxy_var_lib_t:sock_file write;

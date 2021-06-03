@@ -275,6 +275,7 @@ PCP_SELINUX_HOSTNAME_EXEC_MAP = @pcp_selinux_hostname_exec_map@
 PCP_SELINUX_UNCONFINED = @pcp_selinux_unconfined@
 PCP_SELINUX_NUMAD = @pcp_selinux_numad@
 PCP_SELINUX_BPF = @pcp_selinux_bpf@
+PCP_SELINUX_DMA_DEVICE = @pcp_selinux_dma_device@
 PCP_SELINUX_VIRT_VAR_RUN = @pcp_selinux_virt_var_run@
 PCP_SELINUX_PROC_SECURITY = @pcp_selinux_proc_security@
 PCP_SELINUX_SBD_EXEC = @pcp_selinux_sbd_exec@

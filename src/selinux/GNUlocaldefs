@@ -72,6 +72,11 @@ PCP_BPF_CLASS="class bpf { map_create map_read map_write prog_load prog_run };"
 PCP_BPF_RULE="allow pcp_pmcd_t self:bpf { map_create map_read map_write prog_load prog_run };"
 endif
 
+ifeq "$(PCP_SELINUX_DMA_DEVICE)" "true"
+PCP_DMA_DEVICE="type dma_device_t;"
+PCP_DMA_DEVICE_RULE="allow pcp_pmcd_t dma_device_t:dir getattr;"
+endif
+
 ifeq "$(PCP_SELINUX_FILES_LIST_NON_AUTH_DIRS)" "true"
 PCP_SELINUX_MACRO_RULE="files_list_non_auth_dirs\(pcp_domain\)"
 else
