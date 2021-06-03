@@ -49,6 +49,12 @@ pmtimevalSub(const struct timeval *ap, const struct timeval *bp)
      return (double)(ap->tv_sec - bp->tv_sec) + (long double)(ap->tv_usec - bp->tv_usec) / (long double)1000000;
 }
 
+double
+pmtimespecSub(const struct timespec *ap, const struct timespec *bp)
+{
+     return (double)(ap->tv_sec - bp->tv_sec) + (long double)(ap->tv_nsec - bp->tv_nsec) / (long double)1000000000;
+}
+
 /*
  * struct subtractive time, *ap = *ap - *bp
  */
@@ -63,9 +69,6 @@ pmtimevalDec(struct timeval *ap, const struct timeval *bp)
     }
 }
 
-/*
- * struct subtractive time, *ap = *ap - *bp
- */
 void
 pmtimespecDec(struct timespec *ap, const struct timespec *bp)
 {
@@ -78,7 +81,7 @@ pmtimespecDec(struct timespec *ap, const struct timespec *bp)
 }
 
 /*
- * convert a timespec to a double (units = seconds)
+ * convert a time structure to a double (units = seconds)
  */
 double
 pmtimespecToReal(const struct timespec *val)
@@ -86,9 +89,6 @@ pmtimespecToReal(const struct timespec *val)
     return val->tv_sec + ((long double)val->tv_nsec / (long double)1000000000);
 }
 
-/*
- * convert a timeval to a double (units = seconds)
- */
 double
 pmtimevalToReal(const struct timeval *val)
 {

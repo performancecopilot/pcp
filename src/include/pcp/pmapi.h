@@ -1262,6 +1262,7 @@ PCP_CALL extern void pmPrintStamp(FILE *, const struct timeval *);
 /* struct timespec manipulations */
 PCP_CALL extern int pmtimespecNow(struct timespec *);
 PCP_CALL extern void pmtimespecDec(struct timespec *, const struct timespec *);
+PCP_CALL extern double pmtimespecSub(const struct timespec *, const struct timespec *);
 PCP_CALL extern double pmtimespecToReal(const struct timespec *);
 PCP_CALL extern void pmPrintHighResStamp(FILE *, const struct timespec *);
 
