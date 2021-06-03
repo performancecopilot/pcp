@@ -60,6 +60,42 @@ proxylog(pmLogLevel level, sds message, void *arg)
     pmNotifyErr(priority, "%s%s", state, message);
 }
 
+static void
+refresh_proxy_mem_metrics(struct proxy *proxy)
+{
+    pmAtomValue		*value;
+    uint64_t		vsz, rss;
+    int			fd;
+    char		buf[MAXPATHLEN];
+    static		pid_t pid = 0;
+    static		int pagesz = 0;
+
+    if (!pid)
+    	pid = getpid();
+    sprintf(buf, "/proc/%u/statm", pid);
+    if ((fd = open(buf, O_RDONLY)) >= 0) {
+    	if (read(fd, buf, sizeof(buf)) > 0) {
+	    if (sscanf(buf, "%lu %lu", &vsz, &rss) != 2) {
+		close(fd);
+	    	return;
+	    }
+	}
+    }
+    close(fd);
+
+    /* proc data is in units of pages */
+    if (!pagesz)
+    	pagesz = getpagesize();
+    vsz = vsz * pagesz / 1024;
+    rss = rss * pagesz / 1024;
+
+    if ((value = mmv_lookup_value_desc(proxy->metrics_handle, "mem.vsz", NULL)) != NULL)
+	mmv_set_value(proxy->metrics_handle, value, vsz);
+
+    if ((value = mmv_lookup_value_desc(proxy->metrics_handle, "mem.rss", NULL)) != NULL)
+	mmv_set_value(proxy->metrics_handle, value, rss);
+}
+
 mmv_registry_t *
 proxymetrics(struct proxy *proxy, enum proxy_registry prid)
 {
@@ -113,9 +149,9 @@ server_metrics_init(struct proxy *proxy)
     pmAtomValue		*value;
     pmInDom		noindom = MMV_INDOM_NULL;
     pmUnits		nounits = MMV_UNITS(0,0,0,0,0,0);
+    pmUnits		units_kbytes = MMV_UNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0);
     pid_t		pid = getpid();
     char		buffer[64];
-    void		*map;
 
     if ((registry = proxy->metrics[METRICS_SERVER]) == NULL)
 	return;
@@ -128,13 +164,26 @@ server_metrics_init(struct proxy *proxy)
     mmv_stats_add_metric_label(registry, SERVER_PID,
 		"pid", buffer, MMV_NUMBER_TYPE, 0);
 
-    if ((map = mmv_stats_start(registry)) == NULL) {
+    mmv_stats_add_metric(registry, "mem.vsz", SERVER_MEM_VSZ,
+		MMV_TYPE_U64, MMV_SEM_INSTANT, units_kbytes, noindom,
+		"pmproxy VSZ",
+		"pmproxy process virtual memory size");
+
+    mmv_stats_add_metric(registry, "mem.rss", SERVER_MEM_RSS,
+		MMV_TYPE_U64, MMV_SEM_INSTANT, units_kbytes, noindom,
+		"pmproxy RSS",
+		"pmproxy process resident set memory size");
+
+    if ((proxy->metrics_handle = mmv_stats_start(registry)) == NULL) {
 	fprintf(stderr, "%s: instrumentation disabled\n", pmGetProgname());
 	return;
     }
 
-    if ((value = mmv_lookup_value_desc(map, "pid", NULL)) != NULL)
-	mmv_set_value(map, value, pid);
+    if ((value = mmv_lookup_value_desc(proxy->metrics_handle, "pid", NULL)) != NULL)
+	mmv_set_value(proxy->metrics_handle, value, pid);
+
+    /* set initial memory metrics */
+    refresh_proxy_mem_metrics(proxy);
 }
 
 static struct proxy *
@@ -828,6 +877,7 @@ check_proxy(uv_check_t *arg)
     struct proxy	*proxy = (struct proxy *)handle->data;
 
     flush_secure_module(proxy);
+    refresh_proxy_mem_metrics(proxy);
 }
 
 static void

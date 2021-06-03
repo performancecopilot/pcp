@@ -45,6 +45,8 @@ typedef enum proxy_registry {
 
 typedef enum server_metric {
     SERVER_PID,
+    SERVER_MEM_VSZ,
+    SERVER_MEM_RSS,
     NUM_SERVER_METRIC
 } server_metric;
 
@@ -166,6 +168,7 @@ typedef struct proxy {
     struct dict		*config;	/* configuration dictionary */
     uv_loop_t		*events;	/* global, async event loop */
     uv_callback_t	write_callbacks;
+    void		*metrics_handle;
 } proxy;
 
 extern void proxylog(pmLogLevel, sds, void *);
