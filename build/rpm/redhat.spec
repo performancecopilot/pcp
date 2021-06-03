@@ -3268,7 +3268,7 @@ PCP_LOG_DIR=%{_logsdir}
 
 %changelog
 * Fri Jun 04 2021 Nathan Scott <nathans@redhat.com> - 5.3.1-1
-- https://github.com/performancecopilot/pcp/projects/1
+- Fix selinux violations for pmdakvm on debugfs (BZ 1929259)
 - Update to latest PCP sources.
 
 * Fri Apr 16 2021 Nathan Scott <nathans@redhat.com> - 5.3.0-1
