@@ -35,6 +35,7 @@ Provides: pcp-pmda-kvm = %{version}-%{release}
 
 # RPM PMDA retired completely
 Obsoletes: pcp-pmda-rpm < 5.3.2
+Obsoletes: pcp-pmda-rpm-debuginfo < 5.3.2
 
 # PCP REST APIs are now provided by pmproxy
 Obsoletes: pcp-webapi-debuginfo < 5.0.0
