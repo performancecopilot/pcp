@@ -32,13 +32,20 @@ export PMCD_CONNECT_TIMEOUT=60
 
 _save_state
 
+# interleave fetch and desc lookup
 i=0
-while [ $i -le 15 ]
+while [ $i -le 10 ]
 do
     src/multifetch -s 100 >$tmp.$i 2>&1 &
     i=`expr $i + 1`
 done
-
+# interleave highres fetch and desc lookup
+j=10
+while [ $j -le 15 ]
+do
+    src/multifetch -s 100 -H >$tmp.$j 2>&1 &
+    j=`expr $j + 1`
+done
 wait
 
 i=0

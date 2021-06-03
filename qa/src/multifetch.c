@@ -13,26 +13,27 @@ main(int argc, char **argv)
     int		sts;
     char	*cmd = argv[0];
     int		errflag = 0;
+    int		highres = 0;
+    int		samples = 1000;
+    int		iterations = 5;
     int		type = 0;
     char	*host = NULL;			/* pander to gcc */
     char 	*logfile = (char *)0;
-    pmLogLabel	label;				/* get hostname for archives */
-    char	local[MAXHOSTNAMELEN];
     char	*namespace = PM_NS_DEFAULT;
-    int		samples = 1000;
-    double	delta = 1.0;
     int		i;
     int		j;
     const char	*namelist[20];
     pmID	pmidlist[20];
     int		n;
     int		numpmid;
+    pmDesc	desc;
     pmResult	*resp;
+    pmHighResResult *hresp;
     char	*endnum;
 
     pmSetProgname(argv[0]);
 
-    while ((c = getopt(argc, argv, "a:D:h:l:n:s:t:T:?")) != EOF) {
+    while ((c = getopt(argc, argv, "a:D:h:Hl:n:s:T:?")) != EOF) {
 	switch (c) {
 
 	case 'a':	/* archive name */
@@ -56,6 +57,10 @@ main(int argc, char **argv)
 	    break;
 #endif
 
+	case 'H':	/* high resolution sample times */
+	    highres = 1;
+	    break;
+
 	case 'h':	/* contact PMCD on this hostname */
 	    if (type != 0) {
 		fprintf(stderr, "%s: at most one of -a and/or -h allowed\n", cmd);
@@ -73,18 +78,18 @@ main(int argc, char **argv)
 	    namespace = optarg;
 	    break;
 
-	case 's':	/* sample count */
-	    samples = (int)strtol(optarg, &endnum, 10);
+	case 'i':	/* iteration count (inner loop) */
+	    iterations = (int)strtol(optarg, &endnum, 10);
 	    if (*endnum != '\0' || samples < 0) {
-		fprintf(stderr, "%s: -s requires numeric argument\n", cmd);
+		fprintf(stderr, "%s: -i requires numeric argument\n", cmd);
 		errflag++;
 	    }
 	    break;
 
-	case 't':	/* delta seconds (double) */
-	    delta = strtod(optarg, &endnum);
-	    if (*endnum != '\0' || delta <= 0.0) {
-		fprintf(stderr, "%s: -t requires floating point argument\n", cmd);
+	case 's':	/* sample count (outer loop) */
+	    samples = (int)strtol(optarg, &endnum, 10);
+	    if (*endnum != '\0' || samples < 0) {
+		fprintf(stderr, "%s: -s requires numeric argument\n", cmd);
 		errflag++;
 	    }
 	    break;
@@ -104,10 +109,11 @@ Options\n\
   -a   archive	  metrics source is an archive log\n\
   -D   debugspec  standard PCP debugging options\n\
   -h   host	  metrics source is PMCD on host\n\
+  -H              use high resolution timestamp samples\n\
   -l   logfile	  redirect diagnostics and trace output\n\
   -n   namespace  use an alternative PMNS\n\
-  -s   samples	  terminate after this many iterations\n\
-  -t   delta	  sample interval in seconds(float) [default 1.0]\n",
+  -i   iterations inner loop multiplier iteration count [5]\n\
+  -s   samples	  terminate after this many outer loops [1000]\n",
 		cmd);
 	exit(1);
     }
@@ -119,15 +125,16 @@ Options\n\
 	}
     }
 
-    if (namespace != PM_NS_DEFAULT && (sts = pmLoadASCIINameSpace(namespace, 1)) < 0) {
-	printf("%s: Cannot load namespace from \"%s\": %s\n", cmd, namespace, pmErrStr(sts));
+    if ((namespace != PM_NS_DEFAULT) &&
+	(sts = pmLoadASCIINameSpace(namespace, 1)) < 0) {
+	fprintf(stderr, "%s: Cannot load namespace from \"%s\": %s\n", cmd,
+		namespace, pmErrStr(sts));
 	exit(1);
     }
 
     if (type == 0) {
 	type = PM_CONTEXT_HOST;
-	gethostname(local, sizeof(local));
-	host = local;
+	host = "local:";
     }
     if ((sts = pmNewContext(type, host)) < 0) {
 	if (type == PM_CONTEXT_HOST)
@@ -137,14 +144,6 @@ Options\n\
 	    fprintf(stderr, "%s: Cannot open archive \"%s\": %s\n",
 		cmd, host, pmErrStr(sts));
 	exit(1);
-    }
-
-    if (type == PM_CONTEXT_ARCHIVE) {
-	if ((sts = pmGetArchiveLabel(&label)) < 0) {
-	    fprintf(stderr, "%s: Cannot get archive label record: %s\n",
-		cmd, pmErrStr(sts));
-	    exit(1);
-	}
     }
 
     /* non-flag args are argv[optind] ... argv[argc-1] */
@@ -182,19 +181,28 @@ Options\n\
     }
 
     for (j = 0; j < samples; j++) {
-	pmDesc	desc;
 	for (i = 0; i < numpmid; i++) {
 	    if ((n = pmLookupDesc(pmidlist[i], &desc)) < 0) {
-		fprintf(stderr, "pmFetch: %s\n", pmErrStr(n));
+		fprintf(stderr, "pmLookupDesc: %s\n", pmErrStr(n));
 		exit(1);
 	    }
 	}
-	for (i = 0; i < 5; i++) {
-	    if ((n = pmFetch(numpmid, pmidlist, &resp)) < 0) {
-		fprintf(stderr, "pmFetch: %s\n", pmErrStr(n));
-		exit(1);
+	if (highres) {
+	    for (i = 0; i < iterations; i++) {
+		if ((n = pmHighResFetch(numpmid, pmidlist, &hresp)) < 0) {
+		    fprintf(stderr, "pmHighResFetch: %s\n", pmErrStr(n));
+		    exit(1);
+		}
+		pmFreeHighResResult(hresp);
 	    }
-	    pmFreeResult(resp);
+	} else {
+	    for (i = 0; i < iterations; i++) {
+		if ((n = pmFetch(numpmid, pmidlist, &resp)) < 0) {
+		    fprintf(stderr, "pmFetch: %s\n", pmErrStr(n));
+		    exit(1);
+		}
+		pmFreeResult(resp);
+	    }
 	}
     }
 
