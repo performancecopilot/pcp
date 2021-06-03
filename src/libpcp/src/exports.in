@@ -731,6 +731,7 @@ PCP_3.32 {
   global:
     pmtimespecDec;
     pmtimespecNow;
+    pmtimespecSub;
 
     pmHighResFetch;
 
