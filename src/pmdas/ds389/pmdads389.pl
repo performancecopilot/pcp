@@ -1,5 +1,6 @@
 #
 # Copyright (C) 2014-2015 Marko Myllynen <myllynen@redhat.com>
+# Copyright (C) 2021 Raul Mahiques <rmahique@redhat.com>
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -11,8 +12,6 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-# Author: Marko Myllynen <myllynen@redhat.com>
-# Contributors: Raul Mahiques <rmahique@redhat.com>
 
 use strict;
 use warnings;
@@ -20,7 +19,6 @@ use PCP::PMDA;
 use POSIX;
 
 my $have_ldap = eval {
-  # check if we have LDAP
   require Net::LDAP;
   Net::LDAP->import();
   use Net::LDAP::Util;
@@ -47,7 +45,7 @@ our $query_interval = 2; # seconds
 our $mpm_type = PM_TYPE_U32;
 our $mpm_indom = PM_INDOM_NULL;
 our $mpm_sem = PM_SEM_INSTANT;
-#  Format:  dim_space, dim_time, dim_count, scale_space, scale_time, scale_count
+# Format: dim_space, dim_time, dim_count, scale_space, scale_time, scale_count
 our $mpmda_units = '0,0,1,0,0,'.PM_COUNT_ONE;
 our @add_met = ();
 our %dclu;
@@ -56,8 +54,8 @@ our %dclu;
 our %dataclusters = (
         '0' => ['0','cn=monitor','cn.',$dfscope,$dffilter,$dattrs],
         '1' => ['0','cn=monitor,cn=userRoot,cn=ldbm database,cn=plugins,cn=config','userroot.',$dfscope,$dffilter,$dattrs],
-  '2' => ['0','cn=monitor,cn=changelog,cn=ldbm database,cn=plugins,cn=config','changelog_mon.',$dfscope,$dffilter,$dattrs],
-  '3' => ['0','cn=snmp,cn=monitor','snmp_mon.',$dfscope,$dffilter,$dattrs]
+        '2' => ['0','cn=monitor,cn=changelog,cn=ldbm database,cn=plugins,cn=config','changelog_mon.',$dfscope,$dffilter,$dattrs],
+        '3' => ['0','cn=snmp,cn=monitor','snmp_mon.',$dfscope,$dffilter,$dattrs]
 );
 our @def_met = (
         [0,0,$mpm_type,$mpm_indom,$mpm_sem,$mpmda_units,'threads'],
@@ -142,13 +140,13 @@ our @def_met = (
         [3,30,$mpm_type,$mpm_indom,$mpm_sem,$mpmda_units,'slavehits']
 );
 
-
 our @def_replagr_met = (
-  [$mpm_type,$mpm_indom,$mpm_sem,$mpmda_units,'nsds5ReplicaChangeCount'],
+        [$mpm_type,$mpm_indom,$mpm_sem,$mpmda_units,'nsds5ReplicaChangeCount'],
         [$mpm_type,$mpm_indom,$mpm_sem,$mpmda_units,'nsds5replicareapactive']
 );
+
 our @def_repl_met = (
-  [$mpm_type,$mpm_indom,$mpm_sem,$mpmda_units,'nsds5replicareapactive'],
+        [$mpm_type,$mpm_indom,$mpm_sem,$mpmda_units,'nsds5replicareapactive'],
         [$mpm_type,$mpm_indom,$mpm_sem,'0,1,0,0,'.PM_TIME_SEC.',0','nsruvReplicaLastModified'],
         [$mpm_type,$mpm_indom,$mpm_sem,'0,1,0,0,'.PM_TIME_SEC.',0','nsds5replicaLastUpdateStart'],
         [$mpm_type,$mpm_indom,$mpm_sem,'0,1,0,0,'.PM_TIME_SEC.',0','nsds5replicaLastUpdateEnd'],
@@ -156,7 +154,7 @@ our @def_repl_met = (
         [$mpm_type,$mpm_indom,$mpm_sem,$mpmda_units,'replicaLastUpdateStatus'],
         [$mpm_type,$mpm_indom,$mpm_sem,'0,1,0,0,'.PM_TIME_SEC.',0','nsds5replicaLastInitStart'],
         [$mpm_type,$mpm_indom,$mpm_sem,'0,1,0,0,'.PM_TIME_SEC.',0','nsds5replicaLastInitEnd'],
-  [$mpm_type,$mpm_indom,$mpm_sem,'0,1,0,0,'.PM_TIME_SEC.',0','nsds5replicaLastUpdateTime'],
+        [$mpm_type,$mpm_indom,$mpm_sem,'0,1,0,0,'.PM_TIME_SEC.',0','nsds5replicaLastUpdateTime'],
         [$mpm_type,$mpm_indom,$mpm_sem,$mpmda_units,'nsds5replicaUpdateInProgeress'],
         [$mpm_type,$mpm_indom,$mpm_sem,$mpmda_units,'replicaChangesSkippedSinceStartup'],
         [$mpm_type,$mpm_indom,$mpm_sem,$mpmda_units,'replicaChangesSentSinceStartup']
@@ -179,7 +177,6 @@ our @def_mon_met = (
         [$mpm_type,$mpm_indom,$mpm_sem,$mpmda_units,'currentdncachecount'],
         [PM_TYPE_32,$mpm_indom,$mpm_sem,$mpmda_units,'maxdncachecount']
 );
-
 
 
 # Configuration files for overriding the above settings
@@ -213,19 +210,19 @@ sub ds389_connection_setup {
 # Function copied from https://github.com/389ds/389-ds-base/blob/389-ds-base-1.3.10/ldap/admin/src/scripts/repl-monitor.pl.in
 sub to_decimal_csn
 {
-        my ($maxcsn) = @_;
-        if (!$maxcsn || $maxcsn eq "" || $maxcsn eq "Unavailable") {
-                return "Unavailable";
-        }
+  my ($maxcsn) = @_;
+  if (!$maxcsn || $maxcsn eq "" || $maxcsn eq "Unavailable") {
+    return "Unavailable";
+  }
 
-        my ($tm, $seq, $masterid, $subseq) = unpack("a8 a4 a4 a4", $maxcsn);
+  my ($tm, $seq, $masterid, $subseq) = unpack("a8 a4 a4 a4", $maxcsn);
 
-        $tm = hex($tm);
-        $seq = hex($seq);
-        $masterid = hex($masterid);
-        $subseq = hex($subseq);
+  $tm = hex($tm);
+  $seq = hex($seq);
+  $masterid = hex($masterid);
+  $subseq = hex($subseq);
 
-        return "$tm $seq $masterid $subseq";
+  return "$tm $seq $masterid $subseq";
 }
 
 
@@ -233,11 +230,11 @@ sub to_decimal_csn
 sub ds389_time_to_epoch {
   my ($time) = @_;
   return mktime(substr($time,12,2),
-          substr($time,10,2),
-          substr($time,8,2),
-          substr($time,6,2),
-          substr($time,4,2) - 1,
-          substr($time,0,4) - 1900);
+                substr($time,10,2),
+                substr($time,8,2),
+                substr($time,6,2),
+                substr($time,4,2) - 1,
+                substr($time,0,4) - 1900);
 }
 
 sub ds389_process_entry {
@@ -261,9 +258,9 @@ sub ds389_process_entry {
       }
 
       if ($attr eq 'nsds5replicaLastUpdateStatus') {
-                          $value = (split /\)/, (split /Error \(/, $value)[1])[0];
-                          $attr = 'replicaLastUpdateStatus';
-                  }
+        $value = (split /\)/, (split /Error \(/, $value)[1])[0];
+        $attr = 'replicaLastUpdateStatus';
+      }
 
       if ($attr eq 'nsds5replicaChangesSentSinceStartup' ) {
 #       my $rep_id = (split /:/, $value)[0];
@@ -274,15 +271,15 @@ sub ds389_process_entry {
         $value = $skipped;
 #       $attr = 'replica'.$rep_id.'ChangesSkippedSinceStartup';
         $attr = 'replicaChangesSkippedSinceStartup';
-                  }
+      }
 
       if ($attr eq 'nsds5replicaUpdateInProgress' ) {
         if ($value =~ /^(true|TRUE)$/) {
-                $value = 1;
+          $value = 1;
         } else {
           $value = 0;
         }
-                  }
+      }
 
       if ($attr =~ /^(nsds5replicaLastInitEnd|nsds5replicaLastUpdateStart|nsds5replicaLastInitStart)$/i ) {
         $value = ds389_time_to_epoch($value);
@@ -296,7 +293,6 @@ sub ds389_process_entry {
         $attr = 'nsds5replicaLastUpdateTime';
         $value = $endrepltime - $startrepltime;
         $startrepltime = $endrepltime = '';
-
       }
 
       if ($attr =~ /^(nsds5replicaLastUpdateEnd)$/i ) {
@@ -315,7 +311,7 @@ sub ds389_process_entry {
 }
 
 sub retrieve_ldap {
-        my ($cluster, $ts, $base, $tname, $scope, $filter, $lattrs) = @_;
+  my ($cluster, $ts, $base, $tname, $scope, $filter, $lattrs) = @_;
   my $mesg;
   
   if ((strftime("%s", localtime()) - $ts) > $query_interval) {
@@ -339,20 +335,19 @@ sub ds389_fetch {
   my ($cluster) = @_;
   my $mesg;
 
-        \&retrieve_ldap($cluster,$dataclusters{$cluster}[0],$dataclusters{$cluster}[1],$dataclusters{$cluster}[2],$dataclusters{$cluster}[3],$dataclusters{$cluster}[4], $dataclusters{$cluster}[5]);
-
+  \&retrieve_ldap($cluster,$dataclusters{$cluster}[0],$dataclusters{$cluster}[1],$dataclusters{$cluster}[2],$dataclusters{$cluster}[3],$dataclusters{$cluster}[4], $dataclusters{$cluster}[5]);
 }
 
 sub ds389_fetch_callback {
   my ($cluster, $item, $inst) = @_;
 
-  if (!defined($ldap))    { return (PM_ERR_AGAIN, 0); }
+  if (!defined($ldap))        { return (PM_ERR_AGAIN, 0); }
   if ($inst != PM_INDOM_NULL) { return (PM_ERR_INST, 0); }
 
   my $pmnm = pmda_pmid_name($cluster, $item);
   my $value = $metrics{$pmnm};
 
-  if (!defined($value))   { return (PM_ERR_APPVERSION, 0); }
+  if (!defined($value))       { return (PM_ERR_APPVERSION, 0); }
 
   return ($value, 1);
 }
@@ -363,8 +358,8 @@ sub ds389_simple_search {
 
   my $mesg = $ldap->search(scope => $scope, base => $base, filter => $filter, attrs => $attrs);
   if ($mesg->code) {
-          $pmda->log("search(scope: \"$scope\", base: \"$base\", filter: \"$filter\", attrs: \"". join(' ', @$attrs) ."\") failed: " . $mesg->error);
-          undef $ldap;
+    $pmda->log("search(scope: \"$scope\", base: \"$base\", filter: \"$filter\", attrs: \"". join(' ', @$attrs) ."\") failed: " . $mesg->error);
+    undef $ldap;
     return;
   }
   return $mesg
@@ -378,7 +373,6 @@ sub push_to_met {
   };
 }
 
-# get the domain and replication agreements, TODO: tidy up.
 $pmda = PCP::PMDA->new($aname, 130);
 
 # Add to the existing ones
@@ -393,12 +387,14 @@ $ldap = Net::LDAP->new($server,version => $ldapver);
 if (!defined($ldap)) {
   $pmda->log("bind failed, server down?");
 }
+
 my $mesg = $ldap->bind($binddn, password => $bindpw);
 if ($mesg->code) {
   $pmda->log("bind failed: " . $mesg->error);
 }
 
 $mesg = ds389_simple_search('sub','cn=config','objectclass=*',['nsslapd-defaultnamingcontext','nsslapd-backend']);
+
 my $max = $mesg->count;
 for ( my $i = 0 ; $i < $max ; $i++ ) {
   my $entry = $mesg->entry ( $i );
@@ -416,7 +412,7 @@ for ( my $i = 0 ; $i < $max ; $i++ ) {
         my $rplagr = $entry2->get_value('cn');
         $topclu++;
         my $value2_short = (split /\./, $rplagr)[0];
-                          $dataclusters{$topclu} = ['0',"cn=". $rplagr .",cn=replica,cn=". $value_ldap .",cn=mapping tree,cn=config",$value2_short . '.',$dfscope,$dffilter,$dattrs];
+        $dataclusters{$topclu} = ['0',"cn=". $rplagr .",cn=replica,cn=". $value_ldap .",cn=mapping tree,cn=config",$value2_short . '.',$dfscope,$dffilter,$dattrs];
         push_to_met($topclu, @def_repl_met);
         $topclu++;
         $dataclusters{$topclu} = ['0',"cn=replica,cn=". $value_ldap .",cn=mapping tree,cn=config","rpl_". $value2_short . '.',$dfscope,$dffilter,$dattrs];
@@ -428,24 +424,23 @@ for ( my $i = 0 ; $i < $max ; $i++ ) {
       $dataclusters{$topclu} = ['0',$value,$value_short . '.','sub','(&(nsuniqueid=ffffffff-ffffffff-ffffffff-ffffffff)(objectclass=nstombstone))',['nsds5agmtmaxcsn','nsds50ruv']];
       my $mesg2 = ds389_simple_search('sub',"cn=o\\3D$value_ldap,cn=mapping tree,cn=config",'objectclass=nsds5replicationagreement',['cn']);
       my $max2 = $mesg2->count;
-                        for ( my $i2 = 0 ; $i2 < $max2 ; $i2++ ) {
-                                my $entry2 = $mesg2->entry ( $i2 );
-                                my $rplagr = $entry2->get_value('cn');
-                                $topclu++;
-                                my $value2_short = (split /\./, $rplagr)[0];
-                                $dataclusters{$topclu} = ['0',"cn=". $rplagr .",cn=replica,cn=o\\3D". $value_ldap .",cn=mapping tree,cn=config",$value2_short . '.',$dfscope,$dffilter,$dattrs];
+      for ( my $i2 = 0 ; $i2 < $max2 ; $i2++ ) {
+        my $entry2 = $mesg2->entry ( $i2 );
+        my $rplagr = $entry2->get_value('cn');
+        $topclu++;
+        my $value2_short = (split /\./, $rplagr)[0];
+        $dataclusters{$topclu} = ['0',"cn=". $rplagr .",cn=replica,cn=o\\3D". $value_ldap .",cn=mapping tree,cn=config",$value2_short . '.',$dfscope,$dffilter,$dattrs];
         push_to_met($topclu, @def_repl_met);
-                                $topclu++;
-                                $dataclusters{$topclu} = ['0',"cn=replica,cn=o\\3D". $value_ldap .",cn=mapping tree,cn=config","rpl_". $value2_short . '.',$dfscope,$dffilter,$dattrs];
+        $topclu++;
+        $dataclusters{$topclu} = ['0',"cn=replica,cn=o\\3D". $value_ldap .",cn=mapping tree,cn=config","rpl_". $value2_short . '.',$dfscope,$dffilter,$dattrs];
         push_to_met($topclu, @def_replagr_met);
         $topclu++;
-                                $dataclusters{$topclu} = ['0',"cn=monitor,cn=$value,cn=ldbm database,cn=plugins,cn=config",$value ."_mon.",$dfscope,$dffilter,$dattrs];
+        $dataclusters{$topclu} = ['0',"cn=monitor,cn=$value,cn=ldbm database,cn=plugins,cn=config",$value ."_mon.",$dfscope,$dffilter,$dattrs];
         push_to_met($topclu, @def_mon_met);
-                        }
+      }
     }
   };
 };  
-
 
 # Add default metrics
 while  (my ($i, @met) = each @def_met) {
@@ -453,7 +448,6 @@ while  (my ($i, @met) = each @def_met) {
     $pmda->add_metric(pmda_pmid($def_met[$i][0],$def_met[$i][1]), $def_met[$i][2], $def_met[$i][3],$def_met[$i][4], pmda_units(split(',',$def_met[$i][5])),"$aname.$dataclusters{$def_met[$i][0]}[2]$def_met[$i][6]", '', '');
   }
 };
-
 
 # Add metrics from the configuration file
 while  (my ($i, @met) = each @add_met) {

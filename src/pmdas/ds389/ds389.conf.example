@@ -1,12 +1,19 @@
-our $bindpw = 'my secret';
+#
+# pmdads389(1) configuration file
+#
+
+# Bind password
+our $bindpw = 'Manager12';
+
+# Data clusters
 %dclu = (
-# Start from 4, a lower value will overwrite existing defaults.
-        '4' => ['0','cn=mycn','mycn.',$dfscope,$dffilter,$dattrs],
-);
-# Add here the list of attributes you wish to show, make sure the first column matches the one defined in %dclu,
-our @add_met = (
-        [4,0,$mpm_type,$mpm_indom,PM_SEM_DISCRETE,'1,0,0,'.PM_SPACE_BYTE.',0,0','myattribute1'],
-        [4,1,$mpm_type,$mpm_indom,$mpm_sem,$mpmda_units,'myattribute2'],
-        [4,2,PM_TYPE_32,$mpm_indom,$mpm_sem,$mpmda_units,'myattribute2']
+        # Must start from 4, 0-3 are reserved for default values
+        #'4' => ['0','cn=mycn','mycn.',$dfscope,$dffilter,$dattrs],
 );
 
+# Additional attributes, ID (the first column) must match the one defined in %dclu
+our @add_met = (
+        #[4,0,$mpm_type,$mpm_indom,PM_SEM_DISCRETE,'1,0,0,'.PM_SPACE_BYTE.',0,0','myattribute1'],
+        #[4,1,$mpm_type,$mpm_indom,$mpm_sem,$mpmda_units,'myattribute2'],
+        #[4,2,PM_TYPE_32,$mpm_indom,$mpm_sem,$mpmda_units,'myattribute3'],
+);
