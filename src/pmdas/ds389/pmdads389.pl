@@ -70,6 +70,8 @@ our @def_met = (
         [0,9,PM_TYPE_U64,$mpm_indom,$mpm_sem,$mpmda_units,'entriessent'],
         [0,10,PM_TYPE_U64,$mpm_indom,$mpm_sem,'1,0,0,'.PM_SPACE_BYTE.',0,0','bytessent'],
         [0,11,$mpm_type,$mpm_indom,$mpm_sem,'0,1,0,0,'.PM_TIME_SEC.',0','uptime'],
+        [0,12,PM_TYPE_STRING,$mpm_indom,PM_SEM_DISCRETE,'0,0,0,0,0,0','version'],
+        [0,13,$mpm_type,$mpm_indom,$mpm_sem,$mpmda_units,'nbackends'],
         [1,0,$mpm_type,$mpm_indom,$mpm_sem,'0,0,0,0,0,0','readonly'],
         [1,1,PM_TYPE_U64,$mpm_indom,PM_SEM_COUNTER,$mpmda_units,'entrycachehits'],
         [1,2,PM_TYPE_U64,$mpm_indom,PM_SEM_COUNTER,$mpmda_units,'entrycachetries'],
@@ -443,14 +445,14 @@ for ( my $i = 0 ; $i < $max ; $i++ ) {
 };  
 
 # Add default metrics
-while  (my ($i, @met) = each @def_met) {
+while (my ($i, @met) = each @def_met) {
   if (defined($dataclusters{$def_met[$i][0]})) {
     $pmda->add_metric(pmda_pmid($def_met[$i][0],$def_met[$i][1]), $def_met[$i][2], $def_met[$i][3],$def_met[$i][4], pmda_units(split(',',$def_met[$i][5])),"$aname.$dataclusters{$def_met[$i][0]}[2]$def_met[$i][6]", '', '');
   }
 };
 
 # Add metrics from the configuration file
-while  (my ($i, @met) = each @add_met) {
+while (my ($i, @met) = each @add_met) {
   if (defined($dataclusters{$add_met[$i][0]})) {
     $pmda->add_metric(pmda_pmid($add_met[$i][0],$add_met[$i][1]), $add_met[$i][2], $add_met[$i][3],$add_met[$i][4], pmda_units(split(',',$add_met[$i][5])),"$aname.$dataclusters{$add_met[$i][0]}[2]$add_met[$i][6]", '', '');
   }
