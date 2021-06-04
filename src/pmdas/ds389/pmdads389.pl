@@ -384,9 +384,9 @@ $pmda = PCP::PMDA->new($aname, 130);
 # Add to the existing ones
 my $topclu = 0;
 foreach my $attr (keys %dataclusters) {
-         if ($attr gt $topclu) {
-                 $topclu = $attr;
-         }
+  if ($attr gt $topclu) {
+    $topclu = $attr;
+  }
 };
 
 $ldap = Net::LDAP->new($server,version => $ldapver);
