@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 5.3.1
+Version: 5.3.2
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2+ and CC-BY
@@ -2254,9 +2254,11 @@ sed -i -e '/platformsz.h/d' $DIST_MANIFEST
 
 %if %{disable_mssql}
 # remove pmdamssql on platforms lacking MSODBC driver packages.
+rm -fr $RPM_BUILD_ROOT/%{_confdir}/mssql
+rm -fr $RPM_BUILD_ROOT/%{_confdir}/pmieconf/mssql
+rm -fr $RPM_BUILD_ROOT/%{_ieconfdir}/mssql
 rm -fr $RPM_BUILD_ROOT/%{_pmdasdir}/mssql
 rm -fr $RPM_BUILD_ROOT/%{_pmdasexecdir}/mssql
-rm -fr $RPM_BUILD_ROOT/%{_confdir}/mssql
 %endif
 
 %if !%{disable_qt}
@@ -3268,6 +3270,9 @@ PCP_LOG_DIR=%{_logsdir}
 %files zeroconf -f pcp-zeroconf-files.rpm
 
 %changelog
+* Fri Jul 30 2021 Mark Goodwin <mgoodwin@redhat.com> - 5.3.2-1
+- https://github.com/performancecopilot/pcp/projects/1
+
 * Fri Jun 04 2021 Nathan Scott <nathans@redhat.com> - 5.3.1-1
 - Fix selinux violations for pmdakvm on debugfs (BZ 1929259)
 - Update to latest PCP sources.
