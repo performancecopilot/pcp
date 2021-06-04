@@ -834,7 +834,19 @@ $1 == "inst" && $2 ~ /^\[/ {
 	# proc metric 
 	/"$/ && line_num > 0 {
 	    line[line_num++] = $0
-	    print_line()
+	    # count quotes (") ... need to end on an even number ...
+	    # this could easily be defeated by backslash quoting or
+	    # even nested quoting, but these are unlikely in proc
+	    # metric values, even for psinfo.environ or psinfo.psargs
+	    #
+	    nq = 0
+	    for (x = 0; x < line_num; x++) {
+		nq += gsub(/"/, "\"", line[x])
+	    }
+	    if ((nq % 2) == 0) {
+		# balanced quotes we are done accumulating
+		print_line()
+	    }
 	    next
 	}
 	( (/proc\./ && /numval/ && /valfmt/) || /^proc\./ ) \
