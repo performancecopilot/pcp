@@ -18,8 +18,6 @@ use strict;
 use warnings;
 use PCP::PMDA;
 use POSIX;
-use MIME::Base64;
-use Data::Dumper;
 
 my $have_ldap = eval {
   # check if we have LDAP
