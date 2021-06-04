@@ -64,20 +64,14 @@ want == 1 && $3 == "val"	{ if (seen[$4] != "y") {
 					# deal with possible scientific notation from
 					# diagnostic %g printfs in libpcp and then
 					# possible suppression of trailing zeroes in
-					# the fractional part in libc
+					# the fractional part in libc ... matching
+					# 4 significant digits is probably close
+					# enough
 					#
-					printf "s/ val=%.6fe+06$/ val=<value-%d>/\n",($4+0.5)/1000000,n
-					printf "s/ val=%.5fe+06$/ val=<value-%d>/\n",($4+0.5)/1000000,n
-					if ($4 % 100 == 0)
-					    printf "s/ val=%.4fe+06$/ val=<value-%d>/\n",($4+0.5)/1000000,n
-					if ($4 % 1000 == 0)
-					    printf "s/ val=%.3fe+06$/ val=<value-%d>/\n",($4+0.5)/1000000,n
-					if ($4 % 10000 == 0)
-					    printf "s/ val=%.2fe+06$/ val=<value-%d>/\n",($4+0.5)/1000000,n
-					if ($4 % 100000 == 0)
-					    printf "s/ val=%.1fe+06$/ val=<value-%d>/\n",($4+0.5)/1000000,n
-					if ($4 % 1000000 == 0)
-					    printf "s/ val=%.0fe+06$/ val=<value-%d>/\n",($4+0.5)/1000000,n
+					printf "s/ val=%.6fe+06$/ val=<value-%d>/\n",$4/1000000,n
+					printf "s/ val=%.5f[0-9]*e+06$/ val=<value-%d>/\n",$4/1000000,n
+					printf "s/ val=%.4f[0-9]*e+06$/ val=<value-%d>/\n",$4/1000000,n
+					printf "s/ val=%.3f[0-9]*e+06$/ val=<value-%d>/\n",$4/1000000,n
 				    }
 				    n++
 				    seen[$4] = "y"
