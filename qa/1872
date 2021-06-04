@@ -89,7 +89,7 @@ http.enabled = true
 redis.enabled = true
 [pmseries]
 enabled = true
-servers = localhost:$port
+servers = localhost:$redisport
 [pmsearch]
 enabled = true
 EOF
@@ -145,7 +145,7 @@ pmcd_wait -h localhost@localhost:$proxyport -v -t 5sec
 pmsleep 10s
 
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep pmproxy >> $seq.full
-redis-cli $options keys pcp:text >> $seq.full
+redis-cli $port keys pcp:text >> $seq.full
 cat $tmp.pmproxy.log >> $seq.full
 
 echo "=== /search/text - query for '99' 'random' 'interesting' 'result' ==="
