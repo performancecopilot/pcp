@@ -14,6 +14,13 @@ _pmdabcc_check
 _pmdabcc_require_kernel_version 4 6
 which ss >/dev/null 2>&1 || _notrun "No ss binary installed"
 
+case `admin/whatami`
+in
+    *Fedora\ 32\ *)
+	_notrun "bcc netproc module will not compile on Fedora 32"
+	;;
+esac
+
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
 $sudo rm -rf $tmp.* $seq.full
