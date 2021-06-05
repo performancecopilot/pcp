@@ -55,6 +55,64 @@ _filter_outfile()
     sed -f $tmp.sed
 }
 
+# As of Fedora 34, sedismod(1) is sorting the attributes ... to
+# accommodate older versions of sedismod(1) and keep $seq.out in the
+# same order we use the function below to sort both $seq.out.in and
+# sedismod(1) output
+#
+# so we turn (for example)
+#   allow [pcp_pmproxy_t] [shadow_t] : [file] { ioctl read getattr lock open };
+# into
+#   allow [pcp_pmproxy_t] [shadow_t] : [file] { getattr ioctl lock open read };
+_sort_attr()
+{
+    $PCP_AWK_PROG '
+$1 == "allow"	{
+		    inattr = 0
+		    for (f = 1; f <= NF; f++) {
+			if (inattr == 0 && $f == "{") {
+			    out = out " " $f
+			    inattr = 1
+			    continue
+			}
+			if (inattr > 0 && $f == "};") {
+			    # asort() is a GNU awk extension ... the list
+			    # is short, so linear search is probably OK
+			    for (a = 1; a < inattr; a++) {
+				pick = -1
+				for (p = 1; p < inattr; p++) {
+				    if (attrs[p] != "") {
+					if (pick == -1) {
+					    # first unselected one
+					    pick = p
+					}
+					else if (attrs[p] < attrs[pick]) {
+					    # smallest unselected one, so far
+					    pick = p
+					}
+				    }
+				}
+				out = out " " attrs[pick]
+				attrs[pick] = ""
+			    }
+			    print "  " out " };"
+			    next
+			}
+			if (inattr) {
+			    attrs[inattr] = $f
+			    inattr++
+			}
+			else {
+			    if (f == 1)
+				out = $f
+			    else
+				out = out " " $f
+			}
+		    }
+		}
+		{ print }'
+}
+
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
@@ -66,7 +124,7 @@ seinfo -t >$tmp.types
 echo '/^#/d' >$tmp.sed
 echo '/^!/s// /' >>$tmp.sed
 for type in container_runtime_t nsfs_t docker_var_lib_t unreserved_port_t \
-	    tracefs_t unconfined_service_t numad_t rpm_var_lib_t \
+	    tracefs_t unconfined_service_t numad_t \
 	    virt_var_run_t proc_security_t sbd_exec_t kmod_exec_t
 do
     if grep "^[ 	][ 	]*$type\$" $tmp.types >/dev/null
@@ -96,9 +154,6 @@ do
 		;;
 	    numad_t)
 		echo '/allow \[pcp_pmcd_t] \[numad_t]/d' >>$tmp.sed
-		;;
-	    rpm_var_lib_t)
-		echo '/allow \[pcp_pmcd_t] \[rpm_var_lib_t]/d' >>$tmp.sed
 		;;
 	    virt_var_run_t)
 		echo '/allow \[pcp_pmcd_t] \[virt_var_run_t]/d' >>$tmp.sed
@@ -139,7 +194,6 @@ else
     # if no map, need to cull these one as map is the only permission
     #
     echo '/allow \[pcp_pmcd_t] \[ldconfig_exec_t] : \[file].* map/d' >>$tmp.sed
-    echo '/allow \[pcp_pmcd_t] \[rpm_var_lib_t] : \[file].* map/d' >>$tmp.sed
     echo '/allow \[pcp_pmcd_t] \[default_t] : \[file].* map/d' >>$tmp.sed
     # strip "map" from permissions for others
     #
@@ -241,16 +295,25 @@ else
 fi
 
 cat $tmp.sed >>$seq.full
+echo "--- end of sed ---" >>$seq.full
 
-cat $seq.out.in | _filter_outfile >$seq.out
+cat $seq.out.in \
+| _filter_outfile \
+| _sort_attr >$seq.out
 
-echo "full policy modules list on the system"
-$sudo semodule -l >>$seq.full
 echo "Checking that pcpupstream policy module has been properly installed"
-awk '{ print $1 }' $seq.full | grep "pcpupstream$"  | _filter_semodule
+echo "--- semodule -l ---" >>$seq.full
+$sudo semodule -l \
+| tee -a $seq.full \
+| grep "pcpupstream$"
+echo "--- end of semodule -l ---" >>$seq.full
 # real QA test starts here
 echo "Checking policies."
-printf '1\nq\n' | sedismod $policy_file | tee -a $seq.full | _filter_sedismod
+printf '1\nq\n' \
+| sedismod $policy_file \
+| tee -a $seq.full \
+| _filter_sedismod \
+| _sort_attr
 
 # success, all done
 status=0
