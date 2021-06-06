@@ -150,7 +150,7 @@ allow pcp_pmcd_t proc_kcore_t:file getattr;
 #type=AVC msg=audit(YYY.11): avc:  denied  { sys_chroot kill sys_resource } for  pid=25873 comm="pmdalinux" capability=18  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability
 #type=AVC msg=audit(YYY.87): avc:  denied  { chown } for  pid=8999 comm="pmdasimple" capability=0  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability
 #type=AVC msg=audit(YYY.98): avc: denied { sys_pacct } for pid=YYYY comm="pmdaproc" capability=20 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability permissive=0
-allow pcp_pmcd_t self:capability { kill sys_pacct chown sys_chroot ipc_lock sys_resource };
+allow pcp_pmcd_t self:capability { kill sys_pacct chown sys_chroot ipc_owner ipc_lock sys_resource };
 
 #type=AVC msg=audit(YYY.12): avc:  denied  { read } for  pid=29112 comm="pmdalinux" dev="nsfs" ino=4026532454 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:nsfs_t:s0 tclass=file permissive=1
 @PCP_NSFS_RULE@
@@ -289,6 +289,9 @@ allow pcp_pmcd_t su_exec_t:file { execute execute_no_trans };
 
 # type=AVC msg=audit(YYY.95): avc:  denied  { write } for  pid=389594 comm="python3" name=".s.PGSQL.5432" dev="tmpfs" ino=746636 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:postgresql_var_run_t:s0 tclass=sock_file permissive=0
 allow pcp_pmcd_t postgresql_var_run_t:sock_file { write };
+
+# type=AVC msg=audit(YYY.104): avc:  denied  { sys_ptrace } for  pid=9375 comm="pmdaproc" capability=19  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=cap_userns permissive=1
+@PCP_CAPUSERNS_PTRACE_RULE_PMCD@
 
 #============= pcp_pmlogger_t ==============
 #type=AVC msg=audit(XXX.44): avc:  denied  { open write } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:kmsg_device_t:s0 tclass=chr_file permissive=0

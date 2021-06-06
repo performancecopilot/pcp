@@ -22,6 +22,7 @@ endif
 ifeq "$(PCP_SELINUX_CAP_USERNS_PTRACE)" "true"
 PCP_CAPUSERNS_PTRACE="class cap_userns sys_ptrace; \# pmda.proc"
 PCP_CAPUSERNS_PTRACE_RULE_PMIE="allow pcp_pmie_t self:cap_userns sys_ptrace;"
+PCP_CAPUSERNS_PTRACE_RULE_PMCD="allow pcp_pmcd_t self:cap_userns sys_ptrace;"
 endif
 
 ifeq "$(PCP_SELINUX_UNRESERVED_PORT)" "true"
