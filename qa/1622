@@ -156,6 +156,8 @@ type=AVC msg=audit(YYY.99): avc:  denied  { write } for  pid=1932480 comm="pmie"
 type=AVC msg=audit(YYY.100): avc:  denied  { write } for  pid=1797133 comm="pmlogger" name="12" dev="dm-0" ino=435470 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:initrc_tmp_t:s0 tclass=dir permissive=0
 type=AVC msg=audit(YYY.101): avc:  denied  { integrity } for  pid=1606 comm="pmdakvm" lockdown_reason="debugfs access" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=lockdown permissive=0
 type=AVC msg=audit(YYY.102): avc: denied { map } for pid=7034 comm="pmdanvidia" path="/usr/lib64/libnvidia-ml.so" dev="dm-2" ino=16267329 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:default_t:s0 tclass=file permissive=0
+type=AVC msg=audit(YYY.103): avc:  denied  { getattr } for  pid=YYYY comm="pmdaproc" path="/dev/dma_heap" dev="devtmpfs" ino=150 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:dma_device_t:s0 tclass=dir permissive=0
+type=AVC msg=audit(YYY.104): avc:  denied  { sys_ptrace } for  pid=9375 comm="pmdaproc" capability=19  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=cap_userns permissive=1
 
 #Synthesized AVC's
 type=AVC msg=audit(XXX.1): avc:  denied  { open read search } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:svirt_sandbox_file_t:s0 tclass=dir permissive=0
