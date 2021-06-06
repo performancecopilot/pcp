@@ -325,9 +325,16 @@ cat $seq.out.in \
 
 echo "Checking that pcpupstream policy module has been properly installed"
 echo "--- semodule -l ---" >>$seq.full
+# two styles of semodule -l output need to be accommodated
+# pcpupstream\t<version>\n
+# pcpupstream\n
+#
 $sudo semodule -l \
 | tee -a $seq.full \
-| sed -n '/^pcpupstream[ 	]/s/[ 	].*//p'
+| sed -n \
+    -e '/^pcpupstream[ 	]/s/[ 	].*//p' \
+    -e '/^pcpupstream$/p' \
+# end
 echo "--- end of semodule -l ---" >>$seq.full
 # real QA test starts here
 echo "Checking policies."
