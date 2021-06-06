@@ -54,8 +54,10 @@ _cleanup()
 #
 _audit()
 {
+    echo "---" >>$seq.full
     echo "$1" \
     | audit2allow -w 2>&1 \
+    | tee -a $seq.full \
     | sed \
 	-e 's/^[ 	]*//' \
 	-e 's/   */ /g' \
