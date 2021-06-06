@@ -332,7 +332,7 @@ echo "--- semodule -l ---" >>$seq.full
 $sudo semodule -l \
 | tee -a $seq.full \
 | sed -n \
-    -e '/^pcpupstream[ 	]/s/[ 	].*//p' \
+    -e '/^pcpupstream[ 	]/s/[ 	].*//' \
     -e '/^pcpupstream$/p' \
 # end
 echo "--- end of semodule -l ---" >>$seq.full
