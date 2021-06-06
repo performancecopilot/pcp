@@ -27,7 +27,7 @@ Checking policies.
   allow [pcp_pmcd_t] [pcp_var_lib_t] : [fifo_file] { getattr read open unlink };
   allow [pcp_pmcd_t] [proc_kcore_t] : [file] { getattr };
 ! allow [pcp_pmcd_t] [proc_security_t] : [file] { getattr open read };
-  allow [pcp_pmcd_t] self : [capability] { kill sys_pacct chown sys_chroot ipc_lock sys_resource };
+  allow [pcp_pmcd_t] self : [capability] { kill sys_pacct chown sys_chroot ipc_lock ipc_owner sys_resource };
 ! allow [pcp_pmcd_t] [nsfs_t] : [file] { getattr open read };
 ! allow [pcp_pmcd_t] [unreserved_port_t] : [tcp_socket] { name_bind name_connect };
 ! allow [pcp_pmcd_t] [unreserved_port_t] : [udp_socket] { name_bind };
@@ -67,6 +67,7 @@ Checking policies.
   allow [pcp_pmcd_t] [kernel_t] : [system] { module_request };
   allow [pcp_pmcd_t] [su_exec_t] : [file] { execute execute_no_trans };
   allow [pcp_pmcd_t] [postgresql_var_run_t] : [sock_file] { write };
+! allow [pcp_pmcd_t] self : [cap_userns] { sys_ptrace };
   allow [pcp_pmlogger_t] [kmsg_device_t] : [chr_file] { open write };
   allow [pcp_pmlogger_t] self : [capability] { kill sys_ptrace fowner fsetid };
   allow [pcp_pmlogger_t] [unconfined_t] : [process] { signal };
@@ -125,13 +126,19 @@ Checking policies.
   allow [pcp_domain] [userdomain] : [sem] { unix_read associate getattr read };
   allow [pcp_domain] [domain] : [unix_stream_socket] { connectto };
   allow [pcp_domain] [port_type] : [tcp_socket] { name_connect };
+# -- start files_mmap_all_files(pcp_domain) expansion
 ! allow [pcp_domain] [file_type] : [file] { map };
+# -- end files_mmap_all_files(pcp_domain) expansion
+# -- start logging_watch_all_log_dirs_path(pcp_domain) expansion
 ! allow [pcp_domain] [root_t] : [dir] { getattr watch };
 ! allow [pcp_domain] [var_t] : [dir] { getattr open search };
 ! allow [pcp_domain] [var_t] : [dir] { getattr open search };
 ! allow [pcp_domain] [var_t] : [dir] { getattr watch };
 ! allow [pcp_domain] [logfile] : [dir] { getattr open watch search };
+# -- end logging_watch_all_log_dirs_path(pcp_domain) expansion
+# -- start logging_watch_journal_dirs(pcp_domain) expansion
 ! allow [pcp_domain] [syslogd_var_run_t] : [dir] { getattr watch };
+# -- end logging_watch_journal_dirs(pcp_domain) expansion
   allow [pcp_pmcd_t] [cluster_tmpfs_t] : [file] { write };
   allow [pcp_pmcd_t] [drbd_exec_t] : [file] { execute execute_no_trans };
   allow [pcp_pmcd_t] self : [netlink_generic_socket] { bind create getattr setopt write read };

@@ -125,7 +125,9 @@ echo '/^#/d' >$tmp.sed
 echo '/^!/s// /' >>$tmp.sed
 for type in container_runtime_t nsfs_t docker_var_lib_t unreserved_port_t \
 	    tracefs_t unconfined_service_t numad_t \
-	    virt_var_run_t proc_security_t sbd_exec_t kmod_exec_t
+	    virt_var_run_t proc_security_t sbd_exec_t kmod_exec_t \
+	    dma_device_t \
+	    # end
 do
     if grep "^[ 	][ 	]*$type\$" $tmp.types >/dev/null
     then
@@ -167,6 +169,9 @@ do
 	    kmod_exec_t)
 		echo '/allow \[pcp_pmcd_t] \[kmod_exec_t]/d' >>$tmp.sed
 		;;
+	    dma_device_t)
+		echo '/allow \[pcp_pmcd_t] \[dma_device_t]/d' >>$tmp.sed
+		;;
 
 	esac
     fi
@@ -180,6 +185,7 @@ then
     :
 else
     echo '/allow \[pcp_pmie_t] .*\[cap_userns]/d' >>$tmp.sed
+    echo '/allow \[pcp_pmcd_t] .*\[cap_userns]/d' >>$tmp.sed
 fi
 
 if seinfo -x --class=file $common_flag 2>&1 \
@@ -275,7 +281,23 @@ if grep 'PCP_SELINUX_FILES_MMAP_ALL_FILES[ 	]*=[ 	]*true' $PCP_INC_DIR/builddefs
 then
     :
 else
+    # from expansion of files_mmap_all_files(pcp_domain)
+    #
     echo '/allow \[pcp_domain] \[file_type] : \[file].* map/d' >>$tmp.sed
+fi
+
+if grep 'PCP_SELINUX_LOGGING_WATCH_ALL_LOG_DIRS_PATH[ 	]*=[ 	]*true' $PCP_INC_DIR/builddefs >/dev/null 2>&1
+then
+    :
+else
+    # from expansion of logging_watch_all_log_dirs_path(pcp_domain)
+    #
+    echo '/allow \[pcp_domain] \[root_t] : \[dir] /d' >>$tmp.sed
+    echo '/allow \[pcp_domain] \[var_t] : \[dir] /d' >>$tmp.sed
+    echo '/allow \[pcp_domain] \[logfile] : \[dir] /d' >>$tmp.sed
+    # and this one is from expansion of logging_watch_journal_dir(pcp_domain)
+    #
+    echo '/allow \[pcp_domain] \[syslogd_var_run_t] : \[dir] /d' >>$tmp.sed
 fi
 
 if seinfo -x --class=lockdown $common_flag 2>&1 \
@@ -305,7 +327,7 @@ echo "Checking that pcpupstream policy module has been properly installed"
 echo "--- semodule -l ---" >>$seq.full
 $sudo semodule -l \
 | tee -a $seq.full \
-| grep "pcpupstream$"
+| sed -n '/^pcpupstream[ 	]/s/[ 	].*//p'
 echo "--- end of semodule -l ---" >>$seq.full
 # real QA test starts here
 echo "Checking policies."
