@@ -60,8 +60,8 @@ __pmProcessPipeClose: child pid=PID wait_pid=PID exit=0
 __pmProcessPipeClose() -> 0
 
 === error and failure cases ===
+__pmProcessExec -> 127 exit=127
 __pmProcessExec: argc=4 toss=0 "/a/b/c" "-f" "oo" "bar"
 __pmProcessExec: child pid=PID
 __pmProcessExec: child pid=PID execvp(/a/b/c, ...) failed
 __pmProcessExec: child pid=PID wait_pid=PID exit=127
-__pmProcessExec -> 127 exit=127
