@@ -19,6 +19,17 @@ else
     _notrun "hostname -> $hostname, no domain name part"
 fi
 
+# Despite intense triage, on some QA hosts this test simple fails to
+# generate and install SSL certificates that the relevant libraries
+# will accept as valid
+#
+case "$hostname"
+in
+    vm01.localdomain|vm29.localdomain)
+	    _notrun "cannot make SSL certificates work on this platform"
+	    ;;
+esac
+
 _cleanup()
 {
     nss_cleanup
