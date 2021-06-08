@@ -858,7 +858,7 @@ AC_DEFUN([PCP_CHECK_PYTHON_HEADER],
     CFLAGS="$saved_CFLAGS"
   ])
 
-dnl check if python tools/packages wanted (need python >= 2.6)
+dnl check if python tools/packages wanted (need python >= 2.7)
 enable_python2=false
 AS_IF([test "x$do_python" != "xno"], [
     enable_python2=true
@@ -902,12 +902,12 @@ AS_IF([test "x$do_python" != "xno"], [
 	eval `$PYTHON -V 2>&1 | awk '/^Python/ { ver=2; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export PY_MAJOR=%d PY_MINOR=%d PY_POINT=%d\n",$major,$minor,$point }'`
 	AC_MSG_RESULT([$PY_MAJOR.$PY_MINOR.$PY_POINT])
 	if test "$PY_MAJOR" -lt 2; then
-	    echo WARNING: Python version 2.6 or later does not seem to be installed.
+	    echo WARNING: Python version 2.7 or later does not seem to be installed.
 	    enable_python2=false
 	else
-	    if test "$PY_MAJOR" -eq 2 -a "$PY_MINOR" -lt 6 ; then
+	    if test "$PY_MAJOR" -eq 2 -a "$PY_MINOR" -lt 7 ; then
 		echo WARNING: Python version 2.$PY_MINOR is too old.
-		echo Python version 2.6 or later is required for Python builds.
+		echo Python version 2.7 or later is required for Python builds.
 		enable_python2=false
 	    else
 		PCP_CHECK_PYTHON_HEADER([$PY_MAJOR], [$PY_MINOR])

@@ -7470,12 +7470,12 @@ $as_echo_n "checking Python2 version... " >&6; }
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $PY_MAJOR.$PY_MINOR.$PY_POINT" >&5
 $as_echo "$PY_MAJOR.$PY_MINOR.$PY_POINT" >&6; }
 	if test "$PY_MAJOR" -lt 2; then
-	    echo WARNING: Python version 2.6 or later does not seem to be installed.
+	    echo WARNING: Python version 2.7 or later does not seem to be installed.
 	    enable_python2=false
 	else
-	    if test "$PY_MAJOR" -eq 2 -a "$PY_MINOR" -lt 6 ; then
+	    if test "$PY_MAJOR" -eq 2 -a "$PY_MINOR" -lt 7 ; then
 		echo WARNING: Python version 2.$PY_MINOR is too old.
-		echo Python version 2.6 or later is required for Python builds.
+		echo Python version 2.7 or later is required for Python builds.
 		enable_python2=false
 	    else
 		 PY_MAJOR="$PY_MAJOR"
