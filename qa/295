@@ -61,8 +61,26 @@ _check()
     echo "--- end $tmp.log ---" >>$here/$seq.full
 }
 
-_service pmproxy stop >/dev/null 2>&1
-$sudo $signal -a pmproxy >/dev/null 2>&1
+_service pmproxy stop >>$here/$seq.full 2>&1
+if $pmproxy_was_running
+then
+    i=0
+    while [ $i -lt 10 ]
+    do
+	if [ ! -f $PCP_RUN_DIR/pmproxy.pid ]
+	then
+	    break
+	fi
+	sleep 1
+	i=`expr $i + 1`
+    done
+    if [ $i -ge 10 ]
+    then
+	echo "Warning: failed to kill off pmproxy"
+	ls -l $PCP_RUN_DIR/pmproxy.pid
+	cat $PCP_RUN_DIR/pmproxy.pid
+    fi
+fi
 
 mkdir -p $tmp.rundir
 export PCP_RUN_DIR=$tmp.rundir
