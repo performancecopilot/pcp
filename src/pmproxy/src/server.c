@@ -149,6 +149,7 @@ server_init(int portcount, const char *localpath)
 			pmGetProgname());
 	return NULL;
     }
+    uv_mutex_init(&proxy->mutex);
 
     count = portcount + (*localpath ? 1 : 0);
     if (count) {
@@ -251,6 +252,7 @@ void
 client_put(struct client *client)
 {
     unsigned int	refcount;
+    struct proxy	*proxy = client->proxy;
 
     uv_mutex_lock(&client->mutex);
     assert(client->refcount);
@@ -259,9 +261,11 @@ client_put(struct client *client)
 
     if (refcount == 0) {
 	/* remove client from the doubly-linked list */
+	uv_mutex_lock(&proxy->mutex);
 	if (client->next != NULL)
 	    client->next->prev = client->prev;
 	*client->prev = client->next;
+	uv_mutex_unlock(&proxy->mutex);
 
 	if (client->protocol & STREAM_PCP)
 	    on_pcp_client_close(client);
@@ -514,10 +518,12 @@ on_client_connection(uv_stream_t *stream, int status)
     client->proxy = proxy;
 
     /* insert client into doubly-linked list at the head */
+    uv_mutex_lock(&proxy->mutex);
     if ((client->next = proxy->first) != NULL)
 	proxy->first->prev = &client->next;
     proxy->first = client;
     client->prev = &proxy->first;
+    uv_mutex_unlock(&proxy->mutex);
 
     status = uv_read_start((uv_stream_t *)&client->stream.u.tcp,
 			    on_buffer_alloc, on_client_read);

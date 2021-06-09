@@ -1818,7 +1818,7 @@ x11
 1436 pmda.postgresql local
 1437 pmda.kvm local
 1455 pmlogrewrite labels pmdumplog local
-1457 pmproxy local
+1457 pmproxy libpcp_web threads secure local
 1480 pmda.lmsensors local
 1489 python pmrep pmimport local
 1490 python local labels
