@@ -1,0 +1,52 @@
+# the binaries:
+htop
+pcp-htop
+
+# all object files
+*.o
+
+# skip all backups
+*.bak
+*~
+.*.sw?
+
+# skip coverage files
+*.gcda
+*/*.gcda
+*.gcno
+*/*.gcno
+*.h.gch
+*/.dirstamp
+
+# automake/autoconf related files
+.deps/
+Makefile
+Makefile.in
+INSTALL
+aclocal.m4
+autom4te.cache/
+compile
+conf*/
+config.guess
+config.h
+config.h.in
+config.log
+config.status
+config.cache
+config.sub
+configure
+depcomp
+htop.1
+install-sh
+libtool
+ltmain.sh
+m4/
+missing
+stamp-h1
+
+# files related to valgrind/callgrind
+callgrind.out.*
+
+# IDE workspace configurations
+/.idea/
+/.vscode/
