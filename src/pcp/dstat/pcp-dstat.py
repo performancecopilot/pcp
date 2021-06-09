@@ -785,7 +785,6 @@ class DstatTool(object):
         opts.pmSetLongOption('noheaders', 0, '', '', 'disable repetitive headers')
         opts.pmSetLongOption('noupdate', 0, '', '', 'disable intermediate headers')
         opts.pmSetLongOption('output', 1, 'o', 'file', 'write CSV output to file')
-        opts.pmSetLongOption('profile', 0, '', '', 'show profiling statistics when exiting dstat')
         opts.pmSetLongOption('version', 0, 'V', '', '')
         opts.pmSetLongOption('debug', 1, None, '', '')
         opts.pmSetLongOption('dbg', 0, None, '', '')
@@ -924,8 +923,6 @@ class DstatTool(object):
             self.output = arg
         elif opt in ['pidfile']:
             self.pidfile = arg
-        elif opt in ['profile']:
-            self.profile = 'dstat_profile.log'
         elif opt in ['q']:
             self.verify = True
         elif opt in ['h', '?']:
