@@ -369,9 +369,7 @@ Requires: pcp-pmda-elasticsearch
 %if "@pmda_postfix@" == "true"
 Requires: pcp-pmda-postfix
 %endif
-%if "@have_python@" == "true"
 Requires: pcp-system-tools
-%endif
 %if "@enable_qt@" == "true"
 Requires: pcp-gui
 %endif
@@ -763,7 +761,6 @@ Performance Metric API (PMAPI) monitor tools and Performance
 Metric Domain Agent (PMDA) collector tools written in Python3.
 %endif
 
-%if "@have_python@" == "true"
 #
 # pcp-system-tools
 #
@@ -771,23 +768,24 @@ Metric Domain Agent (PMDA) collector tools written in Python3.
 License: GPLv2+
 Summary: Performance Co-Pilot (PCP) System and Monitoring Tools
 URL: https://pcp.io
+Requires: pcp = @package_version@ pcp-libs = @package_version@
+%if "@have_python@" == "true"
 %if "@enable_python3@" == "true"
 Requires: python3-pcp = @package_version@
 %else
 Requires: %{__python2}-pcp = @package_version@
 %endif
-Requires: pcp = @package_version@ pcp-libs = @package_version@
 %if "@enable_dstat@" == "true"
 # https://fedoraproject.org/wiki/Packaging:Guidelines "Renaming/Replacing Existing Packages"
 Provides: dstat = @package_version@
 Provides: /usr/bin/dstat
 Obsoletes: dstat <= 0.8
 %endif
+%endif
 
 %description system-tools
 This PCP module contains additional system monitoring tools written
 in the Python language.
-%endif
 
 %if "@enable_qt@" == "true"
 #
@@ -3133,8 +3131,6 @@ PCP_SA_DIR=@pcp_sa_dir@
 %files -n python3-pcp -f python3-pcp.list.rpm
 %endif
 
-%if "@have_python@" == "true"
 %files system-tools -f pcp-system-tools-files.rpm
-%endif
 
 %files zeroconf -f pcp-zeroconf-files.rpm
