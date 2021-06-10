@@ -1593,7 +1593,7 @@ x11
 1149 pmlogrewrite local
 1150 pmda.bcc local python
 1151 pmda.bcc local python
-1152 pmda.bcc local python
+1152:retired pmda.bcc local python
 1153 pmda.bcc local python
 1154 pmda.bcc local python
 1155 pmda.bcc local python
