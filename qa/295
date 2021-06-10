@@ -27,6 +27,10 @@ echo "pmproxy_was_running=$pmproxy_was_running" >>$here/$seq.full
 
 _cleanup()
 {
+    # kill off the pmproxy we started
+    #
+    $sudo $signal -a pmproxy >>$here/$seq.full 2>&1
+
     if $pmproxy_was_running
     then
 	echo "Restart pmproxy ..." >>$here/$seq.full
