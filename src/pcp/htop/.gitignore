@@ -1,1 +1,5 @@
+htop.1.in
 pcp-htop
+AUTHORS
+*.h
+*.c
