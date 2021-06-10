@@ -24,9 +24,10 @@ NCURSES_CFLAGS = -DHAVE_LIBNCURSESW=$(HAVE_NCURSESW)
 LCFLAGS = $(NCURSES_CFLAGS) $(C99_CFLAGS) -Ipcp -I.
 LCFLAGS += -DVERSION=\"$(PCP_VERSION)\" -DSYSCONFDIR=\"$(PCP_SYSCONF_DIR)\"
 LCFLAGS += -DCOPYRIGHT=\"$(COPYRIGHT)\" -DPACKAGE=\"$(CMDTARGET)\"
-LCFLAGS += -DMAJOR_IN_SYSMACROS=1
+LCFLAGS += -DMAJOR_IN_SYSMACROS=1 -DNDEBUG
 
-CFILES = \
+TOPCFILES = \
+	pcp-htop.c \
 	Action.c \
 	AvailableColumnsPanel.c \
 	AvailableMetersPanel.c \
@@ -77,6 +78,8 @@ CFILES = \
 	UsersTable.c \
 	Vector.c \
 	XUtils.c \
+
+SUBCFILES = \
 	linux/PressureStallMeter.c \
 	linux/ZramMeter.c \
 	zfs/ZfsArcMeter.c \
@@ -84,9 +87,8 @@ CFILES = \
 	pcp/PCPProcess.c \
 	pcp/PCPProcessList.c \
 	pcp/Platform.c \
-	pcp-htop.c \
 
-HFILES = \
+TOPHFILES = \
 	Action.h \
 	AvailableColumnsPanel.h \
 	AvailableMetersPanel.h \
@@ -139,6 +141,8 @@ HFILES = \
 	UsersTable.h \
 	Vector.h \
 	XUtils.h \
+
+SUBHFILES = \
 	linux/PressureStallMeter.h \
 	linux/ZramMeter.h \
 	linux/ZramStats.h \
@@ -150,6 +154,15 @@ HFILES = \
 	pcp/Platform.h \
 	pcp/ProcessField.h \
 
+DOCFILES = AUTHORS htop.1.in
+
+TOPXFILES = $(TOPCFILES) $(TOPHFILES) $(DOCFILES)
+SUBXFILES = $(SUBCFILES) $(SUBHFILES)
+CFILES = $(TOPCFILES) $(SUBCFILES)
+HFILES = $(TOPHFILES) $(SUBHFILES)
+LDIRT = $(TOPXFILES) $(SUBXFILES)
+
+# manual sync
 MAN_PAGES = $(CMDTARGET).1
 
 default:	build-me
@@ -157,7 +170,7 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(HAVE_NCURSESW)" "true"
-build-me: $(CMDTARGET) $(DISTLINKS)
+build-me: $(TOPXFILES) $(SUBXFILES) $(CMDTARGET) $(DISTLINKS)
 
 install: default
 	$(INSTALL) -m 755 $(CMDTARGET) $(DISTARGET)
@@ -170,6 +183,13 @@ endif
 default_pcp: default
 
 install_pcp: install
+
+$(TOPXFILES):
+	$(LN_S) -f $(TOPDIR)/vendor/github.com/htop-dev/htop/$@ $@
+
+$(SUBXFILES):
+	mkdir -p linux pcp zfs
+	$(LN_S) -f $(TOPDIR)/../vendor/github.com/htop-dev/htop/$@ $@
 
 $(DISTLINKS):	$(CMDTARGET)
 	@$(LN_S) -f $(CMDTARGET) $@
