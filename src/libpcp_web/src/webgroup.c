@@ -127,7 +127,7 @@ webgroup_access(struct context *cp, sds hostspec, dict *params,
 {
     __pmHashNode	*node;
     __pmHashCtl		attrs;
-    pmHostSpec		*hosts = NULL;
+    __pmHostSpec	*hosts = NULL;
     char		*msg, buf[512];
     int			sts, bytes, numhosts = 0;
     sds			value;

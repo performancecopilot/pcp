@@ -1114,7 +1114,7 @@ INIT_CONTEXT:
 
     if (new->c_type == PM_CONTEXT_HOST) {
 	__pmHashCtl	*attrs = &new->c_attrs;
-	pmHostSpec	*hosts = NULL;
+	__pmHostSpec	*hosts = NULL;
 	int		nhosts;
 	char		*errmsg;
 

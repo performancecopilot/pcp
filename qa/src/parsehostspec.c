@@ -6,7 +6,7 @@ int
 main(int argc, char **argv)
 {
     char		*msg, buffer[512];
-    pmHostSpec		*hosts;
+    __pmHostSpec	*hosts;
     int			count, sts, i, j;
 
     if (argc != 2) {
