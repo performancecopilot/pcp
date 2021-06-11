@@ -1,5 +1,5 @@
 # rpm build container
-FROM registry.fedoraproject.org/fedora:33
+FROM registry.fedoraproject.org/fedora:34
 COPY . /usr/src/pcp
 
 WORKDIR /usr/src/pcp
@@ -30,7 +30,7 @@ RUN mkdir /build && \
       /build
 
 # actual container
-FROM registry.fedoraproject.org/fedora:33
+FROM registry.fedoraproject.org/fedora:34
 COPY --from=0 /build/ /build/
 
 ENV SUMMARY="Performance Co-Pilot" \
