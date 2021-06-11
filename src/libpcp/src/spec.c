@@ -343,14 +343,14 @@ hostStrndup(const char *name, int namelen)
     return s;
 }
 
-static pmHostSpec *
-hostAdd(pmHostSpec *specp, int *count, const char *name, int namelen)
+static __pmHostSpec *
+hostAdd(__pmHostSpec *specp, int *count, const char *name, int namelen)
 {
     int n = *count;
     char *host;
 
     host = hostStrndup(name, namelen);
-    if (!host || (specp = realloc(specp, sizeof(pmHostSpec) * (n+1))) == NULL) {
+    if (!host || (specp = realloc(specp, sizeof(__pmHostSpec) * (n+1))) == NULL) {
 	if (host != NULL)
 	    free(host);
 	*count = 0;
@@ -365,7 +365,7 @@ hostAdd(pmHostSpec *specp, int *count, const char *name, int namelen)
 }
 
 int
-__pmAddHostPorts(pmHostSpec *specp, int *ports, int nports)
+__pmAddHostPorts(__pmHostSpec *specp, int *ports, int nports)
 {
     int *portlist;
 
@@ -382,7 +382,7 @@ __pmAddHostPorts(pmHostSpec *specp, int *ports, int nports)
 }
 
 void
-__pmDropHostPort(pmHostSpec *specp)
+__pmDropHostPort(__pmHostSpec *specp)
 {
     specp->nports--;
     memmove(&specp->ports[0], &specp->ports[1], specp->nports*sizeof(int));
@@ -421,11 +421,11 @@ static int      /* 0 -> ok, PM_ERR_GENERIC -> error message is set */
 parseHostSpec(
     const char *spec,
     char **position,            /* parse this string, return end char */
-    pmHostSpec **rslt,          /* result allocated and returned here */
+    __pmHostSpec **rslt,          /* result allocated and returned here */
     int *count,
     char **errmsg)              /* error message */
 {
-    pmHostSpec *hsp = NULL;
+    __pmHostSpec *hsp = NULL;
     const char *s, *start, *next;
     int nhosts = 0, sts = 0;
 
@@ -511,9 +511,9 @@ static int      /* 0 -> ok, PM_ERR_GENERIC -> error message is set */
 parseSocketPath(
     const char *spec,
     char **position,            /* parse this string, return end char */
-    pmHostSpec **rslt)          /* result allocated and returned here */
+    __pmHostSpec **rslt)          /* result allocated and returned here */
 {
-    pmHostSpec *hsp = NULL;
+    __pmHostSpec *hsp = NULL;
     const char *s, *start, *path;
     char absolute_path[MAXPATHLEN];
     size_t len;
@@ -570,7 +570,7 @@ parseSocketPath(
 int
 __pmParseHostSpec(
     const char *spec,           /* parse this string */
-    pmHostSpec **rslt,          /* result allocated and returned here */
+    __pmHostSpec **rslt,          /* result allocated and returned here */
     int *count,			/* number of host specs returned here */
     char **errmsg)              /* error message */
 {
@@ -591,7 +591,7 @@ __pmParseHostSpec(
 }
 
 static int
-unparseHostSpec(pmHostSpec *hostp, int count, char *string, size_t size, int prefix)
+unparseHostSpec(__pmHostSpec *hostp, int count, char *string, size_t size, int prefix)
 {
     int off = 0, len = size;	/* offset in string and space remaining */
     int i, j, sts;
@@ -656,13 +656,13 @@ done:
 }
 
 int
-__pmUnparseHostSpec(pmHostSpec *hostp, int count, char *string, size_t size)
+__pmUnparseHostSpec(__pmHostSpec *hostp, int count, char *string, size_t size)
 {
     return unparseHostSpec(hostp, count, string, size, 1);
 }
 
 void
-__pmFreeHostSpec(pmHostSpec *specp, int count)
+__pmFreeHostSpec(__pmHostSpec *specp, int count)
 {
     int i;
 
@@ -694,7 +694,7 @@ __pmFreeAttrsSpec(__pmHashCtl *attrs)
 }
 
 void
-__pmFreeHostAttrsSpec(pmHostSpec *hosts, int count, __pmHashCtl *attrs)
+__pmFreeHostAttrsSpec(__pmHostSpec *hosts, int count, __pmHashCtl *attrs)
 {
     __pmFreeHostSpec(hosts, count);
     __pmFreeAttrsSpec(attrs);
@@ -903,7 +903,7 @@ fail:
 int
 __pmParseHostAttrsSpec(
     const char *spec,           /* the original, complete string to parse */
-    pmHostSpec **host,          /* hosts result allocated and returned here */
+    __pmHostSpec **host,          /* hosts result allocated and returned here */
     int *count,
     __pmHashCtl *attributes,
     char **errmsg)              /* error message */
@@ -1043,7 +1043,7 @@ __pmAttrStr_r(__pmAttrKey key, const char *data, char *string, size_t size)
 
 int
 __pmUnparseHostAttrsSpec(
-    pmHostSpec *hosts,
+    __pmHostSpec *hosts,
     int count,
     __pmHashCtl *attrs,
     char *string,

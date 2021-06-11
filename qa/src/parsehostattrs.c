@@ -22,7 +22,7 @@ main(int argc, char **argv)
     char		*msg;
     char		buffer[512];
     __pmHashCtl		attrs;
-    pmHostSpec		*hosts;
+    __pmHostSpec	*hosts;
     int			count, sts, i, j;
 
     if (argc != 2) {
