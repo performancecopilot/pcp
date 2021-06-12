@@ -23,6 +23,7 @@ pmcd {
     numclients	PMCD:0:3
     pmlogger
     timezone	PMCD:0:5
+    zoneinfo	PMCD:0:26
     simabi	PMCD:0:6
     version	PMCD:0:7
     services	PMCD:0:16

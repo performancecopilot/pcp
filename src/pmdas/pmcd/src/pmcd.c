@@ -87,6 +87,8 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,24), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* labels */
     { PMDA_PMID(0,25), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* zoneinfo -- local timezone tzfile identification  -- for pmlogger timezone */
+    { PMDA_PMID(0,26), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
 
 /* pdu_in.error */
     { PMDA_PMID(1,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
@@ -296,6 +298,8 @@ static struct {
     {   8193,	"8192+" },
 };
 static const int	nbufsz = sizeof(bufinst) / sizeof(bufinst[0]);
+
+static char *zoneinfo = NULL;
 
 /*
  * Per-context structures
@@ -1119,6 +1123,147 @@ tzinfo(void)
     return __pmTimezone();
 }
 
+#define ZONEINFO "/zoneinfo/"
+#define LOCALTIME "/etc/localtime"
+
+char *getzoneinfo_plan_b(void);
+
+/*
+ * Get the local timezone tzfile identification
+ *
+ * We'd like this to return something like "Australia/Melbourne"
+ * that can be used as a $TZ setting.
+ *
+ * Plan A
+ *   If /etc/localtime is a symbolic link, get the pathname it points
+ *   to and strip anything up to (and including) the string "/zoneinfo/".
+ *
+ * Return NULL on failure.
+ */
+char *
+getzoneinfo(void)
+{
+    ssize_t	sts;
+    char	*buf;
+    char	*tmp_buf;
+    char	*p;
+    char	*q;
+
+    buf = (char *)malloc(MAXPATHLEN+1);
+    if (buf == NULL)
+	return NULL;
+
+    sts = readlink(LOCALTIME, buf, MAXPATHLEN);
+    if (sts < 0) {
+	/*
+	 * Hmm, not a symlink. Now try Plan B.
+	 */
+	free(buf);
+	buf = getzoneinfo_plan_b();
+	if (buf == NULL)
+	    return NULL;
+    }
+    else
+	buf[sts] = '\0';
+
+    /* try to find prefix .../zoneinfo/... */
+    p = strstr(buf, ZONEINFO);
+    if (p != NULL) {
+	/* found it! */
+	q = &p[strlen(ZONEINFO)];
+	tmp_buf = strdup(q);
+	if (tmp_buf != NULL) {
+	    free(buf);
+	    buf = tmp_buf;
+	}
+    }
+    else {
+	/* no prefix, truncate ... nice to have, not necessary */
+	tmp_buf = realloc(buf, sts+1);
+	if (tmp_buf != NULL)
+	    buf = tmp_buf;
+    }
+
+    return buf;
+}
+
+/*
+ * Plan B
+ *
+ * Get the size for /etc/localtime if possible.
+ *
+ * Descend /usr/share/zoneinfo looking for a file with the same size
+ * and then compare file contents ... if equal, consider it a match.
+ *
+ * If more than one file matches, pick the first but emit a warning.
+ */
+char *
+getzoneinfo_plan_b(void)
+{
+    FILE	*fp;		/* find ... pipe */
+    FILE	*f1;		/* /etc/localtime */
+    FILE	*f2;		/* candidate file */
+    int		c1;
+    int		c2;
+    char	*p;
+    char	*path = NULL;
+    struct stat	sbuf;		/* sbuf.st_size is all that matters */
+    char	tmp[1024];
+
+    if ((f1 = fopen(LOCALTIME, "r")) == NULL) {
+	fprintf(stderr, "getzoneinfo_plan_b: cannot open %s: %s\n", LOCALTIME, pmErrStr(-oserror()));
+	return NULL;
+    }
+
+    if (fstat(fileno(f1), &sbuf) < 0) {
+	fprintf(stderr, "getzoneinfo_plan_b: cannot stat %s: %s\n", LOCALTIME, pmErrStr(-oserror()));
+	fclose(f1);
+	return NULL;
+    }
+    sprintf(tmp, "find /usr/share/zoneinfo -type f -a -size %ldc", sbuf.st_size);
+    fp = popen(tmp, "r");
+    while (fgets(tmp, sizeof(tmp), fp) != NULL) {
+	/* strip \n at end of line */
+	for (p = tmp; *p != '\n'; p++)
+	    ;
+	*p = '\0';
+	if ((f2 = fopen(tmp, "r")) == NULL) {
+	    fprintf(stderr, "getzoneinfo_plan_b: cannot open %s: %s\n", tmp, pmErrStr(-oserror()));
+	    fclose(f1);
+	    return NULL;
+	}
+	rewind(f1);
+
+	for ( ; ; ) {
+	    c1 = fgetc(f1);
+	    c2 = fgetc(f2);
+	    if (c1 == EOF && c2 == EOF) {
+		/* contents match */
+		if (path == NULL) {
+		    path = strdup(tmp);
+		    if (path == NULL) {
+			fprintf(stderr, "getzoneinfo_plan_b: match %s but strdup failed\n", tmp);
+			fclose(f2);
+			fclose(f1);
+			return NULL;
+		    }
+		}
+		else {
+		    fprintf(stderr, "getzoneinfo_plan_b: Warning: match %s and %s, choosing first one\n", path, tmp);
+		}
+		break;
+	    }
+	    if (c1 != c2)
+		break;
+	}
+	fclose(f2);
+    }
+    pclose(fp);
+    fclose(f1);
+
+    return path;
+}
+
 static char *
 services(void)
 {
@@ -1538,6 +1683,17 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 
 			case 25:	/* context labels */
 				fetch_labels(pmda->e_context, &atom, &host);
+				break;
+
+			case 26:	/* zoneinfo */
+				if (zoneinfo == NULL) {
+				    zoneinfo = getzoneinfo();
+				    if (zoneinfo == NULL) {
+					/* value is an empty string if not available */
+					zoneinfo = "";
+				    }
+				}
+				atom.cp = zoneinfo;
 				break;
 
 			default:
