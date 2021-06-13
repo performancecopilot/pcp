@@ -1180,17 +1180,34 @@ getzoneinfo_plan_b(void)
 	    if (c1 == EOF && c2 == EOF) {
 		/* contents match */
 		if (path == NULL) {
+		    tmp[0] = ':';
 		    path = strdup(tmp);
 		    if (path == NULL) {
-			fprintf(stderr, "getzoneinfo_plan_b: match %s but strdup failed\n", tmp);
+			fprintf(stderr, "getzoneinfo_plan_b: match %s but strdup failed\n", &tmp[1]);
 			fclose(f2);
 			fclose(f1);
 			return NULL;
 		    }
-		    path[0] = ':';
 		}
 		else {
-		    fprintf(stderr, "getzoneinfo_plan_b: Warning: match %s and %s, choosing first one\n", path, tmp);
+		    /*
+		     * Duplicates ... pick shortest path, as this will favour, for
+		     * example, Australia/Melbourne over posix/Australia/Melbourne
+		     */
+		    if (strlen(&path[1]) <= strlen(&tmp[1]))
+			fprintf(stderr, "getzoneinfo_plan_b: Warning: match %s and %s, choosing first one\n", &path[1], &tmp[1]);
+		    else {
+			fprintf(stderr, "getzoneinfo_plan_b: Warning: match %s and %s, choosing second one\n", &path[1], &tmp[1]);
+			free(path);
+			tmp[0] = ':';
+			path = strdup(tmp);
+			if (path == NULL) {
+			    fprintf(stderr, "getzoneinfo_plan_b: strdup failed\n");
+			    fclose(f2);
+			    fclose(f1);
+			    return NULL;
+			}
+		    }
 		}
 		break;
 	    }
