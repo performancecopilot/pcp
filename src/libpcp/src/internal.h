@@ -390,14 +390,14 @@ extern void	     __pmSockAddrSetScope(__pmSockAddr *, int) _PCP_HIDDEN;
 extern __pmSockAddr *__pmSockAddrFirstSubnetAddr(const __pmSockAddr *, int) _PCP_HIDDEN;
 extern __pmSockAddr *__pmSockAddrNextSubnetAddr(__pmSockAddr *, int) _PCP_HIDDEN;
 
-extern int __pmConnectPMCD(pmHostSpec *, int, int, __pmHashCtl *) _PCP_HIDDEN;
+extern int __pmConnectPMCD(__pmHostSpec *, int, int, __pmHashCtl *) _PCP_HIDDEN;
 
 extern int __pmConnectLocal(__pmHashCtl *) _PCP_HIDDEN;
 extern int __pmAuxConnectPMCD(const char *) _PCP_HIDDEN;
 extern int __pmAuxConnectPMCDUnixSocket(const char *) _PCP_HIDDEN;
-extern int __pmAddHostPorts(pmHostSpec *, int *, int) _PCP_HIDDEN;
-extern void __pmDropHostPort(pmHostSpec *) _PCP_HIDDEN;
-extern void __pmConnectGetPorts(pmHostSpec *) _PCP_HIDDEN;
+extern int __pmAddHostPorts(__pmHostSpec *, int *, int) _PCP_HIDDEN;
+extern void __pmDropHostPort(__pmHostSpec *) _PCP_HIDDEN;
+extern void __pmConnectGetPorts(__pmHostSpec *) _PCP_HIDDEN;
 
 extern int __pmLogOpen(const char *, __pmContext *) _PCP_HIDDEN;
 extern int __pmLogReopen(const char *, __pmContext *) _PCP_HIDDEN;

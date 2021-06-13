@@ -24,13 +24,6 @@
 #ifndef PCP_LIBPCP_H
 #define PCP_LIBPCP_H
 
-/*
- * TODO
- * demote names from pm... to __pm... for
- * - pmHostSpec
- * - pmTimeZone
- */
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -521,9 +514,9 @@ typedef struct {
     char	*name;			/* hostname (always valid) */
     int		*ports;			/* array of host port numbers */
     int		nports;			/* number of ports in host port array */
-} pmHostSpec;
-PCP_CALL extern int __pmParseHostSpec(const char *, pmHostSpec **, int *, char **);
-PCP_CALL extern int __pmUnparseHostSpec(pmHostSpec *, int, char *, size_t);
+} __pmHostSpec;
+PCP_CALL extern int __pmParseHostSpec(const char *, __pmHostSpec **, int *, char **);
+PCP_CALL extern int __pmUnparseHostSpec(__pmHostSpec *, int, char *, size_t);
 
 /*
  * unfortunately, in this version, PCP archives are limited to no
@@ -600,8 +593,8 @@ PCP_CALL extern int __pmCompressedFileIndex(char *, size_t);
 typedef struct {
     int			pc_fd;		/* socket for comm with pmcd */
 					/* ... -1 means no connection */
-    pmHostSpec		*pc_hosts;	/* pmcd and proxy host specifications */
-    int			pc_nhosts;	/* number of pmHostSpec entries */
+    __pmHostSpec	*pc_hosts;	/* pmcd and proxy host specifications */
+    int			pc_nhosts;	/* number of hostspec entries */
     int			pc_timeout;	/* set if connect times out */
     int			pc_tout_sec;	/* timeout for __pmGetPDU */
     time_t		pc_again;	/* time to try again */
@@ -1220,13 +1213,6 @@ PCP_CALL extern void __pmSetLocalContextFlag(pmOptions *);
 PCP_CALL extern void __pmSetLocalContextTable(pmOptions *, char *);
 PCP_CALL extern void __pmEndOptions(pmOptions *);
 
-/* real pmTimeZone declaration */
-typedef struct {
-    char		*label;		/* label to name tz */
-    char		*tz;		/* env $TZ */
-    int			handle;		/* handle from pmNewZone() */
-} pmTimeZone;
-
 /* work out local timezone */
 PCP_CALL extern char *__pmTimezone(void);		/* NOT thread-safe */
 PCP_CALL extern char *__pmTimezone_r(char *, int);
@@ -1312,9 +1298,9 @@ typedef enum {
 } __pmAttrKey;
 PCP_CALL extern __pmAttrKey __pmLookupAttrKey(const char *, size_t);
 PCP_CALL extern int __pmParseHostAttrsSpec(
-    const char *, pmHostSpec **, int *, __pmHashCtl *, char **);
+    const char *, __pmHostSpec **, int *, __pmHashCtl *, char **);
 PCP_CALL extern int __pmUnparseHostAttrsSpec(
-    pmHostSpec *, int, __pmHashCtl *, char *, size_t);
+    __pmHostSpec *, int, __pmHashCtl *, char *, size_t);
 
 /* SSL/TLS/IPv6 support via NSS/NSPR */
 PCP_CALL extern int __pmSecureServerCertificateSetup(const char *, const char *, const char *);
@@ -1333,8 +1319,8 @@ PCP_CALL extern int __pmInProfile(pmInDom, const pmProfile *, int);
 
 /* free malloc'd data structures */
 PCP_CALL extern void __pmFreeAttrsSpec(__pmHashCtl *);
-PCP_CALL extern void __pmFreeHostAttrsSpec(pmHostSpec *, int, __pmHashCtl *);
-PCP_CALL extern void __pmFreeHostSpec(pmHostSpec *, int);
+PCP_CALL extern void __pmFreeHostAttrsSpec(__pmHostSpec *, int, __pmHashCtl *);
+PCP_CALL extern void __pmFreeHostSpec(__pmHostSpec *, int);
 PCP_CALL extern void __pmFreeInResult(pmInResult *);
 PCP_CALL extern void __pmFreePMNS(__pmnsTree *);
 PCP_CALL extern void __pmFreeProfile(pmProfile *);
