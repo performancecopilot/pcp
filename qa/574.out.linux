@@ -24,6 +24,7 @@ children of "pmcd" ...
     simabi              <s = 0>
     timezone            <s = 0>
     version             <s = 0>
+    zoneinfo            <s = 0>
 
 pmid: 60.0.13 name: kernel.all.pswitch
 
