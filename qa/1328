@@ -48,9 +48,9 @@ fi
 for try in 1 2 3
 do
     raw=`date '+%y/%m/%d %H:%M:%S'`
-    cooked=`TZ=:$zoneinfo date '+%y/%m/%d %H:%M:%S'`
+    cooked=`TZ=$zoneinfo date '+%y/%m/%d %H:%M:%S'`
     echo "raw=$raw" >>$seq.full
-    echo "cooked=$cooked (TZ=:$zoneinfo)" >>$seq.full
+    echo "cooked=$cooked (TZ=$zoneinfo)" >>$seq.full
     if [ "$raw" = "$cooked" ]
     then
 	echo "Dates match."
@@ -60,5 +60,5 @@ do
     pmsleep 0.1
 done
 
-echo "Failed to match $raw vs (TZ=:$zoneinfo) $cooked"
+echo "Failed to match $raw vs (TZ=$zoneinfo) $cooked"
 exit
