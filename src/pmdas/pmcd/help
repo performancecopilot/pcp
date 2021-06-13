@@ -352,14 +352,15 @@ Enables determination of "local" time for timestamps returned via
 PMCD from a remote host.
 
 @ pmcd.zoneinfo local timezone tzfile identification
-Alternative value for the timezone where the PMCD is running, but
-in the style of a specification for a tzfile(5)-format file below
-/usr/share/zoneinfo, e.g. "Australia/Melbourne".
+Alternative value for the timezone where the PMCD is running, but in the
+style of a specification for a tzfile(5)-format file, so a colon followed
+by the path to a file below /usr/share/zoneinfo, e.g. ":Australia/Melbourne"
+or ":America/Argentina/Ushuaia".
 
-May be used to set $TZ, optionally with a ":" prefix.
+May be used to set $TZ.
 
-If the zoneinfo cannot be deduced, the value of this metric is
-"" (an empty string).
+If the zoneinfo cannot be deduced, the value of this metric is "" (an
+empty string).
 
 @ pmcd.sighups count of SIGHUP signals pmcd has received
 

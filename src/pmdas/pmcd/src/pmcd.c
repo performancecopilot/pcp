@@ -1126,67 +1126,6 @@ tzinfo(void)
 #define ZONEINFO "/zoneinfo/"
 #define LOCALTIME "/etc/localtime"
 
-char *getzoneinfo_plan_b(void);
-
-/*
- * Get the local timezone tzfile identification
- *
- * We'd like this to return something like "Australia/Melbourne"
- * that can be used as a $TZ setting.
- *
- * Plan A
- *   If /etc/localtime is a symbolic link, get the pathname it points
- *   to and strip anything up to (and including) the string "/zoneinfo/".
- *
- * Return NULL on failure.
- */
-char *
-getzoneinfo(void)
-{
-    ssize_t	sts;
-    char	*buf;
-    char	*tmp_buf;
-    char	*p;
-    char	*q;
-
-    buf = (char *)malloc(MAXPATHLEN+1);
-    if (buf == NULL)
-	return NULL;
-
-    sts = readlink(LOCALTIME, buf, MAXPATHLEN);
-    if (sts < 0) {
-	/*
-	 * Hmm, not a symlink. Now try Plan B.
-	 */
-	free(buf);
-	buf = getzoneinfo_plan_b();
-	if (buf == NULL)
-	    return NULL;
-    }
-    else
-	buf[sts] = '\0';
-
-    /* try to find prefix .../zoneinfo/... */
-    p = strstr(buf, ZONEINFO);
-    if (p != NULL) {
-	/* found it! */
-	q = &p[strlen(ZONEINFO)];
-	tmp_buf = strdup(q);
-	if (tmp_buf != NULL) {
-	    free(buf);
-	    buf = tmp_buf;
-	}
-    }
-    else {
-	/* no prefix, truncate ... nice to have, not necessary */
-	tmp_buf = realloc(buf, sts+1);
-	if (tmp_buf != NULL)
-	    buf = tmp_buf;
-    }
-
-    return buf;
-}
-
 /*
  * Plan B
  *
@@ -1208,7 +1147,7 @@ getzoneinfo_plan_b(void)
     char	*p;
     char	*path = NULL;
     struct stat	sbuf;		/* sbuf.st_size is all that matters */
-    char	tmp[1024];
+    char	tmp[MAXPATHLEN+2];	/* shell command and line buffer */
 
     if ((f1 = fopen(LOCALTIME, "r")) == NULL) {
 	fprintf(stderr, "getzoneinfo_plan_b: cannot open %s: %s\n", LOCALTIME, pmErrStr(-oserror()));
@@ -1222,13 +1161,14 @@ getzoneinfo_plan_b(void)
     }
     sprintf(tmp, "find /usr/share/zoneinfo -type f -a -size %ldc", sbuf.st_size);
     fp = popen(tmp, "r");
-    while (fgets(tmp, sizeof(tmp), fp) != NULL) {
+    /* start at reading at tmp[1], so ':' can be inserted at tmp[0] */
+    while (fgets(&tmp[1], sizeof(tmp)-1, fp) != NULL) {
 	/* strip \n at end of line */
-	for (p = tmp; *p != '\n'; p++)
+	for (p = &tmp[1]; *p != '\n'; p++)
 	    ;
 	*p = '\0';
-	if ((f2 = fopen(tmp, "r")) == NULL) {
-	    fprintf(stderr, "getzoneinfo_plan_b: cannot open %s: %s\n", tmp, pmErrStr(-oserror()));
+	if ((f2 = fopen(&tmp[1], "r")) == NULL) {
+	    fprintf(stderr, "getzoneinfo_plan_b: cannot open %s: %s\n", &tmp[1], pmErrStr(-oserror()));
 	    fclose(f1);
 	    return NULL;
 	}
@@ -1247,6 +1187,7 @@ getzoneinfo_plan_b(void)
 			fclose(f1);
 			return NULL;
 		    }
+		    path[0] = ':';
 		}
 		else {
 		    fprintf(stderr, "getzoneinfo_plan_b: Warning: match %s and %s, choosing first one\n", path, tmp);
@@ -1262,6 +1203,67 @@ getzoneinfo_plan_b(void)
     fclose(f1);
 
     return path;
+}
+
+/*
+ * Get the local timezone tzfile identification
+ *
+ * We'd like this to return something like ":Australia/Melbourne"
+ * that can be used as a $TZ setting.
+ *
+ * Plan A
+ *   If /etc/localtime is a symbolic link, get the pathname it points
+ *   to and strip anything up to (and including) the string "/zoneinfo/".
+ *
+ * Return NULL on failure.
+ */
+char *
+getzoneinfo(void)
+{
+    ssize_t	sts;
+    char	*buf;
+    char	*tmp_buf;
+    char	*p;
+    char	*q;
+
+    /* +1 for : +1 for NULL */
+    buf = (char *)malloc(MAXPATHLEN+2);
+    if (buf == NULL)
+	return NULL;
+
+    sts = readlink(LOCALTIME, &buf[1], MAXPATHLEN);
+    if (sts < 0) {
+	/*
+	 * Hmm, not a symlink. Now try Plan B.
+	 */
+	free(buf);
+	buf = getzoneinfo_plan_b();
+	if (buf == NULL)
+	    return NULL;
+    }
+    else
+	buf[sts+1] = '\0';
+
+    /* try to find prefix .../zoneinfo/... */
+    p = strstr(buf, ZONEINFO);
+    if (p != NULL) {
+	/* found it! */
+	q = &p[strlen(ZONEINFO)-1];
+	tmp_buf = strdup(q);
+	if (tmp_buf != NULL) {
+	    free(buf);
+	    buf = tmp_buf;
+	}
+    }
+    else {
+	/* no prefix, truncate ... nice to have, not necessary */
+	tmp_buf = realloc(buf, sts+2);
+	if (tmp_buf != NULL)
+	    buf = tmp_buf;
+    }
+    buf[0] = ':';
+
+    return buf;
 }
 
 static char *
