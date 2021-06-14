@@ -51,14 +51,20 @@ typedef struct webgroups {
     uv_loop_t		*events;
     unsigned int	active;
     uv_timer_t		timer;
+    uv_mutex_t		mutex;
 } webgroups;
 
 static struct webgroups *
 webgroups_lookup(pmWebGroupModule *module)
 {
-    if (module->privdata == NULL)
+    struct webgroups *groups = module->privdata;
+
+    if (module->privdata == NULL) {
 	module->privdata = calloc(1, sizeof(struct webgroups));
-    return (struct webgroups *)module->privdata;
+	groups = (struct webgroups *)module->privdata;
+	uv_mutex_init(&groups->mutex);
+    }
+    return groups;
 }
 
 static int
@@ -94,8 +100,11 @@ webgroup_drop_context(struct context *context, struct webgroups *groups)
 	    context->garbage = 1;
 	    uv_timer_stop(&context->timer);
 	}
-	if (groups)
+	if (groups) {
+	    uv_mutex_lock(&groups->mutex);
 	    dictDelete(groups->contexts, &context->randomid);
+	    uv_mutex_unlock(&groups->mutex);
+	}
 	uv_close((uv_handle_t *)&context->timer, webgroup_release_context);
     }
 }
@@ -207,13 +216,16 @@ webgroup_new_context(pmWebGroupSettings *sp, dict *params,
     cp->context = -1;
     cp->timeout = polltime;
 
+    uv_mutex_lock(&groups->mutex);
     if ((cp->randomid = random()) < 0 ||
 	dictFind(groups->contexts, &cp->randomid) != NULL) {
 	infofmt(*message, "random number failure on new web context");
 	pmwebapi_free_context(cp);
 	*status = -ESRCH;
+	uv_mutex_unlock(&groups->mutex);
 	return NULL;
     }
+    uv_mutex_unlock(&groups->mutex);
     cp->origin = sdscatfmt(sdsempty(), "%i", cp->randomid);
     cp->name.sds = sdsdup(hostspec ? hostspec : LOCALHOST);
     cp->realm = sdscatfmt(sdsempty(), "pmapi/%i", cp->randomid);
@@ -242,7 +254,9 @@ webgroup_new_context(pmWebGroupSettings *sp, dict *params,
 	pmwebapi_free_context(cp);
 	return NULL;
     }
+    uv_mutex_lock(&groups->mutex);
     dictAdd(groups->contexts, &cp->randomid, cp);
+    uv_mutex_unlock(&groups->mutex);
 
     /* leave until the end because uv_timer_init makes this visible in uv_run */
     handle = (uv_handle_t *)&cp->timer;
@@ -261,25 +275,34 @@ webgroup_new_context(pmWebGroupSettings *sp, dict *params,
 static void
 webgroup_garbage_collect(struct webgroups *groups)
 {
-    dictIterator        *iterator = dictGetSafeIterator(groups->contexts);
+    dictIterator        *iterator;
     dictEntry           *entry;
     context_t		*cp;
 
     if (pmDebugOptions.http || pmDebugOptions.libweb)
 	fprintf(stderr, "%s: started\n", "webgroup_garbage_collect");
 
-    while ((entry = dictNext(iterator)) != NULL) {
-	cp = (context_t *)dictGetVal(entry);
-	if (cp->garbage && cp->privdata == groups) {
-	    if (pmDebugOptions.http || pmDebugOptions.libweb)
-		fprintf(stderr, "GC context %u (%p)\n", cp->randomid, cp);
-	    webgroup_drop_context(cp, groups);
+    /* do context GC if we get the lock (else don't block here) */
+    if (uv_mutex_trylock(&groups->mutex) == 0) {
+	iterator = dictGetSafeIterator(groups->contexts);
+	for (entry = dictNext(iterator); entry;) {
+	    cp = (context_t *)dictGetVal(entry);
+	    entry = dictNext(iterator);
+	    if (cp->garbage && cp->privdata == groups) {
+		if (pmDebugOptions.http || pmDebugOptions.libweb)
+		    fprintf(stderr, "GC context %u (%p)\n", cp->randomid, cp);
+		uv_mutex_unlock(&groups->mutex);
+		webgroup_drop_context(cp, groups);
+		uv_mutex_lock(&groups->mutex);
+	    }
 	}
+	dictReleaseIterator(iterator);
+	uv_mutex_unlock(&groups->mutex);
     }
-    dictReleaseIterator(iterator);
 
     /* TODO - trim maps, particularly instmap if proc metrics are not excluded */
 
+    /* TODO move the following to a new stats timer */
     if (groups->metrics_handle) {
 	mmv_stats_set(groups->metrics_handle, "contextmap.size",
 	    NULL, dictSize(contextmap));
