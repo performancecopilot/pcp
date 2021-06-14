@@ -17,6 +17,10 @@ _prepare_pmda bpftrace
 trap "_pmdabpftrace_cleanup; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
 
+# on vm04, the limit is 512 which is not enough; 600 seems enough
+#
+export BPFTRACE_MAX_PROBES=600
+
 # real QA test starts here
 _pmdabpftrace_clean_autostart_scripts
 cat <<EOF | _pmdabpftrace_install
