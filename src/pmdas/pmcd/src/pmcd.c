@@ -1160,7 +1160,11 @@ getzoneinfo_plan_b(void)
 	return NULL;
     }
     sprintf(tmp, "find /usr/share/zoneinfo -type f -a -size %ldc", sbuf.st_size);
-    fp = popen(tmp, "r");
+    if ((fp = popen(tmp, "r")) == NULL) {
+	fprintf(stderr, "getzoneinfo_plan_b: pipe(%s) failed: %s\n", tmp, pmErrStr(-oserror()));
+	fclose(f1);
+	return NULL;
+    }
     /* start at reading at tmp[1], so ':' can be inserted at tmp[0] */
     while (fgets(&tmp[1], sizeof(tmp)-1, fp) != NULL) {
 	/* strip \n at end of line */
@@ -1170,6 +1174,7 @@ getzoneinfo_plan_b(void)
 	if ((f2 = fopen(&tmp[1], "r")) == NULL) {
 	    fprintf(stderr, "getzoneinfo_plan_b: cannot open %s: %s\n", &tmp[1], pmErrStr(-oserror()));
 	    fclose(f1);
+	    pclose(fp);
 	    return NULL;
 	}
 	rewind(f1);
@@ -1186,6 +1191,7 @@ getzoneinfo_plan_b(void)
 			fprintf(stderr, "getzoneinfo_plan_b: match %s but strdup failed\n", &tmp[1]);
 			fclose(f2);
 			fclose(f1);
+			pclose(fp);
 			return NULL;
 		    }
 		}
@@ -1205,6 +1211,7 @@ getzoneinfo_plan_b(void)
 			    fprintf(stderr, "getzoneinfo_plan_b: strdup failed\n");
 			    fclose(f2);
 			    fclose(f1);
+			    pclose(fp);
 			    return NULL;
 			}
 		    }
@@ -1216,8 +1223,8 @@ getzoneinfo_plan_b(void)
 	}
 	fclose(f2);
     }
-    pclose(fp);
     fclose(f1);
+    pclose(fp);
 
     return path;
 }
