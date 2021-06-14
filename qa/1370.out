@@ -102,7 +102,6 @@ display commands to be tested
 /usr/libexec/pcp/bin/pmsignal
 /usr/libexec/pcp/bin/selinux-setup
 run checks
-dstat.1 missing --profile
 pcp.1 missing --align
 pcp.1 missing --guimode
 pcp.1 missing --guiport
@@ -125,7 +124,6 @@ pcp-atop.1 missing --finish
 pcp-atop.1 missing --hostzone
 pcp-atop.1 missing --version
 pcp-atopsar.1 missing display
-pcp-dstat.1 missing --profile
 pcp-iostat.1 missing --align
 pcp-iostat.1 missing --start
 pcp-iostat.1 missing --version
