@@ -1175,6 +1175,8 @@ getzoneinfo_plan_b(void)
 	    fprintf(stderr, "getzoneinfo_plan_b: cannot open %s: %s\n", &tmp[1], pmErrStr(-oserror()));
 	    fclose(f1);
 	    pclose(fp);
+	    if (path != NULL)
+		free(path);
 	    return NULL;
 	}
 	rewind(f1);
