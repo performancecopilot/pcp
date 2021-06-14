@@ -77,6 +77,8 @@ sed \
 	-e '/date-and-timestamp/d' \
 	-e '/^Roll .*\/NOTICES/d' \
 	-e '/^Start .*\/NOTICES/d' \
+	-e '/^+ mv .*\/NOTICES/d' \
+	-e '/^+ touch .*\/NOTICES/d' \
 	-e "s/$TODAY/TODAY/g" \
 	-e "s/$FIVEDAYS/FIVEDAYS/g" \
 	-e "s/$FIVEMONTHS/FIVEMONTHS/g" \
