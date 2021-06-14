@@ -16,13 +16,25 @@
 #include <openssl/opensslv.h>
 #include <openssl/ssl.h>
 
+/* called with proxy->mutex locked */
 static void
 remove_connection_from_queue(struct client *client)
 {
+    struct proxy *proxy = client->proxy;
+
     if (client->secure.pending.writes_buffer != NULL)
 	free(client->secure.pending.writes_buffer);
-    if (client->secure.pending.prev != NULL)
-	*client->secure.pending.prev = client->secure.pending.next;
+    if (client->secure.pending.prev == NULL) {
+	/* next (if any) becomes first in pending_writes list */
+    	proxy->pending_writes = client->secure.pending.next;
+	if (proxy->pending_writes)
+	    proxy->pending_writes->secure.pending.prev = NULL;
+    }
+    else {
+	/* link next and prev */
+	client->secure.pending.prev->secure.pending.next = client->secure.pending.next;
+	client->secure.pending.next->secure.pending.prev = client->secure.pending.prev;
+    }
     memset(&client->secure.pending, 0, sizeof(client->secure.pending));
 }
 
@@ -32,7 +44,9 @@ on_secure_client_close(struct client *client)
     if (pmDebugOptions.auth || pmDebugOptions.http)
 	fprintf(stderr, "%s: client %p\n", "on_secure_client_close", client);
 
+    uv_mutex_lock(&client->proxy->mutex);
     remove_connection_from_queue(client);
+    uv_mutex_unlock(&client->proxy->mutex);
     /* client->read and client->write freed by SSL_free */
     SSL_free(client->secure.ssl);
 }
@@ -40,6 +54,8 @@ on_secure_client_close(struct client *client)
 static void
 maybe_flush_ssl(struct proxy *proxy, struct client *client)
 {
+    struct client *c;
+
     if (client->secure.pending.queued)
 	return;
 
@@ -47,13 +63,19 @@ maybe_flush_ssl(struct proxy *proxy, struct client *client)
 	client->secure.pending.writes_count > 0)
 	return;
 
-    client->secure.pending.next = proxy->pending_writes;
-    if (client->secure.pending.next != NULL)
-	client->secure.pending.next->secure.pending.prev = &client->secure.pending.next;
-    client->secure.pending.prev = &proxy->pending_writes;
+    uv_mutex_lock(&proxy->mutex);
+    if (proxy->pending_writes == NULL) {
+    	proxy->pending_writes = client;
+	client->secure.pending.prev = client->secure.pending.next = NULL;
+    }
+    else {
+    	for (c=proxy->pending_writes; c->secure.pending.next; c = c->secure.pending.next)
+	    ; /**/
+	c->secure.pending.next = client;
+	client->secure.pending.prev = c;
+    }
     client->secure.pending.queued = 1;
-
-    proxy->pending_writes = client;
+    uv_mutex_unlock(&proxy->mutex);
 }
 
 static void
@@ -135,10 +157,12 @@ flush_ssl_buffer(struct client *client)
 void
 flush_secure_module(struct proxy *proxy)
 {
-    struct client	*client, **head = &proxy->pending_writes;
+    struct client	*client, **head;
     size_t		i, used;
     int			sts;
 
+    uv_mutex_lock(&proxy->mutex);
+    head = &proxy->pending_writes;
     while ((client = *head) != NULL) {
 	flush_ssl_buffer(client);
 
@@ -188,6 +212,7 @@ flush_secure_module(struct proxy *proxy)
 		    sizeof(uv_buf_t) * client->secure.pending.writes_count);
 	}
     }
+    uv_mutex_unlock(&proxy->mutex);
 }
 
 void

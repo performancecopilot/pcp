@@ -1,5 +1,539 @@
 QA output created by 1457
-=== checking TLS operation ===
+=== checking serial http operation ===
+=== out1 ===
+{
+    "context": "CONTEXT"
+    "metrics": [
+        {
+            "name": "sample.long.ten",
+            "series": "SERIES"
+            "pmid": "29.0.11",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "10 as a 32-bit integer",
+            "text-help": "10 as a 32-bit integer"
+        }
+    ]
+}
+=== out2 ===
+{
+    "context": "CONTEXT"
+    "metrics": [
+        {
+            "name": "sample.long.ten",
+            "series": "SERIES"
+            "pmid": "29.0.11",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "10 as a 32-bit integer",
+            "text-help": "10 as a 32-bit integer"
+        }
+    ]
+}
+=== out3 ===
+{
+    "context": "CONTEXT"
+    "metrics": [
+        {
+            "name": "sample.long.ten",
+            "series": "SERIES"
+            "pmid": "29.0.11",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "10 as a 32-bit integer",
+            "text-help": "10 as a 32-bit integer"
+        }
+    ]
+}
+=== out4 ===
+{
+    "context": "CONTEXT"
+    "metrics": [
+        {
+            "name": "sample.long.ten",
+            "series": "SERIES"
+            "pmid": "29.0.11",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "10 as a 32-bit integer",
+            "text-help": "10 as a 32-bit integer"
+        }
+    ]
+}
+=== checking parallel http operation ===
+=== out1 ===
+{
+    "context": "CONTEXT"
+    "metrics": [
+        {
+            "name": "sample.long.ten",
+            "series": "SERIES"
+            "pmid": "29.0.11",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "10 as a 32-bit integer",
+            "text-help": "10 as a 32-bit integer"
+        }
+    ]
+}
+=== out2 ===
+{
+    "context": "CONTEXT"
+    "metrics": [
+        {
+            "name": "sample.long.ten",
+            "series": "SERIES"
+            "pmid": "29.0.11",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "10 as a 32-bit integer",
+            "text-help": "10 as a 32-bit integer"
+        }
+    ]
+}
+=== out3 ===
+{
+    "context": "CONTEXT"
+    "metrics": [
+        {
+            "name": "sample.long.ten",
+            "series": "SERIES"
+            "pmid": "29.0.11",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "10 as a 32-bit integer",
+            "text-help": "10 as a 32-bit integer"
+        }
+    ]
+}
+=== out4 ===
+{
+    "context": "CONTEXT"
+    "metrics": [
+        {
+            "name": "sample.long.ten",
+            "series": "SERIES"
+            "pmid": "29.0.11",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "10 as a 32-bit integer",
+            "text-help": "10 as a 32-bit integer"
+        }
+    ]
+}
+=== checking serial https/TLS operation ===
+=== out1 ===
+{
+    "context": "CONTEXT"
+    "metrics": [
+        {
+            "name": "sample.long.ten",
+            "series": "SERIES"
+            "pmid": "29.0.11",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "10 as a 32-bit integer",
+            "text-help": "10 as a 32-bit integer"
+        }
+    ]
+}
+=== out2 ===
+{
+    "context": "CONTEXT"
+    "metrics": [
+        {
+            "name": "sample.long.ten",
+            "series": "SERIES"
+            "pmid": "29.0.11",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "10 as a 32-bit integer",
+            "text-help": "10 as a 32-bit integer"
+        }
+    ]
+}
+=== out3 ===
+{
+    "context": "CONTEXT"
+    "metrics": [
+        {
+            "name": "sample.long.ten",
+            "series": "SERIES"
+            "pmid": "29.0.11",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "10 as a 32-bit integer",
+            "text-help": "10 as a 32-bit integer"
+        }
+    ]
+}
+=== out4 ===
+{
+    "context": "CONTEXT"
+    "metrics": [
+        {
+            "name": "sample.long.ten",
+            "series": "SERIES"
+            "pmid": "29.0.11",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "10 as a 32-bit integer",
+            "text-help": "10 as a 32-bit integer"
+        }
+    ]
+}
+=== checking parallel https/TLS operation ===
+=== out1 ===
+{
+    "context": "CONTEXT"
+    "metrics": [
+        {
+            "name": "sample.long.ten",
+            "series": "SERIES"
+            "pmid": "29.0.11",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "10 as a 32-bit integer",
+            "text-help": "10 as a 32-bit integer"
+        }
+    ]
+}
+=== out2 ===
+{
+    "context": "CONTEXT"
+    "metrics": [
+        {
+            "name": "sample.long.ten",
+            "series": "SERIES"
+            "pmid": "29.0.11",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "10 as a 32-bit integer",
+            "text-help": "10 as a 32-bit integer"
+        }
+    ]
+}
+=== out3 ===
+{
+    "context": "CONTEXT"
+    "metrics": [
+        {
+            "name": "sample.long.ten",
+            "series": "SERIES"
+            "pmid": "29.0.11",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "10 as a 32-bit integer",
+            "text-help": "10 as a 32-bit integer"
+        }
+    ]
+}
+=== out4 ===
+{
+    "context": "CONTEXT"
+    "metrics": [
+        {
+            "name": "sample.long.ten",
+            "series": "SERIES"
+            "pmid": "29.0.11",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "10 as a 32-bit integer",
+            "text-help": "10 as a 32-bit integer"
+        }
+    ]
+}
+=== checking parallel mixed http and https/TLS operations ===
+=== out1 ===
+{
+    "context": "CONTEXT"
+    "metrics": [
+        {
+            "name": "sample.long.ten",
+            "series": "SERIES"
+            "pmid": "29.0.11",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "10 as a 32-bit integer",
+            "text-help": "10 as a 32-bit integer"
+        }
+    ]
+}
+=== out2 ===
+{
+    "context": "CONTEXT"
+    "metrics": [
+        {
+            "name": "sample.long.ten",
+            "series": "SERIES"
+            "pmid": "29.0.11",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "10 as a 32-bit integer",
+            "text-help": "10 as a 32-bit integer"
+        }
+    ]
+}
+=== out3 ===
+{
+    "context": "CONTEXT"
+    "metrics": [
+        {
+            "name": "sample.long.ten",
+            "series": "SERIES"
+            "pmid": "29.0.11",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "10 as a 32-bit integer",
+            "text-help": "10 as a 32-bit integer"
+        }
+    ]
+}
+=== out4 ===
+{
+    "context": "CONTEXT"
+    "metrics": [
+        {
+            "name": "sample.long.ten",
+            "series": "SERIES"
+            "pmid": "29.0.11",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "10 as a 32-bit integer",
+            "text-help": "10 as a 32-bit integer"
+        }
+    ]
+}
+=== out5 ===
+{
+    "context": "CONTEXT"
+    "metrics": [
+        {
+            "name": "sample.long.ten",
+            "series": "SERIES"
+            "pmid": "29.0.11",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "10 as a 32-bit integer",
+            "text-help": "10 as a 32-bit integer"
+        }
+    ]
+}
+=== out6 ===
+{
+    "context": "CONTEXT"
+    "metrics": [
+        {
+            "name": "sample.long.ten",
+            "series": "SERIES"
+            "pmid": "29.0.11",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "10 as a 32-bit integer",
+            "text-help": "10 as a 32-bit integer"
+        }
+    ]
+}
+=== out7 ===
+{
+    "context": "CONTEXT"
+    "metrics": [
+        {
+            "name": "sample.long.ten",
+            "series": "SERIES"
+            "pmid": "29.0.11",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "10 as a 32-bit integer",
+            "text-help": "10 as a 32-bit integer"
+        }
+    ]
+}
+=== out8 ===
 {
     "context": "CONTEXT"
     "metrics": [

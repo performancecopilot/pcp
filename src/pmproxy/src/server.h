@@ -118,7 +118,7 @@ typedef struct secure_client {
     BIO			*write;
     struct {
 	struct client	*next;
-	struct client	**prev;
+	struct client	*prev;
 	unsigned int	queued;
 	size_t		writes_count;
 	uv_buf_t	*writes_buffer;
@@ -166,6 +166,7 @@ typedef struct proxy {
     struct dict		*config;	/* configuration dictionary */
     uv_loop_t		*events;	/* global, async event loop */
     uv_callback_t	write_callbacks;
+    uv_mutex_t		mutex;		/* protects client lists and pending writes */
 } proxy;
 
 extern void proxylog(pmLogLevel, sds, void *);
