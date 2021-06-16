@@ -13,6 +13,8 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 === check number of values ===
 === std out ===
 proc.nprocs: 1 value
+proc.psinfo.cwd: >10 values
+proc.psinfo.exe: >10 values
 proc.psinfo.oom_score: >10 values
 proc.psinfo.tgid: >10 values
 proc.psinfo.cpusallowed: >10 values

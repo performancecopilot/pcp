@@ -61,11 +61,13 @@ proc.psinfo.cnswap -12387 No permission to perform requested operation
 proc.psinfo.cpusallowed -12387 No permission to perform requested operation
 proc.psinfo.cstime -12387 No permission to perform requested operation
 proc.psinfo.cutime -12387 No permission to perform requested operation
+proc.psinfo.cwd -12387 No permission to perform requested operation
 proc.psinfo.delayacct_blkio_time -12387 No permission to perform requested operation
 proc.psinfo.eip -12387 No permission to perform requested operation
 proc.psinfo.end_code -12387 No permission to perform requested operation
 proc.psinfo.environ -12387 No permission to perform requested operation
 proc.psinfo.esp -12387 No permission to perform requested operation
+proc.psinfo.exe -12387 No permission to perform requested operation
 proc.psinfo.exit_signal -12387 No permission to perform requested operation
 proc.psinfo.flags -12387 No permission to perform requested operation
 proc.psinfo.guest_time -12387 No permission to perform requested operation
@@ -163,11 +165,13 @@ proc.psinfo.cnswap COUNT
 proc.psinfo.cpusallowed COUNT
 proc.psinfo.cstime COUNT
 proc.psinfo.cutime COUNT
+proc.psinfo.cwd COUNT
 proc.psinfo.delayacct_blkio_time COUNT
 proc.psinfo.eip COUNT
 proc.psinfo.end_code COUNT
 proc.psinfo.environ COUNT
 proc.psinfo.esp COUNT
+proc.psinfo.exe COUNT
 proc.psinfo.exit_signal COUNT
 proc.psinfo.flags COUNT
 proc.psinfo.guest_time COUNT

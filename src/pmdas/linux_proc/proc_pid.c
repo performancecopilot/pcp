@@ -1101,6 +1101,8 @@ proc_readlink(const char *base, proc_pid_entry_t *ep, size_t *lenp, char **bufp)
     }
     pmsprintf(buf, sizeof(buf), "%s/proc/%d/%s", proc_statspath, ep->id, base);
     if ((sts = readlink(buf, *bufp, *lenp)) <= 0) {
+	if (sts < 0)	/* expected for kernel threads */
+	    sts = 0;
 	if (pmDebugOptions.appl1 && pmDebugOptions.desperate)
 	    fprintf(stderr, "%s: readlink(\"%s\") failed: %s\n",
 			    "proc_readlink", buf, pmErrStr(-oserror()));
