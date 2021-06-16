@@ -39,7 +39,7 @@ static mmv_metric2_t metrics[] = {
 	.semantics = MMV_SEM_COUNTER,
 	.dimension = MMV_UNITS(0,0,1,0,0,PM_COUNT_ONE),
 	.shorttext = "test counter metric",
-	.helptext = "Yes, this is a test counter metric",
+	.helptext = "Yes\n" "This is a test counter metric",
     },
     {	.name = "discrete",
 	.item = 2,
@@ -47,7 +47,7 @@ static mmv_metric2_t metrics[] = {
 	.semantics = MMV_SEM_DISCRETE,
 	.dimension = MMV_UNITS(0,0,0,0,0,0),
 	.shorttext = "test discrete metric",
-	.helptext = "Yes, this is a test discrete metric",
+	.helptext = "Yes\n" "This is a test discrete metric",
     },
     {	.name = "indom",
 	.item = 3,
@@ -79,7 +79,7 @@ static mmv_metric2_t metrics[] = {
 	.dimension = MMV_UNITS(0,0,0,0,0,0),
 	.indom = 1,
 	.shorttext = "test string metrics",
-	.helptext = "Yes, this is a test string metric with instances",
+	.helptext = "Yes\n" "This is a test string metric with instances",
     },
 };
 
