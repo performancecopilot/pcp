@@ -1,0 +1,117 @@
+QA output created by 1329
+=== live PMDA case ===
+
+pmproxy.control.debug [Debug flag]
+Help:
+See pmdbg(1).  pmstore into this metric to change the debug value.
+
+pmproxy.control.files [Memory mapped file count]
+Help:
+Count of currently mapped and exported statistics files.
+
+pmproxy.control.reload [Control maps reloading]
+Help:
+Writing anything other then 0 to this metric will result in
+re-reading directory and re-mapping files.
+
+pmproxy.redis.discover.metadata.callbacks [total calls to process metadata for all monitored archives]
+Help:
+total calls to process metadata for all monitored archives
+
+pmproxy.redis.discover.metadata.decode.desc [total desc records decoded processing metadata for all monitored archives]
+Help:
+total desc records decoded processing metadata for all monitored archives
+
+pmproxy.redis.discover.metadata.decode.helptext [total help text records decoded processing metadata for all monitored archives]
+Help:
+total help text records decoded processing metadata for all monitored archives
+
+pmproxy.redis.discover.metadata.decode.indom [total indom records decoded processing metadata for all monitored archives]
+Help:
+total indom records decoded processing metadata for all monitored archives
+
+pmproxy.redis.discover.metadata.decode.label [total label records decoded processing metadata for all monitored archives]
+Help:
+total label records decoded processing metadata for all monitored archives
+
+pmproxy.redis.discover.metadata.loops [total loops processing metadata for all monitored archives]
+Help:
+total loops processing metadata for all monitored archives
+
+=== archive case ===
+
+pmproxy.control.debug [Debug flag]
+Help:
+See pmdbg(1).  pmstore into this metric to change the debug value.
+
+pmproxy.control.files [Memory mapped file count]
+Help:
+Count of currently mapped and exported statistics files.
+
+pmproxy.control.reload [Control maps reloading]
+Help:
+Writing anything other then 0 to this metric will result in
+re-reading directory and re-mapping files.
+
+pmproxy.redis.discover.metadata.callbacks [total calls to process metadata for all monitored archives]
+Help:
+total calls to process metadata for all monitored archives
+
+pmproxy.redis.discover.metadata.decode.desc [total desc records decoded processing metadata for all monitored archives]
+Help:
+total desc records decoded processing metadata for all monitored archives
+
+pmproxy.redis.discover.metadata.decode.helptext [total help text records decoded processing metadata for all monitored archives]
+Help:
+total help text records decoded processing metadata for all monitored archives
+
+pmproxy.redis.discover.metadata.decode.indom [total indom records decoded processing metadata for all monitored archives]
+Help:
+total indom records decoded processing metadata for all monitored archives
+
+pmproxy.redis.discover.metadata.decode.label [total label records decoded processing metadata for all monitored archives]
+Help:
+total label records decoded processing metadata for all monitored archives
+
+pmproxy.redis.discover.metadata.loops [total loops processing metadata for all monitored archives]
+Help:
+total loops processing metadata for all monitored archives
+
+=== local context case ===
+
+pmproxy.control.debug [Debug flag]
+Help:
+See pmdbg(1).  pmstore into this metric to change the debug value.
+
+pmproxy.control.files [Memory mapped file count]
+Help:
+Count of currently mapped and exported statistics files.
+
+pmproxy.control.reload [Control maps reloading]
+Help:
+Writing anything other then 0 to this metric will result in
+re-reading directory and re-mapping files.
+
+pmproxy.redis.discover.metadata.callbacks [total calls to process metadata for all monitored archives]
+Help:
+total calls to process metadata for all monitored archives
+
+pmproxy.redis.discover.metadata.decode.desc [total desc records decoded processing metadata for all monitored archives]
+Help:
+total desc records decoded processing metadata for all monitored archives
+
+pmproxy.redis.discover.metadata.decode.helptext [total help text records decoded processing metadata for all monitored archives]
+Help:
+total help text records decoded processing metadata for all monitored archives
+
+pmproxy.redis.discover.metadata.decode.indom [total indom records decoded processing metadata for all monitored archives]
+Help:
+total indom records decoded processing metadata for all monitored archives
+
+pmproxy.redis.discover.metadata.decode.label [total label records decoded processing metadata for all monitored archives]
+Help:
+total label records decoded processing metadata for all monitored archives
+
+pmproxy.redis.discover.metadata.loops [total loops processing metadata for all monitored archives]
+Help:
+total loops processing metadata for all monitored archives
