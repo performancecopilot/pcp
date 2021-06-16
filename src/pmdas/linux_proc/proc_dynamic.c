@@ -65,6 +65,8 @@ static int proc_hotproc_cluster_list[][2] = {
 	{ CLUSTER_PID_FD,	    CLUSTER_HOTPROC_PID_FD },
 	{ CLUSTER_PID_OOM_SCORE,    CLUSTER_HOTPROC_PID_OOM_SCORE },
 	{ CLUSTER_PID_SMAPS,	    CLUSTER_HOTPROC_PID_SMAPS },
+	{ CLUSTER_PID_EXE,	    CLUSTER_HOTPROC_PID_EXE },
+	{ CLUSTER_PID_CWD,	    CLUSTER_HOTPROC_PID_CWD },
 };
 
 
@@ -146,6 +148,8 @@ static dynproc_metric_t psinfo_metrics[] = {
 	{ .name = "ngid",	    .cluster = CLUSTER_PID_STATUS,	.item=32 },
         { .name = "tgid",	    .cluster = CLUSTER_PID_STATUS,	.item=41 },
 	{ .name = "oom_score",	    .cluster = CLUSTER_PID_OOM_SCORE,	.item=0 },
+	{ .name = "exe",	    .cluster = CLUSTER_PID_EXE,		.item=0 },
+	{ .name = "cwd",	    .cluster = CLUSTER_PID_CWD,		.item=0 },
 };
 
 static dynproc_metric_t id_metrics[] = {

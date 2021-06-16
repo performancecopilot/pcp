@@ -588,7 +588,7 @@ hotproc_eval_procs(void)
 		len--;
 	    }
 
-	    strncpy(vars.fname, cmd, sizeof(vars.fname));
+	    strncpy(vars.fname, cmd, sizeof(vars.fname)-1);
 	    if (len < sizeof(vars.fname) && parens && cmd[len-1] == ')')
 		vars.fname[len-1] = '\0'; /* skip closing parenthesis */
 	    vars.fname[sizeof(vars.fname) - 1] = '\0';
@@ -1086,6 +1086,29 @@ proc_opendir(const char *base, proc_pid_entry_t *ep)
 			    "proc_opendir", buf, pmErrStr(-oserror()));
     }
     return dir;
+}
+
+static int
+proc_readlink(const char *base, proc_pid_entry_t *ep, size_t *lenp, char **bufp)
+{
+    char		buf[1024];
+    int			sts;
+
+    if (*lenp < MAXPATHLEN) {
+	if ((*bufp = (char *)realloc(*bufp, MAXPATHLEN)) == NULL)
+	    return -ENOMEM;
+	*lenp = MAXPATHLEN;
+    }
+    pmsprintf(buf, sizeof(buf), "%s/proc/%d/%s", proc_statspath, ep->id, base);
+    if ((sts = readlink(buf, *bufp, *lenp)) <= 0) {
+	if (pmDebugOptions.appl1 && pmDebugOptions.desperate)
+	    fprintf(stderr, "%s: readlink(\"%s\") failed: %s\n",
+			    "proc_readlink", buf, pmErrStr(-oserror()));
+	(*bufp)[0] = '\0';
+	return sts;
+    }
+    (*bufp)[sts] = '\0';
+    return sts;
 }
 
 /*
@@ -2148,5 +2171,73 @@ fetch_proc_pid_oom_score(int id, proc_pid_t *proc_pid, int *sts)
 	*sts = refresh_proc_pid_oom_score(ep);
 	ep->flags |= PROC_PID_FLAG_OOM_SCORE_FETCHED;
     }
+    return (*sts < 0) ? NULL : ep;
+}
+
+static int
+refresh_proc_pid_cwd(proc_pid_entry_t *ep)
+{
+    int			sts;
+
+    if (ep->flags & PROC_PID_FLAG_CWD_SUCCESS)
+	return 0;
+    if ((sts = proc_readlink("cwd", ep, &procbuflen, &procbuf)) >= 0) {
+	ep->cwd_id = proc_strings_insert(procbuf);
+	ep->flags |= PROC_PID_FLAG_CWD_SUCCESS;
+    }
+    return sts;
+}
+
+/*
+ * fetch a proc/<pid>/cwd value for pid
+ */
+proc_pid_entry_t *
+fetch_proc_pid_cwd(int id, proc_pid_t *proc_pid, int *sts)
+{
+    proc_pid_entry_t	*ep = proc_pid_entry_lookup(id, proc_pid);
+
+    *sts = 0;
+    if (!ep)
+	return NULL;
+
+    if (!(ep->flags & PROC_PID_FLAG_CWD_FETCHED)) {
+	*sts = refresh_proc_pid_cwd(ep);
+	ep->flags |= PROC_PID_FLAG_CWD_FETCHED;
+    }
+
+    return (*sts < 0) ? NULL : ep;
+}
+
+static int
+refresh_proc_pid_exe(proc_pid_entry_t *ep)
+{
+    int			sts;
+
+    if (ep->flags & PROC_PID_FLAG_EXE_SUCCESS)
+	return 0;
+    if ((sts = proc_readlink("exe", ep, &procbuflen, &procbuf)) >= 0) {
+	ep->exe_id = proc_strings_insert(procbuf);
+	ep->flags |= PROC_PID_FLAG_EXE_SUCCESS;
+    }
+    return sts;
+}
+
+/*
+ * fetch a proc/<pid>/exe value for pid
+ */
+proc_pid_entry_t *
+fetch_proc_pid_exe(int id, proc_pid_t *proc_pid, int *sts)
+{
+    proc_pid_entry_t	*ep = proc_pid_entry_lookup(id, proc_pid);
+
+    *sts = 0;
+    if (!ep)
+	return NULL;
+
+    if (!(ep->flags & PROC_PID_FLAG_EXE_FETCHED)) {
+	*sts = refresh_proc_pid_exe(ep);
+	ep->flags |= PROC_PID_FLAG_EXE_FETCHED;
+    }
+
     return (*sts < 0) ? NULL : ep;
 }

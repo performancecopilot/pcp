@@ -217,6 +217,8 @@ enum {
     PROC_PID_FLAG_ENVIRON_FETCHED	= 1<<11,
     PROC_PID_FLAG_OOM_SCORE_FETCHED	= 1<<12,
     PROC_PID_FLAG_SMAPS_FETCHED		= 1<<13,
+    PROC_PID_FLAG_CWD_FETCHED		= 1<<14,
+    PROC_PID_FLAG_EXE_FETCHED		= 1<<15,
 
     PROC_PID_FLAG_STAT_SUCCESS		= 1<<16,
     PROC_PID_FLAG_STATM_SUCCESS		= 1<<17,
@@ -231,6 +233,8 @@ enum {
     PROC_PID_FLAG_ENVIRON_SUCCESS	= 1<<26,
     PROC_PID_FLAG_OOM_SCORE_SUCCESS	= 1<<27,
     PROC_PID_FLAG_SMAPS_SUCCESS		= 1<<28,
+    PROC_PID_FLAG_CWD_SUCCESS		= 1<<29,
+    PROC_PID_FLAG_EXE_SUCCESS		= 1<<30,
 };
 
 typedef struct {
@@ -276,6 +280,12 @@ typedef struct {
 
     /* /proc/<pid>/oom_score cluster */
     uint32_t		oom_score;
+
+    /* /proc/<pid>/cwd cluster */
+    int			cwd_id;
+
+    /* /proc/<pid>/exe cluster */
+    int			exe_id;
 
     /* /proc/<pid>/smaps_rollup cluster */
     proc_pid_smaps_t	smaps;
@@ -355,5 +365,11 @@ extern proc_pid_entry_t *fetch_proc_pid_label(int, proc_pid_t *, int *);
 
 /* fetch a proc/<pid>/oom_score entry for pid */
 extern proc_pid_entry_t *fetch_proc_pid_oom_score(int, proc_pid_t *, int *);
+
+/* fetch a proc/<pid>/cwd entry for pid */
+extern proc_pid_entry_t *fetch_proc_pid_cwd(int, proc_pid_t *, int *);
+
+/* fetch a proc/<pid>/exe entry for pid */
+extern proc_pid_entry_t *fetch_proc_pid_exe(int, proc_pid_t *, int *);
 
 #endif /* _PROC_PID_H */

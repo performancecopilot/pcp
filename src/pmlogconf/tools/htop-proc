@@ -32,6 +32,8 @@ force	available
 	proc.psinfo.labels
 	proc.psinfo.environ
 	proc.psinfo.ttyname
+	proc.psinfo.cwd
+	proc.psinfo.exe
 	proc.id.uid
 	proc.id.uid_nm
 	proc.io.rchar

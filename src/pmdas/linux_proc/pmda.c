@@ -399,6 +399,12 @@ static pmdaMetric metrictab[] = {
 /* proc.psinfo.oom_score */
   { NULL, { PMDA_PMID(CLUSTER_PID_OOM_SCORE, 0), PM_TYPE_U32, PROC_INDOM,
     PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)}},
+/* proc.psinfo.cwd */
+  { NULL, { PMDA_PMID(CLUSTER_PID_CWD, 0), PM_TYPE_STRING, PROC_INDOM,
+    PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0)}},
+/* proc.psinfo.exe */
+  { NULL, { PMDA_PMID(CLUSTER_PID_EXE, 0), PM_TYPE_STRING, PROC_INDOM,
+    PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0)}},
 /* proc.memory.size */
   { NULL, { PMDA_PMID(CLUSTER_PID_STATM,0), PM_TYPE_U32, PROC_INDOM,
     PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
@@ -1392,6 +1398,8 @@ proc_refresh(pmdaExt *pmda, int *need_refresh)
 	need_refresh[CLUSTER_PID_CGROUP] ||
 	need_refresh[CLUSTER_PID_SCHEDSTAT] ||
 	need_refresh[CLUSTER_PID_OOM_SCORE] ||
+	need_refresh[CLUSTER_PID_CWD] ||
+	need_refresh[CLUSTER_PID_EXE] ||
 	need_refresh[CLUSTER_PID_FD] ||
 	need_refresh[CLUSTER_PROC_RUNQ]) {
 	refresh_proc_pid(&proc_pid,
@@ -1409,6 +1417,8 @@ proc_refresh(pmdaExt *pmda, int *need_refresh)
         need_refresh[CLUSTER_HOTPROC_PID_CGROUP] ||
         need_refresh[CLUSTER_HOTPROC_PID_SCHEDSTAT] ||
         need_refresh[CLUSTER_HOTPROC_PID_OOM_SCORE] ||
+        need_refresh[CLUSTER_HOTPROC_PID_CWD] ||
+        need_refresh[CLUSTER_HOTPROC_PID_EXE] ||
         need_refresh[CLUSTER_HOTPROC_PID_FD] ||
         need_refresh[CLUSTER_HOTPROC_GLOBAL] ||
         need_refresh[CLUSTER_HOTPROC_PRED]){
@@ -1436,6 +1446,8 @@ proc_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt 
         need_refresh[CLUSTER_PID_CGROUP]++;
         need_refresh[CLUSTER_PID_SCHEDSTAT]++;
         need_refresh[CLUSTER_PID_OOM_SCORE]++;
+        need_refresh[CLUSTER_PID_EXE]++;
+        need_refresh[CLUSTER_PID_CWD]++;
         need_refresh[CLUSTER_PID_IO]++;
         need_refresh[CLUSTER_PID_FD]++;
 	break;
@@ -1447,6 +1459,8 @@ proc_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt 
         need_refresh[CLUSTER_HOTPROC_PID_CGROUP]++;
         need_refresh[CLUSTER_HOTPROC_PID_SCHEDSTAT]++;
         need_refresh[CLUSTER_HOTPROC_PID_OOM_SCORE]++;
+        need_refresh[CLUSTER_HOTPROC_PID_EXE]++;
+        need_refresh[CLUSTER_HOTPROC_PID_CWD]++;
         need_refresh[CLUSTER_HOTPROC_PID_IO]++;
         need_refresh[CLUSTER_HOTPROC_PID_FD]++;
         need_refresh[CLUSTER_HOTPROC_GLOBAL]++;
@@ -3251,6 +3265,34 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return sts;
 	if (item == 0) /* proc.psinfo.oom_score */
 	    atom->ul = entry->oom_score;
+	else
+	    return PM_ERR_PMID;
+	break;
+
+    case CLUSTER_HOTPROC_PID_CWD:
+	active_proc_pid = &hotproc_pid;
+	/*FALLTHROUGH*/
+    case CLUSTER_PID_CWD:
+	if (!have_access)
+	    return PM_ERR_PERMISSION;
+	if ((entry = fetch_proc_pid_cwd(inst, active_proc_pid, &sts)) == NULL)
+	    return sts;
+	if (item == 0) /* proc.psinfo.cwd */
+	    atom->cp = proc_strings_lookup(entry->cwd_id);
+	else
+	    return PM_ERR_PMID;
+	break;
+
+    case CLUSTER_HOTPROC_PID_EXE:
+	active_proc_pid = &hotproc_pid;
+	/*FALLTHROUGH*/
+    case CLUSTER_PID_EXE:
+	if (!have_access)
+	    return PM_ERR_PERMISSION;
+	if ((entry = fetch_proc_pid_exe(inst, active_proc_pid, &sts)) == NULL)
+	    return sts;
+	if (item == 0) /* proc.psinfo.exe */
+	    atom->cp = proc_strings_lookup(entry->exe_id);
 	else
 	    return PM_ERR_PMID;
 	break;

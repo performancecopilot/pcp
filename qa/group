@@ -1920,6 +1920,7 @@ x11
 1874 pmseries pmproxy local
 1876 pmcd secure local
 1886 pmseries libpcp_web local
+1893 pmda.proc local
 1896 pmlogger logutil pmlc local
 1897 pmda.hacluster local valgrind
 1899 fetch local
