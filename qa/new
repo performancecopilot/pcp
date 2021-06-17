@@ -12,7 +12,9 @@
 # generic initialization
 . ./common.rc
 
-min=1600
+# use ./new-seqs to help refine min and max
+#
+min=1300
 max=1999
 max_probes=200
 

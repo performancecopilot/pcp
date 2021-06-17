@@ -240,7 +240,8 @@ past, for this interface.
 PMID 5.0.4 cisco.rate_out:Cisco's computed average output rate in bytes per second, over the recent
 past, for this interface.
 
-PMID 5.0.5 cisco.bandwidth:
+PMID 5.0.5 cisco.bandwidth:<no full text available>
+
 PMID 5.0.6 cisco.bytes_out_bcast:Total number of broadcast Kbytes output from the Cisco on this interface.
 
 Note that due to network delays in extracting the metrics from the
@@ -283,7 +284,8 @@ past, for this interface.
 PMID 5.0.4 cisco.rate_out:Cisco's computed average output rate in bytes per second, over the recent
 past, for this interface.
 
-PMID 5.0.5 cisco.bandwidth:
+PMID 5.0.5 cisco.bandwidth:<no full text available>
+
 PMID 5.0.6 cisco.bytes_out_bcast:Total number of broadcast Kbytes output from the Cisco on this interface.
 
 Note that due to network delays in extracting the metrics from the
@@ -363,6 +365,7 @@ Cisco's computed average output rate in bytes per second, over the recent
 past, for this interface.
 
 PMID 5.0.5 cisco.bandwidth: peak interface bandwidth in bytes per second
+<no full text available>
 
 PMID 5.0.6 cisco.bytes_out_bcast: Total broadcast Kbytes output from the Cisco
 Total number of broadcast Kbytes output from the Cisco on this interface.
@@ -413,6 +416,7 @@ Cisco's computed average output rate in bytes per second, over the recent
 past, for this interface.
 
 PMID 5.0.5 cisco.bandwidth: peak interface bandwidth in bytes per second
+<no full text available>
 
 PMID 5.0.6 cisco.bytes_out_bcast: Total broadcast Kbytes output from the Cisco
 Total number of broadcast Kbytes output from the Cisco on this interface.

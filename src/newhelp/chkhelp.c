@@ -323,8 +323,13 @@ main(int argc, char **argv)
 		tp = pmdaGetHelp(handle, (pmID)id, PM_TEXT_ONELINE);
 	    else
 		tp = pmdaGetInDomHelp(handle, (pmInDom)id, PM_TEXT_ONELINE);
-	    if (tp != NULL)
-		printf(" %s", tp);
+	    putchar(' ');
+	    if (tp != NULL && *tp)
+		printf("%s", tp);
+	    else if (tp != NULL)
+		printf("<no one line available>");
+	    else
+		printf("<empty one line string>");
 	    putchar('\n');
 	}
 
@@ -334,7 +339,13 @@ main(int argc, char **argv)
 	    else
 		tp = pmdaGetInDomHelp(handle, (pmInDom)id, PM_TEXT_HELP);
 	    if (tp != NULL && *tp)
-		printf("%s\n", tp);
+		printf("%s", tp);
+	    else if (tp != NULL)
+		printf("<no full text available>");
+	    else
+		printf("<empty full text string>");
+	    putchar('\n');
+
 	}
 
     }

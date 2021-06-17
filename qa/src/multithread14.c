@@ -109,14 +109,14 @@ func_A(void *arg)
 	    pthread_exit("botch A.6");
 	}
 
-	write(f, "Answer: ", strlen("Answer: "));
+	(void)write(f, "Answer: ", strlen("Answer: "));
 	lastc = EOF;
 	while (read(fileno(fp), &c, 1) == 1) {
-	    write(f, &c, 1);
+	    (void)write(f, &c, 1);
 	    lastc = c;
 	}
 	if (lastc != '\n')
-	    write(f, "\n", 1);
+	    (void)write(f, "\n", 1);
 	if ((sts = __pmProcessPipeClose(fp) < 0)) {
 	    fprintf(stderr, "[tid %d] Error: func_A: __pmProcessPipeClose() -> %s\n", iam, pmErrStr_r(sts, strbuf, sizeof(strbuf)));
 	    pthread_exit("botch A.7");
@@ -214,14 +214,14 @@ func_B(void *arg)
 	    pthread_exit("botch B.7");
 	}
 
-	write(f, "Answer: ", strlen("Answer: "));
+	(void)write(f, "Answer: ", strlen("Answer: "));
 	lastc = EOF;
 	while (read(fd, &c, 1) == 1) {
-	    write(f, &c, 1);
+	    (void)write(f, &c, 1);
 	    lastc = c;
 	}
 	if (lastc != '\n')
-	    write(f, "\n", 1);
+	    (void)write(f, "\n", 1);
 	close(fd);
 	if (argp != NULL) {
 	    fprintf(stderr, "[tid %d] Error: func_B: argp not NULL after __pmProcessExec()\n", iam);
@@ -273,14 +273,14 @@ func_C(void *arg)
 	    pthread_exit("botch C.3");
 	}
 
-	write(f, "Answer: ", strlen("Answer: "));
+	(void)write(f, "Answer: ", strlen("Answer: "));
 	lastc = EOF;
 	while ((c = fgetc(fp)) != EOF) {
-	    write(f, (char *)&c, 1);
+	    (void)write(f, (char *)&c, 1);
 	    lastc = c;
 	}
 	if (lastc != '\n')
-	    write(f, "\n", 1);
+	    (void)write(f, "\n", 1);
 	if ((sts = __pmProcessPipeClose(fp) < 0)) {
 	    fprintf(stderr, "[tid %d] Warning: func_C: __pmProcessPipeClose() -> %s\n", iam, pmErrStr_r(sts, strbuf, sizeof(strbuf)));
 	}
@@ -363,14 +363,14 @@ func_D(void *arg)
 	    pthread_exit("botch D.6");
 	}
 
-	write(f, "Answer: ", strlen("Answer: "));
+	(void)write(f, "Answer: ", strlen("Answer: "));
 	lastc = EOF;
 	while (read(fileno(fp), &c, 1) == 1) {
-	    write(f, &c, 1);
+	    (void)write(f, &c, 1);
 	    lastc = c;
 	}
 	if (lastc != '\n') {
-	    write(f, "\n", 1);
+	    (void)write(f, "\n", 1);
 	}
 	if ((sts = __pmProcessPipeClose(fp) < 0)) {
 	    fprintf(stderr, "[tid %d] Error: func_D: __pmProcessPipeClose() -> %s\n", iam, pmErrStr_r(sts, strbuf, sizeof(strbuf)));

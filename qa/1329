@@ -1,0 +1,63 @@
+#!/bin/sh
+# PCP QA Test No. 1329
+# Check all code paths for help text where only one-line is available
+# using the mmv PMDA (this one is "special" because the help text
+# comes from the mmv file, not a newhelp(1) file.
+#
+# Copyright (c) 2021 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+    $sudo rm -f "$PCP_TMP_DIR"/mmv/qa
+}
+
+if [ -f "$PCP_TMP_DIR"/mmv/qa ]
+then
+    _notrun "$PCP_TMP_DIR/mmv/qa already exists"
+fi
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+export PCP_DERIVED_CONFIG= 
+export LC_COLLATE=POSIX
+
+$sudo src/mmv_help qa
+
+# real QA test starts here
+echo "=== live PMDA case ==="
+for metric in `pminfo mmv.qa | sort`
+do
+    pminfo -tT "$metric"
+done
+
+echo
+echo "=== archive case ==="
+for metric in `pminfo mmv.qa | sort`
+do
+    pminfo -tT -a archives/mmv.help "$metric"
+done
+
+echo
+echo "=== local context case ==="
+domain=70
+pmda=$PCP_PMDAS_DIR/mmv/pmda_mmv.so,mmv_init
+for metric in `pminfo mmv.qa | sort`
+do
+    pminfo -tT -L -K clear -K add,$domain,$pmda "$metric"
+done
+
+# success, all done
+exit

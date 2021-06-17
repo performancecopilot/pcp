@@ -118,6 +118,7 @@ mergelabels
 mergelabelsets
 mkfiles
 mmv_genstats
+mmv_help
 mmv_instances
 mmv_noinit
 mmv_nostats

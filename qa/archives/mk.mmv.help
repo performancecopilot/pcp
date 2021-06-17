@@ -1,0 +1,22 @@
+#!/bin/sh
+#
+# Recreate mmv.help archive
+#
+
+. /etc/pcp.env
+
+tmp=/var/tmp/$$
+trap 'rm -f '"$tmp"'.*; sudo rm -f '"$PCP_TMP_DIR"'/mmv/qa; exit 0' 0 1 2 3 15
+
+sudo rm -f "$PCP_TMP_DIR"/mmv/qa
+
+sudo ../src/mmv_help qa
+
+cat <<End-of-File >$tmp.config
+log mandatory on 1 sec {
+    mmv.qa
+}
+End-of-File
+
+rm -f mmv.help.index mmv.help.meta mmv.help.0
+pmlogger -c $tmp.config -s 10 mmv.help
