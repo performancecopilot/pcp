@@ -83,7 +83,7 @@ again_host:
 	else {
 	    PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
 	    sts = __pmRecvText(fd, ctxp, tout, buffer);
-	    if (sts != 0) {
+	    if (sts != 0 || *buffer[0] == '\0') {
 		/* failed help text request, maybe try for one-line */
 		if ((type = fallbacktext(type, *buffer)) != 0) {
 		    if (*buffer != NULL) {
@@ -107,7 +107,7 @@ again_host:
 		    pmda->version.four.ext->e_context = ctx;
 again_local:
 	    sts = pmda->version.any.text(ident, type, buffer, pmda->version.any.ext);
-	    if (sts != 0) {
+	    if (sts != 0 || *buffer[0] == '\0') {
 		/* failed help text request, maybe try for one-line */
 		*buffer = NULL;
 		if ((type = fallbacktext(type, *buffer)) != 0)
@@ -121,7 +121,7 @@ again_local:
     else {
 again_archive:
 	sts = __pmLogLookupText(ctxp->c_archctl, ident, type, buffer);
-	if (sts != 0) {
+	if (sts != 0 || *buffer[0] == '\0') {
 	    /* failed help text request, maybe try for one-line */
 		*buffer = NULL;
 	    if ((type = fallbacktext(type, *buffer)) != 0)
