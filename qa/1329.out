@@ -1,117 +1,93 @@
 QA output created by 1329
 === live PMDA case ===
 
-pmproxy.control.debug [Debug flag]
+mmv.qa.both [foo]
 Help:
-See pmdbg(1).  pmstore into this metric to change the debug value.
+bar
 
-pmproxy.control.files [Memory mapped file count]
-Help:
-Count of currently mapped and exported statistics files.
+mmv.qa.both_empty []
+Help: <empty entry>
 
-pmproxy.control.reload [Control maps reloading]
-Help:
-Writing anything other then 0 to this metric will result in
-re-reading directory and re-mapping files.
+mmv.qa.help_empty [foobar]
+Help: <empty entry>
 
-pmproxy.redis.discover.metadata.callbacks [total calls to process metadata for all monitored archives]
-Help:
-total calls to process metadata for all monitored archives
+mmv.qa.nohelp One-line Help: Error: One-line or help text is not available
+Full Help: Error: One-line or help text is not available
 
-pmproxy.redis.discover.metadata.decode.desc [total desc records decoded processing metadata for all monitored archives]
+mmv.qa.oneline [oneline]
 Help:
-total desc records decoded processing metadata for all monitored archives
+oneline
 
-pmproxy.redis.discover.metadata.decode.helptext [total help text records decoded processing metadata for all monitored archives]
+mmv.qa.verbose [wordy]
 Help:
-total help text records decoded processing metadata for all monitored archives
+One, two, three, four, five,
+Once I caught a fish alive,
+Six, seven, eight, nine, ten,
+Then I let go again.
 
-pmproxy.redis.discover.metadata.decode.indom [total indom records decoded processing metadata for all monitored archives]
-Help:
-total indom records decoded processing metadata for all monitored archives
-
-pmproxy.redis.discover.metadata.decode.label [total label records decoded processing metadata for all monitored archives]
-Help:
-total label records decoded processing metadata for all monitored archives
-
-pmproxy.redis.discover.metadata.loops [total loops processing metadata for all monitored archives]
-Help:
-total loops processing metadata for all monitored archives
+Why did you let it go?
+Because it bit my finger so.
+Which finger did it bite?
+This little finger on the right
 
 === archive case ===
 
-pmproxy.control.debug [Debug flag]
+mmv.qa.both [foo]
 Help:
-See pmdbg(1).  pmstore into this metric to change the debug value.
+bar
 
-pmproxy.control.files [Memory mapped file count]
-Help:
-Count of currently mapped and exported statistics files.
+mmv.qa.both_empty []
+Help: <empty entry>
 
-pmproxy.control.reload [Control maps reloading]
-Help:
-Writing anything other then 0 to this metric will result in
-re-reading directory and re-mapping files.
+mmv.qa.help_empty [foobar]
+Help: <empty entry>
 
-pmproxy.redis.discover.metadata.callbacks [total calls to process metadata for all monitored archives]
-Help:
-total calls to process metadata for all monitored archives
+mmv.qa.nohelp One-line Help: Error: One-line or help text is not available
+Full Help: Error: One-line or help text is not available
 
-pmproxy.redis.discover.metadata.decode.desc [total desc records decoded processing metadata for all monitored archives]
+mmv.qa.oneline [oneline]
 Help:
-total desc records decoded processing metadata for all monitored archives
+oneline
 
-pmproxy.redis.discover.metadata.decode.helptext [total help text records decoded processing metadata for all monitored archives]
+mmv.qa.verbose [wordy]
 Help:
-total help text records decoded processing metadata for all monitored archives
+One, two, three, four, five,
+Once I caught a fish alive,
+Six, seven, eight, nine, ten,
+Then I let go again.
 
-pmproxy.redis.discover.metadata.decode.indom [total indom records decoded processing metadata for all monitored archives]
-Help:
-total indom records decoded processing metadata for all monitored archives
-
-pmproxy.redis.discover.metadata.decode.label [total label records decoded processing metadata for all monitored archives]
-Help:
-total label records decoded processing metadata for all monitored archives
-
-pmproxy.redis.discover.metadata.loops [total loops processing metadata for all monitored archives]
-Help:
-total loops processing metadata for all monitored archives
+Why did you let it go?
+Because it bit my finger so.
+Which finger did it bite?
+This little finger on the right
 
 === local context case ===
 
-pmproxy.control.debug [Debug flag]
+mmv.qa.both [foo]
 Help:
-See pmdbg(1).  pmstore into this metric to change the debug value.
+bar
 
-pmproxy.control.files [Memory mapped file count]
-Help:
-Count of currently mapped and exported statistics files.
+mmv.qa.both_empty []
+Help: <empty entry>
 
-pmproxy.control.reload [Control maps reloading]
-Help:
-Writing anything other then 0 to this metric will result in
-re-reading directory and re-mapping files.
+mmv.qa.help_empty [foobar]
+Help: <empty entry>
 
-pmproxy.redis.discover.metadata.callbacks [total calls to process metadata for all monitored archives]
-Help:
-total calls to process metadata for all monitored archives
+mmv.qa.nohelp One-line Help: Error: One-line or help text is not available
+Full Help: Error: One-line or help text is not available
 
-pmproxy.redis.discover.metadata.decode.desc [total desc records decoded processing metadata for all monitored archives]
+mmv.qa.oneline [oneline]
 Help:
-total desc records decoded processing metadata for all monitored archives
+oneline
 
-pmproxy.redis.discover.metadata.decode.helptext [total help text records decoded processing metadata for all monitored archives]
+mmv.qa.verbose [wordy]
 Help:
-total help text records decoded processing metadata for all monitored archives
+One, two, three, four, five,
+Once I caught a fish alive,
+Six, seven, eight, nine, ten,
+Then I let go again.
 
-pmproxy.redis.discover.metadata.decode.indom [total indom records decoded processing metadata for all monitored archives]
-Help:
-total indom records decoded processing metadata for all monitored archives
-
-pmproxy.redis.discover.metadata.decode.label [total label records decoded processing metadata for all monitored archives]
-Help:
-total label records decoded processing metadata for all monitored archives
-
-pmproxy.redis.discover.metadata.loops [total loops processing metadata for all monitored archives]
-Help:
-total loops processing metadata for all monitored archives
+Why did you let it go?
+Because it bit my finger so.
+Which finger did it bite?
+This little finger on the right
