@@ -10,7 +10,7 @@
 #include <pcp/mmv_stats.h>
 
 static mmv_metric2_t metrics[] = {
-    {	.name = "qa.nohelp",
+    {	.name = "nohelp",
 	.item = 1,
 	.type = MMV_TYPE_U32,
 	.semantics = MMV_SEM_DISCRETE,
@@ -18,24 +18,24 @@ static mmv_metric2_t metrics[] = {
 	.shorttext = NULL,
 	.helptext = NULL
     },
-    {	.name = "qa.oneline",
-	.item = 1,
+    {	.name = "oneline",
+	.item = 2,
 	.type = MMV_TYPE_U32,
 	.semantics = MMV_SEM_DISCRETE,
 	.dimension = MMV_UNITS(0,0,0,0,0,0),
 	.shorttext = "oneline",
 	.helptext = NULL
     },
-    {	.name = "qa.both",
-	.item = 1,
+    {	.name = "both",
+	.item = 3,
 	.type = MMV_TYPE_U32,
 	.semantics = MMV_SEM_DISCRETE,
 	.dimension = MMV_UNITS(0,0,0,0,0,0),
 	.shorttext = "foo",
 	.helptext = "bar"
     },
-    {	.name = "qa.verbose",
-	.item = 1,
+    {	.name = "verbose",
+	.item = 4,
 	.type = MMV_TYPE_U32,
 	.semantics = MMV_SEM_DISCRETE,
 	.dimension = MMV_UNITS(0,0,0,0,0,0),
@@ -50,16 +50,16 @@ static mmv_metric2_t metrics[] = {
 "Which finger did it bite?\n"
 "This little finger on the right"
     },
-    {	.name = "qa.help_empty",
-	.item = 1,
+    {	.name = "help_empty",
+	.item = 5,
 	.type = MMV_TYPE_U32,
 	.semantics = MMV_SEM_DISCRETE,
 	.dimension = MMV_UNITS(0,0,0,0,0,0),
 	.shorttext = "foobar",
 	.helptext = ""
     },
-    {	.name = "qa.both_empty",
-	.item = 1,
+    {	.name = "both_empty",
+	.item = 6,
 	.type = MMV_TYPE_U32,
 	.semantics = MMV_SEM_DISCRETE,
 	.dimension = MMV_UNITS(0,0,0,0,0,0),
@@ -68,7 +68,7 @@ static mmv_metric2_t metrics[] = {
     },
 };
 
-    int 
+int 
 main(int ac, char * av[])
 {
     int i;
@@ -96,5 +96,6 @@ main(int ac, char * av[])
 	return 1;
     }
 
+    /* just exit ... the task here is to create the mmv file */
     return 0;
 }
