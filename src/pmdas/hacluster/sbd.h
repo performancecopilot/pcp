@@ -37,6 +37,7 @@ struct sbd {
 };
 
 extern int hacluster_sbd_device_fetch(int, struct sbd *, pmAtomValue *);
+extern int hacluster_sbd_device_all_fetch(int, pmAtomValue *);
 extern int hacluster_refresh_sbd_device(const char *, struct sbd *);
 
 extern void sbd_stats_setup(void);
