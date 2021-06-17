@@ -286,18 +286,61 @@ verify_metric_name(agent_t *ap, const char *name, int pos, stats_t *s)
     return 0;
 }
 
-/* check client item number validity - must not be too large to fit in PMID! */
+/*
+ * Check client item number validity - must not be too large to fit in PMID!
+ * and must be unique within a cluster
+ *
+ * We're checking the kth entry in ml[].
+ */
 static int
-verify_metric_item(unsigned int item, char *name, stats_t *s)
+verify_metric_item(mmv_disk_metric_t *ml, int k, char *name, stats_t *s)
 {
+    mmv_disk_metric_t	*mp = &ml[k];
+    unsigned int	item = mp->item;
+    int			j;
+
     if (pmDebugOptions.appl0)
 	pmNotifyErr(LOG_DEBUG, "MMV: verify_metric_item: %u - %s", item, name);
 
     if (pmID_item(item) != item) {
-	pmNotifyErr(LOG_WARNING, "invalid item %u (%s) in %s, ignored",
+	pmNotifyErr(LOG_WARNING, "MMV: verify_metric_item: invalid item %u (%s) in %s, ignored",
 			item, name, s->name);
 	return -EINVAL;
     }
+
+    for (j = 0; j < k; j++) {
+	if (ml[j].item == item) {
+	    pmNotifyErr(LOG_DEBUG, "MMV: verify_metric_item: duplicate item %u - [%d] and [%d] %s, second will be ignored", item, j, k, name);
+	    return -EINVAL;
+	}
+    }
+
+    return 0;
+}
+
+static int
+verify_metric_item2(mmv_disk_metric2_t *ml, int k, char *name, stats_t *s)
+{
+    mmv_disk_metric2_t	*mp = &ml[k];
+    unsigned int	item = mp->item;
+    int			j;
+
+    if (pmDebugOptions.appl0)
+	pmNotifyErr(LOG_DEBUG, "MMV: verify_metric_item2: %u - %s", item, name);
+
+    if (pmID_item(item) != item) {
+	pmNotifyErr(LOG_WARNING, "MMV: verify_metric_item2: invalid item %u (%s) in %s, ignored",
+			item, name, s->name);
+	return -EINVAL;
+    }
+
+    for (j = 0; j < k; j++) {
+	if (ml[j].item == item) {
+	    pmNotifyErr(LOG_DEBUG, "MMV: verify_metric_item2: duplicate item %u - [%d] and [%d] %s, second will be ignored", item, j, k, name);
+	    return -EINVAL;
+	}
+    }
+
     return 0;
 }
 
@@ -629,7 +672,7 @@ map_stats(pmdaExt *pmda)
 			strcat(name, mp->name);
 			if (verify_metric_name(ap, name, k, s) != 0)
 			    continue;
-			if (verify_metric_item(mp->item, name, s) != 0)
+			if (verify_metric_item(ml, k, name, s) != 0)
 			    continue;
 
 			pmid = pmID_build(pmda->e_domain, s->cluster, mp->item);
@@ -684,7 +727,7 @@ map_stats(pmdaExt *pmda)
 
 			if (verify_metric_name(ap, name, k, s) != 0)
 			    continue;
-			if (verify_metric_item(mp->item, name, s) != 0)
+			if (verify_metric_item2(ml, k, name, s) != 0)
 			    continue;
 
 			pmid = pmID_build(pmda->e_domain, s->cluster, mp->item);
