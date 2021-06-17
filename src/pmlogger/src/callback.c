@@ -438,14 +438,10 @@ manageText(pmDesc *desc)
 	     * is guarded by the pmDesc logging-once logic.
 	     */
 	    if (sts == 0) {
-		if (text[0] == '\0')
-		    free(text);
-		else {
-		    sts = __pmLogPutText(&archctl, ident, types, text, indom);
-		    free(text);
-		    if (sts < 0)
+		sts = __pmLogPutText(&archctl, ident, types, text, indom);
+		free(text);
+		if (sts < 0)
 			break;
-		}
 	    }
 	}
     }
