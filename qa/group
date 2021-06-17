@@ -1770,7 +1770,7 @@ x11
 1326 pmstore pmda.pmcd local
 1327 pmdumplog local valgrind
 1328 pmda.pmcd local
-1329 pminfo pmda.mmv libpcp local
+1329 pminfo pmda.mmv libpcp local help
 1330 pmda.openmetrics local python
 1331 verify local
 1337 pmda.mssql local

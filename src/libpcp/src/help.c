@@ -109,7 +109,6 @@ again_local:
 	    sts = pmda->version.any.text(ident, type, buffer, pmda->version.any.ext);
 	    if (sts != 0 || *buffer[0] == '\0') {
 		/* failed help text request, maybe try for one-line */
-		*buffer = NULL;
 		if ((type = fallbacktext(type, *buffer)) != 0)
 		    goto again_local;
 	    }
@@ -123,7 +122,6 @@ again_archive:
 	sts = __pmLogLookupText(ctxp->c_archctl, ident, type, buffer);
 	if (sts != 0 || *buffer[0] == '\0') {
 	    /* failed help text request, maybe try for one-line */
-		*buffer = NULL;
 	    if ((type = fallbacktext(type, *buffer)) != 0)
 		goto again_archive;
 	}
