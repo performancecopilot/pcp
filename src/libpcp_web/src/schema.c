@@ -1303,6 +1303,7 @@ redis_load_version_callback(
 		    infofmt(msg, "unsupported redis server (got v%u, expected v%u or above)", 
 				server_version, SERVER_VERSION);
 	    	    batoninfo(baton, PMLOG_ERROR, msg);
+		    baton->slots->setup = 0;
 	    	}
 	    	break;
 	    }
