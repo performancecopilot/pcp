@@ -70,6 +70,9 @@ lookuptext(int ident, int type, char **buffer)
     if ((ctxp = __pmHandleToPtr(ctx)) == NULL)
 	return PM_ERR_NOCONTEXT;
 
+    /* not set on all PDU error paths and fallbacktext() checks this ... */
+    *buffer = NULL;
+
     if (ctxp->c_type == PM_CONTEXT_HOST) {
 	tout = ctxp->c_pmcd->pc_tout_sec;
 	fd = ctxp->c_pmcd->pc_fd;
@@ -80,9 +83,15 @@ again_host:
 	else {
 	    PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
 	    sts = __pmRecvText(fd, ctxp, tout, buffer);
-	    if (sts == 0 && ((type = fallbacktext(type, *buffer)) != 0)) {
-		free(*buffer);
-		goto again_host;
+	    if (sts != 0) {
+		/* failed help text request, maybe try for one-line */
+		if ((type = fallbacktext(type, *buffer)) != 0) {
+		    if (*buffer != NULL) {
+			free(*buffer);
+			*buffer = NULL;
+		    }
+		    goto again_host;
+		}
 	    }
 	}
     }
@@ -98,19 +107,26 @@ again_host:
 		    pmda->version.four.ext->e_context = ctx;
 again_local:
 	    sts = pmda->version.any.text(ident, type, buffer, pmda->version.any.ext);
-	    if (sts == 0 && ((type = fallbacktext(type, *buffer)) != 0))
-		goto again_local;
+	    if (sts != 0) {
+		/* failed help text request, maybe try for one-line */
+		*buffer = NULL;
+		if ((type = fallbacktext(type, *buffer)) != 0)
+		    goto again_local;
+	    }
 	    if (sts == 0)
 	        /* Points into PMDAs local text - return a copy */
 		*buffer = strdup(*buffer);
 	}
     }
     else {
-	*buffer = NULL;
 again_archive:
 	sts = __pmLogLookupText(ctxp->c_archctl, ident, type, buffer);
-	if (sts == PM_ERR_TEXT && (type = fallbacktext(type, *buffer)) != 0)
-	    goto again_archive;
+	if (sts != 0) {
+	    /* failed help text request, maybe try for one-line */
+		*buffer = NULL;
+	    if ((type = fallbacktext(type, *buffer)) != 0)
+		goto again_archive;
+	}
 	if (sts == 0)
 	    /* Points into archive hash tables - return a copy */
 	    *buffer = strdup(*buffer);
