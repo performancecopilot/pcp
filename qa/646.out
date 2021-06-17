@@ -30,13 +30,15 @@ TOC[2]: toc offset 72, metrics offset 584 (6 entries)
        units=count
        (no indom)
        shorttext=test counter metric
-       helptext=Yes, this is a test counter metric
+       helptext=Yes
+This is a test counter metric
   [2/688] discrete
        type=32-bit int (0x0), sem=discrete (0x4), pad=0x0
        units=
        (no indom)
        shorttext=test discrete metric
-       helptext=Yes, this is a test discrete metric
+       helptext=Yes
+This is a test discrete metric
   [3/792] indom
        type=32-bit unsigned int (0x1), sem=instant (0x3), pad=0x0
        units=count
@@ -60,7 +62,8 @@ TOC[2]: toc offset 72, metrics offset 584 (6 entries)
        units=
        indom=1
        shorttext=test string metrics
-       helptext=Yes, this is a test string metric with instances
+       helptext=Yes
+This is a test string metric with instances
 
 TOC[3]: offset 88, values offset 1208 (10 entries)
   [1/1208] counter = 41
@@ -79,11 +82,14 @@ TOC[4]: offset 104, string offset 1528 (11 entries)
   [2/1784] 00oo00
   [3/2040] 
   [4/2296] test counter metric
-  [5/2552] Yes, this is a test counter metric
+  [5/2552] Yes
+This is a test counter metric
   [6/2808] test discrete metric
-  [7/3064] Yes, this is a test discrete metric
+  [7/3064] Yes
+This is a test discrete metric
   [8/3320] test string metrics
-  [9/3576] Yes, this is a test string metric with instances
+  [9/3576] Yes
+This is a test string metric with instances
   [10/3832] We can be heroes
   [11/4088] We can be heroes, just for one day
 MMV file   = $PCP_TMP_DIR/mmv/notest-PID
@@ -144,13 +150,15 @@ TOC[2]: toc offset 72, metrics offset 584 (6 entries)
        units=count
        (no indom)
        shorttext=test counter metric
-       helptext=Yes, this is a test counter metric
+       helptext=Yes
+This is a test counter metric
   [2/688] discrete
        type=32-bit int (0x0), sem=discrete (0x4), pad=0x0
        units=
        (no indom)
        shorttext=test discrete metric
-       helptext=Yes, this is a test discrete metric
+       helptext=Yes
+This is a test discrete metric
   [3/792] indom
        type=32-bit unsigned int (0x1), sem=instant (0x3), pad=0x0
        units=count
@@ -174,7 +182,8 @@ TOC[2]: toc offset 72, metrics offset 584 (6 entries)
        units=
        indom=1
        shorttext=test string metrics
-       helptext=Yes, this is a test string metric with instances
+       helptext=Yes
+This is a test string metric with instances
 
 TOC[3]: offset 88, values offset 1208 (10 entries)
   [1/1208] counter = 41
@@ -193,11 +202,14 @@ TOC[4]: offset 104, string offset 1528 (11 entries)
   [2/1784] 00oo00
   [3/2040] 
   [4/2296] test counter metric
-  [5/2552] Yes, this is a test counter metric
+  [5/2552] Yes
+This is a test counter metric
   [6/2808] test discrete metric
-  [7/3064] Yes, this is a test discrete metric
+  [7/3064] Yes
+This is a test discrete metric
   [8/3320] test string metrics
-  [9/3576] Yes, this is a test string metric with instances
+  [9/3576] Yes
+This is a test string metric with instances
   [10/3832] We can be heroes
   [11/4088] We can be heroes, just for one day
 MMV file   = $PCP_TMP_DIR/mmv/notest-PID

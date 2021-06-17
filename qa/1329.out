@@ -9,7 +9,8 @@ mmv.qa.both_empty []
 Help: <empty entry>
 
 mmv.qa.help_empty [foobar]
-Help: <empty entry>
+Help:
+foobar
 
 mmv.qa.nohelp One-line Help: Error: One-line or help text is not available
 Full Help: Error: One-line or help text is not available
@@ -40,7 +41,8 @@ mmv.qa.both_empty []
 Help: <empty entry>
 
 mmv.qa.help_empty [foobar]
-Help: <empty entry>
+Help:
+foobar
 
 mmv.qa.nohelp One-line Help: Error: One-line or help text is not available
 Full Help: Error: One-line or help text is not available
@@ -71,7 +73,8 @@ mmv.qa.both_empty []
 Help: <empty entry>
 
 mmv.qa.help_empty [foobar]
-Help: <empty entry>
+Help:
+foobar
 
 mmv.qa.nohelp One-line Help: Error: One-line or help text is not available
 Full Help: Error: One-line or help text is not available

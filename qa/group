@@ -596,7 +596,7 @@ x11
 152 pmda.pmcd pmval local
 153 folio local sanity
 154 pmda.cisco help local sanity
-155 pmcd pmstore pmda.sample local sanity
+155 pmcd pmstore pmda.sample local sanity help
 156 pmda.sample pmda.proc local pmcd_wait pmda.install
 157 pmlogger local
 158 pmval pmie local kernel
@@ -654,7 +654,7 @@ x11
 210 pmns local pmval pmie sanity pmdumplog
 211 pmns local pmval pmie pmdumplog
 212:retired pmda pmda.cisco local
-213 dbpmda pmns local pmda.sample pmda.mmv sanity
+213 dbpmda pmns local pmda.sample pmda.mmv sanity help
 214 pmlogextract local pmdumplog timezone
 215 other pmsocks pmval remote pmdumplog
 216 pmda.linux local
@@ -1087,7 +1087,7 @@ x11
 643 pmda.trivial pmns local
 644 pmns local
 645 pmlogger local kernel
-646 pmda.mmv local sanity
+646 pmda.mmv local sanity help
 647 pmda.mmv local
 648 pmda.mmv local
 649 pmda.mmv local
@@ -1770,7 +1770,7 @@ x11
 1326 pmstore pmda.pmcd local
 1327 pmdumplog local valgrind
 1328 pmda.pmcd local
-1329 pminfo pmda.mmv libpcp local
+1329 pminfo pmda.mmv libpcp local help
 1330 pmda.openmetrics local python
 1331 verify local
 1337 pmda.mssql local
