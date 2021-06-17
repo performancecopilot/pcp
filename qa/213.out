@@ -130,7 +130,8 @@ pmResult ... numpmid: 2
 dbpmda> text mmv.test.strings
 PMID: 70.1.6
 [test string metrics]
-Yes, this is a test string metric with instances
+Yes
+This is a test string metric with instances
 dbpmda> store mmv.control.reload "1"
 PMID: 70.0.0
 Getting description...
@@ -158,7 +159,8 @@ pmResult ... numpmid: 2
 dbpmda> text mmv.test.strings
 PMID: 70.1.6
 [test string metrics]
-Yes, this is a test string metric with instances
+Yes
+This is a test string metric with instances
 dbpmda> store mmv.control.reload "1"
 PMID: 70.0.0
 Getting description...
