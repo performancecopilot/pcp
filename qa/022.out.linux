@@ -65,11 +65,13 @@ proc.psinfo.cnswap
 proc.psinfo.cpusallowed
 proc.psinfo.cstime
 proc.psinfo.cutime
+proc.psinfo.cwd
 proc.psinfo.delayacct_blkio_time
 proc.psinfo.eip
 proc.psinfo.end_code
 proc.psinfo.environ
 proc.psinfo.esp
+proc.psinfo.exe
 proc.psinfo.exit_signal
 proc.psinfo.flags
 proc.psinfo.guest_time
@@ -240,4 +242,14 @@ proc.psinfo.sname
 
 proc.memory.textrss
 
+proc.psinfo.labels
+
 proc.runq.sleeping
+
+proc.id.euid_nm
+
+proc.schedstat.cpu_time
+
+proc.io.read_bytes
+
+proc.smaps.anonymous

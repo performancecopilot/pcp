@@ -87,6 +87,33 @@ _filter_label_values()
     #end
 }
 
+# sort the values in this line
+#	agent: "mmv", "sample", "pmcd"
+#
+_filter_agents()
+{
+    LC_COLLATE=POSIX $PCP_AWK_PROG '
+$1 == "agent:"	{ printf "%s ",$1
+		  for (i = 2; i <= NF; i++) {
+		      small = -1
+		      for (j = 2; j <= NF; j++) {
+			if ($j == "")
+			    continue
+			if (small == -1 || $j < $small)
+			    small = j
+		      }
+		      if (i > 2)
+			printf ", "
+		      gsub(/,/, "", $small)
+		      printf "%s",$small
+		      $small = ""
+		   }
+		   printf "\n"
+		   next
+		}
+		{ print }'
+}
+
 # real QA test starts here
 _save_config $PCP_SYSCONF_DIR/labels
 _save_config $PCP_SYSCONF_DIR/pmproxy
@@ -193,7 +220,7 @@ pmseries $options -t sample.ulong.million[samples:2] | _filter_values | _filter_
 
 echo "== verify label names and values" | tee -a  $seq.full
 labels=`pmseries $options -l | LC_COLLATE=POSIX sort`
-pmseries $options -v $labels | _filter_label_values
+pmseries $options -v $labels | _filter_label_values | _filter_agents
 
 # pause until pmlogger exits to prevent confusion when removing archives
 wait $pmlogger_pid

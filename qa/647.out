@@ -35,14 +35,16 @@ mmv.test.counter PMID: 70.1.1 [test counter metric]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Yes, this is a test counter metric
+Yes
+This is a test counter metric
     value 41
 
 mmv.test.discrete PMID: 70.1.2 [test discrete metric]
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
 Help:
-Yes, this is a test discrete metric
+Yes
+This is a test discrete metric
     value 42
 
 mmv.test.indom PMID: 70.1.3 One-line Help: Error: One-line or help text is not available
@@ -70,7 +72,8 @@ mmv.test.strings PMID: 70.1.6 [test string metrics]
     Data Type: string  InDom: 70.2049 0x11800801
     Semantics: instant  Units: none
 Help:
-Yes, this is a test string metric with instances
+Yes
+This is a test string metric with instances
     inst [0 or "zero"] value "00oo00"
     inst [1 or "hero"] value ""
 

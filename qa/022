@@ -133,16 +133,31 @@ then
 fi
 
 #
-# fetch all instances for one metric in each cluster 
+# fetch all instances for one metric in each cluster,
+# provided the metric is expected to have > 1 value
 # if new clusters are added, add more here
 #
 echo ""
 echo "All instances for selected metrics ..."
-for metric in proc.nprocs proc.psinfo.sname proc.memory.textrss proc.runq.sleeping
+cat <<End-of-File | sed -e 's/[ 	]*#.*//' -e '/^$/d' | while read cluster metric
+#no values is possible# 0 proc.hog.cpu
+8 proc.nprocs		# singular value
+8 proc.psinfo.sname	# whole lot of values
+9 proc.memory.textrss
+#no values is possible# 10 proc.control.all.threads
+#no values is possible# 11 proc.psinfo.cgroups
+12 proc.psinfo.labels
+13 proc.runq.sleeping
+24 proc.id.euid_nm
+31 proc.schedstat.cpu_time
+32 proc.io.read_bytes
+33 proc.smaps.anonymous
+End-of-File
 do
     pminfo $target -F 2>$tmp.err $metric \
     | sed \
 	-e '/Error: proc_instance: unknown pid:/d' \
+	-e '/Error: Metric not supported by this version of monitored application/d' \
 	-e '/^  *value /d' \
     | $PCP_AWK_PROG '
 / [i]nst \[/	{ skip = 1 }

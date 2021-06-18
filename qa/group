@@ -1088,7 +1088,7 @@ x11
 644 pmns local
 645 pmlogger local kernel
 646 pmda.mmv local sanity help
-647 pmda.mmv local
+647 pmda.mmv local help
 648 pmda.mmv local
 649 pmda.mmv local
 650 pmlogger local pmdumplog
