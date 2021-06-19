@@ -27,11 +27,21 @@ test $? -eq 0 || _notrun "SASL sasldb auxprop plugin unavailable"
 mechanisms="plain login scram-sha-256"
 for mech in $mechanisms
 do
-    mechanism=`echo $mech | sed -e 's/-.*//g'`
-    $pluginviewer -c | grep 'Plugin "'$mechanism'"' >/dev/null 2>&1
-    test $? -eq 0 || _notrun "No client support for $mechanism authentication"
-    $pluginviewer -s | grep 'Plugin "'$mechanism'"' >/dev/null 2>&1
-    test $? -eq 0 || _notrun "No server support for $mechanism authentication"
+    case $mech
+    in
+	scram-*)	# special, we need SCRAM-SHA-256 not SCRAM-SHA-1
+		$pluginviewer -c | grep 'SCRAM-SHA-256' >/dev/null 2>&1
+		test $? -eq 0 || _notrun "No client support for $mech authentication"
+		$pluginviewer -s | grep 'SCRAM-SHA-256' >/dev/null 2>&1
+		test $? -eq 0 || _notrun "No server support for $mech authentication"
+		;;
+	*)
+		$pluginviewer -c | grep 'Plugin "'$mech'"' >/dev/null 2>&1
+		test $? -eq 0 || _notrun "No client support for $mech authentication"
+		$pluginviewer -s | grep 'Plugin "'$mech'"' >/dev/null 2>&1
+		test $? -eq 0 || _notrun "No server support for $mech authentication"
+		;;
+    esac
 done
 
 cleanup()
