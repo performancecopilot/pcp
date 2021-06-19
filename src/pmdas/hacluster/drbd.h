@@ -83,9 +83,11 @@ struct peer_device {
 };
 
 extern int hacluster_drbd_resource_fetch(int, struct resource *, pmAtomValue *);
+extern int hacluster_drbd_resource_all_fetch(int, pmAtomValue *);
 extern int hacluster_refresh_drbd_resource(const char *, struct resource *);
 
 extern int hacluster_drbd_peer_device_fetch(int, struct peer_device *, pmAtomValue *);
+extern int hacluster_drbd_peer_device_all_fetch(int, pmAtomValue *);
 extern int hacluster_refresh_drbd_peer_device(const char *, struct peer_device *);
 
 extern void drbd_stats_setup(void);

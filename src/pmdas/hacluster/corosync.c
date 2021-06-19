@@ -133,6 +133,13 @@ hacluster_corosync_ring_fetch(int item, struct rings *rings, pmAtomValue *atom)
 }
 
 int
+hacluster_corosync_ring_all_fetch(int item, pmAtomValue *atom)
+{
+	atom->ul = 1; /* Assign default exists value 1 */
+	return PMDA_FETCH_STATIC;
+}
+
+int
 hacluster_refresh_corosync_node(const char *node_name, struct member_votes *node)
 {
 	char buffer[4096], local[8];
