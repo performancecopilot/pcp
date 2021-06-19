@@ -28,7 +28,7 @@
 #
 @ HACLUSTER.0 Instance domain for High Availability Cluster component metrics
 
-@ ha_cluster.pacemaker.config_last_change Unix timestamp corresponding to last Pacmaker configuration change
+@ ha_cluster.pacemaker.config_last_change Unix timestamp corresponding to last Pacemaker configuration change
 Unix timestamp in seconds corresponding to the last time that the Pacemaker
 configuration was changed on the system.
 
@@ -58,7 +58,7 @@ The node that the location constraint applies to in the cluster.
 The resource that the location constraint applies to in the cluster.
 
 @ ha_cluster.pacemaker.location_constraints.role Resource role of the location constraint
-The resource role that the location contraint applies to, if any.
+The resource role that the location constraint applies to, if any.
 
 @ ha_cluster.pacemaker.location_constraints.score Score of the location constraint
 The score given to the location constraint by Pacemaker, the value depends on
@@ -167,7 +167,7 @@ The full corosync ID for the nodes in the cluster.
 @ ha_cluster.corosync.quorum_votes.expected_votes Expected vote count
 The number of expected quorum votes for the cluster.
 
-@ ha_cluster.corosync.quorum_votes.highest_expected Hightest expected vote count
+@ ha_cluster.corosync.quorum_votes.highest_expected Highest expected vote count
 The highest number of expected quorum votes for the cluster. 
 
 @ ha_cluster.corosync.quorum_votes.total_votes Total number of votes
@@ -193,7 +193,7 @@ The number for the Corosync ring.
 The internal Corosync ring ID, corresponds to the first node to join.
 
 @ ha_cluster.corosync.rings.all Corosync rings information
-Value is 1 if a ring exists. The details of the corrosponding ring
+Value is 1 if a ring exists. The details of the corresponding ring
 is given as label metadata values for this metric.
 
 @ ha_cluster.sbd.devices.path Path of SBD device
@@ -204,7 +204,7 @@ The current status given for each of the SBD devices, the value is one of
 healthy or unhealthy.
 
 @ ha_cluster.sbd.all SBD device information
-Value is 1 if a sbd device exists. The details of the corrosponding SBD device
+Value is 1 if a sbd device exists. The details of the corresponding SBD device
 is given as label metadata values for this metric.
 
 @ ha_cluster.sbd.timeouts.mgswait mgswait timeout value
@@ -240,7 +240,7 @@ for the resource:volume.
 The number of open requests to the local I/O subsystem by DRBD for the
 resource:volume.
 
-@ ha_cluster.drbd.quorum Quorum satus of DRBD resource:volume
+@ ha_cluster.drbd.quorum Quorum status of DRBD resource:volume
 The Quorum status of the DRBD resource according to resource:volume, 1 is
 quorate and 0 is non-quorate.
 
@@ -265,23 +265,23 @@ The number of requests sent which have not yet been acknowledged by DRBD for
 the resource:volume.
 
 @ ha_cluster.drbd.split_brain Signal for split brain detection.
-This metric signals if there has been a split brain occuring in DRBD for the
+This metric signals if there has been a split brain occurring in DRBD for the
 resource:volume, value is 1 is a split brain has been detected.
 
 @ ha_cluster.drbd.resources.resource Name of the resource
 The name given for the DRBD resource for each resource:volume.
 
 @ ha_cluster.drbd.resources.role Role of the resource
-The resported role for ther DRBD resource for each resource:volume.
+The reported role for the DRBD resource for each resource:volume.
 
 @ ha_cluster.drbd.resources.volume Volume of the resource
-The volume number of ther resource for each resource:volume.
+The volume number of the resource for each resource:volume.
 
 @ ha_cluster.drbd.resources.disk_state Disk state
 The current reported disk state of for the resource:volume.
 
 @ ha_cluster.drbd.resources.all DRBD resource information
-Value is 1 if a drbd resource exists. The details of the corrosponding drbd resource
+Value is 1 if a drbd resource exists. The details of the corresponding drbd resource
 is given as label metadata values for this metric.
 
 @ ha_cluster.drbd.connections.resource Resource that the connection is for
@@ -300,5 +300,5 @@ The reported volume for the connection.
 The reported peer disk state for the connection.
 
 @ ha_cluster.drbd.connections.all DRBD Peer disk information
-Value is 1 if a drbd peer connection exists. The details of the corrosponding DRBD peer
+Value is 1 if a drbd peer connection exists. The details of the corresponding DRBD peer
 connection is given as label metadata values for this metric.

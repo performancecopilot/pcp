@@ -41,7 +41,7 @@ Help:
 The number of expected quorum votes for the cluster.
     value 2
 
-ha_cluster.corosync.quorum_votes.highest_expected PMID: 155.7.2 [Hightest expected vote count]
+ha_cluster.corosync.quorum_votes.highest_expected PMID: 155.7.2 [Highest expected vote count]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 Help:
@@ -80,7 +80,7 @@ ha_cluster.corosync.rings.all PMID: 155.15.0 [Corosync rings information]
     Data Type: 32-bit unsigned int  InDom: 155.13 0x26c0000d
     Semantics: instant  Units: count
 Help:
-Value is 1 if a ring exists. The details of the corrosponding ring
+Value is 1 if a ring exists. The details of the corresponding ring
 is given as label metadata values for this metric.
     inst [0 or "0"] value 1
 
@@ -132,7 +132,7 @@ ha_cluster.drbd.connections.all PMID: 155.18.0 [DRBD Peer disk information]
     Data Type: 32-bit unsigned int  InDom: 155.16 0x26c00010
     Semantics: instant  Units: count
 Help:
-Value is 1 if a drbd peer connection exists. The details of the corrosponding DRBD peer
+Value is 1 if a drbd peer connection exists. The details of the corresponding DRBD peer
 connection is given as label metadata values for this metric.
     inst [0 or "drbd1:1"] value 1
 
@@ -219,7 +219,7 @@ The number of open requests to the local I/O subsystem by DRBD for the
 resource:volume.
     inst [0 or "drbd1:0"] value 0
 
-ha_cluster.drbd.quorum PMID: 155.10.10 [Quorum satus of DRBD resource:volume]
+ha_cluster.drbd.quorum PMID: 155.10.10 [Quorum status of DRBD resource:volume]
     Data Type: 32-bit unsigned int  InDom: 155.8 0x26c00008
     Semantics: instant  Units: count
 Help:
@@ -238,7 +238,7 @@ ha_cluster.drbd.resources.all PMID: 155.17.0 [DRBD resource information]
     Data Type: 32-bit unsigned int  InDom: 155.15 0x26c0000f
     Semantics: instant  Units: count
 Help:
-Value is 1 if a drbd resource exists. The details of the corrosponding drbd resource
+Value is 1 if a drbd resource exists. The details of the corresponding drbd resource
 is given as label metadata values for this metric.
     inst [0 or "drbd1:0"] value 1
 
@@ -260,21 +260,21 @@ ha_cluster.drbd.resources.role PMID: 155.10.1 [Role of the resource]
     Data Type: string  InDom: 155.8 0x26c00008
     Semantics: instant  Units: count
 Help:
-The resported role for ther DRBD resource for each resource:volume.
+The reported role for the DRBD resource for each resource:volume.
     inst [0 or "drbd1:0"] value "Primary"
 
 ha_cluster.drbd.resources.volume PMID: 155.10.2 [Volume of the resource]
     Data Type: string  InDom: 155.8 0x26c00008
     Semantics: instant  Units: count
 Help:
-The volume number of ther resource for each resource:volume.
+The volume number of the resource for each resource:volume.
     inst [0 or "drbd1:0"] value "0"
 
 ha_cluster.drbd.split_brain PMID: 155.10.11 [Signal for split brain detection.]
     Data Type: 32-bit unsigned int  InDom: 155.8 0x26c00008
     Semantics: instant  Units: count
 Help:
-This metric signals if there has been a split brain occuring in DRBD for the
+This metric signals if there has been a split brain occurring in DRBD for the
 resource:volume, value is 1 is a split brain has been detected.
     inst [0 or "drbd1:0"] value 1
 
@@ -293,7 +293,7 @@ Help:
 Amount in KiB written to the DRBD resource:volume.
     inst [0 or "drbd1:0"] value 0
 
-ha_cluster.pacemaker.config_last_change PMID: 155.0.0 [Unix timestamp corresponding to last Pacmaker configuration change]
+ha_cluster.pacemaker.config_last_change PMID: 155.0.0 [Unix timestamp corresponding to last Pacemaker configuration change]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 Help:
@@ -335,7 +335,7 @@ ha_cluster.pacemaker.location_constraints.role PMID: 155.2.2 [Resource role of t
     Data Type: string  InDom: 155.1 0x26c00001
     Semantics: instant  Units: count
 Help:
-The resource role that the location contraint applies to, if any.
+The resource role that the location constraint applies to, if any.
     inst [0 or "test"] value "Started"
 
 ha_cluster.pacemaker.location_constraints.score PMID: 155.2.3 [Score of the location constraint]
@@ -617,7 +617,7 @@ ha_cluster.sbd.all PMID: 155.16.0 [SBD device information]
     Data Type: 32-bit unsigned int  InDom: 155.14 0x26c0000e
     Semantics: instant  Units: count
 Help:
-Value is 1 if a sbd device exists. The details of the corrosponding SBD device
+Value is 1 if a sbd device exists. The details of the corresponding SBD device
 is given as label metadata values for this metric.
     inst [0 or "/dev/vdb"] value 1
 
