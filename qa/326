@@ -93,6 +93,7 @@ export PMCD_PORT
 $PCP_BINADM_DIR/pmcd -f -c $tmp.pmcd.config -l $tmp.pmcd.log -U $iam -s $tmp.socket &
 pmcd_pid=$!
 echo "pmcd_pid=$pmcd_pid" >>$seq.full
+_wait_for_pmcd
 
 cat <<End-of-File >$tmp.config
 log mandatory on 500 msec { pmcd.numagents sample.milliseconds }
