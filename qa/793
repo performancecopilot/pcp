@@ -125,6 +125,7 @@ _check_loggers()
 		echo "=== $state ===" | tee -a $here/$seq.full
 		cat $state | tee -a $here/$seq.full
 	    done
+	    cat $tmp.$x.log >>$here/$seq.full
 	    echo "See $seq.full for details"
 	    status=0
 	    exit
@@ -157,9 +158,9 @@ cat >$tmp/control <<End-of-File
 #
 # $qatmp from the caller's environment
 # $A from the control line above
-LOCALHOSTNAME	n   n	\$qatmp/\$A -c $tmp.config
-LOCALHOSTNAME	n   n	\$(echo $qatmp/B) -c $tmp.config
-LOCALHOSTNAME	n   n	"$qatmp/\`echo c | tr '[a-z]' '[A-Z]'\`" -c $tmp.config
+LOCALHOSTNAME	n   n	\$qatmp/\$A -c $tmp.config -l $tmp.A.log
+LOCALHOSTNAME	n   n	\$(echo $qatmp/B) -c $tmp.config -l $tmp.B.log
+LOCALHOSTNAME	n   n	"$qatmp/\`echo c | tr '[a-z]' '[A-Z]'\`" -c $tmp.config -l $tmp.C.log
 End-of-File
 
 cat $tmp/control >>$here/$seq.full
