@@ -1150,9 +1150,8 @@ void
 pmNoMem(const char *where, size_t size, int fatal)
 {
     char	errmsg[PM_MAXERRMSGLEN];
-    pmNotifyErr(fatal ? LOG_ERR : LOG_WARNING,
-			"%s: malloc(%d) failed: %s",
-			where, (int)size, osstrerror_r(errmsg, sizeof(errmsg)));
+    pmNotifyErr(fatal ? LOG_ERR : LOG_WARNING, "%s: malloc(%zu) failed: %s",
+			where, size, osstrerror_r(errmsg, sizeof(errmsg)));
     if (fatal == PM_FATAL_ERR)
 	exit(1);
 }
