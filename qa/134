@@ -36,9 +36,15 @@ $1 ~ /\.1$/	{ if (l1 == 0) {
 		  else {
 			  # change is not deterministic, due to epilogue
 			  # record size
+			  # was truncated to 100 byte boundaries, but
+			  # hostnames like
+			  # fv-az121-446.xhy4bhhdincepo0av04agjzkjc.cx.internal.cloudapp.net
+			  # in CI broke that, so go to 400 byte boundary
+			  # truncation
 			  #
-			  h = int(($2 - l1) / 100)
-		          print $1,"incr",h*100 "-" (h+1)*100,"bytes"
+			  chunk = 400
+			  h = int(($2 - l1) / chunk)
+		          print $1,"incr",h*chunk "-" (h+1)*chunk,"bytes"
 		  }
 		  l1=$2
 		  next

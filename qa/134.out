@@ -59,7 +59,7 @@ Metrics in archive:
 
 === second volume, one result ===
 MYLOG.0 unchanged
-MYLOG.1 incr 0-100 bytes
+MYLOG.1 incr 0-400 bytes
 Log Label (Log Format Version 2)
 Performance metrics from host LOCALHOST
     commencing month-day TIMESTAMP-0 year
@@ -81,7 +81,7 @@ Metrics in archive:
 
 === second volume, second + third result ===
 MYLOG.0 unchanged
-MYLOG.1 incr 100-200 bytes
+MYLOG.1 incr 0-400 bytes
 Log Label (Log Format Version 2)
 Performance metrics from host LOCALHOST
     commencing month-day TIMESTAMP-0 year
@@ -108,7 +108,7 @@ Metrics in archive:
 
 === logger done ===
 MYLOG.0 unchanged
-MYLOG.1 incr 100-200 bytes
+MYLOG.1 incr 0-400 bytes
 Log Label (Log Format Version 2)
 Performance metrics from host LOCALHOST
     commencing month-day TIMESTAMP-0 year
