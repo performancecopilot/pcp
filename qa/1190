@@ -49,9 +49,9 @@ _check_file()
     #
     if [ -r "$1" ]
     then
-	grep -i QA "$1" >$tmp.out
+	grep -i QA "$1" >$tmp.out 2>>$here/$seq.full
     else
-	$sudo grep -i QA "$1" >$tmp.out
+	$sudo grep -i QA "$1" >$tmp.out 2>>$here/$seq.full
     fi
     # some of these are indeed expected and OK, so handle the exceptions
     # here ...

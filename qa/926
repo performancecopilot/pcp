@@ -50,6 +50,9 @@ status=0        # success is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
+uname -a >>$seq.full
+echo "machine=$machine" >>$seq.full
+
 # real QA test starts here
 # only one dir for now, add more if we get more sample data
 # rrdtool can't read data from different architectures
