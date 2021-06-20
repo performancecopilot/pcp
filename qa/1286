@@ -14,16 +14,21 @@ _pmdabcc_check
 _pmdabcc_require_kernel_version 4 6
 which ss >/dev/null 2>&1 || _notrun "No ss binary installed"
 
+status=1       # failure is the default!
+signal=$PCP_BINADM_DIR/pmsignal
+$sudo rm -rf $tmp.* $seq.full
+
 case `admin/whatami`
 in
     *Fedora\ 32\ *)
 	_notrun "bcc netproc module will not compile on Fedora 32"
 	;;
+    *Ubuntu\ 20.04 \*)
+	# works on 5.4 kernel, TBD what kernel test-ubuntu2004-direct
+	# is in CI
+	uname -r >>$seq.full
+	;;
 esac
-
-status=1       # failure is the default!
-signal=$PCP_BINADM_DIR/pmsignal
-$sudo rm -rf $tmp.* $seq.full
 
 # The netproc BCC module uses the lookup_or_try_init() method that was
 # introduced in bcc v0.12.0 (released 11 Dec 2019), so determine the
