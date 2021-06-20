@@ -184,3 +184,49 @@
    ...
 }
 
+# qa/720 on test-ubuntu2004-direct
+# Conditional jump or move depends on uninitialised value(s)
+# at 0x4D02AC8: sasl_strlower (in /usr/lib/x86_64-linux-gnu/libsasl2.so.2.0.25)
+# by 0x4D02B22: ??? (in /usr/lib/x86_64-linux-gnu/libsasl2.so.2.0.25)
+# by 0x4CFC291: sasl_client_new (in /usr/lib/x86_64-linux-gnu/libsasl2.so.2.0.25)
+# by 0x48D000C: __pmSecureClientHandshake (in /usr/lib/libpcp.so.3)
+# by 0x4877432: ??? (in /usr/lib/libpcp.so.3)
+# by 0x4877D00: ??? (in /usr/lib/libpcp.so.3)
+# by 0x487ACAA: pmNewContext (in /usr/lib/libpcp.so.3)
+# by 0x10AF80: ??? (in /usr/bin/pminfo)
+# by 0x49390B2: (below main) (libc-start.c:308)
+{
+   sasl_strlower()
+   Memcheck:Cond
+   fun:sasl_strlower
+   ...
+   fun:sasl_client_new
+   fun:__pmSecureClientHandshake
+   ...
+   fun:pmNewContext
+   ...
+}
+
+# qa/720 on test-ubuntu2004-direct
+# Conditional jump or move depends on uninitialised value(s)
+# at 0x483F0B7: strcpy (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+# by 0x4CFDFAD: ??? (in /usr/lib/x86_64-linux-gnu/libsasl2.so.2.0.25)
+# by 0x4CFC2AA: sasl_client_new (in /usr/lib/x86_64-linux-gnu/libsasl2.so.2.0.25)
+# by 0x48D000C: __pmSecureClientHandshake (in /usr/lib/libpcp.so.3)
+# by 0x4877432: ??? (in /usr/lib/libpcp.so.3)
+# by 0x4877D00: ??? (in /usr/lib/libpcp.so.3)
+# by 0x487ACAA: pmNewContext (in /usr/lib/libpcp.so.3)
+# by 0x10AF80: ??? (in /usr/bin/pminfo)
+# by 0x49390B2: (below main) (libc-start.c:308)
+{
+   sasl_client_new + strcpy
+   Memcheck:Cond
+   fun:strcpy
+   ...
+   fun:sasl_client_new
+   fun:__pmSecureClientHandshake
+   ...
+   fun:pmNewContext
+   ...
+}
+
