@@ -204,6 +204,7 @@ else
     $sudo tail -200 $SYSLOG >$tmp.syslog
 fi
 sed <$tmp.syslog -n \
+    -e '/^Journal file .* is truncated, ignoring/d' \
     -e 's/PCP QA '"$seq"'/PCP QA xxx/' \
     -e '/ncpu equal/s/ [0-9][0-9]*/ N/g' \
     -e 's/PCP QA xxx/PCP QA '"$seq"'/' \
