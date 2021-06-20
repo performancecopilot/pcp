@@ -25,13 +25,11 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # Some metrics unavailable by default, so skip the associated rules
 #
-cat >$tmp.cmd <<EOF
-modify all enabled yes
-modify shping enabled no
-modify cisco enabled no
-modify dmthin enabled no
-modify mssql enabled no
-EOF
+echo "modify all enabled yes" >$tmp.cmd
+for group in shping cisco dmthin mssql
+do
+    [ -d $PCP_VAR_DIR/config/pmieconf/$group ] && echo "modify $group enabled no" >>$tmp.cmd
+done
 
 # real QA test starts here
 echo "running pmieconf with default rules..."
