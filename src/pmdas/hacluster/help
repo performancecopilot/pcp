@@ -28,7 +28,7 @@
 #
 @ HACLUSTER.0 Instance domain for High Availability Cluster component metrics
 
-@ ha_cluster.pacemaker.config_last_change Unix timestamp corresponding to last Pacmaker configuration change
+@ ha_cluster.pacemaker.config_last_change Unix timestamp corresponding to last Pacemaker configuration change
 Unix timestamp in seconds corresponding to the last time that the Pacemaker
 configuration was changed on the system.
 
@@ -42,7 +42,11 @@ Pacemaker cluster.
 
 @ ha_cluster.pacemaker.node_attributes Metadata used by Resource Agents
 The raw values for the cluster metadata attributes and their value per node as
-used by the Resource Agents. 
+used by the Resource Agents.
+
+@ ha_cluster.pacemaker.node_attributes_all Metadata information
+Value is 1 if a node metadata exists. The details of the node metadata
+is given as label metadata values for this metric.
 
 @ ha_cluster.pacemaker.stonith_enabled Whether stonith is enabled in the cluster
 Value returns as to whether stonith is enabled or disabled for the cluster.
@@ -54,11 +58,15 @@ The node that the location constraint applies to in the cluster.
 The resource that the location constraint applies to in the cluster.
 
 @ ha_cluster.pacemaker.location_constraints.role Resource role of the location constraint
-The resource role that the location contraint applies to, if any.
+The resource role that the location constraint applies to, if any.
 
 @ ha_cluster.pacemaker.location_constraints.score Score of the location constraint
 The score given to the location constraint by Pacemaker, the value depends on
 Pacemaker internals.
+
+@ ha_cluster.pacemaker.location_constraints.all Location constraint information
+Value is 1 if a location constraint exists. The details of the location constraint
+is given as label metadata values for this metric.
 
 @ ha_cluster.pacemaker.nodes.type The type given to the node
 The membership type given to the node in the Pacemaker cluster.
@@ -137,6 +145,10 @@ value of 1 confirms the resource status as failed.
 Whether the failure_ignored status is reported by the resource in the
 cluster, a value of 1 confirms the resource status as failure_ignored.
 
+@ ha_cluster.pacemaker.resources.all Pacemaker resources information
+Value is 1 if a resources exists. The details of the resource
+is given as label metadata values for this metric.
+
 @ ha_cluster.corosync.quorate Value given for quorate
 The value represents whether or not the cluster is quorate.
 
@@ -155,7 +167,7 @@ The full corosync ID for the nodes in the cluster.
 @ ha_cluster.corosync.quorum_votes.expected_votes Expected vote count
 The number of expected quorum votes for the cluster.
 
-@ ha_cluster.corosync.quorum_votes.highest_expected Hightest expected vote count
+@ ha_cluster.corosync.quorum_votes.highest_expected Highest expected vote count
 The highest number of expected quorum votes for the cluster. 
 
 @ ha_cluster.corosync.quorum_votes.total_votes Total number of votes
@@ -180,12 +192,20 @@ The number for the Corosync ring.
 @ ha_cluster.corosync.rings.ring_id Ring ID
 The internal Corosync ring ID, corresponds to the first node to join.
 
+@ ha_cluster.corosync.rings.all Corosync rings information
+Value is 1 if a ring exists. The details of the corresponding ring
+is given as label metadata values for this metric.
+
 @ ha_cluster.sbd.devices.path Path of SBD device
 The full path given to each SBD device.
 
 @ ha_cluster.sbd.devices.status Status of the SBD device
 The current status given for each of the SBD devices, the value is one of
 healthy or unhealthy.
+
+@ ha_cluster.sbd.all SBD device information
+Value is 1 if a sbd device exists. The details of the corresponding SBD device
+is given as label metadata values for this metric.
 
 @ ha_cluster.sbd.timeouts.mgswait mgswait timeout value
 The value threshold for msgwait timeouts for the given SBD device.
@@ -220,7 +240,7 @@ for the resource:volume.
 The number of open requests to the local I/O subsystem by DRBD for the
 resource:volume.
 
-@ ha_cluster.drbd.quorum Quorum satus of DRBD resource:volume
+@ ha_cluster.drbd.quorum Quorum status of DRBD resource:volume
 The Quorum status of the DRBD resource according to resource:volume, 1 is
 quorate and 0 is non-quorate.
 
@@ -245,20 +265,24 @@ The number of requests sent which have not yet been acknowledged by DRBD for
 the resource:volume.
 
 @ ha_cluster.drbd.split_brain Signal for split brain detection.
-This metric signals if there has been a split brain occuring in DRBD for the
+This metric signals if there has been a split brain occurring in DRBD for the
 resource:volume, value is 1 is a split brain has been detected.
 
 @ ha_cluster.drbd.resources.resource Name of the resource
 The name given for the DRBD resource for each resource:volume.
 
 @ ha_cluster.drbd.resources.role Role of the resource
-The resported role for ther DRBD resource for each resource:volume.
+The reported role for the DRBD resource for each resource:volume.
 
 @ ha_cluster.drbd.resources.volume Volume of the resource
-The volume number of ther resource for each resource:volume.
+The volume number of the resource for each resource:volume.
 
 @ ha_cluster.drbd.resources.disk_state Disk state
 The current reported disk state of for the resource:volume.
+
+@ ha_cluster.drbd.resources.all DRBD resource information
+Value is 1 if a drbd resource exists. The details of the corresponding drbd resource
+is given as label metadata values for this metric.
 
 @ ha_cluster.drbd.connections.resource Resource that the connection is for
 The given resource that the DRBD connection is for each resource:volume.
@@ -274,3 +298,7 @@ The reported volume for the connection.
 
 @ ha_cluster.drbd.connections.peer_disk_state Peer disk state
 The reported peer disk state for the connection.
+
+@ ha_cluster.drbd.connections.all DRBD Peer disk information
+Value is 1 if a drbd peer connection exists. The details of the corresponding DRBD peer
+connection is given as label metadata values for this metric.

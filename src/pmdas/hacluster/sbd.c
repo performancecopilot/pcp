@@ -68,6 +68,13 @@ hacluster_sbd_device_fetch(int item, struct sbd *sbd, pmAtomValue *atom)
 	return PMDA_FETCH_NOVALUES;
 }
 
+int 
+hacluster_sbd_device_all_fetch(int item, pmAtomValue *atom)
+{
+	atom->ul = 1; /* Assign default exists value 1 */
+	return PMDA_FETCH_STATIC;
+}
+
 int
 hacluster_refresh_sbd_device(const char *sbd_dev, struct sbd *sbd)
 {

@@ -222,6 +222,13 @@ hacluster_pacemaker_constraints_fetch(int item, struct location_constraints *loc
 }
 
 int
+hacluster_pacemaker_constraints_all_fetch(int item, pmAtomValue *atom)
+{
+	atom->ul = 1; /* Assign default exists value 1 */
+	return PMDA_FETCH_STATIC;
+}
+
+int
 hacluster_pacemaker_nodes_fetch(int item, struct nodes *nodes, pmAtomValue *atom)
 {
 	/* check for bounds */
@@ -298,6 +305,13 @@ hacluster_pacemaker_node_attribs_fetch(int item, struct attributes *attributes, 
 }
 
 int
+hacluster_pacemaker_node_attribs_all_fetch(int item, pmAtomValue *atom)
+{
+	atom->ul = 1; /* Assign default exists value 1 */
+	return PMDA_FETCH_STATIC;
+}
+
+int
 hacluster_pacemaker_resources_fetch(int item, struct resources *resources, pmAtomValue *atom)
 {
 	/* check for bounds */
@@ -351,6 +365,13 @@ hacluster_pacemaker_resources_fetch(int item, struct resources *resources, pmAto
 
 	}
 	return PMDA_FETCH_NOVALUES;
+}
+
+int
+hacluster_pacemaker_resources_all_fetch(int item, pmAtomValue *atom)
+{
+	atom->ul = 1; /* Assign default exists value 1 */
+	return PMDA_FETCH_STATIC;
 }
 
 int

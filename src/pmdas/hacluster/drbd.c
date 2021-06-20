@@ -91,6 +91,13 @@ hacluster_drbd_resource_fetch(int item, struct resource *resource, pmAtomValue *
 }
 
 int
+hacluster_drbd_resource_all_fetch(int item, pmAtomValue *atom)
+{
+	atom->ul = 1; /* Assign default exists value 1 */
+	return PMDA_FETCH_STATIC;
+}
+
+int
 hacluster_drbd_peer_device_fetch(int item, struct peer_device *peer_device, pmAtomValue *atom)
 {
 	/* check for bounds */
@@ -144,6 +151,13 @@ hacluster_drbd_peer_device_fetch(int item, struct peer_device *peer_device, pmAt
 
 	}
 	return PMDA_FETCH_NOVALUES;
+}
+
+int
+hacluster_drbd_peer_device_all_fetch(int item, pmAtomValue *atom)
+{
+	atom->ul = 1; /* Assign default exists value 1 */
+	return PMDA_FETCH_STATIC;
 }
 
 int

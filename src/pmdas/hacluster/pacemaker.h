@@ -124,15 +124,18 @@ extern int hacluster_pacemaker_fail_fetch(int, struct fail_count *, pmAtomValue 
 extern int hacluster_refresh_pacemaker_fail(const char *, struct fail_count *);
 
 extern int hacluster_pacemaker_constraints_fetch(int, struct location_constraints *, pmAtomValue *);
+extern int hacluster_pacemaker_constraints_all_fetch(int, pmAtomValue *);
 extern int hacluster_refresh_pacemaker_constraints(const char *, struct location_constraints *);
 
 extern int hacluster_pacemaker_nodes_fetch(int, struct nodes *, pmAtomValue *);
 extern int hacluster_refresh_pacemaker_nodes(const char *, struct nodes *);
 
 extern int hacluster_pacemaker_node_attribs_fetch(int, struct attributes *, pmAtomValue *);
+extern int hacluster_pacemaker_node_attribs_all_fetch(int, pmAtomValue *);
 extern int hacluster_refresh_pacemaker_node_attribs(const char *, struct attributes *);
 
 extern int hacluster_pacemaker_resources_fetch(int, struct resources *, pmAtomValue *);
+extern int hacluster_pacemaker_resources_all_fetch(int, pmAtomValue *);
 extern int hacluster_refresh_pacemaker_resources(const char *, struct resources *);
 
 extern void pacemaker_stats_setup(void);

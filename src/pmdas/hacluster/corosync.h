@@ -73,6 +73,7 @@ extern int hacluster_corosync_global_fetch(int, pmAtomValue *);
 extern int hacluster_refresh_corosync_global();
 
 extern int hacluster_corosync_ring_fetch(int, struct rings *, pmAtomValue *);
+extern int hacluster_corosync_ring_all_fetch(int, pmAtomValue *);
 extern int hacluster_refresh_corosync_ring(const char *, struct rings *);
 
 extern void corosync_stats_setup(void);
