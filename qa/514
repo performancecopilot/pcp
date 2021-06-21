@@ -199,7 +199,7 @@ then
     sleep 5
     # be careful ... --boot not supported in all versions, -l not
     # supported in all versions
-    $sudo journalctl -b --full | tail -200 >$tmp.syslog 2>>$seq.full
+    $sudo journalctl -b --full 2>&1 | tail -200 >$tmp.syslog 2>>$seq.full
 else
     $sudo tail -200 $SYSLOG >$tmp.syslog
 fi
