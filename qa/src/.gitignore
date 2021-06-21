@@ -213,6 +213,7 @@ scale
 scanmeta
 semstr
 sha1int2ext
+sizeof
 slow_af
 sortinst
 spawn
