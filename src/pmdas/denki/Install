@@ -26,6 +26,7 @@ perl_opt=false
 python_opt=false
 socket_opt=false
 socket_inet_def=2078
+pmns_source=root_denki
 
 # args="-U root -r /usr/libexec/pcp/pmdas/denki/data/dat_hpe-dl380egen8-01.hpe2.lab.eng.bos.redhat.com"
 # args="-U root -r /usr/libexec/pcp/pmdas/denki/data/dat_pq6-0.2a2m.lab.eng.bos.redhat.com"

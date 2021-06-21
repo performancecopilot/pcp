@@ -3,8 +3,4 @@
  */
 
 #include <stdpmid>
-
-root { denki }
-
-#include "pmns"
-
+#include "root_denki"

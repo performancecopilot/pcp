@@ -1,22 +1,14 @@
-Simple PMDA
+Denki PMDA
 ===========
 
-This PMDA is an example, that illustrates how a simple PMDA might be
-constructed.
+This is the PMDA providing metrics which are related to the systems
+electricity.
 
-Although the metrics supported as simple, the framework is quite general,
-and could be extended to implement a much more complex PMDA.
+At the moment, metrics from 2 sources are available:
 
-Note:
-	This PMDA may be remade from source and hence requires a C
-	compiler to be installed.
+- RAPL values, available on newer Intel CPUs.
+- battery values
 
-	Uses of make(1) may fail (without removing or clobbering files)
-	if the C compiler cannot be found.  This is most likely to
-	happen when running the PMDA ./Install script.
-
-	The only remedial action is to install the C compiler, or
-	hand-craft changes to the Makefile.
 
 Metrics
 =======
@@ -27,35 +19,32 @@ by this PMDA.
 Once the PMDA has been installed, the following command will list all
 the available metrics and their explanatory "help" text:
 
-	$ pminfo -fT simple
+	$ pminfo -fT denki
 
 Installation
 ============
 
- +  # cd $PCP_PMDAS_DIR/simple
-
- +  Check that there is no clash in the Performance Metrics Domain
-    defined in ./domain.h and the other PMDAs currently in use (see
-    $PCP_PMCDCONF_PATH).  If there is, edit ./domain.h to choose another
-    domain number.
+ +  # cd $PCP_PMDAS_DIR/denki
 
  +  Then simply use
 
 	# ./Install
 
-    and choose both the "collector" and "monitor" installation
-    configuration options.
+ +  Watch the logfile:
 
-    You will be prompted to choose either a daemon implementation
-    or a DSO implementation of the PMDA, and in the case of the daemon
-    variant to select an IPC method -- everything else is automated
+        # less /var/log/pcp/pmcd/denki.log
+
+ +  Verify if the metrics which are available on the system appear:
+
+        # pminfo -fF denki
+        # pmrep denki
 
 De-installation
 ===============
 
  +  Simply use
 
-	# cd $PCP_PMDAS_DIR/simple
+	# cd $PCP_PMDAS_DIR/denki
 	# ./Remove
 
 Troubleshooting
@@ -63,5 +52,5 @@ Troubleshooting
 
  +  After installing or restarting the agent, the PMCD log file
     ($PCP_LOG_DIR/pmcd/pmcd.log) and the PMDA log file
-    ($PCP_LOG_DIR/pmcd/simple.log) should be checked for any warnings
+    ($PCP_LOG_DIR/pmcd/denki.log) should be checked for any warnings
     or errors.
