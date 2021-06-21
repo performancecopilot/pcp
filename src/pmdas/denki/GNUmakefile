@@ -41,7 +41,7 @@ default:	build-me
 
 include $(BUILDRULES)
 
-ifeq "$(PMDA_DENKI)" "true"
+ifeq "$(TARGET_OS)" "linux"
 build-me: $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS)
 
 install: default

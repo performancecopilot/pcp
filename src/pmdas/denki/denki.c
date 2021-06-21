@@ -58,10 +58,11 @@ static int detect_rapl_packages(void) {
 	for(i=0;i<MAX_PACKAGES;i++) package_map[i]=-1;
 
 	for(i=0;i<MAX_CPUS;i++) {
-		sprintf(filename,"%s/sys/devices/system/cpu/cpu%d/topology/physical_package_id",rootpath,i);
+		pmsprintf(filename,sizeof(filename),"%s/sys/devices/system/cpu/cpu%d/topology/physical_package_id",rootpath,i);
 		fff=fopen(filename,"r");
 		if (fff==NULL) break;
-		fscanf(fff,"%d",&package);
+		if ( fscanf(fff,"%d",&package) != 1 )
+			pmNotifyErr(LOG_DEBUG, "Could not read!");
 		printf("\tcore %d (package %d)\n",i,package);
 		fclose(fff);
 
@@ -87,21 +88,22 @@ static int detect_rapl_domains(void) {
 
 	for(pkg=0;pkg<total_packages;pkg++) {
 		i=0;
-		sprintf(basename[pkg],"%s/sys/class/powercap/intel-rapl/intel-rapl:%d",rootpath,pkg);
-		sprintf(tempfile,"%s/name",basename[pkg]);
+		pmsprintf(basename[pkg],sizeof(basename[pkg]),"%s/sys/class/powercap/intel-rapl/intel-rapl:%d",rootpath,pkg);
+		pmsprintf(tempfile,sizeof(tempfile),"%s/name",basename[pkg]);
 		fff=fopen(tempfile,"r");
 		if (fff==NULL) {
     			pmNotifyErr(LOG_ERR, "read_rapl() could not open %s", tempfile);
 			return -1;
 		}
-		fscanf(fff,"%s",event_names[pkg][i]);
+		if ( fscanf(fff,"%s",event_names[pkg][i]) != 1)
+    			pmNotifyErr(LOG_ERR, "read_rapl() could not read %s",event_names[pkg][i]);
 		valid[pkg][i]=1;
 		fclose(fff);
-		sprintf(filenames[pkg][i],"%s/energy_uj",basename[pkg]);
+		pmsprintf(filenames[pkg][i],sizeof(filenames[pkg][i]),"%s/energy_uj",basename[pkg]);
 
 		/* Handle subdomains */
 		for(i=1;i<NUM_RAPL_DOMAINS;i++) {
-			sprintf(tempfile,"%s/intel-rapl:%d:%d/name",
+			pmsprintf(tempfile,sizeof(tempfile),"%s/intel-rapl:%d:%d/name",
 				basename[pkg],pkg,i-1);
 			fff=fopen(tempfile,"r");
 			if (fff==NULL) {
@@ -110,9 +112,10 @@ static int detect_rapl_domains(void) {
 				continue;
 			}
 			valid[pkg][i]=1;
-			fscanf(fff,"%s",event_names[pkg][i]);
+			if ( fscanf(fff,"%s",event_names[pkg][i]) != 1 )
+    				pmNotifyErr(LOG_DEBUG, "Could not read from %s", event_names[pkg][i]);
 			fclose(fff);
-			sprintf(filenames[pkg][i],"%s/intel-rapl:%d:%d/energy_uj",
+			pmsprintf(filenames[pkg][i],sizeof(filenames[pkg][i]),"%s/intel-rapl:%d:%d/energy_uj",
 				basename[pkg],pkg,i-1);
 		}
 	}
@@ -132,7 +135,8 @@ static int read_rapl(void) {
     					pmNotifyErr(LOG_ERR, "read_rapl() could not open %s",filenames[pkg][dom]);
 				}
 				else {
-					fscanf(fff,"%lld",&raplvars[pkg][dom]);
+					if ( fscanf(fff,"%lld",&raplvars[pkg][dom]) != 1)
+    						pmNotifyErr(LOG_ERR, "read_rapl() could not read %s",filenames[pkg][dom]);
 					fclose(fff);
 				}
 			}
@@ -157,24 +161,26 @@ static int read_battery(void) {
 	char filename[BUFSIZ];
 	FILE *fff;
 
-	sprintf(filename,"%s/sys/class/power_supply/BAT0/energy_now",rootpath);
+	pmsprintf(filename,sizeof(filename),"%s/sys/class/power_supply/BAT0/energy_now",rootpath);
 	fff=fopen(filename,"r");
 	if (fff==NULL) {
 		pmNotifyErr(LOG_DEBUG, "DENKI: No battery found.");
 		fclose(fff);
 		return 1;
 	}
-	fscanf(fff,"%lld",&energy_now);
+	if ( fscanf(fff,"%lld",&energy_now) != 1)
+		pmNotifyErr(LOG_DEBUG, "DENKI: Could not read energy_now.");
 	fclose(fff);
 
-	sprintf(filename,"%s/sys/class/power_supply/BAT0/power_now",rootpath);
+	pmsprintf(filename,sizeof(filename),"%s/sys/class/power_supply/BAT0/power_now",rootpath);
 	fff=fopen(filename,"r");
 	if (fff==NULL) {
 		pmNotifyErr(LOG_DEBUG, "DENKI: No battery found.");
 		fclose(fff);
 		return 1;
 	}
-	fscanf(fff,"%lld",&power_now);
+	if ( fscanf(fff,"%lld",&power_now) != 1)
+		pmNotifyErr(LOG_DEBUG, "DENKI: Could not read power_now.");
 	fclose(fff);
 
 	return 0;
@@ -465,9 +471,9 @@ denki_rapl_init(void)
 				/* instance names need to be unique, so if >1 rapl packages,
 				   we prepend the rapl-domain counter */
 				if (total_packages > 1)
-					sprintf(tmp,"%d-%s",pkg,event_names[pkg][dom]);
+					pmsprintf(tmp,sizeof(tmp),"%d-%s",pkg,event_names[pkg][dom]);
 				else
-					sprintf(tmp,"%s",event_names[pkg][dom]);
+					pmsprintf(tmp,sizeof(tmp),"%s",event_names[pkg][dom]);
 
 				/* rapl.rate */
 				sts = pmdaCacheStore(*rate_indom, PMDA_CACHE_ADD, tmp, &raplratedoms[domcnt]);
@@ -608,7 +614,7 @@ main(int argc, char **argv)
 
     pmNotifyErr(LOG_DEBUG, "configured to use this rootpath: %s", rootpath);
 
-    sprintf(filename,"%s/sys/class/powercap/intel-rapl",rootpath);
+    pmsprintf(filename,sizeof(filename),"%s/sys/class/powercap/intel-rapl",rootpath);
     if (opendir(filename)) {
 
 	has_rapl=1;
@@ -620,7 +626,7 @@ main(int argc, char **argv)
     else
     	pmNotifyErr(LOG_DEBUG, "Intel RAPL not detected");
     
-    sprintf(filename,"%s/sys/class/power_supply/BAT0",rootpath);
+    pmsprintf(filename,sizeof(filename),"%s/sys/class/power_supply/BAT0",rootpath);
     if (opendir(filename)) {
     	pmNotifyErr(LOG_DEBUG, "detected battery");
 	has_bat=1;
