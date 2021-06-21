@@ -22,6 +22,13 @@ perl -e "use XML::TokeParser" >>$seq.full 2>&1
 [ $? -eq 0 ] || _notrun "perl XML::TokeParser module not installed"
 perl -e "use Spreadsheet::ReadSXC" >>$seq.full 2>&1
 [ $? -eq 0 ] || _notrun "perl Spreadsheet::ReadSXC module not installed"
+cat <<End-of-File >$tmp.pl
+use Spreadsheet::ReadSXC;
+Spreadsheet::ReadSXC::read_sxc("/dev/null");
+exit(0);
+End-of-File
+perl eek.pl >>$seq.full 2>&1
+[ $? -eq 0 ] || _notrun "perl Spreadsheet::ReadSXC::read_sxc() routine not found"
 
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
