@@ -60,7 +60,6 @@ default_pcp : default
 install_pcp : install
 
 $(HELPTARGETS) : help
-	$(NEWHELP) -n root_podman -v 2 -o help < help
 
 $(VERSION_SCRIPT):
 	$(VERSION_SCRIPT_MAKERULE)
