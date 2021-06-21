@@ -39,13 +39,10 @@ _pmi_stuff_value(pmi_context *current, pmi_handle *hp, const char *value)
 
     if (current->result == NULL) {
 	/* first time */
-	current->result = (pmResult *)malloc(sizeof(pmResult));
+	current->result = (pmResult *)calloc(1, sizeof(pmResult));
 	if (current->result == NULL) {
-	    pmNoMem("_pmi_stuff_value: result malloc:", sizeof(pmResult), PM_FATAL_ERR);
+	    pmNoMem("_pmi_stuff_value: result calloc", sizeof(pmResult), PM_FATAL_ERR);
 	}
-	current->result->numpmid = 0;
-	current->result->timestamp.tv_sec = 0;
-	current->result->timestamp.tv_usec = 0;
     }
     rp = current->result;
 
@@ -60,18 +57,25 @@ _pmi_stuff_value(pmi_context *current, pmi_handle *hp, const char *value)
     }
     if (i == rp->numpmid) {
 	rp->numpmid++;
-	size = sizeof(pmResult) + (rp->numpmid - 1)*sizeof(pmValueSet *);
+	size = sizeof(pmResult) + (rp->numpmid-1)*sizeof(pmValueSet *);
 	rp = current->result = (pmResult *)realloc(current->result, size);
 	if (current->result == NULL) {
-	    pmNoMem("_pmi_stuff_value: result realloc:", size, PM_FATAL_ERR);
+	    pmNoMem("_pmi_stuff_value: result realloc", size, PM_FATAL_ERR);
 	}
 	rp->vset[rp->numpmid-1] = (pmValueSet *)malloc(sizeof(pmValueSet));
 	if (rp->vset[rp->numpmid-1] == NULL) {
-	    pmNoMem("_pmi_stuff_value: vset alloc:", sizeof(pmValueSet), PM_FATAL_ERR);
+	    pmNoMem("_pmi_stuff_value: vset alloc", sizeof(pmValueSet), PM_FATAL_ERR);
 	}
 	vsp = rp->vset[rp->numpmid-1];
 	vsp->pmid = pmid;
 	vsp->numval = 1;
+    }
+    else if (rp->vset[i]->numval < 0) {
+	/*
+	 * This metric is already under an error condition - do
+	 * not attempt to add additional instances / values now.
+	 */
+	return rp->vset[i]->numval;
     }
     else {
 	int		j;
@@ -84,7 +88,7 @@ _pmi_stuff_value(pmi_context *current, pmi_handle *hp, const char *value)
 	size = sizeof(pmValueSet) + (rp->vset[i]->numval-1)*sizeof(pmValue);
 	vsp = rp->vset[i] = (pmValueSet *)realloc(rp->vset[i], size);
 	if (rp->vset[i] == NULL) {
-	    pmNoMem("_pmi_stuff_value: vset realloc:", size, PM_FATAL_ERR);
+	    pmNoMem("_pmi_stuff_value: vset realloc", size, PM_FATAL_ERR);
 	}
     }
     vp = &vsp->vlist[vsp->numval-1];
@@ -92,75 +96,82 @@ _pmi_stuff_value(pmi_context *current, pmi_handle *hp, const char *value)
     dsize = -1;
     switch (mp->desc.type) {
 	case PM_TYPE_32:
-	    if (vsp->numval == 1) vsp->valfmt = PM_VAL_INSITU;
 	    vp->value.lval = (__int32_t)strtol(value, &end, 10);
 	    if (*end != '\0') {
-		vsp->numval = PM_ERR_CONV;
+		if (vsp->numval == 1) vsp->numval = PM_ERR_CONV;
+		else rp->vset[i]->numval--;
 		return PM_ERR_CONV;
 	    }
+	    if (vsp->numval == 1) vsp->valfmt = PM_VAL_INSITU;
 	    break;
 
 	case PM_TYPE_U32:
-	    if (vsp->numval == 1) vsp->valfmt = PM_VAL_INSITU;
 	    vp->value.lval = (__uint32_t)strtoul(value, &end, 10);
 	    if (*end != '\0') {
-		vsp->numval = PM_ERR_CONV;
+		if (vsp->numval == 1) vsp->numval = PM_ERR_CONV;
+		else rp->vset[i]->numval--;
 		return PM_ERR_CONV;
 	    }
+	    if (vsp->numval == 1) vsp->valfmt = PM_VAL_INSITU;
 	    break;
 
 	case PM_TYPE_64:
-	    if (vsp->numval == 1) vsp->valfmt = PM_VAL_DPTR;
 	    ll = strtoint64(value, &end, 10);
 	    if (*end != '\0') {
-		vsp->numval = PM_ERR_CONV;
+		if (vsp->numval == 1) vsp->numval = PM_ERR_CONV;
+		else rp->vset[i]->numval--;
 		return PM_ERR_CONV;
 	    }
 	    dsize = sizeof(ll);
 	    data = (void *)&ll;
+	    if (vsp->numval == 1) vsp->valfmt = PM_VAL_DPTR;
 	    break;
 
 	case PM_TYPE_U64:
-	    if (vsp->numval == 1) vsp->valfmt = PM_VAL_DPTR;
 	    ull = strtouint64(value, &end, 10);
 	    if (*end != '\0') {
-		vsp->numval = PM_ERR_CONV;
+		if (vsp->numval == 1) vsp->numval = PM_ERR_CONV;
+		else rp->vset[i]->numval--;
 		return PM_ERR_CONV;
 	    }
 	    dsize = sizeof(ull);
 	    data = (void *)&ull;
+	    if (vsp->numval == 1) vsp->valfmt = PM_VAL_DPTR;
 	    break;
 
 	case PM_TYPE_FLOAT:
-	    if (vsp->numval == 1) vsp->valfmt = PM_VAL_DPTR;
 	    f = strtof(value, &end);
 	    if (*end != '\0') {
-		vsp->numval = PM_ERR_CONV;
+		if (vsp->numval == 1) vsp->numval = PM_ERR_CONV;
+		else rp->vset[i]->numval--;
 		return PM_ERR_CONV;
 	    }
 	    dsize = sizeof(f);
 	    data = (void *)&f;
+	    if (vsp->numval == 1) vsp->valfmt = PM_VAL_DPTR;
 	    break;
 
 	case PM_TYPE_DOUBLE:
-	    if (vsp->numval == 1) vsp->valfmt = PM_VAL_DPTR;
 	    d = strtod(value, &end);
 	    if (*end != '\0') {
-		vsp->numval = PM_ERR_CONV;
+		if (vsp->numval == 1) vsp->numval = PM_ERR_CONV;
+		else rp->vset[i]->numval--;
 		return PM_ERR_CONV;
 	    }
 	    dsize = sizeof(d);
 	    data = (void *)&d;
+	    if (vsp->numval == 1) vsp->valfmt = PM_VAL_DPTR;
 	    break;
 
 	case PM_TYPE_STRING:
-	    if (vsp->numval == 1) vsp->valfmt = PM_VAL_DPTR;
 	    dsize = strlen(value)+1;
 	    data = (void *)value;
+	    if (vsp->numval == 1) vsp->valfmt = PM_VAL_DPTR;
 	    break;
 
 	default:
-	    vsp->numval = PM_ERR_TYPE;
+	    if (vsp->numval == 1) vsp->numval = PM_ERR_TYPE;
+	    else rp->vset[i]->numval--;
 	    return PM_ERR_TYPE;
     }
 
@@ -170,7 +181,7 @@ _pmi_stuff_value(pmi_context *current, pmi_handle *hp, const char *value)
 
 	vp->value.pval = (pmValueBlock *)malloc(need < sizeof(pmValueBlock) ? sizeof(pmValueBlock) : need);
 	if (vp->value.pval == NULL) {
-	    pmNoMem("_pmi_stuff_value: pmValueBlock:", need < sizeof(pmValueBlock) ? sizeof(pmValueBlock) : need, PM_FATAL_ERR);
+	    pmNoMem("_pmi_stuff_value: pmValueBlock", need < sizeof(pmValueBlock) ? sizeof(pmValueBlock) : need, PM_FATAL_ERR);
 	}
 	vp->value.pval->vlen = (int)need;
 	vp->value.pval->vtype = mp->desc.type;

@@ -869,8 +869,8 @@ class pmConfig(object):
                 self.util.metrics[metric][3] = 1
             else:
                 self.util.metrics[metric][3] = 0
-            # As a special service for the pmrep(1) utility,
-            # we force raw output with its archive mode.
+            # Force raw output with archive mode of any tool in order to
+            # create pmlogger(1) compatible archives that can be merged.
             if (hasattr(self.util, 'type') and self.util.type == 1) or \
                self.util.metrics[metric][3] == 'raw' or \
                (hasattr(self.util, 'output') and self.util.output == 'archive'):
@@ -928,6 +928,11 @@ class pmConfig(object):
                 elif not self.util.metrics[metric][2]:
                     self.util.metrics[metric][2] = str(unit)
             if not self.util.metrics[metric][2]:
+                self.util.metrics[metric][2] = str(unit)
+
+            # Force native units with archive mode of any tool in order to
+            # create pmlogger(1) compatible archives that can be merged.
+            if hasattr(self.util, 'output') and self.util.output == 'archive':
                 self.util.metrics[metric][2] = str(unit)
 
             # Finalize text label and unit/scale

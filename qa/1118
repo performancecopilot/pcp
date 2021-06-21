@@ -12,16 +12,6 @@ echo "QA output created by $seq"
 
 _pmdabcc_check
 
-# The bcc PMDA with runqlat module kills a F34 machine, hard ...
-# DO NOT RUN THIS TEST ON Fedora 34
-#
-case `admin/whatami`
-in
-    *Fedora\ 34*)
-	_notrun "bcc PMDA runqlat module may lock up the machine on Fedora 34"
-	;;
-esac
-
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
 $sudo rm -rf $tmp.* $seq.full
