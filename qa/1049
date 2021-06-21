@@ -28,7 +28,18 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 echo "modify all enabled yes" >$tmp.cmd
 for group in shping cisco dmthin mssql
 do
-    [ -d $PCP_VAR_DIR/config/pmieconf/$group ] && echo "modify $group enabled no" >>$tmp.cmd
+    # most have group == dir, but some do not
+    #
+    case $group
+    in
+	dmthin)
+	    dir=dm
+	    ;;
+	*)
+	    dir=$group
+	    ;;
+    esac
+    [ -d $PCP_ETC_DIR/pcp/pmieconf/$dir ] && echo "modify $group enabled no" >>$tmp.cmd
 done
 
 # real QA test starts here
