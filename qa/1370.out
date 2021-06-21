@@ -118,6 +118,7 @@ pmiostat.1 missing --start
 pmiostat.1 missing --version
 pmiostat.1 missing --hostzone
 pcp-atop.1 missing --pcp-flags
+pcp-atop.1 missing --hotproc
 pcp-atop.1 missing --align
 pcp-atop.1 missing --start
 pcp-atop.1 missing --finish
