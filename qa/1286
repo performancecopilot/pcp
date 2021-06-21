@@ -23,7 +23,7 @@ in
     *Fedora\ 32\ *)
 	_notrun "bcc netproc module will not compile on Fedora 32"
 	;;
-    *Ubuntu\ 20.04 \*)
+    *Ubuntu\ 20.04\ *)
 	# works on 5.4 kernel, TBD what kernel test-ubuntu2004-direct
 	# is in CI
 	uname -r >>$seq.full
