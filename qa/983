@@ -67,11 +67,10 @@ _filter_pmie()
 
 # see also qa/283 for "pmcd -p" testing.
 _service pmcd stop >/dev/null 2>&1
-# allow time to cleanup and close all sockets
-sleep 3
+# wait for cleanup and closing all sockets
+_wait_pmcd_end
 
 rm -f $seq.full
-
 
 echo "=== starting pmcd on port $port1 ===" |tee -a $seq.full
 cat >$tmp.sh <<END
