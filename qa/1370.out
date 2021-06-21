@@ -13,12 +13,15 @@ display commands to be tested
 /usr/bin/pcp2spark
 /usr/bin/pcp2xml
 /usr/bin/pcp2zabbix
+/usr/bin/pmchart
 /usr/bin/pmclient
 /usr/bin/pmclient_fg
+/usr/bin/pmconfirm
 /usr/bin/pmdate
 /usr/bin/pmdbg
 /usr/bin/pmdiff
 /usr/bin/pmdumplog
+/usr/bin/pmdumptext
 /usr/bin/pmerr
 /usr/bin/pmevent
 /usr/bin/pmfind
@@ -40,7 +43,9 @@ display commands to be tested
 /usr/bin/pmlogpaste
 /usr/bin/pmlogsize
 /usr/bin/pmlogsummary
+/usr/bin/pmmessage
 /usr/bin/pmprobe
+/usr/bin/pmquery
 /usr/bin/pmrep
 /usr/bin/pmrepconf
 /usr/bin/pmsearch
@@ -48,6 +53,7 @@ display commands to be tested
 /usr/bin/pmsocks
 /usr/bin/pmstat
 /usr/bin/pmstore
+/usr/bin/pmtime
 /usr/bin/pmtrace
 /usr/bin/pmval
 /usr/libexec/pcp/bin/chkhelp
@@ -89,6 +95,7 @@ display commands to be tested
 /usr/libexec/pcp/bin/pmlogger
 /usr/libexec/pcp/bin/pmlogger_check
 /usr/libexec/pcp/bin/pmlogger_daily
+/usr/libexec/pcp/bin/pmlogger_daily_report
 /usr/libexec/pcp/bin/pmlogger_merge
 /usr/libexec/pcp/bin/pmlogger_rewrite
 /usr/libexec/pcp/bin/pmlogreduce
@@ -100,6 +107,7 @@ display commands to be tested
 /usr/libexec/pcp/bin/pmpost
 /usr/libexec/pcp/bin/pmproxy
 /usr/libexec/pcp/bin/pmsignal
+/usr/libexec/pcp/bin/pmsnap
 /usr/libexec/pcp/bin/selinux-setup
 run checks
 pcp.1 missing --align
@@ -113,6 +121,8 @@ pmclient.1 missing --guimode
 pmclient.1 missing --guiport
 pmclient_fg.1 missing --guimode
 pmclient_fg.1 missing --guiport
+pmdumptext.1 missing --align
+pmdumptext.1 missing --start
 pmiostat.1 missing --align
 pmiostat.1 missing --start
 pmiostat.1 missing --version
