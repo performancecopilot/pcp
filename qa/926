@@ -52,6 +52,7 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 uname -a >>$seq.full
 echo "machine=$machine" >>$seq.full
+src/sizeof int long ptr >>$seq.full
 
 # real QA test starts here
 # only one dir for now, add more if we get more sample data
