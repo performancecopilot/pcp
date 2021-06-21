@@ -1851,10 +1851,9 @@ x11
 1613 pmda.linux kernel local
 1622 selinux local
 1623 libpcp_import collectl local
-1627 libpcp_import local
-1628 libpcp_import valgrind local
 1634 pmda.sockets local
 1644 pmda.perfevent local
+1653 other local
 1660 libpcp labels local
 1661 pmproxy libpcp_web pmlogger local
 1671 multi-archive archive libpcp pmrep local python
