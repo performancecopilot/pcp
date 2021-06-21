@@ -88,6 +88,12 @@ pmrep -u -s 5 -o archive -F $tmp.new_archive4 -z $log hinv.machine mem.util.used
 pmrep -u -a $tmp.new_archive4 -z hinv.machine mem.util.used
 pmdumplog -z -dim $tmp.new_archive4
 
+echo "=== pmrep archive creation with scaled values"
+pmrep -u -s 5 -o archive -F $tmp.new_archive5 -z $log2 -i sda,sdc disk.dev.write_bytes,,,MB | _pid_filter
+# Using -r to display the unit in the archive
+pmrep -u -a $tmp.new_archive5 -z -r disk.dev.write_bytes
+pmdumplog -z -dim $tmp.new_archive5
+
 rm -f $tmp.a1-out* $tmp.a2-out* $tmp.new_archive*
 
 # success, all done

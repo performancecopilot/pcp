@@ -93,4 +93,53 @@ Instance Domains in the Log ...
 
 14:39:17.882326 1 metric
     60.1.1 (mem.util.used): value 13573800
+=== pmrep archive creation with scaled values
+Recording 1 metrics to TMP.new_archive5:
+5 samples(s) with 1.0 sec interval ~ 4 sec duration.
+  d.d.write_bytes  d.d.write_bytes
+              sda              sdc
+            Kbyte            Kbyte
+        369846691        948239088
+        369847163        948239160
+        369847575        948239236
+        369848903        948239408
+        369849315        948239540
+Note: timezone set to local timezone of host "billing02" from archive
+
+
+Descriptions for Metrics in the Log ...
+PMID: 60.0.39 (disk.dev.write_bytes)
+    Data Type: 32-bit unsigned int  InDom: 60.1 0xf000001
+    Semantics: counter  Units: Kbyte
+
+Instance Domains in the Log ...
+InDom: 60.1
+00:28:01.923022 2 instances
+   0 or "sda"
+   2 or "sdc"
+
+00:28:01.923022 1 metric
+    60.0.39 (disk.dev.write_bytes):
+        inst [0 or "sda"] value 369846691
+        inst [2 or "sdc"] value 948239088
+
+00:29:01.925641 1 metric
+    60.0.39 (disk.dev.write_bytes):
+        inst [0 or "sda"] value 369847163
+        inst [2 or "sdc"] value 948239160
+
+00:30:01.923324 1 metric
+    60.0.39 (disk.dev.write_bytes):
+        inst [0 or "sda"] value 369847575
+        inst [2 or "sdc"] value 948239236
+
+00:31:01.922091 1 metric
+    60.0.39 (disk.dev.write_bytes):
+        inst [0 or "sda"] value 369848903
+        inst [2 or "sdc"] value 948239408
+
+00:32:01.922742 1 metric
+    60.0.39 (disk.dev.write_bytes):
+        inst [0 or "sda"] value 369849315
+        inst [2 or "sdc"] value 948239540
 == done
