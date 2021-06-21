@@ -3,7 +3,7 @@ pmiPutValue: inst 0: Impossible value or scale conversion
 pmiPutValue: inst 1: Impossible value or scale conversion
 
 my.metric.int
-    Data Type: 32-bit int  InDom: 245.0 0xa800000
+    Data Type: 32-bit int  InDom: 245.0 0x3d400000
     Semantics: instant  Units: none
 Error: Impossible value or scale conversion
 
