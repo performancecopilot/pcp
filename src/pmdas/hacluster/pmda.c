@@ -495,7 +495,6 @@ hacluster_pacemaker_constraints_instance_refresh(void)
 			struct  pacemaker_constraints *constraints;
 
 			sts = pmdaCacheLookupName(indom, constraint_name, NULL, (void **)&constraints);
-			pmdaCacheLookupName(indom_all, constraint_name, NULL, NULL);
 			if (sts == PM_ERR_INST || (sts >=0 && constraints == NULL)) {
 				constraints = calloc(1, sizeof(struct pacemaker_constraints));
 				if (constraints == NULL) {
@@ -636,7 +635,6 @@ hacluster_pacemaker_node_attrib_instance_refresh(void)
 				struct  pacemaker_node_attrib *node_attrib;
 
 				sts = pmdaCacheLookupName(indom, instance_name, NULL, (void **)&node_attrib);
-				pmdaCacheLookupName(indom_all, instance_name, NULL, NULL);
 				if (sts == PM_ERR_INST || (sts >=0 && node_attrib == NULL)) {
 					node_attrib = calloc(1, sizeof(struct pacemaker_node_attrib));
 					if (node_attrib == NULL) {
@@ -716,7 +714,6 @@ hacluster_pacemaker_resources_instance_refresh(void)
 				struct pacemaker_resources *pace_resources;
 
 				sts = pmdaCacheLookupName(indom, instance_name, NULL, (void **)&pace_resources);
-				pmdaCacheLookupName(indom_all, instance_name, NULL, NULL);
 				if (sts == PM_ERR_INST || (sts >=0 && pace_resources == NULL)) {
 					pace_resources = calloc(1, sizeof(struct pacemaker_resources));
 					if (pace_resources == NULL) {
@@ -842,7 +839,6 @@ hacluster_corosync_ring_instance_refresh(void)
 			struct  corosync_ring *ring;
 
 			sts = pmdaCacheLookupName(indom, ring_name, NULL, (void **)&ring);
-			pmdaCacheLookupName(indom_all, ring_name, NULL, NULL);
 			if (sts == PM_ERR_INST || (sts >=0 && ring == NULL)) {
 				ring = calloc(1, sizeof(struct corosync_ring));
 				if (ring == NULL) {
@@ -914,7 +910,6 @@ hacluster_sbd_device_instance_refresh(void)
 					struct  sbd_device *sbd;
 
 					sts = pmdaCacheLookupName(indom, dev_name, NULL, (void **)&sbd);
-					pmdaCacheLookupName(indom_all, dev_name, NULL, NULL);
 					if (sts == PM_ERR_INST || (sts >=0 && sbd == NULL)) {
 						sbd = calloc(1, sizeof(struct sbd_device));
 						if (sbd == NULL) {
@@ -997,7 +992,6 @@ hacluster_drbd_resource_instance_refresh(void)
 			struct  drbd_resource *resource;
 
 			sts = pmdaCacheLookupName(indom, resource_name, NULL, (void **)&resource);
-			pmdaCacheLookupName(indom_all, resource_name, NULL, NULL);
 			if (sts == PM_ERR_INST || (sts >=0 && resource == NULL)) {
 				resource = calloc(1, sizeof(struct drbd_resource));
 				if (resource == NULL) {
@@ -1010,6 +1004,7 @@ hacluster_drbd_resource_instance_refresh(void)
 
 			pmdaCacheStore(indom, PMDA_CACHE_ADD, resource_name, (void *)resource);
 			pmdaCacheStore(indom_all, PMDA_CACHE_ADD, resource_name, NULL);
+
 			found_volume = 0;
 		}
 	}
@@ -1078,7 +1073,6 @@ hacluster_drbd_peer_device_instance_refresh(void)
 			struct  drbd_peer_device *peer_device;
 
 			sts = pmdaCacheLookupName(indom, peer_name, NULL, (void **)&peer_device);
-			pmdaCacheLookupName(indom_all, peer_name, NULL, NULL);
 			if (sts == PM_ERR_INST || (sts >=0 && peer_device == NULL)) {
 				peer_device = calloc(1, sizeof(struct drbd_peer_device));
 				if (peer_device == NULL) {
@@ -1091,6 +1085,7 @@ hacluster_drbd_peer_device_instance_refresh(void)
 
 			pmdaCacheStore(indom, PMDA_CACHE_ADD, peer_name, (void *)peer_device);
 			pmdaCacheStore(indom_all, PMDA_CACHE_ADD, peer_name, NULL);
+
 			found_peer_node = 0;
 		}
 	}
