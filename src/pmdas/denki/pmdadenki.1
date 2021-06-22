@@ -1,16 +1,16 @@
-.\" 
+.\"
 .\" Copyright (c) 2021 Red Hat.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .TH "PMDADENKI" "1" "PCP" "Performance Co-Pilot" ""
 .SH "NAME"
 \f3pmdadenki\f1 \- the PMDA providing metrics related to the systems electrical cunsumption
@@ -22,10 +22,10 @@
 .BR pmdadenki
 is a Performance Metrics Domain Agent (PMDA) which extracts
 electricity related performance metrics.
-.PP 
+.PP
 Currently, metrics from RAPL (on Intel cpus) and battery
 charge values are available, if supported by the hardware.
-.PP 
+.PP
 .B \-l
 Location of the log file.  By default, a log file named
 .I denki.log
@@ -42,7 +42,7 @@ The
 .B denki
 PMDA is installed and available by default on Linux.
 If you want to undo the installation, do the following as root:
-.PP 
+.PP
 .ft CW
 .nf 
 .in +0.5i
@@ -51,10 +51,10 @@ If you want to undo the installation, do the following as root:
 .in
 .fi 
 .ft 1
-.PP 
+.PP
 If you want to establish access to the names, help text and values for the
 denki metrics once more, after removal, do the following as root:
-.PP 
+.PP
 .ft CW
 .nf 
 .in +0.5i
@@ -63,7 +63,7 @@ denki metrics once more, after removal, do the following as root:
 .in
 .fi 
 .ft 1
-.PP 
+.PP
 .B pmdadenki
 is launched by
 .BR pmcd (1)
