@@ -165,7 +165,6 @@ static int read_battery(void) {
 	fff=fopen(filename,"r");
 	if (fff==NULL) {
 		pmNotifyErr(LOG_DEBUG, "DENKI: No battery found.");
-		fclose(fff);
 		return 1;
 	}
 	if ( fscanf(fff,"%lld",&energy_now) != 1)
@@ -176,7 +175,6 @@ static int read_battery(void) {
 	fff=fopen(filename,"r");
 	if (fff==NULL) {
 		pmNotifyErr(LOG_DEBUG, "DENKI: No battery found.");
-		fclose(fff);
 		return 1;
 	}
 	if ( fscanf(fff,"%lld",&power_now) != 1)
@@ -580,6 +578,7 @@ main(int argc, char **argv)
 {
     char		filename[BUFSIZ];
     int			c,sep = pmPathSeparator();
+    DIR			*directory;
     pmdaInterface	dispatch;
 
     isDSO = 0;
@@ -615,24 +614,26 @@ main(int argc, char **argv)
     pmNotifyErr(LOG_DEBUG, "configured to use this rootpath: %s", rootpath);
 
     pmsprintf(filename,sizeof(filename),"%s/sys/class/powercap/intel-rapl",rootpath);
-    if (opendir(filename)) {
-
+    directory = opendir(filename);
+    if ( directory == NULL )
+    	pmNotifyErr(LOG_DEBUG, "Intel RAPL not detected");
+    else {
 	has_rapl=1;
     	detect_rapl_packages();
     	pmNotifyErr(LOG_DEBUG, "detected Intel RAPL, with %d cpu-cores and %d rapl-packages.", total_cores, total_packages);
     	detect_rapl_domains();
     	denki_rapl_check();	// now we register the found rapl indoms
     }
-    else
-    	pmNotifyErr(LOG_DEBUG, "Intel RAPL not detected");
+    closedir(directory);
     
     pmsprintf(filename,sizeof(filename),"%s/sys/class/power_supply/BAT0",rootpath);
-    if (opendir(filename)) {
+    directory = opendir(filename);
+    if ( directory == NULL )
+    	pmNotifyErr(LOG_DEBUG, "detected no battery");
+    else {
     	pmNotifyErr(LOG_DEBUG, "detected battery");
 	has_bat=1;
     }
-    else
-    	pmNotifyErr(LOG_DEBUG, "detected no battery");
 
     pmdaMain(&dispatch);
 

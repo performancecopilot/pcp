@@ -260,6 +260,7 @@ _filter_optional_pmdas()
 	-e '/pmdabrocade/d' \
 	-e '/pmdacisco/d' \
 	-e '/pmdadbping/d' \
+	-e '/pmdadenki/d' \
 	-e '/pmdadm/d' \
 	-e '/pmdadmf/d' \
 	-e '/pmdadocker/d' \
