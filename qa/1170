@@ -21,6 +21,17 @@ in
 		;;
 esac
 
+target_ip=1.1.1.1
+
+status=1       # failure is the default!
+signal=$PCP_BINADM_DIR/pmsignal
+$sudo rm -rf $tmp.* $seq.full
+
+# Some combinations of distro and kernel are known to be "bad"
+# for some BPF modules
+#
+kernel=`uname -r`
+echo "$kernel" >>$seq.full
 case `admin/whatami`
 in
     *Fedora\ 32\ *)
@@ -29,16 +40,20 @@ in
     *Ubuntu\ 19.10\ *)
 	_notrun "bcc tcptop module will not compile on Ubuntu 19.10"
 	;;
+    *Ubuntu\ 20.04\ *)
+	# works on 5.4 kernel, not on 5.8.0-1033-azure
+	#
+	case "$kernel"
+	in
+	    5.8.0-*-azure)
+		_notrun "bcc tcptop module will not compile on Ubuntu kernel $kernel"
+		;;
+	esac
+	;;
     *openSUSE\ Leap\ 15.1\ *)
 	_notrun "bcc tcptop module will not compile on openSUSE 15.1"
 	;;
 esac
-
-target_ip=1.1.1.1
-
-status=1       # failure is the default!
-signal=$PCP_BINADM_DIR/pmsignal
-$sudo rm -rf $tmp.* $seq.full
 
 _prepare_pmda bcc
 trap "_pmdabcc_cleanup; exit \$status" 0 1 2 3 15

@@ -18,15 +18,25 @@ status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
 $sudo rm -rf $tmp.* $seq.full
 
+# Some combinations of distro and kernel are known to be "bad"
+# for some BPF modules
+#
+kernel=`uname -r`
+echo "$kernel" >>$seq.full
 case `admin/whatami`
 in
     *Fedora\ 32\ *)
 	_notrun "bcc netproc module will not compile on Fedora 32"
 	;;
     *Ubuntu\ 20.04\ *)
-	# works on 5.4 kernel, TBD what kernel test-ubuntu2004-direct
-	# is in CI
-	uname -r >>$seq.full
+	# works on 5.4 kernel, not on 5.8.0-1033-azure
+	#
+	case "$kernel"
+	in
+	    5.8.0-*-azure)
+		_notrun "bcc netproc module will not compile on Ubuntu kernel $kernel"
+		;;
+	esac
 	;;
 esac
 
