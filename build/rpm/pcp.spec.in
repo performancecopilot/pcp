@@ -2943,6 +2943,8 @@ PCP_SA_DIR=@pcp_sa_dir@
 
 %files pmda-dbping -f pcp-pmda-dbping-files.rpm
 
+%files pmda-denki -f pcp-pmda-denki-files.rpm
+
 %files pmda-ds389log -f pcp-pmda-ds389log-files.rpm
 
 %files pmda-ds389 -f pcp-pmda-ds389-files.rpm

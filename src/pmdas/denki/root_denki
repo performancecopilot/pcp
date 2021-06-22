@@ -16,6 +16,10 @@
 #define DENKI 156
 #endif
 
+root {
+	denki
+}
+
 denki {
 	rapl
 	bat

@@ -27,13 +27,26 @@
 # blank lines before the @ line are ignored
 #
 
-@ DENKI.0 rapl readings
-Systems rapl readings, rapl cores available as metric instances.
+@ 156.0.0 denki.rapl.rate
+Current electrical power consumption of Intel cpu components.
+The rapl cores offered by the system are available as metric
+instances.
 
-@ DENKI.1 calculated energy consumption 
-Systems current energy consumption, calculated from battery level.
-Only available while discharging.
+@ 156.0.1 denki.rapl.raw 
+Raw rapl values as reported by Intel cpus.  These allow to
+compute power consumption of longer running compute loads, with
+higher accuracy.
 
-@ DENKI.2 system provided energy consumption
-Systems current energy consumption, provided by system.
+@ 156.1.0 denki.bat.energy_now_raw battery reported charge level
+The current charge level as reported by the battery.  This can
+be used to calculate overall power consumption of longer running
+compute loads, with high accuracy.
+
+@ 156.1.1 denki.bat.energy_now_rate calculated energy consumption 
+Systems current energy consumption, calculated by pmda-denki
+from battery charge level.  Only available while discharging.  
+Computed every 60 seconds.
+
+@ 156.1.2 denki.bat.power_now system calculated energy consumption
+Systems current energy consumption, calculated by the system.
 Only available while discharging, or charging the battery.
