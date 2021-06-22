@@ -32,6 +32,15 @@ _cleanup()
 }
 
 trap "_cleanup; exit \$status" 0 1 2 3 15
+rm -f $seq.full
+
+# sniff for avahi version, suspected of causing (unrelated) failure on
+# test-centos6-container in CI
+#
+if which rpm >/dev/null 2>&1
+then
+    rpm -qa | grep avahi >>$seq.full
+fi
 
 _filter()
 {
@@ -48,8 +57,6 @@ p
 _service pcp stop >/dev/null 2>&1
 # allow time to cleanup and close all sockets
 sleep 3
-
-rm -f $seq.full
 
 # figure out which user we will run pmcd and its pmdas as
 username=`id -u -n`
