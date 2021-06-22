@@ -1,5 +1,8 @@
 QA output created by 1653
 
+### Extracting test datasets...
+
+
 ### Installing test dataset 1...
 
 Installing files ...
@@ -59,3 +62,6 @@ denki.bat.energy_now_rate
 
 denki.bat.power_now
     value 0
+
+### Removing test datasets...
+

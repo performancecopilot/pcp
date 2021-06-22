@@ -52,9 +52,13 @@ if $do_valgrind
 then
     _run_valgrind ...your test goes here...
 else
-	cd /usr/libexec/pcp/pmdas/denki
+	echo -e "\n### Extracting test datasets...\n"
+	cd /var/lib/pcp/testsuite/denki/
+	tar xzf bigsystem.tgz
+	tar xzf Thinkpad_L480_bat_busy.tgz
 
 	echo -e "\n### Installing test dataset 1...\n"
+	cd /usr/libexec/pcp/pmdas/denki
 	ROOTPATH="/var/lib/pcp/testsuite/denki/Thinkpad_L480_bat_busy"
 	sudo sed -ie \
 		"s,^args.*,args=\"-U root -r ${ROOTPATH}\","  \
@@ -69,6 +73,10 @@ else
 		Install
 	sudo ./Install 2>&1
 	pminfo -fF denki
+
+	echo -e "\n### Removing test datasets...\n"
+	rm -rf /var/lib/pcp/testsuite/denki/bigsystem
+	rm -rf /var/lib/pcp/testsuite/denki/Thinkpad_L480_bat_busy
 fi \
 | _filter
 
