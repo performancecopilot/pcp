@@ -2,9 +2,13 @@ QA output created by 1370
 collecting commands
 removing problematic commands from test
 display commands to be tested
+/usr/bin/collectl2pcp
 /usr/bin/dbpmda
 /usr/bin/dstat
+/usr/bin/ganglia2pcp
 /usr/bin/genpmda
+/usr/bin/iostat2pcp
+/usr/bin/mrtg2pcp
 /usr/bin/pcp
 /usr/bin/pcp2elasticsearch
 /usr/bin/pcp2graphite
@@ -56,6 +60,8 @@ display commands to be tested
 /usr/bin/pmtime
 /usr/bin/pmtrace
 /usr/bin/pmval
+/usr/bin/sar2pcp
+/usr/bin/sheet2pcp
 /usr/libexec/pcp/bin/chkhelp
 /usr/libexec/pcp/bin/discover
 /usr/libexec/pcp/bin/discover/pcp-kube-pods
