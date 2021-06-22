@@ -47,7 +47,8 @@ build-me: $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS)
 install: default
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)
 	$(INSTALL) -m 755 -d $(PMDATMPDIR)
-	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h help help.dir help.pag root root_denki $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h help help.dir help.pag $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) root root_denki README $(PMDAADMDIR)
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) $(PMDAADMDIR)
 	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_denki root_denki $(PCP_PMNSADM_DIR)/root_denki
 	@$(INSTALL_MAN)

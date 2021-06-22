@@ -1791,7 +1791,7 @@ x11
 1367 labels pmda.simple local python
 1368 labels help pmlogger pmdumplog local sanity
 1369 labels pmcd pmlogger pmdumplog local
-1370:reserved man local
+1370 man local
 1372 pmie local
 1379 pmproxy local
 1383 pmlogrewrite labels pmdumplog local
@@ -1851,6 +1851,8 @@ x11
 1613 pmda.linux kernel local
 1622 selinux local
 1623 libpcp_import collectl local
+1627 libpcp_import local
+1628 libpcp_import valgrind local
 1634 pmda.sockets local
 1644 pmda.perfevent local
 1653 other local
