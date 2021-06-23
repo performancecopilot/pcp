@@ -46,10 +46,6 @@ status=1	# failure is the default!
 need_restore=false
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
-if which redis-cli >/dev/null 2>&1
-then
-    redis-cli info | grep redis_version >>$here/$seq.full
-fi
 
 pmproxy_was_running=false
 [ -f $PCP_RUN_DIR/pmproxy.pid ] && pmproxy_was_running=true
