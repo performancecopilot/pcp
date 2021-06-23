@@ -38,14 +38,24 @@ done
 echo "display commands to be tested"
 cat $tmp.cmds.txt
 
+export PCP_STDERR=$tmp.popup
+
 echo "run checks"
 for cmd in $(cat $tmp.cmds.txt); do
   rm -f $tmp.test
   bn=$(basename $cmd)
-  $cmd --help 2>&1 | grep -Eo -- '--.* ' | sed -e 's/=.*//g' -e 's/ .*//g' -e 's/]//g' | grep -e '-[A-Za-z]' > $tmp.test
+  rm -f $tmp.popup
+  $cmd --help >$tmp.out 2>$tmp.err
+  [ -f $tmp.popup ] && cat $tmp.popup >>$tmp.err
+  cat $tmp.out $tmp.err \
+  | grep -Eo -- '--.*( |$)' \
+  | sed -e 's/=.*//g' -e 's/ .*//g' -e 's/]//g' \
+  | grep -e '-[A-Za-z]' > $tmp.test
   if ! grep -q -- -- $tmp.test; then
     continue
   fi
+  echo "=== $cmd ===" >>$seq.full
+  cat $tmp.test >>$seq.full
   for opt in $(cat $tmp.test); do
     man $bn | grep -q -- "$opt" || echo "$bn.1 missing $opt"
   done
