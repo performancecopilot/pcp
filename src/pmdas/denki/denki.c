@@ -2,7 +2,7 @@
  * Denki (電気, Japanese for 'electricity'), PMDA for electricity related 
  * metrics
  *
- * Copyright (c) 2012-2014,2017 Red Hat.
+ * Copyright (c) 2012-2014,2017,2021 Red Hat.
  * Copyright (c) 1995,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -69,6 +69,11 @@ static int detect_rapl_packages(void) {
 		printf("\tcore %d (package %d)\n",i,package);
 		fclose(fff);
 
+		if (package >= MAX_PACKAGES) {
+			pmNotifyErr(LOG_ERR, "package number %d too big, max %u", package, MAX_PACKAGES);
+			continue;
+		}
+
 		if (package_map[package]==-1) {
 			total_packages++;
 			package_map[package]=i;
@@ -98,7 +103,7 @@ static int detect_rapl_domains(void) {
     			pmNotifyErr(LOG_ERR, "read_rapl() could not open %s", tempfile);
 			return -1;
 		}
-		if ( fscanf(fff,"%s",event_names[pkg][i]) != 1)
+		if ( fscanf(fff,"%255s",event_names[pkg][i]) != 1)
     			pmNotifyErr(LOG_ERR, "read_rapl() could not read %s",event_names[pkg][i]);
 		valid[pkg][i]=1;
 		fclose(fff);
@@ -115,7 +120,7 @@ static int detect_rapl_domains(void) {
 				continue;
 			}
 			valid[pkg][i]=1;
-			if ( fscanf(fff,"%s",event_names[pkg][i]) != 1 )
+			if ( fscanf(fff,"%255s",event_names[pkg][i]) != 1 )
     				pmNotifyErr(LOG_DEBUG, "Could not read from %s", event_names[pkg][i]);
 			fclose(fff);
 			pmsprintf(filenames[pkg][i],sizeof(filenames[pkg][i]),"%s/intel-rapl:%d:%d/energy_uj",
@@ -590,7 +595,8 @@ main(int argc, char **argv)
     while ((c = pmdaGetOptions(argc, argv, &opts, &dispatch)) != EOF) {
         switch (c) {
 	        case 'r':
-        		strcpy(rootpath, opts.optarg);
+        		strncpy(rootpath, opts.optarg, sizeof(rootpath));
+			rootpath[sizeof(rootpath)-1] = '\0';
             		break;
         }
     }
