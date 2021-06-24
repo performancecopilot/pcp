@@ -243,7 +243,8 @@ This is different to
 .BR ss (8)
 where the filter is optionally specified on the command line of the tool and is
 always 'live', i.e.
-.BR ss (8) does not support retrospective replay.
+.BR ss (8)
+does not support retrospective replay.
 With
 .BR pcp-ss ,
 the filter is stored in the back-end PMDA, see
@@ -257,14 +258,13 @@ metric using
 .BR pmstore (1),
 e.g.
 \fBpmstore network.persocket.filter "state established"\fP.
-This will over-ride the persistent default filter, which is stored
+This will override the persistent default filter, which is stored
 in a PMDA configuration file and loaded each time the sockets PMDA is started.
 See
-.BR pmdasockets (1) for further details and see
+.BR pmdasockets (1)
+for further details and see
 .BR ss (8)
 for details of the filter syntax and examples.
-.SH DIAGNOSTICS
-All are generated on standard error and are intended to be self-explanatory.
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize
 the file and directory names used by PCP.
@@ -276,12 +276,9 @@ configuration file, as described in \fBpcp.conf\fP(5).
 For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .SH SEE ALSO
 .BR PCPIntro (1),
-.BR pmdasockets (1),
 .BR pcp (1),
-.BR pmcd (1),
-.BR pmchart (1),
+.BR pmdasockets (1),
 .BR pmlogger (1),
-.BR ss (8),
 .BR pcp.conf (5)
 and
-.BR pcp.env (5).
+.BR ss (8).
