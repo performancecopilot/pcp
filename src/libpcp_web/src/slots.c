@@ -318,7 +318,7 @@ redisSlotsRequest(redisSlots *slots, const sds cmd,
 
     if ((srd = redisSlotsReplyDataAlloc(slots, sdslen(cmd), callback, arg)) == NULL) {
 	mmv_stats_inc(slots->metrics_handle, "requests.error", NULL);
-	pmNotifyErr(LOG_ERR, "Error: redisSlotsRequest failed to allocate reply data (%lu bytes)\n", sdslen(cmd));
+	pmNotifyErr(LOG_ERR, "Error: redisSlotsRequest failed to allocate reply data (%zu bytes)\n", sdslen(cmd));
 	return -ENOMEM;
     }
     sts = redisClusterAsyncFormattedCommand(slots->acc, redisSlotsReplyCallback, srd, cmd, sdslen(cmd));
@@ -363,7 +363,7 @@ redisSlotsRequestFirstNode(redisSlots *slots, const sds cmd,
 
     if ((srd = redisSlotsReplyDataAlloc(slots, sdslen(cmd), callback, arg)) == NULL) {
 	mmv_stats_inc(slots->metrics_handle, "requests.error", NULL);
-	pmNotifyErr(LOG_ERR, "Error: redisSlotsRequestFirstNode failed to allocate reply data (%lu bytes)\n", sdslen(cmd));
+	pmNotifyErr(LOG_ERR, "Error: redisSlotsRequestFirstNode failed to allocate reply data (%zu bytes)\n", sdslen(cmd));
 	return -ENOMEM;
     }
     sts = redisClusterAsyncFormattedCommandToNode(slots->acc, node, redisSlotsReplyCallback, srd, cmd, sdslen(cmd));
