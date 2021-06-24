@@ -19,6 +19,7 @@ _cleanup()
 {
     echo "Entering _cleanup ..." >>$here/$seq.full
     $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mproxy' >>$here/$seq.full
+    cat $PCP_LOG_DIR/pmproxy/pmproxy.log >>$here/$seq.full
     cd $here
     _restore_auto_restart pmproxy
     if $need_restore
