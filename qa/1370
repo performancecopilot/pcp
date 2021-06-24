@@ -49,7 +49,7 @@ for cmd in $(cat $tmp.cmds.txt); do
   [ -f $tmp.popup ] && cat $tmp.popup >>$tmp.err
   cat $tmp.out $tmp.err \
   | grep -Eo -- '--.*( |$)' \
-  | sed -e 's/=.*//g' -e 's/ .*//g' -e 's/]//g' \
+  | sed -e 's/=.*//g' -e 's/ .*//g' -e 's/]//g' -e 's/)//g' \
   | grep -e '-[A-Za-z]' > $tmp.test
   if ! grep -q -- -- $tmp.test; then
     continue

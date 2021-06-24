@@ -81,6 +81,7 @@ display commands to be tested
 /usr/libexec/pcp/bin/pcp-numastat
 /usr/libexec/pcp/bin/pcp-pidstat
 /usr/libexec/pcp/bin/pcp-shping
+/usr/libexec/pcp/bin/pcp-ss
 /usr/libexec/pcp/bin/pcp-summary
 /usr/libexec/pcp/bin/pcp-tapestat
 /usr/libexec/pcp/bin/pcp-uptime
@@ -121,6 +122,8 @@ pcp.1 missing --guimode
 pcp.1 missing --guiport
 pcp.1 missing --start
 pcp.1 missing --samples
+pcp.1 missing --finish
+pcp.1 missing --interval
 pcp.1 missing --timezone
 pcp.1 missing --hostzone
 pmclient.1 missing --guimode
@@ -128,27 +131,33 @@ pmclient.1 missing --guiport
 pmclient_fg.1 missing --guimode
 pmclient_fg.1 missing --guiport
 pmdumptext.1 missing --align
+pmdumptext.1 missing --origin
 pmdumptext.1 missing --start
+pmdumptext.1 missing --finish
 pmiostat.1 missing --align
 pmiostat.1 missing --start
-pmiostat.1 missing --version
+pmiostat.1 missing --finish
 pmiostat.1 missing --hostzone
 pcp-atop.1 missing --pcp-flags
-pcp-atop.1 missing --hotproc
 pcp-atop.1 missing --align
 pcp-atop.1 missing --start
 pcp-atop.1 missing --finish
 pcp-atop.1 missing --hostzone
 pcp-atop.1 missing --version
 pcp-atopsar.1 missing display
+pcp-free.1 missing --count
+pcp-free.1 missing --count
+pcp-free.1 missing --seconds
+pcp-free.1 missing --seconds
 pcp-iostat.1 missing --align
 pcp-iostat.1 missing --start
-pcp-iostat.1 missing --version
+pcp-iostat.1 missing --finish
 pcp-iostat.1 missing --hostzone
 pcp-tapestat.1 missing --align
 pcp-tapestat.1 missing --start
-pcp-tapestat.1 missing --version
+pcp-tapestat.1 missing --finish
 pcp-tapestat.1 missing --hostzone
+pmlogger_rewrite.1 missing --config
 pmlogger_rewrite.1 missing --desperate
 pmlogger_rewrite.1 missing --scale
 pmlogger_rewrite.1 missing --warnings
