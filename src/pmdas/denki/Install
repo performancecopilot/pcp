@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 #
 # Copyright (c) 2013 Red Hat.
 # Copyright (c) 1997 Silicon Graphics, Inc.  All Rights Reserved.
@@ -26,8 +26,7 @@ dso_opt=false
 socket_opt=false
 pmns_source=root_denki
 
-# args="-U root -r $PCP_PMDAS_DIR/denki/data/Thinkpad_T460s_AC"
-# args="-U root -r $PCP_PMDAS_DIR/denki/data/Thinkpad_T460s_bat_idle"
+# args="-U root -r <directory>"
 args="-U root"
 
 # Set up the denki PMDA (domain 156) InDom cache
