@@ -44,6 +44,7 @@ static pmLongOptions longopts[] = {
     { "", 0, 'x', 0, "skip metrics with mismatched metadata" },
     PMOPT_TIMEZONE,
     PMOPT_HOSTZONE,
+    PMOPT_HELP,
     PMAPI_OPTIONS_END
 };
 
