@@ -155,6 +155,7 @@ static pmLongOptions longopts[] = {
     { "verbose", 0, 'v', 0, "run in verbose mode, reporting on each stage of checking" },
     { "version", 1, 'V', "NUM", "write magic and version numbers for all files in archive" },
     { "timezone", 1, 'Z', "TZ", "set the timezone for all files in archive" },
+    PMOPT_HELP,
     PMAPI_OPTIONS_END
 };
 
