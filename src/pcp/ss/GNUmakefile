@@ -1,6 +1,5 @@
 #
-# Copyright (c) 2014-2020 Red Hat.
-# Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2021 Red Hat, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -11,40 +10,31 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
+#
 
-TOPDIR = ../..
+TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-SUBDIRS = \
-	atop \
-	dmcache \
-	dstat \
-	free \
-	htop \
-	iostat \
-        ipcs \
-	mpstat \
-	numastat \
-	pidstat \
-	python \
-	shping \
-	summary \
-	tapestat \
-	uptime \
-	verify \
-	vmstat \
-	ss
+TARGET = pcp-ss
+SCRIPT = $(TARGET).py
+MAN_PAGES = $(TARGET).1
 
-default :: default_pcp
-
-default_pcp : $(SUBDIRS)
-	$(SUBDIRS_MAKERULE)
-
-install :: install_pcp
-
-install_pcp : $(SUBDIRS)
-	$(INSTALL) -m 755 pcp.sh $(PCP_BIN_DIR)/pcp$(SHELLSUFFIX)
-	$(SUBDIRS_MAKERULE)
+default: $(SCRIPT)
 
 include $(BUILDRULES)
+
+install: default
+ifeq "$(HAVE_PYTHON)" "true"
+	$(INSTALL) -m 755 $(SCRIPT) $(PCP_BINADM_DIR)/$(TARGET)
+	@$(INSTALL_MAN)
+endif
+
+default_pcp: default
+
+install_pcp: install
+
+check :: $(SCRIPT)
+	$(PYLINT) $^
+
+check :: $(MAN_PAGES)
+	$(MANLINT) $^
