@@ -20,7 +20,7 @@
 .SH SYNOPSIS
 \f3pmproxy\f1
 [\f3\-AFft?\f1]
-[\f3\-C\f1 \f2dirname\f1]
+[\f3\-C\f1 \f2certdb\f1]
 [\f3\-h\f1 \f2host\f1[,\f2host\f1 ...]
 [\f3\-i\f1 \f2ipaddress\f1]
 [\f3\-l\f1 \f2logfile\f1]
@@ -112,7 +112,7 @@ Specify the path to an optional configuration
 with format as described in the ``CONFIGURATION'' section.
 This option implies \f3pmproxy\f1 is running in \f3timeseries\f1 mode.
 .TP
-\f3\-C\f1 \f2dirname\f1, \f3\-\-certpath\f1=\f2dirname\f1
+\f3\-C\f1 \f2certdb\f1, \f3\-\-certdb\f1=\f2certdb\f1
 Specify the path to the Network Security Services certificate database,
 for (optional) secure connections.
 This option implies \f3pmproxy\f1 is running in \f3deprecated\f1 mode.
@@ -120,7 +120,7 @@ The default is
 .BR /etc/pki/nssdb .
 Refer also to the \f3\-P\f1 option.
 If it does not already exist, this database can be created using the
-.B certutil
+.BR certutil (1)
 utility.
 This process and other certificate database maintenance information
 is provided in the
@@ -236,7 +236,7 @@ option may be used to change the maximum incoming
 .I PDU
 size.
 .TP
-\f3\-M\f1 \f2name\f1, \f3\-\-certname\f1=\f2name\f1
+\f3\-M\f1 \f2certname\f1, \f3\-\-certname\f1=\f2certname\f1
 By default
 .B pmproxy
 will try to use a certificate called
@@ -245,7 +245,7 @@ in its server role.
 The
 .B \-M
 option allows this certificate
-.I name
+.I certname
 to be changed.
 This option implies \f3pmproxy\f1 is running in \f3deprecated\f1 mode.
 .TP
@@ -255,9 +255,9 @@ Specify an alternate
 number to listen on for client connections.
 The default value is 44322.
 .TP
-\f3\-P\f1 \f2file\f1, \f3\-\-passfile\f1=\f2file\f1
+\f3\-P\f1 \f2passfile\f1, \f3\-\-passfile\f1=\f2passfile\f1
 Specify the path to a
-.I file
+.I passfile
 containing the Network Security Services certificate
 database password for (optional) secure connections, and for databases that are
 password protected.
