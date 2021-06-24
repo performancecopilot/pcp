@@ -1614,6 +1614,20 @@ collecting metrics about the Linux hardware monitoring sensors.
 # end pcp-pmda-lmsensors
 
 #
+# pcp-pmda-denki
+#
+%package pmda-denki
+License: GPLv2+
+Summary: Performance Co-Pilot (PCP) metrics dealing with electrical power
+URL: https://pcp.io
+Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
+%description pmda-denki
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics related to the electrical power consumed by and inside
+the system.
+# end pcp-pmda-denki
+
+#
 # pcp-pmda-mssql
 #
 %package pmda-mssql
@@ -2247,6 +2261,7 @@ basic_manifest | keep '(etc/pcp|pmdas)/bpftrace(/|$)' >pcp-pmda-bpftrace-files
 basic_manifest | keep '(etc/pcp|pmdas)/cifs(/|$)' >pcp-pmda-cifs-files
 basic_manifest | keep '(etc/pcp|pmdas)/cisco(/|$)' >pcp-pmda-cisco-files
 basic_manifest | keep '(etc/pcp|pmdas)/dbping(/|$)' >pcp-pmda-dbping-files
+basic_manifest | keep '(etc/pcp|pmdas)/denki(/|$)' >pcp-pmda-denki-files
 basic_manifest | keep '(etc/pcp|pmdas|pmieconf)/dm(/|$)' >pcp-pmda-dm-files
 basic_manifest | keep '(etc/pcp|pmdas)/docker(/|$)' >pcp-pmda-docker-files
 basic_manifest | keep '(etc/pcp|pmdas)/ds389log(/|$)' >pcp-pmda-ds389log-files
@@ -2314,7 +2329,7 @@ for pmda_package in \
     activemq apache \
     bash bcc bind2 bonding bpftrace \
     cifs cisco \
-    dbping docker dm ds389 ds389log \
+    dbping denki docker dm ds389 ds389log \
     elasticsearch \
     gfs2 gluster gpfs gpsd \
     hacluster haproxy \
@@ -2773,6 +2788,9 @@ pmieconf -c enable dmthin
 %preun pmda-weblog
 %{pmda_remove "$1" "weblog"}
 
+%preun pmda-denki
+%{pmda_remove "$1" "denki"}
+
 %if "@enable_systemd@" == "true"
 %preun zeroconf
 if [ "$1" -eq 0 ]
@@ -2924,6 +2942,8 @@ PCP_SA_DIR=@pcp_sa_dir@
 %files pmda-bonding -f pcp-pmda-bonding-files.rpm
 
 %files pmda-dbping -f pcp-pmda-dbping-files.rpm
+
+%files pmda-denki -f pcp-pmda-denki-files.rpm
 
 %files pmda-ds389log -f pcp-pmda-ds389log-files.rpm
 

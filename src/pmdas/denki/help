@@ -1,0 +1,52 @@
+#
+# Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# denki PMDA help file in the ASCII format
+#
+# lines beginning with a # are ignored
+# lines beginning @ introduce a new entry of the form
+#  @ metric_name oneline-text
+#  help text goes
+#  here over multiple lines
+#  ...
+#
+# the metric_name is decoded against the default PMNS -- as a special case,
+# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
+# instance domain identification, and the text describes the instance domain
+#
+# blank lines before the @ line are ignored
+#
+
+@ 156.0.0 denki.rapl.rate
+Current electrical power consumption of Intel cpu components.
+The rapl cores offered by the system are available as metric
+instances.
+
+@ 156.0.1 denki.rapl.raw 
+Raw rapl values as reported by Intel cpus.  These allow to
+compute power consumption of longer running compute loads, with
+higher accuracy.
+
+@ 156.1.0 denki.bat.energy_now_raw battery reported charge level
+The current charge level as reported by the battery.  This can
+be used to calculate overall power consumption of longer running
+compute loads, with high accuracy.
+
+@ 156.1.1 denki.bat.energy_now_rate calculated energy consumption 
+Systems current energy consumption, calculated by pmda-denki
+from battery charge level.  Only available while discharging.  
+Computed every 60 seconds.
+
+@ 156.1.2 denki.bat.power_now system calculated energy consumption
+Systems current energy consumption, calculated by the system.
+Only available while discharging, or charging the battery.

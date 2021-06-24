@@ -1,0 +1,63 @@
+QA output created by 1653
+
+### Extracting test datasets...
+
+
+### Installing test dataset 1...
+
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+Updating the PMCD control file, and notifying PMCD ...
+Check denki metrics have appeared ... 5 metrics and 11 values
+
+denki.rapl.rate
+    inst [0 or "package-0"] value 26716
+    inst [1 or "core"] value 12628
+    inst [2 or "uncore"] value 2711
+    inst [3 or "dram"] value 7743
+
+denki.rapl.raw
+    inst [0 or "package-0"] value 26716
+    inst [1 or "core"] value 12628
+    inst [2 or "uncore"] value 2711
+    inst [3 or "dram"] value 7743
+
+denki.bat.energy_now_raw
+    value 34.71
+
+denki.bat.energy_now_rate
+    value 0
+
+denki.bat.power_now
+    value 26.439
+
+### Installing test dataset 2...
+
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+Updating the PMCD control file, and notifying PMCD ...
+Check denki metrics have appeared ... 5 metrics and 11 values
+
+denki.rapl.rate
+    inst [0 or "0-package-1"] value 8826
+    inst [1 or "0-core"] value 3483
+    inst [2 or "1-package-0"] value 13719
+    inst [3 or "1-core"] value 8334
+
+denki.rapl.raw
+    inst [0 or "0-package-1"] value 8826
+    inst [1 or "0-core"] value 3483
+    inst [2 or "1-package-0"] value 13719
+    inst [3 or "1-core"] value 8334
+
+denki.bat.energy_now_raw
+    value 0
+
+denki.bat.energy_now_rate
+    value 0
+
+denki.bat.power_now
+    value 0
+
+### Removing test datasets...
+
