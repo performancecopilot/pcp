@@ -19,7 +19,8 @@
 \f3pmproxy\f1 \- proxy for performance metrics collector and querying
 .SH SYNOPSIS
 \f3pmproxy\f1
-[\f3\-AFft?\f1]
+[\f3\-AdfFt?\f1]
+[\f3\-c\f1 \f2conffile\f1]
 [\f3\-C\f1 \f2certdb\f1]
 [\f3\-h\f1 \f2host\f1[,\f2host\f1 ...]
 [\f3\-i\f1 \f2ipaddress\f1]
@@ -29,8 +30,9 @@
 [\f3\-p\f1 \f2port\f1[,\f2port\f1 ...]
 [\f3\-P\f1 \f2passfile\f1]
 [\f3\-r\f1 \f2port\f1[,\f2port\f1 ...]
+[\f3\-s\f1 \f2sockname\f1]
 [\f3\-U\f1 \f2username\f1]
-[\f3\-x\f1 \f2file\f1]
+[\f3\-x\f1 \f2outfile\f1]
 .SH DESCRIPTION
 .B pmproxy
 acts as a protocol proxy,
@@ -106,9 +108,9 @@ will advertise its presence on the network using any available mechanisms
 (such as Avahi/DNS-SD), assisting remote monitoring tools with finding it.
 These mechanisms are disabled with this option.
 .TP
-\f3\-c\f1 \f2file\f1, \f3\-\-config\f1=\f2file\f1
+\f3\-c\f1 \f2conffile\f1, \f3\-\-config\f1=\f2conffile\f1
 Specify the path to an optional configuration
-.IR file ,
+.IR conffile ,
 with format as described in the ``CONFIGURATION'' section.
 This option implies \f3pmproxy\f1 is running in \f3timeseries\f1 mode.
 .TP
@@ -209,17 +211,17 @@ When one or more
 .B \-i
 options is specified, attempted connections made on any other IP addresses will be refused.
 .TP
-\f3\-l\f1 \f2file\f1, \f3\-\-log\f1=\f2file\f1
+\f3\-l\f1 \f2logfile\f1, \f3\-\-log\f1=\f2logfile\f1
 By default a log file named
 .I pmproxy.log
 is written in the current directory.
 The
 .B \-l
 option causes the log file to be written to a given
-.I file
+.I logfile
 instead of the default.
 If this
-.I file
+.I logfile
 cannot be created or is not writable, output is
 written to the standard error instead.
 .TP
@@ -294,12 +296,12 @@ and import them into a
 automatically, for fast, scalable time series querying described in
 .BR pmseries (1).
 .TP
-\f3\-U\f1 \f2user\f1, \f3\-\-username\f1=\f2user\f1
+\f3\-U\f1 \f2username\f1, \f3\-\-username\f1=\f2username\f1
 Assume the identity of the given
-.I user
+.I username
 before starting to accept incoming packets from PCP monitoring clients.
 .TP
-\f3\-x\f1 \f2file\f1
+\f3\-x\f1 \f2outfile\f1
 Before the
 .B pmproxy
 .I logfile
@@ -309,7 +311,7 @@ may encounter a fatal error which prevents it from starting.
 By default the output describing this error is sent to
 .B /dev/tty
 but it may redirected to
-.IR file .
+.IR outfile .
 .TP
 \fB\-?\fR, \fB\-\-help\fR
 Display usage message and exit.
