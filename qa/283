@@ -34,13 +34,19 @@ _cleanup()
 trap "_cleanup; exit \$status" 0 1 2 3 15
 rm -f $seq.full
 
-# sniff for avahi version, suspected of causing (unrelated) failure on
-# test-centos6-container in CI
+# Test is failing on test-centos6-container in CI deep inside
+# the avahi code (not the PCP code), so we've decided to
+# _notrun on anything related to RHEL 6.
 #
-if which rpm >/dev/null 2>&1
-then
-    rpm -qa | grep avahi >>$seq.full
-fi
+case `admin/whatami`
+in
+    *CentOS6.*)
+	_notrun "dodge avahi issue on CentOS 6"
+	;;
+    *RHEL*6.*)
+	_notrun "dodge avahi issue on RHEL 6"
+	;;
+esac
 
 _filter()
 {
