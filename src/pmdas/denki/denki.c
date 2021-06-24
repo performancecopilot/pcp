@@ -29,9 +29,10 @@
 #define NUM_RAPL_DOMAINS	10
 #define MAX_PACKAGES		16
 
-static int has_rapl=0,has_bat=0;			/* Has the system rapl or battery? */
+static int has_rapl, has_bat;			/* Has the system rapl or battery? */
 
-static int total_cores=0,total_packages=0;		/* detected cpu cores and rapl packages */
+static int ncpus;				/* configured processors */
+static int total_cores, total_packages;		/* detected cpu cores and rapl packages */
 static int package_map[MAX_PACKAGES];
 char event_names[MAX_PACKAGES][NUM_RAPL_DOMAINS][256];	/* rapl domain names */
 long long raplvars[MAX_PACKAGES][NUM_RAPL_DOMAINS];	/* rapl domain readings */
@@ -53,7 +54,6 @@ static int detect_rapl_packages(void) {
 	char filename[MAXPATHLEN];
 	FILE *fff;
 	int package,i;
-	static int ncpus;
 
 	if (ncpus == 0)
 		ncpus = sysconf(_SC_NPROCESSORS_CONF);
@@ -307,6 +307,7 @@ static pmLongOptions longopts[] = {
     PMOPT_DEBUG,
     PMDAOPT_DOMAIN,
     PMDAOPT_LOGFILE,
+    { "cpus", 1, 'c', "N", "set the processor count (default local system)" },
     { "rootpath", 1, 'r', "ROOTPATH", "use non-default rootpath instead of /" },
     PMDAOPT_USERNAME,
     PMOPT_HELP,
@@ -318,7 +319,7 @@ static pmLongOptions longopts[] = {
     PMDA_OPTIONS_END
 };
 static pmdaOptions opts = {
-    .short_options = "D:d:i:l:r:pu:U:6:?",
+    .short_options = "D:d:i:l:c:r:pu:U:6:?",
     .long_options = longopts,
 };
 
@@ -594,6 +595,9 @@ main(int argc, char **argv)
 
     while ((c = pmdaGetOptions(argc, argv, &opts, &dispatch)) != EOF) {
         switch (c) {
+	        case 'c':
+            		ncpus = atoi(opts.optarg);
+            		break;
 	        case 'r':
         		strncpy(rootpath, opts.optarg, sizeof(rootpath));
 			rootpath[sizeof(rootpath)-1] = '\0';

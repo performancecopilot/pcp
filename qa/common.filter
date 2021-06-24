@@ -889,6 +889,7 @@ _filter_torture_api()
 	-e '/^    cihb /d' \
 	-e '/^    cms /d' \
 	-e '/^    cxfs /d' \
+	-e '/^    denki /d' \
 	-e '/^    ds389 /d' \
 	-e '/^    dynamic /d' \
 	-e '/^    engr /d' \
