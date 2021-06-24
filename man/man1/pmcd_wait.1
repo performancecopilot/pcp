@@ -18,7 +18,7 @@
 \f3pmcd_wait\f1 \- wait for PMCD to accept client connections
 .SH SYNOPSIS
 \f3$PCP_BINADM_DIR/pmcd_wait\f1
-[\f3\-v\f1]
+[\f3\-v?\f1]
 [\f3-h\f1 \f2host\f1]
 [\f3-t\f1 \f2timeout\f1]
 .SH DESCRIPTION
@@ -73,6 +73,9 @@ With the verbose mode off
 (which is the default), no output will be generated.
 With verbose mode on, error messages will be output on
 .IR stderr .
+.TP
+\fB\-?\fR, \fB\-\-help\fR
+Display usage message and exit.
 .SH DIAGNOSTICS
 Error messages will be output to
 .I stderr
