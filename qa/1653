@@ -18,6 +18,7 @@ echo "QA output created by $seq"
 _cleanup()
 {
     cd $here
+    $sudo cp $tmp.install $PCP_PMDAS_DIR/denki/Install
     $sudo rm -rf $tmp $tmp.*
 }
 
@@ -34,6 +35,7 @@ _filter()
 }
 
 # real QA test starts here
+$sudo cp $PCP_PMDAS_DIR/denki/Install $tmp.install
 
 echo -e "\n### Extracting test datasets...\n"
 cd $here/denki/
@@ -46,7 +48,7 @@ ROOTPATH="$here/denki/Thinkpad_L480_bat_busy"
 $sudo sed -ie \
 	"s,^args.*,args=\"-U root -r ${ROOTPATH}\","  \
 	Install
-sudo ./Install 2>&1
+$sudo ./Install 2>&1
 pminfo -fF denki
 
 echo -e "\n### Installing test dataset 2...\n"
@@ -54,7 +56,7 @@ ROOTPATH="$here/denki/bigsystem"
 $sudo sed -ie \
 	"s,^args.*,args=\"-U root -r ${ROOTPATH}\","  \
 	Install
-sudo ./Install 2>&1
+$sudo ./Install 2>&1
 pminfo -fF denki
 
 echo -e "\n### Removing test datasets...\n"
