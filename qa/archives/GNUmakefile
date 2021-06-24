@@ -54,7 +54,8 @@ DEFLATE = small.0.xz small.meta small.index \
 	  20180416.10.00.1.xz 20180416.10.00.2.xz 20180416.10.00.3.xz \
 	  20190628.04.03.0.xz 20190628.04.03.1.xz 20190628.04.03.meta.xz \
 	  20190628.04.03.index 20201109.0.xz 20201109.index 20201109.meta.xz \
-	  20190628.06.31.0.xz 20190628.06.31.meta.xz 20190628.06.31.index
+	  20190628.06.31.0.xz 20190628.06.31.meta.xz 20190628.06.31.index \
+	  pcp-ss.0.xz pcp-ss.meta.xz pcp-ss.index
 
 SCRIPTS = mk.diff mk.gap mk.mysql mk.schizo mk.foo+ \
 	  mk.dynmetric mk.instant mk.dyninsts \

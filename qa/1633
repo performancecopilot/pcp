@@ -1,0 +1,40 @@
+#!/bin/sh
+# PCP QA Test No. 1633
+# Exercise the pcp-ss(1) command using an archive
+#
+# Copyright (c) 2021 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+pcp_ss="$PCP_BINADM_DIR/pcp-ss"
+test -x $pcp_ss || _notrun "No pcp-ss(1) installed"
+
+# real QA test starts here
+archive=$here/archives/pcp-ss
+
+echo && echo pcp-ss output, at default offset
+pcp -z -a $archive ss -oemitauO
+
+echo && echo pcp-ss output, at 10s offset
+pcp -z -S10s -a $archive ss -oemitauO
+
+echo && echo pcp-ss output, at specific start time
+pcp -z -S'@Fri Jun 18 13:33:39 2021' -a $archive ss -oemitauO
+
+echo && echo pcp-ss output, at archive end
+pcp -z -O-0 -a $archive ss -oemitauO
+
+echo && echo check error handling when metrics not present. Note error is expected
+pcp -z -O-0 -a $here/archives/pcp-mpstat ss 2>&1 | sed -e "s;$here/;;"
+
+# success, all done
+status=0
+exit

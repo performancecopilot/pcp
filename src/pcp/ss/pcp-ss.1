@@ -1,0 +1,287 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2021 Red Hat.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
+.TH PCP-SS 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pcp-ss\f1 \- report socket statistics
+.SH SYNOPSIS
+\f3pcp\f1 [\f2pcp\ options\f1] \f3ss\f1 [\f2ss\ options\f1]
+.SH DESCRIPTION
+.B pcp-ss
+reports socket statistics collected by the
+.BR pmdasockets (1)
+PMDA agent.
+The command is intended to be closely compatible with many of the
+.BR ss (8)
+command line options and reporting formats, but also offer
+the advantages of local or remote monitoring (in live mode) and
+also historical replay from a previously recorded PCP archive.
+.PP
+Live mode uses the
+.B pcp
+\fB-h\fP \fIhost\fP option and requires the
+.BR pmdasockets (1)
+PMDA to be installed and enabled on the target \fIhost\fP (local or remote), see
+.BR pmdasockets (1)
+for details on how to enable the \fBsockets\fP PMDA on a particular host.
+The default source is live metrics collected on
+.BR localhost ,
+if neither of the
+.B \-h
+or
+.B \-a
+options are given.
+.PP
+Historical/archive replay uses the
+.B pcp
+\fB-a\fP \fIarchive\fP option, where \fIarchive\fP is the
+basename of a previously recorded PCP archive.
+The archive replay feature is particularly useful because
+socket statistics can be reported for a designated time using the
+.B pcp
+.B \-\-origin
+option (which defaults to the start time of the archive).
+.SH EXAMPLES
+.TP 5
+\fBpcp ss\fP
+Display default basic socket information for the local host.
+This includes \fBNetid\fP (\fBtcp\fP, \fBudp\fP, etc), \fBState\fP (\fBESTAB\fP,
+\fBTIME_WAIT\fP, etc), \fBRecv-Q\fP and \fBSend-Q\fP queue lengths
+and the local and peer address and port for each socket.
+.TP 5
+\fBpcp \-h \fIsomehost\fP ss \-noemitauO\fP
+Display the same basic socket information as above for the host \fIsomehost\fP,
+which may be the default \fBlocalhost\fP.
+The additional command line arguments (\fB\-noemitauO\fP) display
+one line per socket (\fB\-O\fP), numeric (\fB\-n\fP) service names (default),
+timer information (\fB\-o\fP), extended socket details (\fB\-e\fP),
+socket memory usage (\fB\-m\fP), internal TCP information (\fB\-i\fP),
+both udp (\fB\-u\fP) and tcp sockets (\fB\-t\fP) and both listening and
+non-listening sockets (\fB\-a\fP).
+.TP 5
+\fBpcp \-a \fIsomearchive\fP \fB-S'@Wed 16 Jun 2021 12:57:21'\fP ss \-noemitauO\fP
+Display the same information as the above example, but for the archive
+\fIsomearchive\fP starting at the given time \fBWed 16 Jun 2021 12:57:21\fP.
+Note the literal \fB@\fP prefix is required for an absolute time, see
+.BR PCPIntro (1)
+for details.
+The archive must of course contain data for the requested time. You can use
+\fBpmdumplog \-l\fP \fIsomearchive\fP to examine the time bounds of \fIsomearchive\fP.
+.TP 5
+\fBpcp \-a \fIsomearchive\fP \fB\-O\-0\fP ss \-noemitauO\fP
+As above, but with an offset of zero seconds (\fB\-O\-0\fP) before the current end of
+\fIsomearchive\fP, i.e. the most recently logged data. Note that \fIsomearchive\fP
+may be curently growing (i.e. being logged with
+.BR pmlogger (1)).
+.SH OPTIONS
+Due to the large number of options supported by
+.BR pcp-ss ,
+the
+.BR pcp (1)
+command should always be used to invoke
+.B pcp-ss
+in order to specify options such as the metrics source (host or archive)
+and also (in archive mode), the requested start time or offset, and timezone
+using the following options:
+.TP 5
+\fB\-h\fP, \fB\-\-host\fP
+The remote hostname to connect to in live mode
+.TP 5
+\fB\-a\fP, \fB\-\-archive\fP
+The archive file to use for historical sampling
+.TP 5
+\fB\-O\fP, \fB\-\-origin\fP
+The time offset to use within an archive (implies
+.BR \-a )
+.TP 5
+\fB\-S\fP, \fB\-\-start\fP
+The start time (e.g. in
+.BR ctime (3)
+format) to use when replaying an archive.
+.TP 5
+\fB\-Z\fP, \fB\-\-timezone\fP
+Use a specific timezone.
+Since
+.B pcp-ss
+doesn't report timestamps, this only affects the interpretation
+of an absolute starting time (\fB\-S\fP) or offset (\fB\-O\fP).
+.TP 5
+\fB\-z\fP, \fB\-\-hostzone\fP
+In archive mode, use the timezone of the archive rather than the
+timezone on the local machine running
+.BR pcp-ss .
+The timezone, start and finish times of the archive may be examined using
+.BR pmdumplog (1)
+with the \fB\-L\fP option.
+.PP
+The above
+.B pcp
+options become indirectly available to the
+.B pcp-ss
+command via environment variables - refer to
+.BR PCPIntro (1)
+for a complete description of these options.
+.PP
+The additional command line options available for
+.B pcp-ss
+itself are:
+.TP 5
+\fB\-h\fP, \fB\-\-help\fP
+show help message and exit
+.TP 5
+\fB\-V\fP, \fB\-\-version\fP
+output version information
+.TP 5
+\fB\-n\fP, \fB\-\-numeric\fP
+don't resolve service names
+.TP 5
+\fB\-r\fP, \fB\-\-resolve\fP
+resolve host names
+.TP 5
+\fB\-a\fP, \fB\-\-all\fP
+display all sockets
+.TP 5
+\fB\-l\fP, \fB\-\-listening\fP
+display listening sockets
+.TP 5
+\fB\-o\fP, \fB\-\-options\fP
+show timer information
+.TP 5
+\fB\-e\fP, \fB\-\-extended\fP
+show detailed socket information
+.TP 5
+\fB\-m\fP, \fB\-\-memory\fP
+show socket memory usage
+.TP 5
+\fB\-p\fP, \fB\-\-processes\fP
+show process using socket
+.TP 5
+\fB\-i\fP, \fB\-\-info\fP
+show internal TCP information
+.TP 5
+\fB\-s\fP, \fB\-\-summary\fP
+show socket usage summary
+.TP 5
+\fB\-b\fP, \fB\-\-bpf\fP
+show bpf filter socket information
+.TP 5
+\fB\-E\fP, \fB\-\-events\fP
+continually display sockets as they are destroyed
+.TP 5
+\fB\-Z\fP, \fB\-\-context\fP
+display process SELinux security contexts
+.TP 5
+\fB\-z\fP, \fB\-\-contexts\fP
+display process and socket SELinux security contexts
+.TP 5
+\fB\-N\fP, \fB\-\-net\fP
+switch to the specified network namespace name
+.TP 5
+\fB\-4\fP, \fB\-\-ipv4\fP
+display only IP version 4 sockets
+.TP 5
+\fB\-6\fP, \fB\-\-ipv6\fP
+display only IP version 6 sockets
+.TP 5
+\fB\-0\fP, \fB\-\-packet\fP
+display PACKET sockets
+.TP 5
+\fB\-t\fP, \fB\-\-tcp\fP
+display only TCP sockets
+.TP 5
+\fB\-M\fP, \fB\-\-mptcp\fP
+display only MPTCP sockets
+.TP 5
+\fB\-S\fP, \fB\-\-sctp\fP
+display only SCTP sockets
+.TP 5
+\fB\-u\fP, \fB\-\-udp\fP
+display only UDP sockets
+.TP 5
+\fB\-d\fP, \fB\-\-dccp\fP
+display only DCCP sockets
+.TP 5
+\fB\-w\fP, \fB\-\-raw\fP
+display only RAW sockets
+.TP 5
+\fB\-x\fP, \fB\-\-unix\fP
+display only Unix domain sockets
+.TP 5
+\fB\-H\fP, \fB\-\-noheader\fP
+Suppress header line
+.TP 5
+\fB\-O\fP, \fB\-\-oneline\fP
+socket's data printed on a single line
+.SH REPORT
+The columns in the
+.B pcp-ss
+report vary according to the command line options and have the
+same interpretation as described in
+.BR ss (8).
+.PP
+One difference with
+.B pcp-ss
+is that the first line in the report begins with '\fB# Timestamp\fP'
+followed by the timestamp (in the requested timezone, see \fB\-z\fP and \fB\-Z\fP above)
+of the sample data from the host or archive source.
+Following the timestamp is the currently active filter string for the metrics source.
+In archive mode, the active filter can be changed dynamically, even whilst the archive is
+being recorded.
+This is different to
+.BR ss (8)
+where the filter is optionally specified on the command line of the tool and is
+always 'live', i.e.
+.BR ss (8) does not support retrospective replay.
+With
+.BR pcp-ss ,
+the filter is stored in the back-end PMDA, see
+.BR pmdasockets (1),
+in the metric
+.BR network.persocket.filter.
+The default filter is \fBstate connected\fP, which can be changed by
+storing a new string value in the
+.B network.persocket.filter
+metric using
+.BR pmstore (1),
+e.g.
+\fBpmstore network.persocket.filter "state established"\fP.
+This will over-ride the persistent default filter, which is stored
+in a PMDA configuration file and loaded each time the sockets PMDA is started.
+See
+.BR pmdasockets (1) for further details and see
+.BR ss (8)
+for details of the filter syntax and examples.
+.SH DIAGNOSTICS
+All are generated on standard error and are intended to be self-explanatory.
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
+.PP
+For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmdasockets (1),
+.BR pcp (1),
+.BR pmcd (1),
+.BR pmchart (1),
+.BR pmlogger (1),
+.BR ss (8),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).
