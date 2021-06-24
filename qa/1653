@@ -5,29 +5,15 @@
 # Copyright (c) 2021 Christian Horn.  All Rights Reserved.
 #
 
-if [ $# -eq 0 ]
-then
-    seq=`basename $0`
-    echo "QA output created by $seq"
-else
-    # use $seq from caller, unless not set
-    [ -n "$seq" ] || seq=`basename $0`
-    echo "QA output created by `basename $0` $*"
-fi
+seq=`basename $0`
+echo "QA output created by $seq"
 
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
 
-do_valgrind=false
-if [ "$1" = "--valgrind" ]
-then
-    _check_valgrind
-    do_valgrind=true
-fi
-
-# test for-some-thing || _notrun No support for some-thing
+[ $PCP_PLATFORM = linux ] || _notrun "Linux-specific kernel metrics"
 
 _cleanup()
 {
@@ -42,51 +28,38 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 _filter()
 {
     sed \
-	-e 's/<something>/<else>/' \
+	-e "s,$here,PWD,g" \
+	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
     # end
 }
 
 # real QA test starts here
 
-if $do_valgrind
-then
-    _run_valgrind ...your test goes here...
-else
-	echo -e "\n### Extracting test datasets...\n"
-	cd /var/lib/pcp/testsuite/denki/
-	tar xzf bigsystem.tgz
-	tar xzf Thinkpad_L480_bat_busy.tgz
+echo -e "\n### Extracting test datasets...\n"
+cd $here/denki/
+tar xzf bigsystem.tgz
+tar xzf Thinkpad_L480_bat_busy.tgz
 
-	echo -e "\n### Installing test dataset 1...\n"
-	cd /usr/libexec/pcp/pmdas/denki
-	ROOTPATH="/var/lib/pcp/testsuite/denki/Thinkpad_L480_bat_busy"
-	sudo sed -ie \
-		"s,^args.*,args=\"-U root -r ${ROOTPATH}\","  \
-		Install
-	sudo ./Install 2>&1
-	pminfo -fF denki
+echo -e "\n### Installing test dataset 1...\n"
+cd $PCP_PMDAS_DIR/denki
+ROOTPATH="$here/denki/Thinkpad_L480_bat_busy"
+$sudo sed -ie \
+	"s,^args.*,args=\"-U root -r ${ROOTPATH}\","  \
+	Install
+sudo ./Install 2>&1
+pminfo -fF denki
 
-	echo -e "\n### Installing test dataset 2...\n"
-	ROOTPATH="/var/lib/pcp/testsuite/denki/bigsystem"
-	sudo sed -ie \
-		"s,^args.*,args=\"-U root -r ${ROOTPATH}\","  \
-		Install
-	sudo ./Install 2>&1
-	pminfo -fF denki
+echo -e "\n### Installing test dataset 2...\n"
+ROOTPATH="$here/denki/bigsystem"
+$sudo sed -ie \
+	"s,^args.*,args=\"-U root -r ${ROOTPATH}\","  \
+	Install
+sudo ./Install 2>&1
+pminfo -fF denki
 
-	echo -e "\n### Removing test datasets...\n"
-	rm -rf /var/lib/pcp/testsuite/denki/bigsystem
-	rm -rf /var/lib/pcp/testsuite/denki/Thinkpad_L480_bat_busy
-fi \
-| _filter
-
-# if really bad error
-#status=1
-#exit
-
-# optional stuff if your test has verbose output to help resolve problems
-#echo
-#echo "If failure, check $seq.full"
+echo -e "\n### Removing test datasets...\n"
+rm -rf $here/denki/bigsystem
+rm -rf $here/denki/Thinkpad_L480_bat_busy
 
 # success, all done
 exit

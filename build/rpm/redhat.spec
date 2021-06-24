@@ -501,7 +501,7 @@ Requires: pcp-pmda-samba pcp-pmda-slurm pcp-pmda-vmware pcp-pmda-zimbra
 Requires: pcp-pmda-dm pcp-pmda-apache
 Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-mailq pcp-pmda-mounts
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping pcp-pmda-smart
-Requires: pcp-pmda-hacluster pcp-pmda-lustrecomm pcp-pmda-logger pcp-pmda-docker pcp-pmda-bind2
+Requires: pcp-pmda-hacluster pcp-pmda-lustrecomm pcp-pmda-logger pcp-pmda-denki pcp-pmda-docker pcp-pmda-bind2
 Requires: pcp-pmda-sockets
 %if !%{disable_podman}
 Requires: pcp-pmda-podman
@@ -2404,8 +2404,8 @@ basic_manifest | keep '(etc/pcp|pmdas)/cifs(/|$)' >pcp-pmda-cifs-files
 basic_manifest | keep '(etc/pcp|pmdas)/cisco(/|$)' >pcp-pmda-cisco-files
 basic_manifest | keep '(etc/pcp|pmdas)/dbping(/|$)' >pcp-pmda-dbping-files
 basic_manifest | keep '(etc/pcp|pmdas|pmieconf)/dm(/|$)' >pcp-pmda-dm-files
-basic_manifest | keep '(etc/pcp|pmdas)/docker(/|$)' >pcp-pmda-docker-files
 basic_manifest | keep '(etc/pcp|pmdas)/denki(/|$)' >pcp-pmda-denki-files
+basic_manifest | keep '(etc/pcp|pmdas)/docker(/|$)' >pcp-pmda-docker-files
 basic_manifest | keep '(etc/pcp|pmdas)/ds389log(/|$)' >pcp-pmda-ds389log-files
 basic_manifest | keep '(etc/pcp|pmdas)/ds389(/|$)' >pcp-pmda-ds389-files
 basic_manifest | keep '(etc/pcp|pmdas)/elasticsearch(/|$)' >pcp-pmda-elasticsearch-files
@@ -2713,6 +2713,9 @@ exit 0
 
 %preun pmda-dbping
 %{pmda_remove "$1" "dbping"}
+
+%preun pmda-denki
+%{pmda_remove "$1" "denki"}
 
 %preun pmda-docker
 %{pmda_remove "$1" "docker"}
@@ -3104,6 +3107,8 @@ PCP_LOG_DIR=%{_logsdir}
 
 %files pmda-zimbra -f pcp-pmda-zimbra-files.rpm
 %endif
+
+%files pmda-denki -f pcp-pmda-denki-files.rpm
 
 %files pmda-docker -f pcp-pmda-docker-files.rpm
 

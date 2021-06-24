@@ -20,31 +20,18 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=denki
+domain=156
 
 dso_opt=false
-perl_opt=false
-python_opt=false
 socket_opt=false
-socket_inet_def=2078
 pmns_source=root_denki
 
-# args="-U root -r /usr/libexec/pcp/pmdas/denki/data/Thinkpad_T460s_AC"
-# args="-U root -r /usr/libexec/pcp/pmdas/denki/data/Thinkpad_T460s_bat_idle"
+# args="-U root -r $PCP_PMDAS_DIR/denki/data/Thinkpad_T460s_AC"
+# args="-U root -r $PCP_PMDAS_DIR/denki/data/Thinkpad_T460s_bat_idle"
 args="-U root"
 
-# Set up the denki PMDA (domain 253) InDom cache
+# Set up the denki PMDA (domain 156) InDom cache
 #
-domain=`sed -n <domain.h -e '/define DENKI/{
-s/[ 	]*$//
-s/.*[ 	]//
-p
-}'`
-if [ -z "$domain" ]
-then
-    echo "Arrgh ... cannot extract domain number from domain.h"
-    status=1
-    exit
-fi
 if [ -d $PCP_VAR_DIR/config/pmda ]
 then
     touch $PCP_VAR_DIR/config/pmda/$domain.1

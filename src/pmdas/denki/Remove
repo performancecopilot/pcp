@@ -12,17 +12,13 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# Remove the simple PMDA
+# Remove the denki PMDA
 #
 
 . $PCP_DIR/etc/pcp.env
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=denki
-perl_opt=false
-python_opt=false
-python_opt=false
-
 pmdaSetup
 pmdaRemove
 exit

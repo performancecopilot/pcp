@@ -27,7 +27,6 @@
 #include <dirent.h>
 
 #define NUM_RAPL_DOMAINS	10
-#define MAX_CPUS		1024
 #define MAX_PACKAGES		16
 
 static int has_rapl=0,has_bat=0;			/* Has the system rapl or battery? */
@@ -51,13 +50,17 @@ static char rootpath[512] = "/";			/* path to rootpath, gets changed for regress
 /* detect RAPL packages and cpu cores */
 static int detect_rapl_packages(void) {
 
-	char filename[BUFSIZ];
+	char filename[MAXPATHLEN];
 	FILE *fff;
 	int package,i;
+	static int ncpus;
+
+	if (ncpus == 0)
+		ncpus = sysconf(_SC_NPROCESSORS_CONF);
 
 	for(i=0;i<MAX_PACKAGES;i++) package_map[i]=-1;
 
-	for(i=0;i<MAX_CPUS;i++) {
+	for(i=0;i<ncpus;i++) {
 		pmsprintf(filename,sizeof(filename),"%s/sys/devices/system/cpu/cpu%d/topology/physical_package_id",rootpath,i);
 		fff=fopen(filename,"r");
 		if (fff==NULL) break;
@@ -212,12 +215,6 @@ static int compute_energy_rate(void) {
 
 	return 0;
 }
-
-/*
- * internal routine from libpcp, defined in libpcp.h but not the
- * public headers
- */
-extern int __pmProcessRunTimes(double *, double *);
 
 /*
  * Denki PMDA metrics
@@ -589,8 +586,6 @@ main(int argc, char **argv)
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_7, pmGetProgname(), DENKI,
 		"denki.log", mypath);
-
-    // pmdaGetOptions(argc, argv, &opts, &dispatch);
 
     while ((c = pmdaGetOptions(argc, argv, &opts, &dispatch)) != EOF) {
         switch (c) {
