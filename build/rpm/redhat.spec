@@ -1103,6 +1103,20 @@ collecting metrics about a GPS Daemon.
 #end pcp-pmda-gpsd
 
 #
+# pcp-pmda-denki
+#
+%package pmda-denki
+License: GPLv2+
+Summary: Performance Co-Pilot (PCP) metrics dealing with electrical power
+URL: https://pcp.io
+Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
+%description pmda-denki
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics related to the electrical power consumed by and inside
+the system.
+# end pcp-pmda-denki
+
+#
 # pcp-pmda-docker
 #
 %package pmda-docker
@@ -1748,20 +1762,6 @@ Requires: %{__python2}-pcp
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics from simple network checks.
 # end pcp-pmda-netcheck
-
-#
-# pcp-pmda-denki
-#
-%package pmda-denki
-License: GPLv2+
-Summary: Performance Co-Pilot (PCP) metrics dealing with electrical power
-URL: https://pcp.io
-Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-%description pmda-denki
-This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics related to the electrical power consumed by and inside
-the system.
-# end pcp-pmda-denki
 
 %endif
 
