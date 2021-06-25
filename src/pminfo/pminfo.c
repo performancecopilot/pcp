@@ -895,6 +895,8 @@ report(void)
 			    pmFreeResult(xresult);
 			    xresult = NULL;
 			}
+			free(all_inst);
+			free(all_names);
 			if (opts.context == PM_CONTEXT_ARCHIVE) {
 			    if ((sts = pmSetMode(PM_MODE_FORW, &opts.origin, 0)) < 0) {
 				fprintf(stderr, "%s: pmSetMode failed: %s\n", pmGetProgname(), pmErrStr(sts));
@@ -907,8 +909,6 @@ report(void)
 			}
 			vsp = xresult->vset[0];
 			/* leave the profile in the default state */
-			free(all_inst);
-			free(all_names);
 			pmDelProfile(desc.indom, 0, NULL);
 			pmAddProfile(desc.indom, 0, NULL);
 		    }
