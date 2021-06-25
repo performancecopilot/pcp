@@ -84,7 +84,7 @@ END
 pmcd_pid=`$sudo sh $tmp.sh 2>$tmp.tmp`
 cat $tmp.tmp 1>&2
 sleep 1
-
+_wait_for_pmcd
 
 echo "=== starting socat on port $port2 ===" |tee -a $seq.full
 
