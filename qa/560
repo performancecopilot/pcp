@@ -37,10 +37,10 @@ _filter_make()
 
 # see note below on bind: Address already in use issue
 #
-port=`_get_port tcp 12078 12127`
+port=`_get_port tcp 52078 52127`
 if [ -z "$port" ]
 then
-    echo "Arrgh ... no free TCP port in the range 12078 ... 12127"
+    echo "Arrgh ... no free TCP port in the range 52078 ... 52127"
     exit
 fi
 echo "port=$port" >>$here/$seq.full
@@ -90,7 +90,7 @@ $sudo ./Remove
 # port ... otherwise the second install risks smacking into a
 # "bind: Address already in use" issue if the previous PMDA
 # process has not cleaned up ... this is why the first install
-# uses a port in the range starting at 1000+2078, so the second
+# uses a port in the range starting at 5000+2078, so the second
 # install below can use the default 2078 port
 #
 
