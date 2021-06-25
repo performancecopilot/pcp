@@ -48,6 +48,18 @@ need_restore=false
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+# Seen to fail sometimes on vm01 ... pmproxy mysteriously dies off in
+# pthread lock land ... we've resolved that it's not worth the
+# failure noise and no more triage is warranted on an ancient Ubuntu
+# version
+#
+case `admin/whatami`
+in
+    *Ubuntu\ 18.04\ *)
+	_notrun "avoiding intermittent failure on Ubuntu 18.04"
+	;;
+esac
+
 pmproxy_was_running=false
 [ -f $PCP_RUN_DIR/pmproxy.pid ] && pmproxy_was_running=true
 echo "pmproxy_was_running=$pmproxy_was_running" >>$here/$seq.full
