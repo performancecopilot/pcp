@@ -69,8 +69,8 @@ static int detect_rapl_packages(void) {
 		printf("\tcore %d (package %d)\n",i,package);
 		fclose(fff);
 
-		if (package >= MAX_PACKAGES) {
-			pmNotifyErr(LOG_ERR, "package number %d too big, max %u", package, MAX_PACKAGES);
+		if (package < 0 || package >= MAX_PACKAGES) {
+			pmNotifyErr(LOG_ERR, "package number %d invalid, range 0-%u", package, MAX_PACKAGES);
 			continue;
 		}
 
