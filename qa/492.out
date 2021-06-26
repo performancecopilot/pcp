@@ -13,6 +13,7 @@ Options:
   -s, --scale           do scale conversion
   -v, --verbose         increased diagnostic verbosity
   -w, --warnings        emit warnings [default is silence]
+  -?, --help            show this usage message and exit
 
 output-archive is required unless -i is specified
 
@@ -28,6 +29,7 @@ Options:
   -s, --scale           do scale conversion
   -v, --verbose         increased diagnostic verbosity
   -w, --warnings        emit warnings [default is silence]
+  -?, --help            show this usage message and exit
 
 output-archive is required unless -i is specified
 
@@ -44,6 +46,7 @@ Options:
   -s, --scale           do scale conversion
   -v, --verbose         increased diagnostic verbosity
   -w, --warnings        emit warnings [default is silence]
+  -?, --help            show this usage message and exit
 
 output-archive is required unless -i is specified
 
@@ -60,6 +63,7 @@ Options:
   -s, --scale           do scale conversion
   -v, --verbose         increased diagnostic verbosity
   -w, --warnings        emit warnings [default is silence]
+  -?, --help            show this usage message and exit
 
 output-archive is required unless -i is specified
 
@@ -78,6 +82,7 @@ Options:
   -s, --scale           do scale conversion
   -v, --verbose         increased diagnostic verbosity
   -w, --warnings        emit warnings [default is silence]
+  -?, --help            show this usage message and exit
 
 output-archive is required unless -i is specified
 
@@ -94,6 +99,7 @@ Options:
   -s, --scale           do scale conversion
   -v, --verbose         increased diagnostic verbosity
   -w, --warnings        emit warnings [default is silence]
+  -?, --help            show this usage message and exit
 
 output-archive is required unless -i is specified
 
