@@ -22,11 +22,13 @@
 [\f3\-CLVWz?\f1]
 [\f3\-a\f1 \f2archive\f1]
 [\f3\-A\f1 \f2align\f1]
+[\fB\-\-archive\-folio\fP \fIfolio\fP]
 [\f3\-c\f1 \f2configfile\f1]
 [\f3\-f\f1 \f2fontfamily\f1]
 [\f3\-F\f1 \f2fontsize\f1]
 [\f3\-g\f1 \f2geometry\f1]
 [\f3\-h\f1 \f2host\f1]
+[\f3\-n\f1 \f2pmnsfile\f1]
 [\f3\-o\f1 \f2outfile\f1]
 [\f3\-O\f1 \f2offset\f1]
 [\f3\-p\f1 \f2port\f1]
@@ -104,6 +106,10 @@ Refer to
 .BR PCPIntro (1)
 for a complete description of the syntax for
 .IR align .
+.TP
+\fB\-\-archive\-folio\fR=\fIfolio\fR
+Read metric source archives from the PCP archive
+.IR folio .
 .TP
 \fB\-c\fR \fIconfigfile\fR, \fB\-\-view\fR=\fIconfigfile\fR
 .I configfile
@@ -204,6 +210,12 @@ without PMCD.
 See also
 .BR \-K .
 .TP
+\fB\-n\fR \fIpmnsfile\fR, \fB\-\-namespace\fR=\fIpmnsfile\fR
+Load an alternative Performance Metrics Name Space
+.RB ( PMNS (5))
+from the file
+.IR pmnsfile .
+.TP
 \fB\-o\fR \fIoutfile\fR, \fB\-\-output\fR=\fIoutfile\fR
 Generate an image file named
 .IR outfile ,
@@ -229,7 +241,7 @@ Refer to
 for a complete description of the syntax for
 .IR origin .
 .TP
-\fB\-p\fR \fIport\fR, \fB\-\-port\fR=\fIport\fR
+\fB\-p\fR \fIport\fR, \fB\-\-guiport\fR=\fIport\fR
 .I port
 number for connection to an existing
 .B pmtime
@@ -295,19 +307,6 @@ either the
 or
 .B \-a
 options.
-.PP
-The
-.BR \-S ,
-.BR \-T ,
-.B \-O
-and
-.B \-A
-options may be used to define a time window to
-restrict the samples retrieved, set an initial origin within the time
-window, or specify a "natural" alignment of the sample  times;  refer
-to
-.BR PCPIntro (1)
-for a complete description of these options.
 .TP
 \fB\-Z\fR \fItimezone\fR, \fB\-\-timezone\fR=\fItimezone\fR
 By default,
@@ -322,6 +321,9 @@ option changes the timezone to
 .I timezone
 in the format of the environment variable TZ as described in
 .BR environ (7).
+.TP
+\fB\-?\fR, \fB\-\-help\fR
+Display usage message and exit.
 .SH VIEWS
 The primary
 .B pmchart
@@ -730,16 +732,14 @@ rest of the
 .B pmchart
 application.
 .SH SEE ALSO
-.BR pmtime (1),
-.BR pmconfirm (1),
-.BR pmdumptext (1),
 .BR PCPIntro (1),
 .BR pmafm (1),
-.BR pmrep (1),
-.BR pmval (1),
-.BR pmcd (1),
+.BR pmconfirm (1),
+.BR pmdumptext (1),
 .BR pminfo (1),
-.BR pcp.conf (5),
-.BR pcp.env (5)
+.BR pmrep (1),
+.BR pmtime (1),
+.BR pmval (1),
+.BR pcp.conf (5)
 and
 .BR PMNS (5).
