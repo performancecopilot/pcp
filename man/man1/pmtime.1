@@ -17,7 +17,7 @@
 \f3pmtime\f1 \- time control server for Performance Co-Pilot
 .SH SYNOPSIS
 \f3pmtime\f1
-[\f3\-?\f1]
+[\f3\-V?\f1]
 [\f3\-p\f1 \f2port\f1]
 .SH DESCRIPTION
 .B pmtime
@@ -44,17 +44,6 @@ In live mode the
 .B pmtime
 window contains the simpler time controls suitable for
 live monitoring.
-.SH OPTIONS
-The available command line options are:
-.TP 5
-\fB\-p\fR \fIport\fR, \fB\-\-port\fR=\fIport\fR
-.I port
-is the port number which
-.B pmtime
-will use for communication with its clients (monitoring applications).
-.TP
-\fB\-?\fR, \fB\-\-help\fR
-Display usage message and exit.
 .PP
 Note that the
 .B pmtime
@@ -64,6 +53,20 @@ Multiple client applications can be connected to a single
 server \- when the final client application exits,
 .B pmtime
 will also exit.
+.SH OPTIONS
+The available command line options are:
+.TP 5
+\fB\-p\fR \fIport\fR, \fB\-\-guiport\fR=\fIport\fR
+.I port
+is the port number which
+.B pmtime
+will use for communication with its clients (monitoring applications).
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+Display version number and exit.
+.TP
+\fB\-?\fR, \fB\-\-help\fR
+Display usage message and exit.
 .SH ENVIRONMENT
 When a port number is not explicitly requested on the command line
 via the
@@ -75,7 +78,7 @@ probing will commence when
 .B pmtime
 is searching for a port number to use.
 .PP
-The default starting port number is 43334.
+The default starting port number is \fB43334\fP.
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmchart (1),
