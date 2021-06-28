@@ -28,7 +28,7 @@
 
 #define NUM_RAPL_DOMAINS	10
 #define MAX_PACKAGES		16
-#define MAX_CPUS		4096
+#define MAX_CPUS		2147483648
 
 static int has_rapl, has_bat;				/* Has the system rapl or battery? */
 
@@ -66,8 +66,8 @@ static int detect_rapl_packages(void) {
 		printf("\tcore %d (package %d)\n",i,package);
 		fclose(fff);
 
-		if (package >= MAX_PACKAGES) {
-			pmNotifyErr(LOG_ERR, "package number %d too big, max %u", package, MAX_PACKAGES);
+		if (package < 0 || package >= MAX_PACKAGES) {
+			pmNotifyErr(LOG_ERR, "package number %d invalid, range 0-%u", package, MAX_PACKAGES);
 			continue;
 		}
 
@@ -618,7 +618,7 @@ main(int argc, char **argv)
     else {
 	has_rapl=1;
     	detect_rapl_packages();
-    	pmNotifyErr(LOG_DEBUG, "detected RAPL, with %d cpu-cores and %d rapl-packages.", total_cores, total_packages);
+    	pmNotifyErr(LOG_DEBUG, "RAPL detected, with %d cpu-cores and %d rapl-packages.", total_cores, total_packages);
     	detect_rapl_domains();
     	denki_rapl_check();	// now we register the found rapl indoms
     }
