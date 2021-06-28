@@ -45,7 +45,9 @@ class SS(object):
         self.speclocal = None
         self.metrics = []
         self.instD = {} # { instid: instname }
-        self.metricsD = {} # { name: [fetchgroup, {instid: value}] }
+        self.metricsD = {} # { name: fetchgroup }
+        self.descsD = {} # { name: pmDesc }
+        self.valuesD = {} # { name: {instid: value} }
         self.context = None
         self.pmfg = None
 
@@ -185,13 +187,18 @@ class SS(object):
 
         self.context.pmTraversePMNS(pmns, self.traverseCB)
         self.pmids = self.context.pmLookupName(self.metrics)
+        descs = self.context.pmLookupDescs(self.pmids)
 
         # Create metrics dict keyed by metric name (without pmns prefix).
-        # Each metricsD item is a list of [fetchgroup, dict of inst vals]
-        for pmnsname in self.metrics:
+        nmetrics = len(self.metrics)
+        for i in range (0, nmetrics):
+            pmnsname = self.metrics[i]
             name = remove_prefix(pmnsname, pmns + ".")
             try:
-                self.metricsD[name] = [self.pmfg.extend_indom(pmnsname, maxnum=1000)]
+                # do not want rate conversion, so use "instant" scale and only one fetch
+                self.descsD[name] = descs[i]
+                self.metricsD[name] = self.pmfg.extend_indom(pmnsname,
+                    descs[i].contents.type, scale="instant", maxnum=10000)
             except Exception as e:
                 print("Warning: Failed to add %s to fetch group: %s" % (name, e))
 
@@ -202,28 +209,25 @@ class SS(object):
             print("Error: fetch failed: %s" % e)
             sys.exit(1)
 
-        # extract instances
-        for name, metricL in self.metricsD.items():
+        # extract instances and values
+        for name in self.metricsD:
             try:
                 instvalsD = {}
                 # walk the instances in the fetch group for this metric
-                fg = metricL[0]
-                for inst, iname, value in fg():
+                for inst, iname, value in self.metricsD[name]():
                     self.instD[inst] = iname
                     try:
                         instvalsD[inst] = value()
                     except Exception as e:
-                        # print("Error: value() failed for metric %s, inst ID %d: %s" % (name, inst, e.message()))
-                        pass
-                self.metricsD[name].append(instvalsD) # [1] is dict of instid:value
+                        print("Error: value() failed for metric %s, inst %d, iname %s: %s" % (name, inst, iname, e))
+                self.valuesD[name] = instvalsD
             except Exception as e:
-                print("Warning: failed to extract instances for metric %s, inst %d, iname %s, value %s: %s" %
-                    (name, inst, iname, value(), e))
+                pass # instance went away, socket probably closed
 
     def strfield(self, fmt, metric, inst, default=""):
         """ return formatted field, if metric and inst are available else default string """
         try:
-            s = self.metricsD[metric][1][inst]
+            s = self.valuesD[metric][inst]
             if s is not None:
                 return fmt % s
         except:
@@ -233,7 +237,7 @@ class SS(object):
     def intfield(self, fmt, metric, inst, default=0):
         """ return formatted field, if metric and inst are available else default """
         try:
-            s = self.metricsD[metric][1][inst]
+            s = self.valuesD[metric][inst]
             if s is not None:
                 return fmt % s
         except:
@@ -243,7 +247,7 @@ class SS(object):
     def boolfield(self, field, metric, inst, default=""):
         """ return field if metric and inst are available and non-zero """
         try:
-            s = self.metricsD[metric][1][inst]
+            s = self.valuesD[metric][inst]
             if s is not None and s != 0:
                 return field
         except:
@@ -253,7 +257,7 @@ class SS(object):
     def filter_netid(self, inst):
         """ filter on netid and -t, -u and -x cmdline options """
         ret = False
-        netid = self.metricsD["netid"][1][inst]
+        netid = self.valuesD["netid"][inst]
         if self.args.tcp and netid == "tcp":
             ret = True
         elif self.args.udp and netid == "udp":
@@ -268,8 +272,8 @@ class SS(object):
         """ filter on tcp state """
         if self.args.all:
             return True
-        netid = self.metricsD["netid"][1][inst]
-        state = self.metricsD["state"][1][inst]
+        netid = self.valuesD["netid"][inst]
+        state = self.valuesD["state"][inst]
         if self.args.listening:
             if state != "LISTEN" and netid in ("tcp", "tcp6"):
                 return False
@@ -292,7 +296,7 @@ class SS(object):
             out += self.strfield("%-26s", "dst", inst)
 
             if self.args.options: # -o --options flag
-                m = self.metricsD["timer.str"][1][inst]
+                m = self.valuesD["timer.str"][inst]
                 if m is not None and len(m) > 0:
                     out += " timer(%s)" % m
 
@@ -301,15 +305,15 @@ class SS(object):
                 out += self.strfield(" inode:%lu", "inode", inst, 0)
                 out += self.strfield(" sk:%x", "sk", inst, 0)
                 out += self.strfield(" cgroup:%s", "cgroup", inst)
-                if self.metricsD["v6only"][1][inst] != 0:
-                    out += " v6only:%d" % self.metricsD["v6only"][1][inst]
+                if self.valuesD["v6only"][inst] != 0:
+                    out += " v6only:%d" % self.valuesD["v6only"][inst]
                 out += " <->"
 
             if not self.args.oneline and (self.args.memory or self.args.info):
                 out += "\n"
 
             if self.args.memory: # -m --memory flag
-                m = self.metricsD["skmem.str"][1][inst]
+                m = self.valuesD["skmem.str"][inst]
                 if m is not None and len(m) > 0:
                     out += " skmem(%s)" % m
 
@@ -326,6 +330,7 @@ class SS(object):
                 out += self.strfield(" cwnd:%d", "cwnd", inst, 0)
                 out += self.strfield(" pmtu:%d", "pmtu", inst, 0)
                 out += self.strfield(" ssthresh:%d", "ssthresh", inst, 0)
+                out += self.strfield(" bytes_sent:%lu", "bytes_sent", inst, 0)
                 out += self.strfield(" bytes_acked:%lu", "bytes_acked", inst, 0)
                 out += self.strfield(" bytes_received:%lu", "bytes_received", inst, 0)
                 out += self.strfield(" segs_out:%lu", "segs_out", inst, 0)
