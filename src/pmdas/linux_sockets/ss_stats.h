@@ -87,7 +87,7 @@ typedef struct ss_stats {
 } ss_stats_t;
 
 extern int ss_refresh(int);
-extern int ss_parse(char *, ss_stats_t *);
+extern int ss_parse(char *, int, ss_stats_t *);
 extern FILE *ss_open_stream(void);
 extern void ss_close_stream(FILE *);
 extern char *ss_filter; /* current string value of network.persocket.filter */

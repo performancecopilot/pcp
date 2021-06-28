@@ -39,6 +39,7 @@ ss_refresh(int indom)
     int sts = 0;
     ss_stats_t *ss, parsed_ss;
     int inst;
+    int has_state_field;
     char instname[128];
     char line[4096] = {0};
 
@@ -48,16 +49,28 @@ ss_refresh(int indom)
     /* invalidate all cache entries */
     pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
     
+    has_state_field = 0;
+    memset(&parsed_ss, 0, sizeof(parsed_ss));
     while (fgets(line, sizeof(line), fp) != NULL) {
-	ss_parse(line, &parsed_ss);
+	/* check the header */
+	if (strncmp(line, "Netid", 5) == 0) {
+	    if (strncmp(line, "Netid State", 11) == 0) {
+		has_state_field = 1;
+	    }
+	    continue;
+	}
+		
+	ss_parse(line, has_state_field, &parsed_ss);
 	ss_instname(&parsed_ss, instname, sizeof(instname));
-	if (parsed_ss.state[0] == '\0')
-	    continue; /* transient with no state, ignore */
 	ss = NULL;
 	sts = pmdaCacheLookupName(indom, instname, &inst, (void **)&ss);
 	if (sts < 0 || ss == NULL) {
 	    /* new entry */
-	    ss = (ss_stats_t *)malloc(sizeof(ss_stats_t));
+	    if (ss == NULL)
+		ss = (ss_stats_t *)malloc(sizeof(ss_stats_t));
+	    if (ss == NULL)
+	    	return -ENOMEM;
+	    sts = 0;
 	}
 	*ss = parsed_ss;
 	ss->instid = pmdaCacheStore(indom, PMDA_CACHE_ADD, instname, (void **)ss);
