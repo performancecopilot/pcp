@@ -301,8 +301,6 @@ _pcp () {
     _arguments -C -S -s \
       "$common_help[@]" \
       "$common_most[@]" \
-      "(-g --guimode $exargs)"{-g,--guimode}'[GUI mode with new time control]' \
-      "(-p --guiport $exargs)"{-p+,--guiport=}'[specify existing time control port]:port:' \
       "(-n --namespace $exargs)"{-n+,--namespace=}'[specify alternative PMNS]:pmnsfile:_files' \
       "(-P --pause -h --host $exargs)"{-P,--pause}'[pause between updates in archive mode]' \
       && return 0
