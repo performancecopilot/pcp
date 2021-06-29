@@ -65,12 +65,19 @@ filter to be applied to optionally select socket states,
 IP addresses and other options that
 .B pmdasockets
 will collect (to populate it's instance domain).
-By default, this is
+This is loaded on PMDA startup from the file
+.B $(PCP_SYSCONF_DIR)/sockets/filter.conf
+(typically
+.BR /etc/pcp/sockets/filter.conf )
+and defaults to
 .B state connected
 meaning only sockets in the
 .B connected
 state will be included.
-This can be changed dynamically by using
+This can be changed persistently by editing
+.BR filter.conf
+as the root user.
+The filter can also be changed dynamically after the PMDA has started by using
 .BR pmstore (1)
 to store a new filter string in the
 .B network.persocket.filter
@@ -87,8 +94,8 @@ E.g.
 .RE
 .sp 1
 will change the filter to include sockets in all states.
-Note that the filter string is not persisted across PMDA restarts or reboots
-(this may change in the future).
+Note a dynamically stored filter is not persisted across PMDA restarts or reboots
+(edit the config file for a persistent change).
 For further details of the filter syntax and options, consult
 .BR ss (8).
 .SH LOGGING CONFIGURATION
