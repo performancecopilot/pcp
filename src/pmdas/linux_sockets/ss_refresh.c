@@ -68,8 +68,10 @@ ss_refresh(int indom)
 	    /* new entry */
 	    if (ss == NULL)
 		ss = (ss_stats_t *)malloc(sizeof(ss_stats_t));
-	    if (ss == NULL)
+	    if (ss == NULL) {
+		ss_close_stream(fp);
 	    	return -ENOMEM;
+	    }
 	    sts = 0;
 	}
 	*ss = parsed_ss;
