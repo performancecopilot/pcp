@@ -31,23 +31,36 @@ reports I/O statistics for SCSI (by default) or other devices (if the \f3\-x\f1 
 When invoked via the
 .BR pcp (1)
 command, the
+.I "pcp options"
+.hy 0
+.BR \-A /\c
+.BR \-\-align ,
 .BR \-a /\c
 .BR \-\-archive ,
 .BR \-h /\c
 .BR \-\-host ,
 .BR \-O /\c
 .BR \-\-origin ,
+.BR \-S /\c
+.BR \-\-start ,
 .BR \-s /\c
 .BR \-\-samples ,
+.BR \-T /\c
+.BR \-\-finish ,
 .BR \-t /\c
 .BR \-\-interval ,
+.BR \-v /\c
+.BR \-\-version ,
 .BR \-Z /\c
-.BR \-\-timezone
-and several other
-.I pcp options
+.B \-\-timezone
+and
+.BR \-z /\c
+.B \-\-hostzone
 become indirectly available; refer to
 .BR PCPIntro (1)
 for a complete description of these options.
+.br
+.hy
 .PP
 The additional command line options available for
 .B pcp-iostat

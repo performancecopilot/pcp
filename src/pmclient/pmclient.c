@@ -20,7 +20,21 @@
 #include "pmnsmap.h"
 
 pmLongOptions longopts[] = {
-    PMAPI_GENERAL_OPTIONS,
+    PMAPI_OPTIONS_HEADER("General options"),
+    PMOPT_ALIGN,
+    PMOPT_ARCHIVE,
+    PMOPT_DEBUG,
+    PMOPT_HOST,
+    PMOPT_NAMESPACE,
+    PMOPT_ORIGIN,
+    PMOPT_START,
+    PMOPT_SAMPLES,
+    PMOPT_FINISH,
+    PMOPT_INTERVAL,
+    PMOPT_TIMEZONE,
+    PMOPT_HOSTZONE,
+    PMOPT_VERSION,
+    PMOPT_HELP,
     PMAPI_OPTIONS_HEADER("Reporting options"),
     { "pause", 0, 'P', 0, "pause between updates for archive replay" },
     PMAPI_OPTIONS_END

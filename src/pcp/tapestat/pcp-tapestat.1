@@ -30,23 +30,36 @@ reports I/O statistics for tape devices.
 When invoked via the
 .BR pcp (1)
 command, the
+.I "pcp options"
+.hy 0
+.BR \-A /\c
+.BR \-\-align ,
 .BR \-a /\c
 .BR \-\-archive ,
 .BR \-h /\c
 .BR \-\-host ,
 .BR \-O /\c
 .BR \-\-origin ,
+.BR \-S /\c
+.BR \-\-start ,
 .BR \-s /\c
 .BR \-\-samples ,
 .BR \-t /\c
 .BR \-\-interval ,
+.BR \-T /\c
+.BR \-\-finish ,
+.BR \-V /\c
+.BR \-\-version ,
 .BR \-Z /\c
 .BR \-\-timezone
-and several other
-.I pcp options
+and
+.BR \-z /\c
+.BR \-\-hostzone
 become indirectly available; refer to
 .BR PCPIntro (1)
 for a complete description of these options.
+.br
+.hy 0
 .PP
 The additional command line options available for
 .B pcp-tapestat

@@ -64,27 +64,38 @@ When invoked via the
 command, the
 .BR PCPIntro (1)
 options
-.BR \-h /\c
-.BR \-\-host ,
+.hy 0
+.BR \-A /\c
+.BR \-\-align ,
 .BR \-a /\c
 .BR \-\-archive ,
+.BR \-h /\c
+.BR \-\-host ,
 .BR \-O /\c
 .BR \-\-origin ,
+.BR \-S /\c
+.BR \-\-start ,
 .BR \-s /\c
 .BR \-\-samples ,
+.BR \-T /\c
+.BR \-\-finish ,
 .BR \-t /\c
 .BR \-\-interval ,
-.BR \-Z /\c
+.BR \-v /\c
+.BR \-\-version ,
+.BR \-z /\c ,
+.B \-\-hostzone
+and
+.BR \-z /\c ,
 .BR \-\-timezone
-and several other
-.I pcp options
 become indirectly available.
-The long option form of these is directly available.
 Additionally, the
 .B \-\-hotproc
 option can be used to request the per-process PCP metrics be used instead
 of the default proc metrics from
 .BR pmdaproc (1).
+.br
+.hy
 .PP
 When
 .B pcp-atop

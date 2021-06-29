@@ -28,15 +28,36 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 echo "collecting commands"
 rpm -qa | grep pcp | xargs rpm -ql | grep bin/ | grep -v 'debug$' | sort > $tmp.cmds.txt
 
+# don't bother for some commands, either they don't support --help
+# (e.g. no options to describe)  and/or are not intended for general
+# use by a human end user
+#
 echo "removing problematic commands from test"
 for cmd in pcp-htop pcp-python pcp2csv pcp2xlsx pmafm pmgenmap \
              pmie_dump_stats pmiestatus pmlock pmpause pmpython \
-             pmsleep pmwtf telnet-probe; do
+             pmsleep pmwtf telnet-probe pcp-ss pmpost
+do
   sed -i "/$cmd/d" $tmp.cmds.txt
 done
 
 echo "display commands to be tested"
 cat $tmp.cmds.txt
+
+# borrowed from _check_display()
+# if we can't talk to an X server, there is no point running
+# --help for the GUI apps
+#
+X11=true
+if [ -z "$PCPQA_CLOSE_X_SERVER" ]
+then
+    X11=false
+fi
+which xdpyinfo >/dev/null 2>&1
+if [ $? -eq 0 ]
+then
+    DISPLAY=$PCPQA_CLOSE_X_SERVER xdpyinfo >/dev/null 2>&1 || \
+	X11=false
+fi
 
 export PCP_STDERR=$tmp.popup
 
@@ -45,19 +66,67 @@ for cmd in $(cat $tmp.cmds.txt); do
   rm -f $tmp.test
   bn=$(basename $cmd)
   rm -f $tmp.popup
+  if ! $X11
+  then
+    case $cmd
+    in
+	*/pmchart|*/pmtime|*/pmconfirm|*/pmquery|*/pmclient_fg|*/pmmessage)
+	    # for these ones --help will try to open a GUI popup or
+	    # at least start an X11 client setup and without an X11
+	    # server that ain't going to work
+	    #
+	    continue
+	    ;;
+    esac
+  fi
   $cmd --help >$tmp.out 2>$tmp.err
   [ -f $tmp.popup ] && cat $tmp.popup >>$tmp.err
+  # if --help is not understood, usually get the "unrecognized
+  # option" message, followed by the usage message
+  #
+  cat $tmp.out $tmp.err | grep 'unrecognized option'
   cat $tmp.out $tmp.err \
-  | grep -Eo -- '--.*( |$)' \
-  | sed -e 's/=.*//g' -e 's/ .*//g' -e 's/]//g' -e 's/)//g' \
+  | grep -Eo -- '--.*( |	|$)' \
+  | sed \
+      -e '/unrecognized option/d' \
+      -e 's/=.*//g' \
+      -e 's/[ 	].*//g' \
+      -e 's/]//g' \
+      -e 's/)//g' \
+  | LC_COLLATE=POSIX sort \
+  | uniq \
   | grep -e '-[A-Za-z]' > $tmp.test
   if ! grep -q -- -- $tmp.test; then
     continue
   fi
   echo "=== $cmd ===" >>$seq.full
   cat $tmp.test >>$seq.full
+  # run man(1) once, then grep away
+  man $bn >$tmp.man
   for opt in $(cat $tmp.test); do
-    man $bn | grep -q -- "$opt" || echo "$bn.1 missing $opt"
+    # some --help text is misleading, not really options following
+    # -- ... skip 'em
+    case "$bn"
+    in
+	pcp-atop)
+	    [ X"$opt" = X--pcp-flags ] && continue
+	    ;;
+	pcp)
+	    # all these long options are documented in PCPIntro(1)
+	    # and pcp(1) points there, rather than repeating them
+	    #
+	    [ X"$opt" = X--align ] && continue
+	    [ X"$opt" = X--finish ] && continue
+	    [ X"$opt" = X--guimode ] && continue
+	    [ X"$opt" = X--guiport ] && continue
+	    [ X"$opt" = X--hostzone ] && continue
+	    [ X"$opt" = X--interval ] && continue
+	    [ X"$opt" = X--samples ] && continue
+	    [ X"$opt" = X--start ] && continue
+	    [ X"$opt" = X--timezone ] && continue
+	    ;;
+    esac
+    grep -q -- "$opt" <$tmp.man || echo "$bn.1 missing $opt"
   done
   rm -f $tmp.test
 done
