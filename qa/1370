@@ -13,9 +13,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-[ -f /etc/os-release ] || _notrun "Tested only on Fedora"
-grep -q ^NAME=Fedora /etc/os-release || _notrun "Tested only on Fedora"
-
 which man > /dev/null 2>&1 || _notrun "No man(1) command?"
 man pmrep | grep -q pmrep || _notrun "No man pages installed?"
 
@@ -26,13 +23,21 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 echo "collecting commands"
-rpm -qa | grep pcp | xargs rpm -ql | grep bin/ | grep -v 'debug$' | sort > $tmp.cmds.txt
+export LC_COLLATE=POSIX
+if which rpm >/dev/null 2>&1
+then
+    rpm -qa | grep pcp | xargs rpm -ql | grep bin/ | grep -v 'debug$' | sort > $tmp.cmds.txt
+elif which dpkg >/dev/null 2>&1
+then
+    dpkg -l | $PCP_AWK_PROG '$1 = "ii" && $2 ~ /pcp/ { print $2 }' | xargs dpkg -L | grep bin/ | sort | uniq > $tmp.cmds.txt
+else
+    _notrun "no recipe for your packaging command"
+fi
 
 # don't bother for some commands, either they don't support --help
-# (e.g. no options to describe)  and/or are not intended for general
+# (e.g. no options to describe) and/or are not intended for general
 # use by a human end user
 #
-echo "removing problematic commands from test"
 for cmd in pcp-htop pcp-python pcp2csv pcp2xlsx pmafm pmgenmap \
              pmie_dump_stats pmiestatus pmlock pmpause pmpython \
              pmsleep pmwtf telnet-probe pcp-ss pmpost
@@ -40,8 +45,11 @@ do
   sed -i "/$cmd/d" $tmp.cmds.txt
 done
 
-echo "display commands to be tested"
-cat $tmp.cmds.txt
+ncmd=`wc -l <$tmp.cmds.txt | sed -e 's/  *//'`
+if [ "$ncmd" -lt 100 ]
+then
+    echo "Warning: only found $ncmd candidate installed commands, expecting at least 100"
+fi
 
 # borrowed from _check_display()
 # if we can't talk to an X server, there is no point running
