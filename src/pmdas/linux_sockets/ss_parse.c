@@ -180,20 +180,31 @@ extract_subfields(ss_stats_t *s)
     	sscanf(p, "%lf/%lf", &s->round_trip_rtt, &s->round_trip_rttvar);
 }
 
+/*
+ * parse one line - socket instance
+ */
 int
-ss_parse(char *line, ss_stats_t *ss)
+ss_parse(char *line, int has_state_field, ss_stats_t *ss)
 {
     int i;
     char *r, *s, *p = line;
     int sts = 0;
 
     memset(&ss_p, 0, sizeof(ss_p));
-    sscanf(line, "%s %s %u %u %s %s",
-    	ss_p.netid, ss_p.state, &ss_p.sendq, &ss_p.recvq, ss_p.src, ss_p.dst);
+    if (has_state_field) {
+	sscanf(line, "%s %s %u %u %s %s",
+	    ss_p.netid, ss_p.state, &ss_p.sendq, &ss_p.recvq, ss_p.src, ss_p.dst);
+	for (i=0; i < 6; i++)
+	    p = skip(p, ' ');
 
-    /* skip first 6 fields, already scanned (above) */
-    for (i=0; i < 6; i++)
-    	p = skip(p, ' ');
+    } else {
+	/* Some filters cause ss to omit the State column */
+	strcpy(ss_p.state, "FILTER");
+	sscanf(line, "%s %u %u %s %s",
+	    ss_p.netid, &ss_p.sendq, &ss_p.recvq, ss_p.src, ss_p.dst);
+	for (i=0; i < 5; i++)
+	    p = skip(p, ' ');
+    }
 
     for (i=0; parse_table[i].field != NULL; i++)
     	parse_table[i].found = 0;
@@ -256,12 +267,14 @@ ss_parse(char *line, ss_stats_t *ss)
 	p = skip(p, ' ');
     }
 
-#if DEBUG
-	fprintf(stderr, "\nLINE:%s", line);
-	for (i=0; parse_table[i].field != NULL; i++)
-	    if (parse_table[i].found)
-		fprintf(stderr, "Found %s\n", parse_table[i].field);
-#endif
+    if (pmDebugOptions.appl1) {
+	pmNotifyErr(LOG_DEBUG, "\nLINE:%s", line);
+	if (pmDebugOptions.desperate) {
+	    for (i=0; parse_table[i].field != NULL; i++)
+		if (parse_table[i].found)
+		    fprintf(stderr, "Found %s\n", parse_table[i].field);
+	}
+    }
 
     extract_subfields(&ss_p);
     *ss = ss_p; /* struct assign */

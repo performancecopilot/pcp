@@ -20,33 +20,21 @@ fi
 . ./common.filter
 . ./common.check
 
-do_valgrind=false
-if [ "$1" = "--valgrind" ]
-then
-    _check_valgrind
-    do_valgrind=true
-fi
-
 [ $PCP_PLATFORM = linux ] || _notrun "pmdasockets is Linux-specific"
 [ -f $PCP_PMDAS_DIR/sockets/pmdasockets ] || _notrun "sockets pmda not installed"
 
-pmns=$PCP_PMDAS_DIR/sockets/root
-pmda=$PCP_PMDAS_DIR/sockets/pmda_sockets.$DSO_SUFFIX,sockets_init
-_make_helptext sockets
 
-# override the default contents of PMDA cache files
-# (do not want localhost versions to be used here).
-#
-domain=154
-[ -f $PCP_VAR_DIR/config/pmda/$domain.0 ] && \
-_save_config $PCP_VAR_DIR/config/pmda/$domain.0
-$sudo rm -f $PCP_VAR_DIR/config/pmda/$domain.0
+# Override the pmda's filter.conf
+[ -f $PCP_PMDAS_DIR/sockets/filter.conf ] && \
+_save_config $PCP_PMDAS_DIR/sockets/filter.conf
+echo "state connected" >$tmp.filter
+$sudo cp $tmp.filter $PCP_PMDAS_DIR/sockets/filter.conf
 
 _cleanup()
 {
     cd $here
     [ -f $PCP_VAR_DIR/config/pmda/$domain.0.$seq ] && \
-    _restore_config $PCP_VAR_DIR/config/pmda/$domain.0
+    _restore_config $PCP_PMDAS_DIR/sockets/filter.conf
 
     $sudo rm -rf $tmp $tmp.*
 }
@@ -57,17 +45,22 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
 {
-    sed \
-	-e 's/<something>/<else>/' \
-    # end
+    sed -e "s;$tmp;TMP;g"
 }
 
 # real QA test starts here
-for f in sockets/ss_noemitauOH.txt sockets/ss_noemitauOH_ubuntu.txt; do
+[ ! -d "$tmp" ] && mkdir -p $tmp
+qadomain=251 # FORQA
+sed -e "/^root/i#undef SOCKETS\n#define SOCKETS $qadomain" <$PCP_PMDAS_DIR/sockets/root >$tmp/root
+cp $PCP_PMDAS_DIR/sockets/pmns $tmp/pmns
+pmns=$tmp/root
+pmda=$PCP_PMDAS_DIR/sockets/pmda_sockets.$DSO_SUFFIX,sockets_init
+
+for f in `ls -1 sockets/*.txt | LC_COLLATE=POSIX sort`; do
     echo === testing $f ===
+    $sudo rm -f $PCP_VAR_DIR/config/pmda/$qadomain.0 # reset indom
     export PCPQA_PMDA_SOCKETS="$f"
-    $sudo rm -f $PCP_VAR_DIR/config/pmda/$domain.0
-    _run_valgrind pminfo -L -K clear -K add,154,$pmda -dfmt -n $pmns network.persocket
+    _run_valgrind pminfo -L -K clear -K add,$qadomain,$pmda -dfm -n $pmns network.persocket | _filter
 done
 
 # success, all done

@@ -2,13 +2,13 @@ QA output created by 1634
 === testing sockets/ss_noemitauOH.txt ===
 === std out ===
 
-network.persocket.filter PMID: 154.0.0 [filter for sockets of interest]
+network.persocket.filter PMID: 251.0.0
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
     value "state connected"
 
-network.persocket.netid PMID: 154.1.0 [socket protocol identifier]
-    Data Type: string  InDom: 154.0 0x26800000
+network.persocket.netid PMID: 251.1.0
+    Data Type: string  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: none
     inst [0 or "udp/10.0.0.10:49693"] value "udp"
     inst [1 or "udp/192.168.1.169:58624"] value "udp"
@@ -102,8 +102,8 @@ network.persocket.netid PMID: 154.1.0 [socket protocol identifier]
     inst [89 or "tcp6/[::]:44323"] value "tcp"
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value "tcp"
 
-network.persocket.state PMID: 154.1.1 [socket state as a string, commonly UNCONN, ESTAB, TIME-WAIT]
-    Data Type: string  InDom: 154.0 0x26800000
+network.persocket.state PMID: 251.1.1
+    Data Type: string  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: none
     inst [0 or "udp/10.0.0.10:49693"] value "ESTAB"
     inst [1 or "udp/192.168.1.169:58624"] value "UNCONN"
@@ -197,8 +197,8 @@ network.persocket.state PMID: 154.1.1 [socket state as a string, commonly UNCONN
     inst [89 or "tcp6/[::]:44323"] value "LISTEN"
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value "ESTAB"
 
-network.persocket.recvq PMID: 154.1.2 [length of the receive queue]
-    Data Type: 32-bit int  InDom: 154.0 0x26800000
+network.persocket.recvq PMID: 251.1.2
+    Data Type: 32-bit int  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: count
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -292,8 +292,8 @@ network.persocket.recvq PMID: 154.1.2 [length of the receive queue]
     inst [89 or "tcp6/[::]:44323"] value 128
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 0
 
-network.persocket.sendq PMID: 154.1.3 [length of the send queue]
-    Data Type: 32-bit int  InDom: 154.0 0x26800000
+network.persocket.sendq PMID: 251.1.3
+    Data Type: 32-bit int  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: count
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -387,8 +387,8 @@ network.persocket.sendq PMID: 154.1.3 [length of the send queue]
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 0
 
-network.persocket.src PMID: 154.1.4 [local (source) IP address (IPv4 or IPv6) and port]
-    Data Type: string  InDom: 154.0 0x26800000
+network.persocket.src PMID: 251.1.4
+    Data Type: string  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: none
     inst [0 or "udp/10.0.0.10:49693"] value "10.0.0.10:49693"
     inst [1 or "udp/192.168.1.169:58624"] value "192.168.1.169:58624"
@@ -482,8 +482,8 @@ network.persocket.src PMID: 154.1.4 [local (source) IP address (IPv4 or IPv6) an
     inst [89 or "tcp6/[::]:44323"] value "[::]:44323"
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value "[::ffff:127.0.0.1]:3000"
 
-network.persocket.dst PMID: 154.1.5 [destination IP address (IPv4 or IPv6) and port]
-    Data Type: string  InDom: 154.0 0x26800000
+network.persocket.dst PMID: 251.1.5
+    Data Type: string  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: none
     inst [0 or "udp/10.0.0.10:49693"] value "74.125.68.189:443"
     inst [1 or "udp/192.168.1.169:58624"] value "0.0.0.0:*"
@@ -577,8 +577,8 @@ network.persocket.dst PMID: 154.1.5 [destination IP address (IPv4 or IPv6) and p
     inst [89 or "tcp6/[::]:44323"] value "[::]:*"
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value "[::ffff:127.0.0.1]:38136"
 
-network.persocket.inode PMID: 154.1.6 [the socket's inode number in VFS]
-    Data Type: 64-bit int  InDom: 154.0 0x26800000
+network.persocket.inode PMID: 251.1.6
+    Data Type: 64-bit int  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: none
     inst [0 or "udp/10.0.0.10:49693"] value 28605309
     inst [1 or "udp/192.168.1.169:58624"] value 19693830
@@ -672,8 +672,8 @@ network.persocket.inode PMID: 154.1.6 [the socket's inode number in VFS]
     inst [89 or "tcp6/[::]:44323"] value 28529158
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 28540274
 
-network.persocket.uid PMID: 154.1.8 [the user id the socket belongs to]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.uid PMID: 251.1.8
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: none
     inst [0 or "udp/10.0.0.10:49693"] value 1024
     inst [1 or "udp/192.168.1.169:58624"] value 1024
@@ -767,8 +767,8 @@ network.persocket.uid PMID: 154.1.8 [the user id the socket belongs to]
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 378
 
-network.persocket.sk PMID: 154.1.9 [uuid cookie of the socket]
-    Data Type: 64-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.sk PMID: 251.1.9
+    Data Type: 64-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: none
     inst [0 or "udp/10.0.0.10:49693"] value 976
     inst [1 or "udp/192.168.1.169:58624"] value 3154
@@ -862,8 +862,8 @@ network.persocket.sk PMID: 154.1.9 [uuid cookie of the socket]
     inst [89 or "tcp6/[::]:44323"] value 973
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 9745
 
-network.persocket.cgroup PMID: 154.1.10 [cgroup v2 pathname]
-    Data Type: string  InDom: 154.0 0x26800000
+network.persocket.cgroup PMID: 251.1.10
+    Data Type: string  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: none
     inst [0 or "udp/10.0.0.10:49693"] value "/user.slice/user-1024.slice/session-2.scope"
     inst [1 or "udp/192.168.1.169:58624"] value "/user.slice/user-1024.slice/session-2.scope"
@@ -957,8 +957,8 @@ network.persocket.cgroup PMID: 154.1.10 [cgroup v2 pathname]
     inst [89 or "tcp6/[::]:44323"] value "/system.slice/pmproxy.service"
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value "/system.slice/grafana-server.service"
 
-network.persocket.v6only PMID: 154.1.11 [boolean value set to one if the socket is IPv6, 0 otherwise]
-    Data Type: 32-bit int  InDom: 154.0 0x26800000
+network.persocket.v6only PMID: 251.1.11
+    Data Type: 32-bit int  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: none
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -1052,8 +1052,8 @@ network.persocket.v6only PMID: 154.1.11 [boolean value set to one if the socket 
     inst [89 or "tcp6/[::]:44323"] value 1
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 0
 
-network.persocket.ts PMID: 154.1.13 [boolean value set to one if the timestamp option is set]
-    Data Type: 32-bit int  InDom: 154.0 0x26800000
+network.persocket.ts PMID: 251.1.13
+    Data Type: 32-bit int  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: none
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -1147,8 +1147,8 @@ network.persocket.ts PMID: 154.1.13 [boolean value set to one if the timestamp o
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 1
 
-network.persocket.sack PMID: 154.1.14 [boolean value set to one if the sack option is set]
-    Data Type: 32-bit int  InDom: 154.0 0x26800000
+network.persocket.sack PMID: 251.1.14
+    Data Type: 32-bit int  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: none
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -1242,8 +1242,8 @@ network.persocket.sack PMID: 154.1.14 [boolean value set to one if the sack opti
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 1
 
-network.persocket.cubic PMID: 154.1.15 [boolean value set to one if cubic congestion control is enabled]
-    Data Type: 32-bit int  InDom: 154.0 0x26800000
+network.persocket.cubic PMID: 251.1.15
+    Data Type: 32-bit int  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: none
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -1337,8 +1337,8 @@ network.persocket.cubic PMID: 154.1.15 [boolean value set to one if cubic conges
     inst [89 or "tcp6/[::]:44323"] value 1
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 1
 
-network.persocket.ato PMID: 154.1.16 [ack timeout when using delayed ack mode]
-    Data Type: double  InDom: 154.0 0x26800000
+network.persocket.ato PMID: 251.1.16
+    Data Type: double  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: millisec
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -1432,8 +1432,8 @@ network.persocket.ato PMID: 154.1.16 [ack timeout when using delayed ack mode]
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 40
 
-network.persocket.mss PMID: 154.1.17 [maximum segment size]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.mss PMID: 251.1.17
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: byte
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -1527,8 +1527,8 @@ network.persocket.mss PMID: 154.1.17 [maximum segment size]
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 32768
 
-network.persocket.pmtu PMID: 154.1.18 [path maximum transmission unit]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.pmtu PMID: 251.1.18
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: byte
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -1622,8 +1622,8 @@ network.persocket.pmtu PMID: 154.1.18 [path maximum transmission unit]
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 65535
 
-network.persocket.rcvmss PMID: 154.1.19 [receive maximum transmission units]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.rcvmss PMID: 251.1.19
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: byte
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -1717,8 +1717,8 @@ network.persocket.rcvmss PMID: 154.1.19 [receive maximum transmission units]
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 536
 
-network.persocket.advmss PMID: 154.1.20 [advertised maximum segment size]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.advmss PMID: 251.1.20
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: byte
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -1812,8 +1812,8 @@ network.persocket.advmss PMID: 154.1.20 [advertised maximum segment size]
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 65483
 
-network.persocket.cwnd PMID: 154.1.21 [congestion window size]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.cwnd PMID: 251.1.21
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: count
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -1907,8 +1907,8 @@ network.persocket.cwnd PMID: 154.1.21 [congestion window size]
     inst [89 or "tcp6/[::]:44323"] value 10
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 10
 
-network.persocket.ssthresh PMID: 154.1.22 [tcp congestion window slow start threshold]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.ssthresh PMID: 251.1.22
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: count
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -2002,8 +2002,8 @@ network.persocket.ssthresh PMID: 154.1.22 [tcp congestion window slow start thre
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 0
 
-network.persocket.bytes_sent PMID: 154.1.23 [count of bytes sent using the socket]
-    Data Type: 64-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.bytes_sent PMID: 251.1.23
+    Data Type: 64-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: counter  Units: byte
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -2097,8 +2097,8 @@ network.persocket.bytes_sent PMID: 154.1.23 [count of bytes sent using the socke
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 1955159
 
-network.persocket.bytes_retrans PMID: 154.1.24 [count of bytes retransmitted using the socket]
-    Data Type: 64-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.bytes_retrans PMID: 251.1.24
+    Data Type: 64-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: counter  Units: byte
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -2192,8 +2192,8 @@ network.persocket.bytes_retrans PMID: 154.1.24 [count of bytes retransmitted usi
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 0
 
-network.persocket.bytes_acked PMID: 154.1.25 [count of bytes acked using the socket]
-    Data Type: 64-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.bytes_acked PMID: 251.1.25
+    Data Type: 64-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: counter  Units: byte
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -2287,8 +2287,8 @@ network.persocket.bytes_acked PMID: 154.1.25 [count of bytes acked using the soc
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 1955159
 
-network.persocket.bytes_received PMID: 154.1.36 [count of bytes received using the socket]
-    Data Type: 64-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.bytes_received PMID: 251.1.36
+    Data Type: 64-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: counter  Units: byte
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -2382,8 +2382,8 @@ network.persocket.bytes_received PMID: 154.1.36 [count of bytes received using t
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 69464
 
-network.persocket.segs_out PMID: 154.1.37 [count of segments sent out using the socket]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.segs_out PMID: 251.1.37
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: count
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -2477,8 +2477,8 @@ network.persocket.segs_out PMID: 154.1.37 [count of segments sent out using the 
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 918
 
-network.persocket.segs_in PMID: 154.1.38 [count of segments received using the socket]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.segs_in PMID: 251.1.38
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: count
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -2572,8 +2572,8 @@ network.persocket.segs_in PMID: 154.1.38 [count of segments received using the s
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 1373
 
-network.persocket.data_segs_out PMID: 154.1.39 [count of data segments sent out using the socket]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.data_segs_out PMID: 251.1.39
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: count
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -2667,8 +2667,8 @@ network.persocket.data_segs_out PMID: 154.1.39 [count of data segments sent out 
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 914
 
-network.persocket.data_segs_in PMID: 154.1.40 [count of data segments received using the socket]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.data_segs_in PMID: 251.1.40
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: count
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -2762,8 +2762,8 @@ network.persocket.data_segs_in PMID: 154.1.40 [count of data segments received u
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 457
 
-network.persocket.send PMID: 154.1.41 [egress bps]
-    Data Type: double  InDom: 154.0 0x26800000
+network.persocket.send PMID: 251.1.41
+    Data Type: double  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: count
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -2857,8 +2857,8 @@ network.persocket.send PMID: 154.1.41 [egress bps]
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 58254222222
 
-network.persocket.lastsnd PMID: 154.1.42 [how long time since the last packet sent in milliseconds]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.lastsnd PMID: 251.1.42
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: millisec
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -2952,8 +2952,8 @@ network.persocket.lastsnd PMID: 154.1.42 [how long time since the last packet se
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 3495
 
-network.persocket.lastrcv PMID: 154.1.43 [how long time since the last packet received in milliseconds]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.lastrcv PMID: 251.1.43
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: millisec
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -3047,8 +3047,8 @@ network.persocket.lastrcv PMID: 154.1.43 [how long time since the last packet re
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 3499
 
-network.persocket.lastack PMID: 154.1.44 [how long time since the last ack received in milliseconds]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.lastack PMID: 251.1.44
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: millisec
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -3142,8 +3142,8 @@ network.persocket.lastack PMID: 154.1.44 [how long time since the last ack recei
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 3495
 
-network.persocket.pacing_rate PMID: 154.1.45 [the current pacing rate of the socket]
-    Data Type: double  InDom: 154.0 0x26800000
+network.persocket.pacing_rate PMID: 251.1.45
+    Data Type: double  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: byte / sec
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -3237,8 +3237,8 @@ network.persocket.pacing_rate PMID: 154.1.45 [the current pacing rate of the soc
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 116185706368
 
-network.persocket.delivery_rate PMID: 154.1.46 [delivery bandwidth estimate excluding idle periods]
-    Data Type: double  InDom: 154.0 0x26800000
+network.persocket.delivery_rate PMID: 251.1.46
+    Data Type: double  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: byte / sec
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -3332,8 +3332,8 @@ network.persocket.delivery_rate PMID: 154.1.46 [delivery bandwidth estimate excl
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 65536000000
 
-network.persocket.delivered PMID: 154.1.47 []
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.delivered PMID: 251.1.47
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: counter  Units: count
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -3427,8 +3427,8 @@ network.persocket.delivered PMID: 154.1.47 []
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 915
 
-network.persocket.app_limited PMID: 154.1.48 [TCP flows are limited with application-limiting]
-    Data Type: 32-bit int  InDom: 154.0 0x26800000
+network.persocket.app_limited PMID: 251.1.48
+    Data Type: 32-bit int  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: none
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -3522,8 +3522,8 @@ network.persocket.app_limited PMID: 154.1.48 [TCP flows are limited with applica
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 1
 
-network.persocket.reord_seen PMID: 154.1.49 []
-    Data Type: 32-bit int  InDom: 154.0 0x26800000
+network.persocket.reord_seen PMID: 251.1.49
+    Data Type: 32-bit int  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: count
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -3617,8 +3617,8 @@ network.persocket.reord_seen PMID: 154.1.49 []
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 34
 
-network.persocket.busy PMID: 154.1.50 [TCP connection is busy??]
-    Data Type: 64-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.busy PMID: 251.1.50
+    Data Type: 64-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: none
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -3712,8 +3712,8 @@ network.persocket.busy PMID: 154.1.50 [TCP connection is busy??]
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 34
 
-network.persocket.dsack_dups PMID: 154.1.51 [duplicate selective acknowledgements]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.dsack_dups PMID: 251.1.51
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: count
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -3807,8 +3807,8 @@ network.persocket.dsack_dups PMID: 154.1.51 [duplicate selective acknowledgement
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 0
 
-network.persocket.rcv_rtt PMID: 154.1.52 [receive round trip time]
-    Data Type: double  InDom: 154.0 0x26800000
+network.persocket.rcv_rtt PMID: 251.1.52
+    Data Type: double  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: millisec
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -3902,8 +3902,8 @@ network.persocket.rcv_rtt PMID: 154.1.52 [receive round trip time]
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 6115.7
 
-network.persocket.rcv_space PMID: 154.1.53 [TCP internal auto tuning socket receive buffer size]
-    Data Type: 32-bit int  InDom: 154.0 0x26800000
+network.persocket.rcv_space PMID: 251.1.53
+    Data Type: 32-bit int  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: byte
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -3997,8 +3997,8 @@ network.persocket.rcv_space PMID: 154.1.53 [TCP internal auto tuning socket rece
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 65664
 
-network.persocket.rcv_ssthresh PMID: 154.1.54 [TCP congestion window slow start threshold]
-    Data Type: 32-bit int  InDom: 154.0 0x26800000
+network.persocket.rcv_ssthresh PMID: 251.1.54
+    Data Type: 32-bit int  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: count
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -4092,8 +4092,8 @@ network.persocket.rcv_ssthresh PMID: 154.1.54 [TCP congestion window slow start 
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 92283
 
-network.persocket.minrtt PMID: 154.1.55 [minimum round trip time achieved in the socket]
-    Data Type: double  InDom: 154.0 0x26800000
+network.persocket.minrtt PMID: 251.1.55
+    Data Type: double  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: millisec
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -4187,8 +4187,8 @@ network.persocket.minrtt PMID: 154.1.55 [minimum round trip time achieved in the
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 0.004
 
-network.persocket.notsent PMID: 154.1.56 [unsent data bytes that are still buffered]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.notsent PMID: 251.1.56
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: byte
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -4282,8 +4282,8 @@ network.persocket.notsent PMID: 154.1.56 [unsent data bytes that are still buffe
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 0
 
-network.persocket.timer.str PMID: 154.1.70 [the 'timer:' string, as reported by ss]
-    Data Type: string  InDom: 154.0 0x26800000
+network.persocket.timer.str PMID: 251.1.70
+    Data Type: string  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: none
     inst [0 or "udp/10.0.0.10:49693"] value ""
     inst [1 or "udp/192.168.1.169:58624"] value ""
@@ -4377,8 +4377,8 @@ network.persocket.timer.str PMID: 154.1.70 [the 'timer:' string, as reported by 
     inst [89 or "tcp6/[::]:44323"] value ""
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value "keepalive,1.504ms,0"
 
-network.persocket.timer.name PMID: 154.1.71 [name of the socket timer.]
-    Data Type: string  InDom: 154.0 0x26800000
+network.persocket.timer.name PMID: 251.1.71
+    Data Type: string  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: none
     inst [0 or "udp/10.0.0.10:49693"] value ""
     inst [1 or "udp/192.168.1.169:58624"] value ""
@@ -4472,8 +4472,8 @@ network.persocket.timer.name PMID: 154.1.71 [name of the socket timer.]
     inst [89 or "tcp6/[::]:44323"] value ""
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value "keepalive"
 
-network.persocket.timer.expire_str PMID: 154.1.72 [how long until the timer will expire]
-    Data Type: string  InDom: 154.0 0x26800000
+network.persocket.timer.expire_str PMID: 251.1.72
+    Data Type: string  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: none
     inst [0 or "udp/10.0.0.10:49693"] value ""
     inst [1 or "udp/192.168.1.169:58624"] value ""
@@ -4567,8 +4567,8 @@ network.persocket.timer.expire_str PMID: 154.1.72 [how long until the timer will
     inst [89 or "tcp6/[::]:44323"] value ""
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value "1.504ms"
 
-network.persocket.timer.retrans PMID: 154.1.73 [how many times the retransmission occured in timer]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.timer.retrans PMID: 251.1.73
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: none
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -4662,8 +4662,8 @@ network.persocket.timer.retrans PMID: 154.1.73 [how many times the retransmissio
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 0
 
-network.persocket.skmem.str PMID: 154.1.80 [socket memory details, as a string]
-    Data Type: string  InDom: 154.0 0x26800000
+network.persocket.skmem.str PMID: 251.1.80
+    Data Type: string  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: none
     inst [0 or "udp/10.0.0.10:49693"] value "r0,rb425984,t0,tb58080,f4096,w0,o0,bl0,d0"
     inst [1 or "udp/192.168.1.169:58624"] value "r0,rb212992,t0,tb212992,f4096,w0,o0,bl0,d0"
@@ -4757,8 +4757,8 @@ network.persocket.skmem.str PMID: 154.1.80 [socket memory details, as a string]
     inst [89 or "tcp6/[::]:44323"] value "r0,rb131072,t0,tb16384,f0,w0,o0,bl0,d0"
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value "r0,rb2358342,t0,tb2626560,f0,w0,o0,bl0,d0"
 
-network.persocket.skmem.rmem_alloc PMID: 154.1.81 [memory allocated for receiving packet]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.skmem.rmem_alloc PMID: 251.1.81
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: byte
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -4852,8 +4852,8 @@ network.persocket.skmem.rmem_alloc PMID: 154.1.81 [memory allocated for receivin
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 0
 
-network.persocket.skmem.wmem_alloc PMID: 154.1.82 [memory used for sending packet (which has been sent]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.skmem.wmem_alloc PMID: 251.1.82
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: byte
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -4947,8 +4947,8 @@ network.persocket.skmem.wmem_alloc PMID: 154.1.82 [memory used for sending packe
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 0
 
-network.persocket.skmem.rcv_buf PMID: 154.1.83 [total memory that can be allocated to recv packets]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.skmem.rcv_buf PMID: 251.1.83
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: byte
     inst [0 or "udp/10.0.0.10:49693"] value 425984
     inst [1 or "udp/192.168.1.169:58624"] value 212992
@@ -5042,8 +5042,8 @@ network.persocket.skmem.rcv_buf PMID: 154.1.83 [total memory that can be allocat
     inst [89 or "tcp6/[::]:44323"] value 131072
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 2358342
 
-network.persocket.skmem.snd_buf PMID: 154.1.84 [total memory that can be allocated to send packets]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.skmem.snd_buf PMID: 251.1.84
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: byte
     inst [0 or "udp/10.0.0.10:49693"] value 58080
     inst [1 or "udp/192.168.1.169:58624"] value 212992
@@ -5137,8 +5137,8 @@ network.persocket.skmem.snd_buf PMID: 154.1.84 [total memory that can be allocat
     inst [89 or "tcp6/[::]:44323"] value 16384
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 2626560
 
-network.persocket.skmem.fwd_alloc PMID: 154.1.95 [cache memory allocated but not yet used for snd/rcv]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.skmem.fwd_alloc PMID: 251.1.95
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: byte
     inst [0 or "udp/10.0.0.10:49693"] value 4096
     inst [1 or "udp/192.168.1.169:58624"] value 4096
@@ -5232,8 +5232,8 @@ network.persocket.skmem.fwd_alloc PMID: 154.1.95 [cache memory allocated but not
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 0
 
-network.persocket.skmem.wmem_queued PMID: 154.1.86 [memory allocated for sending packet]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.skmem.wmem_queued PMID: 251.1.86
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: byte
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -5327,8 +5327,8 @@ network.persocket.skmem.wmem_queued PMID: 154.1.86 [memory allocated for sending
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 0
 
-network.persocket.skmem.ropt_mem PMID: 154.1.87 [memory used for storing socket options]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.skmem.ropt_mem PMID: 251.1.87
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: byte
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -5422,8 +5422,8 @@ network.persocket.skmem.ropt_mem PMID: 154.1.87 [memory used for storing socket 
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 0
 
-network.persocket.skmem.back_log PMID: 154.1.88 [memory used for the sk backlog queue]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.skmem.back_log PMID: 251.1.88
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: byte
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -5517,8 +5517,8 @@ network.persocket.skmem.back_log PMID: 154.1.88 [memory used for the sk backlog 
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 0
 
-network.persocket.skmem.sock_drop PMID: 154.1.89 [dropped packets before demultiplexed into socket]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.skmem.sock_drop PMID: 251.1.89
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: none
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -5612,8 +5612,8 @@ network.persocket.skmem.sock_drop PMID: 154.1.89 [dropped packets before demulti
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 0
 
-network.persocket.wscale.str PMID: 154.1.60 [send and rcv scale factor as a string]
-    Data Type: string  InDom: 154.0 0x26800000
+network.persocket.wscale.str PMID: 251.1.60
+    Data Type: string  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: none
     inst [0 or "udp/10.0.0.10:49693"] value ""
     inst [1 or "udp/192.168.1.169:58624"] value ""
@@ -5707,8 +5707,8 @@ network.persocket.wscale.str PMID: 154.1.60 [send and rcv scale factor as a stri
     inst [89 or "tcp6/[::]:44323"] value ""
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value "7,7"
 
-network.persocket.wscale.snd PMID: 154.1.61 [send scale factor when window scale is used]
-    Data Type: 32-bit int  InDom: 154.0 0x26800000
+network.persocket.wscale.snd PMID: 251.1.61
+    Data Type: 32-bit int  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: none
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -5802,8 +5802,8 @@ network.persocket.wscale.snd PMID: 154.1.61 [send scale factor when window scale
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 7
 
-network.persocket.wscale.rcv PMID: 154.1.62 [receive scale factor when window scale is used]
-    Data Type: 32-bit int  InDom: 154.0 0x26800000
+network.persocket.wscale.rcv PMID: 251.1.62
+    Data Type: 32-bit int  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: none
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -5897,8 +5897,8 @@ network.persocket.wscale.rcv PMID: 154.1.62 [receive scale factor when window sc
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 7
 
-network.persocket.round_trip.str PMID: 154.1.90 [average round trip time and variance, as a string]
-    Data Type: string  InDom: 154.0 0x26800000
+network.persocket.round_trip.str PMID: 251.1.90
+    Data Type: string  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: none
     inst [0 or "udp/10.0.0.10:49693"] value ""
     inst [1 or "udp/192.168.1.169:58624"] value ""
@@ -5992,8 +5992,8 @@ network.persocket.round_trip.str PMID: 154.1.90 [average round trip time and var
     inst [89 or "tcp6/[::]:44323"] value ""
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value "0.045/0.025"
 
-network.persocket.round_trip.rtt PMID: 154.1.91 [average round trip time in milliseconds]
-    Data Type: double  InDom: 154.0 0x26800000
+network.persocket.round_trip.rtt PMID: 251.1.91
+    Data Type: double  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: millisec
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -6087,8 +6087,8 @@ network.persocket.round_trip.rtt PMID: 154.1.91 [average round trip time in mill
     inst [89 or "tcp6/[::]:44323"] value 0
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 0.045
 
-network.persocket.round_trip.rttvar PMID: 154.1.92 [round trip time mean deviation.]
-    Data Type: double  InDom: 154.0 0x26800000
+network.persocket.round_trip.rttvar PMID: 251.1.92
+    Data Type: double  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: millisec
     inst [0 or "udp/10.0.0.10:49693"] value 0
     inst [1 or "udp/192.168.1.169:58624"] value 0
@@ -6184,7 +6184,7 @@ network.persocket.round_trip.rttvar PMID: 154.1.92 [round trip time mean deviati
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pminfo -L -K clear -K add,154,/var/lib/pcp/pmdas/sockets/pmda_sockets.so,sockets_init -dfmt -n /var/lib/pcp/pmdas/sockets/root network.persocket
+Command: pminfo -L -K clear -K add,251,/var/lib/pcp/pmdas/sockets/pmda_sockets.so,sockets_init -dfm -n TMP/root network.persocket
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -6192,13 +6192,13 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 === testing sockets/ss_noemitauOH_ubuntu.txt ===
 === std out ===
 
-network.persocket.filter PMID: 154.0.0 [filter for sockets of interest]
+network.persocket.filter PMID: 251.0.0
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
     value "state connected"
 
-network.persocket.netid PMID: 154.1.0 [socket protocol identifier]
-    Data Type: string  InDom: 154.0 0x26800000
+network.persocket.netid PMID: 251.1.0
+    Data Type: string  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: none
     inst [0 or "udp/0.0.0.0:5353"] value "udp"
     inst [1 or "udp/0.0.0.0:38162"] value "udp"
@@ -6229,8 +6229,8 @@ network.persocket.netid PMID: 154.1.0 [socket protocol identifier]
     inst [26 or "tcp/*:80"] value "tcp"
     inst [27 or "tcp6/[::1]:53"] value "tcp"
 
-network.persocket.state PMID: 154.1.1 [socket state as a string, commonly UNCONN, ESTAB, TIME-WAIT]
-    Data Type: string  InDom: 154.0 0x26800000
+network.persocket.state PMID: 251.1.1
+    Data Type: string  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: none
     inst [0 or "udp/0.0.0.0:5353"] value "UNCONN"
     inst [1 or "udp/0.0.0.0:38162"] value "UNCONN"
@@ -6261,8 +6261,8 @@ network.persocket.state PMID: 154.1.1 [socket state as a string, commonly UNCONN
     inst [26 or "tcp/*:80"] value "LISTEN"
     inst [27 or "tcp6/[::1]:53"] value "LISTEN"
 
-network.persocket.recvq PMID: 154.1.2 [length of the receive queue]
-    Data Type: 32-bit int  InDom: 154.0 0x26800000
+network.persocket.recvq PMID: 251.1.2
+    Data Type: 32-bit int  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: count
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -6293,8 +6293,8 @@ network.persocket.recvq PMID: 154.1.2 [length of the receive queue]
     inst [26 or "tcp/*:80"] value 511
     inst [27 or "tcp6/[::1]:53"] value 256
 
-network.persocket.sendq PMID: 154.1.3 [length of the send queue]
-    Data Type: 32-bit int  InDom: 154.0 0x26800000
+network.persocket.sendq PMID: 251.1.3
+    Data Type: 32-bit int  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: count
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -6325,8 +6325,8 @@ network.persocket.sendq PMID: 154.1.3 [length of the send queue]
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.src PMID: 154.1.4 [local (source) IP address (IPv4 or IPv6) and port]
-    Data Type: string  InDom: 154.0 0x26800000
+network.persocket.src PMID: 251.1.4
+    Data Type: string  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: none
     inst [0 or "udp/0.0.0.0:5353"] value "0.0.0.0:5353"
     inst [1 or "udp/0.0.0.0:38162"] value "0.0.0.0:38162"
@@ -6357,8 +6357,8 @@ network.persocket.src PMID: 154.1.4 [local (source) IP address (IPv4 or IPv6) an
     inst [26 or "tcp/*:80"] value "*:80"
     inst [27 or "tcp6/[::1]:53"] value "[::1]:53"
 
-network.persocket.dst PMID: 154.1.5 [destination IP address (IPv4 or IPv6) and port]
-    Data Type: string  InDom: 154.0 0x26800000
+network.persocket.dst PMID: 251.1.5
+    Data Type: string  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: none
     inst [0 or "udp/0.0.0.0:5353"] value "0.0.0.0:*"
     inst [1 or "udp/0.0.0.0:38162"] value "0.0.0.0:*"
@@ -6389,8 +6389,8 @@ network.persocket.dst PMID: 154.1.5 [destination IP address (IPv4 or IPv6) and p
     inst [26 or "tcp/*:80"] value "*:*"
     inst [27 or "tcp6/[::1]:53"] value "[::]:*"
 
-network.persocket.inode PMID: 154.1.6 [the socket's inode number in VFS]
-    Data Type: 64-bit int  InDom: 154.0 0x26800000
+network.persocket.inode PMID: 251.1.6
+    Data Type: 64-bit int  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: none
     inst [0 or "udp/0.0.0.0:5353"] value 177686
     inst [1 or "udp/0.0.0.0:38162"] value 177688
@@ -6421,8 +6421,8 @@ network.persocket.inode PMID: 154.1.6 [the socket's inode number in VFS]
     inst [26 or "tcp/*:80"] value 179878
     inst [27 or "tcp6/[::1]:53"] value 179210
 
-network.persocket.uid PMID: 154.1.8 [the user id the socket belongs to]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.uid PMID: 251.1.8
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: none
     inst [0 or "udp/0.0.0.0:5353"] value 117
     inst [1 or "udp/0.0.0.0:38162"] value 117
@@ -6453,8 +6453,8 @@ network.persocket.uid PMID: 154.1.8 [the user id the socket belongs to]
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.sk PMID: 154.1.9 [uuid cookie of the socket]
-    Data Type: 64-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.sk PMID: 251.1.9
+    Data Type: 64-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: none
     inst [0 or "udp/0.0.0.0:5353"] value 9
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -6485,8 +6485,8 @@ network.persocket.sk PMID: 154.1.9 [uuid cookie of the socket]
     inst [26 or "tcp/*:80"] value 20
     inst [27 or "tcp6/[::1]:53"] value 21
 
-network.persocket.cgroup PMID: 154.1.10 [cgroup v2 pathname]
-    Data Type: string  InDom: 154.0 0x26800000
+network.persocket.cgroup PMID: 251.1.10
+    Data Type: string  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: none
     inst [0 or "udp/0.0.0.0:5353"] value ""
     inst [1 or "udp/0.0.0.0:38162"] value ""
@@ -6517,8 +6517,8 @@ network.persocket.cgroup PMID: 154.1.10 [cgroup v2 pathname]
     inst [26 or "tcp/*:80"] value ""
     inst [27 or "tcp6/[::1]:53"] value ""
 
-network.persocket.v6only PMID: 154.1.11 [boolean value set to one if the socket is IPv6, 0 otherwise]
-    Data Type: 32-bit int  InDom: 154.0 0x26800000
+network.persocket.v6only PMID: 251.1.11
+    Data Type: 32-bit int  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: none
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -6549,8 +6549,8 @@ network.persocket.v6only PMID: 154.1.11 [boolean value set to one if the socket 
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 1
 
-network.persocket.ts PMID: 154.1.13 [boolean value set to one if the timestamp option is set]
-    Data Type: 32-bit int  InDom: 154.0 0x26800000
+network.persocket.ts PMID: 251.1.13
+    Data Type: 32-bit int  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: none
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -6581,8 +6581,8 @@ network.persocket.ts PMID: 154.1.13 [boolean value set to one if the timestamp o
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.sack PMID: 154.1.14 [boolean value set to one if the sack option is set]
-    Data Type: 32-bit int  InDom: 154.0 0x26800000
+network.persocket.sack PMID: 251.1.14
+    Data Type: 32-bit int  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: none
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -6613,8 +6613,8 @@ network.persocket.sack PMID: 154.1.14 [boolean value set to one if the sack opti
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.cubic PMID: 154.1.15 [boolean value set to one if cubic congestion control is enabled]
-    Data Type: 32-bit int  InDom: 154.0 0x26800000
+network.persocket.cubic PMID: 251.1.15
+    Data Type: 32-bit int  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: none
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -6645,8 +6645,8 @@ network.persocket.cubic PMID: 154.1.15 [boolean value set to one if cubic conges
     inst [26 or "tcp/*:80"] value 1
     inst [27 or "tcp6/[::1]:53"] value 1
 
-network.persocket.ato PMID: 154.1.16 [ack timeout when using delayed ack mode]
-    Data Type: double  InDom: 154.0 0x26800000
+network.persocket.ato PMID: 251.1.16
+    Data Type: double  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: millisec
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -6677,8 +6677,8 @@ network.persocket.ato PMID: 154.1.16 [ack timeout when using delayed ack mode]
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.mss PMID: 154.1.17 [maximum segment size]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.mss PMID: 251.1.17
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: byte
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -6709,8 +6709,8 @@ network.persocket.mss PMID: 154.1.17 [maximum segment size]
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.pmtu PMID: 154.1.18 [path maximum transmission unit]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.pmtu PMID: 251.1.18
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: byte
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -6741,8 +6741,8 @@ network.persocket.pmtu PMID: 154.1.18 [path maximum transmission unit]
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.rcvmss PMID: 154.1.19 [receive maximum transmission units]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.rcvmss PMID: 251.1.19
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: byte
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -6773,8 +6773,8 @@ network.persocket.rcvmss PMID: 154.1.19 [receive maximum transmission units]
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.advmss PMID: 154.1.20 [advertised maximum segment size]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.advmss PMID: 251.1.20
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: byte
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -6805,8 +6805,8 @@ network.persocket.advmss PMID: 154.1.20 [advertised maximum segment size]
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.cwnd PMID: 154.1.21 [congestion window size]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.cwnd PMID: 251.1.21
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: count
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -6837,8 +6837,8 @@ network.persocket.cwnd PMID: 154.1.21 [congestion window size]
     inst [26 or "tcp/*:80"] value 10
     inst [27 or "tcp6/[::1]:53"] value 10
 
-network.persocket.ssthresh PMID: 154.1.22 [tcp congestion window slow start threshold]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.ssthresh PMID: 251.1.22
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: count
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -6869,8 +6869,8 @@ network.persocket.ssthresh PMID: 154.1.22 [tcp congestion window slow start thre
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.bytes_sent PMID: 154.1.23 [count of bytes sent using the socket]
-    Data Type: 64-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.bytes_sent PMID: 251.1.23
+    Data Type: 64-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: counter  Units: byte
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -6901,8 +6901,8 @@ network.persocket.bytes_sent PMID: 154.1.23 [count of bytes sent using the socke
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.bytes_retrans PMID: 154.1.24 [count of bytes retransmitted using the socket]
-    Data Type: 64-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.bytes_retrans PMID: 251.1.24
+    Data Type: 64-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: counter  Units: byte
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -6933,8 +6933,8 @@ network.persocket.bytes_retrans PMID: 154.1.24 [count of bytes retransmitted usi
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.bytes_acked PMID: 154.1.25 [count of bytes acked using the socket]
-    Data Type: 64-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.bytes_acked PMID: 251.1.25
+    Data Type: 64-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: counter  Units: byte
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -6965,8 +6965,8 @@ network.persocket.bytes_acked PMID: 154.1.25 [count of bytes acked using the soc
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.bytes_received PMID: 154.1.36 [count of bytes received using the socket]
-    Data Type: 64-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.bytes_received PMID: 251.1.36
+    Data Type: 64-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: counter  Units: byte
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -6997,8 +6997,8 @@ network.persocket.bytes_received PMID: 154.1.36 [count of bytes received using t
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.segs_out PMID: 154.1.37 [count of segments sent out using the socket]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.segs_out PMID: 251.1.37
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: count
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -7029,8 +7029,8 @@ network.persocket.segs_out PMID: 154.1.37 [count of segments sent out using the 
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.segs_in PMID: 154.1.38 [count of segments received using the socket]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.segs_in PMID: 251.1.38
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: count
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -7061,8 +7061,8 @@ network.persocket.segs_in PMID: 154.1.38 [count of segments received using the s
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.data_segs_out PMID: 154.1.39 [count of data segments sent out using the socket]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.data_segs_out PMID: 251.1.39
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: count
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -7093,8 +7093,8 @@ network.persocket.data_segs_out PMID: 154.1.39 [count of data segments sent out 
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.data_segs_in PMID: 154.1.40 [count of data segments received using the socket]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.data_segs_in PMID: 251.1.40
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: count
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -7125,8 +7125,8 @@ network.persocket.data_segs_in PMID: 154.1.40 [count of data segments received u
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.send PMID: 154.1.41 [egress bps]
-    Data Type: double  InDom: 154.0 0x26800000
+network.persocket.send PMID: 251.1.41
+    Data Type: double  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: count
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -7157,8 +7157,8 @@ network.persocket.send PMID: 154.1.41 [egress bps]
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.lastsnd PMID: 154.1.42 [how long time since the last packet sent in milliseconds]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.lastsnd PMID: 251.1.42
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: millisec
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -7189,8 +7189,8 @@ network.persocket.lastsnd PMID: 154.1.42 [how long time since the last packet se
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.lastrcv PMID: 154.1.43 [how long time since the last packet received in milliseconds]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.lastrcv PMID: 251.1.43
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: millisec
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -7221,8 +7221,8 @@ network.persocket.lastrcv PMID: 154.1.43 [how long time since the last packet re
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.lastack PMID: 154.1.44 [how long time since the last ack received in milliseconds]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.lastack PMID: 251.1.44
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: millisec
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -7253,8 +7253,8 @@ network.persocket.lastack PMID: 154.1.44 [how long time since the last ack recei
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.pacing_rate PMID: 154.1.45 [the current pacing rate of the socket]
-    Data Type: double  InDom: 154.0 0x26800000
+network.persocket.pacing_rate PMID: 251.1.45
+    Data Type: double  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: byte / sec
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -7285,8 +7285,8 @@ network.persocket.pacing_rate PMID: 154.1.45 [the current pacing rate of the soc
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.delivery_rate PMID: 154.1.46 [delivery bandwidth estimate excluding idle periods]
-    Data Type: double  InDom: 154.0 0x26800000
+network.persocket.delivery_rate PMID: 251.1.46
+    Data Type: double  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: byte / sec
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -7317,8 +7317,8 @@ network.persocket.delivery_rate PMID: 154.1.46 [delivery bandwidth estimate excl
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.delivered PMID: 154.1.47 []
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.delivered PMID: 251.1.47
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: counter  Units: count
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -7349,8 +7349,8 @@ network.persocket.delivered PMID: 154.1.47 []
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.app_limited PMID: 154.1.48 [TCP flows are limited with application-limiting]
-    Data Type: 32-bit int  InDom: 154.0 0x26800000
+network.persocket.app_limited PMID: 251.1.48
+    Data Type: 32-bit int  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: none
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -7381,8 +7381,8 @@ network.persocket.app_limited PMID: 154.1.48 [TCP flows are limited with applica
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.reord_seen PMID: 154.1.49 []
-    Data Type: 32-bit int  InDom: 154.0 0x26800000
+network.persocket.reord_seen PMID: 251.1.49
+    Data Type: 32-bit int  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: count
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -7413,8 +7413,8 @@ network.persocket.reord_seen PMID: 154.1.49 []
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.busy PMID: 154.1.50 [TCP connection is busy??]
-    Data Type: 64-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.busy PMID: 251.1.50
+    Data Type: 64-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: none
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -7445,8 +7445,8 @@ network.persocket.busy PMID: 154.1.50 [TCP connection is busy??]
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.dsack_dups PMID: 154.1.51 [duplicate selective acknowledgements]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.dsack_dups PMID: 251.1.51
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: count
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -7477,8 +7477,8 @@ network.persocket.dsack_dups PMID: 154.1.51 [duplicate selective acknowledgement
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.rcv_rtt PMID: 154.1.52 [receive round trip time]
-    Data Type: double  InDom: 154.0 0x26800000
+network.persocket.rcv_rtt PMID: 251.1.52
+    Data Type: double  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: millisec
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -7509,8 +7509,8 @@ network.persocket.rcv_rtt PMID: 154.1.52 [receive round trip time]
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.rcv_space PMID: 154.1.53 [TCP internal auto tuning socket receive buffer size]
-    Data Type: 32-bit int  InDom: 154.0 0x26800000
+network.persocket.rcv_space PMID: 251.1.53
+    Data Type: 32-bit int  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: byte
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -7541,8 +7541,8 @@ network.persocket.rcv_space PMID: 154.1.53 [TCP internal auto tuning socket rece
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.rcv_ssthresh PMID: 154.1.54 [TCP congestion window slow start threshold]
-    Data Type: 32-bit int  InDom: 154.0 0x26800000
+network.persocket.rcv_ssthresh PMID: 251.1.54
+    Data Type: 32-bit int  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: count
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -7573,8 +7573,8 @@ network.persocket.rcv_ssthresh PMID: 154.1.54 [TCP congestion window slow start 
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.minrtt PMID: 154.1.55 [minimum round trip time achieved in the socket]
-    Data Type: double  InDom: 154.0 0x26800000
+network.persocket.minrtt PMID: 251.1.55
+    Data Type: double  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: millisec
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -7605,8 +7605,8 @@ network.persocket.minrtt PMID: 154.1.55 [minimum round trip time achieved in the
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.notsent PMID: 154.1.56 [unsent data bytes that are still buffered]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.notsent PMID: 251.1.56
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: byte
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -7637,8 +7637,8 @@ network.persocket.notsent PMID: 154.1.56 [unsent data bytes that are still buffe
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.timer.str PMID: 154.1.70 [the 'timer:' string, as reported by ss]
-    Data Type: string  InDom: 154.0 0x26800000
+network.persocket.timer.str PMID: 251.1.70
+    Data Type: string  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: none
     inst [0 or "udp/0.0.0.0:5353"] value ""
     inst [1 or "udp/0.0.0.0:38162"] value ""
@@ -7669,8 +7669,8 @@ network.persocket.timer.str PMID: 154.1.70 [the 'timer:' string, as reported by 
     inst [26 or "tcp/*:80"] value ""
     inst [27 or "tcp6/[::1]:53"] value ""
 
-network.persocket.timer.name PMID: 154.1.71 [name of the socket timer.]
-    Data Type: string  InDom: 154.0 0x26800000
+network.persocket.timer.name PMID: 251.1.71
+    Data Type: string  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: none
     inst [0 or "udp/0.0.0.0:5353"] value ""
     inst [1 or "udp/0.0.0.0:38162"] value ""
@@ -7701,8 +7701,8 @@ network.persocket.timer.name PMID: 154.1.71 [name of the socket timer.]
     inst [26 or "tcp/*:80"] value ""
     inst [27 or "tcp6/[::1]:53"] value ""
 
-network.persocket.timer.expire_str PMID: 154.1.72 [how long until the timer will expire]
-    Data Type: string  InDom: 154.0 0x26800000
+network.persocket.timer.expire_str PMID: 251.1.72
+    Data Type: string  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: none
     inst [0 or "udp/0.0.0.0:5353"] value ""
     inst [1 or "udp/0.0.0.0:38162"] value ""
@@ -7733,8 +7733,8 @@ network.persocket.timer.expire_str PMID: 154.1.72 [how long until the timer will
     inst [26 or "tcp/*:80"] value ""
     inst [27 or "tcp6/[::1]:53"] value ""
 
-network.persocket.timer.retrans PMID: 154.1.73 [how many times the retransmission occured in timer]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.timer.retrans PMID: 251.1.73
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: none
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -7765,8 +7765,8 @@ network.persocket.timer.retrans PMID: 154.1.73 [how many times the retransmissio
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.skmem.str PMID: 154.1.80 [socket memory details, as a string]
-    Data Type: string  InDom: 154.0 0x26800000
+network.persocket.skmem.str PMID: 251.1.80
+    Data Type: string  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: none
     inst [0 or "udp/0.0.0.0:5353"] value "r0,rb212992,t0,tb212992,f4096,w0,o144,bl0,d0"
     inst [1 or "udp/0.0.0.0:38162"] value "r0,rb212992,t0,tb212992,f0,w0,o0,bl0,d0"
@@ -7797,8 +7797,8 @@ network.persocket.skmem.str PMID: 154.1.80 [socket memory details, as a string]
     inst [26 or "tcp/*:80"] value "r0,rb131072,t0,tb16384,f0,w0,o0,bl0,d0"
     inst [27 or "tcp6/[::1]:53"] value "r0,rb131072,t0,tb16384,f0,w0,o0,bl0,d0"
 
-network.persocket.skmem.rmem_alloc PMID: 154.1.81 [memory allocated for receiving packet]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.skmem.rmem_alloc PMID: 251.1.81
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: byte
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -7829,8 +7829,8 @@ network.persocket.skmem.rmem_alloc PMID: 154.1.81 [memory allocated for receivin
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.skmem.wmem_alloc PMID: 154.1.82 [memory used for sending packet (which has been sent]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.skmem.wmem_alloc PMID: 251.1.82
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: byte
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -7861,8 +7861,8 @@ network.persocket.skmem.wmem_alloc PMID: 154.1.82 [memory used for sending packe
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.skmem.rcv_buf PMID: 154.1.83 [total memory that can be allocated to recv packets]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.skmem.rcv_buf PMID: 251.1.83
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: byte
     inst [0 or "udp/0.0.0.0:5353"] value 212992
     inst [1 or "udp/0.0.0.0:38162"] value 212992
@@ -7893,8 +7893,8 @@ network.persocket.skmem.rcv_buf PMID: 154.1.83 [total memory that can be allocat
     inst [26 or "tcp/*:80"] value 131072
     inst [27 or "tcp6/[::1]:53"] value 131072
 
-network.persocket.skmem.snd_buf PMID: 154.1.84 [total memory that can be allocated to send packets]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.skmem.snd_buf PMID: 251.1.84
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: byte
     inst [0 or "udp/0.0.0.0:5353"] value 212992
     inst [1 or "udp/0.0.0.0:38162"] value 212992
@@ -7925,8 +7925,8 @@ network.persocket.skmem.snd_buf PMID: 154.1.84 [total memory that can be allocat
     inst [26 or "tcp/*:80"] value 16384
     inst [27 or "tcp6/[::1]:53"] value 16384
 
-network.persocket.skmem.fwd_alloc PMID: 154.1.95 [cache memory allocated but not yet used for snd/rcv]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.skmem.fwd_alloc PMID: 251.1.95
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: byte
     inst [0 or "udp/0.0.0.0:5353"] value 4096
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -7957,8 +7957,8 @@ network.persocket.skmem.fwd_alloc PMID: 154.1.95 [cache memory allocated but not
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.skmem.wmem_queued PMID: 154.1.86 [memory allocated for sending packet]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.skmem.wmem_queued PMID: 251.1.86
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: byte
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -7989,8 +7989,8 @@ network.persocket.skmem.wmem_queued PMID: 154.1.86 [memory allocated for sending
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.skmem.ropt_mem PMID: 154.1.87 [memory used for storing socket options]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.skmem.ropt_mem PMID: 251.1.87
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: byte
     inst [0 or "udp/0.0.0.0:5353"] value 144
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -8021,8 +8021,8 @@ network.persocket.skmem.ropt_mem PMID: 154.1.87 [memory used for storing socket 
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.skmem.back_log PMID: 154.1.88 [memory used for the sk backlog queue]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.skmem.back_log PMID: 251.1.88
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: byte
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -8053,8 +8053,8 @@ network.persocket.skmem.back_log PMID: 154.1.88 [memory used for the sk backlog 
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.skmem.sock_drop PMID: 154.1.89 [dropped packets before demultiplexed into socket]
-    Data Type: 32-bit unsigned int  InDom: 154.0 0x26800000
+network.persocket.skmem.sock_drop PMID: 251.1.89
+    Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: none
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -8085,8 +8085,8 @@ network.persocket.skmem.sock_drop PMID: 154.1.89 [dropped packets before demulti
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.wscale.str PMID: 154.1.60 [send and rcv scale factor as a string]
-    Data Type: string  InDom: 154.0 0x26800000
+network.persocket.wscale.str PMID: 251.1.60
+    Data Type: string  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: none
     inst [0 or "udp/0.0.0.0:5353"] value ""
     inst [1 or "udp/0.0.0.0:38162"] value ""
@@ -8117,8 +8117,8 @@ network.persocket.wscale.str PMID: 154.1.60 [send and rcv scale factor as a stri
     inst [26 or "tcp/*:80"] value ""
     inst [27 or "tcp6/[::1]:53"] value ""
 
-network.persocket.wscale.snd PMID: 154.1.61 [send scale factor when window scale is used]
-    Data Type: 32-bit int  InDom: 154.0 0x26800000
+network.persocket.wscale.snd PMID: 251.1.61
+    Data Type: 32-bit int  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: none
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -8149,8 +8149,8 @@ network.persocket.wscale.snd PMID: 154.1.61 [send scale factor when window scale
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.wscale.rcv PMID: 154.1.62 [receive scale factor when window scale is used]
-    Data Type: 32-bit int  InDom: 154.0 0x26800000
+network.persocket.wscale.rcv PMID: 251.1.62
+    Data Type: 32-bit int  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: none
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -8181,8 +8181,8 @@ network.persocket.wscale.rcv PMID: 154.1.62 [receive scale factor when window sc
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.round_trip.str PMID: 154.1.90 [average round trip time and variance, as a string]
-    Data Type: string  InDom: 154.0 0x26800000
+network.persocket.round_trip.str PMID: 251.1.90
+    Data Type: string  InDom: 251.0 0x3ec00000
     Semantics: discrete  Units: none
     inst [0 or "udp/0.0.0.0:5353"] value ""
     inst [1 or "udp/0.0.0.0:38162"] value ""
@@ -8213,8 +8213,8 @@ network.persocket.round_trip.str PMID: 154.1.90 [average round trip time and var
     inst [26 or "tcp/*:80"] value ""
     inst [27 or "tcp6/[::1]:53"] value ""
 
-network.persocket.round_trip.rtt PMID: 154.1.91 [average round trip time in milliseconds]
-    Data Type: double  InDom: 154.0 0x26800000
+network.persocket.round_trip.rtt PMID: 251.1.91
+    Data Type: double  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: millisec
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -8245,8 +8245,8 @@ network.persocket.round_trip.rtt PMID: 154.1.91 [average round trip time in mill
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
 
-network.persocket.round_trip.rttvar PMID: 154.1.92 [round trip time mean deviation.]
-    Data Type: double  InDom: 154.0 0x26800000
+network.persocket.round_trip.rttvar PMID: 251.1.92
+    Data Type: double  InDom: 251.0 0x3ec00000
     Semantics: instant  Units: millisec
     inst [0 or "udp/0.0.0.0:5353"] value 0
     inst [1 or "udp/0.0.0.0:38162"] value 0
@@ -8279,7 +8279,7 @@ network.persocket.round_trip.rttvar PMID: 154.1.92 [round trip time mean deviati
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pminfo -L -K clear -K add,154,/var/lib/pcp/pmdas/sockets/pmda_sockets.so,sockets_init -dfmt -n /var/lib/pcp/pmdas/sockets/root network.persocket
+Command: pminfo -L -K clear -K add,251,/var/lib/pcp/pmdas/sockets/pmda_sockets.so,sockets_init -dfm -n TMP/root network.persocket
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks

@@ -188,6 +188,36 @@ sockets_store(pmResult *result, pmdaExt *pmda)
 }
 
 /*
+ * Load the initial filter from filter.conf. This may subsequently be
+ * overridden by pmstore network.persocket.filter ...
+ */
+static void
+load_filter_config(void)
+{
+    FILE *fp;
+    int sep = pmPathSeparator();
+    char *p;
+    char filterpath[MAXPATHLEN];
+    char buf[MAXPATHLEN];
+
+    pmsprintf(filterpath, sizeof(filterpath), "%s%c" "sockets" "%c" "filter.conf",
+		pmGetConfig("PCP_SYSCONF_DIR"), sep, sep);
+    if ((fp = fopen(filterpath, "r")) != NULL) {
+	while (fgets(buf, sizeof(buf), fp) != NULL) {
+	    if (buf[0] == '#' || buf[0] == '\n')
+		continue;
+	    if ((p = strrchr(buf, '\n')) != NULL)
+		*p = '\0';
+	    ss_filter = strndup(buf, sizeof(buf));
+	    break;
+	}
+	fclose(fp);
+    }
+    if (pmDebugOptions.appl0)
+    	pmNotifyErr(LOG_DEBUG, "loaded %s = \"%s\"\n", filterpath, ss_filter ? ss_filter : ""); 
+}
+
+/*
  * Initialise the agent (both daemon and DSO).
  */
 void
@@ -206,6 +236,9 @@ sockets_init(pmdaInterface *dp)
 
     if (dp->status != 0)
 	return;
+
+    /* load the initial filter */
+    load_filter_config();
 
     int	nindoms = sizeof(indomtable)/sizeof(indomtable[0]);
 
