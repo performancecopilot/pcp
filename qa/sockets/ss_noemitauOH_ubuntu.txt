@@ -1,3 +1,4 @@
+Netid State  Recv-Q Send-Q            Local Address:Port     Peer Address:Port  Process                                                                         
 udp UNCONN  0       0                       0.0.0.0:5353          0.0.0.0:*      uid:117 ino:177686 sk:9 <-> skmem:(r0,rb212992,t0,tb212992,f4096,w0,o144,bl0,d0)
 udp UNCONN  0       0                       0.0.0.0:38162         0.0.0.0:*      uid:117 ino:177688 sk:a <-> skmem:(r0,rb212992,t0,tb212992,f0,w0,o0,bl0,d0)    
 udp UNCONN  0       0                 192.168.123.1:53            0.0.0.0:*      ino:187421 sk:b <-> skmem:(r0,rb212992,t0,tb212992,f0,w0,o0,bl0,d0)            
