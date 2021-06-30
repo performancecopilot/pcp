@@ -26,15 +26,14 @@ fi
 
 # Override the pmda's filter.conf
 [ -f $PCP_PMDAS_DIR/sockets/filter.conf ] && \
-_save_config $PCP_PMDAS_DIR/sockets/filter.conf
+_save_config $PCP_SYSCONF_DIR/sockets/filter.conf
 echo "state connected" >$tmp.filter
-$sudo cp $tmp.filter $PCP_PMDAS_DIR/sockets/filter.conf
+$sudo cp $tmp.filter $PCP_SYSCONF_DIR/sockets/filter.conf
 
 _cleanup()
 {
     cd $here
-    [ -f $PCP_VAR_DIR/config/pmda/$domain.0.$seq ] && \
-    _restore_config $PCP_PMDAS_DIR/sockets/filter.conf
+    _restore_config $PCP_SYSCONF_DIR/sockets/filter.conf
 
     $sudo rm -rf $tmp $tmp.*
 }
@@ -45,7 +44,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
 {
-    sed -e "s;$tmp;TMP;g"
+    sed -e "s;$tmp;TMP;g" -e '/Unable to open help text file/d'
 }
 
 # real QA test starts here
