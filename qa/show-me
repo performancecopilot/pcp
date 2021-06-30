@@ -14,19 +14,24 @@ QA_HOST=
 QA_USER=
 QA_DIR=
 
-if which gdiff >/dev/null 2>&1
+if [ -n "$PCPQA_DIFF" ]
 then
-    DIFF=gdiff
+    DIFF="$PCPQA_DIFF"
 else
-    if which meld >/dev/null 2>&1
+    if which gdiff >/dev/null 2>&1
     then
-	DIFF=meld
+	DIFF=gdiff
     else
-	if which xxdiff >/dev/null 2>&1
+	if which meld >/dev/null 2>&1
 	then
-	    DIFF=xxdiff
+	    DIFF=meld
 	else
-	    DIFF="diff -c"
+	    if which xxdiff >/dev/null 2>&1
+	    then
+		DIFF=xxdiff
+	    else
+		DIFF="diff -c"
+	    fi
 	fi
     fi
 fi
