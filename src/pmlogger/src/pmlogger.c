@@ -11,6 +11,16 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
+ *
+ * Debugging options
+ * appl0	control request pdus (via pmlc)
+ * appl1	credentials exchange
+ * appl2	alarm (timing) loop
+ * 		callback (do_work())
+ * 		record mode control messages
+ * appl3	signal callbacks and exit logging
+ * appl4	desperate tracing to help triage qa/793 failures
+ * 		[THIS IS TEMPORARY AND WILL BE REMOVED]
  */
 
 #include <ctype.h>
@@ -712,12 +722,12 @@ updateLatestFolio(const char *host, const char *base)
      */
     if (getcwd(dir, sizeof(dir)) == NULL) {
 	if (pmDebugOptions.services)
-	    fprintf(stderr, "Info: updateLatestFolio: getcwd() failed for host %s: %s", host, strerror(errno));
+	    fprintf(stderr, "Info: updateLatestFolio: getcwd() failed for host %s: %s\n", host, strerror(errno));
 	return;
     }
     if (strncmp(dir, logdir, strlen(logdir)) != 0) {
 	if (pmDebugOptions.services)
-	    fprintf(stderr, "Info: not creating \"Latest\" archive folio for host %s: %s", host, strerror(errno));
+	    fprintf(stderr, "Info: not creating \"Latest\" archive folio for host %s: cwd %s not below %s\n", host, dir, logdir);
     	return;
     }
 
@@ -725,7 +735,7 @@ updateLatestFolio(const char *host, const char *base)
     thishost[MAXHOSTNAMELEN-1] = '\0';
 
     if ((fp = fopen("Latest", "w")) == NULL) {
-    	fprintf(stderr, "Warning: failed to create \"Latest\" archive folio for host %s: %s", host, strerror(errno));
+    	fprintf(stderr, "Warning: failed to create \"Latest\" archive folio for host %s: %s\n", host, strerror(errno));
 	return;
     }
     time(&now);
@@ -1030,7 +1040,7 @@ main(int argc, char **argv)
 	/* only open a new log if we are NOT reexec'd */
 	if (pmlogger_reexec) {
 	    if (pmDebugOptions.services)
-		fprintf(stderr, "existing pmlogger.log remains open after re-exec\n");
+		fprintf(stderr, "existing log %s remains open after re-exec\n", logfile);
 	} else {
 	    pmOpenLog("pmlogger", logfile, stderr, &sts);
 	    if (sts != 1) {
@@ -1095,10 +1105,12 @@ main(int argc, char **argv)
     else if (pmcd_host_conn == NULL)
 	pmcd_host_conn = "local:";
 
+    if (pmDebugOptions.appl4) fprintf(stderr, "@pmNewContext\n");
     if ((ctx = pmNewContext(host_context, pmcd_host_conn)) < 0) {
 	fprintf(stderr, "%s: Cannot connect to PMCD on host \"%s\": %s\n", pmGetProgname(), pmcd_host_conn, pmErrStr(ctx));
 	exit(1);
     }
+    if (pmDebugOptions.appl4) fprintf(stderr, "@pmGetContextHostName\n");
     pmcd_host = (char *)pmGetContextHostName(ctx);
     if (strlen(pmcd_host) == 0) {
 	fprintf(stderr, "%s: pmGetContextHostName(%d) failed\n",
@@ -1108,6 +1120,7 @@ main(int argc, char **argv)
 
     if (rsc_fd == -1 && host_context != PM_CONTEXT_LOCAL) {
 	/* no -x, so register client id with pmcd */
+	if (pmDebugOptions.appl4) fprintf(stderr, "@__pmSetClientIdArgv\n");
 	__pmSetClientIdArgv(argc, argv);
     }
 
@@ -1115,6 +1128,7 @@ main(int argc, char **argv)
      * discover fd for comms channel to PMCD ... 
      */
     if (host_context != PM_CONTEXT_LOCAL) {
+	if (pmDebugOptions.appl4) fprintf(stderr, "@__pmHandleToPtr\n");
 	if ((ctxp = __pmHandleToPtr(ctx)) == NULL) {
 	    fprintf(stderr, "%s: botch: __pmHandleToPtr(%d) returns NULL!\n", pmGetProgname(), ctx);
 	    exit(1);
@@ -1123,6 +1137,7 @@ main(int argc, char **argv)
 	PM_UNLOCK(ctxp->c_lock);
     }
 
+    if (pmDebugOptions.appl4) fprintf(stderr, "@do_pmcpp\n");
     yyin = do_pmcpp(configfile);
     /* do not return unless yyin is valid */
     if (configfile == NULL)

@@ -1212,7 +1212,26 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    then
 		echo "+ $KILL -s USR2 $pid"
 	    else
+		$VERY_VERBOSE && echo >&2 "Sending SIGUSR2 to $pid"
 		$KILL -s USR2 "$pid"
+		if $VERY_VERBOSE
+		then
+		    # We have seen in qa/793, but never in a "real"
+		    # deployment, cases where the pmlogger process
+		    # vanishes a short time after the SIGUSR2 has been
+		    # sent and caught, the process has called exec() and
+		    # main() has restarted.  This check is intended
+		    # detect and report when this happens if -VV is
+		    # in play.
+		    #
+		    sleep 1
+		    if $PCP_PS_PROG -p "$pid" 2>&1 | grep "^$pid[ 	]" >/dev/null
+		    then
+			: still alive
+		    else
+			echo >&2 "Error: pmlogger process $pid has vanished"
+		    fi
+		fi
 	    fi
 	fi
 

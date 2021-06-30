@@ -20,6 +20,9 @@
 #include <string.h>
 #include <ctype.h>
 #include "logger.h"
+#ifdef HAVE_EXECINFO_H
+#include <execinfo.h>
+#endif
 
 #if !defined(SIGRTMAX)
 #if defined(NSIG)
@@ -127,18 +130,53 @@ cleanup(void)
 	unlink(socketPath);
 }
 
+/* borrowed from libpcp/lock.c */
+static void
+mybacktrace(void)
+{
+#ifdef HAVE_BACKTRACE
+#define MAX_TRACE_DEPTH 32
+    void	*backaddr[MAX_TRACE_DEPTH];
+    int		sts;
+    sts = backtrace(backaddr, MAX_TRACE_DEPTH);
+    if (sts > 0) {
+	char	**symbols;
+	symbols = backtrace_symbols(backaddr, MAX_TRACE_DEPTH);
+	if (symbols != NULL) {
+	    int		i;
+	    fprintf(stderr, "backtrace:\n");
+	    for (i = 0; i < sts; i++)
+		fprintf(stderr, "  %s\n", symbols[i]);
+	    free(symbols);
+	}
+    }
+#endif /* HAVE_BACKTRACE */
+    return;
+}
+
 static void
 sigexit_handler(int sig)
 {
-    if (pmDebugOptions.desperate)
-	fprintf(stderr, "pmlogger: Signalled (signal=%d), exiting\n", sig);
+    if (pmDebugOptions.appl3)
+	fprintf(stderr, "sigexit_handler: Signalled (signal=%d)\n", sig);
     cleanup();
     _exit(sig);
 }
 
 static void
+sigmisc_handler(int sig)
+{
+    if (pmDebugOptions.appl3)
+	fprintf(stderr, "sigmisc_handler: Signalled (signal=%d)\n", sig);
+    /* just ignore these ones ... */
+    __pmSetSignalHandler(sig, sigmisc_handler);
+}
+
+static void
 sigterm_handler(int sig)
 {
+    if (pmDebugOptions.appl3)
+	fprintf(stderr, "sigterm_handler: Signalled (signal=%d)\n", sig);
     /* exit as soon as possible, handler is deferred for log cleanup */
     sig_code = sig;
 }
@@ -146,7 +184,9 @@ sigterm_handler(int sig)
 static void
 sighup_handler(int sig)
 {
-    __pmSetSignalHandler(SIGHUP, sighup_handler);
+    if (pmDebugOptions.appl3)
+	fprintf(stderr, "sighup_handler: Signalled (signal=%d)\n", sig);
+    __pmSetSignalHandler(sig, sighup_handler);
     vol_switch_flag = 1;
 }
 
@@ -154,9 +194,9 @@ sighup_handler(int sig)
 static void
 sigcore_handler(int sig)
 {
-    if (pmDebugOptions.desperate)
-	fprintf(stderr, "pmlogger: Signalled (signal=%d), exiting (core dumped)\n", sig);
-    __pmSetSignalHandler(SIGABRT, SIG_DFL);	/* Don't come back here */
+    if (pmDebugOptions.appl3)
+	fprintf(stderr, "sigcore_handler: Signalled (signal=%d), exiting (core dumped)\n", sig);
+    __pmSetSignalHandler(sig, SIG_DFL);	/* Don't come back here */
     cleanup();
     _exit(sig);
 }
@@ -164,6 +204,8 @@ sigcore_handler(int sig)
 static void
 sigpipe_handler(int sig)
 {
+    if (pmDebugOptions.appl3)
+	fprintf(stderr, "sigpipe_handler: Signalled (signal=%d)\n", sig);
     /*
      * just ignore the signal, the write() will fail, and the PDU
      * xmit will return with an error
@@ -174,6 +216,8 @@ sigpipe_handler(int sig)
 static void
 sigusr2_handler(int sig)
 {
+    if (pmDebugOptions.appl3)
+	fprintf(stderr, "sigusr2_handler: Signalled (signal=%d)\n", sig);
     __pmSetSignalHandler(SIGUSR2, sigusr2_handler);
     log_switch_flag = 1;
     sig_code = sig; /* triggers break from main loop so we can re-exec */
@@ -211,20 +255,20 @@ static sig_map_t	sig_handler[] = {
 #ifndef IS_MINGW
     { SIGUSR1,	sigterm_handler },	/* Exit User Signal 1 */
     { SIGUSR2,	sigusr2_handler },	/* reexec User Signal 2 */
-    { SIGCHLD,	SIG_IGN },		/* NOP    Child stopped or terminated */
+    { SIGCHLD,	sigmisc_handler },	/* NOP    Child stopped or terminated */
 #ifdef SIGPWR
-    { SIGPWR,	SIG_DFL },		/* Ignore Power Fail/Restart */
+    { SIGPWR,	sigmisc_handler },	/* Ignore Power Fail/Restart */
 #endif
-    { SIGWINCH,	SIG_DFL },		/* Ignore Window Size Change */
-    { SIGURG,	SIG_DFL },		/* Ignore Urgent Socket Condition */
+    { SIGWINCH,	sigmisc_handler },	/* Ignore Window Size Change */
+    { SIGURG,	sigmisc_handler },	/* Ignore Urgent Socket Condition */
 #ifdef SIGPOLL
     { SIGPOLL,	sigexit_handler },	/* Exit   Pollable Event [see streamio(7)] */
 #endif
-    { SIGSTOP,	SIG_DFL },		/* Stop   Stopped (signal) */
-    { SIGTSTP,	SIG_DFL },		/* Stop   Stopped (user) */
-    { SIGCONT,	SIG_DFL },		/* Ignore Continued */
-    { SIGTTIN,	SIG_DFL },		/* Stop   Stopped (tty input) */
-    { SIGTTOU,	SIG_DFL },		/* Stop   Stopped (tty output) */
+    { SIGSTOP,	sigmisc_handler },	/* Stop   Stopped (signal) */
+    { SIGTSTP,	sigmisc_handler },	/* Stop   Stopped (user) */
+    { SIGCONT,	sigmisc_handler },	/* Ignore Continued */
+    { SIGTTIN,	sigmisc_handler },	/* Stop   Stopped (tty input) */
+    { SIGTTOU,	sigmisc_handler },	/* Stop   Stopped (tty output) */
     { SIGVTALRM, sigterm_handler },	/* Exit   Virtual Timer Expired */
 
     { SIGPROF,	sigterm_handler },	/* Exit   Profiling Timer Expired */
@@ -554,6 +598,12 @@ init_ports(void)
 		pmGetProgname());
 	cleanup();
 	exit(1);
+    }
+    if (pmDebugOptions.appl3) {
+	if (atexit(mybacktrace) != 0) {
+	    fprintf(stderr, "%s: Warning: unable to register atexit mybacktrace function\n",
+		pmGetProgname());
+	}
     }
 #endif
 

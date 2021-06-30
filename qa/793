@@ -18,7 +18,7 @@ NEEDREWRITE=$PCP_LOG_DIR/pmlogger/.NeedRewrite
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
-trap "cd $here; $sudo rm -rf $tmp $tmp.*; _cleanup; exit \$status" 0 1 2 3 15
+trap "_cleanup; exit \$status" 0 1 2 3 15
 signal=$PCP_BINADM_DIR/pmsignal
 
 [ -f $NEEDREWRITE ] && $sudo mv $NEEDREWRITE $NEEDREWRITE.$seq
@@ -61,11 +61,23 @@ s/from host .*/from host .../
 
 _stop_loggers()
 {
+    echo "entering _stop_loggers ..." >>$here/$seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS \
+    | egrep '[P]ID|[p]mlogger' \
+    | tee -a $here/$seq.full \
+    | grep '[p]mlogger ' \
+    | $PCP_AWK_PROG '{print $2}' >$tmp.pids
     $sudo $signal -a -s TERM pmlogger
+    for pid in `cat $tmp.pids`
+    do
+	_wait_pmlogger_end "$pid"
+	echo "pmlogger [$pid] is done" >>$here/$seq.full
+    done
 }
 
 _cleanup()
 {
+    cd $here
     echo
     echo "Cleaning up"
 
@@ -73,16 +85,27 @@ _cleanup()
 
     _stop_loggers >/dev/null 2>&1
 
+    for x in A B C
+    do
+	echo "--- $tmp.$x.log ---" >>$here/$seq.full
+	cat $tmp.$x.log >>$here/$seq.full
+	echo "--- end pmlogger log ---" >>$here/$seq.full
+    done
+
     _service pmlogger restart 2>&1 \
     | _filter_pcp_start \
     _wait_for_pmlogger
     _restore_auto_restart pmlogger
+
+    $sudo rm -rf $tmp $tmp.*
 }
 
 _setup()
 {
     _service pmlogger stop | _filter_pcp_stop
-    _stop_loggers >/dev/null 2>&1
+    $sudo systemctl stop pmlogger_check.timer pmlogger_check
+    $sudo systemctl stop pmlogger_daily.timer pmlogger_daily
+    _stop_loggers
     cd
 }
 
@@ -97,8 +120,8 @@ _check_loggers()
 	rm -f $tmp.found
 	while [ "$z" -lt 30 ]
 	do
-	    # Cannot use $qatmp as the path prefix, because on some systems
-	    # /var/tmp (what qatmp is set to) and /tmp are symlinked, and
+	    # Cannot use $tmp as the path prefix, because on some systems
+	    # /var/tmp (what $tmp is set to) and /tmp are symlinked, and
 	    # pmlogger reports the path in the control file using the real
 	    # name (/tmp) not the symlink name (/var/tmp)
 	    # ... spotted on vm37 (OpenBSD 6.7)
@@ -108,24 +131,45 @@ _check_loggers()
 	    pid=`grep -l "/$x/" $PCP_TMP_DIR/pmlogger/[0-9]* | sed -e 's/.*pmlogger.//'`
 	    if [ -n "$pid" ]
 	    then
-		echo "Found pid $pid for $qatmp/$x after $z iterations" >>$here/$seq.full
-		echo "status" | pmlc $pid >>$here/$seq.full
-		touch $tmp.found
-		break
+		echo "Found pid $pid for $tmp/$x after $z iterations" >>$here/$seq.full
+		echo "status" | pmlc $pid >$tmp.pmlc.out 2>&1
+		cat $tmp.pmlc.out >>$here/$seq.full
+		if grep '^log size' $tmp.pmlc.out >/dev/null 2>&1
+		then
+		    touch $tmp.found
+		    break
+		fi
 	    fi
 	    z=`expr $z + 1`
 	    sleep 1
 	done
 	if [ ! -f $tmp.found ]
 	then
-	    echo "Arrgh ... pmlogger_* failed to keep pmlogger running for $qatmp/$x" | tee -a $here/$seq.full
+	    echo "Arrgh ... pmlogger_* failed to keep pmlogger running for $tmp/$x" | tee -a $here/$seq.full
+	    echo "--- $tmp ---" >>$here/$seq.full
+	    ls -l $tmp* >>$here/$seq.full
+	    echo "--- $tmp/$x ---" >>$here/$seq.full
+	    ls -l $tmp/$x >>$here/$seq.full
+	    echo "--- $tmp.$x.log ---" >>$here/$seq.full
+	    cat $tmp.$x.log >>$here/$seq.full
+	    echo "--- end pmlogger log ---" >>$here/$seq.full
+	    for log in log.prev log.from.check log.from.check.prev
+	    do
+		echo "--- $tmp/$log ---" >>$here/$seq.full
+		if [ -f $tmp/$log ]
+		then
+		    cat $tmp/$log >>$here/$seq.full
+		else
+		    echo "<missing>" >>$here/$seq.full
+		fi
+	    done
+	    echo "--- end of logs ---" >>$here/$seq.full
 	    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mlogger' >>$here/$seq.full
 	    for state in $PCP_TMP_DIR/pmlogger/[0-9]*
 	    do
 		echo "=== $state ===" | tee -a $here/$seq.full
 		cat $state | tee -a $here/$seq.full
 	    done
-	    cat $tmp.$x.log >>$here/$seq.full
 	    echo "See $seq.full for details"
 	    status=0
 	    exit
@@ -158,9 +202,9 @@ cat >$tmp/control <<End-of-File
 #
 # $qatmp from the caller's environment
 # $A from the control line above
-LOCALHOSTNAME	n   n	\$qatmp/\$A -c $tmp.config -l $tmp.A.log
-LOCALHOSTNAME	n   n	\$(echo $qatmp/B) -c $tmp.config -l $tmp.B.log
-LOCALHOSTNAME	n   n	"$qatmp/\`echo c | tr '[a-z]' '[A-Z]'\`" -c $tmp.config -l $tmp.C.log
+LOCALHOSTNAME	n   n	\$qatmp/\$A -c $tmp.config -l $tmp.A.log -Dservices,appl3,appl4
+LOCALHOSTNAME	n   n	\$(echo $qatmp/B) -c $tmp.config -l $tmp.B.log -Dservices,appl3,appl4
+LOCALHOSTNAME	n   n	"$qatmp/\`echo c | tr '[a-z]' '[A-Z]'\`" -c $tmp.config -l $tmp.C.log -Dservices,appl3,appl4
 End-of-File
 
 cat $tmp/control >>$here/$seq.full
@@ -169,7 +213,11 @@ echo "PCP_TMP_DIR=$PCP_TMP_DIR" >>$here/$seq.full
 
 echo "pmlogger_check #1" | tee -a $here/$seq.full
 $sudo sh -c "qatmp=$qatmp $PCP_BINADM_DIR/pmlogger_check -V -c $tmp/control -l $tmp/log"
-[ -s $tmp/log ] && $sudo cat $tmp/log | tee -a $here/$seq.full | _filter
+if [ -s $tmp/log ]
+then
+    echo "$tmp.log from pmlogger_check #1 ..." >>$here/$seq.full
+    $sudo cat $tmp/log | tee -a $here/$seq.full | _filter
+fi
 _check_loggers
 for x in A B C
 do
@@ -177,29 +225,54 @@ do
     echo `ls $tmp/$x | grep "\.meta" | wc -l | sed -e 's/ //g'` archives in TMP/$x
 done
 
-sleep 2
-_stop_loggers >/dev/null 2>&1
+# let pmloggers run for a while
+sleep 1
+
+_stop_loggers
 
 echo "pmlogger_check #2" | tee -a $here/$seq.full
 $sudo sh -c "qatmp=$qatmp $PCP_BINADM_DIR/pmlogger_check -V -c $tmp/control -l $tmp/log"
-[ -s $tmp/log ] && $sudo cat $tmp/log | tee -a $here/$seq.full | _filter
+if [ -s $tmp/log ]
+then
+    echo "$tmp.log from pmlogger_check #2 ..." >>$here/$seq.full
+    $sudo cat $tmp/log | tee -a $here/$seq.full | _filter
+fi
 _check_loggers
 for x in A B C
 do
+    echo "--- $tmp/$x ---" >>$here/$seq.full
     ls -l $tmp/$x >>$here/$seq.full
     echo `ls $tmp/$x | grep "\.meta" | wc -l | sed -e 's/ //g'` archives in TMP/$x
 done
+
+# let pmloggers run for a while
+sleep 1
 
 echo "pmlogger processes ..." >>$here/$seq.full
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mlogger' >>$here/$seq.full
 
 echo
 echo "pmlogger_daily"
-$sudo sh -c "qatmp=$qatmp $PCP_BINADM_DIR/pmlogger_daily -V -x never -c $tmp/control -l $tmp/log"
-[ -s $tmp/log ] && $sudo cat $tmp/log | tee -a $here/$seq.full | _filter
+$sudo sh -c "qatmp=$qatmp $PCP_BINADM_DIR/pmlogger_daily -VV -x never -c $tmp/control -l $tmp/log"
+if [ -s $tmp/log ]
+then
+    echo "$tmp.log from pmlogger_daily ..." >>$here/$seq.full
+    cat $tmp/log >>$here/$seq.full
+    sed -n $tmp/log \
+	-e '/^=== /p' \
+	-e '/^$/p' \
+	-e '/merge/p' \
+    | _filter
+fi
+
+# wait a bit to be sure all pmloggers have finished their re-exec
+# song and dance
+sleep 1
+
 _check_loggers
 for x in A B C
 do
+    echo "--- $tmp/$x ---" >>$here/$seq.full
     ls -l $tmp/$x >>$here/$seq.full
     echo `ls $tmp/$x | grep "\.meta" | wc -l | sed -e 's/ //g'` archives in TMP/$x
 done
