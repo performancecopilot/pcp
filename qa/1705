@@ -10,6 +10,13 @@ echo "QA output created by $seq"
 
 _pmdabpftrace_check
 
+case `hostname -s`
+in
+    bozo-vm)
+	    _notrun "cannot set bpftrace hz=999 on this VM"
+	    ;;
+esac
+
 status=1       # failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 
