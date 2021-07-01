@@ -168,6 +168,7 @@ End-Of-File
 pmlogger -t 0.25 -T 3sec -c $tmp.pmlogger.conf -l $tmp.pmlogger.log $PCP_ARCHIVE_DIR/archive &
 pmlogger_pid=$!
 #echo pmlogger=$pmlogger_pid
+_wait_for_pmlogger $pmlogger_pid $tmp.pmlogger.log
 pmsleep 0.5	# time for pmlogger to start logging
 
 # start pmproxy 
@@ -216,7 +217,11 @@ series=`pmseries $options sample.double.bin`
 pmseries $options -l $series | _filter_labels | _filter_series
 
 echo "== verify metric values" | tee -a  $seq.full
-pmseries $options -t sample.ulong.million[samples:2] | _filter_values | _filter_series
+pmsleep 0.5
+pmseries $options -t sample.ulong.million[samples:2] \
+| tee -a $seq.full \
+| _filter_values \
+| _filter_series
 
 echo "== verify label names and values" | tee -a  $seq.full
 labels=`pmseries $options -l | LC_COLLATE=POSIX sort`
