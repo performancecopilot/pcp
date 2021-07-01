@@ -120,11 +120,15 @@ The recent effective delivery bandwidth of the connection to the client. This gi
 an estimate of current connection performance by excluding periods when the connection
 was idle due to lack of application data to send.
 
-@ network.persocket.delivered
+@ network.persocket.delivered data segments and retransmits delivered to the receiver
+Data segments delivered to the receiver including retransmits, as reported by
+returning ACKs, used by ECN. Kernel: delivered in include/linux/tcp.h
 
 @ network.persocket.app_limited TCP flows are limited with application-limiting
 
-@ network.persocket.reord_seen
+@ network.persocket.reord_seen received ACKs that were out of order
+Received ACKs that were out of order. Estimates reordering on the
+return path. Kernel: reord_seen
 
 @ network.persocket.busy TCP connection is busy??
 
