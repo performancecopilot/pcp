@@ -264,7 +264,7 @@ static sig_map_t	sig_handler[] = {
 #ifdef SIGPOLL
     { SIGPOLL,	sigexit_handler },	/* Exit   Pollable Event [see streamio(7)] */
 #endif
-    { SIGSTOP,	sigmisc_handler },	/* Stop   Stopped (signal) */
+    { SIGSTOP,	SIG_DFL },		/* Stop   Stopped (signal) */
     { SIGTSTP,	sigmisc_handler },	/* Stop   Stopped (user) */
     { SIGCONT,	sigmisc_handler },	/* Ignore Continued */
     { SIGTTIN,	sigmisc_handler },	/* Stop   Stopped (tty input) */

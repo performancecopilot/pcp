@@ -24,12 +24,15 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 # real QA test starts here
 echo "collecting commands"
 export LC_COLLATE=POSIX
-if which rpm >/dev/null 2>&1
-then
-    rpm -qa | grep pcp | xargs rpm -ql | grep bin/ | grep -v 'debug$' | sort > $tmp.cmds.txt
-elif which dpkg >/dev/null 2>&1
+# need to check dpkg first, because if it is there, it is likely the
+# one, as opposed to rpm which may be present, even on Debian machines
+#
+if which dpkg >/dev/null 2>&1
 then
     dpkg -l | $PCP_AWK_PROG '$1 = "ii" && $2 ~ /pcp/ { print $2 }' | xargs dpkg -L | grep bin/ | sort | uniq > $tmp.cmds.txt
+elif which rpm >/dev/null 2>&1
+then
+    rpm -qa | grep pcp | xargs rpm -ql | grep bin/ | grep -v 'debug$' | sort > $tmp.cmds.txt
 else
     _notrun "no recipe for your packaging command"
 fi

@@ -14,6 +14,21 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
+# Something in pcp-ss is non-deterministic about how the
+# output lines are ordered, so we have to sort 'em here.
+# The first 2 lines are "heading", so keep them out of
+# the sort.
+#
+_filter()
+{
+    $PCP_AWK_PROG '
+BEGIN	{ out = "head" }
+NR == 3	{ out = "body" }
+	{ print >"'$tmp'." out }'
+    cat $tmp.head
+    LC_COLLATE=POSIX sort $tmp.body
+}
+
 pcp_ss="$PCP_BINADM_DIR/pcp-ss"
 test -x $pcp_ss || _notrun "No pcp-ss(1) installed"
 
@@ -21,16 +36,20 @@ test -x $pcp_ss || _notrun "No pcp-ss(1) installed"
 archive=$here/archives/pcp-ss
 
 echo && echo pcp-ss output, at default offset
-pcp -z -a $archive ss -oemitauO
+pcp -z -a $archive ss -oemitauO \
+| _filter
 
 echo && echo pcp-ss output, at 10s offset
-pcp -z -S10s -a $archive ss -oemitauO
+pcp -z -S10s -a $archive ss -oemitauO \
+| _filter
 
 echo && echo pcp-ss output, at specific start time
-pcp -z -S'@Fri Jun 18 13:33:39 2021' -a $archive ss -oemitauO
+pcp -z -S'@Fri Jun 18 13:33:39 2021' -a $archive ss -oemitauO \
+| _filter
 
 echo && echo pcp-ss output, at archive end
-pcp -z -O-0 -a $archive ss -oemitauO
+pcp -z -O-0 -a $archive ss -oemitauO \
+| _filter
 
 echo && echo check error handling when metrics not present. Note error is expected
 pcp -z -O-0 -a $here/archives/pcp-mpstat ss 2>&1 | sed -e "s;$here/;;"
