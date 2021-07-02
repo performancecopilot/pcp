@@ -244,13 +244,20 @@ _service()
 		    $sudo systemctl $2 pmcd.service
 		    if [ "$2" = stop ]
 		    then
-			# stop pmlogger_check ... it gets started as a
-			# by-product of start pmlogger, but is not stopped
+			# stop pmlogger_check (if active) ... it gets started
+			# as a by-product of start pmlogger, but is not stopped
 			# by stop pmlogger (there is a long and complicated
 			# good reason for this)
+			# ditto for pmlogger_daily and pmlogger_daily-poll
 			#
-			$_verbose && echo "_service: also stop pmlogger_check"
-			$sudo systemctl stop pmlogger_check.timer pmlogger_check.service
+			for svc in pmlogger_check pmlogger_daily pmlogger_daily-poll
+			do
+			    ( $sudo systemctl show --property=ActiveState $svc.timer 2>&1 \
+			      | grep '=active$' >/dev/null \
+			    ) || continue
+			    $_verbose && echo "_service: also stop $svc"
+			    $sudo systemctl stop $svc.timer $svc.service
+			done
 		    fi
 		fi
 		;;
@@ -263,10 +270,17 @@ _service()
 		$sudo systemctl $2 $1.service
 		if [ "$1" = pmlogger -a "$2" = stop ]
 		then
-		    # stop pmlogger_check ... see note above
+		    # ensure pmlogger_check, pmlogger_daily and
+		    # pmlogger_daily-poll are stopped ... see note above
 		    #
-		    $_verbose && echo "_service: also stop pmlogger_check"
-		    $sudo systemctl stop pmlogger_check.timer pmlogger_check.service
+		    for svc in pmlogger_check pmlogger_daily pmlogger_daily-poll
+		    do
+			( $sudo systemctl show --property=ActiveState $svc.timer 2>&1 \
+			  | grep '=active$' >/dev/null \
+			) || continue
+			$_verbose && echo "_service: also stop $svc"
+			$sudo systemctl stop $svc.timer $svc.service
+		    done
 		fi
 		;;
 	esac
