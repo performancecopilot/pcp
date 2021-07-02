@@ -1312,7 +1312,9 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
     }
 
     /* get to the last remembered place */
-    __pmLogChangeVol(ctxp->c_archctl, ctxp->c_archctl->ac_vol);
+    sts = __pmLogChangeVol(ctxp->c_archctl, ctxp->c_archctl->ac_vol);
+    if (sts < 0)
+	goto all_done;
     __pmFseek(ctxp->c_archctl->ac_mfp, ctxp->c_archctl->ac_offset, SEEK_SET);
 
     seen_mark = 0;	/* interested in <mark> records seen from here on */
@@ -1397,7 +1399,9 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	 * at least one metric requires a bound from earlier in the log ...
 	 * position ourselves, ... and search
 	 */
-	__pmLogChangeVol(ctxp->c_archctl, ctxp->c_archctl->ac_vol);
+	sts = __pmLogChangeVol(ctxp->c_archctl, ctxp->c_archctl->ac_vol);
+	if (sts < 0)
+	    goto all_done;
 	__pmFseek(ctxp->c_archctl->ac_mfp, ctxp->c_archctl->ac_offset, SEEK_SET);
 	done = 0;
 
@@ -1542,7 +1546,9 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	 * at least one metric requires a bound from later in the log ...
 	 * position ourselves ... and search
 	 */
-	__pmLogChangeVol(ctxp->c_archctl, ctxp->c_archctl->ac_vol);
+	sts = __pmLogChangeVol(ctxp->c_archctl, ctxp->c_archctl->ac_vol);
+	if (sts < 0)
+	    goto all_done;
 	__pmFseek(ctxp->c_archctl->ac_mfp, ctxp->c_archctl->ac_offset, SEEK_SET);
 	done = 0;
 

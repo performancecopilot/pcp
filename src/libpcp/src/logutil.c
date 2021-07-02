@@ -1992,7 +1992,10 @@ __pmLogFetch(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **result)
     all_derived = check_all_derived(numpmid, pmidlist);
 
     /* re-establish position */
-    __pmLogChangeVol(ctxp->c_archctl, ctxp->c_archctl->ac_vol);
+    sts = __pmLogChangeVol(ctxp->c_archctl, ctxp->c_archctl->ac_vol);
+    if (sts < 0)
+	goto func_return;
+    assert(ctxp->c_archctl->ac_mfp != NULL);
     __pmFseek(ctxp->c_archctl->ac_mfp, 
 	    (long)ctxp->c_archctl->ac_offset, SEEK_SET);
 
@@ -2489,10 +2492,12 @@ __pmLogSetTime(__pmContext *ctxp)
 	/* index either not available, or not useful */
 	if (mode == PM_MODE_FORW) {
 	    __pmLogChangeVol(acp, lcp->l_minvol);
+	    assert(acp->ac_mfp != NULL);
 	    __pmFseek(acp->ac_mfp, (long)(sizeof(__pmLogLabel) + 2*sizeof(int)), SEEK_SET);
 	}
 	else if (mode == PM_MODE_BACK) {
 	    __pmLogChangeVol(acp, lcp->l_maxvol);
+	    assert(acp->ac_mfp != NULL);
 	    __pmFseek(acp->ac_mfp, (long)0, SEEK_END);
 	}
 
@@ -3141,6 +3146,7 @@ LogChangeToPreviousArchive(__pmContext *ctxp)
 
     /* Set up to scan backwards from the end of the archive. */
     __pmLogChangeVol(acp, lcp->l_maxvol);
+    assert(acp->ac_mfp != NULL);
     __pmFseek(acp->ac_mfp, (long)0, SEEK_END);
     ctxp->c_archctl->ac_offset = __pmFtell(acp->ac_mfp);
     assert(ctxp->c_archctl->ac_offset >= 0);
