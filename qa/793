@@ -103,8 +103,6 @@ _cleanup()
 _setup()
 {
     _service pmlogger stop | _filter_pcp_stop
-    $sudo systemctl stop pmlogger_check.timer pmlogger_check
-    $sudo systemctl stop pmlogger_daily.timer pmlogger_daily
     _stop_loggers
     cd
 }
