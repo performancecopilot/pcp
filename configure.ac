@@ -31,6 +31,12 @@ AC_ARG_WITH([optimization],
     [use_optimization=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-optimization=$withval"],
     [use_optimizaton=yes])
 
+AC_ARG_WITH([gperftools],
+    [AS_HELP_STRING([--with-gperftools],
+		    [enable gperftools for CPU and heap profiling (default is no)])],
+    [use_gperftools=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-gperftools=$withval"],
+    [use_gperftools=no])
+
 AC_ARG_WITH([threads],
     [AC_HELP_STRING([--with-threads],
 		    [enable support for multiple threads (default is on)])],
@@ -718,6 +724,11 @@ End-of-File
     AC_SUBST(enable_probes)
     AC_SUBST(DTRACE)
 fi
+
+dnl Check for gperftools
+AS_IF([test "x$use_gperftools" != "xno"], [
+    PKG_CHECK_MODULES([gperftools], [libprofiler, libtcmalloc])
+])
 
 dnl Check for service discovery mechanisms (DNS-SD, Avahi)
 AS_IF([test "x$do_discovery" != "xno"], [

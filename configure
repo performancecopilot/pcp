@@ -893,6 +893,8 @@ enable_discovery
 lib_for_avahi
 avahi_LIBS
 avahi_CFLAGS
+gperftools_LIBS
+gperftools_CFLAGS
 enable_probes
 CPP
 DTRACE
@@ -1008,6 +1010,7 @@ ac_user_opts='
 enable_option_checking
 with_64bit
 with_optimization
+with_gperftools
 with_threads
 with_secure_sockets
 with_static_probes
@@ -1068,6 +1071,8 @@ CCC
 YACC
 YFLAGS
 CPP
+gperftools_CFLAGS
+gperftools_LIBS
 avahi_CFLAGS
 avahi_LIBS
 SYSTEMD_TMPFILESDIR
@@ -1727,6 +1732,8 @@ Optional Packages:
   --with-64bit            turn on 64 bit compilation mode (default is platform
                           dependent)
   --with-optimization     enable optimization for C/C++ code (default is yes)
+  --with-gperftools       enable gperftools for CPU and heap profiling
+                          (default is no)
   --with-threads          enable support for multiple threads (default is on)
   --with-secure-sockets   enable support for secure sockets (default is on)
   --with-static-probes    enable support for static probes (default is on)
@@ -1802,6 +1809,10 @@ Some influential environment variables:
               This script will default YFLAGS to the empty string to avoid a
               default value of `-d' given by some make applications.
   CPP         C preprocessor
+  gperftools_CFLAGS
+              C compiler flags for gperftools, overriding pkg-config
+  gperftools_LIBS
+              linker flags for gperftools, overriding pkg-config
   avahi_CFLAGS
               C compiler flags for avahi, overriding pkg-config
   avahi_LIBS  linker flags for avahi, overriding pkg-config
@@ -2724,6 +2735,15 @@ if test "${with_optimization+set}" = set; then :
   withval=$with_optimization; use_optimization=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-optimization=$withval"
 else
   use_optimizaton=yes
+fi
+
+
+
+# Check whether --with-gperftools was given.
+if test "${with_gperftools+set}" = set; then :
+  withval=$with_gperftools; use_gperftools=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-gperftools=$withval"
+else
+  use_gperftools=no
 fi
 
 
@@ -5668,6 +5688,102 @@ $as_echo "#define HAVE_STATIC_PROBES 1" >>confdefs.h
 
     fi
 
+
+fi
+
+if test "x$use_gperftools" != "xno"; then :
+
+
+pkg_failed=no
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for gperftools" >&5
+$as_echo_n "checking for gperftools... " >&6; }
+
+if test -n "$gperftools_CFLAGS"; then
+    pkg_cv_gperftools_CFLAGS="$gperftools_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libprofiler, libtcmalloc\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libprofiler, libtcmalloc") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_gperftools_CFLAGS=`$PKG_CONFIG --cflags "libprofiler, libtcmalloc" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$gperftools_LIBS"; then
+    pkg_cv_gperftools_LIBS="$gperftools_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libprofiler, libtcmalloc\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libprofiler, libtcmalloc") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_gperftools_LIBS=`$PKG_CONFIG --libs "libprofiler, libtcmalloc" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+	        gperftools_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libprofiler, libtcmalloc" 2>&1`
+        else
+	        gperftools_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libprofiler, libtcmalloc" 2>&1`
+        fi
+	# Put the nasty error message in config.log where it belongs
+	echo "$gperftools_PKG_ERRORS" >&5
+
+	as_fn_error $? "Package requirements (libprofiler, libtcmalloc) were not met:
+
+$gperftools_PKG_ERRORS
+
+Consider adjusting the PKG_CONFIG_PATH environment variable if you
+installed software in a non-standard prefix.
+
+Alternatively, you may set the environment variables gperftools_CFLAGS
+and gperftools_LIBS to avoid the need to call pkg-config.
+See the pkg-config man page for more details." "$LINENO" 5
+elif test $pkg_failed = untried; then
+     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+	{ { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error $? "The pkg-config script could not be found or is too old.  Make sure it
+is in your PATH or set the PKG_CONFIG environment variable to the full
+path to pkg-config.
+
+Alternatively, you may set the environment variables gperftools_CFLAGS
+and gperftools_LIBS to avoid the need to call pkg-config.
+See the pkg-config man page for more details.
+
+To get pkg-config, see <http://pkg-config.freedesktop.org/>.
+See \`config.log' for more details" "$LINENO" 5; }
+else
+	gperftools_CFLAGS=$pkg_cv_gperftools_CFLAGS
+	gperftools_LIBS=$pkg_cv_gperftools_LIBS
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+
+fi
 
 fi
 

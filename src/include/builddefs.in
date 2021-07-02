@@ -138,7 +138,10 @@ LDFLAGS += $(PLDFLAGS) $(WARN_OFF) $(PCP_LIBS) $(LLDFLAGS)
 SRCFILES = GNUmakefile $(HFILES) $(CFILES) $(CXXFILES) $(MFILES) \
 	$(LSRCFILES) $(LFILES) $(YFILES) $(PYFILES)
 
-LDLIBS = $(LLDLIBS) $(PLDLIBS)
+GPERFTOOLS_LIBS = @gperftools_LIBS@
+
+# tcmalloc of gperftools must be linked last
+LDLIBS = $(LLDLIBS) $(PLDLIBS) $(GPERFTOOLS_LIBS)
 MAKEOPTS = --no-print-directory
 
 ifdef PROJECT
