@@ -123,6 +123,13 @@ then
 	echo "Found same pmcd"
     else
 	echo "Error: pmcd restarted? PID changed from $pmcd_pid to $new_pmcd_pid"
+	if [ -f $PCP_LOG_DIR/pmcd/pmcd.log.prior ]
+	then
+	    echo "--- $PCP_LOG_DIR/pmcd/pmcd.log.prior ---" >>$here/$seq.full
+	    cat $PCP_LOG_DIR/pmcd/pmcd.log.prior >>$here/$seq.full
+	else
+	    echo "Cannot find $PCP_LOG_DIR/pmcd/pmcd.log.prior" >>$here/$seq.full
+	fi
 	pmcd_pid=$new_pmcd_pid
     fi
 else
@@ -142,6 +149,13 @@ then
     else
 	echo "Found new primary pmlogger"
 	echo "Error: PID changed from $pid to $newpid"
+	if [ -f $PCP_LOG_DIR/pmlogger/`hostname`/pmlogger.log.prior ]
+	then
+	    echo "--- $PCP_LOG_DIR/pmlogger/`hostname`/pmlogger.log.prior ---" >>$here/$seq.full
+	    cat $PCP_LOG_DIR/pmlogger/`hostname`/pmlogger.log.prior >>$here/$seq.full
+	else
+	    echo "Cannot find $PCP_LOG_DIR/pmlogger/`hostname`/pmlogger.log.prior" >>$here/$seq.full
+	fi
 	pid=$newpid
     fi
 else
@@ -185,6 +199,13 @@ then
     else
 	echo "Found new primary pmlogger"
 	echo "Error: PID changed from $pid to $newpid"
+	if [ -f $PCP_LOG_DIR/pmlogger/`hostname`/pmlogger.log.prior ]
+	then
+	    echo "--- $PCP_LOG_DIR/pmlogger/`hostname`/pmlogger.log.prior ---" >>$here/$seq.full
+	    cat $PCP_LOG_DIR/pmlogger/`hostname`/pmlogger.log.prior >>$here/$seq.full
+	else
+	    echo "Cannot find $PCP_LOG_DIR/pmlogger/`hostname`/pmlogger.log.prior" >>$here/$seq.full
+	fi
 	pid=$newpid
     fi
 else
