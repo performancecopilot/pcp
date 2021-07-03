@@ -192,14 +192,16 @@ if $quick
 then
     echo "== Configured pcp ($configopts)"
 else
-    # build some useful libs ...
+    # build some useful libs and bits ...
     #
+    cd src/include; $PCP_MAKE_PROG; cd $here
     cd src/libpcp; $PCP_MAKE_PROG; cd $here
     cd src/libpcp_static; $PCP_MAKE_PROG; cd $here
     cd src/libpcp_pmda; $PCP_MAKE_PROG; cd $here
     cd src/libpcp_qmc; $PCP_MAKE_PROG; cd $here
     cd src/pmcpp; $PCP_MAKE_PROG; cd $here
     cd src/newhelp; $PCP_MAKE_PROG; cd $here
+    cd src/pmns; $PCP_MAKE_PROG; cd $here
 fi
 
 # check expected files are the same
