@@ -108,6 +108,9 @@ __pmSquashTZ(char *tzbuffer)
 
     PM_ASSERT_IS_LOCKED(__pmLock_extcall);
 
+    if (pmDebugOptions.context)
+	fprintf(stderr, "__pmSquashTZ(%s)", tzbuffer);
+
     tzset();
     t = localtime(&now);		/* THREADSAFE */
 
@@ -151,6 +154,8 @@ __pmSquashTZ(char *tzbuffer)
 	strncpy(tzbuffer, tzn, PM_TZ_MAXLEN);
 	tzbuffer[PM_TZ_MAXLEN] = '\0';
     }
+    if (pmDebugOptions.context)
+	fprintf(stderr, " -> %s\n", tzbuffer);
     setenv("TZ", tzbuffer, 1);		/* THREADSAFE */
 
     return;
@@ -176,6 +181,9 @@ __pmSquashTZ(char *tzbuffer)
     char *cp, *dst, *off;
     wchar_t *src;
     div_t d;
+
+    if (pmDebugOptions.context)
+	fprintf(stderr, "__pmSquashTZ(%s)", tzbuffer);
 
     GetTimeZoneInformation(&tz);
     dst = cp = tzbuf;
@@ -260,6 +268,8 @@ __pmSquashTZ(char *tzbuffer)
     tzn = tzname[(t->tm_isdst > 0)];
 
     pmsprintf(tzbuffer, PM_TZ_MAXLEN, "%s%s", tzn, tzoff);
+    if (pmDebugOptions.context)
+	fprintf(stderr, " -> %s\n", tzbuffer);
     setenv("TZ", tzbuffer, 1);		/* THREADSAFE */
 
     return;
