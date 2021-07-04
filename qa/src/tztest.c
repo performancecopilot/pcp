@@ -5,8 +5,26 @@
 #include <pcp/pmapi.h>
 #include "libpcp.h"
 
-int main()
+/*
+ * this is a real hack ... we need to redefine the libc version
+ * of time() so that when we pick a timezone for the old-style
+ * DST TZ settings we do so deterministically ... this happens
+ * in the bowels of libpcp in __pmSquashTZ() which is what this
+ * test is really exercising.
+ */
+time_t	now = 24 * 3600;	/* day 2 ! */
+
+time_t
+time(time_t *tloc)
 {
+    if (tloc != NULL)
+	*tloc = now;
+    return now;
+}
+
+int main(int argc, char **argv)
+{
+    int		sts;
     time_t	sep;
     time_t	mar;
     struct tm	init;
@@ -16,7 +34,7 @@ int main()
      * string and have to re-write it the same timezone offset
      * is choosen
      */
-    char *zones[] = {
+    char	*zones[] = {
 	"ABC-10",
 	"ABC-10:01:02XYZ-11:03:04,M12.5.0/3:04:05,M7.1.0/2:06:07",
 	"ABC-10:00:00XYZ-11:00:00,M12.5.0/3:00:00,M7.5.0/2:00:00",
@@ -26,7 +44,25 @@ int main()
 	":Someplace/Somewhere",
 	NULL
     };
-    char * tz = getenv("TZ");
+    char	*tz;
+
+    /*
+     * quick and dirty, only -D supported
+     */
+    if (argc >= 2 && strncmp(argv[1], "-D", 2) == 0) {
+	char	*spec = NULL;
+	if (argv[1][2] != '\0')
+	    spec = &argv[1][2];
+	else if (argc >= 3)
+	    spec = argv[2];
+	if (spec != NULL)
+	    sts = pmSetDebug(spec);
+	else
+	    sts = -1;
+	printf("pmSetDebug(\"%s\") -> %d\n", spec, sts);
+    }
+
+    tz = getenv("TZ");
 
     putenv("TZ=UTC");
     /* mar == 12:00:00 1 Mar 2000 UTC */
