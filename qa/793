@@ -90,6 +90,12 @@ _cleanup()
 	echo "--- $tmp.$x.log ---" >>$here/$seq.full
 	cat $tmp.$x.log >>$here/$seq.full
 	echo "--- end pmlogger log ---" >>$here/$seq.full
+	if [ -f $tmp.$x.strace ]
+	then
+	    echo "--- $tmp.$x.strace ---" >>$here/$seq.full
+	    cat $tmp.$x.strace >>$here/$seq.full
+	    echo "--- end strace ---" >>$here/$seq.full
+	fi
     done
 
     _service pmlogger restart 2>&1 \
@@ -114,8 +120,8 @@ _check_loggers()
     #
     for x in A B C
     do
+	rm -f $tmp.found $tmp.$x.pid
 	z=0
-	rm -f $tmp.found
 	while [ "$z" -lt 30 ]
 	do
 	    # Cannot use $tmp as the path prefix, because on some systems
@@ -135,6 +141,7 @@ _check_loggers()
 		if grep '^log size' $tmp.pmlc.out >/dev/null 2>&1
 		then
 		    touch $tmp.found
+		    echo $pid >$tmp.$x.pid
 		    break
 		fi
 	    fi
@@ -249,6 +256,18 @@ sleep 1
 echo "pmlogger processes ..." >>$here/$seq.full
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mlogger' >>$here/$seq.full
 
+# this test has a history of failing in the pmlogger_daily step below
+# when one (or more) of the pmlogger processes vanishes, so we're
+# taking extreme measures here!
+#
+if which strace >/dev/null 2>&1
+then
+    for x in A B C
+    do
+	$sudo strace -p `cat $tmp.$x.pid` >$tmp.$x.strace 2>&1 &
+    done
+fi
+
 echo
 echo "pmlogger_daily"
 $sudo sh -c "qatmp=$qatmp $PCP_BINADM_DIR/pmlogger_daily -VV -x never -c $tmp/control -l $tmp/log"
@@ -274,6 +293,8 @@ do
     ls -l $tmp/$x >>$here/$seq.full
     echo `ls $tmp/$x | grep "\.meta" | wc -l | sed -e 's/ //g'` archives in TMP/$x
 done
+
+rm -f $tmp.?.strace
 
 # success, all done
 status=0
