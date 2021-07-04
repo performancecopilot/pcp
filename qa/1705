@@ -69,7 +69,11 @@ echo "=== too many attached tracepoints ==="
 pmstore bpftrace.control.register "// name: test4
 kprobe:* { @c = count(); }"
 _pmdabpftrace_wait_for_value bpftrace.scripts.test4.status '"error"'
-pminfo -f bpftrace.scripts.test4.error | sed -e 's/ [1-9][0-9]* / PROBES /g'
+pminfo -f bpftrace.scripts.test4.error \
+| sed \
+    -e 's/ [1-9][0-9]* / PROBES /g' \
+    -e 's/"ERROR: /"/' \
+# end
 pminfo -f bpftrace.scripts.test4.exit_code
 echo
 
