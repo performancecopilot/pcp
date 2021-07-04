@@ -1995,7 +1995,6 @@ __pmLogFetch(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **result)
     sts = __pmLogChangeVol(ctxp->c_archctl, ctxp->c_archctl->ac_vol);
     if (sts < 0)
 	goto func_return;
-    assert(ctxp->c_archctl->ac_mfp != NULL);
     __pmFseek(ctxp->c_archctl->ac_mfp, 
 	    (long)ctxp->c_archctl->ac_offset, SEEK_SET);
 
@@ -2010,7 +2009,9 @@ more:
 	     * no serial access, so need to make sure we are
 	     * starting in the correct place
 	     */
-	    __pmLogSetTime(ctxp);
+	    sts = __pmLogSetTime(ctxp);
+	    if (sts < 0)
+		goto func_return;
 	    ctxp->c_archctl->ac_offset = __pmFtell(ctxp->c_archctl->ac_mfp);
 	    ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_curvol;
 	    /*
@@ -2299,7 +2300,7 @@ VolSkip(__pmArchCtl *acp, int mode,  int j)
     return PM_ERR_EOL;
 }
 
-void
+int
 __pmLogSetTime(__pmContext *ctxp)
 {
     __pmArchCtl	*acp = ctxp->c_archctl;
@@ -2356,6 +2357,7 @@ __pmLogSetTime(__pmContext *ctxp)
     if (lcp->l_numti) {
 	/* we have a temporal index, use it! */
 	int		j = -1;
+	int		try;
 	int		toobig = 0;
 	int		match = 0;
 	int		vol;
@@ -2406,9 +2408,13 @@ __pmLogSetTime(__pmContext *ctxp)
 	acp->ac_serial = 1;
 
 	if (match) {
+	    try = j;
 	    j = VolSkip(acp, mode, j);
-	    if (j < 0)
-		return;
+	    if (j < 0) {
+		if (pmDebugOptions.log)
+		    fprintf(stderr, "__pmLogSetTime: VolSkip mode=%d vol=%d failed #1\n", mode, try);
+		return PM_ERR_LOGFILE;
+	    }
 	    __pmFseek(acp->ac_mfp, (long)lcp->l_ti[j].ti_log, SEEK_SET);
 	    if (mode == PM_MODE_BACK)
 		acp->ac_serial = 0;
@@ -2418,9 +2424,13 @@ __pmLogSetTime(__pmContext *ctxp)
 	    }
 	}
 	else if (j < 1) {
+	    try = 0;
 	    j = VolSkip(acp, PM_MODE_FORW, 0);
-	    if (j < 0)
-		return;
+	    if (j < 0) {
+		if (pmDebugOptions.log)
+		    fprintf(stderr, "__pmLogSetTime: VolSkip mode=%d vol=%d failed #2\n", PM_MODE_FORW, try);
+		return PM_ERR_LOGFILE;
+	    }
 	    __pmFseek(acp->ac_mfp, (long)lcp->l_ti[j].ti_log, SEEK_SET);
 	    if (pmDebugOptions.log) {
 		fprintf(stderr, " before start ti@");
@@ -2428,9 +2438,13 @@ __pmLogSetTime(__pmContext *ctxp)
 	    }
 	}
 	else if (j == numti) {
+	    try = numti-1;
 	    j = VolSkip(acp, PM_MODE_BACK, numti-1);
-	    if (j < 0)
-		return;
+	    if (j < 0) {
+		if (pmDebugOptions.log)
+		    fprintf(stderr, "__pmLogSetTime: VolSkip mode=%d vol=%d failed #3\n", PM_MODE_BACK, try);
+		return PM_ERR_LOGFILE;
+	    }
 	    __pmFseek(acp->ac_mfp, (long)lcp->l_ti[j].ti_log, SEEK_SET);
 	    if (mode == PM_MODE_BACK)
 		acp->ac_serial = 0;
@@ -2450,9 +2464,13 @@ __pmLogSetTime(__pmContext *ctxp)
 	    t_hi = __pmTimevalSub(&lcp->l_ti[j].ti_stamp, &ctxp->c_origin);
 	    t_lo = __pmTimevalSub(&ctxp->c_origin, &lcp->l_ti[j-1].ti_stamp);
 	    if (t_hi <= t_lo && !toobig) {
+		try = j;
 		j = VolSkip(acp, mode, j);
-		if (j < 0)
-		    return;
+		if (j < 0) {
+		    if (pmDebugOptions.log)
+			fprintf(stderr, "__pmLogSetTime: VolSkip mode=%d vol=%d failed #4\n", mode, try);
+		    return PM_ERR_LOGFILE;
+		}
 		__pmFseek(acp->ac_mfp, (long)lcp->l_ti[j].ti_log, SEEK_SET);
 		if (mode == PM_MODE_FORW)
 		    acp->ac_serial = 0;
@@ -2462,9 +2480,13 @@ __pmLogSetTime(__pmContext *ctxp)
 		}
 	    }
 	    else {
+		try = j-1;
 		j = VolSkip(acp, mode, j-1);
-		if (j < 0)
-		    return;
+		if (j < 0) {
+		    if (pmDebugOptions.log)
+			fprintf(stderr, "__pmLogSetTime: VolSkip mode=%d vol=%d failed #5\n", mode, try);
+		    return PM_ERR_LOGFILE;
+		}
 		__pmFseek(acp->ac_mfp, (long)lcp->l_ti[j].ti_log, SEEK_SET);
 		if (mode == PM_MODE_BACK)
 		    acp->ac_serial = 0;
@@ -2490,14 +2512,37 @@ __pmLogSetTime(__pmContext *ctxp)
     }
     else {
 	/* index either not available, or not useful */
+	int	j;
 	if (mode == PM_MODE_FORW) {
-	    __pmLogChangeVol(acp, lcp->l_minvol);
-	    assert(acp->ac_mfp != NULL);
+	    for (j = lcp->l_minvol; j <= lcp->l_maxvol; j++) {
+		if (__pmLogChangeVol(acp, j) >= 0)
+		    break;
+	    }
+	    if (j > lcp->l_maxvol) {
+		/* no volume found */
+		if (pmDebugOptions.log)
+		    fprintf(stderr, " index not useful, no volume between %d...%d\n",
+			    lcp->l_minvol, lcp->l_maxvol);
+		acp->ac_curvol = -1;
+		acp->ac_mfp = NULL;
+		return PM_ERR_LOGFILE;
+	    }
 	    __pmFseek(acp->ac_mfp, (long)(sizeof(__pmLogLabel) + 2*sizeof(int)), SEEK_SET);
 	}
 	else if (mode == PM_MODE_BACK) {
-	    __pmLogChangeVol(acp, lcp->l_maxvol);
-	    assert(acp->ac_mfp != NULL);
+	    for (j = lcp->l_maxvol; j >= lcp->l_minvol; j--) {
+		if (__pmLogChangeVol(acp, j) >= 0)
+		    break;
+	    }
+	    if (j < lcp->l_minvol) {
+		/* no volume found */
+		if (pmDebugOptions.log)
+		    fprintf(stderr, " index not useful, no volume between %d...%d\n",
+			    lcp->l_maxvol, lcp->l_minvol);
+		acp->ac_curvol = -1;
+		acp->ac_mfp = NULL;
+		return PM_ERR_LOGFILE;
+	    }
 	    __pmFseek(acp->ac_mfp, (long)0, SEEK_END);
 	}
 
@@ -2513,6 +2558,8 @@ __pmLogSetTime(__pmContext *ctxp)
     acp->ac_offset = __pmFtell(acp->ac_mfp);
     assert(acp->ac_offset >= 0);
     acp->ac_vol = acp->ac_curvol;
+
+    return 0;
 }
 
 /* Read the label of the current archive. */
@@ -3100,6 +3147,7 @@ LogChangeToPreviousArchive(__pmContext *ctxp)
     pmTimeval		save_origin;
     int			save_mode;
     int			sts;
+    int			j;
 
     /*
      * Check whether there is a previous archive to switch to.
@@ -3145,12 +3193,23 @@ LogChangeToPreviousArchive(__pmContext *ctxp)
     }
 
     /* Set up to scan backwards from the end of the archive. */
-    __pmLogChangeVol(acp, lcp->l_maxvol);
-    assert(acp->ac_mfp != NULL);
+    for (j = lcp->l_maxvol; j >= lcp->l_minvol; j--) {
+	if (__pmLogChangeVol(acp, j) >= 0)
+	    break;
+    }
+    if (j < lcp->l_minvol) {
+	/* no volume found */
+	if (pmDebugOptions.log)
+	    fprintf(stderr, "LogChangeToPreviousArchive: no volume between %d...%d\n",
+		    lcp->l_maxvol, lcp->l_minvol);
+	acp->ac_curvol = -1;
+	acp->ac_mfp = NULL;
+	return PM_ERR_LOGFILE;
+    }
     __pmFseek(acp->ac_mfp, (long)0, SEEK_END);
-    ctxp->c_archctl->ac_offset = __pmFtell(acp->ac_mfp);
-    assert(ctxp->c_archctl->ac_offset >= 0);
-    ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_curvol;
+    acp->ac_offset = __pmFtell(acp->ac_mfp);
+    assert(acp->ac_offset >= 0);
+    acp->ac_vol = acp->ac_curvol;
 
     /*
      * Check for temporal overlap here. Do this last in case the API client

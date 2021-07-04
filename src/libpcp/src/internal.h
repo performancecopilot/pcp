@@ -407,7 +407,7 @@ extern int __pmLogGenerateMark(__pmLogCtl *, int, pmResult **) _PCP_HIDDEN;
 extern int __pmLogFetchInterp(__pmContext *, int, pmID *, pmResult **) _PCP_HIDDEN;
 extern int __pmGetArchiveLabel(__pmLogCtl *, pmLogLabel *) _PCP_HIDDEN;
 extern pmTimeval *__pmLogStartTime(__pmArchCtl *) _PCP_HIDDEN;
-extern void __pmLogSetTime(__pmContext *) _PCP_HIDDEN;
+extern int __pmLogSetTime(__pmContext *) _PCP_HIDDEN;
 extern void __pmLogResetInterp(__pmContext *) _PCP_HIDDEN;
 extern void __pmArchCtlFree(__pmArchCtl *) _PCP_HIDDEN;
 extern int __pmLogChangeArchive(__pmContext *, int) _PCP_HIDDEN;

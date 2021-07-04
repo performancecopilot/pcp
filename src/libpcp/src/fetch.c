@@ -458,6 +458,7 @@ pmSetMode(int mode, const struct timeval *when, int delta)
 	    /* assume PM_CONTEXT_ARCHIVE */
 	    if (l_mode == PM_MODE_INTERP ||
 		l_mode == PM_MODE_FORW || l_mode == PM_MODE_BACK) {
+		int	lsts;
 		if (when != NULL) {
 		    /*
 		     * special case of NULL for timestamp
@@ -468,7 +469,18 @@ pmSetMode(int mode, const struct timeval *when, int delta)
 		}
 		ctxp->c_mode = mode;
 		ctxp->c_delta = delta;
-		__pmLogSetTime(ctxp);
+		lsts = __pmLogSetTime(ctxp);
+		if (lsts < 0) {
+		    /*
+		     * most unlikely; not much we can do here but expect
+		     * PMAPI error to be returned once pmFetch's start
+		     */
+		    if (pmDebugOptions.log) {
+			char	errmsg[PM_MAXERRMSGLEN];
+			fprintf(stderr, "pmSetMode: __pmLogSetTime failed: %s\n",
+			    pmErrStr_r(lsts, errmsg, sizeof(errmsg)));
+		    }
+		}
 		__pmLogResetInterp(ctxp);
 		sts = 0;
 	    }
