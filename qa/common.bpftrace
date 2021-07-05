@@ -86,7 +86,7 @@ _pmdabpftrace_wait_for_value()
     wait_iter=`expr $wait_sec \* 2`
     for i in `seq 1 $wait_iter`
     do
-        if pminfo -f $1 2>/dev/null | grep -q "value $value_regex"; then
+        if pminfo -f $1 2>/dev/null | tee -a $here/$seq.full | grep -q "value $value_regex"; then
             echo "found metric $1 with matching value $value_regex"
             return
         fi
