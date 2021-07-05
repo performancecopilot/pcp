@@ -40,7 +40,6 @@ TIMESERIES
 
 TIMESERIES
     [TIMESTAMP] VALUE
-    [TIMESTAMP] VALUE
 == verify label names and values
 agent: "mmv", "pmcd", "sample"
 bin: 100, 200, 300, 400, 500, 600, 700, 800, 900
