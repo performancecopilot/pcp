@@ -76,14 +76,15 @@ avahi_verify()
     hostname=`hostname | sed -e 's/\..*//'`
     echo "hostname=$hostname" >>$here/$seq.full
     echo "avahi-browse -rt -d local _$service._tcp" >> $here/$seq.full
-    avahi-browse -rt -d local "_$service._tcp" > $tmp.out
+    avahi-browse -rt -d local "_$service._tcp" > $tmp.out 2> $tmp.err
     # sometimes we need a fair bit of time for avahi to register
     for i in 0.1 0.3 1 2 3
     do
 	[ -s $tmp.out ] && break
 	pmsleep $i
-	avahi-browse -rt -d local "_$service._tcp" > $tmp.out
+	avahi-browse -rt -d local "_$service._tcp" > $tmp.out 2> $tmp.err
     done
+    cat $tmp.err >>$here/$seq.full
     cat $tmp.out | \
 	tee -a $here/$seq.full | \
 	sed -n \
