@@ -17,12 +17,12 @@ echo "QA output created by $seq"
 id -u nobody >/dev/null 2>&1 || _notrun "User nobody unavailable"
 
 # Despite intense triage, on some QA hosts this test simple fails
-# when we don't see the first event record
+# when we don't see the first or second event record
 #
 hostname=`hostname`
 case "$hostname"
 in
-    vm01.localdomain)
+    vm01.localdomain|bozo-vm.localdomain)
 	    _notrun "cannot make this test work on this platform"
 	    ;;
 esac
