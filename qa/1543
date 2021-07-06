@@ -50,8 +50,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # Seen to fail sometimes on vm01 ... pmproxy mysteriously dies off in
 # pthread lock land ... we've resolved that it's not worth the
-# failure noise and no more triage is warranted on an ancient Ubuntu
-# versions
+# failure noise and no more triage is warranted on older distros
 #
 case `admin/whatami`
 in
@@ -60,6 +59,9 @@ in
 	;;
     *Ubuntu\ 18.*)
 	_notrun "avoiding intermittent failure on Ubuntu 18.??"
+	;;
+    *Debian\ 10.*)
+	_notrun "avoiding intermittent failure on Debian 10.?"
 	;;
 esac
 
