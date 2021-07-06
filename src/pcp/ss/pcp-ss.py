@@ -146,16 +146,14 @@ class SS(object):
                     optargv.append("-z")
                 if pcp_origin:
                     optargv.append("-O%s" % pcp_origin)
-                    ctx = pmapi.pmContext.fromOptions(options, optargv)
+                    pmapi.pmContext.fromOptions(options, optargv)
                     origin = options.pmGetOptionOrigin()
                     self.context.pmSetMode(PM_MODE_INTERP, origin, 0)
-                    del ctx
                 elif pcp_start_time:
                     optargv.append("-S%s" % pcp_start_time)
-                    ctx = pmapi.pmContext.fromOptions(options, optargv)
+                    pmapi.pmContext.fromOptions(options, optargv)
                     start = options.pmGetOptionStart()
                     self.context.pmSetMode(PM_MODE_INTERP, start, 0)
-                    del ctx
 
         except pmapi.pmErr as error:
             sys.stderr.write("%s: %s '%s'\n" % (error.progname(), error.message(), self.source))
