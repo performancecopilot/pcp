@@ -8719,7 +8719,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    _pm_assign_ulong(atom, proc_buddyinfo.buddys[inst].value);
 	    break;
 	case 1:
-	    atom->ull = proc_buddyinfo.buddys[inst].value << _pm_pageshift;
+	    atom->ull = proc_buddyinfo.buddys[inst].value << _pm_pageshift << proc_buddyinfo.buddys[inst].order;
 	    atom->ull /= 1024;	/* convert to kilobytes */
 	    break;
 	default:
