@@ -38,11 +38,11 @@ echo "shortme=$shortme" >>$here/$seq.full
 
 _filter()
 {
-    # for Linux sometimes see "Connection reset by peer" ... this is believed
-    # to be a timing issue, and the results are semantically equivalent for
-    # the purposes of this test, so ...
-    # and the "receiving response from pmlogger" part of the no permission
-    # error message may not be there for older pmlc versions, so ...
+    # For Linux sometimes see "Connection reset by peer" or "Connection
+    # refused" ... this is believed to be a timing issue, and the
+    # results are semantically equivalent for the purposes of this test.
+    # And the "receiving response from pmlogger" part of the no permission
+    # error message may not be there for older pmlc versions.
     #
     tee -a $here/$seq.full \
     | sed -e "s/$me/ME/" \
@@ -51,6 +51,7 @@ _filter()
 	-e "s/$other1/OTHER1/" \
 	-e "s/$other2/OTHER2/" \
         -e 's/Connection reset by peer/Address already in use/' \
+        -e 's/Connection refused/Address already in use/' \
 	-e '/No permission to perform/s/ receiving response from pmlogger//'
 }
 
