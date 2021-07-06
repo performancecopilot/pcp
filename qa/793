@@ -275,7 +275,7 @@ if [ -s $tmp/log ]
 then
     echo "$tmp.log from pmlogger_daily ..." >>$here/$seq.full
     cat $tmp/log >>$here/$seq.full
-    sed -n $tmp/log \
+    sed -n <$tmp/log \
 	-e '/^=== /p' \
 	-e '/^$/p' \
 	-e '/merge/p' \
