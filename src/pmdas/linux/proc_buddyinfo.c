@@ -137,14 +137,14 @@ refresh_proc_buddyinfo(proc_buddyinfo_t *proc_buddyinfo)
     while (fgets(buf,sizeof(buf),fp) != NULL) {
         char node_name[128];
         char *zone_name;
-        int values[SPLIT_MAX];
+        unsigned int values[SPLIT_MAX];
 
         i = read_node_name(buf, node_name);
         i+=6; /* erase ", zone" */
         read_buddyinfo(buf+i, read_buf, MAX_ORDER+1); /* read zone name and page order */
         zone_name=read_buf[0];
         for (i=0; i < MAX_ORDER; i++)
-            values[i] = atoi(read_buf[i+1]);
+            values[i] = strtoul(read_buf[i+1], NULL, 10);
         for (i=0; i < proc_buddyinfo->nbuddys; i++) {
             if (strcmp(proc_buddyinfo->buddys[i].node_name, node_name)==0 &&
 		strcmp(proc_buddyinfo->buddys[i].zone_name, zone_name)==0)

@@ -18,18 +18,18 @@
  * All fields in /proc/buddyinfo
  */
 typedef struct {
-    int		id;
-    char	id_name[128];
-    char	node_name[128];
-    char	zone_name[128];
-    int		order;
-    int		value;
+    int			id;
+    char		id_name[128];
+    char		node_name[128];
+    char		zone_name[128];
+    unsigned int	order;
+    unsigned int	value;
 } buddyinfo_t;
 
 typedef struct {
-    int		nbuddys;
-    buddyinfo_t	*buddys;
-    pmdaIndom	*indom;
+    unsigned int	nbuddys;
+    buddyinfo_t		*buddys;
+    pmdaIndom		*indom;
 } proc_buddyinfo_t;
 
 extern int refresh_proc_buddyinfo(proc_buddyinfo_t *);
