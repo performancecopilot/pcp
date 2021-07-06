@@ -20,12 +20,6 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
-_filter_err()
-{
-    sed \
-	-e 's/.*Info: evaluator exiting/pmie: note - evaluator exiting/g'
-}
-
 _filter()
 {
     _filter_pmie_log
@@ -69,7 +63,7 @@ wait
 
 echo "=== stderr ===" | tee -a $seq.full
 cat $tmp.err >>$seq.full
-_filter_err <$tmp.err
+_show_pmie_exit <$tmp.err
 echo "=== stdout ===" | tee -a $seq.full
 cat $tmp.out >>$seq.full
 # we used to count each uniq output line, but this is just too timing
