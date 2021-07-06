@@ -49,7 +49,7 @@ End-of-File
 pmie -T 10 $tmp.pmie >$tmp.out 2>$tmp.err &
 pmie_pid=$!
 wait $pmie_pid
-cat $tmp.out $tmp.err | _show_pmie_errors
+cat $tmp.out $tmp.err | _show_pmie_exit
 
 echo "== stdout ==" >$seq.full
 cat $tmp.out >>$seq.full
