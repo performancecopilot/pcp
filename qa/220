@@ -53,6 +53,24 @@ _cleanup()
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	clean=true
+
+	# for some systems we're seeing ...
+	#    Job for pmlogger.service failed because the service did
+	#    not take the steps required by its unit configuration.
+	# try to figure out why
+	#
+	if which systemctl >/dev/null 2>&1
+	then
+	    eval `systemctl show pmlogger.service --property=ActiveState`
+	    if [ "$ActiveState" != active ]
+	    then
+		$sudo systemctl status pmlogger.service >>$here/$seq.full
+		if which journalctl >/dev/null 2>&1
+		then
+		    $sudo journalctl -xe -u pmlogger.service >>$here/$seq.full
+		fi
+	    fi
+	fi
     fi
     $sudo rm -f $tmp.*
 }
