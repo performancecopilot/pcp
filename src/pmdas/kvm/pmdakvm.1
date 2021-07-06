@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2020 Red Hat.
+.\" Copyright (c) 2020-2021 Red Hat.
 .\" Copyright (c) 2008 Aconex.  All Rights Reserved.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
@@ -55,6 +55,20 @@ To uninstall, do the following as root:
 \fBpmdakvm\fR is launched by \fIpmcd\fR(1) and should never be executed
 directly. The Install and Remove scripts notify \fIpmcd\fR(1) when the
 agent is installed or removed.
+.SH CAVEATS
+When
+.B pmdakvm
+is running, it holds references to kernel resources within the KVM
+device driver.
+It is thus not possible to unload or reload the device driver module
+while the PMDA is running.
+The ideal procedure to follow in order to reload the kernel module is
+the reverse of that described in the ``INSTALLATION'' section above -
+i.e. first run
+.BR ./Remove ,
+then reload the kernel module,
+then run
+.BR ./Install .
 .SH FILES
 .IP "\fB$PCP_SYSCONF_DIR/kvm/kvm.conf\fR" 4
 configuration file for the \fBpmdakvm\fR agent
