@@ -51,7 +51,7 @@ echo
 cd $PCP_PMDAS_DIR/denki
 ROOTPATH="$here/denki/Thinkpad_L480_bat_busy"
 $sudo sed -ie \
-	"s,^args.*,args=\"-U root -c 4 -r ${ROOTPATH}\","  \
+	"s,^args.*,args=\"-U root -r ${ROOTPATH}\","  \
 	Install
 $sudo ./Install 2>&1
 pminfo -fF denki
@@ -61,7 +61,7 @@ echo "### Installing test dataset 2..."
 echo
 ROOTPATH="$here/denki/bigsystem"
 $sudo sed -ie \
-	"s,^args.*,args=\"-U root -c 32 -r ${ROOTPATH}\","  \
+	"s,^args.*,args=\"-U root -r ${ROOTPATH}\","  \
 	Install
 $sudo ./Install 2>&1
 pminfo -fF denki
