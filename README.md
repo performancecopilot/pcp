@@ -7,7 +7,7 @@
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/1872/badge)](https://bestpractices.coreinfrastructure.org/projects/1872)
 [![Mailing List](https://img.shields.io/badge/Mailing%20List-pcp-blue.svg)](https://groups.io/g/pcp)
 [![Slack Team](https://img.shields.io/badge/Slack-pcp-blue.svg)](https://h7zo83mvt1.execute-api.us-west-2.amazonaws.com/Express/)
-[![IRC #pcp](https://img.shields.io/badge/IRC-pcp-blue.svg)](https://webchat.freenode.net/#pcp)
+[![IRC #pcp](https://img.shields.io/badge/IRC-pcp-blue.svg)](https://web.libera.chat/#pcp)
 [![Github Release](https://img.shields.io/github/release/performancecopilot/pcp.svg)](https://github.com/performancecopilot/pcp/releases/latest)
 
 Performance Co-Pilot (PCP) provides a framework and services to support
