@@ -270,6 +270,7 @@ _filter_optional_pmdas()
 	-e '/pmdaespping/d' \
 	-e '/pmdagfs2/d' \
 	-e '/pmdagluster/d' \
+	-e '/pmdahacluster/d' \
 	-e '/pmdahippi/d' \
 	-e '/pmdahotproc/d' \
 	-e '/pmdaib/d' \
@@ -327,6 +328,7 @@ _filter_optional_pmdas()
 	-e '/pmda_simple/d' \
 	-e '/pmdasimple/d' \
 	-e '/pmdasmart/d' \
+	-e '/pmdasockets/d' \
 	-e '/pmdasnia/d' \
 	-e '/pmdasnmp/d' \
 	-e '/pmdasmart/d' \
