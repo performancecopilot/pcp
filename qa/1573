@@ -2,7 +2,7 @@
 # PCP QA Test No. 1573
 # Exercise libpcp_web memory leak without a redis-server.
 #
-# Copyright (c) 2020 Red Hat.
+# Copyright (c) 2021 Red Hat.
 #
 
 seq=`basename $0`
@@ -101,7 +101,7 @@ pmproxy_rss2=`pminfo -f proc.memory.rss |
 
 echo === checking rss within tolerance
 _within_tolerance "rss" $pmproxy_rss1 $pmproxy_rss2 10%
-[ $pmproxy_rss2 -gt 10000 ] && echo "Unexpected pmproxy RSS: $pmproxy_rss2, was initially $pmproxy_rss1"
+[ $pmproxy_rss2 -gt 11000 ] && echo "Unexpected pmproxy RSS: $pmproxy_rss2, was initially $pmproxy_rss1"
 
 echo "RSS1 for PID $pmproxy_pid is $pmproxy_rss1" >> $here/$seq.full
 echo "RSS2 for PID $pmproxy_pid is $pmproxy_rss2" >> $here/$seq.full
