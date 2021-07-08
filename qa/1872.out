@@ -6,7 +6,7 @@ PONG
 === Load deterministic search content ===
 pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
 === /search/text - query for '99' 'random' 'interesting' 'result' ===
-== verify request - http://localhost:54322/search/text?query=99
+== verify request - http://localhost:PORT/search/text?query=99
 {
     "total": 1,
     "elapsed": XXX,
@@ -22,7 +22,7 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
         }
     ]
 }
-== verify request - http://localhost:54322/search/text?query=random
+== verify request - http://localhost:PORT/search/text?query=random
 {
     "total": 2,
     "elapsed": XXX,
@@ -45,7 +45,7 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
         }
     ]
 }
-== verify request - http://localhost:54322/search/text?query=interesting
+== verify request - http://localhost:PORT/search/text?query=interesting
 {
     "total": 1,
     "elapsed": XXX,
@@ -61,7 +61,7 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
         }
     ]
 }
-== verify request - http://localhost:54322/search/text?query=result
+== verify request - http://localhost:PORT/search/text?query=result
 {
     "total": 1,
     "elapsed": XXX,
@@ -78,7 +78,7 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
     ]
 }
 === /search/text - no match response ===
-== verify request - http://localhost:54322/search/text?query=bazinga
+== verify request - http://localhost:PORT/search/text?query=bazinga
 {
     "total": 0,
     "elapsed": 0,
@@ -87,10 +87,10 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
     "results": [    ]
 }
 === /search/text - query param is required ===
-== verify request - http://localhost:54322/search/text
+== verify request - http://localhost:PORT/search/text
 400
 === /search/text - highlighting is supported on 'name', 'oneline' and 'helptext' by using 'highlight' param ===
-== verify request - http://localhost:54322/search/text?query=domain&highlight=name,oneline,helptext
+== verify request - http://localhost:PORT/search/text?query=domain&highlight=name,oneline,helptext
 {
     "total": 2,
     "elapsed": XXX,
@@ -113,7 +113,7 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
         }
     ]
 }
-== verify request - http://localhost:54322/search/text?query=sample&highlight=name
+== verify request - http://localhost:PORT/search/text?query=sample&highlight=name
 {
     "total": 5,
     "elapsed": XXX,
@@ -157,7 +157,7 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
         }
     ]
 }
-== verify request - http://localhost:54322/search/text?query=counter&highlight=oneline,helptext
+== verify request - http://localhost:PORT/search/text?query=counter&highlight=oneline,helptext
 {
     "total": 3,
     "elapsed": XXX,
@@ -188,7 +188,7 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
     ]
 }
 === /search/text  - pagination is supported using cursor params 'limit' and 'offset'
-== verify request - http://localhost:54322/search/text?query=random&limit=1
+== verify request - http://localhost:PORT/search/text?query=random&limit=1
 {
     "total": 2,
     "elapsed": XXX,
@@ -204,7 +204,7 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
         }
     ]
 }
-== verify request - http://localhost:54322/search/text?query=random&limit=1&offset=1
+== verify request - http://localhost:PORT/search/text?query=random&limit=1&offset=1
 {
     "total": 2,
     "elapsed": XXX,
@@ -221,7 +221,7 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
     ]
 }
 === /search/text - its possible to query only specific fields (name, oneline, helptext, indom) using 'field' param ===
-== verify request - http://localhost:54322/search/text?query=99&field=name
+== verify request - http://localhost:PORT/search/text?query=99&field=name
 {
     "total": 0,
     "elapsed": 0,
@@ -229,7 +229,7 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
     "limit": 10,
     "results": [    ]
 }
-== verify request - http://localhost:54322/search/text?query=99&field=oneline
+== verify request - http://localhost:PORT/search/text?query=99&field=oneline
 {
     "total": 0,
     "elapsed": 0,
@@ -237,7 +237,7 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
     "limit": 10,
     "results": [    ]
 }
-== verify request - http://localhost:54322/search/text?query=99&field=helptext
+== verify request - http://localhost:PORT/search/text?query=99&field=helptext
 {
     "total": 1,
     "elapsed": XXX,
@@ -254,7 +254,7 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
     ]
 }
 === /search/text - filtering out fields from response (name, oneline, helptext, type, indom) using 'return' param ===
-== verify request - http://localhost:54322/search/text?query=99&return=name
+== verify request - http://localhost:PORT/search/text?query=99&return=name
 {
     "total": 1,
     "elapsed": XXX,
@@ -266,7 +266,7 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
         }
     ]
 }
-== verify request - http://localhost:54322/search/text?query=99&return=type
+== verify request - http://localhost:PORT/search/text?query=99&return=type
 {
     "total": 1,
     "elapsed": XXX,
@@ -278,7 +278,7 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
         }
     ]
 }
-== verify request - http://localhost:54322/search/text?query=99&return=oneline
+== verify request - http://localhost:PORT/search/text?query=99&return=oneline
 {
     "total": 1,
     "elapsed": XXX,
@@ -290,7 +290,7 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
         }
     ]
 }
-== verify request - http://localhost:54322/search/text?query=99&return=helptext
+== verify request - http://localhost:PORT/search/text?query=99&return=helptext
 {
     "total": 1,
     "elapsed": XXX,
@@ -302,7 +302,7 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
         }
     ]
 }
-== verify request - http://localhost:54322/search/text?query=99&return=indom
+== verify request - http://localhost:PORT/search/text?query=99&return=indom
 {
     "total": 1,
     "elapsed": XXX,
@@ -314,7 +314,7 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
         }
     ]
 }
-== verify request - http://localhost:54322/search/text?query=random&return=name,type,indom
+== verify request - http://localhost:PORT/search/text?query=random&return=name,type,indom
 {
     "total": 2,
     "elapsed": XXX,
@@ -334,7 +334,7 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
     ]
 }
 === /search/text - filtering based on entity type (metric, instance, indom) using 'type' param ===
-== verify request - http://localhost:54322/search/text?query=random&type=metric
+== verify request - http://localhost:PORT/search/text?query=random&type=metric
 {
     "total": 1,
     "elapsed": XXX,
@@ -350,7 +350,7 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
         }
     ]
 }
-== verify request - http://localhost:54322/search/text?query=random&type=indom
+== verify request - http://localhost:PORT/search/text?query=random&type=indom
 {
     "total": 1,
     "elapsed": XXX,
@@ -366,7 +366,7 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
         }
     ]
 }
-== verify request - http://localhost:54322/search/text?query=random&type=instance
+== verify request - http://localhost:PORT/search/text?query=random&type=instance
 {
     "total": 0,
     "elapsed": 0,
@@ -374,7 +374,7 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
     "limit": 10,
     "results": [    ]
 }
-== verify request - http://localhost:54322/search/text?query=random&type=metric,indom
+== verify request - http://localhost:PORT/search/text?query=random&type=metric,indom
 {
     "total": 2,
     "elapsed": XXX,
@@ -398,32 +398,32 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
     ]
 }
 === /search/suggest - generic request ===
-== verify request - http://localhost:54322/search/suggest?query=sam
+== verify request - http://localhost:PORT/search/suggest?query=sam
 [
     "sample.mirage",
     "sample.colour",
     "sample.rapid"
 ]
-== verify request - http://localhost:54322/search/suggest?query=sample.r
+== verify request - http://localhost:PORT/search/suggest?query=sample.r
 [
     "sample.mirage",
     "sample.rapid",
     "sample.colour"
 ]
 === /search/suggest - limit is supported
-== verify request - http://localhost:54322/search/suggest?query=sam&limit=2
+== verify request - http://localhost:PORT/search/suggest?query=sam&limit=2
 [
     "sample.mirage",
     "sample.colour"
 ]
 === /search/suggest - query param is required ===
-== verify request - http://localhost:54322/search/suggest
+== verify request - http://localhost:PORT/search/suggest
 400
 === /search/suggest - no match response ===
-== verify request - http://localhost:54322/search/suggest?query=xxx
+== verify request - http://localhost:PORT/search/suggest?query=xxx
 []
 === /search/indom - generic request ===
-== verify request - http://localhost:54322/search/indom?query=29.1
+== verify request - http://localhost:PORT/search/indom?query=29.1
 {
     "total": 5,
     "elapsed": XXX,
@@ -461,7 +461,7 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
         }
     ]
 }
-== verify request - http://localhost:54322/search/indom?query=29.3
+== verify request - http://localhost:PORT/search/indom?query=29.3
 {
     "total": 5,
     "elapsed": XXX,
@@ -500,7 +500,7 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
     ]
 }
 === /search/indom - no match response ===
-== verify request - http://localhost:54322/search/indom?query=x
+== verify request - http://localhost:PORT/search/indom?query=x
 {
     "total": 0,
     "elapsed": 0,
@@ -509,10 +509,10 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
     "results": [    ]
 }
 === /search/indom - query param is required ===
-== verify request - http://localhost:54322/search/indom
+== verify request - http://localhost:PORT/search/indom
 400
 === /search/indom  - pagination is supported using cursor params 'limit' and 'offset'
-== verify request - http://localhost:54322/search/indom?query=29.1&limit=2&offset=0
+== verify request - http://localhost:PORT/search/indom?query=29.1&limit=2&offset=0
 {
     "total": 5,
     "elapsed": XXX,
@@ -531,7 +531,7 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
         }
     ]
 }
-== verify request - http://localhost:54322/search/indom?query=29.1&limit=2&offset=2
+== verify request - http://localhost:PORT/search/indom?query=29.1&limit=2&offset=2
 {
     "total": 5,
     "elapsed": XXX,
@@ -553,7 +553,7 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
     ]
 }
 === /search/info ===
-== verify request - http://localhost:54322/search/info
+== verify request - http://localhost:PORT/search/info
 {
     "docs": 18,
     "terms": 174,
