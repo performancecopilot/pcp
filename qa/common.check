@@ -899,6 +899,17 @@ _wait_pmlogger_end()
 	    then
 		echo "_wait_pmlogger_end: failed to see $PCP_TMP_DIR/pmlogger/$_pid removed after 100 iterations"
 		#debug# set +x
+		# if systemctl is in play, see if there is any additional
+		# info there
+		#
+		if which systemctl >/dev/null 2>&1
+		then
+		    $sudo systemctl status pmlogger.service
+		    if which journalctl >/dev/null 2>&1
+		    then
+			$sudo journalctl -x -u pmlogger.service
+		    fi
+		fi
 		return
 	    fi
 	    pmsleep 0.1
@@ -937,6 +948,17 @@ $2 == '$_pid' && $0 ~ /defunct/	{ print $3 }'
 			    echo "_wait_pmlogger_end: failed to see pid $_pid exit after 100 iterations"
 			fi
 			#debug# set +x
+			# if systemctl is in play, see if there is any additional
+			# info there
+			#
+			if which systemctl >/dev/null 2>&1
+			then
+			    $sudo systemctl status pmlogger.service
+			    if which journalctl >/dev/null 2>&1
+			    then
+				$sudo journalctl -x -u pmlogger.service
+			    fi
+			fi
 			return
 		    fi
 		    pmsleep 0.1
@@ -986,6 +1008,17 @@ p
 	    then
 		echo "_wait_pmcd_end: failed to see pid $_pid exit after 100 iterations"
 		#debug# set +x
+		# if systemctl is in play, see if there is any additional
+		# info there
+		#
+		if which systemctl >/dev/null 2>&1
+		then
+		    $sudo systemctl status pmcd.service
+		    if which journalctl >/dev/null 2>&1
+		    then
+			$sudo journalctl -x -u pmcd.service
+		    fi
+		fi
 		return
 	    fi
 	    pmsleep 0.1
@@ -1014,6 +1047,17 @@ _wait_for_pmie()
 	    then
 		echo "_wait_for_pmie: failed to see pmie start after 100 iterations"
 		#debug# set +x
+		# if systemctl is in play, see if there is any additional
+		# info there
+		#
+		if which systemctl >/dev/null 2>&1
+		then
+		    $sudo systemctl status pmie.service
+		    if which journalctl >/dev/null 2>&1
+		    then
+			$sudo journalctl -x -u pmie.service
+		    fi
+		fi
 		return
 	    fi
 	    pmsleep 0.1
@@ -1071,6 +1115,17 @@ p
 		echo "_wait_pmie_end: failed to see pid(s) $_pidlist exit after 100 iterations"
 		$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mie'
 		#debug# set +x
+		# if systemctl is in play, see if there is any additional
+		# info there
+		#
+		if which systemctl >/dev/null 2>&1
+		then
+		    $sudo systemctl status pmie.service
+		    if which journalctl >/dev/null 2>&1
+		    then
+			$sudo journalctl -x -u pmie.service
+		    fi
+		fi
 		break
 	    fi
 	    pmsleep 0.1
