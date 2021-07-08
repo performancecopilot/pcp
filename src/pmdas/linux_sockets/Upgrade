@@ -16,8 +16,10 @@
 
 . $PCP_DIR/etc/pcp.env
 
-if grep -q ^sockets "$PCP_PMCDCONF_PATH" 2>/dev/null
+if grep -q "^sockets.*\.dso.*\.so" "$PCP_PMCDCONF_PATH" 2>/dev/null
 then
+    # migrate from dso to daemon
+    sed -i '/^sockets/d' "$PCP_PMCDCONF_PATH"
     touch "$PCP_PMDAS_DIR/sockets/.NeedInstall"
 fi
 
