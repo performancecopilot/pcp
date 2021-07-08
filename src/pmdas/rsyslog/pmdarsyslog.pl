@@ -27,34 +27,149 @@ my $queue_indom = 0;
 my @queue_insts = ();
 use vars qw(%queue_ids %queue_values);
 
-# .* rsyslogd-pstats:
-# imuxsock: submitted=37 ratelimit.discarded=0 ratelimit.numratelimiters=22 
-# elasticsearch: connfail=0 submits=0 failed=0 success=0 
-# [main Q]: size=1 enqueued=1436 full=0 maxqsize=3 
+# Legacy method
+#   .* rsyslogd-pstats:
+#   imuxsock: submitted=37 ratelimit.discarded=0 ratelimit.numratelimiters=22
+#   elasticsearch: connfail=0 submits=0 failed=0 success=0
+#   [main Q]: size=1 enqueued=1436 full=0 maxqsize=3
+
+# Modern method
+#   module(load="imuxsock")
+#   input(type="imuxsock"
+#       Socket="/dev/log"
+#       CreatePath="on"
+#   )
+#   module(load="impstats" interval="10" severity="7")
+#   if $syslogtag contains 'rsyslogd-pstats' then {
+#       action(
+#           name="pstats-for-pcp"
+#           type="omfile"
+#           template="RSYSLOG_FileFormat"
+#           file="/var/log/pcp/rsyslog/stats"
+#       )
+#       stop
+#   }
+#rsyslogd-pstats: global: origin=dynstats
+#rsyslogd-pstats: imuxsock: origin=imuxsock submitted=1 ratelimit.discarded=0 ratelimit.numratelimiters=0
+#rsyslogd-pstats: omelasticsearch: origin=omelasticsearch submitted=106 failed.http=0 failed.httprequests=0 failed.checkConn=0 failed.es=12 response.success=0 response.bad=0 response.duplicate=0 response.badargument=0 response.bulkrejection=0 response.other=0
+#rsyslogd-pstats: logging-load-driver-out: origin=core.action processed=0 failed=0 suspended=0 suspended.duration=0 resumed=0
+#rsyslogd-pstats: dockerd.log.gz: origin=core.action processed=0 failed=0 suspended=0 suspended.duration=0 resumed=0
+#rsyslogd-pstats: pstats: origin=core.action processed=137865 failed=0 suspended=0 suspended.duration=0 resumed=0
+#rsyslogd-pstats: fwd-perf34: origin=core.action processed=6467 failed=0 suspended=0 suspended.duration=0 resumed=0
+#rsyslogd-pstats: secure: origin=core.action processed=100 failed=0 suspended=0 suspended.duration=0 resumed=0
+#rsyslogd-pstats: maillog: origin=core.action processed=9 failed=0 suspended=0 suspended.duration=0 resumed=0
+#rsyslogd-pstats: cron: origin=core.action processed=541 failed=0 suspended=0 suspended.duration=0 resumed=0
+#rsyslogd-pstats: spooler: origin=core.action processed=0 failed=0 suspended=0 suspended.duration=0 resumed=0
+#rsyslogd-pstats: boot: origin=core.action processed=0 failed=0 suspended=0 suspended.duration=0 resumed=0
+#rsyslogd-pstats: messages: origin=core.action processed=5817 failed=0 suspended=0 suspended.duration=0 resumed=0
+#rsyslogd-pstats: resource-usage: origin=impstats utime=3371587 stime=3943166 maxrss=13164 minflt=3401 majflt=0 inblock=0 oublock=134184 nvcsw=138392 nivcsw=4
+#rsyslogd-pstats: fwd-perf34 queue[DA]: origin=core.queue size=0 enqueued=0 full=0 discarded.full=0 discarded.nf=0 maxqsize=0
+#rsyslogd-pstats: fwd-perf34 queue: origin=core.queue size=0 enqueued=6467 full=0 discarded.full=0 discarded.nf=0 maxqsize=6
+#rsyslogd-pstats: main Q: origin=core.queue size=14 enqueued=144346 full=0 discarded.full=0 discarded.nf=0 maxqsize=15
+
+# For JSON format, use the following in your rsyslog.conf:
+#   module(load="impstats" format="cee" interval="10" severity="7")
+#   if $syslogtag contains 'rsyslogd-pstats' then {
+#       action(
+#           name="pstats-for-pcp"
+#           type="omfile"
+#           # NOTE: template parameter not required
+#           file="/var/log/pcp/rsyslog/stats"
+#       )
+#       stop
+#   }
+#rsyslogd-pstats: @cee: { "name": "global", "origin": "dynstats", "values": { } }
+#rsyslogd-pstats: @cee: { "name": "omelasticsearch", "origin": "omelasticsearch", "submitted": 1658343219, "failed.http": 0, "failed.httprequests": 0, "failed.checkConn": 3, "failed.es": 9, "response.success": 0, "response.bad": 0, "response.duplicate": 0, "response.badargument": 0, "response.bulkrejection": 0, "response.other": 0 }
+#rsyslogd-pstats: @cee: { "name": "pstats", "origin": "core.action", "processed": 18064652, "failed": 0, "suspended": 0, "suspended.duration": 0, "resumed": 0 }
+#rsyslogd-pstats: @cee: { "name": "action 1", "origin": "core.action", "processed": 1658345033, "failed": 0, "suspended": 0, "suspended.duration": 0, "resumed": 0 }
+#rsyslogd-pstats: @cee: { "name": "action 2", "origin": "core.action", "processed": 1658345033, "failed": 0, "suspended": 0, "suspended.duration": 0, "resumed": 0 }
+#rsyslogd-pstats: @cee: { "name": "action 3", "origin": "core.action", "processed": 1658345033, "failed": 0, "suspended": 0, "suspended.duration": 0, "resumed": 0 }
+#rsyslogd-pstats: @cee: { "name": "send-es-prod", "origin": "core.action", "processed": 1658345033, "failed": 0, "suspended": 0, "suspended.duration": 0, "resumed": 0 }
+#rsyslogd-pstats: @cee: { "name": "action 5", "origin": "core.action", "processed": 0, "failed": 0, "suspended": 0, "suspended.duration": 0, "resumed": 0 }
+#rsyslogd-pstats: @cee: { "name": "action 6", "origin": "core.action", "processed": 0, "failed": 0, "suspended": 0, "suspended.duration": 0, "resumed": 0 }
+#rsyslogd-pstats: @cee: { "name": "action 7", "origin": "core.action", "processed": 65346, "failed": 0, "suspended": 0, "suspended.duration": 0, "resumed": 0 }
+#rsyslogd-pstats: @cee: { "name": "action 8", "origin": "core.action", "processed": 318, "failed": 0, "suspended": 0, "suspended.duration": 0, "resumed": 0 }
+#rsyslogd-pstats: @cee: { "name": "action 9", "origin": "core.action", "processed": 2339355, "failed": 0, "suspended": 0, "suspended.duration": 0, "resumed": 0 }
+#rsyslogd-pstats: @cee: { "name": "action 10", "origin": "core.action", "processed": 25286, "failed": 0, "suspended": 0, "suspended.duration": 0, "resumed": 0 }
+#rsyslogd-pstats: @cee: { "name": "action 11", "origin": "core.action", "processed": 3879, "failed": 0, "suspended": 0, "suspended.duration": 0, "resumed": 0 }
+#rsyslogd-pstats: @cee: { "name": "action 12", "origin": "core.action", "processed": 1170077, "failed": 0, "suspended": 0, "suspended.duration": 0, "resumed": 0 }
+#rsyslogd-pstats: @cee: { "name": "action 13", "origin": "core.action", "processed": 0, "failed": 0, "suspended": 0, "suspended.duration": 0, "resumed": 0 }
+#rsyslogd-pstats: @cee: { "name": "action 14", "origin": "core.action", "processed": 0, "failed": 0, "suspended": 0, "suspended.duration": 0, "resumed": 0 }
+#rsyslogd-pstats: @cee: { "name": "action 15", "origin": "core.action", "processed": 0, "failed": 0, "suspended": 0, "suspended.duration": 0, "resumed": 0 }
+#rsyslogd-pstats: @cee: { "name": "imudp(*:514)", "origin": "imudp", "submitted": 0 }
+#rsyslogd-pstats: @cee: { "name": "imudp(*:514)", "origin": "imudp", "submitted": 0 }
+#rsyslogd-pstats: @cee: { "name": "imptcp(*\/514\/IPv4)", "origin": "imptcp", "submitted": 1652644001, "bytes.received": 2154282781586, "bytes.decompressed": 0 }
+#rsyslogd-pstats: @cee: { "name": "imptcp(*\/514\/IPv6)", "origin": "imptcp", "submitted": 0, "bytes.received": 0, "bytes.decompressed": 0 }
+#rsyslogd-pstats: @cee: { "name": "resource-usage", "origin": "impstats", "utime": 347553851954, "stime": 88872179113, "maxrss": 415148, "minflt": 639826401, "majflt": 7039, "inblock": 1340376, "oublock": 13264688, "nvcsw": 1999618953, "nivcsw": 6535132 }
+#rsyslogd-pstats: @cee: { "name": "pstats queue", "origin": "core.queue", "size": 1, "enqueued": 18064671, "full": 0, "discarded.full": 0, "discarded.nf": 0, "maxqsize": 29 }
+#rsyslogd-pstats: @cee: { "name": "send-es-prod queue", "origin": "core.queue", "size": 2, "enqueued": 1658345033, "full": 7020, "discarded.full": 1817, "discarded.nf": 0, "maxqsize": 5000 }
+#rsyslogd-pstats: @cee: { "name": "main Q[DA]", "origin": "core.queue", "size": 0, "enqueued": 0, "full": 0, "discarded.full": 0, "discarded.nf": 0, "maxqsize": 0 }
+#rsyslogd-pstats: @cee: { "name": "main Q", "origin": "core.queue", "size": 2, "enqueued": 1676409710, "full": 0, "discarded.full": 0, "discarded.nf": 0, "maxqsize": 90022 }
+#rsyslogd-pstats: @cee: { "name": "io-work-q", "origin": "imptcp", "enqueued": 5134904, "maxqsize": 3 }
+#rsyslogd-pstats: @cee: { "name": "imudp(w0)", "origin": "imudp", "called.recvmmsg": 0, "called.recvmsg": 0, "msgs.received": 0 }
 
 sub rsyslog_parser
 {
     ( undef, $_ ) = @_;
 
     #$pmda->log("rsyslog_parser got line: $_");
-    if (m|rsyslogd-pstats:|) {
-	my $timenow = time;
-	if ($lasttime != 0) {
-	    if ($timenow > $lasttime) {
-		$interval = $timenow - $lasttime;
-		$lasttime = $timenow;
-	    }
-	} else {
+    if (! m|rsyslogd-pstats:|) {
+	# Not a log entry we can process
+	return;
+    }
+    my $timenow = time;
+    if ($lasttime != 0) {
+	if ($timenow > $lasttime) {
+	    $interval = $timenow - $lasttime;
 	    $lasttime = $timenow;
 	}
+    } else {
+	$lasttime = $timenow;
     }
-    if (m|imuxsock: submitted=(\d+) ratelimit.discarded=(\d+) ratelimit.numratelimiters=(\d+)|) {
+
+    if (m|imuxsock: origin=imuxsock submitted=(\d+) ratelimit.discarded=(\d+) ratelimit.numratelimiters=(\d+)|) {
+	# Modern capture of the imuxsock action data
+	($ux_submitted, $ux_discarded, $ux_ratelimiters) = ($1,$2,$3);
+    }
+    elsif (m|elasticsearch: origin=elasticsearch submitted=(\d+) failed.http=(\d+) failed.httprequests=(\d+) failed.checkConn=(\d+) failed.es=(\d+) response.success=(\d+) response.bad=(\d+) response.duplicate=(\d+) response.badargument=(\d+) response.bulkrejection=(\d+) response.other=(\d+)|) {
+	# Modern capture of the omelasticsearch action data
+	my $submitted = $1;
+	my $failed_http = $2;
+	my $failed_httprequests = $3;
+	my $failed_checkConn = $4;
+	my $failed_es = $5;
+	my $response_success = $6;
+	my $response_bad = $7;
+	my $response_duplicate = $8;
+	my $response_badargument = $9;
+	my $response_bulkrejection = $10;
+	my $response_other = $11;
+	($es_connfail, $es_submits, $es_failed, $es_success) = (
+	    ($failed_http + $failed_httprequests + $failed_checkConn + $failed_es), $submitted, ($response_bad + $response_duplicate + $response_badargument + $response_bulkrejection + $response_other), $response_success
+	);
+    }
+    elsif (m|stats: (.+): origin=core.queue size=(\d+) enqueued=(\d+) full=(\d+) discarded.full=(\d+) discarded.nf=(\d+) maxqsize=(\d+)|) {
+	# Modern capture of queue data
+	my ($qname, $qid) = ($1, undef);
+
+	if (!defined($queue_ids{$qname})) {
+	    $qid = @queue_insts / 2;
+	    $queue_ids{$qname} = $qid;
+	    push @queue_insts, ($qid, $qname);
+	    $pmda->replace_indom($queue_indom, \@queue_insts);
+	}
+	$queue_values{$qname} = [ $2, $3, $4, $7 ];
+    }
+    elsif (m|imuxsock: submitted=(\d+) ratelimit.discarded=(\d+) ratelimit.numratelimiters=(\d+)|) {
+	# Legacy capture of the imuxsock action data
 	($ux_submitted, $ux_discarded, $ux_ratelimiters) = ($1,$2,$3);
     }
     elsif (m|elasticsearch: connfail=(\d+) submits=(\d+) failed=(\d+) success=(\d+)|) {
+	# Legacy capture of the omelasticsearch action data
 	($es_connfail, $es_submits, $es_failed, $es_success) = ($1,$2,$3,$4);
     }
     elsif (m|stats: (.+): size=(\d+) enqueued=(\d+) full=(\d+) maxqsize=(\d+)|) {
+	# Legacy capture of queue data
 	my ($qname, $qid) = ($1, undef);
 
 	if (!defined($queue_ids{$qname})) {
