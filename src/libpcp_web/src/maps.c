@@ -160,6 +160,12 @@ redisMapLookup(redisMap *map, sds key)
 void
 redisMapInsert(redisMap *map, sds key, sds value)
 {
+    redisMapEntry *entry = redisMapLookup(map, key);
+
+    if (entry) {
+	/* fix for Coverity CID323605 Resource Leak */
+	dictDelete(map, key);
+    }
     dictAdd(map, key, value);
 }
 

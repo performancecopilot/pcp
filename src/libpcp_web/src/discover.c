@@ -33,9 +33,6 @@ static char *pmDiscoverFlagsStr(pmDiscover *);
 #define PM_DISCOVER_HASHTAB_SIZE 32
 static pmDiscover *discover_hashtable[PM_DISCOVER_HASHTAB_SIZE];
 
-/* pmlogger_daily log-roll lock count */
-static int logrolling = 0;
-
 /* number of archives or directories currently being monitored */
 static int n_monitored = 0;
 
@@ -426,28 +423,6 @@ is_deleted(pmDiscover *p, struct stat *sbuf)
     return ret;
 }
 
-static int
-check_for_locks()
-{
-    int			i;
-    pmDiscover		*p;
-    char                sep = pmPathSeparator();
-    char                path[MAXNAMELEN];
-
-    for (i=0; i < PM_DISCOVER_HASHTAB_SIZE; i++) {
-    	for (p = discover_hashtable[i]; p; p = p->next) {
-	    if (p->flags & PM_DISCOVER_FLAGS_DIRECTORY) {
-		pmsprintf(path, sizeof(path), "%s%c%s", p->context.name, sep, "lock");
-		if (access(path, F_OK) == 0)
-		    return 1;
-	    }
-	}
-    }
-
-    /* no locks */
-    return 0;
-}
-
 static void
 check_deleted(pmDiscover *p)
 {
@@ -465,36 +440,7 @@ fs_change_callBack(uv_fs_event_t *handle, const char *filename, int events, int 
     pmDiscover		*p;
     char		*s;
     sds			path;
-    int			locksfound = 0;
     struct stat		statbuf;
-
-    /*
-     * check if logs are currently being rolled by pmlogger_daily et al
-     * in any of the directories we are tracking. For mutex, the log control
-     * scripts use a 'lock' file in each directory as it is processed.
-     */
-    locksfound = check_for_locks();
-
-    if (!logrolling && locksfound) {
-	/* log-rolling has started */
-	if (pmDebugOptions.discovery)
-	    fprintf(stderr, "%s discovery callback: log-rolling in progress\n", stamp());
-	logrolling = locksfound;
-	return;
-    }
-
-    if (logrolling && locksfound) {
-	logrolling = locksfound;
-    	return; /* still in progress */
-    }
-
-    if (logrolling && !locksfound) {
-    	/* log-rolling is finished: check what got deleted, and then purge */
-	if (pmDebugOptions.discovery)
-	    fprintf(stderr, "%s discovery callback: finished log-rolling\n", stamp());
-	pmDiscoverTraverse(PM_DISCOVER_FLAGS_META|PM_DISCOVER_FLAGS_DATAVOL, check_deleted);
-    }
-    logrolling = locksfound;
 
     uv_fs_event_getpath(handle, buffer, &bytes);
     path = sdsnewlen(buffer, bytes);
@@ -1037,6 +983,17 @@ pmDiscoverNewSource(pmDiscover *p, int context)
     pmDiscoverInvokeSourceCallBacks(p, &timestamp);
 }
 
+static char *
+archive_dir_lock_path(pmDiscover *p)
+{
+    char	path[MAXNAMELEN], lockpath[MAXNAMELEN];
+    int		sep = pmPathSeparator();
+
+    strncpy(path, p->context.name, sizeof(path)-1);
+    pmsprintf(lockpath, sizeof(lockpath), "%s%c%s", dirname(path), sep, "lock");
+    return strndup(lockpath, sizeof(lockpath));
+}
+
 /*
  * Process metadata records until EOF. That can span multiple
  * callbacks if we get a partial record read.
@@ -1059,6 +1016,7 @@ process_metadata(pmDiscover *p)
     __pmLogHdr		hdr;
     sds			msg, source;
     static uint32_t	*buf = NULL;
+    char		*lock_path;
     int			deleted;
     struct stat		sbuf;
     static int		buflen = 0;
@@ -1073,7 +1031,10 @@ process_metadata(pmDiscover *p)
 	fprintf(stderr, "process_metadata: %s in progress %s\n",
 		p->context.name, pmDiscoverFlagsStr(p));
     pmDiscoverStatsAdd(p->module, "metadata.callbacks", NULL, 1);
+    lock_path = archive_dir_lock_path(p);
     for (;;) {
+	if (lock_path && access(lock_path, F_OK) == 0)
+	    break;
 	pmDiscoverStatsAdd(p->module, "metadata.loops", NULL, 1);
 	off = lseek(p->fd, 0, SEEK_CUR);
 	nb = read(p->fd, &hdr, sizeof(__pmLogHdr));
@@ -1240,6 +1201,9 @@ process_metadata(pmDiscover *p)
 	/* flag that all available metadata has now been read */
 	p->flags &= ~PM_DISCOVER_FLAGS_META_IN_PROGRESS;
 
+    if (lock_path)
+    	free(lock_path);
+
     if (pmDebugOptions.discovery)
 	fprintf(stderr, "%s: completed, partial=%d %s %s\n",
 			"process_metadata", partial, p->context.name, pmDiscoverFlagsStr(p));
@@ -1266,14 +1230,18 @@ static void
 process_logvol(pmDiscover *p)
 {
     int			sts;
-    pmResult		*r;
+    pmResult		*r = NULL;
     pmTimespec		ts;
     int			oldcurvol;
     __pmContext		*ctxp;
     __pmArchCtl		*acp;
+    char		*lock_path;
 
     pmDiscoverStatsAdd(p->module, "logvol.callbacks", NULL, 1);
+    lock_path = archive_dir_lock_path(p);
     for (;;) {
+	if (lock_path && access(lock_path, F_OK) == 0)
+	    break;
 	pmDiscoverStatsAdd(p->module, "logvol.loops", NULL, 1);
 	pmUseContext(p->ctx);
 	ctxp = __pmHandleToPtr(p->ctx);
@@ -1312,6 +1280,7 @@ process_logvol(pmDiscover *p)
 	    }
 
 	    /* we are done - return and wait for another callback */
+	    r = NULL;
 	    break;
 	}
 
@@ -1328,14 +1297,15 @@ process_logvol(pmDiscover *p)
 	}
 
 	/*
-	 * TODO: persistently save current timestamp, so after being restarted,
-	 * pmproxy can resume where it left off for each archive.
+	 * TODO (perhaps): persistently save current timestamp, so after being
+	 * restarted, pmproxy can resume where it left off for each archive.
 	 */
 	ts.tv_sec = r->timestamp.tv_sec;
 	ts.tv_nsec = r->timestamp.tv_usec * 1000;
 	bump_logvol_decode_stats(p, r);
 	pmDiscoverInvokeValuesCallBack(p, &ts, r);
 	pmFreeResult(r);
+	r = NULL;
     }
 
     if (r) {
@@ -1348,6 +1318,9 @@ process_logvol(pmDiscover *p)
 
     /* datavol is now up-to-date and at EOF */
     p->flags &= ~PM_DISCOVER_FLAGS_DATAVOL_READY;
+
+    if (lock_path)
+    	free(lock_path);
 }
 
 static void
@@ -1356,6 +1329,10 @@ pmDiscoverInvokeCallBacks(pmDiscover *p)
     int			sts;
     sds			msg;
     sds			metaname;
+
+    check_deleted(p);
+    if (p->flags & PM_DISCOVER_FLAGS_DELETED)
+    	return; /* ignore deleted archive */
 
     if (p->ctx < 0) {
 	/*
@@ -1366,16 +1343,23 @@ pmDiscoverInvokeCallBacks(pmDiscover *p)
 
 	    /* create the PMAPI context (once off) */
 	    if ((sts = pmNewContext(p->context.type, p->context.name)) < 0) {
-		/*
-		 * Likely an early callback on a new (still empty) archive.
-		 * If so, just ignore the callback and don't log any scary
-		 * looking messages. We'll get another CB soon.
-		 */
-		if (sts != PM_ERR_NODATA || pmDebugOptions.desperate) {
-		    infofmt(msg, "pmNewContext failed for %s: %s\n",
-			    p->context.name, pmErrStr(sts));
-		    moduleinfo(p->module, PMLOG_ERROR, msg, p->data);
+		if (sts == -ENOENT) {
+		    /* newly deleted archive */
+		    p->flags |= PM_DISCOVER_FLAGS_DELETED;
 		}
+		else {
+		    /*
+		     * Likely an early callback on a new (still empty) archive.
+		     * If so, just ignore the callback and don't log any scary
+		     * looking messages. We'll get another CB soon.
+		     */
+		    if (sts != PM_ERR_NODATA || pmDebugOptions.desperate) {
+			infofmt(msg, "pmNewContext failed for %s: %s\n",
+				p->context.name, pmErrStr(sts));
+			moduleinfo(p->module, PMLOG_ERROR, msg, p->data);
+		    }
+		}
+		/* no further processing for this archive */
 		return;
 	    }
 	    pmDiscoverStatsAdd(p->module, "logvol.new_contexts", NULL, 1);
@@ -1410,8 +1394,12 @@ pmDiscoverInvokeCallBacks(pmDiscover *p)
 	    metaname = sdsnew(p->context.name);
 	    metaname = sdscat(metaname, ".meta");
 	    if ((p->fd = open(metaname, O_RDONLY)) < 0) {
-		infofmt(msg, "open failed for %s: %s\n", metaname, osstrerror());
-		moduleinfo(p->module, PMLOG_ERROR, msg, p->data);
+		if (p->fd == -ENOENT)
+		    p->flags |= PM_DISCOVER_FLAGS_DELETED;
+		else {
+		    infofmt(msg, "open failed for %s: %s\n", metaname, osstrerror());
+		    moduleinfo(p->module, PMLOG_ERROR, msg, p->data);
+		}
 		sdsfree(metaname);
 		return;
 	    }
