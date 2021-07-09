@@ -59,11 +59,11 @@ static char* setUser(UsersTable* this, unsigned int uid, int pid, int offset) {
    return name;
 }
 
-ProcessList* ProcessList_new(UsersTable* usersTable, Hashtable* pidMatchList, uid_t userId) {
+ProcessList* ProcessList_new(UsersTable* usersTable, Hashtable* dynamicMeters, Hashtable* pidMatchList, uid_t userId) {
    PCPProcessList* this = xCalloc(1, sizeof(PCPProcessList));
    ProcessList* super = &(this->super);
 
-   ProcessList_init(super, Class(PCPProcess), usersTable, pidMatchList, userId);
+   ProcessList_init(super, Class(PCPProcess), usersTable, dynamicMeters, pidMatchList, userId);
 
    struct timeval timestamp;
    gettimeofday(&timestamp, NULL);
@@ -281,7 +281,7 @@ static void PCPProcessList_updateCmdline(Process* process, int pid, int offset, 
       ++command;
       --length;
       if (command[length-1] == ')')
-         command[length-1] = '\0';
+         command[--length] = '\0';
       process->isKernelThread = true;
    }
 
@@ -374,8 +374,9 @@ static bool PCPProcessList_updateProcesses(PCPProcessList* this, double period, 
                           0.0 : CLAMP(percent_cpu, 0.0, pl->cpuCount * 100.0);
       proc->percent_mem = proc->m_resident / (double)pl->totalMem * 100.0;
 
+      PCPProcessList_updateUsername(proc, pid, offset, pl->usersTable);
+
       if (!preExisting) {
-         PCPProcessList_updateUsername(proc, pid, offset, pl->usersTable);
          PCPProcessList_updateCmdline(proc, pid, offset, command);
          Process_fillStarttimeBuffer(proc);
          ProcessList_add(pl, proc);

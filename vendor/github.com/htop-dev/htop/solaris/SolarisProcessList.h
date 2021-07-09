@@ -8,12 +8,6 @@ Released under the GNU GPLv2, see the COPYING file
 in the source distribution for its full text.
 */
 
-#define MAXCMDLINE 255
-
-#define GZONE "global    "
-#define UZONE "unknown   "
-
-
 #include "config.h" // IWYU pragma: keep
 
 #include <kstat.h>
@@ -59,7 +53,7 @@ typedef struct SolarisProcessList_ {
    ZfsArcStats zfs;
 } SolarisProcessList;
 
-ProcessList* ProcessList_new(UsersTable* usersTable, Hashtable* pidMatchList, uid_t userId);
+ProcessList* ProcessList_new(UsersTable* usersTable, Hashtable* dynamicMeters, Hashtable* pidMatchList, uid_t userId);
 
 void ProcessList_delete(ProcessList* pl);
 

@@ -36,7 +36,7 @@ static long fscale;
 static int pageSize;
 static int pageSizeKB;
 
-ProcessList* ProcessList_new(UsersTable* usersTable, Hashtable* pidMatchList, uid_t userId) {
+ProcessList* ProcessList_new(UsersTable* usersTable, Hashtable* dynamicMeters, Hashtable* pidMatchList, uid_t userId) {
    const int nmib[] = { CTL_HW, HW_NCPU };
    const int mib[] = { CTL_HW, HW_NCPUONLINE };
    const int fmib[] = { CTL_KERN, KERN_FSCALE };
@@ -48,7 +48,7 @@ ProcessList* ProcessList_new(UsersTable* usersTable, Hashtable* pidMatchList, ui
 
    OpenBSDProcessList* opl = xCalloc(1, sizeof(OpenBSDProcessList));
    ProcessList* pl = (ProcessList*) opl;
-   ProcessList_init(pl, Class(OpenBSDProcess), usersTable, pidMatchList, userId);
+   ProcessList_init(pl, Class(OpenBSDProcess), usersTable, dynamicMeters, pidMatchList, userId);
 
    size = sizeof(pl->cpuCount);
    r = sysctl(mib, 2, &pl->cpuCount, &size, NULL, 0);
@@ -284,10 +284,8 @@ static void OpenBSDProcessList_scanProcs(OpenBSDProcessList* this) {
          proc->pgrp = kproc->p__pgid;
          proc->isKernelThread = proc->pgrp == 0;
          proc->isUserlandThread = kproc->p_tid != -1;
-         proc->st_uid = kproc->p_uid;
          proc->starttime_ctime = kproc->p_ustart_sec;
          Process_fillStarttimeBuffer(proc);
-         proc->user = UsersTable_getRef(this->super.usersTable, proc->st_uid);
          ProcessList_add(&this->super, proc);
 
          OpenBSDProcessList_updateProcessName(this->kd, kproc, proc);
@@ -323,6 +321,11 @@ static void OpenBSDProcessList_scanProcs(OpenBSDProcessList* this) {
       proc->majflt = kproc->p_uru_majflt;
       proc->nlwp = 1;
 
+      if (proc->st_uid != kproc->p_uid) {
+         proc->st_uid = kproc->p_uid;
+         proc->user = UsersTable_getRef(this->super.usersTable, proc->st_uid);
+      }
+
       switch (kproc->p_stat) {
          case SIDL:    proc->state = 'I'; break;
          case SRUN:    proc->state = 'P'; break;
@@ -346,10 +349,6 @@ static void OpenBSDProcessList_scanProcs(OpenBSDProcessList* this) {
       }
       proc->updated = true;
    }
-}
-
-static unsigned long long saturatingSub(unsigned long long a, unsigned long long b) {
-   return a > b ? a - b : 0;
 }
 
 static void getKernelCPUTimes(int cpuId, u_int64_t* times) {
