@@ -3,9 +3,8 @@
 [![CI](https://github.com/htop-dev/htop/workflows/CI/badge.svg)](https://github.com/htop-dev/htop/actions)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/21665/badge.svg)](https://scan.coverity.com/projects/21665)
 [![Mailing List](https://img.shields.io/badge/Mailing%20List-htop-blue.svg)](https://groups.io/g/htop)
-[![IRC #htop](https://img.shields.io/badge/IRC-htop-blue.svg)](https://webchat.freenode.net/#htop)
+[![IRC #htop](https://img.shields.io/badge/IRC-htop-blue.svg)](https://web.libera.chat/#htop)
 [![Github Release](https://img.shields.io/github/release/htop-dev/htop.svg)](https://github.com/htop-dev/htop/releases/latest)
-[![Download](https://api.bintray.com/packages/htop/source/htop/images/download.svg)](https://bintray.com/htop/source/htop/_latestVersion)
 
 ![Screenshot of htop](docs/images/screenshot.png?raw=true)
 
@@ -29,7 +28,7 @@ This program is distributed as a standard GNU autotools-based package.
 
 Compiling `htop` requires the header files for `ncurses` (libncursesw*-dev). Install these and other required packages for C development from your package manager.
 
-Then, when compiling from a [release tarball](https://bintray.com/htop/source/htop), run:
+Then, when compiling from a [release tarball](https://github.com/htop-dev/htop/releases), run:
 
 ~~~ shell
 ./configure && make
@@ -107,7 +106,7 @@ If you have trouble running `htop` please consult your Operating System / Linux 
 
 We have a [development mailing list](https://htop.dev/mailinglist.html). Feel free to subscribe for release announcements or asking questions on the development of htop.
 
-You can also join our IRC channel #htop on freenode and talk to the developers there.
+You can also join our IRC channel #htop on Libera.Chat and talk to the developers there.
 
 If you have found an issue with the source of htop, please check whether this has already been reported in our [Github issue tracker](https://github.com/htop-dev/htop/issues).
 If not, please file a new issue describing the problem you have found, the location in the source code you are referring to and a possible fix.

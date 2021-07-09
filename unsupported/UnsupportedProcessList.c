@@ -14,9 +14,9 @@ in the source distribution for its full text.
 #include "UnsupportedProcess.h"
 
 
-ProcessList* ProcessList_new(UsersTable* usersTable, Hashtable* pidMatchList, uid_t userId) {
+ProcessList* ProcessList_new(UsersTable* usersTable, Hashtable* dynamicMeters, Hashtable* pidMatchList, uid_t userId) {
    ProcessList* this = xCalloc(1, sizeof(ProcessList));
-   ProcessList_init(this, Class(Process), usersTable, pidMatchList, userId);
+   ProcessList_init(this, Class(Process), usersTable, dynamicMeters, pidMatchList, userId);
 
    this->cpuCount = 1;
 
@@ -65,12 +65,13 @@ void ProcessList_goThroughEntries(ProcessList* super, bool pauseProcessUpdate) {
    proc->tty_nr = 0;
    proc->tty_name = NULL;
    proc->tpgid = 0;
-   proc->st_uid = 0;
    proc->processor = 0;
 
    proc->percent_cpu = 2.5;
    proc->percent_mem = 2.5;
-   proc->user = "nobody";
+
+   proc->st_uid = 0;
+   proc->user = "nobody"; /* Update whenever proc->st_uid is changed */
 
    proc->priority = 0;
    proc->nice = 0;

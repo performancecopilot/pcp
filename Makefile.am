@@ -39,6 +39,7 @@ myhtopsources = \
 	DateTimeMeter.c \
 	DiskIOMeter.c \
 	DisplayOptionsPanel.c \
+	DynamicMeter.c \
 	EnvScreen.c \
 	FunctionBar.c \
 	Hashtable.c \
@@ -93,6 +94,7 @@ myhtopheaders = \
 	DateTimeMeter.h \
 	DiskIOMeter.h \
 	DisplayOptionsPanel.h \
+	DynamicMeter.h \
 	EnvScreen.h \
 	FunctionBar.h \
 	Hashtable.h \
@@ -236,6 +238,32 @@ myhtopplatheaders = $(dragonflybsd_platform_headers)
 myhtopplatsources = $(dragonflybsd_platform_sources)
 endif
 
+# NetBSD
+# -------
+
+netbsd_platform_headers = \
+	generic/gettime.h \
+	generic/hostname.h \
+	generic/uname.h \
+	netbsd/Platform.h \
+	netbsd/ProcessField.h \
+	netbsd/NetBSDProcess.h \
+	netbsd/NetBSDProcessList.h
+
+netbsd_platform_sources = \
+	generic/gettime.c \
+	generic/hostname.c \
+	generic/uname.c \
+	netbsd/Platform.c \
+	netbsd/NetBSDProcess.c \
+	netbsd/NetBSDProcessList.c
+
+if HTOP_NETBSD
+myhtopplatprogram = htop
+myhtopplatheaders = $(netbsd_platform_headers)
+myhtopplatsources = $(netbsd_platform_sources)
+endif
+
 # OpenBSD
 # -------
 
@@ -331,6 +359,7 @@ endif
 # --------------------------
 
 pcp_platform_headers = \
+	pcp/PCPDynamicMeter.h \
 	pcp/PCPProcess.h \
 	pcp/PCPProcessList.h \
 	pcp/Platform.h \
@@ -343,6 +372,7 @@ pcp_platform_headers = \
 	zfs/ZfsCompressedArcMeter.h
 
 pcp_platform_sources = \
+	pcp/PCPDynamicMeter.c \
 	pcp/PCPProcess.c \
 	pcp/PCPProcessList.c \
 	pcp/Platform.c \

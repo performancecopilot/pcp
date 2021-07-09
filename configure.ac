@@ -6,7 +6,7 @@
 # ----------------------------------------------------------------------
 
 AC_PREREQ([2.69])
-AC_INIT([htop], [3.0.6-dev], [htop@groups.io], [], [https://htop.dev/])
+AC_INIT([htop], [3.1.0-dev], [htop@groups.io], [], [https://htop.dev/])
 
 AC_CONFIG_SRCDIR([htop.c])
 AC_CONFIG_AUX_DIR([build-aux])
@@ -30,6 +30,10 @@ linux*|gnu*)
 freebsd*|kfreebsd*)
    my_htop_platform=freebsd
    AC_DEFINE([HTOP_FREEBSD], [], [Building for FreeBSD.])
+   ;;
+netbsd*)
+   my_htop_platform=netbsd
+   AC_DEFINE([HTOP_NETBSD], [], [Building for NetBSD.])
    ;;
 openbsd*)
    my_htop_platform=openbsd
@@ -169,6 +173,20 @@ AC_TYPE_UINT16_T
 AC_TYPE_UINT32_T
 AC_TYPE_UINT64_T
 
+AC_MSG_CHECKING(for alloc_size)
+old_CFLAGS="$CFLAGS"
+CFLAGS="$CFLAGS -Wno-error -Werror=attributes"
+AC_COMPILE_IFELSE([
+   AC_LANG_SOURCE(
+      [
+         __attribute__((alloc_size(1))) char* my_alloc(int size) { return 0; }
+      ],[]
+   )],
+   AC_DEFINE([HAVE_ATTR_ALLOC_SIZE], 1, [The alloc_size attribute is supported.])
+   AC_MSG_RESULT(yes),
+   AC_MSG_RESULT(no))
+CFLAGS="$old_CFLAGS"
+
 # ----------------------------------------------------------------------
 
 
@@ -194,6 +212,10 @@ if test "$my_htop_platform" = linux; then
    if test "$enable_static" != yes; then
       AC_SEARCH_LIBS([dlopen], [dl dld], [], [AC_MSG_ERROR([can not find required function dlopen()])])
    fi
+fi
+
+if test "$my_htop_platform" = netbsd; then
+   AC_SEARCH_LIBS([kvm_open], [kvm], [], [AC_MSG_ERROR([can not find required function kvm_open()])])
 fi
 
 if test "$my_htop_platform" = openbsd; then
@@ -328,6 +350,7 @@ if test "$my_htop_platform" = "solaris"; then
    # Since ncruses macros use the ERR macro, we can not use another name.
    AC_DEFINE([ERR], [(-1)], [Predefine ncurses macro.])
 fi
+AC_CHECK_FUNCS( [set_escdelay] )
 
 
 AC_ARG_ENABLE([hwloc],
@@ -630,6 +653,7 @@ AC_DEFINE_UNQUOTED([COPYRIGHT], ["(C) 2004-2019 Hisham Muhammad. (C) 2020-2021 h
 AM_CONDITIONAL([HTOP_LINUX], [test "$my_htop_platform" = linux])
 AM_CONDITIONAL([HTOP_FREEBSD], [test "$my_htop_platform" = freebsd])
 AM_CONDITIONAL([HTOP_DRAGONFLYBSD], [test "$my_htop_platform" = dragonflybsd])
+AM_CONDITIONAL([HTOP_NETBSD], [test "$my_htop_platform" = netbsd])
 AM_CONDITIONAL([HTOP_OPENBSD], [test "$my_htop_platform" = openbsd])
 AM_CONDITIONAL([HTOP_DARWIN], [test "$my_htop_platform" = darwin])
 AM_CONDITIONAL([HTOP_SOLARIS], [test "$my_htop_platform" = solaris])
