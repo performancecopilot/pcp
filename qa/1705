@@ -80,7 +80,7 @@ echo
 echo "=== too much output ==="
 pmstore bpftrace.control.register '// name: test5
 profile:hz:999 { printf("test"); }'
-_pmdabpftrace_wait_for_value bpftrace.scripts.test5.status '"error"'
+_pmdabpftrace_wait_for_value bpftrace.scripts.test5.status '"error"' 20
 pminfo -f bpftrace.scripts.test5.error | sed -e 's/ [1-9][0-9]* / LIMIT /g'
 echo
 
