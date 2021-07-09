@@ -1,5 +1,7 @@
 htop.1.in
 pcp-htop
+pcp/columns
+pcp/meters
 AUTHORS
 *.h
 *.c

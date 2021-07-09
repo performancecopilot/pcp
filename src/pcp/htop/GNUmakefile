@@ -45,6 +45,7 @@ TOPCFILES = \
 	DateTimeMeter.c \
 	DiskIOMeter.c \
 	DisplayOptionsPanel.c \
+	DynamicMeter.c \
 	EnvScreen.c \
 	FunctionBar.c \
 	Hashtable.c \
@@ -84,6 +85,7 @@ SUBCFILES = \
 	linux/ZramMeter.c \
 	zfs/ZfsArcMeter.c \
 	zfs/ZfsCompressedArcMeter.c \
+	pcp/PCPDynamicMeter.c \
 	pcp/PCPProcess.c \
 	pcp/PCPProcessList.c \
 	pcp/Platform.c \
@@ -106,6 +108,7 @@ TOPHFILES = \
 	DateTimeMeter.h \
 	DiskIOMeter.h \
 	DisplayOptionsPanel.h \
+	DynamicMeter.h \
 	EnvScreen.h \
 	FunctionBar.h \
 	Hashtable.h \
@@ -149,18 +152,24 @@ SUBHFILES = \
 	zfs/ZfsArcMeter.h \
 	zfs/ZfsArcStats.h \
 	zfs/ZfsCompressedArcMeter.h \
+	pcp/PCPDynamicMeter.h \
 	pcp/PCPProcess.h \
 	pcp/PCPProcessList.h \
 	pcp/Platform.h \
 	pcp/ProcessField.h \
 
 DOCFILES = AUTHORS htop.1.in
+COLUMNS =
+METERS = entropy freespace ipc locks memcache mysql postfix redis tcp
+CFGMETERS = $(patsubst %,pcp/meters/%,$(METERS))
+CFGCOLUMNS = $(patsubst %,pcp/columns/%,$(COLUMNS))
 
+CFGXFILES = $(CFGMETERS) $(CFGCOLUMNS)
 TOPXFILES = $(TOPCFILES) $(TOPHFILES) $(DOCFILES)
 SUBXFILES = $(SUBCFILES) $(SUBHFILES)
 CFILES = $(TOPCFILES) $(SUBCFILES)
 HFILES = $(TOPHFILES) $(SUBHFILES)
-LDIRT = $(TOPXFILES) $(SUBXFILES)
+LDIRT = $(TOPXFILES) $(SUBXFILES) $(CFGXFILES)
 
 # manual sync
 MAN_PAGES = $(CMDTARGET).1
@@ -170,10 +179,19 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(HAVE_NCURSESW)" "true"
-build-me: $(TOPXFILES) $(SUBXFILES) $(CMDTARGET) $(DISTLINKS)
+build-me: $(TOPXFILES) $(SUBXFILES) $(CFGXFILES) $(CMDTARGET) $(DISTLINKS)
 
 install: default
 	$(INSTALL) -m 755 $(CMDTARGET) $(DISTARGET)
+	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/htop
+	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/htop/meters
+	@for m in $(METERS); do \
+	    $(INSTALL) -m 644 pcp/meters/$$m $(PCP_SYSCONF_DIR)/htop/meters/$$m; \
+	done
+	#$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/htop/columns
+	#@for c in $(COLUMNS); do \
+	#    $(INSTALL) -m 644 pcp/columns/$$m $(PCP_SYSCONF_DIR)/htop/columns/$$m; \
+	#done
 	@$(INSTALL_MAN)
 else
 build-me:
@@ -190,6 +208,10 @@ $(TOPXFILES):
 $(SUBXFILES):
 	mkdir -p linux pcp zfs
 	$(LN_S) -f $(TOPDIR)/../vendor/github.com/htop-dev/htop/$@ $@
+
+$(CFGXFILES):
+	mkdir -p pcp/columns pcp/meters
+	$(LN_S) -f $(TOPDIR)/../../vendor/github.com/htop-dev/htop/$@ $@
 
 $(DISTLINKS):	$(CMDTARGET)
 	@$(LN_S) -f $(CMDTARGET) $@
