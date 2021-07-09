@@ -133,31 +133,85 @@ Two options are available to specify the retention settings in the pmproxy confi
 Results and Analysis
 ********************
 
-The following results were gathered on a `pmlogger Farm`_ deployment, with a default **pcp-zeroconf 5.3.0** installation, where each remote host is an identical container instance running `pmcd(1)`_ on a server with 64 CPU cores, 376 GB RAM and 1 disk attached (as mentioned above, 64 CPUs increases per-CPU metric volume).
-The logging interval is 10s, ``proc`` metrics of remote nodes are *not* included, and the memory values refer to the RSS (Resident Set Size) value.
+Centralized logging (pmlogger farm)
+-----------------------------------
+
+The following results were gathered on a :ref:`pmlogger farm<C. Centralized logging (pmlogger farm)>` deployment,
+with a default **pcp-zeroconf 5.3.2** installation (version 5.3.1-3 on RHEL), where each remote host is an identical container instance
+running `pmcd(1)`_ on a server with 64 CPU cores, 376 GB RAM and 1 disk attached (as mentioned above, 64 CPUs increases per-CPU metric volume).
+The Redis server is co-located on the same host as pmlogger and pmproxy, and ``proc`` metrics of remote nodes are *not* included.
+The memory values refer to the RSS (Resident Set Size) value.
+
+**10s logging interval:**
+
++-----------+----------------+----------+------------------+---------+--------------+---------+-----------+-----------------+-------------+
+| Number of | PCP Archives   | pmlogger | pmlogger Network | pmproxy | Redis Memory | pmproxy | Disk IOPS | Disk Throughput | Disk        |
+|           |                |          |                  |         |              |         |           |                 |             |
+| Hosts     | Storage p. Day | Memory   | per Day (In)     | Memory  | per Day      | CPU%    | (write)   | (write)         | Utilization |
++===========+================+==========+==================+=========+==============+=========+===========+=================+=============+
+| 10        | 91 MB          | 160 MB   | 2 MB             | 1.4 GB  | 2.6 GB       | 1%      | 25        | 19 MB/s         | 4%          |
++-----------+----------------+----------+------------------+---------+--------------+---------+-----------+-----------------+-------------+
+| 50        | 522 MB         | 580 MB   | 9 MB             | 6.3 GB  | 12 GB        | 5%      | 70        | 52 MB/s         | 10%         |
++-----------+----------------+----------+------------------+---------+--------------+---------+-----------+-----------------+-------------+
+
+**60s logging interval:**
 
 +-----------+----------------+----------+------------------+---------+--------------+
 | Number of | PCP Archives   | pmlogger | pmlogger Network | pmproxy | Redis Memory |
 |           |                |          |                  |         |              |
 | Hosts     | Storage p. Day | Memory   | per Day (In)     | Memory  | per Day      |
 +===========+================+==========+==================+=========+==============+
-| 10        | 91 MB          | 160 MB   | 2 MB             | 1.4 GB  | 2.6 GB       |
+| 10        | 20 MB          | 104 MB   | 0.38 MB          | 2.67 GB | 0.54 GB      |
 +-----------+----------------+----------+------------------+---------+--------------+
-| 50        | 522 MB         | 580 MB   | 9 MB             | 6.3 GB  | 12 GB        |
+| 50        | 120 MB         | 524 MB   | 1.75 MB          | 5.5 GB  | 2.65 GB      |
++-----------+----------------+----------+------------------+---------+--------------+
+| 100       | 271 MB         | 1049 MB  | 3.48 MB          | 9 GB    | 5.3 GB       |
 +-----------+----------------+----------+------------------+---------+--------------+
 
-Detailed Utilization Statistics
--------------------------------
+**Note:** pmproxy queues Redis requests and employs Redis pipelining to speed up Redis queries.
+This can result in bursts of high memory usage.
+There are plans to optimize memory usage in future versions of PCP (`#1341 <https://github.com/performancecopilot/pcp/issues/1341>`_).
+For further troubleshooting, please see the `High memory usage`_ section in the troubleshooting chapter.
 
-+-----------+---------+-----------+-----------------+-------------+
-| Number of | pmproxy | Disk IOPS | Disk Throughput | Disk        |
-|           |         |           |                 |             |
-| Hosts     | CPU%    | (write)   | (write)         | Utilization |
-+===========+=========+===========+=================+=============+
-| 10        | 1%      | 25        | 19 MB/s         | 4%          |
-+-----------+---------+-----------+-----------------+-------------+
-| 50        | 5%      | 70        | 52 MB/s         | 10%         |
-+-----------+---------+-----------+-----------------+-------------+
+Federated setup (multiple pmlogger farms)
+-----------------------------------------
+
+The following results were observed with a :ref:`federated setup<D. Federated setup (multiple pmlogger farms)>`
+consisting of three :ref:`pmlogger farms<C. Centralized logging (pmlogger farm)>`, where each pmlogger farm
+was monitoring 100 remote hosts, i.e. 300 hosts in total.
+The setup of the pmlogger farms was identical to the configuration above (60s logging interval), except that the Redis servers were operating in cluster mode.
+
++----------------+----------+-------------------+---------+--------------+
+| PCP Archives   | pmlogger | Network           | pmproxy | Redis Memory |
+|                |          |                   |         |              |
+| Storage p. Day | Memory   | per Day (In/Out)  | Memory  | per Day      |
++================+==========+===================+=========+==============+
+| 277 MB         | 1058 MB  | 15.6 MB / 12.3 MB | 6-8 GB  | 5.5 GB       |
++----------------+----------+-------------------+---------+--------------+
+
+**Note:** All values are per host.
+
+The network bandwidth is higher due to the inter-node communication of the Redis cluster.
+
+Troubleshooting
+***************
+
+Grafana doesn't show any data
+-----------------------------
+
+* Make sure that `pmlogger(1)`_ is up and running, and writing archives to the disk (``/var/log/pcp/pmlogger/<host>/*``)
+* Verify that `pmproxy(1)`_ is running, time series support is enabled and a connection to Redis is established: check the logfile at ``/var/log/pcp/pmproxy/pmproxy.log`` and make sure that it contains the following text: ``Info: Redis slots, command keys, schema version setup``
+* Check if the Redis database contains any keys: ``redis-cli dbsize``
+* Check if any PCP metrics are in the Redis database: ``pmseries disk.dev.read``
+* Check if PCP metric values are in the Redis database: ``pmseries 'disk.dev.read[count:10]'``
+* Check the Grafana logs: ``journalctl -e -u grafana-server``
+
+High memory usage
+-----------------
+
+To troubleshoot high memory usage, please run ``pmrep :pmproxy`` and observe the *inflight* column.
+This column shows how many Redis requests are in-flight, i.e. they are queued (or sent) and no reply was received so far.
+A high number indicates that a) the pmproxy process is busy processing new PCP archives and doesn't have spare CPU cycles to process Redis requests and responses or b) the Redis node (or cluster) is overloaded and cannot process incoming requests on time.
 
 .. note::
 
