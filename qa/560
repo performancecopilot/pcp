@@ -44,6 +44,7 @@ then
     exit
 fi
 echo "port=$port" >>$here/$seq.full
+echo "hostname: `hostname`" >>$here/$seq.full
 
 case `hostname`
 in
