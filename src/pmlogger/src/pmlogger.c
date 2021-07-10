@@ -85,6 +85,9 @@ run_done(int sts, char *msg)
 {
     int	i, lsts;
 
+    /* no more timer events, especially on the re-exec path */
+    __pmAFblock();
+
     if (pmDebugOptions.services || (pmDebugOptions.log && pmDebugOptions.desperate)) {
 	fprintf(stderr, "run_done(%d, %s) last_log_offset=%d last_stamp=",
 		sts, msg, last_log_offset);
