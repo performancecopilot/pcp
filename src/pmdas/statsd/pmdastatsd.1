@@ -521,6 +521,12 @@ This metric has 3 instances.
 .B total
 - Number of tracked metrics total.
 .TP
+.B statsd.pmda.time_spent_parsing
+Total time in microseconds spent parsing metrics. Includes time spent parsing a datagram and failing midway.
+.TP
+.B statsd.pmda.time_spent_aggregating
+Total time in microseconds spent aggregating metrics. Includes time spent aggregating a metric and failing midway.
+.TP
 .B statsd.pmda.settings.max_udp_packet_size
 Maximum UDP packet size
 .TP
@@ -529,9 +535,6 @@ Maximum size of unprocessed packets Q
 .TP
 .B statsd.pmda.settings.verbose
 Verbosity flag
-.TP
-.B statsd.pmda.settings.debug
-Debug flag
 .TP
 .B statsd.pmda.settings.debug_output_filename
 Debug output filename
