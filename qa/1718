@@ -14,8 +14,6 @@ echo "QA output created by $seq"
 
 test -e $PCP_PMDAS_DIR/statsd/pmdastatsd || _notrun "statsd PMDA not installed"
 
-_check_valgrind
-
 _cleanup()
 {
     cd $here
