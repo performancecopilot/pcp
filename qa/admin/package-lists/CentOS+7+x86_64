@@ -48,6 +48,7 @@ libuv-devel
 libvirt-daemon
 libvirt-daemon-driver-qemu
 libvirt-python
+llvm-devel
 lm_sensors
 mailx
 make

@@ -35,11 +35,14 @@ iproute
 httpd
 initscripts
 java-latest-openjdk-headless
+libbpf
+libbpf-devel
 libicu-devel
 libpfm-devel
 libuv-devel
 libvirt-daemon
 libvirt-daemon-driver-qemu
+llvm-devel
 lm_sensors
 mailx
 make

@@ -1,0 +1,25 @@
+#!/bin/bash
+
+## During RPM build, symbols are normally stripped from the binary and put into a
+## separate -dbg package with debug symbols. This works great for normal binaries,
+## however, BPF CO-RE in the BPF PMDA relies on some of the symbol information in
+## order to provide a dynamic relocation to match the running kernel. In order
+## to prevent this strip, this provides a script to that bypasses the strip
+## command arguments for the strip command.
+
+echo "custom-strip in: $*"
+
+skip="${RPM_BUILD_ROOT}/usr/libexec/pcp/pmdas/bpf/modules/.*.bpf.o"
+
+passargs=()
+for inarg
+do
+  if [[ ! "${inarg}" =~ ${skip} ]]; then
+    passargs+=("$inarg")
+  fi
+done
+
+set -- "${passargs[@]}"
+
+echo "custom-strip out: $*"
+

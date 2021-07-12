@@ -26,7 +26,7 @@ CPMDAS = root pmcd \
 	lustrecomm infiniband logger bash systemd \
 	gfs2 jbd2 cifs nvidia perfevent \
 	dm pipe openbsd docker smart podman statsd \
-	hacluster linux_sockets denki
+	hacluster linux_sockets denki bpf
 
 PLPMDAS = bonding netfilter zimbra postgresql \
 	dbping memcache mysql oracle vmware kvm \

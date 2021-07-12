@@ -153,6 +153,24 @@ AC_ARG_WITH([pmdabcc],
     [do_pmdabcc=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdabcc=$withval"],
     [do_pmdabcc=check])
 
+AC_ARG_WITH([pmdabpf],
+    [AC_HELP_STRING([--with-pmdabpf],
+		   [enable BPF pmda (default is on)])],
+    [do_pmdabpf=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdabpf=$withval"],
+    [do_pmdabpf=check])
+
+AC_ARG_WITH([pmdabpf-clang],
+    [AC_HELP_STRING([--with-pmdabpf-clang],
+                    [path to clang 10+ (default is 'clang')])],
+    [BPF_CLANG=$withval],
+    [BPF_CLANG='clang'])
+
+AC_ARG_WITH([pmdabpf-llvm-strip],
+    [AC_HELP_STRING([--with-pmdabpf-llvm-strip],
+                    [path to llvm-strip 10+ (default is 'llvm-strip')])],
+    [BPF_LLVM_STRIP=$withval],
+    [BPF_LLVM_STRIP='llvm-strip'])
+
 AC_ARG_WITH([pmdabpftrace],
     [AC_HELP_STRING([--with-pmdabpftrace],
 		   [enable bpftrace pmda (default is on)])],
@@ -1093,6 +1111,31 @@ AS_IF([test "x$do_pmdabcc" = "xcheck"], [
 AC_SUBST(PMDA_BCC, $pmda_bcc)
 if $pmda_bcc; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
+AC_MSG_CHECKING([clang major version installed])
+clang_major_version=`llvm-config --version | cut -f1 -d.`
+AC_MSG_RESULT($clang_major_version)
+AC_SUBST(CLANG_MAJOR_VERSION, [$clang_major_version])
+
+PKG_CHECK_MODULES([libbpf], [libbpf >= 0.2.0], [have_libbpf=true], [have_libbpf=false])
+AC_SUBST(HAVE_LIBBPF, [$have_libbpf])
+
+PKG_CHECK_MODULES([libelf], [libelf], [have_libelf=true], [have_libelf=false])
+AC_SUBST(HAVE_LIBELF, [$have_libelf])
+
+AC_MSG_CHECKING([if the bpf PMDA should be included])
+pmda_bpf=false
+AS_IF([test "x$do_pmdabpf" = "xyes"], [pmda_bpf=true])
+AS_IF([test "x$do_pmdabpf" = "xcheck"], [
+    dnl pmdabpf requires libbpf and libelf
+    if test $clang_major_version -ge 10; then
+        $have_libbpf && $have_libelf && pmda_bpf=true
+    else
+        pmda_bpf=false
+    fi
+])
+AC_SUBST(PMDA_BPF, $pmda_bpf)
+if $pmda_bpf; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
+
 AC_MSG_CHECKING([if the bpftrace PMDA should be included])
 pmda_bpftrace=false
 AS_IF([test "x$do_pmdabpftrace" = "xyes"], [pmda_bpftrace=true])
@@ -1520,6 +1563,15 @@ fi
 tar=$TAR
 AC_SUBST(tar)
 
+dnl Allow user to override clang and llvm-strip for BPF
+bpf_clang=$BPF_CLANG
+AC_SUBST(bpf_clang)
+echo "using BPF clang at $bpf_clang"
+
+bpf_llvm_strip=$BPF_LLVM_STRIP
+AC_SUBST(bpf_llvm_strip)
+echo "using BPF llvm-strip at $bpf_llvm_strip"
+
 dnl check if the gzip program is available
 dnl (needed to gzip man pages on some platforms)
 if test -z "$ZIP"; then
@@ -1816,12 +1868,6 @@ AC_CHECK_LIB(uv, uv_pipe_chmod,
 	     AC_DEFINE(HAVE_UV_PIPE_CHMOD, [1], [uv_pipe_chmod API.])
 	     have_uv_pipe_chmod=true,
 	     have_uv_pipe_chmod=false)
-
-PKG_CHECK_MODULES([libbpf], [libbpf], [have_libbpf=true], [have_libbpf=false])
-AC_SUBST(HAVE_LIBBPF, [$have_libbpf])
-
-PKG_CHECK_MODULES([libelf], [libelf], [have_libelf=true], [have_libelf=false])
-AC_SUBST(HAVE_LIBELF, [$have_libelf])
 
 PKG_CHECK_MODULES([ncurses], [ncurses], [have_ncurses=true], [have_ncurses=false])
 AC_SUBST(HAVE_NCURSES, [$have_ncurses])

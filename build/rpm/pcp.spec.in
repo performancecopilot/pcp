@@ -324,6 +324,9 @@ Requires: pcp-pmda-statsd
 %if "@pmda_bcc@" == "true"
 Requires: pcp-pmda-bcc
 %endif
+%if "@pmda_bpf@" == "true"
+Requires: pcp-pmda-bpf
+%endif
 %if "@pmda_bpftrace@" == "true"
 Requires: pcp-pmda-bpftrace
 %endif
@@ -1458,6 +1461,22 @@ extracting performance metrics from eBPF/BCC Python modules.
 # end pcp-pmda-bcc
 %endif
 
+%if "@pmda_bpf@" == "true"
+#
+# pcp-pmda-bpf
+#
+%package pmda-bpf
+License: ASL 2.0 and GPLv2+
+Summary: Performance Co-Pilot (PCP) metrics from eBPF ELF modules
+URL: https://pcp.io
+Requires: pcp = @package_version@ pcp-libs = @package_version@
+Requires: libbpf
+%description pmda-bpf
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+extracting performance metrics from eBPF ELF modules.
+# end pcp-pmda-bpf
+%endif
+
 %if "@pmda_bpftrace@" == "true"
 #
 # pcp-pmda-bpftrace
@@ -2115,6 +2134,8 @@ This package contains configuration tweaks and files to increase metrics
 gathering frequency, several extended pmlogger configurations, as well as
 automated pmie diagnosis, alerting and self-healing for the localhost.
 
+%global __strip %{_builddir}/%{?buildsubdir}/build/rpm/custom-strip
+
 %prep
 %setup -q
 
@@ -2257,6 +2278,7 @@ basic_manifest | keep '(etc/pcp|pmdas)/bash(/|$)' >pcp-pmda-bash-files
 basic_manifest | keep '(etc/pcp|pmdas)/bcc(/|$)' >pcp-pmda-bcc-files
 basic_manifest | keep '(etc/pcp|pmdas)/bind2(/|$)' >pcp-pmda-bind2-files
 basic_manifest | keep '(etc/pcp|pmdas)/bonding(/|$)' >pcp-pmda-bonding-files
+basic_manifest | keep '(etc/pcp|pmdas)/bpf(/|$)' >pcp-pmda-bpf-files
 basic_manifest | keep '(etc/pcp|pmdas)/bpftrace(/|$)' >pcp-pmda-bpftrace-files
 basic_manifest | keep '(etc/pcp|pmdas)/cifs(/|$)' >pcp-pmda-cifs-files
 basic_manifest | keep '(etc/pcp|pmdas)/cisco(/|$)' >pcp-pmda-cisco-files
@@ -2327,7 +2349,7 @@ basic_manifest | keep '(etc/pcp|pmdas)/zswap(/|$)' >pcp-pmda-zswap-files
 rm -f packages.list
 for pmda_package in \
     activemq apache \
-    bash bcc bind2 bonding bpftrace \
+    bash bcc bind2 bonding bpf bpftrace \
     cifs cisco \
     dbping denki docker dm ds389 ds389log \
     elasticsearch \
@@ -2697,6 +2719,11 @@ pmieconf -c enable dmthin
 %{pmda_remove "$1" "bcc"}
 %endif
 
+%if "@pmda_bpf@" == "true"
+%preun pmda-bpf
+%{pmda_remove "$1" "bpf"}
+%endif
+
 %if "@pmda_bpftrace@" == "true"
 %preun pmda-bpftrace
 %{pmda_remove "$1" "bpftrace"}
@@ -3008,6 +3035,10 @@ PCP_SA_DIR=@pcp_sa_dir@
 
 %if "@pmda_bcc@" == "true"
 %files pmda-bcc -f pcp-pmda-bcc-files.rpm
+%endif
+
+%if "@pmda_bpf@" == "true"
+%files pmda-bpf -f pcp-pmda-bpf-files.rpm
 %endif
 
 %if "@pmda_bpftrace@" == "true"
