@@ -1885,6 +1885,11 @@ pmDiscoverSetupMetrics(pmDiscoverModule *module)
 	"current filesystem changed callback throttle",
 	"minimum seconds between filesystem changed callbacks for each monitored archive");
 
+    mmv_stats_add_metric(data->metrics, "metadata.partial_reads", 20,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, noindom,
+	"metadata read returned less data than header indicated",
+	"number of times a metadata record read returned less than expected length");
+
     data->metrics_handle = mmv_stats_start(data->metrics);
 }
 
