@@ -1051,6 +1051,7 @@ process_metadata(pmDiscover *p)
 	    /* rewind so we can wait for more data on the next change CallBack */
 	    lseek(p->fd, off, SEEK_SET);
 	    partial = 1;
+	    pmDiscoverStatsAdd(p->module, "metadata.partial_reads", NULL, 1);
 	    continue;
 	}
 
@@ -1060,6 +1061,7 @@ process_metadata(pmDiscover *p)
 	    /* rewind and wait for more data, as above */
 	    lseek(p->fd, off, SEEK_SET);
 	    partial = 1;
+	    pmDiscoverStatsAdd(p->module, "metadata.partial_reads", NULL, 1);
 	    continue;
 	}
 
@@ -1082,6 +1084,7 @@ process_metadata(pmDiscover *p)
 	    /* rewind and wait for more data, as above */
 	    lseek(p->fd, off, SEEK_SET);
 	    partial = 1;
+	    pmDiscoverStatsAdd(p->module, "metadata.partial_reads", NULL, 1);
 	    continue;
 	}
 

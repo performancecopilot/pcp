@@ -23,6 +23,8 @@ fi
 [ $PCP_PLATFORM = linux ] || _notrun "pmdasockets is Linux-specific"
 [ -f $PCP_PMDAS_DIR/sockets/pmdasockets ] || _notrun "sockets pmda not installed"
 
+# _notrun if valgrind is not installed
+_check_valgrind
 
 # Override the pmda's filter.conf
 [ -f $PCP_PMDAS_DIR/sockets/filter.conf ] && \
