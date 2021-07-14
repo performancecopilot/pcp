@@ -4951,6 +4951,7 @@ series_instances_reply(seriesQueryBaton *baton,
 
 	if (extract_sha1(baton, series, elements[i], &sid->name, "series") < 0) {
 	    /* TODO: report error */
+	    freeSeriesGetSID(sid); /* Coverity CID308764 */
 	    continue;
 	}
 	seriesBatonReference(sid, "series_instances_reply");
