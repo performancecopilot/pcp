@@ -289,6 +289,11 @@ setup_secure_module(struct proxy *proxy)
     int			flags = SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 |
 				SSL_OP_NO_TLSv1 |SSL_OP_NO_TLSv1_1;
 
+    if ((option = pmIniFileLookup(config, "pmproxy", "secure.enabled"))) {
+	if (strncmp(option, "true", sdslen(option)) != 0)
+	    return;
+    }
+
     if ((option = pmIniFileLookup(config, "pmproxy", "certificates")))
 	certificates = option;
     if ((option = pmIniFileLookup(config, "pmproxy", "private_key")))

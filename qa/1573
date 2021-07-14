@@ -64,6 +64,7 @@ echo "[pmproxy]" > $tmp.conf
 echo "pcp.enabled = true" >> $tmp.conf
 echo "http.enabled = true" >> $tmp.conf
 echo "redis.enabled = true" >> $tmp.conf
+echo "secure.enabled = false" >> $tmp.conf
 echo "[discover]" >> $tmp.conf
 echo "enabled = true" >> $tmp.conf
 echo "[pmseries]" >> $tmp.conf
