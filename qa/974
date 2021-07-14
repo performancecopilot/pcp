@@ -15,23 +15,11 @@ echo "QA output created by $seq"
 
 pminfo proc.nprocs >/dev/null 2>&1 || _notrun "proc PMDA not installed"
 [ $PCP_PLATFORM = linux ] || _notrun "Linux proc test, only works with Linux"
+_check_64bit_platform "Test needs 64-bit machine to match /proc test data"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
-
-# need src/sizeof, not hinv.machine (or uname -m) to avoid confusion
-# when the environment is a 32-bit container running on a 64-bit
-# host, like test-ubuntu1804i386-container in CI
-#
-eval `src/sizeof ptr`
-echo "ptr=$ptr" >>$seq.full
-case "$ptr"
-in
-    4)
-	_notrun "Need 64-bit machine to match /proc test data"
-	;;
-esac
 
 _filter()
 {
