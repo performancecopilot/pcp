@@ -65,8 +65,8 @@ static void PCPDynamicMeter_parseMetric(PCPDynamicMeters* meters, PCPDynamicMete
       if (pmRegisterDerivedMetric(metric->name, value, &error) < 0) {
          char* note;
          xAsprintf(&note,
-                   "%s: failed to parse expression in %s at line %u\n%s\n",
-                   pmGetProgname(), path, line, error);
+                   "%s: failed to parse expression in %s at line %u\n%s\n%s",
+                   pmGetProgname(), path, line, error, pmGetProgname());
          free(error);
          errno = EINVAL;
          CRT_fatalError(note);
@@ -106,20 +106,17 @@ static void PCPDynamicMeter_parseMetric(PCPDynamicMeters* meters, PCPDynamicMete
 }
 
 // Ensure a valid name for use in a PCP metric name and in htoprc
-static void PCPDynamicMeter_validateMeterName(char* key, const char* path, unsigned int line) {
+static bool PCPDynamicMeter_validateMeterName(char* key, const char* path, unsigned int line) {
    char* p = key;
    char* end = strrchr(key, ']');
 
    if (end) {
       *end = '\0';
    } else {
-      char* note;
-      xAsprintf(&note,
-                "%s: no closing brace on meter name at %s line %u\n\"%s\"",
+      fprintf(stderr,
+                "%s: no closing brace on meter name at %s line %u\n\"%s\"\n",
                 pmGetProgname(), path, line, key);
-      errno = EINVAL;
-      CRT_fatalError(note);
-      free(note);
+      return false;
    }
 
    while (*p) {
@@ -133,16 +130,22 @@ static void PCPDynamicMeter_validateMeterName(char* key, const char* path, unsig
       p++;
    }
    if (*p != '\0') { /* badness */
-      char* note;
-      xAsprintf(&note,
-                "%s: invalid meter name at %s line %u\n\"%s\"",
+      fprintf(stderr,
+                "%s: invalid meter name at %s line %u\n\"%s\"\n",
                 pmGetProgname(), path, line, key);
-      errno = EINVAL;
-      CRT_fatalError(note);
-      free(note);
-   } else { /* overwrite closing brace */
-      *p = '\0';
+      return false;
    }
+   return true;
+}
+
+// Ensure a meter name has not been defined previously
+static bool PCPDynamicMeter_uniqueName(char* key, const char* path, unsigned int line, PCPDynamicMeters* meters) {
+   if (DynamicMeter_search(meters->table, key, NULL) == false)
+      return true;
+
+   fprintf(stderr, "%s: duplicate name at %s line %u: \"%s\", ignored\n",
+           pmGetProgname(), path, line, key);
+   return false;
 }
 
 static PCPDynamicMeter* PCPDynamicMeter_new(PCPDynamicMeters* meters, const char* name) {
@@ -159,6 +162,7 @@ static void PCPDynamicMeter_parseFile(PCPDynamicMeters* meters, const char* path
 
    PCPDynamicMeter* meter = NULL;
    unsigned int lineno = 0;
+   bool ok = true;
    for (;;) {
       char* line = String_readLine(file);
       if (!line)
@@ -182,15 +186,23 @@ static void PCPDynamicMeter_parseFile(PCPDynamicMeters* meters, const char* path
       char* key = String_trim(config[0]);
       char* value = n > 1 ? String_trim(config[1]) : NULL;
       if (key[0] == '[') {  /* new section heading - i.e. new meter */
-         PCPDynamicMeter_validateMeterName(key+1, path, lineno);
-         meter = PCPDynamicMeter_new(meters, key+1);
-      } else if (value && String_eq(key, "caption")) {
+         ok = PCPDynamicMeter_validateMeterName(key+1, path, lineno);
+         if (ok)
+            ok = PCPDynamicMeter_uniqueName(key+1, path, lineno, meters);
+         if (ok)
+            meter = PCPDynamicMeter_new(meters, key+1);
+      } else if (!ok) {
+         ;  /* skip this one, we're looking for a new header */
+      } else if (value && meter && String_eq(key, "caption")) {
          char* caption = String_cat(value, ": ");
-         free_and_xStrdup(&meter->super.caption, caption);
-         free(caption);
-      } else if (value && String_eq(key, "description")) {
+         if (caption) {
+            free_and_xStrdup(&meter->super.caption, caption);
+            free(caption);
+	    caption = NULL;
+         }
+      } else if (value && meter && String_eq(key, "description")) {
          free_and_xStrdup(&meter->super.description, value);
-      } else if (value && String_eq(key, "type")) {
+      } else if (value && meter && String_eq(key, "type")) {
          if (String_eq(config[1], "bar"))
              meter->super.type = BAR_METERMODE;
          else if (String_eq(config[1], "text"))
@@ -199,9 +211,9 @@ static void PCPDynamicMeter_parseFile(PCPDynamicMeters* meters, const char* path
              meter->super.type = GRAPH_METERMODE;
          else if (String_eq(config[1], "led"))
              meter->super.type = LED_METERMODE;
-      } else if (value && String_eq(key, "maximum")) {
+      } else if (value && meter && String_eq(key, "maximum")) {
          meter->super.maximum = strtod(value, NULL);
-      } else if (value) {
+      } else if (value && meter) {
          PCPDynamicMeter_parseMetric(meters, meter, path, lineno, key, value);
       }
       String_freeArray(config);
