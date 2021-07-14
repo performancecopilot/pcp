@@ -1303,6 +1303,12 @@ pmSeriesDiscoverValues(pmDiscoverEvent *event, pmResult *result, void *arg)
     if (pmDebugOptions.discovery)
 	fprintf(stderr, "%s: result numpmids=%d\n", "pmSeriesDiscoverValues", result->numpmid);
 
+    if (data == NULL) {
+	/* calloc failed in getDiscoverModuleData() */
+    	baton->error = -ENOMEM;
+	return;
+    }
+
     if (baton == NULL || baton->slots == NULL || baton->slots->setup == 0)
 	return;
 
