@@ -1655,7 +1655,7 @@ series_expr_query_desc(seriesQueryBaton *baton, series_set_t *query_series_set, 
 	return;
     }
     for (i = 0; i < nseries; i++, series += SHA1SZ) {
-	if ((sid = calloc(1, sizeof(seriesGetSID)) == NULL) {
+	if ((sid = (seriesGetSID *)calloc(1, sizeof(seriesGetSID))) == NULL) {
 	    baton->error = -ENOMEM;
 	    return;
 	}
