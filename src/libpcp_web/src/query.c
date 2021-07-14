@@ -995,6 +995,7 @@ node_pattern_reply(seriesQueryBaton *baton, node_t *np, const char *name, int ne
 	    infofmt(msg, "out of memory (%s, %" FMT_INT64 " bytes)",
 			"pattern reply", (__int64_t)bytes);
 	    batoninfo(baton, PMLOG_REQUEST, msg);
+	    sdsfree(key); /* Coverity CID328038 */
 	    return -ENOMEM;
 	}
 	matches[np->nmatches++] = key;
