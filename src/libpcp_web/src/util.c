@@ -270,15 +270,15 @@ metric_labelsets(metric_t *metric, char *buffer, int length,
     indom_t	*indom = metric->indom;
     int		nsets = 0;
 
-    if (context->labelset)
+    if (context && context->labelset)
 	sets[nsets++] = context->labelset;
-    if (domain->labelset)
+    if (domain && domain->labelset)
 	sets[nsets++] = domain->labelset;
     if (indom && indom->labelset)
 	sets[nsets++] = indom->labelset;
-    if (cluster->labelset)
+    if (cluster && cluster->labelset)
 	sets[nsets++] = cluster->labelset;
-    if (metric->labelset)
+    if (metric && metric->labelset)
 	sets[nsets++] = metric->labelset;
 
     return pmMergeLabelSets(sets, nsets, buffer, length, filter, arg);
