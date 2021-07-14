@@ -4078,8 +4078,25 @@ series_redis_hash_expression(seriesQueryBaton *baton, char *hashbuf, int len_has
 	    if (!np->value_set.series_values[j].compatibility || i == j)
 	    	continue;
 
-	    pmParseUnitsStr(np->value_set.series_values[i].series_desc.units, &units0, &mult, &errmsg);
-	    pmParseUnitsStr(np->value_set.series_values[j].series_desc.units, &units1, &mult, &errmsg);
+	    if (pmParseUnitsStr(np->value_set.series_values[i].series_desc.units,
+	    	&units0, &mult, &errmsg) != 0) {
+		np->value_set.series_values[i].compatibility = 0;
+		infofmt(msg, "Invalid units string\n");
+		batoninfo(baton, PMLOG_ERROR, msg);
+		baton->error = -EPROTO;
+		free(errmsg);
+		break;
+	    }
+
+	    if (pmParseUnitsStr(np->value_set.series_values[j].series_desc.units,
+	    	&units1, &mult, &errmsg) != 0) {
+		np->value_set.series_values[i].compatibility = 0;
+		infofmt(msg, "Invalid units string\n");
+		batoninfo(baton, PMLOG_ERROR, msg);
+		baton->error = -EPROTO;
+		free(errmsg);
+		break;
+	    }
 
 	    if (check_compatibility(&units0, &units1) != 0) {
 		np->value_set.series_values[j].compatibility = 0;
