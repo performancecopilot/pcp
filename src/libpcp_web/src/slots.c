@@ -130,6 +130,7 @@ redisSlotsInit(dict *config, void *events)
     dictIterator	*iterator;
     dictEntry		*entry;
     sds			servers = NULL;
+    sds			def_servers = NULL;
     int			sts = 0;
     struct timeval	connection_timeout = {5, 0}; // 5s
     struct timeval	command_timeout = {60, 0}; // 1m
@@ -146,19 +147,22 @@ redisSlotsInit(dict *config, void *events)
 
     servers = pmIniFileLookup(config, "pmseries", "servers");
     if (servers == NULL)
-        servers = sdsnew(default_server);
+        servers = def_servers = sdsnew(default_server);
 
     slots->acc = redisClusterAsyncContextInit();
     if (slots->acc && slots->acc->err) {
         pmNotifyErr(LOG_ERR, "redisSlotsInit: %s\n", slots->acc->errstr);
+	sdsfree(def_servers);
         return slots;
     }
 
     sts = redisClusterSetOptionAddNodes(slots->acc->cc, servers);
     if (sts != REDIS_OK) {
 	pmNotifyErr(LOG_ERR, "redisSlotsInit: failed to add redis nodes: %s\n", slots->acc->cc->errstr);
+	sdsfree(def_servers);
 	return slots;
     }
+    sdsfree(def_servers); /* Coverity CID370634 */
 
     sts = redisClusterSetOptionConnectTimeout(slots->acc->cc, connection_timeout);
     if (sts != REDIS_OK) {
