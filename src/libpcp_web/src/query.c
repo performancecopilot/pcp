@@ -3642,8 +3642,10 @@ series_calculate_order_binary(int ope_type, int l_type, int r_type, int *otype,
     series_extract_value(*otype, l_data->data, l_val);
 
     /* Convert scale to larger one */
-    pmConvScale(*otype, l_val, l_units, l_val, large_units);
-    pmConvScale(*otype, r_val, r_units, r_val, large_units);
+    if (pmConvScale(*otype, l_val, l_units, l_val, large_units) < 0)
+    	memset(large_units, 0, sizeof(*large_units));
+    if (pmConvScale(*otype, r_val, r_units, r_val, large_units) < 0)
+    	memset(large_units, 0, sizeof(*large_units));
 
     if ((*operator)(otype, l_val, r_val, &res) != 0) {
 	sdsfree(l_data->data);
@@ -3912,9 +3914,7 @@ series_calculate(seriesQueryBaton *baton, node_t *np, int level)
 	return 0;
     if ((sts = series_calculate(baton, np->left, level+1)) < 0)
 	return sts;
-    if (sts > 0)
-	series_calculate(baton, np->right, level+1);
-    else if ((sts = series_calculate(baton, np->right, level+1)) < 0)
+    if ((sts = series_calculate(baton, np->right, level+1)) < 0)
 	return sts;
 
     np->baton = baton;
@@ -4015,7 +4015,8 @@ series_compatibility_convert(
 	for (j = 0; j < set0->num_samples; j++) {
 	    for (k = 0; k < set0->series_sample[j].num_instances; k++) {
 		series_extract_value(type0, set0->series_sample[j].series_instance[k].data, &val0);
-		pmConvScale(type0, &val0, units0, &val0, large_units);
+		if (pmConvScale(type0, &val0, units0, &val0, large_units) < 0)
+		    memset(large_units, 0, sizeof(*large_units));
 		sdsfree(set0->series_sample[j].series_instance[k].data);
 		str_len = series_pmAtomValue_conv_str(type0, str_val, &val0, sizeof(str_val));
 		set0->series_sample[j].series_instance[k].data = sdsnewlen(str_val, str_len);
@@ -4033,7 +4034,8 @@ series_compatibility_convert(
 	for (j = 0; j < set1->num_samples; j++) {
 	    for (k = 0; k < set1->series_sample[j].num_instances; k++) {
 		series_extract_value(type1, set1->series_sample[j].series_instance[k].data, &val1);
-		pmConvScale(type1, &val1, units1, &val1, large_units);
+		if (pmConvScale(type1, &val1, units1, &val1, large_units) < 0)
+		    memset(large_units, 0, sizeof(*large_units));
 		sdsfree(set1->series_sample[j].series_instance[k].data);
 		str_len = series_pmAtomValue_conv_str(type1, str_val, &val1, sizeof(str_val));
 		set1->series_sample[j].series_instance[k].data = sdsnewlen(str_val, str_len);
