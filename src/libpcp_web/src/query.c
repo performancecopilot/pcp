@@ -201,6 +201,11 @@ initSeriesQueryBaton(seriesQueryBaton *baton,
 {
     seriesModuleData	*data = getSeriesModuleData(&settings->module);
 
+    if (data == NULL) {
+	/* calloc failed in getSeriesModuleData */
+    	baton->error = -ENOMEM;
+	return;
+    }
     initSeriesBatonMagic(baton, MAGIC_QUERY);
     baton->callbacks = &settings->callbacks;
     baton->info = settings->module.on_info;
