@@ -36,24 +36,29 @@ Hashtable* DynamicMeters_new(void) {
 typedef struct {
    unsigned int key;
    const char* name;
+   bool found;
 } DynamicIterator;
 
 static void DynamicMeter_compare(ht_key_t key, void* value, void* data) {
    const DynamicMeter* meter = (const DynamicMeter*)value;
    DynamicIterator* iter = (DynamicIterator*)data;
-   if (String_eq(iter->name, meter->name))
+   if (String_eq(iter->name, meter->name)) {
+      iter->found = true;
       iter->key = key;
+   }
 }
 
-unsigned int DynamicMeter_search(const ProcessList* pl, const char* name) {
-   DynamicIterator iter = { .key = 0, .name = name };
-   if (pl->dynamicMeters)
-      Hashtable_foreach(pl->dynamicMeters, DynamicMeter_compare, &iter);
-   return iter.key;
+bool DynamicMeter_search(Hashtable* dynamics, const char* name, unsigned int* key) {
+   DynamicIterator iter = { .key = 0, .name = name, .found = false };
+   if (dynamics)
+      Hashtable_foreach(dynamics, DynamicMeter_compare, &iter);
+   if (key)
+      *key = iter.key;
+   return iter.found;
 }
 
-const char* DynamicMeter_lookup(const ProcessList* pl, unsigned int key) {
-   const DynamicMeter* meter = Hashtable_get(pl->dynamicMeters, key);
+const char* DynamicMeter_lookup(Hashtable* dynamics, unsigned int key) {
+   const DynamicMeter* meter = Hashtable_get(dynamics, key);
    return meter ? meter->name : NULL;
 }
 
