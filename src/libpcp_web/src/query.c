@@ -4554,6 +4554,8 @@ series_label_reply(seriesQueryBaton *baton, sds series,
 		infofmt(msg, "%s - label value lookup OOM", series);
 		batoninfo(baton, PMLOG_ERROR, msg);
 		sts = -ENOMEM;
+		if (vmap) /* Coverity CID308763 */
+		    redisMapRelease(vmap);
 		continue;
 	    }
 	    initSeriesGetLabelMap(labelmap, series, name, vmap, vmapID, vkey, baton);
