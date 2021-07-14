@@ -1348,6 +1348,26 @@ _check_purify()
     [ $? -eq 0 ] || _notrun "No purify binary found"
 }
 
+# check that test is not running on a 32 bit environment
+_check_64bit_platform()
+{
+    _message="$@"
+    [ -z "$message" ] && _message="Test requires 64-bit platform"
+    #
+    # use src/sizeof not hinv.machine (or uname -m) to avoid confusion
+    # when the environment is a 32-bit container running on a 64-bit
+    # host, like test-ubuntu1804i386-container in CI
+    #
+    eval `$here/src/sizeof ptr`
+    echo "ptr=$ptr" >>$here/seq.full
+    case "$ptr"
+    in
+	4)
+	    _notrun "$message"
+	    ;;
+    esac
+}
+
 #
 # check we have pmseries, redis-cli and redis-server installed.
 # Note: use _check_redis_server to test if redis is running locally.
