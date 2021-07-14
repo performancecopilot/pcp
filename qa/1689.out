@@ -110,7 +110,7 @@ pmproxy.discover.metadata.loops PMID: 4.5.4 [processing metadata for all monitor
 Help:
 total loops processing metadata for all monitored archives
 
-pmproxy.discover.metadata.partial_reads PMID: 4.5.20 [metadata read returned less than header nbytes]
+pmproxy.discover.metadata.partial_reads PMID: 4.5.20 [metadata read returned less data than header indicated]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
