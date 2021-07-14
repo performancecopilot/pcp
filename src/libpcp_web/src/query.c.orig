@@ -1651,14 +1651,11 @@ series_expr_query_desc(seriesQueryBaton *baton, series_set_t *query_series_set, 
 
     /* calloc nseries samples store space */
     if ((np->value_set.series_values = (series_sample_set_t *)calloc(nseries, sizeof(series_sample_set_t))) == NULL) {
+	/* TODO: error report here */
 	baton->error = -ENOMEM;
-	return;
     }
     for (i = 0; i < nseries; i++, series += SHA1SZ) {
-	if ((sid = calloc(1, sizeof(seriesGetSID)) == NULL) {
-	    baton->error = -ENOMEM;
-	    return;
-	}
+	sid = calloc(1, sizeof(seriesGetSID));
 	pmwebapi_hash_str(series, hashbuf, sizeof(hashbuf));
 	initSeriesGetSID(sid, hashbuf, 1, baton);
 	np->value_set.series_values[i].baton = baton;
