@@ -256,6 +256,8 @@ default_labelset(context_t *c, pmLabelSet **sets)
 	*sets = lp;
 	return 0;
     }
+    if (lp)
+	free(lp); /* Coverity CID340558 */
     return sts;
 }
 
