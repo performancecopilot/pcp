@@ -149,8 +149,14 @@ redisSlotsInit(dict *config, void *events)
     if (servers == NULL)
         servers = def_servers = sdsnew(default_server);
 
-    slots->acc = redisClusterAsyncContextInit();
-    if (slots->acc && slots->acc->err) {
+    if ((slots->acc = redisClusterAsyncContextInit()) == NULL) {
+	/* Coverity CID370635 */
+	pmNotifyErr(LOG_ERR, "redisSlotsInit: redisClusterAsyncContextInit failed\n");
+	sdsfree(def_servers);
+        return slots;
+    }
+
+    if (slots->acc->err) {
         pmNotifyErr(LOG_ERR, "redisSlotsInit: %s\n", slots->acc->errstr);
 	sdsfree(def_servers);
         return slots;
