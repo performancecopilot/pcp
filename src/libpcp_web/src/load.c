@@ -1341,12 +1341,14 @@ pmSeriesDiscoverInDom(pmDiscoverEvent *event, pmInResult *in, void *arg)
 	infofmt(msg, "%s: failed indom discovery (domain %u)",
 			"pmSeriesDiscoverInDom", pmInDom_domain(id));
 	moduleinfo(event->module, PMLOG_ERROR, msg, arg);
+	baton->error = -ENOMEM;
 	return;
     }
     if ((indom = pmwebapi_add_indom(context, domain, id)) == NULL) {
 	infofmt(msg, "%s: failed indom discovery (indom %s)",
 			"pmSeriesDiscoverInDom", pmInDomStr(id));
 	moduleinfo(event->module, PMLOG_ERROR, msg, arg);
+	baton->error = -ENOMEM;
 	return;
     }
     for (i = 0; i < in->numinst; i++) {
@@ -1356,6 +1358,8 @@ pmSeriesDiscoverInDom(pmDiscoverEvent *event, pmInResult *in, void *arg)
 			"pmSeriesDiscoverInDom", pmInDomStr(id),
 			in->instlist[i], in->namelist[i]);
 	moduleinfo(event->module, PMLOG_ERROR, msg, arg);
+	/* Coverity CID:328046 - resource leak from earlier pmwebapi_add_instance calls. */
+	baton->error = -ENOMEM;
 	return;
     }
 }
