@@ -2216,8 +2216,10 @@ series_node_prepare_time(seriesQueryBaton *baton, series_set_t *query_series_set
     /* calloc nseries samples store space */
     if ((np->value_set.series_values =
     	(series_sample_set_t *)calloc(nseries, sizeof(series_sample_set_t))) == NULL) {
-	/* TODO: error report here */
 	baton->error = -ENOMEM;
+	sdsfree(start);
+	sdsfree(end);
+	return;
     }
 
     /*
