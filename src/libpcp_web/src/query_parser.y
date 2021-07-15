@@ -1403,7 +1403,7 @@ series_lex(YYSTYPE *lvalp, PARSER *lp)
 	}
 	if (p == NULL) {
 	    lp->yy_tokbuflen = 128;
-	    if ((p = (char *)malloc(lp->yy_tokbuflen)) == NULL) {
+	    if ((p = (char *)malloc(lp->yy_tokbuflen+1)) == NULL) { /* CID287946 */
 		lp->yy_errstr = sdscatfmt(sdsempty(),
 				"cannot allocate token buffer (length=%lld)",
 				(long long)lp->yy_tokbuflen);
