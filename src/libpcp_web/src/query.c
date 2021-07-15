@@ -4084,28 +4084,29 @@ series_redis_hash_expression(seriesQueryBaton *baton, char *hashbuf, int len_has
 	    baton->error = -EPROTO;
 	    continue;
 	}
+
+	if (strncmp(np->value_set.series_values[i].series_desc.units, "none", 4) == 0)
+	    memset(&units0, 0, sizeof(units0));
+	else if (pmParseUnitsStr(np->value_set.series_values[i].series_desc.units,
+	    &units0, &mult, &errmsg) != 0) {
+	    np->value_set.series_values[i].compatibility = 0;
+	    infofmt(msg, "Invalid units string: %s\n",
+		    np->value_set.series_values[i].series_desc.units);
+	    batoninfo(baton, PMLOG_ERROR, msg);
+	    baton->error = -EPROTO;
+	    free(errmsg);
+	    break;
+	}
+
 	for (j = 0; j < num_series; j++) {
 	    if (!np->value_set.series_values[j].compatibility || i == j)
 	    	continue;
-
-	    if (strncmp(np->value_set.series_values[i].series_desc.units, "none", 4) == 0)
-		memset(&units0, 0, sizeof(units0));
-	    else if (pmParseUnitsStr(np->value_set.series_values[i].series_desc.units,
-	    	&units0, &mult, &errmsg) != 0) {
-		np->value_set.series_values[i].compatibility = 0;
-		infofmt(msg, "Invalid units string: %s\n",
-			np->value_set.series_values[i].series_desc.units);
-		batoninfo(baton, PMLOG_ERROR, msg);
-		baton->error = -EPROTO;
-		free(errmsg);
-		break;
-	    }
 
 	    if (strncmp(np->value_set.series_values[j].series_desc.units, "none", 4) == 0)
 		memset(&units1, 0, sizeof(units1));
 	    else if (pmParseUnitsStr(np->value_set.series_values[j].series_desc.units,
 	    	&units1, &mult, &errmsg) != 0) {
-		np->value_set.series_values[i].compatibility = 0;
+		np->value_set.series_values[j].compatibility = 0;
 		infofmt(msg, "Invalid units string: %s\n",
 			np->value_set.series_values[j].series_desc.units);
 		batoninfo(baton, PMLOG_ERROR, msg);
