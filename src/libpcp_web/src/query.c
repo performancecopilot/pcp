@@ -4270,6 +4270,11 @@ series_solve(pmSeriesSettings *settings,
     seriesQueryBaton	*baton;
     unsigned int	i = 0;
 
+    if (root == NULL) {
+	/* Coverity CID366052 */
+    	return -ENOMEM;
+    }
+
     if ((baton = calloc(1, sizeof(seriesQueryBaton))) == NULL)
 	return -ENOMEM;
     initSeriesQueryBaton(baton, settings, arg);
