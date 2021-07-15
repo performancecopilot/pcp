@@ -122,6 +122,11 @@ redis_search_text_prep(sds s, int min_length, char *prefix, char *suffix)
     }
     sdstrim(result, " ");
     tokens = sdssplitlen(result, sdslen(result), " ", 1, &token_count);
+    if (tokens == NULL) {
+	/* Coverity: CID370640 */
+    	sdsfree(result);
+	return NULL;
+    }
     formatted_result = sdsempty();
     for (i = 0; i < token_count; i++) {
 	size_t token_len = sdslen(tokens[i]);
