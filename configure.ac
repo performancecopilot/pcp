@@ -37,6 +37,12 @@ AC_ARG_WITH([gperftools],
     [use_gperftools=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-gperftools=$withval"],
     [use_gperftools=no])
 
+AC_ARG_WITH([sanitizer],
+    [AS_HELP_STRING([--with-sanitizer],
+		    [enable sanitizers (default is no, common values are 'address', 'thread' or 'leak')])],
+    [use_sanitizer=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-sanitizer=$withval"],
+    [use_sanitizer=no])
+
 AC_ARG_WITH([threads],
     [AC_HELP_STRING([--with-threads],
 		    [enable support for multiple threads (default is on)])],
@@ -729,6 +735,13 @@ dnl Check for gperftools
 AS_IF([test "x$use_gperftools" != "xno"], [
     PKG_CHECK_MODULES([gperftools], [libprofiler, libtcmalloc])
 ])
+
+dnl Check for sanitizers
+sanitizer=""
+if test "x$use_sanitizer" != "xno"; then
+    sanitizer="-fsanitize=$use_sanitizer"
+fi
+AC_SUBST(sanitizer)
 
 dnl Check for service discovery mechanisms (DNS-SD, Avahi)
 AS_IF([test "x$do_discovery" != "xno"], [

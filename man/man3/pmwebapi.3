@@ -83,6 +83,11 @@ compatible format (as described at
 and popularized by the
 .I https://prometheus.io
 project) is available.
+.PP
+All requests are performed on the web server host by default,
+unless a
+.I hostspec
+parameter is provided.
 .SS GET /metrics
 .TS
 box;
@@ -92,6 +97,8 @@ Parameters	Type	Explanation
 _
 names	string	Comma-separated list of metric names
 times	boolean	Append sample times (milliseconds since epoch)
+_
+hostspec	string	Host specification as described in \f(CBPCPIntro\fR(1)
 .TE
 .P
 Fetches current values and metadata for all metrics, or only

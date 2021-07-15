@@ -117,9 +117,10 @@ endif
 
 CFLAGS_ABI = @cflags_abi@
 CFLAGS_OPT = @optimization@
+CFLAGS_SANITIZER = @sanitizer@
 CFLAGS += -I$(TOPDIR)/src/include -I$(TOPDIR)/src/include/pcp \
 	-DPCP_VERSION=\"$(PCP_VERSION)\" \
-	$(PCFLAGS) $(LCFLAGS) $(WARN_OFF) $(CFLAGS_OPT)
+	$(PCFLAGS) $(LCFLAGS) $(WARN_OFF) $(CFLAGS_OPT) $(CFLAGS_SANITIZER)
 
 PIECFLAGS = @PIECFLAGS@
 PIELDFLAGS = @PIELDFLAGS@

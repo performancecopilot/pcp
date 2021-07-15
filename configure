@@ -893,6 +893,7 @@ enable_discovery
 lib_for_avahi
 avahi_LIBS
 avahi_CFLAGS
+sanitizer
 gperftools_LIBS
 gperftools_CFLAGS
 enable_probes
@@ -1011,6 +1012,7 @@ enable_option_checking
 with_64bit
 with_optimization
 with_gperftools
+with_sanitizer
 with_threads
 with_secure_sockets
 with_static_probes
@@ -1734,6 +1736,8 @@ Optional Packages:
   --with-optimization     enable optimization for C/C++ code (default is yes)
   --with-gperftools       enable gperftools for CPU and heap profiling
                           (default is no)
+  --with-sanitizer        enable sanitizers (default is no, common values are
+                          'address', 'thread' or 'leak')
   --with-threads          enable support for multiple threads (default is on)
   --with-secure-sockets   enable support for secure sockets (default is on)
   --with-static-probes    enable support for static probes (default is on)
@@ -2744,6 +2748,15 @@ if test "${with_gperftools+set}" = set; then :
   withval=$with_gperftools; use_gperftools=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-gperftools=$withval"
 else
   use_gperftools=no
+fi
+
+
+
+# Check whether --with-sanitizer was given.
+if test "${with_sanitizer+set}" = set; then :
+  withval=$with_sanitizer; use_sanitizer=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-sanitizer=$withval"
+else
+  use_sanitizer=no
 fi
 
 
@@ -5786,6 +5799,12 @@ $as_echo "yes" >&6; }
 fi
 
 fi
+
+sanitizer=""
+if test "x$use_sanitizer" != "xno"; then
+    sanitizer="-fsanitize=$use_sanitizer"
+fi
+
 
 if test "x$do_discovery" != "xno"; then :
 
