@@ -196,16 +196,6 @@ The network bandwidth is higher due to the inter-node communication of the Redis
 Troubleshooting
 ***************
 
-Grafana doesn't show any data
------------------------------
-
-* Make sure that `pmlogger(1)`_ is up and running, and writing archives to the disk (``/var/log/pcp/pmlogger/<host>/*``)
-* Verify that `pmproxy(1)`_ is running, time series support is enabled and a connection to Redis is established: check the logfile at ``/var/log/pcp/pmproxy/pmproxy.log`` and make sure that it contains the following text: ``Info: Redis slots, command keys, schema version setup``
-* Check if the Redis database contains any keys: ``redis-cli dbsize``
-* Check if any PCP metrics are in the Redis database: ``pmseries disk.dev.read``
-* Check if PCP metric values are in the Redis database: ``pmseries 'disk.dev.read[count:10]'``
-* Check the Grafana logs: ``journalctl -e -u grafana-server``
-
 High memory usage
 -----------------
 
