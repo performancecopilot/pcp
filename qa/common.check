@@ -144,7 +144,7 @@ _stop_auto_restart()
 	    _save_config $PCP_SYSTEMDUNIT_DIR/$1.service
 	    sed -e 's/Restart=always/Restart=no/' <$PCP_SYSTEMDUNIT_DIR/$1.service >$tmp.tmp
 	    $sudo cp $tmp.tmp $PCP_SYSTEMDUNIT_DIR/$1.service
-	    if `which systemctl >/dev/null 2>&1`
+	    if [ "$PCPQA_SYSTEMD" = yes ]
 	    then
 		$sudo systemctl daemon-reload
 	    else
@@ -159,7 +159,7 @@ _restore_auto_restart()
     if [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/$1.service.$seq ]
     then
 	_restore_config $PCP_SYSTEMDUNIT_DIR/$1.service
-	if `which systemctl >/dev/null 2>&1`
+	if [ "$PCPQA_SYSTEMD" = yes ]
 	then
 	    $sudo systemctl daemon-reload
 	else
@@ -192,7 +192,7 @@ _service()
 	# don't ever use systemctl
 	$_verbose && echo "_service: no systemctl, PCPQA_SYSTEMD=$PCPQA_SYSTEMD"
     else
-	which systemctl >/dev/null 2>&1 && _do_systemctl=true
+	[ "$PCPQA_SYSTEMD" = yes ] && _do_systemctl=true
 	if $_do_systemctl
 	then
 	    case "$1"
@@ -260,6 +260,8 @@ _service()
 			done
 		    fi
 		fi
+		_systemctl_status pmcd >>$here.$seq.full
+		_systemctl_status pmlogger >>$here.$seq.full
 		;;
 	    *)
 		$_verbose && echo "_service: using systemctl $2 $1.service"
@@ -282,6 +284,7 @@ _service()
 			$sudo systemctl stop $svc.timer $svc.service
 		    done
 		fi
+		_systemctl_status $1 >>$here.$seq.full
 		;;
 	esac
     elif [ -f $PCP_RC_DIR/$1 ]
@@ -586,6 +589,27 @@ _need_metric()
     esac
 }
 
+# if systemctl is in play, see if there is any additional info
+# from systemctl and journalctl for $1 service
+#
+_systemctl_status()
+{
+    if [ $# -ne 1 ]
+    then
+	echo "_systemctl_status: botch: usage #args=$# not 1 as expected"
+	return
+    fi
+    
+    if [ "$PCPQA_SYSTEMD" = yes ]
+    then
+	$sudo systemctl status "$1.service"
+	if which journalctl >/dev/null 2>&1
+	then
+	    $sudo journalctl -u "$1.service"
+	fi
+    fi
+}
+
 # wait_for_pmcd [maxdelay [host]]
 #
 _wait_for_pmcd()
@@ -651,6 +675,7 @@ _wait_for_pmcd()
 		ssh pcpqa@$_host "sh -c '. \$PCP_DIR/etc/pcp.env; echo; echo "=== pmcd.log ==="; [ -f \$PCP_LOG_DIR/pmcd/pmcd.log ] && cat \$PCP_LOG_DIR/pmcd/pmcd.log; [ -f \$PCP_LOG_DIR/pmcd.log ] && cat \$PCP_LOG_DIR/pmcd.log; echo; echo likely looking processes ...; ( ps \$PCP_PS_ALL_FLAGS | egrep \"[p]m|[P]ID\" )'" </dev/null
 		;;
 	esac
+	_systemctl_status pmcd
 	status=0
 	exit $status
     fi
@@ -700,6 +725,7 @@ _wait_for_pmcd_stop()
 	pmprobe -Dpdu,context -n $PCP_VAR_DIR/pmns/root_pmcd pmcd.numclients
 	echo "=== pmcd.log ==="
 	cat $PCP_LOG_DIR/pmcd/pmcd.log
+	_systemctl_status pmcd
 	status=0
 	exit $status
     fi
@@ -845,6 +871,7 @@ _wait_for_pmlogger()
 	echo
 	echo "Likely looking processes ..."
 	ps $PCP_PS_ALL_FLAGS | egrep '([p]m)|([P]ID)'
+	_systemctl_status pmlogger
 	status=0
 	exit $status
     fi
@@ -898,18 +925,8 @@ _wait_pmlogger_end()
 	    if [ "$_i" -ge 100 ]
 	    then
 		echo "_wait_pmlogger_end: failed to see $PCP_TMP_DIR/pmlogger/$_pid removed after 100 iterations"
+		_systemctl_status pmlogger
 		#debug# set +x
-		# if systemctl is in play, see if there is any additional
-		# info there
-		#
-		if which systemctl >/dev/null 2>&1
-		then
-		    $sudo systemctl status pmlogger.service
-		    if which journalctl >/dev/null 2>&1
-		    then
-			$sudo journalctl -x -u pmlogger.service
-		    fi
-		fi
 		return
 	    fi
 	    pmsleep 0.1
@@ -947,18 +964,8 @@ $2 == '$_pid' && $0 ~ /defunct/	{ print $3 }'
 			else
 			    echo "_wait_pmlogger_end: failed to see pid $_pid exit after 100 iterations"
 			fi
+			_systemctl_status pmlogger
 			#debug# set +x
-			# if systemctl is in play, see if there is any additional
-			# info there
-			#
-			if which systemctl >/dev/null 2>&1
-			then
-			    $sudo systemctl status pmlogger.service
-			    if which journalctl >/dev/null 2>&1
-			    then
-				$sudo journalctl -x -u pmlogger.service
-			    fi
-			fi
 			return
 		    fi
 		    pmsleep 0.1
@@ -1007,18 +1014,8 @@ p
 	    if [ "$_i" -ge 100 ]
 	    then
 		echo "_wait_pmcd_end: failed to see pid $_pid exit after 100 iterations"
+		_systemctl_status pmcd
 		#debug# set +x
-		# if systemctl is in play, see if there is any additional
-		# info there
-		#
-		if which systemctl >/dev/null 2>&1
-		then
-		    $sudo systemctl status pmcd.service
-		    if which journalctl >/dev/null 2>&1
-		    then
-			$sudo journalctl -x -u pmcd.service
-		    fi
-		fi
 		return
 	    fi
 	    pmsleep 0.1
@@ -1046,18 +1043,8 @@ _wait_for_pmie()
 	    if [ "$_i" -ge 100 ]
 	    then
 		echo "_wait_for_pmie: failed to see pmie start after 100 iterations"
+		_systemctl_status pmie
 		#debug# set +x
-		# if systemctl is in play, see if there is any additional
-		# info there
-		#
-		if which systemctl >/dev/null 2>&1
-		then
-		    $sudo systemctl status pmie.service
-		    if which journalctl >/dev/null 2>&1
-		    then
-			$sudo journalctl -x -u pmie.service
-		    fi
-		fi
 		return
 	    fi
 	    pmsleep 0.1
@@ -1114,18 +1101,8 @@ p
 	    then
 		echo "_wait_pmie_end: failed to see pid(s) $_pidlist exit after 100 iterations"
 		$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mie'
+		_systemctl_status pmie
 		#debug# set +x
-		# if systemctl is in play, see if there is any additional
-		# info there
-		#
-		if which systemctl >/dev/null 2>&1
-		then
-		    $sudo systemctl status pmie.service
-		    if which journalctl >/dev/null 2>&1
-		    then
-			$sudo journalctl -x -u pmie.service
-		    fi
-		fi
 		break
 	    fi
 	    pmsleep 0.1
@@ -1182,6 +1159,7 @@ _wait_for_pmproxy()
 	    else
 		echo "pmproxy logfile ($_logfile) not created"
 	    fi
+	    _systemctl_status pmproxy
 	    status=0
 	    exit $status
 	fi
@@ -2214,7 +2192,7 @@ _change_config()
 	[ "$1" = "verbose" ] && pat=""
 
 	_have_systemctl=false
-	which systemctl >/dev/null 2>&1 && _have_systemctl=true
+	[ "$PCPQA_SYSTEMD" = yes ] && _have_systemctl=true
 	if [ -z "$pat" ]
 	then
 	    _have_service=true
@@ -2399,7 +2377,7 @@ _get_config()
 	esac
 
 	_have_systemctl=false
-	which systemctl >/dev/null 2>&1 && _have_systemctl=true
+	[ "$PCPQA_SYSTEMD" = yes ] && _have_systemctl=true
 	if [ -z "$pat" ]
 	then
 	    _have_service=true
