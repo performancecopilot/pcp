@@ -118,7 +118,7 @@ extern void redis_series_metric(redisSlots *, metric_t *, sds, int, int, void *)
 /*
  * Asynchronous schema load baton structures
  */
-#define LOAD_PHASES	5
+#define LOAD_PHASES	6
 
 typedef struct seriesGetContext {
     seriesBatonMagic	header;		/* MAGIC_CONTEXT */
