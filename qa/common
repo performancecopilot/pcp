@@ -527,6 +527,8 @@ common options
 check options
     -c		check configuration files [off]
     -C		color mode output [off]
+    -CI		run in CI environment => set $PCPQA_IN_CI in environment
+    		and -x x11 -x remote -x not_in_ci
     -g group	include tests from these groups (multiple flags allowed)
     -G          report groups and number of tests per group
     -l		line mode diff [xdiff]
@@ -556,6 +558,12 @@ show-me options
 
 	-C)	# color mode for results and summaries
 	    color=true
+	    xpand=false
+	    ;;
+
+	-CI)	# run in CI environment
+		# TODO still need -x x11 -x remote -x not_in_ci
+	    export PCPQA_IN_CI=yes
 	    xpand=false
 	    ;;
 

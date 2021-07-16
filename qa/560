@@ -15,6 +15,27 @@ echo "QA output created by $seq"
 
 [ -d $PCP_PMDAS_DIR/simple ] || _notrun "simple PMDA directory is not installed"
 
+if [ "$PCPQA_IN_CI" = yes ]
+then
+    # in CI
+    # failing on test-ubuntu1804i386-container and nowhere else ...
+    # despite extensive triage, tcp port "already in use" problem
+    # persists
+    #
+    eval `src/sizeof ptr`
+    if [ "$ptr" = 4 ]
+    then
+	# 32-bit platform
+	case `admin/whatami`
+	in
+	    *Ubuntu\ 18.04\*)
+		# bingo ... no cigar
+		_notrun "cannot make this test work for test-ubuntu1804i386-container"
+		;;
+	esac
+    fi
+fi
+
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 $sudo rm -f $seq.full
@@ -45,21 +66,6 @@ then
 fi
 echo "port=$port" >>$here/$seq.full
 echo "hostname: `hostname`" >>$here/$seq.full
-
-case `hostname`
-in
-    test-ubuntu1804i386-container)
-	# failing in CI on test-ubuntu1804i386-container with
-	# "Address already in use", so sniff a bit harder
-	#
-	# echo "telnet-probe ..." >>$here/$seq.full
-	# $PCP_BINADM_DIR/telnet-probe -cv localhost $port >>$here/$seq.full 2>&1
-	# echo "fuser ..." >>$here/$seq.full
-	# ... no of which shed any light on the issue, so ...
-	#
-	_notrun "cannot resolve Address in use issue on this platform"
-	;;
-esac
 
 $sudo fuser tcp/$port >>$here/$seq.full 2>&1
 cat <<End-of-File | $sudo ./Install -e >$tmp.out 2>&1
