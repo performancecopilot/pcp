@@ -1817,6 +1817,12 @@ AC_CHECK_LIB(uv, uv_pipe_chmod,
 	     have_uv_pipe_chmod=true,
 	     have_uv_pipe_chmod=false)
 
+PKG_CHECK_MODULES([libbpf], [libbpf], [have_libbpf=true], [have_libbpf=false])
+AC_SUBST(HAVE_LIBBPF, [$have_libbpf])
+
+PKG_CHECK_MODULES([libelf], [libelf], [have_libelf=true], [have_libelf=false])
+AC_SUBST(HAVE_LIBELF, [$have_libelf])
+
 PKG_CHECK_MODULES([ncurses], [ncurses], [have_ncurses=true], [have_ncurses=false])
 AC_SUBST(HAVE_NCURSES, [$have_ncurses])
 
