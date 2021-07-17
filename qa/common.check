@@ -273,8 +273,8 @@ _service()
 			done
 		    fi
 		fi
-		_systemctl_status pmcd >>$here.$seq.full
-		_systemctl_status pmlogger >>$here.$seq.full
+		_systemctl_status pmcd >>$here/$seq.full
+		_systemctl_status pmlogger >>$here/$seq.full
 		;;
 	    *)
 		# if service is failed, need reset-failed before trying
@@ -304,7 +304,7 @@ _service()
 			fi
 		    done
 		fi
-		_systemctl_status $1 >>$here.$seq.full
+		_systemctl_status $1 >>$here/$seq.full
 		;;
 	esac
     elif [ -f $PCP_RC_DIR/$1 ]
@@ -610,7 +610,7 @@ _need_metric()
 }
 
 # if systemctl is in play, see if there is any additional info
-# from systemctl and journalctl for $1 service
+# from systemctl for the $1 service
 #
 _systemctl_status()
 {
@@ -623,10 +623,6 @@ _systemctl_status()
     if [ "$PCPQA_SYSTEMD" = yes ]
     then
 	$sudo systemctl status "$1.service"
-	if which journalctl >/dev/null 2>&1
-	then
-	    $sudo journalctl -u "$1.service"
-	fi
     fi
 }
 
@@ -687,12 +683,12 @@ _wait_for_pmcd()
 		cat $PCP_LOG_DIR/pmcd/pmcd.log
 
 		echo "likely looking processes ..."
-		ps "$PCP_PS_ALL_FLAGS" | egrep "[p]m|[P]ID"
+		$PCP_PS_PROG "$PCP_PS_ALL_FLAGS" | egrep "[p]m|[P]ID"
 		;;
 	    *)
 		# assume a remote PMCD
 		#
-		ssh pcpqa@$_host "sh -c '. \$PCP_DIR/etc/pcp.env; echo; echo "=== pmcd.log ==="; [ -f \$PCP_LOG_DIR/pmcd/pmcd.log ] && cat \$PCP_LOG_DIR/pmcd/pmcd.log; [ -f \$PCP_LOG_DIR/pmcd.log ] && cat \$PCP_LOG_DIR/pmcd.log; echo; echo likely looking processes ...; ( ps \$PCP_PS_ALL_FLAGS | egrep \"[p]m|[P]ID\" )'" </dev/null
+		ssh pcpqa@$_host "sh -c '. \$PCP_DIR/etc/pcp.env; echo; echo "=== pmcd.log ==="; [ -f \$PCP_LOG_DIR/pmcd/pmcd.log ] && cat \$PCP_LOG_DIR/pmcd/pmcd.log; [ -f \$PCP_LOG_DIR/pmcd.log ] && cat \$PCP_LOG_DIR/pmcd.log; echo; echo likely looking processes ...; ( $PCP_PS_PROG \$PCP_PS_ALL_FLAGS | egrep \"[p]m|[P]ID\" )'" </dev/null
 		;;
 	esac
 	_systemctl_status pmcd
@@ -793,7 +789,7 @@ _wait_for_pmlogger()
     rm -f $tmp._wait_for_pmlogger.pmlc
     while [ $_i -lt $_maxdelay ]
     do
-	ps $PCP_PS_ALL_FLAGS | egrep "([p]mlogger|[P]ID)" >>$tmp._wait_for_pmlogger.pmlc
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep "([p]mlogger|[P]ID)" >>$tmp._wait_for_pmlogger.pmlc
 	echo "pmlc $_pid" >>$tmp._wait_for_pmlogger.pmlc
 	# May need sudo -u pcp here in case we're doing credentials checks
 	# in pmlogger and this is the primary pmlogger (started by user
@@ -890,7 +886,7 @@ _wait_for_pmlogger()
 	done
 	echo
 	echo "Likely looking processes ..."
-	ps $PCP_PS_ALL_FLAGS | egrep '([p]m)|([P]ID)'
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '([p]m)|([P]ID)'
 	_systemctl_status pmlogger
 	status=0
 	exit $status
