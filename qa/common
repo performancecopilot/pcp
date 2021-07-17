@@ -132,11 +132,8 @@ _haveagents()
 		else
 		    _log_fyi $PCP_LOG_DIR/pmcd/pmcd.log $agentlog
 		    echo "Restarting PMCD ..."
-		    SAVE_PCPQA_SYSTEMD=$PCPQA_SYSTEMD
-		    unset PCPQA_SYSTEMD
 		    _service pmcd restart
 		    _wait_for_pmcd
-		    export PCPQA_SYSTEMD=$SAVE_PCPQA_SYSTEMD
 		    restart=true
 		fi
 		if $reinstall
@@ -223,8 +220,6 @@ End-of-File
 	# restart after a package install ... just going one step
 	# at a time, carefully ...
 	#
-	SAVE_PCPQA_SYSTEMD=$PCPQA_SYSTEMD
-	unset PCPQA_SYSTEMD
 	_pid=`_get_pids_by_name -a 'pmlogger.*-P'`
 	_service pmlogger stop
 	if [ -n "$_pid" ]
@@ -239,7 +234,6 @@ End-of-File
 	_wait_for_pmcd
 	_service pmlogger start
 	_wait_for_pmlogger
-	export PCPQA_SYSTEMD=$SAVE_PCPQA_SYSTEMD
     fi
 }
 
@@ -306,11 +300,8 @@ End-of-File
 		    ;;
 	esac
 	$sudo chown root:$grp $PCPQA_PMCDOPTIONS
-	SAVE_PCPQA_SYSTEMD=$PCPQA_SYSTEMD
-	unset PCPQA_SYSTEMD
 	_service pmcd restart
 	_wait_for_pmcd
-	export PCPQA_SYSTEMD=$SAVE_PCPQA_SYSTEMD
     fi
 
 }
@@ -849,11 +840,8 @@ then
 		    if grep '^[^#]*PMCD_LOCAL=1' $PCP_SYSCONFIG_DIR/pmcd >/dev/null
 		    then
 			_haveremote
-			SAVE_PCPQA_SYSTEMD=$PCPQA_SYSTEMD
-			unset PCPQA_SYSTEMD
 			_service pmcd restart
 			_wait_for_pmcd
-			export PCPQA_SYSTEMD=$SAVE_PCPQA_SYSTEMD
 			x=`pminfo -h $QA_HOST -v pmcd.control.timeout 2>&1`
 			[ -z "$x" ] && touch $tmp.ok
 		    fi
