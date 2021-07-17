@@ -231,12 +231,24 @@ _service()
 		# not a systemd service but a wrapper for the pmcd and pmlogger
 		# services, so a little different ...
 		#
+
+		# if service is failed, need reset-failed before trying
+		# anything else
+		#
+		for svc in pmlogger pmcd
+		do
+		    if $sudo systemctl show --property=ActiveState $svc.service 2>&1 \
+		      | grep '=failed$' >/dev/null
+		    then
+			$_verbose && echo "_service: using systemctl: reset-failed $svc"
+			$sudo systemctl reset-failed $svc.service 2>>$here/$seq.full
+		    fi
+		done
+
 		if [ "$2" = start -o "$2" = restart ]
 		then
 		    $_verbose && echo "_service: using systemctl $2 $pmcd.service then pmlogger.service"
-		    $sudo systemctl reset-failed pmcd.service 2>>$here/$seq.full
 		    $sudo systemctl $2 pmcd.service
-		    $sudo systemctl reset-failed pmlogger.service 2>>$here/$seq.full
 		    $sudo systemctl $2 pmlogger.service
 		else
 		    $_verbose && echo "_service: using systemctl $2 pmlogger.service then pmcd.service"
@@ -252,11 +264,12 @@ _service()
 			#
 			for svc in pmlogger_check pmlogger_daily pmlogger_daily-poll
 			do
-			    ( $sudo systemctl show --property=ActiveState $svc.timer 2>&1 \
-			      | grep '=active$' >/dev/null \
-			    ) || continue
-			    $_verbose && echo "_service: also stop $svc"
-			    $sudo systemctl stop $svc.timer $svc.service
+			    if $sudo systemctl show --property=ActiveState $svc.timer 2>&1 \
+			      | grep '=active$' >/dev/null
+			    then
+				$_verbose && echo "_service: also stop $svc"
+				$sudo systemctl stop $svc.timer $svc.service
+			    fi
 			done
 		    fi
 		fi
@@ -264,11 +277,17 @@ _service()
 		_systemctl_status pmlogger >>$here.$seq.full
 		;;
 	    *)
-		$_verbose && echo "_service: using systemctl $2 $1.service"
-		if [ "$2" = start -o "$2" = restart ]
+		# if service is failed, need reset-failed before trying
+		# anything else
+		#
+		if $sudo systemctl show --property=ActiveState $1.service 2>&1 \
+		  | grep '=failed$' >/dev/null
 		then
+		    $_verbose && echo "_service: using systemctl: reset-failed $1"
 		    $sudo systemctl reset-failed $1.service 2>>$here/$seq.full
 		fi
+
+		$_verbose && echo "_service: using systemctl $2 $1.service"
 		$sudo systemctl $2 $1.service
 		if [ "$1" = pmlogger -a "$2" = stop ]
 		then
@@ -277,11 +296,12 @@ _service()
 		    #
 		    for svc in pmlogger_check pmlogger_daily pmlogger_daily-poll
 		    do
-			( $sudo systemctl show --property=ActiveState $svc.timer 2>&1 \
-			  | grep '=active$' >/dev/null \
-			) || continue
-			$_verbose && echo "_service: also stop $svc"
-			$sudo systemctl stop $svc.timer $svc.service
+			if $sudo systemctl show --property=ActiveState $svc.timer 2>&1 \
+			  | grep '=active$' >/dev/null
+			then
+			    $_verbose && echo "_service: also stop $svc.timer and $scv.service"
+			    $sudo systemctl stop $svc.timer $svc.service
+			fi
 		    done
 		fi
 		_systemctl_status $1 >>$here.$seq.full
