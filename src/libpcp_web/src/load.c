@@ -924,14 +924,24 @@ connect_redis_source_service(seriesLoadBaton *baton)
 }
 
 static void
-setup_source_services(void *arg)
+setup_pmapi_source_service(void *arg)
 {
     seriesLoadBaton	*baton = (seriesLoadBaton *)arg;
 
-    seriesBatonCheckMagic(baton, MAGIC_LOAD, "setup_source_services");
-    seriesBatonReferences(baton, 2, "setup_source_services");
+    seriesBatonCheckMagic(baton, MAGIC_LOAD, "setup_pmapi_source_service");
+    seriesBatonReferences(baton, 1, "setup_pmapi_source_service");
 
     connect_pmapi_source_service(baton);
+}
+
+static void
+setup_redis_source_service(void *arg)
+{
+    seriesLoadBaton	*baton = (seriesLoadBaton *)arg;
+
+    seriesBatonCheckMagic(baton, MAGIC_LOAD, "setup_redis_source_service");
+    seriesBatonReferences(baton, 1, "setup_redis_source_service");
+
     connect_redis_source_service(baton);
 }
 
@@ -1014,7 +1024,9 @@ series_load(pmSeriesSettings *settings,
     /* ordering of async operations */
     i = 0;
     baton->current = &baton->phases[i];
-    baton->phases[i++].func = setup_source_services;
+    /* Coverity CID341699 - split pmapi and redis setup to avoid use after free */
+    baton->phases[i++].func = setup_pmapi_source_service;
+    baton->phases[i++].func = setup_redis_source_service;
     /* assign source/host string map (series_source_mapping) */
     baton->phases[i++].func = series_source_mapping;
     /* write source info into schema (series_cache_source) */

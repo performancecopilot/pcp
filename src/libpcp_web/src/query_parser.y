@@ -1416,7 +1416,7 @@ series_lex(YYSTYPE *lvalp, PARSER *lp)
 	else if (p >= &lp->yy_tokbuf[lp->yy_tokbuflen]) {
 	    len = p - lp->yy_tokbuf;
 	    lp->yy_tokbuflen *= 2;
-	    if (!(p = (char *)realloc(lp->yy_tokbuf, lp->yy_tokbuflen))) {
+	    if (!(p = (char *)realloc(lp->yy_tokbuf, lp->yy_tokbuflen+1))) { /* CID287946 */
 		lp->yy_errstr = sdscatfmt(sdsempty(),
 				"cannot reallocate token buffer (length=%lld)",
 				(long long)lp->yy_tokbuflen);
