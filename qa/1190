@@ -153,6 +153,7 @@ else
     sed -e 's/^/ /' <$tmp.pids
     $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mcd |[p]mcd$' \
     | sed -e 's/^/  /'
+    _systemctl_status pmcd
     status=1
 fi
 
@@ -164,6 +165,7 @@ then
 else
     echo "Count of primary pmlogger's ... BAD ($n not 1)"
     cat $tmp.out | sed -e 's/^/  /'
+    _systemctl_status pmlogger
     status=1
 fi
 
