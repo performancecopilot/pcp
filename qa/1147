@@ -21,8 +21,6 @@ else
     _notrun no systemctl executable
 fi
 
-unset PCPQA_SYSTEMD
-
 _cleanup()
 {
     cd $here
@@ -38,11 +36,18 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # make sure systemctl thinks pmlogger is running
 #
-_service pmlogger restart >>$here/$seq.full 2>&1
+_service -v pmlogger restart >>$here/$seq.full 2>&1
 _wait_for_pmlogger
 
 pid=`_get_primary_logger_pid`
 echo "+++ at the start primary pmlogger pid = $pid" >>$here/$seq.full
+if [ -z "$pid" ]
+then
+    echo "Arrgh ... no primary pmlogger?"
+    echo "Likely looking processes ..."
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '([p]m)|([P]ID)'
+    exit
+fi
 _stop_auto_restart pmlogger
 _service pmlogger stop | _filter_pcp_stop
 _wait_pmlogger_end $pid
