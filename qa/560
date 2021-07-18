@@ -35,7 +35,7 @@ then
 	# 32-bit platform
 	case `admin/whatami`
 	in
-	    *Ubuntu\ 18.04\*)
+	    *Ubuntu\ 18.04\ *)
 		# bingo ... no cigar
 		_notrun "cannot make this test work for test-ubuntu1804i386-container"
 		;;
