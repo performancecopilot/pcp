@@ -36,7 +36,7 @@ pmdamemcache_install()
 {
     # start from known starting points
     cd $PCP_PMDAS_DIR/memcache
-    $sudo ./Remove >/dev/null 2>&1
+    $sudo ./Remove >>$here/$seq.full 2>&1
     _service pmcd stop | _filter_pcp_stop
     _wait_pmcd_end
 
@@ -44,8 +44,8 @@ pmdamemcache_install()
 \$memcache_delay = 1;
 @memcache_instances = ( 0 => '127.0.0.1:11211' );
 EOF
-    echo "pmdamemcache config:" >> $here/$seq.full
-    cat $tmp.config >> $here/$seq.full
+    echo "pmdamemcache config:" >>$here/$seq.full
+    cat $tmp.config >>$here/$seq.full
 
     [ -f $PCP_PMDAS_DIR/memcache/memcache.conf ] && \
     $sudo cp $PCP_PMDAS_DIR/memcache/memcache.conf $tmp.backup
@@ -54,6 +54,7 @@ EOF
     echo
     echo "=== memcache agent installation ==="
     $sudo ./Install </dev/null >$tmp.out 2>&1
+    cat $tmp.out >>$here/$seq.full
     # Check metrics have appeared ... X metrics and Y values
     _filter_pmda_install <$tmp.out \
     | sed \
