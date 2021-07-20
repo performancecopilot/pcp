@@ -4,8 +4,8 @@ Documentation=man:pmlogger_daily_report(1)
 ConditionPathExists=!@CRONTAB_DAILY_REPORT_PATH@
 
 [Service]
-Type=oneshot
-KillMode=none
+Type=simple
+Restart=no
 Environment="PMLOGGER_DAILY_REPORT_POLL_PARAMS=-o @PCP_SA_DIR@ -p"
 EnvironmentFile=-@PCP_SYSCONFIG_DIR@/pmlogger_timers
 ExecStart=@PCP_BINADM_DIR@/pmlogger_daily_report $PMLOGGER_DAILY_REPORT_POLL_PARAMS

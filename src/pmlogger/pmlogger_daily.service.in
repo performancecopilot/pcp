@@ -4,8 +4,8 @@ Documentation=man:pmlogger_daily(1)
 ConditionPathExists=!@CRONTAB_PATH@
 
 [Service]
-Type=oneshot
-KillMode=none
+Type=simple
+Restart=no
 TimeoutStartSec=1h
 Environment="PMLOGGER_DAILY_PARAMS=-E"
 EnvironmentFile=-@PCP_SYSCONFIG_DIR@/pmlogger_timers

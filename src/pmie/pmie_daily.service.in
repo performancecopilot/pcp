@@ -4,8 +4,8 @@ Documentation=man:pmie_daily(1)
 ConditionPathExists=!@CRONTAB_PATH@
 
 [Service]
-Type=oneshot
-KillMode=none
+Type=simple
+Restart=no
 Environment="PMIE_DAILY_PARAMS=-X xz -x 3"
 EnvironmentFile=-@PCP_SYSCONFIG_DIR@/pmie_timers
 ExecStart=@PCP_BINADM_DIR@/pmie_daily $PMIE_DAILY_PARAMS

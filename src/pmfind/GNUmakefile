@@ -36,6 +36,8 @@ CRONTAB_USER =
 CRONTAB_PATH = $(PCP_SYSCONF_DIR)/pmfind/crontab
 endif
 
+LDIRT   = pmfind.service
+
 default : $(CMDTARGET) crontab pmfind.service
 
 include $(BUILDRULES)

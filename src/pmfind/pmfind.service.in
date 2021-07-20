@@ -6,8 +6,8 @@ After=pmie_check.timer pmlogger_check.timer
 BindsTo=pmfind.timer
 
 [Service]
-Type=oneshot
-KillMode=none
+Type=simple
+Restart=no
 TimeoutSec=60
 Environment="PMFIND_CHECK_PARAMS=-C -q"
 EnvironmentFile=-@PCP_SYSCONFIG_DIR@/pmfind
