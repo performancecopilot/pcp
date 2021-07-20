@@ -106,43 +106,13 @@ proxymetrics_close(struct proxy *proxy, enum proxy_registry prid)
     }
 }
 
-static void
-server_metrics_init(struct proxy *proxy)
-{
-    mmv_registry_t	*registry;
-    pmAtomValue		*value;
-    pmInDom		noindom = MMV_INDOM_NULL;
-    pmUnits		nounits = MMV_UNITS(0,0,0,0,0,0);
-    pid_t		pid = getpid();
-    char		buffer[64];
-    void		*map;
-
-    if ((registry = proxy->metrics[METRICS_SERVER]) == NULL)
-	return;
-
-    mmv_stats_add_metric(registry, "pid", SERVER_PID,
-		MMV_TYPE_U32, MMV_SEM_DISCRETE, nounits, noindom,
-		"pmproxy PID",
-		"PID for the current pmproxy invocation");
-    pmsprintf(buffer, sizeof(buffer), "%u", pid);
-    mmv_stats_add_metric_label(registry, SERVER_PID,
-		"pid", buffer, MMV_NUMBER_TYPE, 0);
-
-    if ((map = mmv_stats_start(registry)) == NULL) {
-	fprintf(stderr, "%s: instrumentation disabled\n", pmGetProgname());
-	return;
-    }
-
-    if ((value = mmv_lookup_value_desc(map, "pid", NULL)) != NULL)
-	mmv_set_value(map, value, pid);
-}
-
 static struct proxy *
 server_init(int portcount, const char *localpath)
 {
     struct server	*servers;
     struct proxy	*proxy;
     int			count;
+    mmv_registry_t	*registry;
 
     if ((proxy = calloc(1, sizeof(struct proxy))) == NULL) {
 	fprintf(stderr, "%s: out-of-memory in proxy server setup\n",
@@ -170,8 +140,9 @@ server_init(int portcount, const char *localpath)
 
     proxy->config = config;
 
-    proxymetrics(proxy, METRICS_SERVER);
-    server_metrics_init(proxy);
+    if ((registry = proxymetrics(proxy, METRICS_SERVER)) != NULL)
+	pmServerSetMetricRegistry(registry);
+    /* server_metrics_init(proxy); */
 
     proxy->events = uv_default_loop();
 
@@ -767,6 +738,7 @@ shutdown_ports(void *arg)
     }
 
     uv_loop_close(proxy->events);
+    pmServerReleaseAllTimers();
     proxymetrics_close(proxy, METRICS_SERVER);
 
     free(proxy->servers);

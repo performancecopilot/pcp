@@ -319,12 +319,13 @@ webgroup_garbage_collect(struct webgroups *groups)
 }
 
 static void
-webgroup_worker(uv_timer_t *arg)
+webgroup_worker(void *data)
 {
-    uv_handle_t		*handle = (uv_handle_t *)arg;
-    struct webgroups	*groups = (struct webgroups *)handle->data;
+    static int		seq = 0;
+    struct webgroups	*groups = (struct webgroups *)data;
 
-    webgroup_garbage_collect(groups);
+    if (seq++ % 2 == 0) /* every 2 seconds */
+	webgroup_garbage_collect(groups);
 }
 
 static struct context *
@@ -381,11 +382,8 @@ webgroup_lookup_context(pmWebGroupSettings *sp, sds *id, dict *params,
 
     if (groups->active == 0) {
 	groups->active = 1;
-	/* install general background work timer (GC) */
-	uv_timer_init(groups->events, &groups->timer);
-	groups->timer.data = (void *)groups;
-	uv_timer_start(&groups->timer, webgroup_worker,
-			default_worker, default_worker);
+	/* install timer for periodic garbage collection */
+	pmServerRegisterTimer(webgroup_worker, (void *)groups);
     }
 
     if (*id == NULL) {
