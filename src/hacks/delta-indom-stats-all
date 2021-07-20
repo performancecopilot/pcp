@@ -6,7 +6,9 @@
 
 make delta-indom-stats
 
-find ../../qa /var/log/pcp/pmlogger \( -name "*.meta.*" -o -name "*.meta" \) \
+dirs='../../qa /var/log/pcp/pmlogger'
+
+find $dirs \( -name "*.meta.*" -o -name "*.meta" \) \
 | while read arch
 do
     case "$arch"
@@ -19,7 +21,7 @@ do
     esac
 done >report.full
 
-( sed -n <report.full -e '/Saving/{
+( sed -n <report.full -e '/Saving/p' -e '/(uncompressed)/{
 p
 q
 }' \
@@ -27,10 +29,10 @@ q
       | sort -nr -k4,4 \
     ) \
 ) \
-| sed -e 's/^.....................//' \
+| sed -e 's/^......................//' \
 | awk '
 BEGIN		{ big = small = 0 }
-NR == 1		{ print; next }
+NR < 3		{ print; next }
 $3 > 1024*1024	{ print; big++; next }
 small == 0	{ print "More than 1Mb saving for " big " archives" }
 		{ small++ }

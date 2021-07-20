@@ -152,7 +152,6 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    printf("%s:\n", argv[1]);
 
     if ((ctxp = __pmHandleToPtr(sts)) == NULL) {
 	fprintf(stderr, " __pmHandleToPtr(%d) returns NULL!\n", sts);
@@ -161,6 +160,8 @@ main(int argc, char **argv)
 
     /* single threaded, release context lock */
     PM_UNLOCK(ctxp->c_lock);
+
+    printf("%s:\n", ctxp->c_archctl->ac_log->l_name);
 
     f = ctxp->c_archctl->ac_log->l_mdfp;
 
@@ -352,8 +353,8 @@ end:
     report();
 
     putchar('\n');
-    printf("%12s %8s %12s %12s %12s\n", "Type", "Count", "V2 Size", "V3 Size", "Saving");
-    printf("%12s %8s %12s %12s %12s\n", "", "", "     (uncompressed)", "", "");
+    printf("%12s %8s %11s %11s %11s\n", "Type", "Count", "V2 Size", "V3 Size", "Saving");
+    printf("%12s %8s %11s %11s %11s\n", "", "", "      (uncompressed)", "", "");
     /* add in label record */
     v2_size = v3_size = sizeof(__pmLogLabel) + 2*sizeof(int);
     for (sp = stats; sp < &stats[numstats]; sp++) {
@@ -362,21 +363,21 @@ end:
     }
     bytes[0] = count[0] = 0;
     for (i = 1; i < sizeof(types)/sizeof(types[0]); i++) {
-	printf("%12s %8d %12zd", types[i], count[i], bytes[i]);
+	printf("%12s %8d %11zd", types[i], count[i], bytes[i]);
 	count[0] += count[i];
 	if (i == TYPE_INDOM) {
-	    printf(" %12zd %12zd (%.1f%%)\n",
+	    printf(" %11zd %11zd (%.1f%%)\n",
 		v3_size, (v2_size - v3_size),
 		100.0*((long)v2_size - (long)v3_size) / v2_size);
 	}
 	else {
-	    printf(" %12zd\n", bytes[i]);
+	    printf(" %11zd\n", bytes[i]);
 	    bytes[0] += bytes[i];
 	}
     }
     v2_size += bytes[0];
     v3_size += bytes[0];
-    printf("%12s %8d %12zd %12zd %12zd (%.1f%%)\n",
+    printf("%12s %8d %11zd %11zd %11zd (%.1f%%)\n",
 	"All metadata", count[0], v2_size, v3_size,
 	(v2_size - v3_size),
 	100.0*((long)v2_size - (long)v3_size) / v2_size);
@@ -386,7 +387,7 @@ end:
 	fprintf(stderr, "__pmFstat: %s\n", pmErrStr(sts));
 	exit(1);
     }
-    printf("%12s %8zd %12zd %12zd\n",
+    printf("%12s %8zd %11zd %11zd\n",
 	"Index",
 	(sbuf.st_size-sizeof(__pmLogLabel))/sizeof(__pmLogTI),
 	sbuf.st_size, sbuf.st_size);
@@ -405,18 +406,18 @@ end:
 	    fprintf(stderr, "__pmFstat(%s): %s\n", fname, pmErrStr(sts));
 	    exit(1);
 	}
-	printf("%9s.%2d %8s %12zd %12zd\n",
+	printf("%9s.%2d %8s %11zd %11zd\n",
 	    "Data", i, "",
 	    sbuf.st_size, sbuf.st_size);
 	v2_size += sbuf.st_size;
 	v3_size += sbuf.st_size;
     }
 
-    printf("%12s %8s %12zd %12zd %12zd (%.1f%%) %s\n",
+    printf("%12s %8s %11zd %11zd %11zd (%.1f%%) %s\n",
 	"Total", "", v2_size, v3_size,
 	(v2_size - v3_size),
 	100.0*((long)v2_size - (long)v3_size) / v2_size,
-	argv[1]);
+	ctxp->c_archctl->ac_log->l_name);
 
     return(sts);
 }
