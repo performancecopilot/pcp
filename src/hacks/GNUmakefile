@@ -1,0 +1,21 @@
+#
+
+TOPDIR = ../..
+include $(TOPDIR)/src/include/builddefs
+
+LLDLIBS = $(PCPLIB)
+EXEC = delta-indom-stats
+LDIRT = $(EXEC)
+
+default: $(EXEC)
+
+include $(BUILDRULES)
+
+# just to be sure ...
+#
+default_pcp:
+install:
+install_pcp:
+check::
+
+delta-indom-stats:	delta-indom-stats.c
