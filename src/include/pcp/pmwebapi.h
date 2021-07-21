@@ -170,11 +170,11 @@ extern int pmSeriesQuery(pmSeriesSettings *, sds, pmSeriesFlags, void *);
 extern int pmSeriesLoad(pmSeriesSettings *, sds, pmSeriesFlags, void *);
 
 /* libpcp_web timer list interface - global, thread-safe */
-typedef void (*pmServerTimerCallBack)(void *);
-extern int pmServerSetMetricRegistry(struct mmv_registry *); /* for generic server metrics */
-extern int pmServerRegisterTimer(pmServerTimerCallBack, void *);
-extern int pmServerReleaseTimer(void *); /* deregister one timer */
-extern void pmServerReleaseAllTimers(void); /* stop and free all registered timers */
+typedef void (*pmWebTimerCallBack)(void *);
+extern int pmWebTimerSetMetricRegistry(struct mmv_registry *); /* for generic server metrics */
+extern int pmWebTimerRegister(pmWebTimerCallBack, void *);
+extern int pmWebTimerRelease(int); /* deregister one timer */
+extern void pmWebTimerReleaseAll(void); /* stop and free all registered timers */
 
 /*
  * Asynchronous archive location and contents discovery services

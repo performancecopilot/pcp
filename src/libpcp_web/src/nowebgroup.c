@@ -92,26 +92,6 @@ pmWebGroupSetConfiguration(pmWebGroupModule *module, struct dict *config)
 }
 
 int
-pmServerRegisterTimer(void *data, pmServerTimerCallBack *callback)
-{
-    (void)data; (void)callback;
-    return -EOPNOTSUPP;
-}
-
-void
-pmServerReleaseTimer(void *data)
-{
-    (void)data;
-    return;
-}
-
-void
-pmServerReleaseAllTimers(void)
-{
-    return;
-}
-
-int
 pmWebGroupSetMetricRegistry(pmWebGroupModule *module, struct mmv_registry *mmv)
 {
     (void)module; (void)mmv;
@@ -122,4 +102,31 @@ void
 pmWebGroupClose(pmWebGroupModule *module)
 {
     (void)module;
+}
+
+int
+pmWebTimerSetMetricRegistry(struct mmv_registry *registry)
+{
+    (void)registry;
+    return -EOPNOTSUPP;
+}
+
+int
+pmWebTimerRegister(pmWebTimerCallBack callback, void *data)
+{
+    (void)data; (void)callback;
+    return -EOPNOTSUPP;
+}
+
+int
+pmWebTimerRelease(int seq)
+{
+    (void)seq;
+    return -ENOTSUPP;
+}
+
+void
+pmWebTimerReleaseAll(void)
+{
+    return;
 }

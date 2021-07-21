@@ -141,8 +141,7 @@ server_init(int portcount, const char *localpath)
     proxy->config = config;
 
     if ((registry = proxymetrics(proxy, METRICS_SERVER)) != NULL)
-	pmServerSetMetricRegistry(registry);
-    /* server_metrics_init(proxy); */
+	pmWebTimerSetMetricRegistry(registry);
 
     proxy->events = uv_default_loop();
 
@@ -738,7 +737,7 @@ shutdown_ports(void *arg)
     }
 
     uv_loop_close(proxy->events);
-    pmServerReleaseAllTimers();
+    pmWebTimerReleaseAll();
     proxymetrics_close(proxy, METRICS_SERVER);
 
     free(proxy->servers);

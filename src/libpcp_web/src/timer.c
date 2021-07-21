@@ -29,14 +29,14 @@ typedef enum server_metric {
 } server_metric;
 
 typedef struct timerCallback {
+    int				seq;
     void			*data;
-    pmServerTimerCallBack	callback;
+    pmWebTimerCallBack		callback;
     struct timerCallback	*next;
 } timerCallback;
 
 static timerCallback	*timerCallbackList;
 static uv_timer_t	pmwebapi_timer;
-static int		callseq;
 static uv_mutex_t	timerCallbackMutex = PTHREAD_MUTEX_INITIALIZER;
 static struct mmv_registry *server_registry; /* global generic server metrics */
 static void		*server_map;
@@ -49,7 +49,6 @@ webapi_timer_worker(uv_timer_t *arg)
 
     (void)handle;
     uv_mutex_lock(&timerCallbackMutex);
-    callseq++;
     for (timer = timerCallbackList; timer; timer = timer->next) {
     	if (timer->callback)
 	    timer->callback(timer->data);
@@ -63,12 +62,14 @@ webapi_timer_worker(uv_timer_t *arg)
  * e.g. to refresh instrumentation, garbage collection, etc.
  */
 int
-pmServerRegisterTimer(pmServerTimerCallBack callback, void *data)
+pmWebTimerRegister(pmWebTimerCallBack callback, void *data)
 {
+    static int		seq = 0;
     timerCallback	*timer = (timerCallback *)malloc(sizeof(timerCallback));
 
     if (timer == NULL)
     	return -ENOMEM;
+    timer->seq = seq++;
     timer->data = data;
     timer->callback = callback;
     uv_mutex_lock(&timerCallbackMutex);
@@ -80,24 +81,35 @@ pmServerRegisterTimer(pmServerTimerCallBack callback, void *data)
     timerCallbackList = timer;
     uv_mutex_unlock(&timerCallbackMutex);
 
-    return 0;
+    return timer->seq;
 }
 
 int
-pmServerReleaseTimer(void *data)
+pmWebTimerRelease(int seq)
 {
-    timerCallback	*timer;
+    int			sts = -EINVAL;
+    timerCallback	*timer, *prev = NULL;
 
     uv_mutex_lock(&timerCallbackMutex);
-    /* TODO */
+    for (timer = timerCallbackList; timer; prev = timer, timer = timer->next) {
+	if (timer->seq == seq) {
+	    if (timer == timerCallbackList)
+	    	timerCallbackList = timer->next;
+	    else
+	    	prev->next = timer->next;
+	    free(timer);
+	    sts = 0;
+	    break;
+	}
+    }
     uv_mutex_unlock(&timerCallbackMutex);
 
-    return -EINVAL; /* not found */
+    return sts;
 }
 
 /* stop timer and free all timers */
 void
-pmServerReleaseAllTimers(void)
+pmWebTimerReleaseAll(void)
 {
     timerCallback	*timer, *next;
 
@@ -115,7 +127,7 @@ pmServerReleaseAllTimers(void)
  * timer callback to refresh generic server metrics
  */
 static void
-server_metrics_refresh(void *data)
+server_metrics_refresh(void *map)
 {
     double		usr, sys;
     unsigned long	datasz = 0;
@@ -129,16 +141,16 @@ server_metrics_refresh(void *data)
     if (getrusage(RUSAGE_SELF, &usage) < 0)
 	return;
 
-    if ((value = mmv_lookup_value_desc(server_map, "cpu.user", NULL)) != NULL)
-	mmv_set_value(server_map, value, usr);
-    if ((value = mmv_lookup_value_desc(server_map, "cpu.sys", NULL)) != NULL)
-	mmv_set_value(server_map, value, sys);
-    if ((value = mmv_lookup_value_desc(server_map, "cpu.total", NULL)) != NULL)
-	mmv_set_value(server_map, value, usr+sys);
-    if ((value = mmv_lookup_value_desc(server_map, "mem.maxrss", NULL)) != NULL)
-	mmv_set_value(server_map, value, usage.ru_maxrss);
-    if ((value = mmv_lookup_value_desc(server_map, "mem.datasz", NULL)) != NULL)
-	mmv_set_value(server_map, value, (double)datasz);
+    if ((value = mmv_lookup_value_desc(map, "cpu.user", NULL)) != NULL)
+	mmv_set_value(map, value, usr);
+    if ((value = mmv_lookup_value_desc(map, "cpu.sys", NULL)) != NULL)
+	mmv_set_value(map, value, sys);
+    if ((value = mmv_lookup_value_desc(map, "cpu.total", NULL)) != NULL)
+	mmv_set_value(map, value, usr+sys);
+    if ((value = mmv_lookup_value_desc(map, "mem.maxrss", NULL)) != NULL)
+	mmv_set_value(map, value, usage.ru_maxrss);
+    if ((value = mmv_lookup_value_desc(map, "mem.datasz", NULL)) != NULL)
+	mmv_set_value(map, value, (double)datasz);
 }
 
 /*
@@ -146,7 +158,7 @@ server_metrics_refresh(void *data)
  * See pmproxy/src/server.c for calling example.
  */
 int
-pmServerSetMetricRegistry(struct mmv_registry *registry)
+pmWebTimerSetMetricRegistry(struct mmv_registry *registry)
 {
 
     pmAtomValue		*value;
@@ -154,7 +166,6 @@ pmServerSetMetricRegistry(struct mmv_registry *registry)
     pmUnits		nounits = MMV_UNITS(0,0,0,0,0,0);
     pmUnits		units_kbytes = MMV_UNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0);
     pmUnits		units_msec = MMV_UNITS(0, 1, 0, 0, PM_TIME_MSEC, 0);
-
     pid_t		pid = getpid();
     char		buffer[64];
 
@@ -207,8 +218,5 @@ pmServerSetMetricRegistry(struct mmv_registry *registry)
 	mmv_set_value(server_map, value, pid);
 
     /* register the refresh timer */
-    pmServerRegisterTimer(server_metrics_refresh, server_map);
-
-    /* success */
-    return 0;
+    return pmWebTimerRegister(server_metrics_refresh, server_map);
 }

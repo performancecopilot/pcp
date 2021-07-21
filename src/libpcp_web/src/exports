@@ -231,8 +231,8 @@ PCP_WEB_1.16 {
 
 PCP_WEB_1.17 {
   global:
-    pmServerSetMetricRegistry;
-    pmServerRegisterTimer;
-    pmServerReleaseTimer;
-    pmServerReleaseAllTimers;
+    pmWebTimerSetMetricRegistry;
+    pmWebTimerRegister;
+    pmWebTimerRelease;
+    pmWebTimerReleaseAll;
 } PCP_WEB_1.16;
