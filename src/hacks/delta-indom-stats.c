@@ -382,17 +382,19 @@ end:
 	(v2_size - v3_size),
 	100.0*((long)v2_size - (long)v3_size) / v2_size);
 
-    /* now the temporal index */
-    if ((sts = __pmFstat(ctxp->c_archctl->ac_log->l_tifp, &sbuf)) < 0) {
-	fprintf(stderr, "__pmFstat: %s\n", pmErrStr(sts));
-	exit(1);
+    /* now the temporal index (optional) */
+    if (ctxp->c_archctl->ac_log->l_tifp) {
+	if ((sts = __pmFstat(ctxp->c_archctl->ac_log->l_tifp, &sbuf)) < 0) {
+	    fprintf(stderr, "__pmFstat: %s\n", pmErrStr(sts));
+	    exit(1);
+	}
+	printf("%12s %8zd %11zd %11zd\n",
+		"Index",
+		(sbuf.st_size-sizeof(__pmLogLabel))/sizeof(__pmLogTI),
+		sbuf.st_size, sbuf.st_size);
+	v2_size += sbuf.st_size;
+	v3_size += sbuf.st_size;
     }
-    printf("%12s %8zd %11zd %11zd\n",
-	"Index",
-	(sbuf.st_size-sizeof(__pmLogLabel))/sizeof(__pmLogTI),
-	sbuf.st_size, sbuf.st_size);
-    v2_size += sbuf.st_size;
-    v3_size += sbuf.st_size;
 
     /* and finally each data volume */
     for (i = ctxp->c_archctl->ac_log->l_minvol; i <= ctxp->c_archctl->ac_log->l_maxvol; i++) {

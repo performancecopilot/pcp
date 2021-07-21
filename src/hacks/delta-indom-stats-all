@@ -4,19 +4,23 @@
 # the sun.
 #
 
-make delta-indom-stats
+dirs="$@"
+if [ -z "$dirs" ]; then
+    echo "Usage: delta-indom-stats-all [path]..."
+    exit 1
+fi
 
-dirs='../../qa /var/log/pcp/pmlogger'
+make delta-indom-stats
 
 find $dirs \( -name "*.meta.*" -o -name "*.meta" \) \
 | while read arch
 do
     case "$arch"
     in
-	../../qa/badarchives/*|../../qa/*.full)
+	*/qa/badarchives/*|*/qa/*.full)
 	    ;;
 	*)
-	    delta-indom-stats "$arch" 2>&1
+	    ./delta-indom-stats "$arch" 2>&1
 	    ;;
     esac
 done >report.full
