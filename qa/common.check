@@ -1183,6 +1183,54 @@ _wait_for_pmproxy()
     done
 }
 
+# Wait for pmproxy to end
+#
+_wait_pmproxy_end()
+{
+    #debug# set -x
+
+    _pid=`cat $PCP_RUN_DIR/pmroxy.pid 2>/dev/null`
+    if [ -z "$_pid" ]
+    then
+	# no $PCP_RUN_DIR/proxy.pid file, try ps(1) the hard way
+	#
+	_pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS \
+	| sed -n -e '/\[p]mproxy /{
+s/^[^ 	]*//
+s/^[ 	]*//
+s/[ 	].*//
+p
+}'`
+    fi
+    if [ -z "$_pid" ]
+    then
+	#debug# set +x
+	return
+    fi
+
+    _i=0
+    while true
+    do
+	if sudo kill -s 0 $_pid 2>/dev/null
+	then
+	    # process still exists
+	    _i=`expr $_i + 1`
+	    if [ "$_i" -ge 100 ]
+	    then
+		echo "_wait_proxy_end: failed to see pid $_pid exit after 100 iterations"
+		_systemctl_status proxy
+		#debug# set +x
+		return
+	    fi
+	    pmsleep 0.1
+	else
+	    # process has really exited
+	    #debug# set +x
+	    return
+	fi
+    done
+}
+
 # ensure primary logger allows pmlc state changes
 #
 _writable_primary_logger()
