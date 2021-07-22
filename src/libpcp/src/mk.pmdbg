@@ -30,6 +30,7 @@
 # 3. $ sudo make install
 # 4. $ cd ../../pmdbg
 #    $ make clean
+#    $ make
 #    $ ./pmdbg -l
 #    - Check new flag appears
 #    $ sudo make install

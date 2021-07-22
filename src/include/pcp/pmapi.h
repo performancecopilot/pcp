@@ -1140,6 +1140,7 @@ PCP_CALL extern int pmClearDebug(const char *);
  * New style ...
  * Note that comments are important ... these are extracted and
  * built into pmdbg.h.
+ * For the "add a new debug flag" recipe, see ../../libpcp/src/mk.pmdbg
  */
 typedef struct {
     int	pdu;		/* PDU traffic at the Xmit and Recv level */
@@ -1187,6 +1188,9 @@ typedef struct {
     int search;		/* Text search tracing */
     int query;		/* libpcp_web query parsing and evaulation */
     int	compress;	/* Archive compress/decompress operations */
+    int dev0;		/* Developer flag 0 */
+    int dev1;		/* Developer flag 1 */
+    int dev2;		/* Developer flag 2 */
 } pmdebugoptions_t;
 
 PCP_DATA extern pmdebugoptions_t	pmDebugOptions;
