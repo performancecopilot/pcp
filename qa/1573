@@ -107,6 +107,7 @@ _within_tolerance "rss" $pmproxy_rss1 $pmproxy_rss2 10%
 echo "RSS1 for PID $pmproxy_pid is $pmproxy_rss1" >> $here/$seq.full
 echo "RSS2 for PID $pmproxy_pid is $pmproxy_rss2" >> $here/$seq.full
 cat $PCP_LOG_DIR/pmproxy/pmproxy.log >>$seq.full
+[ -f /proc/$pmproxy_pid/maps ] && echo == maps >>$seq.full && $sudo cat /proc/$pmproxy_pid/maps >>$seq.full
 echo === see $seq.full for pmproxy rss and logs
 
 # success, all done
