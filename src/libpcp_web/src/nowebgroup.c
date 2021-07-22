@@ -124,9 +124,3 @@ pmWebTimerRelease(int seq)
     (void)seq;
     return -ENOTSUPP;
 }
-
-void
-pmWebTimerReleaseAll(void)
-{
-    return;
-}

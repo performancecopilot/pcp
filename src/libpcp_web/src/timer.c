@@ -28,6 +28,9 @@ typedef enum server_metric {
     NUM_SERVER_METRIC
 } server_metric;
 
+/* direct lookup table */
+static pmAtomValue *server_values[NUM_SERVER_METRIC];
+
 typedef struct timerCallback {
     int				seq;
     void			*data;
@@ -84,6 +87,10 @@ pmWebTimerRegister(pmWebTimerCallBack callback, void *data)
     return timer->seq;
 }
 
+/*
+ * Release a previously registered timer. If there are no
+ * remaining registered timers, stop the global uv timer.
+ */
 int
 pmWebTimerRelease(int seq)
 {
@@ -98,29 +105,16 @@ pmWebTimerRelease(int seq)
 	    else
 	    	prev->next = timer->next;
 	    free(timer);
+	    /* success */
 	    sts = 0;
 	    break;
 	}
     }
+    if (timerCallbackList == NULL)
+	uv_timer_stop(&pmwebapi_timer);
     uv_mutex_unlock(&timerCallbackMutex);
 
     return sts;
-}
-
-/* stop timer and free all timers */
-void
-pmWebTimerReleaseAll(void)
-{
-    timerCallback	*timer, *next;
-
-    uv_mutex_lock(&timerCallbackMutex);
-    uv_timer_stop(&pmwebapi_timer);
-    for (timer = timerCallbackList; timer; timer = next) {
-	next = timer->next;
-	free(timer);
-    }
-    timerCallbackList = NULL;
-    uv_mutex_unlock(&timerCallbackMutex);
 }
 
 /*
@@ -132,7 +126,6 @@ server_metrics_refresh(void *map)
     double		usr, sys;
     unsigned long	datasz = 0;
     struct rusage	usage = {0};
-    pmAtomValue		*value;
 
     __pmProcessDataSize(&datasz);
     __pmProcessRunTimes(&usr, &sys);
@@ -141,16 +134,16 @@ server_metrics_refresh(void *map)
     if (getrusage(RUSAGE_SELF, &usage) < 0)
 	return;
 
-    if ((value = mmv_lookup_value_desc(map, "cpu.user", NULL)) != NULL)
-	mmv_set_value(map, value, usr);
-    if ((value = mmv_lookup_value_desc(map, "cpu.sys", NULL)) != NULL)
-	mmv_set_value(map, value, sys);
-    if ((value = mmv_lookup_value_desc(map, "cpu.total", NULL)) != NULL)
-	mmv_set_value(map, value, usr+sys);
-    if ((value = mmv_lookup_value_desc(map, "mem.maxrss", NULL)) != NULL)
-	mmv_set_value(map, value, usage.ru_maxrss);
-    if ((value = mmv_lookup_value_desc(map, "mem.datasz", NULL)) != NULL)
-	mmv_set_value(map, value, (double)datasz);
+    if (server_values[SERVER_CPU_USR])
+	mmv_set_value(map, server_values[SERVER_CPU_USR], usr);
+    if (server_values[SERVER_CPU_SYS])
+	mmv_set_value(map, server_values[SERVER_CPU_SYS], sys);
+    if (server_values[SERVER_CPU_TOT])
+	mmv_set_value(map, server_values[SERVER_CPU_TOT], usr+sys);
+    if (server_values[SERVER_MEM_MAXRSS])
+	mmv_set_value(map, server_values[SERVER_MEM_MAXRSS], usage.ru_maxrss);
+    if (server_values[SERVER_MEM_DATASZ])
+	mmv_set_value(map, server_values[SERVER_MEM_DATASZ], (double)datasz);
 }
 
 /*
@@ -160,8 +153,6 @@ server_metrics_refresh(void *map)
 int
 pmWebTimerSetMetricRegistry(struct mmv_registry *registry)
 {
-
-    pmAtomValue		*value;
     pmInDom		noindom = MMV_INDOM_NULL;
     pmUnits		nounits = MMV_UNITS(0,0,0,0,0,0);
     pmUnits		units_kbytes = MMV_UNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0);
@@ -170,52 +161,59 @@ pmWebTimerSetMetricRegistry(struct mmv_registry *registry)
     char		buffer[64];
 
     if (server_registry) {
-	fprintf(stderr, "%s: Error: server instrumentation already registered\n", pmGetProgname());
+	pmNotifyErr(LOG_ERR, "%s: server instrumentation already registered\n",
+		"pmWebTimerSetMetricRegistry");
     	return -EINVAL;
     }
 
     server_registry = registry;
     mmv_stats_add_metric(registry, "pid", SERVER_PID,
 		MMV_TYPE_U32, MMV_SEM_DISCRETE, nounits, noindom,
-		"server PID",
-		"PID for the current server invocation");
+		"Identifier",
+		"Identifier for the current process");
     pmsprintf(buffer, sizeof(buffer), "%u", pid);
     mmv_stats_add_metric_label(registry, SERVER_PID,
 		"pid", buffer, MMV_NUMBER_TYPE, 0);
 
     mmv_stats_add_metric(registry, "cpu.user", SERVER_CPU_USR,
 	MMV_TYPE_U64, MMV_SEM_COUNTER, units_msec, noindom,
-	"server user CPU",
-	"server process user CPU time counter");
+	"user CPU time",
+	"process user CPU time counter");
 
     mmv_stats_add_metric(registry, "cpu.sys", SERVER_CPU_SYS,
 	MMV_TYPE_U64, MMV_SEM_COUNTER, units_msec, noindom,
-	"server system CPU",
-	"server process system CPU time counter");
+	"system CPU time",
+	"process system CPU time counter");
 
     mmv_stats_add_metric(registry, "cpu.total", SERVER_CPU_TOT,
 	MMV_TYPE_U64, MMV_SEM_COUNTER, units_msec, noindom,
-	"server system + user CPU",
-	"server process system + user CPU time");
+	"system + user CPU time",
+	"process system + user CPU time");
 
     mmv_stats_add_metric(registry, "mem.maxrss", SERVER_MEM_MAXRSS,
 	MMV_TYPE_U64, MMV_SEM_INSTANT, units_kbytes, noindom,
-	"server maximum RSS",
-	"server process maximum resident set memory size");
+	"maximum RSS",
+	"process maximum resident set memory size");
 
     mmv_stats_add_metric(registry, "mem.datasz", SERVER_MEM_DATASZ,
 	MMV_TYPE_U64, MMV_SEM_INSTANT, units_kbytes, noindom,
-	"server virtual data size",
-	"server process data memory size, returned from sbrk(2)");
+	"virtual data size",
+	"process data memory size, returned from sbrk(2)");
 
     if ((server_map = mmv_stats_start(registry)) == NULL) {
-	fprintf(stderr, "%s: Error: server instrumentation disabled\n", pmGetProgname());
+	pmNotifyErr(LOG_ERR, "%s: server instrumentation disabled",
+		"pmWebTimerSetMetricRegistry");
 	return -EINVAL;
     }
 
-    /* PID doesn't change, register it once */
-    if ((value = mmv_lookup_value_desc(server_map, "pid", NULL)) != NULL)
-	mmv_set_value(server_map, value, pid);
+    /* PID doesn't change, set it once */
+    if ((server_values[SERVER_PID] = mmv_lookup_value_desc(server_map, "pid", NULL)) != NULL)
+	mmv_set_value(server_map, server_values[SERVER_PID], pid);
+    server_values[SERVER_CPU_USR] = mmv_lookup_value_desc(server_map, "cpu.user", NULL);
+    server_values[SERVER_CPU_SYS] = mmv_lookup_value_desc(server_map, "cpu.sys", NULL);
+    server_values[SERVER_CPU_TOT] = mmv_lookup_value_desc(server_map, "cpu.total", NULL);
+    server_values[SERVER_MEM_MAXRSS] = mmv_lookup_value_desc(server_map, "mem.maxrss", NULL);
+    server_values[SERVER_MEM_DATASZ] = mmv_lookup_value_desc(server_map, "mem.datasz", NULL);
 
     /* register the refresh timer */
     return pmWebTimerRegister(server_metrics_refresh, server_map);

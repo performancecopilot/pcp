@@ -737,7 +737,6 @@ shutdown_ports(void *arg)
     }
 
     uv_loop_close(proxy->events);
-    pmWebTimerReleaseAll();
     proxymetrics_close(proxy, METRICS_SERVER);
 
     free(proxy->servers);

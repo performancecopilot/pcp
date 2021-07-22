@@ -234,5 +234,4 @@ PCP_WEB_1.17 {
     pmWebTimerSetMetricRegistry;
     pmWebTimerRegister;
     pmWebTimerRelease;
-    pmWebTimerReleaseAll;
 } PCP_WEB_1.16;

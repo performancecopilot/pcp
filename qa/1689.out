@@ -19,23 +19,23 @@ Help:
 Writing anything other then 0 to this metric will result in
 re-reading directory and re-mapping files.
 
-pmproxy.cpu.sys PMID: 4.1.2 [server system CPU]
+pmproxy.cpu.sys PMID: 4.1.2 [system CPU time]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: millisec
 Help:
-server process system CPU time counter
+process system CPU time counter
 
-pmproxy.cpu.total PMID: 4.1.3 [server system + user CPU]
+pmproxy.cpu.total PMID: 4.1.3 [system + user CPU time]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: millisec
 Help:
-server process system + user CPU time
+process system + user CPU time
 
-pmproxy.cpu.user PMID: 4.1.1 [server user CPU]
+pmproxy.cpu.user PMID: 4.1.1 [user CPU time]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: millisec
 Help:
-server process user CPU time counter
+process user CPU time counter
 
 pmproxy.discover.changed_callbacks PMID: 4.5.17 [filesystem changed callbacks]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -159,23 +159,23 @@ pmproxy.discover.throttled_changed_callbacks PMID: 4.5.18 [filesystem changed ca
 Help:
 number of throttled filesystem change callbacks
 
-pmproxy.mem.datasz PMID: 4.1.5 [server virtual data size]
+pmproxy.mem.datasz PMID: 4.1.5 [virtual data size]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: Kbyte
 Help:
-server process data memory size, returned from sbrk(2)
+process data memory size, returned from sbrk(2)
 
-pmproxy.mem.maxrss PMID: 4.1.4 [server maximum RSS]
+pmproxy.mem.maxrss PMID: 4.1.4 [maximum RSS]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: Kbyte
 Help:
-server process maximum resident set memory size
+process maximum resident set memory size
 
-pmproxy.pid PMID: 4.1.0 [server PID]
+pmproxy.pid PMID: 4.1.0 [Identifier]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
 Help:
-PID for the current server invocation
+Identifier for the current process
 
 pmproxy.redis.requests.error PMID: 4.2.2 [number of request errors]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff

@@ -174,7 +174,6 @@ typedef void (*pmWebTimerCallBack)(void *);
 extern int pmWebTimerSetMetricRegistry(struct mmv_registry *); /* for generic server metrics */
 extern int pmWebTimerRegister(pmWebTimerCallBack, void *);
 extern int pmWebTimerRelease(int); /* deregister one timer */
-extern void pmWebTimerReleaseAll(void); /* stop and free all registered timers */
 
 /*
  * Asynchronous archive location and contents discovery services
