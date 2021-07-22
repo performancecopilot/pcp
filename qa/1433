@@ -30,6 +30,7 @@ _cleanup()
     else
 	echo "Stopping pmproxy ..." >>$here/$seq.full
 	_service pmproxy stop >>$here/$seq.full 2>&1
+	_wait_pmproxy_end
     fi
     $sudo rm -rf $tmp $tmp.*
 }
@@ -50,10 +51,24 @@ echo --timeseries >> $tmp.local
 $sudo cp $tmp.local $PCP_PMPROXYOPTIONS_PATH
 
 _service pmproxy stop >/dev/null 2>&1
+_wait_pmproxy_end
 _service pmproxy start 2>&1 | _filter_pmproxy_start
+_wait_for_pmproxy
 
 _service pmproxy stop 2>&1 | _filter_pmproxy_start
+_wait_pmproxy_end
 _filter_pmproxy_log < $PCP_LOG_DIR/pmproxy/pmproxy.log
+
+# systemd has a default limits ... systemd.unit(5) describe
+# StartLimitIntervalSec and StartLimitBurst but not the default values
+# which are hidden in *.conf files below /etc/systemd and appear
+# to have defaults like:
+#	DefaultStartLimitIntervalSec=10s
+#	DefaultStartLimitBurst=5
+# ... this test has 2 (re)starts, so we need it to run for 4 seconds
+# to avoid hitting the limit
+#
+sleep 4
 
 # success, all done
 status=0
