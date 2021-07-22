@@ -1852,6 +1852,7 @@ x11
 1613 pmda.linux kernel local
 1622 selinux local
 1623 libpcp_import collectl local
+1626:reserved pmproxy libpcp_web local
 1627 libpcp_import local
 1628 libpcp_import valgrind local
 1633 python pmda.sockets local
@@ -1898,6 +1899,7 @@ x11
 1723 pmda.bpftrace local python
 1724 pmda.bpftrace local python
 1725 pmda.bpftrace local python
+1727:reserved pmproxy libpcp_web local
 1740 pmda.proc local
 1745 pmlogger libpcp pmval local
 1748 atop local
@@ -1906,6 +1908,7 @@ x11
 1768 pmfind local
 1769 pmda.linux local
 1773 pmseries pmproxy libpcp_web local
+1774:reserved pmproxy libpcp_web local
 1775 pmdumptext archive local
 1793 pmrep pcp2xxx python local
 1801 dstat python pcp local
