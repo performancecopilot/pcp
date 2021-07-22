@@ -34,7 +34,10 @@
 #    $ ./pmdbg -l
 #    - Check new flag appears
 #    $ sudo make install
-# 5. $ cd ../../qa
+# 5. $ cd ../pmdbg
+#    $ make clean
+#    $ sudo make install
+# 6. $ cd ../../qa
 #    $ ./check -g pmdbg
 #    - Expect that at least 1277, 1278 and 1359 will need to be remade
 #

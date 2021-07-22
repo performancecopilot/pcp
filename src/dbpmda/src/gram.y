@@ -106,6 +106,7 @@ fix_dynamic_pmid(const char *name, pmID *pmidp)
 	PATHNAME
 	MACRO
 	STRING
+	NEGNAME
 
 %term	COMMA EQUAL
 	OPEN CLOSE DESC GETDESC GETINAME FETCH INSTANCE PROFILE HELP 
@@ -706,7 +707,10 @@ debug   : NUMBER 			{
 			$$ = 0;
 		    }
 	| flag					{
-			sts = pmSetDebug($1);
+			if ($1[0] == '-')
+			    sts = pmClearDebug(&$1[1]);
+			else
+			    sts = pmSetDebug($1);
 			if (sts < 0) {
 			    pmsprintf(warnStr, MYWARNSTRSZ, "Bad debug flag (%s)", $1);
 			    yyerror(warnStr);
@@ -737,7 +741,10 @@ debug   : NUMBER 			{
 			$$ = 0;
 		    }
 	| debug flag					{
-			sts = pmSetDebug($2);
+			if ($2[0] == '-')
+			    sts = pmClearDebug(&$2[1]);
+			else
+			    sts = pmSetDebug($2);
 			if (sts < 0) {
 			    pmsprintf(warnStr, MYWARNSTRSZ, "Bad debug flag (%s)", $2);
 			    yyerror(warnStr);
@@ -746,7 +753,10 @@ debug   : NUMBER 			{
 			$$ = 0;
 		    }
 	| debug COMMA flag					{
-			sts = pmSetDebug($3);
+			if ($3[0] == '-')
+			    sts = pmClearDebug(&$3[1]);
+			else
+			    sts = pmSetDebug($3);
 			if (sts < 0) {
 			    pmsprintf(warnStr, MYWARNSTRSZ, "Bad debug flag (%s)", $3);
 			    yyerror(warnStr);
@@ -762,6 +772,7 @@ debug   : NUMBER 			{
  * lexer for type NAME
  */
 flag	: NAME		{ $$ = $1; }
+	| NEGNAME	{ $$ = $1; }
 	| FETCH		{ $$ = strdup("fetch"); gc_add($$); }
 	| PROFILE	{ $$ = strdup("profile"); gc_add($$); }
 	| CTXT		{ $$ = strdup("context"); gc_add($$); }
