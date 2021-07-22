@@ -117,6 +117,13 @@ watch		{ BEGIN FNAME; return WATCH; }
 	    return NAME;
 	}
 
+-[A-Za-z][A-Za-z0-9_\./:-]* {
+	    yylval.y_str = (char *)malloc(yyleng+1);
+	    strcpy(yylval.y_str, yytext);
+	    gc_add(yylval.y_str);
+	    return NEGNAME;
+	}
+
 \$[A-Za-z][A-Za-z0-9_-]* {
 	    yylval.y_str = (char *)malloc(yyleng+1);
 	    strcpy(yylval.y_str, yytext);

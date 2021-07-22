@@ -545,8 +545,10 @@ verification is necessary by the PMDA.
 The
 .B debug
 command takes one or more debug options separated by whitespace or a comma.
-This can be used to selectively enable or disable debugging output from various
+This can be used to selectively enable debugging output from various
 modules of the PCP libraries that the PMDA will be linked with.
+If the option is prefixed by a minus ``-'' the corresponding debugging option is
+disabled.
 The options are the same debug names as reported by the
 .B \-l
 option to

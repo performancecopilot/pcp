@@ -303,7 +303,7 @@ dohelp(int command, int full)
 	    break;
 	case DBG:
 	    puts("debug all | none");
-	    puts("debug option [ option ... ] (option is a symbolic name or a decimal number)");
+	    puts("debug [-]flag [ [-]flag ... ] (- prefix to clear)");
 	    break;
 	case DESC:
 	    puts("desc metric");
