@@ -6,7 +6,7 @@ attr attr# [value]
 children metric-name
 close
 debug all | none
-debug option [ option ... ] (option is a symbolic name or a decimal number)
+debug [-]flag [ [-]flag ... ] (- prefix to clear)
 desc metric
 fetch metric [ metric ... ]
 getdesc on | off
@@ -65,7 +65,7 @@ exit, allowing another PMDA to be opened.
 dbpmda> help debug
 
 debug all | none
-debug option [ option ... ] (option is a symbolic name or a decimal number)
+debug [-]flag [ [-]flag ... ] (- prefix to clear)
 
 Specify which debugging options should be active (see pmdbg(1)).  Options
 may be specified by name (or number for the old bit-field options), with

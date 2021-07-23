@@ -784,7 +784,7 @@ x11
 339 pmie local kernel
 340 pmcd remote pmstore
 341 pmda local
-342 other remote
+342 other remote dbpmda
 343 pmlogreduce local pmdumplog
 344 context_local local pmval pmprobe
 345 pmns derive local sanity
@@ -951,7 +951,7 @@ x11
 506 pmlogrewrite local slow
 507 pcp local kernel
 508 archive pmlogreduce local pmval kernel
-509 derive pmns local pmda.sample
+509 derive pmns local pmda.sample dbpmda
 510 pmlogger pmlc local
 511 pmimport pmdumplog pmlogsummary perl local
 512 threads pminfo pmlogger pmlogextract pmdumplog dbpmda local fault
@@ -1196,7 +1196,7 @@ x11
 751:retired pmda.rpm local pmdumplog pmlogrewrite
 752 libpcp local pmval timezone
 753 derive local pmval pmstore kernel
-754 pmda.unbound local python
+754 pmda.unbound local python dbpmda
 755 pmda.apache pmda.install local
 756 pmda.perfevent local
 757 pmda.perfevent pmda.install local
@@ -1221,12 +1221,12 @@ x11
 776 pmfind local
 777 derive pmprobe pmie local pmval
 778 pmda.postgresql pmie local
-779 pmda local
+779 pmda local dbpmda
 780 pmproxy local
 781 logutil local
 782:retired pmwebd local
 783:retired pmda.rpm local valgrind
-784 pmda.mic python local
+784 pmda.mic python local dbpmda
 785 pcp atop local
 786 context context_local libpcp local
 787 archive local pmie pmlogrewrite pmdumplog pmval flakey kernel
@@ -1242,7 +1242,7 @@ x11
 797 pmlogrewrite local pmdumplog
 798 pmda.nfsclient local python dbpmda
 799 pmlogrewrite local
-800 pmda.proc pmda.hotproc local
+800 pmda.proc pmda.hotproc local dbpmda
 801 pmda.netfilter local
 802 pmda valgrind dbpmda local
 803 libpcp derive local kernel
@@ -1397,7 +1397,7 @@ x11
 952 threads valgrind local helgrind
 953 libpcp threads local
 954 libpcp threads derive local
-955:retired pmda.linux local kernel
+955:retired pmda.linux local kernel dbpmda
 956 pmcd local
 957 pmda.linux local valgrind
 958 archive local pmdumplog
@@ -1473,9 +1473,9 @@ x11
 1028 pmdumptext local kernel x11
 1029 libpcp_qmc local pmstore x11
 1030 pmda.linux local
-1031 pmda.slurm perl local
+1031 pmda.slurm perl local dbpmda
 1032 pmproxy containers local python
-1033 pmda.named local
+1033 pmda.named local dbpmda
 1034 pmda.named local
 1035 pmda.oracle local pmstore
 1036 pmclient archive multi-archive local pmlogextract python
@@ -1494,7 +1494,7 @@ x11
 1049 pmie pmieconf local
 1050 pmieconf local
 1051 pmieconf #696008 local
-1052 pmda.json local python
+1052 pmda.json local python dbpmda
 1053 pmda.json pmda.install local python
 1054 pmlogger pmcpp local pmdumplog kernel
 1055 pmlogger local pmdumplog pmstore folio
@@ -1697,7 +1697,7 @@ x11
 1252 derive local
 1253 derive local valgrind
 1254 derive local
-1255 libpcp local kernel
+1255 libpcp local kernel dbpmda
 1256 derive valgrind local
 1257 libpcp python local
 1258 pmda.linux local valgrind
@@ -1789,7 +1789,7 @@ x11
 1358 pmda.podman local
 1359 libpcp local pmdbg
 1362 pmda.postgresql local
-1367 labels pmda.simple local python
+1367 labels pmda.simple local python dbpmda
 1368 labels help pmlogger pmdumplog local sanity
 1369 labels pmcd pmlogger pmdumplog local
 1370 man local
