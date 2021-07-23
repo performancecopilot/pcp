@@ -49,10 +49,19 @@ _filter()
 }
 
 # real QA test starts here
+# turn them on in pmdbg -l order
 pmdbg -l \
+| sed -e 1,2d \
 | $PCP_AWK_PROG >$tmp.in '
-NR <= 2	{ next}			# skip 2 heading lines
 	{ print "debug " $1
+	  print "status"
+	}'
+# turn then off in reverse pmdbg -l order
+pmdbg -l \
+| sed -e 1,2d \
+| tac \
+| $PCP_AWK_PROG >>$tmp.in '
+	{ print "debug -" $1
 	  print "status"
 	  all = all " " $1
 	}
