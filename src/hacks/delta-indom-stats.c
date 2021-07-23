@@ -43,6 +43,14 @@ typedef struct {
 static stats_t	*stats = NULL;
 static int	numstats = 0;
 
+/* strings for external instance names */
+static size_t	str_unique_bytes;
+static size_t	str_dup_bytes;
+
+/* lazy loading */
+static size_t	v2_maps;
+static size_t	v3_maps;
+
 static int
 compar(const void *a, const void *b)
 {
@@ -122,9 +130,27 @@ static stats_t
     return &stats[numstats-1];
 }
 
+static char
+*pr_size(size_t n)
+{
+    static char	buf[10];
+
+    if (n < 10*1024)
+	sprintf(buf, "%7zd  ", n);
+    else if (n < 10*1024*1024)
+	sprintf(buf, "%6.2fKb", n / (double)1024);
+    else if (n < 10*1024*1024*1024L)
+	sprintf(buf, "%6.2fMb", n / (double)(1024*1024));
+    else
+	sprintf(buf, "%6.2fGb", n / (double)(1024*1024*1024L));
+
+    return buf;
+}
+
 int
 main(int argc, char **argv)
 {
+    int		c;
     int		sts;
     int		n;
     int		rlen;
@@ -142,13 +168,24 @@ main(int argc, char **argv)
     stats_t	*sp;
     struct stat	sbuf;
 
-    if (argc != 2) {
-	fprintf(stderr, "Usage: delta-indom-stats archive\n");
+    while ((c = getopt(argc, argv, "D:")) != EOF) {
+	switch (c) {
+	    case 'D':
+	    sts = pmSetDebug(optarg);
+	    if (sts < 0) {
+		fprintf(stderr, "Bad debug options (%s)\n", optarg);
+		exit(1);
+	    }
+	}
+    }
+
+    if (optind != argc-1) {
+	fprintf(stderr, "Usage: delta-indom-stats [-D flags] archive\n");
 	return(1);
     }
 
-    if ((sts = pmNewContext(PM_CONTEXT_ARCHIVE, argv[1])) < 0) {
-	fprintf(stderr, "pmNewContext(%s): %s\n", argv[1], pmErrStr(sts));
+    if ((sts = pmNewContext(PM_CONTEXT_ARCHIVE, argv[optind])) < 0) {
+	fprintf(stderr, "pmNewContext(%s): %s\n", argv[optind], pmErrStr(sts));
 	exit(1);
     }
 
@@ -164,8 +201,6 @@ main(int argc, char **argv)
     printf("%s:\n", ctxp->c_archctl->ac_log->l_name);
 
     f = ctxp->c_archctl->ac_log->l_mdfp;
-
-    pmSetDebug("logmeta");
 
     /*
      * snarfed from __pmLogLoadMeta() in logmeta.c
@@ -276,9 +311,11 @@ main(int argc, char **argv)
 		    ctl[i].inst = in.instlist[i];
 		    ctl[i].name = in.namelist[i];
 		}
+		v2_maps += in.numinst * (sizeof(int) + sizeof(char *));
 
-		if (in.numinst > 1)
+		if (in.numinst > 1) {
 		    qsort((void *)ctl, in.numinst, sizeof(sortrec_t), compar);
+		}
 		/* just being sure that our qsort use produces a sorted indom */
 		if (!is_sorted(in.numinst, ctl)) {
 		    printf("not sorted\n");
@@ -286,6 +323,7 @@ main(int argc, char **argv)
 		}
 		if (in.namelist != NULL && !allinbuf)
 		    free(in.namelist);
+
 
 		if (sp->ctl != NULL) {
 		    /*
@@ -299,6 +337,7 @@ main(int argc, char **argv)
 				printf("dropped %d -> %-29.29s\n", sp->ctl[i].inst, sp->ctl[i].name);
 			    sp->dropped++;
 			    sp->v3_size += 2*sizeof(int);
+			    v3_maps += sizeof(int) + sizeof(char *);
 			    i++;
 			}
 			else if ((i == sp->numinst && j < in.numinst) ||
@@ -307,10 +346,13 @@ main(int argc, char **argv)
 				printf("added %d -> %-29.29s\n", ctl[j].inst, ctl[j].name);
 			    sp->added++;
 			    sp->v3_size += 2*sizeof(int) + strlen(ctl[j].name) + 1;
+			    str_unique_bytes += strlen(ctl[j].name) + 1;
+			    v3_maps += sizeof(int) + sizeof(char *);
 			    j++;
 			}
 			else if (sp->ctl[i].inst == ctl[j].inst) {
 			    // printf("same %d -> %-29.29s ... %-29.29s\n", sp->ctl[i].inst, sp->ctl[i].name, ctl[j].name);
+			    str_dup_bytes += strlen(ctl[j].name) + 1;
 			    i++;
 			    j++;
 			}
@@ -321,6 +363,12 @@ main(int argc, char **argv)
 		    }
 		    free(sp->tbuf);
 		    free(sp->ctl);
+		}
+		else {
+		    /* first time, all instance names needed */
+		    for (i = 0; i < in.numinst; i++)
+			str_unique_bytes += strlen(ctl[i].name) + 1;
+		    v3_maps += in.numinst * (sizeof(int) + sizeof(char *));
 		}
 
 		sp->numinst = in.numinst;
@@ -353,8 +401,9 @@ end:
     report();
 
     putchar('\n');
-    printf("%12s %8s %11s %11s %11s\n", "Type", "Count", "V2 Size", "V3 Size", "Saving");
-    printf("%12s %8s %11s %11s %11s\n", "", "", "      (uncompressed)", "", "");
+    printf("On disk analysis ...\n");
+    printf("%8s %8s %9s %9s %9s\n", "Type", "Count", "V2 Size", "V3 Size", "Saving");
+    printf("%8s %8s %9s %9s %9s\n", "", "", "    (uncompressed)", "", "");
     /* add in label record */
     v2_size = v3_size = sizeof(__pmLogLabel) + 2*sizeof(int);
     for (sp = stats; sp < &stats[numstats]; sp++) {
@@ -363,23 +412,23 @@ end:
     }
     bytes[0] = count[0] = 0;
     for (i = 1; i < sizeof(types)/sizeof(types[0]); i++) {
-	printf("%12s %8d %11zd", types[i], count[i], bytes[i]);
+	printf("%8s %8d %9s", types[i], count[i], pr_size(bytes[i]));
 	count[0] += count[i];
 	if (i == TYPE_INDOM) {
-	    printf(" %11zd %11zd (%.1f%%)\n",
-		v3_size, (v2_size - v3_size),
+	    printf(" %9s", pr_size(v3_size));
+	    printf(" %9s (%.1f%%)\n", pr_size(v2_size - v3_size),
 		100.0*((long)v2_size - (long)v3_size) / v2_size);
 	}
 	else {
-	    printf(" %11zd\n", bytes[i]);
+	    printf(" %9s\n", pr_size(bytes[i]));
 	    bytes[0] += bytes[i];
 	}
     }
     v2_size += bytes[0];
     v3_size += bytes[0];
-    printf("%12s %8d %11zd %11zd %11zd (%.1f%%)\n",
-	"All metadata", count[0], v2_size, v3_size,
-	(v2_size - v3_size),
+    printf("%8s %8d %9s", "All meta", count[0], pr_size(v2_size));
+    printf(" %9s", pr_size(v3_size));
+    printf(" %9s (%.1f%%)\n", pr_size(v2_size - v3_size),
 	100.0*((long)v2_size - (long)v3_size) / v2_size);
 
     /* now the temporal index (optional) */
@@ -388,10 +437,10 @@ end:
 	    fprintf(stderr, "__pmFstat: %s\n", pmErrStr(sts));
 	    exit(1);
 	}
-	printf("%12s %8zd %11zd %11zd\n",
-		"Index",
+	printf("%8s %8zd %9s", "Index",
 		(sbuf.st_size-sizeof(__pmLogLabel))/sizeof(__pmLogTI),
-		sbuf.st_size, sbuf.st_size);
+		pr_size(sbuf.st_size));
+	printf(" %9s\n", pr_size(sbuf.st_size));
 	v2_size += sbuf.st_size;
 	v3_size += sbuf.st_size;
     }
@@ -408,17 +457,41 @@ end:
 	    fprintf(stderr, "__pmFstat(%s): %s\n", fname, pmErrStr(sts));
 	    exit(1);
 	}
-	printf("%9s.%2d %8s %11zd %11zd\n",
-	    "Data", i, "",
-	    sbuf.st_size, sbuf.st_size);
+	printf("%5s.%2d %8s %9s", "Data", i, "", pr_size(sbuf.st_size));
+	printf(" %9s\n", pr_size(sbuf.st_size));
 	v2_size += sbuf.st_size;
 	v3_size += sbuf.st_size;
     }
 
-    printf("%12s %8s %11zd %11zd %11zd (%.1f%%) %s\n",
-	"Total", "", v2_size, v3_size,
-	(v2_size - v3_size),
+    printf("%8s %8s %9s", "Total", "", pr_size(v2_size));
+    printf(" %9s", pr_size(v3_size));
+    printf(" %9s (%.1f%%) %s\n", pr_size(v2_size - v3_size),
 	100.0*((long)v2_size - (long)v3_size) / v2_size,
+	ctxp->c_archctl->ac_log->l_name);
+
+    putchar('\n');
+    v2_size = v3_size = 0;
+    printf("Memory footprint analysis ...\n");
+    printf("%12s %9s %9s %9s\n", "Type", "V2 Size", "V3 Size", "Saving");
+
+    printf("%12s %9s", "Inst names", pr_size(str_unique_bytes + str_dup_bytes));
+    v2_size += str_unique_bytes + str_dup_bytes;
+    printf(" %9s", pr_size(str_unique_bytes));
+    v3_size += str_unique_bytes;
+    printf(" %9s (%.1f%%)\n", pr_size(str_dup_bytes),
+	100.0*(long)str_dup_bytes/(long)(str_unique_bytes + str_dup_bytes));
+
+    printf("%12s %9s", "Lazy load", pr_size(v2_maps));
+    v2_size += v2_maps;
+    printf(" %9s", pr_size(v3_maps));
+    v3_size += v3_maps;
+    printf(" %9s (%.1f%%)\n", pr_size(v2_maps - v3_maps),
+	100.0*(long)(v2_maps - v3_maps)/(long)(v2_maps));
+
+    printf("%12s %9s", "Total", pr_size(v2_size));
+    printf(" %9s", pr_size(v3_size));
+    printf(" %9s (%.1f%%) %s\n", pr_size(v2_size - v3_size),
+	100.0*(long)(v2_size - v3_size)/(long)(v2_size),
 	ctxp->c_archctl->ac_log->l_name);
 
     return(sts);
