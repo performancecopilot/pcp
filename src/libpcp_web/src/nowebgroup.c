@@ -103,3 +103,24 @@ pmWebGroupClose(pmWebGroupModule *module)
 {
     (void)module;
 }
+
+int
+pmWebTimerSetMetricRegistry(struct mmv_registry *registry)
+{
+    (void)registry;
+    return -EOPNOTSUPP;
+}
+
+int
+pmWebTimerRegister(pmWebTimerCallBack callback, void *data)
+{
+    (void)data; (void)callback;
+    return -EOPNOTSUPP;
+}
+
+int
+pmWebTimerRelease(int seq)
+{
+    (void)seq;
+    return -ENOTSUPP;
+}

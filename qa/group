@@ -1852,7 +1852,7 @@ x11
 1613 pmda.linux kernel local
 1622 selinux local
 1623 libpcp_import collectl local
-1626:reserved pmproxy libpcp_web local
+1626 pmproxy libpcp_web local
 1627 libpcp_import local
 1628 libpcp_import valgrind local
 1633 python pmda.sockets local

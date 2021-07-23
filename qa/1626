@@ -1,68 +1,128 @@
 #!/bin/sh
 # PCP QA Test No. 1626
-# [what am I here for?]
+# pmproxy metrics
 #
-# Copyright (c) 2021 [who are you?].  All Rights Reserved.
+# Copyright (c) 2021 Red Hat.
 #
 
-if [ $# -eq 0 ]
-then
-    seq=`basename $0`
-    echo "QA output created by $seq"
-else
-    # use $seq from caller, unless not set
-    [ -n "$seq" ] || seq=`basename $0`
-    echo "QA output created by `basename $0` $*"
-fi
+seq=`basename $0`
+echo "QA output created by $seq"
 
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
 
-do_valgrind=false
-if [ "$1" = "--valgrind" ]
-then
-    _check_valgrind
-    do_valgrind=true
-fi
-
-# test for-some-thing || _notrun No support for some-thing
+_check_redis_server
+which curl >/dev/null 2>&1 || _notrun needs curl
 
 _cleanup()
 {
     cd $here
+    if $pmproxy_was_running
+    then
+	echo "Restart pmproxy ..." >>$here/$seq.full
+	_service pmproxy restart >>$here/$seq.full 2>&1
+	_wait_for_pmproxy
+    else
+	echo "Stopping pmproxy ..." >>$here/$seq.full
+	_service pmproxy stop >>$here/$seq.full 2>&1
+	_wait_pmproxy_end
+    fi
     $sudo rm -rf $tmp $tmp.*
 }
 
-status=0	# success is the default!
+_pmproxy_mainpid()
+{
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | \
+    $PCP_AWK_PROG '$8 ~ "'$PCP_BINADM_DIR'/pmproxy" {print $2}'
+}
+
+_probe_val()
+{
+    pmprobe -v $1 | awk '{print $NF}'
+}
+
+status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
-_filter()
-{
-    sed \
-	-e 's/<something>/<else>/' \
-    # end
-}
+pmproxy_was_running=false
+[ -f $PCP_RUN_DIR/pmproxy.pid ] && pmproxy_was_running=true
+echo "pmproxy_was_running=$pmproxy_was_running" >>$here/$seq.full
 
 # real QA test starts here
+status=0
 
-if $do_valgrind
-then
-    _run_valgrind ...your test goes here...
-else
-    ...your test goes here... 2>&1
-fi \
-| _filter
+# need a fresh pmproxy service
+_service pmproxy stop >/dev/null 2>&1
+_wait_pmproxy_end
+_service pmproxy start 2>&1 | _filter_pmproxy_start
+_wait_for_pmproxy
+sleep 1
 
-# if really bad error
-status=1
-exit
+echo === check pmproxy.pid
+val=`_probe_val pmproxy.pid`
+pid=`_pmproxy_mainpid`
+[ "$pid" -ne "$val" ] && echo FAIL && status=1
 
-# optional stuff if your test has verbose output to help resolve problems
-#echo
-#echo "If failure, check $seq.full"
+echo === check initial pmproxy.webgroup metrics
+for m in instmap labelsmap namesmap contextmap; do
+    [ `_probe_val pmproxy.webgroup.$m.size` -eq 0 ] && continue
+    echo FAILED pmproxy.webgroup.$m.size expected to be zero
+    status=1
+done
 
-# success, all done
+echo "=== start the metrics timer with a /metrics RESTAPI call"
+val=`curl -Gs 'http://localhost:44322/metrics?names=pmproxy.pid' |\
+     $PCP_AWK_PROG '/^pmproxy_pid/ {print $NF}'`
+[ "$pid" -ne "$val" ] && echo FAIL RESTAPI fetch for pmproxy.pid && status=1
+
+echo "=== wait for the maps to be updated"
+count=0
+while true; do
+    sz=`_probe_val pmproxy.webgroup.namesmap.size`
+    [ "$sz" -gt 0 ] && break
+    count=`expr $count + 1`
+    [ $count -gt 10 ] && echo FAILED after $count iterations && status=1 && break
+    sleep 2
+done
+
+echo === pmproxy.webgroup map size metrics should now be nonzero
+for m in instmap labelsmap namesmap contextmap; do
+    [ `_probe_val pmproxy.webgroup.$m.size` -gt 0 ] && continue
+    echo FAILED pmproxy.webgroup.$m.size expected to be non-zero
+    echo pmproxy.webgroup.$m.size = `_probe_val pmproxy.webgroup.$m.size`
+    status=1
+done
+
+echo === check pmproxy cpu counters
+total=`_probe_val pmproxy.cpu.total`
+user=`_probe_val pmproxy.cpu.user`
+sys=`_probe_val pmproxy.cpu.sys`
+[ "$total" -eq 0 ] && echo FAIL pmproxy.cpu.total is zero && status=1
+sum=`expr $user + $sys`
+[ "$total" -ne "$sum" ] && echo FAIL $total not equal $user + $sys && status=1
+
+echo === check for discovery partial metadata reads
+partial=`_probe_val pmproxy.discover.metadata.partial_reads`
+[ "$partial" -ne 0 ] && echo FAIL $partial partial reads, should be zero && status=1
+
+echo === check maxrss and datasz values
+for m in maxrss datasz; do
+    val=`_probe_val pmproxy.mem.$m`
+    [ "$val" -eq 0 ] && echo FAIL pmproxy.mem.$m should be non-zero && status=1
+done
+
+echo === check maxrss doesnt grow after 100 basic restapi requests
+start_maxrss=`_probe_val pmproxy.mem.maxrss`
+for n in `seq 1 100`; do
+    curl -Gs 'http://localhost:44322/metrics?names=kernel.all.load' >/dev/null 2>&1
+done
+finish_maxrss=`_probe_val pmproxy.mem.maxrss`
+growth=`expr $finish_maxrss - $start_maxrss`
+_within_tolerance "maxrss growth after 100 /metrics calls" "$growth" 0 %10 -v
+
+# sleep to avoid systemd StartLimitIntervalSec limits
+sleep 4
 exit

@@ -228,3 +228,10 @@ PCP_WEB_1.16 {
     redisSlotsSetupMetrics;
     redisSlotsSetMetricRegistry;
 } PCP_WEB_1.15;
+
+PCP_WEB_1.17 {
+  global:
+    pmWebTimerSetMetricRegistry;
+    pmWebTimerRegister;
+    pmWebTimerRelease;
+} PCP_WEB_1.16;

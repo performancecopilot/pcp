@@ -52,6 +52,7 @@ typedef struct webgroups {
     unsigned int	active;
     uv_timer_t		timer;
     uv_mutex_t		mutex;
+    int			stats_timer;
 } webgroups;
 
 static struct webgroups *
@@ -63,6 +64,7 @@ webgroups_lookup(pmWebGroupModule *module)
 	module->privdata = calloc(1, sizeof(struct webgroups));
 	groups = (struct webgroups *)module->privdata;
 	uv_mutex_init(&groups->mutex);
+	groups->stats_timer = -1;
     }
     return groups;
 }
@@ -300,9 +302,15 @@ webgroup_garbage_collect(struct webgroups *groups)
 	uv_mutex_unlock(&groups->mutex);
     }
 
-    /* TODO - trim maps, particularly instmap if proc metrics are not excluded */
+    if (pmDebugOptions.http || pmDebugOptions.libweb)
+	fprintf(stderr, "%s: finished\n", "webgroup_garbage_collect");
+}
 
-    /* TODO move the following to a new stats timer */
+static void
+refresh_maps_metrics(void *data)
+{
+    struct webgroups	*groups = (struct webgroups *)data;
+
     if (groups->metrics_handle) {
 	mmv_stats_set(groups->metrics_handle, "contextmap.size",
 	    NULL, dictSize(contextmap));
@@ -313,9 +321,6 @@ webgroup_garbage_collect(struct webgroups *groups)
 	mmv_stats_set(groups->metrics_handle, "instmap.size",
 	    NULL, dictSize(instmap));
     }
-
-    if (pmDebugOptions.http || pmDebugOptions.libweb)
-	fprintf(stderr, "%s: finished\n", "webgroup_garbage_collect");
 }
 
 static void
@@ -386,6 +391,8 @@ webgroup_lookup_context(pmWebGroupSettings *sp, sds *id, dict *params,
 	groups->timer.data = (void *)groups;
 	uv_timer_start(&groups->timer, webgroup_worker,
 			default_worker, default_worker);
+	/* timer for map stats refresh */
+	groups->stats_timer = pmWebTimerRegister(refresh_maps_metrics, (void *)groups);
     }
 
     if (*id == NULL) {
@@ -2336,8 +2343,6 @@ pmWebGroupSetupMetrics(pmWebGroupModule *module)
 	"instance name map dictionary size",
 	"number of entries in the instance name map dictionary");
 
-    /* TODO add call counter metrics for pmWebgroup* API functions */
-
     webgroups->metrics_handle = mmv_stats_start(webgroups->metrics);
 }
 
@@ -2367,6 +2372,8 @@ pmWebGroupClose(pmWebGroupModule *module)
 	if (groups->active) {
 	    groups->active = 0;
 	    uv_timer_stop(&groups->timer);
+	    pmWebTimerRelease(groups->stats_timer);
+	    groups->stats_timer = -1;
 	}
 	iterator = dictGetIterator(groups->contexts);
 	while ((entry = dictNext(iterator)) != NULL)

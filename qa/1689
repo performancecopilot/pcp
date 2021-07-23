@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 1689
-# Exercise and check pmproxy / libpcp_web metrics
+# Exercise and check pmproxy metrics metadata and help text
 #
 # Copyright (c) 2021 Red Hat.  All Rights Reserved.
 #
@@ -32,8 +32,6 @@ _cleanup()
 # basic namespace and metadata check
 names=`pminfo pmproxy | LC_COLLATE=POSIX sort`
 pminfo -mdtT $names
-
-# TODO check metric values after various operations
 
 # success, all done
 exit

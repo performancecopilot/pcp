@@ -43,11 +43,6 @@ typedef enum proxy_registry {
     NUM_REGISTRY
 } proxy_registry;
 
-typedef enum server_metric {
-    SERVER_PID,
-    NUM_SERVER_METRIC
-} server_metric;
-
 typedef struct stream_write_baton {
     uv_write_t		writer;
     uv_buf_t		buffer[2];
