@@ -44,8 +44,10 @@ static stats_t	*stats = NULL;
 static int	numstats = 0;
 
 /* strings for external instance names */
-static size_t	str_unique_bytes;
-static size_t	str_dup_bytes;
+static size_t	v2_str;
+static size_t	v3_str;
+static int	v2_count;
+static int	v3_count;
 
 /* lazy loading */
 static size_t	v2_maps;
@@ -249,8 +251,8 @@ main(int argc, char **argv)
 	    }
 	    if ((n = (int)__pmFread(tbuf, 1, rlen, f)) != rlen) {
 		if (pmDebugOptions.logmeta) {
-		    fprintf(stderr, "%s: indom read -> %d: expected: %d\n",
-			    "__pmLogLoadMeta", n, rlen);
+		    fprintf(stderr, "__pmFread: indom read -> %d: expected: %d\n",
+			    n, rlen);
 		}
 		if (__pmFerror(f)) {
 		    __pmClearerr(f);
@@ -311,7 +313,6 @@ main(int argc, char **argv)
 		    ctl[i].inst = in.instlist[i];
 		    ctl[i].name = in.namelist[i];
 		}
-		v2_maps += in.numinst * (sizeof(int) + sizeof(char *));
 
 		if (in.numinst > 1) {
 		    qsort((void *)ctl, in.numinst, sizeof(sortrec_t), compar);
@@ -338,6 +339,7 @@ main(int argc, char **argv)
 			    sp->dropped++;
 			    sp->v3_size += 2*sizeof(int);
 			    v3_maps += sizeof(int) + sizeof(char *);
+			    v3_count++;
 			    i++;
 			}
 			else if ((i == sp->numinst && j < in.numinst) ||
@@ -346,13 +348,13 @@ main(int argc, char **argv)
 				printf("added %d -> %-29.29s\n", ctl[j].inst, ctl[j].name);
 			    sp->added++;
 			    sp->v3_size += 2*sizeof(int) + strlen(ctl[j].name) + 1;
-			    str_unique_bytes += strlen(ctl[j].name) + 1;
+			    v3_str += strlen(ctl[j].name) + 1;
 			    v3_maps += sizeof(int) + sizeof(char *);
+			    v3_count++;
 			    j++;
 			}
 			else if (sp->ctl[i].inst == ctl[j].inst) {
 			    // printf("same %d -> %-29.29s ... %-29.29s\n", sp->ctl[i].inst, sp->ctl[i].name, ctl[j].name);
-			    str_dup_bytes += strlen(ctl[j].name) + 1;
 			    i++;
 			    j++;
 			}
@@ -367,8 +369,9 @@ main(int argc, char **argv)
 		else {
 		    /* first time, all instance names needed */
 		    for (i = 0; i < in.numinst; i++)
-			str_unique_bytes += strlen(ctl[i].name) + 1;
+			v3_str += strlen(ctl[i].name) + 1;
 		    v3_maps += in.numinst * (sizeof(int) + sizeof(char *));
+		    v3_count += in.numinst;
 		}
 
 		sp->numinst = in.numinst;
@@ -472,27 +475,48 @@ end:
     putchar('\n');
     v2_size = v3_size = 0;
     printf("Memory footprint analysis ...\n");
-    printf("%12s %9s %9s %9s\n", "Type", "V2 Size", "V3 Size", "Saving");
+    printf("%12s %9s %9s %9s %9s %9s\n", "Type", "V2 Count", "V2 Size", "V3 Count", "V3 Size", "Saving");
 
-    printf("%12s %9s", "Inst names", pr_size(str_unique_bytes + str_dup_bytes));
-    v2_size += str_unique_bytes + str_dup_bytes;
-    printf(" %9s", pr_size(str_unique_bytes));
-    v3_size += str_unique_bytes;
-    printf(" %9s (%.1f%%)\n", pr_size(str_dup_bytes),
-	100.0*(long)str_dup_bytes/(long)(str_unique_bytes + str_dup_bytes));
+    /*
+     * need to get v2_maps and v2_str from loaded instance domains
+     * ... "dup" indom handling in __pmLogLoadMeta() (see
+     * __pmLogAddInDom() and PMLOGPUTINDOM_DUP) means there may be
+     * fewer loaded than appear in the .meta file
+     */
+    for (i = 0; i < ctxp->c_archctl->ac_log->l_hashindom.hsize; i++) {
+	__pmHashNode	*hp;
+	__pmLogInDom	*idp;
+	for (hp = ctxp->c_archctl->ac_log->l_hashindom.hash[i]; hp != NULL; hp = hp->next) {
+	    for (idp = (__pmLogInDom *)hp->data; idp != NULL; idp =idp->next) {
+		v2_maps += idp->numinst * (sizeof(int) + sizeof(char *));
+		v2_count += idp->numinst;
+		for (j = 0; j < idp->numinst; j++) {
+		    v2_str += strlen(idp->namelist[j])+1;
+		}
+	    }
+	}
+    }
 
-    printf("%12s %9s", "Lazy load", pr_size(v2_maps));
+    printf("%12s %9d %9s", "Inst names", v2_count, pr_size(v2_str));
+    v2_size += v2_str;
+    printf(" %9d %9s", v3_count, pr_size(v3_str));
+    v3_size += v3_str;
+    printf(" %9s (%.1f%%)\n", pr_size(v2_str - v3_str),
+	100.0*(long)(v2_str - v3_str)/(long)(v2_str));
+
+    printf("%12s %9s %9s", "Lazy load", "", pr_size(v2_maps));
     v2_size += v2_maps;
-    printf(" %9s", pr_size(v3_maps));
+    printf(" %9s %9s", "", pr_size(v3_maps));
     v3_size += v3_maps;
     printf(" %9s (%.1f%%)\n", pr_size(v2_maps - v3_maps),
 	100.0*(long)(v2_maps - v3_maps)/(long)(v2_maps));
 
-    printf("%12s %9s", "Total", pr_size(v2_size));
-    printf(" %9s", pr_size(v3_size));
+    printf("%12s %9s %9s", "Total", "", pr_size(v2_size));
+    printf(" %9s %9s", "", pr_size(v3_size));
     printf(" %9s (%.1f%%) %s\n", pr_size(v2_size - v3_size),
 	100.0*(long)(v2_size - v3_size)/(long)(v2_size),
 	ctxp->c_archctl->ac_log->l_name);
+
 
     return(sts);
 }

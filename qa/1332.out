@@ -1,0 +1,14 @@
+QA output created by 1332
+16,22c16,19
+< 04:34:32.257504 1 instances
+< 04:34:33.248687 3 instances
+< 04:34:33.248687 9 instances
+< InDom: 2.1
+< InDom: 29.1
+< InDom: 29.2
+< Instance Domains in the Log ...
+---
+> 04:34:32.257504 InDom: 2.1 1 instances
+> 04:34:33.248687 InDom: 29.1 3 instances
+> 04:34:33.248687 InDom: 29.2 9 instances
+> Instance Domains on-disk ...

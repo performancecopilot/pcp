@@ -18,7 +18,7 @@
 \f3pmdumplog\f1 \- dump internal details of a performance metrics archive log
 .SH SYNOPSIS
 \f3pmdumplog\f1
-[\f3\-adehilLmMrstxzV?\f1]
+[\f3\-adehIilLmMrstxzV?\f1]
 [\f3\-n\f1 \f2pmnsfile\f1]
 [\f3\-S\f1 \f2starttime\f1]
 [\f3\-T\f1 \f2endtime\f1]
@@ -98,6 +98,16 @@ Display the instance domains, and any variations in their instance
 members over the duration of the archive: see
 .BR pmGetInDom (3)
 for more details on instance domains.
+.TP
+\fB\-I\fR, \fB\-\-on-disk-insts\fR
+Display the on-disk instance domains, which may use a different format
+and encoding than the one visible above the
+Performance Metrics Programming Interface (PMAPI)
+when using
+.BR pmGetInDom (3)
+and related routines.
+The on-disk format is only of interest when investigating the internal
+structure of PCP archives.
 .TP
 \fB\-l\fR, \fB\-\-label\fR
 Dump the archive label, showing the log format version,

@@ -20,6 +20,7 @@
 #include <float.h>
 #include <sys/stat.h>
 #include <errno.h>
+#include "../libpcp/src/internal.h"
 
 static struct timeval	tv;
 static char		timebuf[32];	/* for pmCtime result + .xxx */
@@ -38,6 +39,7 @@ static pmLongOptions longopts[] = {
     { "descs", 0, 'd', 0, "dump metric descriptions" },
     { "labelsets", 0, 'e', 0, "dump all metric label metadata" },
     { "helptext", 0, 'h', 0, "dump all metric help text" },
+    { "on-disk-insts", 0, 'I', 0, "dump on-disk instance domain descriptions" },
     { "insts", 0, 'i', 0, "dump instance domain descriptions" },
     { "", 0, 'L', 0, "more verbose form of archive label dump" },
     { "label", 0, 'l', 0, "dump the archive label" },
@@ -61,7 +63,7 @@ static pmLongOptions longopts[] = {
 static int overrides(int, pmOptions *);
 static pmOptions opts = {
     .flags = PM_OPTFLAG_DONE | PM_OPTFLAG_STDOUT_TZ | PM_OPTFLAG_BOUNDARIES,
-    .short_options = "aD:dehilLmMn:rS:sT:tv:xZ:z?",
+    .short_options = "aD:dehIilLmMn:rS:sT:tv:xZ:z?",
     .long_options = longopts,
     .short_usage = "[options] [archive [metricname ...]]",
     .override = overrides,
@@ -470,6 +472,100 @@ dumpDesc(__pmContext *ctxp)
 		free(names);
 	    }
 	    pmPrintDesc(stdout, dp);
+	}
+    }
+}
+
+static void
+dumpDiskInDom(__pmContext *ctxp)
+{
+    size_t	n;
+    size_t	rlen;
+    __int32_t	check;
+    __pmLogHdr	hdr;
+    __pmFILE	*f = ctxp->c_archctl->ac_log->l_mdfp;
+
+    printf("\nInstance Domains on-disk ...\n");
+
+    __pmFseek(f, (long)(sizeof(__pmLogLabel) + 2*sizeof(int)), SEEK_SET);
+    for ( ; ; ) {
+	n = __pmFread(&hdr, 1, sizeof(__pmLogHdr), f);
+	hdr.len = ntohl(hdr.len);
+	hdr.type = ntohl(hdr.type);
+	if (n != sizeof(__pmLogHdr)) {
+            if (__pmFeof(f)) {
+		/* end-of-file, all done. */
+                return;
+            }
+	    if (__pmFerror(f)) {
+		fprintf(stderr, "dumpDiskInDom: hdr __pmFread(%zd) -> %s\n", sizeof(__pmLogHdr), pmErrStr(-oserror())); 
+		return;
+	    }
+	    fprintf(stderr, "dumpDiskInDom: Botch: hdr __pmFread(%zd) -> %zd\n", sizeof(__pmLogHdr), n);
+	    return;
+	}
+	if (hdr.len <= 0) {
+	    fprintf(stderr, "dumpDiskInDom: Botch: hdr.len < 0 (%d)\n", hdr.len);
+	    return;
+	}
+	rlen = (size_t)hdr.len - sizeof(__pmLogHdr) - sizeof(__int32_t);
+	if (hdr.type == TYPE_INDOM) {
+	    pmTimeval		*tvp;
+	    pmInResult		in;
+	    char		*namebase;
+	    __int32_t		*rbuf;
+	    __int32_t		*stridx;
+	    int			i;
+	    int			k;
+
+	    if ((rbuf = (__int32_t *)malloc(rlen)) == NULL) {
+		fprintf(stderr, "dumpDiskInDom: tbuf: malloc failed: %zd\n", rlen);
+		exit(1);
+	    }
+	    if ((n = __pmFread(rbuf, 1, rlen, f)) != rlen) {
+		fprintf(stderr, "dumpDiskInDom: indom __pmFread(%zd) -> %zd\n",
+			    rlen, n);
+		free(rbuf);
+		return;
+	    }
+
+	    k = 0;
+	    tvp = (pmTimeval *)&rbuf[k];
+	    tv.tv_sec = ntohl(tvp->tv_sec);
+	    tv.tv_usec = ntohl(tvp->tv_usec);
+	    k += sizeof(pmTimeval)/sizeof(int);
+	    in.indom = __ntohpmInDom((unsigned int)rbuf[k++]);
+	    in.numinst = ntohl(rbuf[k++]);
+	    mytimestamp(&tv);
+	    printf(" InDom: %s", pmInDomStr(in.indom));
+	    printf(" %d instances\n", in.numinst);
+	    if (in.numinst > 0) {
+		in.instlist = &rbuf[k];
+		k += in.numinst;
+		stridx = &rbuf[k];
+		k += in.numinst;
+		namebase = (char *)&rbuf[k];
+	        for (i = 0; i < in.numinst; i++) {
+		    printf("   %d or \"%s\"\n",
+			ntohl(in.instlist[i]), &namebase[ntohl(stridx[i])]);
+		}
+	    }
+	    free(rbuf);
+	}
+	else {
+	    /* skip this record, not TYPE_INDOM */
+	    __pmFseek(f, (off_t)rlen, SEEK_CUR);
+	}
+	/* trailer check */
+	n = __pmFread(&check, 1, sizeof(check), f);
+	if (n != sizeof(check)) {
+	    fprintf(stderr, "dumpDiskInDom: Botch: trailer __pmFread(%zd) -> %zd\n", sizeof(__pmLogHdr), n);
+	    return;
+	}
+	check = ntohl(check);
+	if (hdr.len != check) {
+	    fprintf(stderr, "dumpDiskInDom: Botch: trailer len (%d) != hdr len (%d)\n", check, hdr.len);
+	    return;
 	}
     }
 }
@@ -973,6 +1069,7 @@ main(int argc, char *argv[])
     int			dflag = 0;
     int			eflag = 0;
     int			hflag = 0;
+    int			Iflag = 0;
     int			iflag = 0;
     int			Lflag = 0;
     int			lflag = 0;
@@ -1004,6 +1101,10 @@ main(int argc, char *argv[])
 
 	case 'h':	/* dump all help texts */
 	    hflag = 1;
+	    break;
+
+	case 'I':	/* dump on-disk instance domains */
+	    Iflag = 1;
 	    break;
 
 	case 'i':	/* dump instance domains */
@@ -1071,7 +1172,7 @@ main(int argc, char *argv[])
 	exit(0);
     }
 
-    if (dflag + eflag + hflag + iflag + lflag + mflag + tflag == 0)
+    if (dflag + eflag + hflag + Iflag + iflag + lflag + mflag + tflag == 0)
 	mflag = 1;	/* default */
 
     /* delay option end processing until now that we have the archive name */
@@ -1178,6 +1279,9 @@ main(int argc, char *argv[])
 
     if (hflag)
 	dumpHelpText(ctxp);
+
+    if (Iflag)
+	dumpDiskInDom(ctxp);
 
     if (iflag)
 	dumpInDom(ctxp);
