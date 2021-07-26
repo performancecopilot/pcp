@@ -40,7 +40,9 @@ _pmproxy_mainpid()
 
 _probe_val()
 {
-    pmprobe -v $1 | awk '{print $NF}'
+    _x=`pminfo -f $1`
+    [ $? -ne 0 ] && echo pminfo $1 FAILED, result \"$_x\" && exit
+    echo $_x | awk '/value/ {print $NF}'
 }
 
 status=1	# failure is the default!
@@ -59,24 +61,25 @@ _service pmproxy stop >/dev/null 2>&1
 _wait_pmproxy_end
 _service pmproxy start 2>&1 | _filter_pmproxy_start
 _wait_for_pmproxy
-sleep 1
+
+echo == wait for pmproxy server metrics
+_wait_for_pmproxy_metrics || exit
 
 echo === check pmproxy.pid
 val=`_probe_val pmproxy.pid`
 pid=`_pmproxy_mainpid`
-[ "$pid" -ne "$val" ] && echo FAIL && status=1
+if [ "$pid" -eq "$val" ]; then :; else echo FAIL pid=$pid val=$val && exit; fi
 
 echo === check initial pmproxy.webgroup metrics
 for m in instmap labelsmap namesmap contextmap; do
     [ `_probe_val pmproxy.webgroup.$m.size` -eq 0 ] && continue
-    echo FAILED pmproxy.webgroup.$m.size expected to be zero
-    status=1
+    echo FAILED pmproxy.webgroup.$m.size expected to be zero && exit
 done
 
 echo "=== start the metrics timer with a /metrics RESTAPI call"
 val=`curl -Gs 'http://localhost:44322/metrics?names=pmproxy.pid' |\
      $PCP_AWK_PROG '/^pmproxy_pid/ {print $NF}'`
-[ "$pid" -ne "$val" ] && echo FAIL RESTAPI fetch for pmproxy.pid && status=1
+[ "$pid" -ne "$val" ] && echo FAIL RESTAPI fetch for pmproxy.pid && exit
 
 echo "=== wait for the maps to be updated"
 count=0
@@ -84,7 +87,7 @@ while true; do
     sz=`_probe_val pmproxy.webgroup.namesmap.size`
     [ "$sz" -gt 0 ] && break
     count=`expr $count + 1`
-    [ $count -gt 10 ] && echo FAILED after $count iterations && status=1 && break
+    [ $count -gt 10 ] && echo FAILED after $count iterations && break
     sleep 2
 done
 
@@ -93,25 +96,26 @@ for m in instmap labelsmap namesmap contextmap; do
     [ `_probe_val pmproxy.webgroup.$m.size` -gt 0 ] && continue
     echo FAILED pmproxy.webgroup.$m.size expected to be non-zero
     echo pmproxy.webgroup.$m.size = `_probe_val pmproxy.webgroup.$m.size`
-    status=1
+    exit
 done
 
 echo === check pmproxy cpu counters
 total=`_probe_val pmproxy.cpu.total`
 user=`_probe_val pmproxy.cpu.user`
 sys=`_probe_val pmproxy.cpu.sys`
-[ "$total" -eq 0 ] && echo FAIL pmproxy.cpu.total is zero && status=1
-sum=`expr $user + $sys`
-[ "$total" -ne "$sum" ] && echo FAIL $total not equal $user + $sys && status=1
+[ "$user" -eq 0 ] && echo FAIL pmproxy.cpu.user is zero
+[ "$sys" -eq 0 ] && echo FAIL pmproxy.cpu.sys is zero
+[ "$total" -eq 0 ] && echo FAIL pmproxy.cpu.total is zero
 
 echo === check for discovery partial metadata reads
 partial=`_probe_val pmproxy.discover.metadata.partial_reads`
-[ "$partial" -ne 0 ] && echo FAIL $partial partial reads, should be zero && status=1
+[ "$partial" -ne 0 ] && echo FAIL $partial partial reads, should be zero && exit
 
 echo === check maxrss and datasz values
 for m in maxrss datasz; do
     val=`_probe_val pmproxy.mem.$m`
-    [ "$val" -eq 0 ] && echo FAIL pmproxy.mem.$m should be non-zero && status=1
+    [ "$val" -gt 0 ] && continue
+    echo FAIL pmproxy.mem.$m should be non-zero && exit
 done
 
 echo === check maxrss doesnt grow after 100 basic restapi requests
@@ -121,7 +125,8 @@ for n in `seq 1 100`; do
 done
 finish_maxrss=`_probe_val pmproxy.mem.maxrss`
 growth=`expr $finish_maxrss - $start_maxrss`
-_within_tolerance "maxrss growth after 100 /metrics calls" "$growth" 0 %10 -v
+# [ $growth -gt 0 ] && echo start=$start_maxrss finish=$finish_maxrss, growth = $growth
+_within_tolerance "maxrss growth after 100 /metrics calls" $finish_maxrss $start_maxrss %3 -v
 
 # sleep to avoid systemd StartLimitIntervalSec limits
 sleep 4
