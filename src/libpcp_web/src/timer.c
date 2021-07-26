@@ -215,6 +215,9 @@ pmWebTimerSetMetricRegistry(struct mmv_registry *registry)
     server_values[SERVER_MEM_MAXRSS] = mmv_lookup_value_desc(server_map, "mem.maxrss", NULL);
     server_values[SERVER_MEM_DATASZ] = mmv_lookup_value_desc(server_map, "mem.datasz", NULL);
 
+    /* initialize base sbrk */
+    __pmProcessDataSize(NULL);
+
     /* register the refresh timer */
     return pmWebTimerRegister(server_metrics_refresh, server_map);
 }

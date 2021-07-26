@@ -1,4 +1,5 @@
 QA output created by 1626
+== wait for pmproxy server metrics
 === check pmproxy.pid
 === check initial pmproxy.webgroup metrics
 === start the metrics timer with a /metrics RESTAPI call

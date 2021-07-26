@@ -122,5 +122,5 @@ int
 pmWebTimerRelease(int seq)
 {
     (void)seq;
-    return -ENOTSUPP;
+    return -EOPNOTSUPP;
 }

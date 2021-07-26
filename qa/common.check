@@ -1183,6 +1183,22 @@ _wait_for_pmproxy()
     done
 }
 
+# Wait for pmproxy server metrics. This should always be called after
+# _wait_for_pmproxy. Note: some platforms might not have pmproxy metrics.
+#
+_wait_for_pmproxy_metrics()
+{
+    _n=0
+    while true; do
+	pminfo -f pmproxy.pid pmproxy.cpu >/dev/null 2>&1 && return 0
+	_n=$expr $_n + 1
+	[ $_n -lt 20 ] && continue
+	sleep 0.25
+    done
+    echo _wait_for_pmproxy_metrics failed after 20 iterations
+    return 1
+}
+
 # Wait for pmproxy to end
 #
 _wait_pmproxy_end()

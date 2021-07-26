@@ -32,7 +32,7 @@ HIREDIS_CLUSTER_XFILES = $(HIREDIS_CLUSTER_HFILES) $(HIREDIS_CLUSTER_CFILES)
 CFILES = jsmn.c http_client.c http_parser.c sds.c siphash.c \
 	 query.c schema.c load.c sha1.c util.c slots.c \
 	 redis.c dict.c ini.c maps.c batons.c encoding.c \
-	 search.c json_helpers.c config.c timer.c \
+	 search.c json_helpers.c config.c \
 	 $(HIREDIS_CFILES) $(HIREDIS_CLUSTER_CFILES)
 HFILES = jsmn.h http_client.h http_parser.h sdsalloc.h zmalloc.h \
 	 query.h schema.h load.h sha1.h util.h slots.h \
@@ -51,7 +51,7 @@ LDIRT = $(XFILES) $(YFILES:%.y=%.tab.?)
 LCFLAGS += $(C99_CFLAGS) -DJSMN_PARENT_LINKS=1 -DJSMN_STRICT=1 -DHTTP_PARSER_STRICT=0 -Ideps
 
 ifeq "$(HAVE_LIBUV)" "true"
-CFILES += discover.c webgroup.c
+CFILES += discover.c webgroup.c timer.c
 LCFLAGS += $(LIBUVCFLAGS) -DHAVE_LIBUV=1
 LLDLIBS += $(LIB_FOR_LIBUV)
 else
