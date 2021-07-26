@@ -344,6 +344,7 @@ _pcp () {
       "(-d --descs $exargs)"{-d,--descs}'[dump metric descriptions]' \
       "(-e --labelsets $exargs)"{-e,--labelsets}'[dump all metric label metadata]' \
       "(-h --helptext $exargs)"{-h,--helptext}'[dump all metric help text]' \
+      "(-I --on-disk-insts $exargs)"{-I,--on-disk-insts}'[dump on-disk instance domain descriptions]' \
       "(-i --insts $exargs)"{-i,--insts}'[dump instance domain descriptions]' \
       "(-L $exargs)"-L'[verbose label dump]' \
       "(-l --label $exargs)"{-l,--label}'[dump archive log label]' \
