@@ -555,6 +555,73 @@ log_callback(int afid, void *data)
 }
 
 /*
+ * Sort an indom into ascending external instance identifier order.
+ * Since an indom is often already sorted, and we need to sort both
+ * instlist[] and namelist[], it seems a bubble sort may be most
+ * efficient
+ */
+void
+sort_indom(int numinst, int *instlist, char **namelist)
+{
+    int		i;
+    int		j;
+    int		ti;
+    char	*tp;
+    int		nswap;
+
+    for (i = numinst-1; i >= 0; i--) {
+	nswap = 0;
+	for (j = 1; j <= i; j++) {
+	    if (instlist[j-1] > instlist[j]) {
+		nswap++;
+		ti = instlist[j-1];
+		instlist[j-1] = instlist[j];
+		instlist[j] = ti;
+		tp = namelist[j-1];
+		namelist[j-1] = namelist[j];
+		namelist[j] = tp;
+	    }
+	}
+	if (nswap == 0)
+	    break;
+    }
+}
+
+/*
+ * Test if two observations of the same indom are identical ...
+ * we know the indoms are both sorted.
+ */
+int
+same_indom(int numinst_a, int *instlist_a, char **namelist_a, int numinst_b, int *instlist_b, char **namelist_b)
+{
+    int		i;
+
+    if (numinst_a != numinst_b)
+	return 0;
+
+    /* internal instance identifiers */
+    for (i = 0; i < numinst_a; i++) {
+	if (instlist_a[i] != instlist_b[i])
+	    return 0;
+    }
+
+    /*
+     * external instance names (only bad PMDAs, like proc) should
+     * assign different names to the same instance
+     */
+    for (i = 0; i < numinst_a; i++) {
+	if (strcmp(namelist_a[i], namelist_b[i]) != 0)
+	    return 0;
+    }
+
+    if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
+	fprintf(stderr, "same_indom -> yes\n");
+    }
+
+    return 1;
+}
+
+/*
  * do real work from callback ...
  */
 void
@@ -825,9 +892,18 @@ do_work(task_t *tp)
 		     *     if the indom is dynamic, like proc metrics
 		     */
 		    needindom = 0;
+		    if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
+			fprintf(stderr, "time warp: pmResult: %d.%06d last %s indom: %d.%06d\n",
+			    resp_tval.tv_sec, resp_tval.tv_usec,
+			    pmInDomStr(desc.indom),
+			    indom_tval.tv_sec, indom_tval.tv_usec);
+		    }
 		}
 		else if (numinst < 0) {
 		    needindom = 1;
+		    if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
+			fprintf(stderr, "numinst=%d => needindom %s\n", numinst, pmInDomStr(desc.indom));
+		    }
 		}
 		else {
 		    needindom = 0;
@@ -842,6 +918,10 @@ do_work(task_t *tp)
 			}
 			if (k == numinst) {
 			    needindom = 1;
+			    if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
+				fprintf(stderr, "inst %d in pmResult, not in cached indom => needindom %s\n",
+				    vsp->vlist[j].inst, pmInDomStr(desc.indom));
+			    }
 			    break;
 			}
 		    }
@@ -851,34 +931,66 @@ do_work(task_t *tp)
 		     * tests above, but still the indom still needs to
 		     * be refeshed.
 		     */
-		    if (needindom == 0 && lfp->lf_resp != NULL)
+		    if (needindom == 0 && lfp->lf_resp != NULL) {
 			needindom = check_inst(vsp, i, lfp->lf_resp);
+			if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
+			    if (needindom)
+				fprintf(stderr, "check_inst => needindom %s\n",
+				    pmInDomStr(desc.indom));
+			}
+		    }
 		}
 
 		if (needindom) {
 		    /*
-		     * Note.  We do NOT free() instlist and namelist allocated
-		     *	  here unless this indom is a duplicate.
-		     *    Look for magic below log{Put,Get}InDom.
+		     * Looks like the indom may have changed, in which case it needs
+		     * to be pushed to the .meta file.
+		     *
+		     * Note.  We do NOT free() new_instlist and new_namelist allocated
+		     *	  here unless this indom is a duplicate (look for magic below
+		     *	  log{Put,Get}InDom) or the indom really has not changed.
 		     */
-		    if ((numinst = pmGetInDom(desc.indom, &instlist, &namelist)) < 0) {
+		    int		new_numinst;
+		    int		*new_instlist;
+		    char	**new_namelist;
+		    if ((new_numinst = pmGetInDom(desc.indom, &new_instlist, &new_namelist)) < 0) {
 			fprintf(stderr, "pmGetInDom(%s): %s\n", pmInDomStr(desc.indom), pmErrStr(numinst));
 			exit(1);
 		    }
-		    tmp.tv_sec = (__int32_t)resp->timestamp.tv_sec;
-		    tmp.tv_usec = (__int32_t)resp->timestamp.tv_usec;
-		    if ((sts = __pmLogPutInDom(&archctl, desc.indom, &tmp, numinst, instlist, namelist)) < 0) {
-			fprintf(stderr, "__pmLogPutInDom: %s\n", pmErrStr(sts));
-			exit(1);
+		    /*
+		     * sort the indom based in internal instance identifier
+		     */
+		    sort_indom(new_numinst, new_instlist, new_namelist);
+		    /*
+		     * if the old and new indoms are the same, we don't need to call
+		     * __pmPutInDom
+		     */
+		    if (!same_indom(numinst, instlist, namelist, new_numinst, new_instlist, new_namelist)) {
+			numinst = new_numinst;
+			instlist = new_instlist;
+			namelist = new_namelist;
+			tmp.tv_sec = (__int32_t)resp->timestamp.tv_sec;
+			tmp.tv_usec = (__int32_t)resp->timestamp.tv_usec;
+			if ((sts = __pmLogPutInDom(&archctl, desc.indom, &tmp, numinst, instlist, namelist)) < 0) {
+			    fprintf(stderr, "__pmLogPutInDom: %s\n", pmErrStr(sts));
+			    exit(1);
+			}
+			if (sts == PMLOGPUTINDOM_DUP) {
+			    if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
+				fprintf(stderr, "__pmLogPutInDom -> PMLOGPUTINDOM_DUP\n");
+			    }
+			    free(instlist);
+			    free(namelist);
+			}
+			manageLabels(&desc, &tmp, 1);
+			needti = 1;
+			if (pmDebugOptions.appl2)
+			    fprintf(stderr, "callback: indom (%s) changed\n", pmInDomStr(desc.indom));
 		    }
-		    if (sts == PMLOGPUTINDOM_DUP) {
-			free(instlist);
-			free(namelist);
+		    else {
+			free(new_instlist);
+			free(new_namelist);
 		    }
-		    manageLabels(&desc, &tmp, 1);
-		    needti = 1;
-		    if (pmDebugOptions.appl2)
-			fprintf(stderr, "callback: indom (%s) changed\n", pmInDomStr(desc.indom));
 		}
 	    }
 	}
