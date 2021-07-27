@@ -115,12 +115,13 @@ ifeq "$(TARGET_OS)" "openbsd"
 DSOSUFFIX = so
 endif
 
+CFLAGS_DEV =
 CFLAGS_ABI = @cflags_abi@
 CFLAGS_OPT = @optimization@
 CFLAGS_SANITIZER = @sanitizer@
 CFLAGS += -I$(TOPDIR)/src/include -I$(TOPDIR)/src/include/pcp \
 	-DPCP_VERSION=\"$(PCP_VERSION)\" \
-	$(PCFLAGS) $(LCFLAGS) $(WARN_OFF) $(CFLAGS_OPT) $(CFLAGS_SANITIZER)
+	$(PCFLAGS) $(LCFLAGS) $(WARN_OFF) $(CFLAGS_OPT) $(CFLAGS_SANITIZER) $(CFLAGS_DEV)
 
 PIECFLAGS = @PIECFLAGS@
 PIELDFLAGS = @PIELDFLAGS@
@@ -953,5 +954,9 @@ PCP_ALTLIBS =
 endif
 endif
 endif
+
+# (optional) hook for developer build definitions
+#
+-include $(TOPDIR)/src/include/builddefs_dev
 
 endif # _BUILDDEFS_INCLUDED_
