@@ -1,6 +1,6 @@
 """ Wrapper module for LIBPCP - the core Performace Co-Pilot API
 #
-# Copyright (C) 2012-2020 Red Hat
+# Copyright (C) 2012-2021 Red Hat
 # Copyright (C) 2009-2012 Michael T. Werner
 #
 # This file is part of the "pcp" module, the python interfaces for the
@@ -2844,7 +2844,8 @@ class fetchgroup(object):
 
         def __del__(self):
             """Override pmContext ctor to eschew pmDestroyContext."""
-            self._ctx = c_api.PM_ERR_NOCONTEXT
+            if c_api is not None and self._ctx != c_api.PM_ERR_NOCONTEXT:
+                self._ctx = c_api.PM_ERR_NOCONTEXT
 
     def __init__(self, typed=c_api.PM_CONTEXT_HOST, target="local:"):
         """Create a fetchgroup from a pmContext."""
