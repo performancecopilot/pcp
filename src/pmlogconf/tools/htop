@@ -40,6 +40,7 @@ force	include
 	mem.util.free
 	mem.util.bufmem
 	mem.util.cached
+	mem.util.shmem
 	mem.util.slabReclaimable
 	mem.util.swapCached
 	mem.util.swapTotal

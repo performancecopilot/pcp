@@ -1,0 +1,14 @@
+#pmlogconf-setup 2.0
+ident   ZFS metrics sampled by the htop command
+probe	zfs.arc.size values ? include : exclude
+	zfs.arc.anon_size
+	zfs.arc.bonus_size
+	zfs.arc.compressed_size
+	zfs.arc.uncompressed_size
+	zfs.arc.c_max
+	zfs.arc.dbuf_size
+	zfs.arc.dnode_size
+	zfs.arc.hdr_size
+	zfs.arc.mfu_size
+	zfs.arc.mru_size
+	zfs.arc.size

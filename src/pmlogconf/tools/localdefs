@@ -22,6 +22,7 @@ FILES = \
 	htop \
 	htop-proc \
 	htop-summary \
+	htop-zfs \
 	iostat \
 	ip \
 	ipcs \
