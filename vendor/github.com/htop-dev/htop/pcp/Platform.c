@@ -157,7 +157,7 @@ static const char* Platform_metricNames[] = {
    [PCP_MEM_AVAILABLE] = "mem.util.available",
    [PCP_MEM_BUFFERS] = "mem.util.bufmem",
    [PCP_MEM_CACHED] = "mem.util.cached",
-   [PCP_MEM_SHARED] = "mem.util.shared",
+   [PCP_MEM_SHARED] = "mem.util.shmem",
    [PCP_MEM_SRECLAIM] = "mem.util.slabReclaimable",
    [PCP_MEM_SWAPCACHED] = "mem.util.swapCached",
    [PCP_MEM_SWAPTOTAL] = "mem.util.swapTotal",
@@ -670,15 +670,15 @@ void Platform_setZramValues(Meter* this) {
 
    if (Metric_values(PCP_ZRAM_CAPACITY, values, count, PM_TYPE_U64)) {
       for (i = 0; i < count; i++)
-          stats.totalZram += values[i].ull;
+         stats.totalZram += values[i].ull;
    }
    if (Metric_values(PCP_ZRAM_ORIGINAL, values, count, PM_TYPE_U64)) {
       for (i = 0; i < count; i++)
-          stats.usedZramOrig += values[i].ull;
+         stats.usedZramOrig += values[i].ull;
    }
    if (Metric_values(PCP_ZRAM_COMPRESSED, values, count, PM_TYPE_U64)) {
       for (i = 0; i < count; i++)
-          stats.usedZramComp += values[i].ull;
+         stats.usedZramComp += values[i].ull;
    }
 
    free(values);
@@ -701,8 +701,8 @@ void Platform_setZfsCompressedArcValues(Meter* this) {
 }
 
 void Platform_getHostname(char* buffer, size_t size) {
-    const char* hostname = pmGetContextHostName(pcp->context);
-    String_safeStrncpy(buffer, hostname, size);
+   const char* hostname = pmGetContextHostName(pcp->context);
+   String_safeStrncpy(buffer, hostname, size);
 }
 
 void Platform_getRelease(char** string) {

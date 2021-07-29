@@ -226,7 +226,7 @@ void Platform_getLoadAverage(double* one, double* five, double* fifteen) {
    *fifteen = scanFifteen;
    return;
 
-  err:
+err:
    *one = NAN;
    *five = NAN;
    *fifteen = NAN;
@@ -374,8 +374,8 @@ char* Platform_getProcessEnv(pid_t pid) {
  */
 char* Platform_getInodeFilename(pid_t pid, ino_t inode) {
    struct stat sb;
-   const struct dirent *de;
-   DIR *dirp;
+   const struct dirent* de;
+   DIR* dirp;
    ssize_t len;
    int fd;
 

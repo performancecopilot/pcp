@@ -36,7 +36,7 @@ static PCPDynamicMetric* PCPDynamicMeter_lookupMetric(PCPDynamicMeters* meters, 
    unsigned int n = meter->totalMetrics + 1;
    meter->metrics = xReallocArray(meter->metrics, n, sizeof(PCPDynamicMetric));
    meter->totalMetrics = n;
-   metric = &meter->metrics[n-1];
+   metric = &meter->metrics[n - 1];
    memset(metric, 0, sizeof(PCPDynamicMetric));
    metric->name = metricName;
    metric->label = String_cat(name, ": ");
@@ -78,23 +78,23 @@ static void PCPDynamicMeter_parseMetric(PCPDynamicMeters* meters, PCPDynamicMete
       metric = PCPDynamicMeter_lookupMetric(meters, meter, key);
       if (String_eq(p, "color")) {
          if (String_eq(value, "gray"))
-             metric->color = DYNAMIC_GRAY;
+            metric->color = DYNAMIC_GRAY;
          else if (String_eq(value, "darkgray"))
-             metric->color = DYNAMIC_DARKGRAY;
+            metric->color = DYNAMIC_DARKGRAY;
          else if (String_eq(value, "red"))
-             metric->color = DYNAMIC_RED;
+            metric->color = DYNAMIC_RED;
          else if (String_eq(value, "green"))
-             metric->color = DYNAMIC_GREEN;
+            metric->color = DYNAMIC_GREEN;
          else if (String_eq(value, "blue"))
-             metric->color = DYNAMIC_BLUE;
+            metric->color = DYNAMIC_BLUE;
          else if (String_eq(value, "cyan"))
-             metric->color = DYNAMIC_CYAN;
+            metric->color = DYNAMIC_CYAN;
          else if (String_eq(value, "magenta"))
-             metric->color = DYNAMIC_MAGENTA;
+            metric->color = DYNAMIC_MAGENTA;
          else if (String_eq(value, "yellow"))
-             metric->color = DYNAMIC_YELLOW;
+            metric->color = DYNAMIC_YELLOW;
          else if (String_eq(value, "white"))
-             metric->color = DYNAMIC_WHITE;
+            metric->color = DYNAMIC_WHITE;
       } else if (String_eq(p, "label")) {
          char* label = String_cat(value, ": ");
          free_and_xStrdup(&metric->label, label);
@@ -114,8 +114,8 @@ static bool PCPDynamicMeter_validateMeterName(char* key, const char* path, unsig
       *end = '\0';
    } else {
       fprintf(stderr,
-                "%s: no closing brace on meter name at %s line %u\n\"%s\"\n",
-                pmGetProgname(), path, line, key);
+              "%s: no closing brace on meter name at %s line %u\n\"%s\"\n",
+              pmGetProgname(), path, line, key);
       return false;
    }
 
@@ -131,8 +131,8 @@ static bool PCPDynamicMeter_validateMeterName(char* key, const char* path, unsig
    }
    if (*p != '\0') { /* badness */
       fprintf(stderr,
-                "%s: invalid meter name at %s line %u\n\"%s\"\n",
-                pmGetProgname(), path, line, key);
+              "%s: invalid meter name at %s line %u\n\"%s\"\n",
+              pmGetProgname(), path, line, key);
       return false;
    }
    return true;
@@ -186,11 +186,11 @@ static void PCPDynamicMeter_parseFile(PCPDynamicMeters* meters, const char* path
       char* key = String_trim(config[0]);
       char* value = n > 1 ? String_trim(config[1]) : NULL;
       if (key[0] == '[') {  /* new section heading - i.e. new meter */
-         ok = PCPDynamicMeter_validateMeterName(key+1, path, lineno);
+         ok = PCPDynamicMeter_validateMeterName(key + 1, path, lineno);
          if (ok)
-            ok = PCPDynamicMeter_uniqueName(key+1, path, lineno, meters);
+            ok = PCPDynamicMeter_uniqueName(key + 1, path, lineno, meters);
          if (ok)
-            meter = PCPDynamicMeter_new(meters, key+1);
+            meter = PCPDynamicMeter_new(meters, key + 1);
       } else if (!ok) {
          ;  /* skip this one, we're looking for a new header */
       } else if (value && meter && String_eq(key, "caption")) {
@@ -198,19 +198,19 @@ static void PCPDynamicMeter_parseFile(PCPDynamicMeters* meters, const char* path
          if (caption) {
             free_and_xStrdup(&meter->super.caption, caption);
             free(caption);
-	    caption = NULL;
+            caption = NULL;
          }
       } else if (value && meter && String_eq(key, "description")) {
          free_and_xStrdup(&meter->super.description, value);
       } else if (value && meter && String_eq(key, "type")) {
          if (String_eq(config[1], "bar"))
-             meter->super.type = BAR_METERMODE;
+            meter->super.type = BAR_METERMODE;
          else if (String_eq(config[1], "text"))
-             meter->super.type = TEXT_METERMODE;
+            meter->super.type = TEXT_METERMODE;
          else if (String_eq(config[1], "graph"))
-             meter->super.type = GRAPH_METERMODE;
+            meter->super.type = GRAPH_METERMODE;
          else if (String_eq(config[1], "led"))
-             meter->super.type = LED_METERMODE;
+            meter->super.type = LED_METERMODE;
       } else if (value && meter && String_eq(key, "maximum")) {
          meter->super.maximum = strtod(value, NULL);
       } else if (value && meter) {
