@@ -70,13 +70,13 @@ char* Platform_getInodeFilename(pid_t pid, ino_t inode);
 
 FileLocks_ProcessData* Platform_getProcessLocks(pid_t pid);
 
-void Platform_getPressureStall(const char *file, bool some, double* ten, double* sixty, double* threehundred);
+void Platform_getPressureStall(const char* file, bool some, double* ten, double* sixty, double* threehundred);
 
 bool Platform_getDiskIO(DiskIOData* data);
 
 bool Platform_getNetworkIO(NetworkIOData* data);
 
-void Platform_getBattery(double *percent, ACPresence *isOnAC);
+void Platform_getBattery(double* percent, ACPresence* isOnAC);
 
 static inline void Platform_getHostname(char* buffer, size_t size) {
    Generic_hostname(buffer, size);
@@ -98,14 +98,16 @@ void Platform_longOptionsUsage(const char* name);
 bool Platform_getLongOption(int opt, int argc, char** argv);
 
 static inline void Platform_gettime_realtime(struct timeval* tv, uint64_t* msec) {
-    Generic_gettime_realtime(tv, msec);
+   Generic_gettime_realtime(tv, msec);
 }
 
 static inline void Platform_gettime_monotonic(uint64_t* msec) {
-    Generic_gettime_monotonic(msec);
+   Generic_gettime_monotonic(msec);
 }
 
-static inline Hashtable* Platform_dynamicMeters(void) { return NULL; }
+static inline Hashtable* Platform_dynamicMeters(void) {
+   return NULL;
+}
 
 static inline void Platform_dynamicMeterInit(ATTR_UNUSED Meter* meter) { }
 

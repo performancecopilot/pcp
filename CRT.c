@@ -836,7 +836,9 @@ void CRT_init(const Settings* settings, bool allowUnicode) {
    nonl();
    intrflush(stdscr, false);
    keypad(stdscr, true);
+#ifdef HAVE_GETMOUSE
    mouseinterval(0);
+#endif
    curs_set(0);
 
    if (has_colors()) {
@@ -910,10 +912,12 @@ void CRT_init(const Settings* settings, bool allowUnicode) {
 #endif
       CRT_treeStrAscii;
 
+#ifdef HAVE_GETMOUSE
 #if NCURSES_MOUSE_VERSION > 1
    mousemask(BUTTON1_RELEASED | BUTTON4_PRESSED | BUTTON5_PRESSED, NULL);
 #else
    mousemask(BUTTON1_RELEASED, NULL);
+#endif
 #endif
 
    CRT_degreeSign = initDegreeSign();
@@ -1024,7 +1028,7 @@ void CRT_handleSIGSEGV(int signal) {
       "---\n"
    );
 
-   void *backtraceArray[256];
+   void* backtraceArray[256];
 
    size_t size = backtrace(backtraceArray, ARRAYSIZE(backtraceArray));
    backtrace_symbols_fd(backtraceArray, size, STDERR_FILENO);

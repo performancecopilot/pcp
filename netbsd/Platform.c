@@ -226,6 +226,7 @@ double Platform_setCPUValues(Meter* this, int cpu) {
 
    totalPercent = CLAMP(totalPercent, 0.0, 100.0);
 
+   v[CPU_METER_FREQUENCY] = cpuData->frequency;
    v[CPU_METER_TEMPERATURE] = NAN;
 
    return totalPercent;
@@ -299,14 +300,14 @@ char* Platform_getProcessEnv(pid_t pid) {
 }
 
 char* Platform_getInodeFilename(pid_t pid, ino_t inode) {
-    (void)pid;
-    (void)inode;
-    return NULL;
+   (void)pid;
+   (void)inode;
+   return NULL;
 }
 
 FileLocks_ProcessData* Platform_getProcessLocks(pid_t pid) {
-    (void)pid;
-    return NULL;
+   (void)pid;
+   return NULL;
 }
 
 bool Platform_getDiskIO(DiskIOData* data) {
