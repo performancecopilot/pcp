@@ -444,8 +444,8 @@ x11
 #
 000 other pmcd local ostest
 001 pdu local ostest sanity
-002 pdu pmcd local ostest sanity
-003 pdu pmcd mem_leak local ostest kernel
+002 pdu pmcd local ostest sanity pmda.sample
+003 pdu pmcd mem_leak local ostest kernel pmda.sample
 004 context local ostest sanity
 005 context archive local ostest sanity
 006 libpcp local ostest
@@ -462,7 +462,7 @@ x11
 017 context local ostest
 018 pmcd local ostest
 019 context_local local ostest kernel
-020 context_local local ostest kernel
+020 context_local local ostest kernel pmda.sample
 021 other local ostest
 022 context_local pmda pmda.proc local ostest
 023 pmcd local pmprobe ostest pmstore kernel
@@ -471,7 +471,7 @@ x11
 026 other help local ostest sanity libpcp
 027 libpcp local ostest sanity
 028 pmns local ostest
-029 pmns local ostest pmdumplog pmda.sample
+029 pmns local ostest pmdumplog
 030 pdu pmcd pmda context_local local ostest pmstore
 031 pmns local sanity
 032 pmlc local ostest pmlogger
@@ -497,7 +497,7 @@ x11
 052 pmns local ostest
 053 local pmprobe ostest pmlogger pmclient pmdumplog python kernel
 054 pmlogger archive ostest remote pmdumplog kernel
-055 pmie ostest local sanity
+055 pmie ostest local sanity pmda.sample
 056 local pmprobe ostest pmlogger pmclient python pmdumplog kernel
 057 pmns local ostest
 058 pmval local ostest
@@ -516,8 +516,8 @@ x11
 071 context_local local ostest
 072 pmlogger ostest remote pmdumplog kernel
 073 pmclient local pmprobe python kernel
-074 pmda pmda.cisco pmda.pmcd local ostest sanity kernel
-075 pmval pmstore ostest remote
+074 pmda pmda.pmcd local ostest sanity kernel pmda.sample
+075 pmval pmstore ostest remote pmda.sample
 076 pmda.pmcd local ostest
 077 libpcp ostest remote timezone
 078 pmdumplog local ostest
@@ -530,7 +530,7 @@ x11
 085 pmlogger local ostest sanity
 086 libpcp ostest remote timezone
 087 archive local ostest sanity
-088 archive #500237 pmval local ostest
+088 archive #500237 pmval local ostest pmda.sample
 089 archive pmval local ostest
 090 archive local ostest
 091 archive local ostest sanity
@@ -544,13 +544,13 @@ x11
 099 pmlc local
 100 pmlc pmlogger local pmdumplog
 101 pmlc pmlogger remote pmdumplog
-102 pmlc local pmlogger
+102 pmlc local pmlogger pmda.sample
 103 pmlc pmlogger local pmdumplog
 104 pmlc pmlogger local pmdumplog
 105 pmlc pmlogger local pmdumplog
 106 pmlc pmlogger local pmdumplog
-107 pmlc local sanity
-108 pmda.cisco pmda.sample local
+107 pmlc local sanity pmda.sample
+108 pmda.cisco pmda.sample local pmda.sample
 109 pmclient local pmprobe python kernel
 110 pmda.simple pmda.proc local pmda.install
 111 pmda.proc pmval local
@@ -591,7 +591,7 @@ x11
 146 pmns libpcp local sanity
 147 dbpmda local
 148:retired kernel local
-149 kernel local kernel
+149 kernel local kernel pmda.sample
 150 pmlogreduce local pmval kernel
 151 logutil local pmlogextract
 152 pmda.pmcd pmval local
@@ -610,18 +610,18 @@ x11
 165 pmval local kernel
 166 pmlogreduce local pmval pmdumplog archive
 167 pmda.pmcd pmval local pmstore
-168 pmlogextract #933456 local pmstore pmdumplog
+168 pmlogextract #933456 local pmstore pmdumplog pmda.sample
 169 pmcd local pmstore
 170 other local
 171 archive local pmdumplog
 172 pmcd pmlc local folio
 173 archive local pmdumplog
-174 dbpmda local
-175 pmval local
+174 dbpmda local pmda.sample
+175 pmval local pmda.sample
 176 libpcp pmval local
-177 archive pmval local pmdumplog pmlc
+177 archive pmval local pmdumplog pmlc pmda.sample
 178 pmval local pmlogextract sanity pmdumplog pmlogger
-179 pmval pmlc local pmdumplog kernel
+179 pmval pmlc local pmdumplog kernel pmda.sample
 180 archive pmval local
 181 pmval archive pmval local
 182 pmlc pmlogger local
@@ -640,9 +640,9 @@ x11
 195 archive local pmdumplog
 196 pmcd remote
 197 context local
-198 pmda context #934332 local
+198 pmda context #934332 local pmda.sample
 199 pmda.trivial pmda.proc local pmda.install
-200 context local
+200 context local pmda.sample
 201 pmda local sanity
 202 pmval local pmlogextract pmdumplog
 203 archive pmval local pmlogextract pmdumplog
@@ -652,8 +652,8 @@ x11
 207 pmns local sanity
 208 pmns local sanity
 209 pmval local kernel
-210 pmns local pmval pmie sanity pmdumplog
-211 pmns local pmval pmie pmdumplog
+210 pmns local pmval pmie sanity pmdumplog pmda.sample
+211 pmns local pmval pmie pmdumplog pmda.sample
 212:retired pmda pmda.cisco local
 213 dbpmda pmns local pmda.sample pmda.mmv sanity help
 214 pmlogextract local pmdumplog timezone
@@ -694,15 +694,15 @@ x11
 249 derive local sanity
 250 pmns local
 251 archive pmval local pmdumplog
-252 pmlogger local pmdumplog
+252 pmlogger local pmdumplog pmda.sample
 253 derive local
 254 libpcp pmns local
 255 compat pmda #508731 #509091 pmda.proc help pmda.install local pmda.simple
 256 derive pmns local sanity pmda.sample
-257 libpcp pmns compat remote
+257 libpcp pmns compat remote pmda.sample
 258 trace local pmda.install folio pmda.trace
 259 derive pmval local
-260 derive pmie local pmstore
+260 derive pmie local pmstore pmda.sample
 261 pmdumplog pmval local pmlogextract
 262 context_local pmie pmsocks remote pmstat kernel
 263 derive local sanity
@@ -727,7 +727,7 @@ x11
 282 pmcd local pmprobe logutil pmlc folio
 283 context pmcd local
 284:retired  pdu local purify
-285 dbpmda local
+285 dbpmda local pmda.sample
 286 pmda.linux local pmval kernel
 287 pmlogreduce local pmval
 288 archive local
@@ -738,10 +738,10 @@ x11
 293 pmstat #939275 local
 294 pmproxy local pmval pmie pmstat pmdumptext
 295 pmproxy local pmval pmstat pmie
-296 pmcd local
+296 pmcd local pmda.sample
 297 pmproxy local
 298 pmie local kernel
-299 libpcp local sanity kernel
+299 libpcp local sanity kernel pmda.sample
 300 pmcd local pmpost
 301 pmda pmcd pmlogger local
 302 pmlogextract local pmdumplog
@@ -763,12 +763,12 @@ x11
 318 pmie local
 319 pmie local kernel
 320 local folio pmlogcheck pmclient
-321 pmie local
+321 pmie local pmda.sample
 322 pmlc pmlogger remote pmdumplog kernel
 323 pmda.shping pmda.proc local pmda.install
 324 pmda.txmon pmda.proc local pmda.install
 325 libpcp local pmquery x11
-326 pmlogger pmval libpcp pmcd local pmda.install pmdumplog timezone
+326 pmlogger pmval libpcp pmcd local pmda.install pmdumplog timezone pmda.sample
 327 archive local pmdumplog pmloglabel timezone
 328 local pmlogextract pmdumplog
 329:retired archive mem_leak local purify
@@ -784,9 +784,9 @@ x11
 339 pmie local kernel
 340 pmcd remote pmstore
 341 pmda local
-342 other remote dbpmda
+342 other remote dbpmda pmda.sample
 343 pmlogreduce local pmdumplog
-344 context_local local pmval pmprobe
+344 context_local local pmval pmprobe pmda.sample
 345 pmns derive local sanity
 346 pmda.mailq local pmda.install
 347 pmda.news local pmda.install perl pmstore
@@ -794,7 +794,7 @@ x11
 349 pmda.summary local pmda.install
 350 pmda.simple pmda local
 351 derive local
-352 derive pmlogger local pmdumplog
+352 derive pmlogger local pmdumplog pmda.sample
 353 pmsocks remote
 354 folio local sanity pmlc
 355 trace local pmda.install pmda.trace
@@ -802,7 +802,7 @@ x11
 357 other local
 358 pmie local pmstore
 359 pmcd pminfo sanity local
-360 pmie remote
+360 pmie remote pmda.sample
 361 pmda.linux local cgroups
 362 pmlogconf local kernel
 363 local pmlogsummary
@@ -823,7 +823,7 @@ x11
 378 pmie local kernel
 379 pmda.cisco local
 380 libpcp pmda pmda.sample local pmval pmprobe
-381 pmlc remote
+381 pmlc remote pmda.sample
 382 dbpmda pmda pmda.sample local
 383 pmda.cisco local flakey
 384 pmda.pmcd local
@@ -839,10 +839,10 @@ x11
 394 archive mem_leak valgrind local flakey
 395 archive mem_leak valgrind local kernel
 396 pmval local kernel
-397 dbpmda libpcp local pdu event sanity
+397 dbpmda libpcp local pdu event sanity pmda.sample
 398 pmcd local
 399 pmie local kernel
-400 pminfo mem_leak valgrind context_local libpcp local event
+400 pminfo mem_leak valgrind context_local libpcp local event pmda.sample
 401 libpcp pminfo local event sanity pmstore
 402 archive local pmprobe kernel
 403 pmprobe pminfo pmval #541380 local sanity kernel
@@ -854,13 +854,13 @@ x11
 409 libpcp pminfo local event
 410 pmdumplog local event
 411 pmda.simple local pmda.install
-412 wrap archive libpcp pmval local pmdumplog timezone pmstore
+412 wrap archive libpcp pmval local pmdumplog timezone pmstore pmda.sample
 413 pmie local event
 414 libpcp local
 415 pmstore local event
 416 pmda.news dbpmda local sanity perl
 417 archive local pmdumplog
-418 pmdumplog local pmlogger
+418 pmdumplog local pmlogger pmda.sample
 419 pmdumplog local pmlogger kernel
 420 local pmdumplog
 421 trace local pmda.install pmda.trace
@@ -875,7 +875,7 @@ x11
 430 logutil local #553276 #568199
 431 derive local
 432 pmlogreduce local
-433 pmie local #573184 kernel
+433 pmie local #573184 kernel pmda.sample
 434 pmval local
 435 archive local sanity pmdumplog
 436 archive local sanity pmdumplog
@@ -896,7 +896,7 @@ x11
 451 threads local
 452 pmda.linux local
 453 perl local sanity kernel
-454 pmcd local
+454 pmcd local pmda.sample
 455 pmda.rsyslog local flakey pmda.install
 456 logutil local #591459 pmlogextract
 457 pmda.logger pmda.install event local
@@ -910,7 +910,7 @@ x11
 465 pmdumplog local #625913
 466 pmlogger local #625913
 467 pmns pmdumptext local
-468 pmns pmdumptext local
+468 pmns pmdumptext local pmda.sample
 469 help local #626853 kernel
 470 threads local
 471 pmda local #621699
@@ -956,7 +956,7 @@ x11
 511 pmimport pmdumplog pmlogsummary perl local
 512 threads pminfo pmlogger pmlogextract pmdumplog dbpmda local fault
 513 libpcp pdu local valgrind
-514 pmie local
+514 pmie local pmda.sample
 515 pmie local pmstore
 516 pmie local kernel
 517 other local
@@ -971,24 +971,24 @@ x11
 526 pmimport local valgrind
 527 libpcp_import perl local timezone
 528 pmimport pmdumplog perl local
-529 pmie local pmdumplog
+529 pmie local pmdumplog pmda.sample
 530 logutil pmlogextract local
-531 dbpmda local pmda.sample
+531 dbpmda local pmda.sample pmda.sample
 532 logutil pmlogextract local pmdumplog
-533 dbpmda local pmda.sample
+533 dbpmda local pmda.sample pmda.sample
 534 pmie local
-535 pmie local pmprobe
+535 pmie local pmprobe pmda.sample
 536 pmimport local iostat pmval pmprobe pmdumplog timezone collectl pcp python
 537 pmimport perl local
 538 pmie local pmstore
 539 pmpost local flakey
 540 libpcp valgrind fault local
-541 pmie #535080 local pmprobe
+541 pmie #535080 local pmprobe pmda.sample
 542 pmdate #666344 local
 543 logutil remote pmlogextract
 544 pmimport local collectl pcp python
 545 pmsocks local
-546 pmcd local secure
+546 pmcd local secure pmda.sample
 547 libpcp pmcd local python
 548 pmie local sanity
 549 pmie local
@@ -1043,7 +1043,7 @@ x11
 598 derive local
 599 pmie local
 600 libpcp local timezone
-601 trace pmda.install local pmda.trace
+601 trace pmda.install local pmda.trace pmda.sample
 602 trace pmda.install local pmda.trace
 603 trace pmda.install remote pmda.trace
 604 archive pmval pmlogextract pmdumplog local
@@ -1059,7 +1059,7 @@ x11
 614 pmns local
 615 pmlogsize local
 616 pmlogsize local
-617 dbpmda help local
+617 dbpmda help local pmda.sample
 618 pmlogsize local
 619 pmlogsize local
 620 pmlogsize valgrind local
@@ -1136,7 +1136,7 @@ x11
 691 derive local
 692 pmie pmda.sample local
 693 pmie pmda.sample local
-694 pmie valgrind local
+694 pmie valgrind local pmda.sample
 695 pmda.trivial perl local
 696 pmda.trivial python local
 697 pmie valgrind local kernel
@@ -1163,7 +1163,7 @@ x11
 718 dbpmda pmda.simple python
 719 libpcp local valgrind
 720 libpcp local valgrind
-721 dbpmda local
+721 dbpmda local pmda.sample
 722 python local pcp
 723 pmda.proc local
 724 pmfind local
@@ -1206,7 +1206,7 @@ x11
 761 pmda.root local containers
 762 help local pmda.sample
 763 pmda local
-764 pmie local
+764 pmie local pmda.sample
 765 pmlogsummary local
 766 pmfind local
 767 pmda.linux pmda.proc pmda.root local containers kernel
@@ -1248,7 +1248,7 @@ x11
 803 libpcp derive local kernel
 804 pcp pmstat local
 805 pmda.postfix local
-806 pmstore pminfo pmie pmval pmprobe dbpmda local
+806 pmstore pminfo pmie pmval pmprobe dbpmda local pmda.sample
 807 pcp local
 808 pmlogger local logutil
 809:retired pmcollect
@@ -1296,9 +1296,9 @@ x11
 851 iostat local pcp python kernel
 852 pmda.proc local
 853 pmcpp local kernel
-854 pmlogger local pmlc pmdumplog pmstore folio
+854 pmlogger local pmlc pmdumplog pmstore folio pmda.sample
 855 pmda.netfilter local
-856 pmlogger local pmlc pmdumplog pmstore folio
+856 pmlogger local pmlc pmdumplog pmstore folio pmda.sample
 857 pmda.linux local valgrind kernel
 858 libpcp local fetch valgrind pmstore
 859 python libpcp local fetch
@@ -1324,7 +1324,7 @@ x11
 879 pmda.pipe local
 880 pmrep python local kernel
 881 pmcd local
-882 pmlogger local pmlc pmdumplog pmstore folio
+882 pmlogger local pmlc pmdumplog pmstore folio pmda.sample
 883 pcp mpstat python local
 884 libpcp_web local
 885 pmda.linux local kernel
@@ -1374,7 +1374,7 @@ x11
 929 logutil local
 930 pmlogrewrite local pmdumplog
 931 archive pmval local
-932 pmlogger local pmdumplog folio
+932 pmlogger local pmdumplog folio pmda.sample
 933 pmda.proc local
 934 pmieutil local
 935 derive local
@@ -1386,11 +1386,11 @@ x11
 941 pmcd local
 942 threads valgrind local helgrind
 943 pmprobe pmda.proc local
-944 pmcd secure local pmstore
+944 pmcd secure local pmstore pmda.sample
 945 pmlogrewrite pmda.xfs local pmdumplog
 946 pmfind avahi local
-947 pmlogger local pmdumplog
-948 pmlogger context_local local pmlogcheck pmdumplog kernel
+947 pmlogger local pmdumplog pmda.sample
+948 pmlogger context_local local pmlogcheck pmdumplog kernel pmda.sample
 949 python local timezone
 950 pmproxy avahi local
 951 pmie local pmval kernel
@@ -1497,7 +1497,7 @@ x11
 1052 pmda.json local python dbpmda
 1053 pmda.json pmda.install local python
 1054 pmlogger pmcpp local pmdumplog kernel
-1055 pmlogger local pmdumplog pmstore folio
+1055 pmlogger local pmdumplog pmstore folio pmda.sample
 1056 derive local kernel
 1057 pmlogrewrite local
 1058 pmda.bash local
@@ -1511,7 +1511,7 @@ x11
 1066 derive valgrind local
 1067 zbxpcp local pmda.sample
 1068 pcp2zabbix python pcp2xxx local
-1069 pmrep python local timezone kernel
+1069 pmrep python local timezone kernel pmda.sample
 1070 pmrep pmimport python perl local
 1071 pmrep python local kernel
 1072 pmrep python archive local kernel
@@ -1641,7 +1641,7 @@ x11
 1196 pmcd local
 1197 pmlogextract local
 1198 pmlogrewrite pmda.linux local
-1199 libpcp pmcd local
+1199 libpcp pmcd local pmda.sample
 1200 logutil local
 1201 logutil remote
 1202 pmda.dm local pmrep python
@@ -1752,7 +1752,7 @@ x11
 1307 dbpmda pmda.sample local
 1308 dbpmda pmda.sample valgrind local
 1309 pmda.zfs local
-1310 labels python local
+1310 labels python local pmda.sample
 1311 derive pmdumptext local
 1312 derive pmdumptext valgrind local
 1313 libpcp local
@@ -1778,7 +1778,7 @@ x11
 1333 archive pmdumplog local valgrind
 1337 pmda.mssql local
 1338 pmlogrewrite labels pmdumplog local
-1340 pmcd pmda.pmcd pmstore local
+1340 pmcd pmda.pmcd pmstore local pmda.sample
 1342 pmda.openmetrics local python
 1343:retired pmmgr local pmlogrewrite
 1344:retired pmmgr local
@@ -1793,7 +1793,7 @@ x11
 1362 pmda.postgresql local
 1367 labels pmda.simple local python dbpmda
 1368 labels help pmlogger pmdumplog local sanity
-1369 labels pmcd pmlogger pmdumplog local
+1369 labels pmcd pmlogger pmdumplog local pmda.sample
 1370 man local
 1372 pmie local
 1379 pmproxy local
@@ -1828,7 +1828,7 @@ x11
 1489 python pmrep pmimport local
 1490 python local labels
 1495 pmlogrewrite labels pmdumplog local
-1511 pmcd local
+1511 pmcd local pmda.sample
 1530 pmda.zfs local valgrind
 1531 pmda.zfs local valgrind
 1532 pmda.zfs local
@@ -1903,7 +1903,7 @@ x11
 1725 pmda.bpftrace local python
 1727:reserved pmproxy libpcp_web local
 1740 pmda.proc local
-1745 pmlogger libpcp pmval local
+1745 pmlogger libpcp pmval local pmda.sample pmda.simple
 1748 atop local
 1753 fetch valgrind local
 1763 pmlogctl local
