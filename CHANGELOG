@@ -1,3 +1,6 @@
+pcp-5.3.3 (15 September 2021)
+    - https://github.com/performancecopilot/pcp/projects/1
+
 pcp-5.3.2 (30 July 2021)
     - Client tools and utilities:
 	python: minimum supported python2 version is now 2.7
