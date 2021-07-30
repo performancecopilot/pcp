@@ -474,6 +474,10 @@ sampledso.negative.discrete.m_64
 sampledso.negative.discrete.m_float
 sampledso.negative.discrete.m_double
 sampledso.controller.mirage
+sampledso.proc.ordinal
+sampledso.proc.exec
+sampledso.proc.time
+sampledso.proc.reset
 sampledso.one
 sampledso.suba.two
 sampledso.suba.three
@@ -683,6 +687,10 @@ sampledso.negative.discrete.m_64
 sampledso.negative.discrete.m_float
 sampledso.negative.discrete.m_double
 sampledso.controller.mirage
+sampledso.proc.ordinal
+sampledso.proc.exec
+sampledso.proc.time
+sampledso.proc.reset
 sampledso.one
 sampledso.suba.two
 sampledso.suba.three

@@ -119,6 +119,7 @@ pmLoadNameSpace: drift -> 29.0.7
 pmLoadNameSpace: end -> 29.0.125
 pmLoadNameSpace: error_check -> 29.0.75
 pmLoadNameSpace: error_code -> 29.0.74
+pmLoadNameSpace: exec -> 29.0.157
 pmLoadNameSpace: ghosts -> 29.*.*
 pmLoadNameSpace: gradient -> 29.0.73
 pmLoadNameSpace: hecto -> 29.0.117
@@ -184,6 +185,7 @@ pmLoadNameSpace: one -> 29.0.25
 pmLoadNameSpace: one -> 29.0.52
 pmLoadNameSpace: one -> 29.0.93
 pmLoadNameSpace: one -> 29.0.98
+pmLoadNameSpace: ordinal -> 29.0.156
 pmLoadNameSpace: param_32 -> 29.0.128
 pmLoadNameSpace: param_64 -> 29.0.130
 pmLoadNameSpace: param_aggregate -> 29.0.135
@@ -202,6 +204,7 @@ pmLoadNameSpace: records -> 29.0.136
 pmLoadNameSpace: recv_pdu -> 29.0.41
 pmLoadNameSpace: recv_pdu -> 29.0.44
 pmLoadNameSpace: reset -> 29.0.126
+pmLoadNameSpace: reset -> 29.0.159
 pmLoadNameSpace: reset_highres -> 29.0.140
 pmLoadNameSpace: seconds -> 29.0.2
 pmLoadNameSpace: seconds -> 29.0.2
@@ -219,6 +222,7 @@ pmLoadNameSpace: ten -> 29.0.26
 pmLoadNameSpace: ten -> 29.0.26
 pmLoadNameSpace: ten -> 29.0.94
 pmLoadNameSpace: ten -> 29.0.99
+pmLoadNameSpace: time -> 29.0.158
 pmLoadNameSpace: time_up_nanosecs -> 29.0.70
 pmLoadNameSpace: time_up_secs -> 29.0.69
 pmLoadNameSpace: two -> 29.0.53

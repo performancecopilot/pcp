@@ -1,0 +1,77 @@
+Recipe for adding new metrics to the sample PMDA
+
+These notes describe how to add a single metric.  For multiple
+metrics, simply repeat each step for each metric.
+
+Changes in ../pmns
+
+    $ cd ..
+    $ get_next_pmid
+    This will give you the next available PMID for the new metric.
+
+[ ] Edit pmns to add the new metric into the PMNS.
+    If you want to check:
+    $ PCP_DERIVED_CONFIG= pminfo -m -n root
+
+Changes in ../help
+
+[ ] Edit help to add help text for the new metric and any new instance
+    domains.
+
+Changes in ./sample.c
+
+[ ] Add a new entry into desctab[] for the metric.
+    Unless they are dynamic PMNS ones, insert the new entry after the
+    PMID that is one smaller than PMID of the new metric.
+
+    If the new metric is defined over a new instance domain, say
+    FOO_INDOM:
+
+[ ] Add a new entry into indomtab[] ... this typically involves a new
+	#define FOO_INDOM ...
+    and an initialized pmdaInstid array.
+
+[ ] In init_tables() add another initialization for FOO_INDOM
+	indomtab[FOO_INDOM].it_indom = pmInDom_build(dom, serial++);
+    and ensure that the associated metric PMID is mentioned in the
+    switch below to initialize the indom field of the pmDesc.
+
+[ ] If the metric requires some pre-fetch value or instance domain
+    computation, add code at the head of the for-loop based on
+    testing the cluster and item fields of the PMID.
+
+[ ] Add code in sample_fetch() in the last (big) switch to return
+    the value of the metric
+
+[ ] If the metric supports pmStore(), then add code in
+    sample_store():
+    - in the intial switch based on the type of the metric
+    - in the second switch to perform the action implied by pmStore()
+
+Changes for make
+
+If you add a source file and/or a header, make sure you add the new
+file names to $(CFILES) and/or $(HFILES) in BOTH GNUmakefile and
+GNUmakefile.install.
+
+Changes for QA
+
+PMNS changes trigger QA fallout, even in tests that are not explicitly
+using the new metric.
+
+[ ] These tests include the names or counts of all sample PMDA metrics
+    and will need to be remade:
+    139 256 272 509 662 762 1067
+
+[ ] 1067 may also need some filter love if the values of the metric
+    and/or the state of any underlying instance domain is not
+    deterministic
+
+[ ] 569 may need some filter love if the values of the metric and/or
+    the state of any underlying instance domain is not deterministic
+
+[ ] 156 may need a filter tweak if the total number of values across
+    all metrics for the sample PMDA increases beyond a '000 boundary
+
+[ ] Then run check with -g pmda.sample
+

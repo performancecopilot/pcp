@@ -22,6 +22,7 @@
 #include "percontext.h"
 #include "events.h"
 #include "domain.h"
+#include "proc.h"
 #ifdef HAVE_SYSINFO
 /*
  * On Solaris, need <sys/systeminfo.h> and sysinfo() is different.
@@ -371,6 +372,14 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,154), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* controller.mirage */
     { PMDA_PMID(0,155), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) },
+/* proc.ordinal */
+    { PMDA_PMID(0,156), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* proc.exec */
+    { PMDA_PMID(0,157), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* proc.time */
+    { PMDA_PMID(0,158), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) },
+/* proc.reset */
+    { PMDA_PMID(0,159), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 
 /*
  * dynamic PMNS ones
@@ -584,6 +593,8 @@ static pmdaIndom indomtab[] = {
     { 0, 2, _events },
 #define GHOST_INDOM	10
     { 0, 8, _ghosts },
+#define PROC_INDOM	11
+    { 0, 0, NULL },
 
     { PM_INDOM_NULL, 0, 0 }
 };
@@ -1179,6 +1190,7 @@ init_tables(int dom)
     indomtab[SCRAMBLE_INDOM].it_indom = pmInDom_build(dom, serial++);
     indomtab[EVENT_INDOM].it_indom = pmInDom_build(dom, serial++);
     indomtab[GHOST_INDOM].it_indom = pmInDom_build(dom, serial++);
+    indomtab[PROC_INDOM].it_indom = pmInDom_build(dom, serial++);
 
     /* rewrite indom in desctab[] */
     for (dp = desctab; dp->pmid != PM_ID_NULL; dp++) {
@@ -1236,6 +1248,11 @@ init_tables(int dom)
 	    case PMDA_PMID(0,136):		/* event.records */
 	    case PMDA_PMID(0,139):		/* event.highres_records */
 		dp->indom = indomtab[EVENT_INDOM].it_indom;
+		break;
+	    case PMDA_PMID(0,156):		/* proc.ordinal */
+	    case PMDA_PMID(0,157):		/* proc.exec */
+	    case PMDA_PMID(0,158):		/* proc.time */
+		dp->indom = indomtab[PROC_INDOM].it_indom;
 		break;
 	    case PMDA_PMID(0,1009):	/* ghosts.origin	*/
 	    case PMDA_PMID(0,1010):	/* ghosts.karma */
@@ -1305,7 +1322,7 @@ sample_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaEx
 
     if (need_mirage && (i = redo_mirage()) < 0)
 	return i;
-    if (pmInDom_serial(indom) == DYNAMIC_INDOM && (i = redo_dynamic(0)) < 0)
+    if (indom == indomtab[DYNAMIC_INDOM].it_indom && (i = redo_dynamic(0)) < 0)
 	return i;
 
     /*
@@ -1693,6 +1710,7 @@ sample_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ep)
     pmDesc	*dp;
     pmAtomValue	atom;
     int		type;
+    int		done_proc_indom = 0;
     char	strbuf[4];	/* string.bin value X00\0 */
 
     sample_inc_recv(ep->e_context);
@@ -1739,6 +1757,15 @@ sample_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ep)
 		/* states cycle after 24 (0 .. 23) */
 		if (state_ghosts == 24)
 		    state_ghosts = 0;
+	    }
+	}
+	if (cluster == 0 && (item == 156 || item == 157 || item == 158)) {
+	    if (!done_proc_indom) {
+		/*
+		 * do this at most once per pmFetch()
+		 */
+		proc_redo_indom(&indomtab[PROC_INDOM]);
+		done_proc_indom = 1;
 	    }
 	}
 
@@ -2508,7 +2535,23 @@ doit:
 		    case 155:	/* controller.mirage */
 			/* metric is in units of msec */
 			atom.ul = mirage_reset.tv_sec * 1000 + (mirage_reset.tv_usec / 1000);
-			break;;
+			break;
+
+		    case 156:	/* proc.ordinal */
+			atom.ul = proc_get_ordinal(inst);
+			break;
+
+		    case 157:	/* proc.exec */
+			atom.cp = proc_get_exec(inst);
+			break;
+		    
+		    case 158:	/* proc.time */
+			atom.ull = proc_get_time(inst);
+			break;
+
+		    case 159:	/* proc.reset */
+			atom.ul = 0;
+			break;
 
 		    case 1000:	/* secret.bar */
 			atom.cp = "foo";
@@ -2778,6 +2821,7 @@ sample_store(pmResult *result, pmdaExt *ep)
 	    case 145:	/* negative.instant.m_32 */
 	    case 149:	/* negative.discrete.m_32 */
 	    case 155:	/* controller.mirage */
+	    case 159:	/* proc.reset */
 	    case 1008:	/* ghosts.visible */
 		if (vsp->numval != 1 || vsp->valfmt != PM_VAL_INSITU)
 		    sts = PM_ERR_BADSTORE;
@@ -3016,6 +3060,9 @@ sample_store(pmResult *result, pmdaExt *ep)
 		mirage_reset.tv_usec = 1000 * (av.ul % 1000);
 		/* change to take effect immediately */
 		mirage_ctl.tv_sec = mirage_ctl.tv_usec = 0;
+		break;
+	    case 159:	/* proc.reset */
+		proc_reset(&indomtab[PROC_INDOM]);
 		break;
 	    case 1008:	/* ghosts.visible */
 		visible_ghosts = av.l;

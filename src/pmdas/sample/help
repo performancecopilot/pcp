@@ -65,6 +65,27 @@ calls, and sometimes (probability 0.33) some instances are missing.
 @ SAMPLE.10 Instance domain "events" for sample PMDA.
 Instances "fungus" and "bogus" for testing event metrics indoms.
 
+@ SAMPLE.11 Instance domain "ghosts" for sample PMDA.
+Instances are the names of some famous ghosts.
+
+@ SAMPLE.12 Instance domain "procs" for sample PMDA
+Simulated and small instance domain that mimics the behaviour of the
+process instance domain from the proc PMDA.
+
+The first 5 instances are fixed.  Then next 15 instances are variable
+such that each time an associated metric is fetched:
+- if an instance is currently defined, it may disappear with
+  probability 0.125
+- for each instance that is not defined, a new instance may
+  appear with probability 0.25
+
+The internal instance identifiers mimic PIDs and are monotonically
+increasing up to 1000, when they wrap (duplicates are obviously
+avoided).
+
+The external instance names are the instance number, space, then
+a random "executable" name.
+
 @ sample.control A control variable for the "sample" PMDA
 This control variable may be modified using pmStore().
 The allowed values are
@@ -789,3 +810,16 @@ counter).
 @ sample.controller.mirage time control for sample.mirage instance changes
 Milliseconds before sample.mirage has a new instance domain configuration.
 Default value is 10000 (10 seconds), but this can be changed with pmstore.
+
+@ sample.proc.ordinal sequence number for each "process"
+A global counter starts at 1 and increases each time a new fake "process"
+is created.
+
+@ sample.proc.exec "executable" name
+Path to an imaginary executable for the fake "process", randomly
+constructed from 3 sets of make believe directory names.
+
+@ sample.proc.time time since the fake "process" was created
+
+@ sample.proc.reset reset the "procs" instance domain to a known state
+pmstore(1) may be used to trigger the reset.

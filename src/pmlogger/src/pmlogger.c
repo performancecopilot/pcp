@@ -955,11 +955,21 @@ main(int argc, char **argv)
 
         case 'V': 
 	    archive_version = (int)strtol(opts.optarg, &endnum, 10);
+#ifdef V3_ARCHIVE
+	    if (*endnum != '\0'
+		|| (archive_version != PM_LOG_VERS02 &&
+	            archive_version != PM_LOG_VERS03)) {
+		pmprintf("%s: -V requires a version number of %d or %d\n",
+			 pmGetProgname(), PM_LOG_VERS02, PM_LOG_VERS03); 
+		opts.errors++;
+	    }
+#else
 	    if (*endnum != '\0' || archive_version != PM_LOG_VERS02) {
 		pmprintf("%s: -V requires a version number of %d\n",
 			 pmGetProgname(), PM_LOG_VERS02); 
 		opts.errors++;
 	    }
+#endif
 	    break;
 
 	case 'x':		/* recording session control fd */

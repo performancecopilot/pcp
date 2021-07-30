@@ -82,6 +82,7 @@ sample {
     negative
     ghosts	SAMPLE:*:*
     controller
+    proc
 }
 
 sample.long {
@@ -343,4 +344,11 @@ sample.negative.discrete {
 
 sample.controller {
     mirage		SAMPLE:0:155
+}
+
+sample.proc {
+    ordinal		SAMPLE:0:156
+    exec		SAMPLE:0:157
+    time		SAMPLE:0:158
+    reset		SAMPLE:0:159
 }

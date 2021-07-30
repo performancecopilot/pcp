@@ -180,4 +180,8 @@ sample.negative.discrete.m_64
 sample.negative.discrete.m_float
 sample.negative.discrete.m_double
 sample.controller.mirage
+sample.proc.ordinal
+sample.proc.exec
+sample.proc.time
+sample.proc.reset
 pmlc> 

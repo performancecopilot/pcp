@@ -312,6 +312,14 @@ PMID 29.0.154 sample.bad.fetch.again: Fetch returns PM_ERR_AGAIN, always
 
 PMID 29.0.155 sample.controller.mirage: time control for sample.mirage instance changes
 
+PMID 29.0.156 sample.proc.ordinal: sequence number for each "process"
+
+PMID 29.0.157 sample.proc.exec: "executable" name
+
+PMID 29.0.158 sample.proc.time: time since the fake "process" was created
+
+PMID 29.0.159 sample.proc.reset: reset the "procs" instance domain to a known state
+
 PMID 29.0.1000: dynamic *.secret.bar metric
 
 PMID 29.0.1001: dynamic *.secret.foo.one metric

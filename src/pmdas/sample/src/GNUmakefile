@@ -30,8 +30,8 @@ PMDAINIT = $(IAM)_init
 PMDAADMDIR = $(PCP_PMDASADM_DIR)/sample
 PMDATMPDIR = $(PCP_PMDAS_DIR)/sample
 
-CFILES = pmda.c sample.c percontext.c events.c
-HFILES = percontext.h events.h libpcp.h
+CFILES = pmda.c sample.c percontext.c events.c proc.c
+HFILES = percontext.h events.h libpcp.h proc.h
 VERSION_SCRIPT = exports
 
 LDIRT = domain.h libpcp.h sample.log $(TARGETS) $(VERSION_SCRIPT)
@@ -70,3 +70,4 @@ libpcp.h:	$(TOPDIR)/src/include/pcp/libpcp.h
 	$(LN_S) $(TOPDIR)/src/include/pcp/libpcp.h libpcp.h
 
 events.o pmda.o sample.o:	$(TOPDIR)/src/include/pcp/libpcp.h
+proc.o:		proc.h

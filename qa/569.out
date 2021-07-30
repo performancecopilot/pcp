@@ -1,4 +1,5 @@
 QA output created by 569
+sample.proc.reset old value=0 new value=1
 === reset ===
 sample.negative.ctr.m_32 old value=OLD new value=-10000
 sample.negative.instant.m_32 old value=OLD new value=-10000
@@ -179,6 +180,10 @@ sample.negative.discrete.m_64 1
 sample.negative.discrete.m_float 1
 sample.negative.discrete.m_double 1
 sample.controller.mirage 1
+sample.proc.ordinal 4
+sample.proc.exec 4
+sample.proc.time NN
+sample.proc.reset 1
 
 === -i ===
 sample.control 1 PM_IN_NULL
@@ -376,6 +381,10 @@ sample.negative.discrete.m_64 1 PM_IN_NULL
 sample.negative.discrete.m_float 1 PM_IN_NULL
 sample.negative.discrete.m_double 1 PM_IN_NULL
 sample.controller.mirage 1 PM_IN_NULL
+sample.proc.ordinal 9 ?1 ?2 ?3 ?4 ?5 ?6 ?7 ?8 ?9
+sample.proc.exec 9 ?1 ?2 ?3 ?4 ?5 ?6 ?7 ?8 ?9
+sample.proc.time NN ?1 ?2 ?3 ?4 ?5 ?6 ?7 ?8 ?9
+sample.proc.reset 1 PM_IN_NULL
 
 === -I ===
 sample.control 1 PM_IN_NULL
@@ -579,6 +588,13 @@ sample.negative.discrete.m_64 1 PM_IN_NULL
 sample.negative.discrete.m_float 1 PM_IN_NULL
 sample.negative.discrete.m_double 1 PM_IN_NULL
 sample.controller.mirage 1 PM_IN_NULL
+sample.proc.ordinal 10 "0001 init" "0002 /etc/bozo" "0003 /usr/bin/bobo" "0004 /usr/local/jester" "0005 /usr/opt/bin/loko" "0006 /etc/pierrot" "0007 /usr/bin/wa
+ldo" "0008 /usr/local/yobo" "0009 /usr/opt/bin/jojo" "0010 /etc/koko"
+sample.proc.exec 10 "0001 init" "0002 /etc/bozo" "0003 /usr/bin/bobo" "0004 /usr/local/jester" "0005 /usr/opt/bin/loko" "0006 /etc/pierrot" "0007 /usr/bin/waldo
+" "0008 /usr/local/yobo" "0009 /usr/opt/bin/jojo" "0010 /etc/koko"
+sample.proc.time NN "0001 init" "0002 /etc/bozo" "0003 /usr/bin/bobo" "0004 /usr/local/jester" "0005 /usr/opt/bin/loko" "0006 /etc/pierrot" "0007 /usr/bin/waldo
+" "0008 /usr/local/yobo" "0009 /usr/opt/bin/jojo" "0010 /etc/koko"
+sample.proc.reset 1 PM_IN_NULL
 
 === -v ===
 sample.control 1 0
@@ -768,6 +784,10 @@ sample.negative.discrete.m_64 1 -9988
 sample.negative.discrete.m_float 1 -9988
 sample.negative.discrete.m_double 1 -9988
 sample.controller.mirage 1 10000
+sample.proc.ordinal 13 1 2 3 4 5 6 7 8 9 10 11 12 13
+sample.proc.exec 13 "0001 init" "bozo" "bobo" "jester" "loko" "pierrot" "waldo" "yobo" "jojo" "koko" "lala" "bozo" "bobo"
+sample.proc.time NN NN NN NN NN NN NN NN NN NN NN NN NN NN
+sample.proc.reset 1 0
 
 === -iI ===
 sample.control 1 PM_IN_NULL PM_IN_NULL
@@ -1007,6 +1027,16 @@ sample.negative.discrete.m_64 1 PM_IN_NULL PM_IN_NULL
 sample.negative.discrete.m_float 1 PM_IN_NULL PM_IN_NULL
 sample.negative.discrete.m_double 1 PM_IN_NULL PM_IN_NULL
 sample.controller.mirage 1 PM_IN_NULL PM_IN_NULL
+sample.proc.ordinal 13 ?1 "0001 init" ?2 "0002 /etc/bozo" ?3 "0003 /usr/bin/bobo" ?4 "0004 /usr/local/jester" ?5 "0005 /usr/opt/bin/loko" ?7 "0007 /usr/bin/wald
+o" ?8 "0008 /usr/local/yobo" ?9 "0009 /usr/opt/bin/jojo" ?10 "0010 /etc/koko" ?11 "0011 /usr/bin/lala" ?12 "0012 /usr/local/bozo" ?14 "0014 /etc/jester" ?15 "00
+15 /usr/bin/loko"
+sample.proc.exec 13 ?1 "0001 init" ?2 "0002 /etc/bozo" ?3 "0003 /usr/bin/bobo" ?4 "0004 /usr/local/jester" ?5 "0005 /usr/opt/bin/loko" ?7 "0007 /usr/bin/waldo" 
+?8 "0008 /usr/local/yobo" ?9 "0009 /usr/opt/bin/jojo" ?10 "0010 /etc/koko" ?11 "0011 /usr/bin/lala" ?12 "0012 /usr/local/bozo" ?14 "0014 /etc/jester" ?15 "0015 
+/usr/bin/loko"
+sample.proc.time NN ?1 "0001 init" ?2 "0002 /etc/bozo" ?3 "0003 /usr/bin/bobo" ?4 "0004 /usr/local/jester" ?5 "0005 /usr/opt/bin/loko" ?7 "0007 /usr/bin/waldo" 
+?8 "0008 /usr/local/yobo" ?9 "0009 /usr/opt/bin/jojo" ?10 "0010 /etc/koko" ?11 "0011 /usr/bin/lala" ?12 "0012 /usr/local/bozo" ?14 "0014 /etc/jester" ?15 "0015 
+/usr/bin/loko"
+sample.proc.reset 1 PM_IN_NULL PM_IN_NULL
 
 === -iv ===
 pmprobe: at most one of -v and (-i or -I) allowed

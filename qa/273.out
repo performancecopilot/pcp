@@ -183,6 +183,10 @@ sampledso.negative.discrete.m_64 [64-bit integer discrete metric with negative v
 sampledso.negative.discrete.m_float [float discrete metric with negative value]
 sampledso.negative.discrete.m_double [double discrete metric with negative value]
 sampledso.controller.mirage [time control for sample.mirage instance changes]
+sampledso.proc.ordinal [sequence number for each "process"]
+sampledso.proc.exec ["executable" name]
+sampledso.proc.time [time since the fake "process" was created]
+sampledso.proc.reset [reset the "procs" instance domain to a known state]
 --- help.c case 2 ---
 
 sampledso.control
@@ -1314,6 +1318,24 @@ sampledso.controller.mirage
 Help:
 Milliseconds before sampledso.mirage has a new instance domain configuration.
 Default value is 10000 (10 seconds), but this can be changed with pmstore.
+
+sampledso.proc.ordinal
+Help:
+A global counter starts at 1 and increases each time a new fake "process"
+is created.
+
+sampledso.proc.exec
+Help:
+Path to an imaginary executable for the fake "process", randomly
+constructed from 3 sets of make believe directory names.
+
+sampledso.proc.time
+Help:
+time since the fake "process" was created
+
+sampledso.proc.reset
+Help:
+pmstore(1) may be used to trigger the reset.
 --- help.c case 3 ---
 
 sample.seconds

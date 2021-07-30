@@ -127,6 +127,9 @@ EOF
 echo "zabbix_agentd config:" >>$seq.full
 cat $tmp.conf >>$seq.full
 
+# need the sample.proc metricss to be deterministic
+pmstore sample.proc.reset 1
+
 # real QA test starts here
 zabbix_agentd="zabbix_agentd -c $tmp.conf"
 echo "== request specific values"
