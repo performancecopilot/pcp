@@ -45,26 +45,26 @@ static void printVersionFlag(const char* name) {
 
 static void printHelpFlag(const char* name) {
    printf("%s " VERSION "\n"
-         COPYRIGHT "\n"
-         "Released under the GNU GPLv2.\n\n"
-         "-C --no-color                   Use a monochrome color scheme\n"
-         "-d --delay=DELAY                Set the delay between updates, in tenths of seconds\n"
-         "-F --filter=FILTER              Show only the commands matching the given filter\n"
-         "-h --help                       Print this help screen\n"
-         "-H --highlight-changes[=DELAY]  Highlight new and old processes\n"
-         "-M --no-mouse                   Disable the mouse\n"
-         "-p --pid=PID[,PID,PID...]       Show only the given PIDs\n"
-         "   --readonly                   Disable all system and process changing features\n"
-         "-s --sort-key=COLUMN            Sort by COLUMN in list view (try --sort-key=help for a list)\n"
-         "-t --tree                       Show the tree view (can be combined with -s)\n"
-         "-u --user[=USERNAME]            Show only processes for a given user (or $USER)\n"
-         "-U --no-unicode                 Do not use unicode but plain ASCII\n"
-         "-V --version                    Print version info\n", name);
+          COPYRIGHT "\n"
+          "Released under the GNU GPLv2.\n\n"
+          "-C --no-color                   Use a monochrome color scheme\n"
+          "-d --delay=DELAY                Set the delay between updates, in tenths of seconds\n"
+          "-F --filter=FILTER              Show only the commands matching the given filter\n"
+          "-h --help                       Print this help screen\n"
+          "-H --highlight-changes[=DELAY]  Highlight new and old processes\n"
+          "-M --no-mouse                   Disable the mouse\n"
+          "-p --pid=PID[,PID,PID...]       Show only the given PIDs\n"
+          "   --readonly                   Disable all system and process changing features\n"
+          "-s --sort-key=COLUMN            Sort by COLUMN in list view (try --sort-key=help for a list)\n"
+          "-t --tree                       Show the tree view (can be combined with -s)\n"
+          "-u --user[=USERNAME]            Show only processes for a given user (or $USER)\n"
+          "-U --no-unicode                 Do not use unicode but plain ASCII\n"
+          "-V --version                    Print version info\n", name);
    Platform_longOptionsUsage(name);
    printf("\n"
-         "Long options may be passed with a single dash.\n\n"
-         "Press F1 inside %s for online help.\n"
-         "See 'man %s' for more information.\n", name, name);
+          "Long options may be passed with a single dash.\n\n"
+          "Press F1 inside %s for online help.\n"
+          "See 'man %s' for more information.\n", name, name);
 }
 
 // ----------------------------------------
@@ -118,13 +118,14 @@ static CommandLineSettings parseArguments(const char* program, int argc, char** 
       {"highlight-changes", optional_argument, 0, 'H'},
       {"readonly",   no_argument,         0, 128},
       PLATFORM_LONG_OPTIONS
-      {0,0,0,0}
+      {0, 0, 0, 0}
    };
 
-   int opt, opti=0;
+   int opt, opti = 0;
    /* Parse arguments */
    while ((opt = getopt_long(argc, argv, "hVMCs:td:u::Up:F:H::", long_opts, &opti))) {
-      if (opt == EOF) break;
+      if (opt == EOF)
+         break;
       switch (opt) {
          case 'h':
             printHelpFlag(program);
@@ -185,7 +186,9 @@ static CommandLineSettings parseArguments(const char* program, int argc, char** 
             flags.useColors = false;
             break;
          case 'M':
+#ifdef HAVE_GETMOUSE
             flags.enableMouse = false;
+#endif
             break;
          case 'U':
             flags.allowUnicode = false;
@@ -303,8 +306,10 @@ int CommandLine_run(const char* name, int argc, char** argv) {
       settings->delay = flags.delay;
    if (!flags.useColors)
       settings->colorScheme = COLORSCHEME_MONOCHROME;
+#ifdef HAVE_GETMOUSE
    if (!flags.enableMouse)
       settings->enableMouse = false;
+#endif
    if (flags.treeView)
       settings->treeView = true;
    if (flags.highlightChanges)
@@ -354,7 +359,7 @@ int CommandLine_run(const char* name, int argc, char** argv) {
    ScreenManager_run(scr, NULL, NULL);
 
    attron(CRT_colors[RESET_COLOR]);
-   mvhline(LINES-1, 0, ' ', COLS);
+   mvhline(LINES - 1, 0, ' ', COLS);
    attroff(CRT_colors[RESET_COLOR]);
    refresh();
 

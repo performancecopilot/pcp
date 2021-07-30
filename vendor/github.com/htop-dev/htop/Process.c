@@ -36,7 +36,7 @@ in the source distribution for its full text.
 
 
 /* Used to identify kernel threads in Comm and Exe columns */
-static const char *const kthreadID = "KTHREAD";
+static const char* const kthreadID = "KTHREAD";
 
 static uid_t Process_getuid = (uid_t)-1;
 
@@ -75,7 +75,7 @@ void Process_printBytes(RichString* str, unsigned long long number, bool colorin
       RichString_appendnAscii(str, processColor, buffer, len);
    } else if (number < 100000) {
       //2 digit MB, 3 digit KB
-      len = xSnprintf(buffer, sizeof(buffer), "%2llu", number/1000);
+      len = xSnprintf(buffer, sizeof(buffer), "%2llu", number / 1000);
       RichString_appendnAscii(str, processMegabytesColor, buffer, len);
       number %= 1000;
       len = xSnprintf(buffer, sizeof(buffer), "%03llu ", number);
@@ -88,7 +88,7 @@ void Process_printBytes(RichString* str, unsigned long long number, bool colorin
    } else if (number < 10000 * ONE_K) {
       //1 digit GB, 3 digit MB
       number /= ONE_K;
-      len = xSnprintf(buffer, sizeof(buffer), "%1llu", number/1000);
+      len = xSnprintf(buffer, sizeof(buffer), "%1llu", number / 1000);
       RichString_appendnAscii(str, processGigabytesColor, buffer, len);
       number %= 1000;
       len = xSnprintf(buffer, sizeof(buffer), "%03lluM ", number);
@@ -96,7 +96,7 @@ void Process_printBytes(RichString* str, unsigned long long number, bool colorin
    } else if (number < 100000 * ONE_K) {
       //2 digit GB, 1 digit MB
       number /= 100 * ONE_K;
-      len = xSnprintf(buffer, sizeof(buffer), "%2llu", number/10);
+      len = xSnprintf(buffer, sizeof(buffer), "%2llu", number / 10);
       RichString_appendnAscii(str, processGigabytesColor, buffer, len);
       number %= 10;
       len = xSnprintf(buffer, sizeof(buffer), ".%1llu", number);
@@ -110,7 +110,7 @@ void Process_printBytes(RichString* str, unsigned long long number, bool colorin
    } else if (number < 10000ULL * ONE_M) {
       //1 digit TB, 3 digit GB
       number /= ONE_M;
-      len = xSnprintf(buffer, sizeof(buffer), "%1llu", number/1000);
+      len = xSnprintf(buffer, sizeof(buffer), "%1llu", number / 1000);
       RichString_appendnAscii(str, largeNumberColor, buffer, len);
       number %= 1000;
       len = xSnprintf(buffer, sizeof(buffer), "%03lluG ", number);
@@ -118,7 +118,7 @@ void Process_printBytes(RichString* str, unsigned long long number, bool colorin
    } else if (number < 100000 * ONE_M) {
       //2 digit TB, 1 digit GB
       number /= 100 * ONE_M;
-      len = xSnprintf(buffer, sizeof(buffer), "%2llu", number/10);
+      len = xSnprintf(buffer, sizeof(buffer), "%2llu", number / 10);
       RichString_appendnAscii(str, largeNumberColor, buffer, len);
       number %= 10;
       len = xSnprintf(buffer, sizeof(buffer), ".%1llu", number);
@@ -131,7 +131,7 @@ void Process_printBytes(RichString* str, unsigned long long number, bool colorin
       RichString_appendnAscii(str, largeNumberColor, buffer, len);
    } else {
       //2 digit PB and above
-      len = xSnprintf(buffer, sizeof(buffer), "%4.1lfP ", (double)number/ONE_T);
+      len = xSnprintf(buffer, sizeof(buffer), "%4.1lfP ", (double)number / ONE_T);
       RichString_appendnAscii(str, largeNumberColor, buffer, len);
    }
 }
@@ -159,18 +159,18 @@ void Process_printCount(RichString* str, unsigned long long number, bool colorin
    } else if (number >= 100LL * ONE_DECIMAL_T) {
       xSnprintf(buffer, sizeof(buffer), "%11llu ", number / ONE_DECIMAL_M);
       RichString_appendnAscii(str, largeNumberColor, buffer, 8);
-      RichString_appendnAscii(str, processMegabytesColor, buffer+8, 4);
+      RichString_appendnAscii(str, processMegabytesColor, buffer + 8, 4);
    } else if (number >= 10LL * ONE_DECIMAL_G) {
       xSnprintf(buffer, sizeof(buffer), "%11llu ", number / ONE_DECIMAL_K);
       RichString_appendnAscii(str, largeNumberColor, buffer, 5);
-      RichString_appendnAscii(str, processMegabytesColor, buffer+5, 3);
-      RichString_appendnAscii(str, processColor, buffer+8, 4);
+      RichString_appendnAscii(str, processMegabytesColor, buffer + 5, 3);
+      RichString_appendnAscii(str, processColor, buffer + 8, 4);
    } else {
       xSnprintf(buffer, sizeof(buffer), "%11llu ", number);
       RichString_appendnAscii(str, largeNumberColor, buffer, 2);
-      RichString_appendnAscii(str, processMegabytesColor, buffer+2, 3);
-      RichString_appendnAscii(str, processColor, buffer+5, 3);
-      RichString_appendnAscii(str, processShadowColor, buffer+8, 4);
+      RichString_appendnAscii(str, processMegabytesColor, buffer + 2, 3);
+      RichString_appendnAscii(str, processColor, buffer + 5, 3);
+      RichString_appendnAscii(str, processShadowColor, buffer + 8, 4);
    }
 }
 
@@ -268,18 +268,18 @@ void Process_fillStarttimeBuffer(Process* this) {
  */
 #define TASK_COMM_LEN 16
 
-static bool findCommInCmdline(const char *comm, const char *cmdline, int cmdlineBasenameStart, int *pCommStart, int *pCommEnd) {
+static bool findCommInCmdline(const char* comm, const char* cmdline, int cmdlineBasenameStart, int* pCommStart, int* pCommEnd) {
    /* Try to find procComm in tokenized cmdline - this might in rare cases
     * mis-identify a string or fail, if comm or cmdline had been unsuitably
     * modified by the process */
-   const char *tokenBase;
+   const char* tokenBase;
    size_t tokenLen;
    const size_t commLen = strlen(comm);
 
    if (cmdlineBasenameStart < 0)
       return false;
 
-   for (const char *token = cmdline + cmdlineBasenameStart; *token;) {
+   for (const char* token = cmdline + cmdlineBasenameStart; *token;) {
       for (tokenBase = token; *token && *token != '\n'; ++token) {
          if (*token == '/') {
             tokenBase = token + 1;
@@ -303,7 +303,7 @@ static bool findCommInCmdline(const char *comm, const char *cmdline, int cmdline
    return false;
 }
 
-static int matchCmdlinePrefixWithExeSuffix(const char *cmdline, int cmdlineBaseOffset, const char *exe, int exeBaseOffset, int exeBaseLen) {
+static int matchCmdlinePrefixWithExeSuffix(const char* cmdline, int cmdlineBaseOffset, const char* exe, int exeBaseOffset, int exeBaseLen) {
    int matchLen; /* matching length to be returned */
    char delim;   /* delimiter following basename */
 
@@ -368,7 +368,7 @@ static int matchCmdlinePrefixWithExeSuffix(const char *cmdline, int cmdlineBaseO
 }
 
 /* stpcpy, but also converts newlines to spaces */
-static inline char *stpcpyWithNewlineConversion(char *dstStr, const char *srcStr) {
+static inline char* stpcpyWithNewlineConversion(char* dstStr, const char* srcStr) {
    for (; *srcStr; ++srcStr) {
       *dstStr++ = (*srcStr == '\n') ? ' ' : *srcStr;
    }
@@ -382,14 +382,15 @@ static inline char *stpcpyWithNewlineConversion(char *dstStr, const char *srcStr
  * Process_writeCommand() for coloring. The merged Command string is also
  * returned by Process_getCommandStr() for searching, sorting and filtering.
  */
-void Process_makeCommandStr(Process *this) {
-   ProcessMergedCommand *mc = &this->mergedCommand;
-   const Settings *settings = this->settings;
+void Process_makeCommandStr(Process* this) {
+   ProcessMergedCommand* mc = &this->mergedCommand;
+   const Settings* settings = this->settings;
 
    bool showMergedCommand = settings->showMergedCommand;
    bool showProgramPath = settings->showProgramPath;
    bool searchCommInCmdline = settings->findCommInCmdline;
    bool stripExeFromCmdline = settings->stripExeFromCmdline;
+   bool showThreadNames = settings->showThreadNames;
 
    /* Nothing to do to (Re)Generate the Command string, if the process is:
     * - a kernel thread, or
@@ -405,20 +406,21 @@ void Process_makeCommandStr(Process *this) {
    /* this->mergedCommand.str needs updating only if its state or contents changed.
     * Its content is based on the fields cmdline, comm, and exe. */
    if (
-       mc->prevMergeSet == showMergedCommand &&
-       mc->prevPathSet == showProgramPath &&
-       mc->prevCommSet == searchCommInCmdline &&
-       mc->prevCmdlineSet == stripExeFromCmdline &&
-       !mc->cmdlineChanged &&
-       !mc->commChanged &&
-       !mc->exeChanged
+      mc->prevMergeSet == showMergedCommand &&
+      mc->prevPathSet == showProgramPath &&
+      mc->prevCommSet == searchCommInCmdline &&
+      mc->prevCmdlineSet == stripExeFromCmdline &&
+      mc->prevShowThreadNames == showThreadNames &&
+      !mc->cmdlineChanged &&
+      !mc->commChanged &&
+      !mc->exeChanged
    ) {
       return;
    }
 
    /* The field separtor "│" has been chosen such that it will not match any
     * valid string used for searching or filtering */
-   const char *SEPARATOR = CRT_treeStr[TREE_STR_VERT];
+   const char* SEPARATOR = CRT_treeStr[TREE_STR_VERT];
    const int SEPARATOR_LEN = strlen(SEPARATOR);
 
    /* Check for any changed fields since we last built this string */
@@ -438,6 +440,7 @@ void Process_makeCommandStr(Process *this) {
    mc->prevPathSet = showProgramPath;
    mc->prevCommSet = searchCommInCmdline;
    mc->prevCmdlineSet = stripExeFromCmdline;
+   mc->prevShowThreadNames = showThreadNames;
 
    /* Mark everything as unchanged */
    mc->cmdlineChanged = false;
@@ -476,12 +479,12 @@ void Process_makeCommandStr(Process *this) {
    const int delLibAttr = CRT_colors[PROCESS_TAG];
 
    /* Establish some shortcuts to data we need */
-   const char *cmdline = this->cmdline;
-   const char *procComm = this->procComm;
-   const char *procExe = this->procExe;
+   const char* cmdline = this->cmdline;
+   const char* procComm = this->procComm;
+   const char* procExe = this->procExe;
 
-   char *strStart = mc->str;
-   char *str = strStart;
+   char* strStart = mc->str;
+   char* str = strStart;
 
    int cmdlineBasenameStart = this->cmdlineBasenameStart;
    int cmdlineBasenameEnd = this->cmdlineBasenameEnd;
@@ -496,7 +499,7 @@ void Process_makeCommandStr(Process *this) {
    assert(cmdlineBasenameStart <= (int)strlen(cmdline));
 
    if (!showMergedCommand || !procExe || !procComm) { /* fall back to cmdline */
-      if (showMergedCommand && !procExe && procComm && strlen(procComm)) { /* Prefix column with comm */
+      if (showMergedCommand && showThreadNames && !procExe && procComm && strlen(procComm)) { /* Prefix column with comm */
          if (strncmp(cmdline + cmdlineBasenameStart, procComm, MINIMUM(TASK_COMM_LEN - 1, strlen(procComm))) != 0) {
             WRITE_HIGHLIGHT(0, strlen(procComm), commAttr, CMDLINE_HIGHLIGHT_FLAG_COMM);
             str = stpcpy(str, procComm);
@@ -520,7 +523,7 @@ void Process_makeCommandStr(Process *this) {
    assert(exeBasenameOffset <= (int)strlen(procExe));
 
    bool haveCommInExe = false;
-   if (procExe && procComm) {
+   if (procExe && procComm && showThreadNames) {
       haveCommInExe = strncmp(procExe + exeBasenameOffset, procComm, TASK_COMM_LEN - 1) == 0;
    }
 
@@ -552,14 +555,14 @@ void Process_makeCommandStr(Process *this) {
    /* Try to match procComm with procExe's basename: This is reliable (predictable) */
    if (searchCommInCmdline) {
       /* commStart/commEnd will be adjusted later along with cmdline */
-      haveCommInCmdline = findCommInCmdline(procComm, cmdline, cmdlineBasenameStart, &commStart, &commEnd);
+      haveCommInCmdline = showThreadNames && findCommInCmdline(procComm, cmdline, cmdlineBasenameStart, &commStart, &commEnd);
    }
 
    int matchLen = matchCmdlinePrefixWithExeSuffix(cmdline, cmdlineBasenameStart, procExe, exeBasenameOffset, exeBasenameLen);
 
    bool haveCommField = false;
 
-   if (!haveCommInExe && !haveCommInCmdline && procComm) {
+   if (!haveCommInExe && !haveCommInCmdline && procComm && showThreadNames) {
       WRITE_SEPARATOR;
       WRITE_HIGHLIGHT(0, strlen(procComm), commAttr, CMDLINE_HIGHLIGHT_FLAG_COMM);
       str = stpcpy(str, procComm);
@@ -579,7 +582,7 @@ void Process_makeCommandStr(Process *this) {
       WRITE_SEPARATOR;
    }
 
-   if (!haveCommInExe && haveCommInCmdline && !haveCommField)
+   if (!haveCommInExe && haveCommInCmdline && !haveCommField && showThreadNames)
       WRITE_HIGHLIGHT(commStart, commEnd - commStart, commAttr, CMDLINE_HIGHLIGHT_FLAG_COMM);
 
    /* Display cmdline if it hasn't been consumed by procExe */
@@ -593,7 +596,7 @@ void Process_makeCommandStr(Process *this) {
 void Process_writeCommand(const Process* this, int attr, int baseAttr, RichString* str) {
    (void)baseAttr;
 
-   const ProcessMergedCommand *mc = &this->mergedCommand;
+   const ProcessMergedCommand* mc = &this->mergedCommand;
 
    int strStart = RichString_size(str);
 
@@ -637,7 +640,7 @@ void Process_writeCommand(const Process* this, int attr, int baseAttr, RichStrin
    RichString_appendWide(str, attr, this->mergedCommand.str);
 
    for (size_t i = 0, hlCount = CLAMP(mc->highlightCount, 0, ARRAYSIZE(mc->highlights)); i < hlCount; i++) {
-      const ProcessCmdlineHighlight *hl = &mc->highlights[i];
+      const ProcessCmdlineHighlight* hl = &mc->highlights[i];
 
       if (!hl->length)
          continue;
@@ -728,7 +731,7 @@ void Process_writeField(const Process* this, RichString* str, ProcessField field
 
       for (int i = 0; i < 32; i++) {
          if (indent & (1U << i)) {
-            maxIndent = i+1;
+            maxIndent = i + 1;
          }
       }
 
@@ -946,7 +949,7 @@ void Process_done(Process* this) {
 /* This function returns the string displayed in Command column, so that sorting
  * happens on what is displayed - whether comm, full path, basename, etc.. So
  * this follows Process_writeField(COMM) and Process_writeCommand */
-const char *Process_getCommandStr(const Process *this) {
+const char* Process_getCommandStr(const Process* this) {
    if ((Process_isUserlandThread(this) && this->settings->showThreadNames) || !this->mergedCommand.str) {
       return this->cmdline;
    }
@@ -992,7 +995,7 @@ bool Process_isNew(const Process* this) {
 }
 
 bool Process_isTomb(const Process* this) {
-    return this->tombStampMs > 0;
+   return this->tombStampMs > 0;
 }
 
 bool Process_setPriority(Process* this, int priority) {
@@ -1024,10 +1027,10 @@ int Process_pidCompare(const void* v1, const void* v2) {
 }
 
 int Process_compare(const void* v1, const void* v2) {
-   const Process *p1 = (const Process*)v1;
-   const Process *p2 = (const Process*)v2;
+   const Process* p1 = (const Process*)v1;
+   const Process* p2 = (const Process*)v2;
 
-   const Settings *settings = p1->settings;
+   const Settings* settings = p1->settings;
 
    ProcessField key = Settings_getActiveSortKey(settings);
 
@@ -1090,13 +1093,13 @@ int Process_compareByKey_Base(const Process* p1, const Process* p2, ProcessField
    case COMM:
       return SPACESHIP_NULLSTR(Process_getCommand(p1), Process_getCommand(p2));
    case PROC_COMM: {
-      const char *comm1 = p1->procComm ? p1->procComm : (Process_isKernelThread(p1) ? kthreadID : "");
-      const char *comm2 = p2->procComm ? p2->procComm : (Process_isKernelThread(p2) ? kthreadID : "");
+      const char* comm1 = p1->procComm ? p1->procComm : (Process_isKernelThread(p1) ? kthreadID : "");
+      const char* comm2 = p2->procComm ? p2->procComm : (Process_isKernelThread(p2) ? kthreadID : "");
       return SPACESHIP_NULLSTR(comm1, comm2);
    }
    case PROC_EXE: {
-      const char *exe1 = p1->procExe ? (p1->procExe + p1->procExeBasenameOffset) : (Process_isKernelThread(p1) ? kthreadID : "");
-      const char *exe2 = p2->procExe ? (p2->procExe + p2->procExeBasenameOffset) : (Process_isKernelThread(p2) ? kthreadID : "");
+      const char* exe1 = p1->procExe ? (p1->procExe + p1->procExeBasenameOffset) : (Process_isKernelThread(p1) ? kthreadID : "");
+      const char* exe2 = p2->procExe ? (p2->procExe + p2->procExeBasenameOffset) : (Process_isKernelThread(p2) ? kthreadID : "");
       return SPACESHIP_NULLSTR(exe1, exe2);
    }
    case CWD:
@@ -1170,15 +1173,15 @@ static int skipPotentialPath(const char* cmdline, int end) {
 
    int slash = 0;
    for (int i = 1; i < end; i++) {
-      if (cmdline[i] == '/' && cmdline[i+1] != '\0') {
+      if (cmdline[i] == '/' && cmdline[i + 1] != '\0') {
          slash = i + 1;
          continue;
       }
 
-      if (cmdline[i] == ' ' && cmdline[i-1] != '\\')
+      if (cmdline[i] == ' ' && cmdline[i - 1] != '\\')
          return slash;
 
-      if (cmdline[i] == ':' && cmdline[i+1] == ' ')
+      if (cmdline[i] == ':' && cmdline[i + 1] == ' ')
          return slash;
    }
 

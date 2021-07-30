@@ -117,13 +117,14 @@ static void AvailableMetersPanel_addDynamicMeter(ATTR_UNUSED ht_key_t key, void*
    DynamicIterator* iter = (DynamicIterator*)data;
    unsigned int identifier = (iter->offset << 16) | iter->id;
    const char* label = meter->description ? meter->description : meter->caption;
-   if (!label) label = meter->name; /* last fallback to name, guaranteed set */
+   if (!label)
+      label = meter->name; /* last fallback to name, guaranteed set */
    Panel_add(iter->super, (Object*) ListItem_new(label, identifier));
    iter->id++;
 }
 
 // Handle (&DynamicMeter_class) entries in the AvailableMetersPanel
-static void AvailableMetersPanel_addDynamicMeters(Panel* super, const ProcessList *pl, unsigned int offset) {
+static void AvailableMetersPanel_addDynamicMeters(Panel* super, const ProcessList* pl, unsigned int offset) {
    DynamicIterator iter = { .super = super, .id = 1, .offset = offset };
    assert(pl->dynamicMeters != NULL);
    Hashtable_foreach(pl->dynamicMeters, AvailableMetersPanel_addDynamicMeter, &iter);

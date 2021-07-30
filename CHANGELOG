@@ -1,5 +1,90 @@
 pcp-5.3.2 (30 July 2021)
-    - https://github.com/performancecopilot/pcp/projects/1
+    - Client tools and utilities:
+	python: minimum supported python2 version is now 2.7
+	pcp-ss: new socket statistics client tool
+	pcp-htop: add new "dynamic meters" feature
+	pcp-htop: use code vendoring and git subtree of htop.dev
+	pcp-htop: fix per-process user and system time conversions
+	pcp-htop: use the correct metric for shared memory calculations
+	pcp-htop: fix the color of PROC_COMM for PCP
+	pminfo: plug small memory leak on error paths for Coverity scan
+	pmdumplog: add -I option to report on-disk instance domains
+	pcp-{iostat,tapestat}.1: add --version description
+	pmrep/pmconfig.py: fix archive writing with scaled metrics
+	newhelp: reporting for empty or missing help text
+	pmlogger: add empty string help text
+	zsh completion: pmevent is an alias for pmval, fix command sorting
+	bash,zshc completions: update for pmdumplog -I
+	bash completions: add -P option for pmclient
+    - PMDA additions, enhancements and bug fixes:
+	pmdadenki: add new PMDA 'denki' for power metrics
+	pmdalinux: fix sign extension in buddyinfo total calculation
+	pmdalinux: use buddyinfo's order in calculating total size
+	pmdaproc: add proc.psinfo.cwd and proc.psinfo.exe metrics
+	pmdasockets: default to daemon and migrate from DSO to daemon
+	pmdasockets: add persistent filter, new metrics, parser fixes
+	pmdasockets: add missing help text for reord_seen and delivered
+	pmdasockets: fix #! for Install and Remove
+	pmdasockets: fix resource leak coverity CID371684
+	pmdasockets: fix regex in Upgrade script
+	pmdahacluster: Remove un-needed pmdaCacheLookupName() calls
+	pmdahacluster: add support for labels on key metrics
+	pmdammv: add check for item uniqueness
+	pmdapmcd: add pmcd.zoneinfo metric
+	pmdabcc: drop defunct usdt_jvm_alloc module
+	pmdads389: add two additional cn attributes
+	pmdads389: automated discovery of replication agreements
+    - Server-side utilities and log management scripts:
+	dbpmda: add -flag to debug command
+	pmproxy: honour the secure.enabled config option
+	pmlogger: block SIGALRM before re-exec
+	pmlogger: tighten up "lost pmcd connection" logic
+	pmlogger: don't try to catch SIGSTOP
+	pmlogger_daily.sh: extra -VV diagnostics
+	pmcd: avoid mem leak on error path, Coverity issues
+	pmcd: small tweak to getzoneinfo_plan_b()
+	pmproxy: add mutex for client req lists, fix https/tls support
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings
+	python api: guard against fetchgroup destructor race condition
+	libpcp_web: add generic timer API
+	libpcp_web: add generic server metrics
+	libpcp_web: improve discovery lock handling and scalability
+	libpcp_web: add mutex to struct webgroup protecting the context dict
+	libpcp_web: add new metric for metadata discovery partial reads
+	libpcp_web: fix many resource leaks, null checks from Coverity scan
+	libpcp_web: plug mem leak in redisMapInsert during daily log-rolling
+	libpcp_web: disable Redis connection if version check fails
+	libpcp_import: fix per-instance error handling in pmiWrite
+	libpcp: don't clobber help text buffer, fix "fallback" logic
+	libpcp: complete remaining libpcp.h internal struct renaming
+	libpcp: replace sighold() and sigrelse() with sigprocmask()
+    - Misc build, infrastructure and packaging updates:
+	build: optionally enable sanitizers in configure
+	build: conditionally enable gperftools (default is no)
+	build: mark python3-bpfcc dependency as architecture specific
+	build: bump Fedora version of the PCP container
+	build: do not install /var/tmp as part of PCP itself
+	build: add configure and makefile macros for libbpf, libelf
+	libpcp/pmapi.h/pmdbg: add -Ddev0,dev1,dev2
+    - Security Enhanced Linux:
+	selinux QA: rework QA for other SELinux implementations
+	selinux QA: fix semodule -l output format, has changed in Fedora 34
+	selinux QA: small fixup for semodule -l filter
+	selinux: small changes for CentOS Linux7.9.2009
+    - Documentation and QA infrastructure:
+	docs: add "SELinux Considerations" section to pmdaopenmetrics(1)
+	docs: add man page for pmWebTimerRegister(3) and related functions
+	docs: document pmdasockets(1) filter config file
+	docs: add missing long-options in many man(1) pages
+	docs: move Grafana troubleshooting out of scaling doc
+	docs: document hostspec parameter for openmetrics endpoint
+	docs: update scaling doc with federated setup and troubleshooting
+	docs: pmdastatsd, update man page and Install instructions
+	docs: pmseries(1) man page fix ":" operator description
+	docs: drop the unused --profile output from pcp-dstat(1)
+	qa/common.avahi: be more careful with stderr from avahi-browse
+	qa/common.check: revise _service "stop" logic for pmlogger
+	qa/common.check: improve recovery of failed systemctl services
 
 pcp-5.3.1 (4 June 2021)
     - Client tools and utilities:

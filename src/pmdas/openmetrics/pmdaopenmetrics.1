@@ -386,6 +386,45 @@ not
 .BR gauge .
 For full details of the openmetrics exposition formats, see
 .IR https://github.com/OpenObservability/OpenMetrics/blob/master/specification/OpenMetrics.md .
+.SH "SELinux CONSIDERATIONS"
+Scripted config files are executed by the
+.B pmdaopenmetrics
+PMDA with the same SELinux context and policy as the local
+.BR pmcd (1).
+For simple scripts, such as the load average example described above,
+this is normally fine.
+However AVC errors may result for scripts that make library or system
+calls that are restricted by the prevailing SELinux context and policies.
+In these cases it is not feasible to unilaterally grant
+.B pmcd
+or it's PMDAs an unconfined execution policy.
+In these site specific cases it will be necessary to create a local
+SELinux policy module.
+This can be done by capturing the AVC record(s) from the local audit log,
+generate a local policy module using
+.BR audit2allow ,
+and then load the new module using
+.BR semodule ,
+e.g. as follows :
+.in 1i
+.ft CW
+.nf
+
+    $ sudo grep '^type=AVC.*pcp' /var/log/audit/audit.log \\
+    | audit2allow -M mypolicy
+    $ sudo semodule -i mypolicy.pp
+
+.in
+.fi
+.ft 1
+If these local policies need to be persistent across reboots,
+then a scriptlet similar to the above example may be added to
+the local pmcd RC file (typically
+.BR /etc/pcp/pmcd/rc.local ).
+For further details, see
+.BR audit2allow (1)
+and
+.BR semodule (1).
 .SH "METRIC NAMING"
 All metrics from a file named
 .IR JOB .*
@@ -648,12 +687,14 @@ configuration file, as described in
 .IR pcp.conf (5).
 .SH SEE ALSO
 .BR PCPIntro (1),
+.BR audit2allow (1),
 .BR pmcd (1),
 .BR pminfo (1),
 .BR pmlogger (1),
 .BR pmstore (1),
 .BR PMWEBAPI (3),
-.BR pmFetch (3)
-.BR pmLookupLabels (3)
+.BR pmFetch (3),
+.BR pmLookupLabels (3),
+.BR semodule (1),
 and
 .IR https://prometheus.io/docs/instrumenting/exposition_formats .
