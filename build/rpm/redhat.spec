@@ -3286,8 +3286,11 @@ PCP_LOG_DIR=%{_logsdir}
 %files zeroconf -f pcp-zeroconf-files.rpm
 
 %changelog
-* Fri Jul 30 2021 Mark Goodwin <mgoodwin@redhat.com> - 5.3.2-1
+* Wed Sep 15 2021 Nathan Scott <nathans@redhat.com> - 5.3.3-1
 - https://github.com/performancecopilot/pcp/projects/1
+
+* Fri Jul 30 2021 Mark Goodwin <mgoodwin@redhat.com> - 5.3.2-1
+- Update to latest PCP sources.
 
 * Fri Jun 04 2021 Nathan Scott <nathans@redhat.com> - 5.3.1-1
 - Fix selinux violations for pmdakvm on debugfs (BZ 1929259)
