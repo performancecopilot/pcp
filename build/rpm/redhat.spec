@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 5.3.2
+Version: 5.3.3
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2+ and CC-BY
