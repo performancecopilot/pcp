@@ -10,7 +10,8 @@ MKARCH	= foo.0 mv-foo.0 noti-foo.0 noti-ok-foo.0 null.0 \
 	bigbin.0 mv-bigbin.0 noti-bigbin.0 truncbin.0 \
 	interp.0 mv-interp.0 noti-interp.0 \
 	gap.0 gap2.0 reduce-gap.0 \
-	dodgey-some.0 dodgey-all.0 dodgey-mixed.0 bad-1.0
+	dodgey-some.0 dodgey-all.0 dodgey-mixed.0 bad-1.0 \
+	sample-proc.0
 
 LDIRT = $(MKARCH) \
 	$(patsubst %.0,%.meta,$(MKARCH)) $(patsubst %.0,%.index,$(MKARCH)) \
@@ -21,7 +22,7 @@ MYCONFIGS = config.foo config.bar config.bigbin \
 	config.dodgey-all config.dodgey-mixed config.dodgey-some \
 	config1.interp config2.interp
 
-MYSCRIPTS = make.dodgey mkbig1 check-pmcd-stable
+MYSCRIPTS = make.dodgey mkbig1 check-pmcd-stable make.sample-proc
 
 OTHERS = README
 
@@ -157,3 +158,6 @@ dodgey-all.0:	make.dodgey config.dodgey-all
 
 dodgey-mixed.0:	make.dodgey config.dodgey-mixed
 	./make.dodgey mixed 150
+
+sample-proc.0: make.sample-proc
+	./make-sample-proc
