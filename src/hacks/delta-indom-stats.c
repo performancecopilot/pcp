@@ -12,6 +12,9 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
+ *
+ * Debug flags:
+ * -Dappl0	report added/dropped instances
  */
 #include <pmapi.h>
 #include <libpcp.h>
@@ -221,10 +224,8 @@ main(int argc, char **argv)
                 sts = 0;
 		break;
             }
-	    if (pmDebugOptions.logmeta) {
-		fprintf(stderr, "header read -> %d: expected: %d or h.len (%d) <= 0\n",
-			n, (int)sizeof(__pmLogHdr), h.len);
-	    }
+	    fprintf(stderr, "header read -> %d: expected: %d or h.len (%d) <= 0\n",
+		    n, (int)sizeof(__pmLogHdr), h.len);
 	    if (__pmFerror(f)) {
 		__pmClearerr(f);
 		sts = -oserror();
@@ -250,10 +251,8 @@ main(int argc, char **argv)
 		exit(1);
 	    }
 	    if ((n = (int)__pmFread(tbuf, 1, rlen, f)) != rlen) {
-		if (pmDebugOptions.logmeta) {
-		    fprintf(stderr, "__pmFread: indom read -> %d: expected: %d\n",
-			    n, rlen);
-		}
+		fprintf(stderr, "__pmFread: indom read -> %d: expected: %d\n",
+			n, rlen);
 		if (__pmFerror(f)) {
 		    __pmClearerr(f);
 		    sts = -oserror();
@@ -335,7 +334,7 @@ main(int argc, char **argv)
 			if ((i < sp->numinst && j == in.numinst) ||
 			    (i < sp->numinst && j < in.numinst && sp->ctl[i].inst < ctl[j].inst)) {
 			    if (pmDebugOptions.appl0)
-				printf("dropped %d -> %-29.29s\n", sp->ctl[i].inst, sp->ctl[i].name);
+				printf("[%d] dropped %d -> %-29.29s\n", count[h.type]-1, sp->ctl[i].inst, sp->ctl[i].name);
 			    sp->dropped++;
 			    sp->v3_size += 2*sizeof(int);
 			    v3_maps += sizeof(int) + sizeof(char *);
@@ -345,7 +344,7 @@ main(int argc, char **argv)
 			else if ((i == sp->numinst && j < in.numinst) ||
 			         (i < sp->numinst && j < in.numinst && sp->ctl[i].inst > ctl[j].inst)) {
 			    if (pmDebugOptions.appl0)
-				printf("added %d -> %-29.29s\n", ctl[j].inst, ctl[j].name);
+				printf("[%d] added %d -> %-29.29s\n", count[h.type]-1, ctl[j].inst, ctl[j].name);
 			    sp->added++;
 			    sp->v3_size += 2*sizeof(int) + strlen(ctl[j].name) + 1;
 			    v3_str += strlen(ctl[j].name) + 1;
