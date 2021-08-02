@@ -91,6 +91,11 @@ class PCPBCCBase(object):
         """ Store callback """
         return PM_ERR_BADSTORE
 
+    def free_memory(self):
+        if self.bpf is not None:
+            self.bpf.free_bcc_memory()
+            self.log("BPF freed")
+
     def cleanup(self):
         """ Clean up at exit """
         if self.bpf is not None:
