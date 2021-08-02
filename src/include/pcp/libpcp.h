@@ -519,20 +519,19 @@ PCP_CALL extern int __pmParseHostSpec(const char *, __pmHostSpec **, int *, char
 PCP_CALL extern int __pmUnparseHostSpec(__pmHostSpec *, int, char *, size_t);
 
 /*
- * unfortunately, in this version, PCP archives are limited to no
- * more than 2 Gbytes ...
+ * Version 2 PCP archives are limited to no more than 2 Gbytes.
+ * Version 3 PCP archives are limited to no more than 2 Ebytes.
  */
-typedef __uint32_t	__pm_off_t;
+typedef __uint32_t	__pmoff32_t;
+typedef __uint64_t	__pmoff64_t;
 
 /*
- * PCP file. This abstracts i/o, allowing different handlers,
- * e.g. for stdio pass-thru and transparent decompression (xz, gz, etc).
- * This could conceivably be used for any kind of file within PCP, but
- * is currently used only for archive files.
+ * PCP file. This abstracts i/o, allowing different handlers, e.g.
+ * for stdio pass-thru and transparent decompression (xz, gz, etc).
  */
 typedef struct {
     struct __pm_fops *fops;	/* i/o handler, assigned based on file type */
-    __pm_off_t	position;	/* current uncompressed file position */
+    off_t	position;	/* current uncompressed file position */
     void	*priv;		/* private data, e.g. for fd, blk cache, etc */
 } __pmFILE;
 typedef struct __pm_fops {
@@ -628,10 +627,15 @@ typedef struct __pmLogHdr {
     int		type;	/* see TYPE_* #defines below */
 } __pmLogHdr;
 
-#define TYPE_DESC	1	/* header, pmDesc, trailer */
-#define TYPE_INDOM	2	/* header, __pmLogInDom, trailer */
-#define TYPE_LABEL	3	/* header, __pmLogLabelSet, trailer */
-#define TYPE_TEXT	4	/* header, __pmLogText, trailer */
+#define TYPE_DESC		1	/* header, pmDesc, trailer */
+#define TYPE_INDOM		2	/* header, __pmLogInDom, trailer */
+#define TYPE_LABEL		3	/* header, __pmLogLabelSet, trailer */
+#define TYPE_TEXT		4	/* header, __pmLogText, trailer */
+#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
+#define TYPE_INDOM_DELTA	5	/* header, __pmLogInDomDelta, trailer */
+#define TYPE_HIGHRES_INDOM	6	/* header, __pmLogHighResInDom, trailer */
+#define TYPE_HIGHRES_LABEL	7	/* header, __pmLogHighResLabelSet, trailer */
+#endif
 
 /*
  * __pmLogInDom is used to hold the instance identifiers for an instance
@@ -669,6 +673,18 @@ typedef struct __pmLogInDom {
     int			*buf; 
     int			allinbuf; 
 } __pmLogInDom;
+
+#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
+typedef struct __pmLogHighResInDom {
+    struct __pmLogHighResInDom *next;
+    pmTimespec		stamp;
+    int			numinst;
+    int			*instlist;
+    char		**namelist;
+    int			*buf; 
+    int			allinbuf; 
+} __pmLogHighResInDom;
+#endif
 
 /*
  * __pmLogText is used to hold the metric and instance domain help text
@@ -712,28 +728,88 @@ typedef struct __pmLogLabelSet {
     pmLabelSet		*labelsets;
 } __pmLogLabelSet;
 
+#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
+typedef struct __pmLogHighResLabelSet {
+    struct __pmLogHighResLabelSet *next;
+    pmTimespec         stamp;
+    int			type;
+    int			ident;
+    int			nsets;
+    pmLabelSet		*labelsets;
+} __pmLogHighResLabelSet;
+#endif
+
 /*
- * External file and internal (below PMAPI) format for an archive label
- * Note: int is OK here, because configure ensures int is a 32-bit integer
+ * External file and internal (below PMAPI) formats for archive labels.
  */
 typedef struct {
-    int		ill_magic;	/* PM_LOG_MAGIC | log format version no. */
-    int		ill_pid;			/* PID of logger */
-    pmTimeval	ill_start;			/* start of this log */
-    int		ill_vol;			/* current log volume no. */
-    char	ill_hostname[PM_LOG_MAXHOSTLEN];/* name of collection host */
-    char	ill_tz[PM_TZ_MAXLEN];		/* $TZ at collection host */
+    int		ill_magic;		/* PM_LOG_MAGIC|PM_LOG_VERS02 */
+    int		ill_pid;		/* PID of logger */
+    pmTimeval	ill_start;		/* start of this log */
+    int		ill_vol;		/* current log volume no. */
+    char	ill_hostname[PM_LOG_MAXHOSTLEN]; /* name of collection host */
+    char	ill_tz[PM_TZ_MAXLEN];	/* $TZ at collection host */
 } __pmLogLabel;
+
+#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
+typedef struct {
+    int32_t	ill_magic;		/* PM_LOG_MAGIC|PM_LOG_VERS02 */
+    int32_t	ill_pid;		/* PID of logger */
+    pmTimeval	ill_start;		/* start of this log */
+    int32_t	ill_vol;		/* current log volume no. */
+    char	ill_hostname[PM_LOG_MAXHOSTLEN]; /* name of collection host */
+    char	ill_tz[PM_TZ_MAXLEN];	/* $TZ at collection host */
+} __pmLogLabel2;
+
+typedef struct {
+    uint32_t	ill_magic;		/* PM_LOG_MAGIC|PM_LOG_VERS03 */
+    int32_t	ill_pid;		/* PID of logger */
+    pmTimespec	ill_start;		/* start of this log */
+    int32_t	ill_vol;		/* current log volume no. */
+    uint32_t	ill_flags;		/* enabled log features */
+    uint16_t	ill_align_len;		/* aligned length of this label */
+    uint16_t	ill_hostname_len;	/* collector host name length */
+    uint16_t	ill_timezone_len;	/* squashed $TZ label length */
+    uint16_t	ill_zoneinfo_len;	/* collector zoneinfo length */
+} __pmLogLabel3;
+
+typedef struct {
+    uint32_t	ill_magic;              /* PM_LOG_MAGIC|PM_LOG_VERS* */
+    int32_t	ill_pid;                /* PID of logger */
+} __pmLogLabelAll;
+
+//typedef union {
+//    __pmLogLabel2	v2;
+//    __pmLogLabel3	v3;
+//    __pmLogLabelAll	all;
+//} __pmLogLabel;
+#endif
 
 /*
  * Temporal Index Record
- * Note: int is OK here, because configure ensures int is a 32-bit integer
  */
 typedef struct {
     pmTimeval	ti_stamp;	/* now */
-    int		ti_vol;		/* current log volume no. */
-    __pm_off_t	ti_meta;	/* end of meta data file */
-    __pm_off_t	ti_log;		/* end of metrics log file */
+    int32_t	ti_vol;		/* current log volume no. */
+    __pmoff32_t	ti_meta;	/* end of meta data file */
+    __pmoff32_t	ti_log;		/* end of metrics log file */
+} __pmLogTI2;
+
+#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
+typedef struct {
+    int64_t	ti_sec;		/* now (seconds part) */
+    int32_t	ti_nsec;	/* now (nanoseconds part) */
+    int32_t	ti_vol;		/* current log volume no. */
+    __pmoff64_t	ti_meta;	/* end of meta data file */
+    __pmoff64_t	ti_log;		/* end of metrics log file */
+} __pmLogTI3;
+#endif
+
+typedef union {
+    __pmLogTI2	v2;
+#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
+    __pmLogTI3	v3;
+#endif
 } __pmLogTI;
 
 /*
@@ -760,12 +836,12 @@ typedef struct {
     int		l_numseen;	/* (when reading) size of l_seen */
     int		*l_seen;	/* (when reading) volumes opened OK */
     __pmLogLabel l_label;	/* (when reading) log label */
-    __pm_off_t	l_physend;	/* (when reading) offset to physical EOF */
+    off_t	l_physend;	/* (when reading) offset to physical EOF */
 				/*                for last volume */
     pmTimeval	l_endtime;	/* (when reading) timestamp at logical EOF */
     int		l_numti;	/* (when reading) no. temporal index entries */
     __pmLogTI	*l_ti;		/* (when reading) temporal index */
-    struct __pmnsTree	*l_pmns;        /* namespace from meta data */
+    struct __pmnsTree *l_pmns;	/* namespace from meta data */
     int		l_multi;	/* part of a multi-archive context */
 } __pmLogCtl;
 
@@ -866,6 +942,7 @@ typedef struct {
 #define __PM_MODE_MASK	0xffff
 
 /* internal archive routines */
+PCP_CALL extern int __pmLogVersion(__pmLogCtl *);
 PCP_CALL extern int __pmLogChkLabel(__pmArchCtl *, __pmFILE *, __pmLogLabel *, int);
 PCP_CALL extern int __pmLogCreate(const char *, const char *, int, __pmArchCtl *);
 PCP_CALL extern __pmFILE *__pmLogNewFile(const char *, int);
@@ -1226,6 +1303,7 @@ PCP_CALL extern void __pmtimevalPause(struct timeval);
 
 /* manipulate internal timestamps */
 PCP_CALL extern double __pmTimevalSub(const pmTimeval *, const pmTimeval *);
+PCP_CALL extern double __pmTimespecSub(const pmTimespec *, const pmTimespec *);
 
 /* reverse ctime, time interval parsing, time conversions */
 PCP_CALL extern int __pmParseCtime(const char *, struct tm *, char **);
@@ -1344,6 +1422,7 @@ PCP_CALL extern void __pmDumpResult(FILE *, const pmResult *);
 PCP_CALL extern void __pmDumpStack(FILE *);
 PCP_CALL extern void __pmDumpStatusList(FILE *, int, const int *);
 PCP_CALL extern void __pmPrintTimeval(FILE *, const pmTimeval *);
+PCP_CALL extern void __pmPrintTimespec(FILE *, const pmTimespec *);
 PCP_CALL extern void __pmPrintIPC(void);
 PCP_CALL extern char *__pmPDUTypeStr_r(int, char *, int);
 PCP_CALL extern const char *__pmPDUTypeStr(int);	/* NOT thread-safe */

@@ -1,7 +1,7 @@
 /*
  * General Utility Routines
  *
- * Copyright (c) 2012-2018 Red Hat.
+ * Copyright (c) 2012-2018,2021 Red Hat.
  * Copyright (c) 2009 Aconex.  All Rights Reserved.
  * Copyright (c) 1995-2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
  *
@@ -1232,6 +1232,17 @@ __pmTimevalSub(const pmTimeval *ap, const pmTimeval *bp)
 }
 
 /*
+ * Difference for two of the internal highres timestamps ...
+ * Same as pmtimespecSub() in tv.c, just with pmTimespec args
+ * rather than struct timespec args.
+ */
+double
+__pmTimespecSub(const pmTimespec *ap, const pmTimespec *bp)
+{
+     return (double)(ap->tv_sec - bp->tv_sec + (long double)(ap->tv_nsec - bp->tv_nsec) / (long double)1000000000);
+}
+
+/*
  * print timeval timestamp in HH:MM:SS.XXX format
  * Note: to minimize ABI surprises, this one still reports to msec precision,
  *       but the internal and diagnostic variant __pmPrintTimeval() reports
@@ -1264,7 +1275,7 @@ pmPrintHighResStamp(FILE *f, const struct timespec *tp)
 
 /*
  * print pmTimeval timestamp in HH:MM:SS.XXXXXX format (usec precision)
- * (pmTimeval variant used in PDUs, archives and internally)
+ * (pmTimeval variant used in historical PDUs, archives and internally)
  */
 void
 __pmPrintTimeval(FILE *f, const pmTimeval *tp)
@@ -1275,6 +1286,21 @@ __pmPrintTimeval(FILE *f, const pmTimeval *tp)
     now = (time_t)tp->tv_sec;
     pmLocaltime(&now, &tmp);
     fprintf(f, "%02d:%02d:%02d.%06d", tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (int)tp->tv_usec);
+}
+
+/*
+ * print pmTimespec timestamp in HH:MM:SS.XXXXXXXXX format (nsec precision)
+ * (pmTimespec variant used in the latest PDUs, archives and internally)
+ */
+void
+__pmPrintTimespec(FILE *f, const pmTimespec *tp)
+{
+    struct tm	tmp;
+    time_t	now;
+
+    now = (time_t)tp->tv_sec;
+    pmLocaltime(&now, &tmp);
+    fprintf(f, "%02d:%02d:%02d.%09d", tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (int)tp->tv_nsec);
 }
 
 /*
