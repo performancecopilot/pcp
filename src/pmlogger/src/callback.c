@@ -649,7 +649,7 @@ do_work(task_t *tp)
     int			pdu_bytes = 0;
     int			pdu_metrics = 0;
     int			numinst;
-    int			*instlist;
+    int			*instlist = NULL;
     char		**namelist;
     pmTimeval		tmp;
     pmTimeval		resp_tval;
@@ -962,10 +962,12 @@ do_work(task_t *tp)
 		     */
 		    sort_indom(new_numinst, new_instlist, new_namelist);
 		    /*
-		     * if the old and new indoms are the same, we don't need to call
-		     * __pmPutInDom
+		     * if this is the first time we've seen this indom,
+		     * or the current and previous indoms are different
+		     * we need to call __pmLogPutInDom()
 		     */
-		    if (!same_indom(numinst, instlist, namelist, new_numinst, new_instlist, new_namelist)) {
+		    if (instlist == NULL ||
+		        !same_indom(numinst, instlist, namelist, new_numinst, new_instlist, new_namelist)) {
 			numinst = new_numinst;
 			instlist = new_instlist;
 			namelist = new_namelist;
