@@ -75,9 +75,9 @@ process instance domain from the proc PMDA.
 The first 5 instances are fixed.  Then next 15 instances are variable
 such that each time an associated metric is fetched:
 - if an instance is currently defined, it may disappear with
-  probability 0.125
+  probability 0.075
 - for each instance that is not defined, a new instance may
-  appear with probability 0.25
+  appear with probability 0.075
 
 The internal instance identifiers mimic PIDs and are monotonically
 increasing up to 1000, when they wrap (duplicates are obviously

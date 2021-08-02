@@ -188,13 +188,13 @@ proc_redo_indom(pmdaIndom *idp)
     }
     else {
 	/*
-	 * first 5 instances are fixed ... then cull with p(0.125)
+	 * first 5 instances are fixed ... then cull with p(0.075)
 	 */
 	int	j;
 	for (i = 4; i < MAX_PROCS; i++) {
 	    if (proctab[i].ordinal == -1)
 		continue;
-	    if (_rand() < 0.125) {
+	    if (_rand() < 0.075) {
 		/* delete this one */
 		for (j = 0; j < idp->it_numinst; j++) {
 		    if (idp->it_set[j].i_inst == proctab[i].ordinal) {
@@ -210,11 +210,11 @@ proc_redo_indom(pmdaIndom *idp)
 		proctab[i].ordinal = -1;
 	    }
 	}
-	/* add new ones into empty slots with p(0.25) */
+	/* add new ones into empty slots with p(0.075) */
 	for (i = 4; i < MAX_PROCS; i++) {
 	    if (proctab[i].ordinal != -1)
 		continue;
-	    if (_rand() < 0.25) {
+	    if (_rand() < 0.075) {
 		j = idp->it_numinst;
 		proctab[i].pid = idp->it_set[j].i_inst = next_pid(idp);
 		proctab[i].ordinal = ordinal++;
