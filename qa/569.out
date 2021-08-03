@@ -1024,9 +1024,12 @@ sample.negative.discrete.m_64 1 PM_IN_NULL PM_IN_NULL
 sample.negative.discrete.m_float 1 PM_IN_NULL PM_IN_NULL
 sample.negative.discrete.m_double 1 PM_IN_NULL PM_IN_NULL
 sample.controller.mirage 1 PM_IN_NULL PM_IN_NULL
-sample.proc.ordinal 6 ?1 "0001 init" ?2 "0002 /etc/bozo" ?3 "0003 /usr/bin/bobo" ?4 "0004 /usr/local/jester" ?5 "0005 /usr/opt/bin/loko" ?6 "0006 /etc/pierrot"
-sample.proc.exec 6 ?1 "0001 init" ?2 "0002 /etc/bozo" ?3 "0003 /usr/bin/bobo" ?4 "0004 /usr/local/jester" ?5 "0005 /usr/opt/bin/loko" ?6 "0006 /etc/pierrot"
-sample.proc.time NN ?1 "0001 init" ?2 "0002 /etc/bozo" ?3 "0003 /usr/bin/bobo" ?4 "0004 /usr/local/jester" ?5 "0005 /usr/opt/bin/loko" ?6 "0006 /etc/pierrot"
+sample.proc.ordinal 7 ?1 "0001 init" ?2 "0002 /etc/bozo" ?3 "0003 /usr/bin/bobo" ?4 "0004 /usr/local/jester" ?5 "0005 /usr/opt/bin/loko" ?6 "0006 /etc/pierrot" 
+?7 "0007 /usr/bin/waldo"
+sample.proc.exec 7 ?1 "0001 init" ?2 "0002 /etc/bozo" ?3 "0003 /usr/bin/bobo" ?4 "0004 /usr/local/jester" ?5 "0005 /usr/opt/bin/loko" ?6 "0006 /etc/pierrot" ?7 
+"0007 /usr/bin/waldo"
+sample.proc.time NN ?1 "0001 init" ?2 "0002 /etc/bozo" ?3 "0003 /usr/bin/bobo" ?4 "0004 /usr/local/jester" ?5 "0005 /usr/opt/bin/loko" ?6 "0006 /etc/pierrot" ?7
+ "0007 /usr/bin/waldo"
 sample.proc.reset 1 PM_IN_NULL PM_IN_NULL
 
 === -iv ===
