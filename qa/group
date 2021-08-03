@@ -1776,6 +1776,7 @@ x11
 1331 verify local
 1332 archive pmdumplog local
 1333 archive pmdumplog local valgrind
+1334 pmlogger pmdumplog local
 1337 pmda.mssql local
 1338 pmlogrewrite labels pmdumplog local
 1340 pmcd pmda.pmcd pmstore local pmda.sample
