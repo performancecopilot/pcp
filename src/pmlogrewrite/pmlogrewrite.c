@@ -1,7 +1,7 @@
 /*
  * pmlogrewrite - config-driven stream editor for PCP archives
  *
- * Copyright (c) 2013-2018 Red Hat.
+ * Copyright (c) 2013-2018,2021 Red Hat.
  * Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
  * Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -1483,6 +1483,7 @@ main(int argc, char **argv)
     int		ti_idx;			/* next slot for input temporal index */
     int		dir_fd = -1;		/* poinless initialization to humour gcc */
     int		doneti = 0;
+    int		in_version;
     pmTimeval	tstamp = { 0 };		/* for last log record */
     off_t	old_log_offset = 0;	/* log offset before last log record */
     off_t	old_meta_offset;
@@ -1530,9 +1531,14 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    if ((inarch.label.ll_magic & 0xff) != PM_LOG_VERS02) {
+    in_version = (inarch.label.ll_magic & 0xff);
+    if (in_version != PM_LOG_VERS02
+#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
+	&& in_version != PM_LOG_VERS03
+#endif
+	) {
 	fprintf(stderr,"%s: Error: illegal version number %d in archive (%s)\n",
-		pmGetProgname(), inarch.label.ll_magic & 0xff, inarch.name);
+		pmGetProgname(), in_version, inarch.name);
 	exit(1);
     }
 
@@ -1738,8 +1744,21 @@ main(int argc, char **argv)
 
 	if (ti_idx < inarch.ctxp->c_archctl->ac_log->l_numti) {
 	    __pmLogTI	*tip = &inarch.ctxp->c_archctl->ac_log->l_ti[ti_idx];
-	    if (tip->ti_stamp.tv_sec == inarch.rp->timestamp.tv_sec &&
-	        tip->ti_stamp.tv_usec == inarch.rp->timestamp.tv_usec) {
+#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
+	    if (in_version >= PM_LOG_VERS03 &&
+	        tip->v3.ti_sec == inarch.rp->timestamp.tv_sec &&
+	        tip->v3.ti_nsec == inarch.rp->timestamp.tv_usec * 1000) {
+		/*
+		 * timestamp on input pmResult matches next temporal index
+		 * entry for input archive ... make sure matching temporal
+		 * index entry added to output archive
+		 */
+		needti = 1;
+		ti_idx++;
+	    } else
+#endif
+	    if (tip->v2.ti_stamp.tv_sec == inarch.rp->timestamp.tv_sec &&
+	        tip->v2.ti_stamp.tv_usec == inarch.rp->timestamp.tv_usec) {
 		/*
 		 * timestamp on input pmResult matches next temporal index
 		 * entry for input archive ... make sure matching temporal

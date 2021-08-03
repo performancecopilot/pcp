@@ -637,15 +637,13 @@ typedef struct pmTimespec {
  * NOTE	that the struct timeval means we have another struct (__pmLogLabel)
  *	for internal use that has a pmTimeval in place of the struct timeval.
  */
-#define PM_TZ_MAXLEN	40
-#define PM_LOG_MAXHOSTLEN		64
-#define PM_LOG_MAGIC	0x50052600
-#define PM_LOG_VERS02	0x2
-#ifdef V3_ARCHIVE
-#define PM_LOG_VERS03	0x3
-#endif
-#define PM_LOG_VOL_TI	-2	/* temporal index */
-#define PM_LOG_VOL_META	-1	/* meta data */
+#define PM_TZ_MAXLEN		40
+#define PM_LOG_MAXHOSTLEN	64
+#define PM_LOG_MAGIC		0x50052600
+#define PM_LOG_VERS02		0x2
+#define PM_LOG_VERS03		0x3
+#define PM_LOG_VOL_TI		-2	/* temporal index */
+#define PM_LOG_VOL_META		-1	/* meta data */
 typedef struct pmLogLabel {
     int		ll_magic;	/* PM_LOG_MAGIC | log format version no. */
     pid_t	ll_pid;				/* PID of logger */
@@ -653,6 +651,18 @@ typedef struct pmLogLabel {
     char	ll_hostname[PM_LOG_MAXHOSTLEN];	/* name of collection host */
     char	ll_tz[PM_TZ_MAXLEN];		/* $TZ at collection host */
 } pmLogLabel;
+
+#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
+typedef struct pmHighResLogLabel {
+    int		ll_magic;	/* PM_LOG_MAGIC | log format version */
+    pid_t	ll_pid;			/* PID of logger */
+    unsigned int	ll_flags;	/* enabled features */
+    struct timespec	ll_start;	/* start of this log */
+    char	*ll_hostname;		/* name of collection host */
+    char	*ll_timezone;		/* squashed $TZ at collection host */
+    char	*ll_zoneinfo;		/* timezone info at collection host */
+} pmHighResLogLabel;
+#endif
 
 /*
  * Get the label record from the current archive context, and discover

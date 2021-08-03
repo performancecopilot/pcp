@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2012-2017,2020 Red Hat.
+ * Copyright (c) 2012-2017,2020-2021 Red Hat.
  * Copyright (c) 1995-2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation; either version 2.1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
@@ -113,11 +113,47 @@ lock_ctx(__pmContext *ctxp, ctx_ctl_t *ccp)
 	ccp->need_ctx_unlock = 1;
     }
 
-return 0;
+    return 0;
 }
 
 static int
-checkLabelConsistency (__pmContext *ctxp, const __pmLogLabel *lp)
+__pmLogLabelVersion(__pmLogLabel *llp)
+{
+//#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
+//    return (llp->all.ill_magic & 0xff);
+//#else
+    return (llp->ill_magic & 0xff);
+//#endif
+}
+
+int
+__pmLogVersion(__pmLogCtl *lcp)
+{
+    return __pmLogLabelVersion(&lcp->l_label);
+}
+
+static size_t
+__pmLogLabelSize(__pmLogCtl *lcp)
+{
+//#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
+//    if (__pmLogLabelVersion(&lcp->l_label) >= PM_LOG_VERS03)
+//	return lcp->l_label.v3.ill_align_len;
+//    return sizeof(__pmLogLabel2);
+//#else
+    (void)lcp;
+    return sizeof(__pmLogLabel);
+//#endif
+}
+
+static size_t
+__pmLogLabelTotalSize(__pmLogCtl *lcp)
+{
+    /* include the preamble and trailing lengths */
+    return __pmLogLabelSize(lcp) + 2 * sizeof(int);
+}
+
+static int
+checkLabelConsistency(__pmContext *ctxp, const __pmLogLabel *lp)
 {
     __pmArchCtl	*acp;
 
@@ -349,37 +385,38 @@ __pmLogChangeVol(__pmArchCtl *acp, int vol)
     return sts;
 }
 
+#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
 static int
-__pmLogLoadIndex(__pmLogCtl *lcp)
+__pmLogLoadIndex3(__pmLogCtl *lcp)
 {
     int		sts = 0;
     __pmFILE	*f = lcp->l_tifp;
-    int		n;
-    __pmLogTI	*tip;
+    __pmLogTI3	*tip3;
+    size_t	bytes;
 
     lcp->l_numti = 0;
     lcp->l_ti = NULL;
 
     if (lcp->l_tifp != NULL) {
-	__pmFseek(f, (long)(sizeof(__pmLogLabel) + 2*sizeof(int)), SEEK_SET);
+	__pmFseek(f, (long)__pmLogLabelTotalSize(lcp), SEEK_SET);
 	for ( ; ; ) {
-	    lcp->l_ti = (__pmLogTI *)realloc(lcp->l_ti, (1 + lcp->l_numti) * sizeof(__pmLogTI));
+	    bytes = (1 + lcp->l_numti) * sizeof(__pmLogTI);
+	    lcp->l_ti = (__pmLogTI *)realloc(lcp->l_ti, bytes);
 	    if (lcp->l_ti == NULL) {
 		sts = -oserror();
 		break;
 	    }
-	    tip = &lcp->l_ti[lcp->l_numti];
-	    n = (int)__pmFread(tip, 1, sizeof(__pmLogTI), f);
-
-            if (n != sizeof(__pmLogTI)) {
+	    tip3 = &lcp->l_ti[lcp->l_numti].v3;
+	    bytes = __pmFread(tip3, 1, sizeof(__pmLogTI3), f);
+	    if (bytes != sizeof(__pmLogTI3)) {
 		if (__pmFeof(f)) {
 		    __pmClearerr(f);
 		    sts = 0; 
 		    break;
 		}
 	  	if (pmDebugOptions.log)
-	    	    fprintf(stderr, "__pmLogLoadIndex: bad TI entry len=%d: expected %d\n",
-		            n, (int)sizeof(__pmLogTI));
+	    	    fprintf(stderr, "%s: bad TI entry len=%zu: expected %zu\n",
+			    "__pmLogLoadIndex3", bytes, sizeof(__pmLogTI3));
 		if (__pmFerror(f)) {
 		    __pmClearerr(f);
 		    sts = -oserror();
@@ -391,19 +428,86 @@ __pmLogLoadIndex(__pmLogCtl *lcp)
 		}
 	    }
 	    else {
-		/* swab the temporal index record */
-		tip->ti_stamp.tv_sec = ntohl(tip->ti_stamp.tv_sec);
-		tip->ti_stamp.tv_usec = ntohl(tip->ti_stamp.tv_usec);
-		tip->ti_vol = ntohl(tip->ti_vol);
-		tip->ti_meta = ntohl(tip->ti_meta);
-		tip->ti_log = ntohl(tip->ti_log);
+		/* swab the version 3 archive temporal index record */
+		__htonll((char *)&tip3->ti_sec);
+		tip3->ti_nsec = ntohl(tip3->ti_nsec);
+		tip3->ti_vol = ntohl(tip3->ti_vol);
+		__htonll((char *)&tip3->ti_meta);
+		__htonll((char *)&tip3->ti_log);
 	    }
 
 	    lcp->l_numti++;
-	}/*for*/
-    }/*not null*/
+	}
+    }
+    return sts;
+}
+#endif
+
+static int
+__pmLogLoadIndex2(__pmLogCtl *lcp)
+{
+    int		sts = 0;
+    __pmFILE	*f = lcp->l_tifp;
+    __pmLogTI2	*tip2;
+    size_t	bytes;
+
+    lcp->l_numti = 0;
+    lcp->l_ti = NULL;
+
+    if (lcp->l_tifp != NULL) {
+	__pmFseek(f, (long)__pmLogLabelTotalSize(lcp), SEEK_SET);
+	for ( ; ; ) {
+	    bytes = (1 + lcp->l_numti) * sizeof(__pmLogTI);
+	    lcp->l_ti = (__pmLogTI *)realloc(lcp->l_ti, bytes);
+	    if (lcp->l_ti == NULL) {
+		sts = -oserror();
+		break;
+	    }
+	    tip2 = &lcp->l_ti[lcp->l_numti].v2;
+	    bytes = __pmFread(tip2, 1, sizeof(__pmLogTI2), f);
+	    if (bytes != sizeof(__pmLogTI2)) {
+		if (__pmFeof(f)) {
+		    __pmClearerr(f);
+		    sts = 0; 
+		    break;
+		}
+	  	if (pmDebugOptions.log)
+	    	    fprintf(stderr, "%s: bad TI entry len=%zu: expected %zu\n",
+			    "__pmLogLoadIndex2", bytes, sizeof(__pmLogTI2));
+		if (__pmFerror(f)) {
+		    __pmClearerr(f);
+		    sts = -oserror();
+		    break;
+		}
+		else {
+		    sts = PM_ERR_LOGREC;
+		    break;
+		}
+	    }
+	    else {
+		/* swab the version 2 temporal index record */
+		tip2->ti_stamp.tv_sec = ntohl(tip2->ti_stamp.tv_sec);
+		tip2->ti_stamp.tv_usec = ntohl(tip2->ti_stamp.tv_usec);
+		tip2->ti_vol = ntohl(tip2->ti_vol);
+		tip2->ti_meta = ntohl(tip2->ti_meta);
+		tip2->ti_log = ntohl(tip2->ti_log);
+	    }
+
+	    lcp->l_numti++;
+	}
+    }
 
     return sts;
+}
+
+static int
+__pmLogLoadIndex(__pmLogCtl *lcp)
+{
+#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
+    if (__pmLogVersion(lcp) >= PM_LOG_VERS03)
+	return __pmLogLoadIndex3(lcp);
+#endif
+    return __pmLogLoadIndex2(lcp);
 }
 
 const char *
@@ -1087,96 +1191,187 @@ cleanup:
     return sts;
 }
 
-void
-__pmLogPutIndex(const __pmArchCtl *acp, const pmTimeval *tp)
+/*
+ * This condition (ti_log == 0) been seen in QA where pmlogger churns
+ * quickly ... trying to understand why using this diagnostic.
+ */
+static void
+__pmLogIndexZeroTILogDiagnostic(const __pmArchCtl *acp)
 {
-    __pmLogCtl	*lcp = acp->ac_log;
-    __pmLogTI	ti;
-    __pmLogTI	oti;
+    struct stat	sbuf;
     int		sts;
+
+    fprintf(stderr, "%s: Botch: log offset == 0\n", "__pmLogPutIndex");
+    fprintf(stderr, "  __pmFileno=%d __pmFtell -> %lld\n",
+		    __pmFileno(acp->ac_mfp), (long long)__pmFtell(acp->ac_mfp));
+    if ((sts = __pmFstat(acp->ac_mfp, &sbuf)) < 0)
+	fprintf(stderr, "  __pmFstat failed -> %d\n", sts);
+    else
+	fprintf(stderr, "  __pmFstat st_size=%lld st_ino=%lld\n",
+			(long long)sbuf.st_size, (long long)sbuf.st_ino);
+}
+
+#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
+static int
+__pmLogPutHighResIndex3(const __pmArchCtl *acp, const pmTimespec *ts)
+{
+    __pmLogCtl		*lcp = acp->ac_log;
+    __pmLogTI3		ti3;
+    size_t		bytes;
+
+    ti3.ti_sec = (__int64_t)ts->tv_sec;
+    ti3.ti_nsec = (__int32_t)ts->tv_nsec;
+    ti3.ti_vol = acp->ac_curvol;
+    ti3.ti_meta = (__pmoff64_t)__pmFtell(lcp->l_mdfp);
+    ti3.ti_log = (__pmoff64_t)__pmFtell(acp->ac_mfp);
+
+    if (ti3.ti_log == 0)
+	__pmLogIndexZeroTILogDiagnostic(acp);
+
+    if (pmDebugOptions.log)
+	fprintf(stderr, "%s: "
+		"timestamp=%lld.09%d vol=%d meta posn=%lld log posn=%lld\n",
+	    "__pmLogPutIndex",
+	    (long long)ti3.ti_sec, ti3.ti_nsec, ti3.ti_vol,
+	    (long long)ti3.ti_meta, (long long)ti3.ti_log);
+
+    __htonll((char *)&ti3.ti_sec);
+    ti3.ti_nsec = htonl(ti3.ti_nsec);
+    ti3.ti_vol = htonl(ti3.ti_vol);
+    __htonll((char *)&ti3.ti_meta);
+    __htonll((char *)&ti3.ti_log);
+
+    bytes = __pmFwrite(&ti3, 1, sizeof(ti3), lcp->l_tifp);
+    if (bytes != sizeof(ti3)) {
+	char	errmsg[PM_MAXERRMSGLEN];
+	pmNotifyErr(LOG_ERR, "%s: PCP archive temporal index write failed - "
+			"got %zu expecting %zu: %s\n",
+			"__pmLogPutIndex", bytes, sizeof(ti3),
+			osstrerror_r(errmsg, sizeof(errmsg)));
+	return -errno;
+    }
+    if (__pmFflush(lcp->l_tifp) != 0) {
+	pmNotifyErr(LOG_ERR, "%s: PCP archive temporal index flush failed\n",
+			"__pmLogPutIndex");
+	return -errno;
+    }
+    return 0;
+}
+#endif
+
+static int
+__pmLogPutHighResIndex2(const __pmArchCtl *acp, const pmTimespec *ts)
+{
+    __pmLogCtl		*lcp = acp->ac_log;
+    __pmLogTI2		ti2;
+    size_t		bytes;
+
+    ti2.ti_stamp.tv_sec = (__int32_t)ts->tv_sec;
+    ti2.ti_stamp.tv_usec = (__int32_t)ts->tv_nsec / 1000;
+    ti2.ti_vol = acp->ac_curvol;
+
+    if (sizeof(off_t) > sizeof(__pmoff32_t)) {
+	/* check for overflow of the offset ... */
+	off_t	tmp;
+
+	tmp = __pmFtell(lcp->l_mdfp);
+	assert(tmp >= 0);
+	ti2.ti_meta = (__pmoff32_t)tmp;
+	if (tmp != ti2.ti_meta) {
+	    pmNotifyErr(LOG_ERR, "%s: PCP archive file (%s) too big\n",
+			"__pmLogPutIndex", "meta");
+	    return -E2BIG;
+	}
+	tmp = __pmFtell(acp->ac_mfp);
+	assert(tmp >= 0);
+	ti2.ti_log = (__pmoff32_t)tmp;
+	if (tmp != ti2.ti_log) {
+	    pmNotifyErr(LOG_ERR, "%s: PCP archive file (%s) too big\n",
+			"__pmLogPutIndex", "data");
+	    return -E2BIG;
+	}
+    }
+    else {
+	ti2.ti_meta = (__pmoff32_t)__pmFtell(lcp->l_mdfp);
+	ti2.ti_log = (__pmoff32_t)__pmFtell(acp->ac_mfp);
+    }
+
+    if (ti2.ti_log == 0)
+	__pmLogIndexZeroTILogDiagnostic(acp);
+
+    if (pmDebugOptions.log) {
+	fprintf(stderr, "%s: timestamp=%d.06%d vol=%d meta posn=%ld log posn=%ld\n",
+	    "__pmLogPutIndex",
+	    (int)ti2.ti_stamp.tv_sec, (int)ti2.ti_stamp.tv_usec,
+	    ti2.ti_vol, (long)ti2.ti_meta, (long)ti2.ti_log);
+    }
+
+    ti2.ti_stamp.tv_sec = htonl(ti2.ti_stamp.tv_sec);
+    ti2.ti_stamp.tv_usec = htonl(ti2.ti_stamp.tv_usec);
+    ti2.ti_vol = htonl(ti2.ti_vol);
+    ti2.ti_meta = htonl(ti2.ti_meta);
+    ti2.ti_log = htonl(ti2.ti_log);
+
+    bytes = __pmFwrite(&ti2, 1, sizeof(ti2), lcp->l_tifp);
+    if (bytes != sizeof(ti2)) {
+	char	errmsg[PM_MAXERRMSGLEN];
+	pmNotifyErr(LOG_ERR, "%s: PCP archive temporal index write failed - "
+			"got %zu expecting %zu: %s\n",
+			"__pmLogPutIndex", bytes, sizeof(ti2),
+			osstrerror_r(errmsg, sizeof(errmsg)));
+	return -errno;
+    }
+    if (__pmFflush(lcp->l_tifp) != 0) {
+	pmNotifyErr(LOG_ERR, "%s: PCP archive temporal index flush failed\n",
+			"__pmLogPutIndex");
+	return -errno;
+    }
+    return 0;
+}
+
+int
+__pmLogPutHighResIndex(const __pmArchCtl *acp, pmTimespec *ts)
+{
+    struct timespec	tmp;
+    pmTimespec		stamp;
+    __pmLogCtl		*lcp = acp->ac_log;
 
     if (lcp->l_tifp == NULL || lcp->l_mdfp == NULL || acp->ac_mfp == NULL) {
 	/*
 	 * archive not really created (failed in __pmLogCreate) ...
 	 * nothing to be done
 	 */
-	return;
+	return 0;
     }
 
-    if (tp == NULL) {
-	struct timeval	tmp;
-
-	pmtimevalNow(&tmp);
-	ti.ti_stamp.tv_sec = (__int32_t)tmp.tv_sec;
-	ti.ti_stamp.tv_usec = (__int32_t)tmp.tv_usec;
-    }
-    else
-	ti.ti_stamp = *tp;		/* struct assignment */
-    ti.ti_vol = acp->ac_curvol;
     __pmFflush(lcp->l_mdfp);
     __pmFflush(acp->ac_mfp);
 
-    if (sizeof(off_t) > sizeof(__pm_off_t)) {
-	/* check for overflow of the offset ... */
-	off_t	tmp;
-
-	tmp = __pmFtell(lcp->l_mdfp);
-	assert(tmp >= 0);
-	ti.ti_meta = (__pm_off_t)tmp;
-	if (tmp != ti.ti_meta) {
-	    pmNotifyErr(LOG_ERR, "__pmLogPutIndex: PCP archive file (meta) too big\n");
-	    return;
-	}
-	tmp = __pmFtell(acp->ac_mfp);
-	assert(tmp >= 0);
-	ti.ti_log = (__pm_off_t)tmp;
-	if (tmp != ti.ti_log) {
-	    pmNotifyErr(LOG_ERR, "__pmLogPutIndex: PCP archive file (data) too big\n");
-	    return;
-	}
-    }
-    else {
-	ti.ti_meta = (__pm_off_t)__pmFtell(lcp->l_mdfp);
-	ti.ti_log = (__pm_off_t)__pmFtell(acp->ac_mfp);
+    if (ts == NULL) {
+	pmtimespecNow(&tmp);
+	stamp.tv_sec = tmp.tv_sec;
+	stamp.tv_nsec = tmp.tv_nsec;
+	ts = &stamp;
     }
 
-    if (ti.ti_log == 0) {
-	/*
-	 * this has been seen in QA where pmlogger churns quickly ...
-	 * trying to understand why
-	 */
-	struct stat	sbuf;
-	int		lsts;
+#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
+    if (__pmLogVersion(lcp) >= PM_LOG_VERS03)
+	return __pmLogPutHighResIndex3(acp, ts);
+#endif
+    return __pmLogPutHighResIndex2(acp, ts);
+}
 
-	fprintf(stderr, "__pmLogPutIndex: Botch: log offset == 0\n");
-	fprintf(stderr, "  __pmFileno=%d __pmFtell -> %ld\n", __pmFileno(acp->ac_mfp), (long)__pmFtell(acp->ac_mfp));
-	if ((lsts = __pmFstat(acp->ac_mfp, &sbuf)) < 0) {
-	    fprintf(stderr, "  __pmFstat failed -> %d\n", lsts);
-	}
-	else {
-	    fprintf(stderr, "  __pmFstat st_size=%ld st_ino=%ld\n", (long)sbuf.st_size, (long)sbuf.st_ino);
-	}
+void
+__pmLogPutIndex(const __pmArchCtl *acp, const pmTimeval *tp)
+{
+    if (tp == NULL) {
+	__pmLogPutHighResIndex(acp, NULL);
+    } else {
+	pmTimespec ts;
+	ts.tv_sec = tp->tv_sec;
+	ts.tv_nsec = tp->tv_usec * 1000;
+	__pmLogPutHighResIndex(acp, &ts);
     }
-
-    if (pmDebugOptions.log) {
-	fprintf(stderr, "__pmLogPutIndex: timestamp=%d.06%d vol=%d meta posn=%ld log posn=%ld\n",
-	    (int)ti.ti_stamp.tv_sec, (int)ti.ti_stamp.tv_usec,
-	    ti.ti_vol, (long)ti.ti_meta, (long)ti.ti_log);
-    }
-
-    oti.ti_stamp.tv_sec = htonl(ti.ti_stamp.tv_sec);
-    oti.ti_stamp.tv_usec = htonl(ti.ti_stamp.tv_usec);
-    oti.ti_vol = htonl(ti.ti_vol);
-    oti.ti_meta = htonl(ti.ti_meta);
-    oti.ti_log = htonl(ti.ti_log);
-    if ((sts = __pmFwrite(&oti, 1, sizeof(oti), lcp->l_tifp)) != sizeof(oti)) {
-	char	errmsg[PM_MAXERRMSGLEN];
-	pmprintf("__pmLogPutIndex: write failed: returns %d expecting %d: %s\n",
-	    sts, (int)sizeof(oti), osstrerror_r(errmsg, sizeof(errmsg)));
-	pmflush();
-    }
-    if (__pmFflush(lcp->l_tifp) != 0)
-	pmNotifyErr(LOG_ERR, "__pmLogPutIndex: PCP archive temporal index flush failed\n");
 }
 
 static int
@@ -2264,40 +2459,101 @@ func_return:
 }
 
 /*
- * error handling wrapper around __pmLogChangeVol() to deal with
+ * error handling wrappers around __pmLogChangeVol() to deal with
  * missing volumes ... return lcp->l_ti[] index for entry matching
  * success
  */
+
+#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
 static int
-VolSkip(__pmArchCtl *acp, int mode,  int j)
+VolSkip3(__pmArchCtl *acp, int mode, int j)
 {
     __pmLogCtl	*lcp = acp->ac_log;
-    int		vol = lcp->l_ti[j].ti_vol;
+    int		vol = lcp->l_ti[j].v3.ti_vol;
 
     while (lcp->l_minvol <= vol && vol <= lcp->l_maxvol) {
 	if (__pmLogChangeVol(acp, vol) >= 0)
 	    return j;
-	if (pmDebugOptions.log) {
+	if (pmDebugOptions.log)
 	    fprintf(stderr, "VolSkip: Skip missing vol %d\n", vol);
-	}
 	if (mode == PM_MODE_FORW) {
 	    for (j++; j < lcp->l_numti; j++)
-		if (lcp->l_ti[j].ti_vol != vol)
+		if (lcp->l_ti[j].v3.ti_vol != vol)
 		    break;
 	    if (j == lcp->l_numti)
 		return PM_ERR_EOL;
-	    vol = lcp->l_ti[j].ti_vol;
+	    vol = lcp->l_ti[j].v3.ti_vol;
 	}
 	else {
 	    for (j--; j >= 0; j--)
-		if (lcp->l_ti[j].ti_vol != vol)
+		if (lcp->l_ti[j].v3.ti_vol != vol)
 		    break;
 	    if (j < 0)
 		return PM_ERR_EOL;
-	    vol = lcp->l_ti[j].ti_vol;
+	    vol = lcp->l_ti[j].v3.ti_vol;
 	}
     }
     return PM_ERR_EOL;
+}
+#endif
+
+static int
+VolSkip2(__pmArchCtl *acp, int mode, int j)
+{
+    __pmLogCtl	*lcp = acp->ac_log;
+    int		vol = lcp->l_ti[j].v2.ti_vol;
+
+    while (lcp->l_minvol <= vol && vol <= lcp->l_maxvol) {
+	if (__pmLogChangeVol(acp, vol) >= 0)
+	    return j;
+	if (pmDebugOptions.log)
+	    fprintf(stderr, "VolSkip: Skip missing vol %d\n", vol);
+	if (mode == PM_MODE_FORW) {
+	    for (j++; j < lcp->l_numti; j++)
+		if (lcp->l_ti[j].v2.ti_vol != vol)
+		    break;
+	    if (j == lcp->l_numti)
+		return PM_ERR_EOL;
+	    vol = lcp->l_ti[j].v2.ti_vol;
+	}
+	else {
+	    for (j--; j >= 0; j--)
+		if (lcp->l_ti[j].v2.ti_vol != vol)
+		    break;
+	    if (j < 0)
+		return PM_ERR_EOL;
+	    vol = lcp->l_ti[j].v2.ti_vol;
+	}
+    }
+    return PM_ERR_EOL;
+}
+
+
+static int
+VolSkip(__pmArchCtl *acp, int mode, int j)
+{
+#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
+    if (__pmLogVersion(acp->ac_log) >= PM_LOG_VERS03)
+	return VolSkip3(acp, mode, j);
+#endif
+    return VolSkip2(acp, mode, j);
+}
+
+static void
+__pmLogPrintOffsetTI(__pmLogCtl *lcp, int version, int j)
+{
+    if (version >= PM_LOG_VERS03) {
+#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
+	pmTimespec      timestamp;
+
+	timestamp.tv_sec = lcp->l_ti[j].v3.ti_sec;
+	timestamp.tv_nsec = lcp->l_ti[j].v3.ti_nsec;
+	__pmPrintTimespec(stderr, &timestamp);
+#endif
+    }
+    else {
+	__pmPrintTimeval(stderr, &lcp->l_ti[j].v2.ti_stamp);
+    }
 }
 
 int
@@ -2307,6 +2563,7 @@ __pmLogSetTime(__pmContext *ctxp)
     __pmLogCtl	*lcp = acp->ac_log;
     pmTimeval	save_origin;
     int		save_mode;
+    int		version = __pmLogVersion(lcp);
     double	t_hi;
     int		mode;
     int		i;
@@ -2317,7 +2574,7 @@ __pmLogSetTime(__pmContext *ctxp)
 	mode = ctxp->c_delta > 0 ? PM_MODE_FORW : PM_MODE_BACK;
 
     if (pmDebugOptions.log) {
-	fprintf(stderr, "__pmLogSetTime(%d) ", pmWhichContext());
+	fprintf(stderr, "%s(%d) ", "__pmLogSetTime", pmWhichContext());
 	__pmPrintTimeval(stderr, &ctxp->c_origin);
 	fprintf(stderr, " delta=%d", ctxp->c_delta);
     }
@@ -2360,8 +2617,10 @@ __pmLogSetTime(__pmContext *ctxp)
 	int		try;
 	int		toobig = 0;
 	int		match = 0;
+	int		tivol;
 	int		vol;
 	int		numti = lcp->l_numti;
+	off_t		tilog;
 	__pmFILE	*f;
 	__pmLogTI	*tip = lcp->l_ti;
 	double		t_lo;
@@ -2370,10 +2629,21 @@ __pmLogSetTime(__pmContext *ctxp)
 	sbuf.st_size = -1;
 
 	for (i = 0; i < numti; i++, tip++) {
-	    if (tip->ti_vol < lcp->l_minvol)
+#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
+	    if (version >= PM_LOG_VERS03) {
+		tivol = tip->v3.ti_vol;
+		tilog = tip->v3.ti_log;
+	    } else {
+#endif
+		tivol = tip->v2.ti_vol;
+		tilog = tip->v2.ti_log;
+#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
+	    }
+#endif
+	    if (tivol < lcp->l_minvol)
 		/* skip missing preliminary volumes */
 		continue;
-	    if (tip->ti_vol == lcp->l_maxvol) {
+	    if (tivol == lcp->l_maxvol) {
 		/* truncated check for last volume */
 		if (sbuf.st_size < 0) {
 		    sbuf.st_size = 0;
@@ -2385,13 +2655,26 @@ __pmLogSetTime(__pmContext *ctxp)
 			__pmFclose(f);
 		    }
 		}
-		if (tip->ti_log > sbuf.st_size) {
+		if (tilog > sbuf.st_size) {
 		    j = i;
 		    toobig++;
 		    break;
 		}
 	    }
-	    t_hi = __pmTimevalSub(&tip->ti_stamp, &ctxp->c_origin);
+#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
+	    if (version >= PM_LOG_VERS03) {
+		pmTimespec origin, timestamp;
+		origin.tv_sec = ctxp->c_origin.tv_sec;
+		origin.tv_nsec = ctxp->c_origin.tv_usec * 1000;
+		timestamp.tv_sec = tip->v3.ti_sec;
+		timestamp.tv_nsec = tip->v3.ti_nsec;
+		t_hi = __pmTimespecSub(&timestamp, &origin);
+	    } else {
+#endif
+		t_hi = __pmTimevalSub(&tip->v2.ti_stamp, &ctxp->c_origin);
+#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
+	    }
+#endif
 	    if (t_hi > 0) {
 		j = i;
 		break;
@@ -2412,15 +2695,22 @@ __pmLogSetTime(__pmContext *ctxp)
 	    j = VolSkip(acp, mode, j);
 	    if (j < 0) {
 		if (pmDebugOptions.log)
-		    fprintf(stderr, "__pmLogSetTime: VolSkip mode=%d vol=%d failed #1\n", mode, try);
+		    fprintf(stderr, "%s: VolSkip mode=%d vol=%d failed #1\n",
+				    "__pmLogSetTime", mode, try);
 		return PM_ERR_LOGFILE;
 	    }
-	    __pmFseek(acp->ac_mfp, (long)lcp->l_ti[j].ti_log, SEEK_SET);
+#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
+	    if (version >= PM_LOG_VERS03)
+		tilog = lcp->l_ti[j].v3.ti_log;
+	    else
+#endif
+		tilog = lcp->l_ti[j].v2.ti_log;
+	    __pmFseek(acp->ac_mfp, (long)tilog, SEEK_SET);
 	    if (mode == PM_MODE_BACK)
 		acp->ac_serial = 0;
 	    if (pmDebugOptions.log) {
 		fprintf(stderr, " at ti[%d]@", j);
-		__pmPrintTimeval(stderr, &lcp->l_ti[j].ti_stamp);
+		__pmLogPrintOffsetTI(lcp, version, j);
 	    }
 	}
 	else if (j < 1) {
@@ -2428,13 +2718,20 @@ __pmLogSetTime(__pmContext *ctxp)
 	    j = VolSkip(acp, PM_MODE_FORW, 0);
 	    if (j < 0) {
 		if (pmDebugOptions.log)
-		    fprintf(stderr, "__pmLogSetTime: VolSkip mode=%d vol=%d failed #2\n", PM_MODE_FORW, try);
+		    fprintf(stderr, "%s: VolSkip mode=%d vol=%d failed #2\n",
+				    "__pmLogSetTime", PM_MODE_FORW, try);
 		return PM_ERR_LOGFILE;
 	    }
-	    __pmFseek(acp->ac_mfp, (long)lcp->l_ti[j].ti_log, SEEK_SET);
+#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
+	    if (version >= PM_LOG_VERS03)
+		tilog = lcp->l_ti[j].v3.ti_log;
+	    else
+#endif
+		tilog = lcp->l_ti[j].v2.ti_log;
+	    __pmFseek(acp->ac_mfp, (long)tilog, SEEK_SET);
 	    if (pmDebugOptions.log) {
 		fprintf(stderr, " before start ti@");
-		__pmPrintTimeval(stderr, &lcp->l_ti[j].ti_stamp);
+		__pmLogPrintOffsetTI(lcp, version, j);
 	    }
 	}
 	else if (j == numti) {
@@ -2442,15 +2739,22 @@ __pmLogSetTime(__pmContext *ctxp)
 	    j = VolSkip(acp, PM_MODE_BACK, numti-1);
 	    if (j < 0) {
 		if (pmDebugOptions.log)
-		    fprintf(stderr, "__pmLogSetTime: VolSkip mode=%d vol=%d failed #3\n", PM_MODE_BACK, try);
+		    fprintf(stderr, "%s: VolSkip mode=%d vol=%d failed #3\n",
+				    "__pmLogSetTime", PM_MODE_BACK, try);
 		return PM_ERR_LOGFILE;
 	    }
-	    __pmFseek(acp->ac_mfp, (long)lcp->l_ti[j].ti_log, SEEK_SET);
+#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
+	    if (version >= PM_LOG_VERS03)
+		tilog = lcp->l_ti[j].v3.ti_log;
+	    else
+#endif
+		tilog = lcp->l_ti[j].v2.ti_log;
+	    __pmFseek(acp->ac_mfp, (long)tilog, SEEK_SET);
 	    if (mode == PM_MODE_BACK)
 		acp->ac_serial = 0;
 	    if (pmDebugOptions.log) {
 		fprintf(stderr, " after end ti@");
-		__pmPrintTimeval(stderr, &lcp->l_ti[j].ti_stamp);
+		__pmLogPrintOffsetTI(lcp, version, j);
 	    }
 	}
 	else {
@@ -2461,22 +2765,50 @@ __pmLogSetTime(__pmContext *ctxp)
 	     * choose closest index point.  if toobig, [j] is not
 	     * really valid (log truncated or incomplete)
 	     */
-	    t_hi = __pmTimevalSub(&lcp->l_ti[j].ti_stamp, &ctxp->c_origin);
-	    t_lo = __pmTimevalSub(&ctxp->c_origin, &lcp->l_ti[j-1].ti_stamp);
+#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
+	    if (version >= PM_LOG_VERS03) {
+		pmTimespec origin, timestamp;
+		origin.tv_sec = ctxp->c_origin.tv_sec;
+		origin.tv_nsec = ctxp->c_origin.tv_usec * 1000;
+
+		timestamp.tv_sec = lcp->l_ti[j].v3.ti_sec;
+		timestamp.tv_nsec = lcp->l_ti[j].v3.ti_nsec;
+		t_hi = __pmTimespecSub(&timestamp, &origin);
+		timestamp.tv_sec = lcp->l_ti[j-1].v3.ti_sec;
+		timestamp.tv_nsec = lcp->l_ti[j-1].v3.ti_nsec;
+		t_lo = __pmTimespecSub(&origin, &timestamp);
+	    } else {
+		pmTimeval timestamp;
+		timestamp = lcp->l_ti[j].v2.ti_stamp;
+		t_hi = __pmTimevalSub(&timestamp, &ctxp->c_origin);
+		timestamp = lcp->l_ti[j-1].v2.ti_stamp;
+		t_lo = __pmTimevalSub(&ctxp->c_origin, &timestamp);
+	    }
+#else
+	    t_hi = __pmTimevalSub(&lcp->l_ti[j].v2.ti_stamp, &ctxp->c_origin);
+	    t_lo = __pmTimevalSub(&ctxp->c_origin, &lcp->l_ti[j-1].v2.ti_stamp);
+#endif
 	    if (t_hi <= t_lo && !toobig) {
 		try = j;
 		j = VolSkip(acp, mode, j);
 		if (j < 0) {
 		    if (pmDebugOptions.log)
-			fprintf(stderr, "__pmLogSetTime: VolSkip mode=%d vol=%d failed #4\n", mode, try);
+			fprintf(stderr, "%s: VolSkip mode=%d vol=%d failed #4\n",
+					"__pmLogSetTime", mode, try);
 		    return PM_ERR_LOGFILE;
 		}
-		__pmFseek(acp->ac_mfp, (long)lcp->l_ti[j].ti_log, SEEK_SET);
+#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
+		if (version >= PM_LOG_VERS03)
+		    tilog = lcp->l_ti[j].v3.ti_log;
+		else
+#endif
+		    tilog = lcp->l_ti[j].v2.ti_log;
+		__pmFseek(acp->ac_mfp, (long)tilog, SEEK_SET);
 		if (mode == PM_MODE_FORW)
 		    acp->ac_serial = 0;
 		if (pmDebugOptions.log) {
 		    fprintf(stderr, " before ti[%d]@", j);
-		    __pmPrintTimeval(stderr, &lcp->l_ti[j].ti_stamp);
+		    __pmLogPrintOffsetTI(lcp, version, j);
 		}
 	    }
 	    else {
@@ -2484,15 +2816,22 @@ __pmLogSetTime(__pmContext *ctxp)
 		j = VolSkip(acp, mode, j-1);
 		if (j < 0) {
 		    if (pmDebugOptions.log)
-			fprintf(stderr, "__pmLogSetTime: VolSkip mode=%d vol=%d failed #5\n", mode, try);
+			fprintf(stderr, "%s: VolSkip mode=%d vol=%d failed #5\n",
+					"__pmLogSetTime", mode, try);
 		    return PM_ERR_LOGFILE;
 		}
-		__pmFseek(acp->ac_mfp, (long)lcp->l_ti[j].ti_log, SEEK_SET);
+#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
+		if (version >= PM_LOG_VERS03)
+		    tilog = lcp->l_ti[j].v3.ti_log;
+		else
+#endif
+		    tilog = lcp->l_ti[j].v2.ti_log;
+		__pmFseek(acp->ac_mfp, (long)tilog, SEEK_SET);
 		if (mode == PM_MODE_BACK)
 		    acp->ac_serial = 0;
 		if (pmDebugOptions.log) {
 		    fprintf(stderr, " after ti[%d]@", j);
-		    __pmPrintTimeval(stderr, &lcp->l_ti[j].ti_stamp);
+		    __pmLogPrintOffsetTI(lcp, version, j);
 		}
 	    }
 	    if (acp->ac_serial && mode == PM_MODE_FORW) {
@@ -2527,7 +2866,7 @@ __pmLogSetTime(__pmContext *ctxp)
 		acp->ac_mfp = NULL;
 		return PM_ERR_LOGFILE;
 	    }
-	    __pmFseek(acp->ac_mfp, (long)(sizeof(__pmLogLabel) + 2*sizeof(int)), SEEK_SET);
+	    __pmFseek(acp->ac_mfp, (long)__pmLogLabelTotalSize(lcp), SEEK_SET);
 	}
 	else if (mode == PM_MODE_BACK) {
 	    for (j = lcp->l_maxvol; j >= lcp->l_minvol; j--) {
@@ -2666,8 +3005,8 @@ __pmGetArchiveEnd_ctx(__pmContext *ctxp, struct timeval *tp)
     int		head;
     long	offset;
     int		vol;
-    __pm_off_t	logend;
-    __pm_off_t	physend = 0;
+    __pmoff32_t	logend;
+    __pmoff32_t	physend = 0;
 
     PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 
@@ -2719,8 +3058,8 @@ __pmGetArchiveEnd_ctx(__pmContext *ctxp, struct timeval *tp)
 	    goto prior_vol;
 	}
 
-	physend = (__pm_off_t)sbuf.st_size;
-	if (sizeof(off_t) > sizeof(__pm_off_t)) {
+	physend = (__pmoff32_t)sbuf.st_size;
+	if (sizeof(off_t) > sizeof(__pmoff32_t)) {
 	    /* 64-bit off_t */
 	    if (physend != sbuf.st_size) {
 		/* oops, 32-bit offset not the same */
@@ -2747,10 +3086,10 @@ __pmGetArchiveEnd_ctx(__pmContext *ctxp, struct timeval *tp)
 	 */
 	logend = (int)sizeof(__pmLogLabel) + 2*(int)sizeof(int);
 	for (i = lcp->l_numti - 1; i >= 0; i--) {
-	    if (lcp->l_ti[i].ti_vol != vol)
+	    if (lcp->l_ti[i].v2.ti_vol != vol)
 		continue;
-	    if (lcp->l_ti[i].ti_log <= physend) {
-		logend = lcp->l_ti[i].ti_log;
+	    if (lcp->l_ti[i].v2.ti_log <= physend) {
+		logend = lcp->l_ti[i].v2.ti_log;
 		break;
 	    }
 	}
@@ -2776,7 +3115,7 @@ __pmGetArchiveEnd_ctx(__pmContext *ctxp, struct timeval *tp)
 		    fprintf(stderr, "pmGetArchiveEnd: "
                             "Error reading record ending at posn=%d ti[%d]@",
 			    logend, i);
-		    __pmPrintTimeval(stderr, &lcp->l_ti[i].ti_stamp);
+		    __pmPrintTimeval(stderr, &lcp->l_ti[i].v2.ti_stamp);
 		    fputc('\n', stderr);
 		}
 		break;
@@ -3051,7 +3390,7 @@ LogChangeToNextArchive(__pmContext *ctxp)
 {
     __pmLogCtl	*lcp = ctxp->c_archctl->ac_log;
     __pmArchCtl	*acp;
-    pmTimeval prev_endtime;
+    pmTimeval	prev_endtime;
     pmTimeval	save_origin;
     int		save_mode;
 
@@ -3059,9 +3398,8 @@ LogChangeToNextArchive(__pmContext *ctxp)
      * Check whether there is a subsequent archive to switch to.
      */
     acp = ctxp->c_archctl;
-    if (acp->ac_cur_log >= acp->ac_num_logs - 1) {
+    if (acp->ac_cur_log >= acp->ac_num_logs - 1)
 	return PM_ERR_EOL; /* no more archives */
-    }
 
     /*
      * We're changing to the next archive because we have reached the end of
@@ -3094,16 +3432,15 @@ LogChangeToNextArchive(__pmContext *ctxp)
      * We want to reposition to the start of the archive.
      * Start after the header + label record + trailer
      */
-    acp->ac_offset = sizeof(__pmLogLabel) + 2*sizeof(int);
+    acp->ac_offset = __pmLogLabelTotalSize(lcp);
     acp->ac_vol = acp->ac_curvol;
 
     /*
      * Check for temporal overlap here. Do this last in case the API client
      * chooses to keep reading anyway.
      */
-    if (__pmTimevalSub(&prev_endtime, &lcp->l_label.ill_start) > 0) {
+    if (__pmTimevalSub(&prev_endtime, &lcp->l_label.ill_start) > 0)
 	return PM_ERR_LOGOVERLAP;
-    }
 
     return 0;
 }
