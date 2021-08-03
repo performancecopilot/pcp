@@ -363,6 +363,7 @@ _filter_optional_pmda_instances()
 	-e '/inst \[4 or "pmproxy"]/d' \
 	-e '/inst \[10 or "trace"]/d' \
 	-e '/inst \[15 or "sendmail"]/d' \
+	-e '/inst \[19 or "shping"]/d' \
         -e '/inst \[22 or "weblog"]/d' \
 	-e '/inst \[24 or "redis"]/d' \
 	-e '/inst \[28 or "news"]/d' \
