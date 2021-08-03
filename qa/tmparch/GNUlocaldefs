@@ -160,4 +160,4 @@ dodgey-mixed.0:	make.dodgey config.dodgey-mixed
 	./make.dodgey mixed 150
 
 sample-proc.0: make.sample-proc
-	./make-sample-proc
+	./make.sample-proc
