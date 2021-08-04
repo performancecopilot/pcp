@@ -201,23 +201,23 @@ STAMP-1 1 instances
 
 Temporal Index
 		Log Vol    end(meta)     end(log)
-STAMP-1	      0          132          132
-STAMP-2	      0          452          336
-STAMP-3	      0         2760         1068
-STAMP-4	      0         3141         1752
-STAMP-5	      0         3467         2340
-STAMP-6	      0         3797         2928
-STAMP-7	      0         4098         3468
-STAMP-9	      0         4422         4644
-STAMP-10	      0         4721         5184
-STAMP-12	      0         4989         6168
-STAMP-14	      0         5257         7152
-STAMP-17	      0         5587         8916
-STAMP-19	      0         5943        10188
-STAMP-21	      0         6330        11556
-STAMP-22	      0         6740        12288
+STAMP-1	      0          NNNN          NNNN
+STAMP-2	      0          NNNN          NNNN
+STAMP-3	      0         NNNN         NNNN
+STAMP-4	      0         NNNN         NNNN
+STAMP-5	      0         NNNN         NNNN
+STAMP-6	      0         NNNN         NNNN
+STAMP-7	      0         NNNN         NNNN
+STAMP-9	      0         NNNN         NNNN
+STAMP-10	      0         NNNN         NNNN
+STAMP-12	      0         NNNN         NNNN
+STAMP-14	      0         NNNN         NNNN
+STAMP-17	      0         NNNN         NNNN
+STAMP-19	      0         NNNN        NNNN
+STAMP-21	      0         NNNN        NNNN
+STAMP-22	      0         NNNN        NNNN
 
-[204 bytes]
+[2NN bytes]
 STAMP-1 5 metrics
     2.3.3 (pmcd.pmlogger.host): ...
     2.3.0 (pmcd.pmlogger.port): ...
@@ -1017,7 +1017,7 @@ STAMP-21 3 metrics
         inst [29 or "0029 /usr/opt/bin/jojo"] value 29
         inst [30 or "0030 /etc/koko"] value 30
 
-[204 bytes]
+[2NN bytes]
 STAMP-22 5 metrics
     2.3.3 (pmcd.pmlogger.host): ...
     2.3.0 (pmcd.pmlogger.port): ...

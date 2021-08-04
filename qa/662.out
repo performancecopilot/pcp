@@ -66,7 +66,7 @@ len(metrics[]):3
   metric:no.such.metric2 metadata:3
   metric:pmcd.client.whoami metadata:10
 context #### metadata prefix=sample response code 200
-len(metrics[]):183
+len(metrics[]):187
   metric:sample.aggregate.hullo metadata:9
   metric:sample.aggregate.null metadata:9
   metric:sample.aggregate.write_me metadata:9
@@ -197,6 +197,10 @@ len(metrics[]):183
   metric:sample.percontext.pdu metadata:9
   metric:sample.percontext.recv_pdu metadata:9
   metric:sample.percontext.xmit_pdu metadata:9
+  metric:sample.proc.exec metadata:10
+  metric:sample.proc.ordinal metadata:10
+  metric:sample.proc.reset metadata:9
+  metric:sample.proc.time metadata:10
   metric:sample.rapid metadata:9
   metric:sample.recv_pdu metadata:9
   metric:sample.scale_step.bytes_down metadata:9
