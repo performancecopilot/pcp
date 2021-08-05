@@ -3,6 +3,11 @@ QA output created by 974
 == Checking namespace and metric numbering - procpid-2.6.32-root-001.tgz
 == Checking metric descriptors and a fetch - procpid-2.6.32-root-001.tgz
 
+proc.autogroup.enabled
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 0
+
 proc.control.all.threads
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -673,6 +678,11 @@ No value(s) available!
 == Extracting subtrees for later use - procpid-3.19.0-root-002.tgz
 == Checking namespace and metric numbering - procpid-3.19.0-root-002.tgz
 == Checking metric descriptors and a fetch - procpid-3.19.0-root-002.tgz
+
+proc.autogroup.enabled
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 0
 
 proc.control.all.threads
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -1396,6 +1406,11 @@ No value(s) available!
 == Checking namespace and metric numbering - procpid-3.2.0-root-003.tgz
 == Checking metric descriptors and a fetch - procpid-3.2.0-root-003.tgz
 
+proc.autogroup.enabled
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 0
+
 proc.control.all.threads
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -1944,6 +1959,11 @@ No value(s) available!
 == Checking namespace and metric numbering - procpid-4.14.5-root-005.tgz
 == Checking metric descriptors and a fetch - procpid-4.14.5-root-005.tgz
 
+proc.autogroup.enabled
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 0
+
 proc.control.all.threads
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -2012,6 +2032,11 @@ No value(s) available!
 == Checking namespace and metric numbering - procpid-4.18.13-root-006.tgz
 == Checking metric descriptors and a fetch - procpid-4.18.13-root-006.tgz
 
+proc.autogroup.enabled
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 0
+
 proc.control.all.threads
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -2077,6 +2102,11 @@ No value(s) available!
 == Extracting subtrees for later use - procpid-4.2.3-root-004.tgz
 == Checking namespace and metric numbering - procpid-4.2.3-root-004.tgz
 == Checking metric descriptors and a fetch - procpid-4.2.3-root-004.tgz
+
+proc.autogroup.enabled
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 0
 
 proc.control.all.threads
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -2457,6 +2487,11 @@ No value(s) available!
 == Extracting subtrees for later use - procpid-5.5.7-root-007.tgz
 == Checking namespace and metric numbering - procpid-5.5.7-root-007.tgz
 == Checking metric descriptors and a fetch - procpid-5.5.7-root-007.tgz
+
+proc.autogroup.enabled
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 0
 
 proc.control.all.threads
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff

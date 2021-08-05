@@ -475,8 +475,8 @@ hotproc_eval_procs(void)
 	refresh_proc_pid_schedstat(entry);
 
         /* Note: /proc/pid/schedstat and /proc/pid/io not on all platforms */
-	if (!(entry->flags & PROC_PID_FLAG_STAT_SUCCESS) ||
-	    !(entry->flags & PROC_PID_FLAG_STATUS_SUCCESS))
+	if (!(entry->success & PROC_PID_FLAG_STAT) ||
+	    !(entry->success & PROC_PID_FLAG_STATUS))
 	    continue;
 
 	if (np == hot_maxprocs[current]) {
@@ -504,7 +504,7 @@ hotproc_eval_procs(void)
 	newnode->r_ictx = entry->status.nvctxsw;
 
 	/* IO demand: read and write - not available from all kernels */
-	if (!(entry->flags & PROC_PID_FLAG_IO_SUCCESS)) {
+	if (!(entry->success & PROC_PID_FLAG_IO)) {
 	    newnode->r_bread = 0;
 	    newnode->r_bwrit = 0;
 	} else {
@@ -517,7 +517,7 @@ hotproc_eval_procs(void)
 	newnode->r_bwtime /= (double)_pm_hertz;
 
 	/* Schedwait (run_delay) - not available from all kernels */
-	if (!(entry->flags & PROC_PID_FLAG_SCHEDSTAT_SUCCESS))
+	if (!(entry->success & PROC_PID_FLAG_SCHEDSTAT))
 	    newnode->r_qwtime = 0;
         else
 	    newnode->r_qwtime = entry->schedstat.rundelay;
@@ -727,7 +727,7 @@ refresh_proc_indom_entry(proc_pid_entry_t *ep, pmdaIndom *indomp, int idx)
 static void
 refresh_proc_runq(proc_pid_entry_t *ep, proc_runq_t *runq)
 {
-    if (!(ep->flags & PROC_PID_FLAG_STAT_SUCCESS)) {
+    if (!(ep->success & PROC_PID_FLAG_STAT)) {
 	runq->unknown++;
     } else if (ep->stat.state[0] == 'Z') {
 	runq->defunct++;
@@ -777,7 +777,7 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids, proc_runq_t *r
     for (i=0; i < proc_pid->pidhash.hsize; i++) {
 	for (node=proc_pid->pidhash.hash[i]; node != NULL; node = node->next) {
 	    ep = (proc_pid_entry_t *)node->data;
-	    ep->flags = 0;
+	    ep->fetched = ep->success = 0;
 	}
     }
 
@@ -896,7 +896,8 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids, proc_runq_t *r
 	}
 	
 	/* mark pid as valid (new or still running) */
-	ep->flags |= PROC_PID_FLAG_VALID;
+	ep->fetched |= PROC_PID_FLAG_VALID;
+	ep->success |= PROC_PID_FLAG_VALID;
     }
 
     /* 
@@ -909,7 +910,7 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids, proc_runq_t *r
 	    ep = (proc_pid_entry_t *)node->data;
 	    // fprintf(stderr, "CHECKING key=%d node=" PRINTF_P_PFX "%p prev=" PRINTF_P_PFX "%p next=" PRINTF_P_PFX "%p ep=" PRINTF_P_PFX "%p valid=%d\n",
 	    	// ep->id, node, prev, node->next, ep, ep->valid);
-	    if (ep->flags & PROC_PID_FLAG_VALID) {
+	    if (ep->fetched & PROC_PID_FLAG_VALID) {
 		numinst++;
 	    	prev = node;
 	    }
@@ -1234,13 +1235,13 @@ refresh_proc_pid_stat(proc_pid_entry_t *ep)
 {
     int			fd, sts;
 
-    if (ep->flags & PROC_PID_FLAG_STAT_SUCCESS)
+    if (ep->success & PROC_PID_FLAG_STAT)
 	return 0;
     if ((fd = proc_open("stat", ep)) < 0)
 	return maperr();
     if ((sts = read_proc_entry(fd, &procbuflen, &procbuf)) >= 0) {
 	parse_proc_stat(ep, procbuflen, procbuf);
-	ep->flags |= PROC_PID_FLAG_STAT_SUCCESS;
+	ep->success |= PROC_PID_FLAG_STAT;
     }
     close(fd);
     return sts;
@@ -1257,9 +1258,9 @@ fetch_proc_pid_stat(int id, proc_pid_t *proc_pid, int *sts)
     *sts = 0;
     if (!ep)
 	return NULL;
-    if (!(ep->flags & PROC_PID_FLAG_STAT_FETCHED)) {
+    if (!(ep->fetched & PROC_PID_FLAG_STAT)) {
 	*sts = refresh_proc_pid_stat(ep);
-	ep->flags |= PROC_PID_FLAG_STAT_FETCHED;
+	ep->fetched |= PROC_PID_FLAG_STAT;
     }
     return (*sts < 0) ? NULL : ep;
 }
@@ -1290,9 +1291,9 @@ fetch_proc_pid_wchan(int id, proc_pid_t *proc_pid, int *sts)
     if (!ep)
 	return NULL;
 
-    if (!(ep->flags & PROC_PID_FLAG_WCHAN_FETCHED)) {
+    if (!(ep->fetched & PROC_PID_FLAG_WCHAN)) {
 	*sts = refresh_proc_pid_wchan(ep);
-	ep->flags |= PROC_PID_FLAG_WCHAN_FETCHED;
+	ep->fetched |= PROC_PID_FLAG_WCHAN;
     }
 
     if (*sts < 0)
@@ -1345,9 +1346,9 @@ fetch_proc_pid_environ(int id, proc_pid_t *proc_pid, int *sts)
     if (!ep)
 	return NULL;
 
-    if (!(ep->flags & PROC_PID_FLAG_ENVIRON_FETCHED)) {
+    if (!(ep->fetched & PROC_PID_FLAG_ENVIRON)) {
 	*sts = refresh_proc_pid_environ(ep);
-	ep->flags |= PROC_PID_FLAG_ENVIRON_FETCHED;
+	ep->fetched |= PROC_PID_FLAG_ENVIRON;
     }
 
     if (*sts < 0)
@@ -1565,13 +1566,13 @@ refresh_proc_pid_status(proc_pid_entry_t *ep)
 {
     int			fd, sts;
 
-    if (ep->flags & PROC_PID_FLAG_STATUS_SUCCESS)
+    if (ep->success & PROC_PID_FLAG_STATUS)
 	return 0;
     if ((fd = proc_open("status", ep)) < 0)
 	return maperr();
     if ((sts = read_proc_entry(fd, &procbuflen, &procbuf)) == 0) {
 	parse_proc_status(ep, procbuflen, procbuf);
-	ep->flags |= PROC_PID_FLAG_STATUS_SUCCESS;
+	ep->success |= PROC_PID_FLAG_STATUS;
     }
     close(fd);
     return sts;
@@ -1589,9 +1590,9 @@ fetch_proc_pid_status(int id, proc_pid_t *proc_pid, int *sts)
     if (!ep)
 	return NULL;
 
-    if (!(ep->flags & PROC_PID_FLAG_STATUS_FETCHED)) {
+    if (!(ep->fetched & PROC_PID_FLAG_STATUS)) {
 	*sts = refresh_proc_pid_status(ep);
-	ep->flags |= PROC_PID_FLAG_STATUS_FETCHED;
+	ep->fetched |= PROC_PID_FLAG_STATUS;
     }
     return (*sts < 0) ? NULL : ep;
 }
@@ -1615,13 +1616,13 @@ refresh_proc_pid_statm(proc_pid_entry_t *ep)
 {
     int			fd, sts;
 
-    if (ep->flags & PROC_PID_FLAG_STATM_SUCCESS)
+    if (ep->success & PROC_PID_FLAG_STATM)
 	return 0;
     if ((fd = proc_open("statm", ep)) < 0)
 	return maperr();
     if ((sts = read_proc_entry(fd, &procbuflen, &procbuf)) == 0) {
 	parse_proc_statm(ep, procbuflen, procbuf);
-	ep->flags |= PROC_PID_FLAG_STATM_SUCCESS;
+	ep->success |= PROC_PID_FLAG_STATM;
     }
     close(fd);
     return sts;
@@ -1639,9 +1640,9 @@ fetch_proc_pid_statm(int id, proc_pid_t *proc_pid, int *sts)
     if (!ep)
     	return NULL;
 
-    if (!(ep->flags & PROC_PID_FLAG_STATM_FETCHED)) {
+    if (!(ep->fetched & PROC_PID_FLAG_STATM)) {
 	*sts = refresh_proc_pid_statm(ep);
-	ep->flags |= PROC_PID_FLAG_STATM_FETCHED;
+	ep->fetched |= PROC_PID_FLAG_STATM;
     }
     return (*sts < 0) ? NULL : ep;
 }
@@ -1651,7 +1652,7 @@ refresh_proc_pid_maps(proc_pid_entry_t *ep)
 {
     int			fd, sts;
 
-    if (ep->flags & PROC_PID_FLAG_MAPS_SUCCESS)
+    if (ep->success & PROC_PID_FLAG_MAPS)
 	return 0;
     if (ep->maps_buflen > 0)
 	ep->maps_buf[0] = '\0';
@@ -1667,7 +1668,7 @@ refresh_proc_pid_maps(proc_pid_entry_t *ep)
     }
     if (ep->maps_buf) {
 	ep->maps_buf[ep->maps_buflen - 1] = '\0';
-	ep->flags |= PROC_PID_FLAG_MAPS_SUCCESS;
+	ep->success |= PROC_PID_FLAG_MAPS;
 	sts = 0; /* clear -ENODATA */
     } else {
 	ep->maps_buflen = 0;
@@ -1689,9 +1690,9 @@ fetch_proc_pid_maps(int id, proc_pid_t *proc_pid, int *sts)
     if (!ep)
 	return NULL;
 
-    if (!(ep->flags & PROC_PID_FLAG_MAPS_FETCHED)) {
+    if (!(ep->fetched & PROC_PID_FLAG_MAPS)) {
 	*sts = refresh_proc_pid_maps(ep);
-	ep->flags |= PROC_PID_FLAG_MAPS_FETCHED;
+	ep->fetched |= PROC_PID_FLAG_MAPS;
     }
     return (*sts < 0) ? NULL : ep;
 }
@@ -1711,13 +1712,13 @@ refresh_proc_pid_schedstat(proc_pid_entry_t *ep)
 {
     int			fd, sts;
 
-    if (ep->flags & PROC_PID_FLAG_SCHEDSTAT_SUCCESS)
+    if (ep->success & PROC_PID_FLAG_SCHEDSTAT)
 	return 0;
     if ((fd = proc_open("schedstat", ep)) < 0)
 	return maperr();
     if ((sts = read_proc_entry(fd, &procbuflen, &procbuf)) >= 0) {
 	parse_proc_schedstat(ep, procbuflen, procbuf);
-	ep->flags |= PROC_PID_FLAG_SCHEDSTAT_SUCCESS;
+	ep->success |= PROC_PID_FLAG_SCHEDSTAT;
     }
     close(fd);
     return sts;
@@ -1735,9 +1736,9 @@ fetch_proc_pid_schedstat(int id, proc_pid_t *proc_pid, int *sts)
     if (!ep)
 	return NULL;
 
-    if (!(ep->flags & PROC_PID_FLAG_SCHEDSTAT_FETCHED)) {
+    if (!(ep->fetched & PROC_PID_FLAG_SCHEDSTAT)) {
 	*sts = refresh_proc_pid_schedstat(ep);
-	ep->flags |= PROC_PID_FLAG_SCHEDSTAT_FETCHED;
+	ep->fetched |= PROC_PID_FLAG_SCHEDSTAT;
     }
     return (*sts < 0) ? NULL : ep;
 }
@@ -1790,13 +1791,13 @@ refresh_proc_pid_io(proc_pid_entry_t *ep)
 {
     int			fd, sts;
 
-    if (ep->flags & PROC_PID_FLAG_IO_SUCCESS)
+    if (ep->success & PROC_PID_FLAG_IO)
 	return 0;
     if ((fd = proc_open("io", ep)) < 0)
 	return maperr();
     if ((sts = read_proc_entry(fd, &procbuflen, &procbuf)) >= 0) {
 	parse_proc_io(ep, procbuflen, procbuf);
-	ep->flags |= PROC_PID_FLAG_IO_SUCCESS;
+	ep->success |= PROC_PID_FLAG_IO;
     }
     close(fd);
     return sts;
@@ -1820,9 +1821,9 @@ fetch_proc_pid_io(int id, proc_pid_t *proc_pid, int *sts)
     if (!ep)
 	return NULL;
 
-    if (!(ep->flags & PROC_PID_FLAG_IO_FETCHED)) {
+    if (!(ep->fetched & PROC_PID_FLAG_IO)) {
 	*sts = refresh_proc_pid_io(ep);
-	ep->flags |= PROC_PID_FLAG_IO_FETCHED;
+	ep->fetched |= PROC_PID_FLAG_IO;
     }
     return (*sts < 0) ? NULL : ep;
 }
@@ -1926,13 +1927,13 @@ refresh_proc_pid_smaps(proc_pid_entry_t *ep)
 {
     int			fd, sts;
 
-    if (ep->flags & PROC_PID_FLAG_SMAPS_SUCCESS)
+    if (ep->success & PROC_PID_FLAG_SMAPS)
 	return 0;
     if ((fd = proc_open("smaps_rollup", ep)) < 0)
 	return maperr();
     if ((sts = read_proc_entry(fd, &procbuflen, &procbuf)) >= 0) {
 	parse_proc_smaps(ep, procbuflen, procbuf);
-	ep->flags |= PROC_PID_FLAG_SMAPS_SUCCESS;
+	ep->success |= PROC_PID_FLAG_SMAPS;
     }
     close(fd);
     return sts;
@@ -1950,9 +1951,9 @@ fetch_proc_pid_smaps(int id, proc_pid_t *proc_pid, int *sts)
     if (!ep)
 	return NULL;
 
-    if (!(ep->flags & PROC_PID_FLAG_SMAPS_FETCHED)) {
+    if (!(ep->fetched & PROC_PID_FLAG_SMAPS)) {
 	*sts = refresh_proc_pid_smaps(ep);
-	ep->flags |= PROC_PID_FLAG_SMAPS_FETCHED;
+	ep->fetched |= PROC_PID_FLAG_SMAPS;
     }
     return (*sts < 0) ? NULL : ep;
 }
@@ -1963,7 +1964,7 @@ refresh_proc_pid_fd(proc_pid_entry_t *ep)
     uint32_t		de_count;
     DIR			*dir;
 
-    if (ep->flags & PROC_PID_FLAG_FD_SUCCESS)
+    if (ep->success & PROC_PID_FLAG_FD)
 	return 0;
     if ((dir = proc_opendir("fd", ep)) == NULL)
 	return maperr();
@@ -1972,7 +1973,7 @@ refresh_proc_pid_fd(proc_pid_entry_t *ep)
 	de_count++;
     closedir(dir);
     ep->fd_count = de_count - 2; /* subtract cwd and parent entries */
-    ep->flags |= PROC_PID_FLAG_FD_SUCCESS;
+    ep->success |= PROC_PID_FLAG_FD;
     return 0;
 }
 
@@ -1988,9 +1989,9 @@ fetch_proc_pid_fd(int id, proc_pid_t *proc_pid, int *sts)
     if (!ep)
 	return NULL;
 
-    if (!(ep->flags & PROC_PID_FLAG_FD_FETCHED)) {
+    if (!(ep->fetched & PROC_PID_FLAG_FD)) {
 	*sts = refresh_proc_pid_fd(ep);
-	ep->flags |= PROC_PID_FLAG_FD_FETCHED;
+	ep->fetched |= PROC_PID_FLAG_FD;
     }
     return (*sts < 0) ? NULL : ep;
 }
@@ -2053,7 +2054,7 @@ refresh_proc_pid_cgroup(proc_pid_entry_t *ep)
     char		cid[72], *tmp;
     int			fd, sts;
 
-    if (ep->flags & PROC_PID_FLAG_CGROUP_SUCCESS)
+    if (ep->success & PROC_PID_FLAG_CGROUP)
 	return 0;
     if ((fd = proc_open("cgroup", ep)) < 0)
 	return maperr();
@@ -2069,7 +2070,7 @@ refresh_proc_pid_cgroup(proc_pid_entry_t *ep)
 	proc_cgroup_reformat(cbuf1, clen1, cbuf2, clen2, cid, sizeof(cid));
 	ep->container_id = proc_strings_insert(cid);
 	ep->cgroup_id = proc_strings_insert(cbuf2);
-	ep->flags |= PROC_PID_FLAG_CGROUP_SUCCESS;
+	ep->success |= PROC_PID_FLAG_CGROUP;
     }
     close(fd);
     return sts;
@@ -2087,9 +2088,9 @@ fetch_proc_pid_cgroup(int id, proc_pid_t *proc_pid, int *sts)
     if (!ep)
 	return NULL;
 
-    if (!(ep->flags & PROC_PID_FLAG_CGROUP_FETCHED)) {
+    if (!(ep->fetched & PROC_PID_FLAG_CGROUP)) {
 	*sts = refresh_proc_pid_cgroup(ep);
-	ep->flags |= PROC_PID_FLAG_CGROUP_FETCHED;
+	ep->fetched |= PROC_PID_FLAG_CGROUP;
     }
 
     return (*sts < 0) ? NULL : ep;
@@ -2101,7 +2102,7 @@ refresh_proc_pid_label(proc_pid_entry_t *ep)
     ssize_t		n;
     int			fd, sts;
 
-    if (ep->flags & PROC_PID_FLAG_LABEL_SUCCESS)
+    if (ep->success & PROC_PID_FLAG_LABEL)
 	return 0;
     if ((fd = proc_open("attr/current", ep)) < 0)
 	return maperr();
@@ -2114,7 +2115,7 @@ refresh_proc_pid_label(proc_pid_entry_t *ep)
 	/* buffer matches "ps" output format, direct hash */
 	procbuf[n-1] = '\0';
 	ep->label_id = proc_strings_insert(procbuf);
-	ep->flags |= PROC_PID_FLAG_LABEL_SUCCESS;
+	ep->success |= PROC_PID_FLAG_LABEL;
     }
     close(fd);
     return sts;
@@ -2132,9 +2133,9 @@ fetch_proc_pid_label(int id, proc_pid_t *proc_pid, int *sts)
     if (!ep)
 	return NULL;
 
-    if (!(ep->flags & PROC_PID_FLAG_LABEL_FETCHED)) {
+    if (!(ep->fetched & PROC_PID_FLAG_LABEL)) {
 	*sts = refresh_proc_pid_label(ep);
-	ep->flags |= PROC_PID_FLAG_LABEL_FETCHED;
+	ep->fetched |= PROC_PID_FLAG_LABEL;
     }
     return (*sts < 0) ? NULL : ep;
 }
@@ -2144,14 +2145,14 @@ refresh_proc_pid_oom_score(proc_pid_entry_t *ep)
 {
     int			fd, sts;
 
-    if (ep->flags & PROC_PID_FLAG_OOM_SCORE_SUCCESS)
+    if (ep->success & PROC_PID_FLAG_OOM_SCORE)
 	return 0;
     if ((fd = proc_open("oom_score", ep)) < 0)
 	return maperr();
     ep->oom_score = 0;
     if ((sts = read_proc_entry(fd, &procbuflen, &procbuf)) >= 0) {
 	ep->oom_score = (__uint32_t)strtoul(procbuf, NULL, 0);
-	ep->flags |= PROC_PID_FLAG_OOM_SCORE_SUCCESS;
+	ep->success |= PROC_PID_FLAG_OOM_SCORE;
     }
     close(fd);
     return sts;
@@ -2169,9 +2170,9 @@ fetch_proc_pid_oom_score(int id, proc_pid_t *proc_pid, int *sts)
     if (!ep)
 	return NULL;
 
-    if (!(ep->flags & PROC_PID_FLAG_OOM_SCORE_FETCHED)) {
+    if (!(ep->fetched & PROC_PID_FLAG_OOM_SCORE)) {
 	*sts = refresh_proc_pid_oom_score(ep);
-	ep->flags |= PROC_PID_FLAG_OOM_SCORE_FETCHED;
+	ep->fetched |= PROC_PID_FLAG_OOM_SCORE;
     }
     return (*sts < 0) ? NULL : ep;
 }
@@ -2181,11 +2182,11 @@ refresh_proc_pid_cwd(proc_pid_entry_t *ep)
 {
     int			sts;
 
-    if (ep->flags & PROC_PID_FLAG_CWD_SUCCESS)
+    if (ep->success & PROC_PID_FLAG_CWD)
 	return 0;
     if ((sts = proc_readlink("cwd", ep, &procbuflen, &procbuf)) >= 0) {
 	ep->cwd_id = proc_strings_insert(procbuf);
-	ep->flags |= PROC_PID_FLAG_CWD_SUCCESS;
+	ep->success |= PROC_PID_FLAG_CWD;
     }
     return sts;
 }
@@ -2202,9 +2203,9 @@ fetch_proc_pid_cwd(int id, proc_pid_t *proc_pid, int *sts)
     if (!ep)
 	return NULL;
 
-    if (!(ep->flags & PROC_PID_FLAG_CWD_FETCHED)) {
+    if (!(ep->fetched & PROC_PID_FLAG_CWD)) {
 	*sts = refresh_proc_pid_cwd(ep);
-	ep->flags |= PROC_PID_FLAG_CWD_FETCHED;
+	ep->fetched |= PROC_PID_FLAG_CWD;
     }
 
     return (*sts < 0) ? NULL : ep;
@@ -2215,11 +2216,11 @@ refresh_proc_pid_exe(proc_pid_entry_t *ep)
 {
     int			sts;
 
-    if (ep->flags & PROC_PID_FLAG_EXE_SUCCESS)
+    if (ep->success & PROC_PID_FLAG_EXE)
 	return 0;
     if ((sts = proc_readlink("exe", ep, &procbuflen, &procbuf)) >= 0) {
 	ep->exe_id = proc_strings_insert(procbuf);
-	ep->flags |= PROC_PID_FLAG_EXE_SUCCESS;
+	ep->success |= PROC_PID_FLAG_EXE;
     }
     return sts;
 }
@@ -2236,10 +2237,51 @@ fetch_proc_pid_exe(int id, proc_pid_t *proc_pid, int *sts)
     if (!ep)
 	return NULL;
 
-    if (!(ep->flags & PROC_PID_FLAG_EXE_FETCHED)) {
+    if (!(ep->fetched & PROC_PID_FLAG_EXE)) {
 	*sts = refresh_proc_pid_exe(ep);
-	ep->flags |= PROC_PID_FLAG_EXE_FETCHED;
+	ep->fetched |= PROC_PID_FLAG_EXE;
     }
 
+    return (*sts < 0) ? NULL : ep;
+}
+
+static int
+refresh_proc_pid_autogroup(proc_pid_entry_t *ep)
+{
+    int			fd, sts;
+
+    if (ep->success & PROC_PID_FLAG_AUTOGROUP)
+	return 0;
+    ep->autogroup_id = 0;
+    ep->autogroup_nice = 0;
+    if ((fd = proc_open("autogroup", ep)) < 0)
+	return maperr();
+    if ((sts = read_proc_entry(fd, &procbuflen, &procbuf)) >= 0) {
+	sscanf(procbuf, "/autogroup-%u nice %d",
+			&ep->autogroup_id, &ep->autogroup_nice);
+    } else if (sts == -ENODATA) {
+	sts = 0; /* clear -ENODATA */
+    }
+    ep->success |= PROC_PID_FLAG_AUTOGROUP;
+    close(fd);
+    return sts;
+}
+
+/*
+ * fetch a proc/<pid>/autogroup entry for pid
+ */
+proc_pid_entry_t *
+fetch_proc_pid_autogroup(int id, proc_pid_t *proc_pid, int *sts)
+{
+    proc_pid_entry_t	*ep = proc_pid_entry_lookup(id, proc_pid);
+
+    *sts = 0;
+    if (!ep)
+	return NULL;
+
+    if (!(ep->fetched & PROC_PID_FLAG_AUTOGROUP)) {
+	*sts = refresh_proc_pid_autogroup(ep);
+	ep->fetched |= PROC_PID_FLAG_AUTOGROUP;
+    }
     return (*sts < 0) ? NULL : ep;
 }

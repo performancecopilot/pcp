@@ -1,4 +1,7 @@
 QA output created by 022
+proc.autogroup.enabled
+proc.autogroup.id
+proc.autogroup.nice
 proc.control.all.threads
 proc.control.perclient.cgroups
 proc.control.perclient.threads

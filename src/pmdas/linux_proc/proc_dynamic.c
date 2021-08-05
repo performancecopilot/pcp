@@ -39,6 +39,7 @@ enum {
     DYNPROC_GROUP_SCHEDSTAT,
     DYNPROC_GROUP_NAMESPACE,
     DYNPROC_GROUP_SMAPS,
+    DYNPROC_GROUP_AUTOGROUP,
 
     NUM_DYNPROC_GROUPS
 };
@@ -67,6 +68,7 @@ static int proc_hotproc_cluster_list[][2] = {
 	{ CLUSTER_PID_SMAPS,	    CLUSTER_HOTPROC_PID_SMAPS },
 	{ CLUSTER_PID_EXE,	    CLUSTER_HOTPROC_PID_EXE },
 	{ CLUSTER_PID_CWD,	    CLUSTER_HOTPROC_PID_CWD },
+	{ CLUSTER_PID_AUTOGROUP,    CLUSTER_HOTPROC_PID_AUTOGROUP },
 };
 
 
@@ -205,6 +207,12 @@ static dynproc_metric_t namespace_metrics[] = {
         { .name = "envid",  .cluster = CLUSTER_PID_STATUS, .item=42 },
 };
 
+static dynproc_metric_t autogroup_metrics[] = {
+        { .name = "enabled",  .cluster = CLUSTER_PID_AUTOGROUP, .item=0 },
+        { .name = "id",       .cluster = CLUSTER_PID_AUTOGROUP, .item=1 },
+        { .name = "nice",     .cluster = CLUSTER_PID_AUTOGROUP, .item=2 },
+};
+
 static dynproc_metric_t io_metrics[] = {
         { .name = "rchar",		    .cluster = CLUSTER_PID_IO,  .item=0 },
         { .name = "wchar",		    .cluster = CLUSTER_PID_IO,  .item=1 },
@@ -257,6 +265,7 @@ static dynproc_group_t dynproc_groups[] = {
 	[DYNPROC_GROUP_SCHEDSTAT] = { .name = "schedstat",  .metrics = schedstat_metrics,   .nmetrics = sizeof(schedstat_metrics)/sizeof(dynproc_metric_t) },
 	[DYNPROC_GROUP_NAMESPACE] = { .name = "namespaces", .metrics = namespace_metrics,   .nmetrics = sizeof(namespace_metrics)/sizeof(dynproc_metric_t) },
 	[DYNPROC_GROUP_SMAPS]     = { .name = "smaps",	    .metrics = smaps_metrics,	    .nmetrics = sizeof(smaps_metrics)/sizeof(dynproc_metric_t)},
+	[DYNPROC_GROUP_AUTOGROUP] = { .name = "autogroup", .metrics = autogroup_metrics,   .nmetrics = sizeof(autogroup_metrics)/sizeof(dynproc_metric_t) },
 };
 
 /*
@@ -267,9 +276,9 @@ static int
 get_hot_cluster(int proc_cluster)
 {
     int i;
-    int num_mapings = sizeof(proc_hotproc_cluster_list)/(sizeof(int)*2);
+    int num_mappings = sizeof(proc_hotproc_cluster_list)/(sizeof(int)*2);
 
-    for (i = 0; i < num_mapings; i++) {
+    for (i = 0; i < num_mappings; i++) {
 	if (proc_hotproc_cluster_list[i][0] == proc_cluster)
 	    return proc_hotproc_cluster_list[i][1];
     }

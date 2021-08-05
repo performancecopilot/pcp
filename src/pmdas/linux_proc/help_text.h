@@ -151,4 +151,7 @@ help_text_t  help_text[] = {
 { .name = "smaps.swap",    .shorthelp = "Swap size from /proc/<pid>/smaps_rollup", .longhelp = "Swap shows how much would-be-anonymous memory is also used, but out on swap.\nFor shmem mappings, Swap includes also the size of the mapped (and not\nreplaced by copy-on-write) part of the underlying shmem object out on swap.\n" },
 { .name = "smaps.swappss",    .shorthelp = "SwapPss size from /proc/<pid>/smaps_rollup", .longhelp = "SwapPss shows proportional swap share of this mapping. Unlike Swap, this\ndoes not take into account swapped out page of underlying shmem objects." },
 { .name = "smaps.locked",    .shorthelp = "Locked mappings size from /proc/<pid>/smaps_rollup",   .longhelp = "Locked indicates whether the mapping is locked in memory or not." },
+{ .name = "autogroup.enabled",    .shorthelp = "Scheduling autogroup feature for CFS is enabled in the kernel",   .longhelp = "Contents of /proc/sys/kernel/sched_autogroup_enabled as described in sched(7)." },
+{ .name = "autogroup.id",    .shorthelp = "Process autogroup identifier from /proc/<pid>/autogroup",   .longhelp = "Process scheduling autogroup identifier as described in sched(7)." },
+{ .name = "autogroup.nice",    .shorthelp = "Process autogroup nice level from /proc/<pid>/autogroup",   .longhelp = "Process scheduling autogroup nice level as described in sched(7)." },
 };

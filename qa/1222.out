@@ -123,6 +123,9 @@ proc.schedstat.pcount: >10 values
 proc.schedstat.run_delay: >10 values
 proc.schedstat.cpu_time: >10 values
 proc.fd.count: >10 values
+proc.autogroup.nice: >10 values
+proc.autogroup.id: >10 values
+proc.autogroup.enabled: 1 value
 proc.runq.runnable: some values
 proc.runq.blocked: some values
 proc.runq.sleeping: some values

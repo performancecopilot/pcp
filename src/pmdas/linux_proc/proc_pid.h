@@ -202,54 +202,44 @@ typedef struct {
 } proc_pid_smaps_t;
 
 enum {
-    PROC_PID_FLAG_VALID			= 1<<0,
+    PROC_PID_FLAG_VALID		= 1<<0,
 
-    PROC_PID_FLAG_STAT_FETCHED		= 1<<1,
-    PROC_PID_FLAG_STATM_FETCHED		= 1<<2,
-    PROC_PID_FLAG_MAPS_FETCHED		= 1<<3,
-    PROC_PID_FLAG_STATUS_FETCHED	= 1<<4,
-    PROC_PID_FLAG_SCHEDSTAT_FETCHED	= 1<<5,
-    PROC_PID_FLAG_IO_FETCHED		= 1<<6,
-    PROC_PID_FLAG_WCHAN_FETCHED		= 1<<7,
-    PROC_PID_FLAG_FD_FETCHED		= 1<<8,
-    PROC_PID_FLAG_CGROUP_FETCHED	= 1<<9,
-    PROC_PID_FLAG_LABEL_FETCHED		= 1<<10,
-    PROC_PID_FLAG_ENVIRON_FETCHED	= 1<<11,
-    PROC_PID_FLAG_OOM_SCORE_FETCHED	= 1<<12,
-    PROC_PID_FLAG_SMAPS_FETCHED		= 1<<13,
-    PROC_PID_FLAG_CWD_FETCHED		= 1<<14,
-    PROC_PID_FLAG_EXE_FETCHED		= 1<<15,
-
-    PROC_PID_FLAG_STAT_SUCCESS		= 1<<16,
-    PROC_PID_FLAG_STATM_SUCCESS		= 1<<17,
-    PROC_PID_FLAG_MAPS_SUCCESS		= 1<<18,
-    PROC_PID_FLAG_STATUS_SUCCESS	= 1<<19,
-    PROC_PID_FLAG_SCHEDSTAT_SUCCESS	= 1<<20,
-    PROC_PID_FLAG_IO_SUCCESS		= 1<<21,
-    PROC_PID_FLAG_WCHAN_SUCCESS		= 1<<22,
-    PROC_PID_FLAG_FD_SUCCESS		= 1<<23,
-    PROC_PID_FLAG_CGROUP_SUCCESS	= 1<<24,
-    PROC_PID_FLAG_LABEL_SUCCESS		= 1<<25,
-    PROC_PID_FLAG_ENVIRON_SUCCESS	= 1<<26,
-    PROC_PID_FLAG_OOM_SCORE_SUCCESS	= 1<<27,
-    PROC_PID_FLAG_SMAPS_SUCCESS		= 1<<28,
-    PROC_PID_FLAG_CWD_SUCCESS		= 1<<29,
-    PROC_PID_FLAG_EXE_SUCCESS		= 1<<30,
+    PROC_PID_FLAG_STAT		= 1<<1,
+    PROC_PID_FLAG_STATM		= 1<<2,
+    PROC_PID_FLAG_MAPS		= 1<<3,
+    PROC_PID_FLAG_STATUS	= 1<<4,
+    PROC_PID_FLAG_SCHEDSTAT	= 1<<5,
+    PROC_PID_FLAG_IO		= 1<<6,
+    PROC_PID_FLAG_WCHAN		= 1<<7,
+    PROC_PID_FLAG_FD		= 1<<8,
+    PROC_PID_FLAG_CGROUP	= 1<<9,
+    PROC_PID_FLAG_LABEL		= 1<<10,
+    PROC_PID_FLAG_ENVIRON	= 1<<11,
+    PROC_PID_FLAG_OOM_SCORE	= 1<<12,
+    PROC_PID_FLAG_SMAPS		= 1<<13,
+    PROC_PID_FLAG_CWD		= 1<<14,
+    PROC_PID_FLAG_EXE		= 1<<15,
+    PROC_PID_FLAG_AUTOGROUP	= 1<<16,
 };
 
 typedef struct {
     int			id;	/* pid, hash key and internal instance id */
-    int			flags;	/* combinations of PROC_PID_FLAG_* values */
+    int			pad;
+    unsigned int	fetched;   /* PROC_PID_FLAG_* values (sample attempt) */
+    unsigned int	success;   /* PROC_PID_FLAG_* values (sample success) */
     char		*name;	/* full command line and args */
     char		*instname; /* external instance name (truncated <pid> cmdline) */
+
+    /* buffers for which length is held below (here for struct alignment) */
+    char		*maps_buf;
+    char		*wchan_buf;
+    char		*environ_buf;
 
     /* /proc/<pid>/stat cluster */
     proc_pid_stat_t	stat;
 
-    /* /proc/<pid>/statm and /proc/<pid>/maps cluster */
+    /* /proc/<pid>/statm cluster */
     proc_pid_statm_t	statm;
-    size_t		maps_buflen;
-    char		*maps_buf;
 
     /* /proc/<pid>/status cluster */
     proc_pid_status_t	status;
@@ -260,13 +250,17 @@ typedef struct {
     /* /proc/<pid>/io cluster */
     proc_pid_io_t	io;
 
+    /* /proc/<pid>/smaps_rollup cluster */
+    proc_pid_smaps_t	smaps;
+
+    /* /proc/<pid>/maps cluster */
+    size_t		maps_buflen;
+
     /* /proc/<pid>/wchan cluster */
     size_t		wchan_buflen;
-    char		*wchan_buf;
 
     /* /proc/<pid>/environ cluster */
     size_t 		environ_buflen;
-    char		*environ_buf;
 
     /* /proc/<pid>/fd cluster */
     uint32_t		fd_count;
@@ -287,8 +281,9 @@ typedef struct {
     /* /proc/<pid>/exe cluster */
     int			exe_id;
 
-    /* /proc/<pid>/smaps_rollup cluster */
-    proc_pid_smaps_t	smaps;
+    /* /proc/<pid>/autogroup cluster */
+    uint32_t		autogroup_id;
+    int32_t		autogroup_nice;
 } proc_pid_entry_t;
 
 typedef struct {
@@ -371,5 +366,8 @@ extern proc_pid_entry_t *fetch_proc_pid_cwd(int, proc_pid_t *, int *);
 
 /* fetch a proc/<pid>/exe entry for pid */
 extern proc_pid_entry_t *fetch_proc_pid_exe(int, proc_pid_t *, int *);
+
+/* fetch a proc/<pid>/autogroup entry for pid */
+extern proc_pid_entry_t *fetch_proc_pid_autogroup(int, proc_pid_t *, int *);
 
 #endif /* _PROC_PID_H */

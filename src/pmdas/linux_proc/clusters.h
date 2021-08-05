@@ -67,8 +67,10 @@
 #define CLUSTER_HOTPROC_PID_EXE		71 /* /proc/<pid>/exe */
 #define CLUSTER_PID_CWD			72 /* /proc/<pid>/cwd */
 #define CLUSTER_HOTPROC_PID_CWD		73 /* /proc/<pid>/cwd */
+#define CLUSTER_PID_AUTOGROUP		74 /* /proc/<pid>/autogroup */
+#define CLUSTER_HOTPROC_PID_AUTOGROUP	75 /* /proc/<pid>/autogroup */
 
 #define MIN_CLUSTER  8		/* first cluster number we use here */
-#define MAX_CLUSTER 74		/* one more than highest cluster number used */
+#define MAX_CLUSTER 76		/* one more than highest cluster number used */
 
 #endif /* _CLUSTERS_H */

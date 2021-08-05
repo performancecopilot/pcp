@@ -61,6 +61,7 @@ static proc_runq_t		proc_runq;
 static proc_acct_t		proc_acct;
 static int			all_access;	/* =1 no access checks */
 static int			have_access;	/* =1 recvd uid/gid */
+static int			autogroup = -1;	/* =1 autogroup enabled */
 static unsigned int		threads;	/* control.all.threads */
 static char *			cgroups;	/* control.all.cgroups */
 size_t				_pm_system_pagesize;
@@ -522,7 +523,15 @@ static pmdaMetric metrictab[] = {
 /* proc.fd.count */
   { NULL, { PMDA_PMID(CLUSTER_PID_FD,0), PM_TYPE_U32, PROC_INDOM,
     PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
-
+/* proc.autogroup.enabled */
+  { NULL, { PMDA_PMID(CLUSTER_PID_AUTOGROUP,0), PM_TYPE_U32, PM_INDOM_NULL,
+    PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)}},
+/* proc.autogroup.id */
+  { NULL, { PMDA_PMID(CLUSTER_PID_AUTOGROUP,1), PM_TYPE_U32, PROC_INDOM,
+    PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0)}},
+/* proc.autogroup.nice */
+  { NULL, { PMDA_PMID(CLUSTER_PID_AUTOGROUP,2), PM_TYPE_32, PROC_INDOM,
+    PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.runq.runnable */
   { &proc_runq.runnable,
@@ -1338,6 +1347,21 @@ proc_statsfile(const char *path, char *buffer, int size)
     return fopen(buffer, "r");
 }
 
+static void
+refresh_sched_autogroup(void)
+{
+    char path[MAXPATHLEN];
+    FILE *fp;
+
+    if ((fp = proc_statsfile("/proc/sys/kernel/sched_autogroup_enabled",
+			     path, sizeof(path))) == NULL)
+	autogroup = 0;
+    else if (fscanf(fp, "%u", &autogroup) != 1)
+	autogroup = 0;
+    if (fp)
+	fclose(fp);
+}
+
 static int
 proc_refresh(pmdaExt *pmda, int *need_refresh)
 {
@@ -1398,6 +1422,7 @@ proc_refresh(pmdaExt *pmda, int *need_refresh)
 	need_refresh[CLUSTER_PID_CGROUP] ||
 	need_refresh[CLUSTER_PID_SCHEDSTAT] ||
 	need_refresh[CLUSTER_PID_OOM_SCORE] ||
+	need_refresh[CLUSTER_PID_AUTOGROUP] ||
 	need_refresh[CLUSTER_PID_CWD] ||
 	need_refresh[CLUSTER_PID_EXE] ||
 	need_refresh[CLUSTER_PID_FD] ||
@@ -1417,6 +1442,7 @@ proc_refresh(pmdaExt *pmda, int *need_refresh)
         need_refresh[CLUSTER_HOTPROC_PID_CGROUP] ||
         need_refresh[CLUSTER_HOTPROC_PID_SCHEDSTAT] ||
         need_refresh[CLUSTER_HOTPROC_PID_OOM_SCORE] ||
+	need_refresh[CLUSTER_HOTPROC_PID_AUTOGROUP] ||
         need_refresh[CLUSTER_HOTPROC_PID_CWD] ||
         need_refresh[CLUSTER_HOTPROC_PID_EXE] ||
         need_refresh[CLUSTER_HOTPROC_PID_FD] ||
@@ -1446,6 +1472,7 @@ proc_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt 
         need_refresh[CLUSTER_PID_CGROUP]++;
         need_refresh[CLUSTER_PID_SCHEDSTAT]++;
         need_refresh[CLUSTER_PID_OOM_SCORE]++;
+        need_refresh[CLUSTER_PID_AUTOGROUP]++;
         need_refresh[CLUSTER_PID_EXE]++;
         need_refresh[CLUSTER_PID_CWD]++;
         need_refresh[CLUSTER_PID_IO]++;
@@ -1459,6 +1486,7 @@ proc_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt 
         need_refresh[CLUSTER_HOTPROC_PID_CGROUP]++;
         need_refresh[CLUSTER_HOTPROC_PID_SCHEDSTAT]++;
         need_refresh[CLUSTER_HOTPROC_PID_OOM_SCORE]++;
+        need_refresh[CLUSTER_HOTPROC_PID_AUTOGROUP]++;
         need_refresh[CLUSTER_HOTPROC_PID_EXE]++;
         need_refresh[CLUSTER_HOTPROC_PID_CWD]++;
         need_refresh[CLUSTER_HOTPROC_PID_IO]++;
@@ -1748,7 +1776,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	if ((entry = fetch_proc_pid_stat(inst, active_proc_pid, &sts)) == NULL)
 	    return sts;
-	if (!(entry->flags & PROC_PID_FLAG_STAT_SUCCESS))
+	if (!(entry->success & PROC_PID_FLAG_STAT))
 	    return 0;
 
 	switch (item) {
@@ -1955,7 +1983,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	}
 	if ((entry = fetch_proc_pid_statm(inst, active_proc_pid, &sts)) == NULL)
 	    return sts;
-	if (!(entry->flags & PROC_PID_FLAG_STATM_SUCCESS))
+	if (!(entry->success & PROC_PID_FLAG_STATM))
 	    return 0;
 	switch (item) {
 	case 0: /* proc.memory.size */
@@ -1992,7 +2020,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return PM_ERR_PERMISSION;
 	if ((entry = fetch_proc_pid_schedstat(inst, active_proc_pid, &sts)) == NULL)
 	    return sts;
-	if (!(entry->flags & PROC_PID_FLAG_SCHEDSTAT_SUCCESS))
+	if (!(entry->success & PROC_PID_FLAG_SCHEDSTAT))
 	    return 0;
 
 	switch (item) {
@@ -2018,7 +2046,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return PM_ERR_PERMISSION;
 	if ((entry = fetch_proc_pid_io(inst, active_proc_pid, &sts)) == NULL)
 	    return sts;
-	if (!(entry->flags & PROC_PID_FLAG_IO_SUCCESS))
+	if (!(entry->success & PROC_PID_FLAG_IO))
 	    return 0;
 	switch (item) {
 	case 0: /* proc.io.rchar */
@@ -2055,7 +2083,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return PM_ERR_PERMISSION;
 	if ((entry = fetch_proc_pid_smaps(inst, active_proc_pid, &sts)) == NULL)
 	    return PM_ERR_APPVERSION;
-	if (!(entry->flags & PROC_PID_FLAG_SMAPS_SUCCESS))
+	if (!(entry->success & PROC_PID_FLAG_SMAPS))
 	    return 0;
 	switch (item) {
 	case 0: /* proc.smaps.rss */
@@ -2132,7 +2160,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return PM_ERR_PERMISSION;
 	if ((entry = fetch_proc_pid_status(inst, active_proc_pid, &sts)) == NULL)
 		return sts;
-	if (!(entry->flags & PROC_PID_FLAG_STATUS_SUCCESS))
+	if (!(entry->success & PROC_PID_FLAG_STATUS))
 	    return 0;
 
 	switch (item) {
@@ -3215,6 +3243,8 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return PM_ERR_PERMISSION;
 	if ((entry = fetch_proc_pid_fd(inst, active_proc_pid, &sts)) == NULL) /* proc.fd.count */
 	    return sts;
+	if (!(entry->success & PROC_PID_FLAG_FD))
+	    return 0;
 	if (item == 0) /* proc.fd.count */
 	    atom->ul = entry->fd_count;
 	else
@@ -3229,6 +3259,8 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return PM_ERR_PERMISSION;
 	if ((entry = fetch_proc_pid_cgroup(inst, active_proc_pid, &sts)) == NULL)
 	    return sts;
+	if (!(entry->success & PROC_PID_FLAG_CGROUP))
+	    return 0;
 	switch (item) {
 	case 0: /* proc.psinfo.cgroups */
 	    atom->cp = proc_strings_lookup(entry->cgroup_id);
@@ -3249,6 +3281,8 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return PM_ERR_PERMISSION;
 	if ((entry = fetch_proc_pid_label(inst, active_proc_pid, &sts)) == NULL)
 	    return sts;
+	if (!(entry->success & PROC_PID_FLAG_LABEL))
+	    return 0;
 	if (item == 0) /* proc.psinfo.labels */
 	    atom->cp = proc_strings_lookup(entry->label_id);
 	else
@@ -3263,6 +3297,8 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return PM_ERR_PERMISSION;
 	if ((entry = fetch_proc_pid_oom_score(inst, active_proc_pid, &sts)) == NULL)
 	    return sts;
+	if (!(entry->success & PROC_PID_FLAG_OOM_SCORE))
+	    return 0;
 	if (item == 0) /* proc.psinfo.oom_score */
 	    atom->ul = entry->oom_score;
 	else
@@ -3277,6 +3313,8 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return PM_ERR_PERMISSION;
 	if ((entry = fetch_proc_pid_cwd(inst, active_proc_pid, &sts)) == NULL)
 	    return sts;
+	if (!(entry->success & PROC_PID_FLAG_CWD))
+	    return 0;
 	if (item == 0) /* proc.psinfo.cwd */
 	    atom->cp = proc_strings_lookup(entry->cwd_id);
 	else
@@ -3291,6 +3329,8 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return PM_ERR_PERMISSION;
 	if ((entry = fetch_proc_pid_exe(inst, active_proc_pid, &sts)) == NULL)
 	    return sts;
+	if (!(entry->success & PROC_PID_FLAG_EXE))
+	    return 0;
 	if (item == 0) /* proc.psinfo.exe */
 	    atom->cp = proc_strings_lookup(entry->exe_id);
 	else
@@ -3299,6 +3339,32 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
     case CLUSTER_ACCT:
 	return acct_fetchCallBack(inst, item, &proc_acct, atom);
+
+    case CLUSTER_HOTPROC_PID_AUTOGROUP:
+	active_proc_pid = &hotproc_pid;
+	/*FALLTHROUGH*/
+    case CLUSTER_PID_AUTOGROUP:
+	if (!have_access)
+	    return PM_ERR_PERMISSION;
+	if (autogroup == -1)
+	    refresh_sched_autogroup();
+	if (item == 0) { /* proc.autogroup.enabled */
+	    atom->ul = (autogroup == 1);
+	    break;
+	}
+	if (autogroup != 1)	/* sched_autogroup_enabled is zero */
+	    return 0;
+	if (!(entry = fetch_proc_pid_autogroup(inst, active_proc_pid, &sts)))
+	    return sts;
+	if (!(entry->success & PROC_PID_FLAG_AUTOGROUP))
+	    return 0;
+	if (item == 1) /* proc.autogroup.id */
+	    atom->ul = entry->autogroup_id;
+	else if (item == 2) /* proc.autogroup.nice */
+	    atom->l = entry->autogroup_nice;
+	else
+	    return PM_ERR_PMID;
+	break;
 
     case CLUSTER_CONTROL:
 	switch (item) {
@@ -3332,6 +3398,7 @@ proc_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	if (cluster >= MIN_CLUSTER && cluster < MAX_CLUSTER)
 	    need_refresh[cluster]++;
     }
+    autogroup = -1;	/* reset, state not known for this fetch */
 
     have_access = all_access || proc_ctx_access(pmda->e_context);
     if (pmDebugOptions.auth)
