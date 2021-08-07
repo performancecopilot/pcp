@@ -69,7 +69,7 @@ get_ncpu(void)
     pmAtomValue	atom;
     int		sts;
 
-    if ((sts = pmLookupName(1, pmclient_init, pmidlist)) < 0) {
+    if ((sts = pmLookupName(1, (const char **)pmclient_init, pmidlist)) < 0) {
 	fprintf(stderr, "%s: pmLookupName: %s\n", pmGetProgname(), pmErrStr(sts));
 	fprintf(stderr, "%s: metric \"%s\" not in name space\n",
 			pmGetProgname(), pmclient_init[0]);
@@ -127,7 +127,7 @@ get_sample(info_t *ip)
 	    fprintf(stderr, "%s: get_sample: malloc: %s\n", pmGetProgname(), osstrerror());
 	    exit(1);
 	}
-	if ((sts = pmLookupName(numpmid, pmclient_sample, pmidlist)) < 0) {
+	if ((sts = pmLookupName(numpmid, (const char **)pmclient_sample, pmidlist)) < 0) {
 	    printf("%s: pmLookupName: %s\n", pmGetProgname(), pmErrStr(sts));
 	    for (i = 0; i < numpmid; i++) {
 		if (pmidlist[i] == PM_ID_NULL)
