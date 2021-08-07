@@ -71,6 +71,11 @@ fi
 echo "expect success ..."
 pmprobe hinv.ncpu
 
+# This test has 3 (re)starts, so we need it to run for (at least)
+# 6 seconds to avoid hitting the systemd StartLimit* limits
+#
+sleep 6
+
 # success, all done
 status=0
 exit
