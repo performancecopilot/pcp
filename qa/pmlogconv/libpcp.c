@@ -357,7 +357,7 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
 		}/*for*/
             }/*version2*/
 	}
-	else if (h.type == TYPE_INDOM) {
+	else if (h.type == TYPE_INDOM_V2) {
 	    int			*tbuf;
 	    pmInDom		indom;
 	    pmTimeval		*when;

@@ -533,7 +533,7 @@ main(int argc, char *argv[])
 	}
 
 	switch (hdr.type) {
-	    case TYPE_INDOM:
+	    case TYPE_INDOM_V2:
 		do_indom(buf);
 		break;
 

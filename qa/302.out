@@ -30,10 +30,10 @@ InDom: 2.1
    4534 or "4534"
 
 Temporal Index
-		Log Vol    end(meta)     end(log)
-14:46:47.148842	      0          132          132
-14:46:48.210755	      0          414          328
-14:46:52.145979	      0          455          824
+			Log Vol    end(meta)     end(log)
+14:46:47.148842000	      0          132          132
+14:46:48.210755000	      0          414          328
+14:46:52.145979000	      0          455          824
 
 14:46:47.148842 3 metrics
     2.3.3 (pmcd.pmlogger.host): inst [4530 or "4530"] value "ha2.melbourne.sgi.com"

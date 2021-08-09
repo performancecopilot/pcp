@@ -51,9 +51,9 @@ InDom: 30.2
    900 or "bin-900"
 
 Temporal Index
-		Log Vol    end(meta)     end(log)
-00:00:00.000000	      0          132          132
-00:00:06.000000	      0          659          904
+			Log Vol    end(meta)     end(log)
+00:00:00.000000000	      0          132          132
+00:00:06.000000000	      0          659          904
 
 [40 bytes]
 00:00:01.000000 1 metric
@@ -155,9 +155,9 @@ InDom: 30.2
    900 or "bin-900"
 
 Temporal Index
-		Log Vol    end(meta)     end(log)
-00:00:00.000000	      0          132          132
-00:00:06.000000	      0          659          904
+			Log Vol    end(meta)     end(log)
+00:00:00.000000000	      0          132          132
+00:00:06.000000000	      0          659          904
 
 [40 bytes]
 00:00:01.000000 1 metric

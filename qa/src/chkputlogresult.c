@@ -34,6 +34,7 @@ main(int argc, char **argv)
     __pmArchCtl	archctl;
     __pmPDU	*pdp;
     pmTimeval	epoch = { 0, 0 };
+    __pmTimestamp	stamp;
     int		numinst;
     int		*ilist;
     char	**nlist;
@@ -119,7 +120,9 @@ Options:\n\
 
     __pmFflush(archctl.ac_mfp);
     __pmFflush(logctl.l_mdfp);
-    __pmLogPutIndex(&archctl, &epoch);
+    stamp.ts_sec = epoch.tv_sec;
+    stamp.ts_nsec = epoch.tv_usec * 1000;
+    __pmLogPutIndex(&archctl, &stamp);
 
     pmids = (pmID *)malloc(nmetric*sizeof(pmID));
     assert(pmids != NULL);
@@ -180,7 +183,9 @@ Options:\n\
 
     __pmFflush(archctl.ac_mfp);
     __pmFflush(logctl.l_mdfp);
-    __pmLogPutIndex(&archctl, &epoch);
+    stamp.ts_sec = epoch.tv_sec;
+    stamp.ts_nsec = epoch.tv_usec * 1000;
+    __pmLogPutIndex(&archctl, &stamp);
 
     return 0;
 }

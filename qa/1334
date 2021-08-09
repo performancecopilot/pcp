@@ -53,7 +53,22 @@ _filter()
     | sed -n -e '/^[0-2][0-9]:/s/[ 	].*//p' \
     | LC_COLLATE=POSIX sort -n \
     | uniq \
-    | $PCP_AWK_PROG '{ print "s/^" $1 "\\([ 	]\\)/STAMP-" NR "\\1/" }' >$tmp.sed
+    | $PCP_AWK_PROG >$tmp.sed '
+BEGIN	{ ns = 1; last = "" }
+	{ if ($1 ~ /000$/) {
+	    # nsec timestamp, but with usec precision
+	    save = $1
+	    sub(/000$/, "0*", $1)
+	    sub(/000$/, "", save)
+	    if (save == last)
+		ns--
+	  }
+	  print "s/^" $1 "\\([ 	]\\)/STAMP-" ns "\\1/"
+	  ns++
+	  last = $1
+	}'
+    echo "--- tmp.sed ---" >>$seq.full
+    cat $tmp.sed >>$seq.full
     sed -f $tmp.sed $tmp.out \
     | sed \
 	-e "s/`hostname`/LOCALHOST/g" \

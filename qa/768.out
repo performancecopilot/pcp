@@ -23,10 +23,10 @@ InDom: 3.9
    1533 or "001533 /usr/bin/python /ifs/user/tyearke/test/wait.py"
 
 Temporal Index
-		Log Vol    end(meta)     end(log)
-15:52:44.652242	      0          132          132
-15:53:14.653792	      0          350          180
-15:54:14.652514	      0          513          276
+			Log Vol    end(meta)     end(log)
+15:52:44.652242000	      0          132          132
+15:53:14.653792000	      0          350          180
+15:54:14.652514000	      0          513          276
 
 [48 bytes]
 15:52:44.652242 1 metric

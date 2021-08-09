@@ -23,7 +23,7 @@
 # 186	record trailer len
 # 190	start indom 2.1
 # 	+0 record header len (41)
-# 	+4 type (2, TYPE_INDOM)
+# 	+4 type (2, TYPE_INDOM_V2)
 # ...
 # 231	start metric pmcd.pmlogger.port
 # ...

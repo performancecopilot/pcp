@@ -248,7 +248,7 @@ main(int argc, char **argv)
     check("__pmValueSet_PDU", sizeof(__pmValueSet_PDU), 5*INT);
     check("__pmLogHdr", sizeof(__pmLogHdr), 2*INT);
     check("__pmLogLabel", sizeof(__pmLogLabel), 5*INT+PM_LOG_MAXHOSTLEN+PM_TZ_MAXLEN);
-    check("__pmLogTI", sizeof(__pmLogTI), 5*INT);
+    check("__pmLogTI", sizeof(__pmLogTI), 10*INT);
     check("__pmLoggerStatus", sizeof(__pmLoggerStatus), 10*INT+PM_LOG_MAXHOSTLEN+PM_LOG_MAXHOSTLEN+PM_TZ_MAXLEN+PM_TZ_MAXLEN);
 
     printf("\np_*.c files in libpcp\n");

@@ -84,14 +84,23 @@ _do_time()
     | LC_COLLATE=POSIX sort -u \
     | while read time
     do
+	case "$time"
+	in
+	    *000)	# nsec precision, but usec value
+			time=`echo "$time" | sed -e 's/\(.*\)000/\1/'`
+			;;
+	esac
     	if grep $time $tmp.sed >/dev/null
 	then
 	    :
 	else
-	    echo "s/$time/TIMESTAMP-$tstamp/g" >>$tmp.sed
+	    # new timestamp, match optionally with trailing zeroes
+	    echo "s/${time}0*/TIMESTAMP-$tstamp/g" >>$tmp.sed
 	    tstamp=`expr $tstamp + 1`
 	fi
     done
+
+    cat $tmp.sed >>$seq.full
 
     sed -f $tmp.sed $tmp.tmp \
     | $PCP_AWK_PROG '

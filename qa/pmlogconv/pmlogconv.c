@@ -150,7 +150,7 @@ nextrec(void)
 	if (ntohl(this->tv_sec) < current.tv_sec ||
 	    (ntohl(this->tv_sec) == current.tv_sec && ntohl(this->tv_usec) <= current.tv_usec)) {
 		inarch.pick[LOG] = 0;
-		inarch.pick[META] = TYPE_INDOM;
+		inarch.pick[META] = TYPE_INDOM_V2;
 		pick = 0;
 		current.tv_sec = ntohl(this->tv_sec);
 		current.tv_usec = ntohl(this->tv_usec);

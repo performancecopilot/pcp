@@ -43,9 +43,9 @@ pmdumplog diffs ...
     21308 or "21308"
  
  Temporal Index
- 		Log Vol    end(meta)     end(log)
--09:33:24.637736	      0          132          132
-+22:33:24.637736	      0          132          132
+ 			Log Vol    end(meta)     end(log)
+-09:33:24.637736000	      0          132          132
++22:33:24.637736000	      0          132          132
  
  [136 bytes]
 -09:33:24.637736 3 metrics
@@ -80,9 +80,9 @@ pmdumplog diffs ...
     21308 or "21308"
  
  Temporal Index
- 		Log Vol    end(meta)     end(log)
--09:33:24.637736	      0          132          132
-+19:53:54.637736	      0          132          132
+ 			Log Vol    end(meta)     end(log)
+-09:33:24.637736000	      0          132          132
++19:53:54.637736000	      0          132          132
  
  [136 bytes]
 -09:33:24.637736 3 metrics
@@ -117,9 +117,9 @@ pmdumplog diffs ...
     21308 or "21308"
  
  Temporal Index
- 		Log Vol    end(meta)     end(log)
--09:33:24.637736	      0          132          132
-+19:53:54.637736	      0          132          132
+ 			Log Vol    end(meta)     end(log)
+-09:33:24.637736000	      0          132          132
++19:53:54.637736000	      0          132          132
  
  [136 bytes]
 -09:33:24.637736 3 metrics
@@ -154,9 +154,9 @@ pmdumplog diffs ...
     21308 or "21308"
  
  Temporal Index
- 		Log Vol    end(meta)     end(log)
--09:33:24.637736	      0          132          132
-+23:12:54.637736	      0          132          132
+ 			Log Vol    end(meta)     end(log)
+-09:33:24.637736000	      0          132          132
++23:12:54.637736000	      0          132          132
  
  [136 bytes]
 -09:33:24.637736 3 metrics
@@ -196,9 +196,9 @@ pmdumplog diffs ...
     21308 or "21308"
  
  Temporal Index
- 		Log Vol    end(meta)     end(log)
--09:33:24.637736	      0          132          132
-+00:00:00.000736	      0          132          132
+ 			Log Vol    end(meta)     end(log)
+-09:33:24.637736000	      0          132          132
++00:00:00.000736000	      0          132          132
  
  [136 bytes]
 -09:33:24.637736 3 metrics

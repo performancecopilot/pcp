@@ -109,14 +109,21 @@ func_A(void *arg)
 	    pthread_exit("botch A.6");
 	}
 
-	(void)write(f, "Answer: ", strlen("Answer: "));
+	sts = write(f, "Answer: ", strlen("Answer: "));
+	if (sts != strlen("Answer: "))
+	    fprintf(stderr, "write: botch #1: %d != %zd\n", sts, strlen("Answer: "));
 	lastc = EOF;
 	while (read(fileno(fp), &c, 1) == 1) {
-	    (void)write(f, &c, 1);
+	    sts = write(f, &c, 1);
+	    if (sts != 1)
+		fprintf(stderr, "write: botch #2: %d != %d\n", sts, 1);
 	    lastc = c;
 	}
-	if (lastc != '\n')
-	    (void)write(f, "\n", 1);
+	if (lastc != '\n') {
+	    sts = write(f, "\n", 1);
+	    if (sts != 1)
+		fprintf(stderr, "write: botch #3: %d != %d\n", sts, 1);
+	}
 	if ((sts = __pmProcessPipeClose(fp) < 0)) {
 	    fprintf(stderr, "[tid %d] Error: func_A: __pmProcessPipeClose() -> %s\n", iam, pmErrStr_r(sts, strbuf, sizeof(strbuf)));
 	    pthread_exit("botch A.7");
@@ -214,14 +221,21 @@ func_B(void *arg)
 	    pthread_exit("botch B.7");
 	}
 
-	(void)write(f, "Answer: ", strlen("Answer: "));
+	sts = write(f, "Answer: ", strlen("Answer: "));
+	if (sts != strlen("Answer: "))
+	    fprintf(stderr, "write: botch #4: %d != %zd\n", sts, strlen("Answer: "));
 	lastc = EOF;
 	while (read(fd, &c, 1) == 1) {
-	    (void)write(f, &c, 1);
+	    sts = write(f, &c, 1);
+	    if (sts != 1)
+		fprintf(stderr, "write: botch #5: %d != %d\n", sts, 1);
 	    lastc = c;
 	}
-	if (lastc != '\n')
-	    (void)write(f, "\n", 1);
+	if (lastc != '\n') {
+	    sts = write(f, "\n", 1);
+	    if (sts != 1)
+		fprintf(stderr, "write: botch #6: %d != %d\n", sts, 1);
+	}
 	close(fd);
 	if (argp != NULL) {
 	    fprintf(stderr, "[tid %d] Error: func_B: argp not NULL after __pmProcessExec()\n", iam);
@@ -273,14 +287,21 @@ func_C(void *arg)
 	    pthread_exit("botch C.3");
 	}
 
-	(void)write(f, "Answer: ", strlen("Answer: "));
+	sts = write(f, "Answer: ", strlen("Answer: "));
+	if (sts != strlen("Answer: "))
+	    fprintf(stderr, "write: botch #7: %d != %zd\n", sts, strlen("Answer: "));
 	lastc = EOF;
 	while ((c = fgetc(fp)) != EOF) {
-	    (void)write(f, (char *)&c, 1);
+	    sts = write(f, (char *)&c, 1);
+	    if (sts != 1)
+		fprintf(stderr, "write: botch #8: %d != %d\n", sts, 1);
 	    lastc = c;
 	}
-	if (lastc != '\n')
-	    (void)write(f, "\n", 1);
+	if (lastc != '\n') {
+	    sts = write(f, "\n", 1);
+	    if (sts != 1)
+		fprintf(stderr, "write: botch #9: %d != %d\n", sts, 1);
+	}
 	if ((sts = __pmProcessPipeClose(fp) < 0)) {
 	    fprintf(stderr, "[tid %d] Warning: func_C: __pmProcessPipeClose() -> %s\n", iam, pmErrStr_r(sts, strbuf, sizeof(strbuf)));
 	}
@@ -363,14 +384,20 @@ func_D(void *arg)
 	    pthread_exit("botch D.6");
 	}
 
-	(void)write(f, "Answer: ", strlen("Answer: "));
+	sts = write(f, "Answer: ", strlen("Answer: "));
+	if (sts != strlen("Answer: "))
+	    fprintf(stderr, "write: botch #10: %d != %zd\n", sts, strlen("Answer: "));
 	lastc = EOF;
 	while (read(fileno(fp), &c, 1) == 1) {
-	    (void)write(f, &c, 1);
+	    sts = write(f, &c, 1);
+	    if (sts != 1)
+		fprintf(stderr, "write: botch #11: %d != %d\n", sts, 1);
 	    lastc = c;
 	}
 	if (lastc != '\n') {
-	    (void)write(f, "\n", 1);
+	    sts = write(f, "\n", 1);
+	    if (sts != 1)
+		fprintf(stderr, "write: botch #12: %d != %d\n", sts, 1);
 	}
 	if ((sts = __pmProcessPipeClose(fp) < 0)) {
 	    fprintf(stderr, "[tid %d] Error: func_D: __pmProcessPipeClose() -> %s\n", iam, pmErrStr_r(sts, strbuf, sizeof(strbuf)));
