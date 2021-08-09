@@ -1744,8 +1744,8 @@ main(int argc, char **argv)
 
 	if (ti_idx < inarch.ctxp->c_archctl->ac_log->l_numti) {
 	    __pmLogTI	*tip = &inarch.ctxp->c_archctl->ac_log->l_ti[ti_idx];
-	    if (tip->ti_stamp.ts_sec == inarch.rp->timestamp.tv_sec &&
-	        tip->ti_stamp.ts_nsec == inarch.rp->timestamp.tv_usec * 1000) {
+	    if (tip->stamp.sec == inarch.rp->timestamp.tv_sec &&
+	        tip->stamp.nsec == inarch.rp->timestamp.tv_usec * 1000) {
 		/*
 		 * timestamp on input pmResult matches next temporal index
 		 * entry for input archive ... make sure matching temporal
@@ -1902,8 +1902,8 @@ main(int argc, char **argv)
 	    needti = 1;
 	}
 
-	tstamp.ts_sec = inarch.rp->timestamp.tv_sec;
-	tstamp.ts_nsec = inarch.rp->timestamp.tv_usec * 1000;
+	tstamp.sec = inarch.rp->timestamp.tv_sec;
+	tstamp.nsec = inarch.rp->timestamp.tv_usec * 1000;
 
 	if (needti) {
 	    __pmFflush(outarch.logctl.l_mdfp);

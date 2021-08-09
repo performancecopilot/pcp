@@ -1053,8 +1053,8 @@ do_work(task_t *tp)
 	    assert(new_meta_offset >= 0);
 	    __pmFseek(archctl.ac_mfp, last_log_offset, SEEK_SET);
 	    __pmFseek(logctl.l_mdfp, old_meta_offset, SEEK_SET);
-	    stamp.ts_sec = (__int32_t)resp->timestamp.tv_sec;
-	    stamp.ts_nsec = (__int32_t)resp->timestamp.tv_usec * 1000;
+	    stamp.sec = (__int32_t)resp->timestamp.tv_sec;
+	    stamp.nsec = (__int32_t)resp->timestamp.tv_usec * 1000;
 	    __pmLogPutIndex(&archctl, &stamp);
 	    /*
 	     * ... and put them back

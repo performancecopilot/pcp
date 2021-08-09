@@ -111,8 +111,8 @@ run_done(int sts, char *msg)
      */
     if (last_stamp.tv_sec != 0) {
 	__pmTimestamp	tmp;
-	tmp.ts_sec = (__int32_t)last_stamp.tv_sec;
-	tmp.ts_nsec = (__int32_t)last_stamp.tv_usec * 1000;;
+	tmp.sec = (__int32_t)last_stamp.tv_sec;
+	tmp.nsec = (__int32_t)last_stamp.tv_usec * 1000;;
 	if (last_log_offset < sizeof(__pmLogLabel)+2*sizeof(int)) {
 	    fprintf(stderr, "run_done: Botch: last_log_offset = %ld\n", (long)last_log_offset);
 	}

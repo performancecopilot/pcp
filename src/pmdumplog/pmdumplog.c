@@ -140,8 +140,8 @@ dump_pmTimeval(pmTimeval *tvp)
 static void
 dump_pmTimestamp(__pmTimestamp *tsp)
 {
-    time_t	time = tsp->ts_sec;
-    int		nsec = (int)tsp->ts_nsec;
+    time_t	time = tsp->sec;
+    int		nsec = (int)tsp->nsec;
     char	*yr = NULL;
     char       	*ddmm;
     struct tm	tm;
@@ -161,8 +161,8 @@ dump_pmTimestamp(__pmTimestamp *tsp)
 	printf(" (%.9f)", __pmTimestampSub(tsp, &label.ll_start));
 #else
 	__pmTimestamp	start;
-	start.ts_sec = label.ll_start.tv_sec;
-	start.ts_nsec = label.ll_start.tv_usec * 1000;
+	start.sec = label.ll_start.tv_sec;
+	start.nsec = label.ll_start.tv_usec * 1000;
 	printf(" (%.9f)", __pmTimestampSub(tsp, &start));
 #endif
     }
@@ -912,9 +912,9 @@ dumpTI(__pmContext *ctxp)
 
     for (i = 0; i < lcp->l_numti; i++) {
 	tip = &lcp->l_ti[i];
-	dump_pmTimestamp(&tip->ti_stamp);
-	printf("\t  %5d  %11lld  %11lld\n", tip->ti_vol,
-		(long long)tip->ti_meta, (long long)tip->ti_log);
+	dump_pmTimestamp(&tip->stamp);
+	printf("\t  %5d  %11lld  %11lld\n", tip->vol,
+		(long long)tip->off_meta, (long long)tip->off_data);
 	if (i == 0) {
 	    pmsprintf(path, sizeof(path), "%s.meta", lcp->l_name);
 	    if (__pmStat(path, &sbuf) == 0)
@@ -922,21 +922,21 @@ dumpTI(__pmContext *ctxp)
 	    else
 		meta_size = -1;
 	}
-	if (lastp == NULL || tip->ti_vol != lastp->ti_vol) { 
-	    pmsprintf(path, sizeof(path), "%s.%d", lcp->l_name, tip->ti_vol);
+	if (lastp == NULL || tip->vol != lastp->vol) { 
+	    pmsprintf(path, sizeof(path), "%s.%d", lcp->l_name, tip->vol);
 	    if (__pmStat(path, &sbuf) == 0)
 		log_size = sbuf.st_size;
 	    else {
 		log_size = -1;
 		printf("\t\tWarning: file missing for log volume %d\n",
-				tip->ti_vol);
+				tip->vol);
 	    }
 	}
 	/*
 	 * Integrity Errors
 	 *
-	 * this(ts_sec) < 0
-	 * this(ts_nsec) < 0 || this(ts_nsec) > 999999999
+	 * this(sec) < 0
+	 * this(nsec) < 0 || this(nsec) > 999999999
 	 * this(timestamp) < last(timestamp)
 	 * this(vol) < last(vol)
 	 * this(vol) == last(vol) && this(meta) <= last(meta)
@@ -949,29 +949,29 @@ dumpTI(__pmContext *ctxp)
 	 *
 	 * this(vol) != last(vol) && !file_exists(<base>.this(vol))
 	 */
-	if (tip->ti_stamp.ts_sec < 0 ||
-	    tip->ti_stamp.ts_nsec < 0 || tip->ti_stamp.ts_nsec > 999999999)
+	if (tip->stamp.sec < 0 ||
+	    tip->stamp.nsec < 0 || tip->stamp.nsec > 999999999)
 	    printf("\t\tError: illegal timestamp value (%" FMT_INT64 " sec, %d nsec)\n",
-		tip->ti_stamp.ts_sec, tip->ti_stamp.ts_nsec);
-	if (meta_size != -1 && tip->ti_meta > meta_size)
+		tip->stamp.sec, tip->stamp.nsec);
+	if (meta_size != -1 && tip->off_meta > meta_size)
 	    printf("\t\tError: offset to meta file past end of file (%zd)\n",
 		meta_size);
-	if (log_size != -1 && tip->ti_log > log_size)
+	if (log_size != -1 && tip->off_data > log_size)
 	    printf("\t\tError: offset to log file past end of file (%zd)\n",
 		log_size);
 	if (i > 0) {
-	    if (tip->ti_stamp.ts_sec < lastp->ti_stamp.ts_sec ||
-	        (tip->ti_stamp.ts_sec == lastp->ti_stamp.ts_sec &&
-	         tip->ti_stamp.ts_nsec < lastp->ti_stamp.ts_nsec))
+	    if (tip->stamp.sec < lastp->stamp.sec ||
+	        (tip->stamp.sec == lastp->stamp.sec &&
+	         tip->stamp.nsec < lastp->stamp.nsec))
 		printf("\t\tError: timestamp went backwards in time "
 			"%" FMT_INT64 ".%09d -> %" FMT_INT64 ".%09d\n",
-			lastp->ti_stamp.ts_sec, lastp->ti_stamp.ts_nsec,
-			tip->ti_stamp.ts_sec, tip->ti_stamp.ts_nsec);
-	    if (tip->ti_vol < lastp->ti_vol)
+			lastp->stamp.sec, lastp->stamp.nsec,
+			tip->stamp.sec, tip->stamp.nsec);
+	    if (tip->vol < lastp->vol)
 		printf("\t\tError: volume number decreased\n");
-	    if (tip->ti_vol == lastp->ti_vol && tip->ti_meta < lastp->ti_meta)
+	    if (tip->vol == lastp->vol && tip->off_meta < lastp->off_meta)
 		printf("\t\tError: offset to meta file decreased\n");
-	    if (tip->ti_vol == lastp->ti_vol && tip->ti_log < lastp->ti_log)
+	    if (tip->vol == lastp->vol && tip->off_data < lastp->off_data)
 		printf("\t\tError: offset to log file decreased\n");
 	}
 	lastp = tip;

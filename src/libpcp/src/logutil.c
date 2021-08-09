@@ -446,27 +446,27 @@ __pmLogLoadIndex(__pmLogCtl *lcp)
 	     */
 	    if (__pmLogVersion(lcp) >= PM_LOG_VERS03) {
 		__pmExtTI_v3	*tip_v3 = (__pmExtTI_v3 *)buffer;
-		__htonll((char *)&tip_v3->ti_sec);
-		tip_v3->ti_nsec = ntohl(tip_v3->ti_nsec);
-		tip_v3->ti_vol = ntohl(tip_v3->ti_vol);
-		__htonll((char *)&tip_v3->ti_meta);
-		__htonll((char *)&tip_v3->ti_log);
+		__htonll((char *)&tip_v3->sec);
+		tip_v3->nsec = ntohl(tip_v3->nsec);
+		tip_v3->vol = ntohl(tip_v3->vol);
+		__htonll((char *)&tip_v3->off_meta);
+		__htonll((char *)&tip_v3->off_data);
 		/* sizes are the same, so copy whole index entry */
 assert(sizeof(__pmExtTI_v3) == sizeof(__pmLogTI));
 		memcpy(tip, tip_v3, record_size);
 	    }
 	    else {
 		__pmExtTI_v2	*tip_v2 = (__pmExtTI_v2 *)buffer;
-		tip_v2->ti_sec = ntohl(tip_v2->ti_sec);
-		tip_v2->ti_usec = ntohl(tip_v2->ti_usec);
-		tip_v2->ti_vol = ntohl(tip_v2->ti_vol);
-		tip_v2->ti_meta = ntohl(tip_v2->ti_meta);
-		tip_v2->ti_log = ntohl(tip_v2->ti_log);
-		tip->ti_stamp.ts_sec = tip_v2->ti_sec;
-		tip->ti_stamp.ts_nsec = tip_v2->ti_usec * 1000;
-		tip->ti_vol = tip_v2->ti_vol;
-		tip->ti_meta = tip_v2->ti_meta;
-		tip->ti_log = tip_v2->ti_log;
+		tip_v2->sec = ntohl(tip_v2->sec);
+		tip_v2->usec = ntohl(tip_v2->usec);
+		tip_v2->vol = ntohl(tip_v2->vol);
+		tip_v2->off_meta = ntohl(tip_v2->off_meta);
+		tip_v2->off_data = ntohl(tip_v2->off_data);
+		tip->stamp.sec = tip_v2->sec;
+		tip->stamp.nsec = tip_v2->usec * 1000;
+		tip->vol = tip_v2->vol;
+		tip->off_meta = tip_v2->off_meta;
+		tip->off_data = tip_v2->off_data;
 	    }
 
 	    lcp->l_numti++;
@@ -1167,7 +1167,7 @@ cleanup:
 }
 
 /*
- * This condition (ti_log == 0) been seen in QA where pmlogger churns
+ * This condition (off_data == 0) been seen in QA where pmlogger churns
  * quickly ... trying to understand why using this diagnostic.
  */
 static void
@@ -1194,26 +1194,26 @@ __pmLogPutIndex_v3(const __pmArchCtl *acp, const __pmTimestamp *ts)
     size_t		bytes;
     __pmExtTI_v3	ti;
 
-    ti.ti_sec = (__uint64_t)ts->ts_sec;
-    ti.ti_nsec = (__uint32_t)ts->ts_nsec;
-    ti.ti_vol = acp->ac_curvol;
-    ti.ti_meta = (__pmoff64_t)__pmFtell(lcp->l_mdfp);
-    ti.ti_log = (__pmoff64_t)__pmFtell(acp->ac_mfp);
+    ti.sec = (__uint64_t)ts->sec;
+    ti.nsec = (__uint32_t)ts->nsec;
+    ti.vol = acp->ac_curvol;
+    ti.off_meta = (__pmoff64_t)__pmFtell(lcp->l_mdfp);
+    ti.off_data = (__pmoff64_t)__pmFtell(acp->ac_mfp);
 
-    if (ti.ti_log == 0)
+    if (ti.off_data == 0)
 	__pmLogIndexZeroTILogDiagnostic(acp);
 
     if (pmDebugOptions.log)
 	fprintf(stderr, "%s: "
 		"timestamp=%" FMT_INT64 ".09%d vol=%d meta posn=%" FMT_INT64 " log posn=%" FMT_INT64 "\n",
 	    "__pmLogPutIndex",
-	    ti.ti_sec, ti.ti_nsec, ti.ti_vol, ti.ti_meta, ti.ti_log);
+	    ti.sec, ti.nsec, ti.vol, ti.off_meta, ti.off_data);
 
-    __htonll((char *)&ti.ti_sec);
-    ti.ti_nsec = htonl(ti.ti_nsec);
-    ti.ti_vol = htonl(ti.ti_vol);
-    __htonll((char *)&ti.ti_meta);
-    __htonll((char *)&ti.ti_log);
+    __htonll((char *)&ti.sec);
+    ti.nsec = htonl(ti.nsec);
+    ti.vol = htonl(ti.vol);
+    __htonll((char *)&ti.off_meta);
+    __htonll((char *)&ti.off_data);
 
     bytes = __pmFwrite(&ti, 1, sizeof(ti), lcp->l_tifp);
     if (bytes != sizeof(ti)) {
@@ -1240,9 +1240,9 @@ __pmLogPutIndex_v2(const __pmArchCtl *acp, const __pmTimestamp *ts)
     size_t		bytes;
     __pmExtTI_v2	ti;
 
-    ti.ti_sec = (__uint32_t)ts->ts_sec;
-    ti.ti_usec = (__uint32_t)ts->ts_nsec / 1000;
-    ti.ti_vol = acp->ac_curvol;
+    ti.sec = (__uint32_t)ts->sec;
+    ti.usec = (__uint32_t)ts->nsec / 1000;
+    ti.vol = acp->ac_curvol;
 
     if (sizeof(off_t) > sizeof(__pmoff32_t)) {
 	/* check for overflow of the offset ... */
@@ -1250,40 +1250,40 @@ __pmLogPutIndex_v2(const __pmArchCtl *acp, const __pmTimestamp *ts)
 
 	tmp = __pmFtell(lcp->l_mdfp);
 	assert(tmp >= 0);
-	ti.ti_meta = (__pmoff32_t)tmp;
-	if (tmp != ti.ti_meta) {
+	ti.off_meta = (__pmoff32_t)tmp;
+	if (tmp != ti.off_meta) {
 	    pmNotifyErr(LOG_ERR, "%s: PCP archive file (%s) too big\n",
 			"__pmLogPutIndex", "meta");
 	    return -E2BIG;
 	}
 	tmp = __pmFtell(acp->ac_mfp);
 	assert(tmp >= 0);
-	ti.ti_log = (__pmoff32_t)tmp;
-	if (tmp != ti.ti_log) {
+	ti.off_data = (__pmoff32_t)tmp;
+	if (tmp != ti.off_data) {
 	    pmNotifyErr(LOG_ERR, "%s: PCP archive file (%s) too big\n",
 			"__pmLogPutIndex", "data");
 	    return -E2BIG;
 	}
     }
     else {
-	ti.ti_meta = (__pmoff32_t)__pmFtell(lcp->l_mdfp);
-	ti.ti_log = (__pmoff32_t)__pmFtell(acp->ac_mfp);
+	ti.off_meta = (__pmoff32_t)__pmFtell(lcp->l_mdfp);
+	ti.off_data = (__pmoff32_t)__pmFtell(acp->ac_mfp);
     }
 
-    if (ti.ti_log == 0)
+    if (ti.off_data == 0)
 	__pmLogIndexZeroTILogDiagnostic(acp);
 
     if (pmDebugOptions.log) {
 	fprintf(stderr, "%s: timestamp=%d.06%d vol=%d meta posn=%d log posn=%d\n",
 	    "__pmLogPutIndex",
-	    ti.ti_sec, ti.ti_usec, ti.ti_vol, ti.ti_meta, ti.ti_log);
+	    ti.sec, ti.usec, ti.vol, ti.off_meta, ti.off_data);
     }
 
-    ti.ti_sec = htonl(ti.ti_sec);
-    ti.ti_usec = htonl(ti.ti_usec);
-    ti.ti_vol = htonl(ti.ti_vol);
-    ti.ti_meta = htonl(ti.ti_meta);
-    ti.ti_log = htonl(ti.ti_log);
+    ti.sec = htonl(ti.sec);
+    ti.usec = htonl(ti.usec);
+    ti.vol = htonl(ti.vol);
+    ti.off_meta = htonl(ti.off_meta);
+    ti.off_data = htonl(ti.off_data);
 
     bytes = __pmFwrite(&ti, 1, sizeof(ti), lcp->l_tifp);
     if (bytes != sizeof(ti)) {
@@ -1322,8 +1322,8 @@ __pmLogPutIndex(const __pmArchCtl *acp, const __pmTimestamp *ts)
 
     if (ts == NULL) {
 	pmtimespecNow(&tmp);
-	stamp.ts_sec = tmp.tv_sec;
-	stamp.ts_nsec = tmp.tv_nsec;
+	stamp.sec = tmp.tv_sec;
+	stamp.nsec = tmp.tv_nsec;
 	ts = &stamp;
     }
 
@@ -2427,7 +2427,7 @@ static int
 VolSkip(__pmArchCtl *acp, int mode, int j)
 {
     __pmLogCtl	*lcp = acp->ac_log;
-    int		vol = lcp->l_ti[j].ti_vol;
+    int		vol = lcp->l_ti[j].vol;
 
     while (lcp->l_minvol <= vol && vol <= lcp->l_maxvol) {
 	if (__pmLogChangeVol(acp, vol) >= 0)
@@ -2436,19 +2436,19 @@ VolSkip(__pmArchCtl *acp, int mode, int j)
 	    fprintf(stderr, "VolSkip: Skip missing vol %d\n", vol);
 	if (mode == PM_MODE_FORW) {
 	    for (j++; j < lcp->l_numti; j++)
-		if (lcp->l_ti[j].ti_vol != vol)
+		if (lcp->l_ti[j].vol != vol)
 		    break;
 	    if (j == lcp->l_numti)
 		return PM_ERR_EOL;
-	    vol = lcp->l_ti[j].ti_vol;
+	    vol = lcp->l_ti[j].vol;
 	}
 	else {
 	    for (j--; j >= 0; j--)
-		if (lcp->l_ti[j].ti_vol != vol)
+		if (lcp->l_ti[j].vol != vol)
 		    break;
 	    if (j < 0)
 		return PM_ERR_EOL;
-	    vol = lcp->l_ti[j].ti_vol;
+	    vol = lcp->l_ti[j].vol;
 	}
     }
     return PM_ERR_EOL;
@@ -2526,8 +2526,8 @@ __pmLogSetTime(__pmContext *ctxp)
 	sbuf.st_size = -1;
 
 	for (i = 0; i < numti; i++, tip++) {
-	    tivol = tip->ti_vol;
-	    tilog = tip->ti_log;
+	    tivol = tip->vol;
+	    tilog = tip->off_data;
 	    if (tivol < lcp->l_minvol)
 		/* skip missing preliminary volumes */
 		continue;
@@ -2550,13 +2550,13 @@ __pmLogSetTime(__pmContext *ctxp)
 		}
 	    }
 #if 0	// TODO use this when c_origin => __pmTimestamp
-	    t_hi = __pmTimestampSub(&tip->ti_stamp, &ctxp->c_origin);
+	    t_hi = __pmTimestampSub(&tip->stamp, &ctxp->c_origin);
 #else
 	    {
 		__pmTimestamp	origin;
-		origin.ts_sec = ctxp->c_origin.tv_sec;
-		origin.ts_nsec = ctxp->c_origin.tv_usec * 1000;
-		t_hi = __pmTimestampSub(&tip->ti_stamp, &origin);
+		origin.sec = ctxp->c_origin.tv_sec;
+		origin.nsec = ctxp->c_origin.tv_usec * 1000;
+		t_hi = __pmTimestampSub(&tip->stamp, &origin);
 	    }
 #endif
 	    if (t_hi > 0) {
@@ -2583,13 +2583,13 @@ __pmLogSetTime(__pmContext *ctxp)
 				    "__pmLogSetTime", mode, try);
 		return PM_ERR_LOGFILE;
 	    }
-	    tilog = lcp->l_ti[j].ti_log;
+	    tilog = lcp->l_ti[j].off_data;
 	    __pmFseek(acp->ac_mfp, (long)tilog, SEEK_SET);
 	    if (mode == PM_MODE_BACK)
 		acp->ac_serial = 0;
 	    if (pmDebugOptions.log) {
 		fprintf(stderr, " at ti[%d]@", j);
-		__pmPrintTimestamp(stderr, &lcp->l_ti[j].ti_stamp);
+		__pmPrintTimestamp(stderr, &lcp->l_ti[j].stamp);
 	    }
 	}
 	else if (j < 1) {
@@ -2601,11 +2601,11 @@ __pmLogSetTime(__pmContext *ctxp)
 				    "__pmLogSetTime", PM_MODE_FORW, try);
 		return PM_ERR_LOGFILE;
 	    }
-	    tilog = lcp->l_ti[j].ti_log;
+	    tilog = lcp->l_ti[j].off_data;
 	    __pmFseek(acp->ac_mfp, (long)tilog, SEEK_SET);
 	    if (pmDebugOptions.log) {
 		fprintf(stderr, " before start ti@");
-		__pmPrintTimestamp(stderr, &lcp->l_ti[j].ti_stamp);
+		__pmPrintTimestamp(stderr, &lcp->l_ti[j].stamp);
 	    }
 	}
 	else if (j == numti) {
@@ -2617,13 +2617,13 @@ __pmLogSetTime(__pmContext *ctxp)
 				    "__pmLogSetTime", PM_MODE_BACK, try);
 		return PM_ERR_LOGFILE;
 	    }
-	    tilog = lcp->l_ti[j].ti_log;
+	    tilog = lcp->l_ti[j].off_data;
 	    __pmFseek(acp->ac_mfp, (long)tilog, SEEK_SET);
 	    if (mode == PM_MODE_BACK)
 		acp->ac_serial = 0;
 	    if (pmDebugOptions.log) {
 		fprintf(stderr, " after end ti@");
-		__pmPrintTimestamp(stderr, &lcp->l_ti[j].ti_stamp);
+		__pmPrintTimestamp(stderr, &lcp->l_ti[j].stamp);
 	    }
 	}
 	else {
@@ -2635,14 +2635,14 @@ __pmLogSetTime(__pmContext *ctxp)
 	     * really valid (log truncated or incomplete)
 	     */
 #if 0	// TODO use this when c_origin => __pmTimestamp
-	    t_hi = __pmTimestampSub(&lcp->l_ti[j].ti_stamp, &ctxp->c_origin);
-	    t_lo = __pmTimestampSub(&ctxp->c_origin, &lcp->l_ti[j-1].ti_stamp);
+	    t_hi = __pmTimestampSub(&lcp->l_ti[j].stamp, &ctxp->c_origin);
+	    t_lo = __pmTimestampSub(&ctxp->c_origin, &lcp->l_ti[j-1].stamp);
 #else
 	    __pmTimestamp	origin;
-	    origin.ts_sec = ctxp->c_origin.tv_sec;
-	    origin.ts_nsec = ctxp->c_origin.tv_usec * 1000;
-	    t_hi = __pmTimestampSub(&lcp->l_ti[j].ti_stamp, &origin);
-	    t_lo = __pmTimestampSub(&origin, &lcp->l_ti[j-1].ti_stamp);
+	    origin.sec = ctxp->c_origin.tv_sec;
+	    origin.nsec = ctxp->c_origin.tv_usec * 1000;
+	    t_hi = __pmTimestampSub(&lcp->l_ti[j].stamp, &origin);
+	    t_lo = __pmTimestampSub(&origin, &lcp->l_ti[j-1].stamp);
 #endif
 	    if (t_hi <= t_lo && !toobig) {
 		try = j;
@@ -2653,13 +2653,13 @@ __pmLogSetTime(__pmContext *ctxp)
 					"__pmLogSetTime", mode, try);
 		    return PM_ERR_LOGFILE;
 		}
-		tilog = lcp->l_ti[j].ti_log;
+		tilog = lcp->l_ti[j].off_data;
 		__pmFseek(acp->ac_mfp, (long)tilog, SEEK_SET);
 		if (mode == PM_MODE_FORW)
 		    acp->ac_serial = 0;
 		if (pmDebugOptions.log) {
 		    fprintf(stderr, " before ti[%d]@", j);
-		    __pmPrintTimestamp(stderr, &lcp->l_ti[j].ti_stamp);
+		    __pmPrintTimestamp(stderr, &lcp->l_ti[j].stamp);
 		}
 	    }
 	    else {
@@ -2671,13 +2671,13 @@ __pmLogSetTime(__pmContext *ctxp)
 					"__pmLogSetTime", mode, try);
 		    return PM_ERR_LOGFILE;
 		}
-		tilog = lcp->l_ti[j].ti_log;
+		tilog = lcp->l_ti[j].off_data;
 		__pmFseek(acp->ac_mfp, (long)tilog, SEEK_SET);
 		if (mode == PM_MODE_BACK)
 		    acp->ac_serial = 0;
 		if (pmDebugOptions.log) {
 		    fprintf(stderr, " after ti[%d]@", j);
-		    __pmPrintTimestamp(stderr, &lcp->l_ti[j].ti_stamp);
+		    __pmPrintTimestamp(stderr, &lcp->l_ti[j].stamp);
 		}
 	    }
 	    if (acp->ac_serial && mode == PM_MODE_FORW) {
@@ -2932,10 +2932,10 @@ __pmGetArchiveEnd_ctx(__pmContext *ctxp, struct timeval *tp)
 	 */
 	logend = (int)sizeof(__pmLogLabel) + 2*(int)sizeof(int);
 	for (i = lcp->l_numti - 1; i >= 0; i--) {
-	    if (lcp->l_ti[i].ti_vol != vol)
+	    if (lcp->l_ti[i].vol != vol)
 		continue;
-	    if (lcp->l_ti[i].ti_log <= physend) {
-		logend = lcp->l_ti[i].ti_log;
+	    if (lcp->l_ti[i].off_data <= physend) {
+		logend = lcp->l_ti[i].off_data;
 		break;
 	    }
 	}
@@ -2961,7 +2961,7 @@ __pmGetArchiveEnd_ctx(__pmContext *ctxp, struct timeval *tp)
 		    fprintf(stderr, "pmGetArchiveEnd: "
                             "Error reading record ending at posn=%d ti[%d]@",
 			    logend, i);
-		    __pmPrintTimestamp(stderr, &lcp->l_ti[i].ti_stamp);
+		    __pmPrintTimestamp(stderr, &lcp->l_ti[i].stamp);
 		    fputc('\n', stderr);
 		}
 		break;

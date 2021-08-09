@@ -625,8 +625,8 @@ PCP_CALL extern int __pmGetDomainLabels(int, const char *, pmLabelSet **);
  * which is Y2038 safe.
  */
 typedef struct {
-    __int64_t	ts_sec;
-    __int32_t	ts_nsec;
+    __int64_t	sec;
+    __int32_t	nsec;
 } __pmTimestamp;
 
 /* internal archive data structures */
@@ -805,32 +805,32 @@ typedef struct {
  * Internal Temporal Index Record
  */
 typedef struct {
-    __pmTimestamp	ti_stamp;	/* now */
-    int			ti_vol;		/* current log volume no. */
-    off_t		ti_meta;	/* end of meta data file */
-    off_t		ti_log;		/* end of metrics log file */
+    __pmTimestamp	stamp;	/* now */
+    int			vol;		/* current log volume no. */
+    off_t		off_meta;	/* end of metadata file */
+    off_t		off_data;	/* end of data file */
 } __pmLogTI;
 
 /*
  * On-Disk Temporal Index Record, Version 3
  */
 typedef struct {
-    __uint64_t	ti_sec;
-    __uint32_t	ti_nsec;
-    __uint32_t	ti_vol;
-    __pmoff64_t	ti_meta;
-    __pmoff64_t	ti_log;
+    __uint64_t	sec;
+    __uint32_t	nsec;
+    __uint32_t	vol;
+    __pmoff64_t	off_meta;
+    __pmoff64_t	off_data;
 } __pmExtTI_v3;
 
 /*
  * On-Disk Temporal Index Record, Version 2
  */
 typedef struct {
-    __int32_t	ti_sec;
-    __int32_t	ti_usec;
-    __int32_t	ti_vol;
-    __pmoff32_t	ti_meta;
-    __pmoff32_t	ti_log;
+    __int32_t	sec;
+    __int32_t	usec;
+    __int32_t	vol;
+    __pmoff32_t	off_meta;
+    __pmoff32_t	off_data;
 } __pmExtTI_v2;
 
 /*

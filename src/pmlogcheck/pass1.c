@@ -48,8 +48,8 @@ pass1(__pmContext *ctxp, char *archname)
 	/*
 	 * Integrity Checks
 	 *
-	 * this(ts_sec) < 0
-	 * this(ts_nsec) < 0 || this(ts_nsec) > 999999999
+	 * this(sec) < 0
+	 * this(nsec) < 0 || this(nsec) > 999999999
 	 * this(timestamp) < last(timestamp)
 	 * this(timestamp) >= label timestamp
 	 * this(vol) >= 0
@@ -84,16 +84,16 @@ pass1(__pmContext *ctxp, char *archname)
 		exit(1);
 	    }
 	}
-	if (tip->ti_vol < 0) {
+	if (tip->vol < 0) {
 	    fprintf(stderr, "%s.index[entry %d]: illegal negative volume number %d\n",
-		    archname, i, tip->ti_vol);
+		    archname, i, tip->vol);
 	    index_state = STATE_BAD;
 	    log_size = -1;
 	}
-	else if (lastp == NULL || tip->ti_vol != lastp->ti_vol) { 
+	else if (lastp == NULL || tip->vol != lastp->vol) { 
 	    __pmFILE *fp;
 	    log_size = -1;
-	    pmsprintf(path, sizeof(path), "%s.%d", archname, tip->ti_vol);
+	    pmsprintf(path, sizeof(path), "%s.%d", archname, tip->vol);
 	    fp = __pmFopen(path, "r");
 	    if (fp != NULL) {
 	        if (__pmFstat(fp, &sbuf) == 0)
@@ -101,76 +101,76 @@ pass1(__pmContext *ctxp, char *archname)
 		__pmFclose(fp);
 	    }
 	    if (log_size == -1) {
-		fprintf(stderr, "%s: file missing for log volume %d\n", path, tip->ti_vol);
+		fprintf(stderr, "%s: file missing for log volume %d\n", path, tip->vol);
 	    }
 	}
-	if (tip->ti_stamp.ts_sec < 0 || tip->ti_stamp.ts_nsec < 0) {
+	if (tip->stamp.sec < 0 || tip->stamp.nsec < 0) {
 	    fprintf(stderr, "%s.index[entry %d]: illegal negative timestamp value (%" FMT_INT64 " sec, %d nsec)\n",
-		archname, i, tip->ti_stamp.ts_sec, tip->ti_stamp.ts_nsec);
+		archname, i, tip->stamp.sec, tip->stamp.nsec);
 	    index_state = STATE_BAD;
 	}
-	if (tip->ti_stamp.ts_nsec > 999999999) {
+	if (tip->stamp.nsec > 999999999) {
 	    fprintf(stderr, "%s.index[entry %d]: illegal timestamp nsec value (%" FMT_INT64 " sec, %d nsec)\n",
-		archname, i, tip->ti_stamp.ts_sec, tip->ti_stamp.ts_nsec);
+		archname, i, tip->stamp.sec, tip->stamp.nsec);
 	    index_state = STATE_BAD;
 	}
-	if (tip->ti_meta < sizeof(__pmLogLabel)+2*sizeof(int)) {
+	if (tip->off_meta < sizeof(__pmLogLabel)+2*sizeof(int)) {
 	    fprintf(stderr, "%s.index[entry %d]: offset to metadata (%zd) before end of label record (%zd)\n",
-		archname, i, tip->ti_meta, sizeof(__pmLogLabel)+2*sizeof(int));
+		archname, i, tip->off_meta, sizeof(__pmLogLabel)+2*sizeof(int));
 	    index_state = STATE_BAD;
 	}
-	if (meta_size != -1 && tip->ti_meta > meta_size) {
+	if (meta_size != -1 && tip->off_meta > meta_size) {
 	    fprintf(stderr, "%s.index[entry %d]: offset to metadata (%zd) past end of file (%zd)\n",
-		archname, i, tip->ti_meta, meta_size);
+		archname, i, tip->off_meta, meta_size);
 	    index_state = STATE_BAD;
 	}
-	if (tip->ti_log < sizeof(__pmLogLabel)+2*sizeof(int)) {
+	if (tip->off_data < sizeof(__pmLogLabel)+2*sizeof(int)) {
 	    fprintf(stderr, "%s.index[entry %d]: offset to log (%zd) before end of label record (%zd)\n",
-		archname, i, tip->ti_log, sizeof(__pmLogLabel)+2*sizeof(int));
+		archname, i, tip->off_data, sizeof(__pmLogLabel)+2*sizeof(int));
 	    index_state = STATE_BAD;
 	}
-	if (log_size != -1 && tip->ti_log > log_size) {
+	if (log_size != -1 && tip->off_data > log_size) {
 	    fprintf(stderr, "%s.index[entry %d]: offset to log (%zd) past end of file (%zd)\n",
-		archname, i, tip->ti_log, log_size);
+		archname, i, tip->off_data, log_size);
 	    index_state = STATE_BAD;
 	}
 	if (log_label.ill_start.tv_sec != 0) {
 #if 0	// TODO use this when log label => __pmTimestamp
-	    if (__pmTimestampSub(&tip->ti_stamp, &log_label.ill_start) < 0) {
+	    if (__pmTimestampSub(&tip->stamp, &log_label.ill_start) < 0) {
 #else
 	    __pmTimestamp	tmp;
-	    tmp.ts_sec = log_label.ill_start.tv_sec;
-	    tmp.ts_nsec = log_label.ill_start.tv_usec * 1000;
-	    if (__pmTimestampSub(&tip->ti_stamp, &tmp) < 0) {
+	    tmp.sec = log_label.ill_start.tv_sec;
+	    tmp.nsec = log_label.ill_start.tv_usec * 1000;
+	    if (__pmTimestampSub(&tip->stamp, &tmp) < 0) {
 #endif
 		fprintf(stderr, "%s.index[entry %d]: timestamp (%" FMT_INT64 ".%09d) less than log label timestamp (%d.%06d)\n",
 			archname, i,
-			tip->ti_stamp.ts_sec, tip->ti_stamp.ts_nsec,
+			tip->stamp.sec, tip->stamp.nsec,
 			log_label.ill_start.tv_sec, log_label.ill_start.tv_usec);
 		index_state = STATE_BAD;
 	    }
 	}
 	if (lastp != NULL) {
-	    if (__pmTimestampSub(&tip->ti_stamp, &lastp->ti_stamp) < 0) {
+	    if (__pmTimestampSub(&tip->stamp, &lastp->stamp) < 0) {
 		fprintf(stderr, "%s.index[entry %d]: timestamp (%" FMT_INT64 ".%09d) went backwards in time (from %" FMT_INT64 ".%09d at [entry %d])\n",
 			archname, i,
-			tip->ti_stamp.ts_sec, tip->ti_stamp.ts_nsec,
-			lastp->ti_stamp.ts_sec, lastp->ti_stamp.ts_nsec, i-1);
+			tip->stamp.sec, tip->stamp.nsec,
+			lastp->stamp.sec, lastp->stamp.nsec, i-1);
 		index_state = STATE_BAD;
 	    }
-	    if (tip->ti_vol < lastp->ti_vol) {
+	    if (tip->vol < lastp->vol) {
 		fprintf(stderr, "%s.index[entry %d]: volume number (%d) decreased (from %d at [entry %d])\n",
-			archname, i, tip->ti_vol, lastp->ti_vol, i-1);
+			archname, i, tip->vol, lastp->vol, i-1);
 		index_state = STATE_BAD;
 	    }
-	    if (tip->ti_vol == lastp->ti_vol && tip->ti_meta < lastp->ti_meta) {
+	    if (tip->vol == lastp->vol && tip->off_meta < lastp->off_meta) {
 		fprintf(stderr, "%s.index[entry %d]: offset to metadata (%zd) decreased (from %zd at [entry %d])\n",
-			archname, i, tip->ti_meta, lastp->ti_meta, i-1);
+			archname, i, tip->off_meta, lastp->off_meta, i-1);
 		index_state = STATE_BAD;
 	    }
-	    if (tip->ti_vol == lastp->ti_vol && tip->ti_log < lastp->ti_log) {
+	    if (tip->vol == lastp->vol && tip->off_data < lastp->off_data) {
 		fprintf(stderr, "%s.index[entry %d]: offset to log (%zd) decreased (from %zd at [entry %d])\n",
-			archname, i, tip->ti_log, lastp->ti_log, i-1);
+			archname, i, tip->off_data, lastp->off_data, i-1);
 		index_state = STATE_BAD;
 	    }
 	}

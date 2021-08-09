@@ -62,8 +62,8 @@ check_context_start(pmi_context *current)
      * metadata) ... this code is stolen from logputresult() in
      * libpcp
      */
-    lcp->l_label.ill_start.tv_sec = stamp.ts_sec;
-    lcp->l_label.ill_start.tv_usec = stamp.ts_nsec / 1000;
+    lcp->l_label.ill_start.tv_sec = stamp.sec;
+    lcp->l_label.ill_start.tv_usec = stamp.nsec / 1000;
     lcp->l_label.ill_vol = PM_LOG_VOL_TI;
     __pmLogWriteLabel(lcp->l_tifp, &lcp->l_label);
     lcp->l_label.ill_vol = PM_LOG_VOL_META;
@@ -91,8 +91,8 @@ check_indom(pmi_context *current, pmInDom indom, int *needti)
 		    return sts;
 #else
 		pmTimeval	tmp;
-		tmp.tv_sec = stamp.ts_sec;
-		tmp.tv_usec = stamp.ts_nsec / 1000;
+		tmp.tv_sec = stamp.sec;
+		tmp.tv_usec = stamp.nsec / 1000;
 		if ((sts = __pmLogPutInDom(acp, current->indom[i].indom, &tmp, current->indom[i].ninstance, current->indom[i].inst, current->indom[i].name)) < 0)
 		    return sts;
 #endif
@@ -177,8 +177,8 @@ _pmi_put_result(pmi_context *current, pmResult *result)
      */
     pmSortInstances(result);
 
-    stamp.ts_sec = result->timestamp.tv_sec;
-    stamp.ts_nsec = result->timestamp.tv_usec * 1000;
+    stamp.sec = result->timestamp.tv_sec;
+    stamp.nsec = result->timestamp.tv_usec * 1000;
 
     /* One time processing for the start of the context. */
     sts = check_context_start(current);
@@ -223,8 +223,8 @@ _pmi_put_text(pmi_context *current)
     int		needti;
 
     /* last_stamp has been set by the caller. */
-    stamp.ts_sec = current->last_stamp.tv_sec;
-    stamp.ts_nsec = current->last_stamp.tv_usec * 1000;
+    stamp.sec = current->last_stamp.tv_sec;
+    stamp.nsec = current->last_stamp.tv_usec * 1000;
 
     /* One time processing for the start of the context. */
     sts = check_context_start(current);
@@ -286,8 +286,8 @@ _pmi_put_label(pmi_context *current)
     int		needti;
 
     /* last_stamp has been set by the caller. */
-    stamp.ts_sec = current->last_stamp.tv_sec;
-    stamp.ts_nsec = current->last_stamp.tv_usec * 1000;
+    stamp.sec = current->last_stamp.tv_sec;
+    stamp.nsec = current->last_stamp.tv_usec * 1000;
 
     /* One time processing for the start of the context. */
     sts = check_context_start(current);
@@ -331,8 +331,8 @@ _pmi_put_label(pmi_context *current)
 #else
     {
 	pmTimeval	tmp;
-	tmp.tv_sec = stamp.ts_sec;
-	tmp.tv_usec = stamp.ts_nsec / 1000;
+	tmp.tv_sec = stamp.sec;
+	tmp.tv_usec = stamp.nsec / 1000;
 	if ((sts = __pmLogPutLabel(&current->archctl, lp->type, lp->id,
 				   1, lp->labelset, &tmp)) < 0)
 	    return sts;

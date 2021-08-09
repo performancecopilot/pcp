@@ -244,8 +244,8 @@ do_logue(int type)
 	/* fudge the temporal index */
 	__pmFseek(archctl.ac_mfp, sizeof(__pmLogLabel)+2*sizeof(int), SEEK_SET);
 	__pmFseek(logctl.l_mdfp, sizeof(__pmLogLabel)+2*sizeof(int), SEEK_SET);
-	stamp.ts_sec = tmp.tv_sec;
-	stamp.ts_nsec = tmp.tv_usec * 1000;
+	stamp.sec = tmp.tv_sec;
+	stamp.nsec = tmp.tv_usec * 1000;
 	__pmLogPutIndex(&archctl, &stamp);
 	__pmFseek(archctl.ac_mfp, 0L, SEEK_END);
 	__pmFseek(logctl.l_mdfp, 0L, SEEK_END);

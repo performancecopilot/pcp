@@ -2445,8 +2445,8 @@ fprintf(stderr, " break!\n");
             __pmFseek(archctl.ac_mfp, (long)old_log_offset, SEEK_SET);
             __pmFseek(logctl.l_mdfp, (long)old_meta_offset, SEEK_SET);
 
-	    stamp.ts_sec = restime.tv_sec;
-	    stamp.ts_nsec = restime.tv_usec * 1000;
+	    stamp.sec = restime.tv_sec;
+	    stamp.nsec = restime.tv_usec * 1000;
             __pmLogPutIndex(&archctl, &stamp);
 
             __pmFseek(archctl.ac_mfp, (long)new_log_offset, SEEK_SET);
@@ -2992,8 +2992,8 @@ cleanup:
 #endif
 
 	__pmFseek(archctl.ac_mfp, old_log_offset, SEEK_SET);
-	stamp.ts_sec = current.tv_sec;
-	stamp.ts_nsec = current.tv_usec * 1000;
+	stamp.sec = current.tv_sec;
+	stamp.nsec = current.tv_usec * 1000;
 	__pmLogPutIndex(&archctl, &stamp);
 
 	/* need to fix up label with new start-time */

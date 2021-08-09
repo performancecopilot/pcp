@@ -120,8 +120,8 @@ Options:\n\
 
     __pmFflush(archctl.ac_mfp);
     __pmFflush(logctl.l_mdfp);
-    stamp.ts_sec = epoch.tv_sec;
-    stamp.ts_nsec = epoch.tv_usec * 1000;
+    stamp.sec = epoch.tv_sec;
+    stamp.nsec = epoch.tv_usec * 1000;
     __pmLogPutIndex(&archctl, &stamp);
 
     pmids = (pmID *)malloc(nmetric*sizeof(pmID));
@@ -183,8 +183,8 @@ Options:\n\
 
     __pmFflush(archctl.ac_mfp);
     __pmFflush(logctl.l_mdfp);
-    stamp.ts_sec = epoch.tv_sec;
-    stamp.ts_nsec = epoch.tv_usec * 1000;
+    stamp.sec = epoch.tv_sec;
+    stamp.nsec = epoch.tv_usec * 1000;
     __pmLogPutIndex(&archctl, &stamp);
 
     return 0;
