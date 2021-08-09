@@ -18,7 +18,7 @@
 #include "import.h"
 #include "private.h"
 
-static pmTimeval	stamp;
+static __pmTimestamp	stamp;
 
 static int
 check_context_start(pmi_context *current)
@@ -62,8 +62,8 @@ check_context_start(pmi_context *current)
      * metadata) ... this code is stolen from logputresult() in
      * libpcp
      */
-    lcp->l_label.ill_start.tv_sec = stamp.tv_sec;
-    lcp->l_label.ill_start.tv_usec = stamp.tv_usec;
+    lcp->l_label.ill_start.tv_sec = stamp.ts_sec;
+    lcp->l_label.ill_start.tv_usec = stamp.ts_nsec / 1000;
     lcp->l_label.ill_vol = PM_LOG_VOL_TI;
     __pmLogWriteLabel(lcp->l_tifp, &lcp->l_label);
     lcp->l_label.ill_vol = PM_LOG_VOL_META;
@@ -86,8 +86,16 @@ check_indom(pmi_context *current, pmInDom indom, int *needti)
     for (i = 0; i < current->nindom; i++) {
 	if (indom == current->indom[i].indom) {
 	    if (current->indom[i].meta_done == 0) {
+#if 0	// TODO when indom timestamps => __pmTimestamp
 		if ((sts = __pmLogPutInDom(acp, current->indom[i].indom, &stamp, current->indom[i].ninstance, current->indom[i].inst, current->indom[i].name)) < 0)
 		    return sts;
+#else
+		pmTimeval	tmp;
+		tmp.tv_sec = stamp.ts_sec;
+		tmp.tv_usec = stamp.ts_nsec / 1000;
+		if ((sts = __pmLogPutInDom(acp, current->indom[i].indom, &tmp, current->indom[i].ninstance, current->indom[i].inst, current->indom[i].name)) < 0)
+		    return sts;
+#endif
 
 		current->indom[i].meta_done = 1;
 		*needti = 1;
@@ -169,8 +177,8 @@ _pmi_put_result(pmi_context *current, pmResult *result)
      */
     pmSortInstances(result);
 
-    stamp.tv_sec = result->timestamp.tv_sec;
-    stamp.tv_usec = result->timestamp.tv_usec;
+    stamp.ts_sec = result->timestamp.tv_sec;
+    stamp.ts_nsec = result->timestamp.tv_usec * 1000;
 
     /* One time processing for the start of the context. */
     sts = check_context_start(current);
@@ -215,8 +223,8 @@ _pmi_put_text(pmi_context *current)
     int		needti;
 
     /* last_stamp has been set by the caller. */
-    stamp.tv_sec = current->last_stamp.tv_sec;
-    stamp.tv_usec = current->last_stamp.tv_usec;
+    stamp.ts_sec = current->last_stamp.tv_sec;
+    stamp.ts_nsec = current->last_stamp.tv_usec * 1000;
 
     /* One time processing for the start of the context. */
     sts = check_context_start(current);
@@ -278,8 +286,8 @@ _pmi_put_label(pmi_context *current)
     int		needti;
 
     /* last_stamp has been set by the caller. */
-    stamp.tv_sec = current->last_stamp.tv_sec;
-    stamp.tv_usec = current->last_stamp.tv_usec;
+    stamp.ts_sec = current->last_stamp.tv_sec;
+    stamp.ts_nsec = current->last_stamp.tv_usec * 1000;
 
     /* One time processing for the start of the context. */
     sts = check_context_start(current);
@@ -316,9 +324,20 @@ _pmi_put_label(pmi_context *current)
 	 * libpcp, via __pmLogPutLabel(), assumes control of the
 	 * storage pointed to by lp->labelset.
 	 */
+#if 0	// TODO when log label timestamps => __pmTimestamp
 	if ((sts = __pmLogPutLabel(&current->archctl, lp->type, lp->id,
 				   1, lp->labelset, &stamp)) < 0)
 	    return sts;
+#else
+    {
+	pmTimeval	tmp;
+	tmp.tv_sec = stamp.ts_sec;
+	tmp.tv_usec = stamp.ts_nsec / 1000;
+	if ((sts = __pmLogPutLabel(&current->archctl, lp->type, lp->id,
+				   1, lp->labelset, &tmp)) < 0)
+	    return sts;
+    }
+#endif
 
 	lp->labelset = NULL;
     }

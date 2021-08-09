@@ -237,7 +237,7 @@ main(int argc, char **argv)
 	rlen = h.len - (int)sizeof(__pmLogHdr) - (int)sizeof(int);
 	count[h.type]++;
 	bytes[h.type] += h.len;
-	if (h.type == TYPE_INDOM) {
+	if (h.type == TYPE_INDOM_V2) {
 	    pmTimeval		*tv;
 	    //pmTimespec		when;
 	    pmInResult		in;
@@ -383,7 +383,7 @@ main(int argc, char **argv)
 	    }
 	}
 	else {
-	    /* skip this record, not TYPE_INDOM */
+	    /* skip this record, not TYPE_INDOM_V2 */
 	    __pmFseek(f, (long)rlen, SEEK_CUR);
 	}
 	n = (int)__pmFread(&check, 1, sizeof(check), f);
@@ -416,7 +416,7 @@ end:
     for (i = 1; i < sizeof(types)/sizeof(types[0]); i++) {
 	printf("%8s %8d %9s", types[i], count[i], pr_size(bytes[i]));
 	count[0] += count[i];
-	if (i == TYPE_INDOM) {
+	if (i == TYPE_INDOM_V2) {
 	    printf(" %9s", pr_size(v3_size));
 	    printf(" %9s (%.1f%%)\n", pr_size(v2_size - v3_size),
 		100.0*((long)v2_size - (long)v3_size) / v2_size);

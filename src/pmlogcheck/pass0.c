@@ -206,12 +206,23 @@ pass0(char *fname)
 	nrec++;
 	if (is == IS_INDEX) {
 	    /* for index files, done label record, now eat index records */
-	    __pmLogTI	tirec;
-	    while ((sts = __pmFread(&tirec, 1, sizeof(tirec), f)) == sizeof(tirec)) { 
+	    size_t	record_size;
+	    void	*buffer;
+
+	    if ((log_label.ill_magic & 0xff) >= PM_LOG_VERS03)
+		record_size = sizeof(__pmExtTI_v3);
+	    else
+		record_size = sizeof(__pmExtTI_v2);
+	    if ((buffer = (void *)malloc(record_size)) == NULL) {
+		pmNoMem("pass0: index buffer", record_size, PM_FATAL_ERR);
+		/* NOTREACHED */
+	    }
+
+	    while ((sts = __pmFread(buffer, 1, record_size, f)) == record_size) { 
 		nrec++;
 	    }
 	    if (sts != 0) {
-		fprintf(stderr, "%s[record %d]: unexpected EOF in index entry, wanted %d, got %d bytes\n", fname, nrec, (int)sizeof(tirec), sts);
+		fprintf(stderr, "%s[record %d]: unexpected EOF in index entry, wanted %zd, got %d bytes\n", fname, nrec, record_size, sts);
 		index_state = STATE_BAD;
 		sts = STS_FATAL;
 		goto done;

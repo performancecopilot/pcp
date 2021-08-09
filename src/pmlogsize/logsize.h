@@ -1,4 +1,4 @@
-extern void do_index(__pmFILE *);
+extern void do_index(__pmFILE *, int);
 extern void do_meta(__pmFILE *);
 extern void do_data(__pmFILE *, char *);
 

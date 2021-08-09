@@ -80,11 +80,10 @@ writelabel(void)
  *  switch output volumes
  */
 void
-newvolume(char *base, pmTimeval *tvp)
+newvolume(char *base, __pmTimestamp *tsp)
 {
     __pmFILE		*newfp;
     int			nextvol = archctl.ac_curvol + 1;
-    struct timeval	stamp;
 
     if ((newfp = __pmLogNewFile(base, nextvol)) != NULL) {
 	__pmFclose(archctl.ac_mfp);
@@ -92,11 +91,9 @@ newvolume(char *base, pmTimeval *tvp)
 	logctl.l_label.ill_vol = archctl.ac_curvol = nextvol;
 	__pmLogWriteLabel(archctl.ac_mfp, &logctl.l_label);
 	__pmFflush(archctl.ac_mfp);
-	stamp.tv_sec = tvp->tv_sec;
-	stamp.tv_usec = tvp->tv_usec;
 	fprintf(stderr, "%s: New log volume %d, at ",
 		pmGetProgname(), nextvol);
-	pmPrintStamp(stderr, &stamp);
+	__pmPrintTimestamp(stderr, tsp);
 	fputc('\n', stderr);
 	return;
     }

@@ -48,9 +48,9 @@ void
 do_meta(__pmFILE *f)
 {
     long	oheadbytes = __pmFtell(f);
-    long	bytes[5] = { 0, 0, 0, 0, 0 };
+    long	bytes[TYPE_MAX+1] = { 0 };
     long	sum_bytes;
-    int		nrec[5] = { 0, 0, 0, 0, 0 };
+    int		nrec[TYPE_MAX+1] = { 0 };
     __pmLogHdr	header;
     __pmPDU	trailer;
     int		need;
@@ -119,7 +119,7 @@ do_meta(__pmFILE *f)
 		    putchar('\n');
 		}
 		break;
-	    case TYPE_INDOM:
+	    case TYPE_INDOM_V2:
 		if (vflag || dflag || rflag) {
 		    pmInDom	indom;
 		    int		ninst;
@@ -238,9 +238,9 @@ do_meta(__pmFILE *f)
 	    bytes[TYPE_DESC], 100*(float)bytes[TYPE_DESC]/sbuf.st_size, nrec[TYPE_DESC]);
     }
 
-    if (nrec[TYPE_INDOM] > 0) {
+    if (nrec[TYPE_INDOM_V2] > 0) {
 	printf("  indoms: %ld bytes [%.0f%%, %d records",
-	    bytes[TYPE_INDOM], 100*(float)bytes[TYPE_INDOM]/sbuf.st_size, nrec[TYPE_INDOM]);
+	    bytes[TYPE_INDOM_V2], 100*(float)bytes[TYPE_INDOM_V2]/sbuf.st_size, nrec[TYPE_INDOM_V2]);
 	if (dflag) {
 	    j = 0;
 	    if (indom_tab != NULL) {
@@ -256,7 +256,7 @@ do_meta(__pmFILE *f)
 	if (dflag && indom_tab != NULL) {
 	    qsort(indom_tab, nindom, sizeof(indom_tab[0]), indom_compar);
 	    for (indomp = indom_tab; indomp < &indom_tab[nindom]; indomp++) {
-		if (thres != -1 && 100*(float)sum_bytes/bytes[TYPE_INDOM] > thres) {
+		if (thres != -1 && 100*(float)sum_bytes/bytes[TYPE_INDOM_V2] > thres) {
 		    /* -x cutoff reached */
 		    printf("    ...\n");
 		    break;
@@ -296,7 +296,7 @@ do_meta(__pmFILE *f)
 
     printf("  overhead: %ld bytes [%.0f%%]\n",
 	oheadbytes, 100*(float)oheadbytes/sbuf.st_size);
-    sbuf.st_size -= (bytes[TYPE_DESC] + bytes[TYPE_INDOM] + bytes[TYPE_LABEL] + bytes[TYPE_TEXT] + oheadbytes);
+    sbuf.st_size -= (bytes[TYPE_DESC] + bytes[TYPE_INDOM_V2] + bytes[TYPE_LABEL] + bytes[TYPE_TEXT] + oheadbytes);
 
     if (sbuf.st_size != 0)
 	printf("  unaccounted for: %ld bytes\n", (long)sbuf.st_size);

@@ -18,28 +18,39 @@
 #include "logsize.h"
 
 void
-do_index(__pmFILE *f)
+do_index(__pmFILE *f, int version)
 {
     long	oheadbytes = __pmFtell(f);
-    long	indexbytes = 0;
+    size_t	indexbytes = 0;
     int		nrec = 0;
     int		sts;
     struct stat	sbuf;
-    __pmLogTI	tirec;
+    size_t	record_size;
+    void	*buffer;
 
     __pmFstat(f, &sbuf);
 
-    while ((sts = __pmFread(&tirec, 1, sizeof(tirec), f)) == sizeof(tirec)) {
-	nrec++;
-	indexbytes += sizeof(tirec);
+    if (version >= PM_LOG_VERS03)
+	record_size = sizeof(__pmExtTI_v3);
+    else
+	record_size = sizeof(__pmExtTI_v2);
+    if ((buffer = (void *)malloc(record_size)) == NULL) {
+	pmNoMem("do_index: buffer", record_size, PM_FATAL_ERR);
+	/* NOTREACHED */
     }
 
-    printf("  index: %ld bytes [%.0f%%, %d entries]\n", indexbytes, 100*(float)indexbytes/sbuf.st_size, nrec);
+    while ((sts = __pmFread(buffer, 1, record_size, f)) == record_size) { 
+	nrec++;
+	indexbytes += record_size;
+    }
+
+    printf("  index: %zd bytes [%.0f%%, %d entries]\n", indexbytes, 100*(float)indexbytes/sbuf.st_size, nrec);
     printf("  overhead: %ld bytes [%.0f%%]\n", oheadbytes, 100*(float)oheadbytes/sbuf.st_size);
     sbuf.st_size -= (indexbytes + oheadbytes);
     if (sbuf.st_size != 0)
-	printf("  unaccounted for: %ld bytes\n", (long)sbuf.st_size);
+	printf("  unaccounted for: %zd bytes\n", sbuf.st_size);
 
+    free(buffer);
     return;
 }
 

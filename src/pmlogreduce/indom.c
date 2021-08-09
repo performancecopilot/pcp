@@ -94,8 +94,11 @@ doindom(pmResult *rp)
     }
 
     if (needti) {
+	__pmTimestamp	stamp;
 	__pmFflush(logctl.l_mdfp);
-	__pmLogPutIndex(&archctl, &current);
+	stamp.ts_sec = current.tv_sec;
+	stamp.ts_nsec = current.tv_usec * 1000;
+	__pmLogPutIndex(&archctl, &stamp);
     }
 
 }

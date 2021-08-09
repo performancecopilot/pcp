@@ -1484,7 +1484,7 @@ main(int argc, char **argv)
     int		dir_fd = -1;		/* poinless initialization to humour gcc */
     int		doneti = 0;
     int		in_version;
-    pmTimeval	tstamp = { 0 };		/* for last log record */
+    __pmTimestamp	tstamp = { 0, 0 };	/* for last log record */
     off_t	old_log_offset = 0;	/* log offset before last log record */
     off_t	old_meta_offset;
     int		seen_event = 0;
@@ -1744,21 +1744,8 @@ main(int argc, char **argv)
 
 	if (ti_idx < inarch.ctxp->c_archctl->ac_log->l_numti) {
 	    __pmLogTI	*tip = &inarch.ctxp->c_archctl->ac_log->l_ti[ti_idx];
-#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
-	    if (in_version >= PM_LOG_VERS03 &&
-	        tip->v3.ti_sec == inarch.rp->timestamp.tv_sec &&
-	        tip->v3.ti_nsec == inarch.rp->timestamp.tv_usec * 1000) {
-		/*
-		 * timestamp on input pmResult matches next temporal index
-		 * entry for input archive ... make sure matching temporal
-		 * index entry added to output archive
-		 */
-		needti = 1;
-		ti_idx++;
-	    } else
-#endif
-	    if (tip->v2.ti_stamp.tv_sec == inarch.rp->timestamp.tv_sec &&
-	        tip->v2.ti_stamp.tv_usec == inarch.rp->timestamp.tv_usec) {
+	    if (tip->ti_stamp.ts_sec == inarch.rp->timestamp.tv_sec &&
+	        tip->ti_stamp.ts_nsec == inarch.rp->timestamp.tv_usec * 1000) {
 		/*
 		 * timestamp on input pmResult matches next temporal index
 		 * entry for input archive ... make sure matching temporal
@@ -1797,7 +1784,7 @@ main(int argc, char **argv)
 			fprintf(stderr, "Metadata: read EOF @ offset=%ld\n", in_offset);
 		    else if (stsmeta == TYPE_DESC)
 			fprintf(stderr, "Metadata: read PMID %s @ offset=%ld\n", pmIDStr(ntoh_pmID(inarch.metarec[2])), in_offset);
-		    else if (stsmeta == TYPE_INDOM)
+		    else if (stsmeta == TYPE_INDOM_V2)
 			fprintf(stderr, "Metadata: read InDom %s @ offset=%ld\n", pmInDomStr(ntoh_pmInDom((unsigned int)inarch.metarec[4])), in_offset);
 		}
 	    }
@@ -1853,7 +1840,7 @@ main(int argc, char **argv)
 		 */
 		do_desc();
 	    }
-	    else if (stsmeta == TYPE_INDOM) {
+	    else if (stsmeta == TYPE_INDOM_V2) {
 		struct timeval	stamp;
 		pmTimeval	*tvp = (pmTimeval *)&inarch.metarec[2];
 		stamp.tv_sec = ntohl(tvp->tv_sec);
@@ -1915,8 +1902,8 @@ main(int argc, char **argv)
 	    needti = 1;
 	}
 
-	tstamp.tv_sec = inarch.rp->timestamp.tv_sec;
-	tstamp.tv_usec = inarch.rp->timestamp.tv_usec;
+	tstamp.ts_sec = inarch.rp->timestamp.tv_sec;
+	tstamp.ts_nsec = inarch.rp->timestamp.tv_usec * 1000;
 
 	if (needti) {
 	    __pmFflush(outarch.logctl.l_mdfp);

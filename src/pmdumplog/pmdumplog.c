@@ -30,6 +30,7 @@ static pmID		pmid_missed;
 static int		sflag;
 static int		xflag;		/* for -x (long timestamps) */
 static pmLogLabel	label;
+static int		version;	/* of input archive */
 
 static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Options"),
@@ -109,12 +110,38 @@ dump_timeval(struct timeval *stamp)
 	printf(" (%.6f)", pmtimevalSub(stamp, &label.ll_start));
 }
 
-#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
 static void
-dump_timespec(struct timespec *stamp)
+dump_pmTimeval(pmTimeval *tvp)
 {
-    time_t	time = stamp->tv_sec;
-    int		nsec = (int)stamp->tv_nsec;
+    time_t	time = tvp->tv_sec;
+    int		usec = (int)tvp->tv_usec;
+    char	*yr = NULL;
+    char       	*ddmm;
+    struct tm	tm;
+
+    if (xflag) {
+	ddmm = pmCtime(&time, timebuf);
+	ddmm[10] = '\0';
+	yr = &ddmm[20];
+	printf("%s ", ddmm);
+    }
+    pmLocaltime(&time, &tm);
+    printf("%02d:%02d:%02d.%06d", tm.tm_hour, tm.tm_min, tm.tm_sec, usec);
+    if (xflag && yr)
+	printf(" %4.4s", yr);
+    if (xflag >= 2) {
+	pmTimeval	start;
+	start.tv_sec = label.ll_start.tv_sec;
+	start.tv_usec = label.ll_start.tv_usec;
+	printf(" (%.6f)", __pmTimevalSub(tvp, &start));
+    }
+}
+
+static void
+dump_pmTimestamp(__pmTimestamp *tsp)
+{
+    time_t	time = tsp->ts_sec;
+    int		nsec = (int)tsp->ts_nsec;
     char	*yr = NULL;
     char       	*ddmm;
     struct tm	tm;
@@ -130,13 +157,16 @@ dump_timespec(struct timespec *stamp)
     if (xflag && yr)
 	printf(" %4.4s", yr);
     if (xflag >= 2) {
-	struct timespec start; /* TODO - use v3 label timestamp */
-	start.tv_sec = label.ll_start.tv_sec;
-	start.tv_nsec = label.ll_start.tv_usec * 1000;
-	printf(" (%.9f)", pmtimespecSub(stamp, &start));
+#if 0	// TODO use this when log label => __pmTimestamp
+	printf(" (%.9f)", __pmTimestampSub(tsp, &label.ll_start));
+#else
+	__pmTimestamp	start;
+	start.ts_sec = label.ll_start.tv_sec;
+	start.ts_nsec = label.ll_start.tv_usec * 1000;
+	printf(" (%.9f)", __pmTimestampSub(tsp, &start));
+#endif
     }
 }
-#endif
 
 static int
 do_size(pmResult *rp)
@@ -532,7 +562,7 @@ dumpDiskInDom(__pmContext *ctxp)
 	    return;
 	}
 	rlen = (size_t)hdr.len - sizeof(__pmLogHdr) - sizeof(__int32_t);
-	if (hdr.type == TYPE_INDOM) {
+	if (hdr.type == TYPE_INDOM_V2) {
 	    pmTimeval		*tvp;
 	    pmInResult		in;
 	    struct timeval	tv;
@@ -577,7 +607,7 @@ dumpDiskInDom(__pmContext *ctxp)
 	    free(rbuf);
 	}
 	else {
-	    /* skip this record, not TYPE_INDOM */
+	    /* skip this record, not TYPE_INDOM_V2 */
 	    __pmFseek(f, (off_t)rlen, SEEK_CUR);
 	}
 	/* trailer check */
@@ -602,7 +632,6 @@ dumpInDom(__pmContext *ctxp)
     __pmHashNode	*hp;
     __pmLogInDom	*idp;
     __pmLogInDom	*ldp;
-    struct timeval	tv;
 
     printf("\nInstance Domains in the Log ...\n");
     for (i = 0; i < ctxp->c_archctl->ac_log->l_hashindom.hsize; i++) {
@@ -615,9 +644,7 @@ dumpInDom(__pmContext *ctxp)
 	    for ( ; ; ) {
 		for (idp = (__pmLogInDom *)hp->data; idp->next != ldp; idp =idp->next)
 			;
-		tv.tv_sec = idp->stamp.tv_sec;
-		tv.tv_usec = idp->stamp.tv_usec;
-		dump_timeval(&tv);
+		dump_pmTimeval(&idp->stamp);
 		printf(" %d instances\n", idp->numinst);
 		for (j = 0; j < idp->numinst; j++) {
 		    printf("   %d or \"%s\"\n",
@@ -733,7 +760,7 @@ dumpLabelSets(__pmContext *ctxp)
     const __pmHashNode		*this_item, *prev_item;
     const __pmLogLabelSet	*p;
     double			tdiff, min_diff;
-    struct timeval		tv;
+    // TODO change to __pmTimestamp when labels change
     pmTimeval			this_stamp, prev_stamp;
     /* Print the label types in this order. */
     unsigned int labelTypes[] = {
@@ -792,9 +819,7 @@ dumpLabelSets(__pmContext *ctxp)
 	 * Now print all the label sets at this time stamp.
 	 * Sort by type and then identifier.
 	 */
-	tv.tv_sec = this_stamp.tv_sec;
-	tv.tv_usec = this_stamp.tv_usec;
-	dump_timeval(&tv);
+	dump_pmTimeval(&this_stamp);
 	putchar('\n');
 	for (lix = 0; lix < sizeof(labelTypes) / sizeof(*labelTypes); ++lix) {
 	    /* Are there labels of this type? */
@@ -848,8 +873,13 @@ dumpLabelSets(__pmContext *ctxp)
 		 */
 		; 
 		for (p = (__pmLogLabelSet *)this_item->data; p != NULL; p = p->next){
+#if 0	// TODO use this when labels => __pmTimestamp
+		    if (__pmTimestampSub(&p->stamp, &this_stamp) != 0.0)
+			continue;
+#else
 		    if (__pmTimevalSub(&p->stamp, &this_stamp) != 0.0)
 			continue;
+#endif
 		    ident = (unsigned int)this_item->key;
 		    pmPrintLabelSets(stdout, ident, type, p->labelsets, p->nsets);
 		}
@@ -862,102 +892,27 @@ dumpLabelSets(__pmContext *ctxp)
 }
 
 static void
-dumpTI2(__pmLogCtl *lcp)
+dumpTI(__pmContext *ctxp)
 {
+    __pmLogCtl	*lcp = ctxp->c_archctl->ac_log;
+
+    printf("\nTemporal Index\n");
+    if (xflag)
+	printf("\t\t");
+    if (xflag >= 2)
+	printf("\t\t");
+    printf("\t\t\tLog Vol    end(meta)     end(log)\n");
     char		path[MAXPATHLEN];
     off_t		meta_size = -1;
     off_t		log_size = -1;
-    struct timeval	tv;
     struct stat		sbuf;
-    __pmLogTI2		*tip;
-    __pmLogTI2		*lastp = NULL;
+    __pmLogTI		*tip;
+    __pmLogTI		*lastp = NULL;
     int			i;
 
     for (i = 0; i < lcp->l_numti; i++) {
-	tip = &lcp->l_ti[i].v2;
-	tv.tv_sec = tip->ti_stamp.tv_sec;
-	tv.tv_usec = tip->ti_stamp.tv_usec;
-	dump_timeval(&tv);
-	printf("\t  %5d  %11d  %11d\n", tip->ti_vol, tip->ti_meta, tip->ti_log);
-	if (i == 0) {
-	    pmsprintf(path, sizeof(path), "%s.meta", lcp->l_name);
-	    if (__pmStat(path, &sbuf) == 0)
-		meta_size = sbuf.st_size;
-	    else
-		meta_size = -1;
-	}
-	if (lastp == NULL || tip->ti_vol != lastp->ti_vol) { 
-	    pmsprintf(path, sizeof(path), "%s.%d", lcp->l_name, tip->ti_vol);
-	    if (__pmStat(path, &sbuf) == 0)
-		log_size = sbuf.st_size;
-	    else {
-		log_size = -1;
-		printf("\t\tWarning: file missing for log volume %d\n", tip->ti_vol);
-	    }
-	}
-	/*
-	 * Integrity Errors
-	 *
-	 * this(tv_sec) < 0
-	 * this(tv_usec) < 0 || this(tv_usec) > 999999
-	 * this(timestamp) < last(timestamp)
-	 * this(vol) < last(vol)
-	 * this(vol) == last(vol) && this(meta) <= last(meta)
-	 * this(vol) == last(vol) && this(log) <= last(log)
-	 * file_exists(<base>.meta) && this(meta) > file_size(<base>.meta)
-	 * file_exists(<base>.this(vol)) &&
-	 *		this(log) > file_size(<base>.this(vol))
-	 *
-	 * Integrity Warnings
-	 *
-	 * this(vol) != last(vol) && !file_exists(<base>.this(vol))
-	 */
-	if (tip->ti_stamp.tv_sec < 0 ||
-	    tip->ti_stamp.tv_usec < 0 || tip->ti_stamp.tv_usec > 999999)
-	    printf("\t\tError: illegal timestamp value (%d sec, %d usec)\n",
-		tip->ti_stamp.tv_sec, tip->ti_stamp.tv_usec);
-	if (meta_size != -1 && tip->ti_meta > meta_size)
-	    printf("\t\tError: offset to meta file past end of file (%ld)\n",
-		(long)meta_size);
-	if (log_size != -1 && tip->ti_log > log_size)
-	    printf("\t\tError: offset to log file past end of file (%ld)\n",
-		(long)log_size);
-	if (i > 0) {
-	    if (tip->ti_stamp.tv_sec < lastp->ti_stamp.tv_sec ||
-	        (tip->ti_stamp.tv_sec == lastp->ti_stamp.tv_sec &&
-	         tip->ti_stamp.tv_usec < lastp->ti_stamp.tv_usec))
-		printf("\t\tError: timestamp went backwards in time %d.%06d -> %d.%06d\n",
-			(int)lastp->ti_stamp.tv_sec, (int)lastp->ti_stamp.tv_usec,
-			(int)tip->ti_stamp.tv_sec, (int)tip->ti_stamp.tv_usec);
-	    if (tip->ti_vol < lastp->ti_vol)
-		printf("\t\tError: volume number decreased\n");
-	    if (tip->ti_vol == lastp->ti_vol && tip->ti_meta < lastp->ti_meta)
-		printf("\t\tError: offset to meta file decreased\n");
-	    if (tip->ti_vol == lastp->ti_vol && tip->ti_log < lastp->ti_log)
-		printf("\t\tError: offset to log file decreased\n");
-	}
-	lastp = tip;
-    }
-}
-
-#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
-static void
-dumpTI3(__pmLogCtl *lcp)
-{
-    char		path[MAXPATHLEN];
-    off_t		meta_size = -1;
-    off_t		log_size = -1;
-    struct timespec	ts;
-    struct stat		sbuf;
-    __pmLogTI3		*tip;
-    __pmLogTI3		*lastp = NULL;
-    int			i;
-
-    for (i = 0; i < lcp->l_numti; i++) {
-	tip = &lcp->l_ti[i].v3;
-	ts.tv_sec = tip->ti_sec;
-	ts.tv_nsec = tip->ti_nsec;
-	dump_timespec(&ts);
+	tip = &lcp->l_ti[i];
+	dump_pmTimestamp(&tip->ti_stamp);
 	printf("\t  %5d  %11lld  %11lld\n", tip->ti_vol,
 		(long long)tip->ti_meta, (long long)tip->ti_log);
 	if (i == 0) {
@@ -980,8 +935,8 @@ dumpTI3(__pmLogCtl *lcp)
 	/*
 	 * Integrity Errors
 	 *
-	 * this(tv_sec) < 0
-	 * this(tv_nsec) < 0 || this(tv_nsec) > 999999999
+	 * this(ts_sec) < 0
+	 * this(ts_nsec) < 0 || this(ts_nsec) > 999999999
 	 * this(timestamp) < last(timestamp)
 	 * this(vol) < last(vol)
 	 * this(vol) == last(vol) && this(meta) <= last(meta)
@@ -994,26 +949,24 @@ dumpTI3(__pmLogCtl *lcp)
 	 *
 	 * this(vol) != last(vol) && !file_exists(<base>.this(vol))
 	 */
-	if (tip->ti_sec < 0 ||
-	    tip->ti_nsec < 0 || tip->ti_nsec > 999999999)
-	    printf("\t\tError: illegal timestamp value (%lld sec, %d nsec)\n",
-		(long long)tip->ti_sec, tip->ti_nsec);
+	if (tip->ti_stamp.ts_sec < 0 ||
+	    tip->ti_stamp.ts_nsec < 0 || tip->ti_stamp.ts_nsec > 999999999)
+	    printf("\t\tError: illegal timestamp value (%" FMT_INT64 " sec, %d nsec)\n",
+		tip->ti_stamp.ts_sec, tip->ti_stamp.ts_nsec);
 	if (meta_size != -1 && tip->ti_meta > meta_size)
-	    printf("\t\tError: offset to meta file past end of file (%lld)\n",
-		(long long)meta_size);
+	    printf("\t\tError: offset to meta file past end of file (%zd)\n",
+		meta_size);
 	if (log_size != -1 && tip->ti_log > log_size)
-	    printf("\t\tError: offset to log file past end of file (%lld)\n",
-		(long long)log_size);
+	    printf("\t\tError: offset to log file past end of file (%zd)\n",
+		log_size);
 	if (i > 0) {
-	    if (tip->ti_sec < lastp->ti_sec ||
-	        (tip->ti_sec == lastp->ti_sec &&
-	         tip->ti_nsec < lastp->ti_nsec))
+	    if (tip->ti_stamp.ts_sec < lastp->ti_stamp.ts_sec ||
+	        (tip->ti_stamp.ts_sec == lastp->ti_stamp.ts_sec &&
+	         tip->ti_stamp.ts_nsec < lastp->ti_stamp.ts_nsec))
 		printf("\t\tError: timestamp went backwards in time "
-			"%lld.%09lld -> %lld.%09lld\n",
-			(long long)lastp->ti_sec,
-			(long long)lastp->ti_nsec,
-			(long long)tip->ti_sec,
-			(long long)tip->ti_nsec);
+			"%" FMT_INT64 ".%09d -> %" FMT_INT64 ".%09d\n",
+			lastp->ti_stamp.ts_sec, lastp->ti_stamp.ts_nsec,
+			tip->ti_stamp.ts_sec, tip->ti_stamp.ts_nsec);
 	    if (tip->ti_vol < lastp->ti_vol)
 		printf("\t\tError: volume number decreased\n");
 	    if (tip->ti_vol == lastp->ti_vol && tip->ti_meta < lastp->ti_meta)
@@ -1024,25 +977,6 @@ dumpTI3(__pmLogCtl *lcp)
 	lastp = tip;
     }
 }
-#endif
-
-static void
-dumpTI(__pmContext *ctxp)
-{
-    __pmLogCtl	*lcp = ctxp->c_archctl->ac_log;
-
-    printf("\nTemporal Index\n");
-    if (xflag)
-	printf("\t\t");
-    printf("\t\tLog Vol    end(meta)     end(log)\n");
-
-#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
-    if (__pmLogVersion(lcp) >= PM_LOG_VERS03)
-	dumpTI3(lcp);
-    else
-#endif
-	dumpTI2(lcp);
-}
 
 static void
 dumpLabel(int verbose)
@@ -1052,7 +986,7 @@ dumpLabel(int verbose)
     pmTimeval	stamp;
     time_t	time;
 
-    printf("Log Label (Log Format Version %d)\n", label.ll_magic & 0xff);
+    printf("Log Label (Log Format Version %d)\n", version);
     printf("Performance metrics from host %s\n", label.ll_hostname);
 
     time = label.ll_start.tv_sec;
@@ -1090,14 +1024,14 @@ dumpLabel(int verbose)
 static void
 rawdump(FILE *f)
 {
-    long	old;
+    off_t	old;
     int		len;
     int		check;
     int		i;
     int		sts;
 
     if ((old = ftell(f)) < 0) {
-	fprintf(stderr, "rawdump: Botch: ftell(%p) -> %ld (%s)\n", f, old, pmErrStr(-errno));
+	fprintf(stderr, "rawdump: Botch: ftell(%p) -> %zd (%s)\n", f, old, pmErrStr(-errno));
 	return;
     }
 
@@ -1106,7 +1040,7 @@ rawdump(FILE *f)
 
     while ((sts = fread(&len, 1, sizeof(len), f)) == sizeof(len)) {
 	len = ntohl(len);
-	printf("Dump ... record len: %d @ offset: %" FMT_UINT64, len, (__uint64_t)(ftell(f) - sizeof(len)));
+	printf("Dump ... record len: %d @ offset: %zd", len, (ftell(f) - sizeof(len)));
 	len -= 2 * sizeof(len);
 	for (i = 0; i < len; i++) {
 	    check = fgetc(f);
@@ -1134,7 +1068,7 @@ rawdump(FILE *f)
     if (sts < 0)
 	printf("fread fails: %s\n", osstrerror());
     if (fseek(f, old, SEEK_SET) < 0)
-	fprintf(stderr, "Warning: fseek(..., %ld, ...) failed: %s\n", old, pmErrStr(-oserror()));
+	fprintf(stderr, "Warning: fseek(..., %zd, ...) failed: %s\n", old, pmErrStr(-oserror()));
 }
 
 static void
@@ -1356,6 +1290,7 @@ main(int argc, char *argv[])
 		pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
+    version = label.ll_magic & 0xff;
 
     if (numpmid > 0) {
 	/*

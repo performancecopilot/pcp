@@ -1185,7 +1185,7 @@ write_rec(reclist_t *rec)
 		fprintf(stderr, "PMID: %s name: %*.*s\n", pmIDStr(desc.pmid), len, len, name);
 		pmPrintDesc(stderr, &desc);
 	    }
-	    else if (type == TYPE_INDOM) {
+	    else if (type == TYPE_INDOM_V2) {
 		pmTimeval	*tvp;
 		pmTimeval	when;
 		int		k = 2;
@@ -1619,7 +1619,7 @@ nextmeta(void)
     int		numeof = 0;
     int		sts;
     pmID	pmid;			/* pmid for TYPE_DESC */
-    pmInDom	indom;			/* indom for TYPE_INDOM */
+    pmInDom	indom;			/* indom for TYPE_INDOM_V2 */
     __pmLogCtl	*lcp;
     __pmContext	*ctxp;
     inarch_t	*iap;			/* pointer to input archive control */
@@ -1725,7 +1725,7 @@ againmeta:
 		goto againmeta;
 	    }
 	}
-	else if (type == TYPE_INDOM) {
+	else if (type == TYPE_INDOM_V2) {
 	    /*
 	     * if ml is defined, then look for instance domain in the list
 	     * if indom is not in the list then discard it immediately
@@ -2428,6 +2428,7 @@ fprintf(stderr, " break!\n");
 
 	/* flush/update */
 	if (needti) {
+	    __pmTimestamp	stamp;
 	    titime = restime;
 
 	    __pmFflush(archctl.ac_mfp);
@@ -2444,7 +2445,9 @@ fprintf(stderr, " break!\n");
             __pmFseek(archctl.ac_mfp, (long)old_log_offset, SEEK_SET);
             __pmFseek(logctl.l_mdfp, (long)old_meta_offset, SEEK_SET);
 
-            __pmLogPutIndex(&archctl, &restime);
+	    stamp.ts_sec = restime.tv_sec;
+	    stamp.ts_nsec = restime.tv_usec * 1000;
+            __pmLogPutIndex(&archctl, &stamp);
 
             __pmFseek(archctl.ac_mfp, (long)new_log_offset, SEEK_SET);
             __pmFseek(logctl.l_mdfp, (long)new_meta_offset, SEEK_SET);
@@ -2970,6 +2973,8 @@ cleanup:
     }
     else {
 	/* write the last time stamp */
+	__pmTimestamp	stamp;
+
 	__pmFflush(archctl.ac_mfp);
 	__pmFflush(logctl.l_mdfp);
 
@@ -2987,8 +2992,9 @@ cleanup:
 #endif
 
 	__pmFseek(archctl.ac_mfp, old_log_offset, SEEK_SET);
-	__pmLogPutIndex(&archctl, &current);
-
+	stamp.ts_sec = current.tv_sec;
+	stamp.ts_nsec = current.tv_usec * 1000;
+	__pmLogPutIndex(&archctl, &stamp);
 
 	/* need to fix up label with new start-time */
 	writelabel_metati(1);

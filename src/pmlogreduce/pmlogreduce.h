@@ -76,7 +76,7 @@ extern int	_pmLogGet(__pmLogCtl *, int, __pmPDU **);
 extern int	_pmLogPut(__pmFILE *, __pmPDU *);
 extern void	newlabel(void);
 extern void	writelabel(void);
-extern void	newvolume(char *, pmTimeval *);
+extern void	newvolume(char *, __pmTimestamp *);
 
 extern pmResult *rewrite(pmResult *);
 extern void	rewrite_free(void);

@@ -156,10 +156,11 @@ do_work(char *fname)
     }
     putchar('\n');
 
+    label.ill_magic = ntohl(label.ill_magic);
     label.ill_vol = ntohl(label.ill_vol);
 
     if (label.ill_vol == PM_LOG_VOL_TI)
-	do_index(f);
+	do_index(f, label.ill_magic & 0xff);
     else if (label.ill_vol == PM_LOG_VOL_META)
 	do_meta(f);
     else

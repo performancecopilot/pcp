@@ -1221,6 +1221,20 @@ __pmTimevalCmp(const pmTimeval *a, const pmTimeval *b)
 }
 
 /*
+ * a : b for __pmTimestamp ... <0 for a<b, ==0 for a==b, >0 for a>b
+ */
+int
+__pmTimestampCmp(const __pmTimestamp *a, const __pmTimestamp *b)
+{
+    int res = (int)(a->ts_sec - b->ts_sec);
+
+    if (res == 0)
+	res = (int)(a->ts_nsec - b->ts_nsec);
+
+    return res;
+}
+
+/*
  * Difference for two of the internal timestamps ...
  * Same as pmtimevalSub() in tv.c, just with pmTimeval args
  * rather than struct timeval args.
@@ -1240,6 +1254,17 @@ double
 __pmTimespecSub(const pmTimespec *ap, const pmTimespec *bp)
 {
      return (double)(ap->tv_sec - bp->tv_sec + (long double)(ap->tv_nsec - bp->tv_nsec) / (long double)1000000000);
+}
+
+/*
+ * Difference for two of the universal timestamps ...
+ * Same as pmtimespecSub() in tv.c, just with __pmTimestamp args
+ * rather than struct timespec args.
+ */
+double
+__pmTimestampSub(const __pmTimestamp *ap, const __pmTimestamp *bp)
+{
+     return (double)(ap->ts_sec - bp->ts_sec + (long double)(ap->ts_nsec - bp->ts_nsec) / (long double)1000000000);
 }
 
 /*
@@ -1301,6 +1326,20 @@ __pmPrintTimespec(FILE *f, const pmTimespec *tp)
     now = (time_t)tp->tv_sec;
     pmLocaltime(&now, &tmp);
     fprintf(f, "%02d:%02d:%02d.%09d", tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (int)tp->tv_nsec);
+}
+
+/*
+ * print universal __pmTimestamp timestamp in HH:MM:SS.XXXXXXXXX format
+ */
+void
+__pmPrintTimestamp(FILE *f, const __pmTimestamp *tsp)
+{
+    struct tm	tmp;
+    time_t	now;
+
+    now = (time_t)tsp->ts_sec;
+    pmLocaltime(&now, &tmp);
+    fprintf(f, "%02d:%02d:%02d.%09d", tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (int)tsp->ts_nsec);
 }
 
 /*

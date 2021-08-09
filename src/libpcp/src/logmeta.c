@@ -795,7 +795,7 @@ __pmLogLoadMeta(__pmArchCtl *acp)
 		    goto end;
 	    }/*for*/
 	}
-	else if (h.type == TYPE_INDOM) {
+	else if (h.type == TYPE_INDOM_V2) {
 	    pmTimeval		*tv;
 	    pmTimespec		when;
 	    pmInResult		in;
@@ -1556,7 +1556,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":6", PM_FAULT_ALLOC);
 
     /* swab all output fields */
     out->hdr.len = htonl(len);
-    out->hdr.type = htonl(TYPE_INDOM);
+    out->hdr.type = htonl(TYPE_INDOM_V2);
     out->stamp.tv_sec = htonl(tp->tv_sec);
     out->stamp.tv_usec = htonl(tp->tv_usec);
     out->indom = __htonpmInDom(indom);

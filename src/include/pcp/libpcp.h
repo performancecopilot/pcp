@@ -617,6 +617,18 @@ PCP_CALL extern int __pmParseLabelSet(const char *, int, int, pmLabelSet **);
 PCP_CALL extern int __pmGetContextLabels(pmLabelSet **);
 PCP_CALL extern int __pmGetDomainLabels(int, const char *, pmLabelSet **);
 
+/*
+ * Universal timestamp ... this is like a struct timespec, but we
+ * control the size of the fields and choose different field names
+ * to give the compiler the maximum chance of spotting misuses.
+ * All time of day fields internally within libpcp use this format
+ * which is Y2038 safe.
+ */
+typedef struct {
+    __int64_t	ts_sec;
+    __int32_t	ts_nsec;
+} __pmTimestamp;
+
 /* internal archive data structures */
 /*
  * record header in the metadata log file ... len (by itself) also is
@@ -628,14 +640,13 @@ typedef struct __pmLogHdr {
 } __pmLogHdr;
 
 #define TYPE_DESC		1	/* header, pmDesc, trailer */
-#define TYPE_INDOM		2	/* header, __pmLogInDom, trailer */
+#define TYPE_INDOM_V2		2	/* header, __pmLogInDom_v2, trailer */
 #define TYPE_LABEL		3	/* header, __pmLogLabelSet, trailer */
 #define TYPE_TEXT		4	/* header, __pmLogText, trailer */
-#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
-#define TYPE_INDOM_DELTA	5	/* header, __pmLogInDomDelta, trailer */
-#define TYPE_HIGHRES_INDOM	6	/* header, __pmLogHighResInDom, trailer */
+#define TYPE_INDOM		5	/* header, __pmLogInDom, trailer */
+#define TYPE_INDOM_DELTA	6	/* header, __pmLogInDom, trailer */
 #define TYPE_HIGHRES_LABEL	7	/* header, __pmLogHighResLabelSet, trailer */
-#endif
+#define TYPE_MAX TYPE_HIGHRES_LABEL
 
 /*
  * __pmLogInDom is used to hold the instance identifiers for an instance
@@ -650,19 +661,24 @@ typedef struct __pmLogHdr {
  *	string (name) table, all null-byte terminated
  *
  * NOTE: 3 types of allocation
- * (1)
- * buf is NULL, 
- * namelist and instlist have been allocated
- * separately and so must each be freed.
- * (2)
- * buf is NOT NULL, allinbuf == 1,
- * all allocations were in the buffer and so only
- * the buffer should be freed,
- * (3)
- * buf is NOT NULL, allinbuf == 0,
- * as well as buffer allocation, 
- * the namelist has been allocated separately and so
- * both the buf and namelist should be freed.
+ * (1) buf is NULL, 
+ *     namelist and instlist have been allocated separately and so must
+ *     each be freed.
+ * (2) buf is NOT NULL, allinbuf == 1,
+ *     all allocations were in the buffer and so only the buffer should
+ *     be freed,
+ * (3) buf is NOT NULL, allinbuf == 0,
+ *     as well as buffer allocation, the namelist has been allocated
+ *     separately and so both the buf and namelist should be freed.
+ *
+ * NOTE: timestamp is pmTimeVal for V2 archives and pmTimespec fo
+ *       V3 archives
+ *
+ * NOTE: the same structure is used for TYPE_INDOM_DELTA records, except
+ *       the semantics of nameindex[] is changed so that a value of -1
+ *       means the corresponding instance has been deleted from the
+ *       instance domain, else the corresponding instance has been added
+ *       to the instance domain
  */
 typedef struct __pmLogInDom {
     struct __pmLogInDom	*next;
@@ -704,7 +720,7 @@ typedef struct __pmLogText {
  * in memory labelsets are linked together in reverse chronological
  * order (just like the __pmLogInDom structure above).
  * -- externally we write these as
- *	timestamp
+ *	timestamp	* TODO V2 vs V3 explanation
  *	type (int - PM_LABEL_* types)
  *	ident (int - PM_IN_NULL, domain, indom, pmid)
  *	nsets (int - usually 1, except for instances)
@@ -786,31 +802,36 @@ typedef struct {
 #endif
 
 /*
- * Temporal Index Record
+ * Internal Temporal Index Record
  */
 typedef struct {
-    pmTimeval	ti_stamp;	/* now */
-    int32_t	ti_vol;		/* current log volume no. */
-    __pmoff32_t	ti_meta;	/* end of meta data file */
-    __pmoff32_t	ti_log;		/* end of metrics log file */
-} __pmLogTI2;
-
-#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
-typedef struct {
-    int64_t	ti_sec;		/* now (seconds part) */
-    int32_t	ti_nsec;	/* now (nanoseconds part) */
-    int32_t	ti_vol;		/* current log volume no. */
-    __pmoff64_t	ti_meta;	/* end of meta data file */
-    __pmoff64_t	ti_log;		/* end of metrics log file */
-} __pmLogTI3;
-#endif
-
-typedef union {
-    __pmLogTI2	v2;
-#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
-    __pmLogTI3	v3;
-#endif
+    __pmTimestamp	ti_stamp;	/* now */
+    int			ti_vol;		/* current log volume no. */
+    off_t		ti_meta;	/* end of meta data file */
+    off_t		ti_log;		/* end of metrics log file */
 } __pmLogTI;
+
+/*
+ * On-Disk Temporal Index Record, Version 3
+ */
+typedef struct {
+    __uint64_t	ti_sec;
+    __uint32_t	ti_nsec;
+    __uint32_t	ti_vol;
+    __pmoff64_t	ti_meta;
+    __pmoff64_t	ti_log;
+} __pmExtTI_v3;
+
+/*
+ * On-Disk Temporal Index Record, Version 2
+ */
+typedef struct {
+    __int32_t	ti_sec;
+    __int32_t	ti_usec;
+    __int32_t	ti_vol;
+    __pmoff32_t	ti_meta;
+    __pmoff32_t	ti_log;
+} __pmExtTI_v2;
 
 /*
  * Log/Archive Control
@@ -951,7 +972,7 @@ PCP_CALL extern int __pmLogPutDesc(__pmArchCtl *, const pmDesc *, int, char **);
 PCP_CALL extern int __pmLogPutInDom(__pmArchCtl *, pmInDom, const pmTimeval *, int, int *, char **);
 PCP_CALL extern int __pmLogPutResult(__pmArchCtl *, __pmPDU *);
 PCP_CALL extern int __pmLogPutResult2(__pmArchCtl *, __pmPDU *);
-PCP_CALL extern void __pmLogPutIndex(const __pmArchCtl *, const pmTimeval *);
+PCP_CALL extern int __pmLogPutIndex(const __pmArchCtl *, const __pmTimestamp *);
 PCP_CALL extern int __pmLogPutLabel(__pmArchCtl *, unsigned int, unsigned int, int, pmLabelSet *, const pmTimeval *);
 PCP_CALL extern int __pmLogPutText(__pmArchCtl *, unsigned int , unsigned int, char *, int);
 PCP_CALL extern int __pmLogWriteLabel(__pmFILE *, const __pmLogLabel *);
@@ -1040,9 +1061,9 @@ PCP_CALL extern int __pmAFisempty(void);
 #define LOG_REQUEST_STATUS	2
 #define LOG_REQUEST_SYNC	3
 typedef struct {
-    pmTimeval  ls_start;	/* start time for log */
-    pmTimeval  ls_last;	/* last time log written */
-    pmTimeval  ls_timenow;	/* current time */
+    pmTimeval	ls_start;	/* start time for log */
+    pmTimeval	ls_last;	/* last time log written */
+    pmTimeval	ls_timenow;	/* current time */
     int		ls_state;	/* state of log (from __pmLogCtl) */
     int		ls_vol;		/* current volume number of log */
     __int64_t	ls_size;	/* size of current volume */
@@ -1304,6 +1325,8 @@ PCP_CALL extern void __pmtimevalPause(struct timeval);
 /* manipulate internal timestamps */
 PCP_CALL extern double __pmTimevalSub(const pmTimeval *, const pmTimeval *);
 PCP_CALL extern double __pmTimespecSub(const pmTimespec *, const pmTimespec *);
+PCP_CALL extern double __pmTimestampSub(const __pmTimestamp *, const __pmTimestamp *);
+PCP_CALL extern int __pmTimestampCmp(const __pmTimestamp *, const __pmTimestamp *);
 
 /* reverse ctime, time interval parsing, time conversions */
 PCP_CALL extern int __pmParseCtime(const char *, struct tm *, char **);
@@ -1423,6 +1446,7 @@ PCP_CALL extern void __pmDumpStack(FILE *);
 PCP_CALL extern void __pmDumpStatusList(FILE *, int, const int *);
 PCP_CALL extern void __pmPrintTimeval(FILE *, const pmTimeval *);
 PCP_CALL extern void __pmPrintTimespec(FILE *, const pmTimespec *);
+PCP_CALL extern void __pmPrintTimestamp(FILE *, const __pmTimestamp *);
 PCP_CALL extern void __pmPrintIPC(void);
 PCP_CALL extern char *__pmPDUTypeStr_r(int, char *, int);
 PCP_CALL extern const char *__pmPDUTypeStr(int);	/* NOT thread-safe */

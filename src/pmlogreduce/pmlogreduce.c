@@ -208,6 +208,7 @@ main(int argc, char **argv)
     __pmPDU	*pb;		/* pdu buffer */
     struct timeval	unused;
     unsigned long	peek_offset;
+    __pmTimestamp	stamp;
 
     /* no derived or anon metrics, please */
     __pmSetInternalState(PM_STATE_PMCS);
@@ -346,7 +347,9 @@ main(int argc, char **argv)
      * All the initial metadata has been generated, add timestamp
      */
     __pmFflush(logctl.l_mdfp);
-    __pmLogPutIndex(&archctl, &current);
+    stamp.ts_sec = current.tv_sec;
+    stamp.ts_nsec = current.tv_usec * 1000;
+    __pmLogPutIndex(&archctl, &stamp);
 
     written = 0;
 
@@ -422,9 +425,9 @@ main(int argc, char **argv)
 	/* switch volumes if required */
 	if (varg > 0) {
 	    if (written > 0 && (written % varg) == 0) {
-		pmTimeval	next_stamp;
-		next_stamp.tv_sec = irp->timestamp.tv_sec;
-		next_stamp.tv_usec = irp->timestamp.tv_usec;
+		__pmTimestamp	next_stamp;
+		next_stamp.ts_sec = irp->timestamp.tv_sec;
+		next_stamp.ts_nsec = irp->timestamp.tv_usec * 1000;
 		newvolume(oname, &next_stamp);
 	    }
 	}
@@ -435,9 +438,9 @@ main(int argc, char **argv)
 	peek_offset = __pmFtell(archctl.ac_mfp);
 	peek_offset += ((__pmPDUHdr *)pb)->len - sizeof(__pmPDUHdr) + 2*sizeof(int);
 	if (peek_offset > 0x7fffffff) {
-	    pmTimeval	next_stamp;
-	    next_stamp.tv_sec = irp->timestamp.tv_sec;
-	    next_stamp.tv_usec = irp->timestamp.tv_usec;
+	    __pmTimestamp	next_stamp;
+	    next_stamp.ts_sec = irp->timestamp.tv_sec;
+	    next_stamp.ts_nsec = irp->timestamp.tv_usec * 1000;
 	    newvolume(oname, &next_stamp);
 	}
 
@@ -465,7 +468,9 @@ next:
     /* write the last time stamp */
     __pmFflush(archctl.ac_mfp);
     __pmFflush(logctl.l_mdfp);
-    __pmLogPutIndex(&archctl, &current);
+    stamp.ts_sec = current.tv_sec;
+    stamp.ts_nsec = current.tv_usec * 1000;
+    __pmLogPutIndex(&archctl, &stamp);
 
     exit(exit_status);
 

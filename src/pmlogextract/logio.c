@@ -106,7 +106,7 @@ again:
     }
 
     if (pmDebugOptions.log) {
-	if (vol != PM_LOG_VOL_META || ntohl(lpb[1]) == TYPE_INDOM) {
+	if (vol != PM_LOG_VOL_META || ntohl(lpb[1]) == TYPE_INDOM_V2) {
 	    fprintf(stderr, "@");
 	    if (sts >= 0) {
 		struct timeval	stamp;
@@ -126,7 +126,7 @@ again:
 	struct timeval	stamp;
 	pmTimeval	*tvp = (pmTimeval *)&lpb[vol == PM_LOG_VOL_META ? 2 : 1];
 	fprintf(stderr, "_pmLogGet");
-	if (vol != PM_LOG_VOL_META || ntohl(lpb[1]) == TYPE_INDOM) {
+	if (vol != PM_LOG_VOL_META || ntohl(lpb[1]) == TYPE_INDOM_V2) {
 	    fprintf(stderr, " timestamp=");
 	    stamp.tv_sec = ntohl(tvp->tv_sec);
 	    stamp.tv_usec = ntohl(tvp->tv_usec);

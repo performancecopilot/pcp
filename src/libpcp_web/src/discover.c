@@ -1119,7 +1119,7 @@ process_metadata(pmDiscover *p)
 	    pmDiscoverInvokeMetricCallBacks(p, &ts, &desc, nnames, names);
 	    break;
 
-	case TYPE_INDOM:
+	case TYPE_INDOM_V2:
 	    /* decode indom result from buffer */
 	    pmDiscoverStatsAdd(p->module, "metadata.decode.indom", NULL, 1);
 	    if ((e = pmDiscoverDecodeMetaInDom(buf, len, &ts, &inresult)) < 0) {

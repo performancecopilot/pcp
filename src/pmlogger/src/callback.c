@@ -653,6 +653,7 @@ do_work(task_t *tp)
     char		**namelist;
     pmTimeval		tmp;
     pmTimeval		resp_tval;
+    __pmTimestamp	stamp;
     unsigned long	peek_offset;
 
     if ((pmDebugOptions.appl2) && (pmDebugOptions.desperate)) {
@@ -1052,9 +1053,9 @@ do_work(task_t *tp)
 	    assert(new_meta_offset >= 0);
 	    __pmFseek(archctl.ac_mfp, last_log_offset, SEEK_SET);
 	    __pmFseek(logctl.l_mdfp, old_meta_offset, SEEK_SET);
-	    tmp.tv_sec = (__int32_t)resp->timestamp.tv_sec;
-	    tmp.tv_usec = (__int32_t)resp->timestamp.tv_usec;
-	    __pmLogPutIndex(&archctl, &tmp);
+	    stamp.ts_sec = (__int32_t)resp->timestamp.tv_sec;
+	    stamp.ts_nsec = (__int32_t)resp->timestamp.tv_usec * 1000;
+	    __pmLogPutIndex(&archctl, &stamp);
 	    /*
 	     * ... and put them back
 	     */
