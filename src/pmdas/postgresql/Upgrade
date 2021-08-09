@@ -19,7 +19,10 @@
 
 if grep -q ^postgresql "$PCP_PMCDCONF_PATH" 2>/dev/null
 then
-    sed -i -e "s,perl $PCP_PMDAS_DIR/postgresql/pmdapostgresql.pl,$PCP_PYTHON_PROG $PCP_PMDAS_DIR/postgresql/pmdapostgresql.python,g" $PCP_PMCDCONF_PATH 2>/dev/null
+    sed -i \
+	-e "s,python $PCP_PMDAS_DIR/postgresql/,$PCP_PYTHON_PROG $PCP_PMDAS_DIR/postgresql/,g" \
+	-e "s,perl $PCP_PMDAS_DIR/postgresql/pmdapostgresql.pl,$PCP_PYTHON_PROG $PCP_PMDAS_DIR/postgresql/pmdapostgresql.python,g" \
+	$PCP_PMCDCONF_PATH 2>/dev/null
 fi
 
 perlpath=`which $PCP_PERL_PROG`

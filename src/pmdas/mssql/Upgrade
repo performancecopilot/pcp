@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# Copyright (c) 2019 Red Hat.
+# Copyright (c) 2019,2021 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -12,14 +12,17 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-# Upgrade an older (perl) mssql PMDA to latest (python) version
+# Upgrade an older (perl or python) mssql PMDA to latest python version
 #
 
 . $PCP_DIR/etc/pcp.env
 
 if grep -q ^mssql "$PCP_PMCDCONF_PATH" 2>/dev/null
 then
-    sed -i -e "s,perl $PCP_PMDAS_DIR/mssql/pmdamssql.pl,$PCP_PYTHON_PROG $PCP_PMDAS_DIR/mssql/pmdamssql.python,g" $PCP_PMCDCONF_PATH 2>/dev/null
+    sed -i \
+	-e "s,python $PCP_PMDAS_DIR/mssql/,$PCP_PYTHON_PROG $PCP_PMDAS_DIR/mssql/,g" \
+	-e "s,perl $PCP_PMDAS_DIR/mssql/pmdamssql.pl,$PCP_PYTHON_PROG $PCP_PMDAS_DIR/mssql/pmdamssql.python,g" \
+	$PCP_PMCDCONF_PATH 2>/dev/null
 fi
 
 perlpath=`which $PCP_PERL_PROG`
