@@ -48,7 +48,7 @@ do_index(__pmFILE *f, int version)
     printf("  overhead: %ld bytes [%.0f%%]\n", oheadbytes, 100*(float)oheadbytes/sbuf.st_size);
     sbuf.st_size -= (indexbytes + oheadbytes);
     if (sbuf.st_size != 0)
-	printf("  unaccounted for: %zd bytes\n", sbuf.st_size);
+	printf("  unaccounted for: %lld bytes\n", (long long)sbuf.st_size);
 
     free(buffer);
     return;

@@ -115,23 +115,23 @@ pass1(__pmContext *ctxp, char *archname)
 	    index_state = STATE_BAD;
 	}
 	if (tip->off_meta < sizeof(__pmLogLabel)+2*sizeof(int)) {
-	    fprintf(stderr, "%s.index[entry %d]: offset to metadata (%zd) before end of label record (%zd)\n",
-		archname, i, tip->off_meta, sizeof(__pmLogLabel)+2*sizeof(int));
+	    fprintf(stderr, "%s.index[entry %d]: offset to metadata (%lld) before end of label record (%zd)\n",
+		archname, i, (long long)tip->off_meta, sizeof(__pmLogLabel)+2*sizeof(int));
 	    index_state = STATE_BAD;
 	}
 	if (meta_size != -1 && tip->off_meta > meta_size) {
-	    fprintf(stderr, "%s.index[entry %d]: offset to metadata (%zd) past end of file (%zd)\n",
-		archname, i, tip->off_meta, meta_size);
+	    fprintf(stderr, "%s.index[entry %d]: offset to metadata (%lld) past end of file (%lld)\n",
+		archname, i, (long long)tip->off_meta, (long long)meta_size);
 	    index_state = STATE_BAD;
 	}
 	if (tip->off_data < sizeof(__pmLogLabel)+2*sizeof(int)) {
-	    fprintf(stderr, "%s.index[entry %d]: offset to log (%zd) before end of label record (%zd)\n",
-		archname, i, tip->off_data, sizeof(__pmLogLabel)+2*sizeof(int));
+	    fprintf(stderr, "%s.index[entry %d]: offset to log (%lld) before end of label record (%zd)\n",
+		archname, i, (long long)tip->off_data, sizeof(__pmLogLabel)+2*sizeof(int));
 	    index_state = STATE_BAD;
 	}
 	if (log_size != -1 && tip->off_data > log_size) {
-	    fprintf(stderr, "%s.index[entry %d]: offset to log (%zd) past end of file (%zd)\n",
-		archname, i, tip->off_data, log_size);
+	    fprintf(stderr, "%s.index[entry %d]: offset to log (%lld) past end of file (%lld)\n",
+		archname, i, (long long)tip->off_data, (long long)log_size);
 	    index_state = STATE_BAD;
 	}
 	if (log_label.ill_start.tv_sec != 0) {
@@ -164,13 +164,13 @@ pass1(__pmContext *ctxp, char *archname)
 		index_state = STATE_BAD;
 	    }
 	    if (tip->vol == lastp->vol && tip->off_meta < lastp->off_meta) {
-		fprintf(stderr, "%s.index[entry %d]: offset to metadata (%zd) decreased (from %zd at [entry %d])\n",
-			archname, i, tip->off_meta, lastp->off_meta, i-1);
+		fprintf(stderr, "%s.index[entry %d]: offset to metadata (%lld) decreased (from %lld at [entry %d])\n",
+			archname, i, (long long)tip->off_meta, (long long)lastp->off_meta, i-1);
 		index_state = STATE_BAD;
 	    }
 	    if (tip->vol == lastp->vol && tip->off_data < lastp->off_data) {
-		fprintf(stderr, "%s.index[entry %d]: offset to log (%zd) decreased (from %zd at [entry %d])\n",
-			archname, i, tip->off_data, lastp->off_data, i-1);
+		fprintf(stderr, "%s.index[entry %d]: offset to log (%lld) decreased (from %lld at [entry %d])\n",
+			archname, i, (long long)tip->off_data, (long long)lastp->off_data, i-1);
 		index_state = STATE_BAD;
 	    }
 	}
