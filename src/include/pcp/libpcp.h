@@ -759,7 +759,7 @@ typedef struct __pmLogHighResLabelSet {
  * External file and internal (below PMAPI) formats for archive labels.
  */
 typedef struct {
-    int		ill_magic;		/* PM_LOG_MAGIC|PM_LOG_VERS02 */
+    int		ill_magic;		/* PM_LOG_MAGIC|PM_LOG_VERS?? */
     int		ill_pid;		/* PID of logger */
     pmTimeval	ill_start;		/* start of this log */
     int		ill_vol;		/* current log volume no. */

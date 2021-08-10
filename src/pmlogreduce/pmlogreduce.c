@@ -311,6 +311,9 @@ main(int argc, char **argv)
 
     /* create output log - must be done before writing label */
     archctl.ac_log = &logctl;
+#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
+// TODO what to do here?
+#endif
     if ((sts = __pmLogCreate("", oname, PM_LOG_VERS02, &archctl)) < 0) {
 	fprintf(stderr, "%s: Error: __pmLogCreate: %s\n",
 		pmGetProgname(), pmErrStr(sts));

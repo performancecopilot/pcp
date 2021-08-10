@@ -1194,8 +1194,9 @@ process_metadata(pmDiscover *p)
 	default:
 	    if (pmDebugOptions.discovery)
 		fprintf(stderr, "%s, len = %d\n",
-			hdr.type == (PM_LOG_MAGIC | PM_LOG_VERS02) ?
-			"PM_LOG_MAGICv2" : "UNKNOWN", len);
+			hdr.type == (PM_LOG_MAGIC | PM_LOG_VERS02) ? "PM_LOG_MAGICv2"
+			: (hdr.type == (PM_LOG_MAGIC | PM_LOG_VERS03) ? "PM_LOG_MAGICv3"
+			: "UNKNOWN"), len);
 	    break;
 	}
     }

@@ -562,6 +562,8 @@ main(int argc, char *argv[])
 		}
 		if (hdr.type == (PM_LOG_MAGIC | PM_LOG_VERS02))
 		    continue;
+		if (hdr.type == (PM_LOG_MAGIC | PM_LOG_VERS03))
+		    continue;
 		fprintf(stderr, "[%d] error bad magic %x != %x\n", nrec, hdr.type, (PM_LOG_MAGIC | PM_LOG_VERS02));
 		exit(1);
 

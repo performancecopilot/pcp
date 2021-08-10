@@ -42,7 +42,12 @@ check_context_start(pmi_context *current)
 
     acp = &current->archctl;
     acp->ac_log = &current->logctl;
+#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
+    // TODO does this need to be an option from the command line?
+    sts = __pmLogCreate(host, current->archive, PM_LOG_VERS03, acp);
+#else
     sts = __pmLogCreate(host, current->archive, PM_LOG_VERS02, acp);
+#endif
     if (sts < 0)
 	return sts;
 

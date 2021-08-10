@@ -56,7 +56,12 @@ char		*pmcd_host;
 char		*pmcd_host_conn;
 char		*pmcd_host_label;
 int		host_context = PM_CONTEXT_HOST;	 /* pmcd / local context mode */
+#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
+// TODO at some point make this the default
+int		archive_version = PM_LOG_VERS03; /* Type of archive to create */
+#else
 int		archive_version = PM_LOG_VERS02; /* Type of archive to create */
+#endif
 int		linger = 0;		/* linger with no tasks/events */
 int		notify_service_mgr = 0;	/* notify service manager when we're ready (daemon mode only) */
 int		pmlogger_reexec = 0;	/* set when PMLOGGER_REEXEC is set in the environment */
