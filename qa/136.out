@@ -7,7 +7,7 @@ MYLOG.4 700-900 bytes
 
 
 Temporal Index
-		Log Vol    end(meta)     end(log)
+			Log Vol    end(meta)     end(log)
 TIMESTAMP-0            0       OFFSET       OFFSET
 TIMESTAMP-1            1       OFFSET       OFFSET
 TIMESTAMP-2            2       OFFSET       OFFSET
