@@ -43,7 +43,10 @@ _filter()
     rm -f $tmp.sed
     touch $tmp.sed
     tstamp=1
-    sed -e "s@$tmp@TMP@g" >$tmp.tmp
+    sed >$tmp.tmp \
+	-e "s@$tmp@TMP@g" \
+	-e '/^PID for pmlogger:/s/ [0-9][0-9]*/ PID/' \
+    # end
     sed -n <$tmp.tmp \
       -e 's/.*\([0-9][0-9]:[0-9][0-9]:[0-9][0-9].[0-9][0-9]*[0-9]\).*/\1/p' \
     | LC_COLLATE=POSIX sort -u \
@@ -101,9 +104,24 @@ do
 	| _filter >$tmp.$version.dump
     fi
     cat $tmp.$version.dump >>$seq.full
+
+    if $do_valgrind
+    then
+	_run_valgrind pmloglabel -L $tmp.$version 2>&1 \
+	| _filter >$tmp.$version.label
+    else
+	pmloglabel -L $tmp.$version \
+	| _filter >$tmp.$version.label
+    fi
+    cat $tmp.$version.label >>$seq.full
+
 done
 
+echo "=== pmdumplog diffs ==="
 diff $tmp.*.dump
+
+echo "=== pmloglabel diffs ==="
+diff $tmp.*.label
 
 # success, all done
 exit

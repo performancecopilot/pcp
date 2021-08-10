@@ -16,6 +16,7 @@ LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
+=== pmdumplog diffs ===
 2c2
 < Log Label (Log Format Version 2)
 ---
@@ -24,3 +25,12 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 < Command: pmdumplog -lt TMP.2 sample
 ---
 > Command: pmdumplog -lt TMP.3 sample
+=== pmloglabel diffs ===
+2c2
+< Log Label (Log Format Version 2)
+---
+> Log Label (Log Format Version 3)
+11c11
+< Command: pmloglabel -L TMP.2
+---
+> Command: pmloglabel -L TMP.3
