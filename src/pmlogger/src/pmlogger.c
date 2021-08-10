@@ -58,7 +58,7 @@ char		*pmcd_host_label;
 int		host_context = PM_CONTEXT_HOST;	 /* pmcd / local context mode */
 #ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
 // TODO at some point make this the default
-int		archive_version = PM_LOG_VERS03; /* Type of archive to create */
+int		archive_version = PM_LOG_VERS02; /* Type of archive to create */
 #else
 int		archive_version = PM_LOG_VERS02; /* Type of archive to create */
 #endif
