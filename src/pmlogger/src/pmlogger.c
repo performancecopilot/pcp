@@ -582,7 +582,11 @@ static pmLongOptions longopts[] = {
     { "", 0, 'u', 0, "output is unbuffered [default now, so -u is a no-op]" },
     { "username", 1, 'U', "USER", "in daemon mode, run as named user [default pcp]" },
     { "volsize", 1, 'v', "SIZE", "switch log volumes after size has been accumulated" },
+#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
+    { "version", 1, 'V', "NUM", "version for archive (default is 2)" },
+#else
     { "version", 1, 'V', "NUM", "version for archive (default and only version is 2)" },
+#endif
     { "", 1, 'x', "FD", "control file descriptor for running from pmRecordControl(3)" },
     { "", 0, 'y', 0, "set timezone for times to local time rather than from PMCD host" },
     PMOPT_HELP,
@@ -955,7 +959,7 @@ main(int argc, char **argv)
 
         case 'V': 
 	    archive_version = (int)strtol(opts.optarg, &endnum, 10);
-#ifdef V3_ARCHIVE
+#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
 	    if (*endnum != '\0'
 		|| (archive_version != PM_LOG_VERS02 &&
 	            archive_version != PM_LOG_VERS03)) {

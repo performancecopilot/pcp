@@ -39,7 +39,7 @@ typedef struct {
 __pmPDU *
 rewrite_pdu(__pmPDU *pb, int version)
 {
-    if (version == PM_LOG_VERS02)
+    if (version == PM_LOG_VERS02 || version == PM_LOG_VERS03)
 	return pb;
 
     fprintf(stderr, "Errors: do not know how to re-write the PDU buffer for a version %d archive\n", version);
