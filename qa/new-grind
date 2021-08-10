@@ -143,7 +143,7 @@ then
 fi
 
 echo "Allocated test number $newseq"
-newgroup=`echo $oldgroup | sed -e "s/^$oldseq[: ]/$newseq /" -e 's/$/ valgrind/'`
+newgroup=`echo $oldgroup | sed -e "s/^$oldseq\([: ]\)/$newseq\1/" -e 's/$/ valgrind/'`
 
 if grep 'non-valgrind' $oldseq >/dev/null
 then
