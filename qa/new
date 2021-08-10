@@ -150,9 +150,9 @@ if [ -z "$try" ]
 then
     if $smallest
     then
-	# as of Feb 2021, we're all full up to 1294 and a bit
+	# as of Aug 2021, we're all full up to 1330 and a bit
 	#
-	try=1294
+	try=1330
     else
 	# random in the range $min-$max based on user name convered from alpha
 	# to numeric, prefixed by current clock seconds
