@@ -1,5 +1,4 @@
 builddefs
 builddefs.install
-builddefs_dev
 pcp.conf
 pcp.conf.install
