@@ -280,11 +280,12 @@ __pmLogChkLabel(__pmArchCtl *acp, __pmFILE *f, __pmLogLabel *lp, int vol)
 
     version = lp->ill_magic & 0xff;
     if ((lp->ill_magic & 0xffffff00) != PM_LOG_MAGIC ||
-	(version != PM_LOG_VERS02) || lp->ill_vol != vol) {
+	(version != PM_LOG_VERS02 && version != PM_LOG_VERS03) ||
+	lp->ill_vol != vol) {
 	if (pmDebugOptions.log) {
 	    if ((lp->ill_magic & 0xffffff00) != PM_LOG_MAGIC)
 		fprintf(stderr, " label magic 0x%x not 0x%x as expected", (lp->ill_magic & 0xffffff00), PM_LOG_MAGIC);
-	    if (version != PM_LOG_VERS02)
+	    if (version != PM_LOG_VERS02 && version != PM_LOG_VERS03)
 		fprintf(stderr, " label version %d not supported", version);
 	    if (lp->ill_vol != vol)
 		fprintf(stderr, " label volume %d not %d as expected", lp->ill_vol, vol);
@@ -451,9 +452,12 @@ __pmLogLoadIndex(__pmLogCtl *lcp)
 		tip_v3->vol = ntohl(tip_v3->vol);
 		__htonll((char *)&tip_v3->off_meta);
 		__htonll((char *)&tip_v3->off_data);
-		/* sizes are the same, so copy whole index entry */
-assert(sizeof(__pmExtTI_v3) == sizeof(__pmLogTI));
-		memcpy(tip, tip_v3, record_size);
+		/* sizes are not the same, so copy field-by-field */
+		tip->stamp.sec = tip_v3->sec;
+		tip->stamp.nsec = tip_v3->nsec;
+		tip->vol = tip_v3->vol;
+		tip->off_meta = tip_v3->off_meta;
+		tip->off_data = tip_v3->off_data;
 	    }
 	    else {
 		__pmExtTI_v2	*tip_v2 = (__pmExtTI_v2 *)buffer;

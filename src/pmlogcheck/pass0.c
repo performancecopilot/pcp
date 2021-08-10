@@ -75,9 +75,10 @@ checklabel(__pmFILE *f, char *fname)
 	    fname, label.ill_magic & 0xffffff00, PM_LOG_MAGIC);
 	sts = STS_FATAL;
     }
-    if ((label.ill_magic & 0xff) != PM_LOG_VERS02) {
-	fprintf(stderr, "%s: bad label version: %d not %d as expected\n",
-	    fname, label.ill_magic & 0xff, PM_LOG_VERS02);
+    if ((label.ill_magic & 0xff) != PM_LOG_VERS02 &&
+        (label.ill_magic & 0xff) != PM_LOG_VERS03) {
+	fprintf(stderr, "%s: bad label version: %d not %d or %d as expected\n",
+	    fname, label.ill_magic & 0xff, PM_LOG_VERS02, PM_LOG_VERS03);
 	sts = STS_FATAL;
     }
     if (log_label.ill_start.tv_sec == 0) {
