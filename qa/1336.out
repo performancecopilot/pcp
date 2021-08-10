@@ -1,0 +1,26 @@
+QA output created by 1336
+QA output created by 1335 --valgrind
+=== std out ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogger -V 2 -c TMP.config -l TMP.log -s 1 TMP.2
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== std out ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogger -V 3 -c TMP.config -l TMP.log -s 1 TMP.3
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+2c2
+< Log Label (Log Format Version 2)
+---
+> Log Label (Log Format Version 3)
+15c15
+< Command: pmdumplog -lt TMP.2 sample
+---
+> Command: pmdumplog -lt TMP.3 sample

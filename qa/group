@@ -132,6 +132,9 @@ fetch
 # archive support in libpcp, includes interp.c
 archive
 
+# V3 PCP archives
+archive_v3
+
 # multi-archive support in libpcp, includes interp.c
 multi-archive
 
@@ -1777,6 +1780,8 @@ x11
 1332 archive pmdumplog local
 1333 archive pmdumplog local valgrind
 1334 pmlogger pmdumplog local
+1335:reserved archive pmlogger local archive_v3
+1336:reserved archive pmlogger local archive_v3 valgrind
 1337 pmda.mssql local
 1338 pmlogrewrite labels pmdumplog local
 1340 pmcd pmda.pmcd pmstore local pmda.sample
