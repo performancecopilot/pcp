@@ -244,7 +244,7 @@ static sig_map_t	sig_handler[] = {
     { SIGEMT,	sigcore_handler },	/* Core   Emulation Trap */
 #endif
     { SIGFPE,	sigcore_handler },	/* Core   Arithmetic Exception */
-    { SIGKILL,	sigexit_handler },	/* Exit   Killed */
+    { SIGKILL,	SIG_DFL },		/* Exit   Killed */
     { SIGBUS,	sigcore_handler },	/* Core   Bus Error */
     { SIGSEGV,	sigcore_handler },	/* Core   Segmentation Fault */
     { SIGSYS,	sigcore_handler },	/* Core   Bad System Call */
