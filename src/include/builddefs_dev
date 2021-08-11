@@ -1,1 +1,3 @@
-CFLAGS_DEV = -D__PCP_EXPERIMENTAL_ARCHIVE_VERSION3=1
+# set $(CFLAGS_DEV) for developer-only compilation flags
+#
+CFLAGS_DEV = 
