@@ -145,7 +145,7 @@ Options:\n\
 		printf("pmGetInDom: %s: %s\n", pmInDomStr(desc.indom), pmErrStr(numinst));
 		exit(1);
 	    }
-	    if ((sts = __pmLogPutInDom(&archctl, desc.indom, &epoch, numinst, ilist, nlist)) < 0) {
+	    if ((sts = __pmLogPutInDom(&archctl, desc.indom, &stamp, numinst, ilist, nlist)) < 0) {
 		fprintf(stderr, "%s: __pmLogPutInDom(...,indom=%s,numinst=%d,...) failed: %s\n", pmGetProgname(), pmInDomStr(desc.indom), numinst, pmErrStr(sts));
 		exit(1);
 	    }

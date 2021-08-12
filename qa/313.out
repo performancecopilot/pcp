@@ -661,16 +661,16 @@ PMID: 2.3.3 (pmcd.pmlogger.host)
 
 Instance Domains in the Log ...
 InDom: 1.6
-07:45:42.422184 3 instances
+07:45:42.422184000 3 instances
    1 or "ec0"
    2 or "ec2"
    3 or "lo0"
-07:45:56.912243 3 instances
+07:45:56.912243000 3 instances
    1 or "ec0"
    2 or "ec2"
    3 or "lo0"
 InDom: 29.2
-07:45:42.422184 9 instances
+07:45:42.422184000 9 instances
    100 or "bin-100"
    200 or "bin-200"
    300 or "bin-300"
@@ -680,7 +680,7 @@ InDom: 29.2
    700 or "bin-700"
    800 or "bin-800"
    900 or "bin-900"
-07:45:48.657341 9 instances
+07:45:48.657341000 9 instances
    100 or "bin-100"
    200 or "bin-200"
    300 or "bin-300"
@@ -690,7 +690,7 @@ InDom: 29.2
    700 or "bin-700"
    800 or "bin-800"
    900 or "bin-900"
-07:45:56.912243 9 instances
+07:45:56.912243000 9 instances
    100 or "bin-100"
    200 or "bin-200"
    300 or "bin-300"
@@ -701,11 +701,11 @@ InDom: 29.2
    800 or "bin-800"
    900 or "bin-900"
 InDom: 2.1
-07:45:41.422332 1 instances
+07:45:41.422332000 1 instances
    1318 or "1318"
-07:45:48.643735 1 instances
+07:45:48.643735000 1 instances
    1342 or "1342"
-07:45:55.913666 1 instances
+07:45:55.913666000 1 instances
    1368 or "1368"
 
 Temporal Index

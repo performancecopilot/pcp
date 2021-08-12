@@ -27,7 +27,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
 Instance Domains in the Log ...
 InDom: 29.2
-13:33:47.240183 9 instances
+13:33:47.240183000 9 instances
    100 or "bin-100"
    200 or "bin-200"
    300 or "bin-300"
@@ -38,32 +38,32 @@ InDom: 29.2
    800 or "bin-800"
    900 or "bin-900"
 InDom: 29.3
-13:33:47.240183 5 instances
+13:33:47.240183000 5 instances
    0 or "m-00"
    4 or "m-04"
    9 or "m-09"
    10 or "m-10"
    11 or "m-11"
-13:33:59.246804 5 instances
+13:33:59.246804000 5 instances
    0 or "m-00"
    4 or "m-04"
    9 or "m-09"
    10 or "m-10"
    12 or "m-12"
-13:34:20.240151 5 instances
+13:34:20.240151000 5 instances
    0 or "m-00"
    4 or "m-04"
    12 or "m-12"
    13 or "m-13"
    14 or "m-14"
 InDom: 29.8
-13:33:47.240183 5 instances
+13:33:47.240183000 5 instances
    0 or "i-0"
    1 or "i-1"
    2 or "i-2"
    3 or "i-3"
    4 or "i-4"
-13:33:53.239873 8 instances
+13:33:53.239873000 8 instances
    0 or "i-0"
    1 or "i-1"
    2 or "i-2"
@@ -72,7 +72,7 @@ InDom: 29.8
    5 or "i-5"
    6 or "i-6"
    7 or "i-7"
-13:33:56.240149 11 instances
+13:33:56.240149000 11 instances
    0 or "i-0"
    1 or "i-1"
    2 or "i-2"
@@ -85,7 +85,7 @@ InDom: 29.8
    9 or "i-9"
    10 or "i-10"
 InDom: 2.1
-13:33:44.278486 1 instances
+13:33:44.278486000 1 instances
    32221 or "32221"
 Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
@@ -608,7 +608,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
 Instance Domains in the Log ...
 InDom: 29.2
-13:33:50.622527 9 instances
+13:33:50.622527000 9 instances
    100 or "bin-100"
    200 or "bin-200"
    300 or "bin-300"
@@ -619,33 +619,33 @@ InDom: 29.2
    800 or "bin-800"
    900 or "bin-900"
 InDom: 29.3
-13:33:50.622527 5 instances
+13:33:50.622527000 5 instances
    0 or "m-00"
    4 or "m-04"
    9 or "m-09"
    10 or "m-10"
    11 or "m-11"
-13:33:57.622530 5 instances
+13:33:57.622530000 5 instances
    0 or "m-00"
    4 or "m-04"
    9 or "m-09"
    10 or "m-10"
    12 or "m-12"
 InDom: 29.8
-13:33:50.622527 5 instances
+13:33:50.622527000 5 instances
    0 or "i-0"
    1 or "i-1"
    2 or "i-2"
    3 or "i-3"
    4 or "i-4"
-13:33:51.622526 6 instances
+13:33:51.622526000 6 instances
    0 or "i-0"
    1 or "i-1"
    2 or "i-2"
    3 or "i-3"
    4 or "i-4"
    5 or "i-5"
-13:33:52.622521 7 instances
+13:33:52.622521000 7 instances
    0 or "i-0"
    1 or "i-1"
    2 or "i-2"
@@ -653,7 +653,7 @@ InDom: 29.8
    4 or "i-4"
    5 or "i-5"
    6 or "i-6"
-13:33:53.622515 8 instances
+13:33:53.622515000 8 instances
    0 or "i-0"
    1 or "i-1"
    2 or "i-2"
@@ -662,7 +662,7 @@ InDom: 29.8
    5 or "i-5"
    6 or "i-6"
    7 or "i-7"
-13:33:54.622336 9 instances
+13:33:54.622336000 9 instances
    0 or "i-0"
    1 or "i-1"
    2 or "i-2"
@@ -672,7 +672,7 @@ InDom: 29.8
    6 or "i-6"
    7 or "i-7"
    8 or "i-8"
-13:33:55.622548 10 instances
+13:33:55.622548000 10 instances
    0 or "i-0"
    1 or "i-1"
    2 or "i-2"
@@ -683,7 +683,7 @@ InDom: 29.8
    7 or "i-7"
    8 or "i-8"
    9 or "i-9"
-13:33:56.622470 11 instances
+13:33:56.622470000 11 instances
    0 or "i-0"
    1 or "i-1"
    2 or "i-2"
@@ -696,7 +696,7 @@ InDom: 29.8
    9 or "i-9"
    10 or "i-10"
 InDom: 2.1
-13:33:49.623143 1 instances
+13:33:49.623143000 1 instances
    32224 or "32224"
 Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
@@ -1057,7 +1057,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
 Instance Domains in the Log ...
 InDom: 29.2
-13:33:47.240183 9 instances
+13:33:47.240183000 9 instances
    100 or "bin-100"
    200 or "bin-200"
    300 or "bin-300"
@@ -1067,7 +1067,7 @@ InDom: 29.2
    700 or "bin-700"
    800 or "bin-800"
    900 or "bin-900"
-13:33:50.622527 9 instances
+13:33:50.622527000 9 instances
    100 or "bin-100"
    200 or "bin-200"
    300 or "bin-300"
@@ -1078,65 +1078,57 @@ InDom: 29.2
    800 or "bin-800"
    900 or "bin-900"
 InDom: 29.3
-13:33:47.240183 5 instances
+13:33:47.240183000 5 instances
    0 or "m-00"
    4 or "m-04"
    9 or "m-09"
    10 or "m-10"
    11 or "m-11"
-13:33:50.622527 5 instances
+13:33:50.622527000 5 instances
    0 or "m-00"
    4 or "m-04"
    9 or "m-09"
    10 or "m-10"
    11 or "m-11"
-13:33:57.622530 5 instances
+13:33:57.622530000 5 instances
    0 or "m-00"
    4 or "m-04"
    9 or "m-09"
    10 or "m-10"
    12 or "m-12"
-13:33:59.246804 5 instances
+13:33:59.246804000 5 instances
    0 or "m-00"
    4 or "m-04"
    9 or "m-09"
    10 or "m-10"
    12 or "m-12"
-13:34:20.240151 5 instances
+13:34:20.240151000 5 instances
    0 or "m-00"
    4 or "m-04"
    12 or "m-12"
    13 or "m-13"
    14 or "m-14"
 InDom: 29.8
-13:33:47.240183 5 instances
+13:33:47.240183000 5 instances
    0 or "i-0"
    1 or "i-1"
    2 or "i-2"
    3 or "i-3"
    4 or "i-4"
-13:33:50.622527 5 instances
+13:33:50.622527000 5 instances
    0 or "i-0"
    1 or "i-1"
    2 or "i-2"
    3 or "i-3"
    4 or "i-4"
-13:33:51.622526 6 instances
-   0 or "i-0"
-   1 or "i-1"
-   2 or "i-2"
-   3 or "i-3"
-   4 or "i-4"
-   5 or "i-5"
-13:33:52.622521 7 instances
+13:33:51.622526000 6 instances
    0 or "i-0"
    1 or "i-1"
    2 or "i-2"
    3 or "i-3"
    4 or "i-4"
    5 or "i-5"
-   6 or "i-6"
-13:33:53.239873 8 instances
+13:33:52.622521000 7 instances
    0 or "i-0"
    1 or "i-1"
    2 or "i-2"
@@ -1144,8 +1136,7 @@ InDom: 29.8
    4 or "i-4"
    5 or "i-5"
    6 or "i-6"
-   7 or "i-7"
-13:33:53.622515 8 instances
+13:33:53.239873000 8 instances
    0 or "i-0"
    1 or "i-1"
    2 or "i-2"
@@ -1154,7 +1145,16 @@ InDom: 29.8
    5 or "i-5"
    6 or "i-6"
    7 or "i-7"
-13:33:54.622336 9 instances
+13:33:53.622515000 8 instances
+   0 or "i-0"
+   1 or "i-1"
+   2 or "i-2"
+   3 or "i-3"
+   4 or "i-4"
+   5 or "i-5"
+   6 or "i-6"
+   7 or "i-7"
+13:33:54.622336000 9 instances
    0 or "i-0"
    1 or "i-1"
    2 or "i-2"
@@ -1164,7 +1164,7 @@ InDom: 29.8
    6 or "i-6"
    7 or "i-7"
    8 or "i-8"
-13:33:55.622548 10 instances
+13:33:55.622548000 10 instances
    0 or "i-0"
    1 or "i-1"
    2 or "i-2"
@@ -1175,7 +1175,7 @@ InDom: 29.8
    7 or "i-7"
    8 or "i-8"
    9 or "i-9"
-13:33:56.240149 11 instances
+13:33:56.240149000 11 instances
    0 or "i-0"
    1 or "i-1"
    2 or "i-2"
@@ -1187,7 +1187,7 @@ InDom: 29.8
    8 or "i-8"
    9 or "i-9"
    10 or "i-10"
-13:33:56.622470 11 instances
+13:33:56.622470000 11 instances
    0 or "i-0"
    1 or "i-1"
    2 or "i-2"
@@ -1200,9 +1200,9 @@ InDom: 29.8
    9 or "i-9"
    10 or "i-10"
 InDom: 2.1
-13:33:44.278486 1 instances
+13:33:44.278486000 1 instances
    32221 or "32221"
-13:33:49.623143 1 instances
+13:33:49.623143000 1 instances
    32224 or "32224"
 Note: timezone set to local timezone of host "ken.engr.acx" from archive
 

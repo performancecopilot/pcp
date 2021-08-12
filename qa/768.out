@@ -15,10 +15,10 @@ PMID: 3.8.0 (proc.psinfo.pid)
 
 Instance Domains in the Log ...
 InDom: 3.9
-15:52:44.652242 2 instances
+15:52:44.652242000 2 instances
    1472 or "001472 /usr/bin/python /ifs/user/tyearke/test/./wait_launcher.py"
    1516 or "001516 /usr/bin/python /ifs/user/tyearke/test/wait.py"
-15:53:14.653792 2 instances
+15:53:14.653792000 2 instances
    1472 or "001472 /usr/bin/python /ifs/user/tyearke/test/./wait_launcher.py"
    1533 or "001533 /usr/bin/python /ifs/user/tyearke/test/wait.py"
 

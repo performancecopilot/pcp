@@ -20,11 +20,13 @@
 /* from internal.h ... */
 #ifdef HAVE_NETWORK_BYTEORDER
 #define __ntohpmInDom(a)        (a)
-#define __ntohpmUnits(a)        (a)
 #define __ntohpmID(a)           (a)
+#define __ntohpmUnits(a)        (a)
+#define __ntohll(a)             /* noop */
 #else
 #define __ntohpmInDom(a)        ntohl(a)
 #define __ntohpmID(a)           ntohl(a)
+#define __ntohll(v)		__htonll(v)
 #endif
 
 /* from endian.c ... */
@@ -41,6 +43,22 @@ __ntohpmUnits(pmUnits units)
 }
 #endif
 
+/* from endian.c ... */
+#ifndef __htonll
+void
+__htonll(char *p)
+{
+    char 	c;
+    int		i;
+
+    for (i = 0; i < 4; i++) {
+	c = p[i];
+	p[i] = p[7-i];
+	p[7-i] = c;
+    }
+}
+#endif
+
 
 static int	hflag;
 static int	iflag;
@@ -48,6 +66,7 @@ static int	lflag;
 static int	mflag;
 static int	wflag;
 static int	nrec;
+static int	version;
 
 void
 usage(void)
@@ -65,6 +84,10 @@ usage(void)
     fprintf(stderr, " -z               set reporting timezone to pmcd from archive\n");
     fprintf(stderr, " -Z timezone      set reporting timezone\n");
 }
+
+static char	*typename[] = {
+    "0?", "DESC", "INDOM_V2", "LABEL", "TEXT", "INDOM", "INDOM_DELTA", "7?"
+};
 
 /*
  * linked list of indoms at the same time
@@ -129,6 +152,137 @@ free_elt_fields(elt_t *ep)
 
 void
 do_indom(uint32_t *buf)
+{
+    static __pmTimestamp	prior_stamp = { 0, 0 };
+    static elt_t		*head = NULL;
+    static elt_t		dup = { NULL, 0, 0, NULL, NULL };
+    static int			ndup = 0;
+    __pmTimestamp		*tsp;
+    pmInDom			this_indom;
+    __pmTimestamp		this_stamp;
+    int				this_numinst;
+    int				warn;
+    elt_t			*ep = NULL;	/* pander to gcc */
+    elt_t			*tp;
+    elt_t			*dp = &dup;
+
+    tsp = (__pmTimestamp *)buf;
+    this_stamp.sec =tsp->sec;
+    __ntohll((char *)&this_stamp.sec);
+    this_stamp.nsec = ntohl(tsp->nsec);
+    this_indom = __ntohpmInDom(buf[3]);
+    this_numinst = ntohl(buf[4]);
+    warn = 0;
+    if (prior_stamp.sec != 0) {
+	/*
+	 * Not the first indom record, so check for duplicate timestamps
+	 * for the same indom.
+	 * Use a linked list of indoms previously seen.
+	 */
+	if (__pmTimestampSub(&this_stamp, &prior_stamp) == 0) {
+	    /* same timestamp as previous indom */
+	    for (ep = head; ep != NULL; ep = ep->next) {
+		if (ep->indom == this_indom) {
+		    /* indom match => duplicate */
+		    ndup++;
+		    warn++;
+		    break;
+		}
+	    }
+	    if (ep == NULL) {
+		/*
+		 * indom not seen before at this timestamp, add
+		 * to head of linked list
+		 */
+		ep = (elt_t *)malloc(sizeof(elt_t));
+		if (ep == NULL) {
+		    fprintf(stderr, "Arrgh: elt malloc failed for indom %s @ ", pmInDomStr(this_indom));
+		    __pmPrintTimestamp(stderr, &this_stamp);
+		    exit(1);
+		}
+		ep->next = head;
+		head = ep;
+	    }
+	}
+	else {
+	    /* new timestamp, clear linked list */
+	    for (ep = head; ep != NULL; ) {
+		free_elt_fields(ep);
+		tp = ep->next;
+		free(ep);
+		ep = tp;
+	    }
+	    ep = head = (elt_t *)malloc(sizeof(elt_t));
+	    if (head == NULL) {
+		fprintf(stderr, "Arrgh: head malloc failed for indom %s @ ", pmInDomStr(this_indom));
+		__pmPrintTimestamp(stderr, &this_stamp);
+		exit(1);
+	    }
+	    ep->next = NULL;
+	    ndup = 0;
+	}
+	ep->indom = this_indom;
+	ep->numinst = this_numinst;
+	ep->inst = NULL;
+	ep->iname = NULL;
+	if (wflag == 2) {
+	    /* -W, so unpack indom */
+	    unpack_indom(ep, this_indom, this_numinst, &buf[5]);
+	}
+    }
+    if (iflag || (warn && wflag > 0)) {
+	/* if warn is set, ep must have been assigned a value */
+	printf("[%d] @ ", nrec);
+	__pmPrintTimestamp(stdout, &this_stamp);
+	printf(" indom %s numinst %d", pmInDomStr(this_indom), this_numinst);
+	if (warn) {
+	    int	o, d;
+	    int	diffs = 0;
+	    printf(" duplicate #%d\n", ndup);
+	    dp->indom = this_indom;
+	    dp->numinst = this_numinst;
+	    dp->inst = NULL;
+	    unpack_indom(dp, this_indom, this_numinst, &buf[5]);
+	    if (ep->numinst != dp->numinst)
+		printf("  numinst changed from %d to %d\n", ep->numinst, dp->numinst);
+	    for (o = 0; o < ep->numinst; o++) {
+		for (d = 0; d < dp->numinst; d++) {
+		    if (ep->inst[o] == dp->inst[d]) {
+			if (strcmp(ep->iname[o], dp->iname[d]) != 0) {
+			    printf("  inst %d: changed ext name from \"%s\" to \"%s\"\n", ep->inst[o], ep->iname[o], dp->iname[d]);
+			    diffs++;
+			}
+#ifdef DEBUG
+			else
+			    printf("  inst %d: same\n", ep->inst[o]);
+#endif
+			dp->inst[d] = -1;
+			break;
+		    }
+		}
+		if (d == dp->numinst) {
+		    printf("  inst %d: dropped (\"%s\")\n", ep->inst[o], ep->iname[o]);
+		    diffs++;
+		}
+	    }
+	    for (d = 0; d < dp->numinst; d++) {
+		if (dp->inst[d] != -1) {
+		    printf("  inst %d: added (\"%s\")\n", dp->inst[d], dp->iname[d]);
+		    diffs++;
+		}
+	    }
+	    if (diffs == 0)
+		printf(" no differences\n");
+	    free_elt_fields(dp);
+	}
+	else
+	    putchar('\n');
+    }
+    prior_stamp = this_stamp;
+}
+
+void
+do_indom_v2(uint32_t *buf)
 {
     static pmTimeval	prior_stamp = { 0, 0 };
     static elt_t	*head = NULL;
@@ -506,8 +660,14 @@ main(int argc, char *argv[])
 	}
 	hdr.len = ntohl(hdr.len);
 	hdr.type = ntohl(hdr.type);
-	if (pmDebugOptions.log)
-	    fprintf(stderr, "read: len=%d type=%d @ offset=%ld\n", hdr.len, hdr.type, (long)offset);
+	if (nrec == 0)
+	    version = hdr.type & 0xff;
+	if (pmDebugOptions.log) {
+	    if (nrec == 0)
+		fprintf(stderr, "read: len=%d magic=0x%x (version=%d) @ offset=%lld\n", hdr.len, hdr.type, version, (long long)offset);
+	    else
+		fprintf(stderr, "read: len=%d type=%s (%d) @ offset=%lld\n", hdr.len, typename[hdr.type], hdr.type, (long long)offset);
+	}
 	if (nrec == 0 && hdr.len != (int)sizeof(__pmLogLabel)+2*(int)sizeof(int)) {
 	    fprintf(stderr, "error: %s does not start with label record (hdr len=%d not %d), not a PCP archive file?\n", argv[optind], hdr.len, (int)sizeof(pmLogLabel)+2*(int)sizeof(int));
 	    exit(1);
@@ -533,8 +693,12 @@ main(int argc, char *argv[])
 	}
 
 	switch (hdr.type) {
-	    case TYPE_INDOM_V2:
+	    case TYPE_INDOM:
 		do_indom(buf);
+		break;
+
+	    case TYPE_INDOM_V2:
+		do_indom_v2(buf);
 		break;
 
 	    case TYPE_DESC:

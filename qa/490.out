@@ -44,17 +44,17 @@ pmdumplog diffs ...
  
  Instance Domains in the Log ...
 -InDom: 1.5
--23:22:42.011766 3 instances
+-23:22:42.011766000 3 instances
 -   1 or "1 minute"
 +InDom: 42.10
-+02:23:12.011766 3 instances
++02:23:12.011766000 3 instances
 +   1 or "1 minute is not very long unlike this string"
     5 or "5 minute"
 -   15 or "15 minute"
 +   9999 or "forever"
  InDom: 2.1
--22:22:42.025955 1 instances
-+01:23:12.025955 1 instances
+-22:22:42.025955000 1 instances
++01:23:12.025955000 1 instances
     19856 or "19856"
  
  Temporal Index
@@ -512,9 +512,9 @@ pmdumplog diffs ...
  
  Instance Domains in the Log ...
  InDom: 29.2
--10:46:07.406806 9 instances
+-10:46:07.406806000 9 instances
 -   100 or "bin-100"
-+10:46:07.406806 4 instances
++10:46:07.406806000 4 instances
     200 or "bin-200"
     300 or "bin-300"
 -   400 or "bin-400"
@@ -524,32 +524,32 @@ pmdumplog diffs ...
     800 or "bin-800"
 -   900 or "bin-900"
  InDom: 29.3
--10:46:07.406806 5 instances
+-10:46:07.406806000 5 instances
 -   0 or "m-00"
-+10:46:07.406806 4 instances
++10:46:07.406806000 4 instances
     12 or "m-12"
     13 or "m-13"
     14 or "m-14"
     15 or "m-15"
--10:47:07.419122 5 instances
+-10:47:07.419122000 5 instances
 -   0 or "m-00"
-+10:47:07.419122 4 instances
++10:47:07.419122000 4 instances
     12 or "m-12"
     13 or "m-13"
     15 or "m-15"
     16 or "m-16"
--10:48:07.406714 7 instances
+-10:48:07.406714000 7 instances
 -   0 or "m-00"
-+10:48:07.406714 6 instances
++10:48:07.406714000 6 instances
     12 or "m-12"
     13 or "m-13"
     15 or "m-15"
     16 or "m-16"
     17 or "m-17"
     18 or "m-18"
--10:49:07.407160 8 instances
+-10:49:07.407160000 8 instances
 -   0 or "m-00"
-+10:49:07.407160 7 instances
++10:49:07.407160000 7 instances
     12 or "m-12"
     13 or "m-13"
     15 or "m-15"
@@ -557,9 +557,9 @@ pmdumplog diffs ...
     18 or "m-18"
     19 or "m-19"
     20 or "m-20"
--10:50:07.407387 8 instances
+-10:50:07.407387000 8 instances
 -   0 or "m-00"
-+10:50:07.407387 7 instances
++10:50:07.407387000 7 instances
     12 or "m-12"
     15 or "m-15"
     17 or "m-17"
@@ -567,26 +567,26 @@ pmdumplog diffs ...
     19 or "m-19"
     20 or "m-20"
     21 or "m-21"
--10:51:07.407667 6 instances
+-10:51:07.407667000 6 instances
 -   0 or "m-00"
-+10:51:07.407667 5 instances
++10:51:07.407667000 5 instances
     15 or "m-15"
     17 or "m-17"
     18 or "m-18"
     19 or "m-19"
     21 or "m-21"
--10:53:07.408341 7 instances
+-10:53:07.408341000 7 instances
 -   0 or "m-00"
-+10:53:07.408341 6 instances
++10:53:07.408341000 6 instances
     15 or "m-15"
     17 or "m-17"
     18 or "m-18"
     19 or "m-19"
     21 or "m-21"
     22 or "m-22"
--10:54:07.408606 8 instances
+-10:54:07.408606000 8 instances
 -   0 or "m-00"
-+10:54:07.408606 7 instances
++10:54:07.408606000 7 instances
     15 or "m-15"
     17 or "m-17"
     18 or "m-18"
@@ -594,93 +594,93 @@ pmdumplog diffs ...
     21 or "m-21"
     22 or "m-22"
     23 or "m-23"
--10:55:07.409073 7 instances
+-10:55:07.409073000 7 instances
 -   0 or "m-00"
-+10:55:07.409073 6 instances
++10:55:07.409073000 6 instances
     15 or "m-15"
     17 or "m-17"
     19 or "m-19"
     22 or "m-22"
     23 or "m-23"
     24 or "m-24"
--10:56:07.409201 6 instances
+-10:56:07.409201000 6 instances
 -   0 or "m-00"
-+10:56:07.409201 5 instances
++10:56:07.409201000 5 instances
     17 or "m-17"
     22 or "m-22"
     23 or "m-23"
     24 or "m-24"
     25 or "m-25"
--10:57:07.409462 5 instances
+-10:57:07.409462000 5 instances
 -   0 or "m-00"
-+10:57:07.409462 4 instances
++10:57:07.409462000 4 instances
     22 or "m-22"
     23 or "m-23"
     24 or "m-24"
     25 or "m-25"
--10:58:07.409875 5 instances
+-10:58:07.409875000 5 instances
 -   0 or "m-00"
-+10:58:07.409875 4 instances
++10:58:07.409875000 4 instances
     22 or "m-22"
     23 or "m-23"
     24 or "m-24"
     26 or "m-26"
--10:59:07.410254 7 instances
+-10:59:07.410254000 7 instances
 -   0 or "m-00"
-+10:59:07.410254 6 instances
++10:59:07.410254000 6 instances
     22 or "m-22"
     23 or "m-23"
     24 or "m-24"
     26 or "m-26"
     27 or "m-27"
     28 or "m-28"
--11:00:07.410567 6 instances
+-11:00:07.410567000 6 instances
 -   0 or "m-00"
-+11:00:07.410567 5 instances
++11:00:07.410567000 5 instances
     24 or "m-24"
     26 or "m-26"
     27 or "m-27"
     28 or "m-28"
     29 or "m-29"
--11:01:07.410735 5 instances
+-11:01:07.410735000 5 instances
 -   0 or "m-00"
-+11:01:07.410735 4 instances
++11:01:07.410735000 4 instances
     24 or "m-24"
     26 or "m-26"
     27 or "m-27"
     28 or "m-28"
--11:02:07.411038 5 instances
+-11:02:07.411038000 5 instances
 -   0 or "m-00"
-+11:02:07.411038 4 instances
++11:02:07.411038000 4 instances
     24 or "m-24"
     27 or "m-27"
     28 or "m-28"
     30 or "m-30"
--11:03:07.411488 6 instances
+-11:03:07.411488000 6 instances
 -   0 or "m-00"
-+11:03:07.411488 5 instances
++11:03:07.411488000 5 instances
     24 or "m-24"
     27 or "m-27"
     28 or "m-28"
     30 or "m-30"
     31 or "m-31"
--11:04:07.411683 6 instances
+-11:04:07.411683000 6 instances
 -   0 or "m-00"
-+11:04:07.411683 4 instances
++11:04:07.411683000 4 instances
     24 or "m-24"
     27 or "m-27"
     30 or "m-30"
     32 or "m-32"
 -   33 or "m-33"
--11:05:07.411966 5 instances
+-11:05:07.411966000 5 instances
 -   0 or "m-00"
-+11:05:07.411966 3 instances
++11:05:07.411966000 3 instances
     24 or "m-24"
     27 or "m-27"
     30 or "m-30"
 -   33 or "m-33"
  InDom: 2.1
- 10:45:08.440968 1 instances
+ 10:45:08.440968000 1 instances
     24763 or "24763"
 @@ -182,92 +153,70 @@
  			Log Vol    end(meta)     end(log)

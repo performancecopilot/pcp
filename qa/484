@@ -52,7 +52,7 @@ do
     echo | tee -a $seq.full
     echo "=== $arch ===" | tee -a $seq.full
     rm -f $tmp.new.*
-    pmlogrewrite -w -Dappl0 $arch $tmp.new 2>$tmp.err | _filter
+    pmlogrewrite -w -Dappl0,log $arch $tmp.new 2>$tmp.err | _filter
     cat $tmp.err >>$seq.full
     # strip any command line options preceding the archive basename
     arch=`echo $arch | sed -e 's/.* //'`

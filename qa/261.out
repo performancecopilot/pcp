@@ -25,7 +25,7 @@ PMID: 29.0.37 (sample.mirage)
 
 Instance Domains in the Log ...
 InDom: 29.2
-10:51:07.407667 9 instances
+10:51:07.407667000 9 instances
    100 or "bin-100"
    200 or "bin-200"
    300 or "bin-300"
@@ -36,14 +36,14 @@ InDom: 29.2
    800 or "bin-800"
    900 or "bin-900"
 InDom: 29.3
-10:51:07.407667 6 instances
+10:51:07.407667000 6 instances
    0 or "m-00"
    15 or "m-15"
    17 or "m-17"
    18 or "m-18"
    19 or "m-19"
    21 or "m-21"
-10:53:07.408341 7 instances
+10:53:07.408341000 7 instances
    0 or "m-00"
    15 or "m-15"
    17 or "m-17"
@@ -51,7 +51,7 @@ InDom: 29.3
    19 or "m-19"
    21 or "m-21"
    22 or "m-22"
-10:54:07.408606 8 instances
+10:54:07.408606000 8 instances
    0 or "m-00"
    15 or "m-15"
    17 or "m-17"
@@ -60,7 +60,7 @@ InDom: 29.3
    21 or "m-21"
    22 or "m-22"
    23 or "m-23"
-10:55:07.409073 7 instances
+10:55:07.409073000 7 instances
    0 or "m-00"
    15 or "m-15"
    17 or "m-17"

@@ -66,7 +66,7 @@ PMID: 241.1.3 (schizo.data3)
 
 Instance Domains in the Log ...
 InDom: 29.2
-11:11:43.370807 9 instances
+11:11:43.370807000 9 instances
    100 or "bin-100"
    200 or "bin-200"
    300 or "bin-300"
@@ -76,7 +76,7 @@ InDom: 29.2
    700 or "bin-700"
    800 or "bin-800"
    900 or "bin-900"
-11:12:02.983140 9 instances
+11:12:02.983140000 9 instances
    100 or "bin-100"
    200 or "bin-200"
    300 or "bin-300"
@@ -87,10 +87,10 @@ InDom: 29.2
    800 or "bin-800"
    900 or "bin-900"
 InDom: 241.0
-11:11:43.370807 1 instances
+11:11:43.370807000 1 instances
    0 or "zero"
 InDom: 2.1
-11:11:41.369490 1 instances
+11:11:41.369490000 1 instances
    19426 or "19426"
 
 Temporal Index
@@ -198,7 +198,7 @@ PMID: 241.1.3 (schizo.data3)
 
 Instance Domains in the Log ...
 InDom: 29.2
-11:11:43.370807 9 instances
+11:11:43.370807000 9 instances
    100 or "bin-100"
    200 or "bin-200"
    300 or "bin-300"
@@ -209,10 +209,10 @@ InDom: 29.2
    800 or "bin-800"
    900 or "bin-900"
 InDom: 241.0
-11:11:43.370807 1 instances
+11:11:43.370807000 1 instances
    0 or "zero"
 InDom: 2.1
-11:11:41.369490 1 instances
+11:11:41.369490000 1 instances
    19426 or "19426"
 
 Temporal Index
@@ -319,7 +319,7 @@ PMID: 241.1.3 (schizo.data3)
 
 Instance Domains in the Log ...
 InDom: 29.2
-11:11:43.370807 9 instances
+11:11:43.370807000 9 instances
    100 or "bin-100"
    200 or "bin-200"
    300 or "bin-300"
@@ -330,10 +330,10 @@ InDom: 29.2
    800 or "bin-800"
    900 or "bin-900"
 InDom: 241.0
-11:11:43.370807 1 instances
+11:11:43.370807000 1 instances
    0 or "zero"
 InDom: 2.1
-11:11:41.369490 1 instances
+11:11:41.369490000 1 instances
    19426 or "19426"
 
 Temporal Index
@@ -440,7 +440,7 @@ PMID: 241.1.3 (schizo.data3)
 
 Instance Domains in the Log ...
 InDom: 29.2
-11:11:43.370807 9 instances
+11:11:43.370807000 9 instances
    100 or "bin-100"
    200 or "bin-200"
    300 or "bin-300"
@@ -451,10 +451,10 @@ InDom: 29.2
    800 or "bin-800"
    900 or "bin-900"
 InDom: 241.0
-11:11:43.370807 1 instances
+11:11:43.370807000 1 instances
    0 or "zero"
 InDom: 2.1
-11:11:41.369490 1 instances
+11:11:41.369490000 1 instances
    19426 or "19426"
 
 Temporal Index

@@ -19,8 +19,8 @@ pmdumplog diffs ...
  
  Instance Domains in the Log ...
  InDom: 29.2
--21:10:11.878990 9 instances
-+21:10:41.878990 9 instances
+-21:10:11.878990000 9 instances
++21:10:41.878990000 9 instances
     100 or "bin-100"
     200 or "bin-200"
     300 or "bin-300"
@@ -28,8 +28,8 @@ pmdumplog diffs ...
     800 or "bin-800"
     900 or "bin-900"
  InDom: 30.2
--21:10:11.876269 9 instances
-+21:10:41.876269 9 instances
+-21:10:11.876269000 9 instances
++21:10:41.876269000 9 instances
     100 or "bin-100"
     200 or "bin-200"
     300 or "bin-300"
@@ -37,8 +37,8 @@ pmdumplog diffs ...
     800 or "bin-800"
     900 or "bin-900"
  InDom: 2.1
--21:10:11.751520 1 instances
-+21:10:41.751520 1 instances
+-21:10:11.751520000 1 instances
++21:10:41.751520000 1 instances
     1933 or "1933"
  
  Temporal Index
@@ -150,8 +150,8 @@ pmdumplog diffs ...
  
  Instance Domains in the Log ...
  InDom: 29.2
--21:10:11.878990 9 instances
-+21:10:11.879990 9 instances
+-21:10:11.878990000 9 instances
++21:10:11.879990000 9 instances
     100 or "bin-100"
     200 or "bin-200"
     300 or "bin-300"
@@ -159,8 +159,8 @@ pmdumplog diffs ...
     800 or "bin-800"
     900 or "bin-900"
  InDom: 30.2
--21:10:11.876269 9 instances
-+21:10:11.877269 9 instances
+-21:10:11.876269000 9 instances
++21:10:11.877269000 9 instances
     100 or "bin-100"
     200 or "bin-200"
     300 or "bin-300"
@@ -168,8 +168,8 @@ pmdumplog diffs ...
     800 or "bin-800"
     900 or "bin-900"
  InDom: 2.1
--21:10:11.751520 1 instances
-+21:10:11.752520 1 instances
+-21:10:11.751520000 1 instances
++21:10:11.752520000 1 instances
     1933 or "1933"
  
  Temporal Index
@@ -310,7 +310,7 @@ pmdumplog diffs ...
  Instance Domains in the Log ...
 -InDom: 29.2
 +InDom: 109.2
- 21:10:11.878990 9 instances
+ 21:10:11.878990000 9 instances
     100 or "bin-100"
     200 or "bin-200"
 
@@ -566,7 +566,7 @@ pmdumplog diffs ...
  Instance Domains in the Log ...
 -InDom: 29.2
 +InDom: 109.2
- 21:10:11.878990 9 instances
+ 21:10:11.878990000 9 instances
     100 or "bin-100"
     200 or "bin-200"
 
@@ -582,7 +582,7 @@ pmdumplog diffs ...
 @@ -664,9 +664,9 @@
     0 or "sda"
  InDom: 60.2
- 20:10:22.959242 3 instances
+ 20:10:22.959242000 3 instances
 -   1 or "1 minute"
 -   5 or "5 minute"
 -   15 or "15 minute"
@@ -590,7 +590,7 @@ pmdumplog diffs ...
 +   300 or "300 second"
 +   900 or "900 second"
  InDom: 60.10
- 20:10:22.959242 7 instances
+ 20:10:22.959242000 7 instances
     0 or "sda1"
 @@ -998,7 +998,7 @@
  			Log Vol    end(meta)     end(log)
@@ -910,12 +910,12 @@ pmdumplog -i diffs ...
 --- TMP.in
 +++ TMP.out
 @@ -27,7 +27,7 @@
- 20:10:22.959242 2 instances
+ 20:10:22.959242000 2 instances
     0 or "cpu0"
     1 or "cpu1"
 -InDom: 60.9
 +InDom: 123.0
- 20:10:22.959242 304 instances
+ 20:10:22.959242000 304 instances
     1 or "000001 /sbin/init"
     2 or "000002 (kthreadd)"
 

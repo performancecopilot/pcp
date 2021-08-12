@@ -38,8 +38,8 @@ pmdumplog diffs ...
  
  Instance Domains in the Log ...
  InDom: 2.1
--09:33:24.637736 1 instances
-+22:33:24.637736 1 instances
+-09:33:24.637736000 1 instances
++22:33:24.637736000 1 instances
     21308 or "21308"
  
  Temporal Index
@@ -75,8 +75,8 @@ pmdumplog diffs ...
  
  Instance Domains in the Log ...
  InDom: 2.1
--09:33:24.637736 1 instances
-+19:53:54.637736 1 instances
+-09:33:24.637736000 1 instances
++19:53:54.637736000 1 instances
     21308 or "21308"
  
  Temporal Index
@@ -112,8 +112,8 @@ pmdumplog diffs ...
  
  Instance Domains in the Log ...
  InDom: 2.1
--09:33:24.637736 1 instances
-+19:53:54.637736 1 instances
+-09:33:24.637736000 1 instances
++19:53:54.637736000 1 instances
     21308 or "21308"
  
  Temporal Index
@@ -149,8 +149,8 @@ pmdumplog diffs ...
  
  Instance Domains in the Log ...
  InDom: 2.1
--09:33:24.637736 1 instances
-+23:12:54.637736 1 instances
+-09:33:24.637736000 1 instances
++23:12:54.637736000 1 instances
     21308 or "21308"
  
  Temporal Index
@@ -191,8 +191,8 @@ pmdumplog diffs ...
  
  Instance Domains in the Log ...
  InDom: 2.1
--09:33:24.637736 1 instances
-+00:00:00.000736 1 instances
+-09:33:24.637736000 1 instances
++00:00:00.000736000 1 instances
     21308 or "21308"
  
  Temporal Index

@@ -114,7 +114,7 @@ PMID: 60.0.39 (disk.dev.write_bytes)
 
 Instance Domains in the Log ...
 InDom: 60.1
-00:28:01.923022 2 instances
+00:28:01.923022000 2 instances
    0 or "sda"
    2 or "sdc"
 

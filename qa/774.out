@@ -37,12 +37,12 @@ PMID: 2.3.3 (pmcd.pmlogger.host)
 
 Instance Domains in the Log ...
 InDom: 29.1
-04:34:33.248687 3 instances
+04:34:33.248687000 3 instances
    0 or "red"
    1 or "green"
    2 or "blue"
 InDom: 29.2
-04:34:33.248687 9 instances
+04:34:33.248687000 9 instances
    100 or "bin-100"
    200 or "bin-200"
    300 or "bin-300"
@@ -53,7 +53,7 @@ InDom: 29.2
    800 or "bin-800"
    900 or "bin-900"
 InDom: 2.1
-04:34:32.257504 1 instances
+04:34:32.257504000 1 instances
    5403 or "5403"
 
 Temporal Index

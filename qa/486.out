@@ -675,7 +675,7 @@ pmdumplog diffs ...
 @@ -28,9 +28,9 @@
  Instance Domains in the Log ...
  InDom: 29.2
- 10:46:07.406806 9 instances
+ 10:46:07.406806000 9 instances
 +   42 or "bin-300"
     100 or "bin-100"
     200 or "bin-200"
@@ -900,13 +900,13 @@ pmdumplog diffs ...
 +++ TMP.out
 @@ -29,7 +29,7 @@
  InDom: 1.5
- 23:22:42.011766 3 instances
+ 23:22:42.011766000 3 instances
     1 or "1 minute"
 -   5 or "5 minute"
 +   5 or "5 hours"
     15 or "15 minute"
  InDom: 2.1
- 22:22:42.025955 1 instances
+ 22:22:42.025955000 1 instances
 @@ -40,7 +40,7 @@
  22:22:42.025955000	      0          132          132
  22:22:42.060877000	      0          351          284
@@ -1893,7 +1893,7 @@ pmdumplog diffs ...
     15 or "15 minute"
 -InDom: 2.1
 +InDom: 2.99
- 22:22:42.025955 1 instances
+ 22:22:42.025955000 1 instances
     19856 or "19856"
  
 

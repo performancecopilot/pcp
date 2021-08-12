@@ -265,7 +265,7 @@ Options:\n\
 		continue;
 	    }
 	    else {
-		pmTimeval	now;
+		__pmTimestamp	now;
 		int		iter;
 		__pmArchCtl	*acp = ctxp->c_archctl;
 		PM_UNLOCK(ctxp->c_lock);
@@ -278,8 +278,8 @@ Options:\n\
 		     if (fault && iter != 1)
 			continue;
 		     if (iter == 0) {
-			now.tv_sec = appOffset.tv_sec;
-			now.tv_usec = appOffset.tv_usec;
+			now.sec = appOffset.tv_sec;
+			now.nsec = appOffset.tv_usec * 1000;
 		     }
 		     else {
 			/*
@@ -287,8 +287,8 @@ Options:\n\
 			 * for platforms where tv_sec is 32-bit and
 			 * tv_sec + tv_sec => overflow
 			 */
-			now.tv_sec = ((__int64_t)appOffset.tv_sec+(__int64_t)appEnd.tv_sec)/2;
-			now.tv_usec = ((__int64_t)appOffset.tv_usec+(__int64_t)appEnd.tv_usec)/2;
+			now.sec = ((__int64_t)appOffset.tv_sec+(__int64_t)appEnd.tv_sec)/2;
+			now.nsec = (((__int64_t)appOffset.tv_usec+(__int64_t)appEnd.tv_usec)/2) * 1000;
 		     }
 		    if ((sts = __pmLogGetInDom(acp, indom[i], &now, &instlist, &namelist)) < 0) {
 			fprintf(stderr, "__pmLogGetInDom(%s) -> ", pmInDomStr(indom[i]));

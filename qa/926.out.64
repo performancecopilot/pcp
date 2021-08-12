@@ -69,15 +69,15 @@ PMID: 60.0.23 (kernel.all.cpu.idle)
 
 Instance Domains in the Log ...
 InDom: 60.2
-17:02:00.000000 3 instances
+17:02:00.000000000 3 instances
    1 or "1 minute"
    5 or "5 minute"
    15 or "15 minute"
 InDom: 60.0
-17:02:00.000000 1 instances
+17:02:00.000000000 1 instances
    0 or "cpu0"
 InDom: 60.3
-17:02:00.000000 1 instances
+17:02:00.000000000 1 instances
    1000 or "total"
 
 Temporal Index

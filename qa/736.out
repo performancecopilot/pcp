@@ -12,7 +12,7 @@ QA output created by 736
 >     Data Type: 32-bit int  InDom: 99.2 0x18c00002
 48a49,59
 > InDom: 99.2
-> 21:52:32.666976 9 instances
+> 21:52:32.666976000 9 instances
 >    100 or "bin-100"
 >    200 or "bin-200"
 >    300 or "bin-300"

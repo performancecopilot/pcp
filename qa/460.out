@@ -50,11 +50,11 @@ Note: timezone set to local timezone of host "mazur" from archive
 
 Instance Domains in the Log ...
 InDom: 1.2
-10:42:23.933294 2 instances
+10:42:23.933294000 2 instances
    256 or "dks0d1"
    512 or "dks0d2"
 InDom: 2.1
-10:42:23.802531 1 instances
+10:42:23.802531000 1 instances
    174009 or "174009"
 
 === VALUES ===

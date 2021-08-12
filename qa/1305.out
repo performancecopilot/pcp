@@ -4,8 +4,6 @@ QA output created by 1305
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: pmlogger -o -s 4 -c TMP.config -l TMP.log -K clear -K add,30,PCP_PMDAS_DIR/sample/pmda_sample,sample_init -K add,253,PCP_PMDAS_DIR/simple/pmda_simple,simple_init TMP
-Warning: ignored attempt to set SIGKILL handler in sigaction();
-the SIGKILL signal is uncatchable
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
