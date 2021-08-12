@@ -248,7 +248,19 @@ main(int argc, char **argv)
     check("__pmValueSet_PDU", sizeof(__pmValueSet_PDU), 5*INT);
     check("__pmLogHdr", sizeof(__pmLogHdr), 2*INT);
     check("__pmLogLabel", sizeof(__pmLogLabel), 5*INT+PM_LOG_MAXHOSTLEN+PM_TZ_MAXLEN);
-    check("__pmLogTI", sizeof(__pmLogTI), 10*INT);
+    /*
+     * __pmLogTI is now an internal data structure, and for 32-bit
+     * platforms there are 4 less words compared to 64-bit platforms:
+     *   -1 for no padding after __pmTimestamp
+     *   -1 for no padding after vol
+     *   -1 for each of the off_t fields (off_meta and off_data)
+     */
+    if (sizeof(off_t) == 8)
+	check("__pmLogTI", sizeof(__pmLogTI), 10*INT);
+    else if (sizeof(off_t) == 4)
+	check("__pmLogTI", sizeof(__pmLogTI), 6*INT);
+    else
+	printf("Cannot check __pmLogTI for sizeof(int)=%zd\n", sizeof(off_t));
     check("__pmLoggerStatus", sizeof(__pmLoggerStatus), 10*INT+PM_LOG_MAXHOSTLEN+PM_LOG_MAXHOSTLEN+PM_TZ_MAXLEN+PM_TZ_MAXLEN);
 
     printf("\np_*.c files in libpcp\n");
