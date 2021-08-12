@@ -19,6 +19,7 @@
 #include "libpcp.h"
 #include "logger.h"
 #include <assert.h>
+#include "../libpcp/src/internal.h"
 
 /*
  * Find or create a new indomspec_t
@@ -190,33 +191,43 @@ change_inst_by_inst(pmInDom indom, int old, int new)
     return 0;
 }
 
-typedef struct {
-    __pmLogHdr	hdr;
-    pmTimeval	stamp;
-    pmInDom	indom;
-    int		numinst;
-    char	other[1];
-} indom_t;
-
 /*
  * reverse the logic of __pmLogPutInDom()
  */
 static void
-_pmUnpackInDom(__pmPDU *pdubuf, pmInDom *indom, pmTimeval *tp, int *numinst, int **instlist, char ***inamelist)
+_pmUnpackInDom(__pmPDU *pdubuf, pmInDom *indom, __pmTimestamp *tsp, int *numinst, int **instlist, char ***inamelist)
 {
-    indom_t	*idp;
+    __pmLogHdr	*hdr;
+    int		type;
     int		i;
     int		*ip;
     char	*strbuf;
     char	*s;
     size_t	size;
 
-    idp = (indom_t *)pdubuf;
-
-    tp->tv_sec = ntohl(idp->stamp.tv_sec);
-    tp->tv_usec = ntohl(idp->stamp.tv_usec);
-    *indom = ntoh_pmInDom(idp->indom);
-    *numinst = ntohl(idp->numinst);
+    hdr = (__pmLogHdr *)pdubuf;
+    type = htonl(hdr->type);
+    if (type == TYPE_INDOM) {
+	__pmTimestamp	*tip = (__pmTimestamp *)&pdubuf[2];
+	tsp->sec = tip->sec;
+	__ntohll((char *)&tsp->sec);
+	tsp->nsec = ntohl(tsp->nsec);
+	*indom = ntohl(pdubuf[5]);
+	*numinst = ntohl(pdubuf[6]);
+	ip = (int *)&pdubuf[7];
+    }
+    else if (type == TYPE_INDOM_V2) {
+	pmTimeval	*tip = (pmTimeval *)&pdubuf[2];
+	tsp->sec = ntohl(tip->tv_sec);
+	tsp->nsec = ntohl(tip->tv_usec) * 1000;
+	*indom = ntohl(pdubuf[4]);
+	*numinst = ntohl(pdubuf[5]);
+	ip = (int *)&pdubuf[6];
+    }
+    else {
+	fprintf(stderr, "_pmUnpackInDom: Botch: type=%d\n", type);
+	exit(1);
+    }
 
     /* Copy the instances to a new buffer. */
     *instlist = (int *)malloc(*numinst * sizeof(int));
@@ -225,7 +236,6 @@ _pmUnpackInDom(__pmPDU *pdubuf, pmInDom *indom, pmTimeval *tp, int *numinst, int
 	abandon();
 	/*NOTREACHED*/
     }
-    ip = (int *)idp->other;
     for (i = 0; i < *numinst; i++)
 	(*instlist)[i] = ntohl(*ip++);
 
@@ -305,7 +315,7 @@ do_indom(void)
 {
     long	out_offset;
     pmInDom	indom;
-    pmTimeval	stamp;
+    __pmTimestamp	stamp;
     int		numinst;
     int		*instlist;
     char	**inamelist;

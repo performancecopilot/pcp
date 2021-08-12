@@ -806,7 +806,17 @@ pmDiscoverInvokeInDomCallBacks(pmDiscover *p, pmTimespec *ts, pmInResult *in)
 	__pmArchCtl	*acp = ctxp->c_archctl;
 	char		errmsg[PM_MAXERRMSGLEN];
 
-	if ((sts = __pmLogAddInDom(acp, ts, in, NULL, 0)) < 0)
+#if 0	// TODO when libpcp_web converts to __pmTimestamp
+	sts = __pmLogAddInDom(acp, ts, in, NULL, 0);
+#else
+	{
+	    __pmTimestamp	stamp;
+	    stamp.sec = ts->tv_sec;
+	    stamp.nsec = ts->tv_nsec;
+	    sts = __pmLogAddInDom(acp, &stamp, in, NULL, 0);
+	}
+#endif
+	if (sts < 0)
 	    fprintf(stderr, "%s: failed to add indom for %s: %s\n",
 			"pmDiscoverInvokeInDomCallBacks", pmIDStr(in->indom),
 			pmErrStr_r(sts, errmsg, sizeof(errmsg)));

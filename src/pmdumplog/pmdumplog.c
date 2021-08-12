@@ -562,7 +562,52 @@ dumpDiskInDom(__pmContext *ctxp)
 	    return;
 	}
 	rlen = (size_t)hdr.len - sizeof(__pmLogHdr) - sizeof(__int32_t);
-	if (hdr.type == TYPE_INDOM_V2) {
+	if (hdr.type == TYPE_INDOM) {
+	    __pmTimestamp	*tsp;
+	    __pmTimestamp	stamp;
+	    pmInResult		in;
+	    char		*namebase;
+	    __int32_t		*rbuf;
+	    __int32_t		*stridx;
+	    int			i;
+	    int			k;
+
+	    if ((rbuf = (__int32_t *)malloc(rlen)) == NULL) {
+		fprintf(stderr, "dumpDiskInDom: tbuf: malloc failed: %zd\n", rlen);
+		exit(1);
+	    }
+	    if ((n = __pmFread(rbuf, 1, rlen, f)) != rlen) {
+		fprintf(stderr, "dumpDiskInDom: indom __pmFread(%zd) -> %zd\n",
+			    rlen, n);
+		free(rbuf);
+		return;
+	    }
+
+	    k = 0;
+	    tsp = (__pmTimestamp *)&rbuf[k];
+	    stamp.sec = tsp->sec;
+	    __ntohll((char *)&stamp.sec);
+	    stamp.nsec = ntohl(tsp->nsec);
+	    k += (sizeof(tsp->sec)+sizeof(tsp->nsec))/sizeof(int);
+	    in.indom = __ntohpmInDom((unsigned int)rbuf[k++]);
+	    in.numinst = ntohl(rbuf[k++]);
+	    dump_pmTimestamp(&stamp);
+	    printf(" InDom: %s", pmInDomStr(in.indom));
+	    printf(" %d instances\n", in.numinst);
+	    if (in.numinst > 0) {
+		in.instlist = &rbuf[k];
+		k += in.numinst;
+		stridx = &rbuf[k];
+		k += in.numinst;
+		namebase = (char *)&rbuf[k];
+	        for (i = 0; i < in.numinst; i++) {
+		    printf("   %d or \"%s\"\n",
+			ntohl(in.instlist[i]), &namebase[ntohl(stridx[i])]);
+		}
+	    }
+	    free(rbuf);
+	}
+	else if (hdr.type == TYPE_INDOM_V2) {
 	    pmTimeval		*tvp;
 	    pmInResult		in;
 	    struct timeval	tv;
@@ -644,7 +689,7 @@ dumpInDom(__pmContext *ctxp)
 	    for ( ; ; ) {
 		for (idp = (__pmLogInDom *)hp->data; idp->next != ldp; idp =idp->next)
 			;
-		dump_pmTimeval(&idp->stamp);
+		dump_pmTimestamp(&idp->stamp);
 		printf(" %d instances\n", idp->numinst);
 		for (j = 0; j < idp->numinst; j++) {
 		    printf("   %d or \"%s\"\n",

@@ -982,7 +982,14 @@ time_caliper(__pmContext *ctxp, instcntl_t *icp)
 
 	t_indom_prior = -1;
 	for (idp = (__pmLogInDom *)jp->data; idp != NULL; idp = idp->next) {
-	    t_indom = __pmTimevalSub(&idp->stamp, __pmLogStartTime(ctxp->c_archctl));
+#if 0	// TODO when __pmLogStartTime => __pmTimestamp
+	    t_indom = __pmTimestampSub(&idp->stamp, __pmLogStartTime(ctxp->c_archctl));
+#else
+	    pmTimeval	tv;
+	    tv.tv_sec = idp->stamp.sec;
+	    tv.tv_usec = idp->stamp.nsec / 1000;
+	    t_indom = __pmTimevalSub(&tv, __pmLogStartTime(ctxp->c_archctl));
+#endif
 
 	    for (j = 0; j < idp->numinst; j++) {
 		if ((ip = __pmHashSearch((unsigned int)idp->instlist[j], &indomp->hashinst)) == NULL) {

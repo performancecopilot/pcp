@@ -24,12 +24,21 @@
 #define LENSIZE	4
 
 static void
-StrTimeval(const pmTimeval *tp)
+StrTimeval(const pmTimeval *tvp)
 {
-    if (tp == NULL)
+    if (tvp == NULL)
 	fprintf(stderr, "<null timeval>");
     else
-	__pmPrintTimeval(stderr, tp);
+	__pmPrintTimeval(stderr, tvp);
+}
+
+static void
+StrTimestamp(const __pmTimestamp *tsp)
+{
+    if (tsp == NULL)
+	fprintf(stderr, "<null timestamp>");
+    else
+	__pmPrintTimestamp(stderr, tsp);
 }
 
 static inline int
@@ -98,7 +107,7 @@ addinsts(__pmLogInDom *idp, int numinst, int *instlist, char **namelist)
  * Filter out duplicates.
  */
 static int
-addindom(__pmLogCtl *lcp, pmInDom indom, const pmTimeval *tp, int numinst, 
+addindom(__pmLogCtl *lcp, pmInDom indom, const __pmTimestamp *tsp, int numinst, 
          int *instlist, char **namelist, int *indom_buf, int allinbuf)
 {
     __pmLogInDom	*idp, *idp_prev;
@@ -110,7 +119,7 @@ addindom(__pmLogCtl *lcp, pmInDom indom, const pmTimeval *tp, int numinst,
 PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
     if ((idp = (__pmLogInDom *)malloc(sizeof(__pmLogInDom))) == NULL)
 	return -oserror();
-    idp->stamp = *tp;		/* struct assignment */
+    idp->stamp = *tsp;		/* struct assignment */
     idp->buf = indom_buf;
     idp->allinbuf = allinbuf;
     addinsts(idp, numinst, instlist, namelist);
@@ -118,7 +127,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
     if (pmDebugOptions.logmeta) {
 	char    strbuf[20];
 	fprintf(stderr, "addindom( ..., %s, ", pmInDomStr_r(indom, strbuf, sizeof(strbuf)));
-	StrTimeval((pmTimeval *)tp);
+	StrTimestamp(tsp);
 	fprintf(stderr, ", numinst=%d)\n", numinst);
     }
 
@@ -145,7 +154,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
     sts = 0;
     idp_prev = NULL;
     for (idp_cached = (__pmLogInDom *)hp->data; idp_cached; idp_cached = idp_cached->next) {
-	timecmp = __pmTimevalCmp(&idp_cached->stamp, &idp->stamp);
+	timecmp = __pmTimestampCmp(&idp_cached->stamp, &idp->stamp);
 
 	/*
 	 * If the time of the current cached item is before our time,
@@ -169,9 +178,9 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
 		    char	strbuf[20];
 		    fprintf(stderr, "indom: %s sameindom(",
 			pmInDomStr_r(indom, strbuf, sizeof(strbuf)));
-		    __pmPrintTimeval(stderr, &idp_cached->stamp);
+		    __pmPrintTimestamp(stderr, &idp_cached->stamp);
 		    fprintf(stderr, "[%d numinst],", idp_cached->numinst);
-		    __pmPrintTimeval(stderr, &idp->stamp);
+		    __pmPrintTimestamp(stderr, &idp->stamp);
 		    fprintf(stderr, "[%d numinst]) ? ", idp->numinst);
 		}
 		if (sameindom(idp_cached, idp)) {
@@ -187,7 +196,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
 		idp_cached = idp_cached->next;
 		if (idp_cached == NULL)
 		    break;
-		timecmp = __pmTimevalCmp(&idp_cached->stamp, &idp->stamp);
+		timecmp = __pmTimestampCmp(&idp_cached->stamp, &idp->stamp);
 	    } while (timecmp == 0);
 
 	    if (sts == PMLOGPUTINDOM_DUP) {
@@ -615,14 +624,10 @@ __pmLogAddPMNSNode(__pmArchCtl *acp, pmID pmid, const char *name)
 }
 
 int
-__pmLogAddInDom(__pmArchCtl *acp, const pmTimespec *when, const pmInResult *in,
+__pmLogAddInDom(__pmArchCtl *acp, const __pmTimestamp *tsp, const pmInResult *in,
 		int *tbuf, int allinbuf)
 {
-    pmTimeval		tv;
-
-    tv.tv_sec = when->tv_sec;
-    tv.tv_usec = when->tv_nsec / 1000;
-    return addindom(acp->ac_log, in->indom, &tv,
+    return addindom(acp->ac_log, in->indom, tsp,
 		    in->numinst, in->instlist, in->namelist, tbuf, allinbuf);
 }
 
@@ -795,9 +800,84 @@ __pmLogLoadMeta(__pmArchCtl *acp)
 		    goto end;
 	    }/*for*/
 	}
+	else if (h.type == TYPE_INDOM) {
+	    __pmTimestamp	*tsp;
+	    __pmTimestamp	when;
+	    pmInResult		in;
+	    char		*namebase;
+	    int			*tbuf, *stridx;
+	    int			i, k, allinbuf = 0;
+
+PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
+	    if ((tbuf = (int *)malloc(rlen)) == NULL) {
+		sts = -oserror();
+		goto end;
+	    }
+	    if ((n = (int)__pmFread(tbuf, 1, rlen, f)) != rlen) {
+		if (pmDebugOptions.logmeta) {
+		    fprintf(stderr, "%s: indom read -> %d: expected: %d\n",
+			    "__pmLogLoadMeta", n, rlen);
+		}
+		if (__pmFerror(f)) {
+		    __pmClearerr(f);
+		    sts = -oserror();
+		}
+		else
+		    sts = PM_ERR_LOGREC;
+		free(tbuf);
+		goto end;
+	    }
+
+	    k = 0;
+	    tsp = (__pmTimestamp *)&tbuf[k];
+	    when.sec = tsp->sec;
+	    __ntohll((char *)&when.sec);
+	    when.nsec = ntohl(tsp->nsec);
+	    k += (sizeof(tsp->sec)+sizeof(tsp->nsec))/sizeof(int);
+	    in.indom = __ntohpmInDom((unsigned int)tbuf[k++]);
+	    in.numinst = ntohl(tbuf[k++]);
+	    if (in.numinst > 0) {
+		in.instlist = &tbuf[k];
+		k += in.numinst;
+		stridx = &tbuf[k];
+#if defined(HAVE_32BIT_PTR)
+		in.namelist = (char **)stridx;
+		allinbuf = 1; /* allocation is all in tbuf */
+#else
+		allinbuf = 0; /* allocation for namelist + tbuf */
+		/* need to allocate to hold the pointers */
+PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
+		in.namelist = (char **)malloc(in.numinst * sizeof(char*));
+		if (in.namelist == NULL) {
+		    sts = -oserror();
+		    free(tbuf);
+		    goto end;
+		}
+#endif
+		k += in.numinst;
+		namebase = (char *)&tbuf[k];
+	        for (i = 0; i < in.numinst; i++) {
+		    in.instlist[i] = ntohl(in.instlist[i]);
+	            in.namelist[i] = &namebase[ntohl(stridx[i])];
+		}
+		if ((sts = __pmLogAddInDom(acp, &when, &in, tbuf, allinbuf)) < 0)
+		    goto end;
+		/* If this indom was a duplicate, then we need to free tbuf and
+		   namelist, as appropriate. */
+		if (sts == PMLOGPUTINDOM_DUP) {
+		    free(tbuf);
+		    if (in.namelist != NULL && !allinbuf)
+			free(in.namelist);
+		}
+	    }
+	    else {
+		/* no instances, or an error */
+		free(tbuf);
+	    }
+	}
 	else if (h.type == TYPE_INDOM_V2) {
 	    pmTimeval		*tv;
-	    pmTimespec		when;
+	    __pmTimestamp	when;
 	    pmInResult		in;
 	    char		*namebase;
 	    int			*tbuf, *stridx;
@@ -825,8 +905,12 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
 
 	    k = 0;
 	    tv = (pmTimeval *)&tbuf[k];
-	    when.tv_sec = ntohl(tv->tv_sec);
-	    when.tv_nsec = ntohl(tv->tv_usec) * 1000;
+	    if (pmDebugOptions.logmeta && pmDebugOptions.desperate)
+		fprintf(stderr, "__pmLogLoadMeta: indom stamp network(%x %x usec)", tv->tv_sec, tv->tv_usec);
+	    when.sec = (__int64_t)ntohl(tv->tv_sec);
+	    when.nsec = ntohl(tv->tv_usec) * 1000;
+	    if (pmDebugOptions.logmeta && pmDebugOptions.desperate)
+		fprintf(stderr, " -> %" FMT_INT64 ".%09d (%lx %x nsec)\n", when.sec, when.nsec, when.sec, when.nsec);
 	    k += sizeof(*tv)/sizeof(int);
 	    in.indom = __ntohpmInDom((unsigned int)tbuf[k++]);
 	    in.numinst = ntohl(tbuf[k++]);
@@ -1192,7 +1276,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":5", PM_FAULT_ALLOC);
 }
 
 static __pmLogInDom *
-searchindom(__pmLogCtl *lcp, pmInDom indom, pmTimeval *tp)
+searchindom(__pmLogCtl *lcp, pmInDom indom, __pmTimestamp *tsp)
 {
     __pmHashNode	*hp;
     __pmLogInDom	*idp;
@@ -1200,7 +1284,7 @@ searchindom(__pmLogCtl *lcp, pmInDom indom, pmTimeval *tp)
     if (pmDebugOptions.logmeta) {
 	char	strbuf[20];
 	fprintf(stderr, "searchindom( ..., %s, ", pmInDomStr_r(indom, strbuf, sizeof(strbuf)));
-	StrTimeval(tp);
+	StrTimestamp(tsp);
 	fprintf(stderr, ")\n");
     }
 
@@ -1208,18 +1292,18 @@ searchindom(__pmLogCtl *lcp, pmInDom indom, pmTimeval *tp)
 	return NULL;
 
     idp = (__pmLogInDom *)hp->data;
-    if (tp != NULL) {
+    if (tsp != NULL) {
 	for ( ; idp != NULL; idp = idp->next) {
 	    /*
 	     * need first one at or earlier than the requested time
 	     */
-	    if (__pmTimevalCmp(&idp->stamp, tp) <= 0)
+	    if (__pmTimestampCmp(&idp->stamp, tsp) <= 0)
 		break;
 	    if (pmDebugOptions.logmeta) {
 		fprintf(stderr, "request @ ");
-		StrTimeval(tp);
+		StrTimestamp(tsp);
 		fprintf(stderr, " is too early for indom @ ");
-		StrTimeval(&idp->stamp);
+		StrTimestamp(&idp->stamp);
 		fputc('\n', stderr);
 	    }
 	}
@@ -1229,7 +1313,7 @@ searchindom(__pmLogCtl *lcp, pmInDom indom, pmTimeval *tp)
 
     if (pmDebugOptions.logmeta) {
 	fprintf(stderr, "success for indom @ ");
-	StrTimeval(&idp->stamp);
+	StrTimestamp(&idp->stamp);
 	fputc('\n', stderr);
     }
     return idp;
@@ -1237,14 +1321,14 @@ searchindom(__pmLogCtl *lcp, pmInDom indom, pmTimeval *tp)
 
 /*
  * for the given indom retrieve the instance domain that is correct
- * as of the latest time (tp == NULL) or at a designated
+ * as of the latest time (tsp == NULL) or at a designated
  * time
  */
 int
-__pmLogGetInDom(__pmArchCtl *acp, pmInDom indom, pmTimeval *tp, int **instlist, char ***namelist)
+__pmLogGetInDom(__pmArchCtl *acp, pmInDom indom, __pmTimestamp *tsp, int **instlist, char ***namelist)
 {
     __pmLogCtl		*lcp = acp->ac_log;
-    __pmLogInDom	*idp = searchindom(lcp, indom, tp);
+    __pmLogInDom	*idp = searchindom(lcp, indom, tsp);
 
     if (idp == NULL)
 	return PM_ERR_INDOM_LOG;
@@ -1256,11 +1340,11 @@ __pmLogGetInDom(__pmArchCtl *acp, pmInDom indom, pmTimeval *tp, int **instlist, 
 }
 
 int
-__pmLogLookupInDom(__pmArchCtl *acp, pmInDom indom, pmTimeval *tp, 
+__pmLogLookupInDom(__pmArchCtl *acp, pmInDom indom, __pmTimestamp *tsp, 
 		   const char *name)
 {
     __pmLogCtl		*lcp = acp->ac_log;
-    __pmLogInDom	*idp = searchindom(lcp, indom, tp);
+    __pmLogInDom	*idp = searchindom(lcp, indom, tsp);
     int			i;
 
     if (idp == NULL)
@@ -1290,10 +1374,10 @@ __pmLogLookupInDom(__pmArchCtl *acp, pmInDom indom, pmTimeval *tp,
 }
 
 int
-__pmLogNameInDom(__pmArchCtl *acp, pmInDom indom, pmTimeval *tp, int inst, char **name)
+__pmLogNameInDom(__pmArchCtl *acp, pmInDom indom, __pmTimestamp *tsp, int inst, char **name)
 {
     __pmLogCtl		*lcp = acp->ac_log;
-    __pmLogInDom	*idp = searchindom(lcp, indom, tp);
+    __pmLogInDom	*idp = searchindom(lcp, indom, tsp);
     int			i;
 
     if (idp == NULL)
@@ -1524,45 +1608,76 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":14", PM_FAULT_ALLOC);
 }
 
 int
-__pmLogPutInDom(__pmArchCtl *acp, pmInDom indom, const pmTimeval *tp, 
+__pmLogPutInDom(__pmArchCtl *acp, pmInDom indom, const __pmTimestamp *tsp, 
 		int numinst, int *instlist, char **namelist)
 {
     __pmLogCtl		*lcp = acp->ac_log;
     char		*str;
     int			sts = 0;
-    int			i, len;
+    int			i;
+    size_t		len;
+    __int32_t		*lenp;
     int			*inst;
     int			*stridx;
-    typedef struct {			/* skeletal external record */
-	__pmLogHdr	hdr;
-	pmTimeval	stamp;
-	pmInDom		indom;
-	int		numinst;
-	char		data[0];	/* inst[] then stridx[] then strings */
-					/* will be expanded if numinst > 0 */
-    } ext_t;
-    ext_t		*out;
+    void		*out;
 
-    len = (int)sizeof(ext_t)
-	    + (numinst > 0 ? numinst : 0) * ((int)sizeof(instlist[0]) + (int)sizeof(stridx[0]))
+    /*
+     * Common leader fields on disk (before instances) ...
+     * V2: 32-bits for len, type, usec, indom, numinst
+     *     + 32 bits for sec
+     * V3: 32-bits for len, type, nsec, indom, numinst
+     *     + 64 bits for sec
+     */
+    len = 5 * sizeof(__int32_t);
+    if (__pmLogVersion(lcp) >= PM_LOG_VERS03)
+	len += sizeof(__int64_t);
+    else
+	len += sizeof(__int32_t);
+
+    len += (numinst > 0 ? numinst : 0) * (sizeof(instlist[0]) + sizeof(stridx[0]))
 	    + LENSIZE;
     for (i = 0; i < numinst; i++) {
-	len += (int)strlen(namelist[i]) + 1;
+	len += strlen(namelist[i]) + 1;
     }
 
 PM_FAULT_POINT("libpcp/" __FILE__ ":6", PM_FAULT_ALLOC);
-    if ((out = (ext_t *)malloc(len)) == NULL)
-	return -oserror();
+    if (__pmLogVersion(lcp) >= PM_LOG_VERS03) {
+	__pmExtInDom_v3	*v3;
+	if ((v3 = (__pmExtInDom_v3 *)malloc(len)) == NULL)
+	    return -oserror();
+	/* swab all output fields */
+	v3->len = htonl(len);
+	v3->type = htonl(TYPE_INDOM);
+	v3->sec = tsp->sec;
+	__htonll((char *)&v3->sec);
+	v3->nsec = htonl(tsp->nsec);
+	v3->indom = __htonpmInDom(indom);
+	v3->numinst = htonl(numinst);
+	out = (void *)v3;
+	inst = (int *)&v3->data;
+	lenp = &v3->len;
+    }
+    else {
+	__pmExtInDom_v2	*v2;
+	if ((v2 = (__pmExtInDom_v2 *)malloc(len)) == NULL)
+	    return -oserror();
+	/* swab all output fields */
+	v2->len = htonl(len);
+	v2->type = htonl(TYPE_INDOM_V2);
+	if (pmDebugOptions.logmeta && pmDebugOptions.desperate)
+	    fprintf(stderr, "__pmLogPutInDom: stamp %" FMT_INT64 ".%09d host(%lx %x nsec)", tsp->sec, tsp->nsec, tsp->sec, tsp->nsec);
+	v2->sec = (__int32_t)tsp->sec;
+	v2->sec = htonl(v2->sec);
+	v2->usec = htonl(tsp->nsec / 1000);
+	if (pmDebugOptions.logmeta && pmDebugOptions.desperate)
+	    fprintf(stderr, " -> network(%x %x usec)\n", v2->sec, v2->usec);
+	v2->indom = __htonpmInDom(indom);
+	v2->numinst = htonl(numinst);
+	out = (void *)v2;
+	inst = (int *)&v2->data;
+	lenp = &v2->len;
+    }
 
-    /* swab all output fields */
-    out->hdr.len = htonl(len);
-    out->hdr.type = htonl(TYPE_INDOM_V2);
-    out->stamp.tv_sec = htonl(tp->tv_sec);
-    out->stamp.tv_usec = htonl(tp->tv_usec);
-    out->indom = __htonpmInDom(indom);
-    out->numinst = htonl(numinst);
-
-    inst = (int *)&out->data;
     stridx = (int *)&inst[numinst];
     str = (char *)&stridx[numinst];
     for (i = 0; i < numinst; i++) {
@@ -1572,14 +1687,15 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":6", PM_FAULT_ALLOC);
 	stridx[i] = htonl((int)((ptrdiff_t)str - (ptrdiff_t)&stridx[numinst]));
 	str += slen;
     }
-    /* trailer length */
-    memmove((void *)str, &out->hdr.len, sizeof(out->hdr.len));
+
+    /* trailer record length */
+    memcpy((void *)str, lenp, sizeof(*lenp));
 
     if ((sts = __pmFwrite(out, 1, len, lcp->l_mdfp)) != len) {
 	char	strbuf[20];
 	char	errmsg[PM_MAXERRMSGLEN];
-	pmprintf("__pmLogPutInDom(...,indom=%s,numinst=%d): write failed: returned %d expecting %d: %s\n",
-	    pmInDomStr_r(indom, strbuf, sizeof(strbuf)), numinst, len, sts,
+	pmprintf("__pmLogPutInDom(...,indom=%s,numinst=%d): write failed: returned %d expecting %zd: %s\n",
+	    pmInDomStr_r(indom, strbuf, sizeof(strbuf)), numinst, sts, len,
 	    osstrerror_r(errmsg, sizeof(errmsg)));
 	pmflush();
 	free(out);
@@ -1587,7 +1703,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":6", PM_FAULT_ALLOC);
     }
     free(out);
 
-    sts = addindom(lcp, indom, tp, numinst, instlist, namelist, NULL, 0);
+    sts = addindom(lcp, indom, tsp, numinst, instlist, namelist, NULL, 0);
     return sts;
 }
 

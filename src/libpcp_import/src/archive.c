@@ -91,16 +91,8 @@ check_indom(pmi_context *current, pmInDom indom, int *needti)
     for (i = 0; i < current->nindom; i++) {
 	if (indom == current->indom[i].indom) {
 	    if (current->indom[i].meta_done == 0) {
-#if 0	// TODO when indom timestamps => __pmTimestamp
 		if ((sts = __pmLogPutInDom(acp, current->indom[i].indom, &stamp, current->indom[i].ninstance, current->indom[i].inst, current->indom[i].name)) < 0)
 		    return sts;
-#else
-		pmTimeval	tmp;
-		tmp.tv_sec = stamp.sec;
-		tmp.tv_usec = stamp.nsec / 1000;
-		if ((sts = __pmLogPutInDom(acp, current->indom[i].indom, &tmp, current->indom[i].ninstance, current->indom[i].inst, current->indom[i].name)) < 0)
-		    return sts;
-#endif
 
 		current->indom[i].meta_done = 1;
 		*needti = 1;

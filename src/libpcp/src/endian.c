@@ -369,7 +369,9 @@ __htonf(char *p)
 }
 #endif
 
-#ifndef __htonll
+#ifdef __htonll
+#undef __htonll
+#endif
 void
 __htonll(char *p)
 {
@@ -382,4 +384,3 @@ __htonll(char *p)
 	p[7-i] = c;
     }
 }
-#endif

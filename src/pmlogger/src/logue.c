@@ -72,7 +72,6 @@ do_logue(int type)
     pmResult	*res_pmcd = NULL;	/* for values from pmcd */
     __pmPDU	*pb;
     pmAtomValue	atom;
-    pmTimeval	tmp;
     __pmTimestamp	stamp;
     char	path[MAXPATHLEN];
     char	host[MAXHOSTNAMELEN];
@@ -86,8 +85,8 @@ do_logue(int type)
     res->numpmid = n_metric;
     if (type == PROLOGUE) {
 	last_stamp = res->timestamp = epoch;	/* struct assignment */
-	tmp.tv_sec = (__int32_t)epoch.tv_sec;
-	tmp.tv_usec = (__int32_t)epoch.tv_usec;
+	stamp.sec = (__int32_t)epoch.tv_sec;
+	stamp.nsec = (__int32_t)epoch.tv_usec * 1000;
     }
     else {
 	res->timestamp = last_stamp;	/* struct assignment */
@@ -236,7 +235,7 @@ do_logue(int type)
 		 * Note.	DO NOT free instid and instname ... they get hidden
 		 *		away in addindom() below __pmLogPutInDom()
 		 */
-		if ((sts = __pmLogPutInDom(&archctl, desc[i].indom, &tmp, 1, instid, instname)) < 0)
+		if ((sts = __pmLogPutInDom(&archctl, desc[i].indom, &stamp, 1, instid, instname)) < 0)
 		    goto done;
 	    }
 	}
@@ -244,8 +243,6 @@ do_logue(int type)
 	/* fudge the temporal index */
 	__pmFseek(archctl.ac_mfp, sizeof(__pmLogLabel)+2*sizeof(int), SEEK_SET);
 	__pmFseek(logctl.l_mdfp, sizeof(__pmLogLabel)+2*sizeof(int), SEEK_SET);
-	stamp.sec = tmp.tv_sec;
-	stamp.nsec = tmp.tv_usec * 1000;
 	__pmLogPutIndex(&archctl, &stamp);
 	__pmFseek(archctl.ac_mfp, 0L, SEEK_END);
 	__pmFseek(logctl.l_mdfp, 0L, SEEK_END);

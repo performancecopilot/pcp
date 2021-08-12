@@ -12,6 +12,7 @@ doindom(pmResult *rp)
     int			*instlist;
     char		**namelist;
     int			sts;
+    __pmTimestamp	stamp;
 
     for (i = 0; i < rp->numpmid; i++) {
 	vsp = rp->vset[i];
@@ -78,7 +79,13 @@ doindom(pmResult *rp)
 	    mp->idp->name = namelist;
 	    mp->idp->inst = instlist;
 	    mp->idp->numinst = sts;
+#if 0	    // TODO use current when it => __pmTimestamp
 	    if ((sts = __pmLogPutInDom(&archctl, mp->idp->indom, &current, mp->idp->numinst, mp->idp->inst, mp->idp->name)) < 0) {
+#else
+	    stamp.sec = current.tv_sec;
+	    stamp.nsec = current.tv_usec * 1000;
+	    if ((sts = __pmLogPutInDom(&archctl, mp->idp->indom, &stamp, mp->idp->numinst, mp->idp->inst, mp->idp->name)) < 0) {
+#endif
 		fprintf(stderr,
 		    "%s: Error: failed to add pmInDom: indom %s (for pmid %s): %s\n",
 			pmGetProgname(), pmInDomStr(mp->idp->indom), pmIDStr(vsp->pmid), pmErrStr(sts));

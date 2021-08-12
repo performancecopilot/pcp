@@ -221,7 +221,7 @@ setavail(pmResult *resp)
  * It is a merger of __pmLogGetIndom and searchindom.
  */
 static int
-__localLogGetInDom(__pmLogCtl *lcp, pmInDom indom, pmTimeval *tp, int **instlist, char ***namelist)
+__localLogGetInDom(__pmLogCtl *lcp, pmInDom indom, __pmTimestamp *tsp, int **instlist, char ***namelist)
 {
     __pmHashNode	*hp;
     __pmLogInDom	*idp;
@@ -245,7 +245,7 @@ __localLogGetInDom(__pmLogCtl *lcp, pmInDom indom, pmTimeval *tp, int **instlist
 
     *instlist = idp->instlist;
     *namelist = idp->namelist;
-    *tp = idp->stamp;
+    *tsp = idp->stamp;
 
     sts = idp->numinst;
 
@@ -255,7 +255,7 @@ done:
 	    fprintf(stderr, "%d (__pmHashSearch failed)\n", sts);
 	else if (sts >= 0) {
 	    fprintf(stderr, "%d @ ", sts);
-	    __pmPrintTimeval(stderr, tp);
+	    __pmPrintTimestamp(stderr, tsp);
 	    fputc('\n', stderr);
 	}
 	else
@@ -878,9 +878,19 @@ do_work(task_t *tp)
 		 * returned. The timestamp is then used to decide if
 		 * the indom needs to be refreshed.
 		 */
-		pmTimeval indom_tval;
-		numinst = __localLogGetInDom(&logctl, desc.indom, &indom_tval, &instlist, &namelist);
-		if (numinst > 0 && __pmTimevalSub(&resp_tval, &indom_tval) <= 0) {
+		__pmTimestamp	stamp;
+#if 0	// TODO when pmResult => __pmTimestamp
+#else
+		pmTimeval	tv;
+#endif
+		numinst = __localLogGetInDom(&logctl, desc.indom, &stamp, &instlist, &namelist);
+#if 0	// TODO when pmResult => __pmTimestamp
+		if (numinst > 0 && __pmTimestampSub(&resp_stamp, &stamp) <= 0) {
+#else
+		tv.tv_sec = stamp.sec;
+		tv.tv_usec = stamp.nsec / 1000;
+		if (numinst > 0 && __pmTimevalSub(&resp_tval, &tv) <= 0) {
+#endif
 		    /*
 		     * Already have indom with the same (or later, in the
 		     * case of some time warp) timestamp compared to the
@@ -894,10 +904,10 @@ do_work(task_t *tp)
 		     */
 		    needindom = 0;
 		    if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
-			fprintf(stderr, "time warp: pmResult: %d.%06d last %s indom: %d.%06d\n",
+			fprintf(stderr, "time warp: pmResult: %d.%06d last %s indom: %" FMT_INT64 ".%09d\n",
 			    resp_tval.tv_sec, resp_tval.tv_usec,
 			    pmInDomStr(desc.indom),
-			    indom_tval.tv_sec, indom_tval.tv_usec);
+			    stamp.sec, stamp.nsec);
 		    }
 		}
 		else if (numinst < 0) {
@@ -972,9 +982,9 @@ do_work(task_t *tp)
 			numinst = new_numinst;
 			instlist = new_instlist;
 			namelist = new_namelist;
-			tmp.tv_sec = (__int32_t)resp->timestamp.tv_sec;
-			tmp.tv_usec = (__int32_t)resp->timestamp.tv_usec;
-			if ((sts = __pmLogPutInDom(&archctl, desc.indom, &tmp, numinst, instlist, namelist)) < 0) {
+			stamp.sec = (__int32_t)resp->timestamp.tv_sec;
+			stamp.nsec = (__int32_t)resp->timestamp.tv_usec * 1000;
+			if ((sts = __pmLogPutInDom(&archctl, desc.indom, &stamp, numinst, instlist, namelist)) < 0) {
 			    fprintf(stderr, "__pmLogPutInDom: %s\n", pmErrStr(sts));
 			    exit(1);
 			}
@@ -985,6 +995,8 @@ do_work(task_t *tp)
 			    free(instlist);
 			    free(namelist);
 			}
+			tmp.tv_sec = (__int32_t)resp->timestamp.tv_sec;
+			tmp.tv_usec = (__int32_t)resp->timestamp.tv_usec;
 			manageLabels(&desc, &tmp, 1);
 			needti = 1;
 			if (pmDebugOptions.appl2)

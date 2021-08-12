@@ -91,7 +91,7 @@ extern void __htonf(char *) _PCP_HIDDEN;	/* float */
 #define __ntohf(v) __htonf(v)
 #define __htond(v) __htonll(v)			/* double */
 #define __ntohd(v) __ntohll(v)
-extern void __htonll(char *) _PCP_HIDDEN;	/* 64bit int */
+extern void __htonll(char *);			/* 64bit int */	
 #define __ntohll(v) __htonll(v)
 
 #endif /* HAVE_NETWORK_BYTEORDER */

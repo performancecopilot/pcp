@@ -131,9 +131,6 @@ pass0(char *fname)
     int		label_ok = STS_OK;
     char	logBase[MAXPATHLEN];
 
-    if (vflag)
-	fprintf(stderr, "%s: start pass0\n", fname);
-
     if ((f = __pmFopen(fname, "r")) == NULL) {
 	fprintf(stderr, "%s: cannot open file: %s\n", fname, osstrerror());
 	sts = STS_FATAL;
@@ -162,6 +159,9 @@ pass0(char *fname)
 	exit(1);
     }
 
+    if (vflag)
+	fprintf(stderr, "%s: start pass0 ... ", fname);
+
     while ((sts = __pmFread(&len, 1, sizeof(len), f)) == sizeof(len)) {
 	len = ntohl(len);
 	len -= 2 * sizeof(len);
@@ -169,6 +169,8 @@ pass0(char *fname)
 	for (i = 0; i < len; i++) {
 	    check = __pmFgetc(f);
 	    if (check == EOF) {
+		if (vflag)
+		    fputc('\n', stderr);
 		if (nrec == 0)
 		    fprintf(stderr, "%s: unexpected EOF in label record body, wanted %d, got %d bytes\n", fname, len, i);
 		else
@@ -178,6 +180,8 @@ pass0(char *fname)
 	    }
 	}
 	if ((sts = __pmFread(&check, 1, sizeof(check), f)) != sizeof(check)) {
+	    if (vflag)
+		fputc('\n', stderr);
 	    if (nrec == 0)
 		fprintf(stderr, "%s: unexpected EOF in label record trailer, wanted %d, got %d bytes\n", fname, (int)sizeof(check), sts);
 	    else
@@ -188,6 +192,8 @@ pass0(char *fname)
 	check = ntohl(check);
 	len += 2 * sizeof(len);
 	if (check != len) {
+	    if (vflag)
+		fputc('\n', stderr);
 	    if (nrec == 0)
 		fprintf(stderr, "%s: label record length mismatch: header %d != trailer %d\n", fname, len, check);
 	    else
@@ -223,6 +229,8 @@ pass0(char *fname)
 		nrec++;
 	    }
 	    if (sts != 0) {
+		if (vflag)
+		    fputc('\n', stderr);
 		fprintf(stderr, "%s[record %d]: unexpected EOF in index entry, wanted %zd, got %d bytes\n", fname, nrec, record_size, sts);
 		index_state = STATE_BAD;
 		sts = STS_FATAL;
@@ -232,11 +240,15 @@ pass0(char *fname)
 	}
     }
     if (sts != 0) {
+	if (vflag)
+	    fputc('\n', stderr);
 	fprintf(stderr, "%s[record %d]: unexpected EOF in record header, wanted %d, got %d bytes\n", fname, nrec, (int)sizeof(len), sts);
 	sts = STS_FATAL;
     }
 empty_check:
     if (sts != STS_FATAL && nrec < 2) {
+	if (vflag)
+	    fputc('\n', stderr);
 	fprintf(stderr, "%s: contains no PCP data\n", fname);
 	sts = STS_WARNING;
     }
@@ -272,6 +284,9 @@ done:
 
     if (f != NULL)
 	__pmFclose(f);
+
+    if (vflag && nrec > 0 && sts != STS_FATAL)
+	fprintf(stderr, "found %d records\n", nrec);
 
     return sts;
 }
