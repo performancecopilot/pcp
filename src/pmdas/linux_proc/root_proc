@@ -439,6 +439,7 @@ proc {
     fd			PROC:*:*
     namespaces		PROC:*:*
     smaps		PROC:*:*
+    autogroup		PROC:*:*
     control
 }
 
@@ -452,6 +453,7 @@ hotproc {
     fd			PROC:*:*
     namespaces		PROC:*:*
     smaps		PROC:*:*
+    autogroup		PROC:*:*
     control
     total
     predicate

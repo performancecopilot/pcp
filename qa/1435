@@ -29,7 +29,7 @@ _filter()
 {
     sed \
 	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
-	-e "s,$PCP_PYTHON_PROG,python,g" \
+	-e "s,$PCP_PYTHON_PROG,PCP_PYTHON_PROG,g" \
     #end
 }
 

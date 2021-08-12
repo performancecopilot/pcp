@@ -19,6 +19,9 @@
 
 if grep -q ^nfsclient "$PCP_PMCDCONF_PATH" 2>/dev/null
 then
-    sed -i -e "s,perl $PCP_PMDAS_DIR/nfsclient/pmdanfsclient.pl,$PCP_PYTHON_PROG $PCP_PMDAS_DIR/nfsclient/pmdanfsclient.python,g" $PCP_PMCDCONF_PATH 2>/dev/null
+    sed -i \
+	-e "s,python $PCP_PMDAS_DIR/nfsclient/,$PCP_PYTHON_PROG $PCP_PMDAS_DIR/nfsclient/,g" \
+	-e "s,perl $PCP_PMDAS_DIR/nfsclient/pmdanfsclient.pl,$PCP_PYTHON_PROG $PCP_PMDAS_DIR/nfsclient/pmdanfsclient.python,g" \
+	$PCP_PMCDCONF_PATH 2>/dev/null
 fi
 exit 0

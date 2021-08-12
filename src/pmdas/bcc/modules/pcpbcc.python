@@ -92,9 +92,10 @@ class PCPBCCBase(object):
         return PM_ERR_BADSTORE
 
     def free_memory(self):
+        """ Free module compilation memory """
         if self.bpf is not None:
             self.bpf.free_bcc_memory()
-            self.log("BPF freed")
+            self.log("Compilation memory freed.")
 
     def cleanup(self):
         """ Clean up at exit """
