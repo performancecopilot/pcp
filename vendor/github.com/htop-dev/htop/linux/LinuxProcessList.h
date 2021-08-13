@@ -53,6 +53,8 @@ typedef struct CPUData_ {
    #ifdef HAVE_SENSORS_SENSORS_H
    double temperature;
    #endif
+
+   bool online;
 } CPUData;
 
 typedef struct TtyDriver_ {
@@ -65,9 +67,11 @@ typedef struct TtyDriver_ {
 typedef struct LinuxProcessList_ {
    ProcessList super;
 
-   CPUData* cpus;
+   CPUData* cpuData;
+
    TtyDriver* ttyDrivers;
    bool haveSmapsRollup;
+   bool haveAutogroup;
 
    #ifdef HAVE_DELAYACCT
    struct nl_sock* netlink_socket;
@@ -111,10 +115,12 @@ typedef struct LinuxProcessList_ {
 #define PROC_LINE_LENGTH 4096
 #endif
 
-ProcessList* ProcessList_new(UsersTable* usersTable, Hashtable* dynamicMeters, Hashtable* pidMatchList, uid_t userId);
+ProcessList* ProcessList_new(UsersTable* usersTable, Hashtable* dynamicMeters, Hashtable* dynamicColumns, Hashtable* pidMatchList, uid_t userId);
 
 void ProcessList_delete(ProcessList* pl);
 
 void ProcessList_goThroughEntries(ProcessList* super, bool pauseProcessUpdate);
+
+bool ProcessList_isCPUonline(const ProcessList* super, unsigned int id);
 
 #endif

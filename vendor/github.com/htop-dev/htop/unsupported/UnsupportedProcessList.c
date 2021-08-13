@@ -14,11 +14,12 @@ in the source distribution for its full text.
 #include "UnsupportedProcess.h"
 
 
-ProcessList* ProcessList_new(UsersTable* usersTable, Hashtable* dynamicMeters, Hashtable* pidMatchList, uid_t userId) {
+ProcessList* ProcessList_new(UsersTable* usersTable, Hashtable* dynamicMeters, Hashtable* dynamicColumns, Hashtable* pidMatchList, uid_t userId) {
    ProcessList* this = xCalloc(1, sizeof(ProcessList));
-   ProcessList_init(this, Class(Process), usersTable, dynamicMeters, pidMatchList, userId);
+   ProcessList_init(this, Class(Process), usersTable, dynamicMeters, dynamicColumns, pidMatchList, userId);
 
-   this->cpuCount = 1;
+   this->existingCPUs = 1;
+   this->activeCPUs = 1;
 
    return this;
 }
@@ -87,4 +88,12 @@ void ProcessList_goThroughEntries(ProcessList* super, bool pauseProcessUpdate) {
 
    if (!preExisting)
       ProcessList_add(super, proc);
+}
+
+bool ProcessList_isCPUonline(const ProcessList* super, unsigned int id) {
+   assert(id < super->existingCPUs);
+
+   (void) super; (void) id;
+
+   return true;
 }

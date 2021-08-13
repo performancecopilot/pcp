@@ -51,6 +51,7 @@ typedef struct ProcessList_ {
    Hashtable* draftingTreeSet;
 
    Hashtable* dynamicMeters;  /* runtime-discovered meters */
+   Hashtable* dynamicColumns; /* runtime-discovered Columns */
 
    struct timeval realtime;   /* time of the current sample */
    uint64_t realtimeMs;       /* current time in milliseconds */
@@ -83,15 +84,18 @@ typedef struct ProcessList_ {
    memory_t usedSwap;
    memory_t cachedSwap;
 
-   unsigned int cpuCount;
+   unsigned int activeCPUs;
+   unsigned int existingCPUs;
 } ProcessList;
 
-ProcessList* ProcessList_new(UsersTable* usersTable, Hashtable* dynamicMeters, Hashtable* pidMatchList, uid_t userId);
+/* Implemented by platforms */
+ProcessList* ProcessList_new(UsersTable* usersTable, Hashtable* dynamicMeters, Hashtable* dynamicColumns, Hashtable* pidMatchList, uid_t userId);
 void ProcessList_delete(ProcessList* pl);
 void ProcessList_goThroughEntries(ProcessList* super, bool pauseProcessUpdate);
+bool ProcessList_isCPUonline(const ProcessList* super, unsigned int id);
 
 
-ProcessList* ProcessList_init(ProcessList* this, const ObjectClass* klass, UsersTable* usersTable, Hashtable* dynamicMeters, Hashtable* pidMatchList, uid_t userId);
+ProcessList* ProcessList_init(ProcessList* this, const ObjectClass* klass, UsersTable* usersTable, Hashtable* dynamicMeters, Hashtable* dynamicColumns, Hashtable* pidMatchList, uid_t userId);
 
 void ProcessList_done(ProcessList* this);
 
