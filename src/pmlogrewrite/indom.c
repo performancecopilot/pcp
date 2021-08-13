@@ -211,7 +211,7 @@ _pmUnpackInDom(__pmPDU *pdubuf, pmInDom *indom, __pmTimestamp *tsp, int *numinst
 	__pmTimestamp	*tip = (__pmTimestamp *)&pdubuf[2];
 	tsp->sec = tip->sec;
 	__ntohll((char *)&tsp->sec);
-	tsp->nsec = ntohl(tsp->nsec);
+	tsp->nsec = ntohl(tip->nsec);
 	*indom = ntohl(pdubuf[5]);
 	*numinst = ntohl(pdubuf[6]);
 	ip = (int *)&pdubuf[7];
