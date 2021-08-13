@@ -13,9 +13,10 @@ in the source distribution for its full text.
 #include <stdbool.h>
 #include <stdlib.h>
 
+#include "CRT.h"
 #include "CategoriesPanel.h"
 #include "CommandScreen.h"
-#include "CRT.h"
+#include "DynamicColumn.h"
 #include "EnvScreen.h"
 #include "FunctionBar.h"
 #include "Hashtable.h"
@@ -34,7 +35,7 @@ in the source distribution for its full text.
 #include "Vector.h"
 #include "XUtils.h"
 
-#if (defined(HAVE_LIBHWLOC) || defined(HAVE_LINUX_AFFINITY))
+#if (defined(HAVE_LIBHWLOC) || defined(HAVE_AFFINITY))
 #include "Affinity.h"
 #include "AffinityPanel.h"
 #endif
@@ -168,8 +169,16 @@ static Htop_Reaction actionSetSortColumn(State* st) {
    Panel* sortPanel = Panel_new(0, 0, 0, 0, Class(ListItem), true, FunctionBar_newEnterEsc("Sort   ", "Cancel "));
    Panel_setHeader(sortPanel, "Sort by");
    const ProcessField* fields = st->settings->fields;
+   Hashtable* dynamicColumns = st->settings->dynamicColumns;
    for (int i = 0; fields[i]; i++) {
-      char* name = String_trim(Process_fields[fields[i]].name);
+      char* name = NULL;
+      if (fields[i] >= LAST_PROCESSFIELD) {
+         DynamicColumn* column = Hashtable_get(dynamicColumns, fields[i]);
+         if (column)
+            name = xStrdup(column->caption ? column->caption : column->name);
+      } else {
+         name = String_trim(Process_fields[fields[i]].name);
+      }
       Panel_add(sortPanel, (Object*) ListItem_new(name, fields[i]));
       if (fields[i] == Settings_getActiveSortKey(st->settings))
          Panel_setSelected(sortPanel, i);
@@ -302,10 +311,10 @@ static Htop_Reaction actionSetAffinity(State* st) {
    if (Settings_isReadonly())
       return HTOP_OK;
 
-   if (st->pl->cpuCount == 1)
+   if (st->pl->activeCPUs == 1)
       return HTOP_OK;
 
-#if (defined(HAVE_LIBHWLOC) || defined(HAVE_LINUX_AFFINITY))
+#if (defined(HAVE_LIBHWLOC) || defined(HAVE_AFFINITY))
    const Process* p = (const Process*) Panel_getSelected((Panel*)st->mainPanel);
    if (!p)
       return HTOP_OK;
@@ -328,8 +337,11 @@ static Htop_Reaction actionSetAffinity(State* st) {
       Affinity_delete(affinity2);
    }
    Object_delete(affinityPanel);
-#endif
    return HTOP_REFRESH | HTOP_REDRAW_BAR | HTOP_UPDATE_PANELHDR;
+#else
+   return HTOP_OK;
+#endif
+
 }
 
 static Htop_Reaction actionKill(State* st) {
@@ -484,7 +496,7 @@ static const struct {
    { .key = "   F9 k: ", .roInactive = true,  .info = "kill process/tagged processes" },
    { .key = "   F7 ]: ", .roInactive = true,  .info = "higher priority (root only)" },
    { .key = "   F8 [: ", .roInactive = false, .info = "lower priority (+ nice)" },
-#if (defined(HAVE_LIBHWLOC) || defined(HAVE_LINUX_AFFINITY))
+#if (defined(HAVE_LIBHWLOC) || defined(HAVE_AFFINITY))
    { .key = "      a: ", .roInactive = true, .info = "set CPU affinity" },
 #endif
    { .key = "      e: ", .roInactive = false, .info = "show process environment" },

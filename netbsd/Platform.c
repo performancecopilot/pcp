@@ -3,6 +3,7 @@ htop - netbsd/Platform.c
 (C) 2014 Hisham H. Muhammad
 (C) 2015 Michael McConville
 (C) 2021 Santhosh Raju
+(C) 2021 Nia Alarie
 (C) 2021 htop dev team
 Released under the GNU GPLv2, see the COPYING file
 in the source distribution for its full text.
@@ -11,12 +12,20 @@ in the source distribution for its full text.
 #include "netbsd/Platform.h"
 
 #include <errno.h>
+#include <fcntl.h>
+#include <paths.h>
+#include <unistd.h>
 #include <kvm.h>
 #include <limits.h>
 #include <math.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <prop/proplib.h>
+#include <sys/envsys.h>
+#include <sys/iostat.h>
+#include <sys/param.h>
 #include <sys/resource.h>
 #include <sys/sysctl.h>
 #include <sys/time.h>
@@ -42,6 +51,16 @@ in the source distribution for its full text.
 #include "netbsd/NetBSDProcess.h"
 #include "netbsd/NetBSDProcessList.h"
 
+/*
+ * The older proplib APIs will be deprecated in NetBSD 10, but we still
+ * want to support the 9.x stable branch.
+ *
+ * Create aliases for the newer functions that are missing from 9.x.
+ */
+#if !__NetBSD_Prereq__(9,99,65)
+#define prop_string_equals_string prop_string_equals_cstring
+#define prop_number_signed_value prop_number_integer_value
+#endif
 
 const ProcessField Platform_defaultFields[] = { PID, USER, PRIORITY, NICE, M_VIRT, M_RESIDENT, STATE, PERCENT_CPU, PERCENT_MEM, TIME, COMM, 0 };
 
@@ -145,6 +164,7 @@ const MeterClass* const Platform_meterTypes[] = {
    &LeftCPUs8Meter_class,
    &RightCPUs8Meter_class,
    &BlankMeter_class,
+   &DiskIOMeter_class,
    NULL
 };
 
@@ -200,7 +220,7 @@ int Platform_getMaxPid() {
 
 double Platform_setCPUValues(Meter* this, int cpu) {
    const NetBSDProcessList* npl = (const NetBSDProcessList*) this->pl;
-   const CPUData* cpuData = &npl->cpus[cpu];
+   const CPUData* cpuData = &npl->cpuData[cpu];
    double total = cpuData->totalPeriod == 0 ? 1 : cpuData->totalPeriod;
    double totalPercent;
    double* v = this->values;
@@ -311,9 +331,54 @@ FileLocks_ProcessData* Platform_getProcessLocks(pid_t pid) {
 }
 
 bool Platform_getDiskIO(DiskIOData* data) {
-   // TODO
-   (void)data;
-   return false;
+   const int mib[] = { CTL_HW, HW_IOSTATS, sizeof(struct io_sysctl) };
+   struct io_sysctl *iostats = NULL;
+   size_t size = 0;
+
+   for (int retry = 3; retry > 0; retry--) {
+      /* get the size of the IO statistic array */
+      if (sysctl(mib, __arraycount(mib), iostats, &size, NULL, 0) < 0)
+         CRT_fatalError("Unable to get size of io_sysctl");
+
+      if (size == 0) {
+         free(iostats);
+         return false;
+      }
+
+      iostats = xRealloc(iostats, size);
+
+      errno = 0;
+
+      if (sysctl(mib, __arraycount(mib), iostats, &size, NULL, 0) == 0)
+         break;
+
+      if (errno != ENOMEM)
+         CRT_fatalError("Unable to get disk IO statistics");
+   }
+
+   if (errno == ENOMEM)
+      CRT_fatalError("Unable to get disk IO statistics");
+
+   uint64_t bytesReadSum = 0;
+   uint64_t bytesWriteSum = 0;
+   uint64_t busyTimeSum = 0;
+
+   for (size_t i = 0, count = size / sizeof(struct io_sysctl); i < count; i++) {
+      /* ignore NFS activity */
+      if (iostats[i].type != IOSTAT_DISK)
+         continue;
+
+      bytesReadSum += iostats[i].rbytes;
+      bytesWriteSum += iostats[i].wbytes;
+      busyTimeSum += iostats[i].busysum_usec;
+   }
+
+   data->totalBytesRead = bytesReadSum;
+   data->totalBytesWritten = bytesWriteSum;
+   data->totalMsTimeSpend = busyTimeSum / 1000;
+
+   free(iostats);
+   return true;
 }
 
 bool Platform_getNetworkIO(NetworkIOData* data) {
@@ -323,7 +388,89 @@ bool Platform_getNetworkIO(NetworkIOData* data) {
 }
 
 void Platform_getBattery(double* percent, ACPresence* isOnAC) {
-   // TODO
-   (void)percent;
-   (void)isOnAC;
+   prop_dictionary_t dict, fields, props;
+   prop_object_t device, class;
+
+   intmax_t totalCharge = 0;
+   intmax_t totalCapacity = 0;
+
+   *percent = NAN;
+   *isOnAC = AC_ERROR;
+
+   int fd = open(_PATH_SYSMON, O_RDONLY);
+   if (fd == -1)
+      goto error;
+
+   if (prop_dictionary_recv_ioctl(fd, ENVSYS_GETDICTIONARY, &dict) != 0)
+      goto error;
+
+   prop_object_iterator_t devIter = prop_dictionary_iterator(dict);
+   if (devIter == NULL)
+      goto error;
+
+   while ((device = prop_object_iterator_next(devIter)) != NULL) {
+      prop_object_t fieldsArray = prop_dictionary_get_keysym(dict, device);
+      if (fieldsArray == NULL)
+         goto error;
+
+      prop_object_iterator_t fieldsIter = prop_array_iterator(fieldsArray);
+      if (fieldsIter == NULL)
+         goto error;
+
+      bool isACAdapter = false;
+      bool isBattery = false;
+
+      /* only assume battery is not present if explicitly stated */
+      intmax_t isPresent = 1;
+      intmax_t isConnected = 0;
+      intmax_t curCharge = 0;
+      intmax_t maxCharge = 0;
+
+      while ((fields = prop_object_iterator_next(fieldsIter)) != NULL) {
+         props = prop_dictionary_get(fields, "device-properties");
+         if (props != NULL) {
+            class = prop_dictionary_get(props, "device-class");
+
+            if (prop_string_equals_string(class, "ac-adapter")) {
+               isACAdapter = true;
+            } else if (prop_string_equals_string(class, "battery")) {
+               isBattery = true;
+            }
+            continue;
+         }
+
+         prop_object_t curValue = prop_dictionary_get(fields, "cur-value");
+         prop_object_t maxValue = prop_dictionary_get(fields, "max-value");
+         prop_object_t descField = prop_dictionary_get(fields, "description");
+
+         if (descField == NULL || curValue == NULL)
+            continue;
+
+         if (prop_string_equals_string(descField, "connected")) {
+            isConnected = prop_number_signed_value(curValue);
+         } else if (prop_string_equals_string(descField, "present")) {
+            isPresent = prop_number_signed_value(curValue);
+         } else if (prop_string_equals_string(descField, "charge")) {
+            if (maxValue == NULL)
+               continue;
+            curCharge = prop_number_signed_value(curValue);
+            maxCharge = prop_number_signed_value(maxValue);
+         }
+      }
+
+      if (isBattery && isPresent) {
+         totalCharge += curCharge;
+         totalCapacity += maxCharge;
+      }
+
+      if (isACAdapter && *isOnAC != AC_PRESENT) {
+         *isOnAC = isConnected ? AC_PRESENT : AC_ABSENT;
+      }
+   }
+
+   *percent = ((double)totalCharge / (double)totalCapacity) * 100.0;
+
+error:
+   if (fd != -1)
+      close(fd);
 }

@@ -56,17 +56,19 @@ typedef enum CPUMetric_ {
 
 typedef struct PCPProcessList_ {
    ProcessList super;
-   double timestamp;		/* previous sample timestamp */
-   pmAtomValue* cpu;		/* aggregate values for each metric */
-   pmAtomValue** percpu;	/* per-processor values for each metric */
-   pmAtomValue* values;		/* per-processor buffer for just one metric */
+   double timestamp;     /* previous sample timestamp */
+   pmAtomValue* cpu;     /* aggregate values for each metric */
+   pmAtomValue** percpu; /* per-processor values for each metric */
+   pmAtomValue* values;  /* per-processor buffer for just one metric */
    ZfsArcStats zfs;
 } PCPProcessList;
 
-ProcessList* ProcessList_new(UsersTable* usersTable, Hashtable* dynamicMeters, Hashtable* pidMatchList, uid_t userId);
+ProcessList* ProcessList_new(UsersTable* usersTable, Hashtable* dynamicMeters, Hashtable* dynamicColumns, Hashtable* pidMatchList, uid_t userId);
 
 void ProcessList_delete(ProcessList* pl);
 
 void ProcessList_goThroughEntries(ProcessList* super, bool pauseProcessUpdate);
+
+bool ProcessList_isCPUonline(const ProcessList* super, unsigned int id);
 
 #endif
