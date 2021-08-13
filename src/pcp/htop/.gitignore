@@ -1,5 +1,10 @@
+htop.1
 htop.1.in
 pcp-htop
+pcp-htop.1
+pcp-htop.1.*
+pcp-htop.5
+pcp-htop.5.*
 pcp/columns
 pcp/meters
 AUTHORS

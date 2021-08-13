@@ -45,6 +45,7 @@ TOPCFILES = \
 	DateTimeMeter.c \
 	DiskIOMeter.c \
 	DisplayOptionsPanel.c \
+	DynamicColumn.c \
 	DynamicMeter.c \
 	EnvScreen.c \
 	FunctionBar.c \
@@ -85,6 +86,7 @@ SUBCFILES = \
 	linux/ZramMeter.c \
 	zfs/ZfsArcMeter.c \
 	zfs/ZfsCompressedArcMeter.c \
+	pcp/PCPDynamicColumn.c \
 	pcp/PCPDynamicMeter.c \
 	pcp/PCPProcess.c \
 	pcp/PCPProcessList.c \
@@ -108,6 +110,7 @@ TOPHFILES = \
 	DateTimeMeter.h \
 	DiskIOMeter.h \
 	DisplayOptionsPanel.h \
+	DynamicColumn.h \
 	DynamicMeter.h \
 	EnvScreen.h \
 	FunctionBar.h \
@@ -152,14 +155,15 @@ SUBHFILES = \
 	zfs/ZfsArcMeter.h \
 	zfs/ZfsArcStats.h \
 	zfs/ZfsCompressedArcMeter.h \
+	pcp/PCPDynamicColumn.h \
 	pcp/PCPDynamicMeter.h \
 	pcp/PCPProcess.h \
 	pcp/PCPProcessList.h \
 	pcp/Platform.h \
 	pcp/ProcessField.h \
 
-DOCFILES = AUTHORS htop.1.in
-COLUMNS =
+DOCFILES = AUTHORS htop.1.in pcp-htop.5.in
+COLUMNS = container delayacct fdcount guest memory sched swap tcp udp wchan
 METERS = entropy freespace ipc locks memcache mysql postfix redis tcp
 CFGMETERS = $(patsubst %,pcp/meters/%,$(METERS))
 CFGCOLUMNS = $(patsubst %,pcp/columns/%,$(COLUMNS))
@@ -171,28 +175,27 @@ CFILES = $(TOPCFILES) $(SUBCFILES)
 HFILES = $(TOPHFILES) $(SUBHFILES)
 LDIRT = $(TOPXFILES) $(SUBXFILES) $(CFGXFILES)
 
-# manual sync
-MAN_PAGES = $(CMDTARGET).1
+MAN_PAGES = $(CMDTARGET).1 $(CMDTARGET).5
 
 default:	build-me
 
 include $(BUILDRULES)
 
 ifeq "$(HAVE_NCURSESW)" "true"
-build-me: $(TOPXFILES) $(SUBXFILES) $(CFGXFILES) $(CMDTARGET) $(DISTLINKS)
+build-me: $(TOPXFILES) $(SUBXFILES) $(CFGXFILES) $(CMDTARGET) $(DISTLINKS) $(MAN_PAGES)
 
 install: default
 	$(INSTALL) -m 755 $(CMDTARGET) $(DISTARGET)
+	$(INSTALL_MAN)
 	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/htop
 	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/htop/meters
 	@for m in $(METERS); do \
 	    $(INSTALL) -m 644 pcp/meters/$$m $(PCP_SYSCONF_DIR)/htop/meters/$$m; \
 	done
-	#$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/htop/columns
-	#@for c in $(COLUMNS); do \
-	#    $(INSTALL) -m 644 pcp/columns/$$m $(PCP_SYSCONF_DIR)/htop/columns/$$m; \
-	#done
-	@$(INSTALL_MAN)
+	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/htop/columns
+	@for c in $(COLUMNS); do \
+	    $(INSTALL) -m 644 pcp/columns/$$c $(PCP_SYSCONF_DIR)/htop/columns/$$c; \
+	done
 else
 build-me:
 install:
@@ -204,6 +207,7 @@ install_pcp: install
 
 $(TOPXFILES):
 	$(LN_S) -f $(TOPDIR)/vendor/github.com/htop-dev/htop/$@ $@
+	$(LN_S) -f $(TOPDIR)/vendor/github.com/htop-dev/htop/htop.1.in $(CMDTARGET).1.in
 
 $(SUBXFILES):
 	mkdir -p linux pcp zfs
@@ -215,6 +219,17 @@ $(CFGXFILES):
 
 $(DISTLINKS):	$(CMDTARGET)
 	@$(LN_S) -f $(CMDTARGET) $@
+
+$(MAN_PAGES): $(CMDTARGET).1.in $(CMDTARGET).5.in
+	for s in 1 5; do \
+	    $(SED) < $(CMDTARGET).$$s.in > $(CMDTARGET).$$s \
+		-e 's;@PACKAGE_STRING@;Performance Co-Pilot;g' \
+		-e 's;^htop, pcp-htop;\\f3pcp-htop\\f1;g' \
+		-e 's;@sysconfdir@;$(PCP_SYSCONF_DIR);g' \
+		-e 's;@datarootdir@;$(PCP_SHARE_DIR);g' \
+		-e 's;^\.SH "NAME";.SH NAME;g' \
+		-e 's;pcp/pcp;pcp;g'; \
+	done
 
 check::	$(CFILES) $(HFILES)
 	$(CLINT) $^
