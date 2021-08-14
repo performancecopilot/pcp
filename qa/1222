@@ -39,6 +39,8 @@ _filter()
     tee -a $here/$seq.full \
     | sed \
 	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
+	-e '/^proc\.autogroup\.id: No value(s) available/d' \
+	-e '/^proc\.autogroup\.nice: No value(s) available/d' \
 	-e '/^proc\.id\.container: No data available/d' \
 	-e '/^proc\.schedstat\.envid: Metric not supported/d' \
 	-e '/^proc\.schedstat\.pcount: Metric not supported/d' \
@@ -84,6 +86,8 @@ NF == 0 && seen == 1		{ if (numval == 1) print metric ": 1 value"
 				}' \
     | sed \
 	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
+	-e '/^proc\.autogroup\.id:/d' \
+	-e '/^proc\.autogroup\.nice:/d' \
 	-e '/^proc\.namespaces\./d' \
 	-e '/^proc\.psinfo\.cgroups:/d' \
 	-e '/^proc\.psinfo\.ngid:/d' \

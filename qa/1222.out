@@ -13,8 +13,6 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 === check number of values ===
 === std out ===
 proc.autogroup.enabled: 1 value
-proc.autogroup.id: >10 values
-proc.autogroup.nice: >10 values
 proc.control.all.threads: 1 value
 proc.control.perclient.cgroups: 1 value
 proc.control.perclient.threads: 1 value
