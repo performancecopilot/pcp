@@ -829,6 +829,34 @@ __pmDumpResult(FILE *f, const pmResult *resp)
     __pmDumpResult_ctx(NULL, f, resp);
 }
 
+/* Internal variant of __pmDump__Result() with current context. */
+void
+__pmDump__Result_ctx(__pmContext *ctxp, FILE *f, const __pmResult *resp)
+{
+    int		i;
+    struct timespec ts;
+
+    if (ctxp != NULL)
+	PM_ASSERT_IS_LOCKED(ctxp->c_lock);
+
+    save_debug();
+    fprintf(f, "__pmResult dump from " PRINTF_P_PFX "%p timestamp: %" FMT_INT64 ".%06d ",
+	resp, resp->timestamp.sec, resp->timestamp.nsec);
+    ts.tv_sec = resp->timestamp.sec;
+    ts.tv_nsec = resp->timestamp.nsec;
+    pmPrintHighResStamp(f, &ts);
+    fprintf(f, " numpmid: %d\n", resp->numpmid);
+    for (i = 0; i < resp->numpmid; i++)
+	dump_valueset(ctxp, f, resp->vset[i]);
+    restore_debug();
+}
+
+void
+__pmDump__Result(FILE *f, const __pmResult *resp)
+{
+    __pmDump__Result_ctx(NULL, f, resp);
+}
+
 /* Internal variant of __pmDumpHighResResult() with current context. */
 void
 __pmDumpHighResResult_ctx(__pmContext *ctxp, FILE *f, const pmHighResResult *hresp)
