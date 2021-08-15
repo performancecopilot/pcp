@@ -43,9 +43,14 @@ _filter()
     rm -f $tmp.sed
     touch $tmp.sed
     tstamp=1
-    sed >$tmp.tmp \
+    tee -a $seq.full \
+    | sed >$tmp.tmp \
 	-e "s@$tmp@TMP@g" \
 	-e '/^PID for pmlogger:/s/ [0-9][0-9]*/ PID/' \
+	-e '/^[0-2][0-9]:/{
+s/  [0-9][0-9][0-9][0-9]/OFFSET/g
+s/   [0-9][0-9][0-9]/OFFSET/g
+}' \
     # end
     sed -n <$tmp.tmp \
       -e 's/.*\([0-9][0-9]:[0-9][0-9]:[0-9][0-9].[0-9][0-9]*[0-9]\).*/\1/p' \
