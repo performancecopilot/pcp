@@ -151,7 +151,23 @@ echo
 echo "=== pmie ==="
 
 LC_COLLATE=POSIX sort -u $tmp.out
-cat $tmp.err | _show_pmie_errors
+
+# Especially on slow VMs (like bozo-vm) we may need to dodge warnings
+# from pmie's rule scheduler around pmcd reconnection ... the awk
+# script does this.
+#
+$PCP_AWK_PROG <$tmp.err >$tmp.tmp '
+skip == 1 && /^[^ ]/		{ skip = 0 }
+/^run: schedule eval/		{ skip = 1 }
+/^sleepTight: negative/		{ skip = 1 }
+/^Last sleepTight until:/	{ skip = 1 }
+/^This sleepTight\() entry:/	{ skip = 1 }
+/^Harvest children done:/	{ skip = 1 }
+/^Want sleepTight until:/	{ skip = 1 }
+/Task dump @/			{ skip = 1 }
+skip == 0			{ print }'
+
+cat $tmp.tmp | _show_pmie_errors
 
 echo "== stdout ==" >$seq.full
 cat $tmp.out >>$seq.full
