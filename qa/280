@@ -70,6 +70,8 @@ _cleanup()
 
 rm -f $seq.full
 
+export PMLOGGER_CHECK_SKIP_LOGCONF=true
+
 # real QA test starts here
 _save_config $PCP_ETC_DIR/pcp/pmlogger
 _restore_pmlogger_control

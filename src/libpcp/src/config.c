@@ -565,7 +565,9 @@ static struct {
 	{ "transparent_decompress", TRANSPARENT_DECOMPRESS },	/* from pcp-4.0.0 */
 	{ "compress_suffixes",	compress_suffix_list },		/* from pcp-4.0.1 */
 # ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
-	{ "v3_archives",	1 },		/* from pcp-?.?.? */
+	{ "v3_archives",	enabled },		/* from pcp-?.?.? */
+#else
+	{ "v3_archives",	disabled },		/* from pcp-?.?.? */
 #endif
 };
 

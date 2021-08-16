@@ -372,11 +372,16 @@ do_indom_v2(uint32_t *buf)
 	    dp->indom = this_indom;
 	    dp->numinst = this_numinst;
 	    dp->inst = NULL;
+	    dp->iname = NULL;
 	    unpack_indom(dp, this_indom, this_numinst, &buf[4]);
 	    if (ep->numinst != dp->numinst)
 		printf("  numinst changed from %d to %d\n", ep->numinst, dp->numinst);
 	    for (o = 0; o < ep->numinst; o++) {
 		for (d = 0; d < dp->numinst; d++) {
+		    if (ep->inst == NULL || dp->inst == NULL) {
+			/* should not happen, but makes Coverity happy */
+			continue;
+		    }
 		    if (ep->inst[o] == dp->inst[d]) {
 			if (strcmp(ep->iname[o], dp->iname[d]) != 0) {
 			    printf("  inst %d: changed ext name from \"%s\" to \"%s\"\n", ep->inst[o], ep->iname[o], dp->iname[d]);

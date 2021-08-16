@@ -337,6 +337,7 @@ extern int __pmDecodeHighResResult_ctx(__pmContext *, __pmPDU *, pmHighResResult
 extern int __pmSendResult_ctx(__pmContext *, int, int, const pmResult *) _PCP_HIDDEN;
 extern int __pmSendHighResResult_ctx(__pmContext *, int, int, const pmHighResResult *) _PCP_HIDDEN;
 extern void __pmDumpResult_ctx(__pmContext *, FILE *, const pmResult *) _PCP_HIDDEN;
+extern void __pmDump__Result_ctx(__pmContext *, FILE *, const __pmResult *) _PCP_HIDDEN;
 extern void __pmDumpHighResResult_ctx(__pmContext *, FILE *, const pmHighResResult *) _PCP_HIDDEN;
 extern int pmGetArchiveEnd_ctx(__pmContext *, struct timeval *) _PCP_HIDDEN;
 extern int __pmGetArchiveEnd_ctx(__pmContext *, struct timeval *) _PCP_HIDDEN;

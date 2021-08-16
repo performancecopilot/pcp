@@ -752,4 +752,5 @@ PCP_3.33 {
     __pmTimestampSub;
     __pmTimestampCmp;
     __htonll;
+    __pmDump__Result;
 } PCP_3.32;

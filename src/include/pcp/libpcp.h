@@ -293,6 +293,25 @@ typedef struct {
 #endif
 } __pmVersionCred;
 
+/*
+ * Universal timestamp ... this is like a struct timespec, but we
+ * control the size of the fields and choose different field names
+ * to give the compiler the maximum chance of spotting misuses.
+ * All time of day fields internally within libpcp use this format
+ * which is Y2038 safe.
+ */
+typedef struct {
+    __int64_t	sec;
+    __int32_t	nsec;
+} __pmTimestamp;
+
+/* Internal version of a pmResult */
+typedef struct __pmResult {
+    __pmTimestamp	timestamp;	/* time stamped by collector */
+    int                 numpmid;	/* number of PMIDs */
+    pmValueSet		*vset[1];	/* set of value sets, one per PMID */
+} __pmResult;
+
 #if defined(HAVE_64BIT_PTR)
 /*
  * A pmValue contains the union of a 32-bit int and a pointer.  In the world
@@ -616,18 +635,6 @@ PCP_CALL extern pmLabelSet *__pmDupLabelSets(pmLabelSet *, int);
 PCP_CALL extern int __pmParseLabelSet(const char *, int, int, pmLabelSet **);
 PCP_CALL extern int __pmGetContextLabels(pmLabelSet **);
 PCP_CALL extern int __pmGetDomainLabels(int, const char *, pmLabelSet **);
-
-/*
- * Universal timestamp ... this is like a struct timespec, but we
- * control the size of the fields and choose different field names
- * to give the compiler the maximum chance of spotting misuses.
- * All time of day fields internally within libpcp use this format
- * which is Y2038 safe.
- */
-typedef struct {
-    __int64_t	sec;
-    __int32_t	nsec;
-} __pmTimestamp;
 
 /* internal archive data structures */
 /*
@@ -1458,6 +1465,7 @@ PCP_CALL extern void __pmDumpNameList(FILE *, int, const char **);
 PCP_CALL extern void __pmDumpNameNode(FILE *, const __pmnsNode *, int);
 PCP_CALL extern void __pmDumpNameSpace(FILE *, int);
 PCP_CALL extern void __pmDumpResult(FILE *, const pmResult *);
+PCP_CALL extern void __pmDump__Result(FILE *, const __pmResult *);
 PCP_CALL extern void __pmDumpStack(FILE *);
 PCP_CALL extern void __pmDumpStatusList(FILE *, int, const int *);
 PCP_CALL extern void __pmPrintTimeval(FILE *, const pmTimeval *);

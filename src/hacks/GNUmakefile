@@ -4,7 +4,7 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 LLDLIBS = $(PCPLIB)
-EXEC = delta-indom-stats
+EXEC = delta-indom-stats pmresult-fiddle
 LDIRT = $(EXEC)
 
 default: $(EXEC)
@@ -19,3 +19,5 @@ install_pcp:
 check::
 
 delta-indom-stats:	delta-indom-stats.c
+
+pmresult-fiddle:	pmresult-fiddle.c
