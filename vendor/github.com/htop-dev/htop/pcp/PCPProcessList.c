@@ -2,7 +2,7 @@
 htop - PCPProcessList.c
 (C) 2014 Hisham H. Muhammad
 (C) 2020-2021 htop dev team
-(C) 2020-2021 Red Hat, Inc.  All Rights Reserved.
+(C) 2020-2021 Red Hat, Inc.
 Released under the GNU GPLv2, see the COPYING file
 in the source distribution for its full text.
 */
@@ -11,11 +11,15 @@ in the source distribution for its full text.
 
 #include "pcp/PCPProcessList.h"
 
+#include <limits.h>
 #include <math.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/time.h>
 
-#include "CRT.h"
 #include "Macros.h"
 #include "Object.h"
+#include "Platform.h"
 #include "Process.h"
 #include "Settings.h"
 #include "XUtils.h"
@@ -23,20 +27,18 @@ in the source distribution for its full text.
 #include "pcp/PCPProcess.h"
 
 
-static int PCPProcessList_computeCPUcount(void) {
-   int cpus;
-   if ((cpus = Platform_getMaxCPU()) <= 0)
-      cpus = Metric_instanceCount(PCP_PERCPU_SYSTEM);
-   return cpus > 1 ? cpus : 1;
-}
-
 static void PCPProcessList_updateCPUcount(PCPProcessList* this) {
    ProcessList* pl = &(this->super);
-   unsigned int cpus = PCPProcessList_computeCPUcount();
-   if (cpus == pl->cpuCount)
+   pl->activeCPUs = Metric_instanceCount(PCP_PERCPU_SYSTEM);
+   unsigned int cpus = Platform_getMaxCPU();
+   if (cpus == pl->existingCPUs)
       return;
+   if (cpus <= 0)
+      cpus = pl->activeCPUs;
+   if (cpus <= 1)
+      cpus = pl->activeCPUs = 1;
+   pl->existingCPUs = cpus;
 
-   pl->cpuCount = cpus;
    free(this->percpu);
    free(this->values);
 
@@ -59,11 +61,11 @@ static char* setUser(UsersTable* this, unsigned int uid, int pid, int offset) {
    return name;
 }
 
-ProcessList* ProcessList_new(UsersTable* usersTable, Hashtable* dynamicMeters, Hashtable* pidMatchList, uid_t userId) {
+ProcessList* ProcessList_new(UsersTable* usersTable, Hashtable* dynamicMeters, Hashtable* dynamicColumns, Hashtable* pidMatchList, uid_t userId) {
    PCPProcessList* this = xCalloc(1, sizeof(PCPProcessList));
    ProcessList* super = &(this->super);
 
-   ProcessList_init(super, Class(PCPProcess), usersTable, dynamicMeters, pidMatchList, userId);
+   ProcessList_init(super, Class(PCPProcess), usersTable, dynamicMeters, dynamicColumns, pidMatchList, userId);
 
    struct timeval timestamp;
    gettimeofday(&timestamp, NULL);
@@ -79,16 +81,23 @@ void ProcessList_delete(ProcessList* pl) {
    PCPProcessList* this = (PCPProcessList*) pl;
    ProcessList_done(pl);
    free(this->values);
-   for (unsigned int i = 0; i < pl->cpuCount; i++)
+   for (unsigned int i = 0; i < pl->existingCPUs; i++)
       free(this->percpu[i]);
    free(this->percpu);
    free(this->cpu);
    free(this);
 }
 
-static inline unsigned long Metric_instance_s32(int metric, int pid, int offset, unsigned long fallback) {
+static inline long Metric_instance_s32(int metric, int pid, int offset, long fallback) {
    pmAtomValue value;
    if (Metric_instance(metric, pid, offset, &value, PM_TYPE_32))
+      return value.l;
+   return fallback;
+}
+
+static inline long long Metric_instance_s64(int metric, int pid, int offset, long long fallback) {
+   pmAtomValue value;
+   if (Metric_instance(metric, pid, offset, &value, PM_TYPE_64))
       return value.l;
    return fallback;
 }
@@ -219,6 +228,11 @@ static void PCPProcessList_readOomData(PCPProcess* pp, int pid, int offset) {
    pp->oom = Metric_instance_u32(PCP_PROC_OOMSCORE, pid, offset, 0);
 }
 
+static void PCPProcessList_readAutogroup(PCPProcess* pp, int pid, int offset) {
+   pp->autogroup_id = Metric_instance_s64(PCP_PROC_AUTOGROUP_ID, pid, offset, -1);
+   pp->autogroup_nice = Metric_instance_s32(PCP_PROC_AUTOGROUP_NICE, pid, offset, 0);
+}
+
 static void PCPProcessList_readCtxtData(PCPProcess* pp, int pid, int offset) {
    pmAtomValue value;
    unsigned long ctxt = 0;
@@ -324,6 +338,7 @@ static bool PCPProcessList_updateProcesses(PCPProcessList* this, double period, 
       PCPProcess* pp = (PCPProcess*) proc;
       PCPProcessList_updateID(proc, pid, offset);
       proc->isUserlandThread = proc->pid != proc->tgid;
+      pp->offset = offset >= 0 ? offset : 0;
 
       /*
        * These conditions will not trigger on first occurrence, cause we need to
@@ -372,7 +387,7 @@ static bool PCPProcessList_updateProcesses(PCPProcessList* this, double period, 
 
       float percent_cpu = (pp->utime + pp->stime - lasttimes) / period * 100.0;
       proc->percent_cpu = isnan(percent_cpu) ?
-                          0.0 : CLAMP(percent_cpu, 0.0, pl->cpuCount * 100.0);
+                          0.0 : CLAMP(percent_cpu, 0.0, pl->activeCPUs * 100.0);
       proc->percent_mem = proc->m_resident / (double)pl->totalMem * 100.0;
 
       PCPProcessList_updateUsername(proc, pid, offset, pl->usersTable);
@@ -399,6 +414,9 @@ static bool PCPProcessList_updateProcesses(PCPProcessList* this, double period, 
 
       if (settings->flags & PROCESS_FLAG_CWD)
          PCPProcessList_readCwd(pp, pid, offset);
+
+      if (settings->flags & PROCESS_FLAG_LINUX_AUTOGROUP)
+         PCPProcessList_readAutogroup(pp, pid, offset);
 
       if (proc->state == 'Z' && !proc->cmdline && command[0]) {
          Process_updateCmdline(proc, command, 0, strlen(command));
@@ -538,7 +556,7 @@ static void PCPProcessList_updateAllCPUTime(PCPProcessList* this, Metric metric,
 
 static void PCPProcessList_updatePerCPUTime(PCPProcessList* this, Metric metric, CPUMetric cpumetric)
 {
-   int cpus = this->super.cpuCount;
+   int cpus = this->super.existingCPUs;
    if (Metric_values(metric, this->values, cpus, PM_TYPE_U64) == NULL)
       memset(this->values, 0, cpus * sizeof(pmAtomValue));
    for (int i = 0; i < cpus; i++)
@@ -547,7 +565,7 @@ static void PCPProcessList_updatePerCPUTime(PCPProcessList* this, Metric metric,
 
 static void PCPProcessList_updatePerCPUReal(PCPProcessList* this, Metric metric, CPUMetric cpumetric)
 {
-   int cpus = this->super.cpuCount;
+   int cpus = this->super.existingCPUs;
    if (Metric_values(metric, this->values, cpus, PM_TYPE_DOUBLE) == NULL)
       memset(this->values, 0, cpus * sizeof(pmAtomValue));
    for (int i = 0; i < cpus; i++)
@@ -607,7 +625,7 @@ static void PCPProcessList_updateHeader(ProcessList* super, const Settings* sett
    PCPProcessList_updateAllCPUTime(this, PCP_CPU_GUEST, CPU_GUEST_TIME);
    PCPProcessList_deriveCPUTime(this->cpu);
 
-   for (unsigned int i = 0; i < super->cpuCount; i++)
+   for (unsigned int i = 0; i < super->existingCPUs; i++)
       PCPProcessList_backupCPUTime(this->percpu[i]);
    PCPProcessList_updatePerCPUTime(this, PCP_PERCPU_USER, CPU_USER_TIME);
    PCPProcessList_updatePerCPUTime(this, PCP_PERCPU_NICE, CPU_NICE_TIME);
@@ -618,7 +636,7 @@ static void PCPProcessList_updateHeader(ProcessList* super, const Settings* sett
    PCPProcessList_updatePerCPUTime(this, PCP_PERCPU_SOFTIRQ, CPU_SOFTIRQ_TIME);
    PCPProcessList_updatePerCPUTime(this, PCP_PERCPU_STEAL, CPU_STEAL_TIME);
    PCPProcessList_updatePerCPUTime(this, PCP_PERCPU_GUEST, CPU_GUEST_TIME);
-   for (unsigned int i = 0; i < super->cpuCount; i++)
+   for (unsigned int i = 0; i < super->existingCPUs; i++)
       PCPProcessList_deriveCPUTime(this->percpu[i]);
 
    if (settings->showCPUFrequency)
@@ -648,6 +666,9 @@ void ProcessList_goThroughEntries(ProcessList* super, bool pauseProcessUpdate) {
    Metric_enable(PCP_PROC_NVCTXSW, flagged && enabled);
    flagged = settings->flags & PROCESS_FLAG_LINUX_SECATTR;
    Metric_enable(PCP_PROC_LABELS, flagged && enabled);
+   flagged = settings->flags & PROCESS_FLAG_LINUX_AUTOGROUP;
+   Metric_enable(PCP_PROC_AUTOGROUP_ID, flagged && enabled);
+   Metric_enable(PCP_PROC_AUTOGROUP_NICE, flagged && enabled);
 
    /* Sample smaps metrics on every second pass to improve performance */
    static int smaps_flag;
@@ -670,4 +691,14 @@ void ProcessList_goThroughEntries(ProcessList* super, bool pauseProcessUpdate) {
 
    double period = (this->timestamp - sample) * 100;
    PCPProcessList_updateProcesses(this, period, &timestamp);
+}
+
+bool ProcessList_isCPUonline(const ProcessList* super, unsigned int id) {
+   assert(id < super->existingCPUs);
+   (void) super;
+
+   pmAtomValue value;
+   if (Metric_instance(PCP_PERCPU_SYSTEM, id, id, &value, PM_TYPE_U32))
+      return true;
+   return false;
 }

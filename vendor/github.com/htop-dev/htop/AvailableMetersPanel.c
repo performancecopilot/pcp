@@ -14,8 +14,10 @@ in the source distribution for its full text.
 #include "CPUMeter.h"
 #include "DynamicMeter.h"
 #include "FunctionBar.h"
+#include "Hashtable.h"
 #include "Header.h"
 #include "ListItem.h"
+#include "Macros.h"
 #include "Meter.h"
 #include "MetersPanel.h"
 #include "Object.h"
@@ -94,9 +96,9 @@ const PanelClass AvailableMetersPanel_class = {
 
 // Handle (&CPUMeter_class) entries in the AvailableMetersPanel
 static void AvailableMetersPanel_addCPUMeters(Panel* super, const MeterClass* type, const ProcessList* pl) {
-   if (pl->cpuCount > 1) {
+   if (pl->existingCPUs > 1) {
       Panel_add(super, (Object*) ListItem_new("CPU average", 0));
-      for (unsigned int i = 1; i <= pl->cpuCount; i++) {
+      for (unsigned int i = 1; i <= pl->existingCPUs; i++) {
          char buffer[50];
          xSnprintf(buffer, sizeof(buffer), "%s %d", type->uiName, Settings_cpuId(pl->settings, i - 1));
          Panel_add(super, (Object*) ListItem_new(buffer, i));

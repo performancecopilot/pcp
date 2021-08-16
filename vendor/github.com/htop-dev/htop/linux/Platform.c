@@ -150,8 +150,40 @@ static Htop_Reaction Platform_actionSetIOPriority(State* st) {
    return HTOP_REFRESH | HTOP_REDRAW_BAR | HTOP_UPDATE_PANELHDR;
 }
 
+static bool Platform_changeAutogroupPriority(MainPanel* panel, int delta) {
+   if (LinuxProcess_isAutogroupEnabled() == false) {
+      beep();
+      return false;
+   }
+   bool anyTagged;
+   bool ok = MainPanel_foreachProcess(panel, LinuxProcess_changeAutogroupPriorityBy, (Arg) { .i = delta }, &anyTagged);
+   if (!ok)
+      beep();
+   return anyTagged;
+}
+
+static Htop_Reaction Platform_actionHigherAutogroupPriority(State* st) {
+   if (Settings_isReadonly())
+      return HTOP_OK;
+
+   bool changed = Platform_changeAutogroupPriority(st->mainPanel, -1);
+   return changed ? HTOP_REFRESH : HTOP_OK;
+}
+
+static Htop_Reaction Platform_actionLowerAutogroupPriority(State* st) {
+   if (Settings_isReadonly())
+      return HTOP_OK;
+
+   bool changed = Platform_changeAutogroupPriority(st->mainPanel, 1);
+   return changed ? HTOP_REFRESH : HTOP_OK;
+}
+
 void Platform_setBindings(Htop_Action* keys) {
    keys['i'] = Platform_actionSetIOPriority;
+   keys['{'] = Platform_actionLowerAutogroupPriority;
+   keys['}'] = Platform_actionHigherAutogroupPriority;
+   keys[KEY_F(19)] = Platform_actionLowerAutogroupPriority;  // Shift-F7
+   keys[KEY_F(20)] = Platform_actionHigherAutogroupPriority; // Shift-F8
 }
 
 const MeterClass* const Platform_meterTypes[] = {
@@ -246,10 +278,16 @@ int Platform_getMaxPid() {
 
 double Platform_setCPUValues(Meter* this, unsigned int cpu) {
    const LinuxProcessList* pl = (const LinuxProcessList*) this->pl;
-   const CPUData* cpuData = &(pl->cpus[cpu]);
+   const CPUData* cpuData = &(pl->cpuData[cpu]);
    double total = (double) ( cpuData->totalPeriod == 0 ? 1 : cpuData->totalPeriod);
    double percent;
    double* v = this->values;
+
+   if (!cpuData->online) {
+      this->curItems = 0;
+      return NAN;
+   }
+
    v[CPU_METER_NICE] = cpuData->nicePeriod / total * 100.0;
    v[CPU_METER_NORMAL] = cpuData->userPeriod / total * 100.0;
    if (this->pl->settings->detailedCPUTime) {
@@ -510,6 +548,9 @@ bool Platform_getDiskIO(DiskIOData* data) {
       unsigned long long int read_tmp, write_tmp, timeSpend_tmp;
       if (sscanf(lineBuffer, "%*d %*d %31s %*u %*u %llu %*u %*u %*u %llu %*u %*u %llu", diskname, &read_tmp, &write_tmp, &timeSpend_tmp) == 4) {
          if (String_startsWith(diskname, "dm-"))
+            continue;
+
+         if (String_startsWith(diskname, "zram"))
             continue;
 
          /* only count root disks, e.g. do not count IO from sda and sda1 twice */
@@ -1000,7 +1041,7 @@ void Platform_init(void) {
    }
 
 #ifdef HAVE_SENSORS_SENSORS_H
-   LibSensors_init(NULL);
+   LibSensors_init();
 #endif
 }
 
