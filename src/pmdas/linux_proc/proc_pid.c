@@ -1126,6 +1126,7 @@ maperr(void)
 
     if (sts == -EACCES || sts == -EINVAL) sts = 0;
     else if (sts == -ENOENT) sts = PM_ERR_APPVERSION;
+    else if (sts == -ENODATA) sts = PM_ERR_VALUE;
     return sts;
 }
 
@@ -1156,7 +1157,7 @@ read_proc_entry(int fd, size_t *lenp, char **bufp)
 	if (n < 0)
 	    sts = maperr();
 	else if (n == 0) {
-	    sts = -ENODATA;
+	    sts = PM_ERR_VALUE;
 	    if (pmDebugOptions.appl1 && pmDebugOptions.desperate)
 		fprintf(stderr, "%s: fd=%d: no data\n", "read_proc_entry", fd);
 	}
@@ -1324,12 +1325,12 @@ refresh_proc_pid_environ(proc_pid_entry_t *ep)
 	} else {
 	    /* probably EOF on first read */
 	    ep->environ_buflen = 0;
-	    sts = 0; /* clear -ENODATA */
+	    sts = 0; /* clear PM_ERR_VALUE */
 	}
     } else {
 	/* have seen EPERM errors from open */
 	ep->environ_buflen = 0;
-	sts = 0; /* clear -ENODATA */
+	sts = 0; /* clear PM_ERR_VALUE */
     }
     return sts;
 }
@@ -1669,7 +1670,7 @@ refresh_proc_pid_maps(proc_pid_entry_t *ep)
     if (ep->maps_buf) {
 	ep->maps_buf[ep->maps_buflen - 1] = '\0';
 	ep->success |= PROC_PID_FLAG_MAPS;
-	sts = 0; /* clear -ENODATA */
+	sts = 0; /* clear PM_ERR_VALUE */
     } else {
 	ep->maps_buflen = 0;
     }
@@ -2109,7 +2110,7 @@ refresh_proc_pid_label(proc_pid_entry_t *ep)
     if ((n = read(fd, procbuf, procbuflen)) < 0)
 	sts = maperr();
     else if (n == 0)
-	sts = -ENODATA;
+	sts = PM_ERR_VALUE;
     else {
 	sts = 0;
 	/* buffer matches "ps" output format, direct hash */
@@ -2259,8 +2260,8 @@ refresh_proc_pid_autogroup(proc_pid_entry_t *ep)
     if ((sts = read_proc_entry(fd, &procbuflen, &procbuf)) >= 0) {
 	sscanf(procbuf, "/autogroup-%u nice %d",
 			&ep->autogroup_id, &ep->autogroup_nice);
-    } else if (sts == -ENODATA) {
-	sts = 0; /* clear -ENODATA */
+    } else if (sts == PM_ERR_VALUE) {
+	sts = 0; /* clear PM_ERR_VALUE */
     }
     ep->success |= PROC_PID_FLAG_AUTOGROUP;
     close(fd);
