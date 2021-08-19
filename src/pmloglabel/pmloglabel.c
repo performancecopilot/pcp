@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2014-2017 Red Hat.
+ * Copyright (c) 2014-2017,2021 Red Hat.
  * Copyright (c) 2008 Aconex.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -19,6 +19,7 @@
 static int gold;	/* boolean flag - do we have a golden label yet? */
 static char *goldfile;
 static __pmLogLabel golden;
+static __pmLogLabel zeroes;
 static __pmLogCtl logctl;
 static __pmArchCtl archctl;
 static int status;
@@ -32,7 +33,7 @@ int
 verify_label(__pmFILE *f, const char *file)
 {
     int version, magic;
-    int n, len, xpectlen = sizeof(__pmLogLabel) + 2 * sizeof(len);
+    int n, len;
 
     /* check the prefix integer */
     __pmFseek(f, (long)0, SEEK_SET);
@@ -55,14 +56,16 @@ verify_label(__pmFILE *f, const char *file)
 	    status = 2;
 	}
     }
-    if (len != xpectlen) {
-	fprintf(stderr, "Bad prefix sentinel value for %s: %d (%d expected)\n",
-			file, len, xpectlen);
-	status = 2;
+    if ((len != sizeof(__pmExtLabel_v2) &&
+	(len <= sizeof(__pmExtLabel_v3) || len > (1 << 16)))) {
+	fprintf(stderr, "Bad prefix sentinel value for %s: %d (label length)\n",
+			file, len);
+	status = 2;	/* we don't know which way is up at this point */
+	goto out;	/* cannot attempt to access this label anymore */
     }
 
     /* check the suffix integer */
-    __pmFseek(f, (long)(xpectlen - sizeof(len)), SEEK_SET);
+    __pmFseek(f, (long)(len - sizeof(len)), SEEK_SET);
     n = (int)__pmFread(&len, 1, sizeof(len), f);
     len = ntohl(len);
     if (n != sizeof(len)) {
@@ -82,15 +85,20 @@ verify_label(__pmFILE *f, const char *file)
 	    status = 2;
 	}
     }
-    if (len != xpectlen) {
-	fprintf(stderr, "Bad suffix sentinel value for %s: %d (%d expected)\n",
-			file, len, xpectlen);
+    if ((len != sizeof(__pmExtLabel_v2) &&
+	(len <= sizeof(__pmExtLabel_v3) || len > (1 << 16)))) {
+	fprintf(stderr, "Bad suffix sentinel value for %s: %d (label length)\n",
+			file, len);
 	status = 2;
     }
 
+out:
+    if (memcmp(&logctl.l_label, &zeroes, sizeof(zeroes)) == 0)
+	return 0;	/* no label content was successfully read */
+
     /* check the label itself */
-    magic = logctl.l_label.ill_magic & 0xffffff00;
-    version = logctl.l_label.ill_magic & 0xff;
+    magic = logctl.l_label.magic & 0xffffff00;
+    version = logctl.l_label.magic & 0xff;
     if (magic != PM_LOG_MAGIC) {
 	fprintf(stderr, "Bad magic (%x) in %s\n", magic, file);
 	status = 2;
@@ -101,6 +109,20 @@ verify_label(__pmFILE *f, const char *file)
     }
 
     return version;
+}
+
+static void
+release_label(void)
+{
+    __pmLogLabel *label = &logctl.l_label;
+
+    if (label->hostname)
+	free(label->hostname);
+    if (label->timezone)
+	free(label->timezone);
+    if (label->zoneinfo)
+	free(label->zoneinfo);
+    memset(label, 0, sizeof(__pmLogLabel));
 }
 
 /*
@@ -117,29 +139,58 @@ compare_golden(__pmFILE *f, const char *file, int sts, int warnings)
 	memcpy(&golden, label, sizeof(golden));
 	if ((gold = (sts >= 0)) != 0)
 	    goldfile = strdup(file);
+	memset(label, 0, sizeof(*label));	/* avoid double freeing */
     }
     else if (warnings) {
 	int version = verify_label(f, file);
 
-	if (version != (golden.ill_magic & 0xff)) {
+	if (memcmp(&label, &zeroes, sizeof(zeroes)) == 0)
+	    return;	/* no label content was successfully read */
+
+	if (version != (golden.magic & 0xff)) {
 	    fprintf(stderr, "Mismatched version (%x/%x) between %s and %s\n",
-			    version, golden.ill_magic & 0xff, file, goldfile);
+			    version, golden.magic & 0xff, file, goldfile);
 	    status = 2;
 	}
-	if (label->ill_pid != golden.ill_pid) {
+	if (label->pid != golden.pid) {
 	    fprintf(stderr, "Mismatched PID (%d/%d) between %s and %s\n",
-			    label->ill_pid, golden.ill_pid, file, goldfile);
+			    label->pid, golden.pid, file, goldfile);
 	    status = 2;
 	}
-	if (strncmp(label->ill_hostname, golden.ill_hostname,
-			PM_LOG_MAXHOSTLEN) != 0) {
+	if (label->hostname_len != golden.hostname_len) {
+	    fprintf(stderr, "Mismatched hostname length (%hu/%hu) between %s and %s\n",
+		    label->hostname_len, golden.hostname_len, file, goldfile);
+	    status = 2;
+	}
+	if (label->timezone_len != golden.timezone_len) {
+	    fprintf(stderr, "Mismatched timezone length (%hu/%hu) between %s and %s\n",
+		    label->timezone_len, golden.timezone_len, file, goldfile);
+	    status = 2;
+	}
+	if (label->zoneinfo_len != golden.zoneinfo_len) {
+	    fprintf(stderr, "Mismatched zoneinfo length (%hu/%hu) between %s and %s\n",
+		    label->zoneinfo_len, golden.zoneinfo_len, file, goldfile);
+	    status = 2;
+	}
+	if (!label->hostname || !golden.hostname ||
+	    strcmp(label->hostname, golden.hostname) != 0) {
 	    fprintf(stderr, "Mismatched hostname (%s/%s) between %s and %s\n",
-		    label->ill_hostname, golden.ill_hostname, file, goldfile);
+		    label->hostname ? label->hostname : "\"\"",
+		    golden.hostname ? golden.hostname : "\"\"", file, goldfile);
 	    status = 2;
 	}
-	if (strncmp(label->ill_tz, golden.ill_tz, PM_TZ_MAXLEN) != 0) {
+	if (!label->timezone || !golden.timezone ||
+	    strcmp(label->timezone, golden.timezone) != 0) {
 	    fprintf(stderr, "Mismatched timezone (%s/%s) between %s and %s\n",
-		    label->ill_tz, golden.ill_tz, file, goldfile);
+		    label->timezone ? label->timezone : "\"\"",
+		    golden.timezone ? golden.timezone : "\"\"", file, goldfile);
+	    status = 2;
+	}
+	if (label->zoneinfo && golden.zoneinfo &&	/* optional */
+	    strcmp(label->zoneinfo, golden.zoneinfo) != 0) {
+	    fprintf(stderr, "Mismatched zoneinfo (%s/%s) between %s and %s\n",
+		    label->zoneinfo ? label->zoneinfo : "\"\"",
+		    golden.zoneinfo ? golden.zoneinfo : "\"\"", file, goldfile);
 	    status = 2;
 	}
     }
@@ -283,6 +334,7 @@ main(int argc, char *argv[])
 	}
 	pmsprintf(buffer, sizeof(buffer), "data volume %d", c);
 	compare_golden(archctl.ac_mfp, buffer, sts, warnings);
+	release_label();
     }
 
     if (logctl.l_tifp) {
@@ -294,6 +346,7 @@ main(int argc, char *argv[])
 	    status = 2;
 	}
 	compare_golden(logctl.l_tifp, "temporal index", sts, warnings);
+	release_label();
     }
     else if (verbose) {
 	printf("No temporal index found\n");
@@ -307,32 +360,36 @@ main(int argc, char *argv[])
 	status = 2;
     }
     compare_golden(logctl.l_mdfp, "metadata volume", sts, warnings);
+    release_label();
 
     /*
      * Now, make any modifications requested
      */
     if (!readonly) {
 	if (version)
-	    golden.ill_magic = PM_LOG_MAGIC | version;
+	    golden.magic = PM_LOG_MAGIC | version;
 	if (pid)
-	    golden.ill_pid = pid;
+	    golden.pid = pid;
 	if (host) {
-	    memset(golden.ill_hostname, 0, sizeof(golden.ill_hostname));
-	    strncpy(golden.ill_hostname, host, PM_LOG_MAXHOSTLEN-1);
-	    golden.ill_hostname[PM_LOG_MAXHOSTLEN-1] = '\0';
+	    free(golden.hostname);
+	    golden.hostname = strdup(host);
+	    golden.hostname_len = strlen(host) + 1;
 	}
 	if (tz) {
-	    memset(golden.ill_tz, 0, sizeof(golden.ill_tz));
-	    strncpy(golden.ill_tz, tz, PM_TZ_MAXLEN-1);
-	    golden.ill_tz[PM_TZ_MAXLEN-1] = '\0';
+	    free(golden.timezone);
+	    golden.timezone = strdup(tz);
+	    golden.timezone_len = strlen(tz) + 1;
 	}
+	/* TODO: v3 archive zoneinfo */
+	golden.zoneinfo = NULL;
+	golden.zoneinfo_len = 0;
 
 	if (archctl.ac_mfp)
 	    __pmFclose(archctl.ac_mfp);
 	for (c = logctl.l_minvol; c <= logctl.l_maxvol; c++) {
 	    if (verbose)
 		printf("Writing label on data volume %d\n", c);
-	    golden.ill_vol = c;
+	    golden.vol = c;
 	    pmsprintf(buffer, sizeof(buffer), "%s.%d", logctl.l_name, c);
 	    if ((archctl.ac_mfp = __pmFopen(buffer, "r+")) == NULL) {
 		fprintf(stderr, "Failed data volume %d open: %s\n",
@@ -356,7 +413,7 @@ main(int argc, char *argv[])
 	    __pmFclose(logctl.l_tifp);
 	    if (verbose)
 		printf("Writing label on temporal index\n");
-	    golden.ill_vol = PM_LOG_VOL_TI;
+	    golden.vol = PM_LOG_VOL_TI;
 	    pmsprintf(buffer, sizeof(buffer), "%s.index", logctl.l_name);
 	    if ((logctl.l_tifp = __pmFopen(buffer, "r+")) == NULL) {
 		fprintf(stderr, "Failed temporal index open: %s\n",
@@ -373,7 +430,7 @@ main(int argc, char *argv[])
 	__pmFclose(logctl.l_mdfp);
 	if (verbose)
 	    printf("Writing label on metadata volume\n");
-	golden.ill_vol = PM_LOG_VOL_META;
+	golden.vol = PM_LOG_VOL_META;
 	pmsprintf(buffer, sizeof(buffer), "%s.meta", logctl.l_name);
 	if ((logctl.l_mdfp = __pmFopen(buffer, "r+")) == NULL) {
 	    fprintf(stderr, "Failed metadata volume open: %s\n",
@@ -394,22 +451,22 @@ main(int argc, char *argv[])
 	char	       *ddmm;
 	char	       *yr;
 	struct timeval	tv;
-	time_t t = golden.ill_start.tv_sec;
+	time_t t = golden.start.sec;
 
-	printf("Log Label (Log Format Version %d)\n", golden.ill_magic & 0xff);
-	printf("Performance metrics from host %s\n", golden.ill_hostname);
+	printf("Log Label (Log Format Version %d)\n", golden.magic & 0xff);
+	printf("Performance metrics from host %s\n", golden.hostname);
 
 	ddmm = pmCtime(&t, buffer);
 	ddmm[10] = '\0';
 	yr = &ddmm[20];
 	printf("  commencing %s ", ddmm);
-	tv.tv_sec = golden.ill_start.tv_sec;
-	tv.tv_usec = golden.ill_start.tv_usec;
-	pmPrintStamp(stdout, &tv);
+	tv.tv_sec = golden.start.sec;
+	tv.tv_usec = golden.start.nsec / 1000;
+	pmPrintStamp(stdout, &tv);	/* TODO: v3 archives */
 	printf(" %4.4s\n", yr);
 	if ((sts = pmNewContext(PM_CONTEXT_ARCHIVE, archive)) < 0)
 	    printf("  ending     UNKNOWN (pmNewContext: %s)\n", pmErrStr(sts));
-	else if ((sts = pmGetArchiveEnd(&tv)) < 0)
+	else if ((sts = pmGetArchiveEnd(&tv)) < 0)	/* TODO: v3 archives */
 	    printf("  ending     UNKNOWN (pmGetArchiveEnd: %s)\n", pmErrStr(sts));
 	else {
 	    time_t	time;
@@ -418,12 +475,12 @@ main(int argc, char *argv[])
 	    ddmm[10] = '\0';
 	    yr = &ddmm[20];
 	    printf("  ending     %s ", ddmm);
-	    pmPrintStamp(stdout, &tv);
+	    pmPrintStamp(stdout, &tv);	/* TODO: v3 archives */
 	    printf(" %4.4s\n", yr);
 	}
-	if (Lflag) {
-	    printf("Archive timezone: %s\n", golden.ill_tz);
-	    printf("PID for pmlogger: %d\n", golden.ill_pid);
+	if (Lflag) {	/* TODO: v3 archives - zoneinfo */
+	    printf("Archive timezone: %s\n", golden.timezone);
+	    printf("PID for pmlogger: %d\n", golden.pid);
 	}
     }
 

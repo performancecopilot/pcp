@@ -527,6 +527,7 @@ main(int argc, char *argv[])
     int		zflag = 0;			/* for -z */
     char 	*tz = NULL;			/* for -Z timezone */
     off_t	offset;
+    size_t	bytes;
     __pmLogHdr	hdr;
 
     pmSetProgname(argv[0]);
@@ -673,8 +674,14 @@ main(int argc, char *argv[])
 	    else
 		fprintf(stderr, "read: len=%d type=%s (%d) @ offset=%lld\n", hdr.len, typename[hdr.type], hdr.type, (long long)offset);
 	}
-	if (nrec == 0 && hdr.len != (int)sizeof(__pmLogLabel)+2*(int)sizeof(int)) {
-	    fprintf(stderr, "error: %s does not start with label record (hdr len=%d not %d), not a PCP archive file?\n", argv[optind], hdr.len, (int)sizeof(pmLogLabel)+2*(int)sizeof(int));
+	bytes = sizeof(__pmExtLabel_v2) + 2 * sizeof(int);
+	if (nrec == 0 && version == PM_LOG_VERS02 && hdr.len != bytes) {
+	    fprintf(stderr, "error: %s does not start with label record (hdr len=%d not %zu), not a PCP archive file?\n", argv[optind], hdr.len, bytes);
+	    exit(1);
+	}
+	bytes = sizeof(__pmExtLabel_v3) + 2 * sizeof(int);
+	if (nrec == 0 && version == PM_LOG_VERS03 && hdr.len <= bytes) {
+	    fprintf(stderr, "error: %s does not start with label record (hdr len=%d not >%zu), not a PCP archive file?\n", argv[optind], hdr.len, bytes);
 	    exit(1);
 	}
 	len = hdr.len - sizeof(hdr);

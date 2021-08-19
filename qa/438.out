@@ -129,7 +129,7 @@ __pmStat("badarchives/badlen-6"): no decompress
 __pmFopen("badarchives/badlen-6.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-6.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-6.SUFFIX", "r"): no decompress
-__pmLogChkLabel: fd=N vol=0 header read -> 4 (expect 4) or bad header len=64 (expected 132)
+__pmLogChkLabel: fd=N vol=0 bad header len=64 (expected 132)
 pmdumplog: Cannot open archive "badarchives/badlen-6": Illegal label record at start of a PCP archive log file
 
 --- badarchives/badlen-7 ---

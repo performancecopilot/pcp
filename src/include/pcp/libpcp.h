@@ -779,50 +779,51 @@ typedef struct __pmLogHighResLabelSet {
 #endif
 
 /*
- * External file and internal (below PMAPI) formats for archive labels.
+ * Internal archive label (below PMAPI)
  */
 typedef struct {
-    int		ill_magic;		/* PM_LOG_MAGIC|PM_LOG_VERS?? */
-    int		ill_pid;		/* PID of logger */
-    pmTimeval	ill_start;		/* start of this log */
-    int		ill_vol;		/* current log volume no. */
-    char	ill_hostname[PM_LOG_MAXHOSTLEN]; /* name of collection host */
-    char	ill_tz[PM_TZ_MAXLEN];	/* $TZ at collection host */
+    int			magic;		/* PM_LOG_MAGIC|PM_LOG_VERS?? */
+    int			pid;		/* PID of logger */
+    __pmTimestamp	start;		/* start of this log */
+    int			vol;		/* current log volume no. */
+    uint32_t		total_len;	/* on-disk log label length */
+    uint16_t		feature_bits;	/* current enabled features */
+    uint16_t		hostname_len;	/* collection host name length */
+    uint16_t		timezone_len;	/* squashed $TZ label length */
+    uint16_t		zoneinfo_len;	/* detailed $TZ label length */
+    char		*hostname;	/* name of collection host */
+    char		*timezone;	/* squashed $TZ at collection host */
+    char		*zoneinfo;	/* detailed $TZ at collection host */
 } __pmLogLabel;
 
-#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
+/*
+ * On-Disk Log Label, Version 2
+ */
 typedef struct {
-    int32_t	ill_magic;		/* PM_LOG_MAGIC|PM_LOG_VERS02 */
-    int32_t	ill_pid;		/* PID of logger */
-    pmTimeval	ill_start;		/* start of this log */
-    int32_t	ill_vol;		/* current log volume no. */
-    char	ill_hostname[PM_LOG_MAXHOSTLEN]; /* name of collection host */
-    char	ill_tz[PM_TZ_MAXLEN];	/* $TZ at collection host */
-} __pmLogLabel2;
+    __uint32_t	magic;		/* PM_LOG_MAGIC|PM_LOG_VERS02 */
+    __int32_t	pid;		/* PID of logger */
+    __int32_t	start_sec;	/* start of this log (pmTimeval) */
+    __int32_t	start_usec;
+    __int32_t	vol;		/* current log volume no. */
+    char	hostname[PM_LOG_MAXHOSTLEN]; /* name of collection host */
+    char	timezone[PM_TZ_MAXLEN];	/* $TZ at collection host */
+} __pmExtLabel_v2;
 
+/*
+ * On-Disk Log Label, Version 3
+ */
 typedef struct {
-    uint32_t	ill_magic;		/* PM_LOG_MAGIC|PM_LOG_VERS03 */
-    int32_t	ill_pid;		/* PID of logger */
-    pmTimespec	ill_start;		/* start of this log */
-    int32_t	ill_vol;		/* current log volume no. */
-    uint32_t	ill_flags;		/* enabled log features */
-    uint16_t	ill_align_len;		/* aligned length of this label */
-    uint16_t	ill_hostname_len;	/* collector host name length */
-    uint16_t	ill_timezone_len;	/* squashed $TZ label length */
-    uint16_t	ill_zoneinfo_len;	/* collector zoneinfo length */
-} __pmLogLabel3;
-
-typedef struct {
-    uint32_t	ill_magic;              /* PM_LOG_MAGIC|PM_LOG_VERS* */
-    int32_t	ill_pid;                /* PID of logger */
-} __pmLogLabelAll;
-
-//typedef union {
-//    __pmLogLabel2	v2;
-//    __pmLogLabel3	v3;
-//    __pmLogLabelAll	all;
-//} __pmLogLabel;
-#endif
+    __uint32_t	magic;		/* PM_LOG_MAGIC|PM_LOG_VERS03 */
+    __int32_t	pid;		/* PID of logger */
+    __int64_t	start_sec;	/* start of this log (__pmTimestamp) */
+    __int32_t	start_nsec;
+    __int32_t	vol;		/* current log volume no. */
+    __uint16_t	feature_bits;	/* enabled archive features */
+    __uint16_t	hostname_len;	/* collector host name length */
+    __uint16_t	timezone_len;	/* squashed $TZ label length */
+    __uint16_t	zoneinfo_len;	/* collector zoneinfo length */
+    /* hostname, timezone, zoneinfo strings follow - variable length */
+} __pmExtLabel_v3;
 
 /*
  * Internal Temporal Index Record
@@ -1337,6 +1338,7 @@ PCP_CALL extern void __pmEndOptions(pmOptions *);
 /* work out local timezone */
 PCP_CALL extern char *__pmTimezone(void);		/* NOT thread-safe */
 PCP_CALL extern char *__pmTimezone_r(char *, int);
+PCP_CALL extern char *__pmZoneinfo(void);
 
 /* string conversion to value of given type, suitable for pmStore */
 PCP_CALL extern int __pmStringValue(const char *, pmAtomValue *, int);

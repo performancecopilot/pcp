@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2017-2020 Red Hat.
+ * Copyright (c) 2017-2021 Red Hat.
  * Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
- * 
+ *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation; either version 2.1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
@@ -42,23 +42,20 @@ check_context_start(pmi_context *current)
 
     acp = &current->archctl;
     acp->ac_log = &current->logctl;
-#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
-    // TODO does this need to be an option from the command line?
-    sts = __pmLogCreate(host, current->archive, PM_LOG_VERS03, acp);
-#else
-    sts = __pmLogCreate(host, current->archive, PM_LOG_VERS02, acp);
-#endif
+    sts = __pmLogCreate(host, current->archive, current->version, acp);
     if (sts < 0)
 	return sts;
 
     lcp = &current->logctl;
-    if (current->timezone == NULL) {
-	char	tzbuf[PM_TZ_MAXLEN];
-	pmstrncpy(lcp->l_label.ill_tz, sizeof(lcp->l_label.ill_tz), __pmTimezone_r(tzbuf, sizeof(tzbuf)));
+    if (current->timezone != NULL) {
+	free(lcp->l_label.timezone);
+	lcp->l_label.timezone = strdup(current->timezone);
+	lcp->l_label.timezone_len = strlen(lcp->l_label.timezone) + 1;
+	free(lcp->l_label.zoneinfo);
+	lcp->l_label.zoneinfo = NULL;
+	lcp->l_label.zoneinfo_len = 0;
     }
-    else
-	pmstrncpy(lcp->l_label.ill_tz, sizeof(lcp->l_label.ill_tz), current->timezone);
-    pmNewZone(lcp->l_label.ill_tz);
+    pmNewZone(lcp->l_label.timezone);
     current->state = CONTEXT_ACTIVE;
 
     /*
@@ -67,13 +64,13 @@ check_context_start(pmi_context *current)
      * metadata) ... this code is stolen from logputresult() in
      * libpcp
      */
-    lcp->l_label.ill_start.tv_sec = stamp.sec;
-    lcp->l_label.ill_start.tv_usec = stamp.nsec / 1000;
-    lcp->l_label.ill_vol = PM_LOG_VOL_TI;
+    lcp->l_label.start.sec = stamp.sec;
+    lcp->l_label.start.nsec = stamp.nsec;
+    lcp->l_label.vol = PM_LOG_VOL_TI;
     __pmLogWriteLabel(lcp->l_tifp, &lcp->l_label);
-    lcp->l_label.ill_vol = PM_LOG_VOL_META;
+    lcp->l_label.vol = PM_LOG_VOL_META;
     __pmLogWriteLabel(lcp->l_mdfp, &lcp->l_label);
-    lcp->l_label.ill_vol = 0;
+    lcp->l_label.vol = 0;
     __pmLogWriteLabel(acp->ac_mfp, &lcp->l_label);
     lcp->l_state = PM_LOG_STATE_INIT;
     __pmLogPutIndex(&current->archctl, &stamp);
@@ -150,7 +147,7 @@ newvolume(pmi_context *current, pmTimeval *tvp)
 
     __pmFclose(acp->ac_mfp);
     acp->ac_mfp = newfp;
-    lcp->l_label.ill_vol = acp->ac_curvol = nextvol;
+    lcp->l_label.vol = acp->ac_curvol = nextvol;
     __pmLogWriteLabel(acp->ac_mfp, &lcp->l_label);
     __pmFflush(acp->ac_mfp);
 }

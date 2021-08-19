@@ -26,6 +26,8 @@ __pmValue_PDU: OK
 __pmValueSet_PDU: OK
 __pmLogHdr: OK
 __pmLogLabel: OK
+__pmExtLabel_v2: OK
+__pmExtLabel_v3: OK
 __pmLogTI: OK
 __pmLoggerStatus: OK
 

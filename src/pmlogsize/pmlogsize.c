@@ -1,11 +1,12 @@
 /*
+ * Copyright (c) 2021 Red Hat.
  * Copyright (c) 2018 Ken McDonell.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -117,11 +118,13 @@ static void
 do_work(char *fname)
 {
     __pmFILE		*f;
-    __pmLogLabel	label;
     int			sts;
     int			len;
+    int			magic;
+    int			volume;
     long		extsize;
     long		intsize;
+    long		saved;
     struct stat		sbuf;
 
     if ((f = __pmFopen(fname, "r")) == NULL) {
@@ -132,10 +135,54 @@ do_work(char *fname)
 	fprintf(stderr, "%s: label header read botch: read returns %d not %d as expected\n", fname, sts, (int)sizeof(int));
 	exit(1);
     }
-    if ((sts = __pmFread(&label, 1, sizeof(label), f)) != sizeof(label)) {
-	fprintf(stderr, "%s: label read botch: read returns %d not %d as expected\n", fname, sts, (int)sizeof(label));
+    len = ntohl(len);
+
+    saved = __pmFtell(f);
+    if ((sts = __pmFread(&magic, 1, sizeof(magic), f)) != sizeof(magic)) {
+	fprintf(stderr, "%s: label magic read botch: read returns %d not %d as expected\n", fname, sts, (int)sizeof(magic));
 	exit(1);
     }
+    __pmFseek(f, saved, SEEK_SET);
+    magic = ntohl(magic);
+
+    if ((magic & 0xff) >= PM_LOG_VERS03) {
+	__pmExtLabel_v3	label3;
+	char		buffer[1<<16];
+
+	if (len < sizeof(__pmExtLabel_v3) + 2*sizeof(int)) {
+	    fprintf(stderr, "%s: label header botch: read %d not >=%d as expected\n", fname, len, (int)(sizeof(__pmExtLabel_v3) + 2*sizeof(int)));
+	    exit(1);
+	}
+	if ((sts = __pmFread(&label3, 1, sizeof(label3), f)) != sizeof(label3)) {
+	    fprintf(stderr, "%s: label read botch: read returns %d not %d as expected\n", fname, sts, (int)sizeof(label3));
+	    exit(1);
+	}
+	volume = ntohl(label3.vol);
+
+	len -= (sizeof(__pmExtLabel_v3) + 2*sizeof(int));
+	if (len > sizeof(buffer)) {
+	    fprintf(stderr, "%s: label strings botch: size %d not <=%d as expected\n", fname, len, (int)sizeof(buffer));
+	    exit(1);
+	}
+	if ((sts = __pmFread(buffer, 1, len, f)) != len) {
+	    fprintf(stderr, "%s: label strings botch: read returns %d not %d as expected\n", fname, sts, len);
+	    exit(1);
+	}
+
+    } else {
+	__pmExtLabel_v2	label2;
+
+	if (len < sizeof(__pmExtLabel_v2) + 2*sizeof(int)) {
+	    fprintf(stderr, "%s: label header size botch: read %d not >=%d as expected\n", fname, len, (int)(sizeof(__pmExtLabel_v2) + 2*sizeof(int)));
+	    exit(1);
+	}
+	if ((sts = __pmFread(&label2, 1, sizeof(label2), f)) != sizeof(label2)) {
+	    fprintf(stderr, "%s: label read botch: read returns %d not %d as expected\n", fname, sts, (int)sizeof(label2));
+	    exit(1);
+	}
+	volume = ntohl(label2.vol);
+    }
+
     if ((sts = __pmFread(&len, 1, sizeof(len), f)) != sizeof(len)) {
 	fprintf(stderr, "%s: label trailer read botch: read returns %d not %d as expected\n", fname, sts, (int)sizeof(int));
 	exit(1);
@@ -156,12 +203,9 @@ do_work(char *fname)
     }
     putchar('\n');
 
-    label.ill_magic = ntohl(label.ill_magic);
-    label.ill_vol = ntohl(label.ill_vol);
-
-    if (label.ill_vol == PM_LOG_VOL_TI)
-	do_index(f, label.ill_magic & 0xff);
-    else if (label.ill_vol == PM_LOG_VOL_META)
+    if (volume == PM_LOG_VOL_TI)
+	do_index(f, magic & 0xff);
+    else if (volume == PM_LOG_VOL_META)
 	do_meta(f);
     else
 	do_data(f, fname);

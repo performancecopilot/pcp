@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2014-2018 Red Hat.
+ * Copyright (c) 2014-2018,2021 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -644,6 +644,7 @@ do_work(task_t *tp)
     int			needti;
     static off_t	flushsize = 100000;
     long		old_meta_offset;
+    long		label_offset;
     long		new_offset;
     long		new_meta_offset;
     int			pdu_bytes = 0;
@@ -655,6 +656,8 @@ do_work(task_t *tp)
     pmTimeval		resp_tval;
     __pmTimestamp	stamp;
     unsigned long	peek_offset;
+
+    label_offset = archctl.ac_log->l_label.total_len + 2 * sizeof(int);
 
     if ((pmDebugOptions.appl2) && (pmDebugOptions.desperate)) {
 	struct timeval	now;
@@ -1010,7 +1013,7 @@ do_work(task_t *tp)
 	    }
 	}
 
-	if (last_log_offset == 0 || last_log_offset == sizeof(__pmLogLabel)+2*sizeof(int)) {
+	if (last_log_offset == 0 || last_log_offset == label_offset) {
 	    /* first result in this volume */
 	    needti = 1;
 	    if (pmDebugOptions.appl2)

@@ -104,7 +104,13 @@ Performance metrics from host gonzo
 Archive timezone: EST-11EST-10,87/2:00,297/2:00
 PID for pmlogger: 5407
 Bad data volume 1 label: Illegal label record at start of a PCP archive log file
-Bad prefix sentinel value for data volume 1: 825363076 (132 expected)
+Bad prefix sentinel value for data volume 1: 825363076 (label length)
+Mismatched version (0/2) between data volume 1 and data volume 0
+Mismatched PID (0/5407) between data volume 1 and data volume 0
+Mismatched hostname length (0/6) between data volume 1 and data volume 0
+Mismatched timezone length (0/30) between data volume 1 and data volume 0
+Mismatched hostname (""/gonzo) between data volume 1 and data volume 0
+Mismatched timezone (""/EST-11EST-10,87/2:00,297/2:00) between data volume 1 and data volume 0
 Note: timezone set to local timezone of host "gonzo" from archive
 
 Log Label (Log Format Version 2)
@@ -123,7 +129,12 @@ Performance metrics from host gonzo
 Archive timezone: EST-11EST-10,87/2:00,297/2:00
 PID for pmlogger: 5407
 Bad data volume 1 label: Illegal label record at start of a PCP archive log file
-Bad magic (34322600) in data volume 1
+Mismatched version (0/2) between data volume 1 and data volume 0
+Mismatched PID (0/5407) between data volume 1 and data volume 0
+Mismatched hostname length (0/6) between data volume 1 and data volume 0
+Mismatched timezone length (0/30) between data volume 1 and data volume 0
+Mismatched hostname (""/gonzo) between data volume 1 and data volume 0
+Mismatched timezone (""/EST-11EST-10,87/2:00,297/2:00) between data volume 1 and data volume 0
 Note: timezone set to local timezone of host "gonzo" from archive
 
 Log Label (Log Format Version 2)
@@ -160,6 +171,10 @@ Performance metrics from host gonzo
 Archive timezone: EST-11EST-10,87/2:00,297/2:00
 PID for pmlogger: 12345
 Bad data volume 1 label: Illegal label record at start of a PCP archive log file
+Mismatched hostname length (0/6) between data volume 1 and data volume 0
+Mismatched timezone length (0/30) between data volume 1 and data volume 0
+Mismatched hostname (""/gonzo) between data volume 1 and data volume 0
+Mismatched timezone (""/EST-11EST-10,87/2:00,297/2:00) between data volume 1 and data volume 0
 Note: timezone set to local timezone of host "gonzo" from archive
 
 Log Label (Log Format Version 2)
@@ -214,7 +229,7 @@ Performance metrics from host gonzo.com
 Archive timezone: GMT
 PID for pmlogger: 12345
 Bad data volume 1 label: Illegal label record at start of a PCP archive log file
-Bad suffix sentinel value for data volume 1: 842074756 (132 expected)
+Bad suffix sentinel value for data volume 1: 842074756 (label length)
 Note: timezone set to local timezone of host "gonzo.com" from archive
 
 Log Label (Log Format Version 2)
@@ -227,7 +242,13 @@ PID for pmlogger: 12345
 *** bad prefix length ***
 pmdumplog: Cannot open archive "<TMPPATH>/ok-mv-foo": Illegal label record at start of a PCP archive log file
 Bad metadata volume label: Illegal label record at start of a PCP archive log file
-Bad prefix sentinel value for metadata volume: 825363076 (132 expected)
+Bad prefix sentinel value for metadata volume: 825363076 (label length)
+Mismatched version (0/2) between metadata volume and data volume 0
+Mismatched PID (0/5407) between metadata volume and data volume 0
+Mismatched hostname length (0/6) between metadata volume and data volume 0
+Mismatched timezone length (0/30) between metadata volume and data volume 0
+Mismatched hostname (""/gonzo) between metadata volume and data volume 0
+Mismatched timezone (""/EST-11EST-10,87/2:00,297/2:00) between metadata volume and data volume 0
 Note: timezone set to local timezone of host "gonzo" from archive
 
 Log Label (Log Format Version 2)
@@ -239,7 +260,12 @@ PID for pmlogger: 5407
 *** bad magic/version length ***
 pmdumplog: Cannot open archive "<TMPPATH>/ok-mv-foo": Illegal label record at start of a PCP archive log file
 Bad metadata volume label: Illegal label record at start of a PCP archive log file
-Bad magic (34322600) in metadata volume
+Mismatched version (0/2) between metadata volume and data volume 0
+Mismatched PID (0/5407) between metadata volume and data volume 0
+Mismatched hostname length (0/6) between metadata volume and data volume 0
+Mismatched timezone length (0/30) between metadata volume and data volume 0
+Mismatched hostname (""/gonzo) between metadata volume and data volume 0
+Mismatched timezone (""/EST-11EST-10,87/2:00,297/2:00) between metadata volume and data volume 0
 Note: timezone set to local timezone of host "gonzo" from archive
 
 Log Label (Log Format Version 2)
@@ -262,6 +288,10 @@ PID for pmlogger: 12345
 *** bad volume number ***
 pmdumplog: Cannot open archive "<TMPPATH>/ok-mv-foo": Illegal label record at start of a PCP archive log file
 Bad metadata volume label: Illegal label record at start of a PCP archive log file
+Mismatched hostname length (0/6) between metadata volume and data volume 0
+Mismatched timezone length (0/30) between metadata volume and data volume 0
+Mismatched hostname (""/gonzo) between metadata volume and data volume 0
+Mismatched timezone (""/EST-11EST-10,87/2:00,297/2:00) between metadata volume and data volume 0
 Note: timezone set to local timezone of host "gonzo" from archive
 
 Log Label (Log Format Version 2)
@@ -302,7 +332,7 @@ PID for pmlogger: 12345
 *** bad suffix length ***
 pmdumplog: Cannot open archive "<TMPPATH>/ok-mv-foo": Illegal label record at start of a PCP archive log file
 Bad metadata volume label: Illegal label record at start of a PCP archive log file
-Bad suffix sentinel value for metadata volume: 842074756 (132 expected)
+Bad suffix sentinel value for metadata volume: 842074756 (label length)
 Note: timezone set to local timezone of host "gonzo.com" from archive
 
 Log Label (Log Format Version 2)
@@ -315,7 +345,13 @@ PID for pmlogger: 12345
 *** bad prefix length ***
 pmdumplog: Cannot open archive "<TMPPATH>/ok-mv-foo": Illegal label record at start of a PCP archive log file
 Bad temporal index label: Illegal label record at start of a PCP archive log file
-Bad prefix sentinel value for temporal index: 825363076 (132 expected)
+Bad prefix sentinel value for temporal index: 825363076 (label length)
+Mismatched version (0/2) between temporal index and data volume 0
+Mismatched PID (0/5407) between temporal index and data volume 0
+Mismatched hostname length (0/6) between temporal index and data volume 0
+Mismatched timezone length (0/30) between temporal index and data volume 0
+Mismatched hostname (""/gonzo) between temporal index and data volume 0
+Mismatched timezone (""/EST-11EST-10,87/2:00,297/2:00) between temporal index and data volume 0
 Note: timezone set to local timezone of host "gonzo" from archive
 
 Log Label (Log Format Version 2)
@@ -327,7 +363,12 @@ PID for pmlogger: 5407
 *** bad magic/version length ***
 pmdumplog: Cannot open archive "<TMPPATH>/ok-mv-foo": Illegal label record at start of a PCP archive log file
 Bad temporal index label: Illegal label record at start of a PCP archive log file
-Bad magic (34322600) in temporal index
+Mismatched version (0/2) between temporal index and data volume 0
+Mismatched PID (0/5407) between temporal index and data volume 0
+Mismatched hostname length (0/6) between temporal index and data volume 0
+Mismatched timezone length (0/30) between temporal index and data volume 0
+Mismatched hostname (""/gonzo) between temporal index and data volume 0
+Mismatched timezone (""/EST-11EST-10,87/2:00,297/2:00) between temporal index and data volume 0
 Note: timezone set to local timezone of host "gonzo" from archive
 
 Log Label (Log Format Version 2)
@@ -350,6 +391,10 @@ PID for pmlogger: 12345
 *** bad volume number ***
 pmdumplog: Cannot open archive "<TMPPATH>/ok-mv-foo": Illegal label record at start of a PCP archive log file
 Bad temporal index label: Illegal label record at start of a PCP archive log file
+Mismatched hostname length (0/6) between temporal index and data volume 0
+Mismatched timezone length (0/30) between temporal index and data volume 0
+Mismatched hostname (""/gonzo) between temporal index and data volume 0
+Mismatched timezone (""/EST-11EST-10,87/2:00,297/2:00) between temporal index and data volume 0
 Note: timezone set to local timezone of host "gonzo" from archive
 
 Log Label (Log Format Version 2)
@@ -390,7 +435,7 @@ PID for pmlogger: 12345
 *** bad suffix length ***
 pmdumplog: Cannot open archive "<TMPPATH>/ok-mv-foo": Illegal label record at start of a PCP archive log file
 Bad temporal index label: Illegal label record at start of a PCP archive log file
-Bad suffix sentinel value for temporal index: 842074756 (132 expected)
+Bad suffix sentinel value for temporal index: 842074756 (label length)
 Note: timezone set to local timezone of host "gonzo.com" from archive
 
 Log Label (Log Format Version 2)

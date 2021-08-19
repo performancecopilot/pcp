@@ -368,7 +368,7 @@ pmGetPMNSLocation_ctx(__pmContext *ctxp)
 		    break;
 
 		case PM_CONTEXT_ARCHIVE:
-		    version = ctxp->c_archctl->ac_log->l_label.ill_magic & 0xff;
+		    version = __pmLogVersion(ctxp->c_archctl->ac_log);
 		    if (version >= PM_LOG_VERS02) {
 			pmns_location = PMNS_ARCHIVE;
 			PM_TPD(curr_pmns) = ctxp->c_archctl->ac_log->l_pmns; 

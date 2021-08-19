@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2012-2018 Red Hat.
+ * Copyright (c) 2012-2018,2021 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -1282,10 +1282,12 @@ sendstatus(void)
     if (version >= LOG_PDU_VERSION2) {
 	__pmLoggerStatus		ls;
 
-	if ((ls.ls_state = logctl.l_state) == PM_LOG_STATE_NEW)
+	if ((ls.ls_state = logctl.l_state) == PM_LOG_STATE_NEW) {
 	    ls.ls_start.tv_sec = ls.ls_start.tv_usec = 0;
-	else
-	    memcpy(&ls.ls_start, &logctl.l_label.ill_start, sizeof(ls.ls_start));
+	} else {
+	    ls.ls_start.tv_sec = logctl.l_label.start.sec;
+	    ls.ls_start.tv_usec = logctl.l_label.start.nsec / 1000;
+	}
 	memcpy(&ls.ls_last, &last_stamp, sizeof(ls.ls_last));
 	pmtimevalNow(&now);
 	ls.ls_timenow.tv_sec = (__int32_t)now.tv_sec;
@@ -1296,7 +1298,7 @@ sendstatus(void)
 
 	/* be careful of buffer size mismatches when copying strings */
 	end = sizeof(ls.ls_hostname) - 1;
-	strncpy(ls.ls_hostname, logctl.l_label.ill_hostname, end);
+	strncpy(ls.ls_hostname, logctl.l_label.hostname, end);
 	ls.ls_hostname[end] = '\0';
         /* BTW, that string should equal pmcd_host[]. */
 
@@ -1304,7 +1306,7 @@ sendstatus(void)
            qualified domain name' of a server: it may have several or
            none; the set may have changed since the time the log
            archive was collected.  Now that we store the then-current
-           pmcd.hostname in the ill_hostname (and thus get it reported
+           pmcd.hostname in the hostname (and thus get it reported
            in ls_hostname), we could pass something else informative
            in the ls_fqdn slot.  Namely, pmcd_host_conn[], which is the
            access path pmlogger's using to get to the pmcd. */
@@ -1313,7 +1315,7 @@ sendstatus(void)
 	ls.ls_fqdn[end] = '\0';
 
 	end = sizeof(ls.ls_tz) - 1;
-	strncpy(ls.ls_tz, logctl.l_label.ill_tz, end);
+	strncpy(ls.ls_tz, logctl.l_label.timezone, end);
 	ls.ls_tz[end] = '\0';
 	end = sizeof(ls.ls_tzlogger) - 1;
 	if (tzlogger != NULL)
@@ -1360,7 +1362,7 @@ do_request(__pmPDU *pb)
 	    else {
 		sts = newvolume(VOL_SW_PMLC);
 		if (sts >= 0)
-		    sts = logctl.l_label.ill_vol;
+		    sts = logctl.l_label.vol;
 		sts = __pmSendError(clientfd, FROM_ANON, sts);
 	    }
 	    break;

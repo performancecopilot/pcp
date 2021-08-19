@@ -122,7 +122,7 @@ newvolume(int vol)
     if ((newfp = __pmLogNewFile(outarch.name, vol)) != NULL) {
 	__pmFclose(outarch.archctl.ac_mfp);
 	outarch.archctl.ac_mfp = newfp;
-	outarch.logctl.l_label.ill_vol = outarch.archctl.ac_curvol = vol;
+	outarch.logctl.l_label.vol = outarch.archctl.ac_curvol = vol;
 	__pmLogWriteLabel(outarch.archctl.ac_mfp, &outarch.logctl.l_label);
 	__pmFflush(outarch.archctl.ac_mfp);
     }
@@ -152,18 +152,24 @@ newlabel(void)
     __pmLogLabel	*lp = &outarch.logctl.l_label;
 
     /* copy magic number, pid, host and timezone */
-    lp->ill_magic = inarch.label.ll_magic;
-    lp->ill_pid = inarch.label.ll_pid;
-    if (global.flags & GLOBAL_CHANGE_HOSTNAME)
-	strncpy(lp->ill_hostname, global.hostname, PM_LOG_MAXHOSTLEN);
-    else
-	strncpy(lp->ill_hostname, inarch.label.ll_hostname, PM_LOG_MAXHOSTLEN);
-    lp->ill_hostname[PM_LOG_MAXHOSTLEN-1] = '\0';
-    if (global.flags & GLOBAL_CHANGE_TZ)
-	strncpy(lp->ill_tz, global.tz, PM_TZ_MAXLEN);
-    else
-	strncpy(lp->ill_tz, inarch.label.ll_tz, PM_TZ_MAXLEN);
-    lp->ill_tz[PM_TZ_MAXLEN-1] = '\0';
+    lp->magic = inarch.label.ll_magic;
+    lp->pid = inarch.label.ll_pid;
+    if (lp->hostname)
+	free(lp->hostname);
+    lp->hostname = (global.flags & GLOBAL_CHANGE_HOSTNAME) ?
+	strdup(global.hostname) : strdup(inarch.label.ll_hostname);
+    lp->hostname_len = strlen(lp->hostname) + 1;
+    if (lp->timezone)
+	free(lp->timezone);
+    lp->timezone = (global.flags & GLOBAL_CHANGE_TZ) ?
+	strdup(global.tz) : strdup(inarch.label.ll_tz);
+    lp->timezone_len = strlen(lp->timezone) + 1;
+
+    /* TODO: v3 archive zoneinfo support */
+    if (lp->zoneinfo)
+	free(lp->zoneinfo);
+    lp->zoneinfo = NULL;
+    lp->zoneinfo_len = 0;
 }
 
 /*
@@ -179,7 +185,7 @@ writelabel(int do_rewind)
 	assert(old_offset >= 0);
 	__pmRewind(outarch.logctl.l_tifp);
     }
-    outarch.logctl.l_label.ill_vol = PM_LOG_VOL_TI;
+    outarch.logctl.l_label.vol = PM_LOG_VOL_TI;
     __pmLogWriteLabel(outarch.logctl.l_tifp, &outarch.logctl.l_label);
     if (do_rewind)
 	__pmFseek(outarch.logctl.l_tifp, (long)old_offset, SEEK_SET);
@@ -189,7 +195,7 @@ writelabel(int do_rewind)
 	assert(old_offset >= 0);
 	__pmRewind(outarch.logctl.l_mdfp);
     }
-    outarch.logctl.l_label.ill_vol = PM_LOG_VOL_META;
+    outarch.logctl.l_label.vol = PM_LOG_VOL_META;
     __pmLogWriteLabel(outarch.logctl.l_mdfp, &outarch.logctl.l_label);
     if (do_rewind)
 	__pmFseek(outarch.logctl.l_mdfp, (long)old_offset, SEEK_SET);
@@ -199,7 +205,7 @@ writelabel(int do_rewind)
 	assert(old_offset >= 0);
 	__pmRewind(outarch.archctl.ac_mfp);
     }
-    outarch.logctl.l_label.ill_vol = 0;
+    outarch.logctl.l_label.vol = 0;
     __pmLogWriteLabel(outarch.archctl.ac_mfp, &outarch.logctl.l_label);
     if (do_rewind)
 	__pmFseek(outarch.archctl.ac_mfp, (long)old_offset, SEEK_SET);
@@ -1464,8 +1470,8 @@ do_newlabelsets(void)
 	     * Any global time adjustment done after the first record is output
 	     * above
 	     */
-	    outarch.logctl.l_label.ill_start.tv_sec = inarch.rp->timestamp.tv_sec;
-	    outarch.logctl.l_label.ill_start.tv_usec = inarch.rp->timestamp.tv_usec;
+	    outarch.logctl.l_label.start.sec = inarch.rp->timestamp.tv_sec;
+	    outarch.logctl.l_label.start.nsec = inarch.rp->timestamp.tv_usec * 1000;
 	    /* need to fix start-time in label records */
 	    writelabel(1);
 	    needti = 1;
@@ -1681,10 +1687,7 @@ main(int argc, char **argv)
 
     /* create output log - must be done before writing label */
     outarch.archctl.ac_log = &outarch.logctl;
-#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
-// TODO - decide what to do here
-#endif
-    if ((sts = __pmLogCreate("", outarch.name, PM_LOG_VERS02, &outarch.archctl)) < 0) {
+    if ((sts = __pmLogCreate("", outarch.name, in_version, &outarch.archctl)) < 0) {
 	fprintf(stderr, "%s: Error: __pmLogCreate(%s): %s\n",
 		pmGetProgname(), outarch.name, pmErrStr(sts));
 	/*
@@ -1898,8 +1901,8 @@ main(int argc, char **argv)
 	if (first_datarec) {
 	    first_datarec = 0;
 	    /* any global time adjustment done after nextlog() above */
-	    outarch.logctl.l_label.ill_start.tv_sec = inarch.rp->timestamp.tv_sec;
-	    outarch.logctl.l_label.ill_start.tv_usec = inarch.rp->timestamp.tv_usec;
+	    outarch.logctl.l_label.start.sec = inarch.rp->timestamp.tv_sec;
+	    outarch.logctl.l_label.start.nsec = inarch.rp->timestamp.tv_usec * 1000;
 	    /* need to fix start-time in label records */
 	    writelabel(1);
 	    needti = 1;

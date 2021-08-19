@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020 Red Hat.
+ * Copyright (c) 2013-2021 Red Hat.
  * Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -322,6 +322,7 @@ pmiStart(const char *archive, int inherit)
     current = &context_tab[ncontext-1];
 
     current->state = CONTEXT_START;
+    current->version = PM_LOG_VERS02;
     current->archive = strdup(archive);
     if (current->archive == NULL) {
 	pmNoMem("pmiStart", strlen(archive)+1, PM_FATAL_ERR);

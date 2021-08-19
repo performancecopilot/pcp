@@ -30,7 +30,6 @@ int		meta_state = STATE_MISSING;
 int		log_state = STATE_MISSING;
 int		mark_count;
 int		result_count;
-__pmLogLabel	log_label;
 
 static char	*archbasename;	/* after basename() */
 

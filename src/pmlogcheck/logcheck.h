@@ -14,7 +14,10 @@ extern int		meta_state;
 extern int		log_state;
 extern int		mark_count;
 extern int		result_count;
-extern __pmLogLabel	log_label;
+
+extern char *		goldenfname;
+extern int		goldenmagic;
+extern __pmTimestamp	goldenstart;
 
 extern int pass0(char *);
 extern int pass1(__pmContext *, char *);
