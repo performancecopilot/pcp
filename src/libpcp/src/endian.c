@@ -53,7 +53,7 @@ __ntohpmUnits(pmUnits units)
 }
 #endif
 
-#ifndef __htonpmUnits
+#ifndef __htonpmLabel
 void
 __htonpmLabel(pmLabel * const label)
 {
@@ -117,8 +117,7 @@ htonEventArray(pmValueBlock * const vb, int highres)
 		nparams = hrerp->er_nparams;
 	    hrerp->er_nparams = htonl(nparams);
 	    hrerp->er_flags = htonl(hrerp->er_flags);
-	    __htonll((char *)&hrerp->er_timestamp.tv_sec);
-	    __htonll((char *)&hrerp->er_timestamp.tv_nsec);
+	    __htonpmTimespec(&hrerp->er_timestamp);
 	}
 	else {
 	    pmEventRecord *erp = (pmEventRecord *)base;
@@ -350,6 +349,42 @@ __ntohpmCred(__pmCred cred)
     cred = *(__pmCred *)&x;
 
     return cred;
+}
+#endif
+
+#ifndef __htonpmTimespec
+void
+__htonpmTimespec(pmTimespec * const tsp)
+{
+    __htonll((char *)&tsp->tv_sec);
+    __htonll((char *)&tsp->tv_nsec);
+}
+#endif
+
+#ifndef __ntohpmTimespec
+void
+__ntohpmTimespec(pmTimespec * const tsp)
+{
+    __ntohll((char *)&tsp->tv_sec);
+    __ntohll((char *)&tsp->tv_nsec);
+}
+#endif
+
+#ifndef __htonpmTimestamp
+void
+__htonpmTimestamp(__pmTimestamp * const tsp)
+{
+    __htonll((char *)&tsp->sec);
+    tsp->nsec = htonl(tsp->nsec);
+}
+#endif
+
+#ifndef __ntohpmTimestamp
+void
+__ntohpmTimestamp(__pmTimestamp * const tsp)
+{
+    __ntohll((char *)&tsp->sec);
+    tsp->nsec = ntohl(tsp->nsec);
 }
 #endif
 

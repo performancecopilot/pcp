@@ -119,6 +119,10 @@ do_meta(__pmFILE *f)
 		    putchar('\n');
 		}
 		break;
+	    case TYPE_INDOM:
+		// TODO
+fprintf(stderr, "do_meta: botch record type TYPE_INDOM\n");
+		break;
 	    case TYPE_INDOM_V2:
 		if (vflag || dflag || rflag) {
 		    pmInDom	indom;
@@ -220,6 +224,13 @@ do_meta(__pmFILE *f)
 			printf("LABEL: TODO ... nothing reported as yet\n");
 		}
 		break;
+	    case TYPE_LABEL_V2:
+		if (dflag) {
+		    /* TODO */
+		    if (nrec[TYPE_LABEL_V2] == 1)
+			printf("LABEL: TODO ... nothing reported as yet\n");
+		}
+		break;
 	    case TYPE_TEXT:
 		if (dflag) {
 		    /* TODO */
@@ -284,9 +295,9 @@ do_meta(__pmFILE *f)
 	}
     }
 
-    if (nrec[TYPE_LABEL] > 0) {
+    if (nrec[TYPE_LABEL_V2] > 0) {
 	printf("  labels: %ld bytes [%.0f%%, %d records]\n",
-	    bytes[TYPE_LABEL], 100*(float)bytes[TYPE_LABEL]/sbuf.st_size, nrec[TYPE_LABEL]);
+	    bytes[TYPE_LABEL_V2], 100*(float)bytes[TYPE_LABEL_V2]/sbuf.st_size, nrec[TYPE_LABEL_V2]);
     }
 
     if (nrec[TYPE_TEXT] > 0) {
@@ -296,7 +307,7 @@ do_meta(__pmFILE *f)
 
     printf("  overhead: %ld bytes [%.0f%%]\n",
 	oheadbytes, 100*(float)oheadbytes/sbuf.st_size);
-    sbuf.st_size -= (bytes[TYPE_DESC] + bytes[TYPE_INDOM_V2] + bytes[TYPE_LABEL] + bytes[TYPE_TEXT] + oheadbytes);
+    sbuf.st_size -= (bytes[TYPE_DESC] + bytes[TYPE_INDOM_V2] + bytes[TYPE_LABEL_V2] + bytes[TYPE_TEXT] + oheadbytes);
 
     if (sbuf.st_size != 0)
 	printf("  unaccounted for: %ld bytes\n", (long)sbuf.st_size);

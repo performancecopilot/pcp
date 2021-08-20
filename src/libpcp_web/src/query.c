@@ -15,11 +15,12 @@
 
 #include <assert.h>
 #include <ctype.h>
+#include "pmapi.h"
+#include "libpcp.h"
 #include "util.h"
 #include "sha1.h"
 #include "query.h"
 #include "schema.h"
-#include "libpcp.h"
 #include "slots.h"
 #include "maps.h"
 #include <math.h>

@@ -1124,7 +1124,7 @@ archive_host_labels(__pmContext *ctxp, char *buffer, int buflen)
     /*
      * Backward compatibility fallback, for archives created before
      * labels support is added to pmlogger.
-     * Once that's implemented (TYPE_LABEL in .meta) fields will be
+     * Once that's implemented (TYPE_LABEL_V2 in .meta) fields will be
      * added to the context structure and we'll be able to read 'em
      * here to provide complete archive label support.
      */
@@ -1407,8 +1407,19 @@ getlabels(int ident, int type, pmLabelSet **sets, int *nsets)
 	}
     }
     else {
-	if ((sts = __pmLogLookupLabel(ctxp->c_archctl, type,
-				ident, sets, &ctxp->c_origin)) < 0) {
+#if 0	// TODO when c_origin -> __pmTimestamp
+	sts = __pmLogLookupLabel(ctxp->c_archctl, type, ident, sets, &ctxp->c_origin);
+#else
+	{
+	    __pmTimestamp	stamp;
+	    stamp.sec = ctxp->c_origin.tv_sec;
+	    stamp.nsec = ctxp->c_origin.tv_usec * 1000;
+	    sts = __pmLogLookupLabel(ctxp->c_archctl, type, ident, sets, &stamp);
+
+	}
+#endif
+
+	if (sts < 0) {
 	    /* supply context labels for archives lacking label support */
 	    if (type & PM_LABEL_CONTEXT)
 		sts = archive_context_labels(ctxp, sets);

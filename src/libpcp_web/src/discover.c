@@ -20,9 +20,9 @@
 
 /* Decode various archive metafile records (desc, indom, labels, helptext) */
 static int pmDiscoverDecodeMetaDesc(uint32_t *, int, pmDesc *, int *, char ***);
-static int pmDiscoverDecodeMetaInDom(uint32_t *, int, pmTimespec *, pmInResult *);
+static int pmDiscoverDecodeMetaInDom(uint32_t *, int, __pmTimestamp *, pmInResult *);
 static int pmDiscoverDecodeMetaHelpText(uint32_t *, int, int *, int *, char **);
-static int pmDiscoverDecodeMetaLabelSet(uint32_t *, int, pmTimespec *, int *, int *, int *, pmLabelSet **);
+static int pmDiscoverDecodeMetaLabelSet(uint32_t *, int, __pmTimestamp *, int *, int *, int *, pmLabelSet **);
 
 /* array of registered callbacks, see pmDiscoverSetup() */
 static int discoverCallBackTableSize;
@@ -641,16 +641,17 @@ created_callback(pmDiscover *p)
 }
 
 static void
-discover_event_init(pmDiscover *p, pmTimespec *timestamp, pmDiscoverEvent *event)
+discover_event_init(pmDiscover *p, __pmTimestamp *tsp, pmDiscoverEvent *event)
 {
-    event->timestamp = *timestamp;
+    event->timestamp.tv_sec = tsp->sec;
+    event->timestamp.tv_nsec = tsp->nsec;
     event->context = p->context;
     event->module = p->module;
     event->data = p;
 }
 
 static void
-pmDiscoverInvokeSourceCallBacks(pmDiscover *p, pmTimespec *ts)
+pmDiscoverInvokeSourceCallBacks(pmDiscover *p, __pmTimestamp *tsp)
 {
     pmDiscoverCallBacks	*callbacks;
     pmDiscoverEvent	event;
@@ -659,13 +660,13 @@ pmDiscoverInvokeSourceCallBacks(pmDiscover *p, pmTimespec *ts)
 
     if (pmDebugOptions.discovery) {
 	fprintf(stderr, "%s[%s]: %s name %s\n", "pmDiscoverInvokeSourceCallBacks",
-			timespec_str(ts, buf, sizeof(buf)),
+			timestamp_str(tsp, buf, sizeof(buf)),
 			p->context.source, p->context.name);
 	if (pmDebugOptions.labels)
 	    fprintf(stderr, "context labels %s\n", p->context.labelset->json);
     }
 
-    discover_event_init(p, ts, &event);
+    discover_event_init(p, tsp, &event);
     for (i = 0; i < discoverCallBackTableSize; i++) {
 	if ((callbacks = discoverCallBackTable[i]) &&
 	    callbacks->on_source != NULL)
@@ -674,7 +675,7 @@ pmDiscoverInvokeSourceCallBacks(pmDiscover *p, pmTimespec *ts)
 }
 
 static void
-pmDiscoverInvokeValuesCallBack(pmDiscover *p, pmTimespec *ts, pmResult *r)
+pmDiscoverInvokeValuesCallBack(pmDiscover *p, __pmTimestamp *tsp, pmResult *r)
 {
     pmDiscoverCallBacks	*callbacks;
     pmDiscoverEvent	event;
@@ -683,13 +684,13 @@ pmDiscoverInvokeValuesCallBack(pmDiscover *p, pmTimespec *ts, pmResult *r)
 
     if (pmDebugOptions.discovery) {
 	fprintf(stderr, "%s[%s]: %s numpmid %d\n", "pmDiscoverInvokeValuesCallBack",
-			timespec_str(ts, buf, sizeof(buf)),
+			timestamp_str(tsp, buf, sizeof(buf)),
 			p->context.source, r->numpmid);
 	if (pmDebugOptions.labels)
 	    fprintf(stderr, "context labels %s\n", p->context.labelset->json);
     }
 
-    discover_event_init(p, ts, &event);
+    discover_event_init(p, tsp, &event);
     for (i = 0; i < discoverCallBackTableSize; i++) {
 	if ((callbacks = discoverCallBackTable[i]) &&
 	    callbacks->on_values != NULL)
@@ -698,7 +699,7 @@ pmDiscoverInvokeValuesCallBack(pmDiscover *p, pmTimespec *ts, pmResult *r)
 }
 
 static void
-pmDiscoverInvokeMetricCallBacks(pmDiscover *p, pmTimespec *ts, pmDesc *desc,
+pmDiscoverInvokeMetricCallBacks(pmDiscover *p, __pmTimestamp *tsp, pmDesc *desc,
 		int numnames, char **names)
 {
     discoverModuleData	*data = getDiscoverModuleData(p->module);
@@ -710,7 +711,7 @@ pmDiscoverInvokeMetricCallBacks(pmDiscover *p, pmTimespec *ts, pmDesc *desc,
 
     if (pmDebugOptions.discovery) {
 	fprintf(stderr, "%s[%s]: %s name%s", "pmDiscoverInvokeMetricCallBacks",
-			timespec_str(ts, buf, sizeof(buf)),
+			timestamp_str(tsp, buf, sizeof(buf)),
 			p->context.source, numnames > 0 ? " " : "(none)\n");
 	for (i = 0; i < numnames; i++)
 	    fprintf(stderr, "[%u/%u] \"%s\"%s", i+1, numnames, names[i],
@@ -764,7 +765,7 @@ pmDiscoverInvokeMetricCallBacks(pmDiscover *p, pmTimespec *ts, pmDesc *desc,
 	PM_UNLOCK(ctxp->c_lock);
     }
 
-    discover_event_init(p, ts, &event);
+    discover_event_init(p, tsp, &event);
     for (i = 0; i < discoverCallBackTableSize; i++) {
 	if ((callbacks = discoverCallBackTable[i]) &&
 	    callbacks->on_metric != NULL)
@@ -778,7 +779,7 @@ out:
 }
 
 static void
-pmDiscoverInvokeInDomCallBacks(pmDiscover *p, pmTimespec *ts, pmInResult *in)
+pmDiscoverInvokeInDomCallBacks(pmDiscover *p, __pmTimestamp *tsp, pmInResult *in)
 {
     discoverModuleData	*data = getDiscoverModuleData(p->module);
     pmDiscoverCallBacks	*callbacks;
@@ -789,7 +790,7 @@ pmDiscoverInvokeInDomCallBacks(pmDiscover *p, pmTimespec *ts, pmInResult *in)
     if (pmDebugOptions.discovery) {
 	fprintf(stderr, "%s[%s]: %s numinst %d indom %s\n",
 			"pmDiscoverInvokeInDomCallBacks",
-			timespec_str(ts, buf, sizeof(buf)),
+			timestamp_str(tsp, buf, sizeof(buf)),
 			p->context.source, in->numinst,
 			pmInDomStr_r(in->indom, inbuf, sizeof(inbuf)));
 	if (pmDebugOptions.labels)
@@ -806,16 +807,7 @@ pmDiscoverInvokeInDomCallBacks(pmDiscover *p, pmTimespec *ts, pmInResult *in)
 	__pmArchCtl	*acp = ctxp->c_archctl;
 	char		errmsg[PM_MAXERRMSGLEN];
 
-#if 0	// TODO when libpcp_web converts to __pmTimestamp
-	sts = __pmLogAddInDom(acp, ts, in, NULL, 0);
-#else
-	{
-	    __pmTimestamp	stamp;
-	    stamp.sec = ts->tv_sec;
-	    stamp.nsec = ts->tv_nsec;
-	    sts = __pmLogAddInDom(acp, &stamp, in, NULL, 0);
-	}
-#endif
+	sts = __pmLogAddInDom(acp, tsp, in, NULL, 0);
 	if (sts < 0)
 	    fprintf(stderr, "%s: failed to add indom for %s: %s\n",
 			"pmDiscoverInvokeInDomCallBacks", pmIDStr(in->indom),
@@ -823,7 +815,7 @@ pmDiscoverInvokeInDomCallBacks(pmDiscover *p, pmTimespec *ts, pmInResult *in)
 	PM_UNLOCK(ctxp->c_lock);
     }
 
-    discover_event_init(p, ts, &event);
+    discover_event_init(p, tsp, &event);
     for (i = 0; i < discoverCallBackTableSize; i++) {
 	if ((callbacks = discoverCallBackTable[i]) &&
 	    callbacks->on_indom != NULL)
@@ -840,7 +832,7 @@ out:
 }
 
 static void
-pmDiscoverInvokeLabelsCallBacks(pmDiscover *p, pmTimespec *ts,
+pmDiscoverInvokeLabelsCallBacks(pmDiscover *p, __pmTimestamp *tsp,
 		int ident, int type, pmLabelSet *sets, int nsets)
 {
     discoverModuleData	*data = getDiscoverModuleData(p->module);
@@ -853,7 +845,7 @@ pmDiscoverInvokeLabelsCallBacks(pmDiscover *p, pmTimespec *ts,
 	__pmLabelIdentString(ident, type, idbuf, sizeof(idbuf));
 	fprintf(stderr, "%s[%s]: %s ID %s type %s\n",
 			"pmDiscoverInvokeLabelsCallBacks",
-			timespec_str(ts, buf, sizeof(buf)),
+			timestamp_str(tsp, buf, sizeof(buf)),
 			p->context.source, idbuf, __pmLabelTypeString(type));
 	pmPrintLabelSets(stderr, ident, type, sets, nsets);
 	if (pmDebugOptions.labels)
@@ -874,14 +866,14 @@ pmDiscoverInvokeLabelsCallBacks(pmDiscover *p, pmTimespec *ts,
 	__pmArchCtl	*acp = ctxp->c_archctl;
 	char		errmsg[PM_MAXERRMSGLEN];
 
-	if ((sts = __pmLogAddLabelSets(acp, ts, type, ident, nsets, sets)) < 0)
+	if ((sts = __pmLogAddLabelSets(acp, tsp, type, ident, nsets, sets)) < 0)
 	    fprintf(stderr, "%s: failed to add log labelset: %s\n",
 			"pmDiscoverInvokeLabelsCallBacks",
 			pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	PM_UNLOCK(ctxp->c_lock);
     }
 
-    discover_event_init(p, ts, &event);
+    discover_event_init(p, tsp, &event);
     for (i = 0; i < discoverCallBackTableSize; i++) {
 	if ((callbacks = discoverCallBackTable[i]) &&
 	    callbacks->on_labels != NULL)
@@ -894,7 +886,7 @@ out:
 }
 
 static void
-pmDiscoverInvokeTextCallBacks(pmDiscover *p, pmTimespec *ts,
+pmDiscoverInvokeTextCallBacks(pmDiscover *p, __pmTimestamp *tsp,
 		int ident, int type, char *text)
 {
     discoverModuleData	*data = getDiscoverModuleData(p->module);
@@ -905,7 +897,7 @@ pmDiscoverInvokeTextCallBacks(pmDiscover *p, pmTimespec *ts,
 
     if (pmDebugOptions.discovery) {
 	fprintf(stderr, "%s[%s]: %s ", "pmDiscoverInvokeTextCallBacks",
-			timespec_str(ts, buf, sizeof(buf)),
+			timestamp_str(tsp, buf, sizeof(buf)),
 			p->context.source);
 	if (type & PM_TEXT_INDOM)
 	    fprintf(stderr, "type indom %s ", pmInDomStr((pmInDom)ident));
@@ -940,7 +932,7 @@ pmDiscoverInvokeTextCallBacks(pmDiscover *p, pmTimespec *ts,
 	PM_UNLOCK(ctxp->c_lock);
     }
 
-    discover_event_init(p, ts, &event);
+    discover_event_init(p, tsp, &event);
     for (i = 0; i < discoverCallBackTableSize; i++) {
 	if ((callbacks = discoverCallBackTable[i]) &&
 	    callbacks->on_text != NULL)
@@ -955,7 +947,7 @@ static void
 pmDiscoverNewSource(pmDiscover *p, int context)
 {
     pmLabelSet		*labelset = NULL;
-    pmTimespec		timestamp;
+    __pmTimestamp	stamp;
     unsigned char	hash[20];
     char		buf[PM_MAXLABELJSONLEN];
     char		*host, hostname[MAXHOSTNAMELEN];
@@ -977,20 +969,20 @@ pmDiscoverNewSource(pmDiscover *p, int context)
 
     /* use timestamp from file creation as starting time */
 #if defined(HAVE_ST_MTIME_WITH_E) && defined(HAVE_STAT_TIME_T)
-    timestamp.tv_sec = p->statbuf.st_ctime.tv_sec;
-    timestamp.tv_nsec = p->statbuf.st_ctime.tv_nsec;
+    stamp.sec = p->statbuf.st_ctime.tv_sec;
+    stamp.nsec = p->statbuf.st_ctime.tv_nsec;
 #elif defined(HAVE_ST_MTIME_WITH_SPEC)
-    timestamp.tv_sec = p->statbuf.st_mtimespec.tv_sec;
-    timestamp.tv_nsec = p->statbuf.st_mtimespec.tv_nsec;
+    stamp.sec = p->statbuf.st_mtimespec.tv_sec;
+    stamp.nsec = p->statbuf.st_mtimespec.tv_nsec;
 #elif defined(HAVE_STAT_TIMESTRUC) || defined(HAVE_STAT_TIMESPEC) || defined(HAVE_STAT_TIMESPEC_T)
-    timestamp.tv_sec = p->statbuf.st_ctim.tv_sec;
-    timestamp.tv_nsec = p->statbuf.st_ctim.tv_nsec;
+    stamp.sec = p->statbuf.st_ctim.tv_sec;
+    stamp.nsec = p->statbuf.st_ctim.tv_nsec;
 #else
 !bozo!
 #endif
 
     /* inform utilities that a source has been discovered */
-    pmDiscoverInvokeSourceCallBacks(p, &timestamp);
+    pmDiscoverInvokeSourceCallBacks(p, &stamp);
 }
 
 static char *
@@ -1012,7 +1004,7 @@ static void
 process_metadata(pmDiscover *p)
 {
     int			partial = 0;
-    pmTimespec		ts;
+    __pmTimestamp	stamp;
     pmDesc		desc;
     off_t		off;
     char		*buffer;
@@ -1115,36 +1107,42 @@ process_metadata(pmDiscover *p)
 	    }
 	    /* use timestamp from last modification */
 #if defined(HAVE_ST_MTIME_WITH_E) && defined(HAVE_STAT_TIME_T)
-	    ts.tv_sec = p->statbuf.st_ctime.tv_sec;
-	    ts.tv_nsec = p->statbuf.st_ctime.tv_nsec;
+	    stamp.sec = p->statbuf.st_ctime.tv_sec;
+	    stamp.nsec = p->statbuf.st_ctime.tv_nsec;
 #elif defined(HAVE_ST_MTIME_WITH_SPEC)
-	    ts.tv_sec = p->statbuf.st_mtimespec.tv_sec;
-	    ts.tv_nsec = p->statbuf.st_mtimespec.tv_nsec;
+	    stamp.sec = p->statbuf.st_mtimespec.tv_sec;
+	    stamp.nsec = p->statbuf.st_mtimespec.tv_nsec;
 #elif defined(HAVE_STAT_TIMESTRUC) || defined(HAVE_STAT_TIMESPEC) || defined(HAVE_STAT_TIMESPEC_T)
-	    ts.tv_sec = p->statbuf.st_ctim.tv_sec;
-	    ts.tv_nsec = p->statbuf.st_ctim.tv_nsec;
+	    stamp.sec = p->statbuf.st_ctim.tv_sec;
+	    stamp.nsec = p->statbuf.st_ctim.tv_nsec;
 #else
 !bozo!
 #endif
-	    pmDiscoverInvokeMetricCallBacks(p, &ts, &desc, nnames, names);
+	    pmDiscoverInvokeMetricCallBacks(p, &stamp, &desc, nnames, names);
+	    break;
+
+	case TYPE_INDOM:
+	    // TODO
+fprintf(stderr, "process_metadata: botch record type TYPE_INDOM\n");
 	    break;
 
 	case TYPE_INDOM_V2:
 	    /* decode indom result from buffer */
 	    pmDiscoverStatsAdd(p->module, "metadata.decode.indom", NULL, 1);
-	    if ((e = pmDiscoverDecodeMetaInDom(buf, len, &ts, &inresult)) < 0) {
+	    if ((e = pmDiscoverDecodeMetaInDom(buf, len, &stamp, &inresult)) < 0) {
 		if (pmDebugOptions.discovery)
 		    fprintf(stderr, "%s failed: err=%d %s\n",
 				    "pmDiscoverDecodeMetaInDom", e, pmErrStr(e));
 		break;
 	    }
-	    pmDiscoverInvokeInDomCallBacks(p, &ts, &inresult);
+	    pmDiscoverInvokeInDomCallBacks(p, &stamp, &inresult);
 	    break;
 
 	case TYPE_LABEL:
+	case TYPE_LABEL_V2:
 	    /* decode labelset from buffer */
 	    pmDiscoverStatsAdd(p->module, "metadata.decode.label", NULL, 1);
-	    if ((e = pmDiscoverDecodeMetaLabelSet(buf, len, &ts, &id, &type, &nsets, &labelset)) < 0) {
+	    if ((e = pmDiscoverDecodeMetaLabelSet(buf, len, &stamp, &id, &type, &nsets, &labelset)) < 0) {
 		if (pmDebugOptions.discovery)
 		    fprintf(stderr, "%s failed: err=%d %s\n",
 				    "pmDiscoverDecodeMetaLabelSet", e, pmErrStr(e));
@@ -1167,10 +1165,10 @@ process_metadata(pmDiscover *p)
 		    if (p->context.labelset)
 			pmFreeLabelSets(p->context.labelset, 1);
 		    p->context.labelset = __pmDupLabelSets(labelset, 1);
-		    pmDiscoverInvokeSourceCallBacks(p, &ts);
+		    pmDiscoverInvokeSourceCallBacks(p, &stamp);
 		}
 	    }
-	    pmDiscoverInvokeLabelsCallBacks(p, &ts, id, type, labelset, nsets);
+	    pmDiscoverInvokeLabelsCallBacks(p, &stamp, id, type, labelset, nsets);
 	    break;
 
 	case TYPE_TEXT:
@@ -1187,18 +1185,18 @@ process_metadata(pmDiscover *p)
 	    }
 	    /* use timestamp from last modification */
 #if defined(HAVE_ST_MTIME_WITH_E) && defined(HAVE_STAT_TIME_T)
-	    ts.tv_sec = p->statbuf.st_ctime.tv_sec;
-	    ts.tv_nsec = p->statbuf.st_ctime.tv_nsec;
+	    stamp.sec = p->statbuf.st_ctime.tv_sec;
+	    stamp.nsec = p->statbuf.st_ctime.tv_nsec;
 #elif defined(HAVE_ST_MTIME_WITH_SPEC)
-	    ts.tv_sec = p->statbuf.st_mtimespec.tv_sec;
-	    ts.tv_nsec = p->statbuf.st_mtimespec.tv_nsec;
+	    stamp.sec = p->statbuf.st_mtimespec.tv_sec;
+	    stamp.nsec = p->statbuf.st_mtimespec.tv_nsec;
 #elif defined(HAVE_STAT_TIMESTRUC) || defined(HAVE_STAT_TIMESPEC) || defined(HAVE_STAT_TIMESPEC_T)
-	    ts.tv_sec = p->statbuf.st_ctim.tv_sec;
-	    ts.tv_nsec = p->statbuf.st_ctim.tv_nsec;
+	    stamp.sec = p->statbuf.st_ctim.tv_sec;
+	    stamp.nsec = p->statbuf.st_ctim.tv_nsec;
 #else
 !bozo!
 #endif
-	    pmDiscoverInvokeTextCallBacks(p, &ts, id, type, buffer);
+	    pmDiscoverInvokeTextCallBacks(p, &stamp, id, type, buffer);
 	    break;
 
 	default:
@@ -1245,7 +1243,7 @@ process_logvol(pmDiscover *p)
 {
     int			sts;
     pmResult		*r = NULL;
-    pmTimespec		ts;
+    __pmTimestamp	stamp;
     int			oldcurvol;
     __pmContext		*ctxp;
     __pmArchCtl		*acp;
@@ -1314,19 +1312,19 @@ process_logvol(pmDiscover *p)
 	 * TODO (perhaps): persistently save current timestamp, so after being
 	 * restarted, pmproxy can resume where it left off for each archive.
 	 */
-	ts.tv_sec = r->timestamp.tv_sec;
-	ts.tv_nsec = r->timestamp.tv_usec * 1000;
+	stamp.sec = r->timestamp.tv_sec;
+	stamp.nsec = r->timestamp.tv_usec * 1000;
 	bump_logvol_decode_stats(p, r);
-	pmDiscoverInvokeValuesCallBack(p, &ts, r);
+	pmDiscoverInvokeValuesCallBack(p, &stamp, r);
 	pmFreeResult(r);
 	r = NULL;
     }
 
     if (r) {
-	ts.tv_sec = r->timestamp.tv_sec;
-	ts.tv_nsec = r->timestamp.tv_usec * 1000;
+	stamp.sec = r->timestamp.tv_sec;
+	stamp.nsec = r->timestamp.tv_usec * 1000;
 	bump_logvol_decode_stats(p, r);
-	pmDiscoverInvokeValuesCallBack(p, &ts, r);
+	pmDiscoverInvokeValuesCallBack(p, &stamp, r);
 	pmFreeResult(r);
     }
 
@@ -1717,7 +1715,7 @@ pmDiscoverDecodeMetaDesc(uint32_t *buf, int buflen, pmDesc *p_desc, int *p_numna
  * Return 0 on success.
  */
 static int
-pmDiscoverDecodeMetaInDom(uint32_t *buf, int len, pmTimespec *ts, pmInResult *inresult)
+pmDiscoverDecodeMetaInDom(uint32_t *buf, int len, __pmTimestamp *tsp, pmInResult *inresult)
 {
     pmTimeval		*tvp;
     uint32_t		*namesbuf;
@@ -1727,8 +1725,8 @@ pmDiscoverDecodeMetaInDom(uint32_t *buf, int len, pmTimespec *ts, pmInResult *in
     pmInResult		ir;
 
     tvp = (pmTimeval *)&buf[0];
-    ts->tv_sec = ntohl(tvp->tv_sec);
-    ts->tv_nsec = ntohl(tvp->tv_usec) * 1000;
+    tsp->sec = ntohl(tvp->tv_sec);
+    tsp->nsec = ntohl(tvp->tv_usec) * 1000;
     ir.indom = __ntohpmInDom(buf[2]);
     ir.numinst = ntohl(buf[3]);
     ir.instlist = NULL;
@@ -1773,7 +1771,7 @@ pmDiscoverDecodeMetaHelpText(uint32_t *buf, int len, int *type, int *id, char **
 }
 
 static int
-pmDiscoverDecodeMetaLabelSet(uint32_t *buf, int buflen, pmTimespec *ts, int *identp, int *typep, int *nsetsp, pmLabelSet **setsp)
+pmDiscoverDecodeMetaLabelSet(uint32_t *buf, int buflen, __pmTimestamp *tsp, int *identp, int *typep, int *nsetsp, pmLabelSet **setsp)
 {
     char		*json, *tbuf = (char *)buf;
     pmLabelSet		*labelsets = NULL;
@@ -1788,8 +1786,8 @@ pmDiscoverDecodeMetaLabelSet(uint32_t *buf, int buflen, pmTimespec *ts, int *ide
 
     k = 0;
     tvp = (pmTimeval *)&tbuf[k];
-    ts->tv_sec = ntohl(tvp->tv_sec);
-    ts->tv_nsec = ntohl(tvp->tv_usec) * 1000;
+    tsp->sec = ntohl(tvp->tv_sec);
+    tsp->nsec = ntohl(tvp->tv_usec) * 1000;
     k += sizeof(*tvp);
 
     type = ntohl(*((unsigned int*)&tbuf[k]));

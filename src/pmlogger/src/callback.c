@@ -316,7 +316,7 @@ check_inst(pmValueSet *vsp, int hint, pmResult *lrp)
 }
 
 static int
-putlabels(unsigned int type, unsigned int ident, const pmTimeval *tp)
+putlabels(unsigned int type, unsigned int ident, const __pmTimestamp *tsp)
 {
     int		len;
     pmLabelSet	*label;
@@ -338,7 +338,7 @@ putlabels(unsigned int type, unsigned int ident, const pmTimeval *tp)
 
     if (len > 0) {
 	int	sts;
-	sts = __pmLogPutLabel(&archctl, type, ident, len, label, tp);
+	sts = __pmLogPutLabel(&archctl, type, ident, len, label, tsp);
 	if (sts < 0)
 	    /*
 	     * on success, labels are stashed by __pmLogPutLabel(), otherwise
@@ -352,7 +352,7 @@ putlabels(unsigned int type, unsigned int ident, const pmTimeval *tp)
 }
 
 static int
-manageLabels(pmDesc *desc, const pmTimeval *tp, int only_instances)
+manageLabels(pmDesc *desc, const __pmTimestamp *tsp, int only_instances)
 {
     int		i = 0;
     int		sts = 0;
@@ -386,10 +386,10 @@ manageLabels(pmDesc *desc, const pmTimeval *tp, int only_instances)
 	    ident = PM_IN_NULL;
 
 	/* Lookup returns >= 0 when the key exists */
-	if (__pmLogLookupLabel(&archctl, type, ident, &label, tp) >= 0)
+	if (__pmLogLookupLabel(&archctl, type, ident, &label, tsp) >= 0)
 	    continue;
 
-	if ((sts = putlabels(type, ident, tp)) < 0)
+	if ((sts = putlabels(type, ident, tsp)) < 0)
 	    break;
     }
     return sts;
@@ -651,8 +651,7 @@ do_work(task_t *tp)
     int			numinst;
     int			*instlist = NULL;
     char		**namelist;
-    pmTimeval		tmp;
-    pmTimeval		resp_tval;
+    __pmTimestamp	resp_stamp;
     __pmTimestamp	stamp;
     unsigned long	peek_offset;
 
@@ -811,14 +810,14 @@ do_work(task_t *tp)
 	    exit(1);
 	}
 	setavail(resp);
-	resp_tval.tv_sec = resp->timestamp.tv_sec;
-	resp_tval.tv_usec = resp->timestamp.tv_usec;
+	resp_stamp.sec = resp->timestamp.tv_sec;
+	resp_stamp.nsec = resp->timestamp.tv_usec * 1000;
 
 	if (changed & PMCD_LABEL_CHANGE) {
 	    /*
 	     * Change to the context labels associated with logged host
 	     */
-	    putlabels(PM_LABEL_CONTEXT, PM_IN_NULL, &resp_tval);
+	    putlabels(PM_LABEL_CONTEXT, PM_IN_NULL, &resp_stamp);
 	}
 
 	needti = 0;
@@ -853,7 +852,7 @@ do_work(task_t *tp)
 		    fprintf(stderr, "__pmLogPutDesc: %s\n", pmErrStr(sts));
 		    exit(1);
 		}
-		manageLabels(&desc, &resp_tval, 0);
+		manageLabels(&desc, &resp_stamp, 0);
 		manageText(&desc);
 		if (IS_DERIVED_LOGGED(desc.pmid))
 		    /* derived metric, restore cluster field ... */
@@ -879,18 +878,8 @@ do_work(task_t *tp)
 		 * the indom needs to be refreshed.
 		 */
 		__pmTimestamp	stamp;
-#if 0	// TODO when pmResult => __pmTimestamp
-#else
-		pmTimeval	tv;
-#endif
 		numinst = __localLogGetInDom(&logctl, desc.indom, &stamp, &instlist, &namelist);
-#if 0	// TODO when pmResult => __pmTimestamp
 		if (numinst > 0 && __pmTimestampSub(&resp_stamp, &stamp) <= 0) {
-#else
-		tv.tv_sec = stamp.sec;
-		tv.tv_usec = stamp.nsec / 1000;
-		if (numinst > 0 && __pmTimevalSub(&resp_tval, &tv) <= 0) {
-#endif
 		    /*
 		     * Already have indom with the same (or later, in the
 		     * case of some time warp) timestamp compared to the
@@ -904,8 +893,8 @@ do_work(task_t *tp)
 		     */
 		    needindom = 0;
 		    if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
-			fprintf(stderr, "time warp: pmResult: %d.%06d last %s indom: %" FMT_INT64 ".%09d\n",
-			    resp_tval.tv_sec, resp_tval.tv_usec,
+			fprintf(stderr, "time warp: pmResult: % " FMT_INT64 ".%09d last %s indom: %" FMT_INT64 ".%09d\n",
+			    resp_stamp.sec, resp_stamp.nsec,
 			    pmInDomStr(desc.indom),
 			    stamp.sec, stamp.nsec);
 		    }
@@ -995,9 +984,7 @@ do_work(task_t *tp)
 			    free(instlist);
 			    free(namelist);
 			}
-			tmp.tv_sec = (__int32_t)resp->timestamp.tv_sec;
-			tmp.tv_usec = (__int32_t)resp->timestamp.tv_usec;
-			manageLabels(&desc, &tmp, 1);
+			manageLabels(&desc, &stamp, 1);
 			needti = 1;
 			if (pmDebugOptions.appl2)
 			    fprintf(stderr, "callback: indom (%s) changed\n", pmInDomStr(desc.indom));

@@ -57,6 +57,10 @@ extern int __pmGetDate(struct timespec *, char const *, struct timespec const *)
 #define __ntohpmLabel(a)	/* noop */
 #define __htonpmValueBlock(a)	/* noop */
 #define __ntohpmValueBlock(a)	/* noop */
+#define __htonpmTimespec(a)	/* noop */
+#define __ntohpmTimespec(a)	/* noop */
+#define __htonpmTimestamp(a)	/* noop */
+#define __ntohpmTimestamp(a)	/* noop */
 #define __htonf(a)		/* noop */
 #define __ntohf(a)		/* noop */
 #define __htond(a)		/* noop */
@@ -87,6 +91,10 @@ extern void __htonpmLabel(pmLabel * const) _PCP_HIDDEN;
 extern void __ntohpmLabel(pmLabel * const) _PCP_HIDDEN;
 extern void __htonpmValueBlock(pmValueBlock * const) _PCP_HIDDEN;
 extern void __ntohpmValueBlock(pmValueBlock * const) _PCP_HIDDEN;
+extern void __htonpmTimespec(pmTimespec * const ) _PCP_HIDDEN;
+extern void __ntohpmTimespec(pmTimespec * const ) _PCP_HIDDEN;
+extern void __htonpmTimestamp(__pmTimestamp * const );
+extern void __ntohpmTimestamp(__pmTimestamp * const );
 extern void __htonf(char *) _PCP_HIDDEN;	/* float */
 #define __ntohf(v) __htonf(v)
 #define __htond(v) __htonll(v)			/* double */
@@ -443,5 +451,11 @@ extern void __pmDumpLabelSet(FILE *, const pmLabelSet *) _PCP_HIDDEN;
 extern int __pmRecvLabel(int, __pmContext *, int, int *, int *,
 			 pmLabelSet **, int *) _PCP_HIDDEN;
 extern char *__pmLabelFlagString(int, char *, int) _PCP_HIDDEN;
+
+/* logmeta.c hooks */
+extern int addindom(__pmLogCtl *, pmInDom, const __pmTimestamp *, int , int *, char **, __pmPDU *, int) _PCP_HIDDEN;
+
+/* logutil.c hooks */
+extern size_t __pmLogLabelTotalSize(__pmLogCtl *) _PCP_HIDDEN;
 
 #endif /* _LIBPCP_INTERNAL_H */

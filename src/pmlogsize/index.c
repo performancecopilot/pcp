@@ -31,9 +31,9 @@ do_index(__pmFILE *f, int version)
     __pmFstat(f, &sbuf);
 
     if (version >= PM_LOG_VERS03)
-	record_size = sizeof(__pmExtTI_v3);
+	record_size = 8*sizeof(__pmPDU);
     else
-	record_size = sizeof(__pmExtTI_v2);
+	record_size = 5*sizeof(__pmPDU);
     if ((buffer = (void *)malloc(record_size)) == NULL) {
 	pmNoMem("do_index: buffer", record_size, PM_FATAL_ERR);
 	/* NOTREACHED */

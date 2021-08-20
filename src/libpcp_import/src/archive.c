@@ -42,7 +42,7 @@ check_context_start(pmi_context *current)
 
     acp = &current->archctl;
     acp->ac_log = &current->logctl;
-#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
+#if 0	// TODO when V3 becomes the default
     // TODO does this need to be an option from the command line?
     sts = __pmLogCreate(host, current->archive, PM_LOG_VERS03, acp);
 #else
@@ -321,20 +321,9 @@ _pmi_put_label(pmi_context *current)
 	 * libpcp, via __pmLogPutLabel(), assumes control of the
 	 * storage pointed to by lp->labelset.
 	 */
-#if 0	// TODO when log label timestamps => __pmTimestamp
 	if ((sts = __pmLogPutLabel(&current->archctl, lp->type, lp->id,
 				   1, lp->labelset, &stamp)) < 0)
 	    return sts;
-#else
-    {
-	pmTimeval	tmp;
-	tmp.tv_sec = stamp.sec;
-	tmp.tv_usec = stamp.nsec / 1000;
-	if ((sts = __pmLogPutLabel(&current->archctl, lp->type, lp->id,
-				   1, lp->labelset, &tmp)) < 0)
-	    return sts;
-    }
-#endif
 
 	lp->labelset = NULL;
     }

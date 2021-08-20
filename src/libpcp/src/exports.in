@@ -751,6 +751,14 @@ PCP_3.33 {
     __pmTimespecSub;
     __pmTimestampSub;
     __pmTimestampCmp;
-    __htonll;
-    __pmDump__Result;
+    __pmTimestampInc;
+    __pmTimestampDec;
+    __pmPrintResult;
+    __htonpmTimestamp;
+    __ntohpmTimestamp;
+    __pmLogLoadInDom;
+    __pmLogLoadTimestamp;
+    __pmLogLoadTimeval;
+    __pmLogPutTimestamp;
+    __pmLogPutTimeval;
 } PCP_3.32;

@@ -266,6 +266,8 @@ derive_parser.tab.o
     ?.LpmRegisterDerivedMetric.fmt	# static string (FreeBSD gcc)
     ?pmRegisterDerivedMetric.fmt	# static string (FreeBSD 10.2 gcc)
 desc.o
+e_index.o
+e_indom.o
 endian.o
 err.o
     err_lock			# local mutex
@@ -361,6 +363,7 @@ logconnect.o
 logcontrol.o
 logmeta.o
     ihash			# single-threaded PM_SCOPE_LOGPORT
+    typename			# on error code path for diags, don't bother
 logportmap.o
     nlogports			# single-threaded PM_SCOPE_LOGPORT
     szlogport			# single-threaded PM_SCOPE_LOGPORT

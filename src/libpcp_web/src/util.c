@@ -149,23 +149,22 @@ timeval_str(struct timeval *tvp, char *buffer, int buflen)
 
 /* convert into <milliseconds>-<nanoseconds> format for series streaming */
 const char *
-timespec_stream_str(pmTimespec *stamp, char *buffer, int buflen)
+timestamp_stream_str(__pmTimestamp *tsp, char *buffer, int buflen)
 {
-    pmsprintf(buffer, buflen, "%" FMT_UINT64 "-%"FMT_UINT64,
-		(__uint64_t)stamp->tv_sec, (__uint64_t)stamp->tv_nsec);
+    pmsprintf(buffer, buflen, "%" FMT_UINT64 "-%d", tsp->sec, tsp->nsec);
     return buffer;
 }
 
-/* convert timespec into human readable date/time format for logging */
+/* convert __pmTimestamp into human readable date/time format for logging */
 const char *
-timespec_str(pmTimespec *tsp, char *buffer, int buflen)
+timestamp_str(__pmTimestamp *tsp, char *buffer, int buflen)
 {
     struct tm	tmp;
-    time_t	now = (time_t)tsp->tv_sec;
+    time_t	now = (time_t)tsp->sec;
 
     pmLocaltime(&now, &tmp);
     pmsprintf(buffer, buflen, "%02u:%02u:%02u.%09u",
-	      tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (unsigned int)tsp->tv_nsec);
+	      tmp.tm_hour, tmp.tm_min, tmp.tm_sec, tsp->nsec);
     return buffer;
 }
 

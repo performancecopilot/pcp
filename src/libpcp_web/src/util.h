@@ -27,8 +27,8 @@ extern int tsub(struct timeval *, struct timeval *);
 extern int tadd(struct timeval *, struct timeval *);
 extern const char *timeval_str(struct timeval *, char *, int);
 extern const char *timeval_stream_str(struct timeval *, char *, int);
-extern const char *timespec_str(pmTimespec *, char *, int);
-extern const char *timespec_stream_str(pmTimespec *, char *, int);
+extern const char *timestamp_str(__pmTimestamp *, char *, int);
+extern const char *timestamp_stream_str(__pmTimestamp *, char *, int);
 
 extern int context_labels(int, pmLabelSet **);
 extern int metric_labelsets(struct metric *,

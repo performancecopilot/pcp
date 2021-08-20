@@ -111,33 +111,6 @@ dump_timeval(struct timeval *stamp)
 }
 
 static void
-dump_pmTimeval(pmTimeval *tvp)
-{
-    time_t	time = tvp->tv_sec;
-    int		usec = (int)tvp->tv_usec;
-    char	*yr = NULL;
-    char       	*ddmm;
-    struct tm	tm;
-
-    if (xflag) {
-	ddmm = pmCtime(&time, timebuf);
-	ddmm[10] = '\0';
-	yr = &ddmm[20];
-	printf("%s ", ddmm);
-    }
-    pmLocaltime(&time, &tm);
-    printf("%02d:%02d:%02d.%06d", tm.tm_hour, tm.tm_min, tm.tm_sec, usec);
-    if (xflag && yr)
-	printf(" %4.4s", yr);
-    if (xflag >= 2) {
-	pmTimeval	start;
-	start.tv_sec = label.ll_start.tv_sec;
-	start.tv_usec = label.ll_start.tv_usec;
-	printf(" (%.6f)", __pmTimevalSub(tvp, &start));
-    }
-}
-
-static void
 dump_pmTimestamp(__pmTimestamp *tsp)
 {
     time_t	time = tsp->sec;
@@ -562,97 +535,32 @@ dumpDiskInDom(__pmContext *ctxp)
 	    return;
 	}
 	rlen = (size_t)hdr.len - sizeof(__pmLogHdr) - sizeof(__int32_t);
-	if (hdr.type == TYPE_INDOM) {
-	    __pmTimestamp	*tsp;
+	if (hdr.type == TYPE_INDOM || hdr.type == TYPE_INDOM_V2) {
 	    __pmTimestamp	stamp;
 	    pmInResult		in;
-	    char		*namebase;
-	    __int32_t		*rbuf;
-	    __int32_t		*stridx;
+	    __pmPDU		*buf;
+	    int			allinbuf;
 	    int			i;
-	    int			k;
 
-	    if ((rbuf = (__int32_t *)malloc(rlen)) == NULL) {
-		fprintf(stderr, "dumpDiskInDom: tbuf: malloc failed: %zd\n", rlen);
+	    if ((allinbuf = __pmLogLoadInDom(ctxp->c_archctl, rlen, hdr.type, &in, &stamp, &buf)) < 0) {
+		fprintf(stderr, "dumpDiskInDom: __pmLogLoadInDom failed: %s\n", pmErrStr(allinbuf));
 		exit(1);
 	    }
-	    if ((n = __pmFread(rbuf, 1, rlen, f)) != rlen) {
-		fprintf(stderr, "dumpDiskInDom: indom __pmFread(%zd) -> %zd\n",
-			    rlen, n);
-		free(rbuf);
-		return;
-	    }
-
-	    k = 0;
-	    tsp = (__pmTimestamp *)&rbuf[k];
-	    stamp.sec = tsp->sec;
-	    __ntohll((char *)&stamp.sec);
-	    stamp.nsec = ntohl(tsp->nsec);
-	    k += (sizeof(tsp->sec)+sizeof(tsp->nsec))/sizeof(int);
-	    in.indom = __ntohpmInDom((unsigned int)rbuf[k++]);
-	    in.numinst = ntohl(rbuf[k++]);
 	    dump_pmTimestamp(&stamp);
 	    printf(" InDom: %s", pmInDomStr(in.indom));
 	    printf(" %d instances\n", in.numinst);
 	    if (in.numinst > 0) {
-		in.instlist = &rbuf[k];
-		k += in.numinst;
-		stridx = &rbuf[k];
-		k += in.numinst;
-		namebase = (char *)&rbuf[k];
 	        for (i = 0; i < in.numinst; i++) {
 		    printf("   %d or \"%s\"\n",
-			ntohl(in.instlist[i]), &namebase[ntohl(stridx[i])]);
+			in.instlist[i], in.namelist[i]);
 		}
 	    }
-	    free(rbuf);
-	}
-	else if (hdr.type == TYPE_INDOM_V2) {
-	    pmTimeval		*tvp;
-	    pmInResult		in;
-	    struct timeval	tv;
-	    char		*namebase;
-	    __int32_t		*rbuf;
-	    __int32_t		*stridx;
-	    int			i;
-	    int			k;
-
-	    if ((rbuf = (__int32_t *)malloc(rlen)) == NULL) {
-		fprintf(stderr, "dumpDiskInDom: tbuf: malloc failed: %zd\n", rlen);
-		exit(1);
-	    }
-	    if ((n = __pmFread(rbuf, 1, rlen, f)) != rlen) {
-		fprintf(stderr, "dumpDiskInDom: indom __pmFread(%zd) -> %zd\n",
-			    rlen, n);
-		free(rbuf);
-		return;
-	    }
-
-	    k = 0;
-	    tvp = (pmTimeval *)&rbuf[k];
-	    tv.tv_sec = ntohl(tvp->tv_sec);
-	    tv.tv_usec = ntohl(tvp->tv_usec);
-	    k += sizeof(pmTimeval)/sizeof(int);
-	    in.indom = __ntohpmInDom((unsigned int)rbuf[k++]);
-	    in.numinst = ntohl(rbuf[k++]);
-	    dump_timeval(&tv);
-	    printf(" InDom: %s", pmInDomStr(in.indom));
-	    printf(" %d instances\n", in.numinst);
-	    if (in.numinst > 0) {
-		in.instlist = &rbuf[k];
-		k += in.numinst;
-		stridx = &rbuf[k];
-		k += in.numinst;
-		namebase = (char *)&rbuf[k];
-	        for (i = 0; i < in.numinst; i++) {
-		    printf("   %d or \"%s\"\n",
-			ntohl(in.instlist[i]), &namebase[ntohl(stridx[i])]);
-		}
-	    }
-	    free(rbuf);
+	    free(buf);
+	    if (in.namelist != NULL && !allinbuf)
+		free(in.namelist);
 	}
 	else {
-	    /* skip this record, not TYPE_INDOM_V2 */
+	    /* skip this record, not TYPE_INDOM nor TYPE_INDOM_V2 */
 	    __pmFseek(f, (off_t)rlen, SEEK_CUR);
 	}
 	/* trailer check */
@@ -805,8 +713,7 @@ dumpLabelSets(__pmContext *ctxp)
     const __pmHashNode		*this_item, *prev_item;
     const __pmLogLabelSet	*p;
     double			tdiff, min_diff;
-    // TODO change to __pmTimestamp when labels change
-    pmTimeval			this_stamp, prev_stamp;
+    __pmTimestamp		this_stamp, prev_stamp;
     /* Print the label types in this order. */
     unsigned int labelTypes[] = {
 	PM_LABEL_CONTEXT,
@@ -827,8 +734,8 @@ dumpLabelSets(__pmContext *ctxp)
      *   identifier
      */
     l_hashlabels = &ctxp->c_archctl->ac_log->l_hashlabels;
-    prev_stamp.tv_sec = 0;
-    prev_stamp.tv_usec = 0;
+    prev_stamp.sec = 0;
+    prev_stamp.nsec = 0;
     for (;;) {
 	/* find the next earliest time stamp. */
 	min_diff = DBL_MAX;
@@ -838,7 +745,7 @@ dumpLabelSets(__pmContext *ctxp)
 		for (tix = 0; tix < l_hashtype->hsize; tix++) {
 		    for (tp = l_hashtype->hash[tix]; tp != NULL; tp = tp->next) {
 			for (p = (__pmLogLabelSet *)tp->data; p != NULL; p = p->next) {
-			    tdiff = __pmTimevalSub(&p->stamp, &prev_stamp);
+			    tdiff = __pmTimestampSub(&p->stamp, &prev_stamp);
 			    /*
 			     * The chains are sorted in reverse chronological
 			     * order so, if this time stamp is less than or
@@ -864,7 +771,7 @@ dumpLabelSets(__pmContext *ctxp)
 	 * Now print all the label sets at this time stamp.
 	 * Sort by type and then identifier.
 	 */
-	dump_pmTimeval(&this_stamp);
+	dump_pmTimestamp(&this_stamp);
 	putchar('\n');
 	for (lix = 0; lix < sizeof(labelTypes) / sizeof(*labelTypes); ++lix) {
 	    /* Are there labels of this type? */
@@ -922,7 +829,7 @@ dumpLabelSets(__pmContext *ctxp)
 		    if (__pmTimestampSub(&p->stamp, &this_stamp) != 0.0)
 			continue;
 #else
-		    if (__pmTimevalSub(&p->stamp, &this_stamp) != 0.0)
+		    if (__pmTimestampSub(&p->stamp, &this_stamp) != 0.0)
 			continue;
 #endif
 		    ident = (unsigned int)this_item->key;

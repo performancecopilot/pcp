@@ -648,12 +648,14 @@ typedef struct __pmLogHdr {
 
 #define TYPE_DESC		1	/* header, pmDesc, trailer */
 #define TYPE_INDOM_V2		2	/* header, __pmLogInDom_v2, trailer */
-#define TYPE_LABEL		3	/* header, __pmLogLabelSet, trailer */
+#define TYPE_LABEL_V2		3	/* header, __pmLogLabelSet, trailer */
+					/*         (with pmTimeval)         */
 #define TYPE_TEXT		4	/* header, __pmLogText, trailer */
 #define TYPE_INDOM		5	/* header, __pmLogInDom, trailer */
 #define TYPE_INDOM_DELTA	6	/* header, __pmLogInDom, trailer */
-#define TYPE_HIGHRES_LABEL	7	/* header, __pmLogHighResLabelSet, trailer */
-#define TYPE_MAX TYPE_HIGHRES_LABEL
+#define TYPE_LABEL		7	/* header, __pmLogLabelSet, trailer */
+					/*         (with __pmTimestamp)     */
+#define TYPE_MAX TYPE_LABEL
 
 /*
  * __pmLogInDom is used to hold the instance identifiers for an instance
@@ -691,39 +693,11 @@ typedef struct __pmLogInDom {
     struct __pmLogInDom	*next;
     __pmTimestamp	stamp;
     int			numinst;
-    int			*instlist;
-    char		**namelist;
-    int			*buf; 
+    int			*instlist;		/* points into buf[] */
+    char		**namelist;		/* may pint into buf[] */
+    __pmPDU		*buf;			/* on-disk buffer */
     int			allinbuf; 
 } __pmLogInDom;
-
-/*
- * On-Disk (after header) InDom Record, Version 3
- */
-typedef struct {
-    __int32_t	len;		/* header */
-    __int32_t	type;
-    __uint64_t	sec;		/* __pmTimestamp */
-    __uint32_t	nsec;
-    pmInDom	indom;
-    __int32_t	numinst;
-    __int32_t	data[0];	/* inst[] then stridx[] then strings */
-    				/* will be expanded if numinst > 0 */
-} __pmExtInDom_v3;
-
-/*
- * On-Disk (after header) InDom Record, Version 2
- */
-typedef struct {
-    __int32_t	len;		/* header */
-    __int32_t	type;
-    __int32_t	sec;		/* pmTimeval */
-    __int32_t	usec;
-    pmInDom	indom;
-    __int32_t	numinst;
-    __int32_t	data[0];	/* inst[] then stridx[] then strings */
-    				/* will be expanded if numinst > 0 */
-} __pmExtInDom_v2;
 
 /*
  * __pmLogText is used to hold the metric and instance domain help text
@@ -743,7 +717,8 @@ typedef struct __pmLogText {
  * in memory labelsets are linked together in reverse chronological
  * order (just like the __pmLogInDom structure above).
  * -- externally we write these as
- *	timestamp	* TODO V2 vs V3 explanation
+ *	timestamp (pmTimeval for TYPE_LABEL_V2 records, __pmTimestamp
+ *	           for TYPE_LABEL records)
  *	type (int - PM_LABEL_* types)
  *	ident (int - PM_IN_NULL, domain, indom, pmid)
  *	nsets (int - usually 1, except for instances)
@@ -760,23 +735,42 @@ typedef struct __pmLogText {
  */
 typedef struct __pmLogLabelSet {
     struct __pmLogLabelSet *next;
-    pmTimeval		stamp;
+    __pmTimestamp	stamp;
     int			type;
     int			ident;
     int			nsets;
     pmLabelSet		*labelsets;
 } __pmLogLabelSet;
 
-#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
-typedef struct __pmLogHighResLabelSet {
-    struct __pmLogHighResLabelSet *next;
-    pmTimespec         stamp;
-    int			type;
-    int			ident;
-    int			nsets;
-    pmLabelSet		*labelsets;
-} __pmLogHighResLabelSet;
-#endif
+/*
+ * On-Disk __pmLogLabelSet Record, Version 3
+ */
+typedef struct {
+    __int32_t	len;		/* header */
+    __int32_t	type;
+    __uint32_t	sec[2];		/* __pmTimestamp */
+    __uint32_t	nsec;
+    __int32_t	labeltype;
+    __int32_t	ident;
+    __int32_t	nsets;
+    __int32_t	data[0];	/* labelsets */
+    				/* will be expanded if nsets > 0 */
+} __pmExtLabelSet_v3;
+
+/*
+ * On-Disk  __pmLogLabelSet Record, Version 2
+ */
+typedef struct {
+    __int32_t	len;		/* header */
+    __int32_t	type;
+    __int32_t	sec;		/* pmTimeval */
+    __int32_t	usec;
+    __int32_t	labeltype;
+    __int32_t	ident;
+    __int32_t	nsets;
+    __int32_t	data[0];	/* labelsets */
+    				/* will be expanded if nsets > 0 */
+} __pmExtLabelSet_v2;
 
 /*
  * External file and internal (below PMAPI) formats for archive labels.
@@ -833,28 +827,6 @@ typedef struct {
     off_t		off_meta;	/* end of metadata file */
     off_t		off_data;	/* end of data file */
 } __pmLogTI;
-
-/*
- * On-Disk Temporal Index Record, Version 3
- */
-typedef struct {
-    __uint64_t	sec;		/* __pmTimestamp */
-    __uint32_t	nsec;
-    __uint32_t	vol;
-    __pmoff64_t	off_meta;
-    __pmoff64_t	off_data;
-} __pmExtTI_v3;
-
-/*
- * On-Disk Temporal Index Record, Version 2
- */
-typedef struct {
-    __int32_t	sec;		/* pmTimeval */
-    __int32_t	usec;
-    __int32_t	vol;
-    __pmoff32_t	off_meta;
-    __pmoff32_t	off_data;
-} __pmExtTI_v2;
 
 /*
  * Log/Archive Control
@@ -996,15 +968,15 @@ PCP_CALL extern int __pmLogPutInDom(__pmArchCtl *, pmInDom, const __pmTimestamp 
 PCP_CALL extern int __pmLogPutResult(__pmArchCtl *, __pmPDU *);
 PCP_CALL extern int __pmLogPutResult2(__pmArchCtl *, __pmPDU *);
 PCP_CALL extern int __pmLogPutIndex(const __pmArchCtl *, const __pmTimestamp *);
-PCP_CALL extern int __pmLogPutLabel(__pmArchCtl *, unsigned int, unsigned int, int, pmLabelSet *, const pmTimeval *);
+PCP_CALL extern int __pmLogLoadIndex(__pmLogCtl *);
+PCP_CALL extern int __pmLogPutLabel(__pmArchCtl *, unsigned int, unsigned int, int, pmLabelSet *, const __pmTimestamp *);
 PCP_CALL extern int __pmLogPutText(__pmArchCtl *, unsigned int , unsigned int, char *, int);
 PCP_CALL extern int __pmLogWriteLabel(__pmFILE *, const __pmLogLabel *);
-PCP_CALL extern int __pmLogLoadLabel(__pmArchCtl *, const char *);
 PCP_CALL extern int __pmLogLoadMeta(__pmArchCtl *);
 PCP_CALL extern int __pmLogAddDesc(__pmArchCtl *, const pmDesc *);
-PCP_CALL extern int __pmLogAddInDom(__pmArchCtl *, const __pmTimestamp *, const pmInResult *, int *, int);
+PCP_CALL extern int __pmLogAddInDom(__pmArchCtl *, const __pmTimestamp *, const pmInResult *, __pmPDU *, int);
 PCP_CALL extern int __pmLogAddPMNSNode(__pmArchCtl *, pmID, const char *);
-PCP_CALL extern int __pmLogAddLabelSets(__pmArchCtl *, const pmTimespec *, unsigned int, unsigned int, int, pmLabelSet *);
+PCP_CALL extern int __pmLogAddLabelSets(__pmArchCtl *, const __pmTimestamp *, unsigned int, unsigned int, int, pmLabelSet *);
 PCP_CALL extern int __pmLogAddText(__pmArchCtl *, unsigned int, unsigned int, const char *);
 PCP_CALL extern int __pmLogAddVolume(__pmArchCtl *, unsigned int);
 
@@ -1019,7 +991,7 @@ PCP_CALL extern int __pmGetArchiveEnd(__pmArchCtl *, struct timeval *);
 PCP_CALL extern int __pmLogLookupDesc(__pmArchCtl *, pmID, pmDesc *);
 #define PMLOGPUTINDOM_DUP       1
 PCP_CALL extern int __pmLogLookupInDom(__pmArchCtl *, pmInDom, __pmTimestamp *, const char *);
-PCP_CALL extern int __pmLogLookupLabel(__pmArchCtl *, unsigned int, unsigned int, pmLabelSet **, const pmTimeval *);
+PCP_CALL extern int __pmLogLookupLabel(__pmArchCtl *, unsigned int, unsigned int, pmLabelSet **, const __pmTimestamp *);
 PCP_CALL extern int __pmLogLookupText(__pmArchCtl *, unsigned int , unsigned int, char **);
 PCP_CALL extern int __pmLogNameInDom(__pmArchCtl *, pmInDom, __pmTimestamp *, int, char **);
 PCP_CALL extern const char *__pmLogLocalSocketDefault(int, char *buf, size_t bufSize);
@@ -1349,6 +1321,8 @@ PCP_CALL extern void __pmtimevalPause(struct timeval);
 PCP_CALL extern double __pmTimevalSub(const pmTimeval *, const pmTimeval *);
 PCP_CALL extern double __pmTimespecSub(const pmTimespec *, const pmTimespec *);
 PCP_CALL extern double __pmTimestampSub(const __pmTimestamp *, const __pmTimestamp *);
+PCP_CALL extern void __pmTimestampInc(__pmTimestamp *, const __pmTimestamp *);
+PCP_CALL extern void __pmTimestampDec(__pmTimestamp *, const __pmTimestamp *);
 PCP_CALL extern int __pmTimestampCmp(const __pmTimestamp *, const __pmTimestamp *);
 
 /* reverse ctime, time interval parsing, time conversions */
@@ -1465,7 +1439,7 @@ PCP_CALL extern void __pmDumpNameList(FILE *, int, const char **);
 PCP_CALL extern void __pmDumpNameNode(FILE *, const __pmnsNode *, int);
 PCP_CALL extern void __pmDumpNameSpace(FILE *, int);
 PCP_CALL extern void __pmDumpResult(FILE *, const pmResult *);
-PCP_CALL extern void __pmDump__Result(FILE *, const __pmResult *);
+PCP_CALL extern void __pmPrintResult(FILE *, const __pmResult *);
 PCP_CALL extern void __pmDumpStack(FILE *);
 PCP_CALL extern void __pmDumpStatusList(FILE *, int, const int *);
 PCP_CALL extern void __pmPrintTimeval(FILE *, const pmTimeval *);
@@ -1512,6 +1486,16 @@ PCP_CALL extern void __pmIgnoreSignalPIPE(void);
 
 /* free high resolution timestamp variant of pmResult */
 PCP_CALL extern void __pmFreeHighResResult(pmHighResResult *);
+
+/*
+ * Loading metadata records and fields from disk ...
+ */
+PCP_CALL extern int __pmLogLoadInDom(__pmArchCtl *, int, int, pmInResult *, __pmTimestamp *, __pmPDU **);
+PCP_CALL extern int __pmLogLoadLabel(__pmArchCtl *, const char *);
+PCP_CALL extern void __pmLogLoadTimestamp(const __int32_t *, __pmTimestamp *);
+PCP_CALL extern void __pmLogLoadTimeval(const __int32_t *, __pmTimestamp *);
+PCP_CALL extern void __pmLogPutTimestamp(const __pmTimestamp *, __int32_t *);
+PCP_CALL extern void __pmLogPutTimeval(const __pmTimestamp *, __int32_t *);
 
 #ifdef __cplusplus
 }

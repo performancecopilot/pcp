@@ -27,7 +27,7 @@ extern int	wflag;		/* -w from command line */
  */
 typedef struct {
     int			flags;		/* GLOBAL_* flags */
-    struct timeval	time;		/* timestamp shift */
+    __pmTimestamp	time;		/* timestamp shift */
     char		hostname[PM_LOG_MAXHOSTLEN];
     char		tz[PM_TZ_MAXLEN]; 
 } global_t;

@@ -1191,35 +1191,33 @@ write_rec(reclist_t *rec)
 		fprintf(stderr, "PMID: %s name: %*.*s\n", pmIDStr(desc.pmid), len, len, name);
 		pmPrintDesc(stderr, &desc);
 	    }
-	    else if (type == TYPE_INDOM_V2) {
-		pmTimeval	*tvp;
-		pmTimeval	when;
-		int		k = 2;
-		pmInDom		indom;
-		int		numinst;
-		int		*instlist;
-		int		inst;
+	    else if (type == TYPE_INDOM || type == TYPE_INDOM_V2) {
+		__pmPDU		*buf;
+		pmInResult	in;
+		__pmTimestamp	stamp;
+		int		allinbuf;
 
-		tvp = (pmTimeval *)&rec->pdu[k];
-		when.tv_sec = ntohl(tvp->tv_sec);
-		when.tv_usec = ntohl(tvp->tv_usec);
-		k += sizeof(pmTimeval)/sizeof(rec->pdu[0]);
-		indom = ntoh_pmInDom((unsigned int)rec->pdu[k++]);
-		fprintf(stderr, "INDOM: %s when: ", pmInDomStr(indom));
-		__pmPrintTimeval(stderr, &when);
-		numinst = ntohl(rec->pdu[k++]);
-		fprintf(stderr, " numinst: %d", numinst);
-		if (numinst > 0) {
-		    int		i;
-		    instlist = (int *)&rec->pdu[k];
-		    for (i = 0; i < numinst; i++) {
-			inst = ntohl(instlist[i]);
-			fprintf(stderr, " [%d] %d", i, inst);
-		    }
+		buf = &rec->pdu[2];
+		allinbuf = __pmLogLoadInDom(NULL, 0, type, &in, &stamp, &buf);
+		if (allinbuf < 0) {
+		    fprintf(stderr, "write_rec: __pmLogLoadInDom(type=%d): failed: %s\n", type, pmErrStr(allinbuf));
 		}
-		fputc('\n', stderr);
+		else {
+		    fprintf(stderr, "INDOM: %s when: ", pmInDomStr(in.indom));
+		    __pmPrintTimestamp(stderr, &stamp);
+		    fprintf(stderr, " numinst: %d", in.numinst);
+		    if (in.numinst > 0) {
+			int		i;
+			for (i = 0; i < in.numinst; i++) {
+			    fprintf(stderr, " [%d] %d", i, in.instlist[i]);
+			}
+		    }
+		    fputc('\n', stderr);
+		}
+		if (!allinbuf)
+		    free(in.namelist);
 	    }
-	    else if (type == TYPE_LABEL) {
+	    else if (type == TYPE_LABEL_V2) {
 		pmTimeval	*tvp;
 		pmTimeval	when;
 		int		k = 2;
@@ -1762,7 +1760,7 @@ againmeta:
 	        goto againmeta;
 	    }
 	}
-	else if (type == TYPE_LABEL) {
+	else if (type == TYPE_LABEL_V2) {
 	    /* Decide which label sets we want to keep. */
 	    want = 0;
 	    if (ml == NULL) {

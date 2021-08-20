@@ -954,7 +954,7 @@ globalopt	: TOK_HOSTNAME TOK_ASSIGN hname
 			    pmsprintf(mess, sizeof(mess), "Duplicate global time clause");
 			    yyerror(mess);
 			}
-			if (global.time.tv_sec == 0 && global.time.tv_usec == 0) {
+			if (global.time.sec == 0 && global.time.nsec == 0) {
 			    /* no change ... */
 			    if (wflag) {
 				pmsprintf(mess, sizeof(mess), "Global time: No change");
@@ -1040,7 +1040,7 @@ float		: TOK_FLOAT
 		;
 
 signtime	: TOK_PLUS time
-		| TOK_MINUS time { global.time.tv_sec = -global.time.tv_sec; }
+		| TOK_MINUS time { global.time.sec = -global.time.sec; }
 		| time
 		;
 
@@ -1054,8 +1054,8 @@ time		: number TOK_COLON number TOK_COLON float	/* HH:MM:SS.d.. format */
 			    pmsprintf(mess, sizeof(mess), "Seconds (%.6f) in time clause more than 59", $5);
 			    yywarn(mess);
 			}
-			global.time.tv_sec = $1 * 3600 + $3 * 60 + (int)$5;
-			global.time.tv_usec = (int)(1000000*(($5 - (int)$5))+0.5);
+			global.time.sec = $1 * 3600 + $3 * 60 + (int)$5;
+			global.time.nsec = (int)(1000000000*(($5 - (int)$5))+0.5);
 		    }
 		| number TOK_COLON number TOK_COLON number	/* HH:MM:SS format */
 		    { 
@@ -1067,7 +1067,7 @@ time		: number TOK_COLON number TOK_COLON float	/* HH:MM:SS.d.. format */
 			    pmsprintf(mess, sizeof(mess), "Seconds (%d) in time clause more than 59", $5);
 			    yywarn(mess);
 			}
-			global.time.tv_sec = $1 * 3600 + $3 * 60 + $5;
+			global.time.sec = $1 * 3600 + $3 * 60 + $5;
 		    }
 		| number TOK_COLON float		/* MM:SS.d.. format */
 		    { 
@@ -1079,8 +1079,8 @@ time		: number TOK_COLON number TOK_COLON float	/* HH:MM:SS.d.. format */
 			    pmsprintf(mess, sizeof(mess), "Seconds (%.6f) in time clause more than 59", $3);
 			    yywarn(mess);
 			}
-			global.time.tv_sec = $1 * 60 + (int)$3;
-			global.time.tv_usec = (int)(1000000*(($3 - (int)$3))+0.5);
+			global.time.sec = $1 * 60 + (int)$3;
+			global.time.nsec = (int)(1000000000*(($3 - (int)$3))+0.5);
 		    }
 		| number TOK_COLON number		/* MM:SS format */
 		    { 
@@ -1092,7 +1092,7 @@ time		: number TOK_COLON number TOK_COLON float	/* HH:MM:SS.d.. format */
 			    pmsprintf(mess, sizeof(mess), "Seconds (%d) in time clause more than 59", $3);
 			    yywarn(mess);
 			}
-			global.time.tv_sec = $1 * 60 + $3;
+			global.time.sec = $1 * 60 + $3;
 		    }
 		| float			/* SS.d.. format */
 		    {
@@ -1100,8 +1100,8 @@ time		: number TOK_COLON number TOK_COLON float	/* HH:MM:SS.d.. format */
 			    pmsprintf(mess, sizeof(mess), "Seconds (%.6f) in time clause more than 59", $1);
 			    yywarn(mess);
 			}
-			global.time.tv_sec = (int)$1;
-			global.time.tv_usec = (int)(1000000*(($1 - (int)$1))+0.5);
+			global.time.sec = (int)$1;
+			global.time.nsec = (int)(1000000000*(($1 - (int)$1))+0.5);
 		    }
 		| number		/* SS format */
 		    {
@@ -1109,8 +1109,8 @@ time		: number TOK_COLON number TOK_COLON float	/* HH:MM:SS.d.. format */
 			    pmsprintf(mess, sizeof(mess), "Seconds (%d) in time clause more than 59", $1);
 			    yywarn(mess);
 			}
-			global.time.tv_sec = $1;
-			global.time.tv_usec = 0;
+			global.time.sec = $1;
+			global.time.nsec = 0;
 		    }
 		;
 

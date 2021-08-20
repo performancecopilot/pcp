@@ -78,7 +78,7 @@ typedef struct pmDiscover {
     pmDiscoverContext		context;	/* metadata for metric source */
     pmDiscoverModule		*module;	/* global state from caller */
     pmDiscoverFlags		flags;		/* state for discovery process */
-    pmTimespec			timestamp;	
+    __pmTimestamp		timestamp;	
     int				ctx;		/* PMAPI context handle */
     int				fd;		/* meta file descriptor */
 #ifdef HAVE_LIBUV

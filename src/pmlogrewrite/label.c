@@ -19,6 +19,7 @@
 #include "pmapi.h"
 #include "libpcp.h"
 #include "logger.h"
+#include "../libpcp/src/internal.h"
 
 /*
  * Find or create a new labelspec_t
@@ -145,9 +146,11 @@ _ntohpmLabel(pmLabel * const label)
  * code factoring here.
  */
  static void
-_pmUnpackLabelSet(__pmPDU *pdubuf, unsigned int *type, unsigned int *ident,
-		  int *nsets, pmLabelSet **labelsets, pmTimeval *stamp)
+_pmUnpackLabelSet(__pmPDU *pdubuf, unsigned int *ltype, unsigned int *ident,
+		  int *nsets, pmLabelSet **labelsets, __pmTimestamp *tsp)
 {
+    __pmLogHdr	*hdr;
+    int		type;
     char	*tbuf;
     int		i, j, k;
     int		inst;
@@ -155,17 +158,29 @@ _pmUnpackLabelSet(__pmPDU *pdubuf, unsigned int *type, unsigned int *ident,
     int		nlabels;
 
     /* Walk through the record extracting the data. */
+    hdr = (__pmLogHdr *)pdubuf;
+    type = htonl(hdr->type);
     tbuf = (char *)pdubuf;
-    k = 0;
-    k += sizeof(__pmLogHdr);
+    k = sizeof(__pmLogHdr);
+    if (type == TYPE_LABEL) {
+	memcpy((void *)&tsp->sec, (void *)&pdubuf[2], sizeof(tsp->sec));
+	tsp->nsec = pdubuf[4];
+	__ntohpmTimestamp(tsp);
+	k += 3 * sizeof(__pmPDU);
+    }
+    else if (type == TYPE_LABEL_V2) {
+	tsp->sec = ntohl(pdubuf[2]);
+	tsp->nsec = ntohl(pdubuf[3]) * 1000;
+	k += 2 * sizeof(__pmPDU);
+    }
+    else {
+	fprintf(stderr, "_pmUnpackLabelSet: Botch: type=%d\n", type);
+	exit(1);
+    }
 
-    *stamp = *((pmTimeval *)&tbuf[k]);
-    stamp->tv_sec = ntohl(stamp->tv_sec);
-    stamp->tv_usec = ntohl(stamp->tv_usec);
-    k += sizeof(*stamp);
 
-    *type = ntohl(*((unsigned int*)&tbuf[k]));
-    k += sizeof(*type);
+    *ltype = ntohl(*((unsigned int*)&tbuf[k]));
+    k += sizeof(*ltype);
 
     *ident = ntohl(*((unsigned int*)&tbuf[k]));
     k += sizeof(*ident);
@@ -676,7 +691,7 @@ do_labelset(void)
     int			flags = 0;
     pmLabelSet		*labellist;
     pmLabelSet		*lsp;
-    pmTimeval		stamp;
+    __pmTimestamp	stamp;
     labelspec_t		*lp;
     int			full_record;
     int			ls_ix;

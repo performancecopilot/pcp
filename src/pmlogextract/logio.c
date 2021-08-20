@@ -106,14 +106,18 @@ again:
     }
 
     if (pmDebugOptions.log) {
-	if (vol != PM_LOG_VOL_META || ntohl(lpb[1]) == TYPE_INDOM_V2) {
+	if (vol != PM_LOG_VOL_META ||
+	    ntohl(lpb[1]) == TYPE_INDOM || ntohl(lpb[1]) == TYPE_INDOM_V2) {
 	    fprintf(stderr, "@");
 	    if (sts >= 0) {
-		struct timeval	stamp;
-		pmTimeval		*tvp = (pmTimeval *)&lpb[vol == PM_LOG_VOL_META ? 2 : 1];
-		stamp.tv_sec = ntohl(tvp->tv_sec);
-		stamp.tv_usec = ntohl(tvp->tv_usec);
-		pmPrintStamp(stderr, &stamp);
+		__pmTimestamp	stamp;
+		if (vol != PM_LOG_VOL_META)
+		    __pmLogLoadTimeval(&lpb[2], &stamp);
+		else if (ntohl(lpb[1]) == TYPE_INDOM)
+		    __pmLogLoadTimestamp(&lpb[1], &stamp);
+		else if (ntohl(lpb[1]) == TYPE_INDOM_V2)
+		    __pmLogLoadTimeval(&lpb[1], &stamp);
+		__pmPrintTimestamp(stderr, &stamp);
 	    }
 	    else
 		fprintf(stderr, "unknown time");
@@ -123,14 +127,18 @@ again:
 
     if (pmDebugOptions.pdu) {
 	int		i, j;
-	struct timeval	stamp;
-	pmTimeval	*tvp = (pmTimeval *)&lpb[vol == PM_LOG_VOL_META ? 2 : 1];
+	__pmTimestamp	stamp;
 	fprintf(stderr, "_pmLogGet");
-	if (vol != PM_LOG_VOL_META || ntohl(lpb[1]) == TYPE_INDOM_V2) {
+	if (vol != PM_LOG_VOL_META ||
+	    ntohl(lpb[1]) == TYPE_INDOM || ntohl(lpb[1]) == TYPE_INDOM_V2) {
+	    if (vol != PM_LOG_VOL_META)
+		__pmLogLoadTimeval(&lpb[2], &stamp);
+	    else if (ntohl(lpb[1]) == TYPE_INDOM)
+		__pmLogLoadTimestamp(&lpb[1], &stamp);
+	    else if (ntohl(lpb[1]) == TYPE_INDOM_V2)
+		__pmLogLoadTimeval(&lpb[1], &stamp);
 	    fprintf(stderr, " timestamp=");
-	    stamp.tv_sec = ntohl(tvp->tv_sec);
-	    stamp.tv_usec = ntohl(tvp->tv_usec);
-	    pmPrintStamp(stderr, &stamp);
+	    __pmPrintTimestamp(stderr, &stamp);
 	}
 	fprintf(stderr, " " PRINTF_P_PFX "%p ... " PRINTF_P_PFX "%p", lpb, &lpb[ntohl(head)/sizeof(__pmPDU) - 1]);
 	fputc('\n', stderr);

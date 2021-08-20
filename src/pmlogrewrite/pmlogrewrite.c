@@ -31,6 +31,7 @@
 #include "libpcp.h"
 #include "logger.h"
 #include <assert.h>
+#include "../libpcp/src/internal.h"
 
 global_t	global;
 indomspec_t	*indom_root;
@@ -498,18 +499,18 @@ reportconfig(void)
 	static struct tm	*tmp;
 	char			*sign = "";
 	time_t			time;
-	if (global.time.tv_sec < 0) {
-	    time = (time_t)(-global.time.tv_sec);
+	if (global.time.sec < 0) {
+	    time = (time_t)(-global.time.sec);
 	    sign = "-";
 	}
 	else
-	    time = (time_t)global.time.tv_sec;
+	    time = (time_t)global.time.sec;
 	tmp = gmtime(&time);
 	tmp->tm_hour += 24 * tmp->tm_yday;
 	if (tmp->tm_hour < 10)
-	    printf("Delta:\t\t-> %s%02d:%02d:%02d.%06d\n", sign, tmp->tm_hour, tmp->tm_min, tmp->tm_sec, (int)global.time.tv_usec);
+	    printf("Delta:\t\t-> %s%02d:%02d:%02d.%09d\n", sign, tmp->tm_hour, tmp->tm_min, tmp->tm_sec, (int)global.time.nsec);
 	else
-	    printf("Delta:\t\t-> %s%d:%02d:%02d.%06d\n", sign, tmp->tm_hour, tmp->tm_min, tmp->tm_sec, (int)global.time.tv_usec);
+	    printf("Delta:\t\t-> %s%d:%02d:%02d.%09d\n", sign, tmp->tm_hour, tmp->tm_min, tmp->tm_sec, (int)global.time.nsec);
     }
     for (ip = indom_root; ip != NULL; ip = ip->i_next) {
 	int		hdr_done = 0;
@@ -830,24 +831,20 @@ anychange(void)
 }
 
 static int
-fixstamp(struct timeval *tvp)
+fixstamp(__pmTimestamp *tsp)
 {
     if (global.flags & GLOBAL_CHANGE_TIME) {
-	if (global.time.tv_sec > 0) {
-	    pmtimevalInc(tvp, &global.time);
+	if (global.time.sec > 0) {
+	    __pmTimestampInc(tsp, &global.time);
 	    return 1;
 	}
-	else if (global.time.tv_sec < 0) {
+	else if (global.time.sec < 0) {
 	    /*
-	     * parser makes tv_sec < 0 and tv_usec >= 0 ...
-	     * so cannot use pmtimevalDec() here
+	     * parser makes sec < 0 and nsec >= 0 ...
 	     */
-	    tvp->tv_sec += global.time.tv_sec;
-	    tvp->tv_usec -= global.time.tv_usec;
-	    if (tvp->tv_usec < 0) {
-		tvp->tv_sec--;
-		tvp->tv_usec += 1000000;
-	    }
+	    global.time.sec = -global.time.sec;
+	    __pmTimestampDec(tsp, &global.time);
+	    global.time.sec = -global.time.sec;
 	    return 1;
 	}
     }
@@ -1397,7 +1394,7 @@ do_newlabelsets(void)
     unsigned int	ident;
     int			nsets;
     pmLabelSet		*labellist = NULL;
-    pmTimeval		stamp;
+    __pmTimestamp	stamp;
     labelspec_t		*lp;
     int			sts;
     char		buf[64];
@@ -1408,8 +1405,8 @@ do_newlabelsets(void)
      * Traverse the list of label change records and emit any new label sets
      * at the globally adjusted start time.
      */
-    stamp.tv_sec = inarch.rp->timestamp.tv_sec;
-    stamp.tv_usec = inarch.rp->timestamp.tv_usec;
+    stamp.sec = inarch.rp->timestamp.tv_sec;
+    stamp.nsec = inarch.rp->timestamp.tv_usec * 1000;
     
     for (lp = label_root; lp != NULL; lp = lp->l_next) {
 	/* Is this a new label record? */
@@ -1737,11 +1734,11 @@ main(int argc, char **argv)
 		newvolume(outarch.archctl.ac_curvol+1);
 	}
 	if (pmDebugOptions.appl0) {
-	    struct timeval	stamp;
+	    __pmTimestamp	stamp;
 	    fprintf(stderr, "Log: read ");
-	    stamp.tv_sec = inarch.rp->timestamp.tv_sec;
-	    stamp.tv_usec = inarch.rp->timestamp.tv_usec;
-	    pmPrintStamp(stderr, &stamp);
+	    stamp.sec = inarch.rp->timestamp.tv_sec;
+	    stamp.nsec = inarch.rp->timestamp.tv_usec * 1000;
+	    __pmPrintTimestamp(stderr, &stamp);
 	    fprintf(stderr, " numpmid=%d @ offset=%ld\n", inarch.rp->numpmid, in_offset);
 	}
 
@@ -1764,7 +1761,18 @@ main(int argc, char **argv)
 	 * adjustment ... flows to output pmResult, indom entries in
 	 * metadata, temporal index entries and label records
 	 * */
+#if 0	// TODO when pmResult converted
 	fixstamp(&inarch.rp->timestamp);
+#else
+	{
+	    __pmTimestamp	stamp;
+	    stamp.sec = inarch.rp->timestamp.tv_sec;
+	    stamp.nsec = inarch.rp->timestamp.tv_usec * 1000;
+	    fixstamp(&stamp);
+	    inarch.rp->timestamp.tv_sec = stamp.sec;
+	    inarch.rp->timestamp.tv_usec = stamp.nsec / 1000;
+	}
+#endif
 
 	/*
 	 * Write out any new label sets before any other data using the adjusted
@@ -1787,6 +1795,8 @@ main(int argc, char **argv)
 			fprintf(stderr, "Metadata: read EOF @ offset=%ld\n", in_offset);
 		    else if (stsmeta == TYPE_DESC)
 			fprintf(stderr, "Metadata: read PMID %s @ offset=%ld\n", pmIDStr(ntoh_pmID(inarch.metarec[2])), in_offset);
+		    else if (stsmeta == TYPE_INDOM)
+			fprintf(stderr, "Metadata: read InDom %s @ offset=%ld\n", pmInDomStr(ntoh_pmInDom((unsigned int)inarch.metarec[5])), in_offset);
 		    else if (stsmeta == TYPE_INDOM_V2)
 			fprintf(stderr, "Metadata: read InDom %s @ offset=%ld\n", pmInDomStr(ntoh_pmInDom((unsigned int)inarch.metarec[4])), in_offset);
 		}
@@ -1843,40 +1853,66 @@ main(int argc, char **argv)
 		 */
 		do_desc();
 	    }
-	    else if (stsmeta == TYPE_INDOM_V2) {
-		struct timeval	stamp;
-		pmTimeval	*tvp = (pmTimeval *)&inarch.metarec[2];
-		stamp.tv_sec = ntohl(tvp->tv_sec);
-		stamp.tv_usec = ntohl(tvp->tv_usec);
+	    else if (stsmeta == TYPE_INDOM) {
+		__pmTimestamp	stamp;
+		__pmLogLoadTimestamp(&inarch.metarec[2], &stamp);
 		if (fixstamp(&stamp)) {
 		    /* global time adjustment specified */
-		    tvp->tv_sec = htonl(stamp.tv_sec);
-		    tvp->tv_usec = htonl(stamp.tv_usec);
+		    __pmLogPutTimestamp(&stamp, &inarch.metarec[2]);
 		}
 		/* if time of indom > next pmResult stop processing metadata */
-		if (stamp.tv_sec > inarch.rp->timestamp.tv_sec)
+		if (stamp.sec > inarch.rp->timestamp.tv_sec)
 		    break;
-		if (stamp.tv_sec == inarch.rp->timestamp.tv_sec &&
-		    stamp.tv_usec > inarch.rp->timestamp.tv_usec)
+		if (stamp.sec == inarch.rp->timestamp.tv_sec &&
+		    stamp.nsec > inarch.rp->timestamp.tv_usec * 1000)
+		    break;
+		needti = 1;
+		do_indom();
+	    }
+	    else if (stsmeta == TYPE_INDOM_V2) {
+		__pmTimestamp	stamp;
+		__pmLogLoadTimeval(&inarch.metarec[2], &stamp);
+		if (fixstamp(&stamp)) {
+		    /* global time adjustment specified */
+		    __pmLogPutTimeval(&stamp, &inarch.metarec[2]);
+		}
+		/* if time of indom > next pmResult stop processing metadata */
+		if (stamp.sec > inarch.rp->timestamp.tv_sec)
+		    break;
+		if (stamp.sec == inarch.rp->timestamp.tv_sec &&
+		    stamp.nsec > inarch.rp->timestamp.tv_usec * 1000)
 		    break;
 		needti = 1;
 		do_indom();
 	    }
 	    else if (stsmeta == TYPE_LABEL) {
-		struct timeval	stamp;
-		pmTimeval	*tvp = (pmTimeval *)&inarch.metarec[2];
-		stamp.tv_sec = ntohl(tvp->tv_sec);
-		stamp.tv_usec = ntohl(tvp->tv_usec);
+		__pmTimestamp	stamp;
+		__pmLogLoadTimestamp(&inarch.metarec[2], &stamp);
 		if (fixstamp(&stamp)) {
 		    /* global time adjustment specified */
-		    tvp->tv_sec = htonl(stamp.tv_sec);
-		    tvp->tv_usec = htonl(stamp.tv_usec);
+		    __pmLogPutTimestamp(&stamp, &inarch.metarec[2]);
 		}
 		/* if time of label set  > next pmResult stop processing metadata */
-		if (stamp.tv_sec > inarch.rp->timestamp.tv_sec)
+		if (stamp.sec > inarch.rp->timestamp.tv_sec)
 		    break;
-		if (stamp.tv_sec == inarch.rp->timestamp.tv_sec &&
-		    stamp.tv_usec > inarch.rp->timestamp.tv_usec)
+		if (stamp.sec == inarch.rp->timestamp.tv_sec &&
+		    stamp.nsec > inarch.rp->timestamp.tv_usec * 1000)
+		    break;
+		needti = 1;
+		do_labelset();
+	    }
+	    else if (stsmeta == TYPE_LABEL_V2) {
+		__pmTimestamp	stamp;
+		__pmLogLoadTimeval(&inarch.metarec[2], &stamp);
+		if (fixstamp(&stamp)) {
+		    /* global time adjustment specified */
+		    __pmLogPutTimeval(&stamp, &inarch.metarec[2]);
+		}
+		/* if time of label set  > next pmResult stop processing metadata */
+		if (stamp.sec > inarch.rp->timestamp.tv_sec)
+		    break;
+		if (stamp.sec == inarch.rp->timestamp.tv_sec &&
+		    stamp.nsec > inarch.rp->timestamp.tv_usec * 1000)
 		    break;
 		needti = 1;
 		do_labelset();

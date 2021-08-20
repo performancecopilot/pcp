@@ -829,9 +829,9 @@ __pmDumpResult(FILE *f, const pmResult *resp)
     __pmDumpResult_ctx(NULL, f, resp);
 }
 
-/* Internal variant of __pmDump__Result() with current context. */
+/* Internal variant of __pmPrintResult() with current context. */
 void
-__pmDump__Result_ctx(__pmContext *ctxp, FILE *f, const __pmResult *resp)
+__pmPrintResult_ctx(__pmContext *ctxp, FILE *f, const __pmResult *resp)
 {
     int		i;
     struct timespec ts;
@@ -852,9 +852,9 @@ __pmDump__Result_ctx(__pmContext *ctxp, FILE *f, const __pmResult *resp)
 }
 
 void
-__pmDump__Result(FILE *f, const __pmResult *resp)
+__pmPrintResult(FILE *f, const __pmResult *resp)
 {
-    __pmDump__Result_ctx(NULL, f, resp);
+    __pmPrintResult_ctx(NULL, f, resp);
 }
 
 /* Internal variant of __pmDumpHighResResult() with current context. */
@@ -1293,6 +1293,34 @@ double
 __pmTimestampSub(const __pmTimestamp *ap, const __pmTimestamp *bp)
 {
      return (double)(ap->sec - bp->sec + (long double)(ap->nsec - bp->nsec) / (long double)1000000000);
+}
+
+/*
+ * Increment a universal timestamps ...
+ */
+void
+__pmTimestampInc(__pmTimestamp *ap, const __pmTimestamp *bp)
+{
+     ap->sec += bp->sec;
+     ap->nsec += bp->nsec;
+     if (ap->nsec > 1000000000) {
+	 ap->sec++;
+	 ap->nsec -= 1000000000;
+    }
+}
+
+/*
+ * Decrement a universal timestamps ...
+ */
+void
+__pmTimestampDec(__pmTimestamp *ap, const __pmTimestamp *bp)
+{
+     ap->sec -= bp->sec;
+     ap->nsec -= bp->nsec;
+     if (ap->nsec < 0) {
+	 ap->sec--;
+	 ap->nsec += 1000000000;
+    }
 }
 
 /*

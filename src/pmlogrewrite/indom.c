@@ -198,57 +198,56 @@ static void
 _pmUnpackInDom(__pmPDU *pdubuf, pmInDom *indom, __pmTimestamp *tsp, int *numinst, int **instlist, char ***inamelist)
 {
     __pmLogHdr	*hdr;
+    __pmPDU	*buf;
     int		type;
     int		i;
-    int		*ip;
-    char	*strbuf;
+    pmInResult	in;
+    int		allinbuf;
     char	*s;
     size_t	size;
 
     hdr = (__pmLogHdr *)pdubuf;
     type = htonl(hdr->type);
-    if (type == TYPE_INDOM) {
-	__pmTimestamp	*tip = (__pmTimestamp *)&pdubuf[2];
-	tsp->sec = tip->sec;
-	__ntohll((char *)&tsp->sec);
-	tsp->nsec = ntohl(tip->nsec);
-	*indom = ntohl(pdubuf[5]);
-	*numinst = ntohl(pdubuf[6]);
-	ip = (int *)&pdubuf[7];
-    }
-    else if (type == TYPE_INDOM_V2) {
-	pmTimeval	*tip = (pmTimeval *)&pdubuf[2];
-	tsp->sec = ntohl(tip->tv_sec);
-	tsp->nsec = ntohl(tip->tv_usec) * 1000;
-	*indom = ntohl(pdubuf[4]);
-	*numinst = ntohl(pdubuf[5]);
-	ip = (int *)&pdubuf[6];
-    }
-    else {
-	fprintf(stderr, "_pmUnpackInDom: Botch: type=%d\n", type);
-	exit(1);
-    }
-
-    /* Copy the instances to a new buffer. */
-    *instlist = (int *)malloc(*numinst * sizeof(int));
-    if (*instlist == NULL) {
-	fprintf(stderr, "_pmUnpackInDom instlist malloc(%d) failed: %s\n", (int)(*numinst * sizeof(int)), strerror(errno));
+    /* buffer for __pmLogLoadInDom has to start AFTER the header */
+    buf = &pdubuf[2];
+    allinbuf = __pmLogLoadInDom(NULL, 0, type, &in, tsp, &buf);
+    if (allinbuf < 0) {
+	fprintf(stderr, "_pmUnpackInDom: __pmLogLoadInDom(type=%d): failed: %s\n", type, pmErrStr(allinbuf));
 	abandon();
 	/*NOTREACHED*/
     }
-    for (i = 0; i < *numinst; i++)
-	(*instlist)[i] = ntohl(*ip++);
+    if (in.numinst < 1) {
+	fprintf(stderr, "_pmUnpackInDom: InDom %s dodgey: numinst=%d\n", pmInDomStr(in.indom), in.numinst);
+	abandon();
+	/*NOTREACHED*/
+    }
+#if 0
+fprintf(stderr, "numinst=%d indom=%s inst[0] %d or \"%s\" inst[%d] %d or \"%s\"\n", in.numinst, pmInDomStr(in.indom), in.instlist[0], in.namelist[0], in.numinst-1, in.instlist[in.numinst-1], in.namelist[in.numinst-1]);
+#endif
+
+    /* Copy the instances to a new buffer */
+    *numinst = in.numinst;
+    *indom = in.indom;
+    *instlist = (int *)malloc(in.numinst * sizeof(int));
+    if (*instlist == NULL) {
+	fprintf(stderr, "_pmUnpackInDom instlist malloc(%d) failed: %s\n", (int)(in.numinst * sizeof(int)), strerror(errno));
+	abandon();
+	/*NOTREACHED*/
+    }
+    for (i = 0; i < in.numinst; i++)
+	(*instlist)[i] = in.instlist[i];
+
+#if 0
+fprintf(stderr, "after instlist assignment, instlist[0] = %d instlist[%d] = %d\n", (*instlist)[i], in.numinst-1, (*instlist)[in.numinst-1]);
+#endif
 
     /*
      * Copy the name list to a new buffer. Place the pointers and the names
      * in the same buffer so that they can be easily freed.
-     *
-     * ip[i] is stridx[i], which is an offset into strbuf[]
      */
-    strbuf = (char *)&ip[*numinst];
-    size = *numinst * sizeof(char *);
-    for (i = 0; i < *numinst; i++)
-	size += strlen(&strbuf[ntohl(ip[i])]) + 1;
+    size = in.numinst * sizeof(char *);
+    for (i = 0; i < in.numinst; i++)
+	size += strlen(in.namelist[i]) + 1;
     *inamelist = (char **)malloc(size);
     if (*inamelist == NULL) {
 	fprintf(stderr, "_pmUnpackInDom inamelist malloc(%d) failed: %s\n",
@@ -256,12 +255,15 @@ _pmUnpackInDom(__pmPDU *pdubuf, pmInDom *indom, __pmTimestamp *tsp, int *numinst
 	abandon();
 	/*NOTREACHED*/
     }
-    s = (char *)(*inamelist + *numinst);
-    for (i = 0; i < *numinst; i++) {
+    s = (char *)(*inamelist + in.numinst);
+    for (i = 0; i < in.numinst; i++) {
 	(*inamelist)[i] = s;
-	strcpy(s, &strbuf[ntohl(ip[i])]);
-	s += strlen(s) + 1;
+	strcpy(s, in.namelist[i]);
+	s += strlen(in.namelist[i]) + 1;
     }
+
+    if (!allinbuf)
+	free(in.namelist);
 }
 
 static void
@@ -314,9 +316,9 @@ void
 do_indom(void)
 {
     long	out_offset;
-    pmInDom	indom;
+    pmInDom	indom = { 0 };
     __pmTimestamp	stamp;
-    int		numinst;
+    int		numinst = 0;
     int		*instlist;
     char	**inamelist;
     indomspec_t	*ip;
