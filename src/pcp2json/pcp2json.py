@@ -525,8 +525,8 @@ class PCP2JSON(object):
                                              separators=(',', ': ')))
                 self.writer.write("\n")
                 self.writer.flush()
-            except IOError as error:
-                if error.errno != errno.EPIPE:
+            except IOError as write_error:
+                if write_error.errno != errno.EPIPE:
                     raise
             try:
                 self.writer.close()

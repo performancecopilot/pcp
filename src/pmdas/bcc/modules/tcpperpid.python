@@ -16,6 +16,7 @@
 """ PCP BCC PMDA tcpperpid module """
 
 # pylint: disable=invalid-name, too-few-public-methods, too-many-instance-attributes
+# pylint: disable=consider-using-with
 
 import ctypes as ct
 from threading import Lock, Thread

@@ -17,7 +17,8 @@
 
 """ PCP lmsensors Performance Metrics Domain Agent """
 
-# pylint: disable=bad-continuation,line-too-long,too-few-public-methods,too-many-nested-blocks
+# pylint: disable=bad-continuation,line-too-long,consider-using-dict-items
+# pylint: disable=too-few-public-methods,too-many-nested-blocks
 
 import json
 import subprocess
@@ -38,14 +39,13 @@ def lmsensors_get():
 
     if args.inject:
         # we will inject sensor data from a file
-        # f = open(str(sys.argv[1]), "r")
-        f = open(args.inject.name, args.inject.mode)
-        output = f.read()
+        with open(args.inject.name, args.inject.mode) as f:
+            output = f.read()
     else:
         # we will read real sensor data
         with open(os.devnull, 'w') as devnull:
-            p = subprocess.Popen(["/usr/bin/sensors", "-j"], stdout=subprocess.PIPE, stderr=devnull)
-            output = json.loads(re.sub("[0-9]_", "_", p.communicate()[0].decode("utf-8")))
+            with subprocess.Popen(["/usr/bin/sensors", "-j"], stdout=subprocess.PIPE, stderr=devnull) as p:
+                output = json.loads(re.sub("[0-9]_", "_", p.communicate()[0].decode("utf-8")))
 
         if args.debug_value and args.debug_value >= 0:
             print("function lmsensors_get(), json object after removing redundant naming:\n", output)

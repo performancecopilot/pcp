@@ -18,6 +18,7 @@
 #
 # pylint: disable=line-too-long,protected-access,dangerous-default-value
 # pylint: disable=too-many-lines,too-many-arguments,too-many-nested-blocks
+# pylint: disable=consider-using-dict-items
 #
 
 import sys

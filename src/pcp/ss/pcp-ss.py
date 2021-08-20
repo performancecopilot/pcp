@@ -14,7 +14,7 @@
 #
 # pylint: disable=line-too-long,bad-continuation,broad-except,bare-except
 # pylint: disable=missing-docstring,multiple-imports,unused-import
-# pylint: disable=too-many-boolean-expressions
+# pylint: disable=too-many-boolean-expressions,consider-using-dict-items
 
 """ Display socket statistics """
 
@@ -155,8 +155,8 @@ class SS(object):
                     start = options.pmGetOptionStart()
                     self.context.pmSetMode(PM_MODE_INTERP, start, 0)
 
-        except pmapi.pmErr as error:
-            sys.stderr.write("%s: %s '%s'\n" % (error.progname(), error.message(), self.source))
+        except pmapi.pmErr as pmerr:
+            sys.stderr.write("%s: %s '%s'\n" % (pmerr.progname(), pmerr.message(), self.source))
             return False
 
         # check network.persocket metrics are available

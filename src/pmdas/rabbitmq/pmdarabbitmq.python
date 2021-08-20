@@ -120,16 +120,12 @@ class RabbitmqPMDA(PMDA):
             [ 'queue.arguments',                                                       PM_TYPE_STRING, PM_SEM_DISCRETE, pmUnits(),  'arguments given to http request'], # 56
         ]
 
-        for item in range(len(self.queue_metrics)):
-            self.add_metric(name + '.' +
-                            self.queue_metrics[item][0],
+        for item, metric in enumerate(self.queue_metrics):
+            self.add_metric(name + '.' + metric[0],
                             pmdaMetric(self.pmid(self.queue_cluster, item),
-                                       self.queue_metrics[item][1],
-                                       self.queue_indom,
-                                       self.queue_metrics[item][2],
-                                       self.queue_metrics[item][3]),
-                            self.queue_metrics[item][4],
-                            self.queue_metrics[item][4])
+                                       metric[1], self.queue_indom,
+                                       metric[2], metric[3]),
+                            metric[4], metric[4])
 
         self.set_fetch_callback(self.rabbit_fetch_callback)
         self.set_refresh(self.rabbitmq_refresh)

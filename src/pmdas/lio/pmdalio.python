@@ -22,8 +22,8 @@ import cpmapi as c_api
 from pcp.pmapi import pmUnits
 from pcp.pmda import PMDA, pmdaMetric, pmdaIndom
 
-import rtslib_fb.root as root
-import rtslib_fb.tcm as tcm
+from rtslib_fb import root
+from rtslib_fb import tcm
 from rtslib_fb.utils import fread, RTSLibError
 
 import os

@@ -32,5 +32,5 @@ install_pcp install:	default $(SUBDIRS)
 	$(INSTALL) -m 755 -d $(MODULETMPDIR)
 	$(INSTALL) -m 644 -t $(MODULETMPDIR) $(PYSCRIPTS) $(MODULEDIR)
 
-check:: $(PYSCRIPTS)
-	$(PYLINT) $^
+#check:: $(PYSCRIPTS)
+#	$(PYLINT) $^

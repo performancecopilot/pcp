@@ -47,8 +47,7 @@ class sampler(object):
             try:
                 util = uvalue() + svalue()
                 # small errors are possible, so clip the utilization at 1.0
-                if util > 1.0:
-                    util = 1.0
+                util = min(util, 1.0)
             except:
                 # suspect PM_ERR_AGAIN from first-step rate-calculation
                 util = 0

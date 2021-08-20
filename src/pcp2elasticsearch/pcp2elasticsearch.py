@@ -407,9 +407,9 @@ class pcp2elasticsearch(object):
             if self.es_failed:
                 sys.stderr.write("Reconnected to Elasticsearch server %s.\n" % (self.es_server))
             self.es_failed = False
-        except Exception as error:
+        except Exception as put_failed:
             if not self.es_failed:
-                sys.stderr.write("Can't connect to Elasticsearch server %s: %s, continuing.\n" % (self.es_server, str(error)))
+                sys.stderr.write("Can't connect to Elasticsearch server %s: %s, continuing.\n" % (self.es_server, str(put_failed)))
             self.es_failed = True
             return
 
@@ -480,8 +480,8 @@ class pcp2elasticsearch(object):
         try:
             url = self.es_server + '/' + self.es_index + '/' + self.es_search_type
             requests.post(url, data=json.dumps(es_doc), headers=headers)
-        except Exception as error:
-            sys.stderr.write("Cannot send to Elasticsearch server %s: %s, continuing.\n" % (self.es_server, str(error)))
+        except Exception as post_failed:
+            sys.stderr.write("Cannot send to Elasticsearch server %s: %s, continuing.\n" % (self.es_server, str(post_failed)))
             return
 
     def finalize(self):

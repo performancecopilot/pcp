@@ -440,9 +440,9 @@ class PCP2Graphite(object):
                     if self.context.pmDebug(PM_DEBUG_APPL0):
                         print("Sending %s: %s" % (timestamp, msg.rstrip().decode()))
                     self.socket.send(msg) # pylint: disable=no-member
-        except socket.error as error:
+        except socket.error as send_error:
             sys.stderr.write("Can't send message to Graphite server %s:%d, %s, continuing.\n" %
-                             (self.graphite_host, self.graphite_port, error.strerror))
+                             (self.graphite_host, self.graphite_port, send_error.strerror))
             self.socket = None
 
     def finalize(self):
@@ -451,8 +451,8 @@ class PCP2Graphite(object):
             try:
                 self.socket.close()
                 self.socket = None
-            except socket.error as error:
-                if error.errno != errno.EPIPE:
+            except socket.error as socket_error:
+                if socket_error.errno != errno.EPIPE:
                     raise
 
 if __name__ == '__main__':

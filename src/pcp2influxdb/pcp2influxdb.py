@@ -18,7 +18,7 @@
 # pylint: disable=too-many-boolean-expressions, too-many-statements
 # pylint: disable=too-many-instance-attributes, too-many-locals
 # pylint: disable=too-many-branches, too-many-nested-blocks
-# pylint: disable=broad-except
+# pylint: disable=broad-except,consider-using-dict-items
 
 """ PCP to InfluxDB Bridge """
 
@@ -551,8 +551,8 @@ class PCP2InfluxDB(object):
                 sys.stderr.write(msg)
         except ValueError:
             sys.stderr.write("Can't send request that has no metrics.\n")
-        except requests.exceptions.ConnectionError as error:
-            sys.stderr.write("Can't connect to InfluxDB server %s: %s, continuing.\n" % (self.influx_server, str(error)))
+        except requests.exceptions.ConnectionError as post_error:
+            sys.stderr.write("Can't connect to InfluxDB server %s: %s, continuing.\n" % (self.influx_server, str(post_error)))
 
     def finalize(self):
         """ Finalize and clean up """
