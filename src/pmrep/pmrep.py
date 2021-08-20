@@ -12,7 +12,7 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 
-# pylint: disable=superfluous-parens, bad-whitespace
+# pylint: disable=superfluous-parens
 # pylint: disable=invalid-name, line-too-long, no-self-use
 # pylint: disable=too-many-boolean-expressions, too-many-statements
 # pylint: disable=too-many-instance-attributes, too-many-locals
@@ -685,8 +685,7 @@ class PMReporter(object):
             if label in self.labels:
                 self.labels[label].append((metric, i))
                 continue
-            else:
-                self.labels[label] = [(metric, i)]
+            self.labels[label] = [(metric, i)]
             # Value truncated and aligned
             self.format += "{" + str(index) + ":>" + l + "." + l + "}"
             index += 1
@@ -709,7 +708,7 @@ class PMReporter(object):
             self.found_insts = [i[1] for metric in results for i in results[metric]]
             self.found_insts = [i for i in self.found_insts if not (i in seen or seen.add(i))]
 
-    def set_auto_repeat_header(self, *args):
+    def set_auto_repeat_header(self, *_args):
         """ Set auto repeat header """
         try:
             if hasattr(shutil, 'get_terminal_size'):
@@ -829,8 +828,7 @@ class PMReporter(object):
             return None
         if self.dynamic_header:
             return None if n[0] == PM_IN_NULL else j
-        else:
-            return None if self.pmconfig.insts[i][0][0] == PM_IN_NULL else j
+        return None if self.pmconfig.insts[i][0][0] == PM_IN_NULL else j
 
     def write_separate_header(self, results=()):
         """ Write separate header """
@@ -1491,7 +1489,7 @@ class PMReporter(object):
                     u_len = u_len if len(self.metrics[metric][2][0]) < u_len else len(self.metrics[metric][2][0])
             d = self.delimiter
             for metric in self.all_ranked:
-                alt_line = ""
+                alt_line = []
                 for _, name, value in self.all_ranked[metric]:
                     name = name.replace("\n", " ") if name else name
                     if not self.overall_rank_alt:

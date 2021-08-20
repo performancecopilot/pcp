@@ -526,8 +526,7 @@ class pmConfig(object):
         """ Get instance domain for metric """
         if self.util.context.type == pmapi.c_api.PM_CONTEXT_ARCHIVE:
             return self.util.context.pmGetInDomArchive(desc)
-        else:
-            return self.util.context.pmGetInDom(desc)
+        return self.util.context.pmGetInDom(desc)
 
     def get_inst_labels(self, indom, curr=True, insts=[]): # pylint: disable=dangerous-default-value
         """ Get instance labels """
