@@ -509,11 +509,12 @@ dumpDiskInDom(__pmContext *ctxp)
     size_t	rlen;
     __int32_t	check;
     __pmLogHdr	hdr;
-    __pmFILE	*f = ctxp->c_archctl->ac_log->l_mdfp;
+    __pmLogCtl	*lcp = ctxp->c_archctl->ac_log;
+    __pmFILE	*f = lcp->l_mdfp;
 
     printf("\nInstance Domains on-disk ...\n");
 
-    __pmFseek(f, (long)(sizeof(__pmLogLabel) + 2*sizeof(int)), SEEK_SET);
+    __pmFseek(f, (long)(lcp->l_label.total_len + 2*sizeof(int)), SEEK_SET);
     for ( ; ; ) {
 	n = __pmFread(&hdr, 1, sizeof(__pmLogHdr), f);
 	hdr.len = ntohl(hdr.len);

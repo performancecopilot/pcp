@@ -276,6 +276,13 @@ __pmSquashTZ(char *tzbuffer)
 #endif
 }
 
+char *
+__pmZoneinfo(void)
+{
+    /* TODO: move code from pmdapmcd, dynamically allocate return string */
+    return NULL;
+}
+
 /*
  * __pmTimezone: work out local timezone
  */
@@ -445,29 +452,40 @@ pmNewContextZone(void)
 	return PM_ERR_NOCONTEXT;
 
     if (ctxp->c_type == PM_CONTEXT_ARCHIVE) {
-	sts = pmNewZone(ctxp->c_archctl->ac_log->l_label.ill_tz);
+	sts = pmNewZone(ctxp->c_archctl->ac_log->l_label.timezone);
 	PM_UNLOCK(ctxp->c_lock);
     }
     else if (ctxp->c_type == PM_CONTEXT_LOCAL) {
 	char	tzbuf[PM_TZ_MAXLEN];
+	char	*tz, *info;
+
 	/* from env, not PMCD */
 	PM_UNLOCK(ctxp->c_lock);
-	__pmTimezone_r(tzbuf, sizeof(tzbuf));
-	sts = pmNewZone(tzbuf);
+	if ((info = tz = __pmZoneinfo()) == NULL)
+	    tz = __pmTimezone_r(tzbuf, sizeof(tzbuf));
+	sts = pmNewZone(tz);
+	if (info != NULL)
+	    free(info);
     }
     else {
 	/* assume PM_CONTEXT_HOST */
-	const char	*name = "pmcd.timezone";
-	pmID		pmid;
+	const char	*names[] = { "pmcd.timezone", "pmcd.zoneinfo" };
+	pmID		pmids[2];
 	pmResult	*rp;
+	pmValueSet	*tzp, *zip;
 
 	PM_UNLOCK(ctxp->c_lock);
-	if ((sts = pmLookupName(1, &name, &pmid)) < 0)
+	if ((sts = pmLookupName(2, names, pmids)) < 0)
 	    return sts;
-	if ((sts = pmFetch(1, &pmid, &rp)) >= 0) {
-	    if (rp->vset[0]->numval == 1 && 
-		(rp->vset[0]->valfmt == PM_VAL_DPTR || rp->vset[0]->valfmt == PM_VAL_SPTR))
-		sts = pmNewZone((char *)rp->vset[0]->vlist[0].value.pval->vbuf);
+	if ((sts = pmFetch(2, pmids, &rp)) >= 0) {
+	    tzp = rp->vset[0];
+	    zip = rp->vset[1];
+	    if (zip->numval == 1 &&
+		(zip->valfmt == PM_VAL_DPTR || zip->valfmt == PM_VAL_SPTR))
+		sts = pmNewZone((char *)zip->vlist[0].value.pval->vbuf);
+	    else if (tzp->numval == 1 &&
+		(tzp->valfmt == PM_VAL_DPTR || tzp->valfmt == PM_VAL_SPTR))
+		sts = pmNewZone((char *)tzp->vlist[0].value.pval->vbuf);
 	    else
 		sts = PM_ERR_VALUE;
 	    pmFreeResult(rp);

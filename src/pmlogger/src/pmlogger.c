@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2012-2018 Red Hat.
+ * Copyright (c) 2012-2018,2021 Red Hat.
  * Copyright (c) 1995-2001,2003 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -115,12 +115,13 @@ run_done(int sts, char *msg)
      * _before_ the last log record
      */
     if (last_stamp.tv_sec != 0) {
+	long		off;
 	__pmTimestamp	tmp;
 	tmp.sec = (__int32_t)last_stamp.tv_sec;
 	tmp.nsec = (__int32_t)last_stamp.tv_usec * 1000;;
-	if (last_log_offset < sizeof(__pmLogLabel)+2*sizeof(int)) {
+	off = archctl.ac_log->l_label.total_len + 2 * sizeof(int);
+	if (last_log_offset < off)
 	    fprintf(stderr, "run_done: Botch: last_log_offset = %ld\n", (long)last_log_offset);
-	}
 	__pmFseek(archctl.ac_mfp, last_log_offset, SEEK_SET);
 	__pmLogPutIndex(&archctl, &tmp);
     }
@@ -797,6 +798,7 @@ main(int argc, char **argv)
     const char		*name = "pmcd.timezone";
     pmID		pmid;
     pmResult		*resp;
+    pmValueSet		*vp;
 
     save_args(argc, argv);
     pmGetUsername(&username);
@@ -1228,9 +1230,8 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    if (pmcd_host_label != NULL) {
-	pmcd_host=pmcd_host_label;
-    }
+    if (pmcd_host_label != NULL)
+	pmcd_host = pmcd_host_label;
 
     archctl.ac_log = &logctl;
 
@@ -1269,17 +1270,22 @@ main(int argc, char **argv)
     pmtimevalNow(&epoch);
     sts = pmUseContext(ctx);
 
+    /* TODO: support pmcd.zoneinfo also with v3 archives */
     if (sts >= 0)
 	sts = pmLookupName(1, &name, &pmid);
     if (sts >= 0)
 	sts = pmFetch(1, &pmid, &resp);
     if (sts >= 0) {
-	if (resp->vset[0]->numval > 0) { /* pmcd.timezone present */
-	    strcpy(logctl.l_label.ill_tz, resp->vset[0]->vlist[0].value.pval->vbuf);
+	vp = resp->vset[0];
+	if (vp->numval > 0) { /* pmcd.timezone present */
+	    if (logctl.l_label.timezone)
+		free(logctl.l_label.timezone);
+	    logctl.l_label.timezone = strdup(vp->vlist[0].value.pval->vbuf);
+	    logctl.l_label.timezone_len = strlen(logctl.l_label.timezone) + 1;
 	    /* prefer to use remote time to avoid clock drift problems */
 	    epoch = resp->timestamp;		/* struct assignment */
 	    if (! use_localtime)
-		pmNewZone(logctl.l_label.ill_tz);
+		pmNewZone(logctl.l_label.timezone);
 	}
 	else if (pmDebugOptions.log) {
 	    fprintf(stderr,
@@ -1602,14 +1608,14 @@ newvolume(int vol_switch_type)
 	    /*
 	     * nothing has been logged as yet, force out the label records
 	     */
-	    pmtimevalNow(&last_stamp);
-	    logctl.l_label.ill_start.tv_sec = (__int32_t)last_stamp.tv_sec;
-	    logctl.l_label.ill_start.tv_usec = (__int32_t)last_stamp.tv_usec;
-	    logctl.l_label.ill_vol = PM_LOG_VOL_TI;
+	    pmtimevalNow(&last_stamp);	/* TODO: use __pmTimestamp */
+	    logctl.l_label.start.sec = (__int32_t)last_stamp.tv_sec;
+	    logctl.l_label.start.nsec = (__int32_t)(last_stamp.tv_usec * 1000);
+	    logctl.l_label.vol = PM_LOG_VOL_TI;
 	    __pmLogWriteLabel(logctl.l_tifp, &logctl.l_label);
-	    logctl.l_label.ill_vol = PM_LOG_VOL_META;
+	    logctl.l_label.vol = PM_LOG_VOL_META;
 	    __pmLogWriteLabel(logctl.l_mdfp, &logctl.l_label);
-	    logctl.l_label.ill_vol = 0;
+	    logctl.l_label.vol = 0;
 	    __pmLogWriteLabel(archctl.ac_mfp, &logctl.l_label);
 	    logctl.l_state = PM_LOG_STATE_INIT;
 	}
@@ -1625,7 +1631,7 @@ newvolume(int vol_switch_type)
 
 	__pmFclose(archctl.ac_mfp);
 	archctl.ac_mfp = newfp;
-	logctl.l_label.ill_vol = archctl.ac_curvol = nextvol;
+	logctl.l_label.vol = archctl.ac_curvol = nextvol;
 	__pmLogWriteLabel(archctl.ac_mfp, &logctl.l_label);
 	time(&now);
 	fprintf(stderr, "New log volume %d, via %s at %s",

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018,2020 Red Hat.
+ * Copyright (c) 2012-2018,2020-2021 Red Hat.
  * Copyright (c) 2007-2008 Aconex.  All Rights Reserved.
  * Copyright (c) 1995-2002,2004,2006,2008 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -303,7 +303,7 @@ pmGetHostName(int handle, char *buf, int buflen)
 	    break;
 
 	case PM_CONTEXT_ARCHIVE:
-	    strncpy(buf, ctxp->c_archctl->ac_log->l_label.ill_hostname, buflen-1);
+	    strncpy(buf, ctxp->c_archctl->ac_log->l_label.hostname, buflen-1);
 	    break;
 	}
 
@@ -947,10 +947,10 @@ initarchive(__pmContext	*ctxp, const char *name)
     }
 
     /* start after header + label record + trailer */
-    ctxp->c_origin.tv_sec = (__int32_t)acp->ac_log->l_label.ill_start.tv_sec;
-    ctxp->c_origin.tv_usec = (__int32_t)acp->ac_log->l_label.ill_start.tv_usec;
+    ctxp->c_origin.tv_sec = acp->ac_log->l_label.start.sec;
+    ctxp->c_origin.tv_usec = acp->ac_log->l_label.start.nsec / 1000;
     ctxp->c_mode = (ctxp->c_mode & 0xffff0000) | PM_MODE_FORW;
-    acp->ac_offset = sizeof(__pmLogLabel) + 2*sizeof(int);
+    acp->ac_offset = acp->ac_log->l_label.total_len + 2*sizeof(int);
     acp->ac_vol = acp->ac_curvol;
     acp->ac_serial = 0;		/* not serial access, yet */
     acp->ac_pmid_hc.nodes = 0;	/* empty hash list */

@@ -96,23 +96,34 @@ Options:\n\
     /*
      * make the archive label deterministic
      */
-    logctl.l_label.ill_pid = 1234;
-    logctl.l_label.ill_start.tv_sec = epoch.tv_sec;
-    logctl.l_label.ill_start.tv_usec = epoch.tv_usec;
-    strcpy(logctl.l_label.ill_hostname, "happycamper");
-    strcpy(logctl.l_label.ill_tz, "UTC");
+    logctl.l_label.pid = 1234;
+    logctl.l_label.start.sec = epoch.tv_sec;
+    logctl.l_label.start.nsec = epoch.tv_usec * 1000;
+    if (logctl.l_label.hostname)
+	free(logctl.l_label.hostname);
+    logctl.l_label.hostname = strdup("happycamper");
+    logctl.l_label.hostname_len = strlen(logctl.l_label.hostname) + 1;
+    if (logctl.l_label.timezone)
+	free(logctl.l_label.timezone);
+    logctl.l_label.timezone = strdup("UTC");
+    logctl.l_label.timezone_len = strlen(logctl.l_label.timezone) + 1;
+    if (logctl.l_label.zoneinfo)
+	free(logctl.l_label.zoneinfo);
+    logctl.l_label.zoneinfo = NULL;
+    logctl.l_label.zoneinfo_len = 0;
+    logctl.l_label.total_len = sizeof(__pmExtLabel_v3) + 16;
 
-    logctl.l_label.ill_vol = PM_LOG_VOL_TI;
+    logctl.l_label.vol = PM_LOG_VOL_TI;
     if ((sts = __pmLogWriteLabel(logctl.l_tifp, &logctl.l_label)) != 0) {
 	fprintf(stderr, "%s: __pmLogWriteLabel TI failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
-    logctl.l_label.ill_vol = PM_LOG_VOL_META;
+    logctl.l_label.vol = PM_LOG_VOL_META;
     if ((sts = __pmLogWriteLabel(logctl.l_mdfp, &logctl.l_label)) != 0) {
 	fprintf(stderr, "%s: __pmLogWriteLabel META failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
-    logctl.l_label.ill_vol = 0;
+    logctl.l_label.vol = 0;
     if ((sts = __pmLogWriteLabel(archctl.ac_mfp, &logctl.l_label)) != 0) {
 	fprintf(stderr, "%s: __pmLogWriteLabel VOL 0 failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);

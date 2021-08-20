@@ -101,7 +101,7 @@ main(int argc, char **argv)
 	exit(EXIT_FAILURE);
     }
 
-    t = ctxp->c_archctl->ac_log->l_label.ill_start.tv_sec;
+    t = ctxp->c_archctl->ac_log->l_label.start.sec;
 
     pmLocaltime(&t, &old);
 

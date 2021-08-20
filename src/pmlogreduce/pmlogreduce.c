@@ -1,19 +1,19 @@
 /*
  * pmlogreduce - statistical reduction of a PCP archive log
  *
- * Copyright (c) 2014,2017 Red Hat.
+ * Copyright (c) 2014,2017,2021 Red Hat.
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
+ *
  * TODO (global list)
  * 	- check for counter overflow in doscan()
  * 	- optimization (maybe) for discrete and instantaneous metrics
@@ -202,6 +202,7 @@ int
 main(int argc, char **argv)
 {
     int		sts;
+    int		vers;
     char	*msg;
     pmResult	*irp;		/* input pmResult */
     pmResult	*orp;		/* output pmResult */
@@ -311,10 +312,8 @@ main(int argc, char **argv)
 
     /* create output log - must be done before writing label */
     archctl.ac_log = &logctl;
-#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
-// TODO what to do here?
-#endif
-    if ((sts = __pmLogCreate("", oname, PM_LOG_VERS02, &archctl)) < 0) {
+    vers = ilabel.ll_magic & 0xff;
+    if ((sts = __pmLogCreate("", oname, vers, &archctl)) < 0) {
 	fprintf(stderr, "%s: Error: __pmLogCreate: %s\n",
 		pmGetProgname(), pmErrStr(sts));
 	exit(1);
@@ -327,12 +326,14 @@ main(int argc, char **argv)
      *		- write labels
      */
     newlabel();
-    current.tv_sec = logctl.l_label.ill_start.tv_sec = winstart_tval.tv_sec;
-    current.tv_usec = logctl.l_label.ill_start.tv_usec = winstart_tval.tv_usec;
+    current.tv_sec = winstart_tval.tv_sec;
+    current.tv_usec = winstart_tval.tv_usec;
+    logctl.l_label.start.sec = winstart_tval.tv_sec;
+    logctl.l_label.start.nsec = winstart_tval.tv_usec * 1000;
     /* write label record */
     writelabel();
     /*
-     * Supress any automatic label creation in libpcp at the first
+     * Suppress any automatic label creation in libpcp at the first
      * pmResult write.
      */
     logctl.l_state = PM_LOG_STATE_INIT;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Red Hat.
+ * Copyright (c) 2017,2021 Red Hat.
  * Copyright (c) 2013 Ken McDonell, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,6 +17,11 @@
 #include "pmapi.h"
 #include "libpcp.h"
 #include "logcheck.h"
+#include "../libpcp/src/internal.h"
+
+int		goldenmagic;
+char * 		goldenfname;
+__pmTimestamp	goldenstart;
 
 #define IS_UNKNOWN	0
 #define IS_INDEX	1
@@ -52,66 +57,87 @@
  * Checks here mimic those in __pmLogChkLabel().
  */
 static int
-checklabel(__pmFILE *f, char *fname)
+checklabel(__pmFILE *f, char *fname, int len)
 {
-    static char 	*goldenfname = NULL;
-    __pmLogLabel	label;
+    __pmTimestamp	start = {0};
+    size_t		bytes;
     long		offset = __pmFtell(f);
-    int			sts;
+    int			magic;
+    int			sts = STS_OK;
 
+    /* first read the magic number for sanity and version checking */
     __pmFseek(f, sizeof(int), SEEK_SET);
-    if ((sts = __pmFread(&label, 1, sizeof(label), f)) != sizeof(label)) {
-	fprintf(stderr, "checklabel(...,%s): botch: read returns %d not %d as expected\n", fname, sts, (int)sizeof(label));
-	exit(1);
+    if ((bytes = __pmFread(&magic, 1, sizeof(magic), f)) != sizeof(magic)) {
+	fprintf(stderr, "checklabel(...,%s): botch: magic read returns %zu not %zu as expected\n", fname, bytes, sizeof(magic));
+	sts = STS_FATAL;
     }
-    sts = STS_OK;
-    label.ill_magic = ntohl(label.ill_magic);
-    label.ill_pid = ntohl(label.ill_pid);
-    label.ill_start.tv_sec = ntohl(label.ill_start.tv_sec);
-    label.ill_start.tv_usec = ntohl(label.ill_start.tv_usec);
-    label.ill_vol = ntohl(label.ill_vol);
-    if ((label.ill_magic & 0xffffff00) != PM_LOG_MAGIC) {
+    __pmFseek(f, sizeof(int), SEEK_SET);
+
+    magic = ntohl(magic);
+    if ((magic & 0xffffff00) != PM_LOG_MAGIC) {
 	fprintf(stderr, "%s: bad label magic number: 0x%x not 0x%x as expected\n",
-	    fname, label.ill_magic & 0xffffff00, PM_LOG_MAGIC);
+	    fname, magic & 0xffffff00, PM_LOG_MAGIC);
 	sts = STS_FATAL;
     }
-    if ((label.ill_magic & 0xff) != PM_LOG_VERS02 &&
-        (label.ill_magic & 0xff) != PM_LOG_VERS03) {
+    if ((magic & 0xff) != PM_LOG_VERS02 &&
+        (magic & 0xff) != PM_LOG_VERS03) {
 	fprintf(stderr, "%s: bad label version: %d not %d or %d as expected\n",
-	    fname, label.ill_magic & 0xff, PM_LOG_VERS02, PM_LOG_VERS03);
+	    fname, magic & 0xff, PM_LOG_VERS02, PM_LOG_VERS03);
 	sts = STS_FATAL;
     }
-    if (log_label.ill_start.tv_sec == 0) {
+
+    /* now check version-specific label information - keep start time */
+    if ((magic & 0xff) >= PM_LOG_VERS03) {
+	__pmExtLabel_v3	label3;
+
+	if (len <= sizeof(label3)) {
+	    fprintf(stderr, "%s: bad label length: %d not >%zu as expected\n",
+		    fname, len, sizeof(label3));
+	    sts = STS_FATAL;
+	} else {
+	    /* read just the fixed size part of the label for now */
+	    bytes = __pmFread(&label3, 1, sizeof(label3), f);
+	    if (bytes != sizeof(label3)) {
+		fprintf(stderr, "checklabel(...,%s): botch: read returns %zu not %zu as expected\n", fname, bytes, sizeof(label3));
+		sts = STS_FATAL;
+	    } else {
+		/* TODO: add v3-specific checks */
+		start.sec = label3.start_sec;
+		start.nsec = label3.start_nsec;
+		__ntohpmTimestamp(&start);
+	    }
+	}
+    } else {	/* PM_LOG_VERS02 */
+	__pmExtLabel_v2	label2;
+
+	if (len != sizeof(label2)) {
+	    fprintf(stderr, "%s: bad label length: %d not %zu as expected\n",
+		    fname, len, sizeof(label2));
+	    sts = STS_FATAL;
+	} else {
+	    bytes = __pmFread(&label2, 1, sizeof(label2), f);
+	    if (bytes != sizeof(label2)) {
+		fprintf(stderr, "checklabel(...,%s): botch: read returns %zu not %zu as expected\n", fname, bytes, sizeof(label2));
+		sts = STS_FATAL;
+	    } else {
+		/* TODO: add v2-specific checks */
+		start.sec = ntohl(label2.start_sec);
+		start.nsec = ntohl(label2.start_usec) * 1000;
+	    }
+	}
+    }
+
+    if (goldenmagic == 0) {
 	if (sts == STS_OK) {
 	    /* first good label */
 	    goldenfname = strdup(fname);
-	    memcpy(&log_label, &label, sizeof(log_label));
+	    goldenmagic = magic;
+	    goldenstart = start;
 	}
-    }
-    else {
-	if ((label.ill_magic & 0xff) != (log_label.ill_magic & 0xff)) {
-	    fprintf(stderr, "%s: mismatched label version: %d not %d as expected from %s\n",
-			    fname, label.ill_magic & 0xff, log_label.ill_magic & 0xff, goldenfname);
-	    sts = STS_FATAL;
-	}
-#if 0
-	if (label.ill_pid != log_label.ill_pid) {
-	    fprintf(stderr, "Mismatched PID (%d/%d) between %s and %s\n",
-			    label.ill_pid, log_label.ill_pid, file, goldenfname);
-	    status = 2;
-	}
-	if (strncmp(label.ill_hostname, log_label.ill_hostname,
-			PM_LOG_MAXHOSTLEN) != 0) {
-	    fprintf(stderr, "Mismatched hostname (%s/%s) between %s and %s\n",
-		    label.ill_hostname, log_label.ill_hostname, file, goldenfname);
-	    status = 2;
-	}
-	if (strncmp(label.ill_tz, log_label.ill_tz, PM_TZ_MAXLEN) != 0) {
-	    fprintf(stderr, "Mismatched timezone (%s/%s) between %s and %s\n",
-		    label.ill_tz, log_label.ill_tz, file, goldenfname);
-	    status = 2;
-	}
-#endif
+    } else if ((magic & 0xff) != (goldenmagic & 0xff)) {
+	fprintf(stderr, "%s: mismatched label version: %d not %d as expected from %s\n",
+			    fname, magic & 0xff, magic & 0xff, goldenfname);
+	sts = STS_FATAL;
     }
     __pmFseek(f, offset, SEEK_SET);
     return sts; 
@@ -204,7 +230,7 @@ pass0(char *fname)
 
 	if (nrec == 0) {
 	    int		xsts;
-	    xsts = checklabel(f, fname);
+	    xsts = checklabel(f, fname, len - 2 * sizeof(len));
 	    if (label_ok == STS_OK)
 		/* just remember first not OK status */
 		label_ok = xsts;
@@ -216,7 +242,7 @@ pass0(char *fname)
 	    size_t	record_size;
 	    void	*buffer;
 
-	    if ((log_label.ill_magic & 0xff) >= PM_LOG_VERS03)
+	    if ((goldenmagic & 0xff) >= PM_LOG_VERS03)
 		record_size = 8*sizeof(__pmPDU);
 	    else
 		record_size = 5*sizeof(__pmPDU);

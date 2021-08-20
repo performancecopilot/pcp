@@ -1,7 +1,7 @@
 /*
  * pmlogextract - extract desired metrics from PCP archive logs
  *
- * Copyright (c) 2014-2018 Red Hat.
+ * Copyright (c) 2014-2018,2021 Red Hat.
  * Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -439,7 +439,7 @@ newvolume(char *base, pmTimeval *tvp)
 	struct timeval	stamp;
 	__pmFclose(archctl.ac_mfp);
 	archctl.ac_mfp = newfp;
-	logctl.l_label.ill_vol = archctl.ac_curvol = nextvol;
+	logctl.l_label.vol = archctl.ac_curvol = nextvol;
 	__pmLogWriteLabel(archctl.ac_mfp, &logctl.l_label);
 	__pmFflush(archctl.ac_mfp);
 	stamp.tv_sec = ntohl(tvp->tv_sec);
@@ -465,10 +465,10 @@ newvolume(char *base, pmTimeval *tvp)
 static void
 newlabel(void)
 {
-    int		indx;
-    inarch_t	*f_iap = NULL;		/* first non-empty archive */
-    inarch_t	*l_iap = NULL;		/* last non-empty archive */
-    inarch_t	*iap;
+    int			indx;
+    inarch_t		*f_iap = NULL;		/* first non-empty archive */
+    inarch_t		*l_iap = NULL;		/* last non-empty archive */
+    inarch_t		*iap;
     __pmLogLabel	*lp = &logctl.l_label;
 
     /*
@@ -500,16 +500,19 @@ newlabel(void)
     }
 
     /* copy magic number, pid, host and timezone */
-    lp->ill_magic = f_iap->label.ll_magic;
-    lp->ill_pid = (int)getpid();
-    strncpy(lp->ill_hostname, f_iap->label.ll_hostname, PM_LOG_MAXHOSTLEN);
-    lp->ill_hostname[PM_LOG_MAXHOSTLEN-1] = '\0';
+    lp->magic = f_iap->label.ll_magic;
+    lp->pid = (int)getpid();
+    free(lp->hostname);
+    lp->hostname = strdup(f_iap->label.ll_hostname);
+    lp->hostname_len = strlen(lp->hostname) + 1;
     if (farg) {
 	/*
 	 * use timezone from _first_ non-empty archive ...
 	 * this is the OLD default
 	 */
-	strcpy(lp->ill_tz, f_iap->label.ll_tz);
+	free(lp->timezone);
+	lp->timezone = strdup(f_iap->label.ll_tz);
+	lp->timezone_len = strlen(lp->timezone) + 1;
     }
     else {
 	/*
@@ -519,11 +522,17 @@ newlabel(void)
 	for (indx=inarchnum-1; indx>=0; indx--) {
 	    if (inarch[indx].ctx != PM_ERR_NODATA) {
 		l_iap = &inarch[indx];
-		strcpy(lp->ill_tz, l_iap->label.ll_tz);
+		free(lp->timezone);
+		lp->timezone = strdup(l_iap->label.ll_tz);
+		lp->timezone_len = strlen(lp->timezone) + 1;
 		break;
 	    }
 	}
     }
+    /* TODO: v3 archive zoneinfo */
+    free(lp->zoneinfo);
+    lp->zoneinfo = NULL;
+    lp->zoneinfo_len = 0;
 
     /* reset outarch as appropriate, depending on other input archives */
     for (indx=0; indx<inarchnum; indx++) {
@@ -547,7 +556,7 @@ newlabel(void)
         }
 
 	/* Ensure all archives of the same host */
-	if (strcmp(lp->ill_hostname, iap->label.ll_hostname) != 0) {
+	if (strcmp(lp->hostname, iap->label.ll_hostname) != 0) {
 	    fprintf(stderr,"%s: Error: host name mismatch for input archives\n",
 		    pmGetProgname());
 	    fprintf(stderr, "archive: %s host: %s\n",
@@ -559,12 +568,12 @@ newlabel(void)
 	}
 
 	/* Ensure all archives of the same timezone */
-	if (strcmp(lp->ill_tz, iap->label.ll_tz) != 0) {
+	if (strcmp(lp->timezone, iap->label.ll_tz) != 0) {
 	    fprintf(stderr,
 		"%s: Warning: timezone mismatch for input archives\n",
 		    pmGetProgname());
 	    fprintf(stderr, "archive: %s timezone: %s [will be used]\n",
-		farg ? f_iap->name : l_iap->name, lp->ill_tz);
+		farg ? f_iap->name : l_iap->name, lp->timezone);
 	    fprintf(stderr, "archive: %s timezone: %s [will be ignored]\n",
 		iap->name, iap->label.ll_tz);
 	}
@@ -579,11 +588,11 @@ void
 writelabel_metati(int do_rewind)
 {
     if (do_rewind) __pmRewind(logctl.l_tifp);
-    logctl.l_label.ill_vol = PM_LOG_VOL_TI;
+    logctl.l_label.vol = PM_LOG_VOL_TI;
     __pmLogWriteLabel(logctl.l_tifp, &logctl.l_label);
 
     if (do_rewind) __pmRewind(logctl.l_mdfp);
-    logctl.l_label.ill_vol = PM_LOG_VOL_META;
+    logctl.l_label.vol = PM_LOG_VOL_META;
     __pmLogWriteLabel(logctl.l_mdfp, &logctl.l_label);
 }
 
@@ -594,7 +603,7 @@ writelabel_metati(int do_rewind)
 void
 writelabel_data(void)
 {
-    logctl.l_label.ill_vol = 0;
+    logctl.l_label.vol = 0;
     __pmLogWriteLabel(archctl.ac_mfp, &logctl.l_label);
 }
 
@@ -2357,8 +2366,8 @@ fprintf(stderr, " break!\n");
 	 */
 	if (first_datarec) {
 	    first_datarec = 0;
-	    logctl.l_label.ill_start.tv_sec = elm->res->timestamp.tv_sec;
-	    logctl.l_label.ill_start.tv_usec = elm->res->timestamp.tv_usec;
+	    logctl.l_label.start.sec = elm->res->timestamp.tv_sec;
+	    logctl.l_label.start.nsec = elm->res->timestamp.tv_usec * 1000;
             logctl.l_state = PM_LOG_STATE_INIT;
             writelabel_data();
         }
@@ -2419,7 +2428,7 @@ fprintf(stderr, " break!\n");
 
 	/* check whether we need to write TI (temporal index) */
 	if (old_log_offset == 0 ||
-	    old_log_offset == sizeof(__pmLogLabel)+2*sizeof(int) ||
+	    old_log_offset == logctl.l_label.total_len+2*sizeof(int) ||
 	    __pmFtell(archctl.ac_mfp) > flushsize)
 		needti = 1;
 
@@ -2439,7 +2448,7 @@ fprintf(stderr, " break!\n");
 	    __pmFflush(logctl.l_mdfp);
 
 	    if (old_log_offset == 0)
-		old_log_offset = sizeof(__pmLogLabel)+2*sizeof(int);
+		old_log_offset = logctl.l_label.total_len+2*sizeof(int);
 
             new_log_offset = __pmFtell(archctl.ac_mfp);
 	    assert(new_log_offset >= 0);
@@ -2707,8 +2716,8 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    logctl.l_label.ill_start.tv_sec = logstart_tval.tv_sec;
-    logctl.l_label.ill_start.tv_usec = logstart_tval.tv_usec;
+    logctl.l_label.start.sec = logstart_tval.tv_sec;
+    logctl.l_label.start.nsec = logstart_tval.tv_usec * 1000;
 
     /*
      * process config file
@@ -2983,7 +2992,7 @@ cleanup:
 	__pmFflush(logctl.l_mdfp);
 
 	if (old_log_offset == 0)
-	    old_log_offset = sizeof(__pmLogLabel)+2*sizeof(int);
+	    old_log_offset = logctl.l_label.total_len+2*sizeof(int);
 
 	new_log_offset = __pmFtell(archctl.ac_mfp);
 	assert(new_log_offset >= 0);

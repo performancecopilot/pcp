@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2013-2018, 2020 Red Hat.
+ * Copyright (c) 2013-2018,2020-2021 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation; either version 2.1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
@@ -714,7 +714,7 @@ __pmLogLoadMeta(__pmArchCtl *acp)
 	    goto end;
     }
 
-    __pmFseek(f, (long)(sizeof(__pmLogLabel) + 2*sizeof(int)), SEEK_SET);
+    __pmFseek(f, (long)(lcp->l_label.total_len + 2*sizeof(int)), SEEK_SET);
     for ( ; ; ) {
 	n = (int)__pmFread(&h, 1, sizeof(__pmLogHdr), f);
 
@@ -1084,7 +1084,7 @@ end:
     /* Check for duplicate label sets. */
     check_dup_labels(acp);
     
-    __pmFseek(f, (long)(sizeof(__pmLogLabel) + 2*sizeof(int)), SEEK_SET);
+    __pmFseek(f, (long)(lcp->l_label.total_len + 2*sizeof(int)), SEEK_SET);
 
     if (sts == 0) {
 	if (numpmid == 0) {

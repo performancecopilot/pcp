@@ -31,7 +31,7 @@ pass1(__pmContext *ctxp, char *archname)
     struct stat		sbuf;
     __pmLogTI		*tip;
     __pmLogTI		*lastp;
-    __pmLogCtl	*log = ctxp->c_archctl->ac_log;
+    __pmLogCtl		*log = ctxp->c_archctl->ac_log;
 
     if (vflag)
 	fprintf(stderr, "%s: start pass1 (check temporal index)\n", archname);
@@ -114,9 +114,9 @@ pass1(__pmContext *ctxp, char *archname)
 		archname, i, tip->stamp.sec, tip->stamp.nsec);
 	    index_state = STATE_BAD;
 	}
-	if (tip->off_meta < sizeof(__pmLogLabel)+2*sizeof(int)) {
+	if (tip->off_meta < log->l_label.total_len+2*sizeof(int)) {
 	    fprintf(stderr, "%s.index[entry %d]: offset to metadata (%lld) before end of label record (%zd)\n",
-		archname, i, (long long)tip->off_meta, sizeof(__pmLogLabel)+2*sizeof(int));
+		archname, i, (long long)tip->off_meta, log->l_label.total_len+2*sizeof(int));
 	    index_state = STATE_BAD;
 	}
 	if (meta_size != -1 && tip->off_meta > meta_size) {
@@ -124,9 +124,9 @@ pass1(__pmContext *ctxp, char *archname)
 		archname, i, (long long)tip->off_meta, (long long)meta_size);
 	    index_state = STATE_BAD;
 	}
-	if (tip->off_data < sizeof(__pmLogLabel)+2*sizeof(int)) {
+	if (tip->off_data < log->l_label.total_len+2*sizeof(int)) {
 	    fprintf(stderr, "%s.index[entry %d]: offset to log (%lld) before end of label record (%zd)\n",
-		archname, i, (long long)tip->off_data, sizeof(__pmLogLabel)+2*sizeof(int));
+		archname, i, (long long)tip->off_data, log->l_label.total_len+2*sizeof(int));
 	    index_state = STATE_BAD;
 	}
 	if (log_size != -1 && tip->off_data > log_size) {
@@ -134,19 +134,12 @@ pass1(__pmContext *ctxp, char *archname)
 		archname, i, (long long)tip->off_data, (long long)log_size);
 	    index_state = STATE_BAD;
 	}
-	if (log_label.ill_start.tv_sec != 0) {
-#if 0	// TODO use this when log label => __pmTimestamp
-	    if (__pmTimestampSub(&tip->stamp, &log_label.ill_start) < 0) {
-#else
-	    __pmTimestamp	tmp;
-	    tmp.sec = log_label.ill_start.tv_sec;
-	    tmp.nsec = log_label.ill_start.tv_usec * 1000;
-	    if (__pmTimestampSub(&tip->stamp, &tmp) < 0) {
-#endif
-		fprintf(stderr, "%s.index[entry %d]: timestamp (%" FMT_INT64 ".%09d) less than log label timestamp (%d.%06d)\n",
+	if (goldenstart.sec != 0) {
+	    if (__pmTimestampSub(&tip->stamp, &goldenstart) < 0) {
+		fprintf(stderr, "%s.index[entry %d]: timestamp (%" FMT_INT64 ".%09d) less than log label timestamp (%" FMT_INT64 ".%09d)\n",
 			archname, i,
 			tip->stamp.sec, tip->stamp.nsec,
-			log_label.ill_start.tv_sec, log_label.ill_start.tv_usec);
+			goldenstart.sec, goldenstart.nsec);
 		index_state = STATE_BAD;
 	    }
 	}

@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2017 Red Hat.
+ * Copyright (c) 2017,2021 Red Hat.
  * Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -75,6 +75,7 @@ do_logue(int type)
     __pmTimestamp	stamp;
     char	path[MAXPATHLEN];
     char	host[MAXHOSTNAMELEN];
+    long	offset;
     int		free_cp;
 
     /* start to build the pmResult */
@@ -241,8 +242,9 @@ do_logue(int type)
 	}
 
 	/* fudge the temporal index */
-	__pmFseek(archctl.ac_mfp, sizeof(__pmLogLabel)+2*sizeof(int), SEEK_SET);
-	__pmFseek(logctl.l_mdfp, sizeof(__pmLogLabel)+2*sizeof(int), SEEK_SET);
+	offset = logctl.l_label.total_len + 2 * sizeof(int);
+	__pmFseek(archctl.ac_mfp, offset, SEEK_SET);
+	__pmFseek(logctl.l_mdfp, offset, SEEK_SET);
 	__pmLogPutIndex(&archctl, &stamp);
 	__pmFseek(archctl.ac_mfp, 0L, SEEK_END);
 	__pmFseek(logctl.l_mdfp, 0L, SEEK_END);

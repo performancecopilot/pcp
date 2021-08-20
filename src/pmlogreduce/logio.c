@@ -61,13 +61,22 @@ newlabel(void)
     }
 #endif
 
-    /* copy magic number, host and timezone, use our pid */
-    lp->ill_magic = ilabel.ll_magic;
-    lp->ill_pid = (int)getpid();
-    strncpy(lp->ill_hostname, ilabel.ll_hostname, PM_LOG_MAXHOSTLEN);
-    lp->ill_hostname[PM_LOG_MAXHOSTLEN-1] = '\0';
-    strncpy(lp->ill_tz, ilabel.ll_tz, PM_TZ_MAXLEN);
-    lp->ill_tz[PM_TZ_MAXLEN-1] = '\0';
+    /* copy magic number, host and timezone info, use our pid */
+    lp->magic = ilabel.ll_magic;
+    lp->pid = (int)getpid();
+    if (lp->hostname)
+	free(lp->hostname);
+    lp->hostname = strdup(ilabel.ll_hostname);
+    lp->hostname_len = strlen(lp->hostname) + 1;
+    if (lp->timezone)
+	free(lp->timezone);
+    lp->timezone = strdup(ilabel.ll_tz);
+    lp->timezone_len = strlen(lp->timezone) + 1;
+    if (lp->zoneinfo)
+	free(lp->zoneinfo);
+    /* TODO: use v3 archive zoneinfo */
+    lp->zoneinfo = NULL;
+    lp->zoneinfo_len = 0;
 }
 
 
@@ -77,11 +86,11 @@ newlabel(void)
 void
 writelabel(void)
 {
-    logctl.l_label.ill_vol = 0;
+    logctl.l_label.vol = 0;
     __pmLogWriteLabel(archctl.ac_mfp, &logctl.l_label);
-    logctl.l_label.ill_vol = PM_LOG_VOL_TI;
+    logctl.l_label.vol = PM_LOG_VOL_TI;
     __pmLogWriteLabel(logctl.l_tifp, &logctl.l_label);
-    logctl.l_label.ill_vol = PM_LOG_VOL_META;
+    logctl.l_label.vol = PM_LOG_VOL_META;
     __pmLogWriteLabel(logctl.l_mdfp, &logctl.l_label);
 }
 
@@ -97,7 +106,7 @@ newvolume(char *base, __pmTimestamp *tsp)
     if ((newfp = __pmLogNewFile(base, nextvol)) != NULL) {
 	__pmFclose(archctl.ac_mfp);
 	archctl.ac_mfp = newfp;
-	logctl.l_label.ill_vol = archctl.ac_curvol = nextvol;
+	logctl.l_label.vol = archctl.ac_curvol = nextvol;
 	__pmLogWriteLabel(archctl.ac_mfp, &logctl.l_label);
 	__pmFflush(archctl.ac_mfp);
 	fprintf(stderr, "%s: New log volume %d, at ",

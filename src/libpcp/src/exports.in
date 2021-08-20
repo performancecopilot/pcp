@@ -761,4 +761,5 @@ PCP_3.33 {
     __pmLogLoadTimeval;
     __pmLogPutTimestamp;
     __pmLogPutTimeval;
+    __pmZoneinfo;
 } PCP_3.32;

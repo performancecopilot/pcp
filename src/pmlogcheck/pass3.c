@@ -419,8 +419,8 @@ pass3(__pmContext *ctxp, char *archname, pmOptions *opts)
     l_ctxp = ctxp;
     l_archname = archname;
 
-    label_stamp.tv_sec = log_label.ill_start.tv_sec;
-    label_stamp.tv_usec = log_label.ill_start.tv_usec;
+    label_stamp.tv_sec = goldenstart.sec;
+    label_stamp.tv_usec = goldenstart.nsec / 1000;
 
     if (vflag)
 	fprintf(stderr, "%s: start pass3\n", archname);
