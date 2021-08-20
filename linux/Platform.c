@@ -36,6 +36,7 @@ in the source distribution for its full text.
 #include "MainPanel.h"
 #include "Meter.h"
 #include "MemoryMeter.h"
+#include "MemorySwapMeter.h"
 #include "NetworkIOMeter.h"
 #include "Object.h"
 #include "Panel.h"
@@ -138,7 +139,7 @@ static Htop_Reaction Platform_actionSetIOPriority(State* st) {
 
    IOPriority ioprio1 = p->ioPriority;
    Panel* ioprioPanel = IOPriorityPanel_new(ioprio1);
-   const void* set = Action_pickFromVector(st, ioprioPanel, 21, true);
+   const void* set = Action_pickFromVector(st, ioprioPanel, 20, true);
    if (set) {
       IOPriority ioprio2 = IOPriorityPanel_getIOPriority(ioprioPanel);
       bool ok = MainPanel_foreachProcess(st->mainPanel, LinuxProcess_setIOPriority, (Arg) { .i = ioprio2 }, NULL);
@@ -195,6 +196,7 @@ const MeterClass* const Platform_meterTypes[] = {
    &LoadMeter_class,
    &MemoryMeter_class,
    &SwapMeter_class,
+   &MemorySwapMeter_class,
    &SysArchMeter_class,
    &HugePageMeter_class,
    &TasksMeter_class,
