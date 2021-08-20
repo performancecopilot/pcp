@@ -23,10 +23,12 @@
 #define __ntohpmID(a)           (a)
 #define __ntohpmUnits(a)        (a)
 #define __ntohll(a)             /* noop */
+#define __ntohpmTimestamp(a)    /* noop */
 #else
 #define __ntohpmInDom(a)        ntohl(a)
 #define __ntohpmID(a)           ntohl(a)
 #define __ntohll(v)		__htonll(v)
+extern void __ntohpmTimestamp(__pmTimestamp * const);
 #endif
 
 /* from endian.c ... */
@@ -59,6 +61,29 @@ __htonll(char *p)
 }
 #endif
 
+/* from e_indom.c */
+
+typedef struct {
+    __pmPDU	len;		/* header */
+    __pmPDU	type;
+    __pmPDU	sec[2];		/* __pmTimestamp */
+    __pmPDU	nsec;
+    __pmPDU	indom;
+    __pmPDU	numinst;
+    __pmPDU	data[0];	/* inst[] then stridx[] then strings */
+    				/* will be expanded if numinst > 0 */
+} __pmInDom_v3;
+
+typedef struct {
+    __pmPDU	len;		/* header */
+    __pmPDU	type;
+    __pmPDU	sec;		/* pmTimeval */
+    __pmPDU	usec;
+    __pmPDU	indom;
+    __pmPDU	numinst;
+    __pmPDU	data[0];	/* inst[] then stridx[] then strings */
+    				/* will be expanded if numinst > 0 */
+} __pmInDom_v2;
 
 static int	hflag;
 static int	iflag;
@@ -157,7 +182,6 @@ do_indom(uint32_t *buf)
     static elt_t		*head = NULL;
     static elt_t		dup = { NULL, 0, 0, NULL, NULL };
     static int			ndup = 0;
-    __pmTimestamp		*tsp;
     pmInDom			this_indom;
     __pmTimestamp		this_stamp;
     int				this_numinst;
@@ -165,13 +189,14 @@ do_indom(uint32_t *buf)
     elt_t			*ep = NULL;	/* pander to gcc */
     elt_t			*tp;
     elt_t			*dp = &dup;
+    __pmInDom_v3		*v3;
 
-    tsp = (__pmTimestamp *)buf;
-    this_stamp.sec =tsp->sec;
-    __ntohll((char *)&this_stamp.sec);
-    this_stamp.nsec = ntohl(tsp->nsec);
-    this_indom = __ntohpmInDom(buf[3]);
-    this_numinst = ntohl(buf[4]);
+    v3 = (__pmInDom_v3 *)&buf[-2];  /* len+type not in buf */
+    memcpy((void *)&this_stamp.sec, (void *)&v3->sec[0], sizeof(this_stamp.sec));
+    this_stamp.nsec = v3->nsec;
+    __ntohpmTimestamp(&this_stamp);
+    this_indom = __ntohpmInDom(v3->indom);
+    this_numinst = ntohl(v3->numinst);
     warn = 0;
     if (prior_stamp.sec != 0) {
 	/*
@@ -284,32 +309,32 @@ do_indom(uint32_t *buf)
 void
 do_indom_v2(uint32_t *buf)
 {
-    static pmTimeval	prior_stamp = { 0, 0 };
-    static elt_t	*head = NULL;
-    static elt_t	dup = { NULL, 0, 0, NULL, NULL };
-    static int		ndup = 0;
-    pmTimeval		*tvp;
-    pmInDom		this_indom;
-    pmTimeval		this_stamp;
-    int			this_numinst;
-    int			warn;
-    elt_t		*ep = NULL;	/* pander to gcc */
-    elt_t		*tp;
-    elt_t		*dp = &dup;
+    static __pmTimestamp	prior_stamp = { 0, 0 };
+    static elt_t		*head = NULL;
+    static elt_t		dup = { NULL, 0, 0, NULL, NULL };
+    static int			ndup = 0;
+    pmInDom			this_indom;
+    __pmTimestamp		this_stamp;
+    int				this_numinst;
+    int				warn;
+    elt_t			*ep = NULL;	/* pander to gcc */
+    elt_t			*tp;
+    elt_t			*dp = &dup;
+    __pmInDom_v2		*v2;
 
-    tvp = (pmTimeval *)buf;
-    this_stamp.tv_sec = ntohl(tvp->tv_sec);
-    this_stamp.tv_usec = ntohl(tvp->tv_usec);
-    this_indom = __ntohpmInDom(buf[2]);
-    this_numinst = ntohl(buf[3]);
+    v2 = (__pmInDom_v2 *)&buf[-2];  /* len+type not in buf */
+    this_stamp.sec = ntohl(v2->sec);
+    this_stamp.nsec = ntohl(v2->usec) * 1000;
+    this_indom = __ntohpmInDom(v2->indom);
+    this_numinst = ntohl(v2->numinst);
     warn = 0;
-    if (prior_stamp.tv_sec != 0) {
+    if (prior_stamp.sec != 0) {
 	/*
 	 * Not the first indom record, so check for duplicate timestamps
 	 * for the same indom.
 	 * Use a linked list of indoms previously seen.
 	 */
-	if (__pmTimevalSub(&this_stamp, &prior_stamp) == 0) {
+	if (__pmTimestampSub(&this_stamp, &prior_stamp) == 0) {
 	    /* same timestamp as previous indom */
 	    for (ep = head; ep != NULL; ep = ep->next) {
 		if (ep->indom == this_indom) {
@@ -327,7 +352,7 @@ do_indom_v2(uint32_t *buf)
 		ep = (elt_t *)malloc(sizeof(elt_t));
 		if (ep == NULL) {
 		    fprintf(stderr, "Arrgh: elt malloc failed for indom %s @ ", pmInDomStr(this_indom));
-		    __pmPrintTimeval(stderr, &this_stamp);
+		    __pmPrintTimestamp(stderr, &this_stamp);
 		    exit(1);
 		}
 		ep->next = head;
@@ -345,7 +370,7 @@ do_indom_v2(uint32_t *buf)
 	    ep = head = (elt_t *)malloc(sizeof(elt_t));
 	    if (head == NULL) {
 		fprintf(stderr, "Arrgh: head malloc failed for indom %s @ ", pmInDomStr(this_indom));
-		__pmPrintTimeval(stderr, &this_stamp);
+		__pmPrintTimestamp(stderr, &this_stamp);
 		exit(1);
 	    }
 	    ep->next = NULL;
@@ -363,7 +388,7 @@ do_indom_v2(uint32_t *buf)
     if (iflag || (warn && wflag > 0)) {
 	/* if warn is set, ep must have been assigned a value */
 	printf("[%d] @ ", nrec);
-	__pmPrintTimeval(stdout, &this_stamp);
+	__pmPrintTimestamp(stdout, &this_stamp);
 	printf(" indom %s numinst %d", pmInDomStr(this_indom), this_numinst);
 	if (warn) {
 	    int	o, d;
@@ -469,6 +494,25 @@ do_desc(uint32_t *buf)
 void
 do_label(uint32_t *buf)
 {
+    int			type;
+    int			ident;
+    __pmTimestamp	*tsp;
+
+    tsp = (__pmTimestamp *)buf;
+    __ntohll((char *)&tsp->sec);
+    tsp->nsec = ntohl(tsp->nsec);
+    type = ntohl(buf[2]);
+    ident = ntohl(buf[3]);
+    printf("[%d] label @ ", nrec);
+    __pmPrintTimestamp(stdout, tsp);
+    printf(" type %d ident %d", type, ident);
+    printf(" TODO");
+    putchar('\n');
+}
+
+void
+do_label_v2(uint32_t *buf)
+{
     int		type;
     int		ident;
     pmTimeval	*tvp;
@@ -495,7 +539,7 @@ do_help(uint32_t *buf)
 
     printf("[%d] text ", nrec);
     type = ntohl(buf[0]);
-    if (type & PM_TEXT_INDOM) {
+    if ((type & PM_TEXT_INDOM) == PM_TEXT_INDOM) {
 	pmid = __ntohpmInDom(buf[1]);
 	printf("pmid %s ", pmIDStr(pmid));
     }
@@ -716,6 +760,12 @@ main(int argc, char *argv[])
 		if (!lflag)
 		    break;
 		do_label(buf);
+		break;
+
+	    case TYPE_LABEL_V2:
+		if (!lflag)
+		    break;
+		do_label_v2(buf);
 		break;
 
 	    case TYPE_TEXT:

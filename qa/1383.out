@@ -15,7 +15,7 @@ Running pmdumplog -zhide archives/20180416.10.00
 Running pmdumplog -iteh TMP.pmlogrewrite
 Running diff TMP.original.txt TMP.rewritten.txt
 3057a3058,3068
-> 10:01:25.325401
+> 10:01:25.325401000
 >     InDom 60.17 labels (37 bytes): {"new_indom_label":"new_indom_value"}
 >         [0] name(2,15) : value(19,17) [indom]
 >     InDom 60.19 labels (34 bytes): {"new_indom_number":-123.456e+789}

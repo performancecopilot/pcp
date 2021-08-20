@@ -8,6 +8,8 @@
 # Note: for reasons that are not understood, this test sometimes fails
 # 	but passes when rerun
 #
+# check-group-include: pmlogrewrite
+#
 
 seq=`basename $0`
 echo "QA output created by $seq"

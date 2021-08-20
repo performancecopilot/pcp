@@ -15,7 +15,7 @@ Running pmdumplog -zhide archives/20180416.10.00
 Running pmdumplog -iteh TMP.pmlogrewrite
 Running diff TMP.original.txt TMP.rewritten.txt
 3057a3058,3064
-> 10:01:25.325401
+> 10:01:25.325401000
 >     Context labels (150 bytes): {"new_context_false":false,"new_context_label":"new_context_value","new_context_null":null,"new_context_number":-123.456e+789,"new_context_true":true}
 >         [0] name(2,17) : value(21,5) [context]
 >         [1] name(28,17) : value(47,19) [context]

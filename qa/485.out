@@ -56,7 +56,7 @@ pmdumplog diffs ...
 
 === global time->10:20:30 ===
 PCP Archive Log Rewrite Specifications Summary
-Delta:		-> 10:20:30.000000
+Delta:		-> 10:20:30.000000000
 pmdumplog diffs ...
 --- TMP.in
 +++ TMP.out
@@ -93,7 +93,7 @@ pmdumplog diffs ...
 
 === global time->+10:20:30 ===
 PCP Archive Log Rewrite Specifications Summary
-Delta:		-> 10:20:30.000000
+Delta:		-> 10:20:30.000000000
 pmdumplog diffs ...
 --- TMP.in
 +++ TMP.out
@@ -130,7 +130,7 @@ pmdumplog diffs ...
 
 === global time->-10:20:30 ===
 PCP Archive Log Rewrite Specifications Summary
-Delta:		-> -10:20:30.000000
+Delta:		-> -10:20:30.000000000
 pmdumplog diffs ...
 --- TMP.in
 +++ TMP.out
@@ -169,7 +169,7 @@ pmdumplog diffs ...
 PCP Archive Log Rewrite Specifications Summary
 Hostname:	snort -> eek
 Timezone:	EST-11EST-10,89/2:00,299/2:00 -> GMT
-Delta:		-> -22:33:24.637000
+Delta:		-> -22:33:24.637000000
 pmdumplog diffs ...
 --- TMP.in
 +++ TMP.out

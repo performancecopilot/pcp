@@ -6,6 +6,8 @@
 #
 # Copyright (c) 2008 Silicon Graphics, Inc.  All Rights Reserved.
 #
+# check-group-include: pmlogrewrite
+#
 
 seq=`basename $0`
 echo "QA output created by $seq"

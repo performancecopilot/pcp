@@ -2,7 +2,7 @@ QA output created by 483
 PCP Archive Log Rewrite Specifications Summary
 Hostname:	rattle -> whizz-bang.engr.sgi.com
 Timezone:	EST-11 -> GMT+10
-Delta:		-> 00:00:10.000000
+Delta:		-> 00:00:10.000000000
 
 Instance Domain: 1.5
 pmInDom:	-> 1.10

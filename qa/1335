@@ -21,6 +21,9 @@ fi
 . ./common.filter
 . ./common.check
 
+eval `pmconfig -L -s v3_archives`
+[ "$v3_archives" = true ] || _notrun "No V3 archive support"
+
 do_valgrind=false
 if [ "$1" = "--valgrind" ]
 then

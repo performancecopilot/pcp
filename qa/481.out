@@ -2,7 +2,7 @@ QA output created by 481
 PCP Archive Log Rewrite Specifications Summary
 Hostname:	rattle -> whizz-bang.engr.sgi.com
 Timezone:	EST-11 -> GMT+10
-Delta:		-> 00:00:10.000000
+Delta:		-> 00:00:10.000000000
 
 Instance Domain: 1.5
 pmInDom:	-> 1.10
@@ -14,87 +14,87 @@ Inst Changes:	<- InDom 1.5
 
 === global time -> +3 ===
 PCP Archive Log Rewrite Specifications Summary
-Delta:		-> 00:00:03.000000
+Delta:		-> 00:00:03.000000000
 
 === global time -> +3.5 ===
 PCP Archive Log Rewrite Specifications Summary
-Delta:		-> 00:00:03.500000
+Delta:		-> 00:00:03.500000000
 
 === global time -> +3. ===
 PCP Archive Log Rewrite Specifications Summary
-Delta:		-> 00:00:03.000000
+Delta:		-> 00:00:03.000000000
 
 === global time -> +03 ===
 PCP Archive Log Rewrite Specifications Summary
-Delta:		-> 00:00:03.000000
+Delta:		-> 00:00:03.000000000
 
 === global time -> 4 ===
 PCP Archive Log Rewrite Specifications Summary
-Delta:		-> 00:00:04.000000
+Delta:		-> 00:00:04.000000000
 
 === global time -> 4.000005 ===
 PCP Archive Log Rewrite Specifications Summary
-Delta:		-> 00:00:04.000005
+Delta:		-> 00:00:04.000005000
 
 === global time -> 4. ===
 PCP Archive Log Rewrite Specifications Summary
-Delta:		-> 00:00:04.000000
+Delta:		-> 00:00:04.000000000
 
 === global time -> 04 ===
 PCP Archive Log Rewrite Specifications Summary
-Delta:		-> 00:00:04.000000
+Delta:		-> 00:00:04.000000000
 
 === global time -> -5 ===
 PCP Archive Log Rewrite Specifications Summary
-Delta:		-> -00:00:05.000000
+Delta:		-> -00:00:05.000000000
 
 === global time -> -5.005 ===
 PCP Archive Log Rewrite Specifications Summary
-Delta:		-> -00:00:05.005000
+Delta:		-> -00:00:05.005000000
 
 === global time -> -5. ===
 PCP Archive Log Rewrite Specifications Summary
-Delta:		-> -00:00:05.000000
+Delta:		-> -00:00:05.000000000
 
 === global time -> -05 ===
 PCP Archive Log Rewrite Specifications Summary
-Delta:		-> -00:00:05.000000
+Delta:		-> -00:00:05.000000000
 
 === global time -> +1:00.123456 ===
 PCP Archive Log Rewrite Specifications Summary
-Delta:		-> 00:01:00.123456
+Delta:		-> 00:01:00.123456000
 
 === global time -> +2:00 ===
 PCP Archive Log Rewrite Specifications Summary
-Delta:		-> 00:02:00.000000
+Delta:		-> 00:02:00.000000000
 
 === global time -> 3:00. ===
 PCP Archive Log Rewrite Specifications Summary
-Delta:		-> 00:03:00.000000
+Delta:		-> 00:03:00.000000000
 
 === global time -> 04:00 ===
 PCP Archive Log Rewrite Specifications Summary
-Delta:		-> 00:04:00.000000
+Delta:		-> 00:04:00.000000000
 
 === global time -> -5:12.345 ===
 PCP Archive Log Rewrite Specifications Summary
-Delta:		-> -00:05:12.345000
+Delta:		-> -00:05:12.345000000
 
 === global time -> -6:30 ===
 PCP Archive Log Rewrite Specifications Summary
-Delta:		-> -00:06:30.000000
+Delta:		-> -00:06:30.000000000
 
 === global time -> +23:59:59 ===
 PCP Archive Log Rewrite Specifications Summary
-Delta:		-> 23:59:59.000000
+Delta:		-> 23:59:59.000000000
 
 === global time -> -0:0:1 ===
 PCP Archive Log Rewrite Specifications Summary
-Delta:		-> -00:00:01.000000
+Delta:		-> -00:00:01.000000000
 
 === global time -> +12:34:56.789012 ===
 PCP Archive Log Rewrite Specifications Summary
-Delta:		-> 12:34:56.789012
+Delta:		-> 12:34:56.789012000
 
 === global hostname -> abc ===
 PCP Archive Log Rewrite Specifications Summary
@@ -136,19 +136,19 @@ Hostname:	rattle -> 10.0.foo
 Warning [TMP.conf, line 1]
 Seconds (60) in time clause more than 59
 PCP Archive Log Rewrite Specifications Summary
-Delta:		-> 00:01:00.000000
+Delta:		-> 00:01:00.000000000
 
 === global time -> 123:45 (expect warning) ===
 Warning [TMP.conf, line 1]
 Minutes (123) in time clause more than 59
 PCP Archive Log Rewrite Specifications Summary
-Delta:		-> 02:03:45.000000
+Delta:		-> 02:03:45.000000000
 
 === global time -> 123:0:61.678901 (expect warning) ===
 Warning [TMP.conf, line 1]
 Seconds (61.678901) in time clause more than 59
 PCP Archive Log Rewrite Specifications Summary
-Delta:		-> 123:01:01.678901
+Delta:		-> 123:01:01.678901000
 
 === global dup hostname clause (expect error) ===
 Specification error in configuration file (TMP.conf)
