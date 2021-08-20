@@ -144,7 +144,7 @@ compare_golden(__pmFILE *f, const char *file, int sts, int warnings)
     else if (warnings) {
 	int version = verify_label(f, file);
 
-	if (memcmp(&label, &zeroes, sizeof(zeroes)) == 0)
+	if (memcmp(label, &zeroes, sizeof(zeroes)) == 0)
 	    return;	/* no label content was successfully read */
 
 	if (version != (golden.magic & 0xff)) {
