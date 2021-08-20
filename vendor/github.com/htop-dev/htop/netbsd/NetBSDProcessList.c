@@ -103,14 +103,14 @@ static void NetBSDProcessList_updateCPUcount(ProcessList* super) {
    }
 }
 
-ProcessList* ProcessList_new(UsersTable* usersTable, Hashtable* dynamicMeters, Hashtable* pidMatchList, uid_t userId) {
+ProcessList* ProcessList_new(UsersTable* usersTable, Hashtable* dynamicMeters, Hashtable* dynamicColumns, Hashtable* pidMatchList, uid_t userId) {
    const int fmib[] = { CTL_KERN, KERN_FSCALE };
    size_t size;
    char errbuf[_POSIX2_LINE_MAX];
 
    NetBSDProcessList* npl = xCalloc(1, sizeof(NetBSDProcessList));
    ProcessList* pl = (ProcessList*) npl;
-   ProcessList_init(pl, Class(NetBSDProcess), usersTable, dynamicMeters, pidMatchList, userId);
+   ProcessList_init(pl, Class(NetBSDProcess), usersTable, dynamicMeters, dynamicColumns, pidMatchList, userId);
 
    NetBSDProcessList_updateCPUcount(pl);
 
@@ -281,7 +281,7 @@ static void NetBSDProcessList_scanProcs(NetBSDProcessList* this) {
          proc->session = kproc->p_sid;
          proc->tty_nr = kproc->p_tdev;
          proc->pgrp = kproc->p__pgid;
-         proc->isKernelThread = proc->pgrp == 0;
+         proc->isKernelThread = !!(kproc->p_flag & P_SYSTEM);
          proc->isUserlandThread = proc->pid != proc->tgid;
          proc->starttime_ctime = kproc->p_ustart_sec;
          Process_fillStarttimeBuffer(proc);
