@@ -49,6 +49,7 @@ LABEL_INDOM = 13
 LABEL_CLUSTER = 14
 LABEL_INSTANCE = 15
 STORE = 16
+FREEMEM = 17
 
 class BCCPMDA(PMDA):
     """ PCP BCC PMDA """
@@ -74,6 +75,7 @@ class BCCPMDA(PMDA):
         self.register_metrics()
         self.register_helpers()
         self.compile_modules()
+        self.free_memory()
 
         self.set_refresh(self.bcc_refresh)
         self.set_fetch_callback(self.bcc_fetch_callback)
@@ -218,6 +220,7 @@ class BCCPMDA(PMDA):
             self.modules[module][METRICS] = obj.metrics
             self.modules[module][HELPERS] = obj.helpers
             self.modules[module][COMPILE] = obj.compile
+            self.modules[module][FREEMEM] = obj.free_memory
             self.modules[module][REFRESH] = obj.refresh
             self.modules[module][BPFDATA] = obj.bpfdata
             self.modules[module][CLEANUP] = obj.cleanup
@@ -274,6 +277,20 @@ class BCCPMDA(PMDA):
                         sys.exit(1)
             self.log("Modules compiled.")
             self.proc_helper.enable_proc_refresh(self.proc_refresh)
+
+    def free_memory(self):
+        """ Free memory of compilation of modules """
+        if not os.environ.get('PCP_PYTHON_DOMAIN') and not os.environ.get('PCP_PYTHON_PMNS'):
+            self.log("Freeing memory:")
+            for module in self.modules:
+                self.log(module)
+                try:
+                    self.modules[module][FREEMEM]()
+                except Exception: # pylint: disable=broad-except
+                    if self.fail_fatal:
+                        self.err("Failed to free memory of " + module + ", aborting.")
+                        sys.exit(1)
+            self.log("Memory freed.")
 
     def bcc_refresh(self, cluster):
         """ Refresh """
