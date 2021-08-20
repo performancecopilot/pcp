@@ -16,6 +16,7 @@
 """ PCP BCC PMDA cachestat module """
 
 # pylint: disable=invalid-name, line-too-long, too-many-locals
+# pylint: disable=consider-using-with
 
 from bcc import BPF
 

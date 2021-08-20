@@ -1,6 +1,6 @@
 """Wrapper module for libpcp_pmda - Performace Co-Pilot Domain Agent API
 #
-# Copyright (C) 2013-2015,2017-2020 Red Hat.
+# Copyright (C) 2013-2015,2017-2021 Red Hat.
 #
 # This file is part of the "pcp" module, the python interfaces for the
 # Performance Co-Pilot toolkit.
@@ -17,7 +17,7 @@
 #
 # See pmdasimple.py for an example use of this module.
 """
-# pylint: disable=too-many-arguments
+# pylint: disable=too-many-arguments,consider-using-dict-items,no-member
 
 import os
 
@@ -375,8 +375,9 @@ class MetricDispatch(object):
             replacement = pmdaIndom(it_indom, insts)
         # list indoms need to keep the table up-to-date for libpcp_pmda
         if isinstance(insts, list):
-            for i in range(len(self._indomtable)):  # _indomtable is persistently shared with pmda.c
-                if self._indomtable[i].it_indom == it_indom:
+            # _indomtable is persistently shared with pmda.c
+            for i, entry in enumerate(self._indomtable):
+                if entry.it_indom == it_indom:
                     self._indomtable[i] = replacement # replace in place
                     break
         self._indoms[it_indom] = replacement

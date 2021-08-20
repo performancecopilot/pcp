@@ -44,11 +44,9 @@ def aggregate(method, aggr_value, value):
     elif method == 'avg':
         aggr_value += value
     elif method == 'min':
-        if aggr_value > value:
-            aggr_value = value
+        aggr_value = min(aggr_value, value)
     elif method == 'max':
-        if aggr_value < value:
-            aggr_value = value
+        aggr_value = max(aggr_value, value)
     else:
         raise pmapi.pmUsageErr
     return aggr_value

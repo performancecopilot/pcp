@@ -105,16 +105,12 @@ class elasticsearchPMDA(PMDA):
             [ 'cluster.status.code',           PM_TYPE_32,     PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),  'Status code (0:green,1:yellow,2:red) of the elasticsearch cluster'],
         ]
 
-        for item in range(len(self.cluster_metrics)):
-            self.add_metric(name + '.' +
-                            self.cluster_metrics[item][0],
+        for item, metric in enumerate(self.cluster_metrics):
+            self.add_metric(name + '.' + metric[0],
                             pmdaMetric(self.pmid(self.cluster_cluster, item),
-                                       self.cluster_metrics[item][1],
-                                       self.cluster_indom,
-                                       self.cluster_metrics[item][2],
-                                       self.cluster_metrics[item][3]),
-                            self.cluster_metrics[item][4],
-                            self.cluster_metrics[item][4])
+                                       metric[1], self.cluster_indom,
+                                       metric[2], metric[3]),
+                            metric[4], metric[4])
 
         self.nodes_indom = self.indom(0)
         self.nodes_insts = pmdaIndom(self.nodes_indom, {})
@@ -189,16 +185,12 @@ class elasticsearchPMDA(PMDA):
             [ 'nodes.http.total_opened',                                               PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 64
         ]
 
-        for item in range(len(self.nodes_metrics)):
-            self.add_metric(name + '.' +
-                            self.nodes_metrics[item][0],
+        for item, metric in enumerate(self.nodes_metrics):
+            self.add_metric(name + '.' + metric[0],
                             pmdaMetric(self.pmid(self.nodes_cluster, item),
-                                       self.nodes_metrics[item][1],
-                                       self.nodes_indom,
-                                       self.nodes_metrics[item][2],
-                                       self.nodes_metrics[item][3]),
-                            self.nodes_metrics[item][4],
-                            self.nodes_metrics[item][4])
+                                       metric[1], self.nodes_indom,
+                                       metric[2], metric[3]),
+                            metric[4], metric[4])
         self.node_info_indom = self.indom(1)
         self.node_info_insts = pmdaIndom(self.node_info_indom, {})
         self.add_indom(self.node_info_insts, 'elasticsearch cluster nodes')
@@ -215,16 +207,12 @@ class elasticsearchPMDA(PMDA):
             [ 'nodes.jvm.mem.non_heap_max_in_bytes',  PM_TYPE_U64,    PM_SEM_INSTANT,  pmUnits(1,0,0,PM_SPACE_BYTE,0,0), ''], # 7
             [ 'nodes.process.max_file_descriptors',   PM_TYPE_U64,    PM_SEM_DISCRETE, pmUnits(0,0,0,0,0,0),             ''], # 8
         ]
-        for item in range(len(self.node_info_metrics)):
-            self.add_metric(name + '.' +
-                            self.node_info_metrics[item][0],
+        for item, metric in enumerate(self.node_info_metrics):
+            self.add_metric(name + '.' + metric[0],
                             pmdaMetric(self.pmid(self.node_info_cluster, item),
-                                       self.node_info_metrics[item][1],
-                                       self.node_info_indom,
-                                       self.node_info_metrics[item][2],
-                                       self.node_info_metrics[item][3]),
-                            self.node_info_metrics[item][4],
-                            self.node_info_metrics[item][4])
+                                       metric[1], self.node_info_indom,
+                                       metric[2], metric[3]),
+                            metric[4], metric[4])
 
         self.version_indom = PM_INDOM_NULL
         self.version_cluster = 3
@@ -232,16 +220,12 @@ class elasticsearchPMDA(PMDA):
             # Name - type - semantics - units - help
             [ 'version.number', PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0), 'Version number of elasticsearch'],
         ]
-        for item in range(len(self.version_metrics)):
-            self.add_metric(name + '.' +
-                            self.version_metrics[item][0],
+        for item, metric in enumerate(self.version_metrics):
+            self.add_metric(name + '.' + metric[0],
                             pmdaMetric(self.pmid(self.version_cluster, item),
-                                       self.version_metrics[item][1],
-                                       self.version_indom,
-                                       self.version_metrics[item][2],
-                                       self.version_metrics[item][3]),
-                            self.version_metrics[item][4],
-                            self.version_metrics[item][4])
+                                       metric[1], self.version_indom,
+                                       metric[2], metric[3]),
+                            metric[4], metric[4])
 
         self.search_indom = PM_INDOM_NULL
         self.search_cluster = 4
@@ -258,16 +242,12 @@ class elasticsearchPMDA(PMDA):
             [ 'search.all.total.fetch_time_in_millis', PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0), 'Time spent in search fetches to all elasticsearch primaries'],
         ]
 
-        for item in range(len(self.search_metrics)):
-            self.add_metric(name + '.' +
-                            self.search_metrics[item][0],
+        for item, metric in enumerate(self.search_metrics):
+            self.add_metric(name + '.' + metric[0],
                             pmdaMetric(self.pmid(self.search_cluster, item),
-                                       self.search_metrics[item][1],
-                                       self.search_indom,
-                                       self.search_metrics[item][2],
-                                       self.search_metrics[item][3]),
-                            self.search_metrics[item][4],
-                            self.search_metrics[item][4])
+                                       metric[1], self.search_indom,
+                                       metric[2], metric[3]),
+                            metric[4], metric[4])
 
         self.perindex_indom = self.indom(2)
         self.perindex_insts = pmdaIndom(self.perindex_indom, {})
@@ -283,32 +263,24 @@ class elasticsearchPMDA(PMDA):
             [ 'search.perindex.total.search.fetch_total', PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE), 'Number of search fetches to all elasticsearch primaries'],
             [ 'search.perindex.total.search.fetch_time_in_millis', PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0), 'Time spent in search fetches to all elasticsearch primaries'],
         ]
-        for item in range(len(self.perindex_metrics)):
-            self.add_metric(name + '.' +
-                            self.perindex_metrics[item][0],
+        for item, metric in enumerate(self.perindex_metrics):
+            self.add_metric(name + '.' + metric[0],
                             pmdaMetric(self.pmid(self.perindex_cluster, item),
-                                       self.perindex_metrics[item][1],
-                                       self.perindex_indom,
-                                       self.perindex_metrics[item][2],
-                                       self.perindex_metrics[item][3]),
-                            self.perindex_metrics[item][4],
-                            self.perindex_metrics[item][4])
+                                       metric[1], self.perindex_indom,
+                                       metric[2], metric[3]),
+                            metric[4], metric[4])
 
         self.master_node_indom = PM_INDOM_NULL
         self.master_node_cluster = 6
         self.master_node_metrics = [
             [ 'cluster.master_node', PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0), 'Internal identifier of the master node of the cluster'],
         ]
-        for item in range(len(self.master_node_metrics)):
-            self.add_metric(name + '.' +
-                            self.master_node_metrics[item][0],
+        for item, metric in enumerate(self.master_node_metrics):
+            self.add_metric(name + '.' + metric[0],
                             pmdaMetric(self.pmid(self.master_node_cluster, item),
-                                       self.master_node_metrics[item][1],
-                                       self.master_node_indom,
-                                       self.master_node_metrics[item][2],
-                                       self.master_node_metrics[item][3]),
-                            self.master_node_metrics[item][4],
-                            self.master_node_metrics[item][4])
+                                       metric[1], self.master_node_indom,
+                                       metric[2], metric[3]),
+                            metric[4], metric[4])
 
         self.index_indom = self.indom(3)
         self.index_insts = pmdaIndom(self.index_indom, {})
@@ -320,16 +292,12 @@ class elasticsearchPMDA(PMDA):
             [ 'index.settings.number_of_shards', PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0), 'Number of shards index setting'],
             [ 'index.settings.version_created', PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0), 'The version of elasticsearch the index was created with'],
         ]
-        for item in range(len(self.index_metrics)):
-            self.add_metric(name + '.' +
-                            self.index_metrics[item][0],
+        for item, metric in enumerate(self.index_metrics):
+            self.add_metric(name + '.' + metric[0],
                             pmdaMetric(self.pmid(self.index_cluster, item),
-                                       self.index_metrics[item][1],
-                                       self.index_indom,
-                                       self.index_metrics[item][2],
-                                       self.index_metrics[item][3]),
-                            self.index_metrics[item][4],
-                            self.index_metrics[item][4])
+                                       metric[1], self.index_indom,
+                                       metric[2], metric[3]),
+                            metric[4], metric[4])
         self.set_refresh(self.elasticsearch_refresh)
         self.set_fetch_callback(self.elasticsearch_fetch_callback)
 

@@ -1045,8 +1045,8 @@ class PMReporter(object):
                                          inst,
                                          name,
                                          str(value))
-                except Exception as error:
-                    sys.stderr.write("pmiPutLabel failed: %s\n" % str(error))
+                except Exception as pmierror:
+                    sys.stderr.write("pmiPutLabel failed: %s\n" % str(pmierror))
                     sys.exit(1)
 
             if inst in (None, PM_IN_NULL):
@@ -1089,8 +1089,8 @@ class PMReporter(object):
                                                 PM_TEXT_HELP,
                                                 self.pmconfig.descs[i].contents.indom,
                                                 self.pmconfig.texts[i][3])
-                except pmi.pmiErr as error:
-                    if error.errno() == PMI_ERR_DUPTEXT:
+                except pmi.pmiErr as pmierror:
+                    if pmierror.errno() == PMI_ERR_DUPTEXT:
                         # Ignore duplicate help texts
                         pass
 
@@ -1123,8 +1123,8 @@ class PMReporter(object):
 
                     try:
                         self.pmi.pmiAddInstance(self.pmconfig.descs[i].contents.indom, name, inst)
-                    except pmi.pmiErr as error:
-                        if error.errno() == PMI_ERR_DUPINSTNAME:
+                    except pmi.pmiErr as pmierror:
+                        if pmierror.errno() == PMI_ERR_DUPINSTNAME:
                             # Already added
                             pass
 
@@ -1134,7 +1134,7 @@ class PMReporter(object):
                         continue
                 try:
                     self.pmi.pmiPutValue(metric, name, str(value))
-                except pmi.pmiErr as error:
+                except pmi.pmiErr as pmierror:
                     pass
                 data = 1
         self.prev_res = results # pylint: disable=attribute-defined-outside-init
@@ -1542,8 +1542,8 @@ class PMReporter(object):
         if self.writer:
             try:
                 self.writer.flush()
-            except IOError as error:
-                if error.errno != errno.EPIPE:
+            except IOError as ioerror:
+                if ioerror.errno != errno.EPIPE:
                     raise error
             try:
                 self.writer.close()

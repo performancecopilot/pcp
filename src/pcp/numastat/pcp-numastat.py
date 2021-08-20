@@ -49,8 +49,7 @@ class NUMAStat(object):
                 (_, width) = os.popen('stty size', 'r').read().split()
                 self.width = int(width)
             self.width = int(os.getenv('NUMASTAT_WIDTH', str(self.width)))
-        if self.width < 32:
-            self.width = 32
+        self.width = max(self.width, 32)
 
     def option(self, opt, optarg, index):
         """ Perform setup for an individual command line option """

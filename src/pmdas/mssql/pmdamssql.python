@@ -17,6 +17,7 @@
 """ PCP Microsoft SQL Server Performance Metrics Domain Agent """
 
 # pylint: disable=bad-continuation,line-too-long,too-many-lines,bare-except
+# pylint: disable=consider-using-dict-items
 
 import os
 import sys

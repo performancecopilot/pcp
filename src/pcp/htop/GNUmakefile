@@ -58,6 +58,7 @@ TOPCFILES = \
 	LoadAverageMeter.c \
 	MainPanel.c \
 	MemoryMeter.c \
+	MemorySwapMeter.c \
 	Meter.c \
 	MetersPanel.c \
 	NetworkIOMeter.c \
@@ -88,6 +89,7 @@ SUBCFILES = \
 	zfs/ZfsCompressedArcMeter.c \
 	pcp/PCPDynamicColumn.c \
 	pcp/PCPDynamicMeter.c \
+	pcp/PCPMetric.c \
 	pcp/PCPProcess.c \
 	pcp/PCPProcessList.c \
 	pcp/Platform.c \
@@ -124,6 +126,7 @@ TOPHFILES = \
 	Macros.h \
 	MainPanel.h \
 	MemoryMeter.h \
+	MemorySwapMeter.h \
 	Meter.h \
 	MetersPanel.h \
 	NetworkIOMeter.h \
@@ -157,6 +160,7 @@ SUBHFILES = \
 	zfs/ZfsCompressedArcMeter.h \
 	pcp/PCPDynamicColumn.h \
 	pcp/PCPDynamicMeter.h \
+	pcp/PCPMetric.h \
 	pcp/PCPProcess.h \
 	pcp/PCPProcessList.h \
 	pcp/Platform.h \

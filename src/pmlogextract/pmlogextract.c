@@ -570,12 +570,12 @@ newlabel(void)
 	/* Ensure all archives of the same timezone */
 	if (strcmp(lp->timezone, iap->label.ll_tz) != 0) {
 	    fprintf(stderr,
-		"%s: Warning: timezone mismatch for input archives\n",
+		    "%s: Warning: timezone mismatch for input archives\n",
 		    pmGetProgname());
 	    fprintf(stderr, "archive: %s timezone: %s [will be used]\n",
-		farg ? f_iap->name : l_iap->name, lp->timezone);
+		    f_iap->name, lp->timezone);
 	    fprintf(stderr, "archive: %s timezone: %s [will be ignored]\n",
-		iap->name, iap->label.ll_tz);
+		    iap->name, iap->label.ll_tz);
 	}
     } /*for(indx)*/
 }

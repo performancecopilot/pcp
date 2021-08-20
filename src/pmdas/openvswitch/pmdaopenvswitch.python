@@ -79,16 +79,12 @@ class OpenvswitchPMDA(PMDA):
             [ 'switch.stp_enable',                                                      PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  'spanning tree protocol'] # 22
         ]
 
-        for item in range(len(self.switch_metrics)):
-            self.add_metric(name + '.' +
-                            self.switch_metrics[item][0],
+        for item, metric in enumerate(self.switch_metrics):
+            self.add_metric(name + '.' + metric[0],
                             pmdaMetric(self.pmid(self.switch_cluster, item),
-                                       self.switch_metrics[item][1],
-                                       self.switch_indom,
-                                       self.switch_metrics[item][2],
-                                       self.switch_metrics[item][3]),
-                            self.switch_metrics[item][4],
-                            self.switch_metrics[item][4])
+                                       metric[1], self.switch_indom,
+                                       metric[2], metric[3]),
+                            metric[4], metric[4])
 
         self.port_info_indom = self.indom(1)
         self.port_info_instances()
@@ -109,16 +105,12 @@ class OpenvswitchPMDA(PMDA):
             [ 'port_info.tx.coll',                                                     PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'is a number of transmitted packets that experienced Ethernet collisions.'] # 11
         ]
 
-        for item in range(len(self.port_info_metrics)):
-            self.add_metric(name + '.' +
-                            self.port_info_metrics[item][0],
+        for item, metric in enumerate(self.port_info_metrics):
+            self.add_metric(name + '.' + metric[0],
                             pmdaMetric(self.pmid(self.port_info_cluster, item),
-                                       self.port_info_metrics[item][1],
-                                       self.port_info_indom,
-                                       self.port_info_metrics[item][2],
-                                       self.port_info_metrics[item][3]),
-                            self.port_info_metrics[item][4],
-                            self.port_info_metrics[item][4])
+                                       metric[1], self.port_info_indom,
+                                       metric[2], metric[3]),
+                            metric[4], metric[4])
 
         self.flow_indom = self.indom(2)
         self.flow_instances()
@@ -133,16 +125,12 @@ class OpenvswitchPMDA(PMDA):
             [ 'flow.actions',                                                          PM_TYPE_STRING, PM_SEM_DISCRETE, pmUnits(),  'action to be taken for incoming flow packets'], #5
         ]
 
-        for item in range(len(self.flow_metrics)):
-            self.add_metric(name + '.' +
-                            self.flow_metrics[item][0],
+        for item, metric in enumerate(self.flow_metrics):
+            self.add_metric(name + '.' + metric[0],
                             pmdaMetric(self.pmid(self.flow_cluster, item),
-                                       self.flow_metrics[item][1],
-                                       self.flow_indom,
-                                       self.flow_metrics[item][2],
-                                       self.flow_metrics[item][3]),
-                            self.flow_metrics[item][4],
-                            self.flow_metrics[item][4])
+                                       metric[1], self.flow_indom,
+                                       metric[2], metric[3]),
+                            metric[4], metric[4])
 
 
         self.set_fetch_callback(self.openvswitch_fetch_callback)
@@ -158,8 +146,8 @@ class OpenvswitchPMDA(PMDA):
 
         try:
             with open(os.devnull, 'w') as devnull:
-                p = subprocess.Popen(query, stdout=subprocess.PIPE, stderr=devnull)
-                js = json.loads(p.communicate()[0].decode("utf-8"))
+                with subprocess.Popen(query, stdout=subprocess.PIPE, stderr=devnull) as p:
+                    js = json.loads(p.communicate()[0].decode("utf-8"))
 
             # reorganize json a bit
             for idx in range(len(js["data"])):
@@ -179,10 +167,11 @@ class OpenvswitchPMDA(PMDA):
     def fetch_port_info(self, switch):
         """ fetches result from command line """
         query = ['ovs-ofctl', 'dump-ports', switch]
-        out = subprocess.Popen(query, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        stdout, stderr = out.communicate()
-        stdout = stdout.decode("utf-8")
-        return stdout, stderr
+        with subprocess.Popen(query, stdout=subprocess.PIPE, stderr=subprocess.STDOUT) as out:
+            stdout, stderr = out.communicate()
+            stdout = stdout.decode("utf-8")
+            return stdout, stderr
+        return None, None
 
     def get_port_info_json(self):
         """ Convert the commandline output to json """
@@ -220,10 +209,11 @@ class OpenvswitchPMDA(PMDA):
     def fetch_flow_info(self, switch):
         """ fetches result from command line """
         query = ['ovs-ofctl','dump-flows', switch]
-        out = subprocess.Popen(query, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        stdout, stderr = out.communicate()
-        stdout = stdout.decode("utf-8")
-        return stdout, stderr
+        with subprocess.Popen(query, stdout=subprocess.PIPE, stderr=subprocess.STDOUT) as out:
+            stdout, stderr = out.communicate()
+            stdout = stdout.decode("utf-8")
+            return stdout, stderr
+        return None, None
 
     def get_flow_json(self):
         """ Convert the commandline output to json """

@@ -553,9 +553,9 @@ class DstatTool(object):
 
     def create_pidfile(self):
         try:
-            pidfile = open(self.pidfile, 'w', 0)
-            pidfile.write(str(os.getpid()))
-            pidfile.close()
+            with open(self.pidfile, 'w', 0) as pidfile:
+                pidfile.write(str(os.getpid()))
+                pidfile.close()
         except Exception as e:
             sys.stderr.write('Failed to create pidfile %s\n%s\n' % (self.pidfile, e))
             self.pidfile = False
@@ -574,8 +574,8 @@ class DstatTool(object):
     def prepare_regex(self, value):
         try:
             value = re.compile(r'\A' + value + r'\Z')
-        except Exception as error:
-            sys.stderr.write("Invalid regex '%s': %s.\n" % (value, error))
+        except Exception as reerr:
+            sys.stderr.write("Invalid regex '%s': %s.\n" % (value, reerr))
             sys.exit(1)
         return value
 
@@ -589,10 +589,10 @@ class DstatTool(object):
         config.optionxform = str
         try:
             found = config.read(paths)
-        except ConfigParser.Error as error:
-            sys.stderr.write("Config parse failure: %s\n" % error.message())
+        except ConfigParser.Error as cfgerr:
+            sys.stderr.write("Config parse failure: %s\n" % cfgerr.message())
             sys.exit(1)
-        except Exception as error:
+        except Exception as cfgerr:
             sys.stderr.write("Cannot parse configs in %s\n" % paths)
             sys.exit(1)
 
@@ -883,6 +883,7 @@ class DstatTool(object):
         elif opt in ['s']:
             self.append_plugin('swap')
         elif opt in ['S']:
+            # pylint: disable=consider-using-generator
             self.swaplist = list(['/dev/' + str(x) for x in arg.split(',')])
         elif opt in ['t']:
             self.append_plugin('time')
@@ -1666,8 +1667,8 @@ class DstatTool(object):
         # Fetch values
         try:
             self.pmfg.fetch()
-        except pmapi.pmErr as error:
-            raise error
+        except pmapi.pmErr as fetcherr:
+            raise fetcherr
 
         # Calculate all objects (visible, invisible)
         onovalues = self.novalues
@@ -1766,11 +1767,12 @@ class DstatTool(object):
 
         if self.output and step == self.delay:
             if not os.path.exists(self.output) or not os.path.isfile(op.output):
-                outputfile = open(self.output, 'wt')
-                outputfile.write(oline)
+                omode = 'wt'
             else:
-                outputfile = open(self.output, 'at')
-                outputfile.write(oline)
+                omode = 'at'
+            # pylint: disable=consider-using-with
+            outputfile = open(self.output, omode)
+            outputfile.write(oline)
 
         if self.missed > 0:
             line = 'missed ' + str(self.missed + 1) + ' ticks'

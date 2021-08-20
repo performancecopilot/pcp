@@ -87,7 +87,7 @@
     for ts, line in vvv():
         print("%s : %s" % (ts, line()))
 """
-# pylint: disable=missing-docstring,line-too-long,broad-except
+# pylint: disable=missing-docstring,line-too-long,broad-except,no-member
 # pylint: disable=too-many-lines,too-many-arguments,too-many-nested-blocks
 
 import os
@@ -187,7 +187,7 @@ class pmUsageErr(Exception):
         self.args = list(args)
 
     def message(self):
-        for index in range(0, len(self.args)):
+        for index in range(0, len(self.args)): # pylint: disable=C0200
             LIBPCP.pmprintf(str(self.args[index]).encode('utf-8'))
         return c_api.pmUsageMessage()
 

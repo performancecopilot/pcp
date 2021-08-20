@@ -17,6 +17,7 @@
 """ PCP BCC PMDA tcplife module """
 
 # pylint: disable=invalid-name, too-few-public-methods, too-many-instance-attributes
+# pylint: disable=consider-using-with
 
 import ctypes as ct
 from collections import deque

@@ -243,15 +243,17 @@ class HAProxyPMDA(PMDA):
             [ 'stat.dses',                        PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'requests denied by "tcp-request session" rules'                  ],
         ]
 
-        for item in range(len(self.info_metrics)):
-            self.add_metric(name + '.' + self.info_metrics[item][0], pmdaMetric(self.pmid(self.info_cluster, item),
-                            self.info_metrics[item][1], self.info_indom, self.info_metrics[item][2],
-                            self.info_metrics[item][3]), self.info_metrics[item][4], self.info_metrics[item][4])
+        for item, metric in enumerate(self.info_metrics):
+            self.add_metric(name + '.' + metric[0], pmdaMetric(
+                            self.pmid(self.info_cluster, item),
+                            metric[1], self.info_indom, metric[2],
+                            metric[3]), metric[4], metric[4])
 
-        for item in range(len(self.stat_metrics)):
-            self.add_metric(name + '.' + self.stat_metrics[item][0], pmdaMetric(self.pmid(self.stat_cluster, item),
-                            self.stat_metrics[item][1], self.stat_indom, self.stat_metrics[item][2],
-                            self.stat_metrics[item][3]), self.stat_metrics[item][4], self.stat_metrics[item][4])
+        for item, metric in enumerate(self.stat_metrics):
+            self.add_metric(name + '.' + metric[0], pmdaMetric(
+                            self.pmid(self.stat_cluster, item),
+                            metric[1], self.stat_indom, metric[2],
+                            metric[3]), metric[4], metric[4])
 
         self.set_refresh(self.haproxy_refresh)
         self.set_fetch_callback(self.haproxy_fetch_callback)

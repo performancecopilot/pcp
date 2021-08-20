@@ -217,7 +217,7 @@ STAMP-19	      0         NNNN        NNNN
 STAMP-21	      0         NNNN        NNNN
 STAMP-22	      0         NNNN        NNNN
 
-[2NN bytes]
+[NNN bytes]
 STAMP-1 5 metrics
     2.3.3 (pmcd.pmlogger.host): ...
     2.3.0 (pmcd.pmlogger.port): ...
@@ -1017,7 +1017,7 @@ STAMP-21 3 metrics
         inst [29 or "0029 /usr/opt/bin/jojo"] value 29
         inst [30 or "0030 /etc/koko"] value 30
 
-[2NN bytes]
+[NNN bytes]
 STAMP-22 5 metrics
     2.3.3 (pmcd.pmlogger.host): ...
     2.3.0 (pmcd.pmlogger.port): ...
