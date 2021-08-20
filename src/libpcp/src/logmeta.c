@@ -134,7 +134,7 @@ addinsts(__pmLogInDom *idp, int numinst, int *instlist, char **namelist)
  */
 int
 addindom(__pmLogCtl *lcp, pmInDom indom, const __pmTimestamp *tsp, int numinst, 
-         int *instlist, char **namelist, __pmPDU *indom_buf, int allinbuf)
+         int *instlist, char **namelist, __int32_t *indom_buf, int allinbuf)
 {
     __pmLogInDom	*idp, *idp_prev;
     __pmLogInDom	*idp_cached, *idp_time;
@@ -668,7 +668,7 @@ __pmLogAddPMNSNode(__pmArchCtl *acp, pmID pmid, const char *name)
 
 int
 __pmLogAddInDom(__pmArchCtl *acp, const __pmTimestamp *tsp, const pmInResult *in,
-		__pmPDU *tbuf, int allinbuf)
+		__int32_t *tbuf, int allinbuf)
 {
     return addindom(acp->ac_log, in->indom, tsp,
 		    in->numinst, in->instlist, in->namelist, tbuf, allinbuf);
@@ -842,7 +842,7 @@ __pmLogLoadMeta(__pmArchCtl *acp)
 	else if (h.type == TYPE_INDOM || h.type == TYPE_INDOM_V2) {
 	    __pmTimestamp	stamp;
 	    pmInResult		in;
-	    __pmPDU		*buf;
+	    __int32_t		*buf;
 	    int			allinbuf;
 
 	    if ((allinbuf = __pmLogLoadInDom(acp, rlen, h.type, &in, &stamp, &buf)) < 0) {

@@ -453,7 +453,7 @@ extern int __pmRecvLabel(int, __pmContext *, int, int *, int *,
 extern char *__pmLabelFlagString(int, char *, int) _PCP_HIDDEN;
 
 /* logmeta.c hooks */
-extern int addindom(__pmLogCtl *, pmInDom, const __pmTimestamp *, int , int *, char **, __pmPDU *, int) _PCP_HIDDEN;
+extern int addindom(__pmLogCtl *, pmInDom, const __pmTimestamp *, int , int *, char **, __int32_t *, int) _PCP_HIDDEN;
 
 /* logutil.c hooks */
 extern size_t __pmLogLabelTotalSize(__pmLogCtl *) _PCP_HIDDEN;

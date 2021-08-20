@@ -20,20 +20,18 @@
 #include <libpcp.h>
 #include <assert.h>
 
-
 // TODO -remove this when __pmResultAlloc is in libpcp
 /*
  * Linked list of allocations made by __pmResultAlloc(), but not
  * yet released by pmFreeResult().
  */
-typedef struct result_pool {
-    struct result_pool	*next;
-    __pmResult		*__rp;
-    pmResult		*rp;
-} result_pool;
+typedef struct result_pool_t {
+    struct result_pool_t	*next;
+    __pmResult			*rp;
+} result_pool_t;
 
 // TODO -remove this when __pmResultAlloc is in libpcp
-result_pool	*head_pool;
+result_pool_t	*result_pool;
 
 // TODO -remove this when __pmOffsetResult is in libpcp.h
 /*
@@ -49,78 +47,112 @@ __pmOffsetResult(__pmResult *rp)
    return (pmResult *)&(((char *)&rp->numpmid)[(char *)tmp - (char *)&tmp->numpmid]);
 }
 
+/* same for pmHighResResult ... */
+inline pmHighResResult *
+__pmOffsetHighResResult(__pmResult *rp)
+{
+    pmHighResResult	*tmp;
+   return (pmHighResResult *)&(((char *)&rp->numpmid)[(char *)tmp - (char *)&tmp->numpmid]);
+}
+
 // TODO -remove this when __pmResultAlloc is in libpcp
 __pmResult *
 __pmResultAlloc(int need)
 {
-    result_pool	*new = (result_pool *)malloc(sizeof(*new));
+    result_pool_t	*new = (result_pool_t *)malloc(sizeof(*new));
 
     if (new == NULL) {
 	pmNoMem("__pmResultAlloc: new", sizeof(*new), PM_FATAL_ERR);
 	/* NOTREACHED */
     }
 
-    new->__rp = (__pmResult *)malloc(need);
-    if (new->__rp == NULL) {
+    new->rp = (__pmResult *)malloc(need);
+    if (new->rp == NULL) {
 	free(new);
 	pmNoMem("__pmResultAlloc: __pmResult", need, PM_FATAL_ERR);
 	/* NOTREACHED */
     }
-    new->rp = __pmOffsetResult(new->__rp);
 
-    new->next = head_pool;
-    head_pool = new;
+    new->next = result_pool;
+    result_pool = new;
 
-    return new->__rp;
+    return new->rp;
 }
-
 
 // TODO -remove this when revised pmFreeResult is in libpcp
 void
 pmFreeResult(pmResult *result)
 {
-    result_pool	*pool;
-    result_pool	*prior = NULL;
+    result_pool_t	*pool;
+    result_pool_t	*prior = NULL;
 
     if (pmDebugOptions.pdubuf)
 	fprintf(stderr, "pmFreeResult(" PRINTF_P_PFX "%p)", result);
 
-    for (pool = head_pool; pool != NULL; pool = pool->next) {
-	if (pool->rp == result) {
+    for (pool = result_pool; pool != NULL; pool = pool->next) {
+	if (result == __pmOffsetResult(pool->rp)) {
 	    if (pmDebugOptions.pdubuf)
-		fprintf(stderr, " [in " PRINTF_P_PFX "%p]", pool->__rp);
+		fprintf(stderr, " [in " PRINTF_P_PFX "%p]", pool->rp);
 	    break;
 	}
     }
     if (pmDebugOptions.pdubuf)
 	fputc('\n', stderr);
-
     __pmFreeResultValues(result);
-    if (pool->rp == result) {
-	free(pool->__rp);
+    if (pool != NULL) {
 	if (prior == NULL)
-	    head_pool = pool->next;
+	    result_pool = pool->next;
 	else
 	    prior->next = pool->next;
+	free(pool->rp);
 	free(pool);
     }
-    else
+    else {
 	free(result);
+    }
 }
 
+// TODO -remove this when revised pmFreeHighResResult is in libpcp
+void
+pmFreeHighResResult(pmHighResResult *result)
+{
+    result_pool_t	*pool;
+    result_pool_t	*prior = NULL;
 
-int
-main(void)
+    if (pmDebugOptions.pdubuf)
+	fprintf(stderr, "pmFreeHighResResult(" PRINTF_P_PFX "%p)", result);
+
+    for (pool = result_pool; pool != NULL; pool = pool->next) {
+	if (result == __pmOffsetHighResResult(pool->rp)) {
+	    if (pmDebugOptions.pdubuf)
+		fprintf(stderr, " [in " PRINTF_P_PFX "%p]", pool->rp);
+	    break;
+	}
+    }
+    if (pmDebugOptions.pdubuf)
+	fputc('\n', stderr);
+    __pmFreeHighResResultValues(result);
+    if (pool != NULL) {
+	if (prior == NULL)
+	    result_pool = pool->next;
+	else
+	    prior->next = pool->next;
+	free(pool->rp);
+	free(pool);
+    }
+    else {
+	free(result);
+    }
+}
+
+static __pmResult *
+setup(void)
 {
     __pmResult		*in;
-    pmResult		*out;
-    __pmTimestamp	stamp;
     int			need;
     int			numpmid = 3;
     double		value;
     int			nch;
-
-    pmSetDebug("pdubuf");
 
     need = sizeof(__pmResult) + (numpmid-1)*sizeof(pmValueSet *);
     in = __pmResultAlloc(need);
@@ -178,19 +210,45 @@ main(void)
     in->vset[2]->vlist[2].value.pval->vtype = PM_TYPE_STRING;
     in->vset[2]->vlist[2].value.pval->vlen = sizeof(int)+nch;
     memmove((void *)in->vset[2]->vlist[2].value.pval->vbuf, (void *)"lamb", nch);
-    __pmPrintResult(stdout, in);
 
+    return in;
+}
+
+int
+main(void)
+{
+    __pmResult		*in;
+    pmResult		*out;
+    pmHighResResult	*hr_out;
+    __pmTimestamp	stamp;
+
+    pmSetDebug("pdubuf");
+
+    in = setup();
+    __pmPrintResult(stdout, in);
     out = __pmOffsetResult(in);
     assert(&in->numpmid == &out->numpmid);
-
     stamp.sec = in->timestamp.sec;
     stamp.nsec = in->timestamp.nsec;
     out->timestamp.tv_sec = stamp.sec;
     out->timestamp.tv_usec = stamp.nsec / 1000;
     printf("out: stamp=%ld.%06ld numpmid=%d\n", (long)out->timestamp.tv_sec, (long)out->timestamp.tv_usec, out->numpmid);
     __pmDumpResult(stdout, out);
-
     pmFreeResult(out);
+
+    printf("\n");
+
+    in = setup();
+    __pmPrintResult(stdout, in);
+    hr_out = __pmOffsetHighResResult(in);
+    assert(&in->numpmid == &hr_out->numpmid);
+    stamp.sec = in->timestamp.sec;
+    stamp.nsec = in->timestamp.nsec;
+    hr_out->timestamp.tv_sec = stamp.sec;
+    hr_out->timestamp.tv_nsec = stamp.nsec;
+    printf("hr_out: stamp=%ld.%09ld numpmid=%d\n", (long)hr_out->timestamp.tv_sec, (long)hr_out->timestamp.tv_nsec, hr_out->numpmid);
+    __pmDumpHighResResult(stdout, hr_out);
+    pmFreeHighResResult(hr_out);
 
     return(0);
 

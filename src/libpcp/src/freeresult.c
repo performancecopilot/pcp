@@ -60,7 +60,7 @@ __pmFreeResultValues(pmResult *result)
     if (pmDebugOptions.pdubuf)
 	fprintf(stderr, "__pmFreeResultValues(" PRINTF_P_PFX "%p) numpmid=%d\n",
 	    result, result->numpmid);
-    if (result->numpmid)
+    if (result->numpmid > 0)
 	__pmFreeResultValueSets(result->vset, &result->vset[result->numpmid]);
 }
 
@@ -74,11 +74,20 @@ pmFreeResult(pmResult *result)
 }
 
 void
+__pmFreeHighResResultValues(pmHighResResult *result)
+{
+    if (pmDebugOptions.pdubuf)
+	fprintf(stderr, "__pmFreeHighResResultValues(" PRINTF_P_PFX "%p) numpmid=%d\n",
+	    result, result->numpmid);
+    if (result->numpmid > 0)
+	__pmFreeResultValueSets(result->vset, &result->vset[result->numpmid]);
+}
+
+void
 __pmFreeHighResResult(pmHighResResult *result)
 {
     if (pmDebugOptions.pdubuf)
 	fprintf(stderr, "__pmFreeHighResResult(" PRINTF_P_PFX "%p)\n", result);
-    if (result->numpmid)
-	__pmFreeResultValueSets(result->vset, &result->vset[result->numpmid]);
+    __pmFreeHighResResultValues(result);
     free(result);
 }

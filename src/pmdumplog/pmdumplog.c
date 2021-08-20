@@ -539,7 +539,7 @@ dumpDiskInDom(__pmContext *ctxp)
 	if (hdr.type == TYPE_INDOM || hdr.type == TYPE_INDOM_V2) {
 	    __pmTimestamp	stamp;
 	    pmInResult		in;
-	    __pmPDU		*buf;
+	    __int32_t		*buf;
 	    int			allinbuf;
 	    int			i;
 

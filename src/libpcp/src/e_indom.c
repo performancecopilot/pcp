@@ -160,14 +160,14 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":6", PM_FAULT_ALLOC);
  */
 
 int
-__pmLogLoadInDom(__pmArchCtl *acp, int rlen, int type, pmInResult *inp, __pmTimestamp *tsp, __pmPDU **buf)
+__pmLogLoadInDom(__pmArchCtl *acp, int rlen, int type, pmInResult *inp, __pmTimestamp *tsp, __int32_t **buf)
 {
     int			i;
     int			k;
     int			n;
     __int32_t		*stridx;
     char		*namebase;
-    __pmPDU		*lbuf;
+    __int32_t		*lbuf;
     int			sts;
 
 PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
