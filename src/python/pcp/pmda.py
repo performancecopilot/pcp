@@ -1,6 +1,6 @@
 """Wrapper module for libpcp_pmda - Performace Co-Pilot Domain Agent API
 #
-# Copyright (C) 2013-2015,2017-2020 Red Hat.
+# Copyright (C) 2013-2015,2017-2021 Red Hat.
 #
 # This file is part of the "pcp" module, the python interfaces for the
 # Performance Co-Pilot toolkit.
@@ -17,7 +17,7 @@
 #
 # See pmdasimple.py for an example use of this module.
 """
-# pylint: disable=too-many-arguments, consider-using-dict-items
+# pylint: disable=too-many-arguments,consider-using-dict-items,no-member
 
 import os
 
@@ -167,7 +167,7 @@ class pmdaIndom(Structure):
             sts = LIBPCP_PMDA.pmdaCacheLookup(self.it_indom, instance,
                                               byref(name), None)
             if sts == cpmda.PMDA_CACHE_ACTIVE:
-                return str(name.value).decode()
+                return str(name.value.decode())
         elif self.it_numinst > 0:
             for inst in self.it_set:
                 if inst.i_inst == instance:

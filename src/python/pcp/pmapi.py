@@ -87,7 +87,7 @@
     for ts, line in vvv():
         print("%s : %s" % (ts, line()))
 """
-# pylint: disable=missing-docstring,line-too-long,broad-except
+# pylint: disable=missing-docstring,line-too-long,broad-except,no-member
 # pylint: disable=too-many-lines,too-many-arguments,too-many-nested-blocks
 
 import os
@@ -187,8 +187,8 @@ class pmUsageErr(Exception):
         self.args = list(args)
 
     def message(self):
-        for arg in self.args:
-            LIBPCP.pmprintf(str(arg.encode('utf-8')))
+        for index in range(0, len(self.args)): # pylint: disable=C0200
+            LIBPCP.pmprintf(str(self.args[index]).encode('utf-8'))
         return c_api.pmUsageMessage()
 
 
@@ -1524,7 +1524,7 @@ class pmContext(object):
             raise pmErr(status)
         result = name.value
         LIBC.free(name)
-        return str(result).decode()
+        return str(result.decode())
 
     def pmTraversePMNS(self, name, callback):
         """PMAPI - Scan namespace, depth first, run CALLBACK at each node
@@ -1559,7 +1559,7 @@ class pmContext(object):
         errmsg = c_char_p()
         result = LIBPCP.pmRegisterDerivedMetric(name, expr, byref(errmsg))
         if result != 0:
-            text = str(errmsg.value).decode()
+            text = str(errmsg.value.decode())
             LIBC.free(errmsg)
             raise pmErr(c_api.PM_ERR_CONV, text)
         status = LIBPCP.pmReconnectContext(self.ctx)
@@ -1659,7 +1659,7 @@ class pmContext(object):
             raise pmErr(status)
         result = buf.value
         LIBC.free(buf)
-        return str(result).decode()
+        return str(result.decode())
 
     def pmLookupText(self, pmid, kind=c_api.PM_TEXT_ONELINE):
         """PMAPI - Lookup the description of a metric from its pmID
@@ -1751,7 +1751,7 @@ class pmContext(object):
             raise pmErr(status)
         result = name_p.value
         LIBC.free(name_p)
-        return str(result).decode('ascii', 'ignore')
+        return str(result.decode('ascii', 'ignore'))
 
     ##
     # PMAPI Context Services
@@ -1926,7 +1926,7 @@ class pmContext(object):
         if status < 0:
             raise pmErr(status)
         tz = tz_p.value
-        return str(tz).decode()
+        return str(tz.decode())
 
     def pmLocaltime(self, seconds):
         """PMAPI - convert the date and time for a reporting timezone """
@@ -2068,7 +2068,7 @@ class pmContext(object):
             raise pmErr(status)
         result = name_p.value
         LIBC.free(name_p)
-        return str(result).decode('ascii', 'ignore')
+        return str(result.decode('ascii', 'ignore'))
 
     def pmFetchArchive(self):
         """PMAPI - Fetch measurements from the target source
@@ -2526,7 +2526,7 @@ class pmContext(object):
         multiplier = c_double()
         status = LIBPCP.pmParseUnitsStr(string, byref(result), byref(multiplier), byref(errmsg))
         if status < 0:
-            text = str(errmsg.value).decode()
+            text = str(errmsg.value.decode())
             LIBC.free(errmsg)
             raise pmErr(status, text)
         return (result, multiplier.value)
