@@ -243,8 +243,14 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
 		fprintf(stderr, "inst[%d] %d or \"%s\" (idx=%d)\n", i, inp->instlist[i], inp->namelist[i], ntohl(stridx[i]));
 	}
     }
-    else
+    else {
 	inp->namelist = NULL;
+	/*
+	 * sts value here does not matter, because inp->numinst <= 0 and
+	 * so inp->namelist will never be referenced
+	 */
+	sts = 1;
+    }
 
     if (acp != NULL)
 	*buf = lbuf;
