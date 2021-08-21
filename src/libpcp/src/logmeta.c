@@ -853,7 +853,7 @@ __pmLogLoadMeta(__pmArchCtl *acp)
 		/*
 		 * we have instances, so in.namelist is not NULL
 		 */
-		if ((sts = __pmLogAddInDom(acp, &stamp, &in, buf, sts)) < 0) {
+		if ((sts = __pmLogAddInDom(acp, &stamp, &in, buf, allinbuf)) < 0) {
 		    free(buf);
 		    if (!allinbuf)
 			free(in.namelist);
