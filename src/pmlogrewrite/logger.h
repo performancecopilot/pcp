@@ -168,8 +168,8 @@ typedef struct {
     __pmContext	*ctxp;
     char	*name;
     pmLogLabel	label;
-    __pmPDU	*metarec;
-    __pmPDU	*logrec;
+    __int32_t	*metarec;
+    __int32_t	*logrec;
     pmResult	*rp;
     int		mark;		/* need EOL marker */
 } inarch_t;
@@ -209,8 +209,8 @@ extern int	yyparse(void);
 #define W_NEXT	2
 #define W_NONE	3
 
-extern int	_pmLogGet(__pmArchCtl *, int, __pmPDU **);
-extern int	_pmLogPut(FILE *, __pmPDU *);
+extern int	_pmLogGet(__pmArchCtl *, int, __int32_t **);
+extern int	_pmLogPut(FILE *, __int32_t *);
 extern int	_pmLogRename(const char *, const char *);
 extern int	_pmLogRemove(const char *, int);
 extern pmUnits	ntoh_pmUnits(pmUnits);

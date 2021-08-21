@@ -29,7 +29,7 @@
  * - changing type has the same implications as rescaling
  * - a single metric within a pmResult may have both rescaling and type
  *   change
- * - the initial pmResult contains pointers into a PDU buffer so the fast
+ * - the initial pmResult contains pointers into a record buffer so the fast
  *   track case in pmFreeresult() may not release any of the pmValueSet
  *   or pmValue or pmValueBlock allocations if pmFreeResult is given a
  *   rewritten pmResult, so we modify the pmResult in place but use save[]
@@ -392,7 +392,7 @@ rescale(int i, metricspec_t *mp)
 	    /*
 	     * current value uses pval that is from a previous call to
 	     * __pmStuffValue() during rewriting, not a pointer into a
-	     * PDU buffer
+	     * record buffer
 	     */
 	    if (pmDebugOptions.appl2) {
 		fprintf(stderr, "rescale free(" PRINTF_P_PFX "%p) pval pmid=%s inst=%d\n",
@@ -456,7 +456,7 @@ retype(int i, metricspec_t *mp)
 	    /*
 	     * current value uses pval that is from a previous call to
 	     * __pmStuffValue() during rewriting, not a pointer into a
-	     * PDU buffer
+	     * record buffer
 	     */
 	    if (pmDebugOptions.appl2) {
 		fprintf(stderr, "retype free(" PRINTF_P_PFX "%p) pval pmid=%s inst=%d\n",
@@ -633,7 +633,7 @@ do_result(void)
 				    /*
 				     * messy case ... last instance pval is
 				     * from calling __pmStuffValue() in
-				     * rewriting not a pointer into the PDU
+				     * rewriting not a pointer into the record
 				     * buffer, so free here because
 				     * clean_vset() won't find it
 				     */
@@ -666,7 +666,7 @@ do_result(void)
 	unsigned long	out_offset;
 	unsigned long	peek_offset;
 	peek_offset = __pmFtell(outarch.archctl.ac_mfp);
-	sts = __pmEncodeResult(PDU_OVERRIDE2, inarch.rp, &inarch.logrec);
+	sts = __pmEncodeResult(PDU_OVERRIDE2, inarch.rp, (__pmPDU **)&inarch.logrec);
 	if (sts < 0) {
 	    fprintf(stderr, "%s: Error: __pmEncodeResult: %s\n",
 		    pmGetProgname(), pmErrStr(sts));
@@ -682,14 +682,14 @@ do_result(void)
 	    newvolume(outarch.archctl.ac_curvol+1);
 	}
 	out_offset = __pmFtell(outarch.archctl.ac_mfp);
-	if ((sts = __pmLogPutResult2(&outarch.archctl, inarch.logrec)) < 0) {
+	if ((sts = __pmLogPutResult2(&outarch.archctl, (__pmPDU *)inarch.logrec)) < 0) {
 	    fprintf(stderr, "%s: Error: __pmLogPutResult2: log data: %s\n",
 		    pmGetProgname(), pmErrStr(sts));
 	    abandon();
 	    /*NOTREACHED*/
 	}
 	/*
-	 * do not free inarch.logrec ... this is a libpcp PDU buffer,
+	 * do not free inarch.logrec ... this is a libpcp record buffer,
 	 * so Unpin it
 	 */
 	__pmUnpinPDUBuf(inarch.logrec);

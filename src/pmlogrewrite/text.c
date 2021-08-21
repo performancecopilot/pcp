@@ -119,14 +119,14 @@ start_text(int type, int id, char *text)
  * code factoring here.
  */
  static void
-_pmUnpackText(__pmPDU *pdubuf, unsigned int *type, unsigned int *ident,
+_pmUnpackText(__int32_t *recbuf, unsigned int *type, unsigned int *ident,
 	      char **buffer)
 {
     char	*tbuf;
     int		k;
 
     /* Walk through the record extracting the data. */
-    tbuf = (char *)pdubuf;
+    tbuf = (char *)recbuf;
     k = 0;
     k += sizeof(__pmLogHdr);
 
@@ -169,7 +169,7 @@ do_text(void)
 
     /*
      * Global time stamp adjustment (if any) has already been done in the
-     * PDU buffer, so this is reflected in the unpacked value of stamp.
+     * record buffer, so this is reflected in the unpacked value of stamp.
      */
     for (tp = text_root; tp != NULL; tp = tp->t_next) {
 	if (tp->old_id != ident)

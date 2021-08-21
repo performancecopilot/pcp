@@ -23,7 +23,7 @@
  * raw read of next log record - largely stolen from __pmLogRead in libpcp
  */
 int
-_pmLogGet(__pmArchCtl *acp, int vol, __pmPDU **pb)
+_pmLogGet(__pmArchCtl *acp, int vol, __int32_t **pb)
 {
     __pmLogCtl	*lcp = acp->ac_log;
     int		head;
@@ -31,7 +31,7 @@ _pmLogGet(__pmArchCtl *acp, int vol, __pmPDU **pb)
     int		sts;
     long	offset;
     char	*p;
-    __pmPDU	*lpb;
+    __int32_t	*lpb;
     __pmFILE	*f;
 
     if (vol == PM_LOG_VOL_META)
@@ -71,7 +71,7 @@ again:
 	    return -oserror();
     }
 
-    if ((lpb = (__pmPDU *)malloc(ntohl(head))) == NULL) {
+    if ((lpb = (__int32_t *)malloc(ntohl(head))) == NULL) {
 	if (pmDebugOptions.log)
 	    fprintf(stderr, "Error: _pmLogGet:(%d) %s\n",
 		(int)ntohl(head), osstrerror());
@@ -140,10 +140,10 @@ again:
 	    fprintf(stderr, " timestamp=");
 	    __pmPrintTimestamp(stderr, &stamp);
 	}
-	fprintf(stderr, " " PRINTF_P_PFX "%p ... " PRINTF_P_PFX "%p", lpb, &lpb[ntohl(head)/sizeof(__pmPDU) - 1]);
+	fprintf(stderr, " " PRINTF_P_PFX "%p ... " PRINTF_P_PFX "%p", lpb, &lpb[ntohl(head)/sizeof(__int32_t) - 1]);
 	fputc('\n', stderr);
 	fprintf(stderr, "%03d: ", 0);
-	for (j = 0, i = 0; j < ntohl(head)/sizeof(__pmPDU); j++) {
+	for (j = 0, i = 0; j < ntohl(head)/sizeof(__int32_t); j++) {
 	    if (i == 8) {
 		fprintf(stderr, "\n%03d: ", j);
 		i = 0;
