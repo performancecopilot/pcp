@@ -95,14 +95,14 @@ typedef struct {
  * reverse the logic of __pmLogPutDesc()
  */
 static void
-_pmUnpackDesc(__pmPDU *pdubuf, pmDesc *desc, int *numnames, char ***names)
+_pmUnpackDesc(__int32_t *recbuf, pmDesc *desc, int *numnames, char ***names)
 {
     desc_t	*pp;
     int		i;
     char	*p;
     int		slen;
 
-    pp = (desc_t *)pdubuf;
+    pp = (desc_t *)recbuf;
     desc->type = ntohl(pp->desc.type);
     desc->sem = ntohl(pp->desc.sem);
     desc->indom = ntoh_pmInDom(pp->desc.indom);

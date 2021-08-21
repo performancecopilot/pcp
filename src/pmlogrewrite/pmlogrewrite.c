@@ -2020,7 +2020,7 @@ main(int argc, char **argv)
     }
 
     if (pmDebugOptions.pdubuf) {
-	/* dump PDU buffer state ... looking for mem leaks here */
+	/* dump record buffer state ... looking for mem leaks here */
 	(void)__pmFindPDUBuf(-1);
     }
 

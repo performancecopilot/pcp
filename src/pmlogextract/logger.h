@@ -25,7 +25,7 @@
  *  list of pdu's to write out at start of time window
  */
 typedef struct reclist {
-    __pmPDU		*pdu;		/* PDU ptr */
+    __int32_t		*pdu;		/* PDU ptr */
     pmTimeval		stamp;		/* for indom and label records */
     pmDesc		desc;
     unsigned int	written : 16;	/* written PDU status */
@@ -42,7 +42,7 @@ typedef struct {
     int		ctx;
     char	*name;
     pmLogLabel	label;
-    __pmPDU	*pb[2];
+    __int32_t	*pb[2];
     pmResult	*_result;
     pmResult	*_Nresult;
     int		eof[2];
@@ -112,8 +112,8 @@ extern int	yyparse(void);
 extern void	dometric(const char *);
 
 /* log I/O helper routines */
-extern int _pmLogGet(__pmArchCtl *, int, __pmPDU **);
-extern int _pmLogPut(__pmFILE *, __pmPDU *);
+extern int _pmLogGet(__pmArchCtl *, int, __int32_t **);
+extern int _pmLogPut(__pmFILE *, __int32_t *);
 extern pmUnits ntoh_pmUnits(pmUnits);
 #define ntoh_pmInDom(indom) ntohl(indom)
 #define ntoh_pmID(pmid) ntohl(pmid)

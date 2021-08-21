@@ -58,22 +58,22 @@ static pmOptions opts = {
  * extract metric name(s) from metadata pdu buffer
  */
 void
-printmetricnames(FILE *f, __pmPDU *pdubuf)
+printmetricnames(FILE *f, __int32_t *pdubuf)
 {
     if (ntohl(pdubuf[0]) > 8) {
 	/*
 	 * have at least one name ... names are packed
 	 * <len><name>... at the end of the buffer
 	 */
-	int	numnames = ntohl(pdubuf[7]);
-	char	*p = (char *)&pdubuf[8];
-	int	i;
-	__pmPDU	len;
+	int		numnames = ntohl(pdubuf[7]);
+	char		*p = (char *)&pdubuf[8];
+	int		i;
+	__int32_t	len;
 
 	for (i = 0; i < numnames; i++) {
-	    memmove((void *)&len, (void *)p, sizeof(__pmPDU));
+	    memmove((void *)&len, (void *)p, sizeof(__int32_t));
 	    len = ntohl(len);
-	    p += sizeof(__pmPDU);
+	    p += sizeof(__int32_t);
 	    if (i > 0) fprintf(f, ", ");
 	    fprintf(f, "%*.*s", len, len, p);
 	    p += len;
@@ -99,7 +99,7 @@ printmetricnames(FILE *f, __pmPDU *pdubuf)
  * returns MATCH_EQUAL {a names} is identical to {b names}
  */
 int
-matchnames(__pmPDU *a, __pmPDU *b)
+matchnames(__int32_t *a, __int32_t *b)
 {
     int		num_a = 0;
     int		num_b = 0;
@@ -119,17 +119,17 @@ matchnames(__pmPDU *a, __pmPDU *b)
      */
     p_a = (char *)&a[8];
     for (i_a = 0; i_a < num_a; i_a++) {
-	__pmPDU		len_a;
+	__int32_t		len_a;
 
-	memmove((void *)&len_a, (void *)p_a, sizeof(__pmPDU));
+	memmove((void *)&len_a, (void *)p_a, sizeof(__int32_t));
 	len_a = ntohl(len_a);
-	p_a += sizeof(__pmPDU);
+	p_a += sizeof(__int32_t);
 	p_b = (char *)&b[8];
 	for (i_b = 0; i_b < num_b; i_b++) {
-	    __pmPDU		len_b;
-	    memmove((void *)&len_b, (void *)p_b, sizeof(__pmPDU));
+	    __int32_t		len_b;
+	    memmove((void *)&len_b, (void *)p_b, sizeof(__int32_t));
 	    len_b = ntohl(len_b);
-	    p_b += sizeof(__pmPDU);
+	    p_b += sizeof(__int32_t);
 
 	    if (len_a == len_b && strncmp(p_a, p_b, len_a) == 0) {
 		num_a_eq++;
@@ -150,17 +150,17 @@ matchnames(__pmPDU *a, __pmPDU *b)
      */
     p_b = (char *)&b[8];
     for (i_b = 0; i_b < num_b; i_b++) {
-	__pmPDU		len_b;
+	__int32_t		len_b;
 
-	memmove((void *)&len_b, (void *)p_b, sizeof(__pmPDU));
+	memmove((void *)&len_b, (void *)p_b, sizeof(__int32_t));
 	len_b = ntohl(len_b);
-	p_b += sizeof(__pmPDU);
+	p_b += sizeof(__int32_t);
 	p_a = (char *)&a[8];
 	for (i_a = 0; i_a < num_a; i_a++) {
-	    __pmPDU		len_a;
-	    memmove((void *)&len_a, (void *)p_a, sizeof(__pmPDU));
+	    __int32_t		len_a;
+	    memmove((void *)&len_a, (void *)p_a, sizeof(__int32_t));
 	    len_a = ntohl(len_a);
-	    p_a += sizeof(__pmPDU);
+	    p_a += sizeof(__int32_t);
 
 	    if (len_b == len_a && strncmp(p_b, p_a, len_b) == 0) {
 		num_b_eq++;
@@ -253,13 +253,15 @@ typedef struct {
     __pmValue_PDU	vlist[1];	/* zero or more */
 } vlist_t;
 
+// TODO ... this only works for V2 archives ... need V3 struct
+// or alternate logic
 /*
  *  Mark record
  */
 typedef struct {
-    __pmPDU		len;
-    __pmPDU		type;
-    __pmPDU		from;
+    __int32_t		len;
+    __int32_t		type;
+    __int32_t		from;
     pmTimeval		timestamp;	/* when returned */
     int			numpmid;	/* zero PMIDs to follow */
 } mark_t;
@@ -883,7 +885,7 @@ append_indomreclist(int indx)
     reclist_t		*curr;
     reclist_t		*rec;
     __pmHashNode	*hp;
-    __pmPDU		*pdu;
+    __int32_t		*pdu;
     int			indom;
 
     iap = &inarch[indx];
@@ -1201,7 +1203,7 @@ write_rec(reclist_t *rec)
 		pmPrintDesc(stderr, &desc);
 	    }
 	    else if (type == TYPE_INDOM || type == TYPE_INDOM_V2) {
-		__pmPDU		*buf;
+		__int32_t	*buf;
 		pmInResult	in;
 		__pmTimestamp	stamp;
 		int		allinbuf;
@@ -1572,7 +1574,7 @@ write_metareclist(pmResult *result, int *needti)
 /*
  *  create a mark record
  */
-__pmPDU *
+__int32_t *
 _createmark(void)
 {
     mark_t	*markp;
@@ -1602,7 +1604,7 @@ _createmark(void)
 	markp->timestamp.tv_sec++;
     }
     markp->numpmid = 0;
-    return((__pmPDU *)markp);
+    return((__int32_t *)markp);
 }
 
 void
@@ -2258,7 +2260,7 @@ checkwinend(pmTimeval now)
     int		sts;
     pmTimeval	tmptime;
     inarch_t	*iap;
-    __pmPDU	*markpdu;	/* mark b/n time windows */
+    __int32_t	*markpdu;	/* mark b/n time windows */
 
     if (winend.tv_sec < 0 || tvcmp(&now, &winend) <= 0)
 	return(0);
@@ -2320,7 +2322,7 @@ checkwinend(pmTimeval now)
     /* must create "mark" record and write it out */
     /* (need only one mark record) */
     markpdu = _createmark();
-    if ((sts = __pmLogPutResult2(&archctl, markpdu)) < 0) {
+    if ((sts = __pmLogPutResult2(&archctl, (__pmPDU *)markpdu)) < 0) {
 	fprintf(stderr, "%s: Error: __pmLogPutResult2: log data: %s\n",
 		pmGetProgname(), pmErrStr(sts));
 	abandon_extract();
@@ -2341,7 +2343,7 @@ writerlist(rlist_t **rlready, pmTimeval mintime)
     pmTimeval	restime;	/* time of result */
     struct timeval tstamp;	/* temporary time stamp */
     rlist_t	*elm;		/* element of rlready to be written out */
-    __pmPDU	*pb;		/* pdu buffer */
+    __int32_t	*pb;		/* pdu buffer */
     unsigned long	peek_offset;
 
     while (*rlready != NULL) {
@@ -2387,7 +2389,7 @@ fprintf(stderr, " break!\n");
 	write_priorlabelset(PM_LABEL_CONTEXT, PM_IN_NULL, &tstamp);
 
 	/* convert log record to a pdu */
-	sts = __pmEncodeResult(PDU_OVERRIDE2, elm->res, &pb);
+	sts = __pmEncodeResult(PDU_OVERRIDE2, elm->res, (__pmPDU **)&pb);
 	if (sts < 0) {
 	    fprintf(stderr, "%s: Error: __pmEncodeResult: %s\n",
 		    pmGetProgname(), pmErrStr(sts));
@@ -2417,7 +2419,7 @@ fprintf(stderr, " break!\n");
 	/* write out log record */
 	old_log_offset = __pmFtell(archctl.ac_mfp);
 	assert(old_log_offset >= 0);
-	if ((sts = __pmLogPutResult2(&archctl, pb)) < 0) {
+	if ((sts = __pmLogPutResult2(&archctl, (__pmPDU *)pb)) < 0) {
 	    fprintf(stderr, "%s: Error: __pmLogPutResult2: log data: %s\n",
 		    pmGetProgname(), pmErrStr(sts));
 	    abandon_extract();
@@ -2511,7 +2513,7 @@ writemark(inarch_t *iap)
     p->timestamp.tv_sec = htonl(p->timestamp.tv_sec);
     p->timestamp.tv_usec = htonl(p->timestamp.tv_usec);
 
-    if ((sts = __pmLogPutResult2(&archctl, iap->pb[LOG])) < 0) {
+    if ((sts = __pmLogPutResult2(&archctl, (__pmPDU *)iap->pb[LOG])) < 0) {
 	fprintf(stderr, "%s: Error: __pmLogPutResult2: log data: %s\n",
 		pmGetProgname(), pmErrStr(sts));
 	abandon_extract();

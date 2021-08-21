@@ -1159,7 +1159,7 @@ getzoneinfo_plan_b(void)
 	fclose(f1);
 	return NULL;
     }
-    sprintf(tmp, "find /usr/share/zoneinfo -type f -a -size %zdc", sbuf.st_size);
+    sprintf(tmp, "find /usr/share/zoneinfo -type f -a -size %lldc", (long long)sbuf.st_size);
     if ((fp = popen(tmp, "r")) == NULL) {
 	fprintf(stderr, "getzoneinfo_plan_b: pipe(%s) failed: %s\n", tmp, pmErrStr(-oserror()));
 	fclose(f1);

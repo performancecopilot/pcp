@@ -160,14 +160,14 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":6", PM_FAULT_ALLOC);
  */
 
 int
-__pmLogLoadInDom(__pmArchCtl *acp, int rlen, int type, pmInResult *inp, __pmTimestamp *tsp, __pmPDU **buf)
+__pmLogLoadInDom(__pmArchCtl *acp, int rlen, int type, pmInResult *inp, __pmTimestamp *tsp, __int32_t **buf)
 {
     int			i;
     int			k;
     int			n;
     __int32_t		*stridx;
     char		*namebase;
-    __pmPDU		*lbuf;
+    __int32_t		*lbuf;
     int			sts;
 
 PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
@@ -243,8 +243,14 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
 		fprintf(stderr, "inst[%d] %d or \"%s\" (idx=%d)\n", i, inp->instlist[i], inp->namelist[i], ntohl(stridx[i]));
 	}
     }
-    else
+    else {
 	inp->namelist = NULL;
+	/*
+	 * sts value here does not matter, because inp->numinst <= 0 and
+	 * so inp->namelist will never be referenced
+	 */
+	sts = 1;
+    }
 
     if (acp != NULL)
 	*buf = lbuf;

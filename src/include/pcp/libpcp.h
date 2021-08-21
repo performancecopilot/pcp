@@ -695,7 +695,7 @@ typedef struct __pmLogInDom {
     int			numinst;
     int			*instlist;		/* points into buf[] */
     char		**namelist;		/* may pint into buf[] */
-    __pmPDU		*buf;			/* on-disk buffer */
+    __int32_t		*buf;			/* on-disk buffer */
     int			allinbuf; 
 } __pmLogInDom;
 
@@ -975,7 +975,7 @@ PCP_CALL extern int __pmLogPutText(__pmArchCtl *, unsigned int , unsigned int, c
 PCP_CALL extern int __pmLogWriteLabel(__pmFILE *, const __pmLogLabel *);
 PCP_CALL extern int __pmLogLoadMeta(__pmArchCtl *);
 PCP_CALL extern int __pmLogAddDesc(__pmArchCtl *, const pmDesc *);
-PCP_CALL extern int __pmLogAddInDom(__pmArchCtl *, const __pmTimestamp *, const pmInResult *, __pmPDU *, int);
+PCP_CALL extern int __pmLogAddInDom(__pmArchCtl *, const __pmTimestamp *, const pmInResult *, __int32_t *, int);
 PCP_CALL extern int __pmLogAddPMNSNode(__pmArchCtl *, pmID, const char *);
 PCP_CALL extern int __pmLogAddLabelSets(__pmArchCtl *, const __pmTimestamp *, unsigned int, unsigned int, int, pmLabelSet *);
 PCP_CALL extern int __pmLogAddText(__pmArchCtl *, unsigned int, unsigned int, const char *);
@@ -1425,6 +1425,7 @@ PCP_CALL extern void __pmFreeInResult(pmInResult *);
 PCP_CALL extern void __pmFreePMNS(__pmnsTree *);
 PCP_CALL extern void __pmFreeProfile(pmProfile *);
 PCP_CALL extern void __pmFreeResultValues(pmResult *);
+PCP_CALL extern void __pmFreeHighResResultValues(pmHighResResult *);
 PCP_CALL extern void __pmFreeDerived(__pmContext *);
 
 /* diagnostics for formatting or printing miscellaneous data structures */
@@ -1492,7 +1493,7 @@ PCP_CALL extern void __pmFreeHighResResult(pmHighResResult *);
 /*
  * Loading metadata records and fields from disk ...
  */
-PCP_CALL extern int __pmLogLoadInDom(__pmArchCtl *, int, int, pmInResult *, __pmTimestamp *, __pmPDU **);
+PCP_CALL extern int __pmLogLoadInDom(__pmArchCtl *, int, int, pmInResult *, __pmTimestamp *, __int32_t **);
 PCP_CALL extern int __pmLogLoadLabel(__pmArchCtl *, const char *);
 PCP_CALL extern void __pmLogLoadTimestamp(const __int32_t *, __pmTimestamp *);
 PCP_CALL extern void __pmLogLoadTimeval(const __int32_t *, __pmTimestamp *);

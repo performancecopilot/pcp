@@ -146,7 +146,7 @@ _ntohpmLabel(pmLabel * const label)
  * code factoring here.
  */
  static void
-_pmUnpackLabelSet(__pmPDU *pdubuf, unsigned int *ltype, unsigned int *ident,
+_pmUnpackLabelSet(__int32_t *recbuf, unsigned int *ltype, unsigned int *ident,
 		  int *nsets, pmLabelSet **labelsets, __pmTimestamp *tsp)
 {
     __pmLogHdr	*hdr;
@@ -158,20 +158,20 @@ _pmUnpackLabelSet(__pmPDU *pdubuf, unsigned int *ltype, unsigned int *ident,
     int		nlabels;
 
     /* Walk through the record extracting the data. */
-    hdr = (__pmLogHdr *)pdubuf;
+    hdr = (__pmLogHdr *)recbuf;
     type = htonl(hdr->type);
-    tbuf = (char *)pdubuf;
+    tbuf = (char *)recbuf;
     k = sizeof(__pmLogHdr);
     if (type == TYPE_LABEL) {
-	memcpy((void *)&tsp->sec, (void *)&pdubuf[2], sizeof(tsp->sec));
-	tsp->nsec = pdubuf[4];
+	memcpy((void *)&tsp->sec, (void *)&recbuf[2], sizeof(tsp->sec));
+	tsp->nsec = recbuf[4];
 	__ntohpmTimestamp(tsp);
-	k += 3 * sizeof(__pmPDU);
+	k += 3 * sizeof(__int32_t);
     }
     else if (type == TYPE_LABEL_V2) {
-	tsp->sec = ntohl(pdubuf[2]);
-	tsp->nsec = ntohl(pdubuf[3]) * 1000;
-	k += 2 * sizeof(__pmPDU);
+	tsp->sec = ntohl(recbuf[2]);
+	tsp->nsec = ntohl(recbuf[3]) * 1000;
+	k += 2 * sizeof(__int32_t);
     }
     else {
 	fprintf(stderr, "_pmUnpackLabelSet: Botch: type=%d\n", type);
@@ -705,7 +705,7 @@ do_labelset(void)
 
     /*
      * Global time stamp adjustment (if any) has already been done in the
-     * PDU buffer, so this is reflected in the unpacked value of stamp.
+     * record buffer, so this is reflected in the unpacked value of stamp.
      */
     for (lp = label_root; lp != NULL; lp = lp->l_next) {
 	/* Check the label type and id for a match. */

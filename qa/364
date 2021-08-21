@@ -255,6 +255,7 @@ _filter_linux()
 	    -e '/^nfsclient\.options.* Unknown metric name/d' \
 	    -e '/^perfevent\.hwcounters.* Unknown metric name/d' \
 	    -e '/^proc\.smaps\..* Metric not supported/d' \
+	    -e '/^proc\.id\.container -12351 Missing metric value(s)/d' \
 	# linux
     fi
 }

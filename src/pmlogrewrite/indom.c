@@ -195,10 +195,10 @@ change_inst_by_inst(pmInDom indom, int old, int new)
  * reverse the logic of __pmLogPutInDom()
  */
 static void
-_pmUnpackInDom(__pmPDU *pdubuf, pmInDom *indom, __pmTimestamp *tsp, int *numinst, int **instlist, char ***inamelist)
+_pmUnpackInDom(__int32_t *recbuf, pmInDom *indom, __pmTimestamp *tsp, int *numinst, int **instlist, char ***inamelist)
 {
     __pmLogHdr	*hdr;
-    __pmPDU	*buf;
+    __int32_t	*buf;
     int		type;
     int		i;
     pmInResult	in;
@@ -206,10 +206,10 @@ _pmUnpackInDom(__pmPDU *pdubuf, pmInDom *indom, __pmTimestamp *tsp, int *numinst
     char	*s;
     size_t	size;
 
-    hdr = (__pmLogHdr *)pdubuf;
+    hdr = (__pmLogHdr *)recbuf;
     type = htonl(hdr->type);
     /* buffer for __pmLogLoadInDom has to start AFTER the header */
-    buf = &pdubuf[2];
+    buf = &recbuf[2];
     allinbuf = __pmLogLoadInDom(NULL, 0, type, &in, tsp, &buf);
     if (allinbuf < 0) {
 	fprintf(stderr, "_pmUnpackInDom: __pmLogLoadInDom(type=%d): failed: %s\n", type, pmErrStr(allinbuf));
@@ -332,7 +332,7 @@ do_indom(void)
 
     /*
      * global time stamp adjustment (if any has already been done in the
-     * PDU buffer, so this is reflected in the unpacked value of stamp.
+     * record buffer, so this is reflected in the unpacked value of stamp.
      */
     for (ip = indom_root; ip != NULL; ip = ip->i_next) {
 	if (ip->old_indom != indom)
