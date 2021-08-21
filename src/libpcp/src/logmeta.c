@@ -850,9 +850,12 @@ __pmLogLoadMeta(__pmArchCtl *acp)
 		goto end;
 	    }
 	    if (in.numinst > 0) {
+		/*
+		 * we have instances, so in.namelist is not NULL
+		 */
 		if ((sts = __pmLogAddInDom(acp, &stamp, &in, buf, sts)) < 0) {
 		    free(buf);
-		    if (in.namelist != NULL && !allinbuf)
+		    if (!allinbuf)
 			free(in.namelist);
 		    goto end;
 		}
@@ -860,7 +863,7 @@ __pmLogLoadMeta(__pmArchCtl *acp)
 		   namelist, as appropriate. */
 		if (sts == PMLOGPUTINDOM_DUP) {
 		    free(buf);
-		    if (in.namelist != NULL && !allinbuf)
+		    if (!allinbuf)
 			free(in.namelist);
 		}
 	    }
