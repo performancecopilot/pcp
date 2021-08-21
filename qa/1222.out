@@ -17,7 +17,6 @@ proc.control.all.threads: 1 value
 proc.control.perclient.cgroups: 1 value
 proc.control.perclient.threads: 1 value
 proc.fd.count: >10 values
-proc.id.container: >10 values
 proc.id.egid: >10 values
 proc.id.egid_nm: >10 values
 proc.id.euid: >10 values

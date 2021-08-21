@@ -49,6 +49,9 @@ _filter()
 	-e '/^proc\.smaps\..*: Metric not supported/d' \
 	-e '/^proc\.smaps\..*: No value(s) available/d' \
 	-e '/^proc\.psinfo\.cgroups: No data available/d' \
+	-e '/^proc\.psinfo\.cgroups: No value(s) available/d' \
+	-e '/^proc\.id\.container: Missing metric value(s)/d' \
+	-e '/^proc\.psinfo\.labels: No value(s) available/d' \
 	-e '/^proc\.psinfo\.ngid: Metric not supported by this version/d' \
 	-e '/pmdaFetch: Fetch callback error from metric PMID 3\.11\.0\[.*]: No data available/d' \
 	-e '/proc\.psinfo\.tty_pgrp: No value(s) available/d' \
@@ -88,6 +91,7 @@ NF == 0 && seen == 1		{ if (numval == 1) print metric ": 1 value"
 	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
 	-e '/^proc\.autogroup\.id:/d' \
 	-e '/^proc\.autogroup\.nice:/d' \
+	-e '/^proc\.id\.container:/d' \
 	-e '/^proc\.namespaces\./d' \
 	-e '/^proc\.psinfo\.cgroups:/d' \
 	-e '/^proc\.psinfo\.ngid:/d' \

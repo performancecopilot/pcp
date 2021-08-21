@@ -29,6 +29,7 @@ _filter_counts()
     # proc.psinfo.cgroups -12350 Metric not supported by this version of monitored application
     # proc.psinfo.cpusallowed -12350 Metric not supported by this version of monitored application
     # proc.psinfo.ngid -12350 Metric not supported by this version of monitored application
+    # proc.psinfo.cgroups -12351 Missing metric value(s)
     # then map any number of values to COUNT
     #
     sed \
@@ -38,6 +39,7 @@ _filter_counts()
         -e '/proc.psinfo.cgroups/s/-12350 .* application/1/' \
         -e '/proc.psinfo.cpusallowed/s/-12350 .* application/1/' \
         -e '/proc.psinfo.ngid/s/-12350 .* application/1/' \
+	-e '/proc.psinfo.cgroups/s/-12351 .*/1/' \
     | $PCP_AWK_PROG '$2 >= 0 { $2 = "COUNT" } { print }' \
     | LC_COLLATE=POSIX sort
 }

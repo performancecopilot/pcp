@@ -17,13 +17,15 @@ arch=archives/babylon.percpu_v2
 
 status=0
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+$sudo rm -f $seq.full
 
-remote=`./getpmcdhosts -n 1 -L 2>$tmp.out`
+remote=`./getpmcdhosts -n 1 -L -v 'pcp>=5.3.2' 2>$tmp.out`
 if [ -z "$remote" ]
 then
     _notrun "`cat $tmp.out`"
     # NOTREACHED
 fi
+echo "remote=$remote" >>$seq.full
 
 # real QA test starts here
 echo "source local, local time"
