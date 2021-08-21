@@ -47,7 +47,7 @@ static int
 log_error(jsonsl_t json, jsonsl_error_t error,
 	struct jsonsl_state_st *state, jsonsl_char_t *at)
 {
-    pmNotifyErr(LOG_ERR, "Error %s at position %lu. Remaining: %s\n",
+    pmNotifyErr(LOG_ERR, "Error %s at position %zd. Remaining: %s\n",
 		jsonsl_strerror(error), json->pos, at);
     return 0;
 }

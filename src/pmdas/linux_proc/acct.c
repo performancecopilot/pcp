@@ -297,7 +297,7 @@ open_and_acct(const char *path, int do_acct)
 
     if (lseek(acct_file.fd, file_stat.st_size, SEEK_SET) < 0) {
 	if (pmDebugOptions.appl3)
-	    pmNotifyErr(LOG_DEBUG, "acct: lseek \"%s\",%zd failed: %s\n", path, file_stat.st_size, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
+	    pmNotifyErr(LOG_DEBUG, "acct: lseek \"%s\",%lld failed: %s\n", path, (long long)file_stat.st_size, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
 	goto err3;
     }
 
