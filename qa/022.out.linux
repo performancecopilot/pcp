@@ -245,8 +245,6 @@ proc.psinfo.sname
 
 proc.memory.textrss
 
-proc.psinfo.labels
-
 proc.runq.sleeping
 
 proc.id.euid_nm
