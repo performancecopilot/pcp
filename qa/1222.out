@@ -84,7 +84,6 @@ proc.psinfo.exit_signal: >10 values
 proc.psinfo.flags: >10 values
 proc.psinfo.guest_time: >10 values
 proc.psinfo.it_real_value: >10 values
-proc.psinfo.labels: >10 values
 proc.psinfo.maj_flt: >10 values
 proc.psinfo.minflt: >10 values
 proc.psinfo.nice: >10 values
