@@ -1,4 +1,5 @@
 QA output created by 1067
+sample.proc.reset old value=0 new value=1
 == request specific values
 pcp.sample.long.one                           [u|1]
 pcp.sample.long.bin[bin-100]                  [u|100]
@@ -193,6 +194,10 @@ pcp.sample.negative.discrete.m_64             VALUE
 pcp.sample.negative.discrete.m_float          VALUE
 pcp.sample.negative.discrete.m_double         VALUE
 pcp.sample.controller.mirage                  VALUE
+pcp.sample.proc.ordinal                       [m|ZBX_NOTSUPPORTED]
+pcp.sample.proc.exec                          [m|ZBX_NOTSUPPORTED]
+pcp.sample.proc.time                          [m|ZBX_NOTSUPPORTED]
+pcp.sample.proc.reset                         VALUE
 == check derived metric configuration
 mem.util.allcache = mem.util.cached + mem.util.slab
 sample.derived.hundredten = sample.float.hundred + sample.double.ten
