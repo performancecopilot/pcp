@@ -146,7 +146,7 @@ cat <<End-of-File | sed -e 's/[ 	]*#.*//' -e '/^$/d' | while read cluster metric
 9 proc.memory.textrss
 #no values is possible# 10 proc.control.all.threads
 #no values is possible# 11 proc.psinfo.cgroups
-12 proc.psinfo.labels
+#no values is possible# 12 proc.psinfo.labels
 13 proc.runq.sleeping
 24 proc.id.euid_nm
 31 proc.schedstat.cpu_time

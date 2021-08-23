@@ -94,6 +94,7 @@ NF == 0 && seen == 1		{ if (numval == 1) print metric ": 1 value"
 	-e '/^proc\.id\.container:/d' \
 	-e '/^proc\.namespaces\./d' \
 	-e '/^proc\.psinfo\.cgroups:/d' \
+	-e '/^proc\.psinfo\.labels:/d' \
 	-e '/^proc\.psinfo\.ngid:/d' \
 	-e '/^proc\.psinfo\.tty_pgrp:/d' \
 	-e '/^proc\.smaps\./d' \

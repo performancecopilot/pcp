@@ -475,8 +475,11 @@ pmNewContextZone(void)
 	pmValueSet	*tzp, *zip;
 
 	PM_UNLOCK(ctxp->c_lock);
-	if ((sts = pmLookupName(2, names, pmids)) < 0)
-	    return sts;
+	if ((sts = pmLookupName(2, names, pmids)) < 0) {
+	    /* as long as one of the metrics is in the PMNS we're ok */
+	    if (pmids[0] == PM_ID_NULL && pmids[1] == PM_ID_NULL)
+		return sts;
+	}
 	if ((sts = pmFetch(2, pmids, &rp)) >= 0) {
 	    tzp = rp->vset[0];
 	    zip = rp->vset[1];

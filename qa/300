@@ -45,6 +45,16 @@ _check_need()
     done
 }
 
+# check if "auto.update" lock is already in place ... should not be, but
+# if it is that implies something died badly before we got here
+#
+if [ -f $PCP_TMPFILE_DIR/pmda.auto.update ]
+then
+    echo "Arrgh: lock file is pre-existing!"
+    ls -l $PCP_TMPFILE_DIR/pmda.auto.update
+    exit
+fi
+
 $sudo rm -rf $PCP_VAR_DIR/pmdas/bozo
 $sudo mkdir $PCP_VAR_DIR/pmdas/bozo
 cat <<End-of-File >$tmp.sh

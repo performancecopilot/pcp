@@ -48,8 +48,9 @@ _wait_for()
 
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
-trap "_cleanup;
-exit \$status" 0 1 2 3 15
+trap "_cleanup; exit \$status" 0 1 2 3 15
+rm -f $seq.full
+date >>$seq.full
 
 was_running=false
 [ -f $PCP_RUN_DIR/pmie.pid ] && was_running=true
@@ -65,7 +66,7 @@ delta = 0.2 seconds;
 fetched = simple.numfetch;
 EOF1
 
-echo "=== pmie config ===" >$seq.full
+echo "=== pmie config ===" >>$seq.full
 cat $tmp.config >>$seq.full
 
 # create pmie control files and test out various good/bad conditions
