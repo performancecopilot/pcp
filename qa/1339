@@ -1,7 +1,8 @@
-#! /bin/sh
-# PCP QA Test No. 156
+#!/bin/sh
+# PCP QA Test No. 1339
 # check out sample PMDA
-# - see qa/1339 for the Internet socket connection cases
+# - Internet socket part, see qa/156 for the other PMDA connection
+#   cases
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -56,6 +57,30 @@ status=1
 
 $sudo rm -f $seq.full
 
+echo "PCPQA_IN_CI=$PCPQA_IN_CI" >>$seq.full
+if [ "$PCPQA_IN_CI" = yes ]
+then
+    # in CI
+    # failing on test-ubuntu1804i386-container and nowhere else ...
+    # despite extensive triage, tcp port "already in use" problem
+    # persists
+    #
+    eval `src/sizeof ptr`
+    echo "ptr=$ptr" >>$seq.full
+    if [ "$ptr" = 4 ]
+    then
+	admin/whatami >>$seq.full
+	# 32-bit platform
+	case `admin/whatami`
+	in
+	    *Ubuntu\ 18.04\ *)
+		# bingo ... no cigar
+		_notrun "cannot make this test work for test-ubuntu1804i386-container"
+		;;
+	esac
+    fi
+fi
+
 # save pmcd.conf and restore it after the test
 cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
 
@@ -88,28 +113,45 @@ $sudo ./Remove >$tmp.out 2>&1
 cat $tmp.out
 _check_pmda_gone $iam
 
-echo
-echo "=== pipe agent ===" | tee -a $here/$seq.full
-echo pipe | $sudo ./Install -e >$tmp.out 2>&1
-_filter <$tmp.out
-pminfo -v sample || echo "... failed!"
-_snag_log
-echo pipe | $sudo ./Install -e >$tmp.out 2>&1
+echo | tee -a $here/$seq.full
+echo "=== socket Internet agent ===" | tee -a $here/$seq.full
+
+# pick two tcp ports that are not in use
+#
+port1=`_find_free_port 5670`
+if [ -z "$port1" ]
+then
+    echo "Arrgh ... port1: no free TCP port in the range 5670 ... "
+    exit
+fi
+echo "port1=$port1" >>$here/$seq.full
+if which netstat >/dev/null 2>&1
+then
+    netstat -a | grep $port1 >>$here/$seq.full
+fi
+try=`expr $port1 + 1`
+port2=`_find_free_port $try`
+if [ -z "$port2" ]
+then
+    echo "Arrgh ... port2: no free TCP port in the range $try ... "
+    exit
+fi
+echo "port2=$port2" >>$here/$seq.full
+if which netstat >/dev/null 2>&1
+then
+    netstat -a | grep $port2 >>$here/$seq.full
+fi
+
+echo 'socket
+Internet
+'$port1 | $sudo ./Install -e >$tmp.out 2>&1
 _filter <$tmp.out
 pminfo -v sample || echo "... failed!"
 _snag_log
 
-echo | tee -a $here/$seq.full
-echo "=== socket Unix agent ===" | tee -a $here/$seq.full
 echo 'socket
-Unix
-'"$tmp.fifo" | $sudo ./Install -e >$tmp.out 2>&1
-_filter <$tmp.out
-pminfo -v sample || echo "... failed!"
-_snag_log
-echo 'socket
-Unix
-'"$tmp.fifo" | $sudo ./Install -e >$tmp.out 2>&1
+Internet
+'$port2 | $sudo ./Install -e >$tmp.out 2>&1
 _filter <$tmp.out
 pminfo -v sample || echo "... failed!"
 _snag_log

@@ -1784,6 +1784,7 @@ x11
 1336 archive pmlogger local archive_v3 valgrind
 1337 pmda.mssql local
 1338 pmlogrewrite labels pmdumplog local
+1339 pmda.sample pmda.proc pmcd_wait pmda.install local
 1340 pmcd pmda.pmcd pmstore local pmda.sample
 1342 pmda.openmetrics local python
 1343:retired pmmgr local pmlogrewrite
