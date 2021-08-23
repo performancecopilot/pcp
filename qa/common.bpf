@@ -1,0 +1,181 @@
+#
+# Common shell routines for testing pmdabpf
+#
+# Copyright (c) 2021 Netflix.
+# Author jkoch@netflix.com
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_pmdabpf_check()
+{
+    [ $PCP_PLATFORM = linux ] || _notrun "BPF test, only works with Linux"
+    [ -f /sys/kernel/btf/vmlinux ] || _notrun "BTF not compiled into kernel"
+    [ -f $PCP_PMDAS_DIR/bpf/pmdabpf ] || _notrun "bpf PMDA not installed"
+
+    # check for libelf and libbpf
+    # check libbpf is compatible
+
+    # TODO how do?
+}
+
+_pmdabpf_require_kernel_version()
+{
+    uname -r | awk -F. -v major=$1 -v minor=$2 '$1 < major || ($1 == major && $2 < minor) {exit 1}' || \
+    _notrun "this test requires kernel $1.$2+"
+}
+
+_pmdabpf_install_filter()
+{
+    # ignore warnings because PMDA might not be ready yet
+    # and therefore it has no values
+    sed \
+    -e "s/.*pmdabpf.* Info/Info/g" \
+    -e "s/[0-9]\+ warnings, //" \
+    -e "s/[0-9]\+ metrics and [0-9]\+ values/X metrics and X values/g" \
+    #end
+}
+
+_pmdabpf_install()
+{
+    cat > $tmp.config
+
+    # start from known starting points
+    cd $PCP_PMDAS_DIR/bpf
+    $sudo ./Remove >/dev/null 2>&1
+
+    echo "pmdabpf config:" >> $here/$seq.full
+    cat $tmp.config >> $here/$seq.full
+
+    [ -f $PCP_PMDAS_DIR/bpf/bpf.conf ] && \
+    $sudo cp $PCP_PMDAS_DIR/bpf/bpf.conf $PCP_PMDAS_DIR/bpf/bpf.conf.$seq
+    $sudo cp $tmp.config $PCP_PMDAS_DIR/bpf/bpf.conf
+
+    echo
+    echo "=== bpf agent installation ==="
+    $sudo ./Install </dev/null >$tmp.out 2>&1
+    cat $tmp.out | _filter_pmda_install | _pmdabpf_install_filter
+
+    echo
+}
+
+_pmdabpf_wait_for_metric()
+{
+    # Wait for the PMDA to load the bpf modules and become ready, 10s max
+    _canwait=10
+    i=0
+    while [ $i -lt $_canwait ]
+    do
+	grep -q 'Info: bpf pmda init complete' $PCP_LOG_DIR/pmcd/bpf.log && break
+	sleep 1
+	i=`expr $i + 1`
+    done
+    sed -n '/Error:/,$p' $PCP_LOG_DIR/pmcd/bpf.log
+    if [ $i -eq $_canwait ]; then
+        echo PMDA was not ready in $_canwait seconds, test failed
+        exit
+    fi
+    echo "=== _pmdabpf_wait_for_metric: after $i secs, metrics should be available ===" >>$here/$seq.full
+    # "should" be available, but now wait up to 5 seconds for values
+    # to be seen ...
+    #
+    _canwait=5
+    i=1
+    while [ $i -le $_canwait ]
+    do
+	touch $tmp.ok
+	pmprobe bpf \
+	| while read metric numval foo
+	do
+	    if [ "$numval" -eq -12389 ]
+	    then
+		# PM_ERR_AGAIN ... this is expected (apparently)
+		#
+		:
+	    elif [ "$numval" -lt 0 ]
+	    then
+		rm -f $tmp.ok
+		if [ $i -eq $_canwait ]
+		then
+		    # still bad on last iteration ... report
+		    #
+		    echo "_pmdabpf_wait_for_metric: Botch: bbpf PMDA ready but metric $metric returns numval $numval (`pmerr $numval`)"
+		fi
+	    fi
+	done
+	if [ -f $tmp.ok ]
+	then
+	    # goodness
+	    #
+	    echo "=== _pmdabbpf_wait_for_metric: after another $i secs, values are available ===" >>$here/$seq.full
+	    pminfo -f bpf >>$here/$seq.full
+	    return 0
+	fi
+	sleep 1
+	i=`expr $i + 1`
+    done
+
+    # badness ...
+    #
+    pminfo -f bpf
+    echo "Here's the PMDA log ..."
+    cat $PCP_LOG_DIR/pmcd/bpf.log
+
+    return 0
+}
+
+_pmdabpf_wait_for_value()
+{
+    value_regex=${2:-'.*'}
+
+    sed -n '/Error:/,$p' $PCP_LOG_DIR/pmcd/bpf.log
+    for i in `seq 1 30`; do pminfo -f $1 | grep -q 'inst .* value '$value_regex && break; sleep 1; done
+    if [ $i -ge 30 ]; then
+        echo Could not get a single value, test failed
+        exit
+    fi
+}
+
+_pmdabpf_remove()
+{
+    cd $PCP_PMDAS_DIR/bpf
+
+    echo
+    echo "=== remove bpf agent ==="
+    $sudo ./Remove >$tmp.out 2>&1
+    _filter_pmda_remove <$tmp.out \
+    | sed \
+	-e '/ Info: /d' \
+    # end
+}
+
+_pmdabpf_cleanup()
+{
+    cat $PCP_LOG_DIR/pmcd/bpf.log >> $here/$seq.full
+    if [ -f $PCP_PMDAS_DIR/bpf/bpf.conf.$seq ]; then
+        $sudo cp $PCP_PMDAS_DIR/bpf/bpf.conf.$seq $PCP_PMDAS_DIR/bpf/bpf.conf
+        $sudo rm $PCP_PMDAS_DIR/bpf/bpf.conf.$seq
+    else
+        $sudo rm -f $PCP_PMDAS_DIR/bpf/bpf.conf
+    fi
+    # note: _restore_auto_restart pmcd done in _cleanup_pmda()
+    _cleanup_pmda bpf
+}
+
+_value_filter_any()
+{
+    awk '/value .+/ {print "OK"; exit}'
+}
+
+_value_filter_nonzero()
+{
+    awk '/value [1-9][0-9]*/ {print "OK"; exit}'
+}
+
+_value_filter_exact()
+{
+    grep "value $1" > /dev/null && echo OK
+}

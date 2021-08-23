@@ -90,6 +90,17 @@ Source0: %{artifactory}/pcp-source-release/pcp-%{version}.src.tar.gz
 %global disable_bcc 1
 %endif
 
+# support for pmdabpf, check bpf.spec for supported architectures of bpf
+%if 0%{?fedora} >= 33 || 0%{?rhel} > 8
+%ifarch x86_64 %{power64} aarch64 s390x
+%global disable_bpf 0
+%else
+%global disable_bpf 1
+%endif
+%else
+%global disable_bpf 1
+%endif
+
 # support for pmdabpftrace, check bpftrace.spec for supported architectures of bpftrace
 %if 0%{?fedora} >= 30 || 0%{?rhel} > 7
 %ifarch x86_64 %{power64} aarch64 s390x
@@ -355,6 +366,12 @@ Requires: pcp-selinux = %{version}-%{release}
 %global _with_bcc --with-pmdabcc=yes
 %endif
 
+%if %{disable_bpf}
+%global _with_bpf --with-pmdabpf=no
+%else
+%global _with_bpf --with-pmdabpf=yes
+%endif
+
 %if %{disable_bpftrace}
 %global _with_bpftrace --with-pmdabpftrace=no
 %else
@@ -514,6 +531,9 @@ Requires: pcp-pmda-nutcracker
 %endif
 %if !%{disable_bcc}
 Requires: pcp-pmda-bcc
+%endif
+%if !%{disable_bpf}
+Requires: pcp-pmda-bpf
 %endif
 %if !%{disable_bpftrace}
 Requires: pcp-pmda-bpftrace
@@ -1441,6 +1461,22 @@ extracting performance metrics from eBPF/BCC Python modules.
 # end pcp-pmda-bcc
 %endif
 
+%if !%{disable_bpf}
+#
+# pcp-pmda-bpf
+#
+%package pmda-bpf
+License: ASL 2.0 and GPLv2+
+Summary: Performance Co-Pilot (PCP) metrics from eBPF ELF modules
+URL: https://pcp.io
+Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
+Requires: libbpf
+%description pmda-bpf
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+extracting performance metrics from eBPF ELF modules.
+# end pcp-pmda-bpf
+%endif
+
 %if !%{disable_bpftrace}
 #
 # pcp-pmda-bpftrace
@@ -2223,6 +2259,8 @@ interface rules, type enforcement and file context adjustments for an
 updated policy package.
 %endif
 
+%global __strip %{_builddir}/%{?buildsubdir}/build/rpm/custom-strip
+
 %prep
 %setup -q
 
@@ -2234,7 +2272,7 @@ sed -i "/PACKAGE_BUILD/s/=[0-9]*/=$_build/" VERSION.pcp
 %if !%{disable_python2} && 0%{?default_python} != 3
 export PYTHON=python%{?default_python}
 %endif
-%configure %{?_with_initd} %{?_with_doc} %{?_with_dstat} %{?_with_ib} %{?_with_podman} %{?_with_statsd} %{?_with_perfevent} %{?_with_bcc} %{?_with_bpftrace} %{?_with_json} %{?_with_snmp} %{?_with_nutcracker} %{?_with_python2}
+%configure %{?_with_initd} %{?_with_doc} %{?_with_dstat} %{?_with_ib} %{?_with_podman} %{?_with_statsd} %{?_with_perfevent} %{?_with_bcc} %{?_with_bpf} %{?_with_bpftrace} %{?_with_json} %{?_with_snmp} %{?_with_nutcracker} %{?_with_python2}
 make %{?_smp_mflags} default_pcp
 
 %install
@@ -2399,6 +2437,7 @@ basic_manifest | keep '(etc/pcp|pmdas)/bash(/|$)' >pcp-pmda-bash-files
 basic_manifest | keep '(etc/pcp|pmdas)/bcc(/|$)' >pcp-pmda-bcc-files
 basic_manifest | keep '(etc/pcp|pmdas)/bind2(/|$)' >pcp-pmda-bind2-files
 basic_manifest | keep '(etc/pcp|pmdas)/bonding(/|$)' >pcp-pmda-bonding-files
+basic_manifest | keep '(etc/pcp|pmdas)/bpf(/|$)' >pcp-pmda-bpf-files
 basic_manifest | keep '(etc/pcp|pmdas)/bpftrace(/|$)' >pcp-pmda-bpftrace-files
 basic_manifest | keep '(etc/pcp|pmdas)/cifs(/|$)' >pcp-pmda-cifs-files
 basic_manifest | keep '(etc/pcp|pmdas)/cisco(/|$)' >pcp-pmda-cisco-files
@@ -2470,7 +2509,7 @@ basic_manifest | keep '(etc/pcp|pmdas)/zswap(/|$)' >pcp-pmda-zswap-files
 rm -f packages.list
 for pmda_package in \
     activemq apache \
-    bash bcc bind2 bonding bpftrace \
+    bash bcc bind2 bonding bpf bpftrace \
     cifs cisco \
     dbping denki docker dm ds389 ds389log \
     elasticsearch \
@@ -2788,6 +2827,11 @@ exit 0
 %if !%{disable_bcc}
 %preun pmda-bcc
 %{pmda_remove "$1" "bcc"}
+%endif
+
+%if !%{disable_bpf}
+%preun pmda-bpf
+%{pmda_remove "$1" "bpf"}
 %endif
 
 %if !%{disable_bpftrace}
@@ -3140,6 +3184,10 @@ PCP_LOG_DIR=%{_logsdir}
 
 %if !%{disable_bcc}
 %files pmda-bcc -f pcp-pmda-bcc-files.rpm
+%endif
+
+%if !%{disable_bpf}
+%files pmda-bpf -f pcp-pmda-bpf-files.rpm
 %endif
 
 %if !%{disable_bpftrace}

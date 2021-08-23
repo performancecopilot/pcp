@@ -1,0 +1,49 @@
+TOPDIR = ../../../..
+include $(TOPDIR)/src/include/builddefs
+
+IAM	= bpf
+MODULES	= biolatency.so runqlat.so
+BPF_MODULES = biolatency.bpf.o runqlat.bpf.o 
+MODULETMP = $(PCP_PMDAS_DIR)/$(IAM)/modules
+MODULEDIR = $(PCP_PMDASADM_DIR)/$(IAM)/modules
+
+include $(BUILDRULES)
+
+# Use the clang pipeline to emit LLVM to LLD and emit BPF straight to an ELF .o.
+# The GCC pipeline has parts of this but not completely, and in any case, likely
+# requires version/feature detection too.
+#
+# Some distributions place commands at different names (llvm-dis vs llvm-dis-12),
+# so detect distro directly.
+#
+# clang-12 special notes: https://www.spinics.net/lists/netdev/msg689901.html
+
+.PHONY: .FORCE
+FORCE:
+
+%.bpf.o: %.bpf.c FORCE
+	$(BPF_CLANG) -Wall -g -O2 -target bpf -D__TARGET_ARCH_x86 -c $< -o $@ && $(BPF_LLVM_STRIP) -g $@
+
+# ifeq "$(CLANG_MAJOR_VERSION)" "12"
+# %.bpf.o: %.bpf.c FORCE
+# 	clang -emit-llvm -O2 -Wno-unknown-attributes -Xclang -disable-llvm-passes -g -c $< -o - | opt -O2 -mtriple=bpf-pc-linux | llvm-dis | llc -march=bpf -filetype=obj -o $@
+
+# else
+# %.bpf.o: %.bpf.c FORCE
+# 	# clang -Wall -emit-llvm -O2 -Wno-unknown-attributes -g -c $< -o - | llc -march=bpf -filetype=obj -o $@
+# 	clang -Wall -g -O2 -target bpf -D__TARGET_ARCH_x86 -c $< -o $@ && llvm-strip -g $@
+
+# endif
+
+%.so: %.o
+	$(LINK.c) -lbpf -shared $^ -o $@
+
+default_pcp default:	$(MODULES) $(BPF_MODULES)
+
+install_pcp install:	default
+	$(INSTALL) -m 755 -d $(MODULEDIR)
+	$(INSTALL) -m 755 -d $(MODULETMP)
+	$(INSTALL) -m 644 -t $(MODULETMP) $(MODULES) $(BPF_MODULES) $(MODULEDIR)
+
+clean::
+	rm -f $(MODULES) $(BPF_MODULES)

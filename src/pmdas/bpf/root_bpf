@@ -1,0 +1,13 @@
+/*
+ * fake "root" for validating the local PMNS subtree
+ */
+
+#ifndef BPF
+#define BPF	157
+#endif
+
+root {
+	bpf	BPF:*:*
+}
+
+#undef BPF

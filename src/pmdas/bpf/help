@@ -1,0 +1,2 @@
+@ bpf.runq.latency CPU run queue latency (nanos)
+@ bpf.disk.all.latency disk block io latency (micros)

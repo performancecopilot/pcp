@@ -15,6 +15,7 @@ bpftrace
 bsd-mailx
 build-essential
 chrpath
+clang
 coreutils
 Spreadsheet::ReadSXC cpan
 Text::CSV_XS cpan
@@ -35,6 +36,8 @@ git
 grep
 iproute2
 libavahi-common-dev
+libbpf0
+libbpf-dev
 libclass-dbi-perl
 libcoin-dev
 libdbd-mysql-perl
@@ -80,6 +83,7 @@ libvirt-daemon-system
 libxml-libxml-perl
 libxml-tokeparser-perl
 libyaml-libyaml-perl
+llvm
 lm-sensors
 make
 mandoc

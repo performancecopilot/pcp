@@ -118,25 +118,25 @@ sockets_fetchCallBack(pmdaMetric *metric, unsigned int inst, pmAtomValue *atom)
 	 */
 	switch (metric->m_desc.type) {
 	case PM_TYPE_32:
-	    atom->l = *(__int32_t *)((char *)ss + (uint64_t)(metric->m_user));
+	    atom->l = *(__int32_t *)((char *)ss + (intptr_t)(metric->m_user));
 	    break;
 	case PM_TYPE_U32:
-	    atom->ul = *(__uint32_t *)((char *)ss + (uint64_t)(metric->m_user));
+	    atom->ul = *(__uint32_t *)((char *)ss + (intptr_t)(metric->m_user));
 	    break;
 	case PM_TYPE_64:
-	    atom->ll = *(__int64_t *)((char *)ss + (uint64_t)(metric->m_user));
+	    atom->ll = *(__int64_t *)((char *)ss + (intptr_t)(metric->m_user));
 	    break;
 	case PM_TYPE_U64:
-	    atom->ull = *(__uint64_t *)((char *)ss + (uint64_t)(metric->m_user));
+	    atom->ull = *(__uint64_t *)((char *)ss + (intptr_t)(metric->m_user));
 	    break;
 	case PM_TYPE_FLOAT:
-	    atom->f = *(float *)((char *)ss + (uint64_t)(metric->m_user));
+	    atom->f = *(float *)((char *)ss + (intptr_t)(metric->m_user));
 	    break;
 	case PM_TYPE_DOUBLE:
-	    atom->d = *(double *)((char *)ss + (uint64_t)(metric->m_user));
+	    atom->d = *(double *)((char *)ss + (intptr_t)(metric->m_user));
 	    break;
 	case PM_TYPE_STRING:
-	    atom->cp = (char *)ss + (uint64_t)(metric->m_user);
+	    atom->cp = (char *)ss + (intptr_t)(metric->m_user);
 	    break;
 	}
 	break;

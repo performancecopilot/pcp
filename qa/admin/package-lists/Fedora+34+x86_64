@@ -18,6 +18,7 @@ bind-utils
 bison
 bpftrace
 chan-devel
+clang
 coreutils
 cppcheck
 cronie
@@ -43,11 +44,15 @@ httpd
 initscripts
 java-latest-openjdk-headless
 kubernetes-client
+libbpf
+libbpf-devel
 libicu-devel
 libpfm-devel
 libuv-devel
 libvirt-daemon
 libvirt-daemon-driver-qemu
+llvm
+llvm-devel
 lm_sensors
 mailx
 make

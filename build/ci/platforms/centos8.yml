@@ -17,6 +17,8 @@ tasks:
   update: |
     sudo dnf update -y
   install_build_dependencies: |
+    sudo yum -y install dnf-plugins-core
+    sudo yum config-manager --set-enabled powertools
     sudo dnf install -y which libuv # see BZ 1809314
     sudo dnf module install -y libuv/devel
     sudo dnf -y -b install $(./pcp/qa/admin/list-packages -m -v -x cpan -x pip3 -x not4ci)

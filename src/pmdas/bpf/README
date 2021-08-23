@@ -1,0 +1,38 @@
+PCP PMDA to load linux BPF modules
+==================================
+
+This PMDA is capable of collecting and generating arbitrary metrics from kernel-side code running as pre-compiled
+ELF BPF/eBPF modules.
+
+Comparison to other PCP PMDAS
+=============================
+
+- pmdabcc runs as python and is a little easier to develop and maintain, has more advanced configuration files,
+  however it requires significantly more runtime memory. It loads and compiles the BCC code through LLVM which
+  has a heavy footprint to work with the fact that kernel structures might change. By comparison, pmdabpf uses
+  pre-compiled ELF-based BPF CO-RE modules to avoid relocation constraints.
+
+- pmdabpftrace can load and run arbitrary bpftrace code, so it is very flexible, however it does this by shelling
+  out to bpftrace executable which again requires quite a lot of memory.
+
+Deployment
+==========
+
+The file `bpf.conf` lists modules, one per line, that will be started.
+
+A relatively new version of libbpf is required on the system. libbpf 0.1.0 is unlikely to work, however, libbpf 0.4.0
+has been shown to work.
+
+Development
+===========
+
+To develop additional modules:
+- Follow the examples provided (runqlat and biolatency) to create a new module (which will output a .so). The entry
+  point in your .so will be a load_module() call that should return a newly allocated `struct module` object.
+- Create your bpf code (this will become a .bpf.o). Use the various `_helpers` headers.
+- Ensure `module.h` has correct unique setup for your cluster and metric ids.
+- Add details to `pmns` and `help` files to ensure they match the `module.h` changes.
+
+TODO
+====
+- allow configuration settings
