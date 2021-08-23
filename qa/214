@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 214
-# Check timzone of the output archive from pmlogextract.
+# Check timezone of the output archive from pmlogextract.
 #
 # Copyright (c) 2009 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -12,14 +12,6 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
-
-if pmlogextract -\? 2>&1 | grep -q .-f
-then
-    :
-else
-    _notrun "No -f option for pmlogextract to select output timezone"
-    # NOTREACHED
-fi
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.*
