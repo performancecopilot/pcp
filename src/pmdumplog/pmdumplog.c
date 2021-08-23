@@ -514,7 +514,7 @@ dumpDiskInDom(__pmContext *ctxp)
 
     printf("\nInstance Domains on-disk ...\n");
 
-    __pmFseek(f, (long)(lcp->l_label.total_len + 2*sizeof(int)), SEEK_SET);
+    __pmFseek(f, (long)__pmLogLabelSize(lcp), SEEK_SET);
     for ( ; ; ) {
 	n = __pmFread(&hdr, 1, sizeof(__pmLogHdr), f);
 	hdr.len = ntohl(hdr.len);

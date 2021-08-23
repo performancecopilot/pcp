@@ -24,6 +24,9 @@
 #include "compiler.h"
 #include "derive.h"
 
+#define MAXIMUM(x, y)	((x) > (y) ? (x) : (y))
+#define MINIMUM(x, y)	((x) < (y) ? (x) : (y))
+
 extern int __pmConvertTimeout(int) _PCP_HIDDEN;
 extern int __pmConnectWithFNDELAY(int, void *, __pmSockLen) _PCP_HIDDEN;
 
@@ -454,8 +457,5 @@ extern char *__pmLabelFlagString(int, char *, int) _PCP_HIDDEN;
 
 /* logmeta.c hooks */
 extern int addindom(__pmLogCtl *, pmInDom, const __pmTimestamp *, int , int *, char **, __int32_t *, int) _PCP_HIDDEN;
-
-/* logutil.c hooks */
-extern size_t __pmLogLabelTotalSize(__pmLogCtl *) _PCP_HIDDEN;
 
 #endif /* _LIBPCP_INTERNAL_H */

@@ -745,6 +745,7 @@ PCP_3.32 {
 
 PCP_3.33 {
   global:
+    pmstrlen;
     __pmLogVersion;
     __pmPrintTimespec;
     __pmPrintTimestamp;
@@ -756,6 +757,7 @@ PCP_3.33 {
     __pmPrintResult;
     __htonpmTimestamp;
     __ntohpmTimestamp;
+    __pmLogLabelSize;
     __pmLogLoadInDom;
     __pmLogLoadTimestamp;
     __pmLogLoadTimeval;

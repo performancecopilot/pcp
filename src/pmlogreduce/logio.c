@@ -67,16 +67,13 @@ newlabel(void)
     if (lp->hostname)
 	free(lp->hostname);
     lp->hostname = strdup(ilabel.ll_hostname);
-    lp->hostname_len = strlen(lp->hostname) + 1;
     if (lp->timezone)
 	free(lp->timezone);
     lp->timezone = strdup(ilabel.ll_tz);
-    lp->timezone_len = strlen(lp->timezone) + 1;
     if (lp->zoneinfo)
 	free(lp->zoneinfo);
     /* TODO: use v3 archive zoneinfo */
     lp->zoneinfo = NULL;
-    lp->zoneinfo_len = 0;
 }
 
 

@@ -56,12 +56,11 @@ verify_label(__pmFILE *f, const char *file)
 	    status = 2;
 	}
     }
-    if ((len != sizeof(__pmExtLabel_v2) &&
-	(len <= sizeof(__pmExtLabel_v3) || len > (1 << 16)))) {
+    if (len != sizeof(__pmExtLabel_v2) + 2 * sizeof(int) &&
+	len != sizeof(__pmExtLabel_v3) + 2 * sizeof(int)) {
 	fprintf(stderr, "Bad prefix sentinel value for %s: %d (label length)\n",
 			file, len);
-	status = 2;	/* we don't know which way is up at this point */
-	goto out;	/* cannot attempt to access this label anymore */
+	status = 2;
     }
 
     /* check the suffix integer */
@@ -85,14 +84,13 @@ verify_label(__pmFILE *f, const char *file)
 	    status = 2;
 	}
     }
-    if ((len != sizeof(__pmExtLabel_v2) &&
-	(len <= sizeof(__pmExtLabel_v3) || len > (1 << 16)))) {
+    if (len != sizeof(__pmExtLabel_v2) + 2 * sizeof(int) &&
+	len != sizeof(__pmExtLabel_v3) + 2 * sizeof(int)) {
 	fprintf(stderr, "Bad suffix sentinel value for %s: %d (label length)\n",
 			file, len);
 	status = 2;
     }
 
-out:
     if (memcmp(&logctl.l_label, &zeroes, sizeof(zeroes)) == 0)
 	return 0;	/* no label content was successfully read */
 
@@ -155,21 +153,6 @@ compare_golden(__pmFILE *f, const char *file, int sts, int warnings)
 	if (label->pid != golden.pid) {
 	    fprintf(stderr, "Mismatched PID (%d/%d) between %s and %s\n",
 			    label->pid, golden.pid, file, goldfile);
-	    status = 2;
-	}
-	if (label->hostname_len != golden.hostname_len) {
-	    fprintf(stderr, "Mismatched hostname length (%hu/%hu) between %s and %s\n",
-		    label->hostname_len, golden.hostname_len, file, goldfile);
-	    status = 2;
-	}
-	if (label->timezone_len != golden.timezone_len) {
-	    fprintf(stderr, "Mismatched timezone length (%hu/%hu) between %s and %s\n",
-		    label->timezone_len, golden.timezone_len, file, goldfile);
-	    status = 2;
-	}
-	if (label->zoneinfo_len != golden.zoneinfo_len) {
-	    fprintf(stderr, "Mismatched zoneinfo length (%hu/%hu) between %s and %s\n",
-		    label->zoneinfo_len, golden.zoneinfo_len, file, goldfile);
 	    status = 2;
 	}
 	if (!label->hostname || !golden.hostname ||
@@ -373,16 +356,13 @@ main(int argc, char *argv[])
 	if (host) {
 	    free(golden.hostname);
 	    golden.hostname = strdup(host);
-	    golden.hostname_len = strlen(host) + 1;
 	}
 	if (tz) {
 	    free(golden.timezone);
 	    golden.timezone = strdup(tz);
-	    golden.timezone_len = strlen(tz) + 1;
 	}
 	/* TODO: v3 archive zoneinfo */
 	golden.zoneinfo = NULL;
-	golden.zoneinfo_len = 0;
 
 	if (archctl.ac_mfp)
 	    __pmFclose(archctl.ac_mfp);

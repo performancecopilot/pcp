@@ -506,7 +506,6 @@ newlabel(void)
     lp->pid = (int)getpid();
     free(lp->hostname);
     lp->hostname = strdup(f_iap->label.ll_hostname);
-    lp->hostname_len = strlen(lp->hostname) + 1;
     if (farg) {
 	/*
 	 * use timezone from _first_ non-empty archive ...
@@ -514,7 +513,6 @@ newlabel(void)
 	 */
 	free(lp->timezone);
 	lp->timezone = strdup(f_iap->label.ll_tz);
-	lp->timezone_len = strlen(lp->timezone) + 1;
     }
     else {
 	/*
@@ -526,7 +524,6 @@ newlabel(void)
 		l_iap = &inarch[indx];
 		free(lp->timezone);
 		lp->timezone = strdup(l_iap->label.ll_tz);
-		lp->timezone_len = strlen(lp->timezone) + 1;
 		break;
 	    }
 	}
@@ -534,7 +531,6 @@ newlabel(void)
     /* TODO: v3 archive zoneinfo */
     free(lp->zoneinfo);
     lp->zoneinfo = NULL;
-    lp->zoneinfo_len = 0;
 
     /* reset outarch as appropriate, depending on other input archives */
     for (indx=0; indx<inarchnum; indx++) {
@@ -2430,7 +2426,7 @@ fprintf(stderr, " break!\n");
 
 	/* check whether we need to write TI (temporal index) */
 	if (old_log_offset == 0 ||
-	    old_log_offset == logctl.l_label.total_len+2*sizeof(int) ||
+	    old_log_offset == __pmLogLabelSize(&logctl) ||
 	    __pmFtell(archctl.ac_mfp) > flushsize)
 		needti = 1;
 
@@ -2450,7 +2446,7 @@ fprintf(stderr, " break!\n");
 	    __pmFflush(logctl.l_mdfp);
 
 	    if (old_log_offset == 0)
-		old_log_offset = logctl.l_label.total_len+2*sizeof(int);
+		old_log_offset = __pmLogLabelSize(&logctl);
 
             new_log_offset = __pmFtell(archctl.ac_mfp);
 	    assert(new_log_offset >= 0);
@@ -2994,7 +2990,7 @@ cleanup:
 	__pmFflush(logctl.l_mdfp);
 
 	if (old_log_offset == 0)
-	    old_log_offset = logctl.l_label.total_len+2*sizeof(int);
+	    old_log_offset = __pmLogLabelSize(&logctl);
 
 	new_log_offset = __pmFtell(archctl.ac_mfp);
 	assert(new_log_offset >= 0);

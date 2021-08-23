@@ -172,3 +172,14 @@ pmstrncat(char *dest, size_t destlen, const char *src)
 
     return *s == '\0' ? 0 : -1;
 }
+
+/*
+ * Safe version of strlen() that guards against NULL pointers.
+ */
+size_t
+pmstrlen(const char *s)
+{
+    if (s != NULL)
+	return strlen(s);
+    return 0;
+}

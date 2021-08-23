@@ -247,7 +247,7 @@ __pmLogLoadIndex(__pmLogCtl *lcp)
     }
 
     if (lcp->l_tifp != NULL) {
-	__pmFseek(f, (long)lcp->l_label.total_len + 2 * sizeof(int), SEEK_SET);
+	__pmFseek(f, (long)__pmLogLabelSize(lcp), SEEK_SET);
 	for ( ; ; ) {
 	    __pmLogTI	*tmp;
 	    bytes = (1 + lcp->l_numti) * sizeof(__pmLogTI);

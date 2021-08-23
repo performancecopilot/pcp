@@ -115,12 +115,10 @@ run_done(int sts, char *msg)
      * _before_ the last log record
      */
     if (last_stamp.tv_sec != 0) {
-	long		off;
 	__pmTimestamp	tmp;
 	tmp.sec = (__int32_t)last_stamp.tv_sec;
 	tmp.nsec = (__int32_t)last_stamp.tv_usec * 1000;;
-	off = archctl.ac_log->l_label.total_len + 2 * sizeof(int);
-	if (last_log_offset < off)
+	if (last_log_offset < __pmLogLabelSize(archctl.ac_log))
 	    fprintf(stderr, "run_done: Botch: last_log_offset = %ld\n", (long)last_log_offset);
 	__pmFseek(archctl.ac_mfp, last_log_offset, SEEK_SET);
 	__pmLogPutIndex(&archctl, &tmp);
@@ -1281,7 +1279,6 @@ main(int argc, char **argv)
 	    if (logctl.l_label.timezone)
 		free(logctl.l_label.timezone);
 	    logctl.l_label.timezone = strdup(vp->vlist[0].value.pval->vbuf);
-	    logctl.l_label.timezone_len = strlen(logctl.l_label.timezone) + 1;
 	    /* prefer to use remote time to avoid clock drift problems */
 	    epoch = resp->timestamp;		/* struct assignment */
 	    if (! use_localtime)

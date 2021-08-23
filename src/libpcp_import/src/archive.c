@@ -50,10 +50,8 @@ check_context_start(pmi_context *current)
     if (current->timezone != NULL) {
 	free(lcp->l_label.timezone);
 	lcp->l_label.timezone = strdup(current->timezone);
-	lcp->l_label.timezone_len = strlen(lcp->l_label.timezone) + 1;
 	free(lcp->l_label.zoneinfo);
 	lcp->l_label.zoneinfo = NULL;
-	lcp->l_label.zoneinfo_len = 0;
     }
     pmNewZone(lcp->l_label.timezone);
     current->state = CONTEXT_ACTIVE;
